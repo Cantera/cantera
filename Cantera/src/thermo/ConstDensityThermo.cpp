@@ -173,7 +173,7 @@ namespace Cantera {
 
     void ConstDensityThermo::setParametersFromXML(const XML_Node& eosdata) {
         eosdata._require("model","Incompressible");
-        doublereal rho = getFloat(eosdata, "density", "-");
+        doublereal rho = getFloat(eosdata, "density", "toSI");
         setDensity(rho);
     }
 

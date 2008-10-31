@@ -1253,7 +1253,7 @@ namespace Cantera {
     for (int k = 0; k < m_kk; k++) {
       XML_Node* s =  speciesDB->findByAttr("name", sss[k]);
       XML_Node *ss = s->findByName("standardState");
-      m_speciesMolarVolume[k] = getFloat(*ss, "molarVolume", "-");
+      m_speciesMolarVolume[k] = getFloat(*ss, "molarVolume", "toSI");
     }
 
     /*

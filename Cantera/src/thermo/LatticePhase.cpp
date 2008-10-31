@@ -248,7 +248,7 @@ namespace Cantera {
 
   void LatticePhase::setParametersFromXML(const XML_Node& eosdata) {
     eosdata._require("model","Lattice");
-    m_molar_density = getFloat(eosdata, "site_density", "-");
+    m_molar_density = getFloat(eosdata, "site_density", "toSI");
     m_vacancy = getString(eosdata, "vacancy_species");
   }
 }

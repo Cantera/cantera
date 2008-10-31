@@ -1044,7 +1044,7 @@ namespace Cantera {
 			     "\" is not known");
 	}
 	if (modelString ==  "constant_incompressible" ) {
-	  m_speciesSize[k] = getFloat(*ss, "molarVolume", "-");
+	  m_speciesSize[k] = getFloat(*ss, "molarVolume", "toSI");
 #ifdef DEBUG_HKM_NOT
 	  cout << "species " << sss[k] << " has volume " <<  
 	    m_speciesSize[k] << endl;

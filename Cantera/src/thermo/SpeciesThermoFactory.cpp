@@ -452,10 +452,10 @@ namespace Cantera {
     if (tmax == 0.0) tmax = 1.0e30;
 
     vector_fp c(4);
-    c[0] = getFloat(f, "t0", "-");
-    c[1] = getFloat(f, "h0", "-");
-    c[2] = getFloat(f, "s0", "-");
-    c[3] = getFloat(f, "cp0", "-");
+    c[0] = getFloat(f, "t0", "toSI");
+    c[1] = getFloat(f, "h0", "toSI");
+    c[2] = getFloat(f, "s0", "toSI");
+    c[3] = getFloat(f, "cp0", "toSI");
     doublereal p0 = OneAtm;
     sp.install(speciesName, k, SIMPLE, &c[0], tmin, tmax, p0);
   }
@@ -540,7 +540,7 @@ namespace Cantera {
     }
     vector_fp coeffs(nfreq + 2);
     coeffs[0] = nfreq;
-    coeffs[1] = getFloat(f, "binding_energy", "-");
+    coeffs[1] = getFloat(f, "binding_energy", "toSI");
     copy(freqs.begin(), freqs.end(), coeffs.begin() + 2);
     //posc = new Adsorbate(k, tmin, tmax, pref,  
     //    DATA_PTR(coeffs)); 

@@ -116,7 +116,7 @@ namespace Cantera {
 	throw CanteraError("VPSSMgr_ConstVol::initThermoXML",
 			   "standardState model for species isn't constant_incompressible: " + s->name());
       }
-      m_Vss[k] = getFloat(*ss, "molarVolume", "-");
+      m_Vss[k] = getFloat(*ss, "molarVolume", "toSI");
     }   
   }
 
@@ -143,7 +143,7 @@ namespace Cantera {
     if ((int) m_Vss.size() < k+1) {
       m_Vss.resize(k+1, 0.0);
     }
-    m_Vss[k] = getFloat(*ss, "molarVolume", "-");
+    m_Vss[k] = getFloat(*ss, "molarVolume", "toSI");
 
     installSTSpecies(k, speciesNode, phaseNode_ptr);
    

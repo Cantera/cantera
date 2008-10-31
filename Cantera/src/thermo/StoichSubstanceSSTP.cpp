@@ -467,7 +467,7 @@ namespace Cantera {
       throw CanteraError("StoichSubstanceSSTP::StoichSubstanceSSTP",
 			 "thermo model attribute must be StoichSubstance");
     }
-    doublereal rho = getFloat(eosdata, "density", "-");
+    doublereal rho = getFloat(eosdata, "density", "toSI");
     setDensity(rho);
   }
 
