@@ -17,10 +17,6 @@ PROG_NAME = nacl_equil
 # and from C/C++ separately
 OBJS = nacl_equil.o
 
-# Location of the current build. Will assume that tests are run
-# in the source directory tree location
-src_dir_tree = 0
-
 # additional flags to be passed to the linker. If your program
 # requires other external libraries, put them here
 LINK_OPTIONS = 
@@ -46,7 +42,6 @@ CXX = @CXX@
 #
 CANTERA_INCDIR=@ctroot@/build/include/cantera
 
-
 INCLUDE_DIRS = -I$(CANTERA_INCDIR) 
 
 # C++ compile flags
@@ -65,10 +60,15 @@ CANTERA_LIBS= @LOCAL_LIBS@ -lctcxx
 CANTERA_LIBDEP = \
      $(CANTERA_LIBDIR)/libequil.a \
      $(CANTERA_LIBDIR)/libVCSnonideal.a \
+     $(CANTERA_LIBDIR)/libkinetics.a \
+     $(CANTERA_LIBDIR)/libtransport.a \
      $(CANTERA_LIBDIR)/libthermo.a \
-     $(CANTERA_LIBDIR)/libtpx.a \
      $(CANTERA_LIBDIR)/libctnumerics.a \
+     $(CANTERA_LIBDIR)/libctmath.a \
+     $(CANTERA_LIBDIR)/libtpx.a \
+     $(CANTERA_LIBDIR)/libconverters.a \
      $(CANTERA_LIBDIR)/libctbase.a \
+     $(CANTERA_LIBDIR)/libcvode.a \
      $(CANTERA_LIBDIR)/libctlapack.a \
      $(CANTERA_LIBDIR)/libctblas.a \
      $(CANTERA_LIBDIR)/libctcxx.a 
@@ -121,4 +121,9 @@ clean:
 	(if test -d SunWS_cache ; then \
            $(RM) -rf SunWS_cache ; \
          fi )
+
+ifeq ($(wildcard .depends), .depends)
+include .depends
+endif
+
 

@@ -90,7 +90,7 @@ int main(int argc, char **argv) {
 
   try {
     int retnSub;
-    int estimateEquil = -1;
+    int estimateEquil = 0;
     double T = 298.15;
     double pres = OneAtm;
 
