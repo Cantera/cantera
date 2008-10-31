@@ -104,8 +104,23 @@ namespace Cantera {
   class XML_Node {
   public:
 
-    XML_Node(std::string nm = "--", XML_Node* p = 0);
+    //! Default constructor for XML_Node, representing a tree structure
+    /*!
+     *  Constructor for an XML_Node, which is a node in a tree-like structure
+     *  representing an XML file.
+     *
+     *  @param nm  Name of the node.
+     *             The default name of the node is "--"
+     *
+     *  @param p pointer to the root for this node in the tree.
+     *           The default is 0 indicating this is the top of the tree.
+     */
+    XML_Node(const std::string nm = "--", XML_Node * const p = 0);
    
+    //! Copy constructor
+    /*!
+     * @param right   Object to be copied
+     */
     XML_Node(const XML_Node &right);
 
     //! Assignment operator for XML trees
@@ -114,11 +129,40 @@ namespace Cantera {
      */
     XML_Node& operator=(const XML_Node &right);
 
-   
+    //! Destructor for the object
     virtual ~XML_Node();
-    void addComment(std::string comment);
+
+    //! Add a child node to the current node containing a comment
+    /*!
+     *  Child node will have the name, comment.
+     *
+     *  @param comment    Content of the comment
+     */
+    void addComment(const std::string comment);
+
+    //! Add a child node to the current node
+    /*!
+     * This will add an XML_Node as a child to the current node.
+     * Note, this actually adds the node. Therefore, node is changed.
+     * There is no copy made of the child node.
+     *
+     *  @param node  Reference to a child XML_Node object
+     *
+     *  @return      Returns a reference to the added node
+     */
     XML_Node& addChild(XML_Node& node);
-    XML_Node& addChild(std::string name);
+
+    //! Add a child node to the current node with a specified name
+    /*!
+     * This will add an XML_Node as a child to the current node.
+     * The node will be blank except for the specified name.
+     *
+     *  @param sname    Name of the new child
+     *
+     *  @return         Returns a reference to the added node
+     */
+    XML_Node& addChild(const std::string sname);
+
     XML_Node& addChild(std::string name, std::string value);
     XML_Node& addChild(std::string name, double value, std::string fmt="%g");
     void removeChild(XML_Node* node);
