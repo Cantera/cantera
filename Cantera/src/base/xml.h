@@ -229,6 +229,33 @@ namespace Cantera {
      */
     void addValue(const doublereal val, const std::string fmt="%g");
 
+    //! Return the value of an XML node as a string
+    /*!
+     *  This is a simple accessor routine
+     */
+    std::string value() const;
+
+    //!  Return the value of an XML child node as a string
+    /*!
+     *  @param cname  Name of the child node to the current
+     *                node, for which you want the value
+     */
+    std::string value(const std::string cname) const;
+
+    //! Return the value of an XML node as a single double
+    /*!
+     *  This accesses the value string, and then tries to 
+     *  interpret it as a single double value.
+     */
+    doublereal fp_value() const;
+
+    //! Return the value of an XML node as a single int
+    /*!
+     *  This accesses the value string, and then tries to 
+     *  interpret it as a single int value.
+     */
+    integer int_value() const;
+
     //! Add or modify an attribute of the current node
     /*!
      * This functions fills in the m_value field of the current node
@@ -284,17 +311,18 @@ namespace Cantera {
      */
     std::string attrib(const std::string attr) const;
 
-    void writeHeader(std::ostream& s);
-    std::string value() const { return m_value; }
-    std::string value(std::string loc) const { return child(loc).value(); }
-    void setLineNumber(int n) {m_linenum = n;}
-    int lineNumber() const {return m_linenum;}
-    doublereal fp_value() const { 
-      return std::atof(m_value.c_str()); 
-    }
-    integer int_value() const { 
-      return std::atoi(m_value.c_str()); 
-    }
+    //! Set the line number 
+    /*!
+     *  @param n   the member data m_linenum is set to n
+     */
+    void setLineNumber(const int n);
+
+    //! Return the line number 
+    /*!
+     *  @return  returns the member data m_linenum
+     */
+    int lineNumber() const;
+
     std::string operator()() const { return m_value; }
     std::string operator()(std::string loc) const { return value(loc); }
 
@@ -370,6 +398,7 @@ namespace Cantera {
     XML_Node* findByName(const std::string& nm);
     void getChildren(std::string name, std::vector<XML_Node*>& children) const;
     XML_Node& child(std::string loc) const;
+    void writeHeader(std::ostream& s);
     void write(std::ostream& s, int level = 0) const;
     XML_Node& root() const { return *m_root; }
     void setRoot(XML_Node& root) { m_root = &root; }

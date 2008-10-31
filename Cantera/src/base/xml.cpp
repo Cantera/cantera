@@ -526,7 +526,42 @@ namespace Cantera {
    */
   void XML_Node::addValue(const doublereal val, const std::string fmt) {
     m_value = stripws(fp2str(val, fmt));
-  }	
+  }
+
+  // Return the value of an XML node as a string
+  /*
+   *  This is a simple accessor routine
+   */
+  std::string XML_Node::value() const {
+    return m_value;
+  }
+
+  // Return the value of an XML node as a double
+  /*
+   *  This accesses the value string, and then tries to 
+   *  interpret it as a single double value.
+   */
+  doublereal  XML_Node::fp_value() const { 
+    return atofCheck(m_value.c_str()); 
+  }
+
+  // Return the value of an XML node as a single int
+  /*
+   *  This accesses the value string, and then tries to 
+   *  interpret it as a single int value.
+   */
+  integer XML_Node::int_value() const {
+    return std::atoi(m_value.c_str()); 
+  }
+
+  //  Return the value of an XML child node as a string
+  /*
+   *  @param cname  Name of the child node of the current
+   *                node, for which you want the value
+   */
+  std::string XML_Node::value(const std::string cname) const { 
+    return child(cname).value();
+  }
 
   // Add or modify an attribute of the current node
   /*
@@ -591,6 +626,22 @@ namespace Cantera {
     std::map<std::string,std::string>::const_iterator i = m_attribs.find(attr);
     if (i != m_attribs.end()) return i->second;
     return ""; 
+  }
+
+  // Set the line number 
+  /*
+   *  @param n   the member data m_linenum is set to n
+   */
+  void XML_Node::setLineNumber(const int n) {
+    m_linenum = n;
+  }
+
+  // Return the line number 
+  /*
+   *  @return  returns the member data m_linenum
+   */
+  int XML_Node::lineNumber() const {
+    return m_linenum;
   }
 
   /*
