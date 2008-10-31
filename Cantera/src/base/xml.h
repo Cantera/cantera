@@ -229,22 +229,28 @@ namespace Cantera {
      */
     void addValue(const doublereal val, const std::string fmt="%g");
 
-    void addAttribute(std::string attrib, std::string value);
-    void addAttribute(std::string attrib, double value, std::string fmt="%g");
-    void writeHeader(std::ostream& s);
-    std::string value() const { return m_value; }
-    std::string value(std::string loc) const { return child(loc).value(); }
-    void setLineNumber(int n) {m_linenum = n;}
-    int lineNumber() const {return m_linenum;}
-    doublereal fp_value() const { 
-      return std::atof(m_value.c_str()); 
-    }
-    integer int_value() const { 
-      return std::atoi(m_value.c_str()); 
-    }
-    std::string operator()() const { return m_value; }
-    std::string operator()(std::string loc) const { return value(loc); }
+    //! Add or modify an attribute of the current node
+    /*!
+     * This functions fills in the m_value field of the current node
+     * with a string value
+     *
+     * @param attrib  String name for the attribute to be assigned
+     * @param value   String value that the attribute will have
+     */
+    void addAttribute(const std::string attrib, const std::string value);
 
+    //! Add or modify an attribute to the double, value
+    /*!
+     * This functions fills in the attribute field, named attrib,
+     * with the double value, value. A formatting string is used.
+     *
+     * @param attrib  String name for the attribute to be assigned
+     * @param value   double Value that the node will be assigned
+     * @param fmt     Format of the printf string conversion of the double.
+     *                Default is "%g". 
+     */
+    void addAttribute(const std::string attrib, const double value, 
+		      const std::string fmt="%g");
 	
     //! The operator[] is overloaded to provide a lookup capability
     //!  on attributes for the current XML element.
@@ -261,7 +267,7 @@ namespace Cantera {
      *          within the XML node. If there is no attribute
      *          with the given name, it returns the null string.
      */
-    std::string operator[](std::string attr) const;
+    std::string operator[](const std::string attr) const;
 
     //! Function returns the value of an attribute
     /*!
@@ -278,8 +284,25 @@ namespace Cantera {
      */
     std::string attrib(const std::string attr) const;
 
+    void writeHeader(std::ostream& s);
+    std::string value() const { return m_value; }
+    std::string value(std::string loc) const { return child(loc).value(); }
+    void setLineNumber(int n) {m_linenum = n;}
+    int lineNumber() const {return m_linenum;}
+    doublereal fp_value() const { 
+      return std::atof(m_value.c_str()); 
+    }
+    integer int_value() const { 
+      return std::atoi(m_value.c_str()); 
+    }
+    std::string operator()() const { return m_value; }
+    std::string operator()(std::string loc) const { return value(loc); }
+
+
     std::map<std::string,std::string>& attribs() { return m_attribs; }
+
     XML_Node* parent() const { return m_parent; }
+
     XML_Node* setParent(XML_Node* p) { m_parent = p; return p; }
 
     //! Tests whether the current node has a child node with a particular name
@@ -382,6 +405,7 @@ namespace Cantera {
      *  has a m_value string containing "valueString".
      */
     std::string m_value;
+
     std::map<std::string, XML_Node*> m_childindex;
     std::map<std::string, std::string> m_attribs;
     XML_Node* m_parent;

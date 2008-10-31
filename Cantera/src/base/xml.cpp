@@ -525,11 +525,36 @@ namespace Cantera {
    *             Default is "%g" Must be less than 63 chars
    */
   void XML_Node::addValue(const doublereal val, const std::string fmt) {
-    char buf[64];
-    sprintf(buf, fmt.c_str(), val);
-    m_value = stripws(buf);
+    m_value = stripws(fp2str(val, fmt));
   }	
 
+  // Add or modify an attribute of the current node
+  /*
+   * This functions fills in the m_value field of the current node
+   * with a string value
+   *
+   * @param attrib  String name for the attribute to be assigned
+   * @param value   String value that the attribute will have
+   */
+  void XML_Node::addAttribute(const std::string attrib, const std::string value) {
+    m_attribs[attrib] = value;
+  }
+
+  // Add or modify an attribute to the double, value
+  /*
+   * This functions fills in the attribute field, named attrib,
+   * with the double value, value. A formatting string is used.
+   *
+   * @param attrib  String name for the attribute to be assigned
+   * @param value   double Value that the node will be assigned
+   * @param fmt     Format of the printf string conversion of the double.
+   *                Default is "%g". 
+   */
+  void XML_Node::addAttribute(const std::string attrib, 
+			      const doublereal value, const std::string fmt) {
+    m_attribs[attrib] = fp2str(value, fmt);
+  }
+    
   // The operator[] is overloaded to provide a lookup capability
   //  on attributes for the current XML element.
   /*
@@ -545,7 +570,7 @@ namespace Cantera {
    *          within the XML node. If there is no attribute
    *          with the given name, it returns the null string.
    */
-  std::string XML_Node::operator[](std::string attr) const {
+  std::string XML_Node::operator[](const std::string attr) const {
     return attrib(attr);
   }
 
@@ -671,14 +696,6 @@ namespace Cantera {
  
     
 
-    
-  void XML_Node::addAttribute(string attrib, string value) {
-    m_attribs[attrib] = value;
-  }
-  void XML_Node::addAttribute(string attrib, double value, string fmt) {
-    m_attribs[attrib] = fp2str(value, fmt);
-  }
-    
   void XML_Node::writeHeader(ostream& s) {
     s << "<?xml version=\"1.0\"?>" << endl;
   }

@@ -31,17 +31,17 @@ namespace Cantera {
      * Convert a floating point number to a std::string using sprintf.
      */
     std::string fp2str(double x, std::string fmt) {
-	    char buf[30];
-        int n = SNPRINTF(buf, 30, fmt.c_str(), x);
+	    char buf[64];
+        int n = SNPRINTF(buf, 63, fmt.c_str(), x);
 	if (n > 0) {
-	  buf[29] = '\0';
+	  buf[63] = '\0';
 	  return std::string(buf);
 	} 
 	return std::string(" ");
     }
     std::string fp2str(double x) {
-        char buf[30];
-        int n = SNPRINTF(buf, 30, "%g" , x);
+        char buf[64];
+        int n = SNPRINTF(buf, 64, "%g" , x);
 	if (n > 0) {
 	  buf[29] = '\0';
 	  return std::string(buf);
