@@ -306,7 +306,7 @@ public:
     /*
      * We parse the children for the A, b, and E conponents.
      */
-    A = getFloat(node, "A", "-");
+    A = getFloat(node, "A", "toSI");
     b = getFloat(node, "b");
     E = getFloat(node, "E", "actEnergy");
     E /= GasConstant;
@@ -397,7 +397,7 @@ public:
         }
 
         doublereal cbar = sqrt(8.0*GasConstant/(Pi*ispMW));
-        A = 0.25 * getFloat(node, "A", "-") * cbar * f;
+        A = 0.25 * getFloat(node, "A", "toSI") * cbar * f;
         b = getFloat(node, "b") + 0.5;
         E = getFloat(node, "E", "actEnergy");
         E /= GasConstant;
