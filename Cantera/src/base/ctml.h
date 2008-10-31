@@ -75,21 +75,82 @@ namespace ctml {
 
     void getStringArray(const Cantera::XML_Node& node, std::vector<std::string>& v);
     void getStringArray(const std::string& val, std::vector<std::string>& v);
-    void getMap(const Cantera::XML_Node& node, std::map<std::string, std::string>& m);
-    void getPairs(const Cantera::XML_Node& node, std::vector<std::string>& key, 
-        std::vector<std::string>& val);
-    void getMatrixValues(const Cantera::XML_Node& node, 
-        const std::vector<std::string>& keyString1,
-        const std::vector<std::string>& keyString2,
-        Cantera::Array2D &returnValues, bool convert = true,
-        bool matrixSymmetric = false);
+  void getMap(const Cantera::XML_Node& node, std::map<std::string, std::string>& m);
+
+  //! This function interprets the value portion of an XML element
+  //! as a series of "Pairs" separated by white space.
+  /*!
+   * Each pair consists of nonwhite-space characters.
+   * The first ":" found in the pair string is used to separate
+   * the string into two parts. The first part is called the "key"
+   * The second part is called the "val".
+   * String vectors of key[i] and val[i] are returned in the
+   * argument list.
+   * Warning: No spaces are allowed in each pair. Quotes are part
+   *          of the string.
+   *   Example: @verbatum
+   *    <xmlNode> 
+           red:112    blue:34
+           green:banana
+        </xmlNode>      @endverbatum
+   * 
+   * Returns:
+   *          key       val
+   *     0:   "red"     "112"
+   *     1:   "blue"    "34"
+   *     2:   "green"   "banana"
+   */
+  void getPairs(const Cantera::XML_Node& node, std::vector<std::string>& key, 
+		std::vector<std::string>& val);
+
+  void getMatrixValues(const Cantera::XML_Node& node, 
+		       const std::vector<std::string>& keyString1,
+		       const std::vector<std::string>& keyString2,
+		       Cantera::Array2D &returnValues, bool convert = true,
+		       bool matrixSymmetric = false);
 
     void getIntegers(const Cantera::XML_Node& node, std::map<std::string,int>& v);
     void getFloats(const Cantera::XML_Node& node, std::map<std::string,double>& v,
 		   bool convert=true);
-    doublereal getFloat(const Cantera::XML_Node& parent, std::string name,
-        std::string type="");
-    int getInteger(const Cantera::XML_Node& parent, std::string name);
+
+  
+  //!  Get a floating-point value from a child element. 
+  /*! 
+   *  Returns a double value for the child named 'name' of element 'parent'. If
+   *  'type' is supplied and matches a known unit type, unit
+   *  conversion to SI will be done if the child element has an attribute
+   *  'units'.
+   *
+   *  Note, it's an error for the child element not to exist.
+   *
+   *  Example:  
+   *
+   * Code snipet:
+   *       @verbatum
+      const XML_Node &State_XMLNode;
+      doublereal pres = OneAtm;
+      if (state_XMLNode.hasChild("pressure")) {
+        pres = getFloat(State_XMLNode, "pressure", "toSI");
+      }
+          @endverbatum
+   *
+   *  reads the corresponding XML file:
+   *  @verbatum
+      <state>
+        <pressure units="Pa"> 101325.0 </pressure>
+      <\state>
+      @endverbatum
+   *
+   *   @param parent reference to the XML_Node object of the parent XML element
+   *   @param name   Name of the XML child element
+   *   @param type   String type. Currently known types are "toSI" and "actEnergy",
+   *                 and "" , for no conversion. The default value is "",
+   *                 which implies that no conversion is allowed.
+   */
+  doublereal getFloat(const Cantera::XML_Node& parent, std::string name,
+		      std::string type="");
+ 
+  int getInteger(const Cantera::XML_Node& parent, std::string name);
     
     void getStrings(const Cantera::XML_Node& node, std::map<std::string,
         std::string>& v);

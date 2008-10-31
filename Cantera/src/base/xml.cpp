@@ -352,24 +352,24 @@ namespace Cantera {
 
 
 
-    XML_Node::~XML_Node() {
-        if (m_locked) 
-            throw CanteraError("XML_Node::~XML_Node",
-                "attempt to delete locked XML_Node "+name());
-        int n = static_cast<int>(m_children.size());
-        for (int i = 0; i < n; i++) {
-            if (m_children[i]) {
-                if (m_children[i]->parent() == this) {
-                    delete m_children[i];
-                    m_children[i] = 0;
-                }
-            }
-        }
+  XML_Node::~XML_Node() {
+    if (m_locked) 
+      throw CanteraError("XML_Node::~XML_Node",
+			 "attempt to delete locked XML_Node "+name());
+    int n = static_cast<int>(m_children.size());
+    for (int i = 0; i < n; i++) {
+      if (m_children[i]) {
+	if (m_children[i]->parent() == this) {
+	  delete m_children[i];
+	  m_children[i] = 0;
+	}
+      }
     }
+  }
 
-    void XML_Node::addComment(string comment) {
-        addChild("comment",comment);
-    }
+  void XML_Node::addComment(string comment) {
+    addChild("comment",comment);
+  }
 
     XML_Node& XML_Node::addChild(XML_Node& node) {
         m_children.push_back(&node);
@@ -400,6 +400,45 @@ namespace Cantera {
       if (hasAttrib("id")) return attrib("id");
       return std::string("");
     }
+  
+	
+  // The operator[] is overloaded to provide a lookup capability
+  //  on attributes for the current XML element.
+  /*
+   * For example
+   *     xmlNode["id"] 
+   * will return the value of the attribute "id" for the current
+   * XML element. It will return the blank std::string if there isn't
+   * an attribute with that name.
+   *
+   * @param attr  attribute string to look up
+   * 
+   * @return  Returns a string representing the value of the attribute
+   *          within the XML node. If there is no attribute
+   *          with the given name, it returns the null string.
+   */
+  std::string XML_Node::operator[](std::string attr) const {
+    return attrib(attr);
+  }
+
+  // Function returns the value of an attribute
+  /*
+   * This function searches the attibutes vector for the parameter 
+   * std::string attribute. If a match is found, the attribute value
+   * is returned as a string. If no match is found, the empty string
+   * is returned.
+   *
+   * @param attr  Std::String containing the attribute to be searched for.
+   *
+   * @return Returns  If a match is found, the attribute value
+   *                  is returned as a string. If no match is found, the empty string
+   *                  is returned.
+   */
+  std::string XML_Node::attrib(std::string attr) const { 
+    std::map<std::string,std::string>::const_iterator i = m_attribs.find(attr);
+    if (i != m_attribs.end()) return i->second;
+    return ""; 
+  }
 
     /**
      * This routine carries out a search for an XML node based
@@ -636,25 +675,25 @@ namespace Cantera {
 	}
     }
 
-   void XML_Node::copy(XML_Node *node_dest) const {
-	XML_Node *sc, *dc;
-	int ndc;
-	node_dest->addValue(m_value);
-	if (m_name == "") return;
-	map<string,string>::const_iterator b = m_attribs.begin();
-        for (; b != m_attribs.end(); ++b) {
-	  node_dest->addAttribute(b->first, b->second);
-	}
-	const vector<XML_Node*> &vsc = node_dest->children();
-
-	for (int n = 0; n < m_nchildren; n++) {
-	  sc = m_children[n];
-	  ndc = node_dest->nChildren();
-	  (void) node_dest->addChild(sc->name());
-	  dc = vsc[ndc];
-	  sc->copy(dc);
-	}
+  void XML_Node::copy(XML_Node *node_dest) const {
+    XML_Node *sc, *dc;
+    int ndc;
+    node_dest->addValue(m_value);
+    if (m_name == "") return;
+    map<string,string>::const_iterator b = m_attribs.begin();
+    for (; b != m_attribs.end(); ++b) {
+      node_dest->addAttribute(b->first, b->second);
     }
+    const vector<XML_Node*> &vsc = node_dest->children();
+
+    for (int n = 0; n < m_nchildren; n++) {
+      sc = m_children[n];
+      ndc = node_dest->nChildren();
+      (void) node_dest->addChild(sc->name());
+      dc = vsc[ndc];
+      sc->copy(dc);
+    }
+  }
 
     void XML_Node::getChildren(string nm, 
         vector<XML_Node*>& children) const {

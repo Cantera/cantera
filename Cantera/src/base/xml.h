@@ -156,23 +156,22 @@ namespace Cantera {
      *          within the XML node. If there is no attribute
      *          with the given name, it returns the null string.
      */
-    std::string operator[](std::string attr) const {
-      return attrib(attr);
-    }
+    std::string operator[](std::string attr) const;
 
-    /**
+    //! Function returns the value of an attribute
+    /*!
      * This function searches the attibutes vector for the parameter 
      * std::string attribute. If a match is found, the attribute value
      * is returned as a string. If no match is found, the empty string
      * is returned.
      *
-     * @param(attr) Std::String containing the attribute to be searched for.
+     * @param attr  Std::String containing the attribute to be searched for.
+     *
+     * @return Returns  If a match is found, the attribute value
+     *                  is returned as a string. If no match is found, the empty string
+     *                  is returned.
      */
-    std::string attrib(std::string attr) const { 
-      std::map<std::string,std::string>::const_iterator i = m_attribs.find(attr);
-      if (i != m_attribs.end()) return i->second;
-      return ""; 
-    }
+    std::string attrib(std::string attr) const;
 
     std::map<std::string,std::string>& attribs() { return m_attribs; }
     XML_Node* parent() const { return m_parent; }
@@ -187,6 +186,13 @@ namespace Cantera {
     bool hasChild(const std::string ch) const {
       return (m_childindex.find(ch) != m_childindex.end());
     }
+
+    //! Tests whether the current node has an attribute with a particular name
+    /*!
+     * @param a  Name of the attribute to test
+     *
+     * @return Returns true if the attribute exists, false otherwise.
+     */
     bool hasAttrib(std::string a) const {
       return (m_attribs.find(a) != m_attribs.end());
     }

@@ -222,47 +222,97 @@ namespace ctml {
     }
 
 
-    /**
-     * Get a floating-point value from a child element.  Returns a
-     * double value for the child named 'name' of element 'parent'. If
-     * 'type' is supplied and matches a known unit type, unit
-     * conversion to SI will be done if the child element has an attribute
-     * 'units'.
-     */
-    doublereal getFloat(const XML_Node& parent, string name, string type) {
-        if (!parent.hasChild(name)) 
-            throw CanteraError("getFloat (called from XML Node \"" +
-			       parent.name() + "\"): ",
-			       "no child XML element named " + name);
-        const XML_Node& node = parent.child(name);
-        doublereal x, x0, x1, fctr = 1.0;
-        string units, vmin, vmax;
-        x = atof(node().c_str());
-        x0 = Undef;
-        x1 = Undef;
-        units = node["units"];
-        vmin = node["min"];
-        vmax = node["max"];
-        if (vmin != "") {
-            x0 = atof(vmin.c_str());
-            if (x < x0 - Tiny) {
-                writelog("\nWarning: value "+node()+" is below lower limit of "
-                    +vmin+".\n");
-                }
-            }
-        if (node["max"] != "") {
-            x1 = atof(vmax.c_str());
-            if (x > x1 + Tiny) {
-                writelog("\nWarning: value "+node()+" is above upper limit of "
-                    +vmax+".\n");
-            }
-        }
-        if (type == "actEnergy" && units != "") 
-            fctr = actEnergyToSI(units);
-        else if (type != "" && units != "")
-            fctr = toSI(units);
-        return fctr*x;
+  //  Get a floating-point value from a child element. 
+  /* 
+   *  Returns a double value for the child named 'name' of element 'parent'. If
+   *  'type' is supplied and matches a known unit type, unit
+   *  conversion to SI will be done if the child element has an attribute
+   *  'units'.
+   *
+   *  Note, it's an error for the child element not to exist.
+   *
+   *  Example:  
+   *
+   * Code snipet:
+   *       @verbatum
+      const XML_Node &State_XMLNode;
+      doublereal pres = OneAtm;
+      if (state_XMLNode.hasChild("pressure")) {
+        pres = getFloat(State_XMLNode, "pressure", "toSI");
+      }
+          @endverbatum
+   *
+   *  reads the corresponding XML file:
+   *  @verbatum
+      <state>
+        <pressure units="Pa"> 101325.0 </pressure>
+      <\state>
+      @endverbatum
+   *
+   *   @param parent reference to the XML_Node object of the parent XML element
+   *   @param name   Name of the XML child element
+   *   @param type   String type. Currently known types are "toSI" and "actEnergy",
+   *                 and "" , for no conversion. The default value is ""
+   *                 which implies that no conversion is allowed.
+   */
+  doublereal getFloat(const XML_Node& parent, string name, string type) {
+    if (!parent.hasChild(name)) 
+      throw CanteraError("getFloat (called from XML Node \"" +
+			 parent.name() + "\"): ",
+			 "no child XML element named \"" + name + "\" exists");
+    const XML_Node& node = parent.child(name);
+    doublereal x, x0, x1, fctr = 1.0;
+    string units, vmin, vmax;
+    x = atof(node().c_str());
+    x0 = Undef;
+    x1 = Undef;
+    units = node["units"];
+    vmin = node["min"];
+    vmax = node["max"];
+    if (vmin != "") {
+      x0 = atof(vmin.c_str());
+      if (x < x0 - Tiny) {
+	writelog("\nWarning: value "+node()+" is below lower limit of "
+		 +vmin+".\n");
+      }
     }
+    if (node["max"] != "") {
+      x1 = atof(vmax.c_str());
+      if (x > x1 + Tiny) {
+	writelog("\nWarning: value "+node()+" is above upper limit of "
+		 +vmax+".\n");
+      }
+    }
+    // Note, most type's of converters default to toSI() type atm.
+    // This may change and become more specific in the future.
+    if (type == "actEnergy" && units != "") {
+      fctr = actEnergyToSI(units);
+    } else if (type == "toSI" && units != "") {
+      fctr = toSI(units);
+    } else if (type == "temperature" && units != "") {
+      fctr = toSI(units);
+    } else if (type == "density" && units != "") {
+      fctr = toSI(units);
+    } else if (type == "pressure" && units != "") {
+      fctr = toSI(units);
+    } else if (type != "" && units != "") {
+      fctr = toSI(units);
+#ifdef DEBUG_MODE
+      writelog("\nWarning: conversion toSI() was done on node value "  + node.name() + 
+	       "but wasn't explicity requested. Type was \"" + type + "\"\n");
+#endif
+    }
+    // Note, below currently produces a lot of output due to transport blocks.
+    // This needs to be addressed.
+#ifdef DEBUG_MODE_MORE
+    else if (type == "" && units != "") {
+      writelog("\nWarning: XML node "  + node.name() + 
+	       "has a units attribute, \"" + units + "\","
+	       "but no conversion was done because the getFloat() command didn't have a type\n");
+    }
+#endif
+    return fctr*x;
+  }
 
 
     /**
@@ -416,46 +466,47 @@ namespace ctml {
         }
     }
 
-   /**
-     * This function interprets the value portion of an XML element
-     * as a series of "Pairs" separated by white space.
-     * Each pair consists of nonwhite-space characters.
-     * The first ":" found in the pair string is used to separate
-     * the string into two parts. The first part is called the "key"
-     * The second part is called the "val".
-     * String vectors of key[i] and val[i] are returned in the
-     * argument list.
-     * Warning: No spaces are allowed in each pair. Quotes are part
-     *          of the string.
-     *   Example
-     *    <xmlNode> 
-     *        red:112    blue:34
-     *        green:banana
-     *    </xmlNode>
-     * 
-     * Returns:
-     *          key       val
-     *     0:   "red"     "112"
-     *     1:   "blue"    "34"
-     *     2:   "green"   "banana"
-     */
-    void getPairs(const XML_Node& node, vector<string>& key, 
-		  vector<string>& val) {
-        vector<string> v;
-        getStringArray(node, v);
-        int n = static_cast<int>(v.size());
-	string::size_type icolon;
-        for (int i = 0; i < n; i++) {
-            icolon = v[i].find(":");
-            if (icolon == string::npos) {
-                throw CanteraError("getPairs","Missing a colon in the Pair entry ("
-                    +v[i]+")");
-            }
-            key.push_back(v[i].substr(0,icolon));
-            val.push_back(v[i].substr(icolon+1, v[i].size()));
-            //cout << "getPairs: " << key.back() << " " << val.back() << endl;
-        }
+  
+  //! This function interprets the value portion of an XML element
+  //! as a series of "Pairs" separated by white space.
+  /*!
+   * Each pair consists of nonwhite-space characters.
+   * The first ":" found in the pair string is used to separate
+   * the string into two parts. The first part is called the "key"
+   * The second part is called the "val".
+   * String vectors of key[i] and val[i] are returned in the
+   * argument list.
+   * Warning: No spaces are allowed in each pair. Quotes are part
+   *          of the string.
+   *   Example: @verbatum
+   *    <xmlNode> 
+           red:112    blue:34
+           green:banana
+       </xmlNode>      @endverbatum
+   * 
+   * Returns:
+   *          key       val
+   *     0:   "red"     "112"
+   *     1:   "blue"    "34"
+   *     2:   "green"   "banana"
+   */
+  void getPairs(const XML_Node& node, vector<string>& key, 
+		vector<string>& val) {
+    vector<string> v;
+    getStringArray(node, v);
+    int n = static_cast<int>(v.size());
+    string::size_type icolon;
+    for (int i = 0; i < n; i++) {
+      icolon = v[i].find(":");
+      if (icolon == string::npos) {
+	throw CanteraError("getPairs","Missing a colon in the Pair entry ("
+			   +v[i]+")");
+      }
+      key.push_back(v[i].substr(0,icolon));
+      val.push_back(v[i].substr(icolon+1, v[i].size()));
+      //cout << "getPairs: " << key.back() << " " << val.back() << endl;
     }
+  }
 
     /**
      * This function interprets the value portion of an XML element
