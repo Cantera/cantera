@@ -84,6 +84,31 @@ namespace Cantera {
    * 
    * The value and form of the activity concentration will affect
    * reaction rate constants involving species in this phase.
+   *
+   * @verbatim
+      <thermo model="IdealMolalSoln">
+         <standardConc model="solvent_volume" />
+         <solvent> H2O(l) </solvent>
+
+         <activityCoefficients model="IdealMolalSoln" >
+	   <idealMolalSolnCutoff model="polyExp">
+	      <gamma_O_limit> 1.0E-5  <gammaOlimit>
+	      <gamma_k_limit> 1.0E-5  <gammaklimit>
+              <X_o_cutoff>    0.20    </X_o_cutoff>
+	      <C_0_param>     0.05    </C_0_param>
+	      <slope_f_limit> 0.6     </slopefLimit>
+	      <slope_g_limit> 0.0     </slopegLimit>
+	   </idealMolalSolnCutoff>
+	 </activityCoefficients>
+
+
+
+      </thermo>
+
+
+
+   @endverbatim
+   *
    */
   class IdealMolalSoln : public MolalityVPSSTP {
 
@@ -873,7 +898,13 @@ namespace Cantera {
      *  <TR><TD> 2        </TD><TD> \f$  m_k / (m^{\Delta} V^0_0)\f$</TD><TD> \f$ 1.0 / V^0_0\f$ </TD></TR>
      *                         </TABLE>
      */
-     int m_formGC;
+    int m_formGC;
+
+  public:
+    //! Cutoff type
+    int typeCutoff_;
+
+  private:
 
     /**
      * Vector containing the species reference exp(-G/RT) functions
@@ -895,12 +926,94 @@ namespace Cantera {
      * vector of size m_kk, used as a temporary holding area.
      */
     mutable vector_fp      m_tmpV;
+
+    //! Logarithm of the molal activity coefficients
+    /*!
+     *   Normally these are all one. However, stability schemes will change that
+     */
+    mutable vector_fp      m_lnActCoeffMolal;
+  public:
+    //! value of the solute mole fraction that centers the cutoff polynomials
+    //! for the cutoff =1 process;
+    doublereal X_o_cutoff_;
   
+    //! gamma_o value for the cutoff process at the zero solvent point
+    doublereal gamma_o_min_;
+
+    //! gamma_k minimun for the cutoff process at the zero solvent point
+    doublereal gamma_k_min_;
+
+    //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
+    doublereal cCut_;
+
+    //! Parameter in the polyExp cutoff treatment 
+    /*!
+     *  This is the slope of the f function at the zero solvent point
+     *  Default value is 0.6
+     */
+    doublereal slopefCut_;
+
+    //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
+    doublereal dfCut_;
+
+    //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
+    doublereal efCut_;
+
+    //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
+    doublereal afCut_;
+
+    //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
+    doublereal bfCut_;
+
+    //! Parameter in the polyExp cutoff treatment 
+    /*!
+     *  This is the slope of the g function at the zero solvent point
+     *  Default value is 0.0
+     */
+    doublereal slopegCut_;
+
+    //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
+    doublereal dgCut_;
+
+    //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
+    doublereal egCut_;
+
+    //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
+    doublereal agCut_;
+
+    //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
+    doublereal bgCut_;
+
   private:
+
+    //! Internal error message
+    /*!
+     * param msg message to be printed
+     */
     doublereal err(std::string msg) const;
 
+    //! This function will be called to update the internally storred
+    //! natural logarithm of the molality activity coefficients
+    /*!
+     * Normally the solutes are all zero. However, sometimes they are not,
+     * due to stability schemes
+     */
+    void s_updateIMS_lnMolalityActCoeff() const;
 
+    //! This internal function adjusts the lengths of arrays.
+    /*!
+     * This function is not virtual nor is it inherited
+     */
     void initLengths();
+
+    //! Calculate parameters for cutoff treatments of activity coefficients
+    /*!
+     * Some cutoff treatments for the activity coefficients
+     * actually require some calculations to create a consistent treatment.
+     *
+     * This routine is called during the setup to calculate these parameters
+     */
+    void calcIMSCutoffParams_();
   };
 
   /* @} */

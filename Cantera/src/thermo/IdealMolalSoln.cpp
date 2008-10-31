@@ -25,22 +25,42 @@
  */
 
 #include "IdealMolalSoln.h"
-//#include "importCTML.h"
 #include "ThermoFactory.h"
 #include <math.h>
 
+#ifndef MAX
+#define MAX(x,y)    (( (x) > (y) ) ? (x) : (y))
+#endif
+
 namespace Cantera {
 
+
+  static double xxSmall = 1.0E-150;
   /**
    * Default constructor
    */
   IdealMolalSoln::IdealMolalSoln() :
     MolalityVPSSTP(),
-    m_formGC(2)
+    m_formGC(2),
+    typeCutoff_(0),
+    X_o_cutoff_(0.20),
+    gamma_o_min_(0.00001),
+    gamma_k_min_(10.0),
+    cCut_(.05),
+    slopefCut_(0.6),
+    dfCut_(0.0),
+    efCut_(0.0),
+    afCut_(0.0),
+    bfCut_(0.0),
+    slopegCut_(0.0),
+    dgCut_(0.0),
+    egCut_(0.0),
+    agCut_(0.0),
+    bgCut_(0.0)
   {
   }
 
-  /**
+  /*
    * Copy Constructor:
    *
    *  Note this stuff will not work until the underlying phase
@@ -56,7 +76,7 @@ namespace Cantera {
     *this = b;
   }
 
-  /**
+  /*
    * operator=()
    *
    *  Note this stuff will not work until the underlying phase
@@ -68,29 +88,75 @@ namespace Cantera {
       MolalityVPSSTP::operator=(b);
       m_speciesMolarVolume  = b.m_speciesMolarVolume;
       m_formGC              = b.m_formGC;
+      typeCutoff_           = b.typeCutoff_;
+      X_o_cutoff_           = b.X_o_cutoff_;
+      gamma_o_min_          = b.gamma_o_min_;
+      gamma_k_min_          = b.gamma_k_min_;
+      cCut_                 = b.cCut_;
+      slopefCut_            = b.slopefCut_;
+      dfCut_                = b.dfCut_;
+      efCut_                = b.efCut_;
+      afCut_                = b.afCut_;
+      bfCut_                = b.bfCut_;
+      slopegCut_            = b.slopegCut_;
+      dgCut_                = b.dgCut_;
+      egCut_                = b.egCut_;
+      agCut_                = b.agCut_;
+      bgCut_                = b.bgCut_;
       m_expg0_RT            = b.m_expg0_RT;
       m_pe                  = b.m_pe;
       m_pp                  = b.m_pp;
       m_tmpV                = b.m_tmpV;
+      m_lnActCoeffMolal     = b.m_lnActCoeffMolal;
     }
     return *this;
   }
 
   IdealMolalSoln::IdealMolalSoln(std::string inputFile, std::string id) :
     MolalityVPSSTP(),
-    m_formGC(2)
+    m_formGC(2),
+    typeCutoff_(0),
+    X_o_cutoff_(0.2),
+    gamma_o_min_(0.00001),
+    gamma_k_min_(10.0),
+    cCut_(.05),
+    slopefCut_(0.6),
+    dfCut_(0.0),
+    efCut_(0.0),
+    afCut_(0.0),
+    bfCut_(0.0),
+    slopegCut_(0.0),
+    dgCut_(0.0),
+    egCut_(0.0),
+    agCut_(0.0),
+    bgCut_(0.0)
   {
     constructPhaseFile(inputFile, id);
   }
 
   IdealMolalSoln::IdealMolalSoln(XML_Node& root, std::string id) :
     MolalityVPSSTP(),
-    m_formGC(2)
+    m_formGC(2),
+    typeCutoff_(0),
+    X_o_cutoff_(0.2),
+    gamma_o_min_(0.00001),
+    gamma_k_min_(10.0),
+    cCut_(.05),
+    slopefCut_(0.6),
+    dfCut_(0.0),
+    efCut_(0.0),
+    afCut_(0.0),
+    bfCut_(0.0),
+    slopegCut_(0.0),
+    dgCut_(0.0),
+    egCut_(0.0),
+    agCut_(0.0),
+    bgCut_(0.0)
   {
     constructPhaseXML(root, id);
   }
 
-  /**
+  /*
    *
    * ~IdealMolalSoln():   (virtual)
    *
@@ -457,8 +523,8 @@ namespace Cantera {
    * activities at the current solution temperature, 
    * pressure, and solution concentration.
    *
-   *  The max against 8.689E-3 is to limit the activity
-   *  coefficient to be greater than 1.0E-50.
+   *  The max against xmolSolventMIN is to limit the activity
+   *  coefficient to be finite as the solvent mf goes to zero.
    */
   void IdealMolalSoln::getActivities(doublereal* ac) const {  
     _updateStandardStateThermo();
@@ -466,14 +532,29 @@ namespace Cantera {
      * Update the molality array, m_molalities()
      *   This requires an update due to mole fractions
      */
-    calcMolalities();
-    for (int k = 0; k < m_kk; k++) {
-      ac[k] = m_molalities[k];
+    if (typeCutoff_ == 0) {
+      calcMolalities();
+      for (int k = 0; k < m_kk; k++) {
+	ac[k] = m_molalities[k];
+      }
+      double xmolSolvent = moleFraction(m_indexSolvent);
+      xmolSolvent = fmaxx(m_xmolSolventMIN, xmolSolvent);
+      ac[m_indexSolvent] = 
+	exp((xmolSolvent - 1.0)/xmolSolvent);
+    } else {
+
+      s_updateIMS_lnMolalityActCoeff();
+      /*
+       * Now calculate the array of activities.
+       */
+      for (int k = 1; k < m_kk; k++) {
+	  ac[k] = m_molalities[k] * exp(m_lnActCoeffMolal[k]);
+      }
+      double xmolSolvent = moleFraction(m_indexSolvent);
+      ac[m_indexSolvent] =
+      exp(m_lnActCoeffMolal[m_indexSolvent]) * xmolSolvent;
+     
     }
-    double xmolSolvent = moleFraction(m_indexSolvent);
-    xmolSolvent = fmaxx(8.689E-3, xmolSolvent);
-    ac[m_indexSolvent] = 
-      exp((xmolSolvent - 1.0)/xmolSolvent);
   }
 
   /*
@@ -484,18 +565,26 @@ namespace Cantera {
    * See Denbigh
    * (note solvent activity coefficient is on the molar scale).
    *
-   *  The max against 5.0E-3 (1/200) is to limit the activity
-   *  coefficient to be greater than 1.0E-50.
+   *  The max against xmolSolventMIN is to limit the activity
+   *  coefficient to be finite as the solvent mf goes to zero.
    */
   void IdealMolalSoln::
   getMolalityActivityCoefficients(doublereal* acMolality) const {
-    for (int k = 0; k < m_kk; k++) {
-      acMolality[k] = 1.0;
+    if (typeCutoff_ == 0) {
+      for (int k = 0; k < m_kk; k++) {
+	acMolality[k] = 1.0;
+      }
+      double xmolSolvent = moleFraction(m_indexSolvent);
+      xmolSolvent = fmaxx(m_xmolSolventMIN, xmolSolvent);
+      acMolality[m_indexSolvent] = 
+	exp((xmolSolvent - 1.0)/xmolSolvent) / xmolSolvent;
+    } else {
+      s_updateIMS_lnMolalityActCoeff();
+      std::copy(m_lnActCoeffMolal.begin(), m_lnActCoeffMolal.end(), acMolality);
+      for (int k = 0; k < m_kk; k++) {
+	acMolality[k] = exp(acMolality[k]);
+      }
     }
-    double xmolSolvent = moleFraction(m_indexSolvent);
-    xmolSolvent = fmaxx(8.689E-3, xmolSolvent);
-    acMolality[m_indexSolvent] = 
-      exp((xmolSolvent - 1.0)/xmolSolvent) / xmolSolvent;
   }
 
   //
@@ -525,7 +614,11 @@ namespace Cantera {
    */
   void IdealMolalSoln::getChemPotentials(doublereal* mu) const{
     double xx;
-    const double xxSmall = 1.0E-150; 
+    //const double xxSmall = 1.0E-150; 
+
+    // Assertion is made for speed
+    AssertThrow(m_indexSolvent == 0, "solvent not the first species");
+  
     /*
      * First get the standard chemical potentials
      *  -> this requires updates of standard state as a function
@@ -539,23 +632,45 @@ namespace Cantera {
      */
     calcMolalities();
     /*
+     * get the solvent mole fraction
+     */
+    double xmolSolvent = moleFraction(m_indexSolvent);
+    /*
      *   
      */
     doublereal RT = GasConstant * temperature();
-    for (int k = 0; k < m_kk; k++) {
-      if (k != m_indexSolvent) {
+
+    if (typeCutoff_ == 0 || xmolSolvent > 3.* X_o_cutoff_/2.0) {
+  
+      for (int k = 1; k < m_kk; k++) {
 	xx = fmaxx(m_molalities[k], xxSmall);
 	mu[k] += RT * log(xx);
       }
+      /*
+       * Do the solvent 
+       *  -> see my notes
+       */
+   
+      xx = fmaxx(xmolSolvent, xxSmall);
+      mu[m_indexSolvent] += 
+	(RT * (xmolSolvent - 1.0) / xx);
+    } else {
+      /*
+       * Update the activity coefficients
+       * This also updates the internal molality array.
+       */
+      s_updateIMS_lnMolalityActCoeff();
+
+
+      for (int k = 1; k < m_kk; k++) {
+	xx = MAX(m_molalities[k], xxSmall);
+	mu[k] += RT * (log(xx) + m_lnActCoeffMolal[k]);
+      }
+      xx = MAX(xmolSolvent, xxSmall);
+      mu[m_indexSolvent] +=
+	RT * (log(xx) + m_lnActCoeffMolal[m_indexSolvent]);
     }
-    /*
-     * Do the solvent 
-     *  -> see my notes
-     */
-    double xmolSolvent = moleFraction(m_indexSolvent);
-    xx = fmaxx(xmolSolvent, xxSmall);
-    mu[m_indexSolvent] += 
-      (RT * (xmolSolvent - 1.0) / xx);
+
   }
 
   /*
@@ -603,14 +718,37 @@ namespace Cantera {
     doublereal R = GasConstant;
     doublereal mm;
     calcMolalities();
-    for (int k = 0; k < m_kk; k++) {
-      if (k != m_indexSolvent) {
-	mm = fmaxx(SmallNumber, m_molalities[k]);
-	sbar[k] -= R * log(mm);
+    if (typeCutoff_ == 0) {
+      for (int k = 0; k < m_kk; k++) {
+	if (k != m_indexSolvent) {
+	  mm = fmaxx(SmallNumber, m_molalities[k]);
+	  sbar[k] -= R * log(mm);
+	}
       }
+      double xmolSolvent = moleFraction(m_indexSolvent);
+      sbar[m_indexSolvent] -= (R * (xmolSolvent - 1.0) / xmolSolvent);
+    } else {
+      /*
+       * Update the activity coefficients, This also update the
+       * internally stored molalities.
+       */
+      s_updateIMS_lnMolalityActCoeff();
+      /*
+       * First we will add in the obvious dependence on the T
+       * term out front of the log activity term
+       */
+      doublereal mm;
+      for (int k = 0; k < m_kk; k++) {
+	if (k != m_indexSolvent) {
+	  mm = fmaxx(SmallNumber, m_molalities[k]);
+	  sbar[k] -= R * (log(mm) + m_lnActCoeffMolal[k]);
+	}
+      }
+      double xmolSolvent = moleFraction(m_indexSolvent);
+      mm = fmaxx(SmallNumber, xmolSolvent);
+      sbar[m_indexSolvent] -= R *(log(mm) + m_lnActCoeffMolal[m_indexSolvent]);
+
     }
-    double xmolSolvent = moleFraction(m_indexSolvent);
-    sbar[m_indexSolvent] -= (R * (xmolSolvent - 1.0) / xmolSolvent);
   }
 
   /*
@@ -862,6 +1000,50 @@ namespace Cantera {
       solventName = nameSolventa[0];
     }
 
+    if (thermoNode.hasChild("activityCoefficients")) {
+      XML_Node& acNode = thermoNode.child("activityCoefficients");
+      std::string modelString = acNode.attrib("model");
+      typeCutoff_ = 0;
+      if (modelString != "IdealMolalSoln") {
+	throw CanteraError("IdealMolalSoln::initThermoXML",
+			   "unknown ActivityCoefficient model: " + modelString);
+      }
+      if (acNode.hasChild("idealMolalSolnCutoff")) {
+	XML_Node& ccNode = acNode.child("idealMolalSolnCutoff");
+	modelString = ccNode.attrib("model");
+	if (modelString != "") {
+	  if (modelString == "polyExp") {
+	    typeCutoff_ = 2;
+	  } else if (modelString == "poly") {
+	    typeCutoff_ = 1;
+	  } else {
+	    throw CanteraError("IdealMolalSoln::initThermoXML",
+			       "Unknown  idealMolalSolnCutoff form: " + modelString);
+	  }
+
+	  if (ccNode.hasChild("gamma_o_limit")) {
+	    gamma_o_min_ = getFloat(ccNode, "gamma_o_limit");
+	  }	  
+	  if (ccNode.hasChild("gamma_k_limit")) {
+	    gamma_k_min_ = getFloat(ccNode, "gamma_k_limit");
+	  }
+	  if (ccNode.hasChild("X_o_cutoff")) {
+	    X_o_cutoff_ = getFloat(ccNode, "X_o_cutoff");
+	  }
+      	  if (ccNode.hasChild("c_0_param")) {
+	    cCut_ = getFloat(ccNode, "c_0_param");
+	  }
+ 	  if (ccNode.hasChild("slope_f_limit")) {
+	    slopefCut_ = getFloat(ccNode, "slope_f_limit");
+	  }
+	  if (ccNode.hasChild("slope_g_limit")) {
+	    slopegCut_ = getFloat(ccNode, "slope_g_limit");
+	  }
+
+	}
+      }
+    }
+
 
     /*
      * Reconcile the solvent name and index.
@@ -885,6 +1067,7 @@ namespace Cantera {
 			 " should be first species");
     }
 
+
     /*
      * Now go get the molar volumes
      */
@@ -898,6 +1081,11 @@ namespace Cantera {
       XML_Node* s =  speciesDB->findByAttr("name", sss[k]);
       XML_Node *ss = s->findByName("standardState");
       m_speciesMolarVolume[k] = getFloat(*ss, "molarVolume", "toSI");
+    }
+
+    typeCutoff_ = 2;
+    if (typeCutoff_ == 2) {
+      calcIMSCutoffParams_();
     }
 
     MolalityVPSSTP::initThermoXML(phaseNode, id);
@@ -960,6 +1148,130 @@ namespace Cantera {
     return 0.0;
   }
 
+  
+
+  // This function will be called to update the internally storred
+  // natural logarithm of the molality activity coefficients
+  /*
+   * Normally they are all one. However, sometimes they are not,
+   * due to stability schemes
+   *
+   *    gamma_k_molar =  gamma_k_molal / Xmol_solvent
+   *
+   *    gamma_o_molar = gamma_o_molal
+   */
+  void  IdealMolalSoln::s_updateIMS_lnMolalityActCoeff() const {
+    int k;
+    double tmp;
+    /*
+     * Calculate the molalities. Currently, the molalities
+     * may not be current with respect to the contents of the
+     * State objects' data.
+     */
+    calcMolalities();
+
+    double xmolSolvent = moleFraction(m_indexSolvent);
+    double xx = MAX(m_xmolSolventMIN, xmolSolvent);
+
+    if (typeCutoff_ == 0) {
+      for (k = 1; k < m_kk; k++) {
+	m_lnActCoeffMolal[k]= 0.0;
+      }
+      m_lnActCoeffMolal[m_indexSolvent] = - log(xx) + (xx - 1.0)/xx;
+      return;
+    } else if (typeCutoff_ == 1) {
+      if (xmolSolvent > 3.0 * X_o_cutoff_/2.0 ) {
+	for (k = 1; k < m_kk; k++) {
+	  m_lnActCoeffMolal[k]= 0.0;
+	}
+	m_lnActCoeffMolal[m_indexSolvent] = - log(xx) + (xx - 1.0)/xx;
+	return;
+      } else if  (xmolSolvent < X_o_cutoff_/2.0) {	
+	tmp = log(xx * gamma_k_min_);
+	for (k = 1; k < m_kk; k++) {
+	  m_lnActCoeffMolal[k]= tmp;
+	}
+	m_lnActCoeffMolal[m_indexSolvent] = log(gamma_o_min_);
+	return;
+      } else {
+      
+	/*
+	 * If we are in the middle region, calculate the connecting polynomials
+	 */
+	double xminus  = xmolSolvent - X_o_cutoff_/2.0;
+	double xminus2 = xminus * xminus;
+	double xminus3 = xminus2 * xminus;
+	double x_o_cut2 = X_o_cutoff_ * X_o_cutoff_;
+	double x_o_cut3 =  x_o_cut2 * X_o_cutoff_;
+    
+	double h2 = 3.5 * xminus2 /  X_o_cutoff_ - 2.0 * xminus3 / x_o_cut2;    
+	double h2_prime = 7.0 * xminus /  X_o_cutoff_ - 6.0 * xminus2 /  x_o_cut2;
+
+	double h1 =   (1.0 - 3.0 * xminus2 /  x_o_cut2 + 2.0 *  xminus3/ x_o_cut3);
+	double h1_prime = (- 6.0 * xminus /  x_o_cut2 + 6.0 *  xminus2/ x_o_cut3);
+
+	double h1_g = h1 / gamma_o_min_;
+	double h1_g_prime  = h1_prime / gamma_o_min_;
+
+	double alpha = 1.0 / ( exp(1.0) * gamma_k_min_);
+	double h1_f = h1 * alpha;
+	double h1_f_prime  = h1_prime * alpha;
+
+	double f = h2 + h1_f;
+	double f_prime = h2_prime + h1_f_prime;
+
+	double g = h2 + h1_g;
+	double g_prime = h2_prime + h1_g_prime;
+
+	tmp = (xmolSolvent/ g * g_prime + (1.0-xmolSolvent) / f * f_prime);
+	double lngammak = -1.0 - log(f) + tmp * xmolSolvent;
+	double lngammao =-log(g) - tmp * (1.0-xmolSolvent);
+      
+	tmp = log(xmolSolvent) + lngammak;
+	for (k = 1; k < m_kk; k++) {
+	  m_lnActCoeffMolal[k]= tmp;
+	}
+	m_lnActCoeffMolal[m_indexSolvent] = lngammao;
+      }
+    } 
+
+    // Exponentials - trial 2
+    else if (typeCutoff_ == 2) {
+      if (xmolSolvent > X_o_cutoff_) {
+	for (k = 1; k < m_kk; k++) {
+	  m_lnActCoeffMolal[k]= 0.0;
+	}
+	m_lnActCoeffMolal[m_indexSolvent] = - log(xx) + (xx - 1.0)/xx;
+	return;
+      } else {
+     
+	double xoverc = xmolSolvent/cCut_;
+	double eterm = std::exp(-xoverc);
+       
+	double fptmp = bfCut_  - afCut_ / cCut_ - bfCut_*xoverc
+	  + 2.0*dfCut_*xmolSolvent - dfCut_*xmolSolvent*xoverc;
+	double f_prime = 1.0 + eterm*fptmp;	
+	double f = xmolSolvent + efCut_ + eterm * (afCut_ + xmolSolvent * (bfCut_ + dfCut_*xmolSolvent));
+
+	double gptmp = bgCut_  - agCut_ / cCut_ - bgCut_*xoverc
+	  + 2.0*dgCut_*xmolSolvent - dgCut_*xmolSolvent*xoverc;
+	double g_prime = 1.0 + eterm*gptmp;
+	double g = xmolSolvent + egCut_ + eterm * (agCut_ + xmolSolvent * (bgCut_ + dgCut_*xmolSolvent));
+
+	tmp = (xmolSolvent / g * g_prime + (1.0 - xmolSolvent) / f * f_prime);
+	double lngammak = -1.0 - log(f) + tmp * xmolSolvent;
+	double lngammao =-log(g) - tmp * (1.0-xmolSolvent);
+      
+	tmp = log(xx) + lngammak;
+	for (k = 1; k < m_kk; k++) {
+	  m_lnActCoeffMolal[k]= tmp;
+	}
+	m_lnActCoeffMolal[m_indexSolvent] = lngammao;
+      }
+    }
+    return;
+  }
+
   /*
    * This internal function adjusts the lengths of arrays.
    *
@@ -977,6 +1289,75 @@ namespace Cantera {
     m_pp.resize(leng);
     m_speciesMolarVolume.resize(leng);
     m_tmpV.resize(leng);
+    m_lnActCoeffMolal.resize(leng);
+  }
+
+
+  void  IdealMolalSoln::calcIMSCutoffParams_() {
+ 
+
+    afCut_ = 1.0 / (std::exp(1.0) *  gamma_k_min_);
+    efCut_ = 0.0;
+    bool converged = false;
+    double oldV = 0.0;
+    int its;
+    for (its = 0; its < 100 && !converged; its++) {
+      oldV = efCut_;
+      afCut_ = 1.0 / (std::exp(1.0) * gamma_k_min_)  -efCut_;
+
+      bfCut_ = afCut_ / cCut_ + slopefCut_ - 1.0;
+
+      dfCut_ = ((- afCut_/cCut_ + bfCut_ - bfCut_*X_o_cutoff_/cCut_) 
+		/ 
+		(X_o_cutoff_*X_o_cutoff_/cCut_ - 2.0 * X_o_cutoff_));
+      
+      double tmp = afCut_ + X_o_cutoff_*( bfCut_ + dfCut_ *X_o_cutoff_);
+      double eterm = std::exp(-X_o_cutoff_/cCut_);
+
+      efCut_ = - eterm * (tmp);
+
+      if (fabs(efCut_ - oldV) < 1.0E-14) {
+	converged = true;
+      } 
+    }
+
+    if (!converged) {
+      throw CanteraError(" IdealMolalSoln::calcCutoffParams_()",
+			 " failed to converge on the f polynomial");
+    }
+    converged = false;
+    double f_0 = afCut_ + efCut_;
+    double f_prime_0 = 1.0 - afCut_ / cCut_ + bfCut_;
+
+    egCut_ = 0.0;
+
+    for (its = 0; its < 100 && !converged; its++) {
+      oldV = egCut_;
+
+      double lng_0 = -log(gamma_o_min_) -  f_prime_0 / f_0;
+
+      agCut_ = exp(lng_0) - egCut_;
+
+      bgCut_ = agCut_ / cCut_ + slopegCut_ - 1.0;
+
+      dgCut_ = ((- agCut_/cCut_ + bgCut_ - bgCut_*X_o_cutoff_/cCut_) 
+		/ 
+		(X_o_cutoff_*X_o_cutoff_/cCut_ - 2.0 * X_o_cutoff_));
+      
+      double tmp = agCut_ + X_o_cutoff_*( bgCut_ + dgCut_ *X_o_cutoff_);
+      double eterm = std::exp(-X_o_cutoff_/cCut_);
+
+      egCut_ = - eterm * (tmp);
+
+      if (fabs(egCut_ - oldV) < 1.0E-14) {
+	converged = true;
+      } 
+    }
+    if (!converged) {
+      throw CanteraError(" IdealMolalSoln::calcCutoffParams_()",
+			 " failed to converge on the f polynomial");
+    }
+
   }
  
 }
