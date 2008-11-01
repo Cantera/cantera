@@ -15,19 +15,17 @@
 #ifndef CT_XML_H
 #define CT_XML_H
 
+#include "ctexceptions.h"
+#include "ct_defs.h"
+#include "stringUtils.h"
+#include "global.h"
+
+#include <stdio.h>
 #include <string>
 #include <vector>
 #include <iostream>
 
-
-#include "ctexceptions.h"
-#include "ct_defs.h"
-#include "stringUtils.h"
-#include <stdio.h>
-#include "global.h"
-
 #define XML_INDENT 4
-
 
 namespace Cantera {
 
@@ -235,12 +233,27 @@ namespace Cantera {
      */
     std::string value() const;
 
+
+    //! Overloaded parenthesis operator returns the value of the Node
+    /*!
+     *  @return  Returns the value of the node as a string.
+     */
+    std::string operator()() const;
+
     //!  Return the value of an XML child node as a string
     /*!
      *  @param cname  Name of the child node to the current
      *                node, for which you want the value
      */
     std::string value(const std::string cname) const;
+
+    //!  Overloaded parenthesis operator with one augment 
+    //!  returns the value of an XML child node as a string
+    /*!
+     *  @param cname  Name of the child node to the current
+     *                node, for which you want the value
+     */
+    std::string operator()(std::string loc) const;
 
     //! Return the value of an XML node as a single double
     /*!
@@ -311,6 +324,15 @@ namespace Cantera {
      */
     std::string attrib(const std::string attr) const;
 
+  private:
+    //! Returns a changeable value of the attributes map for the current node
+    /*!
+     *  Note this is a simple accessor routine. And, it is a private function.
+     *  It's used in some internal copy and assignment routines
+     */
+    std::map<std::string,std::string>& attribs();
+
+  public:
     //! Set the line number 
     /*!
      *  @param n   the member data m_linenum is set to n
@@ -323,15 +345,17 @@ namespace Cantera {
      */
     int lineNumber() const;
 
-    std::string operator()() const { return m_value; }
-    std::string operator()(std::string loc) const { return value(loc); }
+ 
+    //! Returns a pointer to the parent node of the current node
+    XML_Node* parent() const;
 
-
-    std::map<std::string,std::string>& attribs() { return m_attribs; }
-
-    XML_Node* parent() const { return m_parent; }
-
-    XML_Node* setParent(XML_Node* p) { m_parent = p; return p; }
+    //! Sets the pointer for the parent node of the current node
+    /*!
+     * @param p Pointer to the parent node
+     *
+     * @return  Returns the pointer p
+     */
+    XML_Node* setParent(XML_Node * const p);
 
     //! Tests whether the current node has a child node with a particular name
     /*!
@@ -366,10 +390,21 @@ namespace Cantera {
      */
     std::string id() const;
 
+    //! Return a changeable reference to the n'th child of the current node
+    /*!
+     *  @param n  Number of the child to return
+     */
+    XML_Node& child(const int n) const;
 
-    XML_Node& child(int n) const { return *m_children[n]; }
-    std::vector<XML_Node*>& children()  { return m_children; }
-    const std::vector<XML_Node*>& children() const { return m_children; }
+    //! Return an unchangeable reference to the vector of children of the current node
+    /*!
+     * Each of the individual XML_Node child pointers, however,
+     *  is to a changeable xml node object.
+     *
+     *  @param n  Number of the child to return
+     */
+    const std::vector<XML_Node*>& children() const;
+
     int nChildren() const { return m_nchildren; }
 
     void build(std::istream& f);
@@ -446,6 +481,8 @@ namespace Cantera {
     int m_nchildren;
     bool m_iscomment;
     int m_linenum;
+
+   
   };
 
   

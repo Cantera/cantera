@@ -536,6 +536,14 @@ namespace Cantera {
     return m_value;
   }
 
+  // Overloaded parenthesis operator returns the value of the Node
+  /*
+   *  @return  Returns the value of the node as a string.
+   */
+  std::string XML_Node::operator()() const {
+    return m_value;
+  }
+
   // Return the value of an XML node as a double
   /*
    *  This accesses the value string, and then tries to 
@@ -563,6 +571,16 @@ namespace Cantera {
     return child(cname).value();
   }
 
+  //!  Overloaded parenthesis operator with one augment 
+  //!  returns the value of an XML child node as a string
+  /*!
+   *  @param cname  Name of the child node to the current
+   *                node, for which you want the value
+   */
+  std::string XML_Node::operator()(std::string loc) const {
+    return value(loc); 
+  }
+  
   // Add or modify an attribute of the current node
   /*
    * This functions fills in the m_value field of the current node
@@ -628,6 +646,15 @@ namespace Cantera {
     return ""; 
   }
 
+  // Returns a changeable value of the attributes map for the current node
+  /*
+   *  Note this is a simple accessor routine. And, it is a private function.
+   *  It's used in some internal copy and assignment routines
+   */
+  std::map<std::string,std::string>& XML_Node::attribs() { 
+    return m_attribs;
+  }
+
   // Set the line number 
   /*
    *  @param n   the member data m_linenum is set to n
@@ -642,6 +669,41 @@ namespace Cantera {
    */
   int XML_Node::lineNumber() const {
     return m_linenum;
+  }
+
+  // Returns a pointer to the parent node of the current node
+  XML_Node* XML_Node::parent() const {
+    return m_parent;
+  }
+
+  // Sets the pointer for the parent node of the current node
+  /*
+   * @param p Pointer to the parent node
+   *
+   * @return  Returns the pointer p
+   */
+  XML_Node* XML_Node::setParent(XML_Node * const p) { 
+    m_parent = p;
+    return p; 
+  }
+  
+  //! return a reference to the n'th child of the current node
+  /*!
+   *  @param n  Number of the child to return
+   */
+  XML_Node& XML_Node::child(const int n) const {
+    return *m_children[n]; 
+  }
+
+  //! Return an unchangeable reference to the vector of children of the current node
+  /*!
+   * Each of the individual XML_Node child pointers, however,
+   *  is to a changeable xml node object.
+   *
+   *  @param n  Number of the child to return
+   */
+  const std::vector<XML_Node*>& XML_Node::children() const { 
+    return m_children; 
   }
 
   /*
@@ -1060,7 +1122,7 @@ namespace Cantera {
 
         
   XML_Node * findXMLPhase(XML_Node *root, 
-			  const string &idtarget) {
+			  const std::string &idtarget) {
     XML_Node *scResult = 0;
     XML_Node *sc;
     if (!root) return 0;
