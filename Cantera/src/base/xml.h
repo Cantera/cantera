@@ -277,7 +277,7 @@ namespace Cantera {
      * @param attrib  String name for the attribute to be assigned
      * @param value   String value that the attribute will have
      */
-    void addAttribute(const std::string attrib, const std::string value);
+    void addAttribute(const std::string & attrib, const std::string & value);
 
     //! Add or modify an attribute to the double, value
     /*!
@@ -289,7 +289,7 @@ namespace Cantera {
      * @param fmt     Format of the printf string conversion of the double.
      *                Default is "%g". 
      */
-    void addAttribute(const std::string attrib, const double value, 
+    void addAttribute(const std::string & attrib, const double value, 
 		      const std::string fmt="%g");
 	
     //! The operator[] is overloaded to provide a lookup capability
@@ -307,7 +307,7 @@ namespace Cantera {
      *          within the XML node. If there is no attribute
      *          with the given name, it returns the null string.
      */
-    std::string operator[](const std::string attr) const;
+    std::string operator[](const std::string & attr) const;
 
     //! Function returns the value of an attribute
     /*!
@@ -322,7 +322,7 @@ namespace Cantera {
      *                  is returned as a string. If no match is found, the empty string
      *                  is returned.
      */
-    std::string attrib(const std::string attr) const;
+    std::string attrib(const std::string & attr) const;
 
   private:
     //! Returns a changeable value of the attributes map for the current node
@@ -405,21 +405,39 @@ namespace Cantera {
      */
     const std::vector<XML_Node*>& children() const;
 
-    int nChildren() const { return m_nchildren; }
+    //! return the number of children
+    /*!
+     *
+     */
+    int nChildren() const;
 
-    void build(std::istream& f);
+    //!    Require that the current xml node have an attribute named
+    //!    by the first argument, a, and that this attribute have the
+    //!    the string value listed in the second argument, v.
+    /*!
+     *   @param a  attribute name
+     *   @param v  required value of the attribute
+     *
+     *  If the condition is not true, an exception is thrown
+     */
+    void _require(const std::string a, const std::string v) const;
 
-    void _require(std::string a, std::string v) const;
-
-    /**
-     * This routine carries out a search for an XML node based
-     * on both the xml element name and the attribute ID.
+    //! This routine carries out a recursive search for an XML node based
+    //! on both the xml element name and the attribute ID.
+    /*!
      * If exact matches are found for both fields, the pointer
      * to the matching XML Node is returned.
      * 
      * The ID attribute may be defaulted by setting it to "".
      * In this case the pointer to the first xml element matching the name
      * only is returned.
+     *
+     *  @param nameTarget  Name of the XML Node that is being searched for
+     *  @param idTarget    "id" attribute of the XML Node that the routine
+     *                     looks for
+     *
+     *  @return   Returns the pointer to the XML node that fits the criteria
+     *
      * @internal
      * This algorithm does a lateral search of first generation children
      * first before diving deeper into each tree branch.
@@ -427,7 +445,28 @@ namespace Cantera {
     XML_Node* findNameID(const std::string &nameTarget, 
 			 const std::string &idTarget) const;
 
-    XML_Node* findID(const std::string& id, int depth=100) const;
+    //! This routine carries out a recursive search for an XML node based
+    //! on the xml element attribute ID.
+    /*!
+     * If exact match is found, the pointer
+     * to the matching XML Node is returned. If not, 0 is returned.
+     * 
+     * The ID attribute may be defaulted by setting it to "".
+     * In this case the pointer to the first xml element matching the name
+     * only is returned.
+     *
+     *  @param id       "id" attribute of the XML Node that the routine
+     *                  looks for
+     *  @param depth    Depth of the search.
+     *
+     *  @return         Returns the pointer to the XML node that fits the criteria
+     *
+     * @internal
+     * This algorithm does a lateral search of first generation children
+     * first before diving deeper into each tree branch.
+     */
+    XML_Node* findID(const std::string& id, const int depth=100) const;
+
     XML_Node* findByAttr(const std::string& attr, const std::string& val);
     const XML_Node* findByName(const std::string& nm) const;
     XML_Node* findByName(const std::string& nm);
@@ -437,6 +476,17 @@ namespace Cantera {
     void write(std::ostream& s, int level = 0) const;
     XML_Node& root() const { return *m_root; }
     void setRoot(XML_Node& root) { m_root = &root; }
+
+    //! Main routine to create an tree-like representation of an XML file
+    /*!
+     *   Given an input stream, this routine will read matched XML tags
+     *   representing the ctml file until an EOF is read from the file. 
+     *   This routine is called by the root XML_Node object.
+     *
+     * @param f   Input stream containing the ascii input file
+     */
+    void build(std::istream& f);
+
     void copyUnion(XML_Node *node_dest) const;
     void copy(XML_Node *node_dest) const;
     void lock() {m_locked = true;}

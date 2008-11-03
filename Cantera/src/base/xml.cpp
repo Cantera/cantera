@@ -589,7 +589,7 @@ namespace Cantera {
    * @param attrib  String name for the attribute to be assigned
    * @param value   String value that the attribute will have
    */
-  void XML_Node::addAttribute(const std::string attrib, const std::string value) {
+  void XML_Node::addAttribute(const std::string & attrib, const std::string & value) {
     m_attribs[attrib] = value;
   }
 
@@ -603,7 +603,7 @@ namespace Cantera {
    * @param fmt     Format of the printf string conversion of the double.
    *                Default is "%g". 
    */
-  void XML_Node::addAttribute(const std::string attrib, 
+  void XML_Node::addAttribute(const std::string & attrib, 
 			      const doublereal value, const std::string fmt) {
     m_attribs[attrib] = fp2str(value, fmt);
   }
@@ -623,7 +623,7 @@ namespace Cantera {
    *          within the XML node. If there is no attribute
    *          with the given name, it returns the null string.
    */
-  std::string XML_Node::operator[](const std::string attr) const {
+  std::string XML_Node::operator[](const std::string & attr) const {
     return attrib(attr);
   }
 
@@ -640,7 +640,7 @@ namespace Cantera {
    *                  is returned as a string. If no match is found, the empty string
    *                  is returned.
    */
-  std::string XML_Node::attrib(const std::string attr) const { 
+  std::string XML_Node::attrib(const std::string & attr) const { 
     std::map<std::string,std::string>::const_iterator i = m_attribs.find(attr);
     if (i != m_attribs.end()) return i->second;
     return ""; 
@@ -706,24 +706,59 @@ namespace Cantera {
     return m_children; 
   }
 
+  //! return the number of children
+  /*!
+   *
+   */
+  int XML_Node::nChildren() const { 
+    return m_nchildren;
+  }
+ 
+  //    Require that the current xml node have an attribute named
+  //    by the first argument, a, and that this attribute have the
+  //    the string value listed in the second argument, v.
   /*
-   * This routine carries out a search for an XML node based
-   * on both the xml element name and the attribute ID.
+   *   @param a  attribute name
+   *   @param v  required value of the attribute
+   *
+   *  If the condition is not true, an exception is thrown
+   */
+  void XML_Node::_require(const std::string a, const std::string v) const {
+    if (hasAttrib(a)) {
+      if (attrib(a) == v) return;
+    }
+    string msg="XML_Node "+name()+" is required to have an attribute named " + a + 
+      " with the value \"" + v +"\", but instead the value is \"" + attrib(a);
+    throw CanteraError("XML_Node::require", msg);
+  }
+
+
+  //! This routine carries out a search for an XML node based
+  //! on both the xml element name and the attribute ID.
+  /*!
    * If exact matches are found for both fields, the pointer
    * to the matching XML Node is returned.
    * 
    * The ID attribute may be defaulted by setting it to "".
    * In this case the pointer to the first xml element matching the name
-   * is returned.
+   * only is returned.
    *
+   *  @param nameTarget  Name of the XML Node that is being searched for
+   *  @param idTarget    "id" attribute of the XML Node that the routine
+   *                     looks for
+   *
+   *  @return   Returns the pointer to the XML node that fits the criteria
+   *
+   * @internal
    * This algorithm does a lateral search of first generation children
    * first before diving deeper into each tree branch.
    */
   XML_Node* XML_Node::
-  findNameID(const string &nameTarget, const string &idTarget) const {
+  findNameID(const std::string & nameTarget, 
+	     const std::string & idTarget) const {
     XML_Node *scResult = 0;
     XML_Node *sc;
-    string idattrib = id();
+    std::string idattrib = id();
     int n;
     if (name() == nameTarget) {
       if (idTarget == "" || idTarget == idattrib) {
@@ -746,8 +781,27 @@ namespace Cantera {
     return scResult;
   }
     
-
-  XML_Node* XML_Node::findID(const string& id, int depth) const {
+  //   This routine carries out a recursive search for an XML node based
+  //   on the xml element attribute ID.
+  /*
+   * If exact match is found, the pointer
+   * to the matching XML Node is returned. If not, 0 is returned.
+   * 
+   * The ID attribute may be defaulted by setting it to "".
+   * In this case the pointer to the first xml element matching the name
+   * only is returned.
+   *
+   *  @param id       "id" attribute of the XML Node that the routine
+   *                  looks for
+   *  @param depth    Depth of the search.
+   *
+   *  @return         Returns the pointer to the XML node that fits the criteria
+   *
+   * @internal
+   * This algorithm does a lateral search of first generation children
+   * first before diving deeper into each tree branch.
+   */
+  XML_Node* XML_Node::findID(const std::string & id, const int depth) const {
     if (hasAttrib("id")) {
       if (attrib("id") == id) {
 	return const_cast<XML_Node*>(this);
@@ -813,7 +867,15 @@ namespace Cantera {
     s << "<?xml version=\"1.0\"?>" << endl;
   }
 
-  void XML_Node::build(istream& f) {
+  // Main routine to create an tree-like representation of an XML file
+  /*
+   *   Given an input stream, this routine will read matched XML tags
+   *   representing the ctml file until an EOF is read from the file. 
+   *   This routine is called by the root XML_Node object.
+   *
+   * @param f   Input stream containing the ascii input file
+   */
+  void XML_Node::build(std::istream& f) {
     XML_Reader r(f);
     string nm, nm2, val;
     XML_Node* node = this;
@@ -1103,21 +1165,6 @@ namespace Cantera {
     }
   }
 
-  /**
-   * _require() 
-   *    Require that the current xml node have an attribute named
-   *    by the first argument, a, and that this attribute have the
-   *    the string value listed in the second argument, v.
-   *    If not, throw a CanteraError exception.
-   */
-  void XML_Node::_require(string a, string v) const {
-    if (hasAttrib(a)) {
-      if (attrib(a) == v) return;
-    }
-    string msg="XML_Node "+name()+" is required to have the value "
-      "\""+v+"\", but instead is \""+attrib(a);
-    throw CanteraError("XML_Node::require",msg);
-  }
 
 
         
