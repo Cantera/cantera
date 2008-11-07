@@ -1303,4 +1303,55 @@ namespace Cantera {
     //}
 
   }
+
+  // Precalculate the IMS Cutoff parameters for typeCutoff = 2
+  void  HMWSoln::calcIMSCutoffParams_() {
+    IMS_afCut_ = 1.0 / (std::exp(1.0) *  IMS_gamma_k_min_);
+    IMS_efCut_ = 0.0;
+    bool converged = false;
+    double oldV = 0.0;
+    int its;
+    for (its = 0; its < 100 && !converged; its++) {
+      oldV = IMS_efCut_;
+      IMS_afCut_ = 1.0 / (std::exp(1.0) * IMS_gamma_k_min_)  -IMS_efCut_;
+      IMS_bfCut_ = IMS_afCut_ / IMS_cCut_ + IMS_slopefCut_ - 1.0;
+      IMS_dfCut_ = ((- IMS_afCut_/IMS_cCut_ + IMS_bfCut_ - IMS_bfCut_*IMS_X_o_cutoff_/IMS_cCut_)
+                /
+                (IMS_X_o_cutoff_*IMS_X_o_cutoff_/IMS_cCut_ - 2.0 * IMS_X_o_cutoff_));
+      double tmp = IMS_afCut_ + IMS_X_o_cutoff_*( IMS_bfCut_ + IMS_dfCut_ *IMS_X_o_cutoff_);
+      double eterm = std::exp(-IMS_X_o_cutoff_/IMS_cCut_);
+      IMS_efCut_ = - eterm * (tmp);
+      if (fabs(IMS_efCut_ - oldV) < 1.0E-14) {
+        converged = true;
+      }
+    }
+    if (!converged) {
+      throw CanteraError(" IdealMolalSoln::calcCutoffParams_()",
+                         " failed to converge on the f polynomial");
+    }
+    converged = false;
+    double f_0 = IMS_afCut_ + IMS_efCut_;
+    double f_prime_0 = 1.0 - IMS_afCut_ / IMS_cCut_ + IMS_bfCut_;
+    IMS_egCut_ = 0.0;
+    for (its = 0; its < 100 && !converged; its++) {
+      oldV = IMS_egCut_;
+      double lng_0 = -log(IMS_gamma_o_min_) -  f_prime_0 / f_0;
+      IMS_agCut_ = exp(lng_0) - IMS_egCut_;
+      IMS_bgCut_ = IMS_agCut_ / IMS_cCut_ + IMS_slopegCut_ - 1.0;
+      IMS_dgCut_ = ((- IMS_agCut_/IMS_cCut_ + IMS_bgCut_ - IMS_bgCut_*IMS_X_o_cutoff_/IMS_cCut_)
+                /
+                (IMS_X_o_cutoff_*IMS_X_o_cutoff_/IMS_cCut_ - 2.0 * IMS_X_o_cutoff_));
+      double tmp = IMS_agCut_ + IMS_X_o_cutoff_*( IMS_bgCut_ + IMS_dgCut_ *IMS_X_o_cutoff_);
+      double eterm = std::exp(-IMS_X_o_cutoff_/IMS_cCut_);
+      IMS_egCut_ = - eterm * (tmp);
+      if (fabs(IMS_egCut_ - oldV) < 1.0E-14) {
+        converged = true;
+      }
+    }
+    if (!converged) {
+      throw CanteraError(" IdealMolalSoln::calcCutoffParams_()",
+                         " failed to converge on the f polynomial");
+    }
+  }
+
 }

@@ -902,7 +902,7 @@ namespace Cantera {
 
   public:
     //! Cutoff type
-    int typeCutoff_;
+    int IMS_typeCutoff_;
 
   private:
 
@@ -931,58 +931,58 @@ namespace Cantera {
     /*!
      *   Normally these are all one. However, stability schemes will change that
      */
-    mutable vector_fp      m_lnActCoeffMolal;
+    mutable vector_fp      IMS_lnActCoeffMolal_;
   public:
     //! value of the solute mole fraction that centers the cutoff polynomials
     //! for the cutoff =1 process;
-    doublereal X_o_cutoff_;
+    doublereal IMS_X_o_cutoff_;
   
     //! gamma_o value for the cutoff process at the zero solvent point
-    doublereal gamma_o_min_;
+    doublereal IMS_gamma_o_min_;
 
     //! gamma_k minimun for the cutoff process at the zero solvent point
-    doublereal gamma_k_min_;
+    doublereal IMS_gamma_k_min_;
 
     //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
-    doublereal cCut_;
+    doublereal IMS_cCut_;
 
     //! Parameter in the polyExp cutoff treatment 
     /*!
      *  This is the slope of the f function at the zero solvent point
      *  Default value is 0.6
      */
-    doublereal slopefCut_;
+    doublereal IMS_slopefCut_;
 
     //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
-    doublereal dfCut_;
+    doublereal IMS_dfCut_;
 
     //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
-    doublereal efCut_;
+    doublereal IMS_efCut_;
 
     //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
-    doublereal afCut_;
+    doublereal IMS_afCut_;
 
     //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
-    doublereal bfCut_;
+    doublereal IMS_bfCut_;
 
     //! Parameter in the polyExp cutoff treatment 
     /*!
      *  This is the slope of the g function at the zero solvent point
      *  Default value is 0.0
      */
-    doublereal slopegCut_;
+    doublereal IMS_slopegCut_;
 
     //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
-    doublereal dgCut_;
+    doublereal IMS_dgCut_;
 
     //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
-    doublereal egCut_;
+    doublereal IMS_egCut_;
 
     //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
-    doublereal agCut_;
+    doublereal IMS_agCut_;
 
     //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
-    doublereal bgCut_;
+    doublereal IMS_bgCut_;
 
   private:
 

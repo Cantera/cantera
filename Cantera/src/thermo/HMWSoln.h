@@ -2196,7 +2196,7 @@ namespace Cantera {
 
     //@}
          
-  protected:
+  private:
 
     /**
      * This is the form of the Pitzer parameterization
@@ -2294,7 +2294,6 @@ namespace Cantera {
      */
     double m_TempPitzerRef;
 
-  protected:
     /**
      * Stoichiometric ionic strength on the molality scale.
      * This differs from m_IionicMolality in the sense that
@@ -2322,7 +2321,7 @@ namespace Cantera {
      */
     int m_form_A_Debye;
 
-  protected:
+  private:
     /**
      * A_Debye -> this expression appears on the top of the
      *            ln actCoeff term in the general Debye-Huckel
@@ -2356,13 +2355,11 @@ namespace Cantera {
      */
     mutable double m_A_Debye;
 
-    
     //!  Water standard state calculator
     /*!
      *  derived from the equation of state for water. 
      */
     PDSS *m_waterSS;
-    //PDSS *m_waterSS;
 
     //! density of standard-state water
     /*!
@@ -2719,11 +2716,11 @@ namespace Cantera {
      * -------- Temporary Variables Used in the Activity Coeff Calc
      */
 
-    //! Cropped values of the molalities used in activity
+    //! Cropped and modified values of the molalities used in activity
     //! coefficient calculations
     mutable vector_fp m_molalitiesCropped;
 
-    //! Boolean indicating whether the molalities are cropped
+    //! Boolean indicating whether the molalities are cropped or are modified
     mutable bool m_molalitiesAreCropped;
     
     //! a counter variable for keeping track of symmetric binary
@@ -2934,7 +2931,66 @@ namespace Cantera {
      */
     mutable vector_fp m_gamma;
 
-  private:
+    //! Logarithm of the molal activity coefficients
+    /*!
+     *   Normally these are all one. However, stability schemes will change that
+     */
+    mutable vector_fp      IMS_lnActCoeffMolal_;
+
+    // IMS Cutoff type
+    int IMS_typeCutoff_;
+  
+    //! value of the solute mole fraction that centers the cutoff polynomials
+    //! for the cutoff =1 process;
+    doublereal IMS_X_o_cutoff_;
+
+    //! gamma_o value for the cutoff process at the zero solvent point
+    doublereal IMS_gamma_o_min_;
+
+    //! gamma_k minimun for the cutoff process at the zero solvent point
+    doublereal IMS_gamma_k_min_;
+
+    //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
+    doublereal IMS_cCut_;
+
+    //! Parameter in the polyExp cutoff treatment
+    /*!
+     *  This is the slope of the f function at the zero solvent point
+     *  Default value is 0.6
+     */
+    doublereal IMS_slopefCut_;
+    
+    //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
+    doublereal IMS_dfCut_;
+
+    //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
+    doublereal IMS_efCut_;
+
+    //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
+    doublereal IMS_afCut_;
+
+    //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
+    doublereal IMS_bfCut_;
+
+    //! Parameter in the polyExp cutoff treatment
+    /*!
+     *  This is the slope of the g function at the zero solvent point
+     *  Default value is 0.0
+     */
+    doublereal IMS_slopegCut_;
+
+    //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
+    doublereal IMS_dgCut_;
+
+    //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
+    doublereal IMS_egCut_;
+
+    //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
+    doublereal IMS_agCut_;
+
+    //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
+    doublereal IMS_bgCut_;
+
 
     //! Local error routine
     /*!
@@ -2950,6 +3006,18 @@ namespace Cantera {
      * natural logarithm of the molality activity coefficients 
      */
     void s_update_lnMolalityActCoeff() const;
+
+    //! This function will be called to update the internally storred
+    //! natural logarithm of the molality activity coefficients
+    /*
+     * Normally they are all one. However, sometimes they are not,
+     * due to stability schemes
+     *
+     *    gamma_k_molar =  gamma_k_molal / Xmol_solvent
+     *
+     *    gamma_o_molar = gamma_o_molal
+     */
+    void s_updateIMS_lnMolalityActCoeff() const;
 
   public:
 
@@ -3132,7 +3200,11 @@ namespace Cantera {
      */
     void readXMLLambdaNeutral(XML_Node &BinSalt);
 
-    //! utility function to assign an integer value from a string
+
+    //! Precalculate the IMS Cutoff parameters for typeCutoff = 2
+    void  HMWSoln::calcIMSCutoffParams_();
+
+    //! Utility function to assign an integer value from a string
     //! for the ElectrolyteSpeciesType field.
     /*!
      *  @param estString string name of the electrolyte species type

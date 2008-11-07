@@ -51,6 +51,21 @@ namespace Cantera {
     m_densWaterSS(1000.),
     m_waterProps(0),
     m_molalitiesAreCropped(false),
+    IMS_typeCutoff_(0),
+    IMS_X_o_cutoff_(0.2),
+    IMS_gamma_o_min_(1.0E-5),
+    IMS_gamma_k_min_(10.0),
+    IMS_cCut_(0.5),
+    IMS_slopefCut_(0.6),
+    IMS_dfCut_(0.0),
+    IMS_efCut_(0.0),
+    IMS_afCut_(0.0),
+    IMS_bfCut_(0.0),
+    IMS_slopegCut_(0.0),
+    IMS_dgCut_(0.0),
+    IMS_egCut_(0.0),
+    IMS_agCut_(0.0),
+    IMS_bgCut_(0.0),
     m_debugCalc(0)
   {
     for (int i = 0; i < 17; i++) {
@@ -81,6 +96,21 @@ namespace Cantera {
     m_densWaterSS(1000.),
     m_waterProps(0),
     m_molalitiesAreCropped(false),
+    IMS_typeCutoff_(0),
+    IMS_X_o_cutoff_(0.2),
+    IMS_gamma_o_min_(1.0E-5),
+    IMS_gamma_k_min_(10.0),
+    IMS_cCut_(0.5),
+    IMS_slopefCut_(0.6),
+    IMS_dfCut_(0.0),
+    IMS_efCut_(0.0),
+    IMS_afCut_(0.0),
+    IMS_bfCut_(0.0),
+    IMS_slopegCut_(0.0),
+    IMS_dgCut_(0.0),
+    IMS_egCut_(0.0),
+    IMS_agCut_(0.0),
+    IMS_bgCut_(0.0),
     m_debugCalc(0)
   {
     for (int i = 0; i < 17; i++) {
@@ -105,6 +135,21 @@ namespace Cantera {
     m_densWaterSS(1000.),
     m_waterProps(0),
     m_molalitiesAreCropped(false),
+    IMS_typeCutoff_(0),
+    IMS_X_o_cutoff_(0.2),
+    IMS_gamma_o_min_(1.0E-5),
+    IMS_gamma_k_min_(10.0),
+    IMS_cCut_(0.5),
+    IMS_slopefCut_(0.6),
+    IMS_dfCut_(0.0),
+    IMS_efCut_(0.0),
+    IMS_afCut_(0.0),
+    IMS_bfCut_(0.0),
+    IMS_slopegCut_(0.0),
+    IMS_dgCut_(0.0),
+    IMS_egCut_(0.0),
+    IMS_agCut_(0.0),
+    IMS_bgCut_(0.0),
     m_debugCalc(0)
   {
     for (int i = 0; i < 17; i++) {
@@ -135,6 +180,21 @@ namespace Cantera {
     m_densWaterSS(1000.),
     m_waterProps(0),
     m_molalitiesAreCropped(false),
+    IMS_typeCutoff_(0),
+    IMS_X_o_cutoff_(0.2),
+    IMS_gamma_o_min_(1.0E-5),
+    IMS_gamma_k_min_(10.0),
+    IMS_cCut_(0.5),
+    IMS_slopefCut_(0.6),
+    IMS_dfCut_(0.0),
+    IMS_efCut_(0.0),
+    IMS_afCut_(0.0),
+    IMS_bfCut_(0.0),
+    IMS_slopegCut_(0.0),
+    IMS_dgCut_(0.0),
+    IMS_egCut_(0.0),
+    IMS_agCut_(0.0),
+    IMS_bgCut_(0.0),
     m_debugCalc(0)
   {
     /*
@@ -256,6 +316,23 @@ namespace Cantera {
       m_CMX_IJ_LL           = b.m_CMX_IJ_LL;
       m_CMX_IJ_P            = b.m_CMX_IJ_P;
       m_gamma               = b.m_gamma;
+
+      IMS_lnActCoeffMolal_  = b.IMS_lnActCoeffMolal_;
+      IMS_typeCutoff_       = b.IMS_typeCutoff_;
+      IMS_X_o_cutoff_       = b.IMS_X_o_cutoff_;
+      IMS_gamma_o_min_      = b.IMS_gamma_o_min_;
+      IMS_gamma_k_min_      = b.IMS_gamma_k_min_;
+      IMS_cCut_             = b.IMS_cCut_;
+      IMS_slopefCut_        = b.IMS_slopefCut_;
+      IMS_dfCut_            = b.IMS_dfCut_;
+      IMS_efCut_            = b.IMS_efCut_;
+      IMS_afCut_            = b.IMS_afCut_;
+      IMS_bfCut_            = b.IMS_bfCut_;
+      IMS_slopegCut_        = b.IMS_slopegCut_;
+      IMS_dgCut_            = b.IMS_dgCut_;
+      IMS_egCut_            = b.IMS_egCut_;
+      IMS_agCut_            = b.IMS_agCut_;
+      IMS_bgCut_            = b.IMS_bgCut_;
 
       m_CounterIJ           = b.m_CounterIJ;
       m_molalitiesCropped   = b.m_molalitiesCropped;
@@ -1561,6 +1638,7 @@ namespace Cantera {
 
     m_gamma.resize(leng, 0.0);
 
+    IMS_lnActCoeffMolal_.resize(m_kk, 0.0);
 
     counterIJ_setup();
   }
@@ -1609,6 +1687,11 @@ namespace Cantera {
      * and their derivatives
      */
     s_updatePitzerCoeffWRTemp();
+
+    /*
+     * Calculate the IMS cutoff factors
+     */
+    s_updateIMS_lnMolalityActCoeff();
 
     /*
      * Now do the main calculation.
@@ -5297,6 +5380,128 @@ namespace Cantera {
       *etheta_prime = elambda1[i*j] - f1*elambda1[j*j] - f2*elambda1[i*i];
     }
   }
+
+  // This function will be called to update the internally storred
+  // natural logarithm of the molality activity coefficients
+  /*
+   * Normally they are all one. However, sometimes they are not,
+   * due to stability schemes
+   *
+   *    gamma_k_molar =  gamma_k_molal / Xmol_solvent
+   *
+   *    gamma_o_molar = gamma_o_molal
+   */
+  void  HMWSoln::s_updateIMS_lnMolalityActCoeff() const {
+    int k;
+    double tmp;
+    /*
+     * Calculate the molalities. Currently, the molalities
+     * may not be current with respect to the contents of the
+     * State objects' data.
+     */
+    calcMolalities();
+
+    double xmolSolvent = moleFraction(m_indexSolvent);
+    double xx = MAX(m_xmolSolventMIN, xmolSolvent);
+    if (IMS_typeCutoff_ == 0) {
+      for (k = 1; k < m_kk; k++) {
+        IMS_lnActCoeffMolal_[k]= 0.0;
+      }
+      IMS_lnActCoeffMolal_[m_indexSolvent] = - log(xx) + (xx - 1.0)/xx;
+      return;
+    } else if (IMS_typeCutoff_ == 1) {
+      if (xmolSolvent > 3.0 * IMS_X_o_cutoff_/2.0 ) {
+        for (k = 1; k < m_kk; k++) {
+          IMS_lnActCoeffMolal_[k]= 0.0;
+        }
+        IMS_lnActCoeffMolal_[m_indexSolvent] = - log(xx) + (xx - 1.0)/xx;
+        return;
+      } else if (xmolSolvent < IMS_X_o_cutoff_/2.0) {
+        tmp = log(xx * IMS_gamma_k_min_);
+        for (k = 1; k < m_kk; k++) {
+          IMS_lnActCoeffMolal_[k]= tmp;
+        }
+        IMS_lnActCoeffMolal_[m_indexSolvent] = log(IMS_gamma_o_min_);
+        return;
+      } else {
+	/*
+         * If we are in the middle region, calculate the connecting polynomials
+         */
+        double xminus  = xmolSolvent - IMS_X_o_cutoff_/2.0;
+        double xminus2 = xminus * xminus;
+        double xminus3 = xminus2 * xminus;
+        double x_o_cut2 = IMS_X_o_cutoff_ * IMS_X_o_cutoff_;
+        double x_o_cut3 =  x_o_cut2 * IMS_X_o_cutoff_;
+
+        double h2 = 3.5 * xminus2 /  IMS_X_o_cutoff_ - 2.0 * xminus3 / x_o_cut2;
+        double h2_prime = 7.0 * xminus /  IMS_X_o_cutoff_ - 6.0 * xminus2 /  x_o_cut2;
+
+        double h1 =   (1.0 - 3.0 * xminus2 /  x_o_cut2 + 2.0 *  xminus3/ x_o_cut3);
+        double h1_prime = (- 6.0 * xminus /  x_o_cut2 + 6.0 *  xminus2/ x_o_cut3);
+
+        double h1_g = h1 / IMS_gamma_o_min_;
+        double h1_g_prime  = h1_prime / IMS_gamma_o_min_;
+
+        double alpha = 1.0 / ( exp(1.0) * IMS_gamma_k_min_);
+        double h1_f = h1 * alpha;
+        double h1_f_prime  = h1_prime * alpha;
+
+        double f = h2 + h1_f;
+        double f_prime = h2_prime + h1_f_prime;
+
+        double g = h2 + h1_g;
+        double g_prime = h2_prime + h1_g_prime;
+
+        tmp = (xmolSolvent/ g * g_prime + (1.0-xmolSolvent) / f * f_prime);
+        double lngammak = -1.0 - log(f) + tmp * xmolSolvent;
+        double lngammao =-log(g) - tmp * (1.0-xmolSolvent);
+
+        tmp = log(xmolSolvent) + lngammak;
+        for (k = 1; k < m_kk; k++) {
+          IMS_lnActCoeffMolal_[k]= tmp;
+        }
+	IMS_lnActCoeffMolal_[m_indexSolvent] = lngammao;
+      }
+    }
+    // Exponentials - trial 2
+    else if (IMS_typeCutoff_ == 2) {
+      if (xmolSolvent > IMS_X_o_cutoff_) {
+        for (k = 1; k < m_kk; k++) {
+          IMS_lnActCoeffMolal_[k]= 0.0;
+        }
+        IMS_lnActCoeffMolal_[m_indexSolvent] = - log(xx) + (xx - 1.0)/xx;
+        return;
+      } else {
+
+        double xoverc = xmolSolvent/IMS_cCut_;
+        double eterm = std::exp(-xoverc);
+
+        double fptmp = IMS_bfCut_  - IMS_afCut_ / IMS_cCut_ - IMS_bfCut_*xoverc
+          + 2.0*IMS_dfCut_*xmolSolvent - IMS_dfCut_*xmolSolvent*xoverc;
+        double f_prime = 1.0 + eterm*fptmp;
+        double f = xmolSolvent + IMS_efCut_ 
+	  + eterm * (IMS_afCut_ + xmolSolvent * (IMS_bfCut_ + IMS_dfCut_*xmolSolvent));
+
+        double gptmp = IMS_bgCut_  - IMS_agCut_ / IMS_cCut_ - IMS_bgCut_*xoverc
+          + 2.0*IMS_dgCut_*xmolSolvent - IMS_dgCut_*xmolSolvent*xoverc;
+        double g_prime = 1.0 + eterm*gptmp;
+        double g = xmolSolvent + IMS_egCut_ 
+	  + eterm * (IMS_agCut_ + xmolSolvent * (IMS_bgCut_ + IMS_dgCut_*xmolSolvent));
+
+        tmp = (xmolSolvent / g * g_prime + (1.0 - xmolSolvent) / f * f_prime);
+        double lngammak = -1.0 - log(f) + tmp * xmolSolvent;
+        double lngammao =-log(g) - tmp * (1.0-xmolSolvent);
+
+        tmp = log(xx) + lngammak;
+        for (k = 1; k < m_kk; k++) {
+          IMS_lnActCoeffMolal_[k]= tmp;
+        }
+        IMS_lnActCoeffMolal_[m_indexSolvent] = lngammao;
+      }
+    }
+    return;
+  }
+
     
   /**
    * This routine prints out the input pitzer coefficients for the 

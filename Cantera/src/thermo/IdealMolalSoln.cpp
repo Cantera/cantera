@@ -42,21 +42,21 @@ namespace Cantera {
   IdealMolalSoln::IdealMolalSoln() :
     MolalityVPSSTP(),
     m_formGC(2),
-    typeCutoff_(0),
-    X_o_cutoff_(0.20),
-    gamma_o_min_(0.00001),
-    gamma_k_min_(10.0),
-    cCut_(.05),
-    slopefCut_(0.6),
-    dfCut_(0.0),
-    efCut_(0.0),
-    afCut_(0.0),
-    bfCut_(0.0),
-    slopegCut_(0.0),
-    dgCut_(0.0),
-    egCut_(0.0),
-    agCut_(0.0),
-    bgCut_(0.0)
+    IMS_typeCutoff_(0),
+    IMS_X_o_cutoff_(0.20),
+    IMS_gamma_o_min_(0.00001),
+    IMS_gamma_k_min_(10.0),
+    IMS_cCut_(.05),
+    IMS_slopefCut_(0.6),
+    IMS_dfCut_(0.0),
+    IMS_efCut_(0.0),
+    IMS_afCut_(0.0),
+    IMS_bfCut_(0.0),
+    IMS_slopegCut_(0.0),
+    IMS_dgCut_(0.0),
+    IMS_egCut_(0.0),
+    IMS_agCut_(0.0),
+    IMS_bgCut_(0.0)
   {
   }
 
@@ -88,26 +88,26 @@ namespace Cantera {
       MolalityVPSSTP::operator=(b);
       m_speciesMolarVolume  = b.m_speciesMolarVolume;
       m_formGC              = b.m_formGC;
-      typeCutoff_           = b.typeCutoff_;
-      X_o_cutoff_           = b.X_o_cutoff_;
-      gamma_o_min_          = b.gamma_o_min_;
-      gamma_k_min_          = b.gamma_k_min_;
-      cCut_                 = b.cCut_;
-      slopefCut_            = b.slopefCut_;
-      dfCut_                = b.dfCut_;
-      efCut_                = b.efCut_;
-      afCut_                = b.afCut_;
-      bfCut_                = b.bfCut_;
-      slopegCut_            = b.slopegCut_;
-      dgCut_                = b.dgCut_;
-      egCut_                = b.egCut_;
-      agCut_                = b.agCut_;
-      bgCut_                = b.bgCut_;
+      IMS_typeCutoff_       = b.IMS_typeCutoff_;
+      IMS_X_o_cutoff_       = b.IMS_X_o_cutoff_;
+      IMS_gamma_o_min_      = b.IMS_gamma_o_min_;
+      IMS_gamma_k_min_      = b.IMS_gamma_k_min_;
+      IMS_cCut_             = b.IMS_cCut_;
+      IMS_slopefCut_        = b.IMS_slopefCut_;
+      IMS_dfCut_            = b.IMS_dfCut_;
+      IMS_efCut_            = b.IMS_efCut_;
+      IMS_afCut_            = b.IMS_afCut_;
+      IMS_bfCut_            = b.IMS_bfCut_;
+      IMS_slopegCut_        = b.IMS_slopegCut_;
+      IMS_dgCut_            = b.IMS_dgCut_;
+      IMS_egCut_            = b.IMS_egCut_;
+      IMS_agCut_            = b.IMS_agCut_;
+      IMS_bgCut_            = b.IMS_bgCut_;
       m_expg0_RT            = b.m_expg0_RT;
       m_pe                  = b.m_pe;
       m_pp                  = b.m_pp;
       m_tmpV                = b.m_tmpV;
-      m_lnActCoeffMolal     = b.m_lnActCoeffMolal;
+      IMS_lnActCoeffMolal_  = b.IMS_lnActCoeffMolal_;
     }
     return *this;
   }
@@ -115,21 +115,21 @@ namespace Cantera {
   IdealMolalSoln::IdealMolalSoln(std::string inputFile, std::string id) :
     MolalityVPSSTP(),
     m_formGC(2),
-    typeCutoff_(0),
-    X_o_cutoff_(0.2),
-    gamma_o_min_(0.00001),
-    gamma_k_min_(10.0),
-    cCut_(.05),
-    slopefCut_(0.6),
-    dfCut_(0.0),
-    efCut_(0.0),
-    afCut_(0.0),
-    bfCut_(0.0),
-    slopegCut_(0.0),
-    dgCut_(0.0),
-    egCut_(0.0),
-    agCut_(0.0),
-    bgCut_(0.0)
+    IMS_typeCutoff_(0),
+    IMS_X_o_cutoff_(0.2),
+    IMS_gamma_o_min_(0.00001),
+    IMS_gamma_k_min_(10.0),
+    IMS_cCut_(.05),
+    IMS_slopefCut_(0.6),
+    IMS_dfCut_(0.0),
+    IMS_efCut_(0.0),
+    IMS_afCut_(0.0),
+    IMS_bfCut_(0.0),
+    IMS_slopegCut_(0.0),
+    IMS_dgCut_(0.0),
+    IMS_egCut_(0.0),
+    IMS_agCut_(0.0),
+    IMS_bgCut_(0.0)
   {
     constructPhaseFile(inputFile, id);
   }
@@ -137,21 +137,21 @@ namespace Cantera {
   IdealMolalSoln::IdealMolalSoln(XML_Node& root, std::string id) :
     MolalityVPSSTP(),
     m_formGC(2),
-    typeCutoff_(0),
-    X_o_cutoff_(0.2),
-    gamma_o_min_(0.00001),
-    gamma_k_min_(10.0),
-    cCut_(.05),
-    slopefCut_(0.6),
-    dfCut_(0.0),
-    efCut_(0.0),
-    afCut_(0.0),
-    bfCut_(0.0),
-    slopegCut_(0.0),
-    dgCut_(0.0),
-    egCut_(0.0),
-    agCut_(0.0),
-    bgCut_(0.0)
+    IMS_typeCutoff_(0),
+    IMS_X_o_cutoff_(0.2),
+    IMS_gamma_o_min_(0.00001),
+    IMS_gamma_k_min_(10.0),
+    IMS_cCut_(.05),
+    IMS_slopefCut_(0.6),
+    IMS_dfCut_(0.0),
+    IMS_efCut_(0.0),
+    IMS_afCut_(0.0),
+    IMS_bfCut_(0.0),
+    IMS_slopegCut_(0.0),
+    IMS_dgCut_(0.0),
+    IMS_egCut_(0.0),
+    IMS_agCut_(0.0),
+    IMS_bgCut_(0.0)
   {
     constructPhaseXML(root, id);
   }
@@ -532,7 +532,7 @@ namespace Cantera {
      * Update the molality array, m_molalities()
      *   This requires an update due to mole fractions
      */
-    if (typeCutoff_ == 0) {
+    if (IMS_typeCutoff_ == 0) {
       calcMolalities();
       for (int k = 0; k < m_kk; k++) {
 	ac[k] = m_molalities[k];
@@ -548,11 +548,11 @@ namespace Cantera {
        * Now calculate the array of activities.
        */
       for (int k = 1; k < m_kk; k++) {
-	  ac[k] = m_molalities[k] * exp(m_lnActCoeffMolal[k]);
+	  ac[k] = m_molalities[k] * exp(IMS_lnActCoeffMolal_[k]);
       }
       double xmolSolvent = moleFraction(m_indexSolvent);
       ac[m_indexSolvent] =
-      exp(m_lnActCoeffMolal[m_indexSolvent]) * xmolSolvent;
+      exp(IMS_lnActCoeffMolal_[m_indexSolvent]) * xmolSolvent;
      
     }
   }
@@ -570,7 +570,7 @@ namespace Cantera {
    */
   void IdealMolalSoln::
   getMolalityActivityCoefficients(doublereal* acMolality) const {
-    if (typeCutoff_ == 0) {
+    if (IMS_typeCutoff_ == 0) {
       for (int k = 0; k < m_kk; k++) {
 	acMolality[k] = 1.0;
       }
@@ -580,7 +580,7 @@ namespace Cantera {
 	exp((xmolSolvent - 1.0)/xmolSolvent) / xmolSolvent;
     } else {
       s_updateIMS_lnMolalityActCoeff();
-      std::copy(m_lnActCoeffMolal.begin(), m_lnActCoeffMolal.end(), acMolality);
+      std::copy(IMS_lnActCoeffMolal_.begin(), IMS_lnActCoeffMolal_.end(), acMolality);
       for (int k = 0; k < m_kk; k++) {
 	acMolality[k] = exp(acMolality[k]);
       }
@@ -640,7 +640,7 @@ namespace Cantera {
      */
     doublereal RT = GasConstant * temperature();
 
-    if (typeCutoff_ == 0 || xmolSolvent > 3.* X_o_cutoff_/2.0) {
+    if (IMS_typeCutoff_ == 0 || xmolSolvent > 3.* IMS_X_o_cutoff_/2.0) {
   
       for (int k = 1; k < m_kk; k++) {
 	xx = fmaxx(m_molalities[k], xxSmall);
@@ -664,11 +664,11 @@ namespace Cantera {
 
       for (int k = 1; k < m_kk; k++) {
 	xx = MAX(m_molalities[k], xxSmall);
-	mu[k] += RT * (log(xx) + m_lnActCoeffMolal[k]);
+	mu[k] += RT * (log(xx) + IMS_lnActCoeffMolal_[k]);
       }
       xx = MAX(xmolSolvent, xxSmall);
       mu[m_indexSolvent] +=
-	RT * (log(xx) + m_lnActCoeffMolal[m_indexSolvent]);
+	RT * (log(xx) + IMS_lnActCoeffMolal_[m_indexSolvent]);
     }
 
   }
@@ -718,7 +718,7 @@ namespace Cantera {
     doublereal R = GasConstant;
     doublereal mm;
     calcMolalities();
-    if (typeCutoff_ == 0) {
+    if (IMS_typeCutoff_ == 0) {
       for (int k = 0; k < m_kk; k++) {
 	if (k != m_indexSolvent) {
 	  mm = fmaxx(SmallNumber, m_molalities[k]);
@@ -741,12 +741,12 @@ namespace Cantera {
       for (int k = 0; k < m_kk; k++) {
 	if (k != m_indexSolvent) {
 	  mm = fmaxx(SmallNumber, m_molalities[k]);
-	  sbar[k] -= R * (log(mm) + m_lnActCoeffMolal[k]);
+	  sbar[k] -= R * (log(mm) + IMS_lnActCoeffMolal_[k]);
 	}
       }
       double xmolSolvent = moleFraction(m_indexSolvent);
       mm = fmaxx(SmallNumber, xmolSolvent);
-      sbar[m_indexSolvent] -= R *(log(mm) + m_lnActCoeffMolal[m_indexSolvent]);
+      sbar[m_indexSolvent] -= R *(log(mm) + IMS_lnActCoeffMolal_[m_indexSolvent]);
 
     }
   }
@@ -1003,7 +1003,7 @@ namespace Cantera {
     if (thermoNode.hasChild("activityCoefficients")) {
       XML_Node& acNode = thermoNode.child("activityCoefficients");
       std::string modelString = acNode.attrib("model");
-      typeCutoff_ = 0;
+      IMS_typeCutoff_ = 0;
       if (modelString != "IdealMolalSoln") {
 	throw CanteraError("IdealMolalSoln::initThermoXML",
 			   "unknown ActivityCoefficient model: " + modelString);
@@ -1013,31 +1013,31 @@ namespace Cantera {
 	modelString = ccNode.attrib("model");
 	if (modelString != "") {
 	  if (modelString == "polyExp") {
-	    typeCutoff_ = 2;
+	    IMS_typeCutoff_ = 2;
 	  } else if (modelString == "poly") {
-	    typeCutoff_ = 1;
+	    IMS_typeCutoff_ = 1;
 	  } else {
 	    throw CanteraError("IdealMolalSoln::initThermoXML",
 			       "Unknown  idealMolalSolnCutoff form: " + modelString);
 	  }
 
 	  if (ccNode.hasChild("gamma_o_limit")) {
-	    gamma_o_min_ = getFloat(ccNode, "gamma_o_limit");
+	    IMS_gamma_o_min_ = getFloat(ccNode, "gamma_o_limit");
 	  }	  
 	  if (ccNode.hasChild("gamma_k_limit")) {
-	    gamma_k_min_ = getFloat(ccNode, "gamma_k_limit");
+	    IMS_gamma_k_min_ = getFloat(ccNode, "gamma_k_limit");
 	  }
 	  if (ccNode.hasChild("X_o_cutoff")) {
-	    X_o_cutoff_ = getFloat(ccNode, "X_o_cutoff");
+	    IMS_X_o_cutoff_ = getFloat(ccNode, "X_o_cutoff");
 	  }
       	  if (ccNode.hasChild("c_0_param")) {
-	    cCut_ = getFloat(ccNode, "c_0_param");
+	    IMS_cCut_ = getFloat(ccNode, "c_0_param");
 	  }
  	  if (ccNode.hasChild("slope_f_limit")) {
-	    slopefCut_ = getFloat(ccNode, "slope_f_limit");
+	    IMS_slopefCut_ = getFloat(ccNode, "slope_f_limit");
 	  }
 	  if (ccNode.hasChild("slope_g_limit")) {
-	    slopegCut_ = getFloat(ccNode, "slope_g_limit");
+	    IMS_slopegCut_ = getFloat(ccNode, "slope_g_limit");
 	  }
 
 	}
@@ -1083,8 +1083,8 @@ namespace Cantera {
       m_speciesMolarVolume[k] = getFloat(*ss, "molarVolume", "toSI");
     }
 
-    typeCutoff_ = 2;
-    if (typeCutoff_ == 2) {
+    IMS_typeCutoff_ = 2;
+    if (IMS_typeCutoff_ == 2) {
       calcIMSCutoffParams_();
     }
 
@@ -1173,47 +1173,47 @@ namespace Cantera {
     double xmolSolvent = moleFraction(m_indexSolvent);
     double xx = MAX(m_xmolSolventMIN, xmolSolvent);
 
-    if (typeCutoff_ == 0) {
+    if (IMS_typeCutoff_ == 0) {
       for (k = 1; k < m_kk; k++) {
-	m_lnActCoeffMolal[k]= 0.0;
+	IMS_lnActCoeffMolal_[k]= 0.0;
       }
-      m_lnActCoeffMolal[m_indexSolvent] = - log(xx) + (xx - 1.0)/xx;
+      IMS_lnActCoeffMolal_[m_indexSolvent] = - log(xx) + (xx - 1.0)/xx;
       return;
-    } else if (typeCutoff_ == 1) {
-      if (xmolSolvent > 3.0 * X_o_cutoff_/2.0 ) {
+    } else if (IMS_typeCutoff_ == 1) {
+      if (xmolSolvent > 3.0 * IMS_X_o_cutoff_/2.0 ) {
 	for (k = 1; k < m_kk; k++) {
-	  m_lnActCoeffMolal[k]= 0.0;
+	  IMS_lnActCoeffMolal_[k]= 0.0;
 	}
-	m_lnActCoeffMolal[m_indexSolvent] = - log(xx) + (xx - 1.0)/xx;
+	IMS_lnActCoeffMolal_[m_indexSolvent] = - log(xx) + (xx - 1.0)/xx;
 	return;
-      } else if  (xmolSolvent < X_o_cutoff_/2.0) {	
-	tmp = log(xx * gamma_k_min_);
+      } else if  (xmolSolvent < IMS_X_o_cutoff_/2.0) {	
+	tmp = log(xx * IMS_gamma_k_min_);
 	for (k = 1; k < m_kk; k++) {
-	  m_lnActCoeffMolal[k]= tmp;
+	  IMS_lnActCoeffMolal_[k]= tmp;
 	}
-	m_lnActCoeffMolal[m_indexSolvent] = log(gamma_o_min_);
+	IMS_lnActCoeffMolal_[m_indexSolvent] = log(IMS_gamma_o_min_);
 	return;
       } else {
       
 	/*
 	 * If we are in the middle region, calculate the connecting polynomials
 	 */
-	double xminus  = xmolSolvent - X_o_cutoff_/2.0;
+	double xminus  = xmolSolvent - IMS_X_o_cutoff_/2.0;
 	double xminus2 = xminus * xminus;
 	double xminus3 = xminus2 * xminus;
-	double x_o_cut2 = X_o_cutoff_ * X_o_cutoff_;
-	double x_o_cut3 =  x_o_cut2 * X_o_cutoff_;
+	double x_o_cut2 = IMS_X_o_cutoff_ * IMS_X_o_cutoff_;
+	double x_o_cut3 =  x_o_cut2 * IMS_X_o_cutoff_;
     
-	double h2 = 3.5 * xminus2 /  X_o_cutoff_ - 2.0 * xminus3 / x_o_cut2;    
-	double h2_prime = 7.0 * xminus /  X_o_cutoff_ - 6.0 * xminus2 /  x_o_cut2;
+	double h2 = 3.5 * xminus2 /  IMS_X_o_cutoff_ - 2.0 * xminus3 / x_o_cut2;    
+	double h2_prime = 7.0 * xminus /  IMS_X_o_cutoff_ - 6.0 * xminus2 /  x_o_cut2;
 
 	double h1 =   (1.0 - 3.0 * xminus2 /  x_o_cut2 + 2.0 *  xminus3/ x_o_cut3);
 	double h1_prime = (- 6.0 * xminus /  x_o_cut2 + 6.0 *  xminus2/ x_o_cut3);
 
-	double h1_g = h1 / gamma_o_min_;
-	double h1_g_prime  = h1_prime / gamma_o_min_;
+	double h1_g = h1 / IMS_gamma_o_min_;
+	double h1_g_prime  = h1_prime / IMS_gamma_o_min_;
 
-	double alpha = 1.0 / ( exp(1.0) * gamma_k_min_);
+	double alpha = 1.0 / ( exp(1.0) * IMS_gamma_k_min_);
 	double h1_f = h1 * alpha;
 	double h1_f_prime  = h1_prime * alpha;
 
@@ -1229,34 +1229,34 @@ namespace Cantera {
       
 	tmp = log(xmolSolvent) + lngammak;
 	for (k = 1; k < m_kk; k++) {
-	  m_lnActCoeffMolal[k]= tmp;
+	  IMS_lnActCoeffMolal_[k]= tmp;
 	}
-	m_lnActCoeffMolal[m_indexSolvent] = lngammao;
+	IMS_lnActCoeffMolal_[m_indexSolvent] = lngammao;
       }
     } 
 
     // Exponentials - trial 2
-    else if (typeCutoff_ == 2) {
-      if (xmolSolvent > X_o_cutoff_) {
+    else if (IMS_typeCutoff_ == 2) {
+      if (xmolSolvent > IMS_X_o_cutoff_) {
 	for (k = 1; k < m_kk; k++) {
-	  m_lnActCoeffMolal[k]= 0.0;
+	  IMS_lnActCoeffMolal_[k]= 0.0;
 	}
-	m_lnActCoeffMolal[m_indexSolvent] = - log(xx) + (xx - 1.0)/xx;
+	IMS_lnActCoeffMolal_[m_indexSolvent] = - log(xx) + (xx - 1.0)/xx;
 	return;
       } else {
      
-	double xoverc = xmolSolvent/cCut_;
+	double xoverc = xmolSolvent/IMS_cCut_;
 	double eterm = std::exp(-xoverc);
        
-	double fptmp = bfCut_  - afCut_ / cCut_ - bfCut_*xoverc
-	  + 2.0*dfCut_*xmolSolvent - dfCut_*xmolSolvent*xoverc;
+	double fptmp = IMS_bfCut_  - IMS_afCut_ / IMS_cCut_ - IMS_bfCut_*xoverc
+	  + 2.0*IMS_dfCut_*xmolSolvent - IMS_dfCut_*xmolSolvent*xoverc;
 	double f_prime = 1.0 + eterm*fptmp;	
-	double f = xmolSolvent + efCut_ + eterm * (afCut_ + xmolSolvent * (bfCut_ + dfCut_*xmolSolvent));
+	double f = xmolSolvent + IMS_efCut_ + eterm * (IMS_afCut_ + xmolSolvent * (IMS_bfCut_ + IMS_dfCut_*xmolSolvent));
 
-	double gptmp = bgCut_  - agCut_ / cCut_ - bgCut_*xoverc
-	  + 2.0*dgCut_*xmolSolvent - dgCut_*xmolSolvent*xoverc;
+	double gptmp = IMS_bgCut_  - IMS_agCut_ / IMS_cCut_ - IMS_bgCut_*xoverc
+	  + 2.0*IMS_dgCut_*xmolSolvent - IMS_dgCut_*xmolSolvent*xoverc;
 	double g_prime = 1.0 + eterm*gptmp;
-	double g = xmolSolvent + egCut_ + eterm * (agCut_ + xmolSolvent * (bgCut_ + dgCut_*xmolSolvent));
+	double g = xmolSolvent + IMS_egCut_ + eterm * (IMS_agCut_ + xmolSolvent * (IMS_bgCut_ + IMS_dgCut_*xmolSolvent));
 
 	tmp = (xmolSolvent / g * g_prime + (1.0 - xmolSolvent) / f * f_prime);
 	double lngammak = -1.0 - log(f) + tmp * xmolSolvent;
@@ -1264,9 +1264,9 @@ namespace Cantera {
       
 	tmp = log(xx) + lngammak;
 	for (k = 1; k < m_kk; k++) {
-	  m_lnActCoeffMolal[k]= tmp;
+	  IMS_lnActCoeffMolal_[k]= tmp;
 	}
-	m_lnActCoeffMolal[m_indexSolvent] = lngammao;
+	IMS_lnActCoeffMolal_[m_indexSolvent] = lngammao;
       }
     }
     return;
@@ -1289,67 +1289,50 @@ namespace Cantera {
     m_pp.resize(leng);
     m_speciesMolarVolume.resize(leng);
     m_tmpV.resize(leng);
-    m_lnActCoeffMolal.resize(leng);
+    IMS_lnActCoeffMolal_.resize(leng);
   }
 
 
   void  IdealMolalSoln::calcIMSCutoffParams_() {
- 
-
-    afCut_ = 1.0 / (std::exp(1.0) *  gamma_k_min_);
-    efCut_ = 0.0;
+    IMS_afCut_ = 1.0 / (std::exp(1.0) *  IMS_gamma_k_min_);
+    IMS_efCut_ = 0.0;
     bool converged = false;
     double oldV = 0.0;
     int its;
     for (its = 0; its < 100 && !converged; its++) {
-      oldV = efCut_;
-      afCut_ = 1.0 / (std::exp(1.0) * gamma_k_min_)  -efCut_;
-
-      bfCut_ = afCut_ / cCut_ + slopefCut_ - 1.0;
-
-      dfCut_ = ((- afCut_/cCut_ + bfCut_ - bfCut_*X_o_cutoff_/cCut_) 
-		/ 
-		(X_o_cutoff_*X_o_cutoff_/cCut_ - 2.0 * X_o_cutoff_));
-      
-      double tmp = afCut_ + X_o_cutoff_*( bfCut_ + dfCut_ *X_o_cutoff_);
-      double eterm = std::exp(-X_o_cutoff_/cCut_);
-
-      efCut_ = - eterm * (tmp);
-
-      if (fabs(efCut_ - oldV) < 1.0E-14) {
+      oldV = IMS_efCut_;
+      IMS_afCut_ = 1.0 / (std::exp(1.0) * IMS_gamma_k_min_)  - IMS_efCut_;
+      IMS_bfCut_ = IMS_afCut_ / IMS_cCut_ + IMS_slopefCut_ - 1.0;
+      IMS_dfCut_ = ((- IMS_afCut_/IMS_cCut_ + IMS_bfCut_ - IMS_bfCut_*IMS_X_o_cutoff_/IMS_cCut_) 
+		    /
+		(IMS_X_o_cutoff_*IMS_X_o_cutoff_/IMS_cCut_ - 2.0 * IMS_X_o_cutoff_));
+      double tmp = IMS_afCut_ + IMS_X_o_cutoff_*( IMS_bfCut_ + IMS_dfCut_ * IMS_X_o_cutoff_);
+      double eterm = std::exp(-IMS_X_o_cutoff_/IMS_cCut_);
+      IMS_efCut_ = - eterm * (tmp);
+      if (fabs(IMS_efCut_ - oldV) < 1.0E-14) {
 	converged = true;
       } 
     }
-
     if (!converged) {
       throw CanteraError(" IdealMolalSoln::calcCutoffParams_()",
 			 " failed to converge on the f polynomial");
     }
     converged = false;
-    double f_0 = afCut_ + efCut_;
-    double f_prime_0 = 1.0 - afCut_ / cCut_ + bfCut_;
-
-    egCut_ = 0.0;
-
+    double f_0 = IMS_afCut_ + IMS_efCut_;
+    double f_prime_0 = 1.0 - IMS_afCut_ / IMS_cCut_ + IMS_bfCut_;
+    IMS_egCut_ = 0.0;
     for (its = 0; its < 100 && !converged; its++) {
-      oldV = egCut_;
-
-      double lng_0 = -log(gamma_o_min_) -  f_prime_0 / f_0;
-
-      agCut_ = exp(lng_0) - egCut_;
-
-      bgCut_ = agCut_ / cCut_ + slopegCut_ - 1.0;
-
-      dgCut_ = ((- agCut_/cCut_ + bgCut_ - bgCut_*X_o_cutoff_/cCut_) 
-		/ 
-		(X_o_cutoff_*X_o_cutoff_/cCut_ - 2.0 * X_o_cutoff_));
-      
-      double tmp = agCut_ + X_o_cutoff_*( bgCut_ + dgCut_ *X_o_cutoff_);
-      double eterm = std::exp(-X_o_cutoff_/cCut_);
-
-      egCut_ = - eterm * (tmp);
-
-      if (fabs(egCut_ - oldV) < 1.0E-14) {
+      oldV = IMS_egCut_;
+      double lng_0 = -log(IMS_gamma_o_min_) -  f_prime_0 / f_0;
+      IMS_agCut_ = exp(lng_0) - IMS_egCut_;
+      IMS_bgCut_ = IMS_agCut_ / IMS_cCut_ + IMS_slopegCut_ - 1.0;
+      IMS_dgCut_ = ((- IMS_agCut_/IMS_cCut_ + IMS_bgCut_ - IMS_bgCut_*IMS_X_o_cutoff_/IMS_cCut_) 
+		    / 
+		    (IMS_X_o_cutoff_*IMS_X_o_cutoff_/IMS_cCut_ - 2.0 * IMS_X_o_cutoff_));
+      double tmp = IMS_agCut_ + IMS_X_o_cutoff_*( IMS_bgCut_ + IMS_dgCut_ *IMS_X_o_cutoff_);
+      double eterm = std::exp(-IMS_X_o_cutoff_/IMS_cCut_);
+      IMS_egCut_ = - eterm * (tmp);
+      if (fabs(IMS_egCut_ - oldV) < 1.0E-14) {
 	converged = true;
       } 
     }
@@ -1357,7 +1340,6 @@ namespace Cantera {
       throw CanteraError(" IdealMolalSoln::calcCutoffParams_()",
 			 " failed to converge on the f polynomial");
     }
-
   }
  
 }
