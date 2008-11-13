@@ -14,10 +14,11 @@
 #pragma warning(disable:4503)
 #endif
 
-#include <math.h>
 
 #include "FalloffFactory.h"
 #include "ctexceptions.h"
+
+#include <math.h>
 
 namespace Cantera {
 
@@ -293,16 +294,29 @@ namespace Cantera {
   };
 
 
-  /**
-   * Wang-Frenklach falloff function.  Reference: Wang, H., and
-   * Frenklach, M., Chem. Phys. Lett. vol. 205, 271 (1993).
+  //! Wang-Frenklach falloff function. 
+  /*!
+   *
+   * Reference: Wang, H., and
+   *            Frenklach, M., Chem. Phys. Lett. vol. 205, 271 (1993).
+   *
+   *
+   * @ingroup falloffGroup 
    */
   class WF93 : public Falloff {
       
   public:
+
+    //! Default constructpr
     WF93() {}
+
+    //! Destructor
     virtual ~WF93() {}
 
+    //! Initialization routine
+    /*!
+     *  @param c  Vector of 10 doubles
+     */
     virtual void init(const vector_fp& c) {
       m_a = c[0];
       m_rt1 = 1.0/c[1];
@@ -334,14 +348,66 @@ namespace Cantera {
     virtual size_t workSize() { return 3; }
 
   protected:
-    //! Value of the \f$ \alpha_0 coefficient
+
+    //! Value of the \f$ \alpha_0 \f$ coefficient
     /*!
      *  This is the fifth coefficient in the xml list
      */
     doublereal m_alpha0;
-    doublereal m_alpha1, m_alpha2;
-    doublereal m_sigma0, m_sigma1, m_sigma2;
-    doublereal m_a, m_rt1, m_t2, m_rt3;
+
+    //! Value of the \f$ \alpha_1 \f$ coefficient
+    /*!
+     *  This is the 6th coefficient in the xml list
+     */
+    doublereal m_alpha1;
+
+    //! Value of the \f$ \alpha_2 \f$ coefficient
+    /*!
+     *  This is the 7th coefficient in the xml list
+     */
+    doublereal m_alpha2;
+
+    //! Value of the \f$ \sigma_0 \f$ coefficient
+    /*!
+     *  This is the 8th coefficient in the xml list
+     */
+    doublereal m_sigma0;
+
+    //! Value of the \f$ \sigma_1 \f$ coefficient
+    /*!
+     *  This is the 9th coefficient in the xml list
+     */
+    doublereal m_sigma1;
+
+    //! Value of the \f$ \sigma_2 \f$ coefficient
+    /*!
+     *  This is the 10th coefficient in the xml list
+     */
+    doublereal m_sigma2;
+
+    //! Value of the \f$ a \f$ coefficient
+    /*!
+     *  This is the first coefficient in the xml list
+     */
+    doublereal m_a;
+
+    //! Value of inverse of the \f$ t1 \f$ coefficient
+    /*!
+     *  This is the second coefficient in the xml list
+     */
+    doublereal m_rt1;
+
+    //! Value of the \f$ t2 \f$ coefficient
+    /*!
+     *  This is the third coefficient in the xml list
+     */
+    doublereal m_t2;
+
+    //! Value of the inverse of the  \f$ t3 \f$ coefficient
+    /*!
+     *  This is the 4th coefficient in the xml list
+     */
+    doublereal m_rt3;
 
   private:
 
