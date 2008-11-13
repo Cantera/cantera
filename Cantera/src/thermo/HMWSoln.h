@@ -467,7 +467,6 @@ namespace Cantera {
    *   \f]
    *              where the function \f$ F \f$ is given by
    *
-   *
    *   \f[
    *       F = - A_{\phi} \left[ \frac{\sqrt{I}}{1 + b \sqrt{I}} 
    *                 + \frac{2}{b} \ln{\left(1 + b\sqrt{I}\right)} \right]
@@ -483,7 +482,7 @@ namespace Cantera {
    *     A_{\phi} = \frac{A_{Debye}}{3}
    *   \f]
    *
-   *   In the above formulas, \f$ \Phi'_{c{c'}} \f$  and \f$  \Phi'_{a{a'}} \f$ are the
+   *   In the above formulas, \f$ \Phi'_{c{c'}} \f$  and \f$ \Phi'_{a{a'}} \f$ are the
    *   ionic strength derivatives of \f$ \Phi_{c{c'}} \f$  and \f$  \Phi_{a{a'}} \f$,
    *   respectively.
    *
@@ -553,18 +552,19 @@ namespace Cantera {
    *
    *  \f[
    *     B^{\phi}_{ca} = \beta^{(0)}_{ca} + \beta^{(1)}_{ca} \exp{(- \alpha^{(1)}_{ca} \sqrt{I})} 
-   *             + \beta^{(2)}_{ca} \exp{(- \alpha^{(2)}_{ca} \sqrt{I})} 
+   *             + \beta^{(2)}_{ca} \exp{(- \alpha^{(2)}_{ca} \sqrt{I} )} 
    *  \f]
    *     
-   *  is consistent with the expression \f$ B_{ca}\f$ in the \f$ G^{ex}\f$ expression
-   *  after carrying out the derivative wrt \f$ m_M\f$. 
+   *  is consistent with the expression \f$ B_{ca} \f$ in the \f$ G^{ex} \f$ expression
+   *  after carrying out the derivative wrt \f$ m_M \f$.
    *
-   *  Also taking into account that  \f$ \Phi_{c{c'}} \f$ and
-   *  \f$ \Phi_{a{a'}} \f$ has an ionic strength dependence
+   *  Also taking into account that  \f$ {\Phi}_{c{c'}} \f$ and
+   *  \f$ {\Phi}_{a{a'}} \f$ has an ionic strength dependence.
    *
    *  \f[
-   *    \Phi^{\phi}_{c{c'}} = \Phi_{c{c'}} + I \frac{d\Phi_{c{c'}}}{dI}
+   *    \Phi^{\phi}_{c{c'}} = {\Phi}_{c{c'}} + I \frac{d{\Phi}_{c{c'}}}{dI}
    *  \f]
+   *
    *  \f[
    *    \Phi^{\phi}_{a{a'}} = \Phi_{a{a'}} + I \frac{d\Phi_{a{a'}}}{dI}
    *  \f]
@@ -612,7 +612,7 @@ namespace Cantera {
    *  where
    *
    *  \f[ 
-   *          C^{\phi}_{MX} =  2 {\left| z_M z_X \right|}^{1/2} C_{MX}
+   *      C^{\phi}_{MX} =  2 {\left| z_M z_X \right|}^{1/2} C_{MX}
    *  \f]
    *
    *  In later papers, Pitzer has added additional temperature dependencies
@@ -669,24 +669,24 @@ namespace Cantera {
    *  dependence given above is
    *
    * @code
-   *  <binarySaltParameters cation="Na+" anion="OH-"> 
+      <binarySaltParameters cation="Na+" anion="OH-"> 
         <beta0> q0, q1, q2, q3, q4  </beta0>
       <\binarySaltParameters>
-   * @endcode
+     @endcode
    *
    *  The parameters for \f$ \beta^{(0)}\f$ fit the following equation:
    *
    *  \f[
-   *        \beta^{(0)} = q_0^{\beta0} + q_1^{\beta0} \left( T - T_r \right) 
-   *               + q_2^{\beta0} \left( T^2 - T_r^2 \right)  
-   *               + q_3^{\beta0} \left( \frac{1}{T} - \frac{1}{T_r} \right)
-   *               + q_4^{\beta0} \ln \left( \frac{T}{T_r} \right)
+   *        \beta^{(0)} = q_0^{{\beta}0} + q_1^{{\beta}0} \left( T - T_r \right) 
+   *               + q_2^{{\beta}0} \left( T^2 - T_r^2 \right)  
+   *               + q_3^{{\beta}0} \left( \frac{1}{T} - \frac{1}{T_r} \right)
+   *               + q_4^{{\beta}0} \ln \left( \frac{T}{T_r} \right)
    *  \f]
    *
    *  This same COMPLEX1 </TT> temperature
    *  dependence given above is used for the following parameters:
    *  \f$\beta^{(0)}_{MX} \f$, \f$\beta^{(1)}_{MX} \f$, 
-   *  \f$\beta^{(2)}_{MX} \f$,  \f$\Theta_{cc'} \f$,  \f$\Theta_{aa'},
+   *  \f$\beta^{(2)}_{MX} \f$,  \f$ \Theta_{cc'} \f$,  \f$\Theta_{aa'} \f$,
    *  \f$ \Psi_{c{c'}a}\f$ and \f$ \Psi_{ca{a'}} \f$.
    *
    *
@@ -706,9 +706,12 @@ namespace Cantera {
    *  charges. \f$ \Phi_{ij} \f$, where \f$ ij \f$ is either \f$ a{a'} \f$
    *  or \f$ c{c'} \f$ is given by
    *
-   *  \f[ 
-   *      \Phi_{i{j}} = \Theta_{ij} + \,^E\Theta_{ij}(I)
+   *
+   *
+   *  \f[
+   *      {\Phi}_{ij} = \Theta_{ij} + \,^E \Theta_{ij}(I)
    *  \f]
+   *
    *
    *  \f$ \Theta_{ij} \f$ is the small virial coefficient expansion term.
    *  Dependent in general on temperature and pressure, it's ionic
@@ -719,7 +722,7 @@ namespace Cantera {
    *  the dielectric constant and density of the solvent.
    *  This seems to be a relatively well-documented part of the theory.
    *  They theory below comes from Pitzer summation (Pitzer) in the
-   *  appendix. It's also mentioned in bethke's book (Bethke), and
+   *  appendix. It's also mentioned in Bethke's book (Bethke), and
    *  the equations are summarized in Harvie & Weare (1980).
    *  Within the code, \f$ \,^E\Theta_{ij}(I) \f$ is evaluated according
    *  to the algorithm described in Appendix B [Pitzer] as
@@ -734,8 +737,8 @@ namespace Cantera {
    *
    *   \f[ 
    *      J(x) = \frac{1}{x} \int_0^{\infty}{\left( 1 + q +
-   *        \frac{1}{2} q^2 - e^q \right) y^2 dy}
-   *  \f]
+   *             \frac{1}{2} q^2 - e^q \right) y^2 dy}
+   *   \f]
    *
    *  and \f$ q = - (\frac{x}{y}) e^{-y} \f$. \f$ J(x) \f$ is evaluated by 
    *  numerical integration.
@@ -1031,6 +1034,7 @@ namespace Cantera {
    * following equation for its rate of progress variable, \f$ R^1 \f$, which has
    * units of kmol m-3 s-1.
    *
+   *
    *   \f[
    *    R^1 = k^1 C_j^a C_k^a =  k^1 (C_o a_j) (C_o a_k) 
    *   \f]
@@ -1054,19 +1058,19 @@ namespace Cantera {
    *      \frac{a_j a_k}{ a_l} = K^{o,1} = \exp(\frac{\mu^o_l - \mu^o_j - \mu^o_k}{R T} )
    *   \f]
    *
-   *  \f$  K^{o,1} \f$ is the dimensionless form of the equilibrium constant.
+   *  \f$ K^{o,1} \f$ is the dimensionless form of the equilibrium constant.
    *  
    *   \f[
-   *    R^{-1} = k^{-1} C_l^a =  k^{-1} (C_o a_l)
+   *       R^{-1} = k^{-1} C_l^a =  k^{-1} (C_o a_l)
    *   \f]
    *
    *  where
    *
-   *    \f[
+   *   \f[
    *       k^{-1} =  k^1 K^{o,1} C_o
    *   \f]
    *
-   *  \f$k^{-1} \f$ has units of s-1.
+   *  \f$ k^{-1} \f$ has units of s<SUP>-1</SUP>.
    * 
    *  Note, this treatment may be modified in the future, as events dictate.
    *
@@ -1109,6 +1113,7 @@ namespace Cantera {
    *    HMWSoln dhphase;
    *    importPhase(*xm, &dhphase);
    * @endcode
+   *
    *
    * <HR>
    * <H2> XML Example </H2>
@@ -2937,7 +2942,7 @@ namespace Cantera {
      */
     mutable vector_fp      IMS_lnActCoeffMolal_;
 
-    // IMS Cutoff type
+    //! IMS Cutoff type
     int IMS_typeCutoff_;
   
     //! value of the solute mole fraction that centers the cutoff polynomials
@@ -3202,7 +3207,7 @@ namespace Cantera {
 
 
     //! Precalculate the IMS Cutoff parameters for typeCutoff = 2
-    void  HMWSoln::calcIMSCutoffParams_();
+    void  calcIMSCutoffParams_();
 
     //! Utility function to assign an integer value from a string
     //! for the ElectrolyteSpeciesType field.
