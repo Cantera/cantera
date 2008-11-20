@@ -193,7 +193,7 @@ namespace Cantera {
      */
     doublereal speciesMoles(index_t kGlob) const;
 
-    //! Index of the species belonging to phase number \c p
+    //! Return the global index of the species belonging to phase number \c p
     //! with local index \c k within the phase.
     /*!
      * Returns the index of the global species

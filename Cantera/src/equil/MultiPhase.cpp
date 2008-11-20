@@ -21,9 +21,17 @@ using namespace std;
 namespace Cantera {
 
     /// Constructor.
-     MultiPhase::MultiPhase() : m_temp(0.0), m_press(0.0), 
-                    m_nel(0), m_nsp(0), m_init(false), m_eloc(-1), 
-                    m_Tmin(1.0), m_Tmax(100000.0) {
+     MultiPhase::MultiPhase() :
+       m_np(0),
+       m_temp(0.0),
+       m_press(0.0), 
+       m_nel(0),
+       m_nsp(0),
+       m_init(false),
+       m_eloc(-1), 
+       m_Tmin(1.0),
+       m_Tmax(100000.0)
+     {
      }
 
     void MultiPhase::
