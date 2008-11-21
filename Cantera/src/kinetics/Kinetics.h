@@ -899,9 +899,10 @@ namespace Cantera {
 	 */
         std::vector<vector_int> m_products;
 
-	/**
-	 * m_thermo is a vector of pointers to ThermoPhase
-	 * objects. For homogeneous kinetics applications, this vector
+	//! m_thermo is a vector of pointers to ThermoPhase
+	//! objects. 
+        /*!
+         * For homogeneous kinetics applications, this vector
 	 * will only have one entry. For interfacial reactions, this
 	 * vector will consist of multiple entries; some of them will
 	 * be surface phases, and the other ones will be bulk phases.
@@ -909,6 +910,10 @@ namespace Cantera {
 	 * in which the species comprising each phase are listed in
 	 * the source term vector, originating from the reaction
 	 * mechanism.
+         *
+         * Note that this kinetics object doesn't own these ThermoPhase
+         * objects and is not responsible for creating or deleting
+         * them.
 	 */
         std::vector<thermo_t*> m_thermo;
 
