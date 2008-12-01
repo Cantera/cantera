@@ -130,6 +130,7 @@ namespace Cantera {
       m_press      = right.m_press;
       m_tlast      = right.m_tlast;
       m_h0         = right.m_h0;
+      m_s0         = right.m_s0;
       m_cp0        = right.m_cp0;
       m_mu0        = right.m_mu0;
       m_work       = right.m_work;
