@@ -499,7 +499,7 @@ namespace Cantera {
     
     m_thermo1 = right.m_thermo1;
     m_thermo2 = right.m_thermo2;
-    m_p0 = m_p0;
+    m_p0      = right.m_p0;
     speciesToType = right.speciesToType;
     
     return *this;
