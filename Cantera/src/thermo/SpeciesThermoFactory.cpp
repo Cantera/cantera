@@ -50,44 +50,52 @@ namespace Cantera {
 #endif
  
 
-  /**
-   * Examine the types of species thermo parameterizations,
-   * and return a flag indicating the type of parameterization
-   * needed by the species.
+  
+  //! Examine the types of species thermo parameterizations,
+  //! and return a flag indicating the type of reference state thermo manager
+  //! that will be needed in order to evaluate them all.
+  /*!
    * 
-   *  @param spData_node Species Data XML node. This node contains a list
-   *                     of species XML nodes underneath it.
+   *  @param spDataNodeList, This vector contains a list
+   *                         of species XML nodes that will be in the phase
    * 
    * @todo Make sure that spDadta_node is species Data XML node by checking its name is speciesData
    */
-  static void getSpeciesThermoTypes(XML_Node* spData_node, 
+  static void getSpeciesThermoTypes(std::vector<XML_Node *> & spDataNodeList, 
 				    int& has_nasa, int& has_shomate, int& has_simple,
 				    int &has_other) {
-    const XML_Node& sparray = *spData_node;
-    std::vector<XML_Node*> sp;
-
-    // get all of the species nodes
-    sparray.getChildren("species",sp);
-    size_t n, ns = sp.size();
-    for (n = 0; n < ns; n++) {
-      XML_Node* spNode = sp[n];
+    size_t ns = spDataNodeList.size();
+    for (size_t n = 0; n < ns; n++) {
+      XML_Node* spNode = spDataNodeList[n];
       if (spNode->hasChild("thermo")) {
-	const XML_Node& th = sp[n]->child("thermo");
-	if (th.hasChild("NASA")) has_nasa = 1;
-	if (th.hasChild("Shomate")) has_shomate = 1;
-	if (th.hasChild("const_cp")) has_simple = 1;
-	if (th.hasChild("poly")) {
+	const XML_Node& th = spNode->child("thermo");
+	if (th.hasChild("NASA")) {
+	  has_nasa = 1;
+	} else if (th.hasChild("Shomate")) {
+	  has_shomate = 1;
+	} else if (th.hasChild("const_cp")) {
+	  has_simple = 1;
+	} else if (th.hasChild("poly")) {
 	  if (th.child("poly")["order"] == "1") has_simple = 1;
 	  else throw CanteraError("newSpeciesThermo",
 				  "poly with order > 1 not yet supported");
 	}
-	if (th.hasChild("Mu0")) has_other = 1;
-	if (th.hasChild("NASA9")) has_other = 1;
-	if (th.hasChild("NASA9MULTITEMP")) has_other = 1;
-	if (th.hasChild("adsorbate")) has_other = 1;
+	else if (th.hasChild("Mu0")) {
+	  has_other = 1;
+	} else if (th.hasChild("NASA9")) {
+	  has_other = 1;
+	} else if (th.hasChild("NASA9MULTITEMP")) {
+	  has_other = 1;
+	} else if (th.hasChild("adsorbate")) {
+	  has_other = 1;
+	} else {
+	  has_other = 1;
+	  //throw UnknownSpeciesThermoModel("getSpeciesThermoTypes:",
+	  //	          	            spNode->attrib("name"), "missing");
+	}
       } else {
-	throw UnknownSpeciesThermoModel("getSpeciesThermoTypes:",
-					spNode->attrib("name"), "missing");
+	throw CanteraError("getSpeciesThermoTypes:",
+			   spNode->attrib("name") + " is missing the thermo XML node");
       }
     }
   }
@@ -97,35 +105,16 @@ namespace Cantera {
    * Return a species thermo manager to handle the parameterizations
    * specified in a CTML phase specification.
    */
-  SpeciesThermo* SpeciesThermoFactory::newSpeciesThermo(XML_Node* spData_node) {
+  SpeciesThermo* SpeciesThermoFactory::newSpeciesThermo(std::vector<XML_Node*> & spDataNodeList) {
     int inasa = 0, ishomate = 0, isimple = 0, iother = 0;
     try {
-      getSpeciesThermoTypes(spData_node, inasa, ishomate, isimple, iother);
+      getSpeciesThermoTypes(spDataNodeList, inasa, ishomate, isimple, iother);
     } catch (UnknownSpeciesThermoModel) {
       iother = 1;
       popError();
     }
     if (iother) {
-      writelog("returning new GeneralSpeciesThermo");
-      return new GeneralSpeciesThermo();
-    }
-    return newSpeciesThermo(NASA*inasa
-			    + SHOMATE*ishomate + SIMPLE*isimple);
-  }
-    
-  SpeciesThermo* SpeciesThermoFactory::
-  newSpeciesThermo(std::vector<XML_Node*> spData_nodes) {
-    int n = static_cast<int>(spData_nodes.size());
-    int inasa = 0, ishomate = 0, isimple = 0, iother = 0;
-    for (int j = 0; j < n; j++) {
-      try {
-	getSpeciesThermoTypes(spData_nodes[j], inasa, ishomate, isimple, iother);
-      } catch (UnknownSpeciesThermoModel) {
-	iother = 1;
-	popError();
-      }
-    }
-    if (iother) {
+      //writelog("returning new GeneralSpeciesThermo");
       return new GeneralSpeciesThermo();
     }
     return newSpeciesThermo(NASA*inasa
@@ -137,17 +126,15 @@ namespace Cantera {
    * @todo is this used? 
    */
   SpeciesThermo* SpeciesThermoFactory::
-  newSpeciesThermoOpt(std::vector<XML_Node*> nodes) {
-    int n = static_cast<int>(nodes.size());
+  newSpeciesThermoOpt(std::vector<XML_Node*> & spDataNodeList) {
     int inasa = 0, ishomate = 0, isimple = 0, iother = 0;
-    for (int j = 0; j < n; j++) {
-      try {
-	getSpeciesThermoTypes(nodes[j], inasa, ishomate, isimple, iother);
-      } catch (UnknownSpeciesThermoModel) {
-	iother = 1;
-	popError();
-      }
+    try {
+      getSpeciesThermoTypes(spDataNodeList, inasa, ishomate, isimple, iother);
+    } catch (UnknownSpeciesThermoModel) {
+      iother = 1;
+      popError();
     }
+    
     if (iother) {
       return new GeneralSpeciesThermo();
     }
@@ -655,6 +642,80 @@ namespace Cantera {
     vp_ptr->createInstallPDSS(k, speciesNode,  phaseNode_ptr);
   }
 
+  // Create a new species thermo manager instance, by specifying
+  // the type and (optionally) a pointer to the factory to use to create it.
+  /*
+   * This utility program  will look through species nodes. It will discover what
+   * each species needs for its species property managers. Then,
+   * it will malloc and return the proper species property manager to use.
+   *
+   *  These functions allow using a different factory class that
+   *  derives from SpeciesThermoFactory.
+   *
+   * @param type         Species thermo type.
+   * @param f            Pointer to a SpeciesThermoFactory. optional parameter. 
+   *                    Defautls to NULL.
+   */
+  SpeciesThermo* newSpeciesThermoMgr(int type, SpeciesThermoFactory* f) {
+    if (f == 0) {
+      f = SpeciesThermoFactory::factory();
+    }
+    SpeciesThermo* sptherm = f->newSpeciesThermo(type);
+    return sptherm;
+  }
 
+  //  Function to return SpeciesThermo manager
+  /*
+   * This utility program  will look through species nodes. It will discover what
+   * each species needs for its species property managers. Then,
+   * it will malloc and return the proper species property manager to use.
+   *
+   *  These functions allow using a different factory class that
+   *  derives from SpeciesThermoFactory.
+   *
+   * @param spData_node Vector of XML_Nodes, each of which is a speciesData XML Node.
+   *                     Each %speciesData node contains a list of XML species elements
+   *                      e.g., \<speciesData id="Species_Data"\>
+   * @param f            Pointer to a SpeciesThermoFactory. optional parameter. 
+   *                    Defautls to NULL.
+   */
+  // SpeciesThermo* newSpeciesThermoMgr(XML_Node* spData_node, 
+  //				     SpeciesThermoFactory* f) {
+  //if (f == 0) {
+  //  f = SpeciesThermoFactory::factory();
+  //}
+  //SpeciesThermo* sptherm = f->newSpeciesThermo(spData_node);
+  //return sptherm;
+  //}
+  
+  //! Function to return SpeciesThermo manager
+  /*!
+   * This utility program  will look through species nodes. It will discover what
+   * each species needs for its species property managers. Then,
+   * it will malloc and return the proper species property manager to use.
+   *
+   *  These functions allow using a different factory class that
+   *  derives from SpeciesThermoFactory.
+   *
+   * @param spData_nodes Vector of XML_Nodes, each of which is a speciesData XML Node.
+   *                     Each %speciesData node contains a list of XML species elements
+   *                      e.g., \<speciesData id="Species_Data"\>
+   * @param f            Pointer to a SpeciesThermoFactory. optional parameter. 
+   *                    Defautls to NULL.
+   * @param opt         Boolean defaults to false.
+   */
+  SpeciesThermo* newSpeciesThermoMgr(std::vector<XML_Node*> spData_nodes, 
+				     SpeciesThermoFactory* f, bool opt) {
+    if (f == 0) {
+      f = SpeciesThermoFactory::factory();
+    }
+    SpeciesThermo* sptherm;
+    if (opt) {
+      sptherm = f->newSpeciesThermoOpt(spData_nodes);
+    } else { 
+      sptherm = f->newSpeciesThermo(spData_nodes);
+    }
+    return sptherm;
+  }
 
 }

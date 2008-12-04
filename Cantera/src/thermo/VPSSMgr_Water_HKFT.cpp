@@ -29,6 +29,7 @@
 #include "VPStandardStateTP.h"
 #include "PDSS_Water.h"
 #include "PDSS_HKFT.h"
+#include "GeneralSpeciesThermo.h"
 
 using namespace std;
 
@@ -255,9 +256,17 @@ namespace Cantera {
 	throw CanteraError("VPSSMgr_Water_HKFT::installSpecies",
 			   "wrong SS mode: " + model);
       }
-      VPSSMgr::installSTSpecies(k, speciesNode, phaseNode_ptr);
+      //VPSSMgr::installSTSpecies(k, speciesNode, phaseNode_ptr);
       if (m_waterSS) delete m_waterSS;
       m_waterSS = new PDSS_Water(m_vptp_ptr, 0);
+
+      GeneralSpeciesThermo *genSpthermo = dynamic_cast<GeneralSpeciesThermo *>(m_spthermo);
+      if (!genSpthermo) {
+        throw CanteraError("VPSSMgr_Water_HKFT::installSpecies",
+                           "failed dynamic cast");
+      }
+      genSpthermo->installPDSShandler(k, m_waterSS, this);
+
       kPDSS = m_waterSS;
     } else {
       std::string model = (*ss)["model"];
@@ -269,6 +278,12 @@ namespace Cantera {
 
       kPDSS = new PDSS_HKFT(m_vptp_ptr, k, speciesNode, *phaseNode_ptr, true);
 
+      GeneralSpeciesThermo *genSpthermo = dynamic_cast<GeneralSpeciesThermo *>(m_spthermo);
+      if (!genSpthermo) {
+        throw CanteraError("VPSSMgr_Water_HKFT::installSpecies",
+                           "failed dynamic cast");
+      }
+      genSpthermo->installPDSShandler(k, kPDSS, this);
     }
     return kPDSS;
   }

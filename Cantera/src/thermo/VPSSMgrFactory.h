@@ -157,9 +157,9 @@ namespace Cantera {
      *                     Each speciesData node contains a list of XML species elements
      *                      e.g., \<speciesData id="Species_Data"\>
      */ 
-    virtual VPSSMgr* newVPSSMgr(VPStandardStateTP *vp_ptr, 
-                                XML_Node* phaseNode_ptr,
-	                        XML_Node* spData_node);
+    // virtual VPSSMgr* newVPSSMgr(VPStandardStateTP *vp_ptr, 
+    //                           XML_Node* phaseNode_ptr,
+    //                        XML_Node* spData_node);
 
     //! Create a new species property manager for a group of species
     /*!
@@ -175,9 +175,8 @@ namespace Cantera {
      *                      e.g., \<speciesData id="Species_Data"\>
      */ 
     virtual VPSSMgr* newVPSSMgr(VPStandardStateTP *vp_ptr, 
-                                XML_Node* phaseNode_ptr,
-		                std::vector<XML_Node*> spData_nodes);
-
+                                XML_Node* phaseNode_ptr, 
+				std::vector<XML_Node *> & spDataNodeList);
 
   private:
 
@@ -227,29 +226,6 @@ namespace Cantera {
   /*!
    * This utility program  will look through species nodes. It will discover what
    * each species needs for its species property managers. Then,
-   * it will malloc and return the proper species property manager to use.
-   *
-   *  These functions allow using a different factory class that
-   *  derives from VPSSMgrFactory.
-   *
-   * @param vp_ptr       Variable pressure standard state ThermoPhase object
-   *                     that will be the owner.
-   * @param phaseNode_ptr  Pointer to the ThermoPhase phase XML Node
-   * @param spData_node Vector of XML_Nodes, each of which is a speciesData XML Node.
-   *                     Each %speciesData node contains a list of XML species elements
-   *                      e.g., \<speciesData id="Species_Data"\>
-   * @param f            Pointer to a SpeciesThermoFactory. optional parameter. 
-   *                    Defautls to NULL.
-   */
-  VPSSMgr* newVPSSMgr(VPStandardStateTP *vp_ptr, 
-		      XML_Node* phaseNode_ptr,
-		      XML_Node* spData_node, 
-		      VPSSMgrFactory* f=0);
-
-  //! Function to return VPSSMgr manager
-  /*!
-   * This utility program  will look through species nodes. It will discover what
-   * each species needs for its species property managers. Then,
    * it will alloc and return the proper species property manager to use.
    *
    *  These functions allow using a different factory class that
@@ -258,15 +234,16 @@ namespace Cantera {
    * @param vp_ptr       Variable pressure standard state ThermoPhase object
    *                     that will be the owner.
    * @param phaseNode_ptr  Pointer to the ThermoPhase phase XML Node
-   * @param spData_nodes Vector of XML_Nodes, each of which is a speciesData XML Node.
-   *                     Each %speciesData node contains a list of XML species elements
-   *                      e.g., \<speciesData id="Species_Data"\>
+   *
+   * @param spDataNodeList This vector contains a list
+   *                       of species XML nodes that will be in the phase
+   *
    * @param f            Pointer to a SpeciesThermoFactory. optional parameter. 
    *                    Defautls to NULL.
    */
   VPSSMgr* newVPSSMgr(VPStandardStateTP *vp_ptr,
 		      XML_Node* phaseNode_ptr,
-		      std::vector<XML_Node*> spData_nodes, 
+		      std::vector<XML_Node *> & spDataNodeList,
 		      VPSSMgrFactory* f=0);
 
 }

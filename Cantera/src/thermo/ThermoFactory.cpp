@@ -229,6 +229,117 @@ namespace Cantera {
       return (ThermoPhase *) 0;
   }
 
+
+  static void formSpeciesXMLNodeList(std::vector<XML_Node *> &spDataNodeList,
+				     std::vector<std::string> &spNamesList,
+				     std::vector<int> &spRuleList,
+				     const std::vector<XML_Node *> spArray_names,
+				     const std::vector<XML_Node *> spArray_dbases,
+				     const vector_int sprule) {
+    
+    // used to check that each species is declared only once
+    std::map<std::string, bool> declared;
+    
+    int nspa = spArray_dbases.size();
+    int nSpecies = 0;
+    bool skip;
+
+    for (int jsp = 0; jsp < nspa; jsp++) {
+      const XML_Node& speciesArray = *spArray_names[jsp]; 
+      
+      // Get the top XML for the database
+      const XML_Node *db = spArray_dbases[jsp];
+
+      // Get the array of species name strings and the count them
+      std::vector<std::string> spnames;
+      getStringArray(speciesArray, spnames);
+      int nsp = static_cast<int>(spnames.size());
+
+      // if 'all' is specified as the one and only species in the
+      // spArray_names field, then add all species 
+      // defined in the corresponding database to the phase
+      if (nsp == 1 && spnames[0] == "all") {
+	std::vector<XML_Node *> allsp;
+	db->getChildren("species", allsp);
+	nsp = static_cast<int>(allsp.size());
+	spnames.resize(nsp);
+	for (int nn = 0; nn < nsp; nn++) {
+	  string stemp = (*allsp[nn])["name"];
+	  bool skip = false;
+	  if (declared[stemp]) {
+	    if (sprule[jsp] >= 10) {
+	      skip = true;
+	    } else {
+	      throw CanteraError("ThermoFactory::formSpeciesXMLNodeList()",
+				 "duplicate species: \"" + stemp + "\"");
+	    }
+	  }
+	  if (!skip) {
+	    declared[stemp] = true;
+	    nSpecies++;
+	    spNamesList.resize(nSpecies);
+	    spDataNodeList.resize(nSpecies, 0);
+	    spRuleList.resize(nSpecies, 0);
+	    spNamesList[nSpecies-1] = stemp;
+	    spDataNodeList[nSpecies-1] = allsp[nn];
+	    spRuleList[nSpecies-1] = sprule[jsp];
+	  }
+	}
+      }
+      else if (nsp == 1 && spnames[0] == "unique") {
+	std::vector<XML_Node *> allsp;
+	db->getChildren("species", allsp);
+	nsp = static_cast<int>(allsp.size());
+	spnames.resize(nsp);
+	for (int nn = 0; nn < nsp; nn++) {
+	  string stemp = (*allsp[nn])["name"];
+	  bool skip = false;
+	  if (declared[stemp]) {
+	      skip = true;
+	  }
+	  if (!skip) {
+	    declared[stemp] = true;
+	    nSpecies++;
+	    spNamesList.resize(nSpecies);
+	    spDataNodeList.resize(nSpecies, 0);
+	    spRuleList.resize(nSpecies, 0);
+	    spNamesList[nSpecies-1] = stemp;
+	    spDataNodeList[nSpecies-1] = allsp[nn];
+	    spRuleList[nSpecies-1] = sprule[jsp];
+	  }
+	}
+      } else {
+	for (int k = 0; k < nsp; k++) {
+	  string stemp = spnames[k];
+	  skip = false;
+	  if (declared[stemp]) {
+	    if (sprule[jsp] >= 10) {
+	      skip = true;
+	    } else {
+	      throw CanteraError("ThermoFactory::formSpeciesXMLNodeList()",
+				 "duplicate species: \"" + stemp + "\"");
+	    }
+	  }
+	  if (!skip) {
+	    declared[stemp] = true;
+	    // Find the species in the database by name.
+	    XML_Node* s = db->findByAttr("name", stemp); 
+	    if (!s) {
+	      throw CanteraError("importPhase","no data for species, \""
+				 + stemp + "\"");
+	    }
+	    nSpecies++;
+	    spNamesList.resize(nSpecies);
+	    spDataNodeList.resize(nSpecies, 0);
+	    spRuleList.resize(nSpecies, 0);
+	    spNamesList[nSpecies-1] = stemp;
+	    spDataNodeList[nSpecies-1] = s;
+	    spRuleList[nSpecies-1] = sprule[jsp];
+	  }
+	}
+      }
+    }
+  }
         
   /*
    * Import a phase specification.
@@ -262,7 +373,8 @@ namespace Cantera {
     // phase.
     if (phase.name() != "phase") {
       throw CanteraError("importPhase",
-			 "Current const XML_Node named, " + phase.name() + ", is not a phase element.");
+			 "Current const XML_Node named, " + phase.name() + 
+			 ", is not a phase element.");
     }
 
     // set the id attribute of the phase to the 'id' attribute 
@@ -275,7 +387,8 @@ namespace Cantera {
       int idim = intValue(phase["dim"]);
       if (idim < 1 || idim > 3)
 	throw CanteraError("importPhase",
-			   "phase, " + th->id() + ", has unphysical number of dimensions: " + phase["dim"]);
+			   "phase, " + th->id() + 
+			   ", has unphysical number of dimensions: " + phase["dim"]);
       th->setNDim(idim);
     }
     else {
@@ -290,7 +403,8 @@ namespace Cantera {
       th->setParametersFromXML(eos);
     } else {
       throw CanteraError("importPhase", 
-			 " phase, " + th->id() + ", XML_Node does not have a \"thermo\" XML_Node");
+			 " phase, " + th->id() + 
+			 ", XML_Node does not have a \"thermo\" XML_Node");
     }
 
     VPStandardStateTP *vpss_ptr = 0;
@@ -328,7 +442,8 @@ namespace Cantera {
     if (nspa == 0) {
       throw CanteraError("importPhase",
 			 "phase, " + th->id() + ", has zero \"speciesArray\" XML nodes.\n"
-			 + " There must be at least one speciesArray nodes with one or more species");
+			 + " There must be at least one speciesArray nodes "
+			 "with one or more species");
     }
     vector<XML_Node*> dbases;
     vector_int sprule(nspa,0);
@@ -336,15 +451,24 @@ namespace Cantera {
     // loop over the speciesArray elements
     for (jsp = 0; jsp < nspa; jsp++) {
 
-      const XML_Node& species = *sparrays[jsp];
+      const XML_Node& speciesArray = *sparrays[jsp];
 
       // If the speciesArray element has a child element
+      //
       //   <skip element="undeclared"> 
+      //
       // then set sprule[jsp] to 1, so
       // that any species with an undeclared element will be
       // quietly skipped when importing species.
-      if (species.hasChild("skip")) {
-	const XML_Node& sk = species.child("skip");
+      // Additionally, if the skip node has the following attribute:
+      //
+      // <skip species="duplicate">
+      //
+      // then duplicate species names will not cause Cantera to
+      // throw an exception. Instead, the duplicate entry will 
+      // be discarded.
+      if (speciesArray.hasChild("skip")) {
+	const XML_Node& sk = speciesArray.child("skip");
 	string eskip = sk["element"];
 	if (eskip == "undeclared") {
 	  sprule[jsp] = 1;
@@ -357,19 +481,33 @@ namespace Cantera {
 
       string fname, idstr;
 
-      // get a pointer to the node containing the species
+      // Get a pointer to the node containing the species
       // definitions for the species declared in this 
       // speciesArray element. This may be in the local file
       // containing the phase element, or may be in another
       // file.            
-      db = get_XML_Node(species["datasrc"], &phase.root());
+      db = get_XML_Node(speciesArray["datasrc"], &phase.root());
+      if (db == 0) {
+	throw CanteraError("importPhase",
+			   " Can not find XML node for species database: " 
+			   + speciesArray["datasrc"]);
+      }
 
       // add this node to the list of species database nodes.
       dbases.push_back(db);
     }
 
+    // Now, collect all the species names and all the XML_Node * pointers
+    // for those species in a single vector. This is where we decide what
+    // species are to be included in the phase.
+    // The logic is complicated enough that we put it in a separate routine.
+    std::vector<XML_Node *>  spDataNodeList;
+    std::vector<std::string> spNamesList;
+    std::vector<int> spRuleList;
+    formSpeciesXMLNodeList(spDataNodeList, spNamesList, spRuleList,
+			   sparrays, dbases, sprule);
 
-    // if the phase has a species thermo manager already installed,
+    // If the phase has a species thermo manager already installed,
     // delete it since we are adding new species.
     delete &th->speciesThermo();
 
@@ -382,88 +520,28 @@ namespace Cantera {
       // to see what thermodynamic property parameterizations are
       // used, and selects a class that can handle the
       // parameterizations found.
-      spth = newSpeciesThermoMgr(dbases);
+      spth = newSpeciesThermoMgr(spDataNodeList);
       
       // install it in the phase object
       th->setSpeciesThermo(spth);
-      // SpeciesThermo& spthermo = th->speciesThermo();
     } else {
-      vp_spth = newVPSSMgr(vpss_ptr, &phase, dbases);
+      vp_spth = newVPSSMgr(vpss_ptr, &phase, spDataNodeList);
       vpss_ptr->setVPSSMgr(vp_spth);
       spth = vp_spth->SpeciesThermoMgr();
       th->setSpeciesThermo(spth);
     }
 
 
-    // used to check that each species is declared only once
-    map<string,bool> declared;
+    int k = 0;
 
-    int i, k = 0;
-
-    // loop over the species arrays
-    for (jsp = 0; jsp < nspa; jsp++) {
-
-      const XML_Node& species = *sparrays[jsp]; 
-      db = dbases[jsp];
-
-      // Get the array of species name strings.
-      vector<string> spnames;
-      getStringArray(species, spnames);
-      int nsp = static_cast<int>(spnames.size());
-
-      // if 'all' is specified, then add all species 
-      // defined in this database to the phase
-      if (nsp == 1 && spnames[0] == "all") {
-	vector<XML_Node*> allsp;
-	db->getChildren("species",allsp);
-	nsp = static_cast<int>(allsp.size());
-	spnames.resize(nsp);
-	for (int nn = 0; nn < nsp; nn++) {
-	  spnames[nn] = (*allsp[nn])["name"];
-	}
-      }
-      else if (nsp == 1 && spnames[0] == "unique") {
-	vector<XML_Node*> uniquesp;
-	db->getChildren("species",uniquesp);
-	nsp = static_cast<int>(uniquesp.size());
-	spnames.clear();
-	spnames.resize(nsp);
-	string spnm;
-	for (int nn = 0; nn < nsp; nn++) {
-	  spnm = (*uniquesp[nn])["name"];
-	  if (!declared[spnm]) spnames[nn] = spnm;
-	}
-      }
-
-      string name;
-      bool skip;
-      for (i = 0; i < nsp; i++) {
-	name = spnames[i];
-	skip = false;
-	if (name == "") skip = true;
-	// Check that every species is only declared once
-	if (declared[name]) {
-	  if (sprule[jsp] >= 10) 
-	    skip = true;
-	  else
-	    throw CanteraError("importPhase",
-			       "duplicate species: \"" + name + "\"");
-	}
-	if (!skip) {
-	  declared[name] = true;
-
-	  // Find the species in the database by name.
-	  XML_Node* s = db->findByAttr("name",spnames[i]);
-	  if (s) {
-	    if (installSpecies(k, *s, *th, spth, sprule[jsp], 
-                               &phase, vp_spth, spfactory)) 
-	      ++k;
-	  }
-	  else {
-	    throw CanteraError("importPhase","no data for species, \""
-			       + name + "\"");
-	  }
-	}
+    int nsp = spDataNodeList.size();
+    for (int i = 0; i < nsp; i++) {
+      XML_Node *s = spDataNodeList[i];
+      AssertTrace(s != 0);
+      bool ok = installSpecies(k, *s, *th, spth, spRuleList[i], 
+			       &phase, vp_spth, spfactory);
+      if (ok) {
+	++k;
       }
     }
 
@@ -474,6 +552,9 @@ namespace Cantera {
 
     // Perform any required subclass-specific initialization.
     th->initThermo();
+
+    // Perform any required subclass-specific initialization
+    // that requires the XML phase object
     string id = "";
     th->initThermoXML(phase, id);
 

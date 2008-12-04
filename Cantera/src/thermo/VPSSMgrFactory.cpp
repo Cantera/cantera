@@ -70,24 +70,21 @@ namespace Cantera {
    * 
    * @todo Make sure that spDadta_node is species Data XML node by checking its name is speciesData
    */
-  static void getVPSSMgrTypes(XML_Node* spData_node, 
-			      int& has_nasa, int& has_shomate, int& has_simple,
+  static void getVPSSMgrTypes(std::vector<XML_Node *> & spDataNodeList,
+			      int &has_nasa, 
+			      int& has_shomate, 
+			      int& has_simple,
 			      int &has_water,
 			      int &has_tpx,
 			      int &has_hptx,
 			      int &has_other) {
-
-    const XML_Node& sparray = *spData_node;
-    std::vector<XML_Node*> sp;
-
-    // get all of the species nodes
-    sparray.getChildren("species",sp);
-    size_t n, ns = sp.size();
-    for (n = 0; n < ns; n++) {
+  
+    size_t ns = spDataNodeList.size();
+    for (size_t n = 0; n < ns; n++) {
       bool ifound = false;
-      XML_Node* spNode = sp[n];
+      XML_Node* spNode = spDataNodeList[n];
       if (spNode->hasChild("standardState")) {
-	const XML_Node& ssN = sp[n]->child("standardState");
+	const XML_Node& ssN = spNode->child("standardState");
 	string mm = ssN["model"];
 	if (mm == "waterIAPWS" || mm == "waterPDSS") {
 	  has_water++;
@@ -100,7 +97,7 @@ namespace Cantera {
       } 
       if (!ifound) {
 	if (spNode->hasChild("thermo")) {
-	  const XML_Node& th = sp[n]->child("thermo");
+	  const XML_Node& th = spNode->child("thermo");
 	  if (th.hasChild("NASA")) {
 	    has_nasa++;
 	    ifound = true;
@@ -169,25 +166,13 @@ namespace Cantera {
     }
     return type;
   }
-
-  // Chose the variable pressure standard state manager 
-  // and the reference standard state manager
-  VPSSMgr* 
-  VPSSMgrFactory::newVPSSMgr(VPStandardStateTP *vp_ptr, 
-			     XML_Node* phaseNode_ptr,
-			     XML_Node* spData_node) {
-    std::vector<XML_Node*> spData_nodes;
-    spData_nodes.push_back(spData_node);
-    VPSSMgr *vv = newVPSSMgr(vp_ptr, phaseNode_ptr, spData_nodes);
-    return vv;
-  }
   
   // Chose the variable pressure standard state manager 
   // and the reference standard state manager
   VPSSMgr* 
   VPSSMgrFactory::newVPSSMgr(VPStandardStateTP *vp_ptr, 
 			     XML_Node* phaseNode_ptr,
-			     std::vector<XML_Node*> spData_nodes) {
+			     std::vector<XML_Node*> & spDataNodeList) {
 
     std::string ssManager="";
     std::string vpssManager="";
@@ -216,7 +201,7 @@ namespace Cantera {
     if (ssManager != "") {
       spth = newSpeciesThermoMgr(ssManager);
     } else {
-      spth = newSpeciesThermoMgr(spData_nodes);
+      spth = newSpeciesThermoMgr(spDataNodeList);
     }
     vp_ptr->setSpeciesThermo(spth);
 
@@ -247,18 +232,17 @@ namespace Cantera {
     }
 
 
-    int n = static_cast<int>(spData_nodes.size());
     int inasa = 0, ishomate = 0, isimple = 0, iwater = 0, itpx = 0, iother = 0;
     int ihptx = 0;
-    for (int j = 0; j < n; j++) {
-      try {
-	getVPSSMgrTypes(spData_nodes[j], inasa, ishomate, isimple, iwater, 
-				  itpx, ihptx, iother);
-      } catch (UnknownSpeciesThermoModel) {
-	iother = 1;
-	popError();
-      }
+  
+    try {
+      getVPSSMgrTypes(spDataNodeList, inasa, ishomate, isimple, iwater, 
+		      itpx, ihptx, iother);
+    } catch (UnknownSpeciesThermoModel) {
+      iother = 1;
+      popError();
     }
+    
     if (iwater == 1) {
       if (ihptx == 0) {
 	vpss = new VPSSMgr_Water_ConstVol(vp_ptr, spth);
@@ -315,25 +299,15 @@ namespace Cantera {
     return vpsssptherm;
   }
 
-  VPSSMgr* newVPSSMgr(VPStandardStateTP *tp_ptr,
-		      XML_Node* phaseNode_ptr,
-		      XML_Node* spData_node, 
-		      VPSSMgrFactory* f) {
-    if (f == 0) {
-      f = VPSSMgrFactory::factory();
-    }
-    VPSSMgr* vpsssptherm = f->newVPSSMgr(tp_ptr, phaseNode_ptr, spData_node);
-    return vpsssptherm;
-  }
 
   VPSSMgr* newVPSSMgr(VPStandardStateTP *tp_ptr,
 		      XML_Node* phaseNode_ptr,
-		      std::vector<XML_Node*> spData_nodes, 
+		      std::vector<XML_Node *> & spDataNodeList,
 		      VPSSMgrFactory* f) {
     if (f == 0) {
       f = VPSSMgrFactory::factory();
     }
-    VPSSMgr* vpsssptherm = f->newVPSSMgr(tp_ptr, phaseNode_ptr, spData_nodes);
+    VPSSMgr* vpsssptherm = f->newVPSSMgr(tp_ptr, phaseNode_ptr, spDataNodeList);
     return vpsssptherm;
   }
 
