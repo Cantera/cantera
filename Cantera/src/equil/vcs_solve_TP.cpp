@@ -4484,10 +4484,9 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
   void VCS_SOLVE::check_tmoles() const {
     int i;
-    double sum, m_tPhaseMoles_old_a;
-    //vcs_VolPhase *Vphase;
+    double sum = 0.0;
     for (i = 0; i < m_numPhases; i++) {
-      m_tPhaseMoles_old_a = TPhInertMoles[i];
+      double m_tPhaseMoles_old_a = TPhInertMoles[i];
     
       for (int k = 0; k < m_numSpeciesTot; k++) {
 	if (m_speciesUnknownType[k] == VCS_SPECIES_TYPE_MOLNUM) {
