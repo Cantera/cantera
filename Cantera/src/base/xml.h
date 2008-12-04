@@ -467,7 +467,7 @@ namespace Cantera {
      */
     XML_Node* findID(const std::string& id, const int depth=100) const;
 
-    XML_Node* findByAttr(const std::string& attr, const std::string& val);
+    XML_Node* findByAttr(const std::string& attr, const std::string& val) const;
     const XML_Node* findByName(const std::string& nm) const;
     XML_Node* findByName(const std::string& nm);
     void getChildren(std::string name, std::vector<XML_Node*>& children) const;

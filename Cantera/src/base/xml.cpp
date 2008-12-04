@@ -819,10 +819,10 @@ namespace Cantera {
   }
 
   XML_Node* XML_Node::findByAttr(const string& attr, 
-				 const string& val) {
+   			         const string& val) const {
     if (hasAttrib(attr)) {
       if (attrib(attr) == val) {
-	return this;
+	return const_cast<XML_Node*>(this);
       }
     }
     XML_Node* r = 0;
