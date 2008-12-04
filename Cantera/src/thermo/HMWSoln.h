@@ -1315,8 +1315,7 @@ namespace Cantera {
      */
     ThermoPhase *duplMyselfAsThermoPhase() const;
 
-    /**
-     *   
+    /** 
      * @name  Utilities  
      * @{
      */
@@ -1850,7 +1849,6 @@ namespace Cantera {
     //@}
 
 
-
     //! Set the equation of state parameters
     /*!
      * @internal
@@ -1870,17 +1868,18 @@ namespace Cantera {
      * @param c array of \a n coefficients
      */
     virtual void getParameters(int &n, doublereal * const c) const;
-
-    /**
-     * Set equation of state parameter values from XML
-     * entries. This method is called by function importPhase in
+    
+    //! Set equation of state parameter values from XML
+    //! entries.
+    /*!
+     * This method is called by function importPhase in
      * file importCTML.cpp when processing a phase definition in
      * an input file. It should be overloaded in subclasses to set
      * any parameters that are specific to that particular phase
      * model. 
      *   
      * @param eosdata An XML_Node object corresponding to
-     * the "thermo" entry for this phase in the input file.
+     *                the "thermo" entry for this phase in the input file.
      */
     virtual void setParametersFromXML(const XML_Node& eosdata);
  
@@ -2048,10 +2047,10 @@ namespace Cantera {
      */
     double speciesMolarVolume(int k) const;
 
-    /**
-     * Value of the Debye Huckel constant as a function of temperature
-     * and pressure.
-     *
+  
+    //! Value of the Debye Huckel constant as a function of temperature
+    //! and pressure.
+    /*!
      *            A_Debye = (F e B_Debye) / (8 Pi epsilon R T)
      *
      *            Units = sqrt(kg/gmol)
