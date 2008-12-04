@@ -55,6 +55,27 @@ namespace Cantera {
       //! Default destructor for the elements class
       ~Elements();
 
+
+      //! copy constructor
+      /*!
+       *   This copy constructor just calls the assignment operator for this
+       *   class. It sets the number of subscribers to zer0.
+       *
+       * @param right   Reference to the object to be copied.
+       */
+      Elements(const Elements& right);
+
+      //! Assigntment operator
+      /*!
+       *   This is the assignment operator for the Elements class.
+       *   Right now we pretty much do a straight uncomplicated 
+       *   assignment. However, subscribers are not mucked with, as they
+       *   have to do with the address of the object to be subscribed to
+       *
+       * @param right   Reference to the object to be copied.
+       */
+      Elements& operator=(const Elements& right);
+
       //! Function to lookup the atomic weight of an element
       /*!
        *  @param ename Element symbol name.
@@ -189,26 +210,7 @@ namespace Cantera {
       /// True if both elements and species have been frozen
       bool ready() const;
 
-      //! copy constructor
-      /*!
-       *   This copy constructor just calls the assignment operator for this
-       *   class. It sets the number of subscribers to zer0.
-       *
-       * @param right   Reference to the object to be copied.
-       */
-      Elements(const Elements& right);
-
-      //! Assigntment operator
-      /*!
-       *   This is the assignment operator for the Elements class.
-       *   Right now we pretty much do a straight uncomplicated 
-       *   assignment. However, subscribers are not mucked with, as they
-       *   have to do with the address of the object to be subscribed to
-       *
-       * @param right   Reference to the object to be copied.
-       */
-      Elements& operator=(const Elements& right);
-
+     
       //! subscribe to this object
       /*!
        *  Increment by one the number of subscriptions to this object.
@@ -233,38 +235,38 @@ namespace Cantera {
       //!   Number of elements.
       int                            m_mm;
 
-	/* m_elementsFrozen: */
-	/**   boolean indicating completion of object
-	 *
-	 *    If this is true, then no elements may be added to the
-	 *    object.
-	 */
-        bool                           m_elementsFrozen;
+      /* m_elementsFrozen: */
+      /**   boolean indicating completion of object
+       *
+       *    If this is true, then no elements may be added to the
+       *    object.
+       */
+      bool                           m_elementsFrozen;
 
-	/**
-	 *  Vector of element atomic weights:
-	 *
-	 *   units = kg / kmol
-	 */
-        vector_fp                      m_atomicWeights;
+      /**
+       *  Vector of element atomic weights:
+       *
+       *   units = kg / kmol
+       */
+      vector_fp                      m_atomicWeights;
 
-	/**
-	 *  Vector of element atomic numbers:
-	 *
-	 */
-        vector_int                      m_atomicNumbers;
+      /**
+       *  Vector of element atomic numbers:
+       *
+       */
+      vector_int                      m_atomicNumbers;
 	
-	/** Vector of strings containing the names of the elements
-	 *        
-	 *  Note, a string search is the primary way to identify elements.
-	 */
-        std::vector<std::string>                 m_elementNames;
+      /** Vector of strings containing the names of the elements
+       *        
+       *  Note, a string search is the primary way to identify elements.
+       */
+      std::vector<std::string>                 m_elementNames;
 
-        //! Entropy at 298.15 K and 1 bar of stable state
-        /*!
-         *   units J kmol-1
-         */
-        vector_fp m_entropy298;
+      //! Entropy at 298.15 K and 1 bar of stable state
+      /*!
+       *   units J kmol-1
+       */
+      vector_fp m_entropy298;
 
  	/**
 	 * Number of Constituents Objects that use this object

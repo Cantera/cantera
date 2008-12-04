@@ -216,30 +216,54 @@ namespace Cantera {
 		     "elements cannot be added after species.") {}
   };
   
-    /*
-     *  Elements Class Constructor
-     *    We initialize all internal variables to zero here.
-     */
-    Elements::Elements() :
-	m_mm(0),
-	m_elementsFrozen(false),
-	numSubscribers(0)
-    {
-    }
+  /*
+   *  Elements Class Constructor
+   *    We initialize all internal variables to zero here.
+   */
+  Elements::Elements() :
+    m_mm(0),
+    m_elementsFrozen(false),
+    numSubscribers(0)
+  {
+  }
 
-    /*
-     * Elements Class Destructor
-     *   If the number of subscribers is not zero, through an error.
-     *   A logic problem has occurred.
-     *
-     *  @exception CanteraError
-     */
-    Elements::~Elements()
-    { 
-      if (numSubscribers != 0) {
-	throw CanteraError("~Elements", "numSubscribers not zero");
-      }
+  /*
+   * Elements Class Destructor
+   *   If the number of subscribers is not zero, through an error.
+   *   A logic problem has occurred.
+   *
+   *  @exception CanteraError
+   */
+  Elements::~Elements() { 
+    if (numSubscribers != 0) {
+      throw CanteraError("~Elements", "numSubscribers not zero");
     }
+  }
+
+  Elements::Elements(const Elements &right) :
+    m_mm(0),
+    m_elementsFrozen(false),
+    numSubscribers(0)
+  {
+    *this = operator=(right);
+  }
+
+  Elements& Elements::operator=(const Elements &right) {
+    if (&right == this) return *this;
+    
+    m_mm             = right.m_mm;
+    m_elementsFrozen = right.m_elementsFrozen;
+    m_atomicWeights  = right.m_atomicWeights;
+    m_atomicNumbers  = right.m_atomicNumbers;
+    m_elementNames   = right.m_elementNames;
+    m_entropy298     = right.m_entropy298;
+
+    numSubscribers = 0;
+
+    return *this;
+  }
+
+
  
     /*
      * freezeElements():
@@ -475,76 +499,26 @@ namespace Cantera {
     }
   }
  
-    /*
-     * clear()
-     *
-     *   Remove all elements from the structure.
-     */
-    void Elements::clear() {
-      m_mm = 0;
-      m_atomicWeights.resize(0);
-      m_elementNames.resize(0);
-      m_elementsFrozen = false;
-    }
+  /*
+   * clear()
+   *
+   *   Remove all elements from the structure.
+   */
+  void Elements::clear() {
+    m_mm = 0;
+    m_atomicWeights.resize(0);
+    m_elementNames.resize(0);
+    m_elementsFrozen = false;
+  }
 
-    /*
-     * ready():
-     *
-     * True if the elements have been frozen
-     */
-    bool Elements::ready() const { 
-      return (m_elementsFrozen);
-    }
-
-    /*
-     * Elements(const Elements&)  - copy constructor:
-     *
-     *   This copy constructor just calls the assignment operator for this
-     *   class.
-     */
-    Elements::Elements(const Elements& right)
-    {
-      *this = right;
-      /*
-       * Set the number of subscribers to zero during a copy constructor
-       */
-      numSubscribers = 0;
-    }
-  
-    /*
-     *  Elements& Elements::operator=(const Elements& right):
-     *
-     *  (assignment operator)
-     *
-     *   This is the assignment operator for the Elements class.
-     *   Right now we pretty much do a straight uncomplicated 
-     *   assignment. However, subscribers are not mucked with, as they
-     *   have to do with the address of the object to be subscribed to
-     */
-    Elements& Elements::operator=(const Elements& right)
-    {
-      /*
-       * Check for self assignment.
-       */
-      if (this == &right) return *this;
-      /*
-       * We do a straight assignment operator on all of the 
-       * data. The vectors are copied.
-       */
-      m_mm             = right.m_mm;
-      m_elementsFrozen = right.m_elementsFrozen;
-      m_atomicWeights  = right.m_atomicWeights;
-      m_elementNames   = right.m_elementNames;
-      /*
-       * We must not muck with the number of subscribers to this object
-       * during a straight assignment. This number was set in the 
-       * constructor operation.
-       */
-      /*
-       * Return the reference to the current object
-       */
-      return *this;
-    }
+  /*
+   * ready():
+   *
+   * True if the elements have been frozen
+   */
+  bool Elements::ready() const { 
+    return (m_elementsFrozen);
+  }
 
 
   void Elements::addElementsFromXML(const XML_Node& phase) {
