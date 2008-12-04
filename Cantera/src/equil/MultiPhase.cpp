@@ -426,7 +426,7 @@ namespace Cantera {
     /// Set the species moles to the values in array \a n. The state
     /// of each phase object is also updated to have the specified
     /// composition and the mixture temperature and pressure.
-    void MultiPhase::setMoles(doublereal* n) {
+    void MultiPhase::setMoles(const doublereal* n) {
         if (!m_init) init();
         index_t ip, loc = 0;
         index_t ik, k = 0, nsp;
@@ -454,6 +454,13 @@ namespace Cantera {
             loc += nsp;
         }
     }
+
+   void MultiPhase::setState_TPMoles(const doublereal T, const doublereal Pres,
+                                     const doublereal *n) {
+      m_temp  = T;
+      m_press = Pres;
+      setMoles(n);       
+   }
 
   void MultiPhase::getElemAbundances(doublereal *elemAbundances) const {
     index_t eGlobal;

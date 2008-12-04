@@ -319,6 +319,15 @@ namespace Cantera {
      */
     void setTemperature(const doublereal T);
 
+    //! Set the state of the underlying ThermoPhase objects in one call
+    /*!
+     *   @param T      Temperature of the system (kelvin)
+     *   @param Pres   pressure of the system (pascal)
+     *   @param Moles  Vector of mole numbers of all the species in all the phases
+     *                 (kmol)
+     */
+    void setState_TPMoles(const doublereal T, const doublereal Pres, const doublereal *Moles);
+
     /// Pressure [Pa].
     doublereal pressure() const {
       return m_press;
@@ -437,7 +446,7 @@ namespace Cantera {
      *             containing the global mole numbers
      *               (kmol).
      */
-    void setMoles(doublereal* n);
+    void setMoles(const doublereal* n);
 
     //! Retrieves a vector of element abundances
     /*!
