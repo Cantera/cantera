@@ -18,8 +18,6 @@ namespace Cantera {
    * Basic list of constructors and duplicators
    */
 
-
-
   PDSS_HKFT::PDSS_HKFT(VPStandardStateTP *tp, int spindex) :
     PDSS(tp, spindex),
     m_waterSS(0),
@@ -113,8 +111,32 @@ namespace Cantera {
   }
 
   PDSS_HKFT::PDSS_HKFT(const PDSS_HKFT &b) :
-    PDSS(b)
+    PDSS(b),
+    m_waterSS(0),
+    m_pres(OneAtm),
+    m_densWaterSS(-1.0),
+    m_waterProps(0),
+    m_born_coeff_j(-1.0),
+    m_r_e_j(-1.0),
+    m_deltaG_formation_tr_pr(0.0),
+    m_deltaH_formation_tr_pr(0.0),
+    m_Mu0_tr_pr(0.0),
+    m_Entrop_tr_pr(0.0),
+    m_a1(0.0),
+    m_a2(0.0),
+    m_a3(0.0),
+    m_a4(0.0),
+    m_c1(0.0),
+    m_c2(0.0),
+    m_omega_pr_tr(0.0),
+    m_Y_pr_tr(0.0),
+    m_Z_pr_tr(0.0),
+    m_presR_bar(0.0),
+    m_domega_jdT_prtr(0.0),
+    m_charge_j(0.0)
   {
+    m_pdssType = cPDSS_MOLAL_HKFT;
+    m_presR_bar = OneAtm * 1.0E-5;
     /*
      * Use the assignment operator to do the brunt
      * of the work for the copy construtor.
@@ -125,13 +147,45 @@ namespace Cantera {
   /**
    * Assignment operator
    */
-  PDSS_HKFT& PDSS_HKFT::operator=(const PDSS_HKFT&b) {
+  PDSS_HKFT& PDSS_HKFT::operator=(const PDSS_HKFT& b) {
     if (&b == this) return *this;
-    m_tp = b.m_tp;
-    m_spindex = b.m_spindex;
-    m_temp = b.m_temp;
-    m_pres = b.m_pres;
-    m_mw = b.m_mw;
+    /*
+     * Call the base class operator
+     */
+    PDSS::operator=(b);
+
+    //! Need to call initAllPtrs AFTER, to get the correct m_waterSS
+    m_waterSS        = 0;
+    m_pres                      = b.m_pres;
+    m_densWaterSS               = b.m_densWaterSS;
+    //! Need to call initAllPtrs AFTER, to get the correct m_waterProps
+    if (m_waterProps) {
+      delete m_waterProps;
+    }
+    m_waterProps                = 0;
+    m_born_coeff_j              = b.m_born_coeff_j;
+    m_r_e_j                     = b.m_r_e_j;
+    m_deltaG_formation_tr_pr    = b.m_deltaG_formation_tr_pr;
+    m_deltaH_formation_tr_pr    = b.m_deltaH_formation_tr_pr;
+    m_Mu0_tr_pr                 = b.m_Mu0_tr_pr;
+    m_Entrop_tr_pr              = b.m_Entrop_tr_pr;
+    m_a1                        = b.m_a1;
+    m_a2                        = b.m_a2; 
+    m_a3                        = b.m_a3;   
+    m_a4                        = b.m_a4;
+    m_c1                        = b.m_c1;
+    m_c2                        = b.m_c2; 
+    m_omega_pr_tr               = b.m_omega_pr_tr;
+    m_Y_pr_tr                   = b.m_Y_pr_tr;
+    m_Z_pr_tr                   = b.m_Z_pr_tr;
+    m_presR_bar                 = b.m_presR_bar;
+    m_domega_jdT_prtr           = b.m_domega_jdT_prtr;
+    m_charge_j                  = b.m_charge_j;
+
+    // Here we just fill these in so that local copies within the VPSS object work.
+    m_waterSS                  = b.m_waterSS;
+    m_waterProps               = new WaterProps(m_waterSS);
+   
     return *this;
   }
   
@@ -470,14 +524,23 @@ namespace Cantera {
 
  
      m_domega_jdT_prtr =  -  nu * (m_charge_j * m_charge_j / (r_e_j * r_e_j) * dr_e_jdT)
-      + nu * m_charge_j / (3.082 + gval) / (3.082 + gval) * dgvaldT;
-
-   
+      + nu * m_charge_j / (3.082 + gval) / (3.082 + gval) * dgvaldT;   
   }
 
 
   void PDSS_HKFT::initThermoXML(const XML_Node& phaseNode, std::string& id) {
     PDSS::initThermoXML(phaseNode, id);
+  }
+
+  void PDSS_HKFT::initAllPtrs(VPStandardStateTP *vptp_ptr, VPSSMgr *vpssmgr_ptr, 
+			      SpeciesThermo* spthermo_ptr) {
+
+    PDSS::initAllPtrs(vptp_ptr, vpssmgr_ptr,  spthermo_ptr);
+    m_waterSS = (PDSS_Water *) m_tp->providePDSS(0);
+    if (m_waterProps) {
+      delete m_waterProps;
+    }
+    m_waterProps = new WaterProps(m_waterSS);
   }
 
   void PDSS_HKFT::constructPDSSXML(VPStandardStateTP *tp, int spindex,
@@ -602,8 +665,8 @@ namespace Cantera {
    }
     
    
-    std::string id = "";
-    initThermoXML(phaseNode, id);
+   // std::string id = "";
+   //initThermoXML(phaseNode, id);
   }
 
   void PDSS_HKFT::constructPDSSFile(VPStandardStateTP *tp, int spindex,

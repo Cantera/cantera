@@ -140,6 +140,7 @@ namespace Cantera {
     SW_Offset       = b.SW_Offset;
     m_verbose       = b.m_verbose;
     m_allowGasPhase = b.m_allowGasPhase;
+
     return *this;
   }
 
@@ -158,7 +159,7 @@ namespace Cantera {
    * Initialization of a Debye-Huckel phase using an
    * xml file.
    *
-   * This routine is a precursor to initThermo(XML_Node*)
+   * This routine is a precursor to  constructSet
    * routine, which does most of the work.
    *
    * @param infile XML file containing the description of the
@@ -179,7 +180,7 @@ namespace Cantera {
    * Initialization of a Debye-Huckel phase using an
    * xml file.
    *
-   * This routine is a precursor to initThermo(XML_Node*)
+   * This routine is a precursor to constructPDSSXML(XML_Node*)
    * routine, which does most of the work.
    *
    * @param infile XML file containing the description of the

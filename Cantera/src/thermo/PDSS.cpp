@@ -123,16 +123,37 @@ namespace Cantera {
    */
   PDSS& PDSS::operator=(const PDSS&b) {
     if (&b == this) return *this;
+
     m_pdssType     = b.m_pdssType;
     m_temp         = b.m_temp;
     m_pres         = b.m_pres;
     m_p0           = b.m_p0;
     m_minTemp      = b.m_minTemp;
     m_maxTemp      = b.m_maxTemp;
-    m_tp           = b.m_tp;
-    m_vpssmgr_ptr  = b.m_vpssmgr_ptr;
+
+    // Pointers which are zero, are properly assigned in the
+    // function, initAllPtrs(). which must be called after the
+    // assignment operation.
+
+    m_tp           = 0;
+    m_vpssmgr_ptr  = 0;
     m_mw           = b.m_mw;
     m_spindex      = b.m_spindex;
+    m_spthermo     = 0;
+    m_cp0_R_ptr    = 0;
+    m_h0_RT_ptr    = 0;
+    m_s0_R_ptr     = 0;
+    m_g0_RT_ptr    = 0;
+    m_V0_ptr       = 0;
+    m_cpss_R_ptr   = 0;
+    m_hss_RT_ptr   = 0;
+    m_sss_R_ptr    = 0;
+    m_gss_RT_ptr   = 0;
+    m_Vss_ptr      = 0;
+
+    // Here we just fill these in so that local copies within the VPSS object work.
+    m_tp           = b.m_tp;
+    m_vpssmgr_ptr  = b.m_vpssmgr_ptr;  
     m_spthermo     = b.m_spthermo;
     m_cp0_R_ptr    = b.m_cp0_R_ptr;
     m_h0_RT_ptr    = b.m_h0_RT_ptr;

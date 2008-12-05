@@ -414,6 +414,24 @@ namespace Cantera {
      */
     virtual void initThermoXML(const XML_Node& phaseNode, std::string& id);
 
+    //! Initialize or Reinitialize all shallow pointers in the object
+    /*!
+     *  This command is called to reinitialize all shallow pointers in the
+     *  object. It's needed for the duplicator capability
+     *
+     * @param vptp_ptr       Pointer to the Variable pressure %ThermoPhase object
+     *                       This object must have already been malloced.
+     *
+     * @param vpssmgr_ptr    Pointer to the variable pressure standard state
+     *                       calculator for this phase
+     *
+     * @param spthermo_ptr   Pointer to the optional SpeciesThermo object
+     *                       that will handle the calculation of the reference
+     *                       state thermodynamic coefficients.
+     */
+    virtual void initAllPtrs(VPStandardStateTP *vptp_ptr, VPSSMgr *vpssmgr_ptr, 
+			     SpeciesThermo* spthermo_ptr);
+
     //@}
 
  
@@ -534,6 +552,7 @@ namespace Cantera {
     //!  Water standard state calculator
     /*!
      *  derived from the equation of state for water.
+     *  This object doesn't own the object. Just a shallow pointer.
      */
     PDSS_Water *m_waterSS;
 

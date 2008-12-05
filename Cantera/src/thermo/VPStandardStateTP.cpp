@@ -414,8 +414,9 @@ namespace Cantera {
     m_VPSS_ptr->initThermo();
     for (int k = 0; k < m_kk; k++) {
       PDSS *kPDSS = m_PDSS_storage[k];
+      AssertTrace(kPDSS != 0);
       if (kPDSS) {
-	kPDSS->initThermo();
+	kPDSS->initThermoXML(phaseNode, id);
       }
     }
     m_VPSS_ptr->initThermoXML(phaseNode, id);

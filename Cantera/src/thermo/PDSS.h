@@ -594,13 +594,14 @@ namespace Cantera {
      */
     virtual void initThermoXML(const XML_Node& phaseNode, std::string& id);
 
-  
+  private:
     //! Initialize all of the internal shallow pointers that can be initialized
     /*!
-     * This routine isn't virtual
+     * This routine isn't virtual. It's only applicable for the current class
      */
     void initPtrs();
 
+  public:
     //! Initialize or Reinitialize all shallow pointers in the object
     /*!
      *  This command is called to reinitialize all shallow pointers in the
@@ -616,8 +617,8 @@ namespace Cantera {
      *                       that will handle the calculation of the reference
      *                       state thermodynamic coefficients.
      */
-    void initAllPtrs(VPStandardStateTP *vptp_ptr, VPSSMgr *vpssmgr_ptr, 
-		     SpeciesThermo* spthermo_ptr);
+    virtual void initAllPtrs(VPStandardStateTP *vptp_ptr, VPSSMgr *vpssmgr_ptr, 
+			     SpeciesThermo* spthermo_ptr);
 
    //@}
 
@@ -675,7 +676,7 @@ namespace Cantera {
     //!  Reference state enthalpy divided by RT.
     /*!
      *  Storage for the thermo properties is provided by
-     *  VPSSMgr.
+     *  VPSSMgr. This object owns a shallow pointer.
      *  Calculated at the current value of T and m_p0
      */
     doublereal *m_h0_RT_ptr;

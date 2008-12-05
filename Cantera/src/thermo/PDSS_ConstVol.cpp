@@ -69,6 +69,9 @@ namespace Cantera {
   PDSS_ConstVol& PDSS_ConstVol::operator=(const PDSS_ConstVol&b) {
     if (&b == this) return *this;
     PDSS::operator=(b);
+
+    m_constMolarVolume      = b.m_constMolarVolume;
+
     return *this;
   }
 
