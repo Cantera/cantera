@@ -277,6 +277,7 @@ namespace Cantera {
       m_Psi_ijk_L           = b.m_Psi_ijk_L;
       m_Psi_ijk_LL          = b.m_Psi_ijk_LL;
       m_Psi_ijk_P           = b.m_Psi_ijk_P;
+      m_Psi_ijk_coeff       = b.m_Psi_ijk_coeff;
       m_Lambda_ij           = b.m_Lambda_ij;
       m_Lambda_ij_L         = b.m_Lambda_ij_L;
       m_Lambda_ij_LL        = b.m_Lambda_ij_LL;
@@ -1589,10 +1590,12 @@ namespace Cantera {
     m_Theta_ij_P.resize(maxCounterIJlen, 0.0);
     m_Theta_ij_coeff.resize(TCoeffLength, maxCounterIJlen, 0.0);
 
+    int n = m_kk*m_kk*m_kk;
     m_Psi_ijk.resize(m_kk*m_kk*m_kk, 0.0);
     m_Psi_ijk_L.resize(m_kk*m_kk*m_kk, 0.0);
     m_Psi_ijk_LL.resize(m_kk*m_kk*m_kk, 0.0);
     m_Psi_ijk_P.resize(m_kk*m_kk*m_kk, 0.0);
+    m_Psi_ijk_coeff.resize(TCoeffLength, n, 0.0);
 
     m_Lambda_ij.resize(leng, leng, 0.0);
     m_Lambda_ij_L.resize(leng, leng, 0.0);
@@ -2029,6 +2032,41 @@ namespace Cantera {
 	  //m_CphiMX_ij_LL[counterIJ] = 0;
 #endif
 	  break;
+	}
+      }
+    }
+
+ 
+    for (i = 0; i < m_kk; i++) {
+      for (j = 0; j < m_kk; j++) {
+	for (int k = 0; k < m_kk; k++) {
+	  n = i * m_kk *m_kk + j * m_kk + k ;
+	  const double *Psi_coeff = m_Psi_ijk_coeff.ptrColumn(n);
+	  switch (m_formPitzerTemp) {
+	  case PITZER_TEMP_CONSTANT:
+	    m_Psi_ijk[n] = Psi_coeff[n];
+	    break;
+	  case PITZER_TEMP_LINEAR:
+	    m_Psi_ijk[n]      = Psi_coeff[0] + Psi_coeff[1]*tlin;
+	    m_Psi_ijk_L[n]    = Psi_coeff[1];
+	    m_Psi_ijk_LL[n]   = 0.0;
+	  case PITZER_TEMP_COMPLEX1:
+	    m_Psi_ijk[n] = Psi_coeff[0] 
+	      + Psi_coeff[1]*tlin
+	      + Psi_coeff[2]*tquad
+	      + Psi_coeff[3]*tinv
+	      + Psi_coeff[4]*tln;
+	    
+	    m_Psi_ijk_L[n] = Psi_coeff[1]
+	      + Psi_coeff[2]*2.0*T
+	      - Psi_coeff[3]/(T*T)
+	      + Psi_coeff[4]/T;
+
+	    m_Psi_ijk_LL[n] = 
+	        Psi_coeff[2]*2.0
+	      + 2.0*Psi_coeff[3]/(T*T*T)
+	      - Psi_coeff[4]/(T*T);
+	  }
 	}
       }
     }

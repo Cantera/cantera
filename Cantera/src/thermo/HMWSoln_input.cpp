@@ -452,6 +452,8 @@ namespace Cantera {
     }
     double *charge = DATA_PTR(m_speciesCharge);
     string stemp;
+    vector_fp vParams;
+    int nParamsFound = 0;
     string kName = BinSalt.attrib("cation");
     if (kName == "") {
       throw CanteraError("HMWSoln::readXMLPsiCommonCation", "no cation attrib");
@@ -512,25 +514,76 @@ namespace Cantera {
 	}
       }
       if (nodeName == "psi") {
-	stemp = xmlChild.value();
-	double param = atofCheck(stemp.c_str());
+	getFloatArray(xmlChild, vParams, false, "", "Psi");
+	nParamsFound = vParams.size();
 	n = iSpecies * m_kk *m_kk + jSpecies * m_kk + kSpecies ;
-	m_Psi_ijk[n] = param;
+
+	if (m_formPitzerTemp == PITZER_TEMP_CONSTANT) {
+	  if (nParamsFound != 1) {
+	    throw CanteraError("HMWSoln::readXMLPsiCommonCation::Psi for "
+			       + kName + "::" + iName + "::" + jName,
+			       "wrong number of params found");
+	  }
+	  m_Psi_ijk_coeff(0,n) = vParams[0];
+	  m_Psi_ijk[n] = vParams[0];
+	} else  if (m_formPitzerTemp == PITZER_TEMP_LINEAR) {
+	  if (nParamsFound != 2) {
+	    throw CanteraError("HMWSoln::readXMLPsiCation::Psi for "
+			       + kName + "::" + iName + "::" + jName,
+			       "wrong number of params found");
+	  }
+	  m_Psi_ijk_coeff(0,n) = vParams[0];
+	  m_Psi_ijk_coeff(1,n) = vParams[1];
+	  m_Psi_ijk[n]         = vParams[0];
+	} else  if (m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
+	  if (nParamsFound == 1) {
+	    vParams.resize(5, 0.0);
+	    nParamsFound = 5;
+	  } else if (nParamsFound != 5) {
+	    throw CanteraError("HMWSoln::readXMLPsiCation::Psi for "
+			       + kName + "::" + iName + "::" + jName,
+			       "wrong number of params found");
+	  }
+	  for (i = 0; i < nParamsFound; i++) {
+	    m_Psi_ijk_coeff(i, n) = vParams[i];
+	  }
+	  m_Psi_ijk[n] = vParams[0];
+	}
+
+
+	// fill in the duplicate entries
 	n = iSpecies * m_kk *m_kk + kSpecies * m_kk + jSpecies ;
-	m_Psi_ijk[n] = param;
+	for (i = 0; i < nParamsFound; i++) {
+	  m_Psi_ijk_coeff(i, n) = vParams[i];
+	}
+	m_Psi_ijk[n] = vParams[0];
+
 	n = jSpecies * m_kk *m_kk + iSpecies * m_kk + kSpecies ;
-	m_Psi_ijk[n] = param;
+	for (i = 0; i < nParamsFound; i++) {
+	  m_Psi_ijk_coeff(i, n) = vParams[i];
+	}
+	m_Psi_ijk[n] = vParams[0];
+
 	n = jSpecies * m_kk *m_kk + kSpecies * m_kk + iSpecies ;
-	m_Psi_ijk[n] = param;
+	for (i = 0; i < nParamsFound; i++) {
+	  m_Psi_ijk_coeff(i, n) = vParams[i];
+	}
+	m_Psi_ijk[n] = vParams[0];
+
 	n = kSpecies * m_kk *m_kk + jSpecies * m_kk + iSpecies ;
-	m_Psi_ijk[n] = param;
+	for (i = 0; i < nParamsFound; i++) {
+	  m_Psi_ijk_coeff(i, n) = vParams[i];
+	}
+	m_Psi_ijk[n] = vParams[0];
+
 	n = kSpecies * m_kk *m_kk + iSpecies * m_kk + jSpecies ;
-	m_Psi_ijk[n] = param;
+	for (i = 0; i < nParamsFound; i++) {
+	  m_Psi_ijk_coeff(i, n) = vParams[i];
+	}
+	m_Psi_ijk[n] = vParams[0];
       }
     }
   }
-
-
    
   /**
    * Process an XML node called "PsiCommonAnion". 
@@ -545,6 +598,8 @@ namespace Cantera {
     }
     double *charge = DATA_PTR(m_speciesCharge);
     string stemp;
+    vector_fp vParams;
+    int nParamsFound = 0;
     string kName = BinSalt.attrib("anion");
     if (kName == "") {
       throw CanteraError("HMWSoln::readXMLPsiCommonAnion", "no anion attrib");
@@ -604,20 +659,75 @@ namespace Cantera {
 	}
       }
       if (nodeName == "psi") {
-	stemp = xmlChild.value();
-	double param = atofCheck(stemp.c_str());
+
+	getFloatArray(xmlChild, vParams, false, "", "Psi");
+	nParamsFound = vParams.size();
 	n = iSpecies * m_kk *m_kk + jSpecies * m_kk + kSpecies ;
-	m_Psi_ijk[n] = param;
+
+	if (m_formPitzerTemp == PITZER_TEMP_CONSTANT) {
+	  if (nParamsFound != 1) {
+	    throw CanteraError("HMWSoln::readXMLPsiCommonAnion::Psi for "
+			       + kName + "::" + iName + "::" + jName,
+			       "wrong number of params found");
+	  }
+	  m_Psi_ijk_coeff(0,n) = vParams[0];
+	  m_Psi_ijk[n] = vParams[0];
+	} else  if (m_formPitzerTemp == PITZER_TEMP_LINEAR) {
+	  if (nParamsFound != 2) {
+	    throw CanteraError("HMWSoln::readXMLPsiAnion::Psi for "
+			       + kName + "::" + iName + "::" + jName,
+			       "wrong number of params found");
+	  }
+	  m_Psi_ijk_coeff(0,n) = vParams[0];
+	  m_Psi_ijk_coeff(1,n) = vParams[1];
+	  m_Psi_ijk[n]         = vParams[0];
+	} else  if (m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
+	  if (nParamsFound == 1) {
+	    vParams.resize(5, 0.0);
+	    nParamsFound = 5;
+	  } else if (nParamsFound != 5) {
+	    throw CanteraError("HMWSoln::readXMLPsiAnion::Psi for "
+			       + kName + "::" + iName + "::" + jName,
+			       "wrong number of params found");
+	  }
+	  for (i = 0; i < nParamsFound; i++) {
+	    m_Psi_ijk_coeff(i, n) = vParams[i];
+	  }
+	  m_Psi_ijk[n] = vParams[0];
+	}
+
+
+	// fill in the duplicate entries
 	n = iSpecies * m_kk *m_kk + kSpecies * m_kk + jSpecies ;
-	m_Psi_ijk[n] = param;
+	for (i = 0; i < nParamsFound; i++) {
+	  m_Psi_ijk_coeff(i, n) = vParams[i];
+	}
+	m_Psi_ijk[n] = vParams[0];
+
 	n = jSpecies * m_kk *m_kk + iSpecies * m_kk + kSpecies ;
-	m_Psi_ijk[n] = param;
+	for (i = 0; i < nParamsFound; i++) {
+	  m_Psi_ijk_coeff(i, n) = vParams[i];
+	}
+	m_Psi_ijk[n] = vParams[0];
+
 	n = jSpecies * m_kk *m_kk + kSpecies * m_kk + iSpecies ;
-	m_Psi_ijk[n] = param;
+	for (i = 0; i < nParamsFound; i++) {
+	  m_Psi_ijk_coeff(i, n) = vParams[i];
+	}
+	m_Psi_ijk[n] = vParams[0];
+
 	n = kSpecies * m_kk *m_kk + jSpecies * m_kk + iSpecies ;
-	m_Psi_ijk[n] = param;
+	for (i = 0; i < nParamsFound; i++) {
+	  m_Psi_ijk_coeff(i, n) = vParams[i];
+	}
+	m_Psi_ijk[n] = vParams[0];
+
 	n = kSpecies * m_kk *m_kk + iSpecies * m_kk + jSpecies ;
-	m_Psi_ijk[n] = param;
+	for (i = 0; i < nParamsFound; i++) {
+	  m_Psi_ijk_coeff(i, n) = vParams[i];
+	}
+	m_Psi_ijk[n] = vParams[0];
+
       }
     }
   }

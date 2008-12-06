@@ -2644,25 +2644,42 @@ namespace Cantera {
      * The first two coordinates are symmetric wrt cations,
      * and the last two coordinates are symmetric wrt anions.
      */
-    vector_fp m_Psi_ijk;
+    mutable vector_fp m_Psi_ijk;
 
     //! Derivitive of Psi_ijk[n] wrt T
     /*! 
      *  see m_Psi_ijk for reference on the indexing into this variable. 
      */
-    vector_fp m_Psi_ijk_L;
+    mutable vector_fp m_Psi_ijk_L;
 
     //! Derivitive of Psi_ijk[n] wrt TT
     /*! 
      *  see m_Psi_ijk for reference on the indexing into this variable. 
      */
-    vector_fp m_Psi_ijk_LL;
+    mutable vector_fp m_Psi_ijk_LL;
 
     //! Derivitive of Psi_ijk[n] wrt P
     /*! 
      *  see m_Psi_ijk for reference on the indexing into this variable. 
      */
-    vector_fp m_Psi_ijk_P;
+    mutable vector_fp m_Psi_ijk_P;
+
+    //! Array of coefficients for Psi_ijk[n] in the Pitzer/HMW formulation.
+    /*!
+     * Psi_ijk[n] is the value of the psi coefficient for the
+     * ijk interaction where
+     *
+     *   n = k + j * m_kk + i * m_kk * m_kk;
+     *
+     * It is potentially nonzero everywhere. 
+     * The first two coordinates are symmetric wrt cations,
+     * and the last two coordinates are symmetric wrt anions.
+     *
+     *
+     *  m_Psi_ijk_coeff.ptrColumn(n) is a double* containing
+     *  the vector of coefficients for the n interaction.
+     */
+    Array2D m_Psi_ijk_coeff;
 
     //! Lambda coefficient for the ij interaction
     /*!
