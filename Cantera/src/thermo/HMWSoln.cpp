@@ -278,10 +278,11 @@ namespace Cantera {
       m_Psi_ijk_LL          = b.m_Psi_ijk_LL;
       m_Psi_ijk_P           = b.m_Psi_ijk_P;
       m_Psi_ijk_coeff       = b.m_Psi_ijk_coeff;
-      m_Lambda_ij           = b.m_Lambda_ij;
-      m_Lambda_ij_L         = b.m_Lambda_ij_L;
-      m_Lambda_ij_LL        = b.m_Lambda_ij_LL;
-      m_Lambda_ij_P         = b.m_Lambda_ij_P;
+      m_Lambda_nj           = b.m_Lambda_nj;
+      m_Lambda_nj_L         = b.m_Lambda_nj_L;
+      m_Lambda_nj_LL        = b.m_Lambda_nj_LL;
+      m_Lambda_nj_P         = b.m_Lambda_nj_P;
+      m_Lambda_nj_coeff     = b.m_Lambda_nj_coeff;
       m_lnActCoeffMolal     = b.m_lnActCoeffMolal;
       m_dlnActCoeffMolaldT  = b.m_dlnActCoeffMolaldT;
       m_d2lnActCoeffMolaldT2= b.m_d2lnActCoeffMolaldT2;
@@ -1597,10 +1598,11 @@ namespace Cantera {
     m_Psi_ijk_P.resize(m_kk*m_kk*m_kk, 0.0);
     m_Psi_ijk_coeff.resize(TCoeffLength, n, 0.0);
 
-    m_Lambda_ij.resize(leng, leng, 0.0);
-    m_Lambda_ij_L.resize(leng, leng, 0.0);
-    m_Lambda_ij_LL.resize(leng, leng, 0.0);
-    m_Lambda_ij_P.resize(leng, leng, 0.0);
+    m_Lambda_nj.resize(leng, leng, 0.0);
+    m_Lambda_nj_L.resize(leng, leng, 0.0);
+    m_Lambda_nj_LL.resize(leng, leng, 0.0);
+    m_Lambda_nj_P.resize(leng, leng, 0.0); 
+    m_Lambda_nj_coeff.resize(TCoeffLength, maxCounterIJlen, 0.0);
 
     m_lnActCoeffMolal.resize(leng, 0.0);
     m_dlnActCoeffMolaldT.resize(leng, 0.0);
@@ -2036,7 +2038,44 @@ namespace Cantera {
       }
     }
 
- 
+    // Lambda interactions
+    // i must be neutral for this term to be nonzero. We take advantage of this
+    // here to lower the operation count.
+    for (i = 1; i < m_kk; i++) {
+      if (m_speciesCharge[i] == 0.0) {
+	for (j = 1; j < m_kk; j++) {
+	  n = i * m_kk + j;
+	  const double *Lambda_coeff = m_Lambda_nj_coeff.ptrColumn(n);
+	  switch (m_formPitzerTemp) {
+	  case PITZER_TEMP_CONSTANT:
+	    m_Lambda_nj(i,j) = Lambda_coeff[n];
+	    break;
+	  case PITZER_TEMP_LINEAR:
+	    m_Lambda_nj(i,j)      = Lambda_coeff[0] + Lambda_coeff[1]*tlin;
+	    m_Lambda_nj_L(i,j)    = Lambda_coeff[1];
+	    m_Lambda_nj_LL(i,j)   = 0.0;
+	  case PITZER_TEMP_COMPLEX1:
+	    m_Lambda_nj(i,j) = Lambda_coeff[0] 
+	      + Lambda_coeff[1]*tlin
+	      + Lambda_coeff[2]*tquad
+	      + Lambda_coeff[3]*tinv
+	      + Lambda_coeff[4]*tln;
+	    
+	    m_Lambda_nj_L(i,j) = Lambda_coeff[1]
+	      + Lambda_coeff[2]*2.0*T
+	      - Lambda_coeff[3]/(T*T)
+	      + Lambda_coeff[4]/T;
+
+	    m_Lambda_nj_LL(i,j) = 
+	      Lambda_coeff[2]*2.0
+	      + 2.0*Lambda_coeff[3]/(T*T*T)
+	      - Lambda_coeff[4]/(T*T);
+	  }
+	}
+      }
+    }
+  
+
     for (i = 0; i < m_kk; i++) {
       for (j = 0; j < m_kk; j++) {
 	for (int k = 0; k < m_kk; k++) {
@@ -2590,7 +2629,7 @@ namespace Cantera {
 	   * Handle neutral j species
 	   */
 	  if (charge[j] == 0) {
-	    sum5 = sum5 + molality[j]*2.0*m_Lambda_ij(j,i);
+	    sum5 = sum5 + molality[j]*2.0*m_Lambda_nj(j,i);
 	  }
 	}
 	/*
@@ -2676,7 +2715,7 @@ namespace Cantera {
 	   * for Anions, do the neutral species interaction
 	   */
 	  if (charge[j] == 0.0) {
-	    sum5 = sum5 + molality[j]*2.0*m_Lambda_ij(j,i);
+	    sum5 = sum5 + molality[j]*2.0*m_Lambda_nj(j,i);
 	  }
 	}
 	m_lnActCoeffMolal[i] = zsqF + sum1 + sum2 + sum3 + sum4 + sum5;
@@ -2699,7 +2738,7 @@ namespace Cantera {
       if (charge[i] == 0.0 ) {
 	sum1 = 0.0;
 	for (j = 1; j < m_kk; j++) {
-	  sum1 = sum1 + molality[j]*2.0*m_Lambda_ij(i,j);
+	  sum1 = sum1 + molality[j]*2.0*m_Lambda_nj(i,j);
 	}
 	m_lnActCoeffMolal[i] = sum1;
 	gamma[i] = exp(m_lnActCoeffMolal[i]);
@@ -2818,16 +2857,16 @@ namespace Cantera {
       if (charge[j] == 0) {
 	for (k = 1; k < m_kk; k++) {
 	  if (charge[k] < 0.0) {
-	    sum4 = sum4 + molality[j]*molality[k]*m_Lambda_ij(j,k);
+	    sum4 = sum4 + molality[j]*molality[k]*m_Lambda_nj(j,k);
 	  }
 	  if (charge[k] > 0.0) {
-	    sum5 = sum5 + molality[j]*molality[k]*m_Lambda_ij(j,k);
+	    sum5 = sum5 + molality[j]*molality[k]*m_Lambda_nj(j,k);
 	  }
 	  if (charge[k] == 0.0) {
 	    if (k > j) {
-	      sum6 = sum6 + molality[j]*molality[k]*m_Lambda_ij(j,k);
+	      sum6 = sum6 + molality[j]*molality[k]*m_Lambda_nj(j,k);
 	    } else if (k == j) {
-	      sum6 = sum6 + 0.5 * molality[j]*molality[k]*m_Lambda_ij(j,k);
+	      sum6 = sum6 + 0.5 * molality[j]*molality[k]*m_Lambda_nj(j,k);
 	    }
 	  }
 	}
@@ -3394,7 +3433,7 @@ namespace Cantera {
 	   * Handle neutral j species
 	   */
 	  if (charge[j] == 0) {
-	    sum5 = sum5 + molality[j]*2.0*m_Lambda_ij_L(j,i);
+	    sum5 = sum5 + molality[j]*2.0*m_Lambda_nj_L(j,i);
 	  }
 	}
 	/*
@@ -3480,7 +3519,7 @@ namespace Cantera {
 	   * for Anions, do the neutral species interaction
 	   */
 	  if (charge[j] == 0.0) {
-	    sum5 = sum5 + molality[j]*2.0*m_Lambda_ij_L(j,i);
+	    sum5 = sum5 + molality[j]*2.0*m_Lambda_nj_L(j,i);
 	  }
 	}
 	m_dlnActCoeffMolaldT[i] = 
@@ -3504,7 +3543,7 @@ namespace Cantera {
       if (charge[i] == 0.0 ) {
 	sum1 = 0.0;
 	for (j = 1; j < m_kk; j++) {
-	  sum1 = sum1 + molality[j]*2.0*m_Lambda_ij_L(i,j);
+	  sum1 = sum1 + molality[j]*2.0*m_Lambda_nj_L(i,j);
 	}
 	m_dlnActCoeffMolaldT[i] = sum1;
 	gamma[i] = exp(m_dlnActCoeffMolaldT[i]);
@@ -3623,16 +3662,16 @@ namespace Cantera {
       if (charge[j] == 0) {
 	for (k = 1; k < m_kk; k++) {
 	  if (charge[k] < 0.0) {
-	    sum4 = sum4 + molality[j]*molality[k]*m_Lambda_ij_L(j,k);
+	    sum4 = sum4 + molality[j]*molality[k]*m_Lambda_nj_L(j,k);
 	  }
 	  if (charge[k] > 0.0) {
-	    sum5 = sum5 + molality[j]*molality[k]*m_Lambda_ij_L(j,k);
+	    sum5 = sum5 + molality[j]*molality[k]*m_Lambda_nj_L(j,k);
 	  }
 	  if (charge[k] == 0.0) {
 	    if (k > j) {
-	      sum6 = sum6 + molality[j]*molality[k]*m_Lambda_ij_L(j,k);
+	      sum6 = sum6 + molality[j]*molality[k]*m_Lambda_nj_L(j,k);
 	    } else if (k == j) {
-	      sum6 = sum6 + 0.5 * molality[j]*molality[k]*m_Lambda_ij_L(j,k);
+	      sum6 = sum6 + 0.5 * molality[j]*molality[k]*m_Lambda_nj_L(j,k);
 	    }
 	  }
 	}
@@ -4188,7 +4227,7 @@ namespace Cantera {
 	   * Handle neutral j species
 	   */
 	  if (charge[j] == 0) {
-	    sum5 = sum5 + molality[j]*2.0*m_Lambda_ij_LL(j,i);
+	    sum5 = sum5 + molality[j]*2.0*m_Lambda_nj_LL(j,i);
 	  }
 	}
 	/*
@@ -4274,7 +4313,7 @@ namespace Cantera {
 	   * for Anions, do the neutral species interaction
 	   */
 	  if (charge[j] == 0.0) {
-	    sum5 = sum5 + molality[j]*2.0*m_Lambda_ij_LL(j,i);
+	    sum5 = sum5 + molality[j]*2.0*m_Lambda_nj_LL(j,i);
 	  }
 	}
 	m_d2lnActCoeffMolaldT2[i] = 
@@ -4297,7 +4336,7 @@ namespace Cantera {
       if (charge[i] == 0.0 ) {
 	sum1 = 0.0;
 	for (j = 1; j < m_kk; j++) {
-	  sum1 = sum1 + molality[j]*2.0*m_Lambda_ij_LL(i,j);
+	  sum1 = sum1 + molality[j]*2.0*m_Lambda_nj_LL(i,j);
 	}
 	m_d2lnActCoeffMolaldT2[i] = sum1;
 #ifdef DEBUG_MODE
@@ -4416,16 +4455,16 @@ namespace Cantera {
       if (charge[j] == 0) {
 	for (k = 1; k < m_kk; k++) {
 	  if (charge[k] < 0.0) {
-	    sum4 = sum4 + molality[j]*molality[k]*m_Lambda_ij_LL(j,k);
+	    sum4 = sum4 + molality[j]*molality[k]*m_Lambda_nj_LL(j,k);
 	  }
 	  if (charge[k] > 0.0) {
-	    sum5 = sum5 + molality[j]*molality[k]*m_Lambda_ij_LL(j,k);
+	    sum5 = sum5 + molality[j]*molality[k]*m_Lambda_nj_LL(j,k);
 	  }
 	  if (charge[k] == 0.0) {
 	    if (k > j) {
-	      sum6 = sum6 + molality[j]*molality[k]*m_Lambda_ij_LL(j,k);
+	      sum6 = sum6 + molality[j]*molality[k]*m_Lambda_nj_LL(j,k);
 	    } else if (k == j) {
-	      sum6 = sum6 + 0.5 * molality[j]*molality[k]*m_Lambda_ij_LL(j,k);
+	      sum6 = sum6 + 0.5 * molality[j]*molality[k]*m_Lambda_nj_LL(j,k);
 	    }
 	  }
 	}
@@ -5000,7 +5039,7 @@ namespace Cantera {
 	   * Handle neutral j species
 	   */
 	  if (charge[j] == 0) {
-	    sum5 = sum5 + molality[j]*2.0*m_Lambda_ij_L(j,i);
+	    sum5 = sum5 + molality[j]*2.0*m_Lambda_nj_L(j,i);
 	  }
 	}
 
@@ -5087,7 +5126,7 @@ namespace Cantera {
 	   * for Anions, do the neutral species interaction
 	   */
 	  if (charge[j] == 0.0) {
-	    sum5 = sum5 + molality[j]*2.0*m_Lambda_ij_L(j,i);
+	    sum5 = sum5 + molality[j]*2.0*m_Lambda_nj_L(j,i);
 	  }
 	}
 	m_dlnActCoeffMolaldP[i] = 
@@ -5112,7 +5151,7 @@ namespace Cantera {
       if (charge[i] == 0.0 ) {
 	sum1 = 0.0;
 	for (j = 1; j < m_kk; j++) {
-	  sum1 = sum1 + molality[j]*2.0*m_Lambda_ij_L(i,j);
+	  sum1 = sum1 + molality[j]*2.0*m_Lambda_nj_L(i,j);
 	}
 	m_dlnActCoeffMolaldP[i] = sum1;
 #ifdef DEBUG_MODE
@@ -5232,16 +5271,16 @@ namespace Cantera {
       if (charge[j] == 0) {
 	for (k = 1; k < m_kk; k++) {
 	  if (charge[k] < 0.0) {
-	    sum4 = sum4 + molality[j]*molality[k]*m_Lambda_ij_P(j,k);
+	    sum4 = sum4 + molality[j]*molality[k]*m_Lambda_nj_P(j,k);
 	  }
 	  if (charge[k] > 0.0) {
-	    sum5 = sum5 + molality[j]*molality[k]*m_Lambda_ij_P(j,k);
+	    sum5 = sum5 + molality[j]*molality[k]*m_Lambda_nj_P(j,k);
 	  }
 	  if (charge[k] == 0.0) {
 	    if (k > j) {
-	      sum6 = sum6 + molality[j]*molality[k]*m_Lambda_ij_P(j,k);
+	      sum6 = sum6 + molality[j]*molality[k]*m_Lambda_nj_P(j,k);
 	    } else if (k == j) {
-	      sum6 = sum6 + 0.5 * molality[j]*molality[k]*m_Lambda_ij_P(j,k);
+	      sum6 = sum6 + 0.5 * molality[j]*molality[k]*m_Lambda_nj_P(j,k);
 	    }
 	  }
 	}

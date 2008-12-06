@@ -740,6 +740,8 @@ namespace Cantera {
    */
   void HMWSoln::readXMLLambdaNeutral(XML_Node &BinSalt) {
     string xname = BinSalt.name();
+    vector_fp vParams;
+    int nParamsFound;
     if (xname != "lambdaNeutral") {
       throw CanteraError("HMWSoln::readXMLLanbdaNeutral",
 			 "Incorrect name for processing this routine: " + xname);
@@ -777,14 +779,41 @@ namespace Cantera {
       stemp = xmlChild.name();
       string nodeName = lowercase(stemp);
       if (nodeName == "lambda") {
-	stemp = xmlChild.value();
-	double old = m_Lambda_ij(iSpecies,jSpecies);
-	m_Lambda_ij(iSpecies,jSpecies) = atofCheck(stemp.c_str());
-	if (old != 0.0) {
-	  if (old != m_Lambda_ij(iSpecies,jSpecies)) {
-	    throw CanteraError("HMWSoln::readXMLLambdaNeutral", 
-			       "conflicting values");
+	int nCount = iSpecies*m_kk + jSpecies;
+	getFloatArray(xmlChild, vParams, false, "", "Lambda");
+	nParamsFound = vParams.size();
+	if (m_formPitzerTemp == PITZER_TEMP_CONSTANT) {
+	  if (nParamsFound != 1) {
+	    throw CanteraError("HMWSoln::readXMLLambdaNeutral::Lambda for " + iName 
+			       + "::" + jName,
+			       "wrong number of params found");
 	  }
+	  m_Lambda_nj_coeff(0,nCount) = vParams[0];
+	  m_Lambda_nj(iSpecies,jSpecies) = vParams[0];
+
+	} else  if (m_formPitzerTemp == PITZER_TEMP_LINEAR) {
+	  if (nParamsFound != 2) {
+	    throw CanteraError("HMWSoln::readXMLLambdaNeutral::Lambda for " + iName
+			       + "::" + jName,
+			       "wrong number of params found");
+	  }
+	  m_Lambda_nj_coeff(0,nCount) = vParams[0];
+	  m_Lambda_nj_coeff(1,nCount) = vParams[1];
+	  m_Lambda_nj(iSpecies, jSpecies) = vParams[0];
+
+	} else  if (m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
+	  if (nParamsFound == 1) {
+	    vParams.resize(5, 0.0);
+	    nParamsFound = 5;
+	  } else if (nParamsFound != 5) {
+	    throw CanteraError("HMWSoln::readXMLLambdaNeutral::Lambda for " + iName
+			       + "::" + jName,
+			       "wrong number of params found");
+	  }
+	  for (i = 0; i < nParamsFound; i++) {
+	    m_Lambda_nj_coeff(i,nCount) = vParams[i];
+	  }
+	  m_Lambda_nj(iSpecies, jSpecies) = vParams[0];
 	}
       }
     }

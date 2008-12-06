@@ -2684,23 +2684,40 @@ namespace Cantera {
     //! Lambda coefficient for the ij interaction
     /*!
      * Array of 2D data used in the Pitzer/HMW formulation.
-     * Lambda_ij[i][j] represents the lambda coefficient for the
+     * Lambda_nj[n][j] represents the lambda coefficient for the
      * ij interaction. This is a general interaction representing
      * neutral species. The neutral species occupy the first
-     * index, i.e., i. The charged species occupy the j coordinate.
+     * index, i.e., n. The charged species occupy the j coordinate.
      * neutral, neutral interactions are also included here.
      */
-    Array2D   m_Lambda_ij;
+    mutable Array2D   m_Lambda_nj;
 
-    //! Derivative of  Lambda_ij[i][j] wrt T. see m_Lambda_ij
-    Array2D   m_Lambda_ij_L;
+    //! Derivative of  Lambda_nj[i][j] wrt T. see m_Lambda_ij
+    mutable Array2D   m_Lambda_nj_L;
 
-    //! Derivative of  Lambda_ij[i][j] wrt TT
-    Array2D   m_Lambda_ij_LL;
+    //! Derivative of  Lambda_nj[i][j] wrt TT
+    mutable Array2D   m_Lambda_nj_LL;
 
-    //! Derivative of  Lambda_ij[i][j] wrt P
-    Array2D   m_Lambda_ij_P;
+    //! Derivative of  Lambda_nj[i][j] wrt P
+    mutable Array2D   m_Lambda_nj_P;
 
+    //! Array of coefficients for Lambda_nj[i][j] in the Pitzer/HMW formulation.
+    /*!
+     *  Lambda_ij[i][j] is the value of the theta coefficient
+     *  for the ij interaction.
+     *  Array of 2D data used in the Pitzer/HMW formulation.
+     *  Lambda_ij[i][j] represents the lambda coefficient for the
+     *  ij interaction. This is a general interaction representing
+     *  neutral species. The neutral species occupy the first
+     *  index, i.e., i. The charged species occupy the j coordinate.
+     *  Neutral, neutral interactions are also included here.
+     *
+     *      n = j + m_kk * i
+     *
+     *  m_Lambda_ij_coeff.ptrColumn(n) is a double* containing
+     *  the vector of coefficients for the (i,j) interaction.
+     */
+    Array2D  m_Lambda_nj_coeff;
     
     //!  Logarithm of the activity coefficients on the molality
     //!  scale.
