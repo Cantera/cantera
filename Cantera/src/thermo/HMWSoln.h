@@ -2718,6 +2718,26 @@ namespace Cantera {
      *  the vector of coefficients for the (i,j) interaction.
      */
     Array2D  m_Lambda_nj_coeff;
+
+
+    //! Mu coefficient for the self-ternary neutral coefficient
+    /*!
+     * Array of 2D data used in the Pitzer/HMW formulation.
+     * Mu_nnn[i] represents the Mu coefficient for the
+     * nnn interaction. This is a general interaction representing
+     * neutral species interacting with itself.
+     */
+    mutable vector_fp  m_Mu_nnn;
+    mutable vector_fp  m_Mu_nnn_L;
+    mutable vector_fp  m_Mu_nnn_LL;
+    mutable vector_fp  m_Mu_nnn_P;
+
+    //! Array of coefficients form_Mu_nnn term
+    /*!
+     *
+     */
+    Array2D   m_Mu_nnn_coeff;
+    
     
     //!  Logarithm of the activity coefficients on the molality
     //!  scale.
@@ -3237,6 +3257,16 @@ namespace Cantera {
      *                 Neutral - species interactions
      */
     void readXMLLambdaNeutral(XML_Node &BinSalt);
+
+    //! Process an XML node called "MunnnNeutral"
+    /*!
+     * This node contains all of the parameters necessary to describe
+     * the self-ternary interactions for one neutral species.
+     *
+     * @param BinSalt  reference to the XML_Node named Munnn
+     *                 containing the self-ternary interaction
+     */
+    void readXMLMunnnNeutral(XML_Node &BinSalt);
 
 
     //! Precalculate the IMS Cutoff parameters for typeCutoff = 2

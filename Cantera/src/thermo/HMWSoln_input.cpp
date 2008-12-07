@@ -819,6 +819,85 @@ namespace Cantera {
     }
   }
 
+  /**
+   * Process an XML node called "MunnnNeutral". 
+   * This node contains all of the parameters necessary to describe
+   * the self-ternary interactions for one neutral species.
+   */
+  void HMWSoln::readXMLMunnnNeutral(XML_Node &BinSalt) {
+    string xname = BinSalt.name();
+    vector_fp vParams;
+    int nParamsFound;
+    if (xname != "MunnnNeutral") {
+      throw CanteraError("HMWSoln::readXMLMunnnNeutral",
+			 "Incorrect name for processing this routine: " + xname);
+    }
+    double *charge = DATA_PTR(m_speciesCharge);
+    string stemp;
+    string iName = BinSalt.attrib("species1");
+    if (iName == "") {
+      throw CanteraError("HMWSoln::readXMLMunnnNeutral", "no species1 attrib");
+    }
+ 
+    /*
+     * Find the index of the species in the current phase. It's not
+     * an error to not find the species
+     */
+    int iSpecies = speciesIndex(iName);
+    if (iSpecies < 0) {
+      return;
+    }
+    if (charge[iSpecies] != 0) {
+      throw CanteraError("HMWSoln::readXMLMunnnNeutral", 
+			 "neutral charge problem");
+    }
+ 
+	
+    int num = BinSalt.nChildren();
+    for (int i = 0; i < num; i++) {
+      XML_Node &xmlChild = BinSalt.child(i);
+      stemp = xmlChild.name();
+      string nodeName = lowercase(stemp);
+      if (nodeName == "munnn") {
+	getFloatArray(xmlChild, vParams, false, "", "Munnn");
+	nParamsFound = vParams.size();
+	if (m_formPitzerTemp == PITZER_TEMP_CONSTANT) {
+	  if (nParamsFound != 1) {
+	    throw CanteraError("HMWSoln::readXMLMunnnNeutral::Munnn for " + iName,	  
+			       "wrong number of params found");
+	  }
+	  m_Mu_nnn_coeff(0,iSpecies) = vParams[0];
+	  m_Mu_nnn[iSpecies] = vParams[0];
+
+	} else  if (m_formPitzerTemp == PITZER_TEMP_LINEAR) {
+	  if (nParamsFound != 2) {
+	    throw CanteraError("HMWSoln::readXMLMunnnNeutral::Munnn for " + iName,
+			       "wrong number of params found");
+	  }
+	  m_Mu_nnn_coeff(0, iSpecies) = vParams[0];
+	  m_Mu_nnn_coeff(1, iSpecies) = vParams[1];
+	  m_Mu_nnn[iSpecies] = vParams[0];
+
+	} else  if (m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
+	  if (nParamsFound == 1) {
+	    vParams.resize(5, 0.0);
+	    nParamsFound = 5;
+	  } else if (nParamsFound != 5) {
+	    throw CanteraError("HMWSoln::readXMLMunnnNeutral::Munnn for " + iName,
+			       "wrong number of params found");
+	  }
+	  for (i = 0; i < nParamsFound; i++) {
+	    m_Mu_nnn_coeff(i, iSpecies) = vParams[i];
+	  }
+	  m_Mu_nnn[iSpecies] = vParams[0];
+	}
+      }
+    }
+  }
+
+
+
+
   /*
    *  Initialization routine for a HMWSoln phase.
    *

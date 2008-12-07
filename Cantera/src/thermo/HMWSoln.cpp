@@ -441,16 +441,22 @@ namespace Cantera {
     double param = -0.004;
     n = i * m_kk *m_kk + j * m_kk + k ;
     m_Psi_ijk[n] = param;
+    m_Psi_ijk_coeff(0,n) = param;
     n = i * m_kk *m_kk + k * m_kk + j ;
     m_Psi_ijk[n] = param;
+    m_Psi_ijk_coeff(0,n) = param;
     n = j * m_kk *m_kk + i * m_kk + k ;
     m_Psi_ijk[n] = param;
+    m_Psi_ijk_coeff(0,n) = param;
     n = j * m_kk *m_kk + k * m_kk + i ;
     m_Psi_ijk[n] = param;
+    m_Psi_ijk_coeff(0,n) = param;
     n = k * m_kk *m_kk + j * m_kk + i ;
     m_Psi_ijk[n] = param;
+    m_Psi_ijk_coeff(0,n) = param;
     n = k * m_kk *m_kk + i * m_kk + j ;
     m_Psi_ijk[n] = param;
+    m_Psi_ijk_coeff(0,n) = param;
 
     i = speciesIndex("Cl-");
     j = speciesIndex("Na+");
@@ -458,16 +464,22 @@ namespace Cantera {
     param = -0.006;
     n = i * m_kk *m_kk + j * m_kk + k ;
     m_Psi_ijk[n] = param;
+    m_Psi_ijk_coeff(0,n) = param;
     n = i * m_kk *m_kk + k * m_kk + j ;
     m_Psi_ijk[n] = param;
+    m_Psi_ijk_coeff(0,n) = param;
     n = j * m_kk *m_kk + i * m_kk + k ;
     m_Psi_ijk[n] = param;
+    m_Psi_ijk_coeff(0,n) = param;
     n = j * m_kk *m_kk + k * m_kk + i ;
     m_Psi_ijk[n] = param;
+    m_Psi_ijk_coeff(0,n) = param;
     n = k * m_kk *m_kk + j * m_kk + i ;
     m_Psi_ijk[n] = param;
+    m_Psi_ijk_coeff(0,n) = param;
     n = k * m_kk *m_kk + i * m_kk + j ;
     m_Psi_ijk[n] = param;
+    m_Psi_ijk_coeff(0,n) = param;
 
     printCoeffs();
   }
@@ -1604,6 +1616,12 @@ namespace Cantera {
     m_Lambda_nj_P.resize(leng, leng, 0.0); 
     m_Lambda_nj_coeff.resize(TCoeffLength, maxCounterIJlen, 0.0);
 
+    m_Mu_nnn.resize(leng,    0.0);
+    m_Mu_nnn_L.resize(leng,  0.0);
+    m_Mu_nnn_LL.resize(leng, 0.0);
+    m_Mu_nnn_P.resize(leng,  0.0); 
+    m_Mu_nnn_coeff.resize(TCoeffLength, leng, 0.0);
+
     m_lnActCoeffMolal.resize(leng, 0.0);
     m_dlnActCoeffMolaldT.resize(leng, 0.0);
     m_d2lnActCoeffMolaldT2.resize(leng, 0.0);
@@ -2038,7 +2056,7 @@ namespace Cantera {
       }
     }
 
-    // Lambda interactions
+    // Lambda interactions and Mu_nnn
     // i must be neutral for this term to be nonzero. We take advantage of this
     // here to lower the operation count.
     for (i = 1; i < m_kk; i++) {
@@ -2048,7 +2066,7 @@ namespace Cantera {
 	  const double *Lambda_coeff = m_Lambda_nj_coeff.ptrColumn(n);
 	  switch (m_formPitzerTemp) {
 	  case PITZER_TEMP_CONSTANT:
-	    m_Lambda_nj(i,j) = Lambda_coeff[n];
+	    m_Lambda_nj(i,j) = Lambda_coeff[0];
 	    break;
 	  case PITZER_TEMP_LINEAR:
 	    m_Lambda_nj(i,j)      = Lambda_coeff[0] + Lambda_coeff[1]*tlin;
@@ -2071,19 +2089,48 @@ namespace Cantera {
 	      + 2.0*Lambda_coeff[3]/(T*T*T)
 	      - Lambda_coeff[4]/(T*T);
 	  }
+
+	  if (j == i) {
+	    const double *Mu_coeff = m_Mu_nnn_coeff.ptrColumn(i);
+	    switch (m_formPitzerTemp) {
+	    case PITZER_TEMP_CONSTANT:
+	      m_Mu_nnn[i] = Mu_coeff[0];
+	      break;
+	    case PITZER_TEMP_LINEAR:
+	      m_Mu_nnn[i]      = Mu_coeff[0] + Mu_coeff[1]*tlin;
+	      m_Mu_nnn_L[i]    = Mu_coeff[1];
+	      m_Mu_nnn_LL[i]   = 0.0;
+	    case PITZER_TEMP_COMPLEX1:
+	      m_Mu_nnn[i] = Mu_coeff[0] 
+		+ Mu_coeff[1]*tlin
+		+ Mu_coeff[2]*tquad
+		+ Mu_coeff[3]*tinv
+		+ Mu_coeff[4]*tln;
+	    
+	      m_Mu_nnn_L[i] = Mu_coeff[1]
+		+ Mu_coeff[2]*2.0*T
+		- Mu_coeff[3]/(T*T)
+		+ Mu_coeff[4]/T;
+
+	      m_Mu_nnn_LL[i] = 
+		Mu_coeff[2]*2.0
+		+ 2.0*Mu_coeff[3]/(T*T*T)
+		- Mu_coeff[4]/(T*T);
+	    }
+	  }
 	}
       }
     }
   
 
-    for (i = 0; i < m_kk; i++) {
-      for (j = 0; j < m_kk; j++) {
-	for (int k = 0; k < m_kk; k++) {
+    for (i = 1; i < m_kk; i++) {
+      for (j = 1; j < m_kk; j++) {
+	for (int k = 1; k < m_kk; k++) {
 	  n = i * m_kk *m_kk + j * m_kk + k ;
 	  const double *Psi_coeff = m_Psi_ijk_coeff.ptrColumn(n);
 	  switch (m_formPitzerTemp) {
 	  case PITZER_TEMP_CONSTANT:
-	    m_Psi_ijk[n] = Psi_coeff[n];
+	    m_Psi_ijk[n] = Psi_coeff[0];
 	    break;
 	  case PITZER_TEMP_LINEAR:
 	    m_Psi_ijk[n]      = Psi_coeff[0] + Psi_coeff[1]*tlin;
@@ -2740,7 +2787,8 @@ namespace Cantera {
 	for (j = 1; j < m_kk; j++) {
 	  sum1 = sum1 + molality[j]*2.0*m_Lambda_nj(i,j);
 	}
-	m_lnActCoeffMolal[i] = sum1;
+	sum2 = 3.0 * molality[i]* molality[i] * m_Mu_nnn[i];
+	m_lnActCoeffMolal[i] = sum1 + sum2;
 	gamma[i] = exp(m_lnActCoeffMolal[i]);
 #ifdef DEBUG_MODE
 	if (m_debugCalc) {
@@ -2768,6 +2816,7 @@ namespace Cantera {
     sum4 = 0.0;
     sum5 = 0.0;
     double sum6 = 0.0;
+    double sum7 = 0.0;
     /*
      * term1 is the DH term in the osmotic coefficient expression
      * b = 1.2 sqrt(kg/gmol) <- arbitrarily set in all Pitzer 
@@ -2870,10 +2919,11 @@ namespace Cantera {
 	    }
 	  }
 	}
+	sum7 += molality[j]*molality[j]*molality[j]*m_Mu_nnn[j];
       }
     }
     sum_m_phi_minus_1 = 2.0 * 
-      (term1 + sum1 + sum2 + sum3 + sum4 + sum5 + sum6);
+      (term1 + sum1 + sum2 + sum3 + sum4 + sum5 + sum6 + sum7);
     /*
      * Calculate the osmotic coefficient from 
      *       osmotic_coeff = 1 + dGex/d(M0noRT) / sum(molality_i)
@@ -3545,7 +3595,8 @@ namespace Cantera {
 	for (j = 1; j < m_kk; j++) {
 	  sum1 = sum1 + molality[j]*2.0*m_Lambda_nj_L(i,j);
 	}
-	m_dlnActCoeffMolaldT[i] = sum1;
+	sum2 = 3.0 * molality[i] * molality[i] * m_Mu_nnn_L[i];
+	m_dlnActCoeffMolaldT[i] = sum1 + sum2;
 	gamma[i] = exp(m_dlnActCoeffMolaldT[i]);
 #ifdef DEBUG_MODE
 	if (m_debugCalc) {
@@ -3572,6 +3623,7 @@ namespace Cantera {
     sum4 = 0.0;
     sum5 = 0.0;
     double sum6 = 0.0;
+    double sum7 = 0.0;
     /*
      * term1 is the temperature derivative of the
      * DH term in the osmotic coefficient expression
@@ -3675,10 +3727,11 @@ namespace Cantera {
 	    }
 	  }
 	}
+	sum7 += molality[j]*molality[j]*molality[j]*m_Mu_nnn_L[j];
       }
     }
     sum_m_phi_minus_1 = 2.0 * 
-      (term1 + sum1 + sum2 + sum3 + sum4 + sum5 + sum6);
+      (term1 + sum1 + sum2 + sum3 + sum4 + sum5 + sum6 + sum7);
     /*
      * Calculate the osmotic coefficient from 
      *       osmotic_coeff = 1 + dGex/d(M0noRT) / sum(molality_i)
@@ -4338,7 +4391,8 @@ namespace Cantera {
 	for (j = 1; j < m_kk; j++) {
 	  sum1 = sum1 + molality[j]*2.0*m_Lambda_nj_LL(i,j);
 	}
-	m_d2lnActCoeffMolaldT2[i] = sum1;
+	sum2 = 3.0 * molality[i] * molality[i] * m_Mu_nnn_LL[i];
+	m_d2lnActCoeffMolaldT2[i] = sum1 + sum2;
 #ifdef DEBUG_MODE
 	if (m_debugCalc) {
 	  sni = speciesName(i);
@@ -4365,6 +4419,7 @@ namespace Cantera {
     sum4 = 0.0;
     sum5 = 0.0;
     double sum6 = 0.0;
+    double sum7 = 0.0;
     /*
      * term1 is the temperature derivative of the
      * DH term in the osmotic coefficient expression
@@ -4468,10 +4523,12 @@ namespace Cantera {
 	    }
 	  }
 	}
+
+	sum7 += molality[j] * molality[j] * molality[j] * m_Mu_nnn_LL[j];
       }
     }
     sum_m_phi_minus_1 = 2.0 * 
-      (term1 + sum1 + sum2 + sum3 + sum4 + sum5 + sum6);
+      (term1 + sum1 + sum2 + sum3 + sum4 + sum5 + sum6 + sum7);
     /*
      * Calculate the osmotic coefficient from 
      *       osmotic_coeff = 1 + dGex/d(M0noRT) / sum(molality_i)
@@ -4557,7 +4614,6 @@ namespace Cantera {
    */
   void HMWSoln::s_update_dlnMolalityActCoeff_dP() const {
    
-
     /*
      * HKM -> Assumption is made that the solvent is
      *        species 0.
@@ -4701,8 +4757,7 @@ namespace Cantera {
 	     " hfunc(x)   \n");
     }
 #endif
-	
-	
+   
     /*
      *
      *  calculate g(x) and hfunc(x) for each cation-anion pair MX
@@ -4762,7 +4817,7 @@ namespace Cantera {
     }
 
     /*
-     * ------- SUBSECTION TO CALCULATE BMX_L, BprimeMX_L, BphiMX_L ----------
+     * ------- SUBSECTION TO CALCULATE BMX_P, BprimeMX_P, BphiMX_P ----------
      * ------- These are now temperature derivatives of the
      *         previously calculated quantities.
      */
@@ -4822,7 +4877,7 @@ namespace Cantera {
     }
 
     /*
-     * --------- SUBSECTION TO CALCULATE CMX_L ----------
+     * --------- SUBSECTION TO CALCULATE CMX_P ----------
      * ---------
      */
 #ifdef DEBUG_MODE
@@ -4973,7 +5028,7 @@ namespace Cantera {
     for (i = 1; i < m_kk; i++) {
 
       /*
-       * -------- SUBSECTION FOR CALCULATING THE dACTCOEFFdT FOR CATIONS -----
+       * -------- SUBSECTION FOR CALCULATING THE dACTCOEFFdP FOR CATIONS -----
        * --
        */
       if (charge[i] > 0 ) {
@@ -5011,7 +5066,6 @@ namespace Cantera {
 	    }
 	  }
 
-
 	     
 	  if (charge[j] > 0.0) {
 	    // sum over all cations
@@ -5036,7 +5090,7 @@ namespace Cantera {
 	  }
 
 	  /*
-	   * Handle neutral j species
+	   * for Anions, do the neutral species interaction
 	   */
 	  if (charge[j] == 0) {
 	    sum5 = sum5 + molality[j]*2.0*m_Lambda_nj_L(j,i);
@@ -5061,11 +5115,12 @@ namespace Cantera {
 #endif
       }
 
+
       /*
-       * ------ SUBSECTION FOR CALCULATING THE dACTCOEFFdT FOR ANIONS ------
+       * ------ SUBSECTION FOR CALCULATING THE dACTCOEFFdP FOR ANIONS ------
        *
        */
-      if (charge[i] < 0 ) {
+      if (charge[i] < 0) {
 	//          species i is an anion (negative)
 	zsqdFdP = charge[i]*charge[i]*dFdP;
 	sum1 = 0.0;
@@ -5142,18 +5197,16 @@ namespace Cantera {
 #endif
       }
 
-
       /*
-       * ------ SUBSECTION FOR CALCULATING NEUTRAL SOLUTE ACT COEFF -------
-       * ------ -> equations agree with my notes,
-       *        -> Equations agree with Pitzer,
+       * ------ SUBSECTION FOR CALCULATING d NEUTRAL SOLUTE ACT COEFF dP -------
        */
-      if (charge[i] == 0.0 ) {
+      if (charge[i] == 0.0) {
 	sum1 = 0.0;
 	for (j = 1; j < m_kk; j++) {
-	  sum1 = sum1 + molality[j]*2.0*m_Lambda_nj_L(i,j);
+	  sum1 +=  molality[j]*2.0*m_Lambda_nj_P(i,j);
 	}
-	m_dlnActCoeffMolaldP[i] = sum1;
+	sum2 = 3.0 * molality[i] * molality[i] * m_Mu_nnn_P[i];
+	m_dlnActCoeffMolaldP[i] = sum1 + sum2;
 #ifdef DEBUG_MODE
 	if (m_debugCalc) {
 	  sni = speciesName(i);
@@ -5171,7 +5224,7 @@ namespace Cantera {
 #endif
 
     /*
-     * ------ SUBSECTION FOR CALCULATING THE d OSMOTIC COEFF dT ---------
+     * ------ SUBSECTION FOR CALCULATING THE d OSMOTIC COEFF dP ---------
      *
      */
     sum1 = 0.0;
@@ -5180,6 +5233,7 @@ namespace Cantera {
     sum4 = 0.0;
     sum5 = 0.0;
     double sum6 = 0.0;
+    double sum7 = 0.0;
     /*
      * term1 is the temperature derivative of the
      * DH term in the osmotic coefficient expression
@@ -5234,7 +5288,7 @@ namespace Cantera {
 	}
       }
 	 
-	  
+      
       /*
        * Loop Over Anions
        */
@@ -5284,11 +5338,12 @@ namespace Cantera {
 	    }
 	  }
 	}
+
+	sum7 += molality[j] * molality[j] * molality[j] * m_Mu_nnn_P[j];
       }
     }
     sum_m_phi_minus_1 = 2.0 * 
-      (term1 + sum1 + sum2 + sum3 + sum4 + sum5 + sum6);
-
+      (term1 + sum1 + sum2 + sum3 + sum4 + sum5 + sum6 + sum7);
 
     /*
      * Calculate the osmotic coefficient from 
@@ -5331,8 +5386,6 @@ namespace Cantera {
 	     d_lnwateract_dP, d_wateract_dP); 
     }
 #endif
-
-
 
   }
 
