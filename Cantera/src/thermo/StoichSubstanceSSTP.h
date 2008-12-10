@@ -369,7 +369,7 @@ namespace Cantera {
      * @param sizeUA output int containing the size of the vector.
      *        Currently, this is equal to 6.
      */
-    virtual void getUnitsStandardConc(double *uA, int k = 0,
+    virtual void getUnitsStandardConc(doublereal *uA, int k = 0,
 				      int sizeUA = 6) const;
 
     //@}
@@ -479,7 +479,7 @@ namespace Cantera {
      * @param c array of \a n coefficients
      *        c[0] = density of phase [ kg/m3 ]
      */
-    virtual void setParameters(int n, double *c);
+    virtual void setParameters(int n, doublereal * const c);
 
     //! Get the equation of state parameters in a vector
     /*!
@@ -492,7 +492,7 @@ namespace Cantera {
      *       -  n = 1
      *       -  c[0] = density of phase [ kg/m3 ]
      */
-    virtual void getParameters(int &n, double * const c) const;
+    virtual void getParameters(int &n, doublereal * const c) const;
 
     //! Set equation of state parameter values from XML entries.
     /*!

@@ -705,7 +705,7 @@ namespace Cantera {
      * @param c array of \a n coefficients
      *           c[0] = The bulk  lattice density (kmol m-3)
      */
-    virtual void setParameters(int n, doublereal* c);
+    virtual void setParameters(int n, doublereal* const c);
 
     //! Get the equation of state parameters in a vector
     /*!

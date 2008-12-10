@@ -1,7 +1,5 @@
 /**
- *
  *  @file StoichSubstance.h
- *
  * This file contains the class declarations for the StoichSubstance
  * ThermoPhase class.
  */
@@ -99,10 +97,7 @@ namespace Cantera {
      * is \f[ \hat h(T, P) = \hat u(T) + P \hat v \f], where the
      * molar specific volume is constant.
      */
-    virtual doublereal enthalpy_mole() const {
-      double hh = intEnergy_mole() + m_press / molarDensity();
-      return hh;
-    }
+    virtual doublereal enthalpy_mole() const;
 
     /**
      * Molar internal energy. J/kmol.  For an incompressible,
@@ -112,48 +107,33 @@ namespace Cantera {
      * term \f$ P_0 \hat v\f$ is subtracted from the specified molar
      * enthalpy to compute the molar internal energy.
      */
-    virtual doublereal intEnergy_mole() const {
-      _updateThermo();
-      return GasConstant * temperature() * m_h0_RT[0]
-	- m_p0 / molarDensity();
-    }
+    virtual doublereal intEnergy_mole() const;
 
     /**
      * Molar entropy. Units: J/kmol/K.  For an incompressible,
      * stoichiometric substance, the molar entropy depends only on
      * the temperature.
      */
-    virtual doublereal entropy_mole() const {
-      _updateThermo();
-      return GasConstant * m_s0_R[0];
-    }
+    virtual doublereal entropy_mole() const;
 
 
     /**
      * Molar gibbs Function. Units: J/kmol. This is determined
      * from the molar enthalpy and entropy functions.
      */
-    virtual doublereal gibbs_mole() const {
-      return enthalpy_mole() - temperature() * entropy_mole();
-    }
-
+    virtual doublereal gibbs_mole() const;
 
     /**
      * Molar heat capacity at constant pressure. Units: J/kmol/K.
      * For an incompressible substance, \f$ \hat c_p = \hat c_v\f$.
      */
-    virtual doublereal cp_mole() const {
-      _updateThermo();
-      return GasConstant * m_cp0_R[0];
-    }
+    virtual doublereal cp_mole() const;
 
     /**
      * Molar heat capacity at constant volume. Units: J/kmol/K.
      * For an incompressible substance, \f$ \hat c_p = \hat c_v\f$.
      */
-    virtual doublereal cv_mole() const {
-      return cp_mole();
-    }
+    virtual doublereal cv_mole() const;
 
     //@}
 
@@ -220,9 +200,7 @@ namespace Cantera {
      * standard chemical potential and the chemical potential
      * are both equal to the molar Gibbs function.
      */
-    virtual void getStandardChemPotentials(doublereal* mu0) const {
-      mu0[0] = gibbs_mole();
-    }
+    virtual void getStandardChemPotentials(doublereal* mu0) const;
 
     /**
      * Returns the units of the standard and generalized
@@ -246,7 +224,7 @@ namespace Cantera {
 
 
     //@}
-    /// @name  Partial Molar Properties of the Solution ----------------------------------
+    /// @name  Partial Molar Properties of the Solution ----------------------------
     //@{
 
 
@@ -254,18 +232,14 @@ namespace Cantera {
      * Get the array of non-dimensional chemical potentials 
      * \f$ \mu_k / \hat R T \f$.
      */
-    virtual void getChemPotentials_RT(doublereal* mu) const {
-      mu[0] = gibbs_mole() / (GasConstant * temperature());
-    }
+    virtual void getChemPotentials_RT(doublereal* mu) const;
 
     /**
      * For a stoichiometric substance, there is only one species. 
      * This method returns the molar gibbs function in the
      * first element of array \c mu.
      */
-    virtual void getChemPotentials(doublereal* mu) const {
-      mu[0] = gibbs_mole();
-    }
+    virtual void getChemPotentials(doublereal* mu) const;
 
     /**
      * Get the species electrochemical potentials. Units: J/kmol.
@@ -295,7 +269,7 @@ namespace Cantera {
   
 
     //@}
-    /// @name  Properties of the Standard State of the Species in the Solution -------------------------------------
+    /// @name  Properties of the Standard State of the Species in the Solution -----
     //@{
     /**
      * Get the nondimensional Enthalpy functions for the species
@@ -394,7 +368,7 @@ namespace Cantera {
 
     virtual void initThermo();
 
-    virtual void setParameters(int n, double *c);
+    virtual void setParameters(int n, double * const c);
 
     virtual void getParameters(int &n, double * const c) const;
 

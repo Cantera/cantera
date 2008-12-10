@@ -1107,7 +1107,7 @@ namespace Cantera {
    * @param c array of \i n coefficients
    * 
    */
-  void IdealMolalSoln::setParameters(int n, doublereal* c) {
+  void IdealMolalSoln::setParameters(int n, doublereal* const c) {
   }
 
   void IdealMolalSoln::getParameters(int &n, doublereal * const c) const {

@@ -1857,7 +1857,7 @@ namespace Cantera {
      * @param n number of parameters
      * @param c array of \a n coefficients
      */
-    virtual void setParameters(int n, doublereal* c);
+    virtual void setParameters(int n, doublereal* const c);
 
     //! Get the equation of state parameters in a vector
     /*!

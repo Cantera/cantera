@@ -1618,7 +1618,7 @@ namespace Cantera {
    * @param c array of \i n coefficients
    * 
    */
-  void DebyeHuckel::setParameters(int n, doublereal* c) {
+  void DebyeHuckel::setParameters(int n, doublereal* const c) {
   }
 
   void DebyeHuckel::getParameters(int &n, doublereal * const c) const {

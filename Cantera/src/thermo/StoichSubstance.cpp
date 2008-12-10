@@ -96,6 +96,35 @@ namespace Cantera {
   StoichSubstance::~StoichSubstance() {
   }
 
+  doublereal StoichSubstance::enthalpy_mole() const {
+    double hh = intEnergy_mole() + m_press / molarDensity();
+    return hh;
+  }
+
+  doublereal StoichSubstance::intEnergy_mole() const {
+    _updateThermo();
+    return GasConstant * temperature() * m_h0_RT[0]
+      - m_p0 / molarDensity();
+  }
+
+  doublereal StoichSubstance::entropy_mole() const {
+    _updateThermo();
+    return GasConstant * m_s0_R[0];
+  }
+
+  doublereal StoichSubstance::gibbs_mole() const {
+    return enthalpy_mole() - temperature() * entropy_mole();
+  }
+
+  doublereal StoichSubstance::cp_mole() const {
+    _updateThermo();
+    return GasConstant * m_cp0_R[0];
+  }
+
+  doublereal StoichSubstance::cv_mole() const {
+    return cp_mole();
+  }
+
   void StoichSubstance::initThermo() {
     m_kk = nSpecies();
     if (m_kk > 1) {
@@ -122,7 +151,6 @@ namespace Cantera {
     }
     setState_TP(tnow, m_p0);
   }
-
 
   void StoichSubstance::_updateThermo() const {
     doublereal tnow = temperature();
@@ -153,6 +181,10 @@ namespace Cantera {
     return 0.0;
   }
 
+  void StoichSubstance::getStandardChemPotentials(doublereal*  mu0) const {
+    mu0[0] = gibbs_mole();
+  }
+
   void StoichSubstance::
   getUnitsStandardConc(double *uA, int k, int sizeUA) const {
     for (int i = 0; i < sizeUA; i++) {
@@ -163,6 +195,14 @@ namespace Cantera {
   /*
    *
    */
+
+  void StoichSubstance::getChemPotentials_RT(doublereal* mu) const {
+    mu[0] = gibbs_mole() / (GasConstant * temperature());
+  }
+
+  void StoichSubstance::getChemPotentials(doublereal* mu) const {
+    mu[0] = gibbs_mole();
+  }
 
   void StoichSubstance::getElectrochemPotentials(doublereal* mu) const {
     getChemPotentials(mu);
@@ -236,7 +276,7 @@ namespace Cantera {
    *
    */
 
-  void StoichSubstance::setParameters(int n, double * c) {
+  void StoichSubstance::setParameters(int n, double * const c) {
     double rho = c[0];
     setDensity(rho);
   }

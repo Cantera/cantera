@@ -698,7 +698,7 @@ namespace Cantera {
      * @param c array of <I>n</I> coefficients
      * 
      */
-    virtual void setParameters(int n, doublereal* c);
+    virtual void setParameters(int n, doublereal* const c);
 
     /*!
      * @internal

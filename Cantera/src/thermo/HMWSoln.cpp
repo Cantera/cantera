@@ -1228,7 +1228,7 @@ namespace Cantera {
    * @param c array of \i n coefficients
    * 
    */
-  void HMWSoln::setParameters(int n, doublereal* c) {
+  void HMWSoln::setParameters(int n, doublereal* const c) {
   }
 
   void HMWSoln::getParameters(int &n, doublereal * const c) const {

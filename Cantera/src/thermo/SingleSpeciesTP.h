@@ -624,7 +624,7 @@ namespace Cantera {
      * @param c array of  n coefficients
      * 
      */
-    virtual void setParameters(int n, doublereal* c) {}
+    virtual void setParameters(int n, doublereal* const c) {}
 
     virtual void getParameters(int &n, doublereal * const c) const {}
 

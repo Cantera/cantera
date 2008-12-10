@@ -254,7 +254,7 @@ namespace Cantera {
    *  uA[5] = time units - default = 0
    */
   void StoichSubstanceSSTP::
-  getUnitsStandardConc(double *uA, int k, int sizeUA) const {
+  getUnitsStandardConc(doublereal *uA, int k, int sizeUA) const {
     for (int i = 0; i < 6; i++) {
       uA[i] = 0;
     }
@@ -298,8 +298,8 @@ namespace Cantera {
    */
   void StoichSubstanceSSTP::getEnthalpy_RT(doublereal* hrt) const {
     getEnthalpy_RT_ref(hrt);
-    double RT = GasConstant * temperature();
-    double presCorrect = (m_press - m_p0) /  molarDensity();
+    doublereal RT = GasConstant * temperature();
+    doublereal presCorrect = (m_press - m_p0) /  molarDensity();
     hrt[0] += presCorrect / RT;
   }
 
@@ -342,8 +342,8 @@ namespace Cantera {
    */
   void StoichSubstanceSSTP::getIntEnergy_RT(doublereal* urt) const {
     _updateThermo();
-    double RT = GasConstant * temperature();
-    double PV = m_p0 / molarDensity();
+    doublereal RT = GasConstant * temperature();
+    doublereal PV = m_p0 / molarDensity();
     urt[0] = m_h0_RT[0] - PV / RT;
   }
 
@@ -365,8 +365,8 @@ namespace Cantera {
    */
   void StoichSubstanceSSTP::getIntEnergy_RT_ref(doublereal* urt) const {
     _updateThermo();
-    double RT = GasConstant * temperature();
-    double PV = m_p0 / molarDensity();
+    doublereal RT = GasConstant * temperature();
+    doublereal PV = m_p0 / molarDensity();
     urt[0] = m_h0_RT[0] - PV / RT;
   }
               
@@ -431,8 +431,8 @@ namespace Cantera {
    *   by this model.
    *        C[0] = density of phase [ kg/m3 ]
    */
-  void StoichSubstanceSSTP::setParameters(int n, double * c) {
-    double rho = c[0];
+  void StoichSubstanceSSTP::setParameters(int n, doublereal * const c) {
+    doublereal rho = c[0];
     setDensity(rho);
   }
 
@@ -444,8 +444,8 @@ namespace Cantera {
    *        n = 1
    *        C[0] = density of phase [ kg/m3 ]
    */
-  void StoichSubstanceSSTP::getParameters(int &n, double * const c) const {
-    double rho = density();
+  void StoichSubstanceSSTP::getParameters(int &n, doublereal * const c) const {
+    doublereal rho = density();
     n = 1;
     c[0] = rho;
   }

@@ -363,7 +363,7 @@ namespace Cantera {
      * @param c array of \a n coefficients
      *           c[0] = The site density (kmol m-2)
      */
-    virtual void setParameters(int n, doublereal* c);
+    virtual void setParameters(int n, doublereal* const c);
 
     //! Set the Equation-of-State parameters by reading an XML Node Input
     /*!

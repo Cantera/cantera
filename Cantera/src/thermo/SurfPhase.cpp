@@ -250,7 +250,7 @@ namespace Cantera {
 
   /// The only parameter that can be set is the site density.
   void SurfPhase::
-  setParameters(int n, doublereal* c) {
+  setParameters(int n, doublereal* const c) {
     if (n != 1) {
       throw CanteraError("SurfPhase::setParameters",
 			 "Bad value for number of parameter");

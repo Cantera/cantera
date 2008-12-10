@@ -235,7 +235,7 @@ namespace Cantera {
     }
   }
 
-  void LatticePhase::setParameters(int n, doublereal* c) {
+  void LatticePhase::setParameters(int n, doublereal* const c) {
     m_molar_density = c[0];
     setMolarDensity(m_molar_density);
   }
