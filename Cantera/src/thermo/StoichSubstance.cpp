@@ -1,6 +1,14 @@
 /**
  *
  *  @file StoichSubstance.cpp
+ *  This file contains the class definitions for the StoichSubstance
+ *  ThermoPhase class.
+ */
+/*
+ *  $Date$
+ *  $Revision$
+ *
+ *  Copyright 2001 California Institute of Technology
  *
  */
 
@@ -88,56 +96,161 @@ namespace Cantera {
   StoichSubstance::~StoichSubstance() {
   }
 
-    void StoichSubstance::initThermo() {
-        m_kk = nSpecies();
-        if (m_kk > 1) {
-            throw CanteraError("initThermo",
-                "stoichiometric substances may only contain one species.");
-        } 
-        doublereal tmin = m_spthermo->minTemp();
-        doublereal tmax = m_spthermo->maxTemp();
-        if (tmin > 0.0) m_tmin = tmin;
-        if (tmax > 0.0) m_tmax = tmax;
-        m_p0 = refPressure();
+  void StoichSubstance::initThermo() {
+    m_kk = nSpecies();
+    if (m_kk > 1) {
+      throw CanteraError("initThermo",
+			 "stoichiometric substances may only contain one species.");
+    } 
+    doublereal tmin = m_spthermo->minTemp();
+    doublereal tmax = m_spthermo->maxTemp();
+    if (tmin > 0.0) m_tmin = tmin;
+    if (tmax > 0.0) m_tmax = tmax;
+    m_p0 = refPressure();
 
-        int leng = m_kk;
-        m_h0_RT.resize(leng);
-        m_cp0_R.resize(leng);
-        m_s0_R.resize(leng);
+    int leng = m_kk;
+    m_h0_RT.resize(leng);
+    m_cp0_R.resize(leng);
+    m_s0_R.resize(leng);
+
+    // Put the object on a valid temperature point.
+    double tnow = 300.;
+    if (tnow > tmin && tnow < tmax) {
+
+    } else {
+      tnow = 0.1 * (9 * tmin + tmax);
     }
+    setState_TP(tnow, m_p0);
+  }
 
 
-    void StoichSubstance::_updateThermo() const {
-        doublereal tnow = temperature();
-        if (m_tlast != tnow) {
-            m_spthermo->update(tnow, &m_cp0_R[0], &m_h0_RT[0], 
-                &m_s0_R[0]);
-            m_tlast = tnow;
-        }
+  void StoichSubstance::_updateThermo() const {
+    doublereal tnow = temperature();
+    if (m_tlast != tnow) {
+      m_spthermo->update(tnow, &m_cp0_R[0], &m_h0_RT[0], 
+			 &m_s0_R[0]);
+      m_tlast = tnow;
     }
+  }
 
-    void StoichSubstance::
-    getUnitsStandardConc(double *uA, int k, int sizeUA) const {
-	for (int i = 0; i < sizeUA; i++) {
-	  uA[i] = 0.0;
-	}
-    }
+  doublereal StoichSubstance::pressure() const {
+    return m_press;
+  }
 
-    void StoichSubstance::setParameters(int n, double * c) {
-        double rho = c[0];
-        setDensity(rho);
-    }
+  void StoichSubstance::setPressure(doublereal p) {
+    m_press = p;
+  }
 
-    void StoichSubstance::getParameters(int &n, double * const c) const {
-        double rho = density();
-        c[0] = rho;
-    }
+  void StoichSubstance::getActivityConcentrations(doublereal* c) const {
+    c[0] = 1.0;
+  }
 
-    void StoichSubstance::setParametersFromXML(const XML_Node& eosdata) {
-        eosdata._require("model","StoichSubstance");
-        doublereal rho = getFloat(eosdata, "density", "toSI");
-        setDensity(rho);
+  doublereal StoichSubstance::standardConcentration(int k) const {
+    return 1.0;
+  }
+
+  doublereal StoichSubstance::logStandardConc(int k) const {
+    return 0.0;
+  }
+
+  void StoichSubstance::
+  getUnitsStandardConc(double *uA, int k, int sizeUA) const {
+    for (int i = 0; i < sizeUA; i++) {
+      uA[i] = 0.0;
     }
+  }
+
+  /*
+   *
+   */
+
+  void StoichSubstance::getElectrochemPotentials(doublereal* mu) const {
+    getChemPotentials(mu);
+  }
+
+  void StoichSubstance::getPartialMolarEnthalpies(doublereal* hbar) const {
+    hbar[0] = enthalpy_mole();
+  }
+
+  void StoichSubstance::getPartialMolarEntropies(doublereal* sbar) const {
+    sbar[0] = entropy_mole();
+  }
+
+  void StoichSubstance::getPartialMolarVolumes(doublereal* vbar) const {
+    vbar[0] = 1.0 / molarDensity();
+  }
+
+  /*
+   *
+   */
+
+  void StoichSubstance::getEnthalpy_RT(doublereal* hrt) const {
+    hrt[0] = enthalpy_mole() / (GasConstant * temperature());
+  }
+
+  void StoichSubstance::getEntropy_R(doublereal* sr) const {
+    sr[0] = entropy_mole() / GasConstant;
+  }
+
+  void StoichSubstance::getGibbs_RT(doublereal* grt) const {
+    grt[0] =  gibbs_mole() / (GasConstant * temperature());
+  }
+
+  void StoichSubstance::getPureGibbs(doublereal* gpure) const {
+    gpure[0] = gibbs_mole();
+  }
+
+  void StoichSubstance::getCp_R(doublereal* cpr) const {
+    cpr[0] = cp_mole() / GasConstant;
+  }
+
+  void StoichSubstance::getStandardVolumes(doublereal*vol) const {
+    vol[0] = 1.0 / molarDensity();
+  }
+
+  /*
+   *
+   */
+
+  void StoichSubstance::getEnthalpy_RT_ref(doublereal *hrt) const {
+    _updateThermo();
+    hrt[0] = m_h0_RT[0];
+  }
+
+  void StoichSubstance::getGibbs_RT_ref(doublereal *grt) const {
+    _updateThermo();
+    grt[0] = m_h0_RT[0] - m_s0_R[0];
+  }
+
+  void StoichSubstance::getGibbs_ref(doublereal *g) const {
+    getGibbs_RT_ref(g);
+    g[0] *= GasConstant * temperature();
+  }
+
+  void StoichSubstance::getEntropy_R_ref(doublereal *er) const {
+    _updateThermo();
+    er[0] = m_s0_R[0];
+  }
+
+  /*
+   *
+   */
+
+  void StoichSubstance::setParameters(int n, double * c) {
+    double rho = c[0];
+    setDensity(rho);
+  }
+
+  void StoichSubstance::getParameters(int &n, double * const c) const {
+    double rho = density();
+    c[0] = rho;
+  }
+
+  void StoichSubstance::setParametersFromXML(const XML_Node& eosdata) {
+    eosdata._require("model","StoichSubstance");
+    doublereal rho = getFloat(eosdata, "density", "toSI");
+    setDensity(rho);
+  }
 
 }
 
