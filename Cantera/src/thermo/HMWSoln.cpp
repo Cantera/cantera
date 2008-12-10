@@ -1614,7 +1614,7 @@ namespace Cantera {
     m_Lambda_nj_L.resize(leng, leng, 0.0);
     m_Lambda_nj_LL.resize(leng, leng, 0.0);
     m_Lambda_nj_P.resize(leng, leng, 0.0); 
-    m_Lambda_nj_coeff.resize(TCoeffLength, maxCounterIJlen, 0.0);
+    m_Lambda_nj_coeff.resize(TCoeffLength, leng * leng, 0.0);
 
     m_Mu_nnn.resize(leng,    0.0);
     m_Mu_nnn_L.resize(leng,  0.0);
