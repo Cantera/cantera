@@ -316,6 +316,19 @@ namespace Cantera {
      */
     virtual void modifyParams(int index, doublereal *c);
 
+
+#ifdef H298MODIFY_CAPABILITY
+  
+    virtual doublereal reportOneHf298(int k) const {
+      throw CanteraError("reportHF298", "unimplemented");
+    }
+
+    virtual void modifyOneHf298(const int k, const doublereal Hf298New) {
+      throw CanteraError("reportHF298", "unimplemented");
+    }
+  
+#endif
+
   private:
 
     //! Thermo Type 1
@@ -465,6 +478,17 @@ namespace Cantera {
      */
     virtual void modifyParams(int index, doublereal *c);
 
+#ifdef H298MODIFY_CAPABILITY
+
+    virtual doublereal reportOneHf298(int k) const {
+      throw CanteraError("reportHF298", "unimplemented");
+    }
+
+    virtual void modifyOneHf298(const int k, const doublereal Hf298New) {
+      throw CanteraError("reportHF298", "unimplemented");
+    }
+
+#endif
   private:
     //! Vector of SPM objects. There are m_kk of them
     std::vector<SPM> m_thermo;

@@ -367,7 +367,15 @@ namespace Cantera {
      *              parameters for the standard state.
      */
     virtual void modifyParams(int index, doublereal *c) = 0;
+  
+#ifdef H298MODIFY_CAPABILITY
 
+     virtual doublereal reportOneHf298(int k) const = 0;
+
+    virtual void modifyOneHf298(const int k, const doublereal Hf298New) = 0;
+
+     
+#endif
   };
   //@}
 }

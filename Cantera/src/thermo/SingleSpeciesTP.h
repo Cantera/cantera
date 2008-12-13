@@ -393,7 +393,14 @@ namespace Cantera {
     /// equation of state.
     //@{
 
- 
+ #ifdef H298MODIFY_CAPABILITY
+  
+    virtual void modifyOneHf298SS(const int k, const doublereal Hf298New) {
+       m_spthermo->modifyOneHf298(k, Hf298New);
+       m_tlast += 0.0001234;
+    }
+#endif
+
     /*!
      *  Returns the vector of nondimensional
      *  enthalpies of the reference state at the current temperature

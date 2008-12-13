@@ -352,4 +352,26 @@ namespace Cantera {
     return (m_sp[k]);
   }
 
+#ifdef H298MODIFY_CAPABILITY
+   
+  doublereal GeneralSpeciesThermo::reportOneHf298(int k) const {
+    SpeciesThermoInterpType * sp_ptr = m_sp[k];
+    doublereal h = -1.0;
+    if (sp_ptr) {
+      h = sp_ptr->reportHf298(0);
+    }
+    return h;
+  }
+
+  void GeneralSpeciesThermo::modifyOneHf298(const int k, const doublereal Hf298New) {
+    SpeciesThermoInterpType * sp_ptr = m_sp[k];
+    if (sp_ptr) {
+      sp_ptr->modifyOneHf298(k, Hf298New);
+    }
+  }
+
+   
+#endif
+
+
 }

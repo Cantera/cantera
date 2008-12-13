@@ -137,6 +137,25 @@ namespace Cantera {
     m_logt0 = log(m_t0);
   }
 
+#ifdef H298MODIFY_CAPABILITY
+
+  doublereal ConstCpPoly::reportHf298(doublereal* const h298) const {
+    double temp = 298.15;
+    doublereal h = GasConstant * (m_h0_R + (temp - m_t0) * m_cp0_R);
+    if (h298) {
+      h298[m_index] = h;
+    }
+    return h;
+  }
+  
+  void ConstCpPoly::modifyOneHf298(const int k, const doublereal Hf298New) {
+    if (k != m_index) return;
+    doublereal hnow = reportHf298();
+    doublereal delH = Hf298New - hnow;
+    m_h0_R += delH / GasConstant;
+  }
+  
+#endif
 
 }
 

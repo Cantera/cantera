@@ -289,6 +289,43 @@ namespace Cantera {
       std::copy(coeffs, coeffs + 7, m_coeff.begin());
     }
 
+#ifdef H298MODIFY_CAPABILITY
+  
+
+    virtual doublereal reportHf298(doublereal* const h298 = 0) const {
+
+      double tPoly[4];
+      doublereal tt = 1.e-3*298.15;
+      tPoly[0] = tt;
+      tPoly[1] = tt * tt;
+      tPoly[2] = tPoly[1] * tt;
+      tPoly[3] = 1.0/tPoly[1];
+    
+      doublereal A      = m_coeff[0]; 
+      doublereal Bt     = m_coeff[1]*tPoly[0];    
+      doublereal Ct2    = m_coeff[2]*tPoly[1];    
+      doublereal Dt3    = m_coeff[3]*tPoly[2]; 
+      doublereal Etm2   = m_coeff[4]*tPoly[3]; 
+      doublereal F      = m_coeff[5];
+ 
+      doublereal h = tPoly[0]*(A + 0.5*Bt + OneThird*Ct2 + 0.25*Dt3 - Etm2) + F;
+  
+      double hh =  1.e6 * h;
+      if (h298) {
+	h298[m_index] = 1.e6 * h;
+      }
+      return hh;
+    }
+
+
+    virtual void modifyOneHf298(const int k, const doublereal Hf298New) {
+      doublereal hnow = reportHf298();
+      doublereal delH = Hf298New - hnow;
+      m_coeff[5] += delH / 1.0E6;
+    }
+
+#endif
+
   protected:
     //! Minimum temperature for which the parameterization is valid (Kelvin)    
     doublereal m_lowT;
@@ -575,6 +612,36 @@ namespace Cantera {
       msp_low  = new ShomatePoly(m_index, m_lowT, m_midT,  m_Pref, coeffs+1);
       msp_high = new ShomatePoly(m_index, m_midT, m_highT, m_Pref, coeffs+8);
     }
+
+#ifdef H298MODIFY_CAPABILITY
+
+    virtual doublereal reportHf298(doublereal* const h298 = 0) const {
+      doublereal h;
+      if (298.15 <= m_midT) {
+	h = msp_low->reportHf298(h298);
+      } else {
+	h = msp_high->reportHf298(h298);
+      }
+      if (h298) {
+	h298[m_index] = h;
+      }
+      return h;
+    }
+
+    virtual void modifyOneHf298(const int k, const doublereal Hf298New) {
+      if (k != m_index) return;
+ 
+      doublereal h298now = reportHf298(0);
+      doublereal delH = Hf298New - h298now;
+      double h = msp_low->reportHf298(0);
+      double hnew = h + delH;
+      msp_low->modifyOneHf298(k, hnew);
+      h  = msp_high->reportHf298(0);
+      hnew = h + delH;
+      msp_high->modifyOneHf298(k, hnew);
+    }
+
+#endif
 
   protected:
     //! Minimum temperature the representation is valid(kelvin)

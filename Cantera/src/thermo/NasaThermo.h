@@ -455,6 +455,51 @@ namespace Cantera {
       }
     }
 
+#ifdef H298MODIFY_CAPABILITY 
+    virtual doublereal reportOneHf298(const int k) const {
+
+      int grp = m_group_map[k];
+      int pos = m_posInGroup_map[k];
+      const vector<NasaPoly1> &mlg = m_low[grp-1];
+      const NasaPoly1 *nlow = &(mlg[pos]);
+      doublereal tmid = nlow->maxTemp();
+      double h;
+      if (298.15 <= tmid) {
+	h = nlow->reportHf298(0);
+      } else {
+	const vector<NasaPoly1> &mhg = m_high[grp-1];
+	const NasaPoly1 *nhigh = &(mhg[pos]);
+	h = nhigh->reportHf298(0);
+      }
+      return h;
+    }
+ 
+    virtual void modifyOneHf298(const int k, const doublereal Hf298New) {
+      int grp = m_group_map[k];
+      int pos = m_posInGroup_map[k];
+      vector<NasaPoly1> &mlg = m_low[grp-1];
+      NasaPoly1 *nlow = &(mlg[pos]);
+      vector<NasaPoly1> &mhg = m_high[grp-1];
+      NasaPoly1 *nhigh = &(mhg[pos]);
+      doublereal tmid = nlow->maxTemp();
+
+      double hnow = reportOneHf298(k);
+      double delH =  Hf298New - hnow;
+      if (298.15 <= tmid) {
+        nlow->modifyOneHf298(k, Hf298New);
+	double h = nhigh->reportHf298(0);
+	double hnew = h + delH;
+	nhigh->modifyOneHf298(k, hnew);
+      } else {
+	nhigh->modifyOneHf298(k, Hf298New);
+	double h = nlow->reportHf298(0);
+	double hnew = h + delH;
+	nlow->modifyOneHf298(k, hnew);
+      }
+ 
+    }
+#endif
+
   protected:
     //! Vector of vector of NasaPoly1's for the high temp region.
     /*!
@@ -567,6 +612,8 @@ namespace Cantera {
 	+ OneThird*c[3]*t*t*t + 0.25*c[4]*t*t*t*t
 	+ c[6];
     }
+
+
 
   };
 

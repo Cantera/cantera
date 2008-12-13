@@ -264,6 +264,13 @@ namespace Cantera {
      */
     virtual void modifyParameters(doublereal* coeffs) {}
 
+#ifdef H298MODIFY_CAPABILITY
+ 
+    virtual doublereal reportHf298(doublereal* const h298 = 0) const;
+
+    virtual void modifyOneHf298(const int k, const doublereal Hf298New);
+
+#endif
   };
 
   //!  Class for the thermoydnamic manager for an individual species' reference state

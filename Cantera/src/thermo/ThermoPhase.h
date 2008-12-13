@@ -780,6 +780,15 @@ namespace Cantera {
       return m_spthermo->minTemp(k);
     }
         
+#ifdef H298MODIFY_CAPABILITY
+    doublereal Hf298SS(const int k) const {
+	return (m_spthermo->reportOneHf298(k));
+    }
+
+    virtual void modifyOneHf298SS(const int k, const doublereal Hf298New) {
+       m_spthermo->modifyOneHf298(k, Hf298New);
+    }
+#endif
     //! Maximum temperature for which the thermodynamic data for the species 
     //! are valid. 
     /*!

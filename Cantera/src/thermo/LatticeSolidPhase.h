@@ -128,6 +128,15 @@ namespace Cantera {
 
     void setLatticeMoleFractions(int n, std::string x);
 
+
+#ifdef H298MODIFY_CAPABILITY
+  
+    virtual void modifyOneHf298SS(const int k, const doublereal Hf298New) {
+       m_spthermo->modifyOneHf298(k, Hf298New);
+       m_tlast += 0.0001234;
+    }
+#endif
+
   protected:
         
     int m_mm;

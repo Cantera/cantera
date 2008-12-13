@@ -263,6 +263,36 @@ namespace Cantera {
       }
     }
 
+#ifdef H298MODIFY_CAPABILITY
+
+    doublereal reportHf298(doublereal* const h298 = 0) const {
+      double h;
+      if (298.15 <= m_midT) {
+	h = mnp_low->reportHf298(0);
+      } else {
+	h = mnp_high->reportHf298(0);
+      }
+      if (h298) {
+	h298[m_index] = h;
+      }
+      return h;
+    }
+
+    void modifyOneHf298(const int k, const doublereal Hf298New) {
+      if (k != m_index) return;
+ 
+      doublereal h298now = reportHf298(0);
+      doublereal delH = Hf298New - h298now;
+      double h = mnp_low->reportHf298(0);
+      double hnew = h + delH;
+      mnp_low->modifyOneHf298(k, hnew);
+      h  = mnp_high->reportHf298(0);
+      hnew = h + delH;
+      mnp_high->modifyOneHf298(k, hnew);
+    }
+
+#endif
+
   protected:
     //!  lowest valid temperature
     doublereal m_lowT;   

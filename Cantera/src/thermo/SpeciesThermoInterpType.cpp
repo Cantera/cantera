@@ -29,6 +29,20 @@ namespace Cantera {
     updatePropertiesTemp(T, cp_R, h_RT, s_R);
   }
 
+#ifdef H298MODIFY_CAPABILITY
+
+  doublereal SpeciesThermoInterpType::reportHf298(doublereal* const h298) const {
+    throw CanteraError("SpeciesThermoInterpType::reportHf298",
+		       "Not implemented");
+  }
+
+  void SpeciesThermoInterpType::modifyOneHf298(const int k, const doublereal Hf298New) {
+    throw CanteraError("SpeciesThermoInterpType::modifyOneHf298",
+		       "Not implemented");
+  }
+ 
+#endif
+
   /***************************************************************************************************/
 
   //! Constructor

@@ -2605,7 +2605,7 @@ namespace Cantera {
     }
 #ifdef DEBUG_MODE
     if (m_debugCalc) {
-      printf(" Step 8: \n");
+      printf(" Step 8: Summing in All Contributions to Activity Coefficients \n");
     }
 #endif
 
@@ -2616,9 +2616,21 @@ namespace Cantera {
        * -------- -> equations agree with my notes, Eqn. (118).
        *          -> Equations agree with Pitzer, eqn.(63)
        */
-      if (charge[i] > 0 ) {
+      if (charge[i] > 0.0 ) {
+
+#ifdef DEBUG_MODE
+	if (m_debugCalc) {
+	  sni = speciesName(i);
+	  printf("  Contributions to ln(ActCoeff_%s):\n", sni.c_str());
+	}
+#endif
 	// species i is the cation (positive) to calc the actcoeff
 	zsqF = charge[i]*charge[i]*F;
+#ifdef DEBUG_MODE
+	if (m_debugCalc) {
+	  printf("      Unary term:                                      z*z*F = %10.5f\n", zsqF);
+	}
+#endif
 	sum1 = 0.0;
 	sum2 = 0.0;
 	sum3 = 0.0;
@@ -2634,7 +2646,16 @@ namespace Cantera {
 	  if (charge[j] < 0.0) {
 	    // sum over all anions
 	    sum1 = sum1 + molality[j]*
-	      (2.0*BMX[counterIJ]+molarcharge*CMX[counterIJ]);
+	      (2.0*BMX[counterIJ] + molarcharge*CMX[counterIJ]);
+#ifdef DEBUG_MODE
+	    if (m_debugCalc) {
+	      snj = speciesName(j) + ":";
+	      printf("      Bin term with %-13s                  2 m_j BMX = %10.5f\n", snj.c_str(),
+		     molality[j]*2.0*BMX[counterIJ]);
+	      printf("                                                   m_j Z CMX = %10.5f\n",
+		     molality[j]* molarcharge*CMX[counterIJ]);
+	    }
+#endif
 	    if (j < m_kk-1) {
 	      /*
 	       * This term is the ternary interaction involving the 
@@ -2646,6 +2667,15 @@ namespace Cantera {
 		if (charge[k] < 0.0) {
 		  n = k + j * m_kk + i * m_kk * m_kk;
 		  sum3 = sum3 + molality[j]*molality[k]*psi_ijk[n];
+#ifdef DEBUG_MODE
+		  if (m_debugCalc) {
+		    if (psi_ijk[n] != 0.0) {
+		      snj = speciesName(j) + "," + speciesName(k) + ":";
+		      printf("      Psi term on %-16s           m_j m_k psi_ijk = %10.5f\n", snj.c_str(),
+			     molality[j]*molality[k]*psi_ijk[n]);
+		    }
+		  }
+#endif
 		}
 	      }
 	    }
@@ -2654,13 +2684,33 @@ namespace Cantera {
 	     
 	  if (charge[j] > 0.0) {
 	    // sum over all cations
-	    if (j != i) sum2 = sum2 + molality[j]*(2.0*Phi[counterIJ]);
+	    if (j != i) {
+	      sum2 = sum2 + molality[j]*(2.0*Phi[counterIJ]);
+#ifdef DEBUG_MODE
+	      if (m_debugCalc) {
+		if ((molality[j] * Phi[counterIJ])!= 0.0) {
+		  snj = speciesName(j) + ":";
+		  printf("      Phi term with %-12s                2 m_j Phi_cc = %10.5f\n", snj.c_str(),
+			 molality[j]*(2.0*Phi[counterIJ]));
+		}
+	      }
+#endif
+	    }
 	    for (k = 1; k < m_kk; k++) {
 	      if (charge[k] < 0.0) {
 		// two inner sums over anions
 
 		n = k + j * m_kk + i * m_kk * m_kk;
 		sum2 = sum2 + molality[j]*molality[k]*psi_ijk[n];
+#ifdef DEBUG_MODE
+		if (m_debugCalc) {
+		  if (psi_ijk[n] != 0.0) {
+		    snj = speciesName(j) + "," + speciesName(k) + ":";
+		    printf("      Psi term on %-16s           m_j m_k psi_ijk = %10.5f\n", snj.c_str(),
+			   molality[j]*molality[k]*psi_ijk[n]);
+		  }
+		}
+#endif
 		/*
 		 * Find the counterIJ for the j,k interaction
 		 */
@@ -2668,6 +2718,15 @@ namespace Cantera {
 		counterIJ2 = m_CounterIJ[n];
 		sum4 = sum4 + (fabs(charge[i])*
 			       molality[j]*molality[k]*CMX[counterIJ2]);
+#ifdef DEBUG_MODE
+		if (m_debugCalc) {
+		  if ((molality[j]*molality[k]*CMX[counterIJ2]) != 0.0) {
+		    snj = speciesName(j) + "," + speciesName(k) + ":";
+		    printf("      Tern CMX term on %-16s abs(z_i) m_j m_k CMX = %10.5f\n", snj.c_str(),
+			   fabs(charge[i])* molality[j]*molality[k]*CMX[counterIJ2]);
+		  }
+		}
+#endif
 	      }
 	    }
 	  }
@@ -2677,6 +2736,15 @@ namespace Cantera {
 	   */
 	  if (charge[j] == 0) {
 	    sum5 = sum5 + molality[j]*2.0*m_Lambda_nj(j,i);
+#ifdef DEBUG_MODE
+	    if (m_debugCalc) {
+	      if ((molality[j]*2.0*m_Lambda_nj(j,i)) != 0.0) {
+		snj = speciesName(j) + ":";
+		printf("      Lambda term with %-12s                 2 m_j lam_ji = %10.5f\n", snj.c_str(),
+		       molality[j]*2.0*m_Lambda_nj(j,i));
+	      }
+	    }
+#endif
 	  }
 	}
 	/*
@@ -2688,10 +2756,8 @@ namespace Cantera {
 #ifdef DEBUG_MODE
 	if (m_debugCalc) {
 	  sni = speciesName(i);
-	  printf(" %-16s lngamma[i]=%10.6f gamma[i]=%10.6f \n", 
+	  printf("      Net %-16s                        lngamma[i] =  %9.5f         gamma[i]=%10.6f \n", 
 		 sni.c_str(), m_lnActCoeffMolal[i], gamma[i]);
-	  printf("                   %12g %12g %12g %12g %12g %12g\n",
-		 zsqF, sum1, sum2, sum3, sum4, sum5);
 	}
 #endif
       }
@@ -2702,8 +2768,21 @@ namespace Cantera {
        *          -> Equations agree with Pitzer, eqn.(64)
        */
       if (charge[i] < 0 ) {
+
+#ifdef DEBUG_MODE
+	if (m_debugCalc) {
+	  sni = speciesName(i);
+	  printf("  Contributions to ln(ActCoeff_%s):\n", sni.c_str());
+	}
+#endif
+
 	//          species i is an anion (negative)
 	zsqF = charge[i]*charge[i]*F;
+#ifdef DEBUG_MODE
+	if (m_debugCalc) {
+	  printf("      Unary term:                                      z*z*F = %10.5f\n", zsqF);
+	}
+#endif
 	sum1 = 0.0;
 	sum2 = 0.0;
 	sum3 = 0.0;
@@ -2722,12 +2801,30 @@ namespace Cantera {
 	  if (charge[j] > 0) {
 	    sum1 = sum1 + molality[j]*
 	      (2.0*BMX[counterIJ]+molarcharge*CMX[counterIJ]);
+#ifdef DEBUG_MODE
+	    if (m_debugCalc) {
+	      snj = speciesName(j) + ":";
+	      printf("      Bin term with %-13s                  2 m_j BMX = %10.5f\n", snj.c_str(),
+		     molality[j]*2.0*BMX[counterIJ]);
+	      printf("                                                   m_j Z CMX = %10.5f\n",
+		     molality[j]* molarcharge*CMX[counterIJ]);
+	    }
+#endif
 	    if (j < m_kk-1) {
 	      for (k = j+1; k < m_kk; k++) {
 		// an inner sum over all cations
 		if (charge[k] > 0) {
 		  n = k + j * m_kk + i * m_kk * m_kk;
 		  sum3 = sum3 + molality[j]*molality[k]*psi_ijk[n];
+#ifdef DEBUG_MODE
+		  if (m_debugCalc) {
+		    if (psi_ijk[n] != 0.0) {
+		      snj = speciesName(j) + "," + speciesName(k) + ":";
+		      printf("      Psi term on %-16s           m_j m_k psi_ijk = %10.5f\n", snj.c_str(),
+			     molality[j]*molality[k]*psi_ijk[n]);
+		    }
+		  }
+#endif
 		}
 	      }
 	    }
@@ -2740,12 +2837,30 @@ namespace Cantera {
 	    //  sum over all anions
 	    if (j != i) {
 	      sum2 = sum2 + molality[j]*(2.0*Phi[counterIJ]);
+#ifdef DEBUG_MODE
+	      if (m_debugCalc) {
+		if ((molality[j] * Phi[counterIJ])!= 0.0) {
+		  snj = speciesName(j) + ":";
+		  printf("      Phi term with %-12s                2 m_j Phi_aa = %10.5f\n", snj.c_str(),
+			 molality[j]*(2.0*Phi[counterIJ]));
+		}
+	      }
+#endif
 	    }
 	    for (k = 1; k < m_kk; k++) {
 	      if (charge[k] > 0.0) {
 		// two inner sums over cations
 		n = k + j * m_kk + i * m_kk * m_kk;
 		sum2 = sum2 + molality[j]*molality[k]*psi_ijk[n];
+#ifdef DEBUG_MODE
+		if (m_debugCalc) {
+		  if (psi_ijk[n] != 0.0) {
+		    snj = speciesName(j) + "," + speciesName(k) + ":";
+		    printf("      Psi term on %-16s           m_j m_k psi_ijk = %10.5f\n", snj.c_str(),
+			   molality[j]*molality[k]*psi_ijk[n]);
+		  }
+		}
+#endif
 		/*
 		 * Find the counterIJ for the symmetric binary interaction
 		 */
@@ -2754,6 +2869,15 @@ namespace Cantera {
 		sum4 = sum4 + 
 		  (fabs(charge[i])*
 		   molality[j]*molality[k]*CMX[counterIJ2]);
+#ifdef DEBUG_MODE
+		if (m_debugCalc) {
+		  if ((molality[j]*molality[k]*CMX[counterIJ2]) != 0.0) {
+		    snj = speciesName(j) + "," + speciesName(k) + ":";
+		    printf("      Tern CMX term on %-16s abs(z_i) m_j m_k CMX = %10.5f\n", snj.c_str(),
+			   fabs(charge[i])* molality[j]*molality[k]*CMX[counterIJ2]);
+		  }
+		}
+#endif
 	      }
 	    }
 	  }
@@ -2763,6 +2887,15 @@ namespace Cantera {
 	   */
 	  if (charge[j] == 0.0) {
 	    sum5 = sum5 + molality[j]*2.0*m_Lambda_nj(j,i);
+#ifdef DEBUG_MODE
+	    if (m_debugCalc) {
+	      if ((molality[j]*2.0*m_Lambda_nj(j,i)) != 0.0) {
+		snj = speciesName(j) + ":";
+		printf("      Lambda term with %-12s                 2 m_j lam_ji = %10.5f\n", snj.c_str(),
+		       molality[j]*2.0*m_Lambda_nj(j,i));
+	      }
+	    }
+#endif
 	  }
 	}
 	m_lnActCoeffMolal[i] = zsqF + sum1 + sum2 + sum3 + sum4 + sum5;
@@ -2770,10 +2903,8 @@ namespace Cantera {
 #ifdef DEBUG_MODE
 	if (m_debugCalc) {
 	  sni = speciesName(i);
-	  printf(" %-16s lngamma[i]=%10.6f gamma[i]=%10.6f\n", 
+	  printf("      Net %-16s                        lngamma[i] =  %9.5f             gamma[i]=%10.6f\n", 
 		 sni.c_str(), m_lnActCoeffMolal[i], gamma[i]);
-	  printf("                   %12g %12g %12g %12g %12g %12g\n",
-		 zsqF, sum1, sum2, sum3, sum4, sum5);
 	}
 #endif
       }
