@@ -88,8 +88,38 @@ namespace Cantera {
     /// Destructor.
     virtual ~InterfaceKinetics();
 
-    virtual int ID() { return cInterfaceKinetics; }
-    virtual int type() { return cInterfaceKinetics; }
+    //! Copy Constructor for the %Kinetics object.
+    /*!
+     * Currently, this is not fully implemented. If called it will
+     * throw an exception.
+     */
+    InterfaceKinetics(const InterfaceKinetics &right);
+
+    //! Assignment operator
+    /*!
+     *  This is NOT a virtual function.
+     *
+     * @param right    Reference to %Kinetics object to be copied into the
+     *                 current one.
+     */
+    InterfaceKinetics& operator=(const InterfaceKinetics &right);
+
+
+    //! Duplication routine for objects which inherit from
+    //! Kinetics
+    /*!
+     *  This virtual routine can be used to duplicate %InterfaceKinetics objects
+     *  inherited from %Kinetics even if the application only has
+     *  a pointer to %Kinetics to work with.
+     *
+     *  These routines are basically wrappers around the derived copy
+     *  constructor.
+     */
+    virtual Kinetics *duplMyselfAsKinetics() const;
+
+
+    virtual int ID() const { return cInterfaceKinetics; }
+    virtual int type() const { return cInterfaceKinetics; }
 
     /**
      * Set the electric potential in the nth phase
@@ -487,6 +517,7 @@ namespace Cantera {
      *  product stoichiometric coefficient for the species being the value.
      */
     mutable std::vector<std::map<int, doublereal> >     m_prxn;
+
     //! String expression for each rxn
     /*!
      * Vector of strings of length m_ii, the number of 
@@ -525,7 +556,7 @@ namespace Cantera {
      * for all of the species in the kinetics object
      *
      * Length = m_k
-     * units = J/kmol
+     * units = J/kmol 
      */
     vector_fp m_mu0;
 

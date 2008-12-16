@@ -41,13 +41,13 @@ namespace Cantera {
 	 * Identifies the subclass of the Kinetics manager type.
 	 * These are listed in mix_defs.h.
 	 */
-        virtual int ID() { return cEdgeKinetics; }
+        virtual int ID() const { return cEdgeKinetics; }
 
 	/**
 	 * Identifies the subclass of the Kinetics manager type.
 	 * These are listed in mix_defs.h.
 	 */
-        virtual int type() { return cEdgeKinetics; }
+        virtual int type() const { return cEdgeKinetics; }
 
         // defined in InterfaceKinetics.cpp
         virtual void finalize();

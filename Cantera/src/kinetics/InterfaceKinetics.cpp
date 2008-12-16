@@ -65,6 +65,94 @@ namespace Cantera {
 	}
     }
 
+  //  Copy Constructor for the %InterfaceKinetics object.
+  /*
+   * Currently, this is not fully implemented. If called it will
+   * throw an exception.
+   */
+  InterfaceKinetics::InterfaceKinetics(const InterfaceKinetics &right) :
+    Kinetics(),
+    m_kk(0), 
+    m_redo_rates(false),
+    m_nirrev(0), 
+    m_nrev(0),
+    m_surf(0),
+    m_integrator(0),
+    m_finalized(false),
+    m_has_coverage_dependence(false),
+    m_has_electrochem_rxns(false),
+    m_ioFlag(0)
+  {  
+    m_kdata = new InterfaceKineticsData;
+    m_kdata->m_temp = 0.0;
+    /*
+     * Call the assignment operator
+     */
+    *this = operator=(right);
+  }
+  
+  // Assignment operator
+  /*
+   *  This is NOT a virtual function.
+   *
+   * @param right    Reference to %Kinetics object to be copied into the
+   *                 current one.
+   */
+  InterfaceKinetics& InterfaceKinetics::
+  operator=(const InterfaceKinetics &right) {
+    /*
+     * Check for self assignment.
+     */
+    if (this == &right) return *this;
+
+    Kinetics::operator=(right);
+
+    m_kk                   = right.m_kk;
+    m_revindex             = right.m_revindex;
+    m_rates                = right.m_rates;
+    m_redo_rates           = right.m_redo_rates;
+    m_index                = right.m_index;
+    m_irrev                = right.m_irrev; 
+    m_rxnstoich            = right.m_rxnstoich;
+    m_nirrev               = right.m_nirrev;
+    m_nrev                 = right.m_nrev;
+    m_rrxn                 = right.m_rrxn;
+    m_prxn                 = right.m_prxn;
+    m_rxneqn               = right.m_rxneqn;
+    *m_kdata               = *right.m_kdata;  // needs to be developed
+    m_mu0                  = right.m_mu0;
+    m_phi                  = right.m_phi;
+    m_pot                  = right.m_pot;
+    m_rwork                = right.m_rwork;
+    m_E                    = right.m_E;
+    m_surf                 = right.m_surf;  //DANGER - shallow copy
+    m_integrator           = right.m_integrator;  //DANGER - shallow copy
+    m_beta                 = right.m_beta;
+    m_ctrxn                = right.m_ctrxn;
+    m_finalized            = right.m_finalized;
+    m_has_coverage_dependence = right.m_has_coverage_dependence;
+    m_has_electrochem_rxns = right.m_has_electrochem_rxns;
+    m_ioFlag               = right.m_ioFlag;
+
+    return *this;
+  }
+
+
+  // Duplication routine for objects which inherit from
+  // Kinetics
+  /*
+   *  This virtual routine can be used to duplicate %Kinetics objects
+   *  inherited from %Kinetics even if the application only has
+   *  a pointer to %Kinetics to work with.
+   *
+   *  These routines are basically wrappers around the derived copy
+   *  constructor.
+   */
+  Kinetics *InterfaceKinetics::duplMyselfAsKinetics() const {
+    InterfaceKinetics* tp = new InterfaceKinetics(*this);
+    return dynamic_cast<Kinetics *>(tp);
+  }
+
 
     /**
      * Update properties that depend on temperature

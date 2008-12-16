@@ -30,7 +30,8 @@ namespace Cantera {
         /// Destructor.
         virtual ~GRI_30_Kinetics(){}
 
-        virtual int ID() { return cGRI_30_Kinetics; }
+        virtual int ID() const { return cGRI_30_Kinetics; }
+        virtual int type() const { return cGRI_30_Kinetics; }
 
         virtual void getNetProductionRates(doublereal* net) {
             gri30_updateROP();

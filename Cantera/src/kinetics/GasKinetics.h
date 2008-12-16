@@ -89,7 +89,8 @@ namespace Cantera {
         /// Destructor.
         virtual ~GasKinetics();
 
-        virtual int ID() { return cGasKinetics; }
+        virtual int ID() const { return cGasKinetics; }
+        virtual int type() const { return cGasKinetics; }
 
         virtual doublereal reactantStoichCoeff(int k, int i) const {
             return m_rrxn[k][i];
