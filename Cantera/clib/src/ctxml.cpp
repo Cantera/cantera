@@ -14,6 +14,7 @@
 #include "Cabinet.h"
 #include "Storage.h"
 
+#include <string.h>
 
 // Values returned for error conditions
 #define ERR -999
