@@ -15,6 +15,7 @@
 
 #include <math.h>
 #include "ckr_utils.h"
+#include <string.h>
 
 using namespace std;
 
