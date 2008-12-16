@@ -12,6 +12,8 @@
 #include "ThermoPhase.h"
 #include "MultiPhase.h"
 
+#include <string.h>
+
 using namespace Cantera;
 using namespace std;
 

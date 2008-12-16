@@ -15,6 +15,7 @@
 #include <cassert>
 
 #include "vcs_internal.h" 
+#include <string.h>
 
 using namespace std;
 
