@@ -1403,7 +1403,6 @@ protected:
       msg += "    b) define environment variable CANTERA_DATA to\n";
       msg += "         point to the directory containing the file.";
       throw CanteraError("findInputFile", msg);
-      return "";
     }
 
     return name;
