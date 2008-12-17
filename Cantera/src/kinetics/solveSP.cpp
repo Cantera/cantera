@@ -17,9 +17,9 @@
 
 /* Standard include files */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cmath>
 
 #include <vector>
 
@@ -1111,7 +1111,7 @@ namespace Cantera {
             }
             else {
                 fprintf(stderr,"Unknown ifunc flag = %d\n", ifunc);
-                exit (-1);
+                exit(EXIT_FAILURE);
             }
 
             if (m_bulkFunc == BULK_DEPOSITION)
@@ -1120,7 +1120,7 @@ namespace Cantera {
                 printf("     Bulk Phases have fixed compositions\n");
             else {
                 fprintf(stderr,"Unknown bulkFunc flag = %d\n", m_bulkFunc);
-                exit (-1);
+                exit(EXIT_FAILURE);
             }
 
             if (damping)

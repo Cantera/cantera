@@ -19,13 +19,13 @@ using namespace std;
 #include "CKReader.h"
 #include "thermoFunctions.h"
 
-#include <string.h>
-#include <stdlib.h>
-#include <time.h>
+#include <cstring>
+#include <cstdlib>
+#include <ctime>
 #include <iomanip>
 
 #include "writelog.h"
-#include <stdio.h>
+#include <cstdio>
 #include "ckr_defs.h"
 
 //#include "global.h"

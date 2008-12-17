@@ -21,7 +21,7 @@
 #include "CKParser.h"
 #include "ckr_utils.h"
 #include "writelog.h"
-#include <stdio.h>
+#include <cstdio>
 //#include "../stringUtils.h"
 
 using namespace std;

@@ -12,6 +12,8 @@
 
 #include <iostream>
 
+#include <cstdlib>
+
 namespace Cantera {
 
     ///
@@ -83,7 +85,7 @@ namespace Cantera {
        */
       virtual void error(const std::string& msg) {
 	std::cerr << msg << std::endl;
-	std::exit(-1);
+        exit(EXIT_FAILURE);
       }
 
       /// Return an integer specifying the application environment.

@@ -15,9 +15,7 @@
 #define CT_IFACEKINETICS_H
 
 #include <fstream>
-#include <math.h>
 #include <map>
-#include <stdlib.h>
 
 #include "mix_defs.h"
 #include "Kinetics.h"
@@ -25,6 +23,9 @@
 #include "utilities.h"
 #include "RateCoeffMgr.h"
 #include "ReactionStoichMgr.h"
+
+#include <cmath>
+#include <cstdlib>
 
 namespace Cantera {
 

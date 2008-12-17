@@ -16,9 +16,7 @@
 #define WRITE_UPDATE
 
 #include <fstream>
-#include <math.h>
 #include <map>
-#include <stdlib.h>
 
 #include "mix_defs.h"
 #include "Kinetics.h"
@@ -29,6 +27,9 @@
 #include "FalloffMgr.h"
 #include "RateCoeffMgr.h"
 #include "Phase.h"
+
+#include <cmath>
+#include <cstdlib>
 
 namespace Cantera {
 

@@ -23,8 +23,8 @@
 
 #define CTML_VERSION_1_4_1
 
-#include <ctype.h>
-#include <string.h>
+#include <cctype>
+#include <cstring>
 
 using namespace std;
 using namespace Cantera;

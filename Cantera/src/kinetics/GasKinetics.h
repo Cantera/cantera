@@ -15,9 +15,7 @@
 #define CT_GASKINETICS_H
 
 #include <fstream>
-#include <math.h>
 #include <map>
-#include <stdlib.h>
 
 #include "mix_defs.h"
 #include "Kinetics.h"
@@ -28,6 +26,9 @@
 #include "ThirdBodyMgr.h"
 #include "FalloffMgr.h"
 #include "RateCoeffMgr.h"
+
+#include <cmath>
+#include <cstdlib>
 
 void get_wdot(const doublereal* rop, doublereal* wdot);
 

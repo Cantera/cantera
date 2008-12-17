@@ -11,7 +11,7 @@
 #pragma warning(disable:4786)
 #endif
 
-#include <stdio.h>
+#include <cstdio>
 #include "writelog.h"
 
 using namespace std;
