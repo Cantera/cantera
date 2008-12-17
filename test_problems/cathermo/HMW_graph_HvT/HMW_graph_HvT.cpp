@@ -8,12 +8,13 @@
  *  $Date$
  *  $Revision$
  */
-#include <stdio.h>
 
 #include "Cantera.h"
 #include "thermo.h"
 #include "kernel/HMWSoln.h"
 #include "TemperatureTable.h"
+
+#include <cstdio>
 
 using namespace std;
 using namespace Cantera;

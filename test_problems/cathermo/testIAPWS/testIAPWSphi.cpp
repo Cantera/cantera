@@ -1,9 +1,11 @@
 /*
  * $Id$
  */
-#include "stdio.h"
 #include "WaterPropsIAPWSphi.h"
 #include <new>
+
+#include <cstdio>
+
 using namespace std;
 
 int main () {

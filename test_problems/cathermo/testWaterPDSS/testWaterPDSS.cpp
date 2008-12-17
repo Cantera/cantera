@@ -1,7 +1,6 @@
 /*
  * $Id$
  */
-#include "stdio.h"
 #include "ct_defs.h"
 #include "ctexceptions.h"
 #include "global.h"
@@ -11,6 +10,9 @@
 #include "ThermoPhase.h"
 #include "VPStandardStateTP.h"
 #include <new>
+
+#include <cstdio>
+
 using namespace std;
 using namespace Cantera;
 

@@ -22,12 +22,13 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <stdio.h>
 
 
 #include "Cantera.h"
 #include "kernel/IdealSolidSolnPhase.h"
 #include "kernel/IdealSolnGasVPSS.h"
+
+#include <cstdio>
 
 using namespace std;
 

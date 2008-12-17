@@ -8,7 +8,6 @@
  *  $Date$
  *  $Revision$
  */
-#include <stdio.h>
 
 #ifdef SRCDIRTREE
 #include "ct_defs.h"
@@ -21,6 +20,8 @@
 #include "kernel/logger.h"
 #include "HMWSoln.h"
 #endif
+
+#include <cstdio>
 
 using namespace std;
 using namespace Cantera;

@@ -22,7 +22,6 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <stdio.h>
 
 #ifdef SRCDIRTREE
 #include "ct_defs.h"
@@ -31,6 +30,8 @@
 #include "Cantera.h"
 #include "kernel/IdealMolalSoln.h"
 #endif
+
+#include <cstdio>
 
 using namespace std;
 

@@ -1,8 +1,10 @@
 
-#include "stdio.h"
-#include "math.h"
 #include "WaterPropsIAPWS.h"
 #include <new>
+
+#include <cstdio>
+#include <cmath>
+
 using namespace std;
 
 int main () {

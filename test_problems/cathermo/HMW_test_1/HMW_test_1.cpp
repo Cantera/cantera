@@ -5,10 +5,11 @@
 /* $Revision$ */
 /* ======================================================================= */
 
-#include <stdio.h>
 
 #include "Cantera.h"
 #include "kernel/HMWSoln.h"
+
+#include <cstdio>
 
 using namespace std;
 using namespace Cantera;

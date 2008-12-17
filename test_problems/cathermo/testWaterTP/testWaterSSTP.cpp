@@ -1,12 +1,13 @@
 /*
  * $Id$
  */
-#include "stdio.h"
-#include "math.h"
 
 #include "Cantera.h"
 #include "thermo.h"
 #include "WaterSSTP.h"
+
+#include <cstdio>
+#include <cmath>
 
 #include <new>
 using namespace std;

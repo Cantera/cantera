@@ -8,7 +8,6 @@
  *  $Date$
  *  $Revision$
  */
-#include <stdio.h>
 
 #ifdef SRCDIRTREE
 #include "ct_defs.h"
@@ -26,6 +25,8 @@
 #endif
 
 #include "TemperatureTable.h"
+
+#include <cstdio>
 
 using namespace std;
 using namespace Cantera;
