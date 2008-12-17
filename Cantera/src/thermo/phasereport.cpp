@@ -19,7 +19,7 @@
 
 #include "ThermoPhase.h"
 #include "PureFluidPhase.h"
-#include <stdio.h>
+#include <cstdio>
 #include "mix_defs.h"
 
 using namespace std;

@@ -29,7 +29,8 @@
 #include "ThermoFactory.h"
 #include "WaterProps.h"
 #include "PDSS_Water.h"
-#include <math.h>
+#include <cmath>
+#include <cstdlib>
 
 namespace Cantera {
 
@@ -389,7 +390,7 @@ namespace Cantera {
   {
     if (testProb != 1) {
       printf("unknown test problem\n");
-      std::exit(-1);
+      exit(EXIT_FAILURE);
     }
 
     constructPhaseFile("HMW_NaCl.xml", "");
@@ -1324,7 +1325,7 @@ namespace Cantera {
       break;
     default:
       printf("shouldn't be here\n");
-      std::exit(-1);
+      exit(EXIT_FAILURE);
     }
     return A;
   }
@@ -1359,7 +1360,7 @@ namespace Cantera {
       break;
     default:
       printf("shouldn't be here\n");
-      std::exit(-1);
+      exit(EXIT_FAILURE);
     }
     return dAdT;
   }
@@ -1393,7 +1394,7 @@ namespace Cantera {
       break;
     default:
       printf("shouldn't be here\n");
-      std::exit(-1);
+      exit(EXIT_FAILURE);
     }
     return dAdP;
   }
@@ -1500,7 +1501,7 @@ namespace Cantera {
       break;
     default:
       printf("shouldn't be here\n");
-      std::exit(-1);
+      exit(EXIT_FAILURE);
     }
     return d2AdT2;
   }
@@ -2175,7 +2176,7 @@ namespace Cantera {
      */
     if (m_indexSolvent != 0) {
       printf("Wrong index solvent value!\n");
-      std::exit(-1);
+      exit(EXIT_FAILURE);
     }
 
 #ifdef DEBUG_MODE
@@ -2979,7 +2980,7 @@ namespace Cantera {
 	  if (j == (m_kk-1)) {
 	    // we should never reach this step
 	    printf("logic error 1 in Step 9 of hmw_act");
-	    std::exit(1);
+	    exit(EXIT_FAILURE);
 	  }
 	  if (charge[k] > 0.0) {
 	    /*
@@ -3009,7 +3010,7 @@ namespace Cantera {
 	  if (j == m_kk-1) {
 	    // we should never reach this step
 	    printf("logic error 2 in Step 9 of hmw_act");
-	    std::exit(1);
+	    exit(EXIT_FAILURE);
 	  }
 	  if (charge[k] < 0) {
 	    /*
@@ -3149,7 +3150,7 @@ namespace Cantera {
 #endif
     if (m_indexSolvent != 0) {
       printf("Wrong index solvent value!\n");
-      std::exit(-1);
+      exit(EXIT_FAILURE);
     }
 
     double d_wateract_dT;
@@ -3787,7 +3788,7 @@ namespace Cantera {
 	  if (j == (m_kk-1)) {
 	    // we should never reach this step
 	    printf("logic error 1 in Step 9 of hmw_act");
-	    std::exit(1);
+	    exit(EXIT_FAILURE);
 	  }
 	  if (charge[k] > 0.0) {
 	    /*
@@ -3817,7 +3818,7 @@ namespace Cantera {
 	  if (j == m_kk-1) {
 	    // we should never reach this step
 	    printf("logic error 2 in Step 9 of hmw_act");
-	    std::exit(1);
+	    exit(EXIT_FAILURE);
 	  }
 	  if (charge[k] < 0) {
 	    /*
@@ -3938,7 +3939,7 @@ namespace Cantera {
 #endif
     if (m_indexSolvent != 0) {
       printf("Wrong index solvent value!\n");
-      std::exit(-1);
+      exit(EXIT_FAILURE);
     }
 
     std::string sni, snj, snk; 
@@ -4583,7 +4584,7 @@ namespace Cantera {
 	  if (j == (m_kk-1)) {
 	    // we should never reach this step
 	    printf("logic error 1 in Step 9 of hmw_act");
-	    std::exit(1);
+	    exit(EXIT_FAILURE);
 	  }
 	  if (charge[k] > 0.0) {
 	    /*
@@ -4613,7 +4614,7 @@ namespace Cantera {
 	  if (j == m_kk-1) {
 	    // we should never reach this step
 	    printf("logic error 2 in Step 9 of hmw_act");
-	    std::exit(1);
+	    exit(EXIT_FAILURE);
 	  }
 	  if (charge[k] < 0) {
 	    /*
@@ -4754,7 +4755,7 @@ namespace Cantera {
 #endif
     if (m_indexSolvent != 0) {
       printf("Wrong index solvent value!\n");
-      std::exit(-1);
+      exit(EXIT_FAILURE);
     }
 
     double d_wateract_dP;
@@ -5397,7 +5398,7 @@ namespace Cantera {
 	  if (j == (m_kk-1)) {
 	    // we should never reach this step
 	    printf("logic error 1 in Step 9 of hmw_act");
-	    std::exit(1);
+	    exit(EXIT_FAILURE);
 	  }
 	  if (charge[k] > 0.0) {
 	    /*
@@ -5428,7 +5429,7 @@ namespace Cantera {
 	  if (j == m_kk-1) {
 	    // we should never reach this step
 	    printf("logic error 2 in Step 9 of hmw_act");
-	    std::exit(1);
+	    exit(EXIT_FAILURE);
 	  }
 	  if (charge[k] < 0) {
 	    /*
@@ -5614,13 +5615,13 @@ namespace Cantera {
 #ifdef DEBUG_MODE
     if (i > 4 || j > 4) {
       printf("we shouldn't be here\n");
-      std::exit(-1);
+      exit(EXIT_FAILURE);
     }
 #endif
 
     if ((i == 0) || (j == 0)) {
       printf("ERROR calc_thetas called with one species being neutral\n");
-      std::exit(-1);
+      exit(EXIT_FAILURE);
     }
 
     /*

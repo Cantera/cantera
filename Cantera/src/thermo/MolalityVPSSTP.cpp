@@ -41,6 +41,8 @@ namespace Cantera {
   MolalityVPSSTP::MolalityVPSSTP() :
     VPStandardStateTP(),
     m_indexSolvent(0),
+    m_pHScalingType(PHSCALE_PITZER),
+    m_indexCLM(-1),
     m_weightSolvent(18.01528),
     m_xmolSolventMIN(0.01),
     m_Mnaught(18.01528E-3)
@@ -62,6 +64,8 @@ namespace Cantera {
   MolalityVPSSTP::MolalityVPSSTP(const MolalityVPSSTP &b) :
     VPStandardStateTP(),
     m_indexSolvent(b.m_indexSolvent),
+    m_pHScalingType(b.m_pHScalingType),
+    m_indexCLM(b.m_indexCLM),
     m_xmolSolventMIN(b.m_xmolSolventMIN),
     m_Mnaught(b.m_Mnaught),
     m_molalities(b.m_molalities)
@@ -80,6 +84,8 @@ namespace Cantera {
     if (&b != this) {
       VPStandardStateTP::operator=(b);
       m_indexSolvent     = b.m_indexSolvent;
+      m_pHScalingType    = b.m_pHScalingType;
+      m_indexCLM         = b.m_indexCLM;
       m_weightSolvent    = b.m_weightSolvent;
       m_xmolSolventMIN   = b.m_xmolSolventMIN;
       m_Mnaught          = b.m_Mnaught;
@@ -391,6 +397,24 @@ namespace Cantera {
     return cAC_CONVENTION_MOLALITY;
   }
 
+  void MolalityVPSSTP::getActivityConcentrations(doublereal* c) const {
+      err("getActivityConcentrations");
+  }
+
+  doublereal MolalityVPSSTP::standardConcentration(int k) const {
+    err("standardConcentration");
+    return -1.0;
+  }
+
+  doublereal MolalityVPSSTP::logStandardConc(int k) const {
+    err("logStandardConc");
+    return -1.0;
+  }
+
+  void MolalityVPSSTP::getActivities(doublereal* ac) const {
+    err("getActivities");
+  }
+
   /*
    * Get the array of non-dimensional activity coefficients at
    * the current solution temperature, pressure, and
@@ -416,7 +440,12 @@ namespace Cantera {
       }
     }
   }
-    
+
+
+  void MolalityVPSSTP::getMolalityActivityCoefficients(doublereal *acMolality) const {
+    err("getMolalityActivityCoefficients");
+  }
+
   /*
    * osmotic coefficient:
    * 
@@ -452,6 +481,15 @@ namespace Cantera {
     return oc;
   }
 
+
+  void MolalityVPSSTP::getElectrochemPotentials(doublereal* mu) const {
+    getChemPotentials(mu);
+    double ve = Faraday * electricPotential();
+    for (int k = 0; k < m_kk; k++) {
+      mu[k] += ve*charge(k);
+    }
+  }
+  
   /*
    * ------------ Partial Molar Properties of the Solution ------------
    */
@@ -495,7 +533,12 @@ namespace Cantera {
       if (i == 5) uA[5] = 0.0;
     }
   }
-    
+
+  void MolalityVPSSTP::setToEquilState(const doublereal* lambda_RT) {
+    updateStandardStateThermo();
+    err("setToEquilState");
+  }
+
   /*
    * Set the thermodynamic state.
    */
@@ -561,6 +604,77 @@ namespace Cantera {
     setSolvent(0);
   }
 
+  // Returns the index of the Cl- species.
+  /*
+   *  The Cl- species is special in the sense that it's single ion
+   *  molalality-based activity coefficient is used in the specification
+   *  of the pH scale for single ions. Therefore, we need to know
+   *  what species index is Cl-. If the species isn't in the species
+   *  list then this routine returns -1, and we can't use the NBS
+   *  pH scale. 
+   *   
+   *  Right now we use a restrictive interpretation. The species
+   *  must be named "Cl-". It must consist of exactly one Cl and one E 
+   *  atom. 
+   */
+  int MolalityVPSSTP::findCLMIndex() const {
+    int indexCLM = -1;
+    int eCl = -1;
+    int eE = -1;
+    int ne= nElements();
+    string sn;
+    for (int e = 0; e < ne; e++) {
+      sn = elementName(e);
+      if (sn == "Cl" || sn == "CL") {
+	eCl = e;
+	break;
+      }
+    }
+    // We have failed if we can't find the Cl element index
+    if (eCl == -1) {
+      return -1;
+    }
+    for (int e = 0; e < ne; e++) {
+      sn = elementName(e);
+      if (sn == "E" || sn == "e") {
+	eE = e;
+	break;
+      }
+    }
+    // We have failed if we can't find the E element index
+    if (eE == -1) {
+      return -1;
+    }
+    for (int k = 1; k < m_kk; k++) {
+      doublereal nCl = nAtoms(k, eCl);
+      if (nCl != 1.0) {
+	continue;
+      }
+      doublereal nE = nAtoms(k, eE);
+      if (nE != -1.0) {
+	continue;
+      }
+      for (int e = 0; e < ne; e++) {
+	if (e != eE && e != eCl) {
+	  doublereal nA = nAtoms(k, e);
+	  if (nA != 0.0) {
+	    continue;
+	  }
+	}
+      }
+      sn = speciesName(k);
+      if (sn != "Cl-" && sn != "CL-") {
+	continue;
+      }
+
+      indexCLM = k;
+      break;
+    }
+    return indexCLM;
+  }
+
+  //   Initialize lengths of local variables after all species have
+  //   been identified.
   void  MolalityVPSSTP::initLengths() {
     m_kk = nSpecies();
     m_molalities.resize(m_kk);

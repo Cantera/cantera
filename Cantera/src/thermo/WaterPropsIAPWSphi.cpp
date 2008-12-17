@@ -14,8 +14,8 @@
 
 #include "WaterPropsIAPWSphi.h"
 
-#include <math.h>
-#include <stdio.h>
+#include <cmath>
+#include <cstdio>
 
 /*
  * Critical Point values in mks units: Note, these aren't used in this 

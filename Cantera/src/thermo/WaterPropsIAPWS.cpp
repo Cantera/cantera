@@ -16,9 +16,9 @@
 #include "WaterPropsIAPWS.h"
 #include "ctexceptions.h"
 #include "stringUtils.h"
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
 /*
  * Critical Point values of water in mks units
  */

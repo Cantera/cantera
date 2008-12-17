@@ -26,6 +26,7 @@
 #include "WaterProps.h"
 #include "PDSS_Water.h"
 #include <cstring>
+#include <cstdlib>
 
 using namespace std;
 
@@ -997,11 +998,11 @@ namespace Cantera {
 	if (formString == "unity") {
 	  m_formGC = 0;
 	  printf("exit standardConc = unity not done\n");
-	  exit(-1);
+	  exit(EXIT_FAILURE);
 	} else if (formString == "molar_volume") {
 	  m_formGC = 1;
 	  printf("exit standardConc = molar_volume not done\n");
-	  exit(-1);
+	  exit(EXIT_FAILURE);
 	} else if (formString == "solvent_volume") {
 	  m_formGC = 2;
 	} else {
@@ -1113,11 +1114,11 @@ namespace Cantera {
 	if (formString == "unity") {
 	  m_formGC = 0;
 	  printf("exit standardConc = unity not done\n");
-	  exit(-1);
+	  exit(EXIT_FAILURE);
 	} else if (formString == "molar_volume") {
 	  m_formGC = 1;
 	  printf("exit standardConc = molar_volume not done\n");
-	  exit(-1);
+	  exit(EXIT_FAILURE);
 	} else if (formString == "solvent_volume") {
 	  m_formGC = 2;
 	} else {
@@ -1682,7 +1683,7 @@ namespace Cantera {
       break;
     default:
       printf("shouldn't be here\n");
-      exit(-1);
+      exit(EXIT_FAILURE);
     }
     return A;
   }
@@ -1716,7 +1717,7 @@ namespace Cantera {
       break;
     default:
       printf("shouldn't be here\n");
-      exit(-1);
+      exit(EXIT_FAILURE);
     }
     return dAdT;
   }
@@ -1750,7 +1751,7 @@ namespace Cantera {
       break;
     default:
       printf("shouldn't be here\n");
-      exit(-1);
+      exit(EXIT_FAILURE);
     }
     return d2AdT2;
   }
@@ -1784,7 +1785,7 @@ namespace Cantera {
       break;
     default:
       printf("shouldn't be here\n");
-      exit(-1);
+      exit(EXIT_FAILURE);
     }
     return dAdP;
   }
@@ -2176,7 +2177,7 @@ namespace Cantera {
 
     default:
       printf("ERROR\n");
-      exit(-1);
+      exit(EXIT_FAILURE);
     }
     /*
      * Above, we calculated the ln(activitySolvent). Translate that
@@ -2321,7 +2322,7 @@ namespace Cantera {
 
     default:
       printf("ERROR\n");
-      exit(-1);
+      exit(EXIT_FAILURE);
       break;
     }
 
@@ -2458,7 +2459,7 @@ namespace Cantera {
 
     default:
       printf("ERROR\n");
-      exit(-1);
+      exit(EXIT_FAILURE);
       break;
     }
   }
@@ -2596,7 +2597,7 @@ namespace Cantera {
 
     default:
       printf("ERROR\n");
-      exit(-1);
+      exit(EXIT_FAILURE);
       break;
     }
   }

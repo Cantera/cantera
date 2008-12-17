@@ -21,9 +21,9 @@
 #include "WaterProps.h"
 #include "PDSS_Water.h"
 #include <cstring>
+#include <cstdlib>
 
 using namespace std;
-
 
 namespace Cantera {
 
@@ -1011,11 +1011,11 @@ namespace Cantera {
 	if (formString == "unity") {
 	  m_formGC = 0;
 	  printf("exit standardConc = unity not done\n");
-	  exit(-1);
+	  exit(EXIT_FAILURE);
 	} else if (formString == "molar_volume") {
 	  m_formGC = 1;
 	  printf("exit standardConc = molar_volume not done\n");
-	  exit(-1);
+	  exit(EXIT_FAILURE);
 	} else if (formString == "solvent_volume") {
 	  m_formGC = 2;
 	} else {

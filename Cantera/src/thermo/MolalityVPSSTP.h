@@ -138,8 +138,8 @@ namespace Cantera {
    *  return the molality-based quantities. Also all functions which return 
    *  activities return the molality-based activities. The reason for this convention
    *  has been discussed in supporting memos. However, it's important because the
-   *  term in the equation above is non-trivial. For example it's equal to 2.38 kcal gmol<SUP>-1</SUP>
-   *  for water at 298 K. 
+   *  term in the equation above is non-trivial. For example it's equal
+   *  to 2.38 kcal gmol<SUP>-1</SUP> for water at 298 K. 
    *
    *
    * In order to prevent a singularity, this class includes the concept of a minimum
@@ -221,6 +221,14 @@ namespace Cantera {
      */
     virtual int eosType() const { return 0; }
 
+
+    //! Set the pH scale, which determines the scale for single-ion activity 
+    //! coefficients.
+    /*!
+     *  Single ion activity coefficients are not unique in terms of the
+     *  representing actual measureable quantities. 
+     */
+    void setpHScale(const int pHscaleType);
 
     /**
      * @} 
@@ -417,9 +425,7 @@ namespace Cantera {
      *           units depend upon the implementation of the
      *           reaction rate expressions within the phase.
      */
-    virtual void getActivityConcentrations(doublereal* c) const {
-      err("getActivityConcentrations");
-    }
+    virtual void getActivityConcentrations(doublereal* c) const;
 
     /**
      * The standard concentration \f$ C^0_k \f$ used to normalize
@@ -434,10 +440,7 @@ namespace Cantera {
      *
      * @param k species index. Defaults to zero.
      */
-    virtual doublereal standardConcentration(int k=0) const {
-      err("standardConcentration");
-      return -1.0;
-    }
+    virtual doublereal standardConcentration(int k=0) const;
 
     /**
      * Returns the natural logarithm of the standard 
@@ -445,10 +448,7 @@ namespace Cantera {
      *
      * @param k  species index
      */
-    virtual doublereal logStandardConc(int k=0) const {
-      err("logStandardConc");
-      return -1.0;
-    }
+    virtual doublereal logStandardConc(int k=0) const;
 
     /**
      * Returns the units of the standard and generalized
@@ -492,9 +492,7 @@ namespace Cantera {
      *
      * @param ac     Output vector of molality-based activities. Length: m_kk.
      */
-    virtual void getActivities(doublereal* ac) const {
-      err("getActivities");
-    }
+    virtual void getActivities(doublereal* ac) const;
 
     //! Get the array of non-dimensional activity coefficients at
     //! the current solution temperature, pressure, and solution concentration.
@@ -540,9 +538,7 @@ namespace Cantera {
      * @param acMolality Output vector containing the molality based activity coefficients.
      *                   length: m_kk.
      */
-    virtual void getMolalityActivityCoefficients(doublereal *acMolality) const {
-      err("getMolalityActivityCoefficients");
-    }
+    virtual void getMolalityActivityCoefficients(doublereal *acMolality) const;
    
     //! Calculate the osmotic coefficient
     /*!
@@ -576,13 +572,7 @@ namespace Cantera {
      * @param mu     output vector containing the species electrochemical potentials.
      *               Length: m_kk.
      */
-    void getElectrochemPotentials(doublereal* mu) const {
-      getChemPotentials(mu);
-      double ve = Faraday * electricPotential();
-      for (int k = 0; k < m_kk; k++) {
-	mu[k] += ve*charge(k);
-      }
-    }
+    void getElectrochemPotentials(doublereal* mu) const;
 
  
     //@}
@@ -640,10 +630,7 @@ namespace Cantera {
      * @param lambda_RT Input vector containing the dimensionless 
      *                  element potentials.
      */
-    virtual void setToEquilState(const doublereal* lambda_RT) {
-      updateStandardStateThermo();
-      err("setToEquilState");
-    }
+    virtual void setToEquilState(const doublereal* lambda_RT);
 
 
     //@}
@@ -753,6 +740,23 @@ namespace Cantera {
     virtual std::string report(bool show_thermo = true) const;
 
   private:
+    //! Returns the index of the Cl- species.
+    /*!
+     *  The Cl- species is special in the sense that it's single ion
+     *  molalality-based activity coefficient is used in the specification
+     *  of the pH scale for single ions. Therefore, we need to know
+     *  what species index is Cl-. If the species isn't in the species
+     *  list then this routine returns -1, and we can't use the NBS
+     *  pH scale. 
+     *    
+     *  Right now we use a restrictive interpretation. The species
+     *  must be named "Cl-". It must consist of exactly one Cl and one E 
+     *  atom. 
+     */
+    virtual int findCLMIndex() const;
+
+    //! Initialize lengths of local variables after all species have
+    //! been identified.
     void initLengths();
             
   protected:
@@ -762,6 +766,24 @@ namespace Cantera {
      * Currently the index of the solvent is hard-coded to the value 0
      */
     int        m_indexSolvent;
+
+    //! Scaling to be used for output of single-ion species activity
+    //! coefficients.
+    /*!
+     *   Index of the species to be used in the single-ion scaling
+     *   law. This is the indentity of the Cl- species for the PHSCALE_NBS
+     *   scaling.
+     *   Either PHSCALE_PITZER or PHSCALE_NBS
+     */
+    int        m_pHScalingType;
+
+    //! Index of the phScale species
+    /*!
+     *   Index of the species to be used in the single-ion scaling
+     *   law. This is the indentity of the Cl- species for the PHSCALE_NBS
+     *   scaling
+     */
+    int        m_indexCLM;
 
     //! Molecular weight of the Solvent
     doublereal m_weightSolvent;
@@ -790,10 +812,67 @@ namespace Cantera {
      * units are (kg/kmol)
      */
     mutable vector_fp  m_molalities;
+
   private:
+    //! Error function
+    /*!
+     *  Print an error string and exit
+     *
+     * @param msg  Message to be printed
+     */
     doublereal err(std::string msg) const;
 
   };
+
+
+
+  //! Scale to be used for the output of single-ion activity coefficients
+  //! is that used by Pitzer.
+  /*!
+   *  This is the internal scale used within the code. One property is that
+   *  the activity coefficients for the cation and anion of a single salt
+   *  will be equal. This scale is the one presumed by the formulation of the
+   *  single-ion activity coefficients described in this report.
+   *
+   *  Activity coefficients for species k may be altered between scales s1 to s2
+   *  using the following formula
+   *
+   *   \f[
+   *       ln(\gamma_k^{s2}) = ln(\gamma_k^{s1}) 
+   *          + \frac{z_k}{z_j} \left(  ln(\gamma_j^{s2}) - ln(\gamma_j^{s1}) \right)
+   *   \f]
+   *
+   *  where j is any one species.
+   *
+   *
+   */
+  const int PHSCALE_PITZER = 0;
+
+  //! Scale to be used for evaluation of single-ion activity coefficients
+  //! is that used by the NBS standard for evaluation of the pH variable.
+  /*!
+   *  This is not the internal scale used within the code.
+   *
+   *  Activity coefficients for species k may be altered between scales s1 to s2
+   *  using the following formula
+   *
+   *   \f[
+   *       ln(\gamma_k^{s2}) = ln(\gamma_k^{s1}) 
+   *          + \frac{z_k}{z_j} \left(  ln(\gamma_j^{s2}) - ln(\gamma_j^{s1}) \right)
+   *   \f]
+   *
+   *  where j is any one species. For the NBS scale, j is equal to the Cl- species
+   *  and 
+   *
+   *  \f[
+   *       ln(\gamma_{Cl-}^{s2}) = \frac{-A_{\phi} \sqrt{I}}{1.0 + 1.5 \sqrt{I}}
+   *  \f]
+   *
+   *  This is the NBS pH scale, which is used in all conventional pH 
+   *  measurements. and is based on the Bates-Guggenheim quations.
+   *
+   */
+  const int PHSCALE_NBS    = 1;
 
 }
         
