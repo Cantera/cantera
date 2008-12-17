@@ -105,15 +105,57 @@ a2 = 3.04284e-10
  F =  -1.259847 
  F =  -1.259847 
  F =  -1.259847 
- Step 8: 
- Cl-              lngamma[i]= -0.000641 gamma[i]=  0.999359
-                       -1.25985      1.23558 -1.90923e-07 -5.27697e-11     0.023626            0
- H+               lngamma[i]=  1.531269 gamma[i]=  4.624042 
-                       -1.25985      2.47714     0.290353            0     0.023626            0
- Na+              lngamma[i]= -0.000641 gamma[i]=  0.999359 
-                       -1.25985      1.23558  1.02952e-10 -5.11533e-08     0.023626            0
- OH-              lngamma[i]= -0.609449 gamma[i]=  0.543650
-                       -1.25985      1.45998    -0.833208            0     0.023626            0
+ Step 8: Summing in All Contributions to Activity Coefficients 
+  Contributions to ln(ActCoeff_Cl-):
+      Unary term:                                      z*z*F =   -1.25985
+      Tern CMX term on Cl-,H+:          abs(z_i) m_j m_k CMX =    0.00000
+      Tern CMX term on Cl-,Na+:         abs(z_i) m_j m_k CMX =    0.02363
+      Bin term with H+:                            2 m_j BMX =    0.00000
+                                                   m_j Z CMX =    0.00000
+      Psi term on H+,Na+:                    m_j m_k psi_ijk =   -0.00000
+      Bin term with Na+:                           2 m_j BMX =    1.18833
+                                                   m_j Z CMX =    0.04725
+      Phi term with OH-:                        2 m_j Phi_aa =   -0.00000
+      Psi term on OH-,Na+:                   m_j m_k psi_ijk =   -0.00000
+      Tern CMX term on OH-,Na+:         abs(z_i) m_j m_k CMX =    0.00000
+      Net Cl-                                     lngamma[i] =   -0.00064             gamma[i]=  0.999359
+  Contributions to ln(ActCoeff_H+):
+      Unary term:                                      z*z*F =   -1.25985
+      Bin term with Cl-:                           2 m_j BMX =    2.44737
+                                                   m_j Z CMX =    0.02977
+      Tern CMX term on H+,Cl-:          abs(z_i) m_j m_k CMX =    0.00000
+      Phi term with Na+:                        2 m_j Phi_cc =    0.43918
+      Psi term on Na+,Cl-:                   m_j m_k psi_ijk =   -0.14883
+      Tern CMX term on Na+,Cl-:         abs(z_i) m_j m_k CMX =    0.02363
+      Tern CMX term on Na+,OH-:         abs(z_i) m_j m_k CMX =    0.00000
+      Bin term with OH-:                           2 m_j BMX =    0.00000
+                                                   m_j Z CMX =    0.00000
+      Net H+                                      lngamma[i] =    1.53127         gamma[i]=  4.624042 
+  Contributions to ln(ActCoeff_Na+):
+      Unary term:                                      z*z*F =   -1.25985
+      Bin term with Cl-:                           2 m_j BMX =    1.18833
+                                                   m_j Z CMX =    0.04725
+      Psi term on Cl-,OH-:                   m_j m_k psi_ijk =   -0.00000
+      Phi term with H+:                         2 m_j Phi_cc =    0.00000
+      Psi term on H+,Cl-:                    m_j m_k psi_ijk =   -0.00000
+      Tern CMX term on H+,Cl-:          abs(z_i) m_j m_k CMX =    0.00000
+      Tern CMX term on Na+,Cl-:         abs(z_i) m_j m_k CMX =    0.02363
+      Tern CMX term on Na+,OH-:         abs(z_i) m_j m_k CMX =    0.00000
+      Bin term with OH-:                           2 m_j BMX =    0.00000
+                                                   m_j Z CMX =    0.00000
+      Net Na+                                     lngamma[i] =   -0.00064         gamma[i]=  0.999359 
+  Contributions to ln(ActCoeff_OH-):
+      Unary term:                                      z*z*F =   -1.25985
+      Phi term with Cl-:                        2 m_j Phi_aa =   -0.60997
+      Tern CMX term on Cl-,H+:          abs(z_i) m_j m_k CMX =    0.00000
+      Psi term on Cl-,Na+:                   m_j m_k psi_ijk =   -0.22324
+      Tern CMX term on Cl-,Na+:         abs(z_i) m_j m_k CMX =    0.02363
+      Bin term with H+:                            2 m_j BMX =    0.00000
+                                                   m_j Z CMX =    0.00000
+      Bin term with Na+:                           2 m_j BMX =    1.29627
+                                                   m_j Z CMX =    0.16371
+      Tern CMX term on OH-,Na+:         abs(z_i) m_j m_k CMX =    0.00000
+      Net OH-                                     lngamma[i] =   -0.60945             gamma[i]=  0.543650
  Step 9: 
  term1= -1.489777 sum1=  3.205458 sum2=  0.000000 sum3= -0.000001 sum4=  0.000000 sum5=  0.000000
      sum_m_phi_minus_1=  3.431360        osmotic_coef=  1.281273
@@ -199,15 +241,57 @@ a2 = 3.04284e-10
  F =  -1.259847 
  F =  -1.259847 
  F =  -1.259847 
- Step 8: 
- Cl-              lngamma[i]= -0.000641 gamma[i]=  0.999359
-                       -1.25985      1.23558 -1.90923e-07 -5.27697e-11     0.023626            0
- H+               lngamma[i]=  1.531269 gamma[i]=  4.624042 
-                       -1.25985      2.47714     0.290353            0     0.023626            0
- Na+              lngamma[i]= -0.000641 gamma[i]=  0.999359 
-                       -1.25985      1.23558  1.02952e-10 -5.11533e-08     0.023626            0
- OH-              lngamma[i]= -0.609449 gamma[i]=  0.543650
-                       -1.25985      1.45998    -0.833208            0     0.023626            0
+ Step 8: Summing in All Contributions to Activity Coefficients 
+  Contributions to ln(ActCoeff_Cl-):
+      Unary term:                                      z*z*F =   -1.25985
+      Tern CMX term on Cl-,H+:          abs(z_i) m_j m_k CMX =    0.00000
+      Tern CMX term on Cl-,Na+:         abs(z_i) m_j m_k CMX =    0.02363
+      Bin term with H+:                            2 m_j BMX =    0.00000
+                                                   m_j Z CMX =    0.00000
+      Psi term on H+,Na+:                    m_j m_k psi_ijk =   -0.00000
+      Bin term with Na+:                           2 m_j BMX =    1.18833
+                                                   m_j Z CMX =    0.04725
+      Phi term with OH-:                        2 m_j Phi_aa =   -0.00000
+      Psi term on OH-,Na+:                   m_j m_k psi_ijk =   -0.00000
+      Tern CMX term on OH-,Na+:         abs(z_i) m_j m_k CMX =    0.00000
+      Net Cl-                                     lngamma[i] =   -0.00064             gamma[i]=  0.999359
+  Contributions to ln(ActCoeff_H+):
+      Unary term:                                      z*z*F =   -1.25985
+      Bin term with Cl-:                           2 m_j BMX =    2.44737
+                                                   m_j Z CMX =    0.02977
+      Tern CMX term on H+,Cl-:          abs(z_i) m_j m_k CMX =    0.00000
+      Phi term with Na+:                        2 m_j Phi_cc =    0.43918
+      Psi term on Na+,Cl-:                   m_j m_k psi_ijk =   -0.14883
+      Tern CMX term on Na+,Cl-:         abs(z_i) m_j m_k CMX =    0.02363
+      Tern CMX term on Na+,OH-:         abs(z_i) m_j m_k CMX =    0.00000
+      Bin term with OH-:                           2 m_j BMX =    0.00000
+                                                   m_j Z CMX =    0.00000
+      Net H+                                      lngamma[i] =    1.53127         gamma[i]=  4.624042 
+  Contributions to ln(ActCoeff_Na+):
+      Unary term:                                      z*z*F =   -1.25985
+      Bin term with Cl-:                           2 m_j BMX =    1.18833
+                                                   m_j Z CMX =    0.04725
+      Psi term on Cl-,OH-:                   m_j m_k psi_ijk =   -0.00000
+      Phi term with H+:                         2 m_j Phi_cc =    0.00000
+      Psi term on H+,Cl-:                    m_j m_k psi_ijk =   -0.00000
+      Tern CMX term on H+,Cl-:          abs(z_i) m_j m_k CMX =    0.00000
+      Tern CMX term on Na+,Cl-:         abs(z_i) m_j m_k CMX =    0.02363
+      Tern CMX term on Na+,OH-:         abs(z_i) m_j m_k CMX =    0.00000
+      Bin term with OH-:                           2 m_j BMX =    0.00000
+                                                   m_j Z CMX =    0.00000
+      Net Na+                                     lngamma[i] =   -0.00064         gamma[i]=  0.999359 
+  Contributions to ln(ActCoeff_OH-):
+      Unary term:                                      z*z*F =   -1.25985
+      Phi term with Cl-:                        2 m_j Phi_aa =   -0.60997
+      Tern CMX term on Cl-,H+:          abs(z_i) m_j m_k CMX =    0.00000
+      Psi term on Cl-,Na+:                   m_j m_k psi_ijk =   -0.22324
+      Tern CMX term on Cl-,Na+:         abs(z_i) m_j m_k CMX =    0.02363
+      Bin term with H+:                            2 m_j BMX =    0.00000
+                                                   m_j Z CMX =    0.00000
+      Bin term with Na+:                           2 m_j BMX =    1.29627
+                                                   m_j Z CMX =    0.16371
+      Tern CMX term on OH-,Na+:         abs(z_i) m_j m_k CMX =    0.00000
+      Net OH-                                     lngamma[i] =   -0.60945             gamma[i]=  0.543650
  Step 9: 
  term1= -1.489777 sum1=  3.205458 sum2=  0.000000 sum3= -0.000001 sum4=  0.000000 sum5=  0.000000
      sum_m_phi_minus_1=  3.431360        osmotic_coef=  1.281273
