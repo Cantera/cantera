@@ -16,7 +16,8 @@
 #include "PDSS_Water.h"
 #include "WaterPropsIAPWS.h"
 #include "ThermoFactory.h"
-#include <math.h>
+
+#include <cmath>
 
 
 #include "VPStandardStateTP.h"

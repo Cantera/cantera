@@ -15,7 +15,8 @@
 
 
 #include "ConstCpPoly.h"
-#include <math.h>
+
+#include <cmath>
 
 namespace Cantera {
 

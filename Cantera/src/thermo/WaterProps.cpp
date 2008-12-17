@@ -20,7 +20,8 @@
 #include "ctml.h"
 #include "PDSS_Water.h"
 #include "WaterPropsIAPWS.h"
-#include <math.h>
+
+#include <cmath>
 
 namespace Cantera {
 

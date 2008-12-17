@@ -26,7 +26,7 @@
 
 #include "IdealMolalSoln.h"
 #include "ThermoFactory.h"
-#include <math.h>
+#include <cmath>
 
 #ifndef MAX
 #define MAX(x,y)    (( (x) > (y) ) ? (x) : (y))

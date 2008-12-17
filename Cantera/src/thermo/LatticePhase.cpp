@@ -24,7 +24,7 @@
 #include "LatticePhase.h"
 #include "SpeciesThermo.h"
 
-#include <math.h>
+#include <cmath>
 
 namespace Cantera {
 

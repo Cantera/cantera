@@ -26,13 +26,14 @@
 
 #include "polyfit.h"
 #include "MMCollisionInt.h"
-#include <stdio.h>
 #include "xml.h"
 #include "XML_Writer.h"
 #include "TransportParams.h"
 #include "global.h"
 #include "IdealGasPhase.h"
 #include "ctml.h"
+
+#include <cstdio>
 
 using namespace std;
 
