@@ -706,7 +706,7 @@ namespace VCSnonideal {
 	m_elType[i] = VCS_ELEM_TYPE_CHARGENEUTRALITY;
 	if (pub->m_elType[i] != VCS_ELEM_TYPE_CHARGENEUTRALITY) {
 	  plogf("we have an inconsistency!\n");
-	  exit(-1);
+	  exit(EXIT_FAILURE);
 	}
       }
     }
@@ -717,7 +717,7 @@ namespace VCSnonideal {
 	  if (fabs(m_elemAbundancesGoal[i]) > 1.0E-9) {
 	    plogf("Charge neutrality condition %s is signicantly nonzero, %g. Giving up\n",
 		  m_elementName[i].c_str(), m_elemAbundancesGoal[i]);
-	    std::exit(-1);
+	    exit(EXIT_FAILURE);
 	  } else {
 	    plogf("Charge neutrality condition %s not zero, %g. Setting it zero\n",
 		  m_elementName[i].c_str(), m_elemAbundancesGoal[i]);
@@ -999,14 +999,14 @@ namespace VCSnonideal {
 	  if (! vcs_doubleEqual( 	pubPhase->electricPotential() , tmp)) { 
 	    plogf("We have an inconsistency in voltage, %g, %g\n",
 		  pubPhase->electricPotential(), tmp);
-	    std::exit(-1);
+	    exit(EXIT_FAILURE);
 	  }
 	}
 
 	if (! vcs_doubleEqual( pub->mf[kT], vPhase->molefraction(k))) {
 	  plogf("We have an inconsistency in mole fraction, %g, %g\n",
 		pub->mf[kT], vPhase->molefraction(k));
-	  std::exit(-1);
+	  exit(EXIT_FAILURE);
 	}
 	if (pubPhase->speciesUnknownType(k) != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	  sumMoles +=  pub->w[kT];
@@ -1015,7 +1015,7 @@ namespace VCSnonideal {
       if (! vcs_doubleEqual(sumMoles, vPhase->totalMoles())) {
       	plogf("We have an inconsistency in total moles, %g %g\n",
 	      sumMoles, pubPhase->totalMoles());
-	std::exit(-1);
+	exit(EXIT_FAILURE);
       }
 
     }

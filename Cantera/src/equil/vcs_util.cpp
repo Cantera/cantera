@@ -16,6 +16,7 @@
 
 #include "vcs_internal.h" 
 #include <string.h>
+#include <cstdlib>
 
 using namespace std;
 
@@ -389,7 +390,7 @@ namespace VCSnonideal {
     default:
       plogf("vcs_gasConstant error: uknown units: %d\n", 
 	    mu_units);
-      exit(-1);
+      exit(EXIT_FAILURE);
     }
     return r;
   }

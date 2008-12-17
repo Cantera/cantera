@@ -49,7 +49,7 @@ namespace VCSnonideal {
     default:
       plogf("vcs_nondim_Farad error: unknown units: %d\n", mu_units);
       plogendl();
-      exit(-1);
+      exit(EXIT_FAILURE);
     }
     return Farad;
   }
@@ -85,7 +85,7 @@ namespace VCSnonideal {
     default:
       plogf("vcs_nondimMult_TP error: unknown units: %d\n", mu_units);
       plogendl();
-      std::exit(-1);
+      exit(EXIT_FAILURE);
     }
     return rt;
   }
@@ -278,7 +278,7 @@ namespace VCSnonideal {
       break;
     default:
       plogf("unknown units!");
-      exit(-1);
+      exit(EXIT_FAILURE);
     }
   }
 

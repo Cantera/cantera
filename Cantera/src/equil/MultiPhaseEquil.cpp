@@ -882,7 +882,7 @@ namespace Cantera {
     FILE * FP = fopen(reportFile.c_str(), "w");
     if (!FP) {
       printf("Failure to open file\n");
-      exit(-1);
+      exit(EXIT_FAILURE);
     }
     double Temp = m_mix->temperature();
     double pres = m_mix->pressure();
@@ -1018,7 +1018,7 @@ namespace Cantera {
         //  fprintf(FP,"ERROR: incompatibility!\n");
         //  fclose(FP);
         //  printf("ERROR: incompatibility!\n");
-        //  exit(-1);
+        //  exit(EXIT_FAILURE);
 	// }
       }
 #endif

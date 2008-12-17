@@ -20,11 +20,11 @@
 #endif
 
 #include <vector>
-using namespace std;
 
 #include "ChemEquil.h"
 #include "DenseMatrix.h"
 
+#include "ct_defs.h"
 #include "sort.h"
 #include "PropertyCalculator.h"
 #include "ctexceptions.h"
@@ -32,7 +32,10 @@ using namespace std;
 #include "stringUtils.h"
 #include "MultiPhase.h"
 
+using namespace std;
+
 #include <cstdio>
+#include <cstdlib>
 
 int Cantera::ChemEquil_print_lvl = 0;
 //static char sbuf[1024];
@@ -705,14 +708,14 @@ namespace Cantera {
 	t0 = t0 + dt;
 	if (t0 <= tminPhase || t0 >= tmaxPhase) {
 	  printf("We shouldn't be here\n");
-	  exit(-1);
+	  exit(EXIT_FAILURE);
 	}
 	if (loglevel > 0) {
 	  addLogEntry("new T estimate", t0);
 	}
 	if (t0 < 100.) {
 	  printf("t0 - we are here %g\n", t0);
-	  exit(-1);
+	  exit(EXIT_FAILURE);
 	}
 	s.setTemperature(t0);
       }

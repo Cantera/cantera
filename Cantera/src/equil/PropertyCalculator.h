@@ -12,6 +12,7 @@
 #define CT_PROP_CALC_H
 
 #include "ct_defs.h"
+#include <string>
 
 namespace Cantera {
 
@@ -24,7 +25,7 @@ namespace Cantera {
     public:
         virtual ~PropertyCalculator(){}
         virtual doublereal value(const M& s) =0;
-        virtual string symbol() =0;
+        virtual std::string symbol() =0;
     };
 
     template<class M>
@@ -33,7 +34,7 @@ namespace Cantera {
         virtual doublereal value(const M& s) {
             return s.enthalpy_mass();
         }
-        virtual string symbol() { return "H"; }
+        virtual std::string symbol() { return "H"; }
     };
 
     template<class M>
@@ -42,7 +43,7 @@ namespace Cantera {
         virtual doublereal value(const M& s) {
             return s.entropy_mass();
         }
-        virtual string symbol() { return "S"; }
+        virtual std::string symbol() { return "S"; }
     };
 
     template<class M>    
@@ -51,7 +52,7 @@ namespace Cantera {
         virtual doublereal value(const M& s) {
             return s.temperature();
         }
-        virtual string symbol() { return "T"; }
+        virtual std::string symbol() { return "T"; }
     };
 
     template<class M>    
@@ -60,7 +61,7 @@ namespace Cantera {
         virtual doublereal value(const M& s) {
             return s.pressure();
         }
-        virtual string symbol() { return "P"; }
+        virtual std::string symbol() { return "P"; }
     };
 
     template<class M>    
@@ -69,7 +70,7 @@ namespace Cantera {
         virtual doublereal value(const M& s) {
             return s.density();
         }
-        virtual string symbol() { return "V"; }
+        virtual std::string symbol() { return "V"; }
     };
 
     template<class M>    
@@ -78,7 +79,7 @@ namespace Cantera {
         virtual doublereal value(const M& s) {
             return s.intEnergy_mass();
         }
-        virtual string symbol() { return "U"; }
+        virtual std::string symbol() { return "U"; }
     };
 }
 

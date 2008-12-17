@@ -117,7 +117,7 @@ namespace VCSnonideal {
 	if (k == m_numElemConstraints) {
 	  plogf("vcs_elem_rearrange::Shouldn't be here. Algorithm misfired.");
 	  plogendl();
-	  exit(-1);
+	  exit(EXIT_FAILURE);
 	}
 	 
 	/*
@@ -228,7 +228,7 @@ namespace VCSnonideal {
       plogf("vcs_switch_elem_pos: ifunc = 0: inappropriate args: %d %d\n",
 	    ipos, jpos);
       plogendl();
-      exit(-1);
+      exit(EXIT_FAILURE);
     }
 #endif  
     /*

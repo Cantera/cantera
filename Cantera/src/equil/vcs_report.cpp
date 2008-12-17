@@ -151,7 +151,7 @@ namespace VCSnonideal {
 	plogf("   Voltage = %14.7E", m_molNumSpecies_old[l] * molScale);
       } else {
 	plogf("we have a problem\n");
-	std::exit(-1);
+	exit(EXIT_FAILURE);
       }
       plogf("\n");
     }
@@ -261,7 +261,7 @@ namespace VCSnonideal {
       if (m_tPhaseMoles_old[iphase] != VPhase->totalMoles()) {
 	if (! vcs_doubleEqual(m_tPhaseMoles_old[iphase], VPhase->totalMoles())) {
 	  plogf("We have a problem\n");
-	  exit(-1);
+	  exit(EXIT_FAILURE);
 	}
       }
       vcs_elabPhase(iphase, VCS_DATA_PTR(gaPhase));
@@ -352,7 +352,7 @@ namespace VCSnonideal {
 	+ lx - m_lnMnaughtSpecies[l] + eContrib;
       if (fabs(m_feSpecies_old[l] - tmp) > 1.0E-7) {
 	plogf("\n\t\twe have a problem - doesn't add up\n");
-	exit(-1);
+	exit(EXIT_FAILURE);
       } 
       plogf(" %12.4E |", m_feSpecies_old[l]);
       if( m_lnMnaughtSpecies[l] != 0.0) {

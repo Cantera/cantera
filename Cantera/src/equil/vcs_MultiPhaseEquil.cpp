@@ -740,7 +740,7 @@ namespace VCSnonideal {
     FILE * FP = fopen(reportFile.c_str(), "w");
     if (!FP) {
       plogf("Failure to open file\n");
-      exit(-1);
+      exit(EXIT_FAILURE);
     }
     double Temp = m_mix->temperature();
     double pres = m_mix->pressure();
@@ -878,7 +878,7 @@ namespace VCSnonideal {
 	  fprintf(FP,"ERROR: incompatibility!\n");
 	  fclose(FP);
 	  plogf("ERROR: incompatibility!\n");
-	  exit(-1);
+	  exit(EXIT_FAILURE);
 	}
       }
 #endif
@@ -1001,7 +1001,7 @@ namespace VCSnonideal {
 	break;
       case cSurf:
 	plogf("cSurf not handled yet\n");
-	exit(-1);
+	exit(EXIT_FAILURE);
       case cStoichSubstance:
 	VolPhase->m_eqnState = VCS_EOS_STOICH_SUB;
 	break;
@@ -1012,7 +1012,7 @@ namespace VCSnonideal {
 	break;
       case cEdge:
 	plogf("cEdge not handled yet\n");
-	exit(-1);
+	exit(EXIT_FAILURE);
       case cIdealSolidSolnPhase0:
       case cIdealSolidSolnPhase1:
       case cIdealSolidSolnPhase2:
@@ -1025,7 +1025,7 @@ namespace VCSnonideal {
 	VolPhase->m_eqnState = VCS_EOS_UNK_CANTERA;
 	if (!VolPhase->usingCanteraCalls()) {
 	  plogf("vcs functions asked for, but unimplemented\n");
-	  exit(-1);
+	  exit(EXIT_FAILURE);
 	}
 	break;
       }
@@ -1168,7 +1168,7 @@ namespace VCSnonideal {
 	  ts_ptr->SSStar_Model = VCS_SSSTAR_NOTHANDLED;
 	  if (!(ts_ptr->UseCanteraCalls )) {
 	    plogf("Cantera calls not being used -> exiting\n");
-	    exit(-1);
+	    exit(EXIT_FAILURE);
 	  }
 	}
 	    

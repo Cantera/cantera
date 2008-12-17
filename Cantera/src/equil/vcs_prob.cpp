@@ -22,6 +22,7 @@
 #include "ThermoPhase.h" 
 #include "MolalityVPSSTP.h" 
 
+#include <cstdlib>
 #include <string>
 using namespace std;
  
@@ -59,21 +60,21 @@ namespace VCSnonideal {
     NSPECIES0 = nspecies;
     if (nspecies <= 0) {
       plogf("number of species is zero or neg\n");
-      exit(-1);
+      exit(EXIT_FAILURE);
     }
     NE0       = ne;
     if (ne <= 0) {
       plogf("number of elements is zero or neg\n");
-      exit(-1);
+      exit(EXIT_FAILURE);
     }
     NPHASE0   = NPhase;
     if (NPhase <= 0) {
       plogf("number of phases is zero or neg\n");
-      exit(-1);
+      exit(EXIT_FAILURE);
     }
     if (nspecies < NPhase) {
       plogf("number of species is less than number of phases\n");
-      exit(-1);
+      exit(EXIT_FAILURE);
     }
 
     m_gibbsSpecies.resize(nspecies, 0.0);
@@ -95,7 +96,7 @@ namespace VCSnonideal {
       VCS_SPECIES_THERMO *ts_tmp = new VCS_SPECIES_THERMO(0, 0);
       if (ts_tmp == 0) {
 	plogf("Failed to init a ts struct\n");
-	exit(-1);
+	exit(EXIT_FAILURE);
       }
       SpeciesThermo[kspec] = ts_tmp;
     }
@@ -163,7 +164,7 @@ namespace VCSnonideal {
       if (nspecies > NSPECIES0) {
 	nspecies = NSPECIES0;
 	plogf("shouldn't be here\n");
-	exit(-1);
+	exit(EXIT_FAILURE);
       }
     }
   }
@@ -248,7 +249,7 @@ namespace VCSnonideal {
 	plogf("\t\tPres = %g atm\n", pres_atm);
       } else {
 	plogf("\tUnknown problem type\n");
-	exit(-1);
+	exit(EXIT_FAILURE);
       }
       plogf("\n");
       plogf("             Phase IDs of species\n");
@@ -409,7 +410,7 @@ namespace VCSnonideal {
   int VCS_PROB::addElement(const char *elNameNew, int elType, int elactive) {
     if (!elNameNew) {
       plogf("error: element must have a name\n");
-      exit(-1);
+      exit(EXIT_FAILURE);
     }
     int nel = ne + 1;
     resizeElements(nel, 1);
@@ -440,14 +441,14 @@ namespace VCSnonideal {
        * Need to expand the number of species here
        */
       plogf("Shouldn't be here\n");
-      exit(-1);
+      exit(EXIT_FAILURE);
     }
     double const *const *const fm = volPhase->getFormulaMatrix();
     for (eVP = 0; eVP < volPhase->nElemConstraints(); eVP++) {
       e = volPhase->elemGlobalIndex(eVP);
 #ifdef DEBUG_MODE
       if (e < 0) {
-	std::exit(-1);
+	exit(EXIT_FAILURE);
       }
 #endif
       FormulaMatrix[e][kT] = fm[eVP][k];
@@ -471,7 +472,7 @@ namespace VCSnonideal {
     FILE * FP = fopen(reportFile.c_str(), "w");
     if (!FP) {
       plogf("Failure to open file\n");
-      exit(-1);
+      exit(EXIT_FAILURE);
     }
     double Temp = T;
 
@@ -608,7 +609,7 @@ namespace VCSnonideal {
 	  fprintf(FP,"ERROR: incompatibility!\n");
 	  fclose(FP);
 	  plogf("ERROR: incompatibility!\n");
-	  exit(-1);
+	  exit(EXIT_FAILURE);
 	}
       }
 #endif
