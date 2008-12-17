@@ -23,13 +23,14 @@
 using namespace std;
 
 #include "MultiNewton.h"
-#include <stdio.h>
-#include <math.h>
 
 #include "ctexceptions.h"
 #include "vec_functions.h"
 #include "stringUtils.h"
-#include <time.h>
+
+#include <cstdio>
+#include <cmath>
+#include <ctime>
 
 using namespace std;
 

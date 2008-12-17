@@ -1,10 +1,11 @@
 /*
  * $Id$
  */
-#include "stdio.h"
-#include "math.h"
 #include "PureFluid.h"
 #include <new>
+#include <cstdio>
+#include <cmath>
+
 using namespace std;
 using namespace Cantera;
 

@@ -19,8 +19,6 @@
 #pragma warning(disable:4503)
 #endif
 
-//#include <vector>
-//#include <math.h>
 
 #include "MultiJac.h"
 using namespace std;

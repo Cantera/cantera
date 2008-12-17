@@ -11,10 +11,11 @@
 #include "Sim1D.h"
 #include "MultiJac.h"
 
+#include <cstdlib>
+
 using namespace std;
 
 namespace Cantera {
-
 
     static void sim1D_drawline() {
         string s(78,'.');
@@ -232,7 +233,7 @@ namespace Cantera {
             throw CanteraError("Sim1D::newtonSolve","no solution found");
         else {
             writelog(string("ERROR: solve returned m = ") + int2str(m) + "\n");
-            exit(-1);
+            exit(EXIT_FAILURE);
         }
     }
 
