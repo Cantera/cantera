@@ -602,6 +602,10 @@ namespace Cantera {
      * The solvent defaults to species 0
      */
     setSolvent(0);
+    /*
+     * Find the Cl- species
+     */
+    m_indexCLM = findCLMIndex();
   }
 
   // Returns the index of the Cl- species.
@@ -609,7 +613,7 @@ namespace Cantera {
    *  The Cl- species is special in the sense that it's single ion
    *  molalality-based activity coefficient is used in the specification
    *  of the pH scale for single ions. Therefore, we need to know
-   *  what species index is Cl-. If the species isn't in the species
+   *  what species index Cl- is. If the species isn't in the species
    *  list then this routine returns -1, and we can't use the NBS
    *  pH scale. 
    *   
@@ -651,7 +655,7 @@ namespace Cantera {
 	continue;
       }
       doublereal nE = nAtoms(k, eE);
-      if (nE != -1.0) {
+      if (nE != 1.0) {
 	continue;
       }
       for (int e = 0; e < ne; e++) {
