@@ -249,11 +249,11 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
     if (nspecies <= 0) {
       plogf("nspecies Error\n");
-      std::exit(-1);
+      exit(EXIT_FAILURE);
     }
     if (phaseNum < 0) {
       plogf("phaseNum should be greater than 0\n");
-      std::exit(-1);
+      exit(EXIT_FAILURE);
     }
 #endif
     setTotalMolesInert(molesInert);
@@ -264,7 +264,7 @@ namespace VCSnonideal {
       if (strcmp(PhaseName.c_str(), phaseName)) {
 	plogf("Strings are different: %s %s :unknown situation\n",
 	      PhaseName.c_str(), phaseName);
-	std::exit(-1);
+	exit(EXIT_FAILURE);
       }
     } else {
       VP_ID = phaseNum;
@@ -529,13 +529,13 @@ namespace VCSnonideal {
       // is set to a normal settting.
       if (vcsStateStatus != VCS_STATECALC_TMP) {
 	printf("vcs_VolPhase::setMolesFractionsState: inappropriate usage\n");
-	std::exit(-1);
+	exit(EXIT_FAILURE);
       }
       m_UpToDate = false;
       m_vcsStateStatus = VCS_STATECALC_TMP;
       if (m_existence == VCS_PHASE_EXIST_ZEROEDPHASE ) {
 	printf("vcs_VolPhase::setMolesFractionsState: inappropriate usage\n");
-	std::exit(-1);
+	exit(EXIT_FAILURE);
       }
       m_existence = VCS_PHASE_EXIST_YES;
     } else {
@@ -553,7 +553,7 @@ namespace VCSnonideal {
     }
     if (sum == 0.0) {
       printf("vcs_VolPhase::setMolesFractionsState: inappropriate usage\n");
-      std::exit(-1);
+      exit(EXIT_FAILURE);
     }
     if (sum  != 1.0) {
       for (int k = 0; k < m_numSpecies; k++) {
@@ -588,7 +588,7 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
       if (m_owningSolverObject == 0) {
 	printf("vcs_VolPhase::setMolesFromVCS  shouldn't be here\n");
-	std::exit(-1);
+	exit(EXIT_FAILURE);
       }
 #endif
       if (stateCalc == VCS_STATECALC_OLD) {
@@ -599,7 +599,7 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
       else {
 	printf("vcs_VolPhase::setMolesFromVCS shouldn't be here\n");
-	std::exit(-1);
+	exit(EXIT_FAILURE);
       }
 #endif
     }
@@ -609,12 +609,12 @@ namespace VCSnonideal {
         if (stateCalc == VCS_STATECALC_OLD) {
   	  if (molesSpeciesVCS != VCS_DATA_PTR(m_owningSolverObject->m_molNumSpecies_old)) {
 	    printf("vcs_VolPhase::setMolesFromVCS shouldn't be here\n");
-	    std::exit(-1);
+	    exit(EXIT_FAILURE);
           }
         } else if (stateCalc == VCS_STATECALC_NEW) {
           if (molesSpeciesVCS != VCS_DATA_PTR(m_owningSolverObject->m_molNumSpecies_new)) {
 	    printf("vcs_VolPhase::setMolesFromVCS shouldn't be here\n");
-	    std::exit(-1);
+	    exit(EXIT_FAILURE);
           }
         }
       }
@@ -718,7 +718,7 @@ namespace VCSnonideal {
 	plogf("vcs_VolPhase::setMolesFromVCSCheck: "
 	      "We have a consistency problem: %21.16g %21.16g\n",
 	      Tcheck, v_totalMoles);
-	std::exit(-1);
+	exit(EXIT_FAILURE);
       }
     }
   }
@@ -962,7 +962,7 @@ namespace VCSnonideal {
 	m_totalVol += volI;
       } else {
 	printf("unknown situation\n");
-	std::exit(-1);
+	exit(EXIT_FAILURE);
       }
     }
     m_UpToDate_VolPM = true;
@@ -1185,7 +1185,7 @@ namespace VCSnonideal {
       	printf(" vcs_VolPhase::setTotalMoles:: ERROR totalMoles "
 	       "less than inert moles: %g %g\n", 
 	       totalMols, m_totalMolesInert);
-	std::exit(-1);
+	exit(EXIT_FAILURE);
       }
 #endif
     } else {
@@ -1311,7 +1311,7 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
 	plogf("vcs_VolPhase::setExistence setting false existence for phase with moles");
 	plogendl();
-	exit(-1);
+	exit(EXIT_FAILURE);
 #endif
 	v_totalMoles = 0.0;
       }
@@ -1322,7 +1322,7 @@ namespace VCSnonideal {
 	if (v_totalMoles == 0.0) {
 	  plogf("vcs_VolPhase::setExistence setting true existence for phase with no moles");
 	  plogendl();
-	  exit(-1);
+	  exit(EXIT_FAILURE);
 	}
       }
     }

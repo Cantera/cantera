@@ -63,7 +63,7 @@ namespace VCSnonideal {
       double denom = MAX(m_totalMolNum, 1.0E-4);
       if (!vcs_doubleEqual(dchange[iphase]/denom, delTPhMoles[iphase]/denom)) {
 	plogf("checkDelta1: we have found a problem\n");
-	exit(-1);
+	exit(EXIT_FAILURE);
       }
     }
   }
@@ -333,7 +333,7 @@ namespace VCSnonideal {
 	  default:
 	    plogf("  --- Unknown type - ERROR %d\n", m_speciesStatus[kspec]);
 	    plogendl();
-	    std::exit(-1);
+	    exit(EXIT_FAILURE);
 	  }
 	}
       }
@@ -944,7 +944,7 @@ namespace VCSnonideal {
 		m_deltaMolNumSpecies[kspec], dx, kspec);
 	  plogf("we have a problem!");	
 	  plogendl();
-	  exit(-1);
+	  exit(EXIT_FAILURE);
 	}
 #endif
 	for (k = 0; k < m_numComponents; ++k) {
@@ -1079,7 +1079,7 @@ namespace VCSnonideal {
 	plogf("vcs_solve_TP: ERROR on step change wt[%d:%s]: %g < 0.0",
 	      kspec, m_speciesName[kspec].c_str(), m_molNumSpecies_new[kspec]);
 	plogendl();
-	exit(-1);
+	exit(EXIT_FAILURE);
       }
     }
    
@@ -1340,7 +1340,7 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
 	plogf("   --- BASOPT returned with an error condition\n");
 #endif
-        std::exit(-1);
+        exit(EXIT_FAILURE);
       }
       vcs_setFlagsVolPhases(false, VCS_STATECALC_OLD);
       vcs_dfe(VCS_STATECALC_OLD, 0, 0, m_numSpeciesRdc);
@@ -2157,7 +2157,7 @@ namespace VCSnonideal {
     if (irxn < 0) {
 	plogf("  --- delete_species() ERROR: called for a component %d", kspec);
 	plogendl();
-	std::exit(-1);
+	exit(EXIT_FAILURE);
     }
 #endif
     if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
@@ -2278,7 +2278,7 @@ namespace VCSnonideal {
     if (! retn) {
       plogf("Failed to delete a species!");
       plogendl();
-      exit(-1);
+      exit(EXIT_FAILURE);
     }
 #endif
     /*
@@ -3311,7 +3311,7 @@ namespace VCSnonideal {
 	  int numPreDeleted = m_numRxnTot - m_numRxnRdc;
 	  if (numPreDeleted != (m_numSpeciesTot - m_numSpeciesRdc)) {
 	    plogf("vcs_basopt:: we shouldn't be here\n");
-	    std::exit(-1);
+	    exit(EXIT_FAILURE);
 	  }
 	  m_numRxnTot = m_numSpeciesTot - ncTrial;
 	  m_numRxnRdc = m_numRxnTot - numPreDeleted;
@@ -3967,11 +3967,11 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
 	if (molNum[kspec] != phi) {
 	  plogf("We have an inconsistency!\n");
-	  exit(-1);
+	  exit(EXIT_FAILURE);
 	}
 	if (m_chargeSpecies[kspec] != -1.0) {
 	  plogf("We have an unexpected situation!\n");
-	  exit(-1);
+	  exit(EXIT_FAILURE);
 	}
 #endif
 	mu_i[kspec] = m_SSfeSpecies[kspec] + m_chargeSpecies[kspec] * Faraday_phi;
@@ -4145,14 +4145,14 @@ namespace VCSnonideal {
       plogf("vcs_dfe: wrong stateCalc value");
       plogf("   --- Subroutine vcs_dfe called with bad stateCalc value: %d", stateCalc);
       plogendl();
-      std::exit(-1); 
+      exit(EXIT_FAILURE); 
     }
 #endif
 
 #ifdef DEBUG_MODE
     if (m_unitsState == VCS_DIMENSIONAL_G) {
       printf("vcs_dfe: called with wrong units state\n");
-      std::exit(-1);
+      exit(EXIT_FAILURE);
     }
 #endif
 
@@ -4196,7 +4196,7 @@ namespace VCSnonideal {
       if (! vcs_doubleEqual(tlogMoles[iph], tPhMoles_ptr[iph])) {
 	plogf("phase Moles may be off, iph = %d, %20.14g %20.14g \n",
 	      iph, tlogMoles[iph], tPhMoles_ptr[iph]);
-	std::exit(0);
+	exit(EXIT_FAILURE);
       }
     }
 #endif
@@ -4244,11 +4244,11 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
 	if (molNum[kspec] != m_phasePhi[iphase]) {
 	  plogf("We have an inconsistency!\n");
-	  std::exit(-1);
+	  exit(EXIT_FAILURE);
 	}
 	if (m_chargeSpecies[kspec] != -1.0) {
 	  plogf("We have an unexpected situation!\n");
-	  std::exit(-1);
+	  exit(EXIT_FAILURE);
 	}
 #endif
 	feSpecies[kspec] = m_SSfeSpecies[kspec] 
@@ -4294,11 +4294,11 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
 	    if (molNum[kspec] != m_phasePhi[iphase]) {
 	      plogf("We have an inconsistency!\n");
-	      std::exit(-1);
+	      exit(EXIT_FAILURE);
 	    }
 	    if (m_chargeSpecies[kspec] != -1.0) {
 	      plogf("We have an unexpected situation!\n");
-	      std::exit(-1);
+	      exit(EXIT_FAILURE);
 	    }
 #endif
 	    feSpecies[kspec] = m_SSfeSpecies[kspec] 
@@ -4345,11 +4345,11 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
 	    if (molNum[kspec] != m_phasePhi[iphase]) {
 	      plogf("We have an inconsistency!\n");
-	      std::exit(-1);
+	      exit(EXIT_FAILURE);
 	    }
 	    if (m_chargeSpecies[kspec] != -1.0) {
 	      plogf("We have an unexpected situation!\n");
-	      std::exit(-1);
+	      exit(EXIT_FAILURE);
 	    }
 #endif
 	    feSpecies[kspec] = m_SSfeSpecies[kspec] 
@@ -4501,7 +4501,6 @@ namespace VCSnonideal {
       if (!vcs_doubleEqual(m_tPhaseMoles_old[i]/denom, m_tPhaseMoles_old_a/denom)) {
 	plogf("check_tmoles: we have found a problem with phase  %d: %20.15g, %20.15g\n",
 	      i, m_tPhaseMoles_old[i], m_tPhaseMoles_old_a);
-	//std::exit(-1);
       }
     }
   }
@@ -4532,7 +4531,7 @@ namespace VCSnonideal {
       else {
 	plogf("vcs_updateVP ERROR: wrong stateCalc value: %d", vcsState);
 	plogendl();
-	std::exit(-1);
+	exit(EXIT_FAILURE);
       }
 #endif
     }
@@ -4628,7 +4627,7 @@ namespace VCSnonideal {
       actCoeffSpecies = VCS_DATA_PTR(m_actCoeffSpecies_old);
     } else {
       printf("Error\n");
-      exit(-1);
+      exit(EXIT_FAILURE);
     }
 
 #ifdef DEBUG_MODE
@@ -4843,7 +4842,7 @@ namespace VCSnonideal {
     else {
       plogf("vcs_deltag_Phase: we shouldn't be here\n");
       plogendl();
-      exit(-1);
+      exit(EXIT_FAILURE);
     }
 #endif
 
@@ -4866,7 +4865,7 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
       if (iphase != m_phaseID[kspec]) {
 	plogf("vcs_deltag_Phase index error\n");
-	exit(-1);
+	exit(EXIT_FAILURE);
       }
 #endif
       if (kspec >= m_numComponents) {
@@ -5006,11 +5005,11 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
     if (pv1->spGlobalIndexVCS(kp1) != k1) {
       plogf("Indexing error in program\n");
-      exit(-1);
+      exit(EXIT_FAILURE);
     }
     if (pv2->spGlobalIndexVCS(kp2) != k2) {
       plogf("Indexing error in program\n");
-      exit(-1);
+      exit(EXIT_FAILURE);
     }
 #endif
     pv1->setSpGlobalIndexVCS(kp1, k2);
@@ -5126,7 +5125,7 @@ namespace VCSnonideal {
     if (m_molNumSpecies_old[kspec] != 0.0) {
       w_kspec = 0.0;
       plogf("vcs_birthGuess:: we shouldn't be here\n");
-      std::exit(-1);
+      exit(EXIT_FAILURE);
     }
 #endif
     int ss = m_SSPhase[kspec];

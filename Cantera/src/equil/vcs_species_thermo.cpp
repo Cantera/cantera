@@ -21,9 +21,9 @@
 #include "vcs_Exception.h"
 #include "vcs_internal.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cmath>
 
 using namespace std;
 
@@ -201,7 +201,7 @@ double VCS_SPECIES_THERMO::GStar_R_calc(int kglob, double TKelvin,
       break;
     default:
       plogf("%sERROR: unknown SSStar model\n", yo);
-      exit(-1);
+      exit(EXIT_FAILURE);
     }
   }
   return fe;
@@ -243,7 +243,7 @@ VolStar_calc(int kglob, double TKelvin, double presPA)
       break;
     default:     
       plogf("%sERROR: unknown SSVol model\n", yo);
-      exit(-1);
+      exit(EXIT_FAILURE);
     } 
   }
   return vol;
@@ -298,7 +298,7 @@ double VCS_SPECIES_THERMO::G0_R_calc(int kglob, double TKelvin)
 #ifdef DEBUG_MODE
       plogf("%sERROR: unknown model\n", yo);
 #endif
-      exit(-1);
+      exit(EXIT_FAILURE);
     }
   }
   SS0_feSave = fe;
@@ -349,7 +349,7 @@ double VCS_SPECIES_THERMO::eval_ac(int kglob)
 #ifdef DEBUG_MODE
       plogf("%sERROR: unknown model\n", yo);
 #endif
-      exit(-1);
+      exit(EXIT_FAILURE);
     }
   }
   return ac;

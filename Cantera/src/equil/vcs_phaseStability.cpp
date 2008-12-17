@@ -14,18 +14,14 @@
 #include "vcs_species_thermo.h"
 #include "vcs_VolPhase.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cmath>
 #include <vector>
 
 using namespace std;
 
 namespace VCSnonideal {
-
-
-
-
   
   int VCS_SOLVE::vcs_phaseStabilityTest(const int iph) {
 

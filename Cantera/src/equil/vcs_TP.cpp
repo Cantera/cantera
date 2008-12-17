@@ -7,14 +7,15 @@
 /* $Date$ */
 /* $Revision$ */
 /* ======================================================================= */
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
 
 #include "vcs_solve.h"
 #include "vcs_internal.h" 
 #include "vcs_species_thermo.h"
 #include "vcs_VolPhase.h"
+
+#include <cstdio>
+#include <cstdlib>
+#include <cmath>
 
 namespace VCSnonideal {
 

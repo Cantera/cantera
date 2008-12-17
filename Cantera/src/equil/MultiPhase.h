@@ -323,6 +323,14 @@ namespace Cantera {
     /*!
      *   @param T      Temperature of the system (kelvin)
      *   @param Pres   pressure of the system (pascal)
+     *                 (kmol)
+     */
+    void setState_TP(const doublereal T, const doublereal Pres);
+
+    //! Set the state of the underlying ThermoPhase objects in one call
+    /*!
+     *   @param T      Temperature of the system (kelvin)
+     *   @param Pres   pressure of the system (pascal)
      *   @param Moles  Vector of mole numbers of all the species in all the phases
      *                 (kmol)
      */

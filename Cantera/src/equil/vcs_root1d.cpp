@@ -11,11 +11,12 @@
  * U.S. Government retains certain rights in this software.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
 
 #include "vcs_internal.h" 
+
+#include <cstdio>
+#include <cstdlib>
+#include <cmath>
 
 namespace VCSnonideal {
 
@@ -51,8 +52,8 @@ static void print_funcEval(FILE *fp, double xval, double fval, int its)
    * cylinder floating on water is calculated.
    *
    * @verbatim
-   *   #include "math.h"
-   *   #include "stdlib.h"
+   *   #include <cmath>
+   *   #include <cstdlib>
    *
    *   #include "Cantera.h"
    *   #include "kernel/vcs_internal.h"

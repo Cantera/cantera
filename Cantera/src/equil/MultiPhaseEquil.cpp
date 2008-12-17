@@ -866,7 +866,7 @@ namespace Cantera {
     return m_mix->phaseMoles(iph);
   }
 
-#include <stdio.h>
+#include <cstdio>
    /*
     *
     */

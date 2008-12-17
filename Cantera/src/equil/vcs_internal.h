@@ -242,8 +242,8 @@ namespace VCSnonideal {
    * cylinder floating on the water is calculated.
    *
    *    @verbatim
-     #include "math.h"
-     #include "stdlib.h"
+     #include <cmath>
+     #include <cstdlib>
     
      #include "Cantera.h"
      #include "kernel/vcs_internal.h"
@@ -324,7 +324,7 @@ namespace VCSnonideal {
   //! available if this ever fails.
 #define USE_MEMSET
 #ifdef USE_MEMSET
-#include <string.h>
+#include <cstring>
 
   //! Zero a double vector
   /*!

@@ -32,7 +32,8 @@ using namespace std;
 #include "stringUtils.h"
 #include "MultiPhase.h"
 
-#include "stdio.h"
+#include <cstdio>
+
 int Cantera::ChemEquil_print_lvl = 0;
 //static char sbuf[1024];
 #ifndef MIN

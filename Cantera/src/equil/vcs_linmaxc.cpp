@@ -9,9 +9,6 @@
  * U.S. Government retains certain rights in this software.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
 
 #ifdef hpux
 #define dbocls_ dbocls
@@ -22,6 +19,10 @@
 
 #include "vcs_internal.h"
 #include "vcs_solve.h"
+
+#include <cstdio>
+#include <cstdlib>
+#include <cmath>
 
 extern "C" void dbocls_(double *W, int *MDW, int *MCON, int *MROWS,
 			int *NCOLS,
