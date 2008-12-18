@@ -118,6 +118,42 @@ namespace Cantera {
    *  -------------- Utilities -------------------------------
    */
 
+  // Equation of state type flag.
+  /*
+   * The ThermoPhase base class returns
+   * zero. Subclasses should define this to return a unique
+   * non-zero value. Known constants defined for this purpose are
+   * listed in mix_defs.h. The MolalityVPSSTP class also returns
+   * zero, as it is a non-complete class.
+   */
+  int MolalityVPSSTP::eosType() const { 
+    return 0;
+  }
+
+  // Set the pH scale, which determines the scale for single-ion activity 
+  // coefficients.
+  /*
+   *  Single ion activity coefficients are not unique in terms of the
+   *  representing actual measureable quantities. 
+   */
+  void MolalityVPSSTP::setpHScale(const int pHscaleType) {
+    m_pHScalingType = pHscaleType;
+    if (pHscaleType !=  PHSCALE_PITZER && pHscaleType !=  PHSCALE_NBS) {
+      throw CanteraError("MolalityVPSSTP::setpHScale",
+			 "Unknown scale type: " + int2str(pHscaleType));
+    }
+  }
+
+  // Reports the pH scale, which determines the scale for single-ion activity 
+  // coefficients.
+  /*
+   *  Single ion activity coefficients are not unique in terms of the
+   *  representing actual measureable quantities. 
+   */
+  int MolalityVPSSTP::pHScale() const {
+    return m_pHScalingType;
+  }
+
   /*
    * setSolvent():
    *  Utilities for Solvent ID and Molality 
@@ -441,11 +477,25 @@ namespace Cantera {
     }
   }
 
-
+  // Get the array of non-dimensional molality based 
+  //  activity coefficients at the current solution temperature, 
+  //  pressure, and  solution concentration.
+  /*
+   *  See Denbigh p. 278 for a thorough discussion. This class must be overwritten in
+   *  classes which derive from %MolalityVPSSTP. This function takes over from the
+   *  molar-based activity coefficient calculation, getActivityCoefficients(), in
+   *  derived classes.
+   *
+   *  Note these activity coefficients have the current pH scale applied to them.
+   *
+   * @param acMolality Output vector containing the molality based activity coefficients.
+   *                   length: m_kk.
+   */
   void MolalityVPSSTP::getMolalityActivityCoefficients(doublereal *acMolality) const {
-    err("getMolalityActivityCoefficients");
+    getUnscaledMolalityActivityCoefficients(acMolality);
+    applyphScale(acMolality);
   }
-
+  
   /*
    * osmotic coefficient:
    * 
@@ -608,7 +658,34 @@ namespace Cantera {
     m_indexCLM = findCLMIndex();
   }
 
-  // Returns the index of the Cl- species.
+  //  Get the array of unscaled non-dimensional molality based 
+  //  activity coefficients at the current solution temperature, 
+  //  pressure, and  solution concentration.
+  /*
+   *  See Denbigh p. 278 for a thorough discussion. This class must be overwritten in
+   *  classes which derive from %MolalityVPSSTP. This function takes over from the
+   *  molar-based activity coefficient calculation, getActivityCoefficients(), in
+   *  derived classes.
+   *
+   * @param acMolality Output vector containing the molality based activity coefficients.
+   *                   length: m_kk.
+   */
+  void MolalityVPSSTP::getUnscaledMolalityActivityCoefficients(doublereal *acMolality) const {
+   err("getUnscaledMolalityActivityCoefficients");
+  }
+  
+  //  Apply the current phScale to a set of activity Coefficients or activities
+  /*
+   *  See the Eq3/6 Manual for a thorough discussion.
+   *
+   * @param acMolality input/Output vector containing the molality based 
+   *                   activity coefficients. length: m_kk.
+   */
+  void MolalityVPSSTP::applyphScale(doublereal *acMolality) const {
+    err("applyphScale");
+  }
+  
+  //  Returns the index of the Cl- species.
   /*
    *  The Cl- species is special in the sense that it's single ion
    *  molalality-based activity coefficient is used in the specification

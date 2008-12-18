@@ -154,6 +154,27 @@ namespace Cantera {
    *
    *  All objects that derive from this are assumed to have molality based standard states.
    *
+   *  Molality based activity coefficients are scaled according to the current
+   *  pH scale. See the Eq3/6 manual for details.
+   *
+   *  Activity coefficients for species k may be altered between scales s1 to s2
+   *  using the following formula
+   *
+   *   \f[
+   *       ln(\gamma_k^{s2}) = ln(\gamma_k^{s1}) 
+   *          + \frac{z_k}{z_j} \left(  ln(\gamma_j^{s2}) - ln(\gamma_j^{s1}) \right)
+   *   \f]
+   *
+   *  where j is any one species. For the NBS scale, j is equal to the Cl- species
+   *  and 
+   *
+   *  \f[
+   *       ln(\gamma_{Cl-}^{s2}) = \frac{-A_{\phi} \sqrt{I}}{1.0 + 1.5 \sqrt{I}}
+   *  \f]
+   *
+   *  The Pitzer scale doesn't actually change anything. The pitzer scale is defined
+   *  as the raw unscaled activity coefficients produced by the underlying objects.
+   *
    * @todo Make two solvent minimum fractions. One would be for calculation of the non-ideal
    *       factors. The other one would be for purposes of stoichiometry evaluation. the
    *       stoichiometry evaluation one would be a 1E-13 limit. Anything less would create
@@ -219,7 +240,7 @@ namespace Cantera {
      * listed in mix_defs.h. The MolalityVPSSTP class also returns
      * zero, as it is a non-complete class.
      */
-    virtual int eosType() const { return 0; }
+    virtual int eosType() const;
 
 
     //! Set the pH scale, which determines the scale for single-ion activity 
@@ -229,6 +250,14 @@ namespace Cantera {
      *  representing actual measureable quantities. 
      */
     void setpHScale(const int pHscaleType);
+
+    //! Reports the pH scale, which determines the scale for single-ion activity 
+    //! coefficients.
+    /*!
+     *  Single ion activity coefficients are not unique in terms of the
+     *  representing actual measureable quantities. 
+     */
+    int pHScale() const;
 
     /**
      * @} 
@@ -526,7 +555,7 @@ namespace Cantera {
      */
     void getActivityCoefficients(doublereal* ac) const;
 
-    //! Get the array of non-dimensional molality based 
+    //!  Get the array of non-dimensional molality based 
     //!  activity coefficients at the current solution temperature, 
     //!  pressure, and  solution concentration.
     /*!
@@ -535,10 +564,30 @@ namespace Cantera {
      *  molar-based activity coefficient calculation, getActivityCoefficients(), in
      *  derived classes.
      *
+     *  These molality based activity coefficients are scaled according to the current
+     *  pH scale. See the Eq3/6 manual for details.
+     *
+     *  Activity coefficients for species k may be altered between scales s1 to s2
+     *  using the following formula
+     *
+     *   \f[
+     *       ln(\gamma_k^{s2}) = ln(\gamma_k^{s1}) 
+     *          + \frac{z_k}{z_j} \left(  ln(\gamma_j^{s2}) - ln(\gamma_j^{s1}) \right)
+     *   \f]
+     *
+     *  where j is any one species. For the NBS scale, j is equal to the Cl- species
+     *  and 
+     *
+     *  \f[
+     *       ln(\gamma_{Cl-}^{s2}) = \frac{-A_{\phi} \sqrt{I}}{1.0 + 1.5 \sqrt{I}}
+     *  \f]
+     *
      * @param acMolality Output vector containing the molality based activity coefficients.
      *                   length: m_kk.
      */
     virtual void getMolalityActivityCoefficients(doublereal *acMolality) const;
+
+  
    
     //! Calculate the osmotic coefficient
     /*!
@@ -739,6 +788,31 @@ namespace Cantera {
      */
     virtual std::string report(bool show_thermo = true) const;
 
+  protected:
+
+    //! Get the array of unscaled non-dimensional molality based 
+    //!  activity coefficients at the current solution temperature, 
+    //!  pressure, and  solution concentration.
+    /*!
+     *  See Denbigh p. 278 for a thorough discussion. This class must be overwritten in
+     *  classes which derive from %MolalityVPSSTP. This function takes over from the
+     *  molar-based activity coefficient calculation, getActivityCoefficients(), in
+     *  derived classes.
+     *
+     * @param acMolality Output vector containing the molality based activity coefficients.
+     *                   length: m_kk.
+     */
+    virtual void getUnscaledMolalityActivityCoefficients(doublereal *acMolality) const;
+
+    //! Apply the current phScale to a set of activity Coefficients or activities
+    /*!
+     *  See the Eq3/6 Manual for a thorough discussion.
+     *
+     * @param acMolality input/Output vector containing the molality based 
+     *                   activity coefficients. length: m_kk.
+     */
+    virtual void applyphScale(doublereal *acMolality) const;
+
   private:
     //! Returns the index of the Cl- species.
     /*!
@@ -823,7 +897,6 @@ namespace Cantera {
     doublereal err(std::string msg) const;
 
   };
-
 
 
   //! Scale to be used for the output of single-ion activity coefficients

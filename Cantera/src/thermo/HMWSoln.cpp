@@ -917,10 +917,14 @@ namespace Cantera {
     double xmolSolvent = moleFraction(m_indexSolvent);
     ac[m_indexSolvent] =
       exp(m_lnActCoeffMolal[m_indexSolvent]) * xmolSolvent;
+    /*
+     * Apply the pH scale
+     */
+    applyphScale(ac);
   }
 
   /*
-   * getMolalityActivityCoefficients()             (virtual, const)
+   * getUnscaledMolalityActivityCoefficients()             (virtual, const)
    *
    * Get the array of non-dimensional Molality based
    * activity coefficients at
@@ -931,7 +935,7 @@ namespace Cantera {
    *  Note, most of the work is done in an internal private routine
    */
   void HMWSoln::
-  getMolalityActivityCoefficients(doublereal* acMolality) const {
+  getUnscaledMolalityActivityCoefficients(doublereal* acMolality) const {
     updateStandardStateThermo();
     A_Debye_TP(-1.0, -1.0);
     s_update_lnMolalityActCoeff();
@@ -5521,7 +5525,7 @@ namespace Cantera {
 
   }
 
-  /***********************************************************************************************/
+  /**********************************************************************************************/
 
   /*
    * Calculate the lambda interactions. 
@@ -5826,6 +5830,40 @@ namespace Cantera {
       }
     }
   }
+
+
+  //  Apply the current phScale to a set of activity Coefficients or activities
+  /* 
+   *  See the Eq3/6 Manual for a thorough discussion.
+   *
+   * @param acMolality input/Output vector containing the molality based 
+   *                   activity coefficients. length: m_kk.
+   */
+  void HMWSoln::applyphScale(doublereal *acMolality) const {
+    if (m_pHScalingType == PHSCALE_PITZER) return;
+    if (m_pHScalingType != PHSCALE_NBS) {
+      throw CanteraError("", "shoudln't be here");
+    }
+    
+    /*
+     * Find the ionic strength
+     */
+    doublereal Is = m_IionicMolality;
+    doublereal sqrtIs = sqrt(Is);
+  
+    /*
+     * Find the Debye Huckel coefficient
+     */
+    doublereal A = m_A_Debye;
+    doublereal lnGammaClMs2 = - A * sqrtIs /(1.0 + 1.5 * sqrtIs); 
+    doublereal lnGammaCLMs1 = m_lnActCoeffMolal[m_indexCLM];
+    doublereal afac = -1.0 *(lnGammaClMs2 - lnGammaCLMs1);
+
+    for (int k = 1; k < m_kk; k++) {
+      acMolality[k] *= exp(m_speciesCharge[k] * afac);
+    }
+  }
+
 
   int HMWSoln::debugPrinting() {
 #ifdef DEBUG_MODE

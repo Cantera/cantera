@@ -1647,19 +1647,6 @@ namespace Cantera {
      */
     virtual void getActivities(doublereal* ac) const;
 
-    //! Get the array of non-dimensional molality-based 
-    //! activity coefficients at
-    //! the current solution temperature, pressure, and solution concentration.
-    /*!
-     *  note solvent is on molar scale. The solvent molar
-     *  based activity coefficient is returned.
-     *
-     * @param acMolality Vector of Molality-based activity coefficients
-     *                   Length: m_kk
-     */
-    virtual void 
-    getMolalityActivityCoefficients(doublereal* acMolality) const;
-
     //@}
     /// @name  Partial Molar Properties of the Solution -----------------
     //@{
@@ -2035,8 +2022,8 @@ namespace Cantera {
      */
     virtual void initThermoXML(XML_Node& phaseNode, std::string id);
 
-    /**
-     * Report the molar volume of species k
+    //!  Report the molar volume of species k
+    /*!
      *
      * units - \f$ m^3 kmol^-1 \f$
      *
@@ -2064,10 +2051,11 @@ namespace Cantera {
     virtual double A_Debye_TP(double temperature = -1.0, 
 			      double pressure = -1.0) const;
 
-    /**
-     * Value of the derivative of the Debye Huckel constant with 
-     * respect to temperature as a function of temperature
-     * and pressure.
+    
+    //! Value of the derivative of the Debye Huckel constant with 
+    //! respect to temperature as a function of temperature
+    //! and pressure.
+    /*!
      *
      *            A_Debye = (F e B_Debye) / (8 Pi epsilon R T)
      *
@@ -2197,6 +2185,28 @@ namespace Cantera {
      */
     void printCoeffs () const;
 
+    //!  Get the array of unscaled non-dimensional molality based 
+    //!  activity coefficients at the current solution temperature, 
+    //!  pressure, and solution concentration.
+    /*!
+     *  See Denbigh p. 278 for a thorough discussion. This class must be overwritten in
+     *  classes which derive from %MolalityVPSSTP. This function takes over from the
+     *  molar-based activity coefficient calculation, getActivityCoefficients(), in
+     *  derived classes.
+     *
+     * @param acMolality Output vector containing the molality based activity coefficients.
+     *                   length: m_kk.
+     */
+    void getUnscaledMolalityActivityCoefficients(doublereal *acMolality) const;
+
+    //! Apply the current phScale to a set of activity Coefficients or activities
+    /*!
+     *  See the Eq3/6 Manual for a thorough discussion.
+     *
+     * @param acMolality input/Output vector containing the molality based 
+     *                   activity coefficients. length: m_kk.
+     */
+    void applyphScale(doublereal *acMolality) const;
 
     //@}
          
