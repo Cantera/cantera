@@ -284,10 +284,14 @@ namespace Cantera {
       m_Lambda_nj_LL        = b.m_Lambda_nj_LL;
       m_Lambda_nj_P         = b.m_Lambda_nj_P;
       m_Lambda_nj_coeff     = b.m_Lambda_nj_coeff;
-      m_lnActCoeffMolal     = b.m_lnActCoeffMolal;
-      m_dlnActCoeffMolaldT  = b.m_dlnActCoeffMolaldT;
-      m_d2lnActCoeffMolaldT2= b.m_d2lnActCoeffMolaldT2;
-      m_dlnActCoeffMolaldP  = b.m_dlnActCoeffMolaldP;
+      m_lnActCoeffMolal_Scaled       = b.m_lnActCoeffMolal_Scaled;
+      m_lnActCoeffMolal_Unscaled     = b.m_lnActCoeffMolal_Unscaled;
+      m_dlnActCoeffMolaldT_Unscaled  = b.m_dlnActCoeffMolaldT_Unscaled;
+      m_d2lnActCoeffMolaldT2_Unscaled= b.m_d2lnActCoeffMolaldT2_Unscaled;
+      m_dlnActCoeffMolaldP_Unscaled  = b.m_dlnActCoeffMolaldP_Unscaled;
+      m_dlnActCoeffMolaldT_Scaled    = b.m_dlnActCoeffMolaldT_Unscaled;
+      m_d2lnActCoeffMolaldT2_Scaled  = b.m_d2lnActCoeffMolaldT2_Unscaled;
+      m_dlnActCoeffMolaldP_Scaled    = b.m_dlnActCoeffMolaldP_Unscaled;
 
       m_gfunc_IJ            = b.m_gfunc_IJ;
       m_g2func_IJ           = b.m_g2func_IJ;
@@ -318,7 +322,7 @@ namespace Cantera {
       m_CMX_IJ_L            = b.m_CMX_IJ_L;
       m_CMX_IJ_LL           = b.m_CMX_IJ_LL;
       m_CMX_IJ_P            = b.m_CMX_IJ_P;
-      m_gamma               = b.m_gamma;
+      m_gamma_tmp           = b.m_gamma_tmp;
 
       IMS_lnActCoeffMolal_  = b.IMS_lnActCoeffMolal_;
       IMS_typeCutoff_       = b.IMS_typeCutoff_;
@@ -548,12 +552,12 @@ namespace Cantera {
   doublereal HMWSoln::relative_enthalpy() const {
     getPartialMolarEnthalpies(DATA_PTR(m_tmpV));
     double hbar = mean_X(DATA_PTR(m_tmpV));
-    getEnthalpy_RT(DATA_PTR(m_gamma));
+    getEnthalpy_RT(DATA_PTR(m_gamma_tmp));
     double RT = GasConstant * temperature();
     for (int k = 0; k < m_kk; k++) {
-      m_gamma[k] *= RT;
+      m_gamma_tmp[k] *= RT;
     }
-    double h0bar = mean_X(DATA_PTR(m_gamma));
+    double h0bar = mean_X(DATA_PTR(m_gamma_tmp));
     return (hbar - h0bar);
   }
 
@@ -911,16 +915,16 @@ namespace Cantera {
      */
     for (int k = 0; k < m_kk; k++) {
       if (k != m_indexSolvent) {
-	ac[k] = m_molalities[k] * exp(m_lnActCoeffMolal[k]);
+	ac[k] = m_molalities[k] * exp(m_lnActCoeffMolal_Scaled[k]);
       }
     }
     double xmolSolvent = moleFraction(m_indexSolvent);
     ac[m_indexSolvent] =
-      exp(m_lnActCoeffMolal[m_indexSolvent]) * xmolSolvent;
+      exp(m_lnActCoeffMolal_Scaled[m_indexSolvent]) * xmolSolvent;
     /*
      * Apply the pH scale
      */
-    applyphScale(ac);
+    //applyphScale(ac);
   }
 
   /*
@@ -939,7 +943,7 @@ namespace Cantera {
     updateStandardStateThermo();
     A_Debye_TP(-1.0, -1.0);
     s_update_lnMolalityActCoeff();
-    std::copy(m_lnActCoeffMolal.begin(), m_lnActCoeffMolal.end(), acMolality);
+    std::copy(m_lnActCoeffMolal_Unscaled.begin(), m_lnActCoeffMolal_Unscaled.end(), acMolality);
     for (int k = 0; k < m_kk; k++) {
       acMolality[k] = exp(acMolality[k]);
     }
@@ -986,12 +990,12 @@ namespace Cantera {
     for (int k = 0; k < m_kk; k++) {
       if (m_indexSolvent != k) {
 	xx = MAX(m_molalities[k], xxSmall);
-	mu[k] += RT * (log(xx) + m_lnActCoeffMolal[k]);
+	mu[k] += RT * (log(xx) + m_lnActCoeffMolal_Scaled[k]);
       }
     }
     xx = MAX(xmolSolvent, xxSmall);
     mu[m_indexSolvent] +=  
-      RT * (log(xx) + m_lnActCoeffMolal[m_indexSolvent]);
+      RT * (log(xx) + m_lnActCoeffMolal_Scaled[m_indexSolvent]);
   }
 
 
@@ -1035,7 +1039,7 @@ namespace Cantera {
     s_update_dlnMolalityActCoeff_dT();
     double RTT = RT * T;
     for (int k = 0; k < m_kk; k++) {
-      hbar[k] -= RTT * m_dlnActCoeffMolaldT[k];
+      hbar[k] -= RTT * m_dlnActCoeffMolaldT_Scaled[k];
     }
   }
 
@@ -1096,12 +1100,12 @@ namespace Cantera {
     for (k = 0; k < m_kk; k++) {
       if (k != m_indexSolvent) {
 	mm = fmaxx(SmallNumber, m_molalities[k]);
-	sbar[k] -= R * (log(mm) + m_lnActCoeffMolal[k]);
+	sbar[k] -= R * (log(mm) + m_lnActCoeffMolal_Scaled[k]);
       }
     }
     double xmolSolvent = moleFraction(m_indexSolvent);
     mm = fmaxx(SmallNumber, xmolSolvent);
-    sbar[m_indexSolvent] -= R *(log(mm) + m_lnActCoeffMolal[m_indexSolvent]);
+    sbar[m_indexSolvent] -= R *(log(mm) + m_lnActCoeffMolal_Scaled[m_indexSolvent]);
     /*
      * Check to see whether activity coefficients are temperature
      * dependent. If they are, then calculate the their temperature
@@ -1110,7 +1114,7 @@ namespace Cantera {
     s_update_dlnMolalityActCoeff_dT();
     double RT = R * temperature();
     for (k = 0; k < m_kk; k++) {
-      sbar[k] -= RT * m_dlnActCoeffMolaldT[k];
+      sbar[k] -= RT * m_dlnActCoeffMolaldT_Scaled[k];
     }
   }
 
@@ -1141,11 +1145,11 @@ namespace Cantera {
      * Update the derivatives wrt the activity coefficients.
      */
     s_update_lnMolalityActCoeff();
-    s_Pitzer_dlnMolalityActCoeff_dP();
+    s_update_dlnMolalityActCoeff_dP();
     double T = temperature();
     double RT = GasConstant * T;
     for (int k = 0; k < m_kk; k++) {
-      vbar[k] += RT * m_dlnActCoeffMolaldP[k];
+      vbar[k] += RT * m_dlnActCoeffMolaldP_Scaled[k];
     }
   }
 
@@ -1188,11 +1192,10 @@ namespace Cantera {
     double RT = GasConstant * T;
     double RTT = RT * T;
     for (int k = 0; k < m_kk; k++) {
-      cpbar[k] -= (2.0 * RT * m_dlnActCoeffMolaldT[k] +
-		   RTT * m_d2lnActCoeffMolaldT2[k]);
+      cpbar[k] -= (2.0 * RT * m_dlnActCoeffMolaldT_Scaled[k] +
+		   RTT * m_d2lnActCoeffMolaldT2_Scaled[k]);
     }
   }
-
 
   /*
    * Updates the standard state thermodynamic functions at the current T and 
@@ -1345,15 +1348,15 @@ namespace Cantera {
    *         Temp has units of Kelvin.
    */
   double HMWSoln::dA_DebyedT_TP(double tempArg, double presArg) const {
-    double T = temperature();
+    doublereal T = temperature();
     if (tempArg != -1.0) {
       T = tempArg;
     }
-    double P = pressure();
+    doublereal P = pressure();
     if (presArg != -1.0) {
       P = presArg;
     }
-    double dAdT;
+    doublereal dAdT;
     switch (m_form_A_Debye) {
     case A_DEBYE_CONST:
       dAdT = 0.0;
@@ -1627,10 +1630,15 @@ namespace Cantera {
     m_Mu_nnn_P.resize(leng,  0.0); 
     m_Mu_nnn_coeff.resize(TCoeffLength, leng, 0.0);
 
-    m_lnActCoeffMolal.resize(leng, 0.0);
-    m_dlnActCoeffMolaldT.resize(leng, 0.0);
-    m_d2lnActCoeffMolaldT2.resize(leng, 0.0);
-    m_dlnActCoeffMolaldP.resize(leng, 0.0);
+    m_lnActCoeffMolal_Scaled.resize(leng, 0.0);
+    m_dlnActCoeffMolaldT_Scaled.resize(leng, 0.0);
+    m_d2lnActCoeffMolaldT2_Scaled.resize(leng, 0.0);
+    m_dlnActCoeffMolaldP_Scaled.resize(leng, 0.0);
+
+    m_lnActCoeffMolal_Unscaled.resize(leng, 0.0);
+    m_dlnActCoeffMolaldT_Unscaled.resize(leng, 0.0);
+    m_d2lnActCoeffMolaldT2_Unscaled.resize(leng, 0.0);
+    m_dlnActCoeffMolaldP_Unscaled.resize(leng, 0.0);
 
     m_CounterIJ.resize(m_kk*m_kk, 0);
 
@@ -1664,7 +1672,7 @@ namespace Cantera {
     m_CMX_IJ_LL.resize(maxCounterIJlen, 0.0);
     m_CMX_IJ_P.resize(maxCounterIJlen, 0.0);
 
-    m_gamma.resize(leng, 0.0);
+    m_gamma_tmp.resize(leng, 0.0);
 
     IMS_lnActCoeffMolal_.resize(m_kk, 0.0);
 
@@ -1714,7 +1722,7 @@ namespace Cantera {
      * Update the temperature dependence of the pitzer coefficients
      * and their derivatives
      */
-    s_updatePitzerCoeffWRTemp();
+    s_updatePitzer_CoeffWRTemp();
 
     /*
      * Calculate the IMS cutoff factors
@@ -1724,7 +1732,12 @@ namespace Cantera {
     /*
      * Now do the main calculation.
      */
-    s_updatePitzerSublnMolalityActCoeff();
+    s_updatePitzer_lnMolalityActCoeff();
+
+    /*
+     * Now do the pH Scaling
+     */
+    s_updateScaling_pHScaling();
   }
 
 
@@ -1895,7 +1908,7 @@ namespace Cantera {
    *                 temperature derivative.
    *                 default = 2
    */
-  void HMWSoln::s_updatePitzerCoeffWRTemp(int doDerivs) const {
+  void HMWSoln::s_updatePitzer_CoeffWRTemp(int doDerivs) const {
 
     int i, j, n, counterIJ;
     const double *beta0MX_coeff;
@@ -2172,7 +2185,7 @@ namespace Cantera {
    * the activity of water.
    */
   void HMWSoln::
-  s_updatePitzerSublnMolalityActCoeff() const {
+  s_updatePitzer_lnMolalityActCoeff() const {
 
     /*
      * HKM -> Assumption is made that the solvent is
@@ -2217,7 +2230,7 @@ namespace Cantera {
     //n = k + j * m_kk + i * m_kk * m_kk;
 
 
-    double *gamma = DATA_PTR(m_gamma);
+    double *gamma_Unscaled = DATA_PTR(m_gamma_tmp);
     /*
      * Local variables defined by Coltrin
      */
@@ -2756,13 +2769,13 @@ namespace Cantera {
 	 * Add all of the contributions up to yield the log of the
 	 * solute activity coefficients (molality scale)
 	 */
-	m_lnActCoeffMolal[i] = zsqF + sum1 + sum2 + sum3 + sum4 + sum5;
-	gamma[i] = exp(m_lnActCoeffMolal[i]);
+	m_lnActCoeffMolal_Unscaled[i] = zsqF + sum1 + sum2 + sum3 + sum4 + sum5;
+	gamma_Unscaled[i] = exp(m_lnActCoeffMolal_Unscaled[i]);
 #ifdef DEBUG_MODE
 	if (m_debugCalc) {
 	  sni = speciesName(i);
 	  printf("      Net %-16s                        lngamma[i] =  %9.5f         gamma[i]=%10.6f \n", 
-		 sni.c_str(), m_lnActCoeffMolal[i], gamma[i]);
+		 sni.c_str(), m_lnActCoeffMolal_Unscaled[i], gamma_Unscaled[i]);
 	}
 #endif
       }
@@ -2903,13 +2916,13 @@ namespace Cantera {
 #endif
 	  }
 	}
-	m_lnActCoeffMolal[i] = zsqF + sum1 + sum2 + sum3 + sum4 + sum5;
-	gamma[i] = exp(m_lnActCoeffMolal[i]);
+	m_lnActCoeffMolal_Unscaled[i] = zsqF + sum1 + sum2 + sum3 + sum4 + sum5;
+	gamma_Unscaled[i] = exp(m_lnActCoeffMolal_Unscaled[i]);
 #ifdef DEBUG_MODE
 	if (m_debugCalc) {
 	  sni = speciesName(i);
 	  printf("      Net %-16s                        lngamma[i] =  %9.5f             gamma[i]=%10.6f\n", 
-		 sni.c_str(), m_lnActCoeffMolal[i], gamma[i]);
+		 sni.c_str(), m_lnActCoeffMolal_Unscaled[i], gamma_Unscaled[i]);
 	}
 #endif
       }
@@ -2924,13 +2937,13 @@ namespace Cantera {
 	  sum1 = sum1 + molality[j]*2.0*m_Lambda_nj(i,j);
 	}
 	sum2 = 3.0 * molality[i]* molality[i] * m_Mu_nnn[i];
-	m_lnActCoeffMolal[i] = sum1 + sum2;
-	gamma[i] = exp(m_lnActCoeffMolal[i]);
+	m_lnActCoeffMolal_Unscaled[i] = sum1 + sum2;
+	gamma_Unscaled[i] = exp(m_lnActCoeffMolal_Unscaled[i]);
 #ifdef DEBUG_MODE
 	if (m_debugCalc) {
 	  sni = speciesName(i);
 	  printf(" %-16s lngamma[i]=%10.6f gamma[i]=%10.6f \n", 
-		 sni.c_str(), m_lnActCoeffMolal[i], gamma[i]);
+		 sni.c_str(), m_lnActCoeffMolal_Unscaled[i], gamma_Unscaled[i]);
 	}
 #endif
       }
@@ -3099,7 +3112,7 @@ namespace Cantera {
      *  ln(actcoeff[]). Therefore, we must calculate ln(actcoeff_0).
      */
     double xmolSolvent = moleFraction(m_indexSolvent);
-    m_lnActCoeffMolal[0] = lnwateract - log(xmolSolvent);
+    m_lnActCoeffMolal_Unscaled[0] = lnwateract - log(xmolSolvent);
 #ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf(" Weight of Solvent = %16.7g\n", m_weightSolvent);
@@ -3123,11 +3136,18 @@ namespace Cantera {
    *   scale. It's derivative is too.
    */
   void HMWSoln::s_update_dlnMolalityActCoeff_dT() const {
-
-    for (int k = 0; k < m_kk; k++) {
-      m_dlnActCoeffMolaldT[k] = 0.0;
-    }
-    s_Pitzer_dlnMolalityActCoeff_dT();
+    /*
+     *  Zero the unscaled 2nd derivatives
+     */
+    fbo_zero_dbl_1(DATA_PTR(m_dlnActCoeffMolaldT_Unscaled), m_kk);
+    /*
+     *  Do the actual calculation of the unscaled temperature derivatives
+     */
+    s_updatePitzer_dlnMolalityActCoeff_dT();
+    /*
+     *  Do the pH scaling to the derivatives 
+     */
+    s_updateScaling_pHScaling_dT();
   }
 
   /*************************************************************************************/
@@ -3143,7 +3163,7 @@ namespace Cantera {
    * quantities do not need to be recalculated in this routine.
    *
    */
-  void HMWSoln::s_Pitzer_dlnMolalityActCoeff_dT() const {
+  void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const {
 
     /*
      * HKM -> Assumption is made that the solvent is
@@ -3170,7 +3190,7 @@ namespace Cantera {
     const double *alpha1MX   =  DATA_PTR(m_Alpha1MX_ij);
     const double *alpha2MX   =  DATA_PTR(m_Alpha2MX_ij);
     const double *psi_ijk_L =  DATA_PTR(m_Psi_ijk_L);
-    double *gamma           =  DATA_PTR(m_gamma);
+    double *d_gamma_dT_Unscaled   =  DATA_PTR(m_gamma_tmp);
     /*
      * Local variables defined by Coltrin
      */
@@ -3626,14 +3646,14 @@ namespace Cantera {
 	 * Add all of the contributions up to yield the log of the
 	 * solute activity coefficients (molality scale)
 	 */
-	m_dlnActCoeffMolaldT[i] =
+	m_dlnActCoeffMolaldT_Unscaled[i] =
 	  zsqdFdT + sum1 + sum2 + sum3 + sum4 + sum5;
-	gamma[i] = exp(m_dlnActCoeffMolaldT[i]);
+	d_gamma_dT_Unscaled[i] = exp(m_dlnActCoeffMolaldT_Unscaled[i]);
 #ifdef DEBUG_MODE
 	if (m_debugCalc) {
 	  sni = speciesName(i);
 	  printf(" %-16s lngamma[i]=%10.6f gamma[i]=%10.6f \n", 
-		 sni.c_str(), m_dlnActCoeffMolaldT[i], gamma[i]);
+		 sni.c_str(), m_dlnActCoeffMolaldT_Unscaled[i], d_gamma_dT_Unscaled[i]);
 	  printf("                   %12g %12g %12g %12g %12g %12g\n",
 		 zsqdFdT, sum1, sum2, sum3, sum4, sum5);
 	}
@@ -3708,14 +3728,14 @@ namespace Cantera {
 	    sum5 = sum5 + molality[j]*2.0*m_Lambda_nj_L(j,i);
 	  }
 	}
-	m_dlnActCoeffMolaldT[i] = 
+	m_dlnActCoeffMolaldT_Unscaled[i] = 
 	  zsqdFdT + sum1 + sum2 + sum3 + sum4 + sum5;
-	gamma[i] = exp(m_dlnActCoeffMolaldT[i]);
+	d_gamma_dT_Unscaled[i] = exp(m_dlnActCoeffMolaldT_Unscaled[i]);
 #ifdef DEBUG_MODE
 	if (m_debugCalc) {
 	  sni = speciesName(i);
 	  printf(" %-16s lngamma[i]=%10.6f gamma[i]=%10.6f\n", 
-		 sni.c_str(), m_dlnActCoeffMolaldT[i], gamma[i]);
+		 sni.c_str(), m_dlnActCoeffMolaldT_Unscaled[i], d_gamma_dT_Unscaled[i]);
 	  printf("                   %12g %12g %12g %12g %12g %12g\n",
 		 zsqdFdT, sum1, sum2, sum3, sum4, sum5);
 	}
@@ -3732,13 +3752,13 @@ namespace Cantera {
 	  sum1 = sum1 + molality[j]*2.0*m_Lambda_nj_L(i,j);
 	}
 	sum2 = 3.0 * molality[i] * molality[i] * m_Mu_nnn_L[i];
-	m_dlnActCoeffMolaldT[i] = sum1 + sum2;
-	gamma[i] = exp(m_dlnActCoeffMolaldT[i]);
+	m_dlnActCoeffMolaldT_Unscaled[i] = sum1 + sum2;
+	d_gamma_dT_Unscaled[i] = exp(m_dlnActCoeffMolaldT_Unscaled[i]);
 #ifdef DEBUG_MODE
 	if (m_debugCalc) {
 	  sni = speciesName(i);
 	  printf(" %-16s lngamma[i]=%10.6f gamma[i]=%10.6f \n", 
-		 sni.c_str(), m_dlnActCoeffMolaldT[i], gamma[i]);
+		 sni.c_str(), m_dlnActCoeffMolaldT_Unscaled[i], d_gamma_dT_Unscaled[i]);
 	}
 #endif
       }
@@ -3902,7 +3922,7 @@ namespace Cantera {
      *  ln(actcoeff[]). Therefore, we must calculate ln(actcoeff_0).
      */
     //double xmolSolvent = moleFraction(m_indexSolvent);
-    m_dlnActCoeffMolaldT[0] = d_lnwateract_dT;
+    m_dlnActCoeffMolaldT_Unscaled[0] = d_lnwateract_dT;
 #ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf(" d_ln_a_water_dT = %10.6f d_a_water_dT=%10.6f\n\n", 
@@ -3911,10 +3931,30 @@ namespace Cantera {
 #endif
   }
 
+  /**
+   * This function calculates the temperature second derivative
+   * of the natural logarithm of the molality activity 
+   * coefficients.
+   */
+  void HMWSoln::s_update_d2lnMolalityActCoeff_dT2() const {
+    /*
+     *  Zero the unscaled 2nd derivatives
+     */
+    fbo_zero_dbl_1(DATA_PTR(m_d2lnActCoeffMolaldT2_Unscaled), m_kk);
+    /*
+     * Calculate the unscaled 2nd derivatives
+     */
+    s_updatePitzer_d2lnMolalityActCoeff_dT2();
+    /*
+     * Scale the 2nd derivatives 
+     */
+    s_updateScaling_pHScaling_dT2();
+  }
+
   /*************************************************************************************/
 
   /*
-   * s_update_d2lnMolalityActCoeff_dT2()         (private, const )
+   * s_updatePitzer_d2lnMolalityActCoeff_dT2()         (private, const )
    *
    *   Using internally stored values, this function calculates
    *   the temperature 2nd derivative of the logarithm of the
@@ -3932,7 +3972,7 @@ namespace Cantera {
    *   solvent activity coefficient is on the molality
    *   scale. It's derivatives are too.
    */
-  void HMWSoln::s_update_d2lnMolalityActCoeff_dT2() const {
+  void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const {
 
     /*
      * HKM -> Assumption is made that the solvent is
@@ -4423,13 +4463,13 @@ namespace Cantera {
 	 * Add all of the contributions up to yield the log of the
 	 * solute activity coefficients (molality scale)
 	 */
-	m_d2lnActCoeffMolaldT2[i] =
+	m_d2lnActCoeffMolaldT2_Unscaled[i] =
 	  zsqd2FdT2 + sum1 + sum2 + sum3 + sum4 + sum5;
 #ifdef DEBUG_MODE
 	if (m_debugCalc) {
 	  sni = speciesName(i);
 	  printf(" %-16s d2lngammadT2[i]=%10.6f \n", 
-		 sni.c_str(), m_d2lnActCoeffMolaldT2[i]);
+		 sni.c_str(), m_d2lnActCoeffMolaldT2_Unscaled[i]);
 	  printf("                   %12g %12g %12g %12g %12g %12g\n",
 		 zsqd2FdT2, sum1, sum2, sum3, sum4, sum5);
 	}
@@ -4505,13 +4545,13 @@ namespace Cantera {
 	    sum5 = sum5 + molality[j]*2.0*m_Lambda_nj_LL(j,i);
 	  }
 	}
-	m_d2lnActCoeffMolaldT2[i] = 
+	m_d2lnActCoeffMolaldT2_Unscaled[i] = 
 	  zsqd2FdT2 + sum1 + sum2 + sum3 + sum4 + sum5;
 #ifdef DEBUG_MODE
 	if (m_debugCalc) {
 	  sni = speciesName(i);
 	  printf(" %-16s d2lngammadT2[i]=%10.6f\n", 
-		 sni.c_str(), m_d2lnActCoeffMolaldT2[i]);
+		 sni.c_str(), m_d2lnActCoeffMolaldT2_Unscaled[i]);
 	  printf("                   %12g %12g %12g %12g %12g %12g\n",
 		 zsqd2FdT2, sum1, sum2, sum3, sum4, sum5);
 	}
@@ -4528,12 +4568,12 @@ namespace Cantera {
 	  sum1 = sum1 + molality[j]*2.0*m_Lambda_nj_LL(i,j);
 	}
 	sum2 = 3.0 * molality[i] * molality[i] * m_Mu_nnn_LL[i];
-	m_d2lnActCoeffMolaldT2[i] = sum1 + sum2;
+	m_d2lnActCoeffMolaldT2_Unscaled[i] = sum1 + sum2;
 #ifdef DEBUG_MODE
 	if (m_debugCalc) {
 	  sni = speciesName(i);
 	  printf(" %-16s d2lngammadT2[i]=%10.6f \n", 
-		 sni.c_str(), m_d2lnActCoeffMolaldT2[i]);
+		 sni.c_str(), m_d2lnActCoeffMolaldT2_Unscaled[i]);
 	}
 #endif
       }
@@ -4697,7 +4737,7 @@ namespace Cantera {
      * We have just computed act_0. However, this routine returns
      *  ln(actcoeff[]). Therefore, we must calculate ln(actcoeff_0).
      */
-    m_d2lnActCoeffMolaldT2[0] = d2_lnwateract_dT2;
+    m_d2lnActCoeffMolaldT2_Unscaled[0] = d2_lnwateract_dT2;
 
 #ifdef DEBUG_MODE
     if (m_debugCalc) {
@@ -4711,7 +4751,7 @@ namespace Cantera {
   /********************************************************************************************/
 
   /*
-   * s_Pitzer_dlnMolalityActCoeff_dP()         (private, const )
+   * s_update_dlnMolalityActCoeff_dP()         (private, const )
    *
    *   Using internally stored values, this function calculates
    *   the pressure derivative of the logarithm of the
@@ -4722,16 +4762,17 @@ namespace Cantera {
    *   solvent activity coefficient is on the molality
    *   scale. It's derivative is too.
    */
-  void HMWSoln::s_Pitzer_dlnMolalityActCoeff_dP() const {
+  void HMWSoln::s_update_dlnMolalityActCoeff_dP() const {
  
-    for (int k = 0; k < m_kk; k++) {
-      m_dlnActCoeffMolaldP[k] = 0.0;
-    }
-    s_update_dlnMolalityActCoeff_dP();
+    fbo_zero_dbl_1(DATA_PTR(m_dlnActCoeffMolaldP_Unscaled), m_kk);
+  
+    s_updatePitzer_dlnMolalityActCoeff_dP();
+
+    s_updateScaling_pHScaling_dP();
   }
 
   /*
-   * s_update_dlnMolalityActCoeff_dP()         (private, const )
+   * s_updatePitzer_dlnMolalityActCoeff_dP()         (private, const )
    *
    *   Using internally stored values, this function calculates
    *   the pressure derivative of the logarithm of the
@@ -4748,7 +4789,7 @@ namespace Cantera {
    *   solvent activity coefficient is on the molality
    *   scale. It's derivatives are too.
    */
-  void HMWSoln::s_update_dlnMolalityActCoeff_dP() const {
+  void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const {
    
     /*
      * HKM -> Assumption is made that the solvent is
@@ -5237,14 +5278,14 @@ namespace Cantera {
 	 * Add all of the contributions up to yield the log of the
 	 * solute activity coefficients (molality scale)
 	 */
-	m_dlnActCoeffMolaldP[i] =
+	m_dlnActCoeffMolaldP_Unscaled[i] =
 	  zsqdFdP + sum1 + sum2 + sum3 + sum4 + sum5;
 
 #ifdef DEBUG_MODE
 	if (m_debugCalc) {
 	  sni = speciesName(i);
 	  printf(" %-16s lngamma[i]=%10.6f \n", 
-		 sni.c_str(), m_dlnActCoeffMolaldP[i]);
+		 sni.c_str(), m_dlnActCoeffMolaldP_Unscaled[i]);
 	  printf("                   %12g %12g %12g %12g %12g %12g\n",
 		 zsqdFdP, sum1, sum2, sum3, sum4, sum5);
 	}
@@ -5320,13 +5361,13 @@ namespace Cantera {
 	    sum5 = sum5 + molality[j]*2.0*m_Lambda_nj_L(j,i);
 	  }
 	}
-	m_dlnActCoeffMolaldP[i] = 
+	m_dlnActCoeffMolaldP_Unscaled[i] = 
 	  zsqdFdP + sum1 + sum2 + sum3 + sum4 + sum5;
 #ifdef DEBUG_MODE
 	if (m_debugCalc) {
 	  sni = speciesName(i);
 	  printf(" %-16s lndactcoeffmolaldP[i]=%10.6f \n", 
-		 sni.c_str(), m_dlnActCoeffMolaldP[i]);
+		 sni.c_str(), m_dlnActCoeffMolaldP_Unscaled[i]);
 	  printf("                   %12g %12g %12g %12g %12g %12g\n",
 		 zsqdFdP, sum1, sum2, sum3, sum4, sum5);
 	}
@@ -5342,12 +5383,12 @@ namespace Cantera {
 	  sum1 +=  molality[j]*2.0*m_Lambda_nj_P(i,j);
 	}
 	sum2 = 3.0 * molality[i] * molality[i] * m_Mu_nnn_P[i];
-	m_dlnActCoeffMolaldP[i] = sum1 + sum2;
+	m_dlnActCoeffMolaldP_Unscaled[i] = sum1 + sum2;
 #ifdef DEBUG_MODE
 	if (m_debugCalc) {
 	  sni = speciesName(i);
 	  printf(" %-16s dlnActCoeffMolaldP[i]=%10.6f \n", 
-		 sni.c_str(), m_dlnActCoeffMolaldP[i]);
+		 sni.c_str(), m_dlnActCoeffMolaldP_Unscaled[i]);
 	}
 #endif
       }
@@ -5515,7 +5556,7 @@ namespace Cantera {
      *  ln(actcoeff[]). Therefore, we must calculate ln(actcoeff_0).
      */
     //double xmolSolvent = moleFraction(m_indexSolvent);
-    m_dlnActCoeffMolaldP[0] = d_lnwateract_dP;
+    m_dlnActCoeffMolaldP_Unscaled[0] = d_lnwateract_dP;
 #ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf(" d_ln_a_water_dP = %10.6f d_a_water_dP=%10.6f\n\n", 
@@ -5784,7 +5825,7 @@ namespace Cantera {
      * Update the coefficients wrt Temperature
      * Calculate the derivatives as well
      */
-    s_updatePitzerCoeffWRTemp(2);
+    s_updatePitzer_CoeffWRTemp(2);
     getMoleFractions(moleF);
 
     printf("Index  Name                  MoleF   MolalityCropped  Charge\n");
@@ -5831,6 +5872,25 @@ namespace Cantera {
     }
   }
 
+  //! Apply the current phScale to a set of activity Coefficients or activities
+  /*!
+     *  See the Eq3/6 Manual for a thorough discussion.
+     *
+     * @param acMolality input/Output vector containing the molality based 
+     *                   activity coefficients. length: m_kk.
+     */
+  void HMWSoln::applyphScale(doublereal *acMolality) const {
+    if (m_pHScalingType == PHSCALE_PITZER) {
+      return;
+    }
+    AssertTrace(m_pHScalingType == PHSCALE_NBS);
+    doublereal lnGammaClMs2 = s_NBS_CLM_lnMolalityActCoeff();
+    doublereal lnGammaCLMs1 = m_lnActCoeffMolal_Unscaled[m_indexCLM];
+    doublereal afac = -1.0 *(lnGammaClMs2 - lnGammaCLMs1);
+    for (int k = 0; k < m_kk; k++) {
+      acMolality[k] *= exp(m_speciesCharge[k] * afac);
+    }
+  }
 
   //  Apply the current phScale to a set of activity Coefficients or activities
   /* 
@@ -5839,40 +5899,130 @@ namespace Cantera {
    * @param acMolality input/Output vector containing the molality based 
    *                   activity coefficients. length: m_kk.
    */
-  void HMWSoln::applyphScale(doublereal *acMolality) const {
-    if (m_pHScalingType == PHSCALE_PITZER) return;
-    if (m_pHScalingType != PHSCALE_NBS) {
-      throw CanteraError("", "shoudln't be here");
+  void HMWSoln::s_updateScaling_pHScaling() const {
+    if (m_pHScalingType == PHSCALE_PITZER) {
+      fvo_copy_dbl_1(m_lnActCoeffMolal_Scaled, m_lnActCoeffMolal_Unscaled, m_kk);
+      return;
     }
-    
-    /*
-     * Find the ionic strength
-     */
-    doublereal Is = m_IionicMolality;
-    doublereal sqrtIs = sqrt(Is);
-  
-    /*
-     * Find the Debye Huckel coefficient
-     */
-    doublereal A = m_A_Debye;
-    doublereal lnGammaClMs2 = - A * sqrtIs /(1.0 + 1.5 * sqrtIs); 
-    doublereal lnGammaCLMs1 = m_lnActCoeffMolal[m_indexCLM];
+    AssertTrace(m_pHScalingType == PHSCALE_NBS);
+    doublereal lnGammaClMs2 = s_NBS_CLM_lnMolalityActCoeff();
+    doublereal lnGammaCLMs1 = m_lnActCoeffMolal_Unscaled[m_indexCLM];
     doublereal afac = -1.0 *(lnGammaClMs2 - lnGammaCLMs1);
-
-    for (int k = 1; k < m_kk; k++) {
-      acMolality[k] *= exp(m_speciesCharge[k] * afac);
+    for (int k = 0; k < m_kk; k++) {
+      m_lnActCoeffMolal_Scaled[k] = m_lnActCoeffMolal_Unscaled[k] + m_speciesCharge[k] * afac;
     }
   }
 
+  //  Apply the current phScale to a set of derivativies of the activity Coefficients
+  //  wrt temperature
+  /* 
+   *  See the Eq3/6 Manual for a thorough discussion of the need
+   *
+   */
+  void HMWSoln::s_updateScaling_pHScaling_dT() const {
+    if (m_pHScalingType == PHSCALE_PITZER) {
+      fvo_copy_dbl_1(m_dlnActCoeffMolaldT_Scaled, m_dlnActCoeffMolaldT_Unscaled, m_kk);
+      return;
+    }
+    AssertTrace(m_pHScalingType == PHSCALE_NBS);
+    doublereal dlnGammaClM_dT_s2 = s_NBS_CLM_dlnMolalityActCoeff_dT();
+    doublereal dlnGammaCLM_dT_s1 = m_dlnActCoeffMolaldT_Unscaled[m_indexCLM];
+    doublereal afac = -1.0 *(dlnGammaClM_dT_s2 - dlnGammaCLM_dT_s1);
+    for (int k = 0; k < m_kk; k++) {
+      m_dlnActCoeffMolaldT_Scaled[k] = m_dlnActCoeffMolaldT_Unscaled[k] + m_speciesCharge[k] * afac;
+    }
+  }
+
+  //  Apply the current phScale to a set of 2nd derivatives of the activity Coefficients
+  //  wrt temperature
+  /* 
+   *  See the Eq3/6 Manual for a thorough discussion of the need
+   *
+   */
+  void HMWSoln::s_updateScaling_pHScaling_dT2() const {
+    if (m_pHScalingType == PHSCALE_PITZER) {
+      fvo_copy_dbl_1(m_d2lnActCoeffMolaldT2_Scaled, m_d2lnActCoeffMolaldT2_Unscaled, m_kk);
+      return;
+    }
+    AssertTrace(m_pHScalingType == PHSCALE_NBS);
+    doublereal d2lnGammaClM_dT2_s2 = s_NBS_CLM_d2lnMolalityActCoeff_dT2();
+    doublereal d2lnGammaCLM_dT2_s1 = m_d2lnActCoeffMolaldT2_Unscaled[m_indexCLM];
+    doublereal afac = -1.0 *(d2lnGammaClM_dT2_s2 - d2lnGammaCLM_dT2_s1);
+    for (int k = 0; k < m_kk; k++) {
+      m_d2lnActCoeffMolaldT2_Scaled[k] = m_d2lnActCoeffMolaldT2_Unscaled[k] + m_speciesCharge[k] * afac;
+    }
+  }
+
+  //   Apply the current phScale to a set of derivatives of the activity Coefficients
+  //   wrt pressure
+  /*  
+   *  See the Eq3/6 Manual for a thorough discussion of the need
+   */
+  void HMWSoln::s_updateScaling_pHScaling_dP() const {
+    if (m_pHScalingType == PHSCALE_PITZER) {
+      fvo_copy_dbl_1(m_dlnActCoeffMolaldP_Scaled, m_dlnActCoeffMolaldP_Unscaled, m_kk);
+      return;
+    }
+    AssertTrace(m_pHScalingType == PHSCALE_NBS);
+    doublereal dlnGammaClM_dP_s2 = s_NBS_CLM_dlnMolalityActCoeff_dP();
+    doublereal dlnGammaCLM_dP_s1 = m_dlnActCoeffMolaldP_Unscaled[m_indexCLM];
+    doublereal afac = -1.0 *(dlnGammaClM_dP_s2 - dlnGammaCLM_dP_s1);
+    for (int k = 0; k < m_kk; k++) {
+      m_dlnActCoeffMolaldP_Scaled[k] = m_dlnActCoeffMolaldP_Unscaled[k] + m_speciesCharge[k] * afac;
+    }
+  }
+
+  //  Calculate the temperature derivative of the Chlorine activity coefficient
+  /* 
+   *  We assume here that the m_IionicMolality variable is up to date.
+   */
+  doublereal HMWSoln::s_NBS_CLM_lnMolalityActCoeff() const {
+    doublereal sqrtIs = sqrt(m_IionicMolality);
+    doublereal A = m_A_Debye;
+    doublereal lnGammaClMs2 = - A * sqrtIs /(1.0 + 1.5 * sqrtIs); 
+    return  lnGammaClMs2;
+  }
+
+  //  Calculate the temperature derivative of the Chlorine activity coefficient
+  /* 
+   *  We assume here that the m_IionicMolality variable is up to date.
+   */
+  doublereal HMWSoln::s_NBS_CLM_dlnMolalityActCoeff_dT() const {
+    doublereal sqrtIs = sqrt(m_IionicMolality);
+    doublereal dAdT = dA_DebyedT_TP();
+    doublereal d_lnGammaClM_dT = - dAdT * sqrtIs /(1.0 + 1.5 * sqrtIs); 
+    return d_lnGammaClM_dT;
+  }  
+
+  //  Calculate the second temperature derivative of the Chlorine activity coefficient
+  /* 
+   *  We assume here that the m_IionicMolality variable is up to date.
+   */
+  doublereal HMWSoln::s_NBS_CLM_d2lnMolalityActCoeff_dT2() const {
+    doublereal sqrtIs = sqrt(m_IionicMolality);
+    doublereal d2AdT2 = d2A_DebyedT2_TP();
+    doublereal d_lnGammaClM_dT2 = - d2AdT2 * sqrtIs /(1.0 + 1.5 * sqrtIs); 
+    return d_lnGammaClM_dT2;
+  }
+
+  //  Calculate the pressure derivative of the Chlorine activity coefficient
+  /* 
+   *  We assume here that the m_IionicMolality variable is up to date.
+   */
+  doublereal HMWSoln::s_NBS_CLM_dlnMolalityActCoeff_dP() const {
+    doublereal sqrtIs = sqrt(m_IionicMolality);
+    doublereal dAdP = dA_DebyedP_TP();
+    doublereal d_lnGammaClM_dP = - dAdP * sqrtIs /(1.0 + 1.5 * sqrtIs); 
+    return d_lnGammaClM_dP;
+  }
 
   int HMWSoln::debugPrinting() {
 #ifdef DEBUG_MODE
-   return m_debugCalc;
+    return m_debugCalc;
 #else
-   return 0;
+    return 0;
 #endif
   }
- 
-  /*****************************************************************************/
+  
 }
 /*****************************************************************************/

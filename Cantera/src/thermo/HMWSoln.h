@@ -2199,6 +2199,7 @@ namespace Cantera {
      */
     void getUnscaledMolalityActivityCoefficients(doublereal *acMolality) const;
 
+  private:
     //! Apply the current phScale to a set of activity Coefficients or activities
     /*!
      *  See the Eq3/6 Manual for a thorough discussion.
@@ -2206,7 +2207,57 @@ namespace Cantera {
      * @param acMolality input/Output vector containing the molality based 
      *                   activity coefficients. length: m_kk.
      */
-    void applyphScale(doublereal *acMolality) const;
+    // void applyphScale(doublereal *acMolality) const;
+
+    void s_updateScaling_pHScaling() const;
+
+    //!  Apply the current phScale to a set of derivatives of the activity Coefficients
+    //!  wrt temperature
+    /*! 
+     *  See the Eq3/6 Manual for a thorough discussion of the need
+     */
+    void s_updateScaling_pHScaling_dT() const;
+
+    //!  Apply the current phScale to a set of 2nd derivatives of the activity Coefficients
+    //!  wrt temperature
+    /*! 
+     *  See the Eq3/6 Manual for a thorough discussion of the need
+     */
+    void HMWSoln::s_updateScaling_pHScaling_dT2() const;
+
+    //!  Apply the current phScale to a set of derivatives of the activity Coefficients
+    //!  wrt pressure
+    /*! 
+     *  See the Eq3/6 Manual for a thorough discussion of the need
+     */
+    void s_updateScaling_pHScaling_dP() const;
+
+ 
+    //!  Calculate the Chlorine activity coefficient on the NBS scale
+    /*!
+     *  We assume here that the m_IionicMolality variable is up to date.
+     */
+    doublereal s_NBS_CLM_lnMolalityActCoeff() const;
+
+    //!  Calculate the temperature derivative of the Chlorine activity coefficient
+    //!  on the NBS scale
+    /*! 
+     *  We assume here that the m_IionicMolality variable is up to date.
+     */
+    doublereal s_NBS_CLM_dlnMolalityActCoeff_dT() const;
+
+    //!  Calculate the second temperature derivative of the Chlorine activity coefficient
+    //!  on the NBS scale
+    /*! 
+     *  We assume here that the m_IionicMolality variable is up to date.
+     */
+    doublereal s_NBS_CLM_d2lnMolalityActCoeff_dT2() const;
+    
+    //!  Calculate the pressure derivative of the Chlorine activity coefficient
+    /*! 
+     *  We assume here that the m_IionicMolality variable is up to date.
+     */
+    doublereal s_NBS_CLM_dlnMolalityActCoeff_dP() const;
 
     //@}
          
@@ -2757,28 +2808,59 @@ namespace Cantera {
      *
      *  index is the species index
      */
-    mutable vector_fp m_lnActCoeffMolal;
+    mutable vector_fp m_lnActCoeffMolal_Scaled;
+
+   //!  Logarithm of the activity coefficients on the molality
+    //!  scale.
+    /*!
+     *       mutable because we change this if the composition
+     *       or temperature or pressure changes.
+     *
+     *  index is the species index
+     */
+    mutable vector_fp m_lnActCoeffMolal_Unscaled;
 
     //!  Derivative of the Logarithm of the activity coefficients on the molality
     //!  scale wrt T
     /*!
      *  index is the species index
      */
-    mutable vector_fp m_dlnActCoeffMolaldT;
+    mutable vector_fp m_dlnActCoeffMolaldT_Scaled;
+
+    //!  Derivative of the Logarithm of the activity coefficients on the molality
+    //!  scale wrt T
+    /*!
+     *  index is the species index
+     */
+    mutable vector_fp m_dlnActCoeffMolaldT_Unscaled;
 
     //!  Derivative of the Logarithm of the activity coefficients on the molality
     //!  scale wrt TT
     /*!
      *  index is the species index
      */
-    mutable vector_fp m_d2lnActCoeffMolaldT2;
+    mutable vector_fp m_d2lnActCoeffMolaldT2_Scaled;
+
+   //!  Derivative of the Logarithm of the activity coefficients on the molality
+    //!  scale wrt TT
+    /*!
+     *  index is the species index
+     */
+    mutable vector_fp m_d2lnActCoeffMolaldT2_Unscaled;
 
     //!  Derivative of the Logarithm of the activity coefficients on the 
     //!  molality scale wrt P
     /*!
      *  index is the species index
      */
-    mutable vector_fp m_dlnActCoeffMolaldP;
+    mutable vector_fp m_dlnActCoeffMolaldP_Scaled;
+
+    //!  Derivative of the Logarithm of the activity coefficients on the 
+    //!  molality scale wrt P
+    /*!
+     *  index is the species index
+     */
+    mutable vector_fp m_dlnActCoeffMolaldP_Unscaled;
 
     /*
      * -------- Temporary Variables Used in the Activity Coeff Calc
@@ -2997,7 +3079,7 @@ namespace Cantera {
     /*!
      *  vector index is the species index
      */
-    mutable vector_fp m_gamma;
+    mutable vector_fp m_gamma_tmp;
 
     //! Logarithm of the molal activity coefficients
     /*!
@@ -3069,11 +3151,41 @@ namespace Cantera {
     //!  Initialize all of the species - dependent lengths in the object
     void initLengths();
 
+    //! Apply the current phScale to a set of activity Coefficients or activities
+    /*!
+     *  See the Eq3/6 Manual for a thorough discussion.
+     *
+     * @param acMolality input/Output vector containing the molality based 
+     *                   activity coefficients. length: m_kk.
+     */
+    virtual void applyphScale(doublereal *acMolality) const;
+
+  private:
     /*
      * This function will be called to update the internally storred
      * natural logarithm of the molality activity coefficients 
      */
     void s_update_lnMolalityActCoeff() const;
+
+    //! This function calculates the temperature derivative of the
+     //! natural logarithm of the molality activity coefficients.
+     /*!
+      * This is the private function. It does all of the direct work.
+      */
+    void s_update_dlnMolalityActCoeff_dT() const;
+
+    /**
+     * This function calculates the temperature second derivative
+     * of the natural logarithm of the molality activity 
+     * coefficients.
+     */
+    void s_update_d2lnMolalityActCoeff_dT2() const;
+
+    /**
+     * This function calculates the pressure derivative of the
+     * natural logarithm of the molality activity coefficients.
+     */
+    void s_update_dlnMolalityActCoeff_dP() const;
 
     //! This function will be called to update the internally storred
     //! natural logarithm of the molality activity coefficients
@@ -3087,7 +3199,12 @@ namespace Cantera {
      */
     void s_updateIMS_lnMolalityActCoeff() const;
 
-  public:
+  private:
+    /**
+     * This function does the main pitzer coefficient 
+     * calculation
+     */
+    void s_updatePitzer_lnMolalityActCoeff() const;
 
     //!  Calculates the temperature derivative of the
     //!  natural logarithm of the molality activity coefficients.
@@ -3095,7 +3212,14 @@ namespace Cantera {
      * Public function makes sure that all dependent data is
      * up to date, before calling a private function
      */
-    void s_Pitzer_dlnMolalityActCoeff_dT() const;
+    void s_updatePitzer_dlnMolalityActCoeff_dT() const;
+
+    /**
+     * This function calculates the temperature second derivative
+     * of the natural logarithm of the molality activity 
+     * coefficients.
+     */
+    void s_updatePitzer_d2lnMolalityActCoeff_dT2() const;
 
     //!  Calculates the Pressure derivative of the
     //!  natural logarithm of the molality activity coefficients.
@@ -3103,28 +3227,10 @@ namespace Cantera {
      * Public function makes sure that all dependent data is
      * up to date, before calling a private function
      */
-    void s_Pitzer_dlnMolalityActCoeff_dP() const;
+    void s_updatePitzer_dlnMolalityActCoeff_dP() const;
 
-  private:
+ 
    
-     //! This function calculates the temperature derivative of the
-     //! natural logarithm of the molality activity coefficients.
-     /*!
-      * This is the private function. It does all of the direct work.
-      */
-    void s_update_dlnMolalityActCoeff_dT() const;
-
-    /**
-     * This function calculates the temperature second derivative
-     * of the natural logarithm of the molality activity 
-     * coefficients.
-     */
-    void s_update_d2lnMolalityActCoeff_dT2() const;
-    /**
-     * This function calculates the pressure derivative of the
-     * natural logarithm of the molality activity coefficients.
-     */
-    void s_update_dlnMolalityActCoeff_dP() const;
 
     //! Calculates the Pitzer coefficients' dependence on the temperature.
     /*!
@@ -3139,14 +3245,9 @@ namespace Cantera {
      *                  temperature derivative.
      *                  default = 2
      */
-    void s_updatePitzerCoeffWRTemp(int doDerivs = 2) const;
+    void s_updatePitzer_CoeffWRTemp(int doDerivs = 2) const;
 
-    /**
-     * This function does the main pitzer coefficient 
-     * calculation
-     */
-    void s_updatePitzerSublnMolalityActCoeff() const;
-
+  
     
     //! Calculate the lambda interactions.
     /*!
