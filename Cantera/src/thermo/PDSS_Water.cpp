@@ -473,6 +473,18 @@ namespace Cantera {
     m_sub->setState_TR(m_temp, m_dens);
   }
 
+  doublereal PDSS_Water::pref_safe(doublereal temp) const {
+    if (temp < m_sub->Tcrit()) {
+      doublereal pp = m_sub->psat_est(temp);
+      if (pp > OneAtm) {
+	return pp;
+      }
+    } else  {
+      return m_sub->Pcrit();
+    }
+    return OneAtm;
+  }
+
   // saturation pressure
   doublereal PDSS_Water::satPressure(doublereal t){
     doublereal pp = m_sub->psat(t, WATER_LIQUID);

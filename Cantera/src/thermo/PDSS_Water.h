@@ -234,6 +234,17 @@ namespace Cantera {
      * @{
      */
 
+    //! Returns a reference pressure value that can be safely calculated by the
+    //! underlying real equation of state for water
+    /*!
+     *  Note, this function is needed because trying to calculate a one atm
+     *  value around the critical point will cause a crash
+     *
+     * @param temp  Temperature (Kelvin)
+     */
+    doublereal PDSS_Water::pref_safe(doublereal temp) const;
+
+
     //! Return the molar gibbs free energy divided by RT at reference pressure
     /*!
      * Returns the species reference state gibbs free energy divided by RT at the

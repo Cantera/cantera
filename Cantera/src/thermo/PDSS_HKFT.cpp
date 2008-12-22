@@ -392,7 +392,7 @@ namespace Cantera {
   doublereal 
   PDSS_HKFT::gibbs_RT_ref() const {
     doublereal m_psave = m_pres;
-    m_pres = OneAtm;
+    m_pres = m_waterSS->pref_safe(m_temp);
     doublereal ee = gibbs_RT();
     m_pres = m_psave;
     return ee;
@@ -401,7 +401,7 @@ namespace Cantera {
   doublereal 
   PDSS_HKFT::enthalpy_RT_ref() const {
     doublereal m_psave = m_pres;
-    m_pres = OneAtm;
+    m_pres = m_waterSS->pref_safe(m_temp);
     doublereal hh = enthalpy_RT();
     m_pres = m_psave;
     return hh;
@@ -410,7 +410,7 @@ namespace Cantera {
   doublereal 
   PDSS_HKFT::entropy_R_ref() const {
     doublereal m_psave = m_pres;
-    m_pres = OneAtm;
+    m_pres = m_waterSS->pref_safe(m_temp);
     doublereal ee = entropy_R();
     m_pres = m_psave;
     return ee;
@@ -419,7 +419,7 @@ namespace Cantera {
   doublereal 
   PDSS_HKFT::cp_R_ref() const {
     doublereal m_psave = m_pres;
-    m_pres = OneAtm;
+    m_pres = m_waterSS->pref_safe(m_temp);
     doublereal ee = cp_R();
     m_pres = m_psave;
     return ee;
@@ -428,7 +428,7 @@ namespace Cantera {
   doublereal
   PDSS_HKFT::molarVolume_ref() const {
     doublereal m_psave = m_pres;
-    m_pres = OneAtm;
+    m_pres = m_waterSS->pref_safe(m_temp);
     doublereal ee = molarVolume();
     m_pres = m_psave;
     return ee;
