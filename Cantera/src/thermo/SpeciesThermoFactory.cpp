@@ -67,6 +67,14 @@ namespace Cantera {
     size_t ns = spDataNodeList.size();
     for (size_t n = 0; n < ns; n++) {
       XML_Node* spNode = spDataNodeList[n];
+      if (spNode->hasChild("standardState")) {
+	const XML_Node& ss = spNode->child("standardState");
+	string mname = ss["model"];
+	if (mname == "water" || mname == "waterIAPWS") {
+	  has_other = 1;
+	  continue;
+	}
+      }
       if (spNode->hasChild("thermo")) {
 	const XML_Node& th = spNode->child("thermo");
 	if (th.hasChild("NASA")) {
