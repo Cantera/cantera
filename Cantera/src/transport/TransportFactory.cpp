@@ -348,7 +348,7 @@ namespace Cantera {
    * collision integrals.
    */
   void TransportFactory::setupMM(std::ostream &flog, 
-				 const XML_Node* transport_database, 
+				 const std::vector<const XML_Node*> &transport_database, 
 				 thermo_t* thermo, int mode, int log_level, TransportParams& tr) {
         
     // constant mixture attributes
@@ -476,7 +476,7 @@ namespace Cantera {
   void TransportFactory::initTransport(Transport* tran, 
 				       thermo_t* thermo, int mode, int log_level) { 
 
-    const XML_Node* transport_database = thermo->speciesData();
+    const std::vector<const XML_Node*> & transport_database = thermo->speciesData();
         
     TransportParams tr;
 #ifdef DEBUG_MODE
@@ -599,17 +599,14 @@ namespace Cantera {
    * instance of TransportParams containing the transport data for
    * these species read from the file.
    */
-  void TransportFactory::getTransportData(const XML_Node* transport_database,  
-					  XML_Node& log, const vector<string>& names, TransportParams& tr)
+  void TransportFactory::getTransportData(const std::vector<const XML_Node*> &xspecies,  
+					  XML_Node& log, const std::vector<std::string> &names, TransportParams& tr)
   {
     string name;
     int geom;
-    map<string, GasTransportData> datatable;
+    std::map<std::string, GasTransportData> datatable;
     doublereal welldepth, diam, dipole, polar, rot;
 
-    //XML_Node* sparray = find_XML("", &root, "", "", "speciesData");
-    vector<XML_Node*> xspecies;
-    transport_database->getChildren("species",xspecies);
     int nsp = static_cast<int>(xspecies.size());
         
     // read all entries in database into 'datatable' and check for 

@@ -153,7 +153,7 @@ namespace Cantera {
      */
     TransportFactory();
 
-    void getTransportData(const XML_Node* db,  
+    void getTransportData(const std::vector<const XML_Node*> &db,  
 			  XML_Node& log, const std::vector<std::string>& names, 
 			  TransportParams& tr);
 
@@ -167,7 +167,7 @@ namespace Cantera {
 
    
 
-    void setupMM(std::ostream &flog,  const XML_Node* transport_database, 
+    void setupMM(std::ostream &flog,  const std::vector<const XML_Node*> &transport_database, 
 		 thermo_t* thermo, int mode, int log_level, 
 		 TransportParams& tr);
 
