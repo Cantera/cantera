@@ -1987,7 +1987,9 @@ namespace Cantera {
      */
     void constructPhaseXML(XML_Node& phaseNode, std::string id);
 
-    /**
+    //! Internal initialization required after all species have
+    //! been added
+    /*!
      * @internal Initialize. This method is provided to allow
      * subclasses to perform any initialization required after all
      * species have been added. For example, it might be used to
@@ -2002,8 +2004,9 @@ namespace Cantera {
      */
     virtual void initThermo();
 
-    /*
-     * initThermoXML()                 (virtual from ThermoPhase)
+    //! Initialize the phase parameters from an XML file.
+    /*!
+     *  initThermoXML()                 (virtual from ThermoPhase)
      *
      *  This gets called from importPhase(). It processes the XML file
      *  after the species are set up. This is the main routine for

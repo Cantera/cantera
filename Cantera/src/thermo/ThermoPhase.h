@@ -1780,21 +1780,11 @@ namespace Cantera {
      * @param data   Pointer to the XML_Node data containing
      *               information about the species in the phase.
      */
-    void saveSpeciesData(const XML_Node* data) {
-      m_speciesData = data;
-    }
+    void saveSpeciesData(const int k, const XML_Node* data);
       
-    /// Return a pointer to the XML tree containing the species
-    /// data for this phase.
-    const XML_Node* speciesData() { 
-      if (!m_speciesData) {
-	throw CanteraError("ThermoPhase::speciesData",
-			   "m_speciesData is NULL");
-      }
-      return m_speciesData;
-    }
-
-
+    //!  Return a pointer to the vector of XML nodes containing the species
+    //!  data for this phase.
+    const std::vector<const XML_Node *> & speciesData() const;
       
     //!  Install a species thermodynamic property manager. 
     /*!
@@ -2012,11 +2002,13 @@ namespace Cantera {
      */
     SpeciesThermo* m_spthermo;
 
-    /// Pointer to  the XML tree containing the species
-    /// data for this phase. This is used to access data needed to
-    /// construct the transport manager and other properties
-    /// later in the initialization process.
-    const XML_Node* m_speciesData;
+    //! Vector of pointers to the species databases.
+    /*!
+     *  This is used to access data needed to
+     * construct the transport manager and other properties
+     * later in the initialization process.
+     */
+    std::vector<const XML_Node *> m_speciesData;
 
     //! Index number of the phase
     /*!
@@ -2038,7 +2030,8 @@ namespace Cantera {
     ///    -> length equal to number of elements
     vector_fp m_lambdaRRT;
 
-    //! Boolean indicating whether there is a valid set of saved element potentials for this phase
+    //! Boolean indicating whether there is a valid set of saved element potentials 
+    //! for this phase
     bool m_hasElementPotentials;
 
     //! Boolean indicating whether a charge neutrality condition is a necessity

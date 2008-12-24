@@ -541,14 +541,13 @@ namespace Cantera {
       bool ok = installSpecies(k, *s, *th, spth, spRuleList[i], 
 			       &phase, vp_spth, spfactory);
       if (ok) {
+	th->saveSpeciesData(k, s);
 	++k;
       }
     }
 
     // done adding species. 
     th->freezeSpecies();
-
-    th->saveSpeciesData(db);
 
     // Perform any required subclass-specific initialization.
     th->initThermo();

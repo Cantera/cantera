@@ -881,7 +881,24 @@ namespace Cantera {
 			 "Number of species is less than or equal to zero");
     }
   }
-    
+
+  void ThermoPhase::saveSpeciesData(const int k, const XML_Node* const data) {
+    if ((int) m_speciesData.size() < (k + 1)) {
+      m_speciesData.resize(k+1, 0);
+    }
+    m_speciesData[k] = data;
+  }
+
+  //! Return a pointer to the XML tree containing the species
+  /// data for this phase.
+  const std::vector<const XML_Node *> & ThermoPhase::speciesData() const { 
+    if ((int) m_speciesData.size() != m_kk) {
+      throw CanteraError("ThermoPhase::speciesData",
+			 "m_speciesData is the wrong size");
+    }
+    return m_speciesData;
+  }
+
   /*
    * Set the thermodynamic state.
    */

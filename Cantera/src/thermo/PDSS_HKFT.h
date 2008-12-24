@@ -579,7 +579,7 @@ namespace Cantera {
     doublereal m_r_e_j;
 
 
-    //! Value of deltaG of Formation at Tr and Pr    (cal gmol-1)
+    //! Input value of deltaG of Formation at Tr and Pr    (cal gmol-1)
     /*!
      *  Tr = 298.15   Pr = 1 atm
      *
@@ -588,7 +588,7 @@ namespace Cantera {
      */
     doublereal m_deltaG_formation_tr_pr;
 
-    //! Value of deltaH of Formation at Tr and Pr    (cal gmol-1)
+    //!  Input value of deltaH of Formation at Tr and Pr    (cal gmol-1)
     /*!
      *  Tr = 298.15   Pr = 1 atm
      *
@@ -597,40 +597,40 @@ namespace Cantera {
      */
     doublereal m_deltaH_formation_tr_pr;
 
-    //! Value of the Absolute Gibbs Free Energy NIST scale at tr and pr
+    //! Value of the Absolute Gibbs Free Energy NIST scale at T_r and P_r
     /*!
-     *  this is the NIST scale value of Gibbs free energy at T_r = 298.15
+     *  This is the NIST scale value of Gibbs free energy at T_r = 298.15
      *  and P_r = 1 atm.
      *
      *  J kmol-1
      */
     doublereal m_Mu0_tr_pr;
 
-    //! Value of S_j at Tr and Pr    (cal gmol-1 K-1)
+    //! Input value of S_j at Tr and Pr    (cal gmol-1 K-1)
     /*!
      *  Tr = 298.15   Pr = 1 atm
      */
     doublereal m_Entrop_tr_pr;
 
-    //! a1 coefficient (cal gmol-1 bar-1)
+    //! Input a1 coefficient (cal gmol-1 bar-1)
     doublereal m_a1;
 
-    //! a2 coefficient (cal gmol-1)
+    //!  Input a2 coefficient (cal gmol-1)
     doublereal m_a2;
 
-    //! a3 coefficient (cal K gmol-1 bar-1)
+    //!  Input a3 coefficient (cal K gmol-1 bar-1)
     doublereal m_a3;
 
-    //! a4 coefficient (cal K gmol-1)
+    //!  Input a4 coefficient (cal K gmol-1)
     doublereal m_a4;
 
-    //! c1 coefficient (cal gmol-1 K-1)
+    //!  Input c1 coefficient (cal gmol-1 K-1)
     doublereal m_c1;
     
-    //! c2 coefficient (cal K gmol-1)
+    //!  Input c2 coefficient (cal K gmol-1)
     doublereal m_c2;
 
-    //! omega_pr_tr coefficient(cal gmol-1)
+    //! Input  omega_pr_tr coefficient(cal gmol-1)
     doublereal m_omega_pr_tr;
 
     //! y = dZdT = 1/(esp*esp) desp/dT at 298.15 and 1 bar

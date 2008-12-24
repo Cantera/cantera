@@ -1480,32 +1480,29 @@ namespace Cantera {
        *  -> Look for the subelement "stoichIsMods"
        *     in each of the species SS databases.
        */
-      const XML_Node *phaseSpecies = speciesData();
-      if (phaseSpecies) {
-	std::string kname, jname;
-	vector<XML_Node*> xspecies;
-	phaseSpecies->getChildren("species",xspecies);
-	int jj = xspecies.size();
-	for (k = 0; k < m_kk; k++) {
-	  int jmap = -1;
-	  kname = speciesName(k);
-	  for (int j = 0; j < jj; j++) {
-	    const XML_Node& sp = *xspecies[j];
-	    jname = sp["name"];
-	    if (jname == kname) {
-	      jmap = j;
-	      break;
-	    }
+      std::vector<const XML_Node *> xspecies= speciesData(); 
+      std::string kname, jname;
+      int jj = xspecies.size();
+      for (k = 0; k < m_kk; k++) {
+	int jmap = -1;
+	kname = speciesName(k);
+	for (int j = 0; j < jj; j++) {
+	  const XML_Node& sp = *xspecies[j];
+	  jname = sp["name"];
+	  if (jname == kname) {
+	    jmap = j;
+	    break;
 	  }
-	  if (jmap > -1) {
-	    const XML_Node& sp = *xspecies[jmap];
-	    if (sp.hasChild("stoichIsMods")) {
-	      double val = getFloat(sp, "stoichIsMods");
-	      m_speciesCharge_Stoich[k] = val;
-	    }
+	}
+	if (jmap > -1) {
+	  const XML_Node& sp = *xspecies[jmap];
+	  if (sp.hasChild("stoichIsMods")) {
+	    double val = getFloat(sp, "stoichIsMods");
+	    m_speciesCharge_Stoich[k] = val;
 	  }
 	}
       }
+      
       /*
        * Now look at the activity coefficient database
        */
@@ -1558,20 +1555,18 @@ namespace Cantera {
      *  -> Look for the subelement "stoichIsMods"
      *     in each of the species SS databases.
      */
-    const XML_Node *phaseSpecies = speciesData();
+    std::vector<const XML_Node *> xspecies= speciesData(); 
     const XML_Node *spPtr = 0;
-    if (phaseSpecies) {
-      std::string kname;
-      for (k = 0; k < m_kk; k++) {
-	kname = speciesName(k);
-	spPtr = speciesXML_Node(kname, phaseSpecies);
-	if (!spPtr) {
-	  if (spPtr->hasChild("electrolyteSpeciesType")) {
-	    std::string est = getString(*spPtr, "electrolyteSpeciesType");
-	    if ((m_electrolyteSpeciesType[k] = interp_est(est)) == -1) {
-	      throw CanteraError("DebyeHuckel:initThermoXML",
-				 "Bad electrolyte type: " + est);
-	    }
+    std::string kname;
+    for (k = 0; k < m_kk; k++) {
+      kname = speciesName(k);
+      spPtr = xspecies[k];
+      if (!spPtr) {
+	if (spPtr->hasChild("electrolyteSpeciesType")) {
+	  std::string est = getString(*spPtr, "electrolyteSpeciesType");
+	  if ((m_electrolyteSpeciesType[k] = interp_est(est)) == -1) {
+	    throw CanteraError("DebyeHuckel:initThermoXML",
+			       "Bad electrolyte type: " + est);
 	  }
 	}
       }
