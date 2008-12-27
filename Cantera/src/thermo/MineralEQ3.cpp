@@ -114,11 +114,11 @@ namespace Cantera {
       return *this;
     }
     StoichSubstanceSSTP::operator=(right);
-    m_Mu0_tr_pr = right.m_Mu0_tr_pr;
-    m_Entrop_tr_pr = right.m_Entrop_tr_pr;
-    m_deltaG_formation_tr_pr = right.m_deltaG_formation_tr_pr;
-    m_deltaH_formation_tr_pr = right.m_deltaH_formation_tr_pr;
-    m_V0_tr_pr               = right.m_V0_tr_pr;
+    m_Mu0_pr_tr = right.m_Mu0_pr_tr;
+    m_Entrop_pr_tr = right.m_Entrop_pr_tr;
+    m_deltaG_formation_pr_tr = right.m_deltaG_formation_pr_tr;
+    m_deltaH_formation_pr_tr = right.m_deltaH_formation_pr_tr;
+    m_V0_pr_tr               = right.m_V0_pr_tr;
     m_a                      = right.m_a;
     m_b                      = right.m_b;
     m_c                      = right.m_c;
@@ -468,31 +468,67 @@ namespace Cantera {
       throw CanteraError("HMWSoln::initThermoXML",
 			 "no thermo XML node");
     }
-    XML_Node& thermoNode = phaseNode.child("thermo");
+   
+    std::vector<const XML_Node *> xspecies = speciesData();
+    const XML_Node *xsp = xspecies[0];
 
-
+    XML_Node *aStandardState = 0;
+    if (xsp->hasChild("standardState")) {
+      aStandardState = &xsp->child("standardState");
+    } else {
+      throw CanteraError("MineralEQ3::initThermoXML",
+			 "no standard state mode");
+    }
+    doublereal volVal = 0.0;
+    string smodel = (*aStandardState)["model"];
+    if (smodel != "constantVolume") {
+      throw CanteraError("MineralEQ3::initThermoXML",
+			 "wrong standard state mode");
+    }
+    if (aStandardState->hasChild("V0_Pr_Tr")) {
+      XML_Node& aV = aStandardState->child("V0_Pr_Tr");
+      string Aunits = "";
+      double Afactor = toSI("cm3/gmol");
+      if (aV.hasAttrib("units")) {
+	Aunits = aV.attrib("units");
+	Afactor = toSI(Aunits); 
+      }
+      volVal = getFloat(*aStandardState, "V0_Pr_Tr");
+      m_V0_pr_tr= volVal;
+      volVal *= Afactor;
+      m_speciesSize[0] = volVal;
+    } else {
+      throw CanteraError("MineralEQ3::initThermoXML",
+			 "wrong standard state mode");
+    }
+    doublereal rho = molecularWeight(0) / volVal;
+    setDensity(rho);
     
+    const XML_Node &sThermo = xsp->child("thermo");
+    const XML_Node &MinEQ3node = sThermo.child("MinEQ3");
+   
+
+    m_deltaG_formation_pr_tr =
+      getFloatDefaultUnits(MinEQ3node, "DG0_f_Pr_Tr", "cal/gmol", "actEnergy");
+    m_deltaH_formation_pr_tr =
+      getFloatDefaultUnits(MinEQ3node, "DH0_f_Pr_Tr", "cal/gmol", "actEnergy");
+    m_Entrop_pr_tr = getFloatDefaultUnits(MinEQ3node, "S0_Pr_Tr", "cal/gmol/K");
+    m_a = getFloatDefaultUnits(MinEQ3node, "a", "cal/gmol/K");
+    m_b = getFloatDefaultUnits(MinEQ3node, "b", "cal/gmol/K2");
+    m_c = getFloatDefaultUnits(MinEQ3node, "c", "cal-K/gmol");
+
+  
+    convertDGFormation();
+  
   }
 
-  /*
-   * Reads an xml data block for the parameters needed by this
-   * routine. eosdata is a reference to the xml thermo block, and looks
-   * like this:
-   * 
-   *   <phase id="stoichsolid" >
-   *     <thermo model="StoichSubstance">
-   *         <density units="g/cm3">3.52</density>
-   *     </thermo>
-   *   </phase>
-   */
+
   void MineralEQ3::setParametersFromXML(const XML_Node& eosdata) {
     std::string model = eosdata["model"];
-    if (model != "StoichSubstance" && model != "MineralEQ3") {
+    if (model != "MineralEQ3") {
       throw CanteraError("MineralEQ3::MineralEQ3",
-			 "thermo model attribute must be StoichSubstance");
+			 "thermo model attribute must be MineralEQ3");
     }
-    doublereal rho = getFloat(eosdata, "density", "toSI");
-    setDensity(rho);
   }
 
  doublereal MineralEQ3::LookupGe(const std::string& elemName) {
@@ -547,9 +583,9 @@ namespace Cantera {
     // totalSum -= m_charge_j * ge;
     //}
     // Ok, now do the calculation. Convert to joules kmol-1
-    doublereal dg = m_deltaG_formation_tr_pr * 4.184 * 1.0E3;
+    doublereal dg = m_deltaG_formation_pr_tr * 4.184 * 1.0E3;
     //! Store the result into an internal variable.
-    m_Mu0_tr_pr = dg + totalSum;
+    m_Mu0_pr_tr = dg + totalSum;
   }
 
 }

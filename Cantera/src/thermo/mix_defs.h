@@ -43,6 +43,8 @@ namespace Cantera {
   const int cStoichSubstance = 5; // StoichSubstance.h
   const int cSemiconductor = 7;
 
+  const int cMineralEQ3 = 8; // MineralEQ3 in MineralEQ3.h
+
   const int cLatticeSolid = 20; // LatticeSolidPhase.h
   const int cLattice = 21; 
 

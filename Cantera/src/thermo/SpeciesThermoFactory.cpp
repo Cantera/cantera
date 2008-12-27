@@ -38,6 +38,8 @@ using namespace std;
 #include "xml.h"
 #include "ctml.h"
 
+#include <cmath>
+
 using namespace ctml;
 
 
@@ -80,6 +82,8 @@ namespace Cantera {
 	if (th.hasChild("NASA")) {
 	  has_nasa = 1;
 	} else if (th.hasChild("Shomate")) {
+	  has_shomate = 1;
+	} else if (th.hasChild("MinEQ3")) {
 	  has_shomate = 1;
 	} else if (th.hasChild("const_cp")) {
 	  has_simple = 1;
@@ -378,6 +382,142 @@ namespace Cantera {
 
 #endif
 
+  doublereal LookupGe(const std::string& elemName, ThermoPhase *th_ptr) {
+#ifdef OLDWAY
+    int num = sizeof(geDataTable) / sizeof(struct GeData);
+    string s3 = elemName.substr(0,3);
+    for (int i = 0; i < num; i++) {
+      //if (!std::strncmp(elemName.c_str(), aWTable[i].name, 3)) {
+      if (s3 == geDataTable[i].name) {
+        return (geDataTable[i].GeValue);
+      }
+    }
+    throw CanteraError("LookupGe", "element " + s + " not found");
+    return -1.0;
+#else
+    int iE = th_ptr->elementIndex(elemName);
+    if (iE < 0) {
+      throw CanteraError("PDSS_HKFT::LookupGe", "element " + elemName + " not found");
+    }
+    doublereal geValue = th_ptr->entropyElement298(iE);
+    if (geValue == ENTROPY298_UNKNOWN) {
+      throw CanteraError("PDSS_HKFT::LookupGe",
+                         "element " + elemName + " doesn not have a supplied entropy298");
+    }
+    geValue *= (-298.15);
+    return geValue;
+#endif
+  }
+
+ doublereal convertDGFormation(int k, ThermoPhase *th_ptr) {
+    /*
+     * Ok let's get the element compositions and conversion factors.
+     */
+    int ne = th_ptr->nElements();
+    doublereal na;
+    doublereal ge;
+    string ename;
+
+    doublereal totalSum = 0.0;
+    for (int m = 0; m < ne; m++) {
+      na = th_ptr->nAtoms(k, m);
+      if (na > 0.0) {
+	ename = th_ptr->elementName(m);
+	ge = LookupGe(ename, th_ptr);
+	totalSum += na * ge;
+      }
+    }
+    // Add in the charge
+    // if (m_charge_j != 0.0) {
+    // ename = "H";
+      // ge = LookupGe(ename);
+    // totalSum -= m_charge_j * ge;
+    //}
+    // Ok, now do the calculation. Convert to joules kmol-1
+    //doublereal dg = m_deltaG_formation_tr_pr * 4.184 * 1.0E3;
+    //! Store the result into an internal variable.
+    // doublereal Mu0_tr_pr = dg + totalSum;
+    return totalSum;
+  }
+
+
+
+  static void installMinEQ3asShomateThermoFromXML(std::string speciesName, 
+						  ThermoPhase *th_ptr,
+						  SpeciesThermo& sp, int k, 
+						  const XML_Node* MinEQ3node) {
+
+    array_fp coef(15), c0(7, 0.0);
+    std::string astring = (*MinEQ3node)["Tmin"];
+    doublereal tmin0 = strSItoDbl(astring);
+    astring = (*MinEQ3node)["Tmax"];
+    doublereal tmax0 = strSItoDbl(astring);
+    astring = (*MinEQ3node)["Pref"];
+    doublereal p0 = strSItoDbl(astring);
+ 
+    doublereal deltaG_formation_pr_tr =
+      getFloatDefaultUnits(*MinEQ3node, "DG0_f_Pr_Tr", "cal/gmol", "actEnergy");
+    doublereal deltaH_formation_pr_tr =
+      getFloatDefaultUnits(*MinEQ3node, "DH0_f_Pr_Tr", "cal/gmol", "actEnergy");
+    doublereal Entrop_pr_tr = getFloatDefaultUnits(*MinEQ3node, "S0_Pr_Tr", "cal/gmol/K");
+    doublereal a = getFloatDefaultUnits(*MinEQ3node, "a", "cal/gmol/K");
+    doublereal b = getFloatDefaultUnits(*MinEQ3node, "b", "cal/gmol/K2");
+    doublereal c = getFloatDefaultUnits(*MinEQ3node, "c", "cal-K/gmol");
+    doublereal dg = deltaG_formation_pr_tr * 4.184 * 1.0E3;
+    doublereal fac =  convertDGFormation(k, th_ptr);
+    doublereal Mu0_tr_pr = fac + dg;
+    doublereal e = Entrop_pr_tr * 1.0E3 * 4.184;
+    doublereal Hcalc = Mu0_tr_pr + 298.15 * e;
+    doublereal DHjmol = deltaH_formation_pr_tr * 1.0E3 * 4.184;
+
+    // If the discrepency is greater than 100 cal gmol-1, print
+    // an error and exit.
+    if (fabs(Hcalc -DHjmol) > 10.* 1.0E6 * 4.184) {
+      throw CanteraError("installMinEQ3asShomateThermoFromXML()",
+                         "DHjmol is not consistent with G and S" +
+                         fp2str(Hcalc) + " vs " + fp2str(DHjmol));
+    }
+
+    /*
+     * Now calculate the shomate polynomials
+     *
+     * Cp first
+     * 
+     *  Shomate: (Joules / gmol / K)
+     *    Cp = As + Bs * t + Cs * t*t + Ds * t*t*t + Es / (t*t)
+     *     where
+     *          t = temperature(Kelvin) / 1000
+     */
+    double As = a * 4.184;
+    double Bs = b * 4.184 * 1000.;
+    double Cs = 0.0;
+    double Ds = 0.0;
+    double Es = c * 4.184 / (1.0E6);
+    
+    double t = 298.15 / 1000.;
+    double H298smFs = As * t + Bs * t * t / 2.0 - Es / t; 
+    
+    double HcalcS = Hcalc / 1.0E6;
+    double Fs = HcalcS - H298smFs;
+
+    double S298smGs = As * log(t) + Bs * t - Es/(2.0*t*t);
+    double ScalcS = e / 1.0E3;
+    double Gs = ScalcS - S298smGs;
+
+    c0[0] = As;
+    c0[1] = Bs;
+    c0[2] = Cs;
+    c0[3] = Ds;
+    c0[4] = Es;
+    c0[5] = Fs;
+    c0[6] = Gs;
+
+    coef[0] = tmax0 - 0.001;
+    copy(c0.begin(), c0.begin()+7, coef.begin() + 1);
+    copy(c0.begin(), c0.begin()+7, coef.begin() + 8);
+    sp.install(speciesName, k, SHOMATE, &coef[0], tmin0, tmax0, p0);
+  }
+
 
   /** 
    * Install a Shomate polynomial thermodynamic property
@@ -554,8 +694,8 @@ namespace Cantera {
    *                      resides
    */
   void SpeciesThermoFactory::
-  installThermoForSpecies(int k, const XML_Node& s, 
-			  SpeciesThermo& spthermo, 
+  installThermoForSpecies(int k, const XML_Node& s, ThermoPhase *th_ptr,
+			  SpeciesThermo& spthermo,
 			  const XML_Node *phaseNode_ptr) {
     /*
      * Check to see that the species block has a thermo block
@@ -568,66 +708,75 @@ namespace Cantera {
     const XML_Node& thermo = s.child("thermo");
     const std::vector<XML_Node*>& tp = thermo.children();
     int nc = static_cast<int>(tp.size());
+    string mname = thermo["model"];
 
-
-    if (nc == 1) {
+    if (mname == "MineralEQ3") {
       const XML_Node* f = tp[0];
-      if (f->name() == "Shomate") {
-	installShomateThermoFromXML(s["name"], spthermo, k, f, 0);
+      if (f->name() != "MinEQ3") {
+	throw CanteraError("SpeciesThermoFactory::installThermoForSpecies",
+			   "confused: expedted MinEQ3");
       }
-      else if (f->name() == "const_cp") {
-	installSimpleThermoFromXML(s["name"], spthermo, k, *f);
-      }
-      else if (f->name() == "NASA") {
-	installNasaThermoFromXML(s["name"], spthermo, k, f, 0);
-      }
-      else if (f->name() == "Mu0") {
-	installMu0ThermoFromXML(s["name"], spthermo, k, f);
-      }
-      else if (f->name() == "NASA9") {
-	installNasa9ThermoFromXML(s["name"], spthermo, k, tp);
-      }
-      // else if (f->name() == "HKFT") {
-      //	installHKFTThermoFromXML(s["name"], spthermo, k, tp);
-      //}
+      installMinEQ3asShomateThermoFromXML(s["name"], th_ptr, spthermo, k, f);
+    } else {
+      if (nc == 1) {
+	const XML_Node* f = tp[0];
+	if (f->name() == "Shomate") {
+	  installShomateThermoFromXML(s["name"], spthermo, k, f, 0);
+	}
+	else if (f->name() == "const_cp") {
+	  installSimpleThermoFromXML(s["name"], spthermo, k, *f);
+	}
+	else if (f->name() == "NASA") {
+	  installNasaThermoFromXML(s["name"], spthermo, k, f, 0);
+	}
+	else if (f->name() == "Mu0") {
+	  installMu0ThermoFromXML(s["name"], spthermo, k, f);
+	}
+	else if (f->name() == "NASA9") {
+	  installNasa9ThermoFromXML(s["name"], spthermo, k, tp);
+	}
+	// else if (f->name() == "HKFT") {
+	//	installHKFTThermoFromXML(s["name"], spthermo, k, tp);
+	//}
 #ifdef WITH_ADSORBATE
-      else if (f->name() == "adsorbate") {
-	installAdsorbateThermoFromXML(s["name"], spthermo, k, *f);
-      }
+	else if (f->name() == "adsorbate") {
+	  installAdsorbateThermoFromXML(s["name"], spthermo, k, *f);
+	}
 #endif
-      else {
-	throw UnknownSpeciesThermoModel("installThermoForSpecies", 
-					s["name"], f->name());
+	else {
+	  throw UnknownSpeciesThermoModel("installThermoForSpecies", 
+					  s["name"], f->name());
+	}
       }
-    }
-    else if (nc == 2) {
-      const XML_Node* f0 = tp[0];
-      const XML_Node* f1 = tp[1];
-      if (f0->name() == "NASA" && f1->name() == "NASA") {
-	installNasaThermoFromXML(s["name"], spthermo, k, f0, f1);
-      } 
-      else if (f0->name() == "Shomate" && f1->name() == "Shomate") {
-	installShomateThermoFromXML(s["name"], spthermo, k, f0, f1);
-      } 
-      else if (f0->name() == "NASA9" && f1->name() == "NASA9") {
-	installNasa9ThermoFromXML(s["name"], spthermo, k, tp);
-      } else {
-	throw UnknownSpeciesThermoModel("installThermoForSpecies", s["name"], 
-					f0->name() + " and "
-					+ f1->name());
+      else if (nc == 2) {
+	const XML_Node* f0 = tp[0];
+	const XML_Node* f1 = tp[1];
+	if (f0->name() == "NASA" && f1->name() == "NASA") {
+	  installNasaThermoFromXML(s["name"], spthermo, k, f0, f1);
+	} 
+	else if (f0->name() == "Shomate" && f1->name() == "Shomate") {
+	  installShomateThermoFromXML(s["name"], spthermo, k, f0, f1);
+	} 
+	else if (f0->name() == "NASA9" && f1->name() == "NASA9") {
+	  installNasa9ThermoFromXML(s["name"], spthermo, k, tp);
+	} else {
+	  throw UnknownSpeciesThermoModel("installThermoForSpecies", s["name"], 
+					  f0->name() + " and "
+					  + f1->name());
+	}
       }
-    }
-    else if (nc >= 2) {
-      const XML_Node* f0 = tp[0];
-      if (f0->name() == "NASA9") {
-	installNasa9ThermoFromXML(s["name"], spthermo, k, tp);
+      else if (nc >= 2) {
+	const XML_Node* f0 = tp[0];
+	if (f0->name() == "NASA9") {
+	  installNasa9ThermoFromXML(s["name"], spthermo, k, tp);
+	} else {
+	  throw UnknownSpeciesThermoModel("installThermoForSpecies", s["name"], 
+					  "multiple");
+	}
       } else {
 	throw UnknownSpeciesThermoModel("installThermoForSpecies", s["name"], 
 					"multiple");
       }
-    } else {
-      throw UnknownSpeciesThermoModel("installThermoForSpecies", s["name"], 
-				      "multiple");
     }
   }
 

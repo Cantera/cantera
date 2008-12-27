@@ -391,7 +391,7 @@ namespace Cantera {
 				 const XML_Node *phaseNode_ptr) {
     
     SpeciesThermoFactory*  f = SpeciesThermoFactory::factory();
-    f->installThermoForSpecies(k, s, *m_spthermo, phaseNode_ptr);
+    f->installThermoForSpecies(k, s, m_vptp_ptr, *m_spthermo, phaseNode_ptr);
     if (m_p0 < 0.0) {
       m_p0 = m_spthermo->refPressure(k);
     }

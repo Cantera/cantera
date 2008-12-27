@@ -27,6 +27,7 @@ namespace Cantera {
   class XML_Node;
   class VPStandardStateTP;
   class VPSSMgr;
+  class ThermoPhase;
 
   /**
    * Throw a named error for an unknown or missing species thermo model. 
@@ -175,7 +176,7 @@ namespace Cantera {
      *                      resides
      */
     void installThermoForSpecies(int k, const XML_Node& speciesNode, 
-				 SpeciesThermo& spthermo,
+				 ThermoPhase *th_ptr, SpeciesThermo& spthermo,
 				 const XML_Node *phaseNode_ptr = 0);
 
     //! Install a species thermodynamic property parameterization

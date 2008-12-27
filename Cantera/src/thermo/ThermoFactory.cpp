@@ -3,11 +3,9 @@
  *     Definitions for the factory class that can create known %ThermoPhase objects
  *     (see \ref thermoprops and class \link Cantera::ThermoFactory ThermoFactory\endlink).
  *
- 
  */
 
 /*
- * $Author$
  * $Revision$
  * $Date$
  */
@@ -51,9 +49,14 @@
 #ifdef WITH_STOICH_SUBSTANCE
 #ifdef USE_SSTP
 #include "StoichSubstanceSSTP.h"
+
 #else
 #include "StoichSubstance.h"
 #endif
+#endif
+
+#ifdef WITH_STOICH_SUBSTANCE
+#include "MineralEQ3.h"
 #endif
 
 //#include "importCTML.h"
@@ -80,112 +83,120 @@ namespace Cantera {
     boost::mutex ThermoFactory::thermo_mutex;
 #endif
 
-    static int ntypes = 14;
+    static int ntypes = 15;
     static string _types[] = {"IdealGas", "Incompressible", 
                               "Surface", "Edge", "Metal", "StoichSubstance",
                               "PureFluid", "LatticeSolid", "Lattice",
                               "HMW", "IdealSolidSolution", "DebyeHuckel", 
-                              "IdealMolalSolution", "IdealGasVPSS"
+                              "IdealMolalSolution", "IdealGasVPSS",
+			      "MineralEQ3"
     };
 
     static int _itypes[]   = {cIdealGas, cIncompressible, 
                               cSurf, cEdge, cMetal, cStoichSubstance,
                               cPureFluid, cLatticeSolid, cLattice,
                               cHMW, cIdealSolidSolnPhase, cDebyeHuckel,
-                              cIdealMolalSoln, cVPSS_IdealGas
+                              cIdealMolalSoln, cVPSS_IdealGas,
+			      cMineralEQ3
     };
 
-    /*
-     * This method returns a new instance of a subclass of ThermoPhase
-     */ 
-    ThermoPhase* ThermoFactory::newThermoPhase(std::string model) {
+  /*
+   * This method returns a new instance of a subclass of ThermoPhase
+   */ 
+  ThermoPhase* ThermoFactory::newThermoPhase(std::string model) {
 
-        int ieos=-1;
+    int ieos=-1;
 
-        for (int n = 0; n < ntypes; n++) {
-            if (model == _types[n]) ieos = _itypes[n];
-        }
+    for (int n = 0; n < ntypes; n++) {
+      if (model == _types[n]) ieos = _itypes[n];
+    }
 
-        ThermoPhase* th=0;
-        switch (ieos) {
+    ThermoPhase* th=0;
+    switch (ieos) {
 
-        case cIdealGas:
-            th = new IdealGasPhase;
-            break;
+    case cIdealGas:
+      th = new IdealGasPhase;
+      break;
 
-        case cIncompressible:
-            th = new ConstDensityThermo;
-            break;
+    case cIncompressible:
+      th = new ConstDensityThermo;
+      break;
 
-        case cSurf:
-            th = new SurfPhase;
-            break;
+    case cSurf:
+      th = new SurfPhase;
+      break;
 
-        case cEdge:
-            th = new EdgePhase;
-            break;
+    case cEdge:
+      th = new EdgePhase;
+      break;
 
 #ifdef WITH_IDEAL_SOLUTIONS
-        case cIdealSolidSolnPhase:
-            th = new IdealSolidSolnPhase();
-            break;
+    case cIdealSolidSolnPhase:
+      th = new IdealSolidSolnPhase();
+      break;
 #endif
 
 #ifdef WITH_METAL
-        case cMetal:
-            th = new MetalPhase;
-            break;
+    case cMetal:
+      th = new MetalPhase;
+      break;
 #endif
 
 #ifdef WITH_STOICH_SUBSTANCE
-        case cStoichSubstance:
+    case cStoichSubstance:
 #ifdef USE_SSTP
-            th = new StoichSubstanceSSTP;
+      th = new StoichSubstanceSSTP;
 #else
-            th = new StoichSubstance;
+      th = new StoichSubstance;
 #endif
-            break;
+      break;
+#endif
+
+#ifdef WITH_STOICH_SUBSTANCE
+    case cMineralEQ3:
+      th = new MineralEQ3();
+      break;
 #endif
 
 #ifdef WITH_LATTICE_SOLID
-        case cLatticeSolid:
-            th = new LatticeSolidPhase;
-            break;
+    case cLatticeSolid:
+      th = new LatticeSolidPhase;
+      break;
 
-        case cLattice:
-            th = new LatticePhase;
-            break;
+    case cLattice:
+      th = new LatticePhase;
+      break;
 #endif
 
 #ifdef WITH_PURE_FLUIDS
-        case cPureFluid:
-            th = new PureFluidPhase;
-            break;
+    case cPureFluid:
+      th = new PureFluidPhase;
+      break;
 #endif
 #ifdef WITH_ELECTROLYTES
-        case cHMW:
-            th = new HMWSoln;
-            break;
+    case cHMW:
+      th = new HMWSoln;
+      break;
 
-        case cDebyeHuckel:
-            th = new DebyeHuckel;
-            break;
+    case cDebyeHuckel:
+      th = new DebyeHuckel;
+      break;
 
-        case cIdealMolalSoln:
-            th = new IdealMolalSoln;
-            break;
+    case cIdealMolalSoln:
+      th = new IdealMolalSoln;
+      break;
 #endif
 
-	case cVPSS_IdealGas:
-	  th = new IdealSolnGasVPSS;
-	  break;
+    case cVPSS_IdealGas:
+      th = new IdealSolnGasVPSS;
+      break;
 
-        default: 
-   	    throw UnknownThermoPhaseModel("ThermoFactory::newThermoPhase",
-					  model);
-        }
-        return th;
+    default: 
+      throw UnknownThermoPhaseModel("ThermoFactory::newThermoPhase",
+				    model);
     }
+    return th;
+  }
 
 
 
@@ -600,7 +611,7 @@ namespace Cantera {
    * @return
    *  Returns true if everything is ok, false otherwise.
    */
-  bool installSpecies(int k, const XML_Node& s, thermo_t& p, 
+  bool installSpecies(int k, const XML_Node& s, thermo_t& th, 
 		      SpeciesThermo *spthermo_ptr, int rule, 
 		      XML_Node *phaseNode_ptr,
 		      VPSSMgr *vpss_ptr,
@@ -622,7 +633,7 @@ namespace Cantera {
     // otherwise, throw an exception
     map<string,string>::const_iterator _b = comp.begin();
     for (; _b != comp.end(); ++_b) {
-      if (p.elementIndex(_b->first) < 0) {
+      if (th.elementIndex(_b->first) < 0) {
 	if (rule == 0) {
 	  throw CanteraError("installSpecies", 
 			     "Species " + s["name"] + 
@@ -634,13 +645,13 @@ namespace Cantera {
     }
 
     // construct a vector of atom numbers for each 
-    // element in phase p. Elements not declared in the
+    // element in phase th. Elements not declared in the
     // species (i.e., not in map comp) will have zero
     // entries in the vector.
-    int m, nel = p.nElements();
+    int m, nel = th.nElements();
     vector_fp ecomp(nel, 0.0);            
     for (m = 0; m < nel; m++) {
-      ecomp[m] = atoi(comp[p.elementName(m)].c_str());
+      ecomp[m] = atoi(comp[th.elementName(m)].c_str());
     }
 
 
@@ -655,17 +666,17 @@ namespace Cantera {
     doublereal sz = 1.0;
     if (s.hasChild("size")) sz = getFloat(s, "size");
 
-    // add the species to phase p.
-    p.addUniqueSpecies(s["name"], &ecomp[0], chrg, sz);
+    // add the species to phase th 
+    th.addUniqueSpecies(s["name"], &ecomp[0], chrg, sz);
 
     if (vpss_ptr) {
-      VPStandardStateTP *vp_ptr = dynamic_cast<VPStandardStateTP *>(&p);
+      VPStandardStateTP *vp_ptr = dynamic_cast<VPStandardStateTP *>(&th);
       factory->installVPThermoForSpecies(k, s, vp_ptr, vpss_ptr, spthermo_ptr,
 					 phaseNode_ptr);
     } else {
       // install the thermo parameterization for this species into
-      // the species thermo manager for phase p.
-      factory->installThermoForSpecies(k, s, *spthermo_ptr, phaseNode_ptr);
+      // the species thermo manager for phase th
+      factory->installThermoForSpecies(k, s, &th, *spthermo_ptr, phaseNode_ptr);
     }
     
     

@@ -118,7 +118,7 @@ namespace Cantera {
     }
 
     SpeciesThermoFactory* f = SpeciesThermoFactory::factory();
-    f->installThermoForSpecies(k, speciesNode,  *m_spthermo, phaseNode_ptr);
+    f->installThermoForSpecies(k, speciesNode,(ThermoPhase *) m_vptp_ptr, *m_spthermo, phaseNode_ptr);
 
     PDSS *kPDSS = new PDSS_IdealGas(m_vptp_ptr, k, speciesNode,  
 				    *phaseNode_ptr, true);

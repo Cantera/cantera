@@ -596,14 +596,14 @@ namespace Cantera {
      *
      *  J kmol-1
      */
-    doublereal m_Mu0_tr_pr;
+    doublereal m_Mu0_pr_tr;
 
 
     //! Input value of S_j at Tr and Pr    (cal gmol-1 K-1)
     /*!
      *  Tr = 298.15   Pr = 1 atm
      */
-    doublereal m_Entrop_tr_pr;
+    doublereal m_Entrop_pr_tr;
 
     //! Input Value of deltaG of Formation at Tr and Pr    (cal gmol-1)
     /*!
@@ -612,7 +612,7 @@ namespace Cantera {
      *  This is the delta G for the formation reaction of the
      *  ion from elements in their stable state at Tr, Pr.
      */
-    doublereal m_deltaG_formation_tr_pr;
+    doublereal m_deltaG_formation_pr_tr;
 
     //! Input Value of deltaH of Formation at Tr and Pr    (cal gmol-1)
     /*!
@@ -621,13 +621,13 @@ namespace Cantera {
      *  This is the delta H for the formation reaction of the
      *  ion from elements in their stable state at Tr, Pr.
      */
-    doublereal m_deltaH_formation_tr_pr;
+    doublereal m_deltaH_formation_pr_tr;
 
     //! Input Value of the molar volume at T_r and P_r
     /*!
      *  cm^3 / gmol
      */
-    doublereal m_V0_tr_pr;
+    doublereal m_V0_pr_tr;
 
     //! a coefficient (cal gmol-1 K-1)
     doublereal m_a;
