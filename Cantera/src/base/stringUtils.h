@@ -62,6 +62,16 @@ namespace Cantera {
    */
   doublereal fpValue(std::string val);
 
+  //! Translate a string into one doublereal value
+  /*!
+   *  Error checking is carried on the conversion. 
+   *
+   *  @param val   String value of the double
+   *
+   *  @return      Returns a doublereal value
+   */
+  doublereal fpValueCheck(std::string val);
+
   std::string wrapString(const std::string& s, int len=70);
 
   int stripLTWScstring(char str[]);

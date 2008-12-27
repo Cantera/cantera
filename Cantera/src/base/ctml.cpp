@@ -5,7 +5,7 @@
  *
  */
 
-/* $Author$
+/*
  * $Revision$
  * $Date$
  */
@@ -135,10 +135,10 @@ namespace ctml {
         else return 0;
     }
         
-    string getString(const XML_Node& parent, string name) {
-        if (!parent.hasChild(name)) return "";
-        return parent(name);
-    }
+  string getString(const XML_Node& parent, string name) {
+    if (!parent.hasChild(name)) return "";
+    return parent(name);
+  }
 
     void getString(XML_Node& node, string title, string& val, 
         string& type) {
@@ -256,7 +256,7 @@ namespace ctml {
    *                 and "" , for no conversion. The default value is ""
    *                 which implies that no conversion is allowed.
    */
-  doublereal getFloat(const XML_Node& parent, string name, string type) {
+  doublereal getFloat(const XML_Node& parent, std::string name, std::string type) {
     if (!parent.hasChild(name)) 
       throw CanteraError("getFloat (called from XML Node \"" +
 			 parent.name() + "\"): ",
@@ -315,40 +315,92 @@ namespace ctml {
     return fctr*x;
   }
 
+  
+  doublereal getFloatDefaultUnits(const Cantera::XML_Node& parent, std::string name,
+				  std::string defaultUnits, std::string type) {
 
-    /**
-     * Get an integer value from a child element.  Returns an
-     * integer value for the child named 'name' of element 'parent'.
-     */
-    int getInteger(const XML_Node& parent, string name) {
-        if (!parent.hasChild(name)) 
-            throw CanteraError("getInteger (called from XML Node \"" +
-			       parent.name() + "\"): ",
-			       "no child XML element named " + name);
-        const XML_Node& node = parent.child(name);
-        int x, x0, x1;
-        string units, vmin, vmax;
-        x = atoi(node().c_str());
-        x0 = -9999999;
-        x1 =  9999999;
-        vmin = node["min"];
-        vmax = node["max"];
-        if (vmin != "") {
-            x0 = atoi(vmin.c_str());
-            if (x < x0) {
-                writelog("\nWarning: value "+node()+" is below lower limit of "
-                    +vmin+".\n");
-                }
-            }
-        if (node["max"] != "") {
-            x1 = atoi(vmax.c_str());
-            if (x > x1) {
-                writelog("\nWarning: value "+node()+" is above upper limit of "
-                    +vmax+".\n");
-            }
-        }
-        return x;
+    doublereal fctr = 1.0;
+    if (defaultUnits == "") {
+      throw CanteraError("getFloatDefaultUnits",
+			 "need to supply an actual value of defaultUnits"); 
     }
+    if (type == "actEnergy") {
+      fctr = actEnergyToSI(defaultUnits);
+    } else if (type == "toSI") {
+      fctr = toSI(defaultUnits);
+    } else if (defaultUnits == "temperature") {
+      fctr = toSI(defaultUnits);
+    } else if (type == "density") {
+      fctr = toSI(defaultUnits);
+    } else if (type == "pressure") {
+      fctr = toSI(defaultUnits);
+    } else {
+      throw CanteraError("getFloatDefaultUnits",
+			 "type of units must be supplied and understood");
+    }
+    doublereal val = getFloat(parent, name, type);
+    val /= fctr;
+    return val;
+  }
+
+
+  //  Get an integer value from a child element. 
+  /* 
+   *  Returns an integer value for the child named 'name' of element 'parent'.
+   *
+   *  Note, it's an error for the child element not to exist.
+   *
+   *  Example:  
+   *
+   * Code snipet:
+   *       @verbatum
+         const XML_Node &State_XMLNode;
+         int number = 1;
+         if (state_XMLNode.hasChild("NumProcs")) {
+           number = getInteger(State_XMLNode, "numProcs");
+         }
+   @endverbatum
+   *
+   *  reads the corresponding XML file:
+   *  @verbatum
+     <state>
+        <numProcs> 10 <numProcs/>
+     <\state>
+   @endverbatum
+   *
+   *   @param parent reference to the XML_Node object of the parent XML element
+   *   @param name   Name of the XML child element
+   */
+  int getInteger(const XML_Node& parent, string name) {
+    if (!parent.hasChild(name)) { 
+      throw CanteraError("getInteger (called from XML Node \"" +
+			 parent.name() + "\"): ",
+			 "no child XML element named " + name);
+    }
+    const XML_Node& node = parent.child(name);
+    int x, x0, x1;
+    string units, vmin, vmax;
+    x = atoi(node().c_str());
+    x0 = -9999999;
+    x1 =  9999999;
+    vmin = node["min"];
+    vmax = node["max"];
+    if (vmin != "") {
+      x0 = atoi(vmin.c_str());
+      if (x < x0) {
+	writelog("\nWarning: value "+node()+" is below lower limit of "
+		 +vmin+".\n");
+      }
+    }
+    if (node["max"] != "") {
+      x1 = atoi(vmax.c_str());
+      if (x > x1) {
+	writelog("\nWarning: value "+node()+" is above upper limit of "
+		 +vmax+".\n");
+      }
+    }
+    return x;
+  }
 
     /*
      * getFloatArray():

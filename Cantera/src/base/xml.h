@@ -394,7 +394,7 @@ namespace Cantera {
     /*!
      *  @param n  Number of the child to return
      */
-    XML_Node& child(const int n) const;
+    XML_Node& child(const int n) const ;
 
     //! Return an unchangeable reference to the vector of children of the current node
     /*!
@@ -471,7 +471,14 @@ namespace Cantera {
     const XML_Node* findByName(const std::string& nm) const;
     XML_Node* findByName(const std::string& nm);
     void getChildren(std::string name, std::vector<XML_Node*>& children) const;
+
+    //! Return a changeable reference to a child of the current node, 
+    //! named by the argument
+    /*!
+     *  @param loc  Name of the child to return
+     */
     XML_Node& child(std::string loc) const;
+
     void writeHeader(std::ostream& s);
     void write(std::ostream& s, int level = 0) const;
     XML_Node& root() const { return *m_root; }

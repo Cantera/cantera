@@ -994,7 +994,7 @@ namespace Cantera {
     }
   }
     
-  XML_Node& XML_Node::child(string loc) const {
+  XML_Node& XML_Node::child(std::string loc) const {
     string::size_type iloc;
     string cname;
     map<string,XML_Node*>::const_iterator i;
@@ -1005,7 +1005,6 @@ namespace Cantera {
 	cname = loc.substr(0,iloc);
 	loc = loc.substr(iloc+1, loc.size());
 	i = m_childindex.find(cname);
-	//XML_Node* chld = m_childindex[cname];
 	if (i != m_childindex.end()) return i->second->child(loc);
 	else {
 	  throw XML_NoChild(this, m_name, cname, lineNumber());
@@ -1014,8 +1013,6 @@ namespace Cantera {
       else {
 	i = m_childindex.find(loc);
 	if (i != m_childindex.end()) return *(i->second);
-	//XML_Node* chld = m_childindex[loc];
-	//if (chld) return *chld;
 	else {
 	  throw XML_NoChild(this, m_name, loc, lineNumber());
 	}
