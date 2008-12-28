@@ -159,8 +159,8 @@ namespace Cantera {
         </species>
      </speciesData>  @endverbatim
    *
-   *  The model attribute, "StoichSubstanceSSTP", on the thermo element identifies the phase as being
-   * a StoichSubstanceSSTP object.
+   *  The model attribute, "StoichSubstanceSSTP", on the thermo element 
+   *  identifies the phase as being a StoichSubstanceSSTP object.
    *
    * @ingroup thermoprops
    */
@@ -470,6 +470,9 @@ namespace Cantera {
      */
     virtual void initThermo();
 
+    
+    virtual void initThermoXML(XML_Node& phaseNode, std::string id);
+
     //! Set the equation of state parameters
     /*!
      * @internal
@@ -523,7 +526,52 @@ namespace Cantera {
   protected:
 
   };
+     
+
+  class electrodeElectron : public StoichSubstanceSSTP  {
+  public:
+    //! Default constructor for the electrodeElectron class
+    electrodeElectron();
+
+    //! Construct and initialize a electrodeElectron ThermoPhase object 
+    //! directly from an asci input file
+    /*!
+     * @param infile name of the input file
+     * @param id     name of the phase id in the file.
+     *               If this is blank, the first phase in the file is used.
+     */
+    electrodeElectron(std::string infile, std::string id = "");
+
+    //! Construct and initialize a electrodeElectron ThermoPhase object 
+    //! directly from an XML database
+    /*!
+     *  @param phaseRef XML node pointing to a electrodeElectron description
+     *  @param id       Id of the phase. 
+     */
+    electrodeElectron(XML_Node& phaseRef, std::string id = "");
+
+    //! Copy constructor
+    /*!
+     * @param right Object to be copied
+     */
+    electrodeElectron(const electrodeElectron  &right);
     
+    //! Assignment operator
+    /*!
+     * @param right Object to be copied
+     */
+    electrodeElectron & operator=(const electrodeElectron & right);
+   
+    //! Destructor for the routine (virtual)
+    virtual ~electrodeElectron();
+
+    void setParametersFromXML(const XML_Node& eosdata);
+
+    virtual void initThermoXML(XML_Node& phaseNode, std::string id);
+   
+    void setParameters(int n, doublereal * const c);
+  };
+
 }
         
 #endif

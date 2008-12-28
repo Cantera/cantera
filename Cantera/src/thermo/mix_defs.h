@@ -44,6 +44,7 @@ namespace Cantera {
   const int cSemiconductor = 7;
 
   const int cMineralEQ3 = 8; // MineralEQ3 in MineralEQ3.h
+  const int cElectrodeElectron = 9; // electrodeElectron
 
   const int cLatticeSolid = 20; // LatticeSolidPhase.h
   const int cLattice = 21; 

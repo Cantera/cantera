@@ -424,6 +424,21 @@ namespace Cantera {
     SingleSpeciesTP::initThermo();
   }
 
+
+  void StoichSubstanceSSTP::initThermoXML(XML_Node& phaseNode, std::string id) {
+    /*
+     * Find the Thermo XML node
+     */
+    if (!phaseNode.hasChild("thermo")) {
+      throw CanteraError("StoichSubstanceSSTP::initThermoXML",
+                         "no thermo XML node");
+    }
+    XML_Node &tnode = phaseNode.child("thermo");
+    double dens = getFloatDefaultUnits(tnode, "density", "kg/m3");
+    setDensity(dens);
+    SingleSpeciesTP::initThermoXML(phaseNode, id);
+  }
+
   /**
    * setParameters:
    *
@@ -464,10 +479,122 @@ namespace Cantera {
   void StoichSubstanceSSTP::setParametersFromXML(const XML_Node& eosdata) {
     std::string model = eosdata["model"];
     if (model != "StoichSubstance" && model != "StoichSubstanceSSTP") {
-      throw CanteraError("StoichSubstanceSSTP::StoichSubstanceSSTP",
+      throw CanteraError("StoichSubstanceSSTP::setParametersFromXML",
 			 "thermo model attribute must be StoichSubstance");
     }
     doublereal rho = getFloat(eosdata, "density", "toSI");
+    setDensity(rho);
+  }
+
+
+
+
+
+  /*
+   * Default Constructor for the electrodeElectron class
+   */
+  electrodeElectron::electrodeElectron():
+   StoichSubstanceSSTP()
+  {
+  }
+
+  // Create and initialize a electrodeElectron ThermoPhase object 
+  // from an asci input file
+  /*
+   * @param infile name of the input file
+   * @param id     name of the phase id in the file.
+   *               If this is blank, the first phase in the file is used.
+   */
+  electrodeElectron::electrodeElectron(std::string infile, std::string id) :
+    StoichSubstanceSSTP()
+  {
+    XML_Node* root = get_XML_File(infile);
+    if (id == "-") id = "";
+    XML_Node* xphase = get_XML_NameID("phase", std::string("#")+id, root);
+    if (!xphase) {
+      throw CanteraError("electrodeElectron::electrodeElectron",
+			  "Couldn't find phase name in file:" + id);
+    }
+    // Check the model name to ensure we have compatibility
+    const XML_Node& th = xphase->child("thermo");
+    std::string model = th["model"];
+    if (model != "electrodeElectron") {
+      throw CanteraError("electrodeElectron::electrodeElectron",
+			 "thermo model attribute must be electrodeElectron");
+    }
+    importPhase(*xphase, this);
+  }
+
+  // Full Constructor.
+  /*
+   *  @param phaseRef XML node pointing to a electrodeElectron description
+   *  @param id       Id of the phase. 
+   */
+  electrodeElectron::electrodeElectron(XML_Node& xmlphase, std::string id) :
+    StoichSubstanceSSTP()
+  {
+    if (id != "") {
+      std::string idxml = xmlphase["id"];
+      if (id != idxml) {
+	throw CanteraError("electrodeElectron::electrodeElectron",
+			   "id's don't match");
+      }
+    }
+    const XML_Node& th = xmlphase.child("thermo");
+    std::string model = th["model"];
+    if (model != "electrodeElectron") {
+      throw CanteraError("electrodeElectron::electrodeElectron",
+			 "thermo model attribute must be electrodeElectron");
+    }
+    importPhase(xmlphase, this);
+  }
+
+  //! Copy constructor
+  /*!
+   * @param right Object to be copied
+   */
+  electrodeElectron::electrodeElectron(const electrodeElectron  &right) :
+    StoichSubstanceSSTP()
+  {
+    *this = operator=(right);
+  }
+  
+  //! Assignment operator
+  /*!
+   * @param right Object to be copied
+   */
+  electrodeElectron & 
+  electrodeElectron::operator=(const electrodeElectron & right) {
+    if (&right != this) {
+      StoichSubstanceSSTP::operator=(right);
+    }
+    return *this;
+  }
+
+  /*
+   * Destructor for the routine (virtual)
+   *        
+   */
+  electrodeElectron::~electrodeElectron() 
+  {
+  }
+
+  void electrodeElectron::setParametersFromXML(const XML_Node& eosdata) {
+    std::string model = eosdata["model"];
+    if (model != "electrodeElectron") {
+      throw CanteraError("electrodeElectron::setParametersFromXML",
+			 "thermo model attribute must be electrodeElectron");
+    }
+  }
+
+  void electrodeElectron::initThermoXML(XML_Node& phaseNode, std::string id) {
+    doublereal rho = 10.0;
+    setDensity(rho);
+    SingleSpeciesTP::initThermoXML(phaseNode, id);
+  }
+  
+  void electrodeElectron::setParameters(int n, doublereal * const c) {
+    doublereal rho = 10.0;
     setDensity(rho);
   }
 

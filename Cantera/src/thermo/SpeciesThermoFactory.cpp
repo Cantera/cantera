@@ -272,6 +272,16 @@ namespace Cantera {
 
     tmin0 = fpValue(f0["Tmin"]);
     tmax0 = fpValue(f0["Tmax"]);
+
+    doublereal p0 = OneAtm;
+    if (f0.hasAttrib("P0")) {
+      p0 = fpValue(f0["P0"]);
+    }
+    if (f0.hasAttrib("Pref")) {
+      p0 = fpValue(f0["Pref"]);
+    }
+    p0 = OneAtm;
+
     tmin1 = tmax0;
     tmax1 = tmin1 + 0.0001;
     if (dualRange) {
@@ -311,7 +321,7 @@ namespace Cantera {
     // coefficients in a different order, so rearrange them.
     array_fp c(15);
     c[0] = tmid;
-    doublereal p0 = OneAtm;
+   
     c[1] = c0[5];
     c[2] = c0[6];
     copy(c0.begin(), c0.begin()+5, c.begin() + 3);
@@ -344,6 +354,15 @@ namespace Cantera {
       tmax1 = fpValue((*f1ptr)["Tmax"]);
     }
 
+
+    doublereal p0 = OneAtm;
+    if (f0.hasAttrib("P0")) {
+      p0 = fpValue(f0["P0"]);
+    }
+    if (f0.hasAttrib("Pref")) {
+      p0 = fpValue(f0["Pref"]);
+    }
+
     vector_fp c0, c1;
     if (fabs(tmax0 - tmin1) < 0.01) {
       tmin = tmin0;
@@ -370,7 +389,6 @@ namespace Cantera {
     }
     array_fp c(15);
     c[0] = tmid;
-    doublereal p0 = OneAtm;
     c[1] = c0[5];
     c[2] = c0[6];
     copy(c0.begin(), c0.begin()+5, c.begin() + 3);
@@ -611,7 +629,7 @@ namespace Cantera {
     vector_fp cPoly;
     Nasa9Poly1 *np_ptr = 0; 
     std::vector<Nasa9Poly1 *> regionPtrs;
-    doublereal tmin, tmax, pref;
+    doublereal tmin, tmax, pref = OneAtm;
     // Loop over all of the possible temperature regions
     for (int i = 0; i < nRegTmp; i++) {
       fptr = tp[i];
@@ -621,7 +639,12 @@ namespace Cantera {
 
 	    tmin = fpValue((*fptr)["Tmin"]);
 	    tmax = fpValue((*fptr)["Tmax"]);
-	    pref = fpValue((*fptr)["P0"]);
+	    if ((*fptr).hasAttrib("P0")) {
+	      pref = fpValue((*fptr)["P0"]);
+	    }
+	    if ((*fptr).hasAttrib("Pref")) {
+	      pref = fpValue((*fptr)["Pref"]);
+	    }
 
 	    getFloatArray(fptr->child("floatArray"), cPoly, false);
 	    if (cPoly.size() != 9) {
@@ -659,11 +682,16 @@ namespace Cantera {
 					    SpeciesThermo& sp, int k, 
 					    const XML_Node& f) { 		
     vector_fp freqs;
-    doublereal tmin, tmax, pref;
+    doublereal tmin, tmax, pref = OneAtm;
     int nfreq = 0;
     tmin = fpValue(f["Tmin"]);
     tmax = fpValue(f["Tmax"]);
-    pref = fpValue(f["P0"]);
+    if (f.hasAttrib("P0")) {
+      pref = fpValue(f["P0"]);
+    }
+    if (f.hasAttrib("Pref")) {
+      pref = fpValue(f["Pref"]);
+    }
     if (tmax == 0.0) tmax = 1.0e30;
 
     if (f.hasChild("floatArray")) {

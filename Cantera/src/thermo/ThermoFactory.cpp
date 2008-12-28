@@ -83,13 +83,13 @@ namespace Cantera {
     boost::mutex ThermoFactory::thermo_mutex;
 #endif
 
-    static int ntypes = 15;
+    static int ntypes = 16;
     static string _types[] = {"IdealGas", "Incompressible", 
                               "Surface", "Edge", "Metal", "StoichSubstance",
                               "PureFluid", "LatticeSolid", "Lattice",
                               "HMW", "IdealSolidSolution", "DebyeHuckel", 
                               "IdealMolalSolution", "IdealGasVPSS",
-			      "MineralEQ3"
+			      "MineralEQ3", "electrodeElectron"
     };
 
     static int _itypes[]   = {cIdealGas, cIncompressible, 
@@ -97,7 +97,7 @@ namespace Cantera {
                               cPureFluid, cLatticeSolid, cLattice,
                               cHMW, cIdealSolidSolnPhase, cDebyeHuckel,
                               cIdealMolalSoln, cVPSS_IdealGas,
-			      cMineralEQ3
+			      cMineralEQ3, cElectrodeElectron
     };
 
   /*
@@ -155,6 +155,12 @@ namespace Cantera {
 #ifdef WITH_STOICH_SUBSTANCE
     case cMineralEQ3:
       th = new MineralEQ3();
+      break;
+#endif
+
+#ifdef WITH_STOICH_SUBSTANCE
+    case cElectrodeElectron:
+      th = new electrodeElectron();
       break;
 #endif
 
