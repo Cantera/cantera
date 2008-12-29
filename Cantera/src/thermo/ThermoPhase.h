@@ -1,6 +1,5 @@
 /**
  *  @file ThermoPhase.h
- *
  * Header file for class ThermoPhase, the base class for phases with
  * thermodynamic properties, and the text for the Module thermoprops
  * (see \ref thermoprops and class \link Cantera::ThermoPhase
@@ -8,7 +7,6 @@
  */
 
 /*
- *  $Author$
  *  $Date$
  *  $Revision$
  *
@@ -1772,11 +1770,13 @@ namespace Cantera {
      */
     //@{
 
-    //! Store a reference to the XML tree containing the species data for this phase. 
+    //! Store a reference pointer to the XML tree containing the species data
+    //! for this phase. 
     /*!
-     *  This is used to access data needed to construct transport manager later.
+     *   This is used to access data needed to construct transport manager later.
      *   @internal
      *
+     * @param k      Species index
      * @param data   Pointer to the XML_Node data containing
      *               information about the species in the phase.
      */
@@ -1802,8 +1802,7 @@ namespace Cantera {
      */
     void setSpeciesThermo(SpeciesThermo* spthermo) 
     { m_spthermo = spthermo; }
-    
-    
+        
     //! Return a changeable reference to the calculation manager
     //! for species reference-state thermodynamic properties
     /*!
