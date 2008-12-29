@@ -2,17 +2,16 @@
  *  @file SpeciesThermoFactory.h
  *    Header for factory to build instances of classes that manage the
  *    standard-state thermodynamic properties of a set of species 
- *    (see \ref spthermo and class \link Cantera::SpeciesThermoFactory SpeciesThermoFactory\endlink);
+ *    (see \ref spthermo and class 
+ *     \link Cantera::SpeciesThermoFactory SpeciesThermoFactory\endlink);
  */
 
 /*
- * $Author$
  * $Revision$
  * $Date$
  */
 
 // Copyright 2001  California Institute of Technology
-
 
 #ifndef SPECIESTHERMO_FACTORY_H
 #define SPECIESTHERMO_FACTORY_H
@@ -91,13 +90,7 @@ namespace Cantera {
      * otherwise simply returns the pointer to the existing
      * instance.
      */
-    static SpeciesThermoFactory* factory() {
-#if defined(THREAD_SAFE_CANTERA)
-        boost::mutex::scoped_lock lock(species_thermo_mutex);
-#endif
-      if (!s_factory) s_factory = new SpeciesThermoFactory;
-      return s_factory;
-    }
+    static SpeciesThermoFactory* factory();
 
     //! Delete static instance of this class
     /**
@@ -105,15 +98,7 @@ namespace Cantera {
      * the process terminates (for example, when checking for
      * memory leaks) then this method can be called to delete it.
      */
-    void deleteFactory() {
-#if defined(THREAD_SAFE_CANTERA)
-      boost::mutex::scoped_lock lock(species_thermo_mutex);
-#endif
-      if (s_factory) {
-	delete s_factory;
-	s_factory = 0;
-      }
-    }
+    void deleteFactory();
 	
     //! Destructor
     /**
@@ -122,36 +107,50 @@ namespace Cantera {
      * create an infinite loop if destructor is called for that
      * single instance.
      */
-    virtual ~SpeciesThermoFactory() {
-    }
+    virtual ~SpeciesThermoFactory();
 
-    //! Create a new species property manager.
+    //! Create a new species property manage for the reference state.
     /*!
-     * @param type the integer type to be created.
+     *  @param type the integer type to be created.
+     *
+     *
+     *  @return                 Returns the pointer to the newly malloced
+     *                          species property manager for the reference
+     *                          state
      */ 
-    SpeciesThermo* newSpeciesThermo(int type);
+    SpeciesThermo* newSpeciesThermo(int type) const;
 
     //! Create a new species thermo property manager given a string
     /*!
      * Create a new species thermo property manager, given a 
      * string.
      *
-     * @param stype  String name for the species thermo type
+     *  @param stype            String name for the species thermo type
+     *
+     *
+     *  @return                 Returns the pointer to the newly malloced
+     *                          species property manager for the reference
+     *                          state
      */
-    SpeciesThermo* newSpeciesThermoManager(std::string &stype);
+    SpeciesThermo* newSpeciesThermoManager(std::string &stype) const;
 
-    //! Create a new species property manager for a group of species
+    //! Create a new species property manager for the reference
+    //! state for a group of species
     /*!
      * This routine will look through species nodes. It will discover what
      * each species needs for its species property managers. Then,
      * it will malloc and return the proper species property manager to use.
      * 
-     *     @param spDataNodeList, This vector contains a list
-     *                         of species XML nodes that will be in the phase
+     *   @param spDataNodeList  This vector contains a list
+     *                          of species XML nodes that will be in the phase
+     *
+     *  @return                 Returns the pointer to the newly malloced
+     *                          species property manager for the reference
+     *                          state
      */ 
-    SpeciesThermo* newSpeciesThermo(std::vector<XML_Node*> & spDataNodeList);
+    SpeciesThermo* newSpeciesThermo(std::vector<XML_Node*> & spDataNodeList) const;
 
-    //! Create a new species property manager.
+    //! Create a new species property manager for the reference state
     /*!
      * This routine will look through species nodes. It will discover what
      * each species needs for its species property managers. Then,
@@ -160,24 +159,28 @@ namespace Cantera {
      *
      *   @param spDataNodeList This vector contains a list
      *                         of species XML nodes that will be in the phase
+     *
+     *  @return                 Returns the pointer to the newly malloced
+     *                          species property manager for the reference state
      *  @todo is this used? 
      */ 
-    SpeciesThermo* newSpeciesThermoOpt(std::vector<XML_Node*> & spDataNodeList);
+    SpeciesThermo* newSpeciesThermoOpt(std::vector<XML_Node*> & spDataNodeList) const;
 
     //! Install a species thermodynamic property parameterization
     //! for the reference state for one species into a species thermo manager.
     /*!
-     * @param k species number
-     * @param speciesNode  Reference to the XML node specifying the species standard
-     *           state information
-     * @param spthermo Species reference state thermo manager
-     * @param phaseNode_ptr Optional Pointer to the XML phase
+     * @param k             Species number
+     * @param speciesNode   Reference to the XML node specifying the species standard
+     *                      state information
+     * @param th_ptr        Pointer to the %ThermoPhase object for the species
+     * @param spthermo      Species reference state thermo manager
+     * @param phaseNode_ptr Optional pointer to the XML phase
      *                      information for the phase in which the species
      *                      resides
      */
     void installThermoForSpecies(int k, const XML_Node& speciesNode, 
 				 ThermoPhase *th_ptr, SpeciesThermo& spthermo,
-				 const XML_Node *phaseNode_ptr = 0);
+				 const XML_Node *phaseNode_ptr = 0) const;
 
     //! Install a species thermodynamic property parameterization
     //! for the standard state for one species into a species thermo manager, VPSSMgr
@@ -203,11 +206,11 @@ namespace Cantera {
 				   VPStandardStateTP *vp_ptr,
 				   VPSSMgr *vpss_ptr,
 				   SpeciesThermo *spthermo_ptr,
-				   const XML_Node *phaseNode_ptr);
+				   const XML_Node *phaseNode_ptr) const;
 
   private:
 
-    //! pointer to the sole instance of this class
+    //! Pointer to the sole instance of this class, which is static
     static SpeciesThermoFactory* s_factory;
 
 #if defined(THREAD_SAFE_CANTERA)
@@ -259,32 +262,8 @@ namespace Cantera {
    * @param f           Pointer to a SpeciesThermoFactory. optional parameter. 
    *                    Defautls to NULL.
    */
-  inline SpeciesThermo* newSpeciesThermoMgr(std::string &stype, 
-					    SpeciesThermoFactory* f=0) {
-    if (f == 0) {
-      f = SpeciesThermoFactory::factory();
-    }
-    SpeciesThermo* sptherm = f->newSpeciesThermoManager(stype);
-    return sptherm;
-  }
-
-  //! Function to return SpeciesThermo manager
-  /*!
-   * This utility program  will look through species nodes. It will discover what
-   * each species needs for its species property managers. Then,
-   * it will malloc and return the proper species property manager to use.
-   *
-   *  These functions allow using a different factory class that
-   *  derives from SpeciesThermoFactory.
-   *
-   * @param spData_node Vector of XML_Nodes, each of which is a speciesData XML Node.
-   *                     Each %speciesData node contains a list of XML species elements
-   *                      e.g., \<speciesData id="Species_Data"\>
-   * @param f            Pointer to a SpeciesThermoFactory. optional parameter. 
-   *                    Defautls to NULL.
-   */
-  // SpeciesThermo* newSpeciesThermoMgr(XML_Node* spData_node, 
-  //				     SpeciesThermoFactory* f=0);
+  SpeciesThermo* newSpeciesThermoMgr(std::string &stype, 
+				     SpeciesThermoFactory* f=0);
 
   //! Function to return SpeciesThermo manager
   /*!
