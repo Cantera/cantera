@@ -126,6 +126,7 @@ FILE_PATTERNS          = Kinetics.h Kinetics.cpp \
                          IdealSolidSolnPhase.h   IdealSolidSolnPhase.cpp \
                          StoichSubstanceSSTP.h   StoichSubstanceSSTP.cpp \
                          DebyeHuckel.h           DebyeHuckel.cpp  \
+                         MineralEQ3.h            MineralEQ3.cpp  \
                          HMWSoln.h HMWSoln.cpp HMWSoln_input.cpp \
                          VPSSMgr.h VPSSMgr.cpp VPSSMgr_types.h \
                          VPSSMgr_ConstVol.h VPSSMgr_ConstVol.cpp \
