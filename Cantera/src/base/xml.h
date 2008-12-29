@@ -5,7 +5,7 @@
  * manipulate CTML data files.
  */
 
-/* $Author$
+/* 
  * $Revision$
  * $Date$
  */
@@ -30,9 +30,10 @@
 namespace Cantera {
 
 
-  /**
-   * Class XML_Reader is designed for internal use.
-   *  This function reads an XML file into an XML_Node object.
+  //!  Class XML_Reader reads an XML file into an XML_Node object.
+  /*!
+   *
+   *   Class XML_Reader is designed for internal use.
    */
   class XML_Reader {
   public:
@@ -43,12 +44,6 @@ namespace Cantera {
      *                  the XML file
      */
     XML_Reader(std::istream& input);
-
-    //! Input Stream containing the XML file
-    std::istream& m_s;
-
-    //! Line count
-    int m_line;
 
     //! Read a single character from the input stream
     //! and return it
@@ -73,13 +68,13 @@ namespace Cantera {
      *
      * @todo why is this a class method?
      */
-    std::string strip(const std::string& aline);
+    std::string strip(const std::string& aline) const;
 
     /// Looks for a substring within 'aline' enclosed in double
     /// quotes, and returns this substring (without the quotes) if
     /// found.  If not, an empty string is returned.
     /// @todo why is this a class method?
-    std::string inquotes(const std::string& aline);
+    std::string inquotes(const std::string& aline) const;
 
     /**
      *  Searches a string for the first occurrence of a valid
@@ -88,12 +83,47 @@ namespace Cantera {
      *  type. Quotes may be commented out by preceding with a
      *  backslash character, '\\'. 
      */
-    int findQuotedString(const std::string& aline, std::string &rstring);
-    
-    void parseTag(std::string line, std::string& name, 
-		  std::map<std::string, std::string>& attribs);
+    int findQuotedString(const std::string& aline, std::string &rstring) const;
+
+    //! parseTag parses XML tags, i.e., the XML elements that are
+    //! inbetween angle brackets.
+    /*!
+     *    @param tag                  Tag to be parsed - input
+     *
+     *    @param name                 Output string containing name
+     *                                of the XML  
+     *    @param attribs              map of attribute name and
+     *                                attribute value - output
+     */ 
+    void parseTag(std::string tag, std::string& name, 
+		  std::map<std::string, std::string>& attribs) const;
+
+    //! Reads an XML tag into a string
+    /*!
+     *   This function advances the input streams pointer
+     *
+     *    @param attribs         map of attribute name and
+     *                           attribute value - output
+     *
+     *    @return                Output string containing name
+     *                           of the XML  
+     */
     std::string readTag(std::map<std::string, std::string>& attribs);
+
+    //! Return the value portion of an XML element
+    /*!
+     *  This function advances the input streams pointer
+     */
     std::string readValue();
+
+  protected:
+    //! Input Stream containing the XML file
+    std::istream& m_s;
+
+  public:
+    //! Line count
+    int m_line;
+
   };
 
 

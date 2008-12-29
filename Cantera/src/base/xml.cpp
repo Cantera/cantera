@@ -122,7 +122,7 @@ namespace Cantera {
   // Returns string 'aline' stripped of leading and trailing white
   // space.
   // @todo why is this a class method?
-  string XML_Reader::strip(const string& aline) {
+  std::string XML_Reader::strip(const std::string& aline) const {
     int len = static_cast<int>(aline.size());
     int i, j, ll;
     for (i = len-1; i >= 0; i--) {
@@ -142,7 +142,7 @@ namespace Cantera {
   /// quotes, and returns this substring (without the quotes) if
   /// found.  If not, an empty string is returned.
   /// @todo why is this a class method?
-  string XML_Reader::inquotes(const string& aline) {
+  std::string XML_Reader::inquotes(const std::string& aline) const {
     int len = static_cast<int>(aline.size());
     int i, j;
     for (i = len-1; i >= 0; i--) 
@@ -158,8 +158,8 @@ namespace Cantera {
    * which is not immediately preceded by the backslash character
    * '\'
    */
-  static string::size_type findUnbackslashed(string s, const char q,
-					     string::size_type istart = 0) {
+  static string::size_type findUnbackslashed(std::string s, const char q,
+					     std::string::size_type istart = 0) {
     string::size_type iloc, icurrent, len;
     icurrent = istart;
     len = s.size();
@@ -185,7 +185,7 @@ namespace Cantera {
    *  type. Quotes may be commented out by preceding with a
    *  backslash character, '\\'. 
    */
-  int XML_Reader::findQuotedString(const string& s, string &rstring) {
+  int XML_Reader::findQuotedString(const string& s, std::string &rstring) const {
     const char q1 = '\'';
     const char q2 = '"';
     rstring = "";
@@ -225,8 +225,8 @@ namespace Cantera {
    * parseTag parses XML tags, i.e., the XML elements that are
    * inbetween angle brackets.
    */
-  void XML_Reader::parseTag(string tag, string& name, 
-			    map<string, string>& attribs) {
+  void XML_Reader::parseTag(std::string tag, std::string& name, 
+			    std::map<std::string, std::string>& attribs) const {
     string::size_type iloc;
     string attr, val;
     string s = strip(tag);
@@ -260,7 +260,7 @@ namespace Cantera {
     }
   }
     
-  string XML_Reader::readTag(map<string, string>& attribs) {
+  std::string XML_Reader::readTag(std::map<std::string, std::string>& attribs) {
     string name, tag = "";
     bool incomment = false;
     char ch  = '-';
@@ -298,7 +298,7 @@ namespace Cantera {
     }
   }
 
-  string XML_Reader::readValue() {
+  std::string XML_Reader::readValue() {
     string tag = "";
     char ch, lastch;
     ch = '\n';
