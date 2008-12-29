@@ -988,7 +988,7 @@ namespace Cantera {
 
     //! Internal error message
     /*!
-     * param msg message to be printed
+     *  @param          msg message to be printed
      */
     doublereal err(std::string msg) const;
 

@@ -18,7 +18,7 @@
 #include "FalloffFactory.h"
 #include "ctexceptions.h"
 
-#include <math.h>
+#include <cmath>
 
 namespace Cantera {
 

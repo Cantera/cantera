@@ -5,15 +5,12 @@
  *  (see \ref falloffGroup and class \link Cantera::Falloff Falloff\endlink).
  */
 
-
 /*
- *  $Author$
  *  $Date$
  *  $Revision$
  */
 
 // Copyright 2001  California Institute of Technology
-
 
 #ifndef CT_NEWFALLOFF_H
 #define CT_NEWFALLOFF_H
@@ -27,6 +24,15 @@
 #endif
 
 namespace Cantera {
+
+  /**
+   *     @defgroup falloffGroup  Falloff Parameterizations
+   *    This section describes the parameterizations used 
+   *    to describe the fall-off in reaction rate constants
+   *    due to intermolecular energy transfer.
+   *
+   *    @ingroup chemkinetics
+   */
 
   /**
    * Base class for falloff function calculators. Each instance of a

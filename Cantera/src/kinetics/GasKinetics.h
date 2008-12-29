@@ -75,7 +75,6 @@ namespace Cantera {
      * expressions for low-density gases.
      * @ingroup kinetics
      */
-
     class GasKinetics : public Kinetics {
 
     public:

@@ -242,12 +242,13 @@ namespace Cantera {
      */
     virtual int eosType() const;
 
-
     //! Set the pH scale, which determines the scale for single-ion activity 
     //! coefficients.
     /*!
      *  Single ion activity coefficients are not unique in terms of the
-     *  representing actual measureable quantities. 
+     *  representing actual measureable quantities.
+     *
+     * @param pHscaleType  Integer representing the pHscale 
      */
     void setpHScale(const int pHscaleType);
 
@@ -256,6 +257,8 @@ namespace Cantera {
     /*!
      *  Single ion activity coefficients are not unique in terms of the
      *  representing actual measureable quantities. 
+     *
+     * @return Return the pHscale type
      */
     int pHScale() const;
 

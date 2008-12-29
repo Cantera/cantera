@@ -4,9 +4,11 @@
  *    standard-state thermodynamic properties of a set of species 
  *    (see \ref spthermo and class \link Cantera::SpeciesThermoFactory SpeciesThermoFactory\endlink);
  */
-/*
- * $Id$
+/* 
+ * $Revision$
+ * $Date$
  */
+
 // Copyright 2001  California Institute of Technology
 
 #ifdef WIN32
@@ -442,7 +444,7 @@ namespace Cantera {
 
 #endif
 
-  doublereal LookupGe(const std::string& elemName, ThermoPhase *th_ptr) {
+  static doublereal LookupGe(const std::string& elemName, ThermoPhase *th_ptr) {
 #ifdef OLDWAY
     int num = sizeof(geDataTable) / sizeof(struct GeData);
     string s3 = elemName.substr(0,3);
@@ -469,7 +471,7 @@ namespace Cantera {
 #endif
   }
 
- doublereal convertDGFormation(int k, ThermoPhase *th_ptr) {
+ static doublereal convertDGFormation(int k, ThermoPhase *th_ptr) {
     /*
      * Ok let's get the element compositions and conversion factors.
      */
@@ -487,16 +489,6 @@ namespace Cantera {
 	totalSum += na * ge;
       }
     }
-    // Add in the charge
-    // if (m_charge_j != 0.0) {
-    // ename = "H";
-      // ge = LookupGe(ename);
-    // totalSum -= m_charge_j * ge;
-    //}
-    // Ok, now do the calculation. Convert to joules kmol-1
-    //doublereal dg = m_deltaG_formation_tr_pr * 4.184 * 1.0E3;
-    //! Store the result into an internal variable.
-    // doublereal Mu0_tr_pr = dg + totalSum;
     return totalSum;
   }
 

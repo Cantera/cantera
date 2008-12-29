@@ -18,9 +18,10 @@
 #pragma warning(disable:4503)
 #endif
 
-#include <algorithm>
 #include "Group.h"
-#include <math.h>
+
+#include <algorithm>
+#include <cmath>
 
 namespace Cantera {
      

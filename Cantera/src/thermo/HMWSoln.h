@@ -208,7 +208,7 @@ namespace Cantera {
    * \f$ m_k \f$ is the molality of the kth species. \f$ z_k \f$ is the charge
    * of the kth species. Note, the ionic strength is a defined units quantity.
    * The molality has defined units of gmol kg-1, and therefore the ionic
-   * strength has units of sqrt( gmol kg-1).
+   * strength has units of sqrt( gmol kg<SUP>-1</SUP>).
    *
    * In some instances, from some authors, a different 
    * formulation is used for the ionic strength in the equations below. The different
@@ -549,6 +549,8 @@ namespace Cantera {
    *  \f]
    *
    *  It can be shown that the expression 
+   *
+   *
    *
    *  \f[
    *     B^{\phi}_{ca} = \beta^{(0)}_{ca} + \beta^{(1)}_{ca} \exp{(- \alpha^{(1)}_{ca} \sqrt{I})} 
@@ -2203,15 +2205,12 @@ namespace Cantera {
     void getUnscaledMolalityActivityCoefficients(doublereal *acMolality) const;
 
   private:
-    //! Apply the current phScale to a set of activity Coefficients or activities
+
+    //! Apply the current phScale to a set of activity Coefficients
     /*!
      *  See the Eq3/6 Manual for a thorough discussion.
      *
-     * @param acMolality input/Output vector containing the molality based 
-     *                   activity coefficients. length: m_kk.
      */
-    // void applyphScale(doublereal *acMolality) const;
-
     void s_updateScaling_pHScaling() const;
 
     //!  Apply the current phScale to a set of derivatives of the activity Coefficients
@@ -2792,8 +2791,32 @@ namespace Cantera {
      * neutral species interacting with itself.
      */
     mutable vector_fp  m_Mu_nnn;
+
+    //! Mu coefficient temperature derivative for the self-ternary neutral coefficient
+    /*!
+     * Array of 2D data used in the Pitzer/HMW formulation.
+     * Mu_nnn_L[i] represents the Mu coefficient temperature derivative for the
+     * nnn interaction. This is a general interaction representing
+     * neutral species interacting with itself.
+     */
     mutable vector_fp  m_Mu_nnn_L;
+
+    //! Mu coefficient 2nd temperature derivative for the self-ternary neutral coefficient
+    /*!
+     * Array of 2D data used in the Pitzer/HMW formulation.
+     * Mu_nnn_L[i] represents the Mu coefficient 2nd temperature derivative for the
+     * nnn interaction. This is a general interaction representing
+     * neutral species interacting with itself.
+     */
     mutable vector_fp  m_Mu_nnn_LL;
+
+    //! Mu coefficient pressure derivative for the self-ternary neutral coefficient
+    /*!
+     * Array of 2D data used in the Pitzer/HMW formulation.
+     * Mu_nnn_L[i] represents the Mu coefficient pressure derivative for the
+     * nnn interaction. This is a general interaction representing
+     * neutral species interacting with itself.
+     */
     mutable vector_fp  m_Mu_nnn_P;
 
     //! Array of coefficients form_Mu_nnn term

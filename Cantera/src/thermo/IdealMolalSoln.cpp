@@ -28,9 +28,11 @@
 #include "ThermoFactory.h"
 #include <cmath>
 
+//@{
 #ifndef MAX
 #define MAX(x,y)    (( (x) > (y) ) ? (x) : (y))
 #endif
+//@}
 
 namespace Cantera {
 
