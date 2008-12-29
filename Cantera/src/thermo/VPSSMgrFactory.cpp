@@ -145,6 +145,26 @@ namespace Cantera {
     }
   }
 
+  // Delete static instance of this class
+  /*
+   * If it is necessary to explicitly delete the factory before
+   * the process terminates (for example, when checking for
+   * memory leaks) then this method can be called to delete it.
+   */
+  void VPSSMgrFactory::deleteFactory() {
+
+#if defined(THREAD_SAFE_CANTERA)
+      boost::mutex::scoped_lock lock(species_thermo_mutex);
+#endif
+      if (s_factory) {
+	delete s_factory;
+	s_factory = 0;
+      }
+  }
+
+  VPSSMgrFactory::~VPSSMgrFactory() {
+  }
+
   VPSSMgr_enumType
   VPSSMgrFactory::VPSSMgr_StringConversion(std::string ssModel) const {
     std::string lssModel = lowercase(ssModel); 

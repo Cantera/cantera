@@ -6,7 +6,6 @@
  */
 
 /*
- * $Author$
  * $Revision$
  * $Date$
  */
@@ -99,31 +98,21 @@ namespace Cantera {
     }
 
     //! Delete static instance of this class
-    /**
+    /*!
      * If it is necessary to explicitly delete the factory before
      * the process terminates (for example, when checking for
      * memory leaks) then this method can be called to delete it.
      */
-    void deleteFactory() {
-
-#if defined(THREAD_SAFE_CANTERA)
-      boost::mutex::scoped_lock lock(species_thermo_mutex);
-#endif
-      if (s_factory) {
-	delete s_factory;
-	s_factory = 0;
-      }
-    }
+    void deleteFactory();
 	
     //! Destructor
-    /**
+    /*!
      * Doesn't do anything. We do not delete statically
      * created single instance of this class here, because it would
      * create an infinite loop if destructor is called for that
      * single instance.
      */
-    virtual ~VPSSMgrFactory() {
-    }
+    virtual ~VPSSMgrFactory();
 
     //! String conversion to an enumType
     /*!
@@ -144,35 +133,20 @@ namespace Cantera {
      */ 
     virtual VPSSMgr* newVPSSMgr(VPSSMgr_enumType type, VPStandardStateTP *vp_ptr);
 
-    //! Create a new species property manager.
-    /*!
-     * This routine will look through species nodes. It will discover what
-     * each species needs for its species property managers. Then,
-     * it will malloc and return the proper species property manager to use.
-     *
-     * @param vp_ptr       Variable pressure standard state ThermoPhase object
-     *                     that will be the owner.
-     * @param phaseNode_ptr  Pointer to the ThermoPhase phase XML Node
-     * @param spData_node  Pointer to a speciesData XML Node.
-     *                     Each speciesData node contains a list of XML species elements
-     *                      e.g., \<speciesData id="Species_Data"\>
-     */ 
-    // virtual VPSSMgr* newVPSSMgr(VPStandardStateTP *vp_ptr, 
-    //                           XML_Node* phaseNode_ptr,
-    //                        XML_Node* spData_node);
-
     //! Create a new species property manager for a group of species
     /*!
      * This routine will look through species nodes. It will discover what
      * each species needs for its species property managers. Then,
      * it will malloc and return the proper species property manager to use.
      *
-     * @param vp_ptr       Variable pressure standard state ThermoPhase object
-     *                     that will be the owner.
+     * @param vp_ptr         Variable pressure standard state ThermoPhase object
+     *                       that will be the owner.
      * @param phaseNode_ptr  Pointer to the ThermoPhase phase XML Node
-     * @param spData_nodes Vector of XML_Nodes, each of which is a speciesData XML Node.
-     *                     Each speciesData node contains a list of XML species elements
-     *                      e.g., \<speciesData id="Species_Data"\>
+     * @param spDataNodeList Vector of XML_Nodes, each of which is a species XML Node.
+     *                       There are m_kk of these.
+     *
+     *  @return              Returns a pointer to a newly malloced species property
+     *                       manager object.
      */ 
     virtual VPSSMgr* newVPSSMgr(VPStandardStateTP *vp_ptr, 
                                 XML_Node* phaseNode_ptr, 
