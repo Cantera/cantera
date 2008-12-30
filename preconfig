@@ -221,6 +221,11 @@ WITH_ELECTROLYTES=${WITH_ELECTROLYTES:="y"}
 # WARNING: Support for PrIMe is experimental!
 WITH_PRIME=${WITH_PRIME:="n"}
 
+# Enable changing the 298K heats of formation directly
+# via the C++ layer. To do this, modify the variable below
+# to have a value of "y"
+WITH_H298MODIFY_CAPABILITY=${WITH_H298MODIFY_CAPABILITY:="n"}
+
 ######################################################################
 # if set to 'y', the ck2cti program that converts Chemkin input files
 # to Cantera format will be built. If you don't use Chemkin format
@@ -554,6 +559,7 @@ export WITH_PURE_FLUIDS
 export WITH_IDEAL_SOLUTIONS
 export WITH_ELECTROLYTES
 export WITH_PRIME
+export WITH_H298MODIFY_CAPABILITY
 
 export BUILD_THREAD_SAFE
 export BOOST_INC_DIR

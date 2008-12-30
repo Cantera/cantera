@@ -163,5 +163,10 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 //    accessed by specifying the solver=2 option
 #undef WITH_VCSNONIDEAL
 
+//-------------- Optional Cantera Capabilities ----------------------
+
+//    Enable sensitivity analysis via changing H298 directly
+//    for species
+#undef  H298MODIFY_CAPABILITY
 
 #endif

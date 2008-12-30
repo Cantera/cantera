@@ -583,6 +583,14 @@ if test "$WITH_VCSNONIDEAL" = "y"; then
 fi
 AC_SUBST(COMPILE_VCSNONIDEAL)
 
+COMPILE_H298MODIFY_CAPABILITY=0
+if test "$WITH_H298MODIFY_CAPABILITY" = "y"; then
+  AC_DEFINE(H298MODIFY_CAPABILITY)
+  COMPILE_H298MODIFY_CAPABILITY=1
+fi
+AC_SUBST(COMPILE_H298MODIFY_CAPABILITY)
+
+
 if test "$WITH_HTML_LOG_FILES" = "y"; then
   AC_DEFINE(WITH_HTML_LOGS)
 fi
@@ -678,6 +686,11 @@ if test "$COMPILE_VCSNONIDEAL" = "1" ; then
   echo "        VCS NonIdeal equilibrium solver       = ON"
 else
   echo "        VCS NonIdeal equilibrium solver       = OFF"
+fi
+if test "$COMPILE_H298MODIFY_CAPABILITY" = "1" ; then
+  echo "        H298 Modify Capability                = ON"
+else
+  echo "        H298 Modify Capability                = OFF"
 fi
 echo " "
 
