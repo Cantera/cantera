@@ -57,9 +57,11 @@ endif
 
 %.o : %.cpp
 	$(PURIFY) @CXX@ -c $< @DEFS@  @CXXFLAGS@ @PIC@ $(INCLUDES)
-
+#
+# Right now g77 is not known to PURIFY. Why I don't know.
+#
 %.o : %.f
-	$(PURIFY) @F77@ -c $< $(F_FLAGS)
+	@F77@ -c $< $(F_FLAGS)
 
 $(OBJS): Makefile
 

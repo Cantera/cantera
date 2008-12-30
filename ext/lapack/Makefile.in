@@ -79,8 +79,12 @@ ifeq ($(do_ranlib),1)
 	@RANLIB@ $(LAPACKLIB)
 endif
 
+#
+# Right now g77 is not a known compiler to PURIFY. Why,
+# I don't know. Taking the instrumentation out for now
+#
 %.o : %.f
-	$(PURIFY) @F77@ -c $<  $(F77_INCLUDES) $(F_FLAGS) 
+	 @F77@ -c $<  $(F77_INCLUDES) $(F_FLAGS) 
 
 $(OBJS): Makefile
 
