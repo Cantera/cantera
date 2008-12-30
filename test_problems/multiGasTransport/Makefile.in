@@ -23,6 +23,8 @@ LINK_OPTIONS = @EXTRA_LINK@
 
 #############################################################################
 
+PURIFY=@PURIFY@
+
 # Check to see whether we are in the msvc++ environment
 os_is_win = @OS_IS_WIN@
 
@@ -64,7 +66,7 @@ LCXX_FLAGS = -L$(CANTERA_LIBDIR) @LOCAL_LIB_DIRS@ @CXXFLAGS@
 
 # How to compile C++ source files to object files
 .@CXX_EXT@.@OBJ_EXT@: Interface.h
-	$(CXX) -c $< -I$(CANTERA_INCDIR) @CXX_INCLUDES@ $(CXX_FLAGS)
+	$(PURIFY) $(CXX) -c $< -I$(CANTERA_INCDIR) @CXX_INCLUDES@ $(CXX_FLAGS)
 
 # How to compile the dependency file
 .cpp.d:
@@ -81,7 +83,7 @@ all: .depends $(PROGRAM)
 
 # Rule to make the program
 $(PROGRAM): $(OBJS)  $(CANTERA_LIB_DEPS) $(CANTERA_LAPACK_DEPS)
-	$(CXX) -o $(PROGRAM) $(OBJS) $(LCXX_FLAGS) $(LINK_OPTIONS) \
+	$(PURIFY) $(CXX) -o $(PROGRAM) $(OBJS) $(LCXX_FLAGS) $(LINK_OPTIONS) \
                   $(CANTERA_LIBS) @LIBS@ $(FORT_LIBS) \
                   $(LCXX_END_LIBS)
 
