@@ -786,7 +786,16 @@ namespace Cantera {
     virtual void modifyOneHf298SS(const int k, const doublereal Hf298New) {
        m_spthermo->modifyOneHf298(k, Hf298New);
     }
+#else
+    doublereal Hf298SS(const int k) const {
+       return err("Hf298SS - H298MODIFY_CAPABILITY not compiled in"); 
+    }
+
+    virtual void modifyOneHf298SS(const int k, const doublereal Hf298New) {
+       return err("Hf298SS - H298MODIFY_CAPABILITY not compiled in"); 
+    }
 #endif
+
     //! Maximum temperature for which the thermodynamic data for the species 
     //! are valid. 
     /*!

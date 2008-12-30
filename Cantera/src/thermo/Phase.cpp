@@ -22,9 +22,14 @@ using namespace std;
 namespace Cantera {    
 
   Phase::Phase() : 
-    m_kk(-1), m_ndim(3), m_index(-1), 
+    Constituents(),
+    State(),
+    m_kk(-1), 
+    m_ndim(3),
+    m_index(-1), 
     m_xml(new XML_Node("phase")), 
-    m_id("<phase>"), m_name("") 
+    m_id("<phase>"),
+    m_name("") 
   {
   }
 
