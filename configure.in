@@ -85,6 +85,7 @@ SHARED_CTLIB=0
 OS_IS_DARWIN=0
 OS_IS_WIN=0
 OS_IS_CYGWIN=0
+OS_IS_SOLARIS=0
 EXTRA_LINK=${EXTRA_LINK:=""}
 
 # default Matlab MEX file extension
@@ -99,6 +100,7 @@ case $ac_sys_system in
             #   mex_ext=mexmaci
             ;;#fi;;
   CYGWIN*)  OS_IS_CYGWIN=1; mex_ext=mexw32;;
+  SunOS*)   OS_IS_SOLARIS=1;;
   Linux* )  case $BITHARDWARE in
              64 ) if test "$BITCHANGE" = "y" ; then
                      ldemulationarg='-melf_i386'
@@ -259,6 +261,9 @@ if test "x${OS_IS_DARWIN}" = "x1"; then
 fi
 if test "x${OS_IS_CYGWIN}" = "x1"; then
   AC_DEFINE_UNQUOTED(CYGWIN,$OS_IS_CYGWIN)
+fi
+if test "x${OS_IS_SOLARIS}" = "x1"; then
+  AC_DEFINE_UNQUOTED(CYGWIN,$OS_IS_SOLARIS)
 fi
 if test "x${OS_IS_WIN}" = "x1"; then
   AC_DEFINE_UNQUOTED(WINMSVC,$OS_IS_WIN)

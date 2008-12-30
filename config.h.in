@@ -71,6 +71,10 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 // microsoft vc++ being used as the compiler
 #undef WINMSVC
 
+// Identify whether the operating system is solaris 
+// with a native compiler 
+#undef SOLARIS
+
 //--------- Fonts for reaction path diagrams ----------------------
 #undef RXNPATH_FONT
 
