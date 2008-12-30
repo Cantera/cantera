@@ -13,6 +13,9 @@ do_ranlib = @DO_RANLIB@
 LIB = @buildlib@/libctmath.a
 
 all: $(LIB)
+
+PURIFY=@PURIFY@
+
 PIC_FLAG=@PIC@
 
 F_FLAGS = @FFLAGS@ $(PIC_FLAG)
@@ -50,13 +53,13 @@ ifeq ($(do_ranlib),1)
 endif
 
 %.o : %.c
-	@CXX@ -c $< @DEFS@  @CXXFLAGS@ @PIC@ -I../.. $(INCLUDES)
+	$(PURIFY) @CXX@ -c $< @DEFS@  @CXXFLAGS@ @PIC@ -I../.. $(INCLUDES)
 
 %.o : %.cpp
-	@CXX@ -c $< @DEFS@  @CXXFLAGS@ @PIC@ $(INCLUDES)
+	$(PURIFY) @CXX@ -c $< @DEFS@  @CXXFLAGS@ @PIC@ $(INCLUDES)
 
 %.o : %.f
-	@F77@ -c $< $(F_FLAGS)
+	$(PURIFY) @F77@ -c $< $(F_FLAGS)
 
 $(OBJS): Makefile
 

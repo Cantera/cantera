@@ -15,6 +15,8 @@ INCDIR = ../../../build/include/cantera/kernel
 INSTALL_TSC = ../../../bin/install_tsc
 do_ranlib = @DO_RANLIB@
 
+PURIFY=@PURIFY@
+
 PIC_FLAG=@PIC@
 
 CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT) $(PIC_FLAG)
@@ -41,7 +43,7 @@ all: $(ZEROD_LIB) .depends
 	@CXX_DEPENDS@  @DEFS@ $(CXX_FLAGS) $(CXX_INCLUDES) $*.cpp > $*.d
 
 .cpp.o:
-	@CXX@ -c $< @DEFS@ $(CXX_FLAGS) $(CXX_INCLUDES)
+	$(PURIFY) @CXX@ -c $< @DEFS@ $(CXX_FLAGS) $(CXX_INCLUDES)
 
 $(ZEROD_LIB): $(OBJS) $(ZEROD_H)
 	@ARCHIVE@ $(ZEROD_LIB) $(OBJS) > /dev/null

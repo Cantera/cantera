@@ -9,17 +9,11 @@
  *  $Revision$
  */
 
-#ifdef SRCDIRTREE
-#include "ct_defs.h"
-#include "logger.h"
-#include "HMWSoln.h"
-#else
 
 #include "Cantera.h"
 
 #include "kernel/logger.h"
 #include "HMWSoln.h"
-#endif
 
 #include <cstdio>
 

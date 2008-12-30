@@ -24,6 +24,9 @@ else
    DEBUG_FLAG=
 endif
 
+# Purify command - usually this is blank
+PURIFY=@PURIFY@
+
 #LOCAL_DEFS=-DDEBUG_MODE
 PIC_FLAG=@PIC@
 
@@ -98,7 +101,7 @@ all: $(LIB) .depends
 	@CXX_DEPENDS@ $(CXX_FLAGS) $(CXX_INCLUDES) $*.cpp > $*.d
 
 .cpp.o:
-	@CXX@ -c $< $(CXX_FLAGS) $(CXX_INCLUDES)
+	$(PURIFY) @CXX@ -c $< $(CXX_FLAGS) $(CXX_INCLUDES)
 
 $(LIB): $(CATHERMO_OBJ) $(CATHERMO_H)
 	@ARCHIVE@ $(LIB) $(CATHERMO_OBJ) > /dev/null

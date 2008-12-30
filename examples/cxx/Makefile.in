@@ -27,6 +27,8 @@ LINK_OPTIONS = @EXTRA_LINK@
 # the Fortran compiler
 FORT = @F90@
 
+PURIFY=@PURIFY@
+
 # Fortran compile flags  
 FORT_FLAGS = @FFLAGS@ 
 
@@ -87,11 +89,11 @@ LCXX_FLAGS = -L$(CANTERA_LIBDIR) @LOCAL_LIB_DIRS@ @CXXFLAGS@
 
 # how to compile C++ source files to object files
 .@CXX_EXT@.@OBJ_EXT@:
-	$(CXX) -c $< $(CANTERA_INC) $(CXX_FLAGS)
+	$(PURIFY) $(CXX) -c $< $(CANTERA_INC) $(CXX_FLAGS)
 
 # how to compile Fortran source files to object files
 .@F77_EXT@.@OBJ_EXT@: 
-	$(FORT) -c $< $(FORT_FLAGS)
+	$(PURIFY) $(FORT) -c $< $(FORT_FLAGS)
 
 PROGRAM = ./$(PROG_NAME)$(EXE_EXT)
 
@@ -103,7 +105,7 @@ DEPENDS=$(OBJS:.o=.d)
 	@CXX_DEPENDS@ $(CANTERA_INC) $(CXX_FLAGS) $*.cpp > $*.d
 
 $(PROGRAM): $(OBJS) $(LIB_DEPS)
-	$(CXX) -o $(PROGRAM) $(OBJS) $(LCXX_FLAGS) $(CANTERA_LIBS) \
+	$(PURIFY) $(CXX) -o $(PROGRAM) $(OBJS) $(LCXX_FLAGS) $(CANTERA_LIBS) \
                    $(LINK_OPTIONS) $(EXT_LIBS) @LIBS@ \
                   $(LCXX_END_LIBS)
 

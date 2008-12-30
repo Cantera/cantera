@@ -14,6 +14,7 @@
 CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT)
 FORT_FLAGS = @F90BUILDFLAGS@
 
+PURIFY=@PURIFY@
 
 CXX_OBJS = fct.o fctxml.o
 
@@ -61,16 +62,16 @@ LCXX_FLAGS = -L$(CANTERA_LIBDIR) @CXXFLAGS@
 
 # how to compile C++ source files to object files
 %.o : %.cpp
-	$(CXX) -c $< $(CXX_INCLUDES) $(CXX_FLAGS)
+	$(PURIFY) $(CXX) -c $< $(CXX_INCLUDES) $(CXX_FLAGS)
 
 %.o : %.f90
-	$(F90) -c $< $(FORT_FLAGS)
+	$(PURIFY) $(F90) -c $< $(FORT_FLAGS)
 
 %.mod : %_interface.f90
-	$(F90) -c $< $(FORT_FLAGS)
+	$(PURIFY) $(F90) -c $< $(FORT_FLAGS)
 
 %.mod : %.f90
-	$(F90) -c $< $(FORT_FLAGS)
+	$(PURIFY) $(F90) -c $< $(FORT_FLAGS)
 
 LIB_NAME=libfct.a
 
@@ -98,9 +99,11 @@ win-install:
 %.d: %.cpp
 	@CXX_DEPENDS@ $(CXX_INCLUDES) $*.cpp > $*.d
 
-depends: $(DEPENDS)
+depends: 
+	$(MAKE) .depends
+
+.depends: $(DEPENDS)
 	cat *.d > .depends
-	$(RM) $(DEPENDS) 
 
 cantera_thermo.o: fct.mod cantera_xml.mod cantera_thermo.f90
 fct.mod: fct_interface.f90

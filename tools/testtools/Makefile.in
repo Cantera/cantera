@@ -6,6 +6,8 @@ BINDIR = @ctroot@/bin
 BBINDIR = @buildbin@
 build_ck = @BUILD_CK@
 
+PURIFY=@PURIFY@
+
 LCXX_FLAGS = -L$(LIBDIR)  @LOCAL_LIB_DIRS@ @CXXFLAGS@
 LOCAL_LIBS = -lcantera -lckreader @math_libs@ @LAPACK_LIBRARY@ @BLAS_LIBRARY@ -lctcxx
 
@@ -22,12 +24,12 @@ CONFIGDEFS=@DEFS@
 # not be needed here anyway.
 
 .cpp.o:
-	@CXX@ -c $< -I$(INCDIR) @CXXFLAGS@ -O0
+	$(PURIFY) @CXX@ -c $< -I$(INCDIR) @CXXFLAGS@ -O0
 
 all: $(BINDIR)/csvdiff $(BBINDIR)/csvdiff
 
 $(BINDIR)/csvdiff: mdp_allo.o csvdiff.o tok_input_util.o
-	@CXX@ -o $(BINDIR)/csvdiff  mdp_allo.o csvdiff.o tok_input_util.o \
+	$(PURIFY) @CXX@ -o $(BINDIR)/csvdiff  mdp_allo.o csvdiff.o tok_input_util.o \
 	 $(LCXX_FLAGS) $(LCXX_END_LIBS) 
 
 $(BBINDIR)/csvdiff: $(BINDIR)/csvdiff

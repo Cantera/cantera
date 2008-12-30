@@ -15,6 +15,8 @@
 INSTALL_TSC = ../../../bin/install_tsc
 do_ranlib = @DO_RANLIB@
 
+PURIFY=@PURIFY@
+
 PIC_FLAG=@PIC@
 
 CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT) $(PIC_FLAG)
@@ -57,7 +59,7 @@ LCXX_FLAGS = -L$(CANTERA_LIBDIR) @CXXFLAGS@
 
 # how to compile C++ source files to object files
 .@CXX_EXT@.@OBJ_EXT@:
-	$(CXX) -c $< $(CXX_INCLUDES) $(CXX_FLAGS)
+	$(PURIFY) $(CXX) -c $< $(CXX_INCLUDES) $(CXX_FLAGS)
 
 %.d: Makefile %.o
 	@CXX_DEPENDS@ $(CXX_FLAGS) $(CXX_INCLUDES) $*.cpp > $*.d
@@ -75,7 +77,7 @@ all: $(CTLIB) .depends
 $(CTLIB): $(OBJS) $(LIB_DEPS)
 	$(RM)     $(CTLIB)
 ifeq ($(shared_ctlib),1)
-	$(CXX) -o $(CTLIB) $(OBJS) $(LCXX_FLAGS)\
+	$(PURIFY) $(CXX) -o $(CTLIB) $(OBJS) $(LCXX_FLAGS)\
                 @SHARED@ $(LINK_OPTIONS) \
                 $(EXT_LIBS) @LIBS@ $(FORT_LIBS)
 else

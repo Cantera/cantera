@@ -5,6 +5,8 @@ INCDIR = -I@ctroot@/Cantera/src/
 BINDIR = @buildbin@
 build_ck = @BUILD_CK@
 
+PURIFY=@PURIFY@
+
 LCXX_FLAGS = -L$(LIBDIR)  @LOCAL_LIB_DIRS@ @CXXFLAGS@
 LOCAL_LIBS = @LOCAL_LIBS@ #-lcantera -ltpx -lctcxx 
 #LOCAL_LIBS = -lcantera @math_libs@ @BLAS_LAPACK_LIBS@ -lctcxx 
@@ -26,7 +28,7 @@ exes = $(progs)
 endif
 
 .cpp.o:
-	@CXX@ -c $< @DEFS@  $(INCDIR)base $(INCDIR)converters @CXX_INCLUDES@ @CXXFLAGS@ $(CXX_FLAGS) 
+	$(PURIFY) @CXX@ -c $< @DEFS@  $(INCDIR)base $(INCDIR)converters @CXX_INCLUDES@ @CXXFLAGS@ $(CXX_FLAGS) 
 
 all: $(exes)
 
@@ -34,17 +36,17 @@ ck: $(BINDIR)/ck2cti
 
 $(BINDIR)/ck2cti: ck2cti.o $(CONVLIB_DEP) 
 	$(RM) $(BINDIR)/ck2cti
-	@CXX@ -o $(BINDIR)/ck2cti ck2cti.o $(LCXX_FLAGS) \
+	$(PURIFY) @CXX@ -o $(BINDIR)/ck2cti ck2cti.o $(LCXX_FLAGS) \
                -lconverters -lctbase -ltpx -lctcxx $(LOCAL_LIBS) $(LCXX_END_LIBS)
 
 $(BINDIR)/cti2ctml: cti2ctml.o 
 	$(RM) $(BINDIR)/cti2ctml
-	@CXX@ -o $(BINDIR)/cti2ctml cti2ctml.o $(LCXX_FLAGS) $(LOCAL_LIBS) \
+	$(PURIFY) @CXX@ -o $(BINDIR)/cti2ctml cti2ctml.o $(LCXX_FLAGS) $(LOCAL_LIBS) \
                $(LCXX_END_LIBS)
 
 $(BINDIR)/fixtext: fixtext.o 
 	$(RM) $(BINDIR)/fixtext
-	@CXX@ -o $(BINDIR)/fixtext fixtext.o $(LCXX_FLAGS) \
+	$(PURIFY) @CXX@ -o $(BINDIR)/fixtext fixtext.o $(LCXX_FLAGS) \
                $(LOCAL_LIBS) $(LCXX_END_LIBS)
 
 $(CONVLIB_DEP):

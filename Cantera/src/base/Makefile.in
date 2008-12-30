@@ -22,6 +22,8 @@ else
    DEBUG_FLAG=
 endif
 
+PURIFY=@PURIFY@
+
 PIC_FLAG=@PIC@
 
 CXX_FLAGS = @CXXFLAGS@ $(LOCAL_DEFS) $(CXX_OPT) $(PIC_FLAG) $(DEBUG_FLAG)
@@ -49,7 +51,7 @@ all: $(LIB) .depends
 	@CXX_DEPENDS@ $(CXX_FLAGS) $(CXX_INCLUDES) $*.cpp > $*.d
 
 .cpp.o:
-	@CXX@ -c $< $(CXX_FLAGS) $(CXX_INCLUDES)
+	$(PURIFY) @CXX@ -c $< $(CXX_FLAGS) $(CXX_INCLUDES)
 
 $(LIB): $(BASE_OBJ) $(BASE_H)
 	@ARCHIVE@ $(LIB) $(BASE_OBJ) > /dev/null

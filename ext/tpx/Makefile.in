@@ -6,6 +6,9 @@
 .SUFFIXES : .cpp .d .o
 
 do_ranlib = @DO_RANLIB@
+
+PURIFY=@PURIFY@
+
 PIC_FLAG=@PIC@
 CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT) $(PIC_FLAG)
 
@@ -24,10 +27,10 @@ all:  $(TPLIB) .depends
 	@CXX_DEPENDS@ $(CXX_INCLUDES) $*.cpp > $*.d
 
 .cpp.o:
-	@CXX@ -c $< @DEFS@ $(CXX_FLAGS) $(CXX_INCLUDES)
+	$(PURIFY) @CXX@ -c $< @DEFS@ $(CXX_FLAGS) $(CXX_INCLUDES)
 
 .f.o:
-	@F77@ -c $< $(F77_FLAGS) 
+	$(PURIFY) @F77@ -c $< $(F77_FLAGS) 
 
 $(TPLIB): $(COBJS) $(FOBJS)
 	@ARCHIVE@ $(TPLIB) $(COBJS) $(FOBJS) > /dev/null

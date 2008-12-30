@@ -26,6 +26,9 @@ srcdirtree=1
 # Fortran libraries
 FORT_LIBS = @FLIBS@
 
+# Purify options
+PURIFY=@PURIFY@
+
 # the C++ compiler
 CXX = @CXX@
 
@@ -59,7 +62,7 @@ LCXX_FLAGS = -L$(CANTERA_LIBDIR) @LOCAL_LIB_DIRS@ @CXXFLAGS@
 
 # how to compile C++ source files to object files
 .@CXX_EXT@.@OBJ_EXT@:
-	$(CXX) -c $< -I$(CANTERA_INCDIR) $(CXX_FLAGS) $(LOCAL_DEFNS)
+	$(PURIFY) $(CXX) -c $< -I$(CANTERA_INCDIR) $(CXX_FLAGS) $(LOCAL_DEFNS)
 
 # how to create a dependency file
 .@CXX_EXT@.d:
@@ -72,7 +75,7 @@ DEPENDS = $(OBJS:.o=.d)
 all: $(PROGRAM) 
 
 $(PROGRAM): $(OBJS) 
-	$(CXX) -o $(PROGRAM) $(OBJS) $(LCXX_FLAGS) $(CANTERA_LIBS) \
+	$(PURIFY) $(CXX) -o $(PROGRAM) $(OBJS) $(LCXX_FLAGS) $(CANTERA_LIBS) \
                    $(LINK_OPTIONS) $(EXT_LIBS) @LIBS@ $(FORT_LIBS) \
                   $(LCXX_END_LIBS)
 

@@ -11,6 +11,8 @@
 
 do_ranlib = @DO_RANLIB@
 
+PURIFY=@PURIFY@
+
 # the directory where the Cantera libraries are located
 CANTERA_LIBDIR=@buildlib@
 
@@ -36,7 +38,7 @@ CXX_INCLUDES=-I../f2c_libs
 
 # How to compile a C file
 .c.o:
-	@CC@ -c $< @DEFS@ $(CXX_FLAGS) $(CXX_INCLUDES)
+	$(PURIFY) @CC@ -c $< @DEFS@ $(CXX_FLAGS) $(CXX_INCLUDES)
 
 # -----------------------------------------------
 

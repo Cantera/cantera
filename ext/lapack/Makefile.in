@@ -10,6 +10,8 @@ LAPACKLIB = @buildlib@/libctlapack.a
 
 do_ranlib = @DO_RANLIB@
 
+PURIFY=@PURIFY@
+
 PIC_FLAG=@PIC@
 
 F_FLAGS = @FFLAGS@ $(PIC_FLAG)
@@ -78,7 +80,7 @@ ifeq ($(do_ranlib),1)
 endif
 
 %.o : %.f
-	@F77@ -c $<  $(F77_INCLUDES) $(F_FLAGS) 
+	$(PURIFY) @F77@ -c $<  $(F77_INCLUDES) $(F_FLAGS) 
 
 $(OBJS): Makefile
 
