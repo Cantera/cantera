@@ -792,7 +792,7 @@ namespace Cantera {
     }
 
     virtual void modifyOneHf298SS(const int k, const doublereal Hf298New) {
-       return err("Hf298SS - H298MODIFY_CAPABILITY not compiled in"); 
+      (void) err("Hf298SS - H298MODIFY_CAPABILITY not compiled in"); 
     }
 #endif
 
