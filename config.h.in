@@ -12,6 +12,9 @@
 // This just compiles in the code.
 #undef DEBUG_MODE
 
+// Compiling with PURIFY instrumentation
+#undef PURIFY_MODE
+
 //------------------------ Fortran settings -------------------//
 
 
@@ -74,6 +77,7 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 // Identify whether the operating system is solaris 
 // with a native compiler 
 #undef SOLARIS
+o
 
 //--------- Fonts for reaction path diagrams ----------------------
 #undef RXNPATH_FONT

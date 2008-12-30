@@ -145,6 +145,15 @@ F90=${F90:="n"}
 # flags here.
 F90FLAGS=${F90FLAGS:='-O3'}
 
+#---------------------------------------------------------------------
+#          Purify
+#---------------------------------------------------------------------
+
+#  Add entries here for compiling Cantera with Purify extensions
+#  This command is put in front of every compilation and linking
+#  step
+PURIFY=${PURIFY:=""}
+
 #----------------------------------------------------------------------
 #         Customizations / Extensions
 #----------------------------------------------------------------------
@@ -552,6 +561,8 @@ export BOOST_LIB_DIR
 export BOOST_THREAD_LIB
 
 export WITH_HTML_LOG_FILES
+
+export PURIFY
 
 chmod -f +x ./configure 
 chmod -f +x config/config.guess
