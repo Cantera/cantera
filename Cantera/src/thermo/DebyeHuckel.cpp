@@ -1563,7 +1563,7 @@ namespace Cantera {
       spPtr = xspecies[k];
       if (!spPtr) {
 	if (spPtr->hasChild("electrolyteSpeciesType")) {
-	  std::string est = getString(*spPtr, "electrolyteSpeciesType");
+	  std::string est = getChildValue(*spPtr, "electrolyteSpeciesType");
 	  if ((m_electrolyteSpeciesType[k] = interp_est(est)) == -1) {
 	    throw CanteraError("DebyeHuckel:initThermoXML",
 			       "Bad electrolyte type: " + est);

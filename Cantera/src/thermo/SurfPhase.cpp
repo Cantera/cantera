@@ -475,7 +475,7 @@ namespace Cantera {
         }
 
         if (state.hasChild("coverages")) {
-            string comp = getString(state,"coverages");
+            string comp = getChildValue(state,"coverages");
             setCoveragesByName(comp);
         }
     }

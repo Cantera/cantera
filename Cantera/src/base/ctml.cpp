@@ -30,7 +30,7 @@ using namespace Cantera;
 
 namespace ctml {
 
-    static doublereal fpValue(string val) {
+    static doublereal fpValue(std::string val) {
         return atof(stripws(val).c_str());
     }
 
@@ -161,26 +161,82 @@ namespace ctml {
         if (s->parent() == &node) return s;
         else return 0;
     }
-        
-  string getString(const XML_Node& parent, string name) {
-    if (!parent.hasChild(name)) return "";
-    return parent(name);
+
+  //  This function reads a child node with the name string and returns
+  //  its xml value as the return string
+  /*
+   *   If the child XML_node named "name" doesn't exist, the empty string is returned.
+   *  
+   * Code snipet:
+   *       @verbatum
+         const XML_Node &parent;
+	 string name = "vacency_species";
+	 string valueString = getChildValue(parent, name
+	           std::string typeString);
+   @endverbatum
+   *
+   *  returns valueString = "O(V)"
+   * 
+   *  from the following the snippet in the XML file:
+   *
+   *  @verbatum
+     <vacencySpecies>
+        O(V)
+     <\vancencySpecies>
+   @endverbatum
+   *
+   *   @param parent   parent reference to the XML_Node object of the parent XML element
+   *   @param name     Name of the childe XML_Node to read the value from.
+   *
+   *   @return         String value of the child XML_Node
+   */
+  std::string getChildValue(const XML_Node& parent, const std::string &nameString) {
+    if (!parent.hasChild(nameString)) return "";
+    return parent(nameString);
   }
 
-    void getString(XML_Node& node, string title, string& val, 
-        string& type) {
-        val = "";
-        type = "";
-        XML_Node* s = getByTitle(node, title);
-        if (s) 
-            if (s->name() == "string") {
-                val = (*s).value();
-                type = (*s)["type"];
-                return;
-            }
-    }
-
-    void getIntegers(const XML_Node& node, map<string,int>& v) {
+  //  This function reads a child node with the name, "string", with a specific
+  //  title attribute named "titleString"
+  /* 
+   *   This function will read a child node to the current XML node, with the
+   *   name "string". It must have a title attribute, named titleString, and the body
+   *   of the XML node will be read into the valueString output argument.
+   *
+   *  Example:  
+   *
+   * Code snipet:
+   *       @verbatum
+         const XML_Node &node;
+	 getString(XML_Node& node, std::string titleString, std::string valueString, 
+	           std::string typeString);
+   @endverbatum
+   *
+   *  Reads the following the snippet in the XML file:
+   *  @verbatum
+     <string title="titleString" type="typeString">
+        valueString
+     <\string>
+   @endverbatum
+   *
+   *   @param node          reference to the XML_Node object of the parent XML element
+   *   @param titleString   String name of the title attribute of the child node
+   *   @param valueString   Value string that is found in the child node. output variable
+   *   @param typeString    String type. This is an optional output variable
+   */
+  void getString(XML_Node& node, const std::string &titleString, std::string& valueString, 
+		 std::string& typeString) {
+    valueString = "";
+    typeString = "";
+    XML_Node* s = getByTitle(node, titleString);
+    if (s) 
+      if (s->name() == "string") {
+	valueString = (*s).value();
+	typeString = (*s)["type"];
+	return;
+      }
+  }
+  
+  void getIntegers(const XML_Node& node, map<string,int>& v) {
         vector<XML_Node*> f;
         node.getChildren("integer",f);
         int n = static_cast<int>(f.size());

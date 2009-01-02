@@ -594,7 +594,7 @@ namespace Cantera {
    */
   void MolalityVPSSTP::setStateFromXML(const XML_Node& state) {
     VPStandardStateTP::setStateFromXML(state);
-    string comp = getString(state,"soluteMolalities");
+    string comp = getChildValue(state,"soluteMolalities");
     if (comp != "") {
       setMolalitiesByName(comp);
     }

@@ -904,11 +904,11 @@ namespace Cantera {
    */
   void ThermoPhase::setStateFromXML(const XML_Node& state) {
 
-    string comp = getString(state,"moleFractions");
+    string comp = getChildValue(state,"moleFractions");
     if (comp != "") 
       setMoleFractionsByName(comp);
     else {
-      comp = getString(state,"massFractions");
+      comp = getChildValue(state,"massFractions");
       if (comp != "") 
 	setMassFractionsByName(comp);
     }
