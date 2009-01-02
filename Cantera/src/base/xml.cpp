@@ -686,17 +686,37 @@ namespace Cantera {
     m_parent = p;
     return p; 
   }
+
+  // Tests whether the current node has a child node with a particular name
+  /*
+   * @param ch  Name of the child node to test
+   *
+   * @return Returns true if the child node exists, false otherwise.
+   */
+  bool XML_Node::hasChild(const std::string ch) const {
+    return (m_childindex.find(ch) != m_childindex.end());
+  }
+
+  // Tests whether the current node has an attribute with a particular name
+  /*
+   * @param a  Name of the attribute to test
+   *
+   * @return Returns true if the attribute exists, false otherwise.
+   */
+  bool XML_Node::hasAttrib(std::string a) const {
+    return (m_attribs.find(a) != m_attribs.end());
+  }
   
-  //! return a reference to the n'th child of the current node
-  /*!
+  // Return a reference to the n'th child of the current node
+  /*
    *  @param n  Number of the child to return
    */
   XML_Node& XML_Node::child(const int n) const {
     return *m_children[n]; 
   }
 
-  //! Return an unchangeable reference to the vector of children of the current node
-  /*!
+  // Return an unchangeable reference to the vector of children of the current node
+  /*
    * Each of the individual XML_Node child pointers, however,
    *  is to a changeable xml node object.
    *
@@ -706,8 +726,8 @@ namespace Cantera {
     return m_children; 
   }
 
-  //! return the number of children
-  /*!
+  // return the number of children
+  /*
    *
    */
   int XML_Node::nChildren() const { 

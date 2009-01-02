@@ -64,10 +64,36 @@ namespace ctml {
 		     doublereal minval = Cantera::Undef,
 		     doublereal maxval = Cantera::Undef);
 
-  void addString(Cantera::XML_Node& node, 
-		 std::string title, 
-		 std::string val, 
-		 std::string type="");
+  //!  This function adds a child node with the name string with a string value
+  //!  to the current node
+  /*! 
+   *   This function will add a child node to the current XML node, with the
+   *   name "string". It will have a title attribute, and the body
+   *   of the XML node will be filled out with the valueString argument verbatim.
+   *
+   *  Example:  
+   *
+   * Code snipet:
+   *       @verbatum
+         const XML_Node &node;
+	 addString(XML_Node& node, std::string titleString, std::string valueString, 
+	           std::string typeString);
+   @endverbatum
+   *
+   *  Creates the following the snippet in the XML file:
+   *  @verbatum
+     <string title="titleString" type="typeString">
+        valueString
+     <\string>
+   @endverbatum
+   *
+   *   @param node          reference to the XML_Node object of the parent XML element
+   *   @param valueString   Value string to be used in the new XML node.
+   *   @param titleString   String name of the title attribute
+   *   @param typeString    String type. This is an optional parameter.
+   */
+  void addString(Cantera::XML_Node& node,  std::string titleString, 
+		 std::string valueString, std::string typeString="");
 
   void getFloatArray(const Cantera::XML_Node& node, Cantera::vector_fp& v, 
 		     bool convert=true, std::string type="",

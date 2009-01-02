@@ -363,6 +363,7 @@ namespace Cantera {
     std::map<std::string,std::string>& attribs();
 
   public:
+
     //! Set the line number 
     /*!
      *  @param n   the member data m_linenum is set to n
@@ -393,9 +394,7 @@ namespace Cantera {
      *
      * @return Returns true if the child node exists, false otherwise.
      */
-    bool hasChild(const std::string ch) const {
-      return (m_childindex.find(ch) != m_childindex.end());
-    }
+    bool hasChild(const std::string ch) const;
 
     //! Tests whether the current node has an attribute with a particular name
     /*!
@@ -403,9 +402,7 @@ namespace Cantera {
      *
      * @return Returns true if the attribute exists, false otherwise.
      */
-    bool hasAttrib(std::string a) const {
-      return (m_attribs.find(a) != m_attribs.end());
-    }
+    bool hasAttrib(std::string a) const;
 
     //! Returns the name of the XML node
     /*!
