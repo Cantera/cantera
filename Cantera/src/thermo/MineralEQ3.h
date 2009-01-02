@@ -1,8 +1,8 @@
 /**
- *  @file StoichSubstanceSSTP.h
- * Header file for the StoichSubstanceSSTP class, which represents a fixed-composition
- * incompressible substance (see \ref thermoprops and 
- * class \link Cantera::StoichSubstanceSSTP StoichSubstanceSSTP\endlink)
+ *  @file MineralEQ3.h
+ * Header file for the MineralEQ3 class, which represents a fixed-composition
+ * incompressible substance based on EQ3's parameterization (see \ref thermoprops and 
+ * class \link Cantera::MineralEQ3 MineralEQ3\endlink)
  */
 
 /*
@@ -11,10 +11,9 @@
  * U.S. Government retains certain rights in this software.
  */
 
-/*  $Author$
+/* 
  *  $Date$
  *  $Revision$
- *
  */
 
 #ifndef CT_MINERALEQ3_H
@@ -27,13 +26,11 @@
 
 namespace Cantera {
 
-  //!  Class %StoichSubstanceSSTP represents a stoichiometric (fixed
-  //!   composition)  incompressible substance.
+  //!  Class %MineralEQ3 represents a stoichiometric (fixed
+  //!   composition)  incompressible substance based on EQ3's parameterization
   /*!
-   * This class internally changes the independent degree of freedom from
-   * density to pressure. This is necessary because the phase is
-   * incompressible. It uses a constant volume approximation.
-   *
+   *  This class inherits from SingleSpeciesSSTP class.
+   *  EQ's parameterization is mapped onto the Shomate polynomial class.
    *
    * <b> Specification of Species Standard %State Properties </b>
    *

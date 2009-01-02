@@ -2225,7 +2225,7 @@ namespace Cantera {
     /*! 
      *  See the Eq3/6 Manual for a thorough discussion of the need
      */
-    void HMWSoln::s_updateScaling_pHScaling_dT2() const;
+    void s_updateScaling_pHScaling_dT2() const;
 
     //!  Apply the current phScale to a set of derivatives of the activity Coefficients
     //!  wrt pressure

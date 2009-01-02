@@ -1,6 +1,6 @@
 /**
  *  @file StoichSubstanceSSTP.cpp
- *   Definition file for the StoichSubstanceSSTP class, which represents a fixed-composition
+ * Definition file for the StoichSubstanceSSTP class, which represents a fixed-composition
  * incompressible substance (see \ref thermoprops and 
  * class \link Cantera::StoichSubstanceSSTP StoichSubstanceSSTP\endlink)
  */
@@ -21,9 +21,9 @@
 #include "mix_defs.h"
 #include "StoichSubstanceSSTP.h"
 #include "SpeciesThermo.h"
-#include <string>
-//#include "importCTML.h"
 #include "ThermoFactory.h"
+
+#include <string>
 
 namespace Cantera {
 

@@ -242,7 +242,7 @@ namespace Cantera {
      *
      * @param temp  Temperature (Kelvin)
      */
-    doublereal PDSS_Water::pref_safe(doublereal temp) const;
+    doublereal pref_safe(doublereal temp) const;
 
 
     //! Return the molar gibbs free energy divided by RT at reference pressure

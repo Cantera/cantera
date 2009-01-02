@@ -1,5 +1,5 @@
 /**
- *  @file StoichSubstanceSSTP.h
+ * @file StoichSubstanceSSTP.h
  * Header file for the StoichSubstanceSSTP class, which represents a fixed-composition
  * incompressible substance (see \ref thermoprops and 
  * class \link Cantera::StoichSubstanceSSTP StoichSubstanceSSTP\endlink)
@@ -11,10 +11,9 @@
  * U.S. Government retains certain rights in this software.
  */
 
-/*  $Author$
+/*
  *  $Date$
  *  $Revision$
- *
  */
 
 #ifndef CT_STOICHSUBSTANCESSTP_H
@@ -527,9 +526,17 @@ namespace Cantera {
 
   };
      
-
+  //!  Class %electrodeElectron represents an electron in a 
+  //!  metal using the Standard hydrogen reference electrode 
+  /*!
+   * 
+   *  The class is based on the electron have a chemical potential
+   *  equal to one-half of the entropy of the H2 gas at 1 bar.
+   *
+   */
   class electrodeElectron : public StoichSubstanceSSTP  {
   public:
+
     //! Default constructor for the electrodeElectron class
     electrodeElectron();
 
