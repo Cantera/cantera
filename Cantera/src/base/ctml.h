@@ -216,8 +216,7 @@ namespace ctml {
    */
   int getInteger(const Cantera::XML_Node& parent, std::string name);
     
-  void getStrings(const Cantera::XML_Node& node, std::map<std::string,
-		  std::string>& v);
+
   void getFunction(const Cantera::XML_Node& node, std::string& type, 
 		   doublereal& xmin, doublereal& xmax, Cantera::vector_fp& coeffs);
   Cantera::XML_Node* getByTitle(Cantera::XML_Node& node, std::string title);

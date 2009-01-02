@@ -1,7 +1,6 @@
 /**
  * @file ctml.cpp
- *
- * Functions to read and write CTML.
+ * Definitions for functions to read and write CTML.
  *
  */
 
@@ -70,25 +69,25 @@ namespace ctml {
         if (maxval != Undef) f.addAttribute("max",maxval);
     }
 
-    void addFloat(XML_Node& node, 
-        string title, 
-        doublereal val, 
-        string units, 
-        string type, 
-        doublereal minval,
-        doublereal maxval) {
-        string fmt = "%17.9E";
+  void addFloat(XML_Node& node, 
+		string title, 
+		doublereal val, 
+		string units, 
+		string type, 
+		doublereal minval,
+		doublereal maxval) {
+    string fmt = "%17.9E";
 #ifdef CTML_VERSION_1_4
-        XML_Node& f = node.addChild("float",val,fmt);
-        f.addAttribute("title",title);
+    XML_Node& f = node.addChild("float",val,fmt);
+    f.addAttribute("title",title);
 #else
-        XML_Node& f = node.addChild(title,val,fmt); 
+    XML_Node& f = node.addChild(title,val,fmt); 
 #endif
-        if (type != "") f.addAttribute("type",type);
-        if (units != "") f.addAttribute("units",units);
-        if (minval != Undef) f.addAttribute("min",minval);
-        if (maxval != Undef) f.addAttribute("max",maxval);
-    }
+    if (type != "") f.addAttribute("type",type);
+    if (units != "") f.addAttribute("units",units);
+    if (minval != Undef) f.addAttribute("min",minval);
+    if (maxval != Undef) f.addAttribute("max",maxval);
+  }
 
     /**
      *  Add a floatArray XML type to the xml file.
@@ -121,12 +120,12 @@ namespace ctml {
         if (maxval != Undef) f.addAttribute("max",maxval);
     }
 
-    void addString(XML_Node& node, string title, string val, 
-        string type) {
-        XML_Node& f = node.addChild("string",val);
-        f.addAttribute("title",title);
-        if (type != "") f.addAttribute("type",type);        
-    }
+  void addString(XML_Node& node, string title, string val, 
+		 string type) {
+    XML_Node& f = node.addChild("string",val);
+    f.addAttribute("title",title);
+    if (type != "") f.addAttribute("type",type);        
+  }
 
     XML_Node* getByTitle(XML_Node& node, string title) {
         XML_Node* s = node.findByAttr("title",title);
@@ -174,18 +173,7 @@ namespace ctml {
     }
 
 
-    void getStrings(const XML_Node& node, map<string,string>& v) {
-        vector<XML_Node*> f;
-        node.getChildren("string",f);
-        int n = static_cast<int>(f.size());
-        string typ, title;
-        for (int i = 0; i < n; i++) {
-            const XML_Node& fi = *(f[i]);
-            title = fi["title"];
-            v[title] = fi();
-        }
-    }
-
+  
 
     void getFloats(const XML_Node& node, map<string,double>& v, bool convert) {
         vector<XML_Node*> f;
