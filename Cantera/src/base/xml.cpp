@@ -5,7 +5,7 @@
  * manipulate CTML data files.
  */
 
-/* $Author$
+/*
  * $Revision$
  * $Date$
  */
@@ -838,8 +838,23 @@ namespace Cantera {
     return 0;
   }
 
-  XML_Node* XML_Node::findByAttr(const string& attr, 
-   			         const string& val) const {
+  // This routine carries out a recursive search for an XML node based
+  // on an attribute of each XML node
+  /*
+   * If exact match is found with respect to the attribute name and
+   * value of the attribute, the pointer
+   * to the matching XML Node is returned. If not, 0 is returned.
+   * 
+   *
+   *  @param attr     Attribute of the XML Node that the routine
+   *                  looks for
+   *  @param val      Value of the attribute
+   *
+   *  @return         Returns the pointer to the XML node that fits the criteria
+   *
+   */
+  XML_Node* XML_Node::findByAttr(const std::string& attr, 
+   			         const std::string& val) const {
     if (hasAttrib(attr)) {
       if (attrib(attr) == val) {
 	return const_cast<XML_Node*>(this);
@@ -854,7 +869,18 @@ namespace Cantera {
     return 0;
   }
 
-  XML_Node* XML_Node::findByName(const string& nm) {
+  // This routine carries out a recursive search for an XML node based
+  // on the name of the node.
+  /*
+   * If exact match is found with respect to XML_Node name, the pointer
+   * to the matching XML Node is returned. If not, 0 is returned.
+   * This is the non-const version of the routine.
+   *
+   *  @param nm       Name of the XML node
+   *
+   *  @return         Returns the pointer to the XML node that fits the criteria
+   */
+  XML_Node* XML_Node::findByName(const std::string& nm) {
     if (name() == nm) {
       return this;
     }
@@ -867,9 +893,20 @@ namespace Cantera {
     return 0;
   }
 
-  const XML_Node* XML_Node::findByName(const string& nm) const {
+  // This routine carries out a recursive search for an XML node based
+  // on the name of the node.
+  /*
+   * If exact match is found with respect to XML_Node name, the pointer
+   * to the matching XML Node is returned. If not, 0 is returned.
+   * This is the const version of the routine.
+   *
+   *  @param nm       Name of the XML node
+   *
+   *  @return         Returns the pointer to the XML node that fits the criteria
+   */
+  const XML_Node* XML_Node::findByName(const std::string& nm) const {
     if (name() == nm) {
-      return this;
+      return const_cast<XML_Node*>(this);
     }
     const XML_Node* r = 0;
     int n = nChildren();
@@ -880,10 +917,11 @@ namespace Cantera {
     return 0;
   }
 
- 
-    
-
-  void XML_Node::writeHeader(ostream& s) {
+  // Write the header to the xml file to the specified ostream
+  /*
+   *   @param s   ostream to write the output to
+   */
+  void XML_Node::writeHeader(std::ostream& s) {
     s << "<?xml version=\"1.0\"?>" << endl;
   }
 
@@ -940,7 +978,17 @@ namespace Cantera {
     }
   } 
 
-  void XML_Node::copyUnion(XML_Node *node_dest) const {
+  // Copy all of the information in the current XML_Node tree
+  // into the destination XML_Node tree, doing a union operation as
+  // we go
+  /*
+   *  Note this is a const function becuase the current XML_Node and
+   *  its children isn't altered by this operation.
+   *
+   *  @param node_dest  This is the XML node to receive the information
+   *
+   */
+  void XML_Node::copyUnion(XML_Node * const node_dest) const {
     XML_Node *sc, *dc;
     int ndc, idc;
     node_dest->addValue(m_value);
@@ -984,7 +1032,16 @@ namespace Cantera {
     }
   }
 
-  void XML_Node::copy(XML_Node *node_dest) const {
+  // Copy all of the information in the current XML_Node tree
+  // into the destination XML_Node tree, doing a complete copy 
+  // as we go.
+  /*
+   *  Note this is a const function becuase the current XML_Node and
+   *  its children isn't altered by this operation.
+   *
+   *  @param node_dest  This is the XML node to receive the information
+   */
+  void XML_Node::copy(XML_Node * const node_dest) const {
     XML_Node *sc, *dc;
     int ndc;
     node_dest->addValue(m_value);
@@ -1004,8 +1061,32 @@ namespace Cantera {
     }
   }
 
-  void XML_Node::getChildren(string nm, 
-			     vector<XML_Node*>& children) const {
+  // Set the lock for this node
+  void XML_Node::lock() {
+    m_locked = true;
+    for (int i = 0; i < m_nchildren; i++) {
+      m_children[i]->lock();
+    }
+  }
+
+  // Unset the lock for this node
+  void XML_Node::unlock() {
+    m_locked = false;
+    for (int i = 0; i < m_nchildren; i++) {
+      m_children[i]->unlock();
+    }
+  }
+
+  // Get a vector of pointers to XML_Node containing all of the children
+  // of the current node which matches the input name
+  /*
+   *  @param name   Name of the XML_Node children to search on
+   *
+   * @param children  output vector of pointers to XML_Node children
+   *                  with the matching name
+   */
+  void XML_Node::getChildren(const std::string &nm, 
+			     std::vector<XML_Node*>& children) const {
     int i, n = nChildren();
     for (i = 0; i < n; i++) {
       if (child(i).name() == nm) {
@@ -1013,11 +1094,17 @@ namespace Cantera {
       } 
     }
   }
-    
-  XML_Node& XML_Node::child(std::string loc) const {
+
+  // Return a changeable reference to a child of the current node, 
+  // named by the argument
+  /*
+   *  @param loc  Name of the child to return
+   */
+  XML_Node& XML_Node::child(const std::string &aloc) const {
     string::size_type iloc;
     string cname;
-    map<string,XML_Node*>::const_iterator i;
+    string loc = aloc;
+    std::map<std::string,XML_Node*>::const_iterator i;
 
     while (1) {
       iloc = loc.find('/');
@@ -1045,7 +1132,7 @@ namespace Cantera {
    * main recursive routine. It doesn't put a final endl
    * on. This is fixed up in the public method.
    */
-  void XML_Node::write_int(ostream& s, int level) const {
+  void XML_Node::write_int(std::ostream& s, int level) const {
 
     if (m_name == "") return;
 
@@ -1160,7 +1247,7 @@ namespace Cantera {
     }
   }
 
-  /**
+  /*
    * Write an XML subtree to an output stream. This is a 
    * wrapper around the static routine write_int(). All this
    * does is add an endl on to the output stream. write_int() is
@@ -1170,7 +1257,7 @@ namespace Cantera {
    * is skipped and the children are processed. "--" is used
    * to denote the top of the tree.
    */
-  void XML_Node::write(ostream& s, int level) const {
+  void XML_Node::write(std::ostream& s, const int level) const {
     if (m_name == "--" && m_root == this) {
       for (int i = 0; i < m_nchildren; i++) {
 	m_children[i]->write_int(s,level);
