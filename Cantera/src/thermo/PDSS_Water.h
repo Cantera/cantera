@@ -140,12 +140,6 @@ namespace Cantera {
      * @{
      */
     
-    //! Returns the type of the standard state parameterization
-    /*!
-     * @return Returns the integer # of the parameterization
-     */
-    virtual PDSS_enumType reportPDSSType() const { return cPDSS_WATER; }
-
     /**
      * @}
      * @name  Molar Thermodynamic Properties of the Species Standard State

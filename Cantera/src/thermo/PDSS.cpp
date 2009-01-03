@@ -184,7 +184,14 @@ namespace Cantera {
     PDSS *ip = new PDSS(*this);
     return ip;
   }
-   
+
+  // Returns the type of the standard state parameterization
+  /*
+   * @return Returns the integer # of the parameterization
+   */
+  PDSS_enumType PDSS::reportPDSSType() const { 
+    return m_pdssType;
+  }
 
   void PDSS::initThermoXML(const XML_Node& phaseNode, std::string& id) {
     AssertThrow(m_tp != 0, "PDSS::initThermoXML()");
@@ -476,4 +483,16 @@ namespace Cantera {
     throw CanteraError("PDSS::" + msg, "unimplemented");
   }
 
+
+  void PDSS::reportParams(int &kindex, int &type,
+			  doublereal * const c,
+			  doublereal &minTemp,
+			  doublereal &maxTemp,
+			  doublereal &refPressure) const {
+    kindex = m_spindex;
+    type = m_pdssType;
+    minTemp = m_minTemp;
+    maxTemp = m_maxTemp;
+    refPressure = m_p0;
+  }
 }

@@ -260,7 +260,7 @@ namespace Cantera {
     /*!
      * @return Returns the integer # of the parameterization
      */
-    virtual PDSS_enumType reportPDSSType() const { return cPDSS_UNDEF; }
+    PDSS_enumType reportPDSSType() const;
 
   private:
 
@@ -593,6 +593,28 @@ namespace Cantera {
      *                   phase element will be used.
      */
     virtual void initThermoXML(const XML_Node& phaseNode, std::string& id);
+
+    
+    //! This utility function reports back the type of
+    //! parameterization and all of the parameters for the
+    //! species, index.
+    /*!
+     *
+     * @param index     Species index
+     * @param type      Integer type of the standard type
+     * @param c         Vector of coefficients used to set the
+     *                  parameters for the standard state.
+     * @param minTemp   output - Minimum temperature
+     * @param maxTemp   output - Maximum temperature
+     * @param refPressure output - reference pressure (Pa).
+     *
+     */
+    virtual void reportParams(int &kindex, int &type,
+                              doublereal * const c,
+                              doublereal &minTemp,
+                              doublereal &maxTemp,
+                              doublereal &refPressure) const;
+
 
   private:
     //! Initialize all of the internal shallow pointers that can be initialized

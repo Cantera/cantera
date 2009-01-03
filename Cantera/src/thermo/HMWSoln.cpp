@@ -895,7 +895,6 @@ namespace Cantera {
     }
   }    
 
-
   /*
    * Get the array of non-dimensional activities at
    * the current solution temperature, pressure, and

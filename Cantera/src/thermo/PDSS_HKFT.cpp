@@ -285,16 +285,22 @@ namespace Cantera {
 
       doublereal r_e_j = r_e_j_pr_tr + fabs(m_charge_j) * gval;
       doublereal dr_e_jdT = fabs(m_charge_j) * dgvaldT;
+      doublereal d2r_e_jdT2 =  fabs(m_charge_j) * d2gvaldT2;
 
-      omega_j = nu * (m_charge_j * m_charge_j / r_e_j - m_charge_j / (3.082 + gval)  );
+      doublereal r_e_j2 = r_e_j * r_e_j;
 
-      domega_jdT = - 2.0 * nu * (m_charge_j * m_charge_j * m_charge_j * m_charge_j / (r_e_j * r_e_j* r_e_j) 
-				 - m_charge_j / (3.082 + gval) / (3.082 + gval)  / (3.082 + gval)) * dgvaldT * dgvaldT
-	- nu * (m_charge_j * m_charge_j * fabs(m_charge_j) / (r_e_j * r_e_j) 
-		- m_charge_j / (3.082 + gval) / (3.082 + gval)) * d2gvaldT2;
-      
-      d2omega_jdT2 =   nu * (m_charge_j * m_charge_j / (r_e_j * r_e_j) * dr_e_jdT)
-	+ nu * m_charge_j / (3.082 + gval) / (3.082 + gval) * dgvaldT;
+      doublereal charge2 = m_charge_j * m_charge_j;
+
+      doublereal r_e_H = 3.082 + gval;
+      doublereal r_e_H2 = r_e_H * r_e_H;
+
+      omega_j = nu * (charge2 / r_e_j - m_charge_j / r_e_H);
+
+      domega_jdT =  nu * (-(charge2    / r_e_j2 * dr_e_jdT)
+			  +(m_charge_j / r_e_H2 * dgvaldT ));
+
+      d2omega_jdT2 = nu * ( 2.0*charge2*dr_e_jdT/(r_e_j2*r_e_j) - charge2*d2r_e_jdT2/r_e_j2
+			   -2.0        *dgvaldT /(r_e_H2*r_e_H) + charge2*d2gvaldT2 /r_e_H2);      
     }
 
     doublereal relepsilon = m_waterProps->relEpsilon(m_temp, m_pres, 0);
@@ -1092,6 +1098,46 @@ namespace Cantera {
     //! Store the result into an internal variable.
     m_Mu0_tr_pr = dg + totalSum;
   }
+  
+  // This utility function reports back the type of
+  // parameterization and all of the parameters for the
+  // species, index.
+  /*
+   *
+   * @param index     Species index
+   * @param type      Integer type of the standard type
+   * @param c         Vector of coefficients used to set the
+   *                  parameters for the standard state.
+   * @param minTemp   output - Minimum temperature
+   * @param maxTemp   output - Maximum temperature
+   * @param refPressure output - reference pressure (Pa).
+   *
+   */
+  void PDSS_HKFT::reportParams(int &kindex, int &type,
+			    doublereal * const c,
+			    doublereal &minTemp,
+			    doublereal &maxTemp,
+			    doublereal &refPressure) const {
+
+    // Fill in the first part
+    PDSS::reportParams(kindex, type, c, minTemp, maxTemp,
+		       refPressure);
+
+
+    c[0] = m_deltaG_formation_tr_pr;
+    c[1] = m_deltaH_formation_tr_pr;
+    c[2] = m_Mu0_tr_pr;
+    c[3] = m_Entrop_tr_pr;
+    c[4] =  m_a1;
+    c[5] =  m_a2;
+    c[6] =  m_a3;
+    c[7] =  m_a4;
+    c[8] =  m_c1;
+    c[9] =  m_c2;
+    c[10] = m_omega_pr_tr;
+
+  }
+
 
 
 }

@@ -432,6 +432,39 @@ namespace Cantera {
     virtual void initAllPtrs(VPStandardStateTP *vptp_ptr, VPSSMgr *vpssmgr_ptr, 
 			     SpeciesThermo* spthermo_ptr);
 
+    //! This utility function reports back the type of
+    //! parameterization and all of the parameters for the
+    //! species, index.
+    /*!
+     *
+     * The following parameters are reported
+     *
+     * -   c[0] = m_deltaG_formation_tr_pr;
+     * -   c[1] = m_deltaH_formation_tr_pr;
+     * -   c[2] = m_Mu0_tr_pr;
+     * -   c[3] = m_Entrop_tr_pr;
+     * -   c[4] =  m_a1;
+     * -   c[5] =  m_a2;
+     * -   c[6] =  m_a3;
+     * -   c[7] =  m_a4;
+     * -   c[8] =  m_c1;
+     * -   c[9] =  m_c2;
+     * -   c[10] = m_omega_pr_tr;
+     * .
+     *
+     * @param index     Species index
+     * @param type      Integer type of the standard type
+     * @param c         Vector of coefficients used to set the
+     *                  parameters for the standard state.
+     * @param minTemp   output - Minimum temperature
+     * @param maxTemp   output - Maximum temperature
+     * @param refPressure output - reference pressure (Pa).
+     *
+     */
+    virtual void reportParams(int &kindex, int &type, doublereal * const c,
+                              doublereal &minTemp, doublereal &maxTemp,
+                              doublereal &refPressure) const;
+
     //@}
 
  

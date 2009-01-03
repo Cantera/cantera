@@ -2055,7 +2055,6 @@ namespace Cantera {
      */
     virtual double A_Debye_TP(double temperature = -1.0, 
 			      double pressure = -1.0) const;
-
     
     //! Value of the derivative of the Debye Huckel constant with 
     //! respect to temperature as a function of temperature
@@ -2112,7 +2111,6 @@ namespace Cantera {
      */
     double ADebye_L(double temperature = -1.0,
 		    double pressure = -1.0) const;
-
 
     /**
      * Return Pitzer's definition of A_J. This is basically the
