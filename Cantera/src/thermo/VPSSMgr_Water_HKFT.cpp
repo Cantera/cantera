@@ -7,13 +7,15 @@
  * (see \ref thermoprops and class 
  * \link Cantera::VPSSMgr_Water_HKFT VPSSMgr_Water_HKFT\endlink).
  */
+
 /*
  * Copywrite (2005) Sandia Corporation. Under the terms of 
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
+
 /*
- *  $Author$
+ * 
  *  $Date$
  *  $Revision$
  */
@@ -25,8 +27,6 @@
 #endif
 
 #include "VPSSMgr_Water_HKFT.h"
-#include "xml.h"
-#include "VPStandardStateTP.h"
 #include "PDSS_Water.h"
 #include "PDSS_HKFT.h"
 #include "GeneralSpeciesThermo.h"
