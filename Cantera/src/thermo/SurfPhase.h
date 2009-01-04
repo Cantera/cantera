@@ -6,7 +6,7 @@
  *  (see \ref thermoprops and class \link Cantera::SurfPhase SurfPhase\endlink).
  */
 
-/*  $Author$
+/* 
  *  $Date$
  *  $Revision$
  *
@@ -14,16 +14,13 @@
  *
  */
 
-
 #ifndef CT_SURFPHASE_H
 #define CT_SURFPHASE_H
 
 #include "mix_defs.h"
 #include "ThermoPhase.h"
 
-
 namespace Cantera {
-
     
   //!  A simple thermoydnamics model for a surface phase, 
   //!  assuming an ideal solution model.
@@ -562,6 +559,18 @@ namespace Cantera {
      *                entropies.  Length: m_kk.
      */
     virtual void getEntropy_R_ref(doublereal *er) const;
+
+    //!  Returns the vector of nondimensional
+    //!  constant pressure heat capacities of the reference state
+    //!  at the current temperature of the solution
+    //!  and reference pressure for each species.
+    /*!
+     * @param cprt   Output vector of nondimensional reference state
+     *               heat capacities at constant pressure for the species.
+     *               Length: m_kk
+     */
+    virtual void getCp_R_ref(doublereal *cprt) const;
+
 
     //------- new methods defined in this class ----------
     

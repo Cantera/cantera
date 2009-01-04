@@ -272,6 +272,11 @@ namespace Cantera {
     er[0] = m_s0_R[0];
   }
 
+  void StoichSubstance::getCp_R_ref(doublereal* cprt) const {
+    _updateThermo();
+    cprt[0] = m_cp0_R[0];
+  }
+
   /*
    *
    */

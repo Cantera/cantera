@@ -372,6 +372,16 @@ namespace Cantera {
      */
     virtual void getEntropy_R_ref(doublereal *er) const;
 
+    //!  Returns the vector of nondimensional
+    //!  constant pressure heat capacities of the reference state
+    //!  at the current temperature of the solution
+    //!  and reference pressure for each species.
+    /*!
+     * @param cprt   Output vector of nondimensional reference state
+     *               heat capacities at constant pressure for the species.
+     *               Length: m_kk
+     */
+    virtual void getCp_R_ref(doublereal *cprt) const;
 
     virtual void initThermo();
 

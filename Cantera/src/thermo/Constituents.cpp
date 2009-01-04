@@ -4,7 +4,7 @@
  *  manages a set of elements and species (see \ref phases).
  */
 
-/*  $Author$ 
+/* 
  *  $Date$
  *  $Revision$
  */
@@ -88,7 +88,7 @@ namespace Cantera {
   int Constituents::nElements() const { return m_Elements->nElements(); }
 
 
-  /** 
+  /* 
    * Return the Atomic weight of element m.
    * units = Kg / Kmol
    */
@@ -96,12 +96,12 @@ namespace Cantera {
     return m_Elements->atomicWeight(m);
   }
 
-  
+
   doublereal Constituents::entropyElement298(int m) const {
     return m_Elements->entropyElement298(m);
   }
 
-  /**
+  /*
    *  returns a reference to the vector of atomic weights pertinent
    *  to this constituents object
    *  units = kg / Kmol
@@ -111,7 +111,7 @@ namespace Cantera {
   }
 
 
-  /**
+  /*
    * Return the atomic number of element m.
    */
   int Constituents::atomicNumber(int m) const {
@@ -119,7 +119,7 @@ namespace Cantera {
   }
 
 
-  /**
+  /*
    * Add an element to the set.
    * @param symbol  symbol string
    * @param weight  atomic weight in kg/mol.
@@ -230,8 +230,7 @@ namespace Cantera {
     return m_Elements->elementNames();
   }
 
-  /**********************************************************************
-   *
+  /*
    * molecularWeight()
    *
    *  Returns the molecular weight of a species given the species index
@@ -246,8 +245,7 @@ namespace Cantera {
     return m_weight[k];
   }
 
-  /**********************************************************************
-   *
+  /*
    * molecularWeights()
    *
    *  Returns a const reference to the vector of molecular weights
@@ -259,8 +257,7 @@ namespace Cantera {
     return m_weight;
   }
 
-  /**********************************************************************
-   *
+  /*
    * charge():
    *
    * Electrical charge of one species k molecule, divided by

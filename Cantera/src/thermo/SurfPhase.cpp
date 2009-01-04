@@ -6,8 +6,12 @@
  *  \link Cantera::SurfPhase SurfPhase\endlink).
  */
 
-// Copyright 2002  California Institute of Technology
+/*
+ * $Revision$
+ * $Date$
+ */
 
+// Copyright 2002  California Institute of Technology
 
 // turn off warnings under Windows
 #ifdef WIN32
@@ -17,13 +21,9 @@
 
 #include "SurfPhase.h"
 #include "EdgePhase.h"
-#include "utilities.h"
-//#include "importCTML.h"
 #include "ThermoFactory.h"
 
-#include <iostream>
 using namespace std;
-
 
     ///////////////////////////////////////////////////////////
     //
@@ -60,7 +60,7 @@ namespace Cantera {
     XML_Node* xphase = get_XML_NameID("phase", std::string("#")+id, root);
     if (!xphase) {
       throw CanteraError("SurfPhase::SurfPhase",
-			  "Couldn't find phase name in file:" + id);
+			 "Couldn't find phase name in file:" + id);
     }
     // Check the model name to ensure we have compatibility
     const XML_Node& th = xphase->child("thermo");
@@ -153,23 +153,23 @@ namespace Cantera {
     return (ThermoPhase *) igp;
   }
 
-    doublereal SurfPhase::
-    enthalpy_mole() const {
-        if (m_n0 <= 0.0) return 0.0; 
-        _updateThermo();
-        return mean_X(DATA_PTR(m_h0));
-    }
+  doublereal SurfPhase::
+  enthalpy_mole() const {
+    if (m_n0 <= 0.0) return 0.0; 
+    _updateThermo();
+    return mean_X(DATA_PTR(m_h0));
+  }
 
-    SurfPhase::
-    ~SurfPhase() { }
+  SurfPhase::~SurfPhase() { 
+  }
 
-    /*
-     * For a surface phase, the pressure is not a relevant
-     * thermodynamic variable, and so the Enthalpy is equal to the
-     * internal energy.
-     */
-    doublereal SurfPhase::
-    intEnergy_mole() const { return enthalpy_mole(); }
+  /*
+   * For a surface phase, the pressure is not a relevant
+   * thermodynamic variable, and so the Enthalpy is equal to the
+   * internal energy.
+   */
+  doublereal SurfPhase::
+  intEnergy_mole() const { return enthalpy_mole(); }
 
   /*
    * Get the array of partial molar enthalpies of the species
@@ -208,49 +208,41 @@ namespace Cantera {
       cpbar[k] *= GasConstant;
     }
   }
- 
 
   void SurfPhase::getPartialMolarVolumes(doublereal* vbar) const {
     getStandardVolumes(vbar);
   }
 
-    void SurfPhase::
-    getStandardChemPotentials(doublereal* mu0) const {
-        _updateThermo();
-        copy(m_mu0.begin(), m_mu0.end(), mu0);
-    }
+  void SurfPhase::getStandardChemPotentials(doublereal* mu0) const {
+    _updateThermo();
+    copy(m_mu0.begin(), m_mu0.end(), mu0);
+  }
 
-    void SurfPhase::
-    getChemPotentials(doublereal* mu) const {
-        _updateThermo();
-        copy(m_mu0.begin(), m_mu0.end(), mu);
-        int k;
-        getActivityConcentrations(DATA_PTR(m_work));
-        for (k = 0; k < m_kk; k++) {
-            mu[k] += GasConstant * temperature() * 
-	      (log(m_work[k]) - logStandardConc(k));
-        } 
-    }
+  void SurfPhase::getChemPotentials(doublereal* mu) const {
+    _updateThermo();
+    copy(m_mu0.begin(), m_mu0.end(), mu);
+    int k;
+    getActivityConcentrations(DATA_PTR(m_work));
+    for (k = 0; k < m_kk; k++) {
+      mu[k] += GasConstant * temperature() * 
+	(log(m_work[k]) - logStandardConc(k));
+    } 
+  }
 
-    void SurfPhase::
-    getActivityConcentrations(doublereal* c) const { 
-        getConcentrations(c); 
-    }
+  void SurfPhase::getActivityConcentrations(doublereal* c) const { 
+    getConcentrations(c); 
+  }
 
-    doublereal SurfPhase::
-    standardConcentration(int k) const {
-        return m_n0/size(k); 
-    }
+  doublereal SurfPhase::standardConcentration(int k) const {
+    return m_n0/size(k); 
+  }
 
-    doublereal SurfPhase::
-    logStandardConc(int k) const {
-        return m_logn0 - m_logsize[k];
-    }
-
+  doublereal SurfPhase::logStandardConc(int k) const {
+    return m_logn0 - m_logsize[k];
+  }
 
   /// The only parameter that can be set is the site density.
-  void SurfPhase::
-  setParameters(int n, doublereal* const c) {
+  void SurfPhase::setParameters(int n, doublereal* const c) {
     if (n != 1) {
       throw CanteraError("SurfPhase::setParameters",
 			 "Bad value for number of parameter");
@@ -263,59 +255,55 @@ namespace Cantera {
     m_logn0 = log(m_n0);
   }
 
-  void SurfPhase::
-  getGibbs_RT(doublereal* grt) const {
+  void SurfPhase::getGibbs_RT(doublereal* grt) const {
     _updateThermo();
     double rrt = 1.0/(GasConstant*temperature());
     scale(m_mu0.begin(), m_mu0.end(), grt, rrt);
   }
 
-    void SurfPhase::
-    getEnthalpy_RT(doublereal* hrt) const {
-        _updateThermo();
-        double rrt = 1.0/(GasConstant*temperature());
-        scale(m_h0.begin(), m_h0.end(), hrt, rrt);
-    }
-
-    void SurfPhase::
-    getEntropy_R(doublereal* sr) const {
-        _updateThermo();
-        double rr = 1.0/GasConstant;
-        scale(m_s0.begin(), m_s0.end(), sr, rr);
-    }
-
   void SurfPhase::
-  getCp_R(doublereal* cpr) const {
+  getEnthalpy_RT(doublereal* hrt) const {
+    _updateThermo();
+    double rrt = 1.0/(GasConstant*temperature());
+    scale(m_h0.begin(), m_h0.end(), hrt, rrt);
+  }
+
+  void SurfPhase::getEntropy_R(doublereal* sr) const {
+    _updateThermo();
+    double rr = 1.0/GasConstant;
+    scale(m_s0.begin(), m_s0.end(), sr, rr);
+  }
+
+  void SurfPhase::getCp_R(doublereal* cpr) const {
     _updateThermo();
     double rr = 1.0/GasConstant;
     scale(m_cp0.begin(), m_cp0.end(), cpr, rr);
   }
 
- void SurfPhase::
- getStandardVolumes(doublereal* vol) const {
-   _updateThermo();
-   for (int k = 0; k < m_kk; k++) {
-     vol[k] = 1.0/standardConcentration(k);
-   }
+  void SurfPhase::getStandardVolumes(doublereal* vol) const {
+    _updateThermo();
+    for (int k = 0; k < m_kk; k++) {
+      vol[k] = 1.0/standardConcentration(k);
+    }
   }
 
-    void SurfPhase::
-    getGibbs_RT_ref(doublereal* grt) const {
-      getGibbs_RT(grt);
-    }
+  void SurfPhase::getGibbs_RT_ref(doublereal* grt) const {
+    getGibbs_RT(grt);
+  }
 
-    void SurfPhase::
-    getEnthalpy_RT_ref(doublereal* hrt) const {
-      getEnthalpy_RT(hrt);
-    }
+  void SurfPhase::getEnthalpy_RT_ref(doublereal* hrt) const {
+    getEnthalpy_RT(hrt);
+  }
 
-    void SurfPhase::
-    getEntropy_R_ref(doublereal* sr) const {
-      getEntropy_R(sr);
-    }
+  void SurfPhase::getEntropy_R_ref(doublereal* sr) const {
+    getEntropy_R(sr);
+  }
 
-  void SurfPhase::
-  initThermo() {
+  void SurfPhase::getCp_R_ref(doublereal* cprt) const {
+    getCp_R(cprt);
+  }
+
+  void SurfPhase::initThermo() {
     if (m_kk <= 0) {
       throw CanteraError("SurfPhase::initThermo",
 			 "Number of species is less than or equal to zero");
@@ -334,151 +322,148 @@ namespace Cantera {
       m_logsize[k] = log(size(k));
   }
 
-    void SurfPhase::
-    setPotentialEnergy(int k, doublereal pe) {
-        m_pe[k] = pe;
-        _updateThermo(true);
+  void SurfPhase::setPotentialEnergy(int k, doublereal pe) {
+    m_pe[k] = pe;
+    _updateThermo(true);
+  }
+
+  void SurfPhase::setSiteDensity(doublereal n0) {
+    doublereal x = n0;
+    setParameters(1, &x);
+  }
+
+  //void SurfPhase::
+  //setElectricPotential(doublereal V) {
+  //    for (int k = 0; k < m_kk; k++) {
+  //        m_pe[k] = charge(k)*Faraday*V;
+  //    }
+  //    _updateThermo(true);
+  //}
+
+
+  /**
+   * Set the coverage fractions to a specified 
+   * state. This routine converts to concentrations
+   * in kmol/m2, using m_n0, the surface site density,
+   * and size(k), which is defined to be the number of
+   * surface sites occupied by the kth molecule.
+   * It then calls State::setConcentrations to set the
+   * internal concentration in the object.
+   */
+  void SurfPhase::
+  setCoverages(const doublereal* theta) {
+    double sum = 0.0;
+    int k;
+    for (k = 0; k < m_kk; k++) {
+      sum += theta[k];
     }
-
-    void SurfPhase::
-    setSiteDensity(doublereal n0) {
-        doublereal x = n0;
-        setParameters(1, &x);
+    if (sum <= 0.0) {
+      for (k = 0; k < m_kk; k++) {
+	cout << "theta(" << k << ") = " << theta[k] << endl;
+      }
+      throw CanteraError("SurfPhase::setCoverages",
+			 "Sum of Coverage fractions is zero or negative");
     }
-
-
-    //void SurfPhase::
-    //setElectricPotential(doublereal V) {
-    //    for (int k = 0; k < m_kk; k++) {
-    //        m_pe[k] = charge(k)*Faraday*V;
-    //    }
-    //    _updateThermo(true);
-    //}
-
-
-    /**
-     * Set the coverage fractions to a specified 
-     * state. This routine converts to concentrations
-     * in kmol/m2, using m_n0, the surface site density,
-     * and size(k), which is defined to be the number of
-     * surface sites occupied by the kth molecule.
-     * It then calls State::setConcentrations to set the
-     * internal concentration in the object.
+    for (k = 0; k < m_kk; k++) {
+      m_work[k] = m_n0*theta[k]/(sum*size(k));
+    }
+    /*
+     * Call the State:: class function
+     * setConcentrations.
      */
-    void SurfPhase::
-    setCoverages(const doublereal* theta) {
-        double sum = 0.0;
-        int k;
-        for (k = 0; k < m_kk; k++) {
-	  sum += theta[k];
-	}
-	if (sum <= 0.0) {
-            for (k = 0; k < m_kk; k++) {
-                cout << "theta(" << k << ") = " << theta[k] << endl;
-            }
-	  throw CanteraError("SurfPhase::setCoverages",
-			     "Sum of Coverage fractions is zero or negative");
-	}
-        for (k = 0; k < m_kk; k++) {
-            m_work[k] = m_n0*theta[k]/(sum*size(k));
-        }
-	/*
-	 * Call the State:: class function
-	 * setConcentrations.
-	 */
-        setConcentrations(DATA_PTR(m_work));
+    setConcentrations(DATA_PTR(m_work));
+  }
+
+  void SurfPhase::
+  setCoveragesNoNorm(const doublereal* theta) {
+    for (int k = 0; k < m_kk; k++) {
+      m_work[k] = m_n0*theta[k]/(size(k));
+    }
+    /*
+     * Call the State:: class function
+     * setConcentrations.
+     */
+    setConcentrations(DATA_PTR(m_work));
+  }
+
+  void SurfPhase::
+  getCoverages(doublereal* theta) const {
+    getConcentrations(theta);
+    for (int k = 0; k < m_kk; k++) {
+      theta[k] *= size(k)/m_n0; 
+    }
+  }
+
+  void SurfPhase::
+  setCoveragesByName(std::string cov) {
+    int kk = nSpecies();
+    int k;
+    compositionMap cc;
+    for (k = 0; k < kk; k++) { 
+      cc[speciesName(k)] = -1.0;
+    }
+    parseCompString(cov, cc);
+    doublereal c;
+    vector_fp cv(kk, 0.0);
+    bool ifound = false;
+    for (k = 0; k < kk; k++) { 
+      c = cc[speciesName(k)];
+      if (c > 0.0) {
+	ifound = true;
+	cv[k] = c;
+      }
+    }
+    if (!ifound) {
+      throw CanteraError("SurfPhase::setCoveragesByName",
+			 "Input coverages are all zero or negative");
+    }
+    setCoverages(DATA_PTR(cv));
+  }
+
+
+  void SurfPhase::
+  _updateThermo(bool force) const {
+    doublereal tnow = temperature();
+    if (m_tlast != tnow || force) {
+      m_spthermo->update(tnow, DATA_PTR(m_cp0), DATA_PTR(m_h0), 
+			 DATA_PTR(m_s0));
+      m_tlast = tnow;
+      doublereal rt = GasConstant * tnow;
+      int k;
+      for (k = 0; k < m_kk; k++) {
+	m_h0[k] *= rt;
+	m_s0[k] *= GasConstant;
+	m_cp0[k] *= GasConstant;
+	m_mu0[k] = m_h0[k] - tnow*m_s0[k];
+      }
+      m_tlast = tnow;
+    }
+  }
+
+  void SurfPhase::
+  setParametersFromXML(const XML_Node& eosdata) {
+    eosdata._require("model","Surface");
+    doublereal n = getFloat(eosdata, "site_density", "toSI");
+    if (n <= 0.0) 
+      throw CanteraError("SurfPhase::setParametersFromXML",
+			 "missing or negative site density");
+    m_n0 = n;
+    m_logn0 = log(m_n0);
+  }
+
+
+  void SurfPhase::setStateFromXML(const XML_Node& state) {
+
+    if (state.hasChild("temperature")) {
+      double t = getFloat(state, "temperature", "temperature");
+      setTemperature(t);
     }
 
-    void SurfPhase::
-    setCoveragesNoNorm(const doublereal* theta) {
-        for (int k = 0; k < m_kk; k++) {
-            m_work[k] = m_n0*theta[k]/(size(k));
-        }
-	/*
-	 * Call the State:: class function
-	 * setConcentrations.
-	 */
-        setConcentrations(DATA_PTR(m_work));
+    if (state.hasChild("coverages")) {
+      string comp = getChildValue(state,"coverages");
+      setCoveragesByName(comp);
     }
-
-    void SurfPhase::
-    getCoverages(doublereal* theta) const {
-        getConcentrations(theta);
-        for (int k = 0; k < m_kk; k++) {
-            theta[k] *= size(k)/m_n0; 
-        }
-    }
-
-    void SurfPhase::
-    setCoveragesByName(std::string cov) {
-        int kk = nSpecies();
-        int k;
-        compositionMap cc;
-        for (k = 0; k < kk; k++) { 
-            cc[speciesName(k)] = -1.0;
-        }
-        parseCompString(cov, cc);
-        doublereal c;
-        vector_fp cv(kk, 0.0);
-	bool ifound = false;
-        for (k = 0; k < kk; k++) { 
-            c = cc[speciesName(k)];
-            if (c > 0.0) {
-	      ifound = true;
-	      cv[k] = c;
-	    }
-        }
-	if (!ifound) {
-	  throw CanteraError("SurfPhase::setCoveragesByName",
-			     "Input coverages are all zero or negative");
-	}
-        setCoverages(DATA_PTR(cv));
-    }
-
-
-    void SurfPhase::
-    _updateThermo(bool force) const {
-        doublereal tnow = temperature();
-        if (m_tlast != tnow || force) {
-            m_spthermo->update(tnow, DATA_PTR(m_cp0), DATA_PTR(m_h0), 
-                DATA_PTR(m_s0));
-            m_tlast = tnow;
-            doublereal rt = GasConstant * tnow;
-            int k;
-            for (k = 0; k < m_kk; k++) {
-                m_h0[k] *= rt;
-                m_s0[k] *= GasConstant;
-                m_cp0[k] *= GasConstant;
-                m_mu0[k] = m_h0[k] - tnow*m_s0[k];
-            }
-            m_tlast = tnow;
-        }
-    }
-
-    void SurfPhase::
-    setParametersFromXML(const XML_Node& eosdata) {
-        eosdata._require("model","Surface");
-        doublereal n = getFloat(eosdata, "site_density", "toSI");
-        if (n <= 0.0) 
-            throw CanteraError("SurfPhase::setParametersFromXML",
-                "missing or negative site density");
-        m_n0 = n;
-        m_logn0 = log(m_n0);
-    }
-
-
-    void SurfPhase::setStateFromXML(const XML_Node& state) {
-
-        if (state.hasChild("temperature")) {
-            double t = getFloat(state, "temperature", "temperature");
-            setTemperature(t);
-        }
-
-        if (state.hasChild("coverages")) {
-            string comp = getChildValue(state,"coverages");
-            setCoveragesByName(comp);
-        }
-    }
+  }
 
   // Default constructor
   EdgePhase::EdgePhase(doublereal n0) : SurfPhase(n0) {
@@ -521,16 +506,16 @@ namespace Cantera {
     return (ThermoPhase *) igp;
   }
 
-    void EdgePhase::
-    setParametersFromXML(const XML_Node& eosdata) {
-        eosdata._require("model","Edge");
-        doublereal n = getFloat(eosdata, "site_density", "toSI");
-        if (n <= 0.0) 
-            throw CanteraError("EdgePhase::setParametersFromXML",
-                "missing or negative site density");
-        m_n0 = n;
-        m_logn0 = log(m_n0);
-    }
+  void EdgePhase::
+  setParametersFromXML(const XML_Node& eosdata) {
+    eosdata._require("model","Edge");
+    doublereal n = getFloat(eosdata, "site_density", "toSI");
+    if (n <= 0.0) 
+      throw CanteraError("EdgePhase::setParametersFromXML",
+			 "missing or negative site density");
+    m_n0 = n;
+    m_logn0 = log(m_n0);
+  }
 
 
 }
