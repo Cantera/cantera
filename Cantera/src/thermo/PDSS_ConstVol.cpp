@@ -122,7 +122,7 @@ namespace Cantera {
     m_constMolarVolume = getFloat(*ss, "molarVolume", "toSI");
   
     std::string id = "";
-    initThermoXML(phaseNode, id);
+    // initThermoXML(phaseNode, id);
   }
 
    

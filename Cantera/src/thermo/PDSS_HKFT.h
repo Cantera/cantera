@@ -148,7 +148,9 @@ namespace Cantera {
      * @return returns the species standard state enthalpy in  J kmol-1
      */
     virtual doublereal enthalpy_mole() const;
-
+#ifdef DEBUG_MODE
+    virtual doublereal enthalpy_mole2() const;
+#endif
     //! Return the standard state molar enthalpy divided by RT
     /*!
      * Returns the species standard state enthalpy divided by RT at the
@@ -486,6 +488,10 @@ namespace Cantera {
      */
     doublereal deltaS() const;
 
+#ifdef DEBUG_MODE
+    doublereal deltaH() const;
+#endif
+
     //! Internal formula for the calculation of a_g()
     /*!
      * The output of this is in units of Angstroms
@@ -588,9 +594,6 @@ namespace Cantera {
      *  This object doesn't own the object. Just a shallow pointer.
      */
     PDSS_Water *m_waterSS;
-
-    //! Current value of the pressure for this object
-    mutable doublereal m_pres;
 
     //! density of standard-state water
     /*!

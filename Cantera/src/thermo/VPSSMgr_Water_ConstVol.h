@@ -127,9 +127,17 @@ namespace Cantera {
      */                    
     virtual void _updateStandardStateThermo();
 
+    //! Updates the reference state thermodynamic functions at the 
+    //! current T of the solution and the reference pressure
+    /*!
+     *  Underscore updates never check for the state of the system
+     *  They just do the calculation.
+     */
+    virtual void _updateRefStateThermo () const;
+
   public:
 
-   //@}
+    //@}
     /// @name Thermodynamic Values for the Species Reference States (VPStandardStateTP)
     /*!
      *  There are also temporary
@@ -207,9 +215,7 @@ namespace Cantera {
      */
     virtual void getStandardVolumes_ref(doublereal *vol) const ;
 
-
-    void updateRefStateThermo() const;
-  
+ 
     //! @name Initialization Methods - For Internal use (VPStandardState)
     /*!
      * The following methods are used in the process of constructing

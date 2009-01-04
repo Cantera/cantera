@@ -689,7 +689,7 @@ namespace Cantera {
      * in the same phase have the same reference state pressures.
      *
      */
-    virtual doublereal refPressure() const ;
+    virtual doublereal refPressure(int k = -1) const ;
 
 
     //@}
@@ -805,7 +805,7 @@ namespace Cantera {
      * Reference pressure (Pa) must be the same for all species
      * - defaults to 1 atm.
      */
-    doublereal m_p0;
+    mutable doublereal m_p0;
 
     //! minimum temperature for the standard state calculations
     doublereal m_minTemp;

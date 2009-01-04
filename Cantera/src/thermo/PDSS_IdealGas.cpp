@@ -110,8 +110,8 @@ namespace Cantera {
    */
   void PDSS_IdealGas::constructPDSSXML(VPStandardStateTP *tp, int spindex, 
 				      const XML_Node& phaseNode, std::string id) {
-    initThermo();
-    initThermoXML(phaseNode, id);
+    //initThermo();
+    //initThermoXML(phaseNode, id);
   }
 
  
@@ -119,13 +119,13 @@ namespace Cantera {
 					std::string inputFile, std::string id) {
 
     if (inputFile.size() == 0) {
-      throw CanteraError("PDSS_IdealGas::initThermo",
+      throw CanteraError("PDSS_IdealGas::constructPDSSFile",
 			 "input file is null");
     }
     std::string path = findInputFile(inputFile);
     ifstream fin(path.c_str());
     if (!fin) {
-      throw CanteraError("PDSS_IdealGas::initThermo","could not open "
+      throw CanteraError("PDSS_IdealGas::constructPDSSFile","could not open "
 			 +path+" for reading.");
     }
     /*
@@ -137,7 +137,7 @@ namespace Cantera {
     fxml->build(fin);
     XML_Node *fxml_phase = findXMLPhase(fxml, id);
     if (!fxml_phase) {
-      throw CanteraError("PDSS_IdealGas::initThermo",
+      throw CanteraError("PDSS_IdealGas::constructPDSSFile",
 			 "ERROR: Can not find phase named " +
 			 id + " in file named " + inputFile);
     }	
@@ -155,7 +155,6 @@ namespace Cantera {
     m_p0 = sp.refPressure(m_spindex);
     m_minTemp = m_spthermo->minTemp(m_spindex);
     m_maxTemp = m_spthermo->maxTemp(m_spindex); 
-    m_mw = m_tp->molecularWeight(m_spindex);
   }
 
   /**

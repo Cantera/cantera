@@ -411,7 +411,7 @@ namespace Cantera {
   void VPStandardStateTP::initThermoXML(XML_Node& phaseNode, std::string id) {
     VPStandardStateTP::initLengths();
    
-    m_VPSS_ptr->initThermo();
+    //m_VPSS_ptr->initThermo();
     for (int k = 0; k < m_kk; k++) {
       PDSS *kPDSS = m_PDSS_storage[k];
       AssertTrace(kPDSS != 0);

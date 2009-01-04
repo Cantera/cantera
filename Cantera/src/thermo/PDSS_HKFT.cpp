@@ -21,7 +21,6 @@ namespace Cantera {
   PDSS_HKFT::PDSS_HKFT(VPStandardStateTP *tp, int spindex) :
     PDSS(tp, spindex),
     m_waterSS(0),
-    m_pres(OneAtm),
     m_densWaterSS(-1.0),
     m_waterProps(0),
     m_born_coeff_j(-1.0),
@@ -43,6 +42,7 @@ namespace Cantera {
     m_domega_jdT_prtr(0.0),
     m_charge_j(0.0)
   {
+    m_pres = OneAtm;
     m_pdssType = cPDSS_MOLAL_HKFT;
     m_presR_bar = OneAtm * 1.0E-5;
   }
@@ -51,7 +51,6 @@ namespace Cantera {
   PDSS_HKFT::PDSS_HKFT(VPStandardStateTP *tp, int spindex, std::string inputFile, std::string id) :
     PDSS(tp, spindex),
     m_waterSS(0),
-    m_pres(OneAtm),
     m_densWaterSS(-1.0),
     m_waterProps(0),
     m_born_coeff_j(-1.0),
@@ -73,6 +72,7 @@ namespace Cantera {
     m_domega_jdT_prtr(0.0),
     m_charge_j(0.0)
   {
+    m_pres = OneAtm;
     m_pdssType = cPDSS_MOLAL_HKFT;
     m_presR_bar = OneAtm * 1.0E-5;
     constructPDSSFile(tp, spindex, inputFile, id);
@@ -82,7 +82,6 @@ namespace Cantera {
                        const XML_Node& phaseRoot, bool spInstalled) :
     PDSS(tp, spindex),
     m_waterSS(0),
-    m_pres(OneAtm),
     m_densWaterSS(-1.0),
     m_waterProps(0),
     m_born_coeff_j(-1.0),
@@ -104,6 +103,7 @@ namespace Cantera {
     m_domega_jdT_prtr(0.0),
     m_charge_j(0.0)
   {
+    m_pres = OneAtm;
     m_pdssType = cPDSS_MOLAL_HKFT;
     m_presR_bar = OneAtm * 1.0E-5;
     // We have to read the info from here
@@ -113,7 +113,6 @@ namespace Cantera {
   PDSS_HKFT::PDSS_HKFT(const PDSS_HKFT &b) :
     PDSS(b),
     m_waterSS(0),
-    m_pres(OneAtm),
     m_densWaterSS(-1.0),
     m_waterProps(0),
     m_born_coeff_j(-1.0),
@@ -156,7 +155,6 @@ namespace Cantera {
 
     //! Need to call initAllPtrs AFTER, to get the correct m_waterSS
     m_waterSS        = 0;
-    m_pres                      = b.m_pres;
     m_densWaterSS               = b.m_densWaterSS;
     //! Need to call initAllPtrs AFTER, to get the correct m_waterProps
     if (m_waterProps) {
@@ -211,6 +209,14 @@ namespace Cantera {
     doublereal GG = gibbs_mole();
     doublereal SS = entropy_mole();
     doublereal h = GG + m_temp * SS;
+
+#ifdef DEBUG_MODE_NOT
+    doublereal h2 = enthalpy_mole2();
+    if (fabs(h - h2) > 1.0E-1) {
+      printf("we are here, h = %g, h2 = %g, k = %d, T = %g, P = %g p0 = %g\n", h, h2, m_spindex, m_temp, m_pres,
+	     m_p0);
+    }
+#endif
     return h;
   }
 
@@ -220,6 +226,15 @@ namespace Cantera {
     doublereal RT = GasConstant * m_temp;
     return hh / RT;
   }
+
+  doublereal 
+  PDSS_HKFT::enthalpy_mole2() const {
+    doublereal delH = deltaH();
+    double enthTRPR = m_Mu0_tr_pr + 298.15*m_Entrop_tr_pr * 1.0E3 * 4.184;
+    double res = delH + enthTRPR;
+    return res;
+  }
+
 
   /**
    * Calculate the internal energy in mks units of
@@ -262,9 +277,9 @@ namespace Cantera {
 
     doublereal c2term = m_c2 / (m_temp - 228.) / (m_temp - 228.);
     
-    doublereal a3term = m_a3 / (m_temp - 228.) / (m_temp - 228.) / (m_temp - 228.) * 2.0 * m_temp * (m_pres - OneAtm);
+    doublereal a3term = -m_a3 / (m_temp - 228.) / (m_temp - 228.) / (m_temp - 228.) * 2.0 * m_temp * (pbar - m_presR_bar);
 
-    doublereal a4term = m_a4 / (m_temp - 228.) / (m_temp - 228.) / (m_temp - 228.) * 2.0 * m_temp 
+    doublereal a4term = -m_a4 / (m_temp - 228.) / (m_temp - 228.) / (m_temp - 228.) * 2.0 * m_temp 
       * log((2600. + pbar)/(2600. + m_presR_bar));
 
     doublereal omega_j;
@@ -299,8 +314,8 @@ namespace Cantera {
       domega_jdT =  nu * (-(charge2    / r_e_j2 * dr_e_jdT)
 			  +(m_charge_j / r_e_H2 * dgvaldT ));
 
-      d2omega_jdT2 = nu * ( 2.0*charge2*dr_e_jdT/(r_e_j2*r_e_j) - charge2*d2r_e_jdT2/r_e_j2
-			   -2.0        *dgvaldT /(r_e_H2*r_e_H) + charge2*d2gvaldT2 /r_e_H2);      
+      d2omega_jdT2 = nu * ( 2.0*charge2*dr_e_jdT*dr_e_jdT/(r_e_j2*r_e_j) - charge2*d2r_e_jdT2/r_e_j2
+			   -2.0*m_charge_j*dgvaldT*dgvaldT/(r_e_H2*r_e_H) + m_charge_j*d2gvaldT2 /r_e_H2);      
     }
 
     doublereal relepsilon = m_waterProps->relEpsilon(m_temp, m_pres, 0);
@@ -309,6 +324,15 @@ namespace Cantera {
     doublereal Y = drelepsilondT / (relepsilon * relepsilon);
 
     doublereal d2relepsilondT2 = m_waterProps->relEpsilon(m_temp, m_pres, 2);
+
+#ifdef DEBUG_MODE_NOT
+    doublereal d1 = m_waterProps->relEpsilon(m_temp, m_pres, 1);
+    doublereal d2 = m_waterProps->relEpsilon(m_temp + 0.0001, m_pres, 1);
+    doublereal d3 = (d2 - d1) / 0.0001;
+    if (fabs ( d2relepsilondT2 - d3) > 1.0E-6) {
+      printf("we are here\n");
+    }
+#endif
 
     doublereal X = d2relepsilondT2 / (relepsilon* relepsilon) - 2.0 * relepsilon * Y * Y;
 
@@ -319,11 +343,26 @@ namespace Cantera {
     doublereal xterm = omega_j * m_temp * X;
 
     doublereal otterm = m_temp * d2omega_jdT2 * (Z + 1.0);
+
+    doublereal rterm =  - m_domega_jdT_prtr * (m_Z_pr_tr + 1.0);
  
-    doublereal Cp_calgmol = c1term + c2term + a3term + a4term + yterm + xterm + otterm;
+    doublereal Cp_calgmol = c1term + c2term + a3term + a4term + yterm + xterm + otterm + rterm;
 
     // Convert to Joules / kmol
     doublereal Cp = Cp_calgmol * 1.0E3 * 4.184;
+
+
+#ifdef DEBUG_MODE_NOT
+    double e1 = enthalpy_mole();
+    m_temp = m_temp - 0.001;
+    double e2 = enthalpy_mole();
+    m_temp = m_temp + 0.001;
+    double cpd = (e1 - e2) / 0.001;
+    if (fabs(Cp - cpd) > 10.0) {
+      printf("Cp difference : raw: %g, delta: %g, k = %d, T = %g, m_pres = %g\n",
+	     Cp, cpd, m_spindex, m_temp, m_pres);
+    }
+#endif
     return Cp;   
   }
 
@@ -490,9 +529,7 @@ namespace Cantera {
 
   void PDSS_HKFT::initThermo() {
     PDSS::initThermo();
-    SpeciesThermo &sp = m_tp->speciesThermo();
-    m_p0 = sp.refPressure(m_spindex);
-
+  
     m_waterSS = (PDSS_Water *) m_tp->providePDSS(0);
     /*
      *  Section to initialize  m_Z_pr_tr and   m_Y_pr_tr
@@ -572,7 +609,7 @@ namespace Cantera {
   void PDSS_HKFT::constructPDSSXML(VPStandardStateTP *tp, int spindex,
 				   const XML_Node& speciesNode, 
 				   const XML_Node& phaseNode, bool spInstalled) {
-    PDSS::initThermo();
+    //PDSS::initThermo();
     
     // m_p0 = OneAtm;
 
@@ -729,7 +766,69 @@ namespace Cantera {
     delete fxml;
   }
 
+#ifdef DEBUG_MODE
+  doublereal PDSS_HKFT::deltaH() const {
+    
+    doublereal pbar = m_pres * 1.0E-5;
 
+    doublereal c1term = m_c1 * (m_temp - 298.15);
+
+    doublereal a1term = m_a1 * (pbar - m_presR_bar);
+
+    doublereal a2term = m_a2 * log((2600. + pbar)/(2600. + m_presR_bar));
+
+    doublereal c2term = -m_c2 * ( 1.0/(m_temp - 228.) - 1.0/(298.15 - 228.) );
+
+    double a3tmp = (2.0 * m_temp - 228.)/ (m_temp - 228.) /(m_temp - 228.);
+    
+    doublereal a3term = m_a3 * a3tmp * (pbar - m_presR_bar);
+
+    doublereal a4term = m_a4 * a3tmp * log((2600. + pbar)/(2600. + m_presR_bar));
+
+    doublereal omega_j;
+    doublereal  domega_jdT;
+    if (m_charge_j == 0.0) {
+      omega_j = m_omega_pr_tr;
+      domega_jdT = 0.0;
+    } else {
+      doublereal nu = 166027;
+      doublereal r_e_j_pr_tr = m_charge_j * m_charge_j / (m_omega_pr_tr/nu + m_charge_j/3.082);
+      doublereal gval = gstar(m_temp, m_pres, 0);    
+      doublereal r_e_j = r_e_j_pr_tr + fabs(m_charge_j) * gval;
+
+      doublereal dgvaldT = gstar(m_temp, m_pres, 1);
+      doublereal dr_e_jdT = fabs(m_charge_j) * dgvaldT;
+
+      omega_j = nu * (m_charge_j * m_charge_j / r_e_j - m_charge_j / (3.082 + gval)  );
+
+      domega_jdT = -  nu * (m_charge_j * m_charge_j / (r_e_j * r_e_j) * dr_e_jdT)
+	+ nu * m_charge_j / (3.082 + gval) / (3.082 + gval) * dgvaldT;
+    }
+
+    doublereal relepsilon = m_waterProps->relEpsilon(m_temp, m_pres, 0);
+    doublereal drelepsilondT = m_waterProps->relEpsilon(m_temp, m_pres, 1);
+
+    doublereal Y = drelepsilondT / (relepsilon * relepsilon);
+
+    doublereal Z = -1.0 / relepsilon;
+
+    doublereal yterm  =   m_temp * omega_j       * Y;
+    doublereal yrterm = - 298.15 * m_omega_pr_tr * m_Y_pr_tr;
+
+    doublereal wterm  = - omega_j * (Z + 1.0);
+    doublereal wrterm = + m_omega_pr_tr * (m_Z_pr_tr + 1.0);
+
+    doublereal otterm =    m_temp * domega_jdT        * (Z + 1.0);
+    doublereal otrterm = - m_temp * m_domega_jdT_prtr * (m_Z_pr_tr + 1.0);
+
+    doublereal deltaH_calgmol = c1term + a1term + a2term + c2term + a3term + a4term 
+      + yterm + yrterm + wterm + wrterm + otterm + otrterm;
+
+    // Convert to Joules / kmol
+    doublereal deltaH = deltaH_calgmol * 1.0E3 * 4.184;
+    return deltaH;
+  }
+#endif
 
   doublereal PDSS_HKFT::deltaG() const {
     
@@ -854,7 +953,7 @@ namespace Cantera {
     if (ifunc != 2) {
       return 0.0;
     }
-    return ag_coeff[2] * 2.0;;
+    return ag_coeff[2] * 2.0;
   }
 
 
@@ -961,7 +1060,7 @@ namespace Cantera {
 	+ gval * dalphadT * bfunc * dens / (1.0 - dens)
 	+ gval * alpha * bfuncdT * dens / (1.0 - dens)
 	+ gval * alpha * bfunc * ddensdT / (1.0 - dens)
-	- gval * alpha * bfunc * dens / ((1.0 - dens) * (1.0 - dens)) * ddensdT;
+	+ gval * alpha * bfunc * dens / ((1.0 - dens) * (1.0 - dens)) * ddensdT;
 
       return dfac1dT + dfac2dT + dfac3dT;
 
@@ -981,7 +1080,25 @@ namespace Cantera {
  doublereal PDSS_HKFT::gstar(const doublereal temp, const doublereal pres, const int ifunc) const {
     doublereal gval = g(temp, pres, ifunc);
     doublereal fval = f(temp, pres, ifunc);
-    return gval - fval;
+    double res = gval - fval;
+#ifdef DEBUG_MODE_NOT
+    if (ifunc == 2) {
+      double gval1  = g(temp, pres, 1);
+      double fval1  = f(temp, pres, 1);
+      double gval2  = g(temp + 0.001, pres, 1);
+      double fval2  = f(temp + 0.001, pres, 1);
+      double gvalT  = (gval2 - gval1) / 0.001;
+      double fvalT  = (fval2 - fval1) / 0.001;
+      if (fabs(gvalT - gval) > 1.0E-9) {
+	printf("we are here\n");
+      }
+      if (fabs(fvalT - fval) > 1.0E-9) {
+	printf("we are here\n");
+      }
+      // return gvalT - fvalT;
+    }
+#endif
+    return res;
   }
 
 

@@ -195,13 +195,16 @@ namespace Cantera {
 
   void PDSS::initThermoXML(const XML_Node& phaseNode, std::string& id) {
     AssertThrow(m_tp != 0, "PDSS::initThermoXML()");
-    m_vpssmgr_ptr = m_tp->provideVPSSMgr();
+    m_p0 =  m_vpssmgr_ptr->refPressure(m_spindex);
+    m_minTemp = m_vpssmgr_ptr->minTemp(m_spindex);
+    m_maxTemp = m_vpssmgr_ptr->maxTemp(m_spindex); 
   }
 
   void PDSS::initThermo() {
     AssertThrow(m_tp != 0, "PDSS::initThermo()");
     m_vpssmgr_ptr = m_tp->provideVPSSMgr();
     initPtrs();
+    m_mw = m_tp->molecularWeight(m_spindex);
   }
   
   void PDSS::initAllPtrs(VPStandardStateTP *tp, VPSSMgr *vpssmgr_ptr, 

@@ -87,6 +87,7 @@ namespace Cantera {
   void
   VPSSMgr_Water_ConstVol::getEnthalpy_RT_ref(doublereal *hrt) const{
     // Everything should be OK except for the water SS
+    m_p0 = m_waterSS->pref_safe(m_tlast);
     if (m_p0 != m_plast) {
       doublereal RT = GasConstant * m_tlast;
       m_waterSS->setState_TP(m_tlast, m_p0);
@@ -101,6 +102,7 @@ namespace Cantera {
   void
   VPSSMgr_Water_ConstVol::getGibbs_RT_ref(doublereal *grt) const{
     // Everything should be OK except for the water SS
+    m_p0 = m_waterSS->pref_safe(m_tlast);
     if (m_p0 != m_plast) {
       doublereal RT = GasConstant * m_tlast;
       m_waterSS->setState_TP(m_tlast, m_p0);
@@ -124,6 +126,7 @@ namespace Cantera {
   void
   VPSSMgr_Water_ConstVol::getEntropy_R_ref(doublereal *sr) const{
     // Everything should be OK except for the water SS
+    m_p0 = m_waterSS->pref_safe(m_tlast);
     if (m_p0 != m_plast) {
       m_waterSS->setState_TP(m_tlast, m_p0);
       m_s0_R[0] = (m_waterSS->entropy_mole()) / GasConstant;
@@ -137,6 +140,7 @@ namespace Cantera {
   void
   VPSSMgr_Water_ConstVol::getCp_R_ref(doublereal *cpr) const{
     // Everything should be OK except for the water SS
+    m_p0 = m_waterSS->pref_safe(m_tlast);
     if (m_p0 != m_plast) {
       m_waterSS->setState_TP(m_tlast, m_p0);
       m_cp0_R[0] = (m_waterSS->cp_mole()) / GasConstant;
@@ -150,6 +154,7 @@ namespace Cantera {
   void
   VPSSMgr_Water_ConstVol::getStandardVolumes_ref(doublereal *vol) const{
     // Everything should be OK except for the water SS
+    m_p0 = m_waterSS->pref_safe(m_tlast);
     if (m_p0 != m_plast) {
      m_waterSS->setState_TP(m_tlast, m_p0);
      m_V0[0] = m_vptp_ptr->molecularWeight(0) / m_waterSS->density();
@@ -160,9 +165,14 @@ namespace Cantera {
     copy(m_V0.begin(), m_V0.end(), vol);
   }
 
-
-  void VPSSMgr_Water_ConstVol::updateRefStateThermo() const {
-    // Fix up the water
+  void VPSSMgr_Water_ConstVol::_updateRefStateThermo() const {
+    m_p0 = m_waterSS->pref_safe(m_tlast);
+    m_spthermo->update(m_tlast, &m_cp0_R[0], &m_h0_RT[0], &m_s0_R[0]);
+    for (int k = 0; k < m_kk; k++) {
+      m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
+      PDSS *kPDSS = m_vptp_ptr->providePDSS(k);
+      kPDSS->setTemperature(m_tlast);
+    }
     doublereal RT = GasConstant * m_tlast;
     m_waterSS->setState_TP(m_tlast, m_p0);
     m_h0_RT[0] = (m_waterSS->enthalpy_mole())/ RT;
@@ -173,9 +183,12 @@ namespace Cantera {
     m_waterSS->setState_TP(m_tlast, m_plast);
   }
 
+ 
+
   void VPSSMgr_Water_ConstVol::_updateStandardStateThermo() {
+    // _updateRefStateThermo();
     doublereal RT = GasConstant * m_tlast;
-    doublereal del_pRT = (m_plast - m_p0) / (RT);
+    doublereal del_pRT = (m_plast - OneAtm) / (RT);
  
     for (int k = 1; k < m_kk; k++) {
       m_hss_RT[k]  = m_h0_RT[k] + del_pRT * m_Vss[k];
@@ -183,6 +196,8 @@ namespace Cantera {
       m_sss_R[k]   = m_s0_R[k];
       m_gss_RT[k]  = m_hss_RT[k] - m_sss_R[k];
       // m_Vss[k] constant
+      PDSS *kPDSS = m_vptp_ptr->providePDSS(k);
+      kPDSS->setState_TP(m_tlast, m_plast);
     }
     // Do the water
     m_waterSS->setState_TP(m_tlast, m_plast);

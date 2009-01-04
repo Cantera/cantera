@@ -156,7 +156,8 @@ namespace Cantera {
 					 doublereal* cp_R,
 					 doublereal* h_RT,
 					 doublereal* s_R) const {
-    m_vpssmgr_ptr->setState_T(temp);
+    //m_vpssmgr_ptr->setState_T(temp);
+    m_PDSS_ptr->setTemperature(temp);
     AssertThrowMsg(m_speciesIndex >= 0, "STITbyPDSS::updatePropertiesTemp", 
 		   "object was probably not installed correctly");
     h_RT[m_speciesIndex] = m_PDSS_ptr->enthalpy_RT_ref();

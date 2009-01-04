@@ -179,7 +179,28 @@ namespace Cantera {
      */
     virtual void getStandardVolumes_ref(doublereal *vol) const ;
 
- 
+    //! Set the temperature (K) and pressure (Pa)
+    /*!
+     *  This sets the temperature and pressure and triggers 
+     *  calculation of underlying quantities
+     *
+     * @param T    Temperature (K)
+     * @param P    Pressure (Pa)
+     */
+    virtual void setState_TP(doublereal T, doublereal P);
+
+    //! Set the temperature (K)
+    /*!
+     * @param T    Temperature (K)
+     */
+    virtual void setState_T(doublereal T);
+
+    //! Set the  pressure (Pa)
+    /*!
+     * @param P    Pressure (Pa)
+     */
+    virtual void setState_P(doublereal P);
+
     //@}
     /// @name Setting the Internal State of the System
     /*!
@@ -210,8 +231,8 @@ namespace Cantera {
      */
     virtual void updateRefStateThermo() const;
 
- protected:
-
+  protected:
+    virtual void _updateRefStateThermo() const;
     //! Updates the standard state thermodynamic functions at the current T and P of the solution.
     /*!
      * @internal
@@ -238,6 +259,8 @@ namespace Cantera {
      *
      */                    
     virtual void _updateStandardStateThermo();
+
+
 
   public:
 
@@ -327,6 +350,8 @@ namespace Cantera {
 
     //! Shallow pointer to the water object
     PDSS_Water *m_waterSS;
+
+    mutable doublereal m_tlastRef;
   };
   //@}
 }

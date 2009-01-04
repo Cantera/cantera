@@ -299,12 +299,18 @@ namespace Cantera {
   }
 
   void VPSSMgr::updateStandardStateThermo() {
+    _updateStandardStateThermo();
   }
 
   void VPSSMgr::updateRefStateThermo() const {
+    _updateRefStateThermo();
   }
 
   void VPSSMgr::_updateStandardStateThermo() {
+    for (int k = 0; k < m_kk; k++) {
+      PDSS *kPDSS = m_vptp_ptr->providePDSS(k);
+      kPDSS->setState_TP(m_tlast, m_plast);
+    }
     err("_updateStandardStateThermo()");
   }
 
@@ -354,8 +360,21 @@ namespace Cantera {
   }
 
   void VPSSMgr::initThermoXML(XML_Node& phaseNode, std::string id) {
-    // Add a check to see that all references pressures are the same
+    const PDSS *kPDSS = m_vptp_ptr->providePDSS(0);
+    m_p0 = kPDSS->refPressure();
+    for (int i = 0; i < m_kk; i++) {
+      const PDSS *kPDSS = m_vptp_ptr->providePDSS(i);
+      doublereal mint = kPDSS->minTemp();
+      if (mint > m_minTemp) {
+	m_minTemp = mint;
+      }
+      mint = kPDSS->maxTemp();
+      if (mint < m_maxTemp) {
+	m_maxTemp = mint;
+      }
+    }
 #ifdef DEBUG_MODE
+    // Add a check to see that all references pressures are the same
     double m_p0_k;
     if (m_spthermo) {
       for (int k = 0; k < m_kk; k++) {
@@ -385,6 +404,8 @@ namespace Cantera {
       }
     }
 #endif
+
+
   }
 
   void VPSSMgr::installSTSpecies(int k,  const XML_Node& s, 
@@ -406,14 +427,26 @@ namespace Cantera {
 
  /*****************************************************************/
   doublereal VPSSMgr::minTemp(int k) const {
+    if (k >= 0) {
+      const PDSS *kPDSS = m_vptp_ptr->providePDSS(k);
+      return kPDSS->minTemp();
+    }
     return m_minTemp;
   }
 
  doublereal VPSSMgr::maxTemp(int k) const {
+    if (k >= 0) {
+      const PDSS *kPDSS = m_vptp_ptr->providePDSS(k);
+      return kPDSS->maxTemp();
+    }
     return m_maxTemp;
   }
 
-  doublereal VPSSMgr::refPressure() const {
+  doublereal VPSSMgr::refPressure(int k) const {
+    if (k >= 0) {
+      const PDSS *kPDSS = m_vptp_ptr->providePDSS(k);
+      return kPDSS->refPressure();
+    }
     return m_p0;
   }
 

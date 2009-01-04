@@ -38,7 +38,8 @@ namespace Cantera {
   VPSSMgr_Water_HKFT::VPSSMgr_Water_HKFT(VPStandardStateTP *vp_ptr,
 					 SpeciesThermo *spth) :
     VPSSMgr(vp_ptr, spth),
-    m_waterSS(0)
+    m_waterSS(0),
+    m_tlastRef(-1.0)
   {
     m_useTmpRefStateStorage      = true;
     m_useTmpStandardStateStorage = true;
@@ -52,7 +53,8 @@ namespace Cantera {
 
   VPSSMgr_Water_HKFT::VPSSMgr_Water_HKFT(const VPSSMgr_Water_HKFT &right) :
     VPSSMgr(right.m_vptp_ptr, right.m_spthermo),
-    m_waterSS(0)
+    m_waterSS(0),
+    m_tlastRef(-1.0)
   {
     m_useTmpRefStateStorage = true;
     m_useTmpStandardStateStorage = true;
@@ -66,6 +68,7 @@ namespace Cantera {
     if (&b == this) return *this;
     VPSSMgr::operator=(b);
     m_waterSS = (PDSS_Water *) m_vptp_ptr->providePDSS(0);
+    m_tlastRef = -1.0;
     return *this;
   }
 
@@ -77,6 +80,7 @@ namespace Cantera {
 
   void
   VPSSMgr_Water_HKFT::getEnthalpy_RT_ref(doublereal *hrt) const{
+    updateRefStateThermo();
     // Everything should be OK except for the water SS
     if (m_p0 != m_plast) {
       doublereal RT = GasConstant * m_tlast;
@@ -91,6 +95,7 @@ namespace Cantera {
 
   void
   VPSSMgr_Water_HKFT::getGibbs_RT_ref(doublereal *grt) const{
+    updateRefStateThermo();
     // Everything should be OK except for the water SS
     if (m_p0 != m_plast) {
       doublereal RT = GasConstant * m_tlast;
@@ -105,6 +110,7 @@ namespace Cantera {
 
   void 
   VPSSMgr_Water_HKFT::getGibbs_ref(doublereal *g) const{
+    getGibbs_RT_ref(g);
     doublereal RT = GasConstant * m_tlast;
     for (int k = 0; k < m_kk; k++) {
       g[k] *= RT;
@@ -113,6 +119,7 @@ namespace Cantera {
 
   void
   VPSSMgr_Water_HKFT::getEntropy_R_ref(doublereal *sr) const{
+    updateRefStateThermo();
     // Everything should be OK except for the water SS
     if (m_p0 != m_plast) {
       m_waterSS->setState_TP(m_tlast, m_p0);
@@ -126,6 +133,7 @@ namespace Cantera {
 
   void
   VPSSMgr_Water_HKFT::getCp_R_ref(doublereal *cpr) const{
+    updateRefStateThermo();
     // Everything should be OK except for the water SS
     if (m_p0 != m_plast) {
       m_waterSS->setState_TP(m_tlast, m_p0);
@@ -139,6 +147,7 @@ namespace Cantera {
 
   void
   VPSSMgr_Water_HKFT::getStandardVolumes_ref(doublereal *vol) const{
+    updateRefStateThermo();
     // Everything should be OK except for the water SS
     if (m_p0 != m_plast) {
      m_waterSS->setState_TP(m_tlast, m_p0);
@@ -150,26 +159,65 @@ namespace Cantera {
     copy(m_V0.begin(), m_V0.end(), vol);
   }
 
+  void VPSSMgr_Water_HKFT::setState_P(doublereal pres) {
+    if (m_plast != pres) {
+      m_plast = pres;
+      _updateStandardStateThermo();
+    }
+  }
+
+ void VPSSMgr_Water_HKFT::setState_T(doublereal temp) {
+    if (m_tlast != temp) {
+      m_tlast = temp;
+      _updateStandardStateThermo();
+    }
+  }
+
+ void VPSSMgr_Water_HKFT::setState_TP(doublereal temp, doublereal pres) {
+    if (m_tlast != temp) {
+      m_tlast = temp;
+      m_plast = pres;
+      _updateStandardStateThermo();
+    } else if (m_plast != pres) {
+      m_plast = pres;
+      _updateStandardStateThermo();
+    }
+  }
 
   void VPSSMgr_Water_HKFT::updateRefStateThermo() const {
+    if (m_tlastRef != m_tlast) {
+      m_tlastRef = m_tlast;
+      _updateRefStateThermo();
+    }
+  }
+
+  void VPSSMgr_Water_HKFT::_updateRefStateThermo() const {
     // Fix up the water
+    m_p0 = m_waterSS->pref_safe(m_tlast);
     doublereal RT = GasConstant * m_tlast;
     m_waterSS->setState_TP(m_tlast, m_p0);
     m_h0_RT[0] = (m_waterSS->enthalpy_mole())/ RT;
     m_s0_R[0]  = (m_waterSS->entropy_mole()) / GasConstant;
     m_cp0_R[0] = (m_waterSS->cp_mole()) / GasConstant;
     m_g0_RT[0] = (m_hss_RT[0] - m_sss_R[0]);
-    m_V0[0]    = (m_waterSS->density())      / m_vptp_ptr->molecularWeight(0);
+    m_V0[0]    = (m_waterSS->density()) / m_vptp_ptr->molecularWeight(0);
     m_waterSS->setState_TP(m_tlast, m_plast);
 
     for (int k = 1; k < m_kk; k++) {
       PDSS_HKFT *ps = (PDSS_HKFT *) m_vptp_ptr->providePDSS(k);
       ps->setState_TP(m_tlast, m_p0);
-      m_cpss_R[k]  = ps->cp_R();
-      m_sss_R[k]   = ps->entropy_mole();
-      m_gss_RT[k]  = ps->gibbs_RT();;
-      m_hss_RT[k]  = m_gss_RT[k] + m_sss_R[k];
-      m_Vss[k]     = ps->molarVolume();
+      m_cp0_R[k]  = ps->cp_R();
+      m_s0_R[k]   = ps->entropy_mole() / GasConstant;
+      m_g0_RT[k]  = ps->gibbs_RT();
+
+      m_h0_RT[k]  = m_g0_RT[k] + m_s0_R[k];
+#ifdef DEBUG_MODE
+      double h = ps->enthalpy_RT();
+      if (fabs( m_h0_RT[k] - h) > 1.0E-4) {
+	printf("we are here\n");
+      }
+#endif
+      m_V0[k]     = ps->molarVolume();
     }
   }
 
