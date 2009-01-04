@@ -688,6 +688,8 @@ namespace Cantera {
      * as those for ideal gases, require that all species
      * in the same phase have the same reference state pressures.
      *
+     * @param k Species index. Default is -1, which returns
+     *          the generic answer.
      */
     virtual doublereal refPressure(int k = -1) const ;
 

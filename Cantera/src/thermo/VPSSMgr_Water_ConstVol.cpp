@@ -7,13 +7,14 @@
  * (see \ref thermoprops and class 
  * \link Cantera::VPSSMgr_Water_ConstVol VPSSMgr_Water_ConstVol\endlink).
  */
+
 /*
  * Copywrite (2005) Sandia Corporation. Under the terms of 
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
+
 /*
- *  $Author$
  *  $Date$
  *  $Revision$
  */
@@ -25,8 +26,6 @@
 #endif
 
 #include "VPSSMgr_Water_ConstVol.h"
-#include "xml.h"
-#include "VPStandardStateTP.h"
 #include "PDSS_Water.h"
 #include "PDSS_ConstVol.h"
 #include "GeneralSpeciesThermo.h"
@@ -186,7 +185,7 @@ namespace Cantera {
  
 
   void VPSSMgr_Water_ConstVol::_updateStandardStateThermo() {
-    // _updateRefStateThermo();
+ 
     doublereal RT = GasConstant * m_tlast;
     doublereal del_pRT = (m_plast - OneAtm) / (RT);
  
@@ -208,10 +207,10 @@ namespace Cantera {
     m_Vss[0]    = (m_vptp_ptr->molecularWeight(0) / m_waterSS->density());
   }
 
+
   void VPSSMgr_Water_ConstVol::initThermo() {
     VPSSMgr::initThermo();
   }
-
 
   void 
   VPSSMgr_Water_ConstVol::initThermoXML(XML_Node& phaseNode, std::string id) {
@@ -245,7 +244,8 @@ namespace Cantera {
       std::string model = (*ss)["model"];
       if (model != "constant_incompressible") {
 	throw CanteraError("VPSSMgr_Water_ConstVol::initThermoXML",
-			   "standardState model for species isn't constant_incompressible: " + s->name());
+			   "standardState model for species isn't "
+			   "constant_incompressible: " + s->name());
       }
       m_Vss[k] = getFloat(*ss, "molarVolume", "toSI");
     }   

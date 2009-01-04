@@ -7,11 +7,13 @@
  * Class %DebyeHuckel represents a dilute liquid electrolyte phase which
  * obeys the Debye Huckel formulation for nonideality.
  */
+
 /*
  * Copywrite (2006) Sandia Corporation. Under the terms of 
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
+
 /*
  * $Id$
  */

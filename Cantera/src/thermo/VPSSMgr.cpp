@@ -82,8 +82,6 @@ namespace Cantera {
     m_kk                          = right.m_kk;
     m_vptp_ptr                    = right.m_vptp_ptr;
     m_spthermo                    = right.m_spthermo;
-    //  m_Tnow                        = right.m_Tnow;
-    //   m_Pnow                        = right.m_Pnow;
     m_tlast                       = -1.0;
     m_plast                       = -1.0;
     m_p0                          = right.m_p0;
@@ -274,15 +272,15 @@ namespace Cantera {
   void VPSSMgr::setState_P(doublereal pres) {
     if (m_plast != pres) {
       m_plast = pres;
-      _updateStandardStateThermo();
+      updateStandardStateThermo();
     }
   }
 
  void VPSSMgr::setState_T(doublereal temp) {
     if (m_tlast != temp) {
       m_tlast = temp;
-      _updateRefStateThermo();
-      _updateStandardStateThermo();
+      updateRefStateThermo();
+      updateStandardStateThermo();
     }
   }
 
@@ -290,11 +288,11 @@ namespace Cantera {
     if (m_tlast != temp) {
       m_tlast = temp;
       m_plast = pres;
-      _updateRefStateThermo();
-      _updateStandardStateThermo();
+      updateRefStateThermo();
+      updateStandardStateThermo();
     } else if (m_plast != pres) {
       m_plast = pres;
-      _updateStandardStateThermo();
+      updateStandardStateThermo();
     }
   }
 

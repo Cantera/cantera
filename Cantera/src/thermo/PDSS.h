@@ -600,7 +600,7 @@ namespace Cantera {
     //! species, index.
     /*!
      *
-     * @param index     Species index
+     * @param kindex     Species index
      * @param type      Integer type of the standard type
      * @param c         Vector of coefficients used to set the
      *                  parameters for the standard state.
@@ -609,10 +609,8 @@ namespace Cantera {
      * @param refPressure output - reference pressure (Pa).
      *
      */
-    virtual void reportParams(int &kindex, int &type,
-                              doublereal * const c,
-                              doublereal &minTemp,
-                              doublereal &maxTemp,
+    virtual void reportParams(int &kindex, int &type, doublereal * const c,
+                              doublereal &minTemp, doublereal &maxTemp,
                               doublereal &refPressure) const;
 
 

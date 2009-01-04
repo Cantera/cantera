@@ -1,23 +1,33 @@
+/**
+ *  @file PDSS_HKFT.cpp
+ *    Definitions for the class PDSS_HKFT (pressure dependent standard state)
+ *    which handles calculations for a single species in a phase using the
+ *    HKFT standard state
+ *    (see \ref pdssthermo and class \link Cantera::PDSS_HKFT PDSS_HKFT\endlink).
+ */
+
 /*
  * $Id$
  */
-#include "ct_defs.h"
-#include "xml.h"
+
+/*
+ * Copywrite (2006) Sandia Corporation. Under the terms of 
+ * Contract DE-AC04-94AL85000 with Sandia Corporation, the
+ * U.S. Government retains certain rights in this software.
+ */
+
 #include "ctml.h"
 #include "PDSS_HKFT.h"
 #include "WaterProps.h"
 #include "PDSS_Water.h"
-#include "Elements.h"
-
-#include "VPStandardStateTP.h"
 
 using namespace std;
 
 namespace Cantera {
-  /**
+ 
+  /*
    * Basic list of constructors and duplicators
    */
-
   PDSS_HKFT::PDSS_HKFT(VPStandardStateTP *tp, int spindex) :
     PDSS(tp, spindex),
     m_waterSS(0),
@@ -200,11 +210,10 @@ namespace Cantera {
     return (PDSS *) idg;
   }
 
-  /**
+  /*
    * Return the molar enthalpy in units of J kmol-1
    */
-  doublereal 
-  PDSS_HKFT::enthalpy_mole() const {
+  doublereal PDSS_HKFT::enthalpy_mole() const {
     // Ok we may change this evaluation method in the future.
     doublereal GG = gibbs_mole();
     doublereal SS = entropy_mole();
@@ -213,51 +222,49 @@ namespace Cantera {
 #ifdef DEBUG_MODE_NOT
     doublereal h2 = enthalpy_mole2();
     if (fabs(h - h2) > 1.0E-1) {
-      printf("we are here, h = %g, h2 = %g, k = %d, T = %g, P = %g p0 = %g\n", h, h2, m_spindex, m_temp, m_pres,
+      printf("we are here, h = %g, h2 = %g, k = %d, T = %g, P = %g p0 = %g\n",
+	     h, h2, m_spindex, m_temp, m_pres,
 	     m_p0);
     }
 #endif
     return h;
   }
 
-  doublereal 
-  PDSS_HKFT::enthalpy_RT() const {
+  doublereal PDSS_HKFT::enthalpy_RT() const {
     doublereal hh = enthalpy_mole();
     doublereal RT = GasConstant * m_temp;
     return hh / RT;
   }
 
-  doublereal 
-  PDSS_HKFT::enthalpy_mole2() const {
+#ifdef DEBUG_MODE
+  doublereal PDSS_HKFT::enthalpy_mole2() const {
     doublereal delH = deltaH();
-    double enthTRPR = m_Mu0_tr_pr + 298.15*m_Entrop_tr_pr * 1.0E3 * 4.184;
+    double enthTRPR = m_Mu0_tr_pr + 298.15 * m_Entrop_tr_pr * 1.0E3 * 4.184;
     double res = delH + enthTRPR;
     return res;
   }
+#endif
 
-
-  /**
+  /*
    * Calculate the internal energy in mks units of
    * J kmol-1 
    */
-  doublereal 
-  PDSS_HKFT::intEnergy_mole() const {
+  doublereal PDSS_HKFT::intEnergy_mole() const {
     doublereal hh = enthalpy_RT();
     doublereal mv = molarVolume();
     return (hh - mv * m_pres);
   }
 
-  /**
+  /*
    * Calculate the entropy in mks units of 
    * J kmol-1 K-1
    */
-  doublereal
-  PDSS_HKFT::entropy_mole() const {
+  doublereal PDSS_HKFT::entropy_mole() const {
     doublereal delS = deltaS();
     return (m_Entrop_tr_pr * 1.0E3 * 4.184 + delS);
   }
 
-  /**
+  /*
    * Calculate the Gibbs free energy in mks units of
    * J kmol-1
    */
@@ -266,7 +273,7 @@ namespace Cantera {
     return (m_Mu0_tr_pr + delG);
   }
 
-  /**
+  /*
    * Calculate the constant pressure heat capacity
    * in mks units of J kmol-1 K-1
    */
@@ -351,7 +358,6 @@ namespace Cantera {
     // Convert to Joules / kmol
     doublereal Cp = Cp_calgmol * 1.0E3 * 4.184;
 
-
 #ifdef DEBUG_MODE_NOT
     double e1 = enthalpy_mole();
     m_temp = m_temp - 0.001;
@@ -366,7 +372,7 @@ namespace Cantera {
     return Cp;   
   }
 
-  /**
+  /*
    * Calculate the constant volume heat capacity
    * in mks units of J kmol-1 K-1
    */
@@ -376,8 +382,9 @@ namespace Cantera {
     return (0.0);
   }
 
-  doublereal 
-  PDSS_HKFT::molarVolume() const {
+  doublereal  PDSS_HKFT::molarVolume() const {
+     
+    // Initially do all calculations in (cal/gmol/Pa)
    
     doublereal a1term = m_a1 * 1.0E-5;
 
@@ -394,19 +401,21 @@ namespace Cantera {
       domega_jdP = 0.0;
     } else {
       doublereal nu = 166027.;
-      doublereal r_e_j_pr_tr = m_charge_j * m_charge_j / (m_omega_pr_tr/nu + m_charge_j/3.082);
+      doublereal charge2 = m_charge_j * m_charge_j;
+      doublereal r_e_j_pr_tr = charge2 / (m_omega_pr_tr/nu + m_charge_j/3.082);
   
       doublereal gval    = gstar(m_temp, m_pres, 0);
       doublereal dgvaldP = gstar(m_temp, m_pres, 3);
 
       doublereal r_e_j = r_e_j_pr_tr + fabs(m_charge_j) * gval;
+      doublereal r_e_H = 3.082 + gval;
 
-      omega_j = nu * (m_charge_j * m_charge_j / r_e_j - m_charge_j / (3.082 + gval)  );
+      omega_j = nu * (charge2 / r_e_j - m_charge_j / r_e_H );
     
       doublereal dr_e_jdP = fabs(m_charge_j) * dgvaldP;
 
-      domega_jdP = -  nu * (m_charge_j * m_charge_j / (r_e_j * r_e_j) * dr_e_jdP)
-	+ nu * m_charge_j / (3.082 + gval) / (3.082 + gval) * dgvaldP;
+      domega_jdP = -  nu * (charge2 / (r_e_j * r_e_j) * dr_e_jdP)
+	+ nu * m_charge_j / (r_e_H * r_e_H) * dgvaldP;
     }
 
     doublereal drelepsilondP = m_waterProps->relEpsilon(m_temp, m_pres, 3);
@@ -423,7 +432,7 @@ namespace Cantera {
 
     doublereal molVol_calgmolPascal = a1term + a2term +  a3term + a4term + wterm + qterm;
 
-    // Convert to m**3 / kmol
+    // Convert to m**3 / kmol from (cal/gmol/Pa)
     doublereal molVol = molVol_calgmolPascal * 4.184 * 1.0E3;
     return molVol;
   }

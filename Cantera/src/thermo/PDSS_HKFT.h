@@ -5,18 +5,20 @@
  *    HKFT standard state
  *    (see \ref pdssthermo and class \link Cantera::PDSS_HKFT PDSS_HKFT\endlink).
  */
-/*  $Author$
+
+/* 
  *  $Date$
  *  $Revision$
- *
- * 
+ */
+
+/*
+ * Copywrite (2006) Sandia Corporation. Under the terms of 
+ * Contract DE-AC04-94AL85000 with Sandia Corporation, the
+ * U.S. Government retains certain rights in this software.
  */
 
 #ifndef CT_PDSS_HKFT_H
 #define CT_PDSS_HKFT_H
-#include "ct_defs.h"
-
-
 
 class WaterPropsIAPWS;
 #include "PDSS.h"
@@ -27,7 +29,6 @@ namespace Cantera {
   class PDSS_Water;
   class WaterProps;
 
- 
   //! Class for pressure dependent standard states corresponding to 
   //!  ionic solutes in electrolyte water.
   /*!
@@ -148,9 +149,20 @@ namespace Cantera {
      * @return returns the species standard state enthalpy in  J kmol-1
      */
     virtual doublereal enthalpy_mole() const;
+
 #ifdef DEBUG_MODE
-    virtual doublereal enthalpy_mole2() const;
+    //! Return the molar enthalpy in units of J kmol-1
+    /*!
+     * Returns the species standard state enthalpy in J kmol-1 at the
+     * current temperature and pressure.
+     *
+     *  Note this is just an extra routine to check the arithmetic
+     *
+     * @return returns the species standard state enthalpy in  J kmol-1
+     */
+    doublereal enthalpy_mole2() const;
 #endif
+
     //! Return the standard state molar enthalpy divided by RT
     /*!
      * Returns the species standard state enthalpy divided by RT at the
@@ -454,7 +466,7 @@ namespace Cantera {
      * -   c[10] = m_omega_pr_tr;
      * .
      *
-     * @param index     Species index
+     * @param kindex     Species index
      * @param type      Integer type of the standard type
      * @param c         Vector of coefficients used to set the
      *                  parameters for the standard state.
@@ -483,12 +495,17 @@ namespace Cantera {
     //! Main routine that actually calculates the entropy difference 
     //! between the reference state at Tr, Pr and T,P
     /*!
-     *  This is eEqn. 61 in Johnson et al. (1992). Actually, there appears to
+     *  This is Eqn. 61 in Johnson et al. (1992). Actually, there appears to
      *  be an error in the latter. This is a correction.
      */
     doublereal deltaS() const;
 
 #ifdef DEBUG_MODE
+    //! Routine that actually calculates the enthalpy difference 
+    //! between the reference state at Tr, Pr and T,P
+    /*!
+     *  This is an extra routine that was added to check the arithmetic
+     */
     doublereal deltaH() const;
 #endif
 
@@ -560,8 +577,8 @@ namespace Cantera {
      *                 - 2 2nd derivative wrt temperature
      *                 - 3 derivative wrt pressure
      */
-    doublereal gstar(const doublereal temp, const doublereal pres, const int ifunc = 0) const;
-
+    doublereal gstar(const doublereal temp, const doublereal pres,
+		     const int ifunc = 0) const;
 
     //!  Function to look up Element Free Energies
     /*!
@@ -582,7 +599,8 @@ namespace Cantera {
 
     //! Translate a Gibbs free energy of formation value to a NIST-based Chemical potential
     /*!
-     *  Internally, this function is used to translate the input value,  m_deltaG_formation_tr_pr,
+     *  Internally, this function is used to translate the input value, 
+     *  m_deltaG_formation_tr_pr,
      *  to the internally storred value,  m_Mu0_tr_pr.
      */
     void convertDGFormation();
@@ -601,19 +619,14 @@ namespace Cantera {
      */
     mutable doublereal m_densWaterSS;
 
-    /**
-     *  Pointer to the water property calculator
-     */
+    //!  Pointer to the water property calculator
     WaterProps *m_waterProps;
 
-
     //! Born coefficient for the current ion or species
-
     doublereal m_born_coeff_j;
 
     //! Electrostatic radii
     doublereal m_r_e_j;
-
 
     //! Input value of deltaG of Formation at Tr and Pr    (cal gmol-1)
     /*!

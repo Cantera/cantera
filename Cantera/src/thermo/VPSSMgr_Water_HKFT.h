@@ -6,11 +6,13 @@
  * (see \ref mgrpdssthermocalc and
  * class \link Cantera::VPSSMgr_Water_HKFT VPSSMgr_Water_HKFT\endlink).
  */
+
 /*
- * $Author$
+ *
  * $Revision$
  * $Date$
  */
+
 /*
  * Copywrite (2006) Sandia Corporation. Under the terms of 
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
@@ -20,7 +22,6 @@
 #ifndef CT_VPSSMGR_WATER_HKFT_H
 #define CT_VPSSMGR_WATER_HKFT_H
 
-#include "ct_defs.h"
 #include "VPSSMgr.h"
 
 namespace Cantera {
@@ -225,14 +226,38 @@ namespace Cantera {
     //! Updates the internal reference state thermodynamic vectors at the 
     //! current T of the solution and the reference pressure.
     /*!
-     * If you are to peak internally inside the object, you need to 
-     * call these functions after setState functions in order to be sure
-     * that the vectors are current.
+     *  This is called to make sure that the internal thermodynamic members
+     *  are up-to-date. It checks against an internal value of m_tempRef
+     *  to see whether the values are current.
      */
     virtual void updateRefStateThermo() const;
 
-  protected:
+  private:
+
+    //! Updates the reference state thermodynamic functions at the current T
+    //! and a calculated Pref that is safe.
+    /*!
+     *
+     * This function is responsible for updating the following internal members
+     *
+     *  -  m_h0_RT;
+     *  -  m_cp0_R;
+     *  -  m_g0_RT;
+     *  -  m_s0_R;
+     *  -  m_V0
+     *
+     *  It always does the calculation. No checking is ever done to see
+     *  if the calculation is necessary.
+     *
+     *  m_p0 is calculated within this routine given the value of the temperature.
+     *  This is necessary because we are using a real equation of state for
+     *  water. 
+     *
+     *  The state of the system is left at (m_tlast, m_plast) at the end
+     *  of the routine.
+     */                    
     virtual void _updateRefStateThermo() const;
+
     //! Updates the standard state thermodynamic functions at the current T and P of the solution.
     /*!
      * @internal
@@ -259,7 +284,6 @@ namespace Cantera {
      *
      */                    
     virtual void _updateStandardStateThermo();
-
 
 
   public:
@@ -351,6 +375,11 @@ namespace Cantera {
     //! Shallow pointer to the water object
     PDSS_Water *m_waterSS;
 
+    //! Last reference temperature calculated
+    /*!
+     * Reference state calculations are totally separated from
+     * standard state calculations.
+     */
     mutable doublereal m_tlastRef;
   };
   //@}

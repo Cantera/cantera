@@ -3,7 +3,7 @@
  * Definition file for a derived class that handles the calculation
  * of standard state thermo properties for pure water and
  *  a set of species which obey the HKFT standard state
- * dependence 
+ * dependence
  * (see \ref thermoprops and class 
  * \link Cantera::VPSSMgr_Water_HKFT VPSSMgr_Water_HKFT\endlink).
  */
@@ -81,30 +81,12 @@ namespace Cantera {
   void
   VPSSMgr_Water_HKFT::getEnthalpy_RT_ref(doublereal *hrt) const{
     updateRefStateThermo();
-    // Everything should be OK except for the water SS
-    if (m_p0 != m_plast) {
-      doublereal RT = GasConstant * m_tlast;
-      m_waterSS->setState_TP(m_tlast, m_p0);
-      m_h0_RT[0] = (m_waterSS->enthalpy_mole()) / RT;
-      m_waterSS->setState_TP(m_tlast, m_plast);
-    } else {
-      m_h0_RT[0] = m_hss_RT[0];
-    }
     copy(m_h0_RT.begin(), m_h0_RT.end(), hrt);
   }
 
   void
   VPSSMgr_Water_HKFT::getGibbs_RT_ref(doublereal *grt) const{
     updateRefStateThermo();
-    // Everything should be OK except for the water SS
-    if (m_p0 != m_plast) {
-      doublereal RT = GasConstant * m_tlast;
-      m_waterSS->setState_TP(m_tlast, m_p0);
-      m_g0_RT[0] = (m_waterSS->gibbs_mole()) / RT;
-      m_waterSS->setState_TP(m_tlast, m_plast);
-    } else {
-      m_g0_RT[0] = m_gss_RT[0];
-    }
     copy(m_g0_RT.begin(), m_g0_RT.end(), grt);
   }
 
@@ -120,42 +102,18 @@ namespace Cantera {
   void
   VPSSMgr_Water_HKFT::getEntropy_R_ref(doublereal *sr) const{
     updateRefStateThermo();
-    // Everything should be OK except for the water SS
-    if (m_p0 != m_plast) {
-      m_waterSS->setState_TP(m_tlast, m_p0);
-      m_s0_R[0] = (m_waterSS->entropy_mole()) / GasConstant;
-      m_waterSS->setState_TP(m_tlast, m_plast);
-    } else {
-      m_s0_R[0] = m_sss_R[0];
-    }
     copy(m_s0_R.begin(), m_s0_R.end(), sr);
   }
 
   void
   VPSSMgr_Water_HKFT::getCp_R_ref(doublereal *cpr) const{
     updateRefStateThermo();
-    // Everything should be OK except for the water SS
-    if (m_p0 != m_plast) {
-      m_waterSS->setState_TP(m_tlast, m_p0);
-      m_cp0_R[0] = (m_waterSS->cp_mole()) / GasConstant;
-      m_waterSS->setState_TP(m_tlast, m_plast);
-    } else {
-      m_cp0_R[0] = m_cpss_R[0];
-    }
     copy(m_cp0_R.begin(), m_cp0_R.end(), cpr);
   }
 
   void
   VPSSMgr_Water_HKFT::getStandardVolumes_ref(doublereal *vol) const{
     updateRefStateThermo();
-    // Everything should be OK except for the water SS
-    if (m_p0 != m_plast) {
-     m_waterSS->setState_TP(m_tlast, m_p0);
-     m_V0[0] = (m_waterSS->density())      / m_vptp_ptr->molecularWeight(0);
-     m_waterSS->setState_TP(m_tlast, m_plast);
-    } else {
-      m_V0[0] = m_Vss[0];
-    }
     copy(m_V0.begin(), m_V0.end(), vol);
   }
 
@@ -192,7 +150,6 @@ namespace Cantera {
   }
 
   void VPSSMgr_Water_HKFT::_updateRefStateThermo() const {
-    // Fix up the water
     m_p0 = m_waterSS->pref_safe(m_tlast);
     doublereal RT = GasConstant * m_tlast;
     m_waterSS->setState_TP(m_tlast, m_p0);
@@ -201,23 +158,27 @@ namespace Cantera {
     m_cp0_R[0] = (m_waterSS->cp_mole()) / GasConstant;
     m_g0_RT[0] = (m_hss_RT[0] - m_sss_R[0]);
     m_V0[0]    = (m_waterSS->density()) / m_vptp_ptr->molecularWeight(0);
-    m_waterSS->setState_TP(m_tlast, m_plast);
-
+    PDSS_HKFT *ps;
     for (int k = 1; k < m_kk; k++) {
-      PDSS_HKFT *ps = (PDSS_HKFT *) m_vptp_ptr->providePDSS(k);
+      ps = (PDSS_HKFT *) m_vptp_ptr->providePDSS(k);
       ps->setState_TP(m_tlast, m_p0);
       m_cp0_R[k]  = ps->cp_R();
       m_s0_R[k]   = ps->entropy_mole() / GasConstant;
       m_g0_RT[k]  = ps->gibbs_RT();
-
       m_h0_RT[k]  = m_g0_RT[k] + m_s0_R[k];
-#ifdef DEBUG_MODE
+#ifdef DEBUG_MODE_NOT
       double h = ps->enthalpy_RT();
       if (fabs( m_h0_RT[k] - h) > 1.0E-4) {
-	printf("we are here\n");
+	printf(" VPSSMgr_Water_HKFT::_updateRefStateThermo:: we have a discrepancy\n");
       }
 #endif
       m_V0[k]     = ps->molarVolume();
+
+    }
+    m_waterSS->setState_TP(m_tlast, m_plast);
+    for (int k = 1; k < m_kk; k++) {
+      ps = (PDSS_HKFT *) m_vptp_ptr->providePDSS(k);
+      ps->setState_TP(m_tlast, m_plast);
     }
   }
 
@@ -240,7 +201,6 @@ namespace Cantera {
       m_hss_RT[k]  = m_gss_RT[k] + m_sss_R[k];
       m_Vss[k]     = ps->molarVolume();
     }
- 
   }
 
   void VPSSMgr_Water_HKFT::initThermo() {
@@ -255,7 +215,7 @@ namespace Cantera {
     XML_Node& speciesList = phaseNode.child("speciesArray");
     XML_Node* speciesDB = get_XML_NameID("speciesData", speciesList["datasrc"],
 					 &phaseNode.root());
-    const vector<string>&sss = m_vptp_ptr->speciesNames();
+    const vector<string> &sss = m_vptp_ptr->speciesNames();
 
     m_waterSS->setState_TP(300., OneAtm);
     m_Vss[0] =  (m_waterSS->density())      / m_vptp_ptr->molecularWeight(0);
@@ -282,7 +242,7 @@ namespace Cantera {
   PDSS *
   VPSSMgr_Water_HKFT::createInstallPDSS(int k, const XML_Node& speciesNode,  
 					const XML_Node *phaseNode_ptr) {
-   PDSS *kPDSS = 0;
+    PDSS *kPDSS = 0;
 
     const XML_Node *ss = speciesNode.findByName("standardState");
     if (!ss) {

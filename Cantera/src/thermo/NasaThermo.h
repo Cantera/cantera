@@ -7,11 +7,11 @@
  */
 
 /*
- * $Author$
  * $Revision$
  * $Date$
  */
 
+// Copyright 2003 California Institute of Technology
 
 #ifndef CT_NASATHERMO_H
 #define CT_NASATHERMO_H

@@ -9,10 +9,10 @@
  */
 
 /*
- * $Author$
  * $Revision$
  * $Date$
  */
+
 /*
  * Copywrite (2005) Sandia Corporation. Under the terms of 
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
@@ -22,7 +22,6 @@
 #ifndef CT_VPSSMGR_WATER_CONSTVOL_H
 #define CT_VPSSMGR_WATER_CONSTVOL_H
 
-#include "ct_defs.h"
 #include "VPSSMgr.h"
 
 namespace Cantera {
@@ -95,10 +94,10 @@ namespace Cantera {
      *  The values are cached within this object, and are not recalculated unless
      *  the temperature or pressure changes.
      */
-    //@{
-    
+
+    //@{    
  
-  protected:
+  private:
 
     //! Updates the standard state thermodynamic functions at the current T and P of the solution.
     /*!
@@ -111,7 +110,6 @@ namespace Cantera {
      * must be recalculated.
      *
      * This function is responsible for updating the following internal members,
-     * when  m_useTmpStandardStateStorage is true.
      *
      *  -  m_hss_RT;
      *  -  m_cpss_R;
@@ -130,14 +128,24 @@ namespace Cantera {
     //! Updates the reference state thermodynamic functions at the 
     //! current T of the solution and the reference pressure
     /*!
-     *  Underscore updates never check for the state of the system
+     *  Underscore updates never check for the state of the system.
      *  They just do the calculation.
+     *
+     * This function is responsible for updating the following internal members
+     *
+     *  -  m_h0_RT;
+     *  -  m_cp0_R;
+     *  -  m_g0_RT;
+     *  -  m_s0_R;
+     *  -  m_V0
+     *
+     *  This routine also updates all of the thermo to the current temperature
      */
     virtual void _updateRefStateThermo () const;
 
-  public:
-
     //@}
+
+  public:
     /// @name Thermodynamic Values for the Species Reference States (VPStandardStateTP)
     /*!
      *  There are also temporary
@@ -146,8 +154,10 @@ namespace Cantera {
      *  if a new call is made using the previous temperature.
      *  All calculations are done within the routine  _updateRefStateThermo().
      */
+
     //@{
-   /*!
+
+    /*!
      *  Returns the vector of nondimensional
      *  enthalpies of the reference state at the current temperature
      *  of the solution and the reference pressure for the species.
@@ -224,8 +234,8 @@ namespace Cantera {
      * To see how they are used, see files importCTML.cpp and 
      * ThermoFactory.cpp.
      */
-    //@{
 
+    //@{
 
     //! @internal Initialize the object
     /*!
@@ -242,10 +252,8 @@ namespace Cantera {
      * @see importCTML.cpp
      */
 
-
     //! Initialize the thermo, after all species have been entered.
     virtual void initThermo();
-
   
     //! Finalize the thermo after all species have been entered
     /*!
@@ -309,6 +317,7 @@ namespace Cantera {
      * object. 
      */
     PDSS_Water *m_waterSS;
+
   };
   //@}
 }
