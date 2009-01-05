@@ -572,8 +572,9 @@ namespace Cantera {
     // an error and exit.
     if (fabs(Hcalc -DHjmol) > 100.* 1.0E3 * 4.184) {
       throw CanteraError(" PDSS_HKFT::initThermo()",
-			 "DHjmol is not consistent with G and S" + 
-			 fp2str(Hcalc) + " vs " + fp2str(DHjmol));
+			 "DHjmol is not consistent with G and S: " + 
+			 fp2str(Hcalc/(4.184E3)) + " vs " 
+			 + fp2str(m_deltaH_formation_tr_pr) + "cal gmol-1");
     }
     doublereal nu = 166027;
 
