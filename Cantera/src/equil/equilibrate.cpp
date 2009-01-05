@@ -8,6 +8,7 @@
 #include "ChemEquil.h"
 #include "MultiPhaseEquil.h"
 #include "vcs_MultiPhaseEquil.h"
+#include "global.h"
 
 namespace Cantera {
 

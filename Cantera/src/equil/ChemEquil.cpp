@@ -25,6 +25,7 @@
 #include "DenseMatrix.h"
 
 #include "ct_defs.h"
+#include "global.h"
 #include "sort.h"
 #include "PropertyCalculator.h"
 #include "ctexceptions.h"

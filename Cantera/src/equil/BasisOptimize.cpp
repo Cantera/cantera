@@ -9,6 +9,7 @@
  */
 
 #include "ct_defs.h"
+#include "global.h"
 #include "ThermoPhase.h"
 #include "MultiPhase.h"
 

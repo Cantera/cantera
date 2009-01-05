@@ -15,6 +15,7 @@
 #include "ThermoPhase.h"
 #include "DenseMatrix.h"
 #include "stringUtils.h"
+#include "global.h"
 
 using namespace std;
 
@@ -367,6 +368,11 @@ namespace Cantera {
   void MultiPhase::setPhaseMoleFractions(const index_t n, const doublereal* const x) {
     phase_t* p = m_phase[n];
     p->setState_TPX(m_temp, m_press, x);
+    int nsp = p->nSpecies();
+    int istart = m_spstart[n];
+    for (int k = 0; k < nsp; k++) {
+      m_moleFractions[istart+k] = x[k];
+    }
   }
 
   // Set the species moles using a map. The map \a xMap maps
