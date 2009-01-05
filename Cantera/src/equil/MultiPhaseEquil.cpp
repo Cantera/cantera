@@ -763,7 +763,7 @@ namespace Cantera {
                         psum = 0.0;
                         for (k = 0; k < m_nsp; k++) {
                             kc = m_species[k];
-                            if (m_mix->speciesPhaseIndex(kc) == ip) {
+                            if (m_mix->speciesPhaseIndex(kc) == (int) ip) {
                                 // bug fixed 7/12/06 DGG
                                 stoich = nu[k]; // nu[kc];
                                 psum += stoich * stoich;

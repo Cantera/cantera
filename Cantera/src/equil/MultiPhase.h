@@ -5,7 +5,6 @@
  *
  */
 /*
- *  $Author$
  *  $Date$
  *  $Revision$
  */
@@ -121,7 +120,7 @@ namespace Cantera {
     /*!
      * @param kGlob   global species index
      */
-    std::string speciesName(int kGlob) const;
+    std::string speciesName(const int kGlob) const;
 
     //! Returns the Number of atoms of global element \a mGlob in
     //! global species \a kGlob.
@@ -130,10 +129,7 @@ namespace Cantera {
      * @param mGlob   global element index
      * @return        returns the number of atoms.
      */
-    doublereal nAtoms(int kGlob, int mGlob) {
-      if (!m_init) init();
-      return m_atoms(mGlob, kGlob);
-    }
+    doublereal nAtoms(const int kGlob, const int mGlob) const;
 
     /// Returns the global Species mole fractions.
     /*!
@@ -144,9 +140,7 @@ namespace Cantera {
      *    @param x  vector of mole fractions.
      *              Length = number of global species.
      */
-    void getMoleFractions(doublereal* x) const {
-      std::copy(m_moleFractions.begin(), m_moleFractions.end(), x);
-    }
+    void getMoleFractions(doublereal* const x) const;
 
     //! Process phases and build atomic composition array. 
     /*!This method
@@ -156,22 +150,33 @@ namespace Cantera {
      */
     void init();
 
+    //! Returns the name of the n'th phase
+    /*!
+     *   @param iph  phase Index
+     */
+    std::string phaseName(const index_t iph) const;
+
+    //! Returns the index, given the phase name
+    /*!
+     * @param pName Name of the phase
+     *
+     * @return returns the index. A value of -1 means
+     *         the phase isn't in the object.
+     */
+    int phaseIndex(const std::string &pName) const;
+
     //! Return the number of moles in phase n.
     /*!
      * @param n  Index of the phase.
      */
-    doublereal phaseMoles(index_t n) const {
-      return m_moles[n];
-    }
+    doublereal phaseMoles(const index_t n) const;
 
     //! Set the number of moles of phase with index n.
     /*!
      * @param n     Index of the phase
      * @param moles Number of moles in the phase (kmol)
      */
-    void setPhaseMoles(index_t n, doublereal moles) {
-      m_moles[n] = moles;
-    }
+    void setPhaseMoles(const index_t n, const doublereal moles);
 
     /// Return a %ThermoPhase reference to phase n.
     /*! The state of phase n is
@@ -391,17 +396,13 @@ namespace Cantera {
      * @return
      *     Returns the index of the owning phase.
      */
-    index_t speciesPhaseIndex(index_t kGlob) const {
-      return m_spphase[kGlob];
-    }
+    int speciesPhaseIndex(const index_t kGlob) const;
 
     //! Returns the mole fraction of global species k
     /*!
      * @param kGlob Index of the global species.
      */
-    doublereal moleFraction(index_t kGlob) const{
-      return m_moleFractions[kGlob];
-    }
+    doublereal moleFraction(const index_t kGlob) const;
 
     //! Set the Mole fractions of the nth phase
     /*!
@@ -412,7 +413,7 @@ namespace Cantera {
      * @param n    ID of the phase
      * @param x    Vector of input mole fractions.
      */
-    void setPhaseMoleFractions(index_t n, doublereal* x);
+    void setPhaseMoleFractions(const index_t n, const doublereal* const x);
 
     //! Set the number numbers of species in the MultiPhase
     /*!
@@ -470,10 +471,7 @@ namespace Cantera {
     /*!
      * @param p  Index of the phase.
      */
-    bool tempOK(index_t p) const {
-      return m_temp_OK[p];
-    }
-
+    bool tempOK(index_t p) const;
 
     // These methods are meant for internal use.
 
