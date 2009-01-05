@@ -24,8 +24,9 @@
 #include <vector>
 #include <iostream>
 
+//@{
 #define XML_INDENT 4
-
+//@}
 namespace Cantera {
 
 
@@ -320,7 +321,7 @@ namespace Cantera {
      * @param fmt     Format of the printf string conversion of the double.
      *                Default is "%g". 
      */
-    void addAttribute(const std::string & attrib, const double value, 
+    void addAttribute(const std::string & attrib, const doublereal value, 
 		      const std::string fmt="%g");
 	
     //! The operator[] is overloaded to provide a lookup capability
@@ -653,8 +654,10 @@ namespace Cantera {
     //! XML node name of the node. 
     /*!
      *  For example, if we were in the XML_Node where
+     *  @verbatim
      *       <phase dim="3" id="gas">
      *       </phase>
+     *  @endverbatim
      *  Then, this string would be equal to "phase". "dim" and "id"
      *  are attributes of the XML_Node.
      */

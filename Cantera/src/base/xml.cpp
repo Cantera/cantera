@@ -34,17 +34,21 @@ using namespace std;
 #include "stringUtils.h"
 #include <ctype.h>
 
-#define XML_INDENT 4
-
 namespace Cantera {
 
 
   ////////////////////// exceptions ////////////////////////////
 
-    
+  //! Classs representing a generic XML error condition
   class XML_Error : public CanteraError {
   public:
-    XML_Error(int line=0) : m_line(line) {
+    //! Constructor
+    /*!
+     * @param line Number number where the error occurred.
+     */
+    XML_Error(int line=0) :
+      m_line(line)
+    {
       m_msg = "Error in XML file";
       if (line > 0) {
 	m_msg += " at line " + int2str(line+1);
@@ -52,10 +56,13 @@ namespace Cantera {
       m_msg += ".\n";
       //setError("XML_Error",m_msg);
     }
+    //! destructor
     virtual ~XML_Error() {}
   protected:
+    //! Line number of the file
     int m_line;
-    string m_msg;
+    //! String message for the error
+    std::string m_msg;
   };
     
   class XML_TagMismatch : public XML_Error {
@@ -186,7 +193,7 @@ namespace Cantera {
    *  type. Quotes may be commented out by preceding with a
    *  backslash character, '\\'. 
    */
-  int XML_Reader::findQuotedString(const string& s, std::string &rstring) const {
+  int XML_Reader::findQuotedString(const std::string& s, std::string &rstring) const {
     const char q1 = '\'';
     const char q2 = '"';
     rstring = "";
@@ -336,7 +343,7 @@ namespace Cantera {
    *  @param p pointer to the root for this node in the tree.
    *           The default is 0 indicating this is the top of the tree.
    */
-  XML_Node::XML_Node(const string nm, XML_Node * const p) 
+  XML_Node::XML_Node(const std::string nm, XML_Node * const p) 
     : m_name(nm),
       m_value(""), 
       m_parent(p),
