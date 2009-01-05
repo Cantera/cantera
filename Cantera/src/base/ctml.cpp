@@ -22,8 +22,10 @@
 
 #define CTML_VERSION_1_4_1
 
+#include "global.h"
 #include <cctype>
 #include <cstring>
+
 
 using namespace std;
 using namespace Cantera;

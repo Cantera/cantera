@@ -14,6 +14,7 @@
 
 
 #include "xml.h"
+#include "stringUtils.h"
 #include "ctexceptions.h"
 #include "refine.h"
 

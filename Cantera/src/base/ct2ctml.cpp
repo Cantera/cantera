@@ -25,6 +25,7 @@
 #include <cstdlib>
 #include <time.h>
 #include "ctml.h"
+#include "global.h"
 
 using namespace std;
 

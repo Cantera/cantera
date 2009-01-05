@@ -30,7 +30,8 @@
 using namespace std;
 
 #include "xml.h"
-
+#include "global.h"
+#include "stringUtils.h"
 #include <ctype.h>
 
 #define XML_INDENT 4
@@ -406,7 +407,7 @@ namespace Cantera {
    *
    *  @param comment Content of the comment
    */
-  void XML_Node::addComment(const std::string comment) {
+  void XML_Node::addComment(const std::string &comment) {
     addChild("comment", comment);
   }
 
@@ -437,7 +438,7 @@ namespace Cantera {
    *
    *  @return         Returns a reference to the added node
    */
-  XML_Node& XML_Node::addChild(const std::string sname) { 
+  XML_Node& XML_Node::addChild(const std::string &sname) { 
     XML_Node *xxx = new XML_Node(sname, this);
     m_children.push_back(xxx);
     m_nchildren = static_cast<int>(m_children.size());
@@ -456,7 +457,7 @@ namespace Cantera {
    *   @param   value      Value of the XML_Node - string
    *   @return  Returns a reference to the created child XML_Node object
    */
-  XML_Node& XML_Node::addChild(const std::string name, const std::string value) {
+  XML_Node& XML_Node::addChild(const std::string &name, const std::string &value) {
     XML_Node& c = addChild(name);
     c.addValue(value);
     return c;
@@ -477,7 +478,7 @@ namespace Cantera {
    *
    *   @return  Returns a reference to the created child XML_Node object
    */
-  XML_Node& XML_Node::addChild(const std::string name, const doublereal value,
+  XML_Node& XML_Node::addChild(const std::string &name, const doublereal value,
 			       const std::string fmt) {
     XML_Node& c = addChild(name);
     c.addValue(value, fmt);
@@ -510,7 +511,7 @@ namespace Cantera {
    *
    * @param val  string Value that the node will be assigned
    */
-  void XML_Node::addValue(const std::string val) { 
+  void XML_Node::addValue(const std::string &val) { 
     m_value = val;
     if (m_name == "comment") m_iscomment = true;
   }
@@ -567,7 +568,7 @@ namespace Cantera {
    *  @param cname  Name of the child node of the current
    *                node, for which you want the value
    */
-  std::string XML_Node::value(const std::string cname) const { 
+  std::string XML_Node::value(const std::string &cname) const { 
     return child(cname).value();
   }
 
@@ -743,7 +744,7 @@ namespace Cantera {
    *
    *  If the condition is not true, an exception is thrown
    */
-  void XML_Node::_require(const std::string a, const std::string v) const {
+  void XML_Node::_require(const std::string &a, const std::string &v) const {
     if (hasAttrib(a)) {
       if (attrib(a) == v) return;
     }
@@ -1269,8 +1270,13 @@ namespace Cantera {
     }
   }
 
-
-
+  XML_Node& XML_Node::root() const { 
+    return *m_root; 
+  }
+ 
+  void XML_Node::setRoot(const XML_Node& root) {
+     m_root = const_cast<XML_Node*>(&root); 
+  }
         
   XML_Node * findXMLPhase(XML_Node *root, 
 			  const std::string &idtarget) {

@@ -18,6 +18,7 @@
 
 #include "ct_defs.h"
 #include "ctexceptions.h"
+#include "global.h"
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>

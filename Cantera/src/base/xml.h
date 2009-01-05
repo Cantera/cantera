@@ -17,7 +17,6 @@
 
 #include "ctexceptions.h"
 #include "ct_defs.h"
-#include "stringUtils.h"
 #include "global.h"
 
 
@@ -133,8 +132,11 @@ namespace Cantera {
   /*!
    *   Class XML_Node is a tree-based representation of the contents of an XML file.
    *
+   *  There are routines for adding to the tree.
    *
+   *  There are routines for querying and searching the tree.
    *
+   *  Additionally, there are routines for writing the tree out to an output file.
    *
    */
   class XML_Node {
@@ -174,7 +176,7 @@ namespace Cantera {
      *
      *  @param comment    Content of the comment
      */
-    void addComment(const std::string comment);
+    void addComment(const std::string &comment);
 
     //! Add a child node to the current node
     /*!
@@ -197,7 +199,7 @@ namespace Cantera {
      *
      *  @return         Returns a reference to the added node
      */
-    XML_Node& addChild(const std::string sname);
+    XML_Node& addChild(const std::string &sname);
 
     //!    Add a child node to the current xml node, and at the
     //!    same time add a value to the child
@@ -209,7 +211,7 @@ namespace Cantera {
      *   @param   value      Value of the XML_Node - string
      *   @return  Returns a reference to the created child XML_Node object
      */
-    XML_Node& addChild(const std::string name, const std::string value);
+    XML_Node& addChild(const std::string &name, const std::string &value);
 
     //!    Add a child node to the current xml node, and at the
     //!    same time add a formatted value to the child
@@ -226,7 +228,7 @@ namespace Cantera {
      *
      *   @return  Returns a reference to the created child XML_Node object
      */
-    XML_Node& addChild(const std::string name, const doublereal value, 
+    XML_Node& addChild(const std::string &name, const doublereal value, 
 		       const std::string fmt="%g");
 
     //! Remove a child from this node's list of children
@@ -244,7 +246,7 @@ namespace Cantera {
      *
      * @param val  string Value that the node will be assigned
      */
-    void addValue(const std::string val);
+    void addValue(const std::string &val);
 
     //! Modify the value for the current node
     /*!
@@ -274,7 +276,7 @@ namespace Cantera {
      *  @param cname  Name of the child node to the current
      *                node, for which you want the value
      */
-    std::string value(const std::string cname) const;
+    std::string value(const std::string &cname) const;
 
     //!  Overloaded parenthesis operator with one augment 
     //!  returns the value of an XML child node as a string
@@ -446,7 +448,7 @@ namespace Cantera {
      *
      *  If the condition is not true, an exception is thrown
      */
-    void _require(const std::string a, const std::string v) const;
+    void _require(const std::string &a, const std::string &v) const;
 
     //! This routine carries out a recursive search for an XML node based
     //! on both the xml element name and the attribute ID.
@@ -577,8 +579,18 @@ namespace Cantera {
      */
     void write(std::ostream& s, const int level = 0) const;
 
-    XML_Node& root() const { return *m_root; }
-    void setRoot(XML_Node& root) { m_root = &root; }
+    //! Return the root of the current XML_Node tree
+    /*!
+     *  Returns a reference to the root of the current
+     *  XML tree
+     */
+    XML_Node& root() const;
+
+    //! Set the root XML_Node value within the current node
+    /*!
+     *  @param root Value of the root XML_Node.
+     */
+    void setRoot(const XML_Node& root);
 
     //! Main routine to create an tree-like representation of an XML file
     /*!
@@ -661,10 +673,38 @@ namespace Cantera {
      */
     std::string m_value;
 
+    //! Map containing an index between the node name and the 
+    //! pointer to the node
+    /*!
+     * m_childindex[node.name()] = XML_Node *pointer
+     *
+     *  This object helps to speed up searches
+     */
     std::map<std::string, XML_Node*> m_childindex;
+
+    //! Storage of attributes for a node
+    /*!
+     *       m_attribs[attribName] = attribValue
+     */
     std::map<std::string, std::string> m_attribs;
+
+    //! Pointer to the parent XML_Node for the current node
+    /*!
+     *  Note, the top node has a parent value of 0
+     */
     XML_Node* m_parent;
+
+    //! Pointer to the root XML_Node for the current node
+    /*!
+     *  Note, the top node has a root value equal to itself
+     */
     XML_Node* m_root;
+
+    //! Lock for this node
+    /*!
+     *  Currently, unimplemented functionality. If locked,
+     *  it means you can't delete this node.
+     */
     bool m_locked;
 
     //! Vector of pointers to child nodes
@@ -672,14 +712,28 @@ namespace Cantera {
 
     //! Number of children of this node
     int m_nchildren;
-    bool m_iscomment;
-    int m_linenum;
 
-   
+    //! True if the current node is a comment node
+    bool m_iscomment;
+
+    //! the member data m_linenum
+    /*!
+     *  Currently, unimplemented functionality
+     */
+    int m_linenum;
   };
 
-  
-  XML_Node * findXMLPhase(XML_Node* root, const std::string &id);
+  //! Search an XML_Node tree for a named phase XML_Node
+  /*!
+   *  Search for a phase Node matching a name.
+   *
+   *  @param root         Starting XML_Node* pointer  for the search
+   *  @param phaseName    Name of the phase to search for
+   *
+   *  @return Returns the XML_Node pointer if the phase is found.
+   *          If the phase is not found, it returns 0
+   */
+  XML_Node * findXMLPhase(XML_Node* root, const std::string &phaseName);
 
 }
 
