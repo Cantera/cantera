@@ -12,7 +12,6 @@
 
 // Copyright 2001  California Institute of Technology
 
-// simple xml functions
 
 // turn off warnings under Windows
 #ifdef WIN32
@@ -41,9 +40,13 @@ namespace Cantera {
 
   //! Classs representing a generic XML error condition
   class XML_Error : public CanteraError {
-  public:
+  protected:
     //! Constructor
     /*!
+     * Note, we don't actually post the error in this class.
+     * Therefore, this class can't be used externally. Therefore,
+     * it's a protected constructor.
+     *
      * @param line Number number where the error occurred.
      */
     XML_Error(int line=0) :
@@ -54,31 +57,66 @@ namespace Cantera {
 	m_msg += " at line " + int2str(line+1);
       }
       m_msg += ".\n";
-      //setError("XML_Error",m_msg);
     }
+
     //! destructor
     virtual ~XML_Error() {}
+
   protected:
     //! Line number of the file
     int m_line;
+
     //! String message for the error
     std::string m_msg;
   };
     
+  //! Class representing a specific type of XML file formatting error
+  /*!
+   * An XML tag is not matched
+   */
   class XML_TagMismatch : public XML_Error {
   public:
-    XML_TagMismatch(string opentag, string closetag, 
-		    int line=0) : XML_Error(line) {
+
+    //! Constructor
+    /*!
+     *  An XML element must have the same opening and closing name.
+     *
+     *  @param  opentag     String representing the opening of the XML bracket
+     *  @param  closetag    String representing the closing of the XML bracket 
+     *  @param  line        Line number where the error occurred.
+     */
+    XML_TagMismatch(std::string opentag, std::string closetag, 
+		    int line=0) :
+      XML_Error(line)
+    {
       m_msg += "<" + opentag + "> paired with </" + closetag + ">.\n";
-      setError("XML_TagMismatch",m_msg);
+      setError("XML_TagMismatch", m_msg);
     }
+
+    //! Destructor
     virtual ~XML_TagMismatch() {}
   };
 
+  //! Class representing a specific type of XML file formatting error
+  /*!
+   * An XML_Node doesn't have a required child node
+   */
   class XML_NoChild : public XML_Error {
   public:
-    XML_NoChild(const XML_Node* p, string parent, 
-		string child, int line=0) : XML_Error(line) {
+
+    //! Constructor
+    /*!
+     *  An XML element doesn't have the required child node
+     *
+     *  @param  p           XML_Node to write a string error message
+     *  @param  parent      Namf of the parent node
+     *  @param  child       Name of the required child node
+     *  @param  line        Line number where the error occurred.
+     */
+    XML_NoChild(const XML_Node* p, std::string parent, 
+		std::string child, int line=0) : 
+      XML_Error(line)
+    {
       m_msg += "           The XML Node \"" + parent + 
 	"\", does not contain a required\n" +
 	"           XML child node named \"" 
@@ -88,18 +126,37 @@ namespace Cantera {
       p->write(ss,1);
       m_msg += ss.str() + "\n";
 #endif
-      setError("XML_NoChild",m_msg);
+      setError("XML_NoChild", m_msg);
     }
+
+    //! Destructor
     virtual ~XML_NoChild() {}
   };
 
+  //! Class representing a specific type of XML file formatting error
+  /*!
+   * An XML_Node's units attribute has the wrong type of units.
+   */
   class XML_IllegalUnits : public XML_Error {
   public:
-    XML_IllegalUnits(string name, string units, int line=0) : XML_Error(line) {
+
+    //! Constructor
+    /*!
+     *  Wrong units string.
+     *
+     *  @param  name        Name of the current XML node
+     *  @param  units       Units string in the "units" attribute
+     *  @param  line        Line number where the error occurred.
+     */
+    XML_IllegalUnits(std::string name, std::string units, int line=0) :
+      XML_Error(line)
+    {
       m_msg += "Illegal units (" + units + 
 	") specified for node " + name + ".\n";
-      setError("XML_IllegalUnits",m_msg);
+      setError("XML_IllegalUnits", m_msg);
     }
+
+    //! Destructor
     virtual ~XML_IllegalUnits() {}
   };
 

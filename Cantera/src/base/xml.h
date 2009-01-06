@@ -59,7 +59,7 @@ namespace Cantera {
     //! space.
     /*!
      *  White space is defined by the ISO C function isspace(), and
-     *  includes tabs, spaces, \n. \r, \v, and \f.
+     *  includes tabs, spaces, \\n. \\r, \\v, and \\f.
      *
      * @param aline  Input line to be stripped
      *
@@ -70,18 +70,31 @@ namespace Cantera {
      */
     std::string strip(const std::string& aline) const;
 
-    /// Looks for a substring within 'aline' enclosed in double
-    /// quotes, and returns this substring (without the quotes) if
-    /// found.  If not, an empty string is returned.
-    /// @todo why is this a class method?
+    //! Looks for a substring within 'aline' enclosed in double
+    //! quotes, and returns this substring (without the quotes) if
+    //! found.  If not, an empty string is returned.
+    /*!
+     *
+     *  @param aline This is the input string to be searched
+     *
+     *  @todo why is this a class method?
+     */
     std::string inquotes(const std::string& aline) const;
-
-    /**
-     *  Searches a string for the first occurrence of a valid
-     *  quoted string. Quotes can start with either a single
+    
+    //!  Searches a string for the first occurrence of a valid
+    //!  quoted string.
+    /*!
+     *  Quotes can start with either a single
      *  quote or a double quote, but must also end with the same
      *  type. Quotes may be commented out by preceding with a
      *  backslash character, '\\'. 
+     *
+     *  @param aline     This is the input string to be searched
+     *  @param rstring   Return value of the string that is found.
+     *                   The quotes are stripped from the string.
+     *
+     *  @return          Returns the integer position just after
+     *                   the quoted string.
      */
     int findQuotedString(const std::string& aline, std::string &rstring) const;
 
@@ -206,7 +219,7 @@ namespace Cantera {
     //!    same time add a value to the child
     /*!
      *    Resulting XML string:
-     *      <name>value</name>
+     *      \<name\> value \</name\>
      *
      *   @param   name       Name of the child XML_Node object
      *   @param   value      Value of the XML_Node - string
@@ -221,7 +234,7 @@ namespace Cantera {
      *  to the output of the value.
      *
      *    Resulting XML string:
-     *      <name>value</name>
+     *      \<name\> value \</name\>
      *
      *   @param   name       Name of the child XML_Node object
      *   @param   value      Value of the XML_Node - double.
@@ -285,7 +298,7 @@ namespace Cantera {
      *  @param cname  Name of the child node to the current
      *                node, for which you want the value
      */
-    std::string operator()(std::string loc) const;
+    std::string operator()(std::string cname) const;
 
     //! Return the value of an XML node as a single double
     /*!
@@ -427,10 +440,9 @@ namespace Cantera {
 
     //! Return an unchangeable reference to the vector of children of the current node
     /*!
-     * Each of the individual XML_Node child pointers, however,
+     *  Each of the individual XML_Node child pointers, however,
      *  is to a changeable xml node object.
      *
-     *  @param n  Number of the child to return
      */
     const std::vector<XML_Node*>& children() const;
 
@@ -668,9 +680,9 @@ namespace Cantera {
      *  This is the string contents of the XML node. For
      *  example. The xml node named eps:
      *
-     *      <eps>
+     *      \<eps\>
      *         valueString
-     *      </eps>
+     *      \</eps\>
      *
      *  has a m_value string containing "valueString".
      */
