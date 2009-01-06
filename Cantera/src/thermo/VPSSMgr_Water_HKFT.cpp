@@ -224,17 +224,18 @@ namespace Cantera {
       const XML_Node* s =  speciesDB->findByAttr("name", sss[k]);
       if (!s) {
 	throw CanteraError("VPSSMgr_Water_HKFT::initThermoXML",
-			   "no species Node for species " + sss[k]);
+			   "No species Node for species " + sss[k]);
       }
       const XML_Node *ss = s->findByName("standardState");
       if (!ss) {
 	throw CanteraError("VPSSMgr_Water_HKFT::initThermoXML",
-			   "no standardState Node for species " + s->name());
+			   "No standardState Node for species " + sss[k]);
       }
       std::string model = lowercase((*ss)["model"]);
       if (model != "hkft") {
 	throw CanteraError("VPSSMgr_Water_HKFT::initThermoXML",
-			   "standardState model for species isn't hkft: " + s->name());
+			   "Standard state model for a solute species isn't "
+			   "the HKFT standard state model: " + sss[k]);
       }
     }   
   }
@@ -247,7 +248,7 @@ namespace Cantera {
     const XML_Node *ss = speciesNode.findByName("standardState");
     if (!ss) {
       throw CanteraError("VPSSMgr_Water_HKFT::installSpecies",
-			 "no standardState Node for species " + speciesNode.name());
+			 "No standardState Node for species " + speciesNode.name());
     }
     // Will have to do something for water 
     // -> make sure it's species 0
