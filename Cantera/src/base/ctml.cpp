@@ -78,8 +78,8 @@ namespace ctml {
    *   @param typeString    String type. This is an optional parameter. The default
    *                        is to have an empty string.
    */
-    void addInteger(XML_Node& node, const string &title, const int val, 
-                    const std::string &units, const std::string &type) {
+    void addInteger(XML_Node& node, const std::string &title, const int val, 
+                    const std::string units, const std::string type) {
         XML_Node& f = node.addChild("integer",val);
         f.addAttribute("title",title);
         if (type != "") f.addAttribute("type",type);

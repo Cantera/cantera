@@ -73,8 +73,8 @@ namespace ctml {
    *       typeString should be codified as to its usage.
    */
   void addInteger(Cantera::XML_Node& node, const std::string &titleString, 
-		  const int value, const std::string &unitsString="", 
-		  const std::string &typeString="");
+		  const int value, const std::string unitsString="", 
+		  const std::string typeString="");
 
   void addFloat(Cantera::XML_Node& node, 
 		std::string title, 
