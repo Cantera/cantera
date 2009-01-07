@@ -28,9 +28,41 @@ namespace ctml {
 
   bool isBuiltin(std::string nm);
 
-  void addBool(Cantera::XML_Node& node, 
-	       std::string title, 
-	       bool val);
+  //!  This function adds a child node with the name, "bool", with a value
+  //!  consisting of a single bool
+  /*!
+   *   This function will add a child node to the current XML node, with the
+   *   name "bool". It will have a title attribute, and the body
+   *   of the XML node will be filled out with a single bool.
+   *
+   *  Example:
+   *
+   * Code snipet:
+   *       @verbatum
+     const XML_Node &node;
+     std::string titleString = "doSpecialOp";
+     bool value = true;
+     addBool(node, titleString, value);
+     @endverbatum
+   *
+   *  Creates the following the snippet in the XML file:
+   *  @verbatum
+     <parentNode>
+       <bool title="doSpecialOp" type="optional">
+          true
+       <\integer>
+     <\parentNode>
+   @endverbatum
+   *
+   *   @param node          reference to the XML_Node object of the parent XML element
+   *   @param titleString   String name of the title attribute
+   *   @param value         Value - single bool
+   *
+   * @todo I don't think this is used. Figure out what is used for writing bools,
+   *       and codify that.
+   */
+  void addBool(Cantera::XML_Node& node, const std::string &title, 
+	       const bool value);
 
   //!  This function adds a child node with the name, "integer", with a value
   //!  consisting of a single integer

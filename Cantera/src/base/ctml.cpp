@@ -36,10 +36,43 @@ namespace ctml {
     return atof(stripws(val).c_str());
   }
 
-  void addBool(XML_Node& node, string title, bool val) {
-    string v = (val ? "true" : "false");
-    XML_Node& f = node.addChild("bool",v);
-    f.addAttribute("title",title);
+  //  This function adds a child node with the name, "bool", with a value
+  //  consisting of a single bool
+  /*
+   *   This function will add a child node to the current XML node, with the
+   *   name "bool". It will have a title attribute, and the body
+   *   of the XML node will be filled out with a single bool
+   *
+   *  Example:
+   *
+   * Code snipet:
+   *       @verbatum
+     const XML_Node &node;
+     std::string titleString = "doSpecialOp";
+     bool value = true;
+     addBool(node, titleString, value);
+     @endverbatum
+   *
+   *  Creates the following the snippet in the XML file:
+   *  @verbatum
+     <parentNode>
+       <bool title="doSpecialOp" type="optional">
+          true
+       <\integer>
+     <\parentNode>
+   @endverbatum
+   *
+   *   @param node          reference to the XML_Node object of the parent XML element
+   *   @param titleString   String name of the title attribute
+   *   @param value         Value - single bool
+   *
+   * @todo I don't think this is used. Figure out what is used for writing bools,
+   *       and codify that.
+   */
+  void addBool(Cantera::XML_Node& node, const std::string &title, const bool val) {
+    std::string v = (val ? "true" : "false");
+    XML_Node& f = node.addChild("bool", v);
+    f.addAttribute("title", title);
   }
 
   //  This function adds a child node with the name, "integer", with a value
@@ -78,7 +111,7 @@ namespace ctml {
    *   @param typeString    String type. This is an optional parameter. The default
    *                        is to have an empty string.
    */
-  void addInteger(XML_Node& node, const std::string &title, const int val, 
+  void addInteger(Cantera::XML_Node& node, const std::string &title, const int val, 
 		  const std::string units, const std::string type) {
     XML_Node& f = node.addChild("integer",val);
     f.addAttribute("title",title);
@@ -86,7 +119,7 @@ namespace ctml {
     if (units != "") f.addAttribute("units",units);
   } 
 
-  void addIntegerArray(XML_Node& node, string title, int n, 
+  void addIntegerArray(Cantera::XML_Node& node, string title, int n, 
 		       const int* vals, string units, string type,
 		       doublereal minval, doublereal maxval) {
     string fmt = "%8d";
@@ -149,7 +182,7 @@ namespace ctml {
    *       and codify that. minval and maxval should be codified.
    *       typeString should be codified as to its usage.
    */
-  void addFloat(XML_Node& node, const std::string &title, 
+  void addFloat(Cantera::XML_Node& node, const std::string &title, 
 		const doublereal val, const std::string units, 
 		const std::string type, const doublereal minval, 
                 const doublereal maxval) {
@@ -176,7 +209,7 @@ namespace ctml {
    *  Note, a comma is not put after the last double
    *  entry anymore.
    */
-  void addFloatArray(XML_Node& node, string title, int n, 
+  void addFloatArray(Cantera::XML_Node& node, string title, int n, 
 		     const double* vals, string units, string type,
 		     doublereal minval, doublereal maxval) {
     string fmt = "%17.9E";
@@ -225,7 +258,7 @@ namespace ctml {
    *   @param titleString   String name of the title attribute
    *   @param typeString    String type. This is an optional parameter.
    */
-  void addString(XML_Node& node, std::string titleString, std::string valueString, 
+  void addString(Cantera::XML_Node& node, std::string titleString, std::string valueString, 
 		 std::string typeString) {
     XML_Node& f = node.addChild("string", valueString);
     f.addAttribute("title", titleString);
@@ -267,7 +300,7 @@ namespace ctml {
    *
    *   @return         String value of the child XML_Node
    */
-  std::string getChildValue(const XML_Node& parent, const std::string &nameString) {
+  std::string getChildValue(const Cantera::XML_Node& parent, const std::string &nameString) {
     if (!parent.hasChild(nameString)) return "";
     return parent(nameString);
   }
@@ -300,7 +333,7 @@ namespace ctml {
    *   @param valueString   Value string that is found in the child node. output variable
    *   @param typeString    String type. This is an optional output variable
    */
-  void getString(XML_Node& node, const std::string &titleString, std::string& valueString, 
+  void getString(Cantera::XML_Node& node, const std::string &titleString, std::string& valueString, 
 		 std::string& typeString) {
     valueString = "";
     typeString = "";
@@ -313,7 +346,7 @@ namespace ctml {
       }
   }
   
-  void getIntegers(const XML_Node& node, map<string,int>& v) {
+  void getIntegers(const Cantera::XML_Node& node, map<string,int>& v) {
     vector<XML_Node*> f;
     node.getChildren("integer",f);
     int n = static_cast<int>(f.size());
@@ -336,7 +369,7 @@ namespace ctml {
 
   
 
-  void getFloats(const XML_Node& node, map<string,double>& v, bool convert) {
+  void getFloats(const Cantera::XML_Node& node, map<string,double>& v, bool convert) {
     vector<XML_Node*> f;
     node.getChildren("float",f);
     int n = static_cast<int>(f.size());
@@ -405,7 +438,7 @@ namespace ctml {
    *                 and "" , for no conversion. The default value is ""
    *                 which implies that no conversion is allowed.
    */
-  doublereal getFloat(const XML_Node& parent, std::string name, std::string type) {
+  doublereal getFloat(const Cantera::XML_Node& parent, std::string name, std::string type) {
     if (!parent.hasChild(name)) 
       throw CanteraError("getFloat (called from XML Node \"" +
 			 parent.name() + "\"): ",
@@ -520,7 +553,7 @@ namespace ctml {
    *   @param parent reference to the XML_Node object of the parent XML element
    *   @param name   Name of the XML child element
    */
-  int getInteger(const XML_Node& parent, std::string name) {
+  int getInteger(const Cantera::XML_Node& parent, std::string name) {
     if (!parent.hasChild(name)) { 
       throw CanteraError("getInteger (called from XML Node \"" +
 			 parent.name() + "\"): ",
@@ -563,7 +596,7 @@ namespace ctml {
    *
    *  nodeName = The default value for the node name is floatArray
    */
-  void getFloatArray(const XML_Node& node, vector_fp& v, bool convert,
+  void getFloatArray(const Cantera::XML_Node& node, vector_fp& v, bool convert,
 		     std::string type, std::string nodeName) {
     string::size_type icom;
     string numstr;
@@ -650,7 +683,7 @@ namespace ctml {
    * used as the value, in the return map.
    * It is an error to not find a colon in each string pair.
    */
-  void getMap(const XML_Node& node, std::map<std::string, std::string>& m) {
+  void getMap(const Cantera::XML_Node& node, std::map<std::string, std::string>& m) {
     std::vector<std::string> v;
     getStringArray(node, v);
     std::string key, val;
@@ -692,7 +725,7 @@ namespace ctml {
    *     1:   "blue"    "34"
    *     2:   "green"   "banana"
    */
-  void getPairs(const XML_Node& node, vector<string>& key, 
+  void getPairs(const Cantera::XML_Node& node, vector<string>& key, 
 		vector<string>& val) {
     vector<string> v;
     getStringArray(node, v);
@@ -738,7 +771,7 @@ namespace ctml {
    *     retnValues(0, 3) = 112
    *     retnValues(1, 2) = 3.3E-23
    */
-  void getMatrixValues(const XML_Node& node,
+  void getMatrixValues(const Cantera::XML_Node& node,
 		       const vector<string>& keyString1,
 		       const vector<string>& keyString2,
 		       Array2D &retnValues, bool convert,
@@ -870,7 +903,7 @@ namespace ctml {
    * The separate tokens are returned in the string vector,
    * v.
    */
-  void getStringArray(const XML_Node& node, vector<string>& v) {
+  void getStringArray(const Cantera::XML_Node& node, vector<string>& v) {
     string val = node.value();
     getStringArray(val, v);
   }
@@ -907,7 +940,7 @@ namespace ctml {
     }
   }
 
-  void getFunction(const XML_Node& node, string& type, doublereal& xmin,
+  void getFunction(const Cantera::XML_Node& node, string& type, doublereal& xmin,
 		   doublereal& xmax, vector_fp& coeffs) {
     const XML_Node& c = node.child("floatArray");
     coeffs.clear();
