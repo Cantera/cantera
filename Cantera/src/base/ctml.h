@@ -76,13 +76,52 @@ namespace ctml {
 		  const int value, const std::string unitsString="", 
 		  const std::string typeString="");
 
-  void addFloat(Cantera::XML_Node& node, 
-		std::string title, 
-		doublereal val, 
-		std::string units="", 
-		std::string type="", 
-		doublereal minval = Cantera::Undef,
-		doublereal maxval = Cantera::Undef);
+  //!  This function adds a child node with the name, "float", with a value
+  //!  consisting of a single floating point number
+  /*!
+   *   This function will add a child node to the current XML node, with the
+   *   name "float". It will have a title attribute, and the body
+   *   of the XML node will be filled out with a single float
+   *
+   *  Example:
+   *
+   * Code snipet:
+   *       @verbatum
+     const XML_Node &node;
+     std::string titleString = "activationEnergy";
+     double  value = 50.3;
+     doublereal maxval = 1.0E3;
+     doublereal minval = 0.0;
+     std::string typeString = "optional";
+     std::string unitsString = "kcal/gmol";
+     addFloat(node, titleString, value, unitsString, typeString, minval, maxval);
+     @endverbatum
+   *
+   *  Creates the following the snippet in the XML file:
+   *  @verbatum
+     <parentNode>
+       <float title="activationEnergy" type="optional" units="kcal/gmol" min="0.0" max="1.0E3">
+          50.3
+       <\float>
+     <\parentNode>
+   @endverbatum
+   *
+   *   @param node          reference to the XML_Node object of the parent XML element
+   *   @param titleString   String name of the title attribute
+   *   @param value         Value - single integer
+   *   @param unitsString   String name of the Units attribute. The default is to
+   *                        have an empty string.
+   *   @param typeString    String type. This is an optional parameter. The default
+   *                        is to have an empty string.
+   *
+   * @todo I don't think this is used. Figure out what is used for writing floats,
+   *       and codify that. minval and maxval should be codified.
+   *       typeString should be codified as to its usage.
+   */
+  void addFloat(Cantera::XML_Node& node, const std::string &titleString, 
+		const doublereal value, const std::string unitsString="", 
+		const std::string typeString="", const doublereal minval = Cantera::Undef,
+		const doublereal maxval = Cantera::Undef);
 
   void addIntegerArray(Cantera::XML_Node& node, 
 		       std::string title, 

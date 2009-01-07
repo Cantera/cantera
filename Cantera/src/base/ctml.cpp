@@ -32,15 +32,15 @@ using namespace Cantera;
 
 namespace ctml {
 
-    static doublereal fpValue(std::string val) {
-        return atof(stripws(val).c_str());
-    }
+  static doublereal fpValue(std::string val) {
+    return atof(stripws(val).c_str());
+  }
 
-    void addBool(XML_Node& node, string title, bool val) {
-        string v = (val ? "true" : "false");
-        XML_Node& f = node.addChild("bool",v);
-        f.addAttribute("title",title);
-    }
+  void addBool(XML_Node& node, string title, bool val) {
+    string v = (val ? "true" : "false");
+    XML_Node& f = node.addChild("bool",v);
+    f.addAttribute("title",title);
+  }
 
   //  This function adds a child node with the name, "integer", with a value
   //  consisting of a single integer
@@ -53,21 +53,21 @@ namespace ctml {
    *
    * Code snipet:
    *       @verbatum
-         const XML_Node &node;
-	 std::string titleString = "maxIterations";
-	 int  value = 1000;
-	 std::string typeString = "optional";
-	 std::string units = "";
-         addInteger(node, titleString, value, typeString, units);
+   const XML_Node &node;
+   std::string titleString = "maxIterations";
+   int  value = 1000;
+   std::string typeString = "optional";
+   std::string units = "";
+   addInteger(node, titleString, value, typeString, units);
    @endverbatum
    *
    *  Creates the following the snippet in the XML file:
    *  @verbatum
-     <parentNode>
-       <integer title="maxIterations" type="optional">
-          100
-       <\integer>
-     <\parentNode>
+   <parentNode>
+   <integer title="maxIterations" type="optional">
+   100
+   <\integer>
+   <\parentNode>
    @endverbatum
    *
    *   @param node          reference to the XML_Node object of the parent XML element
@@ -78,42 +78,81 @@ namespace ctml {
    *   @param typeString    String type. This is an optional parameter. The default
    *                        is to have an empty string.
    */
-    void addInteger(XML_Node& node, const std::string &title, const int val, 
-                    const std::string units, const std::string type) {
-        XML_Node& f = node.addChild("integer",val);
-        f.addAttribute("title",title);
-        if (type != "") f.addAttribute("type",type);
-        if (units != "") f.addAttribute("units",units);
-    } 
+  void addInteger(XML_Node& node, const std::string &title, const int val, 
+		  const std::string units, const std::string type) {
+    XML_Node& f = node.addChild("integer",val);
+    f.addAttribute("title",title);
+    if (type != "") f.addAttribute("type",type);
+    if (units != "") f.addAttribute("units",units);
+  } 
 
-    void addIntegerArray(XML_Node& node, string title, int n, 
-        const int* vals, string units, string type,
-        doublereal minval, doublereal maxval) {
-        string fmt = "%8d";
-        int i;
-        string v = "";
-        for (i = 0; i < n; i++) {
-            v += int2str(vals[i],fmt);
-            if (i == n-1) v += "\n"; 
-            else if (i > 0 && (i+1) % 3 == 0) v += ",\n";
-            else v += ", ";
-        }
-        XML_Node& f = node.addChild("intArray",v);
-        f.addAttribute("title",title);
-        if (type != "") f.addAttribute("type",type);        
-        f.addAttribute("size",n);
-        if (units != "") f.addAttribute("units",units);
-        if (minval != Undef) f.addAttribute("min",minval);
-        if (maxval != Undef) f.addAttribute("max",maxval);
+  void addIntegerArray(XML_Node& node, string title, int n, 
+		       const int* vals, string units, string type,
+		       doublereal minval, doublereal maxval) {
+    string fmt = "%8d";
+    int i;
+    string v = "";
+    for (i = 0; i < n; i++) {
+      v += int2str(vals[i],fmt);
+      if (i == n-1) v += "\n"; 
+      else if (i > 0 && (i+1) % 3 == 0) v += ",\n";
+      else v += ", ";
     }
+    XML_Node& f = node.addChild("intArray",v);
+    f.addAttribute("title",title);
+    if (type != "") f.addAttribute("type",type);        
+    f.addAttribute("size",n);
+    if (units != "") f.addAttribute("units",units);
+    if (minval != Undef) f.addAttribute("min",minval);
+    if (maxval != Undef) f.addAttribute("max",maxval);
+  }
 
-  void addFloat(XML_Node& node, 
-		string title, 
-		doublereal val, 
-		string units, 
-		string type, 
-		doublereal minval,
-		doublereal maxval) {
+  //  This function adds a child node with the name, "float", with a value
+  //  consisting of a single floating point number
+  /*
+   *   This function will add a child node to the current XML node, with the
+   *   name "float". It will have a title attribute, and the body
+   *   of the XML node will be filled out with a single float
+   *
+   *  Example:
+   *
+   * Code snipet:
+   *       @verbatum
+   const XML_Node &node;
+   std::string titleString = "activationEnergy";
+   double  value = 50.3;
+   doublereal maxval = 1.0E3;
+   doublereal minval = 0.0;
+   std::string typeString = "optional";
+   std::string unitsString = "kcal/gmol";
+   addFloat(node, titleString, value, unitsString, typeString, minval, maxval);
+   @endverbatum
+   *
+   *  Creates the following the snippet in the XML file:
+   *  @verbatum
+   <parentNode>
+   <float title="activationEnergy" type="optional" units="kcal/gmol" min="0.0" max="1.0E3">
+   50.3
+   <\float>
+   <\parentNode>
+   @endverbatum
+   *
+   *   @param node          reference to the XML_Node object of the parent XML element
+   *   @param titleString   String name of the title attribute
+   *   @param value         Value - single integer
+   *   @param unitsString   String name of the Units attribute. The default is to
+   *                        have an empty string.
+   *   @param typeString    String type. This is an optional parameter. The default
+   *                        is to have an empty string.
+   *
+   * @todo I don't think this is used. Figure out what is used for writing floats,
+   *       and codify that. minval and maxval should be codified.
+   *       typeString should be codified as to its usage.
+   */
+  void addFloat(XML_Node& node, const std::string &title, 
+		const doublereal val, const std::string units, 
+		const std::string type, const doublereal minval, 
+                const doublereal maxval) {
     string fmt = "%17.9E";
 #ifdef CTML_VERSION_1_4
     XML_Node& f = node.addChild("float",val,fmt);
@@ -127,36 +166,36 @@ namespace ctml {
     if (maxval != Undef) f.addAttribute("max",maxval);
   }
 
-    /**
-     *  Add a floatArray XML type to the xml file.
-     *  This is a generic XML entry containing a vector
-     *  of doubles as its values and containing a set
-     *  of attributes that describes the length of the
-     *  vector, and optionally the units of the vector.
-     *
-     *  Note, a comma is not put after the last double
-     *  entry anymore.
-     */
-    void addFloatArray(XML_Node& node, string title, int n, 
-        const double* vals, string units, string type,
-        doublereal minval, doublereal maxval) {
-        string fmt = "%17.9E";
-        int i;
-        string v = "";
-        for (i = 0; i < n; i++) {
-            v += fp2str(vals[i],fmt);
-            if (i == n-1) v += "\n"; 
-            else if (i > 0 && (i+1) % 3 == 0) v += ",\n";
-            else v += ", ";
-        }
-        XML_Node& f = node.addChild("floatArray",v);
-        f.addAttribute("title",title);
-        if (type != "") f.addAttribute("type",type);        
-        f.addAttribute("size",n);
-        if (units != "") f.addAttribute("units",units);
-        if (minval != Undef) f.addAttribute("min",minval);
-        if (maxval != Undef) f.addAttribute("max",maxval);
+  /**
+   *  Add a floatArray XML type to the xml file.
+   *  This is a generic XML entry containing a vector
+   *  of doubles as its values and containing a set
+   *  of attributes that describes the length of the
+   *  vector, and optionally the units of the vector.
+   *
+   *  Note, a comma is not put after the last double
+   *  entry anymore.
+   */
+  void addFloatArray(XML_Node& node, string title, int n, 
+		     const double* vals, string units, string type,
+		     doublereal minval, doublereal maxval) {
+    string fmt = "%17.9E";
+    int i;
+    string v = "";
+    for (i = 0; i < n; i++) {
+      v += fp2str(vals[i],fmt);
+      if (i == n-1) v += "\n"; 
+      else if (i > 0 && (i+1) % 3 == 0) v += ",\n";
+      else v += ", ";
     }
+    XML_Node& f = node.addChild("floatArray",v);
+    f.addAttribute("title",title);
+    if (type != "") f.addAttribute("type",type);        
+    f.addAttribute("size",n);
+    if (units != "") f.addAttribute("units",units);
+    if (minval != Undef) f.addAttribute("min",minval);
+    if (maxval != Undef) f.addAttribute("max",maxval);
+  }
 
   //  This function adds a child node with the name string with a string value
   //  to the current node
@@ -169,16 +208,16 @@ namespace ctml {
    *
    * Code snipet:
    *       @verbatum
-         const XML_Node &node;
-	 addString(XML_Node& node, std::string titleString, std::string valueString, 
-	           std::string typeString);
+   const XML_Node &node;
+   addString(XML_Node& node, std::string titleString, std::string valueString, 
+   std::string typeString);
    @endverbatum
    *
    *  Creates the following the snippet in the XML file:
    *  @verbatum
-     <string title="titleString" type="typeString">
-        valueString
-     <\string>
+   <string title="titleString" type="typeString">
+   valueString
+   <\string>
    @endverbatum
    *
    *   @param node          reference to the XML_Node object of the parent XML element
@@ -193,12 +232,12 @@ namespace ctml {
     if (typeString != "") f.addAttribute("type", typeString);        
   }
 
-    XML_Node* getByTitle(XML_Node& node, string title) {
-        XML_Node* s = node.findByAttr("title",title);
-        if (!s) return 0;
-        if (s->parent() == &node) return s;
-        else return 0;
-    }
+  XML_Node* getByTitle(XML_Node& node, string title) {
+    XML_Node* s = node.findByAttr("title",title);
+    if (!s) return 0;
+    if (s->parent() == &node) return s;
+    else return 0;
+  }
 
   //  This function reads a child node with the name string and returns
   //  its xml value as the return string
@@ -207,10 +246,10 @@ namespace ctml {
    *  
    * Code snipet:
    *       @verbatum
-         const XML_Node &parent;
-	 string name = "vacency_species";
-	 string valueString = getChildValue(parent, name
-	           std::string typeString);
+   const XML_Node &parent;
+   string name = "vacency_species";
+   string valueString = getChildValue(parent, name
+   std::string typeString);
    @endverbatum
    *
    *  returns valueString = "O(V)"
@@ -218,9 +257,9 @@ namespace ctml {
    *  from the following the snippet in the XML file:
    *
    *  @verbatum
-     <vacencySpecies>
-        O(V)
-     <\vancencySpecies>
+   <vacencySpecies>
+   O(V)
+   <\vancencySpecies>
    @endverbatum
    *
    *   @param parent   parent reference to the XML_Node object of the parent XML element
@@ -244,16 +283,16 @@ namespace ctml {
    *
    * Code snipet:
    *       @verbatum
-         const XML_Node &node;
-	 getString(XML_Node& node, std::string titleString, std::string valueString, 
-	           std::string typeString);
+   const XML_Node &node;
+   getString(XML_Node& node, std::string titleString, std::string valueString, 
+   std::string typeString);
    @endverbatum
    *
    *  Reads the following the snippet in the XML file:
    *  @verbatum
-     <string title="titleString" type="typeString">
-        valueString
-     <\string>
+   <string title="titleString" type="typeString">
+   valueString
+   <\string>
    @endverbatum
    *
    *   @param node          reference to the XML_Node object of the parent XML element
@@ -275,62 +314,62 @@ namespace ctml {
   }
   
   void getIntegers(const XML_Node& node, map<string,int>& v) {
-        vector<XML_Node*> f;
-        node.getChildren("integer",f);
-        int n = static_cast<int>(f.size());
-        integer x, x0, x1;
-        string typ, title, vmin, vmax;
-        for (int i = 0; i < n; i++) {
-            const XML_Node& fi = *(f[i]);
-            x = atoi(fi().c_str());
-            title = fi["title"];
-            vmin = fi["min"];
-            vmax = fi["max"];
-            if (vmin != "")
-                x0 = atoi(vmin.c_str());
-            if (fi["max"] != "")
-                x1 = atoi(vmax.c_str());
-            v[title] = x;
-        }
+    vector<XML_Node*> f;
+    node.getChildren("integer",f);
+    int n = static_cast<int>(f.size());
+    integer x, x0, x1;
+    string typ, title, vmin, vmax;
+    for (int i = 0; i < n; i++) {
+      const XML_Node& fi = *(f[i]);
+      x = atoi(fi().c_str());
+      title = fi["title"];
+      vmin = fi["min"];
+      vmax = fi["max"];
+      if (vmin != "")
+	x0 = atoi(vmin.c_str());
+      if (fi["max"] != "")
+	x1 = atoi(vmax.c_str());
+      v[title] = x;
     }
+  }
 
 
   
 
-    void getFloats(const XML_Node& node, map<string,double>& v, bool convert) {
-        vector<XML_Node*> f;
-        node.getChildren("float",f);
-        int n = static_cast<int>(f.size());
-        doublereal x, x0, x1, fctr;
-        string typ, title, units, vmin, vmax;
-        for (int i = 0; i < n; i++) {
-            const XML_Node& fi = *(f[i]);
-            x = atof(fi().c_str());
-            x0 = Undef;
-            x1 = Undef;
-            typ = fi["type"];
-            title = fi["title"];
-            units = fi["units"];
-            vmin = fi["min"];
-            vmax = fi["max"];
-            if (vmin != "") {
-                x0 = atof(vmin.c_str());
-                if (x < x0 - Tiny) {
-                writelog("\nWarning: value "+fi()+" is below lower limit of "
-                    +vmin+".\n");
-                }
-            }
-            if (fi["max"] != "") {
-                x1 = atof(vmax.c_str());
-                if (x > x1 + Tiny) {
-                writelog("\nWarning: value "+fi()+" is above upper limit of "
-                    +vmax+".\n");
-                }
-            }
-            fctr = (convert ? toSI(units) : 1.0); // toSI(typ,units);
-            v[title] = fctr*x;
-        }
+  void getFloats(const XML_Node& node, map<string,double>& v, bool convert) {
+    vector<XML_Node*> f;
+    node.getChildren("float",f);
+    int n = static_cast<int>(f.size());
+    doublereal x, x0, x1, fctr;
+    string typ, title, units, vmin, vmax;
+    for (int i = 0; i < n; i++) {
+      const XML_Node& fi = *(f[i]);
+      x = atof(fi().c_str());
+      x0 = Undef;
+      x1 = Undef;
+      typ = fi["type"];
+      title = fi["title"];
+      units = fi["units"];
+      vmin = fi["min"];
+      vmax = fi["max"];
+      if (vmin != "") {
+	x0 = atof(vmin.c_str());
+	if (x < x0 - Tiny) {
+	  writelog("\nWarning: value "+fi()+" is below lower limit of "
+		   +vmin+".\n");
+	}
+      }
+      if (fi["max"] != "") {
+	x1 = atof(vmax.c_str());
+	if (x > x1 + Tiny) {
+	  writelog("\nWarning: value "+fi()+" is above upper limit of "
+		   +vmax+".\n");
+	}
+      }
+      fctr = (convert ? toSI(units) : 1.0); // toSI(typ,units);
+      v[title] = fctr*x;
     }
+  }
 
 
   //  Get a floating-point value from a child element. 
@@ -346,19 +385,19 @@ namespace ctml {
    *
    * Code snipet:
    *       @verbatum
-      const XML_Node &State_XMLNode;
-      doublereal pres = OneAtm;
-      if (state_XMLNode.hasChild("pressure")) {
-        pres = getFloat(State_XMLNode, "pressure", "toSI");
-      }
-          @endverbatum
+   const XML_Node &State_XMLNode;
+   doublereal pres = OneAtm;
+   if (state_XMLNode.hasChild("pressure")) {
+   pres = getFloat(State_XMLNode, "pressure", "toSI");
+   }
+   @endverbatum
    *
    *  reads the corresponding XML file:
    *  @verbatum
-      <state>
-        <pressure units="Pa"> 101325.0 </pressure>
-      <\state>
-      @endverbatum
+   <state>
+   <pressure units="Pa"> 101325.0 </pressure>
+   <\state>
+   @endverbatum
    *
    *   @param parent reference to the XML_Node object of the parent XML element
    *   @param name   Name of the XML child element
@@ -464,24 +503,24 @@ namespace ctml {
    *
    * Code snipet:
    *       @verbatum
-         const XML_Node &State_XMLNode;
-         int number = 1;
-         if (state_XMLNode.hasChild("NumProcs")) {
-           number = getInteger(State_XMLNode, "numProcs");
-         }
+   const XML_Node &State_XMLNode;
+   int number = 1;
+   if (state_XMLNode.hasChild("NumProcs")) {
+   number = getInteger(State_XMLNode, "numProcs");
+   }
    @endverbatum
    *
    *  reads the corresponding XML file:
    *  @verbatum
-     <state>
-        <numProcs> 10 <numProcs/>
-     <\state>
+   <state>
+   <numProcs> 10 <numProcs/>
+   <\state>
    @endverbatum
    *
    *   @param parent reference to the XML_Node object of the parent XML element
    *   @param name   Name of the XML child element
    */
-  int getInteger(const XML_Node& parent, string name) {
+  int getInteger(const XML_Node& parent, std::string name) {
     if (!parent.hasChild(name)) { 
       throw CanteraError("getInteger (called from XML Node \"" +
 			 parent.name() + "\"): ",
@@ -512,122 +551,122 @@ namespace ctml {
     return x;
   }
 
+  /*
+   * getFloatArray():
+   *
+   * Get an array of floats from the XML Node. The argument field 
+   * is assumed to consist of an arbitrary number of comma 
+   * separated floats, with an arbitrary amount of white space
+   * separating each field.
+   *    If the node array has an units attribute field, then
+   * the units are used to convert the floats, iff convert is true.
+   *
+   *  nodeName = The default value for the node name is floatArray
+   */
+  void getFloatArray(const XML_Node& node, vector_fp& v, bool convert,
+		     std::string type, std::string nodeName) {
+    string::size_type icom;
+    string numstr;
+    doublereal dtmp;
+    string nn = node.name();
+    if (nn != nodeName) 
+      throw CanteraError("getFloatArray",
+			 "wrong xml element type/name: was expecting "
+			 + nodeName + "but accessed " + node.name());
+
+    v.clear();
+    doublereal vmin = Undef, vmax = Undef;
+
+    doublereal funit = 1.0;
     /*
-     * getFloatArray():
-     *
-     * Get an array of floats from the XML Node. The argument field 
-     * is assumed to consist of an arbitrary number of comma 
-     * separated floats, with an arbitrary amount of white space
-     * separating each field.
-     *    If the node array has an units attribute field, then
-     * the units are used to convert the floats, iff convert is true.
-     *
-     *  nodeName = The default value for the node name is floatArray
+     * Get the attributes field, units, from the XML node
      */
-    void getFloatArray(const XML_Node& node, vector_fp& v, bool convert,
-                       string type, string nodeName) {
-	string::size_type icom;
-        string numstr;
-	doublereal dtmp;
-        string nn = node.name();
-        if (nn != nodeName) 
-            throw CanteraError("getFloatArray",
-                "wrong xml element type/name: was expecting "
-                 + nodeName + "but accessed " + node.name());
+    string units = node["units"];
+    if (units != "" && convert) {
+      if (type == "actEnergy" && units != "") {
+	funit = actEnergyToSI(units);
+      } else if (type != "" && units != "") {
+	funit = toSI(units);
+      }
+    }
 
-        v.clear();
-        doublereal vmin = Undef, vmax = Undef;
+    if (node["min"] != "") 
+      vmin = atofCheck(node["min"].c_str());
+    if (node["max"] != "") 
+      vmax = atofCheck(node["max"].c_str());
 
-        doublereal funit = 1.0;
-        /*
-         * Get the attributes field, units, from the XML node
-         */
-        string units = node["units"];
-        if (units != "" && convert) {
-          if (type == "actEnergy" && units != "") {
-            funit = actEnergyToSI(units);
-          } else if (type != "" && units != "") {
-            funit = toSI(units);
-	  }
+    doublereal vv;
+    string val = node.value();
+    while (1 > 0) {
+      icom = val.find(',');
+      if (icom != string::npos) {
+	numstr = val.substr(0,icom);
+	val = val.substr(icom+1,val.size());
+	dtmp = atofCheck(numstr.c_str());
+	v.push_back(dtmp);
+      }
+      else {
+	/*
+	 * This little bit of code is to allow for the
+	 * possibility of a comma being the last 
+	 * item in the value text. This was allowed in
+	 * previous versions of Cantera, even though it
+	 * would appear to be odd. So, we keep the
+	 * possibilty in for backwards compatibility.
+	 */
+	int nlen = strlen(val.c_str());
+	if (nlen > 0) {
+	  dtmp = atofCheck(val.c_str());
+	  v.push_back(dtmp);
 	}
-
-	if (node["min"] != "") 
-	    vmin = atofCheck(node["min"].c_str());
-	if (node["max"] != "") 
-	    vmax = atofCheck(node["max"].c_str());
-
-	doublereal vv;
-        string val = node.value();
-        while (1 > 0) {
-            icom = val.find(',');
-            if (icom != string::npos) {
-                numstr = val.substr(0,icom);
-                val = val.substr(icom+1,val.size());
-		dtmp = atofCheck(numstr.c_str());
-                v.push_back(dtmp);
-            }
-            else {
-	      /*
-	       * This little bit of code is to allow for the
-	       * possibility of a comma being the last 
-	       * item in the value text. This was allowed in
-	       * previous versions of Cantera, even though it
-	       * would appear to be odd. So, we keep the
-	       * possibilty in for backwards compatibility.
-	       */
-	      int nlen = strlen(val.c_str());
-	      if (nlen > 0) {
-		dtmp = atofCheck(val.c_str());
-		v.push_back(dtmp);
-	      }
-	      break;
-            }
-            vv = v.back();
-            if (vmin != Undef && vv < vmin - Tiny) {
-                writelog("\nWarning: value "+fp2str(vv)+
-                    " is below lower limit of " +fp2str(vmin)+".\n");
-            }
-            if (vmax != Undef && vv > vmax + Tiny) {
-                writelog("\nWarning: value "+fp2str(vv)+
-                    " is above upper limit of " +fp2str(vmin)+".\n");
-            }
-        }
-        int nv = v.size();
-        for (int n = 0; n < nv; n++) {
-            v[n] *= funit;
-        }
+	break;
+      }
+      vv = v.back();
+      if (vmin != Undef && vv < vmin - Tiny) {
+	writelog("\nWarning: value "+fp2str(vv)+
+		 " is below lower limit of " +fp2str(vmin)+".\n");
+      }
+      if (vmax != Undef && vv > vmax + Tiny) {
+	writelog("\nWarning: value "+fp2str(vv)+
+		 " is above upper limit of " +fp2str(vmin)+".\n");
+      }
     }
-
-    /**
-     * This routine is used to interpret the value portions of XML
-     * elements that contain colon separated pairs. These are used,
-     * for example, in describing the element composition of species.
-     *       <atomArray> H:4 C:1 <atomArray\>
-     * The string is first separated into a string vector according
-     * to the location of white space. Then each string is again
-     * separated into two parts according to the location of a
-     * colon in the string. The first part of the string is 
-     * used as the key, while the second part of the string is
-     * used as the value, in the return map.
-     * It is an error to not find a colon in each string pair.
-     */
-    void getMap(const XML_Node& node, map<string, string>& m) {
-        vector<string> v;
-        getStringArray(node, v);
-        string key, val;
-        int n = static_cast<int>(v.size());
-        string::size_type icolon;
-        for (int i = 0; i < n; i++) {
-            icolon = v[i].find(":");
-            if (icolon == string::npos) {
-                throw CanteraError("getMap","missing colon in map entry ("
-                    +v[i]+")");
-            }
-            key = v[i].substr(0,icolon);
-            val = v[i].substr(icolon+1, v[i].size());
-            m[key] = val;
-        }
+    int nv = v.size();
+    for (int n = 0; n < nv; n++) {
+      v[n] *= funit;
     }
+  }
+
+  /**
+   * This routine is used to interpret the value portions of XML
+   * elements that contain colon separated pairs. These are used,
+   * for example, in describing the element composition of species.
+   *       <atomArray> H:4 C:1 <atomArray\>
+   * The string is first separated into a string vector according
+   * to the location of white space. Then each string is again
+   * separated into two parts according to the location of a
+   * colon in the string. The first part of the string is 
+   * used as the key, while the second part of the string is
+   * used as the value, in the return map.
+   * It is an error to not find a colon in each string pair.
+   */
+  void getMap(const XML_Node& node, std::map<std::string, std::string>& m) {
+    std::vector<std::string> v;
+    getStringArray(node, v);
+    std::string key, val;
+    int n = static_cast<int>(v.size());
+    string::size_type icolon;
+    for (int i = 0; i < n; i++) {
+      icolon = v[i].find(":");
+      if (icolon == string::npos) {
+	throw CanteraError("getMap","missing colon in map entry ("
+			   +v[i]+")");
+      }
+      key = v[i].substr(0,icolon);
+      val = v[i].substr(icolon+1, v[i].size());
+      m[key] = val;
+    }
+  }
 
   
   //! This function interprets the value portion of an XML element
@@ -643,9 +682,9 @@ namespace ctml {
    *          of the string.
    *   Example: @verbatum
    *    <xmlNode> 
-           red:112    blue:34
-           green:banana
-       </xmlNode>      @endverbatum
+   red:112    blue:34
+   green:banana
+   </xmlNode>      @endverbatum
    * 
    * Returns:
    *          key       val
@@ -671,126 +710,126 @@ namespace ctml {
     }
   }
 
-    /**
-     * This function interprets the value portion of an XML element
-     * as a series of "Matrix ids and entries" separated by white space.
-     * Each pair consists of nonwhite-space characters.
-     * The first two ":" found in the pair string is used to separate
-     * the string into three parts. The first part is called the first
-     * key. The second part is the second key. Both parts must match
-     * an entry in the keyString1 and keyString2, respectively,
-     * in order to provide a location to
-     * place the object in the matrix.
-     * The third part is called the value. It is expected to be 
-     * a double. It is translated into a double and placed into the
-     * correct location in the matrix.
-     *
-     * Warning: No spaces are allowed in each triplet. Quotes are part
-     *          of the string.
-     *   Example
-     *         keyString = red, blue, black, green
-     *    <xmlNode> 
-     *        red:green:112    
-     *        blue:black:3.3E-23
-     *        
-     *    </xmlNode>
-     * 
-     * Returns:
-     *     retnValues(0, 3) = 112
-     *     retnValues(1, 2) = 3.3E-23
-     */
-    void getMatrixValues(const XML_Node& node,
-			 const vector<string>& keyString1,
-			 const vector<string>& keyString2,
-			 Array2D &retnValues, bool convert,
-                         bool matrixSymmetric) {
-	int szKey1 = keyString1.size();
-	int szKey2 = keyString2.size();
-	int nrow   = retnValues.nRows();
-	int ncol   = retnValues.nColumns();
-	if (szKey1 > nrow) {
-	  throw CanteraError("getMatrixValues", 
-			     "size of key1 greater than numrows");
-	}
-	if (szKey2 > ncol) {
-	  throw CanteraError("getMatrixValues", 
-			     "size of key2 greater than num cols");
-	}
-	if (matrixSymmetric) {
-	  if (nrow != ncol) {
-	    throw CanteraError("getMatrixValues", 
-			       "nrow != ncol for a symmetric matrix");
-	  }
-	}
-
-        /*
-         * Get the attributes field, units, from the XML node
-         * and determine the conversion factor, funit.
-         */
-        doublereal funit = 1.0;
-        string units = node["units"];
-        if (units != "" && convert) {
-          funit = toSI(units);
-	}
-	
-	string key1;
-	string key2;
-	string rmm;
-	string val;
-	vector<string> v;
-        getStringArray(node, v);
-	int icol, irow;
-        int n = static_cast<int>(v.size());
-	string::size_type icolon;
-        for (int i = 0; i < n; i++) {
-            icolon = v[i].find(":");
-            if (icolon == string::npos) {
-	      throw CanteraError("getMatrixValues","Missing two colons ("
-				 +v[i]+")");
-            }
-	    key1 = v[i].substr(0,icolon);
-	    rmm = v[i].substr(icolon+1, v[i].size());
-	    icolon = rmm.find(":");
-	    if (icolon == string::npos) {
-	      throw CanteraError("getMatrixValues","Missing one colon ("
-				 +v[i]+")");
-            }
-	    key2 = rmm.substr(0,icolon);
-	    val = rmm.substr(icolon+1, rmm.size());
-	    icol = -1;
-	    irow = -1;
-	    for (int j = 0; j < szKey1; j++) {
-	      if (key1 == keyString1[j]) {
-		irow = j;
-		break;
-	      }
-	    }
-	    if (irow == -1) {
-	      throw CanteraError("getMatrixValues","Row not matched by string: "
-				 + key1);		
-	    }
-	    for (int j = 0; j < szKey2; j++) {
-	      if (key2 == keyString2[j]) {
-		icol = j;
-		break;
-	      }
-	    }
-	    if (icol == -1) {
-	      throw CanteraError("getMatrixValues","Col not matched by string: "
-				 + key2);	
-	    }
-	    double dval = atofCheck(val.c_str());
-            dval *= funit;
-	    /*
-	     * Finally, insert the value;
-	     */
-	    retnValues(irow, icol) = dval;
-	    if (matrixSymmetric) {
-	      retnValues(icol, irow) = dval;
-	    }
-        }
-
+  /**
+   * This function interprets the value portion of an XML element
+   * as a series of "Matrix ids and entries" separated by white space.
+   * Each pair consists of nonwhite-space characters.
+   * The first two ":" found in the pair string is used to separate
+   * the string into three parts. The first part is called the first
+   * key. The second part is the second key. Both parts must match
+   * an entry in the keyString1 and keyString2, respectively,
+   * in order to provide a location to
+   * place the object in the matrix.
+   * The third part is called the value. It is expected to be 
+   * a double. It is translated into a double and placed into the
+   * correct location in the matrix.
+   *
+   * Warning: No spaces are allowed in each triplet. Quotes are part
+   *          of the string.
+   *   Example
+   *         keyString = red, blue, black, green
+   *    <xmlNode> 
+   *        red:green:112    
+   *        blue:black:3.3E-23
+   *        
+   *    </xmlNode>
+   * 
+   * Returns:
+   *     retnValues(0, 3) = 112
+   *     retnValues(1, 2) = 3.3E-23
+   */
+  void getMatrixValues(const XML_Node& node,
+		       const vector<string>& keyString1,
+		       const vector<string>& keyString2,
+		       Array2D &retnValues, bool convert,
+		       bool matrixSymmetric) {
+    int szKey1 = keyString1.size();
+    int szKey2 = keyString2.size();
+    int nrow   = retnValues.nRows();
+    int ncol   = retnValues.nColumns();
+    if (szKey1 > nrow) {
+      throw CanteraError("getMatrixValues", 
+			 "size of key1 greater than numrows");
     }
+    if (szKey2 > ncol) {
+      throw CanteraError("getMatrixValues", 
+			 "size of key2 greater than num cols");
+    }
+    if (matrixSymmetric) {
+      if (nrow != ncol) {
+	throw CanteraError("getMatrixValues", 
+			   "nrow != ncol for a symmetric matrix");
+      }
+    }
+
+    /*
+     * Get the attributes field, units, from the XML node
+     * and determine the conversion factor, funit.
+     */
+    doublereal funit = 1.0;
+    string units = node["units"];
+    if (units != "" && convert) {
+      funit = toSI(units);
+    }
+	
+    string key1;
+    string key2;
+    string rmm;
+    string val;
+    vector<string> v;
+    getStringArray(node, v);
+    int icol, irow;
+    int n = static_cast<int>(v.size());
+    string::size_type icolon;
+    for (int i = 0; i < n; i++) {
+      icolon = v[i].find(":");
+      if (icolon == string::npos) {
+	throw CanteraError("getMatrixValues","Missing two colons ("
+			   +v[i]+")");
+      }
+      key1 = v[i].substr(0,icolon);
+      rmm = v[i].substr(icolon+1, v[i].size());
+      icolon = rmm.find(":");
+      if (icolon == string::npos) {
+	throw CanteraError("getMatrixValues","Missing one colon ("
+			   +v[i]+")");
+      }
+      key2 = rmm.substr(0,icolon);
+      val = rmm.substr(icolon+1, rmm.size());
+      icol = -1;
+      irow = -1;
+      for (int j = 0; j < szKey1; j++) {
+	if (key1 == keyString1[j]) {
+	  irow = j;
+	  break;
+	}
+      }
+      if (irow == -1) {
+	throw CanteraError("getMatrixValues","Row not matched by string: "
+			   + key1);		
+      }
+      for (int j = 0; j < szKey2; j++) {
+	if (key2 == keyString2[j]) {
+	  icol = j;
+	  break;
+	}
+      }
+      if (icol == -1) {
+	throw CanteraError("getMatrixValues","Col not matched by string: "
+			   + key2);	
+      }
+      double dval = atofCheck(val.c_str());
+      dval *= funit;
+      /*
+       * Finally, insert the value;
+       */
+      retnValues(irow, icol) = dval;
+      if (matrixSymmetric) {
+	retnValues(icol, irow) = dval;
+      }
+    }
+
+  }
 
   static string::size_type findFirstWS(const string& val) {
     string::size_type ibegin = string::npos;
@@ -824,25 +863,25 @@ namespace ctml {
     return ibegin;  
   }
 
-    /**
-     * This function interprets the value portion of an XML element
-     * as a string. It then separates the string up into tokens
-     * according to the location of white space.
-     * The separate tokens are returned in the string vector,
-     * v.
-     */
+  /**
+   * This function interprets the value portion of an XML element
+   * as a string. It then separates the string up into tokens
+   * according to the location of white space.
+   * The separate tokens are returned in the string vector,
+   * v.
+   */
   void getStringArray(const XML_Node& node, vector<string>& v) {
     string val = node.value();
     getStringArray(val, v);
   }
 
-    /**
-     * This function interprets the value portion of an XML element
-     * as a string. It then separates the string up into tokens
-     * according to the location of white space.
-     * The separate tokens are returned in the string vector,
-     * v.
-     */
+  /**
+   * This function interprets the value portion of an XML element
+   * as a string. It then separates the string up into tokens
+   * according to the location of white space.
+   * The separate tokens are returned in the string vector,
+   * v.
+   */
   void getStringArray(const std::string& oval, vector<string>& v) {
     std::string val(oval);
     string::size_type ibegin, iend;
