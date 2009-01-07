@@ -1,14 +1,12 @@
 /**
  * @file ctml.h
- *
  * CTML ("Cantera Markup Language") is the variant of XML that Cantera uses
  * to store data. These functions read and write it. 
- * 
- * see also: importCTML, ck2ctml.
+ * (see \ref inputfiles and importCTML, ck2ctml)
  */
 
 
-/* $Author$
+/* 
  * $Revision$
  * $Date$
  */
@@ -22,6 +20,8 @@
 #include "xml.h"
 #include "Array.h"
 
+//! The ctml namespace adds functionality to the XML object, by providing
+//! standard functions that read and write and interpret XML files and object trees.
 namespace ctml {
 
   const std::string CTML_Version = "1.4.1";
@@ -32,11 +32,49 @@ namespace ctml {
 	       std::string title, 
 	       bool val);
 
-  void addInteger(Cantera::XML_Node& node, 
-		  std::string title, 
-		  int val, 
-		  std::string units="", 
-		  std::string type="");
+  //!  This function adds a child node with the name, "integer", with a value
+  //!  consisting of a single integer
+  /*!
+   *   This function will add a child node to the current XML node, with the
+   *   name "integer". It will have a title attribute, and the body
+   *   of the XML node will be filled out with a single integer
+   *
+   *  Example:
+   *
+   * Code snipet:
+   *       @verbatum
+     const XML_Node &node;
+     std::string titleString = "maxIterations";
+     int  value = 1000;
+     std::string typeString = "optional";
+     std::string units = "";
+     addInteger(node, titleString, value, typeString, units);
+     @endverbatum
+   *
+   *  Creates the following the snippet in the XML file:
+   *  @verbatum
+     <parentNode>
+       <integer title="maxIterations" type="optional">
+          100
+       <\integer>
+     <\parentNode>
+   @endverbatum
+   *
+   *   @param node          reference to the XML_Node object of the parent XML element
+   *   @param titleString   String name of the title attribute
+   *   @param value         Value - single integer
+   *   @param unitsString   String name of the Units attribute. The default is to
+   *                        have an empty string.
+   *   @param typeString    String type. This is an optional parameter. The default
+   *                        is to have an empty string.
+   *
+   * @todo I don't think this is used. Figure out what is used for writing integers,
+   *       and codify that. unitsString shouldn't be here, since it's an int.
+   *       typeString should be codified as to its usage.
+   */
+  void addInteger(Cantera::XML_Node& node, const std::string &titleString, 
+		  const int value, const std::string &unitsString="", 
+		  const std::string &typeString="");
 
   void addFloat(Cantera::XML_Node& node, 
 		std::string title, 
@@ -75,16 +113,16 @@ namespace ctml {
    *
    * Code snipet:
    *       @verbatum
-         const XML_Node &node;
-	 addString(XML_Node& node, std::string titleString, std::string valueString, 
-	           std::string typeString);
+   const XML_Node &node;
+   addString(XML_Node& node, std::string titleString, std::string valueString, 
+   std::string typeString);
    @endverbatum
    *
    *  Creates the following the snippet in the XML file:
    *  @verbatum
-     <string title="titleString" type="typeString">
-        valueString
-     <\string>
+   <string title="titleString" type="typeString">
+   valueString
+   <\string>
    @endverbatum
    *
    *   @param node          reference to the XML_Node object of the parent XML element
@@ -153,18 +191,18 @@ namespace ctml {
    *
    * Code snipet:
    *       @verbatum
-         const XML_Node &State_XMLNode;
-         doublereal pres = OneAtm;
-         if (state_XMLNode.hasChild("pressure")) {
-           pres = getFloat(State_XMLNode, "pressure", "toSI");
-         }
+   const XML_Node &State_XMLNode;
+   doublereal pres = OneAtm;
+   if (state_XMLNode.hasChild("pressure")) {
+   pres = getFloat(State_XMLNode, "pressure", "toSI");
+   }
    @endverbatum
    *
    *  reads the corresponding XML file:
    *  @verbatum
-     <state>
-        <pressure units="Pa"> 101325.0 </pressure>
-     <\state>
+   <state>
+   <pressure units="Pa"> 101325.0 </pressure>
+   <\state>
    @endverbatum
    *
    *   @param parent reference to the XML_Node object of the parent XML element
@@ -187,18 +225,18 @@ namespace ctml {
    *
    * Code snipet:
    *       @verbatum
-         const XML_Node &State_XMLNode;
-         doublereal pres = OneAtm;
-         if (state_XMLNode.hasChild("pressure")) {
-           pres = getFloatDefaultUnits(State_XMLNode, "pressure", "Pa", "toSI");
-         }
+   const XML_Node &State_XMLNode;
+   doublereal pres = OneAtm;
+   if (state_XMLNode.hasChild("pressure")) {
+   pres = getFloatDefaultUnits(State_XMLNode, "pressure", "Pa", "toSI");
+   }
    @endverbatum
    *
    *  reads the corresponding XML file:
    *  @verbatum
-     <state>
-        <pressure units="Pa"> 101325.0 </pressure>
-     <\state>
+   <state>
+   <pressure units="Pa"> 101325.0 </pressure>
+   <\state>
    @endverbatum
    *
    *   @param parent reference to the XML_Node object of the parent XML element
@@ -223,18 +261,18 @@ namespace ctml {
    *
    * Code snipet:
    *       @verbatum
-         const XML_Node &State_XMLNode;
-         int number = 1;
-         if (state_XMLNode.hasChild("NumProcs")) {
-           number = getInteger(State_XMLNode, "numProcs");
-         }
+   const XML_Node &State_XMLNode;
+   int number = 1;
+   if (state_XMLNode.hasChild("NumProcs")) {
+   number = getInteger(State_XMLNode, "numProcs");
+   }
    @endverbatum
    *
    *  reads the corresponding XML file:
    *  @verbatum
-     <state>
-        <numProcs> 10 <numProcs/>
-     <\state>
+   <state>
+   <numProcs> 10 <numProcs/>
+   <\state>
    @endverbatum
    *
    *   @param parent reference to the XML_Node object of the parent XML element
@@ -260,16 +298,16 @@ namespace ctml {
    *
    * Code snipet:
    *       @verbatum
-         const XML_Node &node;
-	 getString(XML_Node& node, std::string titleString, std::string valueString, 
-	           std::string typeString);
+   const XML_Node &node;
+   getString(XML_Node& node, std::string titleString, std::string valueString, 
+   std::string typeString);
    @endverbatum
    *
    *  Reads the following the snippet in the XML file:
    *  @verbatum
-     <string title="titleString" type="typeString">
-        valueString
-     <\string>
+   <string title="titleString" type="typeString">
+   valueString
+   <\string>
    @endverbatum
    *
    *   @param node          reference to the XML_Node object of the parent XML element
@@ -287,10 +325,10 @@ namespace ctml {
    *  
    * Code snipet:
    *       @verbatum
-         const XML_Node &parent;
-	 string nameString = "vacency_species";
-	 string valueString = getChildValue(parent, nameString
-	           std::string typeString);
+   const XML_Node &parent;
+   string nameString = "vacency_species";
+   string valueString = getChildValue(parent, nameString
+   std::string typeString);
    @endverbatum
    *
    *  returns valueString = "O(V)"
@@ -298,9 +336,9 @@ namespace ctml {
    *  from the following the snippet in the XML file:
    *
    *  @verbatum
-     <vacencySpecies>
-        O(V)
-     <\vancencySpecies>
+   <vacencySpecies>
+   O(V)
+   <\vancencySpecies>
    @endverbatum
    *
    *   @param parent     parent reference to the XML_Node object of the parent XML element

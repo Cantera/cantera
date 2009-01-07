@@ -42,8 +42,44 @@ namespace ctml {
         f.addAttribute("title",title);
     }
 
-    void addInteger(XML_Node& node, string title, int val, 
-        string units, string type) {
+  //  This function adds a child node with the name, "integer", with a value
+  //  consisting of a single integer
+  /*
+   *   This function will add a child node to the current XML node, with the
+   *   name "integer". It will have a title attribute, and the body
+   *   of the XML node will be filled out with a single integer
+   *
+   *  Example:
+   *
+   * Code snipet:
+   *       @verbatum
+         const XML_Node &node;
+	 std::string titleString = "maxIterations";
+	 int  value = 1000;
+	 std::string typeString = "optional";
+	 std::string units = "";
+         addInteger(node, titleString, value, typeString, units);
+   @endverbatum
+   *
+   *  Creates the following the snippet in the XML file:
+   *  @verbatum
+     <parentNode>
+       <integer title="maxIterations" type="optional">
+          100
+       <\integer>
+     <\parentNode>
+   @endverbatum
+   *
+   *   @param node          reference to the XML_Node object of the parent XML element
+   *   @param titleString   String name of the title attribute
+   *   @param value         Value - single integer
+   *   @param unitsString   String name of the Units attribute. The default is to
+   *                        have an empty string.
+   *   @param typeString    String type. This is an optional parameter. The default
+   *                        is to have an empty string.
+   */
+    void addInteger(XML_Node& node, const string &title, const int val, 
+                    const std::string &units, const std::string &type) {
         XML_Node& f = node.addChild("integer",val);
         f.addAttribute("title",title);
         if (type != "") f.addAttribute("type",type);

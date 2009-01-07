@@ -15,7 +15,7 @@
  *     -  HTML_logs   (see \ref HTML_logs)
  */
 
-/* $Author$
+/* 
  * $Revision$
  * $Date$
  */
