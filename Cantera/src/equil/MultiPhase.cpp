@@ -901,15 +901,12 @@ namespace Cantera {
     return m_temp_OK[p];
   }
 
-  //-------------------------------------------------------------
-  //
-  // protected methods
-  //
-  //-------------------------------------------------------------
-
-
   /// Update the locally-stored species mole fractions. 
   void MultiPhase::updateMoleFractions() {
+    uploadMoleFractionsFromPhases();
+  }
+  /// Update the locally-stored species mole fractions. 
+  void MultiPhase::uploadMoleFractionsFromPhases() {
     index_t ip, loc = 0;
     for (ip = 0; ip < m_np; ip++) {
       phase_t* p = m_phase[ip];
@@ -918,6 +915,13 @@ namespace Cantera {
     }
     calcElemAbundances();
   }
+
+  //-------------------------------------------------------------
+  //
+  // protected methods
+  //
+  //-------------------------------------------------------------
+
 
 
   /// synchronize the phase objects with the mixture state. This

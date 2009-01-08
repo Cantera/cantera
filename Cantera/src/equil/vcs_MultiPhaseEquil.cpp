@@ -647,7 +647,7 @@ namespace VCSnonideal {
     * phases actually contain information about likely reemergent
     * states.
     */
-   m_mix->updateMoleFractions();
+   m_mix->uploadMoleFractionsFromPhases();
    int kGlob = 0;
    for (int ip = 0; ip < m_vprob->NPhase; ip++) {
      double phaseMole = 0.0;

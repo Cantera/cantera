@@ -2,12 +2,16 @@
  * @file MultiPhase.h
  * Headers for the \link Cantera::MultiPhase MultiPhase\endlink 
  * object that is used to set up multiphase equilibrium problems (see \ref equilfunctions).
- *
  */
+
 /*
  *  $Date$
  *  $Revision$
  */
+
+//  Copyright 2004  California Institute of Technology
+
+
 #ifndef CT_MULTIPHASE_H
 #define CT_MULTIPHASE_H
 
@@ -20,6 +24,20 @@ namespace Cantera {
   //! A class for multiphase mixtures. The mixture can contain any
   //! number of phases of any type. 
   /*!
+   *   This object is the basic tool used by Cantera for use in
+   *   Multiphase equilibrium calculations. 
+   *
+   *   It is a container for a set of phases. Each phase has a 
+   *   given number of kmoles. Therefore, MultiPhase may be considered
+   *   an "extrinsic" thermodynamic object, in contrast to the ThermoPhase
+   *   object, which is an "intrinsic" thermodynamic object.
+   *
+   *   MultiPhase may be considered to be "upstream" of the ThermoPhase
+   *   objects in the sense that setting a property within MultiPhase,
+   *   such as temperature, pressure, or species mole number,
+   *   affects the underlying ThermoPhase object, but not the 
+   *   other way around. 
+   *
    *    All phases have the same
    *    temperature and pressure, and a specified number of moles for
    *    each phase.
@@ -28,9 +46,6 @@ namespace Cantera {
    *    C, O, N), a solid carbon phase containing only element C,
    *    etc. A master element set will be constructed for the mixture
    *    that is the intersection of the elements of each phase.
-   *
-   *   This object is the basic tool used by Cantera for use in
-   *   Multiphase equilibrium calculations. 
    *
    *   Below, reference is made to global species and global elements.
    *   These refer to the collective species and elements encompassing
@@ -63,13 +78,19 @@ namespace Cantera {
     //! Shorthand for a vector of pointers to ThermoPhase's
     typedef std::vector<phase_t*> phase_list;
 
-    /// Constructor. The constructor takes no arguments, since
-    /// phases are added using method addPhase.
+    //! Constructor.
+    /*!
+     *   The constructor takes no arguments, since
+     *   phases are added using method addPhase().
+     */
     MultiPhase();
 
-    /// Destructor. Does nothing. Class MultiPhase does not take
-    /// "ownership" (i.e. responsibility for destroying) the
-    /// phase objects.
+    //! Destructor.
+    /*!
+     *  Does nothing. Class MultiPhase does not take
+     *  "ownership" (i.e. responsibility for destroying) the
+     *   phase objects.
+     */
     virtual ~MultiPhase() {}
 
     //! Add a vector of phases to the mixture
@@ -475,20 +496,60 @@ namespace Cantera {
 
     // These methods are meant for internal use.
 
-    /// update the locally-stored composition to match the current
-    /// compositions of the phase objects.
+    //! Update the locally-stored composition within this object
+    //! to match the current compositions of the phase objects.
+    /*!
+     *
+     *  @deprecated  'update' is confusing within this context.
+     *               Switching to the terminology 'uploadFrom'
+     *               and 'downloadTo'. uploadFrom means to
+     *               query the underlying ThermoPhase objects and 
+     *               fill in the resulting information within
+     *               this object. downloadTo means to take information
+     *               from this object and put it into the underlying
+     *               ThermoPhase objects.
+     *               switch to uploadMoleFractionsFromPhases();
+     */
     void updateMoleFractions();
 
-  protected:
-    /// Set the states of the phase objects to the locally-stored
-    /// state.  Note that if individual phases have T and P different
-    /// than that stored locally, the phase T and P will be modified.
+    //! Update the locally-stored composition within this object
+    //! to match the current compositions of the phase objects.
+    /*!
+     *    Query the underlying ThermoPhase objects for their moel
+     *    fractions and fill in the mole fraction vector of this
+     *    current object. Adjust element compositions within this
+     *    object to match.
+     *
+     *    This is an upload operation in the sense that we are taking
+     *    downstream information (ThermoPhase object info) and
+     *    applying it to an upstream object (MultiPhase object).
+     */
+    void uploadMoleFractionsFromPhases();
+
+  private:
+
+    //! Set the states of the phase objects to the locally-stored
+    //! state within this MultiPhase object.
+    /*!
+     *
+     *  Note that if individual phases have T and P different
+     *  than that stored locally, the phase T and P will be modified.
+     *
+     *    This is an download operation in the sense that we are taking
+     *    upstream object information (MultiPhase object) and
+     *    applying it to downstrean objects (ThermoPhase object information)
+     *
+     *    Therefore, the term, "update", is appropriate for a downstream
+     *    operation.
+     */
     void updatePhases() const;
 
     //! Calculate the element abundance vector
     void calcElemAbundances() const;
-    /**
-     * Vector of the number of moles in each phase.
+
+
+    //! Vector of the number of moles in each phase.
+    /*!
      * Length = m_np, number of phases.
      */
     vector_fp m_moles;
