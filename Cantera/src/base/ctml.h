@@ -24,9 +24,13 @@
 //! standard functions that read and write and interpret XML files and object trees.
 namespace ctml {
 
+  //! const Specifying the CTML version number
+  /*!
+   * @todo Codify what the CTML_Version number means.
+   */
   const std::string CTML_Version = "1.4.1";
 
-  bool isBuiltin(std::string nm);
+  // bool isBuiltin(std::string nm);
 
   //!  This function adds a child node with the name, "bool", with a value
   //!  consisting of a single bool
@@ -145,6 +149,12 @@ namespace ctml {
    *                        have an empty string.
    *   @param typeString    String type. This is an optional parameter. The default
    *                        is to have an empty string.
+   *   @param minval        Minimum allowed value of the float. The default is the
+   *                        special double, Cantera::Undef, which means to ignore the
+   *                        entry.
+   *   @param maxval        Maximum allowed value of the float. The default is the
+   *                        special double, Cantera::Undef, which means to ignore the
+   *                        entry.
    *
    * @todo I don't think this is used. Figure out what is used for writing floats,
    *       and codify that. minval and maxval should be codified.
@@ -155,23 +165,121 @@ namespace ctml {
 		const std::string typeString="", const doublereal minval = Cantera::Undef,
 		const doublereal maxval = Cantera::Undef);
 
-  void addIntegerArray(Cantera::XML_Node& node, 
-		       std::string title, 
-		       int n, 
-		       const int* vals, 
-		       std::string units="", 
-		       std::string type="",
-		       doublereal minval=Cantera::Undef, 
-		       doublereal maxval=Cantera::Undef);
+  //!  This function adds a child node with the name, "intArray", with a value
+  //!  consisting of a comma separated list of integers
+  /*!
+   *   This function will add a child node to the current XML node, with the
+   *   name "intArray". It will have a title attribute, and the body
+   *   of the XML node will be filled out with a comma separated list of
+   *   integers
+   *
+   *  Example:
+   *
+   * Code snipet:
+   *       @verbatum
+     const XML_Node &node;
+     std::string titleString = "additionalCases";
+     int  n = 3;
+     int cases[3] = [3, 6, 10];
+     std::string typeString = "optional";
+     std::string units = "";
+     addIntegerArray(node, titleString, n, &cases[0], typeString, units);
+     @endverbatum
+   *
+   *  Creates the following the snippet in the XML file:
+   *  @verbatum
+     <parentNode>
+       <intArray title="additionalCases" type="optional">
+          3, 6, 10
+       <\intArray>
+     <\parentNode>
+   @endverbatum
+   *
+   *   @param node          reference to the XML_Node object of the parent XML element
+   *   @param titleString   String name of the title attribute
+   *   @param n             Length of the integer vector.
+   *   @param values        Pointer to a vector of integers
+   *   @param unitsString   String name of the Units attribute. This is an optional 
+   *                        parameter. The default is to
+   *                        have an empty string.
+   *   @param typeString    String type. This is an optional parameter. The default
+   *                        is to have an empty string.
+   *   @param minval        Minimum allowed value of the int. This is an optional
+   *                        parameter. The default is the
+   *                        special double, Cantera::Undef, which means to ignore the
+   *                        entry.
+   *   @param maxval        Maximum allowed value of the int. This is an optional
+   *                        parameter. The default is the
+   *                        special double, Cantera::Undef, which means to ignore the
+   *                        entry.
+   *
+   * @todo I don't think this is used. Figure out what is used for writing integers,
+   *       and codify that. unitsString shouldn't be here, since it's an int.
+   *       typeString should be codified as to its usage.
+   */
+  void addIntegerArray(Cantera::XML_Node& node, const std::string &titleString, 
+		       const int n, const int* const values, 
+		       const std::string unitsString="", const std::string typeString="",
+		       const doublereal minval=Cantera::Undef, 
+		       const doublereal maxval=Cantera::Undef);
 
-  void addFloatArray(Cantera::XML_Node& node, 
-		     std::string title, 
-		     int n, 
-		     const double* vals, 
-		     std::string units="", 
-		     std::string type="",
-		     doublereal minval = Cantera::Undef,
-		     doublereal maxval = Cantera::Undef);
+  //!  This function adds a child node with the name, "floatArray", with a value
+  //!  consisting of a comma separated list of floats
+  /*!
+   *   This function will add a child node to the current XML node, with the
+   *   name "floatArray". It will have a title attribute, and the body
+   *   of the XML node will be filled out with a comma separated list of
+   *   integers
+   *
+   *  Example:
+   *
+   * Code snipet:
+   *       @verbatum
+     const XML_Node &node;
+     std::string titleString = "additionalTemperatures";
+     int  n = 3;
+     int Tcases[3] = [273.15, 298.15, 373.15];
+     std::string typeString = "optional";
+     std::string units = "Kelvin";
+     addFloatArray(node, titleString, n, &cases[0], typeString, units);
+     @endverbatum
+   *
+   *  Creates the following the snippet in the XML file:
+   *  @verbatum
+     <parentNode>
+       <floatArray title="additionalTemperatures" type="optional" units="Kelvin">
+          273.15, 298.15, 373.15
+       <\floatArray>
+     <\parentNode>
+   @endverbatum
+   *
+   *   @param node          reference to the XML_Node object of the parent XML element
+   *   @param titleString   String name of the title attribute
+   *   @param n             Length of the doubles vector.
+   *   @param values        Pointer to a vector of doubles
+   *   @param unitsString   String name of the Units attribute. This is an optional 
+   *                        parameter. The default is to
+   *                        have an empty string.
+   *   @param typeString    String type. This is an optional parameter. The default
+   *                        is to have an empty string.
+   *   @param minval        Minimum allowed value of the int. This is an optional
+   *                        parameter. The default is the
+   *                        special double, Cantera::Undef, which means to ignore the
+   *                        entry.
+   *   @param maxval        Maximum allowed value of the int. This is an optional
+   *                        parameter. The default is the
+   *                        special double, Cantera::Undef, which means to ignore the
+   *                        entry.
+   *
+   * @todo I don't think this is used. Figure out what is used for writing integers,
+   *       and codify that. unitsString shouldn't be here, since it's an int.
+   *       typeString should be codified as to its usage.
+   */
+  void addFloatArray(Cantera::XML_Node& node,  const std::string &titleString, 
+		     const int n,  const doublereal* const values, 
+		     const std::string unitsString="", const std::string typeString="",
+		     const doublereal minval = Cantera::Undef,
+		     const doublereal maxval = Cantera::Undef);
 
   //!  This function adds a child node with the name string with a string value
   //!  to the current node
@@ -192,7 +300,7 @@ namespace ctml {
    *  Creates the following the snippet in the XML file:
    *  @verbatum
    <string title="titleString" type="typeString">
-   valueString
+     valueString
    <\string>
    @endverbatum
    *
@@ -201,8 +309,8 @@ namespace ctml {
    *   @param titleString   String name of the title attribute
    *   @param typeString    String type. This is an optional parameter.
    */
-  void addString(Cantera::XML_Node& node,  std::string titleString, 
-		 std::string valueString, std::string typeString="");
+  void addString(Cantera::XML_Node& node,  const std::string &titleString, 
+		 const std::string &valueString, const std::string typeString="");
 
   void getFloatArray(const Cantera::XML_Node& node, Cantera::vector_fp& v, 
 		     bool convert=true, std::string type="",
