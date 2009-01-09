@@ -1,15 +1,11 @@
 #include "ct_defs.h"
 #include "Integrator.h"
 
-#define NO_SUNDIALS
-#ifdef NO_SUNDIALS
-#undef HAS_SUNDIALS
-#endif
 
 #ifdef HAS_SUNDIALS
-#include "CVodesIntegrator.cpp"
+#include "CVodesIntegrator.h"
 #else
-#include "CVode.cpp"
+#include "CVode.h"
 #endif
 
 namespace Cantera {
