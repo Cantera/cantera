@@ -361,11 +361,13 @@ namespace ctml {
     if (typeString != "") f.addAttribute("type", typeString);        
   }
 
-  XML_Node* getByTitle(XML_Node& node, string title) {
-    XML_Node* s = node.findByAttr("title",title);
+  XML_Node* getByTitle(const Cantera::XML_Node& node, const std::string &title) {
+    XML_Node* s = node.findByAttr("title", title);
     if (!s) return 0;
-    if (s->parent() == &node) return s;
-    else return 0;
+    if (s->parent() == &node) {
+      return s;
+    }
+    return 0;
   }
 
   //  This function reads a child node with the name string and returns
@@ -420,7 +422,7 @@ namespace ctml {
    *  Reads the following the snippet in the XML file:
    *  @verbatum
    <string title="titleString" type="typeString">
-   valueString
+     valueString
    <\string>
    @endverbatum
    *
@@ -429,7 +431,7 @@ namespace ctml {
    *   @param valueString   Value string that is found in the child node. output variable
    *   @param typeString    String type. This is an optional output variable
    */
-  void getString(Cantera::XML_Node& node, const std::string &titleString, std::string& valueString, 
+  void getString(const Cantera::XML_Node& node, const std::string &titleString, std::string& valueString, 
 		 std::string& typeString) {
     valueString = "";
     typeString = "";
@@ -441,13 +443,54 @@ namespace ctml {
 	return;
       }
   }
-  
-  void getIntegers(const Cantera::XML_Node& node, map<string,int>& v) {
-    vector<XML_Node*> f;
+
+
+  //  Get a vector of integer values from a child element. 
+  /* 
+   *  Returns a std::map containing a keyed values for child XML_Nodes
+   *  of the current node with the name, "integer". 
+   *  In the keyed mapping there will be a list of titles vs. values
+   *  for all of the XML nodes. 
+   *  The integer XML_nodes are expected to be in a particular form created
+   *  by the function addInteger(). One value per XML_node is expected.
+   *  
+   *
+   *  Example:  
+   *
+   * Code snipet:
+   *       @verbatum
+     const XML_Node &State_XMLNode;
+     std::map<std::string, integer> v;
+     getinteger(State_XMLNode, v);
+   @endverbatum
+   *
+   *  reads the corresponding XML file:
+   *
+   *  @verbatum
+   <state>
+     <integer title="i1">   1  <\integer>
+     <integer title="i2">   2  <\integer>
+     <integer title="i3">   3  <\integer>
+   <\state>
+   @endverbatum
+   *
+   *  Will produce the mapping:
+   *
+   *         v["i1"] = 1
+   *         v["i2"] = 2
+   *         v["i3"] = 3
+   *
+   *
+   *   @param node     Current XML node to get the values from
+   *   @param v        Output map of the results.
+   */
+  void getIntegers(const Cantera::XML_Node& node,
+		   std::map<std::string, int>& v) {
+    std::vector<XML_Node*> f;
     node.getChildren("integer",f);
     int n = static_cast<int>(f.size());
     integer x, x0, x1;
-    string typ, title, vmin, vmax;
+    std::string typ, title, vmin, vmax;
     for (int i = 0; i < n; i++) {
       const XML_Node& fi = *(f[i]);
       x = atoi(fi().c_str());
@@ -463,14 +506,54 @@ namespace ctml {
   }
 
 
-  
-
-  void getFloats(const Cantera::XML_Node& node, map<string,double>& v, bool convert) {
-    vector<XML_Node*> f;
+  //  Get a vector of floating-point values from a child element. 
+  /* 
+   *  Returns a std::map containing a keyed values for child XML_Nodes
+   *  of the current node with the name, "float". 
+   *  In the keyed mapping there will be a list of titles vs. values
+   *  for all of the XML nodes. 
+   *  The float XML_nodes are expected to be in a particular form created
+   *  by the function addFloat(). One value per XML_node is expected.
+   *  
+   *
+   *  Example:  
+   *
+   * Code snipet:
+   *       @verbatum
+     const XML_Node &State_XMLNode;
+     std::map<std::string,double> v;
+     bool convert = true;
+     getFloats(State_XMLNode, v, convert);
+   @endverbatum
+   *
+   *  reads the corresponding XML file:
+   *
+   *  @verbatum
+   <state>
+     <float title="a1" units="m3">   32.4 <\float>
+     <float title="a2" units="cm3">   1.  <\float>
+     <float title="a3">             100.  <\float>
+   <\state>
+   @endverbatum
+   *
+   *  Will produce the mapping:
+   *
+   *         v["a1"] = 32.4
+   *         v["a2"] = 1.0E-6
+   *         v["a3"] = 100.
+   *
+   *
+   *   @param node     Current XML node to get the values from
+   *   @param v        Output map of the results.
+   *   @param convert  Turn on conversion to SI units
+   */
+  void getFloats(const Cantera::XML_Node& node, std::map<std::string, double>& v,
+		 const bool convert) {
+    std::vector<XML_Node*> f;
     node.getChildren("float",f);
     int n = static_cast<int>(f.size());
     doublereal x, x0, x1, fctr;
-    string typ, title, units, vmin, vmax;
+    std::string typ, title, units, vmin, vmax;
     for (int i = 0; i < n; i++) {
       const XML_Node& fi = *(f[i]);
       x = atof(fi().c_str());
