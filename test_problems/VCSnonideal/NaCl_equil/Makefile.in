@@ -68,7 +68,6 @@ CANTERA_LIBDEP = \
      $(CANTERA_LIBDIR)/libtpx.a \
      $(CANTERA_LIBDIR)/libconverters.a \
      $(CANTERA_LIBDIR)/libctbase.a \
-     $(CANTERA_LIBDIR)/libcvode.a \
      $(CANTERA_LIBDIR)/libctlapack.a \
      $(CANTERA_LIBDIR)/libctblas.a \
      $(CANTERA_LIBDIR)/libctcxx.a 
