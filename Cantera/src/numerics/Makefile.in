@@ -54,7 +54,7 @@ TOTAL_OBJ = $(NUMERICS_OBJ) $(ODEPACKAGE_OBJ)
 
 TTOTAL_H  = $(NUMERICS_H) CVode.h CVodesIntegrator.h
 
-CXX_INCLUDES = -I../base 
+CXX_INCLUDES = -I../base  $(SUNDIALS_INC)
 LIB = @buildlib@/libctnumerics.a
 
 DEPENDS = $(TOTAL_OBJ:.o=.d)
