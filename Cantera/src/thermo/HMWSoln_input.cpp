@@ -731,6 +731,8 @@ namespace Cantera {
       }
     }
   }
+
+
    
   /**
    * Process an XML node called "LambdaNeutral". 
@@ -895,7 +897,111 @@ namespace Cantera {
     }
   }
 
+  /*
+   * Process an XML node called "readXMLZetaCation". 
+   * This node contains all of the parameters necessary to describe
+   * the ternary interactions between a neutral, a cation and an anion
+   */
+  void HMWSoln::readXMLZetaCation(XML_Node &BinSalt) {
+    string xname = BinSalt.name();
+    if (xname != "zetaCation") {
+      throw CanteraError("HMWSoln::readXMLZetaCation",
+			 "Incorrect name for processing this routine: " + xname);
+    }
+    double *charge = DATA_PTR(m_speciesCharge);
+    string stemp;
+    vector_fp vParams;
+    int nParamsFound = 0;
+    
+    string iName = BinSalt.attrib("neutral");
+    if (iName == "") {
+      throw CanteraError("HMWSoln::readXMLZetaCation", "no neutral attrib");
+    }
+  
+    string jName = BinSalt.attrib("cation1");
+    if (jName == "") {
+      throw CanteraError("HMWSoln::readXMLZetaCation", "no cation1 attrib");
+    }
 
+    string kName = BinSalt.attrib("anion1");
+    if (kName == "") {
+      throw CanteraError("HMWSoln::readXMLZetaCation", "no anion1 attrib");
+    }
+    /*
+     * Find the index of the species in the current phase. It's not
+     * an error to not find the species
+     */
+    int iSpecies = speciesIndex(iName);
+    if (iSpecies < 0) {
+      return;
+    }
+    if (charge[iSpecies] != 0.0) {
+      throw CanteraError("HMWSoln::readXMLZetaCation",  "neutral charge problem");
+    }
+ 
+    int jSpecies = speciesIndex(jName);
+    if (jSpecies < 0) {
+      return;
+    }
+    if (charge[jSpecies] <= 0.0) {
+      throw CanteraError("HMWSoln::readXLZetaCation", "cation1 charge problem");
+    }
+
+    int kSpecies = speciesIndex(kName);
+    if (kSpecies < 0) {
+      return;
+    }
+    if (charge[kSpecies] >= 0.0) {
+      throw CanteraError("HMWSoln::readXMLZetaCation", "anion1 charge problem");
+    }
+ 
+    int num = BinSalt.nChildren();
+    for (int i = 0; i < num; i++) {
+      XML_Node &xmlChild = BinSalt.child(i);
+      stemp = xmlChild.name();
+      string nodeName = lowercase(stemp);
+      if (nodeName == "zeta") {
+	getFloatArray(xmlChild, vParams, false, "", "zeta");
+	nParamsFound = vParams.size();
+	int n = iSpecies * m_kk *m_kk + jSpecies * m_kk + kSpecies ;
+
+	if (m_formPitzerTemp == PITZER_TEMP_CONSTANT) {
+	  if (nParamsFound != 1) {
+	    throw CanteraError("HMWSoln::readXMLZetaCation::Zeta for "
+			       + iName + "::" + jName + "::" + kName,
+			       "wrong number of params found");
+	  }
+	  m_Psi_ijk_coeff(0,n) = vParams[0];
+	  m_Psi_ijk[n] = vParams[0];
+	} else  if (m_formPitzerTemp == PITZER_TEMP_LINEAR) {
+	  if (nParamsFound != 2) {
+	    throw CanteraError("HMWSoln::readXMLZetaCation::Zeta for "
+			       + iName + "::" + jName + "::" + kName,
+			       "wrong number of params found");
+	  }
+	  m_Psi_ijk_coeff(0,n) = vParams[0];
+	  m_Psi_ijk_coeff(1,n) = vParams[1];
+	  m_Psi_ijk[n]         = vParams[0];
+	} else  if (m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
+	  if (nParamsFound == 1) {
+	    vParams.resize(5, 0.0);
+	    nParamsFound = 5;
+	  } else if (nParamsFound != 5) {
+	    throw CanteraError("HMWSoln::readXMLZetaCation::Zeta for "
+			       + iName + "::" + jName + "::" + kName,
+			       "wrong number of params found");
+	  }
+	  for (i = 0; i < nParamsFound; i++) {
+	    m_Psi_ijk_coeff(i, n) = vParams[i];
+	  }
+	  m_Psi_ijk[n] = vParams[0];
+	}
+
+	// There are no duplicate entries
+      }
+    }
+  }
+   
 
 
   /*
@@ -1435,6 +1541,8 @@ namespace Cantera {
 	    readXMLPsiCommonCation(xmlACChild);
 	  } else if (nodeName == "lambdaneutral") {
 	    readXMLLambdaNeutral(xmlACChild);
+	  } else if (nodeName == "zetacation") {
+	    readXMLZetaCation(xmlACChild);
 	  }
 	}
       }

@@ -3403,6 +3403,16 @@ namespace Cantera {
      */
     void readXMLMunnnNeutral(XML_Node &BinSalt);
 
+    //! Process an XML node called "zetaCation"
+    /*!
+     * This node contains all of the parameters necessary to describe
+     * the ternary interactions between one neutral, one cation, and one anion.
+     *
+     * @param BinSalt  reference to the XML_Node named psiCommonCation
+     *                 containing the
+     *                 neutral - cation - anion interaction
+     */
+    void readXMLZetaCation(XML_Node &BinSalt);
 
     //! Precalculate the IMS Cutoff parameters for typeCutoff = 2
     void  calcIMSCutoffParams_();
