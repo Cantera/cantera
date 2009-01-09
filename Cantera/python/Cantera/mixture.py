@@ -175,21 +175,21 @@ class Mixture:
         """The minimum temperature for which all species in
         multi-species solutions have valid thermo data. Stoichiometric
         phases are not considered in determining minTemp.  """
-        return _cantera.mix_minTemp(self._mixid)
+        return _cantera.mix_minTemp(self.__mixid)
     
     def maxTemp(self):
         """The maximum temperature for which all species in
         multi-species solutions have valid thermo data. Stoichiometric
         phases are not considered in determining maxTemp.  """        
-        return _cantera.mix_maxTemp(self._index)
+        return _cantera.mix_maxTemp(self.__mixid)
     
     def charge(self):
         """The total charge in Coulombs, summed over all phases."""
-        return _cantera.mix_charge(self._index)
+        return _cantera.mix_charge(self.__mixid)
     
     def phaseCharge(self, p):
         """The charge of phase p (Coulombs)."""
-        return _cantera.mix_phaseCharge(self._index, p)
+        return _cantera.mix_phaseCharge(self.__mixid, p)
     
     def setPressure(self, p):
         """Set the pressure [Pa]. The pressures of all phases are set
