@@ -125,7 +125,7 @@ namespace ctml {
    *       @verbatum
      const XML_Node &node;
      std::string titleString = "activationEnergy";
-     double  value = 50.3;
+     doublereal  value = 50.3;
      doublereal maxval = 1.0E3;
      doublereal minval = 0.0;
      std::string typeString = "optional";
@@ -229,7 +229,7 @@ namespace ctml {
    *   This function will add a child node to the current XML node, with the
    *   name "floatArray". It will have a title attribute, and the body
    *   of the XML node will be filled out with a comma separated list of
-   *   integers
+   *   doublereals.
    *
    *  Example:
    *
@@ -312,12 +312,93 @@ namespace ctml {
   void addString(Cantera::XML_Node& node,  const std::string &titleString, 
 		 const std::string &valueString, const std::string typeString="");
 
+
+  //!  This function reads a child node with the default name, "floatArray", with a value
+  //!  consisting of a comma separated list of floats
+  /*!
+   *   This function will read a child node to the current XML node, with the
+   *   name "floatArray". It will have a title attribute, and the body
+   *   of the XML node will be filled out with a comma separated list of
+   *   doublereals.
+   *     Get an array of floats from the XML Node. The argument field
+   *   is assumed to consist of an arbitrary number of comma
+   *   separated floats, with an arbitrary amount of white space
+   *   separating each field.
+   *      If the node array has an units attribute field, then
+   *   the units are used to convert the floats, iff convert is true.
+   *
+   *  Example:  
+   *
+   * Code snipet:
+   *       @verbatum
+     const XML_Node &State_XMLNode;
+     vector_fp v;
+     bool convert = true;
+     unitsString = "";
+     nodeName="floatArray";
+     getFloatArray(State_XMLNode, v, convert, unitsString, nodeName);
+   @endverbatum
+   *
+   *  reads the corresponding XML file:
+   *
+   *  @verbatum
+   <state>
+     <floatArray  units="m3">   32.4, 1, 100. <\floatArray>
+   <\state>
+   @endverbatum
+   *
+   *  Will produce the vector
+   *
+   *         v[0] = 32.4
+   *         v[1] = 1.0
+   *         v[2] = 100.
+   *
+   *
+   *   @param  node         XML parent node of the floatArray
+   *   @param  v            Output vector of floats containing the floatArray information.
+   *   @param  convert      Conversion to SI is carried out if this boolean is
+   *                        True. The default is true.
+   *   @param  typeString   String name of the type attribute. This is an optional 
+   *                        parameter. The default is to have an empty string.
+   *                        The only string that is recognized is actEnergy. 
+   *                        Anything else has no effect. This affects what
+   *                        units converter is used.
+   *   @param  nodeName     XML Name of the XML node to read. 
+   *                        The default value for the node name is floatArray
+   */
   void getFloatArray(const Cantera::XML_Node& node, Cantera::vector_fp& v, 
-		     bool convert=true, std::string type="",
-		     std::string nodeName = "floatArray");
+		     const bool convert=true, const std::string typeString="",
+		     const std::string nodeName = "floatArray");
+
+
 
   void getStringArray(const Cantera::XML_Node& node, std::vector<std::string>& v);
+
+
+
+  //! This function  separates a string up into tokens
+  //! according to the location of white space.
+  /*!
+   *    The separate tokens are returned in a string vector, v.
+   *
+   *  @param val   String to be broken up
+   *  @param v     Output vector of tokens.
+   */
   void getStringArray(const std::string& val, std::vector<std::string>& v);
+
+ /**
+   * This routine is used to interpret the value portions of XML
+   * elements that contain colon separated pairs. These are used,
+   * for example, in describing the element composition of species.
+   *       <atomArray> H:4 C:1 <atomArray\>
+   * The string is first separated into a string vector according
+   * to the location of white space. Then each string is again
+   * separated into two parts according to the location of a
+   * colon in the string. The first part of the string is
+   * used as the key, while the second part of the string is
+   * used as the value, in the return map.
+   * It is an error to not find a colon in each string pair.
+   */
   void getMap(const Cantera::XML_Node& node, std::map<std::string, std::string>& m);
 
   //! This function interprets the value portion of an XML element
@@ -397,7 +478,7 @@ namespace ctml {
 
   //!  Get a floating-point value from a child element. 
   /*! 
-   *  Returns a double value for the child named 'name' of element 'parent'. If
+   *  Returns a doublereal value for the child named 'name' of element 'parent'. If
    *  'type' is supplied and matches a known unit type, unit
    *  conversion to SI will be done if the child element has an attribute
    *  'units'.
@@ -478,7 +559,7 @@ namespace ctml {
 
   //!  Get a floating-point value from a child element with a defined units field
   /*! 
-   *  Returns a double value for the child named 'name' of element 'parent'.
+   *  Returns a doublereal value for the child named 'name' of element 'parent'.
    *  'type' must be supplied and match a known unit type.
    *
    *  Note, it's an error for the child element not to exist.

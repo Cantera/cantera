@@ -26,6 +26,7 @@
 #include <time.h>
 #include "ctml.h"
 #include "global.h"
+#include "stringUtils.h"
 
 using namespace std;
 

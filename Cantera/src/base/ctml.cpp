@@ -23,8 +23,11 @@
 #define CTML_VERSION_1_4_1
 
 #include "global.h"
+#include "stringUtils.h"
+
 #include <cctype>
 #include <cstring>
+
 
 
 using namespace std;
@@ -763,20 +766,61 @@ namespace ctml {
     return x;
   }
 
-  /*
-   * getFloatArray():
+  //!  This function reads a child node with the default name, "floatArray", with a value
+  //!  consisting of a comma separated list of floats
+  /*!
+   *   This function will read a child node to the current XML node, with the
+   *   name "floatArray". It will have a title attribute, and the body
+   *   of the XML node will be filled out with a comma separated list of
+   *   doublereals.
+   *     Get an array of floats from the XML Node. The argument field
+   *   is assumed to consist of an arbitrary number of comma
+   *   separated floats, with an arbitrary amount of white space
+   *   separating each field.
+   *      If the node array has an units attribute field, then
+   *   the units are used to convert the floats, iff convert is true.
    *
-   * Get an array of floats from the XML Node. The argument field 
-   * is assumed to consist of an arbitrary number of comma 
-   * separated floats, with an arbitrary amount of white space
-   * separating each field.
-   *    If the node array has an units attribute field, then
-   * the units are used to convert the floats, iff convert is true.
+   *  Example:  
    *
-   *  nodeName = The default value for the node name is floatArray
+   * Code snipet:
+   *       @verbatum
+     const XML_Node &State_XMLNode;
+     vector_fp v;
+     bool convert = true;
+     unitsString = "";
+     nodeName="floatArray";
+     getFloatArray(State_XMLNode, v, convert, unitsString, nodeName);
+   @endverbatum
+   *
+   *  reads the corresponding XML file:
+   *
+   *  @verbatum
+   <state>
+     <floatArray  units="m3">   32.4, 1, 100. <\floatArray>
+   <\state>
+   @endverbatum
+   *
+   *  Will produce the vector
+   *
+   *         v[0] = 32.4
+   *         v[1] = 1.0
+   *         v[2] = 100.
+   *
+   *
+   *   @param  node         XML parent node of the floatArray
+   *   @param  v            Output vector of floats containing the floatArray information.
+   *   @param  convert      Conversion to SI is carried out if this boolean is
+   *                        True. The default is true.
+   *   @param  typeString   String name of the type attribute. This is an optional 
+   *                        parameter. The default is to have an empty string.
+   *                        The only string that is recognized is actEnergy. 
+   *                        Anything else has no effect. This affects what
+   *                        units converter is used.
+   *   @param  nodeName     XML Name of the XML node to read. 
+   *                        The default value for the node name is floatArray
    */
-  void getFloatArray(const Cantera::XML_Node& node, vector_fp& v, bool convert,
-		     std::string type, std::string nodeName) {
+  void getFloatArray(const Cantera::XML_Node& node, vector_fp& v, const bool convert,
+		     const std::string unitsString, const std::string nodeName) {
     string::size_type icom;
     string numstr;
     doublereal dtmp;
@@ -793,11 +837,11 @@ namespace ctml {
     /*
      * Get the attributes field, units, from the XML node
      */
-    string units = node["units"];
+    std::string units = node["units"];
     if (units != "" && convert) {
-      if (type == "actEnergy" && units != "") {
+      if (unitsString == "actEnergy" && units != "") {
 	funit = actEnergyToSI(units);
-      } else if (type != "" && units != "") {
+      } else if (unitsString != "" && units != "") {
 	funit = toSI(units);
       }
     }
@@ -808,7 +852,7 @@ namespace ctml {
       vmax = atofCheck(node["max"].c_str());
 
     doublereal vv;
-    string val = node.value();
+    std::string val = node.value();
     while (1 > 0) {
       icom = val.find(',');
       if (icom != string::npos) {
@@ -1094,7 +1138,8 @@ namespace ctml {
    * The separate tokens are returned in the string vector,
    * v.
    */
-  void getStringArray(const std::string& oval, vector<string>& v) {
+  void getStringArray(const std::string& oval, 
+                      std::vector<std::string>& v) {
     std::string val(oval);
     string::size_type ibegin, iend;
     v.clear();

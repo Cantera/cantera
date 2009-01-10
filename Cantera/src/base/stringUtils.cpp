@@ -17,6 +17,7 @@
 #endif
 
 #include "ct_defs.h"
+#include "stringUtils.h"
 #include "ctexceptions.h"
 #include "global.h"
 #include <cstdio>

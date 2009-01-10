@@ -18,7 +18,6 @@
 
 #include "ct_defs.h"
 #include "ctexceptions.h"
-#include "stringUtils.h"
 #include "utilities.h"
 
 namespace Cantera { 
