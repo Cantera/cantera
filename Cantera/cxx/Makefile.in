@@ -20,7 +20,7 @@ CXX_H = Cantera.h  equilibrium.h  IncompressibleSolid.h \
         Metal.h   PureFluid.h   transport.h Edge.h  \
         IdealGasMix.h  Interface.h    numerics.h  \
         reactionpaths.h  zerodim.h importPhase.h thermo.h \
-        radiation.h spectra.h electrolyteThermo.h
+        radiation.h spectra.h electrolyteThermo.h Cantera.mak
 
 all:
 	@(cd include ; \
