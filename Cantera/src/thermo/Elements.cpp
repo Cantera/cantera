@@ -26,6 +26,7 @@
 #include "xml.h"
 #include "ctml.h"
 #include "ctexceptions.h"
+#include "stringUtils.h"
 
 using namespace ctml;
 using namespace std;

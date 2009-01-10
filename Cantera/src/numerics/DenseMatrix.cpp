@@ -13,6 +13,7 @@
 #include "ctlapack.h"
 #include "utilities.h"
 #include "DenseMatrix.h"
+#include "stringUtils.h"
 
 namespace Cantera {
 
