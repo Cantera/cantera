@@ -78,6 +78,21 @@ namespace Cantera {
   double atofCheck(const char *dptr);
   doublereal strSItoDbl(const std::string& strSI); 
 
+
+  //! This function separates a string up into tokens
+  //! according to the location of white space.
+  /*!
+   *  White space includes the new line character. tokens
+   *  are stripped of leading and trailing white space.
+   *
+   *  The separate tokens are returned in a string vector, v.
+   *
+   *  @param oval   String to be broken up
+   *  @param v     Output vector of tokens.
+   */
+  void tokenizeString(const std::string& oval,
+                      std::vector<std::string>& v);
+
 }
 
 #endif

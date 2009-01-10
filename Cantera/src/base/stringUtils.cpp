@@ -26,6 +26,8 @@
 #include <cctype>
 #include "ctml.h"
 
+#include <string>
+
 namespace Cantera {
 
 
@@ -418,4 +420,71 @@ namespace Cantera {
     doublereal val = atofCheck(v[0].c_str());
     return (val * fp);
   }
+
+  static std::string::size_type findFirstWS(const std::string& val) {
+    std::string::size_type ibegin = std::string::npos;
+    int j = 0;
+    std::string::const_iterator i = val.begin();
+    for ( ; i != val.end(); i++) {
+      char ch = *i;
+      int ll = (int) ch;
+      if (isspace(ll)) {
+	ibegin = (std::string::size_type) j;
+	break;
+      }
+      j++;
+    }
+    return ibegin;  
+  }
+
+  static std::string::size_type findFirstNotOfWS(const std::string& val) {
+    std::string::size_type ibegin = std::string::npos;
+    int j = 0;
+    std::string::const_iterator i = val.begin();
+    for ( ; i != val.end(); i++) {
+      char ch = *i;
+      int ll = (int) ch;
+      if (!isspace(ll)) {
+	ibegin = (std::string::size_type) j;
+	break;
+      }
+      j++;
+    }
+    return ibegin;  
+  }
+
+  // This function  separates a string up into tokens
+  // according to the location of white space.
+  /*
+   *    The separate tokens are returned in a string vector, v.
+   *
+   *  @param oval   String to be broken up
+   *  @param v     Output vector of tokens.
+   */
+  void tokenizeString(const std::string& oval,
+                      std::vector<std::string>& v) {
+    std::string val(oval);
+    std::string::size_type ibegin, iend;
+    v.clear();
+    while (1 > 0) {
+      ibegin = findFirstNotOfWS(val);
+      if (ibegin != std::string::npos) {
+        val = val.substr(ibegin,val.size());
+        //iend = val.find_first_of(" \n\t");
+        iend = findFirstWS(val);
+        if (iend == std::string::npos) {
+          v.push_back(val);
+          break;
+        } else {
+          v.push_back(val.substr(0,iend));
+          val = val.substr(iend+1,val.size());
+        }
+      }
+      else {
+        break;
+      }
+    }
+  }
+
+
 }

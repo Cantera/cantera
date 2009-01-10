@@ -374,18 +374,6 @@ namespace ctml {
 
   void getStringArray(const Cantera::XML_Node& node, std::vector<std::string>& v);
 
-
-
-  //! This function  separates a string up into tokens
-  //! according to the location of white space.
-  /*!
-   *    The separate tokens are returned in a string vector, v.
-   *
-   *  @param val   String to be broken up
-   *  @param v     Output vector of tokens.
-   */
-  void getStringArray(const std::string& val, std::vector<std::string>& v);
-
  /**
    * This routine is used to interpret the value portions of XML
    * elements that contain colon separated pairs. These are used,

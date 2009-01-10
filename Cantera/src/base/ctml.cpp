@@ -1087,38 +1087,6 @@ namespace ctml {
 
   }
 
-  static string::size_type findFirstWS(const string& val) {
-    string::size_type ibegin = string::npos;
-    int j = 0;
-    std::string::const_iterator i = val.begin();
-    for ( ; i != val.end(); i++) {
-      char ch = *i;
-      int ll = (int) ch;
-      if (isspace(ll)) {
-	ibegin = (string::size_type) j;
-	break;
-      }
-      j++;
-    }
-    return ibegin;  
-  }
-
-  static string::size_type findFirstNotOfWS(const string& val) {
-    string::size_type ibegin = string::npos;
-    int j = 0;
-    std::string::const_iterator i = val.begin();
-    for ( ; i != val.end(); i++) {
-      char ch = *i;
-      int ll = (int) ch;
-      if (!isspace(ll)) {
-	ibegin = (string::size_type) j;
-	break;
-      }
-      j++;
-    }
-    return ibegin;  
-  }
-
   /**
    * This function interprets the value portion of an XML element
    * as a string. It then separates the string up into tokens
@@ -1128,40 +1096,7 @@ namespace ctml {
    */
   void getStringArray(const Cantera::XML_Node& node, vector<string>& v) {
     string val = node.value();
-    getStringArray(val, v);
-  }
-
-  /**
-   * This function interprets the value portion of an XML element
-   * as a string. It then separates the string up into tokens
-   * according to the location of white space.
-   * The separate tokens are returned in the string vector,
-   * v.
-   */
-  void getStringArray(const std::string& oval, 
-                      std::vector<std::string>& v) {
-    std::string val(oval);
-    string::size_type ibegin, iend;
-    v.clear();
-    while (1 > 0) {
-      ibegin = findFirstNotOfWS(val);
-      //val.find_first_not_of(" \n\t");
-      if (ibegin != string::npos) {
-	val = val.substr(ibegin,val.size());
-	//iend = val.find_first_of(" \n\t");
-	iend = findFirstWS(val);
-	if (iend == string::npos) {
-	  v.push_back(val);
-	  break;
-	} else {
-	  v.push_back(val.substr(0,iend));
-	  val = val.substr(iend+1,val.size());
-	}
-      }
-      else {
-	break;
-      }
-    }
+    tokenizeString(val, v);
   }
 
   void getFunction(const Cantera::XML_Node& node, string& type, doublereal& xmin,
