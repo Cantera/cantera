@@ -924,32 +924,39 @@ namespace ctml {
     }
   }
 
-  
-  //! This function interprets the value portion of an XML element
-  //! as a series of "Pairs" separated by white space.
-  /*!
+  // This function interprets the value portion of an XML element
+  // as a series of "Pairs" separated by white space.
+  /*
    * Each pair consists of nonwhite-space characters.
    * The first ":" found in the pair string is used to separate
    * the string into two parts. The first part is called the "key"
    * The second part is called the "val".
    * String vectors of key[i] and val[i] are returned in the
    * argument list.
-   * Warning: No spaces are allowed in each pair. Quotes are part
+   * Warning: No spaces are allowed in each pair. Quotes get included as part
    *          of the string.
    *   Example: @verbatum
-   *    <xmlNode> 
-   red:112    blue:34
-   green:banana
-   </xmlNode>      @endverbatum
+       <xmlNode> 
+          red:112    blue:34
+          green:banana
+       </xmlNode> 
+              @endverbatum
    * 
    * Returns:
    *          key       val
    *     0:   "red"     "112"
    *     1:   "blue"    "34"
    *     2:   "green"   "banana"
+   *
+   *
+   *  @param node             XML Node 
+   *  @param key              Vector of keys for each entry
+   *  @param val              Vector of values for each entry
+   *
+   *  @return Returns the number of pairs found
    */
-  void getPairs(const Cantera::XML_Node& node, vector<string>& key, 
-		vector<string>& val) {
+  int getPairs(const Cantera::XML_Node& node, std::vector<std::string>& key, 
+		std::vector<std::string>& val) {
     vector<string> v;
     getStringArray(node, v);
     int n = static_cast<int>(v.size());
@@ -964,11 +971,12 @@ namespace ctml {
       val.push_back(v[i].substr(icolon+1, v[i].size()));
       //cout << "getPairs: " << key.back() << " " << val.back() << endl;
     }
+    return n;
   }
 
-  /**
-   * This function interprets the value portion of an XML element
-   * as a series of "Matrix ids and entries" separated by white space.
+  // This function interprets the value portion of an XML element
+  // as a series of "Matrix ids and entries" separated by white space.
+  /*
    * Each pair consists of nonwhite-space characters.
    * The first two ":" found in the pair string is used to separate
    * the string into three parts. The first part is called the first
@@ -976,7 +984,7 @@ namespace ctml {
    * an entry in the keyString1 and keyString2, respectively,
    * in order to provide a location to
    * place the object in the matrix.
-   * The third part is called the value. It is expected to be 
+   * The third part is called the value. It is expected to be
    * a double. It is translated into a double and placed into the
    * correct location in the matrix.
    *
@@ -984,23 +992,34 @@ namespace ctml {
    *          of the string.
    *   Example
    *         keyString = red, blue, black, green
-   *    <xmlNode> 
-   *        red:green:112    
+   *    <xmlNode>
+   *        red:green:112
    *        blue:black:3.3E-23
-   *        
+   *
    *    </xmlNode>
-   * 
+   *
    * Returns:
    *     retnValues(0, 3) = 112
    *     retnValues(1, 2) = 3.3E-23
+   *
+   *
+   *  @param node          XML Node containing the information for the matrix
+   *  @param keyStringRow  Key string for the row
+   *  @param keyStringCol  Key string for the column entries
+   *  @param returnValues  Return Matrix.
+   *  @param convert       If this is true, and if the node has a units 
+   *                       attribute, then conversion to si units is carried
+   *                       out. Default is true.
+   *  @param matrixSymmetric  If true entries are made so that the matrix
+   *                       is always symmetric. Default is false.
    */
   void getMatrixValues(const Cantera::XML_Node& node,
-		       const vector<string>& keyString1,
-		       const vector<string>& keyString2,
-		       Array2D &retnValues, bool convert,
-		       bool matrixSymmetric) {
-    int szKey1 = keyString1.size();
-    int szKey2 = keyString2.size();
+		       const vector<string>& keyStringRow,
+		       const vector<string>& keyStringCol,
+		       Cantera::Array2D &retnValues, const bool convert,
+		       const bool matrixSymmetric) {
+    int szKey1 = keyStringRow.size();
+    int szKey2 = keyStringCol.size();
     int nrow   = retnValues.nRows();
     int ncol   = retnValues.nColumns();
     if (szKey1 > nrow) {
@@ -1055,7 +1074,7 @@ namespace ctml {
       icol = -1;
       irow = -1;
       for (int j = 0; j < szKey1; j++) {
-	if (key1 == keyString1[j]) {
+	if (key1 == keyStringRow[j]) {
 	  irow = j;
 	  break;
 	}
@@ -1065,7 +1084,7 @@ namespace ctml {
 			   + key1);		
       }
       for (int j = 0; j < szKey2; j++) {
-	if (key2 == keyString2[j]) {
+	if (key2 == keyStringCol[j]) {
 	  icol = j;
 	  break;
 	}
@@ -1084,7 +1103,6 @@ namespace ctml {
 	retnValues(icol, irow) = dval;
       }
     }
-
   }
 
   /**

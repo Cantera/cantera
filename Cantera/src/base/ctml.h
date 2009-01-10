@@ -5,7 +5,6 @@
  * (see \ref inputfiles and importCTML, ck2ctml)
  */
 
-
 /* 
  * $Revision$
  * $Date$
@@ -398,28 +397,75 @@ namespace ctml {
    * The second part is called the "val".
    * String vectors of key[i] and val[i] are returned in the
    * argument list.
-   * Warning: No spaces are allowed in each pair. Quotes are part
+   * Warning: No spaces are allowed in each pair. Quotes get included as part
    *          of the string.
    *   Example: @verbatum
-   *    <xmlNode> 
-   red:112    blue:34
-   green:banana
-   </xmlNode>      @endverbatum
+       <xmlNode> 
+          red:112    blue:34
+          green:banana
+       </xmlNode> 
+              @endverbatum
    * 
    * Returns:
    *          key       val
    *     0:   "red"     "112"
    *     1:   "blue"    "34"
    *     2:   "green"   "banana"
+   *
+   *
+   *  @param node             XML Node 
+   *  @param key              Vector of keys for each entry
+   *  @param val              Vector of values for each entry
+   *
+   *  @return Returns the number of pairs found
    */
-  void getPairs(const Cantera::XML_Node& node, std::vector<std::string>& key, 
-		std::vector<std::string>& val);
+  int getPairs(const Cantera::XML_Node& node, std::vector<std::string>& key, 
+	       std::vector<std::string>& val);
 
+  //! This function interprets the value portion of an XML element
+  //! as a series of "Matrix ids and entries" separated by white space.
+  /*!
+   * Each pair consists of nonwhite-space characters.
+   * The first two ":" found in the pair string is used to separate
+   * the string into three parts. The first part is called the first
+   * key. The second part is the second key. Both parts must match
+   * an entry in the keyString1 and keyString2, respectively,
+   * in order to provide a location to
+   * place the object in the matrix.
+   * The third part is called the value. It is expected to be
+   * a double. It is translated into a double and placed into the
+   * correct location in the matrix.
+   *
+   * Warning: No spaces are allowed in each triplet. Quotes are part
+   *          of the string.
+   *   Example
+   *         keyString = red, blue, black, green
+   *    <xmlNode>
+   *        red:green:112
+   *        blue:black:3.3E-23
+   *
+   *    </xmlNode>
+   *
+   * Returns:
+   *     retnValues(0, 3) = 112
+   *     retnValues(1, 2) = 3.3E-23
+   *
+   *
+   *  @param node          XML Node containing the information for the matrix
+   *  @param keyStringRow  Key string for the row
+   *  @param keyStringCol  Key string for the column entries
+   *  @param returnValues  Return Matrix.
+   *  @param convert       If this is true, and if the node has a units 
+   *                       attribute, then conversion to si units is carried
+   *                       out. Default is true.
+   *  @param matrixSymmetric  If true entries are made so that the matrix
+   *                       is always symmetric. Default is false.
+   */
   void getMatrixValues(const Cantera::XML_Node& node, 
-		       const std::vector<std::string>& keyString1,
-		       const std::vector<std::string>& keyString2,
-		       Cantera::Array2D &returnValues, bool convert = true,
-		       bool matrixSymmetric = false);
+		       const std::vector<std::string>& keyStringRow,
+		       const std::vector<std::string>& keyStringCol,
+		       Cantera::Array2D &returnValues, const bool convert = true,
+		       const bool matrixSymmetric = false);
 
 
   //!  Get a vector of integer values from a child element. 
