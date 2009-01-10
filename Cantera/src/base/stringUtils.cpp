@@ -408,7 +408,7 @@ namespace Cantera {
 
   doublereal strSItoDbl(const std::string& strSI) {
     std::vector<std::string> v;
-    ctml::getStringArray(strSI, v);
+    tokenizeString(strSI, v);
     doublereal fp = 1.0;
     int n = v.size();
     if (n > 2 || n < 1) {
