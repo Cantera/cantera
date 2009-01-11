@@ -66,20 +66,20 @@
                 </binarySaltParameters>
 
                 <thetaAnion anion1="Cl-" anion2="OH-">
-                  <Theta> -0.05 </Theta>
+                  <theta> -0.05 </theta>
                 </thetaAnion>
 
                 <psiCommonCation cation="Na+" anion1="Cl-" anion2="OH-">
-                  <Theta> -0.05 </Theta>
+                  <theta> -0.05 </theta>
                   <Psi> -0.006 </Psi>
                 </psiCommonCation>
 
                 <thetaCation cation1="Na+" cation2="H+">
-                  <Theta> 0.036 </Theta>
+                  <theta> 0.036 </theta>
                 </thetaCation>
 
                 <psiCommonAnion anion="Cl-" cation1="Na+" cation2="H+">
-                  <Theta> 0.036 </Theta>
+                  <theta> 0.036 </theta>
                   <Psi> -0.004 </Psi>
                 </psiCommonAnion>
 
