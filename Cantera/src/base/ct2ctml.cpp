@@ -221,11 +221,16 @@ namespace ctml {
     }
 
 
-    /**
-     * Get an CTML tree from a file, possibly preprocessing the file
-     * first. 
-     */
-    void get_CTML_Tree(XML_Node* rootPtr, string file, int debug) {
+   // Read an ctml file from a file and fill up an XML tree
+   /*
+    *  This is the main routine that reads a ctml file and puts it into
+    *  an XML_Node tree
+    *
+    *  @param node    Root of the tree
+    *  @param file    Name of the file
+    *  @param debug   Turn on debugging printing
+    */
+    void get_CTML_Tree(XML_Node* rootPtr, const std::string file, const int debug) {
         string ff, ext = "";
 
         // find the input file on the Cantera search path

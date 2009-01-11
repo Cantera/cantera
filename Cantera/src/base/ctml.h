@@ -20,7 +20,7 @@
 #include "Array.h"
 
 //! The ctml namespace adds functionality to the XML object, by providing
-//! standard functions that read and write and interpret XML files and object trees.
+//! standard functions that read, write, and interpret XML files and object trees.
 namespace ctml {
 
   //! const Specifying the CTML version number
@@ -28,8 +28,6 @@ namespace ctml {
    * @todo Codify what the CTML_Version number means.
    */
   const std::string CTML_Version = "1.4.1";
-
-  // bool isBuiltin(std::string nm);
 
   //!  This function adds a child node with the name, "bool", with a value
   //!  consisting of a single bool
@@ -41,21 +39,21 @@ namespace ctml {
    *  Example:
    *
    * Code snipet:
-   *       @verbatum
+   *       @verbatim
      const XML_Node &node;
      std::string titleString = "doSpecialOp";
      bool value = true;
      addBool(node, titleString, value);
-     @endverbatum
+     @endverbatim
    *
    *  Creates the following the snippet in the XML file:
-   *  @verbatum
+   *  @verbatim
      <parentNode>
        <bool title="doSpecialOp" type="optional">
           true
        <\integer>
      <\parentNode>
-   @endverbatum
+   @endverbatim
    *
    *   @param node          reference to the XML_Node object of the parent XML element
    *   @param titleString   String name of the title attribute
@@ -64,7 +62,7 @@ namespace ctml {
    * @todo I don't think this is used. Figure out what is used for writing bools,
    *       and codify that.
    */
-  void addBool(Cantera::XML_Node& node, const std::string &title, 
+  void addBool(Cantera::XML_Node& node, const std::string &titleString, 
 	       const bool value);
 
   //!  This function adds a child node with the name, "integer", with a value
@@ -77,23 +75,23 @@ namespace ctml {
    *  Example:
    *
    * Code snipet:
-   *       @verbatum
+   *       @verbatim
      const XML_Node &node;
      std::string titleString = "maxIterations";
      int  value = 1000;
      std::string typeString = "optional";
      std::string units = "";
      addInteger(node, titleString, value, typeString, units);
-     @endverbatum
+     @endverbatim
    *
    *  Creates the following the snippet in the XML file:
-   *  @verbatum
+   *  @verbatim
      <parentNode>
        <integer title="maxIterations" type="optional">
           100
        <\integer>
      <\parentNode>
-   @endverbatum
+   @endverbatim
    *
    *   @param node          reference to the XML_Node object of the parent XML element
    *   @param titleString   String name of the title attribute
@@ -121,7 +119,7 @@ namespace ctml {
    *  Example:
    *
    * Code snipet:
-   *       @verbatum
+   *       @verbatim
      const XML_Node &node;
      std::string titleString = "activationEnergy";
      doublereal  value = 50.3;
@@ -130,16 +128,16 @@ namespace ctml {
      std::string typeString = "optional";
      std::string unitsString = "kcal/gmol";
      addFloat(node, titleString, value, unitsString, typeString, minval, maxval);
-     @endverbatum
+     @endverbatim
    *
    *  Creates the following the snippet in the XML file:
-   *  @verbatum
+   *  @verbatim
      <parentNode>
        <float title="activationEnergy" type="optional" units="kcal/gmol" min="0.0" max="1.0E3">
           50.3
        <\float>
      <\parentNode>
-   @endverbatum
+   @endverbatim
    *
    *   @param node          reference to the XML_Node object of the parent XML element
    *   @param titleString   String name of the title attribute
@@ -175,7 +173,7 @@ namespace ctml {
    *  Example:
    *
    * Code snipet:
-   *       @verbatum
+   *       @verbatim
      const XML_Node &node;
      std::string titleString = "additionalCases";
      int  n = 3;
@@ -183,16 +181,16 @@ namespace ctml {
      std::string typeString = "optional";
      std::string units = "";
      addIntegerArray(node, titleString, n, &cases[0], typeString, units);
-     @endverbatum
+     @endverbatim
    *
    *  Creates the following the snippet in the XML file:
-   *  @verbatum
+   *  @verbatim
      <parentNode>
        <intArray title="additionalCases" type="optional">
           3, 6, 10
        <\intArray>
      <\parentNode>
-   @endverbatum
+   @endverbatim
    *
    *   @param node          reference to the XML_Node object of the parent XML element
    *   @param titleString   String name of the title attribute
@@ -233,7 +231,7 @@ namespace ctml {
    *  Example:
    *
    * Code snipet:
-   *       @verbatum
+   *       @verbatim
      const XML_Node &node;
      std::string titleString = "additionalTemperatures";
      int  n = 3;
@@ -241,16 +239,16 @@ namespace ctml {
      std::string typeString = "optional";
      std::string units = "Kelvin";
      addFloatArray(node, titleString, n, &cases[0], typeString, units);
-     @endverbatum
+     @endverbatim
    *
    *  Creates the following the snippet in the XML file:
-   *  @verbatum
+   *  @verbatim
      <parentNode>
        <floatArray title="additionalTemperatures" type="optional" units="Kelvin">
           273.15, 298.15, 373.15
        <\floatArray>
      <\parentNode>
-   @endverbatum
+   @endverbatim
    *
    *   @param node          reference to the XML_Node object of the parent XML element
    *   @param titleString   String name of the title attribute
@@ -290,18 +288,18 @@ namespace ctml {
    *  Example:  
    *
    * Code snipet:
-   *       @verbatum
+   *       @verbatim
    const XML_Node &node;
    addString(XML_Node& node, std::string titleString, std::string valueString, 
    std::string typeString);
-   @endverbatum
+   @endverbatim
    *
    *  Creates the following the snippet in the XML file:
-   *  @verbatum
+   *  @verbatim
    <string title="titleString" type="typeString">
      valueString
    <\string>
-   @endverbatum
+   @endverbatim
    *
    *   @param node          reference to the XML_Node object of the parent XML element
    *   @param valueString   Value string to be used in the new XML node.
@@ -329,22 +327,22 @@ namespace ctml {
    *  Example:  
    *
    * Code snipet:
-   *       @verbatum
+   *       @verbatim
      const XML_Node &State_XMLNode;
      vector_fp v;
      bool convert = true;
      unitsString = "";
      nodeName="floatArray";
      getFloatArray(State_XMLNode, v, convert, unitsString, nodeName);
-   @endverbatum
+   @endverbatim
    *
    *  reads the corresponding XML file:
    *
-   *  @verbatum
+   *  @verbatim
    <state>
      <floatArray  units="m3">   32.4, 1, 100. <\floatArray>
    <\state>
-   @endverbatum
+   @endverbatim
    *
    *  Will produce the vector
    *
@@ -369,22 +367,37 @@ namespace ctml {
 		     const bool convert=true, const std::string typeString="",
 		     const std::string nodeName = "floatArray");
 
-
-
+  //! This function interprets the value portion of an XML element
+  //! as a string. It then separates the string up into tokens
+  //! according to the location of white space.
+  /*!
+   * The separate tokens are returned in the string vector
+   *
+   * @param node   Node to get the value from
+   * @param v      Output vector containing the string tokens 
+   */
   void getStringArray(const Cantera::XML_Node& node, std::vector<std::string>& v);
 
- /**
-   * This routine is used to interpret the value portions of XML
-   * elements that contain colon separated pairs. These are used,
-   * for example, in describing the element composition of species.
-   *       <atomArray> H:4 C:1 <atomArray\>
-   * The string is first separated into a string vector according
+ 
+  //! This routine is used to interpret the value portions of XML
+  //! elements that contain colon separated pairs.
+  /*!
+   *  These are used, for example, in describing the element 
+   *  composition of species.
+   * @verbatim
+          <atomArray> H:4 C:1 <atomArray\>
+     @endverbatim
+   *  The string is first separated into a string vector according
    * to the location of white space. Then each string is again
    * separated into two parts according to the location of a
    * colon in the string. The first part of the string is
    * used as the key, while the second part of the string is
    * used as the value, in the return map.
    * It is an error to not find a colon in each string pair.
+   *
+   *  @param node Current node
+   *  @param m    Output Map containing the pairs of values found
+   *              in the XML Node
    */
   void getMap(const Cantera::XML_Node& node, std::map<std::string, std::string>& m);
 
@@ -399,12 +412,13 @@ namespace ctml {
    * argument list.
    * Warning: No spaces are allowed in each pair. Quotes get included as part
    *          of the string.
-   *   Example: @verbatum
+   *   Example:
+   *       @verbatim
        <xmlNode> 
           red:112    blue:34
           green:banana
        </xmlNode> 
-              @endverbatum
+              @endverbatim
    * 
    * Returns:
    *          key       val
@@ -440,12 +454,14 @@ namespace ctml {
    *          of the string.
    *   Example
    *         keyString = red, blue, black, green
-   *    <xmlNode>
-   *        red:green:112
-   *        blue:black:3.3E-23
    *
-   *    </xmlNode>
-   *
+   * @verbatim
+       <xmlNode>
+           red:green:112
+           blue:black:3.3E-23
+   
+       </xmlNode>
+   @endverbatim
    * Returns:
    *     retnValues(0, 3) = 112
    *     retnValues(1, 2) = 3.3E-23
@@ -481,21 +497,21 @@ namespace ctml {
    *  Example:  
    *
    * Code snipet:
-   *       @verbatum
+   *       @verbatim
      const XML_Node &State_XMLNode;
      std::map<std::string, integer> v;
      getinteger(State_XMLNode, v);
-   @endverbatum
+   @endverbatim
    *
    *  reads the corresponding XML file:
    *
-   *  @verbatum
+   *  @verbatim
    <state>
      <integer title="i1">   1  <\integer>
      <integer title="i2">   2  <\integer>
      <integer title="i3">   3  <\integer>
    <\state>
-   @endverbatum
+   @endverbatim
    *
    *  Will produce the mapping:
    *
@@ -522,20 +538,20 @@ namespace ctml {
    *  Example:  
    *
    * Code snipet:
-   *       @verbatum
+   *       @verbatim
    const XML_Node &State_XMLNode;
    doublereal pres = OneAtm;
    if (state_XMLNode.hasChild("pressure")) {
    pres = getFloat(State_XMLNode, "pressure", "toSI");
    }
-   @endverbatum
+   @endverbatim
    *
    *  reads the corresponding XML file:
-   *  @verbatum
+   *  @verbatim
    <state>
      <pressure units="Pa"> 101325.0 </pressure>
    <\state>
-   @endverbatum
+   @endverbatim
    *
    *   @param parent reference to the XML_Node object of the parent XML element
    *   @param name   Name of the XML child element
@@ -559,22 +575,22 @@ namespace ctml {
    *  Example:  
    *
    * Code snipet:
-   *       @verbatum
+   *       @verbatim
      const XML_Node &State_XMLNode;
      std::map<std::string,double> v;
      bool convert = true;
      getFloats(State_XMLNode, v, convert);
-   @endverbatum
+   @endverbatim
    *
    *  reads the corresponding XML file:
    *
-   *  @verbatum
+   *  @verbatim
    <state>
      <float title="a1" units="m3">   32.4 <\float>
      <float title="a2" units="cm3">   1.  <\float>
      <float title="a3">             100.  <\float>
    <\state>
-   @endverbatum
+   @endverbatim
    *
    *  Will produce the mapping:
    *
@@ -601,20 +617,20 @@ namespace ctml {
    *  Example:  
    *
    * Code snipet:
-   *       @verbatum
+   *       @verbatim
    const XML_Node &State_XMLNode;
    doublereal pres = OneAtm;
    if (state_XMLNode.hasChild("pressure")) {
    pres = getFloatDefaultUnits(State_XMLNode, "pressure", "Pa", "toSI");
    }
-   @endverbatum
+   @endverbatim
    *
    *  reads the corresponding XML file:
-   *  @verbatum
+   *  @verbatim
    <state>
      <pressure units="Pa"> 101325.0 </pressure>
    <\state>
-   @endverbatum
+   @endverbatim
    *
    *   @param parent reference to the XML_Node object of the parent XML element
    *   @param name   Name of the XML child element
@@ -637,29 +653,79 @@ namespace ctml {
    *  Example:  
    *
    * Code snipet:
-   *       @verbatum
+   *       @verbatim
    const XML_Node &State_XMLNode;
    int number = 1;
    if (state_XMLNode.hasChild("NumProcs")) {
    number = getInteger(State_XMLNode, "numProcs");
    }
-   @endverbatum
+   @endverbatim
    *
    *  reads the corresponding XML file:
-   *  @verbatum
+   *  @verbatim
    <state>
      <numProcs> 10 <numProcs/>
    <\state>
-   @endverbatum
+   @endverbatim
    *
    *   @param parent reference to the XML_Node object of the parent XML element
    *   @param name   Name of the XML child element
    */
   int getInteger(const Cantera::XML_Node& parent, std::string name);
     
-
-  void getFunction(const Cantera::XML_Node& node, std::string& type, 
-		   doublereal& xmin, doublereal& xmax, Cantera::vector_fp& coeffs);
+  //!  This function reads a child node with the default name, "floatArray", with a value
+  //!  consisting of a comma separated list of floats
+  /*!
+   *   This function will read a child node to the current XML node, with the
+   *   name "floatArray". It will have a title attribute, and the body
+   *   of the XML node will be filled out with a comma separated list of
+   *   doublereals.
+   *     Get an array of floats from the XML Node. The argument field
+   *   is assumed to consist of an arbitrary number of comma
+   *   separated floats, with an arbitrary amount of white space
+   *   separating each field.
+   *      If the node array has an units attribute field, then
+   *   the units are used to convert the floats, iff convert is true.
+   *      This function is a wrapper around the function getFloatArray().
+   *
+   *  Example:  
+   *
+   * Code snipet:
+   *       @verbatim
+     const XML_Node &State_XMLNode;
+     vector_fp v;
+     bool convert = true;
+     unitsString = "";
+     nodeName="floatArray";
+     getFloatArray(State_XMLNode, v, convert, unitsString, nodeName);
+   @endverbatim
+   *
+   *  reads the corresponding XML file:
+   *
+   *  @verbatim
+   <state>
+     <floatArray  units="m3">   32.4, 1, 100. <\floatArray>
+   <\state>
+   @endverbatim
+   *
+   *  Will produce the vector
+   *
+   *         v[0] = 32.4
+   *         v[1] = 1.0
+   *         v[2] = 100.
+   *
+   *
+   *   @param  node         XML parent node of the floatArray
+   *   @param  typeString   Returns the type attribute of the current node.
+   *   @param  xmin         Returns the minimum value attribute of the
+   *                        current node.
+   *   @param  xmax         Returns the maximum value attribute of the
+   *                        current node.
+   *   @param  v            Output vector of floats containing the floatArray
+   *                        information.
+   */
+  void getFunction(const Cantera::XML_Node& node, std::string& typeString, 
+		   doublereal& xmin, doublereal& xmax, Cantera::vector_fp& v);
 
 
   //! Search the child nodes of the current node for an XML Node with a Title
@@ -685,18 +751,18 @@ namespace ctml {
    *  Example:  
    *
    * Code snipet:
-   *       @verbatum
+   *       @verbatim
    const XML_Node &node;
    getString(XML_Node& node, std::string titleString, std::string valueString, 
    std::string typeString);
-   @endverbatum
+   @endverbatim
    *
    *  Reads the following the snippet in the XML file:
-   *  @verbatum
+   *  @verbatim
    <string title="titleString" type="typeString">
      valueString
    <\string>
-   @endverbatum
+   @endverbatim
    *
    *   @param node          reference to the XML_Node object of the parent XML element
    *   @param titleString   String name of the title attribute of the child node
@@ -712,36 +778,49 @@ namespace ctml {
    *   If the child XML_node named "name" doesn't exist, the empty string is returned.
    *  
    * Code snipet:
-   *       @verbatum
+   *       @verbatim
    const XML_Node &parent;
    string nameString = "vacency_species";
    string valueString = getChildValue(parent, nameString
    std::string typeString);
-   @endverbatum
+   @endverbatim
    *
    *  returns valueString = "O(V)"
    * 
    *  from the following the snippet in the XML file:
    *
-   *  @verbatum
+   *  @verbatim
    <vacencySpecies>
      O(V)
    <\vancencySpecies>
-   @endverbatum
+   @endverbatim
    *
    *   @param parent     parent reference to the XML_Node object of the parent XML element
    *   @param nameString Name of the childe XML_Node to read the value from.
    *
    *   @return           String value of the child XML_Node
    */
-  std::string getChildValue(const Cantera::XML_Node& parent, const std::string &nameString);
+  std::string getChildValue(const Cantera::XML_Node& parent,
+			    const std::string &nameString);
 
-  // These are defined in ct2ctml.cpp
-  void get_CTML_Tree(Cantera::XML_Node* node, std::string file, int debug = 0);
+  //! Read an ctml file from a file and fill up an XML tree
+  /*!
+   *  This is the main routine that reads a ctml file and puts it into
+   *  an XML_Node tree
+   *
+   *  @param node    Root of the tree
+   *  @param file    Name of the file
+   *  @param debug   Turn on debugging printing
+   */
+  void get_CTML_Tree(Cantera::XML_Node* node, const std::string file,
+		     const int debug = 0);
 
   //! Convert a cti file into a ctml file
   /*!
    *  
+   *  @param   file    Pointer to the file
+   *  @param   debug   Turn on debug printing
+   *
    *  @ingroup inputfiles
    */
   void ct2ctml(const char* file, int debug = 0);
