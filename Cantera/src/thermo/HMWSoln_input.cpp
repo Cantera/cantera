@@ -266,7 +266,7 @@ namespace Cantera {
   }
 
   /**
-   * Process an XML node called "ThetaAnion". 
+   * Process an XML node called "thetaAnion". 
    * This node contains all of the parameters necessary to describe
    * the binary interactions between two anions.
    */
@@ -315,7 +315,7 @@ namespace Cantera {
       stemp = xmlChild.name();
       string nodeName = lowercase(stemp);
       if (nodeName == "theta") {
-	getFloatArray(xmlChild, vParams, false, "", "Theta");
+	getFloatArray(xmlChild, vParams, false, "", stemp);
 	nParamsFound = vParams.size();
 	if (m_formPitzerTemp == PITZER_TEMP_CONSTANT) {
 	  if (nParamsFound != 1) {
@@ -353,7 +353,7 @@ namespace Cantera {
   } 
 
   /**
-   * Process an XML node called "ThetaCation". 
+   * Process an XML node called "thetaCation". 
    * This node contains all of the parameters necessary to describe
    * the binary interactions between two cation.
    */
@@ -402,7 +402,7 @@ namespace Cantera {
       stemp = xmlChild.name();
       string nodeName = lowercase(stemp);
       if (nodeName == "theta") {
-	getFloatArray(xmlChild, vParams, false, "", "Theta");
+	getFloatArray(xmlChild, vParams, false, "", stemp);
 	nParamsFound = vParams.size();
 	if (m_formPitzerTemp == PITZER_TEMP_CONSTANT) {
 	  if (nParamsFound != 1) {
@@ -514,7 +514,7 @@ namespace Cantera {
 	}
       }
       if (nodeName == "psi") {
-	getFloatArray(xmlChild, vParams, false, "", "Psi");
+	getFloatArray(xmlChild, vParams, false, "", stemp);
 	nParamsFound = vParams.size();
 	n = iSpecies * m_kk *m_kk + jSpecies * m_kk + kSpecies ;
 
@@ -660,7 +660,7 @@ namespace Cantera {
       }
       if (nodeName == "psi") {
 
-	getFloatArray(xmlChild, vParams, false, "", "Psi");
+	getFloatArray(xmlChild, vParams, false, "", stemp);
 	nParamsFound = vParams.size();
 	n = iSpecies * m_kk *m_kk + jSpecies * m_kk + kSpecies ;
 
