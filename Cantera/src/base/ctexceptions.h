@@ -6,7 +6,6 @@
  */
 
 /*
- *  $Author$
  *  $Date$
  *  $Revision$
  */
@@ -192,7 +191,7 @@ namespace Cantera {
      *
      * @ingroup errorhandling
      */
-#  define AssertTrace(expr)         ((expr) ? (void) 0 : throw Cantera::CanteraError(STR_TRACE, std::string("failed assert: ") + #expr))
+#  define AssertTrace(expr)  ((expr) ? (void) 0 : throw Cantera::CanteraError(STR_TRACE, std::string("failed assert: ") + #expr))
 
     //!  Assertion must be true or an error is thrown
     /*!

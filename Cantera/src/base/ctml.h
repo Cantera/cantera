@@ -823,7 +823,7 @@ namespace ctml {
    *
    *  @ingroup inputfiles
    */
-  void ct2ctml(const char* file, int debug = 0);
+  void ct2ctml(const char* const file, const int debug = 0);
 }
 
 #endif
