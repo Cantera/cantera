@@ -99,6 +99,7 @@ FILE_PATTERNS          = Kinetics.h Kinetics.cpp \
                          ctexceptions.h \
                          *.txt \
                          xml.h xml.cpp \
+                         ctml.h ctml.cpp ct2ctml.cpp \
                          clockWC.h clockWC.cpp \
                          equilibrium.h \
                          ThermoPhase.h  ThermoPhase.cpp \
