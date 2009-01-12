@@ -27,7 +27,7 @@ PIC_FLAG=@PIC@
 CXX_FLAGS = @CXXFLAGS@ $(PIC_FLAG)
 
 # C compile flags
-CFLAGS = @CFLAGS@
+CFLAGS = @CFLAGS@ $(PIC_FLAG)
 
 # Local include files
 CXX_INCLUDES=-I../f2c_libs

@@ -1,11 +1,8 @@
 #/bin/sh
 #/bin/sh
 #
-# $Source$
-# $Author$
 # $Revision$
 # $Date$
-# $License$
 #
 
 .SUFFIXES :
@@ -32,7 +29,7 @@ PIC_FLAG=@PIC@
 CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT) $(PIC_FLAG)
 
 # C compile flags
-CFLAGS = @CFLAGS@
+CFLAGS = @CFLAGS@ $(CXX_OPT) $(PIC_FLAG)
 
 # Local include files
 CXX_INCLUDES=-I../f2c_libs
