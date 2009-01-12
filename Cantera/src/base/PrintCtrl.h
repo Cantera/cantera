@@ -4,7 +4,6 @@
  *   (see \ref Cantera::PrintCtrl).
  */
 /*
- * $Author$
  * $Revision$
  * $Date$
  */

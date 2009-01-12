@@ -20,21 +20,27 @@
 #include "stringUtils.h"
 #include "ctexceptions.h"
 #include "global.h"
-#include <cstdio>
-#include <cstring>
-#include <cstdlib>
-#include <cctype>
 #include "ctml.h"
 
 #include <string>
 
+#include <cstdio>
+#include <cstring>
+#include <cstdlib>
+#include <cctype>
+
 namespace Cantera {
 
 
-  /**
-   * Convert a floating point number to a std::string using sprintf.
+  // Convert a double into a c++ string
+  /*
+   *  This routine doesn't assume a formatting. You
+   *  must supply the formatting
+   *
+   * @param x double to be converted
+   * @param fmt   Format to be used (printf style)
    */
-  std::string fp2str(double x, std::string fmt) {
+  std::string fp2str(const double x, const std::string &fmt) {
     char buf[64];
     int n = SNPRINTF(buf, 63, fmt.c_str(), x);
     if (n > 0) {
@@ -43,7 +49,7 @@ namespace Cantera {
     } 
     return std::string(" ");
   }
-  std::string fp2str(double x) {
+  std::string fp2str(const double x) {
     char buf[64];
     int n = SNPRINTF(buf, 64, "%g" , x);
     if (n > 0) {
@@ -53,13 +59,12 @@ namespace Cantera {
     return std::string(" ");
   }
 
-  /**
+  /*
    * Convert an integer number to a std::string using sprintf.
    */
-  std::string int2str(int n, std::string fmt) {
+  std::string int2str(const int n, const std::string &fmt) {
     char buf[30];
     int m = SNPRINTF(buf, 30, fmt.c_str(), n);
-    //sprintf(buf, fmt.c_str(), n);
     if (m > 0) {
       buf[29] = '\0';
       return std::string(buf);
@@ -67,8 +72,11 @@ namespace Cantera {
     return std::string(" ");
   }
 
-  
-  std::string int2str(int n) {
+  //  Convert an int to a string 
+  /*
+   *  @param n          int to be converted
+   */
+  std::string int2str(const int n) {
     char buf[30];
     int m = SNPRINTF(buf, 30, "%d", n);
     if (m > 0) {
@@ -85,15 +93,32 @@ namespace Cantera {
     return lc;
   }
 
-  static int firstChar(std::string s) {
+  //! Return the position of the first printable
+  //! character in the string
+  /*!
+   *    @param  s    input string
+   *    @return      Returns an int representing the first 
+   *                 printable string. If none returns the
+   *                 size of the string.
+   */
+  static int firstChar(const std::string &s) {
     int i;
     int n = static_cast<int>(s.size());
-    for (i = 0; i < n; i++) 
+    for (i = 0; i < n; i++) {
       if (s[i] != ' ' && isprint(s[i])) break;
+    }
     return i;
   }
 
-  static int lastChar(std::string s) {
+  //! Return the position of the last printable
+  //! character in the string
+  /*!
+   *    @param  s    input string
+   *    @return      Returns an int representing the first 
+   *                 printable string. If none returns 
+   *                 -1.
+   */
+  static int lastChar(const std::string &s) {
     int i;
     int n = static_cast<int>(s.size());
     for (i = n-1; i >= 0; i--) 
@@ -104,7 +129,7 @@ namespace Cantera {
   /** 
    * Strip leading and trailing white space.
    */
-  std::string stripws(std::string s) {
+  std::string stripws(const std::string &s) {
     int ifirst = firstChar(s);
     int ilast = lastChar(s);
     return s.substr(ifirst, ilast - ifirst + 1); 

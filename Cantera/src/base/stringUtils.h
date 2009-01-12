@@ -1,15 +1,16 @@
 /**
  *  @file std::stringUtils.h
- *
+ *       Contains declarations for string manipulation functions
+ *       within Cantera.
  */
 
 // Copyright 2001  California Institute of Technology
-
 
 #ifndef CT_STRINGUTILS_H
 #define CT_STRINGUTILS_H
 
 #include "ct_defs.h"
+
 #include <string>
 
 namespace Cantera {
@@ -17,7 +18,15 @@ namespace Cantera {
   class Phase;
   class ThermoPhase;
 
-  std::string fp2str(double x, std::string fmt);
+  //! Convert a double into a c++ string
+  /*!
+   *  This routine doesn't assume a formatting. You
+   *  must supply the formatting
+   *
+   * @param x double to be converted
+   * @param fmt   Format to be used (printf style)
+   */
+  std::string fp2str(const double x, const std::string &fmt);
 
   //! Convert a double into a c++ string
   /*!
@@ -26,10 +35,33 @@ namespace Cantera {
    *
    * @param x double to be converted
    */
-  std::string fp2str(double x);
-  std::string int2str(int n, std::string fmt);
-  std::string int2str(int n);
-  std::string stripws(std::string s);
+  std::string fp2str(const double x);
+
+  //!  Convert an int to a string using a format converter
+  /*!
+   *  @param n          int to be converted
+   *  @param fmt        format converter for an int int the printf command
+   */
+  std::string int2str(const int n, const std::string &fmt);
+
+  //!  Convert an int to a string 
+  /*!
+   *  @param n          int to be converted
+   */
+  std::string int2str(const int n);
+
+  //! Strip the leading and trailing white space
+  //! from a string
+  /*!
+   *  The command isprint() is used to determine printable
+   *  characters.
+   *
+   *    @param   s       Input string
+   *    @return  Returns a copy of the string, stripped
+   *             of leading and trailing white space
+   */
+  std::string stripws(const std::string &s);
+
   std::string stripnonprint(std::string s);
   std::string lowercase(const std::string &s);
   void parseCompString(const std::string ss, compositionMap& x);
