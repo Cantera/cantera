@@ -138,7 +138,7 @@ namespace Cantera {
   /** 
    * Strip non-printing characters.
    */
-  std::string stripnonprint(std::string s) {
+  std::string stripnonprint(const std::string &s) {
     int i;
     int n = static_cast<int>(s.size());
     std::string ss = "";

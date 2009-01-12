@@ -62,8 +62,22 @@ namespace Cantera {
    */
   std::string stripws(const std::string &s);
 
-  std::string stripnonprint(std::string s);
+  //! Strip non-printing characters wherever they are
+  /*!
+   *   @param s        Input string
+   *   @return         Returns a copy of the string,
+   *                   stripped of all non-printing characters.
+   */
+  std::string stripnonprint(const std::string &s);
+
+  //! Cast a copy of a string to lower case
+  /*!
+   *   @param s        Input string
+   *   @return         Returns a copy of the string,
+   *                   with all characters lowercase.
+   */
   std::string lowercase(const std::string &s);
+
   void parseCompString(const std::string ss, compositionMap& x);
   void split(const std::string ss, std::vector<std::string>& w);
   int fillArrayFromString(const std::string& str, doublereal* a, char delim = ' ');
