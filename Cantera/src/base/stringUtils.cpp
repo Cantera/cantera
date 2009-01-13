@@ -249,11 +249,12 @@ namespace Cantera {
     while (s != "");
   }
 
-  int fillArrayFromString(const std::string& str, doublereal* a, char delim) {
+  int fillArrayFromString(const std::string& str,
+			  doublereal* const a, char delim) {
     std::string::size_type iloc;
     int count = 0;
-    std::string num, s;
-    s = str;
+    std::string num;
+    std::string s = str;
     while (s.size() > 0) {
       iloc = s.find(delim);
       if (iloc > 0) {
@@ -264,7 +265,7 @@ namespace Cantera {
 	num = s;
 	s = "";
       }
-      a[count] = atof(num.c_str());
+      a[count] = atofCheck(num.c_str());
       count++;
     }
     return count;

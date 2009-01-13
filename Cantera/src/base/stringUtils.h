@@ -117,7 +117,17 @@ namespace Cantera {
    */
   void split(const std::string &ss, std::vector<std::string>& w);
 
-  int fillArrayFromString(const std::string& str, doublereal* a, char delim = ' ');
+  //! Interpret a string as a list of floats, and convert it to a vector
+  //! of floats
+  /*!
+   *   @param str     String input vector
+   *   @param a       Output pointer to a vector of floats
+   *   @param delim   character delimiter. Defaults to a space 
+   *   @return        Returns the number of floats found and converted
+   */
+  int fillArrayFromString(const std::string& str, doublereal* const a,
+			  char delim = ' ');
+
   std::string report(const ThermoPhase& th, bool show_thermo = true);
   std::string formatCompList(const Phase& mix, int xyc);
   std::string logfileName(const std::string& infile);    
