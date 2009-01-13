@@ -3,9 +3,11 @@
  * Contains definitions for string manipulation functions
  *       within Cantera.
  */
+
 /*
  * $Id$
  */
+
 // Copyright 2001  California Institute of Technology
 
 #ifdef WIN32
@@ -182,7 +184,7 @@ namespace Cantera {
    *     @param x    Output map consisting of a composition
    *                 map, which is a string to double map
    */
-  void parseCompString(const std::string ss, Cantera::compositionMap& x) {
+  void parseCompString(const std::string &ss, Cantera::compositionMap& x) {
     std::string s = ss;
     std::string::size_type icolon, ibegin, iend;
     std::string name, num, nm;
@@ -550,7 +552,6 @@ namespace Cantera {
       ibegin = findFirstNotOfWS(val);
       if (ibegin != std::string::npos) {
         val = val.substr(ibegin,val.size());
-        //iend = val.find_first_of(" \n\t");
         iend = findFirstWS(val);
         if (iend == std::string::npos) {
           v.push_back(val);
