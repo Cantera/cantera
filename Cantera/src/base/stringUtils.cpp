@@ -323,7 +323,13 @@ namespace Cantera {
     return logfile;
   }
 
-  std::string wrapString(const std::string& s, int len) {
+  //    Line wrap a string via a copy operation
+  /*
+   *   @param s   Input string to be line wrapped
+   *   @paramlen  Length at which to wrap. The 
+   *              default is 70.
+   */
+  std::string wrapString(const std::string& s, const int len) {
     int nc = s.size();
     int n, count=0;
     std::string r;
@@ -340,6 +346,7 @@ namespace Cantera {
   }
 
 
+  // Routine strips off white space from a c character string
   /*
    *     This routine strips off blanks and tabs (only leading and trailing
    *     characters) in 'str'.  On return, it returns the number of
@@ -351,7 +358,7 @@ namespace Cantera {
    *
    *     Parameter list:
    *
-   *     str == On output 'str' contains the same characters as on
+   * @param  str   On output 'str' contains the same characters as on
    *               input except the leading and trailing white space and
    *               comments have been removed.
    */
@@ -388,7 +395,7 @@ namespace Cantera {
     return (j);
   }
 
-
+  // Translate a char string into a single double
   /*
    * atofCheck is a wrapper around the C stdlib routine atof().
    * It does quite a bit more error checking than atof() or
@@ -407,9 +414,12 @@ namespace Cantera {
    *
    *   It does not accept hexadecimal numbers.
    *
+   *  @param dptr  pointer to the input c string
+   *  @return      Returns the double
+   *
    * On any error, it will throw a CanteraError signal.
    */
-  double atofCheck(const char *dptr) {
+  doublereal atofCheck(const char * const dptr) {
     if (!dptr) {
       throw CanteraError("atofCheck", "null pointer to string");
     }
@@ -456,12 +466,26 @@ namespace Cantera {
 			   "Trouble processing string, " + hh);
       }
     }
-    double rval = atof(eptr);
+    doublereal rval = atof(eptr);
     free(eptr);
     return rval;
   }
 
-
+  // Interpret one or two token string as a single double
+  /*
+   *   This is similar to atof(). However, the second token
+   *   is interpreted as an MKS units string and a conversion
+   *   factor to MKS is applied.
+   *
+   *   Example
+   *  " 1.0 atm"
+   *
+   *   results in the number 1.01325e5 
+   *
+   *   @param strSI string to be converted. One or two tokens
+   *
+   *   @return returns a converted double  
+   */
   doublereal strSItoDbl(const std::string& strSI) {
     std::vector<std::string> v;
     tokenizeString(strSI, v);

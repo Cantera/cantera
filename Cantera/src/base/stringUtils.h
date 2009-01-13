@@ -155,12 +155,76 @@ namespace Cantera {
    */
   doublereal fpValueCheck(std::string val);
 
-  std::string wrapString(const std::string& s, int len=70);
+  //! Line wrap a string via a copy operation
+  /*!
+   *   @param s   Input string to be line wrapped
+   *   @paramlen  Length at which to wrap. The 
+   *              default is 70.
+   */
+  std::string wrapString(const std::string &s, 
+			 const int len=70);
 
+  //! Routine strips off white space from a c character string
+  /*!
+   *     This routine strips off blanks and tabs (only leading and trailing
+   *     characters) in 'str'.  On return, it returns the number of
+   *     characters still included in the string (excluding the null character).
+   *
+   *      Comments are excluded -> All instances of the comment character, '!',
+   *                               are replaced by '\0' thereby terminating
+   *                               the string
+   *
+   *     Parameter list:
+   *
+   * @param  str   On output 'str' contains the same characters as on
+   *               input except the leading and trailing white space and
+   *               comments have been removed.
+   */
   int stripLTWScstring(char str[]);
-  double atofCheck(const char *dptr);
-  doublereal strSItoDbl(const std::string& strSI); 
 
+  //! Translate a char string into a single double
+  /*!
+   * atofCheck is a wrapper around the C stdlib routine atof().
+   * It does quite a bit more error checking than atof() or
+   * strtod(), and is quite a bit more restrictive.
+   *
+   *   First it interprets both E, e, d, and D as exponents.
+   *   atof() only interprets e or E as an exponent character.
+   *
+   *   It only accepts a string as well formed if it consists as a 
+   *   single token. Multiple words will produce an error message
+   *
+   *   It will produce an error for NAN and inf entries as well,
+   *   in contrast to atof() or strtod().
+   *   The user needs to know that a serious numerical issue
+   *   has occurred.
+   *
+   *   It does not accept hexadecimal numbers.
+   *
+   *  @param dptr  pointer to the input c string
+   *  @return      Returns the double
+   *
+   * On any error, it will throw a CanteraError signal.
+   */
+  doublereal atofCheck(const char * const dptr);
+
+
+  //! Interpret one or two token string as a single double
+  /*!
+   *   This is similar to atof(). However, the second token
+   *   is interpreted as an MKS units string and a conversion
+   *   factor to MKS is applied.
+   *
+   *   Example
+   *  " 1.0 atm"
+   *
+   *   results in the number 1.01325e5 
+   *
+   *   @param strSI string to be converted. One or two tokens
+   *
+   *   @return returns a converted double  
+   */
+  doublereal strSItoDbl(const std::string& strSI); 
 
   //! This function separates a string up into tokens
   //! according to the location of white space.
