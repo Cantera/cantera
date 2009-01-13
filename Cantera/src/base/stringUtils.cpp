@@ -1,6 +1,7 @@
 /**
  *  @file stringUtils.cpp
- *
+ * Contains definitions for string manipulation functions
+ *       within Cantera.
  */
 /*
  * $Id$
@@ -126,8 +127,15 @@ namespace Cantera {
     return i;
   }
 
-  /** 
-   * Strip leading and trailing white space.
+  // Strip the leading and trailing white space
+  // from a string
+  /*
+   *  The command isprint() is used to determine printable
+   *  characters.
+   *
+   *    @param   s       Input string
+   *    @return  Returns a copy of the string, stripped
+   *             of leading and trailing white space
    */
   std::string stripws(const std::string &s) {
     int ifirst = firstChar(s);
@@ -135,8 +143,11 @@ namespace Cantera {
     return s.substr(ifirst, ilast - ifirst + 1); 
   }
 
-  /** 
-   * Strip non-printing characters.
+  // Strip non-printing characters wherever they are
+  /*
+   *   @param s        Input string
+   *   @return         Returns a copy of the string,
+   *                   stripped of all non-printing characters.
    */
   std::string stripnonprint(const std::string &s) {
     int i;
@@ -151,10 +162,27 @@ namespace Cantera {
   }
 
             
-  /**
-   * Parse a composition string.
+  // Parse a composition string into a map consisting of individual key:composition
+  // pairs.
+  /*
+   *  The composition is a double.
+   * Example
+   *
+   *  Input is
+   *
+   *    "fire:0   ice:1   snow:2"
+   *
+   *  Output is
+   *             x["fire"] = 0
+   *             x["ice"]  = 1
+   *             x["snow"] = 2
+   *
+   *     @param ss   original string consisting of multiple key:composition
+   *                 pairs on multiple lines
+   *     @param x    Output map consisting of a composition
+   *                 map, which is a string to double map
    */
-  void parseCompString(const std::string ss, compositionMap& x) {
+  void parseCompString(const std::string ss, Cantera::compositionMap& x) {
     std::string s = ss;
     std::string::size_type icolon, ibegin, iend;
     std::string name, num, nm;
@@ -177,7 +205,6 @@ namespace Cantera {
 	  }
 	  nm = stripws(name);
 	  if (x.find(nm) == x.end()) {
-	    //if (x[nm] == 0.0) {
 	    throw CanteraError("parseCompString",
 			       "unknown species " + nm);
 	  }
@@ -188,13 +215,17 @@ namespace Cantera {
     }
     while (s != "");
   }
-
-
             
-  /**
-   * Parse a composition string.
+  //   Parse a composition string into individual key:composition
+  //   pairs
+  /*
+   *
+   *     @param ss   original string consisting of multiple key:composition
+   *                 pairs on multiple lines
+   *     @param w    Output vector consisting of single key:composition
+   *                 items in each index.
    */
-  void split(const std::string ss, std::vector<std::string>& w) {
+  void split(const std::string &ss, std::vector<std::string>& w) {
     std::string s = ss;
     std::string::size_type ibegin, iend;
     std::string name, num, nm;

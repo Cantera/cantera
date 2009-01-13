@@ -4,6 +4,11 @@
  *       within Cantera.
  */
 
+/*
+ * $Revision$
+ * $Date$
+ */
+
 // Copyright 2001  California Institute of Technology
 
 #ifndef CT_STRINGUTILS_H
@@ -78,8 +83,40 @@ namespace Cantera {
    */
   std::string lowercase(const std::string &s);
 
-  void parseCompString(const std::string ss, compositionMap& x);
-  void split(const std::string ss, std::vector<std::string>& w);
+  //! Parse a composition string into a map consisting of individual key:composition
+  //! pairs.
+  /*!
+   *  The composition is a double.
+   * Example
+   *
+   *  Input is
+   *
+   *    "fire:0   ice:1   snow:2"
+   *
+   *  Output is
+   *             x["fire"] = 0
+   *             x["ice"]  = 1
+   *             x["snow"] = 2
+   *
+   *     @param ss   original string consisting of multiple key:composition
+   *                 pairs on multiple lines
+   *     @param x    Output map consisting of a composition
+   *                 map, which is a string to double map
+   */
+  void parseCompString(const std::string &ss, Cantera::compositionMap& x);
+
+
+  //! Parse a composition string into individual key:composition
+  //! pairs
+  /*!
+   *
+   *     @param ss   original string consisting of multiple key:composition
+   *                 pairs on multiple lines
+   *     @param w    Output vector consisting of single key:composition
+   *                 items in each index.
+   */
+  void split(const std::string &ss, std::vector<std::string>& w);
+
   int fillArrayFromString(const std::string& str, doublereal* a, char delim = ' ');
   std::string report(const ThermoPhase& th, bool show_thermo = true);
   std::string formatCompList(const Phase& mix, int xyc);
