@@ -250,7 +250,7 @@ namespace Cantera {
   }
 
   int fillArrayFromString(const std::string& str,
-			  doublereal* const a, char delim) {
+			  doublereal* const a, const char delim) {
     std::string::size_type iloc;
     int count = 0;
     std::string num;

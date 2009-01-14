@@ -126,9 +126,9 @@ namespace Cantera {
    *   @return        Returns the number of floats found and converted
    */
   int fillArrayFromString(const std::string& str, doublereal* const a,
-			  char delim = ' ');
+			  const char delim = ' ');
 
-  std::string report(const ThermoPhase& th, bool show_thermo = true);
+
   std::string formatCompList(const Phase& mix, int xyc);
   std::string logfileName(const std::string& infile);    
   std::string getFileName(const std::string& path);
