@@ -129,7 +129,6 @@ namespace Cantera {
 			  const char delim = ' ');
 
 
-  std::string formatCompList(const Phase& mix, int xyc);
   std::string logfileName(const std::string& infile);    
   std::string getFileName(const std::string& path);
 

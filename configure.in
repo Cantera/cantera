@@ -362,6 +362,10 @@ fi
 if test "x$USE_SUNDIALS" = "xy"; then
 use_sundials=1
 fi
+sundials_lib_dir=
+sundials_lib=
+sundials_lib_dep=
+
 
 if test ${use_sundials} = 1; then
 AC_DEFINE(HAS_SUNDIALS)
@@ -375,11 +379,17 @@ AC_DEFINE(SUNDIALS_VERSION_22)
 sundials_include='-I'${SUNDIALS_HOME}'/include -I'${SUNDIALS_HOME}'/include/sundials -I'${SUNDIALS_HOME}'/include/cvodes -I'${SUNDIALS_HOME}'/include/ida'
 echo "sundials include directory: " ${sundials_include}
 echo "sundials library directory: " $SUNDIALS_LIB_DIR
+sundials_lib_dir=$SUNDIALS_LIB_DIR
+sundials_lib="-L$SUNDIALS_LIB_DIR -lsundials_cvodes -lsundials_ida -lsundials_nvecserial"
+sundials_lib_dep="$SUNDIALS_LIB_DIR/libsundials_cvodes.a $SUNDIALS_LIB_DIR/libsundials_ida.a $SUNDIALS_LIB_DIR/libsundials_nvecserial.a"
 else
 AC_DEFINE(SUNDIALS_VERSION_23)
 sundials_include='-I'${SUNDIALS_INC_DIR}
 echo "sundials include directory: " ${sundials_include}
 echo "sundials library directory: " $SUNDIALS_LIB_DIR
+sundials_lib_dir=$SUNDIALS_LIB_DIR
+sundials_lib="-L$SUNDIALS_LIB_DIR -lsundials_cvodes -lsundials_ida -lsundials_nvecserial"
+sundials_lib_dep="$SUNDIALS_LIB_DIR/libsundials_cvodes.a $SUNDIALS_LIB_DIR/libsundials_ida.a $SUNDIALS_LIB_DIR/libsundials_nvecserial.a"
 # python tools/src/sundials_version.py $SUNDIALS_HOME
 fi
 fi
@@ -393,6 +403,9 @@ AC_SUBST(use_sundials)
 AC_SUBST(CVODE_LIBS)
 AC_SUBST(IDA_LIBS)
 AC_SUBST(sundials_include)
+AC_SUBST(sundials_lib_dir)
+AC_SUBST(sundials_lib)
+AC_SUBST(sundials_lib_dep)
 
 
 #########################################################

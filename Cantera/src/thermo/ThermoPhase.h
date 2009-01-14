@@ -2081,6 +2081,8 @@ namespace Cantera {
    */
 
   std::string report(const ThermoPhase& th, const bool show_thermo = true);
+
+ 
 }
         
 #endif
