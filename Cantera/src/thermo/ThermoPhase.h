@@ -2070,6 +2070,17 @@ namespace Cantera {
 
   //! typedef for the ThermoPhase class
   typedef ThermoPhase thermo_t;
+
+  //! Format a summary of the mixture state for output.
+  /*!
+   * @param th  ThermoPhase object to create a report about
+   * @param show_thermo Boolean indicating whether the thermo functions
+   *                    of the phase should be written out
+   *
+   * @return  Returns a string containing the report
+   */
+
+  std::string report(const ThermoPhase& th, const bool show_thermo = true);
 }
         
 #endif

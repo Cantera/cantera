@@ -3,7 +3,7 @@
  *  Output routines for phases
  */
 
-/*  $Author$
+/* 
  *  $Date$
  *  $Revision$
  *
@@ -19,22 +19,23 @@
 
 #include "ThermoPhase.h"
 #include "PureFluidPhase.h"
-#include <cstdio>
 #include "mix_defs.h"
+
+#include <cstdio>
 
 using namespace std;
 
 namespace Cantera {
   
-  //! Format a summary of the mixture state for output.
-  /*!
+  // Format a summary of the mixture state for output.
+  /*
    * @param th  ThermoPhase object to create a report about
    * @param show_thermo Boolean indicating whether the thermo functions
    *                    of the phase should be written out
    *
    * @return  Returns a string containing the report
    */
-  std::string report(const ThermoPhase& th, bool show_thermo) {
+  std::string report(const ThermoPhase& th, const bool show_thermo) {
     return th.report(show_thermo);
   }
 
