@@ -271,10 +271,14 @@ namespace Cantera {
     return count;
   }
 
-  /**
-   *  Get the file name without the path or extension
+  // Get the file name without the path or extension
+  /*
+   *   @param fullPath   Input file name consisting
+   *                     of the full file name
+   *
+   *  @return Returns the basename
    */
-  std::string getFileName(const std::string& path) {
+  std::string getBaseName(const std::string& path) {
     std::string file;
     size_t idot = path.find_last_of('.');
     size_t islash = path.find_last_of('/');
@@ -305,24 +309,18 @@ namespace Cantera {
     return atofCheck(stripws(val).c_str());
   }
 
-  /**
-   *  Generate a logfile name based on an input file name
+  //  Generate a logfile name based on an input file name
+  /*
+   *   It tries to find the basename. Then, it appends a .log
+   *   to it.
+   *
+   *   @param infile      Input file name
+   *
+   *  @return Returns a logfile name
    */
   std::string logfileName(const std::string& infile) {
-    std::string logfile;
-    size_t idot = infile.find_last_of('.');
-    size_t islash = infile.find_last_of('/');
-    if (idot > 0 && idot < infile.size()) {
-      if (islash > 0 && islash < idot) {
-	logfile = infile.substr(islash+1, idot-islash-1) + ".log";
-      }
-      else {
-	logfile = infile.substr(0,idot) + ".log";
-      }
-    }
-    else {
-      logfile = infile + ".log";
-    }       
+    std::string logfile = getBaseName(infile);
+    logfile += ".log";
     return logfile;
   }
 

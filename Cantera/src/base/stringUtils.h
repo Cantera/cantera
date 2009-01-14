@@ -128,9 +128,27 @@ namespace Cantera {
   int fillArrayFromString(const std::string& str, doublereal* const a,
 			  const char delim = ' ');
 
+ 
+  //!  Generate a logfile name based on an input file name
+  /*!
+   *   It tries to find the basename. Then, it appends a .log
+   *   to it.
+   *
+   *   @param infile      Input file name
+   *
+   *  @return Returns a logfile name
+   */
+  std::string logfileName(const std::string& infile);
 
-  std::string logfileName(const std::string& infile);    
-  std::string getFileName(const std::string& path);
+  
+  //! Get the file name without the path or extension
+  /*!
+   *   @param fullPath   Input file name consisting
+   *                     of the full file name
+   *
+   *  @return Returns the basename
+   */
+  std::string getBaseName(const std::string& fullPath);
 
   //! Translate a string into one integer value
   /*!
