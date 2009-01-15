@@ -1,5 +1,5 @@
 /**
- *  @file std::stringUtils.h
+ *  @file stringUtils.h
  *       Contains declarations for string manipulation functions
  *       within Cantera.
  */
@@ -184,9 +184,9 @@ namespace Cantera {
 
   //! Line wrap a string via a copy operation
   /*!
-   *   @param s   Input string to be line wrapped
-   *   @paramlen  Length at which to wrap. The 
-   *              default is 70.
+   *   @param  s    Input string to be line wrapped
+   *   @param  len  Length at which to wrap. The 
+   *                default is 70.
    */
   std::string wrapString(const std::string &s, 
 			 const int len=70);
@@ -198,7 +198,7 @@ namespace Cantera {
    *     characters still included in the string (excluding the null character).
    *
    *      Comments are excluded -> All instances of the comment character, '!',
-   *                               are replaced by '\0' thereby terminating
+   *                               are replaced by NULL character thereby terminating
    *                               the string
    *
    *     Parameter list:

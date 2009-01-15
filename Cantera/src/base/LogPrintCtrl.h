@@ -4,7 +4,6 @@
  *   (see \ref Cantera::LogPrintCtrl).
  */
 /*
- * $Author$
  * $Revision$
  * $Date$
  */
@@ -45,8 +44,6 @@ namespace Cantera {
     /*!
      * This also serves to initialize the ticks within the object
      *
-     * @param coutProxy  This is a reference to the ostream
-     *                   to use for all IO from ths object.
      * @param Ndec value of Ndec. Defaults to -1000, i.e., 
      *             no decade cropping
      */
@@ -165,8 +162,15 @@ namespace Cantera {
     
 
   private:
+
+    //! local stringstream class for temp output 
     std::ostringstream m_os;
+
+    //! Pointer to the ostream where this class actually
+    //! prints its information
     std::ostream *m_ffss;
+
+    //! Pointer to the PrintCtrl class
     PrintCtrl *m_pc;
 
 

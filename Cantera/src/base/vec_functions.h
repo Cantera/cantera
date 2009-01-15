@@ -23,9 +23,16 @@
 
 namespace Cantera {
 
-  /**
-   * Copy the first n entries from x to y. Both x and y must have
-   * size greater than or equal to n.
+
+  //! Templated function that copies the first n entries from x to y.
+  /*!
+   *  
+   *
+   *  The  templated type is the type of x and y
+   *
+   *  @param n        Number of elements to copy from x to y
+   *  @param x        The object x, of templated type const T&
+   *  @param y        The object y, of templated type  T&
    */
   template<class T>
   inline void copyn(size_t n, const T& x, T& y) {
@@ -85,6 +92,25 @@ namespace Cantera {
 		   x.begin(), std::plus<TYPENAME_KEYWORD T::value_type>());
   }
 
+
+  //! Templated dot ratio class
+  /*!
+   *  Calculates the quantity:
+   *
+   *      S += x[n]/y[n]
+   *
+   *  The first templated type is the iterator type for x[] and y[].
+   *  The second templated type is the type of S.
+   *
+   *  @param x_begin  InputIter type, indicating the address of the
+   *                  first element of x
+   *  @param x_end    InputIter type, indicating the address of the
+   *                  last element of x
+   *  @param y_begin  InputIter type, indicating the address of the
+   *                  first element of y
+   *  @param start_value S type, indicating the type of the
+   *                   accumulation result.
+   */
   template<class InputIter, class S>
   inline doublereal _dot_ratio(InputIter x_begin, InputIter x_end, 
 			       InputIter y_begin, S start_value) {
