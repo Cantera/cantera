@@ -100,7 +100,12 @@ FILE_PATTERNS          = Kinetics.h Kinetics.cpp \
                          *.txt \
                          xml.h xml.cpp \
                          ctml.h ctml.cpp ct2ctml.cpp \
+                         stringUtils.h stringUtils.cpp \
+                         plots.h plots.cpp \
+                         PrintCtrl.h PrintCtrl.cpp \
+                         LogPrintCtrl.h LogPrintCtrl.cpp \
                          clockWC.h clockWC.cpp \
+                         Array.h vec_functions.h \ 
                          equilibrium.h \
                          ThermoPhase.h  ThermoPhase.cpp \
                          Phase.h Phase.cpp \
