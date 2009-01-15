@@ -22,9 +22,10 @@
 namespace Cantera { 
 
 
-  /**
-   *  A class for 2D arrays stored in column-major
-   *  (Fortran-compatible) form.
+ 
+  //!  A class for 2D arrays stored in column-major
+  //!  (Fortran-compatible) form.
+  /*!
    *  In this form, the data entry for an n row, m col 
    *  matrix is 
    *       index = i + (n-1) * j
@@ -46,17 +47,25 @@ namespace Cantera {
     Array2D() : m_nrows(0), m_ncols(0) { m_data.clear(); }
 
 
-    /** 
-     *  Constructor. Create an \c m by \c n array, and initialize
-     *  all elements to \c v.
+    //!  Constructor.
+    /*!
+     *    Create an \c m by \c n array, and initialize
+     *    all elements to \c v.
+     *
+     *  @param m   Number of rows
+     *  @param n   Number of columns
+     *  @param v   Default fill value. The default is 0.0
      */
-    Array2D(int m, int n, doublereal v = 0.0) 
+    Array2D(const int m, const int n, const doublereal v = 0.0) 
       : m_nrows(m), m_ncols(n) {
       m_data.resize(n*m);
       std::fill(m_data.begin(), m_data.end(), v);
     }
 
-    /// copy constructor
+    //!  Copy constructor
+    /*!
+     *   @param y  Array2D to make the copy from
+     */
     Array2D(const Array2D& y) {
       m_nrows = y.m_nrows;
       m_ncols = y.m_ncols;
@@ -64,7 +73,10 @@ namespace Cantera {
       m_data = y.m_data;
     }
 
-    /// assignment operator
+    //! assignment operator
+    /*!
+     *  @param y Array2D to get the values from
+     */
     Array2D& operator=(const Array2D& y) {
       if (&y == this) return *this;
       m_nrows = y.m_nrows;
@@ -147,8 +159,13 @@ namespace Cantera {
       for (; b != end(); ++b, ++xb, ++yb)  *b = a*(*xb) + *yb;
     }
 
-    /**
-     * Allows setting elements using the syntax A(i,j) = x.
+    
+    //! Allows setting elements using the syntax A(i,j) = x.
+    /*!
+     *  @param  i            row index
+     *  @param  j            column index.
+     *
+     *  @return Returns a reference to A(i,j) which may be assigned.
      */ 
     doublereal& operator()( int i, int j) { return value(i,j); }
 
@@ -198,8 +215,14 @@ namespace Cantera {
 
   protected:
 
+    //! Data storred in a single array
     vector_fp m_data;
-    int m_nrows, m_ncols;
+
+    //! Number of rows
+    int m_nrows;
+
+    //! Number of columns
+    int m_ncols;
   };
 
   /// output the array
