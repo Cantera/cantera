@@ -167,6 +167,8 @@ namespace Cantera {
 			 "bad value");
     }
     m_indexSolvent = k;
+    AssertThrowMsg(m_indexSolvent==0, "MolalityVPSSTP::setSolvent",
+                   "Molality-based methods limit solvent id to being 0"); 
     m_weightSolvent = molecularWeight(k);
     m_Mnaught = m_weightSolvent / 1000.;
   }
@@ -266,20 +268,16 @@ namespace Cantera {
   void MolalityVPSSTP::setMolalities(const doublereal * const molal) {
 	
     double Lsum = 1.0 / m_Mnaught;
-    for (int k = 0; k < m_kk; k++) {
-      if (k != m_indexSolvent) { 
-	m_molalities[k] = molal[k];
-	Lsum += molal[k];
-      }
+    for (int k = 1; k < m_kk; k++) {
+      m_molalities[k] = molal[k];
+      Lsum += molal[k];
     }
     double tmp = 1.0 / Lsum;
     m_molalities[m_indexSolvent] = tmp / m_Mnaught;
     double sum = m_molalities[m_indexSolvent];
-    for (int k = 0; k < m_kk; k++) {
-      if (k != m_indexSolvent) { 
-	m_molalities[k] = tmp * molal[k];
-	sum += m_molalities[k];
-      }
+    for (int k = 1; k < m_kk; k++) {
+      m_molalities[k] = tmp * molal[k];
+      sum += m_molalities[k];
     }
     if (sum != 1.0) {
       tmp = 1.0 / sum;
@@ -466,14 +464,13 @@ namespace Cantera {
    */
   void MolalityVPSSTP::getActivityCoefficients(doublereal* ac) const {
     getMolalityActivityCoefficients(ac);
+    AssertThrow(m_indexSolvent==0, "MolalityVPSSTP::getActivityCoefficients");
     double xmolSolvent = moleFraction(m_indexSolvent);
     if (xmolSolvent < m_xmolSolventMIN) {
       xmolSolvent = m_xmolSolventMIN;
     }
-    for (int k = 0; k < m_kk; k++) {
-      if (k != m_indexSolvent) {
-	ac[k] /= xmolSolvent;
-      }
+    for (int k = 1; k < m_kk; k++) {
+      ac[k] /= xmolSolvent;
     }
   }
 
@@ -518,10 +515,8 @@ namespace Cantera {
      * Then, we calculate the sum of the solvent molalities
      */
     double sum = 0;
-    for (int k = 0; k < m_kk; k++) {
-      if (k != m_indexSolvent) {
-	sum += fmaxx(m_molalities[k], 0.0);
-      }
+    for (int k = 1; k < m_kk; k++) {
+      sum += fmaxx(m_molalities[k], 0.0);
     }
     double oc = 1.0;
     double lac = log(act[m_indexSolvent]);
