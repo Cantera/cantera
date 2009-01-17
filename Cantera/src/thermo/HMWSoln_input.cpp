@@ -1615,7 +1615,14 @@ namespace Cantera {
       }
     }
 
-    VPStandardStateTP::initThermoXML(phaseNode, id);
+    IMS_typeCutoff_ = 2;
+    if (IMS_typeCutoff_ == 2) {
+      calcIMSCutoffParams_();
+    }
+    calcMCCutoffParams_();
+    setMoleFSolventMin(1.0E-5);
+
+    MolalityVPSSTP::initThermoXML(phaseNode, id);
     /*
      * Lastly set the state
      */
@@ -1648,7 +1655,7 @@ namespace Cantera {
       }
     }
     if (!converged) {
-      throw CanteraError(" IdealMolalSoln::calcCutoffParams_()",
+      throw CanteraError("HMWSoln::calcIMSCutoffParams_()",
                          " failed to converge on the f polynomial");
     }
     converged = false;
@@ -1671,8 +1678,45 @@ namespace Cantera {
       }
     }
     if (!converged) {
-      throw CanteraError(" IdealMolalSoln::calcCutoffParams_()",
-                         " failed to converge on the f polynomial");
+      throw CanteraError("HMWSoln::calcIMSCutoffParams_()",
+                         " failed to converge on the g polynomial");
+    }
+  }
+
+  // Precalculate the MC Cutoff parameters
+  void  HMWSoln::calcMCCutoffParams_() {
+    MC_X_o_min_ = 0.3;
+    MC_X_o_cutoff_ = 0.6;
+    MC_slopepCut_ = 0.05;
+    MC_cpCut_ = 0.25;
+
+    // Initial starting values
+    MC_apCut_ = MC_X_o_min_;
+    MC_epCut_ = 0.0;
+    bool converged = false;
+    double oldV = 0.0;
+    int its;
+    double damp = 0.5;
+    for (its = 0; its < 500 && !converged; its++) {
+      oldV = MC_epCut_;
+      MC_apCut_ = damp *(MC_X_o_min_ - MC_epCut_) + (1-damp) * MC_apCut_;
+      double MC_bpCutNew = MC_apCut_ / MC_cpCut_ + MC_slopepCut_ - 1.0;
+      MC_bpCut_ = damp * MC_bpCutNew + (1-damp) * MC_bpCut_;
+      double MC_dpCutNew = ((- MC_apCut_/MC_cpCut_ + MC_bpCut_ - MC_bpCut_ * MC_X_o_cutoff_/MC_cpCut_)
+		   /
+		   (MC_X_o_cutoff_ * MC_X_o_cutoff_/MC_cpCut_ - 2.0 * MC_X_o_cutoff_));
+      MC_dpCut_ = damp * MC_dpCutNew + (1-damp) * MC_dpCut_;
+      double tmp = MC_apCut_ + MC_X_o_cutoff_*( MC_bpCut_ + MC_dpCut_ * MC_X_o_cutoff_);
+      double eterm = std::exp(- MC_X_o_cutoff_ / MC_cpCut_);
+      MC_epCut_ = - eterm * (tmp);
+      double diff = MC_epCut_ - oldV;
+      if (fabs(diff) < 1.0E-14) {
+        converged = true;
+      }
+    }
+    if (!converged) {
+      throw CanteraError("HMWSoln::calcMCCutoffParams_()",
+                         " failed to converge on the p polynomial");
     }
   }
 

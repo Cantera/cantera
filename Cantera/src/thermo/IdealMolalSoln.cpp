@@ -1,5 +1,4 @@
 /**
- *
  *  @file IdealMolalSoln.cpp
  *   ThermoPhase object for the ideal molal equation of
  * state (see \ref thermoprops 
@@ -19,7 +18,7 @@
  * U.S. Government retains certain rights in this software.
  */
 /*
- *  $Author$
+ *
  *  $Date$
  *  $Revision$
  */
@@ -1091,6 +1090,9 @@ namespace Cantera {
     }
 
     MolalityVPSSTP::initThermoXML(phaseNode, id);
+
+
+    setMoleFSolventMin(1.0E-5);
     /*
      * Set the state
      */
@@ -1340,7 +1342,7 @@ namespace Cantera {
     }
     if (!converged) {
       throw CanteraError(" IdealMolalSoln::calcCutoffParams_()",
-			 " failed to converge on the f polynomial");
+			 " failed to converge on the g polynomial");
     }
   }
  

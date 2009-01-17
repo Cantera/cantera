@@ -56,7 +56,7 @@ namespace Cantera {
     IMS_X_o_cutoff_(0.2),
     IMS_gamma_o_min_(1.0E-5),
     IMS_gamma_k_min_(10.0),
-    IMS_cCut_(0.5),
+    IMS_cCut_(0.05),
     IMS_slopefCut_(0.6),
     IMS_dfCut_(0.0),
     IMS_efCut_(0.0),
@@ -67,6 +67,14 @@ namespace Cantera {
     IMS_egCut_(0.0),
     IMS_agCut_(0.0),
     IMS_bgCut_(0.0),
+    MC_X_o_cutoff_(0.0),
+    MC_X_o_min_(0.0),
+    MC_slopepCut_(0.0),
+    MC_dpCut_(0.0),
+    MC_epCut_(0.0),
+    MC_apCut_(0.0),
+    MC_bpCut_(0.0),
+    MC_cpCut_(0.0),
     m_debugCalc(0)
   {
     for (int i = 0; i < 17; i++) {
@@ -101,7 +109,7 @@ namespace Cantera {
     IMS_X_o_cutoff_(0.2),
     IMS_gamma_o_min_(1.0E-5),
     IMS_gamma_k_min_(10.0),
-    IMS_cCut_(0.5),
+    IMS_cCut_(0.05),
     IMS_slopefCut_(0.6),
     IMS_dfCut_(0.0),
     IMS_efCut_(0.0),
@@ -112,6 +120,14 @@ namespace Cantera {
     IMS_egCut_(0.0),
     IMS_agCut_(0.0),
     IMS_bgCut_(0.0),
+    MC_X_o_cutoff_(0.0),
+    MC_X_o_min_(0.0),
+    MC_slopepCut_(0.0),
+    MC_dpCut_(0.0),
+    MC_epCut_(0.0),
+    MC_apCut_(0.0),
+    MC_bpCut_(0.0),
+    MC_cpCut_(0.0),
     m_debugCalc(0)
   {
     for (int i = 0; i < 17; i++) {
@@ -140,7 +156,7 @@ namespace Cantera {
     IMS_X_o_cutoff_(0.2),
     IMS_gamma_o_min_(1.0E-5),
     IMS_gamma_k_min_(10.0),
-    IMS_cCut_(0.5),
+    IMS_cCut_(0.05),
     IMS_slopefCut_(0.6),
     IMS_dfCut_(0.0),
     IMS_efCut_(0.0),
@@ -151,6 +167,14 @@ namespace Cantera {
     IMS_egCut_(0.0),
     IMS_agCut_(0.0),
     IMS_bgCut_(0.0),
+    MC_X_o_cutoff_(0.0),
+    MC_X_o_min_(0.0),
+    MC_slopepCut_(0.0),
+    MC_dpCut_(0.0),
+    MC_epCut_(0.0),
+    MC_apCut_(0.0),
+    MC_bpCut_(0.0),
+    MC_cpCut_(0.0),
     m_debugCalc(0)
   {
     for (int i = 0; i < 17; i++) {
@@ -185,7 +209,7 @@ namespace Cantera {
     IMS_X_o_cutoff_(0.2),
     IMS_gamma_o_min_(1.0E-5),
     IMS_gamma_k_min_(10.0),
-    IMS_cCut_(0.5),
+    IMS_cCut_(0.05),
     IMS_slopefCut_(0.6),
     IMS_dfCut_(0.0),
     IMS_efCut_(0.0),
@@ -196,6 +220,14 @@ namespace Cantera {
     IMS_egCut_(0.0),
     IMS_agCut_(0.0),
     IMS_bgCut_(0.0),
+    MC_X_o_cutoff_(0.0),
+    MC_X_o_min_(0.0),
+    MC_slopepCut_(0.0),
+    MC_dpCut_(0.0),
+    MC_epCut_(0.0),
+    MC_apCut_(0.0),
+    MC_bpCut_(0.0),
+    MC_cpCut_(0.0),
     m_debugCalc(0)
   {
     /*
@@ -340,6 +372,14 @@ namespace Cantera {
       IMS_egCut_            = b.IMS_egCut_;
       IMS_agCut_            = b.IMS_agCut_;
       IMS_bgCut_            = b.IMS_bgCut_;
+      MC_X_o_cutoff_        = b.MC_X_o_cutoff_;
+      MC_X_o_min_           = b.MC_X_o_min_;
+      MC_slopepCut_         = b.MC_slopepCut_;
+      MC_dpCut_             = b.MC_dpCut_;
+      MC_epCut_             = b.MC_epCut_;
+      MC_apCut_             = b.MC_apCut_;
+      MC_bpCut_             = b.MC_bpCut_;
+      MC_cpCut_             = b.MC_cpCut_;
 
       m_CounterIJ           = b.m_CounterIJ;
       m_molalitiesCropped   = b.m_molalitiesCropped;
@@ -390,6 +430,30 @@ namespace Cantera {
     m_waterSS(0),
     m_densWaterSS(1000.),
     m_waterProps(0),
+    m_molalitiesAreCropped(false),
+    IMS_typeCutoff_(0),
+    IMS_X_o_cutoff_(0.2),
+    IMS_gamma_o_min_(1.0E-5),
+    IMS_gamma_k_min_(10.0),
+    IMS_cCut_(0.05),
+    IMS_slopefCut_(0.6),
+    IMS_dfCut_(0.0),
+    IMS_efCut_(0.0),
+    IMS_afCut_(0.0),
+    IMS_bfCut_(0.0),
+    IMS_slopegCut_(0.0),
+    IMS_dgCut_(0.0),
+    IMS_egCut_(0.0),
+    IMS_agCut_(0.0),
+    IMS_bgCut_(0.0),
+    MC_X_o_cutoff_(0.0),
+    MC_X_o_min_(0.0),
+    MC_slopepCut_(0.0),
+    MC_dpCut_(0.0),
+    MC_epCut_(0.0),
+    MC_apCut_(0.0),
+    MC_bpCut_(0.0),
+    MC_cpCut_(0.0),
     m_debugCalc(0)
   {
     if (testProb != 1) {
@@ -1733,6 +1797,17 @@ namespace Cantera {
      */
     s_updatePitzer_lnMolalityActCoeff();
 
+    double xmolSolvent = moleFraction(m_indexSolvent);
+    double xx = MAX(m_xmolSolventMIN, xmolSolvent);
+    double lnActCoeffMolal0 = - log(xx) + (xx - 1.0)/xx;
+
+    for (int k = 1; k < m_kk; k++) {
+      m_lnActCoeffMolal_Unscaled[k] += IMS_lnActCoeffMolal_[k];
+    }
+
+    m_lnActCoeffMolal_Unscaled[0] += (IMS_lnActCoeffMolal_[0] - lnActCoeffMolal0);
+
+
     /*
      * Now do the pH Scaling
      */
@@ -1757,111 +1832,135 @@ namespace Cantera {
 	Imax = Itmp;
       }
     }
-    /*
-     * Quick return
-     */
-    if (Imax < m_maxIionicStrength) {
-      return;
-    }
 
-    m_molalitiesAreCropped = true;
+    int cropMethod = 1;
 
-    for (i = 1; i < (m_kk - 1); i++) {
-      double charge_i = m_speciesCharge[i];
-      double abs_charge_i = fabs(charge_i);
-      if (charge_i == 0.0) {
-	continue;
+
+    if (cropMethod == 0) {
+
+      /*
+       * Quick return
+       */
+      if (Imax < m_maxIionicStrength) {
+	return;
       }
-      for (j = (i+1); j < m_kk; j++) {
-	double charge_j = m_speciesCharge[j];
-	double abs_charge_j = fabs(charge_j);
-	/*
-	 * Find the counterIJ for the symmetric binary interaction
-	 */
-	//n = m_kk*i + j;
-	//counterIJ = m_CounterIJ[n];
-	/*
-	 * Only loop over oppositely charge species
-	 */
-	if (charge_i * charge_j < 0) {
-	  Iac_max = m_maxIionicStrength;
 
-	  if (m_molalitiesCropped[i] > m_molalitiesCropped[j]) {
-	    Imax = m_molalitiesCropped[i] * abs_charge_i * abs_charge_i;
-	    if (Imax > Iac_max) {
-	      m_molalitiesCropped[i] = Iac_max / (abs_charge_i * abs_charge_i);
-	    }
-	    Imax = m_molalitiesCropped[j] * fabs(abs_charge_j * abs_charge_i);
-	    if (Imax > Iac_max) {
-	      m_molalitiesCropped[j] = Iac_max / (abs_charge_j * abs_charge_i);
-	    }
-	  } else {
-	    Imax = m_molalitiesCropped[j] * abs_charge_j * abs_charge_j; 
-	    if (Imax > Iac_max) {
-	      m_molalitiesCropped[j] = Iac_max / (abs_charge_j * abs_charge_j);
-	    }
-	    Imax = m_molalitiesCropped[i] * abs_charge_j * abs_charge_i;
-	    if (Imax > Iac_max) {
-	      m_molalitiesCropped[i] = Iac_max / (abs_charge_j * abs_charge_i);
-	    }
-	  }
-	}
-      }
-    }
+      m_molalitiesAreCropped = true;
 
-    /*
-     * Do this loop 10 times until we have achieved charge neutrality
-     * in the cropped molalities
-     */
-    for (int times = 0; times< 10; times++) {
-      double anion_charge = 0.0;
-      double cation_charge = 0.0;
-      int anion_contrib_max_i = -1;
-      double anion_contrib_max = -1.0;
-      int cation_contrib_max_i = -1;
-      double cation_contrib_max = -1.0;
-      for (i = 0; i < m_kk; i++) {
+      for (i = 1; i < (m_kk - 1); i++) {
 	double charge_i = m_speciesCharge[i];
-	if (charge_i < 0.0) {
-	  double anion_contrib =  - m_molalitiesCropped[i] * charge_i;
-	  anion_charge += anion_contrib ;
-	  if (anion_contrib > anion_contrib_max) {
-	    anion_contrib_max = anion_contrib;
-	    anion_contrib_max_i = i;
-	  }
-	} else if (charge_i > 0.0) {
-	  double cation_contrib = m_molalitiesCropped[i] * charge_i;
-	  cation_charge += cation_contrib ;
-	  if (cation_contrib > cation_contrib_max) {
-	    cation_contrib_max = cation_contrib;
-	    cation_contrib_max_i = i;
+	double abs_charge_i = fabs(charge_i);
+	if (charge_i == 0.0) {
+	  continue;
+	}
+	for (j = (i+1); j < m_kk; j++) {
+	  double charge_j = m_speciesCharge[j];
+	  double abs_charge_j = fabs(charge_j);
+	  /*
+	   * Find the counterIJ for the symmetric binary interaction
+	   */
+	  //n = m_kk*i + j;
+	  //counterIJ = m_CounterIJ[n];
+	  /*
+	   * Only loop over oppositely charge species
+	   */
+	  if (charge_i * charge_j < 0) {
+	    Iac_max = m_maxIionicStrength;
+
+	    if (m_molalitiesCropped[i] > m_molalitiesCropped[j]) {
+	      Imax = m_molalitiesCropped[i] * abs_charge_i * abs_charge_i;
+	      if (Imax > Iac_max) {
+		m_molalitiesCropped[i] = Iac_max / (abs_charge_i * abs_charge_i);
+	      }
+	      Imax = m_molalitiesCropped[j] * fabs(abs_charge_j * abs_charge_i);
+	      if (Imax > Iac_max) {
+		m_molalitiesCropped[j] = Iac_max / (abs_charge_j * abs_charge_i);
+	      }
+	    } else {
+	      Imax = m_molalitiesCropped[j] * abs_charge_j * abs_charge_j; 
+	      if (Imax > Iac_max) {
+		m_molalitiesCropped[j] = Iac_max / (abs_charge_j * abs_charge_j);
+	      }
+	      Imax = m_molalitiesCropped[i] * abs_charge_j * abs_charge_i;
+	      if (Imax > Iac_max) {
+		m_molalitiesCropped[i] = Iac_max / (abs_charge_j * abs_charge_i);
+	      }
+	    }
 	  }
 	}
       }
-      double total_charge = cation_charge - anion_charge;
-      if (total_charge > 1.0E-8) {
-	double desiredCrop = total_charge/m_speciesCharge[cation_contrib_max_i];
-	double maxCrop =  0.66 * m_molalitiesCropped[cation_contrib_max_i];
-	if (desiredCrop < maxCrop) {
-	  m_molalitiesCropped[cation_contrib_max_i] -= desiredCrop;
-	  break;
-	} else {
-	  m_molalitiesCropped[cation_contrib_max_i] -= maxCrop;
+
+      /*
+       * Do this loop 10 times until we have achieved charge neutrality
+       * in the cropped molalities
+       */
+      for (int times = 0; times< 10; times++) {
+	double anion_charge = 0.0;
+	double cation_charge = 0.0;
+	int anion_contrib_max_i = -1;
+	double anion_contrib_max = -1.0;
+	int cation_contrib_max_i = -1;
+	double cation_contrib_max = -1.0;
+	for (i = 0; i < m_kk; i++) {
+	  double charge_i = m_speciesCharge[i];
+	  if (charge_i < 0.0) {
+	    double anion_contrib =  - m_molalitiesCropped[i] * charge_i;
+	    anion_charge += anion_contrib ;
+	    if (anion_contrib > anion_contrib_max) {
+	      anion_contrib_max = anion_contrib;
+	      anion_contrib_max_i = i;
+	    }
+	  } else if (charge_i > 0.0) {
+	    double cation_contrib = m_molalitiesCropped[i] * charge_i;
+	    cation_charge += cation_contrib ;
+	    if (cation_contrib > cation_contrib_max) {
+	      cation_contrib_max = cation_contrib;
+	      cation_contrib_max_i = i;
+	    }
+	  }
 	}
-      } else if (total_charge < -1.0E-8) {
-	double desiredCrop = total_charge/m_speciesCharge[anion_contrib_max_i];
-	double maxCrop =  0.66 * m_molalitiesCropped[anion_contrib_max_i];
-	if (desiredCrop < maxCrop) {
-	  m_molalitiesCropped[anion_contrib_max_i] -= desiredCrop;
-	  break;
+	double total_charge = cation_charge - anion_charge;
+	if (total_charge > 1.0E-8) {
+	  double desiredCrop = total_charge/m_speciesCharge[cation_contrib_max_i];
+	  double maxCrop =  0.66 * m_molalitiesCropped[cation_contrib_max_i];
+	  if (desiredCrop < maxCrop) {
+	    m_molalitiesCropped[cation_contrib_max_i] -= desiredCrop;
+	    break;
+	  } else {
+	    m_molalitiesCropped[cation_contrib_max_i] -= maxCrop;
+	  }
+	} else if (total_charge < -1.0E-8) {
+	  double desiredCrop = total_charge/m_speciesCharge[anion_contrib_max_i];
+	  double maxCrop =  0.66 * m_molalitiesCropped[anion_contrib_max_i];
+	  if (desiredCrop < maxCrop) {
+	    m_molalitiesCropped[anion_contrib_max_i] -= desiredCrop;
+	    break;
+	  } else {
+	    m_molalitiesCropped[anion_contrib_max_i] -= maxCrop;
+	  }
 	} else {
-	  m_molalitiesCropped[anion_contrib_max_i] -= maxCrop;
+	  break;
 	}
-      } else {
-	break;
       }
     }
     
+    if (cropMethod == 1) {
+      double *molF = DATA_PTR(m_gamma_tmp);
+      getMoleFractions(molF);
+      double xmolSolvent = molF[m_indexSolvent];
+      if (xmolSolvent >= MC_X_o_cutoff_) {
+	return;
+      }
+  
+      double poly = MC_apCut_ + MC_bpCut_ * xmolSolvent + MC_dpCut_* xmolSolvent * xmolSolvent;
+      double  p =  xmolSolvent + MC_epCut_ + exp(- xmolSolvent/ MC_cpCut_) * poly;
+      double denomInv = 1.0/ (m_Mnaught * p);
+
+      for (int k = 0; k < m_kk; k++) {
+	m_molalitiesCropped[k] = molF[k] * denomInv ; 
+      }
+    }
+
   }
 
   /*
@@ -2247,7 +2346,7 @@ namespace Cantera {
      * molalitysum is the sum of the molalities over all solutes,
      * even those with zero charge.
      */
-    double molalitysum = 0.0;
+    double molalitysumUncropped = 0.0;
 
     double *gfunc    =  DATA_PTR(m_gfunc_IJ);
     double *g2func   =  DATA_PTR(m_g2func_IJ);
@@ -2261,7 +2360,7 @@ namespace Cantera {
     double *Phiphi   =  DATA_PTR(m_PhiPhi_IJ);
     double *CMX      =  DATA_PTR(m_CMX_IJ);
 
-
+ 
     double x1, x2;
     double Aphi, F, zsqF;
     double sum1, sum2, sum3, sum4, sum5, term1;
@@ -2288,7 +2387,7 @@ namespace Cantera {
       Is += charge[n] * charge[n] * molality[n];
       //      total molar charge
       molarcharge +=  fabs(charge[n]) * molality[n];
-      molalitysum += molality[n];
+      molalitysumUncropped += m_molalities[n];
     }
     Is *= 0.5;
     if (Is > m_maxIionicStrength) {
@@ -3178,8 +3277,8 @@ namespace Cantera {
      * Calculate the osmotic coefficient from 
      *       osmotic_coeff = 1 + dGex/d(M0noRT) / sum(molality_i)
      */
-    if (molalitysum > 1.0E-150) {
-      osmotic_coef = 1.0 + (sum_m_phi_minus_1 / molalitysum);
+    if (molalitysumUncropped > 1.0E-150) {
+      osmotic_coef = 1.0 + (sum_m_phi_minus_1 / molalitysumUncropped);
     } else {
       osmotic_coef = 1.0;
     }
@@ -3201,7 +3300,7 @@ namespace Cantera {
       printf(" Step 10: \n");
     }
 #endif
-    lnwateract = -(m_weightSolvent/1000.0) * molalitysum * osmotic_coef;
+    lnwateract = -(m_weightSolvent/1000.0) * molalitysumUncropped * osmotic_coef;
     wateract = exp(lnwateract);
 
     /*
@@ -3213,11 +3312,12 @@ namespace Cantera {
      *  ln(actcoeff[]). Therefore, we must calculate ln(actcoeff_0).
      */
     double xmolSolvent = moleFraction(m_indexSolvent);
-    m_lnActCoeffMolal_Unscaled[0] = lnwateract - log(xmolSolvent);
+    double xx = MAX(m_xmolSolventMIN, xmolSolvent);
+    m_lnActCoeffMolal_Unscaled[0] = lnwateract - log(xx);
 #ifdef DEBUG_MODE
     if (m_debugCalc) {
       printf(" Weight of Solvent = %16.7g\n", m_weightSolvent);
-      printf(" molalitySum = %16.7g\n", molalitysum);
+      printf(" molalitySumUncropped = %16.7g\n", molalitysumUncropped);
       printf(" ln_a_water=%10.6f a_water=%10.6f\n\n", 
 	     lnwateract, wateract);
     }

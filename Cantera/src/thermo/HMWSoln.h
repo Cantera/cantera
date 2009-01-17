@@ -3165,6 +3165,34 @@ namespace Cantera {
     //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
     doublereal IMS_bgCut_;
 
+    //! value of the solvent mole fraction that centers the cutoff polynomials
+    //! for the cutoff =1 process;
+    doublereal MC_X_o_cutoff_;
+
+    //! gamma_o value for the cutoff process at the zero solvent point
+    doublereal MC_X_o_min_;
+    //! Parameter in the Molality Exp cutoff treatment
+    /*!
+     *  This is the slope of the p function at the zero solvent point
+     *  Default value is 0.0
+     */
+    doublereal MC_slopepCut_;
+
+    //! Parameter in the Molality Exp cutoff treatment
+    doublereal MC_dpCut_;
+
+    //!  Parameter in the Molality Exp cutoff treatment
+    doublereal MC_epCut_;
+
+    //! Parameter in the Molality Exp cutoff treatment 
+    doublereal MC_apCut_;
+
+    //! Parameter in the Molality Exp cutoff treatment 
+    doublereal MC_bpCut_;
+
+    //! Parameter in the Molality Exp cutoff treatment
+    doublereal MC_cpCut_;
+
 
     //! Local error routine
     /*!
@@ -3416,7 +3444,7 @@ namespace Cantera {
 
     //! Precalculate the IMS Cutoff parameters for typeCutoff = 2
     void  calcIMSCutoffParams_();
-
+    void  calcMCCutoffParams_();
     //! Utility function to assign an integer value from a string
     //! for the ElectrolyteSpeciesType field.
     /*!
