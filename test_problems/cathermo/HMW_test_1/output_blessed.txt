@@ -161,7 +161,7 @@ a2 = 3.04284e-10
      sum_m_phi_minus_1=  3.431360        osmotic_coef=  1.281273
  Step 10: 
  Weight of Solvent =         18.01528
- molalitySum =          12.1994
+ molalitySumUncropped =          12.1994
  ln_a_water= -0.281593 a_water=  0.754581
 
 
@@ -297,7 +297,7 @@ a2 = 3.04284e-10
      sum_m_phi_minus_1=  3.431360        osmotic_coef=  1.281273
  Step 10: 
  Weight of Solvent =         18.01528
- molalitySum =          12.1994
+ molalitySumUncropped =          12.1994
  ln_a_water= -0.281593 a_water=  0.754581
 
             Name      Activity  ActCoeffMolal    MoleFract      Molality

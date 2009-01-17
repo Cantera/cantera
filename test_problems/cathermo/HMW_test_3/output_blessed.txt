@@ -162,7 +162,7 @@ Index  Name                  MoleF   MolalityCropped  Charge
      sum_m_phi_minus_1=  2.611013        osmotic_coef=  1.214028
  Step 10: 
  Weight of Solvent =         18.01528
- molalitySum =          12.1994
+ molalitySumUncropped =          12.1994
  ln_a_water= -0.266814 a_water=  0.765816
 
 
@@ -298,7 +298,7 @@ Index  Name                  MoleF   MolalityCropped  Charge
      sum_m_phi_minus_1=  2.611013        osmotic_coef=  1.214028
  Step 10: 
  Weight of Solvent =         18.01528
- molalitySum =          12.1994
+ molalitySumUncropped =          12.1994
  ln_a_water= -0.266814 a_water=  0.765816
 
             Name      Activity  ActCoeffMolal    MoleFract      Molality
@@ -440,7 +440,7 @@ Index  Name                  MoleF   MolalityCropped  Charge
      sum_m_phi_minus_1=  2.611013        osmotic_coef=  1.214028
  Step 10: 
  Weight of Solvent =         18.01528
- molalitySum =          12.1994
+ molalitySumUncropped =          12.1994
  ln_a_water= -0.266814 a_water=  0.765816
 
            Species   Standard chemical potentials (kJ/gmol) 
