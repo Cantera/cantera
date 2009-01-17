@@ -1685,9 +1685,9 @@ namespace Cantera {
 
   // Precalculate the MC Cutoff parameters
   void  HMWSoln::calcMCCutoffParams_() {
-    MC_X_o_min_ = 0.3;
+    MC_X_o_min_ = 0.35;
     MC_X_o_cutoff_ = 0.6;
-    MC_slopepCut_ = 0.05;
+    MC_slopepCut_ = 0.02;
     MC_cpCut_ = 0.25;
 
     // Initial starting values

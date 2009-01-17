@@ -75,6 +75,8 @@ namespace Cantera {
     MC_apCut_(0.0),
     MC_bpCut_(0.0),
     MC_cpCut_(0.0),
+    CROP_ln_gamma_o_min(-25.0),
+    CROP_ln_gamma_k_max(23.0),
     m_debugCalc(0)
   {
     for (int i = 0; i < 17; i++) {
@@ -128,6 +130,8 @@ namespace Cantera {
     MC_apCut_(0.0),
     MC_bpCut_(0.0),
     MC_cpCut_(0.0),
+    CROP_ln_gamma_o_min(-25.0),
+    CROP_ln_gamma_k_max(23.0),
     m_debugCalc(0)
   {
     for (int i = 0; i < 17; i++) {
@@ -175,6 +179,8 @@ namespace Cantera {
     MC_apCut_(0.0),
     MC_bpCut_(0.0),
     MC_cpCut_(0.0),
+    CROP_ln_gamma_o_min(-25.0),
+   CROP_ln_gamma_k_max(23.0),
     m_debugCalc(0)
   {
     for (int i = 0; i < 17; i++) {
@@ -228,6 +234,8 @@ namespace Cantera {
     MC_apCut_(0.0),
     MC_bpCut_(0.0),
     MC_cpCut_(0.0),
+    CROP_ln_gamma_o_min(-25.0),
+   CROP_ln_gamma_k_max(23.0),
     m_debugCalc(0)
   {
     /*
@@ -380,7 +388,8 @@ namespace Cantera {
       MC_apCut_             = b.MC_apCut_;
       MC_bpCut_             = b.MC_bpCut_;
       MC_cpCut_             = b.MC_cpCut_;
-
+      CROP_ln_gamma_o_min   = b.CROP_ln_gamma_o_min;
+      CROP_ln_gamma_k_max   = b.CROP_ln_gamma_k_max;
       m_CounterIJ           = b.m_CounterIJ;
       m_molalitiesCropped   = b.m_molalitiesCropped;
       m_molalitiesAreCropped= b.m_molalitiesAreCropped;
@@ -454,6 +463,8 @@ namespace Cantera {
     MC_apCut_(0.0),
     MC_bpCut_(0.0),
     MC_cpCut_(0.0),
+    CROP_ln_gamma_o_min(-25.0),
+    CROP_ln_gamma_k_max(23.0),
     m_debugCalc(0)
   {
     if (testProb != 1) {
@@ -1800,13 +1811,19 @@ namespace Cantera {
     double xmolSolvent = moleFraction(m_indexSolvent);
     double xx = MAX(m_xmolSolventMIN, xmolSolvent);
     double lnActCoeffMolal0 = - log(xx) + (xx - 1.0)/xx;
+    double lnxs = log(xx);
 
     for (int k = 1; k < m_kk; k++) {
       m_lnActCoeffMolal_Unscaled[k] += IMS_lnActCoeffMolal_[k];
+      if (m_lnActCoeffMolal_Unscaled[k] > (CROP_ln_gamma_k_max + lnxs)) {
+	m_lnActCoeffMolal_Unscaled[k] = CROP_ln_gamma_k_max + lnxs;
+      }
     }
 
     m_lnActCoeffMolal_Unscaled[0] += (IMS_lnActCoeffMolal_[0] - lnActCoeffMolal0);
-
+    if (m_lnActCoeffMolal_Unscaled[0] < CROP_ln_gamma_o_min - lnxs) {
+      m_lnActCoeffMolal_Unscaled[0] = CROP_ln_gamma_o_min - lnxs;
+    }
 
     /*
      * Now do the pH Scaling
@@ -3345,10 +3362,27 @@ namespace Cantera {
      *  Do the actual calculation of the unscaled temperature derivatives
      */
     s_updatePitzer_dlnMolalityActCoeff_dT();
+
+    double xmolSolvent = moleFraction(m_indexSolvent);
+    double xx = MAX(m_xmolSolventMIN, xmolSolvent);
+    double lnxs = log(xx);
+
+    for (int k = 1; k < m_kk; k++) {
+      if (m_lnActCoeffMolal_Unscaled[k] >= (CROP_ln_gamma_k_max + lnxs)) {
+	m_dlnActCoeffMolaldT_Unscaled[k] = 0.0;
+      }
+    }
+
+    if (m_lnActCoeffMolal_Unscaled[0] < CROP_ln_gamma_o_min - lnxs) {
+      m_dlnActCoeffMolaldT_Unscaled[0] = 0.0;
+    }
+
     /*
      *  Do the pH scaling to the derivatives 
      */
     s_updateScaling_pHScaling_dT();
+
+
   }
 
   /*************************************************************************************/
@@ -4197,6 +4231,20 @@ namespace Cantera {
      * Calculate the unscaled 2nd derivatives
      */
     s_updatePitzer_d2lnMolalityActCoeff_dT2();
+
+    double xmolSolvent = moleFraction(m_indexSolvent);
+    double xx = MAX(m_xmolSolventMIN, xmolSolvent);
+    double lnxs = log(xx);
+    for (int k = 1; k < m_kk; k++) {
+      if (m_lnActCoeffMolal_Unscaled[k] >= (CROP_ln_gamma_k_max + lnxs)) {
+	m_d2lnActCoeffMolaldT2_Unscaled[k] = 0.0;
+      }
+    }
+
+    if (m_lnActCoeffMolal_Unscaled[0] < CROP_ln_gamma_o_min - lnxs) {
+      m_d2lnActCoeffMolaldT2_Unscaled[0] = 0.0;
+    }
+
     /*
      * Scale the 2nd derivatives 
      */
@@ -5073,6 +5121,20 @@ namespace Cantera {
     fbo_zero_dbl_1(DATA_PTR(m_dlnActCoeffMolaldP_Unscaled), m_kk);
   
     s_updatePitzer_dlnMolalityActCoeff_dP();
+
+    double xmolSolvent = moleFraction(m_indexSolvent);
+    double xx = MAX(m_xmolSolventMIN, xmolSolvent);
+    double lnxs = log(xx);
+    for (int k = 1; k < m_kk; k++) {
+      if (m_lnActCoeffMolal_Unscaled[k] >= (CROP_ln_gamma_k_max + lnxs)) {
+	m_dlnActCoeffMolaldP_Unscaled[k] = 0.0;
+      }
+    }
+
+    if (m_lnActCoeffMolal_Unscaled[0] < CROP_ln_gamma_o_min - lnxs) {
+      m_dlnActCoeffMolaldP_Unscaled[0] = 0.0;
+    }
+
 
     s_updateScaling_pHScaling_dP();
   }
