@@ -431,7 +431,7 @@ namespace Cantera {
     m_formPitzerTemp(PITZER_TEMP_CONSTANT),
     m_formGC(2),
     m_IionicMolality(0.0),
-    m_maxIionicStrength(30.0),
+    m_maxIionicStrength(100.0),
     m_TempPitzerRef(298.15),
     m_IionicMolalityStoich(0.0),
     m_form_A_Debye(A_DEBYE_WATER),
@@ -1787,10 +1787,7 @@ namespace Cantera {
 	  += m_molalities[k] * (zs_k1 * zs_k1 + zs_k2 * zs_k2);
       }
     }
-    m_IionicMolalityStoich /= 2.0;                       
-    if (m_IionicMolalityStoich > m_maxIionicStrength) {
-      m_IionicMolalityStoich = m_maxIionicStrength;
-    }
+
 
     /*
      * Update the temperature dependence of the pitzer coefficients
@@ -1859,7 +1856,7 @@ namespace Cantera {
        * Quick return
        */
       if (Imax < m_maxIionicStrength) {
-	return;
+      	return;
       }
 
       m_molalitiesAreCropped = true;
@@ -2407,9 +2404,7 @@ namespace Cantera {
       molalitysumUncropped += m_molalities[n];
     }
     Is *= 0.5;
-    if (Is > m_maxIionicStrength) {
-      Is = m_maxIionicStrength;
-    }
+ 
     /*
      * Store the ionic molality in the object for reference.
      */
@@ -3487,9 +3482,7 @@ namespace Cantera {
       molalitysum += molality[n];
     }
     Is *= 0.5;
-    if (Is > m_maxIionicStrength) {
-      Is = m_maxIionicStrength;
-    }
+ 
     /*
      * Store the ionic molality in the object for reference.
      */
@@ -4362,9 +4355,7 @@ namespace Cantera {
       molalitysum += molality[n];
     }
     Is *= 0.5;
-    if (Is > m_maxIionicStrength) {
-      Is = m_maxIionicStrength;
-    }
+
     /*
      * Store the ionic molality in the object for reference.
      */
@@ -5249,9 +5240,7 @@ namespace Cantera {
       molalitysum += molality[n];
     }
     Is *= 0.5;
-    if (Is > m_maxIionicStrength) {
-      Is = m_maxIionicStrength;
-    }
+
     /*
      * Store the ionic molality in the object for reference.
      */
