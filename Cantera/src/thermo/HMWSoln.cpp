@@ -1965,13 +1965,33 @@ namespace Cantera {
       if (xmolSolvent >= MC_X_o_cutoff_) {
 	return;
       }
-  
+
+      m_molalitiesAreCropped = true;
+
       double poly = MC_apCut_ + MC_bpCut_ * xmolSolvent + MC_dpCut_* xmolSolvent * xmolSolvent;
       double  p =  xmolSolvent + MC_epCut_ + exp(- xmolSolvent/ MC_cpCut_) * poly;
       double denomInv = 1.0/ (m_Mnaught * p);
 
-      for (int k = 0; k < m_kk; k++) {
+      for (k = 0; k < m_kk; k++) {
 	m_molalitiesCropped[k] = molF[k] * denomInv ; 
+      }
+
+      // Do a further check to see if the Ionic strength is below a max value
+      // Reduce the molalities to enforce this. Note, this algorithm preserves
+      // the charge neutrality of the solution after cropping.
+      Itmp = 0.0;
+      for (k = 0; k < m_kk; k++) {
+	double charge = m_speciesCharge[k];
+	Itmp += m_molalitiesCropped[k] * charge * charge;
+      }
+      if (Itmp > m_maxIionicStrength) {
+	double ratio = Itmp / m_maxIionicStrength;
+	for (k = 0; k < m_kk; k++) {
+	  double charge = m_speciesCharge[k];
+	  if (charge != 0.0) {
+	    m_molalitiesCropped[k] *= ratio;
+	  }
+	}
       }
     }
 
