@@ -175,6 +175,15 @@ namespace Cantera {
    *  The Pitzer scale doesn't actually change anything. The pitzer scale is defined
    *  as the raw unscaled activity coefficients produced by the underlying objects.
    *
+   *  <H3> SetState Strategy  </H3>
+   *
+   *   The MolalityVPSSTP object does not have a setState strategy concerning the
+   *   molalities. It does not keep track of whether the molalities have changed.
+   *   It's strictly an interfacial layer that writes the current mole fractions to the
+   *   State object. When molalities are needed it recalculates the molalities from 
+   *   the State object's mole fraction vector.
+   *
+   *
    * @todo Make two solvent minimum fractions. One would be for calculation of the non-ideal
    *       factors. The other one would be for purposes of stoichiometry evaluation. the
    *       stoichiometry evaluation one would be a 1E-13 limit. Anything less would create
