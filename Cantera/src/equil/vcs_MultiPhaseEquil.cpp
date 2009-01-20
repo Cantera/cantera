@@ -1036,6 +1036,9 @@ namespace VCSnonideal {
        * Also decide whether we need a new charge neutrality
        * element in the phase to enforce a charge neutrality
        * constraint.
+       *  We also decide whether this is a single species phase
+       *  with the voltage being the independent variable setting
+       *  the chemical potential of the electrons.
        */
       VolPhase->transferElementsFM(tPhase);
 
@@ -1338,11 +1341,14 @@ namespace VCSnonideal {
 	vprob->w[kglob] = tPhase->electricPotential();
       }
       volPhase->setMolesFromVCS(VCS_STATECALC_OLD, VCS_DATA_PTR(vprob->w));
-      if (volPhase->totalMoles() > 0.0) {
-	volPhase->setExistence(1);
+      if ((nSpPhase == 1) && (volPhase->phiVarIndex() == 0)) {
+	volPhase->setExistence(VCS_PHASE_EXIST_ALWAYS);
+      }	else if (volPhase->totalMoles() > 0.0) {
+	volPhase->setExistence(VCS_PHASE_EXIST_YES);
       } else {
-	volPhase->setExistence(0);
+	volPhase->setExistence(VCS_PHASE_EXIST_NO);
       }
+   
     }
     /*
      *  Transfer initial element abundances to the vprob object.

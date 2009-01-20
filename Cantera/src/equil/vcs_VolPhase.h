@@ -176,7 +176,8 @@ namespace VCSnonideal {
      *  then updates this object with their values. This is essentially
      *  a gather routine.
      *
-     *  @param molesSpeciesVCS  array of mole numbers. Note, the indecises for species in 
+     *  @param molesSpeciesVCS  Array of mole numbers. Note, the indecises
+     *            for species in 
      *            this array may not be contiguous. IndSpecies[] is needed
      *            to gather the species into the local contiguous vector
      *            format. 
@@ -434,6 +435,8 @@ namespace VCSnonideal {
     //! Returns whether the object is using cantera calls.
     bool usingCanteraCalls() const;
 
+    //! Return the index of the species that represents the 
+    //! the voltage of the phase
     int phiVarIndex() const;
 
     void setPhiVarIndex(int phiVarIndex);
@@ -465,7 +468,7 @@ namespace VCSnonideal {
      *  @param spIndex local species index (0 to the number of species
      *                 in the phase)
      *
-     * @return Returns the VCS_SOLVE species index of the that species
+     * @return Returns the VCS_SOLVE species index of the species.
      *         This changes as rearrangements are carried out. 
      */
     int spGlobalIndexVCS(const int spIndex) const;
@@ -794,15 +797,19 @@ namespace VCSnonideal {
 
     //! Current state of existence:
     /*!
-     *     VCS_PHASE_EXIST_ZEROEDPHASE = -6: Set to not exist by fiat from a higher level.
+     *     VCS_PHASE_EXIST_ZEROEDPHASE = -6: Set to not exist by fiat from a 
+     *          higher level.
      *          This is used in phase stability boundary calculations
      *     VCS_PHASE_EXIST_NO = 0:   Doesn't exist currently
-     *     VCS_PHASE_EXIST_MINORCONC = 1:  Exists, but the concentration is so low that an alternate
+     *     VCS_PHASE_EXIST_MINORCONC = 1:  Exists, but the concentration is 
+     *          so low that an alternate
      *          method is used to calculate the total phase concentrations.
      *     VCS_PHASE_EXIST_YES = 2 : Does exist currently
      *     VCS_PHASE_EXIST_ALWAYS = 3: Always exists because it contains
-     *          inerts which can't exist in any other
-     *          phase  
+     *          inerts which can't exist in any other phase. Or,
+     *          the phase exists always because it consists of a single
+     *          species, which is identified with the voltage, i.e., 
+     *          its an electron metal phase.
      */
     int m_existence;
 

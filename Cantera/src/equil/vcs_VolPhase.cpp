@@ -51,6 +51,7 @@ namespace VCSnonideal {
     m_useCanteraCalls(false),
     TP_ptr(0),
     v_totalMoles(0.0),
+    m_phiVarIndex(-1),
     m_totalVol(0.0),
     m_vcsStateStatus(VCS_STATECALC_OLD),
     m_phi(0.0),
@@ -1189,10 +1190,14 @@ namespace VCSnonideal {
       }
 #endif
     } else {
+      if (m_singleSpecies && (m_phiVarIndex == 0)) {
+	m_existence =  VCS_PHASE_EXIST_ALWAYS;
+      } else {
       if (totalMols > 0.0) {
 	m_existence = VCS_PHASE_EXIST_YES;
       } else {
 	m_existence = VCS_PHASE_EXIST_NO;
+      }
       }
     }
   }
@@ -1284,6 +1289,12 @@ namespace VCSnonideal {
 
   void vcs_VolPhase::setPhiVarIndex(int phiVarIndex) {
     m_phiVarIndex = phiVarIndex;
+    m_speciesUnknownType[m_phiVarIndex] = VCS_SPECIES_TYPE_INTERFACIALVOLTAGE;
+    if (m_singleSpecies) {
+      if (m_phiVarIndex == 0) {
+	m_existence = VCS_PHASE_EXIST_ALWAYS;
+      }
+    }
   }
   /***************************************************************************/
 
@@ -1320,7 +1331,20 @@ namespace VCSnonideal {
     else { 
       if (m_totalMolesInert == 0.0) {
 	if (v_totalMoles == 0.0) {
-	  plogf("vcs_VolPhase::setExistence setting true existence for phase with no moles");
+	  if (!m_singleSpecies  || m_phiVarIndex != 0) {
+	    plogf("vcs_VolPhase::setExistence setting true existence for phase with no moles");
+	    plogendl();
+	    exit(EXIT_FAILURE);
+	  }
+	}
+      }
+    }
+#endif
+#ifdef DEBUG_MODE
+    if (m_singleSpecies) {
+      if (m_phiVarIndex == 0) {
+	if (existence == VCS_PHASE_EXIST_NO || existence == VCS_PHASE_EXIST_ZEROEDPHASE) {
+	  plogf("vcs_VolPhase::Trying to set existence of an electron phase to false");
 	  plogendl();
 	  exit(EXIT_FAILURE);
 	}
@@ -1375,6 +1399,8 @@ namespace VCSnonideal {
       m_totalMolesInert = tMolesInert;
     }
     if (m_totalMolesInert > 0.0) {
+      m_existence = VCS_PHASE_EXIST_ALWAYS;
+    } else if (m_singleSpecies && (m_phiVarIndex == 0)) {
       m_existence = VCS_PHASE_EXIST_ALWAYS;
     } else {
       if (v_totalMoles > 0.0) {
