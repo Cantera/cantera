@@ -104,7 +104,7 @@ namespace VCSnonideal {
   //! Cutoff relative moles below  which a phase is deleted 
   //! from  the equilibrium problem.
 #ifndef VCS_DELETE_PHASE_CUTOFF
-#define VCS_DELETE_PHASE_CUTOFF     1.0e-11
+#define VCS_DELETE_PHASE_CUTOFF     1.0e-12
 #endif
 
   //@}

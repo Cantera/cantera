@@ -3194,8 +3194,11 @@ namespace Cantera {
     doublereal MC_cpCut_;
 
     doublereal CROP_ln_gamma_o_min;
+    doublereal CROP_ln_gamma_o_max;
 
+    doublereal CROP_ln_gamma_k_min;
     doublereal CROP_ln_gamma_k_max;
+
 
     //! Local error routine
     /*!

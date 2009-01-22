@@ -1107,6 +1107,7 @@ namespace VCSnonideal {
 	resize(VP_ID, nsp, nelem, PhaseName.c_str());
       }
       TP_ptr->getMoleFractions(VCS_DATA_PTR(Xmol));
+      fractionCreationDelta_ = Xmol;
       _updateMoleFractionDependencies();
 
       /*

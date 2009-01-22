@@ -27,10 +27,12 @@ namespace VCSnonideal {
    *
    * Output 
    * ------- 
-   * m_deltaMolNumSpecies(irxn) : reaction adjustments, where irxn refers 
+   * m_deltaMolNumSpecies[kspec] : reaction adjustments, where irxn refers 
    *                              to the irxn'th species
-   *                              formation reaction. This  adjustment is for species
-   *                               irxn + M, where M is the number of components.
+   *                              formation reaction. This  adjustment 
+   *                              is for species
+   *                               irxn + M, where M is the number
+   *                              of components.
    *
    * Special branching occurs sometimes. This causes the component basis 
    * to be reevaluated 
@@ -127,7 +129,7 @@ namespace VCSnonideal {
 	  }
 	} else {
 	  /********************************************************************/
-	  /************************* REGULAR PROCESSING            ************/
+	  /************************* REGULAR PROCESSING ***********************/
 	  /********************************************************************/
 	  /*
 	   *     First take care of cases where we want to bail out

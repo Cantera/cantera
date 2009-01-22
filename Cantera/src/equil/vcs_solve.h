@@ -498,7 +498,37 @@ public:
    *
    */
   void vcs_updateVP(const int stateCalc);
- 
+
+
+  //! Utility function that evaluates whether a phase can be popped
+  //! into existence
+  /*!
+   * @param iphasePop  id of the phase, which is currently zeroed,
+   *        
+   * @return Returns true if the phase can come into existence
+   *         and false otherwise.
+   */
+  bool vcs_popPhasePossible(const int iphasePop) const;
+
+  //! Decision as to whether a phase pops back into existence
+  /*!
+   * @return returns the phase id of the phase that pops back into 
+   *         existence. Returns -1 if there are no phases
+   */
+  int vcs_popPhaseID();
+
+  //! Calculates the deltas of the reactions due to phases popping
+  //! into existence
+  /*!
+   * @param iphasePop  Phase id of the phase that will come into existence
+   *
+   * @return  Returns an int representing the status of the step
+   *            -  0 : normal return
+   *            -  1 : A single species phase species has been zeroed out
+   *                   in this routine. The species is a noncomponent 
+   *            -  2 : Same as one but, the zeroed species is a component. 
+   */
+  int vcs_popPhaseRxnStepSizes(const int iphasePop);
 
   //! Calculates formation reaction step sizes.
   /*!
@@ -633,8 +663,13 @@ public:
   double vcs_birthGuess(const int kspec);
 
 
-  
-  int vcs_phaseStabilityTest(const int iph);
+  //! Main program to test whether a deleted phase should be brought
+  //! back into existence
+  /*!
+   *
+   * @param iph Phase id of the deleted phase
+   */
+  double vcs_phaseStabilityTest(const int iph);
 
   //! Solve an equilibrium problem at a particular fixed temperature 
   //! and pressure
@@ -1441,7 +1476,7 @@ public:
    *   stoichiometric coefficient of one is assumed for the 
    *   species K in this mechanism. 
    *
-   *              NOTE: K = IRXN + NC
+   *              NOTE: kspec = Irxn + m_numComponents
    *
    *   sc[irxn][j] :
    *     j refers to the component number, and irxn 
