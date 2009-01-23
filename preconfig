@@ -136,7 +136,7 @@ BUILD_F90_INTERFACE=${BUILD_F90_INTERFACE:="no"}
 # The Fortran 90/95 compiler. If set to "default", the script will
 # look for a Fortran 90/95 compiler on your system by the name of
 # "f95", "gfortran", or "g95".
-F90=${F90:="n"}
+F90=${F90:="gfortran"}
 
 # Compiler option flags for the Fortran 90/95 compiler. If you are
 # using the Absoft or the NAG compiler, additional options specific to
@@ -416,7 +416,7 @@ BUILD_WITH_F2C=${BUILD_WITH_F2C:="y"}
 
 # if you are building the external Fortran 77 procedures from the Fortran 
 # source code, enter the compiler here. 
-F77=${F77:=gfortran}
+F77=${F77:=g77}
 
 # Fortran 77 compiler flags. Note that the Fortran compiler flags must be set
 # to produce object code compatible with the C/C++ compiler you are using.
