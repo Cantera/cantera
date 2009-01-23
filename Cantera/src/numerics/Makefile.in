@@ -67,7 +67,7 @@ all: .depends $(LIB)
 %.d: Makefile %.o
 	@CXX_DEPENDS@ $(CXX_FLAGS) $(CXX_INCLUDES) $*.cpp > $*.d
 
-.cpp.o:
+.cpp.o: 
 	$(PURIFY) @CXX@ -c $< $(CXX_FLAGS) $(CXX_INCLUDES)
 
 $(LIB): $(TOTAL_OBJ) $(TOTAL_H)
@@ -76,7 +76,7 @@ ifeq ($(do_ranlib),1)
 	@RANLIB@ $(LIB)
 endif
 
-ODE_integrators.o:
+ODE_integrators.o: Makefile
 	$(PURIFY) @CXX@ -c ODE_integrators.cpp $(CXX_INCLUDES) $(SUNDIALS_INC) \
             $(CXX_FLAGS) 
 
@@ -84,7 +84,7 @@ ODE_integrators.d: ODE_integrators.cpp Makefile
 	@CXX_DEPENDS@ $(CXX_FLAGS) ODE_integrators.cpp $(CXX_INCLUDES) $(SUNDIALS_INC) \
              > ODE_integrators.d 
 
-DAE_solvers.o: DAE_solvers.cpp
+DAE_solvers.o: DAE_solvers.cpp Makefile
 	$(PURIFY) @CXX@ -c DAE_solvers.cpp $(CXX_INCLUDES) $(SUNDIALS_INC) $(CXX_FLAGS)
 
 DAE_solvers.d: DAE_solvers.cpp Makefile
