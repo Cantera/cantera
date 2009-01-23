@@ -1,9 +1,22 @@
+/**
+ * @file fctxml.cpp
+ *
+ */
+
+/*
+ * $Revision$
+ * $Date$
+ */
+
+// Copyright 2001  California Institute of Technology
+
 
 #include "flib_defs.h"
 
-// Cantera includes
 #include "ctml.h"
-//#include "importCTML.h"
+
+#include <cstring>
+
 using namespace ctml;
 
 #include "../../clib/src/Cabinet.h"
