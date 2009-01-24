@@ -454,8 +454,8 @@ namespace Cantera {
 
   void SurfPhase::setStateFromXML(const XML_Node& state) {
 
-    if (state.hasChild("temperature")) {
-      double t = getFloat(state, "temperature", "temperature");
+    double t;
+    if (getOptionalFloat(state, "temperature", t, "temperature")) {
       setTemperature(t);
     }
 

@@ -3153,7 +3153,8 @@ namespace Cantera {
      */
     doublereal IMS_slopegCut_;
 
-    //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
+    //! Parameter in the polyExp cutoff treatment having to do with 
+    //! rate of exp decay
     doublereal IMS_dgCut_;
 
     //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
@@ -3199,6 +3200,18 @@ namespace Cantera {
     doublereal CROP_ln_gamma_k_min;
     doublereal CROP_ln_gamma_k_max;
 
+    //! This is a boolean-type vector indicating whether
+    //! a species's activity coefficient is in the cropped regime
+    /*!
+     *
+     *  0 = Not in cropped regime
+     *  1 = In a transition regime where it is altered but there
+     *      still may be a temperature or pressure dependence
+     *  2 = In a cropped regime where there is no temperature 
+     *      or pressure dependence
+     */
+    mutable std::vector<int> CROP_speciesCropped_;
+
 
     //! Local error routine
     /*!
@@ -3209,7 +3222,8 @@ namespace Cantera {
     //!  Initialize all of the species - dependent lengths in the object
     void initLengths();
 
-    //! Apply the current phScale to a set of activity Coefficients or activities
+    //! Apply the current phScale to a set of activity Coefficients or 
+    //! activities
     /*!
      *  See the Eq3/6 Manual for a thorough discussion.
      *
@@ -3446,7 +3460,14 @@ namespace Cantera {
      *                 containing the
      *                 neutral - cation - anion interaction
      */
-    void readXMLZetaCation(XML_Node &BinSalt);
+    void readXMLZetaCation(const XML_Node &BinSalt);
+
+    //! Process an XML node called "croppingCoefficients"
+    //! for the cropping coefficients values
+    /*!
+     * @param acNode Activity Coefficient XML Node
+     */
+    void readXMLCroppingCoefficients(const XML_Node &acNode);
 
     //! Precalculate the IMS Cutoff parameters for typeCutoff = 2
     void  calcIMSCutoffParams_();

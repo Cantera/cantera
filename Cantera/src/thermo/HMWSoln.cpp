@@ -29,6 +29,7 @@
 #include "ThermoFactory.h"
 #include "WaterProps.h"
 #include "PDSS_Water.h"
+
 #include <cmath>
 #include <cstdlib>
 
@@ -75,7 +76,7 @@ namespace Cantera {
     MC_apCut_(0.0),
     MC_bpCut_(0.0),
     MC_cpCut_(0.0),
-    CROP_ln_gamma_o_min(-10.0),
+    CROP_ln_gamma_o_min(-6.0),
     CROP_ln_gamma_o_max(3.0),
     CROP_ln_gamma_k_min(-5.0),
     CROP_ln_gamma_k_max(15.0),
@@ -132,7 +133,7 @@ namespace Cantera {
     MC_apCut_(0.0),
     MC_bpCut_(0.0),
     MC_cpCut_(0.0),
-    CROP_ln_gamma_o_min(-10.0),
+    CROP_ln_gamma_o_min(-6.0),
     CROP_ln_gamma_o_max(3.0),
     CROP_ln_gamma_k_min(-5.0),
     CROP_ln_gamma_k_max(15.0),
@@ -183,7 +184,7 @@ namespace Cantera {
     MC_apCut_(0.0),
     MC_bpCut_(0.0),
     MC_cpCut_(0.0),
-    CROP_ln_gamma_o_min(-10.0),
+    CROP_ln_gamma_o_min(-6.0),
     CROP_ln_gamma_o_max(3.0),
     CROP_ln_gamma_k_min(-5.0),
     CROP_ln_gamma_k_max(15.0),
@@ -240,7 +241,7 @@ namespace Cantera {
     MC_apCut_(0.0),
     MC_bpCut_(0.0),
     MC_cpCut_(0.0),
-    CROP_ln_gamma_o_min(-10.0),
+    CROP_ln_gamma_o_min(-6.0),
     CROP_ln_gamma_o_max(3.0),
     CROP_ln_gamma_k_min(-5.0),
     CROP_ln_gamma_k_max(15.0),
@@ -400,6 +401,7 @@ namespace Cantera {
       CROP_ln_gamma_o_max   = b.CROP_ln_gamma_o_max;
       CROP_ln_gamma_k_min   = b.CROP_ln_gamma_k_min;
       CROP_ln_gamma_k_max   = b.CROP_ln_gamma_k_max;
+      CROP_speciesCropped_  = b.CROP_speciesCropped_;
       m_CounterIJ           = b.m_CounterIJ;
       m_molalitiesCropped   = b.m_molalitiesCropped;
       m_molalitiesAreCropped= b.m_molalitiesAreCropped;
@@ -473,7 +475,7 @@ namespace Cantera {
     MC_apCut_(0.0),
     MC_bpCut_(0.0),
     MC_cpCut_(0.0),
-    CROP_ln_gamma_o_min(-10.0),
+    CROP_ln_gamma_o_min(-6.0),
     CROP_ln_gamma_o_max(3.0),
     CROP_ln_gamma_k_min(-5.0),
     CROP_ln_gamma_k_max(15.0),
@@ -1761,6 +1763,7 @@ namespace Cantera {
     m_gamma_tmp.resize(leng, 0.0);
 
     IMS_lnActCoeffMolal_.resize(m_kk, 0.0);
+    CROP_speciesCropped_.resize(m_kk, 0);
 
     counterIJ_setup();
   }
@@ -1823,23 +1826,32 @@ namespace Cantera {
     double lnxs = log(xx);
 
     for (int k = 1; k < m_kk; k++) {
+      CROP_speciesCropped_[k] = 0;
       m_lnActCoeffMolal_Unscaled[k] += IMS_lnActCoeffMolal_[k];
-      if (m_lnActCoeffMolal_Unscaled[k] > (CROP_ln_gamma_k_max)) {
-	m_lnActCoeffMolal_Unscaled[k] = CROP_ln_gamma_k_max;
+      if (m_lnActCoeffMolal_Unscaled[k] > (CROP_ln_gamma_k_max- 2.5 *lnxs)) {
+	CROP_speciesCropped_[k] = 2;
+	m_lnActCoeffMolal_Unscaled[k] = CROP_ln_gamma_k_max - 2.5 * lnxs;
       }
       if (m_lnActCoeffMolal_Unscaled[k] < (CROP_ln_gamma_k_min - 2.5 *lnxs)) {
 	// -1.0 and -1.5 caused multiple solutions
+	CROP_speciesCropped_[k] = 2;
 	m_lnActCoeffMolal_Unscaled[k] = CROP_ln_gamma_k_min - 2.5 * lnxs;
       }
     }
-
+    CROP_speciesCropped_[0] = 0;
     m_lnActCoeffMolal_Unscaled[0] += (IMS_lnActCoeffMolal_[0] - lnActCoeffMolal0);
     if (m_lnActCoeffMolal_Unscaled[0] < CROP_ln_gamma_o_min) {
+      CROP_speciesCropped_[0] = 2;
       m_lnActCoeffMolal_Unscaled[0] = CROP_ln_gamma_o_min;
     }
     if (m_lnActCoeffMolal_Unscaled[0] > CROP_ln_gamma_o_max) {
+      CROP_speciesCropped_[0] = 2;
 	// -0.5 caused multiple solutions
       m_lnActCoeffMolal_Unscaled[0] = CROP_ln_gamma_o_max;
+    }
+    if (m_lnActCoeffMolal_Unscaled[0] > CROP_ln_gamma_o_max - 0.5 * lnxs) {
+      CROP_speciesCropped_[0] = 2;
+      m_lnActCoeffMolal_Unscaled[0] = CROP_ln_gamma_o_max - 0.5 * lnxs;
     }
 
     /*
@@ -3398,17 +3410,17 @@ namespace Cantera {
      */
     s_updatePitzer_dlnMolalityActCoeff_dT();
 
-    double xmolSolvent = moleFraction(m_indexSolvent);
-    double xx = MAX(m_xmolSolventMIN, xmolSolvent);
-    double lnxs = log(xx);
+    //double xmolSolvent = moleFraction(m_indexSolvent);
+    //double xx = MAX(m_xmolSolventMIN, xmolSolvent);
+    //    double lnxs = log(xx);
 
     for (int k = 1; k < m_kk; k++) {
-      if (m_lnActCoeffMolal_Unscaled[k] >= (CROP_ln_gamma_k_max + lnxs)) {
+      if (CROP_speciesCropped_[k] == 2) {
 	m_dlnActCoeffMolaldT_Unscaled[k] = 0.0;
       }
     }
 
-    if (m_lnActCoeffMolal_Unscaled[0] < CROP_ln_gamma_o_min - lnxs) {
+    if (CROP_speciesCropped_[0]) {
       m_dlnActCoeffMolaldT_Unscaled[0] = 0.0;
     }
 
@@ -4265,18 +4277,19 @@ namespace Cantera {
      */
     s_updatePitzer_d2lnMolalityActCoeff_dT2();
 
-    double xmolSolvent = moleFraction(m_indexSolvent);
-    double xx = MAX(m_xmolSolventMIN, xmolSolvent);
-    double lnxs = log(xx);
+    //double xmolSolvent = moleFraction(m_indexSolvent);
+    //double xx = MAX(m_xmolSolventMIN, xmolSolvent);
+    //double lnxs = log(xx);
+
     for (int k = 1; k < m_kk; k++) {
-      if (m_lnActCoeffMolal_Unscaled[k] >= (CROP_ln_gamma_k_max + lnxs)) {
+      if (CROP_speciesCropped_[k] == 2) {
 	m_d2lnActCoeffMolaldT2_Unscaled[k] = 0.0;
       }
     }
 
-    if (m_lnActCoeffMolal_Unscaled[0] < CROP_ln_gamma_o_min - lnxs) {
+    if (CROP_speciesCropped_[0]) {
       m_d2lnActCoeffMolaldT2_Unscaled[0] = 0.0;
-    }
+    }    
 
     /*
      * Scale the 2nd derivatives 
@@ -5153,16 +5166,14 @@ namespace Cantera {
   
     s_updatePitzer_dlnMolalityActCoeff_dP();
 
-    double xmolSolvent = moleFraction(m_indexSolvent);
-    double xx = MAX(m_xmolSolventMIN, xmolSolvent);
-    double lnxs = log(xx);
+
     for (int k = 1; k < m_kk; k++) {
-      if (m_lnActCoeffMolal_Unscaled[k] >= (CROP_ln_gamma_k_max + lnxs)) {
+      if (CROP_speciesCropped_[k] == 2) {
 	m_dlnActCoeffMolaldP_Unscaled[k] = 0.0;
       }
     }
 
-    if (m_lnActCoeffMolal_Unscaled[0] < CROP_ln_gamma_o_min - lnxs) {
+    if (CROP_speciesCropped_[0]) {
       m_dlnActCoeffMolaldP_Unscaled[0] = 0.0;
     }
 

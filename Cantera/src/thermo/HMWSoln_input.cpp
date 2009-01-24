@@ -902,7 +902,7 @@ namespace Cantera {
    * This node contains all of the parameters necessary to describe
    * the ternary interactions between a neutral, a cation and an anion
    */
-  void HMWSoln::readXMLZetaCation(XML_Node &BinSalt) {
+  void HMWSoln::readXMLZetaCation(const XML_Node &BinSalt) {
     string xname = BinSalt.name();
     if (xname != "zetaCation") {
       throw CanteraError("HMWSoln::readXMLZetaCation",
@@ -1002,7 +1002,35 @@ namespace Cantera {
     }
   }
    
+  // Process an XML node called "croppingCoefficients"
+  // for the cropping coefficients values
+  /*
+   * @param acNode Activity Coefficient XML Node
+   */
+  void HMWSoln::readXMLCroppingCoefficients(const XML_Node &acNode) {
 
+    if (acNode.hasChild("croppingCoefficients")) {
+      XML_Node &cropNode = acNode.child("croppingCoefficients");
+      if (cropNode.hasChild("ln_gamma_k_min")) {
+	XML_Node &gkminNode = cropNode.child("ln_gamma_k_min");
+	getOptionalFloat(gkminNode, "pureSolventValue", CROP_ln_gamma_k_min);
+      }
+      if (cropNode.hasChild("ln_gamma_k_max")) {
+	XML_Node &gkmaxNode = cropNode.child("ln_gamma_k_max");
+	getOptionalFloat(gkmaxNode, "pureSolventValue", CROP_ln_gamma_k_max);
+      }
+
+      if (cropNode.hasChild("ln_gamma_o_min")) {
+	XML_Node &gominNode = cropNode.child("ln_gamma_o_min");
+	getOptionalFloat(gominNode, "pureSolventValue", CROP_ln_gamma_o_min);
+      }
+
+      if (cropNode.hasChild("ln_gamma_o_max")) {
+	XML_Node &gomaxNode = cropNode.child("ln_gamma_o_max");
+	getOptionalFloat(gomaxNode, "pureSolventValue", CROP_ln_gamma_o_max);
+      } 
+    }
+  }
 
   /*
    *  Initialization routine for a HMWSoln phase.
@@ -1482,10 +1510,11 @@ namespace Cantera {
 	}
 	if (jmap > -1) {
 	  const XML_Node& sp = *xspecies[jmap];
-	  if (sp.hasChild("stoichIsMods")) {
-	    double val = getFloat(sp, "stoichIsMods");
-	    m_speciesCharge_Stoich[k] = val;
-	  }
+	  getOptionalFloat(sp, "stoichIsMods",  m_speciesCharge_Stoich[k]);
+	  // if (sp.hasChild("stoichIsMods")) {
+	  // double val = getFloat(sp, "stoichIsMods");
+	  //m_speciesCharge_Stoich[k] = val;
+	  //}
 	}
       }
    
@@ -1513,7 +1542,8 @@ namespace Cantera {
 	  }
 	}
       }
-
+      
+    
       /*
        * Loop through the children getting multiple instances of
        * parameters
@@ -1547,6 +1577,8 @@ namespace Cantera {
 	}
       }
 
+      // Go look up the optional Cropping parameters
+      readXMLCroppingCoefficients(acNode);
 
     }
 

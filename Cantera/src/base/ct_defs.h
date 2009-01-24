@@ -9,7 +9,7 @@
  * The module physConstants is defined here.
  */
 
-/* $Author$
+/*
  * $Revision$
  * $Date$
  */

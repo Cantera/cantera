@@ -20,7 +20,8 @@
 #include "Array.h"
 
 //! The ctml namespace adds functionality to the XML object, by providing
-//! standard functions that read, write, and interpret XML files and object trees.
+//! standard functions that read, write, and interpret XML files and
+//! object trees.
 namespace ctml {
 
   //! const Specifying the CTML version number
@@ -542,7 +543,7 @@ namespace ctml {
    const XML_Node &State_XMLNode;
    doublereal pres = OneAtm;
    if (state_XMLNode.hasChild("pressure")) {
-   pres = getFloat(State_XMLNode, "pressure", "toSI");
+     pres = getFloat(State_XMLNode, "pressure", "toSI");
    }
    @endverbatim
    *
@@ -559,8 +560,48 @@ namespace ctml {
    *                 and "" , for no conversion. The default value is "",
    *                 which implies that no conversion is allowed.
    */
-  doublereal getFloat(const Cantera::XML_Node& parent, std::string name,
-		      std::string type="");
+  doublereal getFloat(const Cantera::XML_Node& parent, const std::string &name,
+		      const std::string type=""); 
+
+  //!  Get an optional floating-point value from a child element. 
+  /*! 
+   *  Returns a doublereal value for the child named 'name' of element 'parent'. If
+   *  'type' is supplied and matches a known unit type, unit
+   *  conversion to SI will be done if the child element has an attribute
+   *  'units'.
+   *
+   * 
+   *
+   *  Example:  
+   *
+   * Code snipet:
+   *       @verbatim
+   const XML_Node &State_XMLNode;
+   doublereal pres = OneAtm;
+   bool exists = getOptionalFloat(State_XMLNode, "pressure", pres, "toSI");
+   @endverbatim
+   *
+   *  reads the corresponding XML file:
+   *  @verbatim
+   <state>
+     <pressure units="Pa"> 101325.0 </pressure>
+   <\state>
+   @endverbatim
+   *
+   *   @param parent reference to the XML_Node object of the parent XML element
+   *   @param name   Name of the XML child element
+   *   @param fltRtn Float Return. It will be overridden if the XML 
+   *                 element exists.
+   *   @param type   String type. Currently known types are "toSI"
+   *                 and "actEnergy",
+   *                 and "" , for no conversion. The default value is "",
+   *                 which implies that no conversion is allowed.
+   *
+   * @return returns true if the child element named "name" exists
+   */
+  bool getOptionalFloat(const Cantera::XML_Node& parent, const std::string &name,
+			doublereal &fltRtn, const std::string type="");
+
 
   //!  Get a vector of floating-point values from a child element. 
   /*! 
