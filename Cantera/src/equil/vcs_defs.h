@@ -84,7 +84,6 @@ namespace VCSnonideal {
 
   //! Cutoff relative mole fraction value,
   //! below which species are deleted from the equilibrium problem.
-  
 #ifndef VCS_RELDELETE_SPECIES_CUTOFF
 #define VCS_RELDELETE_SPECIES_CUTOFF          1.0e-64
 #endif
@@ -105,6 +104,13 @@ namespace VCSnonideal {
   //! from  the equilibrium problem.
 #ifndef VCS_DELETE_PHASE_CUTOFF
 #define VCS_DELETE_PHASE_CUTOFF     1.0e-12
+#endif
+
+  //! Cutoff moles below which a phase or species which
+  //! comprises the bulk of an element's total concentration
+  //! is deleted.
+#ifndef VCS_DELETE_ELEMENTABS_CUTOFF
+#define VCS_DELETE_ELEMENTABS_CUTOFF     1.0e-280
 #endif
 
   //@}

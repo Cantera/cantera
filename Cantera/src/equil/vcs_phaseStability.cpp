@@ -27,6 +27,10 @@ namespace VCSnonideal {
   // Utility function that evaluates whether a phase can be popped
   // into existence
   /*
+   * A phase can be popped iff the stoichiometric coefficients for the
+   * component species, whose concentrations will be lowered during the
+   * process, are positive by at least a small degree.
+   * 
    * @param iphasePop  id of the phase, which is currently zeroed,
    *        
    * @return Returns true if the phase can come into existence
@@ -40,12 +44,12 @@ namespace VCSnonideal {
     int existence = Vphase->exists();
     if (existence > 0) {
       printf("ERROR vcs_popPhasePossible called for a phase that exists!");
-      exit(-1);
+      std::exit(-1);
     }
 #endif
 
     /*
-     * section to do damping of the m_deltaMolNumSpecies[] 
+     * Loop through all of the species in the phase
      */
     for (int k = 0; k < Vphase->nSpecies(); k++) {
       int kspec = Vphase->spGlobalIndexVCS(k);
@@ -58,12 +62,14 @@ namespace VCSnonideal {
 	      double negChangeComp = - stoicC * 1.0;
 	      if (negChangeComp > 0.0) {
 		// TODO: We may have to come up with a tolerance here
-		if (m_molNumSpecies_old[j] <= 1.0E-300) {
+		if (m_molNumSpecies_old[j] <= VCS_DELETE_ELEMENTABS_CUTOFF*0.1) {
 #ifdef DEBUG_MODE
 		  if (m_debug_print_lvl >= 3) {
-		    plogf("   --- vcs_popPhasePosssible()  Phase %d (%s) can't be popped\n", iphasePop,
+		    plogf("   --- vcs_popPhasePosssible()  Phase %d (%s) can't be popped\n", 
+			  iphasePop,
 			  Vphase->PhaseName.c_str());
-		    plogf("   ---        Component %d (%s)will go negative\n", j, m_speciesName[j].c_str());
+		    plogf("   ---        Component %d (%s)will go negative\n", 
+			  j, m_speciesName[j].c_str());
 		  }
 #endif
 		  return false;
