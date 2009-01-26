@@ -455,18 +455,6 @@ namespace VCSnonideal {
     // it gets created
     fracDelta_new = Vphase->fractionCreationDeltas();
   
-#ifdef DEBUG_MODE
-    if (m_temperature < 380.) {
-      //   fracDelta_new[0] = 0.8;
-      // fracDelta_new[1] = 0.1;
-      // fracDelta_new[2] = 1.0E-8;
-      // fracDelta_new[3] = 0.1;
-      //fracDelta_new[4] = 1.0E-8;
-    }
-    if (m_temperature < 390.) {
-      printf("we are here\n");
-    }
-#endif
 
     bool oneIsComponent = false;
     std::vector<int> componentList;
@@ -487,6 +475,18 @@ namespace VCSnonideal {
 
     if (doSuccessiveSubstitution) {
 
+#ifdef DEBUG_MODE
+      int KP = 0;
+      if (m_debug_print_lvl >= 2) {
+	plogf("   --- vcs_phaseStabilityTest() called\n");
+	plogf("   ---  Its   X_old[%2d]  FracDel_old[%2d]  deltaF[%2d] FracDel_new[%2d]"
+	      "  normUpdate     damp     FuncPhaseStability\n", KP, KP, KP, KP);
+	plogf("   --------------------------------------------------------------"
+	      "--------------------------------------------------------\n");
+      } else {
+	plogf("   --- vcs_phaseStabilityTest() called for phase %d\n", iph);
+      }
+#endif
       bool converged = false;
       for (int its = 0; its < 200  && (!converged); its++) {
 	
@@ -663,7 +663,8 @@ namespace VCSnonideal {
 
 	for (k = 0; k < Vphase->nSpecies(); k++) {
 	  if (fabs(damp * delFrac[k]) > 0.3*fabs(fracDelta_old[k])) {
-	    damp = MAX(0.3*fabs(fracDelta_old[k]) / fabs( delFrac[k]), 1.0E-8/fabs( delFrac[k]));
+	    damp = MAX(0.3*fabs(fracDelta_old[k]) / fabs( delFrac[k]), 
+		       1.0E-8/fabs( delFrac[k]));
 	  }
 	  if (delFrac[k] < 0.0) {
 	    if (2.0 * damp * (-delFrac[k]) > fracDelta_old[k]) {
@@ -684,9 +685,13 @@ namespace VCSnonideal {
 	  fracDelta_new[k] = fracDelta_old[k] + damp * (delFrac[k]);
 	}
 
-     
-
-  
+#ifdef DEBUG_MODE
+	if (m_debug_print_lvl >= 2) {
+	  plogf("  --- %3d %12g %12g %12g %12g %12g %12g %12g\n", its, X_est[KP], fracDelta_old[KP],
+		delFrac[KP], fracDelta_new[KP], normUpdate, damp, funcPhaseStability);
+	}
+#endif
+	
 	if (normUpdate < 1.0E-5) {
 	  converged = true;
 	}
@@ -694,7 +699,8 @@ namespace VCSnonideal {
       }
 
       if (converged) {
-	Vphase->setMoleFractionsState(0.0, VCS_DATA_PTR(X_est), VCS_STATECALC_PHASESTABILITY);
+	Vphase->setMoleFractionsState(0.0, VCS_DATA_PTR(X_est), 
+				      VCS_STATECALC_PHASESTABILITY);
 	Vphase->setFractionCreationDeltas( VCS_DATA_PTR(fracDelta_new));
       }
 
@@ -703,7 +709,18 @@ namespace VCSnonideal {
       printf("not done yet\n");
       exit(-1);
     }
-    
+#ifdef DEBUG_MODE
+    if (m_debug_print_lvl >= 2) {
+      plogf("  ------------------------------------------------------------"
+	    "-------------------------------------------------------------\n");
+    } else if (m_debug_print_lvl == 1) {
+      if (funcPhaseStability > 0.0) {
+	plogf("  --- phase %d with func = %g is to be born\n", iph, funcPhaseStability);
+      } else {
+	plogf("  --- phase %d with func = %g stays dead\n", iph, funcPhaseStability);
+      }
+    }
+#endif
     return funcPhaseStability;
   }
 
