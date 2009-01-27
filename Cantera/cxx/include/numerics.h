@@ -3,5 +3,6 @@
 
 #include "kernel/DenseMatrix.h"
 #include "kernel/BandMatrix.h"
+#include "kernel/SquareMatrix.h"
 
 #endif
