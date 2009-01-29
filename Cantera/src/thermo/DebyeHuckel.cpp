@@ -1257,13 +1257,13 @@ namespace Cantera {
 	  double dens = m_waterSS->density();
 	  double mw = m_waterSS->molecularWeight();
 	  m_speciesSize[0] = mw / dens;
-#ifdef DEBUG_HKM_NOT
+#ifdef DEBUG_MODE_NOT
 	  cout << "Solvent species " << sss[k] << " has volume " <<  
 	    m_speciesSize[k] << endl;
 #endif
 	} else if (modelString == "constant_incompressible") {
 	  m_speciesSize[k] = getFloat(*ss, "molarVolume", "toSi");
-#ifdef DEBUG_HKM_NOT
+#ifdef DEBUG_MODE_NOT
 	  cout << "species " << sss[k] << " has volume " <<  
 	    m_speciesSize[k] << endl;
 #endif
@@ -1279,7 +1279,7 @@ namespace Cantera {
 			     "\" is not known");
 	}
 	m_speciesSize[k] = getFloat(*ss, "molarVolume", "toSI");
-#ifdef DEBUG_HKM_NOT
+#ifdef DEBUG_MODE_NOT
 	cout << "species " << sss[k] << " has volume " <<  
    	  m_speciesSize[k] << endl;
 #endif

@@ -782,7 +782,7 @@ namespace Cantera {
       string nodeName = lowercase(stemp);
       if (nodeName == "lambda") {
 	int nCount = iSpecies*m_kk + jSpecies;
-	getFloatArray(xmlChild, vParams, false, "", "Lambda");
+	getFloatArray(xmlChild, vParams, false, "", stemp);
 	nParamsFound = vParams.size();
 	if (m_formPitzerTemp == PITZER_TEMP_CONSTANT) {
 	  if (nParamsFound != 1) {
