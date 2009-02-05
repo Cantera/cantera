@@ -108,7 +108,9 @@ namespace VCSnonideal {
     for (iph = 0; iph < m_numPhases; iph++) {
       Vphase = m_VolPhaseList[iph];
       int existence = Vphase->exists();
+#ifdef DEBUG_MODE
       strcpy(anote, "");
+#endif
       if (existence > 0) {
 	
 #ifdef DEBUG_MODE

@@ -120,6 +120,8 @@ namespace VCSnonideal {
     vcs_VolPhase *Vphase;
     double     *sc_irxn = NULL;  /* Stoichiometric coefficients for cur rxn  */
     double *dnPhase_irxn;
+    double atomComp;
+    int iphasePop;
 #ifdef DEBUG_MODE
     char ANOTE[128];
     /*
@@ -450,7 +452,7 @@ namespace VCSnonideal {
      * First step is a major branch in the algorithm. 
      * We first determine if a phase pops into existence.
      */
-    int iphasePop = vcs_popPhaseID();
+    iphasePop = vcs_popPhaseID();
     /*
      *
      */
@@ -635,7 +637,7 @@ namespace VCSnonideal {
 	    for (int j = 0; j < m_numElemConstraints; ++j) {
 	      int elType = m_elType[j];
 	      if (elType == VCS_ELEM_TYPE_ABSPOS) {
-		double atomComp = m_formulaMatrix[j][kspec];
+		atomComp = m_formulaMatrix[j][kspec];
 		if (atomComp > 0.0) {
 		  double maxPermissible = m_elemAbundancesGoal[j] / atomComp;
 		  if (maxPermissible < VCS_DELETE_MINORSPECIES_CUTOFF) {
