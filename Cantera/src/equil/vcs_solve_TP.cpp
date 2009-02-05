@@ -4411,8 +4411,8 @@ namespace VCSnonideal {
 		if (tPhMoles_ptr[iph] > 0.0) { 
 		  feSpecies[kspec] = m_SSfeSpecies[kspec]
 		    + log(actCoeff_ptr[kspec] * VCS_DELETE_MINORSPECIES_CUTOFF)
-		    - tlogMoles[m_phaseID[kspec]] - m_lnMnaughtSpecies[kspec];
-		    + m_chargeSpecies[kspec] * m_Faraday_dim * m_phasePhi[iphase]; ;
+		    - tlogMoles[m_phaseID[kspec]] - m_lnMnaughtSpecies[kspec]
+		    + m_chargeSpecies[kspec] * m_Faraday_dim * m_phasePhi[iphase];
 		} else {
 		  feSpecies[kspec] = m_SSfeSpecies[kspec] - m_lnMnaughtSpecies[kspec]
 		    + m_chargeSpecies[kspec] * m_Faraday_dim * m_phasePhi[iphase]; 
