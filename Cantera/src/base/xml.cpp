@@ -60,7 +60,7 @@ namespace Cantera {
     }
 
     //! destructor
-    virtual ~XML_Error() {}
+    virtual ~XML_Error() throw() {}
 
   protected:
     //! Line number of the file
@@ -94,7 +94,7 @@ namespace Cantera {
     }
 
     //! Destructor
-    virtual ~XML_TagMismatch() {}
+    virtual ~XML_TagMismatch() throw() {}
   };
 
   //! Class representing a specific type of XML file formatting error
@@ -130,7 +130,7 @@ namespace Cantera {
     }
 
     //! Destructor
-    virtual ~XML_NoChild() {}
+    virtual ~XML_NoChild() throw() {}
   };
 
   //! Class representing a specific type of XML file formatting error
@@ -157,7 +157,7 @@ namespace Cantera {
     }
 
     //! Destructor
-    virtual ~XML_IllegalUnits() {}
+    virtual ~XML_IllegalUnits() throw() {}
   };
 
 

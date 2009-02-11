@@ -16,6 +16,7 @@
 #define CT_CTEXCEPTIONS_H
 
 #include <string>
+#include <exception>
 
 // See file misc.cpp for implementations of methods/functions declared
 // here.
@@ -64,14 +65,17 @@ namespace Cantera {
      *
      */
   
-    
+ 
     //! Base class for exceptions thrown by Cantera classes.
     /*!
      * This class is the base class for exceptions thrown by Cantera.
+     * It inherits from std::exception so that normal error handling
+     * operations from applications may automatically handle the
+     * errors in their own way.
      *
      * @ingroup errorhandling
      */
-    class CanteraError {
+    class CanteraError : public std::exception {
     public:
         //! Normal Constructor for the CanteraError base class
         /*!
@@ -86,7 +90,7 @@ namespace Cantera {
         CanteraError(std::string procedure, std::string msg);
 
         //! Destructor for base class does nothing
-        virtual ~CanteraError(){}
+        virtual ~CanteraError() throw() {}
     protected:
         //! Empty base constructor is made protected so that it may be used only by 
         //! inherited classes.
