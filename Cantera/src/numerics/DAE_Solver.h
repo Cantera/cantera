@@ -26,6 +26,12 @@
 
 namespace Cantera {
 
+    /**
+     * @defgroup numerics  Numerical Utilities within Cantera
+     *
+     *
+     */
+
     class Jacobian {
     public:
         Jacobian(){}
