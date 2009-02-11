@@ -33,7 +33,7 @@ namespace Cantera {
         boost::mutex KineticsFactory::kinetics_mutex ;
       #endif
 
-    static int ntypes = 5;
+    static int ntypes = 6;
     static string _types[] = {"none", "GasKinetics", "GRI30", "Interface", "Edge", "AqueousKinetics"};
     static int _itypes[]   = {0, cGasKinetics, cGRI30, cInterfaceKinetics, cEdgeKinetics, cAqueousKinetics};
 
