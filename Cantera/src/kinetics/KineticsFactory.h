@@ -31,7 +31,7 @@ namespace Cantera {
         CanteraError(proc, "Specified Kinetics model "   
              + kineticsModel + 
              " does not match any known type.") {}
-    virtual ~UnknownKineticsModel() {}
+    virtual ~UnknownKineticsModel() throw() {}
     };
 
 

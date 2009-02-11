@@ -22,6 +22,7 @@
 #include "InterfaceKinetics.h"
 #include "EdgeKinetics.h"
 #include "importKinetics.h"
+#include "AqueousKinetics.h"
 
 using namespace std;
 
@@ -33,8 +34,8 @@ namespace Cantera {
       #endif
 
     static int ntypes = 5;
-    static string _types[] = {"none", "GasKinetics", "GRI30", "Interface", "Edge"};
-    static int _itypes[]   = {0, cGasKinetics, cGRI30, cInterfaceKinetics, cEdgeKinetics};
+    static string _types[] = {"none", "GasKinetics", "GRI30", "Interface", "Edge", "AqueousKinetics"};
+    static int _itypes[]   = {0, cGasKinetics, cGRI30, cInterfaceKinetics, cEdgeKinetics, cAqueousKinetics};
 
     /**
      * Return a new kinetics manager that implements a reaction
@@ -104,6 +105,10 @@ namespace Cantera {
 
         case cEdgeKinetics:
             k = new EdgeKinetics;
+            break;
+      
+         case cAqueousKinetics:
+            k = new AqueousKinetics;
             break;
 
         default:

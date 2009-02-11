@@ -191,78 +191,78 @@ namespace Cantera {
     }
 
 
-    /**
-     * Update properties that depend on concentrations. This method
-     * fills out the array of generalized concentrations by calling
-     * method getActivityConcentrations for each phase, which classes
-     * representing phases should overload to return the appropriate
-     * quantities.
-     */ 
-    void InterfaceKinetics::
-    _update_rates_C() {
-        int n;
+  /**
+   * Update properties that depend on concentrations. This method
+   * fills out the array of generalized concentrations by calling
+   * method getActivityConcentrations for each phase, which classes
+   * representing phases should overload to return the appropriate
+   * quantities.
+   */ 
+  void InterfaceKinetics::
+  _update_rates_C() {
+    int n;
 
-        int np = nPhases();
-        for (n = 0; n < np; n++) {
-	  /*
-	   * We call the getActivityConcentrations function of each
-	   * ThermoPhase class that makes up this kinetics object to 
-	   * obtain the generalized concentrations for species within that 
-	   * class. This is collected in the vector m_conc. m_start[]
-	   * are integer indecises for that vector denoting the start of the
-	   * species for each phase.
-	   */
-            thermo(n).getActivityConcentrations(DATA_PTR(m_conc) + m_start[n]);
-        }
-        m_kdata->m_ROP_ok = false;
+    int np = nPhases();
+    for (n = 0; n < np; n++) {
+      /*
+       * We call the getActivityConcentrations function of each
+       * ThermoPhase class that makes up this kinetics object to 
+       * obtain the generalized concentrations for species within that 
+       * class. This is collected in the vector m_conc. m_start[]
+       * are integer indecises for that vector denoting the start of the
+       * species for each phase.
+       */
+      thermo(n).getActivityConcentrations(DATA_PTR(m_conc) + m_start[n]);
     }
+    m_kdata->m_ROP_ok = false;
+  }
 
 
-    /**
-     * Update the equilibrium constants in molar units for all
-     * reversible reactions. Irreversible reactions have their 
-     * equilibrium constant set to zero.
-     */
-    void InterfaceKinetics::updateKc() {
-        int i, irxn;
+  /**
+   * Update the equilibrium constants in molar units for all
+   * reversible reactions. Irreversible reactions have their 
+   * equilibrium constant set to zero.
+   */
+  void InterfaceKinetics::updateKc() {
+    int i, irxn;
 
-        vector_fp& m_rkc = m_kdata->m_rkcn;
-        fill(m_rkc.begin(), m_rkc.end(), 0.0);
+    vector_fp& m_rkc = m_kdata->m_rkcn;
+    fill(m_rkc.begin(), m_rkc.end(), 0.0);
 
-        //static vector_fp mu(nTotalSpecies());
-        if (m_nrev > 0) {
+    //static vector_fp mu(nTotalSpecies());
+    if (m_nrev > 0) {
 
-            int n, nsp, k, ik=0;
-            doublereal rt = GasConstant*thermo(0).temperature();
-            doublereal rrt = 1.0/rt;
-            int np = nPhases();
-            for (n = 0; n < np; n++) {
-                thermo(n).getStandardChemPotentials(DATA_PTR(m_mu0) + m_start[n]);
-                nsp = thermo(n).nSpecies();
-                for (k = 0; k < nsp; k++) {
-                    m_mu0[ik] -= rt*thermo(n).logStandardConc(k);
-                    m_mu0[ik] += Faraday * m_phi[n] * thermo(n).charge(k);
-                    ik++;
-                }
-            }
+      int n, nsp, k, ik = 0;
+      doublereal rt = GasConstant*thermo(0).temperature();
+      doublereal rrt = 1.0 / rt;
+      int np = nPhases();
+      for (n = 0; n < np; n++) {
+	thermo(n).getStandardChemPotentials(DATA_PTR(m_mu0) + m_start[n]);
+	nsp = thermo(n).nSpecies();
+	for (k = 0; k < nsp; k++) {
+	  m_mu0[ik] -= rt * thermo(n).logStandardConc(k);
+	  m_mu0[ik] += Faraday * m_phi[n] * thermo(n).charge(k);
+	  ik++;
+	}
+      }
 
-            // compute Delta mu^0 for all reversible reactions
-            m_rxnstoich.getRevReactionDelta(m_ii, DATA_PTR(m_mu0), 
-                DATA_PTR(m_rkc));
+      // compute Delta mu^0 for all reversible reactions
+      m_rxnstoich.getRevReactionDelta(m_ii, DATA_PTR(m_mu0), 
+				      DATA_PTR(m_rkc));
 
-            for (i = 0; i < m_nrev; i++) {
-                irxn = m_revindex[i];
-                if (irxn < 0 || irxn >= nReactions()) {
-                    throw CanteraError("InterfaceKinetics",
-                        "illegal value: irxn = "+int2str(irxn));
-                }
-                m_rkc[irxn] = exp(m_rkc[irxn]*rrt);
-            }
-            for (i = 0; i != m_nirrev; ++i) {
-                m_rkc[ m_irrev[i] ] = 0.0;
-            }
-        }
+      for (i = 0; i < m_nrev; i++) {
+	irxn = m_revindex[i];
+	if (irxn < 0 || irxn >= nReactions()) {
+	  throw CanteraError("InterfaceKinetics",
+			     "illegal value: irxn = "+int2str(irxn));
+	}
+	m_rkc[irxn] = exp(m_rkc[irxn]*rrt);
+      }
+      for (i = 0; i != m_nirrev; ++i) {
+	m_rkc[ m_irrev[i] ] = 0.0;
+      }
     }
+  }
 
 
     void InterfaceKinetics::checkPartialEquil() {
