@@ -48,7 +48,7 @@ namespace Cantera {
 		   + speciesThermoModel + 
 		   " does not match any known type.") {}
     //! destructor
-    virtual ~UnknownSpeciesThermoModel() {}
+    virtual ~UnknownSpeciesThermoModel() throw() {}
   };
 
   //! Factory to build instances of classes that manage the

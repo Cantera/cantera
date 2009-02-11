@@ -1023,34 +1023,52 @@ namespace Cantera {
    * <H2> %Application within %Kinetics Managers </H2>
    * <HR>
    *
-   * For the time being, we have set the standard concentration for all species in
-   * this phase equal to the default concentration of the solvent at 298 K and 1 atm. 
+   * For the time being, we have set the standard concentration for all solute 
+   * species in
+   * this phase equal to the default concentration of the solvent at the system temperature
+   * and pressure multiplied by Mnaught (kg solvent / gmol solvent). The solvent
+   * standard concentration is just equal to its standard state concentration.
    * This means that the
-   * kinetics operator essentially works on an activities basis, with units for the
-   * kinetic rate constant specified
-   * as if all reactants were on a concentration basis.
+   * kinetics operator essentially works on an generalized concentration basis (kg / m3),
+   * with units for the kinetic rate constant specified
+   * as if all reactants (solvent or solute) are on a concentration basis (kg /m3).
+   * The concentration will be modified by the activity coefficients.
    *
-   * For example, a bulk-phase binary reaction between liquid species 
+   * For example, a bulk-phase binary reaction between liquid solute species 
    * <I>j</I> and <I>k</I>, producing
-   * a new liquid species <I>l</I> would have the
+   * a new liquid solute species <I>l</I> would have the
    * following equation for its rate of progress variable, \f$ R^1 \f$, which has
    * units of kmol m-3 s-1.
    *
    *
    *   \f[
-   *    R^1 = k^1 C_j^a C_k^a =  k^1 (C_o a_j) (C_o a_k) 
+   *    R^1 = k^1 C_j^a C_k^a =  k^1 (C_o \tilde{M}_o a_j) (C_o \tilde{M}_o a_k) 
    *   \f]
    * where
    *   \f[
-   *      C_j^a = C_o a_j \quad and \quad C_k^a = C_o a_k
+   *      C_j^a = C_o \tilde{M}_o a_j \quad and \quad C_k^a = C_o \tilde{M}_o a_k
    *   \f]
    *   
    *  \f$ C_j^a \f$ is the activity concentration of species <I>j</I>, and 
    *  \f$ C_k^a \f$ is the activity concentration of species <I>k</I>. \f$ C_o \f$
-   *  is the concentration of water at 298 K and 1 atm. \f$ a_j \f$ is
+   *  is the concentration of water at 298 K and 1 atm. \f$ \tilde{M}_o \f$ is
+   *  has units of kg solvent per gmol solvent and is equal to
+   * 
+   * \f[
+   *     \tilde{M}_o = \frac{M_o}{1000} 
+   * \f]
+   *
+   *
+   * \f$ a_j \f$ is
    *  the activity of species <I>j</I> at the current temperature and pressure
-   *  and concentration of the liquid phase. \f$k^1 \f$ has units of m<SUP>3</SUP> 
-   *  kmol<SUP>-1</SUP> s<SUP>-1</SUP>.
+   *  and concentration of the liquid phase is given by the molality based
+   *  activity coefficient multiplied by the molality of the jth species.
+   *
+   * \f[
+   *      a_j  =  \gamma_j^\triangle m_j 
+   * \f]
+   *
+   * \f$k^1 \f$ has units of m<SUP>3</SUP>  kmol<SUP>-1</SUP> s<SUP>-1</SUP>.
    *
    *
    *  The reverse rate constant can then be obtained from the law of microscopic reversibility
@@ -1063,13 +1081,13 @@ namespace Cantera {
    *  \f$ K^{o,1} \f$ is the dimensionless form of the equilibrium constant.
    *  
    *   \f[
-   *       R^{-1} = k^{-1} C_l^a =  k^{-1} (C_o a_l)
+   *       R^{-1} = k^{-1} C_l^a =  k^{-1} (C_o  \tilde{M}_o a_l)
    *   \f]
    *
    *  where
    *
    *   \f[
-   *       k^{-1} =  k^1 K^{o,1} C_o
+   *       k^{-1} =  k^1 K^{o,1} C_o \tilde{M}_o
    *   \f]
    *
    *  \f$ k^{-1} \f$ has units of s<SUP>-1</SUP>.
@@ -1581,7 +1599,8 @@ namespace Cantera {
      * the activity (i.e., generalized) concentration for use
      *
      * For the time being, we will use the concentration of pure
-     * solvent for the the standard concentration of all species.
+     * solvent at the temperature and pressure of the solution
+     * for the the standard concentration of all species.
      * This has the effect of making mass-action reaction rates
      * based on the molality of species proportional to the
      * molality of the species.

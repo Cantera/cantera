@@ -932,13 +932,22 @@ namespace Cantera {
    * optional parameter indicating the species.
    *
    * For the time being we will use the concentration of pure
-   * solvent for the the standard concentration of all species.
+   * solvent for the the standard concentration of the solvent.
+   * We will use the concentration of the pure solvent
+   * multipled by Mnaught (kg solvent / gmol solvent) for
+   * the standard concentration of all solute species.
    * This has the effect of making reaction rates
    * based on the molality of species proportional to the
-   * molality of the species.
+   * molality of the species, but have units based on assuming
+   * all species concentrations have units of kmol/m3.
+   *
    */
   doublereal HMWSoln::standardConcentration(int k) const {
-    double mvSolvent = m_speciesSize[m_indexSolvent];
+    getStandardVolumes(DATA_PTR(m_tmpV));
+    double mvSolvent = m_tmpV[m_indexSolvent];
+    if (k > 0) {
+      return m_Mnaught / mvSolvent;
+    }
     return 1.0 / mvSolvent;
   }
     

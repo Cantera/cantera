@@ -116,7 +116,7 @@ namespace Cantera {
 							 + fp2str(prnew) + ") does not match previously-defined "
 							 + "reference pressure (" + fp2str(prold) + ")") {}
     //! destructor
-    virtual ~RefPressureMismatch() {}
+    virtual ~RefPressureMismatch() throw() {}
   };
 
   //! Unknown species thermo manager string error
@@ -144,7 +144,7 @@ namespace Cantera {
       CanteraError(proc, "Specified species parameterization type (" + stype 
 		   + ") does not match any known type.") {}
     //! destructor
-    virtual ~UnknownSpeciesThermo() {}
+    virtual ~UnknownSpeciesThermo() throw() {}
   };
 
 

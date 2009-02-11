@@ -712,10 +712,9 @@ namespace Cantera {
    
     //!Copy Constructor for the %ThermoPhase object. 
     /*!
-     * Currently, this is not fully implemented. If called it will
-     * throw an exception.
+     * @param right  ThermoPhase to be copied
      */
-    ThermoPhase(const ThermoPhase &);
+    ThermoPhase(const ThermoPhase &right);
 	
     //! Assignment operator
     /*!

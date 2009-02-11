@@ -47,7 +47,7 @@ namespace Cantera {
 		   + VPSSMgrModel + 
 		   " does not match any known type.") {}
     //! destructor
-    virtual ~UnknownVPSSMgrModel() {}
+    virtual ~UnknownVPSSMgrModel() throw() {}
   };
   
   //! Factory to build instances of classes that manage the

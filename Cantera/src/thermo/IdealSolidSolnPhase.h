@@ -425,7 +425,7 @@ namespace Cantera {
      * concentrations. The generalized concentrations are used
      * in the evaluation of the rates of progress for reactions
      * involving species in this phase. The generalized
-     * concentration dividied by the standard concentration is also
+     * concentration divided by the standard concentration is also
      * equal to the activity of species.
      *
      * For this implentation the activity is defined to be the

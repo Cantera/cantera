@@ -56,7 +56,7 @@ namespace Cantera {
 		   + thermoModel + 
 		   " does not match any known type.") {}
     //! destructor
-    virtual ~UnknownThermoPhaseModel() {}
+    virtual ~UnknownThermoPhaseModel() throw() {}
   };
 
   
