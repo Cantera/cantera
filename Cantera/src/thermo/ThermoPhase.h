@@ -1788,7 +1788,7 @@ namespace Cantera {
      * @param data   Pointer to the XML_Node data containing
      *               information about the species in the phase.
      */
-    void saveSpeciesData(const int k, const XML_Node* data);
+    void saveSpeciesData(const int k, const XML_Node* const data);
       
     //!  Return a pointer to the vector of XML nodes containing the species
     //!  data for this phase.
