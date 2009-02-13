@@ -50,7 +50,7 @@ namespace Cantera {
   //-----------------------------------------------------------
 
   const double DampFactor = 4;
-  const int NDAMP = 10;
+  const int NDAMP = 7;
 
   //-----------------------------------------------------------
   //                 Static Functions
@@ -80,9 +80,24 @@ namespace Cantera {
     filterNewstep(0),
     time_n(0.0),
     m_matrixConditioning(0),
-    m_order(1)
+    m_order(1),
+    rtol_(1.0E-3),
+    atolBase_(1.0E-10)
   {
     neq_ = m_func->nEquations();
+
+    m_ewt.resize(neq_, rtol_);
+    m_y_n.resize(neq_, 0.0);
+    m_y_nm1.resize(neq_, 0.0);
+    m_colScales.resize(neq_, 1.0);
+    m_rowScales.resize(neq_, 1.0);
+    m_resid.resize(neq_, 0.0);
+    atolk_.resize(neq_, atolBase_);
+
+    for (int i = 0; i < neq_; i++) {
+      atolk_[i] = atolBase_;
+      m_ewt[i] = atolk_[i];
+    }
   }
 
   NonlinearSolver::NonlinearSolver(const NonlinearSolver &right) {
@@ -112,6 +127,9 @@ namespace Cantera {
     time_n                     = right.time_n;
     m_matrixConditioning       = right.m_matrixConditioning;
     m_order                    = right.m_order;
+    rtol_                      = right.rtol_;
+    atolBase_                  = right.atolBase_;
+    atolk_                     = right.atolk_;
 
     return *this;
   }
@@ -163,6 +181,61 @@ namespace Cantera {
 	if (i >= 0) {
 	  printf("\t\t   %4d %12.4e %12.4e %12.4e %12.4e\n",
 		 i, m_y_n[i], delta_y[i], m_ewt[i], dmax1);
+	}	  
+      }
+      printf("\t\t   "); print_line("-", 80);
+      mdp::mdp_safe_free((void **) &imax);
+    }
+    return sum_norm;
+  }
+
+  /**
+   * L2 Norm of the residual
+   *
+   *  The second argument has a default of false. However,
+   *  if true, then a table of the largest values is printed
+   *  out to standard output.
+   */
+  double NonlinearSolver::resid_error_norm(const double * const resid,
+					   bool printLargest)
+  {
+    int    i;
+    double sum_norm = 0.0, error;
+    for (i = 0; i < neq_; i++) {
+      error     = resid[i] / m_rowScales[i];
+      sum_norm += (error * error);
+    }
+    sum_norm = sqrt(sum_norm / neq_); 
+    if (printLargest) {
+      const int num_entries = 8;
+      double dmax1, normContrib;
+      int j;
+      int *imax = mdp::mdp_alloc_int_1(num_entries, -1);
+      printf("\t\tPrintout of Largest Contributors to norm "
+	     "of Residual (%g)\n", sum_norm);
+      printf("\t\t         I    resid  rowScale  weightN  "
+	     "Error_Norm**2\n");
+      printf("\t\t   "); print_line("-", 80);
+      for (int jnum = 0; jnum < num_entries; jnum++) {
+	dmax1 = -1.0;
+	for (i = 0; i < neq_; i++) {
+	  bool used = false;
+	  for (j = 0; j < jnum; j++) {
+	    if (imax[j] == i) used = true;
+	  }
+	  if (!used) {
+	    error = resid[i] / m_rowScales[i];
+	    normContrib = sqrt(error * error);
+	    if (normContrib > dmax1) {
+	      imax[jnum] = i;
+	      dmax1 = normContrib;
+	    }
+	  }
+	}
+	i = imax[jnum];
+	if (i >= 0) {
+	  printf("\t\t   %4d %12.4e %12.4e %12.4e \n",
+		 i,  resid[i], m_rowScales[i], normContrib);
 	}	  
       }
       printf("\t\t   "); print_line("-", 80);
@@ -385,7 +458,7 @@ namespace Cantera {
    *   factor of 5
    */
   double NonlinearSolver::boundStep(const double* y, 
-			      const double* step0,  int loglevel) {
+				    const double* step0,  int loglevel) {
     int i, i_lower = -1, i_fbounds, ifbd = 0, i_fbd = 0;
     double fbound = 1.0, f_lowbounds = 1.0, f_delta_bounds = 1.0;
     double ff, y_new, ff_alt;
@@ -456,16 +529,16 @@ namespace Cantera {
    *
    * dampStep():
    *
-   * On entry, step0 must contain an undamped Newton step for the
-   * solution x0. This method attempts to find a damping coefficient
+   * On entry, step0 must contain an undamped Newton step to the
+   * current solution y0. This method attempts to find a damping coefficient
    * such that the next undamped step would have a norm smaller than
    * that of step0. If successful, the new solution after taking the
    * damped step is returned in y1, and the undamped step at y1 is
    * returned in step1.
    */
-  int NonlinearSolver::dampStep(double time_curr, const double* y0, 
+  int NonlinearSolver::dampStep(const double time_curr, const double* y0, 
 				const double *ydot0, const double* step0, 
-				double* y1, double* ydot1, double* step1,
+				double* const y1, double* const ydot1, double* step1,
 				double& s1, SquareMatrix& jac, 
 				int& loglevel, bool writetitle,
 				int& num_backtracks) {
@@ -509,12 +582,7 @@ namespace Cantera {
        * update the time derivative.
        */
       for (j = 0; j < neq_; j++) {
-	y1[j] = y0[j] + ff*step0[j];
-	//                HKM setting intermediate y's to zero was a tossup.
-	//                    slightly different, equivalent results
-	//#ifdef DEBUG_HKM
-	//	    y1[j] = MAX(0.0, y1[j]);
-	//#endif
+	y1[j] = y0[j] + ff * step0[j];
       }
       calc_ydot(m_order, y1, ydot1);
 
@@ -524,7 +592,6 @@ namespace Cantera {
       // if y1[] were accepted.
 
       doNewtonSolve(time_curr, y1, ydot1, step1, jac, loglevel);
-
 
       // compute the weighted norm of step1
       s1 = soln_error_norm(step1);
@@ -591,11 +658,11 @@ namespace Cantera {
     }
   }
 
-  /**************************************************************************
+  /**
    *
    * solve_nonlinear_problem():
    *
-   * Find the solution to F(X) = 0 by damped Newton iteration.  On
+   * Find the solution to F(X) = 0 by damped Newton iteration. On
    * entry, x0 contains an initial estimate of the solution.  On
    * successful return, x1 contains the converged solution.
    *

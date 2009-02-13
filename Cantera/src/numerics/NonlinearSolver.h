@@ -59,15 +59,30 @@ namespace Cantera {
      */
     NonlinearSolver& operator=(const NonlinearSolver &right);
 
-    /**
-     * L2 Norm of a delta in the solution
+   
+    //!  L2 norm of the delta of the solution vector
+    /*!
+     *  calculate the norm of the solution vector. This will
+     *  involve the column scaling of the matrix
+     *
+     *    The second argument has a default of false. However,
+     *    if true, then a table of the largest values is printed
+     *    out to standard output.
+     */
+    double soln_error_norm(const double * const delta_y, 
+			   bool printLargest = false);
+
+    //! L2 norm of the residual of the equation system
+    /*!
+     * Calculate the norm of the residual vector. This may
+     * involve using the row sum scaling from the matrix problem. 
      *
      *  The second argument has a default of false. However,
      *  if true, then a table of the largest values is printed
      *  out to standard output.
      */
-    double soln_error_norm(const double * const delta_y, 
-			   bool printLargest = false);
+    double resid_error_norm(const double * const resid, 
+			    bool printLargest = false);
 
     //! Compute the current Residual
     /*!
@@ -159,18 +174,27 @@ namespace Cantera {
 
     double filterNewStep(double, double *, double *);
 
-    //!
+    //!  Find a damping coefficient through a look-ahead mechanism
     /*!
-     * On entry, step0 must contain an undamped Newton step for the
-     * solution x0. This method attempts to find a damping coefficient
-     * such that the next undamped step would have a norm smaller than
-     * that of step0. If successful, the new solution after taking the
-     * damped step is returned in y1, and the undamped step at y1 is
-     * returned in step1.
+     *    On entry, step0 must contain an undamped Newton step for the
+     *    solution x0. This method attempts to find a damping coefficient
+     *    such that all components stay in bounds, and  the next
+     *    undamped step would have a norm smaller than
+     *    that of step0. If successful, the new solution after taking the
+     *    damped step is returned in y1, and the undamped step at y1 is
+     *    returned in step1.
+     *
+     *    @param time_curr Current physical time
+     *    @param y0        Base value of the solution before any steps 
+     *                     are taken
+     *    @param ydot0     Base value of the time derivative of teh
+     *                     solution
+     *    @param step0     Initial step suggested.
+     *    @param y1        
      */
-    int dampStep(double time_curr, const double* y0, 
+    int dampStep(const double time_curr, const double* y0, 
 		 const double *ydot0, const double* step0, 
-		 double* y1, double* ydot1, double* step1,
+		 double* const y1, double* const ydot1, double* step1,
 		 double& s1, SquareMatrix& jac, 
 		 int& loglevel, bool writetitle,
 		 int& num_backtracks);
@@ -225,12 +249,16 @@ namespace Cantera {
     //! Local copy of the number of equations
     int neq_;
   
-    std::vector<double> m_ewt;
+    //! Soln error weights
+    std::vector<doublereal> m_ewt;
 
-    std::vector<double> m_y_n;
-    std::vector<double> m_y_nm1;
-    std::vector<double> m_colScales;
-    std::vector<double> m_rowScales;
+    std::vector<doublereal> m_y_n;
+    std::vector<doublereal> m_y_nm1;
+    std::vector<doublereal> m_colScales;
+
+    //! Weights for normalizing the values of the residuals
+    
+    std::vector<doublereal> m_rowScales;
 
     std::vector<doublereal> m_resid;
 
@@ -263,6 +291,12 @@ namespace Cantera {
     int m_matrixConditioning;
 
     int m_order;
+
+    doublereal rtol_;
+
+    doublereal atolBase_;
+
+    std::vector<doublereal> atolk_;
   };
 
 }
