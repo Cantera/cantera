@@ -59,7 +59,21 @@ namespace Cantera {
      */
     NonlinearSolver& operator=(const NonlinearSolver &right);
 
-   
+
+    //! Create solution weights for convergence criteria
+    /*!
+     *  We create soln weights from the following formula
+     *
+     *  wt[i] = rtol * abs(y[i]) + atol[i]
+     *
+     *  The program always assumes that atol is specific
+     *  to the solution component
+     *
+     * param y  vector of the current solution values
+     */
+    void createSolnWeights(const double * const y);
+
+
     //!  L2 norm of the delta of the solution vector
     /*!
      *  calculate the norm of the solution vector. This will
@@ -69,8 +83,8 @@ namespace Cantera {
      *    if true, then a table of the largest values is printed
      *    out to standard output.
      */
-    double soln_error_norm(const double * const delta_y, 
-			   bool printLargest = false);
+    double solnErrorNorm(const double * const delta_y, 
+			 bool printLargest = false);
 
     //! L2 norm of the residual of the equation system
     /*!
@@ -81,7 +95,7 @@ namespace Cantera {
      *  if true, then a table of the largest values is printed
      *  out to standard output.
      */
-    double resid_error_norm(const double * const resid, 
+    double residErrorNorm(const double * const resid, 
 			    bool printLargest = false);
 
     //! Compute the current Residual

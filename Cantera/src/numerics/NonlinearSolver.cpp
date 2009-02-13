@@ -134,6 +134,23 @@ namespace Cantera {
     return *this;
   }
 
+  // Create solution weights for convergence criteria
+  /*
+   *  We create soln weights from the following formula
+   *
+   *  wt[i] = rtol * abs(y[i]) + atol[i]
+   *
+   *  The program always assumes that atol is specific
+   *  to the solution component
+   *
+   * param y  vector of the current solution values
+   */
+  void NonlinearSolver::createSolnWeights(const double * const y) {
+    for (int i = 0; i < neq_; i++) {
+      m_ewt[i] = rtol_ * fabs(y[i]) + atolk_[i];
+    }
+  }
+
   /**
    * L2 Norm of a delta in the solution
    *
@@ -141,8 +158,8 @@ namespace Cantera {
    *  if true, then a table of the largest values is printed
    *  out to standard output.
    */
-  double NonlinearSolver::soln_error_norm(const double * const delta_y, 
-					  bool printLargest)
+  double NonlinearSolver::solnErrorNorm(const double * const delta_y, 
+					bool printLargest)
   {
     int    i;
     double sum_norm = 0.0, error;
@@ -196,8 +213,8 @@ namespace Cantera {
    *  if true, then a table of the largest values is printed
    *  out to standard output.
    */
-  double NonlinearSolver::resid_error_norm(const double * const resid,
-					   bool printLargest)
+  double NonlinearSolver::residErrorNorm(const double * const resid,
+					 bool printLargest)
   {
     int    i;
     double sum_norm = 0.0, error;
@@ -545,7 +562,7 @@ namespace Cantera {
     
           
     // Compute the weighted norm of the undamped step size step0
-    double s0 = soln_error_norm(step0);
+    double s0 = solnErrorNorm(step0);
 
     // Compute the multiplier to keep all components in bounds
     // A value of one indicates that there is no limitation
@@ -594,7 +611,7 @@ namespace Cantera {
       doNewtonSolve(time_curr, y1, ydot1, step1, jac, loglevel);
 
       // compute the weighted norm of step1
-      s1 = soln_error_norm(step1);
+      s1 = solnErrorNorm(step1);
 
       // write log information
       if (loglevel > 3) {
