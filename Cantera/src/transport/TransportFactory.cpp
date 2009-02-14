@@ -337,14 +337,18 @@ namespace Cantera {
       dtr = (DustyGasTransport*)tr;
       dtr->initialize(phase, gastr);
       break;
+#ifdef WITH_IDEAL_SOLUTIONS
     case cLiquidTransport:
       tr = new LiquidTransport;
       tr->setThermo(*phase);
       break;
+#endif
+#ifdef WITH_ELECTROLYTES
     case cAqueousTransport:
       tr = new AqueousTransport;
       tr->setThermo(*phase);
       break;
+#endif
     default:
       throw CanteraError("newTransport","unknown transport model");
     }

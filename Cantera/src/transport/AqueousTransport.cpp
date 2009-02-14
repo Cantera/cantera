@@ -15,7 +15,7 @@
 #endif
 
 #include "ThermoPhase.h"
-#include "LiquidTransport.h"
+#include "AqueousTransport.h"
 
 #include "utilities.h"
 #include "TransportParams.h"
@@ -437,14 +437,14 @@ namespace Cantera {
 
     doublereal pres = m_thermo->pressure();
     // Check for changes in the mole fraction vector.
-    int iStateNew = m_thermo->getIStateMF();
-    if (iStateNew == m_iStateMF) {
-      if (pres == m_press) {
-	return;
-      }
-    } else {
-      m_iStateMF = iStateNew;
-    }
+    //int iStateNew = m_thermo->getIStateMF();
+    //if (iStateNew == m_iStateMF) {
+    //  if (pres == m_press) {
+    //	return;
+    //     }
+   // } else {
+    //  m_iStateMF = iStateNew;
+    //}
     m_press = pres;
 
     // signal that concentration-dependent quantities will need to
@@ -688,7 +688,7 @@ namespace Cantera {
       }
 
       //! invert and solve the system  Ax = b. Answer is in m_B
-      solve(m_A, m_B);
+      //solve(m_A, m_B);
     
       m_flux = m_B;
 	
@@ -718,7 +718,7 @@ namespace Cantera {
       }
 
       //! invert and solve the system  Ax = b. Answer is in m_B
-      solve(m_A, m_B);
+      //solve(m_A, m_B);
     
       m_flux = m_B;
 	
