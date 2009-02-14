@@ -21,6 +21,8 @@
 #include "SolidTransport.h"
 #include "DustyGasTransport.h"
 
+#include "LiquidTransport.h"
+#include "AqueousTransport.h"
 
 #include "TransportFactory.h"
 
@@ -299,6 +301,7 @@ namespace Cantera {
 
     if (transportModel == "") return new Transport;
 
+  
     vector_fp state;
     Transport *tr = 0, *gastr = 0;
     DustyGasTransport* dtr = 0;
@@ -334,15 +337,24 @@ namespace Cantera {
       dtr = (DustyGasTransport*)tr;
       dtr->initialize(phase, gastr);
       break;
+    case cLiquidTransport:
+      tr = new LiquidTransport;
+      tr->setThermo(*phase);
+      break;
+    case cAqueousTransport:
+      tr = new AqueousTransport;
+      tr->setThermo(*phase);
+      break;
     default:
       throw CanteraError("newTransport","unknown transport model");
     }
     phase->restoreState(state);
     return tr;
   }
+ 
 
 
-  /** 
+/** 
    * Prepare to build a new kinetic-theory-based transport manager
    * for low-density gases. Uses polynomial fits to Monchick & Mason
    * collision integrals.

@@ -32,10 +32,11 @@ CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT) $(PIC_FLAG) $(DEBUG_FLAG)
 
 # Transport Object Files
 OBJS    = TransportFactory.o MultiTransport.o MixTransport.o MMCollisionInt.o \
-          SolidTransport.o DustyGasTransport.o 
+          SolidTransport.o DustyGasTransport.o LiquidTransport.o
+
 TRAN_H  =  TransportFactory.h MultiTransport.h MixTransport.h \
            MMCollisionInt.h  SolidTransport.h DustyGasTransport.h \
-           TransportBase.h L_matrix.h TransportParams.h 
+           TransportBase.h L_matrix.h TransportParams.h LiquidTransport.h
 
 CXX_INCLUDES = -I../base -I../thermo -I../numerics @CXX_INCLUDES@
 LIB = @buildlib@/libtransport.a

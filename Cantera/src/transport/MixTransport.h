@@ -112,6 +112,14 @@ namespace Cantera {
 				  const doublereal* grad_X, 
 				  int ldf, doublereal* fluxes);
 
+    //! Initialize the transport object
+    /*!
+     * Here we change all of the internal dimensions to be sufficient.
+     * We get the object ready to do property evaluations.
+     *
+     * @param tr  Transport parameters for all of the species
+     *            in the phase.
+     */
     virtual bool init(TransportParams& tr);
 
     friend class TransportFactory;
