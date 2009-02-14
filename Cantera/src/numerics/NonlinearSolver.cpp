@@ -2,11 +2,10 @@
  *
  *  @file NonlinearSolver.cpp
  *
- *  Damped Newton solver for 1D multi-domain problems
+ *  Damped Newton solver for 0D and 1D problems
  */
 
 /*
- *  $Author$
  *  $Date$
  *  $Revision$
  */
@@ -21,16 +20,17 @@
 
 #include "SquareMatrix.h"
 #include "NonlinearSolver.h"
-//#include "md_timer.h"
+
 #include "clockWC.h"
 #include "vec_functions.h"
 #include <ctime>
-extern double second();
+
 #include "mdp_allo.h"
+#include <cfloat>
+
 extern void print_line(const char *, int);
 
 #include <vector>
-
 #include <cstdio>
 #include <cmath>
 
@@ -93,6 +93,9 @@ namespace Cantera {
     m_rowScales.resize(neq_, 1.0);
     m_resid.resize(neq_, 0.0);
     atolk_.resize(neq_, atolBase_);
+    doublereal hb = numeric_limits<double>::max();
+    m_y_high_bounds.resize(neq_, hb);
+    m_y_low_bounds.resize(neq_, -hb);    
 
     for (int i = 0; i < neq_; i++) {
       atolk_[i] = atolBase_;
@@ -115,7 +118,16 @@ namespace Cantera {
     // rely on the ResidJacEval duplMyselfAsresidJacEval() function to
     // create a deep copy
     m_func = right.m_func->duplMyselfAsResidJacEval();
+
     neq_                       = right.neq_;
+    m_ewt                      = right.m_ewt;
+    m_y_n                      = right.m_y_n;
+    m_y_nm1                    = right.m_y_nm1;
+    m_colScales                = right.m_colScales;
+    m_rowScales                = right.m_rowScales;
+    m_resid                    = right.m_resid;
+    m_y_high_bounds            = right.m_y_high_bounds;
+    m_y_low_bounds             = right.m_y_low_bounds;
     delta_t_n                  = right.delta_t_n;
     m_nfe                      = right.m_nfe;
     m_colScaling               = right.m_colScaling;
@@ -148,6 +160,20 @@ namespace Cantera {
   void NonlinearSolver::createSolnWeights(const double * const y) {
     for (int i = 0; i < neq_; i++) {
       m_ewt[i] = rtol_ * fabs(y[i]) + atolk_[i];
+    }
+  }
+
+  // set bounds constraints for all variables in the problem
+  /*
+   *  
+   *   @param y_low_bounds  Vector of lower bounds
+   *   @param y_high_bounds Vector of high bounds
+   */
+  void NonlinearSolver::setBoundsConstraints(const double * const y_low_bounds,
+					     const double * const y_high_bounds) {
+    for (int i = 0; i < neq_; i++) {
+      m_y_low_bounds[i]  = y_low_bounds[i];
+      m_y_high_bounds[i] = y_high_bounds[i];
     }
   }
 
@@ -474,18 +500,38 @@ namespace Cantera {
    *  Maximum decrease in variable in any one newton iteration:
    *   factor of 5
    */
-  double NonlinearSolver::boundStep(const double* y, 
-				    const double* step0,  int loglevel) {
+  double NonlinearSolver::boundStep(const double* const y, 
+				    const double* const step0, const int loglevel) {
     int i, i_lower = -1, i_fbounds, ifbd = 0, i_fbd = 0;
-    double fbound = 1.0, f_lowbounds = 1.0, f_delta_bounds = 1.0;
+    double fbound = 1.0, f_bounds = 1.0, f_delta_bounds = 1.0;
     double ff, y_new, ff_alt;
+    
     for (i = 0; i < neq_; i++) {
       y_new = y[i] + step0[i];
-      if ((y_new < (-0.01 * m_ewt[i])) && y[i] >= 0.0) {
-	ff = 0.9 * (y[i] / (y[i] - y_new));
-	if (ff < f_lowbounds) {
-	  f_lowbounds = ff;
-	  i_lower = i;
+      /*
+       * Force the step to only take 80% a step towards the lower bounds
+       */
+      if (step0[i] < 0.0) {
+	if (y_new < m_y_low_bounds[i]) {
+	  double legalDelta = 0.8*(m_y_low_bounds[i] - y[i]);
+	  ff = legalDelta / step0[i];
+	  if (ff < f_bounds) {
+	    f_bounds = ff;
+	    i_lower = i;
+	  }
+	}
+      }
+      /*
+       * Force the step to only take 80% a step towards the high bounds
+       */
+      if (step0[i] > 0.0) {
+	if (y_new > m_y_high_bounds[i]) {
+	  double legalDelta = 0.8*(m_y_high_bounds[i] - y[i]);
+	  ff = legalDelta / step0[i];
+	  if (ff < f_bounds) {
+	    f_bounds = ff;
+	    i_lower = i;
+	  }
 	}
       }
       /**
@@ -515,16 +561,16 @@ namespace Cantera {
       }
       f_delta_bounds = MIN(f_delta_bounds, ff);
     }
-    fbound = MIN(f_lowbounds, f_delta_bounds);
+    fbound = MIN(f_bounds, f_delta_bounds);
     /*
      * Report on any corrections
      */
     if (loglevel > 1) {
       if (fbound != 1.0) {
-	if (f_lowbounds < f_delta_bounds) {
-	  printf("\t\tboundStep: Variable %d causing lower bounds "
+	if (f_bounds < f_delta_bounds) {
+	  printf("\t\tboundStep: Variable %d causing bounds "
 		 "damping of %g\n",
-		 i_lower, f_lowbounds);
+		 i_lower, f_bounds);
 	} else {
 	  if (ifbd) {
 	    printf("\t\tboundStep: Decrease of Variable %d causing "
@@ -697,7 +743,8 @@ namespace Cantera {
 					       int &num_backtracks, 
 					       int loglevelInput)
   {
-    double t0 = second();
+    clockWC wc;
+
     bool m_residCurrent = false;
     int m = 0;
     bool forceNewJac = false;
@@ -851,7 +898,7 @@ namespace Cantera {
  
     num_linear_solves += m_numTotalLinearSolves;
  
-    double time_elapsed = second() - t0;
+    double time_elapsed =  wc.secondsWC();
     if (loglevel > 1) {
       if (m == 1) {
 	printf("\t\tNonlinear problem solved successfully in "

@@ -167,8 +167,18 @@ namespace Cantera {
      *  Maximum decrease in variable in any one newton iteration:
      *   factor of 5
      */
-    double boundStep(const double* y, 
-		     const double* step0,  int loglevel);
+    double boundStep(const double* const  y, 
+		     const double* const step0,  const int loglevel);
+
+
+    //! set bounds constraints for all variables in the problem
+    /*!
+     *  
+     *   @param y_low_bounds  Vector of lower bounds
+     *   @param y_high_bounds Vector of high bounds
+     */
+    void setBoundsConstraints(const double * const y_low_bounds,
+			      const double * const y_high_bounds);
 
     /**
      * Internal function to calculate the predicted solution
@@ -275,6 +285,12 @@ namespace Cantera {
     std::vector<doublereal> m_rowScales;
 
     std::vector<doublereal> m_resid;
+
+    //! Bounds vector for each species
+    std::vector<doublereal> m_y_high_bounds;
+
+    //! Lower bounds vector for each species
+    std::vector<doublereal> m_y_low_bounds;
 
     double delta_t_n;
 
