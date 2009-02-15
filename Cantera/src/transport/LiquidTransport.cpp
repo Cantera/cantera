@@ -31,7 +31,8 @@ namespace Cantera {
   //////////////////// class LiquidTransport methods //////////////
 
 
-  LiquidTransport::LiquidTransport() :
+  LiquidTransport::LiquidTransport(thermo_t* thermo, int ndim) :
+    Transport(thermo, ndim),
     m_nsp(0),
     m_tmin(-1.0),
     m_tmax(100000.),
@@ -45,21 +46,117 @@ namespace Cantera {
     m_press(-1.0),
     m_lambda(-1.0),
     m_viscmix(-1.0),
-    m_viscmix_ok(false),
-    m_viscwt_ok(false),
-    m_spvisc_ok(false),
-    m_diffmix_ok(false),
-    m_bindiff_ok(false),
-    m_spcond_ok(false),
-    m_condmix_ok(false),
+    m_visc_mix_ok(false),
+    m_visc_temp_ok(false),
+    m_visc_conc_ok(false),
+    m_diff_mix_ok(false),
+    m_diff_temp_ok(false),
+    m_cond_temp_ok(false),
+    m_cond_mix_ok(false),
     m_mode(-1000),
-    m_debug(false),
-    m_nDim(1)
+    m_debug(false)
   {
-
-
   }
 
+
+  LiquidTransport::LiquidTransport(const LiquidTransport &right) :
+    Transport(),
+    m_nsp(0),
+    m_tmin(-1.0),
+    m_tmax(100000.),
+    m_iStateMF(-1),
+    m_temp(-1.0),
+    m_logt(0.0),
+    m_sqrt_t(-1.0),
+    m_t14(-1.0),
+    m_t32(-1.0),
+    m_sqrt_kbt(-1.0),
+    m_press(-1.0),
+    m_lambda(-1.0),
+    m_viscmix(-1.0),
+    m_visc_mix_ok(false),
+    m_visc_temp_ok(false),
+    m_visc_conc_ok(false),
+    m_diff_mix_ok(false),
+    m_diff_temp_ok(false),
+    m_cond_temp_ok(false),
+    m_cond_mix_ok(false),
+    m_mode(-1000),
+    m_debug(false)
+  {
+    /*
+     * Use the assignment operator to do the brunt
+     * of the work for the copy construtor.
+     */
+    *this = right;
+  }
+
+  LiquidTransport& LiquidTransport::operator=(const LiquidTransport& right) {
+    if (&right != this) {
+      return *this; 
+    }
+    Transport::operator=(right);
+    m_nsp                                 = right.m_nsp;
+    m_tmin                                = right.m_tmin;
+    m_tmax                                = right.m_tmax;
+    m_mw                                  = right.m_mw;
+    m_poly                                = right.m_poly;
+    viscCoeffsVector_                     = right.viscCoeffsVector_;
+    m_condcoeffs                          = right.m_condcoeffs;
+    m_diffcoeffs                          = right.m_diffcoeffs;
+    m_Grad_X                              = right.m_Grad_X;
+    m_Grad_T                              = right.m_Grad_T;
+    m_Grad_V                              = right.m_Grad_V;
+    m_Grad_mu                             = right.m_Grad_mu;
+    m_bdiff                               = right.m_bdiff;
+    m_visc                                = right.m_visc;
+    m_sqvisc                              = right.m_sqvisc;
+    m_cond                                = right.m_cond;
+    m_polytempvec                         = right.m_polytempvec;
+    m_iStateMF = -1;
+    m_molefracs                           = right.m_molefracs;
+    m_concentrations                      = right.m_concentrations;
+    m_chargeSpecies                       = right.m_chargeSpecies;
+    m_DiffCoeff_StefMax                   = right.m_DiffCoeff_StefMax;
+    viscosityModel_                       = right.viscosityModel_;
+    m_phi                                 = right.m_phi;
+    m_wratjk                              = right.m_wratjk;
+    m_wratkj1                             = right.m_wratkj1;
+    m_B                                   = right.m_B;
+    m_A                                   = right.m_A;
+    m_eps                                 = right.m_eps;
+    m_alpha                               = right.m_alpha;
+    m_temp                                = right.m_temp;
+    m_logt                                = right.m_logt;
+    m_sqrt_t                              = right.m_sqrt_t;
+    m_t14                                 = right.m_t14;
+    m_t32                                 = right.m_t32;
+    m_sqrt_kbt                            = right.m_sqrt_kbt;
+    m_press                               = right.m_press;
+    m_flux                                = right.m_flux;
+    m_lambda                              = right.m_lambda;
+    m_viscmix                             = right.m_viscmix;
+    m_spwork                              = right.m_spwork;
+    m_visc_mix_ok    = false;
+    m_visc_temp_ok   = false;
+    m_visc_conc_ok   = false;
+    m_diff_mix_ok    = false;
+    m_diff_temp_ok   = false;
+    m_cond_temp_ok   = false;
+    m_cond_mix_ok    = false;
+    m_mode                                = right.m_mode;
+    m_diam                                = right.m_diam;
+    m_debug                               = right.m_debug;
+    m_nDim                                = right.m_nDim;
+
+    return *this; 
+  }
+
+
+  Transport *LiquidTransport::duplMyselfAsTransport() const {
+    LiquidTransport* tr = new LiquidTransport(*this);
+    return (dynamic_cast<Transport *>(tr));
+  }
 
   // Initialize the object
   /*
@@ -119,13 +216,14 @@ namespace Cantera {
 
 
     // set all flags to false
-    m_viscmix_ok = false;
-    m_viscwt_ok  = false;
-    m_spvisc_ok  = false;
-    m_spcond_ok  = false;
-    m_condmix_ok = false;
-    m_spcond_ok  = false;
-    m_diffmix_ok = false;
+    m_visc_mix_ok   = false;
+    m_visc_temp_ok  = false;
+    m_visc_conc_ok  = false;
+
+    m_cond_temp_ok = false;
+    m_cond_mix_ok  = false;
+    m_diff_temp_ok   = false;
+    m_diff_mix_ok  = false;
 
     return true;
   }
@@ -150,21 +248,41 @@ namespace Cantera {
    */ 
   doublereal LiquidTransport::viscosity() {
         
-    update_T();
-    update_C();
+    update_temp();
+    update_conc();
 
-    if (m_viscmix_ok) return m_viscmix;
+    if (m_visc_mix_ok) return m_viscmix;
   
     // update m_visc[] and m_phi[] if necessary
-    if (!m_viscwt_ok) updateViscosity_T();
-
-    multiply(m_phi, DATA_PTR(m_molefracs), DATA_PTR(m_spwork));
-
-    m_viscmix = 0.0;
-    for (int k = 0; k < m_nsp; k++) {
-      m_viscmix += m_molefracs[k] * m_visc[k]/m_spwork[k]; //denom;
+    if (!m_visc_temp_ok) {
+      updateViscosity_temp();
     }
+
+    if (!m_visc_conc_ok) {
+      updateViscosities_conc();
+    }
+
+    if (viscosityModel_ == LVISC_CONSTANT) {
+      return m_viscmix;
+    } else if (viscosityModel_ == LVISC_MIXTUREAVG) {
+      m_viscmix = dot_product(m_visc, m_molefracs);
+    } else if (viscosityModel_ == LVISC_WILKES) {
+      multiply(m_phi, DATA_PTR(m_molefracs), DATA_PTR(m_spwork));
+      m_viscmix = 0.0;
+      for (int k = 0; k < m_nsp; k++) {
+	m_viscmix += m_molefracs[k] * m_visc[k]/m_spwork[k]; 
+      }
+    }
+    
     return m_viscmix;
+  }
+
+  void LiquidTransport::getSpeciesViscosities(doublereal* visc) { 
+    update_temp();
+    if (!m_visc_temp_ok) {
+      updateViscosity_temp();
+    }
+    copy(m_visc.begin(), m_visc.end(), visc); 
   }
 
 
@@ -174,11 +292,11 @@ namespace Cantera {
   void LiquidTransport::getBinaryDiffCoeffs(int ld, doublereal* d) {
     int i,j;
 
-    update_T();
+    update_temp();
 
     // if necessary, evaluate the binary diffusion coefficents
     // from the polynomial fits
-    if (!m_bindiff_ok) updateDiff_T();
+    if (!m_diff_temp_ok) updateDiff_temp();
     doublereal pres = m_thermo->pressure();
 
     doublereal rp = 1.0/pres;
@@ -189,7 +307,7 @@ namespace Cantera {
   }
 
 
-  void LiquidTransport::getMobilities(doublereal* mobil) {
+  void LiquidTransport::getMobilities(doublereal* const mobil) {
     // this needs to be checked out. 
     int k;
     getMixDiffCoeffs(DATA_PTR(m_spwork));
@@ -201,19 +319,19 @@ namespace Cantera {
   
 
   
-  void LiquidTransport::set_Grad_V(const doublereal* grad_V) {
+  void LiquidTransport::set_Grad_V(const doublereal* const grad_V) {
     for (int a = 0; a < m_nDim; a++) {
       m_Grad_V[a] = grad_V[a];
     }
   }
 
-  void LiquidTransport::set_Grad_T(const doublereal* grad_T) {
+  void LiquidTransport::set_Grad_T(const doublereal* const grad_T) {
     for (int a = 0; a < m_nDim; a++) {
       m_Grad_T[a] = grad_T[a];
     }
   }
 
- void LiquidTransport::set_Grad_X(const doublereal* grad_X) {
+ void LiquidTransport::set_Grad_X(const doublereal* const grad_X) {
    int itop = m_nDim * m_nsp;
    for (int i = 0; i < itop; i++) {
      m_Grad_X[i] = grad_X[i];
@@ -231,20 +349,23 @@ namespace Cantera {
    * \]
    */
   doublereal LiquidTransport::thermalConductivity() {
-    int k;
+   
+    update_temp();
+    update_conc();
 
-    update_T();
-    update_C();
-
-    if (!m_spcond_ok)  updateCond_T(); 
-    if (!m_condmix_ok) {
+    if (!m_cond_temp_ok) {
+      updateCond_temp();
+    } 
+    if (!m_cond_mix_ok) {
       doublereal sum1 = 0.0, sum2 = 0.0;
-      for (k = 0; k < m_nsp; k++) {
+      for (int k = 0; k < m_nsp; k++) {
 	sum1 += m_molefracs[k] * m_cond[k];
 	sum2 += m_molefracs[k] / m_cond[k];
       }
       m_lambda = 0.5*(sum1 + 1.0/sum2);
+      m_cond_mix_ok = true;
     }
+
     return m_lambda;
   }
 
@@ -257,9 +378,8 @@ namespace Cantera {
    * MultiTransport instead. This methods fills out array dt with
    * zeros.
    */
-  void LiquidTransport::getThermalDiffCoeffs(doublereal* dt) {
-    int k;
-    for (k = 0; k < m_nsp; k++) {
+  void LiquidTransport::getThermalDiffCoeffs(doublereal* const dt) {
+    for (int k = 0; k < m_nsp; k++) {
       dt[k] = 0.0;
     }
   }
@@ -296,8 +416,8 @@ namespace Cantera {
   void LiquidTransport::getSpeciesFluxesExt(int ldf, doublereal* fluxes) {
     int n, k;
 
-    update_T();
-    update_C();
+    update_temp();
+    update_conc();
 
 
     getMixDiffCoeffs(DATA_PTR(m_spwork));
@@ -330,14 +450,16 @@ namespace Cantera {
    * This is need to avoid a Nan result in the formula
    * below.
    */
-  void LiquidTransport::getMixDiffCoeffs(doublereal* d) {
+  void LiquidTransport::getMixDiffCoeffs(doublereal* const d) {
 
-    update_T();
-    update_C();
+    update_temp();
+    update_conc();
 
     // update the binary diffusion coefficients if necessary
-    if (!m_bindiff_ok) updateDiff_T();
-
+    if (!m_diff_temp_ok) {
+      updateDiff_temp();
+    }
+ 
     int k, j;
     doublereal mmw = m_thermo->meanMolecularWeight();
     doublereal sumxw = 0.0, sum2;
@@ -369,21 +491,24 @@ namespace Cantera {
    *  This is called whenever a transport property is
    *  requested.  
    *  The first task is to check whether the temperature has changed
-   *  since the last call to update_T().
+   *  since the last call to update_temp().
    *  If it hasn't then an immediate return is carried out.
    *
    *     @internal
    */ 
-  void LiquidTransport::update_T()
+  void LiquidTransport::update_temp()
   {
+    // First make a decision about whether we need to recalculate
     doublereal t = m_thermo->temperature();
     if (t == m_temp) return;
+
+    // Next do a reality check on temperature value
     if (t < 0.0) {
-      throw CanteraError("LiquidTransport::update_T",
+      throw CanteraError("LiquidTransport::update_temp()",
 			 "negative temperature "+fp2str(t));
     }
 
-    // Compute various functions of temperature
+    // Compute various direct functions of temperature
     m_temp = t;
     m_logt = log(m_temp);
     m_kbt = Boltzmann * m_temp;
@@ -393,64 +518,73 @@ namespace Cantera {
     m_sqrt_kbt = sqrt(Boltzmann*m_temp);
 
     // compute powers of log(T)
+    // -> may move this
     m_polytempvec[0] = 1.0;
     m_polytempvec[1] = m_logt;
     m_polytempvec[2] = m_logt*m_logt;
     m_polytempvec[3] = m_logt*m_logt*m_logt;
     m_polytempvec[4] = m_logt*m_logt*m_logt*m_logt;
 
+    // temperature has changed so temp flags are flipped
+    m_visc_temp_ok  = false;
+    m_diff_temp_ok  = false;
+
     // temperature has changed, so polynomial temperature 
     // interpolations will need to be reevaluated.
-    // Set all of these flags to false
-    m_viscmix_ok = false;
-    m_spvisc_ok  = false;
-    m_viscwt_ok  = false;
-    m_spcond_ok  = false;
-    m_diffmix_ok = false;
-    m_bindiff_ok = false;
-    m_condmix_ok = false;    
+    // This means that many concentration 
+    m_visc_conc_ok  = false;
+    m_cond_temp_ok  = false;
 
-    // For now, for a concentration redo also
-    m_iStateMF   = -1;
+    // Mixture stuff needs to be evaluated 
+    m_visc_mix_ok = false;
+    m_diff_mix_ok = false;
+    //  m_cond_mix_ok = false; (don't need it because a lower lvl flag is set    
+
   }                 
 
-  /**
-   *  @internal This is called the first time any transport property
-   *  is requested from Mixture after the concentrations
-   *  have changed.
-   */ 
-  void LiquidTransport::update_C()  
-  {
 
+  // Handles the effects of changes in the mixture concentration
+  /*
+   *   This is called for every interface call to check whether
+   *   the concentrations have changed. Concentrations change
+   *   whenever the pressure or the mole fraction has changed.
+   *   If it has changed, the recalculations should be done.
+   *
+   *   Note this should be a lightweight function since it's
+   *   part of all of the interfaces.
+   *
+   *   @internal
+   */ 
+  void LiquidTransport::update_conc() {
+    // If the pressure has changed then the concentrations 
+    // have changed.
     doublereal pres = m_thermo->pressure();
-    // Check for changes in the mole fraction vector.
-    //int iStateNew = m_thermo->getIStateMF();
-    //if (iStateNew == m_iStateMF) {
-    //  if (pres == m_press) {
-//	return;
- //     }
-  //  } else {
-   //   m_iStateMF = iStateNew;
-    //}
-    m_press = pres;
+    bool qReturn = true;
+    if (pres != m_press) {
+      qReturn = false;
+      m_press = pres;
+    } 
+    int iStateNew = m_thermo->stateMFNumber();
+    if (iStateNew != m_iStateMF) {
+      qReturn = false;
+      m_thermo->getMoleFractions(DATA_PTR(m_molefracs));
+      for (int k = 0; k < m_nsp; k++) {
+	m_molefracs[k] = fmaxx(MIN_X, m_molefracs[k]);
+      }
+    }
+    if (qReturn) {
+      return;
+    }
 
     // signal that concentration-dependent quantities will need to
     // be recomputed before use, and update the local mole
     // fractions.
-
-    m_viscmix_ok = false;
-    m_diffmix_ok = false;
-    m_condmix_ok = false;
-
-    m_thermo->getMoleFractions(DATA_PTR(m_molefracs));
-
-    // add an offset to avoid a pure species condition or
-    // negative mole fractions. MIN_X is 1.0E-20, a value
-    // which is below the additive machine precision of mole fractions.
-    int k;
-    for (k = 0; k < m_nsp; k++) {
-      m_molefracs[k] = fmaxx(MIN_X, m_molefracs[k]);
-    }
+    m_visc_conc_ok = false;
+  
+    // Mixture stuff needs to be evaluated
+    m_visc_mix_ok = false;
+    m_diff_mix_ok = false;
+    m_cond_mix_ok = false;
   }
 
 
@@ -464,21 +598,20 @@ namespace Cantera {
    * Update the temperature-dependent parts of the mixture-averaged 
    * thermal conductivity. 
    */
-  void LiquidTransport::updateCond_T() {
+  void LiquidTransport::updateCond_temp() {
 
     int k;
     if (m_mode == CK_Mode) {
       for (k = 0; k < m_nsp; k++) {
 	m_cond[k] = exp(dot4(m_polytempvec, m_condcoeffs[k]));
       }
-    }
-    else {
+    } else {
       for (k = 0; k < m_nsp; k++) {
-	m_cond[k] = m_sqrt_t*dot5(m_polytempvec, m_condcoeffs[k]);
+	m_cond[k] = m_sqrt_t * dot5(m_polytempvec, m_condcoeffs[k]);
       }
     }
-    m_spcond_ok = true;
-    m_condmix_ok = false;
+    m_cond_temp_ok = true;
+    m_cond_mix_ok = false;
   }
 
 
@@ -486,7 +619,7 @@ namespace Cantera {
    * Update the binary diffusion coefficients. These are evaluated
    * from the polynomial fits at unit pressure (1 Pa).
    */
-  void LiquidTransport::updateDiff_T() {
+  void LiquidTransport::updateDiff_temp() {
 
     // evaluate binary diffusion coefficients at unit pressure
     int i,j;
@@ -511,17 +644,29 @@ namespace Cantera {
       }
     }
 
-    m_bindiff_ok = true;
-    m_diffmix_ok = false;
+    m_diff_temp_ok = true;
+    m_diff_mix_ok = false;
   }
 
 
   /**
    * Update the pure-species viscosities.
    */
-  void LiquidTransport::updateSpeciesViscosities() {
+  void LiquidTransport::updateViscosities_conc() {
+    m_visc_conc_ok = true;
+  }
 
+
+  /**
+   * Update the temperature-dependent viscosity terms.
+   * Updates the array of pure species viscosities, and the 
+   * weighting functions in the viscosity mixture rule.
+   * The flag m_visc_ok is set to true.
+   */
+  void LiquidTransport::updateViscosity_temp() {
     int k;
+    doublereal vratiokj, wratiojk, factor1;
+
     if (m_mode == CK_Mode) {
       for (k = 0; k < m_nsp; k++) {
 	m_visc[k] = exp(dot4(m_polytempvec, viscCoeffsVector_[k]));
@@ -535,23 +680,9 @@ namespace Cantera {
 	m_visc[k] = (m_sqvisc[k]*m_sqvisc[k]);
       }
     }
-    m_spvisc_ok = true;
-  }
-
-
-  /**
-   * Update the temperature-dependent viscosity terms.
-   * Updates the array of pure species viscosities, and the 
-   * weighting functions in the viscosity mixture rule.
-   * The flag m_visc_ok is set to true.
-   */
-  void LiquidTransport::updateViscosity_T() {
-    doublereal vratiokj, wratiojk, factor1;
-
-    if (!m_spvisc_ok) updateSpeciesViscosities();
 
     // see Eq. (9-5.15) of Reid, Prausnitz, and Poling
-    int j, k;
+    int j;
     for (j = 0; j < m_nsp; j++) {
       for (k = j; k < m_nsp; k++) {
 	vratiokj = m_visc[k]/m_visc[j];
@@ -565,26 +696,9 @@ namespace Cantera {
 	m_phi(j,k) = m_phi(k,j)/(vratiokj * wratiojk);
       }
     }
-    m_viscwt_ok = true;
-  }
 
-  /**
-   * This function returns a Transport data object for a given species.
-   *
-   */
-  struct GasTransportData LiquidTransport::
-    getGasTransportData(int kSpecies) 
-  {
-    struct GasTransportData td;
-    td.speciesName = m_thermo->speciesName(kSpecies);
-
-
-    td.wellDepth = m_eps[kSpecies] / Boltzmann;
-    td.diameter = m_diam(kSpecies, kSpecies) * 1.0E10;
-    td.polarizability = m_alpha[kSpecies] * 1.0E30;
-  
-
-    return td;
+    m_visc_temp_ok = true;
+    m_visc_mix_ok = false;
   }
 
 

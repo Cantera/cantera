@@ -29,8 +29,9 @@ using namespace std;
 
 namespace Cantera {
 
-  const int LVISC_CONSTANT = 0;
-  const int LVISC_WILKES   = 1;
+  const int LVISC_CONSTANT     = 0;
+  const int LVISC_WILKES       = 1;
+  const int LVISC_MIXTUREAVG   = 2;
 
 
 
@@ -128,14 +129,46 @@ namespace Cantera {
    *
    */
   class LiquidTransport : public Transport {
-
   public:
+
+    //! default constructor
+    LiquidTransport(thermo_t* thermo = 0, int ndim = 1);
+
+    //!Copy Constructor for the %LiquidThermo object.
+    /*!
+     * @param right  ThermoPhase to be copied
+     */
+    LiquidTransport(const LiquidTransport &right);
+
+    //! Assignment operator
+    /*!
+     *  This is NOT a virtual function.
+     *
+     * @param right    Reference to %ThermoPhase object to be copied into the
+     *                 current one.
+     */
+    LiquidTransport&  operator=(const  LiquidTransport& right);
+    
+    //! Duplication routine for objects which inherit from
+    //! %Transport
+    /*!
+     *  This virtual routine can be used to duplicate %Transport objects
+     *  inherited from %Transport even if the application only has
+     *  a pointer to %Transport to work with.
+     *
+     *  These routines are basically wrappers around the derived copy
+     *  constructor.
+     */
+    virtual Transport *duplMyselfAsTransport() const;
+
 
     //! virtual destructor
     virtual ~LiquidTransport() {}
 
     //! Return the model id for this transport parameterization
-    virtual int model() { return cLiquidTransport; }
+    virtual int model() {
+      return cLiquidTransport; 
+    }
 
     //! overloaded base class methods
 
@@ -161,12 +194,11 @@ namespace Cantera {
     //! Returns the pure species viscosities
     /*!
      *
-     * Controlling update boolean = m_viscwt_ok
+     * 
      */
-    virtual void getSpeciesViscosities(doublereal* visc)
-    { updateViscosity_T(); copy(m_visc.begin(), m_visc.end(), visc); }
+    virtual void getSpeciesViscosities(doublereal* const visc);
 
-    virtual void getThermalDiffCoeffs(doublereal* dt);
+    virtual void getThermalDiffCoeffs(doublereal* const dt);
 
     //! Return the thermal conductivity of the solution
     /*!
@@ -185,43 +217,44 @@ namespace Cantera {
      *   @param ld 
      *   @param d   
      */
-    virtual void getBinaryDiffCoeffs(int ld, doublereal* d);
+    virtual void getBinaryDiffCoeffs(int ld, doublereal* const d);
 
     //! Get the Mixture diffusion coefficients
     /*!
      *  @param d vector of mixture diffusion coefficients
      *          units = m2 s-1. length = number of species
      */
-    virtual void getMixDiffCoeffs(doublereal* d);
+    virtual void getMixDiffCoeffs(doublereal* const d);
 
 
     //! Get the Mobilities
     /*!
      * @param mobil
      */
-    virtual void getMobilities(doublereal* mobil);
+    virtual void getMobilities(doublereal* const mobil);
 
     //! Specify the value of the gradient of the voltage
     /*!
      *
      * @param grad_V Gradient of the voltage (length num dimensions);
      */
-    virtual void set_Grad_V(const doublereal* grad_V);
+    virtual void set_Grad_V(const doublereal* const grad_V);
 
     //! Specify the value of the gradient of the temperature
     /*!
      *
      * @param grad_V Gradient of the temperature (length num dimensions);
      */
-    virtual void set_Grad_T(const doublereal* grad_T);
+    virtual void set_Grad_T(const doublereal* const grad_T);
 
     //! Specify the value of the gradient of the MoleFractions
     /*!
      *
      * @param grad_X Gradient of the mole fractions(length nsp * num dimensions);
      */
-    virtual void set_Grad_X(const doublereal* grad_X);
+    virtual void set_Grad_X(const doublereal* const grad_X);
 
+  protected:
     //! Handles the effects of changes in the Temperature, internally
     //! within the object.
     /*!
@@ -231,20 +264,29 @@ namespace Cantera {
      *  since the last call to update_T().
      *  If it hasn't then an immediate return is carried out.
      *
-     *     @internal
-     */ 
-    virtual void update_T();
-
-    //! Handles the effects of changes in the mixture concentration
-    /*!
-     *  This is called the first time any transport property
-     *  is requested from Mixture after the concentrations
-     *  have changed.
+     *
+     *   Note this should be a lightweight function since it's
+     *   part of all of the interfaces.
      *
      *     @internal
      */ 
-    virtual void update_C();
+    virtual void update_temp();
 
+    //! Handles the effects of changes in the mixture concentration
+    /*!
+     *   This is called for every interface call to check whether
+     *   the concentrations have changed. Concentrations change
+     *   whenever the pressure or the mole fraction has changed.
+     *   If it has changed, the recalculations should be done.
+     *
+     *   Note this should be a lightweight function since it's
+     *   part of all of the interfaces.
+     *
+     *   @internal
+     */ 
+    virtual void update_conc();
+
+  public:
     /**
      * @param ndim The number of spatial dimensions (1, 2, or 3).
      * @param grad_T The temperature gradient (ignored in this model).
@@ -281,22 +323,11 @@ namespace Cantera {
 
     friend class TransportFactory;
 
-    /**
-     * Return a structure containing all of the pertinent parameters
-     * about a species that was used to construct the Transport
-     * properties in this object.
-     *
-     * @param k Species number to obtain the properties about.
-     */
-    struct GasTransportData getGasTransportData(int k);
 
 
     //! Solve the stefan_maxell equations for the diffusive fluxes.
     void stefan_maxwell_solve();
-  protected:
 
-    //! default constructor
-    LiquidTransport();
 
   private:
 
@@ -325,7 +356,7 @@ namespace Cantera {
      * These express the temperature dependendence of the pures
      * species viscosities.
      */
-    std::vector<vector_fp>            viscCoeffsVector_;
+    std::vector<vector_fp> viscCoeffsVector_;
 
     //! Polynomial coefficients of the conductivities
     /*!
@@ -398,7 +429,7 @@ namespace Cantera {
      *
      * units m2/sec
      */
-    DenseMatrix                  m_bdiff;
+    DenseMatrix  m_bdiff;
 
     //! Species viscosities
     /*!
@@ -547,58 +578,62 @@ namespace Cantera {
     vector_fp  m_spwork;
 
     //! Internal Function
-
+  protected:
     //!  Update the temperature-dependent viscosity terms.
     //!  Updates the array of pure species viscosities, and the 
     //!  weighting functions in the viscosity mixture rule.
     /*!
      * The flag m_visc_ok is set to true.
      */
-    void updateViscosity_T();
+    void updateViscosity_temp();
 
     //! Update the temperature-dependent parts of the mixture-averaged 
     //! thermal conductivity.     
-    void updateCond_T();
+    void updateCond_temp();
 
-    //! Update the species viscosities
+    //! Update the concentration parts of the viscosities
     /*!
      *  Internal routine is run whenever the update_boolean
-     *  m_spvisc_ok is false. This routine will calculate
+     *  m_visc_conc_ok is false. This routine will calculate
      *  internal values for the species viscosities.
      *
      * @internal
      */
-    void updateSpeciesViscosities();
+    void updateViscosities_conc();
  
     //! Update the binary diffusion coefficients wrt T.
     /*!
      *   These are evaluated
      *   from the polynomial fits at unit pressure (1 Pa).
      */
-    void updateDiff_T();
-    
-    //! Boolean indicating that mixture viscosity is current
-    bool m_viscmix_ok;
+    void updateDiff_temp();
+
+  private:    
+    //! Boolean indicating that the top-level mixture viscosity is current
+    /*!
+     *  This is turned false for every change in T, P, or C.
+     */
+    bool m_visc_mix_ok;
 
     //! Boolean indicating that weight factors wrt viscosity is current
-    bool m_viscwt_ok;
+    bool m_visc_temp_ok;
  
     //! Flag to indicate that the pure species viscosities
     //! are current wrt the temperature
-    bool m_spvisc_ok;
+    bool m_visc_conc_ok;
 
     //! Boolean indicating that mixture diffusion coeffs are current
-    bool m_diffmix_ok;
+    bool m_diff_mix_ok;
 
     //! Boolean indicating that binary diffusion coeffs are current
-    bool m_bindiff_ok;
+    bool m_diff_temp_ok;
 
     //! Flag to indicate that the pure species conductivities
     //! are current wrt the temperature
-    bool m_spcond_ok;
+    bool m_cond_temp_ok;
 
     //! Boolean indicating that mixture conductivity is current
-    bool m_condmix_ok;
+    bool m_cond_mix_ok;
 
     //! Mode for fitting the species viscosities
     /*!

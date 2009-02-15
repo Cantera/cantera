@@ -61,6 +61,45 @@ namespace Cantera {
 
   public:
 
+
+    /**
+     * Constructor. New transport managers should be created using
+     * TransportFactory, not by calling the constructor directly.
+     * @see TransportFactory
+     */
+    Transport(thermo_t* thermo=0, int ndim = 1);
+
+    ///< Destructor.
+    virtual ~Transport();   
+
+    //!  Copy Constructor for the %Transport  object.
+    /*!
+     * @param right  Transport to be copied
+     */
+    Transport(const Transport &right);
+
+    //! Assignment operator
+    /*!
+     *  This is NOT a virtual function.
+     *
+     * @param right    Reference to Transport object to be copied into the
+     *                 current one.
+     */
+    Transport&  operator=(const Transport& right);
+
+    //! Duplication routine for objects which inherit from
+    //! %Transport
+    /*!
+     *  This virtual routine can be used to duplicate %Transport objects
+     *  inherited from %Transport even if the application only has
+     *  a pointer to %Transport to work with.
+     *
+     *  These routines are basically wrappers around the derived copy
+     *  constructor.
+     */
+    virtual Transport *duplMyselfAsTransport() const;
+
+
     /**
      * Transport model. The transport model is the set of
      * equations used to compute the transport properties. This
@@ -82,27 +121,25 @@ namespace Cantera {
     /**
      * Returns true if the transport manager is ready for use.
      */
-    bool ready() { return m_ready; }
-
+    bool ready();
 
     /**
      * Returns an integer index number. This is for internal use
      * of Cantera, and may be removed in the future.
      */
-    int index() { return m_index; }
+    int index() const ;
 
     /**
      * Set an integer index number. This is for internal use of
      * Cantera, and may be removed in the future.
      */
-    void setIndex(int i) { m_index = i; }
-
+    void setIndex(int i);
 
     //! Set the number of dimensions to be expected in flux expressions
     /*!
      * Internal memory will be set with this value
      */
-    void setNDim(int ndim) { m_nDim = ndim; }
+    void setNDim(const int ndim);
 
     //! return the number of dimensions
     int nDim() const { return m_nDim; }
@@ -257,21 +294,12 @@ namespace Cantera {
      * Set transport model parameters. This method may be
      * overloaded in subclasses to set model-specific parameters.
      */
-    virtual void setParameters(int type, int k, doublereal* p) 
-    { err("setParameters"); }
-
-    virtual ~Transport(){}           ///< Destructor.
+    virtual void setParameters(const int type, const int k,
+			       const doublereal* const p); 
+   
 
     friend class TransportFactory;
 
-    /**
-     * Constructor. New transport managers should be created using
-     * TransportFactory, not by calling the constructor directly.
-     * @see TransportFactory
-     */
-    Transport(thermo_t* thermo=0, int ndim = 1) 
-      : m_thermo(thermo), m_ready(false), m_nmin(0), m_index(-1), 
-        m_nDim(ndim) {}
 
   protected:
 
