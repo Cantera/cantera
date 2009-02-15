@@ -92,12 +92,14 @@ DEPENDS=$(OBJS:.o=.d)
 # Program Name
 PROGRAM = $(PROG_NAME)$(EXE_EXT)
 
-all: $(PROGRAM)
+all: $(PROGRAM) .depends
 
 $(PROGRAM): $(OBJS) $(CANTERA_LIBS_DEP)
 	$(CXX) -o $(PROGRAM) $(OBJS) $(LCXX_FLAGS) $(LINK_OPTIONS) \
                   $(CANTERA_LIBS) @LIBS@ $(FORT_LIBS) \
                   $(LCXX_END_LIBS)
+
+$(OBJS): Makefile
 
 #
 # depends target -> forces recalculation of dependencies
