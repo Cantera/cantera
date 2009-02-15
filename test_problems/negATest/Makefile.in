@@ -69,7 +69,7 @@ DEPENDS=$(OBJS:.o=.d)
 PROGRAM = $(PROG_NAME)$(EXE_EXT)
 
 # all rule makes a single program
-all: $(PROGRAM)
+all: $(PROGRAM) .depends
 
 # Rule to make the program
 $(PROGRAM): $(OBJS) $(CANTERA_LIBDIR)/libctbase.a 
@@ -79,6 +79,7 @@ $(PROGRAM): $(OBJS) $(CANTERA_LIBDIR)/libctbase.a
 
 # Add an additional target for stability:
 $(OBJS):  $(CANTERA_LIBDIR)/libctbase.a $(CANTERA_LIBDIR)/libthermo.a
+$(OBJS):  Makefile
 
 # depends target
 depends: 
