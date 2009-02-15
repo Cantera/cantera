@@ -77,6 +77,8 @@ $(PROGRAM): $(OBJS) $(CANTERA_LIBDIR)/libctbase.a
                   $(CANTERA_LIBS) @LIBS@ $(FORT_LIBS) \
                   $(LCXX_END_LIBS)
 
+$(OBJS): Makefile
+
 # depends target
 depends: 
 	$(RM) *.d .depends
