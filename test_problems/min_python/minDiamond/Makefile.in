@@ -51,6 +51,9 @@ CANTERA_LIBS = @LOCAL_LIBS@ -lctcxx
 # the directory where Cantera include files may be found.
 CANTERA_INCDIR=@ctroot@/build/include/cantera
 
+# Cantera library Dependencies
+CANTERA_LIBS_DEP = @LOCAL_LIBS_DEP@ $(CANTERA_LIBDIR)/libctcxx.a
+
 # flags passed to the C++ compiler/linker for the linking step
 LCXX_FLAGS = -L$(CANTERA_LIBDIR) @LOCAL_LIB_DIRS@ @CXXFLAGS@
 
@@ -72,7 +75,7 @@ PROGRAM = $(PROG_NAME)$(EXE_EXT)
 all: .depends $(PROGRAM)
 
 # Rule to make the program
-$(PROGRAM): $(OBJS) $(CANTERA_LIBDIR)/libctbase.a 
+$(PROGRAM): $(OBJS) $(CANTERA_LIBDIR)/libctbase.a $(CANTERA_LIBS_DEP)
 	$(CXX) -o $(PROGRAM) $(OBJS) $(LCXX_FLAGS) $(LINK_OPTIONS) \
                   $(CANTERA_LIBS) @LIBS@ $(FORT_LIBS) \
                   $(LCXX_END_LIBS)

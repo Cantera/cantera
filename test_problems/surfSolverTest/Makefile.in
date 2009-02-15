@@ -46,13 +46,16 @@ LCXX_END_LIBS = @LCXX_END_LIBS@
 CANTERA_LIBDIR=@buildlib@
 
 CANTERA_LIB_DEP=$(CANTERA_LIBDIR)/libctbase.a \
+                $(CANTERA_LIBDIR)/libctmath.a \
                 $(CANTERA_LIBDIR)/libctnumerics.a \
                 $(CANTERA_LIBDIR)/libthermo.a \
                 $(CANTERA_LIBDIR)/libtransport.a \
                 $(CANTERA_LIBDIR)/libkinetics.a \
                 $(CANTERA_LIBDIR)/libequil.a \
+                $(CANTERA_LIBDIR)/libVCSnonideal.a \
                 $(CANTERA_LIBDIR)/libzeroD.a \
-                $(CANTERA_LIBDIR)/liboneD.a
+                $(CANTERA_LIBDIR)/liboneD.a \
+                $(CANTERA_LIBDIR)/libconverters.a
 
 # required Cantera libraries
 CANTERA_LIBS = @LOCAL_LIBS@ -lctcxx 
@@ -64,7 +67,7 @@ CANTERA_INCDIR=@ctroot@/build/include/cantera
 LCXX_FLAGS = -L$(CANTERA_LIBDIR) @LOCAL_LIB_DIRS@ @CXXFLAGS@
 
 # How to compile C++ source files to object files
-.@CXX_EXT@.@OBJ_EXT@: Interface.h
+.cpp.o: Interface.h
 	$(CXX) -c $< -I$(CANTERA_INCDIR) @CXX_INCLUDES@ $(CXX_FLAGS)
 
 # How to compile the dependency file
@@ -78,7 +81,7 @@ DEPENDS=$(OBJS:.o=.d) surfaceSolver2.d
 PROGRAM = $(PROG_NAME)$(EXE_EXT)
 
 # all rule makes a single program
-all: $(PROGRAM) surfaceSolver2
+all: $(PROGRAM) surfaceSolver2 .depends
 
 # Rule to make the program
 $(PROGRAM): $(OBJS)  $(CANTERA_LIB_DEP)
@@ -86,14 +89,14 @@ $(PROGRAM): $(OBJS)  $(CANTERA_LIB_DEP)
                   $(CANTERA_LIBS) @LIBS@ $(FORT_LIBS) \
                   $(LCXX_END_LIBS)
 
-surfaceSolver2: surfaceSolver2.o  $(CANTERA_LIB_DEP)
+surfaceSolver2: surfaceSolver2.o $(CANTERA_LIB_DEP)
 	$(CXX) -o surfaceSolver2 surfaceSolver2.o $(LCXX_FLAGS) $(LINK_OPTIONS) \
                   $(CANTERA_LIBS) @LIBS@ $(FORT_LIBS) \
                   $(LCXX_END_LIBS)
 
 # Add an additional target for stability:
-$(OBJS):  $(CANTERA_LIBDIR)/libctbase.a $(CANTERA_LIBDIR)/libthermo.a
-
+$(OBJS) surfaceSolver2.o : $(CANTERA_LIBDIR)/libctbase.a $(CANTERA_LIBDIR)/libthermo.a
+$(OBJS) surfaceSolver2.o : Makefile
 
 # depends target
 depends: 
