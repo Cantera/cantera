@@ -376,6 +376,12 @@ namespace Cantera {
 
     //! Internal value of the gradient of the mole fraction vector
     /*!
+     *  Note, this is the only gradient value that can and perhaps
+     *  should reflect the true state of the mole fractions in the
+     *  application solution vector. In other words no cropping or
+     *  massaging of the values to make sure they are above zero
+     *  should occur. - developing ....
+     *
      *  m_nsp is the number of species in the fluid
      *  k is the species index
      *  n is the dimensional index (x, y, or z). It has a length
@@ -384,6 +390,8 @@ namespace Cantera {
      *    m_Grad_X[n*m_nsp + k]
      */
     vector_fp m_Grad_X;
+
+    vector_fp m_Grad_lnAC;
 
     //! Internal value of the gradient of the Temperature vector
     /*!
@@ -396,6 +404,18 @@ namespace Cantera {
      *  every property call.
      */
     vector_fp m_Grad_T;
+
+    //! Internal value of the gradient of the Pressure vector
+    /*!
+     *  Generally, if a transport property needs this 
+     *  in its evaluation it will look to this place
+     *  to get it. 
+     *
+     *  No internal property is precalculated based on gradients.
+     *  Gradients are assumed to be freshly updated before
+     *  every property call.
+     */
+    vector_fp m_Grad_P;
 
     //! Internal value of the gradient of the Electric Voltage
     /*!
@@ -415,9 +435,9 @@ namespace Cantera {
      *  k is the species index
      *  n is the dimensional index (x, y, or z)
      *  
-     *    m_Grad_mu[n*m_nsp + k]
+     *  ck  m_Grad_mu[n*m_nsp + k]
      */
-    vector_fp m_Grad_mu;
+    vector_fp m_ck_Grad_mu;
 
     // property values
 
@@ -439,9 +459,9 @@ namespace Cantera {
      * Depends on the temperature and perhaps pressure, but
      * not the species concentrations
      *
-     * controlling update boolean -> m_spvisc_ok
+     * controlling update boolean -> m_visc_temp_ok
      */
-    vector_fp m_visc;
+    vector_fp viscSpecies_;
 
     //! Sqrt of the species viscosities
     /*!
@@ -451,7 +471,7 @@ namespace Cantera {
      * Depends on the temperature and perhaps pressure, but
      * not the species concentrations
      *
-     * controlling update boolean m_spvisc_ok
+     * controlling update boolean m_visc_temp_ok
      */
     vector_fp m_sqvisc;
 
@@ -462,7 +482,7 @@ namespace Cantera {
      * Depends on the temperature and perhaps pressure, but
      * not the species concentrations
      *
-     * controlling update boolean -> m_spcond_ok
+     * controlling update boolean -> m_cond_temp_ok
      */
     vector_fp  m_cond;
 
@@ -486,11 +506,20 @@ namespace Cantera {
      */
     vector_fp m_concentrations;
 
+    //! Local copy of the total concentration
+    doublereal concTot_;
+
     //! Local copy of the charge of each species
     /*!
      *  Contains the charge of each species (length m_nsp)
      */
     vector_fp m_chargeSpecies;
+
+    vector_fp entropy_R_specSS_;
+
+    vector_fp volume_specSS_;
+
+    vector_fp actCoeffMolar_;
 
     //! Stefan-Maxwell Diffusion Coefficients at T, P and C
     /*!

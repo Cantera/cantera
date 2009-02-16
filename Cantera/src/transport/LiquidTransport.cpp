@@ -107,9 +107,9 @@ namespace Cantera {
     m_Grad_X                              = right.m_Grad_X;
     m_Grad_T                              = right.m_Grad_T;
     m_Grad_V                              = right.m_Grad_V;
-    m_Grad_mu                             = right.m_Grad_mu;
+    m_ck_Grad_mu                          = right.m_ck_Grad_mu;
     m_bdiff                               = right.m_bdiff;
-    m_visc                                = right.m_visc;
+    viscSpecies_                          = right.viscSpecies_;
     m_sqvisc                              = right.m_sqvisc;
     m_cond                                = right.m_cond;
     m_polytempvec                         = right.m_polytempvec;
@@ -200,7 +200,7 @@ namespace Cantera {
       }
     
     m_polytempvec.resize(5);
-    m_visc.resize(m_nsp);
+    viscSpecies_.resize(m_nsp);
     m_sqvisc.resize(m_nsp);
     m_cond.resize(m_nsp);
     m_bdiff.resize(m_nsp, m_nsp);
@@ -212,7 +212,7 @@ namespace Cantera {
     m_Grad_X.resize(m_nDim * m_nsp, 0.0);
     m_Grad_T.resize(m_nDim, 0.0);
     m_Grad_V.resize(m_nDim, 0.0);
-    m_Grad_mu.resize(m_nDim * m_nsp, 0.0);
+    m_ck_Grad_mu.resize(m_nDim * m_nsp, 0.0);
 
 
     // set all flags to false
@@ -253,7 +253,7 @@ namespace Cantera {
 
     if (m_visc_mix_ok) return m_viscmix;
   
-    // update m_visc[] and m_phi[] if necessary
+    // update viscSpecies_[] and m_phi[] if necessary
     if (!m_visc_temp_ok) {
       updateViscosity_temp();
     }
@@ -265,12 +265,12 @@ namespace Cantera {
     if (viscosityModel_ == LVISC_CONSTANT) {
       return m_viscmix;
     } else if (viscosityModel_ == LVISC_MIXTUREAVG) {
-      m_viscmix = dot_product(m_visc, m_molefracs);
+      m_viscmix = dot_product(viscSpecies_, m_molefracs);
     } else if (viscosityModel_ == LVISC_WILKES) {
       multiply(m_phi, DATA_PTR(m_molefracs), DATA_PTR(m_spwork));
       m_viscmix = 0.0;
       for (int k = 0; k < m_nsp; k++) {
-	m_viscmix += m_molefracs[k] * m_visc[k]/m_spwork[k]; 
+	m_viscmix += m_molefracs[k] * viscSpecies_[k]/m_spwork[k]; 
       }
     }
     
@@ -282,7 +282,7 @@ namespace Cantera {
     if (!m_visc_temp_ok) {
       updateViscosity_temp();
     }
-    copy(m_visc.begin(), m_visc.end(), visc); 
+    copy(viscSpecies_.begin(), viscSpecies_.end(), visc); 
   }
 
 
@@ -568,8 +568,15 @@ namespace Cantera {
     if (iStateNew != m_iStateMF) {
       qReturn = false;
       m_thermo->getMoleFractions(DATA_PTR(m_molefracs));
+      m_thermo->getMoleFractions(DATA_PTR(m_concentrations));
+      double ctot = 0.0;
       for (int k = 0; k < m_nsp; k++) {
 	m_molefracs[k] = fmaxx(MIN_X, m_molefracs[k]);
+	ctot += m_concentrations[k];
+      }
+      double ctotmin = 0.0;
+      for (int k = 0; k < m_nsp; k++) {
+	m_concentrations[k]= fmaxx(ctotmin, m_concentrations[k]);
       }
     }
     if (qReturn) {
@@ -669,15 +676,15 @@ namespace Cantera {
 
     if (m_mode == CK_Mode) {
       for (k = 0; k < m_nsp; k++) {
-	m_visc[k] = exp(dot4(m_polytempvec, viscCoeffsVector_[k]));
-	m_sqvisc[k] = sqrt(m_visc[k]);
+	viscSpecies_[k] = exp(dot4(m_polytempvec, viscCoeffsVector_[k]));
+	m_sqvisc[k] = sqrt(viscSpecies_[k]);
       }
     }
     else {
       for (k = 0; k < m_nsp; k++) {
 	// the polynomial fit is done for sqrt(visc/sqrt(T))
 	m_sqvisc[k] = m_t14*dot5(m_polytempvec, viscCoeffsVector_[k]);
-	m_visc[k] = (m_sqvisc[k]*m_sqvisc[k]);
+	viscSpecies_[k] = (m_sqvisc[k]*m_sqvisc[k]);
       }
     }
 
@@ -685,7 +692,7 @@ namespace Cantera {
     int j;
     for (j = 0; j < m_nsp; j++) {
       for (k = j; k < m_nsp; k++) {
-	vratiokj = m_visc[k]/m_visc[j];
+	vratiokj = viscSpecies_[k]/viscSpecies_[j];
 	wratiojk = m_mw[j]/m_mw[k];
 
 	// Note that m_wratjk(k,j) holds the square root of
@@ -720,23 +727,55 @@ namespace Cantera {
     //double M_mix = m_thermo->meanMolecularWeight();
   
 
-    //! get the concentration of the mixture
-    //double rho = m_thermo->density();
-    //double c = rho/M_mix;
-  
-    
-    m_thermo->getMoleFractions(DATA_PTR(m_molefracs));
+    /*
+     * Update the concentrations in the mixture.
+     */
+    update_conc();
 
     double T = m_thermo->temperature();
-    
 
-    /* electrochemical potential gradient */
+    m_thermo->getEntropy_R(DATA_PTR(entropy_R_specSS_));
+    m_thermo->getStandardVolumes(DATA_PTR(volume_specSS_));
+    m_thermo->getActivityCoefficients(DATA_PTR(actCoeffMolar_));
+
+    /* 
+     *  Calculate the electrochemical potential gradient. This is the
+     *  driving force for relative diffusional transport.
+     *
+     *  Here we calculate c_i * grad (mu_i), p. 297 Newman
+     *
+     *  Ok I think there may be many ways to do this. One way is to do it via basis
+     *  functions, at the nodes, as a function of the variables in the problem.
+     *
+     *  For calculation of molality based thermo systems, we current get
+     *  the molar based values. This may change.
+     *
+     *
+     */
     for (i = 0; i < m_nsp; i++) {
       for (a = 0; a < VIM; a++) {
-	m_Grad_mu[a*m_nsp + i] = m_chargeSpecies[i] * Faraday * m_Grad_V[a] 
-	  + (GasConstant*T/m_molefracs[i]) * m_Grad_X[a*m_nsp+i];
+	m_ck_Grad_mu[a*m_nsp + i] =
+	  m_chargeSpecies[i] * m_concentrations[i] * Faraday * m_Grad_V[a]
+	  + m_concentrations[i] * GasConstant * entropy_R_specSS_[i] * m_Grad_T[a]
+	  + m_concentrations[i] * volume_specSS_[i] * m_Grad_P[a]
+	  + m_concentrations[i] * GasConstant * m_Grad_T[a] * log(actCoeffMolar_[i] * m_molefracs[i])
+	  + m_concentrations[i] * GasConstant * T * m_Grad_lnAC[a*m_nsp+i] / actCoeffMolar_[i]
+	  + concTot_ * GasConstant * T * m_Grad_X[a*m_nsp+i];
       }
     }
+
+    if (m_thermo->activityConvention() == cAC_CONVENTION_MOLALITY ) {
+      int iSolvent = 0;
+      double mwSolvent = m_thermo->molecularWeight(iSolvent);
+      double mnaught = mwSolvent/ 1000.;
+      double lnmnaught = log(mnaught);
+      for (i = 1; i < m_nsp; i++) {
+	for (a = 0; a < VIM; a++) {
+	  m_ck_Grad_mu[a*m_nsp + i] -= m_concentrations[i] * GasConstant * m_Grad_T[a] * lnmnaught;
+	}
+      }
+    }
+
 
     /*
      * Just for Note, m_A(i,j) refers to the ith row and jth column.
@@ -749,7 +788,7 @@ namespace Cantera {
 	m_A(0,j) = 1.0;
       }
       for (i = 1; i < m_nsp; i++){
-	m_B(i,0) = m_concentrations[i] * m_Grad_mu[i] / (GasConstant * T);
+	m_B(i,0) = m_concentrations[i] * m_ck_Grad_mu[i] / (GasConstant * T);
 	for (j = 0; j < m_nsp; j++){
 	  if (j != i) {
 	    m_A(i,j)  = m_molefracs[i] / ( M[j] * m_DiffCoeff_StefMax(i,j));
@@ -775,8 +814,8 @@ namespace Cantera {
 	m_A(0,j) = 1.0;
       }
       for (i = 1; i < m_nsp; i++){
-	m_B(i,0) = m_concentrations[i] * m_Grad_mu[i] / (GasConstant * T);
-	m_B(i,1) = m_concentrations[i] * m_Grad_mu[m_nsp + i] / (GasConstant * T);
+	m_B(i,0) = m_concentrations[i] * m_ck_Grad_mu[i] / (GasConstant * T);
+	m_B(i,1) = m_concentrations[i] * m_ck_Grad_mu[m_nsp + i] / (GasConstant * T);
 	for (j = 0; j < m_nsp; j++){
 	  if (j != i) {
 	    m_A(i,j)  = m_molefracs[i] / ( M[j] * m_DiffCoeff_StefMax(i,j));
@@ -804,9 +843,9 @@ namespace Cantera {
 	m_A(0,j) = 1.0;
       }
       for (i = 1; i < m_nsp; i++){
-	m_B(i,0) = m_concentrations[i] * m_Grad_mu[i] / (GasConstant * T);
-	m_B(i,1) = m_concentrations[i] * m_Grad_mu[m_nsp + i] / (GasConstant * T);
-	m_B(i,2) = m_concentrations[i] * m_Grad_mu[2*m_nsp + i] / (GasConstant * T);
+	m_B(i,0) = m_concentrations[i] * m_ck_Grad_mu[i] / (GasConstant * T);
+	m_B(i,1) = m_concentrations[i] * m_ck_Grad_mu[m_nsp + i] / (GasConstant * T);
+	m_B(i,2) = m_concentrations[i] * m_ck_Grad_mu[2*m_nsp + i] / (GasConstant * T);
 	for (j = 0; j < m_nsp; j++){
 	  if (j != i) {
 	    m_A(i,j)  = m_molefracs[i] / ( M[j] * m_DiffCoeff_StefMax(i,j));
