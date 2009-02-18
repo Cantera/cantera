@@ -1076,6 +1076,8 @@ namespace Cantera {
     //! Get the array of non-dimensional activities at
     //! the current solution temperature, pressure, and solution concentration.
     /*!
+     * Note, for molality based formulations, this returns the 
+     * molality based activities.
      *
      * We resolve this function at this level by calling
      * on the activityConcentration function. However, 
@@ -1098,6 +1100,8 @@ namespace Cantera {
 	  err("getActivityCoefficients");
 	}
     }
+
+    virtual void getLNActivityCoefficients(doublereal * const lnac) const;
       
     //@}
     /// @name  Partial Molar Properties of the Solution

@@ -145,6 +145,13 @@ namespace Cantera {
     for (k = 0; k < nsp; k++) a[k] /= standardConcentration(k);
   }
 
+  void ThermoPhase::getLNActivityCoefficients(doublereal *const lnac) const {
+    getActivityCoefficients(lnac);
+    for (int k = 0; k < m_kk; k++) {
+       lnac[k] = std::log(lnac[k]);
+    }
+  }
+
   void ThermoPhase::setState_TPX(doublereal t, doublereal p, 
 				 const doublereal* x) {
     setMoleFractions(x); setTemperature(t); setPressure(p);
