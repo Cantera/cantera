@@ -254,6 +254,8 @@ namespace Cantera {
      */
     virtual void set_Grad_X(const doublereal* const grad_X);
 
+   virtual void update_Grad_lnAC();
+
   protected:
     //! Handles the effects of changes in the Temperature, internally
     //! within the object.
@@ -499,6 +501,8 @@ namespace Cantera {
      */
     vector_fp m_molefracs;
 
+    vector_fp Xdelta_;
+
     //! Local copy of the concentrations of the species in the phase
     /*!
      * Update info?
@@ -520,6 +524,8 @@ namespace Cantera {
     vector_fp volume_specSS_;
 
     vector_fp actCoeffMolar_;
+
+    vector_fp lnActCoeffMolarDelta_;
 
     //! Stefan-Maxwell Diffusion Coefficients at T, P and C
     /*!

@@ -336,6 +336,7 @@ namespace Cantera {
    for (int i = 0; i < itop; i++) {
      m_Grad_X[i] = grad_X[i];
    }
+   update_Grad_lnAC();
  }
 
 
@@ -594,6 +595,63 @@ namespace Cantera {
     m_cond_mix_ok = false;
   }
 
+
+  // We formulate the directional derivative
+  void LiquidTransport::update_Grad_lnAC() {
+    int k;
+    
+
+    for (int a = 0; a < m_nDim; a++) {
+      // We form the directional derivative
+      double * ma_Grad_X = &m_Grad_X[a*m_nsp];
+      double sum = 0.0;
+      for (k = 0; k < m_nsp; k++) {
+        sum += ma_Grad_X[k] * ma_Grad_X[k];
+      }
+      if (sum == 0.0) {
+	for (k = 0; k < m_nsp; k++) {
+	  m_Grad_lnAC[m_nsp * a + k] = 0.0;
+	}
+	continue;
+      }
+      double mag = 1.0E-7 / sum;
+    
+	for (k = 0; k < m_nsp; k++) {
+	  Xdelta_[k] = m_molefracs[k] + mag * ma_Grad_X[k];
+	  if (Xdelta_[k] > 1.0) {
+	    Xdelta_[k] = 1.0;
+	  }
+	  if (Xdelta_[k] < 0.0) {
+	    Xdelta_[k] = 0.0;
+	  }
+	}
+      m_thermo->setMoleFractions(DATA_PTR(Xdelta_));
+      m_thermo->getActivityCoefficients(DATA_PTR(lnActCoeffMolarDelta_));
+      for (k = 0; k < m_nsp; k++) {
+	lnActCoeffMolarDelta_[k] = log(lnActCoeffMolarDelta_[k]);
+      }
+
+      for (k = 0; k < m_nsp; k++) {
+	m_Grad_lnAC[m_nsp * a + k] = sum * (lnActCoeffMolarDelta_[k] - log(actCoeffMolar_[k])) / mag;
+      }
+    }
+    m_thermo->setMoleFractions(DATA_PTR(m_molefracs));
+    double Tbase = m_thermo->temperature();
+    double T_new = Tbase - 1.0E-6;
+    m_thermo->setTemperature(T_new);
+    
+     m_thermo->getActivityCoefficients(DATA_PTR(lnActCoeffMolarDelta_));
+     double *dlnActCoeffdT =  &Xdelta_[0];
+     for (k = 0; k < m_nsp; k++) {
+       dlnActCoeffdT[k] ==  (lnActCoeffMolarDelta_[k] - log(actCoeffMolar_[k]))/(-1.0E-6);
+     }
+     for (int a = 0; a < m_nDim; a++) {
+       for (k = 0; k < m_nsp; k++) {
+	 m_Grad_lnAC[m_nsp * a + k] +=  dlnActCoeffdT[k] * m_Grad_T[a];
+       }
+     }
+    m_thermo->setTemperature(Tbase);
+  }
 
   /*************************************************************************
    *
