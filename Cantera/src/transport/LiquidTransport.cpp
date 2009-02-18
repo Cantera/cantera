@@ -775,7 +775,7 @@ namespace Cantera {
   void LiquidTransport::stefan_maxwell_solve() {
     int i, j, a;
 
-    int VIM = 2;
+    int VIM = m_nDim;
     m_B.resize(m_nsp, VIM);
     //! grab a local copy of the molecular weights
     const vector_fp& M =  m_thermo->molecularWeights();
@@ -834,7 +834,6 @@ namespace Cantera {
       }
     }
 
-
     /*
      * Just for Note, m_A(i,j) refers to the ith row and jth column.
      * They are still fortran ordered, so that i varies fastest.
@@ -843,14 +842,15 @@ namespace Cantera {
     case 1:  /* 1-D approximation */
       m_B(0,0) = 0.0;
       for (j = 0; j < m_nsp; j++) {
-	m_A(0,j) = 1.0;
+	m_A(0,j) = M[j] * m_concentrations[j];
       }
       for (i = 1; i < m_nsp; i++){
-	m_B(i,0) = m_concentrations[i] * m_ck_Grad_mu[i] / (GasConstant * T);
+	m_B(i,0) = m_ck_Grad_mu[i] / (GasConstant * T);
 	for (j = 0; j < m_nsp; j++){
 	  if (j != i) {
-	    m_A(i,j)  = m_molefracs[i] / ( M[j] * m_DiffCoeff_StefMax(i,j));
-	    m_A(i,i) -= m_molefracs[j] / ( M[i] * m_DiffCoeff_StefMax(i,j));
+	    m_A(i,j)  = m_concentrations[i] * m_concentrations[j]/ 
+	      (concTot_ * m_DiffCoeff_StefMax(i,j));
+	    m_A(j,i) = -m_A(i,j);
 	  }
 	  else if (j == i)  {
 	    m_A(i,i) = 0.0;
@@ -859,25 +859,24 @@ namespace Cantera {
       }
 
       //! invert and solve the system  Ax = b. Answer is in m_B
-      solve(m_A, m_B.ptrColumn(0));
-    
-      m_flux = m_B;
-	
-	
+      solve(m_A, m_B);
+  	
       break;
     case 2:  /* 2-D approximation */
       m_B(0,0) = 0.0;
       m_B(0,1) = 0.0;
       for (j = 0; j < m_nsp; j++) {
-	m_A(0,j) = 1.0;
+	m_A(0,j) = M[j] * m_concentrations[j];
       }
       for (i = 1; i < m_nsp; i++){
-	m_B(i,0) = m_concentrations[i] * m_ck_Grad_mu[i] / (GasConstant * T);
-	m_B(i,1) = m_concentrations[i] * m_ck_Grad_mu[m_nsp + i] / (GasConstant * T);
+	m_B(i,0) =  m_ck_Grad_mu[i] / (GasConstant * T);
+	m_B(i,1) =  m_ck_Grad_mu[m_nsp + i] / (GasConstant * T);
 	for (j = 0; j < m_nsp; j++){
 	  if (j != i) {
-	    m_A(i,j)  = m_molefracs[i] / ( M[j] * m_DiffCoeff_StefMax(i,j));
-	    m_A(i,i) -= m_molefracs[j] / ( M[i] * m_DiffCoeff_StefMax(i,j));
+	    m_A(i,j)  = m_concentrations[i] * m_concentrations[j]/ 
+	      (concTot_ * m_DiffCoeff_StefMax(i,j));
+	    m_A(j,i) = -m_A(i,j);
+
 	  }
 	  else if (j == i)  {
 	    m_A(i,i) = 0.0;
@@ -886,11 +885,9 @@ namespace Cantera {
       }
 
       //! invert and solve the system  Ax = b. Answer is in m_B
-      //solve(m_A, m_B);
-    
-      m_flux = m_B;
-	
-	
+      solve(m_A, m_B);
+	 
+ 	
       break;
 
     case 3:  /* 3-D approximation */
@@ -898,16 +895,18 @@ namespace Cantera {
       m_B(0,1) = 0.0;
       m_B(0,2) = 0.0;
       for (j = 0; j < m_nsp; j++) {
-	m_A(0,j) = 1.0;
+	m_A(0,j) = M[j] * m_concentrations[j];
       }
       for (i = 1; i < m_nsp; i++){
-	m_B(i,0) = m_concentrations[i] * m_ck_Grad_mu[i] / (GasConstant * T);
-	m_B(i,1) = m_concentrations[i] * m_ck_Grad_mu[m_nsp + i] / (GasConstant * T);
-	m_B(i,2) = m_concentrations[i] * m_ck_Grad_mu[2*m_nsp + i] / (GasConstant * T);
+	m_B(i,0) = m_ck_Grad_mu[i] / (GasConstant * T);
+	m_B(i,1) = m_ck_Grad_mu[m_nsp + i] / (GasConstant * T);
+	m_B(i,2) = m_ck_Grad_mu[2*m_nsp + i] / (GasConstant * T);
 	for (j = 0; j < m_nsp; j++){
 	  if (j != i) {
-	    m_A(i,j)  = m_molefracs[i] / ( M[j] * m_DiffCoeff_StefMax(i,j));
-	    m_A(i,i) -= m_molefracs[j] / ( M[i] * m_DiffCoeff_StefMax(i,j));
+	    m_A(i,j)  = m_concentrations[i] * m_concentrations[j]/ 
+	      (concTot_ * m_DiffCoeff_StefMax(i,j));
+	    m_A(j,i) = -m_A(i,j);
+
 	  }
 	  else if (j == i)  {
 	    m_A(i,i) = 0.0;
@@ -916,11 +915,8 @@ namespace Cantera {
       }
 
       //! invert and solve the system  Ax = b. Answer is in m_B
-      //solve(m_A, m_B);
-    
-      m_flux = m_B;
-	
-	
+      solve(m_A, m_B);
+
       break;
     default:
       printf("uninmplemetnd\n");
@@ -928,6 +924,10 @@ namespace Cantera {
       break;
     }
 
-
+    for (a = 0; a < VIM; a++) {
+      for (j = 0; j < m_nsp; j++) {
+	m_flux(j,a) =  M[j] * m_concentrations[j] * m_B(j,a);
+      }
+    }
   }
 }

@@ -556,7 +556,7 @@ namespace Cantera {
     DenseMatrix m_wratkj1;
 
     //! RHS to the stefan-maxwell equation
-    Array2D   m_B;
+    DenseMatrix   m_B;
 
     //! Matrix for the stefan maxwell equation.
     DenseMatrix m_A;
