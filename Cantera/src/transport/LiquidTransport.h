@@ -33,6 +33,10 @@ namespace Cantera {
   const int LVISC_WILKES       = 1;
   const int LVISC_MIXTUREAVG   = 2;
 
+  const int LDIFF_MIXDIFF_UNCORRECTED     = 0;
+  const int LDIFF_MIXDIFF_FLUXCORRECTED  = 1;
+  const int LDIFF_MULTICOMP_STEFANMAXWELL  = 2;
+
 
 
   class TransportParams;
@@ -302,6 +306,20 @@ namespace Cantera {
 				  int ldx, const doublereal* grad_X, 
 				  int ldf, doublereal* fluxes);
 
+    //!  Return the species diffusive mass fluxes
+    /*!
+     *
+     *
+     *
+     * @param ndim The number of spatial dimensions (1, 2, or 3).
+     * @param grad_T The temperature gradient (ignored in this model).
+     * @param ldx  Leading dimension of the grad_X array.
+     * The diffusive mass flux of species \e k is computed from
+     *
+     *
+     */
+    virtual void getSpeciesDiffusiveMassFluxes(doublereal* const fluxes);
+    
     /**
      * @param ndim The number of spatial dimensions (1, 2, or 3).
      * @param grad_T The temperature gradient (ignored in this model).
@@ -445,9 +463,13 @@ namespace Cantera {
 
     //! Array of Binary Diffusivities
     /*!
-     * This has a size equal to nsp x nsp
-     * It is a symmetric matrix.
-     * D_ii is undefined.
+     *   Depends on the temperature. We have set the pressure dependence
+     *   to zero for this liquid phase constituitve model
+     *
+     *  This has a size equal to nsp x nsp
+     *  It is a symmetric matrix.
+     *  D_ii is the self diffusion coefficient. D_ii is not
+     *  needed except for when there is one species in the mixture.
      *
      * units m2/sec
      */
@@ -458,8 +480,8 @@ namespace Cantera {
      *  Viscosity of the species
      *   Length = number of species
      *
-     * Depends on the temperature and perhaps pressure, but
-     * not the species concentrations
+     *   Depends on the temperature. We have set the pressure dependence
+     *   to zero for this liquid phase constituitve model
      *
      * controlling update boolean -> m_visc_temp_ok
      */
@@ -496,10 +518,22 @@ namespace Cantera {
 
     //! Local copy of the mole fractions of the species in the phase
     /*!
+     *  The mole fractions here are assumed to be bounded by 0.0, and 1.0
+     *  and they are assumed to add up to one.
      * Update info?
      * length = m_nsp
      */
     vector_fp m_molefracs;
+
+    //! Mole fraction vector
+    /*!
+     *  The mole fractions here are assumed to be bounded by MIN_X and 1.0
+     *  and they may not be assumed to add up to one.
+     *
+     * Update info?
+     * length = m_nsp
+     */
+    vector_fp m_molefracs_tran;
 
     vector_fp Xdelta_;
 
@@ -512,6 +546,8 @@ namespace Cantera {
 
     //! Local copy of the total concentration
     doublereal concTot_;
+    doublereal meanMolecularWeight_;
+    doublereal dens_;
 
     //! Local copy of the charge of each species
     /*!
@@ -519,9 +555,8 @@ namespace Cantera {
      */
     vector_fp m_chargeSpecies;
 
-    vector_fp entropy_R_specSS_;
-
-    vector_fp volume_specSS_;
+  
+    vector_fp volume_specPM_;
 
     vector_fp actCoeffMolar_;
 
@@ -601,9 +636,13 @@ namespace Cantera {
     doublereal m_press;
 
     //! Solution of the flux system
-    Array2D   m_flux;
+    /*!
+     *  This is the mass flux of species k
+     *  in units of kg m-3 s-1.
+     */
+    Array2D m_flux;
 
-    //! saved value of the mixture thermal conductivity
+    //! Saved value of the mixture thermal conductivity
     doublereal m_lambda;
 
     //! Saved value of the mixture viscosity

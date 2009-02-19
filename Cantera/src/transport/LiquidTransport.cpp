@@ -23,7 +23,7 @@ using namespace std;
  * Mole fractions below MIN_X will be set to MIN_X when computing
  * transport properties.
  */
-#define MIN_X 1.e-20
+#define MIN_X 1.e-14
 
 
 namespace Cantera {
@@ -443,6 +443,35 @@ namespace Cantera {
     }
   }
 
+  void LiquidTransport::getSpeciesDiffusiveMassFluxes(doublereal* const fluxes) {
+    int n, k;
+
+    update_temp();
+    update_conc();
+
+
+    getMixDiffCoeffs(DATA_PTR(m_spwork));
+
+
+    const array_fp& mw = m_thermo->molecularWeights();
+    const doublereal* const y  = m_thermo->massFractions();
+    const doublereal rhon = m_thermo->molarDensity();
+    // Unroll wrt ndim
+    vector_fp sum(m_nDim,0.0);
+    for (n = 0; n < m_nDim; n++) {
+      for (k = 0; k < m_nsp; k++) {
+	fluxes[n*m_nsp + k] = -rhon * mw[k] * m_spwork[k] * m_Grad_X[n*m_nsp + k];
+	sum[n] += fluxes[n*m_nsp + k];
+      }
+    }
+    // add correction flux to enforce sum to zero
+    for (n = 0; n < m_nDim; n++) {
+      for (k = 0; k < m_nsp; k++) {
+	fluxes[n*m_nsp + k] -= y[k]*sum[n];
+      }
+    }
+  }
+
   /**
    * Mixture-averaged diffusion coefficients [m^2/s]. 
    *
@@ -463,24 +492,28 @@ namespace Cantera {
  
     int k, j;
     doublereal mmw = m_thermo->meanMolecularWeight();
-    doublereal sumxw = 0.0, sum2;
-    doublereal p = m_press;
+    doublereal sumxw_tran = 0.0;
+    doublereal sum2;
+ 
     if (m_nsp == 1) {
-      d[0] = m_bdiff(0,0) / p;
+      d[0] = m_bdiff(0,0);
     } else {
-      for (k = 0; k < m_nsp; k++) sumxw += m_molefracs[k] * m_mw[k];
+      for (k = 0; k < m_nsp; k++) {
+	sumxw_tran += m_molefracs_tran[k] * m_mw[k];
+      }
       for (k = 0; k < m_nsp; k++) {
 	sum2 = 0.0;
 	for (j = 0; j < m_nsp; j++) {
 	  if (j != k) {
-	    sum2 += m_molefracs[j] / m_bdiff(j,k);
+	    sum2 += m_molefracs_tran[j] / m_bdiff(j,k);
 	  }
 	}
-	if (sum2 <= 0.0) {
-	  d[k] = m_bdiff(k,k) / p;
-	} else {
-	  d[k] = (sumxw - m_molefracs[k] * m_mw[k])/(p * mmw * sum2);
-	}
+	// Because we use m_molefracs_tran, sum2 must be positive definate
+	// if (sum2 <= 0.0) {
+	//  d[k] = m_bdiff(k,k);
+	//  } else {
+	d[k] = (sumxw_tran - m_molefracs_tran[k] * m_mw[k])/(mmw * sum2);
+	//  }
       }
     }
   }
@@ -569,12 +602,15 @@ namespace Cantera {
     if (iStateNew != m_iStateMF) {
       qReturn = false;
       m_thermo->getMoleFractions(DATA_PTR(m_molefracs));
-      m_thermo->getMoleFractions(DATA_PTR(m_concentrations));
+      m_thermo->getConcentrations(DATA_PTR(m_concentrations));
       double ctot = 0.0;
       for (int k = 0; k < m_nsp; k++) {
-	m_molefracs[k] = fmaxx(MIN_X, m_molefracs[k]);
+	m_molefracs[k] = fmaxx(0.0, m_molefracs[k]);
+	m_molefracs_tran[k] = fmaxx(MIN_X, m_molefracs[k]);
 	ctot += m_concentrations[k];
       }
+      dens_ = m_thermo->density();
+      meanMolecularWeight_ =  m_thermo->meanMolecularWeight();
       double ctotmin = 0.0;
       for (int k = 0; k < m_nsp; k++) {
 	m_concentrations[k]= fmaxx(ctotmin, m_concentrations[k]);
@@ -597,6 +633,12 @@ namespace Cantera {
 
 
   // We formulate the directional derivative
+  /*
+   *     We only calculate the change in ac due to composition.
+   *  The pressure and the temperature are taken care of in
+   *  other parts of the expression.
+   *
+   */
   void LiquidTransport::update_Grad_lnAC() {
     int k;
     
@@ -632,25 +674,12 @@ namespace Cantera {
       }
 
       for (k = 0; k < m_nsp; k++) {
-	m_Grad_lnAC[m_nsp * a + k] = sum * (lnActCoeffMolarDelta_[k] - log(actCoeffMolar_[k])) / mag;
+	m_Grad_lnAC[m_nsp * a + k] =
+	  sum * (lnActCoeffMolarDelta_[k] - log(actCoeffMolar_[k])) / mag;
       }
     }
     m_thermo->setMoleFractions(DATA_PTR(m_molefracs));
-    double Tbase = m_thermo->temperature();
-    double T_new = Tbase - 1.0E-6;
-    m_thermo->setTemperature(T_new);
-    
-     m_thermo->getActivityCoefficients(DATA_PTR(lnActCoeffMolarDelta_));
-     double *dlnActCoeffdT =  &Xdelta_[0];
-     for (k = 0; k < m_nsp; k++) {
-       dlnActCoeffdT[k] ==  (lnActCoeffMolarDelta_[k] - log(actCoeffMolar_[k]))/(-1.0E-6);
-     }
-     for (int a = 0; a < m_nDim; a++) {
-       for (k = 0; k < m_nsp; k++) {
-	 m_Grad_lnAC[m_nsp * a + k] +=  dlnActCoeffdT[k] * m_Grad_T[a];
-       }
-     }
-    m_thermo->setTemperature(Tbase);
+
   }
 
   /*************************************************************************
@@ -780,11 +809,7 @@ namespace Cantera {
     //! grab a local copy of the molecular weights
     const vector_fp& M =  m_thermo->molecularWeights();
     
-  
-    //! get the mean molecular weight of the mixture
-    //double M_mix = m_thermo->meanMolecularWeight();
-  
-
+ 
     /*
      * Update the concentrations in the mixture.
      */
@@ -792,15 +817,24 @@ namespace Cantera {
 
     double T = m_thermo->temperature();
 
-    m_thermo->getEntropy_R(DATA_PTR(entropy_R_specSS_));
-    m_thermo->getStandardVolumes(DATA_PTR(volume_specSS_));
+ 
+    m_thermo->getStandardVolumes(DATA_PTR(volume_specPM_));
     m_thermo->getActivityCoefficients(DATA_PTR(actCoeffMolar_));
 
     /* 
      *  Calculate the electrochemical potential gradient. This is the
      *  driving force for relative diffusional transport.
      *
-     *  Here we calculate c_i * grad (mu_i), p. 297 Newman
+     *  Here we calculate
+     *
+     *          c_i * (grad (mu_i) + S_i grad T - M_i / dens * grad P
+     *
+     *   This is  Eqn. 13-1 p. 318 Newman. The original equation is from
+     *   Hershfeld, Curtis, and Bird.
+     *
+     *   S_i is the partial molar entropy of species i. This term will cancel
+     *   out a lot of the grad T terms in grad (mu_i), therefore simplifying
+     *   the expression.
      *
      *  Ok I think there may be many ways to do this. One way is to do it via basis
      *  functions, at the nodes, as a function of the variables in the problem.
@@ -808,15 +842,12 @@ namespace Cantera {
      *  For calculation of molality based thermo systems, we current get
      *  the molar based values. This may change.
      *
-     *
      */
     for (i = 0; i < m_nsp; i++) {
       for (a = 0; a < VIM; a++) {
 	m_ck_Grad_mu[a*m_nsp + i] =
 	  m_chargeSpecies[i] * m_concentrations[i] * Faraday * m_Grad_V[a]
-	  + m_concentrations[i] * GasConstant * entropy_R_specSS_[i] * m_Grad_T[a]
-	  + m_concentrations[i] * volume_specSS_[i] * m_Grad_P[a]
-	  + m_concentrations[i] * GasConstant * m_Grad_T[a] * log(actCoeffMolar_[i] * m_molefracs[i])
+	  + m_concentrations[i] * (volume_specPM_[i] - M[i]/dens_) * m_Grad_P[a]
 	  + m_concentrations[i] * GasConstant * T * m_Grad_lnAC[a*m_nsp+i] / actCoeffMolar_[i]
 	  + concTot_ * GasConstant * T * m_Grad_X[a*m_nsp+i];
       }
@@ -829,7 +860,8 @@ namespace Cantera {
       double lnmnaught = log(mnaught);
       for (i = 1; i < m_nsp; i++) {
 	for (a = 0; a < VIM; a++) {
-	  m_ck_Grad_mu[a*m_nsp + i] -= m_concentrations[i] * GasConstant * m_Grad_T[a] * lnmnaught;
+	  m_ck_Grad_mu[a*m_nsp + i] -=
+	    m_concentrations[i] * GasConstant * m_Grad_T[a] * lnmnaught;
 	}
       }
     }
