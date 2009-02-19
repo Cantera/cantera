@@ -603,18 +603,17 @@ namespace Cantera {
       qReturn = false;
       m_thermo->getMoleFractions(DATA_PTR(m_molefracs));
       m_thermo->getConcentrations(DATA_PTR(m_concentrations));
-      double ctot = 0.0;
+      concTot_ = 0.0;
+      concTot_tran_ = 0.0;
       for (int k = 0; k < m_nsp; k++) {
 	m_molefracs[k] = fmaxx(0.0, m_molefracs[k]);
 	m_molefracs_tran[k] = fmaxx(MIN_X, m_molefracs[k]);
-	ctot += m_concentrations[k];
+	concTot_tran_ += m_molefracs_tran[k];
+	concTot_ += m_concentrations[k];
       }
       dens_ = m_thermo->density();
       meanMolecularWeight_ =  m_thermo->meanMolecularWeight();
-      double ctotmin = 0.0;
-      for (int k = 0; k < m_nsp; k++) {
-	m_concentrations[k]= fmaxx(ctotmin, m_concentrations[k]);
-      }
+      concTot_tran_ *= concTot_;
     }
     if (qReturn) {
       return;
@@ -803,7 +802,7 @@ namespace Cantera {
    */
   void LiquidTransport::stefan_maxwell_solve() {
     int i, j, a;
-
+    doublereal tmp;
     int VIM = m_nDim;
     m_B.resize(m_nsp, VIM);
     //! grab a local copy of the molecular weights
@@ -842,18 +841,22 @@ namespace Cantera {
      *  For calculation of molality based thermo systems, we current get
      *  the molar based values. This may change.
      *
+     *  Note, we have broken the symmetry of the matrix here, due to 
+     *  consideratins involving species concentrations going to zero.
+     *
      */
     for (i = 0; i < m_nsp; i++) {
+      double xi_denom = m_molefracs_tran[i];
       for (a = 0; a < VIM; a++) {
 	m_ck_Grad_mu[a*m_nsp + i] =
-	  m_chargeSpecies[i] * m_concentrations[i] * Faraday * m_Grad_V[a]
-	  + m_concentrations[i] * (volume_specPM_[i] - M[i]/dens_) * m_Grad_P[a]
-	  + m_concentrations[i] * GasConstant * T * m_Grad_lnAC[a*m_nsp+i] / actCoeffMolar_[i]
-	  + concTot_ * GasConstant * T * m_Grad_X[a*m_nsp+i];
+	  m_chargeSpecies[i] * concTot_ * Faraday * m_Grad_V[a]
+	  + concTot_ * (volume_specPM_[i] - M[i]/dens_) * m_Grad_P[a]
+	  + concTot_ * GasConstant * T * m_Grad_lnAC[a*m_nsp+i] / actCoeffMolar_[i]
+	  + concTot_ * GasConstant * T * m_Grad_X[a*m_nsp+i] / xi_denom;
       }
     }
 
-    if (m_thermo->activityConvention() == cAC_CONVENTION_MOLALITY ) {
+    if (m_thermo->activityConvention() == cAC_CONVENTION_MOLALITY) {
       int iSolvent = 0;
       double mwSolvent = m_thermo->molecularWeight(iSolvent);
       double mnaught = mwSolvent/ 1000.;
@@ -870,7 +873,7 @@ namespace Cantera {
      * Just for Note, m_A(i,j) refers to the ith row and jth column.
      * They are still fortran ordered, so that i varies fastest.
      */
-    switch ( VIM )	{
+    switch (VIM) {
     case 1:  /* 1-D approximation */
       m_B(0,0) = 0.0;
       for (j = 0; j < m_nsp; j++) {
@@ -878,14 +881,12 @@ namespace Cantera {
       }
       for (i = 1; i < m_nsp; i++){
 	m_B(i,0) = m_ck_Grad_mu[i] / (GasConstant * T);
+	m_A(i,i) = 0.0;
 	for (j = 0; j < m_nsp; j++){
 	  if (j != i) {
-	    m_A(i,j)  = m_concentrations[i] * m_concentrations[j]/ 
-	      (concTot_ * m_DiffCoeff_StefMax(i,j));
-	    m_A(j,i) = -m_A(i,j);
-	  }
-	  else if (j == i)  {
-	    m_A(i,i) = 0.0;
+	    tmp = m_concentrations[j]/ m_DiffCoeff_StefMax(i,j);
+	    m_A(i,i) +=   tmp;
+	    m_A(i,j)  = - tmp;
 	  }
 	}
       }
@@ -901,17 +902,14 @@ namespace Cantera {
 	m_A(0,j) = M[j] * m_concentrations[j];
       }
       for (i = 1; i < m_nsp; i++){
-	m_B(i,0) =  m_ck_Grad_mu[i] / (GasConstant * T);
+	m_B(i,0) =  m_ck_Grad_mu[i]         / (GasConstant * T);
 	m_B(i,1) =  m_ck_Grad_mu[m_nsp + i] / (GasConstant * T);
-	for (j = 0; j < m_nsp; j++){
+	m_A(i,i) = 0.0;
+	for (j = 0; j < m_nsp; j++) {
 	  if (j != i) {
-	    m_A(i,j)  = m_concentrations[i] * m_concentrations[j]/ 
-	      (concTot_ * m_DiffCoeff_StefMax(i,j));
-	    m_A(j,i) = -m_A(i,j);
-
-	  }
-	  else if (j == i)  {
-	    m_A(i,i) = 0.0;
+	    tmp =  m_concentrations[j] / m_DiffCoeff_StefMax(i,j);
+	    m_A(i,i) +=   tmp;
+	    m_A(i,j)  = - tmp;
 	  }
 	}
       }
@@ -930,18 +928,15 @@ namespace Cantera {
 	m_A(0,j) = M[j] * m_concentrations[j];
       }
       for (i = 1; i < m_nsp; i++){
-	m_B(i,0) = m_ck_Grad_mu[i] / (GasConstant * T);
-	m_B(i,1) = m_ck_Grad_mu[m_nsp + i] / (GasConstant * T);
+	m_B(i,0) = m_ck_Grad_mu[i]           / (GasConstant * T);
+	m_B(i,1) = m_ck_Grad_mu[m_nsp + i]   / (GasConstant * T);
 	m_B(i,2) = m_ck_Grad_mu[2*m_nsp + i] / (GasConstant * T);
-	for (j = 0; j < m_nsp; j++){
+	m_A(i,i) = 0.0;
+	for (j = 0; j < m_nsp; j++) {
 	  if (j != i) {
-	    m_A(i,j)  = m_concentrations[i] * m_concentrations[j]/ 
-	      (concTot_ * m_DiffCoeff_StefMax(i,j));
-	    m_A(j,i) = -m_A(i,j);
-
-	  }
-	  else if (j == i)  {
-	    m_A(i,i) = 0.0;
+	    tmp =  m_concentrations[j]/ m_DiffCoeff_StefMax(i,j);
+	    m_A(i,i) +=   tmp;
+	    m_A(i,j)  = - tmp;
 	  }
 	}
       }

@@ -518,17 +518,22 @@ namespace Cantera {
 
     //! Local copy of the mole fractions of the species in the phase
     /*!
-     *  The mole fractions here are assumed to be bounded by 0.0, and 1.0
-     *  and they are assumed to add up to one.
+     *  The mole fractions here are assumed to be bounded by 0.0 and 1.0
+     *  and they are assumed to add up to one exactly. This mole
+     *  fraction vector comes from the ThermoPhase object. Derivative
+     *  quantities from this are referred to as bounded.
+     *
      * Update info?
      * length = m_nsp
      */
     vector_fp m_molefracs;
 
-    //! Mole fraction vector
+    //! Non-zero mole fraction vector used in transport property calculations
     /*!
      *  The mole fractions here are assumed to be bounded by MIN_X and 1.0
-     *  and they may not be assumed to add up to one.
+     *  and they may not be assumed to add up to one. This
+     *  mole fraction vector is created from the ThermoPhase object.
+     *  Derivative quantities of this use the _tran suffix.
      *
      * Update info?
      * length = m_nsp
@@ -539,13 +544,28 @@ namespace Cantera {
 
     //! Local copy of the concentrations of the species in the phase
     /*!
+     *  The concentrations are consistent with the m_molefracs
+     *  vector which is bounded and sums to one.
+     *
      * Update info?
      * length = m_nsp
      */
     vector_fp m_concentrations;
 
-    //! Local copy of the total concentration
+    //! Local copy of the total concentration.
+    /*!
+     * This is consistent with the m_concentrations[] and
+     *  m_molefracs[] vector.
+     */
     doublereal concTot_;
+
+    //! Local copy of the total concentration.
+    /*!
+     *  This is consistent with the x_molefracs_tran vector and
+     *  with the concTot_ number;
+     */
+    doublereal concTot_tran_;
+
     doublereal meanMolecularWeight_;
     doublereal dens_;
 
