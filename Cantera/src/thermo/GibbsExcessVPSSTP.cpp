@@ -9,7 +9,7 @@
  * variable pressure standard state methods for calculating
  * thermodynamic properties that are further based upon expressions
  * for the excess gibbs free energy expressed as a function of
- * the mole fractions
+ * the mole fractions.
  */
 /*
  * Copywrite (2009) Sandia Corporation. Under the terms of 
@@ -59,6 +59,7 @@ namespace Cantera {
     if (&b != this) {
       VPStandardStateTP::operator=(b);
     }
+    moleFractions_       = b.moleFractions_;
     return *this;
   }
 
@@ -85,6 +86,45 @@ namespace Cantera {
   /*
    *  -------------- Utilities -------------------------------
    */
+
+  void GibbsExcessVPSSTP::setMassFractions(const doublereal* const y) {
+#if DEBUG_MODE
+    checkMFSum(y);
+#endif
+    State::setMassFractions(y);
+    getMoleFractions(DATA_PTR(moleFractions_));
+  }
+
+  void GibbsExcessVPSSTP::setMassFractions_NoNorm(const doublereal* const y) {
+#if DEBUG_MODE
+    checkMFSum(y);
+#endif
+    State::setMassFractions_NoNorm(y);
+    getMoleFractions(DATA_PTR(moleFractions_));
+  }
+
+ void GibbsExcessVPSSTP::setMoleFractions(const doublereal* const x) {
+#if DEBUG_MODE
+    checkMFSum(x);
+#endif
+    State::setMoleFractions(x);
+    getMoleFractions(DATA_PTR(moleFractions_));
+  }
+
+  void GibbsExcessVPSSTP::setMoleFractions_NoNorm(const doublereal* const x) {
+#if DEBUG_MODE
+    checkMFSum(x);
+#endif
+    State::setMoleFractions_NoNorm(x);
+    getMoleFractions(DATA_PTR(moleFractions_));
+  }
+
+
+  void GibbsExcessVPSSTP::setConcentrations(const doublereal* const c) {
+    State::setConcentrations(c);
+    getMoleFractions(DATA_PTR(moleFractions_));
+  }
+
 
   // Equation of state type flag.
   /*
@@ -146,6 +186,15 @@ namespace Cantera {
     throw CanteraError("GibbsExcessVPSSTP","Base class method "
 		       +msg+" called. Equation of state type: "+int2str(eosType()));
     return 0;
+  }
+
+  double GibbsExcessVPSSTP::checkMFSum(const doublereal * const x) const {
+    doublereal norm = accumulate(x, x + m_kk, 0.0);
+    if (fabs(norm - 1.0) > 1.0E-9) {
+      throw CanteraError("GibbsExcessVPSSTP::checkMFSun",
+			 "MF sum exceeded tolerance of 1.0E-9:" + fp2str(norm));
+    }
+    return norm;
   }
 
   /*

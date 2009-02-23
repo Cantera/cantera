@@ -312,6 +312,8 @@ namespace Cantera {
      * @{
      */
 
+
+
     //@}
 
     /**
@@ -321,6 +323,66 @@ namespace Cantera {
      * @{
      */
 
+    /**
+     * Set the mass fractions to the specified values, and then
+     * normalize them so that they sum to 1.0.
+     * @param y Array of unnormalized mass fraction values (input).
+     * Must have a length greater than or equal to the number of
+     * species.
+     *
+     * @param y  Input vector of mass fractions.
+     *           Length is m_kk.
+     */
+    virtual void setMassFractions(const doublereal* const y);
+
+    /**
+     * Set the mass fractions to the specified values without
+     * normalizing. This is useful when the normalization
+     * condition is being handled by some other means, for example
+     * by a constraint equation as part of a larger set of
+     * equations.
+     *
+     * @param y  Input vector of mass fractions.
+     *           Length is m_kk.
+     */
+    virtual void setMassFractions_NoNorm(const doublereal* const y);
+
+
+    /**
+     * Set the mole fractions to the specified values, and then
+     * normalize them so that they sum to 1.0.
+     * @param x Array of unnormalized mole fraction values (input).
+     * Must have a length greater than or equal to the number of
+     * species.
+     *
+     * @param x  Input vector of mole fractions.
+     *           Length is m_kk.
+     */
+    virtual void setMoleFractions(const doublereal* const x);
+    /**
+     * Set the mole fractions to the specified values without
+     * normalizing. This is useful when the normalization
+     * condition is being handled by some other means, for example
+     * by a constraint equation as part of a larger set of
+     * equations.
+     *
+     * @param x  Input vector of mole fractions.
+     *           Length is m_kk.
+     */
+    virtual void setMoleFractions_NoNorm(const doublereal* const x);
+
+    /**
+     * Set the concentrations to the specified values within the
+     * phase.
+     *
+     * @param c The input vector to this routine is in dimensional
+     *        units. For volumetric phases c[k] is the
+     *        concentration of the kth species in kmol/m3.
+     *        For surface phases, c[k] is the concentration
+     *        in kmol/m2. The length of the vector is the number
+     *        of species in the phase.
+     */
+    virtual void setConcentrations(const doublereal* const c);
 
     //@}
 
@@ -391,6 +453,10 @@ namespace Cantera {
      * @param msg  Message to be printed
      */
     doublereal err(std::string msg) const;
+
+  protected:
+
+    double checkMFSum(const doublereal * const x) const;
 
   private:
 
