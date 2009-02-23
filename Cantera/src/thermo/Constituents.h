@@ -147,7 +147,6 @@ namespace Cantera {
     /// Return a read-only reference to the vector of atomic weights.
     const vector_fp& atomicWeights() const;
 
-
     /// Number of elements.
     int nElements() const;
        
