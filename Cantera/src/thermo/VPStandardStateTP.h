@@ -73,13 +73,19 @@ namespace Cantera {
     /// Constructor. 
     VPStandardStateTP();
 
-    /// Copy Constructor.
-    VPStandardStateTP(const VPStandardStateTP &);
+    //! Copy Constructor.
+    /*!
+     *  @param b   Object to be copied
+     */
+    VPStandardStateTP(const VPStandardStateTP &b);
 
-    /// Assignment operator
-    VPStandardStateTP& operator=(const VPStandardStateTP &);
+    //! Assignment operator
+    /*!
+     *  @param b   Object to be copied
+     */
+    VPStandardStateTP& operator=(const VPStandardStateTP &b);
 
-    /// Destructor. 
+    //! Destructor. 
     virtual ~VPStandardStateTP();
 
     /*
@@ -140,7 +146,8 @@ namespace Cantera {
     //@}
 
     /*!
-     * @name  Properties of the Standard State of the Species in the Solution  (VPStandardStateTP)
+     * @name  Properties of the Standard State of the Species in the Solution 
+     *                (VPStandardStateTP)
      *
      *  Within VPStandardStateTP, these properties are calculated via a common routine, 
      *  _updateStandardStateThermo(),
@@ -233,10 +240,11 @@ namespace Cantera {
      */
     virtual void getCp_R(doublereal* cpr) const;
 
-    /**
-     * Get the molar volumes of each species in their standard
-     * states at the current
-     * <I>T</I> and <I>P</I> of the solution.
+    
+    //! Get the molar volumes of each species in their standard
+    //! states at the current
+    //! <I>T</I> and <I>P</I> of the solution.
+    /*!
      * units = m^3 / kmol
      *
      * This is redefined here to call the internal function,  _updateStandardStateThermo(),
@@ -528,7 +536,13 @@ namespace Cantera {
 
   protected:
 
-    //! Current value of the pressure
+    //! Current value of the pressure - state variable
+    /*!
+     *  Because we are now using the pressure as a state variable, we need to carry it
+     *  along within this object
+     *
+     *  units = Pascals
+     */
     doublereal  m_Pcurrent;
 
     //! The last temperature at which the standard statethermodynamic properties were calculated at.
@@ -540,7 +554,7 @@ namespace Cantera {
 
     /*!
      * Reference pressure (Pa) must be the same for all species
-     * - defaults to 1 atm.
+     * - defaults to OneAtm
      */
     doublereal m_P0;
 
