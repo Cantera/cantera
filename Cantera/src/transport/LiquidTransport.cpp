@@ -162,7 +162,7 @@ namespace Cantera {
   /*
    *  This is where we dimension everything.
    */
-  bool LiquidTransport::init(LiquidTransportParams& tr) {
+  bool LiquidTransport::initLiquid(LiquidTransportParams& tr) {
 
     // constant substance attributes
     m_thermo = tr.thermo;
@@ -396,7 +396,7 @@ namespace Cantera {
    * \f]
    */
   void LiquidTransport::getSpeciesFluxes(int ndim, 
-					 doublereal* grad_T, 
+					 const doublereal* grad_T, 
 					 int ldx, const doublereal* grad_X, 
 					 int ldf, doublereal* fluxes) {
     set_Grad_T(grad_T);

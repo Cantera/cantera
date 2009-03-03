@@ -51,7 +51,7 @@ virtual ~SolidTransport() {}
         virtual doublereal thermalConductivity();
         virtual void getMixDiffCoeffs(doublereal* d);
         virtual void getMobilities(doublereal* mobil);
-        virtual void setParameters(int n, int k, doublereal* p);
+        virtual void setParameters(const int n, const int k, const doublereal* const p);
 
         friend class TransportFactory;
 

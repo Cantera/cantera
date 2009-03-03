@@ -302,7 +302,7 @@ namespace Cantera {
      *
      */
      virtual void getSpeciesFluxes(int ndim, 
-				  doublereal* grad_T, 
+				  const doublereal* grad_T, 
 				  int ldx, const doublereal* grad_X, 
 				  int ldf, doublereal* fluxes);
 
@@ -339,7 +339,7 @@ namespace Cantera {
      * @param tr  Transport parameters for all of the species
      *            in the phase.
      */
-    virtual bool init(LiquidTransportParams& tr);
+    virtual bool initLiquid(LiquidTransportParams& tr);
 
     friend class TransportFactory;
 

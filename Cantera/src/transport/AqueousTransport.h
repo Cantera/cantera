@@ -249,7 +249,7 @@ namespace Cantera {
      *
      */
      virtual void getSpeciesFluxes(int ndim, 
-				  doublereal* grad_T, 
+				  const doublereal* grad_T, 
 				  int ldx, const doublereal* grad_X, 
 				  int ldf, doublereal* fluxes);
 

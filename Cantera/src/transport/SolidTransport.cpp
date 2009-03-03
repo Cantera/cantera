@@ -29,7 +29,7 @@ namespace Cantera {
 
     SolidTransport::SolidTransport() {}
 
-    void SolidTransport::setParameters(int n, int k, double* p) {
+    void SolidTransport::setParameters(const int n, const int k, const double* const p) {
         switch (n) {
             
         case 0:

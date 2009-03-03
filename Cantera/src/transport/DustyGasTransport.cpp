@@ -53,7 +53,7 @@ namespace Cantera {
           m_gastran(0)
     {}
 
-        void DustyGasTransport::setParameters(int type, int k, doublereal* p) {
+        void DustyGasTransport::setParameters(const int type, const int k, const doublereal* const p) {
             switch(type) {
             case 0:
                 setPorosity(p[0]); break;

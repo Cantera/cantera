@@ -42,7 +42,7 @@ namespace Cantera {
 
         virtual int model() { return cDustyGasTransport; }
 
-        virtual void setParameters(int type, int k, doublereal* p);
+        virtual void setParameters(const int type, const int k, const doublereal* const p);
         
         virtual void getMultiDiffCoeffs(int ld, doublereal* d);
         
