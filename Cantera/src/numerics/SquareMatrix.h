@@ -23,7 +23,7 @@ namespace Cantera {
 
   /**
    *  A class for full (non-sparse) matrices with Fortran-compatible
-   *  data storage. Adds matrix operations to class Array2D.
+   *  data storage. Adds matrix inversion operations to this class from DenseMatrix.
    */
   class SquareMatrix: public DenseMatrix {
 
