@@ -238,14 +238,16 @@ namespace Cantera {
       }
       const XML_Node *ss = s->findByName("standardState");
       if (!ss) {
+	std::string sName = s->operator[]("name");
 	throw CanteraError("VPSSMgr_Water_ConstVol::initThermoXML",
-			   "no standardState Node for species " + s->name());
+			   "no standardState Node for species " + sName);
       }
       std::string model = (*ss)["model"];
       if (model != "constant_incompressible") {
+	std::string sName = s->operator[]("name");
 	throw CanteraError("VPSSMgr_Water_ConstVol::initThermoXML",
 			   "standardState model for species isn't "
-			   "constant_incompressible: " + s->name());
+			   "constant_incompressible: " + sName);
       }
       m_Vss[k] = getFloat(*ss, "molarVolume", "toSI");
     }   

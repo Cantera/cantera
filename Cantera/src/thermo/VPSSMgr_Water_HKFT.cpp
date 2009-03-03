@@ -246,8 +246,9 @@ namespace Cantera {
 
     const XML_Node *ss = speciesNode.findByName("standardState");
     if (!ss) {
+      std::string sName = speciesNode["name"];
       throw CanteraError("VPSSMgr_Water_HKFT::installSpecies",
-			 "No standardState Node for species " + speciesNode.name());
+			 "No standardState Node for species " + sName);
     }
     // Will have to do something for water 
     // -> make sure it's species 0
@@ -279,9 +280,10 @@ namespace Cantera {
     } else {
       std::string model = (*ss)["model"];
       if (model != "HKFT") {
+	std::string sName = speciesNode["name"];
 	throw CanteraError("VPSSMgr_Water_HKFT::initThermoXML",
 			   "standardState model for species isn't "
-			   "HKFT: " + speciesNode.name());
+			   "HKFT: " + sName);
       }
 
       kPDSS = new PDSS_HKFT(m_vptp_ptr, k, speciesNode, *phaseNode_ptr, true);
