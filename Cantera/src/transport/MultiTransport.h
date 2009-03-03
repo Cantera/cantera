@@ -76,7 +76,7 @@ namespace Cantera {
     public:
 
 
-        virtual ~MultiTransport() {}
+      virtual ~MultiTransport();
 
         // overloaded base class methods
         virtual int model() {
@@ -197,8 +197,8 @@ namespace Cantera {
 	 */
 	struct GasTransportData getGasTransportData(int);
 
-    protected:
 
+    protected:
         /// default constructor
         MultiTransport(thermo_t* thermo=0);
 

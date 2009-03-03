@@ -21,8 +21,12 @@
 #include "SolidTransport.h"
 #include "DustyGasTransport.h"
 
+#ifdef WITH_IDEAL_SOLUTIONS
 #include "LiquidTransport.h"
+#endif
+#ifdef WITH_ELECTROLYTES
 #include "AqueousTransport.h"
+#endif
 
 #include "TransportFactory.h"
 

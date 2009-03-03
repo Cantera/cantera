@@ -126,6 +126,9 @@ namespace Cantera {
 
   public:
 
+    //! default constructor
+    AqueousTransport();
+
     //! virtual destructor
     virtual ~AqueousTransport() {}
 
@@ -288,10 +291,8 @@ namespace Cantera {
 
     //! Solve the stefan_maxell equations for the diffusive fluxes.
     void stefan_maxwell_solve();
-  protected:
+ 
 
-    //! default constructor
-    AqueousTransport();
 
   private:
 

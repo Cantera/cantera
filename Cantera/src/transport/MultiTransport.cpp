@@ -137,6 +137,11 @@ namespace Cantera {
     {
     }
 
+
+  MultiTransport::~MultiTransport() {
+
+  }
+
     bool MultiTransport::init(TransportParams& tr) {
 
         // constant mixture attributes

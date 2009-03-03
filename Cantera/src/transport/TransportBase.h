@@ -4,7 +4,6 @@
  */
 
 /*
- * $Author$
  * $Revision$
  * $Date$
  */
@@ -69,7 +68,7 @@ namespace Cantera {
      */
     Transport(thermo_t* thermo=0, int ndim = 1);
 
-    ///< Destructor.
+    //! Destructor.
     virtual ~Transport();   
 
     //!  Copy Constructor for the %Transport  object.
@@ -97,6 +96,7 @@ namespace Cantera {
      *  These routines are basically wrappers around the derived copy
      *  constructor.
      */
+    // Note ->need working copy constructors and operator=() functions for all first
     virtual Transport *duplMyselfAsTransport() const;
 
 
