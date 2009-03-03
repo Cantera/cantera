@@ -59,7 +59,11 @@ namespace Cantera {
     if (&b != this) {
       VPStandardStateTP::operator=(b);
     }
+
     moleFractions_       = b.moleFractions_;
+    lnActCoeff_Scaled_   = b.lnActCoeff_Scaled_;
+    m_pp                 = b.m_pp;
+
     return *this;
   }
 
@@ -144,6 +148,52 @@ namespace Cantera {
    * ------------ Molar Thermodynamic Properties ----------------------
    */
 
+  /*
+   *
+   * ------------ Mechanical Properties ------------------------------
+   *
+   */
+
+  /*
+   * Set the pressure at constant temperature. Units: Pa.
+   * This method sets a constant within the object.
+   * The mass density is not a function of pressure.
+   */
+  void GibbsExcessVPSSTP::setPressure(doublereal p) {
+#ifdef DEBUG_MODE
+    //printf("setPressure: %g\n", p);
+#endif
+    /*
+     * Store the current pressure
+     */
+    m_Pcurrent = p;
+    /*
+     * update the standard state thermo
+     * -> This involves calling the water function and setting the pressure
+     */
+    updateStandardStateThermo();
+  
+    /*
+     * Calculate all of the other standard volumes
+     * -> note these are constant for now
+     */
+    calcDensity();
+  }
+
+  void GibbsExcessVPSSTP::calcDensity() {
+    double *vbar = &m_pp[0];
+    getPartialMolarVolumes(vbar);
+   
+    doublereal vtotal = 0.0;
+    for (int i = 0; i < m_kk; i++) {
+      vtotal += vbar[i] * moleFractions_[i];
+    }
+    doublereal dd = meanMolecularWeight() / vtotal;
+    State::setDensity(dd);
+  }
+
+ 
+
 
   /*
    * - Activities, Standard States, Activity Concentrations -----------
@@ -181,12 +231,40 @@ namespace Cantera {
    * ------------ Partial Molar Properties of the Solution ------------
    */
 
+  // Return an array of partial molar volumes for the
+  // species in the mixture. Units: m^3/kmol.
+  /*
+   *  Frequently, for this class of thermodynamics representations,
+   *  the excess Volume due to mixing is zero. Here, we set it as
+   *  a default. It may be overriden in derived classes.
+   *
+   *  @param vbar   Output vector of speciar partial molar volumes.
+   *                Length = m_kk. units are m^3/kmol.
+   */
+  void GibbsExcessVPSSTP::getPartialMolarVolumes(doublereal* vbar) const {
+    /*
+     * Get the standard state values in m^3 kmol-1
+     */
+    getStandardVolumes(vbar);
+  }
+  
+
 
   doublereal GibbsExcessVPSSTP::err(std::string msg) const {
     throw CanteraError("GibbsExcessVPSSTP","Base class method "
 		       +msg+" called. Equation of state type: "+int2str(eosType()));
     return 0;
   }
+
+    //@}
+    /// @name  Properties of the Standard State of the Species in the Solution
+    //@{
+
+     
+
+    //@}
+    /// @name Thermodynamic Values for the Species Reference States
+    //@{
 
   double GibbsExcessVPSSTP::checkMFSum(const doublereal * const x) const {
     doublereal norm = accumulate(x, x + m_kk, 0.0);
@@ -256,6 +334,8 @@ namespace Cantera {
   void  GibbsExcessVPSSTP::initLengths() {
     m_kk = nSpecies();
     moleFractions_.resize(m_kk);
+    lnActCoeff_Scaled_.resize(m_kk);
+    m_pp.resize(m_kk);
   }
 
   /*
@@ -275,8 +355,7 @@ namespace Cantera {
    */
   void GibbsExcessVPSSTP::initThermoXML(XML_Node& phaseNode, std::string id) {
 
-    initLengths();
- 
+
     VPStandardStateTP::initThermoXML(phaseNode, id);
   }
   

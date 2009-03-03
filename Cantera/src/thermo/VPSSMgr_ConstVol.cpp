@@ -112,7 +112,7 @@ namespace Cantera {
 			   "no standardState Node for species " + s->name());
       }
       std::string model = (*ss)["model"];
-      if (model != "constant_incompressible") {
+      if (model != "constant_incompressible" && model != "constantVolume") {
 	throw CanteraError("VPSSMgr_ConstVol::initThermoXML",
 			   "standardState model for species isn't constant_incompressible: " + s->name());
       }
@@ -135,7 +135,7 @@ namespace Cantera {
 			 "no standardState Node for species " + speciesNode.name());
     }
     std::string model = (*ss)["model"];
-    if (model != "constant_incompressible") {
+    if (model != "constant_incompressible" && model != "constantVolume") {
       throw CanteraError("VPSSMgr_ConstVol::initThermoXML",
 			 "standardState model for species isn't "
 			 "constant_incompressible: " + speciesNode.name());

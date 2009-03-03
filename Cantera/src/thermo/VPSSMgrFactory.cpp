@@ -68,17 +68,23 @@ namespace Cantera {
    *  @param spData_node Species Data XML node. This node contains a list
    *                     of species XML nodes underneath it.
    * 
-   * @todo Make sure that spDadta_node is species Data XML node by checking its name is speciesData
+   * @todo Make sure that spDadta_node is species Data XML node by checking 
+   *      its name is speciesData
    */
   static void getVPSSMgrTypes(std::vector<XML_Node *> & spDataNodeList,
-			      int &has_nasa, 
-			      int& has_shomate, 
-			      int& has_simple,
+			      int &has_nasa_idealGas, 
+			      int &has_nasa_constVol, 
+			      int& has_shomate_idealGas, 
+			      int& has_shomate_constVol, 
+			      int& has_simple_idealGas,
+			      int& has_simple_constVol,
 			      int &has_water,
 			      int &has_tpx,
 			      int &has_hptx,
 			      int &has_other) {
   
+    XML_Node *ss_ptr = 0;
+    string ssModel = "idealGas";
     size_t ns = spDataNodeList.size();
     for (size_t n = 0; n < ns; n++) {
       bool ifound = false;
@@ -98,21 +104,49 @@ namespace Cantera {
       if (!ifound) {
 	if (spNode->hasChild("thermo")) {
 	  const XML_Node& th = spNode->child("thermo");
+	  if (spNode->hasChild("standardState")) {
+	    ss_ptr = &(spNode->child("standardState"));
+	    ssModel = ss_ptr->attrib("model");
+	  }
 	  if (th.hasChild("NASA")) {
-	    has_nasa++;
+	    if (ssModel == "idealGas") {
+	      has_nasa_idealGas++;
+	    } else if (ssModel == "constant_incompressible" ||
+		       ssModel == "constantVolume") {
+	      has_nasa_constVol++;
+	    } else {
+	      throw UnknownVPSSMgrModel("getVPSSMgrTypes:",
+					spNode->attrib("name"));
+	    }
 	    ifound = true;
 	  }
 	  if (th.hasChild("Shomate")) {
-	    has_shomate++;
+	    if (ssModel == "idealGas") {
+	      has_shomate_idealGas++;
+	    } else if (ssModel == "constant_incompressible" ||
+		       ssModel == "constantVolume") {
+	      has_shomate_constVol++;
+	    } else {
+	      throw UnknownVPSSMgrModel("getVPSSMgrTypes:",
+					spNode->attrib("name"));
+	    }
 	    ifound = true;
 	  }
 	  if (th.hasChild("const_cp")){
-	    has_simple = 1;
+	    if (ssModel == "idealGas") {
+	      has_simple_idealGas++;
+	    } else if (ssModel == "constant_incompressible" ||
+		       ssModel == "constantVolume") {
+	      has_simple_constVol++;
+	    } else {
+	      throw UnknownVPSSMgrModel("getVPSSMgrTypes:",
+					spNode->attrib("name"));
+	    }
 	    ifound = true;
 	  }
 	  if (th.hasChild("poly")) {
 	    if (th.child("poly")["order"] == "1") {
-	      has_simple = 1;
+	      has_simple_constVol = 1;
 	      ifound = true;
 	    } else throw CanteraError("newSpeciesThermo",
 				      "poly with order > 1 not yet supported");
@@ -252,12 +286,14 @@ namespace Cantera {
     }
 
 
-    int inasa = 0, ishomate = 0, isimple = 0, iwater = 0, itpx = 0, iother = 0;
+    int inasaIG = 0, inasaCV = 0, ishomateIG = 0, ishomateCV = 0,
+      isimpleIG = 0, isimpleCV = 0, 
+      iwater = 0, itpx = 0, iother = 0;
     int ihptx = 0;
   
     try {
-      getVPSSMgrTypes(spDataNodeList, inasa, ishomate, isimple, iwater, 
-		      itpx, ihptx, iother);
+      getVPSSMgrTypes(spDataNodeList, inasaIG, inasaCV, ishomateIG, ishomateCV,
+		      isimpleIG, isimpleCV, iwater, itpx, ihptx, iother);
     } catch (UnknownSpeciesThermoModel) {
       iother = 1;
       popError();
@@ -268,6 +304,13 @@ namespace Cantera {
 	vpss = new VPSSMgr_Water_ConstVol(vp_ptr, spth);
       } else {
 	vpss = new VPSSMgr_Water_HKFT(vp_ptr, spth);
+      }
+    }
+    if (vpss == 0) {
+      if (inasaCV || ishomateCV || isimpleCV) {
+	if (!inasaIG && !ishomateIG && !isimpleIG && !itpx && !ihptx && !iother) {
+	  vpss = new VPSSMgr_ConstVol(vp_ptr, spth);
+	}
       }
     }
     if (vpss == 0) {

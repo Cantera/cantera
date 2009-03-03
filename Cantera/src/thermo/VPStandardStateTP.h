@@ -1,12 +1,12 @@
 /**
  *  @file VPStandardStateTP.h
- * Header file for a derived class of ThermoPhase that handles
- * variable pressure standard state methods for calculating
- * thermodynamic properties (see \ref thermoprops and
- * class \link Cantera::VPStandardStateTP VPStandardStateTP\endlink).
+ *    Header file for a derived class of ThermoPhase that handles
+ *    variable pressure standard state methods for calculating
+ *    thermodynamic properties (see \ref thermoprops and
+ *    class \link Cantera::VPStandardStateTP VPStandardStateTP\endlink).
  *
- * These include most of the
- * methods for calculating liquid electrolyte thermodynamics.
+ *    These include most of the
+ *    methods for calculating liquid electrolyte thermodynamics.
  */
 /*
  * Copywrite (2005) Sandia Corporation. Under the terms of 
@@ -14,7 +14,6 @@
  * U.S. Government retains certain rights in this software.
  */
 /*
- *  $Author$
  *  $Date$
  *  $Revision$
  */

@@ -79,9 +79,9 @@ ELECTRO_H   = MolalityVPSSTP.h  VPStandardStateTP.h \
 endif
 ifeq ($(do_issp),1)
 ISSP_OBJ = IdealSolidSolnPhase.o  StoichSubstanceSSTP.o SingleSpeciesTP.o MineralEQ3.o \
-           GibbsExcessVPSSTP.o
+           GibbsExcessVPSSTP.o PseudoBinaryVPSSTP.o MargulesVPSSTP.o
 ISSP_H   = IdealSolidSolnPhase.h  StoichSubstanceSSTP.h SingleSpeciesTP.h MineralEQ3.h \
-           GibbsExcessVPSSTP.h
+           GibbsExcessVPSSTP.h PseudoBinaryVPSSTP.h MargulesVPSSTP.h
 endif
 
 CATHERMO_OBJ = $(THERMO_OBJ) $(ELECTRO_OBJ) $(ISSP_OBJ) 

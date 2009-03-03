@@ -107,8 +107,6 @@ namespace Cantera {
 
     /// Assignment operator
     /*!
-     *  Note this stuff will not work until the underlying phase
-     *  has a working assignment operator
      *
      * @param b class to be copied.
      */
@@ -151,13 +149,7 @@ namespace Cantera {
      */
 
 
-    /**
-     * @}
-     * @name Utilities for Solvent ID and Molality
-     * @{
-     */
-
-
+   
  
 
     /**
@@ -166,6 +158,46 @@ namespace Cantera {
      * @{
      */
 
+    //! Set the internally storred pressure (Pa) at constant
+    //! temperature and composition
+    /*!
+     *  This method sets the pressure within the object.
+     *  The water model is a completely compressible model.
+     *  Also, the dielectric constant is pressure dependent.
+     *
+     *  @param p input Pressure (Pa)
+     *
+     * @todo Implement a variable pressure capability
+     */
+    virtual void setPressure(doublereal p);
+
+  private:
+    /**
+     * Calculate the density of the mixture using the partial 
+     * molar volumes and mole fractions as input
+     *
+     * The formula for this is
+     *
+     * \f[ 
+     * \rho = \frac{\sum_k{X_k W_k}}{\sum_k{X_k V_k}} 
+     * \f]
+     *
+     * where \f$X_k\f$ are the mole fractions, \f$W_k\f$ are
+     * the molecular weights, and \f$V_k\f$ are the pure species
+     * molar volumes.
+     *
+     * Note, the basis behind this formula is that in an ideal
+     * solution the partial molar volumes are equal to the pure
+     * species molar volumes. We have additionally specified
+     * in this class that the pure species molar volumes are
+     * independent of temperature and pressure.
+     *
+     * NOTE: This is a non-virtual function, which is not a 
+     *       member of the ThermoPhase base class. 
+     */
+    void calcDensity();
+
+  public:
     /**
      * @} 
      * @name Potential Energy
@@ -279,7 +311,18 @@ namespace Cantera {
      */
     void getElectrochemPotentials(doublereal* mu) const;
 
- 
+    //! Return an array of partial molar volumes for the
+    //! species in the mixture. Units: m^3/kmol.
+    /*!
+     *  Frequently, for this class of thermodynamics representations,
+     *  the excess Volume due to mixing is zero. Here, we set it as
+     *  a default. It may be overriden in derived classes.
+     *
+     *  @param vbar   Output vector of speciar partial molar volumes.
+     *                Length = m_kk. units are m^3/kmol.
+     */
+    virtual void getPartialMolarVolumes(doublereal* vbar) const;
+
     //@}
     /// @name  Properties of the Standard State of the Species in the Solution
     //@{
@@ -458,10 +501,16 @@ namespace Cantera {
 
     double checkMFSum(const doublereal * const x) const;
 
-  private:
+  protected:
 
     //! Storage for the current values of the mole fractions of the species
     mutable std::vector<doublereal> moleFractions_;
+
+    //! Storage for the current values of the activity coefficients of the
+    //! species, divided by RT
+    mutable std::vector<doublereal> lnActCoeff_Scaled_;
+
+    mutable std::vector<doublereal> m_pp;
 
   };
 
