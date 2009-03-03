@@ -750,7 +750,7 @@ namespace Cantera {
   doublereal ThermoPhase::err(std::string msg) const {
     throw CanteraError("ThermoPhase","Base class method "
 		       +msg+" called. Equation of state type: "+int2str(eosType()));
-    return 0;
+    return 0.0;
   }
 
   /*

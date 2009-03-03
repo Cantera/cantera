@@ -28,6 +28,13 @@ using namespace std;
 
 namespace Cantera {
 
+  inline void State::stateMFChangeCalc(bool forcerChange) {
+    // Right now we assume that the mole fractions have changed every time
+    // the function is called
+    m_stateNum++;
+    if (m_stateNum > 1000000) m_stateNum = -10000000;
+  }
+
   State::State() : 
     m_kk(0),
     m_temp(0.0), 
@@ -234,13 +241,6 @@ namespace Cantera {
 
   void State::setMolarDensity(const doublereal molarDensity) {
     m_dens = molarDensity*meanMolecularWeight();
-  }
-
-  inline void State::stateMFChangeCalc(bool forcerChange) {
-    // Right now we assume that the mole fractions have changed every time
-    // the function is called
-    m_stateNum++;
-    if (m_stateNum > 1000000) m_stateNum = -10000000;
   }
 
 
