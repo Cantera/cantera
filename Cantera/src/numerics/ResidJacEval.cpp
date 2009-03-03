@@ -130,8 +130,9 @@ namespace Cantera {
    *
    */
   void ResidJacEval::
-  getInitialConditions(doublereal t0, size_t leny, 
-		       doublereal * y) {
+  getInitialConditions(doublereal t0, 
+		       doublereal * const y, doublereal * const ydot) {
+    size_t leny = neq_;
     getInitialConditionsDot(t0, leny, y, 0);
   }
 

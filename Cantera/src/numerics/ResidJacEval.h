@@ -94,12 +94,12 @@ namespace Cantera {
 					 doublereal * const y,
 					 doublereal * const ydot);
 
-    virtual void getInitialConditions(const doublereal t0, const size_t leny, 
-				      doublereal * const y);
+    virtual void getInitialConditions(const doublereal t0, 
+				      doublereal * const y, 
+                                      doublereal * const ydot);
   
     virtual void filterSolnPrediction(doublereal t,
 				      doublereal * const y);
-
 
     void setAtol(doublereal atol);
 
