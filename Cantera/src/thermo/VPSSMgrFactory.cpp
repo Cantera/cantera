@@ -301,9 +301,19 @@ namespace Cantera {
     
     if (iwater == 1) {
       if (ihptx == 0) {
-	vpss = new VPSSMgr_Water_ConstVol(vp_ptr, spth);
+	if (inasaIG ||  ishomateIG || isimpleIG) {
+	  throw CanteraError("newVPSSMgr", "Ideal gas with liquid water");
+	} else {
+	  vpss = new VPSSMgr_Water_ConstVol(vp_ptr, spth);
+	}
       } else {
-	vpss = new VPSSMgr_Water_HKFT(vp_ptr, spth);
+	if (inasaIG ||  ishomateIG || isimpleIG) {
+	  throw CanteraError("newVPSSMgr", "Ideal gas with liquid water");
+	} else if (inasaCV || ishomateCV ||  isimpleCV) {
+	  vpss = new VPSSMgr_General(vp_ptr, spth);
+	} else {
+	  vpss = new VPSSMgr_Water_HKFT(vp_ptr, spth);
+	}
       }
     }
     if (vpss == 0) {
