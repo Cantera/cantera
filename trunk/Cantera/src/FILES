@@ -1,0 +1,106 @@
+
+Core Components
+---------------
+State.h                       T, density, mole/mass conversion
+Constituents.cpp              Element and species properties
+Phase.cpp                     a basic class for phases of matter
+stringUtils.cpp               string utilities
+misc.cpp                      application-wide settings
+plots.cpp                     plotting to TECPLOT and Excel
+ctvector.cpp                  a simple vector class
+
+
+XML/CTML
+--------
+importCTML.cpp                read CTML files
+xml.cpp                       XML input/output
+ctml.cpp                      CTML input/output
+
+
+Numerics
+--------
+DenseMatrix.cpp               dense matrices
+BandMatrix.cpp                band matrices
+funcs.cpp                     polynomial fitting
+sort.cpp                      sorting
+
+
+Thermodynamic Properties
+------------------------
+IdealGasThermo.cpp            ideal gas thermodynamic properties
+ConstDensityThermo.cpp        incompressible thermodynamic properties
+SpeciesThermoFactory.cpp      factory to build thermo managers
+
+
+Homogeneous Kinetics
+--------------------
+Kinetics.h                    base class definition
+GRI_30_Kinetics.cpp           hard-wired GRI-Mech 3.0
+GasKinetics.cpp               gas-phase homogeneous kinetics
+FalloffFactory.cpp            build falloff parameterizations
+GasKineticsWriter.cpp         writes hard-coded versions of reaction mechanisms
+
+
+Heterogeneous kinetics
+----------------------
+SurfacePhase.h                a surface phase
+surfKinetics.cpp              surface kinetics
+ImplicitSurfChem.cpp          integrate site density rate equations
+
+Support for Chemkin-format Files
+--------------------------------
+importCK.cpp                  import a Chemkin-format reaction mechanism
+ck2ctml.cpp                   translate Chemkin format to CTML
+
+
+Chemical Equilibrium
+--------------------
+ChemEquil.cpp                 chemical equilibrium solver (element potential)
+
+
+Transport Properties
+--------------------
+TransportFactory.cpp          build transport managers
+MultiTransport.cpp            multicomponent transport properties
+MixTransport.cpp              mixture-averaged transport properties
+MMCollisionInt.cpp            Monchick & Mason collision integrals
+
+
+Zero-Dimensional Reactors
+-------------------------
+ReactorBase.cpp               base class
+Reactor.cpp                   general-purpose reactor
+ImplicitChem.cpp              integrate rate equations 
+FlowDevice.cpp                devices to connect reactors in a network
+
+
+Reaction Path Analysis
+----------------------
+Group.cpp                     represents atomic groups in a molecule
+ReactionPath.cpp              generates reaction path diagrams
+
+
+ODE Integrators
+---------------
+Integrator.h                  base class
+CVode.cpp                     wrapper for CVODE
+
+
+Solvers for 1D, Multi-Domain Problems
+-------------------------------------
+MultiJac.cpp                  Jacobian matrix evaluator
+MultiNewton.cpp               Newton solver
+newton_utils.cpp              utilities used by MultiNewton
+
+
+1D Flows
+--------
+StFlow.cpp                    one-dimensional reacting flows
+OneDim.cpp                    one-dimensional, multidomain simulations
+
+
+
+
+
+
+

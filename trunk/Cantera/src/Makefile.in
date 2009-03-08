@@ -1,0 +1,259 @@
+#/bin/sh
+###############################################################
+#  $Author: dggoodwin $
+#  $Date: 2006/11/11 13:23:11 $
+#  $Revision: 1.49 $
+#
+#  Copyright 2001 California Institute of Technology
+#
+###############################################################
+
+.SUFFIXES :
+.SUFFIXES : .cpp .d .o .dh .h .h.gch
+
+INCDIR      = ../../build/include/cantera/kernel
+INSTALL_TSC = ../../bin/install_tsc
+CANTERA_LIB = @buildlib@/libcantera.a
+#LOCAL_DEFNS=-DDEBUG_PATHS -DDEBUG_MULTIPHASE_EQUIL
+CXX_FLAGS   = @CXXFLAGS@ $(CXX_OPT) $(LOCAL_DEFNS)
+EXT         = ../../ext
+do_ranlib = @DO_RANLIB@
+USE_SUNDIALS = @use_sundials@
+SUNDIALS_INC = @sundials_include@
+
+#----------------------
+#  kernel components
+#----------------------
+
+# basic components always needed
+BASE_OBJ   = State.o Elements.o Constituents.o stringUtils.o misc.o \
+             importCTML.o plots.o \
+             xml.o Phase.o DenseMatrix.o ctml.o funcs.o \
+             phasereport.o ct2ctml.o
+
+BASE_H     = State.h Elements.h Constituents.h stringUtils.h global.h \
+             importCTML.h plots.h xml.h Phase.h DenseMatrix.h ctml.h \
+             funcs.h ct_defs.h Array.h PropertyCalculator.h \
+             ctexceptions.h ctlapack.h units.h mix_defs.h\
+             utilities.h vec_functions.h XML_Writer.h diagnostics.h \
+             config.h logger.h
+BASE       = $(BASE_OBJ)
+
+# thermodynamic properties
+THERMO_OBJ = ThermoPhase.o IdealGasPhase.o ConstDensityThermo.o \
+             SpeciesThermoFactory.o ConstCpPoly.o \
+             Mu0Poly.o GeneralSpeciesThermo.o \
+             ThermoFactory.o @phase_object_files@
+
+THERMO_H   = ThermoPhase.h IdealGasPhase.h ConstDensityThermo.h \
+             SpeciesThermoFactory.h ThermoFactory.h \
+             NasaPoly1.h NasaPoly2.h NasaThermo.h \
+             ShomateThermo.h ShomatePoly.h ConstCpPoly.h\
+             SimpleThermo.h SpeciesThermoMgr.h \
+             SpeciesThermoInterpType.h \
+             GeneralSpeciesThermo.h Mu0Poly.h \
+             speciesThermoTypes.h SpeciesThermo.h SurfPhase.h \
+             EdgePhase.h polyfit.h  Func1.h \
+             FuncEval.h StoichManager.h @phase_header_files@
+THERMO     = $(BASE_OBJ) $(THERMO_OBJ) $(THERMO_H)
+
+# homogeneous kinetics
+KINETICS_OBJ=GRI_30_Kinetics.o KineticsFactory.o GasKinetics.o \
+             FalloffFactory.o ReactionStoichMgr.o Kinetics.o
+KINETICS_H = GRI_30_Kinetics.h KineticsFactory.h Kinetics.h GasKinetics.h \
+             FalloffFactory.h  ReactionStoichMgr.h reaction_defs.h \
+             FalloffMgr.h ThirdBodyMgr.h RateCoeffMgr.h ReactionData.h \
+             RxnRates.h Enhanced3BConc.h
+KINETICS   = $(THERMO) $(KINETICS_OBJ) $(KINETICS_H)
+
+
+# heterogeneous kinetics
+HETEROKIN_OBJ=InterfaceKinetics.o ImplicitSurfChem.o SurfPhase.o \
+              EdgeKinetics.o
+HETEROKIN_H  =InterfaceKinetics.h ImplicitSurfChem.h SurfPhase.h \
+              EdgeKinetics.h
+HETEROKIN    = $(THERMO) $(HETEROKIN_OBJ)
+
+# support for importing from Chemkin-compatible reaction mechanisms
+CK         = $(KINETICS)
+
+# chemical equilibrium
+EQUIL_OBJ  = ChemEquil.o MultiPhaseEquil.o sort.o MultiPhase.o equilibrate.o
+EQUIL_H    = ChemEquil.h MultiPhaseEquil.h MultiPhase.h Crystal.h sort.h equil.h
+EQUIL      = $(THERMO) $(EQUIL_OBJ)
+
+# reaction path analysis
+RPATH_OBJ  = Group.o ReactionPath.o
+RPATH_H    = Group.h ReactionPath.h
+RPATH      = $(RPATH_OBJ)
+
+
+# solvers
+SOLVERS_OBJ = ODE_integrators.o  BandMatrix.o DAE_solvers.o
+SOLVERS_H   = BandMatrix.h Integrator.h DAE_Solver.h ResidEval.h
+SOLVERS    = $(SOLVERS_OBJ)
+
+# 1D flow models
+FLOW1D     =  $(KINETICS) $(SOLVERS)
+
+ALL_OBJ = $(BASE_OBJ) $(THERMO_OBJ) $(KINETICS_OBJ) $(HETEROKIN_OBJ) \
+          $(EQUIL_OBJ) $(RPATH_OBJ) $(SOLVERS_OBJ)
+
+
+PCH = 
+# config.h ct_defs.h utilities.h ThermoPhase.h Kinetics.h ReactionData.h \
+# RateCoeffMgr.h ReactionStoichMgr.h
+
+PCHGCH = $(PCH:.h=.h.gch)
+
+all:  .depends $(PCHGCH) @KERNEL@ $(CANTERA_LIB) cathermo
+
+%.h.gch : %.h
+ifeq (@precompile_headers@,yes)
+	@CXX@ $*.h $(CXX_FLAGS) 
+else
+	@echo 'skipping precompiling header file $*.h'
+endif
+
+base: $(BASE)
+	@(for lh in $(BASE_H) ; do \
+             $(INSTALL_TSC) "$${lh}" $(INCDIR) ; \
+          done)
+
+thermo: $(THERMO)
+	@(for lh in $(THERMO_H) ; do \
+             $(INSTALL_TSC) "$${lh}" $(INCDIR) ; \
+          done)
+
+cathermo:
+ifeq (@NEED_CATHERMO@, 1)
+	cd thermo; @MAKE@ all
+endif
+
+kinetics: $(KINETICS) $(HETEROKIN)
+	@(for lh in $(KINETICS_H) ; do \
+             $(INSTALL_TSC) "$${lh}" $(INCDIR) ; \
+          done)
+	@(for lh in $(HETEROKIN_H) ; do \
+             $(INSTALL_TSC) "$${lh}" $(INCDIR) ; \
+          done)
+
+ck: 
+	cd converters; @MAKE@
+
+equil: $(EQUIL)
+	@(for lh in $(EQUIL_H) ; do \
+             $(INSTALL_TSC) "$${lh}" $(INCDIR) ; \
+          done)
+
+flow1d: $(FLOW1D)
+
+trprops:
+	cd transport; @MAKE@
+
+reactor:
+	cd zeroD; @MAKE@
+
+rpath: $(RPATH)
+	@(for lh in $(RPATH_H) ; do \
+             $(INSTALL_TSC) "$${lh}" $(INCDIR) ; \
+          done)
+
+solvers: $(SOLVERS)
+	@(for lh in $(SOLVERS_H) ; do \
+             $(INSTALL_TSC) "$${lh}" $(INCDIR) ; \
+          done)
+
+tpx: 
+	cd $(EXT)/tpx; @MAKE@
+
+flow1D:
+	cd oneD;  @MAKE@
+
+CXX_LIBS = @LIBS@
+CXX_INCLUDES = @CXX_INCLUDES@ -I.
+CANTERA_LIB = @buildlib@/libcantera.a
+
+DEPENDS = $(ALL_OBJ:.o=.d)
+SRCS = $(ALL_OBJ:.o=.cpp)
+ALL_H = $(BASE_H) $(THERMO_H) $(KINETICS_H) $(HETEROKIN_H) \
+        $(EQUIL_H) $(SOLVERS_H) $(RPATH_H)
+
+.cpp.d:
+	g++ -MM $(CXX_INCLUDES) $*.cpp > $*.d
+
+.cpp.o:
+	@CXX@ -c $< $(CXX_INCLUDES) $(CXX_FLAGS) 
+
+ODE_integrators.o:
+	@CXX@ -c ODE_integrators.cpp $(CXX_INCLUDES) $(SUNDIALS_INC) \
+            $(CXX_FLAGS) 
+ODE_integrators.d: ODE_integrators.cpp Makefile
+	g++ -MM ODE_integrators.cpp $(CXX_INCLUDES) $(SUNDIALS_INC) \
+            $(CXX_FLAGS) > ODE_integrators.d 
+
+DAE_solvers.o: DAE_solvers.cpp
+	@CXX@ -c DAE_solvers.cpp $(CXX_INCLUDES) $(SUNDIALS_INC) $(CXX_FLAGS)
+DAE_solvers.d: DAE_solvers.cpp Makefile
+	g++ -MM DAE_solvers.cpp $(CXX_INCLUDES) $(SUNDIALS_INC) \
+            $(CXX_FLAGS) > DAE_solvers.d  
+
+lib:  $(OBJ_LIB)
+	$(RM)     $(CANTERA_LIB)
+	@ARCHIVE@ $(CANTERA_LIB) *.o > /dev/null
+ifeq ($(do_ranlib),1)
+	@RANLIB@ $(CANTERA_LIB)
+endif
+
+	cd ../.. ; @MAKE@ hdr-collect
+
+$(CANTERA_LIB): @KERNEL_OBJ@
+	$(RM)     $(CANTERA_LIB)
+	@ARCHIVE@ $(CANTERA_LIB) @KERNEL_OBJ@ 
+ifeq ($(do_ranlib),1)
+	@RANLIB@ $(CANTERA_LIB)
+endif
+
+clean:
+	$(RM) *.o *.gch *~ $(CANTERA_LIB) *.d
+	@(for lh in $(ALL_H) ; do \
+             th=$(INCDIR)/$$lh ; \
+             if test -f $$th ; then \
+               $(RM) $$th ; \
+             fi \
+          done)
+	$(RM) *.o *.gch *~ $(CANTERA_LIB) .depends
+	(if test -d SunWS_cache ; then \
+           $(RM) -rf SunWS_cache ; \
+         fi )
+ifeq (@WITH_REACTORS@, 1)
+	cd zeroD; @MAKE@ clean
+endif
+	cd oneD;  @MAKE@ clean
+	cd converters; @MAKE@ clean
+	cd transport; @MAKE@ clean
+	cd thermo; @MAKE@ clean
+
+depends: $(DEPENDS)
+	cat *.d > .depends
+	cd oneD; @MAKE@ depends
+ifeq (@WITH_REACTORS@, 1)
+	cd zeroD; @MAKE@ .depends
+endif
+	cd converters; @MAKE@ depends
+	cd transport; @MAKE@ depends
+ifeq (@NEED_CATHERMO@, 1)
+	cd thermo; @MAKE@ depends
+endif
+	$(RM) $(DEPENDS) 
+
+.depends: $(DEPENDS) Makefile
+	cat *.d > .depends
+
+
+TAGS: 
+	etags *.h *.cpp
+
+ifeq ($(wildcard .depends), .depends)
+include .depends
+endif
