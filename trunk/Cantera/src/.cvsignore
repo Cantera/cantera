@@ -1,8 +1,0 @@
-Makefile
-pypath.h
-ctdir.h
-.depends
-config.h
-*.d
-SunWS_cache
-
