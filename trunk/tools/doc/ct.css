@@ -1,0 +1,52 @@
+A.qindex{  font-family: Verdana, Arial, Helvetica, sans-serif; font-weight: bold; color: #663366; text-decoration: none; font-size: smaller; }
+A.qindexRef{  font-family: Verdana, Arial, Helvetica, sans-serif; color: #333366; text-decoration: none; font-size: smaller; }
+BODY { font-family: Arial, Helvetica, sans-serif; font-weight: normal; }
+H1 { font-family: Arial, Helvetica, sans-serif; font-weight: normal; text-align: center; font-size: large}
+H2 { font-family: Arial, Helvetica, sans-serif; font-weight: normal; font-size: large}
+H3 { font-family: Arial, Helvetica, sans-serif; font-weight: normal }
+A.el { text-decoration: none; font-weight: bold }
+A.elRef { font-weight: bold }
+A.code { text-decoration: none; font-weight: normal; }
+A.codeRef { font-weight: normal;}
+a.headerref {color: #ffffff; text-decoration: none }
+DL.el { margin-left: -1cm }
+DIV.fragment { width: 100%; border: none; background-color: #eeeeee }
+DIV.ah { background-color: #663333; margin-bottom: 3 px; margin-top: 3 px }
+TD.md { background-color: #f2f2ff; font-weight: bold; }
+TD.mdname1 { background-color: #f2f2ff; font-weight: bold; color: #602020; }
+TD.mdname { background-color: #f2f2ff; font-weight: bold; color: #602020; width: 600px; }
+DIV.groupHeader { margin-left: 16px; margin-top: 12px; margin-bottom: 6px; font-weight: bold }
+DIV.groupText { margin-left: 16px; font-style: italic; font-size: smaller }
+
+TD.indexkey { 
+   background-color: #eeeeff; 
+   font-weight: bold; 
+   padding-right  : 10px; 
+   padding-top    : 2px; 
+   padding-left   : 10px; 
+   padding-bottom : 2px; 
+   margin-left    : 0px; 
+   margin-right   : 0px; 
+   margin-top     : 2px; 
+   margin-bottom  : 2px  
+}
+TD.indexvalue { 
+   background-color: #eeeeff; 
+   font-style: italic; 
+   padding-right  : 10px; 
+   padding-top    : 2px; 
+   padding-left   : 10px; 
+   padding-bottom : 2px; 
+   margin-left    : 0px; 
+   margin-right   : 0px; 
+   margin-top     : 2px; 
+   margin-bottom  : 2px  
+}
+FONT.keyword       { color: #008000 }
+FONT.keywordtype   { color: #604020 }
+FONT.keywordflow   { color: #e08000 }
+FONT.comment       { color: #800000 }
+FONT.preprocessor  { color: #806020 }
+FONT.stringliteral { color: #002080 }
+FONT.charliteral   { color: #008080 }
+

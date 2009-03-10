@@ -1,0 +1,80 @@
+#!/bin/sh
+
+# complain if no program name was given
+if test $# = 0; then
+echo 'usage: ctsetup <program name>' 
+exit 0
+fi
+
+#
+# make the Makefile
+#
+
+for t in "$@"; do 
+if test $t = -fort; then 
+  status=fort; 
+elif test $t = -cxx; then 
+   status=cxx
+else
+   objs=$objs" $t.@OBJ_EXT@"
+fi
+done
+
+TOOLS_DIR=@CANTERA_ROOT@/tools
+
+
+if test $1 = -ctlib; then
+USE_CTLIB=1 
+else
+USE_CTLIB=0
+fi
+
+if test $USE_CTLIB = 1; then
+echo 'creating '$2'.mak...'
+objs=$objs" drive-$2.@OBJ_EXT@"
+cat > .sedscript <<EOF
+s/__PROGRAM__/$2/
+s/__OBJS__/$objs/
+EOF
+
+sed -f .sedscript $TOOLS_DIR/src/sample.mak > ./$2.mak
+
+sub=$2_
+
+echo 'creating C++ driver program...'
+cat > drive-$2.cpp << EOF
+
+/*
+ *  driver program for Fortran subroutine $2
+ */
+
+#include <iostream>
+
+extern "C" {
+   int $sub();
+}
+
+main() {
+   try {
+      $sub();
+   }
+   catch (...) {
+      cerr << "an error occurred." << endl;
+  }
+}
+EOF
+
+else
+echo 'creating '$1'.mak...' 
+cat > .sedscript <<EOF
+s/__PROGRAM__/$1/
+s/__OBJS__/$objs/
+EOF
+sed -f .sedscript $TOOLS_DIR/src/sample.mak > ./$1.mak
+fi
+
+rm -f .sedscript
+
+
+
+

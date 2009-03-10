@@ -1,0 +1,176 @@
+#!/bin/sh
+#
+# run_test
+#
+##########################################################################
+# A couple of validity checks
+if test ! $# -eq 0 ; then
+   echo 'usage: runtest'
+   echo '    '
+   exit -1
+fi
+
+temp_success="0"
+/bin/rm  -f output.txt outputa.txt
+##########################################################################
+CANTERA_DATA=${CANTERA_DATA:=../../../data/inputs}; export CANTERA_DATA
+
+CANTERA_BIN=${CANTERA_BIN:=../../../bin}
+
+prog=DH_graph_1
+if test ! -x $prog ; then
+   echo $prog ' does not exist'
+   exit -1
+fi
+##########################################################################
+/bin/rm -f test.out test.diff   DH_graph_1.out
+
+echo 'Testing the  DH dilute act calculation - act vs I'
+/bin/rm -f DH_graph_1.out
+$prog  DH_NaCl_dilute.xml  > DH_graph_1.out
+retnStat=$?
+echo 'Making a comparison with the good saved solution: '
+echo '--------------------------------------------------------------------------------'
+diff DH_graph_1.out DH_NaCl_dilute_blessed.csv > diff.out
+zres=$?
+cat diff.out
+echo '--------------------------------------------------------------------------------'
+echo 'End of comparison'
+if test "$zres" = "0"  -a "$retnStat" = "0"; then
+  echo 'test dilute passed'
+else
+  echo 'test dilute failed'
+  temp_success="1"
+  if [ $retnStat != "0" ]
+  then
+    echo "$prog returned with bad status, $retnStat, check output"
+  fi
+fi
+
+##########################################################################
+/bin/rm -f test.out test.diff DH_NaCl_acommon.csv
+
+echo 'Testing the  DH dilute act calculation - act vs I'
+/bin/rm DH_NaCl_acommon.csv
+$prog  DH_NaCl_acommon.xml > DH_NaCl_acommon.csv
+retnStat=$?
+echo 'Making a comparison with the good saved solution: '
+echo '--------------------------------------------------------------------------------'
+diff DH_NaCl_acommon.csv DH_NaCl_acommon_blessed.csv > diff.out
+zres=$?
+cat diff.out
+echo '--------------------------------------------------------------------------------'
+echo 'End of comparison'
+if test "$zres" = "0"  -a "$retnStat" = "0"; then
+  echo 'test acommon passed'
+else
+  echo 'test acommon failed'
+  temp_success="1"
+  if [ $retnStat != "0" ]
+  then
+    echo "$prog returned with bad status, $retnStat, check output"
+  fi
+fi
+
+##########################################################################
+/bin/rm -f test.out test.diff DH_NaCl_acommon.csv
+
+echo 'Testing the  DH dilute act calculation - act vs I'
+$prog  DH_NaCl_acommon.xml > DH_NaCl_acommon.csv
+retnStat=$?
+echo 'Making a comparison with the good saved solution: '
+echo '--------------------------------------------------------------------------------'
+diff DH_NaCl_acommon.csv DH_NaCl_acommon_blessed.csv > diff.out
+zres=$?
+cat diff.out
+echo '--------------------------------------------------------------------------------'
+echo 'End of comparison'
+if test "$zres" = "0"  -a "$retnStat" = "0"; then
+  echo 'test acommon passed'
+else
+  echo 'test acommon failed'
+  temp_success="1"
+  if [ $retnStat != "0" ]
+  then
+    echo "$prog returned with bad status, $retnStat, check output"
+  fi
+fi
+##########################################################################
+/bin/rm -f test.out test.diff DH_NaCl_bdotak.csv
+
+echo 'Testing the  DH bdotak act calculation - act vs I'
+$prog  DH_NaCl_bdotak.xml > DH_NaCl_bdotak.csv
+retnStat=$?
+echo 'Making a comparison with the good saved solution: '
+echo '--------------------------------------------------------------------------------'
+diff DH_NaCl_bdotak.csv DH_NaCl_bdotak_blessed.csv > diff.out
+zres=$?
+cat diff.out
+echo '--------------------------------------------------------------------------------'
+echo 'End of comparison'
+if test "$zres" = "0"  -a "$retnStat" = "0"; then
+  echo 'test bdotak passed'
+else
+  echo 'test bdotak failed'
+  temp_success="1"
+  if [ $retnStat != "0" ]
+  then
+    echo "$prog returned with bad status, $retnStat, check output"
+  fi
+fi
+
+##########################################################################
+/bin/rm -f test.out test.diff DH_NaCl_NM.csv
+
+echo 'Testing the  DH NM act calculation - act vs I'
+$prog  DH_NaCl_NM.xml > DH_NaCl_NM.csv
+retnStat=$?
+echo 'Making a comparison with the good saved solution: '
+echo '--------------------------------------------------------------------------------'
+diff DH_NaCl_NM.csv DH_NaCl_NM_blessed.csv > diff.out
+zres=$?
+cat diff.out
+echo '--------------------------------------------------------------------------------'
+echo 'End of comparison'
+if test "$zres" = "0"  -a "$retnStat" = "0"; then
+  echo 'test NM passed'
+else
+  echo 'test NM failed'
+  temp_success="1"
+  if [ $retnStat != "0" ]
+  then
+    echo "$prog returned with bad status, $retnStat, check output"
+  fi
+fi
+
+##########################################################################
+/bin/rm -f test.out test.diff DH_NaCl_Pitzer.csv
+
+echo 'Testing the  DH Pitzer act calculation - act vs I'
+$prog  DH_NaCl_Pitzer.xml > DH_NaCl_Pitzer.csv
+retnStat=$?
+echo 'Making a comparison with the good saved solution: '
+echo '--------------------------------------------------------------------------------'
+diff DH_NaCl_Pitzer.csv DH_NaCl_Pitzer_blessed.csv > diff.out
+zres=$?
+cat diff.out
+echo '--------------------------------------------------------------------------------'
+echo 'End of comparison'
+if test "$zres" = "0"  -a "$retnStat" = "0"; then
+  echo 'test Pitzer passed'
+else
+  echo 'test Pitzer failed'
+  temp_success="1"
+  if [ $retnStat != "0" ]
+  then
+    echo "$prog returned with bad status, $retnStat, check output"
+  fi
+fi
+##########################################################################
+if test $temp_success = "0" ; then
+  echo 'Overall DH_graph_1 test passed'
+  echo "PASSED" > csvCode.txt
+else
+  echo 'Overall DH_graph_1 test failed'
+  echo "FAILED" > csvCode.txt
+fi

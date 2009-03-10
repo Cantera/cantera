@@ -1,0 +1,36 @@
+# $License$
+#
+# $Id: Makefile.in,v 1.6 2006/03/03 22:44:43 hkmoffa Exp $
+#
+#/bin/sh
+.SUFFIXES :
+.SUFFIXES : .f .d .o
+
+LIB = @buildlib@/librecipes.a
+
+do_ranlib = @DO_RANLIB@
+
+F_FLAGS = @FFLAGS@ 
+
+OBJS = simp1.o simp2.o simp3.o simplx.o 
+SRCS = $(OBJS:.o=.cpp)
+
+
+all:  $(LIB)
+
+$(LIB): $(OBJS)
+	@ARCHIVE@ $(LIB) $(OBJS) > /dev/null
+ifeq ($(do_ranlib),1)
+	@RANLIB@ $(LIB)
+endif
+
+%.o : %.f
+	@F77@ -c $< $(F_FLAGS)
+
+clean:
+	$(RM) $(OBJS) $(LIB)
+
+depends: 
+
+
+

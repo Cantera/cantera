@@ -1,0 +1,30 @@
+#!/bin/sh
+
+apps=$2Applications
+cd $INSTALLER_TEMP
+rm -f setup.py
+cat > setup.py << EOF
+try:
+    from distutils.core import setup
+    setup(name="Cantera Localization",
+          version="1.0",
+          description="Defines location of Cantera",
+          long_description="""
+          """,
+          author="Prof. D. G. Goodwin, Caltech",
+          author_email="dgoodwin@caltech.edu",
+          url="http://www.cantera.org",
+          py_modules = ["cantera_loc"],
+          )
+except:
+    pass
+EOF
+rm -f cantera_loc.py
+cat > cantera_loc.py << AOF
+# Cantera localization module. 
+CANTERA_INSTALL_DIR='$apps/Cantera'
+CANTERA_DATA='$apps/Cantera/data'
+AOF
+python setup.py install
+
+

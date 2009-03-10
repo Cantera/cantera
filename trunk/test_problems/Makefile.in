@@ -1,0 +1,88 @@
+#
+# $Revision: 1.14 $
+# $Author: hkmoffa $
+# $Date: 2006/10/20 21:44:28 $
+#
+#
+test_python=@BUILD_PYTHON@
+test_ck=@BUILD_CK@
+test_cathermo=@NEED_CATHERMO@
+
+all:
+	cd cxx_ex;       @MAKE@ all
+	cd surfkin;      @MAKE@ all
+	cd fracCoeff;    @MAKE@ all
+	cd negATest;     @MAKE@ all
+	cd diamondSurf;  @MAKE@ all
+	cd ChemEquil_gri_matrix; @MAKE@ all
+	cd ChemEquil_gri_pairs; @MAKE@ all
+ifeq ($(test_python),1)
+	cd min_python;   @MAKE@ all
+endif
+ifeq ($(test_python),2)
+	cd min_python;   @MAKE@ all
+endif
+ifeq ($(test_ck),1)
+	cd ck2cti_test;  @MAKE@ all
+endif
+ifeq ($(test_cathermo),1)
+	cd cathermo;     @MAKE@ all
+endif
+
+test:
+	cd cxx_ex;       @MAKE@ test
+	cd surfkin;      @MAKE@ test
+	cd fracCoeff;    @MAKE@ test
+	cd negATest;     @MAKE@ test
+	cd diamondSurf;  @MAKE@ test
+	cd ChemEquil_gri_matrix; @MAKE@ test
+	cd ChemEquil_gri_pairs; @MAKE@ test
+ifeq ($(test_ck),1)
+	cd ck2cti_test;  @MAKE@ test
+endif
+ifeq ($(test_python),1)
+	cd min_python;   @MAKE@ test
+endif
+ifeq ($(test_python),2)
+	cd min_python;   @MAKE@ test
+	cd python;       @MAKE@ test
+endif
+ifeq ($(test_cathermo),1)
+	cd cathermo;     @MAKE@ test
+endif
+
+clean:
+	$(RM) *.*~ 
+	cd cxx_ex;       @MAKE@ clean
+	cd surfkin;      @MAKE@ clean
+	cd fracCoeff;    @MAKE@ clean
+	cd negATest;     @MAKE@ clean
+	cd diamondSurf;  @MAKE@ clean
+	cd ChemEquil_gri_matrix; @MAKE@ clean
+	cd ChemEquil_gri_pairs; @MAKE@ clean
+	cd ck2cti_test;  @MAKE@ clean
+	cd min_python;   @MAKE@ clean
+	cd python;       @MAKE@ clean
+	cd cathermo;     @MAKE@ clean
+
+depends:
+	cd cxx_ex;       @MAKE@ depends
+	cd surfkin;      @MAKE@ depends
+	cd fracCoeff;    @MAKE@ depends
+	cd negATest;     @MAKE@ depends
+	cd diamondSurf;  @MAKE@ depends
+	cd ChemEquil_gri_matrix; @MAKE@ depends
+	cd ChemEquil_gri_pairs; @MAKE@ depends
+ifeq ($(test_ck),1)
+	cd ck2cti_test;  @MAKE@ depends
+endif
+ifeq ($(test_python),1)
+	cd min_python;   @MAKE@ depends
+endif
+ifeq ($(test_python),2)
+	cd min_python;   @MAKE@ depends
+	cd python;       @MAKE@ depends
+endif
+ifeq ($(test_cathermo),1)
+	cd cathermo;     @MAKE@ depends
+endif
