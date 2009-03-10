@@ -1,9 +1,0 @@
-# run ck2cti to convert Chemkin-format files to Cantera format
-#
-../../bin/ck2cti -i gri30.inp -id gri30 -tr ../transport/gri30_tran.dat > gri30.cti
-../../bin/ck2cti -i air.inp -t gri30.inp -id air -tr ../transport/gri30_tran.dat > air.cti
-../../bin/ck2cti -i h2o2.inp -id ohmech -tr ../transport/gri30_tran.dat > h2o2.cti
-../../bin/ck2cti -i silane.inp -id silane > silane.cti
-../../bin/ck2cti -i argon.inp -id argon -t gri30.inp -tr ../transport/gri30_tran.dat > argon.cti
-rm *.xml
-python ./makexml.py

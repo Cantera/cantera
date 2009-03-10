@@ -1,9 +1,0 @@
-.depends
-HMW_test_3
-HMW_test_3.d
-Makefile
-diff_test.out
-output.txt
-outputa.txt
-table.csv
-csvCode.txt

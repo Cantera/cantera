@@ -1,5 +1,0 @@
-
-HKM 1/25/06
-Currently, the frac problem fails deep within the bowels of Python,
-for 64 bit Linux (Red Hat Enteprise v. 4).
-
