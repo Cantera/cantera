@@ -1,0 +1,10 @@
+
+NOTE: The header files that used to be located here are now in
+Cantera/cxx/include.
+
+The header files in this directory are for use in C++ application
+programs that use Cantera. The Cantera kernel itself does not use these
+header files. The kernel header files are kept in the same directory
+as the implementation files, but during installation are put in
+subdirectory kernel of this directory.
+
