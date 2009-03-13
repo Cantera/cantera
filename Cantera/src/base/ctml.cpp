@@ -29,6 +29,7 @@
 
 #include <cctype>
 #include <cstring>
+#include <cstdlib>
 
 
 using namespace std;

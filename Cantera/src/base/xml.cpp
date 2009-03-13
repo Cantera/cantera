@@ -32,6 +32,7 @@ using namespace std;
 #include "global.h"
 #include "stringUtils.h"
 #include <ctype.h>
+#include <cstdlib>
 
 namespace Cantera {
 
