@@ -43,6 +43,8 @@
 #include "xml.h"
 #include "ctml.h"
 
+#include <cstdlib>
+
 using namespace ctml;
 using namespace std;
 
