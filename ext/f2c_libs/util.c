@@ -1,6 +1,21 @@
 #include "sysdep1.h"	/* here to get stat64 on some badly designed Linux systems */
 #include "f2c.h"
 #include "fio.h"
+#ifndef KR_headers
+#undef abs
+#undef min
+#undef max
+#include <stdlib.h>
+#endif
+
+#ifndef NON_POSIX_STDIO
+#ifdef MSDOS
+#include "io.h"
+#else
+#include "unistd.h"     /* for access */
+#endif
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif

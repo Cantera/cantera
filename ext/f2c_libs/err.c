@@ -10,6 +10,15 @@ extern char *malloc();
 #endif
 #include "fio.h"
 #include "fmt.h"	/* for struct syl */
+
+#ifndef NON_POSIX_STDIO
+#ifdef MSDOS
+#include "io.h"
+#else
+#include "unistd.h"     /* for access */
+#endif
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
