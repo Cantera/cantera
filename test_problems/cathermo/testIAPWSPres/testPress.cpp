@@ -134,7 +134,7 @@ int main () {
 
     rho = water->density(T,pres);
     double betaNum = dpdt * 18.015268 /( 8.314371E3 * rho);
-    printf("betaNum = %20.12g\n", betaNum);
+    printf("betaNum = %20.11g\n", betaNum);
 
     double alpha = water->coeffThermExp();
     printf("alpha = %20.13g\n", alpha);
