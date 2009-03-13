@@ -105,7 +105,7 @@ namespace VCSnonideal {
     bool allMinorZeroedSpecies = false;
     int forced, iph;
     double dx, xx, par;
-    int dofast, soldel, ll, it1;
+    int dofast, soldel, ll = 0, it1 = 0;
     int lec, npb, iti, i, lnospec;
     int rangeErrorFound = 0;
     bool giveUpOnElemAbund = false;
@@ -2544,7 +2544,7 @@ namespace VCSnonideal {
       }
     }
     int jcomp;
-    double deltaLarge, dj, dxWant, dxPerm, dxPerm2;
+    double deltaLarge, dj, dxWant, dxPerm = 0.0, dxPerm2 = 0.0;
     for (int kcomp = 0; kcomp < m_numComponents; ++kcomp) {
       if (m_phaseID[kcomp] == iph) {
 #ifdef DEBUG_MODE
