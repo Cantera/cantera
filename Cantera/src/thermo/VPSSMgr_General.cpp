@@ -109,6 +109,32 @@ namespace Cantera {
     initLengths();
   }
 
+  /*!
+   *  Returns the vector of the
+   *  gibbs function of the reference state at the current temperature
+   *  of the solution and the reference pressure for the species.
+   *  units = J/kmol
+   *
+   * @param g   Output vector contain the Gibbs free energies
+   *            of the reference state of the species
+   *            length = m_kk, units = J/kmol.
+   */
+  void VPSSMgr_General::getGibbs_ref(doublereal *g) const {
+    doublereal _rt = GasConstant * m_tlast;
+    if (m_useTmpRefStateStorage) {
+      std::copy(m_g0_RT.begin(), m_g0_RT.end(), g);  
+      scale(g, g+m_kk, g, _rt);
+    } else {
+      for (int k = 0; k < m_kk; k++) {
+	PDSS *kPDSS = m_PDSS_ptrs[k];
+	kPDSS->setState_TP(m_tlast, m_plast);
+	double h0_RT = kPDSS->enthalpy_RT_ref();
+	double s0_R  = kPDSS->entropy_R_ref();
+	g[k] = _rt * (h0_RT - s0_R);
+      }
+    }
+  }
+
 
   void 
   VPSSMgr_General::initThermoXML(XML_Node& phaseNode, std::string id) {

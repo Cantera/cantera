@@ -16,6 +16,8 @@
 #include "../../../ext/tpx/Sub.h"
 #include "../../../ext/tpx/utils.h"
 
+#include <cstdlib>
+
 namespace Cantera {
 
   // Base Constructor

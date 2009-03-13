@@ -34,6 +34,7 @@ using namespace std;
 #ifdef USE_DGG_CODE
 #include <map>
 #endif
+#include <cstdlib>
 
 namespace Cantera {
 

@@ -147,6 +147,17 @@ namespace Cantera {
      */
     //@{
 
+    /*!
+     *  Returns the vector of the
+     *  gibbs function of the reference state at the current temperature
+     *  of the solution and the reference pressure for the species.
+     *  units = J/kmol
+     *
+     * @param g   Output vector contain the Gibbs free energies
+     *            of the reference state of the species
+     *            length = m_kk, units = J/kmol.
+     */
+    virtual void getGibbs_ref(doublereal *g) const ;
 
     //! @name Initialization Methods - For Internal use (VPStandardState)
     /*!

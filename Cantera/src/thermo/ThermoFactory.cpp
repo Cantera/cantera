@@ -74,6 +74,8 @@
 
 #include "IdealSolnGasVPSS.h"
 
+#include <cstdlib>
+
 using namespace std;
 
 namespace Cantera {

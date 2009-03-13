@@ -21,6 +21,8 @@
 #include "WaterProps.h"
 #include "PDSS_Water.h"
 
+#include <cstdlib>
+
 using namespace std;
 
 namespace Cantera {
