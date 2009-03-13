@@ -172,7 +172,7 @@ namespace Cantera {
    */
   double PrintCtrl::cropSigDigits(const double d, int nSig) const {
     if (nSig <=0) nSig = 1;
-    if (nSig >=10) nSig = 10;
+    if (nSig >=9) nSig = 9;
     double sgn = 1.0;
     if (d < 0.0) sgn = -1.0;
     double dfabs = fabs(d);
