@@ -23,6 +23,7 @@
 #include "writelog.h"
 #include <cstdio>
 //#include "../stringUtils.h"
+#include <cstdlib>
 
 using namespace std;
 

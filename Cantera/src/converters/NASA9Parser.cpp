@@ -23,17 +23,11 @@
 
 #include <ctype.h>
 #include <string>
+#include <cstdlib>
 
 using namespace std;
 
 namespace ckr {
-
-
-  static std::string int2s(int n, std::string fmt="%d") {
-    char buf[30];
-    sprintf(buf, fmt.c_str(), n);
-    return string(buf);
-  }
 
 
 
@@ -114,14 +108,14 @@ namespace ckr {
    *  @param tmid    intermediate temperature
    *  @param tmax    maximum temperature
    */
-  static void checkTemps(std::ostream& log, double tmin,
-			 double tmid, double tmax)
-  {
-    if (tmin == 0.0 || tmid == 0.0 || tmax == 0.0) {
-      throw CK_SyntaxError(log,
-			   "error reading Tmin, Tmid, or Tmax");
-      }
-  }
+  // static void checkTemps(std::ostream& log, double tmin,
+  //			 double tmid, double tmax)
+  // {
+  //  if (tmin == 0.0 || tmid == 0.0 || tmax == 0.0) {
+  //   throw CK_SyntaxError(log,
+  //			   "error reading Tmin, Tmid, or Tmax");
+  //     }
+  //}
   
   static double getNumberFromString(std::string s) {
     bool inexp = false;
