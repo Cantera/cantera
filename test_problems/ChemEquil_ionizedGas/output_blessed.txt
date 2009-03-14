@@ -136,7 +136,7 @@ Initial T = 207.284, pres = 5.8944e-05 atm
  
        temperature         207.284  K
           pressure          5.9725  Pa
-           density           1e-04  kg/m^3
+           density          0.0001  kg/m^3
   mean mol. weight         28.8565  amu
  
                           1 kg            1 kmol
