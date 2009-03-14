@@ -386,7 +386,7 @@ namespace Cantera {
 
 #ifdef DEBUG_MODE
     if (ChemEquil_print_lvl > 0) {
-
+      PrintCtrl pc(std::cout, -18, PrintCtrl::CT_OFF_GLOBALOBEY);
       for (m = 0; m < m_nComponents; m++) {
 	int isp = m_component[m];
 	string nnn = s.speciesName(isp);
@@ -399,8 +399,9 @@ namespace Cantera {
       writelog("  id       Name     MF     mu/RT \n");
       for (n = 0; n < s.nSpecies(); n++) {
 	string nnn = s.speciesName(n);
+	double mf = pc.cropAbs10(xMF_est[n], -18);
 	writelogf("%10d %15s %10.5g %10.5g\n",
-		  n, nnn.c_str(), xMF_est[n], mu_RT[n]);
+		  n, nnn.c_str(), mf, mu_RT[n]);
       }
     }
 #endif
