@@ -54,6 +54,34 @@ namespace Cantera {
   class PrintCtrl {
   public:
 
+    //! enum for cropping control
+    enum CROP_TYPE { 
+      //! Turn off cropping always
+      CT_OFF=0,
+      //! Turn off cropping, unless the global toggle is turned on
+      CT_OFF_GLOBALOBEY,
+      //! Turn on cropping unless the global toggle is turned off
+      CT_ON_GLOBALOBEY,
+      //! Turn on cropping always
+      CT_ON
+    };
+
+    //! enum for global cropping control
+    enum CROP_TYPE_GLOBAL {
+      //! no preference for global cropping
+      GCT_NOPREF = 0,
+      //! global toggle for turning on cropping
+      GCT_CROP,
+      //! global toggle for turning off cropping
+      GCT_NOCROP
+    };
+
+    //! static enum for turning on and off cropping
+    /*!
+     *  The default is to not have a preference for cropping
+     */
+    static CROP_TYPE_GLOBAL GlobalCrop;
+
     //! Constructor
     /*!
      * This also serves to initialize the ticks within the object
@@ -62,8 +90,10 @@ namespace Cantera {
      *                   to use for all IO from ths object.
      * @param Ndec value of Ndec. Defaults to -1000, i.e., 
      *             no decade cropping
+     * @param ctlocal    The default is to turn on cropping all the time.
      */
-    PrintCtrl(std::ostream &coutProxy = std::cout, int Ndec = -1000);
+    PrintCtrl(std::ostream &coutProxy = std::cout, int Ndec = -1000,
+	      CROP_TYPE ctlocal = CT_ON);
 
     //! Print a double using scientific notation
     /*!
@@ -172,9 +202,21 @@ namespace Cantera {
      * @return returns the old default
      */
     int setWmax(int wMax);
+
+    //! Set the cropping control flag
+    /*!
+     * @param ctlocal Local enum value for the cropping type
+     */
+    void setCropCntrl(CROP_TYPE  ctlocal);
     
 
   private:
+
+    //! private function to figure out cropping logic
+    /*!
+     *  @return Returns the decision as to whether to crop or not
+     */
+    bool doCrop() const;
  
     //! This is the ostream to send all output from the object
     /*!
@@ -209,6 +251,8 @@ namespace Cantera {
      */
     int m_wMax;
 
+    //! Local Cropping Control
+    CROP_TYPE m_cropCntrl;
   };
 }
 

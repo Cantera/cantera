@@ -26,12 +26,19 @@ using namespace std;
 
 namespace Cantera {
 
-  PrintCtrl::PrintCtrl(std::ostream &coutProxy, int Ndec) :
+
+  // Storage for the global crop flag
+  PrintCtrl::CROP_TYPE_GLOBAL PrintCtrl::GlobalCrop = GCT_NOPREF;
+
+
+  PrintCtrl::PrintCtrl(std::ostream &coutProxy, int Ndec,
+		       CROP_TYPE ctlocal) :
     m_cout(coutProxy),
     m_Ndec(Ndec),
     m_precision(12),
     m_wMin(9),
-    m_wMax(19)
+    m_wMax(19),
+    m_cropCntrl(ctlocal)
   {
 
   }
@@ -139,6 +146,9 @@ namespace Cantera {
    *   This routine will return 0.0
    */
   double PrintCtrl::cropAbs10(const double d, int Ndec) const {
+    if (!doCrop()) {
+      return d;
+    }
     if (Ndec < -301 || Ndec > 301) {
       return d;
     }
@@ -171,6 +181,9 @@ namespace Cantera {
    *   This routine will return 1.03E-15
    */
   double PrintCtrl::cropSigDigits(const double d, int nSig) const {
+    if (!doCrop()) {
+      return d;
+    }
     if (nSig <=0) nSig = 1;
     if (nSig >=9) nSig = 9;
     double sgn = 1.0;
@@ -244,5 +257,21 @@ namespace Cantera {
     return nold;
   }
 
+  bool PrintCtrl::doCrop() const {
+    bool retn = ((m_cropCntrl == CT_ON) || (m_cropCntrl == CT_ON_GLOBALOBEY));
+    if (m_cropCntrl ==  CT_ON_GLOBALOBEY) {
+      if (GlobalCrop ==  GCT_NOCROP) {
+	retn = false;
+      }
+    } else  if (m_cropCntrl == CT_OFF_GLOBALOBEY) {
+      if (GlobalCrop == GCT_CROP) {
+	retn = true;
+      }
+    }
+    return retn;
+  }
 
+  void PrintCtrl:: setCropCntrl(CROP_TYPE ctlocal) {
+    m_cropCntrl = ctlocal;
+  }
 }
