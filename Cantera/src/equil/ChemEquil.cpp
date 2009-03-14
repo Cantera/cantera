@@ -287,14 +287,14 @@ namespace Cantera {
 
 #ifdef DEBUG_MODE
       if (ChemEquil_print_lvl > 0) {
-	PrintCtrl pc(std::cout, -10, PrintCtrl::CT_OFF_GLOBALOBEY);
+	PrintCtrl pc(std::cout, -28, PrintCtrl::CT_OFF_GLOBALOBEY);
 	writelog("setInitialMoles:   Estimated Mole Fractions\n");
 	writelogf("  Temperature = %g\n", s.temperature()); 
 	writelogf("  Pressure = %g\n", s.pressure()); 
 	for (int k = 0; k < m_kk; k++) {
 	  string nnn = s.speciesName(k);
 	  double mf = s.moleFraction(k);
-	  mf = pc.cropAbs10(mf, -18);
+	  mf = pc.cropAbs10(mf, -28);
 	  writelogf("         %-12s % -10.5g\n", nnn.c_str(), mf); 
 	}
 	writelog("      Element_Name   ElementGoal  ElementMF\n");
@@ -386,7 +386,7 @@ namespace Cantera {
 
 #ifdef DEBUG_MODE
     if (ChemEquil_print_lvl > 0) {
-      PrintCtrl pc(std::cout, -18, PrintCtrl::CT_OFF_GLOBALOBEY);
+      PrintCtrl pc(std::cout, -28, PrintCtrl::CT_OFF_GLOBALOBEY);
       for (m = 0; m < m_nComponents; m++) {
 	int isp = m_component[m];
 	string nnn = s.speciesName(isp);
@@ -399,7 +399,7 @@ namespace Cantera {
       writelog("  id       Name     MF     mu/RT \n");
       for (n = 0; n < s.nSpecies(); n++) {
 	string nnn = s.speciesName(n);
-	double mf = pc.cropAbs10(xMF_est[n], -18);
+	double mf = pc.cropAbs10(xMF_est[n], -28);
 	writelogf("%10d %15s %10.5g %10.5g\n",
 		  n, nnn.c_str(), mf, mu_RT[n]);
       }
@@ -1161,10 +1161,12 @@ namespace Cantera {
 
 #ifdef DEBUG_MODE
     if (ChemEquil_print_lvl > 0 && !m_doResPerturb) {
+      PrintCtrl pc(std::cout, -14, PrintCtrl::CT_OFF_GLOBALOBEY);
       writelog("Residual:      ElFracGoal     ElFracCurrent     Resid\n");
       for (n = 0; n < m_mm; n++) {
+	double rrr = pc.cropAbs10(resid[n], -14);
 	writelogf("               % -14.7E % -14.7E    % -10.5E\n", 
-		  elmFracGoal[n], elmFrac[n], resid[n]);
+		  elmFracGoal[n], elmFrac[n], rrr);
       }
     }
 #endif
@@ -1183,9 +1185,11 @@ namespace Cantera {
 
 #ifdef DEBUG_MODE
     if (ChemEquil_print_lvl > 0 && !m_doResPerturb) {
+      PrintCtrl pc(std::cout, -14, PrintCtrl::CT_OFF_GLOBALOBEY);
       writelog("               Goal           Xvalue          Resid\n");
       writelogf("      XX   :   % -14.7E % -14.7E    % -10.5E\n", xval, xx, resid[m_mm]);
-      writelogf("      YY(%1d):   % -14.7E % -14.7E    % -10.5E\n", m_skip, yval, yy, resid[m_skip]);
+      double rrr = pc.cropAbs10(resid[m_skip], -14);
+      writelogf("      YY(%1d):   % -14.7E % -14.7E    % -10.5E\n", m_skip, yval, yy, rrr);
     }
 #endif
   }

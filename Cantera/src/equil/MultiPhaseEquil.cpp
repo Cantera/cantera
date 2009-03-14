@@ -169,6 +169,9 @@ namespace Cantera {
         m_A.resize(m_nel, m_nsp, 0.0);
         m_N.resize(m_nsp, m_nsp - m_nel);
         m_order.resize(m_nsp, 0);
+	for (k = 0; k < m_nsp; k++) {
+	  m_order[k] = k;
+	}
 
         // if the 'start' flag is set, estimate the initial mole
         // numbers by doing a linear Gibbs minimization. In this case,
@@ -266,82 +269,89 @@ namespace Cantera {
     }
 
 
-    /// Extimate the initial mole numbers. This is done by running
-    /// each reaction as far forward or backward as possible, subject
-    /// to the constraint that all mole numbers remain
-    /// non-negative. Reactions for which \f$ \Delta \mu^0 \f$ are
-    /// positive are run in reverse, and ones for which it is negative
-    /// are run in the forward direction. The end result is equivalent
-    /// to solving the linear programming problem of minimizing the
-    /// linear Gibbs function subject to the element and
-    /// non-negativity constraints.
-    int MultiPhaseEquil::setInitialMoles(int loglevel) {
-        index_t ik, j;
+  /// Extimate the initial mole numbers. This is done by running
+  /// each reaction as far forward or backward as possible, subject
+  /// to the constraint that all mole numbers remain
+  /// non-negative. Reactions for which \f$ \Delta \mu^0 \f$ are
+  /// positive are run in reverse, and ones for which it is negative
+  /// are run in the forward direction. The end result is equivalent
+  /// to solving the linear programming problem of minimizing the
+  /// linear Gibbs function subject to the element and
+  /// non-negativity constraints.
+  int MultiPhaseEquil::setInitialMoles(int loglevel) {
+    index_t ik, j;
 
-        double not_mu = 1.0e12;
-        if (loglevel > 0)
-            beginLogGroup("MultiPhaseEquil::setInitialMoles");
+    double not_mu = 1.0e12;
+    if (loglevel > 0)
+      beginLogGroup("MultiPhaseEquil::setInitialMoles");
 
-        m_mix->getValidChemPotentials(not_mu, DATA_PTR(m_mu), true);
-        doublereal dg_rt;
+    m_mix->getValidChemPotentials(not_mu, DATA_PTR(m_mu), true);
+    doublereal dg_rt;
 
-        int idir;
-        double nu;
-        double delta_xi, dxi_min = 1.0e10;
-        bool redo = true;
-        int iter = 0;
-        while (redo) {
+    int idir;
+    double nu;
+    double delta_xi, dxi_min = 1.0e10;
+    bool redo = true;
+    int iter = 0;
 
-            // choose a set of components based on the current
-            // composition
-            computeN();
-            if (loglevel > 0)
-                addLogEntry("iteration",iter);
-            redo = false;
-            iter++;
-            if (iter > 4) break;
+    while (redo) {
 
-            // loop over all reactions
-            for (j = 0; j < m_nsp - m_nel; j++) {
-                dg_rt = 0.0;
-                dxi_min = 1.0e10;
-                for (ik = 0; ik < m_nsp; ik++) {
-                    dg_rt += mu(ik) * m_N(ik,j);
-                }
-                // fwd or rev direction
-                idir = (dg_rt < 0.0 ? 1 : -1);
+      // choose a set of components based on the current
+      // composition
+      computeN();
+      if (loglevel > 0)
+	addLogEntry("iteration",iter);
+      redo = false;
+      iter++;
+      if (iter > 4) break;
 
-                for (ik = 0; ik < m_nsp; ik++) {
-                    nu = m_N(ik, j);
+      // loop over all reactions
+      for (j = 0; j < m_nsp - m_nel; j++) {
+	dg_rt = 0.0;
+	dxi_min = 1.0e10;
+	for (ik = 0; ik < m_nsp; ik++) {
+	  dg_rt += mu(ik) * m_N(ik,j);
+	}
+
+	// fwd or rev direction
+	idir = (dg_rt < 0.0 ? 1 : -1);
+
+	for (ik = 0; ik < m_nsp; ik++) {
+	  nu = m_N(ik, j);
                     
-                    // set max change in progress variable by
-                    // non-negativity requirement
-                    if (nu*idir < 0) {
-                        delta_xi = fabs(moles(ik)/nu);
-                        // if a component has nearly zero moles, redo
-                        // with a new set of components
-                        if (!redo && delta_xi < 1.0e-10 && ik < m_nel) {
-                            if (loglevel > 0)
-                                addLogEntry("component too small",speciesName(ik));
-                            redo = true;
-                        }
-                        if (delta_xi < dxi_min) dxi_min = delta_xi;
-                    }
-                }
-                // step the composition by dxi_min
-                for (ik = 0; ik < m_nsp; ik++) {
-                    moles(ik) += m_N(ik, j) * idir*dxi_min;
-                }
-            }
-            // set the moles of the phase objects to match
-            updateMixMoles();
-        }
-        for (ik = 0; ik < m_nsp; ik++) 
-            if (moles(ik) != 0.0) addLogEntry(speciesName(ik), moles(ik));
-        if (loglevel > 0)
-            endLogGroup("MultiPhaseEquil::setInitialMoles");
-        return 0;
+	  // set max change in progress variable by
+	  // non-negativity requirement
+	  // -> Note, 0.99 factor is so that difference of 2 numbers
+	  //          isn't zero. This causes differences between
+	  //          optimized and debug versions of the code
+	  if (nu*idir < 0) {
+	    delta_xi = fabs(0.99*moles(ik)/nu);
+	    // if a component has nearly zero moles, redo
+	    // with a new set of components
+	    if (!redo && delta_xi < 1.0e-10 && ik < m_nel) {
+	      if (loglevel > 0)
+		addLogEntry("component too small",speciesName(ik));
+	      redo = true;
+	    }
+	    if (delta_xi < dxi_min) {
+	      dxi_min = delta_xi;
+	    }
+	  }
+	}
+	// step the composition by dxi_min
+	for (ik = 0; ik < m_nsp; ik++) {
+	  moles(ik) += m_N(ik, j) * idir*dxi_min;
+	}
+      }
+      // set the moles of the phase objects to match
+      updateMixMoles();
     }
+    for (ik = 0; ik < m_nsp; ik++) 
+      if (moles(ik) != 0.0) addLogEntry(speciesName(ik), moles(ik));
+    if (loglevel > 0)
+      endLogGroup("MultiPhaseEquil::setInitialMoles");
+    return 0;
+  }
 
 
     ///  This method finds a set of component species and a complete
