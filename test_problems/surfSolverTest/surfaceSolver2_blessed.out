@@ -58,15 +58,15 @@ Surface Phase:  soot_interface (11)
 Surface Temperature = 1.4e+03
 Surface Pressure    = 1.01e+05
                        Name         Coverage         SrcRate 
-   0                  Csoot-*        0.0184677    -8.195044e-20
-   1                  Csoot-H         0.981532    -8.195044e-20
+   0                  Csoot-*        0.0184677     0.000000e+00
+   1                  Csoot-H         0.981532     0.000000e+00
 Sum of coverages = 1
 Surface Phase:  soot_interface (11)
 Surface Temperature = 1.4e+03
 Surface Pressure    = 1.01e+05
                        Name         Coverage         SrcRate 
-   0                  Csoot-*        0.0184677    -8.195044e-20
-   1                  Csoot-H         0.981532    -8.195044e-20
+   0                  Csoot-*        0.0184677     0.000000e+00
+   1                  Csoot-H         0.981532     0.000000e+00
 Sum of coverages = 1
 
 ================================ SOLVESP CALL SETUP ========================================
@@ -117,15 +117,15 @@ Surface Phase:  soot_interface (11)
 Surface Temperature = 1.4e+03
 Surface Pressure    = 1.01e+05
                        Name         Coverage         SrcRate 
-   0                  Csoot-*        0.0186067    -3.028143e-20
-   1                  Csoot-H         0.981393    -3.028143e-20
+   0                  Csoot-*        0.0186067     0.000000e+00
+   1                  Csoot-H         0.981393     0.000000e+00
 Sum of coverages = 1
 Surface Phase:  soot_interface (11)
 Surface Temperature = 1.4e+03
 Surface Pressure    = 1.01e+05
                        Name         Coverage         SrcRate 
-   0                  Csoot-*        0.0186067    -3.028143e-20
-   1                  Csoot-H         0.981393    -3.028143e-20
+   0                  Csoot-*        0.0186067     0.000000e+00
+   1                  Csoot-H         0.981393     0.000000e+00
 Sum of coverages = 1
 
 ================================ SOLVESP CALL SETUP ========================================
@@ -176,15 +176,15 @@ Surface Phase:  soot_interface (11)
 Surface Temperature = 1.5e+03
 Surface Pressure    = 1.01e+05
                        Name         Coverage         SrcRate 
-   0                  Csoot-*        0.0242812    -8.654559e-19
-   1                  Csoot-H         0.975719    -8.654559e-19
+   0                  Csoot-*        0.0242812     0.000000e+00
+   1                  Csoot-H         0.975719     0.000000e+00
 Sum of coverages = 1
 Surface Phase:  soot_interface (11)
 Surface Temperature = 1.5e+03
 Surface Pressure    = 1.01e+05
                        Name         Coverage         SrcRate 
-   0                  Csoot-*        0.0242812    -8.654559e-19
-   1                  Csoot-H         0.975719    -8.654559e-19
+   0                  Csoot-*        0.0242812     0.000000e+00
+   1                  Csoot-H         0.975719     0.000000e+00
 Sum of coverages = 1
 
 ================================ SOLVESP CALL SETUP ========================================
@@ -234,13 +234,13 @@ Surface Phase:  soot_interface (11)
 Surface Temperature = 1.5e+03
 Surface Pressure    = 1.01e+05
                        Name         Coverage         SrcRate 
-   0                  Csoot-*        0.0242812     2.964615e-20
-   1                  Csoot-H         0.975719     2.964615e-20
+   0                  Csoot-*        0.0242812     0.000000e+00
+   1                  Csoot-H         0.975719     0.000000e+00
 Sum of coverages = 1
 Surface Phase:  soot_interface (11)
 Surface Temperature = 1.5e+03
 Surface Pressure    = 1.01e+05
                        Name         Coverage         SrcRate 
-   0                  Csoot-*        0.0242812     2.964615e-20
-   1                  Csoot-H         0.975719     2.964615e-20
+   0                  Csoot-*        0.0242812     0.000000e+00
+   1                  Csoot-H         0.975719     0.000000e+00
 Sum of coverages = 1
