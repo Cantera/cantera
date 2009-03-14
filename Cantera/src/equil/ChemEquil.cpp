@@ -33,6 +33,10 @@
 #include "stringUtils.h"
 #include "MultiPhase.h"
 
+#ifdef DEBUG_MODE
+#include "PrintCtrl.h"
+#endif
+
 using namespace std;
 
 #include <cstdio>
@@ -283,12 +287,14 @@ namespace Cantera {
 
 #ifdef DEBUG_MODE
       if (ChemEquil_print_lvl > 0) {
+	PrintCtrl pc(std::cout, -10, PrintCtrl::CT_OFF_GLOBALOBEY);
 	writelog("setInitialMoles:   Estimated Mole Fractions\n");
 	writelogf("  Temperature = %g\n", s.temperature()); 
 	writelogf("  Pressure = %g\n", s.pressure()); 
 	for (int k = 0; k < m_kk; k++) {
 	  string nnn = s.speciesName(k);
 	  double mf = s.moleFraction(k);
+	  mf = pc.cropAbs10(mf, -18);
 	  writelogf("         %-12s % -10.5g\n", nnn.c_str(), mf); 
 	}
 	writelog("      Element_Name   ElementGoal  ElementMF\n");
@@ -380,6 +386,7 @@ namespace Cantera {
 
 #ifdef DEBUG_MODE
     if (ChemEquil_print_lvl > 0) {
+
       for (m = 0; m < m_nComponents; m++) {
 	int isp = m_component[m];
 	string nnn = s.speciesName(isp);
