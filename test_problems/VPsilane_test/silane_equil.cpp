@@ -13,12 +13,14 @@
 #include "equilibrium.h"
 #include "kernel/IdealSolnGasVPSS.h"
 #include "kernel/ThermoFactory.h"
+#include "kernel/PrintCtrl.h"
 
 using namespace std;
 using namespace Cantera;
 
 int main(int argc, char **argv) {
   try {
+    PrintCtrl::GlobalCrop = PrintCtrl::GCT_CROP;
     Cantera::IdealSolnGasVPSS gg("silane.xml", "silane");
      ThermoPhase *g = &gg; 
     //ThermoPhase *g = newPhase("silane.xml", "silane");

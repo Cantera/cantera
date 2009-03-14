@@ -21,7 +21,7 @@ setInitialMoles:   Estimated Mole Fractions
   Pressure = 100
          H2            0.99671  
          H             0        
-         HE            9.8684e-33
+         HE            0        
          SIH4          0        
          SI            0        
          SIH           0        
@@ -31,7 +31,7 @@ setInitialMoles:   Estimated Mole Fractions
          SI2H6         0        
          H2SISIH2      0        
          SI3H8         0        
-         SI2           4.9705e-19
+         SI2           0        
          SI3           0.0032895
       Element_Name   ElementGoal  ElementMF
       Si            0.0049261 0.0049261
