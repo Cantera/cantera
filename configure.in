@@ -224,9 +224,6 @@ AC_SUBST(ct_docdir)
 AC_SUBST(ct_dir)
 AC_SUBST(ct_mandir)
 
-COMPACT_INSTALL=1
-AC_SUBST(COMPACT_INSTALL)
-
 AC_CANONICAL_SYSTEM()
 # the root of the source tree
 ctroot=`(pwd)`

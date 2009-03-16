@@ -10,7 +10,6 @@ build_matlab = @BUILD_MATLAB@
 os_is_win = @OS_IS_WIN@
 incl_user_code = @INCL_USER_CODE@
 do_ranlib = @DO_RANLIB@
-compact_install = @COMPACT_INSTALL@
 use_dll = @USE_CLIB_DLL@
 
 cvs_tag = @CVSTAG@
@@ -35,10 +34,10 @@ win: hdr-collect python matlab
 
 install: hdr-install kernel-install clib-install data-install f90-modules-install \
          python-install \
-         matlab-install  tools-install finish-install
+         matlab-install  tools-install demo-install finish-install
 
 win-install: hdr-install win-kernel-install data-install python-install \
-             matlab-install  finish-install
+             matlab-install  demo-install finish-install
 	@echo
 	@echo Cantera has been successfully installed in @ct_dir@.
 	@echo
@@ -197,9 +196,7 @@ ifneq ($(build_python),0)
 endif
 endif
 
-finish-install:
-	@INSTALL@ -d @ct_docdir@
-	@INSTALL@ -d @ct_bindir@
+demo-install:
 	(cd Cantera/cxx/demos; @MAKE@ install)
 	@INSTALL@ -c tools/templates/cxx/demo.mak @ct_demodir@/cxx
 	@INSTALL@ -d @ct_demodir@/f77
@@ -211,31 +208,25 @@ finish-install:
 	@INSTALL@ -c Cantera/fortran/f77demos/f77demos.mak @ct_demodir@/f77/Makefile
 	chown -R @username@ @ct_demodir@/f77
 
+finish-install:
+	@INSTALL@ -d @ct_docdir@
+	@INSTALL@ -d @ct_bindir@
 ifeq ($(os_is_win),0)
-
-# if not a 'compact' installation, then add some symbolic links for convenience.
-ifeq ($(compact_install),0)
-	-$(RMDIRTREE) @prefix@/cantera/demos
-	-$(RMDIRTREE) @prefix@/cantera/data
-	-$(RMDIRTREE) @prefix@/cantera/templates
-	-$(RMDIRTREE) @prefix@/cantera/tutorials
-	ln -s @ct_demodir@ @prefix@/cantera/demos
-	ln -s @ct_datadir@ @prefix@/cantera/data
-	ln -s @ct_templdir@ @prefix@/cantera/templates
-	ln -s @ct_tutdir@ @prefix@/cantera/tutorials
-	@INSTALL@ -c License.rtf @prefix@/cantera
-	@INSTALL@ -c License.txt @prefix@/cantera
-endif
-ifneq ($(build_python),0)
-	@INSTALL@ -c tools/src/finish_install.py tools/bin
-	(PYTHONPATH=''; @PYTHON_CMD@ tools/bin/finish_install.py @prefix@ @PYTHON_CMD@)
+#          Commands to be executed for non-win systems
 	chmod +x @ct_bindir@/ctnew
+	cp -f "@homedir@/setup_cantera" "@ct_bindir@"
+	chmod +x @ct_bindir@/setup_cantera
+	cp -f License.rtf "@ct_bindir@"
+	cp -f License.txt "@ct_bindir@"
+ifneq ($(build_python),0)
 ifeq ($(build_python),2)
 	chmod +x @ct_bindir@/mixmaster
 endif
-	cp -f "@homedir@/setup_cantera" "@ct_bindir@"
+	@INSTALL@ -c tools/src/finish_install.py tools/bin
+	(PYTHONPATH=''; @PYTHON_CMD@ tools/bin/finish_install.py @prefix@ @PYTHON_CMD@)
 endif
 else
+#          Commands to be executed for win systems
 	cd Cantera/fortran/f77demos; sed s'/isentropic/ctlib/g' isentropic.dsp > ctlib.dsp
 	( for ihhh in Cantera/fortran/f77demos/*.dsp ; do  \
           @INSTALL@ -c $${ihhh} @ct_demodir@/f77 ;  done )
