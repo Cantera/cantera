@@ -5,6 +5,12 @@
 #
 #############################################################################
 
+all:
+	cd combustor;       @MAKE@ test
+	cd kinetics1;       @MAKE@ test
+	cd flamespeed;      @MAKE@ test
+	cd NASA_coeffs;     @MAKE@ test
+
 test:
 	cd combustor;       @MAKE@ test
 	cd kinetics1;       @MAKE@ test
