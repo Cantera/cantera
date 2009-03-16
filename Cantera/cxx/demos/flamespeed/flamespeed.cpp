@@ -195,18 +195,21 @@ int flamespeed(int np, void* p) {
         refine_grid = true;
         flow.solveEnergyEqn();
         flame.solve(loglevel,refine_grid);
+        double flameSpeed_mix = flame.value(flowdomain,flow.componentIndex("u"),0);
         cout << "Flame speed with mixture-averaged transport: " <<
             flame.value(flowdomain,flow.componentIndex("u"),0) << " m/s" << endl;
 
         // now switch to multicomponent transport
         flow.setTransport(*trmulti);
         flame.solve(loglevel, refine_grid);
+	double flameSpeed_multi = flame.value(flowdomain,flow.componentIndex("u"),0);
         cout << "Flame speed with multicomponent transport: " <<
             flame.value(flowdomain,flow.componentIndex("u"),0) << " m/s" << endl;
 
         // now enable Soret diffusion
         flow.enableSoret(true);
         flame.solve(loglevel, refine_grid);
+	double flameSpeed_full = flame.value(flowdomain,flow.componentIndex("u"),0);
         cout << "Flame speed with multicomponent transport + Soret: " <<
             flame.value(flowdomain,flow.componentIndex("u"),0) << " m/s" << endl;
 
@@ -226,6 +229,23 @@ int flamespeed(int np, void* p) {
 
         cout << endl<<"Adiabatic flame temperature from equilibrium is: "<<Tad<<endl;
         cout << "Flame speed for phi="<<phi<<" is "<<Uvec[0]<<" m/s."<<endl;
+
+	string reportFile = "flamespeed.csv";
+	FILE * FP = fopen(reportFile.c_str(), "w");
+	if (!FP) {
+	  printf("Failure to open file\n");
+	  exit(-1);
+	}
+
+	fprintf(FP," Flame speed (mixture-averaged      ) = %11.3e m/s\n", flameSpeed_mix);
+	fprintf(FP," Flame speed (multicomponent        ) = %11.3e m/s\n", flameSpeed_multi);
+	fprintf(FP," Flame speed (multicomponent + Soret) = %11.3e m/s\n", flameSpeed_full);
+	fprintf(FP,"  Grid,   Temperature,   Uvec,   CO,    CO2\n");
+	for (int n = 0; n < np; n++) {
+	  fprintf(FP," %11.3e, %11.3e, %11.3e, %11.3e, %11.3e\n",
+		  flow.grid(n), Tvec[n], Uvec[n], COvec[n], CO2vec[n]);
+        }
+	fclose(FP);
 
         return 0;    
     }

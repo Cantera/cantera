@@ -2,6 +2,15 @@
 #include <cantera/Cantera.h>
 #include <cantera/IdealGasMix.h>    // defines class IdealGasMix
 
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <map>
+#include <numeric>
+#include <string>
+#include <algorithm>
+
+using namespace std; 
 using namespace Cantera;
 
 
@@ -29,7 +38,7 @@ void demoprog() {
     // location, followed by the 7 low-temperature coefficients, then
     // the seven high-temperature ones.
     const int LOW_A6 = 6;
-    const int HIGH_A6 = 13;
+    //const int HIGH_A6 = 13;
 
     for (n = 0; n < nsp; n++) {
 
