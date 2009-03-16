@@ -33,11 +33,10 @@ win: hdr-collect python matlab
 	@echo
 
 install: hdr-install kernel-install clib-install data-install f90-modules-install \
-         python-install \
-         matlab-install  tools-install demo-install finish-install
+         python-install matlab-install tools-install demo-install finish-install
 
 win-install: hdr-install win-kernel-install data-install python-install \
-             matlab-install  demo-install finish-install
+             matlab-install demo-install finish-install
 	@echo
 	@echo Cantera has been successfully installed in @ct_dir@.
 	@echo

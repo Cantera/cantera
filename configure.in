@@ -1713,6 +1713,16 @@ AC_OUTPUT(Makefile \
 	  Cantera/cxx/Makefile \
 	  Cantera/cxx/src/Makefile \
 	  Cantera/cxx/demos/Makefile \
+	  Cantera/cxx/demos/combustor/Makefile \
+	  Cantera/cxx/demos/combustor/Makefile.install \
+	  Cantera/cxx/demos/flamespeed/Makefile \
+	  Cantera/cxx/demos/flamespeed/Makefile.install \
+	  Cantera/cxx/demos/kinetics1/Makefile \
+	  Cantera/cxx/demos/kinetics1/Makefile.install \
+	  Cantera/cxx/demos/NASA_coeffs/Makefile \
+	  Cantera/cxx/demos/NASA_coeffs/Makefile.install \
+	  Cantera/cxx/demos/rankine/Makefile \
+	  Cantera/cxx/demos/rankine/Makefile.install \
 	  Cantera/cxx/include/Cantera.mak \
 	  Cantera/cxx/include/Cantera_bt.mak \
 	  Cantera/user/Makefile \
