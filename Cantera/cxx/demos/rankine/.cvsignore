@@ -7,3 +7,5 @@ liquidvapor.xml
 output_0.txt
 rankine
 transport_log.xml
+*.d
+.depends

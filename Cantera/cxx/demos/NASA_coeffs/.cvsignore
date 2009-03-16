@@ -7,3 +7,5 @@ gri30.xml
 h2o2.xml
 output_0.txt
 transport_log.xml
+*.d
+.depends

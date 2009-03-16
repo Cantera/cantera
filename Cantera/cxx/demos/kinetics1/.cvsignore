@@ -9,4 +9,5 @@ kin1.dat
 kinetics1
 output_0.txt
 transport_log.xml
-
+.depends
+*.d

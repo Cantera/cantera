@@ -8,4 +8,5 @@ ct2ctml.log
 diff_csv.txt
 gri30.xml
 output_0.txt
-
+*.d
+.depends

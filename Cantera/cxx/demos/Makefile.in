@@ -12,10 +12,10 @@ all:
 	cd NASA_coeffs;     @MAKE@ 
 
 test:
-	cd combustor;       @MAKE@ test
-	cd kinetics1;       @MAKE@ test
-	cd flamespeed;      @MAKE@ test
-	cd NASA_coeffs;     @MAKE@ test
+	cd combustor;       @MAKE@ -s test
+	cd kinetics1;       @MAKE@ -s test
+	cd flamespeed;      @MAKE@ -s test
+	cd NASA_coeffs;     @MAKE@ -s test
 
 install:
 	@INSTALL@ -d       @ct_demodir@/cxx

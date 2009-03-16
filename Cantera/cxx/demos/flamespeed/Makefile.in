@@ -72,7 +72,7 @@ PROGRAM = $(PROG_NAME)$(EXE_EXT)
 
 DEPENDS = $(OBJS:.o=.d)
 
-all: $(PROGRAM) 
+all: $(PROGRAM) .depends
 
 $(PROGRAM): $(OBJS) 
 	$(PURIFY) $(CXX) -o $(PROGRAM) $(OBJS) $(LCXX_FLAGS) $(CANTERA_LIBS) \
