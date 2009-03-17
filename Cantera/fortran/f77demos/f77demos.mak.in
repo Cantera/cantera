@@ -1,11 +1,11 @@
 #!/bin/sh
 
+.SUFFIXES :
+.SUFFIXES : .cpp .d .o  .h .f
 
-# the name of the executable program to be created
-PROG_NAME = demo
 
 # the object files to be linked together. 
-OBJS = demo.o demo_ftnlib.o
+OBJS = isentropic.o ctlib.o demo_ftnlib.o
 
 # additional flags to be passed to the linker. If your program
 # requires other external libraries, put them here
@@ -62,15 +62,27 @@ isentropic: isentropic.o demo_ftnlib.o
 ctlib: ctlib.o demo_ftnlib.o
 	$(CXX) -o ctlib ctlib.o demo_ftnlib.o $(LCXX_FLAGS) $(CANTERA_LIBS) $(LINK_OPTIONS) $(EXT_LIBS) @LIBS@ $(FORT_LIBS)
 
-%.d:
-	g++ -MM $*.cpp > $*.d
+.cpp.d:
+	@CXX_DEPENDS@ -I$(CANTERA_INCDIR) $(CXX_FLAGS)  $*.cpp > $*.d
+
+.f.d:
+	@echo "$*.o: $*.f" | cat > $*.d
+
 
 clean:
-	$(RM) $(OBJS) $(PROGRAM)
+	$(RM) $(OBJS)  isentropic  ctlib *.d .depends \
+               diff* output_0.txt output_1.txt gri30.xml ct2ctml.log \
+               isentropic.dsp
 
-depends: $(DEPENDS)
+test:
+	@MAKE@
+	./runtest
+
+depends: 
+	@MAKE@ .depends
+
+.depends: $(DEPENDS)
 	cat *.d > .depends
-	$(RM) $(DEPENDS) 
 
 TAGS: 
 	etags *.h *.cpp
