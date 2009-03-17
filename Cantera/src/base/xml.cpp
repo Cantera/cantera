@@ -1240,14 +1240,18 @@ namespace Cantera {
 	  while (1 > 0) {
 	    ieol = vv.find('\n');
 	    if (ieol != string::npos) {
-	      int jf = ieol - 1;
-	      for (int j = 0; j < (int) ieol; j++) {
-		if (! isspace(vv[j])) {
-		  jf = j;
-		  break;
+	      if (ieol == 0) {
+		s << endl << indent << "  ";
+	      } else {
+		int jf = ieol - 1;
+		for (int j = 0; j < (int) ieol; j++) {
+		  if (! isspace(vv[j])) {
+		    jf = j;
+		    break;
+		  }
 		}
+		s << endl << indent << "  " << vv.substr(jf,ieol-jf);
 	      }
-	      s << endl << indent << "  " << vv.substr(jf,ieol-jf);
 	      vv = vv.substr(ieol+1);
 	    }
 	    else {
