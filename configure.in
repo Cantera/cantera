@@ -1425,9 +1425,13 @@ AC_PROG_F77()
 
 # if G77 is defined, then add a flag to turn off adding a second underscore
 # to procedures that have an underscore in the name
-  if test -n "$G77"; then
+if test -n "$G77"; then
+  FFLAGS=$FFLAGS' -fno-second-underscore'
+else
+  if test $F77 = "g77" -o $F77 = "mpif77" -o $F77 = "gfortran" ; then
     FFLAGS=$FFLAGS' -fno-second-underscore'
   fi
+fi
 
 dnl Checks for libraries.
 AC_F77_LIBRARY_LDFLAGS()
@@ -1706,6 +1710,7 @@ AC_OUTPUT(Makefile \
 	  Cantera/clib/src/Makefile \
 	  Cantera/fortran/src/Makefile \
 	  Cantera/fortran/f77demos/f77demos.mak \
+	  Cantera/fortran/f77demos/Makefile \
 	  Cantera/matlab/Makefile \
           Cantera/matlab/setup_matlab.py \
 	  Cantera/python/Makefile \
