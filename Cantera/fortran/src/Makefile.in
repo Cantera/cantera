@@ -90,11 +90,11 @@ clean:
          fi )
 
 install:
-	@INSTALL@ $(FTLIB) @ct_libdir@
-	@INSTALL@ $(MODFILES) @ct_incdir@
+	@INSTALL@ -m ug+rw,o+r $(FTLIB) @ct_libdir@
+	@INSTALL@ -m ug+rw,o+r $(MODFILES) @ct_incdir@
 
 win-install:
-	@INSTALL@ ../../../lib/fct.lib @ct_libdir@
+	@INSTALL@ -m ug+rw,o+r  ../../../lib/fct.lib @ct_libdir@
 
 %.d: %.cpp
 	@CXX_DEPENDS@ $(CXX_INCLUDES) $*.cpp > $*.d
