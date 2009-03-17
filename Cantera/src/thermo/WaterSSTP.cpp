@@ -486,6 +486,22 @@ namespace Cantera {
     setDensity(dd);
   }
   
+  // Returns  the isothermal compressibility. Units: 1/Pa.
+  /*
+   * The isothermal compressibility is defined as
+   * \f[
+   * \kappa_T = -\frac{1}{v}\left(\frac{\partial v}{\partial P}\right)_T
+   * \f]
+   *  or
+   * \f[
+   * \kappa_T = \frac{1}{\rho}\left(\frac{\partial \rho}{\partial P}\right)_T
+   * \f]
+   */
+  doublereal WaterSSTP::isothermalCompressibility() const {
+    doublereal val = m_sub->isothermalCompressibility();
+    return val;
+  }
+
   // Return the volumetric thermal expansion coefficient. Units: 1/K.
   /*
    * The thermal expansion coefficient is defined as
