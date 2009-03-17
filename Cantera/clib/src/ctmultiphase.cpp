@@ -3,6 +3,7 @@
 #include "equil.h"
 #include "MultiPhase.h"
 #include "MultiPhaseEquil.h"
+#include "vcs_MultiPhaseEquil.h"
 
 #include "Cabinet.h"
 #include "Storage.h"
@@ -211,16 +212,31 @@ extern "C" {
     }
 
     
-    doublereal DLL_EXPORT mix_equilibrate(int i, char* XY, 
-        doublereal err, int maxsteps, int maxiter, int loglevel) { 
-        try {
-            return equilibrate(*_mix(i), XY, 
-                err, maxsteps, maxiter, loglevel);
-        }
-        catch (CanteraError) {
-            return DERR;
-        }
+  doublereal DLL_EXPORT mix_equilibrate(int i, char* XY,
+					doublereal rtol, int maxsteps, 
+					int maxiter, int loglevel) { 
+    try {
+      return equilibrate(*_mix(i), XY, 
+			 rtol, maxsteps, maxiter, loglevel);
     }
+    catch (CanteraError) {
+      return DERR;
+    }
+  }
+
+
+  doublereal DLL_EXPORT mix_vcs_equilibrate(int i, char* XY, int estimateEquil,
+					    int printLvl, int solver,
+					    doublereal rtol, int maxsteps,
+					    int maxiter, int loglevel) { 
+    try {
+      return vcs_equilibrate(*_mix(i), XY, estimateEquil, printLvl, solver,
+			     rtol, maxsteps, maxiter, loglevel);
+    }
+    catch (CanteraError) {
+      return DERR;
+    }
+  }
 
     int DLL_EXPORT mix_getChemPotentials(int i, int lenmu, double* mu) {
         try {
