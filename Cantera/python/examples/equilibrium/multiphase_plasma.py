@@ -26,14 +26,15 @@ f = open('equil_koh.csv','w')
 writeCSV(f,['T']+mix.speciesNames())
 
 # loop over temperature
-for n in range(500):
-    t = 350.0 + 10.0*n
+for n in range(100):
+    t = 350.0 + 50.0*n
     print 'T = ',t
     mix.set(T= t, P = OneAtm, Moles="K:1.03, H2:2.12, O2:0.9")
 
     # set the mixture to a state of chemical equilibrium holding
     # temperature and pressure fixed
-    mix.equilibrate("TP",maxsteps=10000,loglevel=1)
+    # mix.equilibrate("TP",maxsteps=10000,loglevel=1)
+    mix.vcs_equilibrate("TP",printLvl=1,maxsteps=10000,loglevel=1)
         
     # write out the moles of each species
     writeCSV(f,[t]+ list(mix.speciesMoles()))
