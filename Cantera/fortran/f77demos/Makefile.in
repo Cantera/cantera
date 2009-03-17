@@ -1,5 +1,8 @@
 #!/bin/sh
 
+.SUFFIXES :
+.SUFFIXES : .cpp .d .o  .h .f
+
 
 # the object files to be linked together. 
 OBJS = demo_ftnlib.o isentropic.o  ctlib.o
@@ -49,6 +52,10 @@ LCXX_FLAGS = -L$(CANTERA_LIBDIR) @LOCAL_LIB_DIRS@ @CXXFLAGS@
 .@F77_EXT@.@OBJ_EXT@: 
 	$(FORT) -c $< $(FORT_FLAGS)
 
+.f.d:
+	@echo "$*.o: $*.f" | cat > $*.d 
+
+
 PROGRAM = $(PROG_NAME)$(EXE_EXT)
 
 DEPENDS = $(OBJS:.o=.d)
@@ -89,7 +96,9 @@ install:
 
 
 clean:
-	$(RM) $(OBJS) isentropic  ctlib
+	$(RM) $(OBJS) isentropic  ctlib *.d .depends \
+	       diff* output_0.txt output_1.txt gri30.xml ct2ctml.log \
+	       isentropic.dsp
 
 depends: 
 	$(MAKE) .depends
