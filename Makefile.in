@@ -197,14 +197,12 @@ endif
 
 demo-install:
 	(cd Cantera/cxx/demos; @MAKE@ install)
-	@INSTALL@ -c tools/templates/cxx/demo.mak @ct_demodir@/cxx
+	@INSTALL@ -c -m ug+rw,o+r tools/templates/cxx/demo.mak @ct_demodir@/cxx
 	@INSTALL@ -d @ct_demodir@/f77
-	( for ihhh in Cantera/fortran/f77demos/*.f ; do  \
-          @INSTALL@ -c $${ihhh} @ct_demodir@/f77 ;  done )
-	@INSTALL@ -c tools/templates/f77/demo_ftnlib.cpp @ct_demodir@/f77
+	(cd Cantera/fortran/f77demos; @MAKE@ install)
+	@INSTALL@ -c -m ug+rw,o+r tools/templates/f77/demo_ftnlib.cpp @ct_demodir@/f77
 	( for ihhh in Cantera/fortran/f77demos/*.txt ; do  \
-          @INSTALL@ -c $${ihhh} @ct_demodir@/f77 ;  done )
-	@INSTALL@ -c Cantera/fortran/f77demos/f77demos.mak @ct_demodir@/f77/Makefile
+          @INSTALL@ -c -m ug+rw,o+r $${ihhh} @ct_demodir@/f77 ;  done )
 	chown -R @username@ @ct_demodir@/f77
 
 finish-install:
