@@ -419,7 +419,7 @@ namespace Cantera {
       //! Pointer to the last current position in the XML_Node tree for the current HTML log
       XML_Node *current;
 
-      //! Current value of loglevel
+      //! Current value of the loglevel
       int loglevel;
 
       //! Vector of loglevels for loggroups that are open
@@ -1593,119 +1593,134 @@ protected:
 
 #ifdef WITH_HTML_LOGS
 
-    ////////////////////////////////////////////////////////////////
-    // 
-    // defgroup HTML_logs Writing HTML Logfiles
-    // ingroup logs
-    // 
-    //  These functions are designed to allow writing HTML diagnostic
-    //  messages in a manner that allows users to control how much
-    //  diagnostic output to print. It works like this: Suppose you
-    //  have function A that invokes function B that invokes function
-    //  C. You want to be able to print diagnostic messages just from
-    //  function A, or from A and B, or from A, B, and C, or to turn
-    //  off printing diagnostic messages altogether. All you need to
-    //  do is call 'beginLogGroup' within function A, and specify a
-    //  loglevel value. Then in B, call beginLogGroup again, but
-    //  without an explicit value for loglevel. By default, the
-    //  current level is decremented by one in beginLogGroup. If it
-    //  is <= 0, no log messages are written. Thus, if each function
-    //  begins with beginLogGroup and calls endLogGroup before
-    //  returning, then setting loglevel = 3 will cause messages from
-    //  A, B, and C to be written (in nested HTML lists), loglevel =
-    //  2 results in messages only being written from A and B, etc.
-    //
-    /////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////
+  // 
+  // defgroup HTML_logs Writing HTML Logfiles
+  // ingroup logs
+  // 
+  //  These functions are designed to allow writing HTML diagnostic
+  //  messages in a manner that allows users to control how much
+  //  diagnostic output to print. It works like this: Suppose you
+  //  have function A that invokes function B that invokes function
+  //  C. You want to be able to print diagnostic messages just from
+  //  function A, or from A and B, or from A, B, and C, or to turn
+  //  off printing diagnostic messages altogether. All you need to
+  //  do is call 'beginLogGroup' within function A, and specify a
+  //  loglevel value. Then in B, call beginLogGroup again, but
+  //  without an explicit value for loglevel. By default, the
+  //  current level is decremented by one in beginLogGroup. If it
+  //  is <= 0, no log messages are written. Thus, if each function
+  //  begins with beginLogGroup and calls endLogGroup before
+  //  returning, then setting loglevel = 3 will cause messages from
+  //  A, B, and C to be written (in nested HTML lists), loglevel =
+  //  2 results in messages only being written from A and B, etc.
+  //
+  /////////////////////////////////////////////////////////////////
 
 
-    // Create a new group for log messages.  Usually this is called
-    // upon entering the function, with the title parameter equal to
-    // the name of the function or method. Subsequent messages
-    // written with addLogEntry will appear grouped under this
-    // heading, until endLogGroup() is called.
-    // @ingroup HTML_logs
-    void beginLogGroup(std::string title, int loglevel) {
-       app()->beginLogGroup(title, loglevel) ;
-        }
+  // Create a new group for log messages.  Usually this is called
+  // upon entering the function, with the title parameter equal to
+  // the name of the function or method. Subsequent messages
+  // written with addLogEntry will appear grouped under this
+  // heading, until endLogGroup() is called.
+  // @ingroup HTML_logs
+  void beginLogGroup(std::string title, int loglevel) {
+    app()->beginLogGroup(title, loglevel) ;
+  }
 
-    void Application::Messages::beginLogGroup(std::string title, int _loglevel /*=-99*/) {
-        if (_loglevel != -99) loglevel = _loglevel;
-        else loglevel--;
-        if (loglevel <= 0) return;
-        loglevels.push_back(loglevel);
-        loggroups.push_back(title);
-        if (xmllog == 0) {
-            xmllog = new XML_Node("html");
-            current = &xmllog->addChild("ul");
-        }
-        current = &current->addChild("li","<b>"+title+"</b>");
-        current = &current->addChild("ul");
+  void Application::Messages::beginLogGroup(std::string title, int _loglevel /*=-99*/) {
+    // loglevel is a member of the Messages class.
+    if (_loglevel != -99) {
+      loglevel = _loglevel;
+    } else {
+      loglevel--;
     }
-
-    // Add an entry to the log file. Entries appear in the form "tag:
-    // value".
-    // @ingroup HTML_logs
-    void addLogEntry(std::string tag, std::string value) {
-       app()->addLogEntry(tag, value) ;
+    if (loglevel <= 0) return;
+    // Add the current loglevel to the vector of loglevels
+    loglevels.push_back(loglevel);
+    // Add the title of the current logLevel to the vector of titles
+    loggroups.push_back(title);
+    // If we haven't started an XML tree for the log file, do so here
+    if (xmllog == 0) {
+      // The top of this tree will have a zero pointer.
+      xmllog = new XML_Node("html");
+      current = &xmllog->addChild("ul");
     }
+    // Add two children to the XML tree.
+    current = &current->addChild("li","<b>"+title+"</b>");
+    current = &current->addChild("ul");
+  }
 
-    void Application::Messages::addLogEntry(std::string tag, std::string value) {
-        if (loglevel > 0 && current) 
-            current->addChild("li",tag+": "+value);
-    }
+  // Add an entry to the log file. Entries appear in the form "tag:
+  // value".
+  // @ingroup HTML_logs
+  void addLogEntry(std::string tag, std::string value) {
+    app()->addLogEntry(tag, value) ;
+  }
 
-    // Add an entry to the log file. Entries appear in the form "tag:
-    // value".
-    // @ingroup HTML_logs
-    void addLogEntry(std::string tag, doublereal value) {
-       app()->addLogEntry( tag, value ) ;
-    }
+  void Application::Messages::addLogEntry(std::string tag, std::string value) {
+    if (loglevel > 0 && current) 
+      current->addChild("li",tag+": "+value);
+  }
 
-    void Application::Messages::addLogEntry(std::string tag, doublereal value) {
-        if (loglevel > 0 && current) 
-            current->addChild("li",tag+": "+fp2str(value));
-    }
+  // Add an entry to the log file. Entries appear in the form "tag:
+  // value".
+  // @ingroup HTML_logs
+  void addLogEntry(std::string tag, doublereal value) {
+    app()->addLogEntry( tag, value ) ;
+  }
 
-    // Add an entry to the log file. Entries appear in the form "tag:
-    // value".
-    // @ingroup HTML_logs
-    void addLogEntry(std::string tag, int value) {
-       app()->addLogEntry( tag, value ) ;
-    }
+  void Application::Messages::addLogEntry(std::string tag, doublereal value) {
+    if (loglevel > 0 && current) 
+      current->addChild("li",tag+": "+fp2str(value));
+  }
 
-    void Application::Messages::addLogEntry(std::string tag, int value) {
-        if (loglevel > 0 && current) 
-            current->addChild("li",tag+": "+int2str(value));
-    }
+  // Add an entry to the log file. Entries appear in the form "tag:
+  // value".
+  // @ingroup HTML_logs
+  void addLogEntry(std::string tag, int value) {
+    app()->addLogEntry( tag, value ) ;
+  }
 
-    // Add an entry to the log file.
-    // @ingroup HTML_logs
-    void addLogEntry(std::string msg) {
-       app()->addLogEntry(msg) ;
-    }
+  void Application::Messages::addLogEntry(std::string tag, int value) {
+    if (loglevel > 0 && current) 
+      current->addChild("li",tag+": "+int2str(value));
+  }
 
-    void Application::Messages::addLogEntry(std::string msg) {
-        if (loglevel > 0 && current)
-            current->addChild("li",msg);
-    }
+  // Add an entry to the log file.
+  // @ingroup HTML_logs
+  void addLogEntry(std::string msg) {
+    app()->addLogEntry(msg) ;
+  }
 
-    // Close the current group of log messages. This is typically
-    // called just before leaving a function or method, to close the
-    // group of messages that were output from this
-    // function. Subsequent messages written with addLogEntry will
-    // appear at the next-higher level in the outline, unless
-    // beginLogGroup is called first to create a new group.  
-    // @ingroup HTML_logs
-    void endLogGroup(std::string title) {
-       app()->endLogGroup(title) ;
-    }
+  void Application::Messages::addLogEntry(std::string msg) {
+    if (loglevel > 0 && current)
+      current->addChild("li",msg);
+  }
+
+  // Close the current group of log messages. This is typically
+  // called just before leaving a function or method, to close the
+  // group of messages that were output from this
+  // function. Subsequent messages written with addLogEntry will
+  // appear at the next-higher level in the outline, unless
+  // beginLogGroup is called first to create a new group.  
+  // @ingroup HTML_logs
+  void endLogGroup(std::string title) {
+    app()->endLogGroup(title) ;
+  }
 
   void Application::Messages::endLogGroup(std::string title) {
     if (loglevel <= 0) return;
-    //if (loglevel > 0) {
+    AssertThrowMsg(current, "Application::Messages::endLogGroup",
+		   "Error while ending a LogGroup. This is probably due to an unmatched"
+		   " beginnning and ending group");
     current = current->parent();
+    AssertThrowMsg(current, "Application::Messages::endLogGroup",
+		   "Error while ending a LogGroup. This is probably due to an unmatched"
+		   " beginnning and ending group");
     current = current->parent();
-    //}
+    // Get the loglevel of the previous level and get rid of 
+    // vector entry in loglevels.
     loglevel = loglevels.back();
     loglevels.pop_back();
     if (title != "" && title != loggroups.back()) {
@@ -1713,16 +1728,13 @@ protected:
 	       "\n   beginLogGroup: "+ loggroups.back()+
 	       "\n   endLogGroup:   "+title+"\n");
       write_logfile("logerror"); 
-      //s_app->loggroups.clear();
-      //s_app->loglevels.clear();
-    }
-    else if (loggroups.size() == 1) {
+    } else if (loggroups.size() == 1) {
       write_logfile(loggroups.back()+"_log"); 
       loggroups.clear();
       loglevels.clear();
-    }
-    else
+    } else {
       loggroups.pop_back();
+    }
   }
 
 
@@ -1829,7 +1841,7 @@ protected:
    *                carried out from this XML node.
    */
   XML_Node* get_XML_Node(const std::string& file_ID, XML_Node* root) {
-      std::string fname, idstr;
+    std::string fname, idstr;
     XML_Node *db, *doc;
     split_at_pound(file_ID, fname, idstr);
     if (fname == "") {
