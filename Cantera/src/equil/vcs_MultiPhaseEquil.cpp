@@ -585,6 +585,7 @@ namespace VCSnonideal {
     }
     m_printLvl = printLvl;
     m_vprob->m_printLvl = printLvl;
+  
 
    /*    
     *     Extract the current state information
@@ -595,6 +596,7 @@ namespace VCSnonideal {
    if (res != 0) {
      plogf("problems\n");
    }
+ 
 
    // Set the estimation technique
    if (estimateEquil) {
@@ -616,6 +618,11 @@ namespace VCSnonideal {
      throw CanteraError("vcs_MultiPhaseEquil::equilibrate",
 			"Pressure less than zero on input");
    }
+   
+   beginLogGroup("vcs_MultiPhaseEquil::equilibrate_TP", loglevel);
+   addLogEntry("problem type","fixed T,P");
+   addLogEntry("Temperature", T);
+   addLogEntry("Pressure", pres);
    
 
    /*
@@ -718,6 +725,9 @@ namespace VCSnonideal {
          plogf("Total time = %12.6e seconds\n", te);
        }
      }
+   }
+   if (loglevel > 0) {
+     endLogGroup();
    }
    return iSuccess;
   }

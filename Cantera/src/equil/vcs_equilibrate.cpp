@@ -310,6 +310,7 @@ namespace Cantera {
 			doublereal tol, int maxsteps, int maxiter, int loglevel) {
     static int counter = 0;
     int retn = 1;
+
     beginLogGroup("equilibrate",loglevel);
     addLogEntry("multiphase equilibrate function");
     beginLogGroup("arguments");
@@ -319,15 +320,17 @@ namespace Cantera {
     addLogEntry("maxiter",maxiter);
     addLogEntry("loglevel",loglevel);
     endLogGroup("arguments");
+  
     int printLvlSub = MAX(0, printLvl-1);
 
     s.init();
   
     if (solver == 2) {
       try {
-	VCSnonideal::vcs_MultiPhaseEquil *eqsolve = new VCSnonideal::vcs_MultiPhaseEquil(&s, printLvlSub);
+	VCSnonideal::vcs_MultiPhaseEquil *eqsolve =
+	  new VCSnonideal::vcs_MultiPhaseEquil(&s, printLvlSub);
 	int err = eqsolve->equilibrate(ixy, estimateEquil, printLvlSub,
-				       tol, maxsteps, maxiter);
+				       tol, maxsteps, loglevel);
 	if (err != 0) {
 	  retn = -1;
 	  addLogEntry("vcs_equilibrate Error   - ", err);
@@ -356,25 +359,25 @@ namespace Cantera {
       if (ixy == TP || ixy == HP || ixy == SP || ixy == TV) {
 	try {
 	  double err = s.equilibrate(ixy, tol, maxsteps, maxiter, loglevel);
-	  if (loglevel > 0) {
-	    addLogEntry("Success. Error",err);
-	    endLogGroup("equilibrate");
-	  }
+	 
+	  addLogEntry("Success. Error",err);
+	  endLogGroup("equilibrate");
+	 
 	  return 0;
 	}
 	catch (CanteraError &e) {
-	  if (loglevel > 0) {
-	    addLogEntry("Failure.",lastErrorMessage());
-	    endLogGroup("equilibrate");
-	  }
+
+	  addLogEntry("Failure.",lastErrorMessage());
+	  endLogGroup("equilibrate");
+	
 	  throw e;
 	}
       }
       else {
-	if (loglevel > 0) {
-	  addLogEntry("multiphase equilibrium can be done only for TP, HP, SP, or TV");
-	  endLogGroup("equilibrate");
-	}
+
+	addLogEntry("multiphase equilibrium can be done only for TP, HP, SP, or TV");
+	endLogGroup("equilibrate");
+	
 	throw CanteraError("equilibrate","unsupported option");
 	//return -1.0;
       }

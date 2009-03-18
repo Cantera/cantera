@@ -3,7 +3,9 @@
  * Driver routines for the chemical equilibrium solvers.
  *
  */
-
+/*
+ * $Id$
+ */
 #include "equil.h"
 #include "ChemEquil.h"
 #include "MultiPhaseEquil.h"
@@ -26,42 +28,42 @@ namespace Cantera {
 			 doublereal tol, int maxsteps, int maxiter, 
 			 int loglevel) {
 
-      if (loglevel > 0) {
-          beginLogGroup("equilibrate",loglevel);
-          addLogEntry("multiphase equilibrate function");
-          beginLogGroup("arguments");
-          addLogEntry("XY",XY);
-          addLogEntry("tol",tol);
-          addLogEntry("maxsteps",maxsteps);
-          addLogEntry("maxiter",maxiter);
-          addLogEntry("loglevel",loglevel);
-          endLogGroup("arguments");
-      }
-      s.init();
-      int ixy = _equilflag(XY);
-      if (ixy == TP || ixy == HP || ixy == SP || ixy == TV) {
-          try {
-              double err = s.equilibrate(ixy, tol, maxsteps, maxiter, loglevel);
-              if (loglevel > 0) {
-                  addLogEntry("Success. Error",err);
-                  endLogGroup("equilibrate");
+    if (loglevel > 0) {
+      beginLogGroup("equilibrate",loglevel);
+      addLogEntry("multiphase equilibrate function");
+      beginLogGroup("arguments");
+      addLogEntry("XY",XY);
+      addLogEntry("tol",tol);
+      addLogEntry("maxsteps",maxsteps);
+      addLogEntry("maxiter",maxiter);
+      addLogEntry("loglevel",loglevel);
+      endLogGroup("arguments");
+    }
+    s.init();
+    int ixy = _equilflag(XY);
+    if (ixy == TP || ixy == HP || ixy == SP || ixy == TV) {
+      try {
+	double err = s.equilibrate(ixy, tol, maxsteps, maxiter, loglevel);
+	if (loglevel > 0) {
+	  addLogEntry("Success. Error",err);
+	  endLogGroup("equilibrate");
 
-              }
-              return err;
-          }
-          catch (CanteraError e) {
-              if (loglevel > 0) {
-                  addLogEntry("Failure.",lastErrorMessage());
-                  endLogGroup("equilibrate");
-              }
-              throw e;
-          }
+	}
+	return err;
       }
-      else {
-          if (loglevel > 0) {
-              addLogEntry("multiphase equilibrium can be done only for TP, HP, SP, or TV");
-              endLogGroup("equilibrate");
-          }
+      catch (CanteraError &err) {
+	if (loglevel > 0) {
+	  addLogEntry("Failure.",lastErrorMessage());
+	  endLogGroup("equilibrate");
+	}
+	throw err;
+      }
+    }
+    else {
+      if (loglevel > 0) {
+	addLogEntry("multiphase equilibrium can be done only for TP, HP, SP, or TV");
+	endLogGroup("equilibrate");
+      }
       throw CanteraError("equilibrate","unsupported option");
       //return -1.0;
     }
@@ -142,7 +144,7 @@ namespace Cantera {
 	  delete m;
 	  retn = nAttempts;
 	}
-	catch (CanteraError err) {
+	catch (CanteraError &err) {
 	  if (loglevel > 0) 
 	    addLogEntry("VCSnonideal solver failed.");
 	  delete m;
@@ -174,7 +176,7 @@ namespace Cantera {
 	  delete m;
 	  retn = nAttempts;
 	}
-	catch (CanteraError err) {
+	catch (CanteraError &err) {
 	  if (loglevel > 0) 
 	    addLogEntry("MultiPhaseEquil solver failed.");
 	  delete m;
@@ -222,7 +224,7 @@ namespace Cantera {
 	    addLogEntry("ChemEquil solver succeeded.");
 	}
 
-	catch (CanteraError err) {
+	catch (CanteraError &err) {
 	  delete e;
           if (loglevel > 0) 
 	    addLogEntry("ChemEquil solver failed.");

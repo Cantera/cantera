@@ -207,7 +207,7 @@ namespace Cantera {
 
 
     doublereal MultiPhaseEquil::equilibrate(int XY, doublereal err, 
-        int maxsteps, int loglevel) {
+					    int maxsteps, int loglevel) {
         int i;
         m_iter = 0;
         string iterstr;

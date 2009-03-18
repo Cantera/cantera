@@ -4,7 +4,7 @@
  * object that is used to set up multiphase equilibrium problems (see \ref equilfunctions).
  */
 /*
- *  $Author$
+ *
  *  $Date$
  *  $Revision$
  */
@@ -544,9 +544,9 @@ namespace Cantera {
       // create an equilibrium manager 
       e = new MultiPhaseEquil(this);
       try {
-	error = e->equilibrate(XY, err, maxsteps);
+	error = e->equilibrate(XY, err, maxsteps, loglevel);
       }
-      catch (CanteraError err) {
+      catch (CanteraError &err) {
 	if (loglevel > 0)
 	  endLogGroup();
 	delete e;
@@ -579,7 +579,7 @@ namespace Cantera {
 	  beginLogGroup("iteration "+int2str(n));
 
 	try {
-	  error = e->equilibrate(TP, err, maxsteps);
+	  error = e->equilibrate(TP, err, maxsteps, loglevel);
 	  hnow = enthalpy();
 	  // the equilibrium enthalpy monotonically increases with T; 
 	  // if the current value is below the target, the we know the
@@ -690,7 +690,7 @@ namespace Cantera {
 	  beginLogGroup("iteration "+int2str(n));
                 
 	try {
-	  error = e->equilibrate(TP, err, maxsteps);
+	  error = e->equilibrate(TP, err, maxsteps, loglevel);
 	  snow = entropy();
 	  if (snow < s0) {
 	    if (m_temp > Tlow) Tlow = m_temp;
@@ -769,7 +769,7 @@ namespace Cantera {
 	start = false;
 	beginLogGroup("iteration "+int2str(n));
                 
-	error = e.equilibrate(TP, err, maxsteps);
+	error = e.equilibrate(TP, err, maxsteps, loglevel);
 	vnow = volume();
 	verr = fabs((v0 - vnow)/v0);
 	addLogEntry("P",fp2str(pressure()));
