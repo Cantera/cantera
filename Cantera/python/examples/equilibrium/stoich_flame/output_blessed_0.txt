@@ -1,0 +1,35 @@
+ 
+  ohmech:
+ 
+       temperature             400  K
+          pressure          101325  Pa
+           density        0.548862  kg/m^3
+  mean mol. weight         18.0153  amu
+ 
+                          1 kg            1 kmol
+                       -----------      ------------
+          enthalpy    -1.32317e+07       -2.384e+08     J
+   internal energy    -1.34163e+07       -2.417e+08     J
+           entropy         11034.2        1.988e+05     J/K
+    Gibbs function    -1.76454e+07       -3.179e+08     J
+ heat capacity c_p         1902.15        3.427e+04     J/K
+ heat capacity c_v         1440.63        2.595e+04     J/K
+ 
+                           X                 Y          Chem. Pot. / RT    
+                     -------------     ------------     ------------
+                H2          1e-08      1.11898e-09         -34.2749
+                 H    1.33365e-30      7.46166e-32         -17.1375
+                 O     1.9668e-51      1.74672e-51         -61.3073
+                O2    3.35291e-43      5.95545e-43         -122.615
+                OH    2.83228e-30      2.67381e-30         -78.4448
+               H2O              1                1         -95.5822
+               HO2    5.09612e-51      9.33687e-51         -139.752
+              H2O2    8.85039e-39      1.67104e-38          -156.89
+                AR              0                0     
+
+    Comparison between Chem potentials and element potentials:
+
+mu_H2   :  -1.1399e+08 ,     -1.1399e+08
+mu_O2   :  -4.0779e+08 ,     -4.0779e+08
+mu_OH   :  -2.6089e+08 ,     -2.6089e+08
+mu_H2O  :  -3.1789e+08 ,     -3.1789e+08

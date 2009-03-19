@@ -74,8 +74,11 @@ for i in range(npoints):
    mix.setPressure(pres)
 
    # equilibrate the mixture adiabatically at constant P
-   mix.equilibrate('HP', maxsteps = 1000,
-                   err = 1.0e-6, maxiter = 200, loglevel=0)
+   # 
+   #    mix.equilibrate('HP', maxsteps = 1000,
+   #                err = 1.0e-6, maxiter = 200, loglevel=0)
+   mix.vcs_equilibrate('HP', maxsteps = 1000,
+                       rtol = 1.0e-6, maxiter = 200, loglevel=0)
    
    tad[i] = mix.temperature();
    print 'At phi = %12.4g, Tad = %12.4g'  % (phi[i],tad[i])

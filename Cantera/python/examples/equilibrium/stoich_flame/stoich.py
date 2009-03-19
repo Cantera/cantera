@@ -7,7 +7,7 @@
 # Equilibrium of a (nearly) stoichiometric hydrogen/oxygen mixture at
 # fixed temperature.
 
-# Cantera has 2 different equilibrium solvers. The 'ChemEquil' solver
+# Cantera has 3 different equilibrium solvers. The 'ChemEquil' solver
 # uses the element potential method for homogeneous equilibrium in gas
 # mixtures. It is fast, but sometimes doesn't converge. The
 # 'MultiPhaseEquil' solver uses the VCS algorithm (Gibbs
@@ -46,7 +46,7 @@ try:
     gas.equilibrate("TP", solver = 0)       # use the ChemEquil (0) solver   
 except:
     print "ChemEquil solver failed! Try the MultiPhaseEquil solver..."
-    
+
     # Try again. Reset the gas to the initial state
     gas.set(T = temp, P = OneAtm, X = comp)
 
@@ -60,7 +60,7 @@ except:
 
     # Note: another way to do this is:
     # gas.equilibrate("TP", solver = 1, loglevel = 4)
-                    
+
 # print a summary of the results
 print gas
 
@@ -73,8 +73,25 @@ print gas
 mu_H2, mu_OH, mu_H2O, mu_O2, lambda_H, lambda_O = gas.chemPotentials(
     ["H2", "OH", "H2O", "O2", "H", "O"])
 
-print mu_H2, 2.0*lambda_H
-print mu_O2, 2.0*lambda_O
-print mu_OH, lambda_H + lambda_O
-print mu_H2O, 2.0*lambda_H + lambda_O
 
+print
+print "    Comparison between Chem potentials and element potentials:"
+print
+s_mu_H2       = "%11.4e" % mu_H2
+s_lam_mu_H2   = "%11.4e" % (2.0*lambda_H)
+print "mu_H2   : ", s_mu_H2, ",    ", s_lam_mu_H2
+
+
+s_mu_O2       = "%11.4e" % mu_O2
+s_lam_mu_O2   = "%11.4e" % (2.0*lambda_O)
+print "mu_O2   : ", s_mu_O2, ",    ", s_lam_mu_O2
+
+
+s_mu_OH       = "%11.4e" % mu_OH
+s_lam_mu_OH   = "%11.4e" % (lambda_H + lambda_O)
+print "mu_OH   : ", s_mu_OH, ",    ", s_lam_mu_OH
+
+
+s_mu_H2O      = "%11.4e" % mu_H2O
+s_lam_mu_H2O  = "%11.4e" % (2.0 * lambda_H + lambda_O)
+print "mu_H2O  : ", s_mu_H2O, ",    ", s_lam_mu_H2O

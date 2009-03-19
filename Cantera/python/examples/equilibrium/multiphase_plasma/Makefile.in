@@ -1,0 +1,14 @@
+#!/bin/sh
+
+PYTHON_CMD = @PYTHON_CMD@
+
+run:
+	$(PYTHON_CMD) multiphase_plasma.py
+
+test:
+	./runtest
+clean:
+	rm -f *.log *.csv *.xml
+
+# end of file
+
