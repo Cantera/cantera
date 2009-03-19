@@ -3,7 +3,7 @@
 PYTHON_CMD = @PYTHON_CMD@
 
 run:
-	$(PYTHON_CMD) catcomb.py
+	$(PYTHON_CMD) diamond.py
 
 test:
 	./runtest
