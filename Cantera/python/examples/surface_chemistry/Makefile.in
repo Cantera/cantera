@@ -1,16 +1,20 @@
 #!/bin/sh
 
-PY_DEMOS = catcomb.py diamond.py
-PYTHON_CMD = @PYTHON_CMD@
+all:
+	cd catcomb_stagflow; @MAKE@ 
+	cd diamond_cvd;      @MAKE@ 
 
 run:
-	@(for py in $(PY_DEMOS) ; do \
-	    echo "running $${py}..."; \
-          $(PYTHON_CMD) "$${py}"; \
-	done)
+	cd catcomb_stagflow; @MAKE@ run
+	cd diamond_cvd;      @MAKE@ run
+
+test:
+	cd catcomb_stagflow; @MAKE@ test
+	cd diamond_cvd;      @MAKE@ test
 
 clean:
-	rm -f *.log *.csv *.xml
+	cd catcomb_stagflow; @MAKE@ clean
+	cd diamond_cvd;      @MAKE@ clean
 
 # end of file
 
