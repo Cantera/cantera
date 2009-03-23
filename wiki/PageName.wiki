@@ -34,21 +34,22 @@ Cantera can be used in many different ways. Here are a few.
 
 *Make reaction path diagrams and movies.*
 
-  One of the best ways to obtain insight into the most important chemical pathways in a complex reaction mechanism is to make a reaction path diagram, showing the fluxes of a conserved element through the species due to chemistry. But producing these by hand is a
-slow, tedious process. Cantera can automatically generate reaction path diagrams at any time during a simulation. It is even possible to create reaction path diagram movies, showing how the chemical pathways change with time, as reactants are depleted and products are formed.
+  One of the best ways to obtain insight into the most important chemical pathways in a complex reaction mechanism is to make a reaction path diagram, showing the fluxes of a conserved element through the species due to chemistry. But producing these by hand is a slow, tedious process. Cantera can automatically generate reaction path diagrams at any time during a simulation. It is even possible to create reaction path diagram movies, showing how the chemical pathways change with time, as reactants are depleted and products are formed.
 
 *Create stirred reactor networks.*
 
-   Cantera implements a general-purpose stirred reactor model that can be
-linked to other ones in a network. Reactors can have any number of inlets and outlets, can have a time-dependent volume, and can be connected through devices that regulate the flow rate between them in various ways. Closed-loop controllers may be installed to regulate pressure, temperature, or
-other properties.Using these basic components, you can build models of a wide variety of systems, ranging in complexity
-from simple constant-pressure or constant-volume reactors to complete engine simulators.
-Simulate multiphase pure fluids. Cantera implements several accurate equations of state for pure fluids,
-allowing you to compute properties in the liquid, vapor, mixed liquid/vapor, and supercritical states.
-(This will soon be expanded to include multiphase mixture models.)
-These capabilities are only the beginning. Some new features scheduled to be implemented in an upcoming
-release are non-ideal and multiphase reacting mixtures, surface and interfacial chemistry, sensitivity
-analysis, models for simple reacting flows ( laminar flames, boundary layers, flow in channels, etc.), and
-electrochemistry. Other capabilities, or interfaces to other applications, may also be added, depending on
-available time, support, etc. If you have specific things you want to see Cantera support, you are encouraged
-to become a Cantera developer, or support Cantera development in other ways to make it possible. 
+   Cantera implements a general-purpose stirred reactor model that can be linked to other ones in a network. Reactors can have any number of inlets and outlets, can have a time-dependent volume, and can be connected through devices that regulate the flow rate between them in various ways. Closed-loop controllers may be installed to regulate pressure, temperature, or other properties.Using these basic components, you can build models of a wide variety of systems, ranging in complexity from simple constant-pressure or constant-volume reactors to complete engine simulators.
+
+*Simulate multiphase pure fluids.* 
+
+  Cantera implements several accurate equations of state for pure fluids, allowing you to compute properties in the liquid, vapor, mixed liquid/vapor, and supercritical states.
+
+* Simulate Multispecies non-ideal phases *
+
+  Cantera has recently been expanded to include multiphase non-ideal mixture models. A full pitzer implementation of aqueous thermodynamics has been included in the latest release.
+
+* Other *
+
+  These capabilities are only the beginning. Some new features scheduled to be implemented in an upcoming release are non-ideal, multiphase reacting mixtures, surface and interfacial chemistry, sensitivity analysis, models for simple reacting flows ( laminar flames, boundary layers, flow in channels, etc.), and electrochemistry. Other capabilities, or interfaces to other applications, may also be added, depending on available time, support, etc. 
+
+  If you have specific things you want to see Cantera support, you are encouraged to become a Cantera developer, or support Cantera development in other ways to make it possible. 
