@@ -2,13 +2,11 @@
 
 = Introduction =
 
-Cantera is a collection of object-oriented software tools for problems involving chemical kinetics, thermodynamics,
-and transport processes. Among other things, it can be used to conduct kinetics simulations
-with large reaction mechanisms, to compute chemical equilibrium, to evaluate thermodynamic and transport
-properties of mixtures, to evaluate species chemical production rates, to conduct reaction path analysis, to
-create process simulators using networks of stirred reactors, and to model non-ideal fluids. Cantera is still
-in development, and more capabilities continue to be added.
-1.2 Typical Applications
+Cantera is a collection of object-oriented software tools for problems involving chemical kinetics, thermodynamics, and transport processes. Among other things, it can be used to conduct kinetics simulations with large reaction mechanisms, to compute chemical equilibrium, to evaluate thermodynamic and transport properties of mixtures, to evaluate species chemical production rates, to conduct reaction path analysis, to
+create process simulators using networks of stirred reactors, and to model non-ideal fluids. Cantera is still in development, and more capabilities continue to be added.
+
+
+= Typical Applications = 
 Cantera can be used in many different ways. Here are a few.
 Use it in your own reacting-flow codes. Cantera can be used in Fortran or C++ reacting-flow simulation
 codes to evaluate properties and chemical source terms that appear in the governing equations. Cantera
