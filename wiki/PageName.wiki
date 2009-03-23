@@ -1,4 +1,4 @@
-#summary Cantera is an object-oriented software tool for solving reacting flow problems.
+#summary Cantera capabilities
 
 = Introduction =
 
