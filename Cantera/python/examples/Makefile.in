@@ -2,28 +2,29 @@
 
 PY_DEMO_DIRS = equilibrium flames gasdynamics kinetics liquid_vapor \
                misc reactors surface_chemistry transport fuel_cells
+MAKE = @MAKE@
 all:
 	@(for d in $(PY_DEMO_DIRS) ; do \
             echo "entering directory $${d}..."; \
-            (cd $${d}; make run) ; \
+            (cd $${d}; $(MAKE)) ; \
         done)
 
 run:
 	@(for d in $(PY_DEMO_DIRS) ; do \
 	    echo "entering directory $${d}..."; \
-            (cd $${d}; make run) ; \
+            (cd $${d}; $(MAKE) run) ; \
 	done)
 
 test:
 	@(for d in $(PY_DEMO_DIRS) ; do \
             echo "entering directory $${d}..."; \
-            (cd $${d}; make test) ; \
+            (cd $${d}; $(MAKE) test) ; \
         done)
 
 clean:
 	@(for dd in $(PY_DEMO_DIRS) ; do \
 	    echo "entering directory $${dd}..."; \
-            (cd $${dd}; make -i clean; cd ..) ; \
+            (cd $${dd}; $(MAKE) -i clean; cd ..) ; \
 	done)
 
 # end of file
