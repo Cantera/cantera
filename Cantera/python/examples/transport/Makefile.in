@@ -5,7 +5,7 @@ INST_DIR=@ct_demodir@/python/transport
 
 PYTHON_CMD = @PYTHON_CMD@
 
-all
+all:
 	$(PYTHON_CMD) dustygas.py
 
 run:
@@ -21,8 +21,6 @@ install:
 	@INSTALL@ -c   runtest $(INST_DIR)
 	@INSTALL@ -c   cleanup $(INST_DIR)
 	@INSTALL@ -c -m ug+rw,o+r output_blessed_0.txt    $(INST_DIR)
-
-
 
 clean:
 	./cleanup
