@@ -1,5 +1,7 @@
 #!/bin/sh
 
+INST_DIR=@ct_demodir@/python/flames
+
 PY_DEMOS = flame1 flame2 stflame1 npflame1 free_h2_air \
            adiabatic_flame flame_fixed_T
 PYTHON_CMD = @PYTHON_CMD@
@@ -21,6 +23,15 @@ test:
 	    echo "running $${py}..."; \
 	    (cd $${py} ; @MAKE@ test ) \
 	done)
+
+install:
+	@INSTALL@ -d  $(INST_DIR)
+	@INSTALL@ -c -m ug+rw,o+r Makefile $(INST_DIR)
+	@(for py in $(PY_DEMOS) ; do \
+            echo "running $${py}..."; \
+            (cd $${py} ; @MAKE@ install ) \
+        done)
+
 
 clean:
 	@(for py in $(PY_DEMOS) ; do \
