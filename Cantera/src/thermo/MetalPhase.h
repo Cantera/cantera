@@ -104,7 +104,7 @@ namespace Cantera {
 
         virtual void setParametersFromXML(const XML_Node& eosdata) {
             eosdata._require("model","Metal");
-            doublereal rho = getFloat(eosdata, "density", "-");
+            doublereal rho = getFloat(eosdata, "density", "density");
             setDensity(rho);
         }
 
