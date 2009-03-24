@@ -2,6 +2,8 @@
 
 PYTHON_CMD = @PYTHON_CMD@
 
+all:
+	
 run:
 	$(PYTHON_CMD) functors.py
 
