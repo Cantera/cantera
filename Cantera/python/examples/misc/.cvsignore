@@ -1,1 +1,11 @@
 Makefile
+runtest
+buildlog
+ct2ctml.log
+diff_out_0.txt
+diff_rp.txt
+gri30.xml
+h2o2.xml
+output_0.txt
+rp.txt
+rxnpath.log
