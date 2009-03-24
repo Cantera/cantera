@@ -1,16 +1,15 @@
 #!/bin/sh
 
-PY_DEMOS = sofc.py
 PYTHON_CMD = @PYTHON_CMD@
 
 run:
-	@(for py in $(PY_DEMOS) ; do \
-	    echo "running $${py}..."; \
-          $(PYTHON_CMD) "$${py}"; \
-	done)
+	$(PYTHON_CMD) sofc.py
 
+test:
+	./runtest
 clean:
 	rm -f *.log *.csv *.xml
+	./cleanup
 
 # end of file
 
