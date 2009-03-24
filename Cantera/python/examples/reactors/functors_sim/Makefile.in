@@ -1,5 +1,7 @@
 #!/bin/sh
 
+INST_DIR=@ct_demodir@/python/reactors/functors_sim
+
 PYTHON_CMD = @PYTHON_CMD@
 
 all:
@@ -9,8 +11,15 @@ run:
 
 test:
 	./runtest
+
+install:
+	@INSTALL@ -d  $(INST_DIR)
+	@INSTALL@ -c -m ug+rw,o+r functors.py    $(INST_DIR)
+	@INSTALL@ -c   runtest $(INST_DIR)
+	@INSTALL@ -c   cleanup $(INST_DIR)
+	@INSTALL@ -c -m ug+rw,o+r output_blessed_0.txt    $(INST_DIR)
+
 clean:
-	rm -f *.log *.csv *.xml
 	./cleanup
 
 # end of file
