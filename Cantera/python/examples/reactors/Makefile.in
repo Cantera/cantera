@@ -1,7 +1,7 @@
 #!/bin/sh
 
 PY_DEMOS = combustor_sim functors_sim mix1_sim mix2_sim piston_sim reactor1_sim \
-           reactor2_sim sensitivity_sim surf_prf_sim
+           reactor2_sim sensitivity_sim surf_pfr_sim
 
 all:
 	@(for py in $(PY_DEMOS) ; do \
