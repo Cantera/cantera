@@ -1,16 +1,33 @@
 #!/bin/sh
 
-PY_DEMOS = isentropic.py soundSpeeds.py
-PYTHON_CMD = @PYTHON_CMD@
+PY_DEMOS = isentropic soundSpeed
+
+
+all:
+	@(for py in $(PY_DEMOS) ; do \
+	    echo "running $${py}..."; \
+	   (cd $${py} ; @MAKE@ ) \
+	done)
 
 run:
 	@(for py in $(PY_DEMOS) ; do \
 	    echo "running $${py}..."; \
-          $(PYTHON_CMD) "$${py}"; \
+	   (cd $${py} ; @MAKE@ run ) \
+	done)
+
+test:
+	@(for py in $(PY_DEMOS) ; do \
+	    echo "running $${py}..."; \
+	   (cd $${py} ; @MAKE@ test ) \
 	done)
 
 clean:
-	rm -f *.log *.csv *.xml
+	@(for py in $(PY_DEMOS) ; do \
+	    echo "running $${py}..."; \
+	   (cd $${py} ; @MAKE@ clean ) \
+	done)
+
+
 
 # end of file
 
