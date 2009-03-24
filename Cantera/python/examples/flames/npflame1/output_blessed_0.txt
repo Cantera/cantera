@@ -397,7 +397,7 @@ Attempt Newton solution of steady-state problem...    success.
 Problem solved on [188] point grid(s).
 
 no new points needed in flame
-Solution saved to file npflame1.xml as solution solution.
+Solution saved to file npflame1.xml as solution solution_1.
 solution saved to npflame1.csv
 
 
@@ -2732,14 +2732,14 @@ solution saved to npflame1.csv
 Statistics:
 
  Grid   Functions   Time      Jacobians   Time 
-    8     589       4.3600       22       2.7600 
-    8     820       6.1100       49       6.2700 
-   13    1341      20.5700       45      13.0900 
-   20    2488      64.8800       45      23.2900 
-   30     253      10.3300       17      14.0800 
-   44      61       3.7700        3       3.9000 
-   66      25       2.3700        2       4.1900 
-  106      31       4.8100        2       7.3500 
-  160      24       5.6800        2      12.1500 
-  184      14       3.8400        1       7.3100 
-  190       7       2.1800        1       7.5900 
+    8     589       4.3800       22       2.8400 
+    8     820       6.3400       49       6.5200 
+   13    1341      20.7700       45      13.7500 
+   20    2488      66.1800       45      25.1100 
+   30     253      11.3200       17      15.0900 
+   44      61       3.7500        3       3.8700 
+   66      25       2.4000        2       4.1500 
+  106      31       4.8000        2       7.8300 
+  160      24       5.8000        2      13.6400 
+  184      14       4.2300        1       7.3300 
+  190       7       1.9700        1       7.5800 
