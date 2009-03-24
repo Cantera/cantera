@@ -5,25 +5,25 @@ PY_DEMOS = critProperties rankine
 all:
 	@(for py in $(PY_DEMOS) ; do \
 	    echo "running $${py}..."; \
-	  (cd $${ph} ; @MAKE@ ) \
+	  (cd $${py} ; @MAKE@ ) \
 	done)
 
 run:
 	@(for py in $(PY_DEMOS) ; do \
 	    echo "running $${py}..."; \
-	  (cd $${ph} ; @MAKE@ run ) \
+	  (cd $${py} ; @MAKE@ run ) \
 	done)
 
 test:
 	@(for py in $(PY_DEMOS) ; do \
 	    echo "running $${py}..."; \
-	  (cd $${ph} ; @MAKE@ test) \
+	  (cd $${py} ; @MAKE@ test) \
 	done)
 
 clean:
 	@(for py in $(PY_DEMOS) ; do \
 	    echo "running $${py}..."; \
-	  (cd $${ph} ; @MAKE@ clean) \
+	  (cd $${py} ; @MAKE@ clean) \
 	done)
 
 
