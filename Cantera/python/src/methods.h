@@ -292,6 +292,7 @@ static PyMethodDef ct_methods[] = {
     {"mix_speciesMoles", py_mix_speciesMoles, METH_VARARGS},
     {"mix_elementMoles", py_mix_elementMoles, METH_VARARGS},
     {"mix_equilibrate", py_mix_equilibrate, METH_VARARGS},
+    {"mix_vcs_equilibrate", py_mix_vcs_equilibrate, METH_VARARGS},
     {"mix_getChemPotentials", py_mix_getChemPotentials, METH_VARARGS},
 
     {"ct_appdelete", pyct_appdelete, METH_VARARGS},

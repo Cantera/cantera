@@ -348,6 +348,35 @@ py_mix_equilibrate(PyObject *self, PyObject *args)
 
 
 static PyObject *
+py_mix_vcs_equilibrate(PyObject *self, PyObject *args)
+{
+    double _val;
+    int i;
+    char* XY;
+    int estimateEquil;
+    int printLvl;
+    int solver;
+    double rtol;
+    int maxsteps;
+    int maxiter;
+    int loglevel;
+    if (!PyArg_ParseTuple(args, "isiiidiii:mix_vcs_equilibrate", &i, &XY, 
+			  &estimateEquil, &printLvl, &solver,
+			  &rtol, &maxsteps, &maxiter, &loglevel)) {
+      return NULL;
+    }
+        
+    _val = mix_vcs_equilibrate(i, XY, estimateEquil, printLvl, solver,
+			       rtol, maxsteps, maxiter, loglevel);
+
+    if (int(_val) < -900) {
+      return reportCanteraError();
+    }
+    return Py_BuildValue("d", _val);
+}
+
+
+static PyObject *
 py_mix_getChemPotentials(PyObject *self, PyObject *args)
 {
     int i;

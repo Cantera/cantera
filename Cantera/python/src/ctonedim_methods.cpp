@@ -1,4 +1,12 @@
 
+/*
+ *   $Id$
+ */
+
+
+
+#include <cstdlib>
+
 static PyObject *
 py_domain_clear(PyObject *self, PyObject *args)
 {
@@ -173,7 +181,7 @@ py_domain_setTolerances(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "iiddi:domain_setTolerances", &i, &n, &rtol, &atol, &itime)) 
         return NULL;
         
-    _val = domain_setTolerances(i,n,rtol,atol,itime); 
+    _val = domain_setTolerances(i,n, rtol, atol,itime); 
     if (int(_val) == -1) return reportCanteraError();
     return Py_BuildValue("i",_val);
 }
@@ -221,7 +229,7 @@ py_domain_setupGrid(PyObject *self, PyObject *args)
 
     PyArrayObject* grid_array = (PyArrayObject*)
       PyArray_ContiguousFromObject(grid, PyArray_DOUBLE, 1, 1);
-    double* grid_data = (double*)grid_array->data;
+    double* grid_data = (double*)(grid_array->data);
     int grid_len = grid_array->dimensions[0];
 
     _val = domain_setupGrid(i,grid_len,grid_data); 
@@ -539,13 +547,15 @@ py_stflow_setFixedTempProfile(PyObject *self, PyObject *args)
 
     PyArrayObject* pos_array = (PyArrayObject*)
       PyArray_ContiguousFromObject(pos, PyArray_DOUBLE, 1, 1);
-    double* pos_data = (double*)pos_array->data;
+    double* pos_data = (double*)(pos_array->data);
     int pos_len = pos_array->dimensions[0];
 
 
     PyArrayObject* temp_array = (PyArrayObject*)
       PyArray_ContiguousFromObject(temp, PyArray_DOUBLE, 1, 1);
-    double* temp_data = (double*)temp_array->data;
+
+
+    double* temp_data = (double*)(temp_array->data);
     int temp_len = temp_array->dimensions[0];
 
     _val = stflow_setFixedTempProfile(i,pos_len,pos_data,temp_len,temp_data); 
@@ -604,13 +614,24 @@ py_sim1D_new(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "O:sim1D_new", &domains)) 
         return NULL;
         
-
+    // Assuming this is screwed up too
+    //PyArrayObject* domains_array = (PyArrayObject*)
+    // PyArray_ContiguousFromObject(domains, PyArray_INT, 1, 1);
+    // int* domains_data = (int*)(domains_array->data);
     PyArrayObject* domains_array = (PyArrayObject*)
-      PyArray_ContiguousFromObject(domains, PyArray_INT, 1, 1);
-    int* domains_data = (int*)domains_array->data;
+      PyArray_ContiguousFromObject(domains, PyArray_DOUBLE, 1, 1);
+    void * nTMPv = (void *) (domains_array->data);
+    double * dd_data = (double *) nTMPv; 
     int domains_len = domains_array->dimensions[0];
 
-    _val = sim1D_new(domains_len,domains_data);
+    int * domains_data = (int *) malloc(sizeof(int) * domains_len);
+    for (int i = 0; i <  domains_len; i++) {
+      domains_data[i] = (int) dd_data[i];
+    }
+ 
+    _val = sim1D_new(domains_len, domains_data);
+
+    free(domains_data);
     Py_DECREF(domains_array); 
     if (int(_val) == -1) return reportCanteraError();
     return Py_BuildValue("i",_val);
@@ -664,13 +685,13 @@ py_sim1D_setProfile(PyObject *self, PyObject *args)
 
     PyArrayObject* pos_array = (PyArrayObject*)
       PyArray_ContiguousFromObject(pos, PyArray_DOUBLE, 1, 1);
-    double* pos_data = (double*)pos_array->data;
+    double* pos_data = (double*)(pos_array->data);
     int pos_len = pos_array->dimensions[0];
 
 
     PyArrayObject* v_array = (PyArrayObject*)
       PyArray_ContiguousFromObject(v, PyArray_DOUBLE, 1, 1);
-    double* v_data = (double*)v_array->data;
+    double* v_data = (double*)(v_array->data);
     int v_len = v_array->dimensions[0];
 
     _val = sim1D_setProfile(i,dom,comp,pos_len,pos_data,v_len,v_data);
@@ -716,23 +737,36 @@ py_sim1D_showSolution(PyObject *self, PyObject *args)
 static PyObject *
 py_sim1D_setTimeStep(PyObject *self, PyObject *args)
 {
-    int _val;
-    int i;
-    double stepsize;
-    PyObject* nsteps;
-    if (!PyArg_ParseTuple(args, "idO:sim1D_setTimeStep", &i, &stepsize, &nsteps)) 
-        return NULL;
-        
+  int _val;
+  int i;
+  double stepsize;
+  PyObject* nsteps;
+  if (!PyArg_ParseTuple(args, "idO:sim1D_setTimeStep", &i, &stepsize, &nsteps)) {
+    
+    return NULL;
+  }
+    
+  // Found that the PyArray_INT had to be replaced by PyArray_DOUBLE
+  // in the call below. This needs exploring.
+  // PyArrayObject* nsteps_array = (PyArrayObject*)
+  //  PyArray_ContiguousFromObject(nsteps, PyArray_INT, 1, 1);
+  PyArrayObject* nsteps_array = (PyArrayObject*)
+    PyArray_ContiguousFromObject(nsteps, PyArray_DOUBLE, 1, 1);
 
-    PyArrayObject* nsteps_array = (PyArrayObject*)
-      PyArray_ContiguousFromObject(nsteps, PyArray_INT, 1, 1);
-    integer* nsteps_data = (integer*)nsteps_array->data;
-    int nsteps_len = nsteps_array->dimensions[0];
+  void * nTMPv = (void *) (nsteps_array->data);
+  double * nsteps_data = (double *) nTMPv; 
+  int nsteps_len = nsteps_array->dimensions[0];
 
-    _val = sim1D_setTimeStep(i,stepsize,nsteps_len,nsteps_data);
-    Py_DECREF(nsteps_array); 
-    if (int(_val) == -1) return reportCanteraError();
-    return Py_BuildValue("i",_val);
+  int * nsteps_datai = (int *) malloc(sizeof(int) * nsteps_len);
+  for (int i = 0; i <  nsteps_len; i++) {
+    nsteps_datai[i] = (int) nsteps_data[i];
+  }
+  _val = sim1D_setTimeStep(i, stepsize, nsteps_len, nsteps_datai);
+  free(nsteps_datai);
+
+  Py_DECREF(nsteps_array); 
+  if (int(_val) == -1) return reportCanteraError();
+  return Py_BuildValue("i",_val);
 }
 
 
