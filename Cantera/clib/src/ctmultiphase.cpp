@@ -230,8 +230,9 @@ extern "C" {
 					    doublereal rtol, int maxsteps,
 					    int maxiter, int loglevel) { 
     try {
-      return vcs_equilibrate(*_mix(i), XY, estimateEquil, printLvl, solver,
-			     rtol, maxsteps, maxiter, loglevel);
+      int retn = vcs_equilibrate(*_mix(i), XY, estimateEquil, printLvl, solver,
+				 rtol, maxsteps, maxiter, loglevel);
+      return (double) retn;
     }
     catch (CanteraError) {
       return DERR;

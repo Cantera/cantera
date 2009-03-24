@@ -1733,10 +1733,64 @@ AC_OUTPUT(Makefile \
 	  Cantera/user/Makefile \
 	  Cantera/python/src/Makefile \
 	  Cantera/python/examples/equilibrium/Makefile \
+	  Cantera/python/examples/equilibrium/adiabatic_flame/Makefile \
+	  Cantera/python/examples/equilibrium/adiabatic_flame/runtest \
+	  Cantera/python/examples/equilibrium/multiphase_plasma/Makefile \
+	  Cantera/python/examples/equilibrium/multiphase_plasma/runtest \
+	  Cantera/python/examples/equilibrium/simple_test/Makefile \
+	  Cantera/python/examples/equilibrium/simple_test/runtest \
+	  Cantera/python/examples/equilibrium/stoich_flame/Makefile \
+	  Cantera/python/examples/equilibrium/stoich_flame/runtest \
+	  Cantera/python/examples/gasdynamics/isentropic/Makefile \
+	  Cantera/python/examples/gasdynamics/isentropic/runtest \
+	  Cantera/python/examples/gasdynamics/soundSpeed/Makefile \
+	  Cantera/python/examples/gasdynamics/soundSpeed/runtest \
+	  Cantera/python/examples/flames/adiabatic_flame/Makefile \
+	  Cantera/python/examples/flames/adiabatic_flame/runtest \
+	  Cantera/python/examples/flames/flame1/Makefile \
+	  Cantera/python/examples/flames/flame1/runtest \
+	  Cantera/python/examples/flames/flame2/Makefile \
+	  Cantera/python/examples/flames/flame2/runtest \
+	  Cantera/python/examples/flames/flame_fixed_T/Makefile \
+	  Cantera/python/examples/flames/flame_fixed_T/runtest \
+	  Cantera/python/examples/flames/free_h2_air/Makefile \
+	  Cantera/python/examples/flames/free_h2_air/runtest \
+	  Cantera/python/examples/flames/npflame1/Makefile \
+	  Cantera/python/examples/flames/npflame1/runtest \
+	  Cantera/python/examples/flames/stflame1/Makefile \
+	  Cantera/python/examples/flames/stflame1/runtest \
 	  Cantera/python/examples/fuel_cells/Makefile \
+	  Cantera/python/examples/fuel_cells/runtest \
+	  Cantera/python/examples/liquid_vapor/critProperties/Makefile \
+	  Cantera/python/examples/liquid_vapor/critProperties/runtest \
+	  Cantera/python/examples/liquid_vapor/rankine/Makefile \
+	  Cantera/python/examples/liquid_vapor/rankine/runtest \
 	  Cantera/python/examples/kinetics/Makefile \
 	  Cantera/python/examples/misc/Makefile \
+	  Cantera/python/examples/reactors/combustor_sim/Makefile \
+	  Cantera/python/examples/reactors/combustor_sim/runtest \
+	  Cantera/python/examples/reactors/functors_sim/Makefile \
+	  Cantera/python/examples/reactors/functors_sim/runtest \
+	  Cantera/python/examples/reactors/mix1_sim/Makefile \
+	  Cantera/python/examples/reactors/mix1_sim/runtest \
+	  Cantera/python/examples/reactors/mix2_sim/Makefile \
+	  Cantera/python/examples/reactors/mix2_sim/runtest \
+	  Cantera/python/examples/reactors/piston_sim/Makefile \
+	  Cantera/python/examples/reactors/piston_sim/runtest \
+	  Cantera/python/examples/reactors/reactor1_sim/Makefile \
+	  Cantera/python/examples/reactors/reactor1_sim/runtest \
+	  Cantera/python/examples/reactors/reactor2_sim/Makefile \
+	  Cantera/python/examples/reactors/reactor2_sim/runtest \
+	  Cantera/python/examples/reactors/sensitivity_sim/Makefile \
+	  Cantera/python/examples/reactors/sensitivity_sim/runtest \
+	  Cantera/python/examples/reactors/surf_pfr_sim/Makefile \
+	  Cantera/python/examples/reactors/surf_pfr_sim/runtest \
+	  Cantera/python/examples/surface_chemistry/diamond_cvd/Makefile \
+	  Cantera/python/examples/surface_chemistry/diamond_cvd/runtest \
+	  Cantera/python/examples/surface_chemistry/catcomb_stagflow/Makefile \
+	  Cantera/python/examples/surface_chemistry/catcomb_stagflow/runtest \
 	  Cantera/python/examples/transport/Makefile \
+	  Cantera/python/examples/transport/runtest \
 	  Cantera/python/examples/flames/Makefile \
 	  Cantera/python/examples/gasdynamics/Makefile \
 	  Cantera/python/examples/liquid_vapor/Makefile \
@@ -1841,6 +1895,87 @@ fi
 if test -f "test_problems/VPsilane_test/runtest"; then
   chmod +x test_problems/VPsilane_test/runtest
 fi
+if test -f  "Cantera/python/examples/equilibrium/adiabatic_flame/runtest"; then
+  chmod +x  Cantera/python/examples/equilibrium/adiabatic_flame/runtest
+fi 
+if test -f  "Cantera/python/examples/equilibrium/multiphase_plasma/runtest"; then
+  chmod +x  Cantera/python/examples/equilibrium/multiphase_plasma/runtest
+fi 
+if test -f  "Cantera/python/examples/equilibrium/simple_test/runtest"; then
+  chmod +x  Cantera/python/examples/equilibrium/simple_test/runtest
+fi 
+if test -f  "Cantera/python/examples/equilibrium/stoich_flame/runtest"; then
+  chmod +x  Cantera/python/examples/equilibrium/stoich_flame/runtest
+fi 
+if test -f  "Cantera/python/examples/gasdynamics/isentropic/runtest"; then
+  chmod +x  Cantera/python/examples/gasdynamics/isentropic/runtest
+fi 
+if test -f  "Cantera/python/examples/gasdynamics/soundSpeed/runtest"; then
+  chmod +x  Cantera/python/examples/gasdynamics/soundSpeed/runtest
+fi 
+if test -f  "Cantera/python/examples/flames/adiabatic_flame/runtest"; then
+  chmod +x  Cantera/python/examples/flames/adiabatic_flame/runtest
+fi 
+if test -f  "Cantera/python/examples/flames/flame1/runtest"; then
+  chmod +x  Cantera/python/examples/flames/flame1/runtest
+fi 
+if test -f  "Cantera/python/examples/flames/flame2/runtest"; then
+  chmod +x  Cantera/python/examples/flames/flame2/runtest
+fi 
+if test -f  "Cantera/python/examples/flames/flame_fixed_T/runtest"; then
+  chmod +x  Cantera/python/examples/flames/flame_fixed_T/runtest
+fi 
+if test -f  "Cantera/python/examples/flames/free_h2_air/runtest"; then
+  chmod +x  Cantera/python/examples/flames/free_h2_air/runtest
+fi 
+if test -f  "Cantera/python/examples/flames/npflame1/runtest"; then
+  chmod +x  Cantera/python/examples/flames/npflame1/runtest
+fi 
+if test -f  "Cantera/python/examples/flames/stflame1/runtest"; then
+  chmod +x  Cantera/python/examples/flames/stflame1/runtest
+fi 
+if test -f  "Cantera/python/examples/fuel_cells/runtest"; then
+  chmod +x  Cantera/python/examples/fuel_cells/runtest
+fi 
+if test -f  "Cantera/python/examples/liquid_vapor/critProperties/runtest"; then
+  chmod +x  Cantera/python/examples/liquid_vapor/critProperties/runtest
+fi 
+if test -f  "Cantera/python/examples/liquid_vapor/rankine/runtest"; then
+  chmod +x  Cantera/python/examples/liquid_vapor/rankine/runtest
+fi 
+if test -f  "Cantera/python/examples/reactors/combustor_sim/runtest"; then
+  chmod +x  Cantera/python/examples/reactors/combustor_sim/runtest
+fi 
+if test -f  "Cantera/python/examples/reactors/mix1_sim/runtest"; then
+  chmod +x  Cantera/python/examples/reactors/mix1_sim/runtest
+fi 
+if test -f  "Cantera/python/examples/reactors/mix2_sim/runtest"; then
+  chmod +x  Cantera/python/examples/reactors/mix2_sim/runtest
+fi 
+if test -f  "Cantera/python/examples/reactors/piston_sim/runtest"; then
+  chmod +x  Cantera/python/examples/reactors/piston_sim/runtest
+fi 
+if test -f  "Cantera/python/examples/reactors/reactor1_sim/runtest"; then
+  chmod +x  Cantera/python/examples/reactors/reactor1_sim/runtest
+fi 
+if test -f  "Cantera/python/examples/reactors/reactor2_sim/runtest"; then
+  chmod +x  Cantera/python/examples/reactors/reactor2_sim/runtest
+fi 
+if test -f  "Cantera/python/examples/reactors/sensitivity_sim/runtest"; then
+  chmod +x  Cantera/python/examples/reactors/sensitivity_sim/runtest
+fi
+if test -f  "Cantera/python/examples/reactors/surf_pfr_sim/runtest"; then
+  chmod +x  Cantera/python/examples/reactors/surf_pfr_sim/runtest
+fi
+if test -f  "Cantera/python/examples/surface_chemistry/diamond_cvd/runtest"; then
+  chmod +x  Cantera/python/examples/surface_chemistry/diamond_cvd/runtest
+fi 
+if test -f  "Cantera/python/examples/surface_chemistry/catcomb_stagflow/runtest"; then
+  chmod +x  Cantera/python/examples/surface_chemistry/catcomb_stagflow/runtest
+fi 
+if test -f  "Cantera/python/examples/transport/runtest"; then
+  chmod +x  Cantera/python/examples/transport/runtest
+fi 
 if test -f "bin/install_tsc"; then
   chmod +x bin/install_tsc
 fi

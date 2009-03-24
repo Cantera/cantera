@@ -5,7 +5,7 @@
 #
 #############################################################################
 .SUFFIXES :
-.SUFFIXES : .cpp .d .o .dh .h 
+.SUFFIXES : .cpp .d .o  .h 
 
 # the name of the executable program to be created
 PROG_NAME = combustor

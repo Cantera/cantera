@@ -884,7 +884,7 @@ namespace Cantera {
 	m_A(i,i) = 0.0;
 	for (j = 0; j < m_nsp; j++){
 	  if (j != i) {
-	    tmp = m_concentrations[j]/ m_DiffCoeff_StefMax(i,j);
+	    tmp = m_concentrations[j] / m_DiffCoeff_StefMax(i,j);
 	    m_A(i,i) +=   tmp;
 	    m_A(i,j)  = - tmp;
 	  }
@@ -934,7 +934,7 @@ namespace Cantera {
 	m_A(i,i) = 0.0;
 	for (j = 0; j < m_nsp; j++) {
 	  if (j != i) {
-	    tmp =  m_concentrations[j]/ m_DiffCoeff_StefMax(i,j);
+	    tmp =  m_concentrations[j] / m_DiffCoeff_StefMax(i,j);
 	    m_A(i,i) +=   tmp;
 	    m_A(i,j)  = - tmp;
 	  }
