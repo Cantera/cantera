@@ -546,8 +546,11 @@ class Stack:
         >>> s.setTimeStep(1.0e-5, [1, 2, 5, 10])
 
         """
-        _cantera.sim1D_setTimeStep(self._hndl, stepsize,
-                                   asarray(nsteps))
+        # 3/20/09
+        # The use of asarray seems to set the nsteps array to be of
+        # type double. This needs to be checked out further.
+        # Probably a function of python version and Numerics version
+        _cantera.sim1D_setTimeStep(self._hndl, stepsize, asarray(nsteps))
         
     def getInitialSoln(self):
         """Load the initial solution from each domain into the global
