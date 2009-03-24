@@ -21,6 +21,16 @@ test:
             (cd $${d}; $(MAKE) test) ; \
         done)
 
+install:
+	@INSTALL@ -d  @ct_demodir@/python
+	@INSTALL@ -c -m ug+rw,o+r Makefile @ct_demodir@/python 
+	@INSTALL@ -c -m ug+rw,o+r run_examples.py @ct_demodir@/python 
+	@(for d in $(PY_DEMO_DIRS) ; do \
+            echo "entering directory $${d}..."; \
+            (cd $${d}; $(MAKE) install) ; \
+        done)
+
+
 clean:
 	@(for dd in $(PY_DEMO_DIRS) ; do \
 	    echo "entering directory $${dd}..."; \
