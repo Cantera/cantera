@@ -3661,6 +3661,20 @@ namespace VCSnonideal {
   /*
    *  We make the choice based on testing (molNum[i] * spSize[i]) for its maximum value.
    *  Preference for single species phases is also made.
+   *
+   *  The factors of 1.01 and 1.001 are placed in this routine for a purpose.
+   *  The purpose is to ensure that roundoff errors don't influence major decisions.
+   *  This means that the optimized and non-optimized versions of the code remain
+   *  close to each other. 
+   *
+   *  ( we try to avoid the logic:   a = b
+   *                                 if (a > b) { do this }
+   *                                 else       { do something else } 
+   *    because roundoff error makes a difference in the inequality evaluation)
+   *
+   *  Mole numbers are frequently equal to each other in equilibrium problems 
+   *  due to constraints. Swaps are only done if there are a 1% difference in the
+   *  mole numbers. Of course this logic isn't fullproof.
    *   
    * @param molNum  Mole number vector
    * @param j       index into molNum[] that indicates where the search will start from
@@ -3671,7 +3685,7 @@ namespace VCSnonideal {
   int VCS_SOLVE::vcs_basisOptMax(const double * const molNum, const int j,
 				 const int n) {
     int largest = j;
-    double big = molNum[j] * m_spSize[j];
+    double big = molNum[j] * m_spSize[j] * 1.01;
     AssertThrowVCS(m_spSize[j] > 0.0, "spsize is nonpos");
     for (int i = j + 1; i < n; ++i) {
       AssertThrowVCS(m_spSize[i] > 0.0, "spsize is nonpos");
@@ -3680,14 +3694,14 @@ namespace VCSnonideal {
 	doSwap = (molNum[i] * m_spSize[i]) > (big);
 	if (!m_SSPhase[i]) {
 	  if (doSwap) {
-	    doSwap = (molNum[i]) > (molNum[largest]);
+	    doSwap = (molNum[i]) > (molNum[largest] * 1.001);
 	  }
 	}
       } else {
 	if (m_SSPhase[i]) {
 	  doSwap = (molNum[i] * m_spSize[i]) > (big);
 	  if (!doSwap) {
-	    doSwap = (molNum[i]) > (molNum[largest]);
+	    doSwap = (molNum[i]) > (molNum[largest] * 1.001);
 	  }
 	} else {
 	  doSwap = (molNum[i] * m_spSize[i]) > (big);
@@ -3695,7 +3709,7 @@ namespace VCSnonideal {
       }
       if (doSwap) {
 	largest = i;
-	big = molNum[i] * m_spSize[i];
+	big = molNum[i] * m_spSize[i] * 1.01;
       }
     }
     return largest;

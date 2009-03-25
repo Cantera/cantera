@@ -361,11 +361,11 @@ namespace VCSnonideal {
 	plogf("             ");
       }
       
-      plogf("| %20.13E |", m_feSpecies_old[l] * m_molNumSpecies_old[l] * molScale);
+      plogf("| %20.10E |", m_feSpecies_old[l] * m_molNumSpecies_old[l] * molScale);
       plogf("\n");
     }
     for (i = 0; i < 125; i++) plogf(" ");
-    plogf("%20.13E\n", g);
+    plogf("%20.10E\n", g);
     print_line("-", 147);
 
     /*
