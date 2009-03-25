@@ -200,11 +200,11 @@ ifeq ($(os_is_win),0)
 	cp -f License.txt "@ct_bindir@"
 ifneq ($(build_python),0)
 ifeq ($(build_python),2)
-	chmod +x @ct_bindir@/mixmaster
 endif
 	@INSTALL@ -c tools/src/finish_install.py tools/bin
 	(PYTHONPATH=''; @PYTHON_CMD@ tools/bin/finish_install.py @prefix@ @PYTHON_CMD@)
 	chmod +x @ct_bindir@/ctnew
+	chmod +x @ct_bindir@/mixmaster
 endif
 else
 #          Commands to be executed for win systems
