@@ -1732,6 +1732,7 @@ AC_OUTPUT(Makefile \
 	  Cantera/cxx/include/Cantera_bt.mak \
 	  Cantera/user/Makefile \
 	  Cantera/python/src/Makefile \
+	  Cantera/python/examples/Makefile \
 	  Cantera/python/examples/equilibrium/Makefile \
 	  Cantera/python/examples/equilibrium/adiabatic_flame/Makefile \
 	  Cantera/python/examples/equilibrium/adiabatic_flame/runtest \
@@ -1766,7 +1767,9 @@ AC_OUTPUT(Makefile \
 	  Cantera/python/examples/liquid_vapor/rankine/Makefile \
 	  Cantera/python/examples/liquid_vapor/rankine/runtest \
 	  Cantera/python/examples/kinetics/Makefile \
+	  Cantera/python/examples/kinetics/runtest \
 	  Cantera/python/examples/misc/Makefile \
+	  Cantera/python/examples/misc/runtest \
 	  Cantera/python/examples/reactors/combustor_sim/Makefile \
 	  Cantera/python/examples/reactors/combustor_sim/runtest \
 	  Cantera/python/examples/reactors/functors_sim/Makefile \
@@ -1942,6 +1945,12 @@ if test -f  "Cantera/python/examples/liquid_vapor/critProperties/runtest"; then
 fi 
 if test -f  "Cantera/python/examples/liquid_vapor/rankine/runtest"; then
   chmod +x  Cantera/python/examples/liquid_vapor/rankine/runtest
+fi 
+if test -f  "Cantera/python/examples/kinetics/runtest"; then
+  chmod +x  Cantera/python/examples/kinetics/runtest
+fi 
+if test -f  "Cantera/python/examples/misc/runtest"; then
+  chmod +x  Cantera/python/examples/misc/runtest
 fi 
 if test -f  "Cantera/python/examples/reactors/combustor_sim/runtest"; then
   chmod +x  Cantera/python/examples/reactors/combustor_sim/runtest

@@ -1,4 +1,7 @@
-
+#!/bin/sh
+#
+# $Id$
+#
 export_dir = $(HOME)/sfdist
 version = @ctversion@
 ct = $(export_dir)/cantera-$(version)
@@ -16,9 +19,6 @@ cvs_tag = @CVSTAG@
 branch = -r $(cvs_tag)
 RMDIRTREE = /bin/rm -r -f
 INSTALL_TSC = bin/install_tsc
-
-PY_EXAMPLES = equilibrium fuel_cells flames reactors misc liquid_vapor \
-              gasdynamics kinetics surface_chemistry transport
 
 prefix=@prefix@
 
@@ -49,9 +49,6 @@ kernel:
 	@INSTALL@ -d @buildbin@
 	cd ext; @MAKE@
 	cd Cantera/src; @MAKE@
-#ifeq ($(do_ranlib),1)
-#	@RANLIB@ @buildlib@/*.a
-#endif
 
 # build the user library
 user:
@@ -151,28 +148,11 @@ python-install:
 ifneq ($(build_python),0)
 	cd Cantera/python; @MAKE@ install
 ifeq ($(build_python),2)
-	@(for exdir in $(PY_EXAMPLES) ; do \
-	     @INSTALL@ -d @ct_demodir@/python/$${exdir} ; \
-	     (for ihhh in Cantera/python/examples/$${exdir}/*.py ; do  \
-	          @INSTALL@ -c $${ihhh} @ct_demodir@/python/$${exdir} ; \
-                  echo "@INSTALL@ -c $${ihhh} @ct_demodir@/python/$${exdir}" ; \
-              done ) ; \
-	     (for ihhh in Cantera/python/examples/$${exdir}/*.cti ; do  \
-	          @INSTALL@ -c $${ihhh} @ct_demodir@/python/$${exdir} ; \
-              done ) ; \
-	      @INSTALL@ -c Cantera/python/examples/$${exdir}/Makefile @ct_demodir@/python/$${exdir} ; \
-          done)
-	@(for ihhh in Cantera/python/examples/flames/*.dat ; do  \
-             @INSTALL@ -c $${ihhh} @ct_demodir@/python/flames ; \
-             echo "@INSTALL@ -c $${ihhh} @ct_demodir@/python/flames" ; \
-          done )
-	@INSTALL@ -c Cantera/python/examples/Makefile @ct_demodir@/python 
 	@INSTALL@ -d @ct_tutdir@/python
 	@(for ihhh in Cantera/python/tutorial/*.py ; do  \
             @INSTALL@ -c $${ihhh} @ct_tutdir@/python ; \
             echo "@INSTALL@ -c $${ihhh} @ct_tutdir@/python" ; \
           done )
-	chown -R @username@ @ct_demodir@/python
 	chown -R @username@ @ct_tutdir@/python
 else
 	@echo 'NOT installing Python demos or tutorials'
@@ -204,13 +184,16 @@ demo-install:
 	( for ihhh in Cantera/fortran/f77demos/*.txt ; do  \
           @INSTALL@ -c -m ug+rw,o+r $${ihhh} @ct_demodir@/f77 ;  done )
 	chown -R @username@ @ct_demodir@/f77
+ifeq ($(build_python),2)
+	(cd Cantera/python/examples; @MAKE@ install)
+	chown -R @username@ @ct_demodir@/python
+endif
 
 finish-install:
 	@INSTALL@ -d @ct_docdir@
 	@INSTALL@ -d @ct_bindir@
 ifeq ($(os_is_win),0)
 #          Commands to be executed for non-win systems
-	chmod +x @ct_bindir@/ctnew
 	cp -f "@homedir@/setup_cantera" "@ct_bindir@"
 	chmod +x @ct_bindir@/setup_cantera
 	cp -f License.rtf "@ct_bindir@"
@@ -221,6 +204,7 @@ ifeq ($(build_python),2)
 endif
 	@INSTALL@ -c tools/src/finish_install.py tools/bin
 	(PYTHONPATH=''; @PYTHON_CMD@ tools/bin/finish_install.py @prefix@ @PYTHON_CMD@)
+	chmod +x @ct_bindir@/ctnew
 endif
 else
 #          Commands to be executed for win systems
@@ -317,9 +301,4 @@ cf:
 	  gzip cantera-cf.tar; scp cantera-cf.tar.gz dggoodwin@cf-shell.sourceforge.net:cantera.tar.gz)
 	sshcf './runall' &
 
-configure: config/configure.in
-	(cd config; autoconf)
-
-#info:
-#	echo '#define CANTERA_ROOT "@prefix@/cantera"' > include/ctdir.h
 
