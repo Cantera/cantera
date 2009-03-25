@@ -60,7 +60,7 @@ echo " "
 #################################################################
 
 echo "Testing surface chemistry..."
-$PYTHON_CMD ../../Cantera/python/examples/surface_chemistry/diamond.py > diamond.out
+$PYTHON_CMD ../../Cantera/python/examples/surface_chemistry/diamond_cvd/diamond.py > diamond.out
 retnStat=$?
 if [ $retnStat != "0" ]
 then
