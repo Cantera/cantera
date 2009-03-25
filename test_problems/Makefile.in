@@ -27,6 +27,7 @@ all:
 	cd CpJump; @MAKE@ all
 	cd mixGasTransport; @MAKE@ all
 	cd multiGasTransport; @MAKE@ all
+	cd printUtilUnitTest; @MAKE@ all
 ifeq ($(test_pure_fluids),1)
 	cd pureFluidTest;     @MAKE@ all
 	cd rankine_democxx;     @MAKE@ all
@@ -66,6 +67,7 @@ test:
 	@ cd CpJump;               @MAKE@ -s test
 	@ cd mixGasTransport;      @MAKE@ -s test
 	@ cd multiGasTransport;    @MAKE@ -s test
+	@ cd printUtilUnitTest;    @MAKE@ -s test
 ifeq ($(test_pure_fluids),1)
 	@ cd pureFluidTest;        @MAKE@  -s test
 	@ cd rankine_democxx;      @MAKE@  -s test
@@ -107,6 +109,7 @@ clean:
 	cd CpJump;                $(RM) .depends ; @MAKE@ clean
 	cd mixGasTransport;       $(RM) .depends ; @MAKE@ clean
 	cd multiGasTransport;     $(RM) .depends ; @MAKE@ clean
+	cd printUtilUnitTest;     $(RM) .depends ; @MAKE@ clean
 	cd pureFluidTest;         $(RM) .depends ; @MAKE@ clean
 	cd rankine_democxx;       $(RM) .depends ; @MAKE@ clean
 	cd ck2cti_test;           $(RM) .depends ; @MAKE@ clean
@@ -134,6 +137,7 @@ depends:
 	cd CpJump;               @MAKE@ depends
 	cd mixGasTransport;      @MAKE@ depends
 	cd multiGasTransport;    @MAKE@ depends
+	cd printUtilUnitTest;    @MAKE@ depends
 ifeq ($(test_cathermo),1)
 	cd pureFluidTest;        @MAKE@ depends
 	cd rankine_democxx;      @MAKE@ depends
