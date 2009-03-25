@@ -4,6 +4,8 @@ INST_DIR=@ct_demodir@/python/reactors/mix1_sim
 
 PYTHON_CMD = @PYTHON_CMD@
 
+all:
+
 run:
 	$(PYTHON_CMD) mix1.py
 

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-INST_DIR=@ct_demodir@/python/piston_sim
+INST_DIR=@ct_demodir@/python/reactors/piston_sim
 
 PYTHON_CMD = @PYTHON_CMD@
 
