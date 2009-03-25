@@ -1840,6 +1840,7 @@ AC_OUTPUT(Makefile \
           test_problems/CpJump/Makefile \
           test_problems/mixGasTransport/Makefile \
           test_problems/multiGasTransport/Makefile \
+          test_problems/printUtilUnitTest/Makefile \
           test_problems/fracCoeff/Makefile \
           test_problems/negATest/Makefile \
           test_problems/NASA9poly_test/Makefile \
