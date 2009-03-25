@@ -477,7 +477,7 @@ CT_SHARED_LIB=${CT_SHARED_LIB:=clib}
 RPFONT=${RPFONT:="Helvetica"}
 
 # Don't change this.
-CANTERA_VERSION=${CANTERA_VERSION:="1.7.1"} 
+CANTERA_VERSION=${CANTERA_VERSION:="1.8.0"} 
 
 #-----------------------------------------------------------------------
 #------------------- don't change anything below!! ---------------------

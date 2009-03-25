@@ -67,7 +67,7 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 #define HAS_SSTREAM 1
 
 // Cantera version
-#define CANTERA_VERSION "1.7.0"
+#define CANTERA_VERSION "1.8.0"
 
 // Identify whether the operating system is cygwin's overlay of
 // windows, with gcc being used as the compiler.
