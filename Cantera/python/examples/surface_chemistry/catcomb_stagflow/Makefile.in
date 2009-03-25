@@ -5,6 +5,8 @@ INST_DIR=@ct_demodir@/python/surface_chemistry/catcomb_stagflow
 
 PYTHON_CMD = @PYTHON_CMD@
 
+all:
+
 run:
 	$(PYTHON_CMD) catcomb.py
 
@@ -13,12 +15,12 @@ test:
 
 install:
 	@INSTALL@ -d  $(INST_DIR)
+	@INSTALL@ -c -m ug+rw,o+r Makefile   $(INST_DIR)
 	@INSTALL@ -c -m ug+rw,o+r catcomb.py   $(INST_DIR)
 	@INSTALL@ -c   runtest $(INST_DIR)
 	@INSTALL@ -c   cleanup $(INST_DIR)
 	@INSTALL@ -c -m ug+rw,o+r output_blessed_0.txt    $(INST_DIR)
 	@INSTALL@ -c -m ug+rw,o+r catcomb_blessed_0.csv $(INST_DIR)
-
 
 clean:
 	./cleanup
