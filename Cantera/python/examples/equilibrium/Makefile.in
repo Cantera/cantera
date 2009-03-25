@@ -18,7 +18,7 @@ run:
 
 test:
 	@(for py in $(PY_DEMOS) ; do \
-	    echo "running $${py} test"; \
+	    echo "testing $${py} test"; \
 	    cd "$${py}"; \
             $(MAKE) test ; \
 	    cd .. ; \
@@ -35,7 +35,6 @@ install:
 
 
 clean:
-	rm -f *.log *.csv *.xml
 	@(for py in $(PY_DEMOS) ; do \
 	    cd "$${py}"; \
             $(MAKE) clean ; \
