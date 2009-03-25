@@ -15,6 +15,7 @@ test:
 
 install:
 	@INSTALL@ -d  $(INST_DIR)
+	@INSTALL@ -c -m ug+rw,o+r Makefile      $(INST_DIR)
 	@INSTALL@ -c -m ug+rw,o+r surf_pfr.py   $(INST_DIR)
 	@INSTALL@ -c   runtest $(INST_DIR)
 	@INSTALL@ -c   cleanup $(INST_DIR)
