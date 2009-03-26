@@ -1309,8 +1309,11 @@ else
 fi
 
 if test "x$OS_IS_WIN" = "x1"; then
-  CXX=cl.exe
-  CC=cl.exe
+  #CXX=cl.exe
+  #CC=cl.exe
+  #export CXX
+  AC_PROG_CXX()
+  AC_PROG_CC()
 else
 
 #
@@ -1885,10 +1888,11 @@ AC_OUTPUT(Makefile \
           )
 #	)
 if test "x${OS_IS_WIN}" = "x1"; then
-cp -f config.h ../Cantera/src
-cd ext/f2c_libs
-cp arith.hwin32 arith.h
-cd ../..
+  cp -f config.h winconfig.h
+  echo 'copying config.h, which we just customized for the requested configuration, to winconfg.h'
+  cd ext/f2c_libs
+  cp arith.hwin32 arith.h
+  cd ../..
 fi
 if test -f "test_problems/ck2cti_test/runtest"; then
   chmod +x test_problems/ck2cti_test/runtest
@@ -1997,10 +2001,11 @@ fi
 echo
 if test "x${OS_IS_WIN}" = "x0"; then
   echo "Now type '${MAKE}' to build Cantera"
-#  else
-#  echo "Now start Visual Studio, open workspace 'win32/cantera.dsw',"
-#  echo "and build project 'all'. When this finishes, come back here and "
-#  echo "type 'make win' to make the Python and/or MATLAB interfaces."
+else
+  echo "Now start Visual Studio, open workspace 'win32/vc8/cantera.sln',"
+  echo "and build project 'all'. "
+#   echo " When this finishes, come back here and "
+#   echo "type 'make win' to make the Python and/or MATLAB interfaces."
 fi 
 echo  
 
