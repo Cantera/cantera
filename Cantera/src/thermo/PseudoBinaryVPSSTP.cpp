@@ -23,6 +23,9 @@
 
 
 #include "PseudoBinaryVPSSTP.h"
+
+#include <cmath>
+
 using namespace std;
 
 namespace Cantera {
@@ -192,20 +195,20 @@ namespace Cantera {
 
       
       for (k = 0; k < numCationSpecies_; k++) {
-	PBMoleFractions_[1+k] = moleFractionsTmp_[cationList_[k]];
+        PBMoleFractions_[1+k] = moleFractionsTmp_[cationList_[k]];
       }
 
       for (k = 0; k <  numPassThroughSpecies_; k++) {
-	PBMoleFractions_[neutralPBindexStart + k] =
-	  moleFractions_[cationList_[k]];
+	    PBMoleFractions_[neutralPBindexStart + k] =
+			moleFractions_[cationList_[k]];
       }
       
-      sum = fmax(0.0, PBMoleFractions_[0]);
+      sum = fmaxx(0.0, PBMoleFractions_[0]);
       for (k = 1; k < numPBSpecies_; k++) {
-	sum += PBMoleFractions_[k];
+        sum += PBMoleFractions_[k];
       }
       for (k = 0; k < numPBSpecies_; k++) {
-	PBMoleFractions_[k] /= sum;
+        PBMoleFractions_[k] /= sum;
       }
 
       break;
