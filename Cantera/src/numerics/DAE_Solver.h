@@ -5,7 +5,7 @@
  *  Header file for class DAE_Solver
  */
 
-/*  $Author$
+/*  
  *  $Date$
  *  $Revision$
  *
@@ -26,6 +26,7 @@
 
 namespace Cantera {
 
+#ifdef DAE_DEVEL
     /**
      * @defgroup numerics  Numerical Utilities within Cantera
      *
@@ -217,6 +218,8 @@ namespace Cantera {
                 +"DAE_Solver called. Nothing done.\n");
         }
     };
+
+#endif
 
 }
 
