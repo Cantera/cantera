@@ -44,7 +44,7 @@ namespace Cantera {
 
         virtual void setParameters(const int type, const int k, const doublereal* const p);
         
-        virtual void getMultiDiffCoeffs(int ld, doublereal* d);
+        virtual void getMultiDiffCoeffs(const int ld, doublereal* const d);
         
         virtual void getMolarFluxes(const doublereal* state1,
             const doublereal* state2, doublereal delta, 

@@ -184,7 +184,7 @@ namespace Cantera {
   /******************* binary diffusion coefficients **************/
 
 
-  void AqueousTransport::getBinaryDiffCoeffs(int ld, doublereal* d) {
+  void AqueousTransport::getBinaryDiffCoeffs(const int ld, doublereal* const d) {
     int i,j;
 
     update_T();
@@ -202,7 +202,7 @@ namespace Cantera {
   }
 
 
-  void AqueousTransport::getMobilities(doublereal* mobil) {
+  void AqueousTransport::getMobilities(doublereal* const mobil) {
     // this needs to be checked out. 
     int k;
     getMixDiffCoeffs(DATA_PTR(m_spwork));
@@ -214,19 +214,19 @@ namespace Cantera {
   
 
   
-  void AqueousTransport::set_Grad_V(const doublereal* grad_V) {
+  void AqueousTransport::set_Grad_V(const doublereal* const grad_V) {
     for (int a = 0; a < m_nDim; a++) {
       m_Grad_V[a] = grad_V[a];
     }
   }
 
-  void AqueousTransport::set_Grad_T(const doublereal* grad_T) {
+  void AqueousTransport::set_Grad_T(const doublereal* const grad_T) {
     for (int a = 0; a < m_nDim; a++) {
       m_Grad_T[a] = grad_T[a];
     }
   }
 
- void AqueousTransport::set_Grad_X(const doublereal* grad_X) {
+ void AqueousTransport::set_Grad_X(const doublereal* const grad_X) {
    int itop = m_nDim * m_nsp;
    for (int i = 0; i < itop; i++) {
      m_Grad_X[i] = grad_X[i];
@@ -270,7 +270,7 @@ namespace Cantera {
    * MultiTransport instead. This methods fills out array dt with
    * zeros.
    */
-  void AqueousTransport::getThermalDiffCoeffs(doublereal* dt) {
+  void AqueousTransport::getThermalDiffCoeffs(doublereal* const dt) {
     int k;
     for (k = 0; k < m_nsp; k++) {
       dt[k] = 0.0;
@@ -343,7 +343,7 @@ namespace Cantera {
    * This is need to avoid a Nan result in the formula
    * below.
    */
-  void AqueousTransport::getMixDiffCoeffs(doublereal* d) {
+  void AqueousTransport::getMixDiffCoeffs(doublereal* const d) {
 
     update_T();
     update_C();

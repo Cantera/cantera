@@ -66,12 +66,12 @@ namespace Cantera {
     /*!
      * For this approximation, these are all zero.
      */
-    virtual void getThermalDiffCoeffs(doublereal* dt);
+    virtual void getThermalDiffCoeffs(doublereal* const dt);
 
     //! returns the mixture thermal conductivity
     virtual doublereal thermalConductivity();
 
-    virtual void getBinaryDiffCoeffs(int ld, doublereal* d);
+    virtual void getBinaryDiffCoeffs(const int ld, doublereal* const d);
 
     
     //! Mixture-averaged diffusion coefficients [m^2/s]. 
@@ -81,8 +81,8 @@ namespace Cantera {
     * This is need to avoid a Nan result in the formula
     * below.
     */
-    virtual void getMixDiffCoeffs(doublereal* d);
-    virtual void getMobilities(doublereal* mobil);
+    virtual void getMixDiffCoeffs(doublereal* const d);
+    virtual void getMobilities(doublereal* const mobil);
     virtual void update_T();
     virtual void update_C();
 

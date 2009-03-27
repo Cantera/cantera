@@ -1,6 +1,0 @@
-#include "TransportFactory.cpp"
-#include "MixTransport.cpp"
-#include "MultiTransport.cpp"
-#include "MMCollisionInt.cpp"
-#include "SolidTransport.cpp"
-#include "DustyGasTransport.cpp"

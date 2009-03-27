@@ -164,7 +164,7 @@ namespace Cantera {
     virtual void getSpeciesViscosities(doublereal* visc)
     { updateViscosity_T(); copy(m_visc.begin(), m_visc.end(), visc); }
 
-    virtual void getThermalDiffCoeffs(doublereal* dt);
+    virtual void getThermalDiffCoeffs(doublereal* const dt);
 
     //! Return the thermal conductivity of the solution
     /*!
@@ -183,42 +183,42 @@ namespace Cantera {
      *   @param ld 
      *   @param d   
      */
-    virtual void getBinaryDiffCoeffs(int ld, doublereal* d);
+    virtual void getBinaryDiffCoeffs(const int ld, doublereal* const d);
 
     //! Get the Mixture diffusion coefficients
     /*!
      *  @param d vector of mixture diffusion coefficients
      *          units = m2 s-1. length = number of species
      */
-    virtual void getMixDiffCoeffs(doublereal* d);
+    virtual void getMixDiffCoeffs(doublereal* const d);
 
 
     //! Get the Mobilities
     /*!
      * @param mobil
      */
-    virtual void getMobilities(doublereal* mobil);
+    virtual void getMobilities(doublereal* const mobil);
 
     //! Specify the value of the gradient of the voltage
     /*!
      *
      * @param grad_V Gradient of the voltage (length num dimensions);
      */
-    virtual void set_Grad_V(const doublereal* grad_V);
+    virtual void set_Grad_V(const doublereal* const grad_V);
 
     //! Specify the value of the gradient of the temperature
     /*!
      *
      * @param grad_V Gradient of the temperature (length num dimensions);
      */
-    virtual void set_Grad_T(const doublereal* grad_T);
+    virtual void set_Grad_T(const doublereal* const grad_T);
 
     //! Specify the value of the gradient of the MoleFractions
     /*!
      *
      * @param grad_X Gradient of the mole fractions(length nsp * num dimensions);
      */
-    virtual void set_Grad_X(const doublereal* grad_X);
+    virtual void set_Grad_X(const doublereal* const grad_X);
 
     //! Handles the effects of changes in the Temperature, internally
     //! within the object.

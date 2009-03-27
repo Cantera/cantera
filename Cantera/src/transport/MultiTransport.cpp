@@ -345,7 +345,7 @@ namespace Cantera {
     /**
      * @internal
      */
-    void MultiTransport::getThermalDiffCoeffs(doublereal* dt) {
+    void MultiTransport::getThermalDiffCoeffs(doublereal* const dt) {
 
         solveLMatrixEquation();
         const doublereal c = 1.6/GasConstant;
@@ -682,7 +682,7 @@ namespace Cantera {
         }
     }
 
-    void MultiTransport::getMultiDiffCoeffs(int ld, doublereal* d) {
+    void MultiTransport::getMultiDiffCoeffs(const int ld, doublereal* const d) {
         int i,j;
 
         doublereal p = pressure_ig();
@@ -720,7 +720,7 @@ namespace Cantera {
     }
 
 
-    void MultiTransport::getMixDiffCoeffs(doublereal* d) {
+    void MultiTransport::getMixDiffCoeffs(doublereal* const d) {
 
         // update the mole fractions
         updateTransport_C();

@@ -88,14 +88,14 @@ namespace Cantera {
 
         virtual doublereal viscosity();
 
-        virtual void getSpeciesViscosities(doublereal* visc)
+        virtual void getSpeciesViscosities(doublereal* const visc)
             { updateViscosity_T(); std::copy(m_visc.begin(), m_visc.end(), visc); }
 
-        virtual void getThermalDiffCoeffs(doublereal* dt);
+        virtual void getThermalDiffCoeffs(doublereal* const dt);
         virtual doublereal thermalConductivity();
 
-        virtual void getBinaryDiffCoeffs(int ld, doublereal* d);
-        virtual void getMultiDiffCoeffs(int ld, doublereal* d);
+        virtual void getBinaryDiffCoeffs(const int ld, doublereal* const d);
+        virtual void getMultiDiffCoeffs(const int ld, doublereal* const d);
 
         //! Although this class implements a multicomponent diffusion
         //! model, it is convenient to be able to compute
@@ -104,7 +104,7 @@ namespace Cantera {
          * @param d Mixture averaged diffusion coefficients
 	 *          Length = m_msp, units = m2/sec
          */
-        virtual void getMixDiffCoeffs(doublereal* d);
+        virtual void getMixDiffCoeffs(doublereal* const d);
 
         //! Get the species diffusive mass fluxes wrt to 
         //! the mass averaged velocity, 

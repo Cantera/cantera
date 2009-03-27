@@ -59,7 +59,7 @@ namespace Cantera {
      * Compute the mobilities of the species from the diffusion coefficients, 
      * using the Einstein relation.
      */
-    void SolidTransport::getMobilities(doublereal* mobil) {
+    void SolidTransport::getMobilities(doublereal* const mobil) {
         int k;
         getMixDiffCoeffs(mobil);
         doublereal t = m_thermo->temperature();
@@ -92,7 +92,7 @@ namespace Cantera {
      * which parameters have been specified using method
      * setParameters.
      */
-    void SolidTransport::getMixDiffCoeffs(doublereal* d) {
+    void SolidTransport::getMixDiffCoeffs(doublereal* const d) {
         doublereal temp = m_thermo->temperature();
         int nsp = m_thermo->nSpecies();
         int k;

@@ -163,7 +163,7 @@ namespace Cantera {
   /******************* binary diffusion coefficients **************/
 
 
-  void MixTransport::getBinaryDiffCoeffs(int ld, doublereal* d) {
+  void MixTransport::getBinaryDiffCoeffs(const int ld, doublereal* const d) {
     int i,j;
 
     update_T();
@@ -180,7 +180,7 @@ namespace Cantera {
   }
 
 
-  void MixTransport::getMobilities(doublereal* mobil) {
+  void MixTransport::getMobilities(doublereal* const mobil) {
     int k;
     getMixDiffCoeffs(DATA_PTR(m_spwork));
     doublereal c1 = ElectronCharge / (Boltzmann * m_temp);
@@ -226,7 +226,7 @@ namespace Cantera {
    * MultiTransport instead. This methods fills out array dt with
    * zeros.
    */
-  void MixTransport::getThermalDiffCoeffs(doublereal* dt) {
+  void MixTransport::getThermalDiffCoeffs(doublereal* const dt) {
     int k;
     for (k = 0; k < m_nsp; k++) {
       dt[k] = 0.0;
@@ -279,7 +279,7 @@ namespace Cantera {
    * This is need to avoid a Nan result in the formula
    * below.
    */
-  void MixTransport::getMixDiffCoeffs(doublereal* d) {
+  void MixTransport::getMixDiffCoeffs(doublereal* const d) {
 
     update_T();
     update_C();

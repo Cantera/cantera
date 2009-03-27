@@ -184,7 +184,7 @@ namespace Cantera {
      * the species in array \c mobil. The array must be
      * dimensioned at least as large as the number of species.
      */
-    virtual void getMobilities(doublereal* mobil)
+    virtual void getMobilities(doublereal* const mobil)
     { err("getMobilities"); }
 
 
@@ -258,14 +258,14 @@ namespace Cantera {
      * diffusion coefficients.  Dimension dt at least as large as
      * the number of species.
      */
-    virtual void getThermalDiffCoeffs(doublereal* dt) 
+    virtual void getThermalDiffCoeffs(doublereal* const dt) 
     { err("getThermalDiffCoeffs"); }
 
 
     /**
      * Binary diffusion coefficients [m^2/s].
      */
-    virtual void getBinaryDiffCoeffs(int ld, doublereal* d) 
+    virtual void getBinaryDiffCoeffs(const int ld, doublereal* const d) 
     { err("getBinaryDiffCoeffs"); }
 
 
@@ -275,7 +275,7 @@ namespace Cantera {
      * model, then this method returns the array of multicomponent
      * diffusion coefficients. Otherwise it throws an exception.
      */
-    virtual void getMultiDiffCoeffs(int ld, doublereal* d) 
+    virtual void getMultiDiffCoeffs(const int ld, doublereal* const d) 
     { err("getMultiDiffCoeffs"); }
 
 
@@ -286,7 +286,7 @@ namespace Cantera {
      * mixture-averaged diffusion coefficients. Otherwise it
      * throws an exception.
      */
-    virtual void getMixDiffCoeffs(doublereal* d) 
+    virtual void getMixDiffCoeffs(doublereal* const d) 
     { err("getMixDiffCoeffs"); }
 
 
