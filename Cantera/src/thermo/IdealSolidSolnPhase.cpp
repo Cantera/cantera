@@ -299,7 +299,7 @@ namespace Cantera {
    *        class
    */
   void IdealSolidSolnPhase::
-  setDensity(doublereal rho) {
+  setDensity(const doublereal rho) {
     /*
      * Unless the input density is exactly equal to the density
      * calculated and storred in the State object, we throw an
@@ -341,7 +341,7 @@ namespace Cantera {
    *  NOTE: This is a virtual function that overrides the State.h
    *        class
    */  
-  void IdealSolidSolnPhase::setMolarDensity(doublereal n) {
+  void IdealSolidSolnPhase::setMolarDensity(const doublereal n) {
     throw CanteraError("IdealSolidSolnPhase::setMolarDensity",
 		       "Density is not an independent variable");
   }
@@ -351,7 +351,7 @@ namespace Cantera {
    *
    * Sets the mole fractions and adjusts the internal density.
    */
-  void IdealSolidSolnPhase::setMoleFractions(const doublereal *x) {
+  void IdealSolidSolnPhase::setMoleFractions(const doublereal * const x) {
     State::setMoleFractions(x);
     calcDensity();
   }
@@ -361,7 +361,7 @@ namespace Cantera {
    *
    * Sets the mole fractions and adjusts the internal density.
    */
-  void IdealSolidSolnPhase::setMoleFractions_NoNorm(const doublereal *x) {
+  void IdealSolidSolnPhase::setMoleFractions_NoNorm(const doublereal * const x) {
     State::setMoleFractions(x);
     calcDensity();
   }
@@ -371,7 +371,7 @@ namespace Cantera {
    *
    * Sets the mass fractions and adjusts the internal density.
    */
-  void IdealSolidSolnPhase::setMassFractions(const doublereal *y) {
+  void IdealSolidSolnPhase::setMassFractions(const doublereal * const y) {
     State::setMassFractions(y);
     calcDensity();
   }
@@ -381,7 +381,7 @@ namespace Cantera {
    *
    * Sets the mass fractions and adjusts the internal density.
    */
-  void IdealSolidSolnPhase::setMassFractions_NoNorm(const doublereal *y) {
+  void IdealSolidSolnPhase::setMassFractions_NoNorm(const doublereal * const y) {
     State::setMassFractions_NoNorm(y);
     calcDensity();
   }
@@ -391,7 +391,7 @@ namespace Cantera {
    *
    * Sets the concentrations and adjusts the internal density
    */
-  void IdealSolidSolnPhase::setConcentrations(const doublereal *c) {
+  void IdealSolidSolnPhase::setConcentrations(const doublereal * const c) {
     State::setConcentrations(c);
     calcDensity();
   }

@@ -321,7 +321,7 @@ namespace Cantera {
      *
      * @param rho   Input Density
      */
-    void setDensity(doublereal rho);
+    void setDensity(const doublereal rho);
 
     /**
      * Overwritten setMolarDensity() function is necessary because the
@@ -334,7 +334,7 @@ namespace Cantera {
      *
      * @param rho   Input Density
      */
-    void setMolarDensity(doublereal rho);
+    void setMolarDensity(const doublereal rho);
 
     //! The isothermal compressibility. Units: 1/Pa.
     /*!

@@ -333,7 +333,7 @@ namespace Cantera {
      *
      * @param rho  Input density
      */
-    virtual void setDensity(doublereal rho);
+    virtual void setDensity(const doublereal rho);
 
     /**
      * Overwritten setMolarDensity() function is necessary because the
@@ -346,42 +346,42 @@ namespace Cantera {
      *
      * @param rho   Input Density 
      */
-    virtual void setMolarDensity(doublereal rho);
+    virtual void setMolarDensity(const doublereal rho);
 
     //! Set the mole fractions
     /*!
      * @param x  Input vector of mole fractions.
      *           Length: m_kk.
      */
-    virtual void setMoleFractions(const doublereal *x);
+    virtual void setMoleFractions(const doublereal * const x);
 
     //! Set the mole fractions, but don't normalize them to one.
     /*!
      * @param x  Input vector of mole fractions.
      *           Length: m_kk.
      */
-    virtual void setMoleFractions_NoNorm(const doublereal *x); 
+    virtual void setMoleFractions_NoNorm(const doublereal * const x); 
 
     //! Set the mass fractions, and normalize them to one.
     /*!
      * @param y  Input vector of mass fractions.
      *           Length: m_kk.
      */
-    virtual void setMassFractions(const doublereal *y);
+    virtual void setMassFractions(const doublereal * const y);
 
     //! Set the mass fractions, but don't normalize them to one
     /*!
      * @param y  Input vector of mass fractions.
      *           Length: m_kk.
      */
-    virtual void setMassFractions_NoNorm(const doublereal *y);
+    virtual void setMassFractions_NoNorm(const doublereal * const y);
 
     //! Set the concentration, 
     /*!
      * @param c  Input vector of concentrations.
      *           Length: m_kk.
      */
-    virtual void setConcentrations(const doublereal *c);
+    virtual void setConcentrations(const doublereal * const c);
     
 
     //@}

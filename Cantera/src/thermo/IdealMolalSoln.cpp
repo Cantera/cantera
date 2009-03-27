@@ -384,7 +384,7 @@ namespace Cantera {
    *  NOTE: This is an overwritten function from the State.h
    *        class
    */
-  void IdealMolalSoln::setDensity(doublereal rho) {
+  void IdealMolalSoln::setDensity(const doublereal rho) {
     double dens = density();
     if (rho != dens) {
       throw CanteraError("Idea;MolalSoln::setDensity",
@@ -401,7 +401,7 @@ namespace Cantera {
    *  NOTE: This is a virtual function, overwritten function from the State.h
    *        class
    */
-  void IdealMolalSoln::setMolarDensity(doublereal conc) {
+  void IdealMolalSoln::setMolarDensity(const doublereal conc) {
     double concI = State::molarDensity();
     if (conc != concI) {
       throw CanteraError("IdealMolalSoln::setMolarDensity",
