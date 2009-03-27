@@ -400,9 +400,9 @@ namespace Cantera {
     virtual doublereal vaporFraction() const;
 
 
-    virtual void setTemperature(double temp);
+    virtual void setTemperature(const doublereal temp);
 
-    virtual void setDensity(double dens);
+    virtual void setDensity(const doublereal dens);
     
     void constructPhase();
 

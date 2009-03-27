@@ -21,7 +21,6 @@
 #endif
 
 #include "DebyeHuckel.h"
-//#include "importCTML.h"
 #include "ThermoFactory.h"
 #include "WaterProps.h"
 #include "PDSS_Water.h"
@@ -445,7 +444,7 @@ namespace Cantera {
    *  NOTE: This is a virtual function, overwritten function from the State.h
    *        class
    */
-  void DebyeHuckel::setMolarDensity(doublereal conc) {
+  void DebyeHuckel::setMolarDensity(const doublereal conc) {
   double concI = molarDensity();
     if (conc != concI) {
       throw CanteraError("Idea;MolalSoln::setMolarDensity",
@@ -458,7 +457,7 @@ namespace Cantera {
    * function sets the temperature, and makes sure that
    * the value propagates to underlying objects.
    */
-  void DebyeHuckel::setTemperature(doublereal temp) {
+  void DebyeHuckel::setTemperature(const doublereal temp) {
     _updateStandardStateThermo();
     State::setTemperature(temp);
   }

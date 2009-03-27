@@ -1503,7 +1503,7 @@ namespace Cantera {
      * 
      * @param rho Input density (kg/m^3).
      */
-    void setDensity(doublereal rho);
+    void setDensity(const doublereal rho);
 
     //! Set the internally storred molar density (kmol/m^3) for the phase.
     /**
@@ -1518,7 +1518,7 @@ namespace Cantera {
      *
      * @param conc   Input molar density (kmol/m^3).
      */
-    void setMolarDensity(doublereal conc);
+    void setMolarDensity(const doublereal conc);
 
     //! Set the temperature (K)
     /*!
@@ -1531,7 +1531,7 @@ namespace Cantera {
      *
      * @param temp Temperature in kelvin
      */
-    virtual void setTemperature(doublereal temp);
+    virtual void setTemperature(const doublereal temp);
 
     /**
      * The isothermal compressibility. Units: 1/Pa.

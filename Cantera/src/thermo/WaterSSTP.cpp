@@ -542,13 +542,13 @@ namespace Cantera {
   doublereal WaterSSTP::critDensity() const { return m_sub->Rhocrit(); }
         
 
-  void WaterSSTP::setTemperature(double temp) {
+  void WaterSSTP::setTemperature(const doublereal temp) {
     State::setTemperature(temp);
     doublereal dd = density();
     m_sub->setState_TR(temp, dd);
   }
 
-  void WaterSSTP::setDensity(double dens) {
+  void WaterSSTP::setDensity(const doublereal dens) {
     State::setDensity(dens);
     doublereal temp = temperature();
     m_sub->setState_TR(temp, dens);

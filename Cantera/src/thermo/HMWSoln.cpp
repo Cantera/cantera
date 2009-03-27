@@ -860,7 +860,7 @@ namespace Cantera {
    *  NOTE: This is an overwritten function from the State.h
    *        class
    */
-  void HMWSoln::setDensity(doublereal rho) {
+  void HMWSoln::setDensity(const doublereal rho) {
     double dens_old = density();
 
     if (rho != dens_old) {
@@ -878,7 +878,7 @@ namespace Cantera {
    *  NOTE: This is an overwritten function from the State.h
    *        class
    */
-  void HMWSoln::setMolarDensity(doublereal rho) {
+  void HMWSoln::setMolarDensity(const doublereal rho) {
     throw CanteraError("HMWSoln::setMolarDensity",
 		       "Density is not an independent variable");
   }
@@ -888,7 +888,7 @@ namespace Cantera {
    * function sets the temperature, and makes sure that
    * the value propagates to underlying objects.
    */
-  void HMWSoln::setTemperature(doublereal temp) {
+  void HMWSoln::setTemperature(const doublereal temp) {
     State::setTemperature(temp);
     //m_waterSS->setTemperature(temp);
     updateStandardStateThermo();

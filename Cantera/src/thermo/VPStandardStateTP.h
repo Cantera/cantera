@@ -263,7 +263,7 @@ namespace Cantera {
      *
      * @param T  Temperature (kelvin)
      */
-    virtual void setTemperature(doublereal T);
+    virtual void setTemperature(const doublereal T);
 
 
     //! Set the temperature and pressure at the same time
