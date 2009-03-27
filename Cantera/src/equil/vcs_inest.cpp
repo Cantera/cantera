@@ -77,7 +77,7 @@ namespace VCSnonideal {
     int neActive = 0;
     jj = 0;
     for (j = 0; j < m_numElemConstraints; j++) {
-      if (ElActive[j]) {
+      if (m_elementActive[j]) {
 	neActive++;
 	bb[jj] = m_elemAbundancesGoal[j];
 	jj++;
@@ -87,13 +87,13 @@ namespace VCSnonideal {
       cc[kspec] = -m_SSfeSpecies[kspec];
       jj = 0;
       for (j = 0; j < m_numElemConstraints; ++j) {
-	if (ElActive[j]) {
-	  ax[jj + kspec * neActive] = FormulaMatrix[j][kspec];
+	if (m_elementActive[j]) {
+	  ax[jj + kspec * neActive] = m_formulaMatrix[j][kspec];
 	  jj++;
 	}
       }
     }
-    linprogmax(molNum, VCS_DATA_PTR(cc), VCS_DATA_PTR(ax),
+    linprogmax(VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(cc), VCS_DATA_PTR(ax),
 	       VCS_DATA_PTR(bb), neActive, nspecies, neActive);
 #endif
 
