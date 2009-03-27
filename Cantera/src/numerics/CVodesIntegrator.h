@@ -2,7 +2,7 @@
  *  @file CVodesWrapper.h
  */
 
-/* $Author$
+/* 
  * $Date$
  * $Revision$
  */

@@ -16,7 +16,7 @@
  * See file License.txt for licensing information.
  */
 
-
+#include <limits>
 
 #include "SquareMatrix.h"
 #include "NonlinearSolver.h"
@@ -33,6 +33,7 @@ extern void print_line(const char *, int);
 #include <vector>
 #include <cstdio>
 #include <cmath>
+
 
 #ifndef MAX
 #define MAX(x,y)    (( (x) > (y) ) ? (x) : (y))
@@ -93,7 +94,7 @@ namespace Cantera {
     m_rowScales.resize(neq_, 1.0);
     m_resid.resize(neq_, 0.0);
     atolk_.resize(neq_, atolBase_);
-    doublereal hb = numeric_limits<double>::max();
+	doublereal hb = std::numeric_limits<double>::max();
     m_y_high_bounds.resize(neq_, hb);
     m_y_low_bounds.resize(neq_, -hb);    
 

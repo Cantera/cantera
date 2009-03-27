@@ -1,6 +1,6 @@
 /* config.h.  Generated from config.h.in by configure.  */
 //
-//  Run the 'configure' script to generate 'config.h' from this input file.
+//  Run the 'preconfig' script to generate 'config.h' from this input file.
 //
 #ifndef CT_CONFIG_H
 #define CT_CONFIG_H
@@ -8,15 +8,13 @@
 
 //------------------------ Development flags ------------------//
 //
-// These flags turn on or off features that are still in 
-// development and are not yet stable. 
-
-#define DEV_EQUIL  
-
 // Compile in additional debug printing where available.
 // Note, the printing may need to be turned on via a switch.
 // This just compiles in the code.
 /* #undef DEBUG_MODE */
+
+// Compiling with PURIFY instrumentation
+/* #undef PURIFY_MODE */
 
 //------------------------ Fortran settings -------------------//
 
@@ -44,25 +42,25 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 
 // Define this if Fortran adds a trailing underscore to names in object files.
 // For linux and most unix systems, this is the case.
-#define FTN_TRAILING_UNDERSCORE
+#define FTN_TRAILING_UNDERSCORE 1
 
 
-#define HAS_SUNDIALS 1
-
+/* #undef HAS_SUNDIALS */
+/* #undef SUNDIALS_VERSION_22 */
+/* #undef SUNDIALS_VERSION_23 */
 
 //-------- LAPACK / BLAS ---------
 
-// Define if you are using LAPACK and BLAS from the Intel Math Kernel
-// Library 
-/* #undef HAVE_INTEL_MKL */
-
-#define LAPACK_FTN_STRING_LEN_AT_END
-#define LAPACK_NAMES_LOWERCASE
-#define LAPACK_FTN_TRAILING_UNDERSCORE
+#define LAPACK_FTN_STRING_LEN_AT_END 1
+#define LAPACK_NAMES_LOWERCASE 1
+#define LAPACK_FTN_TRAILING_UNDERSCORE 1
 
 
 //--------- operating system --------------------------------------
 
+// The configure script defines this if the operatiing system is Mac
+// OS X, This used to add some Mac-specific directories to the default
+// data file search path.
 /* #undef DARWIN */
 #define HAS_SSTREAM 1
 
@@ -77,18 +75,33 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 // microsoft vc++ being used as the compiler
 #define WINMSVC 1
 
-#define HAS_SUNDIALS 1
-#define SUNDIALS_VERSION_23
+// Identify whether the operating system is solaris 
+// with a native compiler 
+/* #undef SOLARIS */
 
 //--------- Fonts for reaction path diagrams ----------------------
 #define RXNPATH_FONT "Helvetica"
+
+//---------- C++ Compiler Variations ------------------------------
+
+// This define is needed to account for the variability for how
+// static variables in templated classes are defined. Right now
+// this is only turned on for the SunPro compiler on solaris.
+// in that system , you need to declare the static storage variable.
+// with the following line in the include file
+//
+//    template<class M> Cabinet<M>* Cabinet<M>::__storage;
+//
+// Note, on other systems that declaration is treated as a definition
+// and this leads to multiple defines at link time
+/* #undef NEEDS_GENERIC_TEMPL_STATIC_DECL */
 
 //--------------------- Python ------------------------------------
 // This path to the python executable is created during
 // Cantera's setup. It identifies the python executable 
 // used to run Python to process .cti files. Note that this is only
 // used if environment variable PYTHON_CMD is not set.
-#define PYTHON_EXE "/usr/bin/python"
+#define PYTHON_EXE "c:/python25/python.exe"
 
 // If this is defined, the Cantera Python interface will use the
 // Numeric package; otherwise, it will use numarray.
@@ -98,7 +111,18 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 // present to support conversions
 /* #undef HAS_NO_PYTHON */
 
-#define WITH_HTML_LOGS
+//--------------------- Cantera ----------------------------------- 
+// This is the data pathway used to locate the top of the 
+// build directory.
+/* #undef CANTERA_ROOT */
+
+// This data pathway is used to locate a directory where datafiles
+// are to be found. Note, the local directory is always searched
+// as well. 
+#define CANTERA_DATA "C:/cygwin/usr/local/cantera/data"
+
+
+#define WITH_HTML_LOGS 1
 
 // define STORE_MOLE_FRACTIONS if you want Cantera to internally
 // represent the composition of a mixture as mole fractions. Usually
@@ -111,9 +135,39 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 //#define STORE_MASS_FRACTIONS
 /* #undef STORE_MASS_FRACTIONS */
 
-#define WITH_METAL
-#define WITH_STOICH_SUBSTANCE
-#define WITH_PURE_FLUIDS
-#define WITH_LATTICE_SOLID
+//--------------------- compile options ----------------------------
+/* #undef USE_PCH */
+
+/* #undef THREAD_SAFE_CANTERA */
+
+//--------------------- optional phase models ----------------------
+//    This define indicates the enabling of the inclusion of
+//    accurate liquid/vapor equations
+//    of state for several fluids, including water, nitrogen, hydrogen,
+//    oxygen, methane, andd HFC-134a.
+#define INCL_PURE_FLUIDS 1
+#define WITH_PURE_FLUIDS 1
+
+#define WITH_LATTICE_SOLID 1
+#define WITH_METAL 1
+#define WITH_STOICH_SUBSTANCE 1
+//    Enable expanded thermodynamic capabilities, adding
+//    ideal solid solutions
+#define WITH_IDEAL_SOLUTIONS 1
+//    Enable expanded electrochemistry capabilities, include thermo
+//    models for electrolyte solutions.
+#define WITH_ELECTROLYTES 1
+
+/* #undef WITH_PRIME */
+
+//    Enable the VCS NonIdeal equilibrium solver. This is
+//    accessed by specifying the solver=2 option
+#define WITH_VCSNONIDEAL 1
+
+//-------------- Optional Cantera Capabilities ----------------------
+
+//    Enable sensitivity analysis via changing H298 directly
+//    for species
+/* #undef H298MODIFY_CAPABILITY */
 
 #endif

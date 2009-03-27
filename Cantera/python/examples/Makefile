@@ -2,7 +2,7 @@
 
 PY_DEMO_DIRS = equilibrium flames gasdynamics kinetics liquid_vapor \
                misc reactors surface_chemistry transport fuel_cells
-MAKE = gmake
+MAKE = make
 all:
 	@(for d in $(PY_DEMO_DIRS) ; do \
             echo "entering directory $${d}..."; \
@@ -22,9 +22,9 @@ test:
         done)
 
 install:
-	/usr/bin/install -c -d  /home/hkmoffa/arch/linux/cantera-1.7_develop/demos/python
-	/usr/bin/install -c -c -m ug+rw,o+r Makefile /home/hkmoffa/arch/linux/cantera-1.7_develop/demos/python 
-	/usr/bin/install -c -c -m ug+rw,o+r run_examples.py /home/hkmoffa/arch/linux/cantera-1.7_develop/demos/python 
+	/usr/bin/install -c -d  C:/cygwin/usr/local/cantera/demos/python
+	/usr/bin/install -c -c -m ug+rw,o+r Makefile C:/cygwin/usr/local/cantera/demos/python 
+	/usr/bin/install -c -c -m ug+rw,o+r run_examples.py C:/cygwin/usr/local/cantera/demos/python 
 	@(for d in $(PY_DEMO_DIRS) ; do \
             echo "entering directory $${d}..."; \
             (cd $${d}; $(MAKE) install) ; \

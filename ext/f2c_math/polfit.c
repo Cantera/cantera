@@ -167,6 +167,16 @@
     --y;
     --x;
 
+	/* Uninitialized local variables -> note, I don't see how this
+	 * function can be working */
+	k1=0;
+	k2 = 0;
+	k3 = 0;
+	k4 = 0;
+	k5 = 0;
+	etst = 1.0E-13;
+	xm = 1.0;
+
     /* Function Body */
     m = abs(*n);
     if (m == 0) {
