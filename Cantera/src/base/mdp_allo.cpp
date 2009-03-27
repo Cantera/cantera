@@ -23,6 +23,10 @@
 
 using namespace std;
 
+#ifdef WIN32
+#pragma warning(disable:4996)
+#endif
+
 namespace mdp {
   /*
    *  Allocate global storage for 2 debugging ints that are used in IO of

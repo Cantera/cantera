@@ -29,6 +29,12 @@
 #include <sunmath.h>
 #endif
 
+#ifdef WIN32
+#include <float.h>
+#pragma warning(disable:4290)
+#pragma warning(disable:4996)
+#endif
+
 
 using namespace std;
 
@@ -38,6 +44,21 @@ namespace mdp {
   /*
    *  @param tmp number to be checked
    */
+#ifdef WIN32
+  void checkFinite(const double tmp) throw(std::range_error) {
+    if (_finite(tmp)) {
+      if(_isnan(tmp)) {
+	    printf("ERROR: we have encountered a nan!\n");
+      } else if (_fpclass(tmp) == _FPCLASS_PINF) {
+	    printf("ERROR: we have encountered a pos inf!\n");
+      } else {
+	  	printf("ERROR: we have encountered a neg inf!\n");
+      }
+      const std::string s = "checkFinite()";
+      throw std::range_error(s);
+    }
+  }
+#else
   void checkFinite(const double tmp) throw(std::range_error) {
     if (! finite(tmp)) {
       if(isnan(tmp)) {
@@ -51,6 +72,7 @@ namespace mdp {
       throw std::range_error(s);
     }
   }
+#endif
 
  
   // Utility routine to link checkFinte() to fortran program
@@ -91,6 +113,25 @@ namespace mdp {
    *
    *  @param tmp number to be checked
    */
+#ifdef WIN32
+void checkZeroFinite(const double tmp) throw(std::range_error) {
+    if ((tmp == 0.0) || (! _finite(tmp))) {
+      if (tmp == 0.0) {
+	    printf("ERROR: we have encountered a zero!\n");
+      } else if(_isnan(tmp)) {
+	    printf("ERROR: we have encountered a nan!\n");
+      } else if (_fpclass(tmp) == _FPCLASS_PINF) {
+        printf("ERROR: we have encountered a pos inf!\n");
+      } else {
+        printf("ERROR: we have encountered a neg inf!\n");
+      }
+      char sbuf[64];
+      sprintf(sbuf, "checkZeroFinite: zero or indef exceeded: %g\n",
+              tmp);
+      throw std::range_error(sbuf);
+    }
+  }
+#else
   void checkZeroFinite(const double tmp) throw(std::range_error) {
     if ((tmp == 0.0) || (! finite(tmp))) {
       if (tmp == 0.0) {
@@ -108,5 +149,5 @@ namespace mdp {
       throw std::range_error(sbuf);
     }
   }
-
+#endif
 }
