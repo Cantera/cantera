@@ -86,6 +86,7 @@ endif
 clean:
 	@PYTHON_CMD@ setup.py clean
 	rm -f _build; rm -f _winbuild
+	cd build; rm -fR *
 	cd src; rm -f *.o
 
 depends:
