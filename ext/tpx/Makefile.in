@@ -24,7 +24,7 @@ DEPENDS = $(COBJS:.o=.d)
 all:  $(TPLIB) .depends
 
 %.d: Makefile %.o
-	@CXX_DEPENDS@ $(CXX_INCLUDES) $*.cpp > $*.d
+	@CXX_DEPENDS@ $(CXX_FLAGS) $(CXX_INCLUDES) $*.cpp > $*.d
 
 .cpp.o: 
 	$(PURIFY) @CXX@ -c $< @DEFS@ $(CXX_FLAGS) $(CXX_INCLUDES)
