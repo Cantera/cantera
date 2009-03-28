@@ -35,6 +35,11 @@ SRCS = src/ctphase_methods.cpp \
 os_is_win = @OS_IS_WIN@
 use_clib_dll = @USE_CLIB_DLL@
 
+#LOCAL_DEFS=-DDEBUG_MODE
+PIC_FLAG=@PIC@
+
+CXX_FLAGS= @CXXFLAGS@ $(LOCAL_DEFS)  $(PIC_FLAG) 
+
 all: _build 
 
 win: _winbuild
@@ -47,7 +52,7 @@ win: _winbuild
 _build: $(SRCS) $(LIB_DEPS) Makefile setup.py
 	touch src/pycantera.cpp 
 	/bin/rm -f _build
-	(CXX="@CXX@"; export CXX; CC="@CXX@"; export CC; PURIFY="@PURIFY@"; export PURIFY; @PYTHON_CMD@ setup.py build)
+	(CXX="@CXX@"; export CXX; CC="@CXX@"; export CC; CFLAGS="$(CXX_FLAGS)"; export CFLAGS; PURIFY="@PURIFY@"; export PURIFY; @PYTHON_CMD@ setup.py build)
 	echo 'ok' > _build
 
 #
@@ -86,7 +91,7 @@ endif
 clean:
 	@PYTHON_CMD@ setup.py clean
 	rm -f _build; rm -f _winbuild
-	cd build; rm -fR *
+	(cd build; rm -fR *)
 	cd src; rm -f *.o
 
 depends:
