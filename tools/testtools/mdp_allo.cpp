@@ -17,6 +17,10 @@
 
 #include "mdp_allo.h"
 
+#ifdef WIN32
+#pragma warning(disable:4996)
+#endif
+
 /*
  *  Allocate global storage for 2 debugging ints that are used in IO of
  *  error information.
@@ -54,7 +58,7 @@ int MDP_ALLO_errorOption = 3;
 /****************************************************************************/
 /****************************************************************************/
 
-static void mdp_alloc_eh(const char *rname, int bytes)
+static void mdp_alloc_eh(const char *rname, size_t bytes)
    
    /*************************************************************************
    *

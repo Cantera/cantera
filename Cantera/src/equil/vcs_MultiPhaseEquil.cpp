@@ -936,7 +936,7 @@ namespace VCSnonideal {
     Cantera::ThermoPhase *tPhase = 0;
 
     int iSurPhase = -1;
-    int gasPhase;
+    bool gasPhase;
     int printLvl = vprob->m_printLvl;
 
     /*
@@ -957,8 +957,8 @@ namespace VCSnonideal {
        * current phase.
        */
       int eos = tPhase->eosType();
-      if (eos == cIdealGas) gasPhase = 1;
-      else                  gasPhase = 0;
+      if (eos == cIdealGas) gasPhase = true;
+      else                  gasPhase = false;
     
       /*
        *    Find out the number of species in the phase

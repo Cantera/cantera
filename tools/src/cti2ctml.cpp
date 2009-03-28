@@ -30,7 +30,7 @@ int iDebug_HKM = 0;
 /*****************************************************************/
 static void printUsage()
 {
-    cout << "ctitoxml [-h] infile.cti" << endl;
+    cout << "cti2ctml [-h] infile.cti" << endl;
     cout << "    Translates a cti formated file to an xml file" << endl;
     cout << "    The xml file will be named infile.xml" << endl;
 }
@@ -76,16 +76,9 @@ int main(int argc, char** argv) {
       XML_Node *xc = new XML_Node();
       string path = findInputFile(infile);
       ctml::get_CTML_Tree(xc, path, 0); 
-      XML_Node *xd = new XML_Node();
-      xc->copy(xd);
-      ofstream tout;
-      tout.open("testdest.xml");
-      xc->write(tout);
-      tout.close();
-      tout.open("testdest2.xml");
-      xd->write(tout);
-      tout.close();
-
+      //XML_Node *xd = new XML_Node();
+      //xc->copy(xd);
+      
     }
     catch (CanteraError) {
       showErrors(cout);

@@ -16,11 +16,10 @@
  * $Source$
  *
  *====================================================================*/
-
-#ifndef lint
-static char const rcsid[] = 
-    "$Id$";
+#ifdef WIN32
+#pragma warning(disable:4996)
 #endif
+
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -789,7 +788,7 @@ char *scan_for_string(FILE *ifp, const char *string, const int maxVal,
  *      handled by terminally exiting the program.
  */
 {
-  int  len;
+  size_t  len;
   char input[MAX_INPUT_STR_LN + 1];
   if (scan_for_line(ifp, string, input, KEY_CHAR, PrintInputFile) < 0) 
      exit(-1);
@@ -1305,7 +1304,7 @@ char *TokToStrng (const TOKEN *keyptr)
   int  i;
   if (!keyptr) return NULL;
   if (!keyptr->orig_str) return NULL;
-  int  iln = strlen(keyptr->orig_str) + 1 + keyptr->ntokes;
+  size_t  iln = strlen(keyptr->orig_str) + 1 + keyptr->ntokes;
   char *fstr = (char *) malloc(iln * sizeof(char));
  
   char *const*str  = &(keyptr->tok_ptr[0]);
@@ -1550,10 +1549,19 @@ void strip_item_from_token(int iword, TOKEN *tok)
 {
   if (!tok) return;
   if (iword < 0 || iword > tok->ntokes) return;
+#ifdef WIN32
+  __w64 int ioffset = tok->tok_ptr[iword] - tok->tok_str;
+#else
   int ioffset = tok->tok_ptr[iword] - tok->tok_str;
-  int ilength = strlen(tok->tok_ptr[iword]);
+#endif
+  size_t ilength = strlen(tok->tok_ptr[iword]);
+#ifdef WIN32
+  __w64 int i = ioffset;
+  __w64 int j = ioffset + ilength;
+#else
   int i = ioffset;
   int j = ioffset + ilength;
+#endif
   if (j <= (int) strlen(tok->orig_str)) {
     while(tok->orig_str[j] != '\0') {
       tok->orig_str[i] = tok->orig_str[j];
