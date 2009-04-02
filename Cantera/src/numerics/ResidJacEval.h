@@ -54,7 +54,7 @@ namespace Cantera {
      * @param right    Reference to %ResidJacEval object to be copied into the
      *                 current one.
      */
-    ResidJacEval& ResidJacEval::operator=(const ResidJacEval &right);
+    ResidJacEval& operator=(const ResidJacEval &right);
 
     //! Duplication routine for objects which inherit from
     //! residJacEval
