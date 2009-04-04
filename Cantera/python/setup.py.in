@@ -84,7 +84,7 @@ if buildPython >= 2:
               """,
               author="Prof. D. G. Goodwin, Caltech",
               author_email="dgoodwin@caltech.edu",
-              url="http://www.cantera.org",
+              url="http://code.google.com/p/cantera",
               package_dir = {'MixMaster':'../../apps/MixMaster'},
               packages = ["","Cantera","Cantera.OneD",
                           "MixMaster","MixMaster.Units"],
