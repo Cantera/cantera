@@ -18,6 +18,8 @@ PURIFY=@PURIFY@
 
 CXX_OBJS = fct.o fctxml.o
 
+BUILDINCDIR = ../../../build/include/cantera
+
 INTERFACE_MODULE_OBJS = fct_interface.o fctxml_interface.o 
 
 USER_MODULE_OBJS = cantera_xml.o cantera_thermo.o cantera_kinetics.o \
@@ -84,10 +86,18 @@ $(FTLIB): $(MODFILES) $(USER_MODULE_OBJS) $(CXX_OBJS) $(LIB_DEPS)
 	@ARCHIVE@ $(FTLIB) $(OBJS)
 
 clean:
-	$(RM) $(OBJS) $(FTLIB) $(MODFILES)
+	$(RM) $(OBJS) $(FTLIB) $(MODFILES) *~
 	(if test -d SunWS_cache ; then \
            $(RM) -rf SunWS_cache ; \
          fi )
+	@(for lh in $(MODFILES); do \
+            th=$(BUILDINCDIR)/"$${lh}" ; \
+            if test -f "$${th}" ; then \
+              $(RM) "$${th}"  ; \
+              echo "$(RM) $${th}" ; \
+            fi \
+          done)
+
 
 install:
 	@INSTALL@ -m ug+rw,o+r $(FTLIB) @ct_libdir@
