@@ -53,7 +53,7 @@ $(CONVLIB_DEP):
 	cd ../../Cantera/src/converters; @MAKE@
 
 clean:
-	$(RM) *.o *.*~ $(BINDIR)/cti2ctml $(BINDIR)/ck2cti
+	$(RM) *.o *.*~ $(BINDIR)/cti2ctml $(BINDIR)/ck2cti $(BINDIR)/fixtext
 	(if test -d SunWS_cache ; then \
            $(RM) -rf SunWS_cache ; \
         fi )
