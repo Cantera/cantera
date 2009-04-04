@@ -45,17 +45,8 @@ LCXX_END_LIBS = @LCXX_END_LIBS@
 # the directory where the Cantera libraries are located
 CANTERA_LIBDIR=@buildlib@
 
-CANTERA_LIB_DEP=$(CANTERA_LIBDIR)/libctbase.a \
-                $(CANTERA_LIBDIR)/libctmath.a \
-                $(CANTERA_LIBDIR)/libctnumerics.a \
-                $(CANTERA_LIBDIR)/libthermo.a \
-                $(CANTERA_LIBDIR)/libtransport.a \
-                $(CANTERA_LIBDIR)/libkinetics.a \
-                $(CANTERA_LIBDIR)/libequil.a \
-                $(CANTERA_LIBDIR)/libVCSnonideal.a \
-                $(CANTERA_LIBDIR)/libzeroD.a \
-                $(CANTERA_LIBDIR)/liboneD.a \
-                $(CANTERA_LIBDIR)/libconverters.a
+# Cantera library Dependencies
+CANTERA_LIBS_DEP = @LOCAL_LIBS_DEP@ $(CANTERA_LIBDIR)/libctcxx.a
 
 # required Cantera libraries
 CANTERA_LIBS = @LOCAL_LIBS@ -lctcxx 
