@@ -11,7 +11,9 @@
 #include "kernel/equil.h"
 #include "kernel/ChemEquil.h"
 #include "kernel/MultiPhaseEquil.h"
+#ifdef WITH_VCSNONIDEAL
 #include "kernel/vcs_MultiPhaseEquil.h"
+#endif
 #endif
   
 
