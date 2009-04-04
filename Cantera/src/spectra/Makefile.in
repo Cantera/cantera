@@ -32,7 +32,7 @@ CXX_FLAGS = @CXXFLAGS@ $(LOCAL_DEFS) $(CXX_OPT) $(PIC_FLAG) $(DEBUG_FLAG)
 SPECTRA_OBJ = rotor.o LineBroadener.o 
 
 #SPECTRA_H   = rotor.h LineBroadener.h Nuclei.h spectralUtilities.h
-SPECTRA_H   = rotor.h LineBroadener.h 
+SPECTRA_H   = rotor.h LineBroadener.h  Nuclei.h spectralUtilities.h
 
 CXX_INCLUDES = -I. @CXX_INCLUDES@ -I../base
 LIB = @buildlib@/libctspectra.a
