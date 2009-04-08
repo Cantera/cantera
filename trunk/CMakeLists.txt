@@ -4,19 +4,10 @@ PROJECT(Cantera)
 
 INCLUDE( ${CMAKE_ROOT}/Modules/FindPythonInterp.cmake)
 INCLUDE( ${CMAKE_ROOT}/Modules/FindPythonLibs.cmake)
-INCLUDE( ${CMAKE_ROOT}/Modules/FindPythonInterp.cmake)
-INCLUDE( ${CMAKE_ROOT}/Modules/FindPythonLibs.cmake)
-
 
 INCLUDE( ${CMAKE_ROOT}/Modules/FindMatlab.cmake)
 
+ADD_SUBDIRECTORY (BackEnd)
+ADD_SUBDIRECTORY (FrontEnds)
 
-ADD_SUBDIRECTORY (src)
-
-ADD_SUBDIRECTORY (language_interfaces)
-LUDE( ${CMAKE_ROOT}/Modules/FindMatlab.cmake)
-
-
-ADD_SUBDIRECTORY (src)
-
-ADD_SUBDIRECTORY (language_interfaces)
+				 
