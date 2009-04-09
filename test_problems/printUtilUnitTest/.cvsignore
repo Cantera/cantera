@@ -5,3 +5,5 @@ output.txt
 outputa.txt
 pUtest
 redirect.txt
+*.d
+.depends
