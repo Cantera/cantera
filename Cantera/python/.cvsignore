@@ -4,3 +4,4 @@ _build
 _winbuild
 setup.py
 manb.sh
+tmp
