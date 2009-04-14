@@ -18,13 +18,20 @@
 #ifdef HAS_NUMERIC
 #include "Numeric/arrayobject.h"
 #else
-//#ifdef HAS_NUMARRAY
+#ifdef HAS_NUMARRAY
 #include "numarray/arrayobject.h"
-//#include "numpy/libnumarray.h"
-
-//#else 
-//#include "numpy/arrayobject.h"
-//#endif
+#else
+#ifdef HAS_NUMPY
+#include "numpy/libnumarray.h"
+#include "numpy/arrayobject.h"
+#else
+// Create a compilation error to cause the program to bomb
+#include "Numeric/arrayobject.h"
+#include "numarray/arrayobject.h"
+#include "numpy/libnumarray.h"
+#include "numpy/arrayobject.h"
+#endif
+#endif
 #endif
 
 #include "ct.h"
@@ -97,11 +104,11 @@ extern "C" {
 #ifdef HAS_NUMERIC
         PyDict_SetItemString(d, "nummod",PyString_FromString("Numeric"));
 #else
-        //#ifdef HAS_NUMARRAY
+#ifdef HAS_NUMARRAY
         PyDict_SetItemString(d, "nummod",PyString_FromString("numarray"));
-        //#else
-            //PyDict_SetItemString(d, "nummod",PyString_FromString("numpy"));
-        //#endif
+#else
+        PyDict_SetItemString(d, "nummod",PyString_FromString("numpy"));
+#endif
 #endif
     }
 

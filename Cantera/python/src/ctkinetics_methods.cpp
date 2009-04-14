@@ -1,3 +1,12 @@
+/**
+ * @file ctkinetics_methods.cpp
+ *
+ */
+
+/*
+ * $Id$
+ */
+
 
 static PyObject*
 kin_newFromXML(PyObject *self, PyObject *args) {
