@@ -1,13 +1,15 @@
 cmake_minimum_required (VERSION 2.6)
 
-PROJECT(Cantera)
+PROJECT (Cantera)
 
 INCLUDE( ${CMAKE_ROOT}/Modules/FindPythonInterp.cmake)
 INCLUDE( ${CMAKE_ROOT}/Modules/FindPythonLibs.cmake)
 
-INCLUDE( ${CMAKE_ROOT}/Modules/FindMatlab.cmake)
+
+configure_file 
 
 ADD_SUBDIRECTORY (BackEnd)
 ADD_SUBDIRECTORY (FrontEnds)
 
 				 
+			      xxxxxxxxxx
