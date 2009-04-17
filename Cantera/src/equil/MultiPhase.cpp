@@ -230,6 +230,18 @@ namespace Cantera {
     return sum;
   }
 
+  int MultiPhase::speciesIndex(std::string speciesName, std::string phaseName) {
+    int p = phaseIndex(phaseName);
+    if (p < 0) {
+      throw CanteraError("MultiPhase::speciesIndex", "phase not found: " + phaseName);
+    }
+    int k = m_phase[p]->speciesIndex(speciesName);
+    if (k < 0) {
+      throw CanteraError("MultiPhase::speciesIndex", "species not found: " + speciesName);
+    }
+    return m_spstart[p] + k;
+  }
+
   /// Net charge of one phase (Coulombs). The net charge is computed as
   /// \f[ Q_p = N_p \sum_k F z_k X_k \f]
   /// where the sum runs only over species in phase \a p.
@@ -459,6 +471,16 @@ namespace Cantera {
     }
   }
 
+  void MultiPhase::addSpeciesMoles(const int indexS, const doublereal addedMoles) {
+    vector_fp tmpMoles(m_nsp, 0.0);
+    getMoles(DATA_PTR(tmpMoles));
+    tmpMoles[indexS] += addedMoles;
+    if (tmpMoles[indexS] < 0.0) {
+      tmpMoles[indexS] = 0.0;
+    }
+    setMoles(DATA_PTR(tmpMoles));
+  }
+  
   void MultiPhase::setState_TP(const doublereal T, const doublereal Pres) {
     if (!m_init) init();
     m_temp  = T;

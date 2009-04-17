@@ -1278,8 +1278,8 @@ private:
   //!  energy by making sure the slope of the following functional stays
   //!  negative:
   /*!
-   *  The slope of the following functional is equivalent to the slope of the total
-   *  Gibbs free energy of the system:
+   *  The slope of the following functional is equivalent to the slope 
+   *  of the total Gibbs free energy of the system:
    *
    *                 d_Gibbs/ds = sum_k( m_deltaGRxn * m_deltaMolNumSpecies[k] )
    *
@@ -1768,17 +1768,51 @@ public:
    *  to is 
    *          kspec = irxn + m_numComponents
    *
-   *         kspec              : 1 -> Major species  VCS_SPECIES_MAJOR
+   *        kspec              : 2 -> Component species VCS_SPECIES_COMPONENT
+   *                                   -> deprecated, want to assign -2 to some
+   *                                      component species. We can already determine
+   *                                      whether the species is a component from
+   *                                      its position in the species vector.
+   *                              1 -> Major species  VCS_SPECIES_MAJOR
    *                              0 -> Minor species  VCS_SPECIES_MINOR
-   *                             -1 -> Mole number is zero 
-   *                                   in inactive phase VCS_SPECIES_ZEROEDPHASE
-   *                             -2 -> Deleted species in an
-   *                                   active multicom phase VCS_SPECIES_ZEROEDMS
-   *                             -3 -> Mole number is zero
-   *                                   in a stoich phase - VCS_SPECIES_ZEREODSS
-   *                             -4 -> Species is deleted
+   *                             -1 -> The species lies in a multicomponent phase 
+   *                                   that exists. Its concentration is currently 
+   *                                   very low, necessitating a different method 
+   *                                   of calculation.
+   *                                   -  VCS_SPECIES_ZEROEDPHASE
+   *                             -2 -> The species lies in a multicomponent phase 
+   *                                   which currently doesn't exist.
+   *                                   Its concentration is currently zero.
+   *                                   -  VCS_SPECIES_ZEROEDMS
+   *                             -3 -> Species lies in a single-species phase which
+   *                                   is currently zereod out.
+   *                                   - VCS_SPECIES_ZEREODSS
+   *                             -4 -> Species has such a small mole fraction it is
+   *                                   deleted even though its phase may possibly exist.
+   *                                   The species is believed to have such a small 
+   *                                   mole fraction that it best to throw the 
+   *                                   calculation of it out.  It will be added back in 
+   *                                   at the end of the calculation.
    *                                   - VCS_SPECIES_DELETED
-   *            -> Length equal to number of species
+   *                             -5 ->  Species refers to an electron in the metal
+   *                                    The unknown is equal to the interfacial voltage
+   *                                    drop across the interface on the SHE (standard
+   *                                    hydroogen electrode) scale (volts). 
+   *                                     - VCS_SPECIES_INTERFACIALVOLTAGE
+   *                             -6 ->  Species lies in a multicomponent phase that 
+   *                                    is zeroed atm  and will stay deleted due to a
+   *                                    choice from a higher level.
+   *                                    These species will formally always have zero 
+   *                                    mole numbers in the solution vector.
+   *                                      - VCS_SPECIES_ZEROEDPHASE  
+   *                              -7 -> The species lies in a multicomponent phase which
+   *                                    currently does exist.  Its concentration is currently
+   *                                    identically zero, though the phase exists. Note, this
+   *                                    is a temporary condition that exists at the start 
+   *                                    of an equilibrium problem.
+   *                                    The species is soon "birthed" or "deleted".
+   *                                    - VCS_SPECIES_ACTIVEBUTZERO     
+   *
    */
   std::vector<int> m_speciesStatus;
 

@@ -292,24 +292,25 @@ namespace VCSnonideal {
     MajorSpeciesHaveConverged = false;
 
     /*************************************************************************/
-    /************** EVALUATE INITIAL MAJOR-MINOR VECTOR **********************/
+    /************** EVALUATE INITIAL SPECIES STATUS VECTOR *******************/
     /*************************************************************************/
     m_numRxnMinorZeroed = 0;
 #ifdef DEBUG_MODE
     if (m_debug_print_lvl >= 2) {
-      plogf("  --- MAJOR-MINOR decision is reavaluated: All species are minor except for:\n");
+      plogf("  --- Species Status decision is reavaluated: All species are minor except for:\n");
     } else if (m_debug_print_lvl >= 5) {
-      plogf("  --- MAJOR-MINOR decision is reavaluated");
+      plogf("  --- Species Status decision is reavaluated");
       plogendl();
     }
 #endif
-    for (irxn = 0; irxn < m_numRxnRdc; ++irxn) {
-      kspec = m_indexRxnToSpecies[irxn];
+    for (kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
       m_speciesStatus[kspec] = vcs_species_type(kspec);
 #ifdef DEBUG_MODE 
       if (m_debug_print_lvl >= 2) {
 	if (m_speciesStatus[kspec] != VCS_SPECIES_MINOR) {
 	  switch (m_speciesStatus[kspec]) {
+	  case VCS_SPECIES_COMPONENT:
+	    break;
 	  case VCS_SPECIES_MAJOR:
 	    plogf("  ---      Major Species          : %-s\n", m_speciesName[kspec].c_str());
 	    break;
@@ -327,7 +328,8 @@ namespace VCSnonideal {
 	    plogf("  ---      Deleted-Small Species  : %-s\n", m_speciesName[kspec].c_str());
 	    break;
 	  case VCS_SPECIES_ACTIVEBUTZERO:
-	    plogf("  ---      Zeroed Species in an active MS phase (tmp): %-s\n", m_speciesName[kspec].c_str());
+	    plogf("  ---      Zeroed Species in an active MS phase (tmp): %-s\n", 
+		  m_speciesName[kspec].c_str());
 	    break;
 	  case VCS_SPECIES_INTERFACIALVOLTAGE:
 	    plogf("  ---      InterfaceVoltage Species: %-s\n", m_speciesName[kspec].c_str());
@@ -340,8 +342,10 @@ namespace VCSnonideal {
 	}
       }
 #endif
-      if (m_speciesStatus[kspec] != VCS_SPECIES_MAJOR) {
-	++m_numRxnMinorZeroed;
+      if (kspec >= m_numComponents) {
+	if (m_speciesStatus[kspec] != VCS_SPECIES_MAJOR) {
+	  ++m_numRxnMinorZeroed;
+	}
       }
     }
 #ifdef DEBUG_MODE 
@@ -1619,7 +1623,7 @@ namespace VCSnonideal {
 	    if (m_speciesStatus[kspec] != VCS_SPECIES_MINOR) {
 	      if (m_speciesStatus[kspec] == VCS_SPECIES_MAJOR) {
 		plogf("   ---   Noncomponent turned from major to minor: ");
-	      } else if (m_speciesStatus[kspec] == VCS_SPECIES_COMPONENT) {
+	      } else if (kspec < m_numComponents) {
 		plogf("   ---   Component turned into a minor species: ");
 	      } else {
 		plogf("   ---   Zeroed Species turned into a "
@@ -1636,7 +1640,7 @@ namespace VCSnonideal {
 	    if (m_debug_print_lvl >= 2) {
 	      if (m_speciesStatus[kspec] ==  VCS_SPECIES_MINOR) {
 		plogf("   ---   Noncomponent turned from minor to major: ");
-	      } else if (m_speciesStatus[kspec] == VCS_SPECIES_COMPONENT) {
+	      } else if (kspec < m_numComponents) {
 		plogf("   ---   Component turned into a major: ");	       
 	      } else {
 		plogf("   ---   Noncomponent turned from zeroed to major: ");

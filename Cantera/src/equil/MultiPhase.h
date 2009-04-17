@@ -231,6 +231,21 @@ namespace Cantera {
       return m_spstart[p] + k;
     }
 
+    //! Return the global index of the species belonging to phase name \c phaseName
+    //! with species name \c speciesName
+    /*!
+     * Returns the index of the global species
+     *
+     * @param speciesName    Species Name
+     * @param phaseName      Phase Name
+     *
+     * @return returns the global index
+     *
+     *  If the species or phase name is not recognized, this routine throws
+     *  a CanteraError.
+     */
+    int speciesIndex(std::string speciesName, std::string phaseName);
+
     /// Minimum temperature for which all solution phases have
     /// valid thermo data. Stoichiometric phases are not
     /// considered, since they may have thermo data only valid for
@@ -477,6 +492,13 @@ namespace Cantera {
      *               (kmol).
      */
     void setMoles(const doublereal* n);
+
+
+    //! Adds moles of a certain species to the mixture
+    /*!
+     *
+     */
+    void addSpeciesMoles(const int indexS, const doublereal addedMoles);
 
     //! Retrieves a vector of element abundances
     /*!
