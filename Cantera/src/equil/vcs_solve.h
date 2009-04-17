@@ -244,6 +244,8 @@ public:
    */
   int vcs_species_type(const int kspec) const;
 
+  bool vcs_evaluate_speciesType();
+
   //! We calculate the dimensionless chemical potentials of all species 
   //! in a single phase.
   /*!

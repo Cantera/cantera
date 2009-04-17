@@ -294,69 +294,12 @@ namespace VCSnonideal {
     /*************************************************************************/
     /************** EVALUATE INITIAL SPECIES STATUS VECTOR *******************/
     /*************************************************************************/
-    m_numRxnMinorZeroed = 0;
-#ifdef DEBUG_MODE
-    if (m_debug_print_lvl >= 2) {
-      plogf("  --- Species Status decision is reavaluated: All species are minor except for:\n");
-    } else if (m_debug_print_lvl >= 5) {
-      plogf("  --- Species Status decision is reavaluated");
-      plogendl();
-    }
-#endif
-    for (kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
-      m_speciesStatus[kspec] = vcs_species_type(kspec);
-#ifdef DEBUG_MODE 
-      if (m_debug_print_lvl >= 2) {
-	if (m_speciesStatus[kspec] != VCS_SPECIES_MINOR) {
-	  switch (m_speciesStatus[kspec]) {
-	  case VCS_SPECIES_COMPONENT:
-	    break;
-	  case VCS_SPECIES_MAJOR:
-	    plogf("  ---      Major Species          : %-s\n", m_speciesName[kspec].c_str());
-	    break;
-	  case VCS_SPECIES_ZEROEDPHASE:
-	    plogf("  ---      Purposely Zeroed-Phase Species (not in problem): %-s\n",
-		  m_speciesName[kspec].c_str());
-	    break;
-	  case VCS_SPECIES_ZEROEDMS:
-	    plogf("  ---      Zeroed-MS Phase Species: %-s\n", m_speciesName[kspec].c_str());
-	    break;
-	  case VCS_SPECIES_ZEROEDSS:
-	    plogf("  ---      Zeroed-SS Phase Species: %-s\n", m_speciesName[kspec].c_str());
-	    break;
-	  case VCS_SPECIES_DELETED:
-	    plogf("  ---      Deleted-Small Species  : %-s\n", m_speciesName[kspec].c_str());
-	    break;
-	  case VCS_SPECIES_ACTIVEBUTZERO:
-	    plogf("  ---      Zeroed Species in an active MS phase (tmp): %-s\n", 
-		  m_speciesName[kspec].c_str());
-	    break;
-	  case VCS_SPECIES_INTERFACIALVOLTAGE:
-	    plogf("  ---      InterfaceVoltage Species: %-s\n", m_speciesName[kspec].c_str());
-	    break;
-	  default:
-	    plogf("  --- Unknown type - ERROR %d\n", m_speciesStatus[kspec]);
-	    plogendl();
-	    exit(EXIT_FAILURE);
-	  }
-	}
-      }
-#endif
-      if (kspec >= m_numComponents) {
-	if (m_speciesStatus[kspec] != VCS_SPECIES_MAJOR) {
-	  ++m_numRxnMinorZeroed;
-	}
-      }
-    }
-#ifdef DEBUG_MODE 
-      if (m_debug_print_lvl >= 2) {
-	plogf("  ---");
-	plogendl();
-      }
-#endif
-
-    allMinorZeroedSpecies = (m_numRxnMinorZeroed == m_numRxnRdc);
+    allMinorZeroedSpecies = vcs_evaluate_speciesType();
     lec = FALSE;
+
+    /*************************************************************************/
+    /************** EVALUATE THE ELELEMT ABUNDANCE CHECK    ******************/
+    /*************************************************************************/   
     if (! vcs_elabcheck(0)) {
 #ifdef DEBUG_MODE
       if (m_debug_print_lvl >= 2) {
@@ -467,7 +410,8 @@ namespace VCSnonideal {
 	iphasePop = -1;
 #ifdef DEBUG_MODE
 	if (m_debug_print_lvl >= 2) {
-	  plogf("   --- vcs_popPhaseRxnStepSizes() was called but stoich prevented phase %d popping\n");
+	  plogf("   --- vcs_popPhaseRxnStepSizes() was called but stoich "
+		"prevented phase %d popping\n");
 	}
 #endif
       }
@@ -4598,6 +4542,119 @@ namespace VCSnonideal {
       }
 #endif
     }
+  }
+
+  //  This routine evaluates the species type for all species
+  /*
+   *        kspec           
+   *                              1 -> Major species  VCS_SPECIES_MAJOR
+   *                              0 -> Minor species  VCS_SPECIES_MINOR
+   *                             -1 -> The species lies in a multicomponent phase 
+   *                                   that exists. Its concentration is currently 
+   *                                   very low, necessitating a different method 
+   *                                   of calculation.
+   *                                   -  VCS_SPECIES_ZEROEDPHASE
+   *                             -2 -> The species lies in a multicomponent phase 
+   *                                   which currently doesn't exist.
+   *                                   Its concentration is currently zero.
+   *                                   -  VCS_SPECIES_ZEROEDMS
+   *                             -3 -> Species lies in a single-species phase which
+   *                                   is currently zereod out.
+   *                                   - VCS_SPECIES_ZEREODSS
+   *                             -4 -> Species has such a small mole fraction it is
+   *                                   deleted even though its phase may possibly exist.
+   *                                   The species is believed to have such a small 
+   *                                   mole fraction that it best to throw the 
+   *                                   calculation of it out.  It will be added back in 
+   *                                   at the end of the calculation.
+   *                                   - VCS_SPECIES_DELETED
+   *                             -5 ->  Species refers to an electron in the metal
+   *                                    The unknown is equal to the interfacial voltage
+   *                                    drop across the interface on the SHE (standard
+   *                                    hydroogen electrode) scale (volts). 
+   *                                     - VCS_SPECIES_INTERFACIALVOLTAGE
+   *                             -6 ->  Species lies in a multicomponent phase that 
+   *                                    is zeroed atm  and will stay deleted due to a
+   *                                    choice from a higher level.
+   *                                    These species will formally always have zero 
+   *                                    mole numbers in the solution vector.
+   *                                      - VCS_SPECIES_ZEROEDPHASE  
+   *                              -7 -> The species lies in a multicomponent phase which
+   *                                    currently does exist.  Its concentration is currently
+   *                                    identically zero, though the phase exists. Note, this
+   *                                    is a temporary condition that exists at the start 
+   *                                    of an equilibrium problem.
+   *                                    The species is soon "birthed" or "deleted".
+   *                                    - VCS_SPECIES_ACTIVEBUTZERO     
+   */
+  bool VCS_SOLVE::vcs_evaluate_speciesType() {
+    int kspec;
+    bool allMinorZeroedSpecies;
+  
+    m_numRxnMinorZeroed = 0;
+#ifdef DEBUG_MODE
+    if (m_debug_print_lvl >= 2) {
+      plogf("  --- Species Status decision is reavaluated: All species are minor except for:\n");
+    } else if (m_debug_print_lvl >= 5) {
+      plogf("  --- Species Status decision is reavaluated");
+      plogendl();
+    }
+#endif
+    for (kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
+      m_speciesStatus[kspec] = vcs_species_type(kspec);
+#ifdef DEBUG_MODE 
+      if (m_debug_print_lvl >= 2) {
+	if (m_speciesStatus[kspec] != VCS_SPECIES_MINOR) {
+	  switch (m_speciesStatus[kspec]) {
+	  case VCS_SPECIES_COMPONENT:
+	    break;
+	  case VCS_SPECIES_MAJOR:
+	    plogf("  ---      Major Species          : %-s\n", m_speciesName[kspec].c_str());
+	    break;
+	  case VCS_SPECIES_ZEROEDPHASE:
+	    plogf("  ---      Purposely Zeroed-Phase Species (not in problem): %-s\n",
+		  m_speciesName[kspec].c_str());
+	    break;
+	  case VCS_SPECIES_ZEROEDMS:
+	    plogf("  ---      Zeroed-MS Phase Species: %-s\n", m_speciesName[kspec].c_str());
+	    break;
+	  case VCS_SPECIES_ZEROEDSS:
+	    plogf("  ---      Zeroed-SS Phase Species: %-s\n", m_speciesName[kspec].c_str());
+	    break;
+	  case VCS_SPECIES_DELETED:
+	    plogf("  ---      Deleted-Small Species  : %-s\n", m_speciesName[kspec].c_str());
+	    break;
+	  case VCS_SPECIES_ACTIVEBUTZERO:
+	    plogf("  ---      Zeroed Species in an active MS phase (tmp): %-s\n", 
+		  m_speciesName[kspec].c_str());
+	    break;
+	  case VCS_SPECIES_INTERFACIALVOLTAGE:
+	    plogf("  ---      InterfaceVoltage Species: %-s\n", m_speciesName[kspec].c_str());
+	    break;
+	  default:
+	    plogf("  --- Unknown type - ERROR %d\n", m_speciesStatus[kspec]);
+	    plogendl();
+	    exit(EXIT_FAILURE);
+	  }
+	}
+      }
+#endif
+      if (kspec >= m_numComponents) {
+	if (m_speciesStatus[kspec] != VCS_SPECIES_MAJOR) {
+	  ++m_numRxnMinorZeroed;
+	}
+      }
+    }
+#ifdef DEBUG_MODE 
+    if (m_debug_print_lvl >= 2) {
+      plogf("  ---");
+      plogendl();
+    }
+#endif
+
+    allMinorZeroedSpecies = (m_numRxnMinorZeroed >= m_numRxnRdc);
+
+    return allMinorZeroedSpecies;
   }
   /*****************************************************************************/
  
