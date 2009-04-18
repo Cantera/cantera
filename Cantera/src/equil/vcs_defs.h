@@ -206,6 +206,16 @@ namespace VCSnonideal {
    */
 #define VCS_SPECIES_ACTIVEBUTZERO      -7
 
+  //! Species lies in a multicomponent phase that is active,
+  //! but species concentration is zero due to stoich constraint
+  /*!
+   *  The species lies in a multicomponent phase which
+   *  currently does exist.  Its concentration is currently
+   *  identically zero, though the phase exists. This is
+   *  a permament condition due to stoich constraints
+   */
+#define VCS_SPECIES_STOICHZERO  -8
+
   //@}
  
  //! @name  Phase Categories used during the iteration 

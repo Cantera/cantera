@@ -473,6 +473,8 @@ namespace VCSnonideal {
    */
   void vcs_print_line(const char *str, int num);
 
+  const char *vcs_speciesType_string(int speciesStatus, int length = 100);
+
   //! Print a string within a given space limit
   /*!
    *   This routine limits the amount of the string that will be printed to a

@@ -418,44 +418,16 @@ namespace VCSnonideal {
     }
     if (iphasePop < 0) {
       /*
-       * Figure out whether we will calculate new reaction step sizes
-       * for the major species.
-       *    -> We won't if all species are minors (im), OR
-       *       all major species have already converged 
+       * Figure out the new reaction step sizes
+       * for the major species (do minor species in the future too)  
        */
-      if (!(MajorSpeciesHaveConverged) && ! allMinorZeroedSpecies) {
-	soldel = vcs_RxnStepSizes();
-	/* -         If SOLDEL is true then we encountered a reaction between */
-	/* -         single-species-phase species, only, and have adjusted */
-	/* -         the mole number vector, W(), directly. In this case, */
-	/* -         we should immediately go back and recompute a new */
-	/* -         component basis, if the species that was zeroed was */
-	/* -         a component. SOLDEL is true when this is so. */
-	if (soldel > 0) {
-	  /* -           We have changed the base mole number amongst single- */
-	  /* -           species-phase species. However, we don't need to */
-	  /* -           recaculate their chemical potentials because they */
-	  /* -           are constant, anyway! */
-	  if (soldel == 2) {
-	    goto L_COMPONENT_CALC;
-	  }
-	  /* -           We have not changed the actual DG values for */
-	  /* -           any species, even the one we deleted. Thus, */
-	  /* -           we don't need to start over. */
-	}
-      } else {
-#ifdef DEBUG_MODE
-	if (m_debug_print_lvl >= 2) {
-	  if (allMinorZeroedSpecies) {
-	    plogf("   --- vcs_RxnStepSizes not called because all"
-		  "species are minors\n");
-	  } else {
-	    plogf("   --- vcs_RxnStepSizes not called because "
-		  "all majors have converged\n");
-	  }
-	}
-#endif
+
+      soldel = vcs_RxnStepSizes();
+ 
+      if (soldel == 2) {
+	goto L_COMPONENT_CALC;
       }
+  
     }
    #ifdef DEBUG_MODE
     else {
@@ -552,7 +524,7 @@ namespace VCSnonideal {
 	  /********************************************************************/
 	  /********************** ZEROED OUT SPECIES **************************/
 	  /********************************************************************/
-	  bool resurrect = true;
+	  bool resurrect = (m_deltaMolNumSpecies[kspec] > 0.0);
 #ifdef DEBUG_MODE
 	  if (m_debug_print_lvl >= 3) {
 	    plogf("   --- %s currently zeroed (SpStatus=%-2d):", 
@@ -562,23 +534,22 @@ namespace VCSnonideal {
 		  m_molNumSpecies_old[kspec], m_deltaMolNumSpecies[kspec]);
 	  }
 #endif
-	  // HKM Alternative is to not allow ds[] = 0.0 phases
-	  // to pop back into existence. For esthetics, I'm allowing this.
-	  // so that dg < 0.0 phases with zero mole numbers become components.
-	  // This is also better, because that component will be the first
-	  // one to pop into existence if there is a minute quantity of the element.
-	  // This could change in the future.
-	  //if (dg[irxn] >= 0.0 || ds[kspec] <= 0.0) {
-	  if (m_deltaGRxn_new[irxn] >= 0.0 ) {
+	 
+	  if (m_deltaGRxn_new[irxn] >= 0.0 || !resurrect) {
 	    m_molNumSpecies_new[kspec] = m_molNumSpecies_old[kspec];
 	    m_deltaMolNumSpecies[kspec] = 0.0;
 	    resurrect = false;
 #ifdef DEBUG_MODE
-	    sprintf(ANOTE, "Species stays zeroed: DG = %11.4E",
-		    m_deltaGRxn_new[irxn]);
+	    sprintf(ANOTE, "Species stays zeroed: DG = %11.4E", m_deltaGRxn_new[irxn]);
 	    if (m_deltaGRxn_new[irxn] < 0.0) {
-	      sprintf(ANOTE, "Species stays zeroed even though dg neg:DG = %11.4E, ds zeroed ",
-		      m_deltaGRxn_new[irxn]);
+	      if (m_speciesStatus[kspec] == VCS_SPECIES_STOICHZERO) {
+		sprintf(ANOTE, "Species stays zeroed even though dg neg due to "
+			"STOICH/PHASEPOP constraint: DG = %11.4E",
+			m_deltaGRxn_new[irxn]);
+	      } else {
+		sprintf(ANOTE, "Species stays zeroed even though dg neg: DG = %11.4E, ds zeroed",
+			m_deltaGRxn_new[irxn]);
+	      }
 	    }
 #endif
 	  } else {
@@ -610,7 +581,6 @@ namespace VCSnonideal {
 	      //Vphase->setExistence(1);
 	      phaseResurrected = true;
 	    }
-	    --m_numRxnMinorZeroed;
 
 	    if (phaseResurrected) {
 #ifdef DEBUG_MODE
@@ -1281,28 +1251,6 @@ namespace VCSnonideal {
 	  for (kspec = 0; kspec < m_numSpeciesRdc; kspec++) {
 	    if (m_phaseID[kspec] == iph && m_molNumSpecies_old[kspec] > 0.0) {
 	      irxn = kspec - m_numComponents;
-
-	      // Both of these conditions are false and should be discarded.
-	      // I think a proper special case would be if a species in a small phase
-	      // had a significant contribution to total element total of a single
-	      // element constraint. That's it.
-
-	      // if (kspec < m_numComponents) {
-	      //		if (m_molNumSpecies_old[kspec] > VCS_RELDELETE_SPECIES_CUTOFF) {
-	      //soldel = 0;
-	      //break;
-	      //}
-	      //} else {
-	      //for (k = 0; k < m_numComponents; k++) {
-	      //if (m_stoichCoeffRxnMatrix[irxn][k] != 0.0) {
-	      //  if (m_molNumSpecies_old[kspec]/m_molNumSpecies_old[k] >
-	      //VCS_DELETE_PHASE_CUTOFF) {
-	      //    soldel = 0;
-	      //    break;
-	      //  }
-	      //}
-	      //}
-	      //}
 	    }
 	  }
 	  if (soldel) {
@@ -1559,8 +1507,8 @@ namespace VCSnonideal {
 		    m_speciesName[kspec].c_str());
 	    }
 	  }
-#endif	    
-	  ++m_numRxnMinorZeroed;	    
+#endif   
+	  ++m_numRxnMinorZeroed;
 	} else if (speciesType == VCS_SPECIES_MINOR) {
 #ifdef DEBUG_MODE
 	  if (m_debug_print_lvl >= 2) {
@@ -3676,9 +3624,7 @@ namespace VCSnonideal {
 
     // ---------- Treat special cases first ---------------------
 
-    if (kspec < m_numComponents) {
-      return VCS_SPECIES_COMPONENT;
-    }
+   
     if (m_speciesUnknownType[kspec] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
       return  VCS_SPECIES_INTERFACIALVOLTAGE;
     }
@@ -3691,20 +3637,39 @@ namespace VCSnonideal {
     // ---------- Treat zeroed out species first ----------------
 
     if (m_molNumSpecies_old[kspec] <= 0.0) {
-      if (m_deltaGRxn_old[irxn] >= 0.0) {
-	/*
-	 *  We are here when the species is or should be zeroed out
-	 */
-	if (m_SSPhase[kspec]) {
-	  return VCS_SPECIES_ZEROEDSS;
-	} else {
-	  if (phaseExist >= VCS_PHASE_EXIST_YES) {
-	    return VCS_SPECIES_ACTIVEBUTZERO;
-	  } else if (phaseExist == VCS_PHASE_EXIST_ZEROEDPHASE) {
-	    return VCS_SPECIES_ZEROEDPHASE;
-	  } else {
-	    return VCS_SPECIES_ZEROEDMS;
-	  }
+
+      if (m_tPhaseMoles_old[iph] <= 0.0) {
+	if (!m_SSPhase[kspec]) {
+	  return VCS_SPECIES_ZEROEDMS;
+	}
+      }
+
+      /*
+       *    see if the species has an element
+       *     which is so low that species will always be zero
+       *
+       */
+      for (int j = 0; j < m_numElemConstraints; ++j) {
+	int elType = m_elType[j];
+	if (elType == VCS_ELEM_TYPE_ABSPOS) {
+	  double atomComp = m_formulaMatrix[j][kspec];
+	  if (atomComp > 0.0) {
+	    double maxPermissible = m_elemAbundancesGoal[j] / atomComp;
+	    if (maxPermissible < VCS_DELETE_MINORSPECIES_CUTOFF) {
+#ifdef DEBUG_MODE
+	      if (m_debug_print_lvl >= 2) {
+		plogf("   ---   %s can not be nonzero because"
+		      " needed element %s is zero\n",
+		      m_speciesName[kspec].c_str(),  (m_elementName[j]).c_str());
+	      }
+#endif
+	      if (m_SSPhase[kspec]) {
+		return VCS_SPECIES_ZEROEDSS;
+	      } else {
+		return VCS_SPECIES_STOICHZERO;
+	      }
+	    }
+	  } 
 	}
       }
 
@@ -3717,68 +3682,76 @@ namespace VCSnonideal {
        *        is also zeroed out. Then, don't pop the phase or the species back into
        *        existence.
        */
-      for (int j = 0; j < m_numComponents; ++j) {
-	double stoicC = m_stoichCoeffRxnMatrix[irxn][j];
-	if (stoicC != 0.0) {
-	  double negChangeComp = - stoicC;
-	  if (negChangeComp > 0.0) {
-	    if (m_molNumSpecies_old[j] < 1.0E-60) {
+      if (irxn >= 0) {
+	for (int j = 0; j < m_numComponents; ++j) {
+	  double stoicC = m_stoichCoeffRxnMatrix[irxn][j];
+	  if (stoicC != 0.0) {
+	    double negChangeComp = - stoicC;
+	    if (negChangeComp > 0.0) {
+	      if (m_molNumSpecies_old[j] < 1.0E-60) {
 #ifdef DEBUG_MODE
-	      if (m_debug_print_lvl >= 2) {
-		plogf("   ---   %s would have popped back into existance but"
-		      " needed component %s is zero\n",
-		      m_speciesName[kspec].c_str(),  m_speciesName[j].c_str());
-	      }
+		if (m_debug_print_lvl >= 2) {
+		  plogf("   ---   %s is prevented from popping into existance because"
+			" a needed component to be consumed, %s, has a zero mole number\n",
+			m_speciesName[kspec].c_str(),  m_speciesName[j].c_str());
+		}
 #endif
-	      if (m_SSPhase[kspec]) {
-		return VCS_SPECIES_ZEROEDSS;
-	      } else {
-		return VCS_SPECIES_ACTIVEBUTZERO;
+		if (m_SSPhase[kspec]) {
+		  return VCS_SPECIES_ZEROEDSS;
+		} else {
+		  return VCS_SPECIES_STOICHZERO;
+		}
+	      }
+	    } else if (negChangeComp < 0.0) {
+	      int jph = m_phaseID[j];  
+	      vcs_VolPhase *jVPhase = m_VolPhaseList[jph];
+	      if (jVPhase->exists() <= 0) {
+#ifdef DEBUG_MODE
+		if (m_debug_print_lvl >= 2) {
+		  plogf("   ---   %s is prevented from popping into existence because"
+			" a needed component %s is in a zeroed-phase that would be "
+			"popped into existence at the same time\n",
+			m_speciesName[kspec].c_str(),  m_speciesName[j].c_str());
+		}
+#endif
+		if (m_SSPhase[kspec]) {
+		  return VCS_SPECIES_ZEROEDSS;
+		} else {
+		  return VCS_SPECIES_STOICHZERO;
+		}
 	      }
 	    }
 	  }
 	}
       }
-      /*
-       *     The Gibbs free energy for this species is such that
-       *     it will pop back into existence.
-       *
-       *     -> Set it to a major species in anticipation.
-       *     -> An exception to this is if the species has an element
-       *        which is so low to cause problems. 
-       *
-       *        We need to have a PHASE_CUTOFF here. This algorithm is
-       *        insufficient.
-       */
-      for (int j = 0; j < m_numElemConstraints; ++j) {
-	int elType = m_elType[j];
-	if (elType == VCS_ELEM_TYPE_ABSPOS) {
-	  double atomComp = m_formulaMatrix[j][kspec];
-	  if (atomComp > 0.0) {
-	    double maxPermissible = m_elemAbundancesGoal[j] / atomComp;
-	    if (maxPermissible < VCS_DELETE_MINORSPECIES_CUTOFF) {
-#ifdef DEBUG_MODE
-	      if (m_debug_print_lvl >= 2) {
-		plogf("   ---   %s would have popped back into existance but"
-		      " needed element %s is zero\n",
-		      m_speciesName[kspec].c_str(),  (m_elementName[j]).c_str());
-	      }
-#endif
-	      if (m_SSPhase[kspec]) {
-		return VCS_SPECIES_ZEROEDSS;
-	      } else {
-		return VCS_SPECIES_ACTIVEBUTZERO;
-	      }
+   
+      if (irxn >= 0) {
+	if (m_deltaGRxn_old[irxn] >= 0.0) {
+	  /*
+	   *  We are here when the species is or should remain zeroed out
+	   */
+	  if (m_SSPhase[kspec]) {
+	    return VCS_SPECIES_ZEROEDSS;
+	  } else {
+	    if (phaseExist >= VCS_PHASE_EXIST_YES) {
+	      return VCS_SPECIES_ACTIVEBUTZERO;
+	    } else if (phaseExist == VCS_PHASE_EXIST_ZEROEDPHASE) {
+	      return VCS_SPECIES_ZEROEDPHASE;
+	    } else {
+	      return VCS_SPECIES_ZEROEDMS;
 	    }
 	  }
 	}
       }
       /*
-       * If the current phase already exists, set the emerging species to a 
-       * minor species.
+       * If the current phase already exists, 
        */
       if (m_tPhaseMoles_old[iph] > 0.0) {
-	return VCS_SPECIES_MINOR;
+	if (m_SSPhase[kspec]) {
+	  return VCS_SPECIES_MAJOR;
+	} else {
+	  return VCS_SPECIES_ACTIVEBUTZERO;
+	}
       }
 
       /*
@@ -3790,7 +3763,13 @@ namespace VCSnonideal {
        *         fraction of the species in the phase, we could do 
        *         better here.
        */
-      return VCS_SPECIES_MAJOR;
+      if (m_tPhaseMoles_old[iph] <= 0.0) {
+	if (m_SSPhase[kspec]) {
+	  return VCS_SPECIES_MAJOR;
+	} else {
+	  return VCS_SPECIES_ZEROEDMS;
+	}
+      }
     }
 
     // ---------- Treat species with non-zero mole numbers next  ------------
@@ -3822,6 +3801,9 @@ namespace VCSnonideal {
      *      phase and shares a non-zero stoichiometric coefficient, then
      *      the current species is a major species.
      */
+    if (irxn < 0) {
+      return VCS_SPECIES_MAJOR;
+    } else {
     double szAdj = m_scSize[irxn] * std::sqrt((double)m_numRxnTot);
     for (int k = 0; k < m_numComponents; ++k) {
       if (!(m_SSPhase[k])) {
@@ -3831,7 +3813,8 @@ namespace VCSnonideal {
 	  }
 	}
       }
-    }  
+    }
+    }
     return VCS_SPECIES_MINOR;
   }
   /*****************************************************************************/
@@ -4579,13 +4562,19 @@ namespace VCSnonideal {
    *                                    These species will formally always have zero 
    *                                    mole numbers in the solution vector.
    *                                      - VCS_SPECIES_ZEROEDPHASE  
-   *                              -7 -> The species lies in a multicomponent phase which
+   *                             -7 ->  The species lies in a multicomponent phase which
    *                                    currently does exist.  Its concentration is currently
    *                                    identically zero, though the phase exists. Note, this
    *                                    is a temporary condition that exists at the start 
    *                                    of an equilibrium problem.
    *                                    The species is soon "birthed" or "deleted".
    *                                    - VCS_SPECIES_ACTIVEBUTZERO     
+   *                             -8 ->  The species lies in a multicomponent phase which
+   *                                     currently does exist.  Its concentration is currently
+   *                                    identically zero, though the phase exists. This is
+   *                                    a permament condition due to stoich constraints
+   *                                    - VCS_SPECIES_STOICHZERO
+   *
    */
   bool VCS_SOLVE::vcs_evaluate_speciesType() {
     int kspec;
@@ -4602,8 +4591,19 @@ namespace VCSnonideal {
 #endif
     for (kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
       m_speciesStatus[kspec] = vcs_species_type(kspec);
-#ifdef DEBUG_MODE 
-      if (m_debug_print_lvl >= 2) {
+#ifdef DEBUG_MODE
+      if (m_debug_print_lvl >= 5) {
+	plogf("  --- %-16s: ", m_speciesName[kspec].c_str());
+	if (kspec < m_numComponents) {
+	  plogf("(COMP) ");
+	} else { 
+	  plogf("       ");
+	}
+	plogf(" %10.3g ", m_molNumSpecies_old[kspec]);
+	const char *sString = vcs_speciesType_string(m_speciesStatus[kspec], 100);
+	plogf("%s\n", sString);
+	
+      } else if (m_debug_print_lvl >= 2) {
 	if (m_speciesStatus[kspec] != VCS_SPECIES_MINOR) {
 	  switch (m_speciesStatus[kspec]) {
 	  case VCS_SPECIES_COMPONENT:
@@ -4626,6 +4626,10 @@ namespace VCSnonideal {
 	    break;
 	  case VCS_SPECIES_ACTIVEBUTZERO:
 	    plogf("  ---      Zeroed Species in an active MS phase (tmp): %-s\n", 
+		  m_speciesName[kspec].c_str());
+	    break;
+	  case VCS_SPECIES_STOICHZERO:
+	    plogf("  ---     Zeroed Species in an active MS phase (Stoich Constraint): %-s\n", 
 		  m_speciesName[kspec].c_str());
 	    break;
 	  case VCS_SPECIES_INTERFACIALVOLTAGE:

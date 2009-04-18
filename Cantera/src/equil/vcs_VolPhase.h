@@ -450,6 +450,23 @@ namespace VCSnonideal {
     vcs_SpeciesProperties * speciesProperty(const int kindex);
 
     //! int indicating whether the phase exists or not
+    /*!
+     *  returns the m_existence int for the phase
+     *
+     *   -  VCS_PHASE_EXIST_ZEROEDPHASE = -6: Set to not exist by fiat from a 
+     *                                        higher level.
+     *                                      This is used in phase stability boundary calculations
+     *   -  VCS_PHASE_EXIST_NO = 0:   Doesn't exist currently
+     *   -  VCS_PHASE_EXIST_MINORCONC = 1:  Exists, but the concentration is 
+     *          so low that an alternate
+     *          method is used to calculate the total phase concentrations.
+     *   -  VCS_PHASE_EXIST_YES = 2 : Does exist currently
+     *   -  VCS_PHASE_EXIST_ALWAYS = 3: Always exists because it contains
+     *          inerts which can't exist in any other phase. Or,
+     *          the phase exists always because it consists of a single
+     *          species, which is identified with the voltage, i.e., 
+     *          its an electron metal phase.
+     */
     int exists() const;
 
     //! Set the existence flag in the object

@@ -1,9 +1,5 @@
 /* ======================================================================= */
-/* -------------------------------------------------- */
-/* | RCS Head Information on zuzax.pchem.sandia.gov | */
-/* -------------------------------------------------- */
 /* $RCSfile$ */
-/* $Author$ */
 /* $Date$ */
 /* $Revision$ */
 /* ======================================================================= */
@@ -50,12 +46,15 @@ namespace VCSnonideal {
 #endif
 
     /*
-     * Loop through all of the species in the phase
+     * Loop through all of the species in the phase. We say the phase
+     * can be popped, if there is one species in the phase that can be
+     * popped.
      */
     for (int k = 0; k < Vphase->nSpecies(); k++) {
       int kspec = Vphase->spGlobalIndexVCS(k);
       int irxn = kspec - m_numComponents;
       if (irxn >= 0) {
+	int iPopPossible = true;
 	for (int j = 0; j < m_numComponents; ++j) {
 	  if (m_elType[j] == VCS_ELEM_TYPE_ABSPOS) {
 	    double stoicC = m_stoichCoeffRxnMatrix[irxn][j];
@@ -64,24 +63,18 @@ namespace VCSnonideal {
 	      if (negChangeComp > 0.0) {
 		// TODO: We may have to come up with a tolerance here
 		if (m_molNumSpecies_old[j] <= VCS_DELETE_ELEMENTABS_CUTOFF*0.1) {
-#ifdef DEBUG_MODE
-		  if (m_debug_print_lvl >= 3) {
-		    plogf("   --- vcs_popPhasePosssible()  Phase %d (%s) can't be popped\n", 
-			  iphasePop,
-			  Vphase->PhaseName.c_str());
-		    plogf("   ---        Component %d (%s)will go negative\n", 
-			  j, m_speciesName[j].c_str());
-		  }
-#endif
-		  return false;
+		  iPopPossible = false;
 		}
 	      }
 	    }
 	  }
 	}
+	if (iPopPossible == true) {
+	  return true;
+	}
       }
     }
-    return true;
+    return false;
   }
 
   // Decision as to whether a phase pops back into existence
@@ -604,7 +597,7 @@ namespace VCSnonideal {
 	  irxn = kspec - m_numComponents;
 	  double b =  E_phi[k] / sum * (1.0 - sum_Xcomp);
 	  if (irxn >= 0) {
-	    fracDelta_raw[k] = (sumFrac - fracDelta_old[k]) * b / (1.0 - b);
+	    fracDelta_raw[k] = b;
 	  } 
 	}
 

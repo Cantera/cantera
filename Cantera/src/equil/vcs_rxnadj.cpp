@@ -105,14 +105,27 @@ namespace VCSnonideal {
 	    double trphmoles = tphmoles / m_totalMolNum;
 	    if (trphmoles > VCS_DELETE_PHASE_CUTOFF) {
 	      m_deltaMolNumSpecies[kspec] = m_totalMolNum * VCS_SMALL_MULTIPHASE_SPECIES;
-#ifdef DEBUG_MODE
+	      if (m_speciesStatus[kspec] == VCS_SPECIES_STOICHZERO) {
+		m_deltaMolNumSpecies[kspec] = 0.0;
+#ifdef DEBUG_MODE	   
+		sprintf(ANOTE,
+			"MultSpec (%s): Species not born due to STOICH/PHASEPOP even though DG = %11.3E", 
+			vcs_speciesType_string(m_speciesStatus[kspec], 15),
+			m_deltaGRxn_new[irxn]);
+#endif
+	      } else {
+		m_deltaMolNumSpecies[kspec] = m_totalMolNum * VCS_SMALL_MULTIPHASE_SPECIES;
+#ifdef DEBUG_MODE	   
 	      sprintf(ANOTE,
-		      "MultSpec: small species born again DG = %11.3E", 
+		      "MultSpec (%s): small species born again DG = %11.3E", 
+		      vcs_speciesType_string(m_speciesStatus[kspec], 15),
 		      m_deltaGRxn_new[irxn]);
 #endif
+	      }
 	    } else {
 #ifdef DEBUG_MODE
-	      sprintf(ANOTE, "MultSpec: phase come alive DG = %11.3E", 
+	      sprintf(ANOTE, "MultSpec (%s): phase come alive DG = %11.3E", 
+		      vcs_speciesType_string(m_speciesStatus[kspec], 15),
 		      m_deltaGRxn_new[irxn]);   
 #endif
 	      Vphase = m_VolPhaseList[iph];
@@ -120,10 +133,12 @@ namespace VCSnonideal {
 	      m_deltaMolNumSpecies[kspec] = 
 		m_totalMolNum * 10.0 * VCS_DELETE_PHASE_CUTOFF / numSpPhase;
 	    }
-	    --(m_numRxnMinorZeroed);
+
 	  } else {
 #ifdef DEBUG_MODE
-	    sprintf(ANOTE, "MultSpec: still dead DG = %11.3E", m_deltaGRxn_new[irxn]);       
+	    sprintf(ANOTE, "MultSpec (%s): still dead DG = %11.3E",
+		    vcs_speciesType_string(m_speciesStatus[kspec], 15),
+		    m_deltaGRxn_new[irxn]);       
 #endif
 	    m_deltaMolNumSpecies[kspec] = 0.0;
 	  }

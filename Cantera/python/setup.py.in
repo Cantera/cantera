@@ -13,11 +13,15 @@ if @build_with_f2c@ <> 1:
 linkargs = '@LCXX_FLAGS@'
 
 numarray_incl = "@NUMARRAY_INC_DIR@"
+numpy_incl    = "@NUMPY_INC_DIR@"
 
 incdirs=["../../build/include", "src", "../clib/src"]
 
 if numarray_incl <> '':
     incdirs.append(numarray_incl)
+
+if numpy_incl <> '':
+    incdirs.append(numpy_incl)
 
 bllibstr = "@BLAS_LAPACK_LIBS@"
 bllibs = bllibstr.replace('-l',' ')

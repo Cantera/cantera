@@ -1455,8 +1455,8 @@ public:
    */
   int m_numRxnRdc;
 
-  //!  Number of active species which are  currently either zeroed out or
-  //!  are minor species
+  //!  Number of active species which are currently either treated as
+  //!  minor species
   int m_numRxnMinorZeroed; 
 
   //! Number of Phases in the problem
@@ -1532,9 +1532,10 @@ public:
 
   //! Setting for whether to do an initial estimate
   /*!
-   *  Initial estimate: 0 Do not estimate the solution at all. Use the supplied 
-   *                      mole numbers as is.
-   *                    1 Only do an estimate if the element abundances aren't satisfied.
+   *  Initial estimate: 0 Do not estimate the solution at all. Use the 
+   *                      supplied mole numbers as is.
+   *                    1 Only do an estimate if the element abundances 
+   *                      aren't satisfied.
    *                   -1 Force an estimate of the soln. Throw out the input
    *                      mole numbers.
    */
@@ -1814,6 +1815,11 @@ public:
    *                                    of an equilibrium problem.
    *                                    The species is soon "birthed" or "deleted".
    *                                    - VCS_SPECIES_ACTIVEBUTZERO     
+   *                              -8 -> The species lies in a multicomponent phase which
+   *                                    currently does exist.  Its concentration is currently
+   *                                    identically zero, though the phase exists. This is
+   *                                    a permament condition due to stoich constraints
+   *                                    - VCS_SPECIES_STOICHZERO  
    *
    */
   std::vector<int> m_speciesStatus;

@@ -103,8 +103,16 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 #undef PYTHON_EXE
 
 // If this is defined, the Cantera Python interface will use the
-// Numeric package; otherwise, it will use numarray.
+// Numeric package
 #undef HAS_NUMERIC
+
+// If this is defined, the Cantera Python interface will use the
+// numarray package
+#undef HAS_NUMARRAY
+
+// If this is defined, the Cantera Python interface will use the
+// numpy package
+#undef HAS_NUMPY
 
 // If this is defined, then python will not be assumed to be
 // present to support conversions

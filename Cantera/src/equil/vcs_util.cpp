@@ -413,8 +413,77 @@ namespace VCSnonideal {
     plogendl();
   }
 
-  /***************************************************************************/
-  /************************************************************************ **/
+
+  const char *vcs_speciesType_string(int speciesStatus, int length) {
+    char *sss;
+    switch (speciesStatus) {
+    case VCS_SPECIES_COMPONENT:
+      sss = "Component Species";
+      break;
+    case VCS_SPECIES_MAJOR:
+      sss ="Major Species";
+      break;
+    case VCS_SPECIES_MINOR:
+      sss ="Minor Species";
+      break;
+    case VCS_SPECIES_ZEROEDPHASE:
+      if (length < 48) {
+	sss = "Set Zeroed-Phase";
+      } else {
+	sss ="Purposely Zeroed-Phase Species (not in problem)";
+      }
+      break;
+    case VCS_SPECIES_ZEROEDMS:
+      if (length < 23) {
+	sss = "Zeroed-MS Phase";
+      } else {
+	sss ="Zeroed-MS Phase Species";
+      }
+      break;
+    case VCS_SPECIES_ZEROEDSS:
+      if (length < 23) {
+	sss = "Zeroed-SS Phase";
+      } else {
+	sss ="Zeroed-SS Phase Species";
+      }
+      break;
+    case VCS_SPECIES_DELETED:
+      if (length < 22) {
+	sss = "Deleted Species";
+      } else if (length < 40) {
+	sss = "Deleted-Small Species";
+      } else {
+	sss ="Deleted-Small Species in a MS phase";
+      }
+      break;
+    case VCS_SPECIES_ACTIVEBUTZERO:
+      if (length < 47) {
+	sss = "Tmp Zeroed in MS";
+      } else {
+	sss ="Zeroed Species in an active MS phase (tmp)";
+      }
+      break;
+    case VCS_SPECIES_STOICHZERO:
+      if (length < 56) {
+	sss = "Stoich Zeroed in MS";
+      } else {
+	sss ="Zeroed Species in an active MS phase (Stoich Constraint)";
+      }
+      break;
+    case VCS_SPECIES_INTERFACIALVOLTAGE:
+      if (length < 29) {
+	sss = "InterfaceVoltage";
+      } else {
+	sss ="InterfaceVoltage Species";
+      }
+      break;
+    default:
+      sss = "unknown species type";
+    }
+    return sss;
+  }
+
+
   /************************************************************************ **/
 
   void vcs_print_stringTrunc(const char *str, int space, int alignment) 

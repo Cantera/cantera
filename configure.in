@@ -1072,40 +1072,107 @@ fi
 AC_SUBST(BUILD_PYTHON)
 AC_DEFINE_UNQUOTED(PYTHON_EXE,"$PYTHON_CMD")
 
+USE_NUMARRAY='y'
+
 if test "$USE_NUMERIC" = "y"; then
+USE_NUMARRAY='n'
+USE_NUMPY='n'
 AC_DEFINE(HAS_NUMERIC)
 fi
 
-if test -n "$NUMARRAY_INC_DIR" ; then
-  echo "setting NUMARRAY_INC_DIR to $NUMARRAY_INC_DIR"
-else
- NUMARRAY_INC_DIR=""
- if test -n "$NUMARRAY_HOME"; then
-  dir5="$NUMARRAY_HOME/include/python2.5"
-  if test -d $dir5 ; then
-    NUMARRAY_INC_DIR=$dir5
+if test "$USE_NUMPY" = "y"; then
+USE_NUMARRAY='n'
+AC_DEFINE(HAS_NUMPY)
+fi
+
+if test "$USE_NUMARRAY" = "y"; then
+AC_DEFINE(HAS_NUMARRAY)
+fi
+
+if test "$USE_NUMARRAY" = "y"; then
+  if test -n "$NUMARRAY_INC_DIR" ; then
+    echo "setting NUMARRAY_INC_DIR to $NUMARRAY_INC_DIR" 
   else
-    dir4="$NUMARRAY_HOME/include/python2.4"
-    if test -d $dir4 ; then
-      NUMARRAY_INC_DIR=$dir4
+   NUMARRAY_INC_DIR=""
+   if test -n "$NUMARRAY_HOME"; then
+    dir5="$NUMARRAY_HOME/include/python2.5"
+    if test -d $dir5 ; then
+      NUMARRAY_INC_DIR=$dir5
     else
-      dir3="$NUMARRAY_HOME/include/python2.3"
-      if test -d $dir3 ; then
-        NUMARRAY_INC_DIR=$dir3
+      dir4="$NUMARRAY_HOME/include/python2.4"
+      if test -d $dir4 ; then
+        NUMARRAY_INC_DIR=$dir4
       else
-        dir1="$NUMARRAY_HOME/include/python"
-        if test -d $dir1 ; then
-          NUMARRAY_INC_DIR=$dir1
+        dir3="$NUMARRAY_HOME/include/python2.3"
+        if test -d $dir3 ; then
+          NUMARRAY_INC_DIR=$dir3
         else
-          echo "WARNING: NUMARRAY include dir $dir1 does not exist."
-          NUMARRAY_INC_DIR=$dir1
+          dir1="$NUMARRAY_HOME/include/python"
+          if test -d $dir1 ; then
+            NUMARRAY_INC_DIR=$dir1
+          else
+            echo "WARNING: NUMARRAY include dir $dir1 does not exist."
+            NUMARRAY_INC_DIR=$dir1
+          fi
         fi
       fi
     fi
+    echo "setting NUMARRAY_INC_DIR to $NUMARRAY_INC_DIR"
+   fi
   fi
-  echo "setting NUMARRAY_INC_DIR to $NUMARRAY_INC_DIR"
- fi
+else
+  NUMARRAY_INC_DIR=""
+  NUMARRAY_HOME=""
 fi
+
+
+if test "$USE_NUMPY" = "y"; then
+  if test -n "$NUMPY_INC_DIR" ; then
+    echo "setting NUMPY_INC_DIR to $NUMPY_INC_DIR" 
+  else
+   NUMPY_INC_DIR=""
+   if test -n "$NUMPY_HOME"; then
+    dir6="$NUMPY_HOME/include/python2.6"
+    if test -d $dir6 ; then
+      NUMPY_INC_DIR=$dir6
+    else
+      dir5="$NUMPY_HOME/include/python2.5"
+      if test -d $dir5 ; then
+        NUMPY_INC_DIR=$dir5
+      else
+        dir4="$NUMPY_HOME/include/python2.4"
+        if test -d $dir4 ; then
+          NUMPY_INC_DIR=$dir4
+        else
+          dir3="$NUMPY_HOME/include/python2.3"
+          if test -d $dir3 ; then
+            NUMPY_INC_DIR=$dir3
+          else
+            dir2="$NUMPY_HOME/include/python2.2"
+            if test -d $dir2 ; then
+              NUMPY_INC_DIR=$dir2
+            else
+              dir1="$NUMPY_HOME/include/python"
+              if test -d $dir1 ; then
+                NUMPY_INC_DIR=$dir1
+              else
+                echo "WARNING: NUMPY include dir $dir1 does not exist."
+                NUMPY_INC_DIR=$dir1
+              fi
+            fi
+          fi
+        fi
+      fi
+    fi
+    echo "setting NUMPY_INC_DIR to $NUMPY_INC_DIR"
+   fi
+  fi
+else
+  NUMPY_INC_DIR=""
+  NUMPY_HOME=""
+fi
+AC_SUBST(NUMPY_INC_DIR)
+AC_SUBST(NUMPY_HOME)
 
 # this fails, at least on a Mac. By default, numarray include files
 # are installed in the include directory in the Python framework. This
@@ -1123,6 +1190,7 @@ fi
 #fi
 #fi
 #fi
+
 
 AC_SUBST(NUMARRAY_INC_DIR)
 AC_SUBST(NUMARRAY_HOME)

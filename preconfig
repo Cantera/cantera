@@ -72,14 +72,26 @@ PYTHON_PACKAGE=${PYTHON_PACKAGE:="minimal"}
 # different name, set this to the full path to the Python interpreter.
 PYTHON_CMD=${PYTHON_CMD:="default"}
 
+
 # The Cantera Python interface can be built with either the numarray
-# or Numeric packages. Set this to "y" to use Numeric, or anything
-# else to use numarray. Using numarray is preferred.
+# numeric, or numpy packages. Set this to "y" to use Numeric.
 USE_NUMERIC=${USE_NUMERIC:="n"}
+
+# The Cantera Python interface can be built with either the numarray
+# or Numeric packages. Set this to "y" to use numpy, or 'n'
+# to use numarray. set USE_NUMERIC to 'n' also if you want to use numarray.
+# Using numpy is preferred, and is the supported option going forwards.
+USE_NUMPY=${USE_NUMPY:="n"}
+
+# If numpy was installed using the --home option, set this to the
+# home directory for numpy. This will be needed for all numpy installations
+# that don't put the include files into python's native include directory.
+#NUMPY_HOME=${NUMPY_HOME:="$HOME/python_packages"}
 
 # If numarray was installed using the --home option, set this to the
 # home directory for numarray.
 #NUMARRAY_HOME=${NUMARRAY_HOME:="$HOME/python_packages"}
+
 
 # If you want to install the Cantera Python package somewhere other
 # than the default 'site-packages' directory within the Python library
@@ -543,7 +555,9 @@ export RPFONT
 export FORTRAN_LIB_DIR
 export CANTERA_INSTALL_DIR
 export USE_NUMERIC
+export USE_NUMPY
 export NUMARRAY_HOME
+export NUMPY_HOME
 export CANTERA_PYTHON_HOME
 export USE_SUNDIALS
 export SUNDIALS_HOME
