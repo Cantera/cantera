@@ -4,7 +4,7 @@ import sys
 bindir = '@ct_bindir@'
 libdir = '-L@buildlib@ @LOCAL_LIB_DIRS@'
 incdir = '@buildinc@'
-libs   = '-lclib @LOCAL_LIBS@ @LIBS@ @FLIBS@'
+libs   = '-lclib @LOCAL_LIBS@ @LIBS@ @FLIBS@ @LCXX_END_LIBS@'
 
 f = open('setup.m','w')
 f.write('cd cantera\nbuildux\nexit\n')
