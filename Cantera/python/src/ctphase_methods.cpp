@@ -128,7 +128,13 @@ phase_getarray(PyObject *self, PyObject *args)
     if (job > 10) {
 
         int nsp = phase_nSpecies(ph);
+#ifdef HAS_NUMPY
+        npy_intp nnn = nsp;
+        x = (PyArrayObject*)PyArray_SimpleNew(1,  &nnn, PyArray_DOUBLE);
+        Py_INCREF(x);
+#else
         x = (PyArrayObject*)PyArray_FromDims(1, &nsp, PyArray_DOUBLE);
+#endif
         xd = (double*)x->data;
         switch (job) {
         case 20:
@@ -147,7 +153,12 @@ phase_getarray(PyObject *self, PyObject *args)
     else {
 
         int nel = phase_nElements(ph);
+#ifdef HAS_NUMPY
+        npy_intp nnn = nel;
+        x = (PyArrayObject*)PyArray_SimpleNew(1, &nnn, PyArray_DOUBLE);
+#else
         x = (PyArrayObject*)PyArray_FromDims(1, &nel, PyArray_DOUBLE);
+#endif
         xd = (double*)x->data;
         switch (job) {
         case 1:

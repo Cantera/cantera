@@ -229,11 +229,23 @@ py_flow_restore(PyObject *self, PyObject *args)
     if (job < 0) {
         return Py_BuildValue("(ii)",iz,isoln);
     }
+#ifdef HAS_NUMPY
+    npy_intp niz = iz;
+    pz = (PyArrayObject*)PyArray_SimpleNew(1, &niz, PyArray_DOUBLE);
+#else
     pz = (PyArrayObject*)PyArray_FromDims(1, &iz, PyArray_DOUBLE);
+#endif
+#ifdef HAS_NUMPY
+    npy_intp sdim[2];
+    sdim[0] = iz;
+    sdim[1] = isoln/iz;
+    psoln = (PyArrayObject*)PyArray_SimpleNew(2, sdim, PyArray_DOUBLE);
+#else
     int sdim[2];
     sdim[0] = iz;
     sdim[1] = isoln/iz;
     psoln = (PyArrayObject*)PyArray_FromDims(2, sdim, PyArray_DOUBLE);
+#endif
     z = (double*)((PyArrayObject*)pz)->data;
     soln = (double*)((PyArrayObject*)psoln)->data;
     iok = flow_restore(n, 0, fname, id, iz, z, isoln, soln);

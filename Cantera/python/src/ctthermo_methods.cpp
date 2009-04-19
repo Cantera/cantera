@@ -194,8 +194,15 @@ thermo_getarray(PyObject *self, PyObject *args)
     // array attributes
     int iok = -22;
 
+#ifdef HAS_NUMPY
+    npy_intp nnn = xlen;
+    PyArrayObject* x = 
+        (PyArrayObject*)PyArray_SimpleNew(1, &nnn, PyArray_DOUBLE);
+    Py_INCREF(x);
+#else
     PyArrayObject* x = 
         (PyArrayObject*)PyArray_FromDims(1, &xlen, PyArray_DOUBLE);
+#endif
     double* xd = (double*)x->data;
     switch (job) {
     case 20:

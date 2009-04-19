@@ -225,13 +225,17 @@ py_ctml_getFloatArray(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "iii", &n, &iconv, &ia))
         return NULL;
     
+#ifdef HAS_NUMPY
+    npy_intp nia = ia;
+    PyArrayObject* a = 
+        (PyArrayObject*)PyArray_SimpleNew(1, &nia, PyArray_DOUBLE);
+#else
     PyArrayObject* a = 
         (PyArrayObject*)PyArray_FromDims(1, &ia, PyArray_DOUBLE);
+#endif
     double* x = (double*)a->data;
     int iok = ctml_getFloatArray(n, ia, x, iconv);
     if (iok < 0) return reportError(iok);
     return PyArray_Return(a);
 }
-
-
 

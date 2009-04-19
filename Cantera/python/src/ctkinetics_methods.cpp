@@ -168,8 +168,13 @@ kin_getarray(PyObject *self, PyObject *args)
     int ix;
     if (job < 45 || job >= 90) ix = nrxns; else ix = nsp;
  
+#ifdef HAS_NUMPY
+    npy_intp nix = ix;
+    PyArrayObject* x = (PyArrayObject*)PyArray_SimpleNew(1, &nix, PyArray_DOUBLE);
+#else
     PyArrayObject* x = 
         (PyArrayObject*)PyArray_FromDims(1, &ix, PyArray_DOUBLE);
+#endif
     double* xd = (double*)x->data;
 
     switch (job) {

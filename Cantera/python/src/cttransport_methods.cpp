@@ -70,8 +70,14 @@ py_thermalDiffCoeffs(PyObject *self, PyObject *args) {
     int n, idt;
     if (!PyArg_ParseTuple(args, "ii:py_thermalDiffCoeffs", &n, &idt)) 
         return NULL;
+#ifdef HAS_NUMPY
+    npy_intp nidt = idt;
+    PyArrayObject* dt = 
+        (PyArrayObject*)PyArray_SimpleNew(1, &nidt, PyArray_DOUBLE);
+#else
     PyArrayObject* dt = 
         (PyArrayObject*)PyArray_FromDims(1, &idt, PyArray_DOUBLE);
+#endif
     int iok = trans_getThermalDiffCoeffs(n, idt, (double*)dt->data);
     if (iok < 0) return reportError(iok);
     return PyArray_Return(dt);
@@ -82,11 +88,17 @@ py_binaryDiffCoeffs(PyObject *self, PyObject *args) {
     int n, id;
     if (!PyArg_ParseTuple(args, "ii:py_binaryDiffCoeffs", &n, &id)) 
         return NULL;
+#ifdef HAS_NUMPY
+    npy_intp idim[2];
+    idim[0] = id;
+    idim[1] = id;
+    PyArrayObject* d = (PyArrayObject*)PyArray_SimpleNew(2, idim, PyArray_DOUBLE);
+#else
     int idim[2];
     idim[0] = id;
     idim[1] = id;
-    PyArrayObject* d = 
-        (PyArrayObject*)PyArray_FromDims(2, idim, PyArray_DOUBLE);
+    PyArrayObject* d = (PyArrayObject*)PyArray_FromDims(2, idim, PyArray_DOUBLE);
+#endif
     int iok = trans_getBinDiffCoeffs(n, id, (double*)d->data);
     if (iok < 0) return reportError(iok);
     return PyArray_Return(d);
@@ -97,8 +109,12 @@ py_mixDiffCoeffs(PyObject *self, PyObject *args) {
     int n, id;
     if (!PyArg_ParseTuple(args, "ii:py_mixDiffCoeffs", &n, &id)) 
         return NULL;
-    PyArrayObject* d = 
-        (PyArrayObject*)PyArray_FromDims(1, &id, PyArray_DOUBLE);
+#ifdef HAS_NUMPY
+    npy_intp nid = id;
+    PyArrayObject* d = (PyArrayObject*)PyArray_SimpleNew(1, &nid, PyArray_DOUBLE);
+#else
+    PyArrayObject* d = (PyArrayObject*)PyArray_FromDims(1, &id, PyArray_DOUBLE);
+#endif
     int iok = trans_getMixDiffCoeffs(n, id, (double*)d->data);
     if (iok < 0) return reportError(iok);
     return PyArray_Return(d);
@@ -110,11 +126,17 @@ py_multiDiffCoeffs(PyObject *self, PyObject *args) {
     if (!PyArg_ParseTuple(args, "ii:py_multiDiffCoeffs", &n, &id)) 
         return NULL;
     //vector_int idim(2,id);
+#ifdef HAS_NUMPY
+    npy_intp idim[2];
+    idim[0] = id;
+    idim[1] = id;
+    PyArrayObject* d = (PyArrayObject*)PyArray_SimpleNew(2, idim, PyArray_DOUBLE);
+#else
     int idim[2];
     idim[0] = id;
     idim[1] = id;
-    PyArrayObject* d = 
-        (PyArrayObject*)PyArray_FromDims(2, idim, PyArray_DOUBLE);
+    PyArrayObject* d = (PyArrayObject*)PyArray_FromDims(2, idim, PyArray_DOUBLE);
+#endif
     int iok = trans_getMultiDiffCoeffs(n, id, (double*)d->data);
     if (iok < 0) return reportError(iok);
     return PyArray_Return(d);
@@ -132,14 +154,14 @@ py_getMolarFluxes(PyObject *self, PyObject *args) {
     PyArrayObject* state2array = (PyArrayObject*)state2;
     double* d1 = (double*)state1array->data;
     double* d2 = (double*)state2array->data;
+#ifdef HAS_NUMPY
+    npy_intp nid = id;
+    PyArrayObject* f = (PyArrayObject*)PyArray_SimpleNew(1, &nid, PyArray_DOUBLE);
+#else
     PyArrayObject* f = (PyArrayObject*)PyArray_FromDims(1, &id, PyArray_DOUBLE);
+#endif
     double* fd = (double*)f->data;
     int iok = trans_getMolarFluxes(n, d1, d2, delta, fd);
     if (iok < 0) return reportError(iok);
     return PyArray_Return(f);
 }
-
-
-
-
-
