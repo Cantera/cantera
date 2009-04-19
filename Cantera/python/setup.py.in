@@ -1,4 +1,5 @@
 import sys
+import string
 from distutils.core import setup, Extension
     
 libs = []
@@ -13,15 +14,25 @@ if @build_with_f2c@ <> 1:
 linkargs = '@LCXX_FLAGS@'
 
 numarray_incl = "@NUMARRAY_INC_DIR@"
-numpy_incl    = "@NUMPY_INC_DIR@"
+numpy_incl = "@NUMPY_INC_DIR@"
+
+num_collect = []
+if (type(numarray_incl).__name__=='str') :
+    if numarray_incl <> '':
+        numarray_list =  numarray_incl.split(":")
+        num_collect = num_collect + numarray_list
+
+if (type(numpy_incl).__name__=='str') :
+    if numpy_incl <> '':
+        numpy_list =  numpy_incl.split(":")
+        num_collect = num_collect + numpy_list
 
 incdirs=["../../build/include", "src", "../clib/src"]
 
-if numarray_incl <> '':
-    incdirs.append(numarray_incl)
-
-if numpy_incl <> '':
-    incdirs.append(numpy_incl)
+if num_collect <> '':
+    for x in num_collect :
+       if x <> '' :
+          incdirs.append(x)
 
 bllibstr = "@BLAS_LAPACK_LIBS@"
 bllibs = bllibstr.replace('-l',' ')

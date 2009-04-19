@@ -57,9 +57,8 @@ for n in range(np):
     # sensitivity of OH to reaction 3    
     data[n,5] = sim.sensitivity('OH',3)
     
-    print '%10.3e %10.3f %10.3f %14.6e' % (sim.time(), r.temperature(), 
-                                           r.pressure(), r.intEnergy_mass())
-                                           #sim.sensitivity("OH",0))
+    print '%10.3e %10.3f %10.3f %14.6e %10.3f %10.3f' % (sim.time(), r.temperature(), 
+                                           r.pressure(), r.intEnergy_mass(),  data[n,4],  data[n,5])
 
 
 # plot the results if matplotlib is installed.
