@@ -3,9 +3,10 @@
 INST_DIR=@ct_demodir@/python/equilibrium/simple_test
 
 PYTHON_CMD = @PYTHON_CMD@
+all:
 
 run:
-	$(PYTHON_CMD) adiabatic.py
+	$(PYTHON_CMD) simple.py
 
 test:
 	./runtest
