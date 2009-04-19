@@ -52,7 +52,7 @@ int MDP_ALLO_errorOption = 3;
 #  define MAX(x,y)     (( (x) > (y) ) ? (x) : (y))
 #endif
 
-#define MDP_ALLOC_INTERFACE_ERROR -230346
+#define MDP_ALLOC_INTERFACE_ERROR 230346
 
 /****************************************************************************/
 /****************************************************************************/
@@ -87,7 +87,7 @@ static void mdp_alloc_eh(const char *rname, size_t bytes)
 #endif
   } else {
     sprintf(mesg,"%s ERROR: out of memory while mallocing %d bytes",
-	    rname, bytes);
+	    rname, (int) bytes);
   }
   if (MDP_ALLO_errorOption % 2 == 1) {
     fprintf(stderr, "\n%s", mesg);
