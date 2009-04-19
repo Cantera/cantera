@@ -168,9 +168,12 @@ install:
 	cd cantera/1D/@Stack/private; \
             ( for iddd in *.m ; do  \
               @INSTALL_abs@ -c $${iddd} @prefix@/matlab/toolbox/cantera/cantera/1D/@Stack/private;  done )
+	@INSTALL@ -d @prefix@/matlab/toolbox/cantera/cantera-tutorials 
+	( for iddd in cantera/tutorial/*.m ; do  \
+          @INSTALL_abs@ -c $${iddd} @prefix@/matlab/toolbox/cantera/cantera-tutorials;  done )
 	@INSTALL_abs@ -d @ct_demodir@/matlab
 	( for iddd in cantera/examples/*.m ; do  \
-          @INSTALL_abs@ -c $${iddd} @ct_demodir@/matlab;  done )
+        @INSTALL_abs@ -c $${iddd} @ct_demodir@/matlab;  done )
 	@INSTALL@ -d @ct_tutdir@/matlab
 	( for iddd in cantera/tutorial/*.m ; do  \
           @INSTALL_abs@ -c $${iddd} @ct_tutdir@/matlab;  done )
