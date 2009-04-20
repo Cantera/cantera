@@ -18,6 +18,10 @@
 CMAKE_USE_RELATIVE_PATHS:BOOL=OFF
 
 
+//Dependencies for target
+ctphases_LIB_DEPENDS:STATIC=
+
+
 ########################
 # INTERNAL cache entries
 ########################
@@ -44,9 +48,29 @@ CMAKE_GENERATOR:INTERNAL=Unix Makefiles
 // project
 CMAKE_HOME_DIRECTORY:INTERNAL=/Users/dgg/dv/april_7/cantera
 //number of local generators
-CMAKE_NUMBER_OF_LOCAL_GENERATORS:INTERNAL=1
+CMAKE_NUMBER_OF_LOCAL_GENERATORS:INTERNAL=7
 //Path to CMake installation.
 CMAKE_ROOT:INTERNAL=/Applications/CMake 2.6-3.app/Contents/share/cmake-2.6
 //Advanced flag for variable: CMAKE_USE_RELATIVE_PATHS
 CMAKE_USE_RELATIVE_PATHS-ADVANCED:INTERNAL=1
+//Details about finding PythonInterp
+FIND_PACKAGE_MESSAGE_DETAILS_PythonInterp:INTERNAL=[/usr/bin/python2.5]
+//Details about finding PythonLibs
+FIND_PACKAGE_MESSAGE_DETAILS_PythonLibs:INTERNAL=[-framework Python][/System/Library/Frameworks/Python.framework/Headers]
+//Advanced flag for variable: MATLAB_ENG_LIBRARY
+MATLAB_ENG_LIBRARY-ADVANCED:INTERNAL=1
+//Advanced flag for variable: MATLAB_INCLUDE_DIR
+MATLAB_INCLUDE_DIR-ADVANCED:INTERNAL=1
+//Advanced flag for variable: MATLAB_MEX_LIBRARY
+MATLAB_MEX_LIBRARY-ADVANCED:INTERNAL=1
+//Advanced flag for variable: MATLAB_MX_LIBRARY
+MATLAB_MX_LIBRARY-ADVANCED:INTERNAL=1
+//Advanced flag for variable: PYTHON_DEBUG_LIBRARY
+PYTHON_DEBUG_LIBRARY-ADVANCED:INTERNAL=1
+//Advanced flag for variable: PYTHON_EXECUTABLE
+PYTHON_EXECUTABLE-ADVANCED:INTERNAL=1
+//Advanced flag for variable: PYTHON_INCLUDE_PATH
+PYTHON_INCLUDE_PATH-ADVANCED:INTERNAL=1
+//Advanced flag for variable: PYTHON_LIBRARY
+PYTHON_LIBRARY-ADVANCED:INTERNAL=1
 

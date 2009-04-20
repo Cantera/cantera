@@ -53,6 +53,212 @@ CMAKE_SOURCE_DIR = /Users/dgg/stpat/cantera
 CMAKE_BINARY_DIR = /Users/dgg/stpat/cantera/build
 
 #=============================================================================
+# Directory level rules for directory src
+
+# Convenience name for "all" pass in the directory.
+src/all: src/base/all
+src/all: src/models/all
+.PHONY : src/all
+
+# Convenience name for "clean" pass in the directory.
+src/clean: src/base/clean
+src/clean: src/models/clean
+.PHONY : src/clean
+
+# Convenience name for "preinstall" pass in the directory.
+src/preinstall: src/base/preinstall
+src/preinstall: src/models/preinstall
+.PHONY : src/preinstall
+
+#=============================================================================
+# Directory level rules for directory src/base
+
+# Convenience name for "all" pass in the directory.
+src/base/all: src/base/CMakeFiles/ctbase.dir/all
+src/base/all: src/base/CMakeFiles/test_base.dir/all
+.PHONY : src/base/all
+
+# Convenience name for "clean" pass in the directory.
+src/base/clean: src/base/CMakeFiles/ctbase.dir/clean
+src/base/clean: src/base/CMakeFiles/test_base.dir/clean
+.PHONY : src/base/clean
+
+# Convenience name for "preinstall" pass in the directory.
+src/base/preinstall:
+.PHONY : src/base/preinstall
+
+#=============================================================================
+# Target rules for target src/base/CMakeFiles/ctbase.dir
+
+# All Build rule for target.
+src/base/CMakeFiles/ctbase.dir/all:
+	$(MAKE) -f src/base/CMakeFiles/ctbase.dir/build.make src/base/CMakeFiles/ctbase.dir/depend
+	$(MAKE) -f src/base/CMakeFiles/ctbase.dir/build.make src/base/CMakeFiles/ctbase.dir/build
+	$(CMAKE_COMMAND) -E cmake_progress_report /Users/dgg/stpat/cantera/build/CMakeFiles 
+	@echo "Built target ctbase"
+.PHONY : src/base/CMakeFiles/ctbase.dir/all
+
+# Include target in all.
+all: src/base/CMakeFiles/ctbase.dir/all
+.PHONY : all
+
+# Build rule for subdir invocation for target.
+src/base/CMakeFiles/ctbase.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/dgg/stpat/cantera/build/CMakeFiles 0
+	$(MAKE) -f CMakeFiles/Makefile2 src/base/CMakeFiles/ctbase.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/dgg/stpat/cantera/build/CMakeFiles 0
+.PHONY : src/base/CMakeFiles/ctbase.dir/rule
+
+# Convenience name for target.
+ctbase: src/base/CMakeFiles/ctbase.dir/rule
+.PHONY : ctbase
+
+# clean rule for target.
+src/base/CMakeFiles/ctbase.dir/clean:
+	$(MAKE) -f src/base/CMakeFiles/ctbase.dir/build.make src/base/CMakeFiles/ctbase.dir/clean
+.PHONY : src/base/CMakeFiles/ctbase.dir/clean
+
+# clean rule for target.
+clean: src/base/CMakeFiles/ctbase.dir/clean
+.PHONY : clean
+
+#=============================================================================
+# Target rules for target src/base/CMakeFiles/test_base.dir
+
+# All Build rule for target.
+src/base/CMakeFiles/test_base.dir/all:
+	$(MAKE) -f src/base/CMakeFiles/test_base.dir/build.make src/base/CMakeFiles/test_base.dir/depend
+	$(MAKE) -f src/base/CMakeFiles/test_base.dir/build.make src/base/CMakeFiles/test_base.dir/build
+	$(CMAKE_COMMAND) -E cmake_progress_report /Users/dgg/stpat/cantera/build/CMakeFiles 
+	@echo "Built target test_base"
+.PHONY : src/base/CMakeFiles/test_base.dir/all
+
+# Include target in all.
+all: src/base/CMakeFiles/test_base.dir/all
+.PHONY : all
+
+# Build rule for subdir invocation for target.
+src/base/CMakeFiles/test_base.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/dgg/stpat/cantera/build/CMakeFiles 0
+	$(MAKE) -f CMakeFiles/Makefile2 src/base/CMakeFiles/test_base.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/dgg/stpat/cantera/build/CMakeFiles 0
+.PHONY : src/base/CMakeFiles/test_base.dir/rule
+
+# Convenience name for target.
+test_base: src/base/CMakeFiles/test_base.dir/rule
+.PHONY : test_base
+
+# clean rule for target.
+src/base/CMakeFiles/test_base.dir/clean:
+	$(MAKE) -f src/base/CMakeFiles/test_base.dir/build.make src/base/CMakeFiles/test_base.dir/clean
+.PHONY : src/base/CMakeFiles/test_base.dir/clean
+
+# clean rule for target.
+clean: src/base/CMakeFiles/test_base.dir/clean
+.PHONY : clean
+
+#=============================================================================
+# Directory level rules for directory src/models
+
+# Convenience name for "all" pass in the directory.
+src/models/all: src/models/phases/all
+src/models/all: src/models/kinetics/all
+src/models/all: src/models/transport/all
+.PHONY : src/models/all
+
+# Convenience name for "clean" pass in the directory.
+src/models/clean: src/models/phases/clean
+src/models/clean: src/models/kinetics/clean
+src/models/clean: src/models/transport/clean
+.PHONY : src/models/clean
+
+# Convenience name for "preinstall" pass in the directory.
+src/models/preinstall: src/models/phases/preinstall
+src/models/preinstall: src/models/kinetics/preinstall
+src/models/preinstall: src/models/transport/preinstall
+.PHONY : src/models/preinstall
+
+#=============================================================================
+# Directory level rules for directory src/models/phases
+
+# Convenience name for "all" pass in the directory.
+src/models/phases/all: src/models/phases/CMakeFiles/ctphases.dir/all
+.PHONY : src/models/phases/all
+
+# Convenience name for "clean" pass in the directory.
+src/models/phases/clean: src/models/phases/CMakeFiles/ctphases.dir/clean
+.PHONY : src/models/phases/clean
+
+# Convenience name for "preinstall" pass in the directory.
+src/models/phases/preinstall:
+.PHONY : src/models/phases/preinstall
+
+#=============================================================================
+# Target rules for target src/models/phases/CMakeFiles/ctphases.dir
+
+# All Build rule for target.
+src/models/phases/CMakeFiles/ctphases.dir/all:
+	$(MAKE) -f src/models/phases/CMakeFiles/ctphases.dir/build.make src/models/phases/CMakeFiles/ctphases.dir/depend
+	$(MAKE) -f src/models/phases/CMakeFiles/ctphases.dir/build.make src/models/phases/CMakeFiles/ctphases.dir/build
+	$(CMAKE_COMMAND) -E cmake_progress_report /Users/dgg/stpat/cantera/build/CMakeFiles 
+	@echo "Built target ctphases"
+.PHONY : src/models/phases/CMakeFiles/ctphases.dir/all
+
+# Include target in all.
+all: src/models/phases/CMakeFiles/ctphases.dir/all
+.PHONY : all
+
+# Build rule for subdir invocation for target.
+src/models/phases/CMakeFiles/ctphases.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/dgg/stpat/cantera/build/CMakeFiles 0
+	$(MAKE) -f CMakeFiles/Makefile2 src/models/phases/CMakeFiles/ctphases.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/dgg/stpat/cantera/build/CMakeFiles 0
+.PHONY : src/models/phases/CMakeFiles/ctphases.dir/rule
+
+# Convenience name for target.
+ctphases: src/models/phases/CMakeFiles/ctphases.dir/rule
+.PHONY : ctphases
+
+# clean rule for target.
+src/models/phases/CMakeFiles/ctphases.dir/clean:
+	$(MAKE) -f src/models/phases/CMakeFiles/ctphases.dir/build.make src/models/phases/CMakeFiles/ctphases.dir/clean
+.PHONY : src/models/phases/CMakeFiles/ctphases.dir/clean
+
+# clean rule for target.
+clean: src/models/phases/CMakeFiles/ctphases.dir/clean
+.PHONY : clean
+
+#=============================================================================
+# Directory level rules for directory src/models/kinetics
+
+# Convenience name for "all" pass in the directory.
+src/models/kinetics/all:
+.PHONY : src/models/kinetics/all
+
+# Convenience name for "clean" pass in the directory.
+src/models/kinetics/clean:
+.PHONY : src/models/kinetics/clean
+
+# Convenience name for "preinstall" pass in the directory.
+src/models/kinetics/preinstall:
+.PHONY : src/models/kinetics/preinstall
+
+#=============================================================================
+# Directory level rules for directory src/models/transport
+
+# Convenience name for "all" pass in the directory.
+src/models/transport/all:
+.PHONY : src/models/transport/all
+
+# Convenience name for "clean" pass in the directory.
+src/models/transport/clean:
+.PHONY : src/models/transport/clean
+
+# Convenience name for "preinstall" pass in the directory.
+src/models/transport/preinstall:
+.PHONY : src/models/transport/preinstall
+
+#=============================================================================
 # Special targets to cleanup operation of make.
 
 # Special rule to run CMake to check the build system integrity.
