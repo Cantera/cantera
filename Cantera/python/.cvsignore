@@ -5,3 +5,5 @@ _winbuild
 setup.py
 manb.sh
 tmp
+dist
+status
