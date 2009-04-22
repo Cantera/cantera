@@ -3,3 +3,5 @@ ctmethods.mex*
 ctbin.m
 ctmethods.dll
 status
+build_cantera.m
+ctmethds.map
