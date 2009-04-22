@@ -22,6 +22,7 @@ typedef __int64 ulongint;  /* HACK ALERT */
 // warning C4101:  'xxx' : unreferenced local variable
 #pragma warning(disable:4244)
 #pragma warning(disable:4101)
+#pragma warning(disable:4554)
 #endif
 
 //typedef long int integer;

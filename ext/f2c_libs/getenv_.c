@@ -3,6 +3,8 @@
 #ifdef KR_headers
 extern char *F77_aloc(), *getenv();
 #else
+#undef min
+#undef max
 #include <stdlib.h>
 #include <string.h>
 #ifdef __cplusplus
