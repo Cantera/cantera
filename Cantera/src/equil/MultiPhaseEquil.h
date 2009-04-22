@@ -77,7 +77,7 @@ namespace Cantera {
 
       void reportCSV(const std::string &reportFile);
 
-      double phaseMoles(index_t iph);
+      double phaseMoles(index_t iph) const;
 
     protected:
 

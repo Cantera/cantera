@@ -872,7 +872,7 @@ namespace Cantera {
         return maxerr;
     }
 
-  double MultiPhaseEquil::phaseMoles(index_t iph) {
+  double MultiPhaseEquil::phaseMoles(index_t iph) const {
     return m_mix->phaseMoles(iph);
   }
 
