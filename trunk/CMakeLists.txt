@@ -2,14 +2,13 @@ cmake_minimum_required (VERSION 2.6)
 
 PROJECT (Cantera)
 
-INCLUDE( ${CMAKE_ROOT}/Modules/FindPythonInterp.cmake)
-INCLUDE( ${CMAKE_ROOT}/Modules/FindPythonLibs.cmake)
+SET (PROJECT_BINARY_DIR  ${PROJECT_SOURCE_DIR}/build )
 
-
-configure_file 
+CONFIGURE_FILE (${PROJECT_SOURCE_DIR}/config/config.h.in
+   ${PROJECT_BINARY_DIR}/Headers/config.h )
 
 ADD_SUBDIRECTORY (BackEnd)
 ADD_SUBDIRECTORY (FrontEnds)
 
-				 
-			      xxxxxxxxxx
+SET (CMAKE_INSTALL_PREFIX /usr/local)
+

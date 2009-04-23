@@ -1,7 +1,9 @@
 namespace Cantera {
-
-  class Shape2D {
+ 
+  class UniformCartesion2D : public Mesh2D { 
   public:
-    Real area();
-  };
+    UniformCartesian2D(long nx, ny)  
 
+  protected:
+    Array_FP cells_;
+  };
