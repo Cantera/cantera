@@ -30,19 +30,19 @@ cmake_force:
 SHELL = /bin/sh
 
 # The CMake executable.
-CMAKE_COMMAND = "/Applications/CMake 2.6-3.app/Contents/bin/cmake"
+CMAKE_COMMAND = "/Applications/CMake 2.6-1.app/Contents/bin/cmake"
 
 # The command to remove a file.
-RM = "/Applications/CMake 2.6-3.app/Contents/bin/cmake" -E remove -f
+RM = "/Applications/CMake 2.6-1.app/Contents/bin/cmake" -E remove -f
 
 # The program to use to edit the cache.
-CMAKE_EDIT_COMMAND = "/Applications/CMake 2.6-3.app/Contents/bin/ccmake"
+CMAKE_EDIT_COMMAND = "/Applications/CMake 2.6-1.app/Contents/bin/ccmake"
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /Users/dgg/stpat/cantera
+CMAKE_SOURCE_DIR = /Users/dgg/dv/cantera
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /Users/dgg/stpat/cantera/build
+CMAKE_BINARY_DIR = /Users/dgg/dv/cantera/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -50,7 +50,7 @@ CMAKE_BINARY_DIR = /Users/dgg/stpat/cantera/build
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake cache editor..."
-	"/Applications/CMake 2.6-3.app/Contents/bin/ccmake" -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+	"/Applications/CMake 2.6-1.app/Contents/bin/ccmake" -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
 .PHONY : edit_cache
 
 # Special rule for the target edit_cache
@@ -60,7 +60,7 @@ edit_cache/fast: edit_cache
 # Special rule for the target rebuild_cache
 rebuild_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
-	"/Applications/CMake 2.6-3.app/Contents/bin/cmake" -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+	"/Applications/CMake 2.6-1.app/Contents/bin/cmake" -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
 .PHONY : rebuild_cache
 
 # Special rule for the target rebuild_cache
@@ -69,9 +69,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/dgg/stpat/cantera/build/CMakeFiles /Users/dgg/stpat/cantera/build/CMakeFiles/progress.make
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/dgg/dv/cantera/build/CMakeFiles /Users/dgg/dv/cantera/build/CMakeFiles/progress.make
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/dgg/stpat/cantera/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/dgg/dv/cantera/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -98,19 +98,6 @@ depend:
 	$(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
-#=============================================================================
-# Target rules for targets named ctbase
-
-# Build rule for target.
-ctbase: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 ctbase
-.PHONY : ctbase
-
-# fast build rule for target.
-ctbase/fast:
-	$(MAKE) -f src/models/CMakeFiles/ctbase.dir/build.make src/models/CMakeFiles/ctbase.dir/build
-.PHONY : ctbase/fast
-
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -119,7 +106,6 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... ctbase"
 .PHONY : help
 
 
