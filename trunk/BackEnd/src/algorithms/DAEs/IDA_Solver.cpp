@@ -194,7 +194,7 @@ namespace Cantera {
         // pass a pointer to func in data 
         fdata = new FuncData(&func, func.nparams());
 
-        flag = IDASetRdata(ida_mem_, (void*)fdata_);
+          flag = IDASetRdata(ida_mem_, (void*)fdata_);
         if (flag != IDA_SUCCESS) 
             throw IDA_Err("IDASetRdata failed.");
 
