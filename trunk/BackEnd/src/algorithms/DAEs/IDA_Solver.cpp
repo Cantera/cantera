@@ -67,7 +67,7 @@ namespace Cantera {
 					 ida_mem_(0), t0_(0.0), 
 					 y_(0),
 					 ydot_(0),
-					 abstol_(0), 
+					 abstol_(0), {}
 					 type_(0), 
 					 itol_(IDA_SS), 
 					 iter_(0), 
@@ -78,8 +78,7 @@ namespace Cantera {
 					 hmax_(0.0),
 					 maxsteps_(20000), 
 					 mupper_(0), 
-					 mlower_(0) {}
-  
+					 mlower_(0) {} 
   
   /// Destructor.
   IDA_Solver::~IDA_Solver() {   
@@ -91,7 +90,7 @@ namespace Cantera {
     if (abstol_) N_VDestroy_Serial(nv(abstol_));
     delete fdata_;
   }
-  
+ 
   Real IDA_Solver::solution(int k) const { 
     return NV_Ith_S(nv(y_),k);
   }
