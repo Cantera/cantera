@@ -1,4 +1,4 @@
-# Install script for directory: /Users/dgg/dv/cantera
+# Install script for directory: /Users/dgg/dv/Cantera
 
 # Set the install prefix
 IF(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -29,8 +29,8 @@ ENDIF(NOT CMAKE_INSTALL_COMPONENT)
 
 IF(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  INCLUDE("/Users/dgg/dv/cantera/build/BackEnd/cmake_install.cmake")
-  INCLUDE("/Users/dgg/dv/cantera/build/FrontEnds/cmake_install.cmake")
+  INCLUDE("/Users/dgg/dv/Cantera/build/BackEnd/cmake_install.cmake")
+  INCLUDE("/Users/dgg/dv/Cantera/build/FrontEnds/cmake_install.cmake")
 
 ENDIF(NOT CMAKE_INSTALL_LOCAL_ONLY)
 
@@ -40,7 +40,7 @@ ELSE(CMAKE_INSTALL_COMPONENT)
   SET(CMAKE_INSTALL_MANIFEST "install_manifest.txt")
 ENDIF(CMAKE_INSTALL_COMPONENT)
 
-FILE(WRITE "/Users/dgg/dv/cantera/build/${CMAKE_INSTALL_MANIFEST}" "")
+FILE(WRITE "/Users/dgg/dv/Cantera/build/${CMAKE_INSTALL_MANIFEST}" "")
 FOREACH(file ${CMAKE_INSTALL_MANIFEST_FILES})
-  FILE(APPEND "/Users/dgg/dv/cantera/build/${CMAKE_INSTALL_MANIFEST}" "${file}\n")
+  FILE(APPEND "/Users/dgg/dv/Cantera/build/${CMAKE_INSTALL_MANIFEST}" "${file}\n")
 ENDFOREACH(file)
