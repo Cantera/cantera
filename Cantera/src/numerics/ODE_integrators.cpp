@@ -23,4 +23,8 @@ namespace Cantera {
                 "unknown ODE integrator: "+itype);
         }
     }
+
+    void deleteIntegrator(Integrator *cv) {
+        delete cv;
+    }
 }

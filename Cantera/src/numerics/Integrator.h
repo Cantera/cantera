@@ -183,6 +183,9 @@ namespace Cantera {
     // defined in ODE_integrators.cpp
     Integrator* newIntegrator(std::string itype);
 
+    // defined in ODE_integrators.cpp
+    void deleteIntegrator(Integrator *cv);
+
 }    // namespace
 
 #endif 
