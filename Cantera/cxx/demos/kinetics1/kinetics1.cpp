@@ -81,7 +81,7 @@ int kinetics1(int np, void* p) {
     // create a container object to run the simulation
     // and add the reactor to it
     ReactorNet sim;
-    sim.addReactor(&r);
+    sim.addReactor(&r, false);
 
     // main loop
     clock_t t0 = clock();        // save start time
@@ -121,7 +121,9 @@ int kinetics1(int np, void* p) {
 int main() {
 
     try {
-        return kinetics1(0, 0);
+        int retn = kinetics1(0, 0);
+        appdelete();
+        return retn;
     }
     // handle exceptions thrown by Cantera
     catch (CanteraError) {
