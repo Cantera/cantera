@@ -61,7 +61,8 @@ namespace Cantera {
     }
 
     //! destructor
-    virtual ~XML_Error() throw() {}
+    virtual ~XML_Error() throw() {
+    }
 
   protected:
     //! Line number of the file
@@ -491,6 +492,7 @@ namespace Cantera {
     m_nchildren = static_cast<int>(m_children.size());
     m_childindex[node.name()] = m_children.back();
     node.setRoot(root());
+    node.setParent(this);
     return *m_children.back();
   }
 
@@ -508,7 +510,8 @@ namespace Cantera {
     m_children.push_back(xxx);
     m_nchildren = static_cast<int>(m_children.size());
     m_childindex[sname] = m_children.back();
-    m_children.back()->setParent(this);
+    xxx->setRoot(root());
+    xxx->setParent(this);
     return *m_children.back();
   }
 

@@ -485,32 +485,32 @@ namespace Cantera {
     Application() : /*linelen(0),*/ stop_on_error(false),
                                     tmp_dir("."), m_sleep("1")
 #if !defined( THREAD_SAFE_CANTERA )
-                                    , pMessenger( new Messages() )
+		  , pMessenger( new Messages() )
 #endif
     {
       // if TMP or TEMP is set, use it for the temporary
       // directory
       char* tmpdir = getenv("TMP");
       if (tmpdir == 0) 
-    tmpdir = getenv("TEMP");
+	tmpdir = getenv("TEMP");
       if (tmpdir != 0)
-    tmp_dir = string(tmpdir);
+	tmp_dir = string(tmpdir);
 
       // if SLEEP is set, use it as the sleep time
       char* sleepstr = getenv("SLEEP");
       if (sleepstr != 0) {
-          m_sleep = string(sleepstr);
+	m_sleep = string(sleepstr);
       }
 
       // install a default logwriter that writes to standard
       // output / standard error
-//      logwriter = new Logger();
-//#ifdef WITH_HTML_LOGS
-//      // HTML log files
-//      xmllog = 0; 
-//      current = 0;
-//      loglevel = 0;
-//#endif
+      //      logwriter = new Logger();
+      //#ifdef WITH_HTML_LOGS
+      //      // HTML log files
+      //      xmllog = 0; 
+      //      current = 0;
+      //      loglevel = 0;
+      //#endif
       setDefaultDirectories();
 #if defined(THREAD_SAFE_CANTERA)
       Unit::units() ;
@@ -524,10 +524,10 @@ namespace Cantera {
      */
     static Application* Instance() {
       APP_LOCK();
-      if ( Application::s_app == 0 ) {
-	Application::s_app = new Application() ;
+      if (Application::s_app == 0) {
+	Application::s_app = new Application();
       }
-      return s_app ;
+      return s_app;
     }
     
     //! Destructor for class deletes global data
@@ -536,7 +536,7 @@ namespace Cantera {
      * the XML log, if any.
      */
     virtual ~Application() {
-      map<string, XML_Node*>::iterator pos;
+      std::map<std::string, XML_Node*>::iterator pos;
       for (pos = xmlfiles.begin(); pos != xmlfiles.end(); ++pos) {
 	pos->second->unlock();
 	delete pos->second;
@@ -547,10 +547,10 @@ namespace Cantera {
     //! Static function that destroys the application class's data
     static void ApplicationDestroy() {
        APP_LOCK() ;
-       if ( Application::s_app != 0 ) {
-          delete Application::s_app ;
-          Application::s_app = 0 ;
-      }
+       if (Application::s_app != 0) {
+	 delete Application::s_app;
+	 Application::s_app = 0;
+       }
     }
 
     //! Set the directory where temporary files may be written.
