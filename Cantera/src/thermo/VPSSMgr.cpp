@@ -388,7 +388,6 @@ namespace Cantera {
       }
     }
 
-
     for (int k = 0; k < m_kk; k++) {
       const PDSS *kPDSS = m_vptp_ptr->providePDSS(k);
       m_p0_k = kPDSS->refPressure();
@@ -402,8 +401,6 @@ namespace Cantera {
       }
     }
 #endif
-
-
   }
 
   void VPSSMgr::installSTSpecies(int k,  const XML_Node& s, 

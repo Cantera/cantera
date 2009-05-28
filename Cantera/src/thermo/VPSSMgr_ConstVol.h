@@ -183,7 +183,7 @@ namespace Cantera {
      *          containing the parameterization
      */
     virtual PDSS* createInstallPDSS(int k, const XML_Node& speciesNode,  
-				    const XML_Node *phaseNode_ptr);
+				    const XML_Node * const phaseNode_ptr);
     //@}
 
     //! This utility function reports the type of parameterization

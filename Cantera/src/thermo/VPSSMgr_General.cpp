@@ -135,16 +135,14 @@ namespace Cantera {
     }
   }
 
-
   void 
   VPSSMgr_General::initThermoXML(XML_Node& phaseNode, std::string id) {
     VPSSMgr::initThermoXML(phaseNode, id);
-  
   }
 
   PDSS*  
   VPSSMgr_General::returnPDSS_ptr(int k, const XML_Node& speciesNode,
-				  const XML_Node *phaseNode_ptr, bool &doST) {
+				  const XML_Node * const phaseNode_ptr, bool &doST) {
     PDSS *kPDSS = 0;
     doST = true;
     GeneralSpeciesThermo *genSpthermo = dynamic_cast<GeneralSpeciesThermo *>(m_spthermo);
@@ -186,7 +184,7 @@ namespace Cantera {
 
   PDSS *
   VPSSMgr_General::createInstallPDSS(int k, const XML_Node& speciesNode,  
-				     const XML_Node *phaseNode_ptr) {
+				     const XML_Node * const phaseNode_ptr) {
     bool doST;
     PDSS *kPDSS = returnPDSS_ptr(k, speciesNode, phaseNode_ptr, doST);
     // VPSSMgr::installSTSpecies(k, speciesNode, phaseNode_ptr);
@@ -212,7 +210,6 @@ namespace Cantera {
     if (k == 0) {
       m_p0 = p0;
     }
-
     return kPDSS;
   }
 

@@ -255,7 +255,7 @@ namespace Cantera {
 
   PDSS*
   VPSSMgr_Water_ConstVol::createInstallPDSS(int k, const XML_Node& speciesNode,  
-					    const XML_Node *phaseNode_ptr) {
+					    const XML_Node * const phaseNode_ptr) {
     
     PDSS *kPDSS = 0;
     // Will have to do something for water 

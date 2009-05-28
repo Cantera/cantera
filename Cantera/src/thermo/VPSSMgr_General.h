@@ -7,7 +7,6 @@
  * class \link Cantera::VPSSMgr_General VPSSMgr_General\endlink).
  */
 /*
- * $Author$
  * $Revision$
  * $Date$
  */
@@ -33,9 +32,9 @@ namespace Cantera {
 
   //!  Class that handles the calculation of standard state thermo properties for
   //!  a set of species belonging to a single phase in a completely general
-  //!  but slow way
+  //!  but slow way.
   /*!
-   *   This class manages the calculation  standard state thermo properties for
+   *   This class manages the calculation of standard state thermo properties for
    *   a set of species belonging to a single phase in a completely general
    *   but slow way. 
    *   The way this does this is to call the underlying PDSS routines one at a
@@ -186,13 +185,70 @@ namespace Cantera {
      */
     virtual void initThermo();
 
+    //! Finalize the thermo objects after all species have been entered
+    /*!
+     *  This function is the LAST initialization routine to be
+     *  called. It's called after createInstallPDSS() has been
+     *  called for each species in the phase, and after initThermo()
+     *  has been called.
+     *  It's called via an inner-to-outer onion-shell like manner.
+     *
+     *  Currently, this routine passed control to the parent class
+     *  without doing anything.
+     *
+     *  @param phaseNode   Reference to the phaseNode XML node.
+     *  @param id          ID of the phase.
+     */
     virtual void initThermoXML(XML_Node& phaseNode, std::string id);
 
-    PDSS*   returnPDSS_ptr(int k, const XML_Node& speciesNode,
-			   const XML_Node *phaseNode_ptr, bool &doST);
+  private:
+    //! Local factory routine for the creation of PDSS objects
+    /*!
+     *   This routine is specific to the VPSSMgr_General object.
+     *   It will create a PDSS object for species k, by searching
+     *   and querying for the "standardState" XML node in the standard
+     *   state description of the species. If this XML node doesn't
+     *   exist, it will assume that the standard state is an ideal
+     *   gas.
+     *   It decides on the attribute, "model", what PDSS object
+     *   to create.
+     *
+     *   @param k  Species number
+     *   @param speciesNode XML node for the standard state of the species
+     *   @param phaseNode_ptr   pointer to the phase XML node
+     *   @param doST  output variable indicating whether the
+     *             instantiation has resulted in a SpeciesThermo object
+     *             being created and registered with the SpeciesThermo
+     *             manager class.
+     *
+     *   @return  Returns the pointer to a malloced PDSS object
+     */
+    PDSS * returnPDSS_ptr(int k, const XML_Node& speciesNode,
+			  const XML_Node * const phaseNode_ptr, bool &doST);
 
-    virtual  PDSS *createInstallPDSS(int k, const XML_Node& speciesNode,  
-				     const XML_Node *phaseNode_ptr);
+  public:
+
+    //! Factory routine for the creation of PDSS objects that are
+    //! then internally registered with this VPSSMgr object
+    /*!
+     *  This function sets up the internal data within this object for
+     *  handling the calculation of the standard state for the species.
+     *
+     *   This routine
+     *   will create a PDSS object for species k, by searching
+     *   and querying for the "standardState" XML node in the standard
+     *   state description of the species.
+     *   It will then store the object's pointer in a vector of pointers,
+     *   and it will own the object.
+     *
+     *   @param k  Species number
+     *   @param speciesNode XML node for the standard state of the species
+     *   @param phaseNode_ptr   pointer to the phase XML node
+     *
+     *   @return  Returns the pointer to the malloced PDSS object
+     */
+    virtual  PDSS* createInstallPDSS(int k, const XML_Node& speciesNode,  
+				     const XML_Node * const phaseNode_ptr);
 
     //! This utility function reports the type of parameterization
     //! used for the species with index number index.

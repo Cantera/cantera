@@ -734,7 +734,10 @@ namespace Cantera {
      *  called for each species in the phase, and after initThermo()
      *  has been called.
      *  It's called via an inner-to-outer onion shell like manner.
-     *  
+     *
+     *  In this routine, we currently calculate the reference pressure,
+     *  the minimum and maximum temperature for the applicability
+     *  of the thermo formulation.
      *
      *  @param phaseNode   Reference to the phaseNode XML node.
      *  @param id          ID of the phase.
@@ -766,9 +769,8 @@ namespace Cantera {
      *                      to the phase which owns the species
      */
     virtual PDSS * createInstallPDSS(int k, const XML_Node& speciesNode,  
-				     const XML_Node *phaseNode_ptr);
+				     const XML_Node * const phaseNode_ptr);
     
- 
 
     //! Initialize the internal pointers in this object
     /*!
