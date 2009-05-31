@@ -277,10 +277,13 @@ namespace Cantera {
             eval(-1,x,r,mask,0.0);
         }
 
-        /**
-         * Evaluate the residual function at point j. If j < 0,
-         * evaluate the residual function at all points.
-         */
+        //! Evaluate the residual function at point j. If j < 0,
+        //! evaluate the residual function at all points.
+        /*!
+         *   @param j   Grid point j
+         *   @param x   Soln vector. This is the input.
+         *   @param r   residual this is the output.
+         */ 
         virtual void eval(int j, doublereal* x, doublereal* r,
             integer* mask, doublereal rdt=0.0);
 
@@ -492,8 +495,17 @@ namespace Cantera {
         OneDim* m_container;
         int m_index;
         int m_type;
+
+        //! Starting location within the solution vector for unknowns
+        //! that correspond to this domain
+        /*!
+         * Remember there may be multiple domains associated with 
+         * this problem
+         */
         int m_iloc;
+
         int m_jstart;
+
         Domain1D *m_left, *m_right;
         std::string m_id, m_desc;
         Refiner* m_refiner;
