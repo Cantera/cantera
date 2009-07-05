@@ -243,6 +243,7 @@ namespace ctml {
   void get_CTML_Tree(XML_Node* rootPtr, const std::string file, const int debug) {
     string ff, ext = "";
 
+
     // find the input file on the Cantera search path
     string inname = findInputFile(file);
 #ifdef DEBUG_PATHS
@@ -251,10 +252,11 @@ namespace ctml {
     if (debug > 0)
       writelog("Found file: "+inname+"\n");
 
-    if (inname == "") 
-      throw CanteraError("get_CTML_tree", "file "+file+" not found");
+    if (inname == "") {
+      throw CanteraError("get_CTML_Tree", "file "+file+" not found");
+    }
 
-    /** 
+    /* 
      * Check whether or not the file is XML. If not, it will be first
      * processed with the preprocessor.
      */
@@ -277,7 +279,7 @@ namespace ctml {
     ifstream fin(ff.c_str());
     if (!fin) {
       throw 
-	CanteraError("get_CTML_tree",
+	CanteraError("get_CTML_Tree",
 		     "XML file " + ff + " not found");
     }
     rootPtr->build(fin);
