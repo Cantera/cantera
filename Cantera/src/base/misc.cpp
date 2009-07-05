@@ -490,11 +490,16 @@ namespace Cantera {
     {
       // if TMP or TEMP is set, use it for the temporary
       // directory
-      char* tmpdir = getenv("TMP");
-      if (tmpdir == 0) 
-	tmpdir = getenv("TEMP");
-      if (tmpdir != 0)
-	tmp_dir = string(tmpdir);
+      char* ctmpdir = getenv("CANTERA_TMPDIR");
+      if (ctmpdir != 0) {
+        tmp_dir = string(ctmpdir);
+      } else {
+        char* tmpdir = getenv("TMP");
+        if (tmpdir == 0) 
+	  tmpdir = getenv("TEMP");
+        if (tmpdir != 0)
+ 	  tmp_dir = string(tmpdir);
+      }
 
       // if SLEEP is set, use it as the sleep time
       char* sleepstr = getenv("SLEEP");
