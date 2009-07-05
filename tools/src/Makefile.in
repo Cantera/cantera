@@ -8,8 +8,9 @@ build_ck = @BUILD_CK@
 PURIFY=@PURIFY@
 
 LCXX_FLAGS = -L$(LIBDIR)  @LOCAL_LIB_DIRS@ @CXXFLAGS@
-LOCAL_LIBS = @LOCAL_LIBS@ #-lcantera -ltpx -lctcxx 
-#LOCAL_LIBS = -lcantera @math_libs@ @BLAS_LAPACK_LIBS@ -lctcxx 
+LOCAL_LIBS = @LOCAL_LIBS@  
+
+LL_DEPS=@LOCAL_LIBS_DEP@
 
 LCXX_END_LIBS = @LCXX_END_LIBS@ @EXTRA_LINK@
 
@@ -34,17 +35,17 @@ all: $(exes)
 
 ck: $(BINDIR)/ck2cti
 
-$(BINDIR)/ck2cti: ck2cti.o $(CONVLIB_DEP) 
+$(BINDIR)/ck2cti: ck2cti.o $(CONVLIB_DEP) $(LL_DEPS)
 	$(RM) $(BINDIR)/ck2cti
 	$(PURIFY) @CXX@ -o $(BINDIR)/ck2cti ck2cti.o $(LCXX_FLAGS) \
                -lconverters -lctbase -ltpx -lctcxx $(LOCAL_LIBS) $(LCXX_END_LIBS)
 
-$(BINDIR)/cti2ctml: cti2ctml.o 
+$(BINDIR)/cti2ctml: cti2ctml.o $(LL_DEPS)
 	$(RM) $(BINDIR)/cti2ctml
 	$(PURIFY) @CXX@ -o $(BINDIR)/cti2ctml cti2ctml.o $(LCXX_FLAGS) $(LOCAL_LIBS) \
                $(LCXX_END_LIBS)
 
-$(BINDIR)/fixtext: fixtext.o 
+$(BINDIR)/fixtext: fixtext.o $(LL_DEPS)
 	$(RM) $(BINDIR)/fixtext
 	$(PURIFY) @CXX@ -o $(BINDIR)/fixtext fixtext.o $(LCXX_FLAGS) \
                $(LOCAL_LIBS) $(LCXX_END_LIBS)
