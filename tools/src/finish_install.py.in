@@ -59,6 +59,12 @@ if localinst and build_python == 2:
         f.write('PYTHONPATH='+pypath+':$PYTHONPATH\nexport PYTHONPATH\n')
     except:
         print 'error'
+
+f.write('# Uncomment this if you want to specify the tmp dir location where Cantera writes temporary files\n')
+f.write('#    (the default is (1) getenv("TMP") (2) getenv("TEMP") (3) ".")\n')
+f.write('#  CANTERA_TMPDIR="FILL_IN"\n')
+f.write('#  export CANTERA_TMPDIR\n')
+
 f.close()
 
 
