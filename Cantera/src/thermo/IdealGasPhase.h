@@ -250,8 +250,10 @@ namespace Cantera {
    *    R^{-1} = k^{-1} C_l^a =  k^{-1} (C^o a_l)
    *   \f]
    *
-   *  where we can use the concept of microscopic reversibility to write the reverse rate constant in terms of the
-   *  forward reate constant and the concentration equilibrium constant, \f$ K_c \f$.
+   *  where we can use the concept of microscopic reversibility to
+   *  write the reverse rate constant in terms of the
+   *  forward reate constant and the concentration equilibrium
+   *   constant, \f$ K_c \f$.
    *
    *    \f[
    *       k^{-1} =  k^1 K^1_c
@@ -265,7 +267,8 @@ namespace Cantera {
    *
    *  
    * The constructor for this phase is located in the default ThermoFactory
-   * for %Cantera. A new %IdealGasPhase may be created by the following code snippet:
+   * for %Cantera. A new %IdealGasPhase may be created by the following code
+   * snippet:
    *
    * @code
    *    XML_Node *xc = get_XML_File("silane.xml"); 
@@ -285,8 +288,8 @@ namespace Cantera {
    * <HR>
    * <H2> XML Example </H2>
    * <HR>
-   *   An example of an XML Element named phase setting up a IdealGasPhase object named silane
-   *   is given below.
+   *   An example of an XML Element named phase setting up a IdealGasPhase
+   *   object named silane is given below.
    *
    * @verbatim
      <!--     phase silane      -->
