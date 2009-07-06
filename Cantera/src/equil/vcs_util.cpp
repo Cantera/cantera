@@ -415,7 +415,7 @@ namespace VCSnonideal {
 
 
   const char *vcs_speciesType_string(int speciesStatus, int length) {
-    char *sss;
+    const char *sss;
     switch (speciesStatus) {
     case VCS_SPECIES_COMPONENT:
       sss = "Component Species";
