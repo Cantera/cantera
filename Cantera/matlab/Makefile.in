@@ -24,8 +24,7 @@ SRCS = cantera/private/ctmethods.cpp \
        cantera/private/flowdevicemethods.cpp \
        cantera/private/onedimmethods.cpp \
        cantera/private/surfmethods.cpp \
-       cantera/private/funcmethods.cpp \
-       cantera/private/write.cpp
+       cantera/private/funcmethods.cpp 
 
 
 CANTERA_LIBDIR=@buildlib@

@@ -1,7 +1,8 @@
 /**
  * @file global.h
  * This file contains definitions for utility functions and text for modules,
- * inputfiles, logs, textlogs, HTML_logs (see \ref inputfiles, \ref logs, \ref textlogs and \ref HTML_logs).
+ * inputfiles, logs, textlogs, HTML_logs (see \ref inputfiles, \ref logs,
+ * \ref textlogs and \ref HTML_logs).
  *
  * @ingroup utils
  *
@@ -61,8 +62,8 @@ namespace Cantera {
 
   //!  Prints all of the error messages to an ostream
   /*!
-   * Print all of the error messages using function writelog.
    * Write out all of the saved error messages to the ostream f
+   * using the member function writelog of class logger.
    * Cantera saves a stack of exceptions that it
    * has caught in the Application class. This routine writes
    * out all of the error messages to the ostream
@@ -74,14 +75,16 @@ namespace Cantera {
    */
    void showErrors(std::ostream& f);
 
-  //! Print all of the error messages using function writelog.
+  //! Print all of the error messages using function writelog of class logger.
   /*!
-   * Print all of the error messages using function writelog.
+   * Print all of the error messages 
+   * using the member function writelog of class logger.
    * Write out all of the saved error messages to the log device.
    * Cantera saves a stack of exceptions that it
    * has caught in the Application class. This routine writes
    * out all of the error messages to the log, usually stdout,
-   *  and then clears them from internal storage.
+   * and then clears them from internal storage.
+   *
    * \ingroup errorhandling
    */
   void showErrors();
@@ -274,10 +277,15 @@ namespace Cantera {
    * is used from MATLAB or other application that do not have a
    * standard output stream.
    *
+   *  This routine is part of the interface suite whose behavior changes
+   *  with the interface. The interface suite has been moved to the
+   *  class logger and inherited classes of logger.
+   *
    * @param msg  String message to be written to the screen 
    * @ingroup textlogs
    */
   void writelog(const std::string& msg);
+
 
   //!  Write a message to the screen. 
   /*!
@@ -285,15 +293,22 @@ namespace Cantera {
    * length, and may contain end-of-line characters. This method is
    * used throughout %Cantera to write log messages.
    *
+   *  This routine is part of the interface suite whose behavior changes
+   *  with the interface. The interface suite has been moved to the
+   *  class logger and inherited classes of logger.
+   *
    * @param msg  c character string to be written to the screen 
    * @ingroup textlogs
    */
   void writelog(const char* msg);
-  
+
   //! Write a formatted message to the screen
   /*!
    * Using the printf formatting of C, write a message to the screen
    * with variable values.
+   *
+   * Here, we format an internal string with the correct values
+   * and then feed it into writelog().
    *
    * @param fmt  c format string for the following arguments
    * @ingroup textlogs
@@ -309,6 +324,10 @@ namespace Cantera {
 
   //! Write an error message and terminate execution.
   /*!
+   *  This routine is part of the interface suite whose behavior changes
+   *  with the interface. The interface suite has been moved to the
+   *  class logger and inherited classes of logger.
+   *
    *  @param msg Error message to be written to the screen.
    *  @ingroup textlogs
    */
@@ -316,6 +335,10 @@ namespace Cantera {
 
   //! returns 1 for MATLAB, 2 for Python, and 0 for C++ or Fortran.
   /*!
+   *  This routine is part of the interface suite whose behavior changes
+   *  with the interface. The interface suite has been moved to the
+   *  class logger and inherited classes of logger.
+   *
    *   @ingroup textlogs
    */ 
   int userInterface();
@@ -331,7 +354,8 @@ namespace Cantera {
    */
   void setLogger(Logger* logwriter);
 
-  /// Return the conversion factor to convert unit std::string 'unit' to SI units.
+  //! Return the conversion factor to convert unit std::string 'unit' 
+  //! to SI units.
   /*!
    * @param unit String containing the units
    */

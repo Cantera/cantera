@@ -587,7 +587,7 @@ namespace Cantera {
 
     //! Return the number of errors that have been encountered so far.
     /*!
-     * @ingroup errorhandling
+     * @ingroup error handling
      */
     int getErrorCount() { return pMessenger->getErrorCount() ; }
 
@@ -1509,17 +1509,24 @@ protected:
   // standard output stream. @ingroup textlogs
 
   // Write a message to the screen
-  void writelog(const std::string& msg) {
-    app()->writelog(msg);
-  }
+   void writelog(const std::string& msg) {
+     app()->writelog(msg);
+   }
+
+  void writelogAM(const std::string& msg) {
+     app()->writelog(msg);
+   }
 
   // Write a message to the screen
   void Application::Messages::writelog(const std::string& msg) {
-    logwriter->write(msg) ;
+    logwriter->write(msg);
   }
 
   // Write a message to the screen.
   void writelog(const char* msg) {
+    app()->writelog(msg);
+  }
+  void writelogAM(const char* msg) {
     app()->writelog(msg);
   }
 
@@ -1569,9 +1576,9 @@ protected:
   }
 
     // @ingroup textlogs
-    int userInterface() {
-        return app()->getUserEnv();
-    }
+   int userInterface() {
+       return app()->getUserEnv();
+   }
 
   // Return an integer specifying the application environment.
   int Application::Messages::getUserEnv() {

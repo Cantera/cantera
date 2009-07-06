@@ -99,7 +99,7 @@ extern "C" {
  
         /* Add some symbolic constants to the module */
         d = PyModule_GetDict(m);
-        ErrorObject = PyErr_NewException("cantera.error", NULL, NULL);
+        ErrorObject = PyErr_NewException((char *)"cantera.error", NULL, NULL);
         PyDict_SetItemString(d, "error", ErrorObject);
 #ifdef HAS_NUMERIC
         PyDict_SetItemString(d, "nummod",PyString_FromString("Numeric"));
