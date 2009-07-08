@@ -32,7 +32,8 @@ static void printUsage()
 {
     cout << "cti2ctml [-h] infile.cti" << endl;
     cout << "    Translates a cti formated file to an xml file" << endl;
-    cout << "    The xml file will be named infile.xml" << endl;
+    cout << "    The xml file will be named ./basename(infile).xml" << endl;
+    cout << "     - It will always be written to the current directory" << endl;
 }
 
 
