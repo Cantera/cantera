@@ -266,16 +266,22 @@ namespace ctml {
     }
     if (ext != ".xml" && ext != ".ctml") {
       ct2ctml(inname.c_str(), debug);
-      ff = inname.substr(0,idot) + ".xml";
+      string ffull = inname.substr(0,idot) + ".xml";
+      ff = "./" + getBaseName(ffull) + ".xml"; 
+#ifdef DEBUG_PATHS
+      writelogf("ffull name = %s\n", ffull.c_str());
+      writelogf("ff name = %s\n", ff.c_str());
+#endif
     }
     else {
       ff = inname;
     }
 #ifdef DEBUG_PATHS
     writelog("Attempting to parse xml file " + ff + "\n");
-#endif
+#else
     if (debug > 0)
       writelog("Attempting to parse xml file " + ff + "\n");
+#endif
     ifstream fin(ff.c_str());
     if (!fin) {
       throw 
