@@ -1,4 +1,9 @@
-
+/**
+ *  @file wallmethods.cpp
+ */
+/*
+ *   $Id$
+ */
 #include "mex.h"
 #include "../../../clib/src/ctreactor.h"
 #include "../../../clib/src/ct.h"
@@ -9,9 +14,7 @@
     void wallmethods( int nlhs, mxArray *plhs[],
         int nrhs, const mxArray *prhs[] )
     {
-        int j, m, iok, n;
-        char *file, *key, *val;
-
+        int m, iok, n;
         int job = getInt(prhs[1]);
         int i = getInt(prhs[2]);
 

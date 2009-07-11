@@ -1,4 +1,9 @@
-
+/**
+ *  @file thermomethods.cpp
+ */
+/*
+ * $Id$
+ */
 #include "mex.h"
 #include "../../../clib/src/ct.h"
 #include "ctmatutils.h"
@@ -10,7 +15,6 @@ static void thermoset( int nlhs, mxArray *plhs[],
     //    mexErrMsgTxt("wrong number of input parameters.");
     //}
     int ierr = 0;
-    double vv;
     int th = getInt(prhs[1]);
     int job = -getInt(prhs[2]);
     double* ptr = 0;

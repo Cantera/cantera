@@ -1,3 +1,10 @@
+/**
+ * @file mlloger.h
+ */
+/*
+ * $Id$
+ */
+
 #ifndef MLLOGGER_H
 #define MLLOGGER_H
 
@@ -6,9 +13,9 @@
 #include "cantera/kernel/logger.h"
 
 #include <iostream>
-using namespace std;
+//using namespace std;
 
-static string ss = "disp(' ";
+static std::string ss = "disp(' ";
 
 namespace Cantera {
 
@@ -18,7 +25,7 @@ namespace Cantera {
         virtual ~ML_Logger() {}
 
 
-        virtual void write(const string& s) {
+		virtual void write(const std::string& s) {
             char ch = s[0];
             int n = 0;
             while (ch != '\0') {
@@ -36,10 +43,14 @@ namespace Cantera {
             }
         }
 
+        virtual void writeendl(const std::string& msg) {
+           mexPrintf("\n");
+        }
 
-        virtual void error(const string& msg) {
-            string err = "error("+msg+");";
-            mexEvalString(err.c_str());
+		virtual void error(const std::string& msg) {
+			std::string err = "error("+msg+");";
+            //mexEvalString(err.c_str());
+            mexErrMsgTxt(err.c_str());
         }
 
         virtual int env() {

@@ -10,6 +10,10 @@
  */
 
 #include "../../../clib/src/ct.h"
+#include <string>
+//#include "../../../src/base/ct_defs.h"
+//#include "../../../src/base/global.h"
+//#include "../../../src/base/logger.h"
 #include "mex.h"
 #include "ctmatutils.h"
 #include "mllogger.h"
@@ -76,7 +80,9 @@ static Cantera::ML_Logger* _logger = 0;
 void initLogger() {
     if (!_logger) {
         _logger = new Cantera::ML_Logger;
-        setLogWriter(_logger);
+        // Call the DLL program to set the logger
+        void * vl = (void *) _logger;
+        int retn = setLogWriter(vl);
     }
 }
 
@@ -86,7 +92,8 @@ extern "C" {
     void mexFunction( int nlhs, mxArray *plhs[],
         int nrhs, const mxArray *prhs[] )
     {
-
+        // mexPrintf("Number of lhs = %d\n", nlhs);
+        // mexPrintf("number of rhs = %d\n", nrhs);
         // create a log writer for error messages if this is the
         // first MATLAB function call
         initLogger();      

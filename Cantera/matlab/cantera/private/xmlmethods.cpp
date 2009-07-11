@@ -1,3 +1,9 @@
+/**
+ *  @file xmlmethods.cpp
+ */
+/*
+ *  $Id$
+ */
 
 #include "mex.h"
 #include "../../../clib/src/ctxml.h"
@@ -23,7 +29,7 @@ static bool nargs_ok(int job, int n) {
 void xmlmethods( int nlhs, mxArray *plhs[],
     int nrhs, const mxArray *prhs[] )
 {
-    int j, m, iok, id;
+    int j, m, iok;
     char *file, *key, *val, *nm;
 
     int job = getInt(prhs[1]);

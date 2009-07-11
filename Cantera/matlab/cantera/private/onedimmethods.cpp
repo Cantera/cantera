@@ -218,7 +218,7 @@ void onedimmethods( int nlhs, mxArray *plhs[],
         double lower, upper, rtol, atol, *grid, *pos, *values, 
             mdot, t, p, val, *temp, ratio, slope, curve, tstep, *dts, 
             rdt, prune;
-        int nlower, nupper, nr, na, npts, np, nv, comp, localPoint, idom,
+        int npts, np, nv, comp, localPoint, idom,
             loglevel, refine_grid, n, flag, itime, ns, *nsteps, icount,
             onoff, ss_age, ts_age;
         char *xstr, *fname, *id, *desc, *name;

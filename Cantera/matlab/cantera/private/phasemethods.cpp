@@ -1,3 +1,9 @@
+/**
+ *  @file phasemethods.cpp
+ */
+/*
+ *  $Id$
+ */
 
 #include "mex.h"
 #include "ctmatutils.h"
@@ -12,7 +18,6 @@
         int job = getInt(prhs[2]);
             
         bool ok = true;
-        int status, buflen;
         char* input_buf;
         double* ptr = 0;
         int n, nsp, mjob, show_thermo;

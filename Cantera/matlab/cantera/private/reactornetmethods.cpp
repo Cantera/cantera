@@ -1,3 +1,9 @@
+/**
+ * @file reactornetmethods.cpp
+ */
+/*
+ *   $Id$
+ */
 
 #include "mex.h"
 #include "../../../clib/src/ctreactor.h"
@@ -9,9 +15,7 @@
     void reactornetmethods( int nlhs, mxArray *plhs[],
         int nrhs, const mxArray *prhs[] )
     {
-        int j, m, iok, n;
-        char *file, *key, *val;
-
+        int iok, n;
         int job = getInt(prhs[1]);
         int i = getInt(prhs[2]);
 

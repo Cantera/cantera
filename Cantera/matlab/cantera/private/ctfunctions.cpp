@@ -1,3 +1,9 @@
+/**
+ *   @file ctfunctions.cpp
+ */
+/*
+ *  $Id$
+ */
 
 #include "mex.h"
 #include "../../../clib/src/ct.h"
@@ -22,11 +28,8 @@ void ctfunctions( int nlhs, mxArray *plhs[],
     int nrhs, const mxArray *prhs[] )
 {
     int job = getInt(prhs[1]);
-        
-    int j, m, iok, id, dbg, validate;
-    char *file, *key, *val;
-
-    char *infile, *dbfile, *trfile, *outfile, *idtag;
+    int iok, dbg, validate;
+    char *infile, *dbfile, *trfile, *idtag;
     int buflen;
     char* output_buf;
 
