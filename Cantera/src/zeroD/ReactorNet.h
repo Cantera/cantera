@@ -26,7 +26,7 @@
 namespace CanteraZeroD {
 
 
-	class ReactorNet : public Cantera::FuncEval {
+  class ReactorNet : public Cantera::FuncEval {
 
   public:
 
