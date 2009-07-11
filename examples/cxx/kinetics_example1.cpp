@@ -23,6 +23,7 @@
 #include "example_utils.h"
 using namespace Cantera;
 using namespace Cantera_CXX;
+using namespace CanteraZeroD;
 using namespace std;
 
 // Kinetics example. This is written as a function so that one 
@@ -87,8 +88,8 @@ int kinetics_example1(int job) {
 
         // create a container object to run the simulation
         // and add the reactor to it
-        ReactorNet sim;
-        sim.addReactor(&r);
+		CanteraZeroD::ReactorNet *sim_ptr = new CanteraZeroD::ReactorNet();
+        sim_ptr->addReactor(&r);
 
         double tm;
         double dt = 1.e-5;    // interval at which output is written
@@ -103,7 +104,7 @@ int kinetics_example1(int job) {
         clock_t t0 = clock();
         for (int i = 1; i <= nsteps; i++) {
             tm = i*dt;
-            sim.advance(tm);
+            sim_ptr->advance(tm);
             saveSoln(tm, gas, soln);
         }
         clock_t t1 = clock();
@@ -120,8 +121,8 @@ int kinetics_example1(int job) {
         cout << " Tfinal = " << r.temperature() << endl;
         cout << " time = " << tmm << endl;
         cout << " number of residual function evaluations = " 
-             << sim.integrator().nEvals() << endl;
-        cout << " time per evaluation = " << tmm/sim.integrator().nEvals() 
+             << sim_ptr->integrator().nEvals() << endl;
+        cout << " time per evaluation = " << tmm/sim_ptr->integrator().nEvals() 
              << endl << endl;
         cout << "Output files:" << endl
              << "  kin1.csv    (Excel CSV file)" << endl
