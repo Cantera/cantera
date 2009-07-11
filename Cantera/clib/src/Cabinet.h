@@ -1,6 +1,10 @@
 /**
  * @file Cabinet.h
  */
+/*
+ *      $Id$
+ */
+
 
 #ifndef CT_CABINET_H
 #define CT_CABINET_H

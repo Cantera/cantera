@@ -1,3 +1,10 @@
+/**
+ * @file ctstagn.h
+ */
+/*
+ *      $Id$
+ */
+
 #ifndef CTC_STAGN_H
 #define CTC_STAGN_H
 

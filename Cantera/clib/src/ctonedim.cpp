@@ -1,9 +1,19 @@
+/**
+ * @file ctonedim.cpp
+ */
+/*
+ *      $Id$
+ */
+
 // turn off warnings under Windows
 #ifdef WIN32
 #pragma warning(disable:4786)
 #pragma warning(disable:4503)
 #pragma warning(disable:4800)
 #endif
+
+#define CANTERA_USE_INTERNAL
+#include "ctonedim.h"
 
 
 // Cantera includes
@@ -13,27 +23,14 @@
 #include "Inlet1D.h"
 #include "DenseMatrix.h"
 
+
+
 // local includes
 #include "Cabinet.h"
 #include "Storage.h"
 
-// Build as a DLL under Windows
-#ifdef WIN32
-#ifdef NO_DLL_BUILD
-#define DLL_EXPORT
-#else
-#define DLL_EXPORT __declspec(dllexport)
-#endif
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#else
-#define DLL_EXPORT
-#endif
-
-// Values returned for error conditions
-#define ERR -999
-#define DERR -999.999
-
+using namespace std;
+using namespace Cantera;
 
 template<> Cabinet<Sim1D>*   Cabinet<Sim1D>::__storage = 0;
 template<> Cabinet<Domain1D>*   Cabinet<Domain1D>::__storage = 0;

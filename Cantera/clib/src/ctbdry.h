@@ -1,20 +1,27 @@
+/**
+ * @file ctbdry.h
+ */
+/*
+ *      $Id$
+ */
+
 #ifndef CTC_BDRY_H
 #define CTC_BDRY_H
 
 #include "clib_defs.h"
 
-extern "C" {  
+extern "C" {
 
-    int DLL_IMPORT bndry_new(int itype);
-    int DLL_IMPORT bndry_del(int i);
-    double DLL_IMPORT bndry_temperature(int i);
-    int DLL_IMPORT bndry_settemperature(int i, double t);
-    double DLL_IMPORT bndry_spreadrate(int i);
-    int DLL_IMPORT bndry_setSpreadRate(int i, double v);
-    int DLL_IMPORT bndry_setmdot(int i, double mdot);
-    double DLL_IMPORT bndry_mdot(int i);
-    int DLL_IMPORT bndry_setxin(int i, double* xin);
-    int DLL_IMPORT bndry_setxinbyname(int i, char* xin);
-    int DLL_IMPORT bndry_setkinetics(int i, int j);
+    EEXXTT int DLL_CPREFIX bndry_new(int itype);
+    EEXXTT int DLL_CPREFIX bndry_del(int i);
+    EEXXTT double DLL_CPREFIX bndry_temperature(int i);
+    EEXXTT int DLL_CPREFIX bndry_settemperature(int i, double t);
+    EEXXTT double DLL_CPREFIX bndry_spreadrate(int i);
+    EEXXTT int DLL_CPREFIX bndry_setSpreadRate(int i, double v);
+    EEXXTT int DLL_CPREFIX bndry_setmdot(int i, double mdot);
+    EEXXTT double DLL_CPREFIX bndry_mdot(int i);
+    EEXXTT int DLL_CPREFIX bndry_setxin(int i, double* xin);
+    EEXXTT int DLL_CPREFIX bndry_setxinbyname(int i, char* xin);
+    EEXXTT int DLL_CPREFIX bndry_setkinetics(int i, int j);
 }
 #endif

@@ -1,28 +1,30 @@
-// Build as a DLL under Windows
+/**
+ * @file ctxml.cpp
+ */
+/*
+ *      $Id$
+ */
+
+
 #ifdef WIN32
-#ifdef NO_DLL_BUILD
-#define DLL_EXPORT
-#else
-#define DLL_EXPORT __declspec(dllexport)
-#endif
 #pragma warning(disable:4786)
 #pragma warning(disable:4503)
-#else
-#define DLL_EXPORT
 #endif
+
+#define CANTERA_USE_INTERNAL
+#include "ctxml.h"
+
 
 // Cantera includes
 #include "ctml.h"
-//#include "importCTML.h"
-
 #include "Cabinet.h"
 #include "Storage.h"
 
 #include <string.h>
 
-// Values returned for error conditions
-#define ERR -999
-#define DERR -999.999
+using namespace std;
+using namespace Cantera;
+
 
 // Assign storage for the static member of the Templated Cabinet class
 // class Cabinet<XML_Node>;
@@ -45,7 +47,7 @@ extern "C" {
 
     int DLL_EXPORT xml_get_XML_File(const char* file, int debug) {
         try {
-            XML_Node* x = get_XML_File(string(file), debug);
+            XML_Node* x = get_XML_File(std::string(file), debug);
             return Cabinet<XML_Node>::cabinet(false)->add(x);
         }
         catch (CanteraError) { return -1; }

@@ -1,15 +1,18 @@
+/**
+ * @file ctbdry.cpp
+ */
+/*
+ *      $Id$
+ */
 
-// Build as a DLL under Windows
+
+#define CANTERA_USE_INTERNAL
+#include "ctbdry.h"
+
+
 #ifdef WIN32
-#ifdef NO_DLL_BUILD
-#define DLL_EXPORT
-#else
-#define DLL_EXPORT __declspec(dllexport)
-#endif
 #pragma warning(disable:4786)
 #pragma warning(disable:4503)
-#else
-#define DLL_EXPORT
 #endif
 
 
@@ -20,9 +23,9 @@
 #include "Cabinet.h"
 #include "Storage.h"
 
-// Values returned for error conditions
-#define ERR -999
-#define DERR -999.999
+
+using namespace std;
+using namespace Cantera;
 
 Cabinet<Bdry1D>*  Cabinet<Bdry1D>::__storage = 0;
 

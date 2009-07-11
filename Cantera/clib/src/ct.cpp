@@ -1,4 +1,5 @@
 /**
+ *  @file ct.cpp
  *   Cantera interface library. This library of functions is designed
  *   to encapsulate Cantera functionality and make it available for
  *   use in languages and applications other than C++. A set of
@@ -15,12 +16,14 @@
 #pragma warning(disable:4503)
 #endif
 
+#define CANTERA_USE_INTERNAL
+#include "ct.h"
+
 // Cantera includes
-#include "equil.h" //"ChemEquil.h"
+#include "equil.h" 
 #include "KineticsFactory.h"
 #include "TransportFactory.h"
 #include "ctml.h"
-//#include "importCTML.h"
 #include "importKinetics.h"
 #include "ThermoFactory.h"
 #include "ck2ct.h"
@@ -28,9 +31,7 @@
 #include "Cabinet.h"
 #include "InterfaceKinetics.h"
 #include "PureFluidPhase.h"
-//#include "xml.h"
 
-#include "clib_defs.h"
 
 using namespace std;
 using namespace Cantera;

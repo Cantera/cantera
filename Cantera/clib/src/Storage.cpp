@@ -1,19 +1,20 @@
+/**
+ * @file Storage.cpp
+ */
+/*
+ *      $Id$
+ */
 
-// Build as a DLL under Windows
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#else
-#define DLL_EXPORT
-#endif
 
 
 // Cantera includes
 #include "Kinetics.h"
 #include "TransportFactory.h"
 
-#include "clib_defs.h"
 #include "Storage.h"
+
+using namespace std;
+using namespace Cantera;
 
 
 Storage::Storage() {

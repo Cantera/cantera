@@ -1,8 +1,20 @@
+/**
+ * @file ctsurf.cpp
+ */
+/*
+ *      $Id$
+ */
+
 // turn off warnings under Windows
 #ifdef WIN32
 #pragma warning(disable:4786)
 #pragma warning(disable:4503)
 #endif
+
+// clib header information
+#define CANTERA_USE_INTERNAL
+#include "ctsurf.h"
+
 
 // Cantera includes
 #include "SurfPhase.h"
@@ -12,22 +24,9 @@
 #include "Cabinet.h"
 #include "Storage.h"
 
-// Build as a DLL under Windows
-#ifdef WIN32
-#ifdef NO_DLL_BUILD
-#define DLL_EXPORT
-#else
-#define DLL_EXPORT __declspec(dllexport)
-#endif
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#else
-#define DLL_EXPORT
-#endif
+using namespace std;
+using namespace Cantera;
 
-// Values returned for error conditions
-#define ERR -999
-#define DERR -999.999
 
 
 //Cabinet<Surf1D>*         Cabinet<Surf1D>::__storage = 0;

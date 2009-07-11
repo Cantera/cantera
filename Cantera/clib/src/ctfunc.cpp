@@ -1,3 +1,17 @@
+/**
+ * @file ctfunc.cpp
+ */
+/*
+ *      $Id$
+ */
+
+#ifdef WIN32
+#pragma warning(disable:4786)
+#pragma warning(disable:4503)
+#endif
+
+#define CANTERA_USE_INTERNAL
+#include "ctfunc.h"
 
 #include "Func1.h"
 #include "ctexceptions.h"
@@ -6,22 +20,6 @@ using namespace Cantera;
 
 #include "Cabinet.h"
 
-// Build as a DLL under Windows
-#ifdef WIN32
-#ifdef NO_DLL_BUILD
-#define DLL_EXPORT
-#else
-#define DLL_EXPORT __declspec(dllexport)
-#endif
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#else
-#define DLL_EXPORT
-#endif
-
-// Values returned for error conditions
-#define ERR -999
-#define DERR -999.999
 
 typedef Func1 func_t;
 
@@ -157,7 +155,7 @@ extern "C" {
             string w = _func(i)->write(a);
             int ws = w.size();
             int lout = (lennm > ws ? ws : lennm);
-            copy(w.c_str(), w.c_str() + lout, nm);
+			std::copy(w.c_str(), w.c_str() + lout, nm);
             nm[lout] = '\0';
             return 0;
         }

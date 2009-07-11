@@ -1,3 +1,13 @@
+/**
+ * @file ctmultiphase.cpp
+ */
+/*
+ *      $Id$
+ */
+
+
+#define CANTERA_USE_INTERNAL
+#include "ctmultiphase.h"
 
 // Cantera includes
 #include "equil.h"
@@ -8,22 +18,8 @@
 #include "Cabinet.h"
 #include "Storage.h"
 
-// Build as a DLL under Windows
-#ifdef WIN32
-#ifdef NO_DLL_BUILD
-#define DLL_EXPORT
-#else
-#define DLL_EXPORT __declspec(dllexport)
-#endif
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#else
-#define DLL_EXPORT
-#endif
-
-// Values returned for error conditions
-#define ERR -999
-#define DERR -999.999
+using namespace std;
+using namespace Cantera;
 
 typedef MultiPhase  mix_t;
 
