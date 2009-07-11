@@ -31,14 +31,16 @@
 #include "FactoryBase.h"
 #include "logger.h"
 
-#undef DEBUG_PATHS
 
 #include <fstream>
 #include <memory>
+
 #ifdef WIN32
 #include <algorithm>
 #include <functional>
+#include <new>
 #endif
+
 using namespace std;
 
 // RFB :  If running multiple threads in a cpp application,
@@ -483,11 +485,11 @@ namespace Cantera {
   protected:   //RFB Protected ctor access thru static member function Instance
     //! Constructor for class sets up the initial conditions
     Application() : /*linelen(0),*/ stop_on_error(false),
-                                    tmp_dir("."), m_sleep("1")
-#if !defined( THREAD_SAFE_CANTERA )
-		  , pMessenger( new Messages() )
-#endif
+                                    tmp_dir("."), m_sleep("1")              
     {
+#if !defined( THREAD_SAFE_CANTERA )
+     pMessenger = std::auto_ptr<Messages>(new Messages());
+#endif
       // if TMP or TEMP is set, use it for the temporary
       // directory
       char* ctmpdir = getenv("CANTERA_TMPDIR");
@@ -935,12 +937,14 @@ protected:
     }
 
     XML_Node* get_XML_File(std::string file, int debug) {
-       return app()->get_XML_File(file, debug) ;
+       XML_Node* xtmp = app()->get_XML_File(file, debug) ;
+	   //writelog("get_XML_File: returned from app:get_XML_FILE " + int2str(int(xtmp)) + "\n");
+	   return xtmp;
     }
 
     XML_Node* Application::get_XML_File(std::string file, int debug) {
         XML_LOCK();
-        string path = "";
+		std::string path = "";
         /*
         try {
             path = findInputFile(file);
@@ -1034,6 +1038,7 @@ protected:
              * the absolute pathname as the key for this map.
              */
             ifstream s(ff.c_str());
+
             XML_Node* x = new XML_Node("doc");
             if (s) {
                 x->build(s);
@@ -1046,6 +1051,7 @@ protected:
                 throw CanteraError("get_XML_File", estring);
             }
         }
+
         /*
          * Return the XML node pointer. At this point, we are sure that the
          * lookup operation in the return statement will return a valid
@@ -1590,7 +1596,12 @@ protected:
   // @see Logger.
   // @ingroup textlogs
   void setLogger(Logger* logwriter) {
-       app()->setLogger(logwriter) ;
+		try {
+          app()->setLogger(logwriter) ;
+		}
+		catch (std::bad_alloc) {
+          logwriter->error("bad alloc thrown by app()");
+		}
   }
 
     void Application::Messages::setLogger(Logger* _logwriter) {

@@ -30,9 +30,12 @@
 #include <ctime>
 
 
-#ifdef DEBUG_PATHS
-#undef DEBUG_PATHS
-#endif
+// These defines are needed for the windows Sleep() function
+// - comment them out if you don't want the Sleep function.
+//#ifdef WIN32
+//#include "Windows.h"
+//#include "Winbase.h"
+//#endif
 
 using namespace Cantera;
 using namespace std;
@@ -87,7 +90,7 @@ namespace ctml {
    *
    *  @ingroup inputfiles
    */
-  void ct2ctml(const char* const file, const int debug) {
+  void ct2ctml(const char* file, const int debug) {
 
 #ifdef HAS_NO_PYTHON
     /*
@@ -139,8 +142,9 @@ namespace ctml {
     }
     catch (...) {
       ierr = -10;
-      if (debug > 0)
-	writelog("ct2ctml: command execution failed.\n");
+	  if (debug > 0) {
+	    writelog("ct2ctml: command execution failed.\n");
+	  }
     }
 
     /*
@@ -175,6 +179,9 @@ namespace ctml {
       ierr = -10;
       writelog("ct2ctml: command execution failed.\n");
     }
+#else
+    // This command works on windows machines if Windows.h and Winbase.h are included
+    // Sleep(5000);
 #endif
     // show the contents of the log file on the screen
     try {
@@ -182,26 +189,28 @@ namespace ctml {
       string s = "";
       ifstream ferr("ct2ctml.log");
       if (ferr) {
-	while (!ferr.eof()) {
-	  ferr.get(ch);
-	  s += ch;
-	  if (ch == '\n') {
-	    writelog(s);
-	    s = "";
-	  }
-	}
-	ferr.close();
+	    while (!ferr.eof()) {
+	      ferr.get(ch);
+	      s += ch;
+	      if (ch == '\n') {
+	        writelog(s);
+	        s = "";
+	      }
+	    }
+	    ferr.close();
       }
       else {
-	if (debug > 0)
-	  writelog("cannot open ct2ctml.log for reading.\n");
+		if (debug > 0) {
+	      writelog("cannot open ct2ctml.log for reading.\n");
+	    }
       }
     }
     catch (...) {
-      ; 
+      writelog("ct2ctml: caught something \n");; 
     }
     if (ierr != 0) {
       string msg = cmd;
+	  writelog("ct2ctml: throw cantera error \n");; 
       throw CanteraError("ct2ctml", 
 			 "could not convert input file to CTML.\n "
 			 "Command line was: \n" + msg);
@@ -240,12 +249,11 @@ namespace ctml {
    *  @param file    Name of the file
    *  @param debug   Turn on debugging printing
    */
-  void get_CTML_Tree(XML_Node* rootPtr, const std::string file, const int debug) {
-    string ff, ext = "";
-
+  void get_CTML_Tree(Cantera::XML_Node* rootPtr, const std::string file, const int debug) {
+	  std::string ff, ext = "";
 
     // find the input file on the Cantera search path
-    string inname = findInputFile(file);
+	std::string inname = findInputFile(file);
 #ifdef DEBUG_PATHS
     writelog("Found file: "+inname+"\n");
 #endif
@@ -260,12 +268,17 @@ namespace ctml {
      * Check whether or not the file is XML. If not, it will be first
      * processed with the preprocessor.
      */
-    string::size_type idot = inname.rfind('.');
+	std::string::size_type idot = inname.rfind('.');
     if (idot != string::npos) {
       ext = inname.substr(idot, inname.size());
     }
     if (ext != ".xml" && ext != ".ctml") {
-      ct2ctml(inname.c_str(), debug);
+	try {
+		ctml::ct2ctml(inname.c_str(), 1);
+	    }
+        catch (...) {
+          writelog("get_CTML_Tree: caught something \n");; 
+        }
       string ffull = inname.substr(0,idot) + ".xml";
       ff = "./" + getBaseName(ffull) + ".xml"; 
 #ifdef DEBUG_PATHS
