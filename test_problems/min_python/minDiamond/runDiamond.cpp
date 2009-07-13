@@ -26,22 +26,9 @@ int iDebug_HKM = 0;
 /*****************************************************************/
 /*****************************************************************/
 /*****************************************************************/
-static void printUsage()
-{
 
-}
-
-#ifdef SRCDIRTREE
-#include "ct_defs.h"
-#include "ctml.h"
-#include "GasKinetics.h"
-#include "importCTML.h"
-#include "ThermoPhase.h"
-#include "InterfaceKinetics.h"
-#else
 #include "Cantera.h"
 #include "kinetics.h"
-#endif
 
 using namespace Cantera;
 

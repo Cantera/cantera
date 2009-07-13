@@ -13,6 +13,11 @@ all:
 	cd negATest;  @MAKE@ all
 
 test:
+	@(echo "***************************************************")
+	@(echo "        Testing the Cantera Minimun Python Interface       ")
+	@(echo "         python executable: "  `which "${PYTHON_CMD}" 2>&1` )
+	@(echo "         python version: "  `"${PYTHON_CMD}" -V 2>&1` )
+	@(echo "***************************************************")
 	cd minDiamond;  @MAKE@ -s test
 	cd negATest;  @MAKE@ -s test
 
