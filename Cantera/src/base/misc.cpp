@@ -938,8 +938,8 @@ protected:
 
     XML_Node* get_XML_File(std::string file, int debug) {
        XML_Node* xtmp = app()->get_XML_File(file, debug) ;
-	   //writelog("get_XML_File: returned from app:get_XML_FILE " + int2str(int(xtmp)) + "\n");
-	   return xtmp;
+       //writelog("get_XML_File: returned from app:get_XML_FILE " + int2str(int(xtmp)) + "\n");
+       return xtmp;
     }
 
     XML_Node* Application::get_XML_File(std::string file, int debug) {

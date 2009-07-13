@@ -166,11 +166,9 @@ namespace ctml {
      */
 #ifndef WIN32
     string sss = sleep();
-#ifdef DEBUG_PATHS
-    writelog("sleeping for " + sss + " secs+\n");
-#endif
-    if (debug > 0)
-      writelog("sleeping for " + sss + " secs+\n");            
+    if (debug > 0) {
+      writelog("sleeping for " + sss + " secs+\n");
+    }
     cmd = "sleep " + sss;
     try {
       ierr = system(cmd.c_str());
@@ -200,7 +198,7 @@ namespace ctml {
 	    ferr.close();
       }
       else {
-		if (debug > 0) {
+            if (debug > 0) {
 	      writelog("cannot open ct2ctml.log for reading.\n");
 	    }
       }
@@ -227,15 +225,9 @@ namespace ctml {
       writelog("ct2ctml: retaining temporary file "+path+"\n");
     }
 #else
-    writelog("ct2ctml: retaining temporary file "+path+"\n");
-    //#else
-    //cmd = "rm -f \"" + path + "\"";
-    //try {
-    //    if (ierr == 0) 
-    //        system(cmd.c_str());
-    //}
-    //catch (...) { ; }
-    //#endif
+    if (debug > 0) {
+      writelog("ct2ctml: retaining temporary file "+path+"\n");
+    }
 #endif
   }
 
@@ -250,10 +242,11 @@ namespace ctml {
    *  @param debug   Turn on debugging printing
    */
   void get_CTML_Tree(Cantera::XML_Node* rootPtr, const std::string file, const int debug) {
-	  std::string ff, ext = "";
+
+    std::string ff, ext = "";
 
     // find the input file on the Cantera search path
-	std::string inname = findInputFile(file);
+    std::string inname = findInputFile(file);
 #ifdef DEBUG_PATHS
     writelog("Found file: "+inname+"\n");
 #endif
@@ -274,8 +267,8 @@ namespace ctml {
     }
     if (ext != ".xml" && ext != ".ctml") {
 	try {
-		ctml::ct2ctml(inname.c_str(), 1);
-	    }
+          ctml::ct2ctml(inname.c_str(), debug);
+        }
         catch (...) {
           writelog("get_CTML_Tree: caught something \n");; 
         }
