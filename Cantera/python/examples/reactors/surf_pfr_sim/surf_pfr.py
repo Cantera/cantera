@@ -119,7 +119,7 @@ for n in range(NReactors):
         sim = ReactorNet([upstream, r, downstream])
 
         # set relative and absolute tolerances on the simulation
-        sim.setTolerances(rtol = 1.0e-3, atol = 1.0e-11)
+        sim.setTolerances(rtol = 1.0e-4, atol = 1.0e-11)
         
         time = 0
         while 1 > 0:
@@ -142,7 +142,7 @@ for n in range(NReactors):
             for ks in range(nsurf):
                 ratio = sdot[ks]/(cdot[ks] + ddot[ks])
                 if ratio < 0.0: ratio = -ratio
-                if ratio > 1.0e-11 or time < 10*dt:
+                if ratio > 1.0e-9 or time < 10*dt:
                     alldone = 0
 		    
             if alldone: break
