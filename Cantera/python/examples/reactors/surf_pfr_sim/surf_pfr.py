@@ -119,7 +119,7 @@ for n in range(NReactors):
         sim = ReactorNet([upstream, r, downstream])
 
         # set relative and absolute tolerances on the simulation
-        sim.setTolerances(rtol = 1.0e-4, atol = 1.0e-13)
+        sim.setTolerances(rtol = 1.0e-3, atol = 1.0e-11)
         
         time = 0
         while 1 > 0:
