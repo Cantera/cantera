@@ -1,5 +1,4 @@
 Makefile
-runtest
 ct2ctml.log
 diff_out_0.txt
 h2o2.xml

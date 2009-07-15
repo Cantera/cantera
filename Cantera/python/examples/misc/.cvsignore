@@ -1,5 +1,4 @@
 Makefile
-runtest
 buildlog
 ct2ctml.log
 diff_out_0.txt

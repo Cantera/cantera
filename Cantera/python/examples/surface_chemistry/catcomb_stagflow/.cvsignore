@@ -1,5 +1,4 @@
 Makefile
-runtest
 catcomb.csv
 catcomb.xml
 ct2ctml.log
