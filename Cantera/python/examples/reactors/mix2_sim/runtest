@@ -5,8 +5,7 @@ temp_success="1"
 /bin/rm  -f output_0.txt   diff_csv.txt diff_out_0.txt
 
 ##########################################################################
-PYTHON_CMD=@PYTHON_CMD@
-prog=piston.py
+prog=mix2.py
 if test ! -f $prog ; then
    echo $prog ' does not exist'
    exit -1

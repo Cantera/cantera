@@ -2,11 +2,10 @@
 #
 #
 temp_success="1"
-/bin/rm  -f output_0.txt    diff_csv.txt diff_out_0.txt
+/bin/rm  -f output_0.txt   diff_csv.txt diff_out_0.txt
 
 ##########################################################################
-PYTHON_CMD=@PYTHON_CMD@
-prog=functors.py
+prog=mix1.py
 if test ! -f $prog ; then
    echo $prog ' does not exist'
    exit -1
@@ -18,9 +17,7 @@ CANTERA_BIN=${CANTERA_BIN:=../../../bin}
 
 #################################################################
 
-$PYTHON_CMD $prog  > output_0.txt <<+
-1.0
-+
+$PYTHON_CMD $prog  > output_0.txt 
 retnStat=$?
 if [ $retnStat != "0" ]
 then
@@ -42,5 +39,5 @@ then
   echo "Successful test comparison on "`pwd`
 else
   echo "Unsuccessful test comparison of csv files on "`pwd` " test"
-  echo "      ASCII files are different - see diff_test*.txt"
 fi
+

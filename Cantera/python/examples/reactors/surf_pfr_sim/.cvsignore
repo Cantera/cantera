@@ -1,5 +1,4 @@
 Makefile
-runtest
 buildlog
 carbon_pathways.dot
 ct2ctml.log
