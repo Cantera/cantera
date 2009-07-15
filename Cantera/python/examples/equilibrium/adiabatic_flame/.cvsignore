@@ -1,5 +1,4 @@
 Makefile
-runtest
 adiabatic.csv
 ct2ctml.log
 diff_csv.txt
