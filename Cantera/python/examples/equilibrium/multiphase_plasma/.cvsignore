@@ -1,5 +1,4 @@
 Makefile
-runtest
 KOH.xml
 ct2ctml.log
 diff_csv.txt
