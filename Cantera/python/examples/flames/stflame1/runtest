@@ -2,11 +2,10 @@
 #
 #
 temp_success="1"
-/bin/rm  -f output_0.txt  freeflame1.csv  diff_csv.txt diff_out_0.txt
+/bin/rm  -f output_0.txt  stflame1_[1234567].csv  diff_csv.txt diff_out_0.txt
 
 ##########################################################################
-PYTHON_CMD=@PYTHON_CMD@
-prog=free_h2_air.py
+prog=stflame1.py
 if test ! -f $prog ; then
    echo $prog ' does not exist'
    exit -1
@@ -31,7 +30,7 @@ fi
 diff -w output_blessed_0.txt output_0.txt > diff_out_0.txt
 retnStat_0=$?
 
-csvdiff -a 1.0E-50 freeflame1_blessed_0.csv freeflame1.csv  > diff_csv.txt
+csvdiff -a 1.0E-50 stflame1_1_blessed_0.csv stflame1_1.csv  > diff_csv.txt
 retnStat_csv_0=$?
 
 retnTotal=1

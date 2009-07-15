@@ -1,5 +1,4 @@
 Makefile
-runtest
 adiabatic_flame.csv
 ch4_adiabatic.xml
 ct2ctml.log

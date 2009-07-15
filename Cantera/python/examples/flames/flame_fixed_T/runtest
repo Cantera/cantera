@@ -2,11 +2,10 @@
 #
 #
 temp_success="1"
-/bin/rm  -f output_0.txt  flame2.csv  diff_csv.txt diff_out_0.txt
+/bin/rm  -f output_0.txt  flame_fixed_T.csv  diff_csv.txt diff_out_0.txt
 
 ##########################################################################
-PYTHON_CMD=@PYTHON_CMD@
-prog=flame2.py
+prog=flame_fixed_T.py
 if test ! -f $prog ; then
    echo $prog ' does not exist'
    exit -1
@@ -31,7 +30,7 @@ fi
 diff -w output_blessed_0.txt output_0.txt > diff_out_0.txt
 retnStat_0=$?
 
-csvdiff -a 1.0E-50 flame2_blessed_0.csv flame2.csv  > diff_csv.txt
+csvdiff -a 1.0E-50 flame_fixed_T_blessed_0.csv flame_fixed_T.csv  > diff_csv.txt
 retnStat_csv_0=$?
 
 retnTotal=1

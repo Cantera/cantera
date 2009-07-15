@@ -2,7 +2,6 @@ Makefile
 ct2ctml.log
 h2o2.xml
 output_0.txt
-runtest
 transport_log.xml
 diff_csv.txt
 diff_out_0.txt
