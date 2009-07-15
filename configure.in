@@ -1806,65 +1806,35 @@ AC_OUTPUT(Makefile \
 	  Cantera/python/examples/Makefile \
 	  Cantera/python/examples/equilibrium/Makefile \
 	  Cantera/python/examples/equilibrium/adiabatic_flame/Makefile \
-	  Cantera/python/examples/equilibrium/adiabatic_flame/runtest \
 	  Cantera/python/examples/equilibrium/multiphase_plasma/Makefile \
-	  Cantera/python/examples/equilibrium/multiphase_plasma/runtest \
 	  Cantera/python/examples/equilibrium/simple_test/Makefile \
-	  Cantera/python/examples/equilibrium/simple_test/runtest \
 	  Cantera/python/examples/equilibrium/stoich_flame/Makefile \
-	  Cantera/python/examples/equilibrium/stoich_flame/runtest \
 	  Cantera/python/examples/gasdynamics/isentropic/Makefile \
-	  Cantera/python/examples/gasdynamics/isentropic/runtest \
 	  Cantera/python/examples/gasdynamics/soundSpeed/Makefile \
-	  Cantera/python/examples/gasdynamics/soundSpeed/runtest \
 	  Cantera/python/examples/flames/adiabatic_flame/Makefile \
-	  Cantera/python/examples/flames/adiabatic_flame/runtest \
 	  Cantera/python/examples/flames/flame1/Makefile \
-	  Cantera/python/examples/flames/flame1/runtest \
 	  Cantera/python/examples/flames/flame2/Makefile \
-	  Cantera/python/examples/flames/flame2/runtest \
 	  Cantera/python/examples/flames/flame_fixed_T/Makefile \
-	  Cantera/python/examples/flames/flame_fixed_T/runtest \
 	  Cantera/python/examples/flames/free_h2_air/Makefile \
-	  Cantera/python/examples/flames/free_h2_air/runtest \
 	  Cantera/python/examples/flames/npflame1/Makefile \
-	  Cantera/python/examples/flames/npflame1/runtest \
 	  Cantera/python/examples/flames/stflame1/Makefile \
-	  Cantera/python/examples/flames/stflame1/runtest \
 	  Cantera/python/examples/fuel_cells/Makefile \
-	  Cantera/python/examples/fuel_cells/runtest \
 	  Cantera/python/examples/liquid_vapor/critProperties/Makefile \
-	  Cantera/python/examples/liquid_vapor/critProperties/runtest \
 	  Cantera/python/examples/liquid_vapor/rankine/Makefile \
-	  Cantera/python/examples/liquid_vapor/rankine/runtest \
 	  Cantera/python/examples/kinetics/Makefile \
-	  Cantera/python/examples/kinetics/runtest \
 	  Cantera/python/examples/misc/Makefile \
-	  Cantera/python/examples/misc/runtest \
 	  Cantera/python/examples/reactors/combustor_sim/Makefile \
-	  Cantera/python/examples/reactors/combustor_sim/runtest \
 	  Cantera/python/examples/reactors/functors_sim/Makefile \
-	  Cantera/python/examples/reactors/functors_sim/runtest \
 	  Cantera/python/examples/reactors/mix1_sim/Makefile \
-	  Cantera/python/examples/reactors/mix1_sim/runtest \
 	  Cantera/python/examples/reactors/mix2_sim/Makefile \
-	  Cantera/python/examples/reactors/mix2_sim/runtest \
 	  Cantera/python/examples/reactors/piston_sim/Makefile \
-	  Cantera/python/examples/reactors/piston_sim/runtest \
 	  Cantera/python/examples/reactors/reactor1_sim/Makefile \
-	  Cantera/python/examples/reactors/reactor1_sim/runtest \
 	  Cantera/python/examples/reactors/reactor2_sim/Makefile \
-	  Cantera/python/examples/reactors/reactor2_sim/runtest \
 	  Cantera/python/examples/reactors/sensitivity_sim/Makefile \
-	  Cantera/python/examples/reactors/sensitivity_sim/runtest \
 	  Cantera/python/examples/reactors/surf_pfr_sim/Makefile \
-	  Cantera/python/examples/reactors/surf_pfr_sim/runtest \
 	  Cantera/python/examples/surface_chemistry/diamond_cvd/Makefile \
-	  Cantera/python/examples/surface_chemistry/diamond_cvd/runtest \
 	  Cantera/python/examples/surface_chemistry/catcomb_stagflow/Makefile \
-	  Cantera/python/examples/surface_chemistry/catcomb_stagflow/runtest \
 	  Cantera/python/examples/transport/Makefile \
-	  Cantera/python/examples/transport/runtest \
 	  Cantera/python/examples/flames/Makefile \
 	  Cantera/python/examples/gasdynamics/Makefile \
 	  Cantera/python/examples/liquid_vapor/Makefile \
