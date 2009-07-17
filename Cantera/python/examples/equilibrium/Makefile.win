@@ -1,6 +1,5 @@
 #!/bin/sh
 
-INST_DIR=@ct_demodir@/python/equilibrium
 
 PY_DEMOS = simple_test stoich_flame adiabatic_flame multiphase_plasma
 MAKE = make
