@@ -1,0 +1,17 @@
+#!/bin/sh
+
+
+all:
+	
+run:
+	$(PYTHON_CMD) surf_pfr.py
+
+test:
+	./runtest
+
+
+clean:
+	./cleanup
+
+# end of file
+
