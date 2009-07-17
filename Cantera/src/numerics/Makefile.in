@@ -46,8 +46,8 @@ ifeq ($(use_sundials), 1)
   ODEPACKAGE_H        = CVodesIntegrator.h 
   ODEPACKAGE_OBJ      = CVodesIntegrator.o
 else
-  ODEPACKAGE_H        = CVode.h
-  ODEPACKAGE_OBJ      = CVode.o
+  ODEPACKAGE_H        = CVodeInt.h
+  ODEPACKAGE_OBJ      = CVodeInt.o
 endif
 
 TOTAL_H   = $(NUMERICS_H)   $(ODEPACKAGE_H)

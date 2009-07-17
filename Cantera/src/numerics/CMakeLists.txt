@@ -9,7 +9,7 @@ ADD_LIBRARY(numerics ${NUMERICS_SRCS})
 
 TARGET_LINK_LIBRARIES (numerics ctbase cvode)
 
-SET(NUMERICS_H ArrayViewer.h CVode.h CVodesIntegrator.h DenseMatrix.h 
+SET(NUMERICS_H ArrayViewer.h CVodeInt.h CVodesIntegrator.h DenseMatrix.h 
                  funcs.h ctlapack.h Func1.h FuncEval.h 
                  polyfit.h
                  BandMatrix.h Integrator.h DAE_Solver.h ResidEval.h sort.h)

@@ -5,7 +5,7 @@
 #ifdef HAS_SUNDIALS
 #include "CVodesIntegrator.h"
 #else
-#include "CVode.h"
+#include "CVodeInt.h"
 #endif
 
 namespace Cantera {
