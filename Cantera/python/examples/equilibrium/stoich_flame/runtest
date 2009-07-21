@@ -27,6 +27,13 @@ then
   echo "$prog returned with bad status, $retnStat, check output"
 fi
 
+
+$CANTERA_BIN/exp3to2.sh output_0.txt > itemp0.txt
+cat itemp0.txt | tr -d '\015' | cat > itemp1.txt
+/bin/rm itemp0.txt output_0.txt
+/bin/mv itemp1.txt output_0.txt
+
+
 diff -w output_blessed_0.txt output_0.txt > diff_out_0.txt
 retnStat_0=$?
 

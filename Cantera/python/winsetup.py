@@ -23,6 +23,7 @@ setup(name="Cantera",
                                                 "src", "../clib/src",
                                                 "c:\python26/lib/site-packages/numpy/core/include"],
                                   library_dirs = libdir,
+                                  Debug = 1,
                                   depends = [libdir[0]+'/clib.lib'],
                                   libraries = ["clib"])
                         ],

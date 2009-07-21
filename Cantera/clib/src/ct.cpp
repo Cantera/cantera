@@ -36,6 +36,10 @@
 using namespace std;
 using namespace Cantera;
 
+#ifdef WIN32
+#include "windows.h"
+#endif
+
 
 inline XML_Node* _xml(int i) {
     return Cabinet<Cantera::XML_Node>::cabinet(false)->item(i);
@@ -99,6 +103,30 @@ namespace Cantera {
  * Exported functions.
  */
 extern "C" {
+
+#ifdef WIN32
+#ifndef NO_DLL_BUILD
+	 /*
+	 *  The microsoft docs says we may need this in some
+	 *  cases when building dll's
+	 */
+  bool  WINAPI DllMain(HINSTANCE hModule, 
+                DWORD  ul_reason_for_call, 
+                      LPVOID lpReserved) {
+    switch(ul_reason_for_call ) {
+    case DLL_PROCESS_ATTACH:
+    break;
+    case DLL_THREAD_ATTACH:
+    break;
+    case DLL_THREAD_DETACH:
+    break;
+    case DLL_PROCESS_DETACH:
+    break;
+    }
+    return TRUE;
+  }
+#endif
+#endif
 
     int DLL_EXPORT ct_appdelete() {
         appdelete();
@@ -271,7 +299,7 @@ extern "C" {
 
     int DLL_EXPORT phase_getName(int n, int lennm, char* nm) {
         string name = ph(n)->name();
-        int lout = min(lennm,name.size());
+        int lout = (int) min(lennm, (int) name.size());
         copy(name.c_str(), name.c_str() + lout, nm);
         nm[lout] = '\0';
         return 0;

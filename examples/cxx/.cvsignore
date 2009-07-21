@@ -25,3 +25,6 @@ log
 silane.xml
 tr1win.csv
 *.d
+cxx_examples.exe
+cxx_examples.ilk
+cxx_examples.pdb
