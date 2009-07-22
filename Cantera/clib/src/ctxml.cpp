@@ -41,7 +41,7 @@ extern "C" {
         if (!name) 
             x = new XML_Node;
         else 
-            x = new XML_Node(string(name));
+            x = new XML_Node(name);
         return Cabinet<XML_Node>::cabinet(true)->add(x);
     }
 

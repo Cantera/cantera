@@ -391,6 +391,21 @@ namespace Cantera {
 
   //////////////////////////  XML_Node  /////////////////////////////////
 
+  XML_Node::XML_Node(const char * cnm)  
+    : m_value(""), 
+      m_parent(0),
+      m_locked(false),
+      m_nchildren(0), 
+      m_iscomment(false) 
+  {
+    if (! cnm) {
+      m_name = "--";
+    } else {
+      m_name = cnm;
+    }
+    m_root = this;
+  }
+
   // Default constructor for XML_Node, representing a tree structure
   /*
    *  Constructor for an XML_Node, which is a node in a tree-like structure

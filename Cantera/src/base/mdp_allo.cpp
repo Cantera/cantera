@@ -346,7 +346,7 @@ namespace mdp {
       if (MDP_ALLO_errorOption == 7 ||
 	  MDP_ALLO_errorOption == 5 || MDP_ALLO_errorOption == 3  ||
 	  MDP_ALLO_errorOption == 1) {
-	(void) fprintf(stderr, "smalloc ERROR: Non-positive argument. (%d)\n", n);
+	(void) fprintf(stderr, "smalloc ERROR: Non-positive argument. (%d)\n", (int) n);
 	return NULL;
       }
     }
@@ -361,7 +361,7 @@ namespace mdp {
 	  MDP_ALLO_errorOption == 5 || MDP_ALLO_errorOption == 3  ||
 	  MDP_ALLO_errorOption == 1) {
 	fprintf(stderr, "smalloc : Out of space - number of bytes "
-		"requested = %d\n", n);
+		"requested = %d\n", (int) n);
       }
     }
 #ifdef MDP_MEMDEBUG

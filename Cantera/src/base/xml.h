@@ -161,13 +161,24 @@ namespace Cantera {
      *  Constructor for an XML_Node, which is a node in a tree-like structure
      *  representing an XML file.
      *
+     *  @param cnm  Name of the node.
+     *              The default name of the node is "--"
+     */
+    XML_Node(const char * cnm = 0);
+
+
+    //! Default constructor for XML_Node, representing a tree structure
+    /*!
+     *  Constructor for an XML_Node, which is a node in a tree-like structure
+     *  representing an XML file.
+     *
      *  @param nm  Name of the node.
      *             The default name of the node is "--"
      *
      *  @param p pointer to the root for this node in the tree.
      *           The default is 0 indicating this is the top of the tree.
      */
-    XML_Node(const std::string nm = "--", XML_Node * const p = 0);
+    XML_Node(const std::string nm, XML_Node * const p);
    
     //! Copy constructor
     /*!
