@@ -110,6 +110,7 @@ extern "C" {
 	 *  The microsoft docs says we may need this in some
 	 *  cases when building dll's
 	 */
+	/*
   bool  WINAPI DllMain(HINSTANCE hModule, 
                 DWORD  ul_reason_for_call, 
                       LPVOID lpReserved) {
@@ -125,6 +126,7 @@ extern "C" {
     }
     return TRUE;
   }
+  */
 #endif
 #endif
 
