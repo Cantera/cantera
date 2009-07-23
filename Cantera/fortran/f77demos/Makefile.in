@@ -19,7 +19,7 @@ FORT = @F77@
 FORT_FLAGS = @FFLAGS@ 
 
 # Fortran libraries
-FORT_LIBS = @FLIBS@
+FORT_LIBS = @LCXX_FLIBS@ @FLIBS@
 
 # the C++ compiler
 CXX = @CXX@

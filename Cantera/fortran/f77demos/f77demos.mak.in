@@ -19,10 +19,10 @@ LINK_OPTIONS =
 FORT = @F77@
 
 # Fortran compile flags  
-FORT_FLAGS = @FFLAGS@ 
+FORT_FLAGS =  @FFLAGS@ 
 
 # Fortran libraries
-FORT_LIBS = @FLIBS@
+FORT_LIBS =  @LCXX_FLIBS@ @FLIBS@
 
 # the C++ compiler
 CXX = @CXX@
