@@ -74,7 +74,9 @@ extern "C" {
 
     /// This is the Fortran main program. This works for g77; it may
     /// need to be modified for other Fortran compilers
+#ifdef NEED_ALT_MAIN
     extern int MAIN__();
+#endif
 
     /**
      * Read in a reaction mechanism file and create an IdealGasMix
@@ -326,7 +328,13 @@ extern "C" {
 
 }
 
-
+/*
+ *  HKM 7/22/09:
+ *    I'm skeptical that you need this for any system.
+ *    Definately creates an error (dupl main()) for the solaris 
+ *    system
+ */
+#ifdef NEED_ALT_MAIN
 /**
  * This C++ main program simply calls the Fortran main program. 
  */
@@ -343,4 +351,4 @@ int main() {
         exit(-1);
     }
 }
-
+#endif
