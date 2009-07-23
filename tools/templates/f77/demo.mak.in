@@ -38,8 +38,9 @@ FORT = @F77@
 # Fortran compile flags  
 FORT_FLAGS = @FFLAGS@ 
 
-# Fortran libraries
-FORT_LIBS = @FLIBS@
+# Fortran libraries used to link fortran main programs
+# using the CXX linker
+FORT_LIBS = @LCXX_FLIBS@ @FLIBS@
 
 # the C++ compiler
 CXX = @CXX@

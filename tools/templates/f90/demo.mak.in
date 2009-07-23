@@ -38,6 +38,10 @@ EXT_LIBS = -lfct -lclib @LOCAL_LIBS@ -lctcxx -lstdc++ @F90LIBS@
 # the Fortran 90/95 compiler
 F90 = @F90@
 
+# Fortran libraries used to link fortran main programs
+# using the CXX linker
+FLIBS=@LCXX_FLIBS@ @FLIBS@
+
 # Fortran compile flags
 FORT_FLAGS = @F90FLAGS@
 
@@ -68,7 +72,8 @@ DEPENDS = $(OBJS:.o=.d)
 all: $(PROGRAM)
 
 $(PROGRAM): $(OBJS)
-	$(CXX) -o $(PROGRAM) $(OBJS) $(LCXXFLAGS) $(CANTERA_LIBS) $(LINK_OPTIONS) $(EXT_LIBS) @FLIBS@ @LIBS@ 
+	$(CXX) -o $(PROGRAM) $(OBJS) $(LCXXFLAGS) $(CANTERA_LIBS) $(LINK_OPTIONS) \
+                    $(EXT_LIBS) $(FLIBS) @LIBS@ 
 
 %.d : %.cpp
 	g++ -MM -I$(CANTERA_INCDIR) $*.cpp > $*.d

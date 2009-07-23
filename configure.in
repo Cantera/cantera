@@ -1521,6 +1521,16 @@ override_f77_libs=0;
 
 #fi
 
+# ----------------------------------------------------------------------
+#   LCXX_FLIBS are extra libraries the CXX linker needs
+#   in order to link in fortran programs where fortran is the main program
+
+LCXX_FLIBS=
+
+case $ac_sys_system in
+  SunOS*)  LCXX_FLIBS="-lCrun -lCstd -lfsu" ;;
+esac
+
 #--------------------------------------------
 
 
@@ -1617,6 +1627,7 @@ AC_SUBST(F90)
 AC_SUBST(F90FLAGS)
 AC_SUBST(F90BUILDFLAGS)
 AC_SUBST(F90LIBS)
+AC_SUBST(LCXX_FLIBS)
 
 AC_OBJEXT
 AC_EXEEXT

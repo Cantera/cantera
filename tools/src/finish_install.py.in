@@ -1,5 +1,5 @@
 import sys, os, string
-prefix = '@prefix@' 
+prefix = '@python_prefix@' 
 pycmd = '@PYTHON_CMD@' # sys.argv[2]
 localinst = @local_inst@
 

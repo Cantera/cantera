@@ -19,6 +19,7 @@ export MAKE
 
 #
 # Pointers to the 64 bit python built with Sunpro compilers
+#
 PYTHON_DIR=/home/hkmoffa/arch/sol_py64
 export PYTHON_DIR
 PYTHON_CMD=/home/hkmoffa/arch/sol_py64/bin/python
