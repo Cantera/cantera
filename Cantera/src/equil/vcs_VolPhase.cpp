@@ -1324,8 +1324,9 @@ namespace VCSnonideal {
 	plogf("vcs_VolPhase::setExistence setting false existence for phase with moles");
 	plogendl();
 	exit(EXIT_FAILURE);
-#endif
+#else
 	v_totalMoles = 0.0;
+#endif
       }
     }
 #ifdef DEBUG_MODE
