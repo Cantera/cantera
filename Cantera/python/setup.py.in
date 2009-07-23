@@ -1,6 +1,11 @@
 import sys
 import string
 from distutils.core import setup, Extension
+
+#
+# HKM
+# note having a % in a string may cause the distutils module to error exit 
+# This occurs on solaris, as some CC parameters have % in their names.
     
 libs = []
 platform = sys.platform
