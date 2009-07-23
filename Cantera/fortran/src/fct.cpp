@@ -64,9 +64,9 @@ inline Transport* _ftrans(const integer* n) {
     return trans(*n);
 }
 
-string f2string(const char* s, ftnlen n) {
+std::string f2string(const char* s, ftnlen n) {
     int k;
-    string ss = "";
+    std::string ss = "";
     for (k = 0; k < n; k++) {
         if (s[k] == '\0') break;
         ss += s[k];
@@ -86,8 +86,8 @@ extern "C" {
     status_t cantera_error_(const char* proc, const char* msg, 
         ftnlen proclen, ftnlen msglen) {
         try {
-            string sproc = f2string(proc, proclen);
-            string smsg = f2string(msg, msglen);
+            std::string sproc = f2string(proc, proclen);
+            std::string smsg = f2string(msg, msglen);
             throw CanteraError(sproc, smsg);
         }
         catch (CanteraError) {
@@ -100,7 +100,7 @@ extern "C" {
     status_t DLL_EXPORT phase_getname_(const integer* n, char* nm, 
         ftnlen lennm) {
         try {
-            string pnm = _fph(n)->name();
+            std::string pnm = _fph(n)->name();
             int lout = min(lennm,pnm.size());
             copy(pnm.c_str(), pnm.c_str() + lout, nm);
             for (int nn = lout; nn < lennm; nn++) nm[nn] = ' ';            
@@ -144,12 +144,12 @@ extern "C" {
     }
 
     integer DLL_EXPORT phase_elementindex_(const integer* n, char* nm, ftnlen lennm) {
-        string elnm = f2string(nm, lennm);
+        std::string elnm = f2string(nm, lennm);
         return _fph(n)->elementIndex(elnm) + 1;
     }
 
     integer DLL_EXPORT phase_speciesindex_(const integer* n, char* nm, ftnlen lennm) {
-        string spnm = f2string(nm, lennm);
+        std::string spnm = f2string(nm, lennm);
         return _fph(n)->speciesIndex(spnm) + 1;
     }
 
@@ -233,7 +233,7 @@ extern "C" {
 
     status_t DLL_EXPORT phase_getspeciesname_(const integer* n, integer* k, char* nm, ftnlen lennm) {
         try {
-            string spnm = _fph(n)->speciesName(*k-1);
+            std::string spnm = _fph(n)->speciesName(*k-1);
             int lout = min(lennm,spnm.size());
             copy(spnm.c_str(), spnm.c_str() + lout, nm);
             for (int nn = lout; nn < lennm; nn++) nm[nn] = ' ';            
@@ -244,7 +244,7 @@ extern "C" {
 
     status_t DLL_EXPORT phase_getelementname_(const integer* n, integer* m, char* nm, ftnlen lennm) {
         try {
-            string elnm = _fph(n)->elementName(*m-1);
+            std::string elnm = _fph(n)->elementName(*m-1);
             int lout = min(lennm,elnm.size());
             copy(elnm.c_str(), elnm.c_str() + lout, nm);
             for (int nn = lout; nn < lennm; nn++) nm[nn] = ' ';
@@ -604,7 +604,7 @@ extern "C" {
     status_t DLL_EXPORT kin_getreactionstring_(const integer* n, integer* i, char* buf, ftnlen lenbuf) {
         try {
             Kinetics* k = _fkin(n);
-            string r = k->reactionString(*i-1);
+            std::string r = k->reactionString(*i-1);
             int lout = min(lenbuf,r.size());
             copy(r.c_str(), r.c_str() + lout, buf);
             for (int nn = lout; nn < lenbuf; nn++) buf[nn] = ' ';
@@ -640,7 +640,7 @@ extern "C" {
 
     integer DLL_EXPORT newtransport_(char* model,  
         integer* ith, integer* loglevel, ftnlen lenmodel) {
-        string mstr = f2string(model, lenmodel);
+        std::string mstr = f2string(model, lenmodel);
         thermo_t* t = _fth(ith);
         try {
             Transport* tr = newTransportMgr(mstr, t, *loglevel);
@@ -718,7 +718,7 @@ extern "C" {
         char* buf, integer* show_thermo, ftnlen buflen) {
         try {
             bool stherm = (*show_thermo != 0);
-            string s = report(*_fth(nth), stherm);
+            std::string s = report(*_fth(nth), stherm);
             if (int(s.size()) > buflen - 1) {
                 return -(s.size() + 1);
             }
@@ -731,7 +731,7 @@ extern "C" {
     }
 
     status_t DLL_EXPORT ctgetcanteraerror_(char* buf, ftnlen buflen) {
-        string e; // = "<no error>";
+        std::string e; // = "<no error>";
         //if (nErrors() > 0)
         e = lastErrorMessage();
         int n = min(e.size(), buflen-1);
@@ -741,7 +741,7 @@ extern "C" {
     }
 
     status_t DLL_EXPORT ctaddcanteradirectory_(integer* buflen, char* buf) {
-        addDirectory(string(buf));
+        addDirectory(std::string(buf));
         return 0;
     }
 
@@ -758,8 +758,8 @@ extern "C" {
         Kinetics& kin = *k;
         XML_Node *x, *r=0;
         if (root) r = &root->root();
-	string srcS = f2string(src, lensrc);
-	string idS  = f2string(id, lenid);
+	std::string srcS = f2string(src, lensrc);
+	std::string idS  = f2string(id, lenid);
 	if (srcS != "") {
            x = get_XML_Node(srcS, r);
 	} else {
