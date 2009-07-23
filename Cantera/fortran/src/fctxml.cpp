@@ -18,6 +18,7 @@
 #include <cstring>
 
 using namespace ctml;
+using namespace std;
 
 #include "../../clib/src/Cabinet.h"
 
@@ -32,7 +33,7 @@ static void handleError() {
     error(lastErrorMessage());
 }
 
-string f2string(const char* s, ftnlen n);
+std::string f2string(const char* s, ftnlen n);
 
 extern "C" {  
 
@@ -87,10 +88,10 @@ extern "C" {
     status_t DLL_EXPORT fxml_attrib_(const integer* i, const char* key, 
         char* value, ftnlen keylen, ftnlen valuelen) {
         try {
-            string ky = f2string(key, keylen);
+            std::string ky = f2string(key, keylen);
             XML_Node& node = *_xml(i);
             if (node.hasAttrib(ky)) {
-                string v = node[ky];
+                std::string v = node[ky];
                 strncpy(value, v.c_str(), valuelen);
             }
             else 
@@ -104,8 +105,8 @@ extern "C" {
     status_t DLL_EXPORT fxml_addattrib_(const integer* i, 
         const char* key, const char* value, ftnlen keylen, ftnlen valuelen) {
         try {
-            string ky = f2string(key, keylen);
-            string val = f2string(value, valuelen);
+            std::string ky = f2string(key, keylen);
+            std::string val = f2string(value, valuelen);
             XML_Node& node = *_xml(i);
             node.addAttribute(ky, val);
         }
@@ -116,7 +117,7 @@ extern "C" {
     status_t DLL_EXPORT fxml_addcomment_(const integer* i, const char* comment, 
         ftnlen commentlen) {
         try {
-            string c = f2string(comment, commentlen);
+            std::string c = f2string(comment, commentlen);
             XML_Node& node = *_xml(i);
             node.addComment(c);
         }
@@ -127,7 +128,7 @@ extern "C" {
     status_t DLL_EXPORT fxml_tag_(const integer* i, char* tag, ftnlen taglen) {
         try {
             XML_Node& node = *_xml(i);
-            const string v = node.name();
+            const std::string v = node.name();
             strncpy(tag, v.c_str(), taglen);
         }
         catch (CanteraError) { handleError(); }
@@ -137,7 +138,7 @@ extern "C" {
     status_t DLL_EXPORT fxml_value_(const integer* i, char* value, ftnlen valuelen) {
         try {
             XML_Node& node = *_xml(i);
-            const string v = node.value();
+            const std::string v = node.value();
             strncpy(value, v.c_str(), valuelen);
         }
         catch (CanteraError) { handleError(); }
@@ -227,7 +228,7 @@ extern "C" {
 
     status_t DLL_EXPORT fxml_write_(const integer* i, const char* file, ftnlen filelen) {
         try {
-            string ff(file, filelen);
+            std::string ff(file, filelen);
             ofstream f(ff.c_str());
             if (f) {
                 XML_Node& node = *_xml(i);
