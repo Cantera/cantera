@@ -1,6 +1,17 @@
 
 import sys
 
+######################################################################
+#  System Notes:
+#
+# HKM solaris 64:
+#   On this system matlab is built with gcc. Therefore, you will have to
+#   strip the "-lCrun -lCstd -lfsu" library commands from libs. They
+#   will cause a link error. because they are only applicable to
+#   sun's native CC compiler.
+#
+######################################################################
+
 bindir = '@ct_bindir@'
 libdir = '-L@buildlib@ @LOCAL_LIB_DIRS@'
 incdir = '@buildinc@'
