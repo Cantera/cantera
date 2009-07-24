@@ -103,9 +103,9 @@ export EXTRA_LINK
 MAKE=gmake
 export MAKE
 
-USE_SUNDIALS='n'
+USE_SUNDIALS='y'
 export USE_SUNDIALS
-SUNDIALS_HOME='/home/hkmoffa/libraries/sundials'
+SUNDIALS_HOME='/home/hkmoffa/arch/linux64/sundials'
 export SUNDIALS_HOME
 
 ./preconfig
