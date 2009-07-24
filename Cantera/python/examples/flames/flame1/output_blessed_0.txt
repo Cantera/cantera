@@ -116,7 +116,17 @@ Problem solved on [13] point grid(s).
 
 ##############################################################################
 Refining grid in flame.
-    New points inserted after grid points 0 1 
+    New points inserted after grid points 0 
+    to resolve H2O2 HO2 
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    success.
+
+Problem solved on [14] point grid(s).
+
+##############################################################################
+Refining grid in flame.
+    New points inserted after grid points 0 
     to resolve H2O2 HO2 
 ..............................................................................
 
@@ -127,22 +137,12 @@ Problem solved on [15] point grid(s).
 ##############################################################################
 Refining grid in flame.
     New points inserted after grid points 0 
-    to resolve H2O2 HO2 
-..............................................................................
-
-Attempt Newton solution of steady-state problem...    success.
-
-Problem solved on [16] point grid(s).
-
-##############################################################################
-Refining grid in flame.
-    New points inserted after grid points 0 
     to resolve HO2 
 ..............................................................................
 
 Attempt Newton solution of steady-state problem...    success.
 
-Problem solved on [17] point grid(s).
+Problem solved on [16] point grid(s).
 
 no new points needed in flame
 ..............................................................................
@@ -150,42 +150,42 @@ no new points needed in flame
 Attempt Newton solution of steady-state problem...    failure. 
 
 ..............................................................................
-Take 1 timesteps       1.5e-05      5.052 
+Take 1 timesteps       1.5e-05      5.053 
 ..............................................................................
 
 Attempt Newton solution of steady-state problem...    failure. 
 
 ..............................................................................
-Take 2 timesteps     3.375e-05      5.046 
+Take 2 timesteps     3.375e-05      5.047 
 ..............................................................................
 
 Attempt Newton solution of steady-state problem...    failure. 
 
 ..............................................................................
-Take 5 timesteps     0.0001281      5.028 
+Take 5 timesteps     0.0001281      5.031 
 ..............................................................................
 
 Attempt Newton solution of steady-state problem...    failure. 
 
 ..............................................................................
-Take 10 timesteps     0.0009237      4.839 
+Take 10 timesteps     0.0009237      4.846 
 ..............................................................................
 
 Attempt Newton solution of steady-state problem...    failure. 
 
 ..............................................................................
-Take 10 timesteps      0.001665      4.741 
+Take 10 timesteps      0.001665       4.36 
 ..............................................................................
 
 Attempt Newton solution of steady-state problem...    failure. 
 
 ..............................................................................
-Take 10 timesteps      0.003999      3.857 
+Take 10 timesteps         0.002      4.338 
 ..............................................................................
 
 Attempt Newton solution of steady-state problem...    success.
 
-Problem solved on [17] point grid(s).
+Problem solved on [16] point grid(s).
 
 ##############################################################################
 Refining grid in flame.
@@ -195,47 +195,47 @@ Refining grid in flame.
 
 Attempt Newton solution of steady-state problem...    success.
 
-Problem solved on [31] point grid(s).
+Problem solved on [30] point grid(s).
 
 ##############################################################################
 Refining grid in flame.
-    New points inserted after grid points 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 22 23 26 27 
+    New points inserted after grid points 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 20 21 24 25 
     to resolve H H2 H2O H2O2 HO2 O O2 OH T u 
 ..............................................................................
 
 Attempt Newton solution of steady-state problem...    success.
 
-Problem solved on [54] point grid(s).
+Problem solved on [51] point grid(s).
 
 ##############################################################################
 Refining grid in flame.
-    New points inserted after grid points 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 47 
+    New points inserted after grid points 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 43 
     to resolve H H2 H2O H2O2 HO2 O O2 OH T u 
 ..............................................................................
 
 Attempt Newton solution of steady-state problem...    success.
 
-Problem solved on [74] point grid(s).
+Problem solved on [72] point grid(s).
 
 ##############################################################################
 Refining grid in flame.
-    New points inserted after grid points 0 1 2 3 5 6 7 8 9 10 11 12 13 14 16 17 24 25 26 27 28 29 30 31 32 33 
-    to resolve H H2 H2O H2O2 HO2 O O2 
+    New points inserted after grid points 0 1 2 3 5 6 7 8 9 10 11 12 13 14 16 17 24 25 26 27 28 29 30 31 32 33 34 
+    to resolve H H2 H2O H2O2 HO2 O O2 OH 
 ..............................................................................
 
 Attempt Newton solution of steady-state problem...    success.
 
-Problem solved on [100] point grid(s).
+Problem solved on [99] point grid(s).
 
 ##############################################################################
 Refining grid in flame.
-    New points inserted after grid points 0 1 2 
-    to resolve H2O2 HO2 
+    New points inserted after grid points 0 1 2 56 57 
+    to resolve H2O2 HO2 O 
 ..............................................................................
 
 Attempt Newton solution of steady-state problem...    success.
 
-Problem solved on [103] point grid(s).
+Problem solved on [104] point grid(s).
 
 ##############################################################################
 Refining grid in flame.
@@ -245,10 +245,10 @@ Refining grid in flame.
 
 Attempt Newton solution of steady-state problem...    success.
 
-Problem solved on [104] point grid(s).
+Problem solved on [105] point grid(s).
 
 no new points needed in flame
-Solution saved to file flame1.xml as solution solution_6.
+Solution saved to file flame1.xml as solution solution_1.
 
 
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> burner <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -370,9 +370,10 @@ Solution saved to file flame1.xml as solution solution_6.
        0.25        5.24           0        1852           0   0.0008735 
         0.3       5.317           0        1882           0    0.000818 
        0.35       5.381           0        1907           0   0.0007691 
-        0.4       5.434           0        1928           0   0.0007261 
-       0.49       5.507           0        1957           0   0.0006707 
-        0.5       5.507           0        1957           0   0.0006707 
+        0.4       5.434           0        1928           0   0.0007256 
+      0.445       5.475           0        1944           0   0.0006913 
+       0.49        5.51           0        1958           0   0.0006669 
+        0.5        5.51           0        1958           0   0.0006669 
 
 -------------------------------------------------------------------------------
         z             H           O          O2          OH         H2O 
@@ -478,9 +479,10 @@ Solution saved to file flame1.xml as solution solution_6.
        0.25   0.0002594    0.001598     0.01628    0.003755     0.09032 
         0.3    0.000223    0.001437     0.01571    0.003712     0.09118 
        0.35   0.0001946    0.001305     0.01525    0.003657     0.09191 
-        0.4    0.000172    0.001195     0.01485    0.003597     0.09254 
-       0.49   0.0001452    0.001056     0.01429    0.003508     0.09341 
-        0.5   0.0001452    0.001056     0.01429    0.003508     0.09341 
+        0.4   0.0001719    0.001194     0.01485    0.003596     0.09255 
+      0.445   0.0001553     0.00111     0.01454    0.003541     0.09305 
+       0.49   0.0001436    0.001048     0.01427      0.0035     0.09345 
+        0.5   0.0001436    0.001048     0.01427      0.0035     0.09345 
 
 -------------------------------------------------------------------------------
         z           HO2        H2O2          AR 
@@ -585,10 +587,11 @@ Solution saved to file flame1.xml as solution solution_6.
       0.225   3.484e-07   2.359e-08      0.8869 
        0.25   3.338e-07    2.15e-08      0.8869 
         0.3   3.122e-07   1.858e-08      0.8869 
-       0.35   2.965e-07   1.654e-08      0.8869 
+       0.35   2.965e-07   1.653e-08      0.8869 
         0.4   2.851e-07   1.505e-08      0.8869 
-       0.49    2.73e-07    1.34e-08      0.8869 
-        0.5    2.73e-07    1.34e-08      0.8869 
+      0.445   2.775e-07   1.404e-08      0.8869 
+       0.49   2.725e-07   1.332e-08      0.8869 
+        0.5   2.725e-07   1.332e-08      0.8869 
 
 
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> outlet <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -603,15 +606,15 @@ solution saved to flame1.csv
 Statistics:
 
  Grid   Functions   Time      Jacobians   Time 
-   13     417       0.3500       19       0.3800 
-   15      14       0.0100        2       0.0600 
-   17      14       0.0100        2       0.0500 
-   18      14       0.0300        2       0.0600 
-   19      10       0.0100        1       0.0300 
-   19     893       1.0900       38       1.0300 
-   33       8       0.0200        1       0.0500 
-   56       6       0.0200        1       0.0900 
-   76       6       0.0300        1       0.1300 
-  102       6       0.0500        1       0.1800 
-  105       4       0.0300        1       0.1900 
-  106       4       0.0200        1       0.2000 
+   13     417       0.1600       19       0.2100 
+   15      14       0.0100        2       0.0200 
+   16      14       0.0000        2       0.0300 
+   17      14       0.0100        2       0.0400 
+   18      10       0.0100        1       0.0200 
+   18     825       0.5500       38       0.7900 
+   32      12       0.0200        1       0.0400 
+   53       8       0.0200        1       0.0800 
+   74       6       0.0200        1       0.1200 
+  101       4       0.0200        1       0.1700 
+  106       4       0.0100        1       0.1800 
+  107       4       0.0200        1       0.1900 

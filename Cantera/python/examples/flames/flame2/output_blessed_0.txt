@@ -170,7 +170,7 @@ Attempt Newton solution of steady-state problem...    success.
 Problem solved on [8] point grid(s).
 
 no new points needed in flame
-Solution saved to file ch4_flame1.xml as solution no_energy_1.
+Solution saved to file ch4_flame1.xml as solution no_energy.
 ..............................................................................
 
 Attempt Newton solution of steady-state problem...    failure. 
@@ -210,7 +210,7 @@ Problem solved on [8] point grid(s).
 ##############################################################################
 Refining grid in flame.
     New points inserted after grid points 0 1 2 3 5 
-    to resolve C C2H C2H2 C2H3 C2H4 C2H5 C2H6 C3H7 C3H8 CH CH2 CH2(S) CH2CHO CH2CO CH2O CH2OH CH3 CH3CHO CH3O CH3OH CH4 CN CO CO2 H H2 H2CN H2O H2O2 HCCO HCCOH HCN HCNN HCNO HCO HNCO HNO HO2 HOCN N N2O NCO NH NH2 NH3 NNH NO NO2 O O2 OH T point 5 u 
+    to resolve C C2H C2H2 C2H3 C2H4 C2H5 C2H6 C3H8 CH CH2 CH2(S) CH2CHO CH2CO CH2O CH2OH CH3 CH3CHO CH3O CH3OH CH4 CO CO2 H H2 H2O H2O2 HCCO HCCOH HCN HCNO HCO HNCO HNO HO2 HOCN N N2O NCO NH NH2 NH3 NO NO2 O O2 OH T point 5 u 
 ..............................................................................
 
 Attempt Newton solution of steady-state problem...    failure. 
@@ -240,7 +240,7 @@ Take 10 timesteps      0.001082      4.585
 Attempt Newton solution of steady-state problem...    failure. 
 
 ..............................................................................
-Take 20 timesteps       0.03749      2.501 
+Take 20 timesteps       0.04998      1.893 
 ..............................................................................
 
 Attempt Newton solution of steady-state problem...    success.
@@ -250,7 +250,7 @@ Problem solved on [13] point grid(s).
 ##############################################################################
 Refining grid in flame.
     New points inserted after grid points 0 1 2 3 4 5 10 
-    to resolve C C2H C2H2 C2H3 C2H4 C2H5 C2H6 C3H7 C3H8 CH CH2 CH2(S) CH2CHO CH2CO CH2O CH2OH CH3 CH3CHO CH3O CH3OH CH4 CO CO2 H H2 H2O H2O2 HCCO HCCOH HCN HCNO HCO HNCO HNO HO2 HOCN N N2O NCO NH NH2 NH3 NO NO2 O O2 OH T point 10 u 
+    to resolve C2H C2H2 C2H3 C2H4 C2H5 C2H6 C3H8 CH2 CH2(S) CH2CHO CH2CO CH2O CH2OH CH3 CH3CHO CH3O CH3OH CH4 CO CO2 H H2 H2O H2O2 HCCO HCCOH HCN HCNO HCO HNCO HO2 N2O NH3 NO NO2 O O2 OH T point 10 u 
 ..............................................................................
 
 Attempt Newton solution of steady-state problem...    success.
@@ -260,7 +260,7 @@ Problem solved on [20] point grid(s).
 ##############################################################################
 Refining grid in flame.
     New points inserted after grid points 0 1 2 3 4 5 6 7 
-    to resolve C C2H C2H2 C2H3 C2H4 C2H5 C2H6 C3H7 C3H8 CH CH2 CH2(S) CH2CHO CH2CO CH2O CH2OH CH3 CH3CHO CH3O CH3OH CH4 CO CO2 H H2 H2O H2O2 HCCO HCCOH HCN HCNO HCO HNCO HNO HO2 HOCN N N2O NCO NH NH2 NH3 NNH NO NO2 O O2 OH T u 
+    to resolve C2H C2H2 C2H3 C2H4 C2H5 C2H6 C3H8 CH CH2 CH2(S) CH2CHO CH2CO CH2O CH2OH CH3 CH3CHO CH3O CH3OH CH4 CO CO2 H H2 H2O H2O2 HCCO HCCOH HCN HCNO HCO HNCO HO2 NH2 NH3 NO NO2 O O2 OH T u 
 ..............................................................................
 
 Attempt Newton solution of steady-state problem...    success.
@@ -270,7 +270,7 @@ Problem solved on [28] point grid(s).
 ##############################################################################
 Refining grid in flame.
     New points inserted after grid points 0 1 2 3 4 5 6 7 8 9 10 11 12 
-    to resolve C C2H C2H2 C2H3 C2H4 C2H5 C2H6 C3H7 C3H8 CH CH2 CH2(S) CH2CHO CH2CO CH2O CH2OH CH3 CH3CHO CH3O CH3OH CH4 CO CO2 H H2 H2O H2O2 HCCO HCCOH HCN HCNO HCO HNCO HNO HO2 HOCN N N2O NCO NH NH2 NO NO2 O O2 OH T u 
+    to resolve C2H C2H2 C2H3 C2H4 C2H5 C2H6 C3H8 CH CH2 CH2(S) CH2CHO CH2CO CH2O CH2OH CH3 CH3CHO CH3O CH3OH CH4 CO CO2 H H2 H2O H2O2 HCCO HCCOH HCN HCNO HCO HNCO HO2 NO NO2 O O2 OH T u 
 ..............................................................................
 
 Attempt Newton solution of steady-state problem...    success.
@@ -279,56 +279,56 @@ Problem solved on [41] point grid(s).
 
 ##############################################################################
 Refining grid in flame.
-    New points inserted after grid points 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 
-    to resolve C C2H C2H2 C2H3 C2H4 C2H5 C2H6 C3H7 C3H8 CH CH2 CH2(S) CH2CHO CH2CO CH2O CH2OH CH3 CH3CHO CH3O CH3OH H H2O2 HCCO HCCOH HCNO HCO HNO HO2 N N2O NCO NH NH2 NO2 O OH 
+    New points inserted after grid points 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 
+    to resolve C2H2 C2H3 C2H4 C2H5 C2H6 C3H8 CH2 CH2(S) CH2CHO CH2CO CH2O CH2OH CH3 CH3CHO CH3O CH3OH H H2O2 HCCO HCCOH HCO HO2 NO2 O OH 
 ..............................................................................
 
 Attempt Newton solution of steady-state problem...    success.
 
-Problem solved on [62] point grid(s).
+Problem solved on [61] point grid(s).
 
 ##############################################################################
 Refining grid in flame.
-    New points inserted after grid points 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 
-    to resolve C C2H C2H3 C2H4 C2H5 C2H6 C3H7 C3H8 CH CH2 CH2(S) CH2CHO CH2CO CH2O CH2OH CH3 CH3CHO CH3O CH3OH H H2O2 HCCO HCO NO2 O OH 
+    New points inserted after grid points 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 
+    to resolve C2H3 C2H4 C2H5 C2H6 C3H8 CH2 CH2CHO CH2CO CH2O CH3 CH3CHO CH3O CH3OH H H2O2 HCCO HCO NO2 O OH 
 ..............................................................................
 
 Attempt Newton solution of steady-state problem...    success.
 
-Problem solved on [89] point grid(s).
+Problem solved on [87] point grid(s).
 
 no new points needed in flame
-Solution saved to file ch4_flame1.xml as solution energy_1.
+Solution saved to file ch4_flame1.xml as solution energy.
 ..............................................................................
 
 Attempt Newton solution of steady-state problem...    success.
 
-Problem solved on [89] point grid(s).
+Problem solved on [87] point grid(s).
 
 no new points needed in flame
-Solution saved to file ch4_flame1.xml as solution energy_multi_1.
+Solution saved to file ch4_flame1.xml as solution energy_multi.
 ..............................................................................
 
 Attempt Newton solution of steady-state problem...    success.
 
-Problem solved on [89] point grid(s).
+Problem solved on [87] point grid(s).
 
 no new points needed in flame
-Solution saved to file ch4_flame1.xml as solution energy_multi_soret_1.
+Solution saved to file ch4_flame1.xml as solution energy_multi_soret.
 solution saved to flame2.csv
 
 Statistics:
 
  Grid   Functions   Time      Jacobians   Time 
-    8      36       0.1000        3       0.3200 
-    9       4       0.0100        1       0.1400 
-   10       2       0.0100        1       0.1500 
-   10    1055       7.6500       32       7.1000 
-   15     954      11.0100       33      11.5100 
-   22      18       0.3600        2       1.1300 
-   30      38       0.9600        1       0.8200 
-   43      65       2.4000        1       1.2600 
-   64      29       1.6900        1       2.0200 
-   91      14       1.1700        1       3.0500 
-   91      75     106.0300        5      16.3100 
-   91       3       7.3400        1       3.2000 
+    8      36       0.0300        3       0.1800 
+    9       4       0.0000        1       0.0700 
+   10       2       0.0100        1       0.0900 
+   10    1055       2.0600       32       3.2000 
+   15    1121       3.7100       32       5.9500 
+   22      18       0.0700        2       0.6200 
+   30      38       0.3100        1       0.4500 
+   43      65       0.7600        1       0.7100 
+   63      29       0.4900        1       1.1400 
+   89      14       0.3300        1       1.7500 
+   89      23      21.9500        3       5.3400 
+   89       2       3.4200        1       1.8200 
