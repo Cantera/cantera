@@ -1,5 +1,7 @@
 #!/bin/sh
 #
+#  This is currently the test base. Meaning that the blessed versions
+#  of all test problems are created from this configuration.
 #
 CANTERA_CONFIG_PREFIX=/home/hkmoffa/arch/linux64_gcc424/cantera-1.8_python252_numpy
 export CANTERA_CONFIG_PREFIX
