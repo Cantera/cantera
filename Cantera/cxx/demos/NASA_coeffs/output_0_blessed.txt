@@ -157,7 +157,7 @@ For species H2O2, discontinuity in h/RT detected at Tmid = 1000
 **** WARNING ****
 For species AR, discontinuity in h/RT detected at Tmid = 1000
 	Value computed using low-temperature polynomial:  11.7546.
-	Value computed using high-temperature polynomial: 1.75463.
+	Value computed using high-temperature polynomial: 1.75462.
 
 
  AR (modified):
