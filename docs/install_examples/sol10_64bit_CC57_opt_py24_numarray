@@ -79,13 +79,13 @@ export F77
 F90=f95
 export F90
 
-FFLAGS="-g -xtarget=native64 -xarch=native64 -xcode=pic32 "
+FFLAGS="-O -xtarget=native64 -xarch=native64 -xcode=pic32 "
 export FFLAGS
 
-CFLAGS="-g -xtarget=native64 -xarch=native64 -xcode=pic32 -v "
+CFLAGS="-O -xtarget=native64 -xarch=native64 -xcode=pic32 -v "
 export CFLAGS
 
-CXXFLAGS="-g $AFLAGS $EFLAGS -DDEBUG_HKM" 
+CXXFLAGS="-O $AFLAGS $EFLAGS -DDEBUG_HKM" 
 export CXXFLAGS
 
 LCXX_END_LIBS="-lm "
