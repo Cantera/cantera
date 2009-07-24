@@ -14,8 +14,8 @@ all:
 test:
 	cd combustor;       @MAKE@ -s test
 	cd kinetics1;       @MAKE@ -s test
-	cd flamespeed;      @MAKE@ -s test
 	cd NASA_coeffs;     @MAKE@ -s test
+	cd flamespeed;      @MAKE@ -s test
 
 install:
 	@INSTALL@ -d       @ct_demodir@/cxx
