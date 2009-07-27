@@ -6,10 +6,10 @@
  *  This file contains the declarations for the elements class.
  */
 /***********************************************************************
- *  $RCSfile$
- *  $Author$ 
- *  $Date$
- *  $Revision$
+ *  $RCSfile: Elements.h,v $
+ *  $Author: hkmoffa $ 
+ *  $Date: 2008/12/04 02:02:45 $
+ *  $Revision: 1.5 $
  ***********************************************************************/
 //  Copyright 2001  California Institute of Technology
 

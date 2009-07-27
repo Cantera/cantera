@@ -3,9 +3,9 @@
  *   Header file defining class MixTransport
  */
 
-/* $Author$
- * $Revision$
- * $Date$
+/* $Author: hkmoffa $
+ * $Revision: 1.11 $
+ * $Date: 2009/03/27 18:24:39 $
  */
 
 // Copyright 2001  California Institute of Technology

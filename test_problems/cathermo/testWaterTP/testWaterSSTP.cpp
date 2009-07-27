@@ -1,5 +1,5 @@
 /*
- * $Id$
+ * $Id: testWaterSSTP.cpp,v 1.5 2008/12/17 17:31:13 hkmoffa Exp $
  */
 
 #include "Cantera.h"

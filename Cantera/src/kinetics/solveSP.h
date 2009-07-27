@@ -4,7 +4,7 @@
  *  (see \ref chemkinetics and class \link Cantera::solveSP solveSP\endlink).
  */
 /*
- * $Id$
+ * $Id: solveSP.h,v 1.3 2007/12/30 04:19:38 dggoodwin Exp $
  */
 /*
  * Copywrite 2004 Sandia Corporation. Under the terms of Contract

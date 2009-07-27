@@ -1,9 +1,9 @@
 /**
  * @file Crystal.h
  *
- *  $Author$
- *  $Date$
- *  $Revision$
+ *  $Author: dggoodwin $
+ *  $Date: 2007/05/04 14:02:40 $
+ *  $Revision: 1.1 $
  */
 #ifndef CT_CRYSTAL_H
 #define CT_CRYSTAL_H

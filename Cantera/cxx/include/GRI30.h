@@ -1,5 +1,5 @@
 /*
- * $Id$
+ * $Id: GRI30.h,v 1.8 2008/02/16 21:35:30 hkmoffa Exp $
  */
 #ifndef CXX_GRI30H
 #define CXX_GRI30H

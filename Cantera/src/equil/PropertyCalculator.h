@@ -1,9 +1,9 @@
 /**
  *  @file PropertyCalculator.h 
  *
- * $Author$
- * $Revision$
- * $Date$
+ * $Author: hkmoffa $
+ * $Revision: 1.2 $
+ * $Date: 2008/12/17 16:56:43 $
  */
 
 // Copyright 2001  California Institute of Technology

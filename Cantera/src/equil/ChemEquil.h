@@ -3,9 +3,9 @@
  *
  *  Chemical equilibrium.
  *
- *  $Author$
- *  $Date$
- *  $Revision$
+ *  $Author: hkmoffa $
+ *  $Date: 2008/09/04 17:03:42 $
+ *  $Revision: 1.6 $
  *
  *  Copyright 2001 California Institute of Technology
  *

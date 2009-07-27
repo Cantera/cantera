@@ -8,7 +8,7 @@
  /*
  *
  *
- *  $Id$
+ *  $Id: ChemEquil.cpp,v 1.15 2009/03/14 03:28:04 hkmoffa Exp $
  *
  *  Copyright 2001 California Institute of Technology
  *

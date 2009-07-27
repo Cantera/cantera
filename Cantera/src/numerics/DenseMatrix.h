@@ -5,9 +5,9 @@
  */
 
 /*
- *  $Author$
- *  $Date$
- *  $Revision$
+ *  $Author: dggoodwin $
+ *  $Date: 2008/02/05 23:36:12 $
+ *  $Revision: 1.2 $
  *
  */
 

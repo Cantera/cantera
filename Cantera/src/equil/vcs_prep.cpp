@@ -3,10 +3,10 @@
  *    This file contains some prepatory functions.
  */
 
-/* $RCSfile$ */
-/* $Author$ */
-/* $Date$ */
-/* $Revision$ */
+/* $RCSfile: vcs_prep.cpp,v $ */
+/* $Author: hkmoffa $ */
+/* $Date: 2008/12/17 16:34:18 $ */
+/* $Revision: 1.25 $ */
 /*
  * Copywrite (2005) Sandia Corporation. Under the terms of 
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the

@@ -2,9 +2,9 @@
 //
 //  mixture-averaged transport properties
 //
-//  $Author$
-//  $Revision$
-//  $Date$
+//  $Author: hkmoffa $
+//  $Revision: 1.7 $
+//  $Date: 2008/02/16 21:33:37 $
 //
 //  copyright California Institute of Technology 2002
 //

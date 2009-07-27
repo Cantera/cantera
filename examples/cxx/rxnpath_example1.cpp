@@ -2,9 +2,9 @@
 //
 //  reaction path diagrams
 //
-//  $Author$
-//  $Revision$
-//  $Date$
+//  $Author: hkmoffa $
+//  $Revision: 1.9 $
+//  $Date: 2009/07/11 17:25:05 $
 //
 //  copyright California Institute of Technology 2002
 //

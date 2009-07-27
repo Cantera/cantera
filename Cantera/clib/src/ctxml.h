@@ -2,7 +2,7 @@
  * @file ctxml.h
  */
 /*
- *      $Id$
+ *      $Id: ctxml.h,v 1.6 2009/07/11 17:16:09 hkmoffa Exp $
  */
 
 #ifndef CTC_XML_H

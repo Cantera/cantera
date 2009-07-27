@@ -12,8 +12,8 @@
  */
 
 /*
- *  $Date$
- *  $Revision$
+ *  $Date: 2009/01/02 20:04:17 $
+ *  $Revision: 1.12 $
  */
 
 #ifndef CT_STOICHSUBSTANCESSTP_H

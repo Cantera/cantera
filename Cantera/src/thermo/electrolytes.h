@@ -10,7 +10,7 @@
  * U.S. Government retains certain rights in this software.
  */
 /*
- *  $Id$
+ *  $Id: electrolytes.h,v 1.1 2006/07/06 15:41:15 hkmoffa Exp $
  */
 #ifndef CT_ELECTROLYTES_H
 #define CT_ELECTROLYTES_H

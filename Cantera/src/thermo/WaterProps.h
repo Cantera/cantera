@@ -11,7 +11,7 @@
  * U.S. Government retains certain rights in this software.
  */
 /*
- * $Id$
+ * $Id: WaterProps.h,v 1.5 2008/08/23 00:53:55 hkmoffa Exp $
  */
 
 #ifndef CT_WATERPROPS_H

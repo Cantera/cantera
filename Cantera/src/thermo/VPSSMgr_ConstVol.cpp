@@ -12,9 +12,9 @@
  * U.S. Government retains certain rights in this software.
  */
 /*
- *  $Author$
- *  $Date$
- *  $Revision$
+ *  $Author: hkmoffa $
+ *  $Date: 2009/05/28 23:08:06 $
+ *  $Revision: 1.4 $
  */
 
 // turn off warnings under Windows

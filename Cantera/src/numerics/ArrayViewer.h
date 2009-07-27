@@ -4,9 +4,9 @@
  *  Header file for class ArrayViewer
  */
 
-/*  $Author$
- *  $Revision$
- *  $Date$
+/*  $Author: dggoodwin $
+ *  $Revision: 1.1 $
+ *  $Date: 2007/05/04 14:40:26 $
  *
  */
 

@@ -5,9 +5,9 @@
  */
 
 /*
- * $Author$
- * $Revision$
- * $Date$
+ * $Author: hkmoffa $
+ * $Revision: 1.2 $
+ * $Date: 2007/06/12 14:20:02 $
  */
 
 #ifndef CT_RXN_STOICH

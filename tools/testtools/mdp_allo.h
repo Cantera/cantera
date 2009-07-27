@@ -3,15 +3,15 @@
  * | CVS File Information |
  * ------------------------
  *
- * $RCSfile$
+ * $RCSfile: mdp_allo.h,v $
  *
- * $Author$
+ * $Author: hkmoffa $
  *
- * $Date$
+ * $Date: 2007/03/26 21:53:45 $
  *
- * $Revision$
+ * $Revision: 1.3 $
  *
- * $Name$
+ * $Name:  $
  *====================================================================*/
 #ifndef MDP_ALLO_H
 #define MDP_ALLO_H
@@ -31,7 +31,7 @@
 /*
  *  These are a poor man's way of specifying whether a value should be
  *  initialized. These are seldom used numbers whic
- * $Name$
+ * $Name:  $
  *====================h can be used in place
  *  of real ints and dbls to indicate that initialization shouldn't take
  *  place.

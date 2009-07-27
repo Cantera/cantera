@@ -6,7 +6,7 @@
  *   \link Cantera::SimpleThermo SimpleThermo\endlink).
  */
 /*
- * $Id$
+ * $Id: SimpleThermo.h,v 1.9 2008/12/13 01:59:49 hkmoffa Exp $
  */
 
 #ifndef CT_SIMPLETHERMO_H

@@ -1,5 +1,5 @@
 /*
- * $Id$
+ * $Id: TemperatureTable.h,v 1.1 2006/07/06 15:56:20 hkmoffa Exp $
  */
 /*
  * Copywrite 2004 Sandia Corporation. Under the terms of Contract

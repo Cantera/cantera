@@ -3,17 +3,17 @@
  * | CVS File Information |
  * ------------------------
  *
- * $RCSfile$
+ * $RCSfile: tok_input_util.h,v $
  *
- * $Author$
+ * $Author: dggoodwin $
  *
- * $Date$
+ * $Date: 2003/04/14 17:58:00 $
  *
- * $Revision$
- * Symbolic $Name$
+ * $Revision: 1.1.1.1 $
+ * Symbolic $Name:  $
  *
- * $Id$
- * $Source$
+ * $Id: tok_input_util.h,v 1.1.1.1 2003/04/14 17:58:00 dggoodwin Exp $
+ * $Source: /cvsroot/cantera/cantera/tools/testtools/tok_input_util.h,v $
  *
  *
  *====================================================================*/

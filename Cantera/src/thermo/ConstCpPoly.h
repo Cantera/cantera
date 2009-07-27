@@ -5,9 +5,9 @@
  * \link Cantera::ConstCpPoly ConstCpPoly\endlink).
  */
 /*
- * $Author$
- * $Revision$
- * $Date$
+ * $Author: hkmoffa $
+ * $Revision: 1.3 $
+ * $Date: 2008/12/13 01:59:49 $
  */
 // Copyright 2001  California Institute of Technology
 

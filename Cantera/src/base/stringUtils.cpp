@@ -5,7 +5,7 @@
  */
 
 /*
- * $Id$
+ * $Id: stringUtils.cpp,v 1.22 2009/01/15 20:08:50 hkmoffa Exp $
  */
 
 // Copyright 2001  California Institute of Technology

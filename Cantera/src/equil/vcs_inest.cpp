@@ -2,9 +2,9 @@
  * @file vcs_inest.cpp
  *   Implementation methods for obtaining a good initial guess
  */
-/*  $Author$
- *  $Date$
- *  $Revision$
+/*  $Author: hkmoffa $
+ *  $Date: 2009/03/27 22:36:20 $
+ *  $Revision: 1.35 $
  */
 
 /*

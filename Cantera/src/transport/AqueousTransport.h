@@ -3,8 +3,8 @@
  *   Header file defining class AqueousTransport
  */
 /* 
- * $Revision$
- * $Date$
+ * $Revision: 1.4 $
+ * $Date: 2009/03/27 18:24:39 $
  */
 
 // Copyright 2001  California Institute of Technology

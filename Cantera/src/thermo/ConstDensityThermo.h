@@ -4,9 +4,9 @@
  * (see \ref thermoprops and \link Cantera::ConstDensityThermo ConstDensityThermo\endlink).
  */
 /*
- *  $Author$
- *  $Date$
- *  $Revision$
+ *  $Author: hkmoffa $
+ *  $Date: 2008/12/10 16:42:48 $
+ *  $Revision: 1.5 $
  *
  *  Copyright 2002 California Institute of Technology
  *

@@ -6,9 +6,9 @@
  *  (see \ref spthermo and class \link Cantera::Mu0Poly Mu0Poly\endlink).
  */
 
-/* $Author$
- * $Revision$
- * $Date$
+/* $Author: hkmoffa $
+ * $Revision: 1.2 $
+ * $Date: 2007/09/13 15:05:39 $
  */
 
 

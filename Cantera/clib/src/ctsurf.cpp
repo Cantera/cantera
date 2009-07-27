@@ -2,7 +2,7 @@
  * @file ctsurf.cpp
  */
 /*
- *      $Id$
+ *      $Id: ctsurf.cpp,v 1.6 2009/07/11 17:16:09 hkmoffa Exp $
  */
 
 // turn off warnings under Windows

@@ -4,9 +4,9 @@
  *     (see \ref Cantera::clockWC).
  */
 /*
- * $Author$
- * $Revision$
- * $Date$
+ * $Author: hkmoffa $
+ * $Revision: 1.1 $
+ * $Date: 2007/06/11 15:20:03 $
  */
 /*
  * Copywrite 2004 Sandia Corporation. Under the terms of Contract

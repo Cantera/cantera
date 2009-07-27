@@ -1,9 +1,9 @@
 /**
  *  @file StoichManager.h
  *
- * $Author$
- * $Revision$
- * $Date$
+ * $Author: hkmoffa $
+ * $Revision: 1.2 $
+ * $Date: 2007/05/17 21:17:16 $
  */
 
 // Copyright 2001  California Institute of Technology

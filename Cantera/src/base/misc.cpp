@@ -10,7 +10,7 @@
  *      HTML_logs
  */
 /*
- *  $Id$
+ *  $Id: misc.cpp,v 1.16 2009/07/13 16:47:40 hkmoffa Exp $
  */
 
 #ifdef WIN32

@@ -1,5 +1,5 @@
 /*
- * $Id$
+ * $Id: PureFluid.h,v 1.7 2007/12/21 02:58:41 hkmoffa Exp $
  */
 #ifndef CXX_PUREFLUID
 #define CXX_PUREFLUID

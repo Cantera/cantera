@@ -6,9 +6,9 @@
 #
 #--------------------------------------------------------------------------
 
-# $Log$
-# Revision 1.1  2003-04-14 17:57:49  dggoodwin
-# Initial revision
+# $Log: temperature.py,v $
+# Revision 1.1.1.1  2003/04/14 17:57:49  dggoodwin
+# Initial import.
 #
 # Revision 1.1  2002/12/20 13:23:41  dgg
 # first commit

@@ -2,9 +2,9 @@
  *
  * @file GasKineticsWriter.h
  *
- * $Author$
- * $Revision$
- * $Date$
+ * $Author: hkmoffa $
+ * $Revision: 1.3 $
+ * $Date: 2008/12/17 17:09:37 $
  */
 
 // Copyright 2001  California Institute of Technology

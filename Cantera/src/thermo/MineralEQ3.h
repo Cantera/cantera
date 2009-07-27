@@ -14,8 +14,8 @@
  */
 
 /* 
- *  $Date$
- *  $Revision$
+ *  $Date: 2009/01/04 19:21:28 $
+ *  $Revision: 1.4 $
  */
 
 #ifndef CT_MINERALEQ3_H

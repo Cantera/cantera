@@ -3,9 +3,9 @@
  *  @file SolidTransport.cpp
  */
 
-/* $Author$
- * $Revision$
- * $Date$
+/* $Author: hkmoffa $
+ * $Revision: 1.10 $
+ * $Date: 2009/03/27 18:24:39 $
  */
 
 // copyright 2008 California Institute of Technology

@@ -1,9 +1,9 @@
 /**
  *  @file Group.h
  *
- * $Author$
- * $Revision$
- * $Date$
+ * $Author: dggoodwin $
+ * $Revision: 1.1 $
+ * $Date: 2007/05/04 14:27:23 $
  */
 
 

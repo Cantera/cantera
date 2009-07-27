@@ -6,8 +6,8 @@
  */
 
 /*
- *  $Date$
- *  $Revision$
+ *  $Date: 2009/02/15 17:33:06 $
+ *  $Revision: 1.6 $
  *
  *  Copyright 2001-2003 California Institute of Technology
  *  See file License.txt for licensing information

@@ -6,9 +6,9 @@
  *  (see \ref thermoprops and class \link Cantera::LatticePhase LatticePhase\endlink).
  *
  */
-/*  $Author$
- *  $Date$
- *  $Revision$
+/*  $Author: hkmoffa $
+ *  $Date: 2008/12/13 01:59:49 $
+ *  $Revision: 1.7 $
  *
  *  Copyright 2005 California Institute of Technology
  *

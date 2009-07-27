@@ -2,9 +2,9 @@
  *  @file CVodeInt.h
  */
 
-/* $Author$
- * $Date$
- * $Revision$
+/* $Author: hkmoffa $
+ * $Date: 2009/07/17 15:32:51 $
+ * $Revision: 1.1 $
  */
 
 // Copyright 2001  California Institute of Technology

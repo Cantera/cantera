@@ -3,17 +3,17 @@
  * | CVS File Information |
  * ------------------------
  *
- * $RCSfile$
+ * $RCSfile: tok_input_util.cpp,v $
  *
- * $Author$
+ * $Author: hkmoffa $
  *
- * $Date$
+ * $Date: 2009/03/28 03:07:23 $
  *
- * $Revision$
- * Symbolic $Name$
+ * $Revision: 1.2 $
+ * Symbolic $Name:  $
  *
- * $Id$
- * $Source$
+ * $Id: tok_input_util.cpp,v 1.2 2009/03/28 03:07:23 hkmoffa Exp $
+ * $Source: /cvsroot/cantera/cantera/tools/testtools/tok_input_util.cpp,v $
  *
  *====================================================================*/
 #ifdef WIN32

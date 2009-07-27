@@ -7,8 +7,8 @@
  * class \link Cantera::VPSSMgr_General VPSSMgr_General\endlink).
  */
 /*
- * $Revision$
- * $Date$
+ * $Revision: 1.4 $
+ * $Date: 2009/05/28 23:08:06 $
  */
 /*
  * Copywrite (2007) Sandia Corporation. Under the terms of 

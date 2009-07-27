@@ -1,9 +1,9 @@
 /**
  *  @file Domain1D.h
  *
- *  $Author$
- *  $Date$
- *  $Revision$
+ *  $Author: hkmoffa $
+ *  $Date: 2009/05/31 16:24:35 $
+ *  $Revision: 1.26 $
  *
  *  Copyright 2002 California Institute of Technology
  *

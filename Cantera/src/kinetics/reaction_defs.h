@@ -4,9 +4,9 @@
  */
   
 /*
- *  $Author$
- *  $Date$
- *  $Revision$
+ *  $Author: dggoodwin $
+ *  $Date: 2007/05/04 14:27:24 $
+ *  $Revision: 1.1 $
  *
  */
 

@@ -4,9 +4,9 @@
  *   (see \ref Cantera::LogPrintCtrl).
  */
 /*
- * $Author$
- * $Revision$
- * $Date$
+ * $Author: hkmoffa $
+ * $Revision: 1.1 $
+ * $Date: 2008/04/08 20:19:26 $
  */
 /*
  * Copywrite 2004 Sandia Corporation. Under the terms of Contract

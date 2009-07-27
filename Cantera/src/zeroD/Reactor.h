@@ -1,9 +1,9 @@
 /**
  *  @file Reactor.h
  *
- * $Author$
- * $Revision$
- * $Date$
+ * $Author: dggoodwin $
+ * $Revision: 1.11 $
+ * $Date: 2007/05/04 14:41:28 $
  */
 
 // Copyright 2001  California Institute of Technology

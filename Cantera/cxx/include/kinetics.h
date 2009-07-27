@@ -1,5 +1,5 @@
 /*
- * $Id$
+ * $Id: kinetics.h,v 1.4 2007/05/04 15:18:41 dggoodwin Exp $
  */
 #ifndef CXX_INCL_KINETICS
 #define CXX_INCL_KINETICS

@@ -14,8 +14,8 @@
  * U.S. Government retains certain rights in this software.
  */
 /*
- *  $Date$
- *  $Revision$
+ *  $Date: 2009/03/27 00:38:57 $
+ *  $Revision: 1.20 $
  */
 
 #ifndef CT_VPSTANDARDSTATETP_H

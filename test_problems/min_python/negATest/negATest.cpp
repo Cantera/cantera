@@ -1,8 +1,8 @@
 
 /*
- *  $Author$
- *  $Date$
- *  $Revision$
+ *  $Author: dggoodwin $
+ *  $Date: 2007/05/04 15:18:45 $
+ *  $Revision: 1.3 $
  *
 
  */

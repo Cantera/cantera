@@ -2,7 +2,7 @@
  * @file ct.h
  */
 /*
- *      $Id$
+ *      $Id: ct.h,v 1.24 2009/07/11 17:16:09 hkmoffa Exp $
  */
 
 #ifndef CTC_CT_H

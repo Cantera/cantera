@@ -5,9 +5,9 @@
  */
 
 /*
- *  $Author$
- *  $Revision$
- *  $Date$
+ *  $Author: hkmoffa $
+ *  $Revision: 1.2 $
+ *  $Date: 2008/08/01 16:05:38 $
  */
 
 #ifndef VCS_DOUBLESTARSTAR_H

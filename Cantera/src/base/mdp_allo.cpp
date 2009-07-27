@@ -3,8 +3,8 @@
  *   Definitions for dynamic allocation of multidimensional pointer arrays
  */
 /*
- * $Revision$
- * $Date$
+ * $Revision: 1.3 $
+ * $Date: 2009/07/22 01:21:35 $
  */
 /*
  * Copywrite 2004 Sandia Corporation. Under the terms of Contract

@@ -2,9 +2,9 @@
  * @file ctlapack.h
  */
 
-/* $Author$
- * $Revision$
- * $Date$
+/* $Author: dggoodwin $
+ * $Revision: 1.2 $
+ * $Date: 2008/02/05 23:36:12 $
  */
 
 // Copyright 2001 California Institute of Technology.  

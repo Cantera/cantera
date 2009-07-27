@@ -17,7 +17,7 @@
  * U.S. Government retains certain rights in this software.
  */
 /*
- *  $Id$
+ *  $Id: MolalityVPSSTP.h,v 1.20 2009/01/20 21:48:54 hkmoffa Exp $
  */
 
 #ifndef CT_MOLALITYVPSSTP_H

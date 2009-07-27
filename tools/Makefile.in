@@ -1,7 +1,7 @@
 #
-# $Revision$
-# $Author$
-# $Date$
+# $Revision: 1.13 $
+# $Author: hkmoffa $
+# $Date: 2008/09/08 23:56:40 $
 #
 build_ck=@BUILD_CK@
 

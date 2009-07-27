@@ -4,9 +4,9 @@
  *     (see \link Cantera::TransportFactory TransportFactory\endlink)
  */
 /*
- *  $Author$
- *  $Date$
- *  $Revision$
+ *  $Author: hkmoffa $
+ *  $Date: 2008/12/24 18:19:01 $
+ *  $Revision: 1.14 $
  *
  *  Copyright 2001 California Institute of Technology
  *

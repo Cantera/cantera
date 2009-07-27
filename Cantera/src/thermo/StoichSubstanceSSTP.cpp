@@ -14,7 +14,7 @@
  */
 
 /*
- * $Id$ 
+ * $Id: StoichSubstanceSSTP.cpp,v 1.13 2009/01/02 20:04:17 hkmoffa Exp $ 
  */
 
 #include "ct_defs.h"

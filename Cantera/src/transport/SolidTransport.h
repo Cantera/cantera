@@ -4,9 +4,9 @@
  *   Header file defining class SolidTransport
  */
 
-/* $Author$
- * $Revision$
- * $Date$
+/* $Author: hkmoffa $
+ * $Revision: 1.7 $
+ * $Date: 2009/03/27 18:24:39 $
  */
 
 // Copyright 2003  California Institute of Technology

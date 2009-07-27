@@ -8,9 +8,9 @@
  *        class \link Cantera::VPSSMgr VPSSMgr\endlink).
  */
 /*
- * $Author$
- * $Revision$
- * $Date$
+ * $Author: hkmoffa $
+ * $Revision: 1.1 $
+ * $Date: 2008/08/23 00:53:55 $
  */
 /*
  * Copywrite (2005) Sandia Corporation. Under the terms of 

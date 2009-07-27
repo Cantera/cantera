@@ -4,9 +4,9 @@
  *
  */
 
-/*  $Author$
- *  $Date$
- *  $Revision$
+/*  $Author: dggoodwin $
+ *  $Date: 2007/11/27 13:26:08 $
+ *  $Revision: 1.2 $
  *
  *  Copyright 2003 California Institute of Technology
  *

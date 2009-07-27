@@ -19,9 +19,9 @@
  * U.S. Government retains certain rights in this software.
  */
 /*
- *  $Author$
- *  $Date$
- *  $Revision$
+ *  $Author: hkmoffa $
+ *  $Date: 2009/03/27 00:51:38 $
+ *  $Revision: 1.24 $
  */
 
 #ifndef CT_IDEALMOLALSOLN_H

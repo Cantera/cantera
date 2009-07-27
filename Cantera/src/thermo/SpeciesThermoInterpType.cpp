@@ -3,9 +3,9 @@
  *  Definitions for a 
  */
 
-/* $Author$
- * $Revision$
- * $Date$
+/* $Author: hkmoffa $
+ * $Revision: 1.5 $
+ * $Date: 2009/01/04 06:34:20 $
  */
 // Copyright 2007  Sandia National Laboratories
 
