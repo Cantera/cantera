@@ -1,0 +1,87 @@
+#!/bin/sh
+#
+#
+if test "$#" -ge "2" ; then
+  echo "runtest ERROR: program requires one argument."
+  echo "        runtest PYTHON_CMD"
+  exit 0
+fi
+
+BINDIR=../../../bin
+
+
+temp_success="1"
+/bin/rm  -f output.txt  diff_test.out csvCode.txt ct2ctml.log \
+            flame1.xml h2o2.xml diff_csv.txt diff_out.txt flame1.csv 
+
+testName=flame1
+#################################################################
+#
+#################################################################
+#
+# Try to create a default python executable location if no
+# argument to runtest is supplied.
+#
+if test -z "$PYTHON_CMD" ; then
+  if test -z "$PYTHONHOME" ; then
+    PYTHON_CMDA=python
+  else
+    PYTHON_CMDA=$PYTHONHOME/bin/python
+  fi
+else
+  PYTHON_CMDA=$PYTHON_CMD
+fi
+FIRSTARG=$1
+PYTHON_CMDB=${FIRSTARG:=$PYTHON_CMDA}
+
+#
+# Check to see whether the python executable exists in the
+# current user path
+#
+locThere=`which $PYTHON_CMDB 2>&1`
+isThere=$?
+if test "$isThere" != "0" ; then
+  echo 'Can not find the python executable: ' $PYTHON_CMDB
+  echo ' '
+  echo $locThere
+  exit 1
+fi
+#pVersion=`$PYTHON_CMDB -V 2>&1`
+
+#################################################################
+#
+#################################################################
+
+echo  "Testing \"$PYTHON_CMDB flame1\" ...   "
+$PYTHON_CMDB flame1.py > output.txt
+retnStat=$?
+if [ $retnStat != "0" ]
+then
+  temp_success="0"
+  echo "ERROR: flame1.py returned with bad status, $retnStat, check output"
+fi
+
+diff -w output.txt output_blessed.txt > diff_out.txt
+retnStat_txt=$?
+
+$BINDIR/csvdiff -a 1.0E-10 flame1_blessed.csv flame1.csv  > diff_csv.txt
+retnStat_csv=$?
+
+if test $retnStat_csv = "1"
+then
+  echo "   Successful test comparison on "`pwd`
+  if [ $retnStat_txt != "0" ]
+  then
+     echo "     But, text output files have differences. See diff_out.txt"
+  fi
+else
+  echo "    Unsuccessful test comparison on "`pwd` " test"
+  if test $retnStat_csv != "1"
+  then
+     echo "      csv files are different - see diff_csv.txt"
+  fi
+  if test $retnStat_txt != "0"
+  then
+     echo "      And, text output files have differences. See diff_out.txt"
+  fi
+fi

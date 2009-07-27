@@ -1,0 +1,71 @@
+#/bin/sh
+
+LIBDIR = @buildlib@
+INCDIR = -I@ctroot@/Cantera/src/
+BINDIR = @buildbin@
+build_ck = @BUILD_CK@
+
+PURIFY=@PURIFY@
+
+LCXX_FLAGS = -L$(LIBDIR)  @LOCAL_LIB_DIRS@ @CXXFLAGS@
+LOCAL_LIBS = @LOCAL_LIBS@  
+
+LL_DEPS=@LOCAL_LIBS_DEP@
+
+LCXX_END_LIBS = @LCXX_END_LIBS@ @EXTRA_LINK@
+
+OBJS = ck2cti.o cti2ctml.o fixtext.o
+
+DEPENDS = $(OBJS:.o=.d)
+
+CONVLIB_DEP = @buildlib@/libconverters.a
+
+
+progs = $(BINDIR)/cti2ctml $(BINDIR)/fixtext
+ifeq ($(build_ck),1) 
+exes =  $(progs) $(BINDIR)/ck2cti
+else
+exes = $(progs)
+endif
+
+.cpp.o:
+	$(PURIFY) @CXX@ -c $< @DEFS@  $(INCDIR)base $(INCDIR)converters @CXX_INCLUDES@ @CXXFLAGS@ $(CXX_FLAGS) 
+
+all: $(exes)
+
+ck: $(BINDIR)/ck2cti
+
+$(BINDIR)/ck2cti: ck2cti.o $(CONVLIB_DEP) $(LL_DEPS)
+	$(RM) $(BINDIR)/ck2cti
+	$(PURIFY) @CXX@ -o $(BINDIR)/ck2cti ck2cti.o $(LCXX_FLAGS) \
+               -lconverters -lctbase -ltpx -lctcxx $(LOCAL_LIBS) $(LCXX_END_LIBS)
+
+$(BINDIR)/cti2ctml: cti2ctml.o $(LL_DEPS)
+	$(RM) $(BINDIR)/cti2ctml
+	$(PURIFY) @CXX@ -o $(BINDIR)/cti2ctml cti2ctml.o $(LCXX_FLAGS) $(LOCAL_LIBS) \
+               $(LCXX_END_LIBS)
+
+$(BINDIR)/fixtext: fixtext.o $(LL_DEPS)
+	$(RM) $(BINDIR)/fixtext
+	$(PURIFY) @CXX@ -o $(BINDIR)/fixtext fixtext.o $(LCXX_FLAGS) \
+               $(LOCAL_LIBS) $(LCXX_END_LIBS)
+
+$(CONVLIB_DEP):
+	cd ../../Cantera/src/converters; @MAKE@
+
+clean:
+	$(RM) *.o *.*~ $(BINDIR)/cti2ctml $(BINDIR)/ck2cti $(BINDIR)/fixtext
+	(if test -d SunWS_cache ; then \
+           $(RM) -rf SunWS_cache ; \
+        fi )
+
+%.d:
+	@CXX_DEPENDS@ $(INCDIR)base $(INCDIR)converters @CXXFLAGS@ $(CXX_FLAGS) $*.cpp > $*.d
+
+depends: $(DEPENDS)
+	cat *.d &> .depends
+	$(RM) $(DEPENDS)
+
+ifeq ((test -e .depends),0)
+include .depends
+endif

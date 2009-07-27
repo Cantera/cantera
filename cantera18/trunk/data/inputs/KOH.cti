@@ -1,0 +1,70 @@
+
+units(length = "cm", time = "s", quantity = "mol", act_energy = "cal/mol")
+
+
+
+# ideal gas containing all gaseous species in the NASA database
+# that contain the elements K, O, and H. "Element" E is included
+# too for charged species.
+ideal_gas(name = "KOH_plasma",
+          elements = " K O H E",
+          species = """nasa_gas: all""",
+          options = ["skip_undeclared_elements"],
+          initial_state = state(temperature = 300.0,
+                                pressure = OneAtm)    )
+
+# solid potassium
+stoichiometric_solid(name = "K_solid",
+                     elements = "K",
+                     density = (0.86,'g/cm3'),
+                     species = "nasa_condensed: K(cr)")
+
+# liquid potassium
+stoichiometric_liquid(name = "K_liquid",
+                      elements = "K",
+                      density = (1.0,'g/cm3'),
+                      species = "nasa_condensed: K(L)")
+
+# potassium hydroxide "a"
+stoichiometric_solid(name = "KOH_a",
+                     elements = "K O H",
+                     density = (2.04,'g/cm3'),
+                     species = "nasa_condensed: KOH(a)")
+
+# potassium hydroxide "b"
+stoichiometric_solid(name = "KOH_b",
+                     elements = "K O H",
+                     density = (1.0,'g/cm3'),
+                     species = "nasa_condensed: KOH(b)")
+
+# liquid potassium hydroxide
+stoichiometric_liquid(name = "KOH_liquid",
+                     elements = "K O H",
+                     density = (1.0,'g/cm3'),
+                     species = "nasa_condensed: KOH(L)")
+
+stoichiometric_solid(name = "K2O2_solid",
+                     elements = "K O",
+                     density = (1.0,'g/cm3'),
+                     species = "nasa_condensed: K2O2(s)")
+
+stoichiometric_solid(name = "K2O_solid",
+                     elements = "K O",
+                     density = (1.0,'g/cm3'),
+                     species = "nasa_condensed: K2O(s)")
+
+stoichiometric_solid(name = "KO2_solid",
+                     elements = "K O",
+                     density = (1.0,'g/cm3'),
+                     species = "nasa_condensed: KO2(s)")
+
+stoichiometric_solid(name = "ice",
+                     elements = "H O",
+                     density = (0.917,'g/cm3'),
+                     species = "nasa_condensed: H2O(s)")
+
+stoichiometric_liquid(name = "liquid_water",
+                     elements = "H O",
+                     density = (1.0,'g/cm3'),
+                     species = "nasa_condensed: H2O(L)")
+

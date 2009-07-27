@@ -1,0 +1,29 @@
+#!/bin/sh
+
+INST_DIR=@ct_demodir@/python/flames/flame_fixed_T
+
+
+PYTHON_CMD = @PYTHON_CMD@
+
+run:
+	$(PYTHON_CMD) flame_fixed_T.py
+
+test:
+	./runtest
+
+install:
+	@INSTALL@ -d  $(INST_DIR)
+	@INSTALL@ -c -m ug+rw,o+r Makefile $(INST_DIR)
+	@INSTALL@ -c -m ug+rw,o+r flame_fixed_T.py $(INST_DIR)
+	@INSTALL@ -c -m ug+rw,o+r tdata.dat $(INST_DIR)
+	@INSTALL@ -c   runtest $(INST_DIR)
+	@INSTALL@ -c   cleanup $(INST_DIR)
+	@INSTALL@ -c -m ug+rw,o+r output_blessed_0.txt    $(INST_DIR)
+	@INSTALL@ -c -m ug+rw,o+r flame_fixed_T_blessed_0.csv $(INST_DIR)
+
+clean:
+	rm -f *.log *.csv *.xml
+	./cleanup
+
+# end of file
+

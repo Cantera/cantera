@@ -1,0 +1,16 @@
+#!/bin/sh
+
+
+run:
+	$(PYTHON_CMD) free_h2_air.py 
+
+test:
+	./runtest
+
+
+clean:
+	rm -f *.log output_0.txt freeflame1.csv  freeflame1.xml 
+	./cleanup
+
+# end of file
+

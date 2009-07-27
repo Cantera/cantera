@@ -1,0 +1,41 @@
+############################################################################
+#
+#  Makefile to compile and link a C++ application to 
+#  Cantera.
+#
+#############################################################################
+
+all:
+	cd combustor;       @MAKE@ 
+	cd kinetics1;       @MAKE@ 
+	cd flamespeed;      @MAKE@
+	cd NASA_coeffs;     @MAKE@ 
+
+test:
+	cd combustor;       @MAKE@ -s test
+	cd kinetics1;       @MAKE@ -s test
+	cd NASA_coeffs;     @MAKE@ -s test
+	cd flamespeed;      @MAKE@ -s test
+
+install:
+	@INSTALL@ -d       @ct_demodir@/cxx
+	@INSTALL@ Makefile -m ug+rw,o+r @ct_demodir@/cxx
+	cd combustor;       @MAKE@ install
+	cd flamespeed;      @MAKE@ install
+	cd kinetics1;       @MAKE@ install
+	cd NASA_coeffs;     @MAKE@ install
+
+depends: 
+	cd combustor;       @MAKE@ depends
+	cd kinetics1;       @MAKE@ depends
+	cd flamespeed;      @MAKE@ depends
+	cd NASA_coeffs;     @MAKE@ depends
+
+
+clean:
+	cd combustor;       @MAKE@ clean
+	cd kinetics1;       @MAKE@ clean
+	cd flamespeed;      @MAKE@ clean
+	cd NASA_coeffs;     @MAKE@ clean
+
+

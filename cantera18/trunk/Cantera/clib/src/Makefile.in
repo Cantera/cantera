@@ -1,0 +1,120 @@
+#/bin/sh
+###############################################################
+#  $Author: hkmoffa $
+#  $Date: 2008/12/30 21:49:41 $
+#  $Revision: 1.19 $
+#
+#  Copyright 2001 California Institute of Technology
+#
+###############################################################
+
+
+.SUFFIXES :
+.SUFFIXES : .cpp .d .o
+
+INSTALL_TSC = ../../../bin/install_tsc
+do_ranlib = @DO_RANLIB@
+
+PURIFY=@PURIFY@
+
+PIC_FLAG=@PIC@
+
+CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT) $(PIC_FLAG)
+
+OBJS = ct.o Storage.o ctsurf.o ctrpath.o \
+       ctreactor.o ctfunc.o ctxml.o ctonedim.o ctmultiphase.o
+CLIB_H= Cabinet.h    ctreactor.h  clib_defs.h  ctfunc.h \
+        ctnum.h ctsurf.h  ct.h   ctrpath.h      Storage.h \
+        ctbdry.h    ctonedim.h    ctxml.h   ctmultiphase.h  ctstagn.h   
+
+DEPENDS = $(OBJS:.o=.d)
+
+# Fortran libraries
+FORT_LIBS = @FLIBS@
+
+shared_ctlib = @SHARED_CTLIB@
+
+# the C++ compiler
+CXX = @CXX@
+
+# external libraries
+EXT_LIBS = -lzeroD -loneD @LOCAL_LIBS@ 
+
+# the directory where the Cantera libraries are located
+CANTERA_LIBDIR=@buildlib@
+# ../../../lib
+LIB_DEPS = $(CANTERA_LIBDIR)/libctbase.a \
+           $(CANTERA_LIBDIR)/libequil.a \
+           $(CANTERA_LIBDIR)/libtransport.a \
+           $(CANTERA_LIBDIR)/libthermo.a \
+           $(CANTERA_LIBDIR)/libctnumerics.a \
+           $(CANTERA_LIBDIR)/libzeroD.a \
+           $(CANTERA_LIBDIR)/liboneD.a 
+
+# the directory where Cantera include files may be found.
+CXX_INCLUDES = -I../../src/base -I../../src/thermo -I../../src/kinetics -I../../src/transport -I../../src/numerics -I../../src/oneD -I../../src/zeroD -I../../src/equil -I../../src/converters @CXX_INCLUDES@
+
+# flags passed to the C++ compiler/linker for the linking step
+LCXX_FLAGS = -L$(CANTERA_LIBDIR) @CXXFLAGS@
+
+# how to compile C++ source files to object files
+.@CXX_EXT@.@OBJ_EXT@:
+	$(PURIFY) $(CXX) -c $< $(CXX_INCLUDES) $(CXX_FLAGS)
+
+%.d: Makefile %.o
+	@CXX_DEPENDS@ $(CXX_FLAGS) $(CXX_INCLUDES) $*.cpp > $*.d
+
+LIB_NAME=lib@CT_SHARED_LIB@
+
+ifeq ($(shared_ctlib),1)
+CTLIB = @buildlib@/$(LIB_NAME)@SO@
+else
+CTLIB = @buildlib@/$(LIB_NAME).a
+endif
+
+all: $(CTLIB) .depends
+ 
+$(CTLIB): $(OBJS) $(LIB_DEPS)
+	$(RM)     $(CTLIB)
+ifeq ($(shared_ctlib),1)
+	$(PURIFY) $(CXX) -o $(CTLIB) $(OBJS) $(LCXX_FLAGS)\
+                @SHARED@ $(LINK_OPTIONS) \
+                $(EXT_LIBS) @LIBS@ $(FORT_LIBS)
+else
+	@ARCHIVE@ $(CTLIB) $(OBJS)
+ifeq ($(do_ranlib),1)
+	@RANLIB@ $(CTLIB)
+endif
+endif
+
+clean:
+	$(RM) $(OBJS) *.d $(CTLIB) .depends
+	(if test -d SunWS_cache ; then \
+           $(RM) -rf SunWS_cache ; \
+         fi )
+
+
+install:
+	@INSTALL@ -d @ct_libdir@
+	@INSTALL@ -c -m 644 $(CTLIB) @ct_libdir@
+ifeq ($(do_ranlib),1)
+ifeq ($(shared_ctlib),0)
+	@RANLIB@ @ct_libdir@/$(LIB_NAME).a
+endif
+endif
+
+
+win-install:
+	@INSTALL@ -c ../../../lib/clib.lib @prefix@/lib/cantera
+
+depends:
+	@MAKE@ .depends
+
+.depends: $(DEPENDS)
+	cat *.d > .depends
+
+$(OBJS): Makefile
+
+ifeq ($(wildcard .depends), .depends)
+include .depends
+endif

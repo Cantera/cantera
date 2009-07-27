@@ -1,0 +1,11 @@
+Makefile
+*.log
+diff_test.out
+diff_soot.out
+gri30a.cti
+gri30b.cti
+gri30.cti
+soota.cti
+sootb.cti
+soot.cti
+runtest

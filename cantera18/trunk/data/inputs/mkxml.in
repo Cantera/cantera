@@ -1,0 +1,10 @@
+#!/bin/sh
+# run ck2cti to convert Chemkin-format files to Cantera format
+#
+BUILDBIN="@buildbin@"
+#
+$BUILDBIN/ck2cti -i gri30.inp -id gri30              -tr ../transport/gri30_tran.dat > gri30.cti
+$BUILDBIN/ck2cti -i air.inp -id air -t gri30.inp     -tr ../transport/gri30_tran.dat > air.cti
+$BUILDBIN/ck2cti -i h2o2.inp -id ohmech              -tr ../transport/gri30_tran.dat > h2o2.cti
+$BUILDBIN/ck2cti -i silane.inp -id silane            -tr ../transport/misc_tran.dat  > silane.cti
+$BUILDBIN/ck2cti -i argon.inp -id argon -t gri30.inp -tr ../transport/gri30_tran.dat > argon.cti

@@ -1,0 +1,8 @@
+.depends
+DH_NaCl_acommon.csv
+DH_graph_1
+DH_graph_1.d
+DH_graph_1.log
+Makefile
+output.txt
+csvCode.txt

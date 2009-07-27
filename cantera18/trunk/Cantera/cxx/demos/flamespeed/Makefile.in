@@ -1,0 +1,118 @@
+############################################################################
+#
+#  Makefile to compile and link a C++ application to 
+#  Cantera.
+#
+#############################################################################
+.SUFFIXES :
+.SUFFIXES : .cpp .d .o .d .h 
+
+
+# the name of the executable program to be created
+PROG_NAME = flamespeed
+
+# the object files to be linked together. List those generated from Fortran
+# and from C/C++ separately
+OBJS = flamespeed.o
+
+# additional flags to be passed to the linker. If your program
+# requires other external libraries, put them here
+LINK_OPTIONS = @EXTRA_LINK@
+
+#############################################################################
+# True if we are in the source directory tree
+srcdirtree=1
+
+# Fortran libraries
+FORT_LIBS = @FLIBS@
+
+# Purify options
+PURIFY=@PURIFY@
+
+# the C++ compiler
+CXX = @CXX@
+
+# C++ compile flags
+CXX_FLAGS = @CXXFLAGS@ @CXX_INCLUDES@
+
+# external libraries
+EXT_LIBS = @LOCAL_LIBS@ -ltpx -lctcxx
+
+# Ending C++ linking libraries
+LCXX_END_LIBS = @LCXX_END_LIBS@
+
+# the directory where the Cantera libraries are located
+CANTERA_LIBDIR=@buildlib@
+
+# required Cantera libraries
+CANTERA_LIBS =  
+
+# Depends
+ifeq ($srcdirtree, 1)
+  LOCAL_DEFNS =  -DSRCDIRTREE
+else
+  LOCAL_DEFNS = 
+endif 
+
+# the directory where Cantera include files may be found.
+CANTERA_INCDIR=@ctroot@/build/include
+
+# flags passed to the C++ compiler/linker for the linking step
+LCXX_FLAGS = -L$(CANTERA_LIBDIR) @LOCAL_LIB_DIRS@ @CXXFLAGS@
+
+# how to compile C++ source files to object files
+.@CXX_EXT@.@OBJ_EXT@:
+	$(PURIFY) $(CXX) -c $< -I$(CANTERA_INCDIR) $(CXX_FLAGS) $(LOCAL_DEFNS)
+
+# how to create a dependency file
+.@CXX_EXT@.d:
+	@CXX_DEPENDS@ -I$(CANTERA_INCDIR) $(CXX_FLAGS) $(LOCAL_DEFNS) $*.cpp > $*.d
+
+PROGRAM = $(PROG_NAME)$(EXE_EXT)
+
+DEPENDS = $(OBJS:.o=.d)
+
+all: $(PROGRAM) .depends
+
+$(PROGRAM): $(OBJS) 
+	$(PURIFY) $(CXX) -o $(PROGRAM) $(OBJS) $(LCXX_FLAGS) $(CANTERA_LIBS) \
+                   $(LINK_OPTIONS) $(EXT_LIBS) @LIBS@ $(FORT_LIBS) \
+                  $(LCXX_END_LIBS)
+
+test:
+	@MAKE@ $(PROGRAM)
+	./runtest
+
+INSTALL_DIR=@ct_demodir@/cxx/flamespeed
+
+install:
+	@INSTALL@ -d     $(INSTALL_DIR)
+	@INSTALL@       -c -m ug+rw,o+r Makefile.install $(INSTALL_DIR)/Makefile
+	@(for ihhh in *.cpp  *blessed* ; do  \
+             @INSTALL@        $${ihhh} -m ug+rw,o+r $(INSTALL_DIR) ; \
+             echo "@INSTALL@  $${ihhh} -m ug+rw,o+r $(INSTALL_DIR)" ; \
+         done )
+	 @INSTALL@        runtest  $(INSTALL_DIR) ; 
+
+
+depends: $(DEPENDS)
+	@MAKE@ .depends
+
+.depends: $(DEPENDS)
+	cat $(DEPENDS) > .depends
+
+clean:
+	$(RM) $(OBJS) $(PROGRAM) .depends *.d
+	$(RM) ct2ctml.log diff* output_0.txt transport_log.xml \
+              flamespeed.csv
+	(if test -d SunWS_cache ; then \
+           $(RM) -rf SunWS_cache ; \
+         fi )
+
+TAGS:
+	etags *.h *.cpp
+
+ifeq ($(wildcard .depends), .depends)
+include .depends
+endif
+

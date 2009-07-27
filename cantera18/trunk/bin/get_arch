@@ -1,0 +1,68 @@
+#!/bin/sh
+#
+# get the architecture from the current environment
+# Return a single word that is used to identifiy
+# the architecture tree under which machine specific
+# binaries, libraries, and include files are storred.
+#
+#  (obviously this needs to be worked on!)
+#
+#
+uac=`uname -a`
+usc=`uname -s`
+
+ua=`echo $uac | tr [A-Z] [a-z]`
+us=`echo $usc | tr [A-Z] [a-z]`
+
+if [ "$us" = "hp-ux" ]
+then
+  echo hpux_pa2.0
+  exit 1
+fi
+if [ "$us" = "sunos" ]
+then
+  echo sol
+  exit 1
+fi
+if [ "$us" = "irix64" ]
+then
+  echo sgi10k
+  exit 1
+fi
+if [ "$us" = "tflops o/s" ]
+then
+  echo tflop
+  exit 1
+fi
+if [ "$us" = "osf1" ]
+then
+  echo true64
+  exit 1
+fi
+if [ "$us" = "linux" ]
+then
+  um=`uname -m`
+  if [ "$um" = "alpha" ]
+  then
+    echo linux-alpha
+    exit 1
+  fi
+  if [ "$um" = "i686" ]
+  then
+    echo linux
+    exit 1
+  fi
+fi
+if [ "$us" = "darwin" ]
+then
+  echo darwin
+  exit 1
+fi
+if [ "$us" = "cygwin_nt-5.0" ]
+then
+  echo cygwin
+  exit 1
+fi
+    
+echo unknown
+exit 0

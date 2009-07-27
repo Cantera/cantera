@@ -1,0 +1,6 @@
+Makefile
+SunWS_cache
+.depends
+*.d
+CMakeFiles
+cmake_install.cmake

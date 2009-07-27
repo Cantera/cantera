@@ -1,0 +1,4 @@
+*.d
+.depends
+Makefile
+CMakeFiles

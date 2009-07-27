@@ -1,0 +1,115 @@
+#!/bin/sh
+#
+#
+if test "$#" -ge "2" ; then
+  echo "runtest ERROR: program requires one argument."
+  echo "        runtest PYTHON_CMD"
+  exit 0
+fi
+
+temp_success="1"
+/bin/rm  -f diamond.csv flame1.csv flame1_blessed_tmp.csv \
+            flame1.out diamond.out flame1_test.out \
+            diamond_test.out
+
+#################################################################
+#
+#################################################################
+CANTERA_DATA=${CANTERA_DATA:=../../data/inputs}; export CANTERA_DATA
+
+CANTERA_BIN=${CANTERA_BIN:=../../bin}
+
+#
+# Try to create a default python executable location if no
+# argument to runtest is supplied.
+#
+if test -z "$PYTHONHOME" ; then
+  PYTHON_CMDA=python
+else
+  PYTHON_CMDA=$PYTHONHOME/bin/python
+fi
+FIRSTARG=$1
+PYTHON_CMD=${FIRSTARG:=$PYTHON_CMDA}
+
+#
+# Check to see whether the python executable exists in the
+# current user path
+#
+locThere=`which $PYTHON_CMD 2>&1`
+isThere=$?
+if test "$isThere" != "0" ; then
+  echo 'Can not find the python executable: ' $PYTHON_CMD
+  echo ' '
+  echo $locThere
+  exit 1
+fi
+pVersion=`$PYTHON_CMD -V 2>&1`
+
+#echo $PYTHON_CMD
+echo " "
+echo "***************************************************"
+echo "        Testing the Cantera Python Interface       "
+echo "        python executable: " $locThere
+echo "        Python version:    " $pVersion
+echo "***************************************************"
+echo " "
+
+
+#################################################################
+#
+#################################################################
+
+echo "Testing surface chemistry..."
+$PYTHON_CMD ../../Cantera/python/examples/surface_chemistry/diamond_cvd/diamond.py > diamond.out
+retnStat=$?
+if [ $retnStat != "0" ]
+then
+  temp_success="0"
+  echo "diamond.py returned with bad status, $retnStat, check output"
+fi
+
+$CANTERA_BIN/csvdiff diamond.csv diamond_blessed.csv > diamond_test.out
+retnStat=$?
+if [ $retnStat = "1" ]
+then
+  echo "successful csv comparison on diamond test"
+  if [ $temp_success = "1" ]
+  then
+    echo "PASSED" > csvCode.txt
+  fi
+else
+  echo "unsuccessful csv comparison on diamond test"
+  echo "FAILED" > csvCode.txt
+  temp_success="0"
+fi
+echo 
+
+#################################################################
+#
+#################################################################
+echo "Testing handling of fractional product stoichiometric coefficients..."
+$PYTHON_CMD frac.py > frac_test.out
+diff -w frac_test.out frac_blessed.out > diff_test.out
+retnStat=$?
+if [ $retnStat = "0" ]
+then
+  echo "successful diff comparison on frac test"
+else
+  echo "unsuccessful diff comparison on frac test"
+  echo "FAILED" > csvCode.txt
+  temp_success="0"
+fi
+echo 
+
+if [ $temp_success = "1" ]
+then
+  echo 'Python csv test PASSED!'
+else
+  echo 'Python csv test FAILED!'
+fi
+
+
+#################################################################
+#
+#################################################################
+

@@ -1,0 +1,113 @@
+#!/bin/sh
+#
+#  This is currently the test base. Meaning that the blessed versions
+#  of all test problems are created from this configuration.
+#
+CANTERA_CONFIG_PREFIX=/home/hkmoffa/arch/linux64_gcc424/cantera-1.8_python252_numpy
+export CANTERA_CONFIG_PREFIX
+
+SET_PYTHON_SITE_PACKAGE_TOPDIR=y
+export SET_PYTHON_SITE_PACKAGE_TOPDIR
+
+PYTHON_SITE_PACKAGE_TOPDIR=$CANTERA_CONFIG_PREFIX
+export PYTHON_SITE_PACKAGE_TOPDIR
+
+PYTHON_CMD=/usr/local/python/2.5.2/bin/python
+export PYTHON_CMD
+
+PYTHON_PACKAGE='full'
+#PYTHON_PACKAGE='minimal'
+export PYTHON_PACKAGE
+
+DEBUG_MODE='y'
+export DEBUG_MODE
+
+WITH_IDEAL_SOLUTIONS="y"
+export WITH_IDEAL_SOLUTIONS
+
+WITH_ELECTROLYTES="y"
+export WITH_ELECTROLYTES
+
+WITH_VCSNONIDEAL="y"
+export WITH_VCSNONIDEAL
+
+BUILD_MATLAB_TOOLBOX="y"
+export BUILD_MATLAB_TOOLBOX
+
+INSTALL_BIN=config/install-sh
+export INSTALL_BIN
+
+MATLAB_CMD="/usr/local/matlab/7.4/x86-64/bin/matlab"
+export MATLAB_CMD
+
+BUILD_F90_INTERFACE="y"
+export BUILD_F90_INTERFACE
+
+NUMARRAY_HOME=''
+export NUMARRAY_HOME
+
+USE_NUMPY='y'
+export USE_NUMPY
+
+NUMPY_INC_DIR="/usr/local/python/2.5.2/lib/python2.5/site-packages/numpy/core/include" 
+export NUMPY_INC_DIR
+
+GRAPHVIZDIR='/home/hkmoffa/arch/linux/bin'
+export GRAPHVIZDIR
+
+#
+#
+USE_NUMERIC="n"
+export USE_NUMERIC
+
+BUILD_WITH_F2C="n"
+export BUILD_WITH_F2C
+
+BITCOMPILE="64"
+export BITCOMPILE
+
+AFLAGS='DEBUG'
+
+#CXX='g++  -m32 -Wa,--32'
+CXX='/home/sntools/extras/compilers/gcc-4.2.4/bin/gcc'
+export CXX
+
+CXX_DEPENDS='/home/sntools/extras/compilers/gcc-4.2.4/bin/g++ -MM'
+export CXX_DEPENDS
+
+
+#CC='gcc  -m32 -Wa,--32'
+CC='/home/sntools/extras/compilers/gcc-4.2.4/bin/gcc'
+export CC
+
+#F77='g77 -m32 -Wa,--32'
+F77='/home/sntools/extras/compilers/gcc-4.2.4/bin/gfortran'
+export F77
+
+CFLAGS="-g -Wall"
+export CFLAGS
+
+CXXFLAGS="-g  -Wall -DDEBUG_HKM -DDEBUG_HKM_EPEQUIL"
+export CXXFLAGS
+
+FFLAGS="-g -DDEBUG_HKM  -fno-second-underscore"
+export FFLAGS
+
+LDFLAGS=' '
+export LDFLAGS
+
+LCXX_END_LIBS="-lgfortran  -lm -lstdc++"
+export LCXX_END_LIBS
+
+EXTRA_LINK=" "
+export EXTRA_LINK
+
+MAKE=gmake
+export MAKE
+
+USE_SUNDIALS='y'
+export USE_SUNDIALS
+SUNDIALS_HOME='/home/hkmoffa/arch/linux64/sundials'
+export SUNDIALS_HOME
+
+./preconfig

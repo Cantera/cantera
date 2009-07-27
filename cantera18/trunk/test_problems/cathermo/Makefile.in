@@ -1,0 +1,122 @@
+#
+# $Revision: 1.18 $
+# $Author: hkmoffa $
+# $Date: 2008/08/23 01:16:43 $
+#
+#
+test_issp=@COMPILE_IDEAL_SOLUTIONS@
+test_electrolytes=@COMPILE_ELECTROLYTES@
+
+all:
+ifeq ($(test_issp),1)
+	cd issp;  @MAKE@ all
+	cd stoichSubSSTP; @MAKE@ all
+endif
+ifeq ($(test_electrolytes),1)
+	cd ims; @MAKE@ all
+	cd testIAPWS; @MAKE@ all
+	cd testIAPWSPres; @MAKE@ all
+	cd testIAPWSTripP; @MAKE@ all
+	cd testWaterPDSS; @MAKE@ all
+	cd testWaterTP; @MAKE@ all
+	cd HMW_graph_GvT; @MAKE@ all
+	cd HMW_graph_GvI; @MAKE@ all
+	cd HMW_graph_HvT; @MAKE@ all
+	cd HMW_graph_CpvT; @MAKE@ all
+	cd HMW_graph_VvT; @MAKE@ all
+	cd HMW_test_1; @MAKE@ all
+	cd HMW_test_3; @MAKE@ all
+	cd DH_graph_1; @MAKE@ all
+	cd DH_graph_acommon; @MAKE@ all
+	cd DH_graph_bdotak; @MAKE@ all
+	cd DH_graph_NM; @MAKE@ all
+	cd DH_graph_Pitzer; @MAKE@ all
+	cd HMW_dupl_test; @MAKE@ all
+	cd VPissp; @MAKE@ all
+endif
+
+test:
+ifeq ($(test_issp),1)
+	cd issp;  @MAKE@ -s test
+	cd stoichSubSSTP; @MAKE@ -s test
+	cd VPissp; @MAKE@ -s test
+endif
+ifeq ($(test_electrolytes),1)
+	cd ims; @MAKE@ -s test
+	cd testIAPWS; @MAKE@ -s test
+	cd testIAPWSPres; @MAKE@ -s test
+	cd testIAPWSTripP; @MAKE@ -s test
+	cd testWaterPDSS; @MAKE@ -s test
+	cd testWaterTP; @MAKE@ -s test
+	cd HMW_graph_GvT; @MAKE@ -s test
+	cd HMW_graph_GvI; @MAKE@ -s test
+	cd HMW_graph_HvT; @MAKE@ -s test
+	cd HMW_graph_CpvT; @MAKE@ -s test
+	cd HMW_graph_VvT; @MAKE@ -s test
+	cd HMW_test_1; @MAKE@ -s test
+	cd HMW_test_3; @MAKE@ -s test
+	cd DH_graph_1; @MAKE@ -s test
+	cd DH_graph_acommon; @MAKE@  -s test
+	cd DH_graph_bdotak; @MAKE@ -s test
+	cd DH_graph_NM; @MAKE@ -s test
+	cd DH_graph_Pitzer; @MAKE@ -s test
+	cd HMW_dupl_test; @MAKE@ -s test
+endif
+#
+# Have to remove .depends before calling make, because
+# the rule for updating .depends is invoked, before the clean rule,
+# if .depends exists in the directory.
+#
+clean:
+	$(RM) *.*~ 
+	cd issp;              $(RM) .depends ; @MAKE@ clean
+	cd stoichSubSSTP;     $(RM) .depends ; @MAKE@ clean
+	cd ims;	              $(RM) .depends ; @MAKE@ clean 
+	cd testIAPWS;         $(RM) .depends ; @MAKE@ clean
+	cd testIAPWSPres;     $(RM) .depends ; @MAKE@ clean
+	cd testIAPWSTripP;    $(RM) .depends ; @MAKE@ clean 
+	cd testWaterPDSS;     $(RM) .depends ; @MAKE@ clean
+	cd testWaterTP;       $(RM) .depends ; @MAKE@ clean
+	cd HMW_graph_GvT;     $(RM) .depends ; @MAKE@ clean
+	cd HMW_graph_GvI;     $(RM) .depends ; @MAKE@ clean
+	cd HMW_graph_HvT;     $(RM) .depends ; @MAKE@ clean
+	cd HMW_graph_CpvT;    $(RM) .depends ; @MAKE@ clean
+	cd HMW_graph_VvT;     $(RM) .depends ; @MAKE@ clean
+	cd HMW_test_1;        $(RM) .depends ; @MAKE@ clean
+	cd HMW_test_3;        $(RM) .depends ; @MAKE@ clean
+	cd DH_graph_1;        $(RM) .depends ; @MAKE@ clean
+	cd DH_graph_acommon;  $(RM) .depends ; @MAKE@ clean
+	cd DH_graph_bdotak;   $(RM) .depends ; @MAKE@ clean
+	cd DH_graph_NM;       $(RM) .depends ; @MAKE@ clean
+	cd DH_graph_Pitzer;   $(RM) .depends ; @MAKE@ clean 
+	cd HMW_dupl_test;     $(RM) .depends ; @MAKE@ clean
+	cd VPissp;            $(RM) .depends ; @MAKE@ clean
+
+depends:
+ifeq ($(test_issp),1)
+	cd issp; @MAKE@ depends
+	cd stoichSubSSTP; @MAKE@ clean
+endif
+ifeq ($(test_electrolytes),1)
+	cd ims; @MAKE@ depends
+	cd testIAPWS; @MAKE@ depends
+	cd testIAPWSPres; @MAKE@ depends
+	cd testIAPWSTripP; @MAKE@ depends
+	cd testWaterPDSS; @MAKE@ depends
+	cd testWaterTP; @MAKE@ depends
+	cd HMW_graph_GvT; @MAKE@ depends
+	cd HMW_graph_GvI; @MAKE@ depends
+	cd HMW_graph_HvT; @MAKE@ depends
+	cd HMW_graph_CpvT; @MAKE@ depends
+	cd HMW_graph_VvT; @MAKE@ depends
+	cd HMW_test_1; @MAKE@ depends
+	cd HMW_test_3; @MAKE@ depends
+	cd DH_graph_1; @MAKE@ depends
+	cd DH_graph_acommon; @MAKE@  depends
+	cd DH_graph_bdotak;  @MAKE@ depends
+	cd DH_graph_NM;      @MAKE@ depends
+	cd DH_graph_Pitzer;  @MAKE@ depends
+	cd HMW_dupl_test;   @MAKE@ depends
+	cd VPissp;          @MAKE@ depends
+
+endif

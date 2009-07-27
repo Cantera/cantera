@@ -1,0 +1,86 @@
+#!/bin/sh
+
+# This Makefile builds a C++ application that uses Cantera.  By
+# default, the main program file is 'demo.cpp,' which prints out some
+# properties of a reacting gas mixture. 
+
+# To build program 'demo', simply type 'make', or 'make -f <this
+# file>' if this file is named something other than 'Makefile.'  
+
+# Once you have verified that the demo runs, edit this file to replace
+# object file 'demo.o' with your own object file or files. 
+
+
+#------------------------  edit this block ---------------------------------
+
+# the name of the executable program to be created
+PROG_NAME = demo
+
+# the object files to be linked together. 
+OBJS = demo.o 
+
+# additional flags to be passed to the linker. If your program
+# requires other external libraries, put them here
+LINK_OPTIONS = @LCXX_FLAGS@ @EXTRA_LINK@
+
+#---------------------------------------------------------------------------
+# You probably don't need to edit anything below.
+
+# the C++ compiler
+CXX = @CXX@
+
+# C++ compile flags
+CXX_FLAGS = @CXXFLAGS@ @CXX_INCLUDES@
+
+# external libraries
+EXT_LIBS = @LOCAL_LIBS@ -lctcxx
+
+# Ending C++ linking libraries
+LCXX_END_LIBS = @LCXX_END_LIBS@
+
+# the directory where the Cantera libraries are located
+CANTERA_LIBDIR=@ct_libdir@
+
+# the directory where Cantera include files may be found.
+CANTERA_INCDIR=@ct_incroot@
+
+# flags passed to the C++ compiler/linker for the linking step
+LCXXFLAGS = -L$(CANTERA_LIBDIR) @LOCAL_LIB_DIRS@ @CXXFLAGS@
+
+# how to compile C++ source files to object files
+.@CXX_EXT@.@OBJ_EXT@:
+	$(CXX) -c $< -I$(CANTERA_INCDIR) $(CXX_FLAGS)
+
+PROGRAM = $(PROG_NAME)$(EXE_EXT)
+
+DEPENDS = $(OBJS:.o=.d)
+
+all: $(PROGRAM)
+
+$(PROGRAM): $(OBJS)
+	$(CXX) -o $(PROGRAM) $(OBJS) $(LCXXFLAGS)\
+        $(CANTERA_LIBS) $(LINK_OPTIONS) $(EXT_LIBS) \
+         @LIBS@ $(LCXX_END_LIBS)
+
+%.d:
+	g++ -MM -I$(CANTERA_INCDIR) $*.cpp > $*.d
+
+clean:
+	$(RM) $(OBJS) $(PROGRAM)
+
+depends: $(DEPENDS)
+	cat *.d > .depends
+	$(RM) $(DEPENDS) 
+
+TAGS: 
+	etags *.h *.cpp
+
+ifeq ($(wildcard .depends), .depends)
+include .depends
+endif
+
+
+
+
+
+

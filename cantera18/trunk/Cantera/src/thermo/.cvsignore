@@ -1,0 +1,11 @@
+*.d
+.depends
+Makefile
+SunWS_cache
+PDSS_Refactor.txt
+ TODO.txt
+WaterEps.cpp
+WaterEps.h
+.*swp
+CMakeFiles
+cmake_install.cmake

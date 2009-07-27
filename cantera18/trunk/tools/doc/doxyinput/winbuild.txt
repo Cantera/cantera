@@ -1,0 +1,12 @@
+/**
+
+\page cantera-winbuild Building Cantera using Visual Studio .NET
+
+This document describes how to build %Cantera 1.7 using Visual Studio .Net
+2003.
+
+http://downloads.sourceforge.net/cantera/cantera17-vc7.pdf?use_mirror=easynews
+
+\section ctbuild-sysreq System Requirements
+
+*/

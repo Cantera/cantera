@@ -1,0 +1,15 @@
+.cttmp.py
+Makefile
+flame1.csv
+diamond.csv
+diamond.out
+diff_test.out
+flame1_test.out
+flame1.out
+diamond_test.out
+frac_test.out
+*.xml
+*.txt
+*.log
+flame1_blessed_tmp.csv
+.ctt*

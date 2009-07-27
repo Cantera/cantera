@@ -1,0 +1,141 @@
+#!/bin/sh
+#
+#  Sierra 64 bit setup:
+#  -xO4 -xtarget=native64 -xarch=native64 -xcode=pic32 -DSUN10 -library=stlport4 
+# 
+#  Sierra warnings setup:
+#  +w2 -errtags -erroff=doubunder,reftotemp,ppextraw,inllargeint,inllargeuse,wnoelseretvalue,truncwarn,diffenumtype,notused,wvarhid enmem,badcastw,hidef -errwarn=%all,no%wunreachable,no%partinit 
+#
+#  Notes:
+#    When you add flsgs with % in them python won't build, because there is an
+#    error in the python distutils routines. I am currently manually
+#    fixing these.
+#
+# Program Names:
+#
+MAKE=gmake
+export MAKE
+
+#
+# Pointers to the 64 bit python built with Sunpro compilers
+PYTHON_DIR=/home/hkmoffa/arch/sol_py64
+export PYTHON_DIR
+PYTHON_CMD=/home/hkmoffa/arch/sol_py64/bin/python
+export PYTHON_CMD
+
+#
+# Use the CC compiler for C++ code
+CXX=CC
+export CXX
+#
+# Specification of the c compiler
+#
+CC=cc
+export CC
+
+CXX_DEPENDS='CC -xM1'
+export CXX_DEPENDS
+
+USE_NUMERIC='n'
+export USE_NUMERIC
+
+#
+#  HKM 7/22/09
+#  The matlab option is currently not working. Matlab uses the gcc
+#  compiler. This setup uses the solaris compiler. I can get
+#  the matlab extensions to compile. But, when I run matlab
+#  I get an unsatisfied external
+#   When I add the commands:
+#      -l/opt/SUNWspro/lib/f9 -lCrun -lCstd -lfsu 
+#   to the matlab build, I can get rid of the runtime unsatisfied
+#   external. However, I immediate crash dump matlab. This
+#   suggests that there are duplicate Cstd routines from gcc and
+#   from the solaris compilers fighting it out.
+#      I believe the solution will involve compiling everything
+#   with gcc in order to get matlab on solaris to work. 
+#
+BUILD_MATLAB_TOOLBOX="n"
+export BUILD_MATLAB_TOOLBOX
+
+DEBUG_MODE="y"
+export DEBUG_MODE
+
+#
+# Compiler Flags
+#
+BITCOMPILE="64"
+export BITCOMPILE
+#
+#  remember the issue with % and python
+#
+EFLAGS=" +w2 -errtags -erroff=doubunder,reftotemp,ppextraw,inllargeint,inllargeuse,wnoelseretvalue,truncwarn,diffenumtype,notused,wvarhidenmem,badcastw,hidef -errwarn=%all,no%wunreachable,no%partinit" 
+#AFLAGS=" -xtarget=native64 -xarch=native64 -xcode=pic32 -library=stlport4"
+AFLAGS=" -xtarget=native64 -xarch=native64 -xcode=pic32"
+export AFLAGS
+
+F77=f77
+export F77
+
+F90=f95
+export F90
+
+FFLAGS="-O -xtarget=native64 -xarch=native64 -xcode=pic32 "
+export FFLAGS
+
+CFLAGS="-O -xtarget=native64 -xarch=native64 -xcode=pic32 -v "
+export CFLAGS
+
+CXXFLAGS="-O $AFLAGS $EFLAGS -DDEBUG_HKM" 
+export CXXFLAGS
+
+LCXX_END_LIBS="-lm "
+export LCXX_END_LIBS
+
+# other useful endlibs for solaris 64 bit are
+#  -mt -lsunmath -lfsu
+
+USE_SUNDIALS='n'
+export USE_SUNDIALS
+
+WITH_VCSNONIDEAL='y'
+export WITH_VCSNONIDEAL
+
+#
+# Location Variables - set the directory to point to 
+#                      a 64-bit specific directory.
+#
+CANTERA_INSTALL_DIR=/home/hkmoffa/arch/sol_py64/cantera-1.8
+export CANTERA_INSTALL_DIR
+
+CANTERA_CONFIG_PREFIX=/home/hkmoffa/arch/sol_py64/cantera-1.8
+export CANTERA_CONFIG_PREFIX
+
+#CANTERA_PYTHON_HOME=${CANTERA_PYTHON_HOME:="$HOME/python_modules"}
+#export CANTERA_PYTHON_HOME
+
+SET_PYTHON_SITE_PACKAGE_TOPDIR="y"
+export SET_PYTHON_SITE_PACKAGE_TOPDIR
+
+PYTHON_SITE_PACKAGE_TOPDIR="/home/hkmoffa/arch/sol_py64/cantera-1.8"
+export PYTHON_SITE_PACKAGE_TOPDIR
+
+PYTHON_PACKAGE="full"
+#PYTHON_PACKAGE="minimal"
+#PYTHON_PACKAGE="none"
+export PYTHON_PACKAGE
+
+BUILD_WITH_F2C="n"
+export BUILD_WITH_F2C
+
+# 
+# Archive commands
+#
+ARCHIVE="CC -xar -xcode=pic32 -o "
+export ARCHIVE
+
+
+#
+# Invoke the regular configure script 
+#
+./preconfig
+

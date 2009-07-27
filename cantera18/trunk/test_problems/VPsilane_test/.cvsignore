@@ -1,0 +1,13 @@
+Makefile
+diff_test.out
+output.txt
+silane_equil
+csvCode.txt
+*.d
+.depends
+outputa.txt
+silane_equil.ilk
+silane_equil.pdb
+SunWS_cache
+VPsilane_test
+runtest

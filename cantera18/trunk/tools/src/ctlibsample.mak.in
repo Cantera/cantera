@@ -1,0 +1,82 @@
+#!/bin/sh
+
+############################################################################
+#
+#  Makefile to compile and link a Fortran application to CtLib.
+#
+#############################################################################
+
+# the name of the executable program to be created
+PROG_NAME = __PROGRAM__
+
+# the object files to be linked together. List those generated from Fortran
+# and from C/C++ separately
+OBJS = __OBJS__
+
+# additional flags to be passed to the linker. If your program
+# requires other external libraries, put them here
+LINK_OPTIONS = 
+
+# if your program also calls Chemkin,  set this to be the command-line 
+# string to link to CKLIB.
+#CHEMKIN_LIB = -lchemkin
+#CHEMKIN_LIB = cklib.o
+CHEMKIN_LIB =
+
+# other external libraries that might be needed
+EXT_LIBS = -lcvode -lrecipes @LAPACK_LIBRARY@ @BLAS_LIBRARY@ 
+
+#############################################################################
+
+# the Fortran compiler
+FORT = @F77@
+
+# Fortran compile flags  
+FORT_FLAGS = @FFLAGS@ 
+
+# Fortran libraries 
+FORT_LIBS = @FLIBS@
+
+# the C++ compiler
+CXX = @CXX@
+
+# C++ compile flags
+CXX_FLAGS = @CXXFLAGS@
+
+
+#------  you probably don't have to change anything below this line -----
+
+
+# the directory where the Cantera libraries are located
+CANTERA_LIBDIR=@CANTERA_LIBDIR@
+
+# required Cantera libraries
+CANTERA_LIBS =  -lct -lcantera -lckreader
+
+# the directory where Cantera include files may be found.
+CANTERA_INCDIR=@CANTERA_INCDIR@
+
+# flags passed to the C++ compiler/linker for the linking step
+LCXX_FLAGS = -L$(CANTERA_LIBDIR) @LOCAL_LIB_DIRS@ @CXXFLAGS@
+
+# how to compile C++ source files to object files
+.@CXX_EXT@.@OBJ_EXT@:
+	$(CXX) -c $< -I$(CANTERA_INCDIR) $(CXX_FLAGS)
+
+# how to compile Fortran source files to object files
+.@F77_EXT@.@OBJ_EXT@:
+	$(FORT) -c $< $(FORT_FLAGS)
+
+all: $(PROG_NAME)
+
+$(PROG_NAME): $(OBJS)
+	$(CXX) -o $(PROG_NAME) $(OBJS) $(LCXX_FLAGS) $(CANTERA_LIBS) $(LINK_OPTIONS) $(CHEMKIN_LIB) $(EXT_LIBS) @LIBS@ $(FORT_LIBS)
+
+clean:
+	$(RM) $(OBJS) $(PROGRAM)
+
+
+
+
+
+

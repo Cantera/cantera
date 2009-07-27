@@ -1,0 +1,144 @@
+#######################################################################
+# Include Snipet for Makefiles
+#
+#    To create Cantera C++ applications from the install environment
+#    include this file into your Makefile environment
+#
+#  Main Variables:
+# 
+#      CANTERA_INCLUDES = Variable containing the include path
+#
+#
+#      CANTERA_LIBS = List of libraries to include on the link line
+#
+#      CANTERA_LIBS_DEP = dependency line for Cantera libs
+# 
+#
+#####################################################################
+# $Id: Cantera.mak.in,v 1.5 2009/01/09 23:26:41 hkmoffa Exp $
+#
+#
+# This variable determines whether we are making this example in the
+# build tree environment or in the install tree environment.
+#
+in_CanteraBuildTree = 0
+
+###############################################################################
+#        CANTERA CORE 
+###############################################################################
+#
+# The directory where Cantera include files may be found.
+#  Include files in application programs should start with:
+#     #include "cantera/thermo.h"
+#     #include "cantera/kernel/HMWSoln.h"
+#
+CANTERA_INCROOTDIR= @ct_incroot@
+
+CANTERA_CORE_INCLUDES=-I$(CANTERA_INCROOTDIR)
+#
+# Library location
+#
+CANTERA_LIBSDIR= @ct_libdir@
+
+#
+# Required Cantera libraries
+#
+CANTERA_CORE_LIBS= -L$(CANTERA_LIBSDIR) @CANTERA_CORE_LIBS@ -lctcxx
+
+#
+# Cantera Core Lib Dependencies
+#
+CANTERA_CORE_LIBS_DEP= @CANTERA_CORE_LIBS_DEP@ $(CANTERA_LIBSDIR)/libctcxx.a
+
+#####################################################################
+#            BOOST
+####################################################################
+#
+# Cantera Boost Include
+#
+CANTERA_BOOST_INCLUDES= @BOOST_INCLUDE@
+#
+# Location of the boost library that Cantera linked against
+#
+CANTERA_BOOST_LIB_DIR= @BOOST_LIB_DIR@
+#
+# Linkage extras for linking against boost
+#
+ifeq ($(CANTERA_BOOST_LIB_DIR),"")
+CANTERA_BOOST_LIBS=
+else
+CANTERA_BOOST_LIBS= -L$(CANTERA_BOOST_LIB_DIR) -l@BOOST_LIB@
+endif
+
+#####################################################################
+#         CVODE/SUNDIALS LINKAGE
+####################################################################
+#
+CANTERA_use_sundials = @use_sundials@
+#
+# Includes for Sundials - none for cvode
+#
+CANTERA_CVODE_INCLUDE=@sundials_include@
+CANTERA_SUNDIALS_LIB_DIR=@sundials_lib_dir@
+#
+# Link line for cvode and sundials
+#
+ifeq ($(CANTERA_use_sundials), 1)
+CANTERA_CVODE_LIBS=-L$(CANTERA_SUNDIALS_LIB_DIR) @CVODE_LIBS@
+CANTERA_CVODE_LIBS_DEP=@sundials_lib_dep@
+else
+CANTERA_CVODE_LIBS= -L$(CANTERA_LIBSDIR) -lcvode
+CANTERA_CVODE_LIBS_DEP=$(CANTERA_LIBSDIR)/libcvode.a
+endif
+#
+#######################################################################
+#         BLAS LAPACK LINKAGE
+#######################################################################
+#
+CANTERA_build_lapack= @build_lapack@
+CANTERA_build_blas= @build_blas@
+
+CANTERA_BLAS_LAPACK_DIR= @ct_libdir@
+
+CANTERA_BLAS_LAPACK_LIBS = -L$(CANTERA_BLAS_LAPACK_DIR) @BLAS_LAPACK_LIBS@
+CANTERA_BLAS_LAPACK_LIBS_DEP=
+#
+#######################################################################
+#        CANTERA's F2C Linkage
+#######################################################################
+#
+CANTERA_build_with_f2c= @build_with_f2c@
+CANTERA_build_f2c_lib= @build_f2c_lib@
+
+ifeq ($(CANTERA_build_f2c_lib), 1) 
+CANTERA_F2C_LIBS= -L$(CANTERA_LIBSDIR) -lctf2c
+else
+CANTERA_F2C_LIBS= @F2C_SYSTEMLIB@
+endif
+#
+#####################################################################
+#      COMBINATIONS OF INCLUDES AND LIBS
+####################################################################
+#
+CANTERA_TOTAL_INCLUDES= $(CANTERA_CORE_INCLUDES) $(CANTERA_BOOST_INCLUDES) $(CANTERA_CVODE_INCLUDE)
+#
+# LIBS and LIBS should be the same ...
+#
+CANTERA_TOTAL_LIBS2 =  -L$(CANTERA_LIBSDIR)  @LOCAL_LIBS@
+#
+CANTERA_TOTAL_LIBS= $(CANTERA_CORE_LIBS) $(CANTERA_BOOST_LIBS) \
+                    $(CANTERA_CVODE_LIBS) $(CANTERA_BLAS_LAPACK_LIBS) \
+                    $(CANTERA_F2C_LIBS)
+#
+CANTERA_TOTAL_LIBS_DEP= $(CANTERA_CORE_LIBS_DEP) \
+                        $(CANTERA_CVODE_LIBS_DEP) \
+                        $(CANTERA_BLAS_LAPACK_LIBS_DEP)
+#
+#
+# Dependency Line
+#
+CANTERA_LIBS_DEP= @INSTALL_LIBS_DEP@ $(CANTERA_LIBDIR)/libctcxx.a
+#
+#####################################################################
+#  END
+####################################################################

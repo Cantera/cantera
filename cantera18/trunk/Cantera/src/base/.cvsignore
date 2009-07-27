@@ -1,0 +1,5 @@
+*.d
+Makefile
+.depends
+CMakeFiles
+cmake_install.cmake

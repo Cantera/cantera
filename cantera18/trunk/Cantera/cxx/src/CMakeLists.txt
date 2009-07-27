@@ -1,0 +1,6 @@
+SET ( CXX_SRCS importPhase.cpp )
+
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR})
+INCLUDE_DIRECTORIES (${PROJECT_BINARY_DIR}/build/include/cantera/kernel)
+
+ADD_LIBRARY (ctcxx ${CXX_SRCS})
