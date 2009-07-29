@@ -18,13 +18,17 @@ To enable subversion commands through a firewall:
 
 If your computer is behind a firewall that supports a proxy server for http traffic on port 80, you will have to edit your .subversion/servers file to get svn communications through the firewall. For example these entries are currently needed at Sandia:
 
-[groups]
+\[groups\]
+
 googlec = *.googlecode.com
 
-[googlec]
-   http-proxy-host = wwwproxy.sandia.gov \
+\[googlec\]
+   http-proxy-host = wwwproxy.sandia.gov 
+
    http-proxy-port = 80
+
    http-timeout = 60
+
    neon-debug-mask = 0
 
 More information about svn and proxy servers is included within the .subversions subdirectory.
