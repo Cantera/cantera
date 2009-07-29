@@ -1,8 +1,0 @@
-.depends
-ISSPTester
-ISSPTester.d
-Makefile
-csvCode.txt
-diff_test.out
-output.txt
-outputa.txt

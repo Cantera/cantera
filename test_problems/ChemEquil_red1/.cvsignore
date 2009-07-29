@@ -1,7 +1,0 @@
-basopt_red1
-Makefile
-output.txt
-csvCode.txt
-diff_test.out
-.depends
-*.d
