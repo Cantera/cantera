@@ -1,9 +1,0 @@
-outputa.txt      
-output.txt 
-transport_log.xml
-diff_test.out
-csvCode.txt
-*.d
-mixGasTransport
-.depends
-Makefile

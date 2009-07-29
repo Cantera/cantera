@@ -1,8 +1,0 @@
-Makefile
-output.txt
-diff_test.out
-gri_pairs
-outputa.txt
-csvCode.txt
-.depends
-*.d
