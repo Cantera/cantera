@@ -5,7 +5,7 @@
 
 Anonymous, read-only source checkout:
 
-   svn  checkout  http://cantera.googlecode.com/svn/local/trunk  cantera-read-only
+   svn  checkout  http://cantera.googlecode.com/svn/cantera18/trunk/  cantera-read-only
 
 Developers, please keep reading!
 
@@ -13,6 +13,21 @@ How to use subversion to access code at Google.
 
     * Google-code info
     * Subversion 
+
+To enable subversion commands through a firewall:
+
+If your computer is behind a firewall that supports a proxy server for http traffic on port 80, you will have to edit your .subversion/servers file to get svn communications through the firewall. For example these entries are currently needed at Sandia:
+
+[groups]
+googlec = *.googlecode.com
+
+[googlec]
+http-proxy-host = wwwproxy.sandia.gov
+http-proxy-port = 80
+http-timeout = 60
+neon-debug-mask = 0
+
+More information about svn and proxy servers is included within the .subversions subdirectory.
 
 Details
 
@@ -28,11 +43,12 @@ and put these lines into the auto-props section that should be immediately follo
 
   `*`.h = svn:eol-style=native;svn:keywords=Id 
 
+
 If you don't have the above settings then when you add a new file it will not have the keywords property set which will show up as the $Id$ not being expanded into version information. To fix this, there is a special target in the top level Makefile that will go through the tree and attach the property to all source files (that don't have it set). We only want this to happen for source (and perhaps select other) files since the automatic expansion is dangerous.
 
 To checkout cantera
 
-  svn checkout https://cantera.googlecode.com/svn/local/trunk --username USERNAME
+  svn checkout https://cantera.googlecode.com/svn/cantera18/trunk/ --username USERNAME
 
 where you will replace USERNAME with your username. The first time, you will be prompted for your personal googlecode.com password which you can find by going to your profile at http://code.google.com/u/USERNAME and clicking on the settings tab.
 
@@ -63,4 +79,3 @@ To schedule a file(s) for deletion from the repository::
 To un-schedule changes and revert to the repository state::
 
   svn revert filename
-
