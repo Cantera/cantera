@@ -111,7 +111,7 @@ $(PROGRAM): $(OBJS) $(LIB_DEPS)
 
 
 clean:
-	$(RM) $(OBJS) $(PROGRAM) $(DEPENDS) .depends
+	$(RM) $(OBJS) $(PROGRAM) $(DEPENDS) .depends *~
 	(if test -d SunWS_cache ; then \
            $(RM) -rf SunWS_cache ; \
          fi )
