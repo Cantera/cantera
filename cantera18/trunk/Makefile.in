@@ -247,7 +247,7 @@ uninstall:
 	cd tools; @MAKE@ uninstall
 
 clean:
-	-$(RMDIRTREE) *.*~ @buildlib@/*.* build/include/cantera/config.h
+	-$(RMDIRTREE) *.*~ @buildlib@/*.* build/include/cantera/config.h svn*~
 	-cd Cantera; @MAKE@ clean
 	-cd tools; @MAKE@ clean
 	-cd ext; @MAKE@ clean
