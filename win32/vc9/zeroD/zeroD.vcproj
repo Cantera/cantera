@@ -81,7 +81,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="copying include files to the cantera/kernel directory"
-				CommandLine="cmd \c docopy.cmd &gt; status "
+				CommandLine="cmd /c docopy.cmd &gt; status &#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -146,7 +146,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="copying include files to the cantera/kernel directory"
-				CommandLine="cmd \c docopy.cmd &gt; status "
+				CommandLine="cmd /c docopy.cmd &gt; status &#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -214,7 +214,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="copying include files to the cantera/kernel directory"
-				CommandLine="cmd \c docopy.cmd &gt; status "
+				CommandLine="cmd /c docopy.cmd &gt; status &#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>
