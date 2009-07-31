@@ -297,12 +297,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_33C02FE633494C5387D48BF0BD872E6F"
-        "OwnerKey" = "8:_9E6DB6F72473492E9981185A7086059B"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_36A741C5BB6F4DAF9C92BE8E0ECC9E07"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -693,12 +687,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_75E621DA4DC84B4FA43FBD65AB69ED66"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_7690C7560DEF4C399EB334AE44C55F86"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -863,12 +851,6 @@
         {
         "MsmKey" = "8:_91EB3AD25866499786C94A988E834A4C"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_92FE6989AED747F6A31F694D75C4061E"
-        "OwnerKey" = "8:_33C02FE633494C5387D48BF0BD872E6F"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -1113,12 +1095,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_B482C242C0C149A9B6740B75D8F2A3A6"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_B5B2EA612ADB4D75940C203F81F1A5F7"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1199,6 +1175,12 @@
         {
         "MsmKey" = "8:_BDE33C9C48D84441AC9522276AEC6CCC"
         "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_BEECD019506F46739F8BAF2C337931DA"
+        "OwnerKey" = "8:_DC49B93D011840AFA7E47FA1CAB0E9FF"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -1349,6 +1331,12 @@
         {
         "MsmKey" = "8:_DC43EA075832494F853635AB8D5280E2"
         "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_DC49B93D011840AFA7E47FA1CAB0E9FF"
+        "OwnerKey" = "8:_9E6DB6F72473492E9981185A7086059B"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -1534,6 +1522,12 @@
         "Entry"
         {
         "MsmKey" = "8:_FE2A60C8EA6D4EB281D59D67DE8B0F1D"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_FE418F86FCC04889A02ADEB745D63670"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -3781,26 +3775,6 @@
             {
             "SourcePath" = "8:..\\..\\..\\build\\include\\cantera\\kernel\\polyfit.h"
             "TargetName" = "8:polyfit.h"
-            "Tag" = "8:"
-            "Folder" = "8:_25D6250BD5C54EAA96A425D305D996FC"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_75E621DA4DC84B4FA43FBD65AB69ED66"
-            {
-            "SourcePath" = "8:..\\..\\..\\build\\include\\cantera\\kernel\\CVode.h"
-            "TargetName" = "8:CVode.h"
             "Tag" = "8:"
             "Folder" = "8:_25D6250BD5C54EAA96A425D305D996FC"
             "Condition" = "8:"
@@ -6337,6 +6311,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FE418F86FCC04889A02ADEB745D63670"
+            {
+            "SourcePath" = "8:..\\..\\..\\Cantera\\src\\numerics\\CVodeInt.h"
+            "TargetName" = "8:CVodeInt.h"
+            "Tag" = "8:"
+            "Folder" = "8:_25D6250BD5C54EAA96A425D305D996FC"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FFFD8EA6EDCE4FA1AD026FDC36CBF0F5"
             {
             "SourcePath" = "8:..\\..\\..\\build\\include\\cantera\\kernel\\MolalityVPSSTP.h"
@@ -6920,7 +6914,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:CanteraDebug"
         "ProductCode" = "8:{0AC16DDB-FA0B-408E-9AC3-6DCB01319470}"
-        "PackageCode" = "8:{E47CF265-8D2B-4651-B174-D9593257AA96}"
+        "PackageCode" = "8:{70B68C4B-9596-4176-BAA3-38C2F82788C3}"
         "UpgradeCode" = "8:{5F38EC85-F90E-41A1-86AC-252681A8B761}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
@@ -7435,11 +7429,11 @@
         }
         "MergeModule"
         {
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_33C02FE633494C5387D48BF0BD872E6F"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_BEECD019506F46739F8BAF2C337931DA"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:policy_9_0_Microsoft_VC90_DebugCRT_x86.msm"
+            "SourcePath" = "8:microsoft_vc90_debugcrt_x86.msm"
                 "Properties"
                 {
                 }
@@ -7449,11 +7443,11 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_92FE6989AED747F6A31F694D75C4061E"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_DC49B93D011840AFA7E47FA1CAB0E9FF"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:microsoft_vc90_debugcrt_x86.msm"
+            "SourcePath" = "8:policy_9_0_Microsoft_VC90_DebugCRT_x86.msm"
                 "Properties"
                 {
                 }
@@ -7468,7 +7462,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_03AD241CF2AE4CABAEA018EF343320D4"
             {
-            "SourcePath" = "8:..\\..\\..\\build\\lib\\i686-pc-win32\\oneD.lib"
+            "SourcePath" = "8:..\\..\\..\\build\\lib\\i686-pc-win32\\oneD_d.lib"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_E29941E7E79A449BA0F7360E5C66EA59"
@@ -7580,7 +7574,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_2A9E757A274545A28F0D13A66E72667D"
             {
-            "SourcePath" = "8:..\\..\\..\\build\\lib\\i686-pc-win32\\numerics.lib"
+            "SourcePath" = "8:..\\..\\..\\build\\lib\\i686-pc-win32\\numerics_d.lib"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_E29941E7E79A449BA0F7360E5C66EA59"
@@ -7608,7 +7602,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_32150CD21ABB4D598AD8261BFA220B57"
             {
-            "SourcePath" = "8:..\\..\\..\\build\\lib\\i686-pc-win32\\ctf2c.lib"
+            "SourcePath" = "8:..\\..\\..\\build\\lib\\i686-pc-win32\\ctf2c_d.lib"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_E29941E7E79A449BA0F7360E5C66EA59"
@@ -7776,7 +7770,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_6AAEFBB05C9B44A491E68C51C238845B"
             {
-            "SourcePath" = "8:..\\..\\..\\build\\lib\\i686-pc-win32\\ctblas.lib"
+            "SourcePath" = "8:..\\..\\..\\build\\lib\\i686-pc-win32\\ctblas_d.lib"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_E29941E7E79A449BA0F7360E5C66EA59"
@@ -7804,7 +7798,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_6B378751D34949348EE4913E69C4AB5A"
             {
-            "SourcePath" = "8:..\\..\\..\\build\\lib\\i686-pc-win32\\kinetics.lib"
+            "SourcePath" = "8:..\\..\\..\\build\\lib\\i686-pc-win32\\kinetics_d.lib"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_E29941E7E79A449BA0F7360E5C66EA59"
@@ -7860,7 +7854,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_72FF1156DAD9443EBF57780DD602A5D4"
             {
-            "SourcePath" = "8:..\\..\\..\\build\\lib\\i686-pc-win32\\SUNDIALS_SHARED.lib"
+            "SourcePath" = "8:..\\..\\..\\build\\lib\\i686-pc-win32\\SUNDIALS_SHARED_d.lib"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_E29941E7E79A449BA0F7360E5C66EA59"
@@ -7888,7 +7882,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_7690C7560DEF4C399EB334AE44C55F86"
             {
-            "SourcePath" = "8:..\\..\\..\\build\\lib\\i686-pc-win32\\converters.lib"
+            "SourcePath" = "8:..\\..\\..\\build\\lib\\i686-pc-win32\\converters_d.lib"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_E29941E7E79A449BA0F7360E5C66EA59"
@@ -7916,7 +7910,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_7A5425686CD1478C8EDABA757E257C6D"
             {
-            "SourcePath" = "8:..\\..\\..\\build\\lib\\i686-pc-win32\\NVEC_SER.lib"
+            "SourcePath" = "8:..\\..\\..\\build\\lib\\i686-pc-win32\\NVEC_SER_d.lib"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_E29941E7E79A449BA0F7360E5C66EA59"
@@ -7972,7 +7966,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_933AB93386644CC6B9672F679E1EF61F"
             {
-            "SourcePath" = "8:..\\..\\..\\build\\lib\\i686-pc-win32\\transport.lib"
+            "SourcePath" = "8:..\\..\\..\\build\\lib\\i686-pc-win32\\transport_d.lib"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_E29941E7E79A449BA0F7360E5C66EA59"
@@ -8056,7 +8050,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_9CF11C75C6E04B898E56736723D03BB1"
             {
-            "SourcePath" = "8:..\\..\\..\\build\\lib\\i686-pc-win32\\ctmath.lib"
+            "SourcePath" = "8:..\\..\\..\\build\\lib\\i686-pc-win32\\ctmath_d.lib"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_E29941E7E79A449BA0F7360E5C66EA59"
@@ -8084,7 +8078,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_9E6DB6F72473492E9981185A7086059B"
             {
-            "SourcePath" = "8:..\\..\\..\\build\\bin\\i686-pc-win32\\ck2cti.exe"
+            "SourcePath" = "8:..\\..\\..\\build\\bin\\i686-pc-win32\\ck2cti_d.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_39366AF5E69E41ECBA0D0ED042C779B7"
@@ -8112,7 +8106,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_A98DEA32678841B0A785D0A9AACA472F"
             {
-            "SourcePath" = "8:..\\..\\..\\build\\lib\\i686-pc-win32\\zeroD.lib"
+            "SourcePath" = "8:..\\..\\..\\build\\lib\\i686-pc-win32\\zeroD_d.lib"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_E29941E7E79A449BA0F7360E5C66EA59"
@@ -8133,34 +8127,6 @@
             "OutputConfiguration" = "8:"
             "OutputGroupCanonicalName" = "8:Built"
             "OutputProjectGuid" = "8:{9F1F6CE5-F388-4002-AD06-E1E0DB90CABD}"
-            "ShowKeyOutput" = "11:TRUE"
-                "ExcludeFilters"
-                {
-                }
-            }
-            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_B482C242C0C149A9B6740B75D8F2A3A6"
-            {
-            "SourcePath" = "8:..\\..\\..\\build\\lib\\i686-pc-win32\\equil.lib"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_E29941E7E79A449BA0F7360E5C66EA59"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            "ProjectOutputGroupRegister" = "3:1"
-            "OutputConfiguration" = "8:"
-            "OutputGroupCanonicalName" = "8:Built"
-            "OutputProjectGuid" = "8:{5B4B5866-2B50-4E34-9F00-B5C12677B4B5}"
             "ShowKeyOutput" = "11:TRUE"
                 "ExcludeFilters"
                 {
@@ -8196,7 +8162,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_BAA831AA40C947559AAC25E133D950C2"
             {
-            "SourcePath" = "8:..\\..\\..\\build\\lib\\i686-pc-win32\\base.lib"
+            "SourcePath" = "8:..\\..\\..\\build\\lib\\i686-pc-win32\\base_d.lib"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_E29941E7E79A449BA0F7360E5C66EA59"
@@ -8224,7 +8190,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_C40A327FD93340F3BADAE25F052A02A6"
             {
-            "SourcePath" = "8:..\\..\\..\\build\\lib\\i686-pc-win32\\equil.lib"
+            "SourcePath" = "8:..\\..\\..\\build\\lib\\i686-pc-win32\\equil_d.lib"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_E29941E7E79A449BA0F7360E5C66EA59"
@@ -8252,7 +8218,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_C9DA4EB11D614E72B124B73E0F04F2BC"
             {
-            "SourcePath" = "8:..\\..\\..\\build\\lib\\i686-pc-win32\\thermo.lib"
+            "SourcePath" = "8:..\\..\\..\\build\\lib\\i686-pc-win32\\thermo_d.lib"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_E29941E7E79A449BA0F7360E5C66EA59"
@@ -8280,7 +8246,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_DC892F14E81145969BF596383AEE0812"
             {
-            "SourcePath" = "8:..\\..\\..\\build\\lib\\i686-pc-win32\\ctlapack.lib"
+            "SourcePath" = "8:..\\..\\..\\build\\lib\\i686-pc-win32\\ctlapack_d.lib"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_E29941E7E79A449BA0F7360E5C66EA59"
@@ -8308,7 +8274,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_E48715EB23DF4536B5F49362E8D3B4C0"
             {
-            "SourcePath" = "8:..\\..\\..\\build\\lib\\i686-pc-win32\\CVODES.lib"
+            "SourcePath" = "8:..\\..\\..\\build\\lib\\i686-pc-win32\\CVODES_d.lib"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_E29941E7E79A449BA0F7360E5C66EA59"
@@ -8392,7 +8358,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_FE2A60C8EA6D4EB281D59D67DE8B0F1D"
             {
-            "SourcePath" = "8:..\\..\\..\\build\\lib\\i686-pc-win32\\tpx.lib"
+            "SourcePath" = "8:..\\..\\..\\build\\lib\\i686-pc-win32\\tpx_d.lib"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_E29941E7E79A449BA0F7360E5C66EA59"
