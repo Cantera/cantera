@@ -94,14 +94,8 @@ VCS_SPECIES_THERMO::VCS_SPECIES_THERMO(const VCS_SPECIES_THERMO& b) :
   UseCanteraCalls(b.UseCanteraCalls),
   m_VCS_UnitsFormat(b.m_VCS_UnitsFormat)
 {
-
-  switch (SS0_Model) {
- 
-  default:
     
-    SS0_Params = 0;
-    break;
-  }
+   SS0_Params = 0;
 }
 
 /*****************************************************************************
