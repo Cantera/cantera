@@ -316,7 +316,7 @@ extern "C" {
     int DLL_EXPORT phase_getSpeciesName(int n, int k, int lennm, char* nm) {
         try {
             string spnm = ph(n)->speciesName(k);
-            int lout = min(lennm,spnm.size());
+            int lout = min(lennm, (int) spnm.size());
             copy(spnm.c_str(), spnm.c_str() + lout, nm);
             nm[lout] = '\0';
             return 0;
@@ -328,7 +328,7 @@ extern "C" {
     int DLL_EXPORT phase_getElementName(int n, int m, int lennm, char* nm) {
         try {
             string elnm = ph(n)->elementName(m);
-            int lout = min(lennm,elnm.size());
+            int lout = min(lennm, (int) elnm.size());
             copy(elnm.c_str(), elnm.c_str() + lout, nm);
             nm[lout] = '\0';
             return 0;
@@ -1015,7 +1015,7 @@ extern "C" {
         try {
             Kinetics* k = kin(n);
             string r = k->reactionString(i);
-            int lout = min(len,r.size());
+            int lout = min(len, (int)r.size());
             copy(r.c_str(), r.c_str() + lout, buf);
             buf[lout] = '\0';
             return 0;
