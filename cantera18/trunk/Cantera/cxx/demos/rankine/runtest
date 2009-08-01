@@ -2,7 +2,7 @@
 #
 #
 temp_success="1"
-/bin/rm  -f output_0.txt    diff_csv.txt diff_out_0.txt
+/bin/rm  -f output_0.txt  diff_csv.txt diff_out_0.txt output.txt output_a.txt
 
 ##########################################################################
 
@@ -28,7 +28,10 @@ then
   echo "$prog returned with bad status, $retnStat, check output"
 fi
 
-diff -w output_0_blessed.txt output_0.txt > diff_out_0.txt
+${CANTERA_BIN}/exp3to2.sh output_0.txt > output_a.txt
+cat output_a.txt | sed /'press any key'/d > output.txt
+
+diff -w output_0_blessed.txt output.txt > diff_out_0.txt
 retnStat_0=$?
 
 
