@@ -23,7 +23,7 @@ INSTALL_TSC = bin/install_tsc
 prefix=@prefix@
 
 all:    hdr-collect kernel user cxxlib clib fortran python matlab  \
-	utils datafiles
+	utils 
 
 # use this target on a Windows machine to build the Python and
 # MATLAB interfaces after building the project in Visual C++
@@ -194,15 +194,13 @@ finish-install:
 	@INSTALL@ -d @ct_bindir@
 ifeq ($(os_is_win),0)
 #          Commands to be executed for non-win systems
-	cp -f "@homedir@/setup_cantera" "@ct_bindir@"
-	chmod +x @ct_bindir@/setup_cantera
 	cp -f License.rtf "@ct_bindir@"
 	cp -f License.txt "@ct_bindir@"
 ifneq ($(build_python),0)
-ifeq ($(build_python),2)
-endif
 	@INSTALL@ -c tools/src/finish_install.py tools/bin
 	(PYTHONPATH=''; @PYTHON_CMD@ tools/bin/finish_install.py @prefix@ @PYTHON_CMD@)
+	cp -f "@homedir@/setup_cantera" "@ct_bindir@"
+	chmod +x @ct_bindir@/setup_cantera
 	chmod +x @ct_bindir@/ctnew
 	chmod +x @ct_bindir@/mixmaster
 endif
@@ -232,9 +230,6 @@ test-matlab:
 
 run-python-demo:
 	cd Cantera/python; @MAKE@ run-demo
-
-datafiles:
-	cd data/inputs; @MAKE@
 
 uninstall:
 	-$(RMDIRTREE) @ct_incdir@
