@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 #
-CANTERA_CONFIG_PREFIX=/home/hkmoffa/arch/linux/cantera-1.7_develop
+CANTERA_CONFIG_PREFIX=${HOME}/arch/linux/cantera-1.7_develop
 export CANTERA_CONFIG_PREFIX
 
 SET_PYTHON_SITE_PACKAGE_TOPDIR=y
@@ -46,10 +46,10 @@ export BUILD_F90_INTERFACE
 BUILD_THREAD_SAFE="n"
 export BUILD_THREAD_SAFE
 
-BOOST_INC_DIR=/home/hkmoffa/arch/linux/boost/include/boost-1_34_1
+BOOST_INC_DIR=${HOME}/arch/linux/boost/include/boost-1_34_1
 export BOOST_INC_DIR
 
-BOOST_LIB_DIR=/home/hkmoffa/arch/linux/boost/lib
+BOOST_LIB_DIR=${HOME}/arch/linux/boost/lib
 export BOOST_LIB_DIR
 
 BOOST_THREAD_LIB=boost_thread-gcc34-mt
@@ -58,7 +58,7 @@ export BOOST_THREAD_LIB
 NUMARRAY_HOME=''
 export NUMARRAY_HOME
 
-GRAPHVIZDIR='/home/hkmoffa/arch/linux/bin'
+GRAPHVIZDIR=${HOME}'/arch/linux/bin'
 export GRAPHVIZDIR
 
 #
@@ -132,7 +132,7 @@ export MAKE
 #
 USE_SUNDIALS='y'
 export USE_SUNDIALS
-SUNDIALS_HOME='/home/hkmoffa/arch/linux/sundials'
+SUNDIALS_HOME=${HOME}'/arch/linux/sundials'
 export SUNDIALS_HOME
 
 ./preconfig
