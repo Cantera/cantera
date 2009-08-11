@@ -180,9 +180,15 @@ namespace Cantera {
 #define STR_TRACE   (std::string(__FILE__) +  ":" + XSTR_TRACE_LINE(__LINE__))
 
 #ifdef NDEBUG
+#ifndef AssertTrace
 #  define AssertTrace(expr)                        ((void) (0))
+#endif
+#ifndef AssertThrow
 #  define AssertThrow(expr, procedure)             ((void) (0))
+#endif
+#ifndef AssertThrowMsg
 #  define AssertThrowMsg(expr,procedure, message)  ((void) (0))
+#endif
 #else
 
     //! Assertion must be true or an error is thrown
@@ -195,7 +201,9 @@ namespace Cantera {
      *
      * @ingroup errorhandling
      */
+#ifndef AssertTrace
 #  define AssertTrace(expr)  ((expr) ? (void) 0 : throw Cantera::CanteraError(STR_TRACE, std::string("failed assert: ") + #expr))
+#endif
 
     //!  Assertion must be true or an error is thrown
     /*!
@@ -206,7 +214,9 @@ namespace Cantera {
      * @param procedure  Character string or std:string expression indicating the procedure where the assertion failed
      * @ingroup errorhandling
      */
+#ifndef AssertThrow
 #  define AssertThrow(expr, procedure)   ((expr) ? (void) 0 : throw Cantera::CanteraError(procedure, std::string("failed assert: ") + #expr))
+#endif
 
     //!  Assertion must be true or an error is thrown
     /*!
@@ -222,7 +232,12 @@ namespace Cantera {
      *
      * @ingroup errorhandling
      */
+#ifndef AssertThrowMsg
 #  define AssertThrowMsg(expr, procedure, message)  ((expr) ? (void) 0 : throw Cantera::CanteraError(procedure + std::string(": at failed assert: \"") + std::string(#expr) + std::string("\""), message))
+#endif
+
+
+
 #endif
  
 }
