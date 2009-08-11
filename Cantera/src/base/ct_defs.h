@@ -32,9 +32,11 @@
 #include <string>
 #include <algorithm>
 
+/**
+ * Namespace for the Cantera kernel.
+ */
+namespace Cantera {
 
-//! creates a pointer to the start of the raw data for a ctvector
-#define DATA_PTR(vec) &vec[0]
 
 #ifdef WIN32
 #define TYPENAME_KEYWORD
@@ -46,10 +48,10 @@
 
 #undef CHEMKIN_COMPATIBILITY_MODE
 
-/**
- * Namespace for the Cantera kernel.
- */
-namespace Cantera {
+//! Creates a pointer to the start of the raw data for a ctvector
+#ifndef DATA_PTR
+#define DATA_PTR(vec) &vec[0]
+#endif
 
  /*!
   * All physical constants are stored here.
