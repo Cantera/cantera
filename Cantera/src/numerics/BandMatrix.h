@@ -134,11 +134,11 @@ namespace Cantera {
         vector_fp::const_iterator begin() const { return data.begin(); }
         vector_fp::const_iterator end() const { return data.end(); }
 
+    protected:
         vector_fp data;
         vector_fp ludata;
         bool m_factored;
 
-    protected:
 
         int m_n, m_kl, m_ku;
         doublereal m_zero;
