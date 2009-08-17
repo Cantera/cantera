@@ -29,7 +29,7 @@ PIC_FLAG=@PIC@
 CXX_FLAGS = @CXXFLAGS@ $(LOCAL_DEFS) $(CXX_OPT) $(PIC_FLAG) $(DEBUG_FLAG)
 
 BASE_OBJ = ct2ctml.o ctml.o misc.o plots.o stringUtils.o xml.o clockWC.o\
-           PrintCtrl.o LogPrintCtrl.o mdp_allo.o
+           PrintCtrl.o LogPrintCtrl.o mdp_allo.o checkFinite.o
 
 BASE_H   = ct_defs.h ctexceptions.h logger.h XML_Writer.h \
            ctml.h plots.h stringUtils.h xml.h config.h utilities.h \
