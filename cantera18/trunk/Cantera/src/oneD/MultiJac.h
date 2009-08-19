@@ -79,7 +79,13 @@ namespace Cantera {
 
     protected:
 
+        //!  Residual evaluator for this jacobian
+        /*!
+         *  This is a pointer to the residual evaluator. This
+         *  object isn't owned by this jacobian object.
+         */ 
         OneDim* m_resid;
+
         vector_fp    m_r1;
         doublereal m_rtol, m_atol;
         doublereal m_elapsed;
