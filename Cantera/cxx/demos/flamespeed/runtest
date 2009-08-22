@@ -29,7 +29,7 @@ fi
 diff -w output_0_blessed.txt output_0.txt > diff_out_0.txt
 retnStat_0=$?
 
-csvdiff -a 1.0E-50 flamespeed_blessed_0.csv flamespeed.csv  > diff_csv.txt
+${CANTERA_BIN}/csvdiff -a 1.0E-50 flamespeed_blessed_0.csv flamespeed.csv  > diff_csv.txt
 retnStat_csv_0=$?
 
 retnTotal=1
