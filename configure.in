@@ -761,15 +761,13 @@ fi
 build_lapack=0
 build_blas=0
 if test -z "$BLAS_LAPACK_LIBS"; then
-  if test "x$OS_IS_DARWIN" = "x0"; then 
-    BLAS_LAPACK_LIBS="-lctlapack -lctblas"
-    BLAS_LAPACK_DIR="$buildlib"
-    BLAS_LAPACK_LINK="-L$BLAS_LAPACK_DIR $BLAS_LAPACK_LIBS"
-    build_blas=1
-    build_lapack=1
-  fi
+  BLAS_LAPACK_LIBS="-lctlapack -lctblas"
+  BLAS_LAPACK_DIR="$buildlib"
+  BLAS_LAPACK_LINK="-L$BLAS_LAPACK_DIR $BLAS_LAPACK_LIBS"
+  build_blas=1
+  build_lapack=1
 else
-BLAS_LAPACK_LINK="-L$BLAS_LAPACK_DIR $BLAS_LAPACK_LIBS"
+  BLAS_LAPACK_LINK="-L$BLAS_LAPACK_DIR $BLAS_LAPACK_LIBS"
 fi
 
 AC_SUBST(build_lapack)
