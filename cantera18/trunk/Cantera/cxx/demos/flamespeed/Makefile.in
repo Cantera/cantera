@@ -93,6 +93,7 @@ install:
              echo "@INSTALL@  $${ihhh} -m ug+rw,o+r $(INSTALL_DIR)" ; \
          done )
 	 @INSTALL@        runtest  $(INSTALL_DIR) ; 
+	 @INSTALL@        phi_input.txt  $(INSTALL_DIR) ; 
 
 
 depends: $(DEPENDS)
