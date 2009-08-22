@@ -19,7 +19,7 @@ test:
 
 install:
 	@INSTALL@ -d       @ct_demodir@/cxx
-	@INSTALL@ Makefile -m ug+rw,o+r @ct_demodir@/cxx
+	@INSTALL@  -m ug+rw,o+r Makefile @ct_demodir@/cxx
 	cd combustor;       @MAKE@ install
 	cd flamespeed;      @MAKE@ install
 	cd kinetics1;       @MAKE@ install
