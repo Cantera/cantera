@@ -48,7 +48,7 @@ LCXX_END_LIBS = @LCXX_END_LIBS@
 CANTERA_LIBDIR=@buildlib@
 
 # required Cantera libraries
-CANTERA_LIBS = @LOCAL_LIBS@ -lctcxx
+CANTERA_LIBS = -L$(CANTERA_LIBDIR) @LOCAL_LIBS@ -lctcxx
 
 # the directory where Cantera include files may be found.
 CANTERA_INCDIR=@ctroot@/build/include/cantera
