@@ -64,7 +64,7 @@ CANTERA_LIBDIR=@ct_libdir@
 endif
 
 # required Cantera libraries
-CANTERA_LIBS = @LOCAL_LIBS@ -lctcxx
+CANTERA_LIBS = -L$(CANTERA_LIBS) @LOCAL_LIBS@ -lctcxx
 
 ifeq ($(in_CanteraBuildTree),1)
 CANTERA_LIBS_DEP = @LOCAL_LIBS_DEP@ $(CANTERA_LIBDIR)/libctcxx.a
