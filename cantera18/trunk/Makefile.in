@@ -198,7 +198,7 @@ ifeq ($(os_is_win),0)
 	cp -f License.txt "@ct_bindir@"
 ifneq ($(build_python),0)
 	@INSTALL@ -c tools/src/finish_install.py tools/bin
-	(PYTHONPATH=''; @PYTHON_CMD@ tools/bin/finish_install.py @prefix@ @PYTHON_CMD@)
+	@PYTHON_CMD@ tools/bin/finish_install.py @prefix@ @PYTHON_CMD@
 	cp -f "@homedir@/setup_cantera" "@ct_bindir@"
 	chmod +x @ct_bindir@/setup_cantera
 	chmod +x @ct_bindir@/ctnew
