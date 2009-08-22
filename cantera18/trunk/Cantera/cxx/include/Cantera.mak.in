@@ -56,15 +56,15 @@ CANTERA_CORE_LIBS_DEP= @CANTERA_CORE_LIBS_DEP@ $(CANTERA_LIBSDIR)/libctcxx.a
 #
 # Cantera Boost Include
 #
-CANTERA_BOOST_INCLUDES= @BOOST_INCLUDE@
+CANTERA_BOOST_INCLUDES=@BOOST_INCLUDE@
 #
 # Location of the boost library that Cantera linked against
 #
-CANTERA_BOOST_LIB_DIR= @BOOST_LIB_DIR@
+CANTERA_BOOST_LIB_DIR=@BOOST_LIB_DIR@
 #
 # Linkage extras for linking against boost
 #
-ifeq ($(CANTERA_BOOST_LIB_DIR),"")
+ifeq ("x$(CANTERA_BOOST_LIB_DIR)","x")
 CANTERA_BOOST_LIBS=
 else
 CANTERA_BOOST_LIBS= -L$(CANTERA_BOOST_LIB_DIR) -l@BOOST_LIB@
