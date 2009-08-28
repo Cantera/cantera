@@ -1,0 +1,31 @@
+#
+# $Revision: 1.4 $
+# $Author: hkmoffa $
+# $Date: 2009/07/13 16:51:56 $
+#
+#
+test_python=@BUILD_PYTHON@
+test_ck=@BUILD_CK@
+test_cathermo=@NEED_CATHERMO@
+
+all:
+	cd minDiamond;  @MAKE@ all
+	cd negATest;  @MAKE@ all
+
+test:
+	@(echo "***************************************************")
+	@(echo "        Testing the Cantera Minimun Python Interface       ")
+	@(echo "         python executable: "  `which "${PYTHON_CMD}" 2>&1` )
+	@(echo "         python version: "  `"${PYTHON_CMD}" -V 2>&1` )
+	@(echo "***************************************************")
+	cd minDiamond;  @MAKE@ -s test
+	cd negATest;  @MAKE@ -s test
+
+clean:
+	$(RM) *.*~ 
+	cd minDiamond;  @MAKE@ clean
+	cd negATest;  @MAKE@ clean
+
+depends:
+	cd minDiamond;  @MAKE@ depends
+	cd negATest;  @MAKE@ depends

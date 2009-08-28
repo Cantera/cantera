@@ -1,0 +1,44 @@
+#!/bin/sh
+#
+#
+
+temp_success="0"
+testName="negATest_cti"
+/bin/rm  -f output.txt outputa.txt noxNeg.xml diff_test.out diff_xml.out
+
+#################################################################
+#
+#################################################################
+CANTERA_DATA=${CANTERA_DATA:=../../../data/inputs}; export CANTERA_DATA
+
+CANTERA_BIN=${CANTERA_BIN:=../../bin}
+./negATest > output.txt
+retnStat=$?
+if [ $retnStat != "0" ]
+then
+  temp_success="1"
+  echo "$testName returned with bad status, $retnStat, check output"
+fi
+diff -w noxNeg.xml noxNeg_blessed.xml > diff_xml.out
+retnStat=$?
+if [ $retnStat = "0" ]
+then
+  echo "successful diff comparison on $testName xml test"
+else
+  echo "unsuccessful diff comparison on $testName xml test"
+  echo 'FAILED' > csvCode.txt
+  temp_success="1"
+fi
+
+../../../bin/exp3to2.sh output.txt > outputa.txt
+diff -w outputa.txt negATest_blessed.out > diff_test.out
+retnStat=$?
+if [ $retnStat = "0" ]
+then
+  echo "successful diff comparison on $testName test"
+else
+  echo "unsuccessful diff comparison on $testName test"
+  echo "FAILED" > csvCode.txt
+  temp_success="1"
+fi
+#

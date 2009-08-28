@@ -1,0 +1,114 @@
+#/bin/sh
+###############################################################
+# 
+#  $Date: 2009/02/15 19:41:33 $
+#  $Revision: 1.22 $
+#
+#  Copyright 2002 California Institute of Technology
+#
+###############################################################
+
+.SUFFIXES :
+.SUFFIXES : .cpp .d .o .h
+
+INCDIR = ../../../build/include/cantera/kernel
+INSTALL_TSC = ../../../bin/install_tsc
+do_ranlib = @DO_RANLIB@
+
+do_electro = @COMPILE_ELECTROLYTES@
+do_issp    = @COMPILE_IDEAL_SOLUTIONS@
+
+
+PURIFY=@PURIFY@
+
+PIC_FLAG=@PIC@
+
+debug_mode = @CANTERA_DEBUG_MODE@
+ifeq ($(debug_mode), 1)
+   DEBUG_FLAG=-DDEBUG_MODE
+else
+   DEBUG_FLAG=
+endif
+
+
+CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT) $(PIC_FLAG) $(DEBUG_FLAG)
+
+# Base Transport Object Files
+TRAN_OBJ    = TransportFactory.o MultiTransport.o MixTransport.o MMCollisionInt.o \
+              SolidTransport.o DustyGasTransport.o TransportBase.o
+
+TRAN_H  =  TransportFactory.h MultiTransport.h MixTransport.h \
+           MMCollisionInt.h  SolidTransport.h DustyGasTransport.h \
+           TransportBase.h L_matrix.h TransportParams.h
+
+ifeq ($(do_electro),1)
+do_issp = 1
+ELECTRO_OBJ = AqueousTransport.o 
+ELECTRO_H  =  AqueousTransport.h
+endif
+
+ifeq ($(do_issp),1)
+ISSP_OBJ = LiquidTransport.o 
+ISSP_H   = LiquidTransport.h LiquidTransportParams.h
+endif
+
+
+CATRAN_OBJ = $(TRAN_OBJ) $(ELECTRO_OBJ) $(ISSP_OBJ)
+
+CATRAN_H   = $(TRAN_H) $(ELECTRO_H) $(ISSP_H)
+
+CXX_INCLUDES = -I../base -I../thermo -I../numerics @CXX_INCLUDES@
+LIB = @buildlib@/libtransport.a
+
+DEPENDS = $(CATRAN_OBJ:.o=.d)
+
+all:  $(LIB) .depends
+	@(@INSTALL@ -d $(INCDIR))
+	@(for lh in $(CATRAN_H) ; do \
+	  $(INSTALL_TSC) "$${lh}" $(INCDIR) ; \
+	done)
+%.d: Makefile %.o
+	@CXX_DEPENDS@ $(CXX_FLAGS) $(CXX_INCLUDES) $*.cpp > $*.d
+
+.cpp.o:
+	$(PURIFY) @CXX@ -c $< $(CXX_FLAGS) $(CXX_INCLUDES)
+
+$(LIB): $(CATRAN_OBJ) $(CATRAN_H)
+	@ARCHIVE@ $(LIB) $(CATRAN_OBJ) > /dev/null
+ifeq ($(do_ranlib),1)
+	@RANLIB@ $(LIB)
+endif
+
+clean:
+	@(for lh in $(CATRAN_H) ; do \
+            th=$(INCDIR)/"$${lh}" ; \
+	    if test -f "$${th}" ; then \
+	      $(RM) "$${th}"  ; \
+              echo "$(RM) $${th}" ; \
+            fi \
+	  done)
+	@(if test -f $(LIB) ; then \
+	    $(RM) $(LIB) ; \
+            echo "$(RM) $(LIB)" ; \
+          fi)
+	$(RM) *.o *.d *~  .depends
+	(if test -d SunWS_cache ; then \
+           $(RM) -rf SunWS_cache ; \
+         fi )
+
+depends: 
+	@MAKE@ .depends
+
+.depends: $(DEPENDS)
+	cat *.d > .depends
+
+$(CATRAN_OBJ): Makefile
+
+
+TAGS: 
+	etags *.h *.cpp
+
+ifeq ($(wildcard .depends), .depends)
+include .depends
+endif
+

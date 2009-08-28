@@ -1,0 +1,85 @@
+#/bin/sh
+###############################################################
+#  $Author: hkmoffa $
+#  $Date: 2008/12/30 21:49:41 $
+#  $Revision: 1.17 $
+#
+#  Copyright 2002 California Institute of Technology
+#
+###############################################################
+
+.SUFFIXES :
+.SUFFIXES : .cpp .d .o .h
+
+INCDIR = ../../../build/include/cantera/kernel
+INSTALL_TSC = ../../../bin/install_tsc
+do_ranlib = @DO_RANLIB@
+
+PURIFY=@PURIFY@
+
+PIC_FLAG=@PIC@
+
+CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT) $(PIC_FLAG)
+
+# stirred reactors
+OBJS    = Reactor.o ReactorBase.o FlowDevice.o Wall.o ReactorNet.o \
+          FlowReactor.o ConstPressureReactor.o ReactorFactory.o
+ZEROD_H = Reactor.h ReactorBase.h FlowDevice.h Wall.h ReactorNet.h \
+          flowControllers.h PID_Controller.h Reservoir.h FlowReactor.h \
+          ConstPressureReactor.h ReactorFactory.h
+
+CXX_INCLUDES = -I../base -I../thermo -I../kinetics -I../numerics @CXX_INCLUDES@
+ZEROD_LIB = @buildlib@/libzeroD.a
+
+DEPENDS = $(OBJS:.o=.d)
+
+all: $(ZEROD_LIB) .depends
+	@(@INSTALL@ -d $(INCDIR))
+	@(for lh in $(ZEROD_H) ; do \
+          $(INSTALL_TSC) "$${lh}" $(INCDIR) ; \
+	done)
+
+%.d: Makefile %.o
+	@CXX_DEPENDS@  @DEFS@ $(CXX_FLAGS) $(CXX_INCLUDES) $*.cpp > $*.d
+
+.cpp.o:
+	$(PURIFY) @CXX@ -c $< @DEFS@ $(CXX_FLAGS) $(CXX_INCLUDES)
+
+$(ZEROD_LIB): $(OBJS) $(ZEROD_H)
+	@ARCHIVE@ $(ZEROD_LIB) $(OBJS) > /dev/null
+ifeq ($(do_ranlib),1)
+	@RANLIB@ $(ZEROD_LIB)
+endif
+
+clean:
+	@(for lh in $(ZEROD_H) ; do \
+            th=$(INCDIR)/"$${lh}" ; \
+            if test -f "$${th}" ; then \
+              $(RM) "$${th}"  ; \
+              echo "$(RM) $${th}" ; \
+            fi \
+          done)
+	@(if test -f $(ZEROD_LIB) ; then \
+            $(RM) $(ZEROD_LIB) ; \
+            echo "$(RM) $(ZEROD_LIB)" ; \
+          fi)
+	$(RM) *.o *~ .depends *.d
+	(if test -d SunWS_cache ; then \
+           $(RM) -rf SunWS_cache ; \
+         fi )
+
+depends: 
+	@MAKE@ .depends
+
+.depends: $(DEPENDS) 
+	cat *.d > .depends
+
+$(OBJS): Makefile
+
+TAGS: 
+	etags *.h *.cpp
+
+ifeq ($(wildcard .depends), .depends)
+include .depends
+endif
+

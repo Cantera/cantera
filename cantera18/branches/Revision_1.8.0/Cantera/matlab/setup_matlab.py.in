@@ -1,0 +1,45 @@
+
+import sys
+
+######################################################################
+#  System Notes:
+#
+# HKM solaris 64:
+#   On this system matlab is built with gcc. Therefore, you will have to
+#   strip the "-lCrun -lCstd -lfsu" library commands from libs. They
+#   will cause a link error. because they are only applicable to
+#   sun's native CC compiler.
+#
+######################################################################
+
+bindir = '@ct_bindir@'
+libdir = '-L@buildlib@ @LOCAL_LIB_DIRS@'
+incdir = '@buildinc@'
+libs   = '-lclib @LOCAL_LIBS@ @LIBS@ @FLIBS@ @LCXX_END_LIBS@'
+
+f = open('setup.m','w')
+f.write('cd cantera\nbuildux\nexit\n')
+f.close()
+
+fb = open('cantera/buildux.m','w')
+fb.write("""
+disp('building Cantera..');
+mex -cxx -v private/ctmethods.cpp private/ctfunctions.cpp ...
+    private/xmlmethods.cpp private/phasemethods.cpp  ...
+    private/thermomethods.cpp private/kineticsmethods.cpp ...
+    private/mixturemethods.cpp ...
+    private/transportmethods.cpp private/reactormethods.cpp ...
+    private/reactornetmethods.cpp ...
+    private/wallmethods.cpp private/flowdevicemethods.cpp ...
+    private/funcmethods.cpp ...
+    private/onedimmethods.cpp private/surfmethods.cpp ...
+"""+'-I'+incdir+'     '+libdir+' '+libs+'\n'+"""disp('done.');
+""")
+fb.close()
+
+fp = open('cantera/ctbin.m','w')
+fp.write("""function path = ctbin
+path = '"""+bindir+"""';
+""")
+fp.close()
+

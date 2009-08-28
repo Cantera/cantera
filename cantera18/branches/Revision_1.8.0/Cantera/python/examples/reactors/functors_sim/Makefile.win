@@ -1,0 +1,15 @@
+#!/bin/sh
+
+all:
+	
+run:
+	$(PYTHON_CMD) functors.py
+
+test:
+	./runtest
+
+clean:
+	./cleanup
+
+# end of file
+

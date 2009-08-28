@@ -1,0 +1,34 @@
+#!/bin/sh
+#
+#
+
+temp_success="1"
+/bin/rm  -f output.txt  diff_test.txt
+tname="surfaceSolver"
+
+#################################################################
+#
+#################################################################
+CANTERA_DATA=${CANTERA_DATA:=../../data/inputs}; export CANTERA_DATA
+
+CANTERA_BIN=${CANTERA_BIN:=../../bin}
+./surfaceSolver -d 3 haca2.xml > output.txt
+retnStat=$?
+if [ $retnStat != "0" ]
+then
+  temp_success="0"
+  echo "surfaceSolver ($tname test) returned with bad status, $retnStat, check output"
+fi
+
+diff -w output.txt surfaceSolver_blessed3.out > diff_test.txt
+retnStat=$?
+if [ $retnStat = "0" ]
+then
+  echo "successful diff comparison on $tname d3 test"
+else
+  echo "unsuccessful diff comparison on $tname d3 test"
+  echo "FAILED" > csvCode.txt
+  temp_success="0"
+fi
+
+

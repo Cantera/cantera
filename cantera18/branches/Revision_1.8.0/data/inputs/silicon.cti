@@ -1,0 +1,23 @@
+#
+# crystalline silicon.
+#
+
+stoichiometric_solid(name = "silicon",
+                     elements = "Si",
+                     species = "Si(cr)",
+                     density = (1.0, 'g/cm3'),
+                     initial_state = state(temperature = 1600.0,
+                                           pressure = OneAtm)
+                     )
+
+species(name = "Si(cr)",
+    atoms = " Si:1 ",
+    thermo = (
+       NASA( [  200.00,  1000.00], [ -1.291769120E-01,   1.472031390E-02, 
+               -2.765101600E-05,   2.418782510E-08,  -7.934529120E-12,
+               -4.155164170E+02,  -3.595700080E-01] ),
+       NASA( [ 1000.00,  1690.00], [  1.755473820E+00,   3.172854970E-03, 
+               -2.782364020E-06,   1.264580650E-09,  -2.171284640E-13,
+               -6.286573630E+02,  -8.553411770E+00] )
+             )
+       )

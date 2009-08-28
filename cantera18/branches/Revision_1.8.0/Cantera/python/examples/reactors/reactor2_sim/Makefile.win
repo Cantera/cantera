@@ -1,0 +1,17 @@
+#!/bin/sh
+
+
+all:
+	
+run:
+	$(PYTHON_CMD) combustor.py
+
+test:
+	./runtest
+
+
+clean:
+	./cleanup
+
+# end of file
+

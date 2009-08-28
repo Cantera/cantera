@@ -1,0 +1,246 @@
+ Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:                1
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:                1
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:                1
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:                1
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:                1
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:                1
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:                1
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:                1
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:                1
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:                1
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:                1
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:                1
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:                1
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:                1
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:                1
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:                1
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:                1
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:                1
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:                1
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:                1
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:                1
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:                1
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:                1
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:                1
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:                1
+CVode-- Warning.. internal t=100.345 and step size h=6.74399e-15
+are such that t + h == t on the next step.
+The solver will continue anyway.
+
+CVode-- Warning.. internal t=100.345 and step size h=6.74399e-15
+are such that t + h == t on the next step.
+The solver will continue anyway.
+
+CVode-- Warning.. internal t=100.345 and step size h=4.62885e-15
+are such that t + h == t on the next step.
+The solver will continue anyway.
+
+CVode-- Warning.. internal t=100.345 and step size h=4.62885e-15
+are such that t + h == t on the next step.
+The solver will continue anyway.
+
+CVode-- Warning.. internal t=100.345 and step size h=4.62885e-15
+are such that t + h == t on the next step.
+The solver will continue anyway.
+
+CVode-- Warning.. internal t=100.345 and step size h=2.93127e-15
+are such that t + h == t on the next step.
+The solver will continue anyway.
+
+CVode-- Warning.. internal t=100.345 and step size h=2.93127e-15
+are such that t + h == t on the next step.
+The solver will continue anyway.
+
+CVode-- Warning.. internal t=100.345 and step size h=1.63375e-15
+are such that t + h == t on the next step.
+The solver will continue anyway.
+
+CVode-- Warning.. internal t=100.345 and step size h=1.63375e-15
+are such that t + h == t on the next step.
+The solver will continue anyway.
+
+CVode-- Warning.. internal t=100.345 and step size h=1.63375e-15
+are such that t + h == t on the next step.
+The solver will continue anyway.
+
+CVode-- The above warning has been issued 10 times and will not be
+issued again for this problem.
+
+CVode-- At t=100.345 and step size h=6.85664e-25, the corrector
+convergence failed repeatedly or with |h| = hmin.
+

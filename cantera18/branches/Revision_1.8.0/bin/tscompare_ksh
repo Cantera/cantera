@@ -1,0 +1,10 @@
+#!/bin/ksh
+#
+#  Test whether $1 has a modification time
+#  greater than $2
+#
+if test $1 -nt $2 ; then
+  exit 0
+fi
+#echo we are here
+exit 1

@@ -1,0 +1,15 @@
+#!/bin/sh
+
+
+run:
+	$(PYTHON_CMD) flame2.py
+
+test:
+	./runtest
+
+clean:
+	rm -f *.log *.csv *.xml
+	./cleanup
+
+# end of file
+

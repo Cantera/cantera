@@ -1,0 +1,34 @@
+#!/bin/sh
+
+
+PY_DEMOS = flame1 flame2 stflame1 npflame1 free_h2_air \
+	   adiabatic_flame flame_fixed_T
+
+all:
+	@(for py in $(PY_DEMOS) ; do \
+	    echo "running $${py}..."; \
+	    (cd $${py} ; make) \
+	done)
+
+run:
+	@(for py in $(PY_DEMOS) ; do \
+	    echo "running $${py}..."; \
+	    (cd $${py} ; make run ) \
+	done)
+
+test:
+	@(for py in $(PY_DEMOS) ; do \
+	    echo "running $${py}..."; \
+	    (cd $${py} ; make test ) \
+	done)
+
+
+clean:
+	@(for py in $(PY_DEMOS) ; do \
+	    echo "running $${py}..."; \
+	    (cd $${py} ; make clean ) \
+	done)
+
+
+# end of file
+

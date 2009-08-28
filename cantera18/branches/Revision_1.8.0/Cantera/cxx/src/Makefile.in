@@ -1,0 +1,65 @@
+#/bin/sh
+###############################################################
+#  $Author: hkmoffa $
+#  $Date: 2008/12/30 21:49:41 $
+#  $Revision: 1.17 $
+#
+#  Copyright 2001 California Institute of Technology
+#
+###############################################################
+
+
+.SUFFIXES :
+.SUFFIXES : .cpp .d .o .h
+
+PIC_FLAG=@PIC@
+CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT) $(PIC_FLAG)
+
+OBJS =  importPhase.o
+
+DEPENDS = $(OBJS:.o=.d)
+
+PURIFY=@PURIFY@
+
+PIC_FLAG=@PIC@
+CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT) $(PIC_FLAG)
+
+
+# the directory where Cantera include files may be found.
+CXX_INCLUDES = -I../../src/base -I../../src/thermo @CXX_INCLUDES@
+
+# how to compile C++ source files to object files
+.cpp.o:
+	$(PURIFY) @CXX@ -c $< $(CXX_INCLUDES) $(CXX_FLAGS)
+
+%.d: Makefile %.o
+	@CXX_DEPENDS@ $(CXX_FLAGS) $(CXX_INCLUDES) $*.cpp > $*.d
+
+LIB_NAME=libctcxx
+CXXLIB=@buildlib@/$(LIB_NAME).a
+
+all: .depends $(CXXLIB)
+
+$(CXXLIB): $(OBJS)
+	@ARCHIVE@ $(CXXLIB) $(OBJS) 
+
+clean:
+	$(RM) $(OBJS) *.d $(CXXLIB)
+	(if test -d SunWS_cache ; then \
+           $(RM) -rf SunWS_cache ; \
+         fi )
+
+install:
+	@INSTALL@ $(CXXLIB) @prefix@/lib/cantera
+
+depends: 
+	@MAKE@ .depends
+
+.depends: $(DEPENDS)
+	cat $(DEPENDS) > .depends
+
+$(OBJS): Makefile
+
+ifeq ($(wildcard .depends), .depends)
+include .depends
+endif

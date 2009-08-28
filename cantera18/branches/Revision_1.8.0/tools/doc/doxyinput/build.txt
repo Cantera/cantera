@@ -1,0 +1,106 @@
+/**
+
+\page cantera-build Building Cantera on a Unix, Linux, or Mac OS X Platform
+
+\section ctbuild-sysreq System Requirements
+
+Cantera can be built on most unix or unix-like platforms. Before you start, you'll need:
+
+- \b Python. Most systems already have some version of Python
+  installed. (Try typing "python" in a shell window.)  If you don't
+  have it, or your version is older than Python 2.0, you can get the
+  latest version at http://www.python.org. Python is used in the build
+  process, and to process input files, so it is needed even if you
+  plan to use Cantera only from C++, MATLAB, or Fortran.  
+
+- \b numarray. If you \e do want to use Cantera from Python, or if you
+  want to run the graphical MixMaster application, you'll also need to
+  install the numarray package, which may be obtained at
+  http://sourceforge.net/projects/numpy . 
+  Note that numarray is now superceded by "numpy", but Cantera hasn't yet been
+  updated to use numpy. Be sure to get the "old" numarray. Once you have
+  downloaded it, upack the tar file. In most cases, all that is required to
+  build numarray is to type "python setup.py install" from within the directory
+  where you have unpacked the numarray source code
+  \see \ref installnumarray .
+
+- <b>The GNU "make" program</b>. Most systems have this, but on some it might
+  be called "gmake" instead of "make". (On these systems "make" may refer to a
+  similar but non-compatible program.)
+
+- <b>A C/C++ compiler</b>. Virtually any reasonably recent compiler
+  should work.  The GNU gcc/g++ compiler, available free for many
+  platforms, works fine.
+
+- Optional software:
+    - <b>Sundials</b>. Sundials is a numerical software package for solving complex
+      non-linear systems of differential and/or algebraic equations. If you have it,
+      %Cantera will use it; if not, it will use an older, pre-sundials version of the
+      ODE solver, and some other capabilities will not be supported (e.g.
+      sensitivity analysis). It is recommended that you install sundials if
+      possible. All you need to do is go to the sundials web site
+      (www.llnl.gov/casc/sundials), download the software, and build it. To build
+      it, just go into the directory where you have unpacked the source, type
+      "./configure", "make", then "make install".
+    - <b>MATLAB</b>. Only needed to if you plan to use Cantera from MATLAB. 
+      To build the Cantera MATLAB Toolbox, your C/C++ compiler must be 
+      compatible with the one used to compile MATLAB. In most cases this means
+      you need to use gcc/g++ version 3.x if you have MATLAB 7 (R14) and gcc/g++ 2.95 if you have MATLAB 6 (R13). 
+    - <b>a Fortran 90/95 compiler</b>. Only needed if you plan to use Cantera
+      from Fortran 90/95. 
+    .
+
+- Note: On a Mac, you'll need to download the "XCode Tools" from Apple,
+  which includes the gcc/g++ compiler and other GNU tools.
+.
+
+\section ctbuild-proc Build Procedure
+
+To build Cantera, follow these steps:
+ 
+- Get the source code. Go to http://sourceforge.net/projects/cantera, 
+  and download the latest source distribution, or check the source code out
+  using anonymous CVS. Using CVS is recommended, since this makes it much 
+easier to keep current. 
+
+- Unpack it, and go into the top-level directory named "cantera". 
+
+- Edit the file "configure" to set site-specific options. If you are
+  installing on a linux or Mac OS X platform using the GNU compilers,
+  you may not need to edit "configure" at all. Most of the options
+  also may be set by defining a suitable environment variable. This is
+  useful if you want to always use non-standard options, since you can
+  define the appropriate environment variables in your login script. 
+ 
+- Now run "configure" by typing:
+  \verbatim
+  ./configure
+  \endverbatim
+  or
+  \verbatim
+  ./configure --prefix=<installation_directory>
+  \endverbatim  
+  This will generate the Makefiles that will be used to build Cantera. 
+  By default, Cantera will be installed in /usr/local/cantera. If you 
+  want to install it somewhere else, run the configure script with the
+  'prefix' option.
+  For example, to install Cantera in a directory called "cantera" in your
+  home directory, run the configure script like this:
+  \verbatim
+  ./configure --prefix=$HOME/cantera
+  \endverbatim
+
+- Type 'make' to compile Cantera. 
+
+- Type 'make install' to install it. You will need write access to the install directory for this step, which may require you to preface the command with "sudo".
+
+- To test the installation, type "make test". 
+
+- At this point, you should have a functional Cantera installation. To
+  try it out, go to the "demos" directory within the Cantera
+  installation directory, and try out some of the Python or MATLAB
+  demos.
+
+\see \ref cxx-ctnew
+
+*/

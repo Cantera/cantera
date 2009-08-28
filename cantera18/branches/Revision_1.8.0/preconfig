@@ -1,0 +1,606 @@
+#!/bin/sh
+#
+#######################################################################
+#
+#           Cantera Configuration File
+#
+#  Edit this file to control how Cantera is built. Parameters can be set
+#  here, or alternatively environment variables may be set before calling
+#  this script.
+#
+#  The default configuration uses GNU compilers (gcc/g++/g77) and
+#  builds as much of Cantera and its language interfaces as it can
+#  (e.g. if MATLAB is installed on your system, the MATLAB toolbox
+#  will be built automatically, otherwise it will be skipped. On linux
+#  or Mac OS X, this default configuration should work, and most
+#  likely you don't need to edit this file at all - just run it.
+#  
+#  NOTE: if you DO make changes to this file, save it with another name
+#  so that it will not be overwritten if you update the source
+#  distribution. 
+
+#######################################################################
+#
+# Set CANTERA_CONFIG_PREFIX to the directory where you want Cantera
+# installed into. The default is /usr/local/Cantera
+#
+# If you define this to be <prefix>, then instead of running this
+# script as ./preconfig --prefix=<prefix> you can just run it as
+# ./preconfig.
+
+CANTERA_CONFIG_PREFIX=${CANTERA_CONFIG_PREFIX:=""}
+
+#----------------------------------------------------------------------
+#         Language Interfaces
+#----------------------------------------------------------------------
+#
+# Cantera has several programming language interfaces. Select the ones
+# you want to build. The default is to try to build all language
+# interfaces.
+#
+#
+#----------------- Python --------------------------------------------
+# 
+# In addition to being one of the supported language interfaces,
+# Python is used internally by Cantera, both in the build process and
+# at run time (to process .cti input files). Therefore, you generally
+# need to have Python on your system; if you don't, first install it
+# from http://www.python.org before proceeding with the installation
+# of Cantera.
+#
+# If you plan to work in Python, or you want to use the graphical
+# MixMaster application, then you need the full Cantera Python
+# Package. If, on the other hand, you will only use Cantera from some
+# other language (e.g. MATLAB or Fortran 90/95) and only need Python
+# to process .cti files, then you only need a minimal subset of the
+# package (actually, only one file).
+
+# Set PYTHON_PACKAGE to one of these four strings:
+#    full      install everything needed to use Cantera from Python
+#    minimal   install only enough to process .cti files
+#    none      Don't install  or run any Python scripts during the 
+#              build process
+#    default   try to do a full installation, but fall back to a minimal
+#              one in case of errors
+
+PYTHON_PACKAGE=${PYTHON_PACKAGE:="minimal"}
+
+# Cantera needs to know where to find the Python interpreter.  If
+# PYTHON_CMD is set to "default", then the configuration process will
+# look for the Python Interpreter somewhere on your PATH, either as
+# 'python2' or as 'python'.  If it is not on the PATH, or has a
+# different name, set this to the full path to the Python interpreter.
+PYTHON_CMD=${PYTHON_CMD:="default"}
+
+
+# The Cantera Python interface can be built with either the numarray
+# numeric, or numpy packages. Set this to "y" to use Numeric.
+USE_NUMERIC=${USE_NUMERIC:="n"}
+
+# The Cantera Python interface can be built with either the numarray
+# or Numeric packages. Set this to "y" to use numpy, or 'n'
+# to use numarray. set USE_NUMERIC to 'n' also if you want to use numarray.
+# Using numpy is preferred, and is the supported option going forwards.
+USE_NUMPY=${USE_NUMPY:="n"}
+
+# If numpy was installed using the --home option, set this to the
+# home directory for numpy. This will be needed for all numpy installations
+# that don't put the include files into python's native include directory.
+#NUMPY_HOME=${NUMPY_HOME:="$HOME/python_packages"}
+
+# If numarray was installed using the --home option, set this to the
+# home directory for numarray.
+#NUMARRAY_HOME=${NUMARRAY_HOME:="$HOME/python_packages"}
+
+
+# If you want to install the Cantera Python package somewhere other
+# than the default 'site-packages' directory within the Python library
+# directory, then set this to the desired directory. This is useful when
+# you do not have write access to the Python library directory. 
+#CANTERA_PYTHON_HOME=${CANTERA_PYTHON_HOME:="$HOME/python_modules"}
+  
+# Set this to 'y' when site packages must be put in system directories
+# but Cantera tutorials must be put in user space.  An alternative to
+# doing this is to keep this setting on "n" . Then everything is 
+# put into the user space by running this script
+# with the 'prefix' option. The environment variable PYTHONPATH
+# may then be set to tell Python where to find the Cantera package.
+#
+SET_PYTHON_SITE_PACKAGE_TOPDIR=${SET_PYTHON_SITE_PACKAGE_TOPDIR:="n"}
+
+# If the SET_PYTHON_SITE_PACKAGE_TOPDIR is set to y, the entry below
+# sets the location where the Cantera site package is installed.
+#
+PYTHON_SITE_PACKAGE_TOPDIR=${PYTHON_SITE_PACKAGE_TOPDIR:="/usr/local"} 
+
+#----------- MATLAB --------------------------------------------------
+
+# This variable controls whether the MATLAB toolbox will be built. It
+# should be set to one of these strings:
+#
+#      "default"     the 'configure' script will try to build a simple 
+#                    MATLAB MEX file. If this succeeds, BUILD_MATLAB_TOOLBOX
+#                    will be set to "y", otherwise it will be set to "n".
+#                    
+#      "y"           build the MATLAB toolbox.
+#      "n"           do not build the MATLAB toolbox, even if MATLAB is 
+#                    installed.
+#
+# Note that you may need to run 'mex -setup' within MATLAB to
+# configure it for your C++ compiler before running this script.
+BUILD_MATLAB_TOOLBOX=${BUILD_MATLAB_TOOLBOX:="no"}
+MATLAB_CMD=${MATLAB_CMD:="default"}
+                             
+#----------- Fortran 90/95 --------------------------------------------------
+
+# This variable controls whether the Fortran 90/95 interface will be
+# built. It should be set to one of these strings:
+#
+#      "default"    The 'configure' script will attempt to compile a small
+#                   Fortran 90/05 program; if this succeeds, 
+#                   BUILD_F90_INTERFACE will be set to "y", and otherwise to "n".
+#      "y"          Build the Fortran 90/95 interface.
+#      "n"          Do not build the Fortran 90/95 interface, even if a 
+#                   Fortran 90/95 compiler is installed.
+
+BUILD_F90_INTERFACE=${BUILD_F90_INTERFACE:="no"}
+
+# The Fortran 90/95 compiler. If set to "default", the script will
+# look for a Fortran 90/95 compiler on your system by the name of
+# "f95", "gfortran", or "g95".
+F90=${F90:="gfortran"}
+
+# Compiler option flags for the Fortran 90/95 compiler. If you are
+# using the Absoft or the NAG compiler, additional options specific to
+# these compilers will be added automatically, and you do not need to
+# specify them here.  Otherwise, add any required compiler-specific
+# flags here.
+F90FLAGS=${F90FLAGS:='-O3'}
+
+#---------------------------------------------------------------------
+#          Purify
+#---------------------------------------------------------------------
+
+#  Add entries here for compiling Cantera with Purify extensions
+#  This command is put in front of every compilation and linking
+#  step
+PURIFY=${PURIFY:=""}
+
+#----------------------------------------------------------------------
+#         Customizations / Extensions
+#----------------------------------------------------------------------
+#
+# You can build your own libraries as part of the Cantera build process.
+# This allows you to derive your own classes from those provided by 
+# Cantera and build them automatically along with the rest of Cantera.
+# All you need to do is specify the directory where your source code is
+# located. This capability is not yet fully functional, but should work
+# for C++ applications.
+USER_SRC_DIR="Cantera/user"  # don't change this
+
+# In some cases, extra printing has been put into the code to aid
+# in debugging and verification. In order for the printing to occur
+# an additional switch must be turned on. However, compilation
+# of the printing is affected by the following DEBUG_MODE option.
+# This is turned off here by default. 
+DEBUG_MODE=${DEBUG_MODE:='n'}
+
+#----------------------------------------------------------------------
+#         Kernel Configuration
+#----------------------------------------------------------------------
+
+# If you are only planning to use a portion of Cantera, you may only
+# need a stripped-down kernel. Set those features you want enabled to
+# 'y', and set those you want to skip to 'n' (actually anything but
+# 'y') or comment them out. Some features are dependent on others; for
+# example, enabling 'CK' automatically enables KINETICS and THERMO.
+
+# If you only need to use Cantera to evaluate thermodynamic, kinetic,
+# and transport properties, it is sufficient to enable only KINETICS
+# and TRANSPORT.
+
+# Note: if you are building the full Python interface or the MATLAB
+# interface, it is necessary to build the full kernel.
+
+# thermodynamic properties 
+ENABLE_THERMO='y'
+
+######################################################################
+# optional phase types. These may not be needed by all users. Set them
+# to 'n' to omit them from the kernel.
+
+WITH_LATTICE_SOLID=${WITH_LATTICE_SOLID:="y"}
+WITH_METAL=${WITH_METAL:="y"}
+WITH_STOICH_SUBSTANCE=${WITH_STOICH_SUBSTANCE:="y"}
+WITH_SEMICONDUCTOR=${WITH_SEMICONDUCTOR:="y"}
+WITH_ADSORBATE=${WITH_ADSORBATE:="y"}
+WITH_SPECTRA=${WITH_SPECTRA:="y"}
+
+# This flag enables the inclusion of accurate liquid/vapor equations
+# of state for several fluids, including water, nitrogen, hydrogen,
+# oxygen, methane, andd HFC-134a.
+WITH_PURE_FLUIDS='y'
+
+# This flag enables the inclusion of ideal solution capabilities
+WITH_IDEAL_SOLUTIONS=${WITH_IDEAL_SOLUTIONS:="y"}
+
+# Enable expanded electrochemistry capabilities, include thermo
+# models for electrolyte solutions
+WITH_ELECTROLYTES=${WITH_ELECTROLYTES:="y"}
+
+# Enable generating phase models from PrIMe models. For more
+# information about PrIME, see http://www.primekinetics.org
+# WARNING: Support for PrIMe is experimental!
+WITH_PRIME=${WITH_PRIME:="n"}
+
+# Enable changing the 298K heats of formation directly
+# via the C++ layer. To do this, modify the variable below
+# to have a value of "y"
+WITH_H298MODIFY_CAPABILITY=${WITH_H298MODIFY_CAPABILITY:="n"}
+
+######################################################################
+# if set to 'y', the ck2cti program that converts Chemkin input files
+# to Cantera format will be built. If you don't use Chemkin format
+# files, or if you run ck2cti on some other machine, you can set this to 'n'. 
+ENABLE_CK=${ENABLE_CK:='y'}
+
+######################################################################
+
+# Enable homogeneous kinetics
+WITH_KINETICS='y'
+
+# Enable heterogeneous kinetics (surface chemistry). This also enables
+# charge transfer reactions for electrochemistry.
+WITH_HETERO_KINETICS='y'
+
+# Enable reaction path analysis
+WITH_REACTION_PATHS='y'
+
+# Enable vcs equilibrium package for nonideal phases
+WITH_VCSNONIDEAL=${WITH_VCSNONIDEAL:="n"}
+
+######################################################################
+# transport properties
+ENABLE_TRANSPORT='y'  
+
+# chemical equilibrium
+ENABLE_EQUIL='y'      
+     
+# stirred reactor models
+ENABLE_REACTORS='y'     
+
+# One-dimensional flows
+ENABLE_FLOW1D='y'
+
+# ODE integrators and DAE solvers
+ENABLE_SOLVERS='y'
+
+# reaction path analysis
+ENABLE_RXNPATH='y'         
+
+# two phase pure fluids
+ENABLE_TPX='y'
+
+# write HTMl log files. Some multiphase equilibrium procedures can
+# write copious diagnostic log messages. Set this to anything but 'y'
+# to remove this capability (results in slightly faster equilibrium 
+# calculations)
+WITH_HTML_LOG_FILES='y'
+
+#-----------------------------------------------------------------
+#         CVODE / CVODES
+#-----------------------------------------------------------------
+# 
+# Cantera uses the CVODE or CVODES ODE integrator to time-integrate
+# reactor network ODE's and for various other purposes. An older
+# version of CVODE comes with Cantera, but it is possible to use the
+# latest version as well, which now supports sensitivity analysis
+# (CVODES).  CVODES is a part of the 'sundials' package from Lawrence
+# Livermore National Laboratory. Sundials is not distributed with
+# Cantera, but it is free software that may be downloaded and
+# installed separately. If you leave USE_SUNDIALS = 'default', then it
+# will be used if you have it, and if not the older CVODE will be
+# used. Or set USE_SUNDIALS to 'y' or 'n' to force using it or not.
+# Note that sensitivity analysis with Cantera requires use of
+# sundials.
+#
+# See: http://www.llnl.gov/CASC/sundials
+#
+USE_SUNDIALS=${USE_SUNDIALS:='default'}
+
+# This is where you installed sundials if you used the --prefix option
+# when you configured sundials. If you didn't use the prefix option,
+# then comment this line out.
+#SUNDIALS_HOME=${SUNDIALS_HOME:=""}
+
+
+# It is recommended that you install the newest release of sundials 
+# (currently 2.3.0) before building Cantera. But if you want to use an 
+# older version, set SUNDIALS_VERSION to the version you have.
+# Acceptable values are '2.2' and '2.3' only; anything else will cause
+# Cantera to not use sundials.
+SUNDIALS_VERSION=${SUNDIALS_VERSION:='2.3'}
+
+#----------------------------------------------------------------- 
+#         BLAS and LAPACK
+#-----------------------------------------------------------------
+#
+# Cantera comes with Fortran (or c) versions of those parts of BLAS and
+# LAPACK it requires. But performance may be better if you use a
+# version of these libraries optimized for your machine hardware. If
+# you want to use your own libraries, set BLAS_LAPACK_LIBS to the
+# string that should be passed to the linker to link to these
+# libraries, and set BLAS_LAPACK_DIR to the directory where these
+# libraries are located. Otherwise, leave these lines commented out.
+#
+#BLAS_LAPACK_LIBS='-llapack -lblas'
+#BLAS_LAPACK_LIBS'-llapack -lf77blas -lcblas -latlas'
+#BLAS_LAPACK_DIR='/usr/lib'
+#
+# Note that on Mac OSX, BLAS and LAPACK from the built-in 'Accelerate'
+# framework are used by default, and nothing needs to be specified
+# here.
+#
+# The options below do not need to be set if you are using the default
+# libraries.
+#
+# Set to 'lower' or 'upper', depending on whether the procedure names
+# in the libraries are lowercase or uppercase. If you don't know, run
+# 'nm' on the library file (e.g. 'nm libblas.a') Note that the these options
+# apply to both the BLAS and LAPACK libraries. 
+LAPACK_NAMES='lower'
+LAPACK_FTN_TRAILING_UNDERSCORE='y'
+
+# Currently this must be set to 'y'.
+LAPACK_FTN_STRING_LEN_AT_END='y'
+
+
+#------------------------------------------------------------------
+#       C++ compiler options
+#------------------------------------------------------------------
+
+# The number of bits to compile with, if different than the
+# default on the computer
+BITCOMPILE=${BITCOMPILE:=""}
+
+# the C++ compiler to use.
+CXX=${CXX:=g++}
+
+# the C compiler to use. This is only used to compile CVODE and
+# the Python extension module.
+CC=${CC:=gcc}
+
+# C++ compiler flags
+CXXFLAGS=${CXXFLAGS:="-O3 -Wall"}
+
+# the C++ flags required for linking. Uncomment if additional flags
+# need to be passed to the linker.
+
+# Ending libraries to tack onto the linking of all C++ programs
+LCXX_END_LIBS=${LCXX_END_LIBS:="-lm"}
+
+# The compiler flag to use to compile code that will be inserted into
+# shared libraries.
+PIC=${PIC:=""}
+
+# the compiler option to create a shared library from object files
+SHARED=${SHARED:="-dynamic"}
+ 
+#-------------------------------------------------------------------
+#      Thread Safety
+#-------------------------------------------------------------------
+
+# Cantera can be built so that it is thread safe. Doing so requires
+# using procedures from the boost library, so if you want thread
+# safety then you need to get and install boost (http://www.boost.org) 
+# if you don't have it.  This is turned off by default, in which case
+# boost is not required to build Cantera.
+
+BUILD_THREAD_SAFE=${BUILD_THREAD_SAFE:="n"}
+
+# where boost header and library files may be found
+BOOST_INC_DIR=${BOOST_INC_DIR:="/usr/local/include/boost-1_34"}
+BOOST_LIB_DIR=${BOOST_LIB_DIR:="/usr/local/lib"}
+
+# the boost thread library
+BOOST_THREAD_LIB=${BOOST_THREAD_LIB:="boost_thread-mt-1_34"}
+
+#-------------------------------------------------------------------
+#      External Procedures
+#-------------------------------------------------------------------
+
+# Cantera uses several external software packages, which are all in
+# the 'ext' directory.. These options control how these packages are
+# built.
+
+# For external procedures written in Fortran 77, both the original F77
+# source code and C souce code generated by the 'f2c' program are
+# included.  Set this to "y" if you want to build Cantera using the
+# f2c-generated C sources instead of using the F77 sources in the ext
+# directory.
+
+# The default is to use the f2c code.  Set this to "n" to never do
+# this on any platform.  Note, if set to "y", Cantera does not need a
+# fortran compiler, and all fortran compiler parameters below are
+# irrelevant.
+#
+BUILD_WITH_F2C=${BUILD_WITH_F2C:="y"}
+
+# if you are building the external Fortran 77 procedures from the Fortran 
+# source code, enter the compiler here. 
+F77=${F77:=g77}
+
+# Fortran 77 compiler flags. Note that the Fortran compiler flags must be set
+# to produce object code compatible with the C/C++ compiler you are using.
+FFLAGS=${FFLAGS:='-O3'}
+
+# the additional Fortran flags required for linking, if any. Leave commented
+# out if no additional flags are required.
+LFORT_FLAGS="-L/usr/local/lib"
+
+#------------------------------------------------------
+#        Other Programs
+#------------------------------------------------------
+
+# The command to create a static library.
+ARCHIVE=${ARCHIVE:="ar ruv"}   # linux
+# ARCHIVE=${ARCHIVE:="libtool -static -o"}  # Mac OSX (this is set automatically)
+# ARCHIVE=${ARCHIVE:="CC -xar -o"} # Solaris using SUNspro compilers
+
+# The command to run 'ranlib' if it is needed. 
+RANLIB=${RANLIB:="ranlib"}
+
+# The command to run the 'make' utility. The Cantera Makefiles are
+# compatible with the GNU make utility, so if your make utility
+# doesn't work, try GNU make.
+MAKE=${MAKE:=make}
+
+# The command to run when "installing". This defaults now to the
+# install-sh bourne shell script that comes with the autoconf package.
+# It can be overridden here.
+INSTALL_BIN=${INSTALL_BIN:=config/install-sh}
+
+# The directory location of the graphviz program, dot.  dot is used
+# for creating the documentation, and for making reaction path
+# diagrams.  if "dot" is in your path, you can leave this unspecified.
+#
+# NOTE: MATLAB comes with a stripped-down version of 'dot'. If 'dot'
+# is on your path, make sure it is not the MATLAB version!
+#
+GRAPHVIZDIR=${GRAPHVIZDIR:=" "}
+
+# File extensions
+CXX_EXT=${CXX_EXT:=cpp}
+F77_EXT=${F77_EXT:=f}
+F90_EXT=${F90_EXT:=f90}
+#
+# Default extension for executable binaries. The default for unix systems
+# is the empty field. For windows systesms and cygwin, you should put
+# ".exe" .
+#
+EXE_EXT=${EXE_EXT:=}
+
+
+CT_SHARED_LIB=${CT_SHARED_LIB:=clib}
+
+# The font to use in reaction path diagrams. This must be a font name
+# recognized by the 'dot' program. On linux systems, this should be
+# lowercase 'helvetica'.
+RPFONT=${RPFONT:="Helvetica"}
+
+# Don't change this.
+CANTERA_VERSION=${CANTERA_VERSION:="1.8.0"} 
+
+#-----------------------------------------------------------------------
+#------------------- don't change anything below!! ---------------------
+#-----------------------------------------------------------------------
+
+export CANTERA_VERSION
+export USER_SRC_DIR
+export DEBUG_MODE
+export ARCHIVE
+export RANLIB
+export BITCOMPILE
+export BLAS_LAPACK_LIBS
+export BLAS_LAPACK_DIR
+export BUILD_WITH_F2C
+export BUILD_F90_INTERFACE
+export PYTHON_PACKAGE
+export BUILD_MATLAB_TOOLBOX
+export MATLAB_CMD
+export CT_SHARED_LIB
+export CXX
+export CXX_EXT
+export CXXFLAGS
+export CC
+export ENABLE_THERMO
+export WITH_KINETICS
+export WITH_HETERO_KINETICS
+export WITH_REACTION_PATHS
+export ENABLE_TRANSPORT
+export ENABLE_CK
+export ENABLE_EQUIL
+export ENABLE_REACTORS
+export ENABLE_SOLVERS
+export ENABLE_RXNPATH
+export ENABLE_TPX
+export ENABLE_FLOW1D
+export EXE_EXT
+export F77
+export F77_EXT
+export F90
+export F90_EXT
+export FFLAGS
+export F90FLAGS
+export INSTALL_BIN
+export LCXX_FLAGS
+export LCXX_END_LIBS
+export LFORT_FLAGS
+export LAPACK_NAMES
+export LAPACK_FTN_STRING_LEN_AT_END
+export LAPACK_FTN_TRAILING_UNDERSCORE
+export LIB_DIR
+export FORT_MODULE_DIRECTORY
+export FORT_MODULE_PATH_COMMAND
+export OBJ_EXT
+export PYTHON_CMD
+export SET_PYTHON_SITE_PACKAGE_DIR
+export PYTHON_SITE_PACKAGE_TOPDIR
+export PIC
+export SHARED
+export SOEXT
+export MAKE
+export GRAPHVIZDIR
+export RPFONT
+export FORTRAN_LIB_DIR
+export CANTERA_INSTALL_DIR
+export USE_NUMERIC
+export USE_NUMPY
+export NUMARRAY_HOME
+export NUMPY_HOME
+export CANTERA_PYTHON_HOME
+export USE_SUNDIALS
+export SUNDIALS_HOME
+export SUNDIALS_VERSION
+
+export WITH_LATTICE_SOLID
+export WITH_METAL
+export WITH_SEMICONDUCTOR
+export WITH_ADSORBATE
+export WITH_SPECTRA
+export WITH_STOICH_SUBSTANCE
+export WITH_PURE_FLUIDS
+export WITH_IDEAL_SOLUTIONS
+export WITH_ELECTROLYTES
+export WITH_PRIME
+export WITH_H298MODIFY_CAPABILITY
+
+export BUILD_THREAD_SAFE
+export BOOST_INC_DIR
+export BOOST_LIB_DIR
+export BOOST_THREAD_LIB
+
+export WITH_HTML_LOG_FILES
+
+export PURIFY
+
+chmod -f +x ./configure 
+chmod -f +x config/config.guess
+chmod -f +x config/config.sub
+#chmod -f +x config/install-sh
+
+#
+# Decide whether to add a prefix variable to the configure line
+#
+if (test "x$CANTERA_CONFIG_PREFIX" = "x")
+then
+   CCPREFIX=""
+else 
+   CCPREFIX="--prefix="$CANTERA_CONFIG_PREFIX
+fi
+#
+# run the configure command
+#
+./configure $CCPREFIX $1 $2 $3 $4
+
+

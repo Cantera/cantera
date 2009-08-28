@@ -1,0 +1,4 @@
+*.csv
+.depends
+Makefile
+csvdiff

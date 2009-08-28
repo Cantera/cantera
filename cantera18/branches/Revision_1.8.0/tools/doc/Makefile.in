@@ -1,0 +1,29 @@
+#
+# $Revision: 1.2 $
+# $Author: hkmoffa $
+# $Date: 2006/07/25 16:52:52 $
+#
+build_ck=@BUILD_CK@
+
+all: docs
+
+install:
+
+
+
+man-install:
+
+uninstall:
+
+clean:
+	cd html; mv banner4.jpg .. ; \
+        $(RM) *.jpg *.png *.html *.map *.md5 *.gif *.dot \
+               *.css *.hh[ckp] formula.repository ; \
+	mv ../banner4.jpg .
+
+
+docs doxygen:
+	doxygen Cantera.cfg
+
+depends:
+

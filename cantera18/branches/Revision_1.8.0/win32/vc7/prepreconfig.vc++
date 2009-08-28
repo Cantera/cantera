@@ -1,0 +1,92 @@
+#!/bin/sh
+#
+#
+# Sample bourne shell wrapper around Cantera's configure
+# shell command, used for building and installing Cantera
+# using MS VC++, without fortran support.
+# Copy this file to the top directory of the Cantera distribution.
+# Edit a few directory locations indicated below. Then execute it
+# after autoconf is run. 
+#
+# Tell Cantera you will be using a VC++ compiler to compile and link
+# all of the programs
+#
+USE_VISUAL_STUDIO="y"
+export USE_VISUAL_STUDIO
+#
+# Specify the root directory: Will need adjusting
+#
+CANTERA_ROOT="/cygwin/c/vc_env/cantera-1.7_develop"
+export CANTERA_ROOT
+#
+# Specify the install directory: Will need adjusting
+#
+CANTERA_INSTALL_DIR="C:/vc_env/Cantera"
+export CANTERA_INSTALL_DIR
+#
+#
+# PYTHON_CMD: This is the default location that Python24
+#             puts its files. 
+#
+PYTHON_CMD="c:/python24/python.exe"
+export PYTHON_CMD
+#
+# WIN_PYTHON_CMD: This is the default location that Python24
+#                 puts its files. 
+#
+WIN_PYTHON_CMD='C:/Python24/python'
+export WIN_PYTHON_CMD
+#
+# These 2 next lines tells Cantera and Python where to install
+# the Cantera python modules.
+#
+SET_PYTHON_SITE_PACKAGE_TOPDIR=y
+export SET_PYTHON_SITE_PACKAGE_TOPDIR
+#
+PYTHON_SITE_PACKAGE_TOPDIR="C:\Python24"
+export PYTHON_SITE_PACKAGE_TOPDIR
+#
+# No matlab toolbox in this script. However, if you have matlab
+# on your machine, you can change the "n" to a "y".
+BUILD_MATLAB_TOOLBOX="n"
+export BUILD_MATLAB_TOOLBOX
+#
+# Indicate that you will be using the clib.dll
+#
+USE_DLL="y"
+export USE_DLL
+#
+# HKM -> note config chokes on cl.exe . It can't interpret the
+#        needed command line arguments.
+#CXX="cl.exe"
+#export CXX
+#CC="cl.exe"
+#export CC
+#
+CXXFLAGS="-g"
+export CXXFLAGS
+#
+#
+LCXX_END_LIBS="-lm -lstdc++"
+export LCXX_END_LIBS
+#
+PYTHON_PACKAGE='full'
+#PYTHON_PACKAGE='minimal'
+export PYTHON_PACKAGE
+
+WITH_IDEAL_SOLUTIONS="y"
+export WITH_IDEAL_SOLUTIONS
+
+WITH_ELECTROLYTES="y"
+export WITH_ELECTROLYTES
+
+WITH_VCSNONIDEAL="y"
+export WITH_VCSNONIDEAL
+
+
+#
+# Call the configure command at the top of the Cantera distribution
+# in a cygwin shell 
+#
+./preconfig
+#
