@@ -27,6 +27,7 @@
 
 #ifdef WITH_IDEAL_SOLUTIONS
 #include "IdealSolidSolnPhase.h"
+#include "MargulesVPSSTP.h"
 #endif
 
 #ifdef WITH_PURE_FLUIDS
@@ -85,13 +86,13 @@ namespace Cantera {
     boost::mutex ThermoFactory::thermo_mutex;
 #endif
 
-    static int ntypes = 16;
+    static int ntypes = 17;
     static string _types[] = {"IdealGas", "Incompressible", 
                               "Surface", "Edge", "Metal", "StoichSubstance",
                               "PureFluid", "LatticeSolid", "Lattice",
                               "HMW", "IdealSolidSolution", "DebyeHuckel", 
                               "IdealMolalSolution", "IdealGasVPSS",
-			      "MineralEQ3", "electrodeElectron"
+			      "MineralEQ3", "electrodeElectron", "Margules"
     };
 
     static int _itypes[]   = {cIdealGas, cIncompressible, 
@@ -99,7 +100,8 @@ namespace Cantera {
                               cPureFluid, cLatticeSolid, cLattice,
                               cHMW, cIdealSolidSolnPhase, cDebyeHuckel,
                               cIdealMolalSoln, cVPSS_IdealGas,
-			      cMineralEQ3, cElectrodeElectron
+			      cMineralEQ3, cElectrodeElectron,
+			      cMargulesVPSSTP
     };
 
   /*
@@ -135,6 +137,10 @@ namespace Cantera {
 #ifdef WITH_IDEAL_SOLUTIONS
     case cIdealSolidSolnPhase:
       th = new IdealSolidSolnPhase();
+      break;
+
+    case cMargulesVPSSTP:
+      th = new MargulesVPSSTP();
       break;
 #endif
 

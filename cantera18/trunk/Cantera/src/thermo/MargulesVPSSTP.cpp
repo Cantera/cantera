@@ -31,12 +31,40 @@ namespace Cantera {
    *
    */
   MargulesVPSSTP::MargulesVPSSTP() :
-    PseudoBinaryVPSSTP(),
+    GibbsExcessVPSSTP(),
     numBinaryInteractions_(0),
     formMargules_(0),
     formTempModel_(0)
   {
   }
+
+  /*
+   * Working constructors
+   *
+   *  The two constructors below are the normal way
+   *  the phase initializes itself. They are shells that call
+   *  the routine initThermo(), with a reference to the
+   *  XML database to get the info for the phase.
+
+   */
+  MargulesVPSSTP::MargulesVPSSTP(std::string inputFile, std::string id) :
+    GibbsExcessVPSSTP(),
+    numBinaryInteractions_(0),
+    formMargules_(0),
+    formTempModel_(0)
+  {
+    constructPhaseFile(inputFile, id);
+  }
+
+  MargulesVPSSTP::MargulesVPSSTP(XML_Node& phaseRoot, std::string id) :
+    GibbsExcessVPSSTP(),
+    numBinaryInteractions_(0),
+    formMargules_(0),
+    formTempModel_(0)
+  {
+    constructPhaseXML(phaseRoot, id);
+  }
+
 
   /*
    * Copy Constructor:
@@ -45,7 +73,7 @@ namespace Cantera {
    *  has a working copy constructor
    */
   MargulesVPSSTP::MargulesVPSSTP(const MargulesVPSSTP &b) :
-    PseudoBinaryVPSSTP()
+    GibbsExcessVPSSTP()
   {
     *this = operator=(b);
   }
@@ -59,7 +87,7 @@ namespace Cantera {
   MargulesVPSSTP& MargulesVPSSTP::
   operator=(const MargulesVPSSTP &b) {
     if (&b != this) {
-      PseudoBinaryVPSSTP::operator=(b);
+      GibbsExcessVPSSTP::operator=(b);
     }
     
     numBinaryInteractions_      = b.numBinaryInteractions_ ;
@@ -105,7 +133,7 @@ namespace Cantera {
    *
    */
   MargulesVPSSTP::MargulesVPSSTP(int testProb)  :
-    PseudoBinaryVPSSTP(),
+    GibbsExcessVPSSTP(),
     numBinaryInteractions_(0),
     formMargules_(0),
     formTempModel_(0)
@@ -262,63 +290,14 @@ namespace Cantera {
     XML_Node& thermoNode = phaseNode.child("thermo");
 
     /*
-     * Possibly change the form of the standard concentrations
-     */
- 
-    /*
-     * Get the Name of the Solvent:
-     *      <solvent> solventName </solvent>
-     */
-    string solventName = "";
-    if (thermoNode.hasChild("solvent")) {
-      XML_Node& scNode = thermoNode.child("solvent");
-      vector<string> nameSolventa;
-      getStringArray(scNode, nameSolventa);
-      int nsp = static_cast<int>(nameSolventa.size());
-      if (nsp != 1) {
-	throw CanteraError("MargulesVPSSTP::constructPhaseXML",
-			   "badly formed solvent XML node");
-      }
-      solventName = nameSolventa[0];
-    }
-
-    /*
-     * Determine the form of the Pitzer model,
-     *   We will use this information to size arrays below.
-     */
-    if (thermoNode.hasChild("activityCoefficients")) {
-      XML_Node& scNode = thermoNode.child("activityCoefficients");
- 
-      stemp = scNode.attrib("model");
-      string formString = lowercase(stemp);
-      if (formString != "") {
-	if        (formString == "margules" || formString == "default") {
-	  formMargules_ = 0;
-
-	} else {
-	  throw CanteraError("MargulesVPSSTP::constructPhaseXML",
-			     "Unknown ActivityCoeff model: "
-			     + formString);
-	}
-      }
-
-      /*
-       * Determine the form of the temperature dependence
-       * of the Pitzer activity coefficient model.
-       */
-      stemp = scNode.attrib("TempModel");
-      formString = lowercase(stemp);
-      if (formString != "") {
-	if (formString == "constant" || formString == "default") {
-	  formTempModel_ = 0;
-	} else {
-	  throw CanteraError("MargulesVPSSTP::constructPhaseXML",
-			     "Unknown Pitzer ActivityCoeff Temp model: "
-			     + formString);
-	}
-      }
-
-      
+     * Make sure that the thermo model is Margules
+     */ 
+    stemp = thermoNode.attrib("model");
+    string formString = lowercase(stemp);
+    if (formString != "margules") {
+      throw CanteraError("MargulesVPSSTP::constructPhaseXML",
+			 "model name isn't Margules: " + formString);
+    
     }
 
     /*
@@ -406,7 +385,7 @@ namespace Cantera {
     }
   }
 
-  
+ 
   
   
 
@@ -437,7 +416,7 @@ namespace Cantera {
    */
   void MargulesVPSSTP::initThermo() {
     initLengths();
-    PseudoBinaryVPSSTP::initThermo();
+    GibbsExcessVPSSTP::initThermo();
   }
 
 
@@ -445,7 +424,7 @@ namespace Cantera {
   //   been identified.
   void  MargulesVPSSTP::initLengths() {
     m_kk = nSpecies();
-    moleFractions_.resize(m_kk);
+ 
   }
 
   /*
@@ -464,8 +443,64 @@ namespace Cantera {
    *             with the correct id. 
    */
   void MargulesVPSSTP::initThermoXML(XML_Node& phaseNode, std::string id) {
+    string subname = "MargulesVPSSTP::initThermoXML";
+    string stemp;
 
-    PseudoBinaryVPSSTP::initThermoXML(phaseNode, id);
+    /*
+     * Check on the thermo field. Must have:
+     * <thermo model="IdealSolidSolution" />
+     */
+  
+    XML_Node& thermoNode = phaseNode.child("thermo");
+    string mStringa = thermoNode.attrib("model");
+    string mString = lowercase(mStringa);
+    if (mString != "margules") {
+      throw CanteraError(subname.c_str(),
+			 "Unknown thermo model: " + mStringa);
+    }
+ 
+
+    /*
+     * Go get all of the coefficients and factors in the
+     * activityCoefficients XML block
+     */
+    /*
+     * Go get all of the coefficients and factors in the
+     * activityCoefficients XML block
+     */
+    XML_Node *acNodePtr = 0;
+    if (thermoNode.hasChild("activityCoefficients")) {
+      XML_Node& acNode = thermoNode.child("activityCoefficients");
+      acNodePtr = &acNode;
+      string mStringa = thermoNode.attrib("model");
+      string mString = lowercase(mStringa);
+      if (mString != "margules") {
+	throw CanteraError(subname.c_str(),
+			   "Unknown activity coefficient model: " + mStringa);
+      }
+      int n = acNodePtr->nChildren();
+      for (int i = 0; i < n; i++) {
+	XML_Node &xmlACChild = acNodePtr->child(i);
+	stemp = xmlACChild.name();
+	string nodeName = lowercase(stemp);
+	/*
+	 * Process a binary salt field, or any of the other XML fields
+	 * that make up the Pitzer Database. Entries will be ignored
+	 * if any of the species in the entry isn't in the solution.
+	 */
+	if (nodeName == "binaryneutralspeciesparameters") {
+	  readXMLBinarySpecies(xmlACChild);
+
+	}
+      }
+    }
+
+    /*
+     * Go down the chain
+     */
+    GibbsExcessVPSSTP::initThermoXML(phaseNode, id);
+
+
   }
 
   // Update the activity coefficients
@@ -473,16 +508,15 @@ namespace Cantera {
    * This function will be called to update the internally storred
    * natural logarithm of the activity coefficients
    *
-   *   he = XAXB(B + C(XA - XB) + d ( X_A X_B)
+   *   he = X_A X_B(B + C(X_A - X_B))
    */
   void MargulesVPSSTP::s_update_lnActCoeff() const {
     int iA, iB;
     double XA, XB, g0 , g1;
     double T = temperature();
 
-    for (int i = 0; i < m_kk; i++) {
-      lnActCoeff_Scaled_[i] = 0.0;
-    }
+    fvo_zero_dbl_1(lnActCoeff_Scaled_, m_kk);
+
     double RT = GasConstant * temperature();
     for (int i = 0; i <  numBinaryInteractions_; i++) {
       iA =  m_pSpecies_A_ij[i];    
@@ -496,13 +530,122 @@ namespace Cantera {
       
       lnActCoeff_Scaled_[iA] += XB * XB * (g0 + g1 * (XB - XA));
       lnActCoeff_Scaled_[iB] += XA * XA * g0 +  XA * XB * g1 * (2 * XA);
-      
     }
+  }
 
+
+  void MargulesVPSSTP::resizeNumInteractions(const int num) {
+    numBinaryInteractions_ = num;
+    m_HE_b_ij.resize(num, 0.0);
+    m_HE_c_ij.resize(num, 0.0);
+    m_HE_d_ij.resize(num, 0.0);
+    m_SE_b_ij.resize(num, 0.0);
+    m_SE_c_ij.resize(num, 0.0);
+    m_SE_d_ij.resize(num, 0.0);
+
+    m_pSpecies_A_ij.resize(num, -1);
+    m_pSpecies_B_ij.resize(num, -1);
 
   }
 
- /**
+
+  /*
+   * Process an XML node called "binaryNeutralSpeciesParameters"
+   * This node contains all of the parameters necessary to describe
+   * the Margules Interaction for a single binary interaction
+   * This function reads the XML file and writes the coefficients
+   * it finds to an internal data structures.
+   */
+  void MargulesVPSSTP::readXMLBinarySpecies(XML_Node &xmLBinarySpecies) {
+    string xname = xmLBinarySpecies.name();
+    if (xname != "binaryNeutralSpeciesParameters") {
+      throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies",
+                         "Incorrect name for processing this routine: " + xname);
+    }
+    double *charge = DATA_PTR(m_speciesCharge);
+    string stemp;
+    int nParamsFound;
+    vector_fp vParams;
+    string iName = xmLBinarySpecies.attrib("speciesA");
+    if (iName == "") {
+      throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies", "no speciesA attrib");
+    }
+    string jName = xmLBinarySpecies.attrib("speciesB");
+    if (jName == "") {
+      throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies", "no speciesB attrib");
+    }
+    /*
+     * Find the index of the species in the current phase. It's not
+     * an error to not find the species
+     */
+    int iSpecies = speciesIndex(iName);
+    if (iSpecies < 0) {
+      return;
+    }
+    string ispName = speciesName(iSpecies);
+    if (charge[iSpecies] != 0) {
+      throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies", "speciesA charge problem");
+    }
+    int jSpecies = speciesIndex(jName);
+    if (jSpecies < 0) {
+      return;
+    }
+    string jspName = speciesName(jSpecies);
+    if (charge[jSpecies] != 0) {
+      throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies", "speciesB charge problem");
+    }
+
+    resizeNumInteractions(numBinaryInteractions_ + 1);
+    int iSpot = numBinaryInteractions_ - 1;
+    m_pSpecies_A_ij[iSpot] = iSpecies;
+    m_pSpecies_B_ij[iSpot] = jSpecies;
+  
+    int num = xmLBinarySpecies.nChildren();
+    for (int iChild = 0; iChild < num; iChild++) {
+      XML_Node &xmlChild = xmLBinarySpecies.child(iChild);
+      stemp = xmlChild.name();
+      string nodeName = lowercase(stemp);
+      /*
+       * Process the binary species interaction child elements
+       */
+      if (nodeName == "excessenthalpy") {
+        /*
+         * Get the string containing all of the values
+         */
+        getFloatArray(xmlChild, vParams, true, "", "excessEnthalpy");
+        nParamsFound = vParams.size();
+       
+	if (nParamsFound != 2) {
+	  throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies::excessEnthalpy for " + ispName
+			     + "::" + jspName,
+			     "wrong number of params found");
+	}
+	m_HE_b_ij[iSpot] = vParams[0];
+	m_HE_c_ij[iSpot] = vParams[1];
+      }
+
+      if (nodeName == "excessentropy") {
+        /*
+         * Get the string containing all of the values
+         */
+        getFloatArray(xmlChild, vParams, true, "", "excessEntropy");
+        nParamsFound = vParams.size();
+       
+	if (nParamsFound != 2) {
+	  throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies::excessEntropy for " + ispName
+			     + "::" + jspName,
+			     "wrong number of params found");
+	}
+	m_SE_b_ij[iSpot] = vParams[0];
+	m_SE_c_ij[iSpot] = vParams[1];
+      }
+
+
+    } 
+    
+  }
+
+  /**
    * Format a summary of the mixture state for output.
    */           
   std::string MargulesVPSSTP::report(bool show_thermo) const {

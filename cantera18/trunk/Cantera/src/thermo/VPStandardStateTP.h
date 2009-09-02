@@ -45,7 +45,7 @@ namespace Cantera {
    *  for which VPStandardStateTP owns a pointer to.
    *
    *  To support the above functionality, pressure and temperature variables,
-   *  m_plast_ss and m_tlast_ss, are kept which store the last pressure and temperature
+   *  m_Plast_ss and m_Tlast_ss, are kept which store the last pressure and temperature
    *  used in the evaluation of standard state properties. 
    *
    *  This class is usually used for nearly incompressible phases. For those phases, it
@@ -257,18 +257,30 @@ namespace Cantera {
  
     //! Set the temperature of the phase
     /*!
-     *    Currently this just passes down to State::setTemperature()
-     *    without doing anything.  Calculations are changing temperatures are triggered
-     *    later.
+     *    Currently this passes down to setState_TP(). It does not
+     *    make sense to calculate the standard state without first
+     *    setting T and P.
      *
      * @param T  Temperature (kelvin)
      */
     virtual void setTemperature(const doublereal T);
 
+ 
+    //! Set the internally storred pressure (Pa) at constant
+    //! temperature and composition
+    /*!
+     *  Currently this passes down to setState_TP().  It does not
+     *    make sense to calculate the standard state without first
+     *    setting T and P.
+     *
+     *  @param p input Pressure (Pa)
+     */
+    virtual void setPressure(const doublereal p);
+
 
     //! Set the temperature and pressure at the same time
     /*!
-     *  Note this function currently triggers a reevalulation of the standard
+     *  Note this function triggers a reevalulation of the standard
      *  state quantities.
      *
      *  @param T  temperature (kelvin)

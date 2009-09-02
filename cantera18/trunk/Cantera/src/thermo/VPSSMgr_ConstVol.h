@@ -126,6 +126,29 @@ namespace Cantera {
      *  _updateRefStateThermo() is defined in the parent object.
      */
     //@{
+
+    /*!
+     *  Returns the vector of nondimensional
+     *  Gibbs free energies of the reference state at the current temperature
+     *  of the solution and the reference pressure for the species.
+     *
+     * @param grt Output vector contains the nondimensional Gibbs free energies
+     *            of the reference state of the species
+     *            length = m_kk, units = dimensionless.
+     */
+    virtual void getGibbs_RT_ref(doublereal *grt) const ;
+       
+
+    //!  Get the molar volumes of the species reference states at the current
+    //!  <I>T</I> and <I>P_ref</I> of the solution.
+    /*!
+     * units = m^3 / kmol
+     *
+     * @param vol     Output vector containing the standard state volumes.
+     *                Length: m_kk.
+     */
+    virtual void getStandardVolumes_ref(doublereal *vol) const ;
+
     //@}
   
     //! @name Initialization Methods - For Internal use 

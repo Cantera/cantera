@@ -160,7 +160,6 @@ namespace Cantera {
 
 
 
-
   void PseudoBinaryVPSSTP::getElectrochemPotentials(doublereal* mu) const {
     getChemPotentials(mu);
     double ve = Faraday * electricPotential();

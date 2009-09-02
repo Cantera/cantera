@@ -66,22 +66,24 @@ ELECTRO_OBJ = MolalityVPSSTP.o  VPStandardStateTP.o \
               WaterPropsIAPWSphi.o WaterPropsIAPWS.o WaterProps.o \
               PDSS.o PDSS_Water.o PDSS_HKFT.o  \
 	      HMWSoln.o HMWSoln_input.o DebyeHuckel.o \
-              WaterSSTP.o \
+              WaterSSTP.o  \
               VPSSMgr_Water_ConstVol.o VPSSMgr_Water_HKFT.o
 
 ELECTRO_H   = MolalityVPSSTP.h  VPStandardStateTP.h \
               IdealMolalSoln.h \
               WaterPropsIAPWSphi.h WaterPropsIAPWS.h WaterProps.h \
               PDSS.h PDSS_Water.h PDSS_HKFT.h \
-              HMWSoln.h electrolytes.h  \
+              HMWSoln.h electrolytes.h   \
 	      DebyeHuckel.h WaterSSTP.h VPSSMgr_Water_HKFT.h \
               VPSSMgr_Water_ConstVol.h
 endif
 ifeq ($(do_issp),1)
 ISSP_OBJ = IdealSolidSolnPhase.o  StoichSubstanceSSTP.o SingleSpeciesTP.o MineralEQ3.o \
-           GibbsExcessVPSSTP.o PseudoBinaryVPSSTP.o MargulesVPSSTP.o
+           GibbsExcessVPSSTP.o PseudoBinaryVPSSTP.o MargulesVPSSTP.o \
+           IonsFromNeutralVPSSTP.o PDSS_IonsFromNeutral.o 
 ISSP_H   = IdealSolidSolnPhase.h  StoichSubstanceSSTP.h SingleSpeciesTP.h MineralEQ3.h \
-           GibbsExcessVPSSTP.h PseudoBinaryVPSSTP.h MargulesVPSSTP.h
+           GibbsExcessVPSSTP.h PseudoBinaryVPSSTP.h MargulesVPSSTP.h \
+           IonsFromNeutralVPSSTP.h  PDSS_IonsFromNeutral.h
 endif
 
 CATHERMO_OBJ = $(THERMO_OBJ) $(ELECTRO_OBJ) $(ISSP_OBJ) 
