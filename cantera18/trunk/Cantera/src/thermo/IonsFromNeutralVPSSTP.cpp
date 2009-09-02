@@ -52,6 +52,7 @@ namespace Cantera {
     numAnionSpecies_(0),
     numPassThroughSpecies_(0),
     neutralMoleculePhase_(0),
+    IOwnNThermoPhase_(true),
     cationPhase_(0),
     anionPhase_(0)
   {
@@ -76,9 +77,13 @@ namespace Cantera {
     numAnionSpecies_(0),
     numPassThroughSpecies_(0),
     neutralMoleculePhase_(neutralPhase),
+    IOwnNThermoPhase_(true),
     cationPhase_(0),
     anionPhase_(0)
   {
+    if (neutralPhase) {
+      IOwnNThermoPhase_ = false;
+    }
     constructPhaseFile(inputFile, id);
   }
 
@@ -93,9 +98,13 @@ namespace Cantera {
     numAnionSpecies_(0),
     numPassThroughSpecies_(0),
     neutralMoleculePhase_(neutralPhase),
+    IOwnNThermoPhase_(true),
     cationPhase_(0),
     anionPhase_(0)
   {
+    if (neutralPhase) {
+      IOwnNThermoPhase_ = false;
+    }
     constructPhaseXML(phaseRoot, id);
   }
 
@@ -117,6 +126,7 @@ namespace Cantera {
     numAnionSpecies_(0),
     numPassThroughSpecies_(0),
     neutralMoleculePhase_(0),
+    IOwnNThermoPhase_(true),
     cationPhase_(0),
     anionPhase_(0)
   {
@@ -153,6 +163,7 @@ namespace Cantera {
     if (neutralMoleculePhase_) {
       exit(-1);
     }
+    IOwnNThermoPhase_           = b.IOwnNThermoPhase_;
 
     cationPhase_                = b.cationPhase_;
     anionPhase_                 = b.anionPhase_;
@@ -169,6 +180,10 @@ namespace Cantera {
    *
    */
   IonsFromNeutralVPSSTP::~IonsFromNeutralVPSSTP() {
+    if (IOwnNThermoPhase_) {
+      delete neutralMoleculePhase_;
+      neutralMoleculePhase_=0;
+    }
   }
 
   /*
@@ -195,7 +210,7 @@ namespace Cantera {
    * zero, as it is a non-complete class.
    */
   int IonsFromNeutralVPSSTP::eosType() const { 
-    return cIonFromNeutral;
+    return cIonsFromNeutral;
   }
 
  
