@@ -235,14 +235,24 @@ namespace Cantera {
     const XML_Node& th = xmlphase.child("thermo");
     string model = th["model"];
     ThermoPhase* t = newThermoPhase(model);
+    if (model == "singing cows") {
+      throw CanteraError(" newPhase", "Cows don't sing");
+    } 
 #ifdef WITH_ELECTROLYTES
-    if (model == "HMW") {
-      HMWSoln* p = (HMWSoln*)t;
+    else if (model == "HMW") {
+      HMWSoln* p = dynamic_cast<HMWSoln*>(t);
       p->constructPhaseXML(xmlphase,"");
     }
-    else
 #endif
+#ifdef WITH_IDEAL_SOLUTIONS
+    else if (model == "IonsFromNeutralMolecule") {
+      IonsFromNeutralVPSSTP* p = dynamic_cast<IonsFromNeutralVPSSTP*>(t);
+      p->constructPhaseXML(xmlphase,"");
+    }
+#endif
+    else {
       importPhase(xmlphase, t);
+    }
     return t;
   }
 
