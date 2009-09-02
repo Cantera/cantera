@@ -663,6 +663,7 @@ namespace Cantera {
   public:
     ThermoPhase *neutralMoleculePhase_;
   protected:
+    bool IOwnNThermoPhase_;
     //! ThermoPhase for the cation lattice
     /*!
      *  Currently this is unimplemented and may be deleted

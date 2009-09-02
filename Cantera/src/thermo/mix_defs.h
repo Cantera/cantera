@@ -72,7 +72,8 @@ namespace Cantera {
 
   const int cMargulesVPSSTP = 301;
 
-  const int cIonFromNeutral = 2000;
+
+  const int cIonsFromNeutral = 2000;
 
   //! Variable Pressure Standard State ThermoPhase objects
   const int cVPSS_IdealGas     = 1001;
