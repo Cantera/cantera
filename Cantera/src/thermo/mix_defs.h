@@ -70,7 +70,9 @@ namespace Cantera {
   const int cIdealSolnGasVPSS = 500;
   const int cIdealSolnGasVPSS_iscv = 501;
 
+  const int cMargulesVPSSTP = 301;
 
+  const int cIonFromNeutral = 2000;
 
   //! Variable Pressure Standard State ThermoPhase objects
   const int cVPSS_IdealGas     = 1001;
@@ -87,7 +89,8 @@ namespace Cantera {
     cPDSS_CONSTVOL,
     cPDSS_MOLAL_CONSTVOL,
     cPDSS_WATER,
-    cPDSS_MOLAL_HKFT
+    cPDSS_MOLAL_HKFT,
+    cPDSS_IONSFROMNEUTRAL
   };
 
 

@@ -171,7 +171,7 @@ namespace Cantera {
      */
     virtual void setPressure(doublereal p);
 
-  private:
+  protected:
     /**
      * Calculate the density of the mixture using the partial 
      * molar volumes and mole fractions as input
@@ -356,6 +356,14 @@ namespace Cantera {
      */
 
 
+    //! Set the temperature (K) and pressure (Pa)
+    /*!
+     *  Set the temperature and pressure.
+     *
+     * @param t    Temperature (K)
+     * @param p    Pressure (Pa)
+     */
+    virtual void setState_TP(doublereal t, doublereal p);
 
     //@}
 
@@ -402,6 +410,7 @@ namespace Cantera {
      *           Length is m_kk.
      */
     virtual void setMoleFractions(const doublereal* const x);
+
     /**
      * Set the mole fractions to the specified values without
      * normalizing. This is useful when the normalization
@@ -510,6 +519,7 @@ namespace Cantera {
     //! species, divided by RT
     mutable std::vector<doublereal> lnActCoeff_Scaled_;
 
+    //! Temporary storage space that is fair game
     mutable std::vector<doublereal> m_pp;
 
   };

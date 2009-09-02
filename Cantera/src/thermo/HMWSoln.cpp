@@ -763,30 +763,7 @@ namespace Cantera {
    * The mass density is not a function of pressure.
    */
   void HMWSoln::setPressure(doublereal p) {
-#ifdef DEBUG_MODE
-    //printf("setPressure: %g\n", p);
-#endif
-    /*
-     * Store the current pressure
-     */
-    m_Pcurrent = p;
-    /*
-     * update the standard state thermo
-     * -> This involves calling the water function and setting the pressure
-     */
-    updateStandardStateThermo();
-  
-    /*
-     * Store the internal density of the water SS.
-     * Note, we would have to do this for all other
-     * species if they had pressure dependent properties.
-     */
-    m_densWaterSS = m_waterSS->density();
-    /*
-     * Calculate all of the other standard volumes
-     * -> note these are constant for now
-     */
-    calcDensity();
+    setState_TP(temperature(), p);
   }
 
   void HMWSoln::calcDensity() {
@@ -889,9 +866,36 @@ namespace Cantera {
    * the value propagates to underlying objects.
    */
   void HMWSoln::setTemperature(const doublereal temp) {
+    setState_TP(temp, m_Pcurrent);
+  }
+
+  /*
+   * Overwritten setTemperature(double) from State.h. This
+   * function sets the temperature, and makes sure that
+   * the value propagates to underlying objects.
+   */
+  void HMWSoln::setState_TP(doublereal temp, doublereal pres) {
     State::setTemperature(temp);
-    //m_waterSS->setTemperature(temp);
+    /*
+     * Store the current pressure
+     */
+    m_Pcurrent = pres;
+  
+    /*
+     * update the standard state thermo
+     * -> This involves calling the water function and setting the pressure
+     */
     updateStandardStateThermo();
+    /*
+     * Store the internal density of the water SS.
+     * Note, we would have to do this for all other
+     * species if they had pressure dependent properties.
+     */
+    m_densWaterSS = m_waterSS->density();
+    /*
+     * Calculate all of the other standard volumes
+     * -> note these are constant for now
+     */
     calcDensity();
   }
 

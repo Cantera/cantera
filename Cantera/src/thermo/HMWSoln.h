@@ -1533,6 +1533,16 @@ namespace Cantera {
      */
     virtual void setTemperature(const doublereal temp);
 
+    //! Set the temperature (K) and pressure (Pa)
+    /*!
+     *  Set the temperature and pressure.
+     *
+     * @param t    Temperature (K)
+     * @param p    Pressure (Pa)
+     */
+    virtual void setState_TP(doublereal t, doublereal p);
+
+
     /**
      * The isothermal compressibility. Units: 1/Pa.
      * The isothermal compressibility is defined as

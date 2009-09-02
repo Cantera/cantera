@@ -910,7 +910,6 @@ namespace Cantera {
    * Set the thermodynamic state.
    */
   void ThermoPhase::setStateFromXML(const XML_Node& state) {
-
     string comp = getChildValue(state,"moleFractions");
     if (comp != "") 
       setMoleFractionsByName(comp);

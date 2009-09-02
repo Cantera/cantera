@@ -312,16 +312,13 @@ namespace Cantera {
     return m_Pcurrent;
   }
 
-  /*
-   * Set the pressure at constant temperature. Units: Pa.
-   * This method sets a constant within the object.
-   * The mass density is not a function of pressure.
-   */
   void DebyeHuckel::setPressure(doublereal p) {
+    setState_TP(temperature(), p);
+  }
 
-#ifdef DEBUG_MODE
-    //printf("setPressure: %g\n", p);
-#endif
+  void DebyeHuckel::setState_TP(doublereal t, doublereal p) {
+
+    State::setTemperature(t);
     /*
      * Store the current pressure
      */
@@ -458,8 +455,7 @@ namespace Cantera {
    * the value propagates to underlying objects.
    */
   void DebyeHuckel::setTemperature(const doublereal temp) {
-    _updateStandardStateThermo();
-    State::setTemperature(temp);
+    setState_TP(temp, m_Pcurrent);
   }
 
 

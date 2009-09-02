@@ -160,24 +160,7 @@ namespace Cantera {
    * The mass density is not a function of pressure.
    */
   void GibbsExcessVPSSTP::setPressure(doublereal p) {
-#ifdef DEBUG_MODE
-    //printf("setPressure: %g\n", p);
-#endif
-    /*
-     * Store the current pressure
-     */
-    m_Pcurrent = p;
-    /*
-     * update the standard state thermo
-     * -> This involves calling the water function and setting the pressure
-     */
-    updateStandardStateThermo();
-  
-    /*
-     * Calculate all of the other standard volumes
-     * -> note these are constant for now
-     */
-    calcDensity();
+    setState_TP(temperature(), p);
   }
 
   void GibbsExcessVPSSTP::calcDensity() {
@@ -192,6 +175,23 @@ namespace Cantera {
     State::setDensity(dd);
   }
 
+  void GibbsExcessVPSSTP::setState_TP(doublereal t, doublereal p) {
+    State::setTemperature(t);
+    /*
+     * Store the current pressure
+     */
+    m_Pcurrent = p;
+    /*
+     * update the standard state thermo
+     * -> This involves calling the water function and setting the pressure
+     */
+    updateStandardStateThermo();
+  
+    /*
+     * Calculate the partial molar volumes, and then the density of the fluid
+     */
+    calcDensity();
+  }
  
 
 

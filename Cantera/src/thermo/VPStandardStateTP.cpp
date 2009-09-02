@@ -338,8 +338,13 @@ namespace Cantera {
 
 
   void VPStandardStateTP::setTemperature(doublereal t) {
-    State::setTemperature(t);
-    //updateStandardStateThermo();
+    setState_TP(t, m_Pcurrent);
+    updateStandardStateThermo();
+  }
+
+  void VPStandardStateTP::setPressure(doublereal p) {
+    setState_TP(temperature(), p);
+    updateStandardStateThermo();
   }
 
 
@@ -359,12 +364,13 @@ namespace Cantera {
     /*
      * Now, we still need to do the calculations for general ThermoPhase objects.
      * So, we switch back to a virtual function call, setTemperature, and 
-     * setPressure to recalculate stuff at the higher level. At this point,
+     * setPressure to recalculate stuff for child ThermoPhase objects of 
+     * the VPStandardStateTP object. At this point,
      * we haven't touched m_tlast or m_plast, so some calculations may still
      * need to be done at the ThermoPhase object level.
      */
-    setTemperature(t);
-    setPressure(pres);
+    //setTemperature(t);
+    //setPressure(pres);
   }
 
 

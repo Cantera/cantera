@@ -31,6 +31,7 @@
 #include "PDSS_Water.h"
 #include "PDSS_ConstVol.h"
 #include "PDSS_HKFT.h"
+#include "PDSS_IonsFromNeutral.h"
 #include "GeneralSpeciesThermo.h"
 
 using namespace std;
@@ -175,9 +176,23 @@ namespace Cantera {
 			   "failed dynamic cast");
       }
       genSpthermo->installPDSShandler(k, kPDSS, this);
+
+    } else if (model == "IonFromNeutral") {
+      if (!genSpthermo) {
+	throw CanteraError("VPSSMgr_General::returnPDSS_ptr",
+			   "failed dynamic cast");
+      }
+      doST = false;
+      kPDSS = new PDSS_IonsFromNeutral(m_vptp_ptr, k, speciesNode, *phaseNode_ptr, true);
+      if (!kPDSS) {
+	throw CanteraError("VPSSMgr_General::returnPDSS_ptr",
+			   "new PDSS_IonsFromNeutral failed");
+      }
+      genSpthermo->installPDSShandler(k, kPDSS, this);
+
     } else {
       throw CanteraError("VPSSMgr_General::returnPDSS_ptr",
-			 "unknown");
+			 "unknown standard state formulation: " + model);
     }
     return kPDSS;
   }
