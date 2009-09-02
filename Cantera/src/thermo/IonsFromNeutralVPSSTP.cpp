@@ -292,14 +292,84 @@ namespace Cantera {
    * partial pressures, mole fractions, or surface coverages,
    * for example.
    *
+   *  Here we define the activity concentrations as equal
+   *  to the activities, because the standard concentration is 1.
+   *
    * @param c Output array of generalized concentrations. The
    *           units depend upon the implementation of the
    *           reaction rate expressions within the phase.
    */
   void IonsFromNeutralVPSSTP::getActivityConcentrations(doublereal* c) const {
-    err("");
+    getActivities(c);
   }
-  
+ 
+  // Return the standard concentration for the kth species
+  /*
+   * The standard concentration \f$ C^0_k \f$ used to normalize
+   * the activity (i.e., generalized) concentration. In many cases, this quantity
+   * will be the same for all species in a phase - for example,
+   * for an ideal gas \f$ C^0_k = P/\hat R T \f$. For this
+   * reason, this method returns a single value, instead of an
+   * array.  However, for phases in which the standard
+   * concentration is species-specific (e.g. surface species of
+   * different sizes), this method may be called with an
+   * optional parameter indicating the species.
+   *
+   * @param k Optional parameter indicating the species. The default
+   *          is to assume this refers to species 0.
+   * @return 
+   *   Returns the standard concentration. The units are by definition
+   *   dependent on the ThermoPhase and kinetics manager representation.
+   */
+  doublereal IonsFromNeutralVPSSTP::standardConcentration(int k) const {
+    return 1.0;
+  }
+
+  // Natural logarithm of the standard concentration of the kth species.
+  /*
+   * @param k    index of the species (defaults to zero)
+   */
+  doublereal IonsFromNeutralVPSSTP::logStandardConc(int k) const {
+    return 0.0;
+  }
+
+  // Returns the units of the standard and generalized concentrations.
+  /*
+   * Note they have the same units, as their
+   * ratio is defined to be equal to the activity of the kth
+   * species in the solution, which is unitless.
+   *
+   * This routine is used in print out applications where the
+   * units are needed. Usually, MKS units are assumed throughout
+   * the program and in the XML input files.
+   *
+   * The base %ThermoPhase class assigns the default quantities
+   * of (kmol/m3) for all species.
+   * Inherited classes are responsible for overriding the default 
+   * values if necessary.
+   *
+   * @param uA Output vector containing the units
+   *  uA[0] = kmol units - default  = 1
+   *  uA[1] = m    units - default  = -nDim(), the number of spatial
+   *                                dimensions in the Phase class.
+   *  uA[2] = kg   units - default  = 0;
+   *  uA[3] = Pa(pressure) units - default = 0;
+   *  uA[4] = Temperature units - default = 0;
+   *  uA[5] = time units - default = 0
+   * @param k species index. Defaults to 0.
+   * @param sizeUA output int containing the size of the vector.
+   *        Currently, this is equal to 6.
+   */
+  void IonsFromNeutralVPSSTP::getUnitsStandardConc(double *uA, int k,
+						   int sizeUA) const {
+    uA[0] = 0;
+    uA[1] = 0;
+    uA[2] = 0;
+    uA[3] = 0;
+    uA[4] = 0;
+    uA[5] = 0;
+  }
+
   // Get the array of non-dimensional molar-based activity coefficients at
   // the current solution temperature, pressure, and solution concentration.
   /*
@@ -323,17 +393,6 @@ namespace Cantera {
     for (int k = 0; k < m_kk; k++) {
       ac[k] = exp(lnActCoeff_Scaled_[k]);      
     }
-  }
-
-
-  doublereal IonsFromNeutralVPSSTP::standardConcentration(int k) const {
-    err("standardConcentration");
-    return -1.0;
-  }
-
-  doublereal IonsFromNeutralVPSSTP::logStandardConc(int k) const {
-    err("logStandardConc");
-    return -1.0;
   }
 
   /*
