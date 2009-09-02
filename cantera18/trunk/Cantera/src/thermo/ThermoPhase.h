@@ -1392,6 +1392,20 @@ namespace Cantera {
       err("getStandardVolumes_ref");
     }
 
+    //! Sets the reference composition
+    /*!
+     *  @param x   Mole fraction vector to set the reference composition to.
+     *             If this is zero, then the reference mole fraction
+     *             is set to the current mole fraction vector.
+     */
+    virtual void setReferenceComposition(const doublereal * const x);
+
+    //! Gets the reference composition
+    /*!
+     *  The reference mole fraction is a safe mole fraction.
+     *  @param x   Mole fraction vector containing the reference composition.
+     */
+    virtual void getReferenceComposition(doublereal * const x) const;
    
     //
     //  The methods below are not virtual, and should not
@@ -2057,6 +2071,15 @@ namespace Cantera {
 
     //! Contains the standard state convention
     int m_ssConvention;
+
+    //! Reference Mole Fraction Composition
+    /*!
+     *  Occasionally, the need arises to find a safe mole fraction vector to initialize
+     *  the object to. This contains such a vector.
+     *  The algorithm will pick up the mole fraction vector that is applied from 
+     *  the state xml file in the input file 
+     */
+    std::vector<doublereal> xMol_Ref;
 
   private:
 

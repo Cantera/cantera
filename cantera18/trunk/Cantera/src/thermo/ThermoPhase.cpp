@@ -864,6 +864,33 @@ namespace Cantera {
       XML_Node& stateNode = phaseNode.child("state");
       setStateFromXML(stateNode);
     }
+    setReferenceComposition(0);
+  }
+
+  void ThermoPhase::setReferenceComposition(const doublereal *const x) {
+    xMol_Ref.resize(m_kk);
+    if (x) {
+      for (int k = 0; k < m_kk; k++) {
+        xMol_Ref[k] = x[k];
+      }
+    } else {
+      getMoleFractions(DATA_PTR(xMol_Ref));
+    }
+    double sum = -1.0;
+    for (int k = 0; k < m_kk; k++) {
+      sum += xMol_Ref[k];
+    }
+    if (fabs(sum) > 1.0E-11) {
+      throw CanteraError("ThermoPhase::setReferenceComposition",
+                         "input mole fractions don't sum to 1.0");
+    }
+
+  }
+
+  void ThermoPhase::getReferenceComposition( doublereal *const x) const {
+    for (int k = 0; k < m_kk; k++) {
+      x[k] = xMol_Ref[k];
+    }
   }
   
   /*
@@ -887,6 +914,7 @@ namespace Cantera {
       throw CanteraError("ThermoPhase::initThermo()",
 			 "Number of species is less than or equal to zero");
     }
+    xMol_Ref.resize(m_kk, 0.0);
   }
 
   void ThermoPhase::saveSpeciesData(const int k, const XML_Node* const data) {
