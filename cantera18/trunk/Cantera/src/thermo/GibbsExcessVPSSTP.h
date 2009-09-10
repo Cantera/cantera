@@ -277,10 +277,6 @@ namespace Cantera {
     //! based for this class and classes that derive from it) at
     //! the current solution temperature, pressure, and solution concentration.
     /*!
-     * All standard state properties for molality-based phases are
-     * evaluated consistent with the molality scale. Therefore, this function
-     * must return molality-based activities.
-     *
      * \f[
      *  a_i^\triangle = \gamma_k^{\triangle} \frac{m_k}{m^\triangle}
      * \f]
@@ -291,7 +287,20 @@ namespace Cantera {
      */
     virtual void getActivities(doublereal* ac) const;
 
-   
+    
+    //! Get the array of temperature derivatives of the log activity coefficients
+    /*!
+     * This function is a virtual class, but it first appears in GibbsExcessVPSSTP
+     * class and derived classes from GibbsExcessVPSSTP.
+     *
+     *  units = 1/Kelvin
+     *
+     * @param dlnActCoeffdT    Output vector of temperature derivatives of the 
+     *                         log Activity Coefficients. length = m_kk
+     */
+    virtual void getdlnActCoeffdT(doublereal *dlnActCoeffdT) const {
+      err("getdlnActCoeffdT");
+    }
  
     //@}
     /// @name  Partial Molar Properties of the Solution 
@@ -518,6 +527,10 @@ namespace Cantera {
     //! Storage for the current values of the activity coefficients of the
     //! species, divided by RT
     mutable std::vector<doublereal> lnActCoeff_Scaled_;
+
+    //! Storage for the current derivative values of the log of the
+    // activity coefficients of the species
+    mutable std::vector<doublereal> dlnActCoeffdT_Scaled_;
 
     //! Temporary storage space that is fair game
     mutable std::vector<doublereal> m_pp;

@@ -38,6 +38,8 @@ using namespace std;
 
 namespace Cantera {
 
+  static  const double xxSmall = 1.0E-150;
+
   /*
    * Default constructor.
    *
@@ -52,19 +54,35 @@ namespace Cantera {
     numAnionSpecies_(0),
     numPassThroughSpecies_(0),
     neutralMoleculePhase_(0),
-    IOwnNThermoPhase_(true),
-    cationPhase_(0),
-    anionPhase_(0)
+    IOwnNThermoPhase_(true)
   {
   }
- /*
+
+ 
+  // Construct and initialize an IonsFromNeutralVPSSTP object
+  // directly from an asci input file
+  /*
    * Working constructors
    *
    *  The two constructors below are the normal way
    *  the phase initializes itself. They are shells that call
    *  the routine initThermo(), with a reference to the
    *  XML database to get the info for the phase.
-
+   *
+   * @param inputFile Name of the input file containing the phase XML data
+   *                  to set up the object
+   * @param id        ID of the phase in the input file. Defaults to the
+   *                  empty string.
+   * @param neutralPhase   The object takes a neutralPhase ThermoPhase
+   *                       object as input. It can either take a pointer
+   *                       to an existing object in the parameter list,
+   *                       in which case it does not own the object, or
+   *                       it can construct a neutral Phase as a slave
+   *                       object, in which case, it does own the slave
+   *                       object, for purposes of who gets to destroy
+   *                       the object.
+   *                       If this parameter is zero, then a slave
+   *                       neutral phase object is created and used.
    */
   IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(std::string inputFile, std::string id,
 					       ThermoPhase *neutralPhase) :
@@ -77,9 +95,7 @@ namespace Cantera {
     numAnionSpecies_(0),
     numPassThroughSpecies_(0),
     neutralMoleculePhase_(neutralPhase),
-    IOwnNThermoPhase_(true),
-    cationPhase_(0),
-    anionPhase_(0)
+    IOwnNThermoPhase_(true)
   {
     if (neutralPhase) {
       IOwnNThermoPhase_ = false;
@@ -98,9 +114,7 @@ namespace Cantera {
     numAnionSpecies_(0),
     numPassThroughSpecies_(0),
     neutralMoleculePhase_(neutralPhase),
-    IOwnNThermoPhase_(true),
-    cationPhase_(0),
-    anionPhase_(0)
+    IOwnNThermoPhase_(true)
   {
     if (neutralPhase) {
       IOwnNThermoPhase_ = false;
@@ -126,9 +140,7 @@ namespace Cantera {
     numAnionSpecies_(0),
     numPassThroughSpecies_(0),
     neutralMoleculePhase_(0),
-    IOwnNThermoPhase_(true),
-    cationPhase_(0),
-    anionPhase_(0)
+    IOwnNThermoPhase_(true)
   {
     *this = operator=(b);
   }
@@ -165,8 +177,6 @@ namespace Cantera {
     }
     IOwnNThermoPhase_           = b.IOwnNThermoPhase_;
 
-    cationPhase_                = b.cationPhase_;
-    anionPhase_                 = b.anionPhase_;
     moleFractionsTmp_           = b.moleFractionsTmp_;
 
     return *this;
@@ -471,6 +481,87 @@ namespace Cantera {
       break;
     }
   }
+
+
+  // Returns an array of partial molar enthalpies for the species
+  // in the mixture.
+  /*
+   * Units (J/kmol)
+   *
+   * For this phase, the partial molar enthalpies are equal to the
+   * standard state enthalpies modified by the derivative of the
+   * molality-based activity coefficent wrt temperature
+   *
+   *  \f[
+   * \bar h_k(T,P) = h^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}
+   * \f]
+   *
+   */
+  void IonsFromNeutralVPSSTP::getPartialMolarEnthalpies(doublereal* hbar) const {
+   /*
+     * Get the nondimensional standard state enthalpies
+     */
+    getEnthalpy_RT(hbar);
+    /*
+     * dimensionalize it.
+     */
+    double T = temperature();
+    double RT = GasConstant * T;
+    for (int k = 0; k < m_kk; k++) {
+      hbar[k] *= RT;
+    }
+    /*
+     * Update the activity coefficients, This also update the
+     * internally storred molalities.
+     */
+    s_update_lnActCoeff();
+    s_update_dlnActCoeffdT();
+    double RTT = RT * T;
+    for (int k = 0; k < m_kk; k++) {
+      hbar[k] -= RTT * dlnActCoeffdT_Scaled_[k];
+    }
+  }
+
+  // Returns an array of partial molar entropies for the species
+  // in the mixture.
+  /*
+   * Units (J/kmol)
+   *
+   * For this phase, the partial molar enthalpies are equal to the
+   * standard state enthalpies modified by the derivative of the
+   * activity coefficent wrt temperature
+   *
+   *  \f[
+   * \bar s_k(T,P) = s^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}
+   * \f]
+   *
+   */
+  void IonsFromNeutralVPSSTP::getPartialMolarEntropies(doublereal* sbar) const {
+    double xx;
+    /*
+     * Get the nondimensional standard state entropies
+     */
+    getEntropy_R(sbar);
+    double T = temperature();
+    /*
+     * Update the activity coefficients, This also update the
+     * internally storred molalities.
+     */
+    s_update_lnActCoeff();
+    s_update_dlnActCoeffdT();
+
+    for (int k = 0; k < m_kk; k++) {
+      xx = fmaxx(moleFractions_[k], xxSmall);
+      sbar[k] += - lnActCoeff_Scaled_[k] -log(xx) - T * dlnActCoeffdT_Scaled_[k];
+    }  
+    /*
+     * dimensionalize it.
+     */
+   for (int k = 0; k < m_kk; k++) {
+      sbar[k] *= GasConstant;
+    }
+  }
+
 
   // This is temporary. We will get rid of this
   void IonsFromNeutralVPSSTP::setTemperature(doublereal t) {
@@ -887,7 +978,7 @@ namespace Cantera {
     moleFractionsTmp_.resize(m_kk);
     muNeutralMolecule_.resize(numNeutralMoleculeSpecies_);
     gammaNeutralMolecule_.resize(numNeutralMoleculeSpecies_);
-
+    dlnActCoeffdT_NeutralMolecule_.resize(numNeutralMoleculeSpecies_);
   }
 
   static double factorOverlap(const std::vector<std::string>&  elnamesVN ,
@@ -1113,6 +1204,66 @@ namespace Cantera {
 	icat = passThroughList_[k];
 	jNeut = fm_invert_ionForNeutral[icat];
 	lnActCoeff_Scaled_[icat] = log(gammaNeutralMolecule_[jNeut]);
+      }
+      break;
+ 
+    case cIonSolnType_SINGLECATION:
+      throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeff", "Unimplemented type");
+      break;
+    case cIonSolnType_MULTICATIONANION:
+      throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeff", "Unimplemented type");
+      break;
+    default:
+      throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeff", "Unimplemented type");
+      break;
+    }
+
+  }
+
+
+  // Update the temperatture derivative of the ln activity coefficients
+  /*
+   * This function will be called to update the internally storred
+   * temperature derivative of the natural logarithm of the activity coefficients
+   */
+  void IonsFromNeutralVPSSTP::s_update_dlnActCoeffdT() const {
+    int k, icat, jNeut;
+    doublereal fmij;
+    /*
+     * Get the activity coefficients of the neutral molecules
+     */
+    GibbsExcessVPSSTP *geThermo = dynamic_cast<GibbsExcessVPSSTP *>(neutralMoleculePhase_);
+    if (!geThermo) {
+      fvo_zero_dbl_1(dlnActCoeffdT_Scaled_, m_kk);
+      return;
+    }
+
+    geThermo->getdlnActCoeffdT(DATA_PTR(dlnActCoeffdT_NeutralMolecule_));
+
+    switch (ionSolnType_) {
+    case cIonSolnType_PASSTHROUGH:
+      break;
+    case cIonSolnType_SINGLEANION:
+   
+      // Do the cation list
+      for (k = 0; k < (int) cationList_.size(); k++) {
+	//! Get the id for the next cation
+        icat = cationList_[k];
+	jNeut = fm_invert_ionForNeutral[icat];
+	fmij =  fm_neutralMolec_ions_[icat + jNeut * m_kk];
+        dlnActCoeffdT_Scaled_[icat] = fmij * dlnActCoeffdT_NeutralMolecule_[jNeut];
+      }
+
+      // Do the anion list
+      icat = anionList_[0];
+      jNeut = fm_invert_ionForNeutral[icat];
+      dlnActCoeffdT_Scaled_[icat]= 0.0;
+
+      // Do the list of neutral molecules
+      for (k = 0; k <  numPassThroughSpecies_; k++) {
+	icat = passThroughList_[k];
+	jNeut = fm_invert_ionForNeutral[icat];
+	dlnActCoeffdT_Scaled_[icat] = dlnActCoeffdT_NeutralMolecule_[jNeut];
       }
       break;
  

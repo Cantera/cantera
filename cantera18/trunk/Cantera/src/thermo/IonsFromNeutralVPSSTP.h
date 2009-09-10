@@ -5,7 +5,7 @@
  *  (see \ref thermoprops 
  * and class \link Cantera::IonsFromNeutralVPSSTP IonsFromNeutralVPSSTP\endlink).
  *
- * Header file for a derived class of ThermoPhase that handles
+ * Header file for a derived class of %ThermoPhase that handles
  * variable pressure standard state methods for calculating
  * thermodynamic properties that are further based upon activities
  * based on the molality scale.  These include most of the methods for
@@ -17,7 +17,7 @@
  * U.S. Government retains certain rights in this software.
  */
 /*
- *  $Id: PseudoBinaryVPSSTP.h,v 1.1 2009/03/03 21:08:31 hkmoffa Exp $
+ *  $Id: $
  */
 
 #ifndef CT_IONSFROMNEUTRALVPSSTP_H
@@ -41,41 +41,37 @@ namespace Cantera {
   };
 
   /*!
-   *  PseudoBinaryVPSSTP is a derived class of ThermoPhase
-   *  GibbsExcessVPSSTP that handles
-   *  variable pressure standard state methods for calculating
-   *  thermodynamic properties that are further based on
-   *  expressing the Excess Gibbs free energy as a function of
-   *  the mole fractions (or pseudo mole fractions) of consitituents.
-   *  This category is the workhorse for describing molten salts, 
-   *  solid-phase mixtures of semiconductors, and mixtures of miscible
-   *  and semi-miscible compounds.
-   *
-   * It includes 
-   *   . regular solutions
-   *   . Margueles expansions
-   *   . NTRL equation
-   *   . Wilson's equation
-   *   . UNIQUAC equation of state.
-   *
-   *  This class adds additional functions onto the %ThermoPhase interface
-   *  that handles the calculation of the excess Gibbs free energy. 
-   *  The %ThermoPhase
-   *  class includes a member function, ThermoPhase::activityConvention() 
-   *  that indicates which convention the activities are based on. The
-   *  default is to assume activities are based on the molar convention.
-   *  That default is used here. 
-   *
-   *  All of the Excess Gibbs free energy formulations in this area employ
+   * The IonsFromNeutralVPSSTP is a derived class of ThermoPhase
+   * that handles the specification of the chemical potentials for
+   * ionic species, given a specification of the chemical potentials
+   * for the same phase expressed in terms of combinations of the
+   * ionic species that represent neutral molecules. It's expected
+   * that the neutral molecules will be represented in terms of 
+   * an excess gibbs free energy approximation that is a derivative
+   * of the GbbsExcessVPSSTP object. All of the e Excess Gibbs free
+   *  energy formulations in this area employ
    *  symmetrical formulations. 
    *
-   *  This layer will massage the mole fraction vector to implement
-   *  cation and anion based mole numbers in an optional manner
+   *  This class is used for molten salts.
    *
-   *  The way that it collects the cation and anion based mole numbers
-   *  is via holding two extra ThermoPhase objects. These
-   *  can include standard states for salts. 
-   *        
+   *  This object actually employs 4 different mole fraction types.
+   *  
+   *  1) There is a mole fraction associated the the cations and
+   *     anions and neutrals from this ThermoPhase object. This
+   *     is the normal mole fraction vector for this object.
+   *     Note, however, it isn't the appropriate mole fraction
+   *     vector to use even for obtaining the correct ideal 
+   *     free energies of mixing. 
+   *  2) There is a mole fraction vector associated with the
+   *     neutral molecule ThermoPhase object. 
+   *  3) There is a mole fraction vector associated with the
+   *     cation lattice. 
+   *  4) There is a mole fraction vector associated with the
+   *     anion lattice
+   *
+   *  This object can translate between any of the four mole
+   *  fraction representations.
+   *
    *
    */
   class IonsFromNeutralVPSSTP : public GibbsExcessVPSSTP  {
@@ -84,11 +80,11 @@ namespace Cantera {
         
     /// Constructors 
     /*!
-     *
+     * Default constructor
      */
     IonsFromNeutralVPSSTP();
 
-    //! Construct and initialize an HMWSoln ThermoPhase object
+    //! Construct and initialize an IonsFromNeutralVPSSTP object
     //! directly from an asci input file
     /*!
      * Working constructors
@@ -102,17 +98,36 @@ namespace Cantera {
      *                  to set up the object
      * @param id        ID of the phase in the input file. Defaults to the
      *                  empty string.
+     * @param neutralPhase   The object takes a neutralPhase ThermoPhase
+     *                       object as input. It can either take a pointer
+     *                       to an existing object in the parameter list,
+     *                       in which case it does not own the object, or
+     *                       it can construct a neutral Phase as a slave
+     *                       object, in which case, it does own the slave
+     *                       object, for purposes of who gets to destroy
+     *                       the object.
+     *                       If this parameter is zero, then a slave
+     *                       neutral phase object is created and used.
      */
     IonsFromNeutralVPSSTP(std::string inputFile, std::string id = "", 
 			    ThermoPhase *neutralPhase = 0);
-
   
-    //! Construct and initialize an HMWSoln ThermoPhase object
+    //! Construct and initialize an IonsFromNeutralVPSSTP object
     //! directly from an XML database
     /*!
-     *  @param phaseRef XML phase node containing the description of the phase
+     *  @param phaseRoot XML phase node containing the description of the phase
      *  @param id     id attribute containing the name of the phase.
      *                (default is the empty string)
+     * @param neutralPhase   The object takes a neutralPhase ThermoPhase
+     *                       object as input. It can either take a pointer
+     *                       to an existing object in the parameter list,
+     *                       in which case it does not own the object, or
+     *                       it can construct a neutral Phase as a slave
+     *                       object, in which case, it does own the slave
+     *                       object, for purposes of who gets to destroy
+     *                       the object.
+     *                       If this parameter is zero, then a slave
+     *                       neutral phase object is created and used.
      */
     IonsFromNeutralVPSSTP(XML_Node& phaseRoot,  std::string id = "", 
 			  ThermoPhase *neutralPhase = 0);
@@ -355,7 +370,40 @@ namespace Cantera {
      */
     virtual void getChemPotentials(doublereal* mu) const;
 
- 
+    
+    //! Returns an array of partial molar enthalpies for the species
+    //! in the mixture.
+    /*!
+     * Units (J/kmol)
+     *
+     * For this phase, the partial molar enthalpies are equal to the
+     * standard state enthalpies modified by the derivative of the
+     * molality-based activity coefficent wrt temperature
+     *
+     *  \f[
+     * \bar h_k(T,P) = h^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}
+     * \f]
+     *
+     */
+    virtual void getPartialMolarEnthalpies(doublereal* hbar) const;
+
+    //! Returns an array of partial molar entropies for the species
+    //! in the mixture.
+    /*!
+     * Units (J/kmol)
+     *
+     * For this phase, the partial molar enthalpies are equal to the
+     * standard state enthalpies modified by the derivative of the
+     * activity coefficent wrt temperature
+     *
+     *  \f[
+     *   \bar s_k(T,P) = s^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}
+     *                              - R \ln( \gamma_k X_k)
+     *                              - R T \frac{d \ln(\gamma_k) }{dT}
+     *  \f]
+     */
+    virtual void getPartialMolarEntropies(doublereal* sbar) const;
+
 
     //@}
     /// @name  Properties of the Standard State of the Species in the Solution
@@ -507,7 +555,7 @@ namespace Cantera {
     /// To see how they are used, see files importCTML.cpp and 
     /// ThermoFactory.cpp.
 
-    //! Initialization of a HMWSoln phase using an xml file
+    //! Initialization of an IonsFromNeutralVPSSTP phase using an xml file
     /*!
      * This routine is a precursor to initThermo(XML_Node*)
      * routine, which does most of the work.
@@ -521,7 +569,7 @@ namespace Cantera {
      */
     void constructPhaseFile(std::string inputFile, std::string id);
 
-    //!   Import and initialize a HMWSoln phase
+    //!   Import and initialize an IonsFromNeutralVPSSTP phase
     //!   specification in an XML tree into the current object.
     /*!
      *   Here we read an XML description of the phase.
@@ -603,6 +651,13 @@ namespace Cantera {
      * natural logarithm of the activity coefficients
      */
     void s_update_lnActCoeff() const;
+
+    //! Update the temperatture derivative of the ln activity coefficients
+    /*!
+     * This function will be called to update the internally storred
+     * temperature derivative of the natural logarithm of the activity coefficients
+     */
+    void s_update_dlnActCoeffdT() const;
 
   private:
     //! Error function
@@ -706,19 +761,20 @@ namespace Cantera {
     /*!
      *  Currently this is unimplemented and may be deleted
      */
-    ThermoPhase *cationPhase_;
+    // ThermoPhase *cationPhase_;
 
     //! ThermoPhase for the anion lattice
     /*!
      *  Currently this is unimplemented and may be deleted
      */
-    ThermoPhase *anionPhase_;
+    //ThermoPhase *anionPhase_;
    
     //! Temporary mole fraction vector
     mutable std::vector<doublereal> moleFractionsTmp_;
 
     mutable std::vector<doublereal> muNeutralMolecule_;
     mutable std::vector<doublereal> gammaNeutralMolecule_;
+    mutable std::vector<doublereal> dlnActCoeffdT_NeutralMolecule_;
 
   private:
 
