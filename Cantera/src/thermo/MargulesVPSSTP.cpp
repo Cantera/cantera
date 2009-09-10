@@ -352,6 +352,11 @@ namespace Cantera {
     }
   }
 
+  /*
+   * ------------ Partial Molar Properties of the Solution ------------
+   */
+
+
 
   void MargulesVPSSTP::getElectrochemPotentials(doublereal* mu) const {
     getChemPotentials(mu);
@@ -386,13 +391,86 @@ namespace Cantera {
   }
 
  
-  
-  
-
+  // Returns an array of partial molar enthalpies for the species
+  // in the mixture.
   /*
-   * ------------ Partial Molar Properties of the Solution ------------
+   * Units (J/kmol)
+   *
+   * For this phase, the partial molar enthalpies are equal to the
+   * standard state enthalpies modified by the derivative of the
+   * molality-based activity coefficent wrt temperature
+   *
+   *  \f[
+   * \bar h_k(T,P) = h^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}
+   * \f]
+   *
    */
+  void MargulesVPSSTP::getPartialMolarEnthalpies(doublereal* hbar) const {
+    /*
+     * Get the nondimensional standard state enthalpies
+     */
+    getEnthalpy_RT(hbar);
+    /*
+     * dimensionalize it.
+     */
+    double T = temperature();
+    double RT = GasConstant * T;
+    for (int k = 0; k < m_kk; k++) {
+      hbar[k] *= RT;
+    }
+    /*
+     * Update the activity coefficients, This also update the
+     * internally storred molalities.
+     */
+    s_update_lnActCoeff();
+    s_update_dlnActCoeff_dT();
+    double RTT = RT * T;
+    for (int k = 0; k < m_kk; k++) {
+      hbar[k] -= RTT * dlnActCoeffdT_Scaled_[k];
+    }
+  }
 
+  // Returns an array of partial molar entropies for the species
+  // in the mixture.
+  /*
+   * Units (J/kmol)
+   *
+   * For this phase, the partial molar enthalpies are equal to the
+   * standard state enthalpies modified by the derivative of the
+   * activity coefficent wrt temperature
+   *
+   *  \f[
+   * \bar s_k(T,P) = s^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}
+   * \f]
+   *
+   */
+  void MargulesVPSSTP::getPartialMolarEntropies(doublereal* sbar) const {
+    double xx;
+    /*
+     * Get the nondimensional standard state entropies
+     */
+    getEntropy_R(sbar);
+    double T = temperature();
+    /*
+     * Update the activity coefficients, This also update the
+     * internally storred molalities.
+     */
+    s_update_lnActCoeff();
+    s_update_dlnActCoeff_dT();
+
+    for (int k = 0; k < m_kk; k++) {
+      xx = fmaxx(moleFractions_[k], xxSmall);
+      sbar[k] += - lnActCoeff_Scaled_[k] -log(xx) - T * dlnActCoeffdT_Scaled_[k];
+    }  
+    /*
+     * dimensionalize it.
+     */
+   for (int k = 0; k < m_kk; k++) {
+      sbar[k] *= GasConstant;
+    }
+  }
+  
+  
 
   doublereal MargulesVPSSTP::err(std::string msg) const {
     throw CanteraError("MargulesVPSSTP","Base class method "
@@ -530,6 +608,43 @@ namespace Cantera {
       
       lnActCoeff_Scaled_[iA] += XB * XB * (g0 + g1 * (XB - XA));
       lnActCoeff_Scaled_[iB] += XA * XA * g0 +  XA * XB * g1 * (2 * XA);
+    }
+  }
+
+  // Update the derivative of the log of the activity coefficients wrt T
+  /*
+   * This function will be called to update the internally storred
+   * natural logarithm of the activity coefficients
+   *
+   *   he = X_A X_B(B + C(X_A - X_B))
+   */
+  void MargulesVPSSTP::s_update_dlnActCoeff_dT() const {
+    int iA, iB;
+    doublereal XA, XB, h0 , h1;
+    doublereal T = temperature();
+
+    fvo_zero_dbl_1(dlnActCoeffdT_Scaled_, m_kk);
+
+    doublereal RTT = GasConstant * T * T;
+    for (int i = 0; i <  numBinaryInteractions_; i++) {
+      iA =  m_pSpecies_A_ij[i];    
+      iB =  m_pSpecies_B_ij[i];
+
+      XA = moleFractions_[iA];
+      XB = moleFractions_[iB];
+      
+      h0 = m_HE_b_ij[i];
+      h1 = m_HE_c_ij[i];
+      
+      dlnActCoeffdT_Scaled_[iA] += -(XB * XB * (h0 + h1 * (XB - XA))) / RTT;
+      dlnActCoeffdT_Scaled_[iB] += -(XA * XA * h0 +  XA * XB * h1 * (2 * XA))/RTT;
+    }
+  }
+
+  void MargulesVPSSTP::getdlnActCoeffdT(doublereal *dlnActCoeffdT) const {
+    s_update_dlnActCoeff_dT();
+    for (int k = 0; k < m_kk; k++) {
+      dlnActCoeffdT[k] = dlnActCoeffdT_Scaled_[k];
     }
   }
 

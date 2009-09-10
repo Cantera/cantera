@@ -524,6 +524,39 @@ namespace Cantera {
      */
     virtual void getChemPotentials(doublereal* mu) const;
 
+  
+    //! Returns an array of partial molar enthalpies for the species
+    //! in the mixture.
+    /*!
+     * Units (J/kmol)
+     *
+     * For this phase, the partial molar enthalpies are equal to the
+     * standard state enthalpies modified by the derivative of the
+     * molality-based activity coefficent wrt temperature
+     *
+     *  \f[
+     *   \bar h_k(T,P) = h^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}
+     *  \f]
+     */
+    virtual void getPartialMolarEnthalpies(doublereal* hbar) const;
+
+    //! Returns an array of partial molar entropies for the species
+    //! in the mixture.
+    /*!
+     * Units (J/kmol)
+     *
+     * For this phase, the partial molar enthalpies are equal to the
+     * standard state enthalpies modified by the derivative of the
+     * activity coefficent wrt temperature
+     *
+     *  \f[
+     *   \bar s_k(T,P) = s^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}
+     *                              - R \ln( \gamma_k X_k)
+     *                              - R T \frac{d \ln(\gamma_k) }{dT}
+     *  \f]
+     */
+    virtual void getPartialMolarEntropies(doublereal* sbar) const;
+
     
     //! Get the species electrochemical potentials.
     /*!
@@ -537,6 +570,19 @@ namespace Cantera {
      *               Length: m_kk.
      */
     void getElectrochemPotentials(doublereal* mu) const;
+
+ 
+    //! Get the array of temperature derivatives of the log activity coefficients
+    /*!
+     * This function is a virtual class, but it first appears in GibbsExcessVPSSTP
+     * class and derived classes from GibbsExcessVPSSTP.
+     *
+     *  units = 1/Kelvin
+     *
+     * @param dlnActCoeffdT    Output vector of temperature derivatives of the 
+     *                         log Activity Coefficients. length = m_kk
+     */
+    virtual void getdlnActCoeffdT(doublereal *dlnActCoeffdT) const;
 
  
     //@}
@@ -664,6 +710,14 @@ namespace Cantera {
      * natural logarithm of the activity coefficients
      */
     void s_update_lnActCoeff() const;
+
+    // Update the derivative of the log of the activity coefficients wrt T
+    /*
+     * This function will be called to update the internally storred
+     * natural logarithm of the activity coefficients
+     *
+     */
+    void s_update_dlnActCoeff_dT() const;
 
 
   private:

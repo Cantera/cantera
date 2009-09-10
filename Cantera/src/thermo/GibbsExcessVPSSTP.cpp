@@ -62,6 +62,7 @@ namespace Cantera {
 
     moleFractions_       = b.moleFractions_;
     lnActCoeff_Scaled_   = b.lnActCoeff_Scaled_;
+    dlnActCoeffdT_Scaled_   = b.dlnActCoeffdT_Scaled_;
     m_pp                 = b.m_pp;
 
     return *this;
@@ -335,6 +336,7 @@ namespace Cantera {
     m_kk = nSpecies();
     moleFractions_.resize(m_kk);
     lnActCoeff_Scaled_.resize(m_kk);
+    dlnActCoeffdT_Scaled_.resize(m_kk);
     m_pp.resize(m_kk);
   }
 

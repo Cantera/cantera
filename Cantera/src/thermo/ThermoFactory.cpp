@@ -681,7 +681,10 @@ namespace Cantera {
     int m, nel = th.nElements();
     vector_fp ecomp(nel, 0.0);            
     for (m = 0; m < nel; m++) {
-      ecomp[m] = atoi(comp[th.elementName(m)].c_str());
+      const char *es = comp[th.elementName(m)].c_str();
+      if (strlen(es) > 0) {
+        ecomp[m] = atofCheck(es);
+      }
     }
 
 
