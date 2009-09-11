@@ -982,10 +982,10 @@ namespace Cantera {
   }
 
   static double factorOverlap(const std::vector<std::string>&  elnamesVN ,
-			      const std::vector<int>& elemVectorN,
+			      const std::vector<double>& elemVectorN,
 			      const int  nElementsN,
 			      const std::vector<std::string>&  elnamesVI ,
-			      const std::vector<int>& elemVectorI,
+			      const std::vector<double>& elemVectorI,
 			      const int  nElementsI)
   {
     double fMax = 1.0E100;
@@ -1076,12 +1076,12 @@ namespace Cantera {
 
     int nElementsN =  neutralMoleculePhase_->nElements();
     const std::vector<std::string>&  elnamesVN = neutralMoleculePhase_->elementNames();
-    std::vector<int> elemVectorN(nElementsN);
-    std::vector<int> elemVectorN_orig(nElementsN);
+    std::vector<double> elemVectorN(nElementsN);
+    std::vector<double> elemVectorN_orig(nElementsN);
 
     int nElementsI =  nElements();
     const std::vector<std::string>&  elnamesVI = elementNames();
-    vector<int> elemVectorI(nElementsI);
+    std::vector<double> elemVectorI(nElementsI);
 
     vector<doublereal> fm_tmp(m_kk);
     for (int jNeut = 0; jNeut <  numNeutralMoleculeSpecies_; jNeut++) {
