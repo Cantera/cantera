@@ -44,6 +44,7 @@ namespace Cantera {
   const int cLiquidTransport     = 700;
   const int cAqueousTransport    = 750;
   const int cRadiativeTransport  = 800;
+  const int cWaterTransport      = 721;
 
   // forward reference
   class XML_Writer;

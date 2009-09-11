@@ -35,11 +35,11 @@ CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT) $(PIC_FLAG) $(DEBUG_FLAG)
 
 # Base Transport Object Files
 TRAN_OBJ    = TransportFactory.o MultiTransport.o MixTransport.o MMCollisionInt.o \
-              SolidTransport.o DustyGasTransport.o TransportBase.o
+              SolidTransport.o DustyGasTransport.o TransportBase.o WaterTransport.o
 
 TRAN_H  =  TransportFactory.h MultiTransport.h MixTransport.h \
            MMCollisionInt.h  SolidTransport.h DustyGasTransport.h \
-           TransportBase.h L_matrix.h TransportParams.h
+           TransportBase.h L_matrix.h TransportParams.h WaterTransport.h
 
 ifeq ($(do_electro),1)
 do_issp = 1
@@ -62,7 +62,7 @@ LIB = @buildlib@/libtransport.a
 
 DEPENDS = $(CATRAN_OBJ:.o=.d)
 
-all:  $(LIB) .depends
+all:  $(LIB) .depends  
 	@(@INSTALL@ -d $(INCDIR))
 	@(for lh in $(CATRAN_H) ; do \
 	  $(INSTALL_TSC) "$${lh}" $(INCDIR) ; \
