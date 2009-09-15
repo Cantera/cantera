@@ -17,10 +17,10 @@
 
 #include "SingleSpeciesTP.h"
 
-class WaterPropsIAPWS;
 
 namespace Cantera {
     
+  class WaterPropsIAPWS;
   //!  Class for single-component water. This is designed to cover just the
   //!  liquid part of water.
   /*!

@@ -19,8 +19,8 @@
 
 
 #include "ct_defs.h"
-class WaterPropsIAPWS;
 namespace Cantera {
+  class WaterPropsIAPWS;
   class PDSS_Water;
  
   /**
@@ -114,6 +114,12 @@ namespace Cantera {
 
     //! Default constructor
     WaterProps();
+
+    //! Constructor with pointer to Water PDSS object
+    /*!
+     * @param wptr Pointer to WaterPropsIAPWS object
+     */
+    WaterProps(WaterPropsIAPWS *wptr);
 
     //! Constructor with pointer to Water PDSS object
     /*!

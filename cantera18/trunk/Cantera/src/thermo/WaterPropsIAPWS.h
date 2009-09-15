@@ -18,6 +18,8 @@
 
 #include "WaterPropsIAPWSphi.h"
 #include "config.h"
+
+namespace Cantera {
 /**
  *  @name Names for the phase regions
  *
@@ -470,4 +472,6 @@ private:
   //! Current state of the system
   mutable int iState;
 };
+
+}
 #endif
