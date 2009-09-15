@@ -1456,7 +1456,7 @@ namespace Cantera {
      */
     virtual void setPressure(doublereal p);
 
-  private:
+  protected:
     /**
      * Calculate the density of the mixture using the partial 
      * molar volumes and mole fractions as input

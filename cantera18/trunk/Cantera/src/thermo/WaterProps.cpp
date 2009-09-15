@@ -434,11 +434,26 @@ namespace Cantera {
     return pres;
   }
  
-
+  // Returns the density of water
+  /*
+   * This function sets the internal temperature and pressure
+   * of the underlying object at the same time.
+   *
+   * @param T Temperature (kelvin)
+   * @param P pressure (pascal)
+   */
   double WaterProps::density_IAPWS(double temp, double press) {
+    double dens = m_waterIAPWS->density(temp, press, WATER_LIQUID);
+    return dens;
+  }
 
-    double dens;
-    dens = m_waterIAPWS->density(temp, press, WATER_LIQUID);
+  // Returns the density of water
+  /*
+   *  This function uses the internal state of the
+   *  underlying water object
+   */
+  double WaterProps::density_IAPWS() const {
+    double dens = m_waterIAPWS->density();
     return dens;
   }
 
@@ -461,6 +476,113 @@ namespace Cantera {
     double kappa = m_waterIAPWS->isothermalCompressibility();
     return kappa;
   }
+
+
+
+
+
+  // Parameters for the viscosityWater() function
+
+  const double H[4] = {1.,
+		       0.978197,
+		       0.579829,
+		       -0.202354};
+
+  const double Hij[6][7] =
+    {
+      { 0.5132047, 0.2151778, -0.2818107,  0.1778064, -0.04176610,          0.,           0.},
+      { 0.3205656, 0.7317883, -1.070786 ,  0.4605040,          0., -0.01578386,           0.},
+      { 0.,        1.241044 , -1.263184 ,  0.2340379,          0.,          0.,           0.},
+      { 0.,        1.476783 ,         0., -0.4924179,   0.1600435,          0., -0.003629481},
+      {-0.7782567,      0.0 ,         0.,  0.       ,          0.,          0.,           0.},
+      { 0.1885447,      0.0 ,         0.,  0.       ,          0.,          0.,           0.},
+    };
+  const double TStar = 647.27;       // Kelvin
+  const double rhoStar = 317.763;    // kg / m3
+  const double presStar = 22.115E6;  // Pa
+  const double muStar = 55.071E-6;   //Pa s
+
+
+  // Returns the viscosity of water at the current conditions
+  // (kg/m/s)
+  /*
+   *  This function calculates the value of the viscosity of pure
+   *  water at the current T and P.
+   *
+   *  The formulas used are from the paper
+   *
+   *     J. V. Sengers, J. T. R. Watson, "Improved International
+   *     Formulations for the Viscosity and Thermal Conductivity of
+   *     Water Substance", J. Phys. Chem. Ref. Data, 15, 1291 (1986).
+   *
+   *  The formulation is accurate for all temperatures and pressures,
+   *  for steam and for water, even near the critical point.
+   *  Pressures above 500 MPa and temperature above 900 C are suspect.
+   */
+  double WaterProps::viscosityWater() const {
+
+    double temp = m_waterIAPWS->temperature();
+    double dens = m_waterIAPWS->density();
+
+    //WaterPropsIAPWS *waterP = new WaterPropsIAPWS();
+    //m_waterIAPWS->setState_TR(temp, dens);
+    //double pressure = m_waterIAPWS->pressure();
+    //printf("pressure = %g\n", pressure);
+    //dens = 18.02 * pressure / (GasConstant * temp);
+    //printf ("mod dens = %g\n", dens);
+
+    double rhobar = dens/rhoStar;
+    double tbar = temp / TStar;
+    // double pbar = pressure / presStar;  
+
+    double tbar2 = tbar * tbar;
+    double tbar3 = tbar2 * tbar;
+
+    double mu0bar = std::sqrt(tbar) / (H[0] + H[1]/tbar + H[2]/tbar2 + H[3]/tbar3);
+
+    //printf("mu0bar = %g\n", mu0bar);
+    //printf("mu0 = %g\n", mu0bar * muStar);
+ 
+    double tfac1 = 1.0 / tbar - 1.0;
+    double tfac2 = tfac1 * tfac1;
+    double tfac3 = tfac2 * tfac1;
+    double tfac4 = tfac3 * tfac1;
+    double tfac5 = tfac4 * tfac1;
+
+    double rfac1 = rhobar - 1.0;
+    double rfac2 = rfac1 * rfac1;
+    double rfac3 = rfac2 * rfac1;
+    double rfac4 = rfac3 * rfac1;
+    double rfac5 = rfac4 * rfac1;
+    double rfac6 = rfac5 * rfac1;
+
+    double sum = (Hij[0][0]       + Hij[1][0]*tfac1       + Hij[4][0]*tfac4       + Hij[5][0]*tfac5 +
+		  Hij[0][1]*rfac1 + Hij[1][1]*tfac1*rfac1 + Hij[2][1]*tfac2*rfac1 + Hij[3][1]*tfac3*rfac1 +
+		  Hij[0][2]*rfac2 + Hij[1][2]*tfac1*rfac2 + Hij[2][2]*tfac2*rfac2 +
+		  Hij[0][3]*rfac3 + Hij[1][3]*tfac1*rfac3 + Hij[2][3]*tfac2*rfac3 + Hij[3][3]*tfac3*rfac3 +
+		  Hij[0][4]*rfac4 + Hij[3][4]*tfac3*rfac4 + 
+		  Hij[1][5]*tfac1*rfac5 + Hij[3][6]*tfac3*rfac6 
+		  );
+    double mu1bar = std::exp(rhobar * sum);
+
+    // Apply the near-critical point corrections if necessary
+    double mu2bar = 1.0;
+    if ((tbar >= 0.9970) && tbar <= 1.0082) {
+      if ((rhobar >= 0.755) && (rhobar <= 1.290)) {
+	double drhodp =  1.0 / m_waterIAPWS->dpdrho();
+	drhodp *= presStar / rhoStar;
+        double xsi = rhobar * drhodp;
+        if (xsi >= 21.93) {
+	  mu2bar = 0.922 * std::pow(xsi, 0.0263);
+	}
+      }
+    }
+
+    double mubar = mu0bar * mu1bar * mu2bar;
+
+    return mubar * muStar;
+  }
+
 
 
 }

@@ -277,7 +277,33 @@ namespace Cantera {
      */
     virtual void setPressure(const doublereal p);
 
+protected:
+    /**
+     * Calculate the density of the mixture using the partial 
+     * molar volumes and mole fractions as input
+     *
+     * The formula for this is
+     *
+     * \f[ 
+     * \rho = \frac{\sum_k{X_k W_k}}{\sum_k{X_k V_k}} 
+     * \f]
+     *
+     * where \f$X_k\f$ are the mole fractions, \f$W_k\f$ are
+     * the molecular weights, and \f$V_k\f$ are the pure species
+     * molar volumes.
+     *
+     * Note, the basis behind this formula is that in an ideal
+     * solution the partial molar volumes are equal to the pure
+     * species molar volumes. We have additionally specified
+     * in this class that the pure species molar volumes are
+     * independent of temperature and pressure.
+     *
+     * NOTE: This is a non-virtual function, which is not a 
+     *       member of the ThermoPhase base class. 
+     */
+    virtual void calcDensity();
 
+ public:
     //! Set the temperature and pressure at the same time
     /*!
      *  Note this function triggers a reevalulation of the standard

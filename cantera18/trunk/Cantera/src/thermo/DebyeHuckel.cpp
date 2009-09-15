@@ -330,8 +330,37 @@ namespace Cantera {
      */
     _updateStandardStateThermo();
 
+    /*
+     * Calculate all of the other standard volumes
+     * -> note these are constant for now
+     */
+    calcDensity();
+  }
+
+  /*
+   * Calculate the density of the mixture using the partial
+   * molar volumes and mole fractions as input
+   *
+   * The formula for this is
+   *
+   * \f[
+   * \rho = \frac{\sum_k{X_k W_k}}{\sum_k{X_k V_k}}
+   * \f]
+   *
+   * where \f$X_k\f$ are the mole fractions, \f$W_k\f$ are
+   * the molecular weights, and \f$V_k\f$ are the pure species
+   * molar volumes.
+   *
+   * Note, the basis behind this formula is that in an ideal
+   * solution the partial molar volumes are equal to the pure
+   * species molar volumes. We have additionally specified
+   * in this class that the pure species molar volumes are
+   * independent of temperature and pressure.
+   *
+   */
+  void DebyeHuckel::calcDensity() {
     if (m_waterSS) {
-   
+      
       /*
        * Store the internal density of the water SS.
        * Note, we would have to do this for all other
@@ -339,41 +368,18 @@ namespace Cantera {
        */
       m_densWaterSS = m_waterSS->density();
     }
-    /*
-     * Calculate all of the other standard volumes
-     * -> note these are constant for now
-     */
-    /*
-     * Get the partial molar volumes of all of the
-     * species. -> note this is a lookup for 
-     * water, here since it was done above.
-     */
     double *vbar = &m_pp[0];
     getPartialMolarVolumes(vbar);
-
-    /*
-     * Get mole fractions of all species.
-     */
     double *x = &m_tmpV[0];
     getMoleFractions(x);
-	
-    /*
-     * Calculate the solution molar volume and the 
-     * solution density.
-     */
     doublereal vtotal = 0.0;
     for (int i = 0; i < m_kk; i++) {
       vtotal += vbar[i] * x[i];
     }
     doublereal dd = meanMolecularWeight() / vtotal;
-
-    /*
-     * Now, update the State class with the results. This
-     * stores the density.
-     */
     State::setDensity(dd);
-
   }
+
 
   /*
    * The isothermal compressibility. Units: 1/Pa.
