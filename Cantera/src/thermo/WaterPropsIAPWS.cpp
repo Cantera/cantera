@@ -19,6 +19,8 @@
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
+
+namespace Cantera {
 /*
  * Critical Point values of water in mks units
  */
@@ -872,3 +874,5 @@ doublereal WaterPropsIAPWS::molarVolume() const {
   doublereal rho = delta * Rho_c;
   return (M_water / rho);
 }
+
+};

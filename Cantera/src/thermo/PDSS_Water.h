@@ -14,15 +14,19 @@
  *  $Revision: 1.11 $
  */
 
-#ifndef CT_WATERPDSS_H
-#define CT_WATERPDSS_H
+#ifndef CT_PDSS_WATER_H
+#define CT_PDSS_WATER_H
+
 #include "ct_defs.h"
 #include "PDSS.h"
 #include "VPStandardStateTP.h"
 
-class WaterPropsIAPWS;
+
+
 
 namespace Cantera {
+  class WaterPropsIAPWS;
+  class WaterProps;
 
   //!  Class for the liquid water pressure dependent 
   //!  standard state
@@ -387,9 +391,14 @@ namespace Cantera {
      */
     virtual doublereal satPressure(doublereal t);
 
-    //! Get a pointer to the WaterPropsIAPWS object
-    WaterPropsIAPWS *getWater() const {
+    //! Get a pointer to a changeable WaterPropsIAPWS object
+    WaterPropsIAPWS *getWater() {
       return m_sub;
+    }
+
+    //! Get a pointer to a changeable WaterPropsIAPWS object
+    WaterProps *getWaterProps() {
+      return m_waterProps;
     }
 
     /**
@@ -485,12 +494,22 @@ namespace Cantera {
 
   private:
 
-    //! Pointer to the WaterProps object, which does the actual calculations
+    //! Pointer to the WaterPropsIAPWS object, which does the actual calculations
     //! for the real equation of state
     /*!
      * This object owns m_sub
      */
     mutable WaterPropsIAPWS *m_sub;
+
+    //! Pointer to the WaterProps object
+    /*!
+     *   This class is used to house several approximation
+     *   routines for properties of water.
+     *
+     * This object owns m_waterProps, and the WaterPropsIAPWS object used by
+     * WaterProps is m_sub, which is defined above.
+     */
+    WaterProps *m_waterProps;
 
     //! State of the system - density
     /*!

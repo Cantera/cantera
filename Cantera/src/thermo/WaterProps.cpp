@@ -54,6 +54,19 @@ namespace Cantera {
     }
   }
 
+  WaterProps::WaterProps(WaterPropsIAPWS *waterIAPWS)  :
+    m_waterIAPWS(0),
+    m_own_sub(false)
+  {
+    if (waterIAPWS) {
+      m_waterIAPWS = waterIAPWS;
+      m_own_sub = false;
+    } else {
+      m_waterIAPWS = new WaterPropsIAPWS();
+      m_own_sub = true;
+    }
+  }
+
   /**
    * Copy constructor
    */
