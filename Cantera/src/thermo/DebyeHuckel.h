@@ -766,10 +766,10 @@ namespace Cantera {
      */
     virtual void setPressure(doublereal p);
 
-    /**
-     * Calculate the density of the mixture using the partial 
-     * molar volumes and mole fractions as input
-     *
+  protected:
+    //! Calculate the density of the mixture using the partial 
+    //! molar volumes and mole fractions as input
+    /*!
      * The formula for this is
      *
      * \f[ 
@@ -785,12 +785,10 @@ namespace Cantera {
      * species molar volumes. We have additionally specified
      * in this class that the pure species molar volumes are
      * independent of temperature and pressure.
-     *
-     * NOTE: This is a non-virtual function, which is not a 
-     *       member of the ThermoPhase base class. 
      */
-    void calcDensity();
+    virtual void calcDensity();
 
+  public:
     //! Set the internally storred density (gm/m^3) of the phase.
     /*!
      * Overwritten setDensity() function is necessary because the

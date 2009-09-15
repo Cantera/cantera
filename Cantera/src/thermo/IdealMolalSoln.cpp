@@ -288,55 +288,20 @@ namespace Cantera {
    * The mass density is not a function of pressure.
    */
   void IdealMolalSoln::setPressure(doublereal p) {
+    setState_TP(temperature(), p);
+  }
 
-#ifdef DEBUG_MODE
-    //printf("setPressure: %g\n", p);
-#endif
-    /*
-     * Store the current pressure
-     */
-    m_Pcurrent = p;
-
-    /*
-     * update the standard state thermo
-     * -> This involves calling the water function and setting the pressure
-     */
-    updateStandardStateThermo();
-
-    /*
-     * Calculate all of the other standard volumes
-     * -> note these are constant for now
-     */
-    /*
-     * Get the partial molar volumes of all of the
-     * species. -> note this is a lookup for 
-     * water, here since it was done above.
-     */
+  void IdealMolalSoln::calcDensity() {
     double *vbar = &m_pp[0];
     getPartialMolarVolumes(vbar);
-
-    /*
-     * Get mole fractions of all species.
-     */
     double *x = &m_tmpV[0];
     getMoleFractions(x);
-	
-    /*
-     * Calculate the solution molar volume and the 
-     * solution density.
-     */
     doublereal vtotal = 0.0;
     for (int i = 0; i < m_kk; i++) {
       vtotal += vbar[i] * x[i];
     }
     doublereal dd = meanMolecularWeight() / vtotal;
-
-    /*
-     * Now, update the State class with the results. This
-     * stores the density.
-     */
     State::setDensity(dd);
-
   }
 
   /*
@@ -407,6 +372,14 @@ namespace Cantera {
       throw CanteraError("IdealMolalSoln::setMolarDensity",
 			 "molarDensity/denisty is not an independent variable");
     }
+  }
+
+  void IdealMolalSoln::setState_TP(doublereal temp, doublereal pres) {
+    State::setTemperature(temp);
+    m_Pcurrent = pres;
+    updateStandardStateThermo();
+    //m_densWaterSS = m_waterSS->density();
+    calcDensity();
   }
 
   //

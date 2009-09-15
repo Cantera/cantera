@@ -130,7 +130,7 @@ namespace Cantera {
      */
     virtual doublereal isothermalCompressibility() const;
 
-  private:
+  protected:
     /**
      * Calculate the density of the mixture using the partial
      * molar volumes and mole fractions as input
@@ -154,7 +154,7 @@ namespace Cantera {
      * NOTE: This is a non-virtual function, which is not a
      *       member of the ThermoPhase base class.
      */
-    void calcDensity();
+    virtual void calcDensity();
 
   public:
 

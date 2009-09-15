@@ -49,6 +49,7 @@ static const doublereal Rgas = 8.314371E3;   // Joules kmol-1 K-1
 #endif
 //@}
 
+// Base constructor
 WaterPropsIAPWS:: WaterPropsIAPWS() :
   m_phi(0),
   tau(-1.0),
@@ -58,6 +59,10 @@ WaterPropsIAPWS:: WaterPropsIAPWS() :
   m_phi = new WaterPropsIAPWSphi();
 }
 
+// Copy constructor
+/*
+ * @param b Object to be copied
+ */
 WaterPropsIAPWS::WaterPropsIAPWS(const WaterPropsIAPWS &b) :
   m_phi(0),
   tau(b.tau),
@@ -68,6 +73,10 @@ WaterPropsIAPWS::WaterPropsIAPWS(const WaterPropsIAPWS &b) :
   m_phi->tdpolycalc(tau, delta);
 }
 
+// assignment constructor
+/*
+ * @param right Object to be copied
+ */
 WaterPropsIAPWS & WaterPropsIAPWS::operator=(const WaterPropsIAPWS &b) {
   if (this == &b) return *this;
   tau = b.tau;
@@ -77,12 +86,20 @@ WaterPropsIAPWS & WaterPropsIAPWS::operator=(const WaterPropsIAPWS &b) {
   return *this;
 }
 
+// destructor
 WaterPropsIAPWS::~WaterPropsIAPWS() {
   delete (m_phi);
   m_phi = 0;
 }
 
-
+/*
+ * Calculate the dimensionless temp and rho and store internally.
+ *
+ * @param temperature   input temperature (kelvin)
+ *  @param rho          density in kg m-3
+ *
+ *  this is a private function
+ */
 void WaterPropsIAPWS::calcDim(doublereal temperature, doublereal rho) {
   tau = T_c / temperature;
   delta = rho / Rho_c;
@@ -100,6 +117,8 @@ void WaterPropsIAPWS::calcDim(doublereal temperature, doublereal rho) {
   }
 }
 
+// Calculate the Helmholtz free energy in mks units of J kmol-1 K-1,
+// using the last temperature and density
 doublereal  WaterPropsIAPWS::helmholtzFE() const {
   doublereal retn = m_phi->phi(tau, delta);
   doublereal temperature = T_c/tau;
@@ -194,7 +213,32 @@ doublereal WaterPropsIAPWS::density(doublereal temperature, doublereal pressure,
   return density_retn;
 }
 
-
+// Calculates the density given the temperature and the pressure,
+// and a guess at the density, while not changing the internal state
+/*
+ *  Note, below T_c, this is a multivalued function.
+ *
+ * The #density() function calculates the density that is consistent with
+ * a particular value of the temperature and pressure. It may therefore be
+ * multivalued or potentially there may be no answer from this function. It therefore
+ * takes a phase guess and a density guess as optional parameters. If no guesses are
+ *
+ * supplied to density(), a gas phase guess is assumed. This may or may not be what
+ * is wanted. Therefore, density() should usually at leat be supplied with a phase
+ * guess so that it may manufacture an appropriate density guess.
+ * #density() manufactures the initial density guess, nondimensionalizes everything,
+ * and then calls #WaterPropsIAPWSphi::dfind(), which does the iterative calculation
+ * to find the density condition that matches the desired input pressure.
+ *
+ *  @param  pressure   : Pressure in Pascals (Newton/m**2)
+ *  @param  phase      : guessed phase of water
+ *                     : -1: no guessed phase
+ *  @param rhoguess    : guessed density of the water
+ *                     : -1.0 no guessed density
+ *  @return
+ *     Returns the density. If an error is encountered in the calculation
+ *     the value of -1.0 is returned.
+ */
 doublereal WaterPropsIAPWS::density_const(doublereal pressure,
 					  int phase, doublereal rhoguess) const {
   doublereal temperature = T_c / tau;
@@ -256,10 +300,22 @@ doublereal WaterPropsIAPWS::density_const(doublereal pressure,
   return density_retn;
 }
 
-
-
+// Returns the density (kg m-3)
+/*
+ * The density is an independent variable in the underlying equation of state
+ *
+ * @return  Returns the density (kg m-3)
+ */
 doublereal WaterPropsIAPWS::density() const {
   return (delta * Rho_c);
+}
+
+// Returns the temperature (Kelvin)
+/*
+ * @return  Returns the internally storred temperature
+ */
+doublereal WaterPropsIAPWS::temperature() const {
+  return (T_c / tau);
 }
 
 /*
@@ -319,6 +375,13 @@ doublereal WaterPropsIAPWS::isothermalCompressibility() const {
   return (1.0 / (dens * dpdrho_val));
 }
 
+// Returns the value of dp / drho at constant T at  the current
+// state of the object
+/*
+ *  units - Joules / kg
+ *
+ * @return  returns dpdrho
+ */
 doublereal WaterPropsIAPWS::dpdrho() const {
   doublereal retn = m_phi->dimdpdrho(tau, delta);
   doublereal temperature = T_c/tau;
@@ -326,11 +389,26 @@ doublereal WaterPropsIAPWS::dpdrho() const {
   return val;
 }
 
+// Returns the isochoric pressure derivative wrt temperature
+/*
+ *     beta = M / (rho * Rgas) (d (pressure) / dT) at constant rho
+ *
+ *  Note for ideal gases this is equal to one.
+ *
+ *    beta = delta (phi0_d() + phiR_d())
+ *            - tau delta (phi0_dt() + phiR_dt())
+ */
 doublereal WaterPropsIAPWS:: coeffPresExp() const {
   doublereal retn = m_phi->dimdpdT(tau, delta);
   return (retn);
 }
 
+// Returns the coefficient of thermal expansion.
+/*
+ *           alpha = d (ln V) / dT at constant P.
+ *
+ * @return  Returns the coefficient of thermal expansion
+ */
 doublereal WaterPropsIAPWS:: coeffThermExp() const {
   doublereal kappa = isothermalCompressibility();
   doublereal beta = coeffPresExp();
@@ -338,15 +416,27 @@ doublereal WaterPropsIAPWS:: coeffThermExp() const {
   return (kappa * dens * Rgas * beta / M_water);
 }
 
+// Calculate the Gibbs free energy in mks units of J kmol-1 K-1.
+// using the last temperature and density
 doublereal WaterPropsIAPWS::Gibbs() const {
   doublereal gRT = m_phi->gibbs_RT();
   doublereal temperature = T_c/tau;
   return (gRT * Rgas * temperature);
 }
 
+
+// Utility routine in the calculation of the saturation pressure
 /*
+ *  Private routine
+ *
  * Calculate the Gibbs free energy in mks units of
  * J kmol-1 K-1.
+ *
+ * @param temperature    temperature (kelvin)
+ * @param pressure       pressure (Pascal)
+ * @param densLiq        Output density of liquid
+ * @param densGas        output Density of gas
+ * @param delGRT         output delGRT
  */
 void  WaterPropsIAPWS::
 corr(doublereal temperature, doublereal pressure, doublereal &densLiq, 
@@ -373,6 +463,16 @@ corr(doublereal temperature, doublereal pressure, doublereal &densLiq,
   delGRT = gibbsLiqRT - gibbsGasRT;
 }
 
+// Utility routine in the calculation of the saturation pressure
+/*
+ *  Private routine
+ *
+ * @param temperature    temperature (kelvin)
+ * @param pressure       pressure (Pascal)
+ * @param densLiq        Output density of liquid
+ * @param densGas        output Density of gas
+ * @param pcorr          output corrected pressure
+ */
 void WaterPropsIAPWS::
 corr1(doublereal temperature, doublereal pressure, doublereal &densLiq, 
       doublereal &densGas, doublereal &pcorr) {
@@ -401,13 +501,27 @@ corr1(doublereal temperature, doublereal pressure, doublereal &densLiq,
   pcorr = rhs * Rgas * temperature / M_water;
 }
 
-/**
- * Calculate the saturation pressure given the temperature.
- * p : Pascals : Newtons/m**2
- */
-static int method = 1;
 
+// This function returns the saturation pressure given the
+// temperature as an input parameter, and sets the internal state to the saturated
+// conditions.
+/*
+ *  Note this function will return the saturation pressure, given the temperature.
+ *  It will then set the state of the system to the saturation condition. The input
+ *  parameter waterState is used to either specify the liquid state or the
+ *  gas state at the desired temperatue and saturated pressure.
+ *
+ *  If the input temperature, T, is above T_c, this routine will set the internal
+ *  state to T and the pressure to P_c. Then, return P_c.
+ *
+ * @param temperature   input temperature (kelvin)
+ * @param waterState    integer specifying the water state
+ *
+ * @return Returns the saturation pressure
+ *                units = Pascal
+ */
 doublereal WaterPropsIAPWS::psat(doublereal temperature, int waterState) {
+  static int method = 1;
   doublereal densLiq = -1.0, densGas = -1.0, delGRT = 0.0;
   doublereal dp, pcorr;
   if (temperature >= T_c) {
@@ -450,6 +564,16 @@ doublereal WaterPropsIAPWS::psat(doublereal temperature, int waterState) {
   return p;
 }
 
+// Returns the Phase State flag for the current state of the object
+/*
+ * @param checkState If true, this function does a complete check to see where
+ *        in paramters space we are
+ *
+ *  There are three values:
+ *     WATER_GAS   below the critical temperature but below the critical density
+ *     WATER_LIQUID  below the critical temperature but above the critical density
+ *     WATER_SUPERCRIT   above the critical temperature
+ */
 int WaterPropsIAPWS::phaseState(bool checkState) const {
   if (checkState) {
     if (tau <= 1.0) {
@@ -494,8 +618,11 @@ int WaterPropsIAPWS::phaseState(bool checkState) const {
   return iState;
 }
 
-
-// Find the water spinodal density
+// Return the value of the density at the water spinodal point (on the liquid side)
+// for the current temperature.
+/*
+ * @return returns the density with units of kg m-3
+ */
 doublereal WaterPropsIAPWS::densSpinodalWater() const {
   doublereal temperature = T_c/tau;
   doublereal delta_save = delta;
@@ -587,8 +714,11 @@ doublereal WaterPropsIAPWS::densSpinodalWater() const {
   return dens_new;
 }
 
-
-// Find the steam spinodal density
+// Return the value of the density at the water spinodal point (on the gas side)
+// for the current temperature.
+/*
+ * @return returns the density with units of kg m-3
+ */
 doublereal WaterPropsIAPWS::densSpinodalSteam() const {
   doublereal temperature = T_c/tau;
   doublereal delta_save = delta;
@@ -682,9 +812,7 @@ doublereal WaterPropsIAPWS::densSpinodalSteam() const {
   return dens_new;
 }
 
-
-
-/**
+/*
  * Sets the internal state of the object to the
  * specified temperature and density.
  */
@@ -692,7 +820,6 @@ void WaterPropsIAPWS::setState_TR(doublereal temperature, doublereal rho) {
   calcDim(temperature, rho);
   m_phi->tdpolycalc(tau, delta);
 }
-
 
 /*
  * Calculate the enthalpy in mks units of
@@ -703,7 +830,6 @@ doublereal WaterPropsIAPWS::enthalpy() const {
   doublereal hRT =  m_phi->enthalpy_RT();
   return (hRT * Rgas * temperature);
 }
-
 
 /*
  * Calculate the internal Energy in mks units of
@@ -733,11 +859,15 @@ doublereal WaterPropsIAPWS::cv() const {
   return (cvR * Rgas);
 }
 
+// Calculate the constant pressure heat capacity in mks units of J kmol-1 K-1
+// at the last temperature and density
 doublereal  WaterPropsIAPWS::cp() const {
   doublereal cpR = m_phi->cp_R();
   return (cpR * Rgas);
 }
 
+// Calculate the molar volume (kmol m-3)
+// at the last temperature and density
 doublereal WaterPropsIAPWS::molarVolume() const {
   doublereal rho = delta * Rho_c;
   return (M_water / rho);

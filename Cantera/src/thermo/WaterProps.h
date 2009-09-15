@@ -265,10 +265,21 @@ namespace Cantera {
 
     //! Returns the density of water
     /*!
+     * This function sets the internal temperature and pressure
+     * of the underlying object at the same time.
+     *
      * @param T Temperature (kelvin)
      * @param P pressure (pascal)
      */
     double density_IAPWS(double T, double P);
+
+    //! Returns the density of water
+    /*!
+     *  This function uses the internal state of the
+     *  underlying water object
+     */
+    double density_IAPWS() const;
+
 
     //! returns the coefficient of thermal expansion
     /*!
@@ -283,6 +294,24 @@ namespace Cantera {
      * @param P  pressure in pascal
      */
     double isothermalCompressibility_IAPWS(double T, double P);
+
+    //! Returns the viscosity of water at the current conditions
+    //! (kg/m/s)
+    /*!
+     *  This function calculates the value of the viscosity of pure
+     *  water at the current T and P.
+     *
+     *  The formulas used are from the paper
+     *     J. V. Sengers, J. T. R. Watson, "Improved International
+     *     Formulations for the Viscosity and Thermal Conductivity of
+     *     Water Substance", J. Phys. Chem. Ref. Data, 15, 1291 (1986).
+     *
+     *  The formulation is accurate for all temperatures and pressures,
+     *  for steam and for water, even near the critical point.
+     *  Pressures above 500 MPa and temperature above 900 C are suspect.
+     */
+    double viscosityWater() const;
+
 
   protected:
 

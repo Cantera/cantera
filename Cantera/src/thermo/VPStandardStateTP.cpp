@@ -347,6 +347,10 @@ namespace Cantera {
     updateStandardStateThermo();
   }
 
+  void VPStandardStateTP::calcDensity() {
+    err("VPStandardStateTP::calcDensity() called, but EOS for phase is not known");
+  }
+
 
   void VPStandardStateTP::setState_TP(doublereal t, doublereal pres) {
     /*
@@ -371,6 +375,7 @@ namespace Cantera {
      */
     //setTemperature(t);
     //setPressure(pres);
+    calcDensity();
   }
 
 
