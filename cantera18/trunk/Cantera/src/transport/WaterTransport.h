@@ -40,6 +40,8 @@ namespace Cantera {
 
 
   class TransportParams;
+  class WaterProps;
+  class PDSS_Water;
 
 
   class WaterTransport : public Transport {
@@ -83,28 +85,54 @@ namespace Cantera {
       return cWaterTransport; 
     }
 
-    //! overloaded base class methods
-
-    //! Returns the viscosity of the solution
+    //! Returns the viscosity of water at the current conditions
+    //! (kg/m/s)
     /*!
-     * The viscosity is computed using the Wilke mixture rule.
-     * \f[
-     * \mu = \sum_k \frac{\mu_k X_k}{\sum_j \Phi_{k,j} X_j}.
-     * \f]
-     * Here \f$ \mu_k \f$ is the viscosity of pure species \e k,
-     * and 
-     * \f[
-     * \Phi_{k,j} = \frac{\left[1 
-     * + \sqrt{\left(\frac{\mu_k}{\mu_j}\sqrt{\frac{M_j}{M_k}}\right)}\right]^2}
-     * {\sqrt{8}\sqrt{1 + M_k/M_j}}
-     * \f] 
-     * @see updateViscosity_T();
+     *  This function calculates the value of the viscosity of pure
+     *  water at the current T and P.
      *
-     * Controlling update boolean m_viscmix_ok
-     */ 
+     *  The formulas used are from the paper
+     *
+     *     J. V. Sengers, J. T. R. Watson, "Improved International
+     *     Formulations for the Viscosity and Thermal Conductivity of
+     *     Water Substance", J. Phys. Chem. Ref. Data, 15, 1291 (1986).
+     *
+     *  The formulation is accurate for all temperatures and pressures,
+     *  for steam and for water, even near the critical point.
+     *  Pressures above 500 MPa and temperature above 900 C are suspect.
+     */
     virtual doublereal viscosity();
 
-   
+
+  private:
+
+    //! Routine to do some common initializations at the start of using
+    //! this routine.
+    void initTP();
+
+    //! Pointer to the WaterPropsIAPWS object, which does the actual calculations
+    //! for the real equation of state
+    /*!
+     * This object owns m_sub
+     */
+    mutable WaterPropsIAPWS *m_sub;
+
+    //! Pointer to the WaterProps object
+    /*!
+     *   This class is used to house several approximation
+     *   routines for properties of water.
+     *
+     * This object owns m_waterProps, and the WaterPropsIAPWS object used by
+     * WaterProps is m_sub, which is defined above.
+     */
+    WaterProps *m_waterProps;
+
+
+    //! Pressure dependent standard state object for water
+    /*!
+     *  We assume that species 0 is water, with a PDSS_Water object.
+     */
+    PDSS_Water *m_waterPDSS;
 
   };
 }
