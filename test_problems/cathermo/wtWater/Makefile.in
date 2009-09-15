@@ -11,11 +11,11 @@
 .SUFFIXES : .d
 
 # the name of the executable program to be created
-PROG_NAME = testWaterPDSS
+PROG_NAME = wtWater
 
 # the object files to be linked together. List those generated from Fortran
 # and from C/C++ separately
-OBJS = testWaterPDSS.o
+OBJS = wtWater.o
 
 # additional flags to be passed to the linker. If your program
 # requires other external libraries, put them here

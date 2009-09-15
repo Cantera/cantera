@@ -4,14 +4,14 @@
 temp_success="1"
 /bin/rm  -f output.txt outputa.txt
 
-testName=testWaterPDSS
+testName=wtWater
 #################################################################
 #
 #################################################################
 CANTERA_DATA=${CANTERA_DATA:=../../../data/inputs}; export CANTERA_DATA
 
 CANTERA_BIN=${CANTERA_BIN:=../../../bin}
-./testWaterPDSS > output.txt
+./wtWater > output.txt
 retnStat=$?
 if [ $retnStat != "0" ]
 then

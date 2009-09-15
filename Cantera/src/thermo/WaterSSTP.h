@@ -21,6 +21,7 @@
 namespace Cantera {
     
   class WaterPropsIAPWS;
+  class WaterProps;
   //!  Class for single-component water. This is designed to cover just the
   //!  liquid part of water.
   /*!
@@ -501,6 +502,17 @@ namespace Cantera {
      */
     virtual void setParametersFromXML(const XML_Node& eosdata);
 
+    //! Get a pointer to a changeable WaterPropsIAPWS object
+    WaterPropsIAPWS *getWater() {
+      return m_sub;
+    }
+
+    //! Get a pointer to a changeable WaterPropsIAPWS object
+    WaterProps *getWaterProps() {
+      return m_waterProps;
+    }
+
+
  protected:
 
     /**
@@ -514,6 +526,16 @@ namespace Cantera {
     //! Pointer to the WaterPropsIAPWS that calculates the real properties
     //! of water.
     mutable WaterPropsIAPWS *m_sub;
+
+    //! Pointer to the WaterProps object
+    /*!
+     *   This class is used to house several approximation
+     *   routines for properties of water.
+     *
+     * This object owns m_waterProps, and the WaterPropsIAPWS object used by
+     * WaterProps is m_sub, which is defined above.
+     */
+    WaterProps *m_waterProps;
 
     //! Molecular weight of Water -> Cantera assumption
     doublereal m_mw;

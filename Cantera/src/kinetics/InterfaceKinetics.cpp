@@ -453,8 +453,9 @@ namespace Cantera {
      */
     void InterfaceKinetics::getFwdRateConstants(doublereal* kfwd) {
 
-        _update_rates_T();
-        _update_rates_C();
+       // _update_rates_T();
+       // _update_rates_C();
+        updateROP();
 
         const vector_fp& rf = m_kdata->m_rfn;
 
@@ -492,7 +493,7 @@ namespace Cantera {
     }
 
     /**
-     * Update the rates of progress of the reactions in the reaciton
+     * Update the rates of progress of the reactions in the reaction
      * mechanism. This routine operates on internal data.
      */
     void InterfaceKinetics::updateROP() {

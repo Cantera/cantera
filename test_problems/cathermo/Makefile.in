@@ -33,6 +33,7 @@ ifeq ($(test_electrolytes),1)
 	cd DH_graph_Pitzer; @MAKE@ all
 	cd HMW_dupl_test; @MAKE@ all
 	cd VPissp; @MAKE@ all
+	cd wtWater; @MAKE@ all
 endif
 
 test:
@@ -61,6 +62,7 @@ ifeq ($(test_electrolytes),1)
 	cd DH_graph_NM; @MAKE@ -s test
 	cd DH_graph_Pitzer; @MAKE@ -s test
 	cd HMW_dupl_test; @MAKE@ -s test
+	cd wtWater; @MAKE@ -s test
 endif
 #
 # Have to remove .depends before calling make, because
@@ -91,6 +93,7 @@ clean:
 	cd DH_graph_Pitzer;   $(RM) .depends ; @MAKE@ clean 
 	cd HMW_dupl_test;     $(RM) .depends ; @MAKE@ clean
 	cd VPissp;            $(RM) .depends ; @MAKE@ clean
+	cd wtWater;           $(RM) .depends ; @MAKE@ clean
 
 depends:
 ifeq ($(test_issp),1)
@@ -118,5 +121,6 @@ ifeq ($(test_electrolytes),1)
 	cd DH_graph_Pitzer;  @MAKE@ depends
 	cd HMW_dupl_test;   @MAKE@ depends
 	cd VPissp;          @MAKE@ depends
+	cd wtWater;         @MAKE@ depends
 
 endif

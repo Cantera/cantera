@@ -16,6 +16,7 @@
 #include "WaterSSTP.h"
 #include "WaterPropsIAPWS.h"
 //#include "importCTML.h"
+#include "WaterProps.h"
 #include "ThermoFactory.h"
 #include <cmath>
 
@@ -29,6 +30,7 @@ namespace Cantera {
   WaterSSTP::WaterSSTP() :
     SingleSpeciesTP(),
     m_sub(0),
+    m_waterProps(0),
     m_mw(0.0),
     EW_Offset(0.0),
     SW_Offset(0.0),
@@ -43,6 +45,7 @@ namespace Cantera {
   WaterSSTP::WaterSSTP(std::string inputFile, std::string id) :
     SingleSpeciesTP(),
     m_sub(0),
+    m_waterProps(0),
     m_mw(0.0),
     EW_Offset(0.0),
     SW_Offset(0.0),
@@ -57,6 +60,7 @@ namespace Cantera {
   WaterSSTP::WaterSSTP(XML_Node& phaseRoot, std::string id) :
     SingleSpeciesTP(),
     m_sub(0),
+    m_waterProps(0),
     m_mw(0.0),
     EW_Offset(0.0),
     SW_Offset(0.0),
@@ -72,6 +76,7 @@ namespace Cantera {
   WaterSSTP::WaterSSTP(const WaterSSTP &b) :
     SingleSpeciesTP(b),
     m_sub(0),
+    m_waterProps(0),
     m_mw(b.m_mw),
     EW_Offset(b.EW_Offset),
     SW_Offset(b.SW_Offset),
@@ -80,6 +85,8 @@ namespace Cantera {
     m_allowGasPhase(b.m_allowGasPhase)
   {
     m_sub = new WaterPropsIAPWS(*(b.m_sub));
+    m_waterProps =  new WaterProps(m_sub);
+
     /*
      * Use the assignment operator to do the brunt
      * of the work for the copy construtor.
@@ -93,6 +100,13 @@ namespace Cantera {
   WaterSSTP& WaterSSTP::operator=(const WaterSSTP&b) {
     if (&b == this) return *this;
     m_sub->operator=(*(b.m_sub));
+
+    if (!m_waterProps) {
+      m_waterProps = new WaterProps(m_sub);
+    }
+    m_waterProps->operator=(*(b.m_waterProps));
+
+
     m_mw = b.m_mw;
     m_verbose = b.m_verbose;
     m_ready = b.m_ready;
@@ -108,6 +122,7 @@ namespace Cantera {
 
   WaterSSTP::~WaterSSTP() { 
     delete m_sub; 
+    delete m_waterProps;
   }
 
 
@@ -267,6 +282,9 @@ namespace Cantera {
     setTemperature(298.15);
     double rho0 = m_sub->density(298.15, OneAtm, WATER_LIQUID);
     setDensity(rho0);
+
+    m_waterProps =  new WaterProps(m_sub);
+
 
     /*
      * We have to do something with the thermo function here.
