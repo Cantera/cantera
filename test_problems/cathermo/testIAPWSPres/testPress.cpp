@@ -6,7 +6,7 @@
 #include <cmath>
 
 using namespace std;
-
+using namespace Cantera;
 
 double numdpdt(WaterPropsIAPWS *water, double T, double pres) {
   double rho = water->density(T, pres);
