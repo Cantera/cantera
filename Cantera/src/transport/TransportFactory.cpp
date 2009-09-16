@@ -35,6 +35,7 @@
 #include "xml.h"
 #include "XML_Writer.h"
 #include "TransportParams.h"
+#include "LiquidTransportParams.h"
 #include "global.h"
 #include "IdealGasPhase.h"
 #include "ctml.h"
@@ -344,12 +345,14 @@ namespace Cantera {
 #ifdef WITH_IDEAL_SOLUTIONS
     case cLiquidTransport:
       tr = new LiquidTransport;
+      initLiquidTransport(tr, phase, log_level);
       tr->setThermo(*phase);
       break;
 #endif
 #ifdef WITH_ELECTROLYTES
     case cAqueousTransport:
       tr = new AqueousTransport;
+      initLiquidTransport(tr, phase, log_level);
       tr->setThermo(*phase);
       break;
 #endif
@@ -525,6 +528,13 @@ namespace Cantera {
   }
 
 
+  void 
+  TransportFactory::initLiquidTransport(Transport* tran, 
+				       thermo_t* thermo, 
+                                       int log_level) { 
+
+
+  }
 
 
 

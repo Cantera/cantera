@@ -131,6 +131,12 @@ namespace Cantera {
     virtual void initTransport(Transport* tr,  
 			       thermo_t* thermo=0, int mode=0, int log_level=0);
 
+    /// Initialize an existing transport manager for liquid phase
+    virtual void initLiquidTransport(Transport* tr,
+                                     thermo_t* thermo=0, 
+                                     int log_level=0);
+
+
 
   private:
 
