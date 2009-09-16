@@ -103,6 +103,37 @@ namespace Cantera {
      */
     virtual doublereal viscosity();
 
+    
+    //! The bulk viscosity in Pa-s.
+    /*!
+     *  The bulk viscosity is only
+     * non-zero in rare cases. Most transport managers either
+     * overload this method to return zero, or do not implement
+     * it, in which case an exception is thrown if called.
+     */
+    virtual doublereal bulkViscosity()
+    { 
+      return 0.0;
+    }
+
+
+    //! Returns the thermal conductivity of water at the current conditions
+    //! (W/m/K)
+    /*!
+     *  This function calculates the value of the thermal conductivity of
+     *  water at the current T and P.
+     *
+     *  The formulas used are from the paper
+     *     J. V. Sengers, J. T. R. Watson, "Improved International
+     *     Formulations for the Viscosity and Thermal Conductivity of
+     *     Water Substance", J. Phys. Chem. Ref. Data, 15, 1291 (1986).
+     *
+     *  The formulation is accurate for all temperatures and pressures,
+     *  for steam and for water, even near the critical point.
+     *  Pressures above 500 MPa and temperature above 900 C are suspect.
+     */
+    virtual doublereal thermalConductivity();
+
 
   private:
 

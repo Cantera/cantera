@@ -106,10 +106,44 @@ namespace Cantera {
     }
   }
 
+  // Returns the viscosity of water at the current conditions
+  // (kg/m/s)
+  /*
+   *  This function calculates the value of the viscosity of pure
+   *  water at the current T and P.
+   *
+   *  The formulas used are from the paper
+   *     J. V. Sengers, J. T. R. Watson, "Improved International
+   *     Formulations for the Viscosity and Thermal Conductivity of
+   *     Water Substance", J. Phys. Chem. Ref. Data, 15, 1291 (1986).
+   *
+   *  The formulation is accurate for all temperatures and pressures,
+   *  for steam and for water, even near the critical point.
+   *  Pressures above 500 MPa and temperature above 900 C are suspect.
+   */
+  doublereal WaterTransport::viscosity() {
+    doublereal visc = m_waterProps->viscosityWater();
+    return visc;
+  }
 
-  double WaterTransport::viscosity() {
-   double visc = m_waterProps->viscosityWater();
-   return visc;
+  // Returns the thermal conductivity of water at the current conditions
+  // (W/m/K)
+  /*
+   *  This function calculates the value of the thermal conductivity of
+   *  water at the current T and P.
+   *
+   *  The formulas used are from the paper
+   *     J. V. Sengers, J. T. R. Watson, "Improved International
+   *     Formulations for the Viscosity and Thermal Conductivity of
+   *     Water Substance", J. Phys. Chem. Ref. Data, 15, 1291 (1986).
+   *
+   *  The formulation is accurate for all temperatures and pressures,
+   *  for steam and for water, even near the critical point.
+   *  Pressures above 500 MPa and temperature above 900 C are suspect.
+   */
+  doublereal WaterTransport::thermalConductivity() {
+    doublereal lambda = m_waterProps->thermalConductivityWater();
+    return lambda;
   }
 
 }
