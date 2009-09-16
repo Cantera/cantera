@@ -368,9 +368,6 @@ namespace Cantera {
      */
     vector_fp  m_mw;
 
-    // polynomial fits
-    vector<vector<int> >         m_poly;
-
     //! Polynomial coefficients of the viscosity
     /*!
      * These express the temperature dependendence of the pures
@@ -619,10 +616,6 @@ namespace Cantera {
     //! Internal storage for the species LJ well depth
     vector_fp   m_eps;
 
-    //! Internal storage for species polarizability
-    vector_fp   m_alpha;
-
-    
 
     //! Current Temperature -> locally storred
     /*!

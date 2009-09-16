@@ -100,7 +100,6 @@ namespace Cantera {
     m_tmin                                = right.m_tmin;
     m_tmax                                = right.m_tmax;
     m_mw                                  = right.m_mw;
-    m_poly                                = right.m_poly;
     viscCoeffsVector_                     = right.viscCoeffsVector_;
     m_condcoeffs                          = right.m_condcoeffs;
     m_diffcoeffs                          = right.m_diffcoeffs;
@@ -125,7 +124,6 @@ namespace Cantera {
     m_B                                   = right.m_B;
     m_A                                   = right.m_A;
     m_eps                                 = right.m_eps;
-    m_alpha                               = right.m_alpha;
     m_temp                                = right.m_temp;
     m_logt                                = right.m_logt;
     m_sqrt_t                              = right.m_sqrt_t;
@@ -176,15 +174,13 @@ namespace Cantera {
 	 m_thermo->molecularWeights().end(), m_mw.begin());
 
     // copy polynomials and parameters into local storage
-    m_poly       = tr.poly;
     viscCoeffsVector_ = tr.viscCoeffsVector_;
     m_condcoeffs = tr.condcoeffs;
-    m_diffcoeffs = tr.diffcoeffs;
+    //m_diffcoeffs = tr.diffcoeffs;
 
     m_mode       = tr.mode;
     m_diam       = tr.diam;
     m_eps        = tr.eps;
-    m_alpha      = tr.alpha;
 
     m_phi.resize(m_nsp, m_nsp, 0.0);
 
