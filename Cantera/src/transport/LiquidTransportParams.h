@@ -27,27 +27,38 @@ namespace Cantera {
         thermo_t* thermo;
         vector_fp        mw;
 
-        // polynomial fits
-        std::vector<vector_fp>    viscCoeffsVector_;
-        std::vector<vector_fp>            condcoeffs;
-        std::vector<vector_fp>            diffcoeffs;
-        vector_fp                    polytempvec;
-        
-        std::vector<std::vector<int> > poly;
-        std::vector<vector_fp >   omega22_poly;
-        std::vector<vector_fp >   astar_poly;
-        std::vector<vector_fp >   bstar_poly;
-        std::vector<vector_fp >   cstar_poly;
+        //! Coefficients for the limiting conductivity of ions 
+        //! in solution: A_k
+        /*!
+         *  This is used in the following formula for the
+         *  limiting conductivity of the kth ion.
+         *
+         *   ln (lambda^o_k nu_solv) = A_k + B_k / T
+         *
+         * nu_solv is the pure component solvent viscosity
+         *
+         *  Note the limiting conductivities of ions will also
+         *  be used to input the diffusion coefficients. 
+         */
+        vector_fp A_k_cond;
 
-        vector_fp   zrot;
-        vector_fp   crot;
+        //! Coefficients for the limiting conductivity of ions
+        //! in solution: B_k
+        vector_fp B_k_cond;
+
+
+        // polynomial fits
+        std::vector<vector_fp>  viscCoeffsVector_;
+        std::vector<vector_fp>  condcoeffs;
+        std::vector<vector_fp>  diffcoeffs ;
+
 
         std::vector<bool> polar;
-        vector_fp    alpha;
+        //vector_fp    alpha;
         vector_fp    fitlist;
         vector_fp    eps;
         vector_fp    sigma;
-        DenseMatrix  reducedMass;    
+        DenseMatrix  reducedMass;  
         DenseMatrix  diam;           
         DenseMatrix  epsilon;        
         DenseMatrix  dipole;         
