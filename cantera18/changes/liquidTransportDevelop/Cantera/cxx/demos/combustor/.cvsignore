@@ -1,0 +1,12 @@
+diff_out_0.txt 
+Makefile
+Makefile.install
+air.xml
+combustor
+combustor_cxx.csv
+ct2ctml.log
+diff_csv.txt
+gri30.xml
+output_0.txt
+*.d
+.depends

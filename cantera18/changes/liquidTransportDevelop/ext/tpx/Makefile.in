@@ -1,0 +1,55 @@
+#/bin/sh
+#
+# $Id: Makefile.in,v 1.17 2009/03/28 19:10:17 hkmoffa Exp $
+#
+.SUFFIXES :
+.SUFFIXES : .cpp .d .o
+
+do_ranlib = @DO_RANLIB@
+
+PURIFY=@PURIFY@
+
+PIC_FLAG=@PIC@
+CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT) $(PIC_FLAG)
+
+COBJS = Methane.o Nitrogen.o Oxygen.o Water.o Hydrogen.o RedlichKwong.o \
+        CarbonDioxide.o Heptane.o lk.o Sub.o utils.o HFC134a.o
+
+CXX_LIBS = @LIBS@
+CXX_INCLUDES = -I../include 
+TPLIB = @buildlib@/libtpx.a
+
+DEPENDS = $(COBJS:.o=.d)
+
+all:  $(TPLIB) .depends
+
+%.d: Makefile %.o
+	@CXX_DEPENDS@ $(CXX_FLAGS) $(CXX_INCLUDES) $*.cpp > $*.d
+
+.cpp.o: 
+	$(PURIFY) @CXX@ -c $< @DEFS@ $(CXX_FLAGS) $(CXX_INCLUDES)
+
+.f.o:
+	$(PURIFY) @F77@ -c $< $(F77_FLAGS) 
+
+$(TPLIB): $(COBJS) $(FOBJS)
+	@ARCHIVE@ $(TPLIB) $(COBJS) $(FOBJS) > /dev/null
+ifeq ($(do_ranlib),1)
+	@RANLIB@ $(TPLIB)
+endif
+
+clean:
+	$(RM) $(COBJS) $(FOBJS) *~ *.d .depends
+
+depends: 
+	@MAKE@ .depends
+
+.depends: $(DEPENDS) 
+	cat *.d > .depends
+
+$(COBJS): Makefile
+
+ifeq ($(wildcard .depends), .depends)
+include .depends
+endif
+

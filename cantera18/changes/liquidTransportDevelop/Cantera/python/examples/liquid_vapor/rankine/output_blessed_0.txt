@@ -1,0 +1,97 @@
+
+
+***************** State 1 ******************
+ 
+  water:
+ 
+       temperature             300  K
+          pressure         3528.21  Pa
+           density         996.589  kg/m^3
+  mean mol. weight          18.016  amu
+    vapor fraction               0 
+ 
+                          1 kg            1 kmol
+                       -----------      ------------
+          enthalpy    -1.58582e+07       -2.857e+08     J
+   internal energy    -1.58582e+07       -2.857e+08     J
+           entropy         3913.28         7.05e+04     J/K
+    Gibbs function    -1.70322e+07       -3.069e+08     J
+ heat capacity c_p     4.06353e+07        7.321e+08     J/K
+ heat capacity c_v         4156.15        7.488e+04     J/K
+ 
+                           X                 Y          Chem. Pot. / RT    
+                     -------------     ------------     ------------
+               H2O              1                1         -123.019
+
+
+***************** State 2 ******************
+ 
+  water:
+ 
+       temperature         300.143  K
+          pressure          800000  Pa
+           density          996.91  kg/m^3
+  mean mol. weight          18.016  amu
+    vapor fraction               0 
+ 
+                          1 kg            1 kmol
+                       -----------      ------------
+          enthalpy    -1.58569e+07       -2.857e+08     J
+   internal energy    -1.58577e+07       -2.857e+08     J
+           entropy         3915.06        7.053e+04     J/K
+    Gibbs function     -1.7032e+07       -3.068e+08     J
+ heat capacity c_p          4178.6        7.528e+04     J/K
+ heat capacity c_v         4127.86        7.437e+04     J/K
+ 
+                           X                 Y          Chem. Pot. / RT    
+                     -------------     ------------     ------------
+               H2O              1                1         -122.959
+
+
+***************** State 3 ******************
+ 
+  water:
+ 
+       temperature         443.624  K
+          pressure          800000  Pa
+           density         4.15875  kg/m^3
+  mean mol. weight          18.016  amu
+    vapor fraction               1 
+ 
+                          1 kg            1 kmol
+                       -----------      ------------
+          enthalpy    -1.32016e+07       -2.378e+08     J
+   internal energy    -1.33939e+07       -2.413e+08     J
+           entropy           10183        1.835e+05     J/K
+    Gibbs function     -1.7719e+07       -3.192e+08     J
+ heat capacity c_p     2.30856e+07        4.159e+08     J/K
+ heat capacity c_v           22595        4.071e+05     J/K
+ 
+                           X                 Y          Chem. Pot. / RT    
+                     -------------     ------------     ------------
+               H2O              1                1         -86.5462
+
+
+***************** State 4 ******************
+ 
+  water:
+ 
+       temperature             300  K
+          pressure         3528.21  Pa
+           density       0.0305583  kg/m^3
+  mean mol. weight          18.016  amu
+    vapor fraction        0.835158 
+ 
+                          1 kg            1 kmol
+                       -----------      ------------
+          enthalpy    -1.38221e+07        -2.49e+08     J
+   internal energy    -1.39376e+07       -2.511e+08     J
+           entropy         10700.2        1.928e+05     J/K
+    Gibbs function    -1.70322e+07       -3.069e+08     J
+ heat capacity c_p     4.06353e+07        7.321e+08     J/K
+ heat capacity c_v          108455        1.954e+06     J/K
+ 
+                           X                 Y          Chem. Pot. / RT    
+                     -------------     ------------     ------------
+               H2O              1                1         -123.019
+efficiency =  0.233208584808

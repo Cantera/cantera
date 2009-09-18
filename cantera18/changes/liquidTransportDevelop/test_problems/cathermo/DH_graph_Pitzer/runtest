@@ -1,0 +1,40 @@
+#!/bin/sh
+#
+# run_test
+#
+##########################################################################
+# A couple of validity checks
+if test ! $# -eq 0 ; then
+   echo 'usage: runtest'
+   echo '    '
+   exit -1
+fi
+
+temp_success="0"
+/bin/rm  -f output.txt outputa.txt
+##########################################################################
+CANTERA_DATA=${CANTERA_DATA:=../../../data/inputs}; export CANTERA_DATA
+
+CANTERA_BIN=${CANTERA_BIN:=../../../bin}
+
+prog=DH_graph_1
+if test ! -x $prog ; then
+   echo $prog ' does not exist'
+   exit -1
+fi
+
+##########################################################################
+/bin/rm -f test.out test.diff DH_NaCl_Pitzer.csv
+
+./$prog  DH_NaCl_Pitzer.xml > DH_NaCl_Pitzer.csv
+retnStat=$?
+diff DH_NaCl_Pitzer.csv DH_NaCl_Pitzer_blessed.csv > output.txt
+zres=$?
+if test "$zres" = "0"  -a "$retnStat" = "0"; then
+  echo "successful diff comparison on $prog Pitzer test"
+else
+  echo "unsuccessful diff comparison on $prog Pitzer test"
+  echo "FAILED" > csvCode.txt
+  temp_success="0"
+fi
+

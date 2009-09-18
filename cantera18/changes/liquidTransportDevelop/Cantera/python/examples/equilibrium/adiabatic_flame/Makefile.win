@@ -1,0 +1,18 @@
+#!/bin/sh
+
+INST_DIR=@ct_demodir@/python/equilibrium/adiabatic_flame
+
+
+run:
+	$(PYTHON_CMD) adiabatic.py
+
+test:
+	./runtest
+
+
+clean:
+	rm -f *.log *.csv *.xml
+	./cleanup
+
+# end of file
+

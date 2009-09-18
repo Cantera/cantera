@@ -1,0 +1,16 @@
+#!/bin/sh
+
+
+all:
+
+run:
+	$(PYTHON_CMD) dustygas.py
+
+test:
+	./runtest
+
+clean:
+	./cleanup
+
+# end of file
+

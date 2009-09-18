@@ -1,0 +1,47 @@
+#!/bin/sh
+#
+#
+
+temp_success="0"
+/bin/rm  -f output.txt outputa.txt  
+
+#################################################################
+#
+#################################################################
+CANTERA_DATA=${CANTERA_DATA:=../../data/inputs}; export CANTERA_DATA
+
+CANTERA_BIN=${CANTERA_BIN:=../../bin}
+./fracCoeff > output.txt
+retnStat=$?
+if [ $retnStat != "0" ]
+then
+  temp_success="1"
+  echo "fracCoeff returned with bad status, $retnStat, check output"
+fi
+
+../../bin/exp3to2.sh output.txt > outputa.txt
+diff -w outputa.txt frac_blessed.out > diff_test.out
+retnStat=$?
+if [ $retnStat = "0" ]
+then
+  echo "successful diff comparison on fracCoeff test"
+else
+  echo "unsuccessful diff comparison on fracCoeff test"
+  echo "FAILED" > csvCode.txt
+  temp_success="1"
+fi
+
+../../bin/exp3to2.sh frac.xml > fraca.xml
+diff -w fraca.xml frac_blessed.xml > xml_diff_test.out
+retnStat=$?
+if [ $retnStat = "0" ]
+then
+  echo "successful diff comparison on fracCoeff.xml test"
+else
+  echo "unsuccessful diff comparison on fracCoeff.xml test"
+  echo "FAILED" > csvCode.txt
+  temp_success="1"
+fi
+
+
+exit $temp_success

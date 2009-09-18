@@ -1,0 +1,86 @@
+#/bin/sh
+###############################################################
+#  $Author: hkmoffa $
+#  $Date: 2008/12/30 21:49:41 $
+#  $Revision: 1.19 $
+#
+#  Copyright 2002 California Institute of Technology
+#
+###############################################################
+
+.SUFFIXES :
+.SUFFIXES : .cpp .d .o .h
+
+INCDIR = ../../../build/include/cantera/kernel/converters
+INSTALL_TSC = ../../../bin/install_tsc
+do_ranlib = @DO_RANLIB@
+
+PURIFY=@PURIFY@
+
+PIC_FLAG=@PIC@
+
+CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT) $(PIC_FLAG)
+
+OBJS = atomicWeightDB.o CKParser.o CKReader.o Reaction.o ckr_utils.o \
+       thermoFunctions.o writelog.o ck2ct.o Species.o NASA9Parser.o
+# ck2ctml.o
+CONV_H = CKReader.h      thermoFunctions.h \
+         Element.h    Reaction.h      CKParser.h    \
+         ckr_utils.h  RxnSpecies.h    writelog.h \
+         ck2ct.h      ckr_defs.h      Constituent.h   \
+         Species.h
+
+CXX_INCLUDES = -I. -I../base -I../numerics
+CONV_LIB = @buildlib@/libconverters.a
+
+DEPENDS = $(OBJS:.o=.d)
+
+all: .depends $(CONV_LIB)
+	@(@INSTALL@ -d $(INCDIR))
+	@(for lh in $(CONV_H) ; do \
+          $(INSTALL_TSC) "$${lh}" $(INCDIR) ; \
+        done)
+
+%.d: Makefile %.o
+	@CXX_DEPENDS@ $(CXX_FLAGS) $(CXX_INCLUDES) $*.cpp > $*.d
+
+.cpp.o:
+	$(PURIFY) @CXX@ -c $< $(CXX_FLAGS) $(CXX_INCLUDES)
+
+$(CONV_LIB): $(OBJS)
+	@ARCHIVE@ $(CONV_LIB) $(OBJS) 
+ifeq ($(do_ranlib),1)
+	@RANLIB@ $(CONV_LIB)
+endif
+
+clean:
+	@(for lh in $(CONV_H) ; do \
+            th=$(INCDIR)/"$${lh}" ; \
+            if test -f "$${th}" ; then \
+              $(RM) "$${th}"  ; \
+              echo "$(RM) $${th}" ; \
+            fi \
+          done)
+	$(RM) *.o *~ $(CONV_LIB) .depends
+	(if test -d SunWS_cache ; then \
+           $(RM) -rf SunWS_cache ; \
+         fi )
+
+CKParser.o: CKParser.cpp
+	@CXX@ -c CKParser.cpp $(CXX_FLAGS) $(CXX_INCLUDES) -O0
+
+depends: 
+	@MAKE@ .depends
+
+.depends: $(DEPENDS)
+	cat *.d > .depends
+
+$(OBJS): Makefile
+
+TAGS: 
+	etags *.h *.cpp
+
+ifeq ($(wildcard .depends), .depends)
+include .depends
+endif
+

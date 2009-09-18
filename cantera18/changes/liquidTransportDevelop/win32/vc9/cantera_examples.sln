@@ -1,0 +1,37 @@
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "diamondSurf", "diamondSurf\diamondSurf.vcproj", "{D600ECB2-D432-4E4D-9D70-BF94AEF31485}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "silane_equil", "silane_equil\silane_equil.vcproj", "{290DC5E5-0016-4CCF-84D5-6B997DD3664A}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "surfkin", "surfkin\surfkin.vcproj", "{7A87791C-32F6-48B5-ADBB-A8E77DE13E16}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cxx_examples", "cxx_examples\cxx_examples.vcproj", "{0E635864-A310-4468-9D97-9CE67B078C97}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D600ECB2-D432-4E4D-9D70-BF94AEF31485}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D600ECB2-D432-4E4D-9D70-BF94AEF31485}.Debug|Win32.Build.0 = Debug|Win32
+		{D600ECB2-D432-4E4D-9D70-BF94AEF31485}.Release|Win32.ActiveCfg = Release|Win32
+		{D600ECB2-D432-4E4D-9D70-BF94AEF31485}.Release|Win32.Build.0 = Release|Win32
+		{290DC5E5-0016-4CCF-84D5-6B997DD3664A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{290DC5E5-0016-4CCF-84D5-6B997DD3664A}.Debug|Win32.Build.0 = Debug|Win32
+		{290DC5E5-0016-4CCF-84D5-6B997DD3664A}.Release|Win32.ActiveCfg = Release|Win32
+		{290DC5E5-0016-4CCF-84D5-6B997DD3664A}.Release|Win32.Build.0 = Release|Win32
+		{7A87791C-32F6-48B5-ADBB-A8E77DE13E16}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7A87791C-32F6-48B5-ADBB-A8E77DE13E16}.Debug|Win32.Build.0 = Debug|Win32
+		{7A87791C-32F6-48B5-ADBB-A8E77DE13E16}.Release|Win32.ActiveCfg = Release|Win32
+		{7A87791C-32F6-48B5-ADBB-A8E77DE13E16}.Release|Win32.Build.0 = Release|Win32
+		{0E635864-A310-4468-9D97-9CE67B078C97}.Debug|Win32.ActiveCfg = Debug|Win32
+		{0E635864-A310-4468-9D97-9CE67B078C97}.Debug|Win32.Build.0 = Debug|Win32
+		{0E635864-A310-4468-9D97-9CE67B078C97}.Release|Win32.ActiveCfg = Release|Win32
+		{0E635864-A310-4468-9D97-9CE67B078C97}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

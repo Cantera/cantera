@@ -1,0 +1,33 @@
+#
+# $Revision: 1.1 $
+# $Author: hkmoffa $
+# $Date: 2007/12/20 23:47:41 $
+#
+#
+test_vcs_nonideal=@COMPILE_VCSNONIDEAL@
+
+
+all:
+ifeq ($(test_vcs_nonideal),1)
+	cd NaCl_equil;  @MAKE@ all
+endif
+
+test:
+ifeq ($(test_vcs_nonideal),1)
+	cd NaCl_equil;  @MAKE@ -s test
+endif
+
+#
+# Have to remove .depends before calling make, because
+# the rule for updating .depends is invoked, before the clean rule,
+# if .depends exists in the directory.
+#
+clean:
+	$(RM) *.*~ 
+	cd NaCl_equil;        $(RM) .depends ; @MAKE@ clean
+
+
+depends:
+ifeq ($(test_vcs_nonideal),1)
+	cd NaCl_equil;  @MAKE@ depends
+endif

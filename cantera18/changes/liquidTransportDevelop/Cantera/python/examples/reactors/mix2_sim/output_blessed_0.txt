@@ -1,0 +1,243 @@
+ Adding reactor (none)
+Initializing reactor network.
+Reactor 0: 55 variables.
+            0 sensitivity params.
+Number of equations: 55
+Maximum time step:        0.0222248
+      0.022225         685.72    -2.0615e+06      1.0135e+05         0.50516
+      0.034455         1016.4    -9.1623e+05      1.0135e+05         0.26352
+      0.043503           1325    -2.8227e+05      1.0134e+05         0.11449
+Initializing reactor network.
+Reactor 0: 55 variables.
+            0 sensitivity params.
+Number of equations: 55
+Maximum time step:        0.0222248
+      0.050587         2017.3    -2.0568e+05      1.0134e+05      1.3548e-05
+Initializing reactor network.
+Reactor 0: 55 variables.
+            0 sensitivity params.
+Number of equations: 55
+Maximum time step:        0.0222248
+      0.056312         1964.8    -2.0471e+05      1.0134e+05      1.5345e-05
+Initializing reactor network.
+Reactor 0: 55 variables.
+            0 sensitivity params.
+Number of equations: 55
+Maximum time step:        0.0222248
+      0.062205         1964.4     -2.047e+05      1.0134e+05      1.5361e-05
+Initializing reactor network.
+Reactor 0: 55 variables.
+            0 sensitivity params.
+Number of equations: 55
+Maximum time step:        0.0222248
+        0.0681         1964.3     -2.047e+05      1.0134e+05      1.5362e-05
+Initializing reactor network.
+Reactor 0: 55 variables.
+            0 sensitivity params.
+Number of equations: 55
+Maximum time step:        0.0222248
+      0.073995         1964.3     -2.047e+05      1.0134e+05      1.5362e-05
+Initializing reactor network.
+Reactor 0: 55 variables.
+            0 sensitivity params.
+Number of equations: 55
+Maximum time step:        0.0222248
+       0.07989         1964.3     -2.047e+05      1.0134e+05      1.5362e-05
+Initializing reactor network.
+Reactor 0: 55 variables.
+            0 sensitivity params.
+Number of equations: 55
+Maximum time step:        0.0222248
+      0.085784         1964.3     -2.047e+05      1.0134e+05      1.5362e-05
+Initializing reactor network.
+Reactor 0: 55 variables.
+            0 sensitivity params.
+Number of equations: 55
+Maximum time step:        0.0222248
+      0.091679         1964.3     -2.047e+05      1.0134e+05      1.5362e-05
+Initializing reactor network.
+Reactor 0: 55 variables.
+            0 sensitivity params.
+Number of equations: 55
+Maximum time step:        0.0222248
+      0.097574         1964.3     -2.047e+05      1.0134e+05      1.5362e-05
+Initializing reactor network.
+Reactor 0: 55 variables.
+            0 sensitivity params.
+Number of equations: 55
+Maximum time step:        0.0222248
+       0.10347         1964.3     -2.047e+05      1.0134e+05      1.5362e-05
+Initializing reactor network.
+Reactor 0: 55 variables.
+            0 sensitivity params.
+Number of equations: 55
+Maximum time step:        0.0222248
+       0.10936         1964.3     -2.047e+05      1.0134e+05      1.5362e-05
+Initializing reactor network.
+Reactor 0: 55 variables.
+            0 sensitivity params.
+Number of equations: 55
+Maximum time step:        0.0222248
+       0.11526         1964.3     -2.047e+05      1.0134e+05      1.5362e-05
+Initializing reactor network.
+Reactor 0: 55 variables.
+            0 sensitivity params.
+Number of equations: 55
+Maximum time step:        0.0222248
+       0.12115         1964.3     -2.047e+05      1.0134e+05      1.5362e-05
+Initializing reactor network.
+Reactor 0: 55 variables.
+            0 sensitivity params.
+Number of equations: 55
+Maximum time step:        0.0222248
+       0.12705         1964.3     -2.047e+05      1.0134e+05      1.5362e-05
+Initializing reactor network.
+Reactor 0: 55 variables.
+            0 sensitivity params.
+Number of equations: 55
+Maximum time step:        0.0222248
+       0.13294         1964.3     -2.047e+05      1.0134e+05      1.5362e-05
+Initializing reactor network.
+Reactor 0: 55 variables.
+            0 sensitivity params.
+Number of equations: 55
+Maximum time step:        0.0222248
+       0.13884         1964.3     -2.047e+05      1.0134e+05      1.5362e-05
+Initializing reactor network.
+Reactor 0: 55 variables.
+            0 sensitivity params.
+Number of equations: 55
+Maximum time step:        0.0222248
+       0.14473         1964.3     -2.047e+05      1.0134e+05      1.5362e-05
+Initializing reactor network.
+Reactor 0: 55 variables.
+            0 sensitivity params.
+Number of equations: 55
+Maximum time step:        0.0222248
+       0.15063         1964.3     -2.047e+05      1.0134e+05      1.5362e-05
+Initializing reactor network.
+Reactor 0: 55 variables.
+            0 sensitivity params.
+Number of equations: 55
+Maximum time step:        0.0222248
+       0.15652         1964.3     -2.047e+05      1.0134e+05      1.5362e-05
+Initializing reactor network.
+Reactor 0: 55 variables.
+            0 sensitivity params.
+Number of equations: 55
+Maximum time step:        0.0222248
+       0.16242         1964.3     -2.047e+05      1.0134e+05      1.5362e-05
+Initializing reactor network.
+Reactor 0: 55 variables.
+            0 sensitivity params.
+Number of equations: 55
+Maximum time step:        0.0222248
+       0.16831         1964.3     -2.047e+05      1.0134e+05      1.5362e-05
+Initializing reactor network.
+Reactor 0: 55 variables.
+            0 sensitivity params.
+Number of equations: 55
+Maximum time step:        0.0222248
+        0.1742         1964.3     -2.047e+05      1.0134e+05      1.5362e-05
+Initializing reactor network.
+Reactor 0: 55 variables.
+            0 sensitivity params.
+Number of equations: 55
+Maximum time step:        0.0222248
+        0.1801         1964.3     -2.047e+05      1.0134e+05      1.5362e-05
+Initializing reactor network.
+Reactor 0: 55 variables.
+            0 sensitivity params.
+Number of equations: 55
+Maximum time step:        0.0222248
+       0.18599         1964.3     -2.047e+05      1.0134e+05      1.5362e-05
+Initializing reactor network.
+Reactor 0: 55 variables.
+            0 sensitivity params.
+Number of equations: 55
+Maximum time step:        0.0222248
+       0.19189         1964.3     -2.047e+05      1.0134e+05      1.5362e-05
+Initializing reactor network.
+Reactor 0: 55 variables.
+            0 sensitivity params.
+Number of equations: 55
+Maximum time step:        0.0222248
+       0.19778         1964.3     -2.047e+05      1.0134e+05      1.5362e-05
+Initializing reactor network.
+Reactor 0: 55 variables.
+            0 sensitivity params.
+Number of equations: 55
+Maximum time step:        0.0222248
+       0.20368         1964.3     -2.047e+05      1.0134e+05      1.5362e-05
+ 
+  gri30:
+ 
+       temperature         1964.35  K
+          pressure          101340  Pa
+           density        0.172848  kg/m^3
+  mean mol. weight         27.8572  amu
+ 
+                          1 kg            1 kmol
+                       -----------      ------------
+          enthalpy         -204700       -5.702e+06     J
+   internal energy         -790994       -2.203e+07     J
+           entropy         9522.81        2.653e+05     J/K
+    Gibbs function    -1.89108e+07       -5.268e+08     J
+ heat capacity c_p         1435.12        3.998e+04     J/K
+ heat capacity c_v         1136.65        3.166e+04     J/K
+ 
+                           X                 Y          Chem. Pot. / RT    
+                     -------------     ------------     ------------
+                H2     0.00134471      9.73098e-05         -26.0333
+                 H    0.000358115      1.29575e-05         -10.9771
+                 O    0.000757782      0.000435222         -13.9468
+                O2      0.0397613        0.0456726         -31.9261
+                OH     0.00377417        0.0023042         -29.0252
+               H2O       0.150885        0.0975771         -44.0886
+               HO2    3.01066e-06      3.56719e-06         -44.7428
+              H2O2    1.35161e-07      1.65036e-07         -59.0547
+                 C    4.30402e-10      1.85573e-10         0.703842
+                CH    1.59122e-08      7.43648e-09         -7.21613
+               CH2    4.97039e-07      2.50273e-07         -18.8895
+            CH2(S)    4.02506e-08      2.02673e-08         -18.3353
+               CH3    8.13751e-06       4.3919e-06         -32.2369
+               CH4    2.66743e-05      1.53616e-05         -44.4439
+                CO     0.00339379       0.00341245         -40.0961
+               CO2      0.0737501         0.116513         -58.3008
+               HCO    1.89322e-07      1.97213e-07         -45.0879
+              CH2O    3.90105e-06       4.2048e-06         -51.5875
+             CH2OH    4.24315e-08      4.72706e-08         -55.2732
+              CH3O    4.45555e-09      4.96368e-09         -53.1726
+             CH3OH    1.15433e-07      1.32774e-07         -65.7108
+               C2H    1.62854e-11      1.46326e-11         -21.8248
+              C2H2    4.35601e-09      4.07152e-09         -36.7187
+              C2H3    2.18503e-10      2.12138e-10         -39.9841
+              C2H4    5.74121e-09      5.78171e-09         -51.0745
+              C2H5    1.39866e-10      1.45913e-10         -55.4237
+              C2H6     2.5181e-10      2.71808e-10          -66.199
+              HCCO    1.04715e-09      1.54228e-09         -47.1119
+             CH2CO    5.08977e-09      7.68059e-09         -59.9554
+             HCCOH    3.06315e-10      4.62237e-10         -54.8853
+                 N    2.22762e-09      1.12006e-09         -12.0123
+                NH     1.5055e-09      8.11443e-10         -24.0153
+               NH2    2.85028e-09      1.63939e-09            -36.2
+               NH3    3.64675e-09      2.22945e-09         -51.2651
+               NNH    5.99636e-10      6.24696e-10         -38.1849
+                NO    7.48125e-05      8.05835e-05         -33.2182
+               NO2    4.29072e-08      7.08602e-08         -49.5161
+               N2O    3.32351e-07      5.25096e-07         -42.4127
+               HNO    2.98278e-09       3.3208e-09           -44.83
+                CN    1.56296e-10      1.45975e-10         -23.9832
+               HCN    7.73461e-08      7.50373e-08           -38.15
+              H2CN    9.28789e-13       9.3467e-13         -46.1177
+              HCNN    1.31783e-11       1.9411e-11          -34.602
+              HCNO    3.47993e-08      5.37469e-08         -43.5169
+              HOCN    1.95416e-09      3.01818e-09           -57.08
+              HNCO    1.16365e-07      1.79724e-07          -59.556
+               NCO    7.65327e-09      1.15435e-08         -44.7155
+                N2       0.716669         0.720689         -27.2037
+                AR     0.00918855        0.0131766         -25.8924
+              C3H7    3.39346e-16      5.24889e-16         -79.4339
+              C3H8    1.80495e-15      2.85714e-15         -89.0801
+            CH2CHO    1.21788e-11      1.88187e-11         -65.6358
+            CH3CHO     2.8553e-10      4.51535e-10         -74.7696
