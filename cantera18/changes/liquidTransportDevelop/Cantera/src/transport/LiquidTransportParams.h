@@ -5,27 +5,38 @@
 
 #include "ct_defs.h"
 #include "TransportBase.h"
+#include "TransportParams.h"
 #include "xml.h"
 #include "XML_Writer.h"
 
 namespace Cantera {
 
     /**
-     *
-     * Holds transport data. Used by TransportFactory.
-     *
+     * Holds transport model parameters relevant to transport in 
+     * liquids for which activated jump processes limit transport
+     * (giving Arrhenius type transport properties). 
+     * Used by TransportFactory.
      */
-    class LiquidTransportParams {
+    class LiquidTransportParams :public TransportParams {
 
     public:
 
-        LiquidTransportParams() : thermo(0), xml(0) {}
-        virtual ~LiquidTransportParams();
-        int nsp;
+        LiquidTransportParams() {}
+        ~LiquidTransportParams() {}
 
-        //        phase_t* mix;
-        thermo_t* thermo;
-        vector_fp        mw;
+
+	//section for liquid transport properties
+
+	//Arrhenius parameters for transport coefficients
+	//	std::vector<vector_fp>  viscParams; 
+	vector_fp  visc_A; 
+	vector_fp  visc_n; 
+	vector_fp  visc_Tact; 
+	vector_fp  thermCond_A; 
+	vector_fp  thermCond_n; 
+	vector_fp  thermCond_Tact; 
+	//Hydrodynamic radius of transported molecule
+	vector_fp               hydroRadius;
 
         //! Coefficients for the limiting conductivity of ions 
         //! in solution: A_k
@@ -47,26 +58,6 @@ namespace Cantera {
         vector_fp B_k_cond;
 
 
-        // polynomial fits
-        std::vector<vector_fp>  viscCoeffsVector_;
-        std::vector<vector_fp>  condcoeffs;
-        std::vector<vector_fp>  diffcoeffs ;
-
-
-        std::vector<bool> polar;
-        //vector_fp    alpha;
-        vector_fp    fitlist;
-        vector_fp    eps;
-        vector_fp    sigma;
-        DenseMatrix  reducedMass;  
-        DenseMatrix  diam;           
-        DenseMatrix  epsilon;        
-        DenseMatrix  dipole;         
-        DenseMatrix  delta;          
-        doublereal tmax, tmin;
-        int mode;
-        XML_Writer* xml;
-        int log_level;
     };
 }
 
