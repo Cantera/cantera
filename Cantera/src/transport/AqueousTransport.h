@@ -11,13 +11,15 @@
 
 
 #ifndef CT_AQUEOUSTRAN_H
-#define CT_AQYEOUSTRAN_H
+#define CT_AQUEOUSTRAN_H
 
 using namespace std;
 
 // Cantera includes
 #include "TransportBase.h"
 #include "DenseMatrix.h"
+#include "TransportParams.h"
+#include "LiquidTransportParams.h"
 
 
 #include <vector>
@@ -29,7 +31,7 @@ using namespace std;
 namespace Cantera {
 
 
-  class TransportParams;
+  class LiquidTransportParams;
 
     
   //! Class AqueousTransport implements mixture-averaged transport
@@ -275,7 +277,7 @@ namespace Cantera {
      * @param tr  Transport parameters for all of the species
      *            in the phase.
      */
-    virtual bool init(TransportParams& tr);
+    virtual bool initLiquid( LiquidTransportParams& tr );
 
     friend class TransportFactory;
 
@@ -286,7 +288,7 @@ namespace Cantera {
      *
      * @param k Species number to obtain the properties about.
      */
-    struct GasTransportData getGasTransportData(int k);
+    struct LiquidTransportData getLiquidTransportData(int k);
 
 
     //! Solve the stefan_maxell equations for the diffusive fluxes.

@@ -174,13 +174,11 @@ namespace Cantera {
 	 m_thermo->molecularWeights().end(), m_mw.begin());
 
     // copy polynomials and parameters into local storage
-    viscCoeffsVector_ = tr.viscCoeffsVector_;
+    viscCoeffsVector_ = tr.visccoeffs;
     m_condcoeffs = tr.condcoeffs;
     //m_diffcoeffs = tr.diffcoeffs;
 
     m_mode       = tr.mode;
-    m_diam       = tr.diam;
-    m_eps        = tr.eps;
 
     m_phi.resize(m_nsp, m_nsp, 0.0);
 
@@ -547,14 +545,6 @@ namespace Cantera {
     m_t32 = m_temp * m_sqrt_t;
     m_sqrt_kbt = sqrt(Boltzmann*m_temp);
 
-    // compute powers of log(T)
-    // -> may move this
-    m_polytempvec[0] = 1.0;
-    m_polytempvec[1] = m_logt;
-    m_polytempvec[2] = m_logt*m_logt;
-    m_polytempvec[3] = m_logt*m_logt*m_logt;
-    m_polytempvec[4] = m_logt*m_logt*m_logt*m_logt;
-
     // temperature has changed so temp flags are flipped
     m_visc_temp_ok  = false;
     m_diff_temp_ok  = false;
@@ -690,17 +680,19 @@ namespace Cantera {
   void LiquidTransport::updateCond_temp() {
 
     int k;
+    /*
     if (m_mode == CK_Mode) {
       for (k = 0; k < m_nsp; k++) {
-	m_cond[k] = exp(dot4(m_polytempvec, m_condcoeffs[k]));
+	m_cond[k] = exp(m_condcoeffs[k]);
       }
     } else {
       for (k = 0; k < m_nsp; k++) {
-	m_cond[k] = m_sqrt_t * dot5(m_polytempvec, m_condcoeffs[k]);
+	m_cond[k] = m_sqrt_t * m_condcoeffs[k];
       }
     }
     m_cond_temp_ok = true;
     m_cond_mix_ok = false;
+    */
   }
 
 
@@ -713,10 +705,11 @@ namespace Cantera {
     // evaluate binary diffusion coefficients at unit pressure
     int i,j;
     int ic = 0;
+    /*
     if (m_mode == CK_Mode) {
       for (i = 0; i < m_nsp; i++) {
 	for (j = i; j < m_nsp; j++) {
-	  m_bdiff(i,j) = exp(dot4(m_polytempvec, m_diffcoeffs[ic]));
+	  m_bdiff(i,j) = exp(m_diffcoeffs[ic]);
 	  m_bdiff(j,i) = m_bdiff(i,j);
 	  ic++;
 	}
@@ -725,8 +718,7 @@ namespace Cantera {
     else {
       for (i = 0; i < m_nsp; i++) {
 	for (j = i; j < m_nsp; j++) {
-	  m_bdiff(i,j) = m_temp * m_sqrt_t*dot5(m_polytempvec, 
-						m_diffcoeffs[ic]);
+	  m_bdiff(i,j) = m_temp * m_sqrt_t*m_diffcoeffs[ic];
 	  m_bdiff(j,i) = m_bdiff(i,j);
 	  ic++;
 	}
@@ -735,6 +727,7 @@ namespace Cantera {
 
     m_diff_temp_ok = true;
     m_diff_mix_ok = false;
+    */
   }
 
 
@@ -756,16 +749,17 @@ namespace Cantera {
     int k;
     doublereal vratiokj, wratiojk, factor1;
 
+    /*
     if (m_mode == CK_Mode) {
       for (k = 0; k < m_nsp; k++) {
-	viscSpecies_[k] = exp(dot4(m_polytempvec, viscCoeffsVector_[k]));
+	viscSpecies_[k] = exp(viscCoeffsVector_[k]);
 	m_sqvisc[k] = sqrt(viscSpecies_[k]);
       }
     }
     else {
       for (k = 0; k < m_nsp; k++) {
 	// the polynomial fit is done for sqrt(visc/sqrt(T))
-	m_sqvisc[k] = m_t14*dot5(m_polytempvec, viscCoeffsVector_[k]);
+	m_sqvisc[k] = m_t14 * viscCoeffsVector_[k];
 	viscSpecies_[k] = (m_sqvisc[k]*m_sqvisc[k]);
       }
     }
@@ -788,6 +782,7 @@ namespace Cantera {
 
     m_visc_temp_ok = true;
     m_visc_mix_ok = false;
+    */
   }
 
 

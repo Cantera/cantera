@@ -25,6 +25,7 @@ using namespace std;
 // Cantera includes
 #include "TransportBase.h"
 #include "DenseMatrix.h"
+#include "TransportParams.h"
 #include "LiquidTransportParams.h"
 
 namespace Cantera {
@@ -39,7 +40,7 @@ namespace Cantera {
 
 
 
-  class TransportParams;
+  class LiquidTransportParams;
 
     
   //! Class LiquidTransport implements mixture-averaged transport
@@ -506,9 +507,6 @@ namespace Cantera {
      * controlling update boolean -> m_cond_temp_ok
      */
     vector_fp  m_cond;
-
-    //! Polynomials of the log of the temperature
-    vector_fp m_polytempvec;
 
     //! State of the mole fraction vector.
     int m_iStateMF;
