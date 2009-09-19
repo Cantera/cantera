@@ -37,7 +37,7 @@ using namespace std;
 namespace Cantera {
 
 
-  class TransportParams;
+  class GasTransportParams;
 
   /**
    * Class MixTransport implements mixture-averaged transport
@@ -120,7 +120,7 @@ namespace Cantera {
      * @param tr  Transport parameters for all of the species
      *            in the phase.
      */
-    virtual bool init(TransportParams& tr);
+    virtual bool initGas( GasTransportParams& tr );
 
     friend class TransportFactory;
 

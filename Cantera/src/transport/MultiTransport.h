@@ -40,7 +40,7 @@ namespace Cantera {
     TRANSOLVE_LU
   };
 
-  class TransportParams;
+  class GasTransportParams;
 
   /////////////////////////////////////////////////////////////
 
@@ -162,7 +162,7 @@ namespace Cantera {
     /**
      * @internal
      */
-    virtual bool init(TransportParams& tr);
+    virtual bool initGas( GasTransportParams& tr );
 
 
     /**

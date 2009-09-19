@@ -50,7 +50,7 @@ namespace Cantera {
 
   }
 
-  bool MixTransport::init(TransportParams& tr) {
+  bool MixTransport::initGas( GasTransportParams& tr ) {
 
     // constant substance attributes
     m_thermo = tr.thermo;
