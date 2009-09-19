@@ -28,6 +28,8 @@
 namespace Cantera {
 
   class TransportParams;
+  class GasTransportParams;
+  class LiquidTransportParams;
 
   const int CK_Mode = 10;
 
@@ -221,6 +223,39 @@ namespace Cantera {
       err("getSpeciesFluxes"); 
     }
 
+    //! Get the species diffusive mass fluxes wrt to 
+    //! the mass averaged velocity, 
+    //! given the gradients in mole fraction, temperature 
+    //! and electrostatic potential.
+    /*!
+     *  Units for the returned fluxes are kg m-2 s-1.
+     * 
+     *  @param ndim Number of dimensions in the flux expressions
+     *  @param grad_T Gradient of the temperature
+     *                 (length = ndim)
+     * @param ldx  Leading dimension of the grad_X array 
+     *              (usually equal to m_nsp but not always)
+     * @param grad_X Gradients of the mole fraction
+     *             Flat vector with the m_nsp in the inner loop.
+     *             length = ldx * ndim
+     * @param ldf  Leading dimension of the fluxes array 
+     *              (usually equal to m_nsp but not always)
+     * @param grad_Phi Gradients of the electrostatic potential
+     *                 (length = ndim)
+     * @param fluxes  Output of the diffusive mass fluxes
+     *             Flat vector with the m_nsp in the inner loop.
+     *             length = ldx * ndim
+     */
+    virtual void getSpeciesFluxesES(int ndim, 
+				  const doublereal* grad_T, 
+				  int ldx, 
+				  const doublereal* grad_X,
+				  int ldf, 
+				  const doublereal* grad_Phi,
+				  doublereal* fluxes) { 
+      getSpeciesFluxes( ndim, grad_T, ldx, grad_X, ldf, fluxes );
+    }
+
     /** 
      * Get the molar fluxes [kmol/m^2/s], given the thermodynamic
      * state at two nearby points. 
@@ -315,6 +350,20 @@ namespace Cantera {
      */
     virtual bool init(TransportParams& tr)
     { err("init"); return false; }
+
+    /**
+     * Called by TransportFactory to set parameters.
+     */
+    virtual bool initGas( GasTransportParams& tr )
+    { err("init"); return false; }
+
+    /**
+     * Called by TransportFactory to set parameters.
+     */
+    virtual bool initLiquid( LiquidTransportParams& tr )
+    { err("init"); return false; }
+
+
 
 
     /**
