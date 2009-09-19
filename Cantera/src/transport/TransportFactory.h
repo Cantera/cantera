@@ -61,10 +61,20 @@ namespace Cantera {
     doublereal rotRelaxNumber;
   };
 
+  struct LiquidTransportData {
+    LiquidTransportData() : speciesName("-"), 
+	 hydroradius(-1) {}
+    std::string speciesName;
+    doublereal  hydroradius;
+    vector_fp   viscCoeffs;
+    vector_fp   thermalCondCoeffs;
+  };
+
   // forward references
   class MMCollisionInt;
-  class TransportParams;
-  class XML_Node;
+  class GasTransportParams; 
+  class LiquidTransportParams;
+ class XML_Node;
 
  
   //! The purpose of TransportFactory is to create new instances of
@@ -161,33 +171,58 @@ namespace Cantera {
 
     void getTransportData(const std::vector<const XML_Node*> &db,  
 			  XML_Node& log, const std::vector<std::string>& names, 
-			  TransportParams& tr);
+			  GasTransportParams& tr);
+
+    void getLiquidTransportData(const std::vector<const XML_Node*> &db,  
+			  XML_Node& log, const std::vector<std::string>& names, 
+			  LiquidTransportParams& tr);
 
     /** Generate polynomial fits to viscosity, conductivity, and
      *  binary diffusion coefficients */
-    void fitProperties(TransportParams& tr, std::ostream & logfile);
+    void fitProperties(GasTransportParams& tr, std::ostream & logfile);
 
     /// Generate polynomial fits to collision integrals
     void fitCollisionIntegrals(std::ostream & logfile, 
-			       TransportParams& tr);
+			       GasTransportParams& tr);
 
    
 
     void setupMM(std::ostream &flog,  const std::vector<const XML_Node*> &transport_database, 
 		 thermo_t* thermo, int mode, int log_level, 
-		 TransportParams& tr);
+		 GasTransportParams& tr);
+
+
+    void setupLiquidTransport(std::ostream &flog,  const std::vector<const XML_Node*> &transport_database, 
+		 thermo_t* thermo, int log_level, 
+		 LiquidTransportParams& tr);
 
 
     /// Second-order correction to the binary diffusion coefficients
     void getBinDiffCorrection(doublereal t, 
-			      const TransportParams& tr, int k, int j,
+			      const GasTransportParams& tr, int k, int j,
 			      doublereal xk, doublereal xj, 
 			      doublereal& fkj, doublereal& fjk);
 
     /// Corrections for polar-nonpolar binary diffusion coefficients
     void makePolarCorrections(int i, int j, 
-			      const TransportParams& tr, doublereal& f_eps, 
+			      const GasTransportParams& tr, doublereal& f_eps, 
 			      doublereal& f_sigma);
+
+  /**
+   * getArrhenius() parses the xml element called Arrhenius. 
+   * The Arrhenius expression is
+   * \f[        k =  A T^(b) exp (-E_a / RT). \f]
+   */
+  static void getArrhenius(const XML_Node& node, 
+			   doublereal& A, doublereal& b, doublereal& E) {
+    /* parse the children for the A, b, and E conponents.
+     */
+    A = getFloat(node, "A", "toSI");
+    b = getFloat(node, "b");
+    E = getFloat(node, "E", "actEnergy");
+    E /= GasConstant;
+  }                
+
 
     //! Boolean indicating whether to turn on verbose printing
     bool m_verbose;
