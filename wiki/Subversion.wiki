@@ -1,4 +1,4 @@
-#summary Subversion How-to.
+#summary Subversion: How-to Check Out the Code.
 
 = Introduction =
 
