@@ -15,6 +15,8 @@
 #ifndef _VCS_INTERNAL_H
 #define _VCS_INTERNAL_H
 
+#include <cstring>
+
 #include "vcs_defs.h"
 #include "vcs_DoubleStarStar.h"
 #include "vcs_Exception.h"
@@ -324,7 +326,6 @@ namespace VCSnonideal {
   //! available if this ever fails.
 #define USE_MEMSET
 #ifdef USE_MEMSET
-#include <cstring>
 
   //! Zero a double vector
   /*!
