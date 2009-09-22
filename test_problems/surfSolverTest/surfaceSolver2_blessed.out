@@ -21,9 +21,9 @@ Number of reactions = 8
 	     3 4.8454e-06 3.0554e-06            6.8484e+04 4.0505e+04 Csoot-*         
 	     4 2.6364e-05 2.1519e-05            1.1250e+04 5.8320e+03 Csoot-*         
 	     5 1.3012e-03 1.2749e-03            1.4427e+03 7.3573e+02 Csoot-*         
-	     6 4.7372e+00 4.7359e+00            5.8161e-01 2.9647e-01 Csoot-*         
-	     7                                  6.1771e-08 3.1736e-08                
-	FIN  7                                  6.1771e-08 2.1591e-11                 -- success
+	     6 4.7372e+00 4.7359e+00            5.8160e-01 2.9647e-01 Csoot-*         
+	     7                                  6.4112e-08 3.2378e-08                
+	FIN  7                                  6.4112e-08 3.6822e-12                 -- success
 Gas Temperature = 1.4e+03
 Gas Pressure    = 1.01e+05
 Gas Phase:  gas   (0)
@@ -81,8 +81,8 @@ Sum of coverages = 1
 	 Iter    Time       Del_t      Damp      DelX        Resid    Name-Time    Name-Damp
 	 -----------------------------------------------------------------------------------
 	     1                                  5.3218e+03 2.7005e+03                
-	     2                                  8.9325e-06 4.0777e-06                
-	FIN  2                                  8.9325e-06 6.2499e-12                 -- success
+	     2                                  8.8765e-06 4.0574e-06                
+	FIN  2                                  8.8765e-06 8.4527e-11                 -- success
 Gas Temperature = 1.4e+03
 Gas Pressure    = 1.01e+05
 Gas Phase:  gas   (0)
@@ -140,8 +140,8 @@ Sum of coverages = 1
 	 Iter    Time       Del_t      Damp      DelX        Resid    Name-Time    Name-Damp
 	 -----------------------------------------------------------------------------------
 	     1                                  2.1569e+05 9.5571e+04                
-	     2                                  1.7622e-04 2.0108e-04                
-	FIN  2                                  1.7622e-04 2.0335e-10                 -- success
+	     2                                  7.8671e-04 4.6185e-04                
+	FIN  2                                  7.8671e-04 1.5306e-10                 -- success
 Gas Temperature = 1.5e+03
 Gas Pressure    = 1.01e+05
 Gas Phase:  gas   (0)
@@ -198,8 +198,8 @@ Sum of coverages = 1
 
 	 Iter    Time       Del_t      Damp      DelX        Resid    Name-Time    Name-Damp
 	 -----------------------------------------------------------------------------------
-	     1                                  2.8875e-10 1.4792e-10                
-	FIN  1                                  2.8875e-10 1.2324e-10                 -- success
+	     1                                  3.0635e-10 1.5694e-10                
+	FIN  1                                  3.0635e-10 1.2314e-10                 -- success
 Gas Temperature = 1.5e+03
 Gas Pressure    = 1.01e+05
 Gas Phase:  gas   (0)
