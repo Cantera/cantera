@@ -390,7 +390,10 @@ namespace Cantera {
      * added.
      */
     vector<vector_fp>            m_diffcoeffs;
- 
+
+    //! Temperature polynomial for transport property temperature fits.
+    vector_fp                    m_polytempvec;
+
 
     //! Internal value of the gradient of the mole fraction vector
     /*!

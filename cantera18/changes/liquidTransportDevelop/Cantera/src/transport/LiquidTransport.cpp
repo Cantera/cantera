@@ -178,7 +178,7 @@ namespace Cantera {
     m_condcoeffs = tr.condcoeffs;
     //m_diffcoeffs = tr.diffcoeffs;
 
-    m_mode       = tr.mode;
+    m_mode       = tr.mode_;
 
     m_phi.resize(m_nsp, m_nsp, 0.0);
 

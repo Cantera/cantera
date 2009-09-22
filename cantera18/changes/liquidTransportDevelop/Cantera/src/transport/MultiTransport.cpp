@@ -167,7 +167,7 @@ namespace Cantera {
         m_zrot       = tr.zrot;
         m_crot       = tr.crot;
         m_epsilon    = tr.epsilon;
-        m_mode       = tr.mode;
+        m_mode       = tr.mode_;
         m_diam       = tr.diam;
         m_eps        = tr.eps;
 	m_alpha      = tr.alpha;
