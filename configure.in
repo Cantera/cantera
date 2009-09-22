@@ -365,29 +365,45 @@ sundials_lib_dep=
 
 
 if test ${use_sundials} = 1; then
-AC_DEFINE(HAS_SUNDIALS)
 echo "using CVODES from SUNDIALS... Sensitivity analysis enabled."
 
 CVODE_LIBS='-lsundials_cvodes -lsundials_nvecserial' 
 IDA_LIBS='-lsundials_ida -lsundials_nvecserial' 
 
 if test "$SUNDIALS_VERSION" = "2.2"; then
-AC_DEFINE(SUNDIALS_VERSION_22)
-sundials_include='-I'${SUNDIALS_HOME}'/include -I'${SUNDIALS_HOME}'/include/sundials -I'${SUNDIALS_HOME}'/include/cvodes -I'${SUNDIALS_HOME}'/include/ida'
-echo "sundials include directory: " ${sundials_include}
-echo "sundials library directory: " $SUNDIALS_LIB_DIR
-sundials_lib_dir=$SUNDIALS_LIB_DIR
-sundials_lib="-L$SUNDIALS_LIB_DIR -lsundials_cvodes -lsundials_ida -lsundials_nvecserial"
-sundials_lib_dep="$SUNDIALS_LIB_DIR/libsundials_cvodes.a $SUNDIALS_LIB_DIR/libsundials_ida.a $SUNDIALS_LIB_DIR/libsundials_nvecserial.a"
+  AC_DEFINE(HAS_SUNDIALS)
+  AC_DEFINE(SUNDIALS_VERSION_22)
+  sundials_include='-I'${SUNDIALS_HOME}'/include -I'${SUNDIALS_HOME}'/include/sundials -I'${SUNDIALS_HOME}'/include/cvodes -I'${SUNDIALS_HOME}'/include/ida'
+  echo "sundials include directory: " ${sundials_include}
+  echo "sundials library directory: " $SUNDIALS_LIB_DIR
+  sundials_lib_dir=$SUNDIALS_LIB_DIR
+  sundials_lib="-L$SUNDIALS_LIB_DIR -lsundials_cvodes -lsundials_ida -lsundials_nvecserial"
+  sundials_lib_dep="$SUNDIALS_LIB_DIR/libsundials_cvodes.a $SUNDIALS_LIB_DIR/libsundials_ida.a $SUNDIALS_LIB_DIR/libsundials_nvecserial.a"
+elif test "$SUNDIALS_VERSION" = "2.3"; then
+  AC_DEFINE(HAS_SUNDIALS)
+  AC_DEFINE(SUNDIALS_VERSION_23)
+  sundials_include='-I'${SUNDIALS_INC_DIR}
+  echo "sundials include directory: " ${sundials_include}
+  echo "sundials library directory: " $SUNDIALS_LIB_DIR
+  sundials_lib_dir=$SUNDIALS_LIB_DIR
+  sundials_lib="-L$SUNDIALS_LIB_DIR -lsundials_cvodes -lsundials_ida -lsundials_nvecserial"
+  sundials_lib_dep="$SUNDIALS_LIB_DIR/libsundials_cvodes.a $SUNDIALS_LIB_DIR/libsundials_ida.a $SUNDIALS_LIB_DIR/libsundials_nvecserial.a"
+#   python tools/src/sundials_version.py $SUNDIALS_HOME
+elif test "$SUNDIALS_VERSION" = "2.4"; then
+  AC_DEFINE(HAS_SUNDIALS)
+  AC_DEFINE(SUNDIALS_VERSION_24)
+  sundials_include='-I'${SUNDIALS_INC_DIR}
+  echo "sundials include directory: " ${sundials_include}
+  echo "sundials library directory: " $SUNDIALS_LIB_DIR
+  sundials_lib_dir=$SUNDIALS_LIB_DIR
+  sundials_lib="-L$SUNDIALS_LIB_DIR -lsundials_cvodes -lsundials_ida -lsundials_nvecserial"
+  sundials_lib_dep="$SUNDIALS_LIB_DIR/libsundials_cvodes.a $SUNDIALS_LIB_DIR/libsundials_ida.a $SUNDIALS_LIB_DIR/libsundials_nvecserial.a"
+#  python tools/src/sundials_version.py $SUNDIALS_HOME
 else
-AC_DEFINE(SUNDIALS_VERSION_23)
-sundials_include='-I'${SUNDIALS_INC_DIR}
-echo "sundials include directory: " ${sundials_include}
-echo "sundials library directory: " $SUNDIALS_LIB_DIR
-sundials_lib_dir=$SUNDIALS_LIB_DIR
-sundials_lib="-L$SUNDIALS_LIB_DIR -lsundials_cvodes -lsundials_ida -lsundials_nvecserial"
-sundials_lib_dep="$SUNDIALS_LIB_DIR/libsundials_cvodes.a $SUNDIALS_LIB_DIR/libsundials_ida.a $SUNDIALS_LIB_DIR/libsundials_nvecserial.a"
-# python tools/src/sundials_version.py $SUNDIALS_HOME
+  echo "ERROR: unknown or unsupported sundials version #: $SUNDIALS_VERSION" 
+  echo "       Supported versions are 2.2, 2.3, and 2.4"
+  echo "       Please fix or turn off the sundials option by setting USE_SUNDIALS to no"
+  use_sundials=0
 fi
 fi
 
