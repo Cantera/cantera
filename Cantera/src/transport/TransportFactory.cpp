@@ -378,8 +378,8 @@ namespace Cantera {
         
     // constant mixture attributes
     tr.thermo = thermo;
-    tr.nsp = tr.thermo->nSpecies();
-    int nsp = tr.nsp;
+    tr.nsp_ = tr.thermo->nSpecies();
+    int nsp = tr.nsp_;
 
     tr.tmin = thermo->minTemp();
     tr.tmax = thermo->maxTemp();
@@ -389,7 +389,7 @@ namespace Cantera {
     copy(tr.thermo->molecularWeights().begin(), 
 	 tr.thermo->molecularWeights().end(), tr.mw.begin());
 
-    tr.mode = mode;
+    tr.mode_ = mode;
     tr.epsilon.resize(nsp, nsp, 0.0);
     tr.delta.resize(nsp, nsp, 0.0);
     tr.reducedMass.resize(nsp, nsp, 0.0);
@@ -508,8 +508,8 @@ namespace Cantera {
         
     // constant mixture attributes
     trParam.thermo = thermo;
-    trParam.nsp = trParam.thermo->nSpecies();
-    int nsp = trParam.nsp;
+    trParam.nsp_ = trParam.thermo->nSpecies();
+    int nsp = trParam.nsp_;
 
     trParam.tmin = thermo->minTemp();
     trParam.tmax = thermo->maxTemp();
@@ -702,8 +702,8 @@ namespace Cantera {
 
     vector_fp::iterator dptr;
     doublereal dstar;
-    int nsp = tr.nsp;
-    int mode = tr.mode;
+    int nsp = tr.nsp_;
+    int mode = tr.mode_;
     int i, j;
 
     // Chemkin fits to sixth order polynomials
@@ -850,7 +850,7 @@ namespace Cantera {
       }
     }
 
-    for (i = 0; i < tr.nsp; i++) {
+    for (i = 0; i < tr.nsp_; i++) {
 
       GasTransportData& trdat = datatable[names[i]];
             
@@ -902,8 +902,10 @@ namespace Cantera {
    * instance of TransportParams containing the transport data for
    * these species read from the file.
    */
-  void TransportFactory::getLiquidTransportData(const std::vector<const XML_Node*> &xspecies,  
-					  XML_Node& log, const std::vector<std::string> &names, LiquidTransportParams& trParam)
+  void TransportFactory::getLiquidTransportData( const std::vector<const XML_Node*> &xspecies,  
+						 XML_Node& log, 
+						 const std::vector<std::string> &names, 
+						 LiquidTransportParams& trParam)
   {
     string name;
     std::map<std::string, LiquidTransportData> datatable;
@@ -922,6 +924,7 @@ namespace Cantera {
       const XML_Node& sp = *xspecies[i];
       name = sp["name"];
 
+      std::cout << "Processing Liquid Transport for " << name;
       // put in a try block so that species with no 'transport'
       // child are skipped, instead of throwing an exception.
       try {
@@ -965,7 +968,7 @@ namespace Cantera {
       }
     }
 
-    for (i = 0; i < trParam.nsp; i++) {
+    for (i = 0; i < trParam.nsp_; i++) {
 
       LiquidTransportData& trdat = datatable[names[i]];
             
@@ -1032,7 +1035,7 @@ namespace Cantera {
     // number of points to use in generating fit data
     const int np = 50;
 
-    int mode = tr.mode;
+    int mode = tr.mode_;
     int degree = (mode == CK_Mode ? 3 : 4);
 
     doublereal t, om22; 
@@ -1084,7 +1087,7 @@ namespace Cantera {
       c1, cv_rot, cv_int, f_rot, f_trans, om11;
     doublereal diffcoeff;
 
-    for (k = 0; k < tr.nsp; k++) 
+    for (k = 0; k < tr.nsp_; k++) 
       {
 	for (n = 0; n < np; n++) {
 	  t = tr.tmin + dt*n;
@@ -1221,7 +1224,7 @@ namespace Cantera {
 	tr.xml->XML_comment(logfile,s);
       }
       if (tr.log_level >= 2) 
-	for (k = 0; k < tr.nsp; k++) {
+	for (k = 0; k < tr.nsp_; k++) {
 	  tr.xml->XML_writeVector(logfile, "    ", tr.thermo->speciesName(k), 
 				  degree+1, DATA_PTR(tr.condcoeffs[k]));
 	}            
@@ -1249,9 +1252,9 @@ namespace Cantera {
     mxerr = 0.0, mxrelerr = 0.0;
     vector_fp diff(np + 1);
     doublereal eps, sigma;
-    for (k = 0; k < tr.nsp; k++) 
+    for (k = 0; k < tr.nsp_; k++) 
       {            
-	for (j = k; j < tr.nsp; j++) {
+	for (j = k; j < tr.nsp_; j++) {
 
 	  ipoly = tr.poly[k][j];
 	  for (n = 0; n < np; n++) {
