@@ -37,7 +37,7 @@ namespace Cantera {
 
 	//minimum and maximum temperatures for parameter fits
         doublereal tmax, tmin;
-        int mode;
+        int mode_;
         XML_Writer* xml;
         int log_level;
 
