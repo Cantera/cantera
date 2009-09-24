@@ -805,6 +805,7 @@ namespace Cantera {
     for (i = 0; i < nsp; i++) {
       const XML_Node& sp = *xspecies[i];
       name = sp["name"];
+      std::cout << "Processing node for " << name << std::endl;
 
       // put in a try block so that species with no 'transport'
       // child are skipped, instead of throwing an exception.
@@ -913,7 +914,8 @@ namespace Cantera {
     doublereal A_thcond, n_thcond, Tact_thcond;
 
     int nsp = static_cast<int>(xspecies.size());
-        
+      std::cout << "Size of xspecies " << nsp << std::endl;
+  
     // read all entries in database into 'datatable' and check for 
     // errors. Note that this procedure validates all entries, not 
     // only those for the species listed in 'names'.
@@ -923,19 +925,19 @@ namespace Cantera {
     for (i = 0; i < nsp; i++) {
       const XML_Node& sp = *xspecies[i];
       name = sp["name"];
+      std::cout << "Processing node for " << name << std::endl;
 
-      std::cout << "Processing Liquid Transport for " << name;
       // put in a try block so that species with no 'transport'
       // child are skipped, instead of throwing an exception.
       try {
-	XML_Node& trParam = sp.child("transport");
+	XML_Node& trNode = sp.child("transport");
 
-	hydrodynamic_radius = getFloat(trParam, "hydrodynamic_radius");
+	hydrodynamic_radius = getFloat(trNode, "hydrodynamic_radius");
 
-	XML_Node& visc = trParam.child("viscosity");
+	XML_Node& visc = trNode.child("viscosity");
 	getArrhenius(visc, A_visc, n_visc, Tact_visc );
 
-	XML_Node& thermCond = trParam.child("thermal_conductivity");
+	XML_Node& thermCond = trNode.child("thermal_conductivity");
 	getArrhenius(thermCond, A_thcond, n_thcond, Tact_thcond );
 
 	LiquidTransportData data;
