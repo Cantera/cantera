@@ -137,11 +137,15 @@ namespace Cantera {
   public:
 
     //! default constructor
+    /*!
+     * @param thermo  ThermoPhase object holding species information.
+     * @param ndim    Number of spatial dimensions.
+     */
     LiquidTransport(thermo_t* thermo = 0, int ndim = 1);
 
     //!Copy Constructor for the %LiquidThermo object.
     /*!
-     * @param right  ThermoPhase to be copied
+     * @param right  %LiquidTransport to be copied
      */
     LiquidTransport(const LiquidTransport &right);
 
@@ -149,8 +153,8 @@ namespace Cantera {
     /*!
      *  This is NOT a virtual function.
      *
-     * @param right    Reference to %ThermoPhase object to be copied into the
-     *                 current one.
+     * @param right    Reference to %LiquidTransport object to be copied 
+     *                 into the current one.
      */
     LiquidTransport&  operator=(const  LiquidTransport& right);
     
@@ -170,6 +174,19 @@ namespace Cantera {
     //! virtual destructor
     virtual ~LiquidTransport() {}
 
+    //! Initialize the transport object
+    /*!
+     * Here we change all of the internal dimensions to be sufficient.
+     * We get the object ready to do property evaluations.
+     *
+     * @param tr  Transport parameters for all of the species
+     *            in the phase.
+     */
+    virtual bool initLiquid(LiquidTransportParams& tr);
+
+    friend class TransportFactory;
+
+
     //! Return the model id for this transport parameterization
     virtual int model() {
       return cLiquidTransport; 
@@ -179,17 +196,14 @@ namespace Cantera {
 
     //! Returns the viscosity of the solution
     /*!
-     * The viscosity is computed using the Wilke mixture rule.
+     * The viscosity is computed using mixture averaging plus
+     * any information on interaction parameters
      * \f[
-     * \mu = \sum_k \frac{\mu_k X_k}{\sum_j \Phi_{k,j} X_j}.
+     * \mu = \sum_k {\mu_k X_k} {\sum_j \sum_k {G_{j,k} X_k X_j} }.
      * \f]
      * Here \f$ \mu_k \f$ is the viscosity of pure species \e k,
-     * and 
-     * \f[
-     * \Phi_{k,j} = \frac{\left[1 
-     * + \sqrt{\left(\frac{\mu_k}{\mu_j}\sqrt{\frac{M_j}{M_k}}\right)}\right]^2}
-     * {\sqrt{8}\sqrt{1 + M_k/M_j}}
-     * \f] 
+     * and  \f$ G_{k,j} \f$ is the interaction parameter.
+
      * @see updateViscosity_T();
      *
      * Controlling update boolean m_viscmix_ok
@@ -198,24 +212,10 @@ namespace Cantera {
 
     //! Returns the pure species viscosities
     /*!
-     *
-     * 
+     *  The pure species viscosities are to be given in an Arrhenius 
+     * form in accordance with activated-jump-process dominated transport.
      */
     virtual void getSpeciesViscosities(doublereal* const visc);
-
-    virtual void getThermalDiffCoeffs(doublereal* const dt);
-
-    //! Return the thermal conductivity of the solution
-    /*!
-     * The thermal conductivity is computed from the following mixture rule:
-     *   \f[
-     *    \lambda = 0.5 \left( \sum_k X_k \lambda_k 
-     *     + \frac{1}{\sum_k X_k/\lambda_k}\right)
-     *   \f]
-     *
-     *  Controlling update boolean = m_condmix_ok
-     */
-    virtual doublereal thermalConductivity();
 
     //! Returns the binary diffusion coefficients
     /*!
@@ -231,6 +231,20 @@ namespace Cantera {
      */
     virtual void getMixDiffCoeffs(doublereal* const d);
 
+
+    virtual void getThermalDiffCoeffs(doublereal* const dt);
+
+    //! Return the thermal conductivity of the solution
+    /*!
+     * The thermal conductivity is computed from the following mixture rule:
+     *   \f[
+     *    \lambda = 0.5 \left( \sum_k X_k \lambda_k 
+     *     + \frac{1}{\sum_k X_k/\lambda_k}\right)
+     *   \f]
+     *
+     *  Controlling update boolean = m_condmix_ok
+     */
+    virtual doublereal thermalConductivity();
 
     //! Get the Mobilities
     /*!
@@ -332,20 +346,6 @@ namespace Cantera {
     virtual void getSpeciesFluxesExt(int ldf, doublereal* fluxes);
 
 
-    //! Initialize the transport object
-    /*!
-     * Here we change all of the internal dimensions to be sufficient.
-     * We get the object ready to do property evaluations.
-     *
-     * @param tr  Transport parameters for all of the species
-     *            in the phase.
-     */
-    virtual bool initLiquid(LiquidTransportParams& tr);
-
-    friend class TransportFactory;
-
-
-
     //! Solve the stefan_maxell equations for the diffusive fluxes.
     void stefan_maxwell_solve();
 
@@ -369,19 +369,16 @@ namespace Cantera {
      */
     vector_fp  m_mw;
 
-    //! Polynomial coefficients of the viscosity
-    /*!
-     * These express the temperature dependendence of the pures
-     * species viscosities.
-     */
-    std::vector<vector_fp> viscCoeffsVector_;
+    //! Pure species viscosities in Arrhenius temperature-dependent form.
+    vector_fp  m_visc_A; 
+    vector_fp  m_visc_n; 
+    vector_fp  m_visc_Tact; 
 
-    //! Polynomial coefficients of the conductivities
-    /*!
-     * These express the temperature dependendence of the pures
-     * species conductivities
-     */
-    vector<vector_fp>            m_condcoeffs;
+    //! Pure species thermal conductivities in Arrhenius temperature-dependent form.
+    vector_fp  m_thermCond_A; 
+    vector_fp  m_thermCond_n; 
+    vector_fp  m_thermCond_Tact; 
+
 
     //! Polynomial coefficients of the binary diffusion coefficients
     /*!
@@ -390,10 +387,6 @@ namespace Cantera {
      * added.
      */
     vector<vector_fp>            m_diffcoeffs;
-
-    //! Temperature polynomial for transport property temperature fits.
-    vector_fp                    m_polytempvec;
-
 
     //! Internal value of the gradient of the mole fraction vector
     /*!
@@ -486,19 +479,7 @@ namespace Cantera {
      *
      * controlling update boolean -> m_visc_temp_ok
      */
-    vector_fp viscSpecies_;
-
-    //! Sqrt of the species viscosities
-    /*!
-     * The sqrt(visc) is used in the mixing formulas
-     * Length = m_nsp
-     *
-     * Depends on the temperature and perhaps pressure, but
-     * not the species concentrations
-     *
-     * controlling update boolean m_visc_temp_ok
-     */
-    vector_fp m_sqvisc;
+    vector_fp m_viscSpecies;
 
     //! Internal value of the species individual thermal conductivities
     /*!
@@ -509,7 +490,7 @@ namespace Cantera {
      *
      * controlling update boolean -> m_cond_temp_ok
      */
-    vector_fp  m_cond;
+    vector_fp  m_condSpecies;
 
     //! State of the mole fraction vector.
     int m_iStateMF;
@@ -592,21 +573,6 @@ namespace Cantera {
      *
      */
     int viscosityModel_;
-
-    //! viscosity weighting functions
-    DenseMatrix m_phi;         
-
-    //! Matrix of the ratios of the species molecular weights
-    /*!
-     * m_wratjk(i,j) = (m_mw[j]/m_mw[k])**0.25
-     */
-    DenseMatrix m_wratjk;
-
-    //! Matrix of the ratios of the species molecular weights
-    /*!
-     * m_wratkj1(i,j) = (1.0 + m_mw[k]/m_mw[j])**0.5
-     */
-    DenseMatrix m_wratkj1;
 
     //! RHS to the stefan-maxwell equation
     DenseMatrix   m_B;
@@ -746,6 +712,16 @@ namespace Cantera {
      * Either 1, 2, or 3
      */
     int m_nDim;
+
+  private:
+
+    /**
+     * Throw an exception if this method is invoked. 
+     * This probably indicates something is not yet implemented.
+     */
+    doublereal err(std::string msg) const;
+
+
   };
 }
 #endif

@@ -100,27 +100,26 @@ namespace Cantera {
     m_tmin                                = right.m_tmin;
     m_tmax                                = right.m_tmax;
     m_mw                                  = right.m_mw;
-    viscCoeffsVector_                     = right.viscCoeffsVector_;
-    m_condcoeffs                          = right.m_condcoeffs;
+    m_visc_A                              = right.m_visc_A; 
+    m_visc_n                              = right.m_visc_n; 
+    m_visc_Tact                           = right.m_visc_Tact; 
+    m_thermCond_A                         = right.m_thermCond_A; 
+    m_thermCond_n                         = right.m_thermCond_n; 
+    m_thermCond_Tact                      = right.m_thermCond_Tact; 
     m_diffcoeffs                          = right.m_diffcoeffs;
     m_Grad_X                              = right.m_Grad_X;
     m_Grad_T                              = right.m_Grad_T;
     m_Grad_V                              = right.m_Grad_V;
     m_ck_Grad_mu                          = right.m_ck_Grad_mu;
     m_bdiff                               = right.m_bdiff;
-    viscSpecies_                          = right.viscSpecies_;
-    m_sqvisc                              = right.m_sqvisc;
+    m_viscSpecies                          = right.m_viscSpecies;
     m_cond                                = right.m_cond;
-    m_polytempvec                         = right.m_polytempvec;
     m_iStateMF = -1;
     m_molefracs                           = right.m_molefracs;
     m_concentrations                      = right.m_concentrations;
     m_chargeSpecies                       = right.m_chargeSpecies;
     m_DiffCoeff_StefMax                   = right.m_DiffCoeff_StefMax;
     viscosityModel_                       = right.viscosityModel_;
-    m_phi                                 = right.m_phi;
-    m_wratjk                              = right.m_wratjk;
-    m_wratkj1                             = right.m_wratkj1;
     m_B                                   = right.m_B;
     m_A                                   = right.m_A;
     m_eps                                 = right.m_eps;
@@ -173,30 +172,29 @@ namespace Cantera {
     copy(m_thermo->molecularWeights().begin(), 
 	 m_thermo->molecularWeights().end(), m_mw.begin());
 
-    // copy polynomials and parameters into local storage
-    viscCoeffsVector_ = tr.visccoeffs;
-    m_condcoeffs = tr.condcoeffs;
+    // copy parameters into local storage
+    m_visc_A           = tr.visc_A ; 
+    m_visc_n           = tr.visc_n ;
+    m_visc_Tact        = tr.visc_Tact ;
+
+    m_thermCond_A      = tr.thermCond_A ; 
+    m_thermCond_n      = tr.thermCond_n ;
+    m_thermCond_Tact   = tr.thermCond_Tact ;
+
     //m_diffcoeffs = tr.diffcoeffs;
 
     m_mode       = tr.mode_;
 
-    m_phi.resize(m_nsp, m_nsp, 0.0);
+    m_visc_A.resize(m_nsp);
+    m_visc_n.resize(m_nsp);
+    m_visc_Tact.resize(m_nsp);
 
+    m_thermCond_A.resize(m_nsp);
+    m_thermCond_n.resize(m_nsp);
+    m_thermCond_Tact.resize(m_nsp);
 
-    m_wratjk.resize(m_nsp, m_nsp, 0.0);
-    m_wratkj1.resize(m_nsp, m_nsp, 0.0);
-    int j, k;
-    for (j = 0; j < m_nsp; j++) 
-      for (k = j; k < m_nsp; k++) {
-	m_wratjk(j,k) = sqrt(m_mw[j]/m_mw[k]);
-	m_wratjk(k,j) = sqrt(m_wratjk(j,k));
-	m_wratkj1(j,k) = sqrt(1.0 + m_mw[k]/m_mw[j]);
-      }
-    
-    m_polytempvec.resize(5);
-    viscSpecies_.resize(m_nsp);
-    m_sqvisc.resize(m_nsp);
-    m_cond.resize(m_nsp);
+    m_viscSpecies.resize(m_nsp);
+    m_condSpecies.resize(m_nsp);
     m_bdiff.resize(m_nsp, m_nsp);
 
     m_molefracs.resize(m_nsp);
@@ -247,7 +245,7 @@ namespace Cantera {
 
     if (m_visc_mix_ok) return m_viscmix;
   
-    // update viscSpecies_[] and m_phi[] if necessary
+    // update m_viscSpecies[] if necessary
     if (!m_visc_temp_ok) {
       updateViscosity_temp();
     }
@@ -256,16 +254,18 @@ namespace Cantera {
       updateViscosities_conc();
     }
 
+    /* We still need to implement interaction parameters */
+    /* This constant viscosity model has no input */
     if (viscosityModel_ == LVISC_CONSTANT) {
-      return m_viscmix;
+      err("constant viscosity not implemented for LiquidTransport.");
+      //return m_viscmix;
     } else if (viscosityModel_ == LVISC_MIXTUREAVG) {
-      m_viscmix = dot_product(viscSpecies_, m_molefracs);
+      m_viscmix = dot_product(m_viscSpecies, m_molefracs);
+    } else if (viscosityModel_ == LVISC_INTERACTION) {
+      m_viscmix = dot_product(m_viscSpecies, m_molefracs);
+      //now sum over i,j  :   Gij*Xi*Xj
     } else if (viscosityModel_ == LVISC_WILKES) {
-      multiply(m_phi, DATA_PTR(m_molefracs), DATA_PTR(m_spwork));
-      m_viscmix = 0.0;
-      for (int k = 0; k < m_nsp; k++) {
-	m_viscmix += m_molefracs[k] * viscSpecies_[k]/m_spwork[k]; 
-      }
+      err("Wilkes method not implemented for LiquidTransport.");
     }
     
     return m_viscmix;
@@ -276,7 +276,7 @@ namespace Cantera {
     if (!m_visc_temp_ok) {
       updateViscosity_temp();
     }
-    copy(viscSpecies_.begin(), viscSpecies_.end(), visc); 
+    copy(m_viscSpecies.begin(), m_viscSpecies.end(), visc); 
   }
 
 
@@ -354,8 +354,8 @@ namespace Cantera {
     if (!m_cond_mix_ok) {
       doublereal sum1 = 0.0, sum2 = 0.0;
       for (int k = 0; k < m_nsp; k++) {
-	sum1 += m_molefracs[k] * m_cond[k];
-	sum2 += m_molefracs[k] / m_cond[k];
+	sum1 += m_molefracs[k] * m_condSpecies[k];
+	sum2 += m_molefracs[k] / m_condSpecies[k];
       }
       m_lambda = 0.5*(sum1 + 1.0/sum2);
       m_cond_mix_ok = true;
@@ -683,11 +683,11 @@ namespace Cantera {
     /*
     if (m_mode == CK_Mode) {
       for (k = 0; k < m_nsp; k++) {
-	m_cond[k] = exp(m_condcoeffs[k]);
+	m_condSpecies[k] = exp(m_condcoeffs[k]);
       }
     } else {
       for (k = 0; k < m_nsp; k++) {
-	m_cond[k] = m_sqrt_t * m_condcoeffs[k];
+	m_condSpecies[k] = m_sqrt_t * m_condcoeffs[k];
       }
     }
     m_cond_temp_ok = true;
@@ -747,42 +747,13 @@ namespace Cantera {
    */
   void LiquidTransport::updateViscosity_temp() {
     int k;
-    doublereal vratiokj, wratiojk, factor1;
 
-    /*
-    if (m_mode == CK_Mode) {
-      for (k = 0; k < m_nsp; k++) {
-	viscSpecies_[k] = exp(viscCoeffsVector_[k]);
-	m_sqvisc[k] = sqrt(viscSpecies_[k]);
-      }
+    for (k = 0; k < m_nsp; k++) {
+      m_viscSpecies[k] = m_visc_A[k] * exp( m_visc_n[k] * m_logt 
+					    - m_visc_Tact[k] / m_temp );
     }
-    else {
-      for (k = 0; k < m_nsp; k++) {
-	// the polynomial fit is done for sqrt(visc/sqrt(T))
-	m_sqvisc[k] = m_t14 * viscCoeffsVector_[k];
-	viscSpecies_[k] = (m_sqvisc[k]*m_sqvisc[k]);
-      }
-    }
-
-    // see Eq. (9-5.15) of Reid, Prausnitz, and Poling
-    int j;
-    for (j = 0; j < m_nsp; j++) {
-      for (k = j; k < m_nsp; k++) {
-	vratiokj = viscSpecies_[k]/viscSpecies_[j];
-	wratiojk = m_mw[j]/m_mw[k];
-
-	// Note that m_wratjk(k,j) holds the square root of
-	// m_wratjk(j,k)!
-	factor1 = 1.0 + (m_sqvisc[k]/m_sqvisc[j]) * m_wratjk(k,j);
-	m_phi(k,j) = factor1*factor1 /
-	  (SqrtEight * m_wratkj1(j,k)); 
-	m_phi(j,k) = m_phi(k,j)/(vratiokj * wratiojk);
-      }
-    }
-
     m_visc_temp_ok = true;
     m_visc_mix_ok = false;
-    */
   }
 
 
