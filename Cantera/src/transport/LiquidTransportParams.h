@@ -27,14 +27,37 @@ namespace Cantera {
 
 	//section for liquid transport properties
 
-	//Arrhenius parameters for transport coefficients
-	//	std::vector<vector_fp>  viscParams; 
+	//Arrhenius parameters for transport coefficients:
+
+	//!Arrhenius pre-exponential parameter for viscosity.
 	vector_fp  visc_A; 
+	//!Temperature exponent for viscosity.
 	vector_fp  visc_n; 
+	//!Arrhenius activation temperature for viscosity.
 	vector_fp  visc_Tact; 
+
+	//!Arrhenius pre-exponential parameter for thermal conductivity.
 	vector_fp  thermCond_A; 
+	//!Temperature exponent for thermal conductivity.
 	vector_fp  thermCond_n; 
+	//!Arrhenius activation temperature for thermal conductivity.
 	vector_fp  thermCond_Tact; 
+
+	//! Energies of molecular interaction associated with viscosity.
+	/** 
+	 * These multiply the mixture viscosity by
+	 *  \f[ \exp( \sum_{i} \sum_{j} X_i X_j ( S_{i,j} + E_{i,j} / T ) ) \f].
+	 *
+	 * The overall formula for the logarithm of the mixture viscosity is 
+	 *
+	 * \f[ \ln \eta_{mix} = \sum_i X_i \ln \eta_i 
+	 *  + \sum_i \sum_j X_i X_j ( S_{i,j} + E_{i,j} / T ) \f].
+	 */
+	DenseMatrix  visc_Eij; 
+
+	//! Entropies of molecular interaction associated with viscosity.
+	DenseMatrix  visc_Sij; 
+
 	//Hydrodynamic radius of transported molecule
 	vector_fp               hydroRadius;
 

@@ -39,10 +39,6 @@ namespace Cantera {
     m_iStateMF(-1),
     m_temp(-1.0),
     m_logt(0.0),
-    m_sqrt_t(-1.0),
-    m_t14(-1.0),
-    m_t32(-1.0),
-    m_sqrt_kbt(-1.0),
     m_press(-1.0),
     m_lambda(-1.0),
     m_viscmix(-1.0),
@@ -67,10 +63,6 @@ namespace Cantera {
     m_iStateMF(-1),
     m_temp(-1.0),
     m_logt(0.0),
-    m_sqrt_t(-1.0),
-    m_t14(-1.0),
-    m_t32(-1.0),
-    m_sqrt_kbt(-1.0),
     m_press(-1.0),
     m_lambda(-1.0),
     m_viscmix(-1.0),
@@ -101,19 +93,24 @@ namespace Cantera {
     m_tmax                                = right.m_tmax;
     m_mw                                  = right.m_mw;
     m_visc_A                              = right.m_visc_A; 
+    m_visc_logA                           = right.m_visc_logA; 
     m_visc_n                              = right.m_visc_n; 
     m_visc_Tact                           = right.m_visc_Tact; 
+    m_visc_Eij                            = right.m_visc_Eij; 
+    m_visc_Sij                            = right.m_visc_Sij; 
     m_thermCond_A                         = right.m_thermCond_A; 
     m_thermCond_n                         = right.m_thermCond_n; 
     m_thermCond_Tact                      = right.m_thermCond_Tact; 
+    m_hydrodynamic_radius                 = right.m_hydrodynamic_radius;
     m_diffcoeffs                          = right.m_diffcoeffs;
     m_Grad_X                              = right.m_Grad_X;
     m_Grad_T                              = right.m_Grad_T;
     m_Grad_V                              = right.m_Grad_V;
     m_ck_Grad_mu                          = right.m_ck_Grad_mu;
     m_bdiff                               = right.m_bdiff;
-    m_viscSpecies                          = right.m_viscSpecies;
-    m_cond                                = right.m_cond;
+    m_viscSpecies                         = right.m_viscSpecies;
+    m_logViscSpecies                      = right.m_logViscSpecies;
+    m_condSpecies                         = right.m_condSpecies;
     m_iStateMF = -1;
     m_molefracs                           = right.m_molefracs;
     m_concentrations                      = right.m_concentrations;
@@ -122,13 +119,8 @@ namespace Cantera {
     viscosityModel_                       = right.viscosityModel_;
     m_B                                   = right.m_B;
     m_A                                   = right.m_A;
-    m_eps                                 = right.m_eps;
     m_temp                                = right.m_temp;
     m_logt                                = right.m_logt;
-    m_sqrt_t                              = right.m_sqrt_t;
-    m_t14                                 = right.m_t14;
-    m_t32                                 = right.m_t32;
-    m_sqrt_kbt                            = right.m_sqrt_kbt;
     m_press                               = right.m_press;
     m_flux                                = right.m_flux;
     m_lambda                              = right.m_lambda;
@@ -177,23 +169,28 @@ namespace Cantera {
     m_visc_n           = tr.visc_n ;
     m_visc_Tact        = tr.visc_Tact ;
 
+    //The following two are not yet filled in LiquidTransportParams
+    m_visc_Eij         = tr.visc_Eij ; 
+    m_visc_Sij         = tr.visc_Sij ; 
+
+    //save logarithm of pre-exponential for easier computation
+    m_visc_logA.resize(m_nsp);
+    for ( int i = 0; i < m_nsp; i++ )
+      m_visc_logA[i] = log( m_visc_A[i] );
+
     m_thermCond_A      = tr.thermCond_A ; 
     m_thermCond_n      = tr.thermCond_n ;
     m_thermCond_Tact   = tr.thermCond_Tact ;
+    
+    m_hydrodynamic_radius = tr.hydroRadius ;
+
 
     //m_diffcoeffs = tr.diffcoeffs;
 
     m_mode       = tr.mode_;
 
-    m_visc_A.resize(m_nsp);
-    m_visc_n.resize(m_nsp);
-    m_visc_Tact.resize(m_nsp);
-
-    m_thermCond_A.resize(m_nsp);
-    m_thermCond_n.resize(m_nsp);
-    m_thermCond_Tact.resize(m_nsp);
-
     m_viscSpecies.resize(m_nsp);
+    m_logViscSpecies.resize(m_nsp);
     m_condSpecies.resize(m_nsp);
     m_bdiff.resize(m_nsp, m_nsp);
 
@@ -257,15 +254,24 @@ namespace Cantera {
     /* We still need to implement interaction parameters */
     /* This constant viscosity model has no input */
     if (viscosityModel_ == LVISC_CONSTANT) {
+
       err("constant viscosity not implemented for LiquidTransport.");
       //return m_viscmix;
-    } else if (viscosityModel_ == LVISC_MIXTUREAVG) {
-      m_viscmix = dot_product(m_viscSpecies, m_molefracs);
+
+    } else if (viscosityModel_ == LVISC_AVG_ENERGIES) {
+
+      m_viscmix = exp( dot_product(m_logViscSpecies, m_molefracs) );
+
     } else if (viscosityModel_ == LVISC_INTERACTION) {
-      m_viscmix = dot_product(m_viscSpecies, m_molefracs);
-      //now sum over i,j  :   Gij*Xi*Xj
-    } else if (viscosityModel_ == LVISC_WILKES) {
-      err("Wilkes method not implemented for LiquidTransport.");
+
+      // log_visc_mix = sum_i (X_i log_visc_i) + sum_i sum_j X_i X_j G_ij
+      double interaction = dot_product(m_logViscSpecies, m_molefracs);
+      for ( int i = 0; i < m_nsp; i++ ) 
+	for ( int j = 0; j < i; j++ ) 
+	  interaction += m_molefracs[i] * m_molefracs[j] 
+	    * ( m_visc_Sij(i,j) + m_visc_Eij(i,j) / m_temp );
+      m_viscmix = exp( interaction );
+
     }
     
     return m_viscmix;
@@ -540,10 +546,6 @@ namespace Cantera {
     m_temp = t;
     m_logt = log(m_temp);
     m_kbt = Boltzmann * m_temp;
-    m_sqrt_t = sqrt(m_temp);
-    m_t14 = sqrt(m_sqrt_t);
-    m_t32 = m_temp * m_sqrt_t;
-    m_sqrt_kbt = sqrt(Boltzmann*m_temp);
 
     // temperature has changed so temp flags are flipped
     m_visc_temp_ok  = false;
@@ -749,9 +751,14 @@ namespace Cantera {
     int k;
 
     for (k = 0; k < m_nsp; k++) {
-      m_viscSpecies[k] = m_visc_A[k] * exp( m_visc_n[k] * m_logt 
-					    - m_visc_Tact[k] / m_temp );
+      m_logViscSpecies[k] = m_visc_logA[k] + m_visc_n[k] * m_logt 
+					    + m_visc_Tact[k] / m_temp ;
+      m_viscSpecies[k] = exp( m_logViscSpecies[k] );
     }
+    //for (k = 0; k < m_nsp; k++) {
+      //m_viscSpecies[k] = m_visc_A[k] * exp( m_visc_n[k] * m_logt 
+      //				    + m_visc_Tact[k] / m_temp );
+    //}
     m_visc_temp_ok = true;
     m_visc_mix_ok = false;
   }

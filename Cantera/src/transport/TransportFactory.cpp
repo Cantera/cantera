@@ -940,6 +940,8 @@ namespace Cantera {
 	XML_Node& thermCond = trNode.child("thermal_conductivity");
 	getArrhenius(thermCond, A_thcond, n_thcond, Tact_thcond );
 
+	// Fill datatable with LiquidTransportData objects for error checking 
+	// and then insertion into LiquidTransportData objects below.	
 	LiquidTransportData data;
 	data.speciesName = name;
 
@@ -996,6 +998,11 @@ namespace Cantera {
       trParam.hydroRadius[i]    = 1.e-10 * trdat.hydroradius;
 
     }
+
+  // Need to identify a method to obtain interaction matrices.
+  // This will fill LiquidTransportParams members visc_Eij, visc_Sij
+  trParam.visc_Eij.resize(trParam.nsp_,trParam.nsp_);
+  cout << "No support for species viscosity interactions in TransportFactory.cpp" << endl;
   }
 
 
