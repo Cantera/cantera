@@ -38,7 +38,19 @@ namespace Cantera {
 
   public:
 
+    //! Type definition for the iterator class that is
+    //! can be used by Array2D types.
+    /*!
+     *  this is just equal to vector_fp iterator.
+     */
     typedef vector_fp::iterator iterator;
+
+
+    //! Type definition for the const_iterator class that is
+    //! can be used by Array2D types.
+    /*!
+     *  this is just equal to vector_fp const_iterator.
+     */
     typedef vector_fp::const_iterator const_iterator;
 
     /**
@@ -128,14 +140,26 @@ namespace Cantera {
       }
     }
 
-    /// set the values in column m to those in array col
+    //! Set the values in column m to those in array col
+    /*!
+     *  A(i,m) = col(i)
+     *
+     *  @param m    Column to set
+     *  @param col  pointer to a col vector
+     */
     void setColumn(int m, doublereal* col) {
       for (int i = 0; i < m_nrows; i++) {
 	m_data[m_nrows*m + i] = col[i];
       }
     }
 
-    /// get the values in column m
+    //! Get the values in column m 
+    /*!
+     * col(i) =  A(i,m) 
+     *
+     *  @param m    Column to set
+     *  @param col  pointer to a col vector that will be returned
+     */
     void getColumn(int m, doublereal* col) {
       for (int i = 0; i < m_nrows; i++) {
 	col[i] = m_data[m_nrows*m + i];
@@ -172,7 +196,9 @@ namespace Cantera {
     /**
      * Allows retrieving elements using the syntax x = A(i,j).
      */ 
-    doublereal operator() ( int i, int j) const {return value(i,j);}
+    doublereal operator() (int i, int j) const {
+      return value(i,j);
+    }
 
     //! Returns a changeable reference to position in the matrix
     /*!
@@ -182,7 +208,18 @@ namespace Cantera {
      * @param j   The column index
      */
     doublereal& value( int i, int j) {return m_data[m_nrows*j + i];}
-    doublereal value( int i, int j) const {return m_data[m_nrows*j + i];}
+
+    //! Returns the value of a single matrix entry
+    /*!
+     * This is a key entry. Returns the value of the  matrix position (i,j)
+     * element. 
+     *
+     * @param i   The row index
+     * @param j   The column index
+     */
+    doublereal value(int i, int j) const {
+      return m_data[m_nrows*j + i];
+    }
 
     /// Number of rows
     size_t nRows() const { return m_nrows; }
@@ -208,10 +245,25 @@ namespace Cantera {
     /// Return a const reference to the data vector
     const vector_fp& data() const { return m_data; }
 
-    /// Return a pointer to the top of column j, columns are contiguous
-    /// in memory
+    //! Return a pointer to the top of column j, columns are contiguous
+    //! in memory
+    /*!
+     *  @param j   Value of the column
+     *
+     *  @return  Returns a pointer to the top of the column
+     */
     doublereal * ptrColumn(int j) { return &(m_data[m_nrows*j]); }
-    const doublereal * ptrColumn(int j) const { return &(m_data[m_nrows*j]); }
+
+    //! Return a const pointer to the top of column j, columns are contiguous
+    //! in memory
+    /*!
+     *  @param j   Value of the column
+     *
+     *  @return  Returns a const pointer to the top of the column
+     */
+    const doublereal * ptrColumn(int j) const { 
+      return &(m_data[m_nrows*j]); 
+    }
 
   protected:
 
@@ -225,7 +277,16 @@ namespace Cantera {
     int m_ncols;
   };
 
-  /// output the array
+  //! Output the current contents of the Array2D object
+  /*!
+   *  Example of usage:
+   *        s << m << endl;
+   *
+   *  @param s   Reference to the ostream to write to
+   *  @param m   Object of type Array2D that you are querying
+   *
+   *  @return    Returns a reference to the ostream.
+   */
   inline std::ostream& operator<<(std::ostream& s, const Array2D& m) {
     int nr = static_cast<int>(m.nRows());
     int nc = static_cast<int>(m.nColumns());
