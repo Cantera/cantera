@@ -31,8 +31,8 @@ using namespace std;
 namespace Cantera {
 
   const int LVISC_CONSTANT     = 0;
-  const int LVISC_WILKES       = 1;
-  const int LVISC_MIXTUREAVG   = 2;
+  const int LVISC_INTERACTION  = 1;
+  const int LVISC_AVG_ENERGIES = 2;
 
   const int LDIFF_MIXDIFF_UNCORRECTED     = 0;
   const int LDIFF_MIXDIFF_FLUXCORRECTED  = 1;
@@ -136,8 +136,13 @@ namespace Cantera {
   class LiquidTransport : public Transport {
   public:
 
-    //! default constructor
+    //! Default constructor.  
     /*!
+     * This requires call to initLiquid(LiquidTransportParams& tr)
+     * after filling LiquidTransportParams to complete instantiation.
+     * The filling of LiquidTransportParams is currently carried out 
+     * in the TransportFactory class, but might be moved at some point.
+     * 
      * @param thermo  ThermoPhase object holding species information.
      * @param ndim    Number of spatial dimensions.
      */
@@ -371,13 +376,31 @@ namespace Cantera {
 
     //! Pure species viscosities in Arrhenius temperature-dependent form.
     vector_fp  m_visc_A; 
+    vector_fp  m_visc_logA; //logarithm of coefficient 
     vector_fp  m_visc_n; 
     vector_fp  m_visc_Tact; 
+
+    //! Molecular interaction energies associated with viscosity 
+    /** 
+     * These multiply the viscosity according to
+     *  \f[ exp( \sum_{i} \sum_{j} X_i X_j E_{i,j} / T \f].
+     */
+    DenseMatrix m_visc_Eij;
+
+    //! Molecular interaction entropies associated with viscosity 
+    /** 
+     * These multiply the viscosity according to
+     *  \f[ exp( \sum_{i} \sum{j} X_i X_j S_{i,j} \f].
+     */
+    DenseMatrix m_visc_Sij;
 
     //! Pure species thermal conductivities in Arrhenius temperature-dependent form.
     vector_fp  m_thermCond_A; 
     vector_fp  m_thermCond_n; 
     vector_fp  m_thermCond_Tact; 
+
+    //! Species hydrodynamic radius
+    vector_fp  m_hydrodynamic_radius;
 
 
     //! Polynomial coefficients of the binary diffusion coefficients
@@ -469,9 +492,9 @@ namespace Cantera {
      */
     DenseMatrix  m_bdiff;
 
-    //! Species viscosities
+    //! Species viscosities and their logarithm
     /*!
-     *  Viscosity of the species
+     *  Viscosity of the species and its logarithm
      *   Length = number of species
      *
      *   Depends on the temperature. We have set the pressure dependence
@@ -480,6 +503,7 @@ namespace Cantera {
      * controlling update boolean -> m_visc_temp_ok
      */
     vector_fp m_viscSpecies;
+    vector_fp m_logViscSpecies;
 
     //! Internal value of the species individual thermal conductivities
     /*!
@@ -580,10 +604,6 @@ namespace Cantera {
     //! Matrix for the stefan maxwell equation.
     DenseMatrix m_A;
 
-    //! Internal storage for the species LJ well depth
-    vector_fp   m_eps;
-
-
     //! Current Temperature -> locally storred
     /*!
      * This is used to test whether new temperature computations
@@ -596,21 +616,6 @@ namespace Cantera {
 
     //! Current value of kT
     doublereal m_kbt;
-
-    //! Current Temperature **0.5
-    doublereal m_sqrt_t;
-
-    //! Current Temperature **0.25
-    doublereal m_t14;
-
-    //! Current Temperature **1.5
-    doublereal m_t32;
-
-    //! Current temperature function
-    /*!
-     *  This is equal to sqrt(Boltzmann * T)
-     */
-    doublereal m_sqrt_kbt;
 
     //! Current value of the pressure
     doublereal m_press;
