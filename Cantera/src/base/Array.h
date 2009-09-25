@@ -56,8 +56,9 @@ namespace Cantera {
     /**
      * Default constructor. Create an empty array.
      */
-    Array2D() : m_nrows(0), m_ncols(0) { m_data.clear(); }
-
+    Array2D() : m_nrows(0), m_ncols(0) { 
+      m_data.clear();
+    }
 
     //!  Constructor.
     /*!
@@ -98,7 +99,7 @@ namespace Cantera {
       return *this;
     }
 
-    //! resize the array, and fill the new entries with 'v'
+    //! Resize the array, and fill the new entries with 'v'
     /*!
      * @param n  This is the number of rows
      * @param m  This is the number of columns in the new matrix
@@ -110,7 +111,14 @@ namespace Cantera {
       m_data.resize(n*m, v);
     }
 
-    /// append a column
+    //! Append a column to the existing matrix using a std vector
+    /*!
+     *  This operation will add a column onto the existing matrix.
+     *  
+     *  @param c  This vector<doublereal> is the entries in the
+     *            column to be added. It must have a length
+     *            equal to m_nrows or greater.
+     */
     void appendColumn(const vector_fp& c) {
       m_ncols++;
       m_data.resize(m_nrows*m_ncols);
@@ -118,23 +126,39 @@ namespace Cantera {
       for (m = 0;  m < m_nrows; m++) value(m_ncols, m) = c[m];
     }
 
-    /// append a column
-    void appendColumn(doublereal* c) {
+    //! Append a column to the existing matrix
+    /*!
+     *  This operation will add a column onto the existing matrix.
+     *  
+     *  @param c  This vector of doubles is the entries in the
+     *            column to be added. It must have a length
+     *            equal to m_nrows or greater.
+     */
+    void appendColumn(const doublereal* const c) {
       m_ncols++;
       m_data.resize(m_nrows*m_ncols);
       int m;
       for (m = 0;  m < m_nrows; m++) value(m_ncols, m) = c[m];
     }
 
-    /// set the nth row to array rw
-    void setRow(int n, doublereal* rw) {
+    //! Set the nth row to array rw
+    /*!
+     *  @param  n  Index of the row to be changed
+     *  @param  rw  Vector for the row. Must have a length of m_ncols.
+     */
+    void setRow(int n, const doublereal* const rw) {
       for (int j = 0; j < m_ncols; j++) {
 	m_data[m_nrows*j + n] = rw[j];
       }
     }
 
-    /// get the nth row
-    void getRow(int n, doublereal* rw) {
+    //! Get the nth row and return it in a vector
+    /*!
+     *   @param n    Index of the row to be returned.
+     *   @param rw   Return Vector  for the operation. 
+     *               Must have a length of m_ncols.
+     */
+    void getRow(int n, doublereal* const rw) {
       for (int j = 0; j < m_ncols; j++) {
 	rw[j] = m_data[m_nrows*j + n];
       }
@@ -145,9 +169,10 @@ namespace Cantera {
      *  A(i,m) = col(i)
      *
      *  @param m    Column to set
-     *  @param col  pointer to a col vector
+     *  @param col  pointer to a col vector. Vector 
+     *              must have a length of m_nrows.
      */
-    void setColumn(int m, doublereal* col) {
+    void setColumn(int m, doublereal* const col) {
       for (int i = 0; i < m_nrows; i++) {
 	m_data[m_nrows*m + i] = col[i];
       }
@@ -160,7 +185,7 @@ namespace Cantera {
      *  @param m    Column to set
      *  @param col  pointer to a col vector that will be returned
      */
-    void getColumn(int m, doublereal* col) {
+    void getColumn(int m, doublereal* const col) {
       for (int i = 0; i < m_nrows; i++) {
 	col[i] = m_data[m_nrows*m + i];
       }
@@ -171,10 +196,18 @@ namespace Cantera {
      * heap.
      */
     virtual ~Array2D(){}
-
-
-    /**
-     * Evaluate a*x + y.
+    
+    //! Evaluate z = a*x + y.
+    /*!
+     *  This function evaluates the AXPY operation, and stores
+     *  the result in the object's Array2D object.
+     *  It's assumed that all 3 objects have the same dimensions,
+     *  but no error checking is done. 
+     *
+     *  @param a  scalar to multiply x with
+     *  @param x  First Array2D object to be used
+     *  @param y  Second Array2D object to be used 
+     *
      */
     void axpy(doublereal a, const Array2D& x, const Array2D& y) {
       iterator b = begin();
@@ -193,8 +226,13 @@ namespace Cantera {
      */ 
     doublereal& operator()( int i, int j) { return value(i,j); }
 
-    /**
-     * Allows retrieving elements using the syntax x = A(i,j).
+    
+    //! Allows retrieving elements using the syntax x = A(i,j).
+    /*!
+     *   @param i   Index for the row to be retrieved
+     *   @param j   Index for the column to be retrieved.
+     *
+     *   @return    Returns the value of the matrix entry
      */ 
     doublereal operator() (int i, int j) const {
       return value(i,j);
@@ -204,10 +242,15 @@ namespace Cantera {
     /*!
      * This is a key entry. Returns a reference to the matrixes (i,j)
      * element. This may be used as an L value.
+     *
      * @param i   The row index
      * @param j   The column index
+     *
+     * @return  Returns a changeable reference to the matrix entry
      */
-    doublereal& value( int i, int j) {return m_data[m_nrows*j + i];}
+    doublereal& value(int i, int j) {
+      return m_data[m_nrows*j + i];
+    }
 
     //! Returns the value of a single matrix entry
     /*!
