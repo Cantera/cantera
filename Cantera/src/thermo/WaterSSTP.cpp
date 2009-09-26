@@ -112,11 +112,6 @@ namespace Cantera {
 
 
   
-  void WaterSSTP::constructPhase() {
-    throw CanteraError("WaterSSTP::constructPhase()", "unimplemented");
-
-  }
-
    
   /*
    * @param infile XML file containing the description of the

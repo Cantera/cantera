@@ -551,7 +551,6 @@ namespace Cantera {
    *  It can be shown that the expression 
    *
    *
-   *
    *  \f[
    *     B^{\phi}_{ca} = \beta^{(0)}_{ca} + \beta^{(1)}_{ca} \exp{(- \alpha^{(1)}_{ca} \sqrt{I})} 
    *             + \beta^{(2)}_{ca} \exp{(- \alpha^{(2)}_{ca} \sqrt{I} )} 
@@ -3191,6 +3190,7 @@ namespace Cantera {
 
     //! gamma_o value for the cutoff process at the zero solvent point
     doublereal MC_X_o_min_;
+
     //! Parameter in the Molality Exp cutoff treatment
     /*!
      *  This is the slope of the p function at the zero solvent point
@@ -3213,10 +3213,16 @@ namespace Cantera {
     //! Parameter in the Molality Exp cutoff treatment
     doublereal MC_cpCut_;
 
+    //! Parameter in the Molality Exp cutoff treatment
     doublereal CROP_ln_gamma_o_min;
+
+    //! Parameter in the Molality Exp cutoff treatment
     doublereal CROP_ln_gamma_o_max;
 
+    //! Parameter in the Molality Exp cutoff treatment
     doublereal CROP_ln_gamma_k_min;
+
+    //! Parameter in the Molality Exp cutoff treatment
     doublereal CROP_ln_gamma_k_max;
 
     //! This is a boolean-type vector indicating whether
@@ -3490,7 +3496,10 @@ namespace Cantera {
 
     //! Precalculate the IMS Cutoff parameters for typeCutoff = 2
     void  calcIMSCutoffParams_();
+
+    //! Calculate molality cut-off parameters
     void  calcMCCutoffParams_();
+
     //! Utility function to assign an integer value from a string
     //! for the ElectrolyteSpeciesType field.
     /*!
