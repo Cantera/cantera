@@ -315,11 +315,11 @@ USE_SUNDIALS=${USE_SUNDIALS:='default'}
 
 
 # It is recommended that you install the newest release of sundials 
-# (currently 2.3.0) before building Cantera. But if you want to use an 
+# (currently 2.4.0) before building Cantera. But if you want to use an 
 # older version, set SUNDIALS_VERSION to the version you have.
-# Acceptable values are '2.2' and '2.3' only; anything else will cause
-# Cantera to not use sundials.
-SUNDIALS_VERSION=${SUNDIALS_VERSION:='2.3'}
+# Acceptable values are '2.2', '2.3', or '2.4' ; anything else will cause
+# Cantera to  
+SUNDIALS_VERSION=${SUNDIALS_VERSION:='2.4'}
 
 #----------------------------------------------------------------- 
 #         BLAS and LAPACK

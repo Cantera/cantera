@@ -15,6 +15,8 @@
 #ifndef _VCS_INTERNAL_H
 #define _VCS_INTERNAL_H
 
+#include <cstring>
+
 #include "vcs_defs.h"
 #include "vcs_DoubleStarStar.h"
 #include "vcs_Exception.h"
@@ -324,7 +326,6 @@ namespace VCSnonideal {
   //! available if this ever fails.
 #define USE_MEMSET
 #ifdef USE_MEMSET
-#include <cstring>
 
   //! Zero a double vector
   /*!
@@ -473,6 +474,15 @@ namespace VCSnonideal {
    */
   void vcs_print_line(const char *str, int num);
 
+  //! Returns a const char string representing the type of the
+  //! species given by the first argument
+  /*!
+   * @param speciesStatus  Species status integer representing the type
+   *                       of the species.
+   * @param length         Maximum length of the string to be returned.
+   *                       Shorter values will yield abbreviated strings.
+   *                       Defaults to a value of 100.
+   */
   const char *vcs_speciesType_string(int speciesStatus, int length = 100);
 
   //! Print a string within a given space limit

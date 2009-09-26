@@ -1519,10 +1519,6 @@ protected:
      app()->writelog(msg);
    }
 
-  void writelogAM(const std::string& msg) {
-     app()->writelog(msg);
-   }
-
   // Write a message to the screen
   void Application::Messages::writelog(const std::string& msg) {
     logwriter->write(msg);
@@ -1530,9 +1526,6 @@ protected:
 
   // Write a message to the screen.
   void writelog(const char* msg) {
-    app()->writelog(msg);
-  }
-  void writelogAM(const char* msg) {
     app()->writelog(msg);
   }
 

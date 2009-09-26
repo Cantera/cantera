@@ -38,14 +38,27 @@ namespace Cantera {
 
   public:
 
+    //! Type definition for the iterator class that is
+    //! can be used by Array2D types.
+    /*!
+     *  this is just equal to vector_fp iterator.
+     */
     typedef vector_fp::iterator iterator;
+
+
+    //! Type definition for the const_iterator class that is
+    //! can be used by Array2D types.
+    /*!
+     *  this is just equal to vector_fp const_iterator.
+     */
     typedef vector_fp::const_iterator const_iterator;
 
     /**
      * Default constructor. Create an empty array.
      */
-    Array2D() : m_nrows(0), m_ncols(0) { m_data.clear(); }
-
+    Array2D() : m_nrows(0), m_ncols(0) { 
+      m_data.clear();
+    }
 
     //!  Constructor.
     /*!
@@ -86,7 +99,7 @@ namespace Cantera {
       return *this;
     }
 
-    //! resize the array, and fill the new entries with 'v'
+    //! Resize the array, and fill the new entries with 'v'
     /*!
      * @param n  This is the number of rows
      * @param m  This is the number of columns in the new matrix
@@ -98,7 +111,14 @@ namespace Cantera {
       m_data.resize(n*m, v);
     }
 
-    /// append a column
+    //! Append a column to the existing matrix using a std vector
+    /*!
+     *  This operation will add a column onto the existing matrix.
+     *  
+     *  @param c  This vector<doublereal> is the entries in the
+     *            column to be added. It must have a length
+     *            equal to m_nrows or greater.
+     */
     void appendColumn(const vector_fp& c) {
       m_ncols++;
       m_data.resize(m_nrows*m_ncols);
@@ -106,37 +126,66 @@ namespace Cantera {
       for (m = 0;  m < m_nrows; m++) value(m_ncols, m) = c[m];
     }
 
-    /// append a column
-    void appendColumn(doublereal* c) {
+    //! Append a column to the existing matrix
+    /*!
+     *  This operation will add a column onto the existing matrix.
+     *  
+     *  @param c  This vector of doubles is the entries in the
+     *            column to be added. It must have a length
+     *            equal to m_nrows or greater.
+     */
+    void appendColumn(const doublereal* const c) {
       m_ncols++;
       m_data.resize(m_nrows*m_ncols);
       int m;
       for (m = 0;  m < m_nrows; m++) value(m_ncols, m) = c[m];
     }
 
-    /// set the nth row to array rw
-    void setRow(int n, doublereal* rw) {
+    //! Set the nth row to array rw
+    /*!
+     *  @param  n  Index of the row to be changed
+     *  @param  rw  Vector for the row. Must have a length of m_ncols.
+     */
+    void setRow(int n, const doublereal* const rw) {
       for (int j = 0; j < m_ncols; j++) {
 	m_data[m_nrows*j + n] = rw[j];
       }
     }
 
-    /// get the nth row
-    void getRow(int n, doublereal* rw) {
+    //! Get the nth row and return it in a vector
+    /*!
+     *   @param n    Index of the row to be returned.
+     *   @param rw   Return Vector  for the operation. 
+     *               Must have a length of m_ncols.
+     */
+    void getRow(int n, doublereal* const rw) {
       for (int j = 0; j < m_ncols; j++) {
 	rw[j] = m_data[m_nrows*j + n];
       }
     }
 
-    /// set the values in column m to those in array col
-    void setColumn(int m, doublereal* col) {
+    //! Set the values in column m to those in array col
+    /*!
+     *  A(i,m) = col(i)
+     *
+     *  @param m    Column to set
+     *  @param col  pointer to a col vector. Vector 
+     *              must have a length of m_nrows.
+     */
+    void setColumn(int m, doublereal* const col) {
       for (int i = 0; i < m_nrows; i++) {
 	m_data[m_nrows*m + i] = col[i];
       }
     }
 
-    /// get the values in column m
-    void getColumn(int m, doublereal* col) {
+    //! Get the values in column m 
+    /*!
+     * col(i) =  A(i,m) 
+     *
+     *  @param m    Column to set
+     *  @param col  pointer to a col vector that will be returned
+     */
+    void getColumn(int m, doublereal* const col) {
       for (int i = 0; i < m_nrows; i++) {
 	col[i] = m_data[m_nrows*m + i];
       }
@@ -147,10 +196,18 @@ namespace Cantera {
      * heap.
      */
     virtual ~Array2D(){}
-
-
-    /**
-     * Evaluate a*x + y.
+    
+    //! Evaluate z = a*x + y.
+    /*!
+     *  This function evaluates the AXPY operation, and stores
+     *  the result in the object's Array2D object.
+     *  It's assumed that all 3 objects have the same dimensions,
+     *  but no error checking is done. 
+     *
+     *  @param a  scalar to multiply x with
+     *  @param x  First Array2D object to be used
+     *  @param y  Second Array2D object to be used 
+     *
      */
     void axpy(doublereal a, const Array2D& x, const Array2D& y) {
       iterator b = begin();
@@ -169,20 +226,43 @@ namespace Cantera {
      */ 
     doublereal& operator()( int i, int j) { return value(i,j); }
 
-    /**
-     * Allows retrieving elements using the syntax x = A(i,j).
+    
+    //! Allows retrieving elements using the syntax x = A(i,j).
+    /*!
+     *   @param i   Index for the row to be retrieved
+     *   @param j   Index for the column to be retrieved.
+     *
+     *   @return    Returns the value of the matrix entry
      */ 
-    doublereal operator() ( int i, int j) const {return value(i,j);}
+    doublereal operator() (int i, int j) const {
+      return value(i,j);
+    }
 
     //! Returns a changeable reference to position in the matrix
     /*!
      * This is a key entry. Returns a reference to the matrixes (i,j)
      * element. This may be used as an L value.
+     *
+     * @param i   The row index
+     * @param j   The column index
+     *
+     * @return  Returns a changeable reference to the matrix entry
+     */
+    doublereal& value(int i, int j) {
+      return m_data[m_nrows*j + i];
+    }
+
+    //! Returns the value of a single matrix entry
+    /*!
+     * This is a key entry. Returns the value of the  matrix position (i,j)
+     * element. 
+     *
      * @param i   The row index
      * @param j   The column index
      */
-    doublereal& value( int i, int j) {return m_data[m_nrows*j + i];}
-    doublereal value( int i, int j) const {return m_data[m_nrows*j + i];}
+    doublereal value(int i, int j) const {
+      return m_data[m_nrows*j + i];
+    }
 
     /// Number of rows
     size_t nRows() const { return m_nrows; }
@@ -208,10 +288,25 @@ namespace Cantera {
     /// Return a const reference to the data vector
     const vector_fp& data() const { return m_data; }
 
-    /// Return a pointer to the top of column j, columns are contiguous
-    /// in memory
+    //! Return a pointer to the top of column j, columns are contiguous
+    //! in memory
+    /*!
+     *  @param j   Value of the column
+     *
+     *  @return  Returns a pointer to the top of the column
+     */
     doublereal * ptrColumn(int j) { return &(m_data[m_nrows*j]); }
-    const doublereal * ptrColumn(int j) const { return &(m_data[m_nrows*j]); }
+
+    //! Return a const pointer to the top of column j, columns are contiguous
+    //! in memory
+    /*!
+     *  @param j   Value of the column
+     *
+     *  @return  Returns a const pointer to the top of the column
+     */
+    const doublereal * ptrColumn(int j) const { 
+      return &(m_data[m_nrows*j]); 
+    }
 
   protected:
 
@@ -225,7 +320,16 @@ namespace Cantera {
     int m_ncols;
   };
 
-  /// output the array
+  //! Output the current contents of the Array2D object
+  /*!
+   *  Example of usage:
+   *        s << m << endl;
+   *
+   *  @param s   Reference to the ostream to write to
+   *  @param m   Object of type Array2D that you are querying
+   *
+   *  @return    Returns a reference to the ostream.
+   */
   inline std::ostream& operator<<(std::ostream& s, const Array2D& m) {
     int nr = static_cast<int>(m.nRows());
     int nc = static_cast<int>(m.nColumns());

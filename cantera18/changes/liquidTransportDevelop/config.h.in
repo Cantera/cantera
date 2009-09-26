@@ -47,6 +47,7 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 #undef HAS_SUNDIALS
 #undef SUNDIALS_VERSION_22
 #undef SUNDIALS_VERSION_23
+#undef SUNDIALS_VERSION_24
 
 //-------- LAPACK / BLAS ---------
 

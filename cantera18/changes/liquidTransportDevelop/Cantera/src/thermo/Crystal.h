@@ -53,6 +53,16 @@ namespace Cantera {
  
     };
 
+    //! Prints out the current internal state of the Crystal ThermoPhase object
+    /*!
+     *  Example of usage:
+     *        s << x << endl;
+     *
+     *  @param s   Reference to the ostream to write to
+     *  @param x   Object of type Crystal that you are querying
+     * 
+     *  @return    Returns a reference to the ostream.
+     */
     inline std::ostream& operator<<(std::ostream& s, Cantera::Crystal& x) {
         size_t ip;
         for (ip = 0; ip < x.nPhases(); ip++) {
