@@ -970,7 +970,7 @@ namespace Cantera {
     numNeutralMoleculeSpecies_ =  neutralMoleculePhase_->nSpecies();
     moleFractions_.resize(m_kk);
     fm_neutralMolec_ions_.resize(numNeutralMoleculeSpecies_ * m_kk);
-    fm_invert_ionForNeutral.resize(numNeutralMoleculeSpecies_);
+    fm_invert_ionForNeutral.resize(m_kk);
     NeutralMolecMoleFractions_.resize(numNeutralMoleculeSpecies_);
     cationList_.resize(m_kk);
     anionList_.resize(m_kk);

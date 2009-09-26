@@ -335,7 +335,12 @@ namespace Cantera {
     //! True if the number species has been set
     bool ready() const;
 
-
+    //! Every time the mole fractions have changed, this routine
+    //! will increment the stateMFNumber
+    /*!
+     *  @param forceChange If this is true then the stateMFNumber always
+     *                     changes. This defaults to false.
+     */
     void stateMFChangeCalc(bool forceChange = false);
 
     //! Return the state number
@@ -423,7 +428,7 @@ namespace Cantera {
 
   };
 
-
+  //! Return the State Mole Fraction Number
   inline int State::stateMFNumber() const {
     return m_stateNum;
   }

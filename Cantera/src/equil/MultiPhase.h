@@ -496,7 +496,8 @@ namespace Cantera {
 
     //! Adds moles of a certain species to the mixture
     /*!
-     *
+     *   @param indexS   Index of the species in the MultiPhase object
+     *   @param addedMoles   Value of the moles that are added to the species.
      */
     void addSpeciesMoles(const int indexS, const doublereal addedMoles);
 
