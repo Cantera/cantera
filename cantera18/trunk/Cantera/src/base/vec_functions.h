@@ -39,9 +39,13 @@ namespace Cantera {
     std::copy(x.begin(), x.begin() + n, y.begin());
   }
 
-  /**
-   * Divide each element of x by the corresponding element of y.
+  //!  Divide each element of x by the corresponding element of y.
+  /*!
    * This function replaces x[n] by x[n]/y[n], for 0 <= n < x.size()
+   *
+   * @param x  Numerator object of the division operation with template type T
+   *           At the end of the calculation, it contains the result.
+   * @param y  Denominator object of the division template type T
    */
   template<class T>   
   inline void divide_each(T& x, const T& y) {
@@ -49,9 +53,15 @@ namespace Cantera {
 		   x.begin(), std::divides<TYPENAME_KEYWORD T::value_type>());
   }
     
-  /**
-   * multiply each element of x by the corresponding element of y.
+  //! Multiply each element of x by the corresponding element of y.
+  /*!
    * This function replaces x[n] by x[n]*y[n], for 0 <= n < x.size()
+   * This is a templated function with just one template type.
+   *
+   * @param x  First object of the multiplication with template type T
+   *           At the end of the calculation, it contains the result.
+   * @param y  Second object of the multiplication with template type T
+   * 
    */
   template<class T>
   inline void multiply_each(T& x, const T& y) {
@@ -59,32 +69,52 @@ namespace Cantera {
 		   x.begin(), std::multiplies<TYPENAME_KEYWORD T::value_type>());
   }
 
-  /**
-   * Multiply each element of x by scale_factor.
+  //! Multiply each element of x by scale_factor.
+  /*!
+   * This function replaces x[n] by x[n]*scale_factor, for 0 <= n < x.size()
+   *
+   * @param x  First object of the multiplication with template type T
+   *           At the end of the calculation, it contains the result.
+   * @param scale_factor scale factor with template type S
    */
   template<class T, class S>
   inline void scale(T& x, S scale_factor) {
     scale(x.begin(), x.end(), x.begin(), scale_factor);
   }
 
-  /**
+  //! Return the templated dot product of two objects
+  /*!
    * Returns the sum of x[n]*y[n], for 0 <= n < x.size().
+   *
+   * @param x  First object of the dot product with template type T
+   *           At the end of the calculation, it contains the result.
+   * @param y  Second object of the dot product with template type T
    */
   template<class T>
   inline doublereal dot_product(const T& x, const T& y) {
     return std::inner_product(x.begin(), x.end(), y.begin(), 0.0);
   }
 
+  //! Returns the templated dot ratio of two objects
   /**
    * Returns the sum of x[n]/y[n], for 0 <= n < x.size().
+   *
+   * @param x  First object of the dot product with template type T
+   *           At the end of the calculation, it contains the result.
+   * @param y  Second object of the dot product with template type T
    */
   template<class T>
   inline doublereal dot_ratio(const T& x, const T& y) {
     return _dot_ratio(x.begin(), x.end(), y.begin(), 0.0);
   }
 
+  //! Returns a templated addition operation of two objects
   /**
    * Replaces x[n] by x[n] + y[n] for 0 <= n < x.size()
+   *
+   * @param x  First object of the addition with template type T
+   *           At the end of the calculation, it contains the result.
+   * @param y  Second object of the addition with template type T
    */
   template<class T>
   inline void add_each(T& x, const T& y) {
@@ -119,9 +149,13 @@ namespace Cantera {
     return start_value;
   }
 
-  /**
-   * Finds the entry in a vector with maximum absolute
-   * value, and return this value.
+ 
+  //! Finds the entry in a vector with maximum absolute
+  //! value, and return this value.
+  /*!
+   *  @param v Vector to be queried for maximum value, with template type T
+   *
+   * @return Returns an object of type T that is the maximum value, 
    */
   template<class T>
   inline T absmax(const std::vector<T>& v) {

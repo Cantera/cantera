@@ -400,13 +400,24 @@ namespace Cantera {
      */
     virtual doublereal vaporFraction() const;
 
-
+    //! Set the temperature of the phase
+    /*!
+     * The density and composition of the phase is constant during this
+     * operator.
+     *
+     * @param temp Temperature (Kelvin)
+     */
     virtual void setTemperature(const doublereal temp);
 
+    //! Set the density of the phase
+    /*!
+     * The temperature and composition of the phase is constant during this
+     * operator.
+     *
+     * @param dens value of the density in kg m-3
+     */
     virtual void setDensity(const doublereal dens);
     
-    void constructPhase();
-
  
     //! Initialization of a pure water phase using an
     //! xml file.
