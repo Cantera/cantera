@@ -926,4 +926,20 @@ namespace Cantera {
       }
     }
   }
+
+
+  /**
+   * Throw an exception if this method is invoked. 
+   * This probably indicates something is not yet implemented.
+   */
+    doublereal LiquidTransport::err(std::string msg) const {
+      throw CanteraError("Liquid Transport Class",
+			 "\n\n\n**** Method "+ msg +" not implemented in model "
+			 + int2str(model()) + " ****\n"
+			 "(Did you forget to specify a transport model?)\n\n\n");
+      
+      return 0.0;
+    }
+
+
 }

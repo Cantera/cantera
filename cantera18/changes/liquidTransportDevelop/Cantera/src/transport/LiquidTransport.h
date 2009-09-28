@@ -193,7 +193,7 @@ namespace Cantera {
 
 
     //! Return the model id for this transport parameterization
-    virtual int model() {
+    virtual int model() const {
       return cLiquidTransport; 
     }
 
