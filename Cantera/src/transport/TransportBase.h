@@ -109,7 +109,7 @@ namespace Cantera {
      * virtual method returns an integer flag that identifies the
      * transport model implemented. The base class returns 0.
      */
-    virtual int model() {return 0;}
+    virtual int model() const {return 0;}
 
     /**
      * Phase object. Every transport manager is designed to compute

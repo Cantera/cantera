@@ -81,7 +81,7 @@ namespace Cantera {
     virtual ~WaterTransport();
 
     //! Return the model id for this transport parameterization
-    virtual int model() {
+    virtual int model() const {
       return cWaterTransport; 
     }
 

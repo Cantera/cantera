@@ -40,7 +40,7 @@ namespace Cantera {
         //---------------------------------------------------------
         // overloaded base class methods
 
-        virtual int model() { return cDustyGasTransport; }
+        virtual int model() const { return cDustyGasTransport; }
 
         virtual void setParameters(const int type, const int k, const doublereal* const p);
         

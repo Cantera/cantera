@@ -85,7 +85,7 @@ namespace Cantera {
     virtual ~MultiTransport();
 
     // overloaded base class methods
-    virtual int model() {
+    virtual int model() const {
       if (m_mode == CK_Mode)
 	return CK_Multicomponent;
       else

@@ -135,7 +135,7 @@ namespace Cantera {
     virtual ~AqueousTransport() {}
 
     //! Return the model id for this transport parameterization
-    virtual int model() { return cAqueousTransport; }
+    virtual int model() const { return cAqueousTransport; }
 
     //! overloaded base class methods
 

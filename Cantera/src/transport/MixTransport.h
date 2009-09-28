@@ -51,7 +51,7 @@ namespace Cantera {
 
     virtual ~MixTransport() {}
 
-    virtual int model() { return cMixtureAveraged; }
+    virtual int model() const { return cMixtureAveraged; }
 
     //! Viscosity of the mixture
     /*!
