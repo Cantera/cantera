@@ -78,8 +78,8 @@ namespace Cantera {
     virtual void setTolerances(doublereal reltol, int n, 
 			       doublereal* abstol) { warn("setTolerances"); }
 
-    /**
-     * Set error tolerances. 
+    //!  Set error tolerances. 
+    /*!
      * @param reltol scalar relative tolerance
      * @param abstol scalar absolute tolerance
      */ 
