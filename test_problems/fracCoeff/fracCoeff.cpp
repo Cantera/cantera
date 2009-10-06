@@ -169,6 +169,13 @@ int main(int argc, char** argv) {
      printf("Kc[0] = %g\n", kc[0]);
      printf("Kc[1] = %g\n", kc[1]);
 
+   
+     delete(iKin_ptr);
+     iKin_ptr = 0;
+     delete(gasTP);
+     delete(xc);
+     appdelete();
+
 
     }
     catch (CanteraError) {
