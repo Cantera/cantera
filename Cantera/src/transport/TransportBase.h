@@ -45,6 +45,7 @@ namespace Cantera {
   const int cFtnTransport        = 600;
   const int cLiquidTransport     = 700;
   const int cAqueousTransport    = 750;
+  const int cSimpleTransport     = 770;
   const int cRadiativeTransport  = 800;
   const int cWaterTransport      = 721;
 
@@ -159,6 +160,14 @@ namespace Cantera {
     virtual doublereal viscosity() 
     { return err("viscosity"); }
 
+    //! Returns the pure species viscosities
+    /*!
+     *  The units are Pa-s and the length is the number of species
+     *
+     * @param visc   Vector of viscosities
+     */
+    virtual void getSpeciesViscosities(doublereal* const visc)
+    { err("getSpeciesViscosities"); }
 
     /**
      * The bulk viscosity in Pa-s. The bulk viscosity is only
@@ -169,9 +178,11 @@ namespace Cantera {
     virtual doublereal bulkViscosity()  
     { return err("bulkViscosity"); }
 
-        
-    /**
-     * The thermal conductivity in W/m/K. 
+    //!  Returns the mixture thermal conductivity in W/m/K. 
+    /*!
+     *   Units are in W / m K  or equivalently kg m / s3 K
+     *
+     * @return returns thermal conductivity in W/m/K.
      */
     virtual doublereal thermalConductivity()
     { return err("thermalConductivity"); }
@@ -273,9 +284,9 @@ namespace Cantera {
      * Get the mass fluxes [kg/m^2/s], given the thermodynamic
      * state at two nearby points. 
      * @param state1 Array of temperature, density, and mass
-     * fractions for state 1.
+     *               fractions for state 1.
      * @param state2 Array of temperature, density, and mass
-     * fractions for state 2.  
+     *               fractions for state 2.  
      * @param delta Distance from state 1 to state 2 (m).
      */ 
     virtual void getMassFluxes(const doublereal* state1,
@@ -298,9 +309,13 @@ namespace Cantera {
     { err("getThermalDiffCoeffs"); }
 
 
-    /**
-     * Binary diffusion coefficients [m^2/s].
-     */
+    //!  Returns the matrix of binary diffusion coefficients [m^2/s].
+    /*!
+     *  @param ld  Inner stride for writing the two dimension diffusion
+     *             coefficients into a one dimensional vector
+     *  @param d   Diffusion coefficient matrix (must be at least m_k * m_k 
+     *             in length.
+     */ 
     virtual void getBinaryDiffCoeffs(const int ld, doublereal* const d) 
     { err("getBinaryDiffCoeffs"); }
 
@@ -348,20 +363,20 @@ namespace Cantera {
     /**
      * Called by TransportFactory to set parameters.
      */
-    virtual bool init(TransportParams& tr)
-    { err("init"); return false; }
+    //virtual bool init(TransportParams& tr)
+    //{ err("init"); return false; }
 
     /**
      * Called by TransportFactory to set parameters.
      */
     virtual bool initGas( GasTransportParams& tr )
-    { err("init"); return false; }
+    { err("initGas"); return false; }
 
     /**
      * Called by TransportFactory to set parameters.
      */
     virtual bool initLiquid( LiquidTransportParams& tr )
-    { err("init"); return false; }
+    { err("initLiquid"); return false; }
 
 
 

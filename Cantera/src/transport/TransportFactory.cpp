@@ -20,6 +20,7 @@
 #include "MixTransport.h"
 #include "SolidTransport.h"
 #include "DustyGasTransport.h"
+#include "SimpleTransport.h"
 
 #ifdef WITH_IDEAL_SOLUTIONS
 #include "LiquidTransport.h"
@@ -95,6 +96,21 @@ namespace Cantera {
 #endif
   };
 
+
+  /**
+   * getArrhenius() parses the xml element called Arrhenius. 
+   * The Arrhenius expression is
+   * \f[        k =  A T^(b) exp (-E_a / RT). \f]
+   */
+  static void getArrhenius(const XML_Node& node, 
+			   doublereal& A, doublereal& b, doublereal& E) {
+    /* parse the children for the A, b, and E conponents.
+     */
+    A = getFloat(node, "A", "toSI");
+    b = getFloat(node, "b");
+    E = getFloat(node, "E", "actEnergy");
+    E /= GasConstant;
+  }                
 
   //////////////////// class TransportFactory methods //////////////
 
@@ -239,6 +255,7 @@ namespace Cantera {
     m_models["CK_Mix"] = CK_MixtureAveraged;
     m_models["Liquid"] = cLiquidTransport;
     m_models["Aqueous"] = cAqueousTransport;
+    m_models["Simple"] = cSimpleTransport;
     m_models["User"] = cUserTransport;
     m_models["None"] = None;
     //m_models["Radiative"] = cRadiative;
@@ -319,6 +336,11 @@ namespace Cantera {
       dtr = (DustyGasTransport*)tr;
       dtr->initialize(phase, gastr);
       break;
+    case cSimpleTransport:
+      tr = new SimpleTransport(); 
+      initLiquidTransport(tr, phase, log_level);
+      tr->setThermo(*phase);
+      break;
 #ifdef WITH_IDEAL_SOLUTIONS
     case cLiquidTransport:
       tr = new LiquidTransport;
@@ -342,7 +364,7 @@ namespace Cantera {
  
 
 
-/** 
+  /** 
    * Prepare to build a new kinetic-theory-based transport manager
    * for low-density gases. Uses polynomial fits to Monchick & Mason
    * collision integrals.
@@ -473,13 +495,13 @@ namespace Cantera {
 
 
 
-/** 
+  /** 
    * Prepare to build a new transport manager for liquids assuming that 
    * viscosity transport data is provided in Arhennius form.
    */
   void TransportFactory::setupLiquidTransport(std::ostream &flog, 
-				 const std::vector<const XML_Node*> &transport_database, 
-				 thermo_t* thermo, int log_level, LiquidTransportParams& trParam) {
+					      const std::vector<const XML_Node*> &transport_database, 
+					      thermo_t* thermo, int log_level, LiquidTransportParams& trParam) {
         
     // constant mixture attributes
     trParam.thermo = thermo;
@@ -506,7 +528,7 @@ namespace Cantera {
 
     XML_Node root, log;
     getLiquidTransportData(transport_database, log,  
-		     trParam.thermo->speciesNames(), trParam);
+			   trParam.thermo->speciesNames(), trParam);
 
     //int i, j;
     //for (i = 0; i < nsp; i++) trParam.poly[i].resize(nsp);
@@ -617,7 +639,7 @@ namespace Cantera {
     // set up Monchick and Mason collision integrals
     setupMM(flog, transport_database, thermo, mode, log_level, trParam);
     // do model-specific initialization
-    tran->init(trParam);
+    tran->initGas(trParam);
 #ifdef DEBUG_MODE
     if (m_verbose) {
       trParam.xml->XML_close(flog, "transport");
@@ -633,8 +655,8 @@ namespace Cantera {
    * class and calls setupLiquidTransport().
    */
   void  TransportFactory::initLiquidTransport(Transport* tran, 
-				       thermo_t* thermo, 
-                                       int log_level) { 
+					      thermo_t* thermo, 
+					      int log_level) { 
 
     const std::vector<const XML_Node*> & transport_database = thermo->speciesData();
         
@@ -651,7 +673,7 @@ namespace Cantera {
 #endif
     setupLiquidTransport(flog, transport_database, thermo, log_level, trParam);
     // do model-specific initialization
-    tran->init(trParam);
+    tran->initLiquid(trParam);
 #ifdef DEBUG_MODE
     if (m_verbose) {
       trParam.xml->XML_close(flog, "transport");
@@ -780,7 +802,7 @@ namespace Cantera {
     for (i = 0; i < nsp; i++) {
       const XML_Node& sp = *xspecies[i];
       name = sp["name"];
-      std::cout << "Processing node for " << name << std::endl;
+     // std::cout << "Processing node for " << name << std::endl;
 
       // put in a try block so that species with no 'transport'
       // child are skipped, instead of throwing an exception.
@@ -883,13 +905,17 @@ namespace Cantera {
 						 const std::vector<std::string> &names, 
 						 LiquidTransportParams& trParam)
   {
-    string name;
+    std::string name;
+    /*
+     *  Create a map of species names versus liquid transport data parameters
+     */
     std::map<std::string, LiquidTransportData> datatable;
     doublereal A_visc, n_visc, Tact_visc, hydrodynamic_radius;
     doublereal A_thcond, n_thcond, Tact_thcond;
+    doublereal A_spdiff, n_spdiff, Tact_spdiff;
 
     int nsp = static_cast<int>(xspecies.size());
-      std::cout << "Size of xspecies " << nsp << std::endl;
+    std::cout << "Size of xspecies " << nsp << std::endl;
   
     // read all entries in database into 'datatable' and check for 
     // errors. Note that this procedure validates all entries, not 
@@ -900,53 +926,189 @@ namespace Cantera {
     for (i = 0; i < nsp; i++) {
       const XML_Node& sp = *xspecies[i];
       name = sp["name"];
-      std::cout << "Processing node for " << name << std::endl;
+      vector_fp vCoeff;
+     // std::cout << "Processing node for " << name << std::endl;
 
       // put in a try block so that species with no 'transport'
       // child are skipped, instead of throwing an exception.
       try {
-	XML_Node& trNode = sp.child("transport");
+        if (sp.hasChild("transport")) {
+	  XML_Node& trNode = sp.child("transport");
 
-	hydrodynamic_radius = getFloat(trNode, "hydrodynamic_radius");
+	  // Fill datatable with LiquidTransportData objects for error checking 
+	  // and then insertion into LiquidTransportData objects below.	
+	  LiquidTransportData data;
+	  data.speciesName = name;
 
-	XML_Node& visc = trNode.child("viscosity");
-	getArrhenius(visc, A_visc, n_visc, Tact_visc );
+	  /*
+	   *         hydrodynamic radius
+	   *
+	   *  format:
+	   *    <hydrodynamic_radius model="Constant"> 3.0  </hydrodynamic_radius>
+	   *    <hydrodynamic_radius> 3.0 </hydrodynamic_radius>
+	   */
+	  if (trNode.hasChild("hydrodynamic_radius")) {
+	    XML_Node& hnode = trNode.child("hydrodynamic_radius");
+	    std::string model = lowercase(hnode["model"]);
+	    if (model == "" || model == "constant") {
+	      hydrodynamic_radius = hnode.fp_value();
+	      if (hydrodynamic_radius > 0.0) data.hydroradius = hydrodynamic_radius;
+	      else throw TransportDBError(linenum,
+					  "negative or zero hydrodynamic radius");
+	      data.model_hydroradius = LTR_MODEL_CONSTANT;
+	    } else {
+	      throw CanteraError(" TransportFactory::getLiquidTransportData", 
+				 "Unknown model for   hydrodynamic_radius:" + model);
+	    }
+	  }
 
-	XML_Node& thermCond = trNode.child("thermal_conductivity");
-	getArrhenius(thermCond, A_thcond, n_thcond, Tact_thcond );
+	  /*
+	   *          viscosity
+	   *
+	   *  format:
+	   *    <viscosity model="Constant"> 3.0  </viscosity>
+	   *    <viscosity> 3.0 </viscosity>
+	   *    <viscosity model="Arrhenius">
+	   *       <A units="Pa S">      1.0 </A>
+	   *       <b>                   2.0 </b>
+	   *       <E units="kcal/gmol"> 3.0 </E>
+	   *    </viscosity>
+	   *
+	   *    <viscosity model="Coeff">
+	   *       <float_array>  0.0. 1.0, 2.0, 3.0, 4.0 </float_array> 
+	   *    </viscosity>
+	   *
+	   */
+	  if (trNode.hasChild("viscosity")) {
+	    XML_Node& vnode = trNode.child("viscosity");
+	    std::string model = lowercase(vnode["model"]);
+	    if (model == "" || model == "constant") {
+	      A_visc = vnode.fp_value();
+	      if (A_visc > 0.0) (data.viscCoeffs).push_back(A_visc); 
+	      else throw TransportDBError(linenum,
+					  "negative or zero viscosity");
+	      data.model_viscosity = LTR_MODEL_CONSTANT;
+	    } else if (model == "arrhenius") {
+	      getArrhenius(vnode, A_visc, n_visc, Tact_visc);
+	      if (A_visc <= 0.0) {
+		throw TransportDBError(linenum, "negative or zero viscosity");
+	      }
+	      (data.viscCoeffs).push_back(A_visc);
+	      (data.viscCoeffs).push_back(n_visc);
+	      (data.viscCoeffs).push_back(Tact_visc);
+	      data.model_viscosity = LTR_MODEL_ARRHENIUS;
+	    } else if (model == "coeff") {
+	      getFloatArray(vnode, vCoeff, true);
+	      data.viscCoeffs = vCoeff;
+	      vCoeff.clear();
+	      data.model_viscosity = LTR_MODEL_COEFF;
+	    } else {
+	      throw CanteraError(" TransportFactory::getLiquidTransportData", 
+				 "Unknown model for viscosity:" + vnode["model"]);
+	    }
+	  }
 
-	// Fill datatable with LiquidTransportData objects for error checking 
-	// and then insertion into LiquidTransportData objects below.	
-	LiquidTransportData data;
-	data.speciesName = name;
+	  /*
+	   *       thermal_conductivity
+	   *
+	   *  format:
+	   *    <thermal_conductivity model="Constant"> 3.0  </thermal_conductivity>
+	   *    <thermal_conductivity> 3.0 </thermal_conductivity>
+	   *    <thermal_conductivity model="Arrhenius">
+	   *       <A units="Pa S">      1.0 </A>
+	   *       <b>                   2.0 </b>
+	   *       <E units="kcal/gmol"> 3.0 </E>
+	   *    </thermal_conductivity>
+	   *
+	   *    <thermal_conductivity model="Coeff">
+	   *       <float_array>  0.0. 1.0, 2.0, 3.0, 4.0 </float_array> 
+	   *    </thermal_conductivity>
+	   *
+	   */
+	  if (trNode.hasChild("thermal_conductivity")) {
+	    XML_Node& tnode = trNode.child("thermal_conductivity");
+	    std::string model = lowercase(tnode["model"]);
+	    if (model == "" || model == "constant") {
+	      A_thcond = tnode.fp_value();
+	      if (A_thcond > 0.0) (data.thermalCondCoeffs).push_back(A_thcond); 
+	      else throw TransportDBError(linenum,
+					  "negative or zero thermal_conductivity");
+	      data.model_thermalCond = LTR_MODEL_CONSTANT;
+	    } else if (model == "arrhenius") {
+	      getArrhenius(tnode, A_thcond, n_thcond, Tact_thcond);
+	      if (A_thcond <= 0.0) {
+		throw TransportDBError(linenum, "negative or zero thermal_conductivity");
+	      }
+	      (data.thermalCondCoeffs).push_back(A_thcond);
+	      (data.thermalCondCoeffs).push_back(n_thcond);
+	      (data.thermalCondCoeffs).push_back(Tact_thcond);
+	      data.model_thermalCond = LTR_MODEL_ARRHENIUS;
+	    } else if (model == "coeff") {
+	      getFloatArray(tnode, vCoeff, true);
+	      data.thermalCondCoeffs = vCoeff;
+	      vCoeff.clear();
+	      data.model_thermalCond = LTR_MODEL_COEFF;
+	    } else {
+	      throw CanteraError(" TransportFactory::getLiquidTransportData", 
+				 "Unknown model for thermal_conductivity:" + tnode["model"]);
+	    }
+	  }
 
-	if ( hydrodynamic_radius > 0.0) data.hydroradius = hydrodynamic_radius;
-	else throw TransportDBError(linenum,
-				    "negative or zero hydrodynamic radius");
+
+	  /*
+	   *       speciesDiffusivity
+	   *
+	   *  format:
+	   *    <speciesDiffusivity model="Constant"> 3.0  </speciesDiffusivity>
+	   *    <speciesDiffusivity> 3.0 </speciesDiffusivity>
+	   *    <speciesDiffusivity model="Arrhenius">
+	   *       <A units="Pa S">      1.0 </A>
+	   *       <b>                   2.0 </b>
+	   *       <E units="kcal/gmol"> 3.0 </E>
+	   *    </speciesDiffusivity>
+	   *
+	   *    <speciesDiffusivity model="Coeff">
+	   *       <float_array>  0.0. 1.0, 2.0, 3.0, 4.0 </float_array> 
+	   *    </speciesDiffusivity>
+	   *
+	   */
+	  if (trNode.hasChild("speciesDiffusivity")) {
+	    XML_Node& dnode = trNode.child("speciesDiffusivity");
+	    std::string model = lowercase(dnode["model"]);
+	    if (model == "" || model == "constant") {
+	      A_spdiff = dnode.fp_value();
+	      if (A_spdiff > 0.0) (data.speciesDiffusivityCoeffs).push_back(A_spdiff); 
+	      else throw TransportDBError(linenum,
+					  "negative or zero speciesDiffusivity");
+	      data.model_speciesDiffusivity = LTR_MODEL_CONSTANT;
+	    } else if (model == "arrhenius") {
+	      getArrhenius(dnode, A_spdiff, n_spdiff, Tact_spdiff);
+	      if (A_spdiff <= 0.0) {
+		throw TransportDBError(linenum, "negative or zero speciesDiffusivity");
+	      }
+	      (data.speciesDiffusivityCoeffs).push_back(A_spdiff);
+	      (data.speciesDiffusivityCoeffs).push_back(n_spdiff);
+	      (data.speciesDiffusivityCoeffs).push_back(Tact_spdiff);
+	      data.model_speciesDiffusivity = LTR_MODEL_ARRHENIUS;
+	    } else if (model == "coeff") {
+	      getFloatArray(dnode, vCoeff, true);
+	      data.speciesDiffusivityCoeffs = vCoeff;
+	      data.model_speciesDiffusivity = LTR_MODEL_COEFF;
+	    } else {
+	      throw CanteraError(" TransportFactory::getLiquidTransportData", 
+				 "Unknown model for speciesDiffusivity:" + dnode["model"]);
+	    }
+	  }
 	
-	if (A_visc >= 0.0) {
-	  data.viscCoeffs[0] = A_visc;
-	  data.viscCoeffs[1] = n_visc;
-	  data.viscCoeffs[2] = Tact_visc;
+	  datatable[name] = data;
 	}
-	else throw TransportDBError(linenum,
-				    "negative pre-exponential for viscosity");
-
-	if (A_thcond >= 0.0) {
-	  data.thermalCondCoeffs[0] = A_thcond;
-	  data.thermalCondCoeffs[1] = n_thcond;
-	  data.thermalCondCoeffs[2] = Tact_thcond;
-	}
-	else throw TransportDBError(linenum,
-				    "negative pre-exponential for thermalCondoctivity");
-
-	datatable[name] = data;
       }
       catch(CanteraError) {
 	;
       }
     }
 
+    trParam.LTData.clear();
     for (i = 0; i < trParam.nsp_; i++) {
 
       LiquidTransportData& trdat = datatable[names[i]];
@@ -960,24 +1122,36 @@ namespace Cantera {
       }
 
       // parameters should be converted to SI units before storing            
-
-      trParam.visc_A[i]    = trdat.viscCoeffs[0] ;
-      trParam.visc_n[i]    = trdat.viscCoeffs[1] ;
-      trParam.visc_Tact[i] = trdat.viscCoeffs[2] ;
+      if (trdat.viscCoeffs.size() > 0) {
+	trParam.visc_A[i]    = trdat.viscCoeffs[0] ;
+      }
+      if (trdat.viscCoeffs.size() > 2) {
+	trParam.visc_n[i]    = trdat.viscCoeffs[1] ;
+	trParam.visc_Tact[i] = trdat.viscCoeffs[2] ;
+      }
       
-      trParam.thermCond_A[i]    = trdat.thermalCondCoeffs[0] ;
-      trParam.thermCond_n[i]    = trdat.thermalCondCoeffs[1] ;
-      trParam.thermCond_Tact[i] = trdat.thermalCondCoeffs[2] ;
+      if (trdat.thermalCondCoeffs.size() > 0) {
+	trParam.thermCond_A[i]    = trdat.thermalCondCoeffs[0] ;
+      }
+      if (trdat.thermalCondCoeffs.size() > 2) {
+	trParam.thermCond_n[i]    = trdat.thermalCondCoeffs[1] ;
+	trParam.thermCond_Tact[i] = trdat.thermalCondCoeffs[2] ;
+      }
       
       // Angstroms -> meters
       trParam.hydroRadius[i]    = 1.e-10 * trdat.hydroradius;
 
+      /*
+       *  this is a much more general way to handle the transfer
+       *   -> calling the default copy constructor for  LiquidTransportData
+       */
+      trParam.LTData.push_back(trdat);
     }
 
-  // Need to identify a method to obtain interaction matrices.
-  // This will fill LiquidTransportParams members visc_Eij, visc_Sij
-  trParam.visc_Eij.resize(trParam.nsp_,trParam.nsp_);
-  cout << "No support for species viscosity interactions in TransportFactory.cpp" << endl;
+    // Need to identify a method to obtain interaction matrices.
+    // This will fill LiquidTransportParams members visc_Eij, visc_Sij
+    trParam.visc_Eij.resize(trParam.nsp_,trParam.nsp_);
+    cout << "No support for species viscosity interactions in TransportFactory.cpp" << endl;
   }
 
 
