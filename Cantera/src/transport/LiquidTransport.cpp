@@ -305,41 +305,79 @@ namespace Cantera {
 	d[ld*j + i] = rp * m_bdiff(i,j);
       }
   }
-
-
+ //================================================================================================
+  //  Get the electrical Mobilities (m^2/V/s).
+  /*
+   *   This function returns the mobilities. In some formulations
+   *   this is equal to the normal mobility multiplied by faraday's constant.
+   *
+   *   Frequently, but not always, the mobility is calculated from the
+   *   diffusion coefficient using the Einstein relation
+   *
+   *     \f[
+   *          \mu^e_k = \frac{F D_k}{R T}
+   *     \f]
+   *
+   * @param mobil_e  Returns the mobilities of
+   *               the species in array \c mobil_e. The array must be
+   *               dimensioned at least as large as the number of species.
+   */
   void LiquidTransport::getMobilities(doublereal* const mobil) {
-    // this needs to be checked out. 
     int k;
     getMixDiffCoeffs(DATA_PTR(m_spwork));
     doublereal c1 = ElectronCharge / (Boltzmann * m_temp);
     for (k = 0; k < m_nsp; k++) {
-      mobil[k] = c1 * m_spwork[k] * m_thermo->charge(k);
+      mobil[k] = c1 * m_spwork[k];
     }
   } 
-  
 
-  
+  //================================================================================================
+  //! Get the fluid mobilities (s kmol/kg).
+  /*!
+   *   This function returns the fluid mobilities. Usually, you have
+   *   to multiply Faraday's constant into the resulting expression
+   *   to general a species flux expression.
+   *
+   *   Frequently, but not always, the mobility is calculated from the
+   *   diffusion coefficient using the Einstein relation
+   *
+   *     \f[ 
+   *          \mu^f_k = \frac{D_k}{R T}
+   *     \f]
+   *
+   *
+   * @param mobil_f  Returns the mobilities of
+   *               the species in array \c mobil. The array must be
+   *               dimensioned at least as large as the number of species.
+   */
+  void  LiquidTransport::getFluidMobilities(doublereal* const mobil_f) {
+    getMixDiffCoeffs(DATA_PTR(m_spwork));
+    doublereal c1 = 1.0 / (GasConstant * m_temp);
+    for (int k = 0; k < m_nsp; k++) {
+      mobil_f[k] = c1 * m_spwork[k];
+    }
+  } 
+  //================================================================================================
   void LiquidTransport::set_Grad_V(const doublereal* const grad_V) {
     for (int a = 0; a < m_nDim; a++) {
       m_Grad_V[a] = grad_V[a];
     }
   }
-
+  //================================================================================================
   void LiquidTransport::set_Grad_T(const doublereal* const grad_T) {
     for (int a = 0; a < m_nDim; a++) {
       m_Grad_T[a] = grad_T[a];
     }
   }
-
- void LiquidTransport::set_Grad_X(const doublereal* const grad_X) {
-   int itop = m_nDim * m_nsp;
-   for (int i = 0; i < itop; i++) {
-     m_Grad_X[i] = grad_X[i];
-   }
-   update_Grad_lnAC();
- }
-
-
+  //================================================================================================
+  void LiquidTransport::set_Grad_X(const doublereal* const grad_X) {
+    int itop = m_nDim * m_nsp;
+    for (int i = 0; i < itop; i++) {
+      m_Grad_X[i] = grad_X[i];
+    }
+    update_Grad_lnAC();
+  }
+  //================================================================================================
   /****************** thermal conductivity **********************/
 
   /*
@@ -652,7 +690,7 @@ namespace Cantera {
    */
   void LiquidTransport::updateCond_temp() {
 
-    int k;
+
     /*
     if (m_mode == CK_Mode) {
       for (k = 0; k < m_nsp; k++) {
@@ -676,8 +714,7 @@ namespace Cantera {
   void LiquidTransport::updateDiff_temp() {
 
     // evaluate binary diffusion coefficients at unit pressure
-    int i,j;
-    int ic = 0;
+
     /*
     if (m_mode == CK_Mode) {
       for (i = 0; i < m_nsp; i++) {
