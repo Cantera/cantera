@@ -443,35 +443,6 @@ namespace Cantera {
     }
   }
 
-  void LiquidTransport::getSpeciesDiffusiveMassFluxes(doublereal* const fluxes) {
-    int n, k;
-
-    update_temp();
-    update_conc();
-
-
-    getMixDiffCoeffs(DATA_PTR(m_spwork));
-
-
-    const array_fp& mw = m_thermo->molecularWeights();
-    const doublereal* const y  = m_thermo->massFractions();
-    const doublereal rhon = m_thermo->molarDensity();
-    // Unroll wrt ndim
-    vector_fp sum(m_nDim,0.0);
-    for (n = 0; n < m_nDim; n++) {
-      for (k = 0; k < m_nsp; k++) {
-	fluxes[n*m_nsp + k] = -rhon * mw[k] * m_spwork[k] * m_Grad_X[n*m_nsp + k];
-	sum[n] += fluxes[n*m_nsp + k];
-      }
-    }
-    // add correction flux to enforce sum to zero
-    for (n = 0; n < m_nDim; n++) {
-      for (k = 0; k < m_nsp; k++) {
-	fluxes[n*m_nsp + k] -= y[k]*sum[n];
-      }
-    }
-  }
-
   /**
    * Mixture-averaged diffusion coefficients [m^2/s]. 
    *

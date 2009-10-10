@@ -34,6 +34,7 @@
 #include "ct_defs.h"
 #include "TransportBase.h"
 #include "FactoryBase.h"
+#include "LiquidTransportData.h"
 
 #if defined(THREAD_SAFE_CANTERA)
 #include <boost/thread/mutex.hpp>
@@ -61,20 +62,12 @@ namespace Cantera {
     doublereal rotRelaxNumber;
   };
 
-  struct LiquidTransportData {
-    LiquidTransportData() : speciesName("-"), 
-	 hydroradius(-1) {}
-    std::string speciesName;
-    doublereal  hydroradius;
-    vector_fp   viscCoeffs;
-    vector_fp   thermalCondCoeffs;
-  };
 
   // forward references
   class MMCollisionInt;
   class GasTransportParams; 
   class LiquidTransportParams;
- class XML_Node;
+  class XML_Node;
 
  
   //! The purpose of TransportFactory is to create new instances of
@@ -173,9 +166,19 @@ namespace Cantera {
 			  XML_Node& log, const std::vector<std::string>& names, 
 			  GasTransportParams& tr);
 
+
+    //! Read transport property data from a file for a list of species.
+    /*!
+     *
+     *  Given the name of a file containing transport property
+     * parameters and a list of species names, this method returns an
+     * instance of TransportParams containing the transport data for
+     * these species read from the file.
+     *
+     */
     void getLiquidTransportData(const std::vector<const XML_Node*> &db,  
-			  XML_Node& log, const std::vector<std::string>& names, 
-			  LiquidTransportParams& tr);
+				XML_Node& log, const std::vector<std::string>& names, 
+				LiquidTransportParams& tr);
 
     /** Generate polynomial fits to viscosity, conductivity, and
      *  binary diffusion coefficients */
@@ -193,8 +196,8 @@ namespace Cantera {
 
 
     void setupLiquidTransport(std::ostream &flog,  const std::vector<const XML_Node*> &transport_database, 
-		 thermo_t* thermo, int log_level, 
-		 LiquidTransportParams& tr);
+			      thermo_t* thermo, int log_level, 
+			      LiquidTransportParams& tr);
 
 
     /// Second-order correction to the binary diffusion coefficients
@@ -207,21 +210,6 @@ namespace Cantera {
     void makePolarCorrections(int i, int j, 
 			      const GasTransportParams& tr, doublereal& f_eps, 
 			      doublereal& f_sigma);
-
-  /**
-   * getArrhenius() parses the xml element called Arrhenius. 
-   * The Arrhenius expression is
-   * \f[        k =  A T^(b) exp (-E_a / RT). \f]
-   */
-  static void getArrhenius(const XML_Node& node, 
-			   doublereal& A, doublereal& b, doublereal& E) {
-    /* parse the children for the A, b, and E conponents.
-     */
-    A = getFloat(node, "A", "toSI");
-    b = getFloat(node, "b");
-    E = getFloat(node, "E", "actEnergy");
-    E /= GasConstant;
-  }                
 
 
     //! Boolean indicating whether to turn on verbose printing

@@ -6,6 +6,7 @@
 #include "ct_defs.h"
 #include "TransportBase.h"
 #include "TransportParams.h"
+#include "LiquidTransportData.h"
 #include "xml.h"
 #include "XML_Writer.h"
 
@@ -80,6 +81,8 @@ namespace Cantera {
         //! in solution: B_k
         vector_fp B_k_cond;
 
+
+        std::vector<Cantera::LiquidTransportData> LTData;
 
     };
 }
