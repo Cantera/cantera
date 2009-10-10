@@ -193,13 +193,47 @@ namespace Cantera {
     virtual doublereal electricalConductivity()
     { return err("electricalConductivity"); }
 
-    /**
-     * Electrical mobilities (m^2/V/s). Returns the mobilities of
-     * the species in array \c mobil. The array must be
-     * dimensioned at least as large as the number of species.
+    
+    //! Get the Electrical mobilities (m^2/V/s).
+    /*!
+     *   This function returns the mobilities. In some formulations
+     *   this is equal to the normal mobility multiplied by faraday's constant.
+     *
+     *   Frequently, but not always, the mobility is calculated from the
+     *   diffusion coefficient using the Einstein relation
+     *
+     *     \f[ 
+     *          \mu^e_k = \frac{F D_k}{R T}
+     *     \f]
+     *
+     *
+     * @param mobil_e  Returns the mobilities of
+     *               the species in array \c mobil_e. The array must be
+     *               dimensioned at least as large as the number of species.
      */
-    virtual void getMobilities(doublereal* const mobil)
+    virtual void getMobilities(doublereal* const mobil_e)
     { err("getMobilities"); }
+
+    //! Get the fluid mobilities (s kmol/kg).
+    /*!
+     *   This function returns the fluid mobilities. Usually, you have
+     *   to multiply Faraday's constant into the resulting expression
+     *   to general a species flux expression.
+     *
+     *   Frequently, but not always, the mobility is calculated from the
+     *   diffusion coefficient using the Einstein relation
+     *
+     *     \f[ 
+     *          \mu^f_k = \frac{D_k}{R T}
+     *     \f]
+     *
+     *
+     * @param mobil_f  Returns the mobilities of
+     *               the species in array \c mobil. The array must be
+     *               dimensioned at least as large as the number of species.
+     */
+    virtual void getFluidMobilities(doublereal* const mobil_f)
+    { err("getFluidMobilities"); }
 
 
     //@}
@@ -258,12 +292,12 @@ namespace Cantera {
      *             length = ldx * ndim
      */
     virtual void getSpeciesFluxesES(int ndim, 
-				  const doublereal* grad_T, 
-				  int ldx, 
-				  const doublereal* grad_X,
-				  int ldf, 
-				  const doublereal* grad_Phi,
-				  doublereal* fluxes) { 
+				    const doublereal* grad_T, 
+				    int ldx, 
+				    const doublereal* grad_X,
+				    int ldf, 
+				    const doublereal* grad_Phi,
+				    doublereal* fluxes) { 
       getSpeciesFluxes( ndim, grad_T, ldx, grad_X, ldf, fluxes );
     }
 

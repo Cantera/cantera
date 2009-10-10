@@ -251,11 +251,42 @@ namespace Cantera {
      */
     virtual doublereal thermalConductivity();
 
-    //! Get the Mobilities
+    //! Get the Electrical mobilities (m^2/V/s).
     /*!
-     * @param mobil
+     *   This function returns the mobilities. In some formulations
+     *   this is equal to the normal mobility multiplied by faraday's constant.
+     *
+     *   The mobility is calculated from the
+     *   diffusion coefficient using the Einstein relation
+     *
+     *     \f[ 
+     *          \mu^e_k = \frac{F D_k}{R T}
+     *     \f]
+     *
+     * @param mobil_e  Returns the electrical mobilities of
+     *               the species in array \c mobil_e. The array must be
+     *               dimensioned at least as large as the number of species.
      */
-    virtual void getMobilities(doublereal* const mobil);
+    virtual void getMobilities(doublereal* const mobil_e);
+
+    //! Get the fluid mobilities (s kmol/kg).
+    /*!
+     *   This function returns the fluid mobilities. Usually, you have
+     *   to multiply Faraday's constant into the resulting expression
+     *   to general a species flux expression.
+     *
+     *   The mobility is calculated from the
+     *   diffusion coefficient using the Einstein relation
+     *
+     *     \f[ 
+     *          \mu^f_k = \frac{D_k}{R T}
+     *     \f]
+     *
+     * @param mobil_f  Returns the fluid mobilities of
+     *               the species in array \c mobil_f. The array must be
+     *               dimensioned at least as large as the number of species.
+     */
+    virtual void getFluidMobilities(doublereal* const mobil_f);
 
     //! Specify the value of the gradient of the voltage
     /*!

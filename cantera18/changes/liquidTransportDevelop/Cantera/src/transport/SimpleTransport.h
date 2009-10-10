@@ -129,7 +129,7 @@ namespace Cantera {
   class SimpleTransport : public Transport {
   public:
 
-    typedef  double Coeff_T_ [4];
+    typedef  vector_fp Coeff_T_;
  
 
     //! Default constructor.  
@@ -237,6 +237,12 @@ namespace Cantera {
     virtual void getMixDiffCoeffs(doublereal* const d);
 
 
+    //! Return the thermal diffusion coefficients
+    /*!
+     *  These are all zero for this simple implementaion
+     *
+     *  @param dt thermal diffusion coefficients
+     */
     virtual void getThermalDiffCoeffs(doublereal* const dt);
 
 
@@ -252,6 +258,7 @@ namespace Cantera {
      * Solvent-only:
      *    \f[
      *         \lambda = \lambda_0
+
      *    \f]
      * Mixture-average:
      *    \f[
@@ -262,13 +269,46 @@ namespace Cantera {
      *
      * @see updateCond_T();
      */ 
+
     virtual doublereal thermalConductivity();
 
-    //! Get the Mobilities
+    //! Get the electrical Mobilities (m^2/V/s).
     /*!
-     * @param mobil
+     *   This function returns the mobilities. In some formulations
+     *   this is equal to the normal mobility multiplied by faraday's constant.
+     *
+     *   Frequently, but not always, the mobility is calculated from the
+     *   diffusion coefficient using the Einstein relation
+     *
+     *     \f[ 
+     *          \mu^e_k = \frac{F D_k}{R T}
+     *     \f]
+     *
+     * @param mobil_e  Returns the mobilities of
+     *               the species in array \c mobil_e. The array must be
+     *               dimensioned at least as large as the number of species.
      */
-    virtual void getMobilities(doublereal* const mobil);
+    virtual void getMobilities(doublereal* const mobil_e);
+
+    //! Get the fluid mobilities (s kmol/kg).
+    /*!
+     *   This function returns the fluid mobilities. Usually, you have
+     *   to multiply Faraday's constant into the resulting expression
+     *   to general a species flux expression.
+     *
+     *   Frequently, but not always, the mobility is calculated from the
+     *   diffusion coefficient using the Einstein relation
+     *
+     *     \f[ 
+     *          \mu^f_k = \frac{D_k}{R T}
+     *     \f]
+     *
+     *
+     * @param mobil_f  Returns the mobilities of
+     *               the species in array \c mobil. The array must be
+     *               dimensioned at least as large as the number of species.
+     */
+    virtual void getFluidMobilities(doublereal* const mobil_f);
 
     //! Specify the valpdaue of the gradient of the voltage
     /*!
@@ -428,6 +468,15 @@ namespace Cantera {
      */
     int compositionDepType_;
 
+    bool useHydroRadius_;
+
+    //! Boolean indicating whether electro-migration term should be
+    //! added
+    /*!
+     *
+     */
+    bool doMigration_;
+
     //! Minimum temperature applicable to the transport property eval
     doublereal m_tmin;
 
@@ -441,17 +490,20 @@ namespace Cantera {
     vector_fp  m_mw;
 
     //! Pure species viscosities in Arrhenius temperature-dependent form.
-    vector<Coeff_T_>  m_coeffVisc_Ns; 
+    std::vector<Coeff_T_>  m_coeffVisc_Ns; 
   
     //! Pure species thermal conductivities in Arrhenius temperature-dependent form.
     /*!
      *
      */
-    vector<Coeff_T_>  m_coeffLambda_Ns; 
+    std::vector<Coeff_T_>  m_coeffLambda_Ns; 
   
 
     //! Pure species viscosities in Arrhenius temperature-dependent form.
-    vector<Coeff_T_>  m_coeffDiff_Ns; 
+    std::vector<Coeff_T_>  m_coeffDiff_Ns; 
+
+    
+    std::vector<Coeff_T_>  m_coeffHydroRadius_Ns; 
   
 
     //! Internal value of the gradient of the mole fraction vector
@@ -577,9 +629,10 @@ namespace Cantera {
      */
     doublereal concTot_;
 
- 
-
+    //! Mean molecular weight
     doublereal meanMolecularWeight_;
+
+    //! Density
     doublereal dens_;
 
     //! Local copy of the charge of each species
@@ -587,7 +640,6 @@ namespace Cantera {
      *  Contains the charge of each species (length m_nsp)
      */
     vector_fp m_chargeSpecies;
-
   
     //! Current Temperature -> locally storred
     /*!

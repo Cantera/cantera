@@ -8,7 +8,7 @@
  *  $Date: 2008/12/24 18:19:01 $
  *  $Revision: 1.14 $
  *
- *  Copyright 2001 California Institute of Technology
+ *
  *
  */
 
@@ -63,7 +63,7 @@ namespace Cantera {
 
     //! Model type for the hydroradius
     LiquidTR_Model model_viscosity;
-    vector_fp   viscCoeffs;
+    vector_fp   viscCoeffs; 
 
     //! Model type for the hydroradius
     LiquidTR_Model model_thermalCond;
