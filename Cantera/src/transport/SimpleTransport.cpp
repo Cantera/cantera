@@ -376,8 +376,7 @@ namespace Cantera {
   void SimpleTransport::getMobilities(doublereal* const mobil) {
     int k;
     getMixDiffCoeffs(DATA_PTR(m_spwork));
-    doublereal t = m_thermo->temperature();
-    doublereal c1 = ElectronCharge / (Boltzmann * t);
+    doublereal c1 = ElectronCharge / (Boltzmann * m_temp);
     for (k = 0; k < m_nsp; k++) {
       mobil[k] = c1 * m_spwork[k];
     }
