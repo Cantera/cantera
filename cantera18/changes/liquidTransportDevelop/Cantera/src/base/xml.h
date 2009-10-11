@@ -380,6 +380,13 @@ namespace Cantera {
      */
     std::string attrib(const std::string & attr) const;
 
+    //! Clear the current node and everything under it
+    /*!
+     *  The value, attributes and children are all zeroed. The name and the 
+     *  parent information is kept.
+     */
+    void clear();
+
   private:
     //! Returns a changeable value of the attributes map for the current node
     /*!
@@ -644,7 +651,7 @@ namespace Cantera {
     //! into the destination XML_Node tree, doing a complete copy 
     //! as we go.
     /*!
-     *  Note this is a const function becuase the current XML_Node and
+     *  Note this is a const function because the current XML_Node and
      *  its children isn't altered by this operation.
      *
      *  @param node_dest  This is the XML node to receive the information
