@@ -199,7 +199,32 @@ namespace Cantera {
       }
   }
   //================================================================================================
+  //       Get the electrical Mobilities (m^2/V/s).
+  /*
+   *   This function returns the mobilities. In some formulations
+   *   this is equal to the normal mobility multiplied by faraday's constant.
+   *
+   *   Frequently, but not always, the mobility is calculated from the
+   *   diffusion coefficient using the Einstein relation
+   *
+   *     \f[
+   *          \mu^e_k = \frac{F D_k}{R T}
+   *     \f]
+   *
+   * @param mobil_e  Returns the mobilities of
+   *               the species in array \c mobil_e. The array must be
+   *               dimensioned at least as large as the number of species.
+   */
   void AqueousTransport::getMobilities(doublereal* const mobil) {
+    int k;
+    getMixDiffCoeffs(DATA_PTR(m_spwork));
+    doublereal c1 = ElectronCharge / (Boltzmann * m_temp);
+    for (k = 0; k < m_nsp; k++) {
+      mobil[k] = c1 * m_spwork[k];
+    }
+  } 
+  //================================================================================================
+  void AqueousTransport::getFluidMobilities(doublereal* const mobil) {
     getMixDiffCoeffs(DATA_PTR(m_spwork));
     doublereal c1 = 1.0 / (GasConstant * m_temp);
     for (int k = 0; k < m_nsp; k++) {
