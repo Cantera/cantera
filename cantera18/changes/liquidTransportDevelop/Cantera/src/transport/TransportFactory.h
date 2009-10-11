@@ -128,15 +128,15 @@ namespace Cantera {
 
     /// Build a new transport manager
     virtual Transport*
-    newTransport(std::string model="", thermo_t* thermo=0, int log_level=0);
+    newTransport(std::string model, thermo_t* thermo, int log_level=0);
 
     /// Initialize an existing transport manager
     virtual void initTransport(Transport* tr,  
-			       thermo_t* thermo=0, int mode=0, int log_level=0);
+			       thermo_t* thermo, int mode=0, int log_level=0);
 
     /// Initialize an existing transport manager for liquid phase
     virtual void initLiquidTransport(Transport* tr,
-                                     thermo_t* thermo=0, 
+                                     thermo_t* thermo, 
                                      int log_level=0);
 
 

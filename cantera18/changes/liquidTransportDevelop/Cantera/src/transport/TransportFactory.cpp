@@ -356,7 +356,7 @@ namespace Cantera {
       break;
 #endif
     default:
-      throw CanteraError("newTransport","unknown transport model");
+      throw CanteraError("newTransport","unknown transport model: " + transportModel);
     }
     phase->restoreState(state);
     return tr;
