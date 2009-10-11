@@ -418,6 +418,17 @@ namespace Cantera {
 			 ", is not a phase element.");
     }
 
+    /*
+     * In this section of code, we get the reference to the 
+     * phase xml tree within the ThermoPhase object. Then,
+     * we clear it and fill it with the current information that
+     * we are about to use to construct the object. We will then
+     * be able to resurrect the information later by calling xml().
+     */
+    XML_Node &phaseNode_XML = th->xml();
+    phaseNode_XML.clear();
+    phase.copy(&phaseNode_XML);
+
     // set the id attribute of the phase to the 'id' attribute 
     // in the XML tree.
     th->setID(phase.id());
