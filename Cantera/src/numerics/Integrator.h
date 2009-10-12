@@ -64,7 +64,14 @@ namespace Cantera {
 
   public:
 
-    virtual ~Integrator() {}
+    //! Default Constructor
+    Integrator() 
+    {
+    }
+
+    //!  Destructor
+    virtual ~Integrator() {
+    }
 
     /** Set or reset the number of equations. */ 
     //virtual void resize(int n)=0;
@@ -76,7 +83,9 @@ namespace Cantera {
      * @param abstol array of N absolute tolerance values
      */ 
     virtual void setTolerances(doublereal reltol, int n, 
-			       doublereal* abstol) { warn("setTolerances"); }
+			       doublereal* abstol) { 
+      warn("setTolerances"); 
+    }
 
     //!  Set error tolerances. 
     /*!
