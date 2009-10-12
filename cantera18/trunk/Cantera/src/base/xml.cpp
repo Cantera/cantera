@@ -482,6 +482,27 @@ namespace Cantera {
     }
   }
 
+  void XML_Node::clear() {
+    int n = static_cast<int>(m_children.size());
+    for (int i = 0; i < n; i++) {
+      if (m_children[i]) {
+        if (m_children[i]->parent() == this) {
+          delete m_children[i];
+          m_children[i] = 0;
+        }
+      }
+    }
+    m_value.clear();
+    m_childindex.clear();
+    m_attribs.clear();
+    m_children.clear();
+
+    m_nchildren = 0;
+    m_iscomment = false;
+    m_linenum = 0;
+
+  }
+
   // Add a child node to the current node containing a comment
   /*
    *  Child node will have the name, "comment".

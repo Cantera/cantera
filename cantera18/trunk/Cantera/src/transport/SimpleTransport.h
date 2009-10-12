@@ -1,15 +1,15 @@
 /**
  *
- *  @file LiquidTransport.h
- *   Header file defining class LiquidTransport
+ *  @file SimpleTransport.h
+ *   Header file defining class SimpleTransport
  */
 /*
  * $Revision: 1.9 $
  * $Date: 2009/03/27 18:24:39 $
  */
 
-#ifndef CT_LIQUIDTRAN_H
-#define CT_LIQUIDTRAN_H
+#ifndef CT_SIMPLETRAN_H
+#define CT_SIMPLETRAN_H
 
 
 
@@ -30,13 +30,6 @@ using namespace std;
 
 namespace Cantera {
 
-  const int LVISC_CONSTANT     = 0;
-  const int LVISC_INTERACTION  = 1;
-  const int LVISC_AVG_ENERGIES = 2;
-
-  const int LDIFF_MIXDIFF_UNCORRECTED     = 0;
-  const int LDIFF_MIXDIFF_FLUXCORRECTED  = 1;
-  const int LDIFF_MULTICOMP_STEFANMAXWELL  = 2;
 
 
 
@@ -133,8 +126,11 @@ namespace Cantera {
    *
    *
    */
-  class LiquidTransport : public Transport {
+  class SimpleTransport : public Transport {
   public:
+
+    typedef  vector_fp Coeff_T_;
+ 
 
     //! Default constructor.  
     /*!
@@ -146,13 +142,13 @@ namespace Cantera {
      * @param thermo  ThermoPhase object holding species information.
      * @param ndim    Number of spatial dimensions.
      */
-    LiquidTransport(thermo_t* thermo = 0, int ndim = 1);
+    SimpleTransport(thermo_t* thermo = 0, int ndim = 1);
 
     //!Copy Constructor for the %LiquidThermo object.
     /*!
      * @param right  %LiquidTransport to be copied
      */
-    LiquidTransport(const LiquidTransport &right);
+    SimpleTransport(const SimpleTransport &right);
 
     //! Assignment operator
     /*!
@@ -161,7 +157,7 @@ namespace Cantera {
      * @param right    Reference to %LiquidTransport object to be copied 
      *                 into the current one.
      */
-    LiquidTransport&  operator=(const  LiquidTransport& right);
+    SimpleTransport& operator=(const  SimpleTransport& right);
     
     //! Duplication routine for objects which inherit from
     //! %Transport
@@ -177,7 +173,7 @@ namespace Cantera {
 
 
     //! virtual destructor
-    virtual ~LiquidTransport() {}
+    virtual ~SimpleTransport() {}
 
     //! Initialize the transport object
     /*!
@@ -194,24 +190,28 @@ namespace Cantera {
 
     //! Return the model id for this transport parameterization
     virtual int model() const {
-      return cLiquidTransport; 
+      return cSimpleTransport; 
     }
 
     //! overloaded base class methods
 
-    //! Returns the viscosity of the solution
+    //! Returns the mixture viscosity of the solution
     /*!
-     * The viscosity is computed using mixture averaging plus
-     * any information on interaction parameters
-     * \f[
-     * \mu = \sum_k {\mu_k X_k} {\sum_j \sum_k {G_{j,k} X_k X_j} }.
-     * \f]
-     * Here \f$ \mu_k \f$ is the viscosity of pure species \e k,
-     * and  \f$ G_{k,j} \f$ is the interaction parameter.
-
-     * @see updateViscosity_T();
+     * The viscosity is computed using the general mixture rules
+     * specified in the variable compositionDepType_.
+     * 
+     * Solvent-only:
+     *    \f[
+     *         \mu = \mu_0
+     *    \f]
+     * Mixture-average:
+     *    \f[
+     *         \mu = \sum_k {\mu_k X_k}
+     *    \f]
+     *  
+     * Here \f$ \mu_k \f$ is the viscosity of pure species \e k.
      *
-     * Controlling update boolean m_viscmix_ok
+     * @see updateViscosity_T();
      */ 
     virtual doublereal viscosity();
 
@@ -237,33 +237,54 @@ namespace Cantera {
     virtual void getMixDiffCoeffs(doublereal* const d);
 
 
+    //! Return the thermal diffusion coefficients
+    /*!
+     *  These are all zero for this simple implementaion
+     *
+     *  @param dt thermal diffusion coefficients
+     */
     virtual void getThermalDiffCoeffs(doublereal* const dt);
 
-    //! Return the thermal conductivity of the solution
+
+    //! Returns the mixture thermal conductivity of the solution
     /*!
-     * The thermal conductivity is computed from the following mixture rule:
-     *   \f[
-     *    \lambda = 0.5 \left( \sum_k X_k \lambda_k 
-     *     + \frac{1}{\sum_k X_k/\lambda_k}\right)
-     *   \f]
+     * The thermal is computed using the general mixture rules
+     * specified in the variable compositionDepType_.
      *
      *  Controlling update boolean = m_condmix_ok
-     */
+     *
+     *  Units are in W/m/K  or equivalently kg m / s3 / K
+     * 
+     * Solvent-only:
+     *    \f[
+     *         \lambda = \lambda_0
+
+     *    \f]
+     * Mixture-average:
+     *    \f[
+     *         \lambda = \sum_k {\lambda_k X_k}
+     *    \f]
+     *  
+     * Here \f$ \lambda_k \f$ is the thermal conductivity of pure species \e k.
+     *
+     * @see updateCond_T();
+     */ 
+
     virtual doublereal thermalConductivity();
 
-    //! Get the Electrical mobilities (m^2/V/s).
+    //! Get the electrical Mobilities (m^2/V/s).
     /*!
      *   This function returns the mobilities. In some formulations
      *   this is equal to the normal mobility multiplied by faraday's constant.
      *
-     *   The mobility is calculated from the
+     *   Frequently, but not always, the mobility is calculated from the
      *   diffusion coefficient using the Einstein relation
      *
      *     \f[ 
      *          \mu^e_k = \frac{F D_k}{R T}
      *     \f]
      *
-     * @param mobil_e  Returns the electrical mobilities of
+     * @param mobil_e  Returns the mobilities of
      *               the species in array \c mobil_e. The array must be
      *               dimensioned at least as large as the number of species.
      */
@@ -275,20 +296,21 @@ namespace Cantera {
      *   to multiply Faraday's constant into the resulting expression
      *   to general a species flux expression.
      *
-     *   The mobility is calculated from the
+     *   Frequently, but not always, the mobility is calculated from the
      *   diffusion coefficient using the Einstein relation
      *
      *     \f[ 
      *          \mu^f_k = \frac{D_k}{R T}
      *     \f]
      *
-     * @param mobil_f  Returns the fluid mobilities of
-     *               the species in array \c mobil_f. The array must be
+     *
+     * @param mobil_f  Returns the mobilities of
+     *               the species in array \c mobil. The array must be
      *               dimensioned at least as large as the number of species.
      */
     virtual void getFluidMobilities(doublereal* const mobil_f);
 
-    //! Specify the value of the gradient of the voltage
+    //! Specify the valpdaue of the gradient of the voltage
     /*!
      *
      * @param grad_V Gradient of the voltage (length num dimensions);
@@ -309,41 +331,7 @@ namespace Cantera {
      */
     virtual void set_Grad_X(const doublereal* const grad_X);
 
-   virtual void update_Grad_lnAC();
 
-  protected:
-    //! Handles the effects of changes in the Temperature, internally
-    //! within the object.
-    /*!
-     *  This is called whenever a transport property is
-     *  requested.  
-     *  The first task is to check whether the temperature has changed
-     *  since the last call to update_T().
-     *  If it hasn't then an immediate return is carried out.
-     *
-     *
-     *   Note this should be a lightweight function since it's
-     *   part of all of the interfaces.
-     *
-     *     @internal
-     */ 
-    virtual void update_temp();
-
-    //! Handles the effects of changes in the mixture concentration
-    /*!
-     *   This is called for every interface call to check whether
-     *   the concentrations have changed. Concentrations change
-     *   whenever the pressure or the mole fraction has changed.
-     *   If it has changed, the recalculations should be done.
-     *
-     *   Note this should be a lightweight function since it's
-     *   part of all of the interfaces.
-     *
-     *   @internal
-     */ 
-    virtual void update_conc();
-
-  public:
     /**
      * @param ndim The number of spatial dimensions (1, 2, or 3).
      * @param grad_T The temperature gradient (ignored in this model).
@@ -357,28 +345,137 @@ namespace Cantera {
 				  int ldx, const doublereal* grad_X, 
 				  int ldf, doublereal* fluxes);
 
-    
-    /**
-     * @param ndim The number of spatial dimensions (1, 2, or 3).
-     * @param grad_T The temperature gradient (ignored in this model).
-     * @param ldx  Leading dimension of the grad_X array.
-     * The diffusive mass flux of species \e k is computed from
+    //!  Return the species diffusive mass fluxes wrt to
+    //!  the mass averaged velocity,
+    /*!
      *
+     *  units = kg/m2/s
      *
+     * Internally, gradients in the in mole fraction, temperature
+     * and electrostatic potential contribute to the diffusive flux
+     *  
+     *
+     * The diffusive mass flux of species \e k is computed from the following 
+     * formula
+     *
+     *    \f[
+     *         j_k = - \rho M_k D_k \nabla X_k - Y_k V_c
+     *    \f]
+     *
+     *    where V_c is the correction velocity
+     *
+     *    \f[
+     *         V_c =  - \sum_j {\rho M_j D_j \nabla X_j}
+     *    \f]
+     *
+     *  @param ldf     stride of the fluxes array. Must be equal to
+     *                 or greater than the number of species.
+     *  @param fluxes  Vector of calculated fluxes
      */
     virtual void getSpeciesFluxesExt(int ldf, doublereal* fluxes);
 
+  protected:
 
-    //! Solve the stefan_maxell equations for the diffusive fluxes.
-    void stefan_maxwell_solve();
+    //! Handles the effects of changes in the Temperature, internally
+    //! within the object.
+    /*!
+     *  This is called whenever a transport property is requested.
+     *  The first task is to check whether the temperature has changed
+     *  since the last call to update_T().
+     *  If it hasn't then an immediate return is carried out.
+     *
+     *     @internal
+     *
+     * @return  Returns true if the temperature has changed, and false otherwise
+     */
+    virtual bool update_T();
+
+    //! Handles the effects of changes in the mixture concentration
+    /*!
+     *   This is called for every interface call to check whether
+     *   the concentrations have changed. Concentrations change
+     *   whenever the pressure or the mole fraction has changed.
+     *   If it has changed, the recalculations should be done.
+     *
+     *   Note this should be a lightweight function since it's
+     *   part of all of the interfaces.
+     *
+     *   @internal
+     */ 
+    virtual bool update_C();
+
+    //!  Update the temperature-dependent viscosity terms.
+    //!  Updates the array of pure species viscosities, and the 
+    //!  weighting functions in the viscosity mixture rule.
+    /*!
+     * The flag m_visc_temp_ok is set to true.
+     */
+    void updateViscosity_T();
+
+    //! Update the temperature-dependent parts of the mixture-averaged 
+    //! thermal conductivity.     
+    void updateCond_T();
+
+    //! Update the concentration parts of the viscosities
+    /*!
+     *  Internal routine is run whenever the update_boolean
+     *  is false. This routine will calculate
+     *  internal values for the species viscosities.
+     *
+     * @internal
+     */
+    void updateViscosities_C();
+ 
+    //! Update the binary diffusion coefficients wrt T.
+    /*!
+     *   These are evaluated
+     *   from the polynomial fits at unit pressure (1 Pa).
+     */
+    void updateDiff_T();
 
 
   private:
 
-
-
     //! Number of species in the mixture
     int m_nsp;
+
+    //! Temperature dependence type
+    /*!
+     *     The following coefficients are allowed to have simple
+     *     temperature dependencies:
+     *         mixture viscosity
+     *         mixture thermal conductivity
+     *         diffusitivy
+     *
+     *  Types of temperature dependencies:
+     *     0  - Independent of temperature (only one implemented so far)
+     *     1  - extended arrhenius form
+     *     2  - power law form
+     */
+    int tempDepType_;
+
+    //! Composition dependence of the transport properties
+    /*!
+     *   The following coefficients are allowed to have simple
+     *   composition dependencies
+     *       mixture viscosity
+     *       mixture thermal conductivity
+     *       
+     *
+     *   Types of composition dependencies
+     *    0 - Solvent values (i.e., species 0) contributes only
+     *    1 - linear combination of mole fractions; 
+     */
+    int compositionDepType_;
+
+    bool useHydroRadius_;
+
+    //! Boolean indicating whether electro-migration term should be
+    //! added
+    /*!
+     *
+     */
+    bool doMigration_;
 
     //! Minimum temperature applicable to the transport property eval
     doublereal m_tmin;
@@ -393,41 +490,21 @@ namespace Cantera {
     vector_fp  m_mw;
 
     //! Pure species viscosities in Arrhenius temperature-dependent form.
-    vector_fp  m_visc_A; 
-    vector_fp  m_visc_logA; //logarithm of coefficient 
-    vector_fp  m_visc_n; 
-    vector_fp  m_visc_Tact; 
-
-    //! Molecular interaction energies associated with viscosity 
-    /** 
-     * These multiply the viscosity according to
-     *  \f[ exp( \sum_{i} \sum_{j} X_i X_j E_{i,j} / T \f].
-     */
-    DenseMatrix m_visc_Eij;
-
-    //! Molecular interaction entropies associated with viscosity 
-    /** 
-     * These multiply the viscosity according to
-     *  \f[ exp( \sum_{i} \sum{j} X_i X_j S_{i,j} \f].
-     */
-    DenseMatrix m_visc_Sij;
-
+    std::vector<Coeff_T_>  m_coeffVisc_Ns; 
+  
     //! Pure species thermal conductivities in Arrhenius temperature-dependent form.
-    vector_fp  m_thermCond_A; 
-    vector_fp  m_thermCond_n; 
-    vector_fp  m_thermCond_Tact; 
-
-    //! Species hydrodynamic radius
-    vector_fp  m_hydrodynamic_radius;
-
-
-    //! Polynomial coefficients of the binary diffusion coefficients
     /*!
-     * These express the temperature dependendence of the
-     * binary diffusivities. An overall pressure dependence is then
-     * added.
+     *
      */
-    vector<vector_fp>            m_diffcoeffs;
+    std::vector<Coeff_T_>  m_coeffLambda_Ns; 
+  
+
+    //! Pure species viscosities in Arrhenius temperature-dependent form.
+    std::vector<Coeff_T_>  m_coeffDiff_Ns; 
+
+    
+    std::vector<Coeff_T_>  m_coeffHydroRadius_Ns; 
+  
 
     //! Internal value of the gradient of the mole fraction vector
     /*!
@@ -445,8 +522,6 @@ namespace Cantera {
      *    m_Grad_X[n*m_nsp + k]
      */
     vector_fp m_Grad_X;
-
-    vector_fp m_Grad_lnAC;
 
     //! Internal value of the gradient of the Temperature vector
     /*!
@@ -484,44 +559,31 @@ namespace Cantera {
      */
     vector_fp m_Grad_V;
 
-    //! Gradient of the electrochemical potential
-    /*!
-     *  m_nsp is the number of species in the fluid
-     *  k is the species index
-     *  n is the dimensional index (x, y, or z)
-     *  
-     *  ck  m_Grad_mu[n*m_nsp + k]
-     */
-    vector_fp m_ck_Grad_mu;
 
     // property values
 
-    //! Array of Binary Diffusivities
+  
+
+    //! Vector of Species Diffusivities
     /*!
      *   Depends on the temperature. We have set the pressure dependence
      *   to zero for this liquid phase constituitve model
      *
-     *  This has a size equal to nsp x nsp
-     *  It is a symmetric matrix.
-     *  D_ii is the self diffusion coefficient. D_ii is not
-     *  needed except for when there is one species in the mixture.
-     *
-     * units m2/sec
+     *   units m2/s
      */
-    DenseMatrix  m_bdiff;
+    vector_fp m_diffSpecies;
 
-    //! Species viscosities and their logarithm
+    //! Species viscosities
     /*!
-     *  Viscosity of the species and its logarithm
+     *   Viscosity of the species 
      *   Length = number of species
      *
      *   Depends on the temperature. We have set the pressure dependence
-     *   to zero for this liquid phase constituitve model
+     *   to zero for this model
      *
      * controlling update boolean -> m_visc_temp_ok
      */
     vector_fp m_viscSpecies;
-    vector_fp m_logViscSpecies;
 
     //! Internal value of the species individual thermal conductivities
     /*!
@@ -549,19 +611,6 @@ namespace Cantera {
      */
     vector_fp m_molefracs;
 
-    //! Non-zero mole fraction vector used in transport property calculations
-    /*!
-     *  The mole fractions here are assumed to be bounded by MIN_X and 1.0
-     *  and they may not be assumed to add up to one. This
-     *  mole fraction vector is created from the ThermoPhase object.
-     *  Derivative quantities of this use the _tran suffix.
-     *
-     * Update info?
-     * length = m_nsp
-     */
-    vector_fp m_molefracs_tran;
-
-    vector_fp Xdelta_;
 
     //! Local copy of the concentrations of the species in the phase
     /*!
@@ -580,14 +629,10 @@ namespace Cantera {
      */
     doublereal concTot_;
 
-    //! Local copy of the total concentration.
-    /*!
-     *  This is consistent with the x_molefracs_tran vector and
-     *  with the concTot_ number;
-     */
-    doublereal concTot_tran_;
-
+    //! Mean molecular weight
     doublereal meanMolecularWeight_;
+
+    //! Density
     doublereal dens_;
 
     //! Local copy of the charge of each species
@@ -595,33 +640,7 @@ namespace Cantera {
      *  Contains the charge of each species (length m_nsp)
      */
     vector_fp m_chargeSpecies;
-
   
-    vector_fp volume_specPM_;
-
-    vector_fp actCoeffMolar_;
-
-    vector_fp lnActCoeffMolarDelta_;
-
-    //! Stefan-Maxwell Diffusion Coefficients at T, P and C
-    /*!
-     *   These diffusion coefficients are considered to be
-     *  a function of Temperature, Pressure, and Concentration.
-     */
-    DenseMatrix m_DiffCoeff_StefMax;
-
-    //! Viscosity model
-    /*!
-     *
-     */
-    int viscosityModel_;
-
-    //! RHS to the stefan-maxwell equation
-    DenseMatrix   m_B;
-
-    //! Matrix for the stefan maxwell equation.
-    DenseMatrix m_A;
-
     //! Current Temperature -> locally storred
     /*!
      * This is used to test whether new temperature computations
@@ -629,61 +648,24 @@ namespace Cantera {
      */
     doublereal m_temp;
 
-    //! Current log(T)
-    doublereal m_logt;
-
-    //! Current value of kT
-    doublereal m_kbt;
 
     //! Current value of the pressure
     doublereal m_press;
 
-    //! Solution of the flux system
-    /*!
-     *  This is the mass flux of species k
-     *  in units of kg m-3 s-1.
-     */
-    Array2D m_flux;
-
+ 
     //! Saved value of the mixture thermal conductivity
     doublereal m_lambda;
 
     //! Saved value of the mixture viscosity
     doublereal m_viscmix;
 
-    // work space
+    //! work space
+    /*!
+     *   Length is equal to m_nsp
+     */
     vector_fp  m_spwork;
 
-    //! Internal Function
-  protected:
-    //!  Update the temperature-dependent viscosity terms.
-    //!  Updates the array of pure species viscosities, and the 
-    //!  weighting functions in the viscosity mixture rule.
-    /*!
-     * The flag m_visc_ok is set to true.
-     */
-    void updateViscosity_temp();
 
-    //! Update the temperature-dependent parts of the mixture-averaged 
-    //! thermal conductivity.     
-    void updateCond_temp();
-
-    //! Update the concentration parts of the viscosities
-    /*!
-     *  Internal routine is run whenever the update_boolean
-     *  m_visc_conc_ok is false. This routine will calculate
-     *  internal values for the species viscosities.
-     *
-     * @internal
-     */
-    void updateViscosities_conc();
- 
-    //! Update the binary diffusion coefficients wrt T.
-    /*!
-     *   These are evaluated
-     *   from the polynomial fits at unit pressure (1 Pa).
-     */
-    void updateDiff_temp();
 
   private:    
     //! Boolean indicating that the top-level mixture viscosity is current
@@ -695,10 +677,6 @@ namespace Cantera {
     //! Boolean indicating that weight factors wrt viscosity is current
     bool m_visc_temp_ok;
  
-    //! Flag to indicate that the pure species viscosities
-    //! are current wrt the temperature
-    bool m_visc_conc_ok;
-
     //! Boolean indicating that mixture diffusion coeffs are current
     bool m_diff_mix_ok;
 
@@ -712,23 +690,6 @@ namespace Cantera {
     //! Boolean indicating that mixture conductivity is current
     bool m_cond_mix_ok;
 
-    //! Mode for fitting the species viscosities
-    /*!
-     * Either its CK_Mode or its cantera mode
-     * in CK_Mode visc is fitted to a polynomial
-     * in Cantera mode sqrt(visc) is fitted.
-     */
-    int m_mode;
-
-    //! Internal storage for the diameter - diameter
-    //! species interactions
-    DenseMatrix m_diam;
-
-    //! Debugging flags
-    /*!
-     *  Turn on to get debugging information
-     */
-    bool m_debug;
 
     //! Number of dimensions 
     /*!

@@ -5,27 +5,62 @@
 
 #include "ct_defs.h"
 #include "TransportBase.h"
+#include "TransportParams.h"
+#include "LiquidTransportData.h"
 #include "xml.h"
 #include "XML_Writer.h"
 
 namespace Cantera {
 
     /**
-     *
-     * Holds transport data. Used by TransportFactory.
-     *
+     * Holds transport model parameters relevant to transport in 
+     * liquids for which activated jump processes limit transport
+     * (giving Arrhenius type transport properties). 
+     * Used by TransportFactory.
      */
-    class LiquidTransportParams {
+    class LiquidTransportParams :public TransportParams {
 
     public:
 
-        LiquidTransportParams() : thermo(0), xml(0) {}
-        virtual ~LiquidTransportParams();
-        int nsp;
+        LiquidTransportParams() {}
+        ~LiquidTransportParams() {}
 
-        //        phase_t* mix;
-        thermo_t* thermo;
-        vector_fp        mw;
+
+	//section for liquid transport properties
+
+	//Arrhenius parameters for transport coefficients:
+
+	//!Arrhenius pre-exponential parameter for viscosity.
+	vector_fp  visc_A; 
+	//!Temperature exponent for viscosity.
+	vector_fp  visc_n; 
+	//!Arrhenius activation temperature for viscosity.
+	vector_fp  visc_Tact; 
+
+	//!Arrhenius pre-exponential parameter for thermal conductivity.
+	vector_fp  thermCond_A; 
+	//!Temperature exponent for thermal conductivity.
+	vector_fp  thermCond_n; 
+	//!Arrhenius activation temperature for thermal conductivity.
+	vector_fp  thermCond_Tact; 
+
+	//! Energies of molecular interaction associated with viscosity.
+	/** 
+	 * These multiply the mixture viscosity by
+	 *  \f[ \exp( \sum_{i} \sum_{j} X_i X_j ( S_{i,j} + E_{i,j} / T ) ) \f].
+	 *
+	 * The overall formula for the logarithm of the mixture viscosity is 
+	 *
+	 * \f[ \ln \eta_{mix} = \sum_i X_i \ln \eta_i 
+	 *  + \sum_i \sum_j X_i X_j ( S_{i,j} + E_{i,j} / T ) \f].
+	 */
+	DenseMatrix  visc_Eij; 
+
+	//! Entropies of molecular interaction associated with viscosity.
+	DenseMatrix  visc_Sij; 
+
+	//Hydrodynamic radius of transported molecule
+	vector_fp               hydroRadius;
 
         //! Coefficients for the limiting conductivity of ions 
         //! in solution: A_k
@@ -47,26 +82,8 @@ namespace Cantera {
         vector_fp B_k_cond;
 
 
-        // polynomial fits
-        std::vector<vector_fp>  viscCoeffsVector_;
-        std::vector<vector_fp>  condcoeffs;
-        std::vector<vector_fp>  diffcoeffs ;
+        std::vector<Cantera::LiquidTransportData> LTData;
 
-
-        std::vector<bool> polar;
-        //vector_fp    alpha;
-        vector_fp    fitlist;
-        vector_fp    eps;
-        vector_fp    sigma;
-        DenseMatrix  reducedMass;  
-        DenseMatrix  diam;           
-        DenseMatrix  epsilon;        
-        DenseMatrix  dipole;         
-        DenseMatrix  delta;          
-        doublereal tmax, tmin;
-        int mode;
-        XML_Writer* xml;
-        int log_level;
     };
 }
 
