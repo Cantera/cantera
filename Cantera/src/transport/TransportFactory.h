@@ -34,6 +34,7 @@
 #include "ct_defs.h"
 #include "TransportBase.h"
 #include "FactoryBase.h"
+#include "LiquidTransportData.h"
 
 #if defined(THREAD_SAFE_CANTERA)
 #include <boost/thread/mutex.hpp>
@@ -61,9 +62,11 @@ namespace Cantera {
     doublereal rotRelaxNumber;
   };
 
+
   // forward references
   class MMCollisionInt;
-  class TransportParams;
+  class GasTransportParams; 
+  class LiquidTransportParams;
   class XML_Node;
 
  
@@ -121,22 +124,34 @@ namespace Cantera {
      * single instance. 
      */
     virtual ~TransportFactory();
-    
 
-    /// Build a new transport manager
+    //! Build a new transport manager using a transport manager
+    //! that may not be the same as in the phase description
+    /*!
+     *  @param model     String name for the transport manager
+     *  @param thermo    ThermoPhase object
+     *  @param log_level log level
+     */
     virtual Transport*
-    newTransport(std::string model="", thermo_t* thermo=0, int log_level=0);
+    newTransport(std::string model, thermo_t* thermo, int log_level=0);
+
+    //! Build a new transport manager using the default transport manager
+    //! in the phase description
+    /*!
+     *  @param thermo   ThermoPhase object
+     *  @param log_level log level
+     */ 
+    virtual Transport*
+    newTransport(thermo_t* thermo, int log_level=0);
 
     /// Initialize an existing transport manager
     virtual void initTransport(Transport* tr,  
-			       thermo_t* thermo=0, int mode=0, int log_level=0);
+			       thermo_t* thermo, int mode=0, int log_level=0);
 
     /// Initialize an existing transport manager for liquid phase
     virtual void initLiquidTransport(Transport* tr,
-                                     thermo_t* thermo=0, 
+                                     thermo_t* thermo, 
                                      int log_level=0);
-
-
 
   private:
 
@@ -146,8 +161,6 @@ namespace Cantera {
 #if defined(THREAD_SAFE_CANTERA)
     static boost::mutex transport_mutex ;
 #endif
-
-
 
     //! The constructor is private; use static method factory() to
     //! get a pointer to a factory instance
@@ -161,33 +174,53 @@ namespace Cantera {
 
     void getTransportData(const std::vector<const XML_Node*> &db,  
 			  XML_Node& log, const std::vector<std::string>& names, 
-			  TransportParams& tr);
+			  GasTransportParams& tr);
+
+
+    //! Read transport property data from a file for a list of species.
+    /*!
+     *
+     *  Given the name of a file containing transport property
+     * parameters and a list of species names, this method returns an
+     * instance of TransportParams containing the transport data for
+     * these species read from the file.
+     *
+     */
+    void getLiquidTransportData(const std::vector<const XML_Node*> &db,  
+				XML_Node& log, const std::vector<std::string>& names, 
+				LiquidTransportParams& tr);
 
     /** Generate polynomial fits to viscosity, conductivity, and
      *  binary diffusion coefficients */
-    void fitProperties(TransportParams& tr, std::ostream & logfile);
+    void fitProperties(GasTransportParams& tr, std::ostream & logfile);
 
     /// Generate polynomial fits to collision integrals
     void fitCollisionIntegrals(std::ostream & logfile, 
-			       TransportParams& tr);
+			       GasTransportParams& tr);
 
    
 
     void setupMM(std::ostream &flog,  const std::vector<const XML_Node*> &transport_database, 
 		 thermo_t* thermo, int mode, int log_level, 
-		 TransportParams& tr);
+		 GasTransportParams& tr);
+
+
+    void setupLiquidTransport(std::ostream &flog,  const std::vector<const XML_Node*> &transport_database, 
+			      thermo_t* thermo, int log_level, 
+			      LiquidTransportParams& tr);
 
 
     /// Second-order correction to the binary diffusion coefficients
     void getBinDiffCorrection(doublereal t, 
-			      const TransportParams& tr, int k, int j,
+			      const GasTransportParams& tr, int k, int j,
 			      doublereal xk, doublereal xj, 
 			      doublereal& fkj, doublereal& fjk);
 
     /// Corrections for polar-nonpolar binary diffusion coefficients
     void makePolarCorrections(int i, int j, 
-			      const TransportParams& tr, doublereal& f_eps, 
+			      const GasTransportParams& tr, doublereal& f_eps, 
 			      doublereal& f_sigma);
+
 
     //! Boolean indicating whether to turn on verbose printing
     bool m_verbose;
@@ -205,8 +238,8 @@ namespace Cantera {
    *  Create a new transport manager instance.
    * @ingroup transportProps
    */
-  inline Transport* newTransportMgr(std::string transportModel="", 
-				    thermo_t* thermo=0, int loglevel=0, 
+  inline Transport* newTransportMgr(std::string transportModel = "", 
+				    thermo_t* thermo = 0, int loglevel=0, 
 				    TransportFactory* f=0) {
     if (f == 0) {
       f = TransportFactory::factory();
@@ -218,7 +251,25 @@ namespace Cantera {
      *       the need for multiple cantera and transport library statements
      *       for applications that don't have transport in them.
      */
-    //TransportFactory::deleteFactory();
+    return ptr;
+  }
+
+  /**
+   *  Create a new transport manager instance.
+   * @ingroup transportProps
+   */
+  inline Transport* newDefaultTransportMgr(thermo_t* thermo, int loglevel=0,
+                                           TransportFactory* f=0) {
+    if (f == 0) {
+      f = TransportFactory::factory();
+    }
+    Transport* ptr = f->newTransport(thermo, loglevel);
+    /*
+     * Note: We delete the static s_factory instance here, instead of in
+     *       appdelete() in misc.cpp, to avoid linking problems involving
+     *       the need for multiple cantera and transport library statements
+     *       for applications that don't have transport in them.
+     */
     return ptr;
   }
 

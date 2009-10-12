@@ -40,7 +40,7 @@ namespace Cantera {
     TRANSOLVE_LU
   };
 
-  class TransportParams;
+  class GasTransportParams;
 
   /////////////////////////////////////////////////////////////
 
@@ -85,7 +85,7 @@ namespace Cantera {
     virtual ~MultiTransport();
 
     // overloaded base class methods
-    virtual int model() {
+    virtual int model() const {
       if (m_mode == CK_Mode)
 	return CK_Multicomponent;
       else
@@ -162,7 +162,7 @@ namespace Cantera {
     /**
      * @internal
      */
-    virtual bool init(TransportParams& tr);
+    virtual bool initGas( GasTransportParams& tr );
 
 
     /**

@@ -46,7 +46,7 @@ namespace Cantera {
     public:
 virtual ~SolidTransport() {}
 
-        virtual int model() { return cSolidTransport; }
+        virtual int model() const { return cSolidTransport; }
 
         virtual doublereal thermalConductivity();
         virtual void getMixDiffCoeffs(doublereal* const d);
