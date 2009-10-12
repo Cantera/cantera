@@ -124,11 +124,25 @@ namespace Cantera {
      * single instance. 
      */
     virtual ~TransportFactory();
-    
 
-    /// Build a new transport manager
+    //! Build a new transport manager using a transport manager
+    //! that may not be the same as in the phase description
+    /*!
+     *  @param model     String name for the transport manager
+     *  @param thermo    ThermoPhase object
+     *  @param log_level log level
+     */
     virtual Transport*
     newTransport(std::string model, thermo_t* thermo, int log_level=0);
+
+    //! Build a new transport manager using the default transport manager
+    //! in the phase description
+    /*!
+     *  @param thermo   ThermoPhase object
+     *  @param log_level log level
+     */ 
+    virtual Transport*
+    newTransport(thermo_t* thermo, int log_level=0);
 
     /// Initialize an existing transport manager
     virtual void initTransport(Transport* tr,  
@@ -139,8 +153,6 @@ namespace Cantera {
                                      thermo_t* thermo, 
                                      int log_level=0);
 
-
-
   private:
 
     //! Static instance of the factor -> This is the only instance of this
@@ -149,8 +161,6 @@ namespace Cantera {
 #if defined(THREAD_SAFE_CANTERA)
     static boost::mutex transport_mutex ;
 #endif
-
-
 
     //! The constructor is private; use static method factory() to
     //! get a pointer to a factory instance
@@ -228,8 +238,8 @@ namespace Cantera {
    *  Create a new transport manager instance.
    * @ingroup transportProps
    */
-  inline Transport* newTransportMgr(std::string transportModel="", 
-				    thermo_t* thermo=0, int loglevel=0, 
+  inline Transport* newTransportMgr(std::string transportModel = "", 
+				    thermo_t* thermo = 0, int loglevel=0, 
 				    TransportFactory* f=0) {
     if (f == 0) {
       f = TransportFactory::factory();
@@ -241,7 +251,25 @@ namespace Cantera {
      *       the need for multiple cantera and transport library statements
      *       for applications that don't have transport in them.
      */
-    //TransportFactory::deleteFactory();
+    return ptr;
+  }
+
+  /**
+   *  Create a new transport manager instance.
+   * @ingroup transportProps
+   */
+  inline Transport* newDefaultTransportMgr(thermo_t* thermo, int loglevel=0,
+                                           TransportFactory* f=0) {
+    if (f == 0) {
+      f = TransportFactory::factory();
+    }
+    Transport* ptr = f->newTransport(thermo, loglevel);
+    /*
+     * Note: We delete the static s_factory instance here, instead of in
+     *       appdelete() in misc.cpp, to avoid linking problems involving
+     *       the need for multiple cantera and transport library statements
+     *       for applications that don't have transport in them.
+     */
     return ptr;
   }
 

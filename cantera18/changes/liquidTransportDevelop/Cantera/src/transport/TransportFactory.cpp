@@ -295,7 +295,7 @@ namespace Cantera {
    *  make one of several transport models, and return a base class
    *  pointer to it.
    */
-  Transport* TransportFactory::newTransport(string transportModel,
+  Transport* TransportFactory::newTransport(std::string transportModel,
 					    thermo_t* phase, int log_level) {
 
     if (transportModel == "") return new Transport;
@@ -362,6 +362,27 @@ namespace Cantera {
     return tr;
   }
  
+  /**
+   *  make one of several transport models, and return a base class
+   *  pointer to it.
+   */
+  Transport* TransportFactory::newTransport(thermo_t* phase, int log_level) {
+    XML_Node &phaseNode=phase->xml();
+    /*
+     * Find the Thermo XML node
+     */
+    if (!phaseNode.hasChild("transport")) {
+      throw CanteraError("TransportFactory::newTransport",
+                         "no transport XML node");
+    }
+    XML_Node& transportNode = phaseNode.child("transport");
+    string transportModel = transportNode.attrib("model");
+    if (transportModel == "") {
+      throw CanteraError("TransportFactory::newTransport",
+                         "transport XML node doesn't have a model string");
+    }
+    return newTransport(transportModel, phase,log_level);
+  }
 
 
   /** 
