@@ -563,6 +563,41 @@ namespace ctml {
   doublereal getFloat(const Cantera::XML_Node& parent, const std::string &name,
 		      const std::string type=""); 
 
+  //!  Get a floating-point value from the current XML element
+  /*! 
+   *  Returns a doublereal value from the current element. If
+   *  'type' is supplied and matches a known unit type, unit
+   *  conversion to SI will be done if the child element has an attribute
+   *  'units'.
+   *
+   *  Note, it's an error for the child element not to exist.
+   *
+   *  Example:  
+   *
+   * Code snipet:
+   *       @verbatim
+   const XML_Node &State_XMLNode;
+   doublereal pres = OneAtm;
+   if (state_XMLNode.hasChild("pressure")) {
+     XML_Node *pres_XMLNode = State_XMLNode.getChild("pressure");
+     pres = getFloatCurrent(pres_XMLNode, "toSI");
+   }
+   @endverbatim
+   *
+   *  reads the corresponding XML file:
+   *  @verbatim
+   <state>
+     <pressure units="Pa"> 101325.0 </pressure>
+   <\state>
+   @endverbatim
+   *
+   *   @param currXML reference to the current XML_Node object
+   *   @param type   String type. Currently known types are "toSI" and "actEnergy",
+   *                 and "" , for no conversion. The default value is "",
+   *                 which implies that no conversion is allowed.
+   */
+  doublereal getFloatCurrent(const Cantera::XML_Node& currXML, const std::string type="");
+
   //!  Get an optional floating-point value from a child element. 
   /*! 
    *  Returns a doublereal value for the child named 'name' of element 'parent'. If
@@ -647,6 +682,34 @@ namespace ctml {
   void getFloats(const Cantera::XML_Node& node, std::map<std::string, double>& v,
 		 const bool convert=true);
 
+  //!  Get an integer value from a child element.
+  /*!
+   *  Returns an integer value for the child named 'name' of element 'parent'.
+   *
+   *  Note, it's an error for the child element not to exist.
+   *
+   *  Example:
+   *
+   * Code snipet:
+   *       @verbatim
+   const XML_Node &State_XMLNode;
+   int number = 1;
+   if (state_XMLNode.hasChild("NumProcs")) {
+   number = getInteger(State_XMLNode, "numProcs");
+   }
+   @endverbatim
+   *
+   *  reads the corresponding XML file:
+   *  @verbatim
+   <state>
+     <numProcs> 10 <numProcs/>
+   <\state>
+   @endverbatim
+   *
+   *   @param parent reference to the XML_Node object of the parent XML element
+   *   @param name   Name of the XML child element
+   */
+  int getInteger(const Cantera::XML_Node& parent, std::string name);
 
   //!  Get a floating-point value from a child element with a defined units field
   /*! 
@@ -685,34 +748,37 @@ namespace ctml {
   doublereal getFloatDefaultUnits(const Cantera::XML_Node& parent, std::string name,
 				  std::string defaultUnits, std::string type="toSI");
 
-  //!  Get an integer value from a child element. 
+  //!  Get an optional model name from a named child node.
   /*! 
-   *  Returns an integer value for the child named 'name' of element 'parent'.
-   *
-   *  Note, it's an error for the child element not to exist.
+   *  Returns the model name attribute for the child named 'nodeName' of element 'parent'.
+   *  Note, it's optional for the child node to exist
    *
    *  Example:  
    *
    * Code snipet:
    *       @verbatim
-   const XML_Node &State_XMLNode;
-   int number = 1;
-   if (state_XMLNode.hasChild("NumProcs")) {
-   number = getInteger(State_XMLNode, "numProcs");
-   }
+   std::string modelName = "";
+   bool exists = getOptionalModel(transportNode, "compositionDependence",
+			          modelName);
    @endverbatim
    *
    *  reads the corresponding XML file:
    *  @verbatim
-   <state>
-     <numProcs> 10 <numProcs/>
-   <\state>
+    <transport model="Simple">
+      <compositionDependence model="Solvent_Only"/>
+    </transport>
    @endverbatim
    *
+   *   On return modelName is set to "Solvent_Only".
+   *
    *   @param parent reference to the XML_Node object of the parent XML element
-   *   @param name   Name of the XML child element
+   *   @param nodeName   Name of the XML child element
+   *   @param modelName  On return this contains the contents of the model attribute
+   *
+   *   @return True if the nodeName XML node exists. False otherwise
    */
-  int getInteger(const Cantera::XML_Node& parent, std::string name);
+  bool getOptionalModel(const Cantera::XML_Node& parent, const std::string nodeName,
+                        std::string &modelName);
     
   //!  This function reads a child node with the default name, "floatArray", with a value
   //!  consisting of a comma separated list of floats

@@ -630,6 +630,11 @@ namespace ctml {
 			 parent.name() + "\"): ",
 			 "no child XML element named \"" + name + "\" exists");
     const XML_Node& node = parent.child(name);
+    return getFloatCurrent(node, type);
+  }
+
+  doublereal getFloatCurrent(const Cantera::XML_Node& node,
+                             const std::string type) {
     doublereal x, x0, x1, fctr = 1.0;
     string units, vmin, vmax;
     x = atof(node().c_str());
@@ -758,6 +763,15 @@ namespace ctml {
     return val;
   }
 
+  bool getOptionalModel(const Cantera::XML_Node& parent, const std::string nodeName,
+                        std::string &modelName) {
+   if (parent.hasChild(nodeName)) {
+     const XML_Node& node = parent.child(nodeName);
+     modelName = node["model"];
+     return true;
+   }
+   return false;
+  }
 
   //  Get an integer value from a child element. 
   /* 

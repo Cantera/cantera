@@ -441,6 +441,7 @@ namespace Cantera {
     m_nchildren(0), 
     m_iscomment(false) 
   {
+    m_root = this;
     right.copy(this);
   }
 
@@ -1150,6 +1151,7 @@ namespace Cantera {
     XML_Node *sc, *dc;
     int ndc;
     node_dest->addValue(m_value);
+    node_dest->setName(m_name);
     if (m_name == "") return;
     map<string,string>::const_iterator b = m_attribs.begin();
     for (; b != m_attribs.end(); ++b) {
