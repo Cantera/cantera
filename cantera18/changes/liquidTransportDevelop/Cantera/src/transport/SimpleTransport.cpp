@@ -216,13 +216,15 @@ namespace Cantera {
       spName = m_thermo->speciesName(k);
       Cantera::LiquidTransportData &ltd = tr.LTData[k];
       LiquidTR_Model vm =  ltd.model_viscosity;
+      vector_fp &kentry = m_coeffVisc_Ns[k];
       if (vm != vm0) {
 	if (compositionDepType_ != 0) {
 	  throw CanteraError(" SimpleTransport::initLiquid",
 			     "different viscosity models for species " + spName + " and " + spName0 );
+	} else {
+	   kentry = m_coeffVisc_Ns[0];
 	}
       }
-      vector_fp &kentry = m_coeffVisc_Ns[k];
       kentry = ltd.viscCoeffs;
     }
 
@@ -242,13 +244,15 @@ namespace Cantera {
       spName = m_thermo->speciesName(k);
       Cantera::LiquidTransportData &ltd = tr.LTData[k];
       LiquidTR_Model cm =  ltd.model_thermalCond;
+      vector_fp &kentry = m_coeffLambda_Ns[k];
       if (cm != cm0) {
 	if (compositionDepType_ != 0) {
 	  throw CanteraError(" SimpleTransport::initLiquid",
 			     "different thermal conductivity models for species " + spName + " and " + spName0);
+	} else {
+	  kentry = m_coeffLambda_Ns[0];
 	}
       }
-      vector_fp &kentry = m_coeffLambda_Ns[k];
       kentry = ltd.thermalCondCoeffs;
     }
 
@@ -590,22 +594,23 @@ namespace Cantera {
     vector_fp sum(m_nDim, 0.0);
 
     if (doMigration_) {
+      double FRT =  ElectronCharge / (Boltzmann * m_temp);
+      for (n = 0; n < m_nDim; n++) {
+	for (k = 0; k < m_nsp; k++) {
+	  fluxes[n*ldf + k] = -conc * mw[k] * m_spwork[k] *
+	    ( m_Grad_X[n*m_nsp + k] + FRT * m_molefracs[k] * m_chargeSpecies[k] * m_Grad_V[n]);
+	  sum[n] += fluxes[n*ldf + k];
+	}
+      }
+    } else {
       for (n = 0; n < m_nDim; n++) {
 	for (k = 0; k < m_nsp; k++) {
 	  fluxes[n*ldf + k] = -conc * mw[k] * m_spwork[k] * m_Grad_X[n*m_nsp + k];
 	  sum[n] += fluxes[n*ldf + k];
 	}
       }
-    } else {
-      double FRT =  ElectronCharge / (Boltzmann * m_temp);
-      for (n = 0; n < m_nDim; n++) {
-	for (k = 0; k < m_nsp; k++) {
-	  fluxes[n*ldf + k] = -conc * mw[k] * m_spwork[k] *
-	    ( m_Grad_X[n*m_nsp + k] + FRT * m_molefracs[k] * m_chargeSpecies[k] * m_Grad_V[n*m_nsp + k]);
-	  sum[n] += fluxes[n*ldf + k];
-	}
-      }
     }
+
     // add correction flux to enforce sum to zero
     for (n = 0; n < m_nDim; n++) {
       for (k = 0; k < m_nsp; k++) {
@@ -706,6 +711,14 @@ namespace Cantera {
   void SimpleTransport::updateDiff_T() {
     int k;
     if (useHydroRadius_) {
+      double visc = viscosity();
+      double RT = GasConstant * m_temp;
+      for (k = 0; k < m_nsp; k++) {
+        Coeff_T_ &coeff = m_coeffHydroRadius_Ns[k];
+	double rad = coeff[0];
+	m_diffSpecies[k] = RT / (6.0 * Pi * visc * rad);
+      }
+    } else {
       if (tempDepType_ == 0) {
 	for (k = 0; k < m_nsp; k++) {
 	  Coeff_T_ &coeff = m_coeffDiff_Ns[k];
@@ -717,15 +730,8 @@ namespace Cantera {
 	  m_diffSpecies[k] = coeff[0] * pow(m_temp,coeff[1]) * exp(-coeff[2]/m_temp);
 	}
       }
-    } else {
-      double visc = viscosity();
-      double RT = GasConstant * m_temp;
-      for (k = 0; k < m_nsp; k++) {
-        Coeff_T_ &coeff = m_coeffHydroRadius_Ns[k];
-	double rad = coeff[0];
-	m_diffSpecies[k] = RT / (6.0 * Pi * visc * rad);
-      }
     }
+
     m_diff_temp_ok = true;
     m_diff_mix_ok = false;
   }
@@ -778,7 +784,7 @@ namespace Cantera {
     m_visc_mix_ok = false;
     m_visc_temp_ok  = false;
 
-    m_cond_temp_ok = true;
+    m_cond_temp_ok = false;
     m_cond_mix_ok = false;
 
     m_diff_mix_ok = false;
