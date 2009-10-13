@@ -443,6 +443,14 @@ namespace Cantera {
      */
     std::string name() const { return m_name; }
 
+    //! Sets the name of the XML node
+    /*!
+     * @param name The name of the XML node
+     */
+    void setName(std::string name) { 
+      m_name = name;
+    }
+
     //! Return the id attribute, if present
     /*!
      * Returns the id attribute if present. If not

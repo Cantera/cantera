@@ -232,6 +232,10 @@ namespace Cantera {
             m_u["m-1"]      = m_u["m^-1"];
             m_u["wavenumbers"] = m_u["cm^-1"];
 
+            // viscosity
+            m_u["poise"]    = 0.1;
+            m_u["centipoise"] = 0.001;
+
             m_act_u["eV"] = m_u["eV"]; // /m_u["molec"];
             m_act_u["K"] =  GasConstant;
             m_act_u["Kelvin"] =  GasConstant;
