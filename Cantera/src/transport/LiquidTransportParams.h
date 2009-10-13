@@ -60,7 +60,7 @@ namespace Cantera {
 	DenseMatrix  visc_Sij; 
 
 	//Hydrodynamic radius of transported molecule
-	vector_fp               hydroRadius;
+	vector_fp hydroRadius;
 
         //! Coefficients for the limiting conductivity of ions 
         //! in solution: A_k

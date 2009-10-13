@@ -48,8 +48,14 @@ namespace Cantera {
 
   ThermoPhase::~ThermoPhase() 
   {
+    for (int k = 0; k < m_kk; k++) {
+      if (!m_speciesData[k]) {
+        delete m_speciesData[k];
+      }
+    }
     delete m_spthermo;
   }
+
   /**
    * Copy Constructor for the ThermoPhase object. 
    *
@@ -84,6 +90,19 @@ namespace Cantera {
      * Check for self assignment.
      */
     if (this == &right) return *this;
+
+    /*
+     * We need to destruct first
+     */
+    for (int k = 0; k < m_kk; k++) {
+      if (!m_speciesData[k]) {
+        delete m_speciesData[k];
+      }
+    }
+    if (m_spthermo) {
+      delete m_spthermo;
+    }
+
     /*
      * Call the base class assignment operator
      */
@@ -93,13 +112,15 @@ namespace Cantera {
      * Pointer to the species thermodynamic property manager
      * We own this, so we need to do a deep copy
      */
-    if (m_spthermo) {
-      delete m_spthermo;
-    }
     m_spthermo = (right.m_spthermo)->duplMyselfAsSpeciesThermo();
 
-    // We don't do a deep copy here, because we don't own this
-    m_speciesData = right.m_speciesData;
+    /*
+     * Do a deep copy of species Data, because we own this
+     */
+    m_speciesData.resize(m_kk); 
+    for (int k = 0; k < m_kk; k++) {
+      m_speciesData[k] = new XML_Node(*(right.m_speciesData[k]));
+    }
       
     m_index = right.m_index;
     m_phi = right.m_phi;
@@ -921,7 +942,7 @@ namespace Cantera {
     if ((int) m_speciesData.size() < (k + 1)) {
       m_speciesData.resize(k+1, 0);
     }
-    m_speciesData[k] = data;
+    m_speciesData[k] = new XML_Node(*data);
   }
 
   //! Return a pointer to the XML tree containing the species

@@ -151,6 +151,39 @@ namespace Cantera {
     m_tmin  = m_thermo->minTemp();
     m_tmax  = m_thermo->maxTemp();
 
+    /*
+     * Read the transport block in the phase XML Node
+     * It's not an error if this block doesn't exist. Just use the defaults
+     */
+    XML_Node &phaseNode = m_thermo->xml();
+    if (phaseNode.hasChild("transport")) {
+      XML_Node& transportNode = phaseNode.child("transport");
+      string transportModel = transportNode.attrib("model");
+      if (transportModel == "Simple") {
+        /*
+         * <compositionDependence model="Solvent_Only"/>
+	 *      or
+	 * <compositionDependence model="Mixture_Averaged"/>
+	 */
+	std::string modelName = "";
+	if (getOptionalModel(transportNode, "compositionDependence",
+			      modelName)) {
+	  modelName = lowercase(modelName);
+          if (modelName == "solvent_only") {
+	    compositionDepType_ = 0;
+	  } else if (modelName == "mixture_averaged") {
+	    compositionDepType_ = 1;
+	  } else {
+	    throw CanteraError("SimpleTransport::initLiquid", "Unknown compositionDependence Model: " + modelName);
+	  }
+	}
+
+
+
+
+      }
+    }
+
     // make a local copy of the molecular weights
     m_mw.resize(m_nsp);
     copy(m_thermo->molecularWeights().begin(), 
@@ -165,24 +198,29 @@ namespace Cantera {
 
     Cantera::LiquidTransportData &ltd0 = tr.LTData[0];
     LiquidTR_Model vm0 =  ltd0.model_viscosity;
+    std::string spName0 = m_thermo->speciesName(0);
+    std::string spName = m_thermo->speciesName(0);
     if (vm0 == LTR_MODEL_CONSTANT) {
       tempDepType_ = 0;
     } else if (vm0 == LTR_MODEL_ARRHENIUS) {
       tempDepType_ = 1;
     } else if (vm0 == LTR_MODEL_NOTSET) {
       throw CanteraError("SimpleTransport::initLiquid",
-			 "Viscosity Model is not set in the input file");
+			 "Viscosity Model is not set for species " + spName0 + " in the input file");
     } else {
       throw CanteraError("SimpleTransport::initLiquid",
-			 "Viscosity Model is not handled by this object");
+			 "Viscosity Model for species " + spName0 + " is not handled by this object");
     }
 
     for (k = 0; k < m_nsp; k++) {
+      spName = m_thermo->speciesName(k);
       Cantera::LiquidTransportData &ltd = tr.LTData[k];
       LiquidTR_Model vm =  ltd.model_viscosity;
       if (vm != vm0) {
-	throw CanteraError(" SimpleTransport::initLiquid",
-			   "different viscosity models");
+	if (compositionDepType_ != 0) {
+	  throw CanteraError(" SimpleTransport::initLiquid",
+			     "different viscosity models for species " + spName + " and " + spName0 );
+	}
       }
       vector_fp &kentry = m_coeffVisc_Ns[k];
       kentry = ltd.viscCoeffs;
@@ -197,15 +235,18 @@ namespace Cantera {
     LiquidTR_Model cm0 =  ltd0.model_thermalCond;
     if (cm0 != vm0) {
       throw CanteraError("SimpleTransport::initLiquid",
-			 "Conductivity model is not the same as the viscosity model");
+			 "Conductivity model is not the same as the viscosity model for species " + spName0);
     }
 
     for (k = 0; k < m_nsp; k++) {
+      spName = m_thermo->speciesName(k);
       Cantera::LiquidTransportData &ltd = tr.LTData[k];
       LiquidTR_Model cm =  ltd.model_thermalCond;
       if (cm != cm0) {
-	throw CanteraError(" SimpleTransport::initLiquid",
-			   "different thermal conductivity models");
+	if (compositionDepType_ != 0) {
+	  throw CanteraError(" SimpleTransport::initLiquid",
+			     "different thermal conductivity models for species " + spName + " and " + spName0);
+	}
       }
       vector_fp &kentry = m_coeffLambda_Ns[k];
       kentry = ltd.thermalCondCoeffs;
@@ -221,42 +262,48 @@ namespace Cantera {
     m_coeffDiff_Ns.resize(m_nsp);
     LiquidTR_Model dm0 =  ltd0.model_speciesDiffusivity;
     if (dm0 != vm0) {
-      if (dm0 ==  LTR_MODEL_NOTSET) {
+      if (dm0 == LTR_MODEL_NOTSET) {
 	LiquidTR_Model rm0 =  ltd0.model_hydroradius;
 	if (rm0 != vm0) { 
 	  throw CanteraError("SimpleTransport::initLiquid",
-			     "hydroradius model is not the same as the viscosity model");
+			     "hydroradius model is not the same as the viscosity model for species " + spName0);
 	} else {
 	  useHydroRadius_ = true;
 	}
       }
-
-      for (k = 0; k < m_nsp; k++) {
-	Cantera::LiquidTransportData &ltd = tr.LTData[k];
-	LiquidTR_Model dm = ltd.model_speciesDiffusivity;
-	if (dm ==  LTR_MODEL_NOTSET) {
-	  LiquidTR_Model rm =  ltd.model_hydroradius;
-	  if (rm != vm0) { 
-	    throw CanteraError("SimpleTransport::initLiquid",
-			       "hydroradius model is not the same as the viscosity model");
-	  }
-	  if (rm !=  LTR_MODEL_CONSTANT) {
-	      throw CanteraError("SimpleTransport::initLiquid",
-				 "hydroradius model is not constant");
-	  }
-	  vector_fp &kentry = m_coeffHydroRadius_Ns[k];
-	  kentry.push_back(ltd.hydroradius);
-	} else {
-	  if (dm != dm0) {
-	    throw CanteraError(" SimpleTransport::initLiquid",
-			       "different thermal conductivity models");
-	  }
-	  vector_fp &kentry = m_coeffDiff_Ns[k];
-	  kentry = ltd.speciesDiffusivityCoeffs;
-	}
-      }
-
     }
+
+    for (k = 0; k < m_nsp; k++) {
+      spName = m_thermo->speciesName(k);
+      Cantera::LiquidTransportData &ltd = tr.LTData[k];
+      LiquidTR_Model dm = ltd.model_speciesDiffusivity;
+      if (dm == LTR_MODEL_NOTSET) {
+	LiquidTR_Model rm =  ltd.model_hydroradius;
+	if (rm == LTR_MODEL_NOTSET) {
+	  throw CanteraError("SimpleTransport::initLiquid",
+			     "Neither diffusivity nor hydroradius is set for species " + spName);
+	}
+	if (rm != vm0) { 
+	  throw CanteraError("SimpleTransport::initLiquid",
+			     "hydroradius model is not the same as the viscosity model for species " + spName);
+	}
+	if (rm !=  LTR_MODEL_CONSTANT) {
+	  throw CanteraError("SimpleTransport::initLiquid",
+			     "hydroradius model is not constant for species " + spName0);
+	}
+	vector_fp &kentry = m_coeffHydroRadius_Ns[k];
+	kentry.push_back(ltd.hydroradius);
+      } else {
+	if (dm != dm0) {
+	  throw CanteraError(" SimpleTransport::initLiquid",
+			     "different diffusivity models for species " + spName + " and " + spName0 );
+	}
+	vector_fp &kentry = m_coeffDiff_Ns[k];
+	kentry = ltd.speciesDiffusivityCoeffs;
+      }
+    }
+
+    
    
 
     m_molefracs.resize(m_nsp);

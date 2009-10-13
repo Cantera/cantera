@@ -91,7 +91,7 @@ endif
 clean:
 	@PYTHON_CMD@ setup.py clean
 	rm -f _build; rm -f _winbuild
-	(cd build; rm -fR *)
+	(if test -d build ; then cd build; rm -fR * ; fi )
 	cd src; rm -f *.o
 
 depends:

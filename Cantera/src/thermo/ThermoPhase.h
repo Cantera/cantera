@@ -2029,9 +2029,11 @@ namespace Cantera {
 
     //! Vector of pointers to the species databases.
     /*!
-     *  This is used to access data needed to
+     * This is used to access data needed to
      * construct the transport manager and other properties
      * later in the initialization process.
+     * We create a copy of the XML_Node data read in here. Therefore, we own this
+     * data.
      */
     std::vector<const XML_Node *> m_speciesData;
 
