@@ -426,7 +426,7 @@ namespace Cantera {
      * be able to resurrect the information later by calling xml().
      */
     XML_Node &phaseNode_XML = th->xml();
-    phaseNode_XML.clear();
+    //phaseNode_XML.clear();
     phase.copy(&phaseNode_XML);
 
     // set the id attribute of the phase to the 'id' attribute 

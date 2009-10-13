@@ -531,113 +531,30 @@ namespace Cantera {
 
     trParam.tmin = thermo->minTemp();
     trParam.tmax = thermo->maxTemp();
-    trParam.mw.resize(nsp);
     trParam.log_level = log_level;
 
+    // Get the molecular weights and load them into trParam
+    trParam.mw.resize(nsp);
     copy(trParam.thermo->molecularWeights().begin(), 
 	 trParam.thermo->molecularWeights().end(), trParam.mw.begin());
 
-    //trParam.epsilon.resize(nsp, nsp, 0.0);
-    //trParam.delta.resize(nsp, nsp, 0.0);
-    //trParam.reducedMass.resize(nsp, nsp, 0.0);
-    //trParam.dipole.resize(nsp, nsp, 0.0);
-    //trParam.diam.resize(nsp, nsp, 0.0);
-    //trParam.polar.resize(nsp, false);
-    //trParam.poly.resize(nsp);
-    //trParam.sigma.resize(nsp);
-    //trParam.eps.resize(nsp);
+    // Resize all other vectors in trParam
+    trParam.visc_A.resize(nsp, 0.0);
+    trParam.visc_n.resize(nsp, 0.0);
+    trParam.visc_Tact.resize(nsp, 0.0); 
+    trParam.thermCond_A.resize(nsp, 0.0);
+    trParam.thermCond_n.resize(nsp, 0.0);
+    trParam.thermCond_Tact.resize(nsp, 0.0);
+    trParam.visc_Eij.resize(nsp, nsp, 0.0);
+    trParam.visc_Sij.resize(nsp, nsp, 0.0);
+    trParam.hydroRadius.resize(nsp, 0.0);
+    trParam.A_k_cond.resize(nsp, 0.0);
+    trParam.B_k_cond.resize(nsp, 0.0);
+    trParam.LTData.resize(nsp);
 
     XML_Node root, log;
     getLiquidTransportData(transport_database, log,  
-			   trParam.thermo->speciesNames(), trParam);
-
-    //int i, j;
-    //for (i = 0; i < nsp; i++) trParam.poly[i].resize(nsp);
-
-    //doublereal ts1, ts2, tstar_min = 1.e8, tstar_max = 0.0;
-    //doublereal f_eps, f_sigma;
-
-    //DenseMatrix& diam = trParam.diam;
-    //DenseMatrix& epsilon = trParam.epsilon;
-
-    //for (i = 0; i < nsp; i++) 
-    //  {
-    //	for (j = i; j < nsp; j++) 
-    //  {
-    //    // the reduced mass
-    //    trParam.reducedMass(i,j) = 
-    //      trParam.mw[i] * trParam.mw[j] / (Avogadro * (trParam.mw[i] + trParam.mw[j]));
-    //
-    //    // hard-sphere diameter for (i,j) collisions
-    //    diam(i,j) = 0.5*(trParam.sigma[i] + trParam.sigma[j]);
-    //
-    //    // the effective well depth for (i,j) collisions
-    //    epsilon(i,j) = sqrt(trParam.eps[i]*trParam.eps[j]);
-    //
-    //    //  The polynomial fits of collision integrals vs. T* 
-    //    //  will be done for the T* from tstar_min to tstar_max
-    //    ts1 = Boltzmann * trParam.tmin/epsilon(i,j);
-    //    ts2 = Boltzmann * trParam.tmax/epsilon(i,j);
-    //    if (ts1 < tstar_min) tstar_min = ts1;
-    //    if (ts2 > tstar_max) tstar_max = ts2;
-    //
-    //    // the effective dipole moment for (i,j) collisions
-    //    trParam.dipole(i,j) = sqrt(trParam.dipole(i,i)*trParam.dipole(j,j));
-    //
-    //    // reduced dipole moment delta* (nondimensional)
-    //    doublereal d = diam(i,j);
-    //    trParam.delta(i,j) =  0.5 * trParam.dipole(i,j)*trParam.dipole(i,j) 
-    //      / (epsilon(i,j) * d * d * d);
-    //
-    //    makePolarCorrections(i, j, trParam, f_eps, f_sigma);
-    //    trParam.diam(i,j) *= f_sigma;
-    //    epsilon(i,j) *= f_eps;
-    //
-    //    // properties are symmetric 
-    //    trParam.reducedMass(j,i) = trParam.reducedMass(i,j);
-    //    diam(j,i) = diam(i,j);
-    //    epsilon(j,i) = epsilon(i,j);
-    //    trParam.dipole(j,i)  = trParam.dipole(i,j);
-    //    trParam.delta(j,i)   = trParam.delta(i,j);
-    //	  }
-    // }
-
-    // Chemkin fits the entire T* range in the Monchick and Mason tables,
-    // so modify tstar_min and tstar_max if in Chemkin compatibility mode
-
-    //if (mode == CK_Mode) {  
-    // tstar_min = 0.101; 
-    // tstar_max = 99.9;
-    //}                       
-
-
-    // initialize the collision integral calculator for the desired
-    // T* range
-    //#ifdef DEBUG_MODE
-    //    if (m_verbose) {
-    //      trParam.xml->XML_open(flog, "collision_integrals");
-    //    }
-    //#endif
-    //    m_integrals = new MMCollisionInt;
-    //    m_integrals->init(trParam.xml, tstar_min, tstar_max, log_level);
-    //    fitCollisionIntegrals(flog, trParam);
-    //#ifdef DEBUG_MODE
-    //    if (m_verbose) {
-    //      trParam.xml->XML_close(flog, "collision_integrals");
-    //    }
-    //#endif
-    //    // make polynomial fits
-    //#ifdef DEBUG_MODE
-    //    if (m_verbose) {
-    //      trParam.xml->XML_open(flog, "property fits");
-    //    }
-    //#endif
-    //    fitProperties(trParam, flog);
-    //#ifdef DEBUG_MODE
-    //    if (m_verbose) {
-    //      trParam.xml->XML_close(flog, "property fits");
-    //    }
-    //#endif
+			   trParam.thermo->speciesNames(), trParam);   
   }
 
 
@@ -1004,7 +921,7 @@ namespace Cantera {
 	    XML_Node& vnode = trNode.child("viscosity");
 	    std::string model = lowercase(vnode["model"]);
 	    if (model == "" || model == "constant") {
-	      A_visc = vnode.fp_value();
+	      A_visc = ctml::getFloatCurrent(vnode, "toSI");
 	      if (A_visc > 0.0) (data.viscCoeffs).push_back(A_visc); 
 	      else throw TransportDBError(linenum,
 					  "negative or zero viscosity");
@@ -1030,35 +947,35 @@ namespace Cantera {
 	  }
 
 	  /*
-	   *       thermal_conductivity
+	   *       thermalConductivity
 	   *
 	   *  format:
-	   *    <thermal_conductivity model="Constant"> 3.0  </thermal_conductivity>
-	   *    <thermal_conductivity> 3.0 </thermal_conductivity>
-	   *    <thermal_conductivity model="Arrhenius">
+	   *    <thermalConductivity model="Constant"> 3.0  </thermalConductivity>
+	   *    <thermalConductivity> 3.0 </thermalConductivity>
+	   *    <thermalConductivity model="Arrhenius">
 	   *       <A units="Pa S">      1.0 </A>
 	   *       <b>                   2.0 </b>
 	   *       <E units="kcal/gmol"> 3.0 </E>
-	   *    </thermal_conductivity>
+	   *    </thermalConductivity>
 	   *
-	   *    <thermal_conductivity model="Coeff">
+	   *    <thermalConductivity model="Coeff">
 	   *       <float_array>  0.0. 1.0, 2.0, 3.0, 4.0 </float_array> 
-	   *    </thermal_conductivity>
+	   *    </thermalConductivity>
 	   *
 	   */
-	  if (trNode.hasChild("thermal_conductivity")) {
-	    XML_Node& tnode = trNode.child("thermal_conductivity");
+	  if (trNode.hasChild("thermalConductivity")) {
+	    XML_Node& tnode = trNode.child("thermalConductivity");
 	    std::string model = lowercase(tnode["model"]);
 	    if (model == "" || model == "constant") {
-	      A_thcond = tnode.fp_value();
+	      A_thcond = ctml::getFloatCurrent(tnode, "toSI");
 	      if (A_thcond > 0.0) (data.thermalCondCoeffs).push_back(A_thcond); 
 	      else throw TransportDBError(linenum,
-					  "negative or zero thermal_conductivity");
+					  "negative or zero thermalConductivity");
 	      data.model_thermalCond = LTR_MODEL_CONSTANT;
 	    } else if (model == "arrhenius") {
 	      getArrhenius(tnode, A_thcond, n_thcond, Tact_thcond);
 	      if (A_thcond <= 0.0) {
-		throw TransportDBError(linenum, "negative or zero thermal_conductivity");
+		throw TransportDBError(linenum, "negative or zero thermalConductivity");
 	      }
 	      (data.thermalCondCoeffs).push_back(A_thcond);
 	      (data.thermalCondCoeffs).push_back(n_thcond);
@@ -1071,7 +988,7 @@ namespace Cantera {
 	      data.model_thermalCond = LTR_MODEL_COEFF;
 	    } else {
 	      throw CanteraError(" TransportFactory::getLiquidTransportData", 
-				 "Unknown model for thermal_conductivity:" + tnode["model"]);
+				 "Unknown model for thermalConductivity:" + tnode["model"]);
 	    }
 	  }
 
@@ -1097,7 +1014,7 @@ namespace Cantera {
 	    XML_Node& dnode = trNode.child("speciesDiffusivity");
 	    std::string model = lowercase(dnode["model"]);
 	    if (model == "" || model == "constant") {
-	      A_spdiff = dnode.fp_value();
+	      A_spdiff = ctml::getFloatCurrent(dnode, "toSI");
 	      if (A_spdiff > 0.0) (data.speciesDiffusivityCoeffs).push_back(A_spdiff); 
 	      else throw TransportDBError(linenum,
 					  "negative or zero speciesDiffusivity");
@@ -1172,7 +1089,7 @@ namespace Cantera {
     // Need to identify a method to obtain interaction matrices.
     // This will fill LiquidTransportParams members visc_Eij, visc_Sij
     trParam.visc_Eij.resize(trParam.nsp_,trParam.nsp_);
-    cout << "No support for species viscosity interactions in TransportFactory.cpp" << endl;
+    //cout << "No support for species viscosity interactions in TransportFactory.cpp" << endl;
   }
 
 
