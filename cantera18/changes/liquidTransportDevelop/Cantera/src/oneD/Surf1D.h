@@ -273,7 +273,7 @@ namespace Cantera {
             }
         }
 
-        virtual void save(XML_Node& o, doublereal* soln) {
+        virtual void save(XML_Node& o, const doublereal * const soln) {
             doublereal* s = soln + loc();
             XML_Node& surf = o.addChild("surface");
             for (int k = 0; k < m_nsp; k++) {

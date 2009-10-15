@@ -1154,10 +1154,10 @@ namespace Cantera {
 
 
 
-    void StFlow::save(XML_Node& o, doublereal* sol) {
+    void StFlow::save(XML_Node& o, const doublereal * const sol) {
         int k;
 
-        ArrayViewer soln(m_nv, m_points, sol + loc());
+        ArrayViewer soln(m_nv, m_points, const_cast<doublereal *>(sol) + loc());
 
         XML_Node& flow = (XML_Node&)o.addChild("domain");
         flow.addAttribute("type",flowType());
