@@ -162,7 +162,7 @@ namespace Cantera {
         virtual void init();
         virtual void eval(int jg, doublereal* xg, doublereal* rg,
             integer* diagg, doublereal rdt);
-        virtual void save(XML_Node& o, doublereal* soln);
+        virtual void save(XML_Node& o, const doublereal * const soln);
         virtual void restore(const XML_Node& dom, doublereal* soln);
 
     protected:
@@ -196,7 +196,7 @@ namespace Cantera {
         virtual void eval(int jg, doublereal* xg, doublereal* rg,
             integer* diagg, doublereal rdt);
 
-        virtual void save(XML_Node& o, doublereal* soln);
+        virtual void save(XML_Node& o, const doublereal * const soln);
         virtual void restore(const XML_Node& dom, doublereal* soln);
         virtual void _finalize(const doublereal* x) {}
         virtual void _getInitialSoln(doublereal* x) {
@@ -227,7 +227,7 @@ namespace Cantera {
         virtual void eval(int jg, doublereal* xg, doublereal* rg,
             integer* diagg, doublereal rdt);
 
-        virtual void save(XML_Node& o, doublereal* soln);
+        virtual void save(XML_Node& o, const doublereal * const soln);
         virtual void restore(const XML_Node& dom, doublereal* soln);
         virtual void _finalize(const doublereal* x) {
             ; //m_temp = x[0];
@@ -259,7 +259,7 @@ namespace Cantera {
         virtual void eval(int jg, doublereal* xg, doublereal* rg,
             integer* diagg, doublereal rdt);
 
-        virtual void save(XML_Node& o, doublereal* soln);
+        virtual void save(XML_Node& o, const doublereal * const soln);
         virtual void restore(const XML_Node& dom, doublereal* soln);
         virtual void _finalize(const doublereal* x) {
             ; //m_temp = x[0];
@@ -306,7 +306,7 @@ namespace Cantera {
         virtual void init();
         virtual void eval(int jg, doublereal* xg, doublereal* rg,
             integer* diagg, doublereal rdt);
-        virtual void save(XML_Node& o, doublereal* soln);
+        virtual void save(XML_Node& o, const doublereal * const soln);
         virtual void restore(const XML_Node& dom, doublereal* soln);
 
     protected:
@@ -340,7 +340,7 @@ namespace Cantera {
         virtual void eval(int jg, doublereal* xg, doublereal* rg,
             integer* diagg, doublereal rdt);
 
-        virtual void save(XML_Node& o, doublereal* soln);
+        virtual void save(XML_Node& o, const doublereal * const soln);
         virtual void restore(const XML_Node& dom, doublereal* soln);
 
         virtual void _getInitialSoln(doublereal* x) {
@@ -400,7 +400,7 @@ namespace Cantera {
         virtual void eval(int jg, doublereal* xg, doublereal* rg,
             integer* diagg, doublereal rdt);
 
-        virtual void save(XML_Node& o, doublereal* soln);
+        virtual void save(XML_Node& o, const doublereal * const soln);
         virtual void restore(const XML_Node& dom, doublereal* soln);
 
         virtual void _getInitialSoln(doublereal* x) {

@@ -544,7 +544,7 @@ namespace Cantera {
 
 
 
-    void Solid1D::save(XML_Node& o, doublereal* sol) {
+    void Solid1D::save(XML_Node& o, const doublereal * const sol) {
         int k;
 
         ArrayViewer soln(m_nv, m_points, sol + loc());
