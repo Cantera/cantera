@@ -99,7 +99,6 @@ namespace Cantera {
      * @name  Utilities  
      * @{
      */
-    virtual int pdssType() const { return -1; }
 
     /**
      * @} 
