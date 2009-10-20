@@ -363,8 +363,9 @@ namespace ctml {
    *                        units converter is used.
    *   @param  nodeName     XML Name of the XML node to read. 
    *                        The default value for the node name is floatArray
+   *   @return              Returns the number of floats read into v.
    */
-  void getFloatArray(const Cantera::XML_Node& node, Cantera::vector_fp& v, 
+  int getFloatArray(const Cantera::XML_Node& node, Cantera::vector_fp& v, 
 		     const bool convert=true, const std::string typeString="",
 		     const std::string nodeName = "floatArray");
 

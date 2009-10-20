@@ -133,12 +133,20 @@ namespace Cantera {
       m_constMolarVolume = getFloat(*ss, "molarVolume", "toSI");
     } else if (model == "temperature_polynomial") {
       volumeModel_ = cSSVOLUME_TPOLY;
-      getFloatArray(*ss, TCoeff_, true, "", "floatArray");
+      int num = getFloatArray(*ss, TCoeff_, true, "", "volumeTemperaturePolynomial");
+      if (num != 4) {
+	throw CanteraError("PDSS_SSVol::constructPDSSXML",
+			   " Didn't get 3 density polynomial numbers for species " + speciesNode.name());
+      }
     } else if (model == "density_temperature_polynomial") {
       volumeModel_ = cSSVOLUME_DENSITY_TPOLY;
-      getFloatArray(*ss, TCoeff_, true, "", "floatArray");
+      int num = getFloatArray(*ss, TCoeff_, true, "", "densityTemperaturePolynomial");
+      if (num != 4) {
+	throw CanteraError("PDSS_SSVol::constructPDSSXML",
+			   " Didn't get 3 density polynomial numbers for species " + speciesNode.name());
+      }
     } else {
-      throw CanteraError("PDSS_SSVol::initThermoXML",
+      throw CanteraError("PDSS_SSVol::constructPDSSXML",
 			 "standardState model for species isn't constant_incompressible: " + speciesNode.name());
     }
     std::string id = "";
@@ -327,15 +335,15 @@ namespace Cantera {
     if (volumeModel_ == cSSVOLUME_CONSTANT ) {
       m_Vss_ptr[m_spindex] = m_constMolarVolume;
     } else if (volumeModel_ == cSSVOLUME_TPOLY) {
-      m_Vss_ptr[m_spindex] = TCoeff_[0] + m_temp * (TCoeff_[1] + m_temp * TCoeff_[2]);
-      dVdT_   = TCoeff_[1] + 2.0 * m_temp * TCoeff_[2];
-      d2VdT2_ =  2.0 * TCoeff_[2];
+      m_Vss_ptr[m_spindex] = TCoeff_[0] + m_temp * (TCoeff_[1] + m_temp * (TCoeff_[2] + m_temp * TCoeff_[3]));
+      dVdT_   = TCoeff_[1] + 2.0 * m_temp * TCoeff_[2] + 3.0 * m_temp * m_temp * TCoeff_[3];
+      d2VdT2_ =  2.0 * TCoeff_[2] + 6.0 * m_temp * TCoeff_[3];
     } else  if (volumeModel_ == cSSVOLUME_DENSITY_TPOLY) {
-      doublereal dens = (TCoeff_[0] + m_temp * (TCoeff_[1] + m_temp * TCoeff_[2]));
+      doublereal dens =  TCoeff_[0] + m_temp * (TCoeff_[1] + m_temp * (TCoeff_[2] + m_temp * TCoeff_[3]));
       m_Vss_ptr[m_spindex] = m_mw / dens;
       doublereal dens2 = dens * dens;
-      doublereal ddensdT =  TCoeff_[1] + 2.0 * m_temp * TCoeff_[2];
-      doublereal d2densdT2 =  2.0 * TCoeff_[2];
+      doublereal ddensdT =  TCoeff_[1] + 2.0 * m_temp * TCoeff_[2] + 3.0 * m_temp * m_temp * TCoeff_[3];
+      doublereal d2densdT2 = 2.0 * TCoeff_[2] + 6.0 * m_temp * TCoeff_[3];
       dVdT_   = - m_mw / (dens2) * (ddensdT);
       d2VdT2_ = 2.0 * m_mw / (dens2 * dens) * ddensdT * ddensdT - m_mw / dens2 * d2densdT2; 
     } else {

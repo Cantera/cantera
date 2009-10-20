@@ -114,6 +114,10 @@ namespace Cantera {
 	    } else if (ssModel == "constant_incompressible" ||
 		       ssModel == "constantVolume") {
 	      has_nasa_constVol++;
+	    } else if (ssModel == "temperature_polynomial" ||
+		       ssModel == "density_temperature_polynomial"  ||
+		       ssModel == "constant") {
+	      has_other++;
 	    } else {
 	      throw UnknownVPSSMgrModel("getVPSSMgrTypes:",
 					spNode->attrib("name"));
@@ -126,6 +130,10 @@ namespace Cantera {
 	    } else if (ssModel == "constant_incompressible" ||
 		       ssModel == "constantVolume") {
 	      has_shomate_constVol++;
+	    } else if (ssModel == "temperature_polynomial" ||
+		       ssModel == "density_temperature_polynomial"  ||
+		       ssModel == "constant") {
+	      has_other++;
 	    } else {
 	      throw UnknownVPSSMgrModel("getVPSSMgrTypes:",
 					spNode->attrib("name"));
@@ -138,6 +146,10 @@ namespace Cantera {
 	    } else if (ssModel == "constant_incompressible" ||
 		       ssModel == "constantVolume") {
 	      has_simple_constVol++;
+	    } else if (ssModel == "temperature_polynomial" ||
+		       ssModel == "density_temperature_polynomial"  ||
+		       ssModel == "constant") {
+	      has_other++;
 	    } else {
 	      throw UnknownVPSSMgrModel("getVPSSMgrTypes:",
 					spNode->attrib("name"));

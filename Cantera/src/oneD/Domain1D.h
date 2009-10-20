@@ -58,7 +58,7 @@ namespace Cantera {
       m_jstart(0),
       m_left(0),
       m_right(0),
-      m_id("-"), m_desc("-"),
+      m_id(""), m_desc(""),
       m_refiner(0), m_bw(-1) {
       resize(nv, points);
     }
@@ -412,9 +412,11 @@ namespace Cantera {
      */
     void setID(const std::string& s) {m_id = s;}
 
-    std::string id() {
-      if (m_id != "") return m_id;
-      else return std::string("domain ") + int2str(m_index);
+    std::string id() const {
+      if (m_id != "") 
+        return m_id;
+      else 
+        return std::string("domain ") + int2str(m_index);
     }
 
     /**
@@ -519,7 +521,10 @@ namespace Cantera {
     int m_jstart;
 
     Domain1D *m_left, *m_right;
-    std::string m_id, m_desc;
+ 
+    //! Identity tag for the domain
+    std::string m_id;
+    std::string m_desc;
     Refiner* m_refiner;
     vector_int m_td;
     std::vector<std::string> m_name;
