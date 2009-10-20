@@ -1,9 +1,9 @@
 /**
- *  @file PDSS_IonsFromNeutral.h
- *   Declarations for the class PDSS_IonsFromNeutral (
- *    which handles calculations for a single ion in a fluid, whose properties
- *    are calculated from another neutral molecule.
- *    (see \ref pdssthermo and class \link Cantera::PDSS_IonsFromNeutral PDSS_IonsFromNeutral\endlink).
+ *  @file PDSS_SSVol.h
+ *    Declarations for the class PDSS_SSVol (pressure dependent standard state)
+ *    which handles calculations for a single species with an expression for the molar volume in a phase
+ *    given by an enumerated data type
+ *    (see class \ref pdssthermo and \link Cantera::PDSS_SSVol PDSS_SSVol\endlink).
  */
 /*
  * Copywrite (2006) Sandia Corporation. Under the terms of
@@ -11,32 +11,30 @@
  * U.S. Government retains certain rights in this software.
  */
 /*
- *  $Id: PDSS_IdealGas.h,v 1.4 2008/10/13 21:01:48 hkmoffa Exp $
+ *  $Id: PDSS_SSVol.h,v 1.6 2008/10/13 21:01:48 hkmoffa Exp $
  */
 
-#ifndef CT_PDSS_IONSFROMNEUTRAL_H
-#define CT_PDSS_IONSFROMNEUTRAL_H
+#ifndef CT_PDSS_SSVOL_H
+#define CT_PDSS_SSVOL_H
 
 #include "PDSS.h"
-
 
 namespace Cantera {
   class XML_Node;
   class VPStandardStateTP;
-  class ThermoPhase;
 
-  
-  //! Derived class for pressure dependent standard states of an ideal gas species
+  //! Class for pressure dependent standard states that use a constant volume model
   /*!
-   * This class is for a single Ideal Gas species.
+   * Class for pressure dependent standard states that use a constant volume model.
+   *
    *
    * @ingroup pdssthermo
    */
-  class PDSS_IonsFromNeutral : public PDSS {
+  class PDSS_SSVol : public PDSS {
 
   public:
-
-   /**
+  
+    /**
      * @name  Constructors
      * @{
      */
@@ -46,19 +44,8 @@ namespace Cantera {
      *  @param tp        Pointer to the ThermoPhase object pertaining to the phase
      *  @param spindex   Species index of the species in the phase
      */
-    PDSS_IonsFromNeutral(VPStandardStateTP *tp, int spindex);
+    PDSS_SSVol(VPStandardStateTP *tp, int spindex);
 
-    //! Copy Constructur
-    /*!
-     * @param b Object to be copied
-     */
-    PDSS_IonsFromNeutral(const PDSS_IonsFromNeutral& b);
-
-    //! Assignment operator
-    /*!
-     * @param b Object to be copeid
-     */
-    PDSS_IonsFromNeutral& operator=(const PDSS_IonsFromNeutral& b);
 
     //! Constructor that initializes the object by examining the input file
     //! of the ThermoPhase object
@@ -72,10 +59,9 @@ namespace Cantera {
      *                   is the empty string, in which case the first phase in the
      *                   file is used.
      */
-    PDSS_IonsFromNeutral(VPStandardStateTP *tp, int spindex,
-			 std::string inputFile, std::string id = "");
+    PDSS_SSVol(VPStandardStateTP *tp, int spindex,
+		 std::string inputFile, std::string id = "");
 
-   
     //! Constructor that initializes the object by examining the input file
     //! of the ThermoPhase object
     /*!
@@ -88,12 +74,23 @@ namespace Cantera {
      *  @param spInstalled Boolean indicating whether the species is installed yet
      *                     or not.
      */
-    PDSS_IonsFromNeutral(VPStandardStateTP *vptp_ptr, int spindex, const XML_Node& speciesNode, 
-			 const XML_Node& phaseRef, bool spInstalled);
+    PDSS_SSVol(VPStandardStateTP *vptp_ptr, int spindex, const XML_Node& speciesNode, 
+		  const XML_Node& phaseRef, bool spInstalled);
 
+    //! Copy Constructur
+    /*!
+     * @param b Object to be copied
+     */
+    PDSS_SSVol(const PDSS_SSVol &b);
+
+    //! Assignment operator
+    /*!
+     * @param b Object to be copeid
+     */
+    PDSS_SSVol& operator=(const PDSS_SSVol&b);
 
     //! Destructor
-    virtual ~PDSS_IonsFromNeutral();
+    virtual ~PDSS_SSVol();
 
     //! Duplicator
     virtual PDSS *duplMyselfAsPDSS() const;
@@ -103,14 +100,14 @@ namespace Cantera {
      * @name  Utilities  
      * @{
      */
-  
+
     /**
      * @} 
      * @name  Molar Thermodynamic Properties of the Species Standard State
      *        in the Solution
      * @{
      */
-
+  
     //! Return the molar enthalpy in units of J kmol-1
     /*!
      * Returns the species standard state enthalpy in J kmol-1 at the
@@ -211,7 +208,7 @@ namespace Cantera {
      */
     virtual doublereal molarVolume() const;
 
-    //! Return the standard state density at standard state
+   //! Return the standard state density at standard state
     /*!
      * Returns the species standard state density at the
      * current temperature and pressure
@@ -274,19 +271,19 @@ namespace Cantera {
      */
     virtual doublereal molarVolume_ref() const;
 
-    /*
-     * Get the difference in the standard state thermodynamic properties
-     * between the reference pressure, po, and the current pressure.
+  private:
+  
+    //! Does the internal calculation of the volume
+    /*!
+     *
      */
+    void calcMolarVolume() const;
 
     /**
      * @}
      *  @name Mechanical Equation of State Properties 
      * @{
      */
-
-    //! Returns the pressure (Pa)
-    virtual doublereal pressure() const;
 
     //! Sets the pressure in the object
     /*!
@@ -304,9 +301,6 @@ namespace Cantera {
      */
     virtual void setTemperature(doublereal temp);
 
-    //! Return the current storred temperature
-    doublereal temperature() const;
-
     //! Set the internal temperature and pressure
     /*!
      * @param  temp     Temperature (Kelvin)
@@ -314,13 +308,14 @@ namespace Cantera {
      */
     virtual void setState_TP(doublereal temp, doublereal pres);
 
+
     //! Set the internal temperature and density
     /*!
      * @param  temp     Temperature (Kelvin)
-     * @param  rho      Density (Pascals)
+     * @param  rho      Density (kg m-3)
      */
     virtual void setState_TR(doublereal temp, doublereal rho);
-    
+
     /**
      * @}
      *  @name  Miscellaneous properties of the standard state
@@ -335,10 +330,10 @@ namespace Cantera {
         
     /// critical density
     virtual doublereal critDensity() const;
-        
+  
     /// saturation pressure
     /*!
-     *  @param t  Temperature (Kelvin)
+     *  @param t  Temperature (kelvin)
      */
     virtual doublereal satPressure(doublereal t);
     
@@ -347,6 +342,19 @@ namespace Cantera {
      *  @name  Initialization of the Object
      * @{
      */
+    
+    //! Initialization routine for all of the shallow pointers
+    /*!
+     *  This is a cascading call, where each level should call the
+     *  the parent level.
+     *
+     *  The initThermo() routines get called before the initThermoXML() routines
+     *  from the constructPDSSXML() routine.
+     *
+     *
+     *  Calls initPtrs();
+     */
+    virtual void initThermo();
 
     //! Initialization of a PDSS object using an
     //! input XML file.
@@ -370,7 +378,7 @@ namespace Cantera {
     void constructPDSSFile(VPStandardStateTP *vptp_ptr, int spindex, 
 			   std::string inputFile, std::string id);
 
-    //!Initialization of a PDSS object using an xml tree
+    //!  Initialization of a PDSS object using an xml tree
     /*!
      * This routine is a driver for the initialization of the
      * object.
@@ -385,16 +393,17 @@ namespace Cantera {
      *
      * @param spindex    Species index within the phase
      *
+     * @param speciesNode XML Node containing the species information
+     *
      * @param phaseNode  Reference to the phase Information for the phase
      *                   that owns this species.
      *
-     * @param id         Optional parameter identifying the name of the
-     *                   phase. If none is given, the first XML
-     *                   phase element will be used.
+     * @param spInstalled  Boolean indicating whether the species is 
+     *                     already installed.
      */
     void constructPDSSXML(VPStandardStateTP *vptp_ptr, int spindex, 
 			  const XML_Node& speciesNode,
-			  const XML_Node& phaseNode, std::string id);
+			  const XML_Node& phaseNode, bool spInstalled);
 
     //! Initialization routine for the PDSS object based on the phaseNode
     /*!
@@ -410,48 +419,31 @@ namespace Cantera {
      */
     virtual void initThermoXML(const XML_Node& phaseNode, std::string& id);
 
-    //! Initialization routine for all of the shallow pointers
-    /*!
-     *  This is a cascading call, where each level should call the
-     *  the parent level.
-     *
-     *  The initThermo() routines get called before the initThermoXML() routines
-     *  from the constructPDSSXML() routine.
-     *
-     *
-     *  Calls initPtrs();
-     */
-    virtual void initThermo();
-
     //@}
 
+  private:
 
+    //! Enumerated data type describing the type of volume model
+    //! used to calculate the standard state volume of the species
+    SSVolume_Model_enumType  volumeModel_;
 
-  protected:
+    //! Value of the constant molar volume for the species
+    /*!
+     *    m3 / kmol
+     */
+    doublereal m_constMolarVolume;
 
-    //! Maximum temperature the standard states are good for
-    doublereal m_tmin;
+    //! coefficients for the temperature representation
+    vector_fp TCoeff_;
 
-    //! Minimum temperature the standard states are good for
-    doublereal m_tmax;
+    //! Derivative of the volume wrt temperature
+    mutable doublereal dVdT_;
 
- 
-    //! Pointer to the Neutral Molecule thermophase object 
-    ThermoPhase *neutralMoleculePhase_;
+    //! 2nd derivative of the volume wrt temperature
+    mutable doublereal d2VdT2_;
 
-  public:
-    int numMult_;
-
-    std::vector<int> idNeutralMoleculeVec;
-
-    std::vector<double> factorVec;
-    
-    bool add2RTln2_;
-
-    mutable std::vector<double> tmpNM;
-    
-    int specialSpecies_;
   };
+
 }
 
 #endif

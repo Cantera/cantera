@@ -30,6 +30,7 @@
 #include "PDSS_IdealGas.h"
 #include "PDSS_Water.h"
 #include "PDSS_ConstVol.h"
+#include "PDSS_SSVol.h"
 #include "PDSS_HKFT.h"
 #include "PDSS_IonsFromNeutral.h"
 #include "GeneralSpeciesThermo.h"
@@ -159,6 +160,9 @@ namespace Cantera {
     if (model == "constant_incompressible") {
       VPSSMgr::installSTSpecies(k, speciesNode, phaseNode_ptr);
       kPDSS = new PDSS_ConstVol(m_vptp_ptr, k, speciesNode, *phaseNode_ptr, true);
+      if (!kPDSS) {
+	throw CanteraError("VPSSMgr_General::returnPDSS_ptr", "new PDSS_ConstVol failed");
+      }
     } else if (model == "waterIAPWS" || model == "waterPDSS") { 
       // VPSSMgr::installSTSpecies(k, speciesNode, phaseNode_ptr);
       kPDSS = new PDSS_Water(m_vptp_ptr, 0);
@@ -190,6 +194,12 @@ namespace Cantera {
       }
       genSpthermo->installPDSShandler(k, kPDSS, this);
 
+    } else if (model == "constant" || model == "temperature_polynomial" || model == "density_temperature_polynomial") {
+      VPSSMgr::installSTSpecies(k, speciesNode, phaseNode_ptr);
+      kPDSS = new PDSS_SSVol(m_vptp_ptr, k, speciesNode, *phaseNode_ptr, true);
+      if (!kPDSS) {
+	throw CanteraError("VPSSMgr_General::returnPDSS_ptr", "new PDSS_SSVol failed");
+      }
     } else {
       throw CanteraError("VPSSMgr_General::returnPDSS_ptr",
 			 "unknown standard state formulation: " + model);
