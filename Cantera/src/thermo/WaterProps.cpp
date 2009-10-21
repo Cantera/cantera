@@ -495,7 +495,7 @@ namespace Cantera {
 
 
   // Parameters for the viscosityWater() function
-
+  //@{
   const double H[4] = {1.,
 		       0.978197,
 		       0.579829,
@@ -514,7 +514,7 @@ namespace Cantera {
   const double rhoStar = 317.763;    // kg / m3
   const double presStar = 22.115E6;  // Pa
   const double muStar = 55.071E-6;   //Pa s
-
+  //@}
 
   // Returns the viscosity of water at the current conditions
   // (kg/m/s)
