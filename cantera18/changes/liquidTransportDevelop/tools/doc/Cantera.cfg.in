@@ -163,7 +163,16 @@ FILE_PATTERNS          = Kinetics.h Kinetics.cpp \
                          Nasa9PolyMultiTempRegion.h Nasa9PolyMultiTempRegion.cpp \
                          vcs_internal.h vcs_defs.h \
                          vcs_MultiPhaseEquil.h vcs_MultiPhaseEquil.cpp \
-                         FalloffFactory.h FalloffFactory.cpp
+                         FalloffFactory.h FalloffFactory.cpp \
+                         TransportBase.h TransportBase.cpp     TransportParams.h  \
+                         MMCollisionInt.h  L_matrix.h  MMCollisionInt.cpp   FtnTransport.h    \
+                         TransportFactory.h TransportFactory.cpp \
+                         MultiTransport.h MultiTransport.cpp MixTransport.h MixTransport.cpp  \
+                         DustyGasTransport.h    DustyGasTransport.cpp \
+                         SolidTransport.h SolidTransport.cpp \
+                         SimpleTransport.h SimpleTransport.cpp \
+                         LiquidTransport.h LiquidTransportParams.h LiquidTransport.cpp  \
+                         AqueousTransport.h AqueousTransport.cpp WaterTransport.h  WaterTransport.cpp
 RECURSIVE              = NO
 EXCLUDE                = CVS examples  converters zeroD
 EXCLUDE_SYMLINKS       = NO
