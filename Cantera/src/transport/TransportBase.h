@@ -1,5 +1,9 @@
 /**
  *  @file TransportBase.h  
+ *    Headers for the Transport object, which is the virtual base class
+ *    for all transport property evaluators and also includes the tranprops group definition
+ *    (see \ref tranprops and \link Cantera::Transport Transport \endlink) .
+ *
  *   Provides class Transport.
  */
 
@@ -301,18 +305,21 @@ namespace Cantera {
       getSpeciesFluxes( ndim, grad_T, ldx, grad_X, ldf, fluxes );
     }
 
-    /** 
-     * Get the molar fluxes [kmol/m^2/s], given the thermodynamic
-     * state at two nearby points. 
+    
+    //! Get the molar fluxes [kmol/m^2/s], given the thermodynamic
+    //! state at two nearby points. 
+    /*!
      * @param state1 Array of temperature, density, and mass
-     * fractions for state 1.
+     *               fractions for state 1.
      * @param state2 Array of temperature, density, and mass
-     * fractions for state 2.  
-     * @param delta Distance from state 1 to state 2 (m).
+     *               fractions for state 2.  
+     * @param delta  Distance from state 1 to state 2 (m).
      */ 
-    virtual void getMolarFluxes(const doublereal* state1,
-				const doublereal* state2, doublereal delta, 
-				doublereal* fluxes) { err("getMolarFluxes"); }
+    virtual void getMolarFluxes(const doublereal * const state1,
+				const doublereal * const state2, const doublereal delta, 
+				doublereal * const fluxes) { 
+      err("getMolarFluxes"); 
+    }
 
     /** 
      * Get the mass fluxes [kg/m^2/s], given the thermodynamic

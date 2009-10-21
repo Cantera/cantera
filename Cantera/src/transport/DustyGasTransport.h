@@ -19,143 +19,152 @@
 
 namespace Cantera {
 
-    ///
-    /// Class DustyGasTransport implements the Dusty Gas model for
-    /// transport in porous media. As implemented here, only species
-    /// transport is handled. The viscosity, thermal conductivity, and
-    /// thermal diffusion coefficients are not implemented.
-    ///
-    class DustyGasTransport : public Transport {
+  ///
+  /// Class DustyGasTransport implements the Dusty Gas model for
+  /// transport in porous media. As implemented here, only species
+  /// transport is handled. The viscosity, thermal conductivity, and
+  /// thermal diffusion coefficients are not implemented.
+  ///
+  class DustyGasTransport : public Transport {
 
-    public:
+  public:
 
-        /// default constructor
-        DustyGasTransport(thermo_t* thermo=0);
+    /// default constructor
+    DustyGasTransport(thermo_t* thermo=0);
         
-        /// Destructor. Does nothing, since class allocates no memory
-        /// on the heap.
-        virtual ~DustyGasTransport() {}
-        
-        
-        //---------------------------------------------------------
-        // overloaded base class methods
-
-        virtual int model() const { return cDustyGasTransport; }
-
-        virtual void setParameters(const int type, const int k, const doublereal* const p);
-        
-        virtual void getMultiDiffCoeffs(const int ld, doublereal* const d);
-        
-        virtual void getMolarFluxes(const doublereal* state1,
-            const doublereal* state2, doublereal delta, 
-            doublereal* fluxes);
-        
-        //-----------------------------------------------------------
-        // new methods added in this class
-        
-        /// Set the porosity (dimensionless)
-        void setPorosity(doublereal porosity) {
-            m_porosity = porosity;
-            m_knudsen_ok = false;
-            m_bulk_ok = false;
-        }
-
-        /// Set the tortuosity (dimensionless)
-        void setTortuosity(doublereal tort) {
-            m_tortuosity = tort;
-            m_knudsen_ok = false;
-            m_bulk_ok = false;
-        }
-
-        /// Set the mean pore radius (m)
-        void setMeanPoreRadius(doublereal rbar) {
-            m_pore_radius = rbar;
-            m_knudsen_ok = false;
-        }
-
-        /// Set the mean particle diameter
-        void setMeanParticleDiameter(doublereal dbar) {
-            m_diam = dbar;
-        }
-        
-        /// Set the permeability. If not set, the value for
-        /// close-packed spheres will be used by default. 
-        void setPermeability(doublereal B) {
-            m_perm = B;
-        }
-        
-        /// Return a reference to the transport manager used to compute the gas
-        /// binary diffusion coefficients and the visdcosity.
-        Transport& gasTransport() { return *m_gastran; }
+    /// Destructor. Does nothing, since class allocates no memory
+    /// on the heap.
+    virtual ~DustyGasTransport() {}
         
         
-        friend class TransportFactory;
+    //---------------------------------------------------------
+    // overloaded base class methods
+
+    virtual int model() const { return cDustyGasTransport; }
+
+    virtual void setParameters(const int type, const int k, const doublereal* const p);
+        
+    virtual void getMultiDiffCoeffs(const int ld, doublereal* const d);
+        
+    //! Get the molar fluxes [kmol/m^2/s], given the thermodynamic
+    //! state at two nearby points. 
+    /*!
+     * @param state1 Array of temperature, density, and mass
+     *               fractions for state 1.
+     * @param state2 Array of temperature, density, and mass
+     *               fractions for state 2.  
+     * @param delta  Distance from state 1 to state 2 (m).
+     */ 
+    virtual void getMolarFluxes(const doublereal * const state1,
+				const doublereal* const state2, const doublereal delta, 
+				doublereal* const fluxes);
+        
+    //-----------------------------------------------------------
+    // new methods added in this class
+        
+    /// Set the porosity (dimensionless)
+    void setPorosity(doublereal porosity) {
+      m_porosity = porosity;
+      m_knudsen_ok = false;
+      m_bulk_ok = false;
+    }
+
+    /// Set the tortuosity (dimensionless)
+    void setTortuosity(doublereal tort) {
+      m_tortuosity = tort;
+      m_knudsen_ok = false;
+      m_bulk_ok = false;
+    }
+
+    /// Set the mean pore radius (m)
+    void setMeanPoreRadius(doublereal rbar) {
+      m_pore_radius = rbar;
+      m_knudsen_ok = false;
+    }
+
+    /// Set the mean particle diameter
+    void setMeanParticleDiameter(doublereal dbar) {
+      m_diam = dbar;
+    }
+        
+    /// Set the permeability. If not set, the value for
+    /// close-packed spheres will be used by default. 
+    void setPermeability(doublereal B) {
+      m_perm = B;
+    }
+        
+    /// Return a reference to the transport manager used to compute the gas
+    /// binary diffusion coefficients and the visdcosity.
+    Transport& gasTransport() { return *m_gastran; }
         
         
-    protected:
-
-        // called by TransportFactory
-        void initialize(ThermoPhase* phase, Transport* gastr);
+    friend class TransportFactory;
         
         
-    private:
+  protected:
 
-        void updateTransport_T();
-        void updateTransport_C();
+    // called by TransportFactory
+    void initialize(ThermoPhase* phase, Transport* gastr);
+        
+        
+  private:
 
-        void updateBinaryDiffCoeffs();
-        void updateMultiDiffCoeffs();
-        void updateKnudsenDiffCoeffs();
-        void eval_H_matrix();
+    void updateTransport_T();
+    void updateTransport_C();
+
+    void updateBinaryDiffCoeffs();
+    void updateMultiDiffCoeffs();
+    void updateKnudsenDiffCoeffs();
+    void eval_H_matrix();
 
 
-        // gas attributes
-        int m_nsp;
-        doublereal m_tmin, m_tmax;
-        vector_fp  m_mw;
+    // gas attributes
+    int m_nsp;
+    doublereal m_tmin, m_tmax;
+    vector_fp  m_mw;
 
-        // property values
+    // property values
 
-        /// binary diffusion coefficients
-        DenseMatrix                  m_d;
+    /// binary diffusion coefficients
+    DenseMatrix                  m_d;
 
-        /// mole fractions
-        vector_fp                    m_x;
+    /// mole fractions
+    vector_fp                    m_x;
 
-        /// Knudsen diffusion coefficients
-        vector_fp                    m_dk;
+    /// Knudsen diffusion coefficients
+    vector_fp                    m_dk;
 
-        /// temperature
-        doublereal                   m_temp;
+    /// temperature
+    doublereal                   m_temp;
 
-        /// multicomponent diffusion coefficients
-        DenseMatrix                  m_multidiff;
+    /// multicomponent diffusion coefficients
+    DenseMatrix                  m_multidiff;
 
-        // work space
-        vector_fp  m_spwork;
-        vector_fp  m_spwork2;
+    // work space
+    vector_fp  m_spwork;
+    vector_fp  m_spwork2;
 
-        // concentration gradients
-        //vector_fp  m_gradConc; 
-        //vector_fp  m_conc;
+    // concentration gradients
+    //vector_fp  m_gradConc; 
+    //vector_fp  m_conc;
 
-        doublereal m_gradP;   /// pressure gradient
+    doublereal m_gradP;   /// pressure gradient
 
-        bool m_knudsen_ok;
-        bool m_bulk_ok;
-        bool m_conc_set;
-        bool m_gradConc_set;
-        bool m_gradP_set;
+    bool m_knudsen_ok;
+    bool m_bulk_ok;
+    bool m_conc_set;
+    bool m_gradConc_set;
+    bool m_gradP_set;
 
-        doublereal m_porosity;      /// porosity
-        doublereal m_tortuosity;    /// tortuosity
-        doublereal m_pore_radius;   /// pore radius (m)
-        doublereal m_diam;          /// particle diameter (m)
-        doublereal m_perm;          /// permeability
+    doublereal m_porosity;      /// porosity
+    doublereal m_tortuosity;    /// tortuosity
+    doublereal m_pore_radius;   /// pore radius (m)
+    doublereal m_diam;          /// particle diameter (m)
+    doublereal m_perm;          /// permeability
 
-        Transport* m_gastran;       /// pointer to gas transport manager
+    Transport* m_gastran;       /// pointer to gas transport manager
 
-    };
+  };
 }
 #endif
 

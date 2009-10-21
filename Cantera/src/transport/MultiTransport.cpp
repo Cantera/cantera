@@ -672,9 +672,10 @@ namespace Cantera {
         }
     }
 
-    void MultiTransport::getMolarFluxes(const doublereal* state1,
-        const doublereal* state2, doublereal delta, 
-        doublereal* fluxes) {
+    void MultiTransport::getMolarFluxes(const doublereal* const state1,
+                                        const doublereal * const state2,
+                                        const doublereal delta, 
+                                        doublereal * const fluxes) {
         getMassFluxes(state1, state2, delta, fluxes);
         int k, nsp = m_thermo->nSpecies();
         for (k = 0; k < nsp; k++) {

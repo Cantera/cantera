@@ -1,6 +1,6 @@
 /**
- *  @file MixTransport.cpp
- *  Mixture-averaged transport properties for ideal gas mixtures.
+ *  @file AqueousTransport.cpp
+ *  Transport properties for aqueous systems
  */
 /*
  * $Revision: 1.4 $

@@ -148,35 +148,11 @@ namespace Cantera {
         }
     }
 
-//     void DustyGasTransport::getMolarFluxes(const double* grad_conc,
-//         double grad_P, double* fluxes) {
-//         updateMultiDiffCoeffs();
-//         copy(grad_conc, grad_conc + m_nsp, m_spwork.begin());
-//         multiply(m_multidiff, m_spwork.begin(), fluxes);
-//         m_thermo->getConcentrations(m_spwork.begin());
-//         divide_each(m_spwork.begin(), m_spwork.end(), m_dk.begin());
+    void DustyGasTransport::getMolarFluxes(const doublereal* const state1,
+                                           const doublereal * const state2, 
+                                           const doublereal delta,
+                                           doublereal * const fluxes) {
 
-//         // if no permeability has been specified, use result for 
-//         // close-packed spheres
-//         double b = 0.0;
-//         if (m_perm < 0.0) {
-//             double p = m_porosity;
-//             double d = m_diam;
-//             double t = m_tortuosity;
-//             b = p*p*p*d*d/(72.0*t*(1.0-p)*(1.0-p));
-//         }
-//         else {
-//             b = m_perm;
-//         }
-//         b *= grad_P / m_gastran->viscosity();
-//         scale(m_spwork.begin(), m_spwork.end(), m_spwork.begin(), b);
-//         increment(m_multidiff, m_spwork.begin(), fluxes);
-//         scale(fluxes, fluxes + m_nsp, fluxes, -1.0);
-//     }
-
-
-    void DustyGasTransport::getMolarFluxes(const doublereal* state1,
-        const doublereal* state2, double delta, double* fluxes) {
         int k;
         doublereal conc1, conc2;
         doublereal* cbar = DATA_PTR(m_spwork);
