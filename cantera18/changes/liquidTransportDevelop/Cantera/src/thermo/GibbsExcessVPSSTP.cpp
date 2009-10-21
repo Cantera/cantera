@@ -257,15 +257,7 @@ namespace Cantera {
     return 0;
   }
 
-    //@}
-    /// @name  Properties of the Standard State of the Species in the Solution
-    //@{
-
-     
-
-    //@}
-    /// @name Thermodynamic Values for the Species Reference States
-    //@{
+ 
 
   double GibbsExcessVPSSTP::checkMFSum(const doublereal * const x) const {
     doublereal norm = accumulate(x, x + m_kk, 0.0);
