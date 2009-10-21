@@ -1,9 +1,9 @@
 /**
- *  @file gibbsExcessVPSSTP.h
+ *  @file GibbsExcessVPSSTP.h
  *   Header for intermediate ThermoPhase object for phases which
  *   employ gibbs excess free energy based formulations
  *  (see \ref thermoprops 
- * and class \link Cantera::gibbsExcessVPSSTP gibbsExcessVPSSTP\endlink).
+ * and class \link Cantera::GibbsExcessVPSSTP GibbsExcessVPSSTP\endlink).
  *
  * Header file for a derived class of ThermoPhase that handles
  * variable pressure standard state methods for calculating
@@ -517,6 +517,10 @@ namespace Cantera {
 
   protected:
 
+    //! utility routine to check mole fraction sum
+    /*!
+     * @param x   vector of mole fractions.
+     */
     double checkMFSum(const doublereal * const x) const;
 
   protected:

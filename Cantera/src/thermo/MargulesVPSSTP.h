@@ -1,5 +1,5 @@
 /**
- *  @file  Margules.h
+ *  @file  MargulesVPSSTP.h
  *   Header for intermediate ThermoPhase object for phases which
  *   employ gibbs excess free energy based formulations
  *  (see \ref thermoprops 

@@ -100,6 +100,21 @@ namespace Cantera {
    *        pressure dependencies to these thermo functions.
    *      .
    *
+   *   - PDSS_SSVol
+   *      - standardState model = "constant_incompressible" || model == "constant"
+   *      - standardState model = "temperature_polynomial"
+   *      - standardState model = "density_temperature_polynomial"
+   *      - This model assumes that the species in the phase obey a
+   *        fairly general equation of state, but one that separates out
+   *        the calculation of the standard state density and/or volume.
+   *        Models include a cubic polynomial in temperature for either
+   *        the standard state volume or the standard state density.
+   *        The manager uses a SimpleThermo object to handle the
+   *        calculation of the reference state. This object then adds the
+   *        pressure dependencies and the volume terms to these thermo functions
+   *        to complete the representation.
+   *      .
+   *
    *   - PDSS_Water_
    *      - standardState model = "Water"
    *      - This model assumes that
