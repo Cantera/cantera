@@ -1,19 +1,19 @@
 /**
  *  @file MixTransport.h
- *   Header file defining class MixTransport
+ *    Headers for the MixTransport object, which models transport properties
+ *    in ideal gas solutions using a mixture averaged approximation
+ *    (see \ref tranprops and \link Cantera::MixTransport MixTransport \endlink) .
+ *
  */
-
 /* $Author: hkmoffa $
  * $Revision: 1.11 $
  * $Date: 2009/03/27 18:24:39 $
  */
-
 // Copyright 2001  California Institute of Technology
 
 
 #ifndef CT_MIXTRAN_H
 #define CT_MIXTRAN_H
-
 
 // turn off warnings under Windows
 #ifdef WIN32
@@ -27,8 +27,6 @@
 #include <map>
 #include <numeric>
 #include <algorithm>
-
-using namespace std;
 
 // Cantera includes
 #include "TransportBase.h"
@@ -152,9 +150,9 @@ namespace Cantera {
     vector_fp  m_mw;
 
     // polynomial fits
-    vector<vector_fp>            m_visccoeffs;
-    vector<vector_fp>            m_condcoeffs;
-    vector<vector_fp>            m_diffcoeffs;
+    std::vector<vector_fp>            m_visccoeffs;
+    std::vector<vector_fp>            m_condcoeffs;
+    std::vector<vector_fp>            m_diffcoeffs;
     vector_fp                    m_polytempvec;
 
     // property values
@@ -165,11 +163,11 @@ namespace Cantera {
 
     array_fp                    m_molefracs;
 
-    vector<vector<int> > m_poly;
-    vector<vector_fp >   m_astar_poly;
-    vector<vector_fp >   m_bstar_poly;
-    vector<vector_fp >   m_cstar_poly;
-    vector<vector_fp >   m_om22_poly;
+    std::vector<std::vector<int> > m_poly;
+    std::vector<vector_fp >   m_astar_poly;
+    std::vector<vector_fp >   m_bstar_poly;
+    std::vector<vector_fp >   m_cstar_poly;
+    std::vector<vector_fp >   m_om22_poly;
     DenseMatrix          m_astar;
     DenseMatrix          m_bstar;
     DenseMatrix          m_cstar;

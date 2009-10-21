@@ -1,5 +1,5 @@
 /**
- *  @file LiquidTransport.h
+ *  @file AqueousTransport.h
  *   Header file defining class AqueousTransport
  */
 /* 

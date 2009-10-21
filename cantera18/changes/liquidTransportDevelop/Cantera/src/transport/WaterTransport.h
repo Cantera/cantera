@@ -1,6 +1,5 @@
 /**
- *
- *  @file LiquidTransport.h
+ *  @file WaterTransport.h
  *   Header file defining class LiquidTransport
  */
 /*

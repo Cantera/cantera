@@ -139,9 +139,19 @@ namespace Cantera {
 				  int ldf,
 				  doublereal* fluxes);
 
-    virtual void getMolarFluxes(const doublereal* state1,
-				const doublereal* state2, doublereal delta,
-				doublereal* fluxes);
+    //! Get the molar fluxes [kmol/m^2/s], given the thermodynamic
+    //! state at two nearby points. 
+    /*!
+     * @param state1 Array of temperature, density, and mass
+     *               fractions for state 1.
+     * @param state2 Array of temperature, density, and mass
+     *               fractions for state 2.  
+     * @param delta  Distance from state 1 to state 2 (m).
+     */ 
+    virtual void getMolarFluxes(const doublereal* const state1,
+				const doublereal* const state2, 
+                                const doublereal delta,
+				doublereal* const fluxes);
 
     virtual void getMassFluxes(const doublereal* state1,
 			       const doublereal* state2, doublereal delta,
