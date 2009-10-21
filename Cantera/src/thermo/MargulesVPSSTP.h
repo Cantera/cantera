@@ -336,10 +336,11 @@ namespace Cantera {
 
     //! Special constructor for a hard-coded problem
     /*!
-     *
-     *   LiKCl treating the PseudoBinary layer as passthrough.
-     *   -> test to predict the eutectic and liquidus correctly.
-     *
+     * 
+     *  @param testProb Hard-coded value. Only the value of 1 is
+     *                  used. It's for 
+     *                  a LiKCl system
+     *                  -> test to predict the eutectic and liquidus correctly.
      */
     MargulesVPSSTP(int testProb);
 
@@ -350,7 +351,7 @@ namespace Cantera {
      *
      * @param b class to be copied
      */
-    MargulesVPSSTP(const MargulesVPSSTP&b);
+    MargulesVPSSTP(const MargulesVPSSTP& b);
 
     //! Assignment operator
     /*!
@@ -537,6 +538,9 @@ namespace Cantera {
      *  \f[
      *   \bar h_k(T,P) = h^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}
      *  \f]
+     *
+     * @param hbar  Vector of returned partial molar enthalpies
+     *              (length m_kk, units = J/kmol)
      */
     virtual void getPartialMolarEnthalpies(doublereal* hbar) const;
 
@@ -554,6 +558,9 @@ namespace Cantera {
      *                              - R \ln( \gamma_k X_k)
      *                              - R T \frac{d \ln(\gamma_k) }{dT}
      *  \f]
+     *
+     * @param sbar  Vector of returned partial molar entropies
+     *              (length m_kk, units = J/kmol/K)
      */
     virtual void getPartialMolarEntropies(doublereal* sbar) const;
 
@@ -567,7 +574,7 @@ namespace Cantera {
      * Units: J/kmol
      *
      * @param mu     output vector containing the species electrochemical potentials.
-     *               Length: m_kk.
+     *               Length: m_kk., units = J/kmol
      */
     void getElectrochemPotentials(doublereal* mu) const;
 
@@ -581,6 +588,10 @@ namespace Cantera {
      *
      * @param dlnActCoeffdT    Output vector of temperature derivatives of the 
      *                         log Activity Coefficients. length = m_kk
+     *
+     * @param dlnActCoeffdT  Vector of returned derivatives of
+     *                       ln (actCoeff) wrt temperature.
+     *              (length m_kk, units = 1/K)
      */
     virtual void getdlnActCoeffdT(doublereal *dlnActCoeffdT) const;
 
@@ -692,11 +703,16 @@ namespace Cantera {
      * This function reads the XML file and writes the coefficients
      * it finds to an internal data structures.
      *
-     * @param BinSalt  reference to the XML_Node named "binaryNeutralSpeciesParameters"
-     *                 containing the binary interaction
+     * @param xmlBinarySpecies  Reference to the XML_Node named "binaryNeutralSpeciesParameters"
+     *                          containing the binary interaction
      */
-    void readXMLBinarySpecies(XML_Node &xmLBinarySpecies);
+    void readXMLBinarySpecies(XML_Node &xmlBinarySpecies);
 
+    //! Resize internal arrays within the object that depend upon the number
+    //! of binary Margules interaction terms
+    /*!
+     *  @param num Number of binary Margules interaction terms
+     */
     void resizeNumInteractions(const int num);
 
 
@@ -711,11 +727,11 @@ namespace Cantera {
      */
     void s_update_lnActCoeff() const;
 
-    // Update the derivative of the log of the activity coefficients wrt T
-    /*
+    //! Update the derivative of the log of the activity coefficients wrt T
+    /*!
      * This function will be called to update the internally storred
-     * natural logarithm of the activity coefficients
-     *
+     * derivative of the natural logarithm of the activity coefficients
+     * wrt temperature.
      */
     void s_update_dlnActCoeff_dT() const;
 
@@ -733,30 +749,57 @@ namespace Cantera {
 
 
     //! number of binary interaction expressions
-
     int numBinaryInteractions_;
 
+    //! Enthalpy term for the binary mole fraction interaction of the
+    //! excess gibbs free energy expression
     mutable vector_fp m_HE_b_ij;
 
+    //! Enthalpy term for the ternary mole fraction interaction of the
+    //! excess gibbs free energy expression
     mutable vector_fp m_HE_c_ij;
 
+    //! Enthalpy term for the quaternary mole fraction interaction of the
+    //! excess gibbs free energy expression
     mutable vector_fp m_HE_d_ij;
 
-
+    //! Entropy term for the binary mole fraction interaction of the
+    //! excess gibbs free energy expression
     mutable vector_fp m_SE_b_ij;
 
+    //! Entropy term for the ternary mole fraction interaction of the
+    //! excess gibbs free energy expression
     mutable vector_fp m_SE_c_ij;
 
+    //! Entropy term for the quaternary mole fraction interaction of the
+    //! excess gibbs free energy expression
     mutable vector_fp m_SE_d_ij;
     
+    //! vector of species indices representing species A in the interaction
+    /*!
+     *  Each Margules excess Gibbs free energy term involves two species, A and B.
+     *  This vector identifies species A.
+     */
     vector_int m_pSpecies_A_ij;
+
+    //! vector of species indices representing species B in the interaction
+    /*!
+     *  Each Margules excess Gibbs free energy term involves two species, A and B.
+     *  This vector identifies species B.
+     */
     vector_int m_pSpecies_B_ij;
 
-
+    //! form of the Margules interaction expression
+    /*!
+     *  Currently there is only one form.
+     */
     int formMargules_;
-    int formTempModel_;
 
-  private:
+    //! form of the temperatuer dependence of the Margules interaction expression
+    /*!
+     *  Currently there is only one form -> constant wrt temperature.
+     */
+    int formTempModel_;
 
   
   };
