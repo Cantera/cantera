@@ -143,6 +143,7 @@ FILE_PATTERNS          = Kinetics.h Kinetics.cpp \
                          VPSSMgr_General.h VPSSMgr_General.cpp \
                          VPSSMgrFactory.h VPSSMgrFactory.cpp \
                          PDSS_ConstVol.h PDSS_ConstVol.cpp \
+                         PDSS_SSVol.h PDSS_SSVol.cpp \
                          PDSS_IdealGas.h  PDSS_IdealGas.cpp \
                          PDSS_Water.h PDSS_Water.cpp \
                          PDSS_HKFT.h PDSS_HKFT.cpp \
