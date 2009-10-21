@@ -135,6 +135,8 @@ FILE_PATTERNS          = Kinetics.h Kinetics.cpp \
                          DebyeHuckel.h           DebyeHuckel.cpp  \
                          MineralEQ3.h            MineralEQ3.cpp  \
                          HMWSoln.h HMWSoln.cpp HMWSoln_input.cpp \
+                         GibbsExcessVPSSTP.h   GibbsExcessVPSSTP.cpp \  
+                         MargulesVPSSTP.h   MargulesVPSSTP.cpp  \
                          VPSSMgr.h VPSSMgr.cpp VPSSMgr_types.h \
                          VPSSMgr_ConstVol.h VPSSMgr_ConstVol.cpp \
                          VPSSMgr_IdealGas.h VPSSMgr_IdealGas.cpp \
