@@ -1,7 +1,7 @@
 /**
  * @file WaterPropsIAPWSphi.cpp
  *  Definitions for Lowest level of the classes which support a real water model
- *  (see class #WaterPropsIAPWS and class  #WaterPropsIAPWSphi).
+ *  (see class \link Cantera::WaterPropsIAPWS WaterPropsIAPWS\endlink and class  #WaterPropsIAPWSphi).
  */
 /*
  * Copywrite (2006) Sandia Corporation. Under the terms of

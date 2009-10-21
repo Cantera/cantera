@@ -1,12 +1,12 @@
 /**
  *  @file PDSS_SSVol.h
  *    Declarations for the class PDSS_SSVol (pressure dependent standard state)
- *    which handles calculations for a single species with an expression for the molar volume in a phase
+ *    which handles calculations for a single species with an expression for the standard state molar volume in a phase
  *    given by an enumerated data type
  *    (see class \ref pdssthermo and \link Cantera::PDSS_SSVol PDSS_SSVol\endlink).
  */
 /*
- * Copywrite (2006) Sandia Corporation. Under the terms of
+ * Copywrite (2009) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -23,9 +23,10 @@ namespace Cantera {
   class XML_Node;
   class VPStandardStateTP;
 
-  //! Class for pressure dependent standard states that use a constant volume model
+  //! Class for pressure dependent standard states that uses a standard state volume 
+  //! model of some sort.
   /*!
-   * Class for pressure dependent standard states that use a constant volume model.
+   *
    *
    *
    * @ingroup pdssthermo
