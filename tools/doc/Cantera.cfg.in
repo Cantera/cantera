@@ -137,6 +137,7 @@ FILE_PATTERNS          = Kinetics.h Kinetics.cpp \
                          HMWSoln.h HMWSoln.cpp HMWSoln_input.cpp \
                          GibbsExcessVPSSTP.h   GibbsExcessVPSSTP.cpp \  
                          MargulesVPSSTP.h   MargulesVPSSTP.cpp  \
+                         IonsFromNeutralVPSSTP.h IonsFromNeutralVPSSTP.cpp \
                          VPSSMgr.h VPSSMgr.cpp VPSSMgr_types.h \
                          VPSSMgr_ConstVol.h VPSSMgr_ConstVol.cpp \
                          VPSSMgr_IdealGas.h VPSSMgr_IdealGas.cpp \
@@ -149,6 +150,7 @@ FILE_PATTERNS          = Kinetics.h Kinetics.cpp \
                          PDSS_IdealGas.h  PDSS_IdealGas.cpp \
                          PDSS_Water.h PDSS_Water.cpp \
                          PDSS_HKFT.h PDSS_HKFT.cpp \
+                         PDSS_IonsFromNeutral.h   PDSS_IonsFromNeutral.cpp  \
                          IdealSolnGasVPSS.h IdealSolnGasVPSS.cpp \
                          ConstDensityThermo.h ConstDensityThermo.cpp \
                          WaterPropsIAPWSphi.h  WaterPropsIAPWSphi.cpp \
