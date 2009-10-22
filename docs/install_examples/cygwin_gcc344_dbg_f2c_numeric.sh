@@ -2,24 +2,39 @@
 # ------------------------------------------------------------------------------
 #
 #     Example Cantera pre-preconfig configuration script
+#        10/20/09
 #
 #  Platform:            cygwin
-#  Compiler:            gcc
+#  Compiler:            gcc v. 3.4.4
+#  Optimization:        Debug version
 #  python:              v. 2.5.2 (full installation)
 #  matlab:              no
 #  f2c:                 yes
+#  num python           numeric
 #
 #
-# Specific places where the User must custimize the installation
-# is indiciated with the USER_INPUT_NEEDED lines.
+# ---------------------------------------------------------------------------
+# The only place where the User must custimize this installation
+# is located at the top here:
 #
+#   Specify the installation directory here:
 #
-#  Specify the installation directory here:
-#  USER_INPUT_NEEDED
+Cantera_Install_Dir='/cygdrive/c/cygwin_env/arch/cygwin/cantera-1.8_develop'
 #
+#   Specify the Sundials installation directory here (leave it as a null script
+#   if you don't want to link sundials in
+#
+# Sundials_Home=''
+Sundials_Home='/cygdrive/c/cygwin_env/arch/cygwin/sundials-2.3.0_dbg'
+#
+#   Specify the Sundials version number (either 2.2, 2.3, or 2.4)
+Sundials_Version='2.3'
+# Sundials_Version=2.4'
 # -----------------------------------------------------------------------------
 #
-CANTERA_CONFIG_PREFIX=/cygdrive/c/cygwin_env/arch/cygwin/cantera-1.8_develop
+#  User may optionally customize below this line (but doesn't have to) -- 
+#
+CANTERA_CONFIG_PREFIX=$Cantera_Install_Dir
 export CANTERA_CONFIG_PREFIX
 
 SET_PYTHON_SITE_PACKAGE_TOPDIR=y
@@ -128,12 +143,19 @@ export MAKE
 #
 # Specify the SUNDIALS option
 #
-USE_SUNDIALS='n'
+if test -n "$Sundials_Home"
+then
+  USE_SUNDIALS='y'
+  SUNDIALS_VERSION=$Sundials_Version
+else
+  USE_SUNDIALS='n'
+fi
 export USE_SUNDIALS
+export SUNDIALS_VERSION
 #
 # Specify where to find the sundials installation directories
 #
-SUNDIALS_HOME='/cygdrive/c/cygwin_env/libraries/sundials'
+SUNDIALS_HOME=$Sundials_Home
 export SUNDIALS_HOME
 #
 #  Ok, fire off the main preconfig script
