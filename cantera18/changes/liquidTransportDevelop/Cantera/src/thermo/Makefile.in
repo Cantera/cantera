@@ -40,7 +40,7 @@ THERMO_OBJ = State.o Elements.o Constituents.o Phase.o \
              ThermoFactory.o phasereport.o SpeciesThermoInterpType.o \
              VPSSMgr.o  VPSSMgrFactory.o  VPSSMgr_General.o IdealSolnGasVPSS.o \
              VPSSMgr_IdealGas.o VPSSMgr_ConstVol.o PDSS_ConstVol.o PDSS_IdealGas.o \
-             @phase_object_files@
+             PDSS_SSVol.o @phase_object_files@
 
 THERMO_H   = State.h Elements.h Constituents.h Phase.h mix_defs.h \
              ThermoPhase.h IdealGasPhase.h ConstDensityThermo.h \
@@ -54,7 +54,7 @@ THERMO_H   = State.h Elements.h Constituents.h Phase.h mix_defs.h \
              EdgePhase.h  \
              VPSSMgr.h  VPSSMgrFactory.h  VPSSMgr_General.h IdealSolnGasVPSS.h \
              VPSSMgr_IdealGas.h VPSSMgr_ConstVol.h PDSS_ConstVol.h PDSS_IdealGas.h \
-             @phase_header_files@
+             PDSS_SSVol.h @phase_header_files@
 
 
 # Extended Cantera Thermodynamics Object Files
