@@ -1,9 +1,9 @@
 /**
- *  @file PseudoBinaryVPSSTP.cpp
- *   Definitions for intermediate ThermoPhase object for phases which
- *   employ excess gibbs free energy formulations
+ *  @file IonsFromNeutralVPSSTP.cpp
+ *   Definitions for the object which treats ionic liquids as made of ions as species
+ *   even though the thermodynamics is obtained from the neutral molecule representation. 
  *  (see \ref thermoprops 
- * and class \link Cantera::PseudoBinaryVPSSTP PseudoBinaryVPSSTP\endlink).
+ *   and class \link Cantera::IonsFromNeutralVPSSTP IonsFromNeutralVPSSTP\endlink).
  *
  * Header file for a derived class of ThermoPhase that handles
  * variable pressure standard state methods for calculating
@@ -20,7 +20,6 @@
  *  $Date: 2009/03/27 01:08:55 $
  *  $Revision: 1.2 $
  */
-
 
 #include "IonsFromNeutralVPSSTP.h"
 #include "ThermoFactory.h"
