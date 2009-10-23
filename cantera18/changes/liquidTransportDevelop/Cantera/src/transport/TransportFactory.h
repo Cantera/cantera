@@ -186,7 +186,20 @@ namespace Cantera {
      * these species read from the file.
      *
      */
-    void getLiquidTransportData(const std::vector<const XML_Node*> &db,  
+    void getLiquidSpeciesTransportData(const std::vector<const XML_Node*> &db,  
+				       XML_Node& log, const std::vector<std::string>& names, 
+				       LiquidTransportParams& tr);
+
+    //! Read transport property data from a file for a list of species.
+    /*!
+     *
+     *  Given the name of a file containing transport property
+     * parameters and a list of species names, this method returns an
+     * instance of TransportParams containing the transport data for
+     * these species read from the file.
+     *
+     */
+    void getLiquidInteractionsTransportData(const XML_Node &db,  
 				XML_Node& log, const std::vector<std::string>& names, 
 				LiquidTransportParams& tr);
 
@@ -205,7 +218,7 @@ namespace Cantera {
 		 GasTransportParams& tr);
 
 
-    void setupLiquidTransport(std::ostream &flog,  const std::vector<const XML_Node*> &transport_database, 
+    void setupLiquidTransport(std::ostream &flog,  
 			      thermo_t* thermo, int log_level, 
 			      LiquidTransportParams& tr);
 
