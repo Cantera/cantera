@@ -188,7 +188,7 @@ namespace Cantera {
 	 */
 	std::string modelName = "";
 	if (getOptionalModel(transportNode, "compositionDependence",
-			      modelName)) {
+			     modelName)) {
 	  modelName = lowercase(modelName);
           if (modelName == "solvent_only") {
 	    m_compositionDepType = 0;
@@ -457,7 +457,15 @@ namespace Cantera {
     }
     copy(m_viscSpecies.begin(), m_viscSpecies.end(), visc); 
   }
-
+  //====================================================================================================================
+  // Returns the hydrodynamic radius for all species
+  /*
+   *  The pure species viscosities are to be given in an Arrhenius
+   * form in accordance with activated-jump-process dominated transport.
+   */
+  void LiquidTransport::getSpeciesHydrodynamicRadius(doublereal* const radius) {
+  }
+ //====================================================================================================================
 
   /******************* binary diffusion coefficients **************/
 
@@ -482,7 +490,7 @@ namespace Cantera {
   }
 
 
- //================================================================================================
+  //================================================================================================
   //  Get the electrical Mobilities (m^2/V/s).
   /*
    *   This function returns the mobilities. In some formulations
@@ -836,15 +844,15 @@ namespace Cantera {
       }
       double mag = 1.0E-7 / sum;
     
-	for (k = 0; k < m_nsp; k++) {
-	  Xdelta_[k] = m_molefracs[k] + mag * ma_Grad_X[k];
-	  if (Xdelta_[k] > 1.0) {
-	    Xdelta_[k] = 1.0;
-	  }
-	  if (Xdelta_[k] < 0.0) {
-	    Xdelta_[k] = 0.0;
-	  }
+      for (k = 0; k < m_nsp; k++) {
+	Xdelta_[k] = m_molefracs[k] + mag * ma_Grad_X[k];
+	if (Xdelta_[k] > 1.0) {
+	  Xdelta_[k] = 1.0;
 	}
+	if (Xdelta_[k] < 0.0) {
+	  Xdelta_[k] = 0.0;
+	}
+      }
       m_thermo->setMoleFractions(DATA_PTR(Xdelta_));
       m_thermo->getActivityCoefficients(DATA_PTR(lnActCoeffMolarDelta_));
       for (k = 0; k < m_nsp; k++) {
@@ -886,7 +894,7 @@ namespace Cantera {
 	//m_coeffLambda_Ns[k][2] holds Tact
 	//m_coeffLambda_Ns[k][3] holds log(A)
 	m_lambdaSpecies[k] = coeffk[0] * exp( coeffk[1] * m_logt 
-				- coeffk[2] / m_temp );
+					      - coeffk[2] / m_temp );
       
       } else if ( m_lambdaTempDepType_Ns[k] == LTR_MODEL_POLY ) {
 	m_lambdaSpecies[k] = coeffk[0]
@@ -1163,14 +1171,14 @@ namespace Cantera {
    * Throw an exception if this method is invoked. 
    * This probably indicates something is not yet implemented.
    */
-    doublereal LiquidTransport::err(std::string msg) const {
-      throw CanteraError("Liquid Transport Class",
-			 "\n\n\n**** Method "+ msg +" not implemented in model "
-			 + int2str(model()) + " ****\n"
-			 "(Did you forget to specify a transport model?)\n\n\n");
+  doublereal LiquidTransport::err(std::string msg) const {
+    throw CanteraError("Liquid Transport Class",
+		       "\n\n\n**** Method "+ msg +" not implemented in model "
+		       + int2str(model()) + " ****\n"
+		       "(Did you forget to specify a transport model?)\n\n\n");
       
-      return 0.0;
-    }
+    return 0.0;
+  }
 
 
 }
