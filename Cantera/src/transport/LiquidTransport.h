@@ -446,6 +446,13 @@ namespace Cantera {
      */
     void updateViscosity_T();
 
+    //!  Update the temperature-dependent hydrodynamic radius terms
+    //!  for each species 
+    /*!
+     * The flag m_radi_temp_ok is set to true.
+     */
+    void updateHydrodynamicRadius_T();
+
     //! Update the temperature-dependent parts of the mixture-averaged 
     //! thermal conductivity.     
     void updateCond_T();
@@ -453,12 +460,22 @@ namespace Cantera {
     //! Update the concentration parts of the viscosities
     /*!
      *  Internal routine is run whenever the update_boolean
-     *  m_visc_conc_ok is false. This routine will calculate
-     *  internal values for the species viscosities.
+     *  m_visc_conc_ok is false. Currently there is no concentration 
+     *  dependence for the pure species viscosities.
      *
      * @internal
      */
     void updateViscosities_C();
+ 
+    //! Update the concentration dependence of the hydrodynamic radius
+    /*!
+     *  Internal routine is run whenever the update_boolean
+     *  m_radi_conc_ok is false. Currently there is no concentration 
+     *  dependence for the hydrodynamic radius.
+     *
+     * @internal
+     */
+    void updateHydrodynamicRadius_C();
  
     //! Update the binary diffusion coefficients wrt T.
     /*!
@@ -535,6 +552,7 @@ namespace Cantera {
     vector<LiquidTR_Model> m_diffTempDepType_Ns;
 
     //! Pure species diffusvities in temperature-dependent form.
+    //! Not currently used since we get diffusivity from hydrodynamic radius.
     std::vector<Coeff_T_>  m_coeffDiff_Ns; 
 
 
@@ -828,6 +846,14 @@ namespace Cantera {
     //! Flag to indicate that the pure species viscosities
     //! are current wrt the concentration
     bool m_visc_conc_ok;
+
+    //! Boolean indicating that temperature dependence of
+    //! hydrodynamic radius is current 
+    bool m_radi_temp_ok;
+ 
+    //! Flag to indicate that the hydrodynamic radius is current
+    //! is current wrt the concentration
+    bool m_radi_conc_ok;
 
     //! Boolean indicating that mixture diffusion coeffs are current
     bool m_diff_mix_ok;
