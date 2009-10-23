@@ -296,7 +296,7 @@ namespace Cantera {
 			     "hydroradius model is not constant for species " + spName0);
 	}
 	vector_fp &kentry = m_coeffHydroRadius_Ns[k];
-	kentry.push_back(ltd.hydroradius);
+	kentry = ltd.hydroRadiusCoeffs;
       } else {
 	if (dm != dm0) {
 	  throw CanteraError(" SimpleTransport::initLiquid",

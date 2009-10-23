@@ -310,7 +310,7 @@ namespace Cantera {
      */
     virtual void getFluidMobilities(doublereal* const mobil_f);
 
-    //! Specify the valpdaue of the gradient of the voltage
+    //! Specify the value of the gradient of the voltage
     /*!
      *
      * @param grad_V Gradient of the voltage (length num dimensions);
@@ -450,7 +450,7 @@ namespace Cantera {
      *  Types of temperature dependencies:
      *     0  - Independent of temperature (only one implemented so far)
      *     1  - extended arrhenius form
-     *     2  - power law form
+     *     2  - polynomial in temperature form
      */
     int tempDepType_;
 
