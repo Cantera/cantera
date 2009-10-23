@@ -46,6 +46,8 @@ namespace Cantera {
     m_visc_mix_ok(false),
     m_visc_temp_ok(false),
     m_visc_conc_ok(false),
+    m_radi_temp_ok(false),
+    m_radi_conc_ok(false),
     m_diff_mix_ok(false),
     m_diff_temp_ok(false),
     m_cond_temp_ok(false),
@@ -71,6 +73,8 @@ namespace Cantera {
     m_visc_mix_ok(false),
     m_visc_temp_ok(false),
     m_visc_conc_ok(false),
+    m_radi_temp_ok(false),
+    m_radi_conc_ok(false),
     m_diff_mix_ok(false),
     m_diff_temp_ok(false),
     m_cond_temp_ok(false),
@@ -112,6 +116,7 @@ namespace Cantera {
     m_bdiff                               = right.m_bdiff;
     m_viscSpecies                         = right.m_viscSpecies;
     m_logViscSpecies                      = right.m_logViscSpecies;
+    m_hydrodynamic_radius                 = right.m_hydrodynamic_radius;
     m_lambdaSpecies                       = right.m_lambdaSpecies;
     m_iStateMF = -1;
     m_molefracs                           = right.m_molefracs;
@@ -131,6 +136,8 @@ namespace Cantera {
     m_visc_mix_ok    = false;
     m_visc_temp_ok   = false;
     m_visc_conc_ok   = false;
+    m_radi_temp_ok   = false;
+    m_radi_conc_ok   = false;
     m_diff_mix_ok    = false;
     m_diff_temp_ok   = false;
     m_cond_temp_ok   = false;
@@ -378,7 +385,8 @@ namespace Cantera {
     m_visc_mix_ok   = false;
     m_visc_temp_ok  = false;
     m_visc_conc_ok  = false;
-
+    m_radi_temp_ok  = false;
+    m_radi_conc_ok  = false;
     m_cond_temp_ok = false;
     m_cond_mix_ok  = false;
     m_diff_temp_ok   = false;
@@ -457,15 +465,23 @@ namespace Cantera {
     }
     copy(m_viscSpecies.begin(), m_viscSpecies.end(), visc); 
   }
-  //====================================================================================================================
+
+  //===============================================================
   // Returns the hydrodynamic radius for all species
   /*
    *  The pure species viscosities are to be given in an Arrhenius
    * form in accordance with activated-jump-process dominated transport.
    */
   void LiquidTransport::getSpeciesHydrodynamicRadius(doublereal* const radius) {
+    update_T();
+    if (!m_radi_temp_ok) {
+      updateHydrodynamicRadius_T();
+    }
+    copy(m_hydrodynamic_radius.begin(), m_hydrodynamic_radius.end(), radius); 
+
   }
- //====================================================================================================================
+
+ //================================================================
 
   /******************* binary diffusion coefficients **************/
 
@@ -746,6 +762,7 @@ namespace Cantera {
 
     // temperature has changed so temp flags are flipped
     m_visc_temp_ok  = false;
+    m_radi_temp_ok  = false;
     m_diff_temp_ok  = false;
 
     // temperature has changed, so polynomial temperature 
@@ -998,6 +1015,59 @@ namespace Cantera {
       }
       m_visc_temp_ok = true;
       m_visc_mix_ok = false;
+    }
+  }
+
+
+  //! Update the pure-species viscosities functional dependence on concentration.
+  void LiquidTransport::updateHydrodynamicRadius_C() {
+    m_visc_conc_ok = true;
+  }
+
+
+  /**
+   * Update the temperature-dependent hydrodynamic radius terms.
+   * Updates the array of pure species viscosities, and the 
+   * weighting functions in the viscosity mixture rule.
+   * The flag m_visc_ok is set to true.
+   */
+  void LiquidTransport::updateHydrodynamicRadius_T() {
+    int k;
+
+    for (k = 0; k < m_nsp; k++) {
+      vector_fp &coeffk = m_coeffRadius_Ns[k];
+
+      if ( m_radiusTempDepType_Ns[k] == LTR_MODEL_CONSTANT ) {
+	m_hydrodynamic_radius[k] = coeffk[0] ;
+
+      } else if ( m_radiusTempDepType_Ns[k] == LTR_MODEL_ARRHENIUS ) {
+	//m_coeffRadius_Ns[k][0] holds A
+	//m_coeffRadius_Ns[k][1] holds n
+	//m_coeffRadius_Ns[k][2] holds Tact
+	//m_coeffRadius_Ns[k][3] holds log(A)
+	m_hydrodynamic_radius[k] = coeffk[0] * exp( coeffk[1] * m_logt 
+						    - coeffk[2] / m_temp );
+      
+      } else if ( m_radiusTempDepType_Ns[k] == LTR_MODEL_POLY ) {
+	m_hydrodynamic_radius[k] = coeffk[0]
+	  + coeffk[1] * m_temp
+	  + coeffk[2] * m_temp * m_temp
+	  + coeffk[3] * m_temp * m_temp * m_temp
+	  + coeffk[4] * m_temp * m_temp * m_temp * m_temp;
+
+      } else if ( m_radiusTempDepType_Ns[k] == LTR_MODEL_NOTSET ) {
+	throw CanteraError("LiquidTransport::updateHydrodynamicRadius_T",
+			   "Hydrodynamic Radius Model is not set for species " 
+			   + m_thermo->speciesName(k) 
+			   + " in the input file");
+      } else {
+	throw CanteraError("LiquidTransport::updateHydrodynamicRadius_T",
+			   "Hydrodynamic Radius Model for species "
+			   + m_thermo->speciesName(k) 
+			   + " is not handled by this object");
+      }
+      m_radi_temp_ok = true;
+      m_diff_mix_ok = false;
     }
   }
 
