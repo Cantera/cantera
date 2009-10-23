@@ -12,6 +12,26 @@
 
 namespace Cantera {
 
+
+    //! Composition dependence type for liquid mixture transport properties
+    /*!
+     *  Types of temperature dependencies:
+     *     0  - Use solvent (species 0) properties
+     *     1  - Properties weighted linearly by mole fractions
+     *     2  - Properties weighted linearly by mass fractions
+     *     3  - Properties weighted logarithmically by mole fractions (interaction energy weighting)
+     *     4  - Interactions given pairwise between each possible species (i.e. D_ij)
+     */
+  enum LiquidTranMixingModel {
+    LTR_MIXMODEL_NOTSET=-1,
+    LTR_MIXMODEL_SOLVENT, 
+    LTR_MIXMODEL_MOLEFRACS,
+    LTR_MIXMODEL_MASSFRACS,
+    LTR_MIXMODEL_LOG_MOLEFRACS,
+    LTR_PAIRWISE_INTERACTIONS
+  };
+  
+
     /**
      * Holds transport model parameters relevant to transport in 
      * liquids for which activated jump processes limit transport
@@ -24,25 +44,6 @@ namespace Cantera {
 
         LiquidTransportParams() {}
         ~LiquidTransportParams() {}
-
-
-	//section for liquid transport properties
-
-	//Arrhenius parameters for transport coefficients:
-
-	//!Arrhenius pre-exponential parameter for viscosity.
-	vector_fp  visc_A; 
-	//!Temperature exponent for viscosity.
-	vector_fp  visc_n; 
-	//!Arrhenius activation temperature for viscosity.
-	vector_fp  visc_Tact; 
-
-	//!Arrhenius pre-exponential parameter for thermal conductivity.
-	vector_fp  thermCond_A; 
-	//!Temperature exponent for thermal conductivity.
-	vector_fp  thermCond_n; 
-	//!Arrhenius activation temperature for thermal conductivity.
-	vector_fp  thermCond_Tact; 
 
 	//! Energies of molecular interaction associated with viscosity.
 	/** 
@@ -58,29 +59,6 @@ namespace Cantera {
 
 	//! Entropies of molecular interaction associated with viscosity.
 	DenseMatrix  visc_Sij; 
-
-	//Hydrodynamic radius of transported molecule
-	vector_fp hydroRadius;
-
-        //! Coefficients for the limiting conductivity of ions 
-        //! in solution: A_k
-        /*!
-         *  This is used in the following formula for the
-         *  limiting conductivity of the kth ion.
-         *
-         *   ln (lambda^o_k nu_solv) = A_k + B_k / T
-         *
-         * nu_solv is the pure component solvent viscosity
-         *
-         *  Note the limiting conductivities of ions will also
-         *  be used to input the diffusion coefficients. 
-         */
-        vector_fp A_k_cond;
-
-        //! Coefficients for the limiting conductivity of ions
-        //! in solution: B_k
-        vector_fp B_k_cond;
-
 
         std::vector<Cantera::LiquidTransportData> LTData;
 

@@ -26,15 +26,6 @@ namespace Cantera {
         thermo_t* thermo;
         vector_fp        mw;
 
-        // polynomial fits
-	//temperature-fit viscosity 
-        std::vector<vector_fp>            visccoeffs; 
-	//temperature-fit heat conduction 
-        std::vector<vector_fp>            condcoeffs; 
-	//temperature-fit diffusivity 
-	std::vector<vector_fp>            diffcoeffs; 
-        vector_fp                         polytempvec;
-
 	//minimum and maximum temperatures for parameter fits
         doublereal tmax, tmin;
         int mode_;
@@ -56,6 +47,14 @@ namespace Cantera {
         GasTransportParams() {}
         ~GasTransportParams() {}
 
+        // polynomial fits
+	//temperature-fit viscosity 
+        std::vector<vector_fp>            visccoeffs; 
+	//temperature-fit heat conduction 
+        std::vector<vector_fp>            condcoeffs; 
+	//temperature-fit diffusivity 
+	std::vector<vector_fp>            diffcoeffs; 
+        vector_fp                         polytempvec;
 
         std::vector<std::vector<int> > poly;
         std::vector<vector_fp >   omega22_poly;
