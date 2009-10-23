@@ -36,6 +36,7 @@ namespace Cantera {
     m_nsp(0),
     m_tmin(-1.0),
     m_tmax(100000.),
+    m_compositionDepType(-1),
     m_iStateMF(-1),
     m_temp(-1.0),
     m_logt(0.0),
@@ -60,6 +61,7 @@ namespace Cantera {
     m_nsp(0),
     m_tmin(-1.0),
     m_tmax(100000.),
+    m_compositionDepType(-1),
     m_iStateMF(-1),
     m_temp(-1.0),
     m_logt(0.0),
@@ -92,17 +94,17 @@ namespace Cantera {
     m_tmin                                = right.m_tmin;
     m_tmax                                = right.m_tmax;
     m_mw                                  = right.m_mw;
-    m_visc_A                              = right.m_visc_A; 
-    m_visc_logA                           = right.m_visc_logA; 
-    m_visc_n                              = right.m_visc_n; 
-    m_visc_Tact                           = right.m_visc_Tact; 
+    m_viscTempDepType_Ns                  = right.m_viscTempDepType_Ns;
+    m_lambdaTempDepType_Ns                = right.m_lambdaTempDepType_Ns;
+    m_diffTempDepType_Ns                  = right.m_diffTempDepType_Ns;
+    m_radiusTempDepType_Ns                = right.m_radiusTempDepType_Ns;
+    m_coeffVisc_Ns                        = right.m_coeffVisc_Ns;
+    m_coeffLambda_Ns                      = right.m_coeffLambda_Ns;
+    m_coeffDiff_Ns                        = right.m_coeffDiff_Ns;
+    m_coeffRadius_Ns                      = right.m_coeffRadius_Ns;
     m_visc_Eij                            = right.m_visc_Eij; 
     m_visc_Sij                            = right.m_visc_Sij; 
-    m_thermCond_A                         = right.m_thermCond_A; 
-    m_thermCond_n                         = right.m_thermCond_n; 
-    m_thermCond_Tact                      = right.m_thermCond_Tact; 
     m_hydrodynamic_radius                 = right.m_hydrodynamic_radius;
-    m_diffcoeffs                          = right.m_diffcoeffs;
     m_Grad_X                              = right.m_Grad_X;
     m_Grad_T                              = right.m_Grad_T;
     m_Grad_V                              = right.m_Grad_V;
@@ -110,7 +112,7 @@ namespace Cantera {
     m_bdiff                               = right.m_bdiff;
     m_viscSpecies                         = right.m_viscSpecies;
     m_logViscSpecies                      = right.m_logViscSpecies;
-    m_condSpecies                         = right.m_condSpecies;
+    m_lambdaSpecies                       = right.m_lambdaSpecies;
     m_iStateMF = -1;
     m_molefracs                           = right.m_molefracs;
     m_concentrations                      = right.m_concentrations;
@@ -134,7 +136,6 @@ namespace Cantera {
     m_cond_temp_ok   = false;
     m_cond_mix_ok    = false;
     m_mode                                = right.m_mode;
-    m_diam                                = right.m_diam;
     m_debug                               = right.m_debug;
     m_nDim                                = right.m_nDim;
 
@@ -153,45 +154,214 @@ namespace Cantera {
    */
   bool LiquidTransport::initLiquid(LiquidTransportParams& tr) {
 
+    int k;
     // constant substance attributes
     m_thermo = tr.thermo;
     m_nsp   = m_thermo->nSpecies();
     m_tmin  = m_thermo->minTemp();
     m_tmax  = m_thermo->maxTemp();
 
+    /*
+     * Read the transport block in the phase XML Node
+     * It's not an error if this block doesn't exist. Just use the defaults
+     */
+    XML_Node &phaseNode = m_thermo->xml();
+    if (phaseNode.hasChild("transport")) {
+      XML_Node& transportNode = phaseNode.child("transport");
+      if ( transportNode.hasChild("viscosity")) {
+	XML_Node& viscosityNode = transportNode.child("viscosity");
+	string viscosityModel = viscosityNode.attrib("model");
+	if (viscosityModel == "") {
+	  throw CanteraError("LiquidTransport::initLiquid",
+			     "transport::visosity XML node doesn't have a model string");
+	}
+      }
+
+
+
+      string transportModel = transportNode.attrib("model");
+      if (transportModel == "LiquidTransport") {
+        /*
+         * <compositionDependence model="Solvent_Only"/>
+	 *      or
+	 * <compositionDependence model="Mixture_Averaged"/>
+	 */
+	std::string modelName = "";
+	if (getOptionalModel(transportNode, "compositionDependence",
+			      modelName)) {
+	  modelName = lowercase(modelName);
+          if (modelName == "solvent_only") {
+	    m_compositionDepType = 0;
+	  } else if (modelName == "mixture_averaged") {
+	    m_compositionDepType = 1;
+	  } else {
+	    throw CanteraError("LiquidTransport::initLiquid", "Unknown compositionDependence Model: " + modelName);
+	  }
+	}
+
+      
+
+
+      }
+    }
+
     // make a local copy of the molecular weights
     m_mw.resize(m_nsp);
     copy(m_thermo->molecularWeights().begin(), 
 	 m_thermo->molecularWeights().end(), m_mw.begin());
 
-    // copy parameters into local storage
-    m_visc_A           = tr.visc_A ; 
-    m_visc_n           = tr.visc_n ;
-    m_visc_Tact        = tr.visc_Tact ;
+    /*
+     *  Get the input Viscosities
+     */
+    m_viscSpecies.resize(m_nsp);
+    m_coeffVisc_Ns.clear(); 
+    m_coeffVisc_Ns.resize(m_nsp);
+    m_viscTempDepType_Ns.resize(m_nsp);
 
-    //The following two are not yet filled in LiquidTransportParams
-    m_visc_Eij         = tr.visc_Eij ; 
-    m_visc_Sij         = tr.visc_Sij ; 
+    //for each species, assign viscosity model and coefficients
+    for (k = 0; k < m_nsp; k++) {
+      Cantera::LiquidTransportData &ltd = tr.LTData[k];
+      //specify temperature dependence
+      m_viscTempDepType_Ns[k] =  ltd.model_viscosity;
+      //vector kentry corresponds to the k-th entry of m_coeffVisc_Ns
+      vector_fp &kentry = m_coeffVisc_Ns[k]; 
 
-    //save logarithm of pre-exponential for easier computation
-    m_visc_logA.resize(m_nsp);
-    for ( int i = 0; i < m_nsp; i++ )
-      m_visc_logA[i] = log( m_visc_A[i] );
+      if ( m_viscTempDepType_Ns[k] == LTR_MODEL_CONSTANT
+	   || m_viscTempDepType_Ns[k] == LTR_MODEL_POLY ) {
+	kentry = ltd.viscCoeffs;
 
-    m_thermCond_A      = tr.thermCond_A ; 
-    m_thermCond_n      = tr.thermCond_n ;
-    m_thermCond_Tact   = tr.thermCond_Tact ;
-    
-    m_hydrodynamic_radius = tr.hydroRadius ;
+      } else if ( m_viscTempDepType_Ns[k] == LTR_MODEL_ARRHENIUS ) {
+	kentry = ltd.viscCoeffs;
+	//for Arrhenius form, also carry the logarithm of the pre-exponential
+	kentry[3] = log( kentry[0] );
 
+      } else if ( m_viscTempDepType_Ns[k] == LTR_MODEL_NOTSET ) {
+	//we might be OK with viscosity not being set so
+	// this error is repeated in updateViscosity_T()
+	// and can be deleted from here if appropriate
+	throw CanteraError("LiquidTransport::initLiquid",
+			   "Viscosity Model is not set for species " 
+			   + m_thermo->speciesName(k) 
+			   + " in the input file");
+      } else {
+	throw CanteraError("LiquidTransport::initLiquid",
+			   "Viscosity Model for species "
+			   + m_thermo->speciesName(k)
+			   + " is not handled by this object");
+      }
+    }
 
-    //m_diffcoeffs = tr.diffcoeffs;
+    /*
+     *  Get the input Thermal Conductivities
+     */
+    m_lambdaSpecies.resize(m_nsp);
+    m_coeffLambda_Ns.clear(); 
+    m_coeffLambda_Ns.resize(m_nsp);
+    m_lambdaTempDepType_Ns.resize(m_nsp);
+
+    //for each species, assign viscosity model and coefficients
+    for (k = 0; k < m_nsp; k++) {
+      Cantera::LiquidTransportData &ltd = tr.LTData[k];
+      //specify temperature dependence
+      m_lambdaTempDepType_Ns[k] =  ltd.model_thermalCond;
+      //vector kentry corresponds to the k-th entry of m_coeffLambda_Ns
+      vector_fp &kentry = m_coeffLambda_Ns[k]; 
+
+      if ( m_lambdaTempDepType_Ns[k] == LTR_MODEL_CONSTANT
+	   || m_lambdaTempDepType_Ns[k] == LTR_MODEL_POLY ) {
+	kentry = ltd.thermalCondCoeffs;
+
+      } else if ( m_lambdaTempDepType_Ns[k] == LTR_MODEL_ARRHENIUS ) {
+	kentry = ltd.thermalCondCoeffs;
+	//for Arrhenius form, also carry the logarithm of the pre-exponential
+	kentry[3] = log( kentry[0] );
+
+      } else if ( m_lambdaTempDepType_Ns[k] == LTR_MODEL_NOTSET ) {
+	throw CanteraError("LiquidTransport::initLiquid",
+			   "Thermal conductivity model is not set for species " 
+			   + m_thermo->speciesName(k)
+			   + " in the input file");
+      } else {
+	throw CanteraError("LiquidTransport::initLiquid",
+			   "Thermal conductivity model for species "
+			   + m_thermo->speciesName(k)
+			   + " is not handled by this object");
+      }
+    }
+
+    /*
+     *  Get the input Hydrodynamic Radii
+     */
+    m_hydrodynamic_radius.resize(m_nsp);
+    m_coeffRadius_Ns.clear(); 
+    m_coeffRadius_Ns.resize(m_nsp);
+    m_radiusTempDepType_Ns.resize(m_nsp);
+
+    //for each species, assign viscosity model and coefficients
+    for (k = 0; k < m_nsp; k++) {
+      Cantera::LiquidTransportData &ltd = tr.LTData[k];
+      //specify temperature dependence
+      m_radiusTempDepType_Ns[k] =  ltd.model_hydroradius;
+      //vector kentry corresponds to the k-th entry of m_coeffRadius_Ns
+      vector_fp &kentry = m_coeffRadius_Ns[k]; 
+
+      if ( m_radiusTempDepType_Ns[k] == LTR_MODEL_CONSTANT
+	   || m_radiusTempDepType_Ns[k] == LTR_MODEL_POLY ) {
+	kentry = ltd.hydroRadiusCoeffs;
+
+      } else if ( m_radiusTempDepType_Ns[k] == LTR_MODEL_ARRHENIUS ) {
+	kentry = ltd.hydroRadiusCoeffs;
+	//for Arrhenius form, also carry the logarithm of the pre-exponential
+	kentry[3] = log( kentry[0] );
+
+      } else if ( m_radiusTempDepType_Ns[k] == LTR_MODEL_NOTSET ) {
+	throw CanteraError("LiquidTransport::initLiquid",
+			   "Hydrodynamic radius model is not set for species " 
+			   + m_thermo->speciesName(k)
+			   + " in the input file");
+      } else {
+	throw CanteraError("LiquidTransport::initLiquid",
+			   "Hydrodynamic radius model for species "
+			   + m_thermo->speciesName(k)
+			   + " is not handled by this object");
+      }
+    }
+
+    /*
+     *  Get the input Species Diffusivities
+     *  Note that species diffusivities are not what is needed.
+     *  Rather the Stefan Boltzmann interaction parameters are 
+     *  needed for the current model.  This section may, therefore,
+     *  be extraneous.
+     */
+    //    m_viscSpecies.resize(m_nsp);
+    m_coeffDiff_Ns.clear(); 
+    m_coeffDiff_Ns.resize(m_nsp);
+    m_diffTempDepType_Ns.resize(m_nsp);
+
+    //for each species, assign viscosity model and coefficients
+    for (k = 0; k < m_nsp; k++) {
+      Cantera::LiquidTransportData &ltd = tr.LTData[k];
+      //specify temperature dependence
+      if ( ltd.model_speciesDiffusivity >= 0 
+	   || ltd.speciesDiffusivityCoeffs.size() > 0 ) {
+	cout << "Warning: diffusion coefficient data for " 
+	     << m_thermo->speciesName(k)
+	     <<  endl 
+	     << "in the input file is not used for LiquidTransport model."
+	     <<  endl 
+	     << "LiquidTransport model uses hydrodynamicRadius, viscosity "
+	     <<  endl 
+	     << "and the Stokes-Einstein equation." 
+	     << endl;
+      }
+    }
 
     m_mode       = tr.mode_;
 
     m_viscSpecies.resize(m_nsp);
     m_logViscSpecies.resize(m_nsp);
-    m_condSpecies.resize(m_nsp);
+    m_lambdaSpecies.resize(m_nsp);
     m_bdiff.resize(m_nsp, m_nsp);
 
     m_molefracs.resize(m_nsp);
@@ -237,22 +407,23 @@ namespace Cantera {
    */ 
   doublereal LiquidTransport::viscosity() {
         
-    update_temp();
-    update_conc();
+    update_T();
+    update_C();
 
     if (m_visc_mix_ok) return m_viscmix;
   
     // update m_viscSpecies[] if necessary
     if (!m_visc_temp_ok) {
-      updateViscosity_temp();
+      updateViscosity_T();
     }
 
     if (!m_visc_conc_ok) {
-      updateViscosities_conc();
+      updateViscosities_C();
     }
 
     /* We still need to implement interaction parameters */
     /* This constant viscosity model has no input */
+
     if (viscosityModel_ == LVISC_CONSTANT) {
 
       err("constant viscosity not implemented for LiquidTransport.");
@@ -272,15 +443,17 @@ namespace Cantera {
 	    * ( m_visc_Sij(i,j) + m_visc_Eij(i,j) / m_temp );
       m_viscmix = exp( interaction );
 
+    } else {
+      err("Unknown viscosity model in LiquidTransport::viscosity().");
     }
     
     return m_viscmix;
   }
 
   void LiquidTransport::getSpeciesViscosities(doublereal* visc) { 
-    update_temp();
+    update_T();
     if (!m_visc_temp_ok) {
-      updateViscosity_temp();
+      updateViscosity_T();
     }
     copy(m_viscSpecies.begin(), m_viscSpecies.end(), visc); 
   }
@@ -292,19 +465,23 @@ namespace Cantera {
   void LiquidTransport::getBinaryDiffCoeffs(int ld, doublereal* d) {
     int i,j;
 
-    update_temp();
+    if ( ld != m_nsp ) 
+      throw CanteraError("LiquidTransport::getBinaryDiffCoeffs",
+			 "First argument does not correspond to number of species in model.\nDiff Coeff matrix may be misdimensioned");
+    update_T();
 
     // if necessary, evaluate the binary diffusion coefficents
     // from the polynomial fits
-    if (!m_diff_temp_ok) updateDiff_temp();
-    doublereal pres = m_thermo->pressure();
+    if (!m_diff_temp_ok) updateDiff_T();
 
-    doublereal rp = 1.0/pres;
     for (i = 0; i < m_nsp; i++) 
       for (j = 0; j < m_nsp; j++) {
-	d[ld*j + i] = rp * m_bdiff(i,j);
+	d[ld*j + i] = m_bdiff(i,j);
+
       }
   }
+
+
  //================================================================================================
   //  Get the electrical Mobilities (m^2/V/s).
   /*
@@ -378,30 +555,33 @@ namespace Cantera {
     update_Grad_lnAC();
   }
   //================================================================================================
-  /****************** thermal conductivity **********************/
-
+  /****************** thermal conductivity **********************/  
   /*
    * The thermal conductivity is computed from the following mixture rule:
-   * \[
-   * \lambda = 0.5 \left( \sum_k X_k \lambda_k 
-   * + \frac{1}{\sum_k X_k/\lambda_k}\right)
-   * \]
+   *   \[
+   *    \lambda = \left( \sum_k Y_k \lambda_k \right) 
+   *   \]
    */
   doublereal LiquidTransport::thermalConductivity() {
    
-    update_temp();
-    update_conc();
+    update_T();
+    update_C();
 
     if (!m_cond_temp_ok) {
-      updateCond_temp();
+      updateCond_T();
     } 
     if (!m_cond_mix_ok) {
-      doublereal sum1 = 0.0, sum2 = 0.0;
-      for (int k = 0; k < m_nsp; k++) {
-	sum1 += m_molefracs[k] * m_condSpecies[k];
-	sum2 += m_molefracs[k] / m_condSpecies[k];
+
+      // mass-fraction weighted thermal conductivity
+      {
+	doublereal sum1 = 0.0, sum2 = 0.0;
+	for (int k = 0; k < m_nsp; k++) {
+	  sum1 += m_molefracs[k] * m_mw[k] * m_lambdaSpecies[k];
+	  sum2 += m_molefracs[k] * m_mw[k] ;
+	}
+	m_lambda = sum1 / sum2 ;
       }
-      m_lambda = 0.5*(sum1 + 1.0/sum2);
+
       m_cond_mix_ok = true;
     }
 
@@ -455,8 +635,8 @@ namespace Cantera {
   void LiquidTransport::getSpeciesFluxesExt(int ldf, doublereal* fluxes) {
     int n, k;
 
-    update_temp();
-    update_conc();
+    update_T();
+    update_C();
 
 
     getMixDiffCoeffs(DATA_PTR(m_spwork));
@@ -491,12 +671,12 @@ namespace Cantera {
    */
   void LiquidTransport::getMixDiffCoeffs(doublereal* const d) {
 
-    update_temp();
-    update_conc();
+    update_T();
+    update_C();
 
     // update the binary diffusion coefficients if necessary
     if (!m_diff_temp_ok) {
-      updateDiff_temp();
+      updateDiff_T();
     }
  
     int k, j;
@@ -534,20 +714,20 @@ namespace Cantera {
    *  This is called whenever a transport property is
    *  requested.  
    *  The first task is to check whether the temperature has changed
-   *  since the last call to update_temp().
+   *  since the last call to update_T().
    *  If it hasn't then an immediate return is carried out.
    *
    *     @internal
    */ 
-  void LiquidTransport::update_temp()
+  bool LiquidTransport::update_T()
   {
     // First make a decision about whether we need to recalculate
     doublereal t = m_thermo->temperature();
-    if (t == m_temp) return;
+    if (t == m_temp) return false;
 
     // Next do a reality check on temperature value
     if (t < 0.0) {
-      throw CanteraError("LiquidTransport::update_temp()",
+      throw CanteraError("LiquidTransport::update_T()",
 			 "negative temperature "+fp2str(t));
     }
 
@@ -570,7 +750,7 @@ namespace Cantera {
     m_visc_mix_ok = false;
     m_diff_mix_ok = false;
     //  m_cond_mix_ok = false; (don't need it because a lower lvl flag is set    
-
+    return true;
   }                 
 
 
@@ -586,7 +766,7 @@ namespace Cantera {
    *
    *   @internal
    */ 
-  void LiquidTransport::update_conc() {
+  bool LiquidTransport::update_C() {
     // If the pressure has changed then the concentrations 
     // have changed.
     doublereal pres = m_thermo->pressure();
@@ -613,7 +793,7 @@ namespace Cantera {
       concTot_tran_ *= concTot_;
     }
     if (qReturn) {
-      return;
+      return false;
     }
 
     // signal that concentration-dependent quantities will need to
@@ -625,6 +805,8 @@ namespace Cantera {
     m_visc_mix_ok = false;
     m_diff_mix_ok = false;
     m_cond_mix_ok = false;
+
+    return true;
   }
 
 
@@ -680,71 +862,84 @@ namespace Cantera {
 
   /*************************************************************************
    *
-   *    methods to update temperature-dependent properties
+   *    methods to update species temperature-dependent properties 
    *
    *************************************************************************/
 
   /**
-   * Update the temperature-dependent parts of the mixture-averaged 
+   * Update the temperature-dependent parts of the species
    * thermal conductivity. 
    */
-  void LiquidTransport::updateCond_temp() {
+  void LiquidTransport::updateCond_T() {
 
+    int k;
 
-    /*
-    if (m_mode == CK_Mode) {
-      for (k = 0; k < m_nsp; k++) {
-	m_condSpecies[k] = exp(m_condcoeffs[k]);
-      }
-    } else {
-      for (k = 0; k < m_nsp; k++) {
-	m_condSpecies[k] = m_sqrt_t * m_condcoeffs[k];
+    for (k = 0; k < m_nsp; k++) {
+      vector_fp &coeffk = m_coeffLambda_Ns[k];
+
+      if ( m_lambdaTempDepType_Ns[k] == LTR_MODEL_CONSTANT ) {
+	m_lambdaSpecies[k] = coeffk[0] ;
+
+      } else if ( m_lambdaTempDepType_Ns[k] == LTR_MODEL_ARRHENIUS ) {
+	//m_coeffLambda_Ns[k][0] holds A
+	//m_coeffLambda_Ns[k][1] holds n
+	//m_coeffLambda_Ns[k][2] holds Tact
+	//m_coeffLambda_Ns[k][3] holds log(A)
+	m_lambdaSpecies[k] = coeffk[0] * exp( coeffk[1] * m_logt 
+				- coeffk[2] / m_temp );
+      
+      } else if ( m_lambdaTempDepType_Ns[k] == LTR_MODEL_POLY ) {
+	m_lambdaSpecies[k] = coeffk[0]
+	  + coeffk[1] * m_temp
+	  + coeffk[2] * m_temp * m_temp
+	  + coeffk[3] * m_temp * m_temp * m_temp
+	  + coeffk[4] * m_temp * m_temp * m_temp * m_temp;
+
+      } else if ( m_lambdaTempDepType_Ns[k] == LTR_MODEL_NOTSET ) {
+	throw CanteraError("LiquidTransport::updateCond_T",
+			   "Conductivity Model is not set for species " 
+			   + m_thermo->speciesName(k) 
+			   + " in the input file");
+      } else {
+	throw CanteraError("LiquidTransport::updateCond_T",
+			   "Conductivity Model for species "
+			   + m_thermo->speciesName(k) 
+			   + " is not handled by this object");
       }
     }
     m_cond_temp_ok = true;
     m_cond_mix_ok = false;
-    */
   }
 
 
+  //! Update the StefanMaxwell interaction parameters.  
   /**
-   * Update the binary diffusion coefficients. These are evaluated
-   * from the polynomial fits at unit pressure (1 Pa).
+   * These are evaluated using the Stokes-Einstein 
+   * relation from the viscosity and hydrodynamic radius.
    */
-  void LiquidTransport::updateDiff_temp() {
+  void LiquidTransport::updateDiff_T() {
 
-    // evaluate binary diffusion coefficients at unit pressure
+    double *viscSpec = new double(m_nsp);
+    double *radiusSpec = new double(m_nsp);
+    getSpeciesViscosities( viscSpec );
+    getSpeciesHydrodynamicRadius( radiusSpec );
 
-    /*
-    if (m_mode == CK_Mode) {
-      for (i = 0; i < m_nsp; i++) {
-	for (j = i; j < m_nsp; j++) {
-	  m_bdiff(i,j) = exp(m_diffcoeffs[ic]);
-	  m_bdiff(j,i) = m_bdiff(i,j);
-	  ic++;
-	}
+    int i,j;
+    for (i = 0; i < m_nsp; i++) 
+      for (j = 0; j < m_nsp; j++) {
+	m_DiffCoeff_StefMax(i,j) = m_bdiff(i,j) = GasConstant * m_temp 
+	  / ( 6.0 * Pi * radiusSpec[i] * viscSpec[j] ) ;
+	cout << " D_ij = " << m_bdiff(i,j) << " for " 
+	     << m_thermo->speciesName(i) << ", " 
+	     << m_thermo->speciesName(j) << endl; 
       }
-    }       
-    else {
-      for (i = 0; i < m_nsp; i++) {
-	for (j = i; j < m_nsp; j++) {
-	  m_bdiff(i,j) = m_temp * m_sqrt_t*m_diffcoeffs[ic];
-	  m_bdiff(j,i) = m_bdiff(i,j);
-	  ic++;
-	}
-      }
-    }
-
     m_diff_temp_ok = true;
     m_diff_mix_ok = false;
-    */
   }
 
 
-  /**
-   * Update the pure-species viscosities.
-   */
-  void LiquidTransport::updateViscosities_conc() {
+  //! Update the pure-species viscosities functional dependence on concentration.
+  void LiquidTransport::updateViscosities_C() {
     m_visc_conc_ok = true;
   }
 
@@ -755,20 +950,47 @@ namespace Cantera {
    * weighting functions in the viscosity mixture rule.
    * The flag m_visc_ok is set to true.
    */
-  void LiquidTransport::updateViscosity_temp() {
+  void LiquidTransport::updateViscosity_T() {
     int k;
 
     for (k = 0; k < m_nsp; k++) {
-      m_logViscSpecies[k] = m_visc_logA[k] + m_visc_n[k] * m_logt 
-					    + m_visc_Tact[k] / m_temp ;
-      m_viscSpecies[k] = exp( m_logViscSpecies[k] );
+      vector_fp &coeffk = m_coeffVisc_Ns[k];
+
+      if ( m_viscTempDepType_Ns[k] == LTR_MODEL_CONSTANT ) {
+	m_logViscSpecies[k] = log( coeffk[0] );
+	m_viscSpecies[k] = coeffk[0] ;
+
+      } else if ( m_viscTempDepType_Ns[k] == LTR_MODEL_ARRHENIUS ) {
+	//m_coeffVisc_Ns[k][0] holds A
+	//m_coeffVisc_Ns[k][1] holds n
+	//m_coeffVisc_Ns[k][2] holds Tact
+	//m_coeffVisc_Ns[k][3] holds log(A)
+	m_logViscSpecies[k] = coeffk[3] + coeffk[1] * m_logt 
+	  - coeffk[2] / m_temp ;
+	m_viscSpecies[k] = exp( m_logViscSpecies[k] );
+      
+      } else if ( m_viscTempDepType_Ns[k] == LTR_MODEL_POLY ) {
+	m_viscSpecies[k] = coeffk[0]
+	  + coeffk[1] * m_temp
+	  + coeffk[2] * m_temp * m_temp
+	  + coeffk[3] * m_temp * m_temp * m_temp
+	  + coeffk[4] * m_temp * m_temp * m_temp * m_temp;
+	m_logViscSpecies[k] = log( m_viscSpecies[k] );
+
+      } else if ( m_viscTempDepType_Ns[k] == LTR_MODEL_NOTSET ) {
+	throw CanteraError("LiquidTransport::updateViscosity_T",
+			   "Viscosity Model is not set for species " 
+			   + m_thermo->speciesName(k) 
+			   + " in the input file");
+      } else {
+	throw CanteraError("LiquidTransport::updateViscosity_T",
+			   "Viscosity Model for species "
+			   + m_thermo->speciesName(k) 
+			   + " is not handled by this object");
+      }
+      m_visc_temp_ok = true;
+      m_visc_mix_ok = false;
     }
-    //for (k = 0; k < m_nsp; k++) {
-      //m_viscSpecies[k] = m_visc_A[k] * exp( m_visc_n[k] * m_logt 
-      //				    + m_visc_Tact[k] / m_temp );
-    //}
-    m_visc_temp_ok = true;
-    m_visc_mix_ok = false;
   }
 
 
@@ -787,9 +1009,10 @@ namespace Cantera {
     
  
     /*
-     * Update the concentrations in the mixture.
+     * Update the concentrations and diffusion coefficients in the mixture.
      */
-    update_conc();
+    update_C();
+    if ( !m_diff_temp_ok ) updateDiff_T();
 
     double T = m_thermo->temperature();
 
