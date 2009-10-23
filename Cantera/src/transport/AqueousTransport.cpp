@@ -87,9 +87,12 @@ namespace Cantera {
 	 m_thermo->molecularWeights().end(), m_mw.begin());
 
     // copy polynomials and parameters into local storage
-    m_visccoeffs = tr.visccoeffs;
-    m_condcoeffs = tr.condcoeffs;
-    m_diffcoeffs = tr.diffcoeffs;
+    //m_visccoeffs = tr.visccoeffs;
+    //m_condcoeffs = tr.condcoeffs;
+    //m_diffcoeffs = tr.diffcoeffs;
+    cout << "In AqueousTransport::initLiquid we need to replace" << endl
+	 << "LiquidTransportParams polyniomial coefficients with" << endl
+	 <<  "those in LiquidTransportData as in SimpleTransport." << endl;  
 
     m_mode       = tr.mode_;
 
