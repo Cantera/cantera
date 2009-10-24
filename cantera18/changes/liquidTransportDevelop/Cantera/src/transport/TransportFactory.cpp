@@ -885,29 +885,29 @@ namespace Cantera {
 	   *         hydrodynamic radius
 	   *
 	   *  format:
-	   *    <hydrodynamic_radius model="Constant" units ="A"> 3.0  </hydrodynamic_radius>
-	   *    <hydrodynamic_radius> 3.0 </hydrodynamic_radius>
-	   *    <hydrodynamic_radius model="Arrhenius">
+	   *    <hydrodynamicRadius model="Constant" units ="A"> 3.0  </hydrodynamicRadius>
+	   *    <hydrodynamicRadius> 3.0 </hydrodynamicRadius>
+	   *    <hydrodynamicRadius model="Arrhenius">
 	   *       <A units="A">      1.0 </A>
 	   *       <b>                   2.0 </b>
 	   *       <E units="kcal/gmol"> 3.0 </E>
-	   *    </hydrodynamic_radius>
+	   *    </hydrodynamicRadius>
 	   *
-	   *    <hydrodynamic_radius model="Coeff">
+	   *    <hydrodynamicRadius model="Coeff">
 	   *       <float_array>  0.0. 1.0, 2.0, 3.0, 4.0 </float_array> 
-	   *    </hydrodynamic_radius>
+	   *    </hydrodynamicRadius>
 	   *
 	   */
-	  if (trNode.hasChild("hydrodynamic_radius")) {
-	    XML_Node& hnode = trNode.child("hydrodynamic_radius");
+	  if (trNode.hasChild("hydrodynamicRadius")) {
+	    XML_Node& hnode = trNode.child("hydrodynamicRadius");
 	    std::string units = lowercase(hnode["units"]);
 	    if ( units == "" ) 
-	      cout << "Warning::hydrodynamic_radius units not given for "
+	      cout << "Warning::hydrodynamicRadius units not given for "
 		   << name << endl 
 		   << "         Units assumed to be meters." << endl;
 	    std::string model = lowercase(hnode["model"]);
 	    if (model == "" || model == "constant") {
-	      A_k = getFloat(trNode, "hydrodynamic_radius", "toSI");
+	      A_k = getFloat(trNode, "hydrodynamicRadius", "toSI");
 	      //A_k = hnode.fp_value();
 	      //// Angstroms -> meters
 	      //A_k = 1.e-10 * A_k;
@@ -916,7 +916,7 @@ namespace Cantera {
 	      } else throw TransportDBError(linenum,
 					  "negative or zero hydrodynamic radius");
 	      data.model_hydroradius = LTR_MODEL_CONSTANT;
-	    } else if (model == "arrhenius") {
+	    } else if (model == "Arrhenius") {
 	      getArrhenius(hnode, A_k, n_k, Tact_k);
 	      if (A_k <= 0.0) {
 		throw TransportDBError(linenum, "negative or zero viscosity");
@@ -935,7 +935,7 @@ namespace Cantera {
 	      data.model_hydroradius = LTR_MODEL_POLY;
 	    } else {
 	      throw CanteraError(" TransportFactory::getLiquidSpeciesTransportData", 
-				 "Unknown model for   hydrodynamic_radius:" + model);
+				 "Unknown model for   hydrodynamicRadius:" + model);
 	    }
 	  }
 
@@ -965,7 +965,7 @@ namespace Cantera {
 	      else throw TransportDBError(linenum,
 					  "negative or zero viscosity");
 	      data.model_viscosity = LTR_MODEL_CONSTANT;
-	    } else if (model == "arrhenius") {
+	    } else if (model == "Arrhenius") {
 	      getArrhenius(vnode, A_k, n_k, Tact_k);
 	      if (A_k <= 0.0) {
 		throw TransportDBError(linenum, "negative or zero viscosity");
@@ -1011,7 +1011,7 @@ namespace Cantera {
 	      else throw TransportDBError(linenum,
 					  "negative or zero thermalConductivity");
 	      data.model_thermalCond = LTR_MODEL_CONSTANT;
-	    } else if (model == "arrhenius") {
+	    } else if (model == "Arrhenius") {
 	      getArrhenius(tnode, A_k, n_k, Tact_k);
 	      if (A_k <= 0.0) {
 		throw TransportDBError(linenum, "negative or zero thermalConductivity");
@@ -1058,7 +1058,7 @@ namespace Cantera {
 	      else throw TransportDBError(linenum,
 					  "negative or zero speciesDiffusivity");
 	      data.model_speciesDiffusivity = LTR_MODEL_CONSTANT;
-	    } else if (model == "arrhenius") {
+	    } else if (model == "Arrhenius") {
 	      getArrhenius(dnode, A_k, n_k, Tact_k);
 	      if (A_k <= 0.0) {
 		throw TransportDBError(linenum, "negative or zero speciesDiffusivity");
