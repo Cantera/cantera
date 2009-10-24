@@ -1126,10 +1126,25 @@ namespace Cantera {
 
       if ( transportNode.hasChild("viscosity")) {
 	XML_Node& viscosityNode = transportNode.child("viscosity");
-	string viscosityModel = viscosityNode.attrib("model");
-	if (viscosityModel == "") {
-	  throw CanteraError("LiquidTransport::initLiquid",
+	if ( viscosityNode.hasChild("compositionDependence") ) {
+	  string viscosityModel = viscosityNode.child("compositionDependence").attrib("model");
+	  if (viscosityModel == "") {
+	  throw CanteraError("LiquidTransport::getLiquidInteractionsTransportData",
 			     "transport::visosity XML node doesn't have a model string");
+	  } else if ( viscosityModel == "none"){
+	    ;
+	  } else if ( viscosityModel == "solvent"){
+	    throw CanteraError("LiquidTransport::getLiquidInteractionsTransportData",
+			     "solvent interactions not implemented");
+	  } else if ( viscosityModel == "moleFractions"){
+	    ;
+	  } else if ( viscosityModel == "massFractions"){
+	    ;
+	  } else if ( viscosityModel == "logMoleFractions"){
+	    ;
+	  } else if ( viscosityModel == "pairwiseInteractionEnergy"){
+	    ;
+	  }
 	}
       }
   }

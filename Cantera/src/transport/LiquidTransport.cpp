@@ -974,6 +974,14 @@ namespace Cantera {
    * Updates the array of pure species viscosities, and the 
    * weighting functions in the viscosity mixture rule.
    * The flag m_visc_ok is set to true.
+   *
+   * Note that for viscosity, a positive activation energy 
+   * corresponds to the typical case of a positive argument
+   * to the exponential so that the Arrhenius expression is
+   *
+   * \f[
+   *      \mu = A T^n \exp( + E / R T )
+   * \f]
    */
   void LiquidTransport::updateViscosity_T() {
     int k;
@@ -991,7 +999,7 @@ namespace Cantera {
 	//m_coeffVisc_Ns[k][2] holds Tact
 	//m_coeffVisc_Ns[k][3] holds log(A)
 	m_logViscSpecies[k] = coeffk[3] + coeffk[1] * m_logt 
-	  - coeffk[2] / m_temp ;
+	  + coeffk[2] / m_temp ;
 	m_viscSpecies[k] = exp( m_logViscSpecies[k] );
       
       } else if ( m_viscTempDepType_Ns[k] == LTR_MODEL_POLY ) {
