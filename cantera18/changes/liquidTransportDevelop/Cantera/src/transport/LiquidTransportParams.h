@@ -27,8 +27,8 @@ namespace Cantera {
      *       <viscosity>
      *          <compositionDependence model="logMoleFractions">
      *             <interaction>
-     *                <species1> LiCl(L) </species1>
-     *                <species2> KCl(L)  </species2>
+     *                <speciesA> LiCl(L) </speciesA>
+     *                <speciesB> KCl(L)  </speciesB>
      *                <Eij units="J/kmol"> -1.0 </Eij>
      *                <Sij units="J/kmol/K"> 1.0E-1 </Eij>
      *             </interaction>
@@ -37,18 +37,18 @@ namespace Cantera {
      *       <speciesDiffusivity>
      *          <compositionDependence model="pairwiseInteraction">
      *             <interaction>
-     *                <species1> Li+ </species1>
-     *                <species2> K+  </species2>
+     *                <speciesA> Li+ </speciesA>
+     *                <speciesB> K+  </speciesB>
      *                <Dij units="m2/s"> 1.5 </Dij>
      *             </interaction>
      *             <interaction>
-     *                <species1> K+  </species1>
-     *                <species2> Cl- </species2>
+     *                <speciesA> K+  </speciesA>
+     *                <speciesB> Cl- </speciesB>
      *                <Dij units="m2/s"> 1.0 </Dij>
      *             </interaction>
      *             <interaction>
-     *                <species1> Li+  </species1>
-     *                <species2> Cl-  </species2>
+     *                <speciesA> Li+  </speciesA>
+     *                <speciesB> Cl-  </speciesB>
      *                <Dij units="m2/s"> 1.2 </Dij>
      *             </interaction>
      *          </compositionDependence>          
@@ -140,6 +140,12 @@ namespace Cantera {
 	//! Model for species interaction effects for hydrodynamic radius
 	//! Takes enum LiquidTranMixingModel
 	LiquidTranMixingModel model_hydroradius;
+
+	//! Interaction associated with hydrodynamic radius.
+	/**
+	 * Not yet implemented 
+	 */
+	DenseMatrix  radius_Aij; 
     };
 }
 

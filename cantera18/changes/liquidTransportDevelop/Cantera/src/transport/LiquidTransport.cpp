@@ -325,37 +325,40 @@ namespace Cantera {
       }
     }
 
-
-
     /*
-     * Read the transport block in the phase XML Node
-     * It's not an error if this block doesn't exist. Just use the defaults
+     * Here we get interaction parameters from LiquidTransportParams 
+     * that were filled in  TransportFactory::getLiquidInteractionsTransportData
      */
-
-    //HERE WE NEED TO GET THINGS FROM 
-    //TransportFactory::getLiquidInteractionsTransportData
     /*
      * Viscosity mixing rules
      */
     m_viscMixModel = tr.model_viscosity;
     m_visc_Eij.resize(m_nsp,m_nsp);
     m_visc_Sij.resize(m_nsp,m_nsp);
-
-
+    m_visc_Eij = tr.visc_Eij;
+    m_visc_Sij = tr.visc_Sij;
 
     /*
      * Thermal conductivity mixing rules
      */
-    m_lambdaMixModel = tr.model_viscosity;
+    m_lambdaMixModel = tr.model_thermalCond;
     m_lambda_Aij.resize(m_nsp,m_nsp);
+    m_lambda_Aij = tr.thermalCond_Aij;
 
     /*
      * Species Diffusivity binary diffusion coefficients 
      * for Stefan Maxwell equation or "mixing rules" 
      */
-    m_diffMixModel = tr.model_viscosity;
+    m_diffMixModel = tr.model_speciesDiffusivity;
     m_diff_Dij.resize(m_nsp,m_nsp);
+    m_diff_Dij = tr.diff_Dij;
 
+    /*
+     * Hydrodynamic radius mixing model rules
+     */
+    m_radiusMixModel = tr.model_radius;
+    m_radius_Aij.resize(m_nsp,m_nsp);
+    m_radius_Aij = tr.radius_Aij;
 
 
 

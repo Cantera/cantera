@@ -612,6 +612,9 @@ namespace Cantera {
      */
     LiquidTranMixingModel m_radiusMixModel;
 
+    //! Hydrodynamic radius mixing model interaction parameters
+    DenseMatrix m_radius_Aij;
+
 
     //! Polynomial coefficients of the binary diffusion coefficients
     /*!
