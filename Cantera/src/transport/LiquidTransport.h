@@ -514,6 +514,15 @@ namespace Cantera {
     //! Pure species viscosities in temperature-dependent form.
     std::vector<Coeff_T_>  m_coeffVisc_Ns; 
 
+    //! Viscosity mixing model type
+    /*!
+     *  Types of mixing models supported:
+     *     2  - Mole fraction weighting of species viscosities
+     *     3  - Mass fraction weighting of species viscosities
+     *     4  - Mole fraction weighting of logarithms of species viscosities
+     */
+    LiquidTranMixingModel m_viscMixModel;
+
     //! Molecular interaction energies associated with viscosity 
     /** 
      * These multiply the viscosity according to
@@ -528,8 +537,6 @@ namespace Cantera {
      */
     DenseMatrix m_visc_Sij;
 
-
-
     //! Thermal conductivity temperature dependence type
     /*!
      *  Types of temperature dependencies:
@@ -541,6 +548,21 @@ namespace Cantera {
 
     //! Pure species thermal conductivities in temperature-dependent form.
     std::vector<Coeff_T_>  m_coeffLambda_Ns; 
+
+    //! Thermal conductivity mixing model type
+    /*!
+     *  Types of mixing models supported:
+     *     2  - Mole fraction weighting of species viscosities
+     *     3  - Mass fraction weighting of species viscosities
+     */
+    LiquidTranMixingModel m_lambdaMixModel;
+
+    //! Molecular interaction associated with thermal conductivity 
+    /** 
+     * These multiply the viscosity according to
+     *  \f[ exp( \sum_{i} \sum{j} X_i X_j S_{i,j} \f].
+     */
+    DenseMatrix m_lambda_Aij;
 
     //! Diffusion coefficient temperature dependence type
     /*!
@@ -554,6 +576,16 @@ namespace Cantera {
     //! Pure species diffusvities in temperature-dependent form.
     //! Not currently used since we get diffusivity from hydrodynamic radius.
     std::vector<Coeff_T_>  m_coeffDiff_Ns; 
+
+    //! Species diffusivity mixing model type
+    /*!
+     *  Types of mixing models supported:
+     *     5  - Pairwise interactions -- Setfan-Maxwell diffusion coefficients
+     */
+    LiquidTranMixingModel m_diffMixModel;
+
+    //! Setfan-Maxwell diffusion coefficients
+    DenseMatrix m_diff_Dij;
 
 
     vector<bool> useHydroRadius_;
@@ -573,21 +605,13 @@ namespace Cantera {
     //! Species hydrodynamic radius
     vector_fp  m_hydrodynamic_radius;
 
-
-
-    //! Composition dependence of the transport properties
+    //! Hydrodynamic radius mixing model type
     /*!
-     *   The following coefficients are allowed to have simple
-     *   composition dependencies
-     *       mixture viscosity
-     *       mixture thermal conductivity
-     *       
-     *
-     *   Types of composition dependencies
-     *    0 - Solvent values (i.e., species 0) contributes only
-     *    1 - linear combination of mole fractions; 
+     *  Types of mixing models supported:
+     *     0  - No mixing model allowed
      */
-    int m_compositionDepType;
+    LiquidTranMixingModel m_radiusMixModel;
+
 
     //! Polynomial coefficients of the binary diffusion coefficients
     /*!

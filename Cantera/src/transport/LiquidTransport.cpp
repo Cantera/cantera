@@ -36,7 +36,9 @@ namespace Cantera {
     m_nsp(0),
     m_tmin(-1.0),
     m_tmax(100000.),
-    m_compositionDepType(-1),
+    m_viscMixModel(LTR_MIXMODEL_NOTSET),
+    m_lambdaMixModel(LTR_MIXMODEL_NOTSET),
+    m_diffMixModel(LTR_MIXMODEL_NOTSET),
     m_iStateMF(-1),
     m_temp(-1.0),
     m_logt(0.0),
@@ -63,7 +65,6 @@ namespace Cantera {
     m_nsp(0),
     m_tmin(-1.0),
     m_tmax(100000.),
-    m_compositionDepType(-1),
     m_iStateMF(-1),
     m_temp(-1.0),
     m_logt(0.0),
@@ -118,6 +119,9 @@ namespace Cantera {
     m_logViscSpecies                      = right.m_logViscSpecies;
     m_hydrodynamic_radius                 = right.m_hydrodynamic_radius;
     m_lambdaSpecies                       = right.m_lambdaSpecies;
+    m_viscMixModel                        = right.m_viscMixModel;
+    m_lambdaMixModel                      = right.m_lambdaMixModel;
+    m_diffMixModel                        = right.m_diffMixModel;
     m_iStateMF = -1;
     m_molefracs                           = right.m_molefracs;
     m_molefracs_tran                      = right.m_molefracs_tran;
@@ -330,6 +334,28 @@ namespace Cantera {
 
     //HERE WE NEED TO GET THINGS FROM 
     //TransportFactory::getLiquidInteractionsTransportData
+    /*
+     * Viscosity mixing rules
+     */
+    m_viscMixModel = tr.model_viscosity;
+    m_visc_Eij.resize(m_nsp,m_nsp);
+    m_visc_Sij.resize(m_nsp,m_nsp);
+
+
+
+    /*
+     * Thermal conductivity mixing rules
+     */
+    m_lambdaMixModel = tr.model_viscosity;
+    m_lambda_Aij.resize(m_nsp,m_nsp);
+
+    /*
+     * Species Diffusivity binary diffusion coefficients 
+     * for Stefan Maxwell equation or "mixing rules" 
+     */
+    m_diffMixModel = tr.model_viscosity;
+    m_diff_Dij.resize(m_nsp,m_nsp);
+
 
 
 

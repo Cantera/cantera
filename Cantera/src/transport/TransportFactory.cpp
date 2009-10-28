@@ -1133,18 +1133,18 @@ namespace Cantera {
 	  throw CanteraError("LiquidTransport::getLiquidInteractionsTransportData",
 			     "transport::viscosity XML node doesn't have a model string");
 	  } else if ( compositionModel == "none"){
-	    ;
+	    trParam.model_viscosity = LTR_MIXMODEL_NONE;
 	  } else if ( compositionModel == "solvent"){
 	    throw CanteraError("LiquidTransport::getLiquidInteractionsTransportData",
 			     "solvent interactions not implemented");
 	  } else if ( compositionModel == "moleFractions"){
-	    ;
+	    trParam.model_viscosity = LTR_MIXMODEL_MOLEFRACS;
 	  } else if ( compositionModel == "massFractions"){
-	    ;
+	    trParam.model_viscosity = LTR_MIXMODEL_MASSFRACS;
 	  } else if ( compositionModel == "logMoleFractions"){
-	    ;
+	    trParam.model_viscosity = LTR_MIXMODEL_LOG_MOLEFRACS;
 	  } else if ( compositionModel == "pairwiseInteractionEnergy"){
-	    ;
+	    trParam.model_viscosity = LTR_MIXMODEL_PAIRWISE_INTERACTION;
 	  }
 	}
       }
