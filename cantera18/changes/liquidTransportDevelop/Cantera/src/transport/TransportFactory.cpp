@@ -43,7 +43,7 @@
 
 #include <cstdio>
 
-using namespace std;
+//using namespace std;
 
 /**
  * polynomial degree used for fitting collision integrals
@@ -68,7 +68,7 @@ namespace Cantera {
    */
   class TransportDBError : public CanteraError {
   public:
-    TransportDBError(int linenum, string msg) 
+    TransportDBError(int linenum, std::string msg) 
       : CanteraError("getTransportData",
 		     "error reading transport data: " 
 		     + msg + "\n") {}
@@ -77,7 +77,7 @@ namespace Cantera {
 
   class NotImplemented : public CanteraError {
   public:
-    NotImplemented(string method) : CanteraError("Transport",
+    NotImplemented(std::string method) : CanteraError("Transport",
 						 "\n\n\n**** Method "+method+" not implemented. ****\n"
 						 "(Did you forget to specify a transport model?)\n\n\n") {}
   };
@@ -376,7 +376,7 @@ namespace Cantera {
                          "no transport XML node");
     }
     XML_Node& transportNode = phaseNode.child("transport");
-    string transportModel = transportNode.attrib("model");
+    std::string transportModel = transportNode.attrib("model");
     if (transportModel == "") {
       throw CanteraError("TransportFactory::newTransport",
                          "transport XML node doesn't have a model string");
@@ -547,7 +547,7 @@ namespace Cantera {
     // This will fill LiquidTransportParams members visc_Eij, visc_Sij
     trParam.visc_Eij.resize(nsp,nsp);
     trParam.visc_Sij.resize(nsp,nsp);
-    cout << "Still no support for species viscosity interactions in TransportFactory.cpp" << endl;
+    std::cout << "Still no support for species viscosity interactions in TransportFactory.cpp" << std::endl;
 
     XML_Node root, log;
     // Note that getLiquidSpeciesTransportData just populates the pure species transport data.  
@@ -724,7 +724,7 @@ namespace Cantera {
   void TransportFactory::getTransportData(const std::vector<const XML_Node*> &xspecies,  
 					  XML_Node& log, const std::vector<std::string> &names, GasTransportParams& tr)
   {
-    string name;
+    std::string name;
     int geom;
     std::map<std::string, GasTransportData> datatable;
     doublereal welldepth, diam, dipole, polar, rot;
@@ -735,8 +735,8 @@ namespace Cantera {
     // errors. Note that this procedure validates all entries, not 
     // only those for the species listed in 'names'.
 
-    string val, type;
-    map<string, int> gindx;
+    std::string val, type;
+    map<std::string, int> gindx;
     gindx["atom"] = 100;
     gindx["linear"] = 101;
     gindx["nonlinear"] = 102;
@@ -753,7 +753,7 @@ namespace Cantera {
 	XML_Node& tr = sp.child("transport");
 	getString(tr, "geometry", val, type);
 	geom = gindx[val] - 100;
-	map<string, doublereal> fv;
+	map<std::string, doublereal> fv;
 
 	welldepth = getFloat(tr, "LJ_welldepth");
 	diam = getFloat(tr, "LJ_diameter");
@@ -893,7 +893,7 @@ namespace Cantera {
 	   *       <E units="kcal/gmol"> 3.0 </E>
 	   *    </hydrodynamicRadius>
 	   *
-	   *    <hydrodynamicRadius model="Coeff">
+	   *    <hydrodynamicRadius model="Coeffs">
 	   *       <float_array>  0.0. 1.0, 2.0, 3.0, 4.0 </float_array> 
 	   *    </hydrodynamicRadius>
 	   *
@@ -902,8 +902,8 @@ namespace Cantera {
 	    XML_Node& hnode = trNode.child("hydrodynamicRadius");
 	    std::string units = lowercase(hnode["units"]);
 	    if ( units == "" ) 
-	      cout << "Warning::hydrodynamicRadius units not given for "
-		   << name << endl 
+	      std::cout << "Warning::hydrodynamicRadius units not given for "
+		   << name << std::endl 
 		   << "         Units assumed to be meters." << endl;
 	    std::string model = lowercase(hnode["model"]);
 	    if (model == "" || model == "constant") {
@@ -916,10 +916,10 @@ namespace Cantera {
 	      } else throw TransportDBError(linenum,
 					  "negative or zero hydrodynamic radius");
 	      data.model_hydroradius = LTR_MODEL_CONSTANT;
-	    } else if (model == "Arrhenius") {
+	    } else if (model == "arrhenius") {
 	      getArrhenius(hnode, A_k, n_k, Tact_k);
 	      if (A_k <= 0.0) {
-		throw TransportDBError(linenum, "negative or zero viscosity");
+		throw TransportDBError(linenum, "negative or zero hydrodynamic radius");
 	      }
 	      // Angstroms -> meters
 	      //already done in getArrhenius???
@@ -928,7 +928,7 @@ namespace Cantera {
 	      (data.hydroRadiusCoeffs).push_back(n_k);
 	      (data.hydroRadiusCoeffs).push_back(Tact_k);
 	      data.model_hydroradius = LTR_MODEL_ARRHENIUS;
-	    } else if (model == "coeff") {
+	    } else if (model == "coeffs") {
 	      getFloatArray(hnode, vCoeff, true); // if units labeled, convert Angstroms -> meters
 	      data.hydroRadiusCoeffs = vCoeff;
 	      vCoeff.clear();
@@ -951,7 +951,7 @@ namespace Cantera {
 	   *       <E units="kcal/gmol"> 3.0 </E>
 	   *    </viscosity>
 	   *
-	   *    <viscosity model="Coeff">
+	   *    <viscosity model="Coeffs">
 	   *       <float_array>  0.0. 1.0, 2.0, 3.0, 4.0 </float_array> 
 	   *    </viscosity>
 	   *
@@ -965,7 +965,7 @@ namespace Cantera {
 	      else throw TransportDBError(linenum,
 					  "negative or zero viscosity");
 	      data.model_viscosity = LTR_MODEL_CONSTANT;
-	    } else if (model == "Arrhenius") {
+	    } else if (model == "arrhenius") {
 	      getArrhenius(vnode, A_k, n_k, Tact_k);
 	      if (A_k <= 0.0) {
 		throw TransportDBError(linenum, "negative or zero viscosity");
@@ -974,7 +974,7 @@ namespace Cantera {
 	      (data.viscCoeffs).push_back(n_k);
 	      (data.viscCoeffs).push_back(Tact_k);
 	      data.model_viscosity = LTR_MODEL_ARRHENIUS;
-	    } else if (model == "coeff") {
+	    } else if (model == "coeffs") {
 	      getFloatArray(vnode, vCoeff, true);
 	      data.viscCoeffs = vCoeff;
 	      vCoeff.clear();
@@ -1011,7 +1011,7 @@ namespace Cantera {
 	      else throw TransportDBError(linenum,
 					  "negative or zero thermalConductivity");
 	      data.model_thermalCond = LTR_MODEL_CONSTANT;
-	    } else if (model == "Arrhenius") {
+	    } else if (model == "arrhenius") {
 	      getArrhenius(tnode, A_k, n_k, Tact_k);
 	      if (A_k <= 0.0) {
 		throw TransportDBError(linenum, "negative or zero thermalConductivity");
@@ -1020,7 +1020,7 @@ namespace Cantera {
 	      (data.thermalCondCoeffs).push_back(n_k);
 	      (data.thermalCondCoeffs).push_back(Tact_k);
 	      data.model_thermalCond = LTR_MODEL_ARRHENIUS;
-	    } else if (model == "coeff") {
+	    } else if (model == "coeffs") {
 	      getFloatArray(tnode, vCoeff, true);
 	      data.thermalCondCoeffs = vCoeff;
 	      vCoeff.clear();
@@ -1044,7 +1044,7 @@ namespace Cantera {
 	   *       <E units="kcal/gmol"> 3.0 </E>
 	   *    </speciesDiffusivity>
 	   *
-	   *    <speciesDiffusivity model="Coeff">
+	   *    <speciesDiffusivity model="Coeffs">
 	   *       <float_array>  0.0. 1.0, 2.0, 3.0, 4.0 </float_array> 
 	   *    </speciesDiffusivity>
 	   *
@@ -1058,7 +1058,7 @@ namespace Cantera {
 	      else throw TransportDBError(linenum,
 					  "negative or zero speciesDiffusivity");
 	      data.model_speciesDiffusivity = LTR_MODEL_CONSTANT;
-	    } else if (model == "Arrhenius") {
+	    } else if (model == "arrhenius") {
 	      getArrhenius(dnode, A_k, n_k, Tact_k);
 	      if (A_k <= 0.0) {
 		throw TransportDBError(linenum, "negative or zero speciesDiffusivity");
@@ -1067,7 +1067,7 @@ namespace Cantera {
 	      (data.speciesDiffusivityCoeffs).push_back(n_k);
 	      (data.speciesDiffusivityCoeffs).push_back(Tact_k);
 	      data.model_speciesDiffusivity = LTR_MODEL_ARRHENIUS;
-	    } else if (model == "coeff") {
+	    } else if (model == "coeffs") {
 	      getFloatArray(dnode, vCoeff, true);
 	      data.speciesDiffusivityCoeffs = vCoeff;
 	      data.model_speciesDiffusivity = LTR_MODEL_POLY;
@@ -1096,9 +1096,9 @@ namespace Cantera {
       if (trdat.viscCoeffs[0] <= 0.0 ) {
 	throw TransportDBError(0,"no viscosity transport data found for species " 
 			       + names[i]);
-	cout << "No viscosity seen for " << names[i] 
+	std::cout << "No viscosity seen for " << names[i] 
 	     << "but this might not be required depending on what you are trying to do." 
-	     << endl;
+	     << std::endl;
       }
 
       /*
@@ -1127,22 +1127,23 @@ namespace Cantera {
       if ( transportNode.hasChild("viscosity")) {
 	XML_Node& viscosityNode = transportNode.child("viscosity");
 	if ( viscosityNode.hasChild("compositionDependence") ) {
-	  string viscosityModel = viscosityNode.child("compositionDependence").attrib("model");
-	  if (viscosityModel == "") {
+	  XML_Node& compositionNode = viscosityNode.child("compositionDependence");
+	  std::string compositionModel = compositionNode.attrib("model");
+	  if ( compositionModel == "" ) {
 	  throw CanteraError("LiquidTransport::getLiquidInteractionsTransportData",
-			     "transport::visosity XML node doesn't have a model string");
-	  } else if ( viscosityModel == "none"){
+			     "transport::viscosity XML node doesn't have a model string");
+	  } else if ( compositionModel == "none"){
 	    ;
-	  } else if ( viscosityModel == "solvent"){
+	  } else if ( compositionModel == "solvent"){
 	    throw CanteraError("LiquidTransport::getLiquidInteractionsTransportData",
 			     "solvent interactions not implemented");
-	  } else if ( viscosityModel == "moleFractions"){
+	  } else if ( compositionModel == "moleFractions"){
 	    ;
-	  } else if ( viscosityModel == "massFractions"){
+	  } else if ( compositionModel == "massFractions"){
 	    ;
-	  } else if ( viscosityModel == "logMoleFractions"){
+	  } else if ( compositionModel == "logMoleFractions"){
 	    ;
-	  } else if ( viscosityModel == "pairwiseInteractionEnergy"){
+	  } else if ( compositionModel == "pairwiseInteractionEnergy"){
 	    ;
 	  }
 	}

@@ -120,6 +120,7 @@ namespace Cantera {
     m_lambdaSpecies                       = right.m_lambdaSpecies;
     m_iStateMF = -1;
     m_molefracs                           = right.m_molefracs;
+    m_molefracs_tran                      = right.m_molefracs_tran;
     m_concentrations                      = right.m_concentrations;
     m_chargeSpecies                       = right.m_chargeSpecies;
     m_DiffCoeff_StefMax                   = right.m_DiffCoeff_StefMax;
@@ -167,50 +168,6 @@ namespace Cantera {
     m_nsp   = m_thermo->nSpecies();
     m_tmin  = m_thermo->minTemp();
     m_tmax  = m_thermo->maxTemp();
-
-    /*
-     * Read the transport block in the phase XML Node
-     * It's not an error if this block doesn't exist. Just use the defaults
-     */
-    XML_Node &phaseNode = m_thermo->xml();
-    if (phaseNode.hasChild("transport")) {
-      XML_Node& transportNode = phaseNode.child("transport");
-      if ( transportNode.hasChild("viscosity")) {
-	XML_Node& viscosityNode = transportNode.child("viscosity");
-	string viscosityModel = viscosityNode.attrib("model");
-	if (viscosityModel == "") {
-	  throw CanteraError("LiquidTransport::initLiquid",
-			     "transport::visosity XML node doesn't have a model string");
-	}
-      }
-
-
-
-      string transportModel = transportNode.attrib("model");
-      if (transportModel == "LiquidTransport") {
-        /*
-         * <compositionDependence model="Solvent_Only"/>
-	 *      or
-	 * <compositionDependence model="Mixture_Averaged"/>
-	 */
-	std::string modelName = "";
-	if (getOptionalModel(transportNode, "compositionDependence",
-			     modelName)) {
-	  modelName = lowercase(modelName);
-          if (modelName == "solvent_only") {
-	    m_compositionDepType = 0;
-	  } else if (modelName == "mixture_averaged") {
-	    m_compositionDepType = 1;
-	  } else {
-	    throw CanteraError("LiquidTransport::initLiquid", "Unknown compositionDependence Model: " + modelName);
-	  }
-	}
-
-      
-
-
-      }
-    }
 
     // make a local copy of the molecular weights
     m_mw.resize(m_nsp);
@@ -359,10 +316,23 @@ namespace Cantera {
 	     <<  endl 
 	     << "LiquidTransport model uses hydrodynamicRadius, viscosity "
 	     <<  endl 
-	     << "and the Stokes-Einstein equation." 
+	     << "and the Stokes-Einstein equation or Interaction Model." 
 	     << endl;
       }
     }
+
+
+
+    /*
+     * Read the transport block in the phase XML Node
+     * It's not an error if this block doesn't exist. Just use the defaults
+     */
+
+    //HERE WE NEED TO GET THINGS FROM 
+    //TransportFactory::getLiquidInteractionsTransportData
+
+
+
 
     m_mode       = tr.mode_;
 
@@ -372,6 +342,8 @@ namespace Cantera {
     m_bdiff.resize(m_nsp, m_nsp);
 
     m_molefracs.resize(m_nsp);
+    m_molefracs_tran.resize(m_nsp);
+    m_concentrations.resize(m_nsp);
     m_spwork.resize(m_nsp);
 
     // resize the internal gradient variables
