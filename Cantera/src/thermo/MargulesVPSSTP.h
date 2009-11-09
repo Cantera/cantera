@@ -17,7 +17,7 @@
  * U.S. Government retains certain rights in this software.
  */
 /*
- *  $Id: MargulesVPSSTP.h,v 1.1 2009/03/03 21:08:31 hkmoffa Exp $
+ *  $Id$
  */
 
 #ifndef CT_MARGULESVPSSTP_H
