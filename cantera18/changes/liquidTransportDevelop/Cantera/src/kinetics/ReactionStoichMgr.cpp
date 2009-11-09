@@ -5,9 +5,9 @@
 ///
 //------------------------------------------------
 
-// $Author: dggoodwin $
-// $Revision: 1.1 $
-// $Date: 2007/05/04 15:48:44 $
+// $Author$
+// $Revision$
+// $Date$
 
 // turn off warnings under Windows
 #ifdef WIN32

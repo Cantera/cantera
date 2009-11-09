@@ -6,9 +6,9 @@
  *  \link Cantera::VPSSMgr_ConstVol VPSSMgr_ConstVol \endlink).
  */
 /*
- * $Author: hkmoffa $
- * $Revision: 1.3 $
- * $Date: 2009/05/28 23:08:06 $
+ * $Author$
+ * $Revision$
+ * $Date$
  */
 /*
  * Copywrite (2005) Sandia Corporation. Under the terms of 

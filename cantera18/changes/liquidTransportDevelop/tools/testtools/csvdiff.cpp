@@ -3,9 +3,9 @@
  * | CVS File Information | 
  * ------------------------
  * $RCSfile: csvdiff.cpp,v $
- * $Author: hkmoffa $
- * $Date: 2008/01/03 18:54:23 $
- * $Revision: 1.17 $
+ * $Author$
+ * $Date$
+ * $Revision$
  * $Name:  $
  *====================================================================*/
 /*
@@ -719,7 +719,7 @@ int main(int argc, char *argv[])
   printf("\n");
   printf("----------------------------------------------------------\n");
   printf("csvdiff: CSVFile comparison utility program\n");
-  printf("         Version $Revision: 1.17 $\n");
+  printf("         Version $Revision$\n");
   printf("         Harry K. Moffat Div. 9114 Sandia National Labs\n");
   printf("         \n");
   printf("         First  CSV File = %s\n", fileName1);

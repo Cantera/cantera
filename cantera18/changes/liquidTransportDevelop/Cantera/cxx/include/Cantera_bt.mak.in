@@ -15,7 +15,7 @@
 # 
 #
 #####################################################################
-# $Id: Cantera_bt.mak.in,v 1.2 2008/01/21 21:17:52 hkmoffa Exp $
+# $Id$
 #
 #
 # This variable determines whether we are making this example in the

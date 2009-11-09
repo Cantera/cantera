@@ -1,7 +1,7 @@
 #
-# $Revision: 1.1 $
-# $Author: hkmoffa $
-# $Date: 2007/12/20 23:47:41 $
+# $Revision$
+# $Author$
+# $Date$
 #
 #
 test_vcs_nonideal=@COMPILE_VCSNONIDEAL@

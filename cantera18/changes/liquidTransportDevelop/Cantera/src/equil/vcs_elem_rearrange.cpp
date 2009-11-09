@@ -3,9 +3,9 @@
  *   Contains implementations for rearranging the element columns, and
  *   it contains the algorithm for choosing the rearrangement.
  */
-/*  $Author: hkmoffa $
- *  $Date: 2008/12/17 16:56:43 $
- *  $Revision: 1.13 $
+/*  $Author$
+ *  $Date$
+ *  $Revision$
  */
 /*
  * Copywrite (2005) Sandia Corporation. Under the terms of 

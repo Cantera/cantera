@@ -4,8 +4,8 @@
  *   Header file defining class SimpleTransport
  */
 /*
- * $Revision: 1.9 $
- * $Date: 2009/03/27 18:24:39 $
+ * $Revision$
+ * $Date$
  */
 
 #ifndef CT_SIMPLETRAN_H

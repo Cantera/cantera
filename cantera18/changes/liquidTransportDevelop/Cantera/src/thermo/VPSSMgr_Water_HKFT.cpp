@@ -15,8 +15,8 @@
  */
 
 /*
- *  $Date: 2009/05/28 23:08:06 $
- *  $Revision: 1.13 $
+ *  $Date$
+ *  $Revision$
  */
 
 // turn off warnings under Windows

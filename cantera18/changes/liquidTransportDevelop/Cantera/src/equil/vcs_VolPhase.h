@@ -3,7 +3,7 @@
  *   Header for the object representing each phase within vcs
  */
 /*
- * $Id: vcs_VolPhase.h,v 1.29 2009/04/18 00:42:50 hkmoffa Exp $ 
+ * $Id$ 
  */
 /*
  * Copywrite (2005) Sandia Corporation. Under the terms of 

@@ -7,7 +7,7 @@
  *
  */
 /*
- * $Id: IdealGasPhase.cpp,v 1.3 2008/08/23 00:53:54 hkmoffa Exp $
+ * $Id$
  */
 
 #ifdef WIN32

@@ -17,9 +17,9 @@
  * U.S. Government retains certain rights in this software.
  */
 /*
- *  $Author: hkmoffa $
- *  $Date: 2009/01/16 16:24:35 $
- *  $Revision: 1.23 $
+ *  $Author$
+ *  $Date$
+ *  $Revision$
  */
 
 

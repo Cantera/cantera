@@ -8,7 +8,7 @@
  *
  */
 /*
- * $Id: LatticePhase.cpp,v 1.8 2009/01/02 22:34:41 hkmoffa Exp $
+ * $Id$
  */
 
 #include "config.h"

@@ -4,7 +4,7 @@
  */
 
 /*
- * $Id: ctkinetics_methods.cpp,v 1.8 2009/04/19 21:03:10 hkmoffa Exp $
+ * $Id$
  */
 
 

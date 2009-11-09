@@ -5,8 +5,8 @@
  *   one call.
  */
 /*
- * $Revision: 1.2 $
- * $Date: 2009/03/27 00:39:43 $
+ * $Revision$
+ * $Date$
  */
 /*
  * Copywrite 2004 Sandia Corporation. Under the terms of Contract

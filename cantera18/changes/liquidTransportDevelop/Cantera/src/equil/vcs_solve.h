@@ -3,7 +3,7 @@
  *    Header file for the internal object that holds the problem
  */
 /*
- * $Id: vcs_solve.h,v 1.75 2009/04/18 00:42:51 hkmoffa Exp $
+ * $Id$
  */
 /*
  * Copywrite (2005) Sandia Corporation. Under the terms of 

@@ -3,7 +3,7 @@
  *
  */
 /*
- * $Id: Species.h,v 1.2 2007/09/13 15:05:39 hkmoffa Exp $
+ * $Id$
  */
 // Copyright 2001  California Institute of Technology
 

@@ -18,7 +18,7 @@
  * U.S. Government retains certain rights in this software.
  */
 /*
- * $Id: HMWSoln.cpp,v 1.53 2009/03/27 00:38:57 hkmoffa Exp $
+ * $Id$
  */
 //@{
 #ifndef MAX

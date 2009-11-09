@@ -1,9 +1,9 @@
 #/bin/sh
 #
 # $Source: /cvsroot/cantera/cantera/ext/f2c_lapack/Makefile.in,v $
-# $Author: hkmoffa $
-# $Revision: 1.9 $
-# $Date: 2009/01/12 19:34:14 $
+# $Author$
+# $Revision$
+# $Date$
 #
 
 .SUFFIXES :

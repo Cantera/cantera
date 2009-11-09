@@ -5,9 +5,9 @@
  *    (see \ref tranprops and \link Cantera::MixTransport MixTransport \endlink) .
  *
  */
-/* $Author: hkmoffa $
- * $Revision: 1.11 $
- * $Date: 2009/03/27 18:24:39 $
+/* $Author$
+ * $Revision$
+ * $Date$
  */
 // Copyright 2001  California Institute of Technology
 
