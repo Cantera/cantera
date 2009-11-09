@@ -9,7 +9,7 @@
  * U.S. Government retains certain rights in this software.
  */
 /*
- * $Id: WaterSSTP.h,v 1.13 2009/03/27 00:38:58 hkmoffa Exp $
+ * $Id$
  */
 
 #ifndef CT_WATERSSTP_H

@@ -4,9 +4,9 @@
  *       reference-state thermodynamics managers (see \ref spthermo)
  */
 /*
- * $Author: hkmoffa $
- * $Revision: 1.6 $
- * $Date: 2008/09/29 20:03:57 $
+ * $Author$
+ * $Revision$
+ * $Date$
  */
 
 // Copyright 2001  California Institute of Technology

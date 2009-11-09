@@ -6,7 +6,7 @@
  *    \link Cantera::VPSSMgrFactory VPSSMgrFactory\endlink);
  */
 /*
- * $Id: VPSSMgrFactory.cpp,v 1.8 2009/03/04 01:01:57 hkmoffa Exp $
+ * $Id$
  */
 
 /*

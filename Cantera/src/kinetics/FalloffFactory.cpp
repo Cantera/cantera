@@ -2,9 +2,9 @@
  *  @file FalloffFactory.cpp
  */
 
-/*  $Author: hkmoffa $
- *  $Date: 2008/12/29 21:34:08 $
- *  $Revision: 1.6 $
+/*  $Author$
+ *  $Date$
+ *  $Revision$
  */
 
 // Copyright 2001  California Institute of Technology

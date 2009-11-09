@@ -3,8 +3,8 @@
  *  Transport properties for aqueous systems
  */
 /*
- * $Revision: 1.4 $
- * $Date: 2009/03/27 18:24:39 $
+ * $Revision$
+ * $Date$
  */
 
 

@@ -1,9 +1,9 @@
 #/bin/sh
 #
 # $Source: /cvsroot/cantera/cantera/ext/Makefile.in,v $
-# $Author: dggoodwin $
-# $Revision: 1.10 $
-# $Date: 2008/02/13 06:43:27 $
+# $Author$
+# $Revision$
+# $Date$
 #
 # Makefile for ext directory
 #

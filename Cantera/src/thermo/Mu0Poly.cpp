@@ -6,9 +6,9 @@
  *  (see \ref spthermo and class \link Cantera::Mu0Poly Mu0Poly\endlink).
  */
 /*
- * $Author: dggoodwin $
- * $Revision: 1.1 $
- * $Date: 2007/05/04 14:02:42 $
+ * $Author$
+ * $Revision$
+ * $Date$
  */
 
 

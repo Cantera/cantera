@@ -2,7 +2,7 @@
  * @file: solveSP.cpp Implicit surface site concentration solver
  */
 /*
- * $Id: solveSP.cpp,v 1.4 2008/12/17 17:09:37 hkmoffa Exp $
+ * $Id$
  */
 /*
  * Copywrite 2004 Sandia Corporation. Under the terms of Contract

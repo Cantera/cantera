@@ -2,7 +2,7 @@
  * @file clib_defs.h
  */
 /*
- *      $Id: clib_defs.h,v 1.5 2009/07/11 17:16:09 hkmoffa Exp $
+ *      $Id$
  */
 
 

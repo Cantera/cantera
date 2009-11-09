@@ -1,5 +1,5 @@
 /*
- * $Id: vcs_species_thermo.h,v 1.3 2008/04/28 16:08:35 hkmoffa Exp $
+ * $Id$
  */
 
 /*

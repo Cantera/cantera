@@ -5,7 +5,7 @@
  *      \link Cantera::IdealSolidSolnPhase IdealSolidSolnPhase\endlink).
  */
 /*
- * $Id: IdealSolidSolnPhase.cpp,v 1.11 2009/03/27 00:51:39 hkmoffa Exp $
+ * $Id$
  */
 /*
  * Copywrite 2006 Sandia Corporation. Under the terms of Contract

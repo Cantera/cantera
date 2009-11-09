@@ -4,7 +4,7 @@
  */
 /*
  *
- * $Id: vcs_equilibrate.cpp,v 1.7 2009/03/18 17:27:20 hkmoffa Exp $
+ * $Id$
  */
 /*
  * Copywrite (2006) Sandia Corporation. Under the terms of

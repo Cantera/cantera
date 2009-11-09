@@ -3,8 +3,8 @@
  *  Simple mostly constant transport properties
  */
 /* 
- * $Revision: 1.10 $
- * $Date: 2009/03/24 20:44:30 $
+ * $Revision$
+ * $Date$
  */
 
 #include "ThermoPhase.h"

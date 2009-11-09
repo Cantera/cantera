@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: Makefile.in,v 1.96 2009/03/25 01:11:48 hkmoffa Exp $
+# $Id$
 #
 export_dir = $(HOME)/sfdist
 version = @ctversion@

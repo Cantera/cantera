@@ -10,7 +10,7 @@
  * U.S. Government retains certain rights in this software.
  */
 /*
- *  $Id: PDSS.h,v 1.16 2009/01/04 19:21:28 hkmoffa Exp $
+ *  $Id$
  */
 
 #ifndef CT_PDSS_H

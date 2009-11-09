@@ -1,6 +1,6 @@
-/*  $Author: hkmoffa $
- *  $Date: 2008/12/17 16:34:18 $
- *  $Revision: 1.5 $
+/*  $Author$
+ *  $Date$
+ *  $Revision$
  */
 
 /*

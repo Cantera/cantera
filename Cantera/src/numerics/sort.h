@@ -1,7 +1,7 @@
 /**
  *  @file sort.h
  *
- *  $Id: sort.h,v 1.1 2007/05/04 14:40:27 dggoodwin Exp $
+ *  $Id$
  */
 
 #ifndef CT_SORT_H

@@ -4,9 +4,9 @@
  */
 
 /*
- *  $Author: hkmoffa $
- *  $Date: 2008/12/17 17:31:13 $
- *  $Revision: 1.3 $
+ *  $Author$
+ *  $Date$
+ *  $Revision$
  */
 
 #ifdef SRCDIRTREE

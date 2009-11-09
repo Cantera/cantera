@@ -3,7 +3,7 @@
  *  Routines for carrying out various adjustments to the reaction steps
  */
 /*
- *  $Id: vcs_rxnadj.cpp,v 1.34 2009/04/18 00:42:51 hkmoffa Exp $
+ *  $Id$
  */
 /*
  * Copywrite (2006) Sandia Corporation. Under the terms of

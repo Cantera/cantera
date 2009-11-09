@@ -10,9 +10,9 @@
  *     from the ctml tree structures.
  */
 
-/* $Author: hkmoffa $
- * $Revision: 1.10 $
- * $Date: 2009/03/13 03:23:20 $
+/* $Author$
+ * $Revision$
+ * $Date$
  */
 
 // Copyright 2002  California Institute of Technology

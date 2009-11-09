@@ -3,7 +3,7 @@
  *  Code for a one dimensional root finder program.
  */
 /*
- *  $Id: vcs_root1d.cpp,v 1.5 2008/12/17 16:34:18 hkmoffa Exp $
+ *  $Id$
  */
 /*
  * Copywrite (2006) Sandia Corporation. Under the terms of

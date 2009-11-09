@@ -1,9 +1,9 @@
 /**
  *  @file Func1.h
  *
- *  $Author: hkmoffa $
- *  $Date: 2009/03/23 23:25:31 $
- *  $Revision: 1.2 $
+ *  $Author$
+ *  $Date$
+ *  $Revision$
  */
 
 // Copyright 2001  California Institute of Technology

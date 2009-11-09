@@ -1,7 +1,7 @@
 /**
  *  @file IMSTester.cpp
  *
- *  $Id: IMSTester.cpp,v 1.3 2008/12/17 17:31:12 hkmoffa Exp $
+ *  $Id$
  */
 /*
  * Copywrite 2005 Sandia Corporation. Under the terms of Contract

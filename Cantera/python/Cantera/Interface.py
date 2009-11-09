@@ -7,7 +7,7 @@ from SurfacePhase import SurfacePhase, EdgePhase
 from Kinetics import Kinetics
 import XML
 
-__revision__ = "$Id: Interface.py,v 1.8 2007/02/17 10:48:09 dggoodwin Exp $"
+__revision__ = "$Id$"
 
 class Interface(SurfacePhase, Kinetics):    
     """

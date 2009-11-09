@@ -10,9 +10,9 @@
  *     from the ctml tree structures.
  */
 /*
- * $Author: hkmoffa $
- * $Revision: 1.2 $
- * $Date: 2007/06/04 23:09:19 $
+ * $Author$
+ * $Revision$
+ * $Date$
  *
  */
 

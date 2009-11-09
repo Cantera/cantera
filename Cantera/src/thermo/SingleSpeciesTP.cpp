@@ -12,9 +12,9 @@
  */
 
 /*
- *  $Author: hkmoffa $
- *  $Date: 2007/06/05 15:17:15 $
- *  $Revision: 1.10 $
+ *  $Author$
+ *  $Date$
+ *  $Revision$
  */
 
 #include "SingleSpeciesTP.h"

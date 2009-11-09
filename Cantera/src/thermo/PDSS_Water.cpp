@@ -8,7 +8,7 @@
  * U.S. Government retains certain rights in this software.
  */
 /*
- * $Id: PDSS_Water.cpp,v 1.15 2008/12/22 22:40:44 hkmoffa Exp $
+ * $Id$
  */
 #include "ct_defs.h"
 

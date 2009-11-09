@@ -4,9 +4,9 @@
  */
 
 /*
- *  $Author: hkmoffa $
- *  $Date: 2008/12/30 21:49:42 $
- *  $Revision: 1.5 $
+ *  $Author$
+ *  $Date$
+ *  $Revision$
  */
 
 

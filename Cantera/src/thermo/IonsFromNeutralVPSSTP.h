@@ -17,7 +17,7 @@
  * U.S. Government retains certain rights in this software.
  */
 /*
- *  $Id: $
+ *  $Id$
  */
 
 #ifndef CT_IONSFROMNEUTRALVPSSTP_H

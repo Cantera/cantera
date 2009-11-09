@@ -5,9 +5,9 @@
  *
  * @ingroup transportProps
  *
- *  $Author: hkmoffa $
- *  $Date: 2009/03/27 18:24:39 $
- *  $Revision: 1.17 $
+ *  $Author$
+ *  $Date$
+ *  $Revision$
  *
  *  Copyright 2001 California Institute of Technology
  *  See file License.txt for licensing information

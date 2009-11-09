@@ -2,7 +2,7 @@
  * @file ctbdry.h
  */
 /*
- *      $Id: ctbdry.h,v 1.4 2009/07/11 17:16:09 hkmoffa Exp $
+ *      $Id$
  */
 
 #ifndef CTC_BDRY_H

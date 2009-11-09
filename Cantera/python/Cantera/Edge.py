@@ -7,7 +7,7 @@ from SurfacePhase import EdgePhase
 from Kinetics import Kinetics
 import XML
 
-__revision__ = "$Id: Edge.py,v 1.1 2006/04/23 07:27:10 dggoodwin Exp $"
+__revision__ = "$Id$"
 
 class Edge(EdgePhase, Kinetics):    
     """

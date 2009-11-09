@@ -1,7 +1,7 @@
 #
 # python script to create a few key files for the windows build
 #
-# $Id: setup_winmatlab.py,v 1.29 2009/07/20 19:38:53 hkmoffa Exp $
+# $Id$
 #
 import sys
 import os

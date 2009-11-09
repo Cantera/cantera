@@ -1,9 +1,9 @@
 /*
  * @file sortAlgorithms.h
  *
- * $Author: hkmoffa $
- * $Revision: 1.1 $
- * $Date: 2006/07/06 20:13:38 $
+ * $Author$
+ * $Revision$
+ * $Date$
  */
 /*
  * Copywrite 2004 Sandia Corporation. Under the terms of Contract

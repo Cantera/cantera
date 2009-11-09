@@ -7,7 +7,7 @@
  *   pointers are passed to or from the calling application.
  */
 /*
- * $Id: fct.cpp,v 1.14 2009/07/23 16:56:48 hkmoffa Exp $
+ * $Id$
  */
 
 // turn off warnings under Windows
