@@ -55,7 +55,8 @@ namespace Cantera {
     m_cond_temp_ok(false),
     m_cond_mix_ok(false),
     m_mode(-1000),
-    m_debug(false)
+    m_debug(false),
+    m_nDim(1)
   {
   }
 
@@ -81,7 +82,8 @@ namespace Cantera {
     m_cond_temp_ok(false),
     m_cond_mix_ok(false),
     m_mode(-1000),
-    m_debug(false)
+    m_debug(false),
+    m_nDim(1)
   {
     /*
      * Use the assignment operator to do the brunt
@@ -126,9 +128,10 @@ namespace Cantera {
     m_molefracs                           = right.m_molefracs;
     m_molefracs_tran                      = right.m_molefracs_tran;
     m_concentrations                      = right.m_concentrations;
+    m_actCoeff                            = right.m_actCoeff;
+    m_Grad_lnAC                           = right.m_Grad_lnAC;
     m_chargeSpecies                       = right.m_chargeSpecies;
     m_DiffCoeff_StefMax                   = right.m_DiffCoeff_StefMax;
-    viscosityModel_                       = right.viscosityModel_;
     m_B                                   = right.m_B;
     m_A                                   = right.m_A;
     m_temp                                = right.m_temp;
@@ -201,7 +204,7 @@ namespace Cantera {
       } else if ( m_viscTempDepType_Ns[k] == LTR_MODEL_ARRHENIUS ) {
 	kentry = ltd.viscCoeffs;
 	//for Arrhenius form, also carry the logarithm of the pre-exponential
-	kentry[3] = log( kentry[0] );
+	kentry.push_back( log( kentry[0] ) ); //should be entry [3]
 
       } else if ( m_viscTempDepType_Ns[k] == LTR_MODEL_NOTSET ) {
 	//we might be OK with viscosity not being set so
@@ -242,7 +245,7 @@ namespace Cantera {
       } else if ( m_lambdaTempDepType_Ns[k] == LTR_MODEL_ARRHENIUS ) {
 	kentry = ltd.thermalCondCoeffs;
 	//for Arrhenius form, also carry the logarithm of the pre-exponential
-	kentry[3] = log( kentry[0] );
+	kentry.push_back( log( kentry[0] ) );//should be entry [3]
 
       } else if ( m_lambdaTempDepType_Ns[k] == LTR_MODEL_NOTSET ) {
 	throw CanteraError("LiquidTransport::initLiquid",
@@ -280,7 +283,7 @@ namespace Cantera {
       } else if ( m_radiusTempDepType_Ns[k] == LTR_MODEL_ARRHENIUS ) {
 	kentry = ltd.hydroRadiusCoeffs;
 	//for Arrhenius form, also carry the logarithm of the pre-exponential
-	kentry[3] = log( kentry[0] );
+	kentry.push_back( log( kentry[0] ) );//should be entry [3]
 
       } else if ( m_radiusTempDepType_Ns[k] == LTR_MODEL_NOTSET ) {
 	throw CanteraError("LiquidTransport::initLiquid",
@@ -356,7 +359,7 @@ namespace Cantera {
     /*
      * Hydrodynamic radius mixing model rules
      */
-    m_radiusMixModel = tr.model_radius;
+    m_radiusMixModel = tr.model_hydroradius;
     m_radius_Aij.resize(m_nsp,m_nsp);
     m_radius_Aij = tr.radius_Aij;
 
@@ -373,6 +376,8 @@ namespace Cantera {
     m_molefracs.resize(m_nsp);
     m_molefracs_tran.resize(m_nsp);
     m_concentrations.resize(m_nsp);
+    m_actCoeff.resize(m_nsp);
+    m_Grad_lnAC.resize(m_nsp);
     m_spwork.resize(m_nsp);
 
     // resize the internal gradient variables
@@ -433,16 +438,19 @@ namespace Cantera {
     /* We still need to implement interaction parameters */
     /* This constant viscosity model has no input */
 
-    if (viscosityModel_ == LVISC_CONSTANT) {
+    if (m_viscMixModel == LTR_MIXMODEL_NOTSET) {
 
-      err("constant viscosity not implemented for LiquidTransport.");
+      err("A viscosity mixing model must be implemented  for LiquidTransport.");
       //return m_viscmix;
 
-    } else if (viscosityModel_ == LVISC_AVG_ENERGIES) {
+    } else if (m_viscMixModel == LTR_MIXMODEL_MOLEFRACS) {
 
-      m_viscmix = exp( dot_product(m_logViscSpecies, m_molefracs) );
+      m_viscmix = dot_product(m_viscSpecies, m_molefracs) ;
+      for ( int i = 0; i < m_nsp; i++ ) 
+	for ( int j = 0; j < i; j++ ) 
+	  m_viscmix += m_molefracs[i] * m_molefracs[j] * m_visc_Sij(i,j) ;
 
-    } else if (viscosityModel_ == LVISC_INTERACTION) {
+    } else if (m_viscMixModel == LTR_MIXMODEL_LOG_MOLEFRACS) {
 
       // log_visc_mix = sum_i (X_i log_visc_i) + sum_i sum_j X_i X_j G_ij
       double interaction = dot_product(m_logViscSpecies, m_molefracs);
@@ -565,21 +573,26 @@ namespace Cantera {
       m_Grad_V[a] = grad_V[a];
     }
   }
-  //================================================================================================
+  //==============================================================
   void LiquidTransport::set_Grad_T(const doublereal* const grad_T) {
     for (int a = 0; a < m_nDim; a++) {
       m_Grad_T[a] = grad_T[a];
     }
   }
-  //================================================================================================
+  //==============================================================
+  void LiquidTransport::set_Grad_V(const doublereal* const grad_Phi) {
+    for (int a = 0; a < m_nDim; a++) {
+      m_Grad_V[a] = grad_Phi[a];
+    }
+  }
+  //==============================================================
   void LiquidTransport::set_Grad_X(const doublereal* const grad_X) {
     int itop = m_nDim * m_nsp;
     for (int i = 0; i < itop; i++) {
       m_Grad_X[i] = grad_X[i];
     }
-    update_Grad_lnAC();
   }
-  //================================================================================================
+  //==============================================================
   /****************** thermal conductivity **********************/  
   /*
    * The thermal conductivity is computed from the following mixture rule:
@@ -657,12 +670,36 @@ namespace Cantera {
    *      \vec{j}_k = -n M_k D_k \nabla X_k.
    * \f]
    */
+  void LiquidTransport::getSpeciesFluxesES(int ndim, 
+					   const doublereal* grad_T, 
+					   int ldx, 
+					   const doublereal* grad_X, 
+					   int ldf, 
+					   const doublereal* grad_Phi, 
+					   doublereal* fluxes) {
+    set_Grad_T(grad_T);
+    set_Grad_X(grad_X);
+    set_Grad_Phi(grad_Phi);
+    getSpeciesFluxesExt(ldf, fluxes);
+  }
+
+  /**
+   * @param ndim The number of spatial dimensions (1, 2, or 3).
+   * @param grad_T The temperature gradient (ignored in this model).
+   * @param ldx  Leading dimension of the grad_X array.
+   * The diffusive mass flux of species \e k is computed from
+   *
+   * \f[
+   *      \vec{j}_k = -n M_k D_k \nabla X_k.
+   * \f]
+   */
   void LiquidTransport::getSpeciesFluxesExt(int ldf, doublereal* fluxes) {
     int n, k;
 
     update_T();
     update_C();
 
+    update_Grad_lnAC();
 
     getMixDiffCoeffs(DATA_PTR(m_spwork));
 
@@ -843,10 +880,10 @@ namespace Cantera {
    *  other parts of the expression.
    *
    */
+  /*
   void LiquidTransport::update_Grad_lnAC() {
     int k;
     
-
     for (int a = 0; a < m_nDim; a++) {
       // We form the directional derivative
       double * ma_Grad_X = &m_Grad_X[a*m_nsp];
@@ -885,6 +922,36 @@ namespace Cantera {
     m_thermo->setMoleFractions(DATA_PTR(m_molefracs));
 
   }
+  */
+
+  //! Evaluate the gradient of the activity coefficients 
+  //! as they alter the diffusion coefficient.  
+  /**
+   * The required quantity is the derivitive of the logarithm of the 
+   * activity coefficient with respect to the derivative of the 
+   * logarithm of the mole fraction (or whatever concentration 
+   * variable we are using to express chemical potential.
+   *
+   * Returns the vector over species i:
+   * \[
+   *    1 + \partial \left[ \ln ( \gamma_i ) \right] 
+   *       / \partial \left[ \ln ( \X_i  ) \right] 
+   * \]
+   */
+  void LiquidTransport::update_Grad_lnAC() {
+
+    int k;
+    
+    vector_fp grad_lnAC(m_nsp);
+    m_thermo->getdlnActCoeffdlnX( DATA_PTR(grad_lnAC) ); 
+
+    for (k = 0; k < m_nsp; k++) {
+      m_Grad_lnAC[k] = 1.0 + grad_lnAC[k];
+      std::cout << k << " m_Grad_lnAC = " << m_Grad_lnAC[k] << std::endl;
+    }
+
+    return;
+  }
 
   /*************************************************************************
    *
@@ -915,12 +982,11 @@ namespace Cantera {
 					      - coeffk[2] / m_temp );
       
       } else if ( m_lambdaTempDepType_Ns[k] == LTR_MODEL_POLY ) {
-	m_lambdaSpecies[k] = coeffk[0]
-	  + coeffk[1] * m_temp
-	  + coeffk[2] * m_temp * m_temp
-	  + coeffk[3] * m_temp * m_temp * m_temp
-	  + coeffk[4] * m_temp * m_temp * m_temp * m_temp;
-
+	double tempN = 1.0;
+	for ( int i = 0; i < coeffk.size() ; i++ ) {
+	  m_lambdaSpecies[k] += coeffk[i] * tempN;
+	  tempN *= m_temp;
+	}
       } else if ( m_lambdaTempDepType_Ns[k] == LTR_MODEL_NOTSET ) {
 	throw CanteraError("LiquidTransport::updateCond_T",
 			   "Conductivity Model is not set for species " 
@@ -1004,12 +1070,11 @@ namespace Cantera {
 	m_viscSpecies[k] = exp( m_logViscSpecies[k] );
       
       } else if ( m_viscTempDepType_Ns[k] == LTR_MODEL_POLY ) {
-	m_viscSpecies[k] = coeffk[0]
-	  + coeffk[1] * m_temp
-	  + coeffk[2] * m_temp * m_temp
-	  + coeffk[3] * m_temp * m_temp * m_temp
-	  + coeffk[4] * m_temp * m_temp * m_temp * m_temp;
-	m_logViscSpecies[k] = log( m_viscSpecies[k] );
+	double tempN = 1.0;
+	for ( int i = 0; i < coeffk.size() ; i++ ) {
+	  m_viscSpecies[k] += coeffk[i] * tempN;
+	  tempN *= m_temp;
+	}
 
       } else if ( m_viscTempDepType_Ns[k] == LTR_MODEL_NOTSET ) {
 	throw CanteraError("LiquidTransport::updateViscosity_T",
@@ -1058,12 +1123,11 @@ namespace Cantera {
 						    - coeffk[2] / m_temp );
       
       } else if ( m_radiusTempDepType_Ns[k] == LTR_MODEL_POLY ) {
-	m_hydrodynamic_radius[k] = coeffk[0]
-	  + coeffk[1] * m_temp
-	  + coeffk[2] * m_temp * m_temp
-	  + coeffk[3] * m_temp * m_temp * m_temp
-	  + coeffk[4] * m_temp * m_temp * m_temp * m_temp;
-
+	double tempN = 1.0;
+	for ( int i = 0; i < coeffk.size() ; i++ ) {
+	  m_hydrodynamic_radius[k] += coeffk[i] * tempN;
+	  tempN *= m_temp;
+	}
       } else if ( m_radiusTempDepType_Ns[k] == LTR_MODEL_NOTSET ) {
 	throw CanteraError("LiquidTransport::updateHydrodynamicRadius_T",
 			   "Hydrodynamic Radius Model is not set for species " 
@@ -1103,9 +1167,10 @@ namespace Cantera {
 
     double T = m_thermo->temperature();
 
+    update_Grad_lnAC() ;
  
     m_thermo->getStandardVolumes(DATA_PTR(volume_specPM_));
-    m_thermo->getActivityCoefficients(DATA_PTR(actCoeffMolar_));
+    m_thermo->getActivityCoefficients(DATA_PTR(m_actCoeff));
 
     /* 
      *  Calculate the electrochemical potential gradient. This is the
@@ -1138,7 +1203,7 @@ namespace Cantera {
 	m_ck_Grad_mu[a*m_nsp + i] =
 	  m_chargeSpecies[i] * concTot_ * Faraday * m_Grad_V[a]
 	  + concTot_ * (volume_specPM_[i] - M[i]/dens_) * m_Grad_P[a]
-	  + concTot_ * GasConstant * T * m_Grad_lnAC[a*m_nsp+i] / actCoeffMolar_[i]
+	  + concTot_ * GasConstant * T * m_Grad_lnAC[a*m_nsp+i] / m_actCoeff[i]
 	  + concTot_ * GasConstant * T * m_Grad_X[a*m_nsp+i] / xi_denom;
       }
     }
