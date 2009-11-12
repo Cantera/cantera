@@ -314,7 +314,7 @@ namespace Cantera {
     //! Specify the value of the gradient of the temperature
     /*!
      *
-     * @param grad_V Gradient of the temperature (length num dimensions);
+     * @param grad_T Gradient of the temperature (length num dimensions);
      */
     virtual void set_Grad_T(const doublereal* const grad_T);
 
@@ -336,7 +336,7 @@ namespace Cantera {
 
      *  \f[
      *      \nabla \mu_k = RT \nabla ( \ln X_k ) 
-     *      \[ 1 + \nabla ( \ln \gamma_k ) / \nabla ( \ln X_k ) \]
+     *      \left[ 1 + \nabla ( \ln \gamma_k ) / \nabla ( \ln X_k ) \right]
      *  \f]
      *  
      *  The quantity within the square brackets is computed within 
@@ -368,6 +368,38 @@ namespace Cantera {
 				  const doublereal* grad_T, 
 				  int ldx, const doublereal* grad_X, 
 				  int ldf, doublereal* fluxes);
+
+     //!  Return the species diffusive mass fluxes wrt to
+     //!  the mole averaged velocity,
+     /**
+      * @param ndim The number of spatial dimensions (1, 2, or 3).
+      * @param grad_T The temperature gradient (ignored in this model).
+      *                 (length = ndim)
+      * @param ldx  Leading dimension of the grad_X array.
+      *              (usually equal to m_nsp but not always)
+      * @param grad_X Gradients of the mole fraction
+      *             Flat vector with the m_nsp in the inner loop.
+      *             length = ldx * ndim
+      * @param ldf  Leading dimension of the fluxes array 
+      *              (usually equal to m_nsp but not always)
+      * @param grad_Phi Gradients of the electrostatic potential
+      *             length = ndim
+      * @param fluxes  Output of the diffusive mass fluxes
+      *             Flat vector with the m_nsp in the inner loop.
+      *             length = ldx * ndim
+      *
+      *
+      * The diffusive mass flux of species \e k is computed from
+      *
+      *
+      */
+     virtual void getSpeciesFluxesES(int ndim, 
+				     const doublereal* grad_T, 
+				     int ldx, 
+				     const doublereal* grad_X, 
+				     int ldf, 
+				     const doublereal* grad_Phi,
+				     doublereal* fluxes);
 
     //!  Return the species diffusive mass fluxes wrt to
     //!  the mass averaged velocity,
@@ -644,6 +676,22 @@ namespace Cantera {
      */
     vector_fp m_Grad_X;
 
+    //! Gradient of the logarithm of the activity coefficients 
+    //! with respect to the logarithm of the mole fraction, plus one.
+    /*!
+     *  This quantity appears in the gradient of the chemical potential.  
+     *  It multiplies the gradient of the mole fraction, and in this way 
+     * serves to "modify" the diffusion coefficient.  
+     *
+     *    m_Grad_X[k] = 1 + \partial \left[ \ln ( \gamma_i ) \right] 
+     *                  / \partial \left[ \ln ( \X_i  ) \right] 
+     * 
+     * Note that where "molefraction is used here, whatever 
+     * concentration-related variable applies, so that if 
+     * molality is the concentration variable, the gradient of the 
+     * activity coefficient should be with respect to the molality. 
+     *  
+     */
     vector_fp m_Grad_lnAC;
 
     //! Internal value of the gradient of the Temperature vector
@@ -800,9 +848,7 @@ namespace Cantera {
   
     vector_fp volume_specPM_;
 
-    vector_fp actCoeffMolar_;
-
-    vector_fp lnActCoeffMolarDelta_;
+    vector_fp m_actCoeff;
 
     //! Stefan-Maxwell Diffusion Coefficients at T, P and C
     /*!
@@ -810,12 +856,6 @@ namespace Cantera {
      *  a function of Temperature, Pressure, and Concentration.
      */
     DenseMatrix m_DiffCoeff_StefMax;
-
-    //! Viscosity model
-    /*!
-     *
-     */
-    int viscosityModel_;
 
     //! RHS to the stefan-maxwell equation
     DenseMatrix   m_B;
