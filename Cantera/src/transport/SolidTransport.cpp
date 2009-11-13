@@ -74,6 +74,7 @@ namespace Cantera {
      * Thermal Conductivity.
      * \f[
      * \lambda = A T^n \exp(-E/RT)
+     * \f]
      */
     doublereal SolidTransport::thermalConductivity() {
         doublereal t = m_thermo->temperature();
