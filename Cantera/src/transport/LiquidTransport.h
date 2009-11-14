@@ -469,7 +469,6 @@ namespace Cantera {
     //! Solve the stefan_maxell equations for the diffusive fluxes.
     void stefan_maxwell_solve();
 
-
     //!  Update the temperature-dependent viscosity terms.
     //!  Updates the array of pure species viscosities, and the 
     //!  weighting functions in the viscosity mixture rule.
@@ -736,9 +735,11 @@ namespace Cantera {
      *  k is the species index
      *  n is the dimensional index (x, y, or z)
      *  
-     *  ck  m_Grad_mu[n*m_nsp + k]
+     *  \f[
+     *     m_Grad_mu[n*m_nsp + k]
+     *  \f]
      */
-    vector_fp m_ck_Grad_mu;
+    vector_fp m_Grad_mu;
 
     // property values
 
@@ -845,8 +846,8 @@ namespace Cantera {
      */
     vector_fp m_chargeSpecies;
 
-  
-    vector_fp volume_specPM_;
+    //! Specific volume for each species.  Local copy from thermo object.
+    vector_fp m_volume_spec;
 
     vector_fp m_actCoeff;
 
@@ -885,6 +886,13 @@ namespace Cantera {
      *  in units of kg m-3 s-1.
      */
     Array2D m_flux;
+
+    //! Solution of the Stefan Maxwell equation
+    /*!
+     *  This is the diffusion velocity of species k
+     *  in units of m/s and relative to the mole-averaged velocity.
+     */
+    Array2D m_Vdiff;
 
     //! Saved value of the mixture thermal conductivity
     doublereal m_lambda;

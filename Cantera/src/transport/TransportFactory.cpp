@@ -1153,7 +1153,7 @@ namespace Cantera {
 	  trParam.model_viscosity = LTR_MIXMODEL_MASSFRACS;
 	} else if ( compositionModel == "logMoleFractions"){
 	  trParam.model_viscosity = LTR_MIXMODEL_LOG_MOLEFRACS;
-	} else if ( compositionModel == "pairwiseInteractionEnergy"){
+	} else if ( compositionModel == "pairwiseInteraction"){
 	  trParam.model_viscosity = LTR_MIXMODEL_PAIRWISE_INTERACTION;
 	  throw CanteraError("TransportFactory::getLiquidInteractionsTransportData",
 			     "LTR_MIXMODEL_PAIRWISE_INTERACTION interactions not implemented for viscosity");
@@ -1210,7 +1210,7 @@ namespace Cantera {
 	  trParam.model_thermalCond = LTR_MIXMODEL_LOG_MOLEFRACS;
 	  throw CanteraError("TransportFactory::getLiquidInteractionsTransportData",
 			     "LTR_MIXMODEL_LOG_MOLEFRACS interactions not implemented for thermalConductivity");
-	} else if ( compositionModel == "pairwiseInteractionEnergy"){
+	} else if ( compositionModel == "pairwiseInteraction"){
 	  trParam.model_thermalCond = LTR_MIXMODEL_PAIRWISE_INTERACTION;
 	  throw CanteraError("TransportFactory::getLiquidInteractionsTransportData",
 			     "LTR_MIXMODEL_PAIRWISE_INTERACTION interactions not implemented for thermalConductivity");
@@ -1263,10 +1263,8 @@ namespace Cantera {
 	  trParam.model_speciesDiffusivity = LTR_MIXMODEL_MASSFRACS;
 	} else if ( compositionModel == "logMoleFractions"){
 	  trParam.model_speciesDiffusivity = LTR_MIXMODEL_LOG_MOLEFRACS;
-	} else if ( compositionModel == "pairwiseInteractionEnergy"){
+	} else if ( compositionModel == "pairwiseInteraction"){
 	  trParam.model_speciesDiffusivity = LTR_MIXMODEL_PAIRWISE_INTERACTION;
-	  throw CanteraError("TransportFactory::getLiquidInteractionsTransportData",
-			     "LTR_MIXMODEL_PAIRWISE_INTERACTION interactions not implemented for speciesDiffusivity");
 	}
 	int num = compositionNode.nChildren();
 	for (int iChild = 0; iChild < num; iChild++) {
@@ -1319,7 +1317,7 @@ namespace Cantera {
 	  trParam.model_thermalCond = LTR_MIXMODEL_LOG_MOLEFRACS;
 	  throw CanteraError("TransportFactory::getLiquidInteractionsTransportData",
 			     "LTR_MIXMODEL_LOG_MOLEFRACS interactions not implemented for hydrodynamicRadius");
-	} else if ( compositionModel == "pairwiseInteractionEnergy"){
+	} else if ( compositionModel == "pairwiseInteraction"){
 	  trParam.model_thermalCond = LTR_MIXMODEL_PAIRWISE_INTERACTION;
 	  throw CanteraError("TransportFactory::getLiquidInteractionsTransportData",
 			     "LTR_MIXMODEL_PAIRWISE_INTERACTION interactions not implemented for hydrodynamicRadius");
