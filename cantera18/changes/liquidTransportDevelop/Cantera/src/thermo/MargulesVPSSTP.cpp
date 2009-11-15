@@ -656,12 +656,12 @@ namespace Cantera {
    *
    *   he = X_A X_B(B + C(X_A - X_B))
    */
-  void MargulesVPSSTP::s_update_dlnActCoeff_dlnX() const {
+  void MargulesVPSSTP::s_update_dlnActCoeff_dlnC() const {
     int iA, iB;
     doublereal XA, XB, g0 , g1;
     doublereal T = temperature();
 
-    fvo_zero_dbl_1(dlnActCoeffdlnX_Scaled_, m_kk);
+    fvo_zero_dbl_1(dlnActCoeffdlnC_Scaled_, m_kk);
 
     doublereal RT = GasConstant * T;
     for (int i = 0; i <  numBinaryInteractions_; i++) {
@@ -674,17 +674,17 @@ namespace Cantera {
       g0 = (m_HE_b_ij[i] - T * m_SE_b_ij[i]) / RT ;
       g1 = (m_HE_c_ij[i] - T * m_SE_c_ij[i]) / RT;
       
-      dlnActCoeffdlnX_Scaled_[iA] += XA * ( ( - 2.0 + 2.0 * XA ) * g0
+      dlnActCoeffdlnC_Scaled_[iA] += XA * ( ( - 2.0 + 2.0 * XA ) * g0
 					    + ( - 4.0 + 10.0 * XA - 6.0 * XA*XA ) * g1 ) ;
-      dlnActCoeffdlnX_Scaled_[iB] += XB * ( ( - 2.0 + 2.0 * XB ) * g0
+      dlnActCoeffdlnC_Scaled_[iB] += XB * ( ( - 2.0 + 2.0 * XB ) * g0
 					    + (   2.0 -  8.0 * XB + 6.0 * XB*XB ) * g1 ) ;
     }
   }
 
-  void MargulesVPSSTP::getdlnActCoeffdlnX(doublereal *dlnActCoeffdlnX) const {
-    s_update_dlnActCoeff_dlnX();
+  void MargulesVPSSTP::getdlnActCoeffdlnC(doublereal *dlnActCoeffdlnC) const {
+    s_update_dlnActCoeff_dlnC();
     for (int k = 0; k < m_kk; k++) {
-      dlnActCoeffdlnX[k] = dlnActCoeffdlnX_Scaled_[k];
+      dlnActCoeffdlnC[k] = dlnActCoeffdlnC_Scaled_[k];
     }
   }
 
