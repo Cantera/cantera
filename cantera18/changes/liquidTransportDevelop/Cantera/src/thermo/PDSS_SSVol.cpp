@@ -39,7 +39,8 @@ namespace Cantera {
   }
 
 
-  PDSS_SSVol::PDSS_SSVol(VPStandardStateTP *tp, int spindex, std::string inputFile, std::string id) :
+  PDSS_SSVol::PDSS_SSVol(VPStandardStateTP *tp,
+                         int spindex, std::string inputFile, std::string id) :
     PDSS(tp, spindex),
     volumeModel_(cSSVOLUME_CONSTANT),
     m_constMolarVolume(-1.0)
