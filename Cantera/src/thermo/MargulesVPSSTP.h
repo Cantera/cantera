@@ -589,11 +589,25 @@ namespace Cantera {
      * @param dlnActCoeffdT    Output vector of temperature derivatives of the 
      *                         log Activity Coefficients. length = m_kk
      *
-     * @param dlnActCoeffdT  Vector of returned derivatives of
-     *                       ln (actCoeff) wrt temperature.
-     *              (length m_kk, units = 1/K)
      */
     virtual void getdlnActCoeffdT(doublereal *dlnActCoeffdT) const;
+
+ 
+    //! Get the array of derivatives of the log activity coefficients
+    //! with respect to the log mole fractions
+    /*!
+     * This function is a virtual class, but it first appears in
+     * GibbsExcessVPSSTP class and derived classes.
+     * Output vector of log(mole fraction) derivatives of the 
+     * log Activity Coefficients.
+     *
+     *  units = dimensionless
+     *
+     * @param dlnActCoeffdlnX    Output vector of log(mole fraction)  
+     *                 derivatives of the log Activity Coefficients.
+     *                 length = m_kk
+     */
+    virtual void getdlnActCoeffdlnX(doublereal *dlnActCoeffdlnX) const;
 
  
     //@}
@@ -734,6 +748,15 @@ namespace Cantera {
      * wrt temperature.
      */
     void s_update_dlnActCoeff_dT() const;
+
+    //! Update the derivative of the log of the activity coefficients
+    //!  wrt log(mole fraction)
+    /*!
+     * This function will be called to update the internally storred
+     * derivative of the natural logarithm of the activity coefficients
+     * wrt logarithm of the mole fractions.
+     */
+    void s_update_dlnActCoeff_dlnX() const;
 
 
   private:
