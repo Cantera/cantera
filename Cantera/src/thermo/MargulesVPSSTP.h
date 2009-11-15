@@ -593,21 +593,26 @@ namespace Cantera {
     virtual void getdlnActCoeffdT(doublereal *dlnActCoeffdT) const;
 
  
-    //! Get the array of derivatives of the log activity coefficients
-    //! with respect to the log mole fractions
+    //! Get the array of log concentration-like derivatives of the 
+    //! log activity coefficients
     /*!
-     * This function is a virtual class, but it first appears in
-     * GibbsExcessVPSSTP class and derived classes.
-     * Output vector of log(mole fraction) derivatives of the 
-     * log Activity Coefficients.
+     * This function is a virtual method.  For ideal mixtures 
+     * (unity activity coefficients), this can return zero.  
+     * Implementations should take the derivative of the 
+     * logarithm of the activity coefficient with respect to the 
+     * logarithm of the concentration-like variable (i.e. mole fraction,
+     * molality, etc.) that represents the standard state.  
+     * This quantity is to be used in conjunction with derivatives of 
+     * that concentration-like variable when the derivative of the chemical 
+     * potential is taken.  
      *
      *  units = dimensionless
      *
-     * @param dlnActCoeffdlnX    Output vector of log(mole fraction)  
+     * @param dlnActCoeffdlnC    Output vector of log(mole fraction)  
      *                 derivatives of the log Activity Coefficients.
      *                 length = m_kk
      */
-    virtual void getdlnActCoeffdlnX(doublereal *dlnActCoeffdlnX) const;
+    virtual void getdlnActCoeffdlnC(doublereal *dlnActCoeffdlnC) const;
 
  
     //@}
@@ -756,7 +761,7 @@ namespace Cantera {
      * derivative of the natural logarithm of the activity coefficients
      * wrt logarithm of the mole fractions.
      */
-    void s_update_dlnActCoeff_dlnX() const;
+    void s_update_dlnActCoeff_dlnC() const;
 
 
   private:
