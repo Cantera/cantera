@@ -953,7 +953,7 @@ namespace Cantera {
     int k;
     
     vector_fp grad_lnAC(m_nsp);
-    m_thermo->getdlnActCoeffdlnX( DATA_PTR(grad_lnAC) ); 
+    m_thermo->getdlnActCoeffdlnC( DATA_PTR(grad_lnAC) ); 
 
     for (k = 0; k < m_nsp; k++) {
       m_Grad_lnAC[k] = grad_lnAC[k];
