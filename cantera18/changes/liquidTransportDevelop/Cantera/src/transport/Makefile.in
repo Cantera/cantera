@@ -41,7 +41,7 @@ TRAN_OBJ    = TransportFactory.o MultiTransport.o MixTransport.o MMCollisionInt.
 TRAN_H  =  TransportFactory.h MultiTransport.h MixTransport.h \
            MMCollisionInt.h  SolidTransport.h DustyGasTransport.h \
            TransportBase.h L_matrix.h TransportParams.h WaterTransport.h \
-           SimpleTransport.h LiquidTransportData.h
+           SimpleTransport.h
 
 ifeq ($(do_electro),1)
 do_issp = 1
@@ -50,8 +50,8 @@ ELECTRO_H  =  AqueousTransport.h
 endif
 
 ifeq ($(do_issp),1)
-ISSP_OBJ = LiquidTransport.o 
-ISSP_H   = LiquidTransport.h LiquidTransportParams.h
+ISSP_OBJ = LiquidTransport.o LiquidTransportData.o
+ISSP_H   = LiquidTransport.h LiquidTransportParams.h LiquidTransportData.h
 endif
 
 
