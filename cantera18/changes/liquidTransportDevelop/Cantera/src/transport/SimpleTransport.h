@@ -490,20 +490,20 @@ namespace Cantera {
     vector_fp  m_mw;
 
     //! Pure species viscosities in Arrhenius temperature-dependent form.
-    std::vector<Coeff_T_>  m_coeffVisc_Ns; 
+    std::vector<LTPspecies*>  m_coeffVisc_Ns; 
   
     //! Pure species thermal conductivities in Arrhenius temperature-dependent form.
     /*!
      *
      */
-    std::vector<Coeff_T_>  m_coeffLambda_Ns; 
+    std::vector<LTPspecies*>  m_coeffLambda_Ns; 
   
 
     //! Pure species viscosities in Arrhenius temperature-dependent form.
-    std::vector<Coeff_T_>  m_coeffDiff_Ns; 
+    std::vector<LTPspecies*>  m_coeffDiff_Ns; 
 
     
-    std::vector<Coeff_T_>  m_coeffHydroRadius_Ns; 
+    std::vector<LTPspecies*>  m_coeffHydroRadius_Ns; 
   
 
     //! Internal value of the gradient of the mole fraction vector

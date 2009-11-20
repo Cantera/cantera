@@ -83,7 +83,7 @@ namespace Cantera {
   }
   //================================================================================================
   SimpleTransport& SimpleTransport::operator=(const SimpleTransport& right) {
-    if (&right != this) {
+    if (&right == this) {
       return *this; 
     }
     Transport::operator=(right);
@@ -196,10 +196,11 @@ namespace Cantera {
     m_coeffVisc_Ns.clear(); 
     m_coeffVisc_Ns.resize(m_nsp);
 
-    Cantera::LiquidTransportData &ltd0 = tr.LTData[0];
+    //Cantera::LiquidTransportData &ltd0 = tr.LTData[0];
+    std::string spName = m_thermo->speciesName(0);
+    /*
     LiquidTR_Model vm0 =  ltd0.model_viscosity;
     std::string spName0 = m_thermo->speciesName(0);
-    std::string spName = m_thermo->speciesName(0);
     if (vm0 == LTR_MODEL_CONSTANT) {
       tempDepType_ = 0;
     } else if (vm0 == LTR_MODEL_ARRHENIUS) {
@@ -211,12 +212,14 @@ namespace Cantera {
       throw CanteraError("SimpleTransport::initLiquid",
 			 "Viscosity Model for species " + spName0 + " is not handled by this object");
     }
+    */
 
     for (k = 0; k < m_nsp; k++) {
       spName = m_thermo->speciesName(k);
       Cantera::LiquidTransportData &ltd = tr.LTData[k];
-      LiquidTR_Model vm =  ltd.model_viscosity;
-      vector_fp &kentry = m_coeffVisc_Ns[k];
+      //LiquidTR_Model vm =  ltd.model_viscosity;
+      //vector_fp &kentry = m_coeffVisc_Ns[k];
+      /*
       if (vm != vm0) {
 	if (compositionDepType_ != 0) {
 	  throw CanteraError(" SimpleTransport::initLiquid",
@@ -225,7 +228,8 @@ namespace Cantera {
 	   kentry = m_coeffVisc_Ns[0];
 	}
       }
-      kentry = ltd.viscCoeffs;
+      */
+      m_coeffVisc_Ns[k] = ltd.viscosity;
     }
 
     /*
@@ -234,17 +238,18 @@ namespace Cantera {
     m_condSpecies.resize(m_nsp);
     m_coeffLambda_Ns.clear(); 
     m_coeffLambda_Ns.resize(m_nsp);
-    LiquidTR_Model cm0 =  ltd0.model_thermalCond;
-    if (cm0 != vm0) {
-      throw CanteraError("SimpleTransport::initLiquid",
-			 "Conductivity model is not the same as the viscosity model for species " + spName0);
-    }
+    //LiquidTR_Model cm0 =  ltd0.model_thermalCond;
+    //if (cm0 != vm0) {
+    //  throw CanteraError("SimpleTransport::initLiquid",
+    //			 "Conductivity model is not the same as the viscosity model for species " + spName0);
+    //    }
 
     for (k = 0; k < m_nsp; k++) {
       spName = m_thermo->speciesName(k);
       Cantera::LiquidTransportData &ltd = tr.LTData[k];
-      LiquidTR_Model cm =  ltd.model_thermalCond;
-      vector_fp &kentry = m_coeffLambda_Ns[k];
+      //LiquidTR_Model cm =  ltd.model_thermalCond;
+      //vector_fp &kentry = m_coeffLambda_Ns[k];
+      /*
       if (cm != cm0) {
 	if (compositionDepType_ != 0) {
 	  throw CanteraError(" SimpleTransport::initLiquid",
@@ -253,7 +258,8 @@ namespace Cantera {
 	  kentry = m_coeffLambda_Ns[0];
 	}
       }
-      kentry = ltd.thermalCondCoeffs;
+      */
+      m_coeffLambda_Ns[k] = ltd.thermalCond;
     }
 
     /*
@@ -264,7 +270,8 @@ namespace Cantera {
     m_diffSpecies.resize(m_nsp);
     m_coeffDiff_Ns.clear(); 
     m_coeffDiff_Ns.resize(m_nsp);
-    LiquidTR_Model dm0 =  ltd0.model_speciesDiffusivity;
+    //LiquidTR_Model dm0 =  ltd0.model_speciesDiffusivity;
+    /*
     if (dm0 != vm0) {
       if (dm0 == LTR_MODEL_NOTSET) {
 	LiquidTR_Model rm0 =  ltd0.model_hydroradius;
@@ -276,10 +283,12 @@ namespace Cantera {
 	}
       }
     }
+    */
 
     for (k = 0; k < m_nsp; k++) {
       spName = m_thermo->speciesName(k);
       Cantera::LiquidTransportData &ltd = tr.LTData[k];
+      /*
       LiquidTR_Model dm = ltd.model_speciesDiffusivity;
       if (dm == LTR_MODEL_NOTSET) {
 	LiquidTR_Model rm =  ltd.model_hydroradius;
@@ -296,17 +305,28 @@ namespace Cantera {
 			     "hydroradius model is not constant for species " + spName0);
 	}
 	vector_fp &kentry = m_coeffHydroRadius_Ns[k];
-	kentry = ltd.hydroRadiusCoeffs;
+	kentry = ltd.hydroradius;
       } else {
 	if (dm != dm0) {
 	  throw CanteraError(" SimpleTransport::initLiquid",
 			     "different diffusivity models for species " + spName + " and " + spName0 );
 	}
 	vector_fp &kentry = m_coeffDiff_Ns[k];
-	kentry = ltd.speciesDiffusivityCoeffs;
+	kentry = ltd.speciesDiffusivity;
+      }
+      */
+
+      m_coeffDiff_Ns[k] = ltd.speciesDiffusivity;
+      
+      if ( !(m_coeffDiff_Ns[k]) ) {
+	m_coeffHydroRadius_Ns[k] = ltd.hydroradius;
+	if ( !(m_coeffHydroRadius_Ns[k]) ) {
+	  throw CanteraError("SimpleTransport::initLiquid",
+			     "Neither diffusivity nor hydroradius is set for species " + spName);
+	}
       }
     }
-
+    
     
    
 
@@ -690,16 +710,9 @@ namespace Cantera {
    */
   void SimpleTransport::updateCond_T() {
     int k;
-    if (tempDepType_ == 0) {
-      for (k = 0; k < m_nsp; k++) {
-	Coeff_T_ &coeff = m_coeffLambda_Ns[k];
-	m_condSpecies[k] = coeff[0];
-      }
-    } else if (tempDepType_ == 1) {
-      for (k = 0; k < m_nsp; k++) {
-	Coeff_T_ &coeff = m_coeffLambda_Ns[k];
-	m_condSpecies[k] = coeff[0] * pow(m_temp,coeff[1]) * exp(-coeff[2]/m_temp);
-      }
+
+    for (k = 0; k < m_nsp; k++) {
+      m_condSpecies[k] = m_coeffLambda_Ns[k]->getSpeciesTransProp() ;
     }
     m_cond_temp_ok = true;
     m_cond_mix_ok = false;
@@ -714,24 +727,14 @@ namespace Cantera {
       double visc = viscosity();
       double RT = GasConstant * m_temp;
       for (k = 0; k < m_nsp; k++) {
-        Coeff_T_ &coeff = m_coeffHydroRadius_Ns[k];
-	double rad = coeff[0];
+	double rad = m_coeffHydroRadius_Ns[k]->getSpeciesTransProp() ;
 	m_diffSpecies[k] = RT / (6.0 * Pi * visc * rad);
       }
     } else {
-      if (tempDepType_ == 0) {
-	for (k = 0; k < m_nsp; k++) {
-	  Coeff_T_ &coeff = m_coeffDiff_Ns[k];
-	  m_diffSpecies[k] = coeff[0];
-	}
-      } else if (tempDepType_ == 1) {
-	for (k = 0; k < m_nsp; k++) {
-	  Coeff_T_ &coeff = m_coeffDiff_Ns[k];
-	  m_diffSpecies[k] = coeff[0] * pow(m_temp,coeff[1]) * exp(-coeff[2]/m_temp);
-	}
+      for (k = 0; k < m_nsp; k++) {
+	m_diffSpecies[k] = m_coeffDiff_Ns[k]->getSpeciesTransProp();
       }
     }
-
     m_diff_temp_ok = true;
     m_diff_mix_ok = false;
   }
@@ -751,16 +754,8 @@ namespace Cantera {
    */
   void SimpleTransport::updateViscosity_T() {
     int k;
-    if (tempDepType_ == 0) {
-      for (k = 0; k < m_nsp; k++) {
-	Coeff_T_ &coeff = m_coeffVisc_Ns[k];
-	m_viscSpecies[k] = coeff[0];
-      }
-    } else if (tempDepType_ == 1) {
-      for (k = 0; k < m_nsp; k++) {
-	Coeff_T_ &coeff = m_coeffVisc_Ns[k];
-	m_viscSpecies[k] = coeff[0] * pow(m_temp,coeff[1]) * exp(-coeff[2]/m_temp);
-      }
+    for (k = 0; k < m_nsp; k++) {
+      m_viscSpecies[k] = m_coeffVisc_Ns[k]->getSpeciesTransProp();
     }
     m_visc_temp_ok = true;
     m_visc_mix_ok = false;

@@ -30,16 +30,6 @@ using namespace std;
 
 namespace Cantera {
 
-  const int LVISC_CONSTANT     = 0;
-  const int LVISC_INTERACTION  = 1;
-  const int LVISC_AVG_ENERGIES = 2;
-
-  const int LDIFF_CONSTANT         = 0;
-  const int LDIFF_ARHENNIUS        = 1;
-  const int LDIFF_STOKES_EINSTEIN  = 2;
-
-
-
   class LiquidTransportParams;
 
     
@@ -180,7 +170,7 @@ namespace Cantera {
 
 
     //! virtual destructor
-    virtual ~LiquidTransport() {}
+    virtual ~LiquidTransport();
 
     //! Initialize the transport object
     /*!
@@ -540,10 +530,7 @@ namespace Cantera {
      *     1  - extended arrhenius form
      *     2  - polynomial in temperature form
      */
-    vector<LiquidTR_Model> m_viscTempDepType_Ns;
-
-    //! Pure species viscosities in temperature-dependent form.
-    std::vector<Coeff_T_>  m_coeffVisc_Ns; 
+    std::vector<LTPspecies*> m_viscTempDep_Ns;
 
     //! Viscosity mixing model type
     /*!
@@ -575,10 +562,7 @@ namespace Cantera {
      *     1  - extended arrhenius form
      *     2  - polynomial in temperature form
      */
-    vector<LiquidTR_Model> m_lambdaTempDepType_Ns;
-
-    //! Pure species thermal conductivities in temperature-dependent form.
-    std::vector<Coeff_T_>  m_coeffLambda_Ns; 
+    std::vector<LTPspecies*> m_lambdaTempDep_Ns;
 
     //! Thermal conductivity mixing model type
     /*!
@@ -602,11 +586,7 @@ namespace Cantera {
      *     1  - extended arrhenius form
      *     2  - polynomial in temperature form
      */
-    vector<LiquidTR_Model> m_diffTempDepType_Ns;
-
-    //! Pure species diffusvities in temperature-dependent form.
-    //! Not currently used since we get diffusivity from hydrodynamic radius.
-    std::vector<Coeff_T_>  m_coeffDiff_Ns; 
+    std::vector<LTPspecies*> m_diffTempDep_Ns;
 
     //! Species diffusivity mixing model type
     /*!
@@ -619,7 +599,7 @@ namespace Cantera {
     DenseMatrix m_diff_Dij;
 
 
-    vector<bool> useHydroRadius_;
+    std::vector<bool> useHydroRadius_;
 
    //!Hydrodynamic radius temperature dependence type
     /*!
@@ -628,10 +608,7 @@ namespace Cantera {
      *     1  - extended arrhenius form
      *     2  - polynomial in temperature form
      */
-    vector<LiquidTR_Model> m_radiusTempDepType_Ns;
-
-    //! Pure hydrodynamic radius in temperature-dependent form.
-    std::vector<Coeff_T_>  m_coeffRadius_Ns; 
+    std::vector<LTPspecies*> m_radiusTempDep_Ns;
 
     //! Species hydrodynamic radius
     vector_fp  m_hydrodynamic_radius;
@@ -654,7 +631,7 @@ namespace Cantera {
      * added.
      */
     /*
-    vector<vector_fp>            m_diffcoeffs;
+    std::vector<vector_fp>            m_diffcoeffs;
     */
 
 
@@ -921,6 +898,9 @@ namespace Cantera {
     //! Flag to indicate that the pure species viscosities
     //! are current wrt the concentration
     bool m_visc_conc_ok;
+
+    //! Boolean indicating that mixture diffusion coeffs are current
+    bool m_radi_mix_ok;
 
     //! Boolean indicating that temperature dependence of
     //! hydrodynamic radius is current 
