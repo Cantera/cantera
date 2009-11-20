@@ -1,3 +1,15 @@
+/**
+ *  @file LiquidTransportParams.h
+ *  Header file defining class LiquidTransportParams
+ */
+/*
+ *  $Author$
+ *  $Date$
+ *  $Revision$
+ *
+ *
+ *
+ */
 #ifndef CT_LIQUIDTRANSPORTPARAMS_H
 #define CT_LIQUIDTRANSPORTPARAMS_H
 

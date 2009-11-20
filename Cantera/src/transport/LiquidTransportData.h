@@ -1,7 +1,6 @@
 /**
- *  @file TransportFactory.h
- *  Header file defining class TransportFactory
- *     (see \link Cantera::TransportFactory TransportFactory\endlink)
+ *  @file LiquidTransportData.h
+ *  Header file defining class LiquidTransportData
  */
 /*
  *  $Author$
@@ -19,8 +18,6 @@
 // STL includes
 #include <vector>
 #include <string>
-#include <iostream>
-#include <new>
 
 
 
@@ -31,6 +28,15 @@
 
 
 namespace Cantera {
+
+  enum TransportPropertyList {
+    TP_UNKNOWN = -1,
+    TP_VISCOSITY = 0,
+    TP_THERMALCOND,
+    TP_DIFFUSIVITY,
+    TP_HYDRORADIUS,
+    TP_ELECTCOND
+  };
 
   enum LiquidTR_Model {
     //! Temperature dependence type for pure (liquid) species properties
@@ -46,6 +52,85 @@ namespace Cantera {
     LTR_MODEL_POLY
   };
 
+
+  //! Class LTPspecies holds transport parameters for a 
+  //! specific liquid-phase species.
+  /** 
+   * Subclasses handle different means of specifying transport properties
+   * like constant, Arrhenius or polynomial fits.  In its current state, 
+   * it is primarily suitable for specifying temperature dependence, but 
+   * the adjustCoeffsForComposition() method can be implemented to 
+   * adjust for composition dependence.  
+   * Mixing rules for computing mixture transport properties are handled 
+   * separately in 
+   */
+  class LTPspecies {
+
+  public:
+
+    //! Construct an LTPspecies object for a liquid tranport property.
+    /** 
+     *  The transport property is constructed from the 
+     *  XML node, propNode, that is a child of the 
+     *  <transport> node and specifies a type of
+     *  transport property (like viscosity).  
+     */ 
+    LTPspecies( const XML_Node &propNode = 0, 
+		std::string name = "-", 
+		TransportPropertyList tp_ind = TP_UNKNOWN, 
+		thermo_t* thermo = 0 ) : 
+      speciesName(name), 
+      model(LTR_MODEL_NOTSET),
+      property(tp_ind),
+      m_thermo(thermo)
+    {
+      
+    }
+    
+    //! Copy constructor
+    LTPspecies( const LTPspecies &right ); 
+
+    //! Assignment operator
+    LTPspecies&  operator=(const LTPspecies& right );
+
+    ~LTPspecies( ) { }
+
+    //! Returns the vector of pure species tranport property
+    /*!
+     *  The pure species transport property (i.e. pure species viscosity)
+     *  is returned.  Any temperature and composition dependence will be 
+     *  adjusted internally according to the information provided by the 
+     *  thermo object. 
+     */
+    virtual doublereal getSpeciesTransProp( ) { return 0.0; }
+
+    virtual bool checkPositive( ) { return ( coeffs[0] > 0 ); }
+
+  protected:
+    std::string speciesName;
+   
+    //! Model type for the temperature dependence
+    LiquidTR_Model model;
+
+    //! enum indicating what property this is (i.e viscosity)
+    TransportPropertyList property;
+
+    //! Model temperature-dependence ceofficients
+    vector_fp coeffs;
+
+    //! pointer to thermo object to get current temperature
+    thermo_t* m_thermo;
+
+    //! Internal model to adjust species-specific properties for composition.
+    /** Currently just a place holder, but this method could take 
+     * the composition from the thermo object and adjust coefficients 
+     * accoding to some unspecified model.
+     */
+    virtual void adjustCoeffsForComposition() { }
+  };
+
+
+
   //! Class LiquidTransportData holds transport parameters for a 
   //! specific liquid-phase species.
   class LiquidTransportData {
@@ -53,40 +138,170 @@ namespace Cantera {
   public:
 
     LiquidTransportData() : 
-      speciesName("-"), 
-      model_hydroradius(LTR_MODEL_NOTSET),
-      model_viscosity(LTR_MODEL_NOTSET),
-      model_thermalCond(LTR_MODEL_NOTSET),
-      model_speciesDiffusivity(LTR_MODEL_NOTSET)
+      speciesName("-")
     {
     }
+    //! copy constructor
+    LiquidTransportData( const LiquidTransportData &right ) ;
 
-    std::string speciesName;
-   
+    //! Assignment operator
+    LiquidTransportData& operator=(const LiquidTransportData& right ); 
+
+    std::string speciesName;   
+    
     //! Model type for the hydroradius
-    LiquidTR_Model model_hydroradius;
-
-    //! Ceofficients for the hydroradius model
-    vector_fp  hydroRadiusCoeffs;
+    LTPspecies* hydroradius;
 
     //! Model type for the viscosity
-    LiquidTR_Model model_viscosity;
-
-    //! Ceofficients for the viscosity model
-    vector_fp   viscCoeffs; 
+    LTPspecies* viscosity;
 
     //! Model type for the thermal conductivity
-    LiquidTR_Model model_thermalCond;
+    LTPspecies* thermalCond;
    
-    //! Ceofficients for the thermal conductivity model
-    vector_fp   thermalCondCoeffs;
-
+    //! Model type for the electrical conductivity
+    LTPspecies* electCond;
+   
     //! Model type for the speciesDiffusivity
-    LiquidTR_Model model_speciesDiffusivity;
-   
-    //! Ceofficients for the species diffusivity model
-    vector_fp   speciesDiffusivityCoeffs;
+    LTPspecies* speciesDiffusivity;
   };
+
+
+
+
+  //! Class LTPspecies_Const holds transport parameters for a 
+  //! specific liquid-phase species when the transport property 
+  //! is just a constant value.  
+  class LTPspecies_Const : public  LTPspecies{
+
+  public:
+
+    LTPspecies_Const( const XML_Node &propNode, 
+		      std::string name, 
+		      TransportPropertyList tp_ind, 
+		      thermo_t* thermo ) ;
+    
+    //! Copy constructor
+    LTPspecies_Const( const LTPspecies_Const &right ); 
+
+    //! Assignment operator
+    LTPspecies_Const&  operator=(const LTPspecies_Const& right );
+
+    //! Returns the pure species tranport property
+    /*!
+     *  The pure species transport property (i.e. pure species viscosity)
+     *  is returned.  Any temperature and composition dependence will be 
+     *  adjusted internally according to the information provided by the 
+     *  thermo object. 
+     */
+    doublereal getSpeciesTransProp( );
+
+  protected:
+
+    //! Internal model to adjust species-specific properties for composition.
+    /** Currently just a place holder, but this method could take 
+     * the composition from the thermo object and adjust coefficients 
+     * accoding to some unspecified model.
+     */
+    void adjustCoeffsForComposition( ) { }
+  };
+
+
+
+  //! Class LTPspecies_Arrhenius holds transport parameters for a 
+  //! specific liquid-phase species when the transport property 
+  //! is just a constant value.  
+  class LTPspecies_Arrhenius : public  LTPspecies{
+
+  public:
+
+    LTPspecies_Arrhenius( const XML_Node &propNode, 
+			  std::string name, 
+			  TransportPropertyList tp_ind, 
+			  thermo_t* thermo ); 
+    
+    //! Copy constructor
+    LTPspecies_Arrhenius( const LTPspecies_Arrhenius &right ); 
+
+    //! Assignment operator
+    LTPspecies_Arrhenius&  operator=(const LTPspecies_Arrhenius& right );
+
+    //! Returns the pure species tranport property
+    /*!
+     *  The pure species transport property (i.e. pure species viscosity)
+     *  is returned.  Any temperature and composition dependence will be 
+     *  adjusted internally according to the information provided by the 
+     *  thermo object. 
+     */
+    doublereal getSpeciesTransProp( );
+
+  protected:
+
+    //! temperature from thermo object
+    doublereal m_temp;
+
+    //! logarithm of current temperature
+    doublereal m_logt;
+
+    //! most recent evaluation of transport property
+    doublereal m_prop;
+
+    //! logarithm of most recent evaluation of transport property
+    doublereal m_logProp;
+
+    //! Internal model to adjust species-specific properties for composition.
+    /** Currently just a place holder, but this method could take 
+     * the composition from the thermo object and adjust coefficients 
+     * accoding to some unspecified model.
+     */
+    void adjustCoeffsForComposition( ) { }
+  };
+
+
+
+  //! Class LTPspecies_Poly holds transport parameters for a 
+  //! specific liquid-phase species when the transport property 
+  //! is just a constant value.  
+  class LTPspecies_Poly : public  LTPspecies{
+
+  public:
+
+    LTPspecies_Poly( const XML_Node &propNode, 
+		     std::string name, 
+		     TransportPropertyList tp_ind, 
+		     thermo_t* thermo ); 
+    
+    //! Copy constructor
+    LTPspecies_Poly( const LTPspecies_Poly &right ); 
+
+    //! Assignment operator
+    LTPspecies_Poly&  operator=(const LTPspecies_Poly& right );
+
+    //! Returns the pure species tranport property
+    /*!
+     *  The pure species transport property (i.e. pure species viscosity)
+     *  is returned.  Any temperature and composition dependence will be 
+     *  adjusted internally according to the information provided by the 
+     *  thermo object. 
+     */
+    doublereal getSpeciesTransProp( );
+
+  protected:
+
+    //! temperature from thermo object
+    doublereal m_temp;
+
+    //! most recent evaluation of transport property
+    doublereal m_prop;
+
+    //! Internal model to adjust species-specific properties for composition.
+    /** Currently just a place holder, but this method could take 
+     * the composition from the thermo object and adjust coefficients 
+     * accoding to some unspecified model.
+     */
+    void adjustCoeffsForComposition( ){ }
+  };
+
+
 
 }
 #endif
