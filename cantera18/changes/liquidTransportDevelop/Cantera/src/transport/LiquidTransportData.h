@@ -93,7 +93,7 @@ namespace Cantera {
     //! Assignment operator
     LTPspecies&  operator=(const LTPspecies& right );
 
-    ~LTPspecies( ) { }
+    virtual ~LTPspecies( ) { }
 
     //! Returns the vector of pure species tranport property
     /*!
@@ -186,6 +186,8 @@ namespace Cantera {
     //! Assignment operator
     LTPspecies_Const&  operator=(const LTPspecies_Const& right );
 
+    virtual ~LTPspecies_Const( ) { }
+
     //! Returns the pure species tranport property
     /*!
      *  The pure species transport property (i.e. pure species viscosity)
@@ -224,6 +226,8 @@ namespace Cantera {
 
     //! Assignment operator
     LTPspecies_Arrhenius&  operator=(const LTPspecies_Arrhenius& right );
+
+    virtual ~LTPspecies_Arrhenius( ) { }
 
     //! Returns the pure species tranport property
     /*!
@@ -275,6 +279,8 @@ namespace Cantera {
 
     //! Assignment operator
     LTPspecies_Poly&  operator=(const LTPspecies_Poly& right );
+
+    virtual ~LTPspecies_Poly( ) { }
 
     //! Returns the pure species tranport property
     /*!
