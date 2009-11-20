@@ -48,6 +48,7 @@ namespace Cantera {
     m_visc_mix_ok(false),
     m_visc_temp_ok(false),
     m_visc_conc_ok(false),
+    m_radi_mix_ok(false),
     m_radi_temp_ok(false),
     m_radi_conc_ok(false),
     m_diff_mix_ok(false),
@@ -75,6 +76,7 @@ namespace Cantera {
     m_visc_mix_ok(false),
     m_visc_temp_ok(false),
     m_visc_conc_ok(false),
+    m_radi_mix_ok(false),
     m_radi_temp_ok(false),
     m_radi_conc_ok(false),
     m_diff_mix_ok(false),
@@ -93,7 +95,7 @@ namespace Cantera {
   }
 
   LiquidTransport& LiquidTransport::operator=(const LiquidTransport& right) {
-    if (&right != this) {
+    if (&right == this) {
       return *this; 
     }
     Transport::operator=(right);
@@ -101,14 +103,10 @@ namespace Cantera {
     m_tmin                                = right.m_tmin;
     m_tmax                                = right.m_tmax;
     m_mw                                  = right.m_mw;
-    m_viscTempDepType_Ns                  = right.m_viscTempDepType_Ns;
-    m_lambdaTempDepType_Ns                = right.m_lambdaTempDepType_Ns;
-    m_diffTempDepType_Ns                  = right.m_diffTempDepType_Ns;
-    m_radiusTempDepType_Ns                = right.m_radiusTempDepType_Ns;
-    m_coeffVisc_Ns                        = right.m_coeffVisc_Ns;
-    m_coeffLambda_Ns                      = right.m_coeffLambda_Ns;
-    m_coeffDiff_Ns                        = right.m_coeffDiff_Ns;
-    m_coeffRadius_Ns                      = right.m_coeffRadius_Ns;
+    m_viscTempDep_Ns                      = right.m_viscTempDep_Ns;
+    m_lambdaTempDep_Ns                    = right.m_lambdaTempDep_Ns;
+    m_diffTempDep_Ns                      = right.m_diffTempDep_Ns;
+    m_radiusTempDep_Ns                    = right.m_radiusTempDep_Ns;
     m_visc_Eij                            = right.m_visc_Eij; 
     m_visc_Sij                            = right.m_visc_Sij; 
     m_hydrodynamic_radius                 = right.m_hydrodynamic_radius;
@@ -146,6 +144,7 @@ namespace Cantera {
     m_visc_mix_ok    = false;
     m_visc_temp_ok   = false;
     m_visc_conc_ok   = false;
+    m_radi_mix_ok    = false;
     m_radi_temp_ok   = false;
     m_radi_conc_ok   = false;
     m_diff_mix_ok    = false;
@@ -164,6 +163,17 @@ namespace Cantera {
     LiquidTransport* tr = new LiquidTransport(*this);
     return (dynamic_cast<Transport *>(tr));
   }
+
+   LiquidTransport::~LiquidTransport() {
+
+     //These are constructed in TransportFactory::newLTP
+     for ( int k = 0; k < m_nsp; k++) {
+       delete m_viscTempDep_Ns[k];
+       delete m_lambdaTempDep_Ns[k];
+       delete m_radiusTempDep_Ns[k];
+       delete m_diffTempDep_Ns[k];
+     }
+   }
 
   // Initialize the object
   /*
@@ -187,117 +197,36 @@ namespace Cantera {
      *  Get the input Viscosities
      */
     m_viscSpecies.resize(m_nsp);
-    m_coeffVisc_Ns.clear(); 
-    m_coeffVisc_Ns.resize(m_nsp);
-    m_viscTempDepType_Ns.resize(m_nsp);
+    m_viscTempDep_Ns.resize(m_nsp);
 
     //for each species, assign viscosity model and coefficients
     for (k = 0; k < m_nsp; k++) {
       Cantera::LiquidTransportData &ltd = tr.LTData[k];
-      //specify temperature dependence
-      m_viscTempDepType_Ns[k] =  ltd.model_viscosity;
-      //vector kentry corresponds to the k-th entry of m_coeffVisc_Ns
-      vector_fp &kentry = m_coeffVisc_Ns[k]; 
-
-      if ( m_viscTempDepType_Ns[k] == LTR_MODEL_CONSTANT
-	   || m_viscTempDepType_Ns[k] == LTR_MODEL_POLY ) {
-	kentry = ltd.viscCoeffs;
-
-      } else if ( m_viscTempDepType_Ns[k] == LTR_MODEL_ARRHENIUS ) {
-	kentry = ltd.viscCoeffs;
-	//for Arrhenius form, also carry the logarithm of the pre-exponential
-	kentry.push_back( log( kentry[0] ) ); //should be entry [3]
-
-      } else if ( m_viscTempDepType_Ns[k] == LTR_MODEL_NOTSET ) {
-	//we might be OK with viscosity not being set so
-	// this error is repeated in updateViscosity_T()
-	// and can be deleted from here if appropriate
-	throw CanteraError("LiquidTransport::initLiquid",
-			   "Viscosity Model is not set for species " 
-			   + m_thermo->speciesName(k) 
-			   + " in the input file");
-      } else {
-	throw CanteraError("LiquidTransport::initLiquid",
-			   "Viscosity Model for species "
-			   + m_thermo->speciesName(k)
-			   + " is not handled by this object");
-      }
+      m_viscTempDep_Ns[k] =  ltd.viscosity;
     }
 
     /*
      *  Get the input Thermal Conductivities
      */
     m_lambdaSpecies.resize(m_nsp);
-    m_coeffLambda_Ns.clear(); 
-    m_coeffLambda_Ns.resize(m_nsp);
-    m_lambdaTempDepType_Ns.resize(m_nsp);
+    m_lambdaTempDep_Ns.resize(m_nsp);
 
     //for each species, assign viscosity model and coefficients
     for (k = 0; k < m_nsp; k++) {
       Cantera::LiquidTransportData &ltd = tr.LTData[k];
-      //specify temperature dependence
-      m_lambdaTempDepType_Ns[k] =  ltd.model_thermalCond;
-      //vector kentry corresponds to the k-th entry of m_coeffLambda_Ns
-      vector_fp &kentry = m_coeffLambda_Ns[k]; 
-
-      if ( m_lambdaTempDepType_Ns[k] == LTR_MODEL_CONSTANT
-	   || m_lambdaTempDepType_Ns[k] == LTR_MODEL_POLY ) {
-	kentry = ltd.thermalCondCoeffs;
-
-      } else if ( m_lambdaTempDepType_Ns[k] == LTR_MODEL_ARRHENIUS ) {
-	kentry = ltd.thermalCondCoeffs;
-	//for Arrhenius form, also carry the logarithm of the pre-exponential
-	kentry.push_back( log( kentry[0] ) );//should be entry [3]
-
-      } else if ( m_lambdaTempDepType_Ns[k] == LTR_MODEL_NOTSET ) {
-	throw CanteraError("LiquidTransport::initLiquid",
-			   "Thermal conductivity model is not set for species " 
-			   + m_thermo->speciesName(k)
-			   + " in the input file");
-      } else {
-	throw CanteraError("LiquidTransport::initLiquid",
-			   "Thermal conductivity model for species "
-			   + m_thermo->speciesName(k)
-			   + " is not handled by this object");
-      }
+      m_lambdaTempDep_Ns[k] =  ltd.thermalCond;
     }
 
     /*
      *  Get the input Hydrodynamic Radii
      */
     m_hydrodynamic_radius.resize(m_nsp);
-    m_coeffRadius_Ns.clear(); 
-    m_coeffRadius_Ns.resize(m_nsp);
-    m_radiusTempDepType_Ns.resize(m_nsp);
+    m_radiusTempDep_Ns.resize(m_nsp);
 
     //for each species, assign viscosity model and coefficients
     for (k = 0; k < m_nsp; k++) {
       Cantera::LiquidTransportData &ltd = tr.LTData[k];
-      //specify temperature dependence
-      m_radiusTempDepType_Ns[k] =  ltd.model_hydroradius;
-      //vector kentry corresponds to the k-th entry of m_coeffRadius_Ns
-      vector_fp &kentry = m_coeffRadius_Ns[k]; 
-
-      if ( m_radiusTempDepType_Ns[k] == LTR_MODEL_CONSTANT
-	   || m_radiusTempDepType_Ns[k] == LTR_MODEL_POLY ) {
-	kentry = ltd.hydroRadiusCoeffs;
-
-      } else if ( m_radiusTempDepType_Ns[k] == LTR_MODEL_ARRHENIUS ) {
-	kentry = ltd.hydroRadiusCoeffs;
-	//for Arrhenius form, also carry the logarithm of the pre-exponential
-	kentry.push_back( log( kentry[0] ) );//should be entry [3]
-
-      } else if ( m_radiusTempDepType_Ns[k] == LTR_MODEL_NOTSET ) {
-	throw CanteraError("LiquidTransport::initLiquid",
-			   "Hydrodynamic radius model is not set for species " 
-			   + m_thermo->speciesName(k)
-			   + " in the input file");
-      } else {
-	throw CanteraError("LiquidTransport::initLiquid",
-			   "Hydrodynamic radius model for species "
-			   + m_thermo->speciesName(k)
-			   + " is not handled by this object");
-      }
+      m_radiusTempDep_Ns[k] =  ltd.hydroradius;
     }
 
     /*
@@ -308,24 +237,20 @@ namespace Cantera {
      *  be extraneous.
      */
     //    m_viscSpecies.resize(m_nsp);
-    m_coeffDiff_Ns.clear(); 
-    m_coeffDiff_Ns.resize(m_nsp);
-    m_diffTempDepType_Ns.resize(m_nsp);
+    m_diffTempDep_Ns.resize(m_nsp);
 
     //for each species, assign viscosity model and coefficients
     for (k = 0; k < m_nsp; k++) {
       Cantera::LiquidTransportData &ltd = tr.LTData[k];
-      //specify temperature dependence
-      if ( ltd.model_speciesDiffusivity >= 0 
-	   || ltd.speciesDiffusivityCoeffs.size() > 0 ) {
+      if ( ltd.speciesDiffusivity >= 0 ) {
 	cout << "Warning: diffusion coefficient data for " 
 	     << m_thermo->speciesName(k)
 	     <<  endl 
 	     << "in the input file is not used for LiquidTransport model."
 	     <<  endl 
-	     << "LiquidTransport model uses hydrodynamicRadius, viscosity "
+	     << "LiquidTransport model uses Stefan-Maxwell interaction "
 	     <<  endl 
-	     << "and the Stokes-Einstein equation or Interaction Model." 
+	     << "parameters defined in the <transport> input block." 
 	     << endl;
       }
     }
@@ -957,7 +882,7 @@ namespace Cantera {
 
     for (k = 0; k < m_nsp; k++) {
       m_Grad_lnAC[k] = grad_lnAC[k];
-      std::cout << k << " m_Grad_lnAC = " << m_Grad_lnAC[k] << std::endl;
+      //      std::cout << k << " m_Grad_lnAC = " << m_Grad_lnAC[k] << std::endl;
     }
 
     return;
@@ -978,36 +903,7 @@ namespace Cantera {
     int k;
 
     for (k = 0; k < m_nsp; k++) {
-      vector_fp &coeffk = m_coeffLambda_Ns[k];
-
-      if ( m_lambdaTempDepType_Ns[k] == LTR_MODEL_CONSTANT ) {
-	m_lambdaSpecies[k] = coeffk[0] ;
-
-      } else if ( m_lambdaTempDepType_Ns[k] == LTR_MODEL_ARRHENIUS ) {
-	//m_coeffLambda_Ns[k][0] holds A
-	//m_coeffLambda_Ns[k][1] holds n
-	//m_coeffLambda_Ns[k][2] holds Tact
-	//m_coeffLambda_Ns[k][3] holds log(A)
-	m_lambdaSpecies[k] = coeffk[0] * exp( coeffk[1] * m_logt 
-					      - coeffk[2] / m_temp );
-      
-      } else if ( m_lambdaTempDepType_Ns[k] == LTR_MODEL_POLY ) {
-	double tempN = 1.0;
-	for ( int i = 0; i < coeffk.size() ; i++ ) {
-	  m_lambdaSpecies[k] += coeffk[i] * tempN;
-	  tempN *= m_temp;
-	}
-      } else if ( m_lambdaTempDepType_Ns[k] == LTR_MODEL_NOTSET ) {
-	throw CanteraError("LiquidTransport::updateCond_T",
-			   "Conductivity Model is not set for species " 
-			   + m_thermo->speciesName(k) 
-			   + " in the input file");
-      } else {
-	throw CanteraError("LiquidTransport::updateCond_T",
-			   "Conductivity Model for species "
-			   + m_thermo->speciesName(k) 
-			   + " is not handled by this object");
-      }
+      m_lambdaSpecies[k] = m_lambdaTempDep_Ns[k]->getSpeciesTransProp() ;
     }
     m_cond_temp_ok = true;
     m_cond_mix_ok = false;
@@ -1031,10 +927,12 @@ namespace Cantera {
       for (j = 0; j < m_nsp; j++) {
 	m_DiffCoeff_StefMax(i,j) = m_bdiff(i,j) = GasConstant * m_temp 
 	  / ( 6.0 * Pi * radiusSpec[i] * viscSpec[j] ) ;
-	cout << " D_ij = " << m_bdiff(i,j) << " for " 
+	cout << "unused D_ij = " << m_bdiff(i,j) << " for " 
 	     << m_thermo->speciesName(i) << ", " 
 	     << m_thermo->speciesName(j) << endl; 
       }
+    delete radiusSpec;
+    delete viscSpec;
     m_diff_temp_ok = true;
     m_diff_mix_ok = false;
   }
@@ -1064,48 +962,17 @@ namespace Cantera {
     int k;
 
     for (k = 0; k < m_nsp; k++) {
-      vector_fp &coeffk = m_coeffVisc_Ns[k];
-
-      if ( m_viscTempDepType_Ns[k] == LTR_MODEL_CONSTANT ) {
-	m_logViscSpecies[k] = log( coeffk[0] );
-	m_viscSpecies[k] = coeffk[0] ;
-
-      } else if ( m_viscTempDepType_Ns[k] == LTR_MODEL_ARRHENIUS ) {
-	//m_coeffVisc_Ns[k][0] holds A
-	//m_coeffVisc_Ns[k][1] holds n
-	//m_coeffVisc_Ns[k][2] holds Tact
-	//m_coeffVisc_Ns[k][3] holds log(A)
-	m_logViscSpecies[k] = coeffk[3] + coeffk[1] * m_logt 
-	  + coeffk[2] / m_temp ;
-	m_viscSpecies[k] = exp( m_logViscSpecies[k] );
-      
-      } else if ( m_viscTempDepType_Ns[k] == LTR_MODEL_POLY ) {
-	double tempN = 1.0;
-	for ( int i = 0; i < coeffk.size() ; i++ ) {
-	  m_viscSpecies[k] += coeffk[i] * tempN;
-	  tempN *= m_temp;
-	}
-
-      } else if ( m_viscTempDepType_Ns[k] == LTR_MODEL_NOTSET ) {
-	throw CanteraError("LiquidTransport::updateViscosity_T",
-			   "Viscosity Model is not set for species " 
-			   + m_thermo->speciesName(k) 
-			   + " in the input file");
-      } else {
-	throw CanteraError("LiquidTransport::updateViscosity_T",
-			   "Viscosity Model for species "
-			   + m_thermo->speciesName(k) 
-			   + " is not handled by this object");
-      }
-      m_visc_temp_ok = true;
-      m_visc_mix_ok = false;
+      m_viscSpecies[k] = m_viscTempDep_Ns[k]->getSpeciesTransProp() ;
+      m_logViscSpecies[k] = log( m_viscSpecies[k] );
     }
+    m_visc_temp_ok = true;
+    m_visc_mix_ok = false;
   }
 
 
   //! Update the pure-species viscosities functional dependence on concentration.
   void LiquidTransport::updateHydrodynamicRadius_C() {
-    m_visc_conc_ok = true;
+    m_radi_conc_ok = true;
   }
 
 
@@ -1119,39 +986,10 @@ namespace Cantera {
     int k;
 
     for (k = 0; k < m_nsp; k++) {
-      vector_fp &coeffk = m_coeffRadius_Ns[k];
-
-      if ( m_radiusTempDepType_Ns[k] == LTR_MODEL_CONSTANT ) {
-	m_hydrodynamic_radius[k] = coeffk[0] ;
-
-      } else if ( m_radiusTempDepType_Ns[k] == LTR_MODEL_ARRHENIUS ) {
-	//m_coeffRadius_Ns[k][0] holds A
-	//m_coeffRadius_Ns[k][1] holds n
-	//m_coeffRadius_Ns[k][2] holds Tact
-	//m_coeffRadius_Ns[k][3] holds log(A)
-	m_hydrodynamic_radius[k] = coeffk[0] * exp( coeffk[1] * m_logt 
-						    - coeffk[2] / m_temp );
-      
-      } else if ( m_radiusTempDepType_Ns[k] == LTR_MODEL_POLY ) {
-	double tempN = 1.0;
-	for ( int i = 0; i < coeffk.size() ; i++ ) {
-	  m_hydrodynamic_radius[k] += coeffk[i] * tempN;
-	  tempN *= m_temp;
-	}
-      } else if ( m_radiusTempDepType_Ns[k] == LTR_MODEL_NOTSET ) {
-	throw CanteraError("LiquidTransport::updateHydrodynamicRadius_T",
-			   "Hydrodynamic Radius Model is not set for species " 
-			   + m_thermo->speciesName(k) 
-			   + " in the input file");
-      } else {
-	throw CanteraError("LiquidTransport::updateHydrodynamicRadius_T",
-			   "Hydrodynamic Radius Model for species "
-			   + m_thermo->speciesName(k) 
-			   + " is not handled by this object");
-      }
-      m_radi_temp_ok = true;
-      m_diff_mix_ok = false;
-    }
+      m_hydrodynamic_radius[k] = m_radiusTempDep_Ns[k]->getSpeciesTransProp() ;
+    } 
+    m_radi_temp_ok = true;
+    m_radi_mix_ok = false;
   }
 
 
