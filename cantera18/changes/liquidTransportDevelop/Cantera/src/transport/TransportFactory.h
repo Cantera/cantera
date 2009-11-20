@@ -132,8 +132,21 @@ namespace Cantera {
      *  @param thermo    ThermoPhase object
      *  @param log_level log level
      */
+
+
+    /**
+     *  make one of several transport models, and return a base class
+     *  pointer to it.  This method operates at the level of a 
+     *  single transport property as a function of temperature 
+     *  and possibly composition.
+     */
+    virtual LTPspecies* 
+      newLTP( const XML_Node &trNode, std::string &name, 
+	      TransportPropertyList tp_ind, thermo_t* thermo) ;
+
+    
     virtual Transport*
-    newTransport(std::string model, thermo_t* thermo, int log_level=0);
+      newTransport(std::string model, thermo_t* thermo, int log_level=0);
 
     //! Build a new transport manager using the default transport manager
     //! in the phase description
@@ -244,6 +257,14 @@ namespace Cantera {
     //! Mapping between between the string name
     //!   for a transport model and the integer name.
     std::map<std::string, int> m_models;
+
+    //! Mapping between between the string name
+    //! for a transport property and the integer name.
+    std::map<std::string, TransportPropertyList> m_tranPropMap;
+
+    //! Mapping between between the string name for a 
+    //! species-specific transport property model and the integer name.
+    std::map<std::string, LiquidTR_Model> m_LTRmodelMap;
   };
 
 
