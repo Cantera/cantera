@@ -50,32 +50,32 @@ using namespace std;
 
 namespace Cantera {
 
-//! these are all used to check for duplicate reactions
-class rxninfo {
-public:
-  //! rdata
-  std::vector< std::map<int, doublereal> > m_rdata;
-  //! string name
-  std::vector<std::string> m_eqn;
-  //! string vector of ints
-  std::vector<int> m_dup;
-  //! string vector of ints
-  std::vector<int>  m_nr;
-  //! string vector of ints
-  std::vector<int>  m_typ;
-  //! vector of bools.
-  std::vector<bool> m_rev;
-  ~rxninfo() {
-    m_eqn.clear();
-    m_dup.clear();
-    m_nr.clear();
-    m_typ.clear();
-    m_rdata.clear();
-  }
-  bool installReaction(int i, const XML_Node& r, Kinetics* k, 
-		       std::string default_phase, int rule,
-		       bool validate_rxn) ;
-};
+  //! these are all used to check for duplicate reactions
+  class rxninfo {
+  public:
+    //! rdata
+    std::vector< std::map<int, doublereal> > m_rdata;
+    //! string name
+    std::vector<std::string> m_eqn;
+    //! string vector of ints
+    std::vector<int> m_dup;
+    //! string vector of ints
+    std::vector<int>  m_nr;
+    //! string vector of ints
+    std::vector<int>  m_typ;
+    //! vector of bools.
+    std::vector<bool> m_rev;
+    ~rxninfo() {
+      m_eqn.clear();
+      m_dup.clear();
+      m_nr.clear();
+      m_typ.clear();
+      m_rdata.clear();
+    }
+    bool installReaction(int i, const XML_Node& r, Kinetics* k, 
+			 std::string default_phase, int rule,
+			 bool validate_rxn) ;
+  };
 
 
 
@@ -266,29 +266,29 @@ public:
      * Check to see if reaction orders have been specified. 
      */
     if (rp == 1 && rxn.hasChild("order")) {
-        vector<XML_Node*> ord;
-        rxn.getChildren("order",ord);
-        int norder = static_cast<int>(ord.size());
-        int loc;
-        doublereal forder;
-        for (int nn = 0; nn < norder; nn++) {
-            const XML_Node& oo = *ord[nn];
-            string sp = oo["species"];
-            loc = speciesMap[sp];
-            if (loc == 0) 
-                throw CanteraError("getReagents",
-                    "reaction order specified for non-reactantt: "
-                    +sp);
-            forder = fpValue(oo());
-            if (forder < 0.0) {
-                throw CanteraError("getReagents",
-                    "reaction order must be non-negative");
-            }
-            // replace the stoichiometric coefficient
-            // stored above in 'order' with the specified
-            // reaction order
-            order[loc-1] = forder;
-        }
+      vector<XML_Node*> ord;
+      rxn.getChildren("order",ord);
+      int norder = static_cast<int>(ord.size());
+      int loc;
+      doublereal forder;
+      for (int nn = 0; nn < norder; nn++) {
+	const XML_Node& oo = *ord[nn];
+	string sp = oo["species"];
+	loc = speciesMap[sp];
+	if (loc == 0) 
+	  throw CanteraError("getReagents",
+			     "reaction order specified for non-reactantt: "
+			     +sp);
+	forder = fpValue(oo());
+	if (forder < 0.0) {
+	  throw CanteraError("getReagents",
+			     "reaction order must be non-negative");
+	}
+	// replace the stoichiometric coefficient
+	// stored above in 'order' with the specified
+	// reaction order
+	order[loc-1] = forder;
+      }
     }
     return true;
   }
@@ -314,117 +314,117 @@ public:
     E /= GasConstant;
   }                
 
-    /**
-     * getStick() processes the XML element called Stick that specifies
-     * the sticking coefficient reaction. This routine will 
-     * translate the sticking coefficient value into a "normal"
-     * rate constant for the surface reaction.
-     *
-     *  Output
-     * -----------
-     * Output is the normal Arrhenius expressions for a surface
-     * reaction rate constant.
-     * 
-     *   A - units such that rate of rxn has kmol/m^2/s when
-     *       A is multiplied by activity concentrations of 
-     *       reactants in the normal manner.
-     *   n - unitless
-     *   E - Units 1/Kelvin
+  /**
+   * getStick() processes the XML element called Stick that specifies
+   * the sticking coefficient reaction. This routine will 
+   * translate the sticking coefficient value into a "normal"
+   * rate constant for the surface reaction.
+   *
+   *  Output
+   * -----------
+   * Output is the normal Arrhenius expressions for a surface
+   * reaction rate constant.
+   * 
+   *   A - units such that rate of rxn has kmol/m^2/s when
+   *       A is multiplied by activity concentrations of 
+   *       reactants in the normal manner.
+   *   n - unitless
+   *   E - Units 1/Kelvin
+   */
+  static void getStick(const XML_Node& node, Kinetics& kin,
+		       ReactionData& r, doublereal& A, doublereal& b, doublereal& E) {
+    int nr = r.reactants.size();
+    int k, klocal, not_surf = 0;
+    int np = 0;
+    doublereal f = 1.0;
+    doublereal order;
+    /*
+     * species is the name of the special reactant whose surface
+     * flux rate will be calculated.
+     *      isp = species # in the local phase
+     *      ispKinetics = species # in the kinetics object
+     *      ispPhaseIndex = phase # of the special species
      */
-    static void getStick(const XML_Node& node, Kinetics& kin,
-        ReactionData& r, doublereal& A, doublereal& b, doublereal& E) {
-        int nr = r.reactants.size();
-        int k, klocal, not_surf = 0;
-        int np = 0;
-        doublereal f = 1.0;
-        doublereal order;
-	/*
-	 * species is the name of the special reactant whose surface
-	 * flux rate will be calculated.
-	 *      isp = species # in the local phase
-	 *      ispKinetics = species # in the kinetics object
-	 *      ispPhaseIndex = phase # of the special species
-	 */
-        string spname = node["species"];
-        ThermoPhase& th = kin.speciesPhase(spname);
-	int isp = th.speciesIndex(spname);
-	int ispKinetics = kin.kineticsSpeciesIndex(spname);
-	int ispPhaseIndex = kin.speciesPhaseIndex(ispKinetics);
+    string spname = node["species"];
+    ThermoPhase& th = kin.speciesPhase(spname);
+    int isp = th.speciesIndex(spname);
+    int ispKinetics = kin.kineticsSpeciesIndex(spname);
+    int ispPhaseIndex = kin.speciesPhaseIndex(ispKinetics);
   
-        double ispMW = th.molecularWeights()[isp];
-	double sc;
+    double ispMW = th.molecularWeights()[isp];
+    double sc;
 
-        // loop over the reactants
-        for (int n = 0; n < nr; n++) {
-            k = r.reactants[n];
-            order = r.order[n];    // stoich coeff
+    // loop over the reactants
+    for (int n = 0; n < nr; n++) {
+      k = r.reactants[n];
+      order = r.rorder[n];    // stoich coeff
 
-            // get the phase species k belongs to
-            np = kin.speciesPhaseIndex(k);
-            const ThermoPhase& p = kin.thermo(np);
+      // get the phase species k belongs to
+      np = kin.speciesPhaseIndex(k);
+      const ThermoPhase& p = kin.thermo(np);
 
-            // get the local index of species k in this phase
-            klocal = p.speciesIndex(kin.kineticsSpeciesName(k));
+      // get the local index of species k in this phase
+      klocal = p.speciesIndex(kin.kineticsSpeciesName(k));
 
-            // if it is a surface species, divide f by the standard
-            // concentration for this species, in order to convert
-            // from concentration units used in the law of mass action
-            // to coverages used in the sticking probability
-            // expression
-            if (p.eosType() == cSurf || p.eosType() == cEdge) {
-	      sc = p.standardConcentration(klocal);
-	      f /= pow(sc, order);
-            }   
-            // Otherwise:
-            else {
-	      // We only allow one species to be in the phase
-	      // containing the special sticking coefficient
-	      // species.
-	      if (ispPhaseIndex == np) {
-		not_surf++;
-	      } 
-	      // Other bulk phase species on the other side
-	      // of ther interface are treated like surface
-	      // species.
-	      else {
-		sc = p.standardConcentration(klocal);
-		f /= pow(sc, order);
-	      }
-	    }
-        }
-        if (not_surf != 1) {
-            throw CanteraError("getStick",
-                "reaction probabilities can only be used in "
-                "reactions with exactly 1 gas/liquid species.");
-        }
-
-        doublereal cbar = sqrt(8.0*GasConstant/(Pi*ispMW));
-        A = 0.25 * getFloat(node, "A", "toSI") * cbar * f;
-        b = getFloat(node, "b") + 0.5;
-        E = getFloat(node, "E", "actEnergy");
-        E /= GasConstant;
-    }                
-
-    static void getCoverageDependence(const node_t& node, 
-        thermo_t& surfphase, ReactionData& rdata) {
-        vector<XML_Node*> cov;
-        node.getChildren("coverage", cov);
-        int k, nc = static_cast<int>(cov.size());
-        doublereal e;
-        string spname;
-        if (nc > 0) {
-            for (int n = 0; n < nc; n++) {
-                const XML_Node& cnode = *cov[n];
-                spname = cnode["species"];
-                k = surfphase.speciesIndex(spname);
-                rdata.cov.push_back(doublereal(k));
-                rdata.cov.push_back(getFloat(cnode, "a"));
-                rdata.cov.push_back(getFloat(cnode, "m"));
-                e = getFloat(cnode, "e", "actEnergy");
-                rdata.cov.push_back(e/GasConstant);
-            }
-        }
+      // if it is a surface species, divide f by the standard
+      // concentration for this species, in order to convert
+      // from concentration units used in the law of mass action
+      // to coverages used in the sticking probability
+      // expression
+      if (p.eosType() == cSurf || p.eosType() == cEdge) {
+	sc = p.standardConcentration(klocal);
+	f /= pow(sc, order);
+      }   
+      // Otherwise:
+      else {
+	// We only allow one species to be in the phase
+	// containing the special sticking coefficient
+	// species.
+	if (ispPhaseIndex == np) {
+	  not_surf++;
+	} 
+	// Other bulk phase species on the other side
+	// of ther interface are treated like surface
+	// species.
+	else {
+	  sc = p.standardConcentration(klocal);
+	  f /= pow(sc, order);
+	}
+      }
     }
+    if (not_surf != 1) {
+      throw CanteraError("getStick",
+			 "reaction probabilities can only be used in "
+			 "reactions with exactly 1 gas/liquid species.");
+    }
+
+    doublereal cbar = sqrt(8.0*GasConstant/(Pi*ispMW));
+    A = 0.25 * getFloat(node, "A", "toSI") * cbar * f;
+    b = getFloat(node, "b") + 0.5;
+    E = getFloat(node, "E", "actEnergy");
+    E /= GasConstant;
+  }                
+
+  static void getCoverageDependence(const node_t& node, 
+				    thermo_t& surfphase, ReactionData& rdata) {
+    vector<XML_Node*> cov;
+    node.getChildren("coverage", cov);
+    int k, nc = static_cast<int>(cov.size());
+    doublereal e;
+    string spname;
+    if (nc > 0) {
+      for (int n = 0; n < nc; n++) {
+	const XML_Node& cnode = *cov[n];
+	spname = cnode["species"];
+	k = surfphase.speciesIndex(spname);
+	rdata.cov.push_back(doublereal(k));
+	rdata.cov.push_back(getFloat(cnode, "a"));
+	rdata.cov.push_back(getFloat(cnode, "m"));
+	e = getFloat(cnode, "e", "actEnergy");
+	rdata.cov.push_back(e/GasConstant);
+      }
+    }
+  }
 
   
   //! Get falloff parameters for a reaction.
@@ -434,9 +434,9 @@ public:
    *
    *
    * @verbatim
-    <falloff type="Troe"> 0.5 73.2 5000. 9999. </falloff>
-     @endverbatim
-   */
+   <falloff type="Troe"> 0.5 73.2 5000. 9999. </falloff>
+   @endverbatim
+  */
   static void getFalloff(const node_t& f, ReactionData& rdata) {
     string type = f["type"];
     vector<string> p;
@@ -469,7 +469,7 @@ public:
       }
       else {
 	throw CanteraError("getFalloff()", "Troe parameterization is specified by number of pararameters, "
-		     + int2str(np) + ", is not equal to 3 or 4");
+			   + int2str(np) + ", is not equal to 3 or 4");
       }
     } else if (type == "SRI") {
       if (np == 5) {
@@ -487,7 +487,7 @@ public:
 	}
       } else {
 	throw CanteraError("getFalloff()", "SRI parameterization is specified by number of pararameters, "
-		     + int2str(np) + ", is not equal to 3 or 5");
+			   + int2str(np) + ", is not equal to 3 or 5");
       }
     }
     rdata.falloffParameters = c;
@@ -645,8 +645,8 @@ public:
    * @ingroup kineticsmgr
    */
   bool rxninfo::installReaction(int i, const XML_Node& r, Kinetics* k, 
-			      string default_phase, int rule,
-			      bool validate_rxn) {
+				string default_phase, int rule,
+				bool validate_rxn) {
 
     Kinetics& kin = *k;
 
@@ -701,7 +701,7 @@ public:
     // get the reactants
 
     bool ok = getReagents(r, kin, 1, default_phase, rdata.reactants, 
-		     rdata.rstoich, rdata.order, rule);
+			  rdata.rstoich, rdata.rorder, rule);
     //cout << "Reactants: " << endl;
     //int npp = rdata.reactants.size();
     //int nj;
@@ -712,9 +712,8 @@ public:
     /*
      * Get the products. We store the id of products in rdata.products
      */   
-    vector_fp dummy;
     ok = ok && getReagents(r, kin, -1, default_phase, rdata.products, 
-			   rdata.pstoich, dummy, rule);
+			   rdata.pstoich, rdata.porder, rule);
     //cout << "Products: " << endl;npp = rdata.products.size();
     //for (nj = 0; nj < npp; nj++) {
     //    cout << rdata.products[nj] << "   " << rdata.pstoich[nj] << endl;
@@ -747,6 +746,55 @@ public:
 			   "reaction orders may only be given for "
 			   "irreversible reactions");
       rdata.global = true;
+    }
+
+    /*
+     *  Some reactions can be elementary reactions but have fractional
+     *  stoichiometries wrt to some products and reactants. An
+     *  example of these are solid reactions involving phase transformations.
+     *  Species with fractional stoichiometries must be from single-species
+     *  phases with unity activities. For these reactions set
+     *  the bool isReversibleWithFrac to true.
+     */
+    if (rdata.reversible == true) {
+      int np = rdata.products.size();
+      for (int i = 0; i < np; i++) {
+	int k = rdata.products[i];
+	double po = rdata.porder[i];
+	AssertTrace(po == rdata.pstoich[i]);
+	double chk = po - 1.0 * int(po);
+	if (chk != 0.0) {
+          /*
+           *   put in a check here that k is a single species phase.
+           */ 
+	  thermo_t &thref = kin.speciesPhase(k);
+          if (thref.nSpecies() == 1) {
+	    rdata.porder[i] = 0.0;
+	  }
+
+	  rdata.isReversibleWithFrac = true;
+          
+	}
+      }
+      int nr = rdata.reactants.size();
+      for (int i = 0; i < nr; i++) {
+	int k = rdata.reactants[i];
+	double ro = rdata.rorder[i];
+	AssertTrace(ro == rdata.rstoich[i]);
+	double chk = ro - 1.0 * int(ro);
+	if (chk != 0.0) {
+          /*
+           *   put in a check here that k is a single species phase.
+           */ 
+	  thermo_t &thref = kin.speciesPhase(k);
+          if (thref.nSpecies() == 1) {
+	    rdata.rorder[i] = 0.0;
+	  }
+
+	  rdata.isReversibleWithFrac = true;
+          
+	}
+      }
     }
 
     /*
@@ -934,7 +982,7 @@ public:
 	  const XML_Node* r = allrxns[i];
 	  if (r) {
 	    if (_rxns->installReaction(itot, *r, &kin, 
-				default_phase, rxnrule, check_for_duplicates)) ++itot;
+				       default_phase, rxnrule, check_for_duplicates)) ++itot;
 	  }
 	}
       }
@@ -968,7 +1016,7 @@ public:
 	       */
 	      if ((rxid >= imin) && (rxid <= imax)) {
 		if (_rxns->installReaction(itot, *r, &kin, 
-				    default_phase, rxnrule, check_for_duplicates)) ++itot;
+					   default_phase, rxnrule, check_for_duplicates)) ++itot;
 	      }
 	    }
 	  }
