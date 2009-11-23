@@ -79,11 +79,12 @@ namespace Cantera {
   LTPspecies& LTPspecies::operator=(const LTPspecies& right ) 
   {
     if (&right != this) {
-      speciesName = right.speciesName;
-      property    = right.property;
-      model       = right.model;
-      coeffs      = right.coeffs;
-      m_thermo    = right.m_thermo;
+      m_speciesName = right.m_speciesName;
+      m_property    = right.m_property;
+      m_model       = right.m_model;
+      m_coeffs      = right.m_coeffs;
+      m_thermo      = right.m_thermo;
+      m_mixWeight   = right.m_mixWeight;
     }
     return *this; 
   }
@@ -101,10 +102,10 @@ namespace Cantera {
 				      thermo_t* thermo ) : 
     LTPspecies( propNode, name, tp_ind, thermo) 
   {
-    model = LTR_MODEL_CONSTANT;	
+    m_model = LTR_MODEL_CONSTANT;	
     double A_k = getFloatCurrent(propNode, "toSI");
     if (A_k > 0.0) {
-      coeffs.push_back(A_k);
+      m_coeffs.push_back(A_k);
     } else throw LTPError("negative or zero " + propNode.name() );
   }
 
@@ -120,18 +121,19 @@ namespace Cantera {
   {
     if (&right != this) {
       //LTPspecies::operator=(right);
-      speciesName = right.speciesName;
-      property    = right.property;
-      model       = right.model;
-      coeffs      = right.coeffs;
-      m_thermo    = right.m_thermo;
+      m_speciesName = right.m_speciesName;
+      m_property    = right.m_property;
+      m_model       = right.m_model;
+      m_coeffs      = right.m_coeffs;
+      m_thermo      = right.m_thermo;
+      m_mixWeight   = right.m_mixWeight;
     }
     return *this; 
   }
 
   //! Return the (constant) value for this transport property
   doublereal LTPspecies_Const::getSpeciesTransProp( ) {
-    return coeffs[0];
+    return m_coeffs[0];
   }
 
   ///////////////////////////////////////////////////////////////
@@ -148,17 +150,17 @@ namespace Cantera {
 				      thermo_t* thermo ) : 
     LTPspecies( propNode, name, tp_ind, thermo) 
   {
-    model = LTR_MODEL_ARRHENIUS;	
+    m_model = LTR_MODEL_ARRHENIUS;	
 
     doublereal A_k, n_k, Tact_k;
     getArrhenius(propNode, A_k, n_k, Tact_k);
     if (A_k <= 0.0) {
       throw LTPError("negative or zero " + propNode.name() );
     }
-    coeffs.push_back( A_k );
-    coeffs.push_back( n_k );
-    coeffs.push_back( Tact_k );
-    coeffs.push_back( log( A_k ) );
+    m_coeffs.push_back( A_k );
+    m_coeffs.push_back( n_k );
+    m_coeffs.push_back( Tact_k );
+    m_coeffs.push_back( log( A_k ) );
   }
   
   //! Copy constructor
@@ -173,11 +175,12 @@ namespace Cantera {
   {
     if (&right != this) {
       // LTPspecies::operator=(right);
-      speciesName = right.speciesName;
-      property    = right.property;
-      model       = right.model;
-      coeffs      = right.coeffs;
-      m_thermo    = right.m_thermo;
+      m_speciesName = right.m_speciesName;
+      m_property    = right.m_property;
+      m_model       = right.m_model;
+      m_coeffs      = right.m_coeffs;
+      m_thermo      = right.m_thermo;
+      m_mixWeight   = right.m_mixWeight;
 
       m_temp    = right.m_temp;
       m_logt    = right.m_logt;
@@ -208,18 +211,18 @@ namespace Cantera {
   doublereal LTPspecies_Arrhenius::getSpeciesTransProp( ) {
     
     doublereal t = m_thermo->temperature();
-    //coeffs[0] holds A
-    //coeffs[1] holds n
-    //coeffs[2] holds Tact
-    //coeffs[3] holds log(A)
+    //m_coeffs[0] holds A
+    //m_coeffs[1] holds n
+    //m_coeffs[2] holds Tact
+    //m_coeffs[3] holds log(A)
     if (t != m_temp) {    
       m_temp = t;
       m_logt = log(m_temp);
       //For viscosity the sign convention on positive activation energy is swithced
-      if ( property == TP_VISCOSITY ) 
-	m_logProp = coeffs[3] + coeffs[1] * m_logt + coeffs[2] / m_temp ;
+      if ( m_property == TP_VISCOSITY ) 
+	m_logProp = m_coeffs[3] + m_coeffs[1] * m_logt + m_coeffs[2] / m_temp ;
       else
-	m_logProp = coeffs[3] + coeffs[1] * m_logt - coeffs[2] / m_temp ;
+	m_logProp = m_coeffs[3] + m_coeffs[1] * m_logt - m_coeffs[2] / m_temp ;
       m_prop = exp( m_logProp );
     }
     return m_prop;
@@ -244,12 +247,12 @@ namespace Cantera {
 				    thermo_t* thermo ) : 
     LTPspecies( propNode, name, tp_ind, thermo) 
   {
-    model = LTR_MODEL_POLY;	
+    m_model = LTR_MODEL_POLY;	
 
 
-    getFloatArray(propNode, coeffs, true); // if units labeled, convert Angstroms -> meters
+    getFloatArray(propNode, m_coeffs, true); // if units labeled, convert Angstroms -> meters
 
-    if (coeffs[0] <= 0.0) {
+    if (m_coeffs[0] <= 0.0) {
       throw LTPError("negative or zero " + propNode.name() );
     }
   }
@@ -266,11 +269,12 @@ namespace Cantera {
   {
     if (&right != this) {
       //LTPspecies::operator=(right);
-      speciesName = right.speciesName;
-      property    = right.property;
-      model       = right.model;
-      coeffs      = right.coeffs;
-      m_thermo    = right.m_thermo;
+      m_speciesName = right.m_speciesName;
+      m_property    = right.m_property;
+      m_model       = right.m_model;
+      m_coeffs      = right.m_coeffs;
+      m_thermo      = right.m_thermo;
+      m_mixWeight   = right.m_mixWeight;
 
       m_temp    = right.m_temp;
       m_prop    = right.m_prop;
@@ -285,8 +289,8 @@ namespace Cantera {
     doublereal t = m_thermo->temperature();
     if (t != m_temp) {    
       double tempN = 1.0;
-      for ( int i = 0; i < coeffs.size() ; i++ ) {
-	m_prop += coeffs[i] * tempN;
+      for ( int i = 0; i < m_coeffs.size() ; i++ ) {
+	m_prop += m_coeffs[i] * tempN;
 	tempN *= m_temp;
       }
     }

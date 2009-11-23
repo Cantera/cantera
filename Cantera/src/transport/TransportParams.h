@@ -7,6 +7,7 @@
 #include "TransportBase.h"
 #include "xml.h"
 #include "XML_Writer.h"
+#include "DenseMatrix.h"
 
 namespace Cantera {
 

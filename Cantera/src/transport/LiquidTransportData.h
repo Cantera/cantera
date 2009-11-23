@@ -78,13 +78,15 @@ namespace Cantera {
     LTPspecies( const XML_Node &propNode = 0, 
 		std::string name = "-", 
 		TransportPropertyList tp_ind = TP_UNKNOWN, 
-		thermo_t* thermo = 0 ) : 
-      speciesName(name), 
-      model(LTR_MODEL_NOTSET),
-      property(tp_ind),
-      m_thermo(thermo)
+		thermo_t* thermo = 0 ) :
+      m_speciesName(name), 
+      m_model(LTR_MODEL_NOTSET),
+      m_property(tp_ind),
+      m_thermo(thermo),
+      m_mixWeight(1.0)
     {
-      
+      if ( propNode.hasChild("mixtureWeighting") ) 
+	m_mixWeight = getFloat(propNode,"mixtureWeighting");
     }
     
     //! Copy constructor
@@ -104,22 +106,38 @@ namespace Cantera {
      */
     virtual doublereal getSpeciesTransProp( ) { return 0.0; }
 
-    virtual bool checkPositive( ) { return ( coeffs[0] > 0 ); }
+    virtual bool checkPositive( ) { return ( m_coeffs[0] > 0 ); }
+
+    doublereal getMixWeight( ) {return m_mixWeight; }
 
   protected:
-    std::string speciesName;
+    std::string m_speciesName;
    
     //! Model type for the temperature dependence
-    LiquidTR_Model model;
+    LiquidTR_Model m_model;
 
     //! enum indicating what property this is (i.e viscosity)
-    TransportPropertyList property;
+    TransportPropertyList m_property;
 
     //! Model temperature-dependence ceofficients
-    vector_fp coeffs;
+    vector_fp m_coeffs;
 
     //! pointer to thermo object to get current temperature
     thermo_t* m_thermo;
+
+    //! Weighting used for mixing.  
+    /** 
+     * This weighting can be employed to allow salt transport 
+     * properties to be represented by specific ions.  
+     * For example, to have Li+ and Ca+ represent the mixing 
+     * transport properties of LiCl and CaCl2, the weightings for
+     * Li+ would be 2.0, for K+ would be 3.0 and for Cl- would be 0.0.
+     * The tranport properties for Li+ would be those for LiCl and 
+     * the tranport properties for Ca+ would be those for CaCl2. 
+     * The transport properties for Cl- should be something innoccuous like 
+     * 1.0--note that 0.0 is not innocuous if there are logarithms involved.
+     */
+    doublereal m_mixWeight;
 
     //! Internal model to adjust species-specific properties for composition.
     /** Currently just a place holder, but this method could take 

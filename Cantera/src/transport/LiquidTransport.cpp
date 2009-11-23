@@ -36,9 +36,9 @@ namespace Cantera {
     m_nsp(0),
     m_tmin(-1.0),
     m_tmax(100000.),
-    m_viscMixModel(LTR_MIXMODEL_NOTSET),
-    m_lambdaMixModel(LTR_MIXMODEL_NOTSET),
-    m_diffMixModel(LTR_MIXMODEL_NOTSET),
+    m_viscMixModel(LTI_MODEL_NOTSET),
+    m_lambdaMixModel(LTI_MODEL_NOTSET),
+    m_diffMixModel(LTI_MODEL_NOTSET),
     m_iStateMF(-1),
     m_temp(-1.0),
     m_logt(0.0),
@@ -373,19 +373,19 @@ namespace Cantera {
     /* We still need to implement interaction parameters */
     /* This constant viscosity model has no input */
 
-    if (m_viscMixModel == LTR_MIXMODEL_NOTSET) {
+    if (m_viscMixModel == LTI_MODEL_NOTSET) {
 
       err("A viscosity mixing model must be implemented  for LiquidTransport.");
       //return m_viscmix;
 
-    } else if (m_viscMixModel == LTR_MIXMODEL_MOLEFRACS) {
+    } else if (m_viscMixModel == LTI_MODEL_MOLEFRACS) {
 
       m_viscmix = dot_product(m_viscSpecies, m_molefracs) ;
       for ( int i = 0; i < m_nsp; i++ ) 
 	for ( int j = 0; j < i; j++ ) 
 	  m_viscmix += m_molefracs[i] * m_molefracs[j] * m_visc_Sij(i,j) ;
 
-    } else if (m_viscMixModel == LTR_MIXMODEL_LOG_MOLEFRACS) {
+    } else if (m_viscMixModel == LTI_MODEL_LOG_MOLEFRACS) {
 
       // log_visc_mix = sum_i (X_i log_visc_i) + sum_i sum_j X_i X_j G_ij
       double interaction = dot_product(m_logViscSpecies, m_molefracs);

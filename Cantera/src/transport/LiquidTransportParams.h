@@ -75,90 +75,163 @@ namespace Cantera {
      *
      */
   enum LiquidTranMixingModel {
-    LTR_MIXMODEL_NOTSET=-1,
-    LTR_MIXMODEL_NONE, 
-    LTR_MIXMODEL_SOLVENT, 
-    LTR_MIXMODEL_MOLEFRACS,
-    LTR_MIXMODEL_MASSFRACS,
-    LTR_MIXMODEL_LOG_MOLEFRACS,
-    LTR_MIXMODEL_PAIRWISE_INTERACTION
+    LTI_MODEL_NOTSET=-1,
+    LTI_MODEL_NONE, 
+    LTI_MODEL_SOLVENT, 
+    LTI_MODEL_MOLEFRACS,
+    LTI_MODEL_MASSFRACS,
+    LTI_MODEL_LOG_MOLEFRACS,
+    LTI_MODEL_PAIRWISE_INTERACTION
   };
   
 
-    /**
-     * Holds transport model parameters relevant to transport in 
-     * liquids for which activated jump processes limit transport
-     * (giving Arrhenius type transport properties). 
-     * Used by TransportFactory.
+  class LiquidTranInteraction {
+    
+  public:
+    LiquidTranInteraction( const XML_Node &compModelNode = 0, 
+			   TransportPropertyList tp_ind = TP_UNKNOWN, 
+			   thermo_t* thermo = 0 );
+    
+    //! Copy constructor
+    LiquidTranInteraction( const LiquidTranInteraction &right );
+    
+    //! Assignment operator
+    LiquidTranInteraction& operator=( const LiquidTranInteraction &right );
+    
+    //! destructor
+    virtual ~LiquidTranInteraction() { }
+
+    //! Return the mixture transport property value.
+    //! (Must be implemented in subclasses.)
+    virtual doublereal getMixTransProp( ) { return 0.0; }
+    
+  protected:
+    //! Model for species interaction effects 
+    //! Takes enum LiquidTranMixingModel
+    LiquidTranMixingModel m_model;
+    
+    //! enum indicating what property this is (i.e viscosity)
+    TransportPropertyList m_property;
+    
+    //! pointer to thermo object to get current temperature
+    thermo_t* m_thermo;
+
+    //! Matrix of interactions (no temperature dependence, dimensionless)
+    DenseMatrix  Aij; 
+
+    //! Matrix of interactions (in energy units, 1/RT temperature dependence)
+    DenseMatrix  Eij; 
+
+    //! Matrix of interactions (in entropy units, divided by R)
+    DenseMatrix  Sij;         
+    
+    //! Matrix of interactions 
+    DenseMatrix  Dij;         
+    
+  };
+
+  /**
+   * Holds transport model parameters relevant to transport in 
+   * liquids for which activated jump processes limit transport
+   * (giving Arrhenius type transport properties). 
+   * Used by TransportFactory.
+   */
+  class LiquidTransportParams : public TransportParams {
+    
+  public:
+    
+    LiquidTransportParams() {}
+    ~LiquidTransportParams() {}
+    
+    //! Species transport parameters
+    std::vector<Cantera::LiquidTransportData> LTData;
+    
+    //! Model for species interaction effects for viscosity
+    //! Takes enum LiquidTranMixingModel
+    LiquidTranMixingModel model_viscosity;
+    
+    
+    //! Energies of molecular interaction associated with viscosity.
+    /** 
+     * These multiply the mixture viscosity by
+     *  \f[ \exp( \sum_{i} \sum_{j} X_i X_j ( S_{i,j} + E_{i,j} / T ) ) \f].
+     *
+     * The overall formula for the logarithm of the mixture viscosity is 
+     *
+     * \f[ \ln \eta_{mix} = \sum_i X_i \ln \eta_i 
+     *  + \sum_i \sum_j X_i X_j ( S_{i,j} + E_{i,j} / T ) \f].
      */
-    class LiquidTransportParams :public TransportParams {
+    DenseMatrix  visc_Eij; 
+    
+    //! Entropies of molecular interaction associated with viscosity.
+    DenseMatrix  visc_Sij; 
+    
+    //! Model for species interaction effects for thermal conductivity
+    //! Takes enum LiquidTranMixingModel
+    LiquidTranMixingModel model_thermalCond;
+    
+    //! Interaction associated with linear weighting of 
+    //! thermal conductivity.
+    /**
+     * This is used for either LTI_MODEL_MASSFRACS 
+     * or LTI_MODEL_MOLEFRACS.  
+     * The overall formula for the mixture viscosity is 
+     *
+     * \f[ \eta_{mix} = \sum_i X_i \eta_i 
+     *  + \sum_i \sum_j X_i X_j A_{i,j} \f].
+     */
+    DenseMatrix  thermalCond_Aij; 
+    
+    //! Model for species interaction effects for mass diffusivity
+    //! Takes enum LiquidTranMixingModel
+    LiquidTranMixingModel model_speciesDiffusivity;
+    
+    //! Interaction associated with linear weighting of 
+    //! thermal conductivity.
+    /**
+     * This is used for either LTI_MODEL_PAIRWISE_INTERACTION.
+     * These provide species interaction coefficients associated with 
+     * the Stefan-Maxwell formulation.
+     */
+    DenseMatrix  diff_Dij; 
+    
+    //! Model for species interaction effects for hydrodynamic radius
+    //! Takes enum LiquidTranMixingModel
+    LiquidTranMixingModel model_hydroradius;
+    
+    //! Interaction associated with hydrodynamic radius.
+    /**
+     * Not yet implemented 
+     */
+    DenseMatrix  radius_Aij; 
+  };
 
-    public:
+  
+  class LTI_Solvent;
+  
+  class LTI_MoleFracs : public LiquidTranInteraction {
 
-        LiquidTransportParams() {}
-        ~LiquidTransportParams() {}
+  public:
+    LTI_MoleFracs( const XML_Node &compModelNode = 0, 
+		   TransportPropertyList tp_ind = TP_UNKNOWN, 
+		   thermo_t* thermo = 0 ) ; 
+    
+    //! Copy constructor
+    LTI_MoleFracs( const LTI_MoleFracs &right );
+    
+    //! Assignment operator
+    LTI_MoleFracs& operator=( const LTI_MoleFracs &right );
+    
+    virtual ~LTI_MoleFracs( ) { } 
+    
+    //! Return the mixture transport property value.
+    doublereal getMixTransProp( );
+  protected:    
+    
+  };
 
-	//! Species transport parameters
-        std::vector<Cantera::LiquidTransportData> LTData;
 
-	//! Model for species interaction effects for viscosity
-	//! Takes enum LiquidTranMixingModel
-	LiquidTranMixingModel model_viscosity;
 
-	//! Energies of molecular interaction associated with viscosity.
-	/** 
-	 * These multiply the mixture viscosity by
-	 *  \f[ \exp( \sum_{i} \sum_{j} X_i X_j ( S_{i,j} + E_{i,j} / T ) ) \f].
-	 *
-	 * The overall formula for the logarithm of the mixture viscosity is 
-	 *
-	 * \f[ \ln \eta_{mix} = \sum_i X_i \ln \eta_i 
-	 *  + \sum_i \sum_j X_i X_j ( S_{i,j} + E_{i,j} / T ) \f].
-	 */
-	DenseMatrix  visc_Eij; 
-
-	//! Entropies of molecular interaction associated with viscosity.
-	DenseMatrix  visc_Sij; 
-
-	//! Model for species interaction effects for thermal conductivity
-	//! Takes enum LiquidTranMixingModel
-	LiquidTranMixingModel model_thermalCond;
-
-	//! Interaction associated with linear weighting of 
-	//! thermal conductivity.
-	/**
-	 * This is used for either LTR_MIXMODEL_MASSFRACS 
-	 * or LTR_MIXMODEL_MOLEFRACS.  
-	 * The overall formula for the mixture viscosity is 
-	 *
-	 * \f[ \eta_{mix} = \sum_i X_i \eta_i 
-	 *  + \sum_i \sum_j X_i X_j A_{i,j} \f].
-	 */
-	DenseMatrix  thermalCond_Aij; 
-
-	//! Model for species interaction effects for mass diffusivity
-	//! Takes enum LiquidTranMixingModel
-	LiquidTranMixingModel model_speciesDiffusivity;
-
-	//! Interaction associated with linear weighting of 
-	//! thermal conductivity.
-	/**
-	 * This is used for either LTR_MIXMODEL_PAIRWISE_INTERACTION.
-	 * These provide species interaction coefficients associated with 
-	 * the Stefan-Maxwell formulation.
-	 */
-	DenseMatrix  diff_Dij; 
-
-	//! Model for species interaction effects for hydrodynamic radius
-	//! Takes enum LiquidTranMixingModel
-	LiquidTranMixingModel model_hydroradius;
-
-	//! Interaction associated with hydrodynamic radius.
-	/**
-	 * Not yet implemented 
-	 */
-	DenseMatrix  radius_Aij; 
-    };
 }
 
 #endif
