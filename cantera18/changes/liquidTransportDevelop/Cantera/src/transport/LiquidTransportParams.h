@@ -81,16 +81,19 @@ namespace Cantera {
     LTI_MODEL_MOLEFRACS,
     LTI_MODEL_MASSFRACS,
     LTI_MODEL_LOG_MOLEFRACS,
-    LTI_MODEL_PAIRWISE_INTERACTION
+    LTI_MODEL_PAIRWISE_INTERACTION,
+    LTI_MODEL_STOKES_EINSTEIN
   };
   
 
   class LiquidTranInteraction {
     
   public:
-    LiquidTranInteraction( const XML_Node &compModelNode = 0, 
-			   TransportPropertyList tp_ind = TP_UNKNOWN, 
-			   thermo_t* thermo = 0 );
+    //! Constructor 
+  /**
+   *  @param tp_ind          Index indicating transport property type (i.e. viscosity) 
+   */
+    LiquidTranInteraction( TransportPropertyList tp_ind = TP_UNKNOWN );
     
     //! Copy constructor
     LiquidTranInteraction( const LiquidTranInteraction &right );
@@ -99,12 +102,24 @@ namespace Cantera {
     LiquidTranInteraction& operator=( const LiquidTranInteraction &right );
     
     //! destructor
-    virtual ~LiquidTranInteraction() { }
+    virtual ~LiquidTranInteraction() { ; }
 
+    //! initialize LiquidTranInteraction objects with thermo and XML node
+    /**
+     *  @param compModelNode   <compositionDependence> XML node
+     *  @param thermo          Pointer to thermo object
+     */
+    virtual void init( const XML_Node &compModelNode = 0, 
+	  thermo_t* thermo = 0 );			  
+
+    virtual void setParameters( LiquidTransportParams& trParam ) { ; }
+    
     //! Return the mixture transport property value.
     //! (Must be implemented in subclasses.)
-    virtual doublereal getMixTransProp( ) { return 0.0; }
-    
+    virtual doublereal getMixTransProp( doublereal* speciesValues, doublereal *weightSpecies = 0 ) { return 0.0; }
+    virtual doublereal getMixTransProp( std::vector<LTPspecies*> LTPptrs ) { return 0.0; }
+    virtual DenseMatrix getMatrixTransProp( doublereal* speciesValues = 0 ) { return m_Dij; }
+
   protected:
     //! Model for species interaction effects 
     //! Takes enum LiquidTranMixingModel
@@ -116,17 +131,19 @@ namespace Cantera {
     //! pointer to thermo object to get current temperature
     thermo_t* m_thermo;
 
+    //LiquidTransportParams* m_trParam;
+
     //! Matrix of interactions (no temperature dependence, dimensionless)
-    DenseMatrix  Aij; 
+    DenseMatrix  m_Aij; 
 
     //! Matrix of interactions (in energy units, 1/RT temperature dependence)
-    DenseMatrix  Eij; 
+    DenseMatrix  m_Eij; 
 
     //! Matrix of interactions (in entropy units, divided by R)
-    DenseMatrix  Sij;         
+    DenseMatrix  m_Sij;         
     
     //! Matrix of interactions 
-    DenseMatrix  Dij;         
+    DenseMatrix  m_Dij;         
     
   };
 
@@ -145,11 +162,16 @@ namespace Cantera {
     
     //! Species transport parameters
     std::vector<Cantera::LiquidTransportData> LTData;
+
+    LiquidTranInteraction* viscosity;
+    LiquidTranInteraction* thermalCond;
+    LiquidTranInteraction* speciesDiffusivity;
+    LiquidTranInteraction* electCond;
+    LiquidTranInteraction* hydroRadius;
     
     //! Model for species interaction effects for viscosity
     //! Takes enum LiquidTranMixingModel
     LiquidTranMixingModel model_viscosity;
-    
     
     //! Energies of molecular interaction associated with viscosity.
     /** 
@@ -208,28 +230,220 @@ namespace Cantera {
 
   
   class LTI_Solvent;
-  
-  class LTI_MoleFracs : public LiquidTranInteraction {
+  class LTI_MoleFracs;
+  class LTI_MassFracs;
+  class LTI_Log_MoleFracs;
+  class LTI_Pairwise_Interaction;
+
+  class LTI_Solvent : public LiquidTranInteraction {
 
   public:
-    LTI_MoleFracs( const XML_Node &compModelNode = 0, 
-		   TransportPropertyList tp_ind = TP_UNKNOWN, 
-		   thermo_t* thermo = 0 ) ; 
+    LTI_Solvent( TransportPropertyList tp_ind = TP_UNKNOWN ) :
+      LiquidTranInteraction( tp_ind )
+      {
+	m_model = LTI_MODEL_SOLVENT;
+      }
     
     //! Copy constructor
-    LTI_MoleFracs( const LTI_MoleFracs &right );
+    //    LTI_Solvent( const LTI_Solvent &right );
     
     //! Assignment operator
-    LTI_MoleFracs& operator=( const LTI_MoleFracs &right );
+    //    LTI_Solvent& operator=( const LTI_Solvent &right );
     
-    virtual ~LTI_MoleFracs( ) { } 
+    virtual ~LTI_Solvent( ) { } 
     
     //! Return the mixture transport property value.
-    doublereal getMixTransProp( );
+    /** 
+     * Takes the separate species transport properties 
+     * as input (this method does not know what
+     * transport property it is at this point.
+     */
+    doublereal getMixTransProp( doublereal *valueSpecies, doublereal *weightSpecies = 0 );
+    doublereal getMixTransProp( std::vector<LTPspecies*> LTPptrs ) ;
+
+    DenseMatrix getMatrixTransProp( doublereal* speciesValues = 0 ) { return m_Aij; }
+
   protected:    
     
   };
 
+
+  class LTI_MoleFracs : public LiquidTranInteraction {
+
+  public:
+    LTI_MoleFracs( TransportPropertyList tp_ind = TP_UNKNOWN ) :
+      LiquidTranInteraction( tp_ind )
+      {
+	m_model = LTI_MODEL_MOLEFRACS;
+      }
+
+    
+    //! Copy constructor
+    //    LTI_MoleFracs( const LTI_MoleFracs &right );
+    
+    //! Assignment operator
+    //    LTI_MoleFracs& operator=( const LTI_MoleFracs &right );
+    
+    virtual ~LTI_MoleFracs( ) { } 
+    
+    //! Return the mixture transport property value.
+    /** 
+     * Takes the separate species transport properties 
+     * as input (this method does not know what
+     * transport property it is at this point.
+     */
+    doublereal getMixTransProp( doublereal *valueSpecies, doublereal *weightSpecies = 0 );
+    doublereal getMixTransProp( std::vector<LTPspecies*> LTPptrs ) ;
+
+    DenseMatrix getMatrixTransProp( doublereal* speciesValues = 0 ) { return m_Aij; }
+
+  protected:    
+    
+  };
+
+
+  class LTI_MassFracs : public LiquidTranInteraction {
+
+  public:
+    LTI_MassFracs( TransportPropertyList tp_ind = TP_UNKNOWN ) :
+      LiquidTranInteraction( tp_ind )
+      {
+	m_model = LTI_MODEL_MASSFRACS;
+      }
+
+    
+    //! Copy constructor
+    //    LTI_MassFracs( const LTI_MassFracs &right );
+    
+    //! Assignment operator
+    //    LTI_MassFracs& operator=( const LTI_MassFracs &right );
+    
+    virtual ~LTI_MassFracs( ) { } 
+    
+    //! Return the mixture transport property value.
+    /** 
+     * Takes the separate species transport properties 
+     * as input (this method does not know what
+     * transport property it is at this point.
+     */
+    doublereal getMixTransProp( doublereal *valueSpecies, doublereal *weightSpecies = 0 );
+    doublereal getMixTransProp( std::vector<LTPspecies*> LTPptrs ) ;
+
+    DenseMatrix getMatrixTransProp( doublereal* speciesValues = 0 ) { return m_Aij; }
+
+  protected:    
+    
+  };
+
+
+  class LTI_Log_MoleFracs : public LiquidTranInteraction {
+
+  public:
+    LTI_Log_MoleFracs( TransportPropertyList tp_ind = TP_UNKNOWN ) :
+      LiquidTranInteraction( tp_ind )
+      {
+	m_model = LTI_MODEL_LOG_MOLEFRACS;
+      }
+
+    
+    //! Copy constructor
+    //    LTI_Log_MoleFracs( const LTI_Log_MoleFracs &right );
+    
+    //! Assignment operator
+    //    LTI_Log_MoleFracs& operator=( const LTI_Log_MoleFracs &right );
+    
+    virtual ~LTI_Log_MoleFracs( ) { } 
+    
+    //! Return the mixture transport property value.
+    /** 
+     * Takes the separate species transport properties 
+     * as input (this method does not know what
+     * transport property it is at this point.
+     */
+    doublereal getMixTransProp( doublereal *valueSpecies, doublereal *weightSpecies = 0 );
+    doublereal getMixTransProp( std::vector<LTPspecies*> LTPptrs ) ;
+
+    DenseMatrix getMatrixTransProp( doublereal* speciesValues = 0 ) { return m_Eij; }
+
+  protected:    
+    
+  };
+
+
+  class LTI_Pairwise_Interaction : public LiquidTranInteraction {
+
+  public:
+    LTI_Pairwise_Interaction( TransportPropertyList tp_ind = TP_UNKNOWN ) :
+      LiquidTranInteraction( tp_ind )
+      {
+	m_model = LTI_MODEL_PAIRWISE_INTERACTION;
+      }
+    
+    
+    //! Copy constructor
+    //    LTI_Pairwise_Interaction( const LTI_Pairwise_Interaction &right );
+    
+    //! Assignment operator
+    //    LTI_Pairwise_Interaction& operator=( const LTI_Pairwise_Interaction &right );
+    
+    virtual ~LTI_Pairwise_Interaction( ) { } 
+    
+    void setParameters( LiquidTransportParams& trParam ) ;
+
+    //! Return the mixture transport property value.
+    /** 
+     * Takes the separate species transport properties 
+     * as input (this method does not know what
+     * transport property it is at this point.
+     */
+    doublereal getMixTransProp( doublereal *valueSpecies, doublereal *weightSpecies = 0 );
+    doublereal getMixTransProp( std::vector<LTPspecies*> LTPptrs ) ;
+
+    DenseMatrix getMatrixTransProp( doublereal* speciesValues = 0 ) ;
+
+  protected:    
+
+    std::vector<LTPspecies*> m_diagonals;
+  };
+
+
+  class LTI_StokesEinstein : public LiquidTranInteraction {
+
+  public:
+    LTI_StokesEinstein( TransportPropertyList tp_ind = TP_UNKNOWN ) :
+      LiquidTranInteraction( tp_ind )
+      {
+	m_model = LTI_MODEL_STOKES_EINSTEIN;
+      }
+    
+    
+    //! Copy constructor
+    //    LTI_StokesEinstein( const LTI_StokesEinstein &right );
+    
+    //! Assignment operator
+    //    LTI_StokesEinstein& operator=( const LTI_StokesEinstein &right );
+    
+    virtual ~LTI_StokesEinstein( ) { } 
+
+    void setParameters( LiquidTransportParams& trParam );
+  
+    //! Return the mixture transport property value.
+    /** 
+     * Takes the separate species transport properties 
+     * as input (this method does not know what
+     * transport property it is at this point.
+     */
+    doublereal getMixTransProp( doublereal *valueSpecies, doublereal *weightSpecies = 0 );
+    doublereal getMixTransProp( std::vector<LTPspecies*> LTPptrs ) ;
+
+    DenseMatrix getMatrixTransProp( doublereal* speciesValues = 0 ) ;
+
+  protected:    
+    
+    std::vector<LTPspecies*> m_viscosity;
+    std::vector<LTPspecies*> m_hydroRadius;
+    
+  };
 
 
 }
