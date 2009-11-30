@@ -34,7 +34,8 @@
 #include "ct_defs.h"
 #include "TransportBase.h"
 #include "FactoryBase.h"
-#include "LiquidTransportData.h"
+//#include "LiquidTransportData.h"
+#include "LiquidTransportParams.h"
 
 #if defined(THREAD_SAFE_CANTERA)
 #include <boost/thread/mutex.hpp>
@@ -125,14 +126,6 @@ namespace Cantera {
      */
     virtual ~TransportFactory();
 
-    //! Build a new transport manager using a transport manager
-    //! that may not be the same as in the phase description
-    /*!
-     *  @param model     String name for the transport manager
-     *  @param thermo    ThermoPhase object
-     *  @param log_level log level
-     */
-
 
     /**
      *  make one of several transport models, and return a base class
@@ -145,6 +138,25 @@ namespace Cantera {
 	      TransportPropertyList tp_ind, thermo_t* thermo) ;
 
     
+    /**
+     *  make one of several transport models, and return a base class
+     *  pointer to it.  This method operates at the level of a 
+     *  single mixture transport property.  Individual species 
+     *  transport properties are addressed by the LTPspecies 
+     *  returned by newLTP
+     */
+    virtual LiquidTranInteraction* newLTI( const XML_Node &trNode, 
+					   TransportPropertyList tp_ind, 
+					   LiquidTransportParams& trParam) ;
+
+    
+    //! Build a new transport manager using a transport manager
+    //! that may not be the same as in the phase description
+    /*!
+     *  @param model     String name for the transport manager
+     *  @param thermo    ThermoPhase object
+     *  @param log_level log level
+     */
     virtual Transport*
       newTransport(std::string model, thermo_t* thermo, int log_level=0);
 
@@ -265,6 +277,10 @@ namespace Cantera {
     //! Mapping between between the string name for a 
     //! species-specific transport property model and the integer name.
     std::map<std::string, LiquidTR_Model> m_LTRmodelMap;
+
+    //! Mapping between between the string name for a 
+    //! liquid mixture transport property model and the integer name.
+    std::map<std::string, LiquidTranMixingModel> m_LTImodelMap;
   };
 
 
