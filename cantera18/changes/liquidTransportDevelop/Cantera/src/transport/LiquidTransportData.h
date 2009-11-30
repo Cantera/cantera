@@ -168,7 +168,7 @@ namespace Cantera {
     std::string speciesName;   
     
     //! Model type for the hydroradius
-    LTPspecies* hydroradius;
+    LTPspecies* hydroRadius;
 
     //! Model type for the viscosity
     LTPspecies* viscosity;
