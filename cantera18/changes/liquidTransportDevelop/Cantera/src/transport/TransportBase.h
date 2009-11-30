@@ -56,6 +56,17 @@ namespace Cantera {
   // forward reference
   class XML_Writer;
 
+  /** The diffusion velocities can be referenced to a variety of things.
+   *  Most typical is to reference to the mass averaged velocity, but 
+   * referencing to the mole averaged velocity is suitable for some 
+   * liquid flows and referencing to a single species is suitable for 
+   * some solvent mixtures.  This enum should provide a means to identify 
+   * the reference velocity used for the transport model.
+   */
+  enum VelocityBasis { 
+    VB_MOLEAVG = -2,
+    VB_MASSAVG = -1
+  };
 
   /**
    * Base class for transport property managers.  All classes that
@@ -306,6 +317,69 @@ namespace Cantera {
     }
 
     
+    //! Get the species diffusive velocities wrt to 
+    //! the mass averaged velocity, 
+    //! given the gradients in mole fraction and temperature
+    /*!
+     *  Units for the returned fluxes are kg m-2 s-1.
+     * 
+     *  @param ndim Number of dimensions in the flux expressions
+     *  @param grad_T Gradient of the temperature
+     *                 (length = ndim)
+     * @param ldx  Leading dimension of the grad_X array 
+     *              (usually equal to m_nsp but not always)
+     * @param grad_X Gradients of the mole fraction
+     *             Flat vector with the m_nsp in the inner loop.
+     *             length = ldx * ndim
+     * @param ldf  Leading dimension of the fluxes array 
+     *              (usually equal to m_nsp but not always)
+     * @param Vdiff  Output of the diffusive velocities.
+     *             Flat vector with the m_nsp in the inner loop.
+     *             length = ldx * ndim
+     */
+    virtual void getSpeciesVdiff(int ndim, 
+				  const doublereal* grad_T, 
+				  int ldx, 
+				  const doublereal* grad_X,
+				  int ldf, 
+				  doublereal* Vdiff) { 
+      err("getSpeciesVdiff"); 
+    }
+
+    //! Get the species diffusive mass fluxes wrt to 
+    //! the mass averaged velocity, 
+    //! given the gradients in mole fraction, temperature 
+    //! and electrostatic potential.
+    /*!
+     *  Units for the returned fluxes are kg m-2 s-1.
+     * 
+     *  @param ndim Number of dimensions in the flux expressions
+     *  @param grad_T Gradient of the temperature
+     *                 (length = ndim)
+     * @param ldx  Leading dimension of the grad_X array 
+     *              (usually equal to m_nsp but not always)
+     * @param grad_X Gradients of the mole fraction
+     *             Flat vector with the m_nsp in the inner loop.
+     *             length = ldx * ndim
+     * @param ldf  Leading dimension of the fluxes array 
+     *              (usually equal to m_nsp but not always)
+     * @param grad_Phi Gradients of the electrostatic potential
+     *                 (length = ndim)
+     * @param fluxes  Output of the diffusive mass fluxes
+     *             Flat vector with the m_nsp in the inner loop.
+     *             length = ldx * ndim
+     */
+    virtual void getSpeciesVdiffES(int ndim, 
+				    const doublereal* grad_T, 
+				    int ldx, 
+				    const doublereal* grad_X,
+				    int ldf, 
+				    const doublereal* grad_Phi,
+				    doublereal* Vdiff) { 
+      getSpeciesVdiff( ndim, grad_T, ldx, grad_X, ldf, Vdiff );
+    }
+
+    
     //! Get the molar fluxes [kmol/m^2/s], given the thermodynamic
     //! state at two nearby points. 
     /*!
@@ -390,6 +464,10 @@ namespace Cantera {
 			       const doublereal* const p); 
    
 
+    void setVelocityBasis( int  ivb ) { m_velocityBasis = ivb; }
+    
+    int getVelocityBasis( ) { return m_velocityBasis; }
+
     friend class TransportFactory;
 
 
@@ -447,6 +525,9 @@ namespace Cantera {
     //! Number of dimensions used in flux expresions
     int       m_nDim;
 
+    //! velocity basis from which diffusion velocities are computed. 
+    //!    Defaults to mass averaged = -2
+    int      m_velocityBasis;
 
   private:
 

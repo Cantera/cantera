@@ -38,7 +38,8 @@ namespace Cantera {
     m_ready(false),
     m_nmin(0),
     m_index(-1),
-    m_nDim(ndim)
+    m_nDim(ndim),
+    m_velocityBasis(VB_MASSAVG)
   {
   }
 
@@ -49,6 +50,7 @@ namespace Cantera {
     m_nmin          = right.m_nmin;
     m_index         = right.m_index;
     m_nDim          = right.m_nDim;
+    m_velocityBasis = right.m_velocityBasis;
   }
 
 
@@ -61,6 +63,7 @@ namespace Cantera {
     m_nmin          = right.m_nmin;
     m_index         = right.m_index;
     m_nDim          = right.m_nDim;
+    m_velocityBasis = right.m_velocityBasis;
     return *this;
   }
 

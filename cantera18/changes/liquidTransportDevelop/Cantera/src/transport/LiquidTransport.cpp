@@ -117,6 +117,8 @@ namespace Cantera {
     m_lambdaMixModel                      = right.m_lambdaMixModel;
     m_diffMixModel                        = right.m_diffMixModel;
     m_iStateMF = -1;
+    m_massfracs                           = right.m_massfracs;
+    m_massfracs_tran                      = right.m_massfracs_tran;
     m_molefracs                           = right.m_molefracs;
     m_molefracs_tran                      = right.m_molefracs_tran;
     m_concentrations                      = right.m_concentrations;
@@ -267,6 +269,8 @@ namespace Cantera {
 
     m_mode       = tr.mode_;
 
+    m_massfracs.resize(m_nsp);
+    m_massfracs_tran.resize(m_nsp);
     m_molefracs.resize(m_nsp);
     m_molefracs_tran.resize(m_nsp);
     m_concentrations.resize(m_nsp);
@@ -520,6 +524,48 @@ namespace Cantera {
    *      \vec{j}_k = -n M_k D_k \nabla X_k.
    * \f]
    */
+  void LiquidTransport::getSpeciesVdiff(int ndim, 
+					 const doublereal* grad_T, 
+					 int ldx, const doublereal* grad_X, 
+					 int ldf, doublereal* Vdiff) {
+    set_Grad_T(grad_T);
+    set_Grad_X(grad_X);
+    getSpeciesVdiffExt(ldf, Vdiff);
+  }
+
+  /**
+   * @param ndim The number of spatial dimensions (1, 2, or 3).
+   * @param grad_T The temperature gradient (ignored in this model).
+   * @param ldx  Leading dimension of the grad_X array.
+   * The diffusive mass flux of species \e k is computed from
+   *
+   * \f[
+   *      \vec{j}_k = -n M_k D_k \nabla X_k.
+   * \f]
+   */
+  void LiquidTransport::getSpeciesVdiffES(int ndim, 
+					   const doublereal* grad_T, 
+					   int ldx, 
+					   const doublereal* grad_X, 
+					   int ldf, 
+					   const doublereal* grad_V, 
+					   doublereal* Vdiff) {
+    set_Grad_T(grad_T);
+    set_Grad_X(grad_X);
+    set_Grad_V(grad_V);
+    getSpeciesVdiffExt(ldf, Vdiff);
+  }
+
+  /**
+   * @param ndim The number of spatial dimensions (1, 2, or 3).
+   * @param grad_T The temperature gradient (ignored in this model).
+   * @param ldx  Leading dimension of the grad_X array.
+   * The diffusive mass flux of species \e k is computed from
+   *
+   * \f[
+   *      \vec{j}_k = -n M_k D_k \nabla X_k.
+   * \f]
+   */
   void LiquidTransport::getSpeciesFluxes(int ndim, 
 					 const doublereal* grad_T, 
 					 int ldx, const doublereal* grad_X, 
@@ -562,6 +608,33 @@ namespace Cantera {
    *      \vec{j}_k = -n M_k D_k \nabla X_k.
    * \f]
    */
+  void LiquidTransport::getSpeciesVdiffExt(int ldf, doublereal* Vdiff) {
+    int n, k;
+
+    update_T();
+    update_C();
+
+    update_Grad_lnAC();
+
+    stefan_maxwell_solve();
+
+    for (n = 0; n < m_nDim; n++) {
+      for (k = 0; k < m_nsp; k++) {
+	Vdiff[n*ldf + k] = m_Vdiff(k,n);
+      }
+    }
+  }
+
+  /**
+   * @param ndim The number of spatial dimensions (1, 2, or 3).
+   * @param grad_T The temperature gradient (ignored in this model).
+   * @param ldx  Leading dimension of the grad_X array.
+   * The diffusive mass flux of species \e k is computed from
+   *
+   * \f[
+   *      \vec{j}_k = -n M_k D_k \nabla X_k.
+   * \f]
+   */
   void LiquidTransport::getSpeciesFluxesExt(int ldf, doublereal* fluxes) {
     int n, k;
 
@@ -577,7 +650,6 @@ namespace Cantera {
 	fluxes[n*ldf + k] = m_flux(k,n);
       }
     }
-
     /*
     getMixDiffCoeffs(DATA_PTR(m_spwork));
     const array_fp& mw = m_thermo->molecularWeights();
@@ -716,6 +788,7 @@ namespace Cantera {
     int iStateNew = m_thermo->stateMFNumber();
     if (iStateNew != m_iStateMF) {
       qReturn = false;
+      m_thermo->getMassFractions(DATA_PTR(m_massfracs));
       m_thermo->getMoleFractions(DATA_PTR(m_molefracs));
       m_thermo->getConcentrations(DATA_PTR(m_concentrations));
       concTot_ = 0.0;
@@ -723,6 +796,7 @@ namespace Cantera {
       for (int k = 0; k < m_nsp; k++) {
 	m_molefracs[k] = fmaxx(0.0, m_molefracs[k]);
 	m_molefracs_tran[k] = fmaxx(MIN_X, m_molefracs[k]);
+	m_massfracs_tran[k] = fmaxx(MIN_X, m_massfracs[k]);
 	concTot_tran_ += m_molefracs_tran[k];
 	concTot_ += m_concentrations[k];
       }
@@ -1000,8 +1074,19 @@ namespace Cantera {
     switch (m_nDim) {
     case 1:  /* 1-D approximation */
       m_B(0,0) = 0.0;
+      //equation for the reference velocity 
       for (j = 0; j < m_nsp; j++) {
-	m_A(0,j) = m_molefracs_tran[j];
+	if ( m_velocityBasis == VB_MOLEAVG )
+	  m_A(0,j) = m_molefracs_tran[j];
+	else if ( m_velocityBasis == VB_MASSAVG )
+	  m_A(0,j) = m_massfracs_tran[j];
+	else if ( ( m_velocityBasis >= 0 ) 
+		  && ( m_velocityBasis < m_nsp ) )
+	  // use species number m_velocityBasis as reference velocity
+	  if ( m_velocityBasis == j ) m_A(0,j) = 1.0; 
+	else 
+	  throw CanteraError("LiquidTransport::stefan_maxwell_solve",
+			     "Unknown reference velocity provided.");
       }
       for (i = 1; i < m_nsp; i++){
 	m_B(i,0) = m_Grad_mu[i] / (GasConstant * T);
@@ -1025,8 +1110,19 @@ namespace Cantera {
     case 2:  /* 2-D approximation */
       m_B(0,0) = 0.0;
       m_B(0,1) = 0.0;
+      //equation for the reference velocity 
       for (j = 0; j < m_nsp; j++) {
-	m_A(0,j) = m_molefracs_tran[j];
+	if ( m_velocityBasis == VB_MOLEAVG )
+	  m_A(0,j) = m_molefracs_tran[j];
+	else if ( m_velocityBasis == VB_MASSAVG )
+	  m_A(0,j) = m_massfracs_tran[j];
+	else if ( ( m_velocityBasis >= 0 ) 
+		  && ( m_velocityBasis < m_nsp ) )
+	  // use species number m_velocityBasis as reference velocity
+	  if ( m_velocityBasis == j ) m_A(0,j) = 1.0; 
+	else 
+	  throw CanteraError("LiquidTransport::stefan_maxwell_solve",
+			     "Unknown reference velocity provided.");
       }
       for (i = 1; i < m_nsp; i++){
 	m_B(i,0) =  m_Grad_mu[i]         / (GasConstant * T);
@@ -1054,8 +1150,19 @@ namespace Cantera {
       m_B(0,0) = 0.0;
       m_B(0,1) = 0.0;
       m_B(0,2) = 0.0;
+      //equation for the reference velocity 
       for (j = 0; j < m_nsp; j++) {
-	m_A(0,j) = m_molefracs_tran[j];
+	if ( m_velocityBasis == VB_MOLEAVG )
+	  m_A(0,j) = m_molefracs_tran[j];
+	else if ( m_velocityBasis == VB_MASSAVG )
+	  m_A(0,j) = m_massfracs_tran[j];
+	else if ( ( m_velocityBasis >= 0 ) 
+		  && ( m_velocityBasis < m_nsp ) )
+	  // use species number m_velocityBasis as reference velocity
+	  if ( m_velocityBasis == j ) m_A(0,j) = 1.0; 
+	else 
+	  throw CanteraError("LiquidTransport::stefan_maxwell_solve",
+			     "Unknown reference velocity provided.");
       }
       for (i = 1; i < m_nsp; i++){
 	m_B(i,0) = m_Grad_mu[i]           / (GasConstant * T);
