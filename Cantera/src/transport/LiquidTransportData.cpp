@@ -57,7 +57,7 @@ namespace Cantera {
   {
     if (&right != this) {
       speciesName        = right.speciesName;
-      hydroradius        = right.hydroradius;
+      hydroRadius        = right.hydroRadius;
       viscosity          = right.viscosity;
       thermalCond        = right.thermalCond;
       electCond          = right.electCond;

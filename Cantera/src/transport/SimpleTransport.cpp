@@ -319,7 +319,7 @@ namespace Cantera {
       m_coeffDiff_Ns[k] = ltd.speciesDiffusivity;
       
       if ( !(m_coeffDiff_Ns[k]) ) {
-	m_coeffHydroRadius_Ns[k] = ltd.hydroradius;
+	m_coeffHydroRadius_Ns[k] = ltd.hydroRadius;
 	if ( !(m_coeffHydroRadius_Ns[k]) ) {
 	  throw CanteraError("SimpleTransport::initLiquid",
 			     "Neither diffusivity nor hydroradius is set for species " + spName);
