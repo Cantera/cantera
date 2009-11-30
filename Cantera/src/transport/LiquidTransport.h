@@ -539,21 +539,7 @@ namespace Cantera {
      *     3  - Mass fraction weighting of species viscosities
      *     4  - Mole fraction weighting of logarithms of species viscosities
      */
-    LiquidTranMixingModel m_viscMixModel;
-
-    //! Molecular interaction energies associated with viscosity 
-    /** 
-     * These multiply the viscosity according to
-     *  \f[ exp( \sum_{i} \sum_{j} X_i X_j E_{i,j} / T \f].
-     */
-    DenseMatrix m_visc_Eij;
-
-    //! Molecular interaction entropies associated with viscosity 
-    /** 
-     * These multiply the viscosity according to
-     *  \f[ exp( \sum_{i} \sum{j} X_i X_j S_{i,j} \f].
-     */
-    DenseMatrix m_visc_Sij;
+    LiquidTranInteraction *m_viscMixModel;
 
     //! Thermal conductivity temperature dependence type
     /*!
@@ -570,16 +556,9 @@ namespace Cantera {
      *     2  - Mole fraction weighting of species viscosities
      *     3  - Mass fraction weighting of species viscosities
      */
-    LiquidTranMixingModel m_lambdaMixModel;
-
-    //! Molecular interaction associated with thermal conductivity 
-    /** 
-     * These multiply the viscosity according to
-     *  \f[ exp( \sum_{i} \sum{j} X_i X_j S_{i,j} \f].
-     */
-    DenseMatrix m_lambda_Aij;
-
-    //! Diffusion coefficient temperature dependence type
+    LiquidTranInteraction *m_lambdaMixModel;
+ 
+   //! Diffusion coefficient temperature dependence type
     /*!
      *  Types of temperature dependencies:
      *     0  - Independent of temperature (only one implemented so far)
@@ -593,7 +572,7 @@ namespace Cantera {
      *  Types of mixing models supported:
      *     5  - Pairwise interactions -- Setfan-Maxwell diffusion coefficients
      */
-    LiquidTranMixingModel m_diffMixModel;
+    LiquidTranInteraction *m_diffMixModel;
 
     //! Setfan-Maxwell diffusion coefficients
     DenseMatrix m_diff_Dij;
@@ -618,10 +597,7 @@ namespace Cantera {
      *  Types of mixing models supported:
      *     0  - No mixing model allowed
      */
-    LiquidTranMixingModel m_radiusMixModel;
-
-    //! Hydrodynamic radius mixing model interaction parameters
-    DenseMatrix m_radius_Aij;
+    LiquidTranInteraction *m_radiusMixModel;
 
 
     //! Polynomial coefficients of the binary diffusion coefficients
@@ -745,7 +721,6 @@ namespace Cantera {
      * controlling update boolean -> m_visc_temp_ok
      */
     vector_fp m_viscSpecies;
-    vector_fp m_logViscSpecies;
 
     //! Internal value of the species individual thermal conductivities
     /*!
@@ -827,13 +802,6 @@ namespace Cantera {
     vector_fp m_volume_spec;
 
     vector_fp m_actCoeff;
-
-    //! Stefan-Maxwell Diffusion Coefficients at T, P and C
-    /*!
-     *   These diffusion coefficients are considered to be
-     *  a function of Temperature, Pressure, and Concentration.
-     */
-    DenseMatrix m_DiffCoeff_StefMax;
 
     //! RHS to the stefan-maxwell equation
     DenseMatrix   m_B;
