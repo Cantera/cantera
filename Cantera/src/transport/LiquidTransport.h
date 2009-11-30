@@ -334,6 +334,64 @@ namespace Cantera {
      */
      virtual void update_Grad_lnAC();
 
+    //! Get the species diffusive velocities wrt to 
+    //! the mass averaged velocity, 
+    //! given the gradients in mole fraction and temperature
+    /*!
+     *  Units for the returned fluxes are kg m-2 s-1.
+     * 
+     *  @param ndim Number of dimensions in the flux expressions
+     *  @param grad_T Gradient of the temperature
+     *                 (length = ndim)
+     * @param ldx  Leading dimension of the grad_X array 
+     *              (usually equal to m_nsp but not always)
+     * @param grad_X Gradients of the mole fraction
+     *             Flat vector with the m_nsp in the inner loop.
+     *             length = ldx * ndim
+     * @param ldf  Leading dimension of the fluxes array 
+     *              (usually equal to m_nsp but not always)
+     * @param Vdiff  Output of the diffusive velocities.
+     *             Flat vector with the m_nsp in the inner loop.
+     *             length = ldx * ndim
+     */
+    virtual void getSpeciesVdiff(int ndim, 
+				  const doublereal* grad_T, 
+				  int ldx, 
+				  const doublereal* grad_X,
+				  int ldf, 
+				  doublereal* Vdiff) ;
+
+    //! Get the species diffusive mass fluxes wrt to 
+    //! the mass averaged velocity, 
+    //! given the gradients in mole fraction, temperature 
+    //! and electrostatic potential.
+    /*!
+     *  Units for the returned fluxes are kg m-2 s-1.
+     * 
+     *  @param ndim Number of dimensions in the flux expressions
+     *  @param grad_T Gradient of the temperature
+     *                 (length = ndim)
+     * @param ldx  Leading dimension of the grad_X array 
+     *              (usually equal to m_nsp but not always)
+     * @param grad_X Gradients of the mole fraction
+     *             Flat vector with the m_nsp in the inner loop.
+     *             length = ldx * ndim
+     * @param ldf  Leading dimension of the fluxes array 
+     *              (usually equal to m_nsp but not always)
+     * @param grad_Phi Gradients of the electrostatic potential
+     *                 (length = ndim)
+     * @param fluxes  Output of the diffusive mass fluxes
+     *             Flat vector with the m_nsp in the inner loop.
+     *             length = ldx * ndim
+     */
+    virtual void getSpeciesVdiffES(int ndim, 
+				    const doublereal* grad_T, 
+				    int ldx, 
+				    const doublereal* grad_X,
+				    int ldf, 
+				    const doublereal* grad_Phi,
+				    doublereal* Vdiff) ;
+
     /**
      * @param ndim The number of spatial dimensions (1, 2, or 3).
      * @param grad_T The temperature gradient (ignored in this model).
@@ -390,6 +448,11 @@ namespace Cantera {
 				     int ldf, 
 				     const doublereal* grad_Phi,
 				     doublereal* fluxes);
+
+    //!  Return the species diffusive velocities relative to 
+    //!  the (mass) averaged velocity.  
+    //!  See getSpeciesFluxesExt for further details.
+    virtual void getSpeciesVdiffExt(int ldf, doublereal* Vdiff);
 
     //!  Return the species diffusive mass fluxes wrt to
     //!  the mass averaged velocity,
@@ -735,6 +798,21 @@ namespace Cantera {
 
     //! State of the mole fraction vector.
     int m_iStateMF;
+
+    //! Local copy of the mass fractions of the species in the phase
+    /*!
+     *  The mass fraction vector comes from the ThermoPhase object. 
+     *
+     * length = m_nsp
+     */
+    vector_fp m_massfracs;
+
+    //! Local copy of the mass fractions of the species in the phase
+    /** 
+     * This version of the mass fraction vector is adjusted to a
+     * minimum lower bound of MIN_X for use in transport calculations.
+     */ 
+    vector_fp m_massfracs_tran;
 
     //! Local copy of the mole fractions of the species in the phase
     /*!
