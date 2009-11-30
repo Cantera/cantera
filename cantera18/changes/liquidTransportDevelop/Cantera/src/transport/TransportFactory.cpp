@@ -255,6 +255,14 @@ namespace Cantera {
     m_LTRmodelMap["constant"] = LTR_MODEL_CONSTANT;
     m_LTRmodelMap["arrhenius"] = LTR_MODEL_ARRHENIUS;
     m_LTRmodelMap["coeffs"] = LTR_MODEL_POLY;
+
+    m_LTImodelMap[""] = LTI_MODEL_NOTSET;
+    m_LTImodelMap["none"] = LTI_MODEL_NONE;
+    m_LTImodelMap["solvent"] = LTI_MODEL_SOLVENT;
+    m_LTImodelMap["moleFractions"] = LTI_MODEL_MOLEFRACS;
+    m_LTImodelMap["massFractions"] = LTI_MODEL_MASSFRACS;
+    m_LTImodelMap["logMoleFractions"] = LTI_MODEL_LOG_MOLEFRACS;
+    m_LTImodelMap["pairwiseInteraction"] = LTI_MODEL_PAIRWISE_INTERACTION;
   }
 
   /**
@@ -326,6 +334,56 @@ namespace Cantera {
 			     thermo );
     }
     return ltps;
+  }
+
+  /**
+   *  make one of several transport models, and return a base class
+   *  pointer to it.  This method operates at the level of a 
+   *  single mixture transport property.  Individual species 
+   *  transport properties are addressed by the LTPspecies 
+   *  returned by newLTP
+   */
+  LiquidTranInteraction* TransportFactory::newLTI( const XML_Node &trNode, 
+						   TransportPropertyList tp_ind, 
+						   LiquidTransportParams& trParam) {
+    LiquidTranInteraction* lti = 0;
+
+    thermo_t* thermo = trParam.thermo;
+
+    std::string model = trNode["model"];
+    switch ( m_LTImodelMap[model] ) {
+    case LTI_MODEL_SOLVENT:
+      lti = new LTI_Solvent( tp_ind );			     
+      lti->init( trNode, thermo );
+      break;
+    case LTI_MODEL_MOLEFRACS:
+      lti = new LTI_MoleFracs( tp_ind );
+      lti->init( trNode, thermo );
+      break;
+    case LTI_MODEL_MASSFRACS:
+      lti = new LTI_MassFracs( tp_ind );
+      lti->init( trNode, thermo );
+      break;
+    case LTI_MODEL_LOG_MOLEFRACS:
+      lti = new LTI_Log_MoleFracs( tp_ind );
+      lti->init( trNode, thermo );
+      break;
+    case LTI_MODEL_PAIRWISE_INTERACTION:
+      lti = new LTI_Pairwise_Interaction( tp_ind );
+      lti->init( trNode, thermo );
+      lti->setParameters( trParam );
+      break;
+    case LTI_MODEL_STOKES_EINSTEIN:
+      lti = new LTI_StokesEinstein( tp_ind );
+      lti->init( trNode, thermo );
+      lti->setParameters( trParam );
+      break;
+    default:
+      throw CanteraError("newLTI","unknown transport model: " + model );
+      lti = new LiquidTranInteraction( tp_ind );
+      lti->init( trNode, thermo );
+    }
+    return lti;
   }
 
   /**
@@ -894,7 +952,6 @@ namespace Cantera {
     std::map<std::string, LiquidTransportData> datatable;
 
     int nsp = static_cast<int>(xspecies.size());
-    std::cout << "Size of xspecies " << nsp << std::endl;
   
     // read all entries in database into 'datatable' and check for 
     // errors. Note that this procedure validates all entries, not 
@@ -930,26 +987,34 @@ namespace Cantera {
 				       name, 
 				       m_tranPropMap[nodeName],
 				       trParam.thermo );
+	      break;
 	    case TP_THERMALCOND:
 	      data.thermalCond = newLTP( xmlChild, 
 				       name, 
 				       m_tranPropMap[nodeName],
 				       trParam.thermo );
+	      break;
 	    case TP_DIFFUSIVITY:
 	      data.speciesDiffusivity = newLTP( xmlChild, 
 				       name, 
 				       m_tranPropMap[nodeName],
 				       trParam.thermo );
+	      break;
 	    case TP_HYDRORADIUS:
-	      data.hydroradius = newLTP( xmlChild, 
+	      data.hydroRadius = newLTP( xmlChild, 
 				       name, 
 				       m_tranPropMap[nodeName],
 				       trParam.thermo );
+	      break;
 	    case TP_ELECTCOND:
 	      data.electCond = newLTP( xmlChild, 
 				       name, 
 				       m_tranPropMap[nodeName],
 				       trParam.thermo );
+
+	      break;
+	    default:
+	      throw CanteraError("getLiquidSpeciesTransportData","unknown transport property: " + nodeName );
 
 	    }
 
@@ -1001,7 +1066,65 @@ namespace Cantera {
 						 const std::vector<std::string> &names, 
 						 LiquidTransportParams& trParam)
   {
+    
+    try {
+      
+      int num = transportNode.nChildren();
+      for (int iChild = 0; iChild < num; iChild++) {
+	//tranTypeNode is a type of transport property like viscosity
+	XML_Node &tranTypeNode = transportNode.child(iChild);
+	if ( tranTypeNode.hasChild("compositionDependence")) {
+	  //compDepNode contains the interaction model
+	  XML_Node &compDepNode = tranTypeNode.child("compositionDependence");
 
+	  std::string nodeName = tranTypeNode.name();
+	
+	  switch ( m_tranPropMap[nodeName] ) {
+	    break;
+	  case TP_VISCOSITY:
+	    trParam.viscosity = newLTI( compDepNode, 
+					m_tranPropMap[nodeName],
+					trParam );
+	    break;
+	  case TP_THERMALCOND:
+	    trParam.thermalCond = newLTI( compDepNode, 
+					  m_tranPropMap[nodeName],
+					  trParam );
+	    break;
+	  case TP_DIFFUSIVITY:
+	    trParam.speciesDiffusivity = newLTI( compDepNode, 
+						 m_tranPropMap[nodeName],
+						 trParam );
+	    break;
+	  case TP_HYDRORADIUS:
+	    trParam.hydroRadius = newLTI( compDepNode, 
+					  m_tranPropMap[nodeName],
+					  trParam );
+	    break;
+	  case TP_ELECTCOND:
+	    trParam.electCond = newLTI( compDepNode, 
+					m_tranPropMap[nodeName],
+					trParam );
+	    break;
+	  default:
+	    throw CanteraError("getLiquidInteractionsTransportData","unknown transport property: " + nodeName );
+	    
+	  }
+	}      
+	else {
+	  int linenum;
+	  throw TransportDBError( linenum, 
+				  "missing <compositionDependence> node for <" 
+				  + tranTypeNode.name() + "> node." );
+	}
+      }
+    }
+    catch(CanteraError) {
+      ;
+    }
+
+    return;
+   
     std::string type;
     std::string speciesA;
     std::string speciesB;
