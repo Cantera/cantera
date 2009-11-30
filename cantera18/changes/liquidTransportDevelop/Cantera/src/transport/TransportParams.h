@@ -19,13 +19,17 @@ namespace Cantera {
 
     public:
 
-        TransportParams() : thermo(0), xml(0) {}
+        TransportParams() : thermo(0), xml(0), velocityBasis(VB_MASSAVG) {}
         virtual ~TransportParams();
         int nsp_;
 
         //        phase_t* mix;
         thermo_t* thermo;
         vector_fp        mw;
+
+	//! A basis for the average velocity can be specified. 
+	//! Valid bases include "mole" "mass" and species names.
+	int velocityBasis;
 
 	//minimum and maximum temperatures for parameter fits
         doublereal tmax, tmin;

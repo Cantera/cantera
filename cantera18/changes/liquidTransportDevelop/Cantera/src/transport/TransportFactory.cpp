@@ -1117,6 +1117,31 @@ namespace Cantera {
 				  "missing <compositionDependence> node for <" 
 				  + tranTypeNode.name() + "> node." );
 	}
+	/* Allow a switch between mass-averaged, mole-averaged 
+	 * and solvent specified reference velocities.  
+	 * XML code within the transportProperty node 
+	 * (i.e. within <viscosity>) should read as follows
+	 * <velocityBasis basis="mass"> <!-- mass averaged -->
+	 * <velocityBasis basis="mole"> <!-- mole averaged -->
+	 * <velocityBasis basis="H2O">  <!-- H2O solvent -->
+	 */
+	if ( tranTypeNode.hasChild("velocityBasis")) {
+	  std::string velocityBasis = 
+	    tranTypeNode.child("velocityBasis").attrib("basis");
+	  if ( velocityBasis == "mass" ) 
+	    trParam.velocityBasis = VB_MASSAVG;
+	  else if ( velocityBasis == "mole" ) 
+	    trParam.velocityBasis = VB_MOLEAVG;
+	  else if ( trParam.thermo->speciesIndex( velocityBasis ) > 0 ) 
+	    trParam.velocityBasis = trParam.thermo->speciesIndex( velocityBasis ) ;
+	  else {
+	    int linenum;
+	    throw TransportDBError( linenum, "Unknown attribute " + velocityBasis + " for <velocityBasis> node. ");
+	}
+
+	  
+
+	}
       }
     }
     catch(CanteraError) {
