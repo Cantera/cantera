@@ -36,9 +36,6 @@ namespace Cantera {
     m_nsp(0),
     m_tmin(-1.0),
     m_tmax(100000.),
-    m_viscMixModel(LTI_MODEL_NOTSET),
-    m_lambdaMixModel(LTI_MODEL_NOTSET),
-    m_diffMixModel(LTI_MODEL_NOTSET),
     m_iStateMF(-1),
     m_temp(-1.0),
     m_logt(0.0),
@@ -107,8 +104,6 @@ namespace Cantera {
     m_lambdaTempDep_Ns                    = right.m_lambdaTempDep_Ns;
     m_diffTempDep_Ns                      = right.m_diffTempDep_Ns;
     m_radiusTempDep_Ns                    = right.m_radiusTempDep_Ns;
-    m_visc_Eij                            = right.m_visc_Eij; 
-    m_visc_Sij                            = right.m_visc_Sij; 
     m_hydrodynamic_radius                 = right.m_hydrodynamic_radius;
     m_Grad_X                              = right.m_Grad_X;
     m_Grad_T                              = right.m_Grad_T;
@@ -116,7 +111,6 @@ namespace Cantera {
     m_Grad_mu                             = right.m_Grad_mu;
     m_bdiff                               = right.m_bdiff;
     m_viscSpecies                         = right.m_viscSpecies;
-    m_logViscSpecies                      = right.m_logViscSpecies;
     m_hydrodynamic_radius                 = right.m_hydrodynamic_radius;
     m_lambdaSpecies                       = right.m_lambdaSpecies;
     m_viscMixModel                        = right.m_viscMixModel;
@@ -130,7 +124,6 @@ namespace Cantera {
     m_Grad_lnAC                           = right.m_Grad_lnAC;
     m_chargeSpecies                       = right.m_chargeSpecies;
     m_volume_spec                         = right.m_volume_spec;
-    m_DiffCoeff_StefMax                   = right.m_DiffCoeff_StefMax;
     m_B                                   = right.m_B;
     m_A                                   = right.m_A;
     m_temp                                = right.m_temp;
@@ -168,11 +161,17 @@ namespace Cantera {
 
      //These are constructed in TransportFactory::newLTP
      for ( int k = 0; k < m_nsp; k++) {
-       delete m_viscTempDep_Ns[k];
-       delete m_lambdaTempDep_Ns[k];
-       delete m_radiusTempDep_Ns[k];
-       delete m_diffTempDep_Ns[k];
+       if ( m_viscTempDep_Ns[k]   ) delete m_viscTempDep_Ns[k];
+       if ( m_lambdaTempDep_Ns[k] ) delete m_lambdaTempDep_Ns[k];
+       if ( m_radiusTempDep_Ns[k] ) delete m_radiusTempDep_Ns[k];
+       if ( m_diffTempDep_Ns[k]   ) delete m_diffTempDep_Ns[k];
      }
+     //These are constructed in TransportFactory::newLTI
+     if ( m_viscMixModel   ) delete m_viscMixModel;
+     if ( m_lambdaMixModel ) delete m_lambdaMixModel;
+     if ( m_diffMixModel   ) delete m_diffMixModel;
+     if ( m_radiusMixModel ) delete m_radiusMixModel;
+     
    }
 
   // Initialize the object
@@ -198,7 +197,6 @@ namespace Cantera {
      */
     m_viscSpecies.resize(m_nsp);
     m_viscTempDep_Ns.resize(m_nsp);
-
     //for each species, assign viscosity model and coefficients
     for (k = 0; k < m_nsp; k++) {
       Cantera::LiquidTransportData &ltd = tr.LTData[k];
@@ -210,8 +208,7 @@ namespace Cantera {
      */
     m_lambdaSpecies.resize(m_nsp);
     m_lambdaTempDep_Ns.resize(m_nsp);
-
-    //for each species, assign viscosity model and coefficients
+    //for each species, assign thermal conductivity model 
     for (k = 0; k < m_nsp; k++) {
       Cantera::LiquidTransportData &ltd = tr.LTData[k];
       m_lambdaTempDep_Ns[k] =  ltd.thermalCond;
@@ -222,11 +219,10 @@ namespace Cantera {
      */
     m_hydrodynamic_radius.resize(m_nsp);
     m_radiusTempDep_Ns.resize(m_nsp);
-
-    //for each species, assign viscosity model and coefficients
+    //for each species, assign model for hydrodynamic radius
     for (k = 0; k < m_nsp; k++) {
       Cantera::LiquidTransportData &ltd = tr.LTData[k];
-      m_radiusTempDep_Ns[k] =  ltd.hydroradius;
+      m_radiusTempDep_Ns[k] =  ltd.hydroRadius;
     }
 
     /*
@@ -236,9 +232,7 @@ namespace Cantera {
      *  needed for the current model.  This section may, therefore,
      *  be extraneous.
      */
-    //    m_viscSpecies.resize(m_nsp);
     m_diffTempDep_Ns.resize(m_nsp);
-
     //for each species, assign viscosity model and coefficients
     for (k = 0; k < m_nsp; k++) {
       Cantera::LiquidTransportData &ltd = tr.LTData[k];
@@ -258,48 +252,20 @@ namespace Cantera {
     /*
      * Here we get interaction parameters from LiquidTransportParams 
      * that were filled in  TransportFactory::getLiquidInteractionsTransportData
+     * Interaction models are provided here for viscosity, thermal conductivity,
+     * species diffusivity and hydrodynamics radius (perhaps not needed in the 
+     * present class).
      */
-    /*
-     * Viscosity mixing rules
-     */
-    m_viscMixModel = tr.model_viscosity;
-    m_visc_Eij.resize(m_nsp,m_nsp);
-    m_visc_Sij.resize(m_nsp,m_nsp);
-    m_visc_Eij = tr.visc_Eij;
-    m_visc_Sij = tr.visc_Sij;
-
-    /*
-     * Thermal conductivity mixing rules
-     */
-    m_lambdaMixModel = tr.model_thermalCond;
-    m_lambda_Aij.resize(m_nsp,m_nsp);
-    m_lambda_Aij = tr.thermalCond_Aij;
-
-    /*
-     * Species Diffusivity binary diffusion coefficients 
-     * for Stefan Maxwell equation or "mixing rules" 
-     */
-    m_diffMixModel = tr.model_speciesDiffusivity;
-    m_diff_Dij.resize(m_nsp,m_nsp);
-    m_diff_Dij = tr.diff_Dij;
-
-    /*
-     * Hydrodynamic radius mixing model rules
-     */
-    m_radiusMixModel = tr.model_hydroradius;
-    m_radius_Aij.resize(m_nsp,m_nsp);
-    m_radius_Aij = tr.radius_Aij;
-
-
-
+    m_viscMixModel = tr.viscosity;
+    m_lambdaMixModel = tr.thermalCond;
+    m_radiusMixModel = tr.hydroRadius;
+    m_diffMixModel = tr.speciesDiffusivity;
+    m_bdiff.resize(m_nsp,m_nsp);
+    //Don't really need to update this here.  
+    //It is updated in updateDiff_T()
+    m_bdiff = m_diffMixModel->getMatrixTransProp(); 
 
     m_mode       = tr.mode_;
-
-    m_viscSpecies.resize(m_nsp);
-    m_logViscSpecies.resize(m_nsp);
-    m_lambdaSpecies.resize(m_nsp);
-    m_bdiff.resize(m_nsp, m_nsp);
-    m_DiffCoeff_StefMax.resize(m_nsp, m_nsp);
 
     m_molefracs.resize(m_nsp);
     m_molefracs_tran.resize(m_nsp);
@@ -370,35 +336,9 @@ namespace Cantera {
       updateViscosities_C();
     }
 
-    /* We still need to implement interaction parameters */
-    /* This constant viscosity model has no input */
+    ////// LiquidTranInteraction method
+    m_viscmix = m_viscMixModel->getMixTransProp( m_viscTempDep_Ns );
 
-    if (m_viscMixModel == LTI_MODEL_NOTSET) {
-
-      err("A viscosity mixing model must be implemented  for LiquidTransport.");
-      //return m_viscmix;
-
-    } else if (m_viscMixModel == LTI_MODEL_MOLEFRACS) {
-
-      m_viscmix = dot_product(m_viscSpecies, m_molefracs) ;
-      for ( int i = 0; i < m_nsp; i++ ) 
-	for ( int j = 0; j < i; j++ ) 
-	  m_viscmix += m_molefracs[i] * m_molefracs[j] * m_visc_Sij(i,j) ;
-
-    } else if (m_viscMixModel == LTI_MODEL_LOG_MOLEFRACS) {
-
-      // log_visc_mix = sum_i (X_i log_visc_i) + sum_i sum_j X_i X_j G_ij
-      double interaction = dot_product(m_logViscSpecies, m_molefracs);
-      for ( int i = 0; i < m_nsp; i++ ) 
-	for ( int j = 0; j < i; j++ ) 
-	  interaction += m_molefracs[i] * m_molefracs[j] 
-	    * ( m_visc_Sij(i,j) + m_visc_Eij(i,j) / m_temp );
-      m_viscmix = exp( interaction );
-
-    } else {
-      err("Unknown viscosity model in LiquidTransport::viscosity().");
-    }
-    
     return m_viscmix;
   }
 
@@ -917,22 +857,7 @@ namespace Cantera {
    */
   void LiquidTransport::updateDiff_T() {
 
-    double *viscSpec = new double(m_nsp);
-    double *radiusSpec = new double(m_nsp);
-    getSpeciesViscosities( viscSpec );
-    getSpeciesHydrodynamicRadius( radiusSpec );
-
-    int i,j;
-    for (i = 0; i < m_nsp; i++) 
-      for (j = 0; j < m_nsp; j++) {
-	m_DiffCoeff_StefMax(i,j) = m_bdiff(i,j) = GasConstant * m_temp 
-	  / ( 6.0 * Pi * radiusSpec[i] * viscSpec[j] ) ;
-	cout << "unused D_ij = " << m_bdiff(i,j) << " for " 
-	     << m_thermo->speciesName(i) << ", " 
-	     << m_thermo->speciesName(j) << endl; 
-      }
-    delete radiusSpec;
-    delete viscSpec;
+    m_bdiff = m_diffMixModel->getMatrixTransProp();
     m_diff_temp_ok = true;
     m_diff_mix_ok = false;
   }
@@ -963,7 +888,6 @@ namespace Cantera {
 
     for (k = 0; k < m_nsp; k++) {
       m_viscSpecies[k] = m_viscTempDep_Ns[k]->getSpeciesTransProp() ;
-      m_logViscSpecies[k] = log( m_viscSpecies[k] );
     }
     m_visc_temp_ok = true;
     m_visc_mix_ok = false;
@@ -1084,10 +1008,10 @@ namespace Cantera {
 	m_A(i,i) = 0.0;
 	for (j = 0; j < m_nsp; j++){
 	  if (j != i) {
-	    if ( !( m_diff_Dij(i,j) > 0.0 ) )
+	    if ( !( m_bdiff(i,j) > 0.0 ) )
 		 throw CanteraError("LiquidTransport::stefan_maxwell_solve",
-			     "m_diff_Dij has zero entry in non-diagonal.");
-	    tmp = m_molefracs_tran[j] / m_diff_Dij(i,j);
+			     "m_bdiff has zero entry in non-diagonal.");
+	    tmp = m_molefracs_tran[j] / m_bdiff(i,j);
 	    m_A(i,i) +=   tmp;
 	    m_A(i,j)  = - tmp;
 	  }
@@ -1110,10 +1034,10 @@ namespace Cantera {
 	m_A(i,i) = 0.0;
 	for (j = 0; j < m_nsp; j++) {
 	  if (j != i) {
-	    if ( !( m_diff_Dij(i,j) > 0.0 ) )
+	    if ( !( m_bdiff(i,j) > 0.0 ) )
 		 throw CanteraError("LiquidTransport::stefan_maxwell_solve",
-			     "m_diff_Dij has zero entry in non-diagonal.");
-	    tmp =  m_molefracs_tran[j] / m_diff_Dij(i,j);
+			     "m_bdiff has zero entry in non-diagonal.");
+	    tmp =  m_molefracs_tran[j] / m_bdiff(i,j);
 	    m_A(i,i) +=   tmp;
 	    m_A(i,j)  = - tmp;
 	  }
@@ -1140,10 +1064,10 @@ namespace Cantera {
 	m_A(i,i) = 0.0;
 	for (j = 0; j < m_nsp; j++) {
 	  if (j != i) {
-	    if ( !( m_diff_Dij(i,j) > 0.0 ) )
+	    if ( !( m_bdiff(i,j) > 0.0 ) )
 		 throw CanteraError("LiquidTransport::stefan_maxwell_solve",
-			     "m_diff_Dij has zero entry in non-diagonal.");
-	    tmp =  m_molefracs_tran[j] / m_diff_Dij(i,j);
+			     "m_bdiff has zero entry in non-diagonal.");
+	    tmp =  m_molefracs_tran[j] / m_bdiff(i,j);
 	    m_A(i,i) +=   tmp;
 	    m_A(i,j)  = - tmp;
 	  }
