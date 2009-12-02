@@ -13,4 +13,5 @@
 #include "kernel/DustyGasTransport.h"
 #include "kernel/MultiTransport.h"
 #include "kernel/MixTransport.h"
+#include "kernel/LiquidTransport.h"
 #endif
