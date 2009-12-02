@@ -152,9 +152,9 @@ namespace Cantera {
     /// Destructor. 
     virtual ~IonsFromNeutralVPSSTP();
 
-    //! Duplication routine for objects which inherit from  ThermoPhase.
+    //! Duplication routine for objects which inherit from ThermoPhase.
     /*!
-     *  This virtual routine can be used to duplicate thermophase objects
+     *  This virtual routine can be used to duplicate ThermoPhase objects
      *  inherited from ThermoPhase even if the application only has
      *  a pointer to ThermoPhase to work with.
      */
@@ -720,7 +720,7 @@ namespace Cantera {
     //! Index of special species
     int indexSpecialSpecies_;
 
- //! Index of special species
+    //! Index of special species
     int indexSecondSpecialSpecies_;
     
     //! Formula Matrix for composition of neutral molecules
@@ -768,7 +768,7 @@ namespace Cantera {
     int numCationSpecies_;
 
     //! List of the species in this ThermoPhase which are anion species
-    std::vector<int>anionList_;
+    std::vector<int> anionList_;
 
     //! Number of anion species
     int numAnionSpecies_;
@@ -785,9 +785,22 @@ namespace Cantera {
     int numPassThroughSpecies_;
 
   public:
+    //! This is a pointer to the neutral Molecule Phase
+    /*!
+     *  If the variable, IOwnNThermoPhase_ is true, then we own
+     *  the pointer. If not, then this is considered a shallow pointer.
+     */
     ThermoPhase *neutralMoleculePhase_;
-  protected:
+
+  private:
+
+    //! If true then we own the underlying neutral Molecule Phase
+    /*!
+     *  If this is false, then the neutral molecule phase is considered
+     *  as a shallow pointer.
+     */
     bool IOwnNThermoPhase_;
+
     //! ThermoPhase for the cation lattice
     /*!
      *  Currently this is unimplemented and may be deleted
@@ -808,9 +821,6 @@ namespace Cantera {
     mutable std::vector<doublereal> dlnActCoeffdT_NeutralMolecule_;
     mutable std::vector<doublereal> dlnActCoeffdlnC_NeutralMolecule_;
 
-  private:
-
-  
   };
 
 

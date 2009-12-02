@@ -60,7 +60,7 @@ namespace Cantera {
     m_P0(OneAtm),
     m_VPSS_ptr(0)
   {
-    *this = b;
+    VPStandardStateTP::operator=(b);
   }
 
   /*

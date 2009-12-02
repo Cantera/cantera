@@ -141,7 +141,7 @@ namespace Cantera {
     neutralMoleculePhase_(0),
     IOwnNThermoPhase_(true)
   {
-    *this = operator=(b);
+    IonsFromNeutralVPSSTP::operator=(b);
   }
 
   /*
@@ -152,14 +152,18 @@ namespace Cantera {
    */
   IonsFromNeutralVPSSTP& IonsFromNeutralVPSSTP::
   operator=(const IonsFromNeutralVPSSTP &b) {
-    if (&b != this) {
-      GibbsExcessVPSSTP::operator=(b);
-    }  
+    if (&b == this) {
+      return *this;
+    }
+    
+    GibbsExcessVPSSTP::operator=(b);  
 
     ionSolnType_                = b.ionSolnType_;
     numNeutralMoleculeSpecies_  = b.numNeutralMoleculeSpecies_;
     indexSpecialSpecies_        = b.indexSpecialSpecies_;
     indexSecondSpecialSpecies_  = b.indexSecondSpecialSpecies_;
+    fm_neutralMolec_ions_       = b.fm_neutralMolec_ions_;
+    fm_invert_ionForNeutral     = b.fm_invert_ionForNeutral;
     NeutralMolecMoleFractions_  = b.NeutralMolecMoleFractions_;
     cationList_                 = b.cationList_;
     numCationSpecies_           = b.numCationSpecies_;
@@ -167,21 +171,35 @@ namespace Cantera {
     numAnionSpecies_            = b.numAnionSpecies_;
     passThroughList_            = b.passThroughList_;
     numPassThroughSpecies_      = b.numPassThroughSpecies_;
-    /*
-     *  This is a shallow copy. We need to figure this out
-     */
-    neutralMoleculePhase_       = b.neutralMoleculePhase_;
-    if (neutralMoleculePhase_) {
-      exit(-1);
-    }
-    IOwnNThermoPhase_           = b.IOwnNThermoPhase_;
 
+    /*
+     *  If we own the underlying neutral molecule phase, then we do a deep
+     *  copy. If not, we do a shallow copy.
+     */   
+    if (IOwnNThermoPhase_) {
+      if (b.neutralMoleculePhase_) {
+        if (neutralMoleculePhase_) {
+	  delete neutralMoleculePhase_;
+	}
+	neutralMoleculePhase_   = (b.neutralMoleculePhase_)->duplMyselfAsThermoPhase();
+      } else {
+	neutralMoleculePhase_   = 0;
+      }
+    } else {
+      neutralMoleculePhase_     = b.neutralMoleculePhase_;
+    }
+  
+    IOwnNThermoPhase_           = b.IOwnNThermoPhase_;
     moleFractionsTmp_           = b.moleFractionsTmp_;
+    muNeutralMolecule_          = b.muNeutralMolecule_;
+    gammaNeutralMolecule_       = b.gammaNeutralMolecule_;
+    dlnActCoeffdT_NeutralMolecule_ = b.dlnActCoeffdT_NeutralMolecule_;
+    dlnActCoeffdlnC_NeutralMolecule_ = b.dlnActCoeffdlnC_NeutralMolecule_;
 
     return *this;
   }
 
-  /**
+  /*
    *
    * ~IonsFromNeutralVPSSTP():   (virtual)
    *
@@ -191,7 +209,7 @@ namespace Cantera {
   IonsFromNeutralVPSSTP::~IonsFromNeutralVPSSTP() {
     if (IOwnNThermoPhase_) {
       delete neutralMoleculePhase_;
-      neutralMoleculePhase_=0;
+      neutralMoleculePhase_ = 0;
     }
   }
 
