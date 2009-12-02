@@ -90,12 +90,6 @@ namespace Cantera {
   const doublereal FiveThirds      = 5.0/3.0;
 
 
-  TransportParams::~TransportParams(){
-#ifdef DEBUG_MODE
-    delete xml;
-#endif
-  };
-
 
   //////////////////// class TransportFactory methods //////////////
 
