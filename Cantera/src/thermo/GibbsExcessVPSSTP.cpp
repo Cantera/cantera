@@ -45,7 +45,7 @@ namespace Cantera {
   GibbsExcessVPSSTP::GibbsExcessVPSSTP(const GibbsExcessVPSSTP &b) :
     VPStandardStateTP()
   {
-    *this = operator=(b);
+    GibbsExcessVPSSTP::operator=(b);
   }
 
   /*
@@ -56,9 +56,11 @@ namespace Cantera {
    */
   GibbsExcessVPSSTP& GibbsExcessVPSSTP::
   operator=(const GibbsExcessVPSSTP &b) {
-    if (&b != this) {
-      VPStandardStateTP::operator=(b);
+    if (&b == this) {
+      return *this;
     }
+
+    VPStandardStateTP::operator=(b);
 
     moleFractions_       = b.moleFractions_;
     lnActCoeff_Scaled_   = b.lnActCoeff_Scaled_;

@@ -75,7 +75,7 @@ namespace Cantera {
   MargulesVPSSTP::MargulesVPSSTP(const MargulesVPSSTP &b) :
     GibbsExcessVPSSTP()
   {
-    *this = operator=(b);
+    MargulesVPSSTP::operator=(b);
   }
 
   /*
@@ -86,9 +86,11 @@ namespace Cantera {
    */
   MargulesVPSSTP& MargulesVPSSTP::
   operator=(const MargulesVPSSTP &b) {
-    if (&b != this) {
-      GibbsExcessVPSSTP::operator=(b);
+    if (&b == this) {
+      return *this;
     }
+   
+    GibbsExcessVPSSTP::operator=(b);
     
     numBinaryInteractions_      = b.numBinaryInteractions_ ;
     m_HE_b_ij                   = b.m_HE_b_ij;
