@@ -5,8 +5,8 @@
  */
 
 /*
- * $Revision: 1.24 $
- * $Date: 2009/03/13 03:18:08 $
+ * $Revision: 255 $
+ * $Date: 2009-11-09 16:36:49 -0700 (Mon, 09 Nov 2009) $
  */
 
 // Copyright 2002  California Institute of Technology
@@ -883,17 +883,27 @@ namespace ctml {
    *                        units converter is used.
    *   @param  nodeName     XML Name of the XML node to read. 
    *                        The default value for the node name is floatArray
+   *
+   *   @return              Returns the number of floats read
    */
-  void getFloatArray(const Cantera::XML_Node& node, vector_fp& v, const bool convert,
+  int  getFloatArray(const Cantera::XML_Node& node, vector_fp& v, const bool convert,
 		     const std::string unitsString, const std::string nodeName) {
     string::size_type icom;
     string numstr;
     doublereal dtmp;
     string nn = node.name();
-    if (nn != nodeName) 
-      throw CanteraError("getFloatArray",
-			 "wrong xml element type/name: was expecting "
+    const Cantera::XML_Node *readNode = &node;
+    if (nn != nodeName) { 
+      vector<Cantera::XML_Node *> ll;  
+      node.getChildren(nodeName, ll);
+      if (ll.size() == 0) {
+        throw CanteraError("getFloatArray",
+                           "wrong xml element type/name: was expecting "
 			 + nodeName + "but accessed " + node.name());
+      } else {
+        readNode = ll[0];
+      }
+    }
 
     v.clear();
     doublereal vmin = Undef, vmax = Undef;
@@ -902,7 +912,7 @@ namespace ctml {
     /*
      * Get the attributes field, units, from the XML node
      */
-    std::string units = node["units"];
+    std::string units = (*readNode)["units"];
     if (units != "" && convert) {
       if (unitsString == "actEnergy" && units != "") {
 	funit = actEnergyToSI(units);
@@ -911,13 +921,13 @@ namespace ctml {
       }
     }
 
-    if (node["min"] != "") 
-      vmin = atofCheck(node["min"].c_str());
-    if (node["max"] != "") 
-      vmax = atofCheck(node["max"].c_str());
+    if ((*readNode)["min"] != "") 
+      vmin = atofCheck((*readNode)["min"].c_str());
+    if ((*readNode)["max"] != "") 
+      vmax = atofCheck((*readNode)["max"].c_str());
 
     doublereal vv;
-    std::string val = node.value();
+    std::string val = readNode->value();
     while (1 > 0) {
       icom = val.find(',');
       if (icom != string::npos) {
@@ -956,6 +966,7 @@ namespace ctml {
     for (int n = 0; n < nv; n++) {
       v[n] *= funit;
     }
+    return v.size();
   }
 
   // This routine is used to interpret the value portions of XML

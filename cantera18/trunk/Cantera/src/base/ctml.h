@@ -6,8 +6,8 @@
  */
 
 /* 
- * $Revision: 1.22 $
- * $Date: 2009/07/11 17:20:19 $
+ * $Revision: 255 $
+ * $Date: 2009-11-09 16:36:49 -0700 (Mon, 09 Nov 2009) $
  */
 
 // Copyright 2002  California Institute of Technology
@@ -311,10 +311,12 @@ namespace ctml {
 		 const std::string &valueString, const std::string typeString="");
 
 
-  //!  This function reads a child node with the default name, "floatArray", with a value
+  //!  This function reads the current node or a  child node of the current node
+  //!  with the default name, "floatArray", with a value field
   //!  consisting of a comma separated list of floats
   /*!
-   *   This function will read a child node to the current XML node, with the
+   *   This function will read either the current XML node or a  child node
+   *   to the current XML node, with the
    *   name "floatArray". It will have a title attribute, and the body
    *   of the XML node will be filled out with a comma separated list of
    *   doublereals.
@@ -363,8 +365,9 @@ namespace ctml {
    *                        units converter is used.
    *   @param  nodeName     XML Name of the XML node to read. 
    *                        The default value for the node name is floatArray
+   *   @return              Returns the number of floats read into v.
    */
-  void getFloatArray(const Cantera::XML_Node& node, Cantera::vector_fp& v, 
+  int getFloatArray(const Cantera::XML_Node& node, Cantera::vector_fp& v, 
 		     const bool convert=true, const std::string typeString="",
 		     const std::string nodeName = "floatArray");
 
