@@ -7,8 +7,8 @@
  */
 
 /* 
- *  $Date: 2009/01/04 19:21:28 $
- *  $Revision: 1.14 $
+ *  $Date$
+ *  $Revision$
  */
 
 /*
@@ -126,7 +126,6 @@ namespace Cantera {
      * @name  Utilities  
      * @{
      */
-    virtual int pdssType() const { return -1; }
 
     /**
      * @} 

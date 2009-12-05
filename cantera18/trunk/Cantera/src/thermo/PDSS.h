@@ -10,7 +10,7 @@
  * U.S. Government retains certain rights in this software.
  */
 /*
- *  $Id: PDSS.h,v 1.16 2009/01/04 19:21:28 hkmoffa Exp $
+ *  $Id$
  */
 
 #ifndef CT_PDSS_H
@@ -65,8 +65,8 @@ namespace Cantera {
    *   but specifies the thermodynamics functions at all pressures.
    *
    *   Class PDSS is the base class
-   *   for a family of classes that compute properties of all
-   *   species in a phase in their standard states, for a range of temperatures
+   *   for a family of classes that compute properties of a single
+   *   species in a phase at its standard states, for a range of temperatures
    *   and pressures.
    *   
    *   Phases which use the %VPSSMGr class must have their respective
@@ -100,7 +100,22 @@ namespace Cantera {
    *        pressure dependencies to these thermo functions.
    *      .
    *
-   *   - PDSS_Water_
+   *   - PDSS_SSVol
+   *      - standardState model = "constant_incompressible" || model == "constant"
+   *      - standardState model = "temperature_polynomial"
+   *      - standardState model = "density_temperature_polynomial"
+   *      - This model assumes that the species in the phase obey a
+   *        fairly general equation of state, but one that separates out
+   *        the calculation of the standard state density and/or volume.
+   *        Models include a cubic polynomial in temperature for either
+   *        the standard state volume or the standard state density.
+   *        The manager uses a SimpleThermo object to handle the
+   *        calculation of the reference state. This object then adds the
+   *        pressure dependencies and the volume terms to these thermo functions
+   *        to complete the representation.
+   *      .
+   *
+   *   - PDSS_Water
    *      - standardState model = "Water"
    *      - This model assumes that
    *        Species 0 is assumed to be water, and a real equation
@@ -653,13 +668,13 @@ namespace Cantera {
     //! State of the system - pressure
     mutable doublereal m_pres;
 
-    //! reference state pressure of the species.
+    //! Reference state pressure of the species.
     doublereal m_p0;
 
-    //! minimum temperature
+    //! Minimum temperature
     doublereal m_minTemp;
 
-    //! maximum temperature
+    //! Maximum temperature
     doublereal m_maxTemp;
 
     //! Thermophase which this species belongs to. 

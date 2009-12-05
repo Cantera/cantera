@@ -2,7 +2,7 @@
  * @file WaterPropsIAPWS.h
  * Headers for a class for calculating the equation of state of water
  * from the IAPWS 1995 Formulation based on the steam tables thermodynamic
- * basis (See class \link WaterPropsIAPWS WaterPropsIAPWS\endlink).
+ * basis (See class \link Cantera::WaterPropsIAPWS WaterPropsIAPWS\endlink).
  */
 /*
  * Copywrite (2005) Sandia Corporation. Under the terms of
@@ -10,7 +10,7 @@
  * U.S. Government retains certain rights in this software.
  */
 /*
- * $Id: WaterPropsIAPWS.h,v 1.16 2008/09/29 20:03:57 hkmoffa Exp $
+ * $Id$
  */
 
 #ifndef WATERPROPSIAPWS_H

@@ -6,7 +6,7 @@
  *   \link Cantera::ShomateThermo ShomateThermo\endlink).
  */
 /*
- * $Id: ShomateThermo.h,v 1.6 2008/12/13 01:59:49 hkmoffa Exp $
+ * $Id$
  */
 // Copyright 2001  California Institute of Technology
 

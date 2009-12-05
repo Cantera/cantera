@@ -14,8 +14,8 @@
  * U.S. Government retains certain rights in this software.
  */
 /*
- *  $Date: 2009/03/27 00:38:57 $
- *  $Revision: 1.20 $
+ *  $Date$
+ *  $Revision$
  */
 
 #ifndef CT_VPSTANDARDSTATETP_H
@@ -120,10 +120,31 @@ namespace Cantera {
      */
     virtual int standardStateConvention() const;
 
-    //@}
+    //! Get the array of log concentration-like derivatives of the 
+    //! log activity coefficients
+    /*!
+     * This function is a virtual method.  For ideal mixtures 
+     * (unity activity coefficients), this can return zero.  
+     * Implementations should take the derivative of the 
+     * logarithm of the activity coefficient with respect to the 
+     * logarithm of the concentration-like variable (i.e. mole fraction,
+     * molality, etc.) that represents the standard state.  
+     * This quantity is to be used in conjunction with derivatives of 
+     * that concentration-like variable when the derivative of the chemical 
+     * potential is taken.  
+     *
+     *  units = dimensionless
+     *
+     * @param dlnActCoeffdlnC    Output vector of derivatives of the 
+     *                         log Activity Coefficients. length = m_kk
+     */
+    virtual void getdlnActCoeffdlnC(doublereal *dlnActCoeffdlnC) const {
+      err("getdlnActCoeffdlnC");
+    }
  
 
-    /// @name  Partial Molar Properties of the Solution  (VPStandardStateTP)
+    //@}
+     /// @name  Partial Molar Properties of the Solution  (VPStandardStateTP)
     //@{
 
     

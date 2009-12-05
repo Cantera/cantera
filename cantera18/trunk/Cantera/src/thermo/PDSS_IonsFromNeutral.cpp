@@ -9,7 +9,7 @@
  * U.S. Government retains certain rights in this software.
  */
 /*
- * $Id: PDSS_IonsFromNeutral.cpp,v 1.8 2009/01/04 06:34:20 hkmoffa Exp $
+ * $Id$
  */
 
 #include "ct_defs.h"
@@ -37,8 +37,7 @@ namespace Cantera {
   {
     m_pdssType = cPDSS_IONSFROMNEUTRAL;
   }
-
-
+  //====================================================================================================================
   PDSS_IonsFromNeutral::PDSS_IonsFromNeutral(VPStandardStateTP *tp, int spindex, 
 					     std::string inputFile, std::string id) :
     PDSS(tp, spindex),
@@ -50,8 +49,7 @@ namespace Cantera {
     m_pdssType = cPDSS_IONSFROMNEUTRAL;
     constructPDSSFile(tp, spindex, inputFile, id);
   }
-
-
+  //====================================================================================================================
 
   PDSS_IonsFromNeutral::PDSS_IonsFromNeutral(VPStandardStateTP *tp, int spindex, const XML_Node& speciesNode,
 					     const XML_Node& phaseRoot, bool spInstalled) :
@@ -68,8 +66,7 @@ namespace Cantera {
     std::string id = "";
     constructPDSSXML(tp, spindex, speciesNode, phaseRoot, id);
   }
-
-
+  //====================================================================================================================
 
   PDSS_IonsFromNeutral::PDSS_IonsFromNeutral(const PDSS_IonsFromNeutral &b) :
     PDSS(b)
@@ -80,35 +77,57 @@ namespace Cantera {
      */
     *this = b;
   }
-
-  /**
+  //====================================================================================================================
+  /*
    * Assignment operator
    */
   PDSS_IonsFromNeutral& PDSS_IonsFromNeutral::operator=(const PDSS_IonsFromNeutral&b) {
-    if (&b == this) return *this;
+    if (&b == this) {
+      return *this;
+    }
+
     PDSS::operator=(b);
 
     m_tmin                  = b.m_tmin;
     m_tmax                  = b.m_tmax;
+
+    /*
+     *  The shallow pointer copy in the next step will be insufficient in most cases. However, its
+     *  functionally the best we can do for this assignment operator. We fix up the pointer in the 
+     *  initAllPtrs() function.
+     */
     neutralMoleculePhase_   = b.neutralMoleculePhase_;
+
     numMult_                = b.numMult_;
     idNeutralMoleculeVec    = b.idNeutralMoleculeVec;
     factorVec               = b.factorVec;
     add2RTln2_              = b.add2RTln2_;
+    tmpNM                   = b.tmpNM;
     specialSpecies_         = b.specialSpecies_;
 
     return *this;
   }
-
+  //====================================================================================================================
   PDSS_IonsFromNeutral::~PDSS_IonsFromNeutral() { 
   }
-  
+  //====================================================================================================================
   //! Duplicator
   PDSS* PDSS_IonsFromNeutral::duplMyselfAsPDSS() const {
     PDSS_IonsFromNeutral * idg = new PDSS_IonsFromNeutral(*this);
     return (PDSS *) idg;
   }
+  //====================================================================================================================
+  void PDSS_IonsFromNeutral::initAllPtrs(VPStandardStateTP *tp, VPSSMgr *vpssmgr_ptr, 
+					 SpeciesThermo* spthermo) {
+    PDSS::initAllPtrs(tp, vpssmgr_ptr, spthermo);
 
+    IonsFromNeutralVPSSTP *ionPhase = dynamic_cast<IonsFromNeutralVPSSTP *>(tp);
+    if (!ionPhase) {
+      throw CanteraError("PDSS_IonsFromNeutral::initAllPts", "Dynamic cast failed");
+    }
+    neutralMoleculePhase_ = ionPhase->neutralMoleculePhase_;
+  } 
+  //====================================================================================================================
   /**
    * constructPDSSXML:
    *
@@ -140,6 +159,9 @@ namespace Cantera {
     }
 
     IonsFromNeutralVPSSTP *ionPhase = dynamic_cast<IonsFromNeutralVPSSTP *>(tp);
+    if (!ionPhase) {
+      throw CanteraError("PDSS_IonsFromNeutral::constructPDSSXML", "Dynamic cast failed");
+    }
     neutralMoleculePhase_ = ionPhase->neutralMoleculePhase_;
 
     std::vector<std::string> key;
@@ -172,7 +194,7 @@ namespace Cantera {
     }
   
   }
-
+  //====================================================================================================================
  
   void PDSS_IonsFromNeutral::constructPDSSFile(VPStandardStateTP *tp, int spindex,
 					       std::string inputFile, std::string id) {

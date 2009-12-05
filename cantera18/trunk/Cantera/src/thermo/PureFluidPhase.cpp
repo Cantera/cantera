@@ -6,7 +6,7 @@
  *   and class \link Cantera::PureFluidPhase PureFluidPhase\endlink).
  */
 /*
- *  $Id: PureFluidPhase.cpp,v 1.5 2009/03/13 03:21:34 hkmoffa Exp $
+ *  $Id$
  */
 #include "xml.h"
 #include "PureFluidPhase.h"

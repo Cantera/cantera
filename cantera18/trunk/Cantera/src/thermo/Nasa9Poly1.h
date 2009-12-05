@@ -19,8 +19,8 @@
 #define CT_NASA9POLY1_H
 
 /* 
- * $Revision: 1.4 $
- * $Date: 2009/01/04 19:21:28 $
+ * $Revision$
+ * $Date$
  */
 
 

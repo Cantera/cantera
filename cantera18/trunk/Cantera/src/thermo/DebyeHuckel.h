@@ -15,7 +15,7 @@
  */
 
 /*
- * $Id: DebyeHuckel.h,v 1.31 2009/03/27 00:38:57 hkmoffa Exp $
+ * $Id$
  */
 
 #ifndef CT_DEBYEHUCKEL_H

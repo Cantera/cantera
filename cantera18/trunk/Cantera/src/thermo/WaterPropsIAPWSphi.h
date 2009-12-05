@@ -1,7 +1,7 @@
 /**
  * @file WaterPropsIAPWSphi.h
  *  Header for Lowest level of the classes which support a real water model
- *  (see class #WaterPropsIAPWS and class  #WaterPropsIAPWSphi).
+ *  (see class \link Cantera::WaterPropsIAPWS WaterPropsIAPWS\endlink and  class \link WaterPropsIAPWSphi WaterPropsIAPWSphi\endlink).
  *
  *   This class calculates dimensionless quantitites.
  */
@@ -11,7 +11,7 @@
  * U.S. Government retains certain rights in this software.
  */
 /*
- * $Id: WaterPropsIAPWSphi.h,v 1.8 2008/09/12 21:51:04 hkmoffa Exp $
+ * $Id$
  */
 
 #ifndef WATERPROPSIAPWSPHI_H

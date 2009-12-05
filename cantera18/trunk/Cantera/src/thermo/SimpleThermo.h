@@ -6,7 +6,7 @@
  *   \link Cantera::SimpleThermo SimpleThermo\endlink).
  */
 /*
- * $Id: SimpleThermo.h,v 1.9 2008/12/13 01:59:49 hkmoffa Exp $
+ * $Id$
  */
 
 #ifndef CT_SIMPLETHERMO_H
@@ -52,7 +52,7 @@ namespace Cantera {
   public:
 
     //! Initialized to the type of parameterization
-    /*!
+    /*!A
      * Note, this value is used in some template functions. For this object the 
      * value is SIMPLE.
      */

@@ -7,8 +7,8 @@
 
 /*
  *  
- *  $Date: 2009/03/03 19:53:34 $
- *  $Revision: 1.8 $
+ *  $Date$
+ *  $Revision$
  *
  *  Copyright 2003-2004 California Institute of Technology
  *  See file License.txt for licensing information
@@ -196,22 +196,22 @@ namespace Cantera {
     return density()/meanMolecularWeight(); 
   }
 
-  void State::setConcentrations(const doublereal* const c) {
+  void State::setConcentrations(const doublereal* const conc) {
     int k;
     doublereal sum = 0.0, norm = 0.0;
     for (k = 0; k != m_kk; ++k) {
-      sum += c[k]*m_molwts[k];
-      norm += c[k];
+      sum += conc[k]*m_molwts[k];
+      norm += conc[k];
     }
     m_mmw = sum/norm;
     setDensity(sum);
     doublereal rsum = 1.0/sum;
     for (k = 0; k != m_kk; ++k) {
-      m_ym[k] = c[k] * rsum;
+      m_ym[k] = conc[k] * rsum;
       m_y[k] =  m_ym[k] * m_molwts[k];
     }
 
-    //! Call a routine to determin whether state has changed.
+    // Call a routine to determine whether state has changed.
     stateMFChangeCalc();
   }
 

@@ -17,8 +17,8 @@
  * U.S. Government retains certain rights in this software.
  */
 /*
- *  $Date: 2009/03/27 01:08:55 $
- *  $Revision: 1.2 $
+ *  $Date$
+ *  $Revision$
  */
 
 

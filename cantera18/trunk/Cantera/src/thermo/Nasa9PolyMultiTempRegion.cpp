@@ -11,9 +11,9 @@
  *  This parameterization has one NASA temperature region.
  */
 
-/* $Author: hkmoffa $
- * $Revision: 1.5 $
- * $Date: 2008/03/04 23:40:18 $
+/* $Author$
+ * $Revision$
+ * $Date$
  */
 // Copyright 2007  Sandia National Laboratories
 

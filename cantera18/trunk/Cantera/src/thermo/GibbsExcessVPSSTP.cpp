@@ -17,8 +17,8 @@
  * U.S. Government retains certain rights in this software.
  */
 /*
- *  $Date: 2009/03/03 21:08:31 $
- *  $Revision: 1.3 $
+ *  $Date$
+ *  $Revision$
  */
 
 
@@ -45,7 +45,7 @@ namespace Cantera {
   GibbsExcessVPSSTP::GibbsExcessVPSSTP(const GibbsExcessVPSSTP &b) :
     VPStandardStateTP()
   {
-    *this = operator=(b);
+    GibbsExcessVPSSTP::operator=(b);
   }
 
   /*
@@ -56,13 +56,16 @@ namespace Cantera {
    */
   GibbsExcessVPSSTP& GibbsExcessVPSSTP::
   operator=(const GibbsExcessVPSSTP &b) {
-    if (&b != this) {
-      VPStandardStateTP::operator=(b);
+    if (&b == this) {
+      return *this;
     }
+
+    VPStandardStateTP::operator=(b);
 
     moleFractions_       = b.moleFractions_;
     lnActCoeff_Scaled_   = b.lnActCoeff_Scaled_;
     dlnActCoeffdT_Scaled_   = b.dlnActCoeffdT_Scaled_;
+    dlnActCoeffdlnC_Scaled_ = b.dlnActCoeffdlnC_Scaled_;
     m_pp                 = b.m_pp;
 
     return *this;
@@ -93,33 +96,21 @@ namespace Cantera {
    */
 
   void GibbsExcessVPSSTP::setMassFractions(const doublereal* const y) {
-#if DEBUG_MODE
-    checkMFSum(y);
-#endif
     State::setMassFractions(y);
     getMoleFractions(DATA_PTR(moleFractions_));
   }
 
   void GibbsExcessVPSSTP::setMassFractions_NoNorm(const doublereal* const y) {
-#if DEBUG_MODE
-    checkMFSum(y);
-#endif
     State::setMassFractions_NoNorm(y);
     getMoleFractions(DATA_PTR(moleFractions_));
   }
 
  void GibbsExcessVPSSTP::setMoleFractions(const doublereal* const x) {
-#if DEBUG_MODE
-    checkMFSum(x);
-#endif
     State::setMoleFractions(x);
     getMoleFractions(DATA_PTR(moleFractions_));
   }
 
   void GibbsExcessVPSSTP::setMoleFractions_NoNorm(const doublereal* const x) {
-#if DEBUG_MODE
-    checkMFSum(x);
-#endif
     State::setMoleFractions_NoNorm(x);
     getMoleFractions(DATA_PTR(moleFractions_));
   }
@@ -257,21 +248,13 @@ namespace Cantera {
     return 0;
   }
 
-    //@}
-    /// @name  Properties of the Standard State of the Species in the Solution
-    //@{
-
-     
-
-    //@}
-    /// @name Thermodynamic Values for the Species Reference States
-    //@{
+ 
 
   double GibbsExcessVPSSTP::checkMFSum(const doublereal * const x) const {
     doublereal norm = accumulate(x, x + m_kk, 0.0);
     if (fabs(norm - 1.0) > 1.0E-9) {
-      throw CanteraError("GibbsExcessVPSSTP::checkMFSun",
-			 "MF sum exceeded tolerance of 1.0E-9:" + fp2str(norm));
+      throw CanteraError("GibbsExcessVPSSTP::checkMFSum",
+			 "(MF sum - 1) exceeded tolerance of 1.0E-9:" + fp2str(norm));
     }
     return norm;
   }
@@ -337,6 +320,7 @@ namespace Cantera {
     moleFractions_.resize(m_kk);
     lnActCoeff_Scaled_.resize(m_kk);
     dlnActCoeffdT_Scaled_.resize(m_kk);
+    dlnActCoeffdlnC_Scaled_.resize(m_kk);
     m_pp.resize(m_kk);
   }
 

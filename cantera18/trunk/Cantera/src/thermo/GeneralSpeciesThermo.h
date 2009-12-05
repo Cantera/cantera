@@ -8,9 +8,9 @@
  */
 
 /*
- * $Author: hkmoffa $
- * $Revision: 1.7 $
- * $Date: 2008/12/13 01:59:49 $
+ * $Author$
+ * $Revision$
+ * $Date$
  */
 
 #ifndef CT_GENERALSPECIESTHERMO_H

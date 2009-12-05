@@ -1,9 +1,9 @@
 /**
- *  @file gibbsExcessVPSSTP.h
+ *  @file GibbsExcessVPSSTP.h
  *   Header for intermediate ThermoPhase object for phases which
  *   employ gibbs excess free energy based formulations
  *  (see \ref thermoprops 
- * and class \link Cantera::gibbsExcessVPSSTP gibbsExcessVPSSTP\endlink).
+ * and class \link Cantera::GibbsExcessVPSSTP GibbsExcessVPSSTP\endlink).
  *
  * Header file for a derived class of ThermoPhase that handles
  * variable pressure standard state methods for calculating
@@ -17,7 +17,7 @@
  * U.S. Government retains certain rights in this software.
  */
 /*
- *  $Id: GibbsExcessVPSSTP.h,v 1.3 2009/03/03 21:08:31 hkmoffa Exp $
+ *  $Id$
  */
 
 #ifndef CT_GIBBSEXCESSVPSSTP_H
@@ -302,6 +302,28 @@ namespace Cantera {
       err("getdlnActCoeffdT");
     }
  
+    //! Get the array of log concentration-like derivatives of the 
+    //! log activity coefficients
+    /*!
+     * This function is a virtual method.  For ideal mixtures 
+     * (unity activity coefficients), this can return zero.  
+     * Implementations should take the derivative of the 
+     * logarithm of the activity coefficient with respect to the 
+     * logarithm of the concentration-like variable (i.e. mole fraction,
+     * molality, etc.) that represents the standard state.  
+     * This quantity is to be used in conjunction with derivatives of 
+     * that concentration-like variable when the derivative of the chemical 
+     * potential is taken.  
+     *
+     *  units = dimensionless
+     *
+     * @param dlnActCoeffdlnC    Output vector of derivatives of the 
+     *                         log Activity Coefficients. length = m_kk
+     */
+    virtual void getdlnActCoeffdlnC(doublereal *dlnActCoeffdlnC) const {
+      err("getdlnActCoeffdlnC");
+    }
+ 
     //@}
     /// @name  Partial Molar Properties of the Solution 
     //@{
@@ -517,6 +539,10 @@ namespace Cantera {
 
   protected:
 
+    //! utility routine to check mole fraction sum
+    /*!
+     * @param x   vector of mole fractions.
+     */
     double checkMFSum(const doublereal * const x) const;
 
   protected:
@@ -528,9 +554,15 @@ namespace Cantera {
     //! species, divided by RT
     mutable std::vector<doublereal> lnActCoeff_Scaled_;
 
-    //! Storage for the current derivative values of the log of the
-    // activity coefficients of the species
+    //! Storage for the current derivative values of the 
+    //! gradients with respect to temperature of the 
+    //! log of theactivity coefficients of the species
     mutable std::vector<doublereal> dlnActCoeffdT_Scaled_;
+
+    //! Storage for the current derivative values of the 
+    //! gradients with respect to logarithm of the mole fraction of the 
+    //! log of theactivity coefficients of the species
+    mutable std::vector<doublereal> dlnActCoeffdlnC_Scaled_;
 
     //! Temporary storage space that is fair game
     mutable std::vector<doublereal> m_pp;

@@ -7,7 +7,7 @@
  * U.S. Government retains certain rights in this software.
  */
 /*
- * $Id: WaterProps.cpp,v 1.9 2008/12/17 17:04:47 hkmoffa Exp $
+ * $Id$
  */
 
 //@{
@@ -495,12 +495,13 @@ namespace Cantera {
 
 
   // Parameters for the viscosityWater() function
-
+  //@{
+  //! parameter
   const double H[4] = {1.,
 		       0.978197,
 		       0.579829,
 		       -0.202354};
-
+  //! parameter
   const double Hij[6][7] =
     {
       { 0.5132047, 0.2151778, -0.2818107,  0.1778064, -0.04176610,          0.,           0.},
@@ -514,7 +515,7 @@ namespace Cantera {
   const double rhoStar = 317.763;    // kg / m3
   const double presStar = 22.115E6;  // Pa
   const double muStar = 55.071E-6;   //Pa s
-
+  //@}
 
   // Returns the viscosity of water at the current conditions
   // (kg/m/s)

@@ -5,7 +5,7 @@
 \endlink).
  */
 /*
- * $Id: ConstDensityThermo.cpp,v 1.5 2008/12/17 17:04:47 hkmoffa Exp $
+ * $Id$
  *
  *  Copyright 2002 California Institute of Technology
  */
