@@ -12,9 +12,9 @@
  * U.S. Government retains certain rights in this software.
  */
 /*
- *  $Author: hkmoffa $
- *  $Date: 2009/05/28 23:08:06 $
- *  $Revision: 1.8 $
+ *  $Author$
+ *  $Date$
+ *  $Revision$
  */
 
 // turn off warnings under Windows
@@ -74,12 +74,30 @@ namespace Cantera {
     *this = right;
   }
 
+  //====================================================================================================================
+  /*
+   *  Assigment operator
+   *    We use a shallow copy strategy here. Note, this will have to be fixed up later.
+   */
   VPSSMgr& 
   VPSSMgr::operator=(const VPSSMgr &right) {
     if (&right == this) {
       return *this;
     }
     m_kk                          = right.m_kk;
+    /*
+     * What we are doing here is to make a shallow copy of the VPStandardStateTP
+     * pointer in the "new" VPSSMgr object using the value from the "old"
+     * VPSSMgr object. This is not appropriate if we are making a copy of a ThermoPhase 
+     * object and the VPSSMgr objects are owned by the ThermoPhase object.
+     *
+     * The new object will want to have a different value of m_vptp_ptr than the
+     * value this is being copied here. It will want to refer to the copy of the
+     * VPStandardStateTP object being made that will own the new VPSSMgr object.
+     * However, the assignment object is not the place to carry out this fixup.
+     *  
+     * We will have to "fix" up the shallow copies later.
+     */
     m_vptp_ptr                    = right.m_vptp_ptr;
     m_spthermo                    = right.m_spthermo;
     m_tlast                       = -1.0;
@@ -113,13 +131,12 @@ namespace Cantera {
 
     return *this;
   }
-
+  //====================================================================================================================
   VPSSMgr *VPSSMgr::duplMyselfAsVPSSMgr() const {
     VPSSMgr *vp = new VPSSMgr(*this);
     return vp;
   }
-
-
+  //====================================================================================================================
   void VPSSMgr::initAllPtrs(VPStandardStateTP *vp_ptr, 
 			    SpeciesThermo *sp_ptr) {
     m_vptp_ptr = vp_ptr;
@@ -141,8 +158,7 @@ namespace Cantera {
     }
   
   }
-
-  /*****************************************************************/
+  //====================================================================================================================
   // Standard States
 
   void 

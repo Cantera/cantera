@@ -11,9 +11,9 @@
  * U.S. Government retains certain rights in this software.
  */
 /*
- *  $Author: hkmoffa $
- *  $Date: 2009/01/04 06:34:20 $
- *  $Revision: 1.16 $
+ *  $Author$
+ *  $Date$
+ *  $Revision$
  */
 
 // turn off warnings under Windows
@@ -60,7 +60,7 @@ namespace Cantera {
     m_P0(OneAtm),
     m_VPSS_ptr(0)
   {
-    *this = b;
+    VPStandardStateTP::operator=(b);
   }
 
   /*
@@ -85,9 +85,9 @@ namespace Cantera {
       m_Plast_ss     = b.m_Plast_ss;
       m_P0        = b.m_P0;
 
-   
-
-      // copy the pdss objects
+      /*
+       * Duplicate the pdss objects
+       */
       if (m_PDSS_storage.size() > 0) {
 	for (int k = 0; k < (int) m_PDSS_storage.size(); k++) {
 	  delete(m_PDSS_storage[k]);
@@ -99,21 +99,36 @@ namespace Cantera {
 	m_PDSS_storage[k] = ptmp->duplMyselfAsPDSS();
       }
 
+      /*
+       *  Duplicate the VPSS Manager object that conducts the calculations
+       */
       if (m_VPSS_ptr) {
 	delete m_VPSS_ptr; 
 	m_VPSS_ptr = 0;
       }
       m_VPSS_ptr = (b.m_VPSS_ptr)->duplMyselfAsVPSSMgr();
-      m_VPSS_ptr->initAllPtrs(this, m_spthermo);
 
+      /*
+       *  The VPSSMgr object contains shallow pointers. Whenever you have shallow
+       *  pointers, they have to be fixed up to point to the correct objects refering
+       *  back to this ThermoPhase's properties.
+       */
+      m_VPSS_ptr->initAllPtrs(this, m_spthermo);
+      /*
+       *  The PDSS objects contains shallow pointers. Whenever you have shallow
+       *  pointers, they have to be fixed up to point to the correct objects refering
+       *  back to this ThermoPhase's properties. This function also sets m_VPSS_ptr
+       *  so it occurs after m_VPSS_ptr is set.
+       */
       for (int k = 0; k < m_kk; k++) {
-	PDSS *ptmp = b.m_PDSS_storage[k];
+	PDSS *ptmp = m_PDSS_storage[k];
 	ptmp->initAllPtrs(this, m_VPSS_ptr, m_spthermo);
       }
+
     }
     return *this;
   }
-
+  //====================================================================================================================
   /*
    * ~VPStandardStateTP():   (virtual)
    *

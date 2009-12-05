@@ -7,9 +7,9 @@
  *   \link Cantera::SpeciesThermoDuo SpeciesThermoDuo\endlink and
  *  \link Cantera::SpeciesThermo1 SpeciesThermo1\endlink)
  *
- * $Author: hkmoffa $
- * $Revision: 1.12 $
- * $Date: 2009/02/11 20:03:08 $
+ * $Author$
+ * $Revision$
+ * $Date$
  */
 
 // Copyright 2001  California Institute of Technology

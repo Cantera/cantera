@@ -14,7 +14,7 @@
  * U.S. Government retains certain rights in this software.
  */
 /*
- *  $Id: HMWSoln.h,v 1.62 2009/03/27 00:38:57 hkmoffa Exp $
+ *  $Id$
  */
 
 #ifndef CT_HMWSOLN_H
@@ -104,7 +104,7 @@ namespace Cantera {
    * water (IAPWS 1995 formulation) is used as its standard state.
    * All standard state properties for the solvent are based on
    * this real model for water, and involve function calls
-   * to the object that handles the real water model, #WaterPropsIAPWS.
+   * to the object that handles the real water model, #Cantera::WaterPropsIAPWS.
    *
    * The standard states for solutes are on the unit molality basis. 
    * Therefore, in the documentation below, the normal \f$ o \f$ 
@@ -507,7 +507,7 @@ namespace Cantera {
    *   \f]
    *
    *
-   *  <H3> Activity of the Water Solvent </H3>
+   *  <H3> Activity of the Water Solvent </H3> 
    *
    *  The activity for the solvent water,\f$ a_o \f$, is not independent and must be 
    *  determined either from the Gibbs-Duhem relation or from taking the appropriate derivative

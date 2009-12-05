@@ -8,9 +8,9 @@
  */
 
 /*
- * $Author: hkmoffa $
- * $Revision: 1.5 $
- * $Date: 2008/02/03 20:59:18 $
+ * $Author$
+ * $Revision$
+ * $Date$
  */
 // Copyright 2001  California Institute of Technology
 
@@ -502,6 +502,7 @@ namespace Cantera {
      * base classes become hidden.
      */
     int m_kk;
+
     /**
      * m_ndim is the dimensionality of the phase.  Volumetric
      * phases have dimensionality 3 and surface phases have

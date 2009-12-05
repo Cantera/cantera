@@ -10,7 +10,7 @@
  * U.S. Government retains certain rights in this software.
  */
 /*
- *  $Id: PDSS_ConstVol.h,v 1.6 2008/10/13 21:01:48 hkmoffa Exp $
+ *  $Id$
  */
 
 #ifndef CT_PDSS_CONSTVOL_H
@@ -99,7 +99,6 @@ namespace Cantera {
      * @name  Utilities  
      * @{
      */
-    virtual int pdssType() const { return -1; }
 
     /**
      * @} 

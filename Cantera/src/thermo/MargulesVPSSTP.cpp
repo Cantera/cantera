@@ -12,8 +12,8 @@
  * U.S. Government retains certain rights in this software.
  */
 /*
- *  $Date: 2009/03/03 21:08:31 $
- *  $Revision: 1.1 $
+ *  $Date$
+ *  $Revision$
  */
 
 
@@ -75,7 +75,7 @@ namespace Cantera {
   MargulesVPSSTP::MargulesVPSSTP(const MargulesVPSSTP &b) :
     GibbsExcessVPSSTP()
   {
-    *this = operator=(b);
+    MargulesVPSSTP::operator=(b);
   }
 
   /*
@@ -86,9 +86,11 @@ namespace Cantera {
    */
   MargulesVPSSTP& MargulesVPSSTP::
   operator=(const MargulesVPSSTP &b) {
-    if (&b != this) {
-      GibbsExcessVPSSTP::operator=(b);
+    if (&b == this) {
+      return *this;
     }
+   
+    GibbsExcessVPSSTP::operator=(b);
     
     numBinaryInteractions_      = b.numBinaryInteractions_ ;
     m_HE_b_ij                   = b.m_HE_b_ij;
@@ -645,6 +647,46 @@ namespace Cantera {
     s_update_dlnActCoeff_dT();
     for (int k = 0; k < m_kk; k++) {
       dlnActCoeffdT[k] = dlnActCoeffdT_Scaled_[k];
+    }
+  }
+
+  // Update the derivative of the log of the activity coefficients wrt ln(X)
+  /*
+   * This function will be called to update the internally stored gradients of the 
+   * logarithm of the activity coefficients.  These are used in the determination 
+   * of the diffusion coefficients.
+   *
+   *   he = X_A X_B(B + C(X_A - X_B))
+   */
+  void MargulesVPSSTP::s_update_dlnActCoeff_dlnC() const {
+    int iA, iB;
+    doublereal XA, XB, g0 , g1;
+    doublereal T = temperature();
+
+    fvo_zero_dbl_1(dlnActCoeffdlnC_Scaled_, m_kk);
+
+    doublereal RT = GasConstant * T;
+    for (int i = 0; i <  numBinaryInteractions_; i++) {
+      iA =  m_pSpecies_A_ij[i];    
+      iB =  m_pSpecies_B_ij[i];
+
+      XA = moleFractions_[iA];
+      XB = moleFractions_[iB];
+      
+      g0 = (m_HE_b_ij[i] - T * m_SE_b_ij[i]) / RT ;
+      g1 = (m_HE_c_ij[i] - T * m_SE_c_ij[i]) / RT;
+      
+      dlnActCoeffdlnC_Scaled_[iA] += XA * ( ( - 2.0 + 2.0 * XA ) * g0
+					    + ( - 4.0 + 10.0 * XA - 6.0 * XA*XA ) * g1 ) ;
+      dlnActCoeffdlnC_Scaled_[iB] += XB * ( ( - 2.0 + 2.0 * XB ) * g0
+					    + (   2.0 -  8.0 * XB + 6.0 * XB*XB ) * g1 ) ;
+    }
+  }
+
+  void MargulesVPSSTP::getdlnActCoeffdlnC(doublereal *dlnActCoeffdlnC) const {
+    s_update_dlnActCoeff_dlnC();
+    for (int k = 0; k < m_kk; k++) {
+      dlnActCoeffdlnC[k] = dlnActCoeffdlnC_Scaled_[k];
     }
   }
 

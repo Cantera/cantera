@@ -8,9 +8,9 @@
  *
  */
 
-/* $Author: dggoodwin $
- * $Revision: 1.2 $
- * $Date: 2007/12/24 15:32:30 $
+/* $Author$
+ * $Revision$
+ * $Date$
  */
 
 // Copyright 2007  California Institute of Technology

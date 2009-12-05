@@ -19,8 +19,8 @@
  */
 /*
  *
- *  $Date: 2009/03/27 00:51:38 $
- *  $Revision: 1.27 $
+ *  $Date$
+ *  $Revision$
  */
 
 #include "IdealMolalSoln.h"

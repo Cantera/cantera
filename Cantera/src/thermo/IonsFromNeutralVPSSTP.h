@@ -17,7 +17,7 @@
  * U.S. Government retains certain rights in this software.
  */
 /*
- *  $Id: $
+ *  $Id$
  */
 
 #ifndef CT_IONSFROMNEUTRALVPSSTP_H
@@ -152,9 +152,9 @@ namespace Cantera {
     /// Destructor. 
     virtual ~IonsFromNeutralVPSSTP();
 
-    //! Duplication routine for objects which inherit from  ThermoPhase.
+    //! Duplication routine for objects which inherit from ThermoPhase.
     /*!
-     *  This virtual routine can be used to duplicate thermophase objects
+     *  This virtual routine can be used to duplicate ThermoPhase objects
      *  inherited from ThermoPhase even if the application only has
      *  a pointer to ThermoPhase to work with.
      */
@@ -404,6 +404,27 @@ namespace Cantera {
      */
     virtual void getPartialMolarEntropies(doublereal* sbar) const;
 
+    //! Get the array of log concentration-like derivatives of the 
+    //! log activity coefficients
+    /*!
+     * This function is a virtual method.  For ideal mixtures 
+     * (unity activity coefficients), this can return zero.  
+     * Implementations should take the derivative of the 
+     * logarithm of the activity coefficient with respect to the 
+     * logarithm of the concentration-like variable (i.e. mole fraction,
+     * molality, etc.) that represents the standard state.  
+     * This quantity is to be used in conjunction with derivatives of 
+     * that concentration-like variable when the derivative of the chemical 
+     * potential is taken.  
+     *
+     *  units = dimensionless
+     *
+     * @param dlnActCoeffdlnC    Output vector of log(mole fraction)  
+     *                 derivatives of the log Activity Coefficients.
+     *                 length = m_kk
+     */
+    virtual void getdlnActCoeffdlnC(doublereal *dlnActCoeffdlnC) const;
+
 
     //@}
     /// @name  Properties of the Standard State of the Species in the Solution
@@ -652,12 +673,22 @@ namespace Cantera {
      */
     void s_update_lnActCoeff() const;
 
-    //! Update the temperatture derivative of the ln activity coefficients
+    //! Update the temperature derivative of the ln activity coefficients
     /*!
      * This function will be called to update the internally storred
      * temperature derivative of the natural logarithm of the activity coefficients
      */
     void s_update_dlnActCoeffdT() const;
+
+    //! Update the derivative of the log of the activity coefficients
+    //!  wrt log(mole fraction)
+    /*!
+     * This function will be called to update the internally storred
+     * derivative of the natural logarithm of the activity coefficients
+     * wrt logarithm of the mole fractions.
+     */
+    void s_update_dlnActCoeff_dlnC() const;
+
 
   private:
     //! Error function
@@ -689,7 +720,7 @@ namespace Cantera {
     //! Index of special species
     int indexSpecialSpecies_;
 
- //! Index of special species
+    //! Index of special species
     int indexSecondSpecialSpecies_;
     
     //! Formula Matrix for composition of neutral molecules
@@ -737,7 +768,7 @@ namespace Cantera {
     int numCationSpecies_;
 
     //! List of the species in this ThermoPhase which are anion species
-    std::vector<int>anionList_;
+    std::vector<int> anionList_;
 
     //! Number of anion species
     int numAnionSpecies_;
@@ -754,9 +785,22 @@ namespace Cantera {
     int numPassThroughSpecies_;
 
   public:
+    //! This is a pointer to the neutral Molecule Phase
+    /*!
+     *  If the variable, IOwnNThermoPhase_ is true, then we own
+     *  the pointer. If not, then this is considered a shallow pointer.
+     */
     ThermoPhase *neutralMoleculePhase_;
-  protected:
+
+  private:
+
+    //! If true then we own the underlying neutral Molecule Phase
+    /*!
+     *  If this is false, then the neutral molecule phase is considered
+     *  as a shallow pointer.
+     */
     bool IOwnNThermoPhase_;
+
     //! ThermoPhase for the cation lattice
     /*!
      *  Currently this is unimplemented and may be deleted
@@ -775,10 +819,8 @@ namespace Cantera {
     mutable std::vector<doublereal> muNeutralMolecule_;
     mutable std::vector<doublereal> gammaNeutralMolecule_;
     mutable std::vector<doublereal> dlnActCoeffdT_NeutralMolecule_;
+    mutable std::vector<doublereal> dlnActCoeffdlnC_NeutralMolecule_;
 
-  private:
-
-  
   };
 
 
