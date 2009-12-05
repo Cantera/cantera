@@ -12,7 +12,9 @@
 #ifndef CT_RESID1D_H
 #define CT_RESID1D_H
 
-
+/*
+ *   NOTE: I don't think this file is used any longer. Thus, this is deprecated.
+ */
 #include "../ctexceptions.h"
 #include "../xml.h"
 #include "refine.h"
