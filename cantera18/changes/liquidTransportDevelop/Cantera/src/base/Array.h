@@ -56,8 +56,11 @@ namespace Cantera {
     /**
      * Default constructor. Create an empty array.
      */
-    Array2D() : m_nrows(0), m_ncols(0) { 
-      m_data.clear();
+    Array2D() :
+      m_data(0),
+      m_nrows(0),
+      m_ncols(0)
+    {
     }
 
     //!  Constructor.
@@ -70,7 +73,7 @@ namespace Cantera {
      *  @param v   Default fill value. The default is 0.0
      */
     Array2D(const int m, const int n, const doublereal v = 0.0) 
-      : m_nrows(m), m_ncols(n) {
+      :  m_data(0), m_nrows(m), m_ncols(n) {
       m_data.resize(n*m);
       std::fill(m_data.begin(), m_data.end(), v);
     }
@@ -79,7 +82,11 @@ namespace Cantera {
     /*!
      *   @param y  Array2D to make the copy from
      */
-    Array2D(const Array2D& y) {
+    Array2D(const Array2D& y) :
+      m_data(0),
+      m_nrows(0),
+      m_ncols(0)
+    {
       m_nrows = y.m_nrows;
       m_ncols = y.m_ncols;
       m_data.resize(m_nrows*m_ncols);
