@@ -65,8 +65,8 @@ namespace Cantera {
    *   but specifies the thermodynamics functions at all pressures.
    *
    *   Class PDSS is the base class
-   *   for a family of classes that compute properties of all
-   *   species in a phase in their standard states, for a range of temperatures
+   *   for a family of classes that compute properties of a single
+   *   species in a phase at its standard states, for a range of temperatures
    *   and pressures.
    *   
    *   Phases which use the %VPSSMGr class must have their respective
@@ -115,7 +115,7 @@ namespace Cantera {
    *        to complete the representation.
    *      .
    *
-   *   - PDSS_Water_
+   *   - PDSS_Water
    *      - standardState model = "Water"
    *      - This model assumes that
    *        Species 0 is assumed to be water, and a real equation
@@ -668,13 +668,13 @@ namespace Cantera {
     //! State of the system - pressure
     mutable doublereal m_pres;
 
-    //! reference state pressure of the species.
+    //! Reference state pressure of the species.
     doublereal m_p0;
 
-    //! minimum temperature
+    //! Minimum temperature
     doublereal m_minTemp;
 
-    //! maximum temperature
+    //! Maximum temperature
     doublereal m_maxTemp;
 
     //! Thermophase which this species belongs to. 

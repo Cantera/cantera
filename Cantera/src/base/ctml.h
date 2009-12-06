@@ -311,10 +311,12 @@ namespace ctml {
 		 const std::string &valueString, const std::string typeString="");
 
 
-  //!  This function reads a child node with the default name, "floatArray", with a value
+  //!  This function reads the current node or a  child node of the current node
+  //!  with the default name, "floatArray", with a value field
   //!  consisting of a comma separated list of floats
   /*!
-   *   This function will read a child node to the current XML node, with the
+   *   This function will read either the current XML node or a  child node
+   *   to the current XML node, with the
    *   name "floatArray". It will have a title attribute, and the body
    *   of the XML node will be filled out with a comma separated list of
    *   doublereals.

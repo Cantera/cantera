@@ -52,7 +52,7 @@ namespace Cantera {
   public:
 
     //! Initialized to the type of parameterization
-    /*!
+    /*!A
      * Note, this value is used in some template functions. For this object the 
      * value is SIMPLE.
      */
