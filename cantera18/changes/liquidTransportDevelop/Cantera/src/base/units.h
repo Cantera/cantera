@@ -177,7 +177,10 @@ namespace Cantera {
          * Units class constructor, containing the default mappings between
          * strings and units.
          */
-        Unit(){
+        Unit() :
+          m_u(),
+          m_act_u()
+          {
 
             // length
             m_u["m"]    = 1.0;
