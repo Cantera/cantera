@@ -48,18 +48,6 @@ namespace Cantera {
      */
     PDSS_IonsFromNeutral(VPStandardStateTP *tp, int spindex);
 
-    //! Copy Constructur
-    /*!
-     * @param b Object to be copied
-     */
-    PDSS_IonsFromNeutral(const PDSS_IonsFromNeutral& b);
-
-    //! Assignment operator
-    /*!
-     * @param b Object to be copeid
-     */
-    PDSS_IonsFromNeutral& operator=(const PDSS_IonsFromNeutral& b);
-
     //! Constructor that initializes the object by examining the input file
     //! of the ThermoPhase object
     /*!
@@ -91,13 +79,43 @@ namespace Cantera {
     PDSS_IonsFromNeutral(VPStandardStateTP *vptp_ptr, int spindex, const XML_Node& speciesNode, 
 			 const XML_Node& phaseRef, bool spInstalled);
 
+    //! Copy Constructor
+    /*!
+     * @param b Object to be copied
+     */
+    PDSS_IonsFromNeutral(const PDSS_IonsFromNeutral& b);
+
+    //! Assignment operator
+    /*!
+     * @param b Object to be copeid
+     */
+    PDSS_IonsFromNeutral& operator=(const PDSS_IonsFromNeutral& b);
 
     //! Destructor
     virtual ~PDSS_IonsFromNeutral();
 
     //! Duplicator
     virtual PDSS *duplMyselfAsPDSS() const;
-        
+
+    //! Initialize or Reinitialize all shallow pointers in the object
+    /*!
+     *  This command is called to reinitialize all shallow pointers in the
+     *  object. It's needed for the duplicator capability. 
+     *  We need to have an inherited function here to set neutralMoleculePhase_ properly.
+     *
+     * @param vptp_ptr       Pointer to the Variable pressure %ThermoPhase object
+     *                       This object must have already been malloced.
+     *
+     * @param vpssmgr_ptr    Pointer to the variable pressure standard state
+     *                       calculator for this phase
+     *
+     * @param spthermo_ptr   Pointer to the optional SpeciesThermo object
+     *                       that will handle the calculation of the reference
+     *                       state thermodynamic coefficients.
+     */
+    virtual void initAllPtrs(VPStandardStateTP *vptp_ptr, VPSSMgr *vpssmgr_ptr, 
+			     SpeciesThermo* spthermo_ptr);
+
     /**
      * @}
      * @name  Utilities  
@@ -436,7 +454,10 @@ namespace Cantera {
     doublereal m_tmax;
 
  
-    //! Pointer to the Neutral Molecule thermophase object 
+    //! Pointer to the Neutral Molecule ThermoPhase object 
+    /*!
+     *  This is a shallow pointer.
+     */
     ThermoPhase *neutralMoleculePhase_;
 
   public:
