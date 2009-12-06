@@ -22,7 +22,6 @@
 #include "numarray/arrayobject.h"
 #else
 #ifdef HAS_NUMPY
-//#include "numpy/libnumarray.h"
 #include "numpy/arrayobject.h"
 #else
 // Create a compilation error to cause the program to bomb

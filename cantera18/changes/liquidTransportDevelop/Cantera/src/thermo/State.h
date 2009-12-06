@@ -215,28 +215,29 @@ namespace Cantera {
      * @param  k Index of species
      */
     doublereal concentration(const int k) const;
-
     
     //! Set the concentrations to the specified values within the
     //! phase. 
-    /*
+    /*!
      * We set the concentrations here and therefore we set the
      * overall density of the phase. We hold the temperature constant
      * during this operation. Therefore, we have possibly changed
      * the pressure of the phase by calling this routine.
      *
-     * @param c The input vector to this routine is in dimensional
-     *        units. For volumetric phases c[k] is the
-     *        concentration of the kth species in kmol/m3.
-     *        For surface phases, c[k] is the concentration
-     *        in kmol/m2. The length of the vector is the number
-     *        of species in the phase.
+     * @param conc The input vector to this routine is in dimensional
+     *          units. For volumetric phases c[k] is the
+     *          concentration of the kth species in kmol/m3.
+     *          For surface phases, c[k] is the concentration
+     *          in kmol/m2. The length of the vector is the number
+     *          of species in the phase.
      */
-    virtual void setConcentrations(const doublereal* const c);
+    virtual void setConcentrations(const doublereal* const conc);
 
-    /**
-     * Returns a read-only pointer to the start of the
-     * massFraction array
+    //! Returns a read-only pointer to the start of the
+    //! massFraction array
+    /*!
+     *  The pointer returned is readonly
+     *  @return  returns a pointer to a vector of doubles of length m_kk.
      */
     const doublereal* massFractions() const {
       return &m_y[0]; 

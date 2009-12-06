@@ -96,7 +96,7 @@ namespace Cantera {
     return (PDSS *) idg;
   }
 
-  /**
+  /*
    * constructPDSSXML:
    *
    * Initialization of a PDSS_SSVol object using an
@@ -137,14 +137,14 @@ namespace Cantera {
       int num = getFloatArray(*ss, TCoeff_, true, "", "volumeTemperaturePolynomial");
       if (num != 4) {
 	throw CanteraError("PDSS_SSVol::constructPDSSXML",
-			   " Didn't get 3 density polynomial numbers for species " + speciesNode.name());
+			   " Didn't get 4 density polynomial numbers for species " + speciesNode.name());
       }
     } else if (model == "density_temperature_polynomial") {
       volumeModel_ = cSSVOLUME_DENSITY_TPOLY;
       int num = getFloatArray(*ss, TCoeff_, true, "", "densityTemperaturePolynomial");
       if (num != 4) {
 	throw CanteraError("PDSS_SSVol::constructPDSSXML",
-			   " Didn't get 3 density polynomial numbers for species " + speciesNode.name());
+			   " Didn't get 4 density polynomial numbers for species " + speciesNode.name());
       }
     } else {
       throw CanteraError("PDSS_SSVol::constructPDSSXML",
@@ -155,7 +155,7 @@ namespace Cantera {
   }
 
    
-  /**
+  /*
    * constructPDSSFile():
    *
    * Initialization of a PDSS_SSVol object using an
@@ -236,7 +236,6 @@ namespace Cantera {
     doublereal val = m_hss_RT_ptr[m_spindex];
     return (val);
   }
-
 
   doublereal 
   PDSS_SSVol::intEnergy_mole() const {
