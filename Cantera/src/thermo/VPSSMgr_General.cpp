@@ -63,12 +63,23 @@ namespace Cantera {
     m_useTmpRefStateStorage = true;
     *this = right;
   }
-
-
+  //====================================================================================================================
   VPSSMgr_General& VPSSMgr_General::operator=(const VPSSMgr_General &b) 
   {
-    if (&b == this) return *this;
+    if (&b == this) {
+      return *this;
+    }
     VPSSMgr::operator=(b);
+    /*
+     *  Must fill in the shallow pointers. These must have already been transfered
+     *  and storred in the owning VPStandardStateTP class.  Note we are aware that at this point
+     *  m_vptr_ptr may refer back to the wrong ThermoPhase object. However, the shallow copy 
+     *  performed here is consistent with the assignment operator's general functionality.
+     */
+    m_PDSS_ptrs.resize(m_kk);
+    for (int k = 0; k < m_kk; k++) {
+       m_PDSS_ptrs[k] = m_vptp_ptr->providePDSS(k);
+    }
     return *this;
   }
 
@@ -76,8 +87,29 @@ namespace Cantera {
     VPSSMgr_General *vpm = new VPSSMgr_General(*this);
     return (VPSSMgr *) vpm;
   }
-
-
+  //====================================================================================================================
+  // Initialize the internal shallow pointers in this object
+  /*
+   * There are a bunch of internal shallow pointers that point to the owning
+   * VPStandardStateTP and SpeciesThermo objects. This function reinitializes
+   * them. This function is called like an onion.
+   * 
+   *  @param vp_ptr   Pointer to the VPStandardStateTP standard state
+   *  @param sp_ptr   Poitner to the SpeciesThermo standard state
+   */
+  void VPSSMgr_General::initAllPtrs(VPStandardStateTP *vp_ptr, SpeciesThermo *sp_ptr)
+  {
+    VPSSMgr::initAllPtrs(vp_ptr, sp_ptr);
+    /*
+     *  Must fill in the shallow pointers. These must have already been transfered
+     *  and storred in the owning VPStandardStateTP class.
+     */
+    m_PDSS_ptrs.resize(m_kk);
+    for (int k = 0; k < m_kk; k++) {
+      m_PDSS_ptrs[k] = m_vptp_ptr->providePDSS(k);
+    }
+  }
+  //====================================================================================================================
   void VPSSMgr_General::_updateRefStateThermo() const
   {
     if (m_useTmpRefStateStorage) {
