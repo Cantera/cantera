@@ -96,33 +96,21 @@ namespace Cantera {
    */
 
   void GibbsExcessVPSSTP::setMassFractions(const doublereal* const y) {
-#if DEBUG_MODE
-    checkMFSum(y);
-#endif
     State::setMassFractions(y);
     getMoleFractions(DATA_PTR(moleFractions_));
   }
 
   void GibbsExcessVPSSTP::setMassFractions_NoNorm(const doublereal* const y) {
-#if DEBUG_MODE
-    checkMFSum(y);
-#endif
     State::setMassFractions_NoNorm(y);
     getMoleFractions(DATA_PTR(moleFractions_));
   }
 
  void GibbsExcessVPSSTP::setMoleFractions(const doublereal* const x) {
-#if DEBUG_MODE
-    checkMFSum(x);
-#endif
     State::setMoleFractions(x);
     getMoleFractions(DATA_PTR(moleFractions_));
   }
 
   void GibbsExcessVPSSTP::setMoleFractions_NoNorm(const doublereal* const x) {
-#if DEBUG_MODE
-    checkMFSum(x);
-#endif
     State::setMoleFractions_NoNorm(x);
     getMoleFractions(DATA_PTR(moleFractions_));
   }
@@ -265,8 +253,8 @@ namespace Cantera {
   double GibbsExcessVPSSTP::checkMFSum(const doublereal * const x) const {
     doublereal norm = accumulate(x, x + m_kk, 0.0);
     if (fabs(norm - 1.0) > 1.0E-9) {
-      throw CanteraError("GibbsExcessVPSSTP::checkMFSun",
-			 "MF sum exceeded tolerance of 1.0E-9:" + fp2str(norm));
+      throw CanteraError("GibbsExcessVPSSTP::checkMFSum",
+			 "(MF sum - 1) exceeded tolerance of 1.0E-9:" + fp2str(norm));
     }
     return norm;
   }
