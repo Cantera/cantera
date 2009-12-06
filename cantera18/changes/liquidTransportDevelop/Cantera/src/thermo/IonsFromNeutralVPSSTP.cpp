@@ -155,6 +155,26 @@ namespace Cantera {
     if (&b == this) {
       return *this;
     }
+
+    /*
+     *  If we own the underlying neutral molecule phase, then we do a deep
+     *  copy. If not, we do a shallow copy. We get a valid pointer for
+     *  neutralMoleculePhase_ first, because we need it to assign the pointers
+     *  within the PDSS_IonsFromNeutral object. which is done in the
+     *  GibbsExcessVPSSTP::operator=(b) step.  
+     */   
+    if (IOwnNThermoPhase_) {
+      if (b.neutralMoleculePhase_) {
+        if (neutralMoleculePhase_) {
+	  delete neutralMoleculePhase_;
+	}
+	neutralMoleculePhase_   = (b.neutralMoleculePhase_)->duplMyselfAsThermoPhase();
+      } else {
+	neutralMoleculePhase_   = 0;
+      }
+    } else {
+      neutralMoleculePhase_     = b.neutralMoleculePhase_;
+    }
     
     GibbsExcessVPSSTP::operator=(b);  
 
@@ -172,23 +192,6 @@ namespace Cantera {
     passThroughList_            = b.passThroughList_;
     numPassThroughSpecies_      = b.numPassThroughSpecies_;
 
-    /*
-     *  If we own the underlying neutral molecule phase, then we do a deep
-     *  copy. If not, we do a shallow copy.
-     */   
-    if (IOwnNThermoPhase_) {
-      if (b.neutralMoleculePhase_) {
-        if (neutralMoleculePhase_) {
-	  delete neutralMoleculePhase_;
-	}
-	neutralMoleculePhase_   = (b.neutralMoleculePhase_)->duplMyselfAsThermoPhase();
-      } else {
-	neutralMoleculePhase_   = 0;
-      }
-    } else {
-      neutralMoleculePhase_     = b.neutralMoleculePhase_;
-    }
-  
     IOwnNThermoPhase_           = b.IOwnNThermoPhase_;
     moleFractionsTmp_           = b.moleFractionsTmp_;
     muNeutralMolecule_          = b.muNeutralMolecule_;
@@ -824,21 +827,21 @@ namespace Cantera {
    neutralMoleculePhase_->setMoleFractions(DATA_PTR(NeutralMolecMoleFractions_));
   }
 
-  void IonsFromNeutralVPSSTP::setMoleFractions(const doublereal* const y) {
-    GibbsExcessVPSSTP::setMoleFractions(y);
+  void IonsFromNeutralVPSSTP::setMoleFractions(const doublereal* const x) {
+    GibbsExcessVPSSTP::setMoleFractions(x);
     calcNeutralMoleculeMoleFractions();
     neutralMoleculePhase_->setMoleFractions(DATA_PTR(NeutralMolecMoleFractions_));
   }
 
-  void IonsFromNeutralVPSSTP::setMoleFractions_NoNorm(const doublereal* const y) {
-    GibbsExcessVPSSTP::setMoleFractions_NoNorm(y);
+  void IonsFromNeutralVPSSTP::setMoleFractions_NoNorm(const doublereal* const x) {
+    GibbsExcessVPSSTP::setMoleFractions_NoNorm(x);
     calcNeutralMoleculeMoleFractions();
     neutralMoleculePhase_->setMoleFractions(DATA_PTR(NeutralMolecMoleFractions_));
   }
 
 
-  void IonsFromNeutralVPSSTP::setConcentrations(const doublereal* const y) {
-    GibbsExcessVPSSTP::setConcentrations(y);
+  void IonsFromNeutralVPSSTP::setConcentrations(const doublereal* const c) {
+    GibbsExcessVPSSTP::setConcentrations(c);
     calcNeutralMoleculeMoleFractions();
     neutralMoleculePhase_->setMoleFractions(DATA_PTR(NeutralMolecMoleFractions_));
   }
