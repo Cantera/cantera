@@ -51,7 +51,8 @@ namespace Cantera {
      * @param line Number number where the error occurred.
      */
     XML_Error(int line=0) :
-      m_line(line)
+      m_line(line),
+      m_msg(0)
     {
       m_msg = "Error in XML file";
       if (line > 0) {
@@ -392,7 +393,8 @@ namespace Cantera {
   //////////////////////////  XML_Node  /////////////////////////////////
 
   XML_Node::XML_Node(const char * cnm)  
-    : m_value(""), 
+    : m_name(""),
+      m_value(""), 
       m_parent(0),
       m_locked(false),
       m_nchildren(0), 
