@@ -165,7 +165,7 @@ FILE_PATTERNS          = Kinetics.h Kinetics.cpp \
                          vcs_MultiPhaseEquil.h vcs_MultiPhaseEquil.cpp \
                          FalloffFactory.h FalloffFactory.cpp \
                          TransportBase.h TransportBase.cpp     TransportParams.h  \
-                         MMCollisionInt.h  L_matrix.h  MMCollisionInt.cpp   FtnTransport.h    \
+                         MMCollisionInt.h  L_matrix.h  MMCollisionInt.cpp     \
                          TransportFactory.h TransportFactory.cpp \
                          MultiTransport.h MultiTransport.cpp MixTransport.h MixTransport.cpp  \
                          DustyGasTransport.h    DustyGasTransport.cpp \
