@@ -218,6 +218,26 @@ namespace Cantera {
     return th;
   }
 
+  // Translate the eosType id into a string
+  /*
+   *  Returns a string representation of the eosType id for a phase.
+   *  @param ieos  eosType id of the phase. This is unique for the phase
+   *  @param length maximum length of the return string. Defaults to 100
+   *
+   *  @return returns a string representation.
+   */
+  std::string eosTypeString(int ieos, int length)
+  {
+    std::string ss = "UnknownPhaseType";
+    // bool found = false;
+    for (int n = 0; n <  ntypes; n++) {
+      if (_itypes[n] == ieos) {
+	ss = _types[n];
+	//found = true;
+      }  
+    }
+    return ss;
+  }
 
 
   /*
