@@ -18,7 +18,7 @@
  * U.S. Government retains certain rights in this software.
  */
 /*
- * $Id: HMWSoln.cpp,v 1.53 2009/03/27 00:38:57 hkmoffa Exp $
+ * $Id: HMWSoln.cpp 306 2009-12-09 17:29:23Z hkmoffa $
  */
 //@{
 #ifndef MAX
@@ -763,30 +763,7 @@ namespace Cantera {
    * The mass density is not a function of pressure.
    */
   void HMWSoln::setPressure(doublereal p) {
-#ifdef DEBUG_MODE
-    //printf("setPressure: %g\n", p);
-#endif
-    /*
-     * Store the current pressure
-     */
-    m_Pcurrent = p;
-    /*
-     * update the standard state thermo
-     * -> This involves calling the water function and setting the pressure
-     */
-    updateStandardStateThermo();
-  
-    /*
-     * Store the internal density of the water SS.
-     * Note, we would have to do this for all other
-     * species if they had pressure dependent properties.
-     */
-    m_densWaterSS = m_waterSS->density();
-    /*
-     * Calculate all of the other standard volumes
-     * -> note these are constant for now
-     */
-    calcDensity();
+    setState_TP(temperature(), p);
   }
 
   void HMWSoln::calcDensity() {
@@ -889,9 +866,36 @@ namespace Cantera {
    * the value propagates to underlying objects.
    */
   void HMWSoln::setTemperature(const doublereal temp) {
+    setState_TP(temp, m_Pcurrent);
+  }
+
+  /*
+   * Overwritten setTemperature(double) from State.h. This
+   * function sets the temperature, and makes sure that
+   * the value propagates to underlying objects.
+   */
+  void HMWSoln::setState_TP(doublereal temp, doublereal pres) {
     State::setTemperature(temp);
-    //m_waterSS->setTemperature(temp);
+    /*
+     * Store the current pressure
+     */
+    m_Pcurrent = pres;
+  
+    /*
+     * update the standard state thermo
+     * -> This involves calling the water function and setting the pressure
+     */
     updateStandardStateThermo();
+    /*
+     * Store the internal density of the water SS.
+     * Note, we would have to do this for all other
+     * species if they had pressure dependent properties.
+     */
+    m_densWaterSS = m_waterSS->density();
+    /*
+     * Calculate all of the other standard volumes
+     * -> note these are constant for now
+     */
     calcDensity();
   }
 
@@ -913,10 +917,14 @@ namespace Cantera {
    *           reaction rate expressions within the phase.
    */
   void HMWSoln::getActivityConcentrations(doublereal* c) const {
-    double c_solvent = standardConcentration();
+    double cs_solvent = standardConcentration();
     getActivities(c);
-    for (int k = 0; k < m_kk; k++) {
-      c[k] *= c_solvent;
+    c[0] *= cs_solvent;
+    if (m_kk > 1) {
+      double cs_solute = standardConcentration(1);
+      for (int k = 1; k < m_kk; k++) {
+	c[k] *= cs_solute;
+      }
     }
   }
 
