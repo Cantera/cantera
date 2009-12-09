@@ -13,7 +13,7 @@
  * U.S. Government retains certain rights in this software.
  */
 /*
- * $Id: DebyeHuckel.cpp,v 1.33 2009/03/27 00:38:56 hkmoffa Exp $
+ * $Id$
  */
 //! Max function
 #ifndef MAX

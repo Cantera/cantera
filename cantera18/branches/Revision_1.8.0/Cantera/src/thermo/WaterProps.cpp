@@ -7,7 +7,7 @@
  * U.S. Government retains certain rights in this software.
  */
 /*
- * $Id: WaterProps.cpp,v 1.9 2008/12/17 17:04:47 hkmoffa Exp $
+ * $Id$
  */
 
 //@{

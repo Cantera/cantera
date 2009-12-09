@@ -3,8 +3,8 @@
  *
  */
 /*
- *  $Date: 2009/02/11 19:57:24 $
- *  $Revision: 1.2 $
+ *  $Date$
+ *  $Revision$
  */
 // Copyright 2006  California Institute of Technology
 

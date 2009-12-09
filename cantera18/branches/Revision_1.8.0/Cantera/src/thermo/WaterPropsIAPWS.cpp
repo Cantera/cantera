@@ -10,7 +10,7 @@
  * U.S. Government retains certain rights in this software.
  */
 /*
- * $Id: WaterPropsIAPWS.cpp,v 1.17 2008/12/17 17:01:29 hkmoffa Exp $
+ * $Id$
  */
 
 #include "WaterPropsIAPWS.h"

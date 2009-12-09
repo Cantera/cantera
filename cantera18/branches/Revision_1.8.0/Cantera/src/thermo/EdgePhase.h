@@ -4,9 +4,9 @@
  *       between two surfaces (see \ref thermoprops and \link Cantera::EdgePhase EdgePhase\endlink).
  */
 
-/*  $Author: hkmoffa $
- *  $Date: 2008/10/08 22:11:08 $
- *  $Revision: 1.3 $
+/*  $Author$
+ *  $Date$
+ *  $Revision$
  *
  *  Copyright 2002 California Institute of Technology
  *

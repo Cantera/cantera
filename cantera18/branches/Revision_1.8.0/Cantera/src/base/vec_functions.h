@@ -3,8 +3,8 @@
  *  Templates for operations on vector-like objects. 
  */
 /*
- *  $Date: 2009/01/15 20:08:50 $
- *  $Revision: 1.3 $
+ *  $Date$
+ *  $Revision$
  *
  *  Copyright 2001 California Institute of Technology
  *

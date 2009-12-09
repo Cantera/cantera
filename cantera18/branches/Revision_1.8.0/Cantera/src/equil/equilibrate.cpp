@@ -4,7 +4,7 @@
  *
  */
 /*
- * $Id: equilibrate.cpp,v 1.11 2009/03/18 17:27:20 hkmoffa Exp $
+ * $Id$
  */
 #include "equil.h"
 #include "ChemEquil.h"

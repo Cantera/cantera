@@ -1,9 +1,9 @@
 /**
  *  @file Integrator.h
  *
- *  $Author: hkmoffa $
- *  $Date: 2009/05/13 21:49:11 $
- *  $Revision: 1.2 $
+ *  $Author$
+ *  $Date$
+ *  $Revision$
  *
  */
 

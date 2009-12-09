@@ -6,7 +6,7 @@
 
 // Copyright 2001  California Institute of Technology
 /*
- * $Id: utilities.h,v 1.9 2008/08/22 14:41:07 hkmoffa Exp $
+ * $Id$
 
  */
 /**

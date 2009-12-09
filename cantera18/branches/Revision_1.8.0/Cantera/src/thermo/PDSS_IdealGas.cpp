@@ -9,7 +9,7 @@
  * U.S. Government retains certain rights in this software.
  */
 /*
- * $Id: PDSS_IdealGas.cpp,v 1.8 2009/01/04 06:34:20 hkmoffa Exp $
+ * $Id$
  */
 
 #include "ct_defs.h"

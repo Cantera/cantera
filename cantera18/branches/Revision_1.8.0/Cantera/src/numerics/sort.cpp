@@ -1,7 +1,7 @@
 /**
  *  @file sort.cpp
  *
- *  $Id: sort.cpp,v 1.1 2007/05/04 14:40:27 dggoodwin Exp $
+ *  $Id$
  */
 
 #ifdef WIN32

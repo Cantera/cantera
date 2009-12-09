@@ -5,9 +5,9 @@
  * @ingroup electrochem
  */
 
-/* $Author: hkmoffa $
- * $Revision: 1.4 $
- * $Date: 2008/12/16 20:32:18 $
+/* $Author$
+ * $Revision$
+ * $Date$
  */
 
 // Copyright 2001  California Institute of Technology

@@ -1,9 +1,9 @@
 /**
  *  @file ImplicitChem.h
  *
- * $Author: dggoodwin $
- * $Revision: 1.1 $
- * $Date: 2007/05/04 14:27:23 $
+ * $Author$
+ * $Revision$
+ * $Date$
  */
 
 // Copyright 2001  California Institute of Technology

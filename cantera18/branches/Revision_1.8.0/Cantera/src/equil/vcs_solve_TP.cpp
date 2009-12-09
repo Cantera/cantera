@@ -3,7 +3,7 @@
  *     main algorithm for finding an equilibrium
  */
 /*
- * $Id: vcs_solve_TP.cpp,v 1.93 2009/04/18 00:42:51 hkmoffa Exp $
+ * $Id$
  */
 /*
  * Copywrite (2005) Sandia Corporation. Under the terms of 

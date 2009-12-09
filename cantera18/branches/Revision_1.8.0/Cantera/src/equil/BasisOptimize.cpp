@@ -5,7 +5,7 @@
  */
 
 /*
- * $Id: BasisOptimize.cpp,v 1.9 2009/01/05 23:20:43 hkmoffa Exp $
+ * $Id$
  */
 
 #include "ct_defs.h"

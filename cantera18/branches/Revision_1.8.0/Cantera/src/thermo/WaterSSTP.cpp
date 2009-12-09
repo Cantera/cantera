@@ -9,7 +9,7 @@
  * U.S. Government retains certain rights in this software.
  */
 /*
- * $Id: WaterSSTP.cpp,v 1.17 2009/03/27 00:38:58 hkmoffa Exp $
+ * $Id$
  */
 
 #include "xml.h"

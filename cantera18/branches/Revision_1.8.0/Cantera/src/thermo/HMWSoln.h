@@ -14,7 +14,7 @@
  * U.S. Government retains certain rights in this software.
  */
 /*
- *  $Id: HMWSoln.h 306 2009-12-09 17:29:23Z hkmoffa $
+ *  $Id$
  */
 
 #ifndef CT_HMWSOLN_H
