@@ -917,10 +917,14 @@ namespace Cantera {
    *           reaction rate expressions within the phase.
    */
   void HMWSoln::getActivityConcentrations(doublereal* c) const {
-    double c_solvent = standardConcentration();
+    double cs_solvent = standardConcentration();
     getActivities(c);
-    for (int k = 0; k < m_kk; k++) {
-      c[k] *= c_solvent;
+    c[0] *= cs_solvent;
+    if (m_kk > 1) {
+      double cs_solute = standardConcentration(1);
+      for (int k = 1; k < m_kk; k++) {
+	c[k] *= cs_solute;
+      }
     }
   }
 
