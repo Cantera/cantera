@@ -5,7 +5,7 @@
 
 // Copyright 2001  California Institute of Technology
 //
-// $Id: CKParser.cpp,v 1.23 2009/03/13 03:26:18 hkmoffa Exp $
+// $Id$
 
 // turn off warnings about truncating long names under Windows
 #ifdef WIN32

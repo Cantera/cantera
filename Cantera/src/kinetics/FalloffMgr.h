@@ -1,9 +1,9 @@
 /**
  *  @file FalloffMgr.h
  *
- *  $Author: dggoodwin $
- *  $Date: 2007/05/10 03:28:32 $
- *  $Revision: 1.2 $
+ *  $Author$
+ *  $Date$
+ *  $Revision$
  */
 
 // Copyright 2001  California Institute of Technology

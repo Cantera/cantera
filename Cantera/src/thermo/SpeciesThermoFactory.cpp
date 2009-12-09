@@ -5,8 +5,8 @@
  *    (see \ref spthermo and class \link Cantera::SpeciesThermoFactory SpeciesThermoFactory\endlink);
  */
 /* 
- * $Revision: 1.20 $
- * $Date: 2008/12/29 21:35:15 $
+ * $Revision$
+ * $Date$
  */
 
 // Copyright 2001  California Institute of Technology

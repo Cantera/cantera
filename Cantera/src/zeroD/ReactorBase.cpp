@@ -1,9 +1,9 @@
 /**
  *  @file ReactorBase.cpp
  *
- * $Author: dggoodwin $
- * $Revision: 1.11 $
- * $Date: 2006/11/27 21:43:34 $
+ * $Author$
+ * $Revision$
+ * $Date$
  */
 
 // Copyright 2001  California Institute of Technology

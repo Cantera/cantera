@@ -1,9 +1,9 @@
 /**
  *  @file FlowDevice.h
  *
- *  $Author: dggoodwin $
- *  $Date: 2007/05/04 14:41:28 $
- *  $Revision: 1.6 $
+ *  $Author$
+ *  $Date$
+ *  $Revision$
  */
 
 // Copyright 2001  California Institute of Technology

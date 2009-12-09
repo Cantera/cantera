@@ -12,9 +12,9 @@
  * U.S. Government retains certain rights in this software.
  */
 /*
- *  $Author: hkmoffa $
- *  $Date: 2008/08/23 00:53:54 $
- *  $Revision: 1.1 $
+ *  $Author$
+ *  $Date$
+ *  $Revision$
  */
 
 #ifndef CT_IDEALSOLNGASVPSS_H

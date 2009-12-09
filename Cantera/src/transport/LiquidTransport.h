@@ -4,8 +4,8 @@
  *   Header file defining class LiquidTransport
  */
 /*
- * $Revision: 1.9 $
- * $Date: 2009/03/27 18:24:39 $
+ * $Revision$
+ * $Date$
  */
 
 #ifndef CT_LIQUIDTRAN_H

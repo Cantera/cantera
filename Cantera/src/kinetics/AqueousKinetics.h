@@ -3,9 +3,9 @@
  *
  * @ingroup chemkinetics
  *
- * $Author: hkmoffa $
- * $Revision: 1.1 $
- * $Date: 2009/02/11 01:50:57 $
+ * $Author$
+ * $Revision$
+ * $Date$
  */
 
 // Copyright 2001  California Institute of Technology

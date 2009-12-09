@@ -1,8 +1,8 @@
 /***********************************************************************
  *  $RCSfile: equil.h,v $
- *  $Author: hkmoffa $
- *  $Date: 2008/04/11 22:44:49 $
- *  $Revision: 1.3 $
+ *  $Author$
+ *  $Date$
+ *  $Revision$
  ***********************************************************************/
 //  Copyright 2001  California Institute of Technology
 

@@ -5,9 +5,9 @@
  *  Header file for class IDA_Solver
  */
 
-/*  $Author: hkmoffa $
- *  $Date: 2008/04/08 20:19:27 $
- *  $Revision: 1.3 $
+/*  $Author$
+ *  $Date$
+ *  $Revision$
  *
  *  Copyright 2006 California Institute of Technology
  *

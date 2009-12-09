@@ -10,9 +10,9 @@
  * It inherits from ThermoPhase, but is built on top of the tpx package.
  */
 
-/*  $Author: dggoodwin $
- *  $Date: 2007/12/24 15:32:30 $
- *  $Revision: 1.7 $
+/*  $Author$
+ *  $Date$
+ *  $Revision$
  *
  *  Copyright 2003 California Institute of Technology
  */

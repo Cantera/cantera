@@ -7,9 +7,9 @@
  * class \link Cantera::VPSSMgr_IdealGas VPSSMgr_IdealGas\endlink).
  */
 /*
- * $Author: hkmoffa $
- * $Revision: 1.3 $
- * $Date: 2009/05/28 23:08:06 $
+ * $Author$
+ * $Revision$
+ * $Date$
  */
 
 /*

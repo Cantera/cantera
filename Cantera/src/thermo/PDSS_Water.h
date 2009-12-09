@@ -9,9 +9,9 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-/*  $Author: hkmoffa $
- *  $Date: 2009/01/03 03:59:39 $
- *  $Revision: 1.11 $
+/*  $Author$
+ *  $Date$
+ *  $Revision$
  */
 
 #ifndef CT_WATERPDSS_H

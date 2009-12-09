@@ -3,7 +3,7 @@
  *    Header file for the internal class that holds the problem.
  */
 /*
- * $Id: vcs_solve.cpp,v 1.60 2008/12/17 16:56:43 hkmoffa Exp $
+ * $Id$
  */
 /*
  * Copywrite (2005) Sandia Corporation. Under the terms of 

@@ -5,9 +5,9 @@
  */
 
 /*
- *  $Author: hkmoffa $
- *  $Revision: 1.1 $
- *  $Date: 2007/12/19 21:19:28 $
+ *  $Author$
+ *  $Revision$
+ *  $Date$
  */
 
 #include "vcs_IntStarStar.h"

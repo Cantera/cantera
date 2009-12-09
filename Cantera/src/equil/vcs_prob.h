@@ -4,7 +4,7 @@
  */
 
 /*
- * $Id: vcs_prob.h,v 1.6 2008/05/06 16:53:38 hkmoffa Exp $
+ * $Id$
  */
 /*
  * Copywrite (2005) Sandia Corporation. Under the terms of 

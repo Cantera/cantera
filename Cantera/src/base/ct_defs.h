@@ -10,8 +10,8 @@
  */
 
 /*
- * $Revision: 1.9 $
- * $Date: 2009/01/24 00:15:00 $
+ * $Revision$
+ * $Date$
  */
 
 // Copyright 2001  California Institute of Technology

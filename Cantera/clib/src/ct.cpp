@@ -8,7 +8,7 @@
  *   pointers are passed to or from the calling application.
  */
 
-/* $Id: ct.cpp,v 1.45 2009/07/22 01:23:40 hkmoffa Exp $  */
+/* $Id$  */
 
 // turn off warnings under Windows
 #ifdef WIN32
