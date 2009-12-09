@@ -215,7 +215,6 @@ namespace Cantera {
      * @param  k Index of species
      */
     doublereal concentration(const int k) const;
-
     
     //! Set the concentrations to the specified values within the
     //! phase. 
