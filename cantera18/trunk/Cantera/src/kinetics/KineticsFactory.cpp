@@ -3,9 +3,9 @@
  */
 
 /*
- * $Author: hkmoffa $
- * $Revision: 1.4 $
- * $Date: 2009/02/11 20:01:45 $
+ * $Author$
+ * $Revision$
+ * $Date$
  */
 
 // Copyright 2001  California Institute of Technology
