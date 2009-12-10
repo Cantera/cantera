@@ -4,8 +4,8 @@
  *  module documentation (see \ref  kineticsmgr and class 
  *  \link Cantera::Kinetics Kinetics\endlink).
  *
- *  $Date: 2008/12/16 20:32:18 $
- *  $Revision: 1.8 $
+ *  $Date$
+ *  $Revision$
  */
 
 // Copyright 2001-2004  California Institute of Technology
