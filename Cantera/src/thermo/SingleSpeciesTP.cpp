@@ -543,13 +543,33 @@ namespace Cantera {
    * @see importCTML.cpp
    */
   void SingleSpeciesTP::initThermo() {
+ 
     /*
-     * Check to make sure that there is one and only one species
-     * in this phase.
+     * Make sure there is one and only one species in this phase.
      */
+    m_kk = nSpecies();
     if (m_kk != 1) {
-      err("singleSpeciesTP ERROR m_kk != 1");
+      throw CanteraError("initThermo",
+                         "stoichiometric substances may only contain one species.");
     }
+    doublereal tmin = m_spthermo->minTemp();
+    doublereal tmax = m_spthermo->maxTemp();
+    if (tmin > 0.0) m_tmin = tmin;
+    if (tmax > 0.0) m_tmax = tmax;
+
+    /*
+     * Store the reference pressure in the variables for the class.
+     */
+    m_p0 = refPressure();
+
+    /*
+     * Resize temporary arrays.
+     */
+    int leng = 1;
+    m_h0_RT.resize(leng);
+    m_cp0_R.resize(leng);
+    m_s0_R.resize(leng);
+
     /*
      *  Make sure the species mole fraction is equal to 1.0;
      */

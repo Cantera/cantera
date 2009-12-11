@@ -45,35 +45,35 @@ public:
    * @param tau     Dimensionless temperature = T_c/T
    * @param delta   Dimensionless density =  delta = rho / Rho_c
    */
-  double phi(double tau, double delta);
+  doublereal phi(doublereal tau, doublereal delta);
 
   //! Delta derivative of phi
   /*!
    * @param tau     Dimensionless temperature = T_c/T
    * @param delta   Dimensionless density =  delta = rho / Rho_c
    */
-  double phi_d(double tau, double delta);
+  doublereal phi_d(doublereal tau, doublereal delta);
 
   //! 2nd derivative of phi wrt delta
   /*!
    * @param tau     Dimensionless temperature = T_c/T
    * @param delta   Dimensionless density =  delta = rho / Rho_c
    */
-  double phi_dd(double tau, double delta);
+  double phi_dd(doublereal tau, doublereal delta);
 
   //! First derivative of phi wrt tau
   /*!
    * @param tau     Dimensionless temperature = T_c/T
    * @param delta   Dimensionless density =  delta = rho / Rho_c
    */
-  double phi_t(double tau, double delta);
+  doublereal phi_t(doublereal tau, doublereal delta);
 
   //! Second derivative of phi wrt tau
   /*!
    * @param tau     Dimensionless temperature = T_c/T
    * @param delta   Dimensionless density =  delta = rho / Rho_c
    */
-  double phi_tt(double tau, double delta);
+  doublereal phi_tt(doublereal tau, doublereal delta);
 
   //! Internal check # 1
   void   check1();
@@ -91,7 +91,7 @@ public:
    *
    * note: this is done so much, we have a seperate routine.
    */
-  double pressureM_rhoRT(double tau, double delta);
+  doublereal pressureM_rhoRT(doublereal tau, doublereal delta);
 
   //! Dimensionless derivative of p wrt rho at constant T
   /*!
@@ -101,7 +101,7 @@ public:
    * @param tau     Dimensionless temperature = T_c/T
    * @param delta   Dimensionless density =  delta = rho / Rho_c
    */
-  double dimdpdrho(double tau, double delta);
+  doublereal dimdpdrho(doublereal tau, doublereal delta);
 
   //! Dimensionless derivative of p wrt T at constant rho
   /*!
@@ -111,7 +111,7 @@ public:
    * @param tau     Dimensionless temperature = T_c/T
    * @param delta   Dimensionless density =  delta = rho / Rho_c
    */
-  double dimdpdT(double tau, double delta);
+  doublereal dimdpdT(doublereal tau, doublereal delta);
 
   /**
    * This program computes the reduced density, given the reduced pressure
@@ -126,37 +126,37 @@ public:
    * @return 
    *   Returns the dimensionless density.
    */
-  double dfind(double p_red, double tau, double deltaGuess);
+  doublereal dfind(doublereal p_red, doublereal tau, doublereal deltaGuess);
 
   /**
    * Calculate the dimensionless gibbs free energy
    */
-  double gibbs_RT() const;
+  doublereal gibbs_RT() const;
 
   /**
    * Calculate the dimensionless enthalpy, h/RT
    */
-  double enthalpy_RT() const;
+  doublereal enthalpy_RT() const;
     
   /**
    * Calculate the dimensionless entropy, s/R
    */
-  double entropy_R() const;
+  doublereal entropy_R() const;
 
   /**
    * Calculate the dimensionless internal energy, u/RT
    */
-  double intEnergy_RT() const;
+  doublereal intEnergy_RT() const;
 
   /**
    * Calculate the dimensionless constant volume heat capacity, Cv/R
    */
-  double cv_R() const;
+  doublereal cv_R() const;
 
   /**
    * Calculate the dimensionless constant pressure heat capacity, Cv/R
    */
-  double cp_R() const;
+  doublereal cp_R() const;
 
   
   //! Calculates internal polynomials in tau and delta.
@@ -167,35 +167,35 @@ public:
    * @param tau     Dimensionless temperature = T_c/T
    * @param delta   Dimensionless density =  delta = rho / Rho_c
    */
-  void tdpolycalc(double tau, double delta);
+  void tdpolycalc(doublereal tau, doublereal delta);
 
   //! Return the value of phiR(), res
-  double phiR() const;
+  doublereal phiR() const;
 
 private:
 
   //! nau calculation
-  double phi0() const;
+  doublereal phi0() const;
   //! calculation of d_phiR/d_d
-  double phiR_d() const;
+  doublereal phiR_d() const;
   //! calculation of d_nau/d_d
-  double phi0_d() const;
+  doublereal phi0_d() const;
   //! calculation of d2_res/d_dd
-  double phiR_dd() const;
+  doublereal phiR_dd() const;
   //! calculation of d2_nau/d_dd
-  double phi0_dd() const;
+  doublereal phi0_dd() const;
   //! calculation of d_nau/d_t
-  double phi0_t() const;
+  doublereal phi0_t() const;
   //! calculation of d_res/d_t
-  double phiR_t() const;
+  doublereal phiR_t() const;
   //! calculation of d2_res/d_tt
-  double phiR_tt() const;
+  doublereal phiR_tt() const;
   //! calculation of d2_nau/d_tt
-  double phi0_tt() const;
+  doublereal phi0_tt() const;
   //! calculation of d2_res/d_dt
-  double phiR_dt() const;
+  doublereal phiR_dt() const;
   //! calculation of d2_nau/d_dt
-  double phi0_dt() const;
+  doublereal phi0_dt() const;
 
   /**
    * intCheck() calculates all of the functions at a one point and
@@ -205,23 +205,23 @@ private:
    * @param tau     Dimensionless temperature = T_c/T
    * @param delta   Dimensionless density =  delta = rho / Rho_c
    */
-  void intCheck(double tau, double delta);
+  void intCheck(doublereal tau, doublereal delta);
 
 private:
 
   //! Value of internally calculated polynomials of powers of TAU
-  double TAUp[52];
+  doublereal TAUp[52];
 
  //! Value of internally calculated polynomials of powers of delta
-  double DELTAp[16];
+  doublereal DELTAp[16];
 
   //! Last tau that was used to calculate polynomials
-  double TAUsave;
+  doublereal TAUsave;
 
   //! sqrt of TAU
-  double TAUsqrt;
+  doublereal TAUsqrt;
 
   //! Last delta that was used to calculate polynomials
-  double DELTAsave;
+  doublereal DELTAsave;
 };
 #endif
