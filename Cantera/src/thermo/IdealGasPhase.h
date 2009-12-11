@@ -252,7 +252,7 @@ namespace Cantera {
    *
    *  where we can use the concept of microscopic reversibility to
    *  write the reverse rate constant in terms of the
-   *  forward reate constant and the concentration equilibrium
+   *  forward rate constant and the concentration equilibrium
    *   constant, \f$ K_c \f$.
    *
    *    \f[

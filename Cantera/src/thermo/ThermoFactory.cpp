@@ -59,6 +59,7 @@
 
 #ifdef WITH_STOICH_SUBSTANCE
 #include "MineralEQ3.h"
+#include "MetalSHEelectrons.h"
 #endif
 
 //#include "importCTML.h"
@@ -93,7 +94,7 @@ namespace Cantera {
                               "PureFluid", "LatticeSolid", "Lattice",
                               "HMW", "IdealSolidSolution", "DebyeHuckel", 
                               "IdealMolalSolution", "IdealGasVPSS",
-			      "MineralEQ3", "electrodeElectron", "Margules",
+			      "MineralEQ3", "MetalSHEelectrons", "Margules",
                               "IonsFromNeutralMolecule"
     };
 
@@ -102,7 +103,7 @@ namespace Cantera {
                               cPureFluid, cLatticeSolid, cLattice,
                               cHMW, cIdealSolidSolnPhase, cDebyeHuckel,
                               cIdealMolalSoln, cVPSS_IdealGas,
-			      cMineralEQ3, cElectrodeElectron,
+			      cMineralEQ3, cMetalSHEelectrons,
 			      cMargulesVPSSTP, cIonsFromNeutral
     };
 
@@ -173,8 +174,8 @@ namespace Cantera {
 #endif
 
 #ifdef WITH_STOICH_SUBSTANCE
-    case cElectrodeElectron:
-      th = new electrodeElectron();
+    case cMetalSHEelectrons:
+      th = new MetalSHEelectrons();
       break;
 #endif
 
