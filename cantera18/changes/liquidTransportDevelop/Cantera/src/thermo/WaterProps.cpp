@@ -495,6 +495,7 @@ namespace Cantera {
 
 
   // Parameters for the viscosityWater() function
+
   //@{
   const double H[4] = {1.,
 		       0.978197,
