@@ -3,7 +3,6 @@
  *  Monk and Monchick collision integrals
  */
 /*
- * $Author$
  * $Revision$
  * $Date$
  */
@@ -41,8 +40,10 @@ namespace Cantera {
   };
 
 
-  /**
-   * Collision integrals. This class provides functions that
+  
+  //! Calculation of Collision integrals
+  /*!
+   * This class provides functions that
    * interpolate the tabulated collision integrals in Monchick and
    * Mason, "Transport Properties of Polar Gases," J. Chem. Phys. (1961)
    *
@@ -52,11 +53,27 @@ namespace Cantera {
 
   public:
 
-    MMCollisionInt(){}
+    //! Default Constructor
+    MMCollisionInt();
+
+    //! Destructor
     virtual ~MMCollisionInt();
+
+
+    //! Initialize the object for calculation
+    /*!
+     *
+     *  @param xml         Pointer to the log file that will receive the debug output
+     *                     messages
+     *  @param tsmin       Minimum value of Tstar to carry out the fitting
+     *  @param tsmax       Maximum value of Tstar to carry out the fitting
+     *  @param loglevel    Set the loglevel for the object. The default
+     *                     loglevel is zero, indicating no output.
+     */
     void init(XML_Writer* xml, doublereal tsmin, 
 	      doublereal tsmax, int loglevel = 0);
 
+    
     doublereal omega22(double ts, double deltastar);
     doublereal astar(double ts, double deltastar);
     doublereal bstar(double ts, double deltastar);
