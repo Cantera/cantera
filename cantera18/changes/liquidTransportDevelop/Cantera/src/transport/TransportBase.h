@@ -1,7 +1,8 @@
 /**
  *  @file TransportBase.h  
  *    Headers for the Transport object, which is the virtual base class
- *    for all transport property evaluators and also includes the tranprops group definition
+ *    for all transport property evaluators and also includes the 
+ *    tranprops group definition
  *    (see \ref tranprops and \link Cantera::Transport Transport \endlink) .
  *
  *   Provides class Transport.
@@ -74,6 +75,10 @@ namespace Cantera {
    * Transport is meant to be used as a base class only. It is
    * possible to instantiate it, but its methods throw exceptions if
    * called.
+   *
+   *  All member functions are virtual, unless otherwise stated.
+   *
+   *  @ingroup tranprops
    */
   class Transport {
 
@@ -456,9 +461,21 @@ namespace Cantera {
     { err("getMixDiffCoeffs"); }
 
 
-    /**
-     * Set transport model parameters. This method may be
-     * overloaded in subclasses to set model-specific parameters.
+   
+    //! Set transport model parameters.
+    /*!
+     *   This method may be
+     *   overloaded in subclasses to set model-specific parameters.
+     *   The primary use of this class is to set parameters while in the
+     *   middle of a calculation.
+     *
+     *  @param type    Specifies the type of parameters to set
+     *                 0 : Diffusion coefficient
+     *                 1 : Thermal Conductivity
+     *                 The rest are currently unused.
+     *  @param k       Species index to set the parameters on
+     *  @param p       Vector of parameters. The length of the vector
+     *                 varies with the parameterization
      */
     virtual void setParameters(const int type, const int k,
 			       const doublereal* const p); 
