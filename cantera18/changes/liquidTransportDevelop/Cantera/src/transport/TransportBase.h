@@ -147,26 +147,45 @@ namespace Cantera {
      */
     bool ready();
 
-    /**
-     * Returns an integer index number. This is for internal use
-     * of Cantera, and may be removed in the future.
+    
+    //! Returns an integer index number.
+    /*!
+     *  This is for internal use
+     *  of Cantera, and may be removed in the future.
+     *
+     *  @return  Returns the index number
+     *
+     *  @deprecated
      */
     int index() const ;
 
-    /**
-     * Set an integer index number. This is for internal use of
-     * Cantera, and may be removed in the future.
+   
+    //! Set an integer index number.
+    /*!
+     *  This is for internal use of
+     *  Cantera, and may be removed in the future.
+     *
+     *  @param i  index value
+     *
+     *  @deprecated
      */
     void setIndex(int i);
 
     //! Set the number of dimensions to be expected in flux expressions
     /*!
-     * Internal memory will be set with this value
+     *   Internal memory will be set with this value.
+     *
+     *  @param ndim  Number of dimensions in flux expressions
      */
     void setNDim(const int ndim);
 
-    //! return the number of dimensions
-    int nDim() const { return m_nDim; }
+    //! Return the number of dimensions in flux expressions
+    /*!
+     *   @return  Returns the number of dimensions
+     */
+    int nDim() const {
+      return m_nDim;
+    }
 
     /**
      * @name Transport Properties
@@ -343,11 +362,11 @@ namespace Cantera {
      *             length = ldx * ndim
      */
     virtual void getSpeciesVdiff(int ndim, 
-				  const doublereal* grad_T, 
-				  int ldx, 
-				  const doublereal* grad_X,
-				  int ldf, 
-				  doublereal* Vdiff) { 
+				 const doublereal* grad_T, 
+				 int ldx, 
+				 const doublereal* grad_X,
+				 int ldf, 
+				 doublereal* Vdiff) { 
       err("getSpeciesVdiff"); 
     }
 
@@ -375,12 +394,12 @@ namespace Cantera {
      *             length = ldx * ndim
      */
     virtual void getSpeciesVdiffES(int ndim, 
-				    const doublereal* grad_T, 
-				    int ldx, 
-				    const doublereal* grad_X,
-				    int ldf, 
-				    const doublereal* grad_Phi,
-				    doublereal* Vdiff) { 
+				   const doublereal* grad_T, 
+				   int ldx, 
+				   const doublereal* grad_X,
+				   int ldf, 
+				   const doublereal* grad_Phi,
+				   doublereal* Vdiff) { 
       getSpeciesVdiff( ndim, grad_T, ldx, grad_X, ldf, Vdiff );
     }
 
@@ -480,10 +499,30 @@ namespace Cantera {
     virtual void setParameters(const int type, const int k,
 			       const doublereal* const p); 
    
-
-    void setVelocityBasis( int  ivb ) { m_velocityBasis = ivb; }
+    //! Sets the velocity basis
+    /*!
+     *   What the transport object does with this parameter is up to the
+     *   individual operator. Currently, this is not functional for most 
+     *   transport operators including all of the gas-phase operators.
+     *
+     *   @param ivb   Species the velocity basis
+     */
+    void setVelocityBasis(int  ivb) 
+    { 
+      m_velocityBasis = ivb; 
+    }
     
-    int getVelocityBasis( ) { return m_velocityBasis; }
+    //!  Gets the velocity basis
+    /*!
+     *   What the transport object does with this parameter is up to the
+     *   individual operator. Currently, this is not functional for most 
+     *   transport operators including all of the gas-phase operators. 
+     *
+     *   @return   Returns the velocity basis
+     */
+    int getVelocityBasis( ) const { 
+      return m_velocityBasis; 
+    }
 
     friend class TransportFactory;
 
@@ -502,29 +541,46 @@ namespace Cantera {
     //virtual bool init(TransportParams& tr)
     //{ err("init"); return false; }
 
-    /**
-     * Called by TransportFactory to set parameters.
+    
+    //! Called by TransportFactory to set parameters.
+    /*!
+     *  This is called by classes that use the gas phase parameter
+     *  list to initialize themselves.
+     *
+     *   @param tr Reference to the parameter list that will be used
+     *             to initialize the class
      */
-    virtual bool initGas( GasTransportParams& tr )
-    { err("initGas"); return false; }
+    virtual bool initGas(GasTransportParams& tr)
+    {
+      err("initGas");
+      return false;
+    }
 
-    /**
-     * Called by TransportFactory to set parameters.
+    //! Called by TransportFactory to set parameters.
+    /*!
+     *  This is called by classes that use the liquid phase parameter
+     *  list to initialize themselves.
+     *
+     *   @param tr Reference to the parameter list that will be used
+     *             to initialize the class
      */
-    virtual bool initLiquid( LiquidTransportParams& tr )
-    { err("initLiquid"); return false; }
-
-
-
-
-    /**
-     * Set the phase object. 
-     */
+    virtual bool initLiquid(LiquidTransportParams& tr)
+    { 
+      err("initLiquid"); 
+      return false; 
+    }
+    
+    //! Specifies the %ThermPhase object. 
+    /*!
+     *   @param   thermo  Reference to the ThermoPhase object that
+     *                    the transport object will use
+     */ 
     void setThermo(thermo_t& thermo);
 
-
-    /** 
-     * Enable for use. Once finalize() has been called, the
+    
+    //! Enable the transport object for use.
+    /*!
+     * Once finalize() has been called, the
      * transport manager should be ready to compute any supported
      * transport property, and no further modifications to the
      * model parameters should be made.
@@ -533,18 +589,27 @@ namespace Cantera {
 
     //@}
 
+    //!  pointer to the object representing the phase 
+    thermo_t*  m_thermo;
 
-    thermo_t*  m_thermo;  ///< pointer to the object representing the phase 
-    bool      m_ready;    ///< true if finalize has been called
-    size_t    m_nmin;     ///< number of species
+    //!  true if finalize has been called
+    bool      m_ready;
+
+    //! Number of species
+    size_t    m_nmin;
+
+    //! Value of the internal index
+    /*!
+     *  @deprecated
+     */
     int       m_index;
 
     //! Number of dimensions used in flux expresions
     int       m_nDim;
 
-    //! velocity basis from which diffusion velocities are computed. 
-    //!    Defaults to mass averaged = -2
-    int      m_velocityBasis;
+    //!    Celocity basis from which diffusion velocities are computed. 
+    //!    Defaults to the mass averaged basis = -2
+    int m_velocityBasis;
 
   private:
 
@@ -564,6 +629,7 @@ namespace Cantera {
 
   };
 
+  //! general definition for the transport class
   typedef Transport transport_t;
 
 }
