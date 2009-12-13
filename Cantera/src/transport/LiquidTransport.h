@@ -1,5 +1,4 @@
 /**
- *
  *  @file LiquidTransport.h
  *   Header file defining class LiquidTransport
  */
@@ -121,7 +120,7 @@ namespace Cantera {
    *  Wilkes correlation, to yield the mixture viscosity.
    *  
    *
-   *
+   *  @ingroup tranprops
    */
   class LiquidTransport : public Transport {
   public:
@@ -141,7 +140,7 @@ namespace Cantera {
      */
     LiquidTransport(thermo_t* thermo = 0, int ndim = 1);
 
-    //!Copy Constructor for the %LiquidThermo object.
+    //! Copy Constructor for the %LiquidThermo object.
     /*!
      * @param right  %LiquidTransport to be copied
      */
@@ -190,7 +189,6 @@ namespace Cantera {
       return cLiquidTransport; 
     }
 
-    //! overloaded base class methods
 
     //! Returns the viscosity of the solution
     /*!
@@ -355,11 +353,11 @@ namespace Cantera {
      *             length = ldx * ndim
      */
     virtual void getSpeciesVdiff(int ndim, 
-				  const doublereal* grad_T, 
-				  int ldx, 
-				  const doublereal* grad_X,
-				  int ldf, 
-				  doublereal* Vdiff) ;
+				 const doublereal* grad_T, 
+				 int ldx, 
+				 const doublereal* grad_X,
+				 int ldf, 
+				 doublereal* Vdiff);
 
     //! Get the species diffusive mass fluxes wrt to 
     //! the mass averaged velocity, 
