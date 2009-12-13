@@ -1,7 +1,10 @@
 /**
  *
  *  @file SimpleTransport.h
- *   Header file defining class SimpleTransport
+ *   Header file for the class SimpleTransport which provides simple
+ *   transport properties for liquids and solids
+ *   (see \ref tranprops and \link Cantera::SimpleTransport SimpleTransport \endlink) .
+
  */
 /*
  * $Revision$
@@ -123,7 +126,7 @@ namespace Cantera {
    *  In the second part, a mixing rule is applied, based on the
    *  Wilkes correlation, to yield the mixture viscosity.
    *  
-   *
+   *  @ingroup tranprops
    *
    */
   class SimpleTransport : public Transport {
