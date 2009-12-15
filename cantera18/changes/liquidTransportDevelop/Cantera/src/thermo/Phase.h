@@ -26,6 +26,7 @@ using namespace ctml;
 
 namespace Cantera {
     
+  class Transport; //forward declaration
   
   /** 
    * @defgroup phases Models of Phases of Matter
@@ -220,6 +221,9 @@ namespace Cantera {
      * @param nm String name of the phase
      */
     void setName(std::string nm);
+
+    //! Attach a Transport object pointer to this Phase
+    void setTransport( Transport* tr ) { m_trans = tr; }
 
     //! Returns the index of the phase
     /*!
@@ -434,6 +438,9 @@ namespace Cantera {
      */
     void getMoleFractionsByName(compositionMap& x) const;
 
+    //! Get a Transport object pointer attached to this Phase
+    Transport* getTransport( ) { return m_trans; }
+
     //! Return the mole fraction of a single species
     /*!
      * @param  k  String name of the species
@@ -514,6 +521,13 @@ namespace Cantera {
      * 
      */
     int m_index;
+
+    /** 
+     * A Transport object pointer attached to this Phase
+     */
+    Transport *m_trans;
+
+
 
   private:
 
