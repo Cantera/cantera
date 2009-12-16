@@ -40,7 +40,6 @@ namespace Cantera {
     }
 
     int nsp_;
-
     //        phase_t* mix;
     thermo_t* thermo;
     vector_fp        mw;

@@ -75,14 +75,6 @@ namespace Cantera {
   };
 
 
-  class NotImplemented : public CanteraError {
-  public:
-    NotImplemented(std::string method) : CanteraError("Transport",
-						 "\n\n\n**** Method "+method+" not implemented. ****\n"
-						 "(Did you forget to specify a transport model?)\n\n\n") {}
-  };
-
-
   /////////////////////////// constants //////////////////////////
 
   const doublereal ThreeSixteenths = 3.0/16.0;
@@ -373,7 +365,7 @@ namespace Cantera {
       lti->setParameters( trParam );
       break;
     default:
-      throw CanteraError("newLTI","unknown transport model: " + model );
+      //      throw CanteraError("newLTI","unknown transport model: " + model );
       lti = new LiquidTranInteraction( tp_ind );
       lti->init( trNode, thermo );
     }
