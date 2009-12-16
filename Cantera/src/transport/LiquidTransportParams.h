@@ -25,6 +25,14 @@
 namespace Cantera {
 
 
+  class NotImplemented : public CanteraError {
+  public:
+    NotImplemented(std::string method) : CanteraError("Transport",
+						      "\n\n**** Method "+method+" not implemented. ****\n"
+						      "(Did you forget to specify a transport model?)\n\n") {}
+  };
+  
+
     //! Composition dependence type for liquid mixture transport properties
     /*!
      *  Types of temperature dependencies:
@@ -116,9 +124,18 @@ namespace Cantera {
     
     //! Return the mixture transport property value.
     //! (Must be implemented in subclasses.)
-    virtual doublereal getMixTransProp( doublereal* speciesValues, doublereal *weightSpecies = 0 ) { return 0.0; }
-    virtual doublereal getMixTransProp( std::vector<LTPspecies*> LTPptrs ) { return 0.0; }
-    virtual DenseMatrix getMatrixTransProp( doublereal* speciesValues = 0 ) { return m_Dij; }
+    virtual doublereal getMixTransProp( doublereal* speciesValues, doublereal *weightSpecies = 0 ) { 
+      throw NotImplemented("LiquidTranInteraction::getMixTransProp"); 
+    }
+
+    virtual doublereal getMixTransProp( std::vector<LTPspecies*> LTPptrs ) { 
+      throw NotImplemented("LiquidTranInteraction::getMixTransProp"); 
+    }
+
+    virtual DenseMatrix getMatrixTransProp( doublereal* speciesValues = 0 ) { 
+      //return m_Dij;
+      throw NotImplemented("LiquidTranInteraction::getMixTransProp"); 
+    }
 
   protected:
     //! Model for species interaction effects 

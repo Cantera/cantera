@@ -350,10 +350,12 @@ namespace Cantera {
 
   void LTI_Pairwise_Interaction::setParameters( LiquidTransportParams& trParam ) {
     int nsp = m_thermo->nSpecies();
+    m_diagonals.resize(nsp);
 
     for (int k = 0; k < nsp; k++) {
       Cantera::LiquidTransportData &ltd = trParam.LTData[k];
-      m_diagonals[k] = ltd.speciesDiffusivity;
+      if ( ltd.speciesDiffusivity )
+	m_diagonals[k] = ltd.speciesDiffusivity;
     }
   }
 
@@ -398,7 +400,7 @@ namespace Cantera {
 	tmp(i,j) = tmp(j,i) = m_Dij(i,j) * exp( - m_Eij(i,j) / temp );
     
     for ( int i = 0; i < nsp; i++ ) 
-      if ( tmp(i,i) == 0.0 && !(m_diagonals[i]) ) 
+      if ( tmp(i,i) == 0.0 && m_diagonals[i] ) 
 	tmp(i,i) = m_diagonals[i]->getSpeciesTransProp() ;
 
     return tmp;
