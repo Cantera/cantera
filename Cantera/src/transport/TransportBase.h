@@ -276,8 +276,28 @@ namespace Cantera {
 
 
     //@}
-
-
+    
+    //! Compute the mixture electrical conductivity 
+    doublereal getElectricConduct( );
+    
+    //! Compute the electric current 
+    /**
+     * @param ndim The number of spatial dimensions (1, 2, or 3).
+     * @param grad_T The temperature gradient (ignored in this model).
+     * @param ldx  Leading dimension of the grad_X array.
+     * @param grad_T The temperature gradient (ignored in this model).
+     * @param ldf  Leading dimension of the grad_V and current vectors.
+     * @param grad_V The electrostatic potential gradient.
+     * @param current The electric current in A/m^2.
+     */
+    void getElectricCurrent(int ndim, 
+			    const doublereal* grad_T, 
+			    int ldx, 
+			    const doublereal* grad_X, 
+			    int ldf, 
+			    const doublereal* grad_V, 
+			    doublereal* current) ;
+    
     //! Get the species diffusive mass fluxes wrt to 
     //! the mass averaged velocity, 
     //! given the gradients in mole fraction and temperature
