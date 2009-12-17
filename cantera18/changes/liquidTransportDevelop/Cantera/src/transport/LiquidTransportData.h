@@ -29,6 +29,19 @@
 
 namespace Cantera {
 
+  /** 
+   * Enumeration of the types of transport properties that can be 
+   * handled by the variables in the various Transport classes.
+   * Not all of these are handled by each class and each class
+   * should handle exceptions where the transport property is not handled.
+   *
+   * Tranport properties currently on the list
+   *    0  - viscosity
+   *    1  - thermal conductivity
+   *    2  - species diffusivity
+   *    3  - hydrodynamic radius
+   *    4  - thermal conductivity
+   */
   enum TransportPropertyList {
     TP_UNKNOWN = -1,
     TP_VISCOSITY = 0,
@@ -38,14 +51,14 @@ namespace Cantera {
     TP_ELECTCOND
   };
 
+  //! Temperature dependence type for pure (liquid) species properties
+  /*!
+   *  Types of temperature dependencies:
+   *     0  - Independent of temperature 
+   *     1  - extended arrhenius form
+   *     2  - polynomial in temperature form
+   */
   enum LiquidTR_Model {
-    //! Temperature dependence type for pure (liquid) species properties
-    /*!
-     *  Types of temperature dependencies:
-     *     0  - Independent of temperature (only one implemented so far)
-     *     1  - extended arrhenius form
-     *     2  - polynomial in temperature form
-     */
     LTR_MODEL_NOTSET=-1,
     LTR_MODEL_CONSTANT, 
     LTR_MODEL_ARRHENIUS,
@@ -72,7 +85,7 @@ namespace Cantera {
     /** 
      *  The transport property is constructed from the 
      *  XML node, propNode, that is a child of the 
-     *  <transport> node and specifies a type of
+     *  \verbatim <transport> \endverbatim node and specifies a type of
      *  transport property (like viscosity).  
      */ 
     LTPspecies( const XML_Node &propNode = 0, 
@@ -150,7 +163,11 @@ namespace Cantera {
 
 
   //! Class LiquidTransportData holds transport parameters for a 
-  //! specific liquid-phase species.
+  //! specific liquid-phase species.  
+  /** 
+   * This class is mainly used to collect transport properties 
+   * from the parse phase and transfer them to the Transport class.
+   */ 
   class LiquidTransportData {
 
   public:

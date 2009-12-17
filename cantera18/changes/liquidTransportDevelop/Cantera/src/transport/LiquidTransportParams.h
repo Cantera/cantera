@@ -42,7 +42,8 @@ namespace Cantera {
      *     3  - Properties weighted linearly by mass fractions
      *     4  - Properties weighted logarithmically by mole fractions (interaction energy weighting)
      *     5  - Interactions given pairwise between each possible species (i.e. D_ij)
-     *
+     * 
+     *   \verbatim
      *    <transport model="Liquid">
      *       <viscosity>
      *          <compositionDependence model="logMoleFractions">
@@ -80,6 +81,7 @@ namespace Cantera {
      *          <compositionDependence model="none"/>
      *       </hydrodynamicRadius>
      *    </transport>     
+     *   \endverbatim
      *
      */
   enum LiquidTranMixingModel {
@@ -114,7 +116,7 @@ namespace Cantera {
 
     //! initialize LiquidTranInteraction objects with thermo and XML node
     /**
-     *  @param compModelNode   <compositionDependence> XML node
+     *  @param compModelNode   \verbatim <compositionDependence> \endverbatim XML node
      *  @param thermo          Pointer to thermo object
      */
     virtual void init( const XML_Node &compModelNode = 0, 
