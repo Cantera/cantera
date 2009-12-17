@@ -698,23 +698,29 @@ namespace Cantera {
      */
     void stefan_maxwell_solve();
 
-    //!  Update the temperature-dependent viscosity terms.
-    //!  Updates the array of pure species viscosities, and the 
-    //!  weighting functions in the viscosity mixture rule.
+    //!  Updates the array of pure species viscosities internally.
     /*!
      * The flag m_visc_ok is set to true.
+     *
+     * Note that for viscosity, a positive activation energy 
+     * corresponds to the typical case of a positive argument
+     * to the exponential so that the Arrhenius expression is
+     *
+     * \f[
+     *      \mu = A T^n \exp( + E / R T )
+     * \f]
      */
     void updateViscosity_T();
 
     //!  Update the temperature-dependent hydrodynamic radius terms
-    //!  for each species 
+    //!  for each species internally
     /*!
      * The flag m_radi_temp_ok is set to true.
      */
     void updateHydrodynamicRadius_T();
 
     //! Update the temperature-dependent parts of the mixture-averaged 
-    //! thermal conductivity.     
+    //! thermal conductivity internally  
     void updateCond_T();
 
     //! Update the concentration parts of the viscosities
@@ -737,11 +743,8 @@ namespace Cantera {
      */
     void updateHydrodynamicRadius_C();
  
-    //! Update the binary diffusion coefficients wrt T.
-    /*!
-     *   These are evaluated
-     *   from the polynomial fits at unit pressure (1 Pa).
-     */
+    //! Update the binary Stefan-Maxwell diffusion coefficients 
+    //! wrt T using calls to the appropriate LTPspecies subclass
     void updateDiff_T();
 
 
@@ -762,54 +765,64 @@ namespace Cantera {
      */
     vector_fp  m_mw;
 
-    //! Viscosity temperature dependence type
+    //! Viscosity for each species expressed as an appropriate subclass 
+    //! of LTPspecies
     /*!
-     *  Types of temperature dependencies:
-     *     0  - Independent of temperature (only one implemented so far)
-     *     1  - extended arrhenius form
-     *     2  - polynomial in temperature form
+     *  These subclasses of LTPspecies evaluate the species-specific
+     *  transport properties according to the parameters parsed in 
+     *  TransportFactory::getLiquidSpeciesTransportData().
      */
     std::vector<LTPspecies*> m_viscTempDep_Ns;
 
-    //! Viscosity mixing model type
+    //! Viscosity of the mixture expressed as a subclass of 
+    //! LiquidTranInteraction
     /*!
-     *  Types of mixing models supported:
-     *     2  - Mole fraction weighting of species viscosities
-     *     3  - Mass fraction weighting of species viscosities
-     *     4  - Mole fraction weighting of logarithms of species viscosities
+     *  These subclasses of LiquidTranInteraction evaluate the 
+     *  mixture transport properties according to the parameters parsed in 
+     *  TransportFactory::getLiquidInteractionsTransportData().
      */
     LiquidTranInteraction *m_viscMixModel;
 
-    //! Thermal conductivity temperature dependence type
+    //! Thermal conductivity for each species expressed as an    
+    //! appropriate subclass of LTPspecies
     /*!
-     *  Types of temperature dependencies:
-     *     0  - Independent of temperature (only one implemented so far)
-     *     1  - extended arrhenius form
-     *     2  - polynomial in temperature form
+     *  These subclasses of LTPspecies evaluate the species-specific
+     *  transport properties according to the parameters parsed in 
+     *  TransportFactory::getLiquidSpeciesTransportData().
      */
     std::vector<LTPspecies*> m_lambdaTempDep_Ns;
 
-    //! Thermal conductivity mixing model type
+    //! Thermal conductivity of the mixture expressed as a subclass of 
+    //! LiquidTranInteraction
     /*!
-     *  Types of mixing models supported:
-     *     2  - Mole fraction weighting of species viscosities
-     *     3  - Mass fraction weighting of species viscosities
+     *  These subclasses of LiquidTranInteraction evaluate the 
+     *  mixture transport properties according to the parameters parsed in 
+     *  TransportFactory::getLiquidInteractionsTransportData().
      */
     LiquidTranInteraction *m_lambdaMixModel;
  
-   //! Diffusion coefficient temperature dependence type
+    //! (NOT USED IN LiquidTransport.)
+    //! Diffusion coefficient model for each species expressed as an    
+    //! appropriate subclass of LTPspecies
     /*!
-     *  Types of temperature dependencies:
-     *     0  - Independent of temperature (only one implemented so far)
-     *     1  - extended arrhenius form
-     *     2  - polynomial in temperature form
+     *  These subclasses of LTPspecies evaluate the species-specific
+     *  transport properties according to the parameters parsed in 
+     *  TransportFactory::getLiquidSpeciesTransportData().
+     * 
+     *  Since the LiquidTransport class uses the Stefan-Maxwell equation
+     * to describe species diffusivity, the species-specific 
+     * diffusivity is irrelevant.  
      */
     std::vector<LTPspecies*> m_diffTempDep_Ns;
 
-    //! Species diffusivity mixing model type
+    //! Species diffusivity of the mixture expressed as a subclass of 
+    //! LiquidTranInteraction.  This will return an array of 
+    //! Stefan-Maxwell interaction parameters for use in the 
+    //! Stefan-Maxwell solution.
     /*!
-     *  Types of mixing models supported:
-     *     5  - Pairwise interactions -- Setfan-Maxwell diffusion coefficients
+     *  These subclasses of LiquidTranInteraction evaluate the 
+     *  mixture transport properties according to the parameters parsed in 
+     *  TransportFactory::getLiquidInteractionsTransportData().
      */
     LiquidTranInteraction *m_diffMixModel;
 
@@ -817,37 +830,29 @@ namespace Cantera {
     DenseMatrix m_diff_Dij;
 
 
-    std::vector<bool> useHydroRadius_;
-
-   //!Hydrodynamic radius temperature dependence type
+    //!Hydrodynamic radius for each species expressed as an    
+    //! appropriate subclass of LTPspecies
     /*!
-     *  Types of temperature dependencies:
-     *     0  - Independent of temperature
-     *     1  - extended arrhenius form
-     *     2  - polynomial in temperature form
+     *  These subclasses of LTPspecies evaluate the species-specific
+     *  transport properties according to the parameters parsed in 
+     *  TransportFactory::getLiquidSpeciesTransportData().
      */
     std::vector<LTPspecies*> m_radiusTempDep_Ns;
+
+    //! (Not used in LiquidTransport) 
+    //! Hydrodynamic radius of the mixture expressed as a subclass of 
+    //! LiquidTranInteraction
+    /*!
+     *  These subclasses of LiquidTranInteraction evaluate the 
+     *  mixture transport properties according to the parameters parsed in 
+     *  TransportFactory::getLiquidInteractionsTransportData().
+     */
+    LiquidTranInteraction *m_radiusMixModel;
 
     //! Species hydrodynamic radius
     vector_fp  m_hydrodynamic_radius;
 
-    //! Hydrodynamic radius mixing model type
-    /*!
-     *  Types of mixing models supported:
-     *     0  - No mixing model allowed
-     */
-    LiquidTranInteraction *m_radiusMixModel;
-
-
-    //! Polynomial coefficients of the binary diffusion coefficients
-    /*!
-     * These express the temperature dependendence of the
-     * binary diffusivities. An overall pressure dependence is then
-     * added.
-     */
-    /*
-    std::vector<vector_fp>            m_diffcoeffs;
-    */
+    //! Hydrodynamic radius 
 
 
     //! Internal value of the gradient of the mole fraction vector
@@ -874,10 +879,10 @@ namespace Cantera {
      *  It multiplies the gradient of the mole fraction, and in this way 
      * serves to "modify" the diffusion coefficient.  
      *
-     *    m_Grad_X[k] = 1 + \partial \left[ \ln ( \gamma_i ) \right] 
+     *    m_Grad_lnAC[k] = \partial \left[ \ln ( \gamma_i ) \right] 
      *                  / \partial \left[ \ln ( \X_i  ) \right] 
      * 
-     * Note that where "molefraction is used here, whatever 
+     * Note that where "mole fraction" is used here, whatever 
      * concentration-related variable applies, so that if 
      * molality is the concentration variable, the gradient of the 
      * activity coefficient should be with respect to the molality. 
@@ -937,8 +942,8 @@ namespace Cantera {
 
     //! Array of Binary Diffusivities
     /*!
-     *   Depends on the temperature. We have set the pressure dependence
-     *   to zero for this liquid phase constituitve model
+     *   These are evaluated according to the subclass of 
+     *  LiquidTranInteraction stored in m_diffMixModel.
      *
      *  This has a size equal to nsp x nsp
      *  It is a symmetric matrix.
@@ -949,13 +954,12 @@ namespace Cantera {
      */
     DenseMatrix  m_bdiff;
 
-    //! Species viscosities and their logarithm
+    //! Internal value of the species viscosities 
     /*!
-     *  Viscosity of the species and its logarithm
-     *   Length = number of species
+     *  Viscosity of the species evaluated using subclass of LTPspecies
+     *  held in m_viscTempDep_Ns.
      *
-     *   Depends on the temperature. We have set the pressure dependence
-     *   to zero for this liquid phase constituitve model
+     *   Length = number of species
      *
      * controlling update boolean -> m_visc_temp_ok
      */
@@ -963,12 +967,11 @@ namespace Cantera {
 
     //! Internal value of the species individual thermal conductivities
     /*!
-     * Then a mixture rule is applied to get the solution conductivities
+     *  Thermal conductivities of the species evaluated using subclass 
+     *  of LTPspecies held in m_lambdaTempDep_Ns.
      *
-     * Depends on the temperature and perhaps pressure, but
-     * not the species concentrations
+     *   Length = number of species
      *
-     * controlling update boolean -> m_cond_temp_ok
      */
     vector_fp  m_lambdaSpecies;
 
@@ -1013,8 +1016,6 @@ namespace Cantera {
      * length = m_nsp
      */
     vector_fp m_molefracs_tran;
-
-    vector_fp Xdelta_;
 
     //! Local copy of the concentrations of the species in the phase
     /*!
@@ -1073,7 +1074,7 @@ namespace Cantera {
     //! Current value of the pressure
     doublereal m_press;
 
-    //! Solution of the flux system
+    //! Solution of the Stefan Maxwell equation in terms of flux 
     /*!
      *  This is the mass flux of species k
      *  in units of kg m-3 s-1.

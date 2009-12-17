@@ -169,7 +169,7 @@ namespace Cantera {
      if ( m_viscMixModel   ) delete m_viscMixModel;
      if ( m_lambdaMixModel ) delete m_lambdaMixModel;
      if ( m_diffMixModel   ) delete m_diffMixModel;
-     if ( m_radiusMixModel ) delete m_radiusMixModel;
+     //if ( m_radiusMixModel ) delete m_radiusMixModel;
      
    }
 
@@ -265,7 +265,7 @@ namespace Cantera {
      */
     m_viscMixModel = tr.viscosity;
     m_lambdaMixModel = tr.thermalCond;
-    m_radiusMixModel = tr.hydroRadius;
+    //m_radiusMixModel = tr.hydroRadius;
     m_diffMixModel = tr.speciesDiffusivity;
     m_bdiff.resize(m_nsp,m_nsp);
     //Don't really need to update this here.  
@@ -939,14 +939,14 @@ namespace Cantera {
 
     stefan_maxwell_solve();
 
-    for (n = 0; n < m_nDim; n++) {
-      for (k = 0; k < m_nsp; k++) {
+    for ( int n = 0; n < m_nDim; n++) {
+      for (int k = 0; k < m_nsp; k++) {
 	if ( m_Grad_X[n*m_nsp + k] != 0.0 ) {
-	  d[n*ldf + k] = - m_Vdiff(k,n) * m_molefracs[k] 
+	  d[n*m_nsp + k] = - m_Vdiff(k,n) * m_molefracs[k] 
 	    / m_Grad_X[n*m_nsp + k];
 	} else {
 	  //avoid divide by zero with nonsensical response
-	  d[n*ldf + k] = - 1.0; 
+	  d[n*m_nsp + k] = - 1.0; 
 	}
       }
     }
@@ -1063,7 +1063,8 @@ namespace Cantera {
 
   /**
    * Update the temperature-dependent parts of the species
-   * thermal conductivity. 
+   * thermal conductivity internally using calls to the
+   * appropriate LTPspecies subclass. 
    */
   void LiquidTransport::updateCond_T() {
 
@@ -1077,11 +1078,8 @@ namespace Cantera {
   }
 
 
-  //! Update the StefanMaxwell interaction parameters.  
-  /**
-   * These are evaluated using the Stokes-Einstein 
-   * relation from the viscosity and hydrodynamic radius.
-   */
+  //! Update the binary Stefan-Maxwell diffusion coefficients 
+  //! wrt T using calls to the appropriate LTPspecies subclass
   void LiquidTransport::updateDiff_T() {
 
     m_bdiff = m_diffMixModel->getMatrixTransProp();
@@ -1097,9 +1095,8 @@ namespace Cantera {
 
 
   /**
-   * Update the temperature-dependent viscosity terms.
-   * Updates the array of pure species viscosities, and the 
-   * weighting functions in the viscosity mixture rule.
+   * Updates the array of pure species viscosities internally 
+   * using calls to the appropriate LTPspecies subclass.
    * The flag m_visc_ok is set to true.
    *
    * Note that for viscosity, a positive activation energy 
@@ -1127,12 +1124,9 @@ namespace Cantera {
   }
 
 
-  /**
-   * Update the temperature-dependent hydrodynamic radius terms.
-   * Updates the array of pure species viscosities, and the 
-   * weighting functions in the viscosity mixture rule.
-   * The flag m_visc_ok is set to true.
-   */
+  //!  Update the temperature-dependent hydrodynamic radius terms
+  //!  for each species internally  using calls to the
+  //!  appropriate LTPspecies subclass
   void LiquidTransport::updateHydrodynamicRadius_T() {
     int k;
 
