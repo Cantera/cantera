@@ -131,7 +131,7 @@ namespace Cantera {
     }
   } 
   //====================================================================================================================
-  /**
+  /*
    * Thermal Conductivity.
    * \f[
    * \lambda = A T^n \exp(-E/RT)
@@ -139,11 +139,10 @@ namespace Cantera {
    */
   doublereal SolidTransport::thermalConductivity() {
     doublereal t = m_thermo->temperature();
-    return m_Alam *pow(t, m_Nlam) * exp(-m_Elam/t);
+    return m_Alam * pow(t, m_Nlam) * exp(-m_Elam/t);
   }
   //====================================================================================================================
-
-  /**
+  /*
    * The diffusion coefficients are computed from 
    *
    * \f[
