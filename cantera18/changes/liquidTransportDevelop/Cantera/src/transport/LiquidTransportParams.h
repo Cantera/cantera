@@ -36,12 +36,12 @@ namespace Cantera {
     //! Composition dependence type for liquid mixture transport properties
     /*!
      *  Types of temperature dependencies:
-     *     0  - Mixture calculations with this property are not allowed
-     *     1  - Use solvent (species 0) properties
-     *     2  - Properties weighted linearly by mole fractions
-     *     3  - Properties weighted linearly by mass fractions
-     *     4  - Properties weighted logarithmically by mole fractions (interaction energy weighting)
-     *     5  - Interactions given pairwise between each possible species (i.e. D_ij)
+     *  -   0  - Mixture calculations with this property are not allowed
+     *  -   1  - Use solvent (species 0) properties
+     *  -   2  - Properties weighted linearly by mole fractions
+     *  -   3  - Properties weighted linearly by mass fractions
+     *  -   4  - Properties weighted logarithmically by mole fractions (interaction energy weighting)
+     *  -   5  - Interactions given pairwise between each possible species (i.e. D_ij)
      * 
      *   \verbatim
      *    <transport model="Liquid">
@@ -96,6 +96,26 @@ namespace Cantera {
   };
   
 
+  //! Base class to handle transport property evaluation in a mixture.
+  /** 
+   * In a mixture, the mixture transport properties will generally depend on
+   * the contributions of each of the pure species transport properties.
+   * Many composition dependencies are possible.  This class, 
+   * LiquidTranInteraction, is designed to be a base class for the
+   * implementation of various models for the mixing of pure species
+   * transport properties.  
+   *
+   * There are two very broad types of transport properties to consider.
+   * First, there are properties for which a mixture value can be 
+   * obtained through some mixing rule.  These are obtained using the
+   * method getMixTransProp().  Viscosity is typical of this.
+   * Second there are properties for which a matrix of properties may 
+   * exist.  This matrix of properties is obtained from the method
+   * getMatrixTransProp().  Diffusion coefficients are of this type.  
+   * Subclasses should implement the appropriate one or both of 
+   * these methods.
+   * 
+   */
   class LiquidTranInteraction {
     
   public:
@@ -192,25 +212,6 @@ namespace Cantera {
     //! Takes enum LiquidTranMixingModel
     LiquidTranMixingModel model_viscosity;
     
-    //! Energies of molecular interaction associated with viscosity.
-    /** 
-     * These multiply the mixture viscosity by
-     *  \f[ \exp( \sum_{i} \sum_{j} X_i X_j ( S_{i,j} + E_{i,j} / T ) ) \f].
-     *
-     * The overall formula for the logarithm of the mixture viscosity is 
-     *
-     * \f[ \ln \eta_{mix} = \sum_i X_i \ln \eta_i 
-     *  + \sum_i \sum_j X_i X_j ( S_{i,j} + E_{i,j} / T ) \f].
-     */
-    DenseMatrix  visc_Eij; 
-    
-    //! Entropies of molecular interaction associated with viscosity.
-    DenseMatrix  visc_Sij; 
-    
-    //! Model for species interaction effects for thermal conductivity
-    //! Takes enum LiquidTranMixingModel
-    LiquidTranMixingModel model_thermalCond;
-    
     //! Interaction associated with linear weighting of 
     //! thermal conductivity.
     /**
@@ -286,7 +287,15 @@ namespace Cantera {
     
   };
 
-
+  //! Simple mole fraction weighting of transport properties
+  /**
+   * This model weights the transport property by  the mole 
+   * fractions.
+   * The overall formula for the mixture viscosity is 
+   *
+   * \f[ \eta_{mix} = \sum_i X_i \eta_i 
+   *  + \sum_i \sum_j X_i X_j A_{i,j} \f].
+   */
   class LTI_MoleFracs : public LiquidTranInteraction {
 
   public:
@@ -321,6 +330,15 @@ namespace Cantera {
   };
 
 
+  //! Simple mass fraction weighting of transport properties
+  /**
+   * This model weights the transport property by  the mass 
+   * fractions.
+   * The overall formula for the mixture viscosity is 
+   *
+   * \f[ \eta_{mix} = \sum_i Y_i \eta_i 
+   *  + \sum_i \sum_j Y_i Y_j A_{i,j} \f].
+   */
   class LTI_MassFracs : public LiquidTranInteraction {
 
   public:
@@ -355,6 +373,46 @@ namespace Cantera {
   };
 
 
+  //! Mixing rule using logarithms of the mole fractions
+  /** 
+   * This model is based on the idea that liquid molecules are 
+   * generally interacting with some energy and entropy of interaction.
+   * For transport properties that depend on these energies of 
+   * interaction, the mixture transport property can be written
+   * in terms of its logarithm
+   * 
+   * \f[ \ln \eta_{mix} = \sum_i X_i \ln \eta_i 
+   *  + \sum_i \sum_j X_i X_j ( S_{i,j} + E_{i,j} / T ) 
+   * \f].
+   * 
+   * These additional interaction terms multiply the mixture property by
+   *  \f[ \exp( \sum_{i} \sum_{j} X_i X_j ( S_{i,j} + E_{i,j} / T ) ) \f]
+   * so that the self-interaction terms \f$ S_{i,j} \f$ and 
+   * \f$ E_{i,j} \f$ should be zero.
+   *
+   * Note that the energies and entropies of interaction should be
+   * a function of the composition themselves, but this is not yet 
+   * implemented.  (We might follow the input of Margules model 
+   * thermodynamic data for the purpose of implementing this.)
+   * 
+   *  Sample input for this method is
+   *  \verbatim
+   *    <transport model="Liquid">
+   *       <viscosity>
+   *          <compositionDependence model="logMoleFractions">
+   *             <interaction speciesA="Li+" speciesB="K+">
+   *	         <!-- 
+   *	           interactions are from speciesA = LiCl(L)
+   *		   and speciesB = KCl(L).
+   *                   -->
+   *                <Eij units="J/kmol"> -1.0e3 </Eij>
+   *                <Sij units="J/kmol/K"> 80.0e-5 </Sij>
+   *             </interaction>
+   *          </compositionDependence>          
+   *       </viscosity>
+   *    </transport>
+   *  \endverbatim
+   */
   class LTI_Log_MoleFracs : public LiquidTranInteraction {
 
   public:
@@ -389,6 +447,29 @@ namespace Cantera {
   };
 
 
+  //! Transport properties that act like pairwise interactions
+  //! as in binary diffusion coefficients.
+  /**
+   * This class holds parameters for transport properties expressed 
+   * as a matrix of pairwise interaction parameters.
+   * Input can be provided for constant or Arrhenius forms of the
+   * separate parameters.
+   *
+   *  Sample input for this method is
+   *  \verbatim
+   *    <transport model="Liquid">
+   *       <speciesDiffusivity>
+   *          <compositionDependence model="pairwiseInteraction">
+   *             <interaction speciesA="LiCl(L)" speciesB="KCl(L)">
+   *                <Dij units="m/s"> 1.0e-8 </Dij>
+   *                <Eij units="J/kmol"> 24.0e6 </Eij>
+   *             </interaction>
+   *          </compositionDependence>          
+   *       </speciesDiffusivity>
+   *    </transport>     
+   *  \endverbatim
+   *
+   */
   class LTI_Pairwise_Interaction : public LiquidTranInteraction {
 
   public:

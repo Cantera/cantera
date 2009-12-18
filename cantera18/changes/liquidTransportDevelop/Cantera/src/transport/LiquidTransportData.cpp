@@ -92,8 +92,9 @@ namespace Cantera {
 
   //! Construct an LTPspecies object for a liquid tranport property 
   //! expressed as a constant value.
-  /** The transport property is constructed from the XML node, propNode,
-   *  that is a child of the <transport> node and specifies a type of
+  /** The transport property is constructed from the XML node, 
+   *  \verbatim <propNode>, \endverbatim that is a child of the
+   *  \verbatim <transport> \endverbatim node and specifies a type of
    *  transport property (like viscosity)
    */ 
   LTPspecies_Const::LTPspecies_Const( const XML_Node &propNode, 
@@ -139,9 +140,10 @@ namespace Cantera {
   ///////////////////////////////////////////////////////////////
 
   //! Construct an LTPspecies object for a liquid tranport property 
-  //! expressed as a constant value.
-  /** The transport property is constructed from the XML node, propNode,
-   *  that is a child of the <transport> node and specifies a type of
+  //! expressed in extended Arrhenius form.
+  /** The transport property is constructed from the XML node, 
+   *  \verbatim <propNode>, \endverbatim that is a child of the
+   *  \verbatim <transport> \endverbatim node and specifies a type of
    *  transport property (like viscosity)
    */ 
   LTPspecies_Arrhenius::LTPspecies_Arrhenius( const XML_Node &propNode, 
@@ -190,7 +192,7 @@ namespace Cantera {
     return *this; 
   }
 
-  //! Return the value for this transport property evaluated 
+  //! Return the pure species value for this transport property evaluated 
   //! from the Arrhenius expression
   /**
    * In general the Arrhenius expression is 
@@ -207,6 +209,9 @@ namespace Cantera {
    * \f[
    *      \mu = A T^n \exp( + E / R T ).
    * \f]
+   *
+   * Any temperature and composition dependence will be 
+   *  adjusted internally according to the information provided.
    */
   doublereal LTPspecies_Arrhenius::getSpeciesTransProp( ) {
     
@@ -236,9 +241,10 @@ namespace Cantera {
   ///////////////////////////////////////////////////////////////
 
   //! Construct an LTPspecies object for a liquid tranport property 
-  //! expressed as a constant value.
-  /** The transport property is constructed from the XML node, propNode,
-   *  that is a child of the <transport> node and specifies a type of
+  //! expressed as a polynomial in temperature.
+  /** The transport property is constructed from the XML node, 
+   *  \verbatim <propNode>, \endverbatim that is a child of the
+   *  \verbatim <transport> \endverbatim node and specifies a type of
    *  transport property (like viscosity)
    */ 
   LTPspecies_Poly::LTPspecies_Poly( const XML_Node &propNode, 

@@ -70,23 +70,22 @@ namespace Cantera {
   //! specific liquid-phase species.
   /** 
    * Subclasses handle different means of specifying transport properties
-   * like constant, Arrhenius or polynomial fits.  In its current state, 
+   * like constant, %Arrhenius or polynomial fits.  In its current state, 
    * it is primarily suitable for specifying temperature dependence, but 
    * the adjustCoeffsForComposition() method can be implemented to 
    * adjust for composition dependence.  
    * Mixing rules for computing mixture transport properties are handled 
-   * separately in 
+   * separately in LiquidTranInteraction subclasses.
    */
   class LTPspecies {
 
   public:
 
     //! Construct an LTPspecies object for a liquid tranport property.
-    /** 
-     *  The transport property is constructed from the 
-     *  XML node, propNode, that is a child of the 
+    /** The transport property is constructed from the XML node, 
+     *  \verbatim <propNode>, \endverbatim that is a child of the
      *  \verbatim <transport> \endverbatim node and specifies a type of
-     *  transport property (like viscosity).  
+     *  transport property (like viscosity)
      */ 
     LTPspecies( const XML_Node &propNode = 0, 
 		std::string name = "-", 
@@ -115,7 +114,7 @@ namespace Cantera {
      *  The pure species transport property (i.e. pure species viscosity)
      *  is returned.  Any temperature and composition dependence will be 
      *  adjusted internally according to the information provided by the 
-     *  thermo object. 
+     *  subclass object. 
      */
     virtual doublereal getSpeciesTransProp( ) { return 0.0; }
 
@@ -165,8 +164,14 @@ namespace Cantera {
   //! Class LiquidTransportData holds transport parameters for a 
   //! specific liquid-phase species.  
   /** 
+   * A LiquidTransportData object is created for each species.
+   * 
    * This class is mainly used to collect transport properties 
-   * from the parse phase and transfer them to the Transport class.
+   * from the parse phase in the TranportFactory and transfer 
+   * them to the Transport class.  Transport properties are 
+   * expressed by subclasses of LTPspecies.
+   * One may need to be careful about deleting pointers to LTPspecies 
+   * objects created in the TransportFactory.  
    */ 
   class LiquidTransportData {
 
@@ -176,12 +181,14 @@ namespace Cantera {
       speciesName("-")
     {
     }
-    //! copy constructor
+    //! Copy constructor
     LiquidTransportData( const LiquidTransportData &right ) ;
 
     //! Assignment operator
     LiquidTransportData& operator=(const LiquidTransportData& right ); 
 
+    //! A LiquidTransportData object is instantiated for each species.  
+    //! This is the species name for which this object is instantiated.
     std::string speciesName;   
     
     //! Model type for the hydroradius
@@ -206,6 +213,22 @@ namespace Cantera {
   //! Class LTPspecies_Const holds transport parameters for a 
   //! specific liquid-phase species when the transport property 
   //! is just a constant value.  
+  /**
+   * As an example of the input required for LTPspecies_Const
+   * consider the following XML fragment
+   *
+   * \verbatim
+   *    <species>
+   *      <!-- thermodynamic properties -->
+   *      <transport> 
+   *        <hydrodynamicRadius model="Constant" units="A">
+   *            1.000
+   *        </hydrodynamicRadius>
+   *        <!-- other tranport properties -->
+   *      </transport> 
+   *    </species>
+   * \endverbatim
+   */
   class LTPspecies_Const : public  LTPspecies{
 
   public:
@@ -227,8 +250,7 @@ namespace Cantera {
     /*!
      *  The pure species transport property (i.e. pure species viscosity)
      *  is returned.  Any temperature and composition dependence will be 
-     *  adjusted internally according to the information provided by the 
-     *  thermo object. 
+     *  adjusted internally according to the information provided.
      */
     doublereal getSpeciesTransProp( );
 
@@ -246,7 +268,26 @@ namespace Cantera {
 
   //! Class LTPspecies_Arrhenius holds transport parameters for a 
   //! specific liquid-phase species when the transport property 
-  //! is just a constant value.  
+  //! is expressed in Arrhenius form.  
+  /**
+   * As an example of the input required for LTPspecies_Arrhenius
+   * consider the following XML fragment
+   *
+   * \verbatim
+   *    <species>
+   *      <!-- thermodynamic properties -->
+   *      <transport> 
+   *        <viscosity model="Arrhenius">
+   *           <!-- Janz, JPCRD, 17, supplement 2, 1988 -->
+   *           <A>6.578e-5</A>
+   *           <b>0.0</b>
+   *           <E units="J/kmol">23788.e3</E>
+   *        </viscosity>
+   *        <!-- other tranport properties -->
+   *      </transport> 
+   *    </species>
+   * \endverbatim
+   */
   class LTPspecies_Arrhenius : public  LTPspecies{
 
   public:
@@ -264,12 +305,26 @@ namespace Cantera {
 
     virtual ~LTPspecies_Arrhenius( ) { }
 
-    //! Returns the pure species tranport property
-    /*!
-     *  The pure species transport property (i.e. pure species viscosity)
-     *  is returned.  Any temperature and composition dependence will be 
-     *  adjusted internally according to the information provided by the 
-     *  thermo object. 
+    //! Return the pure species value for this transport property evaluated 
+    //! from the Arrhenius expression
+    /**
+     * In general the Arrhenius expression is 
+     *
+     * \f[
+     *      \mu = A T^n \exp( - E / R T ).
+     * \f]
+     *
+     * Note that for viscosity, the convention is such that 
+     * a positive activation energy corresponds to the typical 
+     * case of a positive argument to the exponential so that 
+     * the Arrhenius expression is
+     *
+     * \f[
+     *      \mu = A T^n \exp( + E / R T ).
+     * \f]
+     *
+     * Any temperature and composition dependence will be 
+     *  adjusted internally according to the information provided.
      */
     doublereal getSpeciesTransProp( );
 
@@ -299,7 +354,23 @@ namespace Cantera {
 
   //! Class LTPspecies_Poly holds transport parameters for a 
   //! specific liquid-phase species when the transport property 
-  //! is just a constant value.  
+  //! is expressed as a polynomial in temperature.
+  /**
+   * As an example of the input required for LTPspecies_Poly
+   * consider the following XML fragment
+   *
+   * \verbatim
+   *    <species>
+   *      <!-- thermodynamic properties -->
+   *      <transport> 
+   *        <thermalConductivity model="coeffs">
+   *           <floatArray size="2">  0.6, -15.0e-5 </floatArray>
+   *        </thermalConductivity>
+   *        <!-- other tranport properties -->
+   *      </transport> 
+   *    </species>
+   * \endverbatim
+   */
   class LTPspecies_Poly : public  LTPspecies{
 
   public:
@@ -321,8 +392,7 @@ namespace Cantera {
     /*!
      *  The pure species transport property (i.e. pure species viscosity)
      *  is returned.  Any temperature and composition dependence will be 
-     *  adjusted internally according to the information provided by the 
-     *  thermo object. 
+     *  adjusted internally according to the information provided.
      */
     doublereal getSpeciesTransProp( );
 
