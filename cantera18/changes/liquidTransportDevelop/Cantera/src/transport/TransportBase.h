@@ -69,14 +69,45 @@ namespace Cantera {
     VB_MASSAVG = -1
   };
 
-  /**
-   * Base class for transport property managers.  All classes that
-   * compute transport properties derive from this class.  Class
-   * Transport is meant to be used as a base class only. It is
-   * possible to instantiate it, but its methods throw exceptions if
-   * called.
+  //! Base class for transport property managers.
+  /*!
+   *  All classes that compute transport properties for a single phase
+   *  derive from this class.  Class
+   *  %Transport is meant to be used as a base class only. It is
+   *  possible to instantiate it, but its methods throw exceptions if
+   *  called.
+   *
+   *  Note, transport properties for multiphase situations have yet to be
+   *  fully developed within Cantera.
    *
    *  All member functions are virtual, unless otherwise stated.
+   *
+   * <HR>
+   * <H2> Relationship of the %Transport class to the %ThermoPhase Class </H2>
+   * <HR>
+   *
+   *   This section describes how calculations are carried out within
+   *   the %Transport class. The %Transport class and derived classes of the
+   *   the %Transport class necessarily use the %ThermoPhase class to obtain
+   *   the list of species and the thermodynamic state of the phase. 
+   *   
+   *   No state information is storred within %Transport classes.  
+   *   Queries to the underlying ThermoPhase object must be made to obtain
+   *   the state of the system.
+   *
+   *   An exception to this however is the state information concerning the
+   *   the gradients of variables. This information is not storred within
+   *   the ThermoPhase objects. It may be collected within the Transport objects.
+   *   In fact, the meaning of const operations within the Transport class
+   *   refers to calculations which do not change the state of the
+   *   system nor the state of the first order gradients of the system. 
+   *
+   *   When a const operation is evoked within the Transport class, it is
+   *   also implicitly assumed that the underlying state within the ThermoPhase 
+   *   object has not changed its values.
+   *
+   *  @todo Provide a general mechanism to store the gradients of state variables
+   *        within the system.
    *
    *  @ingroup tranprops
    */
@@ -84,10 +115,15 @@ namespace Cantera {
 
   public:
 
-
-    /**
-     * Constructor. New transport managers should be created using
+    //!  Constructor.
+    /*!
+     * New transport managers should be created using
      * TransportFactory, not by calling the constructor directly.
+     *
+     *  @param   thermo   Pointer to the ThermoPhase class representing
+     *                    this phase. 
+     *  @param   ndim     Dimension of the flux vector used in the calculation.
+     *
      * @see TransportFactory
      */
     Transport(thermo_t* thermo=0, int ndim = 1);
@@ -122,7 +158,6 @@ namespace Cantera {
      */
     // Note ->need working copy constructors and operator=() functions for all first
     virtual Transport *duplMyselfAsTransport() const;
-
 
     /**
      * Transport model. The transport model is the set of
@@ -159,7 +194,6 @@ namespace Cantera {
      */
     int index() const ;
 
-   
     //! Set an integer index number.
     /*!
      *  This is for internal use of
@@ -489,19 +523,23 @@ namespace Cantera {
     { err("getMultiDiffCoeffs"); }
 
 
+    //! Returns a vector of mixture averaged diffusion coefficients
     /**
      * Mixture-averaged diffusion coefficients [m^2/s].  If the
+     *
      * transport manager implements a mixture-averaged diffusion
      * model, then this method returns the array of
      * mixture-averaged diffusion coefficients. Otherwise it
      * throws an exception.
+     *
+     * @param d  Return vector of mixture averaged diffusion coefficients
+     *           Units = m2/s. Length = n_sp
      */
     virtual void getMixDiffCoeffs(doublereal* const d) 
     { err("getMixDiffCoeffs"); }
 
 
-   
-    //! Set transport model parameters.
+    //! Set model parameters for derived classes
     /*!
      *   This method may be
      *   overloaded in subclasses to set model-specific parameters.
@@ -627,13 +665,14 @@ namespace Cantera {
     //! Number of dimensions used in flux expresions
     int       m_nDim;
 
-    //!    Celocity basis from which diffusion velocities are computed. 
+    //!    Velocity basis from which diffusion velocities are computed. 
     //!    Defaults to the mass averaged basis = -2
     int m_velocityBasis;
 
   private:
 
-    /**
+    //! Error routine
+    /*!
      * Throw an exception if a method of this class is
      * invoked. This probably indicates that a transport manager
      * is being used that does not implement all virtual methods,
@@ -644,6 +683,10 @@ namespace Cantera {
      * meaningless. If the application invokes the viscosity()
      * method, the base class method will be called, resulting in
      * an exception being thrown.
+     *
+     *  @param msg  Descriptive message string to add to the error report
+     *
+     *  @return  returns a double, though we will never get there
      */
     doublereal err(std::string msg) const;
 
