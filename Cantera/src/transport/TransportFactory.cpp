@@ -626,8 +626,8 @@ namespace Cantera {
 
     // Need to identify a method to obtain interaction matrices.
     // This will fill LiquidTransportParams members visc_Eij, visc_Sij
-    trParam.visc_Eij.resize(nsp,nsp);
-    trParam.visc_Sij.resize(nsp,nsp);
+    // trParam.visc_Eij.resize(nsp,nsp);
+    // trParam.visc_Sij.resize(nsp,nsp);
     trParam.thermalCond_Aij.resize(nsp,nsp);
     trParam.diff_Dij.resize(nsp,nsp);
     trParam.radius_Aij.resize(nsp,nsp);
