@@ -295,7 +295,7 @@ namespace Cantera {
     doublereal t = m_thermo->temperature();
     if (t != m_temp) {    
       double tempN = 1.0;
-      for ( int i = 0; i < m_coeffs.size() ; i++ ) {
+      for (int i = 0; i < (int) m_coeffs.size() ; i++) {
 	m_prop += m_coeffs[i] * tempN;
 	tempN *= m_temp;
       }

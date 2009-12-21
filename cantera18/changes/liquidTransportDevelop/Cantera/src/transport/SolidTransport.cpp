@@ -31,7 +31,7 @@ namespace Cantera {
   //====================================================================================================================
   SolidTransport::SolidTransport() :
     Transport() ,
-    m_nmobile(0.0),
+    m_nmobile(0),
     m_Adiff(0),
     m_Ndiff(0),
     m_Ediff(0),
@@ -48,7 +48,7 @@ namespace Cantera {
   //====================================================================================================================
   SolidTransport::SolidTransport(const SolidTransport &right) :
     Transport(),
-    m_nmobile(0.0),
+    m_nmobile(0),
     m_Adiff(0),
     m_Ndiff(0),
     m_Ediff(0),
