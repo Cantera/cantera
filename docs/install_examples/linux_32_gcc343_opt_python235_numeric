@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 #
-CANTERA_CONFIG_PREFIX=${HOME}/arch/linux/cantera-1.7_develop
+CANTERA_CONFIG_PREFIX=${HOME}/arch/linux/cantera-1.8.0
 export CANTERA_CONFIG_PREFIX
 
 SET_PYTHON_SITE_PACKAGE_TOPDIR=y

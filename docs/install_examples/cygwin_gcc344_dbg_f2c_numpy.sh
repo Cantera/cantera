@@ -19,7 +19,7 @@
 #
 #   Specify the installation directory here:
 #
-Cantera_Install_Dir='/cygdrive/c/cygwin_env/arch/cygwin/cantera-1.8_develop'
+Cantera_Install_Dir='/cygdrive/c/cygwin_env/arch/cygwin/cantera-1.8.0'
 #
 #   Specify the Sundials installation directory here (leave it as a null script
 #   if you don't want to link sundials in
