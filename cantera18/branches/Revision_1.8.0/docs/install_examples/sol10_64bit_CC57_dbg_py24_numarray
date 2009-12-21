@@ -104,10 +104,10 @@ export WITH_VCSNONIDEAL
 # Location Variables - set the directory to point to 
 #                      a 64-bit specific directory.
 #
-CANTERA_INSTALL_DIR=${HOME}/arch/sol_py64/cantera-1.8
+CANTERA_INSTALL_DIR=${HOME}/arch/sol_py64/cantera-1.8.0
 export CANTERA_INSTALL_DIR
 
-CANTERA_CONFIG_PREFIX=${HOME}/arch/sol_py64/cantera-1.8
+CANTERA_CONFIG_PREFIX=${HOME}/arch/sol_py64/cantera-1.8.0
 export CANTERA_CONFIG_PREFIX
 
 #CANTERA_PYTHON_HOME=${CANTERA_PYTHON_HOME:="$HOME/python_modules"}
@@ -116,7 +116,7 @@ export CANTERA_CONFIG_PREFIX
 SET_PYTHON_SITE_PACKAGE_TOPDIR="y"
 export SET_PYTHON_SITE_PACKAGE_TOPDIR
 
-PYTHON_SITE_PACKAGE_TOPDIR=${HOME}"/arch/sol_py64/cantera-1.8"
+PYTHON_SITE_PACKAGE_TOPDIR=${HOME}"/arch/sol_py64/cantera-1.8.0"
 export PYTHON_SITE_PACKAGE_TOPDIR
 
 PYTHON_PACKAGE="full"
