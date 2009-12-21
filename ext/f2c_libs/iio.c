@@ -88,7 +88,7 @@ integer s_rsfi(a) icilist *a;
 integer s_rsfi(icilist *a)
 #endif
 {	int n;
-	if(n=c_si(a)) return(n);
+	if((n=c_si(a))) return(n);
 	f__reading=1;
 	f__doed=rd_ed;
 	f__doned=rd_ned;
@@ -120,7 +120,7 @@ integer s_wsfi(a) icilist *a;
 integer s_wsfi(icilist *a)
 #endif
 {	int n;
-	if(n=c_si(a)) return(n);
+	if((n=c_si(a))) return(n);
 	f__reading=0;
 	f__doed=w_ed;
 	f__doned=w_ned;
