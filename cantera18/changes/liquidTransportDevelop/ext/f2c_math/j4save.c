@@ -69,7 +69,7 @@ integer j4save_(integer *iwhich, integer *ivalue, logical *iset)
 /* ***END PROLOGUE  J4SAVE */
 /*      SAVE IPARAM */
 /* ***FIRST EXECUTABLE STATEMENT  J4SAVE */
-    ret_val = iparam[(0 + (0 + (*iwhich - 1 << 2))) / 4];
+    ret_val = iparam[(0 + (0 + ((*iwhich - 1) << 2))) / 4];
     if (*iset) {
 	iparam[*iwhich - 1] = *ivalue;
     }
