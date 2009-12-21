@@ -238,7 +238,7 @@ namespace Cantera {
 
     int flag;
 
-#if defined(SUNDIALS_VERSION_22) || defined(SUNDIALS_VERSION23)
+#if defined(SUNDIALS_VERSION_22) || defined(SUNDIALS_VERSION_23)
     flag = CVodeSensMalloc(m_cvode_mem, m_np, CV_STAGGERED, m_yS);
     if (flag != CV_SUCCESS) {
       throw CVodesErr("Error in CVodeSensMalloc");
@@ -291,7 +291,7 @@ namespace Cantera {
     if (!m_cvode_mem) throw CVodesErr("CVodeCreate failed.");
 
     int flag = 0;
-#if defined(SUNDIALS_VERSION_22) || defined(SUNDIALS_VERSION23)
+#if defined(SUNDIALS_VERSION_22) || defined(SUNDIALS_VERSION_23)
     if (m_itol == CV_SV) {
       // vector atol
       flag = CVodeMalloc(m_cvode_mem, cvodes_rhs, m_t0, nv(m_y), m_itol,
@@ -370,7 +370,7 @@ namespace Cantera {
     m_fdata = new FuncData(&func, func.nparams());
 
     //m_data = (void*)&func;
-#if defined(SUNDIALS_VERSION_22) || defined(SUNDIALS_VERSION23)
+#if defined(SUNDIALS_VERSION_22) || defined(SUNDIALS_VERSION_23)
     flag = CVodeSetFdata(m_cvode_mem, (void*)m_fdata);
     if (flag != CV_SUCCESS) {
       throw CVodesErr("CVodeSetFdata failed.");
@@ -410,7 +410,7 @@ namespace Cantera {
 
     int result, flag;
 
-#if defined(SUNDIALS_VERSION_22) || defined(SUNDIALS_VERSION23)
+#if defined(SUNDIALS_VERSION_22) || defined(SUNDIALS_VERSION_23)
     if (m_itol == CV_SV) {
       result = CVodeReInit(m_cvode_mem, cvodes_rhs, m_t0, nv(m_y), 
 			   m_itol, m_reltol,
@@ -465,15 +465,15 @@ namespace Cantera {
   {
     double t;
     int flag;
-    double tretn;
     flag = CVode(m_cvode_mem, tout, nv(m_y), &t, CV_NORMAL);
     if (flag != CV_SUCCESS) 
       throw CVodesErr(" CVodes error encountered.");
-#if defined(SUNDIALS_VERSION_22) || defined(SUNDIALS_VERSION23)
+#if defined(SUNDIALS_VERSION_22) || defined(SUNDIALS_VERSION_23)
     if (m_np > 0) {
       CVodeGetSens(m_cvode_mem, tout, m_yS);
     }
 #elif defined(SUNDIALS_VERSION_24)
+    double tretn;
     if (m_np > 0) {
       CVodeGetSens(m_cvode_mem, &tretn, m_yS);
       if (fabs(tretn - tout) > 1.0E-5) {
