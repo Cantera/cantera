@@ -74,7 +74,7 @@ namespace Cantera {
     if (&b != this) {
       /*
        * Mostly, this is a passthrough to the underlying
-       * assignment operator for the ThermoPhae parent object.
+       * assignment operator for the ThermoPhase parent object.
        */
       ThermoPhase::operator=(b);
       /*
@@ -124,7 +124,12 @@ namespace Cantera {
 	PDSS *ptmp = m_PDSS_storage[k];
 	ptmp->initAllPtrs(this, m_VPSS_ptr, m_spthermo);
       }
-
+      /*
+       *  Ok, the VPSSMgr object is ready for business.
+       *  We need to resync the temperature and the pressure of the new standard states
+       *  with what is storred in this object.
+       */
+      m_VPSS_ptr->setState_TP(m_Tlast_ss, m_Plast_ss);
     }
     return *this;
   }
