@@ -315,11 +315,11 @@ namespace Cantera {
     doublereal getElectricConduct( );
     
     //! Compute the electric current 
-    /**
+    /*!
      * @param ndim The number of spatial dimensions (1, 2, or 3).
      * @param grad_T The temperature gradient (ignored in this model).
      * @param ldx  Leading dimension of the grad_X array.
-     * @param grad_T The temperature gradient (ignored in this model).
+     * @param grad_X The gradient of the mole fraction
      * @param ldf  Leading dimension of the grad_V and current vectors.
      * @param grad_V The electrostatic potential gradient.
      * @param current The electric current in A/m^2.
@@ -349,8 +349,8 @@ namespace Cantera {
      * @param ldf  Leading dimension of the fluxes array 
      *              (usually equal to m_nsp but not always)
      * @param fluxes  Output of the diffusive mass fluxes
-     *             Flat vector with the m_nsp in the inner loop.
-     *             length = ldx * ndim
+     *                Flat vector with the m_nsp in the inner loop.
+     *                length = ldx * ndim
      */
     virtual void getSpeciesFluxes(int ndim, 
 				  const doublereal* grad_T, 
@@ -399,7 +399,7 @@ namespace Cantera {
     //! the mass averaged velocity, 
     //! given the gradients in mole fraction and temperature
     /*!
-     *  Units for the returned fluxes are kg m-2 s-1.
+     *  Units for the returned velocities are m s-1
      * 
      *  @param ndim Number of dimensions in the flux expressions
      *  @param grad_T Gradient of the temperature
@@ -411,9 +411,11 @@ namespace Cantera {
      *             length = ldx * ndim
      * @param ldf  Leading dimension of the fluxes array 
      *              (usually equal to m_nsp but not always)
-     * @param Vdiff  Output of the diffusive velocities.
-     *             Flat vector with the m_nsp in the inner loop.
-     *             length = ldx * ndim
+     * @param Vdiff  Output of the diffusive velocities wrt the mass-averaged
+     *               velocity
+     *               Flat vector with the m_nsp in the inner loop.
+     *               length = ldx * ndim
+     *               units are m / s.
      */
     virtual void getSpeciesVdiff(int ndim, 
 				 const doublereal* grad_T, 
@@ -424,12 +426,11 @@ namespace Cantera {
       err("getSpeciesVdiff"); 
     }
 
-    //! Get the species diffusive mass fluxes wrt to 
-    //! the mass averaged velocity, 
-    //! given the gradients in mole fraction, temperature 
+    //! Get the species diffusive velocities wrt to the mass averaged velocity, 
+    //! given the gradients in mole fraction, temperature,
     //! and electrostatic potential.
     /*!
-     *  Units for the returned fluxes are kg m-2 s-1.
+     *  Units for the returned velocities are m s-1.
      * 
      *  @param ndim Number of dimensions in the flux expressions
      *  @param grad_T Gradient of the temperature
@@ -443,9 +444,10 @@ namespace Cantera {
      *              (usually equal to m_nsp but not always)
      * @param grad_Phi Gradients of the electrostatic potential
      *                 (length = ndim)
-     * @param fluxes  Output of the diffusive mass fluxes
-     *             Flat vector with the m_nsp in the inner loop.
-     *             length = ldx * ndim
+     * @param Vdiff  Output of the diffusive velocities wrt the mass-averaged velocity
+     *               Flat vector with the m_nsp in the inner loop.
+     *               length = ldx * ndim
+     *               units are m / s.
      */
     virtual void getSpeciesVdiffES(int ndim, 
 				   const doublereal* grad_T, 
@@ -466,58 +468,78 @@ namespace Cantera {
      * @param state2 Array of temperature, density, and mass
      *               fractions for state 2.  
      * @param delta  Distance from state 1 to state 2 (m).
+     * @param cfluxes Output array containing the diffusive molar fluxes of species
+     *               from state1 to state2. This is a flat vector with the 
+     *               m_nsp in the inner loop.
+     *               length = ldx * ndim.
+     *               Units are [kmol/m^2/s].
      */ 
     virtual void getMolarFluxes(const doublereal * const state1,
 				const doublereal * const state2, const doublereal delta, 
-				doublereal * const fluxes) { 
+				doublereal * const cfluxes) { 
       err("getMolarFluxes"); 
     }
 
-    /** 
-     * Get the mass fluxes [kg/m^2/s], given the thermodynamic
-     * state at two nearby points. 
+   
+    //!  Get the mass fluxes [kg/m^2/s], given the thermodynamic
+    //!  state at two nearby points. 
+    /*!
      * @param state1 Array of temperature, density, and mass
      *               fractions for state 1.
      * @param state2 Array of temperature, density, and mass
      *               fractions for state 2.  
      * @param delta Distance from state 1 to state 2 (m).
+     * @param mfluxes Output array containing the diffusive mass fluxes of species
+     *               from state1 to state2. This is a flat vector with the 
+     *               m_nsp in the inner loop.
+     *               length = ldx * ndim.
+     *               Units are [kg/m^2/s].
      */ 
     virtual void getMassFluxes(const doublereal* state1,
 			       const doublereal* state2, doublereal delta, 
-			       doublereal* fluxes) { err("getMassFluxes"); }
-
-    /**
-     * Thermal diffusion coefficients [kg/m/sec].
+			       doublereal* mfluxes) { 
+      err("getMassFluxes"); 
+    }
+    
+    //! Return a vector of Thermal diffusion coefficients [kg/m/sec].
+    /*!
      * The thermal diffusion coefficient \f$ D^T_k \f$ is defined
      * so that the diffusive mass flux of species k induced by the
      * local temperature gradient is \f[ M_k J_k = -D^T_k \nabla
      * \ln T. \f]. The thermal diffusion coefficient can be either
      * positive or negative.
      * 
-     * @param dt on return, dt will contain the species thermal
-     * diffusion coefficients.  Dimension dt at least as large as
-     * the number of species.
+     * @param dt On return, dt will contain the species thermal
+     *           diffusion coefficients.  Dimension dt at least as large as
+     *           the number of species.
      */
-    virtual void getThermalDiffCoeffs(doublereal* const dt) 
-    { err("getThermalDiffCoeffs"); }
+    virtual void getThermalDiffCoeffs(doublereal* const dt)  {
+      err("getThermalDiffCoeffs"); 
+    }
 
 
-    //!  Returns the matrix of binary diffusion coefficients [m^2/s].
+    //! Returns the matrix of binary diffusion coefficients [m^2/s].
     /*!
      *  @param ld  Inner stride for writing the two dimension diffusion
      *             coefficients into a one dimensional vector
      *  @param d   Diffusion coefficient matrix (must be at least m_k * m_k 
      *             in length.
      */ 
-    virtual void getBinaryDiffCoeffs(const int ld, doublereal* const d) 
-    { err("getBinaryDiffCoeffs"); }
+    virtual void getBinaryDiffCoeffs(const int ld, doublereal* const d) { 
+      err("getBinaryDiffCoeffs"); 
+    }
 
-
-    /**
-     * Multicomponent diffusion coefficients. Units: [m^2/s].  If
-     * the transport manager implements a multicomponent diffusion
+    
+    //! Return the Multicomponent diffusion coefficients. Units: [m^2/s]. 
+    /*!
+     * If the transport manager implements a multicomponent diffusion
      * model, then this method returns the array of multicomponent
      * diffusion coefficients. Otherwise it throws an exception.
+     *
+     *  @param ld  The dimension of the inner loop of d (usually equal to m_nsp)
+     *  @param d  flat vector of diffusion coefficients, fortran ordering.
+     *            d[ld*j+i] is the D_ij diffusion coefficient (the diffusion
+     *            coefficient for species i due to species j).
      */
     virtual void getMultiDiffCoeffs(const int ld, doublereal* const d) 
     { err("getMultiDiffCoeffs"); }
