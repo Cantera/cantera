@@ -44,7 +44,7 @@ mkdirprog="${MKDIRPROG-mkdir}"
 verbose=""
 transformbasename=""
 transform_arg=""
-instcmd="$mvprog"
+instcmd="$cpprog"
 chmodcmd="$chmodprog 0755"
 chowncmd=""
 chgrpcmd=""
@@ -57,9 +57,12 @@ dir_arg=""
 
 while [ x"$1" != x ]; do
     case $1 in
-	-c) instcmd="$cpprog"
-	    shift
+	-c) shift
 	    continue;;
+
+        -move) instcmd="$mvprog"
+            shift
+            continue;;
 
 	-d) dir_arg=true
 	    shift
@@ -138,8 +141,8 @@ else
 	then
 		true
 	else
-		echo "install:  $src does not exist"
-		exit 1
+		echo "install: WARNING $src does not exist"
+		exit 0
 	fi
 	
 	if [ x"$dst" = x ]
