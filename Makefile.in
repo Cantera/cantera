@@ -192,8 +192,8 @@ endif
 finish-install:
 	@INSTALL@ -d @ct_docdir@
 	@INSTALL@ -d @ct_bindir@
-	cp -f bin/exp3to2.sh "@ct_bindir@"
-	cp -f bin/csvdiff    "@ct_bindir@"
+	-( cd bin ;   @INSTALL@ -c exp3to2.sh "@ct_bindir@" )
+	-( cd bin ;   @INSTALL@ -c csvdiff    "@ct_bindir@" )
 ifeq ($(os_is_win),0)
 #          Commands to be executed for non-win systems
 	cp -f License.rtf "@ct_bindir@"

@@ -1350,11 +1350,19 @@ AC_PROG_INSTALL
 #  doesn't have this problem. So, I changed the default
 #  install program to config/install-sh, which should work
 #  on all platforms since its a bourne shell script
+# HKM 12/24/2009 - Ran into another problem with the new cygwin 1.7.1.
+#     THe install (and even cp -f in some cases) program will fail
+#     when an existing different file is in place. This occurs sometimes
+#     and I can not quite nail down when. However replacing
+#     the install command for cygwin. Note, install no longer
+#     needs to have a wildcard capability within Cantera.
 
-# problem: install-sh does not handle wildcards in filename.
-# commenting this out (DGG)
-# INSTALL=${INSTALL_BIN:=config/install-sh}
-echo 'INSTALL program has been set to ' $INSTALL
+case $ac_sys_system in
+  CYGWIN* )
+     INSTALL=${INSTALL_BIN:=config/install-sh}
+     echo 'INSTALL program has been set to ' $INSTALL;;
+esac
+
 #
 #  precompile_headers still relevant?
 #
