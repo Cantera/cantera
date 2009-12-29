@@ -8,7 +8,7 @@ test:
 	./runtest
 
 clean:
-	rm -f *.log *.csv *.xml
+	rm -f *.log 
 	./cleanup
 
 # end of file
