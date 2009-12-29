@@ -21,7 +21,7 @@ install:
 	@INSTALL@ -c -m ug+rw,o+r adiabatic_blessed_0.csv $(INST_DIR)
 
 clean:
-	rm -f *.log *.csv *.xml
+	rm -f *.log 
 	./cleanup
 
 # end of file

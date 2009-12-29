@@ -294,7 +294,7 @@ Attempt Newton solution of steady-state problem...    success.
 Problem solved on [77] point grid(s).
 
 no new points needed in flow
-Solution saved to file stflame1.xml as solution mdot1.
+Solution saved to file stflame1.xml as solution mdot1_1.
 solution saved to flame1.csv
 ..............................................................................
 
@@ -323,7 +323,7 @@ Attempt Newton solution of steady-state problem...    success.
 Problem solved on [88] point grid(s).
 
 no new points needed in flow
-Solution saved to file stflame1.xml as solution mdot2.
+Solution saved to file stflame1.xml as solution mdot2_1.
 solution saved to flame1.csv
 ..............................................................................
 
@@ -506,7 +506,7 @@ Attempt Newton solution of steady-state problem...    success.
 Problem solved on [116] point grid(s).
 
 no new points needed in flow
-Solution saved to file stflame1.xml as solution mdot3.
+Solution saved to file stflame1.xml as solution mdot3_1.
 solution saved to flame1.csv
 ..............................................................................
 
@@ -634,7 +634,7 @@ Attempt Newton solution of steady-state problem...    success.
 Problem solved on [124] point grid(s).
 
 no new points needed in flow
-Solution saved to file stflame1.xml as solution mdot4.
+Solution saved to file stflame1.xml as solution mdot4_1.
 solution saved to flame1.csv
 ..............................................................................
 
@@ -731,7 +731,7 @@ Attempt Newton solution of steady-state problem...    success.
 Problem solved on [126] point grid(s).
 
 no new points needed in flow
-Solution saved to file stflame1.xml as solution mdot5.
+Solution saved to file stflame1.xml as solution mdot5_1.
 solution saved to flame1.csv
 ..............................................................................
 
@@ -814,7 +814,7 @@ Attempt Newton solution of steady-state problem...    success.
 Problem solved on [125] point grid(s).
 
 no new points needed in flow
-Solution saved to file stflame1.xml as solution mdot6.
+Solution saved to file stflame1.xml as solution mdot6_1.
 solution saved to flame1.csv
 ..............................................................................
 
@@ -881,55 +881,55 @@ Attempt Newton solution of steady-state problem...    success.
 Problem solved on [128] point grid(s).
 
 no new points needed in flow
-Solution saved to file stflame1.xml as solution mdot7.
+Solution saved to file stflame1.xml as solution mdot7_1.
 solution saved to flame1.csv
 
 Statistics:
 
  Grid   Functions   Time      Jacobians   Time 
-   10     401       0.1900       21       0.1600 
-   12      16       0.0000        2       0.0300 
+   10     401       0.1500       21       0.1600 
+   12      16       0.0000        2       0.0200 
    13      14       0.0000        2       0.0200 
    15      14       0.0100        2       0.0300 
-   16      10       0.0000        1       0.0200 
-   16    5353       2.9400      140       1.9000 
-   29      35       0.0300        2       0.0400 
-   45      23       0.0400        2       0.0900 
-   59      14       0.0300        2       0.1100 
-   67      14       0.0400        2       0.1400 
-   74       8       0.0000        1       0.0800 
-   78       4       0.0000        1       0.0900 
-   79       4       0.0100        1       0.0900 
-   79      53       0.1800        5       0.4100 
-   88      10       0.0300        1       0.1000 
-   90      12       0.0500        1       0.1000 
-   90    1067       3.5200       58       5.6400 
+   16      10       0.0100        1       0.0100 
+   16    5353       3.1400      140       2.0400 
+   29      35       0.0400        2       0.0400 
+   45      23       0.0200        2       0.0900 
+   59      14       0.0200        2       0.1100 
+   67      14       0.0400        2       0.1200 
+   74       8       0.0200        1       0.0700 
+   78       4       0.0200        1       0.0800 
+   79       4       0.0100        1       0.0800 
+   79      53       0.1500        5       0.4100 
+   88      10       0.0400        1       0.1500 
+   90      12       0.0800        1       0.1500 
+   90    1067       3.5500       58       5.8100 
    87      25       0.0900        2       0.1800 
-   97      46       0.1500        4       0.4400 
-  104      60       0.2300        6       0.7100 
-  100      59       0.2100        5       0.5800 
+   97      46       0.1500        4       0.4300 
+  104      60       0.2300        6       0.6900 
+  100      59       0.2000        5       0.5500 
   115      40       0.2000        4       0.5400 
-  117      12       0.0700        1       0.1500 
-  118       2       0.0000        1       0.1400 
-  118     162       0.6800       21       2.8900 
-   98      18       0.0500        2       0.2200 
-  109      22       0.0900        2       0.2400 
-  118      30       0.1400        3       0.4200 
-  123      30       0.1300        3       0.4600 
-  126      26       0.1000        3       0.4700 
-  126      18       0.0800        2       0.3000 
-  126      59       0.3200        8       1.2000 
-  112      26       0.1100        3       0.3900 
-  120      34       0.1500        3       0.4200 
-  126      28       0.1300        3       0.4600 
-  128      24       0.1100        2       0.3100 
+  117      12       0.0500        1       0.1400 
+  118       2       0.0100        1       0.1300 
+  118     162       0.7100       21       2.9100 
+   98      18       0.0600        2       0.2200 
+  109      22       0.1200        2       0.2400 
+  118      30       0.1100        3       0.4200 
+  123      30       0.1300        3       0.4300 
+  126      26       0.1200        3       0.4500 
+  126      18       0.0700        2       0.3000 
+  126      59       0.2800        8       1.2100 
+  112      26       0.0700        3       0.3900 
+  120      34       0.1400        3       0.4200 
+  126      28       0.1600        3       0.4600 
+  128      24       0.1100        2       0.3000 
   128      18       0.0900        2       0.3100 
-  128      59       0.2900        7       1.0700 
-  114      38       0.1100        4       0.5400 
-  121      18       0.0800        2       0.2900 
-  126      14       0.0700        2       0.3000 
+  128      59       0.2800        7       1.0700 
+  114      38       0.1900        4       0.5200 
+  121      18       0.0800        2       0.2800 
+  126      14       0.0600        2       0.3000 
   127       4       0.0200        1       0.1500 
-  127      58       0.2600        6       0.9100 
-  117      28       0.1100        3       0.4200 
-  126      26       0.1300        3       0.4600 
-  130      10       0.0400        1       0.1500 
+  127      58       0.2600        6       0.9000 
+  117      28       0.1300        3       0.4000 
+  126      26       0.1200        3       0.4500 
+  130      10       0.0500        1       0.1600 

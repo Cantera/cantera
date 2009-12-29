@@ -39,9 +39,13 @@ cti_file = 'methane_pox_on_pt.cti'
 
 # The PFR will be simulated by a chain of 'NReactors' stirred
 # reactors.
-NReactors = 200
-dt = 1.0
-
+NReactors = 201
+#
+#  Decreased the time step by a factor of 100 to help convergence
+#  12/28/2009 HKM
+#
+# dt = 1.0
+dt = 0.01
 
 #####################################################################
 
@@ -63,7 +67,7 @@ surf.setTemperature(t)
 s_names = surf.speciesNames()
 nsurf = surf.nSpecies()
 
-rlen = length/NReactors
+rlen = length/(NReactors-1)
 rvol = area * rlen * porosity
 
 names = gas.speciesNames()
