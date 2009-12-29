@@ -2,4 +2,4 @@
 #
 /bin/rm -rf equilibrate_log*.html
 /bin/rm -rf .cttmp* ct2ctml.log transport_log.xml vcs_equilibrate_res*.csv \
-            freeflame1.csv output_0.txt diff*
+            freeflame1.csv output_0.txt diff* ohn.xml

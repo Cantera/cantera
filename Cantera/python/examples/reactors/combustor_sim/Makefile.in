@@ -22,7 +22,7 @@ install:
 	@INSTALL@ -c -m ug+rw,o+r combustor_blessed_0.csv $(INST_DIR)
 
 clean:
-	rm -f *.log *.csv *.xml
+	rm -f *.log 
 	./cleanup
 
 # end of file
