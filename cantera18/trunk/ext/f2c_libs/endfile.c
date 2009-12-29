@@ -43,7 +43,7 @@ integer f_end(alist *a)
 	if(b->ufd==NULL) {
 		char nbuf[10];
 		sprintf(nbuf,"fort.%ld",(long)a->aunit);
-		if (tf = FOPEN(nbuf, f__w_mode[0]))
+		if ((tf = FOPEN(nbuf, f__w_mode[0])))
 			fclose(tf);
 		return(0);
 		}
