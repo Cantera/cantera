@@ -29,9 +29,9 @@
          OH'(ox)      0.0002061 
          H2O(ox)       1.12e-09 
 
-ocv from zero current is:  1.13757806928
+ocv from zero current is:  1.1375780672
 OCV from thermo equil is:  1.1375780672
 Ea0 =  -0.733444291655
-Ec0 =  0.404133777622
+Ec0 =  0.40413377554
 
 polarization curve data written to file sofc.csv
