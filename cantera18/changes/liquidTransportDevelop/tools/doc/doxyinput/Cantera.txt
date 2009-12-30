@@ -22,5 +22,6 @@ Choose one of the links below for an introduction to %Cantera, or use
 
 - Computing Properties of Matter
   - \subpage thermopage
+  - \subpage transportpage
 
 */
