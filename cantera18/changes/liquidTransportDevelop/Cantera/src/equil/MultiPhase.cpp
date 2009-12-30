@@ -183,6 +183,7 @@ namespace Cantera {
     
     updateMoleFractions();
 
+    updatePhases();
   }
 
 

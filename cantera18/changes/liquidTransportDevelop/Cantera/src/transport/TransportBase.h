@@ -57,17 +57,35 @@ namespace Cantera {
   // forward reference
   class XML_Writer;
 
-  /** The diffusion velocities can be referenced to a variety of things.
-   *  Most typical is to reference to the mass averaged velocity, but 
+  //! The diffusion fluxes must be referenced to a particular reference
+  //! fluid velocity.
+  /*!
+   * Most typical is to reference the diffusion fluxes to the mass averaged velocity, but 
    * referencing to the mole averaged velocity is suitable for some 
-   * liquid flows and referencing to a single species is suitable for 
-   * some solvent mixtures.  This enum should provide a means to identify 
-   * the reference velocity used for the transport model.
+   * liquid flows, and referencing to a single species is suitable for 
+   * solid phase transport within a lattice.  Currently, the identity of the reference
+   * velocity is coded into each transport object as a typedef named VelocityBasis, which
+   * is equated to an integer. Negative values of this variable refer to mass or mole-averaged
+   * velocities.  Zero or positive quantities refers to the reference
+   * velocity being referenced to a particular species. Below are the predefined constants
+   * for its value.
+   *
+   *  - VB_MASSAVG    Diffusion velocities are based on the mass averaged velocity
+   *  - VB_MOLEAVG    Diffusion velocities are based on the mole averaged velocities
+   *  - VB_SPECIES_0  Diffusion velocities are based on the relative motion wrt species 0
+   *  - VB_SPECIES_1  Diffusion velocities are based on the relative motion wrt species 1
+   *
    */
-  enum VelocityBasis { 
-    VB_MOLEAVG = -2,
-    VB_MASSAVG = -1
-  };
+  typedef int VelocityBasis;
+
+  //! Diffusion velocities are based on the mass averaged velocity
+  const VelocityBasis VB_MASSAVG = -1;
+  //! Diffusion velocities are based on the mole averaged velocities
+  const VelocityBasis VB_MOLEAVG = -2;
+  //! Diffusion velocities are based on the relative motion wrt species 0
+  const VelocityBasis VB_SPECIES_0 = 0;
+  //! Diffusion velocities are based on the relative motion wrt species 1
+  const VelocityBasis VB_SPECIES_1 = 1;
 
   //! Base class for transport property managers.
   /*!
@@ -105,6 +123,33 @@ namespace Cantera {
    *   When a const operation is evoked within the Transport class, it is
    *   also implicitly assumed that the underlying state within the ThermoPhase 
    *   object has not changed its values.
+   *
+   *   
+   * <HR>
+   * <H2> Diffusion Fluxes and their Relationship to Reference Velocities </H2>
+   * <HR>
+   *
+   *  The diffusion fluxes must be referenced to a particular reference
+   *  fluid velocity.
+   *  Most typical is to reference the diffusion fluxes to the mass averaged velocity, but 
+   *  referencing to the mole averaged velocity is suitable for some 
+   *  liquid flows, and referencing to a single species is suitable for 
+   *  solid phase transport within a lattice.  Currently, the identity of the reference
+   *  velocity is coded into each transport object as a typedef named VelocityBasis, which
+   *  is equated to an integer. Negative values of this variable refer to mass or mole-averaged
+   *  velocities.  Zero or positive quantities refers to the reference
+   *  velocity being referenced to a particular species. Below are the predefined constants
+   *  for its value.
+   *
+   *  - VB_MASSAVG    Diffusion velocities are based on the mass averaged velocity
+   *  - VB_MOLEAVG    Diffusion velocities are based on the mole averaged velocities
+   *  - VB_SPECIES_0  Diffusion velocities are based on the relative motion wrt species 0
+   *  - VB_SPECIES_1  Diffusion velocities are based on the relative motion wrt species 1
+   *
+   *  All transport managers specify a default reference velocity in their default constructors.
+   *  All gas phase transport managers by default specify the mass-averaged velocity as their
+   *  reference velocities.
+   *
    *
    *  @todo Provide a general mechanism to store the gradients of state variables
    *        within the system.
@@ -587,7 +632,7 @@ namespace Cantera {
      *
      *   @param ivb   Species the velocity basis
      */
-    void setVelocityBasis(int  ivb) 
+    void setVelocityBasis(VelocityBasis ivb) 
     { 
       m_velocityBasis = ivb; 
     }
@@ -600,7 +645,7 @@ namespace Cantera {
      *
      *   @return   Returns the velocity basis
      */
-    int getVelocityBasis( ) const { 
+    VelocityBasis getVelocityBasis( ) const { 
       return m_velocityBasis; 
     }
 

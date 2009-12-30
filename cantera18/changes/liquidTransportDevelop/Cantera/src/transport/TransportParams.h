@@ -19,11 +19,12 @@ namespace Cantera {
 
   public:
 
+    //! Default Constructor
     TransportParams() : 
       nsp_(0),
       thermo(0),
       mw(0),
-      velocityBasis(VB_MASSAVG),
+      velocityBasis_(VB_MASSAVG),
       tmax(1000000.),
       tmin(10.),
       mode_(0),
@@ -32,6 +33,7 @@ namespace Cantera {
     {
     }
 
+    //! Destructor
     virtual ~TransportParams() 
     {
 #ifdef DEBUG_MODE
@@ -39,20 +41,37 @@ namespace Cantera {
 #endif
     }
 
+    //! Local storage of the number of species
     int nsp_;
-    //        phase_t* mix;
+
+    //!  Pointer to the ThermoPhase object
     thermo_t* thermo;
+
+    //! Local storage of the molecular weights of the species
+    /*!
+     *  Length is nsp_ and units are kg kmol-1.
+     */
     vector_fp        mw;
 
     //! A basis for the average velocity can be specified. 
-    //! Valid bases include "mole" "mass" and species names.
-    int velocityBasis;
+    /*!
+     *  Valid bases include "mole", "mass", and "species" names.
+     */
+    VelocityBasis velocityBasis_;
 
-    //minimum and maximum temperatures for parameter fits
+    //! Maximum temperatures for parameter fits
     doublereal tmax;
+
+    //! Minimum temperatures for parameter fits
     doublereal tmin;
+
+    //!  Mode parameter
     int mode_;
+
+    //! Pointer to the xml tree describing the implementation of transport for this object
     XML_Writer* xml;
+
+    //! Log level
     int log_level;
 
   };
