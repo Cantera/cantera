@@ -29,6 +29,7 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
+				Outputs="status"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -80,6 +81,8 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				Description="copying include files to the cantera kernel directory"
+				CommandLine="cmd /c docopy.cmd &gt; docopy.out  &#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -143,6 +146,8 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				Description="copying include files to the cantera/kernel directory"
+				CommandLine="cmd /c docopy.cmd &gt; status&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -209,6 +214,8 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				Description="copying include files to the cantera/kernel directory"
+				CommandLine="cmd /c docopy.cmd &gt; status&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>
@@ -308,6 +315,10 @@
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
+			<File
+				RelativePath=".\status"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>
