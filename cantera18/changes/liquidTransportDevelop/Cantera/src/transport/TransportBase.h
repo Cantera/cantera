@@ -17,7 +17,7 @@
 
 
 /**
- * @defgroup tranprops Transport Properties
+ * @defgroup tranprops Transport Properties for Species in Phases
  *
  * @ingroup phases
  *
@@ -36,6 +36,11 @@ namespace Cantera {
   class GasTransportParams;
   class LiquidTransportParams;
 
+  /*!
+   * \addtogroup tranprops 
+   */
+  //@{ 
+
   const int CK_Mode = 10;
 
   // types of transport models that can be constructed
@@ -53,6 +58,7 @@ namespace Cantera {
   const int cSimpleTransport     = 770;
   const int cRadiativeTransport  = 800;
   const int cWaterTransport      = 721;
+  //@} 
 
   // forward reference
   class XML_Writer;
@@ -75,9 +81,14 @@ namespace Cantera {
    *  - VB_SPECIES_0  Diffusion velocities are based on the relative motion wrt species 0
    *  - VB_SPECIES_1  Diffusion velocities are based on the relative motion wrt species 1
    *
+   * @ingroup tranprops
    */
   typedef int VelocityBasis;
 
+  /*!
+   * \addtogroup tranprops 
+   */
+  //@{ 
   //! Diffusion velocities are based on the mass averaged velocity
   const VelocityBasis VB_MASSAVG = -1;
   //! Diffusion velocities are based on the mole averaged velocities
@@ -86,6 +97,7 @@ namespace Cantera {
   const VelocityBasis VB_SPECIES_0 = 0;
   //! Diffusion velocities are based on the relative motion wrt species 1
   const VelocityBasis VB_SPECIES_1 = 1;
+  //@}
 
   //! Base class for transport property managers.
   /*!
@@ -759,7 +771,10 @@ namespace Cantera {
 
   };
 
-  //! general definition for the transport class
+  //! General definition for the transport class
+  /*!
+   * \ingroups tranprops
+   */
   typedef Transport transport_t;
 
 }
