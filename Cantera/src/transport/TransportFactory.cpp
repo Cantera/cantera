@@ -1111,15 +1111,15 @@ namespace Cantera {
 	 * <velocityBasis basis="mole"> <!-- mole averaged -->
 	 * <velocityBasis basis="H2O">  <!-- H2O solvent -->
 	 */
-	if ( tranTypeNode.hasChild("velocityBasis")) {
+	if (tranTypeNode.hasChild("velocityBasis")) {
 	  std::string velocityBasis = 
 	    tranTypeNode.child("velocityBasis").attrib("basis");
-	  if ( velocityBasis == "mass" ) 
-	    trParam.velocityBasis = VB_MASSAVG;
-	  else if ( velocityBasis == "mole" ) 
-	    trParam.velocityBasis = VB_MOLEAVG;
-	  else if ( trParam.thermo->speciesIndex( velocityBasis ) > 0 ) 
-	    trParam.velocityBasis = trParam.thermo->speciesIndex( velocityBasis ) ;
+	  if (velocityBasis == "mass") 
+	    trParam.velocityBasis_ = VB_MASSAVG;
+	  else if (velocityBasis == "mole") 
+	    trParam.velocityBasis_ = VB_MOLEAVG;
+	  else if (trParam.thermo->speciesIndex(velocityBasis) > 0) 
+	    trParam.velocityBasis_ = trParam.thermo->speciesIndex(velocityBasis) ;
 	  else {
 	    int linenum;
 	    throw TransportDBError( linenum, "Unknown attribute " + velocityBasis + " for <velocityBasis> node. ");

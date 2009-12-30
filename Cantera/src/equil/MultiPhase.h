@@ -549,8 +549,6 @@ namespace Cantera {
      */
     void uploadMoleFractionsFromPhases();
 
-  private:
-
     //! Set the states of the phase objects to the locally-stored
     //! state within this MultiPhase object.
     /*!
@@ -567,6 +565,7 @@ namespace Cantera {
      */
     void updatePhases() const;
 
+  private:
     //! Calculate the element abundance vector
     void calcElemAbundances() const;
 

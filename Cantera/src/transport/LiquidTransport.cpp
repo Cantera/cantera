@@ -189,7 +189,7 @@ namespace Cantera {
     int k;
     // constant substance attributes
     m_thermo = tr.thermo;
-    m_velocityBasis = tr.velocityBasis;
+    m_velocityBasis = tr.velocityBasis_;
     m_nsp   = m_thermo->nSpecies();
     m_tmin  = m_thermo->minTemp();
     m_tmax  = m_thermo->maxTemp();
