@@ -30,7 +30,7 @@ fi
 diff -w output_blessed_0.txt output_0.txt > diff_out_0.txt
 retnStat_0=$?
 
-csvdiff -a 1.0E-50 flame1_blessed_0.csv flame1.csv  > diff_csv.txt
+csvdiff -a 1.0E-15 flame1_blessed_0.csv flame1.csv  > diff_csv.txt
 retnStat_csv_0=$?
 
 retnTotal=1
