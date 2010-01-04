@@ -1358,7 +1358,7 @@ AC_PROG_INSTALL
 #     needs to have a wildcard capability within Cantera.
 
 case $ac_sys_system in
-  CYGWIN* )
+  CYGWIN* ) 
      INSTALL=${INSTALL_BIN:=config/install-sh}
      echo 'INSTALL program has been set to ' $INSTALL;;
 esac

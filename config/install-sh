@@ -64,6 +64,10 @@ while [ x"$1" != x ]; do
 	    shift
 	    continue;;
 
+        -move) instcmd="$mvprog"
+            shift
+            continue;;
+
 	-d) dir_arg=true
 	    shift
 	    continue;;
@@ -120,6 +124,7 @@ else
 	true
 fi
 
+
 if [ x"$dir_arg" != x ]; then
 	dst=$src
 	src=""
@@ -147,7 +152,7 @@ else
 	
 	if [ x"$dst" = x ]
 	then
-		echo "install:	no destination specified"
+		echo "       install:	no destination specified"
 		exit 1
 	else
 		true

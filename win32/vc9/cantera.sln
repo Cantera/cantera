@@ -197,6 +197,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "clibstatic", "clibstatic\cl
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "SetupCanteraDebug", "SetupCanteraDebug\SetupCanteraDebug.vdproj", "{58191424-3B9D-4571-BC76-98D05A1CA424}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolnFolder", "SolnFolder", "{01747726-ACD9-4CA0-8809-BEA24CFF4E2E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
