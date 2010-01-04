@@ -663,6 +663,7 @@ FILE_PATTERNS          = Kinetics.h  Kinetics.cpp \
                          PDSS.h \
                          PDSS.cpp \
                          SpeciesThermo.h \
+<<<<<<< .working
                          NasaThermo.h \
                          NasaPoly1.h \
                          NasaPoly2.h \

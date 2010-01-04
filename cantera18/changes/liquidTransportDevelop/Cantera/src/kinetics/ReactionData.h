@@ -34,7 +34,7 @@ namespace Cantera {
       isReversibleWithFrac = false;
       beta = 0.0;
     }
-    ~ReactionData(){}
+    virtual ~ReactionData(){}
 
     int reactionType;
     int number;

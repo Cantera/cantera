@@ -1,3 +1,4 @@
+echo on
 cd ..\..\..\
 
 if not exist build\include\cantera\kernel mkdir build\include\cantera\kernel
@@ -19,4 +20,5 @@ copy TransportFactory.h    ..\..\..\build\include\cantera\kernel
 copy TransportParams.h    ..\..\..\build\include\cantera\kernel
 
 cd ..\..\..\win32\vc9\transp~1
-echo 'ok' > status
+echo off
+echo 'ok'  > status

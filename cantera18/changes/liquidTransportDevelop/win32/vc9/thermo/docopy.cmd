@@ -73,4 +73,4 @@ copy WaterSSTP.h          ..\..\..\build\include\cantera\kernel
 
 cd ..\..\..\win32\vc9\thermo
 echo off
-echo 'ok'
+echo 'ok' > status.tmp
