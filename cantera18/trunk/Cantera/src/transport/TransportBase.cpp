@@ -3,8 +3,8 @@
  *  Mixture-averaged transport properties for ideal gas mixtures.
  */
 /* 
- * $Revision: 1.1 $
- * $Date: 2009/02/15 19:41:33 $
+ * $Revision$
+ * $Date$
  */
 
 #include "ThermoPhase.h"

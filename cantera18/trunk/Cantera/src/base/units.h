@@ -7,7 +7,7 @@
  * This header is included only by file misc.cpp.
  */
 /*
- * $Id: units.h,v 1.5 2007/12/15 17:15:50 dggoodwin Exp $
+ * $Id$
  */
 //    Copyright 2002 California Institute of Technology
 

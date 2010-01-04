@@ -8,9 +8,9 @@
  */
 
 /*
- *  $Author: hkmoffa $
- *  $Date: 2009/03/27 18:24:39 $
- *  $Revision: 1.12 $
+ *  $Author$
+ *  $Date$
+ *  $Revision$
  *
  *  Copyright 2003 California Institute of Technology
  *  See file License.txt for licensing information

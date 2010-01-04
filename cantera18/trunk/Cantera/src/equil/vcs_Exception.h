@@ -2,7 +2,7 @@
  * @file vcs_Exception.h
  */
 /*
- * $Id: vcs_Exception.h,v 1.2 2008/07/22 16:23:55 hkmoffa Exp $
+ * $Id$
  */
 /*
  * Copywrite (2005) Sandia Corporation. Under the terms of 

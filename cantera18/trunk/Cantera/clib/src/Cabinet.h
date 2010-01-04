@@ -2,7 +2,7 @@
  * @file Cabinet.h
  */
 /*
- *      $Id: Cabinet.h,v 1.9 2009/07/11 17:16:09 hkmoffa Exp $
+ *      $Id$
  */
 
 

@@ -3,7 +3,7 @@
  *      Internal declarations for the VCSnonideal package
  */
 /*
- * $Id: vcs_internal.h,v 1.20 2009/04/18 00:42:51 hkmoffa Exp $
+ * $Id$
  */
 
 /*
