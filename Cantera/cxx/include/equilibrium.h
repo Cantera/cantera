@@ -4,7 +4,7 @@
  *    (see \ref equilfunctions)
  */
 /*
- * $Id: equilibrium.h,v 1.11 2009/04/04 03:27:43 hkmoffa Exp $
+ * $Id$
  */
 #ifndef CT_EQUIL_INCL
 #define CT_EQUIL_INCL

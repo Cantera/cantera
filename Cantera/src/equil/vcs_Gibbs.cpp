@@ -3,7 +3,7 @@
  *   Functions which calculate the extrinsic Gibbs Free energies
  */
 /*
- * $Id: vcs_Gibbs.cpp,v 1.12 2009/03/27 21:32:33 hkmoffa Exp $
+ * $Id$
  */
 
 /*

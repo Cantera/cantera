@@ -4,8 +4,8 @@
  */
 
 /*
- * $Revision: 1.23 $
- * $Date: 2009/03/27 18:24:39 $
+ * $Revision$
+ * $Date$
  */
 
 // Copyright 2001-2003  California Institute of Technology

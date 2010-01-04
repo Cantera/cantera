@@ -3,7 +3,7 @@
  *    Defines and definitions within the vcs package
  */
 /*
- * $Id: vcs_defs.h,v 1.14 2009/04/18 00:42:51 hkmoffa Exp $
+ * $Id$
  */
 
 /*

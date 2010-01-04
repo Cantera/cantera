@@ -27,8 +27,8 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				Description="run runpython.cmd"
-				CommandLine="cmd /c runpython.cmd"
+				Description="run runpython_d.cmd"
+				CommandLine="cmd /c runpython_d.cmd"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"

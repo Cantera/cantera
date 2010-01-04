@@ -4,8 +4,8 @@
  */
 
 /*
- *  $Date: 2009/03/03 21:20:32 $
- *  $Revision: 1.2 $
+ *  $Date$
+ *  $Revision$
  */
 /*
  * Copywrite 2004 Sandia Corporation. Under the terms of Contract

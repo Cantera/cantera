@@ -2,7 +2,7 @@
  * @file ctstagn.h
  */
 /*
- *      $Id: ctstagn.h,v 1.2 2009/07/11 17:16:09 hkmoffa Exp $
+ *      $Id$
  */
 
 #ifndef CTC_STAGN_H

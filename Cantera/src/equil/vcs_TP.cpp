@@ -3,9 +3,9 @@
 /* | RCS Head Information on zuzax.pchem.sandia.gov | */
 /* -------------------------------------------------- */
 /* $RCSfile: vcs_TP.cpp,v $ */
-/* $Author: hkmoffa $ */
-/* $Date: 2008/12/17 16:34:18 $ */
-/* $Revision: 1.14 $ */
+/* $Author$ */
+/* $Date$ */
+/* $Revision$ */
 /* ======================================================================= */
 
 #include "vcs_solve.h"

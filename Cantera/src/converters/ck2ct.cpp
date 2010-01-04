@@ -3,7 +3,7 @@
  *   Convert CK-format reaction mechanism files to Cantera input format.
  */
 /*
- * $Id: ck2ct.cpp,v 1.27 2009/01/10 18:03:31 hkmoffa Exp $
+ * $Id$
  *
  */
 #ifdef WIN32

@@ -3,9 +3,9 @@
  *  Monk and Monchick collision integrals
  */
 /*
- * $Author: hkmoffa $
- * $Revision: 1.5 $
- * $Date: 2007/07/26 21:55:32 $
+ * $Author$
+ * $Revision$
+ * $Date$
  */
 
 // Copyright 2001  California Institute of Technology 
