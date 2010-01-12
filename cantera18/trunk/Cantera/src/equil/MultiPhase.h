@@ -825,6 +825,11 @@ namespace Cantera {
 		    vector_int & orderVectorElements);
 
 #ifdef DEBUG_MODE
+  //! External int that is used to turn on debug printing for the
+  //! BasisOptimze program.
+  /*!
+   *   Set this to 1 if you want debug printing from BasisOptimize.
+   */
   extern int BasisOptimize_print_lvl;
 #endif
 }
