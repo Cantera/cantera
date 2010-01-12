@@ -878,7 +878,7 @@ namespace ctml {
    *   @param  v            Output vector of floats containing the floatArray information.
    *   @param  convert      Conversion to SI is carried out if this boolean is
    *                        True. The default is true.
-   *   @param  typeString   String name of the type attribute. This is an optional 
+   *   @param  unitsString  String name of the type attribute. This is an optional 
    *                        parameter. The default is to have an empty string.
    *                        The only string that is recognized is actEnergy. 
    *                        Anything else has no effect. This affects what
@@ -888,8 +888,9 @@ namespace ctml {
    *
    *   @return              Returns the number of floats read
    */
-  int  getFloatArray(const Cantera::XML_Node& node, vector_fp& v, const bool convert,
-		     const std::string unitsString, const std::string nodeName) {
+  int  getFloatArray(const Cantera::XML_Node& node, Cantera::vector_fp& v, 
+                     const bool convert, const std::string unitsString,
+                     const std::string nodeName) {
     string::size_type icom;
     string numstr;
     doublereal dtmp;
