@@ -58,10 +58,10 @@ namespace Cantera {
     m_thermo = thermo;
 
     int nsp = thermo->nSpecies();
-    m_Aij.resize(nsp,nsp);
-    m_Dij.resize(nsp,nsp);
-    m_Eij.resize(nsp,nsp);
-    m_Sij.resize(nsp,nsp);
+    m_Aij.resize( nsp, nsp, 0.0 );
+    m_Dij.resize( nsp, nsp, 0.0 );
+    m_Eij.resize( nsp, nsp, 0.0 );
+    m_Sij.resize( nsp, nsp, 0.0 );
 
     std::string speciesA;
     std::string speciesB;
@@ -350,7 +350,7 @@ namespace Cantera {
 
   void LTI_Pairwise_Interaction::setParameters( LiquidTransportParams& trParam ) {
     int nsp = m_thermo->nSpecies();
-    m_diagonals.resize(nsp);
+    m_diagonals.resize(nsp, 0);
 
     for (int k = 0; k < nsp; k++) {
       Cantera::LiquidTransportData &ltd = trParam.LTData[k];
@@ -386,24 +386,21 @@ namespace Cantera {
     return value;
   }
 
-  DenseMatrix LTI_Pairwise_Interaction::getMatrixTransProp( doublereal *speciesValues ) {
+  void LTI_Pairwise_Interaction::getMatrixTransProp( DenseMatrix &mat, doublereal *speciesValues ) {
 
     int nsp = m_thermo->nSpecies();
     doublereal temp = m_thermo->temperature();
     doublereal molefracs[nsp];
-    m_thermo->getMoleFractions(molefracs);
+    m_thermo->getMoleFractions( molefracs );
 
-    DenseMatrix tmp;
-    tmp.resize(nsp,nsp);
+    mat.resize( nsp, nsp, 0.0 );
     for ( int i = 0; i < nsp; i++ ) 
       for ( int j = 0; j < i; j++ ) 
-	tmp(i,j) = tmp(j,i) = m_Dij(i,j) * exp( - m_Eij(i,j) / temp );
+	mat(i,j) = mat(j,i) = m_Dij(i,j) * exp( - m_Eij(i,j) / temp );
     
     for ( int i = 0; i < nsp; i++ ) 
-      if ( tmp(i,i) == 0.0 && m_diagonals[i] ) 
-	tmp(i,i) = m_diagonals[i]->getSpeciesTransProp() ;
-
-    return tmp;
+      if ( mat(i,i) == 0.0 && m_diagonals[i] ) 
+	mat(i,i) = m_diagonals[i]->getSpeciesTransProp() ;
   }
 
   
@@ -438,8 +435,8 @@ namespace Cantera {
 
   void LTI_StokesEinstein::setParameters( LiquidTransportParams& trParam ) {
     int nsp = m_thermo->nSpecies();
-    m_viscosity.resize(nsp);
-    m_hydroRadius.resize(nsp);
+    m_viscosity.resize( nsp, 0 );
+    m_hydroRadius.resize( nsp, 0 );
     for (int k = 0; k < nsp; k++) {
       Cantera::LiquidTransportData &ltd = trParam.LTData[k];
       m_viscosity[k]   =  ltd.viscosity;
@@ -447,7 +444,7 @@ namespace Cantera {
     }
   }
 
-  DenseMatrix LTI_StokesEinstein::getMatrixTransProp( doublereal *speciesValues ) {
+  void LTI_StokesEinstein::getMatrixTransProp( DenseMatrix &mat, doublereal *speciesValues ) {
 
     int nsp = m_thermo->nSpecies();
     doublereal temp = m_thermo->temperature();
@@ -460,17 +457,14 @@ namespace Cantera {
       radiusSpec[k] = m_hydroRadius[k]->getSpeciesTransProp() ;
     } 
 
-    DenseMatrix tmp;
-    tmp.resize(nsp,nsp);
+    mat.resize(nsp,nsp, 0.0);
     for (int i = 0; i < nsp; i++) 
       for (int j = 0; j < nsp; j++) {
-	tmp(i,j) = GasConstant * temp 
+	mat(i,j) = GasConstant * temp 
 	  / ( 6.0 * Pi * radiusSpec[i] * viscSpec[j] ) ;
       }
     delete radiusSpec;
     delete viscSpec;
-
-    return tmp;
   }
 
 

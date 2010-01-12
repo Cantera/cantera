@@ -195,15 +195,15 @@ namespace Cantera {
     m_tmax  = m_thermo->maxTemp();
 
     // make a local copy of the molecular weights
-    m_mw.resize(m_nsp);
+    m_mw.resize(m_nsp, 0.0);
     copy(m_thermo->molecularWeights().begin(), 
 	 m_thermo->molecularWeights().end(), m_mw.begin());
 
     /*
      *  Get the input Viscosities
      */
-    m_viscSpecies.resize(m_nsp);
-    m_viscTempDep_Ns.resize(m_nsp);
+    m_viscSpecies.resize(m_nsp, 0.0);
+    m_viscTempDep_Ns.resize(m_nsp, 0);
     //for each species, assign viscosity model and coefficients
     for (k = 0; k < m_nsp; k++) {
       Cantera::LiquidTransportData &ltd = tr.LTData[k];
@@ -213,8 +213,8 @@ namespace Cantera {
     /*
      *  Get the input Thermal Conductivities
      */
-    m_lambdaSpecies.resize(m_nsp);
-    m_lambdaTempDep_Ns.resize(m_nsp);
+    m_lambdaSpecies.resize(m_nsp, 0.0);
+    m_lambdaTempDep_Ns.resize(m_nsp, 0);
     //for each species, assign thermal conductivity model 
     for (k = 0; k < m_nsp; k++) {
       Cantera::LiquidTransportData &ltd = tr.LTData[k];
@@ -224,8 +224,8 @@ namespace Cantera {
     /*
      *  Get the input Hydrodynamic Radii
      */
-    m_hydrodynamic_radius.resize(m_nsp);
-    m_radiusTempDep_Ns.resize(m_nsp);
+    m_hydrodynamic_radius.resize(m_nsp, 0.0);
+    m_radiusTempDep_Ns.resize(m_nsp, 0);
     //for each species, assign model for hydrodynamic radius
     for (k = 0; k < m_nsp; k++) {
       Cantera::LiquidTransportData &ltd = tr.LTData[k];
@@ -239,7 +239,7 @@ namespace Cantera {
      *  needed for the current model.  This section may, therefore,
      *  be extraneous.
      */
-    m_diffTempDep_Ns.resize(m_nsp);
+    m_diffTempDep_Ns.resize(m_nsp, 0);
     //for each species, assign viscosity model and coefficients
     for (k = 0; k < m_nsp; k++) {
       Cantera::LiquidTransportData &ltd = tr.LTData[k];
@@ -267,25 +267,25 @@ namespace Cantera {
     m_lambdaMixModel = tr.thermalCond;
     //m_radiusMixModel = tr.hydroRadius;
     m_diffMixModel = tr.speciesDiffusivity;
-    m_bdiff.resize(m_nsp,m_nsp);
+    m_bdiff.resize(m_nsp,m_nsp, 0.0);
     //Don't really need to update this here.  
     //It is updated in updateDiff_T()
-    m_bdiff = m_diffMixModel->getMatrixTransProp(); 
+    m_diffMixModel->getMatrixTransProp( m_bdiff ); 
 
     m_mode       = tr.mode_;
 
-    m_massfracs.resize(m_nsp);
-    m_massfracs_tran.resize(m_nsp);
-    m_molefracs.resize(m_nsp);
-    m_molefracs_tran.resize(m_nsp);
-    m_concentrations.resize(m_nsp);
-    m_actCoeff.resize(m_nsp);
-    m_chargeSpecies.resize(m_nsp);
+    m_massfracs.resize(m_nsp, 0.0);
+    m_massfracs_tran.resize(m_nsp, 0.0);
+    m_molefracs.resize(m_nsp, 0.0);
+    m_molefracs_tran.resize(m_nsp, 0.0);
+    m_concentrations.resize(m_nsp, 0.0);
+    m_actCoeff.resize(m_nsp, 0.0);
+    m_chargeSpecies.resize(m_nsp, 0.0);
     for ( int i = 0; i < m_nsp; i++ )
       m_chargeSpecies[i] = m_thermo->charge( i );
-    m_volume_spec.resize(m_nsp);
-    m_Grad_lnAC.resize(m_nsp); 
-    m_spwork.resize(m_nsp);
+    m_volume_spec.resize(m_nsp, 0.0);
+    m_Grad_lnAC.resize(m_nsp, 0.0); 
+    m_spwork.resize(m_nsp, 0.0);
 
     // resize the internal gradient variables
     m_Grad_X.resize(m_nDim * m_nsp, 0.0);
@@ -293,8 +293,8 @@ namespace Cantera {
     m_Grad_V.resize(m_nDim, 0.0);
     m_Grad_mu.resize(m_nDim * m_nsp, 0.0);
 
-    m_flux.resize(m_nsp, m_nDim);
-    m_Vdiff.resize(m_nsp, m_nDim);
+    m_flux.resize(m_nsp, m_nDim, 0.0);
+    m_Vdiff.resize(m_nsp, m_nDim, 0.0);
 
 
     // set all flags to false
@@ -1082,7 +1082,7 @@ namespace Cantera {
   //! wrt T using calls to the appropriate LTPspecies subclass
   void LiquidTransport::updateDiff_T() {
 
-    m_bdiff = m_diffMixModel->getMatrixTransProp();
+    m_diffMixModel->getMatrixTransProp( m_bdiff );
     m_diff_temp_ok = true;
     m_diff_mix_ok = false;
   }
@@ -1221,8 +1221,8 @@ namespace Cantera {
   void LiquidTransport::stefan_maxwell_solve() {
     int i, j, a;
     doublereal tmp;
-    m_B.resize(m_nsp, m_nDim);
-    m_A.resize(m_nsp, m_nsp);
+    m_B.resize(m_nsp, m_nDim, 0.0);
+    m_A.resize(m_nsp, m_nsp, 0.0);
 
     //! grab a local copy of the molecular weights
     const vector_fp& M =  m_thermo->molecularWeights();
