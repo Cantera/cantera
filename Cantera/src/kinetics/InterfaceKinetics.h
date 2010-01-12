@@ -629,6 +629,15 @@ namespace Cantera {
     //! boolean indicating whether mechanism has been finalized
     bool m_finalized;
     bool m_has_coverage_dependence;
+
+    //! Boolean flag indicating whether any reaction in the mechanism
+    //! has a beta electrochemical parameter.
+    /*!
+     *  If this is true, the the Butler-Volmer correction is applied
+     *  to the forward reaction rate for those reactions.
+     *
+     *    fac = exp ( - beta * (delta_phi))
+     */
     bool m_has_electrochem_rxns;
 
     int m_ioFlag;
