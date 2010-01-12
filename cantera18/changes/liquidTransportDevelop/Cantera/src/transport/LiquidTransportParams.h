@@ -154,8 +154,8 @@ namespace Cantera {
       throw NotImplemented("LiquidTranInteraction::getMixTransProp"); 
     }
 
-    virtual DenseMatrix getMatrixTransProp( doublereal* speciesValues = 0 ) { 
-      //return m_Dij;
+    virtual void getMatrixTransProp( DenseMatrix &mat, doublereal* speciesValues = 0 ) { 
+      //mat = m_Dij;
       throw NotImplemented("LiquidTranInteraction::getMixTransProp"); 
     }
 
@@ -276,12 +276,12 @@ namespace Cantera {
     /** 
      * Takes the separate species transport properties 
      * as input (this method does not know what
-     * transport property it is at this point.
+     * transport property it is at this point).
      */
     doublereal getMixTransProp( doublereal *valueSpecies, doublereal *weightSpecies = 0 );
     doublereal getMixTransProp( std::vector<LTPspecies*> LTPptrs ) ;
 
-    DenseMatrix getMatrixTransProp( doublereal* speciesValues = 0 ) { return m_Aij; }
+    void getMatrixTransProp( DenseMatrix &mat, doublereal* speciesValues = 0 ) { mat = m_Aij; }
 
   protected:    
     
@@ -323,7 +323,7 @@ namespace Cantera {
     doublereal getMixTransProp( doublereal *valueSpecies, doublereal *weightSpecies = 0 );
     doublereal getMixTransProp( std::vector<LTPspecies*> LTPptrs ) ;
 
-    DenseMatrix getMatrixTransProp( doublereal* speciesValues = 0 ) { return m_Aij; }
+    void getMatrixTransProp( DenseMatrix &mat, doublereal* speciesValues = 0 ) { mat = m_Aij; }
 
   protected:    
     
@@ -366,7 +366,7 @@ namespace Cantera {
     doublereal getMixTransProp( doublereal *valueSpecies, doublereal *weightSpecies = 0 );
     doublereal getMixTransProp( std::vector<LTPspecies*> LTPptrs ) ;
 
-    DenseMatrix getMatrixTransProp( doublereal* speciesValues = 0 ) { return m_Aij; }
+    void getMatrixTransProp( DenseMatrix &mat, doublereal* speciesValues = 0 ) { mat = m_Aij; }
 
   protected:    
     
@@ -440,7 +440,7 @@ namespace Cantera {
     doublereal getMixTransProp( doublereal *valueSpecies, doublereal *weightSpecies = 0 );
     doublereal getMixTransProp( std::vector<LTPspecies*> LTPptrs ) ;
 
-    DenseMatrix getMatrixTransProp( doublereal* speciesValues = 0 ) { return m_Eij; }
+    void getMatrixTransProp( DenseMatrix &mat, doublereal* speciesValues = 0 ) { mat = m_Eij; }
 
   protected:    
     
@@ -499,7 +499,7 @@ namespace Cantera {
     doublereal getMixTransProp( doublereal *valueSpecies, doublereal *weightSpecies = 0 );
     doublereal getMixTransProp( std::vector<LTPspecies*> LTPptrs ) ;
 
-    DenseMatrix getMatrixTransProp( doublereal* speciesValues = 0 ) ;
+    void getMatrixTransProp( DenseMatrix &mat, doublereal* speciesValues = 0 ) ;
 
   protected:    
 
@@ -536,7 +536,7 @@ namespace Cantera {
     doublereal getMixTransProp( doublereal *valueSpecies, doublereal *weightSpecies = 0 );
     doublereal getMixTransProp( std::vector<LTPspecies*> LTPptrs ) ;
 
-    DenseMatrix getMatrixTransProp( doublereal* speciesValues = 0 ) ;
+    void getMatrixTransProp( DenseMatrix &mat, doublereal* speciesValues = 0 ) ;
 
   protected:    
     
