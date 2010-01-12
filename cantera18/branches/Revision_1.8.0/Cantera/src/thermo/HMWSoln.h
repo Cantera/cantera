@@ -1534,7 +1534,7 @@ namespace Cantera {
 
     //! Set the temperature (K)
     /*!
-     * Overwritten setTemperature(double) from State.h. This
+     * Overwritten setTemperature(const double) from State.h. This
      * function sets the temperature, and makes sure that
      * the value propagates to underlying objects, such as
      * the water standard state model.

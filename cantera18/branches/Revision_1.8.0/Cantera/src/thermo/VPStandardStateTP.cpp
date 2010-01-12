@@ -343,7 +343,7 @@ namespace Cantera {
   }
 
 
-  void VPStandardStateTP::setTemperature(doublereal t) {
+  void VPStandardStateTP::setTemperature(const doublereal t) {
     State::setTemperature(t);
     //updateStandardStateThermo();
   }
