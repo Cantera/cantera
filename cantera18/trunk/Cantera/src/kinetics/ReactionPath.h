@@ -70,15 +70,16 @@ namespace Cantera {
         /// add a path to or from this node
         void addPath(Path* path);
 
-        double outflow() {return m_out;}
-        double inflow() {return m_in;}
-        double netOutflow() {return m_out - m_in;}
+        doublereal outflow() {return m_out;}
+        doublereal inflow() {return m_in;}
+        doublereal netOutflow() {return m_out - m_in;}
         
         void printPaths();
 
         
     protected:
-        double m_in, m_out;
+        doublereal m_in;
+        doublereal m_out;
         path_list m_paths;
     };
 
@@ -216,10 +217,10 @@ namespace Cantera {
         doublereal x_size, y_size;
         std::string name, dot_options;
         flow_t flow_type;
-        double scale;
-        double arrow_width; 
+        doublereal scale;
+        doublereal arrow_width; 
         bool show_details;
-        double arrow_hue;
+        doublereal arrow_hue;
 
     protected:
 

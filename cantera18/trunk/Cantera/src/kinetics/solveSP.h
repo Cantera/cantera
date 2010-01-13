@@ -249,45 +249,45 @@ namespace Cantera {
      *          Note the actual converged solution is returned as part of the
      *          internal state of the InterfaceKinetics objects.
      */
-    int solveSurfProb(int ifunc, double time_scale, double TKelvin, 
-		      double PGas, double reltol, double abstol);
+    int solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin, 
+		      doublereal PGas, doublereal reltol, doublereal abstol);
 
   private:
 
     //! Printing routine that gets called at the start of every
     //! invocation
-    void print_header(int ioflag, int ifunc, double time_scale,
-		      int damping, double reltol, double abstol,
-		      double TKelvin, double PGas, double netProdRate[],
-		      double XMolKinSpecies[]);
+    void print_header(int ioflag, int ifunc, doublereal time_scale,
+		      int damping, doublereal reltol, doublereal abstol,
+		      doublereal TKelvin, doublereal PGas, doublereal netProdRate[],
+		      doublereal XMolKinSpecies[]);
 
 #ifdef DEBUG_SOLVESP
 
     void printResJac(int ioflag, int neq, const Array2D &Jac,
-		     double resid[], double wtResid[], double norm);
+		     doublereal resid[], doublereal wtResid[], doublereal norm);
 #endif
 
     //! Printing routine that gets called after every iteration
-    void printIteration(int ioflag, double damp, int label_d, int label_t,
-			double inv_t, double t_real, int iter,
-			double update_norm, double resid_norm,
-			double netProdRate[], double CSolnSP[],
-			double resid[], double XMolSolnSP[],
-			double wtSpecies[], int dim, bool do_time);
+    void printIteration(int ioflag, doublereal damp, int label_d, int label_t,
+			doublereal inv_t, doublereal t_real, int iter,
+			doublereal update_norm, doublereal resid_norm,
+			doublereal netProdRate[], doublereal CSolnSP[],
+			doublereal resid[], doublereal XMolSolnSP[],
+			doublereal wtSpecies[], int dim, bool do_time);
 
 
     //! Print a summary of the solution
     /*!
      *
      */
-    void printFinal(int ioflag, double damp, int label_d, int label_t,
-		    double inv_t, double t_real, int iter,
-		    double update_norm, double resid_norm,
-		    double netProdRateKinSpecies[], const double CSolnSP[],
-		    const double resid[], double XMolSolnSP[], 
-		    const double wtSpecies[], const double wtRes[],
+    void printFinal(int ioflag, doublereal damp, int label_d, int label_t,
+		    doublereal inv_t, doublereal t_real, int iter,
+		    doublereal update_norm, doublereal resid_norm,
+		    doublereal netProdRateKinSpecies[], const doublereal CSolnSP[],
+		    const doublereal resid[], doublereal XMolSolnSP[], 
+		    const doublereal wtSpecies[], const doublereal wtRes[],
 		    int dim, bool do_time,
-		    double TKelvin, double PGas);
+		    doublereal TKelvin, doublereal PGas);
     
     //! Calculate a conservative delta T to use in a pseudo-steady state
     //! algorithm
@@ -320,9 +320,9 @@ namespace Cantera {
      *
      *    @return  Returns the 1. /  delta T to be used on the next step
      */
-    double calc_t(double netProdRateSolnSP[], double XMolSolnSP[],
+    doublereal calc_t(doublereal netProdRateSolnSP[], doublereal XMolSolnSP[],
 		  int *label, int *label_old,
-		  double *label_factor, int ioflag);
+		  doublereal *label_factor, int ioflag);
 
     //! Calculate the solution and residual weights
     /*!
@@ -335,9 +335,9 @@ namespace Cantera {
      *  @param abstol     Absolute error tolerance
      *  @param reltol     Relative error tolerance     
      */
-    void calcWeights(double wtSpecies[], double wtResid[],
-		     const Array2D &Jac, const double CSolnSP[], 
-		     const double abstol, const double reltol);
+    void calcWeights(doublereal wtSpecies[], doublereal wtResid[],
+		     const Array2D &Jac, const doublereal CSolnSP[], 
+		     const doublereal abstol, const doublereal reltol);
 
 #ifdef DEBUG_SOLVESP
     //! Utility routine to print a header for high lvls of debugging
@@ -350,22 +350,22 @@ namespace Cantera {
      *  @param do_time boolean indicating whether time stepping is taking
      *                 place
      */
-    void printIterationHeader(int ioflag, double damp,
-			      double inv_t, double t_real, int iter,
+    void printIterationHeader(int ioflag, doublereal damp,
+			      doublereal inv_t, doublereal t_real, int iter,
 			      bool do_time);
 #endif
 
     /**
      * Update the surface states of the surface phases.
      */
-    void updateState(const double* cSurfSpec);
+    void updateState(const doublereal *cSurfSpec);
 
     //! Update mole fraction vector consisting of unknowns in surface problem 
     /*!
      * @param XMolSolnSP  Vector of mole fractions for the unknowns in the
      *                    surface problem.
      */
-    void updateMFSolnSP(double *XMolSolnSP);
+    void updateMFSolnSP(doublereal * XMolSolnSP);
 
     //! Update the mole fraction vector for a specific kinetic species vector
     //! corresponding to one InterfaceKinetics object
@@ -376,7 +376,7 @@ namespace Cantera {
      *                  phases in the InterfaceKinetics object
      * @param isp       ID of the InterfaceKinetics Object.
      */
-    void updateMFKinSpecies(double *XMolKinSp, int isp);
+    void updateMFKinSpecies(doublereal *XMolKinSp, int isp);
    
 
     //! Update the vector that keeps track of the largest species in each
@@ -385,7 +385,7 @@ namespace Cantera {
      * @param CsolnSP Vector of the current values of the surface concentrations
      *                in all of the surface species.
      */
-    void evalSurfLarge(const double *CSolnSP);
+    void evalSurfLarge(const doublereal *CSolnSP);
      
     //! Main Function evalulation
     /*!
@@ -398,8 +398,8 @@ namespace Cantera {
      *  @param do_time Calculate a time dependent residual
      *  @param deltaT  Delta time for time dependent problem. 
      */
-    void  fun_eval(double* resid, const double *CSolnSP, 
-		   const double *CSolnOldSP,  const bool do_time, const double deltaT);
+    void  fun_eval(doublereal* resid, const doublereal *CSolnSP, 
+		   const doublereal *CSolnOldSP,  const bool do_time, const doublereal deltaT);
 
     //! Main routine that calculates the current residual and Jacobian 
     /*!
@@ -414,10 +414,10 @@ namespace Cantera {
      *  @param do_time Calculate a time dependent residual
      *  @param deltaT  Delta time for time dependent problem. 
      */
-    void resjac_eval(std::vector<double*>& JacCol, double* resid, 
-		     double *CSolnSP, 
-		     const double *CSolnSPOld,  const bool do_time, 
-		     const double deltaT);
+    void resjac_eval(std::vector<doublereal *>& JacCol, doublereal * resid, 
+		     doublereal *CSolnSP, 
+		     const doublereal *CSolnSPOld,  const bool do_time, 
+		     const doublereal deltaT);
     
     //!   Pointer to the manager of the implicit surface chemistry
     //!   problem
@@ -581,10 +581,10 @@ namespace Cantera {
     /*!
      *   units are (kmol/m2)
      */
-    double m_atol;
+    doublereal m_atol;
     
     //! m_rtol is the relative error tolerance.
-    double m_rtol;
+    doublereal m_rtol;
   
     //! maximum value of the time step
     /*!
@@ -669,7 +669,7 @@ namespace Cantera {
      *   The "dim" by "dim" computed Jacobian matrix for the
      *   local Newton's method.
      */
-    std::vector<double *> m_JacCol;
+    std::vector<doublereal *> m_JacCol;
 
     //! Jacobian
     /*!

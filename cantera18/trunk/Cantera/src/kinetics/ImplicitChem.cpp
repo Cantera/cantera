@@ -38,7 +38,7 @@ namespace Cantera {
 
     // overloaded method of FuncEval. Called by the integrator to
     // get the initial conditions.
-    void ImplicitChem::getInitialConditions(double t0, size_t leny, double* y) 
+    void ImplicitChem::getInitialConditions(doublereal t0, size_t leny, doublereal * y) 
     {
         m_thermo->getMassFractions(y);
         m_h0 = m_thermo->enthalpy_mass();

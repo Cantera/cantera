@@ -96,7 +96,7 @@ namespace Cantera {
   void checkRxnElementBalance(Kinetics& kin, 
 			      const ReactionData &rdata, doublereal errorTolerance) {
     int index, klocal, n, kp, kr, m, nel;
-    double kstoich;
+    doublereal kstoich;
 
     map<string, double> bal, balr, balp;
     bal.clear();
@@ -351,8 +351,8 @@ namespace Cantera {
     int ispKinetics = kin.kineticsSpeciesIndex(spname);
     int ispPhaseIndex = kin.speciesPhaseIndex(ispKinetics);
   
-    double ispMW = th.molecularWeights()[isp];
-    double sc;
+    doublereal ispMW = th.molecularWeights()[isp];
+    doublereal sc;
 
     // loop over the reactants
     for (int n = 0; n < nr; n++) {
@@ -760,9 +760,9 @@ namespace Cantera {
       int np = rdata.products.size();
       for (int i = 0; i < np; i++) {
 	int k = rdata.products[i];
-	double po = rdata.porder[i];
+	doublereal po = rdata.porder[i];
 	AssertTrace(po == rdata.pstoich[i]);
-	double chk = po - 1.0 * int(po);
+	doublereal chk = po - 1.0 * int(po);
 	if (chk != 0.0) {
           /*
            *   put in a check here that k is a single species phase.
@@ -779,9 +779,9 @@ namespace Cantera {
       int nr = rdata.reactants.size();
       for (int i = 0; i < nr; i++) {
 	int k = rdata.reactants[i];
-	double ro = rdata.rorder[i];
+	doublereal ro = rdata.rorder[i];
 	AssertTrace(ro == rdata.rstoich[i]);
-	double chk = ro - 1.0 * int(ro);
+	doublereal chk = ro - 1.0 * int(ro);
 	if (chk != 0.0) {
           /*
            *   put in a check here that k is a single species phase.
