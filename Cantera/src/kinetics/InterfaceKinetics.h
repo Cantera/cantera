@@ -38,8 +38,9 @@ namespace Cantera {
   class ImplicitSurfChem;
 
 
-  /**
-   * Holds mechanism-specific data.
+  //! This class holds mechanism-specific data.
+  /*!
+   *
    */
   class InterfaceKineticsData {
   public:
@@ -47,9 +48,11 @@ namespace Cantera {
       m_ROP_ok(false),
       m_temp(0.0), m_logtemp(0.0)
     {}
+    //! Virtual destructor
     virtual ~InterfaceKineticsData(){}
 
-    doublereal m_logp0, m_logc0;
+    doublereal m_logp0;
+    doublereal m_logc0;
     array_fp m_ropf;
     array_fp m_ropr;
     array_fp m_ropnet;

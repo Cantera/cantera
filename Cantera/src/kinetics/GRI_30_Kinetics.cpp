@@ -85,8 +85,8 @@ namespace Cantera {
     }
 
 
-    void GRI_30_Kinetics::update_rates(double t, double tlog, double* rf) {
-        double rt = 1.0/t;
+    void GRI_30_Kinetics::update_rates(doublereal t, doublereal tlog, doublereal * rf) {
+        doublereal rt = 1.0/t;
         rf[0] =  exp(25.5108 + -1 * tlog);
         rf[1] =  exp(26.9379 + -1 * tlog);
         rf[2] =  exp(3.65584 + 2.7 * tlog - 3150.48 * rt);
@@ -291,7 +291,7 @@ namespace Cantera {
     }
 
 
-    void GRI_30_Kinetics::update_kc(const double* a, double exp_c0, double* rkc) {
+    void GRI_30_Kinetics::update_kc(const doublereal * a, doublereal  exp_c0, doublereal * rkc) {
         rkc[0] = a[3]*exp_c0/(a[2]*a[2]);
         rkc[1] = a[4]*exp_c0/(a[1]*a[2]);
         rkc[2] = a[1]*a[4]/(a[0]*a[2]);
@@ -604,7 +604,7 @@ namespace Cantera {
     }
 
 
-    void GRI_30_Kinetics::get_wdot(const double* rop, double* wdot) {
+    void GRI_30_Kinetics::get_wdot(const doublereal * rop, doublereal * wdot) {
         wdot[0] =  - rop[2] + rop[7] + rop[38] + rop[39] + rop[40] + rop[41] + rop[44] + rop[46] + rop[48] + rop[50] + rop[52] + rop[54] + rop[57] + rop[59] + rop[64] + rop[67] + rop[68] + rop[72] + rop[74] + rop[76] + rop[77] + rop[79] - rop[82] - rop[83] - rop[125] - rop[135] + rop[136] - rop[145] - rop[171] + rop[173] + rop[190] + rop[196] + rop[201] + rop[208] + rop[213] - rop[220] + rop[265] + rop[275] + rop[276] + rop[283] + rop[287] - rop[288] + rop[292] + rop[298] + rop[299] + rop[308] + rop[313];
         wdot[1] =  - rop[1] + rop[2] + rop[5] + rop[6] + rop[8] + rop[9] + rop[13] + rop[20] + rop[23] + rop[27] - rop[32] - rop[33] - rop[34] - rop[35] - rop[36] - rop[37] - 2*rop[38] - 2*rop[39] - 2*rop[40] - 2*rop[41] - rop[42] - rop[43] - rop[44] - rop[45] - rop[46] - rop[47] - rop[48] - rop[49] - rop[50] - rop[51] - rop[52] - rop[53] - rop[54] - rop[55] - rop[56] - rop[57] - rop[58] - rop[59] - rop[60] - rop[61] - rop[62] - rop[64] - rop[65] - rop[66] - rop[67] - rop[68] - rop[69] - rop[70] - rop[71] - rop[72] - rop[73] - rop[74] - rop[75] - rop[76] - rop[77] - rop[78] - rop[79] - rop[80] + rop[83] + rop[89] + rop[90] + rop[91] + rop[93] + rop[98] + rop[105] + rop[106] + rop[107] + rop[122] + rop[123] + rop[125] + rop[126] + rop[127] + rop[128] + rop[129] + rop[132] + rop[134] + rop[135] + rop[137] + rop[143] + rop[145] + rop[148] + rop[158] + rop[165] + rop[166] + rop[171] + rop[179] - rop[182] - rop[188] + rop[189] - rop[190] + rop[191] + rop[195] + rop[198] + rop[200] - rop[201] + rop[203] + rop[204] - rop[208] - rop[211] - rop[213] + rop[217] + rop[220] - rop[222] + rop[223] + rop[229] + rop[230] + rop[233] + rop[234] - rop[236] + rop[246] + rop[248] + rop[250] + rop[251] + rop[253] + rop[256] + rop[259] - rop[260] - rop[264] - rop[265] - rop[270] - rop[271] + rop[274] - rop[276] + rop[283] + rop[284] + rop[285] + 2*rop[289] + 2*rop[291] - rop[298] - rop[299] - rop[303] + rop[304] - rop[307] - rop[308] - rop[313] - rop[319] - rop[320];
         wdot[2] =  - 2*rop[0] - rop[1] - rop[2] - rop[3] - rop[4] - rop[5] - rop[6] - rop[7] - rop[8] - rop[9] - rop[10] - rop[11] - rop[12] - rop[13] - rop[14] - rop[15] - rop[16] - rop[17] - rop[18] - rop[19] - rop[20] - rop[21] - rop[22] - rop[23] - rop[24] - rop[25] - rop[26] - rop[27] - rop[28] - rop[29] + rop[30] + rop[37] + rop[43] + rop[85] + rop[121] + rop[124] + rop[154] + rop[177] + rop[178] - rop[180] - rop[181] + rop[184] - rop[186] - rop[187] - rop[189] + rop[193] - rop[199] - rop[200] - rop[206] - rop[207] - rop[212] - rop[216] + rop[219] - rop[221] - rop[230] - rop[231] - rop[232] + rop[243] + rop[245] - rop[256] - rop[257] + rop[258] - rop[261] - rop[262] - rop[263] - rop[278] - rop[283] - rop[284] - rop[285] + rop[290] + rop[293] - rop[295] - rop[296] - rop[304] - rop[312] - rop[318];
@@ -661,7 +661,7 @@ namespace Cantera {
     }
 
 
-    void GRI_30_Kinetics::eval_ropnet(const double* c, const double* rf, const double* rkc, double* r) {
+    void GRI_30_Kinetics::eval_ropnet(const doublereal * c, const doublereal * rf, const doublereal * rkc, doublereal * r) {
         r[0] = rf[0] * (c[2] * c[2] - rkc[0] * c[3]);
         r[1] = rf[1] * (c[2] * c[1] - rkc[1] * c[4]);
         r[2] = rf[2] * (c[2] * c[0] - rkc[2] * c[1] * c[4]);
