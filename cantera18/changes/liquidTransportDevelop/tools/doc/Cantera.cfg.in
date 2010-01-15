@@ -720,8 +720,6 @@ FILE_PATTERNS          = Kinetics.h  Kinetics.cpp \
                          VPSSMgrFactory.cpp \
                          PDSS_ConstVol.h \
                          PDSS_ConstVol.cpp \
-                         PDSS_SSVol.h \
-                         PDSS_SSVol.cpp \
                          PDSS_IdealGas.h \
                          PDSS_IdealGas.cpp \
                          PDSS_Water.h \
@@ -730,6 +728,8 @@ FILE_PATTERNS          = Kinetics.h  Kinetics.cpp \
                          PDSS_HKFT.cpp \
                          PDSS_IonsFromNeutral.h \
                          PDSS_IonsFromNeutral.cpp \
+                         PDSS_SSVol.h \
+                         PDSS_SSVol.cpp \
                          IdealSolnGasVPSS.h \
                          IdealSolnGasVPSS.cpp \
                          ConstDensityThermo.h \
