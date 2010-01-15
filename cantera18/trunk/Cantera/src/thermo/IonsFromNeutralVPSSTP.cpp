@@ -615,9 +615,9 @@ namespace Cantera {
 
 
   // This is temporary. We will get rid of this
-  void IonsFromNeutralVPSSTP::setTemperature(doublereal t) {
+  void IonsFromNeutralVPSSTP::setTemperature(const doublereal temp) {
     double p = pressure();
-    IonsFromNeutralVPSSTP::setState_TP(t, p);
+    IonsFromNeutralVPSSTP::setState_TP(temp, p);
   }
 
  // This is temporary. We will get rid of this
