@@ -458,7 +458,7 @@ namespace Cantera {
      * @{
      */
 
-    virtual void setTemperature(doublereal t);
+    virtual void setTemperature(const doublereal t);
     virtual void setPressure(doublereal p);
 
     //! Set the temperature (K) and pressure (Pa)

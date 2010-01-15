@@ -42,10 +42,10 @@ namespace Cantera {
         void gri30_update_rates_T();
         void gri30_updateROP();
         void gri30_updateKc();
-        void get_wdot(const doublereal* rop, doublereal* wdot);
-        void update_kc(const double* grt, double c0, double* rkc);
-        void update_rates(double t, double tlog, double* rf);
-        void eval_ropnet(const double* c, const double* rf, const double* rkc, double* r);
+        void get_wdot(const doublereal * rop, doublereal * wdot);
+        void update_kc(const doublereal * grt, doublereal  c0, doublereal * rkc);
+        void update_rates(doublereal t, doublereal  tlog, doublereal * rf);
+        void eval_ropnet(const doublereal * c, const doublereal * rf, const doublereal * rkc, doublereal * r);
     };
 }
 

@@ -486,6 +486,8 @@ namespace Cantera {
       //! Typedef for map between a thread and the message
       typedef std::map< cthreadId_t, pMessages_t > threadMsgMap_t ;
 
+      //! Class that stores thread messages for each thread, and retrieves them
+      //! based on the thread id.
       class ThreadMessages
       {
       public:

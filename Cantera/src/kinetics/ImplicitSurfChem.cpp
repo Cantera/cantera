@@ -132,8 +132,8 @@ namespace Cantera {
 
   // overloaded method of FuncEval. Called by the integrator to
   // get the initial conditions.
-  void ImplicitSurfChem::getInitialConditions(double t0, size_t lenc, 
-					      double* c) 
+  void ImplicitSurfChem::getInitialConditions(doublereal t0, size_t lenc, 
+					      doublereal * c) 
   {
     int loc = 0;
     for (int n = 0; n < m_nsurf; n++) {
@@ -234,7 +234,7 @@ namespace Cantera {
     /*
      * time scale - time over which to integrate equations
      */
-    double time_scale = timeScaleOverride;
+    doublereal time_scale = timeScaleOverride;
     /*
      *
      */
@@ -263,8 +263,8 @@ namespace Cantera {
     getConcSpecies(DATA_PTR(m_concSpecies));
     InterfaceKinetics *ik = m_vecKinPtrs[0];
     ThermoPhase &tp = ik->thermo(0);
-    double TKelvin = tp.temperature();
-    double PGas  = tp.pressure();
+    doublereal TKelvin = tp.temperature();
+    doublereal PGas  = tp.pressure();
     /*
      * Make sure that there is a common temperature and 
      * pressure for all ThermoPhase objects belonging to the
@@ -275,8 +275,8 @@ namespace Cantera {
       setCommonState_TP(TKelvin, PGas);
     }
 
-    double reltol = 1.0E-6;
-    double atol = 1.0E-20;
+    doublereal reltol = 1.0E-6;
+    doublereal atol = 1.0E-20;
 
     /*
      * Install a filter for negative concentrations. One of the 
@@ -379,7 +379,7 @@ namespace Cantera {
    *        Pressure    = Pascal
    */
   void ImplicitSurfChem::
-  setCommonState_TP(double TKelvin, double PresPa) {
+  setCommonState_TP(doublereal TKelvin, doublereal PresPa) {
     int nphases = m_nsurf;
     for (int ip = 0; ip < nphases; ip++) {
       ThermoPhase *TP_ptr = m_surf[ip];

@@ -357,8 +357,8 @@ namespace Cantera {
   }
 
 
-  void VPStandardStateTP::setTemperature(doublereal t) {
-    setState_TP(t, m_Pcurrent);
+  void VPStandardStateTP::setTemperature(const doublereal temp) {
+    setState_TP(temp, m_Pcurrent);
     updateStandardStateThermo();
   }
 

@@ -321,7 +321,7 @@ namespace Cantera {
     }
 
     doublereal updateRC(doublereal logT, doublereal recipT) const {
-      double lres = update(logT, recipT);
+      doublereal lres = update(logT, recipT);
       return exp(lres);
     }
         
