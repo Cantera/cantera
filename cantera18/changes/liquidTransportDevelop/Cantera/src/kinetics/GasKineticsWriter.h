@@ -63,7 +63,7 @@ namespace Cantera {
 
 		void writeGetNetProductionRates(std::ostream& s, int nsp, int nrxns) {
             int i, k;
-			s << "void get_wdot(const double* rop, double* wdot) {" << std::endl;
+			s << "void get_wdot(const doublereal * rop, doublereal * wdot) {" << std::endl;
             for (k = 0; k < nsp; k++) {
                 s << "  wdot[" << k << "] = ";
                 doublereal net;
@@ -94,8 +94,8 @@ namespace Cantera {
  
 		void writeUpdateKc(std::ostream& s, int nsp, int nrxns) {
             int i, k, n, nn, ir;
-            s << "void update_kc(const double* a, "
-                "double exp_c0, double* rkc) {" << endl;
+            s << "void update_kc(const doublereal * a, "
+                "doublereal exp_c0, doublereal* rkc) {" << endl;
             for (i = 0; i != m_nrev; i++) {
                 //if (isReversible(i)) {
                 ir = m_revindex[i];
@@ -134,8 +134,8 @@ namespace Cantera {
 
 		void writeEvalRopnet(std::ostream& s) {
             int i;
-            s << "void eval_ropnet(const double* c, "
-                "const double* rf, const double* rkc, double* r) {" << endl;
+            s << "void eval_ropnet(const doublereal* c, "
+                "const doublereal * rf, const doublereal * rkc, doublereal* r) {" << endl;
             for (i = 0; i < m_ii; i++) {
                 s << "  r[" << i << "] = rf[" << i << "] * (" 
                   << m_reactantWriter.mult(i);
@@ -151,8 +151,8 @@ namespace Cantera {
 
 
 		void writeUpdateRates(std::ostream& s) {
-            s << "void update_rates(double t, double tlog, double* rf) {" << endl;
-            s << "  double rt = 1.0/t;" << endl;
+            s << "void update_rates(doublereal t, doublereal tlog, doublereal * rf) {" << endl;
+            s << "  doublereal rt = 1.0/t;" << endl;
             m_rates.writeUpdate(s, "rf");
             s << "}" << endl;
         }

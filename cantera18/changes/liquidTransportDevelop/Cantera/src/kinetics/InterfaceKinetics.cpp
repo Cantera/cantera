@@ -425,7 +425,7 @@ namespace Cantera {
      */
     doublereal eamod;
 #ifdef DEBUG_KIN_MODE
-    double ea;
+    doublereal ea;
 #endif
     int nct = m_beta.size();
     int irxn;

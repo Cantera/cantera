@@ -212,7 +212,7 @@ namespace Cantera {
      *  @param TKelvin input temperature (kelvin)
      *  @param PresPa   input pressure in pascal.
      */
-    void setCommonState_TP(double TKelvin, double PresPa);
+    void setCommonState_TP(doublereal TKelvin, doublereal PresPa);
 
 
     //! Returns a reference to the vector of pointers to the 
@@ -245,25 +245,25 @@ namespace Cantera {
      *          The lenth is equal to the sum of the number of surface
      *          sites in all the surface phases
      */
-    void updateState(doublereal* y);
+    void updateState(doublereal *y);
 
     //! vector of pointers to surface phases.
-    std::vector<SurfPhase*>            m_surf;
+    std::vector<SurfPhase*> m_surf;
 
     //! Vector of pointers to bulk phases
-    std::vector<ThermoPhase *>         m_bulkPhases;
+    std::vector<ThermoPhase *> m_bulkPhases;
 
     //! vector of pointers to InterfaceKinetics objects
-    std::vector<InterfaceKinetics*>    m_vecKinPtrs;
+    std::vector<InterfaceKinetics*> m_vecKinPtrs;
 
     //! Vector of number of species in each Surface Phase
-    vector_int                    m_nsp;
+    vector_int  m_nsp;
 
     //! index of the surface phase in each InterfaceKinetics object
-    vector_int                    m_surfindex;
+    vector_int m_surfindex;
 
     
-    vector_int                    m_specStartIndex;
+    vector_int m_specStartIndex;
 
     //! Total number of surface phases.
     /*!

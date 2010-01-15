@@ -38,8 +38,9 @@ namespace Cantera {
   class ImplicitSurfChem;
 
 
-  /**
-   * Holds mechanism-specific data.
+  //! This class holds mechanism-specific data.
+  /*!
+   *
    */
   class InterfaceKineticsData {
   public:
@@ -47,9 +48,11 @@ namespace Cantera {
       m_ROP_ok(false),
       m_temp(0.0), m_logtemp(0.0)
     {}
+    //! Virtual destructor
     virtual ~InterfaceKineticsData(){}
 
-    doublereal m_logp0, m_logc0;
+    doublereal m_logp0;
+    doublereal m_logc0;
     array_fp m_ropf;
     array_fp m_ropr;
     array_fp m_ropnet;
@@ -629,6 +632,15 @@ namespace Cantera {
     //! boolean indicating whether mechanism has been finalized
     bool m_finalized;
     bool m_has_coverage_dependence;
+
+    //! Boolean flag indicating whether any reaction in the mechanism
+    //! has a beta electrochemical parameter.
+    /*!
+     *  If this is true, the the Butler-Volmer correction is applied
+     *  to the forward reaction rate for those reactions.
+     *
+     *    fac = exp ( - beta * (delta_phi))
+     */
     bool m_has_electrochem_rxns;
 
     int m_ioFlag;

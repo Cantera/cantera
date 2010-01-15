@@ -256,49 +256,47 @@ namespace Cantera {
      * standard state functions for species 0
      */
     
-    /**
-     * Get the array of non-dimensional species chemical potentials
-     * These are partial molar Gibbs free energies.
-     * \f$ \mu_k / \hat R T \f$.
+    //!  Get the array of non-dimensional species chemical potentials
+    //! These are partial molar Gibbs free energies.
+    /*!
+     *  These are the phase, partial molar, and the standard state
+     *  dimensionless chemical potentials.
+     *  \f$ \mu_k / \hat R T \f$.
+     *
      * Units: unitless
      *
-     * This function is resolved here by calling the standard state
-     * thermo function.
-     *
-     * @param mu  Output vector of dimensionless chemical potentials.
-     *            Length: m_kk.
+     *  @param murt   On return, Contains the chemical potential / RT of the single species
+     *                and the phase. Units are unitless. Length = 1
      */
-    void getChemPotentials_RT(doublereal* mu) const;
+    void getChemPotentials_RT(doublereal* murt) const;
 
-    /**
-     * Get the species chemical potentials in the solution
-     * These are partial molar Gibbs free energies.
-     * Units: J/kmol.
+    //! Get the array of chemical potentials
+    /*!
+     * These are the phase, partial molar, and the standard state chemical potentials.
+     *     \f$ \mu(T,P) = \mu^0_k(T,P) \f$.
      *
-     * This function is resolved here by calling the standard state
-     * thermo function.
-     *
-     * @param mu  Output vector of species chemical 
-     *            potentials. Length: m_kk. Units: J/kmol
+     *  @param mu   On return, Contains the chemical potential of the single species
+     *              and the phase. Units are J / kmol . Length = 1
      */
     void getChemPotentials(doublereal* mu) const;
 
-    /**
-     * Get the species electrochemical potentials. Units: J/kmol.
+    //! Get the species electrochemical potentials. Units: J/kmol.
+    /*!
      * This method adds a term \f$ Fz_k \phi_k \f$ to 
      * each chemical potential.
      *
-     * This is resolved here. A single single species phase
-     * is not allowed to have anything other than a zero
-     * charge.
+     * This is resolved here. A single  species phase
+     * is not allowed to have anything other than a zero charge.
      *
-     * @param mu  Output vector of species electrochemical
-     *            potentials. Length: m_kk. Units: J/kmol
+     *  @param mu   On return, Contains the electrochemical potential of the single species
+     *                and the phase. Units J/kmol . Length = 1
      */
     void getElectrochemPotentials(doublereal* mu) const;
 
     //!  Get the species partial molar enthalpies. Units: J/kmol.
     /*!
+     * These are the phase enthalpies.  \f$ h_k \f$.
+     *
      * This function is resolved here by calling the standard state
      * thermo function.
      *
@@ -307,43 +305,52 @@ namespace Cantera {
      */
     void getPartialMolarEnthalpies(doublereal* hbar) const;
  
-    //! Get the species partial molar enthalpies. Units: J/kmol.
+   
+    //! Get the species partial molar internal energies. Units: J/kmol.
     /*!
-     * This function is resolved here by calling the standard state
-     * thermo function.
+     * These are the phase internal energies.  \f$ u_k \f$.
      *
-     * @param ubar    Output vector of speciar partial molar internal energies.
-     *                Length = m_kk. units are J/kmol.
+     * This  member function is resolved here. A single species phase obtains its
+     * thermo from the standard state function.
+     *
+     *  @param ubar On return, Contains the internal energy of the single species
+     *              and the phase. Units are J / kmol . Length = 1
      */
     virtual void getPartialMolarIntEnergies(doublereal* ubar) const;
 
-    //! Get the species partial molar entropies. Units: J/kmol/K.
+    //! Get the species partial molar entropy. Units: J/kmol K.
     /*!
-     * This function is resolved here by calling the standard state
-     * thermo function.
+     * This is the phase entropy.  \f$ s(T,P) = s_o(T,P) \f$.
      *
-     * @param sbar    Output vector of species partial molar entropies.
-     *                Length = 1. units are J/kmol/K.
+     * This member function is resolved here. A single species phase obtains its
+     * thermo from the standard state function.
+     *
+     *  @param sbar On return, Contains the entropy of the single species
+     *              and the phase. Units are J / kmol / K . Length = 1
      */
     void getPartialMolarEntropies(doublereal* sbar) const;
 
-    //! Get the species partial molar heat capacties. Units: J/kmol/K.
+    //! Get the species partial molar Heat Capacities. Units: J/ kmol /K.
     /*!
-     * This function is resolved here by calling the standard state
-     * thermo function.
+     * This is the phase heat capacity.  \f$ Cp(T,P) = Cp_o(T,P) \f$.
      *
-     * @param cpbar    Output vector of species partial molar heat capacities
-     *                 Length = 1. units are J/kmol/K.
+     * This member function is resolved here. A single species phase obtains its
+     * thermo from the standard state function.
+     *
+     *  @param cpbar On return, Contains the heat capacity of the single species
+     *              and the phase. Units are J / kmol / K . Length = 1
      */
     void getPartialMolarCp(doublereal* cpbar) const;
 
-
     //! Get the species partial molar volumes. Units: m^3/kmol.
     /*!
-     *  This function is resolved here by calling the density function.
+     * This is the phase molar volume.  \f$ V(T,P) = V_o(T,P) \f$.
      *
-     *  @param vbar   Output vector of speciar partial molar volumes.
-     *                Length = 1. units are m^3/kmol.
+     * This member function is resolved here. A single species phase obtains its
+     * thermo from the standard state function.
+     *
+     *  @param vbar On return, Contains the molar volume of the single species
+     *              and the phase. Units are m^3 / kmol. Length = 1
      */
     void getPartialMolarVolumes(doublereal* vbar) const;
 
@@ -367,19 +374,18 @@ namespace Cantera {
      */
     void getPureGibbs(doublereal* gpure) const;
 
-    /**
-     * Get the molar volumes of each species in their standard
-     * states at the current
-     * <I>T</I> and <I>P</I> of the solution.
-     * units = m^3 / kmol
+    //! Get the molar volumes of each species in their standard
+    //! states at the current  <I>T</I> and <I>P</I> of the solution.
+    /*!
+     *   units = m^3 / kmol
      *
      * We resolve this function at this level, by assigning 
-     * the molec weight divided by the phase density
+     * the molecular weight divided by the phase density
      *
-     * @param vol vector of length one, containing the standard volume
-     *            of the phase.
+     * @param vbar On output this contains the standard volume of the species
+     *             and phase (m^3/kmol). Vector of length 1
      */
-    void getStandardVolumes(doublereal *vol) const;
+    void getStandardVolumes(doublereal *vbar) const;
 
 
     //@}
