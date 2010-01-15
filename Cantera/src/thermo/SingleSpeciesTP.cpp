@@ -232,20 +232,29 @@ namespace Cantera {
    *  of the zeroeth species.
    */
 
-  /**
-   * Get the array of chemical potentials at unit activity 
-   * These are the standard state chemical potentials. 
-   * \f$ \mu^0_k \f$.
+  
+  // Get the array of chemical potentials at unit activity 
+  /*
+   * These are the standard state chemical potentials.  \f$ \mu^0_k \f$.
+   *
+   *  @param mu   On return, Contains the chemical potential of the single species
+   *              and the phase. Units are J / kmol . Length = 1
    */
   void SingleSpeciesTP::getChemPotentials(doublereal* mu) const {
     getStandardChemPotentials(mu);
   }
 
-  /**
-   *  Get the array of non-dimensional species chemical potentials
-   * These are partial molar Gibbs free energies.
-   * \f$ \mu_k / \hat R T \f$.
+  
+  //  Get the array of non-dimensional species chemical potentials
+  // These are partial molar Gibbs free energies.
+  /*
+   *  These are the standard state dimensionless chemical potentials. 
+   *  \f$ \mu_k / \hat R T \f$.
+   *
    * Units: unitless
+   *
+   *  @param murt   On return, Contains the chemical potential / RT of the single species
+   *                and the phase. Units are unitless. Length = 1
    */
   void SingleSpeciesTP::getChemPotentials_RT(doublereal* murt) const {
     getStandardChemPotentials(murt);
@@ -253,21 +262,27 @@ namespace Cantera {
     murt[0] /= rt;
   }
 
-  /**
-   * Get the species electrochemical potentials. Units: J/kmol.
+  // Get the species electrochemical potentials. Units: J/kmol.
+  /*
    * This method adds a term \f$ Fz_k \phi_k \f$ to 
    * each chemical potential.
    *
-   * This is resolved here. A single single species phase
-   * is not allowed to have anything other than a zero
-   * charge.
+   * This is resolved here. A single  species phase
+   * is not allowed to have anything other than a zero charge.
+   *
+   *  @param murt   On return, Contains the chemical potential / RT of the single species
+   *                and the phase. Units are unitless. Length = 1
    */
   void SingleSpeciesTP::getElectrochemPotentials(doublereal* mu) const {
     getChemPotentials(mu);
   }
 
-  /**
-   * Get the species partial molar enthalpies. Units: J/kmol.
+  // Get the species partial molar enthalpies. Units: J/kmol.
+  /*
+   * These are the phase enthalpies.  \f$ h_k \f$.
+   *
+   *  @param hbar On return, Contains the enthalpy of the single species
+   *              and the phase. Units are J / kmol . Length = 1
    */
   void SingleSpeciesTP::
   getPartialMolarEnthalpies(doublereal* hbar) const {
@@ -276,8 +291,15 @@ namespace Cantera {
     hbar[0] *= _rt;
   }
 
-  /**
-   * Get the species partial molar internal energies. Units: J/kmol.
+  // Get the species partial molar internal energies. Units: J/kmol.
+  /*
+   * These are the phase internal energies.  \f$ u_k \f$.
+   *
+   * This  member function is resolved here. A single species phase obtains its
+   * thermo from the standard state function.
+   *
+   *  @param ubar On return, Contains the internal energy of the single species
+   *              and the phase. Units are J / kmol . Length = 1
    */
   void SingleSpeciesTP::
   getPartialMolarIntEnergies(doublereal* ubar) const {
@@ -286,8 +308,15 @@ namespace Cantera {
     ubar[0] *= _rt;
   }
 
-  /**
-   * Get the species partial molar entropy. Units: J/kmol K.
+  // Get the species partial molar entropy. Units: J/kmol K.
+  /*
+   * This is the phase entropy.  \f$ s(T,P) = s_o(T,P) \f$.
+   *
+   * This member function is resolved here. A single species phase obtains its
+   * thermo from the standard state function.
+   *
+   *  @param sbar On return, Contains the entropy of the single species
+   *              and the phase. Units are J / kmol / K . Length = 1
    */
   void SingleSpeciesTP::
   getPartialMolarEntropies(doublereal* sbar) const {
@@ -295,16 +324,30 @@ namespace Cantera {
     sbar[0] *= GasConstant;
   }
 
-  /**
-   * Get the species partial molar Heat Capacities. Units: J/kmol K.
+  // Get the species partial molar Heat Capacities. Units: J/ kmol K.
+  /*
+   * This is the phase heat capacity.  \f$ Cp(T,P) = Cp_o(T,P) \f$.
+   *
+   * This member function is resolved here. A single species phase obtains its
+   * thermo from the standard state function.
+   *
+   *  @param cpbar On return, Contains the heat capacity of the single species
+   *              and the phase. Units are J / kmol / K . Length = 1
    */
   void SingleSpeciesTP::getPartialMolarCp(doublereal* cpbar) const {
     getCp_R(cpbar);
     cpbar[0] *= GasConstant;
   }
-
-  /**
-   * Get the species partial molar volumes. Units: m^3/kmol.
+  
+  // Get the species partial molar volumes. Units: m^3/kmol.
+  /*
+   * This is the phase molar volume.  \f$ V(T,P) = V_o(T,P) \f$.
+   *
+   * This member function is resolved here. A single species phase obtains its
+   * thermo from the standard state function.
+   *
+   *  @param cpbar On return, Contains the molar volume of the single species
+   *              and the phase. Units are m^3 / kmol. Length = 1
    */
   void SingleSpeciesTP::getPartialMolarVolumes(doublereal* vbar) const {
     double mw = molecularWeight(0);
@@ -317,7 +360,7 @@ namespace Cantera {
    *  -----
    */
 
-  /**
+  /*
    * Get the dimensional Gibbs functions for the standard
    * state of the species at the current T and P.
    */
@@ -326,14 +369,17 @@ namespace Cantera {
     gpure[0] *= GasConstant * temperature();
   }
 
-  /**
-   * Get the molar volumes of each species in their standard
-   * states at the current
-   * <I>T</I> and <I>P</I> of the solution.
-   * units = m^3 / kmol
+ 
+  // Get the molar volumes of each species in their standard
+  // states at the current  <I>T</I> and <I>P</I> of the solution.
+  /*
+   *   units = m^3 / kmol
    *
    * We resolve this function at this level, by assigning 
-   * the molec weight divided by the phase density
+   * the molecular weight divided by the phase density
+   *
+   * @param vbar On output this contains the standard volume of the species
+   *             and phase (m^3/kmol). Vector of length 1
    */
   void SingleSpeciesTP::getStandardVolumes(doublereal* vbar) const {
     double mw = molecularWeight(0);

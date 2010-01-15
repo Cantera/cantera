@@ -164,7 +164,7 @@ namespace Cantera {
      *
      * units = returns density in kg m-3.
      */
-    static double density_T(double T, double P, int ifunc);
+    static doublereal density_T(doublereal T, doublereal P, int ifunc);
 
    
     //!     Bradley-Pitzer equation for the dielectric constant 
@@ -200,7 +200,7 @@ namespace Cantera {
      *   value at 25C and 1 atm, relEps = 78.38
      * 
      */
-    double relEpsilon(double T, double P_pascal,  int ifunc = 0);
+    doublereal relEpsilon(doublereal T, doublereal P_pascal,  int ifunc = 0);
 
     
     //! ADebye calculates the value of A_Debye as a function
@@ -243,7 +243,7 @@ namespace Cantera {
      *   - ifunc = 3 return pressure first derivative
      *   .
      *
-     * @return Returns a single double whose meaning depends on ifunc:
+     * @return Returns a single doublereal whose meaning depends on ifunc:
      *   - ifunc = 0 return value
      *   - ifunc = 1 return temperature derivative
      *   - ifunc = 2 return temperature second derivative
@@ -258,7 +258,7 @@ namespace Cantera {
      *    the Pitzer table p. 99 to 4 significant digits at 25C.
      *    and 20C. (Aphi = ADebye/3)
      */
-    double ADebye(double T, double P, int ifunc);
+    doublereal ADebye(doublereal T, doublereal P, int ifunc);
 
 
     //! Returns the saturation pressure given the temperature
@@ -266,7 +266,7 @@ namespace Cantera {
      * @param T temperature (kelvin)
      * @return returns the saturation pressure (pascal)
      */
-    double satPressure(double T);
+    doublereal satPressure(doublereal T);
  
 
     //! Returns the density of water
@@ -277,14 +277,14 @@ namespace Cantera {
      * @param T Temperature (kelvin)
      * @param P pressure (pascal)
      */
-    double density_IAPWS(double T, double P);
+    doublereal density_IAPWS(doublereal T, doublereal P);
 
     //! Returns the density of water
     /*!
      *  This function uses the internal state of the
      *  underlying water object
      */
-    double density_IAPWS() const;
+    doublereal density_IAPWS() const;
 
 
     //! returns the coefficient of thermal expansion
@@ -292,14 +292,14 @@ namespace Cantera {
      *  @param T Temperature (kelvin)
      *  @param P pressure (pascal)
      */
-    double coeffThermalExp_IAPWS(double T, double P);
+    doublereal coeffThermalExp_IAPWS(doublereal T, doublereal P);
 
     //! Returns the isothermal compressibility of water
     /*!
      * @param T  temperature in kelvin
      * @param P  pressure in pascal
      */
-    double isothermalCompressibility_IAPWS(double T, double P);
+    doublereal isothermalCompressibility_IAPWS(doublereal T, doublereal P);
 
     //! Returns the viscosity of water at the current conditions
     //! (kg/m/s)
@@ -316,7 +316,7 @@ namespace Cantera {
      *  for steam and for water, even near the critical point.
      *  Pressures above 500 MPa and temperature above 900 C are suspect.
      */
-    double viscosityWater() const;  
+    doublereal viscosityWater() const;  
 
     //! Returns the thermal conductivity of water at the current conditions
     //! (W/m/K)
@@ -333,7 +333,7 @@ namespace Cantera {
      *  for steam and for water, even near the critical point.
      *  Pressures above 500 MPa and temperature above 900 C are suspect.
      */
-    double thermalConductivityWater() const;
+    doublereal thermalConductivityWater() const;
 
 
 

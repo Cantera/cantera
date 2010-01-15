@@ -282,9 +282,9 @@ namespace Cantera {
      *    make sense to calculate the standard state without first
      *    setting T and P.
      *
-     * @param T  Temperature (kelvin)
+     * @param temp  Temperature (kelvin)
      */
-    virtual void setTemperature(const doublereal T);
+    virtual void setTemperature(const doublereal temp);
 
  
     //! Set the internally storred pressure (Pa) at constant
@@ -296,7 +296,7 @@ namespace Cantera {
      *
      *  @param p input Pressure (Pa)
      */
-    virtual void setPressure(const doublereal p);
+    virtual void setPressure(doublereal p);
 
 protected:
     /**
