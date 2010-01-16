@@ -368,26 +368,54 @@ namespace Cantera {
 
     //@}
     
-    //! Compute the mixture electrical conductivity 
-    doublereal getElectricConduct( );
-    
-    //! Compute the electric current 
+    //! Compute the mixture electrical conductivity (S m-1) at the current
+    //! conditions of the phase (Siemens m-1)
     /*!
-     * @param ndim The number of spatial dimensions (1, 2, or 3).
-     * @param grad_T The temperature gradient (ignored in this model).
-     * @param ldx  Leading dimension of the grad_X array.
-     * @param grad_X The gradient of the mole fraction
-     * @param ldf  Leading dimension of the grad_V and current vectors.
-     * @param grad_V The electrostatic potential gradient.
-     * @param current The electric current in A/m^2.
+     *   The electrical conductivity, \f$ \sigma \f$,  relates the electric
+     *   current density, J, to the electric field, E.
+     *
+     *     \f[ 
+     *            \vec{J} = \sigma \vec{E}
+     *     \f]
+     * 
+     *   We assume here that the mixture electrical conductivity is an
+     *   isotropic quantity, at this stage. Tensors may be included at a
+     *   later time. 
+     *
+     *   The conductivity is the reciprocal of the resistivity. 
+     *
+     *   The units are Siemens m-1,  where 1 S = 1 A / volt = 1 s^3 A^2 /kg /m^2
      */
-    void getElectricCurrent(int ndim, 
-			    const doublereal* grad_T, 
-			    int ldx, 
-			    const doublereal* grad_X, 
-			    int ldf, 
-			    const doublereal* grad_V, 
-			    doublereal* current) ;
+    virtual doublereal getElectricConductivity() 
+    {
+      err("getElectricConductivity"); return 0.0;
+    }
+
+    //! Compute the electric current density in A/m^2
+    /*!
+     *  Calculates the electric current density as a vector, given
+     *  the gradients of the field variables.
+     *
+     * @param ndim    The number of spatial dimensions (1, 2, or 3).
+     * @param grad_T  The temperature gradient (ignored in this model).
+     * @param ldx     Leading dimension of the grad_X array.
+     * @param grad_X  The gradient of the mole fraction
+     * @param ldf     Leading dimension of the grad_V and current vectors.
+     * @param grad_V  The electrostatic potential gradient.
+     * @param current The electric current in A/m^2. this is a vector
+     *                of length ndim
+     */
+    virtual void getElectricCurrent(int ndim, 
+				    const doublereal* grad_T, 
+				    int ldx, 
+				    const doublereal* grad_X, 
+				    int ldf, 
+				    const doublereal* grad_V, 
+				    doublereal* current)
+    {
+      err("getElectricCurrent"); 
+    }
+
     
     //! Get the species diffusive mass fluxes wrt to 
     //! the mass averaged velocity, 

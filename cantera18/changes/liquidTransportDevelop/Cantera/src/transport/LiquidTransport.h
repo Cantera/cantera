@@ -337,7 +337,7 @@ namespace Cantera {
 
      //! Compute the mixture electrical conductivity from 
      //! the Stefan-Maxwell equation.
-     /**
+     /*!
       *  To compute the mixture electrical conductance, the Stefan
       *  Maxwell equation is solved for zero species gradients and 
       *  for unit potential gradient, \f$ \nabla V \f$.  
@@ -355,10 +355,10 @@ namespace Cantera {
       *  \f]
       * 
       */
-     doublereal getElectricConduct( );
+    virtual doublereal getElectricConduct();
 
      //! Compute the electric current density in A/m^2
-     /**
+     /*!
       *  The electric current is computed first by computing the 
       *  species diffusive fluxes using  the Stefan Maxwell solution
       *  and then the current, \f$ \vec{i} \f$ by summing over 
@@ -378,14 +378,13 @@ namespace Cantera {
       * @param grad_V The electrostatic potential gradient.
       * @param current The electric current in A/m^2.
       */
-     void getElectricCurrent(int ndim, 
-			     const doublereal* grad_T, 
-			     int ldx, 
-			     const doublereal* grad_X, 
-			     int ldf, 
-			     const doublereal* grad_V, 
-			     doublereal* current) ;
-     
+    virtual void getElectricCurrent(int ndim, 
+				    const doublereal* grad_T, 
+				    int ldx, 
+				    const doublereal* grad_X, 
+				    int ldf, 
+				    const doublereal* grad_V, 
+				    doublereal* current);
 
 
     //! Get the species diffusive velocities wrt to 
