@@ -616,8 +616,8 @@ namespace Cantera {
 
   }
 
-  //! Compute the electric current density in A/m^2
-  /**
+  // Compute the electric current density in A/m^2
+  /*
    *  The electric current is computed first by computing the 
    *  species diffusive fluxes using  the Stefan Maxwell solution
    *  and then the current, \f$ \vec{i} \f$ by summing over 
@@ -649,7 +649,7 @@ namespace Cantera {
     set_Grad_X(grad_X);
     set_Grad_V(grad_V);
 
-    doublereal *fluxes = new doublereal( m_nsp * m_nDim );
+    doublereal *fluxes = new doublereal(m_nsp * m_nDim);
 
     getSpeciesFluxesExt(ldf, fluxes);
 

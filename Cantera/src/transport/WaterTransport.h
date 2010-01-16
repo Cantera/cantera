@@ -27,7 +27,7 @@ using namespace std;
 #include "LiquidTransportParams.h"
 
 namespace Cantera {
-
+  //! @{
   const int LVISC_CONSTANT     = 0;
   const int LVISC_WILKES       = 1;
   const int LVISC_MIXTUREAVG   = 2;
@@ -35,7 +35,7 @@ namespace Cantera {
   const int LDIFF_MIXDIFF_UNCORRECTED     = 0;
   const int LDIFF_MIXDIFF_FLUXCORRECTED  = 1;
   const int LDIFF_MULTICOMP_STEFANMAXWELL  = 2;
-
+  //! @}
 
 
   class TransportParams;
