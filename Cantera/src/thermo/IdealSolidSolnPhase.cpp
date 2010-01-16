@@ -789,9 +789,9 @@ namespace Cantera {
    *  \f[
    *  \mu^0_k(T,P) = \mu^{ref}_k(T) + (P - P_{ref}) * V_k
    * \f]
-   * where \f$V_k\f$ is the molar volume of pure species <I>k<\I>.
+   * where \f$V_k\f$ is the molar volume of pure species <I>k</I>.
    * \f$ \mu^{ref}_k(T)\f$ is the chemical potential of pure
-   * species <I>k<\I> at the reference pressure, \f$P_{ref}\f$.
+   * species <I>k</I> at the reference pressure, \f$P_{ref}\f$.
    *
    * @param grt Vector of length m_kk, which on return sr[k]
    *           will contain the nondimensional 
