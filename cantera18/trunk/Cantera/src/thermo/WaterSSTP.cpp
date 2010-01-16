@@ -34,7 +34,6 @@ namespace Cantera {
     m_mw(0.0),
     EW_Offset(0.0),
     SW_Offset(0.0),
-    m_verbose(0),
     m_ready(false),
     m_allowGasPhase(false)
   {
@@ -49,7 +48,6 @@ namespace Cantera {
     m_mw(0.0),
     EW_Offset(0.0),
     SW_Offset(0.0),
-    m_verbose(0),
     m_ready(false),
     m_allowGasPhase(false)
   {
@@ -64,7 +62,6 @@ namespace Cantera {
     m_mw(0.0),
     EW_Offset(0.0),
     SW_Offset(0.0),
-    m_verbose(0),
     m_ready(false),
     m_allowGasPhase(false)
   {
@@ -80,7 +77,6 @@ namespace Cantera {
     m_mw(b.m_mw),
     EW_Offset(b.EW_Offset),
     SW_Offset(b.SW_Offset),
-    m_verbose(b.m_verbose),
     m_ready(false),
     m_allowGasPhase(b.m_allowGasPhase)
   {
@@ -108,7 +104,6 @@ namespace Cantera {
 
 
     m_mw = b.m_mw;
-    m_verbose = b.m_verbose;
     m_ready = b.m_ready;
     m_allowGasPhase = b.m_allowGasPhase;
     return *this;

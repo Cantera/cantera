@@ -422,6 +422,14 @@ protected:
 
 #ifdef H298MODIFY_CAPABILITY
     
+    //! Modify the value of the 298 K Heat of Formation of one species in the phase (J kmol-1)
+    /*!
+     *   The 298K heat of formation is defined as the enthalpy change to create the standard state
+     *   of the species from its constituent elements in their standard states at 298 K and 1 bar.
+     *
+     *   @param  k           Species k
+     *   @param  HF298New    Specify the new value of the Heat of Formation at 298K and 1 bar                      
+     */
     void modifyOneHf298SS(const int k, const doublereal Hf298New) {
       m_spthermo->modifyOneHf298(k, Hf298New);
       m_Tlast_ss += 0.0001234;
