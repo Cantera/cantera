@@ -246,7 +246,7 @@ namespace Cantera {
     }
   }
 
-  /**
+  /*
    *  Searches a string for the first occurrence of a valid
    *  quoted string. Quotes can start with either a single
    *  quote or a double quote, but must also end with the same
@@ -289,7 +289,7 @@ namespace Cantera {
     return static_cast<int>(iloc1)+1;	
   }
     
-  /**
+  /*
    * parseTag parses XML tags, i.e., the XML elements that are
    * inbetween angle brackets.
    */
@@ -679,9 +679,9 @@ namespace Cantera {
     return child(cname).value();
   }
 
-  //!  Overloaded parenthesis operator with one augment 
-  //!  returns the value of an XML child node as a string
-  /*!
+  //  Overloaded parenthesis operator with one augment 
+  //  returns the value of an XML child node as a string
+  /*
    *  @param cname  Name of the child node to the current
    *                node, for which you want the value
    */
@@ -716,7 +716,7 @@ namespace Cantera {
     m_attribs[attrib] = fp2str(value, fmt);
   }
     
-  // The operator[] is overloaded to provide a lookup capability
+  //  The operator[] is overloaded to provide a lookup capability
   //  on attributes for the current XML element.
   /*
    * For example
@@ -754,7 +754,7 @@ namespace Cantera {
     return ""; 
   }
 
-  // Returns a changeable value of the attributes map for the current node
+  //  Returns a changeable value of the attributes map for the current node
   /*
    *  Note this is a simple accessor routine. And, it is a private function.
    *  It's used in some internal copy and assignment routines
@@ -861,9 +861,9 @@ namespace Cantera {
   }
 
 
-  //! This routine carries out a search for an XML node based
-  //! on both the xml element name and the attribute ID.
-  /*!
+  //  This routine carries out a search for an XML node based
+  //  on both the xml element name and the attribute ID.
+  /*
    * If exact matches are found for both fields, the pointer
    * to the matching XML Node is returned.
    * 
@@ -946,8 +946,8 @@ namespace Cantera {
     return 0;
   }
 
-  // This routine carries out a recursive search for an XML node based
-  // on an attribute of each XML node
+  //  This routine carries out a recursive search for an XML node based
+  //  on an attribute of each XML node
   /*
    * If exact match is found with respect to the attribute name and
    * value of the attribute, the pointer
@@ -1236,7 +1236,7 @@ namespace Cantera {
     }
   }
     
-  /**
+  /*
    * Write an XML subtree to an output stream. This is the
    * main recursive routine. It doesn't put a final endl
    * on. This is fixed up in the public method.

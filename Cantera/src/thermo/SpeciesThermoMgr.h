@@ -1,13 +1,11 @@
 /**
  *  @file SpeciesThermoMgr.h
  *  This file contains descriptions of templated subclasses of 
- *  the virtual base class, SpeciesThermo, which 
- *  include  SpeciesThermoDuo and SpeciesThermo1
+ *  the virtual base class, SpeciesThermo, which include  SpeciesThermoDuo and SpeciesThermo1
  *  (see \ref mgrsrefcalc and classes 
  *   \link Cantera::SpeciesThermoDuo SpeciesThermoDuo\endlink and
  *  \link Cantera::SpeciesThermo1 SpeciesThermo1\endlink)
  *
- * $Author$
  * $Revision$
  * $Date$
  */
@@ -52,8 +50,9 @@ namespace Cantera {
 			 vector_fp&  h_RT, 
 			 vector_fp&  s_R)
   {
-    for (; begin != end; ++begin)
+    for (; begin != end; ++begin) {
       begin->updateProperties(T, cp_R, h_RT, s_R);
+    }
   }
 
   //! Iterates through a list of objects which implement a method
@@ -479,16 +478,31 @@ namespace Cantera {
     virtual void modifyParams(int index, doublereal *c);
 
 #ifdef H298MODIFY_CAPABILITY
-
+    //! Report the 298 K Heat of Formation of the standard state of one species (J kmol-1)
+    /*!
+     *   The 298K Heat of Formation is defined as the enthalpy change to create the standard state
+     *   of the species from its constituent elements in their standard states at 298 K and 1 bar.
+     *
+     *   @param k    species index
+     *   @return     Returns the current value of the Heat of Formation at 298K and 1 bar
+     */
     virtual doublereal reportOneHf298(int k) const {
       throw CanteraError("reportHF298", "unimplemented");
     }
 
+    //! Modify the value of the 298 K Heat of Formation of one species in the phase (J kmol-1)
+    /*!
+     *   The 298K heat of formation is defined as the enthalpy change to create the standard state
+     *   of the species from its constituent elements in their standard states at 298 K and 1 bar.
+     *
+     *   @param  k           Species k
+     *   @param  Hf298New    Specify the new value of the Heat of Formation at 298K and 1 bar                      
+     */
     virtual void modifyOneHf298(const int k, const doublereal Hf298New) {
       throw CanteraError("reportHF298", "unimplemented");
     }
-
 #endif
+
   private:
     //! Vector of SPM objects. There are m_kk of them
     std::vector<SPM> m_thermo;

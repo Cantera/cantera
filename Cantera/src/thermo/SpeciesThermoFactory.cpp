@@ -745,29 +745,32 @@ namespace Cantera {
   }
 #endif
 
-  /**
-   * Install a species thermodynamic property parameterization
-   * for one species into a species thermo manager.
-   * @param k species number
-   * @param s XML node specifying species
-   * @param spthermo species thermo manager
-   * @param phaseNode_ptr Optional Pointer to the XML phase
+  //================================================================================================
+  // Install a species thermodynamic property parameterization
+  // for the reference state for one species into a species thermo manager.
+  /*
+   * @param k             Species number
+   * @param speciesNode   Reference to the XML node specifying the species standard
+   *                      state information
+   * @param th_ptr        Pointer to the %ThermoPhase object for the species
+   * @param spthermo      Species reference state thermo manager
+   * @param phaseNode_ptr Optional pointer to the XML phase
    *                      information for the phase in which the species
    *                      resides
    */
   void SpeciesThermoFactory::
-  installThermoForSpecies(int k, const XML_Node& s, ThermoPhase *th_ptr,
+  installThermoForSpecies(int k, const XML_Node& speciesNode, ThermoPhase *th_ptr,
 			  SpeciesThermo& spthermo,
 			  const XML_Node *phaseNode_ptr) const {
     /*
      * Check to see that the species block has a thermo block
      * before processing. Throw an error if not there.
      */
-    if (!(s.hasChild("thermo"))) {
+    if (!(speciesNode.hasChild("thermo"))) {
       throw UnknownSpeciesThermoModel("installThermoForSpecies", 
-				      s["name"], "<nonexistent>");
+				      speciesNode["name"], "<nonexistent>");
     }
-    const XML_Node& thermo = s.child("thermo");
+    const XML_Node& thermo = speciesNode.child("thermo");
     const std::vector<XML_Node*>& tp = thermo.children();
     int nc = static_cast<int>(tp.size());
     string mname = thermo["model"];
@@ -778,71 +781,69 @@ namespace Cantera {
 	throw CanteraError("SpeciesThermoFactory::installThermoForSpecies",
 			   "confused: expedted MinEQ3");
       }
-      installMinEQ3asShomateThermoFromXML(s["name"], th_ptr, spthermo, k, f);
+      installMinEQ3asShomateThermoFromXML(speciesNode["name"], th_ptr, spthermo, k, f);
     } else {
       if (nc == 1) {
 	const XML_Node* f = tp[0];
 	if (f->name() == "Shomate") {
-	  installShomateThermoFromXML(s["name"], spthermo, k, f, 0);
+	  installShomateThermoFromXML(speciesNode["name"], spthermo, k, f, 0);
 	}
 	else if (f->name() == "const_cp") {
-	  installSimpleThermoFromXML(s["name"], spthermo, k, *f);
+	  installSimpleThermoFromXML(speciesNode["name"], spthermo, k, *f);
 	}
 	else if (f->name() == "NASA") {
-	  installNasaThermoFromXML(s["name"], spthermo, k, f, 0);
+	  installNasaThermoFromXML(speciesNode["name"], spthermo, k, f, 0);
 	}
 	else if (f->name() == "Mu0") {
-	  installMu0ThermoFromXML(s["name"], spthermo, k, f);
+	  installMu0ThermoFromXML(speciesNode["name"], spthermo, k, f);
 	}
 	else if (f->name() == "NASA9") {
-	  installNasa9ThermoFromXML(s["name"], spthermo, k, tp);
+	  installNasa9ThermoFromXML(speciesNode["name"], spthermo, k, tp);
 	}
 	// else if (f->name() == "HKFT") {
 	//	installHKFTThermoFromXML(s["name"], spthermo, k, tp);
 	//}
 #ifdef WITH_ADSORBATE
 	else if (f->name() == "adsorbate") {
-	  installAdsorbateThermoFromXML(s["name"], spthermo, k, *f);
+	  installAdsorbateThermoFromXML(speciesNode["name"], spthermo, k, *f);
 	}
 #endif
 	else {
 	  throw UnknownSpeciesThermoModel("installThermoForSpecies", 
-					  s["name"], f->name());
+					  speciesNode["name"], f->name());
 	}
       }
       else if (nc == 2) {
 	const XML_Node* f0 = tp[0];
 	const XML_Node* f1 = tp[1];
 	if (f0->name() == "NASA" && f1->name() == "NASA") {
-	  installNasaThermoFromXML(s["name"], spthermo, k, f0, f1);
+	  installNasaThermoFromXML(speciesNode["name"], spthermo, k, f0, f1);
 	} 
 	else if (f0->name() == "Shomate" && f1->name() == "Shomate") {
-	  installShomateThermoFromXML(s["name"], spthermo, k, f0, f1);
+	  installShomateThermoFromXML(speciesNode["name"], spthermo, k, f0, f1);
 	} 
 	else if (f0->name() == "NASA9" && f1->name() == "NASA9") {
-	  installNasa9ThermoFromXML(s["name"], spthermo, k, tp);
+	  installNasa9ThermoFromXML(speciesNode["name"], spthermo, k, tp);
 	} else {
-	  throw UnknownSpeciesThermoModel("installThermoForSpecies", s["name"], 
-					  f0->name() + " and "
-					  + f1->name());
+	  throw UnknownSpeciesThermoModel("installThermoForSpecies", speciesNode["name"], 
+					  f0->name() + " and " + f1->name());
 	}
       }
       else if (nc >= 2) {
 	const XML_Node* f0 = tp[0];
 	if (f0->name() == "NASA9") {
-	  installNasa9ThermoFromXML(s["name"], spthermo, k, tp);
+	  installNasa9ThermoFromXML(speciesNode["name"], spthermo, k, tp);
 	} else {
-	  throw UnknownSpeciesThermoModel("installThermoForSpecies", s["name"], 
+	  throw UnknownSpeciesThermoModel("installThermoForSpecies", speciesNode["name"], 
 					  "multiple");
 	}
       } else {
-	throw UnknownSpeciesThermoModel("installThermoForSpecies", s["name"], 
+	throw UnknownSpeciesThermoModel("installThermoForSpecies", speciesNode["name"], 
 					"multiple");
       }
     }
   }
-
-
+  //================================================================================================
   // Install a species thermodynamic property parameterization
   // for the standard state for one species into a species thermo manager, VPSSMgr
   /*

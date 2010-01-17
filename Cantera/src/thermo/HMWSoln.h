@@ -672,7 +672,7 @@ namespace Cantera {
    * @code
       <binarySaltParameters cation="Na+" anion="OH-"> 
         <beta0> q0, q1, q2, q3, q4  </beta0>
-      <\binarySaltParameters>
+      </binarySaltParameters>
      @endcode
    *
    *  The parameters for \f$ \beta^{(0)}\f$ fit the following equation:
@@ -686,9 +686,9 @@ namespace Cantera {
    *
    *  This same COMPLEX1 </TT> temperature
    *  dependence given above is used for the following parameters:
-   *  \f$\beta^{(0)}_{MX} \f$, \f$\beta^{(1)}_{MX} \f$, 
-   *  \f$\beta^{(2)}_{MX} \f$,  \f$ \Theta_{cc'} \f$,  \f$\Theta_{aa'} \f$,
-   *  \f$ \Psi_{c{c'}a}\f$ and \f$ \Psi_{ca{a'}} \f$.
+   *  \f$ \beta^{(0)}_{MX} \f$, \f$ \beta^{(1)}_{MX} \f$, 
+   *  \f$ \beta^{(2)}_{MX} \f$, \f$ \Theta_{cc'} \f$,  \f$\Theta_{aa'} \f$,
+   *  \f$ \Psi_{c{c'}a} \f$ and \f$ \Psi_{ca{a'}} \f$.
    *
    *
    *  <H3> Like-Charged Binary Ion Parameters and the Mixing Parameters </H3>
@@ -813,8 +813,7 @@ namespace Cantera {
        <lambdaNeutral species1="CO2" species2="CH4">
              <lambda> 0.05 </lambda>
        </lambdaNeutral>
-      @endcode
-
+     @endcode
    *
    *  <H3> Example of the Specification of Parameters for the Activity
    *       Coefficients </H3>
@@ -824,7 +823,7 @@ namespace Cantera {
    * An example <TT> activityCoefficients </TT> XML block for this 
    * formulation is supplied below
    *
-   * @code
+   * @verbatim
     <activityCoefficients model="Pitzer" TempModel="complex1">
                 <!-- Pitzer Coefficients
                      These coefficients are from Pitzer's main
@@ -880,7 +879,7 @@ namespace Cantera {
                 </psiCommonAnion>
 
        </activityCoefficients>
-   * @endcode
+    @endverbatim
    *
    *
    * <H3> Specification of the Debye-Huckel Constant </H3>

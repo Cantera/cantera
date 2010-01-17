@@ -416,7 +416,6 @@ namespace Cantera {
     //! Initialization of a PDSS object using an
     //! input XML file.
     /*!
-     *
      * This routine is a precursor to constructPDSSXML(XML_Node*)
      * routine, which does most of the work.
      *

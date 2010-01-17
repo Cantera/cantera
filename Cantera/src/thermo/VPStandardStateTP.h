@@ -421,16 +421,23 @@ protected:
     virtual void getEnthalpy_RT_ref(doublereal *hrt) const;
 
 #ifdef H298MODIFY_CAPABILITY
-    
-    void modifyOneHf298SS(const int k, const doublereal Hf298New) {
-      m_spthermo->modifyOneHf298(k, Hf298New);
-      m_Tlast_ss += 0.0001234;
-    }
-#endif
+    //!  Modify the value of the 298 K Heat of Formation of the standard state of
+    //!  one species in the phase (J kmol-1)
     /*!
-     *  Returns the vector of nondimensional
-     *  Gibbs free energies of the reference state at the current temperature
-     *  of the solution and the reference pressure for the species.
+     *   The 298K heat of formation is defined as the enthalpy change to create the standard state
+     *   of the species from its constituent elements in their standard states at 298 K and 1 bar.
+     *
+     *   @param  k           Index of the species
+     *   @param  Hf298New    Specify the new value of the Heat of Formation at 298K and 1 bar.
+     *                       units = J/kmol.
+     */
+    void modifyOneHf298SS(const int k, const doublereal Hf298New);
+#endif
+    
+    //!  Returns the vector of nondimensional
+    //!  Gibbs free energies of the reference state at the current temperature
+    //!  of the solution and the reference pressure for the species.
+    /*!
      *
      * @param grt Output vector contains the nondimensional Gibbs free energies
      *            of the reference state of the species

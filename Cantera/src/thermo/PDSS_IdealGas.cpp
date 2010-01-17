@@ -68,7 +68,7 @@ namespace Cantera {
     *this = b;
   }
 
-  /**
+  /*
    * Assignment operator
    */
   PDSS_IdealGas& PDSS_IdealGas::operator=(const PDSS_IdealGas&b) {
@@ -84,7 +84,7 @@ namespace Cantera {
   PDSS_IdealGas::~PDSS_IdealGas() { 
   }
   
-  //! Duplicator
+  // Duplicator
   PDSS* PDSS_IdealGas::duplMyselfAsPDSS() const {
     PDSS_IdealGas * idg = new PDSS_IdealGas(*this);
     return (PDSS *) idg;
@@ -92,7 +92,7 @@ namespace Cantera {
 
 
    
-  /**
+  /*
    * constructPDSSXML:
    *
    * Initialization of a PDSS_IdealGas object using an
@@ -157,7 +157,7 @@ namespace Cantera {
     m_maxTemp = m_spthermo->maxTemp(m_spindex); 
   }
 
-  /**
+  /*
    * Return the molar enthalpy in units of J kmol-1
    */
   doublereal 
@@ -174,7 +174,7 @@ namespace Cantera {
   }
 
 
-  /**
+  /*
    * Calculate the internal energy in mks units of
    * J kmol-1 
    */
@@ -185,7 +185,7 @@ namespace Cantera {
     return (val * RT);
   }
 
-  /**
+  /*
    * Calculate the entropy in mks units of 
    * J kmol-1 K-1
    */
@@ -201,7 +201,7 @@ namespace Cantera {
     return (val);
   }
 
-  /**
+  /*
    * Calculate the Gibbs free energy in mks units of
    * J kmol-1 K-1.
    */
@@ -218,7 +218,7 @@ namespace Cantera {
     return (val);
   }
 
-  /**
+  /*
    * Calculate the constant pressure heat capacity
    * in mks units of J kmol-1 K-1
    */
@@ -245,7 +245,7 @@ namespace Cantera {
     return (m_pres * m_mw / (GasConstant * m_temp));
   }
 
-  /**
+  /*
    * Calculate the constant volume heat capacity
    * in mks units of J kmol-1 K-1
    */
@@ -279,7 +279,7 @@ namespace Cantera {
     return (GasConstant * m_temp / m_p0);
   }
 
-  /**
+  /*
    * Calculate the pressure (Pascals), given the temperature and density
    *  Temperature: kelvin
    *  rho: density in kg m-3
@@ -296,26 +296,26 @@ namespace Cantera {
   }
  
 
-  /// critical temperature 
+  // critical temperature 
   doublereal PDSS_IdealGas::critTemperature() const { 
     throw CanteraError("PDSS_IdealGas::critTemperature()", "unimplemented");
     return (0.0);
   }
         
-  /// critical pressure
+  // critical pressure
   doublereal PDSS_IdealGas::critPressure() const {
     throw CanteraError("PDSS_IdealGas::critPressure()", "unimplemented");
     return (0.0);
   }
         
-  /// critical density
+  // critical density
   doublereal PDSS_IdealGas::critDensity() const {
     throw CanteraError("PDSS_IdealGas::critDensity()", "unimplemented");
     return (0.0);
   }
         
 
-  /**
+  /*
    * Return the temperature 
    *
    * Obtain the temperature from the owning VPStandardStateTP object
@@ -351,7 +351,7 @@ namespace Cantera {
     setTemperature(temp);
   }
 
-  /// saturation pressure
+  // saturation pressure
   doublereal PDSS_IdealGas::satPressure(doublereal t){
     throw CanteraError("PDSS_IdealGas::satPressure()", "unimplemented");
     /*NOTREACHED*/

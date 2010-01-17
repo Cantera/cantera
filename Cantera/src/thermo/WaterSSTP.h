@@ -551,22 +551,21 @@ namespace Cantera {
     //! Molecular weight of Water -> Cantera assumption
     doublereal m_mw;
 
-    /**
-     * Offset constants used to obtain consistency with the NIST database.
-     * This is added to all internal energy and enthalpy results.
+    //! Offset constants used to obtain consistency with the NIST database.
+    /*!
+     *  This is added to all internal energy and enthalpy results.
      *  units = J kmol-1.
      */
-    double EW_Offset;
+    doublereal EW_Offset;
 
-    /*
-     * Offset constant used to obtain consistency with NIST convention.
-     * This is added to all internal entropy results.
+    //! Offset constant used to obtain consistency with NIST convention.
+    /*!
+     *  This is added to all internal entropy results.
      *  units = J kmol-1 K-1.
      */
-    double SW_Offset;
+    doublereal SW_Offset;
 
-    bool m_verbose;
-
+    //! Boolean  is true if object has been properly initialized for calculation
     bool m_ready;
 
     /**

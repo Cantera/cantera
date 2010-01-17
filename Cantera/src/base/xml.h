@@ -303,7 +303,7 @@ namespace Cantera {
      */
     std::string value(const std::string &cname) const;
 
-    //!  Overloaded parenthesis operator with one augment 
+    //!  The Overloaded parenthesis operator with one augment 
     //!  returns the value of an XML child node as a string
     /*!
      *  @param cname  Name of the child node to the current
