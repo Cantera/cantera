@@ -146,6 +146,7 @@ namespace Cantera {
     //! Simple calculation of water density at atmospheric pressure.
     //! Valid up to boiling point.
     /*!
+     * static function.
      * This formulation has no dependence on the pressure and shouldn't
      * be used where accuracy is needed.
      *
