@@ -69,7 +69,7 @@ namespace Cantera {
 
 
   PDSS_Water::PDSS_Water(VPStandardStateTP *tp, int spindex, 
-		       std::string inputFile, std::string id) :
+			 std::string inputFile, std::string id) :
     PDSS(tp, spindex),
     m_sub(0),
     m_waterProps(0),
@@ -174,7 +174,7 @@ namespace Cantera {
     return (PDSS *) kPDSS;
   }
 
-  /**
+  /*
    * constructPDSSXML:
    *
    * Initialization of a Debye-Huckel phase using an
@@ -191,11 +191,11 @@ namespace Cantera {
    *            phase element will be used.
    */
   void PDSS_Water::constructPDSSXML(VPStandardStateTP *tp, int spindex,
-				   const XML_Node& phaseNode, std::string id) {
+				    const XML_Node& phaseNode, std::string id) {
     constructSet();
   }
    
-  /**
+  /*
    * constructPDSSFile():
    *
    * Initialization of a Debye-Huckel phase using an
@@ -212,7 +212,7 @@ namespace Cantera {
    *            phase element will be used.
    */
   void PDSS_Water::constructPDSSFile(VPStandardStateTP *tp, int spindex,
-				    std::string inputFile, std::string id) {
+				     std::string inputFile, std::string id) {
 
     if (inputFile.size() == 0) {
       throw CanteraError("PDSS_Water::constructPDSSFile",

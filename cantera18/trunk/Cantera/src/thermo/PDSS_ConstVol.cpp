@@ -62,7 +62,7 @@ namespace Cantera {
     *this = b;
   }
 
-  /**
+  /*
    * Assignment operator
    */
   PDSS_ConstVol& PDSS_ConstVol::operator=(const PDSS_ConstVol&b) {
@@ -75,13 +75,13 @@ namespace Cantera {
   PDSS_ConstVol::~PDSS_ConstVol() { 
   }
   
-  //! Duplicator
+  // Duplicator
   PDSS* PDSS_ConstVol::duplMyselfAsPDSS() const {
     PDSS_ConstVol * idg = new PDSS_ConstVol(*this);
     return (PDSS *) idg;
   }
 
-  /**
+  /*
    * constructPDSSXML:
    *
    * Initialization of a PDSS_ConstVol object using an
@@ -126,7 +126,7 @@ namespace Cantera {
   }
 
    
-  /**
+  /*
    * constructPDSSFile():
    *
    * Initialization of a PDSS_ConstVol object using an
@@ -230,7 +230,7 @@ namespace Cantera {
     return (val);
   }
 
-  /**
+  /*
    * Calculate the Gibbs free energy in mks units of
    * J kmol-1 K-1.
    */
@@ -305,19 +305,19 @@ namespace Cantera {
 
  
 
-  /// critical temperature 
+  // critical temperature 
   doublereal PDSS_ConstVol::critTemperature() const { 
     throw CanteraError("PDSS_ConstVol::critTemperature()", "unimplemented");
     return (0.0);
   }
         
-  /// critical pressure
+  // critical pressure
   doublereal PDSS_ConstVol::critPressure() const {
     throw CanteraError("PDSS_ConstVol::critPressure()", "unimplemented");
     return (0.0);
   }
         
-  /// critical density
+  // critical density
   doublereal PDSS_ConstVol::critDensity() const {
     throw CanteraError("PDSS_ConstVol::critDensity()", "unimplemented");
     return (0.0);
@@ -361,7 +361,7 @@ namespace Cantera {
     setTemperature(temp);
   }
 
-  /// saturation pressure
+  // saturation pressure
   doublereal PDSS_ConstVol::satPressure(doublereal t){
     return (1.0E-200);
   }

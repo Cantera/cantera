@@ -95,7 +95,7 @@ namespace Cantera {
     return *this;
   }
     
-  /**
+  /*
    * Destructor:
    */
   Mu0Poly::~Mu0Poly(){
@@ -111,7 +111,7 @@ namespace Cantera {
   doublereal  Mu0Poly::maxTemp() const { return m_highT;}
   doublereal Mu0Poly::refPressure() const { return m_Pref; }
     
-  /**
+  /*
    *  updateProperties is the main workhorse program. 
    *  Given a temperature (*tt), it calculates the thermodynamic
    *  functions H/RT, S_R, and cp_R, and returns the answer.
