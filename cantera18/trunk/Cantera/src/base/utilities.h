@@ -29,7 +29,7 @@
 //! Unary operator to multiply the argument by a constant. 
 /*!
  *  The form of this operator is designed for use by std::transform. 
- *  @see @ref  scale.
+ *  @see @ref  scale().
  */
 template<class T> struct timesConstant : public std::unary_function<T, double>
 {
@@ -574,9 +574,9 @@ namespace Cantera {
     return sum;
   }
 
-  //! scale a templated vector by a constant factor.
+  //!   Scale a templated vector by a constant factor.
   /*!
-   * The template arguments are:  template<class OutputIter>
+   *   The template arguments are:  template<class OutputIter>
    *
    * This function is essentially a wrapper around the stl
    * function %scale(). The function is has one template
