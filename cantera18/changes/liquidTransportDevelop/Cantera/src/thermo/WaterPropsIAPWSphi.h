@@ -59,7 +59,7 @@ public:
    * @param tau     Dimensionless temperature = T_c/T
    * @param delta   Dimensionless density =  delta = rho / Rho_c
    */
-  double phi_dd(doublereal tau, doublereal delta);
+  doublereal phi_dd(doublereal tau, doublereal delta);
 
   //! First derivative of phi wrt tau
   /*!

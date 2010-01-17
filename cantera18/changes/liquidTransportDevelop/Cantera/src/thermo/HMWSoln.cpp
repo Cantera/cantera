@@ -197,7 +197,7 @@ namespace Cantera {
     constructPhaseXML(phaseRoot, id);
   }
  
-  /**
+  /*
    * Copy Constructor:
    *
    *  Note this stuff will not work until the underlying phase
@@ -254,7 +254,7 @@ namespace Cantera {
     *this = b;
   }
 
-  /**
+  /*
    * operator=()
    *
    *  Note this stuff will not work until the underlying phase
@@ -578,7 +578,7 @@ namespace Cantera {
     printCoeffs();
   }
 
-  /**
+  /*
    * ~HMWSoln():   (virtual)
    *
    *     Destructor: does nothing:
@@ -589,7 +589,7 @@ namespace Cantera {
     }
   }
 
-  /**
+  /*
    *  duplMyselfAsThermoPhase():
    *
    *  This routine operates at the ThermoPhase level to 
@@ -601,7 +601,7 @@ namespace Cantera {
     return (ThermoPhase *) mtp;
   }
 
-  /** 
+  /*
    * Equation of state type flag. The base class returns
    * zero. Subclasses should define this to return a unique
    * non-zero value. Constants defined for this purpose are
@@ -628,7 +628,7 @@ namespace Cantera {
   //
   // -------- Molar Thermodynamic Properties of the Solution --------------- 
   //
-  /**
+  /*
    * Molar enthalpy of the solution. Units: J/kmol.
    */
   doublereal HMWSoln::enthalpy_mole() const {
@@ -695,7 +695,7 @@ namespace Cantera {
     return L;
   }
 
-  /**
+  /*
    * Molar internal energy of the solution. Units: J/kmol.
    *
    * This is calculated from the soln enthalpy and then
@@ -709,7 +709,7 @@ namespace Cantera {
     return uu;
   }
 
-  /**
+  /*
    *  Molar soln entropy at constant pressure. Units: J/kmol/K. 
    *
    *  This is calculated from the partial molar entropies.
@@ -725,7 +725,7 @@ namespace Cantera {
     return mean_X(DATA_PTR(m_tmpV));
   }
 
-  /** Molar heat capacity at constant pressure. Units: J/kmol/K.
+  /* Molar heat capacity at constant pressure. Units: J/kmol/K.
    *
    * Returns the solution heat capacition at constant pressure. 
    * This is calculated from the partial molar heat capacities.
@@ -736,7 +736,7 @@ namespace Cantera {
     return val;
   }
 
-  /// Molar heat capacity at constant volume. Units: J/kmol/K. 
+  // Molar heat capacity at constant volume. Units: J/kmol/K. 
   doublereal HMWSoln::cv_mole() const {
     //getPartialMolarCv(m_tmpV.begin());
     //return mean_X(m_tmpV.begin());
@@ -757,7 +757,7 @@ namespace Cantera {
     return m_Pcurrent;
   }
 
-  /**
+  /*
    * Set the pressure at constant temperature. Units: Pa.
    * This method sets a constant within the object.
    * The mass density is not a function of pressure.
@@ -779,7 +779,7 @@ namespace Cantera {
     State::setDensity(dd);
   }
 
-  /**
+  /*
    * The isothermal compressibility. Units: 1/Pa.
    * The isothermal compressibility is defined as
    * \f[
@@ -795,7 +795,7 @@ namespace Cantera {
     //return 0.0;
   }
 
-  /**
+  /*
    * The thermal expansion coefficient. Units: 1/K.
    * The thermal expansion coefficient is defined as
    *
@@ -817,7 +817,7 @@ namespace Cantera {
     return State::density();
   }
 
-  /**
+  /*
    * Overwritten setDensity() function is necessary because the
    * density is not an indendent variable.
    *
@@ -846,7 +846,7 @@ namespace Cantera {
     }
   }	
 
-  /**
+  /*
    * Overwritten setMolarDensity() function is necessary because the
    * density is not an indendent variable.
    *
@@ -1057,7 +1057,7 @@ namespace Cantera {
   //
   // ------ Partial Molar Properties of the Solution -----------------
   //
-  /**
+  /*
    * Get the species chemical potentials. Units: J/kmol.
    *
    * This function returns a vector of chemical potentials of the 
@@ -1333,12 +1333,12 @@ namespace Cantera {
    *  -------------- Utilities -------------------------------
    */
 
-  /**
+  /*
    * @internal
    * Set equation of state parameters. The number and meaning of
    * these depends on the subclass. 
    * @param n number of parameters
-   * @param c array of \i n coefficients
+   * @param c array of <I>n</I> coefficients
    * 
    */
   void HMWSoln::setParameters(int n, doublereal* const c) {
@@ -1346,7 +1346,7 @@ namespace Cantera {
 
   void HMWSoln::getParameters(int &n, doublereal * const c) const {
   }
-  /**
+  /*
    * Set equation of state parameter values from XML
    * entries. This method is called by function importPhase in
    * file importCTML.cpp when processing a phase definition in
@@ -1382,7 +1382,7 @@ namespace Cantera {
     return pres;
   }
 
-  /**
+  /*
    * Report the molar volume of species k
    *
    * units - \f$ m^3 kmol^-1 \f$
@@ -1442,7 +1442,7 @@ namespace Cantera {
     return A;
   }
 
-  /**
+  /*
    * dA_DebyedT_TP()                              (virtual)
    *
    *  Returns the derivative of the A_Debye parameter with
@@ -1477,7 +1477,7 @@ namespace Cantera {
     return dAdT;
   }
 
-  /**
+  /*
    * dA_DebyedP_TP()                              (virtual)
    *
    *  Returns the derivative of the A_Debye parameter with
@@ -1512,7 +1512,7 @@ namespace Cantera {
   }
 
 
-  /**
+  /*
    *  Calculate the DH Parameter used for the Enthalpy calcalations
    *
    *      ADebye_L = 4 R T**2 d(Aphi) / dT
@@ -1533,7 +1533,7 @@ namespace Cantera {
     return retn;
   }
 
-  /**
+  /*
    *  Calculate the DH Parameter used for the Volume calcalations
    *
    *      ADebye_V = - 4 R T d(Aphi) / dP
@@ -1554,7 +1554,7 @@ namespace Cantera {
     return retn;
   }
 
-  /**
+  /*
    * Return Pitzer's definition of A_J. This is basically the
    * temperature derivative of A_L, and the second derivative
    * of Aphi
@@ -1584,7 +1584,7 @@ namespace Cantera {
     return retn;
   }
 
-  /**
+  /*
    * d2A_DebyedT2_TP()                              (virtual)
    *
    *  Returns the 2nd derivative of the A_Debye parameter with
@@ -1645,7 +1645,7 @@ namespace Cantera {
 
 
 
-  /**
+  /*
    * initLengths():
    *
    * This internal function adjusts the lengths of arrays based on
@@ -1922,8 +1922,8 @@ namespace Cantera {
 	  /*
 	   * Find the counterIJ for the symmetric binary interaction
 	   */
-	  //n = m_kk*i + j;
-	  //counterIJ = m_CounterIJ[n];
+	  //  n = m_kk*i + j;
+	  //  counterIJ = m_CounterIJ[n];
 	  /*
 	   * Only loop over oppositely charge species
 	   */

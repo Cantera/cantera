@@ -155,7 +155,7 @@ namespace Cantera {
     *this = b;
   }
 
-  /**
+  /*
    * Assignment operator
    */
   PDSS_HKFT& PDSS_HKFT::operator=(const PDSS_HKFT& b) {
@@ -199,14 +199,14 @@ namespace Cantera {
     return *this;
   }
   
-  /**
+  /*
    * Destructor for the PDSS_HKFT class
    */
   PDSS_HKFT::~PDSS_HKFT() { 
     delete m_waterProps;
   }
   
-  //! Duplicator
+  // Duplicator
   PDSS* PDSS_HKFT::duplMyselfAsPDSS() const {
     PDSS_HKFT * idg = new PDSS_HKFT(*this);
     return (PDSS *) idg;
@@ -490,7 +490,7 @@ namespace Cantera {
     return ee;
   }
   
-  /**
+  /*
    * Calculate the pressure (Pascals), given the temperature and density
    *  Temperature: kelvin
    *  rho: density in kg m-3
@@ -518,20 +518,20 @@ namespace Cantera {
     setPressure(pres);
   }
 
-  /// critical temperature 
+  // critical temperature 
   doublereal 
   PDSS_HKFT::critTemperature() const { 
     throw CanteraError("PDSS_HKFT::critTemperature()", "unimplemented");
     return (0.0);
   }
         
-  /// critical pressure
+  // critical pressure
   doublereal PDSS_HKFT::critPressure() const {
     throw CanteraError("PDSS_HKFT::critPressure()", "unimplemented");
     return (0.0);
   }
         
-  /// critical density
+  // critical density
   doublereal PDSS_HKFT::critDensity() const {
     throw CanteraError("PDSS_HKFT::critDensity()", "unimplemented");
     return (0.0);
@@ -1117,7 +1117,7 @@ namespace Cantera {
 #ifdef OLDWAY
 
   /* awData structure */
-  /**
+  /*!
    * Database for atomic molecular weights
    *
    *  Values are taken from the 1989 Standard Atomic Weights, CRC
@@ -1161,9 +1161,8 @@ namespace Cantera {
    *
    *   This static function looks up the argument string in the
    *   database above and returns the associated Gibbs Free energies.
-   
    *
-   *  @param  ElemName  String. Only the first 3 characters are significant
+   *  @param  elemName  String. Only the first 3 characters are significant
    *
    *  @return
    *    Return value contains the Gibbs free energy for that element
