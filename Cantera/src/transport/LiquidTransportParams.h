@@ -33,57 +33,57 @@ namespace Cantera {
   };
   
 
-    //! Composition dependence type for liquid mixture transport properties
-    /*!
-     *  Types of temperature dependencies:
-     *  -   0  - Mixture calculations with this property are not allowed
-     *  -   1  - Use solvent (species 0) properties
-     *  -   2  - Properties weighted linearly by mole fractions
-     *  -   3  - Properties weighted linearly by mass fractions
-     *  -   4  - Properties weighted logarithmically by mole fractions (interaction energy weighting)
-     *  -   5  - Interactions given pairwise between each possible species (i.e. D_ij)
-     * 
-     *   \verbatim
-     *    <transport model="Liquid">
-     *       <viscosity>
-     *          <compositionDependence model="logMoleFractions">
-     *             <interaction>
-     *                <speciesA> LiCl(L) </speciesA>
-     *                <speciesB> KCl(L)  </speciesB>
-     *                <Eij units="J/kmol"> -1.0 </Eij>
-     *                <Sij units="J/kmol/K"> 1.0E-1 </Eij>
-     *             </interaction>
-     *          </compositionDependence>          
-     *       </viscosity>
-     *       <speciesDiffusivity>
-     *          <compositionDependence model="pairwiseInteraction">
-     *             <interaction>
-     *                <speciesA> Li+ </speciesA>
-     *                <speciesB> K+  </speciesB>
-     *                <Dij units="m2/s"> 1.5 </Dij>
-     *             </interaction>
-     *             <interaction>
-     *                <speciesA> K+  </speciesA>
-     *                <speciesB> Cl- </speciesB>
-     *                <Dij units="m2/s"> 1.0 </Dij>
-     *             </interaction>
-     *             <interaction>
-     *                <speciesA> Li+  </speciesA>
-     *                <speciesB> Cl-  </speciesB>
-     *                <Dij units="m2/s"> 1.2 </Dij>
-     *             </interaction>
-     *          </compositionDependence>          
-     *       </speciesDiffusivity>
-     *       <thermalConductivity>
-     *          <compositionDependence model="massFractions"/>
-     *       </thermalConductivity>
-     *       <hydrodynamicRadius>
-     *          <compositionDependence model="none"/>
-     *       </hydrodynamicRadius>
-     *    </transport>     
-     *   \endverbatim
-     *
-     */
+  //! Composition dependence type for liquid mixture transport properties
+  /*!
+   *  Types of temperature dependencies:
+   *  -   0  - Mixture calculations with this property are not allowed
+   *  -   1  - Use solvent (species 0) properties
+   *  -   2  - Properties weighted linearly by mole fractions
+   *  -   3  - Properties weighted linearly by mass fractions
+   *  -   4  - Properties weighted logarithmically by mole fractions (interaction energy weighting)
+   *  -   5  - Interactions given pairwise between each possible species (i.e. D_ij)
+   * 
+   *   \verbatim
+   *    <transport model="Liquid">
+   *       <viscosity>
+   *          <compositionDependence model="logMoleFractions">
+   *             <interaction>
+   *                <speciesA> LiCl(L) </speciesA>
+   *                <speciesB> KCl(L)  </speciesB>
+   *                <Eij units="J/kmol"> -1.0 </Eij>
+   *                <Sij units="J/kmol/K"> 1.0E-1 </Eij>
+   *             </interaction>
+   *          </compositionDependence>          
+   *       </viscosity>
+   *       <speciesDiffusivity>
+   *          <compositionDependence model="pairwiseInteraction">
+   *             <interaction>
+   *                <speciesA> Li+ </speciesA>
+   *                <speciesB> K+  </speciesB>
+   *                <Dij units="m2/s"> 1.5 </Dij>
+   *             </interaction>
+   *             <interaction>
+   *                <speciesA> K+  </speciesA>
+   *                <speciesB> Cl- </speciesB>
+   *                <Dij units="m2/s"> 1.0 </Dij>
+   *             </interaction>
+   *             <interaction>
+   *                <speciesA> Li+  </speciesA>
+   *                <speciesB> Cl-  </speciesB>
+   *                <Dij units="m2/s"> 1.2 </Dij>
+   *             </interaction>
+   *          </compositionDependence>          
+   *       </speciesDiffusivity>
+   *       <thermalConductivity>
+   *          <compositionDependence model="massFractions"/>
+   *       </thermalConductivity>
+   *       <hydrodynamicRadius>
+   *          <compositionDependence model="none"/>
+   *       </hydrodynamicRadius>
+   *    </transport>     
+   *   \endverbatim
+   *
+   */
   enum LiquidTranMixingModel {
     LTI_MODEL_NOTSET=-1,
     LTI_MODEL_NONE, 
@@ -120,9 +120,9 @@ namespace Cantera {
     
   public:
     //! Constructor 
-  /**
-   *  @param tp_ind          Index indicating transport property type (i.e. viscosity) 
-   */
+    /**
+     *  @param tp_ind          Index indicating transport property type (i.e. viscosity) 
+     */
     LiquidTranInteraction( TransportPropertyList tp_ind = TP_UNKNOWN );
     
     //! Copy constructor
@@ -140,7 +140,7 @@ namespace Cantera {
      *  @param thermo          Pointer to thermo object
      */
     virtual void init( const XML_Node &compModelNode = 0, 
-	  thermo_t* thermo = 0 );			  
+		       thermo_t* thermo = 0 );			  
 
     virtual void setParameters( LiquidTransportParams& trParam ) { ; }
     
@@ -260,9 +260,9 @@ namespace Cantera {
   public:
     LTI_Solvent( TransportPropertyList tp_ind = TP_UNKNOWN ) :
       LiquidTranInteraction( tp_ind )
-      {
-	m_model = LTI_MODEL_SOLVENT;
-      }
+    {
+      m_model = LTI_MODEL_SOLVENT;
+    }
     
     //! Copy constructor
     //    LTI_Solvent( const LTI_Solvent &right );
@@ -301,9 +301,9 @@ namespace Cantera {
   public:
     LTI_MoleFracs( TransportPropertyList tp_ind = TP_UNKNOWN ) :
       LiquidTranInteraction( tp_ind )
-      {
-	m_model = LTI_MODEL_MOLEFRACS;
-      }
+    {
+      m_model = LTI_MODEL_MOLEFRACS;
+    }
 
     
     //! Copy constructor
@@ -344,9 +344,9 @@ namespace Cantera {
   public:
     LTI_MassFracs( TransportPropertyList tp_ind = TP_UNKNOWN ) :
       LiquidTranInteraction( tp_ind )
-      {
-	m_model = LTI_MODEL_MASSFRACS;
-      }
+    {
+      m_model = LTI_MODEL_MASSFRACS;
+    }
 
     
     //! Copy constructor
@@ -418,9 +418,9 @@ namespace Cantera {
   public:
     LTI_Log_MoleFracs( TransportPropertyList tp_ind = TP_UNKNOWN ) :
       LiquidTranInteraction( tp_ind )
-      {
-	m_model = LTI_MODEL_LOG_MOLEFRACS;
-      }
+    {
+      m_model = LTI_MODEL_LOG_MOLEFRACS;
+    }
 
     
     //! Copy constructor
@@ -475,9 +475,9 @@ namespace Cantera {
   public:
     LTI_Pairwise_Interaction( TransportPropertyList tp_ind = TP_UNKNOWN ) :
       LiquidTranInteraction( tp_ind )
-      {
-	m_model = LTI_MODEL_PAIRWISE_INTERACTION;
-      }
+    {
+      m_model = LTI_MODEL_PAIRWISE_INTERACTION;
+    }
     
     
     //! Copy constructor
@@ -512,9 +512,9 @@ namespace Cantera {
   public:
     LTI_StokesEinstein( TransportPropertyList tp_ind = TP_UNKNOWN ) :
       LiquidTranInteraction( tp_ind )
-      {
-	m_model = LTI_MODEL_STOKES_EINSTEIN;
-      }
+    {
+      m_model = LTI_MODEL_STOKES_EINSTEIN;
+    }
     
     
     //! Copy constructor

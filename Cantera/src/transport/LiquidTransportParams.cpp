@@ -321,7 +321,7 @@ namespace Cantera {
   }
 
 
-  doublereal LTI_Log_MoleFracs::getMixTransProp( std::vector<LTPspecies*> LTPptrs ) {
+  doublereal LTI_Log_MoleFracs::getMixTransProp(std::vector<LTPspecies*> LTPptrs) {
 
     int nsp = m_thermo->nSpecies();
     doublereal temp = m_thermo->temperature();
@@ -331,7 +331,7 @@ namespace Cantera {
     doublereal value = 0;    
 
     for ( int k = 0; k < nsp; k++) { 
-      value += log( LTPptrs[k]->getSpeciesTransProp() ) * LTPptrs[k]->getMixWeight( ) * molefracs[k];
+      value += log( LTPptrs[k]->getSpeciesTransProp() ) * LTPptrs[k]->getMixWeight() * molefracs[k];
     }
 
     for ( int i = 0; i < nsp; i++ ) 
@@ -348,18 +348,18 @@ namespace Cantera {
   
 
 
-  void LTI_Pairwise_Interaction::setParameters( LiquidTransportParams& trParam ) {
+  void LTI_Pairwise_Interaction::setParameters(LiquidTransportParams& trParam) {
     int nsp = m_thermo->nSpecies();
     m_diagonals.resize(nsp, 0);
 
     for (int k = 0; k < nsp; k++) {
       Cantera::LiquidTransportData &ltd = trParam.LTData[k];
-      if ( ltd.speciesDiffusivity )
+      if (ltd.speciesDiffusivity)
 	m_diagonals[k] = ltd.speciesDiffusivity;
     }
   }
 
-  doublereal LTI_Pairwise_Interaction::getMixTransProp( doublereal *speciesValues, doublereal *speciesWeight ) {
+  doublereal LTI_Pairwise_Interaction::getMixTransProp(doublereal *speciesValues, doublereal *speciesWeight) {
 
     int nsp = m_thermo->nSpecies();
     doublereal molefracs[nsp];
@@ -373,7 +373,7 @@ namespace Cantera {
   }
 
 
-  doublereal LTI_Pairwise_Interaction::getMixTransProp( std::vector<LTPspecies*> LTPptrs ) {
+  doublereal LTI_Pairwise_Interaction::getMixTransProp(std::vector<LTPspecies*> LTPptrs) {
 
     int nsp = m_thermo->nSpecies();
     doublereal molefracs[nsp];
@@ -386,7 +386,7 @@ namespace Cantera {
     return value;
   }
 
-  void LTI_Pairwise_Interaction::getMatrixTransProp( DenseMatrix &mat, doublereal *speciesValues ) {
+  void LTI_Pairwise_Interaction::getMatrixTransProp(DenseMatrix &mat, doublereal *speciesValues) {
 
     int nsp = m_thermo->nSpecies();
     doublereal temp = m_thermo->temperature();
