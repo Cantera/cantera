@@ -243,7 +243,7 @@ namespace Cantera {
     //for each species, assign viscosity model and coefficients
     for (k = 0; k < m_nsp; k++) {
       Cantera::LiquidTransportData &ltd = tr.LTData[k];
-      if ( ltd.speciesDiffusivity >= 0 ) {
+      if (ltd.speciesDiffusivity != 0) {
 	cout << "Warning: diffusion coefficient data for " 
 	     << m_thermo->speciesName(k)
 	     <<  endl 

@@ -44,16 +44,31 @@ namespace Cantera {
     E /= GasConstant;
   }                
 
+  LiquidTransportData::LiquidTransportData() :
+    speciesName("-"),   
+    hydroRadius(0),
+    viscosity(0),
+    thermalCond(0),
+    electCond(0),
+    speciesDiffusivity(0)
+  {
 
+  }
 
-  //! Copy constructor
-  LiquidTransportData::LiquidTransportData( const LiquidTransportData &right ) 
+  // Copy constructor
+  LiquidTransportData::LiquidTransportData(const LiquidTransportData &right) :
+    speciesName("-"),   
+    hydroRadius(0),
+    viscosity(0),
+    thermalCond(0),
+    electCond(0),
+    speciesDiffusivity(0)
   {
     *this = right; //use assignment operator to do other work
   }
   
-  //! Assignment operator
-  LiquidTransportData& LiquidTransportData::operator=(const LiquidTransportData& right ) 
+  // Assignment operator
+  LiquidTransportData& LiquidTransportData::operator=(const LiquidTransportData& right) 
   {
     if (&right != this) {
       speciesName        = right.speciesName;

@@ -177,12 +177,11 @@ namespace Cantera {
 
   public:
 
-    LiquidTransportData() : 
-      speciesName("-")
-    {
-    }
+    //! Default constructor
+    LiquidTransportData();
+
     //! Copy constructor
-    LiquidTransportData( const LiquidTransportData &right ) ;
+    LiquidTransportData(const LiquidTransportData &right) ;
 
     //! Assignment operator
     LiquidTransportData& operator=(const LiquidTransportData& right ); 
@@ -213,7 +212,7 @@ namespace Cantera {
   //! Class LTPspecies_Const holds transport parameters for a 
   //! specific liquid-phase species when the transport property 
   //! is just a constant value.  
-  /**
+  /*!
    * As an example of the input required for LTPspecies_Const
    * consider the following XML fragment
    *
@@ -229,7 +228,7 @@ namespace Cantera {
    *    </species>
    * \endverbatim
    */
-  class LTPspecies_Const : public  LTPspecies{
+  class LTPspecies_Const : public  LTPspecies {
 
   public:
 
@@ -269,7 +268,7 @@ namespace Cantera {
   //! Class LTPspecies_Arrhenius holds transport parameters for a 
   //! specific liquid-phase species when the transport property 
   //! is expressed in Arrhenius form.  
-  /**
+  /*!
    * As an example of the input required for LTPspecies_Arrhenius
    * consider the following XML fragment
    *
@@ -307,7 +306,7 @@ namespace Cantera {
 
     //! Return the pure species value for this transport property evaluated 
     //! from the Arrhenius expression
-    /**
+    /*!
      * In general the Arrhenius expression is 
      *
      * \f[
@@ -343,7 +342,8 @@ namespace Cantera {
     doublereal m_logProp;
 
     //! Internal model to adjust species-specific properties for composition.
-    /** Currently just a place holder, but this method could take 
+    /*!
+     * Currently just a place holder, but this method could take 
      * the composition from the thermo object and adjust coefficients 
      * accoding to some unspecified model.
      */
@@ -355,7 +355,7 @@ namespace Cantera {
   //! Class LTPspecies_Poly holds transport parameters for a 
   //! specific liquid-phase species when the transport property 
   //! is expressed as a polynomial in temperature.
-  /**
+  /*!
    * As an example of the input required for LTPspecies_Poly
    * consider the following XML fragment
    *
@@ -405,7 +405,8 @@ namespace Cantera {
     doublereal m_prop;
 
     //! Internal model to adjust species-specific properties for composition.
-    /** Currently just a place holder, but this method could take 
+    /*!
+     * Currently just a place holder, but this method could take 
      * the composition from the thermo object and adjust coefficients 
      * accoding to some unspecified model.
      */
