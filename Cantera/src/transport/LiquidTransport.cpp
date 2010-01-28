@@ -1271,8 +1271,7 @@ namespace Cantera {
 	m_Grad_mu[a*m_nsp + i] =
 	  m_chargeSpecies[i] *  Faraday * m_Grad_V[a]
 	  //+  (m_volume_spec[i] - M[i]/dens_) * m_Grad_P[a]
-	  +  GasConstant * T * m_Grad_X[a*m_nsp+i] 
-	     * ( 1.0 * m_Grad_lnAC[i] ) / xi_denom;
+	  +  GasConstant * T * m_Grad_X[a*m_nsp+i] * ( 1.0 + m_Grad_lnAC[i] ) / xi_denom;
       }
     }
 
