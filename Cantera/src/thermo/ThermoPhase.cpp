@@ -49,11 +49,13 @@ namespace Cantera {
   ThermoPhase::~ThermoPhase() 
   {
     for (int k = 0; k < m_kk; k++) {
-      if (!m_speciesData[k]) {
+      if (m_speciesData[k]) {
         delete m_speciesData[k];
+        m_speciesData[k] = 0;
       }
     }
     delete m_spthermo;
+    m_spthermo = 0;
   }
 
   /**
@@ -95,8 +97,9 @@ namespace Cantera {
      * We need to destruct first
      */
     for (int k = 0; k < m_kk; k++) {
-      if (!m_speciesData[k]) {
+      if (m_speciesData[k]) {
         delete m_speciesData[k];
+        m_speciesData[k] = 0;
       }
     }
     if (m_spthermo) {
