@@ -196,8 +196,10 @@ namespace Cantera {
     
   public:
     
-    LiquidTransportParams() {}
-    ~LiquidTransportParams() {}
+    LiquidTransportParams();
+    ~LiquidTransportParams();
+    LiquidTransportParams(const LiquidTransportParams &right);
+    LiquidTransportParams & operator=(const LiquidTransportParams &right);
     
     //! Species transport parameters
     std::vector<Cantera::LiquidTransportData> LTData;
