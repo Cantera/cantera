@@ -156,22 +156,22 @@ namespace Cantera {
     return (dynamic_cast<Transport *>(tr));
   }
 
-   LiquidTransport::~LiquidTransport() {
+  LiquidTransport::~LiquidTransport() {
 
-     //These are constructed in TransportFactory::newLTP
-     for ( int k = 0; k < m_nsp; k++) {
-       if ( m_viscTempDep_Ns[k]   ) delete m_viscTempDep_Ns[k];
-       if ( m_lambdaTempDep_Ns[k] ) delete m_lambdaTempDep_Ns[k];
-       if ( m_radiusTempDep_Ns[k] ) delete m_radiusTempDep_Ns[k];
-       if ( m_diffTempDep_Ns[k]   ) delete m_diffTempDep_Ns[k];
-     }
-     //These are constructed in TransportFactory::newLTI
-     if ( m_viscMixModel   ) delete m_viscMixModel;
-     if ( m_lambdaMixModel ) delete m_lambdaMixModel;
-     if ( m_diffMixModel   ) delete m_diffMixModel;
-     //if ( m_radiusMixModel ) delete m_radiusMixModel;
+    //These are constructed in TransportFactory::newLTP
+    for ( int k = 0; k < m_nsp; k++) {
+      if ( m_viscTempDep_Ns[k]   ) delete m_viscTempDep_Ns[k];
+      if ( m_lambdaTempDep_Ns[k] ) delete m_lambdaTempDep_Ns[k];
+      if ( m_radiusTempDep_Ns[k] ) delete m_radiusTempDep_Ns[k];
+      if ( m_diffTempDep_Ns[k]   ) delete m_diffTempDep_Ns[k];
+    }
+    //These are constructed in TransportFactory::newLTI
+    if ( m_viscMixModel   ) delete m_viscMixModel;
+    if ( m_lambdaMixModel ) delete m_lambdaMixModel;
+    if ( m_diffMixModel   ) delete m_diffMixModel;
+    //if ( m_radiusMixModel ) delete m_radiusMixModel;
      
-   }
+  }
 
   // Initialize the transport object
   /*
@@ -264,13 +264,17 @@ namespace Cantera {
      * present class).
      */
     m_viscMixModel = tr.viscosity;
+    tr.viscosity = 0;
     m_lambdaMixModel = tr.thermalCond;
-    //m_radiusMixModel = tr.hydroRadius;
+    tr.thermalCond = 0;
+ 
     m_diffMixModel = tr.speciesDiffusivity;
+    tr.speciesDiffusivity = 0;
+  
     m_bdiff.resize(m_nsp,m_nsp, 0.0);
     //Don't really need to update this here.  
     //It is updated in updateDiff_T()
-    m_diffMixModel->getMatrixTransProp( m_bdiff ); 
+    m_diffMixModel->getMatrixTransProp(m_bdiff); 
 
     m_mode       = tr.mode_;
 
@@ -281,8 +285,9 @@ namespace Cantera {
     m_concentrations.resize(m_nsp, 0.0);
     m_actCoeff.resize(m_nsp, 0.0);
     m_chargeSpecies.resize(m_nsp, 0.0);
-    for ( int i = 0; i < m_nsp; i++ )
-      m_chargeSpecies[i] = m_thermo->charge( i );
+    for ( int i = 0; i < m_nsp; i++ ) {
+      m_chargeSpecies[i] = m_thermo->charge(i);
+    }
     m_volume_spec.resize(m_nsp, 0.0);
     m_Grad_lnAC.resize(m_nsp, 0.0); 
     m_spwork.resize(m_nsp, 0.0);
@@ -333,17 +338,6 @@ namespace Cantera {
     m_viscmix = m_viscMixModel->getMixTransProp( m_viscTempDep_Ns );
 
     return m_viscmix;
-
-    /*
-    // update m_viscSpecies[] if necessary
-    if (!m_visc_temp_ok) {
-      updateViscosity_T();
-    }
-
-    if (!m_visc_conc_ok) {
-      updateViscosities_C();
-    }
-    */
   }
 
   // Returns the pure species viscosities for all species
@@ -382,7 +376,7 @@ namespace Cantera {
 
   }
 
- //================================================================
+  //================================================================
 
   // Return the thermal conductivity of the solution
   /*
@@ -397,8 +391,8 @@ namespace Cantera {
     update_C();
 
     if (!m_cond_mix_ok) {
-     m_lambda = m_lambdaMixModel->getMixTransProp( m_lambdaTempDep_Ns );
-     m_cond_mix_ok = true;
+      m_lambda = m_lambdaMixModel->getMixTransProp( m_lambdaTempDep_Ns );
+      m_cond_mix_ok = true;
     } 
 
     return m_lambda;
@@ -638,12 +632,12 @@ namespace Cantera {
    * @param current The electric current in A/m^2.
    */
   void LiquidTransport::getElectricCurrent(int ndim, 
-					  const doublereal* grad_T, 
-					  int ldx, 
-					  const doublereal* grad_X, 
-					  int ldf, 
-					  const doublereal* grad_V, 
-					  doublereal* current) {
+					   const doublereal* grad_T, 
+					   int ldx, 
+					   const doublereal* grad_X, 
+					   int ldf, 
+					   const doublereal* grad_V, 
+					   doublereal* current) {
     
     set_Grad_T(grad_T);
     set_Grad_X(grad_X);
@@ -690,9 +684,9 @@ namespace Cantera {
    *             length = ldx * ndim
    */
   void LiquidTransport::getSpeciesVdiff(int ndim, 
-					 const doublereal* grad_T, 
-					 int ldx, const doublereal* grad_X, 
-					 int ldf, doublereal* Vdiff) {
+					const doublereal* grad_T, 
+					int ldx, const doublereal* grad_X, 
+					int ldf, doublereal* Vdiff) {
     set_Grad_T(grad_T);
     set_Grad_X(grad_X);
     getSpeciesVdiffExt(ldf, Vdiff);
@@ -709,12 +703,12 @@ namespace Cantera {
    * \f]
    */
   void LiquidTransport::getSpeciesVdiffES(int ndim, 
-					   const doublereal* grad_T, 
-					   int ldx, 
-					   const doublereal* grad_X, 
-					   int ldf, 
-					   const doublereal* grad_V, 
-					   doublereal* Vdiff) {
+					  const doublereal* grad_T, 
+					  int ldx, 
+					  const doublereal* grad_X, 
+					  int ldf, 
+					  const doublereal* grad_V, 
+					  doublereal* Vdiff) {
     set_Grad_T(grad_T);
     set_Grad_X(grad_X);
     set_Grad_V(grad_V);
@@ -1305,9 +1299,9 @@ namespace Cantera {
 		  && ( m_velocityBasis < m_nsp ) )
 	  // use species number m_velocityBasis as reference velocity
 	  if ( m_velocityBasis == j ) m_A(0,j) = 1.0; 
-	else 
-	  throw CanteraError("LiquidTransport::stefan_maxwell_solve",
-			     "Unknown reference velocity provided.");
+	  else 
+	    throw CanteraError("LiquidTransport::stefan_maxwell_solve",
+			       "Unknown reference velocity provided.");
       }
       for (i = 1; i < m_nsp; i++){
 	m_B(i,0) = m_Grad_mu[i] / (GasConstant * T);
@@ -1315,8 +1309,8 @@ namespace Cantera {
 	for (j = 0; j < m_nsp; j++){
 	  if (j != i) {
 	    if ( !( m_bdiff(i,j) > 0.0 ) )
-		 throw CanteraError("LiquidTransport::stefan_maxwell_solve",
-			     "m_bdiff has zero entry in non-diagonal.");
+	      throw CanteraError("LiquidTransport::stefan_maxwell_solve",
+				 "m_bdiff has zero entry in non-diagonal.");
 	    tmp = m_molefracs_tran[j] / m_bdiff(i,j);
 	    m_A(i,i) -=   tmp;
 	    m_A(i,j)  = + tmp;
@@ -1341,9 +1335,9 @@ namespace Cantera {
 		  && ( m_velocityBasis < m_nsp ) )
 	  // use species number m_velocityBasis as reference velocity
 	  if ( m_velocityBasis == j ) m_A(0,j) = 1.0; 
-	else 
-	  throw CanteraError("LiquidTransport::stefan_maxwell_solve",
-			     "Unknown reference velocity provided.");
+	  else 
+	    throw CanteraError("LiquidTransport::stefan_maxwell_solve",
+			       "Unknown reference velocity provided.");
       }
       for (i = 1; i < m_nsp; i++){
 	m_B(i,0) =  m_Grad_mu[i]         / (GasConstant * T);
@@ -1352,8 +1346,8 @@ namespace Cantera {
 	for (j = 0; j < m_nsp; j++) {
 	  if (j != i) {
 	    if ( !( m_bdiff(i,j) > 0.0 ) )
-		 throw CanteraError("LiquidTransport::stefan_maxwell_solve",
-			     "m_bdiff has zero entry in non-diagonal.");
+	      throw CanteraError("LiquidTransport::stefan_maxwell_solve",
+				 "m_bdiff has zero entry in non-diagonal.");
 	    tmp =  m_molefracs_tran[j] / m_bdiff(i,j);
 	    m_A(i,i) -=   tmp;
 	    m_A(i,j)  = + tmp;
@@ -1381,9 +1375,9 @@ namespace Cantera {
 		  && ( m_velocityBasis < m_nsp ) )
 	  // use species number m_velocityBasis as reference velocity
 	  if ( m_velocityBasis == j ) m_A(0,j) = 1.0; 
-	else 
-	  throw CanteraError("LiquidTransport::stefan_maxwell_solve",
-			     "Unknown reference velocity provided.");
+	  else 
+	    throw CanteraError("LiquidTransport::stefan_maxwell_solve",
+			       "Unknown reference velocity provided.");
       }
       for (i = 1; i < m_nsp; i++){
 	m_B(i,0) = m_Grad_mu[i]           / (GasConstant * T);
@@ -1393,8 +1387,8 @@ namespace Cantera {
 	for (j = 0; j < m_nsp; j++) {
 	  if (j != i) {
 	    if ( !( m_bdiff(i,j) > 0.0 ) )
-		 throw CanteraError("LiquidTransport::stefan_maxwell_solve",
-			     "m_bdiff has zero entry in non-diagonal.");
+	      throw CanteraError("LiquidTransport::stefan_maxwell_solve",
+				 "m_bdiff has zero entry in non-diagonal.");
 	    tmp =  m_molefracs_tran[j] / m_bdiff(i,j);
 	    m_A(i,i) -=   tmp;
 	    m_A(i,j)  = + tmp;

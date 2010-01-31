@@ -1047,25 +1047,25 @@ namespace Cantera {
    * instance of TransportParams containing the transport data for
    * these species read from the file.
    */
-  void TransportFactory::getLiquidInteractionsTransportData( const XML_Node &transportNode,  
-						 XML_Node& log, 
-						 const std::vector<std::string> &names, 
-						 LiquidTransportParams& trParam)
-  {
-    
+  void
+  TransportFactory::getLiquidInteractionsTransportData(const XML_Node &transportNode,  
+						       XML_Node& log, 
+						       const std::vector<std::string> &names, 
+						       LiquidTransportParams& trParam)
+  { 
     try {
       
       int num = transportNode.nChildren();
       for (int iChild = 0; iChild < num; iChild++) {
 	//tranTypeNode is a type of transport property like viscosity
 	XML_Node &tranTypeNode = transportNode.child(iChild);
-	if ( tranTypeNode.hasChild("compositionDependence")) {
+	if (tranTypeNode.hasChild("compositionDependence")) {
 	  //compDepNode contains the interaction model
 	  XML_Node &compDepNode = tranTypeNode.child("compositionDependence");
 
 	  std::string nodeName = tranTypeNode.name();
 	
-	  switch ( m_tranPropMap[nodeName] ) {
+	  switch (m_tranPropMap[nodeName]) {
 	    break;
 	  case TP_VISCOSITY:
 	    trParam.viscosity = newLTI( compDepNode, 
@@ -1083,9 +1083,9 @@ namespace Cantera {
 						 trParam );
 	    break;
 	  case TP_HYDRORADIUS:
-	    trParam.hydroRadius = newLTI( compDepNode, 
-					  m_tranPropMap[nodeName],
-					  trParam );
+	    trParam.hydroRadius = newLTI(compDepNode, 
+					 m_tranPropMap[nodeName],
+					 trParam);
 	    break;
 	  case TP_ELECTCOND:
 	    trParam.electCond = newLTI( compDepNode, 
@@ -1123,9 +1123,7 @@ namespace Cantera {
 	  else {
 	    int linenum;
 	    throw TransportDBError( linenum, "Unknown attribute " + velocityBasis + " for <velocityBasis> node. ");
-	}
-
-	  
+	  }
 
 	}
       }

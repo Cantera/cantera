@@ -128,7 +128,46 @@ namespace Cantera {
     return *this;     
   }
   
-  
+  //====================================================================================================================
+  LiquidTransportParams::LiquidTransportParams() :
+    viscosity(0), thermalCond(0), speciesDiffusivity(0), electCond(0), hydroRadius(0), model_viscosity(LTI_MODEL_NOTSET),
+    model_speciesDiffusivity(LTI_MODEL_NOTSET), model_hydroradius(LTI_MODEL_NOTSET)
+  {
+    
+  }
+  //====================================================================================================================
+  LiquidTransportParams::~LiquidTransportParams()
+  {
+    delete viscosity;
+    delete thermalCond;
+    delete speciesDiffusivity;
+    delete electCond;
+    delete hydroRadius;
+  }
+
+  //====================================================================================================================
+  LiquidTransportParams::LiquidTransportParams(const LiquidTransportParams &right) :
+   viscosity(0), thermalCond(0), speciesDiffusivity(0), electCond(0), hydroRadius(0), model_viscosity(LTI_MODEL_NOTSET),
+    model_speciesDiffusivity(LTI_MODEL_NOTSET), model_hydroradius(LTI_MODEL_NOTSET)
+  {
+    throw CanteraError("LiquidTransportParams(const LiquidTransportParams &right)","not implemented");
+  }
+
+ //====================================================================================================================
+ 
+  LiquidTransportParams&  LiquidTransportParams::operator=(const LiquidTransportParams & right) 
+  {
+   if (&right != this) {
+      return *this;
+    }
+
+   throw CanteraError("LiquidTransportParams(const LiquidTransportParams &right)","not implemented");
+   return *this;
+
+  }
+
+  //====================================================================================================================
+ 
 
 
   doublereal LTI_Solvent::getMixTransProp( doublereal *speciesValues, doublereal *speciesWeight ) {
@@ -236,10 +275,7 @@ namespace Cantera {
   }
 
 
-  
-
-
-  doublereal LTI_MassFracs::getMixTransProp( doublereal *speciesValues, doublereal *speciesWeight ) {
+  doublereal LTI_MassFracs::getMixTransProp(doublereal *speciesValues, doublereal *speciesWeight ) {
 
     int nsp = m_thermo->nSpecies();
     doublereal massfracs[nsp];
