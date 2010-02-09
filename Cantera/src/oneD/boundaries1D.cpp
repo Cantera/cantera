@@ -117,10 +117,14 @@ namespace Cantera {
     string Inlet1D::
     componentName(int n) const { 
         switch (n) {
-        case 0: return "mdot"; break;
-        case 1: return "temperature"; break;
-        default: return "unknown";
+        case 0: 
+          return "mdot";
+        case 1: 
+          return "temperature"; 
+        default: 
+          break;
         }
+        return "unknown";
     }
 
     void Inlet1D::
@@ -271,9 +275,12 @@ namespace Cantera {
 
     string Empty1D::componentName(int n) const { 
         switch (n) {
-        case 0: return "dummy"; break;
-        default: return "<unknown>";
+        case 0: 
+          return "dummy";
+        default: 
+          break;
         }
+        return "<unknown>";
     }
 
     void Empty1D::
@@ -326,9 +333,12 @@ namespace Cantera {
 
     string Symm1D::componentName(int n) const { 
         switch (n) {
-        case 0: return "dummy"; break;
-        default: return "<unknown>";
+        case 0: 
+          return "dummy"; 
+        default: 
+          break;
         }
+        return "<unknown>";
     }
 
     void Symm1D::
@@ -405,9 +415,12 @@ namespace Cantera {
 
     string Outlet1D::componentName(int n) const { 
         switch (n) {
-        case 0: return "outlet dummy"; break;
-        default: return "<unknown>";
+        case 0: 
+          return "outlet dummy"; 
+        default: 
+          break;
         }
+        return "<unknown>";
     }
 
     void Outlet1D::
@@ -522,9 +535,12 @@ namespace Cantera {
  
     string OutletRes1D::componentName(int n) const { 
         switch (n) {
-        case 0: return "dummy"; break;
-        default: return "<unknown>";
+        case 0:
+           return "dummy";
+        default: 
+           break;
         }
+        return "<unknown>";
     }
 
     void OutletRes1D::
@@ -641,9 +657,12 @@ namespace Cantera {
 
     string Surf1D::componentName(int n) const { 
         switch (n) {
-        case 0: return "temperature"; break;
-        default: return "<unknown>";
+        case 0:
+          return "temperature";
+        default:
+          break;
         }
+        return "<unknown>";
     }
 
     void Surf1D::
