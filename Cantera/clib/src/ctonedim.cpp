@@ -47,16 +47,18 @@ inline Domain1D* _domain(int i) {
 static StFlow* _stflow(int i) {
     Domain1D* d = _domain(i);
     if (d->domainType() == cFlowType) return (StFlow*)d;
-    else
+    else {
         throw CanteraError("_stflow","wrong domain type");
+    }
+    return 0;
 }
 
 static Bdry1D* _bdry(int i) {
     Domain1D* d = _domain(i);
-    if (d->isConnector()) return (Bdry1D*)d;
-    else
-        throw CanteraError("_bdry","wrong domain type: "
-            +int2str(d->domainType()));
+    if (! d->isConnector()) {
+      throw CanteraError("_bdry","wrong domain type: " +int2str(d->domainType()));
+    }
+    return (Bdry1D*)d;
 }
 
 inline ThermoPhase* _phase(int n) {
