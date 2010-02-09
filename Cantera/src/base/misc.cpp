@@ -1423,28 +1423,34 @@ protected:
 
     doublereal toSI(std::string unit) {
         doublereal f = Unit::units()->toSI(unit);
-        if (f) return f;
-        else throw CanteraError("toSI","unknown unit string: "+unit);
-        //return 1.0;
+        if (f) {
+          return f;
+        } else {
+          throw CanteraError("toSI","unknown unit string: "+unit);
+        }
+        return 1.0;
     }
 
     doublereal actEnergyToSI(std::string unit) {
         doublereal f = Unit::units()->actEnergyToSI(unit);
-        if (f) return f;
-        else return 1.0;
+        if (f) {
+          return f;
+        }
+        return 1.0;
     }
 
     string canteraRoot() {
         char* ctroot = 0;
         ctroot = getenv("CANTERA_ROOT");
-        if (ctroot != 0) { return string(ctroot); }
-        else {
+        if (ctroot != 0) { 
+          return string(ctroot);
+        } 
 #ifdef CANTERA_ROOT
-            return string(CANTERA_ROOT);
+        return string(CANTERA_ROOT);
 #else
-            return "";
+        return "";
 #endif
-        }
+        
     }
 
     // exceptions
