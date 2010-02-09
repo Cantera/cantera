@@ -792,7 +792,7 @@ namespace Cantera {
   doublereal HMWSoln::isothermalCompressibility() const {
     throw CanteraError("HMWSoln::isothermalCompressibility",
 		       "unimplemented");
-    //return 0.0;
+    return 0.0;
   }
 
   /*

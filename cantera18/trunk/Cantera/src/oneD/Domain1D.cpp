@@ -190,7 +190,8 @@ namespace Cantera {
 
     doublereal Domain1D::initialValue(int n, int j) { 
         throw CanteraError("Domain1D::initialValue",
-            "base class method called!");
+                           "base class method called!");
+        return 0.0;
     }
     
 

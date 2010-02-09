@@ -96,6 +96,7 @@ namespace Cantera {
       throw CanteraError("State:moleFraction",
 			 "illegal species index number");
     }
+    return 0.0;
   }
 
   void State::setMoleFractions(const doublereal* const x) {
@@ -126,20 +127,16 @@ namespace Cantera {
     if (k >= 0 && k < m_kk) {
       return m_y[k];
     }
-    else {
-      throw CanteraError("State:massFraction",
-			 "illegal species index number");
-    }
+    throw CanteraError("State:massFraction", "illegal species index number");
+    return 0.0;
   }
 
   doublereal State::concentration(const int k) const {
     if (k >= 0 && k < m_kk) {
       return m_y[k] * m_dens * m_rmolwts[k] ;
     }
-    else {
-      throw CanteraError("State:massFraction",
-			 "illegal species index number");
-    }
+    throw CanteraError("State:massFraction", "illegal species index number");
+    return 0.0;
   }
 
   void State::setMassFractions(const doublereal* const y) {

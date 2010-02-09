@@ -64,6 +64,7 @@ namespace Cantera {
             if (domain(n).id() == name) return n;
         }
         throw CanteraError("OneDim::domainIndex","no domain named >>"+name+"<<");
+        return -1;
     }
 
 

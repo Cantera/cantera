@@ -494,13 +494,10 @@ namespace Cantera {
     switch (m_formGC) {
     case 0:
       return 1.0;
-      break;
     case 1:
       return 1.0 / m_speciesMolarVolume[k];
-      break;
     case 2:
       return 1.0/m_speciesMolarVolume[m_kk-1];
-      break;
     }
     return 0.0;
   }
@@ -509,13 +506,10 @@ namespace Cantera {
     switch (m_formGC) {
     case 0:
       return 1.0;
-      break;
     case 1:
       return 1.0 / m_speciesMolarVolume[k];
-      break;
     case 2:
       return 1.0 / m_speciesMolarVolume[m_kk-1];
-      break;
     }
     return 0.0;
   }

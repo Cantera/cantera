@@ -22,6 +22,7 @@ namespace Cantera {
             throw CanteraError("newIntegrator",
                 "unknown ODE integrator: "+itype);
         }
+        return 0;
     }
 
     void deleteIntegrator(Integrator *cv) {
