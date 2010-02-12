@@ -1,5 +1,3 @@
-//HI
-
 /**
  *  @file ThermoPhase.h
  * Header file for class ThermoPhase, the base class for phases with
