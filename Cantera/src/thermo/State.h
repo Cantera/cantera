@@ -318,6 +318,9 @@ namespace Cantera {
     /// Molar density (kmol/m^3).
     doublereal molarDensity() const;
 
+    /// Molar density (kmol/m^3).
+    doublereal molarVolume() const;
+
     //! Set the internally storred density (kg/m^3) of the phase
     /*!
      * Note the density of a phase is an indepedent variable.

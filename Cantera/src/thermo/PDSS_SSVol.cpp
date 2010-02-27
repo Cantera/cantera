@@ -134,14 +134,14 @@ namespace Cantera {
       m_constMolarVolume = getFloat(*ss, "molarVolume", "toSI");
     } else if (model == "temperature_polynomial") {
       volumeModel_ = cSSVOLUME_TPOLY;
-      int num = getFloatArray(*ss, TCoeff_, true, "", "volumeTemperaturePolynomial");
+      int num = getFloatArray(*ss, TCoeff_, true, "toSI", "volumeTemperaturePolynomial");
       if (num != 4) {
 	throw CanteraError("PDSS_SSVol::constructPDSSXML",
 			   " Didn't get 4 density polynomial numbers for species " + speciesNode.name());
       }
     } else if (model == "density_temperature_polynomial") {
       volumeModel_ = cSSVOLUME_DENSITY_TPOLY;
-      int num = getFloatArray(*ss, TCoeff_, true, "", "densityTemperaturePolynomial");
+      int num = getFloatArray(*ss, TCoeff_, true, "toSI", "densityTemperaturePolynomial");
       if (num != 4) {
 	throw CanteraError("PDSS_SSVol::constructPDSSXML",
 			   " Didn't get 4 density polynomial numbers for species " + speciesNode.name());

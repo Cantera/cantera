@@ -301,6 +301,23 @@ namespace Cantera {
     virtual void getdlnActCoeffdT(doublereal *dlnActCoeffdT) const {
       err("getdlnActCoeffdT");
     }
+
+    //! Get the array of change in the log activity coefficients w.r.t. change in state (change temp, change mole fractions)
+    /*!
+     * This function is a virtual class, but it first appears in GibbsExcessVPSSTP
+     * class and derived classes from GibbsExcessVPSSTP.
+     *
+     * This function is a virtual method.  For ideal mixtures 
+     * (unity activity coefficients), this can gradX/X.  
+     *
+     * @param dT    Input of temperature change
+     * @param dX    Input vector of changes in mole fraction. length = m_kk
+     * @param dlnActCoeff    Output vector of derivatives of the 
+     *                         log Activity Coefficients. length = m_kk
+     */
+    virtual void getdlnActCoeff(const doublereal dT, const doublereal * const dX, doublereal *dlnActCoeff) const {
+      err("getdlnActCoeff");
+    }
  
     //! Get the array of log concentration-like derivatives of the 
     //! log activity coefficients
@@ -317,11 +334,33 @@ namespace Cantera {
      *
      *  units = dimensionless
      *
-     * @param dlnActCoeffdlnC    Output vector of derivatives of the 
+     * @param dlnActCoeffdlnN    Output vector of derivatives of the 
      *                         log Activity Coefficients. length = m_kk
      */
-    virtual void getdlnActCoeffdlnC(doublereal *dlnActCoeffdlnC) const {
-      err("getdlnActCoeffdlnC");
+    virtual void getdlnActCoeffdlnN(doublereal *dlnActCoeffdlnN) const {
+      err("getdlnActCoeffdlnN");
+    }
+
+    //! Get the array of log concentration-like derivatives of the 
+    //! log activity coefficients
+    /*!
+     * This function is a virtual method.  For ideal mixtures 
+     * (unity activity coefficients), this can return zero.  
+     * Implementations should take the derivative of the 
+     * logarithm of the activity coefficient with respect to the 
+     * logarithm of the concentration-like variable (i.e. number of moles in
+     * in a unit volume. ) that represents the standard state.  
+     * This quantity is to be used in conjunction with derivatives of 
+     * that concentration-like variable when the derivative of the chemical 
+     * potential is taken.  
+     *
+     *  units = dimensionless
+     *
+     * @param dlnActCoeffdlnX    Output vector of derivatives of the 
+     *                         log Activity Coefficients. length = m_kk
+     */
+    virtual void getdlnActCoeffdlnX(doublereal *dlnActCoeffdlnX) const {
+      err("getdlnActCoeffdlnX");
     }
  
     //@}
@@ -562,7 +601,12 @@ namespace Cantera {
     //! Storage for the current derivative values of the 
     //! gradients with respect to logarithm of the mole fraction of the 
     //! log of theactivity coefficients of the species
-    mutable std::vector<doublereal> dlnActCoeffdlnC_Scaled_;
+    mutable std::vector<doublereal> dlnActCoeffdlnN_Scaled_;
+
+    //! Storage for the current derivative values of the 
+    //! gradients with respect to logarithm of the mole fraction of the 
+    //! log of theactivity coefficients of the species
+    mutable std::vector<doublereal> dlnActCoeffdlnX_Scaled_;
 
     //! Temporary storage space that is fair game
     mutable std::vector<doublereal> m_pp;

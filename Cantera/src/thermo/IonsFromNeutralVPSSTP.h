@@ -404,6 +404,21 @@ namespace Cantera {
      */
     virtual void getPartialMolarEntropies(doublereal* sbar) const;
 
+    //! Get the array of change in the log activity coefficients w.r.t. change in state (change temp, change mole fractions)
+    /*!
+     * This function is a virtual class, but it first appears in GibbsExcessVPSSTP
+     * class and derived classes from GibbsExcessVPSSTP.
+     *
+     * This function is a virtual method.  For ideal mixtures 
+     * (unity activity coefficients), this can gradX/X.  
+     *
+     * @param dT    Input of temperature change
+     * @param dX    Input vector of changes in mole fraction. length = m_kk
+     * @param dlnActCoeff    Output vector of derivatives of the 
+     *                         log Activity Coefficients. length = m_kk
+     */
+     virtual void getdlnActCoeff(const doublereal dT, const doublereal * const dX, doublereal *dlnActCoeff) const;
+
     //! Get the array of log concentration-like derivatives of the 
     //! log activity coefficients
     /*!
@@ -411,19 +426,65 @@ namespace Cantera {
      * (unity activity coefficients), this can return zero.  
      * Implementations should take the derivative of the 
      * logarithm of the activity coefficient with respect to the 
-     * logarithm of the concentration-like variable (i.e. mole fraction,
-     * molality, etc.) that represents the standard state.  
+     * logarithm of the concentration-like variable (i.e. mole fraction) 
+     * that represents the standard state.  
      * This quantity is to be used in conjunction with derivatives of 
      * that concentration-like variable when the derivative of the chemical 
      * potential is taken.  
      *
      *  units = dimensionless
      *
-     * @param dlnActCoeffdlnC    Output vector of log(mole fraction)  
+     * @param dlnActCoeffdlnX    Output vector of log(mole fraction)  
      *                 derivatives of the log Activity Coefficients.
      *                 length = m_kk
      */
-    virtual void getdlnActCoeffdlnC(doublereal *dlnActCoeffdlnC) const;
+    virtual void getdlnActCoeffdlnX(doublereal *dlnActCoeffdlnX) const;
+
+    //! Get the array of log concentration-like derivatives of the 
+    //! log activity coefficients
+    /*!
+     * This function is a virtual method.  For ideal mixtures 
+     * (unity activity coefficients), this can return zero.  
+     * Implementations should take the derivative of the 
+     * logarithm of the activity coefficient with respect to the 
+     * logarithm of the concentration-like variable (i.e. number of moles)
+     * that represents the standard state.  
+     * This quantity is to be used in conjunction with derivatives of 
+     * that concentration-like variable when the derivative of the chemical 
+     * potential is taken.  
+     *
+     *  units = dimensionless
+     *
+     * @param dlnActCoeffdlnN    Output vector of log(mole fraction)  
+     *                 derivatives of the log Activity Coefficients.
+     *                 length = m_kk
+     */
+    virtual void getdlnActCoeffdlnN(doublereal *dlnActCoeffdlnN) const;
+
+
+    virtual void getDissociationCoeffs(vector_fp& coeffs, vector_fp& charges);
+
+    virtual void getNeutralMolecMoleFractions(vector_fp& fracs){fracs=NeutralMolecMoleFractions_;}
+
+    //! Calculate neutral molecule mole fractions
+    /*!
+     *  This routine calculates the neutral molecule mole
+     *  fraction given the vector of ion mole fractions,
+     *  i.e., the mole fractions from this ThermoPhase.
+     *  Note, this routine basically assumes that there
+     *  is charge neutrality. If there isn't, then it wouldn't
+     *  make much sense. 
+     *
+     *  for the case of  cIonSolnType_SINGLEANION, some slough
+     *  in the charge neutrality is allowed. The cation number
+     *  is followed, while the difference in charge neutrality
+     *  is dumped into the anion mole number to fix the imbalance.
+     */
+    virtual void getNeutralMoleculeMoleGrads(const doublereal * const x, doublereal *y) const;
+
+    virtual void getCationList(std::vector<int>& cation){cation=cationList_;}
+    virtual void getAnionList(std::vector<int>& anion){anion=anionList_;}
+    virtual void getSpeciesNames(std::vector<std::string>& names){names=m_speciesNames;}
 
 
     //@}
@@ -680,6 +741,14 @@ namespace Cantera {
      */
     void s_update_dlnActCoeffdT() const;
 
+    //! Update the change in the ln activity coefficients
+    /*!
+     * This function will be called to update the internally storred
+     * change of the natural logarithm of the activity coefficients
+     * w.r.t a change in state (temp, mole fraction, etc)
+     */
+    void s_update_dlnActCoeff() const;
+
     //! Update the derivative of the log of the activity coefficients
     //!  wrt log(mole fraction)
     /*!
@@ -687,7 +756,16 @@ namespace Cantera {
      * derivative of the natural logarithm of the activity coefficients
      * wrt logarithm of the mole fractions.
      */
-    void s_update_dlnActCoeff_dlnC() const;
+    void s_update_dlnActCoeff_dlnX() const;
+
+    //! Update the derivative of the log of the activity coefficients
+    //!  wrt log(number of moles)
+    /*!
+     * This function will be called to update the internally storred
+     * derivative of the natural logarithm of the activity coefficients
+     * wrt logarithm of the number of moles of given species.
+     */
+    void s_update_dlnActCoeff_dlnN() const;
 
 
   private:
@@ -818,8 +896,10 @@ namespace Cantera {
 
     mutable std::vector<doublereal> muNeutralMolecule_;
     mutable std::vector<doublereal> gammaNeutralMolecule_;
+    mutable std::vector<doublereal> dlnActCoeff_NeutralMolecule_;
     mutable std::vector<doublereal> dlnActCoeffdT_NeutralMolecule_;
-    mutable std::vector<doublereal> dlnActCoeffdlnC_NeutralMolecule_;
+    mutable std::vector<doublereal> dlnActCoeffdlnX_NeutralMolecule_;
+    mutable std::vector<doublereal> dlnActCoeffdlnN_NeutralMolecule_;
 
   };
 
