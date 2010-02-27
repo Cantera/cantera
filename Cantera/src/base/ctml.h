@@ -566,6 +566,44 @@ namespace ctml {
   doublereal getFloat(const Cantera::XML_Node& parent, const std::string &name,
 		      const std::string type=""); 
 
+  //!  Get a floating-point value from a child element. 
+  /*! 
+   *  Returns a doublereal value for the child named 'name' of element 'parent'. If
+   *  'type' is supplied and matches a known unit type, unit
+   *  conversion to SI will be done if the child element has an attribute
+   *  'units'.
+   *
+   *  Note, it's an error for the child element not to exist.
+   *
+   *  Example:  
+   *
+   * Code snipet:
+   *       @verbatim
+   const XML_Node &State_XMLNode;
+   doublereal pres = OneAtm;
+   if (state_XMLNode.hasChild("pressure")) {
+     pres = getFloat(State_XMLNode, "pressure", "toSI");
+   }
+   @endverbatim
+   *
+   *  reads the corresponding XML file:
+   *  @verbatim
+   <state>
+     <pressure units="Pa"> 101325.0 </pressure>
+   <\state>
+   @endverbatim
+   *
+   *   @param v      vector to assign with getFloatArray is XML data is in an array form
+   *   @param parent reference to the XML_Node object of the parent XML element
+   *   @param name   Name of the XML child element
+   *   @param type   String type. Currently known types are "toSI" and "actEnergy",
+   *                 and "" , for no conversion. The default value is "",
+   *                 which implies that no conversion is allowed.
+   */
+
+  doublereal getFloat(Cantera::vector_fp& v,const Cantera::XML_Node& parent, const std::string &name,
+		      const std::string type="toSI"); 
+
   //!  Get a floating-point value from the current XML element
   /*! 
    *  Returns a doublereal value from the current element. If
