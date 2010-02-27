@@ -633,6 +633,22 @@ namespace ctml {
     return getFloatCurrent(node, type);
   }
 
+  doublereal getFloat(vector_fp& v, const Cantera::XML_Node& parent,
+		      const std::string &name,
+		      const std::string type) {
+    if (!parent.hasChild(name)) 
+      throw CanteraError("getFloat (called from XML Node \"" +
+			 parent.name() + "\"): ",
+			 "no child XML element named \"" + name + "\" exists");
+    const XML_Node& node = parent.child(name);
+    if (node.hasChild("floatArray")){
+      getFloatArray(node, v, "true", type);
+      return 0;
+    }
+    else{ return getFloatCurrent(node, type);
+      }
+  }
+  
   doublereal getFloatCurrent(const Cantera::XML_Node& node,
                              const std::string type) {
     doublereal x, x0, x1, fctr = 1.0;
