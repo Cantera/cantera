@@ -65,7 +65,8 @@ namespace Cantera {
     moleFractions_       = b.moleFractions_;
     lnActCoeff_Scaled_   = b.lnActCoeff_Scaled_;
     dlnActCoeffdT_Scaled_   = b.dlnActCoeffdT_Scaled_;
-    dlnActCoeffdlnC_Scaled_ = b.dlnActCoeffdlnC_Scaled_;
+    dlnActCoeffdlnX_Scaled_ = b.dlnActCoeffdlnX_Scaled_;
+    dlnActCoeffdlnN_Scaled_ = b.dlnActCoeffdlnN_Scaled_;
     m_pp                 = b.m_pp;
 
     return *this;
@@ -156,7 +157,9 @@ namespace Cantera {
   }
 
   void GibbsExcessVPSSTP::calcDensity() {
-    double *vbar = &m_pp[0];
+    doublereal* vbar = NULL;
+    vbar = new doublereal[m_kk];
+    //    double *vbar = &m_pp[0];
     getPartialMolarVolumes(vbar);
    
     doublereal vtotal = 0.0;
@@ -165,6 +168,7 @@ namespace Cantera {
     }
     doublereal dd = meanMolecularWeight() / vtotal;
     State::setDensity(dd);
+    delete [] vbar;
   }
 
   void GibbsExcessVPSSTP::setState_TP(doublereal t, doublereal p) {
@@ -320,7 +324,8 @@ namespace Cantera {
     moleFractions_.resize(m_kk);
     lnActCoeff_Scaled_.resize(m_kk);
     dlnActCoeffdT_Scaled_.resize(m_kk);
-    dlnActCoeffdlnC_Scaled_.resize(m_kk);
+    dlnActCoeffdlnX_Scaled_.resize(m_kk);
+    dlnActCoeffdlnN_Scaled_.resize(m_kk);
     m_pp.resize(m_kk);
   }
 
