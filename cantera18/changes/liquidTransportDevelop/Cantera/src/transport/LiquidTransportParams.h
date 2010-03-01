@@ -33,57 +33,62 @@ namespace Cantera {
   };
   
 
-  //! Composition dependence type for liquid mixture transport properties
-  /*!
-   *  Types of temperature dependencies:
-   *  -   0  - Mixture calculations with this property are not allowed
-   *  -   1  - Use solvent (species 0) properties
-   *  -   2  - Properties weighted linearly by mole fractions
-   *  -   3  - Properties weighted linearly by mass fractions
-   *  -   4  - Properties weighted logarithmically by mole fractions (interaction energy weighting)
-   *  -   5  - Interactions given pairwise between each possible species (i.e. D_ij)
-   * 
-   *   \verbatim
-   *    <transport model="Liquid">
-   *       <viscosity>
-   *          <compositionDependence model="logMoleFractions">
-   *             <interaction>
-   *                <speciesA> LiCl(L) </speciesA>
-   *                <speciesB> KCl(L)  </speciesB>
-   *                <Eij units="J/kmol"> -1.0 </Eij>
-   *                <Sij units="J/kmol/K"> 1.0E-1 </Eij>
-   *             </interaction>
-   *          </compositionDependence>          
-   *       </viscosity>
-   *       <speciesDiffusivity>
-   *          <compositionDependence model="pairwiseInteraction">
-   *             <interaction>
-   *                <speciesA> Li+ </speciesA>
-   *                <speciesB> K+  </speciesB>
-   *                <Dij units="m2/s"> 1.5 </Dij>
-   *             </interaction>
-   *             <interaction>
-   *                <speciesA> K+  </speciesA>
-   *                <speciesB> Cl- </speciesB>
-   *                <Dij units="m2/s"> 1.0 </Dij>
-   *             </interaction>
-   *             <interaction>
-   *                <speciesA> Li+  </speciesA>
-   *                <speciesB> Cl-  </speciesB>
-   *                <Dij units="m2/s"> 1.2 </Dij>
-   *             </interaction>
-   *          </compositionDependence>          
-   *       </speciesDiffusivity>
-   *       <thermalConductivity>
-   *          <compositionDependence model="massFractions"/>
-   *       </thermalConductivity>
-   *       <hydrodynamicRadius>
-   *          <compositionDependence model="none"/>
-   *       </hydrodynamicRadius>
-   *    </transport>     
-   *   \endverbatim
-   *
-   */
+    //! Composition dependence type for liquid mixture transport properties
+    /*!
+     *  Types of temperature dependencies:
+     *  -   0  - Mixture calculations with this property are not allowed
+     *  -   1  - Use solvent (species 0) properties
+     *  -   2  - Properties weighted linearly by mole fractions
+     *  -   3  - Properties weighted linearly by mass fractions
+     *  -   4  - Properties weighted logarithmically by mole fractions (interaction energy weighting)
+     *  -   5  - Interactions given pairwise between each possible species (i.e. D_ij)
+     * 
+     *   \verbatim
+     *    <transport model="Liquid">
+     *       <viscosity>
+     *          <compositionDependence model="logMoleFractions">
+     *             <interaction>
+     *                <speciesA> LiCl(L) </speciesA>
+     *                <speciesB> KCl(L)  </speciesB>
+     *                <Eij units="J/kmol"> -1.0 </Eij>
+     *                <Sij units="J/kmol/K"> 1.0E-1 </Sij>
+     *     -or-       <Sij>
+     *                  <floatArray units="J/kmol/K"> 1.0E-1, 0.001 0.01 </floatArray>
+     *                </Sij>
+     *     -same form for Hij,Aij,Bij-
+     *             </interaction>
+     *          </compositionDependence>          
+     *       </viscosity>
+     *       <speciesDiffusivity>
+     *          <compositionDependence model="pairwiseInteraction">
+     *             <interaction>
+     *                <speciesA> Li+ </speciesA>
+     *                <speciesB> K+  </speciesB>
+     *                <Dij units="m2/s"> 1.5 </Dij>
+     *             </interaction>
+     *             <interaction>
+     *                <speciesA> K+  </speciesA>
+     *                <speciesB> Cl- </speciesB>
+     *                <Dij units="m2/s"> 1.0 </Dij>
+     *             </interaction>
+     *             <interaction>
+     *                <speciesA> Li+  </speciesA>
+     *                <speciesB> Cl-  </speciesB>
+     *                <Dij units="m2/s"> 1.2 </Dij>
+     *             </interaction>
+     *          </compositionDependence>          
+     *       </speciesDiffusivity>
+     *       <thermalConductivity>
+     *          <compositionDependence model="massFractions"/>
+     *       </thermalConductivity>
+     *       <hydrodynamicRadius>
+     *          <compositionDependence model="none"/>
+     *       </hydrodynamicRadius>
+     *    </transport>     
+     *   \endverbatim
+     *
+     */
+
   enum LiquidTranMixingModel {
     LTI_MODEL_NOTSET=-1,
     LTI_MODEL_NONE, 
@@ -92,7 +97,9 @@ namespace Cantera {
     LTI_MODEL_MASSFRACS,
     LTI_MODEL_LOG_MOLEFRACS,
     LTI_MODEL_PAIRWISE_INTERACTION,
-    LTI_MODEL_STOKES_EINSTEIN
+    LTI_MODEL_STEFANMAXWELL_PPN,
+    LTI_MODEL_STOKES_EINSTEIN,
+    LTI_MODEL_MOLEFRACS_EXPT
   };
   
 
@@ -132,7 +139,7 @@ namespace Cantera {
     LiquidTranInteraction& operator=( const LiquidTranInteraction &right );
     
     //! destructor
-    virtual ~LiquidTranInteraction() { ; }
+    virtual ~LiquidTranInteraction();
 
     //! initialize LiquidTranInteraction objects with thermo and XML node
     /**
@@ -172,14 +179,21 @@ namespace Cantera {
 
     //LiquidTransportParams* m_trParam;
 
-    //! Matrix of interactions (no temperature dependence, dimensionless)
-    DenseMatrix  m_Aij; 
+    //! Matrix of interaction coefficients for polynomial in molefraction*weight of speciesA (no temperature dependence, dimensionless)
+    std::vector<DenseMatrix*>  m_Aij; 
+
+    //! Matrix of interaction coefficients for polynomial in molefraction*weight of speciesA (linear temperature dependence, units 1/K)
+    std::vector<DenseMatrix*>  m_Bij; 
 
     //! Matrix of interactions (in energy units, 1/RT temperature dependence)
     DenseMatrix  m_Eij; 
 
-    //! Matrix of interactions (in entropy units, divided by R)
-    DenseMatrix  m_Sij;         
+    //! Matrix of interaction coefficients for polynomial in molefraction*weight of speciesA (in energy units, 1/RT temperature dependence)
+    std::vector<DenseMatrix*> m_Hij;  
+
+    //! Matrix of interaction coefficients for polynomial in molefraction*weight of speciesA (in entropy units, divided by R)
+    std::vector<DenseMatrix*> m_Sij;
+    //DenseMatrix  m_Sij;         
     
     //! Matrix of interactions 
     DenseMatrix  m_Dij;         
@@ -205,6 +219,11 @@ namespace Cantera {
     std::vector<Cantera::LiquidTransportData> LTData;
 
     LiquidTranInteraction* viscosity;
+    LiquidTranInteraction* ionConductivity;
+    std::vector<LiquidTranInteraction*> mobilityRatio;
+    std::vector<std::string> mobRatIndex;
+    std::vector<LiquidTranInteraction*> selfDiffusion;
+    std::vector<std::string> selfDiffIndex;
     LiquidTranInteraction* thermalCond;
     LiquidTranInteraction* speciesDiffusivity;
     LiquidTranInteraction* electCond;
@@ -213,7 +232,19 @@ namespace Cantera {
     //! Model for species interaction effects for viscosity
     //! Takes enum LiquidTranMixingModel
     LiquidTranMixingModel model_viscosity;
+
+    //! Model for species interaction effects for ionic conductivity
+    //! Takes enum LiquidTranMixingModel
+    LiquidTranMixingModel model_ionConductivity;
     
+    //! Model for species interaction effects for mobility ratio
+    //! Takes enum LiquidTranMixingModel
+    std::vector<LiquidTranMixingModel*> model_mobilityRatio;
+
+    //! Model for species interaction effects for mobility ratio
+    //! Takes enum LiquidTranMixingModel
+    std::vector<LiquidTranMixingModel*> model_selfDiffusion;
+
     //! Interaction associated with linear weighting of 
     //! thermal conductivity.
     /**
@@ -233,7 +264,7 @@ namespace Cantera {
     //! Interaction associated with linear weighting of 
     //! thermal conductivity.
     /**
-     * This is used for either LTI_MODEL_PAIRWISE_INTERACTION.
+     * This is used for either LTI_MODEL_PAIRWISE_INTERACTION or LTI_MODEL_STEFANMAXWELL_PPN.
      * These provide species interaction coefficients associated with 
      * the Stefan-Maxwell formulation.
      */
@@ -256,7 +287,8 @@ namespace Cantera {
   class LTI_MassFracs;
   class LTI_Log_MoleFracs;
   class LTI_Pairwise_Interaction;
-
+  class LTI_StefanMaxwell_PPN;
+  class LTI_MoleFracs_ExpT;
   class LTI_Solvent : public LiquidTranInteraction {
 
   public:
@@ -283,7 +315,7 @@ namespace Cantera {
     doublereal getMixTransProp( doublereal *valueSpecies, doublereal *weightSpecies = 0 );
     doublereal getMixTransProp( std::vector<LTPspecies*> LTPptrs ) ;
 
-    void getMatrixTransProp( DenseMatrix &mat, doublereal* speciesValues = 0 ) { mat = m_Aij; }
+    void getMatrixTransProp( DenseMatrix &mat, doublereal* speciesValues = 0 ) { mat = (*m_Aij[0]); }
 
   protected:    
     
@@ -325,7 +357,7 @@ namespace Cantera {
     doublereal getMixTransProp( doublereal *valueSpecies, doublereal *weightSpecies = 0 );
     doublereal getMixTransProp( std::vector<LTPspecies*> LTPptrs ) ;
 
-    void getMatrixTransProp( DenseMatrix &mat, doublereal* speciesValues = 0 ) { mat = m_Aij; }
+    void getMatrixTransProp( DenseMatrix &mat, doublereal* speciesValues = 0 ) { mat = (*m_Aij[0]); }
 
   protected:    
     
@@ -368,7 +400,7 @@ namespace Cantera {
     doublereal getMixTransProp( doublereal *valueSpecies, doublereal *weightSpecies = 0 );
     doublereal getMixTransProp( std::vector<LTPspecies*> LTPptrs ) ;
 
-    void getMatrixTransProp( DenseMatrix &mat, doublereal* speciesValues = 0 ) { mat = m_Aij; }
+    void getMatrixTransProp( DenseMatrix &mat, doublereal* speciesValues = 0 ) { mat = (*m_Aij[0]); }
 
   protected:    
     
@@ -502,10 +534,81 @@ namespace Cantera {
     doublereal getMixTransProp( std::vector<LTPspecies*> LTPptrs ) ;
 
     void getMatrixTransProp( DenseMatrix &mat, doublereal* speciesValues = 0 ) ;
-
   protected:    
 
     std::vector<LTPspecies*> m_diagonals;
+  };
+
+
+  //! Stefan Maxwell Diffusion Coefficients can be solved for given
+  //! ion conductivity, mobility ratios, and self diffusion coeffs.
+  //! This method is only valid for a common anion mixture of two
+  //! salts with cations of equal charge.
+  /**
+   * This class requres you specify 
+   * 1 - ion conductivity
+   * 2 - mobility ratio of the two cations
+   * 3 - mutual diffusion coefficient (can be approximated using
+   *     the self diffusion coefficients of the cations
+   *
+   *  Sample input for this method is
+   *  \verbatim
+   *    <transport model="Liquid">
+   *       <speciesDiffusivity>
+   *          <compositionDependence model="stefanMaxwell_PPN">
+   *          </compositionDependence>          
+   *       </speciesDiffusivity>
+   *    </transport>     
+   *  \endverbatim
+   *
+   */
+  class LTI_StefanMaxwell_PPN : public LiquidTranInteraction {
+
+  public:
+    LTI_StefanMaxwell_PPN( TransportPropertyList tp_ind = TP_UNKNOWN ) :
+      LiquidTranInteraction( tp_ind )
+      {
+	m_model = LTI_MODEL_STEFANMAXWELL_PPN;
+      }
+    
+    
+    //! Copy constructor
+    //    LTI_StefanMaxwell_PPN( const LTI_StefanMaxwell_PPN &right );
+    
+    //! Assignment operator
+    //    LTI_StefanMaxwell_PPN& operator=( const LTI_StefanMaxwell_PPN &right );
+    
+    virtual ~LTI_StefanMaxwell_PPN( ) { } 
+    
+    void setParameters( LiquidTransportParams& trParam ) ;
+
+    //! Return the mixture transport property value.
+    /** 
+     * Takes the separate species transport properties 
+     * as input (this method does not know what
+     * transport property it is at this point.
+     */
+    doublereal getMixTransProp( doublereal *valueSpecies, doublereal *weightSpecies = 0 );
+    doublereal getMixTransProp( std::vector<LTPspecies*> LTPptrs ) ;
+
+    void getMatrixTransProp( DenseMatrix &mat, doublereal* speciesValues = 0 ) ;
+    //CAL    void getMatrixTransProp( DenseMatrix &mat, LiquidTransport* lt, doublereal* speciesValues = 0 ) ;
+
+  protected:    
+
+    doublereal m_ionCondMix;
+    LiquidTranInteraction * m_ionCondMixModel;
+    std::vector<LTPspecies*> m_ionCondSpecies;
+    typedef std::vector<LTPspecies*> LTPvector;
+    DenseMatrix m_mobRatMix;
+    std::vector<LiquidTranInteraction*> m_mobRatMixModel;
+    std::vector<LTPvector> m_mobRatSpecies;
+    std::vector<std::string> m_mobRatIndex;
+
+    std::vector<LiquidTranInteraction*> m_selfDiffMixModel;
+    vector_fp m_selfDiffMix;
+    std::vector<LTPvector> m_selfDiffSpecies;
+    std::vector<std::string> m_selfDiffIndex;
   };
 
 
@@ -539,7 +642,6 @@ namespace Cantera {
     doublereal getMixTransProp( std::vector<LTPspecies*> LTPptrs ) ;
 
     void getMatrixTransProp( DenseMatrix &mat, doublereal* speciesValues = 0 ) ;
-
   protected:    
     
     std::vector<LTPspecies*> m_viscosity;
@@ -547,6 +649,48 @@ namespace Cantera {
     
   };
 
+  //! Simple mole fraction weighting of transport properties
+  /**
+   * This model weights the transport property by  the mole 
+   * fractions.
+   * The overall formula for the mixture viscosity is 
+   *
+   * \f[ \eta_{mix} = \sum_i X_i \eta_i 
+   *  + \sum_i \sum_j X_i X_j A_{i,j} \f].
+   */
+  class LTI_MoleFracs_ExpT : public LiquidTranInteraction {
+
+  public:
+    LTI_MoleFracs_ExpT( TransportPropertyList tp_ind = TP_UNKNOWN ) :
+      LiquidTranInteraction( tp_ind )
+      {
+	m_model = LTI_MODEL_MOLEFRACS_EXPT;
+      }
+
+    
+    //! Copy constructor
+    //    LTI_MoleFracs_ExpT( const LTI_MoleFracs_ExpT &right );
+    
+    //! Assignment operator
+    //    LTI_MoleFracs_ExpT& operator=( const LTI_MoleFracs_ExpT &right );
+    
+    virtual ~LTI_MoleFracs_ExpT( ) { } 
+    
+    //! Return the mixture transport property value.
+    /** 
+     * Takes the separate species transport properties 
+     * as input (this method does not know what
+     * transport property it is at this point.
+     */
+    doublereal getMixTransProp( doublereal *valueSpecies, doublereal *weightSpecies = 0 );
+    doublereal getMixTransProp( std::vector<LTPspecies*> LTPptrs ) ;
+
+    void getMatrixTransProp( DenseMatrix &mat, doublereal* speciesValues = 0 ) { mat = (*m_Aij[0]); }
+    //CAL    void getMatrixTransProp( DenseMatrix &mat, LiquidTransport* lt, doublereal* speciesValues = 0 ) { mat = (*m_Aij[0]); }
+
+  protected:    
+    
+  };
 
 }
 

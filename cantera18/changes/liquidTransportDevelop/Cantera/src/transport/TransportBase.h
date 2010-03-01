@@ -28,7 +28,7 @@
 #define CT_TRANSPORTBASE_H
 
 #include "ThermoPhase.h"
-
+#include "DenseMatrix.h"
 
 namespace Cantera {
 
@@ -80,6 +80,8 @@ namespace Cantera {
    *  - VB_MOLEAVG    Diffusion velocities are based on the mole averaged velocities
    *  - VB_SPECIES_0  Diffusion velocities are based on the relative motion wrt species 0
    *  - VB_SPECIES_1  Diffusion velocities are based on the relative motion wrt species 1
+   *  - VB_SPECIES_2  Diffusion velocities are based on the relative motion wrt species 2
+   *  - VB_SPECIES_3  Diffusion velocities are based on the relative motion wrt species 3
    *
    * @ingroup tranprops
    */
@@ -97,6 +99,10 @@ namespace Cantera {
   const VelocityBasis VB_SPECIES_0 = 0;
   //! Diffusion velocities are based on the relative motion wrt species 1
   const VelocityBasis VB_SPECIES_1 = 1;
+  //! Diffusion velocities are based on the relative motion wrt species 2
+  const VelocityBasis VB_SPECIES_2 = 2;
+  //! Diffusion velocities are based on the relative motion wrt species 3
+  const VelocityBasis VB_SPECIES_3 = 3;
   //@}
 
   //! Base class for transport property managers.
@@ -307,6 +313,68 @@ namespace Cantera {
      */
     virtual doublereal bulkViscosity()  
     { return err("bulkViscosity"); }
+
+    /**
+     * The ionic conducitivity in 1/ohm/m. 
+     */
+    virtual doublereal ionConductivity() 
+    { return err("ionConductivity"); }
+
+    //! Returns the pure species ionic conducitivity
+    /*!
+     *  The units are 1/ohm/m and the length is the number of species
+     *
+     * @param ionCond   Vector of ionic conductivities
+     */
+    virtual void getSpecoesIonConductivity(doublereal* const ionCond)
+    { err("getSpeciesIonConductivity"); }
+
+
+    
+    /**
+     * The mobility ratio. 
+     */
+    virtual void mobilityRatio(vector_fp& mobRat, std::vector<std::string>& mobRatIndex)
+    { err("mobilityRatio"); }
+    virtual void mobilityRatio(double* mobRat, std::vector<std::string>& mobRatIndex)
+    { err("mobilityRatio"); }
+
+    //! Returns the pure species limit of the mobility ratios
+    /*!
+     *  The value is dimensionless and the length is the number of species
+     *
+     * @param mobRat   Vector of mobility ratios
+     */
+    virtual void getSpeciesMobilityRatio(DenseMatrix& mobRat, std::vector<std::string>& mobRatIndex)
+    { err("getSpeciesMobilityRatio"); }
+    virtual void getSpeciesMobilityRatio(double** mobRat, std::vector<std::string>& mobRatIndex)
+    { err("getSpeciesMobilityRatio"); }
+
+    //! Returns the self diffusion coefficients in the solution
+    /*!
+     *  The self diffusion calculation is handled by subclasses of 
+     *  LiquidTranInteraction as specified in the input file.  
+     *  These in turn employ subclasses of LTPspecies to 
+     *  determine the individual species self diffusion coeffs.
+     */ 
+    virtual void selfDiffusion(vector_fp& selfDiff, std::vector<std::string>& selfDiffIndex)
+    { err("selfDiffusion"); }
+    virtual void selfDiffusion(double* selfDiff, std::vector<std::string>& selfDiffIndex)
+    { err("selfdiffusion"); }
+
+    //! Returns the pure species self diffusion in solution of each species
+    /*!
+     *  The pure species molar volumes are evaluated using the 
+     *  appropriate subclasses of LTPspecies as specified in the 
+     *  input file.
+     *
+     * @param selfDiff  array of length "number of species"
+     *              to hold returned self diffusion coeffs.
+     */
+    virtual void getSpeciesSelfDiffusion(DenseMatrix& selfDiff, std::vector<std::string>& selfDiffIndex)
+    { err("getSpeciesSelfDiffusion"); }
+    virtual void getSpeciesSelfDiffusion(double** selfDiff, std::vector<std::string>& selfDiffIndex)
+    { err("getSpeciesSelfDiffusion"); }
 
     //!  Returns the mixture thermal conductivity in W/m/K. 
     /*!

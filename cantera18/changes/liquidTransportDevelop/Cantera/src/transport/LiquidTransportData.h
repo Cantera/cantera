@@ -45,6 +45,9 @@ namespace Cantera {
   enum TransportPropertyList {
     TP_UNKNOWN = -1,
     TP_VISCOSITY = 0,
+    TP_IONCONDUCTIVITY,
+    TP_MOBILITYRATIO,
+    TP_SELFDIFFUSION,
     TP_THERMALCOND,
     TP_DIFFUSIVITY,
     TP_HYDRORADIUS,
@@ -62,7 +65,8 @@ namespace Cantera {
     LTR_MODEL_NOTSET=-1,
     LTR_MODEL_CONSTANT, 
     LTR_MODEL_ARRHENIUS,
-    LTR_MODEL_POLY
+    LTR_MODEL_POLY,
+    LTR_MODEL_EXPT
   };
 
 
@@ -195,6 +199,17 @@ namespace Cantera {
 
     //! Model type for the viscosity
     LTPspecies* viscosity;
+
+    //! Model type for the ionic conductivity
+    LTPspecies* ionConductivity;
+
+    //! Model type for the mobility ratio
+    std::vector<LTPspecies*> mobilityRatio;
+    std::vector<std::string> mobRatIndex;
+
+    //! Model type for the self diffusion coefficients
+    std::vector<LTPspecies*> selfDiffusion;
+    std::vector<std::string> selfDiffIndex;
 
     //! Model type for the thermal conductivity
     LTPspecies* thermalCond;
@@ -407,6 +422,67 @@ namespace Cantera {
     //! Internal model to adjust species-specific properties for composition.
     /*!
      * Currently just a place holder, but this method could take 
+     * the composition from the thermo object and adjust coefficients 
+     * accoding to some unspecified model.
+     */
+    void adjustCoeffsForComposition( ){ }
+  };
+
+
+  //! Class LTPspecies_ExpT holds transport parameters for a 
+  //! specific liquid-phase species when the transport property 
+  //! is expressed as a exponential in temperature.
+  /**
+   * As an example of the input required for LTPspecies_ExpT
+   * consider the following XML fragment
+   *
+   * \verbatim
+   *    <species>
+   *      <!-- thermodynamic properties -->
+   *      <transport> 
+   *        <thermalConductivity model="expT">
+   *           <floatArray size="2">  0.6, -15.0e-5 </floatArray>
+   *        </thermalConductivity>
+   *        <!-- other tranport properties -->
+   *      </transport> 
+   *    </species>
+   * \endverbatim
+   */
+  class LTPspecies_ExpT : public  LTPspecies{
+
+  public:
+
+    LTPspecies_ExpT( const XML_Node &propNode, 
+		     std::string name, 
+		     TransportPropertyList tp_ind, 
+		     thermo_t* thermo ); 
+    
+    //! Copy constructor
+    LTPspecies_ExpT( const LTPspecies_ExpT &right ); 
+
+    //! Assignment operator
+    LTPspecies_ExpT&  operator=(const LTPspecies_ExpT& right );
+
+    virtual ~LTPspecies_ExpT( ) { }
+
+    //! Returns the pure species tranport property
+    /*!
+     *  The pure species transport property (i.e. pure species viscosity)
+     *  is returned.  Any temperature and composition dependence will be 
+     *  adjusted internally according to the information provided.
+     */
+    doublereal getSpeciesTransProp( );
+
+  protected:
+
+    //! temperature from thermo object
+    doublereal m_temp;
+
+    //! most recent evaluation of transport property
+    doublereal m_prop;
+
+    //! Internal model to adjust species-specific properties for composition.
+    /** Currently just a place holder, but this method could take 
      * the composition from the thermo object and adjust coefficients 
      * accoding to some unspecified model.
      */

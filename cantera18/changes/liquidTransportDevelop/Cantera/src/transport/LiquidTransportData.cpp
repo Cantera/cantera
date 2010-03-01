@@ -10,6 +10,7 @@
  */
 
 #include "LiquidTransportData.h"
+using namespace std;
 
 
 namespace Cantera {
@@ -74,6 +75,11 @@ namespace Cantera {
       speciesName        = right.speciesName;
       hydroRadius        = right.hydroRadius;
       viscosity          = right.viscosity;
+      ionConductivity    = right.ionConductivity;
+      mobilityRatio      = right.mobilityRatio;
+      mobRatIndex        = right.mobRatIndex;
+      selfDiffusion      = right.selfDiffusion;
+      selfDiffIndex      = right.selfDiffIndex;
       thermalCond        = right.thermalCond;
       electCond          = right.electCond;
       speciesDiffusivity = right.speciesDiffusivity;
@@ -167,7 +173,9 @@ namespace Cantera {
 				      thermo_t* thermo ) : 
     LTPspecies( propNode, name, tp_ind, thermo) 
   {
-    m_model = LTR_MODEL_ARRHENIUS;	
+    m_model = LTR_MODEL_ARRHENIUS;
+    m_temp = 0.0;
+    m_prop = 0.0;	
 
     doublereal A_k, n_k, Tact_k;
     getArrhenius(propNode, A_k, n_k, Tact_k);
@@ -268,14 +276,16 @@ namespace Cantera {
 				    thermo_t* thermo ) : 
     LTPspecies( propNode, name, tp_ind, thermo) 
   {
-    m_model = LTR_MODEL_POLY;	
+    m_model = LTR_MODEL_POLY;
+    m_temp = 0.0;
+    m_prop = 0.0;	
 
 
-    getFloatArray(propNode, m_coeffs, true); // if units labeled, convert Angstroms -> meters
+    getFloatArray(propNode, m_coeffs, "true", "toSI");
 
-    if (m_coeffs[0] <= 0.0) {
+    /*    if (m_coeffs[0] <= 0.0) {
       throw LTPError("negative or zero " + propNode.name() );
-    }
+      }*/
   }
 
   //! Copy constructor
@@ -308,13 +318,89 @@ namespace Cantera {
   doublereal LTPspecies_Poly::getSpeciesTransProp( ) {
     
     doublereal t = m_thermo->temperature();
-    if (t != m_temp) {    
-      double tempN = 1.0;
+    if (t != m_temp) {  
+      m_temp=t;
+      double tempN = 1.0;      
       for (int i = 0; i < (int) m_coeffs.size() ; i++) {
 	m_prop += m_coeffs[i] * tempN;
+	//cout << "m_coeff = " <<m_coeffs[i] << ", tempN = " << tempN << ", m_prop = " << m_prop << endl;
 	tempN *= m_temp;
       }
     }
+    //cout << "m_prop = " << m_prop << endl;
+    return m_prop;
+  }  
+
+
+
+///////////////////////////////////////////////////////////////
+
+  //! Construct an LTPspecies object for a liquid tranport property 
+  //! expressed as an exponential in temperature.
+  /** The transport property is constructed from the XML node, 
+   *  \verbatim <propNode>, \endverbatim that is a child of the
+   *  \verbatim <transport> \endverbatim node and specifies a type of
+   *  transport property (like viscosity)
+   */ 
+  LTPspecies_ExpT::LTPspecies_ExpT( const XML_Node &propNode, 
+				    std::string name, 
+				    TransportPropertyList tp_ind, 
+				    thermo_t* thermo ) : 
+    LTPspecies( propNode, name, tp_ind, thermo) 
+  {
+    m_model = LTR_MODEL_EXPT;
+    m_temp = 0.0;
+    m_prop = 0.0;	
+
+
+    getFloatArray(propNode, m_coeffs, "true", "toSI");
+
+    /*    if (m_coeffs[0] <= 0.0) {
+      throw LTPError("negative or zero " + propNode.name() );
+      }*/
+  }
+
+  //! Copy constructor
+  LTPspecies_ExpT::LTPspecies_ExpT( const LTPspecies_ExpT &right ) 
+    : LTPspecies()
+  {
+    *this = right; //use assignment operator to do other work
+  }
+  
+  //! Assignment operator
+  LTPspecies_ExpT& LTPspecies_ExpT::operator=(const LTPspecies_ExpT& right )
+  {
+    if (&right != this) {
+      //LTPspecies::operator=(right);
+      m_speciesName = right.m_speciesName;
+      m_property    = right.m_property;
+      m_model       = right.m_model;
+      m_coeffs      = right.m_coeffs;
+      m_thermo      = right.m_thermo;
+      m_mixWeight   = right.m_mixWeight;
+
+      m_temp    = right.m_temp;
+      m_prop    = right.m_prop;
+    }
+    return *this; 
+  }
+
+  //! Return the value for this transport property evaluated 
+  //! from the exponential in temperature expression
+  doublereal LTPspecies_ExpT::getSpeciesTransProp( ) {
+    
+    doublereal t = m_thermo->temperature();
+    if (t != m_temp) {  
+      m_temp=t;
+      m_prop=m_coeffs[0];
+      double tempN = 1.0;      
+      for (int i = 1; i < (int) m_coeffs.size() ; i++) {
+	tempN *= m_temp;
+	m_prop *= exp(m_coeffs[i] * tempN);
+	//cout << "m_coeff = " <<m_coeffs[i] << ", tempN = " << tempN << ", m_prop = " << m_prop << endl;
+      }
+    }
+    //cout << "m_prop = " << m_prop << endl;
     return m_prop;
   }
 
