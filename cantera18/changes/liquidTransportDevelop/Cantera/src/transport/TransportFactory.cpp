@@ -958,7 +958,8 @@ namespace Cantera {
      */
     std::map<std::string, LiquidTransportData> datatable;
 
-    int nsp = static_cast<int>(xspecies.size());
+    int nsp = trParam.nsp_;//static_cast<int>(xspecies.size());
+    int nBinInt = nsp*(nsp-1)/2;
   
     // read all entries in database into 'datatable' and check for 
     // errors. Note that this procedure validates all entries, not 
@@ -982,6 +983,14 @@ namespace Cantera {
 	  LiquidTransportData data;
 	  data.speciesName = name;
 
+	  //data.viscosity = 0;
+	  //data.ionConductivity = 0;
+
+	  data.mobRatIndex.resize(nBinInt,"");
+	  data.mobilityRatio.resize(nBinInt,0);
+	  data.selfDiffIndex.resize(nsp,"");
+	  data.selfDiffusion.resize(nsp,0);
+
 	  //////// new stuff
 	  int num = trNode.nChildren();
 	  for (int iChild = 0; iChild < num; iChild++) {
@@ -1004,10 +1013,7 @@ namespace Cantera {
 	    case TP_MOBILITYRATIO:
 	      {
 		int iSpec;
-		int numSpec = xmlChild.nChildren();
-		data.mobRatIndex.resize(numSpec);
-		data.mobilityRatio.resize(numSpec);
-		for (iSpec = 0; iSpec< numSpec; iSpec++){
+		for (iSpec = 0; iSpec< nBinInt; iSpec++){
 		  XML_Node &propSpecNode = xmlChild.child(iSpec);
 		  std::string specName = propSpecNode.name();
 		  data.mobRatIndex[iSpec] = specName;
@@ -1021,10 +1027,7 @@ namespace Cantera {
 	    case TP_SELFDIFFUSION:
 	      {
 		int iSpec;
-		int numSpec = xmlChild.nChildren();
-		data.selfDiffIndex.resize(numSpec);
-		data.selfDiffusion.resize(numSpec);
-		for (iSpec = 0; iSpec< numSpec; iSpec++){
+		for (iSpec = 0; iSpec< nsp; iSpec++){
 		  XML_Node &propSpecNode = xmlChild.child(iSpec);
 		  std::string specName = propSpecNode.name();
 		  data.selfDiffIndex[iSpec] = specName;
@@ -1116,11 +1119,20 @@ namespace Cantera {
   { 
     try {
       
+      int nsp = trParam.nsp_;
+      int nBinInt = nsp*(nsp-1)/2;
+      
       int num = transportNode.nChildren();
       for (int iChild = 0; iChild < num; iChild++) {
 	//tranTypeNode is a type of transport property like viscosity
 	XML_Node &tranTypeNode = transportNode.child(iChild);
 	std::string nodeName = tranTypeNode.name();
+
+	trParam.mobRatIndex.resize(nBinInt,"");
+	trParam.mobilityRatio.resize(nBinInt,0);
+	trParam.selfDiffIndex.resize(nsp,"");
+	trParam.selfDiffusion.resize(nsp,0);
+
 	if ( tranTypeNode.hasChild("compositionDependence")) {
 	  //compDepNode contains the interaction model
 	  XML_Node &compDepNode = tranTypeNode.child("compositionDependence");
@@ -1139,10 +1151,7 @@ namespace Cantera {
       	  case TP_MOBILITYRATIO:
 	    {
 	      int iSpec;
-	      int numSpec = compDepNode.nChildren();
-	      trParam.mobRatIndex.resize(numSpec);
-	      trParam.mobilityRatio.resize(numSpec);
-	      for (iSpec = 0; iSpec< numSpec; iSpec++){
+	      for (iSpec = 0; iSpec< nBinInt; iSpec++){
 		XML_Node &propSpecNode = compDepNode.child(iSpec);
 		std::string specName = propSpecNode.name();
 		trParam.mobRatIndex[iSpec] = specName;
@@ -1155,10 +1164,7 @@ namespace Cantera {
 	  case TP_SELFDIFFUSION:
 	    {
 	      int iSpec;
-	      int numSpec = compDepNode.nChildren();
-	      trParam.selfDiffIndex.resize(numSpec);
-	      trParam.selfDiffusion.resize(numSpec);
-	      for (iSpec = 0; iSpec< numSpec; iSpec++){
+	      for (iSpec = 0; iSpec< nsp; iSpec++){
 		XML_Node &propSpecNode = compDepNode.child(iSpec);
 		std::string specName = propSpecNode.name();
 		trParam.selfDiffIndex[iSpec] = specName;

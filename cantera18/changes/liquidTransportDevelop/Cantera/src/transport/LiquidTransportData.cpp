@@ -49,6 +49,7 @@ namespace Cantera {
     speciesName("-"),   
     hydroRadius(0),
     viscosity(0),
+    ionConductivity(0),
     thermalCond(0),
     electCond(0),
     speciesDiffusivity(0)
@@ -61,6 +62,7 @@ namespace Cantera {
     speciesName("-"),   
     hydroRadius(0),
     viscosity(0),
+    ionConductivity(0),
     thermalCond(0),
     electCond(0),
     speciesDiffusivity(0)

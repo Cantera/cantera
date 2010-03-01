@@ -224,7 +224,7 @@ namespace Cantera {
   
   //====================================================================================================================
   LiquidTransportParams::LiquidTransportParams() :
-    viscosity(0), thermalCond(0), speciesDiffusivity(0), electCond(0), hydroRadius(0), model_viscosity(LTI_MODEL_NOTSET),
+    viscosity(0), ionConductivity(0), thermalCond(0), speciesDiffusivity(0), electCond(0), hydroRadius(0), model_viscosity(LTI_MODEL_NOTSET),
     model_speciesDiffusivity(LTI_MODEL_NOTSET), model_hydroradius(LTI_MODEL_NOTSET)
   {
     
@@ -233,6 +233,7 @@ namespace Cantera {
   LiquidTransportParams::~LiquidTransportParams()
   {
     delete viscosity;
+    delete ionConductivity;
     delete thermalCond;
     delete speciesDiffusivity;
     delete electCond;
@@ -616,6 +617,7 @@ namespace Cantera {
     
     m_ionCondMix = 0;
     m_ionCondMixModel = trParam.ionConductivity;
+    trParam.ionConductivity = 0;
     m_ionCondSpecies.resize(nsp,0);
     m_mobRatMix.resize(nsp,nsp,0.0);
     m_mobRatMixModel.resize(nBinInt);
@@ -628,11 +630,13 @@ namespace Cantera {
 
     for ( int k = 0; k < nBinInt; k++ ) {
       m_mobRatMixModel[k] = trParam.mobilityRatio[k];
+      trParam.mobilityRatio[k] = 0;
       m_mobRatSpecies[k].resize(nsp,0);
       m_mobRatIndex[k] = trParam.mobRatIndex[k];
     }
     for ( int k = 0; k < nsp; k++ ) {
       m_selfDiffMixModel[k] = trParam.selfDiffusion[k];
+      trParam.selfDiffusion[k] = 0;
       m_selfDiffSpecies[k].resize(nsp,0);
       m_selfDiffIndex[k] = trParam.selfDiffIndex[k];
     }
@@ -640,11 +644,14 @@ namespace Cantera {
     for (int k = 0; k < nsp; k++) {
       Cantera::LiquidTransportData &ltd = trParam.LTData[k];
       m_ionCondSpecies[k]   =  ltd.ionConductivity;
+      ltd.ionConductivity = 0;
       for ( int j = 0; j < nBinInt; j++ ){
 	m_mobRatSpecies[j][k] = ltd.mobilityRatio[j];
+	ltd.mobilityRatio[j] = 0;
       }
       for ( int j = 0; j < nsp; j++ ){
-	m_selfDiffSpecies[j][k] = ltd.selfDiffusion[j];      
+	m_selfDiffSpecies[j][k] = ltd.selfDiffusion[j]; 
+	ltd.selfDiffusion[j] = 0;      
       }
     }
   }
