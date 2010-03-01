@@ -68,7 +68,7 @@ namespace Cantera {
    *     \f] 
    *     for mass fraction \f$ Y_i \f$.  For mole-averaged velocities
    *     \f[
-   *        \sum_{i} X_i \vec{V_i} = 0
+  *        \sum_{i} X_i \vec{V_i} = 0
    *     \f] 
    *     for mole fraction \f$ X_i \f$.
    * 
@@ -165,7 +165,7 @@ namespace Cantera {
      *  determine the individual species viscosities.
      */ 
     virtual doublereal viscosity();
-
+    
     //! Returns the pure species viscosities for all species
     /*!
      *  The pure species viscosities are evaluated using the 
@@ -176,6 +176,70 @@ namespace Cantera {
      *              to hold returned viscosities.
      */
     virtual void getSpeciesViscosities(doublereal* const visc);
+
+    //! Returns the ionic conductivity of the solution
+    /*!
+     *  The ionic conductivity calculation is handled by subclasses of 
+     *  LiquidTranInteraction as specified in the input file.  
+     *  These in turn employ subclasses of LTPspecies to 
+     *  determine the individual species ionic conductivities.
+     */ 
+    virtual doublereal ionConductivity();
+
+    //! Returns the pure species ionic conductivities for all species
+    /*!
+     *  The pure species ionic conductivities are evaluated using the 
+     *  appropriate subclasses of LTPspecies as specified in the 
+     *  input file.
+     *
+     * @param visc  array of length "number of species"
+     *              to hold returned ionic conductivities.
+     */
+    virtual void getSpeciesIonConductivity(doublereal* const ionCond);
+
+    //! Returns the mobility ratio of the solution
+    /*!
+     *  The mobility ratio calculation is handled by subclasses of 
+     *  LiquidTranInteraction as specified in the input file.  
+     *  These in turn employ subclasses of LTPspecies to 
+     *  determine the individual species mobility ratios.
+     */
+    virtual void mobilityRatio(vector_fp& mobRat, std::vector<std::string>& mobRatIndex);
+    virtual void mobilityRatio(double* mobRat, std::vector<std::string>& mobRatIndex);
+
+    //! Returns the pure species mobility ratios for all species
+    /*!
+     *  The pure species mobility ratios are evaluated using the 
+     *  appropriate subclasses of LTPspecies as specified in the 
+     *  input file.
+     *
+     * @param mobRat  array of length "number of species"
+     *              to hold returned mobility ratios.
+     */ 
+      virtual void getSpeciesMobilityRatio(DenseMatrix& mobRat, std::vector<std::string>& mobRatIndex);
+    virtual void getSpeciesMobilityRatio(double** mobRat, std::vector<std::string>& mobRatIndex);
+
+    //! Returns the self diffusion coefficients in the solution
+    /*!
+     *  The self diffusion calculation is handled by subclasses of 
+     *  LiquidTranInteraction as specified in the input file.  
+     *  These in turn employ subclasses of LTPspecies to 
+     *  determine the individual species self diffusion coeffs.
+     */ 
+    virtual void selfDiffusion(vector_fp& selfDiff, std::vector<std::string>& selfDiffIndex);
+    virtual void selfDiffusion(double* selfDiff, std::vector<std::string>& selfDiffIndex);
+
+    //! Returns the pure species self diffusion in solution of each species
+    /*!
+     *  The pure species molar volumes are evaluated using the 
+     *  appropriate subclasses of LTPspecies as specified in the 
+     *  input file.
+     *
+     * @param selfDiff  array of length "number of species"
+     *              to hold returned self diffusion coeffs.
+     */
+    virtual void getSpeciesSelfDiffusion(DenseMatrix& selfDiff, std::vector<std::string>& selfDiffIndex);
+    virtual void getSpeciesSelfDiffusion(double** selfDiff, std::vector<std::string>& selfDiffIndex);
 
     //! Returns the hydrodynamic radius for all species 
     /*!
@@ -711,6 +775,25 @@ namespace Cantera {
      */
     void updateViscosity_T();
 
+    //!  Update the temperature-dependent ionic conductivity terms
+    //!  for each species internally
+    /*!
+     * The flag m_ionCond_temp_ok is set to true.
+     */
+    void updateIonConductivity_T();
+
+    //!  Updates the array of pure species mobility ratios internally.
+    /*!
+     * The flag m_mobRat_ok is set to true.
+     */
+    void updateMobilityRatio_T();
+
+    //!  Updates the array of pure species self diffusion coeffs internally.
+    /*!
+     * The flag m_selfDiff_ok is set to true.
+     */
+    void updateSelfDiffusion_T();
+
     //!  Update the temperature-dependent hydrodynamic radius terms
     //!  for each species internally
     /*!
@@ -731,7 +814,37 @@ namespace Cantera {
      * @internal
      */
     void updateViscosities_C();
+
+    //! Update the concentration parts of the ionic conductivity
+    /*!
+     *  Internal routine is run whenever the update_boolean
+     *  m_ionCond_conc_ok is false. Currently there is no concentration 
+     *  dependence for the pure species ionic conductivity.
+     *
+     * @internal
+     */
+    void updateIonConductivity_C();
  
+    //! Update the concentration parts of the mobility ratio
+    /*!
+     *  Internal routine is run whenever the update_boolean
+     *  m_mobRat_conc_ok is false. Currently there is no concentration 
+     *  dependence for the pure species mobility ratio.
+     *
+     * @internal
+     */
+    void updateMobilityRatio_C();
+
+    //! Update the concentration parts of the self diffusion
+    /*!
+     *  Internal routine is run whenever the update_boolean
+     *  m_selfDiff_conc_ok is false. Currently there is no concentration 
+     *  dependence for the pure species self diffusion.
+     *
+     * @internal
+     */
+    void updateSelfDiffusion_C();
+
     //! Update the concentration dependence of the hydrodynamic radius
     /*!
      *  Internal routine is run whenever the update_boolean
@@ -751,6 +864,7 @@ namespace Cantera {
 
     //! Number of species in the mixture
     int m_nsp;
+    int m_nBinInt;
 
     //! Minimum temperature applicable to the transport property eval
     doublereal m_tmin;
@@ -781,6 +895,65 @@ namespace Cantera {
      *  TransportFactory::getLiquidInteractionsTransportData().
      */
     LiquidTranInteraction *m_viscMixModel;
+
+    //! Ionic conductivity for each species expressed as an appropriate subclass 
+    //! of LTPspecies
+    /*!
+    *  These subclasses of LTPspecies evaluate the species-specific
+     *  transport properties according to the parameters parsed in 
+     *  TransportFactory::getLiquidSpeciesTransportData().
+     */
+    std::vector<LTPspecies*> m_ionCondTempDep_Ns;
+
+    //! Ionic Conductivity of the mixture expressed as a subclass of 
+    //! LiquidTranInteraction
+    /*!
+     *  These subclasses of LiquidTranInteraction evaluate the 
+     *  mixture transport properties according to the parameters parsed in 
+     *  TransportFactory::getLiquidInteractionsTransportData().
+     */
+    LiquidTranInteraction *m_ionCondMixModel;
+
+    //! Mobility ratio for each species expressed as an appropriate subclass 
+    //! of LTPspecies
+    /*!
+     *  These subclasses of LTPspecies evaluate the species-specific
+     *  transport properties according to the parameters parsed in 
+     *  TransportFactory::getLiquidSpeciesTransportData().
+     */
+    typedef std::vector<LTPspecies*> LTPvector;
+    std::vector<LTPvector> m_mobRatTempDep_Ns;
+    std::vector<std::string> m_mobRatTempDepIndex;
+
+    //! Mobility ratio of the mixture expressed as a subclass of 
+    //! LiquidTranInteraction
+    /*!
+     *  These subclasses of LiquidTranInteraction evaluate the 
+     *  mixture transport properties according to the parameters parsed in 
+     *  TransportFactory::getLiquidInteractionsTransportData().
+     */
+    std::vector<LiquidTranInteraction*> m_mobRatMixModel;
+    std::vector<std::string> m_mobRatMixModelIndex;
+
+    //! Self Diffusion for each species expressed as an appropriate subclass 
+    //! of LTPspecies
+    /*!
+     *  These subclasses of LTPspecies evaluate the species-specific
+     *  transport properties according to the parameters parsed in 
+     *  TransportFactory::getLiquidSpeciesTransportData().
+     */
+    std::vector<LTPvector> m_selfDiffTempDep_Ns;
+    std::vector<std::string> m_selfDiffTempDepIndex;
+
+    //! Self Diffusion of the mixture expressed as a subclass of 
+    //! LiquidTranInteraction
+    /*!
+     *  These subclasses of LiquidTranInteraction evaluate the 
+     *  mixture transport properties according to the parameters parsed in 
+     *  TransportFactory::getLiquidInteractionsTransportData().
+     */
+    std::vector<LiquidTranInteraction*> m_selfDiffMixModel;
+    std::vector<std::string> m_selfDiffMixModelIndex;
 
     //! Thermal conductivity for each species expressed as an    
     //! appropriate subclass of LTPspecies
@@ -872,19 +1045,24 @@ namespace Cantera {
     vector_fp m_Grad_X;
 
     //! Gradient of the logarithm of the activity coefficients 
-    //! with respect to the logarithm of the mole fraction, plus one.
     /*!
      *  This quantity appears in the gradient of the chemical potential.  
      *  It multiplies the gradient of the mole fraction, and in this way 
      * serves to "modify" the diffusion coefficient.  
      *
-     *    m_Grad_lnAC[k] = \partial \left[ \ln ( \gamma_i ) \right] 
-     *                  / \partial \left[ \ln ( \X_i  ) \right] 
+     *    m_Grad_lnAC[k] = \nabla \ln ( \gamma_i ) + \nabla \ln ( \X_i  ) 
      * 
      * Note that where "mole fraction" is used here, whatever 
      * concentration-related variable applies, so that if 
      * molality is the concentration variable, the gradient of the 
      * activity coefficient should be with respect to the molality. 
+     *  m_nsp is the number of species in the fluid
+     *
+     *  k is the species index
+     *  n is the dimensional index (x, y, or z). It has a length
+     *    equal to m_nDimm_
+     *  
+     *    m_Grad_X[n*m_nsp + k]
      *  
      */
     vector_fp m_Grad_lnAC;
@@ -963,6 +1141,41 @@ namespace Cantera {
      * controlling update boolean -> m_visc_temp_ok
      */
     vector_fp m_viscSpecies;
+
+    //! Internal value of the species ionic conductivities 
+    /*!
+     *  Ionic conductivity of the species evaluated using subclass of LTPspecies
+     *  held in m_ionCondTempDep_Ns.
+     *
+     *   Length = number of species
+     *
+     * controlling update boolean -> m_ionCond_temp_ok
+     */
+    vector_fp m_ionCondSpecies;
+
+    //! Internal value of the species mobility ratios 
+    /*!
+     *  Mobility ratio of the species evaluated using subclass of LTPspecies
+     *  held in m_mobRatTempDep_Ns.
+     *
+     *   Length = number of species
+     *
+     * controlling update boolean -> m_mobRat_temp_ok
+     */
+    DenseMatrix m_mobRatSpecies;
+    std::vector<std::string> m_mobRatSpeciesIndex;
+
+    //! Internal value of the species self diffusion coefficients 
+    /*!
+     *  Self diffusion of the species evaluated using subclass of LTPspecies
+     *  held in m_selfDiffTempDep_Ns.
+     *
+     *   Length = number of species
+     *
+     * controlling update boolean -> m_selfDiff_temp_ok
+     */
+    DenseMatrix m_selfDiffSpecies;
+    std::vector<std::string> m_selfDiffSpeciesIndex;
 
     //! Internal value of the species individual thermal conductivities
     /*!
@@ -1093,6 +1306,19 @@ namespace Cantera {
     //! Saved value of the mixture viscosity
     doublereal m_viscmix;
 
+    //! Saved value of the mixture ionic conductivity
+    doublereal m_ionCondmix;
+
+    //! Saved values of the mixture mobility ratios
+    vector_fp m_mobRatMix;
+    //! Saved species index of the mixture correlated to mobility ratios
+    std::vector<std::string> m_mobRatMixIndex;
+
+    //! Saved values of the mixture self diffusion coefficients
+    vector_fp m_selfDiffMix;
+    //! Saved species index of the mixture correlated to self diffusion coefficients
+    std::vector<std::string> m_selfDiffMixIndex;
+
     //! work space
     /*!
      *   Length is equal to m_nsp
@@ -1115,6 +1341,46 @@ namespace Cantera {
     //! are current wrt the concentration
     bool m_visc_conc_ok;
 
+    //! Boolean indicating that the top-level mixture ionic conductivity is current
+    /*!
+     *  This is turned false for every change in T, P, or C.
+     */
+    bool m_ionCond_mix_ok;
+
+    //! Boolean indicating that weight factors wrt ionic conductivty is current
+    bool m_ionCond_temp_ok;
+ 
+    //! Flag to indicate that the pure species ionic conductivities
+    //! are current wrt the concentration
+    bool m_ionCond_conc_ok;
+    bool m_cond_mix_ok;
+
+    //! Boolean indicating that the top-level mixture mobility ratio is current
+    /*!
+     *  This is turned false for every change in T, P, or C.
+     */
+    bool m_mobRat_mix_ok;
+
+    //! Boolean indicating that weight factors wrt mobility ratio is current
+    bool m_mobRat_temp_ok;
+ 
+    //! Flag to indicate that the pure species mobility ratios
+    //! are current wrt the concentration
+    bool m_mobRat_conc_ok;
+
+    //! Boolean indicating that the top-level mixture self diffusion is current
+    /*!
+     *  This is turned false for every change in T, P, or C.
+     */
+    bool m_selfDiff_mix_ok;
+
+    //! Boolean indicating that weight factors wrt self diffusion is current
+    bool m_selfDiff_temp_ok;
+ 
+    //! Flag to indicate that the pure species self diffusion
+    //! are current wrt the concentration
+    bool m_selfDiff_conc_ok;
+
     //! Boolean indicating that mixture diffusion coeffs are current
     bool m_radi_mix_ok;
 
@@ -1134,10 +1400,10 @@ namespace Cantera {
 
     //! Flag to indicate that the pure species conductivities
     //! are current wrt the temperature
-    bool m_cond_temp_ok;
+    bool m_lambda_temp_ok;
 
     //! Boolean indicating that mixture conductivity is current
-    bool m_cond_mix_ok;
+    bool m_lambda_mix_ok;
 
     //! Mode indicator for transport models -- currently unused.
     int m_mode;

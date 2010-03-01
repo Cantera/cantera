@@ -34,23 +34,38 @@ namespace Cantera {
   LiquidTransport::LiquidTransport(thermo_t* thermo, int ndim) :
     Transport(thermo, ndim),
     m_nsp(0),
+    m_nBinInt(0),
     m_tmin(-1.0),
     m_tmax(100000.),
     m_iStateMF(-1),
     m_temp(-1.0),
     m_press(-1.0),
+
     m_lambda(-1.0),
     m_viscmix(-1.0),
+    m_ionCondmix(-1.0),
+    m_mobRatMix(-1.0),
+    m_selfDiffMix(-1.0),
+
     m_visc_mix_ok(false),
     m_visc_temp_ok(false),
     m_visc_conc_ok(false),
+    m_ionCond_mix_ok(false),
+    m_ionCond_temp_ok(false),
+    m_ionCond_conc_ok(false),
+    m_mobRat_mix_ok(false),
+    m_mobRat_temp_ok(false),
+    m_mobRat_conc_ok(false),
+    m_selfDiff_mix_ok(false),
+    m_selfDiff_temp_ok(false),
+    m_selfDiff_conc_ok(false),
     m_radi_mix_ok(false),
     m_radi_temp_ok(false),
     m_radi_conc_ok(false),
     m_diff_mix_ok(false),
     m_diff_temp_ok(false),
-    m_cond_temp_ok(false),
-    m_cond_mix_ok(false),
+    m_lambda_temp_ok(false),
+    m_lambda_mix_ok(false),
     m_mode(-1000),
     m_debug(false),
     m_nDim(1)
@@ -61,23 +76,38 @@ namespace Cantera {
   LiquidTransport::LiquidTransport(const LiquidTransport &right) :
     Transport(),
     m_nsp(0),
+    m_nBinInt(0),
     m_tmin(-1.0),
     m_tmax(100000.),
     m_iStateMF(-1),
     m_temp(-1.0),
     m_press(-1.0),
+
     m_lambda(-1.0),
     m_viscmix(-1.0),
+    m_ionCondmix(-1.0),
+    m_mobRatMix(-1.0),
+    m_selfDiffMix(-1.0),
+
     m_visc_mix_ok(false),
     m_visc_temp_ok(false),
     m_visc_conc_ok(false),
+    m_ionCond_mix_ok(false),
+    m_ionCond_temp_ok(false),
+    m_ionCond_conc_ok(false),
+    m_mobRat_mix_ok(false),
+    m_mobRat_temp_ok(false),
+    m_mobRat_conc_ok(false),
+    m_selfDiff_mix_ok(false),
+    m_selfDiff_temp_ok(false),
+    m_selfDiff_conc_ok(false),
     m_radi_mix_ok(false),
     m_radi_temp_ok(false),
     m_radi_conc_ok(false),
     m_diff_mix_ok(false),
     m_diff_temp_ok(false),
-    m_cond_temp_ok(false),
-    m_cond_mix_ok(false),
+    m_lambda_temp_ok(false),
+    m_lambda_mix_ok(false),
     m_mode(-1000),
     m_debug(false),
     m_nDim(1)
@@ -95,10 +125,16 @@ namespace Cantera {
     }
     Transport::operator=(right);
     m_nsp                                 = right.m_nsp;
+    m_nBinInt                             = right.m_nBinInt;
     m_tmin                                = right.m_tmin;
     m_tmax                                = right.m_tmax;
     m_mw                                  = right.m_mw;
     m_viscTempDep_Ns                      = right.m_viscTempDep_Ns;
+    m_ionCondTempDep_Ns                   = right.m_ionCondTempDep_Ns;
+    m_mobRatTempDep_Ns                    = right.m_mobRatTempDep_Ns;
+    m_mobRatTempDepIndex                  = right.m_mobRatTempDepIndex;
+    m_selfDiffTempDep_Ns                  = right.m_selfDiffTempDep_Ns;
+    m_selfDiffTempDepIndex                = right.m_selfDiffTempDepIndex;
     m_lambdaTempDep_Ns                    = right.m_lambdaTempDep_Ns;
     m_diffTempDep_Ns                      = right.m_diffTempDep_Ns;
     m_radiusTempDep_Ns                    = right.m_radiusTempDep_Ns;
@@ -109,9 +145,19 @@ namespace Cantera {
     m_Grad_mu                             = right.m_Grad_mu;
     m_bdiff                               = right.m_bdiff;
     m_viscSpecies                         = right.m_viscSpecies;
+    m_ionCondSpecies                      = right.m_ionCondSpecies;
+    m_mobRatSpecies                       = right.m_mobRatSpecies;
+    m_mobRatSpeciesIndex                  = right.m_mobRatSpeciesIndex;
+    m_selfDiffSpecies                     = right.m_selfDiffSpecies;
+    m_selfDiffSpeciesIndex                = right.m_selfDiffSpeciesIndex;
     m_hydrodynamic_radius                 = right.m_hydrodynamic_radius;
     m_lambdaSpecies                       = right.m_lambdaSpecies;
     m_viscMixModel                        = right.m_viscMixModel;
+    m_ionCondMixModel                     = right.m_ionCondMixModel;
+    m_mobRatMixModel                      = right.m_mobRatMixModel;
+    m_mobRatMixModelIndex                 = right.m_mobRatMixModelIndex;
+    m_selfDiffMixModel                    = right.m_selfDiffMixModel;
+    m_selfDiffMixModelIndex               = right.m_selfDiffMixModelIndex;
     m_lambdaMixModel                      = right.m_lambdaMixModel;
     m_diffMixModel                        = right.m_diffMixModel;
     m_iStateMF = -1;
@@ -123,7 +169,6 @@ namespace Cantera {
     m_actCoeff                            = right.m_actCoeff;
     m_Grad_lnAC                           = right.m_Grad_lnAC;
     m_chargeSpecies                       = right.m_chargeSpecies;
-    m_volume_spec                         = right.m_volume_spec;
     m_B                                   = right.m_B;
     m_A                                   = right.m_A;
     m_temp                                = right.m_temp;
@@ -132,17 +177,31 @@ namespace Cantera {
     m_Vdiff                               = right.m_Vdiff;
     m_lambda                              = right.m_lambda;
     m_viscmix                             = right.m_viscmix;
+    m_ionCondmix                          = right.m_ionCondmix;
+    m_mobRatMix                           = right.m_mobRatMix;
+    m_mobRatMixIndex                      = right.m_mobRatMixIndex;
+    m_selfDiffMix                         = right.m_selfDiffMix;
+    m_selfDiffMixIndex                    = right.m_selfDiffMixIndex;
     m_spwork                              = right.m_spwork;
     m_visc_mix_ok    = false;
     m_visc_temp_ok   = false;
     m_visc_conc_ok   = false;
+    m_ionCond_mix_ok    = false;
+    m_ionCond_temp_ok   = false;
+    m_ionCond_conc_ok   = false;
+    m_mobRat_mix_ok    = false;
+    m_mobRat_temp_ok   = false;
+    m_mobRat_conc_ok   = false;
+    m_selfDiff_mix_ok    = false;
+    m_selfDiff_temp_ok   = false;
+    m_selfDiff_conc_ok   = false;
     m_radi_mix_ok    = false;
     m_radi_temp_ok   = false;
     m_radi_conc_ok   = false;
     m_diff_mix_ok    = false;
     m_diff_temp_ok   = false;
-    m_cond_temp_ok   = false;
-    m_cond_mix_ok    = false;
+    m_lambda_temp_ok   = false;
+    m_lambda_mix_ok    = false;
     m_mode                                = right.m_mode;
     m_debug                               = right.m_debug;
     m_nDim                                = right.m_nDim;
@@ -158,18 +217,33 @@ namespace Cantera {
 
   LiquidTransport::~LiquidTransport() {
 
-    //These are constructed in TransportFactory::newLTP
-    for ( int k = 0; k < m_nsp; k++) {
-      if ( m_viscTempDep_Ns[k]   ) delete m_viscTempDep_Ns[k];
-      if ( m_lambdaTempDep_Ns[k] ) delete m_lambdaTempDep_Ns[k];
-      if ( m_radiusTempDep_Ns[k] ) delete m_radiusTempDep_Ns[k];
-      if ( m_diffTempDep_Ns[k]   ) delete m_diffTempDep_Ns[k];
-    }
-    //These are constructed in TransportFactory::newLTI
-    if ( m_viscMixModel   ) delete m_viscMixModel;
-    if ( m_lambdaMixModel ) delete m_lambdaMixModel;
-    if ( m_diffMixModel   ) delete m_diffMixModel;
-    //if ( m_radiusMixModel ) delete m_radiusMixModel;
+     //These are constructed in TransportFactory::newLTP
+     for ( int k = 0; k < m_nsp; k++) {
+       if ( m_viscTempDep_Ns[k]   ) delete m_viscTempDep_Ns[k];
+       if ( m_ionCondTempDep_Ns[k]   ) delete m_ionCondTempDep_Ns[k];
+       for ( int l=0;l < m_nsp; l++ ){
+	 if ( m_selfDiffTempDep_Ns[l][k]   ) delete m_selfDiffTempDep_Ns[l][k];
+       }
+       for ( int l=0;l < m_nBinInt; l++ ){
+         if ( m_mobRatTempDep_Ns[l][k]   ) delete m_mobRatTempDep_Ns[l][k];
+       }
+       if ( m_lambdaTempDep_Ns[k] ) delete m_lambdaTempDep_Ns[k];
+       if ( m_radiusTempDep_Ns[k] ) delete m_radiusTempDep_Ns[k];
+       if ( m_diffTempDep_Ns[k]   ) delete m_diffTempDep_Ns[k];
+     //These are constructed in TransportFactory::newLTI 
+
+       if ( m_selfDiffMixModel[k]   ) delete m_selfDiffMixModel[k];
+     }
+
+     for ( int k = 0; k < m_nBinInt; k++) {
+       if ( m_mobRatMixModel[k]   ) delete m_mobRatMixModel[k];
+     }
+
+     if ( m_viscMixModel   ) delete m_viscMixModel;
+     if ( m_ionCondMixModel   ) delete m_ionCondMixModel;
+     if ( m_lambdaMixModel ) delete m_lambdaMixModel;
+     if ( m_diffMixModel   ) delete m_diffMixModel;
+     //if ( m_radiusMixModel ) delete m_radiusMixModel;
      
   }
 
@@ -191,6 +265,7 @@ namespace Cantera {
     m_thermo = tr.thermo;
     m_velocityBasis = tr.velocityBasis_;
     m_nsp   = m_thermo->nSpecies();
+    m_nBinInt = m_nsp*(m_nsp-1)/2;
     m_tmin  = m_thermo->minTemp();
     m_tmax  = m_thermo->maxTemp();
 
@@ -200,37 +275,76 @@ namespace Cantera {
 	 m_thermo->molecularWeights().end(), m_mw.begin());
 
     /*
-     *  Get the input Viscosities
+     *  Get the input Viscosities, and stuff
      */
     m_viscSpecies.resize(m_nsp, 0.0);
     m_viscTempDep_Ns.resize(m_nsp, 0);
+    m_ionCondSpecies.resize(m_nsp, 0.0);
+    m_ionCondTempDep_Ns.resize(m_nsp, 0);
+    m_mobRatTempDepIndex.resize(m_nBinInt);
+    m_mobRatTempDep_Ns.resize(m_nBinInt);
+    m_mobRatMixModel.resize(m_nBinInt);
+    m_mobRatMixModelIndex.resize(m_nBinInt);
+    m_mobRatSpeciesIndex.resize(m_nBinInt);
+    m_mobRatSpecies.resize(m_nBinInt, m_nsp, 0.0);
+    m_mobRatMix.resize(m_nBinInt,0.0);
+    m_mobRatMixIndex.resize(m_nBinInt);   
+    m_selfDiffTempDepIndex.resize(m_nsp);
+    m_selfDiffTempDep_Ns.resize(m_nsp);
+    m_selfDiffMixModel.resize(m_nsp);
+    m_selfDiffMixModelIndex.resize(m_nsp);
+    m_selfDiffSpeciesIndex.resize(m_nsp);
+    m_selfDiffSpecies.resize(m_nsp, m_nsp, 0.0);
+    m_selfDiffMix.resize(m_nsp,0.0);
+    m_selfDiffMixIndex.resize(m_nsp);
+    for (k=0; k < m_nsp; k++){
+      m_selfDiffTempDep_Ns[k].resize(m_nsp, 0);
+    }
+    for (k=0; k < m_nBinInt; k++){
+      m_mobRatTempDep_Ns[k].resize(m_nsp, 0);
+    }
+    m_lambdaSpecies.resize(m_nsp, 0.0);
+    m_lambdaTempDep_Ns.resize(m_nsp, 0);
+    m_hydrodynamic_radius.resize(m_nsp, 0.0);
+    m_radiusTempDep_Ns.resize(m_nsp, 0);
+
+      //first populate mixing rules and indices
+    for (k = 0; k < m_nsp; k++) {
+      m_selfDiffMixModel[k] = tr.selfDiffusion[k];
+      m_selfDiffMixModelIndex[k] = tr.selfDiffIndex[k];
+    }
+    for (k = 0; k < m_nBinInt; k++) {
+      m_mobRatMixModel[k] = tr.mobilityRatio[k];
+      m_mobRatMixModelIndex[k] = tr.mobRatIndex[k];
+    }
+
     //for each species, assign viscosity model and coefficients
     for (k = 0; k < m_nsp; k++) {
       Cantera::LiquidTransportData &ltd = tr.LTData[k];
       m_viscTempDep_Ns[k] =  ltd.viscosity;
-    }
-
-    /*
-     *  Get the input Thermal Conductivities
-     */
-    m_lambdaSpecies.resize(m_nsp, 0.0);
-    m_lambdaTempDep_Ns.resize(m_nsp, 0);
-    //for each species, assign thermal conductivity model 
-    for (k = 0; k < m_nsp; k++) {
-      Cantera::LiquidTransportData &ltd = tr.LTData[k];
+      m_ionCondTempDep_Ns[k] =  ltd.ionConductivity;
+      for (int j = 0; j < m_nBinInt; j++){
+	for (int l=0; l < m_nBinInt; l++){
+	  if (m_mobRatMixModelIndex[j] == ltd.mobRatIndex[l]) {
+	    m_mobRatTempDep_Ns[j][k] =  ltd.mobilityRatio[l];
+            m_mobRatTempDepIndex[j] = ltd.mobRatIndex[l];
+            break;
+	  }
+	}
+      }
+      for (int j = 0; j < (int) m_selfDiffMixModelIndex.size(); j++){
+	for (int l=0; l < (int) m_selfDiffMixModelIndex.size(); l++){
+	  if (m_selfDiffMixModelIndex[j] == ltd.selfDiffIndex[l]) {
+	    m_selfDiffTempDep_Ns[j][k] =  ltd.selfDiffusion[l];
+            m_selfDiffTempDepIndex[j] = ltd.selfDiffIndex[l];
+            break;
+	  }
+	}
+      }
       m_lambdaTempDep_Ns[k] =  ltd.thermalCond;
-    }
-
-    /*
-     *  Get the input Hydrodynamic Radii
-     */
-    m_hydrodynamic_radius.resize(m_nsp, 0.0);
-    m_radiusTempDep_Ns.resize(m_nsp, 0);
-    //for each species, assign model for hydrodynamic radius
-    for (k = 0; k < m_nsp; k++) {
-      Cantera::LiquidTransportData &ltd = tr.LTData[k];
       m_radiusTempDep_Ns[k] =  ltd.hydroRadius;
     }
+
 
     /*
      *  Get the input Species Diffusivities
@@ -263,18 +377,28 @@ namespace Cantera {
      * species diffusivity and hydrodynamics radius (perhaps not needed in the 
      * present class).
      */
+
+    
     m_viscMixModel = tr.viscosity;
     tr.viscosity = 0;
+
+    m_ionCondMixModel = tr.ionConductivity;
+    tr.ionConductivity = 0;
+    //m_mobRatMixModel = tr.mobilityRatio;
+
     m_lambdaMixModel = tr.thermalCond;
     tr.thermalCond = 0;
  
     m_diffMixModel = tr.speciesDiffusivity;
     tr.speciesDiffusivity = 0;
-  
+
+
     m_bdiff.resize(m_nsp,m_nsp, 0.0);
+
     //Don't really need to update this here.  
     //It is updated in updateDiff_T()
-    m_diffMixModel->getMatrixTransProp(m_bdiff); 
+    m_diffMixModel->getMatrixTransProp( m_bdiff ); 
+
 
     m_mode       = tr.mode_;
 
@@ -306,10 +430,19 @@ namespace Cantera {
     m_visc_mix_ok   = false;
     m_visc_temp_ok  = false;
     m_visc_conc_ok  = false;
+    m_ionCond_mix_ok   = false;
+    m_ionCond_temp_ok  = false;
+    m_ionCond_conc_ok  = false;
+    m_mobRat_mix_ok   = false;
+    m_mobRat_temp_ok  = false;
+    m_mobRat_conc_ok  = false;
+    m_selfDiff_mix_ok   = false;
+    m_selfDiff_temp_ok  = false;
+    m_selfDiff_conc_ok  = false;
     m_radi_temp_ok  = false;
     m_radi_conc_ok  = false;
-    m_cond_temp_ok = false;
-    m_cond_mix_ok  = false;
+    m_lambda_temp_ok = false;
+    m_lambda_mix_ok  = false;
     m_diff_temp_ok   = false;
     m_diff_mix_ok  = false;
 
@@ -357,6 +490,215 @@ namespace Cantera {
     copy(m_viscSpecies.begin(), m_viscSpecies.end(), visc); 
   }
 
+  /******************  ionConductivity ******************************/
+
+  // Returns the ionic conductivity of the solution
+  /*
+   *  The ionConductivity calculation is handled by subclasses of 
+   *  LiquidTranInteraction as specified in the input file.  
+   *  These in turn employ subclasses of LTPspecies to 
+   *  determine the individual species ionic conductivities.
+   */ 
+
+  doublereal LiquidTransport:: ionConductivity() {
+        
+    update_T();
+    update_C();
+
+    if (m_ionCond_mix_ok) return m_ionCondmix;
+  
+    ////// LiquidTranInteraction method
+    m_ionCondmix = m_ionCondMixModel->getMixTransProp( m_ionCondTempDep_Ns );
+
+    return m_ionCondmix;
+
+    /*
+    // update m_ionCondSpecies[] if necessary
+    if (!m_ionCond_temp_ok) {
+      updateIonConductivity_T();
+    }
+
+    if (!m_ionCond_conc_ok) {
+      updateIonConductivity_C();
+    }
+    */
+  }
+
+  // Returns the pure species ionic conductivities for all species
+  /*
+   *  The pure species ionic conductivities are evaluated using the 
+   *  appropriate subclasses of LTPspecies as specified in the 
+   *  input file.
+   *
+   * @param ionCond  array of length "number of species"
+   *              to hold returned ionic conductivities.
+   */
+  void LiquidTransport::getSpeciesIonConductivity(doublereal* ionCond) { 
+    update_T();
+    if (!m_ionCond_temp_ok) {
+      updateIonConductivity_T();
+    }
+    copy(m_ionCondSpecies.begin(), m_ionCondSpecies.end(), ionCond); 
+  }
+
+  /******************  mobilityRatio ******************************/
+
+  // Returns the mobility ratios of the solution
+  /*
+   *  The mobility ratio calculation is handled by subclasses of 
+   *  LiquidTranInteraction as specified in the input file.  
+   *  These in turn employ subclasses of LTPspecies to 
+   *  determine the individual species mobility ratios.
+   */ 
+  void LiquidTransport:: mobilityRatio(vector_fp& mobRat, std::vector<std::string>& mobRatIndex) {
+        
+    update_T();
+    update_C();
+
+    ////// LiquidTranInteraction method
+    if (!m_mobRat_mix_ok){
+      for (int k = 0; k < m_nBinInt; k++){
+        if  ( m_mobRatMixModelIndex[k] != m_mobRatTempDepIndex[k] ) 
+	  throw CanteraError("LiquidTransport::mobilityRation","Mobility Ratio Indices Don't Match: Mixture vs. Species");
+      	m_mobRatMix[k] = m_mobRatMixModel[k]->getMixTransProp( m_mobRatTempDep_Ns[k] );
+	m_mobRatMixIndex[k] = m_mobRatMixModelIndex[k];
+      }
+    }
+    for (int k = 0; k < m_nBinInt; k++){
+      mobRat[k] = m_mobRatMix[k];
+      mobRatIndex[k]= m_mobRatMixIndex[k];
+    }
+  }
+  void LiquidTransport:: mobilityRatio(doublereal* mobRat, std::vector<std::string>& mobRatIndex) {
+        
+    update_T();
+    update_C();
+
+    ////// LiquidTranInteraction method
+    if (!m_mobRat_mix_ok){
+      for (int k = 0; k < m_nBinInt; k++){
+        if  ( m_mobRatMixModelIndex[k] != m_mobRatTempDepIndex[k] ) 
+	  throw CanteraError("LiquidTransport::mobilityRatio","Mobility Ratio Indices Don't Match: Mixture vs. Species");
+      	m_mobRatMix[k] = m_mobRatMixModel[k]->getMixTransProp( m_mobRatTempDep_Ns[k] );
+	m_mobRatMixIndex[k] = m_mobRatMixModelIndex[k];
+      }
+    }
+    for (int k = 0; k < m_nBinInt; k++){
+      mobRat[k] = m_mobRatMix[k];
+      mobRatIndex[k]= m_mobRatMixIndex[k];
+    }
+  }
+
+  // Returns the pure species mobility ratios for all species
+  /*
+   *  The pure species mobility ratios are evaluated using the 
+   *  appropriate subclasses of LTPspecies as specified in the 
+   *  input file.
+   *
+   * @param mobRat  array of length "number of species"
+   *              to hold returned mobility ratio.
+   */
+  void LiquidTransport::getSpeciesMobilityRatio(DenseMatrix& mobRat, std::vector<std::string>& mobRatIndex) { 
+    update_T();
+    if (!m_mobRat_temp_ok) {
+      updateMobilityRatio_T();
+    }
+    mobRat = m_mobRatSpecies; 
+    for (int k = 0; k < m_nBinInt; k++)
+      mobRatIndex[k] = m_mobRatSpeciesIndex[k];
+  }
+  void LiquidTransport::getSpeciesMobilityRatio(doublereal** mobRat, std::vector<std::string>& mobRatIndex) { 
+    update_T();
+    if (!m_mobRat_temp_ok) {
+      updateMobilityRatio_T();
+    }
+    for (int k=0; k<m_nBinInt; k++){
+      for (int j=0; j < m_nsp; j++)
+	mobRat[k][j] = m_mobRatSpecies(k,j); 
+      mobRatIndex[k] = m_mobRatSpeciesIndex[k];
+    }
+  }
+
+
+  /******************  SelfDiffusion ******************************/
+
+  // Returns the mobility ratios of the solution
+  /*
+   *  The mobility ratio calculation is handled by subclasses of 
+   *  LiquidTranInteraction as specified in the input file.  
+   *  These in turn employ subclasses of LTPspecies to 
+   *  determine the individual species mobility ratios.
+   */ 
+  void LiquidTransport:: selfDiffusion(vector_fp& selfDiff, std::vector<std::string>& selfDiffIndex) {
+        
+    update_T();
+    update_C();
+
+    ////// LiquidTranInteraction method
+    if (!m_selfDiff_mix_ok){
+      for (int k = 0; k < m_nsp; k++){
+        if  ( m_selfDiffMixModelIndex[k] != m_selfDiffTempDepIndex[k] ) 
+	  throw CanteraError("LiquidTransport::selfDiffusion","Self Diffusion Indices Don't Match: Mixture vs. Species");
+      	m_selfDiffMix[k] = m_selfDiffMixModel[k]->getMixTransProp( m_selfDiffTempDep_Ns[k] );
+	m_selfDiffMixIndex[k] = m_selfDiffMixModelIndex[k];
+      }
+    }
+    for (int k = 0; k < m_nsp; k++){
+      selfDiff[k] = m_selfDiffMix[k];
+      selfDiffIndex[k]= m_selfDiffMixIndex[k];
+    }
+  }
+
+  void LiquidTransport:: selfDiffusion(double* selfDiff, std::vector<std::string>& selfDiffIndex) {
+        
+    update_T();
+    update_C();
+
+    ////// LiquidTranInteraction method
+    if (!m_selfDiff_mix_ok){
+      for (int k = 0; k < m_nsp; k++){
+        if  ( m_selfDiffMixModelIndex[k] != m_selfDiffTempDepIndex[k] ) 
+	  throw CanteraError("LiquidTransport::selfDiffusion","Self Diffusion Indices Don't Match: Mixture vs. Species");
+      	m_selfDiffMix[k] = m_selfDiffMixModel[k]->getMixTransProp( m_selfDiffTempDep_Ns[k] );
+	m_selfDiffMixIndex[k] = m_selfDiffMixModelIndex[k];
+      }
+    }
+    for (int k = 0; k < m_nsp; k++){
+      selfDiff[k] = m_selfDiffMix[k];
+      selfDiffIndex[k]= m_selfDiffMixIndex[k];
+    }
+  }
+
+  // Returns the pure species self diffusion for all species
+  /*
+   *  The pure species self diffusion coeffs are evaluated using the 
+   *  appropriate subclasses of LTPspecies as specified in the 
+   *  input file.
+   *
+   * @param selfDiff  array of size "number of species"^2
+   *              to hold returned self diffusion.
+   */
+  void LiquidTransport::getSpeciesSelfDiffusion(DenseMatrix& selfDiff, std::vector<std::string>& selfDiffIndex) { 
+    update_T();
+    if (!m_selfDiff_temp_ok) {
+      updateSelfDiffusion_T();
+    }
+    selfDiff = m_selfDiffSpecies; 
+    for (int k = 0; k < m_nsp; k++)
+      selfDiffIndex[k] = m_selfDiffSpeciesIndex[k];
+  }
+  void LiquidTransport::getSpeciesSelfDiffusion(doublereal** selfDiff, std::vector<std::string>& selfDiffIndex) { 
+    update_T();
+    if (!m_selfDiff_temp_ok) {
+      updateSelfDiffusion_T();
+    }
+    for (int k=0; k<m_nsp; k++){
+      for (int j=0; j < m_nsp; j++)
+	selfDiff[k][j] = m_selfDiffSpecies(k,j); 
+      selfDiffIndex[k] = m_selfDiffSpeciesIndex[k];
+    }
+  }
+
   //===============================================================
   // Returns the hydrodynamic radius for all species
   /*
@@ -390,7 +732,7 @@ namespace Cantera {
     update_T();
     update_C();
 
-    if (!m_cond_mix_ok) {
+    if (!m_lambda_mix_ok) {
       m_lambda = m_lambdaMixModel->getMixTransProp( m_lambdaTempDep_Ns );
       m_cond_mix_ok = true;
     } 
@@ -846,11 +1188,6 @@ namespace Cantera {
   void LiquidTransport::getSpeciesVdiffExt(int ldf, doublereal* Vdiff) {
     int n, k;
 
-    update_T();
-    update_C();
-
-    update_Grad_lnAC();
-
     stefan_maxwell_solve();
 
     for (n = 0; n < m_nDim; n++) {
@@ -877,11 +1214,6 @@ namespace Cantera {
    */
   void LiquidTransport::getSpeciesFluxesExt(int ldf, doublereal* fluxes) {
     int n, k;
-
-    update_T();
-    update_C();
-
-    update_Grad_lnAC();
 
     stefan_maxwell_solve();
 
@@ -925,11 +1257,6 @@ namespace Cantera {
    *          units = m2 s-1. length = number of species
    */
   void LiquidTransport::getMixDiffCoeffs(doublereal* const d) {
-
-    update_T();
-    update_C();
-
-    update_Grad_lnAC();
 
     stefan_maxwell_solve();
 
@@ -975,19 +1302,28 @@ namespace Cantera {
 
     // temperature has changed so temp flags are flipped
     m_visc_temp_ok  = false;
+    m_ionCond_temp_ok  = false;
+    m_mobRat_temp_ok  = false;
+    m_selfDiff_temp_ok  = false;
     m_radi_temp_ok  = false;
     m_diff_temp_ok  = false;
+    m_lambda_temp_ok  = false;
 
     // temperature has changed, so polynomial temperature 
     // interpolations will need to be reevaluated.
     // This means that many concentration 
     m_visc_conc_ok  = false;
-    m_cond_temp_ok  = false;
+    m_ionCond_conc_ok  = false;
+    m_mobRat_conc_ok  = false;
+    m_selfDiff_conc_ok  = false;
 
     // Mixture stuff needs to be evaluated 
     m_visc_mix_ok = false;
+    m_ionCond_mix_ok = false;
+    m_mobRat_mix_ok = false;
+    m_selfDiff_mix_ok = false;
     m_diff_mix_ok = false;
-    //  m_cond_mix_ok = false; (don't need it because a lower lvl flag is set    
+    m_lambda_mix_ok = false; //(don't need it because a lower lvl flag is set    
     return true;
   }                 
 
@@ -1040,11 +1376,17 @@ namespace Cantera {
     // be recomputed before use, and update the local mole
     // fractions.
     m_visc_conc_ok = false;
+    m_ionCond_conc_ok = false;
+    m_mobRat_conc_ok = false;
+    m_selfDiff_conc_ok = false;
   
     // Mixture stuff needs to be evaluated
     m_visc_mix_ok = false;
+    m_ionCond_mix_ok = false;
+    m_mobRat_mix_ok = false;
+    m_selfDiff_mix_ok = false;
     m_diff_mix_ok = false;
-    m_cond_mix_ok = false;
+    m_lambda_mix_ok = false;
 
     return true;
   }
@@ -1067,8 +1409,8 @@ namespace Cantera {
     for (k = 0; k < m_nsp; k++) {
       m_lambdaSpecies[k] = m_lambdaTempDep_Ns[k]->getSpeciesTransProp() ;
     }
-    m_cond_temp_ok = true;
-    m_cond_mix_ok = false;
+    m_lambda_temp_ok = true;
+    m_lambda_mix_ok = false;
   }
 
 
@@ -1111,6 +1453,79 @@ namespace Cantera {
     m_visc_mix_ok = false;
   }
 
+
+  //! Update the pure-species ionic conductivities functional dependence on concentration.
+  void LiquidTransport::updateIonConductivity_C() {
+    m_ionCond_conc_ok = true;
+  }
+
+
+  /**
+   * Updates the array of pure species ionic conductivities internally 
+   * using calls to the appropriate LTPspecies subclass.
+   * The flag m_ionCond_ok is set to true.
+   */
+  void LiquidTransport::updateIonConductivity_T() {
+    int k;
+
+    for (k = 0; k < m_nsp; k++) {
+      m_ionCondSpecies[k] = m_ionCondTempDep_Ns[k]->getSpeciesTransProp() ;
+    }
+    m_ionCond_temp_ok = true;
+    m_ionCond_mix_ok = false;
+  }
+
+
+  //! Update the pure-species mobility ratios functional dependence on concentration.
+  void LiquidTransport::updateMobilityRatio_C() {
+    m_mobRat_conc_ok = true;
+  }
+
+
+  /**
+   * Updates the array of pure species mobility ratios internally 
+   * using calls to the appropriate LTPspecies subclass.
+   * The flag m_mobRat_ok is set to true.
+   */
+  void LiquidTransport::updateMobilityRatio_T() {
+    int k;
+    int j;
+
+    for (k = 0; k < m_nBinInt; k++) {
+      for (j = 0; j < m_nsp; j++) {
+	m_mobRatSpecies(k,j) = m_mobRatTempDep_Ns[k][j]->getSpeciesTransProp() ;
+      }
+      m_mobRatSpeciesIndex[k] = m_mobRatTempDepIndex[k];
+    }
+    m_mobRat_temp_ok = true;
+    m_mobRat_mix_ok = false;
+  }
+
+
+  //! Update the pure-species self diffusion functional dependence on concentration.
+  void LiquidTransport::updateSelfDiffusion_C() {
+    m_selfDiff_conc_ok = true;
+  }
+
+
+  /**
+   * Updates the array of pure species self diffusion internally 
+   * using calls to the appropriate LTPspecies subclass.
+   * The flag m_selfDiff_ok is set to true.
+   */
+  void LiquidTransport::updateSelfDiffusion_T() {
+    int k;
+    int j;
+
+    for (k = 0; k < m_nBinInt; k++) {
+      for (j = 0; j < m_nsp; j++) {
+	m_selfDiffSpecies(k,j) = m_selfDiffTempDep_Ns[k][j]->getSpeciesTransProp() ;
+      }
+      m_selfDiffSpeciesIndex[k] = m_selfDiffTempDepIndex[k];
+    }
+    m_selfDiff_temp_ok = true;
+    m_selfDiff_mix_ok = false;
+  }
 
   //! Update the pure-species viscosities functional dependence on concentration.
   void LiquidTransport::updateHydrodynamicRadius_C() {
@@ -1164,14 +1579,23 @@ namespace Cantera {
 
     int k;
     
-    vector_fp grad_lnAC(m_nsp);
-    m_thermo->getdlnActCoeffdlnC( DATA_PTR(grad_lnAC) ); 
+    doublereal grad_T;
+    vector_fp grad_lnAC(m_nsp), grad_X(m_nsp);
+    //   IonsFromNeutralVPSSTP * tempIons = dynamic_cast<IonsFromNeutralVPSSTP *> m_thermo;
+    //MargulesVPSSTP * tempMarg = dynamic_cast<MargulesVPSSTP *> (tempIons->neutralMoleculePhase_);
+    
 
-    for (k = 0; k < m_nsp; k++) {
-      m_Grad_lnAC[k] = grad_lnAC[k];
+    //m_thermo->getdlnActCoeffdlnX( DATA_PTR(grad_lnAC) ); 
+    for (k = 0; k < m_nDim; k++ ) {
+      grad_T = m_Grad_T[k];
+      grad_X.assign(m_Grad_X.begin()+m_nsp*k,m_Grad_X.begin()+m_nsp*(k+1)); 
+      m_thermo->getdlnActCoeff( grad_T, DATA_PTR(grad_X), DATA_PTR(grad_lnAC) );
+      for ( int i = 0; i < m_nsp; i++ )
+	grad_lnAC[i] += grad_X[i]/m_molefracs[i];
+      copy(grad_lnAC.begin(),grad_lnAC.end(),m_Grad_lnAC.begin()+m_nsp*k);
       //      std::cout << k << " m_Grad_lnAC = " << m_Grad_lnAC[k] << std::endl;
     }
-
+    
     return;
   }
 
@@ -1220,10 +1644,13 @@ namespace Cantera {
 
     //! grab a local copy of the molecular weights
     const vector_fp& M =  m_thermo->molecularWeights();
+    //! grad a local copy of the ion molar volume (inverse total ion concentration)
+    const doublereal vol = m_thermo->molarVolume();
      
     /*
-     * Update the concentrations and diffusion coefficients in the mixture.
+     * Update the temperature, concentrations and diffusion coefficients in the mixture.
      */
+    update_T();
     update_C();
     if ( !m_diff_temp_ok ) updateDiff_T();
 
@@ -1260,12 +1687,11 @@ namespace Cantera {
      *
      */
     for (i = 0; i < m_nsp; i++) {
-      double xi_denom = m_molefracs_tran[i];
       for (a = 0; a < m_nDim; a++) {
 	m_Grad_mu[a*m_nsp + i] =
 	  m_chargeSpecies[i] *  Faraday * m_Grad_V[a]
 	  //+  (m_volume_spec[i] - M[i]/dens_) * m_Grad_P[a]
-	  +  GasConstant * T * m_Grad_X[a*m_nsp+i] * ( 1.0 + m_Grad_lnAC[i] ) / xi_denom;
+	  +  GasConstant * T * m_Grad_lnAC[a*m_nsp+i];
       }
     }
 
@@ -1286,8 +1712,11 @@ namespace Cantera {
      * Just for Note, m_A(i,j) refers to the ith row and jth column.
      * They are still fortran ordered, so that i varies fastest.
      */
+
+    double condSum1, condSum2;
     switch (m_nDim) {
     case 1:  /* 1-D approximation */
+
       m_B(0,0) = 0.0;
       //equation for the reference velocity 
       for (j = 0; j < m_nsp; j++) {
@@ -1298,9 +1727,10 @@ namespace Cantera {
 	else if ( ( m_velocityBasis >= 0 ) 
 		  && ( m_velocityBasis < m_nsp ) )
 	  // use species number m_velocityBasis as reference velocity
-	  if ( m_velocityBasis == j ) m_A(0,j) = 1.0; 
-	  else 
-	    throw CanteraError("LiquidTransport::stefan_maxwell_solve",
+	  if ( m_velocityBasis == j ) m_A(0,j) = 1.0;
+	  else m_A(0,j) = 0.0; 
+	else 
+	  throw CanteraError("LiquidTransport::stefan_maxwell_solve",
 			       "Unknown reference velocity provided.");
       }
       for (i = 1; i < m_nsp; i++){
@@ -1320,7 +1750,30 @@ namespace Cantera {
 
       //! invert and solve the system  Ax = b. Answer is in m_B
       solve(m_A, m_B);
-  	
+ 
+      /*     
+      condSum2 = m_chargeSpecies[1]*m_chargeSpecies[1]*m_molefracs_tran[1]/m_bdiff(2,3) + 
+	m_chargeSpecies[2]*m_chargeSpecies[2]*m_molefracs_tran[2]/m_bdiff(1,3) + 
+	m_chargeSpecies[3]*m_chargeSpecies[3]*m_molefracs_tran[3]/m_bdiff(1,2);
+      condSum1 = m_molefracs_tran[1]/m_bdiff(1,2)/m_bdiff(1,3) +
+	m_molefracs_tran[2]/m_bdiff(2,3)/m_bdiff(1,2) +
+	m_molefracs_tran[3]/m_bdiff(1,3)/m_bdiff(2,3);
+      condSum2 = condSum2/condSum1*Faraday*Faraday/GasConstant/T/vol; 
+      */
+
+      condSum1 = 0;
+      for (i = 0; i < m_nsp; i++){
+	condSum1 -= Faraday*m_chargeSpecies[i]*m_B(i,0)*m_molefracs_tran[i]/vol;
+      }
+      
+      /*
+      Check Mobility Ratio of Cations
+      cout << "mobility ratio = " << m_chargeSpecies[1]*(m_B(1,0)-m_B(2,0))/m_chargeSpecies[0]/(m_B(0,0)-m_B(2,0)) << endl;
+      */
+
+      //      cout << condSum1 << " = " << condSum2 << endl;
+
+	
       break;
     case 2:  /* 2-D approximation */
       m_B(0,0) = 0.0;
@@ -1335,8 +1788,9 @@ namespace Cantera {
 		  && ( m_velocityBasis < m_nsp ) )
 	  // use species number m_velocityBasis as reference velocity
 	  if ( m_velocityBasis == j ) m_A(0,j) = 1.0; 
-	  else 
-	    throw CanteraError("LiquidTransport::stefan_maxwell_solve",
+	  else m_A(0,j) = 0.0; 
+	else 
+	  throw CanteraError("LiquidTransport::stefan_maxwell_solve",
 			       "Unknown reference velocity provided.");
       }
       for (i = 1; i < m_nsp; i++){
@@ -1375,8 +1829,9 @@ namespace Cantera {
 		  && ( m_velocityBasis < m_nsp ) )
 	  // use species number m_velocityBasis as reference velocity
 	  if ( m_velocityBasis == j ) m_A(0,j) = 1.0; 
-	  else 
-	    throw CanteraError("LiquidTransport::stefan_maxwell_solve",
+	  else m_A(0,j) = 0.0; 
+	else 
+	  throw CanteraError("LiquidTransport::stefan_maxwell_solve",
 			       "Unknown reference velocity provided.");
       }
       for (i = 1; i < m_nsp; i++){
