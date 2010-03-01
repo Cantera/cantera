@@ -72,7 +72,7 @@ namespace Cantera {
     return *this;
   }
 
-  /**
+  /*
    *
    * ~GibbsExcessVPSSTP():   (virtual)
    *
@@ -313,7 +313,6 @@ namespace Cantera {
   void GibbsExcessVPSSTP::initThermo() {
     initLengths();
     VPStandardStateTP::initThermo();
-
   }
 
 
@@ -328,33 +327,11 @@ namespace Cantera {
     dlnActCoeffdlnN_Scaled_.resize(m_kk);
     m_pp.resize(m_kk);
   }
-
-  /*
-   * initThermoXML()                (virtual from ThermoPhase)
-   *   Import and initialize a ThermoPhase object
-   *
-   * @param phaseNode This object must be the phase node of a
-   *             complete XML tree
-   *             description of the phase, including all of the
-   *             species data. In other words while "phase" must
-   *             point to an XML phase object, it must have
-   *             sibling nodes "speciesData" that describe
-   *             the species in the phase.
-   * @param id   ID of the phase. If nonnull, a check is done
-   *             to see if phaseNode is pointing to the phase
-   *             with the correct id. 
-   */
-  void GibbsExcessVPSSTP::initThermoXML(XML_Node& phaseNode, std::string id) {
-
-
-    VPStandardStateTP::initThermoXML(phaseNode, id);
-  }
   
- /**
+  /*
    * Format a summary of the mixture state for output.
    */           
   std::string GibbsExcessVPSSTP::report(bool show_thermo) const {
-
 
     char p[800];
     string s = "";

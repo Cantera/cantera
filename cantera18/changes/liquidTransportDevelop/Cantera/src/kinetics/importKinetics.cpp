@@ -521,9 +521,24 @@ namespace Cantera {
    * kf should point to a XML element named "rateCoeff".
    * rdata is the partially filled ReactionData object for the reaction.
    * This function will fill in more fields in the ReactionData object.
+   *
+   *  @param kf   Reference to the XML Node named rateCoeff
    */
   void getRateCoefficient(const node_t& kf, kinetics_t& kin, 
 			  ReactionData& rdata, int negA) {
+    string type = kf.attrib("type");
+    if (type == "") {
+      type = "Arrhenius";
+      rdata.rateCoeffType = ARRHENIUS_REACTION_RATECOEFF_TYPE;
+    }
+    if (type == "ExchangeCurrentDensity") {
+      rdata.rateCoeffType = EXCHANGE_CURRENT_REACTION_RATECOEFF_TYPE;
+    } else if (type == "Arrhenius") {
+
+    } else {
+      throw CanteraError("getRateCoefficient", 
+			 "Unknown type: " + type);
+    }
 
     int nc = kf.nChildren();
     nodeset_t& kf_children = kf.children();
@@ -557,6 +572,12 @@ namespace Cantera {
 			     "negative or zero A coefficient for reaction "+int2str(rdata.number));
 	}
       }
+      else if (nm == "Arrhenius_ExchangeCurrentDensity") {
+        vector_fp coeff(3);
+        getArrhenius(c, highlow, coeff[0], coeff[1], coeff[2]);
+        chigh = coeff;
+        rdata.rateCoeffType = EXCHANGE_CURRENT_REACTION_RATECOEFF_TYPE;
+      }
       else if (nm == "falloff") {
 	getFalloff(c, rdata);
       }
@@ -580,6 +601,9 @@ namespace Cantera {
       rdata.auxRateCoeffParameters = clow;
     else if (rdata.reactionType == CHEMACT_RXN) 
       rdata.auxRateCoeffParameters = chigh; 
+
+
+
   }
 
 
