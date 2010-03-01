@@ -214,6 +214,7 @@ namespace Cantera {
      * \f[
      *  R_i = R_i * \prod_k C_k^{o_{k,i}}
      * \f]
+     *
      * Here \f$ o_{k,i} \f$ is the reaction order of species k in reaction i.
      */
       virtual void multiplyReactants(const doublereal* C, doublereal* R);

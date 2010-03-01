@@ -1,6 +1,10 @@
 /**
- *  @file example2.cpp
+ *  @file cti2ctml.cpp
  *
+ */
+
+/*
+ *  $Id$
  */
 
 //  Example 
@@ -21,9 +25,6 @@
 using namespace Cantera;
 using namespace std;
 
-#ifdef DEBUG_HKM
-int iDebug_HKM = 0;
-#endif
 
 /*****************************************************************/
 /*****************************************************************/
@@ -38,14 +39,14 @@ static void printUsage()
 
 
 
-
+/*****************************************************************/
 
 
 int main(int argc, char** argv) {
-    string infile;  
+  std::string infile;  
     // look for command-line options
     if (argc > 1) {
-      string tok;
+      std::string tok;
       for (int j = 1; j < argc; j++) {
 	tok = string(argv[j]);
 	if (tok[0] == '-') {
@@ -75,7 +76,7 @@ int main(int argc, char** argv) {
  
     try {
       XML_Node *xc = new XML_Node();
-      string path = findInputFile(infile);
+      std::string path = findInputFile(infile);
       ctml::get_CTML_Tree(xc, path, 0); 
       //XML_Node *xd = new XML_Node();
       //xc->copy(xd);

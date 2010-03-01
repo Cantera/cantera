@@ -811,7 +811,7 @@ namespace Cantera {
      * any initialization (allocating arrays, etc.) that must be
      * done after the reactions are entered.
      */
-    virtual void finalize() {}
+    virtual void finalize();
 
     /**
      * Add a single reaction to the mechanism. This routine
@@ -904,6 +904,9 @@ namespace Cantera {
 	
     //! Number of reactions in the mechanism
     int m_ii;
+
+    //! Number of species in the species vector for this kinetics operator
+    int m_nTotalSpecies;
 	
     /// Vector of perturbation factors for each reaction's rate of
     /// progress vector. It is initialized to one.

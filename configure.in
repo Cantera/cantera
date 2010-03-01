@@ -1464,6 +1464,16 @@ fi
 
 AC_SUBST(LCXX_FLAGS)
 #
+# Check to see if we have a -lm line
+#
+AC_CHECK_LIB(m, printf, [add_stm=1], [add_stm=0], [ ])
+
+#
+# Check to see if we have a -lstdc++ line
+#
+AC_CHECK_LIB(stdc++, printf, [add_stdc=1], [add_stdc=0], [])
+
+#
 # Ending Libs for compiling static applications and 
 # dynamically loaded libraries
 #  (sunpro solaris needs a few for dynamic linking)
@@ -1478,6 +1488,17 @@ case $ac_sys_system in
             LCXX_END_LIBS="$LCXX_END_LIBS"" -lCrun -lCstd -lfsu" ;;
       esac ;;
 esac
+if test $add_stm = 1 ; then
+  echo 'Adding -lm to the end of the LCXX_END_LIBS variable'
+  LCXX_END_LIBS="$LCXX_END_LIBS"" -lm"
+  echo 'LCXX_END_LIBS = ' $LCXX_END_LIBS
+fi
+if test $add_stdc = 1 ; then
+  echo 'Adding -lstdc++ to the end of the LCXX_END_LIBS variable'
+  LCXX_END_LIBS="$LCXX_END_LIBS"" -lstdc++ "
+  echo 'LCXX_END_LIBS = ' $LCXX_END_LIBS
+fi
+
 AC_SUBST(LCXX_END_LIBS)
 
 

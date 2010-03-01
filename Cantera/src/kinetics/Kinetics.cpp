@@ -29,9 +29,16 @@ using namespace std;
 namespace Cantera {
 
     
-  Kinetics::Kinetics() : m_ii(0), m_thermo(0),
-			 m_index(-1), m_surfphase(-1), m_rxnphase(-1), 
-			 m_mindim(4) {}
+  Kinetics::Kinetics() :
+    m_ii(0), 
+    m_nTotalSpecies(0),
+    m_thermo(0),
+    m_index(-1), 
+    m_surfphase(-1),
+    m_rxnphase(-1), 
+    m_mindim(4)
+  {
+  }
 
   Kinetics::~Kinetics(){}
 
@@ -42,7 +49,8 @@ namespace Cantera {
    * throw an exception.
    */
   Kinetics::Kinetics(const Kinetics &right) :
-    m_ii(0), 
+    m_ii(0),
+    m_nTotalSpecies(0),
     m_thermo(0),
     m_index(-1), 
     m_surfphase(-1),
@@ -70,6 +78,7 @@ namespace Cantera {
     if (this == &right) return *this;
     
     m_ii                = right.m_ii;
+    m_nTotalSpecies     = right.m_nTotalSpecies;
     m_perturb           = right.m_perturb;
     m_reactants         = right.m_reactants;
     m_products          = right.m_products;
@@ -283,6 +292,15 @@ namespace Cantera {
     }
     m_thermo.push_back(&thermo);
     m_phaseindex[m_thermo.back()->id()] = nPhases();
+  }
+
+  void Kinetics::finalize() {
+    m_nTotalSpecies = 0;
+    int np = nPhases();
+    for (int n = 0; n < np; n++) {
+      int nsp = m_thermo[n]->nSpecies();
+      m_nTotalSpecies += nsp;
+    }
   }
 
   

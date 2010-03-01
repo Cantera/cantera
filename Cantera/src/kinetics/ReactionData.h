@@ -25,7 +25,7 @@ namespace Cantera {
       number = 0;
       rxn_number = 0;
       reversible = true;
-      rateCoeffType = ARRHENIUS;
+      rateCoeffType = ARRHENIUS_REACTION_RATECOEFF_TYPE;
       falloffType = NONE;
       error = 0;
       equation = "";
@@ -36,7 +36,12 @@ namespace Cantera {
     }
     virtual ~ReactionData(){}
 
+    //! type of the reaction
+    /*!
+     *  The valid types are listed in the file, reaction_defs.h.
+     */
     int reactionType;
+
     int number;
     int rxn_number;
     vector_int reactants;
@@ -51,7 +56,14 @@ namespace Cantera {
 
     //! True if the current reaction is reversible. False otherwise
     bool reversible;
+
+    //! type of the rate coefficient for the forward rate constant
+    /*!
+     *  The valid types are listed in the file, reaction_defs.h and they
+     *  all end in RATECOEFF_TYPE
+     */
     int rateCoeffType;
+
     vector_fp rateCoeffParameters;
     vector_fp auxRateCoeffParameters;
     int falloffType;
