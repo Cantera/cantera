@@ -263,6 +263,7 @@ namespace Cantera {
     int k;
     // constant substance attributes
     m_thermo = tr.thermo;
+    tr.thermo = 0;
     m_velocityBasis = tr.velocityBasis_;
     m_nsp   = m_thermo->nSpecies();
     m_nBinInt = m_nsp*(m_nsp-1)/2;
@@ -310,11 +311,13 @@ namespace Cantera {
 
       //first populate mixing rules and indices
     for (k = 0; k < m_nsp; k++) {
-      m_selfDiffMixModel[k] = tr.selfDiffusion[k];
+      m_selfDiffMixModel[k] = tr.selfDiffusion[k]; 
+      tr.selfDiffusion[k] = 0;
       m_selfDiffMixModelIndex[k] = tr.selfDiffIndex[k];
     }
     for (k = 0; k < m_nBinInt; k++) {
       m_mobRatMixModel[k] = tr.mobilityRatio[k];
+      tr.mobilityRatio[k] = 0;
       m_mobRatMixModelIndex[k] = tr.mobRatIndex[k];
     }
 
@@ -322,11 +325,14 @@ namespace Cantera {
     for (k = 0; k < m_nsp; k++) {
       Cantera::LiquidTransportData &ltd = tr.LTData[k];
       m_viscTempDep_Ns[k] =  ltd.viscosity;
+      ltd.viscosity = 0;
       m_ionCondTempDep_Ns[k] =  ltd.ionConductivity;
+      ltd.ionConductivity = 0;
       for (int j = 0; j < m_nBinInt; j++){
 	for (int l=0; l < m_nBinInt; l++){
 	  if (m_mobRatMixModelIndex[j] == ltd.mobRatIndex[l]) {
 	    m_mobRatTempDep_Ns[j][k] =  ltd.mobilityRatio[l];
+	    ltd.mobilityRatio[l] = 0;
             m_mobRatTempDepIndex[j] = ltd.mobRatIndex[l];
             break;
 	  }
@@ -336,13 +342,16 @@ namespace Cantera {
 	for (int l=0; l < (int) m_selfDiffMixModelIndex.size(); l++){
 	  if (m_selfDiffMixModelIndex[j] == ltd.selfDiffIndex[l]) {
 	    m_selfDiffTempDep_Ns[j][k] =  ltd.selfDiffusion[l];
+	    ltd.selfDiffusion[l] = 0;
             m_selfDiffTempDepIndex[j] = ltd.selfDiffIndex[l];
             break;
 	  }
 	}
       }
       m_lambdaTempDep_Ns[k] =  ltd.thermalCond;
+      ltd.thermalCond = 0;
       m_radiusTempDep_Ns[k] =  ltd.hydroRadius;
+      ltd.hydroRadius = 0;
     }
 
 
