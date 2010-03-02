@@ -1060,7 +1060,7 @@ namespace Cantera {
      *
      *  k is the species index
      *  n is the dimensional index (x, y, or z). It has a length
-     *    equal to m_nDimm_
+     *    equal to m_nDim
      *  
      *    m_Grad_X[n*m_nsp + k]
      *  
