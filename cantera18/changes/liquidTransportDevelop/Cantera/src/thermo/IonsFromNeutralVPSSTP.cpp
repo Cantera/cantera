@@ -871,6 +871,8 @@ namespace Cantera {
     y.resize(numNeutralMoleculeSpecies_,0.0);
     doublereal sumy, sumdy;
 
+    //check sum dx = 0
+
     //! Zero the vector we are trying to find.
     for (k = 0; k < numNeutralMoleculeSpecies_; k++) {
       dy[k] = 0.0;
@@ -912,8 +914,9 @@ namespace Cantera {
 	dy[jNeut] += dx[icat] / fmij;
 	y[jNeut] += moleFractions_[icat] / fmij;
       }
-
+      /*
 #ifdef DEBUG_MODE
+//check dy sum to zero
       for (k = 0; k < m_kk; k++) {
 	moleFractionsTmp_[k] = dx[k];
       }
@@ -937,7 +940,7 @@ namespace Cantera {
 	}
       }
 #endif      
-
+      */
       // Normalize the Neutral Molecule mole fractions
       sumy = 0.0;
       sumdy = 0.0;
