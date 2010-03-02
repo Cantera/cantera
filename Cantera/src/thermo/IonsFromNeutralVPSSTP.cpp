@@ -914,8 +914,7 @@ namespace Cantera {
 	dy[jNeut] += dx[icat] / fmij;
 	y[jNeut] += moleFractions_[icat] / fmij;
       }
-      /*
-#ifdef DEBUG_MODE
+#ifdef DEBUG_MODE_NOT
 //check dy sum to zero
       for (k = 0; k < m_kk; k++) {
 	moleFractionsTmp_[k] = dx[k];
@@ -940,7 +939,6 @@ namespace Cantera {
 	}
       }
 #endif      
-      */
       // Normalize the Neutral Molecule mole fractions
       sumy = 0.0;
       sumdy = 0.0;
