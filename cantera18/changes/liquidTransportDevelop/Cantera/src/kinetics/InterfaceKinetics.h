@@ -686,9 +686,9 @@ namespace Cantera {
     //! described by an exchange current density expression
     vector_int m_ctrxn_ecdf;
 
-    vector_fp m_logStandardConc;
+    vector_fp m_StandardConc;
     vector_fp m_deltaG0;
-    vector_fp m_logProdStanConcReac;
+    vector_fp m_ProdStanConcReac;
 
 
 

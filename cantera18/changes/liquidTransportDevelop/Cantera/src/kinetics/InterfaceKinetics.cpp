@@ -45,9 +45,9 @@ namespace Cantera {
     m_beta(0),
     m_ctrxn(0),
     m_ctrxn_ecdf(0),
-    m_logStandardConc(0),
+    m_StandardConc(0),
     m_deltaG0(0),
-    m_logProdStanConcReac(0),
+    m_ProdStanConcReac(0),
     m_finalized(false),
     m_has_coverage_dependence(false),
     m_has_electrochem_rxns(false),
@@ -85,9 +85,9 @@ namespace Cantera {
     m_beta(0),
     m_ctrxn(0),
     m_ctrxn_ecdf(0),
-    m_logStandardConc(0),
+    m_StandardConc(0),
     m_deltaG0(0),
-    m_logProdStanConcReac(0),
+    m_ProdStanConcReac(0),
     m_finalized(false),
     m_has_coverage_dependence(false),
     m_has_electrochem_rxns(false),
@@ -142,9 +142,9 @@ namespace Cantera {
     m_beta                 = right.m_beta;
     m_ctrxn                = right.m_ctrxn;
     m_ctrxn_ecdf           = right.m_ctrxn_ecdf;
-    m_logStandardConc      = right.m_logStandardConc;
+    m_StandardConc         = right.m_StandardConc;
     m_deltaG0              = right.m_deltaG0;
-    m_logProdStanConcReac  = right.m_logProdStanConcReac;
+    m_ProdStanConcReac     = right.m_ProdStanConcReac;
     m_finalized            = right.m_finalized;
     m_has_coverage_dependence = right.m_has_coverage_dependence;
     m_has_electrochem_rxns = right.m_has_electrochem_rxns;
@@ -377,7 +377,7 @@ namespace Cantera {
       thermo(n).getStandardChemPotentials(DATA_PTR(m_mu0) + m_start[n]);
       int nsp = thermo(n).nSpecies();
       for (int k = 0; k < nsp; k++) {
-        m_logStandardConc[ik] = thermo(n).logStandardConc(k);
+        m_StandardConc[ik] = thermo(n).standardConcentration(k);
         ik++;
       }
     }
@@ -386,10 +386,10 @@ namespace Cantera {
 
     
     for (int i = 0; i < m_ii; i++) {
-       m_logProdStanConcReac[i] = 1.0;
+       m_ProdStanConcReac[i] = 1.0;
     }
 
-    m_rxnstoich.multiplyReactants(DATA_PTR(m_logStandardConc), DATA_PTR(m_logProdStanConcReac));
+    m_rxnstoich.multiplyReactants(DATA_PTR(m_StandardConc), DATA_PTR(m_ProdStanConcReac));
 
   }
 
@@ -521,7 +521,8 @@ namespace Cantera {
       int iECDFormulation =  m_ctrxn_ecdf[i];
       if (iECDFormulation) {
 	double tmp = exp(- m_beta[i] * m_deltaG0[irxn] * rrt);
-	tmp *= 1.0  / m_logProdStanConcReac[irxn] / Faraday;
+	double tmp2 = m_ProdStanConcReac[irxn];
+	tmp *= 1.0  / tmp2 / Faraday;
 	kfwd[irxn] *= tmp;
       }
     }
@@ -1046,9 +1047,9 @@ namespace Cantera {
 
 
 
-    m_logStandardConc.resize(m_nTotalSpecies, 0.0);
+    m_StandardConc.resize(m_nTotalSpecies, 0.0);
     m_deltaG0.resize(m_ii, 0.0);
-    m_logProdStanConcReac.resize(m_ii, 0.0);
+    m_ProdStanConcReac.resize(m_ii, 0.0);
 
     m_finalized = true;
   }
