@@ -191,6 +191,9 @@ namespace Cantera {
 #define USE_STL_VECTOR
 #ifdef USE_STL_VECTOR
   //! Vector of doubles.
+  /*!
+   *  @deprecated array_fp is going away, because vector_fp means the same thing
+   */
     typedef std::vector<double>        array_fp;
   //! Vector of doubles.
     typedef std::vector<double>        vector_fp;
