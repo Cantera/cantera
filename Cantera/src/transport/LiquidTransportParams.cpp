@@ -602,11 +602,11 @@ namespace Cantera {
     mat.resize( nsp, nsp, 0.0 );
     for ( int i = 0; i < nsp; i++ ) 
       for ( int j = 0; j < i; j++ ) 
-	mat(i,j) = mat(j,i) = m_Dij(i,j) * exp( - m_Eij(i,j) / temp );
+	mat(i,j) = mat(j,i) = exp( m_Eij(i,j) / temp ) / m_Dij(i,j);
     
     for ( int i = 0; i < nsp; i++ ) 
       if ( mat(i,i) == 0.0 && m_diagonals[i] ) 
-	mat(i,i) = m_diagonals[i]->getSpeciesTransProp() ;
+	mat(i,i) = 1.0 / m_diagonals[i]->getSpeciesTransProp() ;
   }
 
 
@@ -617,7 +617,7 @@ namespace Cantera {
     
     m_ionCondMix = 0;
     m_ionCondMixModel = trParam.ionConductivity;
-    trParam.ionConductivity = 0;
+    //trParam.ionConductivity = 0;
     m_ionCondSpecies.resize(nsp,0);
     m_mobRatMix.resize(nsp,nsp,0.0);
     m_mobRatMixModel.resize(nBinInt);
@@ -630,13 +630,13 @@ namespace Cantera {
 
     for ( int k = 0; k < nBinInt; k++ ) {
       m_mobRatMixModel[k] = trParam.mobilityRatio[k];
-      trParam.mobilityRatio[k] = 0;
+      //trParam.mobilityRatio[k] = 0;
       m_mobRatSpecies[k].resize(nsp,0);
       m_mobRatIndex[k] = trParam.mobRatIndex[k];
     }
     for ( int k = 0; k < nsp; k++ ) {
       m_selfDiffMixModel[k] = trParam.selfDiffusion[k];
-      trParam.selfDiffusion[k] = 0;
+      //trParam.selfDiffusion[k] = 0;
       m_selfDiffSpecies[k].resize(nsp,0);
       m_selfDiffIndex[k] = trParam.selfDiffIndex[k];
     }
@@ -644,14 +644,14 @@ namespace Cantera {
     for (int k = 0; k < nsp; k++) {
       Cantera::LiquidTransportData &ltd = trParam.LTData[k];
       m_ionCondSpecies[k]   =  ltd.ionConductivity;
-      ltd.ionConductivity = 0;
+      //ltd.ionConductivity = 0;
       for ( int j = 0; j < nBinInt; j++ ){
 	m_mobRatSpecies[j][k] = ltd.mobilityRatio[j];
-	ltd.mobilityRatio[j] = 0;
+	//ltd.mobilityRatio[j] = 0;
       }
       for ( int j = 0; j < nsp; j++ ){
 	m_selfDiffSpecies[j][k] = ltd.selfDiffusion[j]; 
-	ltd.selfDiffusion[j] = 0;      
+	//ltd.selfDiffusion[j] = 0;      
       }
     }
   }
@@ -805,13 +805,14 @@ namespace Cantera {
   mat(cation[0],anion[0]) = mat(anion[0],cation[0]) = (1+vP/vM)*(-eps*xB*(1-eps*xA)*inv_vP_vM_MutualDiff)-zP*zM*Faraday*Faraday/GasConstant/temp/kappa/vol;
 mat(cation[1],anion[0]) = mat(anion[0],cation[1]) = (1+vP/vM)*(eps*xA*(1+eps*xB)*inv_vP_vM_MutualDiff)-zP*zM*Faraday*Faraday/GasConstant/temp/kappa/vol;
 
-
+/*
     for ( i = 0; i < nsp; i++ ) {
       for ( j = 0; j < nsp; j++ ) {
 	mat(i,j) = 1.0/mat(i,j);
 	//cout << "D" << i << j << " = " << mat(i,j) << endl;
       }
     }
+*/
   }
   
   
@@ -871,8 +872,7 @@ mat(cation[1],anion[0]) = mat(anion[0],cation[1]) = (1+vP/vM)*(eps*xA*(1+eps*xB)
     mat.resize(nsp,nsp, 0.0);
     for (int i = 0; i < nsp; i++) 
       for (int j = 0; j < nsp; j++) {
-	mat(i,j) = GasConstant * temp 
-	  / ( 6.0 * Pi * radiusSpec[i] * viscSpec[j] ) ;
+	mat(i,j) = ( 6.0 * Pi * radiusSpec[i] * viscSpec[j] ) / GasConstant / temp;
       }
     delete radiusSpec;
     delete viscSpec;

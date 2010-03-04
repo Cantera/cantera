@@ -802,11 +802,15 @@ namespace Cantera {
     // from the polynomial fits
     if (!m_diff_temp_ok) updateDiff_T();
 
-    for (i = 0; i < m_nsp; i++) 
-      for (j = 0; j < m_nsp; j++) {
-	d[ld*j + i] = m_bdiff(i,j);
-
+    for (i = 0; i < m_nsp; i++) {
+      for (j = 0; j < m_nsp; j++){
+	//if (!( ( m_bdiff(i,j) > 0.0 ) |  ( m_bdiff(i,j) < 0.0 ))){
+	//  throw CanteraError("LiquidTransport::getBinaryDiffCoeffs ",
+	//		     "m_bdiff has zero entry in non-diagonal.");}
+	d[ld*j + i] = 1.0 / m_bdiff(i,j);
+	
       }
+    }
   }
 
 
@@ -1759,10 +1763,10 @@ namespace Cantera {
 	m_A(i,i) = 0.0;
 	for (j = 0; j < m_nsp; j++){
 	  if (j != i) {
-	    if ( !( m_bdiff(i,j) > 0.0 ) )
-	      throw CanteraError("LiquidTransport::stefan_maxwell_solve",
-				 "m_bdiff has zero entry in non-diagonal.");
-	    tmp = m_molefracs_tran[j] / m_bdiff(i,j);
+	    //if ( !( m_bdiff(i,j) > 0.0 ) )
+	    //throw CanteraError("LiquidTransport::stefan_maxwell_solve",
+	    //			 "m_bdiff has zero entry in non-diagonal.");
+	    tmp = m_molefracs_tran[j] * m_bdiff(i,j);
 	    m_A(i,i) -=   tmp;
 	    m_A(i,j)  = + tmp;
 	  }
@@ -1773,12 +1777,12 @@ namespace Cantera {
       solve(m_A, m_B);
  
       /*     
-      condSum2 = m_chargeSpecies[1]*m_chargeSpecies[1]*m_molefracs_tran[1]/m_bdiff(2,3) + 
-	m_chargeSpecies[2]*m_chargeSpecies[2]*m_molefracs_tran[2]/m_bdiff(1,3) + 
-	m_chargeSpecies[3]*m_chargeSpecies[3]*m_molefracs_tran[3]/m_bdiff(1,2);
-      condSum1 = m_molefracs_tran[1]/m_bdiff(1,2)/m_bdiff(1,3) +
-	m_molefracs_tran[2]/m_bdiff(2,3)/m_bdiff(1,2) +
-	m_molefracs_tran[3]/m_bdiff(1,3)/m_bdiff(2,3);
+      condSum2 = m_chargeSpecies[1]*m_chargeSpecies[1]*m_molefracs_tran[1]*m_bdiff(2,3) + 
+	m_chargeSpecies[2]*m_chargeSpecies[2]*m_molefracs_tran[2]*m_bdiff(1,3) + 
+	m_chargeSpecies[3]*m_chargeSpecies[3]*m_molefracs_tran[3]*m_bdiff(1,2);
+      condSum1 = m_molefracs_tran[1]*m_bdiff(1,2)*m_bdiff(1,3) +
+	m_molefracs_tran[2]*m_bdiff(2,3)*m_bdiff(1,2) +
+	m_molefracs_tran[3]*m_bdiff(1,3)*m_bdiff(2,3);
       condSum2 = condSum2/condSum1*Faraday*Faraday/GasConstant/T/vol; 
       */
 
@@ -1820,10 +1824,10 @@ namespace Cantera {
 	m_A(i,i) = 0.0;
 	for (j = 0; j < m_nsp; j++) {
 	  if (j != i) {
-	    if ( !( m_bdiff(i,j) > 0.0 ) )
-	      throw CanteraError("LiquidTransport::stefan_maxwell_solve",
-				 "m_bdiff has zero entry in non-diagonal.");
-	    tmp =  m_molefracs_tran[j] / m_bdiff(i,j);
+	    //if ( !( m_bdiff(i,j) > 0.0 ) )
+	    //throw CanteraError("LiquidTransport::stefan_maxwell_solve",
+	    //			 "m_bdiff has zero entry in non-diagonal.");
+	    tmp =  m_molefracs_tran[j] * m_bdiff(i,j);
 	    m_A(i,i) -=   tmp;
 	    m_A(i,j)  = + tmp;
 	  }
@@ -1862,10 +1866,10 @@ namespace Cantera {
 	m_A(i,i) = 0.0;
 	for (j = 0; j < m_nsp; j++) {
 	  if (j != i) {
-	    if ( !( m_bdiff(i,j) > 0.0 ) )
-	      throw CanteraError("LiquidTransport::stefan_maxwell_solve",
-				 "m_bdiff has zero entry in non-diagonal.");
-	    tmp =  m_molefracs_tran[j] / m_bdiff(i,j);
+	    //if ( !( m_bdiff(i,j) > 0.0 ) )
+	    //throw CanteraError("LiquidTransport::stefan_maxwell_solve",
+	    //			 "m_bdiff has zero entry in non-diagonal.");
+	    tmp =  m_molefracs_tran[j] * m_bdiff(i,j);
 	    m_A(i,i) -=   tmp;
 	    m_A(i,j)  = + tmp;
 	  }
