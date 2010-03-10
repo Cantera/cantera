@@ -239,13 +239,15 @@ namespace Cantera {
    *  adjusted internally according to the information provided.
    */
   doublereal LTPspecies_Arrhenius::getSpeciesTransProp( ) {
-    
+
     doublereal t = m_thermo->temperature();
     //m_coeffs[0] holds A
     //m_coeffs[1] holds n
     //m_coeffs[2] holds Tact
     //m_coeffs[3] holds log(A)
-    if (t != m_temp) {    
+    if (t != m_temp) {   
+      m_prop = 0;
+      m_logProp = 0;
       m_temp = t;
       m_logt = log(m_temp);
       //For viscosity the sign convention on positive activation energy is swithced
@@ -321,6 +323,7 @@ namespace Cantera {
     
     doublereal t = m_thermo->temperature();
     if (t != m_temp) {  
+      m_prop = 0;
       m_temp=t;
       double tempN = 1.0;      
       for (int i = 0; i < (int) m_coeffs.size() ; i++) {
@@ -393,6 +396,7 @@ namespace Cantera {
     
     doublereal t = m_thermo->temperature();
     if (t != m_temp) {  
+      m_prop = 0;
       m_temp=t;
       m_prop=m_coeffs[0];
       double tempN = 1.0;      

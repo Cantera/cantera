@@ -677,7 +677,10 @@ namespace Cantera {
     /*
      * Calculate the partial molar volumes, and then the density of the fluid
      */
-    calcDensity();
+
+    //calcDensity();
+    double dd = neutralMoleculePhase_->density();
+    State::setDensity(dd);
   }
   
   // Calculate ion mole fractions from neutral molecule 
