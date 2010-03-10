@@ -721,7 +721,7 @@ namespace Cantera {
     cout << "anion 0: " << speciesNames[anion[0]] << endl;
     */
 
-    doublereal kappa = m_ionCondMixModel->getMixTransProp(m_ionCondSpecies);
+    m_ionCondMix = m_ionCondMixModel->getMixTransProp(m_ionCondSpecies);
 
     MargulesVPSSTP * marg_thermo = dynamic_cast<MargulesVPSSTP *> (ions_thermo->neutralMoleculePhase_);
     doublereal vol = m_thermo->molarVolume();
@@ -801,9 +801,9 @@ namespace Cantera {
       throw CanteraError("LTI_StefanMaxwell_PPN::getMixTransProp","Dissociation reactions don't make sense: cationIndex = " + cationIndex);
     
     mat.resize( nsp, nsp, 0.0 );
-    mat(cation[0],cation[1]) = mat(cation[1],cation[0]) = (1+vM/vP)*(1+eps*xB)*(1-eps*xA)*inv_vP_vM_MutualDiff-zP*zP*Faraday*Faraday/GasConstant/temp/kappa/vol;
-  mat(cation[0],anion[0]) = mat(anion[0],cation[0]) = (1+vP/vM)*(-eps*xB*(1-eps*xA)*inv_vP_vM_MutualDiff)-zP*zM*Faraday*Faraday/GasConstant/temp/kappa/vol;
-mat(cation[1],anion[0]) = mat(anion[0],cation[1]) = (1+vP/vM)*(eps*xA*(1+eps*xB)*inv_vP_vM_MutualDiff)-zP*zM*Faraday*Faraday/GasConstant/temp/kappa/vol;
+    mat(cation[0],cation[1]) = mat(cation[1],cation[0]) = (1+vM/vP)*(1+eps*xB)*(1-eps*xA)*inv_vP_vM_MutualDiff-zP*zP*Faraday*Faraday/GasConstant/temp/m_ionCondMix/vol;
+  mat(cation[0],anion[0]) = mat(anion[0],cation[0]) = (1+vP/vM)*(-eps*xB*(1-eps*xA)*inv_vP_vM_MutualDiff)-zP*zM*Faraday*Faraday/GasConstant/temp/m_ionCondMix/vol;
+mat(cation[1],anion[0]) = mat(anion[0],cation[1]) = (1+vP/vM)*(eps*xA*(1+eps*xB)*inv_vP_vM_MutualDiff)-zP*zM*Faraday*Faraday/GasConstant/temp/m_ionCondMix/vol;
 
 /*
     for ( i = 0; i < nsp; i++ ) {

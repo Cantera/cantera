@@ -1616,7 +1616,10 @@ namespace Cantera {
       grad_X.assign(m_Grad_X.begin()+m_nsp*k,m_Grad_X.begin()+m_nsp*(k+1)); 
       m_thermo->getdlnActCoeff( grad_T, DATA_PTR(grad_X), DATA_PTR(grad_lnAC) );
       for ( int i = 0; i < m_nsp; i++ )
-	grad_lnAC[i] += grad_X[i]/m_molefracs[i];
+	if (m_molefracs[i] < 1.e-15)
+	  grad_lnAC[i] = 0;
+	else
+	  grad_lnAC[i] += grad_X[i]/m_molefracs[i];
       copy(grad_lnAC.begin(),grad_lnAC.end(),m_Grad_lnAC.begin()+m_nsp*k);
       //      std::cout << k << " m_Grad_lnAC = " << m_Grad_lnAC[k] << std::endl;
     }
