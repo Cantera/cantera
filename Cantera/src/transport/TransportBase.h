@@ -359,8 +359,7 @@ namespace Cantera {
      */ 
     virtual void selfDiffusion(vector_fp& selfDiff, std::vector<std::string>& selfDiffIndex)
     { err("selfDiffusion"); }
-    virtual void selfDiffusion(double* selfDiff, std::vector<std::string>& selfDiffIndex)
-    { err("selfdiffusion"); }
+
 
     //! Returns the pure species self diffusion in solution of each species
     /*!

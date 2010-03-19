@@ -202,14 +202,22 @@ namespace Cantera {
 			  GasTransportParams& tr);
 
 
-    //! Read transport property data from a file for a list of species.
+    //! Read transport property data from a file for a list of species that comprise
+    //! the phase.
     /*!
+     * Given the name of a file containing transport property
+     * parameters and a list of species names, this method constructs the LiquidTransport
+     * Params object  containing the transport data for these species.
      *
-     *  Given the name of a file containing transport property
-     * parameters and a list of species names, this method returns an
-     * instance of TransportParams containing the transport data for
-     * these species read from the file.
+     *  It is an error to not find a "transport" XML element within each of the species 
+     *  XML elements listed in the names vector.
      *
+     * @param db   Reference to a vector of XML_Node pointers containing the species XML 
+     *             nodes.
+     * @param log  Reference to an XML log file. (currently unused)
+     * @param names Vector of names of species. On output, tr will contain transport data
+     *              for each of of these names in the order determined by this vector.
+     * @param tr   Reference to the LiquidTransportParams object that will contain the results.
      */
     void getLiquidSpeciesTransportData(const std::vector<const XML_Node*> &db,  
 				       XML_Node& log, const std::vector<std::string>& names, 
