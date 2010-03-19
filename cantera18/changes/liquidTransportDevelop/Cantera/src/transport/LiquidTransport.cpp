@@ -625,19 +625,21 @@ namespace Cantera {
       updateMobilityRatio_T();
     }
     mobRat = m_mobRatSpecies; 
-    for (int k = 0; k < m_nBinInt; k++)
+    for (int k = 0; k < m_nBinInt; k++) {
       mobRatIndex[k] = m_mobRatSpeciesIndex[k];
+    }
   }
   void LiquidTransport::getSpeciesMobilityRatio(doublereal** mobRat, std::vector<std::string>& mobRatIndex) { 
     update_T();
     if (!m_mobRat_temp_ok) {
       updateMobilityRatio_T();
     }
-    for (int k=0; k<m_nBinInt; k++){
-      for (int j=0; j < m_nsp; j++)
+    for (int k=0; k<m_nBinInt; k++) {
+      for (int j=0; j < m_nsp; j++) {
 	mobRat[k][j] = m_mobRatSpecies(k,j); 
+      }
       mobRatIndex[k] = m_mobRatSpeciesIndex[k];
-    }
+   }
   }
 
 
@@ -656,35 +658,16 @@ namespace Cantera {
     update_C();
 
     ////// LiquidTranInteraction method
-    if (!m_selfDiff_mix_ok){
-      for (int k = 0; k < m_nsp; k++){
-        if  ( m_selfDiffMixModelIndex[k] != m_selfDiffTempDepIndex[k] ) 
+    if (!m_selfDiff_mix_ok) {
+      for (int k = 0; k < m_nsp; k++) {
+        if (m_selfDiffMixModelIndex[k] != m_selfDiffTempDepIndex[k]) { 
 	  throw CanteraError("LiquidTransport::selfDiffusion","Self Diffusion Indices Don't Match: Mixture vs. Species");
-      	m_selfDiffMix[k] = m_selfDiffMixModel[k]->getMixTransProp( m_selfDiffTempDep_Ns[k] );
+        }
+      	m_selfDiffMix[k] = m_selfDiffMixModel[k]->getMixTransProp(m_selfDiffTempDep_Ns[k]);
 	m_selfDiffMixIndex[k] = m_selfDiffMixModelIndex[k];
       }
     }
-    for (int k = 0; k < m_nsp; k++){
-      selfDiff[k] = m_selfDiffMix[k];
-      selfDiffIndex[k]= m_selfDiffMixIndex[k];
-    }
-  }
-
-  void LiquidTransport:: selfDiffusion(double* selfDiff, std::vector<std::string>& selfDiffIndex) {
-        
-    update_T();
-    update_C();
-
-    ////// LiquidTranInteraction method
-    if (!m_selfDiff_mix_ok){
-      for (int k = 0; k < m_nsp; k++){
-        if  ( m_selfDiffMixModelIndex[k] != m_selfDiffTempDepIndex[k] ) 
-	  throw CanteraError("LiquidTransport::selfDiffusion","Self Diffusion Indices Don't Match: Mixture vs. Species");
-      	m_selfDiffMix[k] = m_selfDiffMixModel[k]->getMixTransProp( m_selfDiffTempDep_Ns[k] );
-	m_selfDiffMixIndex[k] = m_selfDiffMixModelIndex[k];
-      }
-    }
-    for (int k = 0; k < m_nsp; k++){
+    for (int k = 0; k < m_nsp; k++) {
       selfDiff[k] = m_selfDiffMix[k];
       selfDiffIndex[k]= m_selfDiffMixIndex[k];
     }

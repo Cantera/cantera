@@ -29,6 +29,7 @@ using namespace std;
 
 namespace Cantera {
 
+  // Forward references
   class LiquidTransportParams;
 
     
@@ -227,7 +228,6 @@ namespace Cantera {
      *  determine the individual species self diffusion coeffs.
      */ 
     virtual void selfDiffusion(vector_fp& selfDiff, std::vector<std::string>& selfDiffIndex);
-    virtual void selfDiffusion(double* selfDiff, std::vector<std::string>& selfDiffIndex);
 
     //! Returns the pure species self diffusion in solution of each species
     /*!
@@ -862,8 +862,10 @@ namespace Cantera {
 
   private:
 
-    //! Number of species in the mixture
+    //! Number of species in the phase
     int m_nsp;
+
+
     int m_nBinInt;
 
     //! Minimum temperature applicable to the transport property eval
@@ -872,11 +874,11 @@ namespace Cantera {
     //! Maximum temperature applicable to the transport property evaluator
     doublereal m_tmax;
 
-    //! Local Copy of the molecular weights of the species
+    //! Local copy of the molecular weights of the species
     /*!
-     *  Length is Equal to the number of species in the mechanism.
+     *  Length is equal to the number of species in the phase
      */
-    vector_fp  m_mw;
+    vector_fp m_mw;
 
     //! Viscosity for each species expressed as an appropriate subclass 
     //! of LTPspecies

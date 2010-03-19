@@ -439,9 +439,9 @@ namespace Cantera {
       dtr->initialize(phase, gastr);
       break;
     case cSimpleTransport:
-      //      tr = new SimpleTransport(); 
-      //      initLiquidTransport(tr, phase, log_level);
-      //      tr->setThermo(*phase);
+      tr = new SimpleTransport(); 
+      initLiquidTransport(tr, phase, log_level);
+      tr->setThermo(*phase);
       break;
 #ifdef WITH_IDEAL_SOLUTIONS
     case cLiquidTransport:
@@ -897,6 +897,7 @@ namespace Cantera {
 
     for (i = 0; i < tr.nsp_; i++) {
 
+
       GasTransportData& trdat = datatable[names[i]];
             
       // 'datatable' returns a default TransportData object if
@@ -947,33 +948,34 @@ namespace Cantera {
    * instance of TransportParams containing the transport data for
    * these species read from the file.
    */
-  void TransportFactory::getLiquidSpeciesTransportData( const std::vector<const XML_Node*> &xspecies,  
-						 XML_Node& log, 
-						 const std::vector<std::string> &names, 
-						 LiquidTransportParams& trParam)
+  void TransportFactory::getLiquidSpeciesTransportData(const std::vector<const XML_Node*> &xspecies,  
+						       XML_Node& log, 
+						       const std::vector<std::string> &names, 
+						       LiquidTransportParams& trParam)
   {
     std::string name;
     /*
      *  Create a map of species names versus liquid transport data parameters
      */
     std::map<std::string, LiquidTransportData> datatable;
+    std::map<std::string, LiquidTransportData>::iterator it;
 
-    int nsp = trParam.nsp_;//static_cast<int>(xspecies.size());
+    // Store the number of species in the phase
+    int nsp = trParam.nsp_;
+
+    // Store the number of off-diagonal symmetric interactions between species in the phase
     int nBinInt = nsp*(nsp-1)/2;
   
     // read all entries in database into 'datatable' and check for 
     // errors. Note that this procedure validates all entries, not 
     // only those for the species listed in 'names'.
-
-    int i;
-    for (i = 0; i < nsp; i++) {
+    for (int i = 0; i < nsp; i++) {
       const XML_Node& sp = *xspecies[i];
       name = sp["name"];
       vector_fp vCoeff;
-     // std::cout << "Processing node for " << name << std::endl;
 
-      // put in a try block so that species with no 'transport'
-      // child are skipped, instead of throwing an exception.
+      // Species with no 'transport' child are skipped. However, if that species is in the list,
+      // it will throw an exception below.
       try {
         if (sp.hasChild("transport")) {
 	  XML_Node& trNode = sp.child("transport");
@@ -982,121 +984,96 @@ namespace Cantera {
 	  // and then insertion into LiquidTransportData objects below.	
 	  LiquidTransportData data;
 	  data.speciesName = name;
-
-	  //data.viscosity = 0;
-	  //data.ionConductivity = 0;
-
 	  data.mobRatIndex.resize(nBinInt,"");
 	  data.mobilityRatio.resize(nBinInt,0);
 	  data.selfDiffIndex.resize(nsp,"");
 	  data.selfDiffusion.resize(nsp,0);
 
-	  //////// new stuff
 	  int num = trNode.nChildren();
 	  for (int iChild = 0; iChild < num; iChild++) {
 	    XML_Node &xmlChild = trNode.child(iChild);
 	    std::string nodeName = xmlChild.name();
 	    
-	    switch ( m_tranPropMap[nodeName] ) {
+	    switch (m_tranPropMap[nodeName]) {
 	    case TP_VISCOSITY:
-	      data.viscosity = newLTP( xmlChild, 
-				       name, 
-				       m_tranPropMap[nodeName],
-				       trParam.thermo );
+	      data.viscosity = newLTP(xmlChild, name,  m_tranPropMap[nodeName], trParam.thermo );
 	      break;
 	    case TP_IONCONDUCTIVITY:
-	      data.ionConductivity = newLTP( xmlChild, 
-					     name, 
-					     m_tranPropMap[nodeName],
-					     trParam.thermo );
+	      data.ionConductivity = newLTP(xmlChild,  name,   m_tranPropMap[nodeName], trParam.thermo);
 	      break;
 	    case TP_MOBILITYRATIO:
 	      {
-		int iSpec;
-		for (iSpec = 0; iSpec< nBinInt; iSpec++){
+		for (int iSpec = 0; iSpec< nBinInt; iSpec++){
 		  XML_Node &propSpecNode = xmlChild.child(iSpec);
 		  std::string specName = propSpecNode.name();
 		  data.mobRatIndex[iSpec] = specName;
-		  data.mobilityRatio[iSpec] = newLTP( propSpecNode, 
-						      name, 
-						      m_tranPropMap[nodeName],
-						      trParam.thermo );
+		  data.mobilityRatio[iSpec] = newLTP(propSpecNode, name, m_tranPropMap[nodeName], trParam.thermo);
 		};
 	      };
 	      break;
 	    case TP_SELFDIFFUSION:
 	      {
-		int iSpec;
-		for (iSpec = 0; iSpec< nsp; iSpec++){
+		for (int iSpec = 0; iSpec< nsp; iSpec++){
 		  XML_Node &propSpecNode = xmlChild.child(iSpec);
 		  std::string specName = propSpecNode.name();
 		  data.selfDiffIndex[iSpec] = specName;
-		  data.selfDiffusion[iSpec] = newLTP( propSpecNode, 
-						      name, 
-						      m_tranPropMap[nodeName],
-						      trParam.thermo );
+		  data.selfDiffusion[iSpec] = newLTP(propSpecNode,  name,  m_tranPropMap[nodeName], trParam.thermo);
 		};
 	      };
 	      break;
 	    case TP_THERMALCOND:
-	      data.thermalCond = newLTP( xmlChild, 
-					 name, 
-					 m_tranPropMap[nodeName],
-					 trParam.thermo );
+	      data.thermalCond = newLTP(xmlChild, 
+					name, 
+					m_tranPropMap[nodeName],
+					trParam.thermo );
 	      break;
 	    case TP_DIFFUSIVITY:
-	      data.speciesDiffusivity = newLTP( xmlChild, 
-						name, 
-						m_tranPropMap[nodeName],
-						trParam.thermo );
+	      data.speciesDiffusivity = newLTP(xmlChild, 
+					       name, 
+					       m_tranPropMap[nodeName],
+					       trParam.thermo );
 	      break;
 	    case TP_HYDRORADIUS:
-	      data.hydroRadius = newLTP( xmlChild, 
-					 name, 
-					 m_tranPropMap[nodeName],
-					 trParam.thermo );
+	      data.hydroRadius = newLTP(xmlChild, 
+					name, 
+					m_tranPropMap[nodeName],
+					trParam.thermo );
 	      break;
 	    case TP_ELECTCOND:
-	      data.electCond = newLTP( xmlChild, 
-				       name, 
-				       m_tranPropMap[nodeName],
-				       trParam.thermo );
+	      data.electCond = newLTP(xmlChild, 
+				      name, 
+				      m_tranPropMap[nodeName],
+				      trParam.thermo );
 
 	      break;
 	    default:
-	      throw CanteraError("getLiquidSpeciesTransportData","unknown transport property: " + nodeName );
-
+	      throw CanteraError("getLiquidSpeciesTransportData","unknown transport property: " + nodeName);
 	    }
 
 	  }
 	  datatable.insert(pair<std::string, LiquidTransportData>(name,data));
-	  //	  datatable[name] = data;
 	}
       }
-      catch(CanteraError) {
-	;
+      catch (CanteraError yy) {
+	throw yy;
       }
     }
 
     trParam.LTData.clear();
-    for (i = 0; i < trParam.nsp_; i++) {
-
-      LiquidTransportData& trdat = datatable[names[i]];
-            
-      // 'datatable' returns a default TransportData object if
-      // the species name is not one in the transport database.
-      // This can be detected by examining 'geometry'.
-      if ( !( (trdat.viscosity)->checkPositive() ) ) {
-	throw TransportDBError(0,"no viscosity transport data found for species " 
-			       + names[i]);
-	std::cout << "No viscosity seen for " << names[i] 
-	     << "but this might not be required depending on what you are trying to do." 
-	     << std::endl;
-      }
-
+    for (int i = 0; i < trParam.nsp_; i++) {
       /*
-       *  this is a much more general way to handle the transfer
-       *   -> calling the default copy constructor for  LiquidTransportData
+       *  Check to see that we have a LiquidTransportData object for all of the
+       *  species in the phase. If not, throw an error.
+       */
+      it = datatable.find(names[i]);
+      if (it == datatable.end()) {
+	throw TransportDBError(0,"No transport data found for species "  + names[i]);
+      }
+      LiquidTransportData& trdat = it->second;
+   
+      /*
+       * Now, transfer these objects into LTData in the correct phase index order by
+       * calling the default copy constructor for LiquidTransportData.
        */
       trParam.LTData.push_back(trdat);
     }
@@ -1133,15 +1110,13 @@ namespace Cantera {
 	trParam.selfDiffIndex.resize(nsp,"");
 	trParam.selfDiffusion.resize(nsp,0);
 
-	if ( tranTypeNode.hasChild("compositionDependence")) {
+	if (tranTypeNode.hasChild("compositionDependence")) {
 	  //compDepNode contains the interaction model
 	  XML_Node &compDepNode = tranTypeNode.child("compositionDependence");
 	  switch (m_tranPropMap[nodeName]) {
 	    break;
 	  case TP_VISCOSITY:
-	    trParam.viscosity = newLTI( compDepNode, 
-					m_tranPropMap[nodeName],
-					trParam );
+	    trParam.viscosity = newLTI(compDepNode, m_tranPropMap[nodeName], trParam);
 	    break;
       	  case TP_IONCONDUCTIVITY:
 	    trParam.ionConductivity = newLTI( compDepNode, 
@@ -1198,12 +1173,6 @@ namespace Cantera {
 	    throw CanteraError("getLiquidInteractionsTransportData","unknown transport property: " + nodeName );
 	    
 	  }
-	}      
-	else {
-	  int linenum;
-	  throw TransportDBError( linenum, 
-				  "missing <compositionDependence> node for <" 
-				  + tranTypeNode.name() + "> node." );
 	}
 	/* Allow a switch between mass-averaged, mole-averaged 
 	 * and solvent specified reference velocities.  

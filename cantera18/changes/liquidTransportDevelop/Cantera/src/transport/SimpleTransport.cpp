@@ -709,10 +709,12 @@ namespace Cantera {
    * thermal conductivity. 
    */
   void SimpleTransport::updateCond_T() {
-    int k;
-
-    for (k = 0; k < m_nsp; k++) {
-      m_condSpecies[k] = m_coeffLambda_Ns[k]->getSpeciesTransProp() ;
+    if (compositionDepType_ == 0) {
+      m_condSpecies[0] = m_coeffLambda_Ns[0]->getSpeciesTransProp();
+    } else {
+      for (int k = 0; k < m_nsp; k++) {
+	m_condSpecies[k] = m_coeffLambda_Ns[k]->getSpeciesTransProp();
+      }
     }
     m_cond_temp_ok = true;
     m_cond_mix_ok = false;
@@ -753,9 +755,12 @@ namespace Cantera {
    * The flag m_visc_ok is set to true.
    */
   void SimpleTransport::updateViscosity_T() {
-    int k;
-    for (k = 0; k < m_nsp; k++) {
-      m_viscSpecies[k] = m_coeffVisc_Ns[k]->getSpeciesTransProp();
+    if (compositionDepType_ == 0) {
+      m_viscSpecies[0] = m_coeffVisc_Ns[0]->getSpeciesTransProp();
+    } else {
+      for (int k = 0; k < m_nsp; k++) {
+	m_viscSpecies[k] = m_coeffVisc_Ns[k]->getSpeciesTransProp();
+      }
     }
     m_visc_temp_ok = true;
     m_visc_mix_ok = false;
