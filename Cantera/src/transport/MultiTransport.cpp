@@ -1010,9 +1010,19 @@ namespace Cantera {
             m_bdiff(k,k) = d;
         }
 
-        // internal heat capacities
+        // Calculate the internal heat capacities by subtracting off the translational contributions
+        /*
+         *  HKM Exploratory comment: 
+         *       The translational component is 1.5
+         *       The rotational component is 1.0 for a linear molecule and 1.5 for a nonlinear molecule
+         *           and zero for a monotomic.
+         *       Chemkin has traditionally subtracted 1.5 here (SAND86-8246).
+         *       The original Dixon-Lewis paper subtracted 1.5 here.
+         */
         const array_fp& cp = ((IdealGasPhase*)m_thermo)->cp_R_ref();
-        for (k = 0; k < m_nsp; k++) m_cinternal[k] = cp[k] - 2.5;
+        for (k = 0; k < m_nsp; k++) {
+          m_cinternal[k] = cp[k] - 2.5;
+        }
     }
 
     /**
