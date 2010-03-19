@@ -3,9 +3,9 @@
  *  Source code for liquid transport property evaluations.
  */
 /*
- *  $Author: jchewso $
- *  $Date: 2009-11-16 17:34:46 -0700 (Mon, 16 Nov 2009) $
- *  $Revision: 261 $
+ *  $Author$
+ *  $Date$
+ *  $Revision$
  *
  */
 
