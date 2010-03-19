@@ -1,0 +1,24 @@
+#!/bin/sh
+###############################################################
+#  $Author$
+#  $Date$
+#  $Revision$
+###############################################################
+
+all:
+	cd transport_UnitTests;           @MAKE@
+
+clean:
+	cd transport_UnitTests;           @MAKE@ clean
+
+depends:
+	cd transport_UnitTests;           @MAKE@ depends
+
+test:
+	cd transport_UnitTests;           @MAKE@ -s test
+
+install:
+	cd transport_UnitTests;           @MAKE@ install
+
+# end of file
+

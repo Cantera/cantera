@@ -1,0 +1,63 @@
+#!/bin/sh
+#
+#
+CANTERA_INSTALL_DIR=/home/hkmoffa/arch/linux64_gcc424/cantera-1.8_liquidTransportDevelop
+export CANTERA_INSTALL_DIR
+#
+CADS_ROOT=/home/hkmoffa/Cantera/cads_linux64_gcc424
+export CADS_ROOT
+#
+PYTHON_DIR=/usr/local/python/2.5.2
+export PYTHON_DIR
+#
+#  BUILD_WITH_F2C is optional on linux. 
+#
+BUILD_WITH_F2C='n'
+#
+#
+#CANTERA_CONFIG_PREFIX=/home/hkmoffa/arch/linux
+#export CANTERA_CONFIG_PREFIX
+#
+SET_PYTHON_SITE_PACKAGE_TOPDIR=y
+export SET_PYTHON_SITE_PACKAGE_TOPDIR
+#
+PYTHON_SITE_PACKAGE_TOPDIR=/usr/local/python/2.5.2
+export PYTHON_SITE_PACKAGE_TOPDIR
+#
+CXX=/usr/local/gcc/64Bit/4.2.4/bin/g++
+export CXX
+
+#
+CXXFLAGS="-g -Wall -DDEBUG_HKM"
+export CXXFLAGS
+#
+LCXX_END_LIBS="-lm -lstdc++ -lgfortran"
+export LCXX_END_LIBS
+#
+# Specify the fortran compiler, because some libraries are
+# written in fortran. This is used to find the libraries
+# to link against
+#
+F77=/usr/local/gcc/64Bit/4.2.4/bin/gfortran
+export F77
+FFLAGS="-g -DDEBUG_HKM  -fno-second-underscore"
+export FFLAGS
+
+MPICXX=/usr/local/mpi/mpich/64Bit/1.2.7/gcc-4.2.1/bin/mpiCC
+export MPICXX
+
+MPICC=/usr/local/mpi/mpich/64Bit/1.2.7/gcc-4.2.1/bin/mpicc
+export MPICC
+
+MPIF77=/usr/local/mpi/mpich/64Bit/1.2.7/gcc-4.2.1/bin/mpif77
+export MPIF77
+
+CXX_DEPENDS='/usr/local/mpi/mpich/64Bit/1.2.7/gcc-4.2.1/bin/mpiCC -MM'
+export CXX_DEPENDS 
+
+
+#
+MAKE=gmake
+export MAKE
+#
+./preconfig

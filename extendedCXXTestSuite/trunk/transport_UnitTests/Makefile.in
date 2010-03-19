@@ -1,0 +1,25 @@
+#!/bin/sh
+###############################################################
+#  $Author$
+#  $Date$
+#  $Revision$
+###############################################################
+#
+
+all: 
+	cd SimpleTransportTest1 ;         @MAKE@ all
+
+depends:
+	cd SimpleTransportTest1 ;         @MAKE@ depends
+
+clean:
+	cd SimpleTransportTest1 ;         @MAKE@ clean
+
+test:
+	cd SimpleTransportTest1 ;         @MAKE@ -s test
+
+rebaseline:
+	cd SimpleTransportTest1 ;         @MAKE@ rebaseline
+
+
+
