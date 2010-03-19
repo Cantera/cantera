@@ -3,10 +3,10 @@
  *  Source code for liquid mixture transport property evaluations.
  */
 /*
- *  $Author: jchewso $
- *  $Date: 2009-11-22 17:34:46 -0700 (Mon, 16 Nov 2009) $
- *  $Revision: 261 $
- *
+ * Latest Checkin:
+ *  $Author$
+ *  $Date$
+ *  $Revision$
  */
 
 #include "LiquidTransportParams.h"
