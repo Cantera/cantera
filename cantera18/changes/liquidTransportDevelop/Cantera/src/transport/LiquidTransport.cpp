@@ -193,7 +193,6 @@ namespace Cantera {
     m_mobRatMix                           = right.m_mobRatMix;
     m_mobRatMixIndex                      = right.m_mobRatMixIndex;
     m_selfDiffMix                         = right.m_selfDiffMix;
-    m_selfDiffMixIndex                    = right.m_selfDiffMixIndex;
     m_spwork                              = right.m_spwork;
     m_visc_mix_ok    = false;
     m_visc_temp_ok   = false;
@@ -233,8 +232,10 @@ namespace Cantera {
      for ( int k = 0; k < m_nsp; k++) {
        if ( m_viscTempDep_Ns[k]   ) delete m_viscTempDep_Ns[k];
        if ( m_ionCondTempDep_Ns[k]   ) delete m_ionCondTempDep_Ns[k];
-       for ( int l=0;l < m_nsp; l++ ){
-	 if ( m_selfDiffTempDep_Ns[l][k]   ) delete m_selfDiffTempDep_Ns[l][k];
+       for (int l = 0; l < m_nsp; l++ ) {
+	 if (m_selfDiffTempDep_Ns[l][k]) {
+	   delete m_selfDiffTempDep_Ns[l][k];
+	 }
        }
        for ( int l=0;l < m_nBinInt; l++ ){
          if ( m_mobRatTempDep_Ns[l][k]   ) delete m_mobRatTempDep_Ns[l][k];
@@ -309,7 +310,6 @@ namespace Cantera {
     m_selfDiffSpeciesIndex.resize(m_nsp);
     m_selfDiffSpecies.resize(m_nsp, m_nsp, 0.0);
     m_selfDiffMix.resize(m_nsp,0.0);
-    m_selfDiffMixIndex.resize(m_nsp);
     for (k=0; k < m_nsp; k++){
       m_selfDiffTempDep_Ns[k].resize(m_nsp, 0);
     }
@@ -350,19 +350,19 @@ namespace Cantera {
 	  }
 	}
       }
-      for (int j = 0; j < (int) m_selfDiffMixModelIndex.size(); j++){
-	for (int l=0; l < (int) m_selfDiffMixModelIndex.size(); l++){
+      for (int j = 0; j < (int) m_selfDiffMixModelIndex.size(); j++) {
+	for (int l = 0; l < (int) m_selfDiffMixModelIndex.size(); l++) {
 	  if (m_selfDiffMixModelIndex[j] == ltd.selfDiffIndex[l]) {
-	    m_selfDiffTempDep_Ns[j][k] =  ltd.selfDiffusion[l];
+	    m_selfDiffTempDep_Ns[j][k] = ltd.selfDiffusion[l];
 	    ltd.selfDiffusion[l] = 0;
             m_selfDiffTempDepIndex[j] = ltd.selfDiffIndex[l];
             break;
 	  }
 	}
       }
-      m_lambdaTempDep_Ns[k] =  ltd.thermalCond;
+      m_lambdaTempDep_Ns[k] = ltd.thermalCond;
       ltd.thermalCond = 0;
-      m_radiusTempDep_Ns[k] =  ltd.hydroRadius;
+      m_radiusTempDep_Ns[k] = ltd.hydroRadius;
       ltd.hydroRadius = 0;
     }
 
@@ -641,38 +641,50 @@ namespace Cantera {
       mobRatIndex[k] = m_mobRatSpeciesIndex[k];
    }
   }
-
-
-  /******************  SelfDiffusion ******************************/
-
-  // Returns the mobility ratios of the solution
+  //====================================================================================================================
+  // Returns the self diffusion coefficients of the species in the phase
   /*
-   *  The mobility ratio calculation is handled by subclasses of 
-   *  LiquidTranInteraction as specified in the input file.  
+   *  The self diffusion coefficient is the diffusion coefficient of a tracer species 
+   *  at the current temperature and composition of the species. Therefore, 
+   *  the dilute limit of transport is assumed for the tracer species.
+   *  The effective formula may be calculated from the stefan-maxwell formulation by
+   *  adding another row for the tracer species, assigning all D's to be equal
+   *  to the respective species D's, and then taking the limit as the
+   *  tracer species mole fraction goes to zero. The corresponding flux equation
+   *  for the tracer species k in units of kmol m-2 s-1 is. 
+   *
+   *  \f[
+   *       J_k = - D^{sd}_k \frac{C_k}{R T}  \nabla \mu_k
+   *  \f]
+   * 
+   *  The derivative is taken at constant T and P.
+   *
+   *  The self diffusion calculation is handled by subclasses of 
+   *  LiquidTranInteraction as specified in the input file. 
    *  These in turn employ subclasses of LTPspecies to 
-   *  determine the individual species mobility ratios.
-   */ 
-  void LiquidTransport:: selfDiffusion(vector_fp& selfDiff, std::vector<std::string>& selfDiffIndex) {
-        
+   *  determine the individual species self diffusion coeffs.
+   * 
+   *  @param selfDiff Vector of self-diffusion coefficients
+   *                  Length = number of species in phase
+   *                  units = m**2 s-1
+   */
+  void LiquidTransport::selfDiffusion(doublereal * const selfDiff) {
     update_T();
     update_C();
-
-    ////// LiquidTranInteraction method
     if (!m_selfDiff_mix_ok) {
       for (int k = 0; k < m_nsp; k++) {
         if (m_selfDiffMixModelIndex[k] != m_selfDiffTempDepIndex[k]) { 
-	  throw CanteraError("LiquidTransport::selfDiffusion","Self Diffusion Indices Don't Match: Mixture vs. Species");
+	  throw CanteraError("LiquidTransport::selfDiffusion",
+			     "Self Diffusion Indices Don't Match: Mixture vs. Species");
         }
       	m_selfDiffMix[k] = m_selfDiffMixModel[k]->getMixTransProp(m_selfDiffTempDep_Ns[k]);
-	m_selfDiffMixIndex[k] = m_selfDiffMixModelIndex[k];
       }
     }
     for (int k = 0; k < m_nsp; k++) {
       selfDiff[k] = m_selfDiffMix[k];
-      selfDiffIndex[k]= m_selfDiffMixIndex[k];
     }
   }
-
+  //====================================================================================================================
   // Returns the pure species self diffusion for all species
   /*
    *  The pure species self diffusion coeffs are evaluated using the 

@@ -326,7 +326,7 @@ namespace Cantera {
      *
      * @param ionCond   Vector of ionic conductivities
      */
-    virtual void getSpecoesIonConductivity(doublereal* const ionCond)
+    virtual void getSpeciesIonConductivity(doublereal* const ionCond)
     { err("getSpeciesIonConductivity"); }
 
 
@@ -350,14 +350,33 @@ namespace Cantera {
     virtual void getSpeciesMobilityRatio(double** mobRat, std::vector<std::string>& mobRatIndex)
     { err("getSpeciesMobilityRatio"); }
 
-    //! Returns the self diffusion coefficients in the solution
+    //! Returns the self diffusion coefficients of the species in the phase
     /*!
+     *  The self diffusion coefficient is the diffusion coefficient of a tracer species 
+     *  at the current temperature and composition of the species. Therefore, 
+     *  the dilute limit of transport is assumed for the tracer species.
+     *  The effective formula may be calculated from the stefan-maxwell formulation by
+     *  adding another row for the tracer species, assigning all D's to be equal
+     *  to the respective species D's, and then taking the limit as the
+     *  tracer species mole fraction goes to zero. The corresponding flux equation
+     *  for the tracer species k in units of kmol m-2 s-1 is. 
+     *
+     *  \f[
+     *       J_k = - D^{sd}_k \frac{C_k}{R T}  \nabla \mu_k
+     *  \f]
+     * 
+     *  The derivative is taken at constant T and P.
+     *
      *  The self diffusion calculation is handled by subclasses of 
-     *  LiquidTranInteraction as specified in the input file.  
+     *  LiquidTranInteraction as specified in the input file. 
      *  These in turn employ subclasses of LTPspecies to 
      *  determine the individual species self diffusion coeffs.
+     * 
+     *  @param selfDiff Vector of self-diffusion coefficients
+     *                  Length = number of species in phase
+     *                  units = m**2 s-1
      */ 
-    virtual void selfDiffusion(vector_fp& selfDiff, std::vector<std::string>& selfDiffIndex)
+    virtual void selfDiffusion(doublereal * const selfDiff)
     { err("selfDiffusion"); }
 
 
