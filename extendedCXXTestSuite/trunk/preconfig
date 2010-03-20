@@ -1,18 +1,16 @@
 #!/bin/sh
 #
-# $Source: /cvsroot/cads/cantera_apps/preconfig,v $
-# $Author: hkmoffa $
-# $Revision: 1.12 $
-# $Date: 2010/02/13 17:54:00 $
-#
+#######################################################################
+# $Author$
+# $Revision$
+# $Date$
 #######################################################################
 #
-#           Cantera Apps Configuration Issues
+#           Cantera Extended Test Suite Configuration Issues
 #
 #  Edit this file to control how the apps are built. 
-#  Parameters can be set
-#  here, or alternatively environment variables may be set before calling
-#  this script.
+#  Parameters can be set here, or alternatively environment variables 
+#  may be set before calling this script.
 #  
 #  NOTE: if you make changes to this file, save it with another name
 #  so that it will not be overwritten if you update the source
@@ -23,11 +21,6 @@
 #----------------------------------------------------------------------
 #     Cantera Interaction Variables
 #----------------------------------------------------------------------
-#
-# CANTERA_ROOT should be set to the directory that Cantera was first
-# build in. vcs will build using this directory structure.
-#
-CANTERA_ROOT=${CANTERA_ROOT:="~/Cantera_Build_Dir"}
 #
 # Version number of Cantera. Cantera libraries are storred in 
 # a directory under the installation directory
@@ -40,26 +33,6 @@ CANTERA_VERSION=${CANTERA_VERSION:="1.8.0"}
 #
 CANTERA_INSTALL_DIR=${CANTERA_INSTALL_DIR:="c:/cantera"}
 #
-#----------------------------------------------------------------------
-#    CADS Interaction Variables 
-#----------------------------------------------------------------------
-#
-# These applications depend on the Cantera Aerosol Dynamics
-# Simulator libraries for utilities routines and particle modeling.
-#
-# This directory is where CADS is installed
-#
-# @deprecated
-#
-CADS_ROOT=${CADS_ROOT:="/home/hkmoffa/Cantera/cads"}
-#
-#----------------------------------------------------------------------
-#         MS-Windows Options
-#----------------------------------------------------------------------
-#
-#  These options only need to be set if you are building Cantera on 
-#  a Windows PC. 
- 
 #  On a PC running MS-Windows, Cantera can be built either using
 #  Microsoft Visual Studio, with the Visual C++ and Visual Fortran
 #  compilers, or using the linux-like cygwin environment with the 
@@ -67,10 +40,6 @@ CADS_ROOT=${CADS_ROOT:="/home/hkmoffa/Cantera/cads"}
 #
 USE_VISUAL_STUDIO=${USE_VISUAL_STUDIO:="y"}
 
-#  If you are using Visual Studio, set this to the location of the
-# directory containing the Fortran libraries. This is only needed to
-# build the Matlab interface.
-FORTRAN_LIB_DIR="D:\Program Files\Microsoft Visual Studio\DF98\LIB"
 #
 #----------------------------------------------------------------------
 #         Language Interfaces
@@ -267,9 +236,7 @@ export USER_SRC_DIR
 export ARCHIVE
 export BLAS_LIBRARY
 export BUILD_PYTHON_INTERFACE
-export CANTERA_ROOT
 export CANTERA_INSTALL_DIR
-export CADS_ROOT
 export CT_SHARED_LIB
 export CXX
 export CXX_EXT

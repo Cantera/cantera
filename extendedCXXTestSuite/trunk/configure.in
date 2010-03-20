@@ -1,7 +1,7 @@
 dnl Process this file with autoconf to produce the file configure
 # Autoconf requirements
 
-AC_INIT(README)
+AC_INIT(README.txt)
 AC_CONFIG_AUX_DIR(.)
 
 
