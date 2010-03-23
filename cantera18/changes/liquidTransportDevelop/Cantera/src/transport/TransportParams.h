@@ -115,10 +115,13 @@ namespace Cantera {
     virtual ~GasTransportParams() {}
 
     // polynomial fits
-    //temperature-fit viscosity 
-    std::vector<vector_fp>            visccoeffs; 
+
+    //! temperature-fit of the viscosity 
+    std::vector<vector_fp> visccoeffs; 
+
     //temperature-fit heat conduction 
     std::vector<vector_fp>            condcoeffs; 
+
     //temperature-fit diffusivity 
     std::vector<vector_fp>            diffcoeffs; 
     vector_fp                         polytempvec;
@@ -129,14 +132,39 @@ namespace Cantera {
     std::vector<vector_fp >   bstar_poly;
     std::vector<vector_fp >   cstar_poly;
 
+    //! Rotational relaxation number for the species in the current phase
+    /*!
+     * length is the number of species in the phase
+     * units are dimensionless
+     */
     vector_fp   zrot;
+
+    //! Dimensionless rotational heat capacity of the species in the current phase
+    /*!
+     *  These values are 0, 1 and 1.5 for single-molecule, linear, and nonlinear species respectively
+     *  length is the number of species in the pahse
+     *  units are dimensionless  (Cr / R)
+     */
     vector_fp   crot;
 
     std::vector<bool> polar;
     vector_fp    alpha;
     vector_fp    fitlist;
+
+    //! Lennard-Jones well-depth of the species in the current phase
+    /*!
+     * length is the number of species in the phase
+     * Units are Joules (Note this is not Joules/kmol)
+     */
     vector_fp    eps;
+
+    //! Lennard-Jones diameter of the species in the current phase
+    /*!
+     * length is the number of species in the phase
+     * units are in meters.
+     */
     vector_fp    sigma;
+
     DenseMatrix  reducedMass;    
     DenseMatrix  diam;           
     DenseMatrix  epsilon;        
