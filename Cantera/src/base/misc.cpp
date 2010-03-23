@@ -195,8 +195,9 @@ namespace Cantera {
 
       //! Copy Constructor for the Messages class
       /*!
-       * constructor for the Messages class which is a subclass
+       * Constructor for the Messages class which is a subclass
        * of the Application class.
+       *  @param r   Message to be copied
        */
       Messages(const Messages &r) :
 	errorMessage(r.errorMessage),
@@ -216,6 +217,9 @@ namespace Cantera {
       }
 
       //! Assignment operator
+      /*!
+       *  @param r   Message to be copied
+       */
       Messages & operator=(const Messages &r) 
       {
 	if (this == &r) {
