@@ -761,47 +761,45 @@ namespace Cantera {
 	tr.xml->XML_comment(logfile, "*** polynomial coefficients not printed (log_level < 3) ***");
     }
 #endif
-    for (i = 0; i < nsp; i++) 
-      {
-	for (j = i; j < nsp; j++) 
-	  {
-	    // Chemkin fits only delta* = 0
-	    if (mode != CK_Mode) 
-	      dstar = tr.delta(i,j);
-	    else 
-	      dstar = 0.0;
+    for (i = 0; i < nsp; i++) {
+      for (j = i; j < nsp; j++)  {
+	// Chemkin fits only delta* = 0
+	if (mode != CK_Mode) {
+	  dstar = tr.delta(i,j);
+	} else {
+	  dstar = 0.0;
+	}
 
-	    // if a fit has already been generated for 
-	    // delta* = tr.delta(i,j), then use it. Otherwise,
-	    // make a new fit, and add tr.delta(i,j) to the list
-	    // of delta* values for which fits have been done.
+	// if a fit has already been generated for 
+	// delta* = tr.delta(i,j), then use it. Otherwise,
+	// make a new fit, and add tr.delta(i,j) to the list
+	// of delta* values for which fits have been done.
  
-	    // 'find' returns a pointer to end() if not found
-	    if (dptr = find(tr.fitlist.begin(), tr.fitlist.end(), 
-			    dstar), dptr == tr.fitlist.end()) 
-	      { 
-		vector_fp ca(degree+1), cb(degree+1), cc(degree+1);
-		vector_fp co22(degree+1);
-		m_integrals->fit(logfile, degree, dstar,  
-				 DATA_PTR(ca), DATA_PTR(cb), DATA_PTR(cc));
-		m_integrals->fit_omega22(logfile, degree, dstar,
-					 DATA_PTR(co22));
-		tr.omega22_poly.push_back(co22);
-		tr.astar_poly.push_back(ca);
-		tr.bstar_poly.push_back(cb);
-		tr.cstar_poly.push_back(cc);
-		tr.poly[i][j] = static_cast<int>(tr.astar_poly.size()) - 1;
-		tr.fitlist.push_back(dstar);
-	      }
+	// 'find' returns a pointer to end() if not found
+	dptr = find(tr.fitlist.begin(), tr.fitlist.end(), dstar);
+	if (dptr == tr.fitlist.end()) { 
+	  vector_fp ca(degree+1), cb(degree+1), cc(degree+1);
+	  vector_fp co22(degree+1);
+	  m_integrals->fit(logfile, degree, dstar,  
+			   DATA_PTR(ca), DATA_PTR(cb), DATA_PTR(cc));
+	  m_integrals->fit_omega22(logfile, degree, dstar,
+				   DATA_PTR(co22));
+	  tr.omega22_poly.push_back(co22);
+	  tr.astar_poly.push_back(ca);
+	  tr.bstar_poly.push_back(cb);
+	  tr.cstar_poly.push_back(cc);
+	  tr.poly[i][j] = static_cast<int>(tr.astar_poly.size()) - 1;
+	  tr.fitlist.push_back(dstar);
+	}
 
-	    // delta* found in fitlist, so just point to this
-	    // polynomial
-	    else {
-	      tr.poly[i][j] = static_cast<int>((dptr - tr.fitlist.begin()));
-	    }
-	    tr.poly[j][i] = tr.poly[i][j];
-	  } 
-      }
+	// delta* found in fitlist, so just point to this
+	// polynomial
+	else {
+	  tr.poly[i][j] = static_cast<int>((dptr - tr.fitlist.begin()));
+	}
+	tr.poly[j][i] = tr.poly[i][j];
+      } 
+    }
 #ifdef DEBUG_MODE
     if (m_verbose) {
       tr.xml->XML_close(logfile, "tstar_fits");
@@ -1462,71 +1460,69 @@ namespace Cantera {
     mxerr = 0.0, mxrelerr = 0.0;
     vector_fp diff(np + 1);
     doublereal eps, sigma;
-    for (k = 0; k < tr.nsp_; k++) 
-      {            
-	for (j = k; j < tr.nsp_; j++) {
+    for (k = 0; k < tr.nsp_; k++)  {            
+      for (j = k; j < tr.nsp_; j++) {
 
-	  ipoly = tr.poly[k][j];
-	  for (n = 0; n < np; n++) {
+	ipoly = tr.poly[k][j];
+	for (n = 0; n < np; n++) {
 
-	    t = tr.tmin + dt*n;
+	  t = tr.tmin + dt*n;
                     
-	    eps = tr.epsilon(j,k);
-	    tstar = Boltzmann * t/eps;
-	    sigma = tr.diam(j,k);
-	    om11 = m_integrals->omega11(tstar, tr.delta(j,k));
+	  eps = tr.epsilon(j,k);
+	  tstar = Boltzmann * t/eps;
+	  sigma = tr.diam(j,k);
+	  om11 = m_integrals->omega11(tstar, tr.delta(j,k));
 
-	    diffcoeff = ThreeSixteenths * 
-	      sqrt( 2.0 * Pi/tr.reducedMass(k,j) ) *
-	      pow((Boltzmann * t), 1.5)/ 
-	      (Pi * sigma * sigma * om11);
-
-
-	    // 2nd order correction
-	    // NOTE: THIS CORRECTION IS NOT APPLIED
-	    doublereal fkj, fjk;
-	    getBinDiffCorrection(t, tr, k, j, 1.0, 1.0, fkj, fjk);
-	    //diffcoeff *= fkj;
+	  diffcoeff = ThreeSixteenths * 
+	    sqrt( 2.0 * Pi/tr.reducedMass(k,j) ) *
+	    pow((Boltzmann * t), 1.5)/ 
+	    (Pi * sigma * sigma * om11);
 
 
-	    if (mode == CK_Mode) {
-	      diff[n] = log(diffcoeff);
-	      w[n] = -1.0;
-	    }
-	    else {
-	      diff[n] = diffcoeff/pow(t, 1.5);
-	      w[n] = 1.0/(diff[n]*diff[n]);
-	    }
+	  // 2nd order correction
+	  // NOTE: THIS CORRECTION IS NOT APPLIED
+	  doublereal fkj, fjk;
+	  getBinDiffCorrection(t, tr, k, j, 1.0, 1.0, fkj, fjk);
+	  //diffcoeff *= fkj;
+
+
+	  if (mode == CK_Mode) {
+	    diff[n] = log(diffcoeff);
+	    w[n] = -1.0;
 	  }
-	  polyfit(np, DATA_PTR(tlog), DATA_PTR(diff), 
-		  DATA_PTR(w), degree, ndeg, 0.0, DATA_PTR(c));
-
-	  doublereal pre;
-	  for (n = 0; n < np; n++) {
-	    if (mode == CK_Mode) {
-	      val = exp(diff[n]);
-	      fit = exp(poly3(tlog[n], DATA_PTR(c))); 
-	    }
-	    else {
-	      t = exp(tlog[n]);
-	      pre = pow(t, 1.5);
-	      val = pre * diff[n];
-	      fit = pre * poly4(tlog[n], DATA_PTR(c));
-	    }
-	    err = fit - val;
-	    relerr = err/val;
-	    if (fabs(err) > mxerr) mxerr = fabs(err);
-	    if (fabs(relerr) > mxrelerr) mxrelerr = fabs(relerr);               
+	  else {
+	    diff[n] = diffcoeff/pow(t, 1.5);
+	    w[n] = 1.0/(diff[n]*diff[n]);
 	  }
-	  tr.diffcoeffs.push_back(c);
-#ifdef DEBUG_MODE
-	  if (tr.log_level >= 2 && m_verbose) {
-	    tr.xml->XML_writeVector(logfile, "    ", tr.thermo->speciesName(k)
-				    + "__"+tr.thermo->speciesName(j), c.size(), DATA_PTR(c));
-	  }
-#endif
 	}
+	polyfit(np, DATA_PTR(tlog), DATA_PTR(diff), 
+		DATA_PTR(w), degree, ndeg, 0.0, DATA_PTR(c));
+
+	doublereal pre;
+	for (n = 0; n < np; n++) {
+	  if (mode == CK_Mode) {
+	    val = exp(diff[n]);
+	    fit = exp(poly3(tlog[n], DATA_PTR(c))); 
+	  } else {
+	    t = exp(tlog[n]);
+	    pre = pow(t, 1.5);
+	    val = pre * diff[n];
+	    fit = pre * poly4(tlog[n], DATA_PTR(c));
+	  }
+	  err = fit - val;
+	  relerr = err/val;
+	  if (fabs(err) > mxerr) mxerr = fabs(err);
+	  if (fabs(relerr) > mxrelerr) mxrelerr = fabs(relerr);               
+	}
+	tr.diffcoeffs.push_back(c);
+#ifdef DEBUG_MODE
+	if (tr.log_level >= 2 && m_verbose) {
+	  tr.xml->XML_writeVector(logfile, "    ", tr.thermo->speciesName(k)
+				  + "__"+tr.thermo->speciesName(j), c.size(), DATA_PTR(c));
+	}
+#endif
       }
+    }
 #ifdef DEBUG_MODE
     if (m_verbose) {
       sprintf(s,"Maximum binary diffusion coefficient absolute error:"
