@@ -612,7 +612,7 @@ namespace Cantera {
 
   void LTI_StefanMaxwell_PPN::setParameters( LiquidTransportParams& trParam ) {
     int nsp = m_thermo->nSpecies();
-    int nBinInt = nsp*(nsp-1)/2;
+    int nsp2 = nsp*nsp;
     //vector<std
     
     m_ionCondMix = 0;
@@ -620,32 +620,28 @@ namespace Cantera {
     //trParam.ionConductivity = 0;
     m_ionCondSpecies.resize(nsp,0);
     m_mobRatMix.resize(nsp,nsp,0.0);
-    m_mobRatMixModel.resize(nBinInt);
-    m_mobRatSpecies.resize(nBinInt);
-    m_mobRatIndex.resize(nBinInt);
+    m_mobRatMixModel.resize(nsp2);
+    m_mobRatSpecies.resize(nsp2);
     m_selfDiffMix.resize(nsp,0.0);
     m_selfDiffMixModel.resize(nsp);
     m_selfDiffSpecies.resize(nsp);
-    m_selfDiffIndex.resize(nsp);
 
-    for ( int k = 0; k < nBinInt; k++ ) {
+    for ( int k = 0; k < nsp2; k++ ) {
       m_mobRatMixModel[k] = trParam.mobilityRatio[k];
       //trParam.mobilityRatio[k] = 0;
       m_mobRatSpecies[k].resize(nsp,0);
-      m_mobRatIndex[k] = trParam.mobRatIndex[k];
     }
     for ( int k = 0; k < nsp; k++ ) {
       m_selfDiffMixModel[k] = trParam.selfDiffusion[k];
       //trParam.selfDiffusion[k] = 0;
       m_selfDiffSpecies[k].resize(nsp,0);
-      m_selfDiffIndex[k] = trParam.selfDiffIndex[k];
     }
 
     for (int k = 0; k < nsp; k++) {
       Cantera::LiquidTransportData &ltd = trParam.LTData[k];
       m_ionCondSpecies[k]   =  ltd.ionConductivity;
       //ltd.ionConductivity = 0;
-      for ( int j = 0; j < nBinInt; j++ ){
+      for ( int j = 0; j < nsp2; j++ ){
 	m_mobRatSpecies[j][k] = ltd.mobilityRatio[j];
 	//ltd.mobilityRatio[j] = 0;
       }
@@ -690,7 +686,7 @@ namespace Cantera {
     int i, j, k;
     int nsp = m_thermo->nSpecies();
     if (nsp != 3) throw CanteraError("LTI_StefanMaxwell_PPN::getMatrixTransProp","Function may only be called with a 3-ion system");
-    int nBinInt = nsp*(nsp-1)/2;
+    int nsp2 = nsp*nsp;
     doublereal temp = m_thermo->temperature();
     doublereal molefracs[nsp];
     m_thermo->getMoleFractions( molefracs );
@@ -726,42 +722,20 @@ namespace Cantera {
     MargulesVPSSTP * marg_thermo = dynamic_cast<MargulesVPSSTP *> (ions_thermo->neutralMoleculePhase_);
     doublereal vol = m_thermo->molarVolume();
 
-    typedef std::vector<int> intVec;
-    std::vector<intVec> mobRatIndexMap;
-    mobRatIndexMap.resize(nsp);
-    for ( k = 0; k < nsp; k++ )
-      mobRatIndexMap[k].resize(nsp,0);
-
-    for ( k = 0; k < nBinInt; k++ ) {
-      bool missingIndex = 1;
+    k = 0;
+    for ( j = 0; j < nsp; j++ ) {
       for ( i = 0; i < nsp; i++ ) {
-	for ( j = 0; j < i; j++ ) {
-	  if ( (speciesNames[i] + ":" + speciesNames[j]) == m_mobRatIndex[k] ) {
-	    mobRatIndexMap[i][j] = k;
-	    m_mobRatMix(i,j) = m_mobRatMixModel[k]->getMixTransProp( m_mobRatSpecies[k] );	
-	    if ( m_mobRatMix(i,j) > 0 ) m_mobRatMix(j,i) = 1.0/m_mobRatMix(i,j);
-	    missingIndex = 0;
-	    break;
-	  }
-	  else if ( (speciesNames[j] + ":" + speciesNames[i]) == m_mobRatIndex[k] ) {
-	    m_mobRatMix(j,i) = m_mobRatMixModel[k]->getMixTransProp( m_mobRatSpecies[k] );
-	    if ( m_mobRatMix(j,i) > 0 ) m_mobRatMix(i,j) = 1.0/m_mobRatMix(j,i);
-	    missingIndex = 0;
-	    break;
-	  }
+	if (m_mobRatMixModel[k]) {
+	  m_mobRatMix(i,j) = m_mobRatMixModel[k]->getMixTransProp( m_mobRatSpecies[k] );	
+	  if ( m_mobRatMix(i,j) > 0 ) m_mobRatMix(j,i) = 1.0/m_mobRatMix(i,j);
 	}
+	k++;
       }
-      if ( missingIndex ) throw CanteraError("LTI_StefanMaxwell_PPN::getMixTransProp","Incorrect names for mobility ratio of " + m_mobRatIndex[k] + " rather than i.e. " + speciesNames[0] + ":" + speciesNames[1]); 
-    } 
+    }
 
     
     for ( k = 0; k < nsp; k++ ){
-      j = 0;
-      while (m_selfDiffIndex[k] != speciesNames[j]) {
-	j++;
-	if (j == nsp) throw CanteraError("LTI_StefanMaxwell_PPN::getMixTransProp","Incorrect names for self diffusion of " + m_selfDiffIndex[k] + " rather than i.e. " + speciesNames[0]); 
-      } 
-      m_selfDiffMix[j] = m_selfDiffMixModel[k]->getMixTransProp( m_selfDiffSpecies[k] );
+      m_selfDiffMix[k] = m_selfDiffMixModel[k]->getMixTransProp( m_selfDiffSpecies[k] );
     }
 
     /*

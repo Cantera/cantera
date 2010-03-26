@@ -42,6 +42,7 @@
 #include "ctml.h"
 
 #include <cstdio>
+#include <cstring>
 
 //using namespace std;
 
@@ -982,10 +983,9 @@ namespace Cantera {
 	  // and then insertion into LiquidTransportData objects below.	
 	  LiquidTransportData data;
 	  data.speciesName = name;
-	  data.mobRatIndex.resize(nBinInt,"");
-	  data.mobilityRatio.resize(nBinInt,0);
-	  data.selfDiffIndex.resize(nsp,"");
+	  data.mobilityRatio.resize(nsp*nsp,0);
 	  data.selfDiffusion.resize(nsp,0);
+	  ThermoPhase *temp_thermo = trParam.thermo;
 
 	  int num = trNode.nChildren();
 	  for (int iChild = 0; iChild < num; iChild++) {
@@ -994,18 +994,21 @@ namespace Cantera {
 	    
 	    switch (m_tranPropMap[nodeName]) {
 	    case TP_VISCOSITY:
-	      data.viscosity = newLTP(xmlChild, name,  m_tranPropMap[nodeName], trParam.thermo );
+	      data.viscosity = newLTP(xmlChild, name,  m_tranPropMap[nodeName], temp_thermo );
 	      break;
 	    case TP_IONCONDUCTIVITY:
-	      data.ionConductivity = newLTP(xmlChild,  name,   m_tranPropMap[nodeName], trParam.thermo);
+	      data.ionConductivity = newLTP(xmlChild,  name,   m_tranPropMap[nodeName], temp_thermo);
 	      break;
 	    case TP_MOBILITYRATIO:
 	      {
 		for (int iSpec = 0; iSpec< nBinInt; iSpec++){
 		  XML_Node &propSpecNode = xmlChild.child(iSpec);
 		  std::string specName = propSpecNode.name();
-		  data.mobRatIndex[iSpec] = specName;
-		  data.mobilityRatio[iSpec] = newLTP(propSpecNode, name, m_tranPropMap[nodeName], trParam.thermo);
+		  size_t loc = specName.find(":");
+		  std::string firstSpec = specName.substr(0,loc);
+		  std::string secondSpec = specName.substr(loc+1);
+		  int index = temp_thermo->speciesIndex(firstSpec.c_str())+nsp*temp_thermo->speciesIndex(secondSpec.c_str());
+		  data.mobilityRatio[index] = newLTP(propSpecNode, name, m_tranPropMap[nodeName], temp_thermo);
 		};
 	      };
 	      break;
@@ -1014,8 +1017,8 @@ namespace Cantera {
 		for (int iSpec = 0; iSpec< nsp; iSpec++){
 		  XML_Node &propSpecNode = xmlChild.child(iSpec);
 		  std::string specName = propSpecNode.name();
-		  data.selfDiffIndex[iSpec] = specName;
-		  data.selfDiffusion[iSpec] = newLTP(propSpecNode,  name,  m_tranPropMap[nodeName], trParam.thermo);
+		  int index = temp_thermo->speciesIndex(specName.c_str());
+		  data.selfDiffusion[index] = newLTP(propSpecNode,  name,  m_tranPropMap[nodeName], temp_thermo);
 		};
 	      };
 	      break;
@@ -1023,25 +1026,25 @@ namespace Cantera {
 	      data.thermalCond = newLTP(xmlChild, 
 					name, 
 					m_tranPropMap[nodeName],
-					trParam.thermo );
+					temp_thermo );
 	      break;
 	    case TP_DIFFUSIVITY:
 	      data.speciesDiffusivity = newLTP(xmlChild, 
 					       name, 
 					       m_tranPropMap[nodeName],
-					       trParam.thermo );
+					       temp_thermo );
 	      break;
 	    case TP_HYDRORADIUS:
 	      data.hydroRadius = newLTP(xmlChild, 
 					name, 
 					m_tranPropMap[nodeName],
-					trParam.thermo );
+					temp_thermo );
 	      break;
 	    case TP_ELECTCOND:
 	      data.electCond = newLTP(xmlChild, 
 				      name, 
 				      m_tranPropMap[nodeName],
-				      trParam.thermo );
+				      temp_thermo );
 
 	      break;
 	    default:
@@ -1103,10 +1106,9 @@ namespace Cantera {
 	XML_Node &tranTypeNode = transportNode.child(iChild);
 	std::string nodeName = tranTypeNode.name();
 
-	trParam.mobRatIndex.resize(nBinInt,"");
-	trParam.mobilityRatio.resize(nBinInt,0);
-	trParam.selfDiffIndex.resize(nsp,"");
+	trParam.mobilityRatio.resize(nsp*nsp,0);
 	trParam.selfDiffusion.resize(nsp,0);
+	ThermoPhase *temp_thermo = trParam.thermo;
 
 	if (tranTypeNode.hasChild("compositionDependence")) {
 	  //compDepNode contains the interaction model
@@ -1123,25 +1125,26 @@ namespace Cantera {
 	    break;
       	  case TP_MOBILITYRATIO:
 	    {
-	      int iSpec;
-	      for (iSpec = 0; iSpec< nBinInt; iSpec++){
+	      for (int iSpec = 0; iSpec< nBinInt; iSpec++){
 		XML_Node &propSpecNode = compDepNode.child(iSpec);
-		std::string specName = propSpecNode.name();
-		trParam.mobRatIndex[iSpec] = specName;
-		trParam.mobilityRatio[iSpec] = newLTI( propSpecNode, 
-						     m_tranPropMap[nodeName],
+		string specName = propSpecNode.name();
+		size_t loc = specName.find(":");
+		string firstSpec = specName.substr(0,loc);
+		string secondSpec = specName.substr(loc+1);
+		int index = temp_thermo->speciesIndex(firstSpec.c_str())+nsp*temp_thermo->speciesIndex(secondSpec.c_str());
+		trParam.mobilityRatio[index] = newLTI( propSpecNode, 
+						       m_tranPropMap[nodeName],
 						       trParam );
 	      };
 	    };
 	    break;
 	  case TP_SELFDIFFUSION:
 	    {
-	      int iSpec;
-	      for (iSpec = 0; iSpec< nsp; iSpec++){
+	      for (int iSpec = 0; iSpec< nsp; iSpec++){
 		XML_Node &propSpecNode = compDepNode.child(iSpec);
-		std::string specName = propSpecNode.name();
-		trParam.selfDiffIndex[iSpec] = specName;
-		trParam.selfDiffusion[iSpec] = newLTI( propSpecNode, 
+		string specName = propSpecNode.name();
+		int index = temp_thermo->speciesIndex(specName.c_str());
+		trParam.selfDiffusion[index] = newLTI( propSpecNode, 
 						     m_tranPropMap[nodeName],
 						       trParam );
 	      };

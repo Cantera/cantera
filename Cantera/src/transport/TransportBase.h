@@ -79,8 +79,7 @@ namespace Cantera {
    *  - VB_MASSAVG    Diffusion velocities are based on the mass averaged velocity
    *  - VB_MOLEAVG    Diffusion velocities are based on the mole averaged velocities
    *  - VB_SPECIES_0  Diffusion velocities are based on the relative motion wrt species 0
-   *  - VB_SPECIES_1  Diffusion velocities are based on the relative motion wrt species 1
-   *  - VB_SPECIES_2  Diffusion velocities are based on the relative motion wrt species 2
+   *  - ...
    *  - VB_SPECIES_3  Diffusion velocities are based on the relative motion wrt species 3
    *
    * @ingroup tranprops
@@ -162,7 +161,8 @@ namespace Cantera {
    *  - VB_MASSAVG    Diffusion velocities are based on the mass averaged velocity
    *  - VB_MOLEAVG    Diffusion velocities are based on the mole averaged velocities
    *  - VB_SPECIES_0  Diffusion velocities are based on the relative motion wrt species 0
-   *  - VB_SPECIES_1  Diffusion velocities are based on the relative motion wrt species 1
+   *  - ...
+   *  - VB_SPECIES_3  Diffusion velocities are based on the relative motion wrt species 3
    *
    *  All transport managers specify a default reference velocity in their default constructors.
    *  All gas phase transport managers by default specify the mass-averaged velocity as their
@@ -334,9 +334,7 @@ namespace Cantera {
     /**
      * The mobility ratio. 
      */
-    virtual void mobilityRatio(vector_fp& mobRat, std::vector<std::string>& mobRatIndex)
-    { err("mobilityRatio"); }
-    virtual void mobilityRatio(double* mobRat, std::vector<std::string>& mobRatIndex)
+    virtual void mobilityRatio(double* mobRat)
     { err("mobilityRatio"); }
 
     //! Returns the pure species limit of the mobility ratios
@@ -345,9 +343,7 @@ namespace Cantera {
      *
      * @param mobRat   Vector of mobility ratios
      */
-    virtual void getSpeciesMobilityRatio(DenseMatrix& mobRat, std::vector<std::string>& mobRatIndex)
-    { err("getSpeciesMobilityRatio"); }
-    virtual void getSpeciesMobilityRatio(double** mobRat, std::vector<std::string>& mobRatIndex)
+    virtual void getSpeciesMobilityRatio(double** mobRat)
     { err("getSpeciesMobilityRatio"); }
 
     //! Returns the self diffusion coefficients of the species in the phase
@@ -389,9 +385,7 @@ namespace Cantera {
      * @param selfDiff  array of length "number of species"
      *              to hold returned self diffusion coeffs.
      */
-    virtual void getSpeciesSelfDiffusion(DenseMatrix& selfDiff, std::vector<std::string>& selfDiffIndex)
-    { err("getSpeciesSelfDiffusion"); }
-    virtual void getSpeciesSelfDiffusion(double** selfDiff, std::vector<std::string>& selfDiffIndex)
+    virtual void getSpeciesSelfDiffusion(double** selfDiff)
     { err("getSpeciesSelfDiffusion"); }
 
     //!  Returns the mixture thermal conductivity in W/m/K. 
