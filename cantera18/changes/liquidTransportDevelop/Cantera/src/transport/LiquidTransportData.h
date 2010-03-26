@@ -205,11 +205,9 @@ namespace Cantera {
 
     //! Model type for the mobility ratio
     std::vector<LTPspecies*> mobilityRatio;
-    std::vector<std::string> mobRatIndex;
 
     //! Model type for the self diffusion coefficients
     std::vector<LTPspecies*> selfDiffusion;
-    std::vector<std::string> selfDiffIndex;
 
     //! Model type for the thermal conductivity
     LTPspecies* thermalCond;

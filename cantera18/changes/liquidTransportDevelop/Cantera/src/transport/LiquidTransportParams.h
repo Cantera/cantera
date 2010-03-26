@@ -221,9 +221,7 @@ namespace Cantera {
     LiquidTranInteraction* viscosity;
     LiquidTranInteraction* ionConductivity;
     std::vector<LiquidTranInteraction*> mobilityRatio;
-    std::vector<std::string> mobRatIndex;
     std::vector<LiquidTranInteraction*> selfDiffusion;
-    std::vector<std::string> selfDiffIndex;
     LiquidTranInteraction* thermalCond;
     LiquidTranInteraction* speciesDiffusivity;
     LiquidTranInteraction* electCond;
@@ -603,12 +601,10 @@ namespace Cantera {
     DenseMatrix m_mobRatMix;
     std::vector<LiquidTranInteraction*> m_mobRatMixModel;
     std::vector<LTPvector> m_mobRatSpecies;
-    std::vector<std::string> m_mobRatIndex;
 
     std::vector<LiquidTranInteraction*> m_selfDiffMixModel;
     vector_fp m_selfDiffMix;
     std::vector<LTPvector> m_selfDiffSpecies;
-    std::vector<std::string> m_selfDiffIndex;
   };
 
 

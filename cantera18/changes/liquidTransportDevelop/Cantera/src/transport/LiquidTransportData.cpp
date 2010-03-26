@@ -79,9 +79,7 @@ namespace Cantera {
       viscosity          = right.viscosity;
       ionConductivity    = right.ionConductivity;
       mobilityRatio      = right.mobilityRatio;
-      mobRatIndex        = right.mobRatIndex;
       selfDiffusion      = right.selfDiffusion;
-      selfDiffIndex      = right.selfDiffIndex;
       thermalCond        = right.thermalCond;
       electCond          = right.electCond;
       speciesDiffusivity = right.speciesDiffusivity;

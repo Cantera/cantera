@@ -205,8 +205,7 @@ namespace Cantera {
      *  These in turn employ subclasses of LTPspecies to 
      *  determine the individual species mobility ratios.
      */
-    virtual void mobilityRatio(vector_fp& mobRat, std::vector<std::string>& mobRatIndex);
-    virtual void mobilityRatio(double* mobRat, std::vector<std::string>& mobRatIndex);
+    virtual void mobilityRatio(double* mobRat);
 
     //! Returns the pure species mobility ratios for all species
     /*!
@@ -217,8 +216,7 @@ namespace Cantera {
      * @param mobRat  array of length "number of species"
      *              to hold returned mobility ratios.
      */ 
-    virtual void getSpeciesMobilityRatio(DenseMatrix& mobRat, std::vector<std::string>& mobRatIndex);
-    virtual void getSpeciesMobilityRatio(double** mobRat, std::vector<std::string>& mobRatIndex);
+    virtual void getSpeciesMobilityRatio(double** mobRat);
 
     //! Returns the self diffusion coefficients of the species in the phase
     /*!
@@ -257,8 +255,7 @@ namespace Cantera {
      * @param selfDiff  array of length "number of species"
      *              to hold returned self diffusion coeffs.
      */
-    virtual void getSpeciesSelfDiffusion(DenseMatrix& selfDiff, std::vector<std::string>& selfDiffIndex);
-    virtual void getSpeciesSelfDiffusion(double** selfDiff, std::vector<std::string>& selfDiffIndex);
+    virtual void getSpeciesSelfDiffusion(double** selfDiff);
 
     //! Returns the hydrodynamic radius for all species 
     /*!
@@ -885,7 +882,7 @@ namespace Cantera {
     int m_nsp;
 
 
-    int m_nBinInt;
+    int m_nsp2;
 
     //! Minimum temperature applicable to the transport property eval
     doublereal m_tmin;
@@ -944,7 +941,6 @@ namespace Cantera {
      */
     typedef std::vector<LTPspecies*> LTPvector;
     std::vector<LTPvector> m_mobRatTempDep_Ns;
-    std::vector<std::string> m_mobRatTempDepIndex;
 
     //! Mobility ratio of the mixture expressed as a subclass of 
     //! LiquidTranInteraction
@@ -954,7 +950,6 @@ namespace Cantera {
      *  TransportFactory::getLiquidInteractionsTransportData().
      */
     std::vector<LiquidTranInteraction*> m_mobRatMixModel;
-    std::vector<std::string> m_mobRatMixModelIndex;
 
     //! Self Diffusion for each species expressed as an appropriate subclass 
     //! of LTPspecies
@@ -964,7 +959,6 @@ namespace Cantera {
      *  TransportFactory::getLiquidSpeciesTransportData().
      */
     std::vector<LTPvector> m_selfDiffTempDep_Ns;
-    std::vector<std::string> m_selfDiffTempDepIndex;
 
     //! Self Diffusion of the mixture expressed as a subclass of 
     //! LiquidTranInteraction
@@ -974,7 +968,6 @@ namespace Cantera {
      *  TransportFactory::getLiquidInteractionsTransportData().
      */
     std::vector<LiquidTranInteraction*> m_selfDiffMixModel;
-    std::vector<std::string> m_selfDiffMixModelIndex;
 
     //! Thermal conductivity for each species expressed as an    
     //! appropriate subclass of LTPspecies
@@ -1184,7 +1177,6 @@ namespace Cantera {
      * controlling update boolean -> m_mobRat_temp_ok
      */
     DenseMatrix m_mobRatSpecies;
-    std::vector<std::string> m_mobRatSpeciesIndex;
 
     //! Internal value of the species self diffusion coefficients 
     /*!
@@ -1196,7 +1188,6 @@ namespace Cantera {
      * controlling update boolean -> m_selfDiff_temp_ok
      */
     DenseMatrix m_selfDiffSpecies;
-    std::vector<std::string> m_selfDiffSpeciesIndex;
 
     //! Internal value of the species individual thermal conductivities
     /*!
@@ -1332,8 +1323,6 @@ namespace Cantera {
 
     //! Saved values of the mixture mobility ratios
     vector_fp m_mobRatMix;
-    //! Saved species index of the mixture correlated to mobility ratios
-    std::vector<std::string> m_mobRatMixIndex;
 
     //! Saved values of the mixture self diffusion coefficients
     vector_fp m_selfDiffMix;
