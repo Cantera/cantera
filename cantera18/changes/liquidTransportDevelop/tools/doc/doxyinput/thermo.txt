@@ -2,12 +2,9 @@
 
 \page thermopage Thermodynamic Properties
 
-%Cantera can be used to compute thermodynamic properties of pure
-substances, solutions, and mixtures of various types, including ones
-containing multiple phases. The first step is to create an object that
-represents each phase. 
+%Cantera can be used to compute thermodynamic properties of pure substances, solutions, and mixtures of various types, including ones containing multiple phases. The first step is to create an object that
+represents each phase.  A simple complete program that creates an object representing a gas mixture and prints its temperature is shown below.
 
-A simple complete program that creates an object representing a gas mixture and prints its temperature is shown below.
 \include ex1.cpp
 
 Class \link Cantera::ThermoPhase ThermoPhase \endlink 
@@ -21,15 +18,26 @@ potentials into array \c mu, and so on.
 
 Class ThermoPhase can be used to represent the intensive state of any
 single-phase solution of multiple species. The phase may be a bulk,
-three-dimensional phase (a gas, a liquid, or a solid), or may be a
+three-dimensional phase (a gas, a liquid, or a solid), or it may be a
 two-dimensional surface phase, or even a one-dimensional "edge"
 phase. The specific attributes of each type of phase are specified by
-deriving a class from ThemoPhase and providing implementations for the
-virtual methods of ThermoPhase.
+deriving a class from %ThemoPhase and providing implementations for the
+virtual methods of %ThermoPhase.
+
+%Cantera has a wide variety of models for bulk phase currently. Special
+attention (in terms of the speed of execution) has been paid to an ideal gas phase implementation, where the
+species thermodynamic polynomial representations adhere to either the NASA
+polynomial form or to the Shomate polynomoial form. This is widely used in
+combustion applications, the origin application that %Cantera was
+designed for. Recently, a lot of effort has been placed into constructing non-ideal
+liquid phase thermodynamics models that are used in electrochemistry and
+battery applications. These models include a Pitzer implementation for brines
+solutions and a Margules excess Gibbs free energy implementation for molten
+salts.
 
 \section The Intensive Thermodynamic State
 
-Class ThermoPhase and classes derived from it work only with the
+Class %ThermoPhase and classes derived from it work only with the
 intensive thermodynamic state. That is, all extensive properties
 (enthalpy, entropy, internal energy, volume, etc.) are computed for a
 unit quantity (on a mass or mole basis). For example, there is a
