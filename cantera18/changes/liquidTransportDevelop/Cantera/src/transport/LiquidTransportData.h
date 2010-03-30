@@ -223,8 +223,8 @@ namespace Cantera {
 
 
   //! Class LTPspecies_Const holds transport parameters for a 
-  //! specific liquid-phase species when the transport property 
-  //! is just a constant value.  
+  //! specific liquid-phase species (LTPspecies) when the 
+  //! transport property is just a constant value.  
   /*!
    * As an example of the input required for LTPspecies_Const
    * consider the following XML fragment
@@ -245,6 +245,13 @@ namespace Cantera {
 
   public:
 
+    //! Construct an LTPspecies object for a liquid tranport property 
+    //! expressed as a constant value.
+    /** The transport property is constructed from the XML node, 
+     *  \verbatim <propNode>, \endverbatim that is a child of the
+     *  \verbatim <transport> \endverbatim node and specifies a type of
+     *  transport property (like viscosity)
+     */ 
     LTPspecies_Const( const XML_Node &propNode, 
 		      std::string name, 
 		      TransportPropertyList tp_ind, 
@@ -279,9 +286,15 @@ namespace Cantera {
 
 
   //! Class LTPspecies_Arrhenius holds transport parameters for a 
-  //! specific liquid-phase species when the transport property 
-  //! is expressed in Arrhenius form.  
+  //! specific liquid-phase species (LTPspecies) when the 
+  //! transport property is expressed in Arrhenius form.  
   /*!
+   * Used for pure species properties with equations of the form
+   * \f[
+   *      x = A T^b \exp( - E / RT )   
+   * \f]
+   * where A, b, and E are passed in the xml input file.
+   *
    * As an example of the input required for LTPspecies_Arrhenius
    * consider the following XML fragment
    *
@@ -304,6 +317,13 @@ namespace Cantera {
 
   public:
 
+    //! Construct an LTPspecies object for a liquid tranport property 
+    //! expressed in extended Arrhenius form.
+    /** The transport property is constructed from the XML node, 
+     *  \verbatim <propNode>, \endverbatim that is a child of the
+     *  \verbatim <transport> \endverbatim node and specifies a type of
+     *  transport property (like viscosity)
+     */ 
     LTPspecies_Arrhenius( const XML_Node &propNode, 
 			  std::string name, 
 			  TransportPropertyList tp_ind, 
@@ -366,9 +386,15 @@ namespace Cantera {
 
 
   //! Class LTPspecies_Poly holds transport parameters for a 
-  //! specific liquid-phase species when the transport property 
-  //! is expressed as a polynomial in temperature.
+  //! specific liquid-phase species (LTPspecies) when the transport 
+  //! property is expressed as a polynomial in temperature.
   /*!
+   * Used for pure species properties with equations of the form
+   * \f[
+   *    x = f[0] + f[1] T + ... + f[N] T^N   
+   * \f]
+   * where f[i] are elements of the float array passed in.
+   *
    * As an example of the input required for LTPspecies_Poly
    * consider the following XML fragment
    *
@@ -388,6 +414,13 @@ namespace Cantera {
 
   public:
 
+  //! Construct an LTPspecies object for a liquid tranport property 
+  //! expressed as a polynomial in temperature.
+  /** The transport property is constructed from the XML node, 
+   *  \verbatim <propNode>, \endverbatim that is a child of the
+   *  \verbatim <transport> \endverbatim node and specifies a type of
+   *  transport property (like viscosity)
+   */ 
     LTPspecies_Poly( const XML_Node &propNode, 
 		     std::string name, 
 		     TransportPropertyList tp_ind, 
@@ -428,9 +461,15 @@ namespace Cantera {
 
 
   //! Class LTPspecies_ExpT holds transport parameters for a 
-  //! specific liquid-phase species when the transport property 
-  //! is expressed as a exponential in temperature.
+  //! specific liquid-phase species (LTPspecies) when the transport 
+  //! property is expressed as a exponential in temperature.
   /**
+   * Used for pure species properties with equations of the form
+   * \f[
+   *    x = f[0] \exp( f[1] T + ... + f[N] T )  
+   * \f]
+   * where f[i] are elements of the float array passed in.
+   *
    * As an example of the input required for LTPspecies_ExpT
    * consider the following XML fragment
    *
@@ -450,6 +489,13 @@ namespace Cantera {
 
   public:
 
+  //! Construct an LTPspecies object for a liquid tranport property 
+  //! expressed as an exponential in temperature.
+  /** The transport property is constructed from the XML node, 
+   *  \verbatim <propNode>, \endverbatim that is a child of the
+   *  \verbatim <transport> \endverbatim node and specifies a type of
+   *  transport property (like viscosity)
+   */ 
     LTPspecies_ExpT( const XML_Node &propNode, 
 		     std::string name, 
 		     TransportPropertyList tp_ind, 

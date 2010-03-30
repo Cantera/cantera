@@ -44,8 +44,8 @@ namespace Cantera {
   };
 
 
-  //!Constructor
-  /**
+  // Constructor
+  /*
    *  @param tp_ind          Index indicating transport property type (i.e. viscosity) 
    */
   LiquidTranInteraction::LiquidTranInteraction( TransportPropertyList tp_ind ) : 
@@ -199,12 +199,12 @@ namespace Cantera {
     }
   }
 
-  //! Copy constructor
+  // Copy constructor
   LiquidTranInteraction::LiquidTranInteraction( const LiquidTranInteraction &right ) {
     *this = right;  //use assignment operator to do other work
   }
    
-  //! Assignment operator
+  // Assignment operator
   LiquidTranInteraction& LiquidTranInteraction::operator=( const LiquidTranInteraction &right )
   {
     if (&right != this) {
@@ -702,20 +702,15 @@ namespace Cantera {
     // Reaction Coeffs and Charges
     std::vector<double> viS(6);
     std::vector<double> charges(3);
-    ions_thermo->getDissociationCoeffs(viS,charges);
+    std::vector<int> neutMolIndex(3);
+    ions_thermo->getDissociationCoeffs(viS,charges,neutMolIndex);
 
     if ((int)anion.size() != 1) 
       throw CanteraError("LTI_StefanMaxwell_PPN::getMatrixTransProp","Must have one anion only for StefanMaxwell_PPN");
     if ((int)cation.size() != 2) 
       throw CanteraError("LTI_StefanMaxwell_PPN::getMatrixTransProp","Must have two cations of equal charge for StefanMaxwell_PPN");
     if (charges[cation[0]] != charges[cation[1]]) 
-      throw CanteraError("LTI_StefanMaxwell_PPN::getMatrixTransProp","Cations must be of equal charge for StefanMaxwell_PPN");
-
-    /*
-    cout << "cation 0: " << speciesNames[cation[0]] << endl;
-    cout << "cation 1: " << speciesNames[cation[1]] << endl;
-    cout << "anion 0: " << speciesNames[anion[0]] << endl;
-    */
+      throw CanteraError("LTI_StefanMaxwell_PPN::getMatrixTransProp","Cations must be of equal charge for StefanMaxwell_PPN")
 
     m_ionCondMix = m_ionCondMixModel->getMixTransProp(m_ionCondSpecies);
 
@@ -738,15 +733,6 @@ namespace Cantera {
       m_selfDiffMix[k] = m_selfDiffMixModel[k]->getMixTransProp( m_selfDiffSpecies[k] );
     }
 
-    /*
-    for ( i = 0; i < nsp; i++ ) {
-      cout << "D" << i << "* = " << m_selfDiffMix[i] << endl;
-      for ( j = 0; j < nsp; j++ ) {
-        cout << "ratio" << i << j << " = " << m_mobRatMix(i,j) << endl;
-      }
-    }
-    */
-    
     int vP = max(viS[cation[0]],viS[cation[1]]);
     int vM = viS[anion[0]];
     int zP = charges[cation[0]];
@@ -755,38 +741,18 @@ namespace Cantera {
     doublereal inv_vP_vM_MutualDiff;
     vector_fp dlnActCoeffdlnN;
     dlnActCoeffdlnN.resize(neut_molefracs.size(),0.0);
+    marg_thermo->getdlnActCoeffdlnN(&dlnActCoeffdlnN[0]);
 
-    std::string cationIndex (4,'0');
-    for ( i = 0; i < 2; i++ )
-      for ( j = 0; j < 2; j++ )
-	if ( viS[i*nsp+cation[j]] > 0 )
-	  cationIndex[i*2+j] = '1';
-
-    if ( (cationIndex == "1001") | (cationIndex == "0110") ) {
-      xA = neut_molefracs[cation[0]];
-      xB = neut_molefracs[cation[1]];
-      eps = (1-m_mobRatMix(cation[1],cation[0]))/(xA+xB*m_mobRatMix(cation[1],cation[0]));
-      marg_thermo->getdlnActCoeffdlnN(&dlnActCoeffdlnN[0]);
-      inv_vP_vM_MutualDiff = (xA*(1+dlnActCoeffdlnN[cation[1]])/m_selfDiffMix[cation[1]]+xB*(1+dlnActCoeffdlnN[cation[0]])/m_selfDiffMix[cation[0]]);
-      //marg_thermo->getdlnActCoeffdlnX(&dlnActCoeffdlnN[0]);
-      //inv_vP_vM_MutualDiff = (xA*(1+dlnActCoeffdlnN[cation[1]])/m_selfDiffMix[cation[1]]+xB*(1+dlnActCoeffdlnN[cation[0]])/m_selfDiffMix[cation[0]]);
-    }
-    else
-      throw CanteraError("LTI_StefanMaxwell_PPN::getMixTransProp","Dissociation reactions don't make sense: cationIndex = " + cationIndex);
+    xA = neut_molefracs[neutMolIndex[cation[0]]];
+    xB = neut_molefracs[neutMolIndex[cation[1]]];
+    eps = (1-m_mobRatMix(cation[1],cation[0]))/(xA+xB*m_mobRatMix(cation[1],cation[0]));
+    inv_vP_vM_MutualDiff = (xA*(1+dlnActCoeffdlnN[neutMolIndex[cation[1]]])/m_selfDiffMix[cation[1]]+xB*(1+dlnActCoeffdlnN[neutMolIndex[cation[0]]])/m_selfDiffMix[cation[0]]);
     
     mat.resize( nsp, nsp, 0.0 );
     mat(cation[0],cation[1]) = mat(cation[1],cation[0]) = (1+vM/vP)*(1+eps*xB)*(1-eps*xA)*inv_vP_vM_MutualDiff-zP*zP*Faraday*Faraday/GasConstant/temp/m_ionCondMix/vol;
   mat(cation[0],anion[0]) = mat(anion[0],cation[0]) = (1+vP/vM)*(-eps*xB*(1-eps*xA)*inv_vP_vM_MutualDiff)-zP*zM*Faraday*Faraday/GasConstant/temp/m_ionCondMix/vol;
 mat(cation[1],anion[0]) = mat(anion[0],cation[1]) = (1+vP/vM)*(eps*xA*(1+eps*xB)*inv_vP_vM_MutualDiff)-zP*zM*Faraday*Faraday/GasConstant/temp/m_ionCondMix/vol;
 
-/*
-    for ( i = 0; i < nsp; i++ ) {
-      for ( j = 0; j < nsp; j++ ) {
-	mat(i,j) = 1.0/mat(i,j);
-	//cout << "D" << i << j << " = " << mat(i,j) << endl;
-      }
-    }
-*/
   }
   
   

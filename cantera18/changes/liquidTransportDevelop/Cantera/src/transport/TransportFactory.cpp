@@ -87,29 +87,30 @@ namespace Cantera {
   //////////////////// class TransportFactory methods //////////////
 
 
-  /**
-   * Calculate second-order corrections to binary diffusion
-   * coefficient pair (dkj, djk). At first order, the binary
-   * diffusion coefficients are independent of composition, and
-   * d(k,j) = d(j,k). But at second order, there is a weak
-   * dependence on composition, with the result that d(k,j) !=
-   * d(j,k). This method computes the multiplier by which the
-   * first-order binary diffusion coefficient should be multiplied
-   * to produce the value correct to second order. The expressions
-   * here are taken from Marerro and Mason,
-   * J. Phys. Chem. Ref. Data, vol. 1, p. 3 (1972).
-   *
-   * @param t   Temperature (K)
-   * @param tr  Transport parameters
-   * @param k   index of first species
-   * @param j   index of second species
-   * @param xmk mole fraction of species k
-   * @param xmj mole fraction of species j
-   * @param fkj multiplier for d(k,j)
-   * @param fjk multiplier for d(j,k) 
-   *
-   * @note This method is not used currently.
-   */
+  // Second-order correction to the binary diffusion coefficients
+  /*
+    Calculate second-order corrections to binary diffusion
+    coefficient pair (dkj, djk). At first order, the binary
+    diffusion coefficients are independent of composition, and
+    d(k,j) = d(j,k). But at second order, there is a weak
+    dependence on composition, with the result that d(k,j) !=
+    d(j,k). This method computes the multiplier by which the
+    first-order binary diffusion coefficient should be multiplied
+    to produce the value correct to second order. The expressions
+    here are taken from Marerro and Mason,
+    J. Phys. Chem. Ref. Data, vol. 1, p. 3 (1972).
+   
+    @param t   Temperature (K)
+    @param tr  Transport parameters
+    @param k   index of first species
+    @param j   index of second species
+    @param xmk mole fraction of species k
+    @param xmj mole fraction of species j
+    @param fkj multiplier for d(k,j)
+    @param fjk multiplier for d(j,k) 
+    
+    @note This method is not used currently.
+  */
   void TransportFactory::getBinDiffCorrection(doublereal t, 
 					      const GasTransportParams& tr, int k, int j, doublereal xk, doublereal xj, 
 					      doublereal& fkj, doublereal& fjk) {
@@ -176,12 +177,13 @@ namespace Cantera {
   }
 
 
-  /** 
-   * Calculate corrections to the well depth parameter and the
-   * diamter for use in computing the binary diffusion coefficient
-   * of polar-nonpolar pairs. For more information about this
-   * correction, see Dixon-Lewis, Proc. Royal Society (1968).
-   */
+  // Corrections for polar-nonpolar binary diffusion coefficients
+  /*
+    Calculate corrections to the well depth parameter and the
+    diamter for use in computing the binary diffusion coefficient
+    of polar-nonpolar pairs. For more information about this
+    correction, see Dixon-Lewis, Proc. Royal Society (1968).
+  */
   void TransportFactory::makePolarCorrections(int i, int j, 
 					      const GasTransportParams& tr, doublereal& f_eps, doublereal& f_sigma) {
 
@@ -207,13 +209,13 @@ namespace Cantera {
     f_eps = xi*xi;
   }
 
-  /**
-   * TransportFactory(): default constructor
-   *     
-   *   The default constructor for this class sets up 
-   *   m_models[], a mapping between the string name
-   *   for a transport model and the integer name.
-   */
+  /*
+    TransportFactory(): default constructor
+    
+    The default constructor for this class sets up 
+    m_models[], a mapping between the string name
+    for a transport model and the integer name.
+  */
   TransportFactory::TransportFactory() :
     m_verbose(false),
     m_integrals(0)
@@ -258,15 +260,15 @@ namespace Cantera {
     m_LTImodelMap["moleFractionsExpT"] = LTI_MODEL_MOLEFRACS_EXPT;
   }
 
-  /**
-   * Destructor 
-   *
-   * We do not delete statically created single instance of this
-   * class here, because it would create an infinite loop if
-   * destructor is called for that single instance.  However, we do
-   * have a pointer to m_integrals that does need to be
-   * explicitly deleted.
-   */
+  /*
+    Destructor 
+    
+    We do not delete statically created single instance of this
+    class here, because it would create an infinite loop if
+    destructor is called for that single instance.  However, we do
+    have a pointer to m_integrals that does need to be
+    explicitly deleted.
+  */
   TransportFactory::~TransportFactory() {
     if (m_integrals) {
       delete m_integrals;
@@ -274,9 +276,7 @@ namespace Cantera {
     }
   }
     
-  /**
-   * This static function deletes the statically allocated instance.
-   */
+  // This static function deletes the statically allocated instance.
   void TransportFactory::deleteFactory() {
 #if defined(THREAD_SAFE_CANTERA)
     boost::mutex::scoped_lock   lock(transport_mutex) ;
@@ -287,12 +287,12 @@ namespace Cantera {
     }
   }
 
-  /**
-   *  make one of several transport models, and return a base class
-   *  pointer to it.  This method operates at the level of a 
-   *  single transport property as a function of temperature 
-   *  and possibly composition.
-   */
+  /*
+    make one of several transport models, and return a base class
+    pointer to it.  This method operates at the level of a 
+    single transport property as a function of temperature 
+    and possibly composition.
+  */
   LTPspecies* TransportFactory::newLTP( const XML_Node &trNode, 
 					std::string &name, 
 					TransportPropertyList tp_ind, 
@@ -335,13 +335,13 @@ namespace Cantera {
     return ltps;
   }
 
-  /**
-   *  make one of several transport models, and return a base class
-   *  pointer to it.  This method operates at the level of a 
-   *  single mixture transport property.  Individual species 
-   *  transport properties are addressed by the LTPspecies 
-   *  returned by newLTP
-   */
+  /*
+    make one of several transport models, and return a base class
+    pointer to it.  This method operates at the level of a 
+    single mixture transport property.  Individual species 
+    transport properties are addressed by the LTPspecies 
+    returned by newLTP
+  */
   LiquidTranInteraction* TransportFactory::newLTI( const XML_Node &trNode, 
 						   TransportPropertyList tp_ind, 
 						   LiquidTransportParams& trParam) {
@@ -394,10 +394,10 @@ namespace Cantera {
     return lti;
   }
 
-  /**
-   *  make one of several transport models, and return a base class
-   *  pointer to it.
-   */
+  /*
+    make one of several transport models, and return a base class
+    pointer to it.
+  */
   Transport* TransportFactory::newTransport(std::string transportModel,
 					    thermo_t* phase, int log_level) {
 
@@ -465,10 +465,10 @@ namespace Cantera {
     return tr;
   }
  
-  /**
-   *  make one of several transport models, and return a base class
-   *  pointer to it.
-   */
+  /*
+    make one of several transport models, and return a base class
+    pointer to it.
+  */
   Transport* TransportFactory::newTransport(thermo_t* phase, int log_level) {
     XML_Node &phaseNode=phase->xml();
     /*
@@ -488,11 +488,11 @@ namespace Cantera {
   }
 
 
-  /** 
-   * Prepare to build a new kinetic-theory-based transport manager
-   * for low-density gases. Uses polynomial fits to Monchick & Mason
-   * collision integrals.
-   */
+  /* 
+    Prepare to build a new kinetic-theory-based transport manager
+    for low-density gases. Uses polynomial fits to Monchick & Mason
+    collision integrals.
+  */
   void TransportFactory::setupMM(std::ostream &flog, 
 				 const std::vector<const XML_Node*> &transport_database, 
 				 thermo_t* thermo, int mode, int log_level, GasTransportParams& tr) {
@@ -619,10 +619,10 @@ namespace Cantera {
 
 
 
-  /** 
-   * Prepare to build a new transport manager for liquids assuming that 
-   * viscosity transport data is provided in Arhennius form.
-   */
+  /*
+    Prepare to build a new transport manager for liquids assuming that 
+    viscosity transport data is provided in Arhennius form.
+  */
   void TransportFactory::setupLiquidTransport(std::ostream &flog, 
 					      thermo_t* thermo, int log_level, LiquidTransportParams& trParam) {
         
@@ -701,9 +701,9 @@ namespace Cantera {
   }
 
 
-  /** Similar to initTransport except uses LiquidTransportParams
-   * class and calls setupLiquidTransport().
-   */
+  /* Similar to initTransport except uses LiquidTransportParams
+     class and calls setupLiquidTransport().
+  */
   void  TransportFactory::initLiquidTransport(Transport* tran, 
 					      thermo_t* thermo, 
 					      int log_level) { 
@@ -817,13 +817,13 @@ namespace Cantera {
    *
    *********************************************************/
 
-  /** 
-   * Read transport property data from a file for a list of species.
-   * Given the name of a file containing transport property
-   * parameters and a list of species names, this method returns an
-   * instance of TransportParams containing the transport data for
-   * these species read from the file.
-   */
+  /*
+    Read transport property data from a file for a list of species.
+    Given the name of a file containing transport property
+    parameters and a list of species names, this method returns an
+    instance of TransportParams containing the transport data for
+    these species read from the file.
+  */
   void TransportFactory::getTransportData(const std::vector<const XML_Node*> &xspecies,  
 					  XML_Node& log, const std::vector<std::string> &names, GasTransportParams& tr)
   {
@@ -940,13 +940,13 @@ namespace Cantera {
     }
   }
 
-  /** 
-   * Read transport property data from a file for a list of species.
-   * Given the name of a file containing transport property
-   * parameters and a list of species names, this method returns an
-   * instance of TransportParams containing the transport data for
-   * these species read from the file.
-   */
+  /*
+    Read transport property data from a file for a list of species.
+    Given the name of a file containing transport property
+    parameters and a list of species names, this method returns an
+    instance of TransportParams containing the transport data for
+    these species read from the file.
+  */
   void TransportFactory::getLiquidSpeciesTransportData(const std::vector<const XML_Node*> &xspecies,  
 						       XML_Node& log, 
 						       const std::vector<std::string> &names, 
@@ -954,8 +954,8 @@ namespace Cantera {
   {
     std::string name;
     /*
-     *  Create a map of species names versus liquid transport data parameters
-     */
+      Create a map of species names versus liquid transport data parameters
+    */
     std::map<std::string, LiquidTransportData> datatable;
     std::map<std::string, LiquidTransportData>::iterator it;
 
@@ -1063,9 +1063,9 @@ namespace Cantera {
     trParam.LTData.clear();
     for (int i = 0; i < trParam.nsp_; i++) {
       /*
-       *  Check to see that we have a LiquidTransportData object for all of the
-       *  species in the phase. If not, throw an error.
-       */
+	Check to see that we have a LiquidTransportData object for all of the
+	species in the phase. If not, throw an error.
+      */
       it = datatable.find(names[i]);
       if (it == datatable.end()) {
 	throw TransportDBError(0,"No transport data found for species "  + names[i]);
@@ -1073,24 +1073,23 @@ namespace Cantera {
       LiquidTransportData& trdat = it->second;
    
       /*
-       * Now, transfer these objects into LTData in the correct phase index order by
-       * calling the default copy constructor for LiquidTransportData.
-       */
+        Now, transfer these objects into LTData in the correct phase index order by
+        calling the default copy constructor for LiquidTransportData.
+      */
       trParam.LTData.push_back(trdat);
     }
   }
 
 
-  /** 
-   * Read transport property data from a file for interactions 
-   * between species in a liquid.
-   * Given the name of a file containing transport property
-   * parameters and a list of species names, this method returns an
-   * instance of TransportParams containing the transport data for
-   * these species read from the file.
-   */
-  void
-  TransportFactory::getLiquidInteractionsTransportData(const XML_Node &transportNode,  
+  /*
+    Read transport property data from a file for interactions 
+    between species in a liquid.
+    Given the name of a file containing transport property
+    parameters and a list of species names, this method returns an
+    instance of TransportParams containing the transport data for
+    these species read from the file.
+  */
+  void TransportFactory::getLiquidInteractionsTransportData(const XML_Node &transportNode,  
 						       XML_Node& log, 
 						       const std::vector<std::string> &names, 
 						       LiquidTransportParams& trParam)
@@ -1218,8 +1217,7 @@ namespace Cantera {
 
   /*****************   fitProperties  ***************/
 
-  /**
-   * Generate polynomial fits for the pure-species viscosities and
+  /* Generate polynomial fits for the pure-species viscosities and
    * for the binary diffusion coefficients. If
    * CK_mode, then the fits are of the
    * form \f[

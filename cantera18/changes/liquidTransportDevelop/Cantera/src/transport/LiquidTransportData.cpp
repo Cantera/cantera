@@ -90,13 +90,13 @@ namespace Cantera {
 
 
 
-  //! Copy constructor
+  // Copy constructor
   LTPspecies::LTPspecies( const LTPspecies &right ) 
   {
     *this = right; //use assignment operator to do other work
   }
   
-  //! Assignment operator
+  // Assignment operator
   LTPspecies& LTPspecies::operator=(const LTPspecies& right ) 
   {
     if (&right != this) {
@@ -111,9 +111,9 @@ namespace Cantera {
   }
 
 
-  //! Construct an LTPspecies object for a liquid tranport property 
-  //! expressed as a constant value.
-  /** The transport property is constructed from the XML node, 
+  // Construct an LTPspecies object for a liquid tranport property 
+  // expressed as a constant value.
+  /* The transport property is constructed from the XML node, 
    *  \verbatim <propNode>, \endverbatim that is a child of the
    *  \verbatim <transport> \endverbatim node and specifies a type of
    *  transport property (like viscosity)
@@ -131,14 +131,14 @@ namespace Cantera {
     } else throw LTPError("negative or zero " + propNode.name() );
   }
 
-  //! Copy constructor
+  // Copy constructor
   LTPspecies_Const::LTPspecies_Const( const LTPspecies_Const &right ) 
     : LTPspecies()
   {
     *this = right; //use assignment operator to do other work
   }
   
-  //! Assignment operator
+  // Assignment operator
   LTPspecies_Const& LTPspecies_Const::operator=(const LTPspecies_Const& right ) 
   {
     if (&right != this) {
@@ -153,16 +153,16 @@ namespace Cantera {
     return *this; 
   }
 
-  //! Return the (constant) value for this transport property
+  // Return the (constant) value for this transport property
   doublereal LTPspecies_Const::getSpeciesTransProp( ) {
     return m_coeffs[0];
   }
 
   ///////////////////////////////////////////////////////////////
 
-  //! Construct an LTPspecies object for a liquid tranport property 
-  //! expressed in extended Arrhenius form.
-  /** The transport property is constructed from the XML node, 
+  // Construct an LTPspecies object for a liquid tranport property 
+  // expressed in extended Arrhenius form.
+  /* The transport property is constructed from the XML node, 
    *  \verbatim <propNode>, \endverbatim that is a child of the
    *  \verbatim <transport> \endverbatim node and specifies a type of
    *  transport property (like viscosity)
@@ -188,14 +188,14 @@ namespace Cantera {
     m_coeffs.push_back( log( A_k ) );
   }
   
-  //! Copy constructor
+  // Copy constructor
   LTPspecies_Arrhenius::LTPspecies_Arrhenius( const LTPspecies_Arrhenius &right ) 
     : LTPspecies()
   {
     *this = right; //use assignment operator to do other work
   }
   
-  //! Assignment operator
+  // Assignment operator
   LTPspecies_Arrhenius& LTPspecies_Arrhenius::operator=(const LTPspecies_Arrhenius& right )
   {
     if (&right != this) {
@@ -215,9 +215,9 @@ namespace Cantera {
     return *this; 
   }
 
-  //! Return the pure species value for this transport property evaluated 
-  //! from the Arrhenius expression
-  /**
+  // Return the pure species value for this transport property evaluated 
+  // from the Arrhenius expression
+  /*
    * In general the Arrhenius expression is 
    *
    * \f[
@@ -265,9 +265,9 @@ namespace Cantera {
 
   ///////////////////////////////////////////////////////////////
 
-  //! Construct an LTPspecies object for a liquid tranport property 
-  //! expressed as a polynomial in temperature.
-  /** The transport property is constructed from the XML node, 
+  // Construct an LTPspecies object for a liquid tranport property 
+  // expressed as a polynomial in temperature.
+  /* The transport property is constructed from the XML node, 
    *  \verbatim <propNode>, \endverbatim that is a child of the
    *  \verbatim <transport> \endverbatim node and specifies a type of
    *  transport property (like viscosity)
@@ -290,14 +290,14 @@ namespace Cantera {
       }*/
   }
 
-  //! Copy constructor
+  // Copy constructor
   LTPspecies_Poly::LTPspecies_Poly( const LTPspecies_Poly &right ) 
     : LTPspecies()
   {
     *this = right; //use assignment operator to do other work
   }
   
-  //! Assignment operator
+  // Assignment operator
   LTPspecies_Poly& LTPspecies_Poly::operator=(const LTPspecies_Poly& right )
   {
     if (&right != this) {
@@ -315,8 +315,8 @@ namespace Cantera {
     return *this; 
   }
 
-  //! Return the value for this transport property evaluated 
-  //! from the polynomial expression
+  // Return the value for this transport property evaluated 
+  // from the polynomial expression
   doublereal LTPspecies_Poly::getSpeciesTransProp( ) {
     
     doublereal t = m_thermo->temperature();
@@ -338,9 +338,9 @@ namespace Cantera {
 
 ///////////////////////////////////////////////////////////////
 
-  //! Construct an LTPspecies object for a liquid tranport property 
-  //! expressed as an exponential in temperature.
-  /** The transport property is constructed from the XML node, 
+  // Construct an LTPspecies object for a liquid tranport property 
+  // expressed as an exponential in temperature.
+  /* The transport property is constructed from the XML node, 
    *  \verbatim <propNode>, \endverbatim that is a child of the
    *  \verbatim <transport> \endverbatim node and specifies a type of
    *  transport property (like viscosity)
@@ -363,14 +363,14 @@ namespace Cantera {
       }*/
   }
 
-  //! Copy constructor
+  // Copy constructor
   LTPspecies_ExpT::LTPspecies_ExpT( const LTPspecies_ExpT &right ) 
     : LTPspecies()
   {
     *this = right; //use assignment operator to do other work
   }
   
-  //! Assignment operator
+  // Assignment operator
   LTPspecies_ExpT& LTPspecies_ExpT::operator=(const LTPspecies_ExpT& right )
   {
     if (&right != this) {
@@ -388,8 +388,8 @@ namespace Cantera {
     return *this; 
   }
 
-  //! Return the value for this transport property evaluated 
-  //! from the exponential in temperature expression
+  // Return the value for this transport property evaluated 
+  // from the exponential in temperature expression
   doublereal LTPspecies_ExpT::getSpeciesTransProp( ) {
     
     doublereal t = m_thermo->temperature();

@@ -84,17 +84,15 @@ namespace Cantera {
     return m_index; 
   }
 
-  /*
-   * Set an integer index number. This is for internal use of
+  /* Set an integer index number. This is for internal use of
    * Cantera, and may be removed in the future.
    */
   void Transport::setIndex(int i) {
     m_index = i; 
   }
 
-  //! Set the number of dimensions to be expected in flux expressions
-  /*!
-   * Internal memory will be set with this value
+  // Set the number of dimensions to be expected in flux expressions
+  /* Internal memory will be set with this value
    */
   void Transport::setNDim(const int ndim) {
     m_nDim = ndim;
@@ -103,8 +101,7 @@ namespace Cantera {
 
 
 
-  /*
-   * Set transport model parameters. This method may be
+  /* Set transport model parameters. This method may be
    * overloaded in subclasses to set model-specific parameters.
    */
   void Transport::setParameters(const int type, const int k, 

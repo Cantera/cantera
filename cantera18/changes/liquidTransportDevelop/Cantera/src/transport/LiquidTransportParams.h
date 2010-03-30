@@ -117,6 +117,7 @@ namespace Cantera {
    * obtained through some mixing rule.  These are obtained using the
    * method getMixTransProp().  Viscosity is typical of this.
    * Second there are properties for which a matrix of properties may 
+   *  @param tp_ind       
    * exist.  This matrix of properties is obtained from the method
    * getMatrixTransProp().  Diffusion coefficients are of this type.  
    * Subclasses should implement the appropriate one or both of 
@@ -201,9 +202,8 @@ namespace Cantera {
   };
 
   /**
-   * Holds transport model parameters relevant to transport in 
-   * liquids for which activated jump processes limit transport
-   * (giving Arrhenius type transport properties). 
+   * Class LiquidTransportParams holds transport model parameters 
+   * relevant to transport in mixtures. 
    * Used by TransportFactory.
    */
   class LiquidTransportParams : public TransportParams {
@@ -313,6 +313,11 @@ namespace Cantera {
     doublereal getMixTransProp( doublereal *valueSpecies, doublereal *weightSpecies = 0 );
     doublereal getMixTransProp( std::vector<LTPspecies*> LTPptrs ) ;
 
+    //! Return the matrix of binary interaction parameters.
+    /** 
+     * Takes the proper mixing rule for the binary interaction parameters 
+     * and calculates them: Not implemented for this mixing rule.
+     */
     void getMatrixTransProp( DenseMatrix &mat, doublereal* speciesValues = 0 ) { mat = (*m_Aij[0]); }
 
   protected:    
@@ -355,6 +360,11 @@ namespace Cantera {
     doublereal getMixTransProp( doublereal *valueSpecies, doublereal *weightSpecies = 0 );
     doublereal getMixTransProp( std::vector<LTPspecies*> LTPptrs ) ;
 
+    //! Return the matrix of binary interaction parameters.
+    /** 
+     * Takes the proper mixing rule for the binary interaction parameters 
+     * and calculates them: Not Implemented for this Mixing rule;
+     */
     void getMatrixTransProp( DenseMatrix &mat, doublereal* speciesValues = 0 ) { mat = (*m_Aij[0]); }
 
   protected:    
@@ -398,6 +408,11 @@ namespace Cantera {
     doublereal getMixTransProp( doublereal *valueSpecies, doublereal *weightSpecies = 0 );
     doublereal getMixTransProp( std::vector<LTPspecies*> LTPptrs ) ;
 
+    //! Return the matrix of binary interaction parameters.
+    /** 
+     * Takes the proper mixing rule for the binary interaction parameters 
+     * and calculates them: Not implemented for this mixing rule.
+     */
     void getMatrixTransProp( DenseMatrix &mat, doublereal* speciesValues = 0 ) { mat = (*m_Aij[0]); }
 
   protected:    
@@ -472,6 +487,11 @@ namespace Cantera {
     doublereal getMixTransProp( doublereal *valueSpecies, doublereal *weightSpecies = 0 );
     doublereal getMixTransProp( std::vector<LTPspecies*> LTPptrs ) ;
 
+    //! Return the matrix of binary interaction parameters.
+    /** 
+     * Takes the proper mixing rule for the binary interaction parameters 
+     * and calculates them: Not implemented for this mixing rule.
+     */
     void getMatrixTransProp( DenseMatrix &mat, doublereal* speciesValues = 0 ) { mat = m_Eij; }
 
   protected:    
@@ -531,6 +551,11 @@ namespace Cantera {
     doublereal getMixTransProp( doublereal *valueSpecies, doublereal *weightSpecies = 0 );
     doublereal getMixTransProp( std::vector<LTPspecies*> LTPptrs ) ;
 
+    //! Return the matrix of binary interaction parameters.
+    /** 
+     * Takes the proper mixing rule for the binary interaction parameters 
+     * and calculates them
+     */
     void getMatrixTransProp( DenseMatrix &mat, doublereal* speciesValues = 0 ) ;
   protected:    
 
@@ -540,14 +565,62 @@ namespace Cantera {
 
   //! Stefan Maxwell Diffusion Coefficients can be solved for given
   //! ion conductivity, mobility ratios, and self diffusion coeffs.
-  //! This method is only valid for a common anion mixture of two
-  //! salts with cations of equal charge.
+  //! This class is only valid for a common anion mixture of two
+  //! salts with cations of equal charge.  Hence the name _PPN.
   /**
+   *
    * This class requres you specify 
+   *
    * 1 - ion conductivity
-   * 2 - mobility ratio of the two cations
-   * 3 - mutual diffusion coefficient (can be approximated using
-   *     the self diffusion coefficients of the cations
+   *
+   * 2 - mobility ratio of the two cations (set all other ratios to zero)
+   *
+   * 3 - Self diffusion coefficients of the cations (set others to zero)
+   *     is used to calculate the "mutual diffusion coefficient".  The
+   *     approximation needed to do so requires the cations have equal charge.
+   *
+   * We than calculate the Stefan Maxwell Diffusion Coefficients by 
+   * \f[ 
+   *     \frac{1}{D_{12}} = (1-\epsilon X_A)(1+\epsilon X_B)
+   *     \frac{\nu_- + \nu_+}{\nu_-\nu_+^2D} 
+   *     + \frac{z_-z_+ F^2}{\kappa V R T} 
+   * \f]
+   * \f[ 
+   *     \frac{1}{D_{12}} = -\epsilon X_B(1-\epsilon X_A)
+   *     \frac{\nu_- + \nu_+}{\nu_-^2\nu_+D} 
+   *     - \frac{z_-z_+ F^2}{\kappa V R T} 
+   * \f]
+   * \f[ 
+   *     \frac{1}{D_{23}} = \epsilon X_A(1+\epsilon X_B)
+   *     \frac{\nu_- + \nu_+}{\nu_-^2\nu_+D}  
+   *     - \frac{z_-z_+ F^2}{\kappa V R T} 
+   * \f]
+   * where F is Faraday's constant, RT is the gas constant times the 
+   * tempurature, and V is the molar volume (basis is moles of ions) that is 
+   * calculated by the thermophase member. X_A and X_B are the mole fractions
+   * of the salts composed of cation(1) and cation(2), respectively, that share 
+   * a common anion(3). \f$\nu_{+,-}\f$ are the stoichiometric coefficients in 
+   * the dissociation reaction of the salts to the ions with charges of 
+   * \f$z_{+,-}\f$.  Assuming that the cations have equal charge, the "mutual 
+   * diffusion coefficient" is calculated using the cation self diffusion 
+   * coefficients.
+   * \f[
+   *     \frac{1}{\nu_-\nu_+D} = \left(1+\frac{\partial \gamma_B}{\partial N_B}
+   * \right)\frac{X_A}{D_2^*}+\left(1+\frac{\partial \gamma_A}{\partial N_A}
+   * \right)\frac{X_B}{D_1^*}
+   * \f]
+   * where the self diffusion coefficients, \f$D_i^*\f$, are temperature and 
+   * composition parameterized inputs and the derivative of the activity 
+   * coefficient, \f$\frac{\partial \gamma_B}{\partial N_B}\f$, is calculated 
+   * by the thermophase member using the excess enthalpy and entropy upon mixing.
+   *
+   * Finally, the deviation of the transferrence numbers from ideality, 
+   * \f$\epsilon\f$, is calculated from the mobility ratio of the cations.
+   * \f[
+   *     \epsilon = \frac{1-b_2/b_1}{X_A+X_Bb_2/b_1}
+   * \f]
+   * Where \f$b_i\f$ are the mobilities of the two cations.  Everywhere, 
+   * cation 1 corresponds with salt A and cation 2 with salt B.
    *
    *  Sample input for this method is
    *  \verbatim
@@ -589,8 +662,12 @@ namespace Cantera {
     doublereal getMixTransProp( doublereal *valueSpecies, doublereal *weightSpecies = 0 );
     doublereal getMixTransProp( std::vector<LTPspecies*> LTPptrs ) ;
 
+    //! Return the matrix of binary interaction parameters.
+    /** 
+     * Takes the proper mixing rule for the binary interaction parameters 
+     * and calculates them
+     */
     void getMatrixTransProp( DenseMatrix &mat, doublereal* speciesValues = 0 ) ;
-    //CAL    void getMatrixTransProp( DenseMatrix &mat, LiquidTransport* lt, doublereal* speciesValues = 0 ) ;
 
   protected:    
 
@@ -637,6 +714,11 @@ namespace Cantera {
     doublereal getMixTransProp( doublereal *valueSpecies, doublereal *weightSpecies = 0 );
     doublereal getMixTransProp( std::vector<LTPspecies*> LTPptrs ) ;
 
+    //! Return the matrix of binary interaction parameters.
+    /** 
+     * Takes the proper mixing rule for the binary interaction parameters 
+     * and calculates them
+     */
     void getMatrixTransProp( DenseMatrix &mat, doublereal* speciesValues = 0 ) ;
   protected:    
     
@@ -681,6 +763,11 @@ namespace Cantera {
     doublereal getMixTransProp( doublereal *valueSpecies, doublereal *weightSpecies = 0 );
     doublereal getMixTransProp( std::vector<LTPspecies*> LTPptrs ) ;
 
+    //! Return the matrix of binary interaction parameters.
+    /** 
+     * Takes the proper mixing rule for the binary interaction parameters 
+     * and calculates them: Not Implemented for this mixing rule
+     */
     void getMatrixTransProp( DenseMatrix &mat, doublereal* speciesValues = 0 ) { mat = (*m_Aij[0]); }
     //CAL    void getMatrixTransProp( DenseMatrix &mat, LiquidTransport* lt, doublereal* speciesValues = 0 ) { mat = (*m_Aij[0]); }
 

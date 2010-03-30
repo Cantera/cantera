@@ -461,8 +461,9 @@ namespace Cantera {
      */
     virtual void getdlnActCoeffdlnN(doublereal *dlnActCoeffdlnN) const;
 
-
-    virtual void getDissociationCoeffs(vector_fp& coeffs, vector_fp& charges);
+    //! Get the Salt Dissociation Coefficients
+    //! Returns the vector of dissociation coefficients and vector of charges
+    virtual void getDissociationCoeffs(vector_fp& coeffs, vector_fp& charges, std::vector<int>& neutMolIndex);
 
     virtual void getNeutralMolecMoleFractions(vector_fp& fracs){fracs=NeutralMolecMoleFractions_;}
 
@@ -804,7 +805,7 @@ namespace Cantera {
     //! Formula Matrix for composition of neutral molecules
     //! in terms of the molecules in this ThermoPhase
     /*!
-     *       fm_neutralMolec_ions[ i + jNeut * NumNeut ]
+     *       fm_neutralMolec_ions[ i + jNeut * m_kk                ]
      *
      *             This is the number of ions of type i in the neutral
      *             molecule jNeut.
@@ -813,6 +814,11 @@ namespace Cantera {
 
     //! Mapping between ion species and neutral molecule for quick invert.
     /*!
+     *
+     * fm_invert_ionForNeutral returns vector of int. Each element represents 
+     * an ionic species and stores the value of the corresponding neutral 
+     * molecule
+     *
      *  For the case of fm_invert_simple_ = true, we assume that there
      *  is a quick way to invert the formula matrix so that we can
      *  quickly calculate the neutral molecule mole fraction
