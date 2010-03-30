@@ -334,9 +334,10 @@ namespace Cantera {
     getActivities(c);
   }
 
-  void IonsFromNeutralVPSSTP::getDissociationCoeffs(vector_fp& coeffs,vector_fp& charges){
+  void IonsFromNeutralVPSSTP::getDissociationCoeffs(vector_fp& coeffs,vector_fp& charges, std::vector<int>& neutMolIndex){
     coeffs = fm_neutralMolec_ions_;
     charges = m_speciesCharge;
+    neutMolIndex = fm_invert_ionForNeutral;
     //for ( int k = 0; k < fm_neutralMolec_ions_[k]; k++ )
     //  coeffs.push_back(fm_neutralMolec_ions_[k]);
   }
@@ -1297,9 +1298,12 @@ namespace Cantera {
     std::vector<double> elemVectorI(nElementsI);
 
     vector<doublereal> fm_tmp(m_kk);
-    for (int jNeut = 0; jNeut <  numNeutralMoleculeSpecies_; jNeut++) {
-      fm_invert_ionForNeutral[jNeut] = -1;
+    for (int k = 0; k <  m_kk; k++) {
+      fm_invert_ionForNeutral[k] = -1;
     }
+    /*    for (int jNeut = 0; jNeut <  numNeutralMoleculeSpecies_; jNeut++) {
+      fm_invert_ionForNeutral[jNeut] = -1;
+      }*/
     for (int jNeut = 0; jNeut <  numNeutralMoleculeSpecies_; jNeut++) {
       for (int m = 0; m < nElementsN; m++) {
 	 elemVectorN[m] = neutralMoleculePhase_->nAtoms(jNeut, m);
@@ -1346,12 +1350,16 @@ namespace Cantera {
 	  }
 	  bool notTaken = true;
 	  for (int iNeut = 0; iNeut < jNeut; iNeut++) {
-	    if (fm_invert_ionForNeutral[iNeut] == k) {
+	    if (fm_invert_ionForNeutral[k] == iNeut) {
 	      notTaken = false;
 	    }
 	  }
 	  if (notTaken) {
-	    fm_invert_ionForNeutral[jNeut] = k;
+	    fm_invert_ionForNeutral[k] = jNeut;
+	  }
+	  else{
+	    throw CanteraError("IonsFromNeutralVPSSTP::initThermoXML", 
+			       "Simple formula matrix generation failed, one cation is shared between two salts");
 	  }
 	}
 	fm_neutralMolec_ions_[k  + jNeut * m_kk] += fac;

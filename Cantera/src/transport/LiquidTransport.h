@@ -50,30 +50,36 @@ namespace Cantera {
    *  The class LiquidTransport has several roles.  
    *  -# It brings together the individual species transport 
    *     properties, expressed as subclasses of LTPspecies 
-   *     (Liquid Transport Properties of Species), with 
-   *     models for the composition dependence of liquid 
-   *     transport properties expressed as subclasses of 
-   *     LiquidTranInteraction.
-   * 
+   *     (Liquid Transport Properties of Species) through 
+   *     LiquidTransportData, with models for 
+   *     the composition dependence of liquid transport properties 
+   *     expressed as subclasses of LiquidTranInteraction 
+   *     (mixing rules) through LiquidTransportParams.  Calculating 
+   *     mixture properties generally consists of calling the 
+   *     getMixTansProp member of LiquidTranInteraction by passing 
+   *     a vector of LTPSpecies
    *  -# It calculates the bulk velocity \f$ \vec{v} \f$ and  
    *     individual species diffusion velocities, \f$ \vec{V_i} \f$ 
-   *     using the Stefan-Maxwell equations.  It is 
-   *     possible to set a flag to calculate relative to a 
-   *     mass-averaged bulk velocity, relative to a mole-averaged 
-   *     bulk velocity or relative to a single species velocity 
-   *     using the <velocityBasis basis="mass"> keyword.  
-   *     Mass-averaged velocities are the default for which the 
-   *     diffusion velocities satisfy 
+   *     using the Stefan-Maxwell equations.  It is possible to set a 
+   *     flag to calculate relative to a mass-averaged bulk velocity, 
+   *     relative to a mole-averaged bulk velocity or relative to a 
+   *     single species velocity using the <velocityBasis basis="mass">, 
+   *     <velocityBasis basis="mass">, or <velocityBasis basis="Cl-"> 
+   *     keyword. Mass-averaged velocities are the default for which 
+   *     the diffusion velocities satisfy 
    *     \f[
    *        \sum_{i} Y_i \vec{V_i} = 0
    *     \f] 
    *     for mass fraction \f$ Y_i \f$.  For mole-averaged velocities
    *     \f[
-  *        \sum_{i} X_i \vec{V_i} = 0
+   *        \sum_{i} X_i \vec{V_i} = 0
    *     \f] 
-   *     for mole fraction \f$ X_i \f$.
-   * 
-   *  -# It provides acccess to a number of derived quantities
+   *     for mole fraction \f$ X_i \f$. or 
+   *     \f[
+   *        \vec{V_i} = 0
+   *     \f] 
+   *     for reference species \f$ i \f$.
+   *  -# It provides access to a number of derived quantities
    *     related to transport properties as described in the 
    *     various methods below.
    *     
@@ -198,16 +204,21 @@ namespace Cantera {
      */
     virtual void getSpeciesIonConductivity(doublereal* const ionCond);
 
-    //! Returns the mobility ratio of the solution
+    //! Returns the pointer to the mobility ratios of the binary 
+    //! combinations of the transported species for the solution
+    //! Has size of the number of binary interactions = nsp*nsp
     /*!
      *  The mobility ratio calculation is handled by subclasses of 
      *  LiquidTranInteraction as specified in the input file.  
      *  These in turn employ subclasses of LTPspecies to 
-     *  determine the individual species mobility ratios.
+     *  determine the mobility ratios in the pure species.
      */
     virtual void mobilityRatio(double* mobRat);
 
-    //! Returns the pure species mobility ratios for all species
+    //! Returns a double pointer to the mobility ratios of the 
+    //! transported species in each pure species phase.
+    //! Has size of the number of binary interactions by the number 
+    //! of species (nsp*nsp X nsp)
     /*!
      *  The pure species mobility ratios are evaluated using the 
      *  appropriate subclasses of LTPspecies as specified in the 
@@ -218,7 +229,8 @@ namespace Cantera {
      */ 
     virtual void getSpeciesMobilityRatio(double** mobRat);
 
-    //! Returns the self diffusion coefficients of the species in the phase
+    //! Returns the self diffusion coefficients of the species in the phase.
+    //! Has size of nsp(coeffs)
     /*!
      *  The self diffusion coefficient is the diffusion coefficient of a tracer species 
      *  at the current temperature and composition of the species. Therefore, 
@@ -246,7 +258,8 @@ namespace Cantera {
      */
     virtual void selfDiffusion(doublereal * const selfDiff);
 
-    //! Returns the pure species self diffusion in solution of each species
+    //! Returns the self diffusion coefficients in the pure species phases.
+    //! Has size of nsp(coeffs) x nsp(phases)
     /*!
      *  The pure species molar volumes are evaluated using the 
      *  appropriate subclasses of LTPspecies as specified in the 
@@ -713,10 +726,10 @@ namespace Cantera {
 
     
     //!  Updates the internal value of the gradient of the  
-    //!  logarithm of the activity coefficients, which is 
+    //!  logarithm of the activity, which is 
     //!  used in the gradient of the chemical potential. 
     /**
-     * Evaluate the gradients of the activity coefficients 
+     * Evaluate the gradients of the activity  
      * as they alter the diffusion coefficient.  
      *
      *  The gradient of the chemical potential can be written in terms of 
@@ -724,22 +737,17 @@ namespace Cantera {
      *  associated with the gradient of the activity coefficient relative to 
      *  that of the mole fraction.  Specifically, the gradients of the 
      *  logarithms of each are involved according to the formula 
-     
+     *     
      *  \f[
-     *      \nabla \mu_k = RT \nabla ( \ln X_k ) 
-     *      \left[ 1 + \nabla ( \ln \gamma_k ) / \nabla ( \ln X_k ) \right]
+     *      \nabla \mu_k = RT \left[ \nabla ( \ln X_k ) + 
+     *      \nabla ( \ln \gamma_k ) \right] = RT \left[
+     *      \nabla ( \ln a_k ) \right]
      *  \f]
      *  
-     * The required quantity is the derivitive of the logarithm of the 
-     * activity coefficient with respect to the derivative of the 
-     * logarithm of the mole fraction (or whatever concentration 
-     * variable we are using to express chemical potential.
-     *
-     * Updates the vector over species i:
-     * \[
-     *    \partial \left[ \ln ( \gamma_i ) \right] 
-     *       / \partial \left[ \ln ( \X_i  ) \right] 
-     * \]
+     *  The gradient in the activity coefficient requires the use of thermophase
+     *  getdlnActCoeff that calculates its change based on a chane in the state
+     *  (i.e. temperature and composition of each species) which was first 
+     *  implemented in MargulesVPSSTP.cpp (LiquidTransport.h doxygen)
      */
      virtual void update_Grad_lnAC();
 
@@ -768,7 +776,11 @@ namespace Cantera {
      * or mass-weighted basis, or the diffusion velocities may 
      * be specified as relative to a specific species (i.e. a 
      * solvent) all according to the \verbatim <velocityBasis> 
-     * \endverbatim input parameter.
+     * \endverbatim input para
+   *  The gradient in the activity coefficient requires the use of thermophase
+   *  getdlnActCoeff that calculates its change based on a change in the state
+   *  i.e. temperature and composition of each species.
+   *  First implemented in MargulesVPSSTP.cppmeter.
      *
      * One of the Stefan Maxwell equations is replaced by the appropriate
      * definition of the mass-averaged velocity, the mole-averaged velocity 
@@ -932,18 +944,18 @@ namespace Cantera {
      */
     LiquidTranInteraction *m_ionCondMixModel;
 
-    //! Mobility ratio for each species expressed as an appropriate subclass 
-    //! of LTPspecies
+    typedef std::vector<LTPspecies*> LTPvector;
+    //! Mobility ratio for the binary cominations of each species in each 
+    //! pure phase expressed as an appropriate subclass of LTPspecies
     /*!
      *  These subclasses of LTPspecies evaluate the species-specific
      *  transport properties according to the parameters parsed in 
      *  TransportFactory::getLiquidSpeciesTransportData().
      */
-    typedef std::vector<LTPspecies*> LTPvector;
     std::vector<LTPvector> m_mobRatTempDep_Ns;
 
-    //! Mobility ratio of the mixture expressed as a subclass of 
-    //! LiquidTranInteraction
+    //! Mobility ratio for each binary combination of mobile species in the mixture 
+    //! expressed as a subclass of LiquidTranInteraction
     /*!
      *  These subclasses of LiquidTranInteraction evaluate the 
      *  mixture transport properties according to the parameters parsed in 
@@ -951,8 +963,8 @@ namespace Cantera {
      */
     std::vector<LiquidTranInteraction*> m_mobRatMixModel;
 
-    //! Self Diffusion for each species expressed as an appropriate subclass 
-    //! of LTPspecies
+    //! Self Diffusion for each species in each pure species phase 
+    //! expressed as an appropriate subclass of LTPspecies
     /*!
      *  These subclasses of LTPspecies evaluate the species-specific
      *  transport properties according to the parameters parsed in 
@@ -960,7 +972,7 @@ namespace Cantera {
      */
     std::vector<LTPvector> m_selfDiffTempDep_Ns;
 
-    //! Self Diffusion of the mixture expressed as a subclass of 
+    //! Self Diffusion for each species in the mixture expressed as a subclass of 
     //! LiquidTranInteraction
     /*!
      *  These subclasses of LiquidTranInteraction evaluate the 
@@ -1058,19 +1070,16 @@ namespace Cantera {
      */
     vector_fp m_Grad_X;
 
-    //! Gradient of the logarithm of the activity coefficients 
+    //! Gradient of the logarithm of the activity
     /*!
      *  This quantity appears in the gradient of the chemical potential.  
-     *  It multiplies the gradient of the mole fraction, and in this way 
+     *  It replaces the gradient of the mole fraction, and in this way 
      * serves to "modify" the diffusion coefficient.  
      *
-     *    m_Grad_lnAC[k] = \nabla \ln ( \gamma_i ) + \nabla \ln ( \X_i  ) 
-     * 
-     * Note that where "mole fraction" is used here, whatever 
-     * concentration-related variable applies, so that if 
-     * molality is the concentration variable, the gradient of the 
-     * activity coefficient should be with respect to the molality. 
-     *  m_nsp is the number of species in the fluid
+     *  \f[
+     *      m\_Grad\_lnAC[k] = \nabla ( \ln X_k ) + 
+     *      \nabla ( \ln \gamma_k )
+     *  \f]
      *
      *  k is the species index
      *  n is the dimensional index (x, y, or z). It has a length
@@ -1124,7 +1133,7 @@ namespace Cantera {
      *  n is the dimensional index (x, y, or z)
      *  
      *  \f[
-     *     m_Grad_mu[n*m_nsp + k]
+     *     m\_Grad\_mu[n*m_nsp + k]
      *  \f]
      */
     vector_fp m_Grad_mu;

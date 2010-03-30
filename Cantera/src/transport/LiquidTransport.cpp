@@ -686,8 +686,8 @@ namespace Cantera {
 
   /****************** thermal diffusion coefficients ************/
 
-  //! Return the thermal diffusion coefficients
-  /*!
+  // Return the thermal diffusion coefficients
+  /*
    *  These are all zero for this simple implementaion
    *
    *  @param dt thermal diffusion coefficients
@@ -813,8 +813,8 @@ namespace Cantera {
     }
   } 
   //==============================================================
-  //! Specify the value of the gradient of the temperature
-  /*!
+  // Specify the value of the gradient of the temperature
+  /*
    * @param grad_T Gradient of the temperature (length num dimensions);
    */
   void LiquidTransport::set_Grad_T(const doublereal* const grad_T) {
@@ -823,8 +823,8 @@ namespace Cantera {
     }
   }
   //==============================================================
-  //! Specify the value of the gradient of the voltage
-  /*!
+  // Specify the value of the gradient of the voltage
+  /*
    *
    * @param grad_V Gradient of the voltage (length num dimensions);
    */
@@ -834,8 +834,8 @@ namespace Cantera {
     }
   }
   //==============================================================
-  //! Specify the value of the gradient of the MoleFractions
-  /*!
+  // Specify the value of the gradient of the MoleFractions
+  /*
    *
    * @param grad_X Gradient of the mole fractions(length nsp * num dimensions);
    */
@@ -981,7 +981,7 @@ namespace Cantera {
     getSpeciesVdiffExt(ldf, Vdiff);
   }
 
-  /**
+  /*
    * @param ndim The number of spatial dimensions (1, 2, or 3).
    * @param grad_T The temperature gradient (ignored in this model).
    * @param ldx  Leading dimension of the grad_X array.
@@ -1361,8 +1361,8 @@ namespace Cantera {
   }
 
 
-  //! Update the binary Stefan-Maxwell diffusion coefficients 
-  //! wrt T using calls to the appropriate LTPspecies subclass
+  // Update the binary Stefan-Maxwell diffusion coefficients 
+  // wrt T using calls to the appropriate LTPspecies subclass
   void LiquidTransport::updateDiff_T() {
 
     m_diffMixModel->getMatrixTransProp( m_bdiff );
@@ -1371,13 +1371,13 @@ namespace Cantera {
   }
 
 
-  //! Update the pure-species viscosities functional dependence on concentration.
+  // Update the pure-species viscosities functional dependence on concentration.
   void LiquidTransport::updateViscosities_C() {
     m_visc_conc_ok = true;
   }
 
 
-  /**
+  /*
    * Updates the array of pure species viscosities internally 
    * using calls to the appropriate LTPspecies subclass.
    * The flag m_visc_ok is set to true.
@@ -1401,13 +1401,13 @@ namespace Cantera {
   }
 
 
-  //! Update the pure-species ionic conductivities functional dependence on concentration.
+  // Update the pure-species ionic conductivities functional dependence on concentration.
   void LiquidTransport::updateIonConductivity_C() {
     m_ionCond_conc_ok = true;
   }
 
 
-  /**
+  /*
    * Updates the array of pure species ionic conductivities internally 
    * using calls to the appropriate LTPspecies subclass.
    * The flag m_ionCond_ok is set to true.
@@ -1423,13 +1423,12 @@ namespace Cantera {
   }
 
 
-  //! Update the pure-species mobility ratios functional dependence on concentration.
+  // Update the pure-species mobility ratios functional dependence on concentration.
   void LiquidTransport::updateMobilityRatio_C() {
     m_mobRat_conc_ok = true;
   }
 
-
-  /**
+  /*
    * Updates the array of pure species mobility ratios internally 
    * using calls to the appropriate LTPspecies subclass.
    * The flag m_mobRat_ok is set to true.
@@ -1448,13 +1447,13 @@ namespace Cantera {
   }
 
 
-  //! Update the pure-species self diffusion functional dependence on concentration.
+  // Update the pure-species self diffusion functional dependence on concentration.
   void LiquidTransport::updateSelfDiffusion_C() {
     m_selfDiff_conc_ok = true;
   }
 
 
-  /**
+  /*
    * Updates the array of pure species self diffusion internally 
    * using calls to the appropriate LTPspecies subclass.
    * The flag m_selfDiff_ok is set to true.
@@ -1472,15 +1471,14 @@ namespace Cantera {
     m_selfDiff_mix_ok = false;
   }
 
-  //! Update the pure-species viscosities functional dependence on concentration.
   void LiquidTransport::updateHydrodynamicRadius_C() {
     m_radi_conc_ok = true;
   }
 
 
-  //!  Update the temperature-dependent hydrodynamic radius terms
-  //!  for each species internally  using calls to the
-  //!  appropriate LTPspecies subclass
+  //  Update the temperature-dependent hydrodynamic radius terms
+  //  for each species internally  using calls to the
+  //  appropriate LTPspecies subclass
   void LiquidTransport::updateHydrodynamicRadius_T() {
     int k;
 
@@ -1491,35 +1489,6 @@ namespace Cantera {
     m_radi_mix_ok = false;
   }
 
-  //!  Updates the internal value of the gradient of the  
-  //!  logarithm of the activity coefficients, which is 
-  //!  used in the gradient of the chemical potential. 
-  /**
-   * Evaluate the gradients of the activity coefficients 
-   * as they alter the diffusion coefficient.  
-   *
-   *  The gradient of the chemical potential can be written in terms of 
-   *  gradient of the logarithm of the mole fraction times a correction
-   *  associated with the gradient of the activity coefficient relative to 
-   *  that of the mole fraction.  Specifically, the gradients of the 
-   *  logarithms of each are involved according to the formula 
-   
-   *  \f[
-   *      \nabla \mu_k = RT \nabla ( \ln X_k ) 
-   *      \left[ 1 + \nabla ( \ln \gamma_k ) / \nabla ( \ln X_k ) \right]
-   *  \f]
-   *  
-   * The required quantity is the derivitive of the logarithm of the 
-   * activity coefficient with respect to the derivative of the 
-   * logarithm of the mole fraction (or whatever concentration 
-   * variable we are using to express chemical potential.
-   *
-   * Updates the vector over species i:
-   * \[
-   *    \partial \left[ \ln ( \gamma_i ) \right] 
-   *       / \partial \left[ \ln ( \X_i  ) \right] 
-   * \]
-   */
   void LiquidTransport::update_Grad_lnAC() {
 
     int k;
@@ -1553,7 +1522,7 @@ namespace Cantera {
    *    Solve for the diffusional velocities in the Stefan-Maxwell equations
    *
    */
-  //! Solve the stefan_maxell equations for the diffusive fluxes.
+  // Solve the stefan_maxell equations for the diffusive fluxes.
   /*
    * The diffusive mass flux of species \e k is computed 
    * using the Stefan-Maxwell equation

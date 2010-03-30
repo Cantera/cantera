@@ -112,17 +112,18 @@ namespace Cantera {
 
 
     /**
-     * Deletes the statically malloced instance.
+     * This static function deletes the statically malloced instance.
      */
     virtual void deleteFactory();
 
-    /**
+    /*!
      * Destructor 
      *
-     * We do not delete statically
-     * created single instance of this class here, because it would
-     * create an infinite loop if destructor is called for that
-     * single instance. 
+     * We do not delete statically created single instance of this
+     * class here, because it would create an infinite loop if
+     * destructor is called for that single instance.  However, we do
+     * have a pointer to m_integrals that does need to be
+     * explicitly deleted.
      */
     virtual ~TransportFactory();
 
@@ -152,6 +153,7 @@ namespace Cantera {
     
     //! Build a new transport manager using a transport manager
     //! that may not be the same as in the phase description
+    //! and return a base class pointer to it
     /*!
      *  @param model     String name for the transport manager
      *  @param thermo    ThermoPhase object
@@ -161,7 +163,7 @@ namespace Cantera {
       newTransport(std::string model, thermo_t* thermo, int log_level=0);
 
     //! Build a new transport manager using the default transport manager
-    //! in the phase description
+    //! in the phase description and return a base class pointer to it
     /*!
      *  @param thermo   ThermoPhase object
      *  @param log_level log level
@@ -169,11 +171,14 @@ namespace Cantera {
     virtual Transport*
     newTransport(thermo_t* thermo, int log_level=0);
 
-    /// Initialize an existing transport manager
+    //! Initialize an existing transport manager
     virtual void initTransport(Transport* tr,  
 			       thermo_t* thermo, int mode=0, int log_level=0);
 
-    /// Initialize an existing transport manager for liquid phase
+    //! Initialize an existing transport manager for liquid phase
+    /*! Similar to initTransport except uses LiquidTransportParams
+     * class and calls setupLiquidTransport().
+     */
     virtual void initLiquidTransport(Transport* tr,
                                      thermo_t* thermo, 
                                      int log_level=0);
@@ -197,6 +202,14 @@ namespace Cantera {
      */
     TransportFactory();
 
+    //! Read Transport Database
+    /*!
+     * Read transport property data from a file for a list of species.
+     * Given the name of a file containing transport property
+     * parameters and a list of species names, this method returns an
+     * instance of TransportParams containing the transport data for
+     * these species read from the file.
+     */
     void getTransportData(const std::vector<const XML_Node*> &db,  
 			  XML_Node& log, const std::vector<std::string>& names, 
 			  GasTransportParams& tr);
@@ -236,33 +249,84 @@ namespace Cantera {
 				XML_Node& log, const std::vector<std::string>& names, 
 				LiquidTransportParams& tr);
 
-    /** Generate polynomial fits to viscosity, conductivity, and
-     *  binary diffusion coefficients */
+    //! Generate polynomial fits to viscosity, conductivity, and
+    //!  binary diffusion coefficients */
+    /*! If CK_mode, then the fits are of the form 
+     * \f[
+     * \log(\eta(i)) = \sum_{n = 0}^3 a_n(i) (\log T)^n
+     * \f]
+     * and \f[
+     * \log(D(i,j)) = \sum_{n = 0}^3 a_n(i,j) (\log T)^n
+     * \f]
+     * Otherwise the fits are of the form
+     * \f[
+     * \eta(i)/sqrt(k_BT) = \sum_{n = 0}^4 a_n(i) (\log T)^n
+     * \f]
+     * and \f[
+     * D(i,j)/sqrt(k_BT)) = \sum_{n = 0}^4 a_n(i,j) (\log T)^n
+     * \f]
+     */
     void fitProperties(GasTransportParams& tr, std::ostream & logfile);
 
-    /// Generate polynomial fits to collision integrals
+    //! Generate polynomial fits to collision integrals
     void fitCollisionIntegrals(std::ostream & logfile, 
 			       GasTransportParams& tr);
 
    
-
+    /** 
+     * Prepare to build a new kinetic-theory-based transport manager
+     * for low-density gases. Uses polynomial fits to Monchick & Mason
+     * collision integrals.
+     */
     void setupMM(std::ostream &flog,  const std::vector<const XML_Node*> &transport_database, 
 		 thermo_t* thermo, int mode, int log_level, 
 		 GasTransportParams& tr);
 
-
+    /** 
+     * Prepare to build a new transport manager for liquids assuming that 
+     * viscosity transport data is provided in Arhennius form.
+     */
     void setupLiquidTransport(std::ostream &flog,  
 			      thermo_t* thermo, int log_level, 
 			      LiquidTransportParams& tr);
 
 
-    /// Second-order correction to the binary diffusion coefficients
+    //! Second-order correction to the binary diffusion coefficients
+    /*!
+     * Calculate second-order corrections to binary diffusion
+     * coefficient pair (dkj, djk). At first order, the binary
+     * diffusion coefficients are independent of composition, and
+     * d(k,j) = d(j,k). But at second order, there is a weak
+     * dependence on composition, with the result that d(k,j) !=
+     * d(j,k). This method computes the multiplier by which the
+     * first-order binary diffusion coefficient should be multiplied
+     * to produce the value correct to second order. The expressions
+     * here are taken from Marerro and Mason,
+     * J. Phys. Chem. Ref. Data, vol. 1, p. 3 (1972).
+     *
+     * @param t   Temperature (K)
+     * @param tr  Transport parameters
+     * @param k   index of first species
+     * @param j   index of second species
+     * @param xmk mole fraction of species k
+     * @param xmj mole fraction of species j
+     * @param fkj multiplier for d(k,j)
+     * @param fjk multiplier for d(j,k) 
+     *
+     * @note This method is not used currently.
+     */
     void getBinDiffCorrection(doublereal t, 
 			      const GasTransportParams& tr, int k, int j,
 			      doublereal xk, doublereal xj, 
 			      doublereal& fkj, doublereal& fjk);
 
-    /// Corrections for polar-nonpolar binary diffusion coefficients
+    //! Corrections for polar-nonpolar binary diffusion coefficients
+    /*!
+     * Calculate corrections to the well depth parameter and the
+     * diamter for use in computing the binary diffusion coefficient
+     * of polar-nonpolar pairs. For more information about this
+     * correction, see Dixon-Lewis, Proc. Royal Society (1968).
+     */
     void makePolarCorrections(int i, int j, 
 			      const GasTransportParams& tr, doublereal& f_eps, 
 			      doublereal& f_sigma);
