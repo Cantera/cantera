@@ -2111,6 +2111,17 @@ namespace Cantera {
      *                    about the thermodynamic state of the system.
      */
     virtual std::string report(bool show_thermo = true) const;
+
+    //! returns a summary of the state of the phase to a comma separated file
+    /*!
+     * @param textFile    ofstream file to print textual variable names that
+     *                    will correspod to data in comma separated file (csv).
+     * @param csvFile     ofstream file to print comma separated data for
+     *                    the phase
+     * @param show_thermo If true, extra information is printed out
+     *                    about the thermodynamic state of the system.
+     */
+    virtual void reportCSV(std::ofstream& textFile, std::ofstream& csvFile, bool show_thermo = true) const;
             
   protected:
 
