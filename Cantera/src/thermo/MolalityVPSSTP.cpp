@@ -24,6 +24,7 @@
 
 
 #include "MolalityVPSSTP.h"
+#include <iomanip>
 using namespace std;
 
 namespace Cantera {
@@ -910,6 +911,99 @@ namespace Cantera {
     return s;
   }
 
+  /*
+   * Format a summary of the mixture state for output.
+   */           
+  void MolalityVPSSTP::reportCSV(std::ofstream& textFile, std::ofstream& csvFile, bool show_thermo) const {
+
+    csvFile.precision(6);
+    int tabS = 20;
+    int tabM = 30;
+    int tabL = 40;
+    try {
+      if (name() != "") {
+	textFile << "\n"+name()+"\n\n";
+	csvFile << "\n\n\n";
+      }
+      textFile << setw(tabM) << "temperature (K)\n";
+      csvFile << setw(tabM) << temperature() << ",\n";
+      textFile << setw(tabM) << "pressure (Pa)\n";
+      csvFile << setw(tabM) << pressure() << ",\n";
+      textFile << setw(tabM) << "density (kg/m^3)\n";
+      csvFile << setw(tabM) << density() << ",\n";
+      textFile << setw(tabM) << "mean mol. weight (amu)\n";
+      csvFile << setw(tabM) << meanMolecularWeight() << ",\n";
+      textFile << setw(tabM) << "potential (V)\n";
+      csvFile << setw(tabM) << electricPotential() << ",\n";
+
+      int kk = nSpecies();
+      array_fp x(kk);
+      array_fp molal(kk);
+      array_fp mu(kk);
+      array_fp muss(kk);
+      array_fp acMolal(kk);
+      array_fp actMolal(kk);
+      getMoleFractions(&x[0]);
+      getMolalities(&molal[0]);
+      getChemPotentials(&mu[0]);
+      getStandardChemPotentials(&muss[0]);
+      getMolalityActivityCoefficients(&acMolal[0]);
+      getActivities(&actMolal[0]);
+
+      int iHp = speciesIndex("H+");
+      if (iHp >= 0) {
+	double pH = -log(actMolal[iHp]) / log(10.0);
+	textFile << setw(tabM) << "pH\n";
+	csvFile << setw(tabM) << pH << ",\n";
+      }
+
+
+      if (show_thermo) {
+	textFile << endl;
+	csvFile << endl;
+	textFile << setw(tabM) << "enthalpy (J/kg)" << "," << setw(tabM) << "enthalpy (J/kmol)\n";
+	csvFile << setw(tabM) << enthalpy_mass() << "," << setw(tabM) << enthalpy_mole() << ",\n";
+	textFile << setw(tabM) << "internal E (J/kg)" << "," << setw(tabM) << "internal E (J/kmol)\n";
+	csvFile << setw(tabM) << intEnergy_mass() << "," << setw(tabM) << intEnergy_mole() << ",\n";
+	textFile << setw(tabM) << "entropy (J/kg)" << "," << setw(tabM) << "entropy (J/kmol)\n";
+	csvFile << setw(tabM) << entropy_mass() << "," << setw(tabM) << entropy_mole() << ",\n";
+	textFile << setw(tabM) << "Gibbs (J/kg)" << "," << setw(tabM) << "Gibbs (J/kmol)\n";
+	csvFile << setw(tabM) << gibbs_mass() << "," << setw(tabM) << gibbs_mole() << ",\n";
+	textFile << setw(tabL) << "heat capacity c_p (J/K/kg)" << "," << setw(tabL) << "heat capacity c_p (J/K/kmol)\n";
+	csvFile << setw(tabL) << cp_mass() << "," << setw(tabL) << cp_mole() << ",\n";
+	textFile << setw(tabL) << "heat capacity c_v (J/K/kg)" << "," << setw(tabL) << "heat capacity c_v (J/K/kmol)\n";
+	csvFile << setw(tabL) << cv_mass() << "," << setw(tabL) << cv_mole() << ",\n";
+      }
+
+      int k;
+      if (show_thermo) {
+	textFile << "\n" << setw(2*tabS) << "X" << "," << setw(tabS) << "Molalities" << "," << setw(tabM) << "Chem. Pot. (J/kmol)" << "," << setw(tabM) << "Chem Pot SS (J/kmol)" << "," << setw(tabS) << "ActCoeffMolal\n";
+	csvFile << "\n\n";
+	for (k = 0; k < kk; k++) {
+	  if (x[k] > SmallNumber) {
+	    textFile << setw(tabS) << speciesName(k) << ",\n";
+	    csvFile << setw(2*tabS) << x[k] << "," << setw(tabS) << molal[k] << "," << setw(tabM) << mu[k] << "," << setw(tabM) << muss[k] << "," << setw(tabM) << acMolal[k] << ",\n";
+	  }
+	  else {
+	    textFile << setw(tabS) << speciesName(k) << ",\n";
+	    csvFile << setw(2*tabS) << x[k] << "," << setw(tabS) << molal[k] << "," << setw(tabM) << 0 << "," << setw(tabM) << muss[k] << "," << setw(tabM) << acMolal[k] << ",\n";
+	  }
+	}
+      }
+      else {
+	textFile << "\n" << setw(2*tabS) << "X" << "," << setw(tabS) << "Molalities\n";
+	csvFile << "\n\n";
+	for (k = 0; k < kk; k++) {
+	  textFile << setw(tabS) << speciesName(k) << ",\n";
+	  csvFile << setw(2*tabS) << x[k] << "," << setw(tabS) << molal[k] << ",\n";
+
+	}
+      }
+    }
+    catch (CanteraError) {
+      ;
+    }
+  }
  
 }
 
