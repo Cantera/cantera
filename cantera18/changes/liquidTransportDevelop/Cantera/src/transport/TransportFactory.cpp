@@ -487,14 +487,23 @@ namespace Cantera {
     return newTransport(transportModel, phase,log_level);
   }
 
-
-  /* 
-    Prepare to build a new kinetic-theory-based transport manager
-    for low-density gases. Uses polynomial fits to Monchick & Mason
-    collision integrals.
-  */
-  void TransportFactory::setupMM(std::ostream &flog, 
-				 const std::vector<const XML_Node*> &transport_database, 
+  //====================================================================================================================
+  // Prepare to build a new kinetic-theory-based transport manager for low-density gases
+  /*
+   *  This class fills up the GastransportParams structure for the current phase
+   *
+   *  Uses polynomial fits to Monchick & Mason collision integrals. store then in tr
+   *
+   *  @param flog                 Reference to the ostream for writing log info
+   *  @param transport_database   Reference to a vector of pointers containing the
+   *                              transport database for each species
+   *  @param thermo               Pointer to the %ThermoPhase object
+   *  @param mode                 Mode -> Either it's CK_Mode, chemkin compatibility mode, or it is not
+   *                              We usually run with chemkin compatibility mode turned off.
+   *  @param log_level            log level
+   *  @param tr                   GasTransportParams structure to be filled up with information
+   */
+  void TransportFactory::setupMM(std::ostream &flog, const std::vector<const XML_Node*> &transport_database, 
 				 thermo_t* thermo, int mode, int log_level, GasTransportParams& tr) {
         
     // constant mixture attributes
@@ -507,8 +516,7 @@ namespace Cantera {
     tr.mw.resize(nsp);
     tr.log_level = log_level;
 
-    copy(tr.thermo->molecularWeights().begin(), 
-	 tr.thermo->molecularWeights().end(), tr.mw.begin());
+    copy(tr.thermo->molecularWeights().begin(), tr.thermo->molecularWeights().end(), tr.mw.begin());
 
     tr.mode_ = mode;
     tr.epsilon.resize(nsp, nsp, 0.0);
@@ -525,8 +533,7 @@ namespace Cantera {
     tr.eps.resize(nsp);
 
     XML_Node root, log;
-    getTransportData(transport_database, log,  
-		     tr.thermo->speciesNames(), tr);
+    getTransportData(transport_database, log, tr.thermo->speciesNames(), tr);
 
     int i, j;
     for (i = 0; i < nsp; i++) tr.poly[i].resize(nsp);
@@ -537,47 +544,44 @@ namespace Cantera {
     DenseMatrix& diam = tr.diam;
     DenseMatrix& epsilon = tr.epsilon;
 
-    for (i = 0; i < nsp; i++) 
-      {
-	for (j = i; j < nsp; j++) 
-	  {
-	    // the reduced mass
-	    tr.reducedMass(i,j) = 
-	      tr.mw[i] * tr.mw[j] / (Avogadro * (tr.mw[i] + tr.mw[j]));
+    for (i = 0; i < nsp; i++) {
+      for (j = i; j < nsp; j++) {
+	// the reduced mass
+	tr.reducedMass(i,j) =  tr.mw[i] * tr.mw[j] / (Avogadro * (tr.mw[i] + tr.mw[j]));
 
-	    // hard-sphere diameter for (i,j) collisions
-	    diam(i,j) = 0.5*(tr.sigma[i] + tr.sigma[j]);
+	// hard-sphere diameter for (i,j) collisions
+	diam(i,j) = 0.5*(tr.sigma[i] + tr.sigma[j]);
 
-	    // the effective well depth for (i,j) collisions
-	    epsilon(i,j) = sqrt(tr.eps[i]*tr.eps[j]);
+	// the effective well depth for (i,j) collisions
+	epsilon(i,j) = sqrt(tr.eps[i]*tr.eps[j]);
 
-	    //  The polynomial fits of collision integrals vs. T* 
-	    //  will be done for the T* from tstar_min to tstar_max
-	    ts1 = Boltzmann * tr.tmin/epsilon(i,j);
-	    ts2 = Boltzmann * tr.tmax/epsilon(i,j);
-	    if (ts1 < tstar_min) tstar_min = ts1;
-	    if (ts2 > tstar_max) tstar_max = ts2;
+	//  The polynomial fits of collision integrals vs. T* 
+	//  will be done for the T* from tstar_min to tstar_max
+	ts1 = Boltzmann * tr.tmin/epsilon(i,j);
+	ts2 = Boltzmann * tr.tmax/epsilon(i,j);
+	if (ts1 < tstar_min) tstar_min = ts1;
+	if (ts2 > tstar_max) tstar_max = ts2;
 
-	    // the effective dipole moment for (i,j) collisions
-	    tr.dipole(i,j) = sqrt(tr.dipole(i,i)*tr.dipole(j,j));
+	// the effective dipole moment for (i,j) collisions
+	tr.dipole(i,j) = sqrt(tr.dipole(i,i)*tr.dipole(j,j));
 
-	    // reduced dipole moment delta* (nondimensional)
-	    doublereal d = diam(i,j);
-	    tr.delta(i,j) =  0.5 * tr.dipole(i,j)*tr.dipole(i,j) 
-	      / (epsilon(i,j) * d * d * d);
+	// reduced dipole moment delta* (nondimensional)
+	doublereal d = diam(i,j);
+	tr.delta(i,j) =  0.5 * tr.dipole(i,j)*tr.dipole(i,j) 
+	  / (epsilon(i,j) * d * d * d);
 
-	    makePolarCorrections(i, j, tr, f_eps, f_sigma);
-	    tr.diam(i,j) *= f_sigma;
-	    epsilon(i,j) *= f_eps;
+	makePolarCorrections(i, j, tr, f_eps, f_sigma);
+	tr.diam(i,j) *= f_sigma;
+	epsilon(i,j) *= f_eps;
 
-	    // properties are symmetric 
-	    tr.reducedMass(j,i) = tr.reducedMass(i,j);
-	    diam(j,i) = diam(i,j);
-	    epsilon(j,i) = epsilon(i,j);
-	    tr.dipole(j,i)  = tr.dipole(i,j);
-	    tr.delta(j,i)   = tr.delta(i,j);
-	  }
+	// properties are symmetric 
+	tr.reducedMass(j,i) = tr.reducedMass(i,j);
+	diam(j,i) = diam(i,j);
+	epsilon(j,i) = epsilon(i,j);
+	tr.dipole(j,i)  = tr.dipole(i,j);
+	tr.delta(j,i)   = tr.delta(i,j);
       }
+    }
 
     // Chemkin fits the entire T* range in the Monchick and Mason tables,
     // so modify tstar_min and tstar_max if in Chemkin compatibility mode
@@ -617,14 +621,17 @@ namespace Cantera {
 #endif
   }
 
-
-
+  //====================================================================================================================
+  // Prepare to build a new transport manager for liquids assuming that 
+  // viscosity transport data is provided in Arhennius form.
   /*
-    Prepare to build a new transport manager for liquids assuming that 
-    viscosity transport data is provided in Arhennius form.
-  */
-  void TransportFactory::setupLiquidTransport(std::ostream &flog, 
-					      thermo_t* thermo, int log_level, LiquidTransportParams& trParam) {
+   *  @param flog                 Reference to the ostream for writing log info
+   *  @param thermo               Pointer to the %ThermoPhase object
+   *  @param log_level            log level
+   *  @param trParam              LiquidTransportParams structure to be filled up with information
+   */
+  void TransportFactory::setupLiquidTransport(std::ostream &flog, thermo_t* thermo, int log_level, 
+					      LiquidTransportParams& trParam) {
         
     const std::vector<const XML_Node*> & species_database = thermo->speciesData();
     const XML_Node* phase_database = &thermo->xml();
@@ -668,6 +675,7 @@ namespace Cantera {
 					 trParam.thermo->speciesNames(), trParam);   
     }
   }
+  //====================================================================================================================
 
 
   void TransportFactory::initTransport(Transport* tran, 
