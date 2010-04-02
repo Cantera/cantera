@@ -660,6 +660,32 @@ namespace Cantera {
     return (((c[3]*x + c[2])*x + c[1])*x + c[0]);
   }
 
+  //! Templated deep copy of a std vector of pointers
+  /*!
+   *  Performs a deep copy of a std vectors of pointers to an object. This template assumes that
+   *  that the templated object has a functioning copy constructor.
+   *  It also assumes that pointers are zero when they are not malloced.
+   *
+   *  @param fromVec   Vector of pointers to a templated class. This will be 
+   *                   deep-copied to the other vector
+   *  @param toVec     Vector of pointers to a templated class. This will be
+   *                   overwritten and on return will be a copy of the fromVec
+   */
+  template<class D>
+  void deepStdVectorPointerCopy(const std::vector<D *> &fromVec, std::vector<D *> &toVec) {
+    int is = toVec.size();
+    for (int i = 0; i < is; is++) {
+      if (toVec[i]) {
+        delete(toVec[i]);
+      }
+    }
+    is = fromVec.size();
+    toVec.resize(is);        
+    for (int i = 0; i < is; is++) {
+      toVec[i] = new D(*(fromVec[i]));
+    }
+  }
+
   //@}
 }
 
