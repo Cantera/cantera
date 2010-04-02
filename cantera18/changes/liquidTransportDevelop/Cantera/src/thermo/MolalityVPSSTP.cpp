@@ -914,8 +914,9 @@ namespace Cantera {
   /*
    * Format a summary of the mixture state for output.
    */           
-  void MolalityVPSSTP::reportCSV(std::ofstream& textFile, std::ofstream& csvFile, bool show_thermo) const {
+  void MolalityVPSSTP::reportCSV(std::ofstream& csvFile) const {
 
+    /*
     csvFile.precision(6);
     int tabS = 20;
     int tabM = 30;
@@ -1003,6 +1004,7 @@ namespace Cantera {
     catch (CanteraError) {
       ;
     }
+    */
   }
  
 }
