@@ -1458,7 +1458,7 @@ namespace mdp {
      * 
      * mdp_copy_dbl_1:
      *
-     * Copies one Double vector into another double vector
+     * Copies one contiguous double vector into another double vector
      *
      * Input
      * -------------
