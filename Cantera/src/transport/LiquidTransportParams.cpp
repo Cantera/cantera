@@ -685,7 +685,9 @@ namespace Cantera {
     IonsFromNeutralVPSSTP * ions_thermo = dynamic_cast<IonsFromNeutralVPSSTP *>(m_thermo);
     int i, j, k;
     int nsp = m_thermo->nSpecies();
-    if (nsp != 3) throw CanteraError("LTI_StefanMaxwell_PPN::getMatrixTransProp","Function may only be called with a 3-ion system");
+    if (nsp != 3) {
+      throw CanteraError("LTI_StefanMaxwell_PPN::getMatrixTransProp","Function may only be called with a 3-ion system");
+    }
     int nsp2 = nsp*nsp;
     doublereal temp = m_thermo->temperature();
     doublereal molefracs[nsp];
@@ -705,12 +707,15 @@ namespace Cantera {
     std::vector<int> neutMolIndex(3);
     ions_thermo->getDissociationCoeffs(viS,charges,neutMolIndex);
 
-    if ((int)anion.size() != 1) 
+    if ((int)anion.size() != 1) {
       throw CanteraError("LTI_StefanMaxwell_PPN::getMatrixTransProp","Must have one anion only for StefanMaxwell_PPN");
-    if ((int)cation.size() != 2) 
+    }
+    if ((int)cation.size() != 2) {
       throw CanteraError("LTI_StefanMaxwell_PPN::getMatrixTransProp","Must have two cations of equal charge for StefanMaxwell_PPN");
-    if (charges[cation[0]] != charges[cation[1]]) 
-      throw CanteraError("LTI_StefanMaxwell_PPN::getMatrixTransProp","Cations must be of equal charge for StefanMaxwell_PPN")
+    }
+    if (charges[cation[0]] != charges[cation[1]]) {
+      throw CanteraError("LTI_StefanMaxwell_PPN::getMatrixTransProp","Cations must be of equal charge for StefanMaxwell_PPN");
+    }
 
     m_ionCondMix = m_ionCondMixModel->getMixTransProp(m_ionCondSpecies);
 
@@ -718,18 +723,20 @@ namespace Cantera {
     doublereal vol = m_thermo->molarVolume();
 
     k = 0;
-    for ( j = 0; j < nsp; j++ ) {
-      for ( i = 0; i < nsp; i++ ) {
+    for (j = 0; j < nsp; j++) {
+      for (i = 0; i < nsp; i++) {
 	if (m_mobRatMixModel[k]) {
 	  m_mobRatMix(i,j) = m_mobRatMixModel[k]->getMixTransProp( m_mobRatSpecies[k] );	
-	  if ( m_mobRatMix(i,j) > 0 ) m_mobRatMix(j,i) = 1.0/m_mobRatMix(i,j);
+	  if (m_mobRatMix(i,j) > 0) {
+            m_mobRatMix(j,i) = 1.0/m_mobRatMix(i,j);
+          }
 	}
 	k++;
       }
     }
 
     
-    for ( k = 0; k < nsp; k++ ){
+    for (k = 0; k < nsp; k++) {
       m_selfDiffMix[k] = m_selfDiffMixModel[k]->getMixTransProp( m_selfDiffSpecies[k] );
     }
 
@@ -750,8 +757,8 @@ namespace Cantera {
     
     mat.resize( nsp, nsp, 0.0 );
     mat(cation[0],cation[1]) = mat(cation[1],cation[0]) = (1+vM/vP)*(1+eps*xB)*(1-eps*xA)*inv_vP_vM_MutualDiff-zP*zP*Faraday*Faraday/GasConstant/temp/m_ionCondMix/vol;
-  mat(cation[0],anion[0]) = mat(anion[0],cation[0]) = (1+vP/vM)*(-eps*xB*(1-eps*xA)*inv_vP_vM_MutualDiff)-zP*zM*Faraday*Faraday/GasConstant/temp/m_ionCondMix/vol;
-mat(cation[1],anion[0]) = mat(anion[0],cation[1]) = (1+vP/vM)*(eps*xA*(1+eps*xB)*inv_vP_vM_MutualDiff)-zP*zM*Faraday*Faraday/GasConstant/temp/m_ionCondMix/vol;
+    mat(cation[0],anion[0]) = mat(anion[0],cation[0]) = (1+vP/vM)*(-eps*xB*(1-eps*xA)*inv_vP_vM_MutualDiff)-zP*zM*Faraday*Faraday/GasConstant/temp/m_ionCondMix/vol;
+    mat(cation[1],anion[0]) = mat(anion[0],cation[1]) = (1+vP/vM)*(eps*xA*(1+eps*xB)*inv_vP_vM_MutualDiff)-zP*zM*Faraday*Faraday/GasConstant/temp/m_ionCondMix/vol;
 
   }
   

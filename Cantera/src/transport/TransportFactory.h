@@ -86,10 +86,10 @@ namespace Cantera {
   class TransportFactory : FactoryBase {
 
   public:
-
-    /**
-     * Return a pointer to a TransportFactory
-     * instance. TransportFactory is implemented as a 'singleton',
+  
+    //!   Return a pointer to a TransportFactory instance. 
+    /*!
+     *  TransportFactory is implemented as a 'singleton',
      * which means that at most one instance may be created. The
      * constructor is private. When a TransportFactory instance is
      * required, call static method factory() to return a pointer
@@ -111,10 +111,9 @@ namespace Cantera {
     }
 
 
-    /**
-     * This static function deletes the statically malloced instance.
-     */
+    //! Deletes the statically malloced instance.
     virtual void deleteFactory();
+
 
     /*!
      * Destructor 
@@ -159,8 +158,7 @@ namespace Cantera {
      *  @param thermo    ThermoPhase object
      *  @param log_level log level
      */
-    virtual Transport*
-      newTransport(std::string model, thermo_t* thermo, int log_level=0);
+    virtual Transport* newTransport(std::string model, thermo_t* thermo, int log_level=0);
 
     //! Build a new transport manager using the default transport manager
     //! in the phase description and return a base class pointer to it
@@ -272,23 +270,35 @@ namespace Cantera {
     void fitCollisionIntegrals(std::ostream & logfile, 
 			       GasTransportParams& tr);
 
-   
-    /** 
-     * Prepare to build a new kinetic-theory-based transport manager
-     * for low-density gases. Uses polynomial fits to Monchick & Mason
-     * collision integrals.
+ 
+    //! Prepare to build a new kinetic-theory-based transport manager for low-density gases
+    /*!
+     *  This class fills up the GastransportParams structure for the current phase
+     *
+     *  Uses polynomial fits to Monchick & Mason collision integrals. store then in tr
+     *
+     *  @param flog                 Reference to the ostream for writing log info
+     *  @param transport_database   Reference to a vector of pointers containing the
+     *                              transport database for each species
+     *  @param thermo               Pointer to the %ThermoPhase object
+     *  @param mode                 Mode -> Either it's CK_Mode, chemkin compatibility mode, or it is not
+     *                              We usually run with chemkin compatibility mode turned off.
+     *  @param log_level            log level
+     *  @param tr                   GasTransportParams structure to be filled up with information
      */
     void setupMM(std::ostream &flog,  const std::vector<const XML_Node*> &transport_database, 
-		 thermo_t* thermo, int mode, int log_level, 
-		 GasTransportParams& tr);
+		 thermo_t* thermo, int mode, int log_level,  GasTransportParams& tr);
 
-    /** 
-     * Prepare to build a new transport manager for liquids assuming that 
-     * viscosity transport data is provided in Arhennius form.
+
+    //! Prepare to build a new transport manager for liquids assuming that 
+    //! viscosity transport data is provided in Arhennius form.
+    /*!
+     *  @param flog                 Reference to the ostream for writing log info
+     *  @param thermo               Pointer to the %ThermoPhase object
+     *  @param log_level            log level
+     *  @param trParam              LiquidTransportParams structure to be filled up with information
      */
-    void setupLiquidTransport(std::ostream &flog,  
-			      thermo_t* thermo, int log_level, 
-			      LiquidTransportParams& tr);
+    void setupLiquidTransport(std::ostream &flog, thermo_t* thermo, int log_level, LiquidTransportParams& trParam);
 
 
     //! Second-order correction to the binary diffusion coefficients
