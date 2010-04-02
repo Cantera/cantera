@@ -101,7 +101,6 @@ endif
 
 clean:
 	$(RM) $(OBJS) $(PROGRAM) $(DEPENDS) .depends
-	../../../bin/rm_cvsignore
 	(if test -d SunWS_cache ; then \
            $(RM) -rf SunWS_cache ; \
          fi )
