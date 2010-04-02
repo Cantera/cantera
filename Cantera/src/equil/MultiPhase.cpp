@@ -533,7 +533,8 @@ namespace Cantera {
     int i;
     doublereal sum = 0;
     for (i = 0; i < int(m_np); i++) {
-      sum += m_moles[i]/m_phase[i]->molarDensity();
+      double vol = 1.0/m_phase[i]->molarDensity();
+      sum += m_moles[i] * vol;
     }
     return sum;
   }
