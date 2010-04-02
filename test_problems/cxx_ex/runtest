@@ -36,7 +36,7 @@ machType=`../../bin/get_arch`
 
 $CANTERA_BIN/csvdiff eq1.csv eq1_blessed.csv > eq1_test.out
 retnStat=$?
-if [ $retnStat = "1" ]
+if [ $retnStat = "0" ]
 then
   echo "successful csv comparison on eq1 test"
 else
@@ -57,7 +57,7 @@ fi
 
 $CANTERA_BIN/csvdiff tr1.csv tr1_blessed.csv > tr1_test.out
 retnStat=$?
-if [ $retnStat = "1" ]
+if [ $retnStat = "0" ]
 then
   echo "successful csv comparison on tr1 test"
   if [ $temp_success = "1" ]
@@ -82,7 +82,7 @@ fi
 
 $CANTERA_BIN/csvdiff tr2.csv tr2_blessed.csv > tr2_test.out
 retnStat=$?
-if [ $retnStat = "1" ]
+if [ $retnStat = "0" ]
 then
   echo "successful csv comparison on tr2 test"
   if [ $temp_success = "1" ]
@@ -116,7 +116,7 @@ fi
 
 $CANTERA_BIN/csvdiff -r 3.0E-3 kin1.csv kin1_blessed_tmp.csv > kin1_test.out
 retnStat=$?
-if [ $retnStat = "1" ]
+if [ $retnStat = "0" ]
 then
   echo "successful csv comparison on kin1 test"
   if [ $temp_success = "1" ]
@@ -150,7 +150,7 @@ fi
 
 $CANTERA_BIN/csvdiff kin2.csv kin2_blessed_tmp.csv > kin2_test.out
 retnStat=$?
-if [ $retnStat = "1" ]
+if [ $retnStat = "0" ]
 then
   echo "successful csv comparison on kin2 test"
   if [ $temp_success = "1" ]

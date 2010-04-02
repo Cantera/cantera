@@ -5,14 +5,14 @@
  *
  * $RCSfile: tok_input_util.cpp,v $
  *
- * $Author: hkmoffa $
+ * $Author$
  *
- * $Date: 2009/03/28 03:07:23 $
+ * $Date$
  *
- * $Revision: 1.2 $
+ * $Revision$
  * Symbolic $Name:  $
  *
- * $Id: tok_input_util.cpp,v 1.2 2009/03/28 03:07:23 hkmoffa Exp $
+ * $Id$
  * $Source: /cvsroot/cantera/cantera/tools/testtools/tok_input_util.cpp,v $
  *
  *====================================================================*/

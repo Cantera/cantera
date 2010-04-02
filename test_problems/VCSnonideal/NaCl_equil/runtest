@@ -31,7 +31,7 @@ retnStat_txt=$?
 $BINDIR/csvdiff -a 1.0E-50 vcs_equilibrate_blessed.csv vcs_equilibrate_res.csv  > diff_csv.txt
 retnStat_csv=$?
 
-if test $retnStat_csv = "1"  
+if test $retnStat_csv = "0"  
 then
   echo "Successful test comparison on "`pwd`
   if [ $retnStat_txt != "0" ]
