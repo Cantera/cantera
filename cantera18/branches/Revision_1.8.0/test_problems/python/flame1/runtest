@@ -67,7 +67,7 @@ retnStat_txt=$?
 $BINDIR/csvdiff -a 1.0E-10 flame1_blessed.csv flame1.csv  > diff_csv.txt
 retnStat_csv=$?
 
-if test $retnStat_csv = "1"
+if test $retnStat_csv = "0"
 then
   echo "   Successful test comparison on "`pwd`
   if [ $retnStat_txt != "0" ]
@@ -76,7 +76,7 @@ then
   fi
 else
   echo "    Unsuccessful test comparison on "`pwd` " test"
-  if test $retnStat_csv != "1"
+  if test $retnStat_csv != "0"
   then
      echo "      csv files are different - see diff_csv.txt"
   fi
