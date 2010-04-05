@@ -25,7 +25,7 @@ ${CANTERA_BIN}/csvdiff -a 1.0E-19 table.csv table_blessed.csv > diff_csv.txt
 retnStat_csv=$?
 
 eCode=1
-if test $retnStat_csv = "1"
+if test $retnStat_csv = "0"
 then
   eCode=0
   echo "Successful test comparison on " $testName
@@ -35,7 +35,7 @@ then
   fi
 else
   echo "Unsuccessful test comparison on " $testName " test"
-  if test $retnStat_csv != "1"
+  if test $retnStat_csv != "0"
   then
      echo "      csv files are different - see diff_csv.txt"
   fi
