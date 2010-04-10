@@ -11,6 +11,13 @@
 
 namespace Cantera {
 
+  class NotImplemented : public CanteraError {
+  public:
+    NotImplemented(std::string method) : CanteraError("Transport",
+						      "\n\n**** Method "+method+" not implemented. ****\n"
+						      "(Did you forget to specify a transport model?)\n\n") {}
+  };
+  
   /** 
    * Base class to hold transport model parameters.  
    * Used by TransportFactory.
