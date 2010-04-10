@@ -1156,28 +1156,34 @@ namespace Cantera {
       csvFile << setw(tabL) << "potential (V) =" << setw(tabS) << electricPotential() << endl;   
       csvFile << endl;
       
-      csvFile << setw(tabL) << "enthalpy (J/kg) = " << setw(tabS) << enthalpy_mass() << setw(tabL) << "enthalpy (J/kmol) = " << setw(tabS) << enthalpy_mole() << endl;
-      csvFile << setw(tabL) << "internal E (J/kg) = " << setw(tabS) << intEnergy_mass() << setw(tabL) << "internal E (J/kmol) = " << setw(tabS) << intEnergy_mole() << endl;
-      csvFile << setw(tabL) << "entropy (J/kg) = " << setw(tabS) << entropy_mass() << setw(tabL) << "entropy (J/kmol) = " << setw(tabS) << entropy_mole() << endl;
-      csvFile << setw(tabL) << "Gibbs (J/kg) = " << setw(tabS) << gibbs_mass() << setw(tabL) << "Gibbs (J/kmol) = " << setw(tabS) << gibbs_mole() << endl;
-      csvFile << setw(tabL) << "heat capacity c_p (J/K/kg) = " << setw(tabS) << cp_mass() << setw(tabL) << "heat capacity c_p (J/K/kmol) = " << setw(tabS) << cp_mole() << endl;
-      csvFile << setw(tabL) << "heat capacity c_v (J/K/kg) = " << setw(tabS) << cv_mass() << setw(tabL) << "heat capacity c_v (J/K/kmol) = " << setw(tabS) << cv_mole() << endl;
+      csvFile << setw(tabL) << "enthalpy (J/kg) = " << setw(tabS) << enthalpy_mass() << setw(tabL) 
+	      << "enthalpy (J/kmol) = " << setw(tabS) << enthalpy_mole() << endl;
+      csvFile << setw(tabL) << "internal E (J/kg) = " << setw(tabS) << intEnergy_mass() << setw(tabL)
+	      << "internal E (J/kmol) = " << setw(tabS) << intEnergy_mole() << endl;
+      csvFile << setw(tabL) << "entropy (J/kg) = " << setw(tabS) << entropy_mass() << setw(tabL) 
+	      << "entropy (J/kmol) = " << setw(tabS) << entropy_mole() << endl;
+      csvFile << setw(tabL) << "Gibbs (J/kg) = " << setw(tabS) << gibbs_mass() << setw(tabL) 
+	      << "Gibbs (J/kmol) = " << setw(tabS) << gibbs_mole() << endl;
+      csvFile << setw(tabL) << "heat capacity c_p (J/K/kg) = " << setw(tabS) << cp_mass() 
+	      << setw(tabL) << "heat capacity c_p (J/K/kmol) = " << setw(tabS) << cp_mole() << endl;
+      csvFile << setw(tabL) << "heat capacity c_v (J/K/kg) = " << setw(tabS) << cv_mass() 
+	      << setw(tabL) << "heat capacity c_v (J/K/kmol) = " << setw(tabS) << cv_mole() << endl;
      
       csvFile.precision(8);
 
       int kk = nSpecies();
-      double x[kk];
-      double y[kk];
-      double mu[kk];
-      double a[kk];
-      double ac[kk];
-      double hbar[kk];
-      double sbar[kk];
-      double ubar[kk];
-      double cpbar[kk];
-      double vbar[kk];
-      vector<std::string> pNames;
-      vector<double*> data;
+      doublereal *x    = new doublereal[kk];
+      doublereal *y    = new doublereal[kk];
+      doublereal *mu   = new doublereal[kk];
+      doublereal *a    = new doublereal[kk];
+      doublereal *ac   = new doublereal[kk];
+      doublereal *hbar = new doublereal[kk];
+      doublereal *sbar = new doublereal[kk];
+      doublereal *ubar = new doublereal[kk];
+      doublereal *cpbar= new doublereal[kk];
+      doublereal *vbar = new doublereal[kk];
+      std::vector<std::string> pNames;
+      std::vector<doublereal *> data;
 
       getMoleFractions(x);
       pNames.push_back("X");
@@ -1250,18 +1256,28 @@ namespace Cantera {
       for (int k = 0; k < kk; k++) {
 	csvFile << setw(tabS) << speciesName(k) + ",";
 	if (x[k] > SmallNumber) {
-	  for ( int i = 0; i < (int)pNames.size(); i++ ){
+	  for (int i = 0; i < (int)pNames.size(); i++) {
 	    csvFile << setw(tabM) << data[i][k] << ",";
 	  }
 	  csvFile << endl;
-	}
-	else{
-	  for ( int i = 0; i < (int)pNames.size(); i++ ){
+	} else {
+	  for (int i = 0; i < (int)pNames.size(); i++) {
 	    csvFile << setw(tabM) << 0 << ",";
 	  }
 	  csvFile << endl;
 	}
       }
+      delete [] x;
+      delete [] y;
+      delete [] mu;
+      delete [] a;
+      delete [] ac;
+      delete [] hbar;
+      delete [] sbar;
+      delete [] ubar;
+      delete [] cpbar;
+      delete [] vbar;
+      
     }
     catch (CanteraError) {
       ;
