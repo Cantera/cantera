@@ -6,6 +6,10 @@
  *
  *
  */
+/*
+ * $Revision$  
+ * $Date$
+ */
 
 // turn off warnings under Windows
 #ifdef WIN32
@@ -37,6 +41,7 @@
 #include "XML_Writer.h"
 #include "TransportParams.h"
 #include "LiquidTransportParams.h"
+#include "LiquidTranInteraction.h"
 #include "global.h"
 #include "IdealGasPhase.h"
 #include "ctml.h"
@@ -342,54 +347,54 @@ namespace Cantera {
     transport properties are addressed by the LTPspecies 
     returned by newLTP
   */
-  LiquidTranInteraction* TransportFactory::newLTI( const XML_Node &trNode, 
-						   TransportPropertyList tp_ind, 
-						   LiquidTransportParams& trParam) {
+  LiquidTranInteraction* TransportFactory::newLTI(const XML_Node &trNode, 
+						  TransportPropertyList tp_ind, 
+						  LiquidTransportParams& trParam) {
     LiquidTranInteraction* lti = 0;
 
     thermo_t* thermo = trParam.thermo;
 
     std::string model = trNode["model"];
-    switch ( m_LTImodelMap[model] ) {
+    switch (m_LTImodelMap[model] ) {
     case LTI_MODEL_SOLVENT:
-      lti = new LTI_Solvent( tp_ind );			     
-      lti->init( trNode, thermo );
+      lti = new LTI_Solvent(tp_ind);			     
+      lti->init(trNode, thermo );
       break;
     case LTI_MODEL_MOLEFRACS:
-      lti = new LTI_MoleFracs( tp_ind );
-      lti->init( trNode, thermo );
+      lti = new LTI_MoleFracs(tp_ind );
+      lti->init(trNode, thermo );
       break;
     case LTI_MODEL_MASSFRACS:
-      lti = new LTI_MassFracs( tp_ind );
-      lti->init( trNode, thermo );
+      lti = new LTI_MassFracs(tp_ind );
+      lti->init(trNode, thermo );
       break;
     case LTI_MODEL_LOG_MOLEFRACS:
-      lti = new LTI_Log_MoleFracs( tp_ind );
-      lti->init( trNode, thermo );
+      lti = new LTI_Log_MoleFracs(tp_ind );
+      lti->init(trNode, thermo );
       break;
     case LTI_MODEL_PAIRWISE_INTERACTION:
-      lti = new LTI_Pairwise_Interaction( tp_ind );
-      lti->init( trNode, thermo );
-      lti->setParameters( trParam );
+      lti = new LTI_Pairwise_Interaction(tp_ind );
+      lti->init(trNode, thermo );
+      lti->setParameters(trParam );
       break;
     case LTI_MODEL_STEFANMAXWELL_PPN:
-      lti = new LTI_StefanMaxwell_PPN( tp_ind );
-      lti->init( trNode, thermo );
-      lti->setParameters( trParam );
+      lti = new LTI_StefanMaxwell_PPN(tp_ind );
+      lti->init(trNode, thermo );
+      lti->setParameters(trParam );
       break;
     case LTI_MODEL_STOKES_EINSTEIN:
-      lti = new LTI_StokesEinstein( tp_ind );
-      lti->init( trNode, thermo );
-      lti->setParameters( trParam );
+      lti = new LTI_StokesEinstein(tp_ind );
+      lti->init(trNode, thermo );
+      lti->setParameters(trParam );
       break;
     case LTI_MODEL_MOLEFRACS_EXPT:
-      lti = new LTI_MoleFracs_ExpT( tp_ind );
-      lti->init( trNode, thermo );
+      lti = new LTI_MoleFracs_ExpT(tp_ind );
+      lti->init(trNode, thermo );
       break;
     default:
       //      throw CanteraError("newLTI","unknown transport model: " + model );
-      lti = new LiquidTranInteraction( tp_ind );
-      lti->init( trNode, thermo );
+      lti = new LiquidTranInteraction(tp_ind );
+      lti->init(trNode, thermo );
     }
     return lti;
   }
@@ -1002,7 +1007,7 @@ namespace Cantera {
 	    
 	    switch (m_tranPropMap[nodeName]) {
 	    case TP_VISCOSITY:
-	      data.viscosity = newLTP(xmlChild, name,  m_tranPropMap[nodeName], temp_thermo );
+	      data.viscosity = newLTP(xmlChild, name,  m_tranPropMap[nodeName], temp_thermo);
 	      break;
 	    case TP_IONCONDUCTIVITY:
 	      data.ionConductivity = newLTP(xmlChild,  name,   m_tranPropMap[nodeName], temp_thermo);
@@ -1034,25 +1039,25 @@ namespace Cantera {
 	      data.thermalCond = newLTP(xmlChild, 
 					name, 
 					m_tranPropMap[nodeName],
-					temp_thermo );
+					temp_thermo);
 	      break;
 	    case TP_DIFFUSIVITY:
 	      data.speciesDiffusivity = newLTP(xmlChild, 
 					       name, 
 					       m_tranPropMap[nodeName],
-					       temp_thermo );
+					       temp_thermo);
 	      break;
 	    case TP_HYDRORADIUS:
 	      data.hydroRadius = newLTP(xmlChild, 
 					name, 
 					m_tranPropMap[nodeName],
-					temp_thermo );
+					temp_thermo);
 	      break;
 	    case TP_ELECTCOND:
 	      data.electCond = newLTP(xmlChild, 
 				      name, 
 				      m_tranPropMap[nodeName],
-				      temp_thermo );
+				      temp_thermo);
 
 	      break;
 	    default:
@@ -1126,9 +1131,9 @@ namespace Cantera {
 	    trParam.viscosity = newLTI(compDepNode, m_tranPropMap[nodeName], trParam);
 	    break;
       	  case TP_IONCONDUCTIVITY:
-	    trParam.ionConductivity = newLTI( compDepNode, 
+	    trParam.ionConductivity = newLTI(compDepNode, 
 					      m_tranPropMap[nodeName],
-					      trParam );
+					      trParam);
 	    break;
       	  case TP_MOBILITYRATIO:
 	    {
@@ -1139,9 +1144,9 @@ namespace Cantera {
 		string firstSpec = specName.substr(0,loc);
 		string secondSpec = specName.substr(loc+1);
 		int index = temp_thermo->speciesIndex(firstSpec.c_str())+nsp*temp_thermo->speciesIndex(secondSpec.c_str());
-		trParam.mobilityRatio[index] = newLTI( propSpecNode, 
+		trParam.mobilityRatio[index] = newLTI(propSpecNode, 
 						       m_tranPropMap[nodeName],
-						       trParam );
+						       trParam);
 	      };
 	    };
 	    break;
@@ -1151,21 +1156,21 @@ namespace Cantera {
 		XML_Node &propSpecNode = compDepNode.child(iSpec);
 		string specName = propSpecNode.name();
 		int index = temp_thermo->speciesIndex(specName.c_str());
-		trParam.selfDiffusion[index] = newLTI( propSpecNode, 
+		trParam.selfDiffusion[index] = newLTI(propSpecNode, 
 						     m_tranPropMap[nodeName],
-						       trParam );
+						       trParam);
 	      };
 	    };
 	    break;
 	  case TP_THERMALCOND:
-	    trParam.thermalCond = newLTI( compDepNode, 
+	    trParam.thermalCond = newLTI(compDepNode, 
 					  m_tranPropMap[nodeName],
-					  trParam );
+					  trParam);
 	    break;
 	  case TP_DIFFUSIVITY:
-	    trParam.speciesDiffusivity = newLTI( compDepNode, 
+	    trParam.speciesDiffusivity = newLTI(compDepNode, 
 						 m_tranPropMap[nodeName],
-						 trParam );
+						 trParam);
 	    break;
 	  case TP_HYDRORADIUS:
 	    trParam.hydroRadius = newLTI(compDepNode, 
@@ -1173,12 +1178,12 @@ namespace Cantera {
 					 trParam);
 	    break;
 	  case TP_ELECTCOND:
-	    trParam.electCond = newLTI( compDepNode, 
+	    trParam.electCond = newLTI(compDepNode, 
 					m_tranPropMap[nodeName],
-					trParam );
+					trParam);
 	    break;
 	  default:
-	    throw CanteraError("getLiquidInteractionsTransportData","unknown transport property: " + nodeName );
+	    throw CanteraError("getLiquidInteractionsTransportData","unknown transport property: " + nodeName);
 	    
 	  }
 	}
@@ -1201,7 +1206,7 @@ namespace Cantera {
 	    trParam.velocityBasis_ = trParam.thermo->speciesIndex(velocityBasis) ;
 	  else {
 	    int linenum;
-	    throw TransportDBError( linenum, "Unknown attribute \"" + velocityBasis + "\" for <velocityBasis> node. ");
+	    throw TransportDBError(linenum, "Unknown attribute \"" + velocityBasis + "\" for <velocityBasis> node. ");
 	  }
 	}
       }
@@ -1320,7 +1325,7 @@ namespace Cantera {
 	  // self-diffusion coefficient, without polar
 	  // corrections
 	  diffcoeff = ThreeSixteenths * 
-	    sqrt( 2.0 * Pi/tr.reducedMass(k,k) ) *
+	    sqrt(2.0 * Pi/tr.reducedMass(k,k)) *
 	    pow((Boltzmann * t), 1.5)/ 
 	    (Pi * tr.sigma[k] * tr.sigma[k] * om11);
 
@@ -1483,7 +1488,7 @@ namespace Cantera {
 	  om11 = m_integrals->omega11(tstar, tr.delta(j,k));
 
 	  diffcoeff = ThreeSixteenths * 
-	    sqrt( 2.0 * Pi/tr.reducedMass(k,j) ) *
+	    sqrt(2.0 * Pi/tr.reducedMass(k,j)) *
 	    pow((Boltzmann * t), 1.5)/ 
 	    (Pi * sigma * sigma * om11);
 

@@ -36,12 +36,12 @@ CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT) $(PIC_FLAG) $(DEBUG_FLAG)
 # Base Transport Object Files
 TRAN_OBJ    = TransportFactory.o MultiTransport.o MixTransport.o MMCollisionInt.o \
               SolidTransport.o DustyGasTransport.o TransportBase.o WaterTransport.o \
-              SimpleTransport.o LiquidTransportData.o LiquidTransportParams.o
+              SimpleTransport.o LiquidTransportData.o LiquidTransportParams.o LiquidTranInteraction.o
 
 TRAN_H  =  TransportFactory.h MultiTransport.h MixTransport.h \
            MMCollisionInt.h  SolidTransport.h DustyGasTransport.h \
            TransportBase.h L_matrix.h TransportParams.h WaterTransport.h \
-           SimpleTransport.h
+           SimpleTransport.h LiquidTranInteraction.h
 
 ifeq ($(do_electro),1)
 do_issp = 1

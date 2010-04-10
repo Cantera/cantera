@@ -12,8 +12,8 @@
  *
  */
 
-#ifndef CT_TRANFACTORY_H
-#define CT_TRANFACTORY_H
+#ifndef CT_TRANSPORTFACTORY_H
+#define CT_TRANSPORTFACTORY_H
 
 
 // turn off warnings under Windows
@@ -137,17 +137,20 @@ namespace Cantera {
       newLTP( const XML_Node &trNode, std::string &name, 
 	      TransportPropertyList tp_ind, thermo_t* thermo) ;
 
-    
-    /**
-     *  make one of several transport models, and return a base class
-     *  pointer to it.  This method operates at the level of a 
-     *  single mixture transport property.  Individual species 
-     *  transport properties are addressed by the LTPspecies 
-     *  returned by newLTP
+   
+    //! Factory function for the construction of new LiquidTranInteraction
+    //! objects, which are transport models.
+    /*! 
+     *  This method operates at the level of a single mixture transport property.  Individual species 
+     *  transport properties are addressed by the LTPspecies returned by newLTP.
+     *
+     *  @param trNode   XML_Node containing the information for the interaction
+     *  @param tp_ind   TransportPropertylist object
+     *  @param trParam  reference to the LiquidTransportParams object
      */
-    virtual LiquidTranInteraction* newLTI( const XML_Node &trNode, 
-					   TransportPropertyList tp_ind, 
-					   LiquidTransportParams& trParam) ;
+    virtual LiquidTranInteraction* newLTI(const XML_Node &trNode, 
+					  TransportPropertyList tp_ind, 
+					  LiquidTransportParams& trParam);
 
     
     //! Build a new transport manager using a transport manager
