@@ -154,6 +154,26 @@ namespace Cantera {
     return *this;
   }
   //====================================================================================================================
+  // Return the ID of the kinetics object
+  int  InterfaceKinetics::ID() const { 
+      return cInterfaceKinetics;
+    }
+  //====================================================================================================================
+  int InterfaceKinetics::type() const {
+    return cInterfaceKinetics; 
+  }
+  //====================================================================================================================
+  // Set the electric potential in the nth phase
+  /*
+   * @param n phase Index in this kinetics object.
+   * @param V Electric potential (volts)
+   */
+  void InterfaceKinetics::setElectricPotential(int n, doublereal V) {
+    thermo(n).setElectricPotential(V);
+    m_redo_rates = true;
+  }
+
+  //====================================================================================================================
   // Duplication routine for objects which inherit from Kinetics
   /*
    *  This virtual routine can be used to duplicate %Kinetics objects
@@ -547,7 +567,7 @@ namespace Cantera {
     multiply_each(kfwd, kfwd + nReactions(), m_perturb.begin());
            
   }
-
+  //====================================================================================================================
 
   /**
    * Update the rates of progress of the reactions in the reaciton
@@ -567,12 +587,12 @@ namespace Cantera {
       multiply_each(krev, krev + nReactions(), rkc.begin());
     }
   }
-
+  //====================================================================================================================
 
   void InterfaceKinetics::getActivationEnergies(doublereal *E) {
     copy(m_E.begin(), m_E.end(), E);
   }
-
+ //====================================================================================================================
   /**
    * Update the rates of progress of the reactions in the reaction
    * mechanism. This routine operates on internal data.
