@@ -127,20 +127,18 @@ namespace Cantera {
      */
     virtual Kinetics *duplMyselfAsKinetics() const;
 
+    //! Return the ID of the kinetics object
+    virtual int ID() const;
 
-    virtual int ID() const { return cInterfaceKinetics; }
-    virtual int type() const { return cInterfaceKinetics; }
+    //! Retunr the type of the kinetics object
+    virtual int type() const;
 
-    
     //! Set the electric potential in the nth phase
-     /*!
+    /*!
      * @param n phase Index in this kinetics object.
      * @param V Electric potential (volts)
      */
-    void setElectricPotential(int n, doublereal V) {
-      thermo(n).setElectricPotential(V);
-      m_redo_rates = true;
-    }
+    void setElectricPotential(int n, doublereal V);
 
 
     ///
