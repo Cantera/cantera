@@ -79,7 +79,6 @@ namespace Cantera {
 			       thermo_t* thermo ) 
   {
     
-    doublereal poly0;
     m_thermo = thermo;
 
     int nsp = thermo->nSpecies();
@@ -104,20 +103,23 @@ namespace Cantera {
     int num = compModelNode.nChildren();
     for (int iChild = 0; iChild < num; iChild++) {
       XML_Node &xmlChild = compModelNode.child(iChild);
-      std::string nodeName = lowercase(xmlChild.name() );
-      if (nodeName != "interaction"  )	    
+      std::string nodeName = lowercase(xmlChild.name());
+      if (nodeName != "interaction") {   
 	throw CanteraError("TransportFactory::getLiquidInteractionsTransportData", 
 			   "expected <interaction> element and got <" + nodeName + ">" );
+      }
       speciesA = xmlChild.attrib("speciesA");
       speciesB = xmlChild.attrib("speciesB");
       int iSpecies = m_thermo->speciesIndex(speciesA );
-      if (iSpecies < 0 ) 
+      if (iSpecies < 0) {
 	throw CanteraError("TransportFactory::getLiquidInteractionsTransportData", 
 			   "Unknown species " + speciesA );
+      }
       int jSpecies = m_thermo->speciesIndex(speciesB );
-      if (jSpecies < 0 ) 
+      if (jSpecies < 0)  {
 	throw CanteraError("TransportFactory::getLiquidInteractionsTransportData", 
 			   "Unknown species " + speciesB );
+      }
       /*      if (xmlChild.hasChild("Aij" ) ) {
 	m_Aij(iSpecies,jSpecies) = getFloat(xmlChild, "Aij", "toSI" );
 	m_Aij(jSpecies,iSpecies) = m_Aij(iSpecies,jSpecies) ;
@@ -129,16 +131,17 @@ namespace Cantera {
 	m_Eij(jSpecies,iSpecies) = m_Eij(iSpecies,jSpecies) ;
       }
 
-      if (xmlChild.hasChild("Aij" ) ) {	
+      if (xmlChild.hasChild("Aij")) {	
         vector_fp poly;
-        poly0 = getFloat(poly, xmlChild, "Aij", "toSI" );
-        if (!poly.size() ) poly.push_back(poly0);
+        // poly0 = getFloat(poly, xmlChild, "Aij", "toSI" );
+        getFloatArray(xmlChild, poly, true, "toSI", "Aij"); 
+        // if (!poly.size() ) poly.push_back(poly0);
         while (m_Aij.size()<poly.size()){
             DenseMatrix * aTemp = new DenseMatrix();
             aTemp->resize(nsp, nsp, 0.0);
             m_Aij.push_back(aTemp);
           }
-	for(int i=0; i<(int)poly.size(); i++ ){
+	for (int i = 0; i < (int)poly.size(); i++ ) {
           (*m_Aij[i])(iSpecies,jSpecies) = poly[i];
 	  //(*m_Aij[i])(jSpecies,iSpecies) = (*m_Aij[i])(iSpecies,jSpecies) ;
 	}
@@ -146,9 +149,9 @@ namespace Cantera {
 
       if (xmlChild.hasChild("Bij" ) ) {	
         vector_fp poly;
-        poly0 = getFloat(poly, xmlChild, "Bij", "toSI" );
-        if (!poly.size() ) poly.push_back(poly0);
-        while (m_Bij.size()<poly.size()){
+        getFloatArray(xmlChild, poly, true, "toSI",  "Bij");
+        //if (!poly.size() ) poly.push_back(poly0);
+        while (m_Bij.size() < poly.size()) {
             DenseMatrix * bTemp = new DenseMatrix();
             bTemp->resize(nsp, nsp, 0.0);
             m_Bij.push_back(bTemp);
@@ -161,8 +164,9 @@ namespace Cantera {
 
       if (xmlChild.hasChild("Hij" ) ) {	
         vector_fp poly;
-        poly0 = getFloat(poly, xmlChild, "Hij", "actEnergy" );
-        if (!poly.size() ) poly.push_back(poly0);
+        // poly0 = getFloat(poly, xmlChild, "Hij", "actEnergy" );
+        getFloatArray(xmlChild, poly, true, "actEnergy", "Hij");
+        // if (!poly.size() ) poly.push_back(poly0);
         while (m_Hij.size()<poly.size()){
             DenseMatrix * hTemp = new DenseMatrix();
             hTemp->resize(nsp, nsp, 0.0);
@@ -177,8 +181,9 @@ namespace Cantera {
 
       if (xmlChild.hasChild("Sij" ) ) {	
         vector_fp poly;
-        poly0 = getFloat(poly, xmlChild, "Sij", "actEnergy" );
-        if (!poly.size() ) poly.push_back(poly0);
+        //  poly0 = getFloat(poly, xmlChild, "Sij", "actEnergy" );
+        getFloatArray(xmlChild, poly, true, "actEnergy", "Sij");
+        // if (!poly.size() ) poly.push_back(poly0);
         while (m_Sij.size()<poly.size()){
             DenseMatrix * sTemp = new DenseMatrix();
             sTemp->resize(nsp, nsp, 0.0);
@@ -666,7 +671,6 @@ namespace Cantera {
     if (nsp != 3) {
       throw CanteraError("LTI_StefanMaxwell_PPN::getMatrixTransProp","Function may only be called with a 3-ion system");
     }
-    int nsp2 = nsp*nsp;
     doublereal temp = m_thermo->temperature();
     doublereal molefracs[nsp];
     m_thermo->getMoleFractions(molefracs );

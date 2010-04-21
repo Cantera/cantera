@@ -40,7 +40,7 @@ namespace ctml {
   static doublereal fpValue(std::string val) {
     return atof(stripws(val).c_str());
   }
-
+  //====================================================================================================================
   //  This function adds a child node with the name, "bool", with a value
   //  consisting of a single bool
   /*
@@ -79,7 +79,7 @@ namespace ctml {
     XML_Node& f = node.addChild("bool", v);
     f.addAttribute("title", title);
   }
-
+  //====================================================================================================================
   //  This function adds a child node with the name, "integer", with a value
   //  consisting of a single integer
   /*
@@ -123,7 +123,7 @@ namespace ctml {
     if (type != "") f.addAttribute("type",type);
     if (units != "") f.addAttribute("units",units);
   } 
-
+  //====================================================================================================================
   //  This function adds a child node with the name, "intArray", with a value
   //  consisting of a comma separated list of integers
   /*
@@ -196,7 +196,7 @@ namespace ctml {
     if (minval != Undef) f.addAttribute("min",minval);
     if (maxval != Undef) f.addAttribute("max",maxval);
   }
-
+  //====================================================================================================================
   //  This function adds a child node with the name, "float", with a value
   //  consisting of a single floating point number
   /*
@@ -255,7 +255,7 @@ namespace ctml {
     if (minval != Undef) f.addAttribute("min",minval);
     if (maxval != Undef) f.addAttribute("max",maxval);
   }
-
+  //====================================================================================================================
   //  This function adds a child node with the name, "floatArray", with a value
   //  consisting of a comma separated list of floats
   /*
@@ -329,7 +329,7 @@ namespace ctml {
     if (minval != Undef) f.addAttribute("min",minval);
     if (maxval != Undef) f.addAttribute("max",maxval);
   }
-
+  //====================================================================================================================
   //  This function adds a child node with the name string with a string value
   //  to the current node
   /* 
@@ -374,7 +374,7 @@ namespace ctml {
     }
     return 0;
   }
-
+  //====================================================================================================================
   //  This function reads a child node with the name string and returns
   //  its xml value as the return string
   /*
@@ -407,7 +407,7 @@ namespace ctml {
     if (!parent.hasChild(nameString)) return "";
     return parent(nameString);
   }
-
+ //====================================================================================================================
   //  This function reads a child node with the name, "string", with a specific
   //  title attribute named "titleString"
   /* 
@@ -449,7 +449,7 @@ namespace ctml {
       }
   }
 
-
+  //====================================================================================================================
   //  Get a vector of integer values from a child element. 
   /* 
    *  Returns a std::map containing a keyed values for child XML_Nodes
@@ -510,7 +510,7 @@ namespace ctml {
     }
   }
 
-
+  //====================================================================================================================
   //  Get a vector of floating-point values from a child element. 
   /* 
    *  Returns a std::map containing a keyed values for child XML_Nodes
@@ -588,7 +588,7 @@ namespace ctml {
     }
   }
 
-
+  //====================================================================================================================
   //  Get a floating-point value from a child element. 
   /* 
    *  Returns a double value for the child named 'name' of element 'parent'. If
@@ -633,22 +633,39 @@ namespace ctml {
     return getFloatCurrent(node, type);
   }
 
-  doublereal getFloat(vector_fp& v, const Cantera::XML_Node& parent,
-		      const std::string &name,
-		      const std::string type) {
-    if (!parent.hasChild(name)) 
-      throw CanteraError("getFloat (called from XML Node \"" +
-			 parent.name() + "\"): ",
-			 "no child XML element named \"" + name + "\" exists");
-    const XML_Node& node = parent.child(name);
-    if (node.hasChild("floatArray")){
-      getFloatArray(node, v, "true", type);
-      return 0;
-    }
-    else{ return getFloatCurrent(node, type);
-      }
-  }
-  
+  //====================================================================================================================
+  //  Get a floating-point value from the current XML element
+  /* 
+   *  Returns a doublereal value from the current element. If
+   *  'type' is supplied and matches a known unit type, unit
+   *  conversion to SI will be done if the child element has an attribute  'units'.
+   *
+   *  Note, it's an error for the child element not to exist.
+   *
+   *  Example:  
+   *
+   * Code snipet:
+   *       @verbatim
+   const XML_Node &State_XMLNode;
+   doublereal pres = OneAtm;
+   if (state_XMLNode.hasChild("pressure")) {
+     XML_Node *pres_XMLNode = State_XMLNode.getChild("pressure");
+     pres = getFloatCurrent(pres_XMLNode, "toSI");
+   }
+   @endverbatim
+   *
+   *  Rreads the corresponding XML file:
+   *  @verbatim
+   <state>
+     <pressure units="Pa"> 101325.0 </pressure>
+   <\state>
+   @endverbatim
+   *
+   *   @param currXML reference to the current XML_Node object
+   *   @param type   String type. Currently known types are "toSI" and "actEnergy",
+   *                 and "" , for no conversion. The default value is "",
+   *                 which implies that no conversion is allowed.
+   */
   doublereal getFloatCurrent(const Cantera::XML_Node& node,
                              const std::string type) {
     doublereal x, x0, x1, fctr = 1.0;
@@ -704,7 +721,7 @@ namespace ctml {
     return fctr*x;
   }
 
-  
+   //====================================================================================================================
   bool getOptionalFloat(const Cantera::XML_Node& parent,
 			const std::string &name,
 			doublereal &fltRtn,
@@ -715,7 +732,7 @@ namespace ctml {
     }
     return false;
   }
-
+  //====================================================================================================================
   //  Get an optional floating-point value from a child element. 
   /* 
    *  Returns a doublereal value for the child named 'name' of element 'parent'. If
@@ -778,7 +795,37 @@ namespace ctml {
     val /= fctr;
     return val;
   }
-
+  //====================================================================================================================
+  //  Get an optional model name from a named child node.
+  /* 
+   *  Returns the model name attribute for the child named 'nodeName' of element 'parent'.
+   *  Note, it's optional for the child node to exist
+   *
+   *  Example:  
+   *
+   * Code snipet:
+   *       @verbatim
+   std::string modelName = "";
+   bool exists = getOptionalModel(transportNode, "compositionDependence",
+			          modelName);
+   @endverbatim
+   *
+   *  Reads the corresponding XML file:
+   *
+   *  @verbatim
+    <transport>
+      <compositionDependence model="Solvent_Only"/>
+    </transport>
+   @endverbatim
+   *
+   *   On return modelName is set to "Solvent_Only".
+   *
+   *   @param parent     Reference to the XML_Node object of the parent XML element
+   *   @param nodeName   Name of the XML child element
+   *   @param modelName  On return this contains the contents of the model attribute
+   *
+   *   @return True if the nodeName XML node exists. False otherwise.
+   */
   bool getOptionalModel(const Cantera::XML_Node& parent, const std::string nodeName,
                         std::string &modelName) {
    if (parent.hasChild(nodeName)) {
@@ -788,7 +835,7 @@ namespace ctml {
    }
    return false;
   }
-
+  //====================================================================================================================
   //  Get an integer value from a child element. 
   /* 
    *  Returns an integer value for the child named 'name' of element 'parent'.
@@ -809,7 +856,7 @@ namespace ctml {
    *  reads the corresponding XML file:
    *  @verbatum
    <state>
-   <numProcs> 10 <numProcs/>
+   <numProcs> 10 <\numProcs>
    <\state>
    @endverbatum
    *
@@ -846,7 +893,7 @@ namespace ctml {
     }
     return x;
   }
-
+  //====================================================================================================================
   //  This function reads the current node or a  child node of the current node
   //  with the default name, "floatArray", with a value field
   //  consisting of a comma separated list of floats
@@ -921,6 +968,11 @@ namespace ctml {
 			 + nodeName + "but accessed " + node.name());
       } else {
         readNode = ll[0];
+	ll.clear();
+	readNode->getChildren("floatArray", ll);
+	if (ll.size() > 0) {
+	  readNode = ll[0];
+	}
       }
     }
 
@@ -987,7 +1039,7 @@ namespace ctml {
     }
     return v.size();
   }
-
+  //====================================================================================================================
   // This routine is used to interpret the value portions of XML
   // elements that contain colon separated pairs.
   /*
@@ -1025,7 +1077,7 @@ namespace ctml {
       m[key] = val;
     }
   }
-
+  //====================================================================================================================
   // This function interprets the value portion of an XML element
   // as a series of "Pairs" separated by white space.
   /*
@@ -1075,7 +1127,7 @@ namespace ctml {
     }
     return n;
   }
-
+ //====================================================================================================================
   // This function interprets the value portion of an XML element
   // as a series of "Matrix ids and entries" separated by white space.
   /*
@@ -1206,7 +1258,7 @@ namespace ctml {
       }
     }
   }
-
+  //====================================================================================================================
   // This function interprets the value portion of an XML element
   // as a string. It then separates the string up into tokens
   // according to the location of white space.
@@ -1220,7 +1272,7 @@ namespace ctml {
     std::string val = node.value();
     tokenizeString(val, v);
   }
-
+  //====================================================================================================================
   //  This function reads a child node with the default name, "floatArray", with a value
   //  consisting of a comma separated list of floats
   /*
@@ -1285,4 +1337,5 @@ namespace ctml {
     if (node["max"] != "") xmax = fpValue(node["max"]);
     type = node["type"];
   }
+  //====================================================================================================================
 }
