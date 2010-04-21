@@ -621,10 +621,10 @@ namespace Cantera {
   void PDSS_HKFT::constructPDSSXML(VPStandardStateTP *tp, int spindex,
 				   const XML_Node& speciesNode, 
 				   const XML_Node& phaseNode, bool spInstalled) {
-    //PDSS::initThermo();
-    
-    // m_p0 = OneAtm;
-
+    int hasDGO = 0;
+    int hasSO = 0;
+    int hasDHO = 0;
+   
     if (!spInstalled) {
       throw CanteraError("PDSS_HKFT::constructPDSSXML", "spInstalled false not handled");
     }
@@ -666,22 +666,25 @@ namespace Cantera {
     if (hh->hasChild("DG0_f_Pr_Tr")) {
       doublereal val = getFloat(*hh, "DG0_f_Pr_Tr");
       m_deltaG_formation_tr_pr = val;
+      hasDGO = 1;
     } else {
-      throw CanteraError("PDSS_HKFT::constructPDSSXML", " missing DG0_f_Pr_Tr field");
+      // throw CanteraError("PDSS_HKFT::constructPDSSXML", " missing DG0_f_Pr_Tr field");
     }
 
     if (hh->hasChild("DH0_f_Pr_Tr")) {
       doublereal val = getFloat(*hh, "DH0_f_Pr_Tr");
       m_deltaH_formation_tr_pr = val;
+      hasDHO = 1;
     } else {
-      throw CanteraError("PDSS_HKFT::constructPDSSXML", " missing DH0_f_Pr_Tr field");
+      //  throw CanteraError("PDSS_HKFT::constructPDSSXML", " missing DH0_f_Pr_Tr field");
     }
 
     if (hh->hasChild("S0_Pr_Tr")) {
       doublereal val = getFloat(*hh, "S0_Pr_Tr");
       m_Entrop_tr_pr= val;
+      hasSO = 1;
     } else {
-      throw CanteraError("PDSS_HKFT::constructPDSSXML", " missing S0_Pr_Tr field");
+      //  throw CanteraError("PDSS_HKFT::constructPDSSXML", " missing S0_Pr_Tr field");
     }
 
     const XML_Node *ss = speciesNode.findByName("standardState");
@@ -720,24 +723,57 @@ namespace Cantera {
       throw CanteraError("PDSS_HKFT::constructPDSSXML", " missing a4 field");
     }
     
-   if (ss->hasChild("c1")) {
+    if (ss->hasChild("c1")) {
       doublereal val = getFloat(*ss, "c1");
       m_c1 = val;
-   } else {
-     throw CanteraError("PDSS_HKFT::constructPDSSXML", " missing c1 field");
-   }
-   if (ss->hasChild("c2")) {
+    } else {
+      throw CanteraError("PDSS_HKFT::constructPDSSXML", " missing c1 field");
+    }
+    if (ss->hasChild("c2")) {
       doublereal val = getFloat(*ss, "c2");
       m_c2 = val;
-   } else {
-     throw CanteraError("PDSS_HKFT::constructPDSSXML", " missing c2 field");
-   }
-   if (ss->hasChild("omega_Pr_Tr")) {
+    } else {
+      throw CanteraError("PDSS_HKFT::constructPDSSXML", " missing c2 field");
+    }
+    if (ss->hasChild("omega_Pr_Tr")) {
       doublereal val = getFloat(*ss, "omega_Pr_Tr");
       m_omega_pr_tr = val;
-   } else {
-     throw CanteraError("PDSS_HKFT::constructPDSSXML", " missing omega_Pr_Tr field");
-   }
+    } else {
+      throw CanteraError("PDSS_HKFT::constructPDSSXML", " missing omega_Pr_Tr field");
+    }
+
+
+    int isum = hasDGO + hasDHO + hasSO;
+    if (isum < 2) {
+      throw CanteraError("PDSS_HKFT::constructPDSSXML", 
+			 "Missing 2 or more of DG0_f_Pr_Tr, DH0_f_Pr_Tr, or S0_f_Pr_Tr fields. "
+			 "Need to supply at least two of these fields");
+    }
+    // Ok, if we are missing one, then we construct its value from the other two.
+    // This code has been internally verified.
+    if (hasDHO == 0) {
+      m_charge_j = m_tp->charge(m_spindex);
+      convertDGFormation();
+      doublereal Hcalc = m_Mu0_tr_pr + 298.15 * (m_Entrop_tr_pr * 1.0E3 * 4.184);
+      m_deltaH_formation_tr_pr = Hcalc / (1.0E3 * 4.184);
+    }
+    if (hasDGO == 0) {
+      doublereal DHjmol = m_deltaH_formation_tr_pr * 1.0E3 * 4.184;
+      m_Mu0_tr_pr = DHjmol -  298.15 * (m_Entrop_tr_pr * 1.0E3 * 4.184);
+      m_deltaG_formation_tr_pr =   m_Mu0_tr_pr / (1.0E3 * 4.184);
+      double tmp =   m_Mu0_tr_pr;
+      m_charge_j = m_tp->charge(m_spindex);
+      convertDGFormation();
+      double totalSum =  m_Mu0_tr_pr - tmp;
+      m_Mu0_tr_pr = tmp;
+      m_deltaG_formation_tr_pr =   (m_Mu0_tr_pr - totalSum)/ (1.0E3 * 4.184);
+    }
+    if (hasSO == 0) {
+      m_charge_j = m_tp->charge(m_spindex);
+      convertDGFormation();
+      doublereal DHjmol = m_deltaH_formation_tr_pr * 1.0E3 * 4.184;
+      m_Entrop_tr_pr = (DHjmol - m_Mu0_tr_pr) / (298.15 * 1.0E3 * 4.184); 
+    }
     
   }
 
