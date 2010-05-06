@@ -224,7 +224,8 @@ namespace Cantera {
     throw CanteraError("speciesPhase", "unknown species "+nm);
   }
 
-  /**
+  //==============================================================================================
+  /*
    * This function takes as an argument the kineticsSpecies index
    * (i.e., the list index in the list of species in the kinetics
    * manager) and returns the index of the phase owning the 

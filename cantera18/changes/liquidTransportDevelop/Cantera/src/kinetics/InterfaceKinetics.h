@@ -374,6 +374,19 @@ namespace Cantera {
      */
     //@{
       
+    //!  Add a phase to the kinetics manager object. 
+    /*!
+     * This must be done before the function init() is called or 
+     * before any reactions are input.
+     *
+     * This function calls the Kinetics operator addPhase.
+     * It also sets the following functions
+     *
+     *        m_phaseExists[]
+     *
+     * @param thermo    Reference to the ThermoPhase to be added.
+     */
+    virtual void addPhase(thermo_t& thermo);
 	
     //! Prepare the class for the addition of reactions. 
     /*!
@@ -403,7 +416,10 @@ namespace Cantera {
 
     virtual bool ready() const;
 
-
+    //! Internal routine that updates the Rates of Progress of the reactions
+    /*!
+     *  This is actually the guts of the functionality of the object
+     */
     void updateROP();
 
 
@@ -507,6 +523,16 @@ namespace Cantera {
      */
     void applyExchangeCurrentDensityFormulation(doublereal* const kfwd);
 
+    //! Set the existence of a phase in the reaction object
+    /*!
+     *    Tell the kinetics object whether a phase in the object exists.
+     *    This is actually an extrinsic specification that must be carried out on top of the
+     *    intrinsic calculation of the reaction rate
+     *
+     *  @param iphase  Index of the phase. This is the order within the internal thermo vector object
+     *  @param exists  Boolean indicating whether the phase exists or not
+     */
+    void setPhaseExistence(const int iphase, const bool exists);
  
   protected:
      
@@ -515,7 +541,7 @@ namespace Cantera {
 
     //! m_kk is the number of species in all of the phases
     //! that participate in this kinetics mechanism.
-    int                                 m_kk;
+    int m_kk;
 
     //! List of reactions numbers which are reversible reactions
     /*!
@@ -626,7 +652,7 @@ namespace Cantera {
      */
     vector_fp m_mu0;
 
-    //! Vector of phase potentials
+    //! Vector of phase electric potentials
     /*!
      * Temporary vector containing the potential of each phase
      * in the kinetics object
@@ -720,6 +746,27 @@ namespace Cantera {
      */
     bool m_has_exchange_current_density_formulation;
 
+    //! Int flag to indicate that some phases in the kinetics mechanism are
+    //! non-existent.
+    /*!
+     *   We change the ROP vectors to make sure that non-existent phases are treated
+     *   correctly in the kinetics operator. The value of this is equal to the number
+     *   of phases which don't exist.
+     */
+    int m_phaseExistsCheck;
+
+    //!  Vector of booleans indicating whether phases exist or not
+    /*!
+     *    Vector of booleans indicating whether a phase exists or not.
+     *    We use this to set the ROP's so that unphysical things don't happen
+     *
+     *    length = number of phases in the object
+     *    By default all phases exist.
+     */
+    std::vector<bool> m_phaseExists;
+
+    std::vector<bool *> m_rxnPhaseIsReactant;
+    std::vector<bool *> m_rxnPhaseIsProduct;
 
     int m_ioFlag;
   private:
