@@ -451,6 +451,8 @@ AC_SUBST(EXE_EXT)
 AC_OUTPUT(Makefile \
 	  transport_UnitTests/Makefile
           transport_UnitTests/SimpleTransportTest1/Makefile
+	  kinetics_UnitTests/Makefile
+          kinetics_UnitTests/StoichSolidKinetics/Makefile
           )
 #
 # -----------------------------------------------------------------------------
