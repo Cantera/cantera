@@ -363,7 +363,9 @@ namespace ctml {
 		 const std::string typeString) {
     XML_Node& f = node.addChild("string", valueString);
     f.addAttribute("title", titleString);
-    if (typeString != "") f.addAttribute("type", typeString);        
+    if (typeString != "") {
+      f.addAttribute("type", typeString);
+    }        
   }
 
   XML_Node* getByTitle(const Cantera::XML_Node& node, const std::string &title) {
@@ -632,6 +634,7 @@ namespace ctml {
     const XML_Node& node = parent.child(name);
     return getFloatCurrent(node, type);
   }
+
 
   doublereal getFloatCurrent(const Cantera::XML_Node& node,
                              const std::string type) {
