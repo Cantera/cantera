@@ -300,15 +300,7 @@ AC_CHECK_FUNCS([memset])
 #      Or, the command autoheader does this for you.
 # 
 #
-# Add a define for the CANTERA_ROOT preprocessor variable
 #
-AC_DEFINE_UNQUOTED(CANTERA_ROOT, "$CANTERA_ROOT", Root location of the \
-    Cantera Source Code directory)
-#
-# Add in a Makefile substitution rule in for the macro @ctb_root@
-#
-ctb_root=$CANTERA_ROOT
-AC_SUBST(ctb_root)
 
 AC_DEFINE_UNQUOTED(INCL_PURE_FLUIDS_IN_APPS, $INCPUREFLUIDS, Include pure fluids)
 #
@@ -363,22 +355,13 @@ ct_incroot=${ct_prefix}/include
 ct_incdir=${ct_prefix}/include/cantera
 ct_bindir=${ct_prefix}/bin
 ct_datadir=${ct_prefix}/data
-ct_demodir=${ct_prefix}/demos
-ct_templdir=${ct_prefix}/templates
-ct_tutdir=${ct_prefix}/tutorials
-ct_docdir=${ct_prefix}/doc
 ct_dir=${ct_prefix}
-ct_mandir=${ct_prefix}
 
 AC_SUBST(ct_libdir)
 AC_SUBST(ct_incroot)
 AC_SUBST(ct_bindir)
 AC_SUBST(ct_datadir)
 # 
-# Cads root
-#
-cads_root=${CADS_ROOT}
-AC_SUBST(cads_root)
 #
 #     @MAKE@ Substitution -> 
 # 
@@ -453,7 +436,10 @@ AC_OUTPUT(Makefile \
           transport_UnitTests/SimpleTransportTest1/Makefile
 	  kinetics_UnitTests/Makefile
           kinetics_UnitTests/StoichSolidKinetics/Makefile
+          kinetics_UnitTests/StoichSolidKinetics/runtest
           )
+#
+chmod +x kinetics_UnitTests/StoichSolidKinetics/runtest
 #
 # -----------------------------------------------------------------------------
 #          END

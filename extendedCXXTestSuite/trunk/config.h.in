@@ -18,11 +18,6 @@
 #ifndef CANTERA_APPS_CONFIG_H
 #define CANTERA_APPS_CONFIG_H
 
-/* Root location of the Cantera Install directory */
-#undef CANTERA_ROOT
-
-/* Define to 1 if you have the `memset' function. */
-#undef HAVE_MEMSET
 
 /* Define if we want to use MPI */
 #undef HAVE_MPI
