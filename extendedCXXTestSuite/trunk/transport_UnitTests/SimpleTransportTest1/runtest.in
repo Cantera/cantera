@@ -6,6 +6,8 @@ temp_success="1"
             output_3.txt diff_0_test.out diff_1_test.out \
             diff_2_test.out output_0.txt diff*out
 
+ctv=@ctversion@
+
 ##########################################################################
 prog=SimpleTransportTest1
 if test ! -x $prog ; then
