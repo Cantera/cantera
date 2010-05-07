@@ -76,21 +76,30 @@ namespace Cantera {
    */
   //@{
 
-    /// Avogadro's Number
-    const doublereal Avogadro = 6.02214179e26; //   /kmol
+    //! Avogadro's Number
+    /*!
+     *  Units are number/kmol
+     */
+    const doublereal Avogadro = 6.02214179e26; 
 
     /// Universal Gas Constant. 2006 CODATA value.
     const doublereal GasConstant = 8314.47215; // J/kmol/K
 
     const doublereal logGasConstant = 9.025752908;
 
-    /// One atmosphere
-    const doublereal OneAtm = 1.01325e5;             // Pa
+    //! One atmosphere
+    /*!
+     *  Units are Pa
+     */
+    const doublereal OneAtm = 1.01325e5;  
 
-    /// Universal gas constant in cal/mol/K
+    //! Universal gas constant in cal/mol/K
     const doublereal GasConst_cal_mol_K = 1.987;
 
-    /// Boltzmann's constant
+    //! Boltzmann's constant
+    /*!
+     *  Units are J/K
+     */
     const doublereal Boltzmann = GasConstant / Avogadro;
 
     /// Planck's constant. Units of J-s
@@ -191,6 +200,9 @@ namespace Cantera {
 #define USE_STL_VECTOR
 #ifdef USE_STL_VECTOR
   //! Vector of doubles.
+  /*!
+   *  @deprecated array_fp is going away, because vector_fp means the same thing
+   */
     typedef std::vector<double>        array_fp;
   //! Vector of doubles.
     typedef std::vector<double>        vector_fp;
