@@ -176,15 +176,66 @@ namespace Cantera {
        * constructor for the Messages class which is a subclass
        * of the Application class.
        */
-      Messages() {
+      Messages() :
+        errorMessage(0),
+        errorRoutine(0),
+	logwriter(0)
+#ifdef WITH_HTML_LOGS
+		 ,xmllog(0),
+        current(0),
+	loglevel(0),
+	loglevels(0),
+	loggroups(0)
+#endif
+      {
 	// install a default logwriter that writes to standard
 	// output / standard error
 	logwriter = new Logger();
+      }
+
+      //! Copy Constructor for the Messages class
+      /*!
+       * Constructor for the Messages class which is a subclass
+       * of the Application class.
+       *  @param r   Message to be copied
+       */
+      Messages(const Messages &r) :
+	errorMessage(r.errorMessage),
+        errorRoutine(r.errorRoutine),
+	logwriter(0)
 #ifdef WITH_HTML_LOGS
-	xmllog = 0; 
-	current = 0;
-	loglevel = 0;
+       , xmllog(r.xmllog),
+        current(r.current),
+	loglevel(r.loglevel),
+	loglevels(r.loglevels),
+	loggroups(r.loggroups)
 #endif
+      {
+	// install a default logwriter that writes to standard
+	// output / standard error
+	logwriter = new Logger(*(r.logwriter));
+      }
+
+      //! Assignment operator
+      /*!
+       *  @param r   Message to be copied
+       */
+      Messages & operator=(const Messages &r) 
+      {
+	if (this == &r) {
+	  return *this;
+	}
+	errorMessage = r.errorMessage;
+	errorRoutine = r.errorRoutine;
+	logwriter = new Logger(*(r.logwriter));
+#ifdef WITH_HTML_LOGS
+	xmllog = r.xmllog;
+	current = r.current;
+	loglevel = r.loglevel;
+	loglevels = r.loglevels;
+	loggroups = r.loggroups;
+#endif
+	return *this;
       }
 
       //! Destructor for the Messages class
@@ -486,8 +537,14 @@ namespace Cantera {
 
   protected:   //RFB Protected ctor access thru static member function Instance
     //! Constructor for class sets up the initial conditions
-    Application() : /*linelen(0),*/ stop_on_error(false),
-                                    tmp_dir("."), m_sleep("1")              
+    Application() : 
+      inputDirs(0),
+      stop_on_error(false),
+      options(),
+      tmp_dir("."),
+      xmlfiles(),
+      m_sleep("1"),              
+      pMessenger(0)
     {
 #if !defined( THREAD_SAFE_CANTERA )
      pMessenger = std::auto_ptr<Messages>(new Messages());
