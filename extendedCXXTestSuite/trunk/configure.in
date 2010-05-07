@@ -434,12 +434,15 @@ AC_SUBST(EXE_EXT)
 AC_OUTPUT(Makefile \
 	  transport_UnitTests/Makefile
           transport_UnitTests/SimpleTransportTest1/Makefile
+          transport_UnitTests/SimpleTransportTest1/runtest
 	  kinetics_UnitTests/Makefile
           kinetics_UnitTests/StoichSolidKinetics/Makefile
           kinetics_UnitTests/StoichSolidKinetics/runtest
           )
 #
 chmod +x kinetics_UnitTests/StoichSolidKinetics/runtest
+chmod +x transport_UnitTests/SimpleTransportTest1/runtest
+
 #
 # -----------------------------------------------------------------------------
 #          END
