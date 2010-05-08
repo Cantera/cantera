@@ -23,6 +23,8 @@
 #
 in_CanteraBuildTree = 0
 
+CANTERA_VERSION=@ctversion@
+
 ###############################################################################
 #        CANTERA CORE 
 ###############################################################################
@@ -117,6 +119,10 @@ endif
 ####################################################################
 
 CANTERA_TOTAL_INCLUDES= $(CANTERA_CORE_INCLUDES) $(CANTERA_BOOST_INCLUDES) $(CANTERA_CVODE_INCLUDE)
+#
+# You can add this into the compilation environment to identify the version number
+#
+CANTERA_DEFINES = -DCANTERA_VERSION=@ctversion@
 
 CANTERA_TOTAL_LIBS2 = @LOCAL_LIB_DIRS@ @LOCAL_LIBS@
 

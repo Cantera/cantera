@@ -488,8 +488,22 @@ CT_SHARED_LIB=${CT_SHARED_LIB:=clib}
 # lowercase 'helvetica'.
 RPFONT=${RPFONT:="Helvetica"}
 
-# Don't change this.
-CANTERA_VERSION=${CANTERA_VERSION:="1.8.0"} 
+#
+# Version Control:
+#
+#  We define a new string for every branch created in svn.
+#
+#        Currently expected versions:
+#         "1.7"                           Old version of Cantera
+#         "1.8.0"                         Released version of 1.8
+#         "1.8.x"                         Development version of 1.8
+#         "1.8_liquidTransportDevelop"    branched version of 1.8 having to deal with liquid transport
+#
+#    This field gets written into config.h  and is also an autoconf variable.
+#
+# 
+CANTERA_VERSION=${CANTERA_VERSION:="1.8.x"}
+
 
 #-----------------------------------------------------------------------
 #------------------- don't change anything below!! ---------------------
