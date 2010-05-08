@@ -58,6 +58,22 @@ if test ! -d ${prefix}; then
   exit 1
 fi
 #
+# ----------------------------------------------------------------------------
+#       Go Get the Cantera Version String
+# ----------------------------------------------------------------------------
+#
+CANTERA_INC=${CANTERA_INSTALL_DIR}/include/cantera
+CANTERA_MAK=${CANTERA_INC}/Cantera.mak
+CANTERA_VERSION_SED=`/bin/sed -n  '/^CANTERA_VERSION/  s/CANTERA_VERSION=// p' ${CANTERA_MAK}`
+echo 'Cantera Version Number Read from Cantera.mak = "'${CANTERA_VERSION_SED}"\""
+if test ${CANTERA_VERSION} = "default"
+then
+  CANTERA_VERSION=${CANTERA_VERSION_SED}
+else
+  echo 'Cantera Version to be used is Overwritten. Will use the Version ' $CANTERA_VERSION
+fi
+# echo 'CANTERA_VERSION = ' $CANTERA_VERSION
+#
 # -----------------------------------------------------------------------------
 #                    PURIFY
 # -----------------------------------------------------------------------------

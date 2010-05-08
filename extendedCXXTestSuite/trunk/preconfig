@@ -25,7 +25,7 @@
 # Version number of Cantera. Cantera libraries are storred in 
 # a directory under the installation directory
 # named after the version number.
-CANTERA_VERSION=${CANTERA_VERSION:="1.8.0"}
+CANTERA_VERSION=${CANTERA_VERSION:="default"}
 #
 #  Cantera will be installed in another location called the 
 #  CANTERA_INSTALL_DIR. Most applications will build against
