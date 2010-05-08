@@ -45,11 +45,16 @@ namespace Cantera {
   class InterfaceKineticsData {
   public:
     InterfaceKineticsData() :
+      m_logp0(0.0),
+      m_logc0(0.0),
       m_ROP_ok(false),
-      m_temp(0.0), m_logtemp(0.0)
+      m_temp(0.0), 
+      m_logtemp(0.0)
     {}
+ 
     //! Virtual destructor
-    virtual ~InterfaceKineticsData(){}
+    virtual ~InterfaceKineticsData() {
+    }
 
     doublereal m_logp0;
     doublereal m_logc0;
@@ -59,7 +64,9 @@ namespace Cantera {
    
     bool m_ROP_ok;
 
+    //! Current temperature of the data
     doublereal m_temp;
+    //! Current log of the temperature
     doublereal m_logtemp;
     vector_fp m_rfn;
     vector_fp m_rkcn;
@@ -76,9 +83,9 @@ namespace Cantera {
 
   public:
 
-    /**
-     * Constructor
-     *
+   
+    //! Constructor
+    /*!
      * @param thermo The optional parameter may be used to initialize
      *               the object with one ThermoPhase object.
      *               HKM Note -> Since the interface kinetics
@@ -121,20 +128,18 @@ namespace Cantera {
      */
     virtual Kinetics *duplMyselfAsKinetics() const;
 
+    //! Return the ID of the kinetics object
+    virtual int ID() const;
 
-    virtual int ID() const { return cInterfaceKinetics; }
-    virtual int type() const { return cInterfaceKinetics; }
+    //! Retunr the type of the kinetics object
+    virtual int type() const;
 
-    /**
-     * Set the electric potential in the nth phase
-     *
+    //! Set the electric potential in the nth phase
+    /*!
      * @param n phase Index in this kinetics object.
      * @param V Electric potential (volts)
      */
-    void setElectricPotential(int n, doublereal V) {
-      thermo(n).setElectricPotential(V);
-      m_redo_rates = true;
-    }
+    void setElectricPotential(int n, doublereal V);
 
 
     ///
@@ -172,7 +177,16 @@ namespace Cantera {
       std::copy(m_kdata->m_ropnet.begin(), m_kdata->m_ropnet.end(), netROP);
     }
 
+
+    //! Get the equilibrium constants of all reactions, whether
+    //! the reaction is reversible or not.
+    /*!
+     *  @param kc   Returns the concentration equation constant for the reaction.
+     *              Length is the number of reactions
+     */
     virtual void getEquilibriumConstants(doublereal* kc);
+
+    void getExchangeCurrentQuantities();
 
 
     virtual void getDeltaGibbs( doublereal* deltaG);
@@ -361,6 +375,19 @@ namespace Cantera {
      */
     //@{
       
+    //!  Add a phase to the kinetics manager object. 
+    /*!
+     * This must be done before the function init() is called or 
+     * before any reactions are input.
+     *
+     * This function calls the Kinetics operator addPhase.
+     * It also sets the following functions
+     *
+     *        m_phaseExists[]
+     *
+     * @param thermo    Reference to the ThermoPhase to be added.
+     */
+    virtual void addPhase(thermo_t& thermo);
 	
     //! Prepare the class for the addition of reactions. 
     /*!
@@ -390,12 +417,26 @@ namespace Cantera {
 
     virtual bool ready() const;
 
-
+    //! Internal routine that updates the Rates of Progress of the reactions
+    /*!
+     *  This is actually the guts of the functionality of the object
+     */
     void updateROP();
 
 
-
+   
+    //! Update properties that depend on temperature
+    /*!
+     *  This is called to update all of the properties that depend on temperature
+     *
+     *  Current objects that this function updates
+     *       m_kdata->m_logtemp 
+     *       m_kdata->m_rfn
+     *       m_rates.
+     *       updateKc();
+     */
     void _update_rates_T();
+
     void _update_rates_phi();
     void _update_rates_C();
       
@@ -445,15 +486,63 @@ namespace Cantera {
     void setIOFlag(int ioFlag);
 
     void checkPartialEquil();
-      
+
+
+    int reactionNumber() const { return m_ii;}
+
+    void addElementaryReaction(const ReactionData& r);
+    void addGlobalReaction(const ReactionData& r);
+    void installReagents(const ReactionData& r);
+  
+    void updateKc();
+
+    //! Write values into m_index
+    /*!
+     * @param rxnNumber reaction number
+     * @param type      reaction type
+     * @param loc       location ??
+     */
+    void registerReaction(int rxnNumber, int type, int loc) {
+      m_index[rxnNumber] = std::pair<int, int>(type, loc);
+    }
+
+    //! Apply corrections for interfacial charge transfer reactions
+    /*!
+     * For reactions that transfer charge across a potential difference,
+     * the activation energies are modified by the potential difference.
+     * (see, for example, ...). This method applies this correction.
+     *
+     * @param kf  Vector of forward reaction rate constants on which to have
+     *            the correction applied
+     */
+    void applyButlerVolmerCorrection(doublereal* const kf);
+
+    //! When an electrode reaction rate is optionally specified in terms of its
+    //! exchange current density, extra vectors need to be precalculated
+    /*!
+     *
+     */
+    void applyExchangeCurrentDensityFormulation(doublereal* const kfwd);
+
+    //! Set the existence of a phase in the reaction object
+    /*!
+     *    Tell the kinetics object whether a phase in the object exists.
+     *    This is actually an extrinsic specification that must be carried out on top of the
+     *    intrinsic calculation of the reaction rate
+     *
+     *  @param iphase  Index of the phase. This is the order within the internal thermo vector object
+     *  @param exists  Boolean indicating whether the phase exists or not
+     */
+    void setPhaseExistence(const int iphase, const bool exists);
+ 
+  protected:
+     
     //! Temporary work vector of length m_kk
     vector_fp m_grt;
 
-  protected:
-
     //! m_kk is the number of species in all of the phases
     //! that participate in this kinetics mechanism.
-    int                                 m_kk;
+    int m_kk;
 
     //! List of reactions numbers which are reversible reactions
     /*!
@@ -489,7 +578,7 @@ namespace Cantera {
      *    production rates and also handles turning thermo
      *    properties into reaction thermo properties.
      */
-    ReactionStoichMgr                   m_rxnstoich;
+    ReactionStoichMgr m_rxnstoich;
 
     //! Number of irreversible reactions in the mechanism
     int m_nirrev;
@@ -564,7 +653,7 @@ namespace Cantera {
      */
     vector_fp m_mu0;
 
-    //! Vector of phase potentials
+    //! Vector of phase electric potentials
     /*!
      * Temporary vector containing the potential of each phase
      * in the kinetics object
@@ -607,30 +696,36 @@ namespace Cantera {
     ImplicitSurfChem* m_integrator;
 
     vector_fp m_beta;
+
+    //! Vector of reaction indexes specifying the id of the current transfer reactions
+    //! in the mechanism
+    /*!
+     *  Vector of reaction indecices which involve current transfers. This provides
+     *  an index into the m_beta array.
+     *
+     *        irxn = m_ctrxn[i] 
+     */
     vector_int m_ctrxn;
 
-    int reactionNumber(){ return m_ii;}
+    //! Vector of booleans indicating whether the charge transfer reaction may be 
+    //! described by an exchange current density expression
+    vector_int m_ctrxn_ecdf;
 
-    void addElementaryReaction(const ReactionData& r);
-    void addGlobalReaction(const ReactionData& r);
-    void installReagents(const ReactionData& r);
+    vector_fp m_StandardConc;
+    vector_fp m_deltaG0;
+    vector_fp m_ProdStanConcReac;
 
-    void updateKc();
 
-    //! Write values into m_index
-    /*!
-     * @param rxnNumber reaction number
-     * @param type      reaction type
-     * @param loc       location ??
-     */
-    void registerReaction(int rxnNumber, int type, int loc) {
-      m_index[rxnNumber] = std::pair<int, int>(type, loc);
-    }
-
-    void applyButlerVolmerCorrection(doublereal* kf);
 
     //! boolean indicating whether mechanism has been finalized
     bool m_finalized;
+
+    //! Boolean flag indicating whether any reaction in the mechanism
+    //! has a coverage dependent forward reaction rate
+    /*!
+     *   If this is true, then the coverage dependence is multiplied into
+     *   the forward reaction rates constant
+     */
     bool m_has_coverage_dependence;
 
     //! Boolean flag indicating whether any reaction in the mechanism
@@ -642,6 +737,37 @@ namespace Cantera {
      *    fac = exp ( - beta * (delta_phi))
      */
     bool m_has_electrochem_rxns;
+
+    //! Boolean flag indicating whether any reaction in the mechanism
+    //! is described by an exchange current density expression
+    /*!
+     *  If this is true, the standard state gibbs free energy of the reaction and
+     *  the product of the reactant standard concentrations must be precalculated
+     *  in order to calculate the rate constant.
+     */
+    bool m_has_exchange_current_density_formulation;
+
+    //! Int flag to indicate that some phases in the kinetics mechanism are
+    //! non-existent.
+    /*!
+     *   We change the ROP vectors to make sure that non-existent phases are treated
+     *   correctly in the kinetics operator. The value of this is equal to the number
+     *   of phases which don't exist.
+     */
+    int m_phaseExistsCheck;
+
+    //!  Vector of booleans indicating whether phases exist or not
+    /*!
+     *    Vector of booleans indicating whether a phase exists or not.
+     *    We use this to set the ROP's so that unphysical things don't happen
+     *
+     *    length = number of phases in the object
+     *    By default all phases exist.
+     */
+    std::vector<bool> m_phaseExists;
+
+    std::vector<bool *> m_rxnPhaseIsReactant;
+    std::vector<bool *> m_rxnPhaseIsProduct;
 
     int m_ioFlag;
   private:

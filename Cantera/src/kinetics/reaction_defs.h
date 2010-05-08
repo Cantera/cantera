@@ -81,11 +81,12 @@ namespace Cantera {
      */
     //@{
     
-    const int  ARRHENIUS = 1;
-    const int  LANDAUTELLER = 2;
-    const int  TSTRATE = 3;
-    const int  SURF_ARRHENIUS = 4;
-    const int  ARRHENIUS_SUM = 5;
+    const int  ARRHENIUS_REACTION_RATECOEFF_TYPE = 1;
+    const int  LANDAUTELLER_REACTION_RATECOEFF_TYPE = 2;
+    const int  TSTRATE_REACTION_RATECOEFF_TYPE = 3;
+    const int  SURF_ARRHENIUS_REACTION_RATECOEFF_TYPE = 4;
+    const int  ARRHENIUS_SUM_REACTION_RATECOEFF_TYPE = 5;
+    const int  EXCHANGE_CURRENT_REACTION_RATECOEFF_TYPE = 6;
 
     //@}
 
