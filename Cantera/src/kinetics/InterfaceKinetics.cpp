@@ -935,11 +935,27 @@ namespace Cantera {
    */
   void InterfaceKinetics::addReaction(const ReactionData& r) {
 
+    /*
+     * Install the rate coefficient for the current reaction
+     * in the appropriate data structure.
+     */
     addElementaryReaction(r);
-
-    // operations common to all reaction types
+    /*
+     * Add the reactants and products for  m_ropnet;the current reaction
+     * to the various stoichiometric coefficient arrays.
+     */
     installReagents(r);
+    /* 
+     * Save the reaction and product groups, which are
+     * part of the ReactionData class, in this class.
+     * They aren't used for anything but reaction path
+     * analysis.
+     */
     //installGroups(reactionNumber(), r.rgroups, r.pgroups);
+    /*
+     * Increase the internal number of reactions, m_ii, by one.
+     * increase the size of m_perturb by one as well.
+     */
     incrementRxnCount();
     m_rxneqn.push_back(r.equation);
 
