@@ -55,6 +55,9 @@ bool ctversionCanHandle(std::string ctv) {
   if (ctv == "1.8_liquidTransportDevelop") {
     return true;
   }
+  if (ctv == "1.8.x") {
+    return true;
+  }
   if (ctv.substr(0,2) == "1.8") {
     return false;
   }
@@ -282,7 +285,7 @@ int main(int argc, char** argv) {
     cout << endl;
 
 
-#if  defined (CANTERA_VERSION_18_LTD)
+#if  defined (CANTERA_VERSION_18_LTD) || defined (CANTERA_VERSION_18_XXX)
 
     printf("==========================================================================\n");
     printf("  OK Changing the problem setting CaO(S) phase to nonexistent:\n");
