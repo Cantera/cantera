@@ -22,9 +22,9 @@
 # build tree environment or in the install tree environment.
 #
 in_CanteraBuildTree = 0
-
+#
 CANTERA_VERSION=@ctversion@
-
+#
 ###############################################################################
 #        CANTERA CORE 
 ###############################################################################
@@ -139,7 +139,6 @@ CANTERA_TOTAL_LIBS= $(CANTERA_CORE_LIBS) $(CANTERA_BOOST_LIBS) \
 CANTERA_TOTAL_LIBS_DEP= $(CANTERA_CORE_LIBS_DEP) \
                         $(CANTERA_CVODE_LIBS_DEP) \
                         $(CANTERA_BLAS_LAPACK_LIBS_DEP)
-#
 #
 # Dependency Line
 #
