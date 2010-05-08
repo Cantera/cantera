@@ -6,6 +6,19 @@
 #define CT_CONFIG_H
 
 
+//---------------------------- Version Flags ------------------//
+// Cantera version -> this will be a double-quoted string value
+//                    refering to branch number within svn
+#define CANTERA_VERSION "1.8.x"
+
+// Integer for major number of Cantera
+#define CANTERA_VERSION_MAJORNUMBER  18
+// Flag indicating it's part of major version 18
+#define CANTERA_VERSION_18       1
+//  Flag indicating it's a development version
+#define CANTERA_VERSION_18_XXX   1
+
+
 //------------------------ Development flags ------------------//
 //
 // Compile in additional debug printing where available.
@@ -64,8 +77,6 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 /* #undef DARWIN */
 #define HAS_SSTREAM 1
 
-// Cantera version
-#define CANTERA_VERSION "1.8.0"
 
 // Identify whether the operating system is cygwin's overlay of
 // windows, with gcc being used as the compiler.
