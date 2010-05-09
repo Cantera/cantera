@@ -280,7 +280,8 @@ namespace Cantera {
 
   void 
   VPSSMgr::getStandardVolumes_ref(doublereal *vol) const{
-    err("getStandardVolumes_ref");
+    getStandardVolumes(vol);
+    //err("getStandardVolumes_ref");
   }
 
   /*****************************************************************/
@@ -358,6 +359,7 @@ namespace Cantera {
     m_gss_RT.resize(m_kk, 0.0);
     m_sss_R.resize(m_kk, 0.0);
     m_Vss.resize(m_kk, 0.0);
+
 
     // Storage used by the PDSS objects to store their
     // answers.

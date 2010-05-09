@@ -501,6 +501,7 @@ namespace Cantera {
 		       0.978197,
 		       0.579829,
 		       -0.202354};
+
   //! parameter
   const doublereal Hij[6][7] =
     {

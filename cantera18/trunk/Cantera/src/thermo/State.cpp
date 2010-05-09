@@ -193,6 +193,10 @@ namespace Cantera {
     return density()/meanMolecularWeight(); 
   }
 
+  doublereal State::molarVolume() const { 
+    return 1.0/molarDensity(); 
+  }
+
   void State::setConcentrations(const doublereal* const conc) {
     int k;
     doublereal sum = 0.0, norm = 0.0;
