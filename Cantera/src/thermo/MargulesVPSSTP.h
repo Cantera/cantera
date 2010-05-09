@@ -78,18 +78,20 @@ namespace Cantera {
    * <H2> Specification of Solution Thermodynamic Properties </H2>
    * <HR>
    *
-   * The excess Gibbs free energy
+   * The excess Gibbs free energy (expressed as an extrinsic thermodynamic
+   * variable) is given by the following formula:
    *
    *      \f[
-   *         G^E = \sum_i \left(  H_{Ei} - T S_{Ei} \right)
+   *          G^E = \sum_i \left(  H_{Ei} - T S_{Ei} \right)
    *      \f]
    *      \f[
-   *         H^E_i = X_{Ai} X_{Bi} \left( h_{o,i} +  h_{1,i} X_{Bi} \right)
+   *         H^E_i = n X_{Ai} X_{Bi} \left( h_{o,i} +  h_{1,i} X_{Bi} \right)
    *      \f]
    *      \f[
-   *         S^E_i = X_{Ai} X_{Bi} \left( s_{o,i} +  s_{1,i} X_{Bi} \right)
+   *         S^E_i = n X_{Ai} X_{Bi} \left( s_{o,i} +  s_{1,i} X_{Bi} \right)
    *      \f]
    *      
+   *  where n is the total moles in the solution.
    *
    * The activity of a species defined in the phase is given by an excess 
    * Gibbs free energy formulation.
@@ -565,6 +567,18 @@ namespace Cantera {
     virtual void getPartialMolarEntropies(doublereal* sbar) const;
 
     
+    //! Return an array of partial molar volumes for the
+    //! species in the mixture. Units: m^3/kmol.
+    /*!
+     *  Frequently, for this class of thermodynamics representations,
+     *  the excess Volume due to mixing is zero. Here, we set it as
+     *  a default. It may be overriden in derived classes.
+     *
+     *  @param vbar   Output vector of speciar partial molar volumes.
+     *                Length = m_kk. units are m^3/kmol.
+     */
+    virtual void getPartialMolarVolumes(doublereal* vbar) const;
+
     //! Get the species electrochemical potentials.
     /*!
      * These are partial molar quantities.
@@ -579,6 +593,19 @@ namespace Cantera {
     void getElectrochemPotentials(doublereal* mu) const;
 
  
+    //! Get the array of change in the log activity coefficients with change in state (change temp, change mole fractions)
+    /*!
+     * This function is a virtual class, but it first appears in GibbsExcessVPSSTP
+     * class and derived classes from GibbsExcessVPSSTP.
+     *
+     *  units = 1/Kelvin
+     *
+     * @param dlnActCoeff    Output vector of temperature derivatives of the 
+     *                         log Activity Coefficients. length = m_kk
+     *
+     */
+    virtual void getdlnActCoeff(const doublereal dT, const doublereal * const dX, doublereal *dlnActCoeffdT) const;
+
     //! Get the array of temperature derivatives of the log activity coefficients
     /*!
      * This function is a virtual class, but it first appears in GibbsExcessVPSSTP
@@ -603,16 +630,17 @@ namespace Cantera {
      * logarithm of the concentration-like variable (i.e. mole fraction,
      * molality, etc.) that represents the standard state.  
      * This quantity is to be used in conjunction with derivatives of 
-     * that concentration-like variable when the derivative of the chemical 
+     j that concentration-like variable when the derivative of the chemical 
      * potential is taken.  
      *
      *  units = dimensionless
      *
-     * @param dlnActCoeffdlnC    Output vector of log(mole fraction)  
+     * @param dlnActCoeffdlnX    Output vector of log(mole fraction)  
      *                 derivatives of the log Activity Coefficients.
      *                 length = m_kk
      */
-    virtual void getdlnActCoeffdlnC(doublereal *dlnActCoeffdlnC) const;
+    virtual void getdlnActCoeffdlnX(doublereal *dlnActCoeffdlnX) const;
+    virtual void getdlnActCoeffdlnN(doublereal *dlnActCoeffdlnN) const;
 
  
     //@}
@@ -703,15 +731,6 @@ namespace Cantera {
      */
     void initThermoXML(XML_Node& phaseNode, std::string id);
 
- 
-
-    //! returns a summary of the state of the phase as a string
-    /*!
-     * @param show_thermo If true, extra information is printed out
-     *                    about the thermodynamic state of the system.
-     */
-    virtual std::string report(bool show_thermo = true) const;
-
 
   private:
   
@@ -761,7 +780,16 @@ namespace Cantera {
      * derivative of the natural logarithm of the activity coefficients
      * wrt logarithm of the mole fractions.
      */
-    void s_update_dlnActCoeff_dlnC() const;
+    void s_update_dlnActCoeff_dlnX() const;
+
+    //! Update the derivative of the log of the activity coefficients
+    //!  wrt log(moles)
+    /*!
+     * This function will be called to update the internally storred
+     * derivative of the natural logarithm of the activity coefficients
+     * wrt logarithm of the moles.
+     */
+    void s_update_dlnActCoeff_dlnN() const;
 
 
   private:
@@ -802,6 +830,30 @@ namespace Cantera {
     //! Entropy term for the quaternary mole fraction interaction of the
     //! excess gibbs free energy expression
     mutable vector_fp m_SE_d_ij;
+
+    //! Enthalpy term for the binary mole fraction interaction of the
+    //! excess gibbs free energy expression
+    mutable vector_fp m_VHE_b_ij;
+
+    //! Enthalpy term for the ternary mole fraction interaction of the
+    //! excess gibbs free energy expression
+    mutable vector_fp m_VHE_c_ij;
+
+    //! Enthalpy term for the quaternary mole fraction interaction of the
+    //! excess gibbs free energy expression
+    mutable vector_fp m_VHE_d_ij;
+
+    //! Entropy term for the binary mole fraction interaction of the
+    //! excess gibbs free energy expression
+    mutable vector_fp m_VSE_b_ij;
+
+    //! Entropy term for the ternary mole fraction interaction of the
+    //! excess gibbs free energy expression
+    mutable vector_fp m_VSE_c_ij;
+
+    //! Entropy term for the quaternary mole fraction interaction of the
+    //! excess gibbs free energy expression
+    mutable vector_fp m_VSE_d_ij;
     
     //! vector of species indices representing species A in the interaction
     /*!

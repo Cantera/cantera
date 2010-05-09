@@ -330,6 +330,7 @@ namespace Cantera {
      */
     IdealGasPhase(const IdealGasPhase &right);
 
+
     //! Asignment operator
     /*!
      * Assignment operator for the object. Constructed

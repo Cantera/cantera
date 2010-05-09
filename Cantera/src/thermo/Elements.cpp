@@ -328,7 +328,6 @@ namespace Cantera {
   }
 
 
-
   doublereal Elements::entropyElement298(int m) const {
     AssertThrowMsg(m_entropy298[m] != ENTROPY298_UNKNOWN,
 		   "Elements::entropy298",

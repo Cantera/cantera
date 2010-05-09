@@ -71,13 +71,14 @@ namespace Cantera {
    * \f$k\f$.
    * 
    * GibbsExcessVPSSTP contains an internal vector with the current mole
-   * fraction vector. That's one of its primary usages.
+   * fraction vector. That's one of its primary usages. In order to keep the mole fraction
+   * vector constant, all of the setState functions are redesigned at this layer.
    *
    *  <H3> SetState Strategy  </H3>
    *
-   *   The gibbsExcessVPSSTP object does not have a setState strategy.
-   *   It's strictly an interfacial layer that writes the current mole fractions to the
-   *   State object.
+   *  All setState functions that set the internal state of the ThermoPhase object are
+   *  overloaded at this level, so that a current mole fraction vector is maintained within
+   *  the object.
    *
    *
    */
@@ -172,6 +173,7 @@ namespace Cantera {
     virtual void setPressure(doublereal p);
 
   protected:
+
     /**
      * Calculate the density of the mixture using the partial 
      * molar volumes and mole fractions as input
@@ -301,6 +303,23 @@ namespace Cantera {
     virtual void getdlnActCoeffdT(doublereal *dlnActCoeffdT) const {
       err("getdlnActCoeffdT");
     }
+
+    //! Get the array of change in the log activity coefficients w.r.t. change in state (change temp, change mole fractions)
+    /*!
+     * This function is a virtual class, but it first appears in GibbsExcessVPSSTP
+     * class and derived classes from GibbsExcessVPSSTP.
+     *
+     * This function is a virtual method.  For ideal mixtures 
+     * (unity activity coefficients), this can gradX/X.  
+     *
+     * @param dT    Input of temperature change
+     * @param dX    Input vector of changes in mole fraction. length = m_kk
+     * @param dlnActCoeff    Output vector of derivatives of the 
+     *                         log Activity Coefficients. length = m_kk
+     */
+    virtual void getdlnActCoeff(const doublereal dT, const doublereal * const dX, doublereal *dlnActCoeff) const {
+      err("getdlnActCoeff");
+    }
  
     //! Get the array of log concentration-like derivatives of the 
     //! log activity coefficients
@@ -317,11 +336,33 @@ namespace Cantera {
      *
      *  units = dimensionless
      *
-     * @param dlnActCoeffdlnC    Output vector of derivatives of the 
+     * @param dlnActCoeffdlnN    Output vector of derivatives of the 
      *                         log Activity Coefficients. length = m_kk
      */
-    virtual void getdlnActCoeffdlnC(doublereal *dlnActCoeffdlnC) const {
-      err("getdlnActCoeffdlnC");
+    virtual void getdlnActCoeffdlnN(doublereal *dlnActCoeffdlnN) const {
+      err("getdlnActCoeffdlnN");
+    }
+
+    //! Get the array of log concentration-like derivatives of the 
+    //! log activity coefficients
+    /*!
+     * This function is a virtual method.  For ideal mixtures 
+     * (unity activity coefficients), this can return zero.  
+     * Implementations should take the derivative of the 
+     * logarithm of the activity coefficient with respect to the 
+     * logarithm of the concentration-like variable (i.e. number of moles in
+     * in a unit volume. ) that represents the standard state.  
+     * This quantity is to be used in conjunction with derivatives of 
+     * that concentration-like variable when the derivative of the chemical 
+     * potential is taken.  
+     *
+     *  units = dimensionless
+     *
+     * @param dlnActCoeffdlnX    Output vector of derivatives of the 
+     *                         log Activity Coefficients. length = m_kk
+     */
+    virtual void getdlnActCoeffdlnX(doublereal *dlnActCoeffdlnX) const {
+      err("getdlnActCoeffdlnX");
     }
  
     //@}
@@ -492,43 +533,14 @@ namespace Cantera {
      * @see importCTML.cpp
      */
     virtual void initThermo();
-
-
-    /**
-     *   Import and initialize a ThermoPhase object
-     *
-     * @param phaseNode This object must be the phase node of a
-     *             complete XML tree
-     *             description of the phase, including all of the
-     *             species data. In other words while "phase" must
-     *             point to an XML phase object, it must have
-     *             sibling nodes "speciesData" that describe
-     *             the species in the phase.
-     * @param id   ID of the phase. If nonnull, a check is done
-     *             to see if phaseNode is pointing to the phase
-     *             with the correct id. 
-     */
-    void initThermoXML(XML_Node& phaseNode, std::string id);
-
  
-    //! returns a summary of the state of the phase as a string
-    /*!
-     * @param show_thermo If true, extra information is printed out
-     *                    about the thermodynamic state of the system.
-     */
-    virtual std::string report(bool show_thermo = true) const;
-
 
   private:
   
-
     //! Initialize lengths of local variables after all species have
     //! been identified.
     void initLengths();
             
-
-
-  private:
     //! Error function
     /*!
      *  Print an error string and exit
@@ -548,6 +560,13 @@ namespace Cantera {
   protected:
 
     //! Storage for the current values of the mole fractions of the species
+    /*!
+     * This vector is kept up-to-date when the setState functions are called.
+     * Therefore, it may be considered to be an independent variable.
+     *
+     * Note in order to do this, the setState functions are redefined to always
+     * keep this vector current.
+     */
     mutable std::vector<doublereal> moleFractions_;
 
     //! Storage for the current values of the activity coefficients of the
@@ -562,7 +581,12 @@ namespace Cantera {
     //! Storage for the current derivative values of the 
     //! gradients with respect to logarithm of the mole fraction of the 
     //! log of theactivity coefficients of the species
-    mutable std::vector<doublereal> dlnActCoeffdlnC_Scaled_;
+    mutable std::vector<doublereal> dlnActCoeffdlnN_Scaled_;
+
+    //! Storage for the current derivative values of the 
+    //! gradients with respect to logarithm of the mole fraction of the 
+    //! log of theactivity coefficients of the species
+    mutable std::vector<doublereal> dlnActCoeffdlnX_Scaled_;
 
     //! Temporary storage space that is fair game
     mutable std::vector<doublereal> m_pp;

@@ -17,6 +17,7 @@
 #include "../../../ext/tpx/utils.h"
 
 #include <cstdlib>
+#include <iomanip>
 
 namespace Cantera {
 
@@ -427,8 +428,144 @@ namespace Cantera {
     }
     return s;
   }
+  
+  /*
+   * Format a summary of the mixture state for output.
+   */           
+  void PureFluidPhase::reportCSV(std::ofstream& csvFile) const {
 
- 
+
+   csvFile.precision(3);
+    int tabS = 15;
+    int tabM = 30;
+    int tabL = 40;
+    try {
+      if (name() != "") {
+	csvFile << "\n"+name()+"\n\n";
+      }
+      csvFile << setw(tabL) << "temperature (K) =" << setw(tabS) << temperature() << endl;
+      csvFile << setw(tabL) << "pressure (Pa) =" << setw(tabS) << pressure() << endl;
+      csvFile << setw(tabL) << "density (kg/m^3) =" << setw(tabS) << density() << endl;
+      csvFile << setw(tabL) << "mean mol. weight (amu) =" << setw(tabS) << meanMolecularWeight() << endl;
+      csvFile << setw(tabL) << "potential (V) =" << setw(tabS) << electricPotential() << endl;   
+      if (eosType() == cPureFluid) {
+      	double xx = ((PureFluidPhase *) (this))->vaporFraction();
+	csvFile << setw(tabL) << "vapor fraction = " << setw(tabS) << xx << endl;
+      }
+      csvFile << endl;
+      
+      csvFile << setw(tabL) << "enthalpy (J/kg) = " << setw(tabS) << enthalpy_mass() << setw(tabL) << "enthalpy (J/kmol) = " << setw(tabS) << enthalpy_mole() << endl;
+      csvFile << setw(tabL) << "internal E (J/kg) = " << setw(tabS) << intEnergy_mass() << setw(tabL) << "internal E (J/kmol) = " << setw(tabS) << intEnergy_mole() << endl;
+      csvFile << setw(tabL) << "entropy (J/kg) = " << setw(tabS) << entropy_mass() << setw(tabL) << "entropy (J/kmol) = " << setw(tabS) << entropy_mole() << endl;
+      csvFile << setw(tabL) << "Gibbs (J/kg) = " << setw(tabS) << gibbs_mass() << setw(tabL) << "Gibbs (J/kmol) = " << setw(tabS) << gibbs_mole() << endl;
+      csvFile << setw(tabL) << "heat capacity c_p (J/K/kg) = " << setw(tabS) << cp_mass() << setw(tabL) << "heat capacity c_p (J/K/kmol) = " << setw(tabS) << cp_mole() << endl;
+      csvFile << setw(tabL) << "heat capacity c_v (J/K/kg) = " << setw(tabS) << cv_mass() << setw(tabL) << "heat capacity c_v (J/K/kmol) = " << setw(tabS) << cv_mole() << endl;
+     
+      csvFile.precision(8);
+
+      int kk = nSpecies();
+      std::vector<double> x(kk, 0.0);
+      std::vector<double> y(kk, 0.0);
+      std::vector<double> mu(kk, 0.0);
+      std::vector<double> a(kk, 0.0);
+      std::vector<double> ac(kk, 0.0);
+      std::vector<double> hbar(kk, 0.0);
+      std::vector<double> sbar(kk, 0.0);
+      std::vector<double> ubar(kk, 0.0);
+      std::vector<double> cpbar(kk, 0.0);
+      std::vector<double> vbar(kk, 0.0);
+      vector<std::string> pNames;
+      vector<double*> data;
+
+      getMoleFractions(DATA_PTR(x));
+      pNames.push_back("X");
+      data.push_back(DATA_PTR(x));
+      try{
+	getMassFractions(DATA_PTR(y));
+	pNames.push_back("Y");
+	data.push_back(DATA_PTR(y));
+      }
+      catch (CanteraError) {;}
+      try{
+	getChemPotentials(DATA_PTR(mu));
+	pNames.push_back("Chem. Pot (J/kmol)");
+	data.push_back(DATA_PTR(mu));
+      }
+      catch (CanteraError) {;}
+      try{
+	getActivities(DATA_PTR(a));
+	pNames.push_back("Activity");
+	data.push_back(DATA_PTR(a));
+      }
+      catch (CanteraError) {;}
+      try{
+	getActivityCoefficients(DATA_PTR(ac));
+	pNames.push_back("Act. Coeff.");
+	data.push_back(DATA_PTR(ac));
+      }
+      catch (CanteraError) {;}
+      try{
+	getPartialMolarEnthalpies(DATA_PTR(hbar));
+	pNames.push_back("Part. Mol Enthalpy (J/kmol)");
+	data.push_back(DATA_PTR(hbar));
+      }
+      catch (CanteraError) {;}
+      try{
+	getPartialMolarEntropies(DATA_PTR(sbar));
+	pNames.push_back("Part. Mol. Entropy (J/K/kmol)");
+	data.push_back(DATA_PTR(sbar));
+      }
+      catch (CanteraError) {;}
+      try{
+	getPartialMolarIntEnergies(DATA_PTR(ubar));
+	pNames.push_back("Part. Mol. Energy (J/kmol)");
+	data.push_back(DATA_PTR(ubar));
+      }
+      catch (CanteraError) {;}
+      try{
+	getPartialMolarCp(DATA_PTR(cpbar));
+	pNames.push_back("Part. Mol. Cp (J/K/kmol");
+	data.push_back(DATA_PTR(cpbar));
+      }
+      catch (CanteraError) {;}
+      try{
+	getPartialMolarVolumes(DATA_PTR(vbar));
+	pNames.push_back("Part. Mol. Cv (J/K/kmol)");
+	data.push_back(DATA_PTR(vbar));
+      }
+      catch (CanteraError) {;}
+
+      csvFile << endl << setw(tabS) << "Species,";
+      for ( int i = 0; i < (int)pNames.size(); i++ ){
+	csvFile << setw(tabM) << pNames[i] << ",";
+      }
+      csvFile << endl;
+      /*
+      csvFile.fill('-');
+      csvFile << setw(tabS+(tabM+1)*pNames.size()) << "-\n";
+      csvFile.fill(' ');
+      */
+      for (int k = 0; k < kk; k++) {
+	csvFile << setw(tabS) << speciesName(k) + ",";
+	if (x[k] > SmallNumber) {
+	  for ( int i = 0; i < (int)pNames.size(); i++ ){
+	    csvFile << setw(tabM) << data[i][k] << ",";
+	  }
+	  csvFile << endl;
+	}
+	else{
+	  for ( int i = 0; i < (int)pNames.size(); i++ ){
+	    csvFile << setw(tabM) << 0 << ",";
+	  }
+	  csvFile << endl;
+	}
+      }
+    }
+    catch (CanteraError) {
+      ;
+    } 
+  }
+
 }
 
 #endif  // WITH_PURE_FLUIDS
