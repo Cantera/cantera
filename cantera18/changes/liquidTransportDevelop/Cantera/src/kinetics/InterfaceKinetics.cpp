@@ -72,8 +72,8 @@ namespace Cantera {
       delete m_integrator; 
     }
     for (int i = 0; i < m_ii; i++) {
-      delete m_rxnPhaseIsReactant[i];
-      delete  m_rxnPhaseIsProduct[i];
+      delete [] m_rxnPhaseIsReactant[i];
+      delete [] m_rxnPhaseIsProduct[i];
     }
   }
   //====================================================================================================================
@@ -130,8 +130,8 @@ namespace Cantera {
     if (this == &right) return *this;
 
     for (i = 0; i < m_ii; i++) {
-      delete (m_rxnPhaseIsReactant[i]);
-      delete (m_rxnPhaseIsProduct[i]);
+      delete [] m_rxnPhaseIsReactant[i];
+      delete [] m_rxnPhaseIsProduct[i];
     }
 
     Kinetics::operator=(right);
@@ -183,9 +183,7 @@ namespace Cantera {
 	m_rxnPhaseIsProduct[i][p] = right.m_rxnPhaseIsProduct[i][p];  
       }
     }
-
     m_rxnPhaseIsProduct    = right.m_rxnPhaseIsProduct;
-    
     m_ioFlag               = right.m_ioFlag;
 
     return *this;
