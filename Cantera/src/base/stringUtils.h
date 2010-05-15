@@ -182,6 +182,22 @@ namespace Cantera {
    */
   doublereal fpValueCheck(std::string val);
 
+  //! Parse a name string, separating out the phase name from the species name
+  /*!
+   *   Name strings must not contain these internal characters "; \n \t ," 
+   *   Only one colon is allowed, the one separating the phase name from the
+   *   species name. Therefore, names may not include a colon.
+   *
+   *   @param nameStr   (input) Name string containing the phase name and the species
+   *                            name separated by a colon. The phase name is optional.
+   *                             example:   "silane:SiH4"
+   *   @param phaseName (output) Name of the phase, if specified. If not specified,
+   *                             a blank string is returned.
+   *   @return          (output) Species name is returned. If nameStr is blank
+   *                             an empty string is returned.
+   */
+  std::string parseSpeciesName(const std::string& nameStr, std::string &phaseName);
+
   //! Line wrap a string via a copy operation
   /*!
    *   @param  s    Input string to be line wrapped
