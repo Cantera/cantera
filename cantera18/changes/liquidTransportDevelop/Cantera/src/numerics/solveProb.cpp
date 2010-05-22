@@ -48,9 +48,6 @@ namespace Cantera {
 #  define MIN(x,y) (( (x) < (y) ) ? (x) : (y))     /* min function */
 #endif
 
-#ifndef DAMPING
-#  define DAMPING true
-#endif
 
   /***************************************************************************
    *  solveSP Class Definitinos
@@ -152,27 +149,17 @@ namespace Cantera {
      *  upload the initial conditions
      */
     m_residFunc->getInitialConditions(t_real, DATA_PTR(m_CSolnSP), DATA_PTR(m_numEqn1));
+
     /*
      * Store the initial guess in the soln vector,
-     *  CSoln, and in an separate vector CSolnInit.
+     *  CSolnSP, and in an separate vector CSolnSPInit.
      */
-    for (int n = 0; n < m_neq; n++) {
-	//	m_CSolnSP[loc] = m_numEqn1[k];
-
-    }
-  
- 
     std::copy(m_CSolnSP.begin(), m_CSolnSP.end(), m_CSolnSPInit.begin());
 
-    // Calculate the largest species in each phase
-    // evalSurfLarge(DATA_PTR(m_CSolnSP));
-    /*
-     * Get the net production rate of all species in the kinetics manager.
-     */
-    // m_kin->getNetProductionRates(DATA_PTR(m_netProductionRatesSave));
+  
   
     if (m_ioflag) {
-      print_header(m_ioflag, ifunc, time_scale, DAMPING, reltol, abstol, 
+      print_header(m_ioflag, ifunc, time_scale, reltol, abstol, 
 		   DATA_PTR(m_netProductionRatesSave));
     }
 
@@ -313,9 +300,9 @@ namespace Cantera {
        *    in any unknown.
        */
 
-#ifdef DAMPING
-      damp = calc_damping( DATA_PTR(m_CSolnSP), DATA_PTR(m_resid), m_neq, &label_d);
-#endif
+
+      damp = calc_damping(DATA_PTR(m_CSolnSP), DATA_PTR(m_resid), m_neq, &label_d);
+
 
       /*
        *    Calculate the weighted norm of the update vector
@@ -334,7 +321,6 @@ namespace Cantera {
       for (irow = 0; irow < m_neq; irow++) {
 	m_CSolnSP[irow] = MAX(0.0, m_CSolnSP[irow]);
       }
-      updateState(DATA_PTR(m_CSolnSP));
   
       if (do_time) t_real += damp/inv_t;
 
@@ -411,17 +397,14 @@ namespace Cantera {
     if (update_norm > 1.0) {
       return -1;
     }
-    return 1;
+    return 0;
   }
-
-#undef DAMPING
-
   //================================================================================================ 
   /*
    * Update the surface states of the surface phases.
    */
-  void solveProb::updateState(const doublereal *CSolnSP) {
-
+  void solveProb::reportState(doublereal * const CSolnSP) const {
+    std::copy(m_CSolnSP.begin(), m_CSolnSP.end(), CSolnSP);
   }
   //================================================================================================ 
   /*
@@ -434,8 +417,8 @@ namespace Cantera {
    *   This routine uses the m_numEqn1 and m_netProductionRatesSave vectors
    *   as temporary internal storage.
    */
-  void solveProb::fun_eval(doublereal * resid, const doublereal *CSoln, 
-			 const doublereal *CSolnOld,  const bool do_time,
+  void solveProb::fun_eval(doublereal * const resid, const doublereal * const CSoln, 
+			 const doublereal * const CSolnOld,  const bool do_time,
 			 const doublereal deltaT)
   {
     if (do_time) {
@@ -690,8 +673,9 @@ namespace Cantera {
    * Optional printing at the start of the solveProb problem
    */
   void solveProb::print_header(int ioflag, int ifunc, doublereal time_scale, 
-			     int damping, doublereal reltol, doublereal abstol,  
-			     doublereal netProdRate[]) {
+			       doublereal reltol, doublereal abstol,  
+			       doublereal netProdRate[]) {
+    int damping = 1;
     if (ioflag) {
       printf("\n================================ SOLVEPROB CALL SETUP "
 	     "========================================\n");
@@ -864,7 +848,7 @@ namespace Cantera {
 #endif
   } /* printIteration */
 
-  //================================================================================================ 
+  //================================================================================================
   void solveProb::printFinal(int ioflag, doublereal damp, int label_d, int label_t,
 			   doublereal inv_t, doublereal t_real, int iter,
 			   doublereal update_norm, doublereal resid_norm,
