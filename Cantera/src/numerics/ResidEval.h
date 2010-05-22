@@ -82,11 +82,25 @@ namespace Cantera {
       throw CanteraError("ResidEval::eval()", "base class called");
     }
 
+    virtual int evalSS(const doublereal t, const doublereal * const y,
+                       doublereal * const r) {
+      return eval(t, y, 0, r);
+    }
+
+    virtual int evalSimpleTD(const doublereal t, const doublereal * const y,
+                             const doublereal * const yold, doublereal deltaT,
+                             doublereal * const r) {
+      int nn = nEquations();
+      vector_fp ydot(nn);
+      for (int i = 0; i < nn; i++) {
+        ydot[i] = (y[i] - yold[i]) / deltaT;
+      }
+      return eval(t, y, DATA_PTR(ydot), r);
+    }
+
     /**
      * Fill the solution and derivative vectors with the initial
-     * conditions at initial time t0.  If these do not satisfy the
-     * residual equation, call one of the "corrrectInitial_xxx"
-     * methods before calling solve.
+     * conditions at initial time t0.  
      */
     virtual void getInitialConditions(const doublereal t0, doublereal * const y, 
 				      doublereal * const ydot) {
