@@ -86,12 +86,12 @@ namespace Cantera {
    *  4 values:
    *
    *
-   *  1: SFLUX_INITIALIZE   = This assumes that the initial guess supplied to the
+   *  1: SOLVEPROB_INITIALIZE   = This assumes that the initial guess supplied to the
    *                          routine is far from the correct one. Substantial
    *                          work plus transient time-stepping is to be expected
    *                          to find a solution.
    *
-   *  2:  SFLUX_RESIDUAL    = Need to solve the nonlinear problem in order to
+   *  2:  SOLVEPROB_RESIDUAL    = Need to solve the nonlinear problem in order to
    *                          calculate quantities for a residual calculation
    *                          (Can expect a moderate change in the solution
    *                           vector -> try to solve the system by direct methods
@@ -101,14 +101,14 @@ namespace Cantera {
    *                          algorithm to determine when to shut off
    *                          time-stepping.
    *
-   *  3:  SFLUX_JACOBIAN    = Calculation of the surface problem is due to the
+   *  3:  SOLVEPROB_JACOBIAN    = Calculation of the surface problem is due to the
    *                          need for a numerical jacobian for the gas-problem.
    *                          The solution is expected to be very close to the
    *                          initial guess, and extra accuracy is needed because
    *                          solution variables have been delta'd from
    *                          nominal values to create jacobian entries.
    *
-   *  4:  SFLUX_TRANSIENT   = The transient calculation is performed here for an
+   *  4: SOLVEPROB_TRANSIENT   = The transient calculation is performed here for an
    *                          amount of time specified by "time_scale".  It is
    *                          not garraunted to be time-accurate - just stable
    *                          and fairly fast. The solution after del_t time is
@@ -193,12 +193,19 @@ namespace Cantera {
     int solve(int ifunc, doublereal time_scale,
 	      doublereal reltol, doublereal abstol);
 
+    //! Report the current state of the solution
+    /*!
+     *  @param Report the solution vector for the nonlinear problem
+     */
+    virtual void reportState(doublereal * const CSoln) const;
+
+
   private:
 
     //! Printing routine that gets called at the start of every
     //! invocation
     virtual void print_header(int ioflag, int ifunc, doublereal time_scale,
-			      int damping, doublereal reltol, doublereal abstol,
+			      doublereal reltol, doublereal abstol,
 			      doublereal netProdRate[]);
 
 #ifdef DEBUG_SOLVEPROB
@@ -289,13 +296,6 @@ namespace Cantera {
 				      doublereal inv_t, doublereal t_real, int iter,
 				      bool do_time);
 #endif
-
-    /**
-     * Update the surface states of the surface phases.
-     */
-    virtual void updateState(const doublereal *cSurfSpec);
-
-
    
     //! Main Function evalulation
     /*!
@@ -308,8 +308,8 @@ namespace Cantera {
      *  @param do_time Calculate a time dependent residual
      *  @param deltaT  Delta time for time dependent problem. 
      */
-    virtual void  fun_eval(doublereal* resid, const doublereal *CSolnSP, 
-			   const doublereal *CSolnOldSP,  const bool do_time, const doublereal deltaT);
+    virtual void  fun_eval(doublereal* const resid, const doublereal * const CSolnSP, 
+			   const doublereal * const CSolnOldSP,  const bool do_time, const doublereal deltaT);
 
     //! Main routine that calculates the current residual and Jacobian 
     /*!
