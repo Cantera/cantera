@@ -18,7 +18,7 @@ INSTALL_TSC = ../../../bin/install_tsc
 CXX_H = Cantera.h  equilibrium.h  IncompressibleSolid.h \
         kinetics.h onedim.h  surface.h GRI30.h  integrators.h \
         Metal.h   PureFluid.h   transport.h Edge.h  \
-        IdealGasMix.h  Interface.h    numerics.h  \
+        IdealGasMix.h  Interface.h    numerics.h solvers.h \
         reactionpaths.h  zerodim.h importPhase.h thermo.h \
         radiation.h spectra.h electrolyteThermo.h Cantera.mak Cantera_bt.mak
 
