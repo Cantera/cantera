@@ -110,6 +110,33 @@ namespace Cantera {
     //! Return the number of equations in the equation system
     virtual int nEquations() const = 0;
 
+   
+    //!      Write out to a file or to standard output the current solution
+    /*!
+     *      ievent  is a description of the event that caused this
+     *      function to be called.
+     */
+    virtual void writeSolution(int ievent, const double time,
+                               const double deltaT,
+                               const int time_step_num,
+                               const double *y, const double *ydot) {
+      int k;
+      printf("ResidEval::writeSolution\n");
+      printf("     Time = %g, ievent = %d, deltaT = %g\n", time, ievent, deltaT);
+      if (ydot) {
+	printf(" k    y[]  ydot[]\n");
+	for (k = 0; k < nEquations(); k++) {
+	  printf("%d %g %g\n", k, y[k], ydot[k]);
+	}
+      } else {
+	printf(" k    y[]\n");
+	for (k = 0; k < nEquations(); k++) {
+	  printf("%d %g \n", k, y[k]);
+	}
+      }
+    }
+  
+
 
   protected:
 
