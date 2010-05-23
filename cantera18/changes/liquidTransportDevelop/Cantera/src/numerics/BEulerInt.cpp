@@ -2121,38 +2121,48 @@ namespace Cantera {
       return -2;
     }
   }
-
-  /**************************************************************************
+  //================================================================================================ 
+  // Solve a nonlinear system
+  /*   
+   * Find the solution to F(X, xprime) = 0 by damped Newton iteration.  On
+   * entry, y_comm[] contains an initial estimate of the solution and 
+   * ydot_comm[] contains an estimate of the derivative.
+   *   On  successful return, y_comm[] contains the converged solution
+   * and ydot_comm[] contains the derivative
    *
-   * solve_nonlinear_problem():
    *
-   * Find the solution to F(X) = 0 by damped Newton iteration.  On
-   * entry, x0 contains an initial estimate of the solution.  On
-   * successful return, x1 contains the converged solution.
-   *
-   
-   * 
+   * @param y_comm[] Contains the input solution. On output y_comm[] contains
+   *                 the converged solution
+   * @param ydot_comm  Contains the input derivative solution. On output y_comm[] contains
+   *                 the converged derivative solution
+   * @param CJ       Inverse of the time step
+   * @param time_curr  Current value of the time
+   * @param jac      Jacobian
+   * @param num_newt_its  number of newton iterations
+   * @param num_linear_solves number of linear solves
+   * @param num_backtracks number of backtracs
+   * @param loglevel  Log level
    */
-  int BEulerInt::solve_nonlinear_problem(double* const y_comm,
-					 double* const ydot_comm, double CJ,
+  int BEulerInt::solve_nonlinear_problem(double * const y_comm,
+					 double * const ydot_comm, double CJ,
 					 double time_curr, 
 					 SquareMatrix& jac,
 					 int &num_newt_its,
 					 int &num_linear_solves,
 					 int &num_backtracks, 
-					 int loglevelInput)
+					 int loglevel)
   {
     bool m_residCurrent = false;
     int m = 0;
     bool forceNewJac = false;
     double s1=1.e30;
 
-    double* y_curr = mdp_alloc_dbl_1(m_neq, 0.0);
-    double* ydot_curr = mdp_alloc_dbl_1(m_neq, 0.0);
-    double* stp  = mdp_alloc_dbl_1(m_neq, 0.0);
-    double* stp1 = mdp_alloc_dbl_1(m_neq, 0.0);
-    double * y_new = mdp_alloc_dbl_1(m_neq, 0.0);
-    double * ydot_new = mdp_alloc_dbl_1(m_neq, 0.0);
+    double * y_curr    = mdp_alloc_dbl_1(m_neq, 0.0);
+    double * ydot_curr = mdp_alloc_dbl_1(m_neq, 0.0);
+    double * stp       = mdp_alloc_dbl_1(m_neq, 0.0);
+    double * stp1      = mdp_alloc_dbl_1(m_neq, 0.0);
+    double * y_new     = mdp_alloc_dbl_1(m_neq, 0.0);
+    double * ydot_new  = mdp_alloc_dbl_1(m_neq, 0.0);
 
     mdp_copy_dbl_1(y_curr, y_comm, m_neq);
     mdp_copy_dbl_1(ydot_curr, ydot_comm, m_neq);
@@ -2162,8 +2172,7 @@ namespace Cantera {
     num_linear_solves = - m_numTotalLinearSolves;
     num_backtracks = 0;
     int i_backtracks;
-    int loglevel = loglevelInput;
-
+ 
     while (1 > 0) {
 
       /*
@@ -2275,10 +2284,12 @@ namespace Cantera {
     }
 
   done:
+    // Copy into the return vectors
     mdp_copy_dbl_1(y_comm, y_curr, m_neq);
     mdp_copy_dbl_1(ydot_comm, ydot_curr, m_neq);
-    
+    // Increment counters
     num_linear_solves += m_numTotalLinearSolves;
+    // Free memory
     mdp_safe_free((void **) &y_curr);
     mdp_safe_free((void **) &ydot_curr);
     mdp_safe_free((void **) &stp);
