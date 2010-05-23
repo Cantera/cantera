@@ -163,8 +163,13 @@ namespace Cantera {
      *                 the converged solution
      * @param ydot_comm  Contains the input derivative solution. On output y_comm[] contains
      *                 the converged derivative solution
-     * 
-     *
+     * @param CJ       Inverse of the time step
+     * @param time_curr  Current value of the time
+     * @param jac      Jacobian
+     * @param num_newt_its  number of newton iterations
+     * @param num_linear_solves number of linear solves
+     * @param num_backtracks number of backtracs
+     * @param loglevel  Log level
      */
     int solve_nonlinear_problem(double * const y_comm,
 				double * const ydot_comm, double CJ,
@@ -173,7 +178,7 @@ namespace Cantera {
 				int &num_newt_its,
 				int &num_linear_solves,
 				int &num_backtracks, 
-				int loglevelInput);
+				int loglevel);
 
     /**
      * Compute the undamped Newton step.  The residual function is
