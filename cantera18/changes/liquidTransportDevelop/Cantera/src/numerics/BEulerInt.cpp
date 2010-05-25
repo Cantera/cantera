@@ -21,9 +21,582 @@ using namespace mdp;
 
 #define SAFE_DELETE(a) if (a) { delete (a); a = 0; }
 
+
+/*
+ * Blas routines
+ */
+extern "C" {
+  extern void dcopy_(int *, double *, int *, double *, int *);
+}
 namespace Cantera {
-  /*************************************************************************
+
+  //================================================================================================
+  /*
+   * Exception thrown when a BEuler error is encountered. We just call the 
+   * Cantera Error handler in the initialization list
+   */
+  BEulerErr::BEulerErr(std::string msg) :
+    CanteraError("BEulerInt", msg)
+  {
+  }
+
+  //================================================================================================
+  /*
+   *  Constructor. Default settings: dense jacobian, no user-supplied
+   *  Jacobian function, Newton iteration.
+   */
+  BEulerInt::BEulerInt() :
+    m_iter(Newton_Iter), 
+    m_method(BEulerVarStep),
+    m_jacFormMethod(BEULER_JAC_NUM),
+    m_rowScaling(true),
+    m_colScaling(false),
+    m_matrixConditioning(false),
+    m_itol(0),
+    m_reltol(1.e-4), 
+    m_abstols(1.e-10),
+    m_abstol(0),
+    m_ewt(0),
+    m_hmax(0.0),
+    m_maxord(0),
+    m_time_step_num(0),
+    m_time_step_attempts(0),
+    m_max_time_step_attempts(11000000),
+    m_numInitialConstantDeltaTSteps(0),
+    m_failure_counter(0),
+    m_min_newt_its(0),
+    m_printSolnStepInterval(1),
+    m_printSolnNumberToTout(1),
+    m_printSolnFirstSteps(0),
+    m_dumpJacobians(false),
+    m_neq(0),
+    m_y_n(0), 
+    m_y_nm1(0),
+    m_y_pred_n(0),
+    m_ydot_n(0),
+    m_ydot_nm1(0),
+    m_t0(0.0),
+    m_time_final(0.0),
+    time_n(0.0),
+    time_nm1(0.0),
+    time_nm2(0.0),
+    delta_t_n(0.0),
+    delta_t_nm1(0.0),
+    delta_t_nm2(0.0),
+    delta_t_np1(1.0E-8),
+    delta_t_max(1.0E300),
+    m_resid(0),
+    m_residWts(0),
+    m_wksp(0),
+    m_func(0),
+    m_rowScales(0),
+    m_colScales(0),
+    tdjac_ptr(0),
+    m_print_flag(3),
+    m_nfe(0),
+    m_nJacEval(0),
+    m_numTotalNewtIts(0),
+    m_numTotalLinearSolves(0),
+    m_numTotalConvFails(0),
+    m_numTotalTruncFails(0),
+    num_failures(0)
+  {
+
+  }
+  //================================================================================================
+  /*
+   * Destructor
+   */
+  BEulerInt::~BEulerInt()
+  {
+    mdp::mdp_safe_free((void **) &m_y_n);
+    mdp::mdp_safe_free((void **) &m_y_nm1);
+    mdp::mdp_safe_free((void **) &m_y_pred_n);
+    mdp::mdp_safe_free((void **) &m_ydot_n);
+    mdp::mdp_safe_free((void **) &m_ydot_nm1);
+    mdp::mdp_safe_free((void **) &m_resid);
+    mdp::mdp_safe_free((void **) &m_residWts);
+    mdp::mdp_safe_free((void **) &m_wksp);
+    mdp::mdp_safe_free((void **) &m_ewt);
+    mdp::mdp_safe_free((void **) &m_abstol);
+    mdp::mdp_safe_free((void **) &m_rowScales);
+    mdp::mdp_safe_free((void **) &m_colScales);
+    SAFE_DELETE(tdjac_ptr);
+  }
+  //================================================================================================
+  void BEulerInt::setTolerances(double reltol, int n, double* abstol) {
+    m_itol = 1;
+    if (!m_abstol) {
+      m_abstol = mdp_alloc_dbl_1(m_neq, MDP_DBL_NOINIT);
+    }
+    if (n != m_neq) {
+      printf("ERROR n is wrong\n");
+      exit(-1);
+    }
+    for (int i = 0; i < m_neq; i++) {
+      m_abstol[i] = abstol[i];
+    }
+    m_reltol = reltol; 
+  }
+  //================================================================================================
+  void BEulerInt::setTolerances(double reltol, double abstol) {
+    m_itol = 0;
+    m_reltol = reltol; 
+    m_abstols = abstol;
+  }
+  //================================================================================================
+  void BEulerInt::setProblemType(int jacFormMethod) {
+    m_jacFormMethod = jacFormMethod;
+  }
+  //================================================================================================
+  void BEulerInt::setMethodBEMT(BEulerMethodType t) {
+    m_method = t;
+  }
+  //================================================================================================
+  void BEulerInt::setMaxStep(doublereal hmax) {
+    m_hmax = hmax;
+  }
+  //================================================================================================
+  void BEulerInt::setMaxNumTimeSteps(int maxNumTimeSteps) {
+    m_max_time_step_attempts = maxNumTimeSteps;
+  }
+  //================================================================================================
+  void BEulerInt::setNumInitialConstantDeltaTSteps(int num) {
+    m_numInitialConstantDeltaTSteps = num;
+  }
+  //================================================================================================
+  /*
    *
+   * setPrintSolnOptins():
+   *
+   * This routine controls when the solution is printed
+   *
+   * @param printStepInterval If greater than 0, then the
+   *                     soln is printed every printStepInterval
+   *                     steps. 
+   *
+   * @param printNumberToTout The solution is printed at
+   *                  regular invervals a total of 
+   *                  "printNumberToTout" times.
+   *
+   * @param printSolnFirstSteps The solution is printed out
+   *                   the first "printSolnFirstSteps"
+   *                   steps. After these steps the other
+   *                   parameters determine the printing.
+   *                   default = 0
+   *
+   * @param dumpJacobians Dump jacobians to disk.
+   *
+   *                   default = false 
+   *
+   */
+  void BEulerInt::setPrintSolnOptions(int printSolnStepInterval,
+				      int printSolnNumberToTout,
+				      int printSolnFirstSteps,
+				      bool dumpJacobians) 
+  {
+    m_printSolnStepInterval = printSolnStepInterval;
+    m_printSolnNumberToTout = printSolnNumberToTout;
+    m_printSolnFirstSteps   = printSolnFirstSteps;
+    m_dumpJacobians         = dumpJacobians;
+  }
+  //================================================================================================
+  void BEulerInt::setIterator(IterType t) {
+    m_iter = t;
+  }
+  //================================================================================================
+  /*
+   *
+   * setNonLinOptions()
+   *
+   *  Set the options for the nonlinear method
+   *
+   *  Defaults are set in the .h file. These are the defaults:
+   *    min_newt_its = 0
+   *    matrixConditioning = false
+   *    colScaling = false
+   *    rowScaling = true
+   */
+  void BEulerInt::setNonLinOptions(int min_newt_its, bool matrixConditioning,
+				   bool colScaling, bool rowScaling) 
+  {
+    m_min_newt_its = min_newt_its;
+    m_matrixConditioning = matrixConditioning;
+    m_colScaling = colScaling;
+    m_rowScaling = rowScaling;
+    if (m_colScaling) {
+      if (!m_colScales) {
+	m_colScales = mdp_alloc_dbl_1(m_neq, 1.0);
+      }
+    }
+    if (m_rowScaling) {
+      if (!m_rowScales) {
+	m_rowScales = mdp_alloc_dbl_1(m_neq, 1.0);
+      }
+    }
+  }
+  //================================================================================================
+  /*
+   *
+   * setInitialTimeStep():
+   *
+   * Set the initial time step. Right now, we set the
+   * time step by setting delta_t_np1.
+   */
+  void BEulerInt::setInitialTimeStep(double deltaT)
+  {
+    delta_t_np1 = deltaT;
+  }
+  //================================================================================================
+  /*
+   * setPrintFlag():
+   *
+   */
+  void BEulerInt::setPrintFlag(int print_flag)
+  {
+    m_print_flag = print_flag;
+  }
+  //================================================================================================
+  /*
+   *
+   * initialize():
+   *
+   * Find the initial conditions for y and ydot.
+   */
+  void BEulerInt::initializeRJE(double t0, ResidJacEval &func) 
+  {
+    m_neq = func.nEquations();
+    m_t0  = t0;
+    internalMalloc();
+   
+    /*
+     * Get the initial conditions.
+     */
+    func.getInitialConditionsDot(m_t0, m_neq, m_y_n, m_ydot_n);
+
+    // Store a pointer to the residual routine in the object
+    m_func = &func;
+
+    /*
+     * Initialize the various time counters in the object
+     */
+    time_n = t0;
+    time_nm1 = time_n;
+    time_nm2 = time_nm1;
+    delta_t_n = 0.0;
+    delta_t_nm1 = 0.0;
+  }
+  //================================================================================================
+  /*
+   *
+   * reinitialize():
+   *
+   */
+  void BEulerInt::reinitializeRJE(double t0, ResidJacEval& func) 
+  {
+    m_neq = func.nEquations();
+    m_t0  = t0;
+    internalMalloc();
+    /*
+     * At the initial time, get the initial conditions and time and store
+     * them into internal storage in the object, my[].
+     */
+    m_t0  = t0;
+    func.getInitialConditions(m_t0, m_y_n, m_ydot_n);
+    /**
+     * Set up the internal weights that are used for testing convergence
+     */
+    setSolnWeights();
+
+    // Store a pointer to the function
+    m_func = &func;
+ 
+  }
+  //================================================================================================
+  /*
+   *
+   * getPrintTime():
+   *
+   */
+  double BEulerInt::getPrintTime(double time_current)
+  {
+    double tnext;
+    if (m_printSolnNumberToTout > 0) {
+      double dt = (m_time_final - m_t0) / m_printSolnNumberToTout;
+      for (int i = 0; i <= m_printSolnNumberToTout; i++) {
+	tnext = m_t0 + dt * i;
+	if (tnext >= time_current) return tnext;
+      }
+    }
+    return 1.0E300;
+  }
+  //================================================================================================
+  /*
+   * nEvals():
+   *
+   * Return the total number of function evaluations
+   */
+  int BEulerInt::nEvals() const 
+  {
+    return m_nfe;
+  }
+  //================================================================================================
+  /*
+   *
+   * internalMalloc():
+   *
+   *  Internal routine that sets up the fixed length storage based on 
+   *  the size of the problem to solve.
+   */
+  void BEulerInt::internalMalloc() 
+  {
+    mdp_realloc_dbl_1(&m_ewt,      m_neq, 0, 0.0);
+    mdp_realloc_dbl_1(&m_y_n,      m_neq, 0, 0.0);
+    mdp_realloc_dbl_1(&m_y_nm1,    m_neq, 0, 0.0);
+    mdp_realloc_dbl_1(&m_y_pred_n, m_neq, 0, 0.0);
+    mdp_realloc_dbl_1(&m_ydot_n,   m_neq, 0, 0.0);
+    mdp_realloc_dbl_1(&m_ydot_nm1, m_neq, 0, 0.0);
+    mdp_realloc_dbl_1(&m_resid,    m_neq, 0, 0.0);
+    mdp_realloc_dbl_1(&m_residWts, m_neq, 0, 0.0);
+    mdp_realloc_dbl_1(&m_wksp,     m_neq, 0, 0.0);
+    if (m_rowScaling) {
+      mdp_realloc_dbl_1(&m_rowScales, m_neq, 0, 1.0);
+    }
+    if (m_colScaling) {
+      mdp_realloc_dbl_1(&m_colScales, m_neq, 0, 1.0);
+    }
+    tdjac_ptr = new SquareMatrix(m_neq);
+  }
+  //================================================================================================
+  /*
+   * setSolnWeights():
+   *
+   * Set the solution weights
+   *  This is a very important routine as it affects quite a few
+   *  operations involving convergence.
+   *
+   */
+  void BEulerInt::setSolnWeights() 
+  {
+    int i;
+    if (m_itol == 1) {
+      /*
+       * Adjust the atol vector if we are using vector
+       * atol conditions.
+       */
+      // m_func->adjustAtol(m_abstol);
+
+      for (i = 0; i < m_neq; i++) {
+	m_ewt[i] = m_abstol[i] + m_reltol * 0.5 *
+	  (fabs(m_y_n[i]) + fabs(m_y_pred_n[i]));
+      }
+    } else {
+      for (i = 0; i < m_neq; i++) {
+	m_ewt[i] = m_abstols + m_reltol * 0.5 * 
+	  (fabs(m_y_n[i]) + fabs(m_y_pred_n[i]));
+      }
+    }
+  }
+  //================================================================================================
+  /*
+   *
+   * setColumnScales():
+   *
+   * Set the column scaling vector at the current time
+   */
+  void BEulerInt::setColumnScales()
+  {
+    m_func->calcSolnScales(time_n, m_y_n, m_y_nm1, m_colScales);
+  }
+  //================================================================================================
+  /*
+   * computeResidWts():
+   *
+   * We compute residual weights here, which we define as the L_0 norm
+   * of the Jacobian Matrix, weighted by the solution weights.
+   * This is the proper way to guage the magnitude of residuals. However,
+   * it does need the evaluation of the jacobian, and the implementation
+   * below is slow, but doesn't take up much memory.
+   *
+   * Here a small weighting indicates that the change in solution is
+   * very sensitive to that equation.
+   */
+  void BEulerInt::computeResidWts(SquareMatrix &jac) 
+  {
+    int i, j;
+    double *data = &(*(jac.begin()));
+    double value;
+    for (i = 0; i < m_neq; i++) {
+      m_residWts[i] = fabs(data[i] * m_ewt[0]);
+      for (j = 1; j < m_neq; j++) {
+	value = fabs(data[j*m_neq + i] * m_ewt[j]);
+	m_residWts[i] = MAX(m_residWts[i], value);
+      }
+    }
+  }
+  //================================================================================================
+  /*
+   * filterNewStep():
+   *
+   * void BEulerInt::
+   *
+   */
+  double BEulerInt::filterNewStep(double timeCurrent, double *y_current, double *ydot_current) {  
+    return 0.0;
+  }
+  //==================================================================================================
+  static void print_line(const char *str, int n)
+  {
+    for (int i = 0; i < n; i++) {
+      printf("%s", str);
+    }
+    printf("\n");
+  }
+  //==================================================================================================
+  /*
+   * Print out for relevant time step information
+   */
+  static void print_time_step1(int order, int n_time_step, double time,
+			       double delta_t_n, double delta_t_nm1,
+			       bool step_failed, int num_failures)
+  {
+    const char *string = 0;
+    if      (order == 0) string = "Backward Euler";
+    else if (order == 1) string = "Forward/Backward Euler";
+    else if (order == 2) string = "Adams-Bashforth/TR";
+    printf("\n"); print_line("=", 80);
+    printf("\nStart of Time Step: %5d       Time_n = %9.5g Time_nm1 = %9.5g\n",
+	   n_time_step, time, time - delta_t_n);
+    printf("\tIntegration method = %s\n", string);
+    if (step_failed)
+      printf("\tPreviously attempted step was a failure\n");
+    if (delta_t_n > delta_t_nm1)
+      string = "(Increased from previous iteration)";
+    else if (delta_t_n < delta_t_nm1)
+      string = "(Decreased from previous iteration)";
+    else {
+      string = "(same as previous iteration)";
+    }
+    printf("\tdelta_t_n        = %8.5e %s", delta_t_n, string);
+    if (num_failures > 0)
+      printf("\t(Bad_History Failure Counter = %d)", num_failures);
+    printf("\n\tdelta_t_nm1      = %8.5e\n", delta_t_nm1);
+  }
+  //================================================================================================
+  /*
+   * Print out for relevant time step information
+   */
+  static void print_time_step2(int  time_step_num, int order,
+			       double time, double time_error_factor,
+			       double delta_t_n, double delta_t_np1)
+  {
+    printf("\tTime Step Number %5d was a success: time = %10g\n", time_step_num,
+	   time);
+    printf("\t\tEstimated Error\n");
+    printf("\t\t--------------------   =   %8.5e\n", time_error_factor);
+    printf("\t\tTolerated Error\n\n");
+    printf("\t- Recommended next delta_t (not counting history) = %g\n",
+	   delta_t_np1);
+    printf("\n"); print_line("=", 80); printf("\n");
+  }
+  //================================================================================================
+  /*
+   * Print Out descriptive information on why the current step failed
+   */
+  static void print_time_fail(bool convFailure, int time_step_num,
+			      double time, double delta_t_n,
+			      double delta_t_np1, double  time_error_factor)
+  {
+    printf("\n"); print_line("=", 80);
+    if (convFailure) {
+      printf("\tTime Step Number %5d experienced a convergence "
+	     "failure\n", time_step_num);
+      printf("\tin the non-linear or linear solver\n");
+      printf("\t\tValue of time at failed step           = %g\n", time);
+      printf("\t\tdelta_t of the   failed step           = %g\n",
+	     delta_t_n);
+      printf("\t\tSuggested value of delta_t to try next = %g\n",
+	     delta_t_np1);
+    } else {
+      printf("\tTime Step Number %5d experienced a truncation error "
+	     "failure!\n", time_step_num);
+      printf("\t\tValue of time at failed step           = %g\n", time);
+      printf("\t\tdelta_t of the   failed step           = %g\n",
+	     delta_t_n);
+      printf("\t\tSuggested value of delta_t to try next = %g\n",
+	     delta_t_np1);
+      printf("\t\tCalculated truncation error factor  = %g\n",
+	     time_error_factor);
+    }
+    printf("\n"); print_line("=", 80);
+  }
+  //================================================================================================
+  /*
+   * Print out the final results and counters
+   */
+  static void print_final(double time, int step_failed,
+			  int time_step_num, int num_newt_its,
+			  int total_linear_solves, int numConvFails,
+			  int numTruncFails, int nfe, int nJacEval)
+  {
+    printf("\n"); print_line("=", 80);
+    printf("TIME INTEGRATION ROUTINE HAS FINISHED: ");
+    if (step_failed)
+      printf(" IT WAS A FAILURE\n");
+    else
+      printf(" IT WAS A SUCCESS\n");
+    printf("\tEnding time                   = %g\n", time);
+    printf("\tNumber of time steps          = %d\n", time_step_num);
+    printf("\tNumber of newt its            = %d\n", num_newt_its);
+    printf("\tNumber of linear solves       = %d\n", total_linear_solves);
+    printf("\tNumber of convergence failures= %d\n", numConvFails);
+    printf("\tNumber of TimeTruncErr fails  = %d\n", numTruncFails);
+    printf("\tNumber of Function evals      = %d\n", nfe);
+    printf("\tNumber of Jacobian evals/solvs= %d\n", nJacEval);
+    printf("\n"); print_line("=", 80);
+  }
+  //================================================================================================
+  /*
+   * Header info for one line comment about a time step
+   */
+  static void print_lvl1_Header(int nTimes) {
+    printf("\n");
+    if (nTimes) {
+      print_line("-", 80);
+    }
+    printf("time       Time              Time                     Time  ");
+    if (nTimes == 0) {
+      printf("     START");
+    } else {
+      printf("    (continued)");
+    }
+    printf("\n");
+
+    printf("step      (sec)              step  Newt   Aztc bktr  trunc  ");
+    printf("\n");
+
+    printf(" No.               Rslt      size    Its  Its  stps  error     |");
+    printf("  comment");
+    printf("\n");
+    print_line("-", 80);
+  } 
+  //================================================================================================
+  /*
+   * One line entry about time step
+   *   rslt -> 4 letter code
+   */
+  static void print_lvl1_summary(
+				 int time_step_num, double time, const char *rslt,  double delta_t_n,
+				 int newt_its, int aztec_its, int bktr_stps, double  time_error_factor,
+				 const char *comment) {
+    printf("%6d %11.6g %4s %10.4g %4d %4d %4d %11.4g",
+	   time_step_num, time, rslt, delta_t_n, newt_its, aztec_its,
+	   bktr_stps, time_error_factor);
+    if (comment) printf(" | %s", comment);
+    printf("\n");
+  }
+  //================================================================================================
+  /*
    * subtractRD():
    *   This routine subtracts 2 numbers. If the difference is less
    *   than 1.0E-14 times the magnitude of the smallest number,
@@ -52,9 +625,8 @@ namespace Cantera {
     }
     return diff;
   }
-
-  /**************************************************************************
-   *
+  //================================================================================================
+  /*
    *
    *  Function called by BEuler to evaluate the Jacobian matrix and the
    *  current residual at the current time step.
@@ -110,7 +682,7 @@ namespace Cantera {
        * deltaY's that are appropriate for calculating the numerical
        * derivative.
        */
-      double *dyVector = mdp_alloc_dbl_1(m_neq, MDP_DBL_NOINIT);
+      double *dyVector = mdp::mdp_alloc_dbl_1(m_neq, MDP_DBL_NOINIT);
       m_func->calcDeltaSolnVariables(time_curr, y, m_y_nm1, dyVector, 
 				     m_ewt);
 #ifdef DEBUG_HKM
@@ -176,670 +748,69 @@ namespace Cantera {
       /*
        * Release memory
        */
-      mdp_safe_free((void **) &dyVector);
+      mdp::mdp_safe_free((void **) &dyVector);
     }
 
  
   }
 
-  /**************************************************************************
-   *
-   * Exception thrown when a BEuler error is encountered. We just call the 
-   * Cantera Error handler in the initialization list
-   */
-  BEulerErr::BEulerErr(string msg) :
-    CanteraError("BEulerInt", msg)
-  {
-  }
-
-  /**
-   *  Constructor. Default settings: dense jacobian, no user-supplied
-   *  Jacobian function, Newton iteration.
-   */
-  BEulerInt::BEulerInt() :
-    m_iter(Newton_Iter), 
-    m_method(BEulerVarStep),
-    m_jacFormMethod(BEULER_JAC_NUM),
-    m_rowScaling(true),
-    m_colScaling(false),
-    m_matrixConditioning(false),
-    m_itol(0),
-    m_reltol(1.e-4), 
-    m_abstols(1.e-10),
-    m_abstol(0),
-    m_ewt(0),
-    m_hmax(0.0),
-    m_maxord(0),
-    m_time_step_num(0),
-    m_time_step_attempts(0),
-    m_max_time_step_attempts(11000000),
-    m_numInitialConstantDeltaTSteps(0),
-    m_failure_counter(0),
-    m_min_newt_its(0),
-    m_printSolnStepInterval(1),
-    m_printSolnNumberToTout(1),
-    m_printSolnFirstSteps(0),
-    m_dumpJacobians(false),
-    m_neq(0),
-    m_y_n(0), 
-    m_y_nm1(0),
-    m_y_pred_n(0),
-    m_ydot_n(0),
-    m_ydot_nm1(0),
-    m_t0(0.0),
-    m_time_final(0.0),
-    time_n(0.0),
-    time_nm1(0.0),
-    time_nm2(0.0),
-    delta_t_n(0.0),
-    delta_t_nm1(0.0),
-    delta_t_nm2(0.0),
-    delta_t_np1(1.0E-8),
-    delta_t_max(1.0E300),
-    m_resid(0),
-    m_residWts(0),
-    m_wksp(0),
-    m_func(0),
-    m_rowScales(0),
-    m_colScales(0),
-    tdjac_ptr(0),
-    m_print_flag(3),
-    m_nfe(0),
-    m_nJacEval(0),
-    m_numTotalNewtIts(0),
-    m_numTotalLinearSolves(0),
-    m_numTotalConvFails(0),
-    m_numTotalTruncFails(0),
-    num_failures(0)
-  {
-
-  }
-
-
-  /**
-   * Destructor
-   */
-  BEulerInt::~BEulerInt()
-  {
-    mdp_safe_free((void **) &m_y_n);
-    mdp_safe_free((void **) &m_y_nm1);
-    mdp_safe_free((void **) &m_y_pred_n);
-    mdp_safe_free((void **) &m_ydot_n);
-    mdp_safe_free((void **) &m_ydot_nm1);
-    mdp_safe_free((void **) &m_resid);
-    mdp_safe_free((void **) &m_residWts);
-    mdp_safe_free((void **) &m_wksp);
-    mdp_safe_free((void **) &m_ewt);
-    mdp_safe_free((void **) &m_abstol);
-    mdp_safe_free((void **) &m_rowScales);
-    mdp_safe_free((void **) &m_colScales);
-    SAFE_DELETE(tdjac_ptr);
-
-  }
-    
-  void BEulerInt::setTolerances(double reltol, int n, double* abstol) {
-    m_itol = 1;
-    if (!m_abstol) {
-      m_abstol = mdp_alloc_dbl_1(m_neq, MDP_DBL_NOINIT);
-    }
-    if (n != m_neq) {
-      printf("ERROR n is wrong\n");
-      exit(-1);
-    }
-    for (int i = 0; i < m_neq; i++) {
-      m_abstol[i] = abstol[i];
-    }
-    m_reltol = reltol; 
-  }
-
-  void BEulerInt::setTolerances(double reltol, double abstol) {
-    m_itol = 0;
-    m_reltol = reltol; 
-    m_abstols = abstol;
-  }
-
-  void BEulerInt::setProblemType(int jacFormMethod) {
-    m_jacFormMethod = jacFormMethod;
-  }
-
-  void BEulerInt::setMethodBEMT(BEulerMethodType t) {
-    m_method = t;
-  }
-
-  void BEulerInt::setMaxStep(doublereal hmax) {
-    m_hmax = hmax;
-  }
-
-  void BEulerInt::setMaxNumTimeSteps(int maxNumTimeSteps) {
-    m_max_time_step_attempts = maxNumTimeSteps;
-  }
-
-  void BEulerInt::setNumInitialConstantDeltaTSteps(int num) {
-    m_numInitialConstantDeltaTSteps = num;
-  }
-
-  /**************************************************************************
-   *
-   * setPrintSolnOptins():
-   *
-   * This routine controls when the solution is printed
-   *
-   * @param printStepInterval If greater than 0, then the
-   *                     soln is printed every printStepInterval
-   *                     steps. 
-   *
-   * @param printNumberToTout The solution is printed at
-   *                  regular invervals a total of 
-   *                  "printNumberToTout" times.
-   *
-   * @param printSolnFirstSteps The solution is printed out
-   *                   the first "printSolnFirstSteps"
-   *                   steps. After these steps the other
-   *                   parameters determine the printing.
-   *                   default = 0
-   *
-   * @param dumpJacobians Dump jacobians to disk.
-   *
-   *                   default = false 
-   *
-   */
-  void BEulerInt::setPrintSolnOptions(int printSolnStepInterval,
-				      int printSolnNumberToTout,
-				      int printSolnFirstSteps,
-				      bool dumpJacobians) {
-    m_printSolnStepInterval = printSolnStepInterval;
-    m_printSolnNumberToTout = printSolnNumberToTout;
-    m_printSolnFirstSteps   = printSolnFirstSteps;
-    m_dumpJacobians         = dumpJacobians;
-  }
-
-  void BEulerInt::setIterator(IterType t) {
-    m_iter = t;
-  }
-
-  /**************************************************************************
-   *
-   * setNonLinOptions()
-   *
-   *  Set the options for the nonlinear method
-   *
-   *  Defaults are set in the .h file. These are the defaults:
-   *    min_newt_its = 0
-   *    matrixConditioning = false
-   *    colScaling = false
-   *    rowScaling = true
-   */
-  void BEulerInt::setNonLinOptions(int min_newt_its, bool matrixConditioning,
-				   bool colScaling, bool rowScaling) {
-    m_min_newt_its = min_newt_its;
-    m_matrixConditioning = matrixConditioning;
-    m_colScaling = colScaling;
-    m_rowScaling = rowScaling;
-    if (m_colScaling) {
-      if (!m_colScales) {
-	m_colScales = mdp_alloc_dbl_1(m_neq, 1.0);
-      }
-    }
-    if (m_rowScaling) {
-      if (!m_rowScales) {
-	m_rowScales = mdp_alloc_dbl_1(m_neq, 1.0);
-      }
-    }
-  }
-
-  /**************************************************************************
-   *
-   * setInitialTimeStep():
-   *
-   * Set the initial time step. Right now, we set the
-   * time step by setting delta_t_np1.
-   */
-  void BEulerInt::setInitialTimeStep(double deltaT) {
-    delta_t_np1 = deltaT;
-  }
-
-  /**************************************************************************
-   *
-   * setPrintFlag():
-   *
-   */
-  void BEulerInt::setPrintFlag(int print_flag) {
-    m_print_flag = print_flag;
-  }
-
-  /**************************************************************************
-   *
-   * initialize():
-   *
-   * Find the initial conditions for y and ydot.
-   */
-  void BEulerInt::initializeRJE(double t0, ResidJacEval &func) 
-  {
-    m_neq = func.nEquations();
-    m_t0  = t0;
-    internalMalloc();
    
-    /*
-     * Get the initial conditions.
-     */
-    func.getInitialConditionsDot(m_t0, m_neq, m_y_n, m_ydot_n);
-
-    // Store a pointer to the residual routine in the object
-    m_func = &func;
-
-    /*
-     * Initialize the various time counters in the object
-     */
-    time_n = t0;
-    time_nm1 = time_n;
-    time_nm2 = time_nm1;
-    delta_t_n = 0.0;
-    delta_t_nm1 = 0.0;
-  }
-
-  /**************************************************************************
+  /*
+   * Function to calculate the predicted solution vector, m_y_pred_n for the
+   * (n+1)th time step.  This routine can be used by a first order - forward
+   * Euler / backward Euler predictor / corrector method or for a second order
+   * Adams-Bashforth / Trapezoidal Rule predictor / corrector method.  See Nachos
+   * documentation Sand86-1816 and Gresho, Lee, Sani LLNL report UCRL - 83282 for
+   * more information.
    *
-   * reinitialize():
+   * variables:
    *
+   * on input:
+   *
+   *     N          - number of unknowns
+   *     order      - indicates order of method
+   *                  = 1 -> first order forward Euler/backward Euler
+   *                         predictor/corrector
+   *                  = 2 -> second order Adams-Bashforth/Trapezoidal Rule
+   *                         predictor/corrector
+   *
+   *    delta_t_n   - magnitude of time step at time n     (i.e., = t_n+1 - t_n)
+   *    delta_t_nm1 - magnitude of time step at time n - 1 (i.e., = t_n - t_n-1)
+   *    y_n[]       - solution vector at time n
+   *    y_dot_n[]   - acceleration vector from the predictor at time n
+   *    y_dot_nm1[] - acceleration vector from the predictor at time n - 1
+   *
+   * on output:
+   *
+   *    m_y_pred_n[]    - predicted solution vector at time n + 1
    */
-  void BEulerInt::reinitializeRJE(double t0, ResidJacEval& func) 
-  {
-    m_neq = func.nEquations();
-    m_t0  = t0;
-    internalMalloc();
-    /*
-     * At the initial time, get the initial conditions and time and store
-     * them into internal storage in the object, my[].
-     */
-    m_t0  = t0;
-    func.getInitialConditions(m_t0, m_y_n, m_ydot_n);
-    /**
-     * Set up the internal weights that are used for testing convergence
-     */
-    setSolnWeights();
-
-    // Store a pointer to the function
-    m_func = &func;
- 
-  }
-    
-  /******************************************************************************
-   *
-   * getPrintTime():
-   *
-   */
-  double BEulerInt::getPrintTime(double time_current) {
-    double tnext;
-    if (m_printSolnNumberToTout > 0) {
-      double dt = (m_time_final - m_t0) / m_printSolnNumberToTout;
-      for (int i = 0; i <= m_printSolnNumberToTout; i++) {
-	tnext = m_t0 + dt * i;
-	if (tnext >= time_current) return tnext;
-      }
-    }
-    return 1.0E300;
-  }
-
-  /******************************************************************************
-   *
-   * nEvals():
-   *
-   * Return the total number of function evaluations
-   */
-  int BEulerInt::nEvals() const 
-  {
-    return m_nfe;
-  }
-
-  /**************************************************************************
-   *
-   * internalMalloc():
-   *
-   *  Internal routine that sets up the fixed length storage based on 
-   *  the size of the problem to solve.
-   */
-  void BEulerInt::internalMalloc() {
-    mdp_realloc_dbl_1(&m_ewt,      m_neq, 0, 0.0);
-    mdp_realloc_dbl_1(&m_y_n,      m_neq, 0, 0.0);
-    mdp_realloc_dbl_1(&m_y_nm1,    m_neq, 0, 0.0);
-    mdp_realloc_dbl_1(&m_y_pred_n, m_neq, 0, 0.0);
-    mdp_realloc_dbl_1(&m_ydot_n,   m_neq, 0, 0.0);
-    mdp_realloc_dbl_1(&m_ydot_nm1, m_neq, 0, 0.0);
-    mdp_realloc_dbl_1(&m_resid,    m_neq, 0, 0.0);
-    mdp_realloc_dbl_1(&m_residWts, m_neq, 0, 0.0);
-    mdp_realloc_dbl_1(&m_wksp,     m_neq, 0, 0.0);
-    if (m_rowScaling) {
-      mdp_realloc_dbl_1(&m_rowScales, m_neq, 0, 1.0);
-    }
-    if (m_colScaling) {
-      mdp_realloc_dbl_1(&m_colScales, m_neq, 0, 1.0);
-    }
-    tdjac_ptr = new SquareMatrix(m_neq);
-  }
-
-  /**************************************************************************
-   *
-   * setSolnWeights():
-   *
-   * Set the solution weights
-   *  This is a very important routine as it affects quite a few
-   *  operations involving convergence.
-   *
-   */
-  void BEulerInt::setSolnWeights()
+  void BEulerInt::calc_y_pred(int order)
   {
     int i;
-    if (m_itol == 1) {
-      /*
-       * Adjust the atol vector if we are using vector
-       * atol conditions.
-       */
-      // m_func->adjustAtol(m_abstol);
-
+    double c1, c2;
+    switch (order) {
+    case 0:
+    case 1:
+      c1 = delta_t_n;
       for (i = 0; i < m_neq; i++) {
-	m_ewt[i] = m_abstol[i] + m_reltol * 0.5 *
-	  (fabs(m_y_n[i]) + fabs(m_y_pred_n[i]));
+	m_y_pred_n[i] = m_y_n[i] + c1 * m_ydot_n[i];
       }
-    } else {
+      break;  
+    case 2:
+      c1 = delta_t_n * (2.0 + delta_t_n / delta_t_nm1) / 2.0;
+      c2 = (delta_t_n * delta_t_n) / (delta_t_nm1 * 2.0);
       for (i = 0; i < m_neq; i++) {
-	m_ewt[i] = m_abstols + m_reltol * 0.5 * 
-	  (fabs(m_y_n[i]) + fabs(m_y_pred_n[i]));
+	m_y_pred_n[i] = m_y_n[i] + c1 * m_ydot_n[i] - c2 * m_ydot_nm1[i];
       }
+      break;
     }
-  }
 
-  /******************************************************************************
-   *
-   * setColumnScales():
-   *
-   * Set the column scaling vector at the current time
-   */
-  void BEulerInt::setColumnScales()
-  {
-    m_func->calcSolnScales(time_n, m_y_n, m_y_nm1, m_colScales);
-  }
-
-  /******************************************************************************
-   *
-   * computeResidWts():
-   *
-   * We compute residual weights here, which we define as the L_0 norm
-   * of the Jacobian Matrix, weighted by the solution weights.
-   * This is the proper way to guage the magnitude of residuals. However,
-   * it does need the evaluation of the jacobian, and the implementation
-   * below is slow, but doesn't take up much memory.
-   *
-   * Here a small weighting indicates that the change in solution is
-   * very sensitive to that equation.
-   */
-  void BEulerInt::computeResidWts(SquareMatrix &jac) 
-  {
-    int i, j;
-    double *data = &(*(jac.begin()));
-    double value;
-    for (i = 0; i < m_neq; i++) {
-      m_residWts[i] = fabs(data[i] * m_ewt[0]);
-      for (j = 1; j < m_neq; j++) {
-	value = fabs(data[j*m_neq + i] * m_ewt[j]);
-	m_residWts[i] = MAX(m_residWts[i], value);
-      }
-    }
-  }
-
-  /******************************************************************************
-   *
-   * filterNewStep():
-   *
-   * void BEulerInt::
-   *
-   */
-  double BEulerInt::filterNewStep(double timeCurrent, double *y_current,
-				  double *ydot_current) {
-      
-    return 0.0;
-  }
-
-
-  /******************************************************************************/
-}
-
-
-/*
- * Blas routines
- */
-extern "C" {
-    extern void dcopy_(int *, double *, int *, double *, int *);
-}
-
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
-static void print_line(const char *str, int n)
-{
-  for (int i = 0; i < n; i++) {
-    printf("%s", str);
-  }
-  printf("\n");
-}
-
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
-
-static void print_time_step1(int order, int n_time_step, double time,
-                             double delta_t_n, double delta_t_nm1,
-                             bool step_failed, int num_failures)
-
-/*
- * Print out for relevant time step information
- */
-
-{
-  const char *string = 0;
-  if      (order == 0) string = "Backward Euler";
-  else if (order == 1) string = "Forward/Backward Euler";
-  else if (order == 2) string = "Adams-Bashforth/TR";
-  printf("\n"); print_line("=", 80);
-  printf("\nStart of Time Step: %5d       Time_n = %9.5g Time_nm1 = %9.5g\n",
-	 n_time_step, time, time - delta_t_n);
-  printf("\tIntegration method = %s\n", string);
-  if (step_failed)
-      printf("\tPreviously attempted step was a failure\n");
-  if (delta_t_n > delta_t_nm1)
-      string = "(Increased from previous iteration)";
-  else if (delta_t_n < delta_t_nm1)
-      string = "(Decreased from previous iteration)";
-  else {
-    string = "(same as previous iteration)";
-  }
-  printf("\tdelta_t_n        = %8.5e %s", delta_t_n, string);
-  if (num_failures > 0)
-      printf("\t(Bad_History Failure Counter = %d)", num_failures);
-  printf("\n\tdelta_t_nm1      = %8.5e\n", delta_t_nm1);
-} /*************** END print_time_step1 **************************************/
-/*****************************************************************************/
-/*
- * Print out for relevant time step information
- */
-static void print_time_step2(int  time_step_num, int order,
-                             double time, double time_error_factor,
-                             double delta_t_n, double delta_t_np1)
-{
-  printf("\tTime Step Number %5d was a success: time = %10g\n", time_step_num,
-	 time);
-  printf("\t\tEstimated Error\n");
-  printf("\t\t--------------------   =   %8.5e\n", time_error_factor);
-  printf("\t\tTolerated Error\n\n");
-  printf("\t- Recommended next delta_t (not counting history) = %g\n",
-	 delta_t_np1);
-  printf("\n"); print_line("=", 80); printf("\n");
-} /************* END of print_time_step2 () **********************************/
-/*****************************************************************************/
-/*****************************************************************************/
-/*
- * Print Out descriptive information on why the current step failed
- */
-static void print_time_fail(bool convFailure, int time_step_num,
-                            double time, double delta_t_n,
-                            double delta_t_np1, double  time_error_factor)
-{
-  printf("\n"); print_line("=", 80);
-  if (convFailure) {
-    printf("\tTime Step Number %5d experienced a convergence "
-	   "failure\n", time_step_num);
-    printf("\tin the non-linear or linear solver\n");
-    printf("\t\tValue of time at failed step           = %g\n", time);
-    printf("\t\tdelta_t of the   failed step           = %g\n",
-	   delta_t_n);
-    printf("\t\tSuggested value of delta_t to try next = %g\n",
-	   delta_t_np1);
-  } else {
-    printf("\tTime Step Number %5d experienced a truncation error "
-	   "failure!\n", time_step_num);
-    printf("\t\tValue of time at failed step           = %g\n", time);
-    printf("\t\tdelta_t of the   failed step           = %g\n",
-	   delta_t_n);
-    printf("\t\tSuggested value of delta_t to try next = %g\n",
-	   delta_t_np1);
-    printf("\t\tCalculated truncation error factor  = %g\n",
-	   time_error_factor);
-  }
-  printf("\n"); print_line("=", 80);
-} /*************** END of print_time_fail () *********************************/
-/*****************************************************************************/
-/*
- * Print out the final results and counters
- */
-static void print_final(double time, int step_failed,
-                        int time_step_num, int num_newt_its,
-                        int total_linear_solves, int numConvFails,
-			int numTruncFails, int nfe, int nJacEval)
-{
-  printf("\n"); print_line("=", 80);
-  printf("TIME INTEGRATION ROUTINE HAS FINISHED: ");
-  if (step_failed)
-      printf(" IT WAS A FAILURE\n");
-  else
-      printf(" IT WAS A SUCCESS\n");
-  printf("\tEnding time                   = %g\n", time);
-  printf("\tNumber of time steps          = %d\n", time_step_num);
-  printf("\tNumber of newt its            = %d\n", num_newt_its);
-  printf("\tNumber of linear solves       = %d\n", total_linear_solves);
-  printf("\tNumber of convergence failures= %d\n", numConvFails);
-  printf("\tNumber of TimeTruncErr fails  = %d\n", numTruncFails);
-  printf("\tNumber of Function evals      = %d\n", nfe);
-  printf("\tNumber of Jacobian evals/solvs= %d\n", nJacEval);
-  printf("\n"); print_line("=", 80);
-} /************* END of print_final () ***************************************/
-/*****************************************************************************/
-/*****************************************************************************/
-/*
- * Header info for one line comment about a time step
- */
-static void print_lvl1_Header(int nTimes) {
-  printf("\n");
-  if (nTimes) {
-    print_line("-", 80);
-  }
-  printf("time       Time              Time                     Time  ");
-  if (nTimes == 0) {
-    printf("     START");
-  } else {
-    printf("    (continued)");
-  }
-  printf("\n");
-
-  printf("step      (sec)              step  Newt   Aztc bktr  trunc  ");
-  printf("\n");
-
-  printf(" No.               Rslt      size    Its  Its  stps  error     |");
-  printf("  comment");
-  printf("\n");
-  print_line("-", 80);
-}
-/*****************************************************************************/
-/*****************************************************************************/
-/*
- * One line entry about time step
- *   rslt -> 4 letter code
- */
-static void print_lvl1_summary(
-    int time_step_num, double time, const char *rslt,  double delta_t_n,
-    int newt_its, int aztec_its, int bktr_stps, double  time_error_factor,
-    const char *comment) {
-  printf("%6d %11.6g %4s %10.4g %4d %4d %4d %11.4g",
-	 time_step_num, time, rslt, delta_t_n, newt_its, aztec_its,
-	 bktr_stps, time_error_factor);
-  if (comment) printf(" | %s", comment);
-  printf("\n");
-}
-/*****************************************************************************/
-/*****************************************************************************/
-namespace Cantera {
-   
     /*
-     * Function to calculate the predicted solution vector, m_y_pred_n for the
-     * (n+1)th time step.  This routine can be used by a first order - forward
-     * Euler / backward Euler predictor / corrector method or for a second order
-     * Adams-Bashforth / Trapezoidal Rule predictor / corrector method.  See Nachos
-     * documentation Sand86-1816 and Gresho, Lee, Sani LLNL report UCRL - 83282 for
-     * more information.
-     *
-     * variables:
-     *
-     * on input:
-     *
-     *     N          - number of unknowns
-     *     order      - indicates order of method
-     *                  = 1 -> first order forward Euler/backward Euler
-     *                         predictor/corrector
-     *                  = 2 -> second order Adams-Bashforth/Trapezoidal Rule
-     *                         predictor/corrector
-     *
-     *    delta_t_n   - magnitude of time step at time n     (i.e., = t_n+1 - t_n)
-     *    delta_t_nm1 - magnitude of time step at time n - 1 (i.e., = t_n - t_n-1)
-     *    y_n[]       - solution vector at time n
-     *    y_dot_n[]   - acceleration vector from the predictor at time n
-     *    y_dot_nm1[] - acceleration vector from the predictor at time n - 1
-     *
-     * on output:
-     *
-     *    m_y_pred_n[]    - predicted solution vector at time n + 1
+     * Filter the predictions.
      */
-    void BEulerInt::calc_y_pred(int order)
-    {
-      int i;
-      double c1, c2;
-      switch (order) {
-      case 0:
-      case 1:
-	  c1 = delta_t_n;
-	  for (i = 0; i < m_neq; i++) {
-	    m_y_pred_n[i] = m_y_n[i] + c1 * m_ydot_n[i];
-	  }
-#ifdef DEBUG_HKM_JJJJJ
-	  if (m_y_pred_n[0] <= 0.0) {
-	    //iDebug_HKM = 1;
-	    c1 = delta_t_n;
-	    m_y_pred_n[0] = 0.0;
-	  }
-#endif
-	  break;  
-      case 2:
-	  c1 = delta_t_n * (2.0 + delta_t_n / delta_t_nm1) / 2.0;
-	  c2 = (delta_t_n * delta_t_n) / (delta_t_nm1 * 2.0);
-	  for (i = 0; i < m_neq; i++) {
-	    m_y_pred_n[i] = m_y_n[i] + c1 * m_ydot_n[i] - c2 * m_ydot_nm1[i];
-	  }
-	  break;
-      }
+    m_func->filterSolnPrediction(time_n, m_y_pred_n);
 
-      /*
-       * Filter the predictions.
-       */
-      m_func->filterSolnPrediction(time_n, m_y_pred_n);
-
-    } /* calc_y_pred */
+  } /* calc_y_pred */
  
 
     /* Function to calculate the acceleration vector ydot for the first or
@@ -875,27 +846,27 @@ namespace Cantera {
      * y_curr[] may not be equal to m_y_n[] during the nonlinear solve
      * because we may be using a look-ahead scheme.
      */
-    void BEulerInt::
-    calc_ydot(int order, double *y_curr, double *ydot_curr)
-    {
-      int    i;
-      double c1;
-      switch (order) {
-      case 0:
-      case 1:             /* First order forward Euler/backward Euler */
-	  c1 = 1.0 / delta_t_n;
-	  for (i = 0; i < m_neq; i++) {
-	      ydot_curr[i] = c1 * (y_curr[i] - m_y_nm1[i]);
-	  }
-	  return;
-      case 2:             /* Second order Adams-Bashforth / Trapezoidal Rule */
-	  c1 = 2.0 / delta_t_n;
-	  for (i = 0; i < m_neq; i++) {
-	     ydot_curr[i] = c1 * (y_curr[i] - m_y_nm1[i])  - m_ydot_nm1[i];
-	  }
-	  return;
+  void BEulerInt::
+  calc_ydot(int order, double *y_curr, double *ydot_curr)
+  {
+    int    i;
+    double c1;
+    switch (order) {
+    case 0:
+    case 1:             /* First order forward Euler/backward Euler */
+      c1 = 1.0 / delta_t_n;
+      for (i = 0; i < m_neq; i++) {
+	ydot_curr[i] = c1 * (y_curr[i] - m_y_nm1[i]);
       }
-    } /************* END calc_ydot () ****************************************/
+      return;
+    case 2:             /* Second order Adams-Bashforth / Trapezoidal Rule */
+      c1 = 2.0 / delta_t_n;
+      for (i = 0; i < m_neq; i++) {
+	ydot_curr[i] = c1 * (y_curr[i] - m_y_nm1[i])  - m_ydot_nm1[i];
+      }
+      return;
+    }
+  } /************* END calc_ydot () ****************************************/
 
     /* This function calculates the time step truncation error estimate
      * from a very simple formula based on Gresho et al.  This routine can be
@@ -921,696 +892,696 @@ namespace Cantera {
      *      delta_t_n   - Magnitude of next time step at time t_n+1
      *      delta_t_nm1 - Magnitude of previous time step at time t_n
      */
-    double BEulerInt::time_error_norm()
-    {
-      int    i;
-      double rel_norm, error;
+  double BEulerInt::time_error_norm()
+  {
+    int    i;
+    double rel_norm, error;
 #ifdef DEBUG_HKM
 #define NUM_ENTRIES 5
-      if (m_print_flag > 2) {
-	int imax[NUM_ENTRIES], j, jnum;
-	double dmax;
-	bool used;
-	printf("\t\ttime step truncation error contributors:\n");
-	printf("\t\t    I       entry   actual   predicted   "
-	       "    weight       ydot\n");
-	printf("\t\t"); print_line("-", 70);
-	for (j = 0; j < NUM_ENTRIES; j++) imax[j] = -1;
-	for (jnum = 0; jnum < NUM_ENTRIES; jnum++) {
-	  dmax = -1.0;
-	  for (i = 0; i < m_neq; i++) {
-	    used = false;
-	    for (j = 0; j < jnum; j++) {
-	      if (imax[j] == i) used = true;
-	    }
-	    if (!used) {
-	      error     = (m_y_n[i] - m_y_pred_n[i]) /  m_ewt[i];
-	      rel_norm = sqrt(error * error);
-	      if (rel_norm > dmax) {
-		imax[jnum] = i;
-		dmax = rel_norm;
-	      }
-	    } 
+    if (m_print_flag > 2) {
+      int imax[NUM_ENTRIES], j, jnum;
+      double dmax;
+      bool used;
+      printf("\t\ttime step truncation error contributors:\n");
+      printf("\t\t    I       entry   actual   predicted   "
+	     "    weight       ydot\n");
+      printf("\t\t"); print_line("-", 70);
+      for (j = 0; j < NUM_ENTRIES; j++) imax[j] = -1;
+      for (jnum = 0; jnum < NUM_ENTRIES; jnum++) {
+	dmax = -1.0;
+	for (i = 0; i < m_neq; i++) {
+	  used = false;
+	  for (j = 0; j < jnum; j++) {
+	    if (imax[j] == i) used = true;
 	  }
-	  if (imax[jnum] >= 0) {
+	  if (!used) {
+	    error     = (m_y_n[i] - m_y_pred_n[i]) /  m_ewt[i];
+	    rel_norm = sqrt(error * error);
+	    if (rel_norm > dmax) {
+	      imax[jnum] = i;
+	      dmax = rel_norm;
+	    }
+	  } 
+	}
+	if (imax[jnum] >= 0) {
 	  i = imax[jnum];
 	  printf("\t\t%4d %12.4e %12.4e %12.4e %12.4e %12.4e\n",
 		 i, dmax, m_y_n[i], m_y_pred_n[i], m_ewt[i], m_ydot_n[i]);
-	  }
 	}
-	printf("\t\t"); print_line("-", 70);
       }
-#endif
-      rel_norm = 0.0;
-      for (i = 0; i < m_neq; i++) {
-	error     = (m_y_n[i] - m_y_pred_n[i]) /  m_ewt[i];
-	rel_norm += (error * error);
-      }
-      rel_norm = sqrt(rel_norm / m_neq);
-      return rel_norm;
+      printf("\t\t"); print_line("-", 70);
     }
+#endif
+    rel_norm = 0.0;
+    for (i = 0; i < m_neq; i++) {
+      error     = (m_y_n[i] - m_y_pred_n[i]) /  m_ewt[i];
+      rel_norm += (error * error);
+    }
+    rel_norm = sqrt(rel_norm / m_neq);
+    return rel_norm;
+  }
  
-    /************************************************************************* 
-     * Time step control function for the selection of the time step size based on
-     * a desired accuracy of time integration and on an estimate of the relative
-     * error of the time integration process. This routine can be called for a
-     * first order - forward Euler/backward Euler predictor/ corrector and for a
-     * second order Adams- Bashforth/Trapezoidal Rule predictor/corrector. See
-     * Nachos documentation Sand86-1816 and Gresho, Lee, Sani LLNL report UCRL -
-     * 83282 for more information.
-     *
-     *  variables:
-     *
-     *    on input:
-     *
-     *       order      - indicates order of method
-     *                    = 1 -> first order forward Euler/backward Euler
-     *                           predictor/corrector
-     *                    = 2 -> second order forward Adams-Bashforth/Trapezoidal
-     *                          rule predictor/corrector
-     *
-     *      delta_t_n   - Magnitude of time step at time t_n
-     *      delta_t_nm1 - Magnitude of time step at time t_n-1
-     *      rel_error   - Generic realtive error tolerance
-     *      time_error_factor   - Estimated value of the time step truncation error
-     *                           factor. This value is a ratio of the computed
-     *                           error norms. The premultiplying constants
-     *                           and the power are not yet applied to normalize the
-     *                           predictor/corrector ratio. (see output value)
-     *
-     *   on output:
-     *
-     *      return - delta_t for the next time step
-     *               If delta_t is negative, then the current time step is
-     *               rejected because the time-step truncation error is
-     *               too large.  The return value will contain the negative
-     *               of the recommended next time step.
-     *
-     *      time_error_factor  - This output value is normalized so that
-     *                           values greater than one indicate the current time
-     *                           integration error is greater than the user 
-     *                           specified magnitude.
-     */
-    double BEulerInt::time_step_control(int order, double time_error_factor)
-    {
-      double factor = 0.0, power = 0.0, delta_t;
-      const char  *yo = "time_step_control";
+  /************************************************************************* 
+   * Time step control function for the selection of the time step size based on
+   * a desired accuracy of time integration and on an estimate of the relative
+   * error of the time integration process. This routine can be called for a
+   * first order - forward Euler/backward Euler predictor/ corrector and for a
+   * second order Adams- Bashforth/Trapezoidal Rule predictor/corrector. See
+   * Nachos documentation Sand86-1816 and Gresho, Lee, Sani LLNL report UCRL -
+   * 83282 for more information.
+   *
+   *  variables:
+   *
+   *    on input:
+   *
+   *       order      - indicates order of method
+   *                    = 1 -> first order forward Euler/backward Euler
+   *                           predictor/corrector
+   *                    = 2 -> second order forward Adams-Bashforth/Trapezoidal
+   *                          rule predictor/corrector
+   *
+   *      delta_t_n   - Magnitude of time step at time t_n
+   *      delta_t_nm1 - Magnitude of time step at time t_n-1
+   *      rel_error   - Generic realtive error tolerance
+   *      time_error_factor   - Estimated value of the time step truncation error
+   *                           factor. This value is a ratio of the computed
+   *                           error norms. The premultiplying constants
+   *                           and the power are not yet applied to normalize the
+   *                           predictor/corrector ratio. (see output value)
+   *
+   *   on output:
+   *
+   *      return - delta_t for the next time step
+   *               If delta_t is negative, then the current time step is
+   *               rejected because the time-step truncation error is
+   *               too large.  The return value will contain the negative
+   *               of the recommended next time step.
+   *
+   *      time_error_factor  - This output value is normalized so that
+   *                           values greater than one indicate the current time
+   *                           integration error is greater than the user 
+   *                           specified magnitude.
+   */
+  double BEulerInt::time_step_control(int order, double time_error_factor)
+  {
+    double factor = 0.0, power = 0.0, delta_t;
+    const char  *yo = "time_step_control";
 
-      /*
-       * Special case time_error_factor so that zeroes don't cause a problem.
-       */     
-      time_error_factor = MAX(1.0E-50, time_error_factor);
+    /*
+     * Special case time_error_factor so that zeroes don't cause a problem.
+     */     
+    time_error_factor = MAX(1.0E-50, time_error_factor);
       
-      /*
-       * Calculate the factor for the change in magnitude of time step.
-       */
-      switch (order) {
-      case 1:
-	  factor = 1.0/(2.0 *(time_error_factor));
-	  power  = 0.5;
-	  break;
-      case 2:
-	  factor = 1.0/(3.0 * (1.0 + delta_t_nm1 / delta_t_n) 
-			* (time_error_factor));
-	  power  = 0.3333333333333333;
-      }
-      factor = pow(factor, power);
-      if (factor < 0.5) {
-	if (m_print_flag > 1) {
-	  printf("\t%s: WARNING - Current time step will be chucked\n", yo);
-	  printf("\t\tdue to a time step truncation error failure.\n");
-	}
-	delta_t = - 0.5 * delta_t_n;
-      } else {
-	factor  = MIN(factor, 1.5);
-	delta_t = factor * delta_t_n;
-      }
-      return delta_t;
-    } /************ END of time_step_control()********************************/
-
-    /**************************************************************************
-     *
-     * integrate():
-     *
-     *  defaults are located in the .h file. They are as follows:
-     *     time_init = 0.0
+    /*
+     * Calculate the factor for the change in magnitude of time step.
      */
-    double BEulerInt::integrateRJE(double tout, double time_init)
-    {
-      double time_current;
-      bool weAreNotFinished = true;
-      m_time_final = tout;
-      int flag = SUCCESS;
-	/**
-	 * Initialize the time step number to zero. step will increment so that
-	 * the first time step is number 1
-	 */
-      m_time_step_num = 0;
+    switch (order) {
+    case 1:
+      factor = 1.0/(2.0 *(time_error_factor));
+      power  = 0.5;
+      break;
+    case 2:
+      factor = 1.0/(3.0 * (1.0 + delta_t_nm1 / delta_t_n) 
+		    * (time_error_factor));
+      power  = 0.3333333333333333;
+    }
+    factor = pow(factor, power);
+    if (factor < 0.5) {
+      if (m_print_flag > 1) {
+	printf("\t%s: WARNING - Current time step will be chucked\n", yo);
+	printf("\t\tdue to a time step truncation error failure.\n");
+      }
+      delta_t = - 0.5 * delta_t_n;
+    } else {
+      factor  = MIN(factor, 1.5);
+      delta_t = factor * delta_t_n;
+    }
+    return delta_t;
+  } /************ END of time_step_control()********************************/
+  //================================================================================================
+  /**************************************************************************
+   *
+   * integrate():
+   *
+   *  defaults are located in the .h file. They are as follows:
+   *     time_init = 0.0
+   */
+  double BEulerInt::integrateRJE(double tout, double time_init)
+  {
+    double time_current;
+    bool weAreNotFinished = true;
+    m_time_final = tout;
+    int flag = SUCCESS;
+    /**
+     * Initialize the time step number to zero. step will increment so that
+     * the first time step is number 1
+     */
+    m_time_step_num = 0;
  
 
-      /*
-       * Do the integration a step at a time
-       */
-      int istep = 0;
-      int printStep = 0;
-      bool doPrintSoln = false;
-      time_current = time_init;
-      time_n = time_init;
-      time_nm1 = time_init;
-      time_nm2 = time_init;
-      m_func->evalTimeTrackingEqns(time_current, 0.0, m_y_n, m_ydot_n);
-      double print_time = getPrintTime(time_current);
-      if (print_time == time_current) {
-	m_func->writeSolution(4, time_current, delta_t_n,
-			      istep, m_y_n, m_ydot_n);
-      }
-      /*
-       * We print out column headers here for the case of 
-       */
-      if (m_print_flag == 1) {
-	print_lvl1_Header(0);
-      }
-      /*
-       * Call a different user routine at the end of each step,
-       * that will probably print to a file.
-       */
-      m_func->user_out2(0, time_current, 0.0, m_y_n, m_ydot_n);
+    /*
+     * Do the integration a step at a time
+     */
+    int istep = 0;
+    int printStep = 0;
+    bool doPrintSoln = false;
+    time_current = time_init;
+    time_n = time_init;
+    time_nm1 = time_init;
+    time_nm2 = time_init;
+    m_func->evalTimeTrackingEqns(time_current, 0.0, m_y_n, m_ydot_n);
+    double print_time = getPrintTime(time_current);
+    if (print_time == time_current) {
+      m_func->writeSolution(4, time_current, delta_t_n,
+			    istep, m_y_n, m_ydot_n);
+    }
+    /*
+     * We print out column headers here for the case of 
+     */
+    if (m_print_flag == 1) {
+      print_lvl1_Header(0);
+    }
+    /*
+     * Call a different user routine at the end of each step,
+     * that will probably print to a file.
+     */
+    m_func->user_out2(0, time_current, 0.0, m_y_n, m_ydot_n);
       
-      do {
+    do {
 	
-	print_time = getPrintTime(time_current);
-	if (print_time >= tout) print_time = tout;
+      print_time = getPrintTime(time_current);
+      if (print_time >= tout) print_time = tout;
 
-	/************************************************************
-	 * Step the solution
-	 */
-	time_current = step(tout);
-	istep++;
-	printStep++;
-	/***********************************************************/
-	if (time_current < 0.0) {
-	  if (time_current == -1234.) {
-	    time_current = 0.0;
-	  } else {
-	    time_current = -time_current;
-	  }
-	  flag = FAILURE;
-	}
-
-	if (flag != FAILURE) {
-	  bool retn =
-	      m_func->evalStoppingCritera(time_current, delta_t_n,
-					   m_y_n, m_ydot_n);
-	  if (retn) {
-	    weAreNotFinished = false;
-	    doPrintSoln = true;
-	  }
-	}
-
-	/*
-	 * determine conditional printing of soln
-	 */
-	if (time_current >= print_time) {
-	  doPrintSoln = true;
-	}
-	if (m_printSolnStepInterval == printStep) {
-	  doPrintSoln = true;
-	}
-	if (m_printSolnFirstSteps > istep) {
-	  doPrintSoln = true;
-	}
-
-	/*
-	 * Evaluate time integrated quantities that are calculated at the
-	 * end of every successful time step.
-	 */
-	if (flag != FAILURE) {
-	  m_func->evalTimeTrackingEqns(time_current, delta_t_n,
-				       m_y_n, m_ydot_n);
-	}
-	
-	/*
-	 * Call the printout routine.
-	 */
-	if (doPrintSoln) {
-	  m_func->writeSolution(1, time_current, delta_t_n,
-				istep, m_y_n, m_ydot_n);
-	  printStep = 0;
-	  doPrintSoln = false;
-	  if (m_print_flag == 1) {
-	    print_lvl1_Header(1);
-	  }
-	}
-	/*
-	 * Call a different user routine at the end of each step,
-	 * that will probably print to a file.
-	 */
-	if (flag == FAILURE) {
-	  m_func->user_out2(-1, time_current, delta_t_n, m_y_n, m_ydot_n);
+      /************************************************************
+       * Step the solution
+       */
+      time_current = step(tout);
+      istep++;
+      printStep++;
+      /***********************************************************/
+      if (time_current < 0.0) {
+	if (time_current == -1234.) {
+	  time_current = 0.0;
 	} else {
-	  m_func->user_out2(1, time_current, delta_t_n, m_y_n, m_ydot_n);
+	  time_current = -time_current;
 	}
+	flag = FAILURE;
+      }
 
-      } while (time_current < tout && 
-	       m_time_step_attempts <  m_max_time_step_attempts &&
-	       flag == SUCCESS && weAreNotFinished);
-
-      /*
-       * Check current time against the max solution time.
-       */
-      if (time_current >= tout) {
-	printf("Simulation completed time integration in %d time steps\n",
-	       m_time_step_num);
-	printf("Final Time: %e\n\n", time_current);
-      } else if (m_time_step_attempts >= m_max_time_step_attempts) {
-	printf("Simulation ran into time step attempt limit in"
-	       "%d time steps\n",
-	       m_time_step_num);
-	printf("Final Time: %e\n\n", time_current);
-      } else if (flag == FAILURE) {
-	printf("ERROR: time stepper failed at time = %g\n", time_current);
+      if (flag != FAILURE) {
+	bool retn =
+	  m_func->evalStoppingCritera(time_current, delta_t_n,
+				      m_y_n, m_ydot_n);
+	if (retn) {
+	  weAreNotFinished = false;
+	  doPrintSoln = true;
+	}
       }
 
       /*
-       * Print out the final results and counters.
+       * determine conditional printing of soln
        */
-      print_final(time_n, flag, m_time_step_num, m_numTotalNewtIts,
-		  m_numTotalLinearSolves, m_numTotalConvFails,
-		  m_numTotalTruncFails, m_nfe, m_nJacEval);
+      if (time_current >= print_time) {
+	doPrintSoln = true;
+      }
+      if (m_printSolnStepInterval == printStep) {
+	doPrintSoln = true;
+      }
+      if (m_printSolnFirstSteps > istep) {
+	doPrintSoln = true;
+      }
 
+      /*
+       * Evaluate time integrated quantities that are calculated at the
+       * end of every successful time step.
+       */
+      if (flag != FAILURE) {
+	m_func->evalTimeTrackingEqns(time_current, delta_t_n,
+				     m_y_n, m_ydot_n);
+      }
+	
+      /*
+       * Call the printout routine.
+       */
+      if (doPrintSoln) {
+	m_func->writeSolution(1, time_current, delta_t_n,
+			      istep, m_y_n, m_ydot_n);
+	printStep = 0;
+	doPrintSoln = false;
+	if (m_print_flag == 1) {
+	  print_lvl1_Header(1);
+	}
+      }
       /*
        * Call a different user routine at the end of each step,
        * that will probably print to a file.
-	 */
-      m_func->user_out2(2, time_current, delta_t_n, m_y_n, m_ydot_n);
+       */
+      if (flag == FAILURE) {
+	m_func->user_out2(-1, time_current, delta_t_n, m_y_n, m_ydot_n);
+      } else {
+	m_func->user_out2(1, time_current, delta_t_n, m_y_n, m_ydot_n);
+      }
+
+    } while (time_current < tout && 
+	     m_time_step_attempts <  m_max_time_step_attempts &&
+	     flag == SUCCESS && weAreNotFinished);
+
+    /*
+     * Check current time against the max solution time.
+     */
+    if (time_current >= tout) {
+      printf("Simulation completed time integration in %d time steps\n",
+	     m_time_step_num);
+      printf("Final Time: %e\n\n", time_current);
+    } else if (m_time_step_attempts >= m_max_time_step_attempts) {
+      printf("Simulation ran into time step attempt limit in"
+	     "%d time steps\n",
+	     m_time_step_num);
+      printf("Final Time: %e\n\n", time_current);
+    } else if (flag == FAILURE) {
+      printf("ERROR: time stepper failed at time = %g\n", time_current);
+    }
+
+    /*
+     * Print out the final results and counters.
+     */
+    print_final(time_n, flag, m_time_step_num, m_numTotalNewtIts,
+		m_numTotalLinearSolves, m_numTotalConvFails,
+		m_numTotalTruncFails, m_nfe, m_nJacEval);
+
+    /*
+     * Call a different user routine at the end of each step,
+     * that will probably print to a file.
+     */
+    m_func->user_out2(2, time_current, delta_t_n, m_y_n, m_ydot_n);
 
    
-      if (flag != SUCCESS) 
-	  throw BEulerErr(" BEuler error encountered.");
-      return time_current;
-    }
+    if (flag != SUCCESS) 
+      throw BEulerErr(" BEuler error encountered.");
+    return time_current;
+  }
 
-    /**************************************************************************
-     *
-     * step():
-     *
-     * This routine advances the calculations one step using a predictor
-     * corrector approach. We use an implicit algorithm here.
-     *
+  /**************************************************************************
+   *
+   * step():
+   *
+   * This routine advances the calculations one step using a predictor
+   * corrector approach. We use an implicit algorithm here.
+   *
+   */
+  double BEulerInt::step(double t_max)
+  {
+    double CJ;
+    int one = 1;
+    bool step_failed = false;
+    bool giveUp = false;
+    bool convFailure = false;
+    const char *rslt;
+    double time_error_factor = 0.0;
+    double normFilter = 0.0;
+    int numTSFailures = 0;
+    int bktr_stps = 0;
+    int nonlinearloglevel = m_print_flag;
+    int num_newt_its = 0;
+    int aztec_its = 0;
+    string comment;
+    /*
+     * Increment the time counter - May have to be taken back, 
+     * if time step is found to be faulty.
      */
-    double BEulerInt::step(double t_max)
-    {
-      double CJ;
-      int one = 1;
-      bool step_failed = false;
-      bool giveUp = false;
-      bool convFailure = false;
-      const char *rslt;
-      double time_error_factor = 0.0;
-      double normFilter = 0.0;
-      int numTSFailures = 0;
-      int bktr_stps = 0;
-      int nonlinearloglevel = m_print_flag;
-      int num_newt_its = 0;
-      int aztec_its = 0;
-      string comment;
+    m_time_step_num++;
+
+    /**
+     * Loop here until we achieve a successful step or we set the giveUp
+     * flag indicating that repeated errors have occurred.
+     */
+    do {
+      m_time_step_attempts++;
+      comment.clear();
+
       /*
-       * Increment the time counter - May have to be taken back, 
-       * if time step is found to be faulty.
+       * Possibly adjust the delta_t_n value for this time step from the
+       * recommended delta_t_np1 value determined in the previous step
+       *  due to maximum time step constraints or other occurences,
+       * known to happen at a given time.
        */
-      m_time_step_num++;
+      if ((time_n + delta_t_np1) >= t_max) {
+	delta_t_np1 =t_max - time_n;
+      }
+	
+      if (delta_t_np1 >= delta_t_max) {
+	delta_t_np1 = delta_t_max;
+      }
 
-      /**
-       * Loop here until we achieve a successful step or we set the giveUp
-       * flag indicating that repeated errors have occurred.
+      /*
+       * Increment the delta_t counters and the time for the current 
+       * time step.
        */
-      do {
-	m_time_step_attempts++;
-	comment.clear();
 
-	/*
-	 * Possibly adjust the delta_t_n value for this time step from the
-	 * recommended delta_t_np1 value determined in the previous step
-	 *  due to maximum time step constraints or other occurences,
-	 * known to happen at a given time.
-	 */
-	if ((time_n + delta_t_np1) >= t_max) {
-	  delta_t_np1 =t_max - time_n;
-	}
+      delta_t_nm2 = delta_t_nm1;
+      delta_t_nm1 = delta_t_n;
+      delta_t_n   = delta_t_np1;
+      time_n     += delta_t_n;
+
+      /*
+       * Determine the integration order of the current step.
+       *
+       * Special case for start-up of time integration procedure
+       *           First time step = Do a predictor step as we 
+       *                             have recently added an initial
+       *                             ydot input option. And, setting ydot=0
+       *                             is equivalent to not doing a 
+       *                             predictor step.
+       *           Second step     = If 2nd order method, do a first order
+       *                             step for this time-step, only.
+       *
+       *           If 2nd order method with a constant time step, the
+       *           first and second steps are 1/10 the specified step, and
+       *           the third step is 8/10 the specified step.  This reduces
+       *           the error asociated with using lower order
+       *           integration on the first two steps. (RCS 11-6-97)
+       *
+       * If the previous time step failed for one reason or another, 
+       * do a linear step. It's more robust.
+       */
+      if (m_time_step_num == 1) {
+	m_order = 1;                          /* Backward Euler          */
+      }
+      else if (m_time_step_num == 2) {
+	m_order = 1;                          /* Forward/Backward Euler  */
+      }
+      else if (step_failed) {
+	m_order = 1;                          /* Forward/Backward Euler  */
+      }
+      else if (m_time_step_num > 2) {
+	m_order = 1;                          /* Specified
+						 Predictor/Corrector 
+						 - not implemented */
+      }
 	
-	if (delta_t_np1 >= delta_t_max) {
-	  delta_t_np1 = delta_t_max;
-	}
+      /*
+       * Print out an initial statement about the step.
+       */
+      if (m_print_flag > 1) {
+	print_time_step1(m_order, m_time_step_num, time_n, delta_t_n,
+			 delta_t_nm1, step_failed, m_failure_counter);
+      }
 
-	/*
-	 * Increment the delta_t counters and the time for the current 
-	 * time step.
-	 */
+      /*
+       * Calculate the predicted solution, m_y_pred_n, for the current
+       * time step.
+       */
+      calc_y_pred(m_order);
 
-	delta_t_nm2 = delta_t_nm1;
-	delta_t_nm1 = delta_t_n;
-	delta_t_n   = delta_t_np1;
-	time_n     += delta_t_n;
+      /*
+       * HKM - Commented this out. I may need it for particles later.
+       * If Solution bounds checking is turned on, we need to crop the
+       * predicted solution to make sure bounds are enforced
+       *
+       *
+       * cropNorm = 0.0;
+       * if (Cur_Realm->Realm_Nonlinear.Constraint_Backtracking_Flag ==
+       * Constraint_Backtrack_Enable) {
+       * cropNorm = cropPredictor(mesh, x_pred_n, abs_time_error,
+       *		   m_reltol);
+       */
 
-	/*
-	 * Determine the integration order of the current step.
-	 *
-	 * Special case for start-up of time integration procedure
-	 *           First time step = Do a predictor step as we 
-	 *                             have recently added an initial
-	 *                             ydot input option. And, setting ydot=0
-	 *                             is equivalent to not doing a 
-	 *                             predictor step.
-	 *           Second step     = If 2nd order method, do a first order
-	 *                             step for this time-step, only.
-	 *
-	 *           If 2nd order method with a constant time step, the
-	 *           first and second steps are 1/10 the specified step, and
-	 *           the third step is 8/10 the specified step.  This reduces
-	 *           the error asociated with using lower order
-	 *           integration on the first two steps. (RCS 11-6-97)
-	 *
-	 * If the previous time step failed for one reason or another, 
-	 * do a linear step. It's more robust.
-	 */
-	if (m_time_step_num == 1) {
-	  m_order = 1;                          /* Backward Euler          */
-	}
-	else if (m_time_step_num == 2) {
-	  m_order = 1;                          /* Forward/Backward Euler  */
-	}
-	else if (step_failed) {
-	  m_order = 1;                          /* Forward/Backward Euler  */
-	}
-	else if (m_time_step_num > 2) {
-	  m_order = 1;                          /* Specified
-						   Predictor/Corrector 
-						   - not implemented */
-	}
-	
-	/*
-	 * Print out an initial statement about the step.
-	 */
+      /*
+       * Save the old solution, before overwriting with the new solution 
+       * - use
+       */
+      mdp_copy_dbl_1(m_y_nm1, m_y_n, m_neq);
+
+      /*
+       * Use the predicted value as the initial guess for the corrector 
+       * loop, for
+       * every step other than the first step.
+       */
+      if (m_order > 0) {
+	mdp_copy_dbl_1(m_y_n, m_y_pred_n, m_neq);
+      }
+
+      /*
+       * Save the old time derivative, if necessary, before it is 
+       * overwritten.
+       * This overwrites ydot_nm1, losing information from the previous time
+       * step.
+       */
+      mdp_copy_dbl_1(m_ydot_nm1, m_ydot_n, m_neq);
+
+      /*
+       * Calculate the new time derivative, ydot_n, that is consistent 
+       * with the
+       * initial guess for the corrected solution vector.
+       *
+       */
+      calc_ydot(m_order, m_y_n, m_ydot_n);
+
+      /*
+       * Calculate CJ, the coefficient for the jacobian corresponding to the
+       * derivative of the residual wrt to the acceleration vector.
+       */
+      if (m_order < 2) CJ = 1.0 / delta_t_n;
+      else             CJ = 2.0 / delta_t_n;
+
+      /*
+       * Calculate a new Solution Error Weighting vector
+       */
+      setSolnWeights();
+
+      /*
+       * Solve the system of equations at the current time step.
+       * Note - x_corr_n and x_dot_n are considered to be updated, 
+       * on return from this solution.
+       */
+      int ierror = solve_nonlinear_problem(m_y_n, m_ydot_n,
+					   CJ, time_n, *tdjac_ptr, num_newt_its,
+					   aztec_its, bktr_stps,
+					   nonlinearloglevel);
+      /*
+       * Set the appropriate flags if a convergence failure is detected.
+       */
+      if (ierror < 0) {                    /* Step failed */
+	convFailure = true;
+	step_failed = true;
+	rslt = "fail";
+	m_numTotalConvFails++;
+	m_failure_counter +=3;
 	if (m_print_flag > 1) {
-	  print_time_step1(m_order, m_time_step_num, time_n, delta_t_n,
-			   delta_t_nm1, step_failed, m_failure_counter);
+	  printf("\tStep is Rejected, nonlinear problem didn't converge,"
+		 "ierror = %d\n", ierror);
 	}
+      }
+      else {                               /* Step succeeded */
+	convFailure = false;
+	step_failed = false;
+	rslt = "done";
 
 	/*
-	 * Calculate the predicted solution, m_y_pred_n, for the current
-	 * time step.
-	 */
-	calc_y_pred(m_order);
-
-	/*
-	 * HKM - Commented this out. I may need it for particles later.
-	 * If Solution bounds checking is turned on, we need to crop the
-	 * predicted solution to make sure bounds are enforced
-	 *
-	 *
-	 * cropNorm = 0.0;
-	 * if (Cur_Realm->Realm_Nonlinear.Constraint_Backtracking_Flag ==
-	 * Constraint_Backtrack_Enable) {
-	 * cropNorm = cropPredictor(mesh, x_pred_n, abs_time_error,
-	 *		   m_reltol);
-	 */
-
-	/*
-	 * Save the old solution, before overwriting with the new solution 
-	 * - use
-	 */
-	mdp_copy_dbl_1(m_y_nm1, m_y_n, m_neq);
-
-	/*
-	 * Use the predicted value as the initial guess for the corrector 
-	 * loop, for
-	 * every step other than the first step.
-	 */
-	if (m_order > 0) {
-	  mdp_copy_dbl_1(m_y_n, m_y_pred_n, m_neq);
-	}
-
-	/*
-	 * Save the old time derivative, if necessary, before it is 
-	 * overwritten.
-	 * This overwrites ydot_nm1, losing information from the previous time
-	 * step.
-	 */
-	mdp_copy_dbl_1(m_ydot_nm1, m_ydot_n, m_neq);
-
-	/*
-	 * Calculate the new time derivative, ydot_n, that is consistent 
-	 * with the
-	 * initial guess for the corrected solution vector.
-	 *
-	 */
-	calc_ydot(m_order, m_y_n, m_ydot_n);
-
-	/*
-	 * Calculate CJ, the coefficient for the jacobian corresponding to the
-	 * derivative of the residual wrt to the acceleration vector.
-	 */
-	if (m_order < 2) CJ = 1.0 / delta_t_n;
-	else             CJ = 2.0 / delta_t_n;
-
-	/*
-	 * Calculate a new Solution Error Weighting vector
-	 */
-	setSolnWeights();
-
-	/*
-	 * Solve the system of equations at the current time step.
-	 * Note - x_corr_n and x_dot_n are considered to be updated, 
-	 * on return from this solution.
-	 */
-	int ierror = solve_nonlinear_problem(m_y_n, m_ydot_n,
-					     CJ, time_n, *tdjac_ptr, num_newt_its,
-					     aztec_its, bktr_stps,
-					     nonlinearloglevel);
-	/*
-	 * Set the appropriate flags if a convergence failure is detected.
-	 */
-	if (ierror < 0) {                    /* Step failed */
+	 *  Apply a filter to a new successful step
+	 */	  
+	normFilter = filterNewStep(time_n, m_y_n, m_ydot_n);
+	if (normFilter > 1.0) {
 	  convFailure = true;
 	  step_failed = true;
-	  rslt = "fail";
-	  m_numTotalConvFails++;
-	  m_failure_counter +=3;
+	  rslt = "filt";
 	  if (m_print_flag > 1) {
-	    printf("\tStep is Rejected, nonlinear problem didn't converge,"
-		   "ierror = %d\n", ierror);
+	    printf("\tStep is Rejected, too large filter adjustment = %g\n",
+		   normFilter);
 	  }
-	}
-	else {                               /* Step succeeded */
-	  convFailure = false;
-	  step_failed = false;
-	  rslt = "done";
-
-	  /*
-	   *  Apply a filter to a new successful step
-	   */	  
-	  normFilter = filterNewStep(time_n, m_y_n, m_ydot_n);
-	  if (normFilter > 1.0) {
-	    convFailure = true;
-	    step_failed = true;
-	    rslt = "filt";
+	} else if (normFilter > 0.0) {
+	  if (normFilter > 0.3) {
 	    if (m_print_flag > 1) {
-	      printf("\tStep is Rejected, too large filter adjustment = %g\n",
-		     normFilter);
-	    }
-	  } else if (normFilter > 0.0) {
-	    if (normFilter > 0.3) {
-	      if (m_print_flag > 1) {
-		printf("\tStep was filtered, norm = %g, next "
-		       "time step adjusted\n",  normFilter);
-	      }
-	    } else {
-	      if (m_print_flag > 1) {
-		printf("\tStep was filtered, norm = %g\n", normFilter);
-	      }
-	    }
-	  }
-	}
-
-	/*
-	 * Calculate the time step truncation error for the current step.
-	 */
-	if (!step_failed) {
-	  time_error_factor = time_error_norm();
-	} else {
-	  time_error_factor = 1000.;
-	}
-
-	/*
-	 * Dynamic time step control- delta_t_n, delta_t_nm1 are set here.
-	 */
-	if (step_failed) {
-	  /*
-	   * For convergence failures, decrease the step-size by a factor of
-	   *  4 and try again.
-	   */
-	  delta_t_np1 = 0.25 * delta_t_n;
-	}
-	else if (m_method == BEulerVarStep) {
-
-	  /*
-	   * If we are doing a predictor/corrector method, and we are
-	   * past a certain number of time steps given by the input file
-	   * then either correct the DeltaT for the next time step or
-	   * 
-	   */
-	  if ((m_order > 0) && 
-	      (m_time_step_num > m_numInitialConstantDeltaTSteps) ) {
-	    delta_t_np1 = time_step_control(m_order, time_error_factor);
-	    if (normFilter > 0.1) {
-	      if (delta_t_np1 > delta_t_n) delta_t_np1 = delta_t_n;
-	    }
-
-	    /*
-	     * Check for Current time step failing due to violation of 
-	     * time step
-	     * truncation bounds.
-	     */
-	    if (delta_t_np1 < 0.0) {
-	      m_numTotalTruncFails++;
-	      step_failed   = true;
-	      delta_t_np1   = -delta_t_np1;
-	      m_failure_counter += 2;
-	      comment += "TIME TRUNC FAILURE";
-	      rslt = "TRNC";
-	    }
-
-	    /*
-	     * Prevent churning of the time step by not increasing the 
-	     * time step,
-	     * if the recent "History" of the time step behavior is still bad
-	     */
-	    else if (m_failure_counter > 0) {
-	      delta_t_np1 = MIN(delta_t_np1, delta_t_n);
+	      printf("\tStep was filtered, norm = %g, next "
+		     "time step adjusted\n",  normFilter);
 	    }
 	  } else {
-	    delta_t_np1 = delta_t_n;
-	  }
-
-	  /* Decrease time step if a lot of Newton Iterations are
-	   * taken.
-	   * The idea being if more or less Newton iteration are taken
-	   * than the target number of iterations, then adjust the time
-	   * step downwards so that the target number of iterations or lower
-	   * is achieved. This
-	   * should prevent step failure by too many Newton iterations because
-	   * the time step becomes too large.  CCO 
-	   * hkm -> put in num_new_its min of 3 because the time step
-	   *        was being altered even when num_newt_its == 1
-	   */
-	  int max_Newton_steps = 10000;
-	  int target_num_iter  = 5;
-	  if (num_newt_its > 3000 && !step_failed) {
-	    if (max_Newton_steps != target_num_iter){
-	      double iter_diff        = num_newt_its     - target_num_iter;
-	      double iter_adjust_zone = max_Newton_steps - target_num_iter;
-	      double target_time_step = delta_t_n
-		  *(1.0 - iter_diff*fabs(iter_diff)/
-		    ((2.0*iter_adjust_zone*iter_adjust_zone)));
-	      target_time_step = MAX(0.5*delta_t_n, target_time_step);
-	      if (target_time_step < delta_t_np1) {
-		printf("\tNext time step will be decreased from %g to %g"
-		       " because of new its restraint\n", 
-		       delta_t_np1, target_time_step);
-		delta_t_np1 = target_time_step;
-	      }
+	    if (m_print_flag > 1) {
+	      printf("\tStep was filtered, norm = %g\n", normFilter);
 	    }
-	  }	
-
-	
-	}
-
-	/*
-	 * The final loop in the time stepping algorithm depends on whether the
-	 * current step was a success or not.
-	 */
-	if (step_failed) {
-	  /*
-	   * Increment the counter indicating the number of consecutive
-	   * failures
-	   */
-	  numTSFailures++;
-	  /*
-	   * Print out a statement about the failure of the time step.
-	   */
-	  if (m_print_flag > 1) {
-	    print_time_fail(convFailure, m_time_step_num, time_n, delta_t_n,
-			    delta_t_np1, time_error_factor);
-	  } else if (m_print_flag == 1) {
-	    print_lvl1_summary(m_time_step_num, time_n, rslt, delta_t_n,
-			       num_newt_its, aztec_its, bktr_stps,
-			       time_error_factor,
-			       comment.c_str());
 	  }
-
-	  /*
-	   * Change time step counters back to the previous step before
-	   * the failed
-	   * time step occurred.
-	   */
-	  time_n     -= delta_t_n;
-	  delta_t_n   = delta_t_nm1;
-	  delta_t_nm1 = delta_t_nm2;
-
-	  /*
-	   * Replace old solution vector and time derivative solution vector.
-	   */
-	  dcopy_(&m_neq, m_y_nm1, &one, m_y_n, &one);
-	  dcopy_(&m_neq, m_ydot_nm1, &one, m_ydot_n,  &one);
-	  /*
-	   * Decide whether to bail on the whole loop
-	   */
-	  if (numTSFailures > 35) giveUp = true;
 	}
+      }
 
-	/*
-	 * Do processing for a successful step.
-	 */
-	else {
-
-	  /*
-	   * Decrement the number of consequative failure counter.
-	   */
-	  m_failure_counter = MAX(0, m_failure_counter-1);
-
-	  /*
-	   * Print out final results of a successfull time step.
-	   */
-	  if (m_print_flag > 1) {
-	    print_time_step2(m_time_step_num, m_order, time_n, time_error_factor,
-			     delta_t_n, delta_t_np1);
-	  }
-	  else if (m_print_flag == 1) {
-	    print_lvl1_summary(m_time_step_num, time_n, "    ", delta_t_n,
-			       num_newt_its, aztec_its, bktr_stps, time_error_factor,
-			       comment.c_str());
-	  }
-
-	  /*
-	   * Output information at the end of every successful time step, if
-	   * requested.
-	   *
-	   * fill in
-	   */
-
-
-	}
-      } while (step_failed && !giveUp);
- 
       /*
-       * Send back the overall result of the time step.
+       * Calculate the time step truncation error for the current step.
+       */
+      if (!step_failed) {
+	time_error_factor = time_error_norm();
+      } else {
+	time_error_factor = 1000.;
+      }
+
+      /*
+       * Dynamic time step control- delta_t_n, delta_t_nm1 are set here.
        */
       if (step_failed) {
-	if (time_n == 0.0) return -1234.0;
-	return -time_n;
+	/*
+	 * For convergence failures, decrease the step-size by a factor of
+	 *  4 and try again.
+	 */
+	delta_t_np1 = 0.25 * delta_t_n;
       }
-      return time_n;
+      else if (m_method == BEulerVarStep) {
+
+	/*
+	 * If we are doing a predictor/corrector method, and we are
+	 * past a certain number of time steps given by the input file
+	 * then either correct the DeltaT for the next time step or
+	 * 
+	 */
+	if ((m_order > 0) && 
+	    (m_time_step_num > m_numInitialConstantDeltaTSteps) ) {
+	  delta_t_np1 = time_step_control(m_order, time_error_factor);
+	  if (normFilter > 0.1) {
+	    if (delta_t_np1 > delta_t_n) delta_t_np1 = delta_t_n;
+	  }
+
+	  /*
+	   * Check for Current time step failing due to violation of 
+	   * time step
+	   * truncation bounds.
+	   */
+	  if (delta_t_np1 < 0.0) {
+	    m_numTotalTruncFails++;
+	    step_failed   = true;
+	    delta_t_np1   = -delta_t_np1;
+	    m_failure_counter += 2;
+	    comment += "TIME TRUNC FAILURE";
+	    rslt = "TRNC";
+	  }
+
+	  /*
+	   * Prevent churning of the time step by not increasing the 
+	   * time step,
+	   * if the recent "History" of the time step behavior is still bad
+	   */
+	  else if (m_failure_counter > 0) {
+	    delta_t_np1 = MIN(delta_t_np1, delta_t_n);
+	  }
+	} else {
+	  delta_t_np1 = delta_t_n;
+	}
+
+	/* Decrease time step if a lot of Newton Iterations are
+	 * taken.
+	 * The idea being if more or less Newton iteration are taken
+	 * than the target number of iterations, then adjust the time
+	 * step downwards so that the target number of iterations or lower
+	 * is achieved. This
+	 * should prevent step failure by too many Newton iterations because
+	 * the time step becomes too large.  CCO 
+	 * hkm -> put in num_new_its min of 3 because the time step
+	 *        was being altered even when num_newt_its == 1
+	 */
+	int max_Newton_steps = 10000;
+	int target_num_iter  = 5;
+	if (num_newt_its > 3000 && !step_failed) {
+	  if (max_Newton_steps != target_num_iter){
+	    double iter_diff        = num_newt_its     - target_num_iter;
+	    double iter_adjust_zone = max_Newton_steps - target_num_iter;
+	    double target_time_step = delta_t_n
+	      *(1.0 - iter_diff*fabs(iter_diff)/
+		((2.0*iter_adjust_zone*iter_adjust_zone)));
+	    target_time_step = MAX(0.5*delta_t_n, target_time_step);
+	    if (target_time_step < delta_t_np1) {
+	      printf("\tNext time step will be decreased from %g to %g"
+		     " because of new its restraint\n", 
+		     delta_t_np1, target_time_step);
+	      delta_t_np1 = target_time_step;
+	    }
+	  }
+	}	
+
+	
+      }
+
+      /*
+       * The final loop in the time stepping algorithm depends on whether the
+       * current step was a success or not.
+       */
+      if (step_failed) {
+	/*
+	 * Increment the counter indicating the number of consecutive
+	 * failures
+	 */
+	numTSFailures++;
+	/*
+	 * Print out a statement about the failure of the time step.
+	 */
+	if (m_print_flag > 1) {
+	  print_time_fail(convFailure, m_time_step_num, time_n, delta_t_n,
+			  delta_t_np1, time_error_factor);
+	} else if (m_print_flag == 1) {
+	  print_lvl1_summary(m_time_step_num, time_n, rslt, delta_t_n,
+			     num_newt_its, aztec_its, bktr_stps,
+			     time_error_factor,
+			     comment.c_str());
+	}
+
+	/*
+	 * Change time step counters back to the previous step before
+	 * the failed
+	 * time step occurred.
+	 */
+	time_n     -= delta_t_n;
+	delta_t_n   = delta_t_nm1;
+	delta_t_nm1 = delta_t_nm2;
+
+	/*
+	 * Replace old solution vector and time derivative solution vector.
+	 */
+	dcopy_(&m_neq, m_y_nm1, &one, m_y_n, &one);
+	dcopy_(&m_neq, m_ydot_nm1, &one, m_ydot_n,  &one);
+	/*
+	 * Decide whether to bail on the whole loop
+	 */
+	if (numTSFailures > 35) giveUp = true;
+      }
+
+      /*
+       * Do processing for a successful step.
+       */
+      else {
+
+	/*
+	 * Decrement the number of consequative failure counter.
+	 */
+	m_failure_counter = MAX(0, m_failure_counter-1);
+
+	/*
+	 * Print out final results of a successfull time step.
+	 */
+	if (m_print_flag > 1) {
+	  print_time_step2(m_time_step_num, m_order, time_n, time_error_factor,
+			   delta_t_n, delta_t_np1);
+	}
+	else if (m_print_flag == 1) {
+	  print_lvl1_summary(m_time_step_num, time_n, "    ", delta_t_n,
+			     num_newt_its, aztec_its, bktr_stps, time_error_factor,
+			     comment.c_str());
+	}
+
+	/*
+	 * Output information at the end of every successful time step, if
+	 * requested.
+	 *
+	 * fill in
+	 */
+
+
+      }
+    } while (step_failed && !giveUp);
+ 
+    /*
+     * Send back the overall result of the time step.
+     */
+    if (step_failed) {
+      if (time_n == 0.0) return -1234.0;
+      return -time_n;
     }
+    return time_n;
+  }
 
 
 
@@ -1621,16 +1592,6 @@ namespace Cantera {
   const double DampFactor = 4;
   const int NDAMP = 10;
 
-  //-----------------------------------------------------------
-  //                 Static Functions
-  //-----------------------------------------------------------
-
-  static void print_line(const char *str, int n)  {
-    for (int i = 0; i < n; i++) {
-      printf("%s", str);
-    }
-    printf("\n");
-  }
 
   //-----------------------------------------------------------
   //                 MultiNewton methods
@@ -2307,8 +2268,8 @@ namespace Cantera {
     }
     return m;
   }
- 
-  /***************************************************************8
+  //================================================================================================
+  /*
    *
    *
    */
@@ -2363,8 +2324,7 @@ namespace Cantera {
     printf("\t\t   "); print_line("-", 90);
     mdp_safe_free((void **) &imax);
   }
+  //===============================================================================================
 
-
-
-}
+} // End of namespace Cantera
 

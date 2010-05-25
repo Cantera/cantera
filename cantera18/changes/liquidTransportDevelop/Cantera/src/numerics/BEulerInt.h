@@ -28,6 +28,7 @@
 #include "NonlinearSolver.h"
 
 #include "mdp_allo.h"
+
 #ifndef MAX
 #  define MAX(x,y)    (( (x) > (y) ) ? (x) : (y))
 #endif
@@ -68,10 +69,10 @@ namespace Cantera {
   class BEulerInt : public Integrator {
 
   public:
-    /**
-     * The default constructor doesn't take an argument.
-     */
+    
+    //! The default constructor doesn't take an argument.
     BEulerInt();
+    //! Destructor
     virtual ~BEulerInt();
     virtual void setTolerances(double reltol, int n, double* abstol);
     virtual void setTolerances(double reltol, double abstol);
