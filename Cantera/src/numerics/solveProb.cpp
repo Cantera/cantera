@@ -66,6 +66,8 @@ namespace Cantera {
   
     // Dimension solution vector
     int dim1 = MAX(1, m_neq);
+
+    m_atol.resize(dim1, 0.0);
     m_netProductionRatesSave.resize(dim1, 0.0);
     m_numEqn1.resize(dim1, 0.0);
     m_numEqn2.resize(dim1, 0.0);
@@ -76,13 +78,14 @@ namespace Cantera {
     m_wtResid.resize(dim1, 0.0);
     m_wtSpecies.resize(dim1, 0.0);
     m_resid.resize(dim1, 0.0);
-    m_ipiv.resize(dim1, 0);
-    
+    m_ipiv.resize(dim1, 0); 
+
     m_Jac.resize(dim1, dim1, 0.0);
     m_JacCol.resize(dim1, 0);
     for (int k = 0; k < dim1; k++) {
       m_JacCol[k] = m_Jac.ptrColumn(k);
-    }
+    } 
+  
   }
   //================================================================================================ 
   // Empty destructor
