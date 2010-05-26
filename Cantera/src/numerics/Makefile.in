@@ -42,7 +42,7 @@ NUMERICS_H     = ArrayViewer.h   DenseMatrix.h \
                  polyfit.h\
                  BandMatrix.h Integrator.h DAE_Solver.h ResidEval.h sort.h \
                  SquareMatrix.h ResidJacEval.h NonlinearSolver.h \
-                 solveProb.h BEulerInt.h rootFind.h
+                 solveProb.h BEulerInt.h RootFind.h
 
 ifeq ($(use_sundials), 1)
   ODEPACKAGE_H        = CVodesIntegrator.h 
