@@ -859,7 +859,7 @@ namespace Cantera {
 
     /// Molar internal energy. Units: J/kmol. 
     virtual doublereal intEnergy_mole() const {
-      return err("intEnergy_mole");
+      return enthalpy_mole() - pressure()* molarVolume();
     }
 
     /// Molar entropy. Units: J/kmol/K. 
@@ -869,7 +869,7 @@ namespace Cantera {
 
     /// Molar Gibbs function. Units: J/kmol. 
     virtual doublereal gibbs_mole() const {
-      return err("gibbs_mole");
+      return enthalpy_mole() - temperature()*entropy_mole();
     }
 
     /// Molar heat capacity at constant pressure. Units: J/kmol/K. 

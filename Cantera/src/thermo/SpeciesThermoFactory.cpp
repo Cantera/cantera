@@ -829,7 +829,7 @@ namespace Cantera {
 					  f0->name() + " and " + f1->name());
 	}
       }
-      else if (nc >= 2) {
+      else if (nc > 2) {
 	const XML_Node* f0 = tp[0];
 	if (f0->name() == "NASA9") {
 	  installNasa9ThermoFromXML(speciesNode["name"], spthermo, k, tp);

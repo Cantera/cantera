@@ -525,7 +525,18 @@ namespace Cantera {
      */
     virtual void getChemPotentials(doublereal* mu) const;
 
-  
+      /// Molar enthalpy. Units: J/kmol. 
+    virtual doublereal enthalpy_mole() const;
+
+      /// Molar entropy. Units: J/kmol. 
+    virtual doublereal entropy_mole() const;
+
+    /// Molar heat capacity at constant pressure. Units: J/kmol/K. 
+    virtual doublereal cp_mole() const;
+
+    /// Molar heat capacity at constant volume. Units: J/kmol/K. 
+    virtual doublereal cv_mole() const;
+
     //! Returns an array of partial molar enthalpies for the species
     //! in the mixture.
     /*!
@@ -563,6 +574,28 @@ namespace Cantera {
      *              (length m_kk, units = J/kmol/K)
      */
     virtual void getPartialMolarEntropies(doublereal* sbar) const;
+
+    //! Returns an array of partial molar entropies for the species
+    //! in the mixture.
+    /*!
+     * Units (J/kmol)
+     *
+     * For this phase, the partial molar enthalpies are equal to the
+     * standard state enthalpies modified by the derivative of the
+     * activity coefficent wrt temperature
+     *
+     *  \f[
+     *   ???????????????
+     *   \bar s_k(T,P) = s^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}
+     *                              - R \ln( \gamma_k X_k)
+     *                              - R T \frac{d \ln(\gamma_k) }{dT}
+     *   ???????????????
+     *  \f]
+     *
+     * @param cpbar  Vector of returned partial molar heat capacities
+     *              (length m_kk, units = J/kmol/K)
+     */
+    virtual void getPartialMolarCp(doublereal* cpbar) const;
 
     
     //! Return an array of partial molar volumes for the
@@ -603,6 +636,19 @@ namespace Cantera {
      *
      */
     virtual void getdlnActCoeff(const doublereal dT, const doublereal * const dX, doublereal *dlnActCoeffdT) const;
+
+    //! Get the array of temperature second derivatives of the log activity coefficients
+    /*!
+     * This function is a virtual class, but it first appears in GibbsExcessVPSSTP
+     * class and derived classes from GibbsExcessVPSSTP.
+     *
+     *  units = 1/Kelvin
+     *
+     * @param d2lnActCoeffdT2  Output vector of temperature 2nd derivatives of the 
+     *                         log Activity Coefficients. length = m_kk
+     *
+     */
+    virtual void getd2lnActCoeffdT2(doublereal *d2lnActCoeffdT2) const;
 
     //! Get the array of temperature derivatives of the log activity coefficients
     /*!
