@@ -324,6 +324,13 @@ namespace Cantera {
       return m_index[i].first;
     }
 
+    //! Get the vector of activity concentrations used in the kinetics object
+    /*!
+     *  @param conc  (output) Vector of activity concentrations. Length is 
+     *               equal to the number of species in the kinetics object
+     */
+    virtual void getActivityConcentrations(doublereal * const conc);
+
     //! Return the charge transfer rxn Beta parameter for the ith reaction
     /*!
      *  Returns the beta parameter for a charge transfer reaction. This 
