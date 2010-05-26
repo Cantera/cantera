@@ -408,6 +408,43 @@ namespace Cantera {
     }
   }
 
+      /// Molar enthalpy. Units: J/kmol. 
+    doublereal MargulesVPSSTP::enthalpy_mole() const {
+      int kk = nSpecies();
+      double hbar[kk], h = 0;
+      getPartialMolarEnthalpies(hbar);
+      for (int i = 0; i < kk; i++){
+	h += moleFractions_[i]*hbar[i];
+      }
+      return h;
+    }
+
+      /// Molar entropy. Units: J/kmol. 
+    doublereal MargulesVPSSTP::entropy_mole() const {
+      int kk = nSpecies();
+      double sbar[kk], s = 0;
+      getPartialMolarEntropies(sbar);
+      for (int i = 0; i < kk; i++){
+	s += moleFractions_[i]*sbar[i];
+      }
+      return s;
+    }
+
+    /// Molar heat capacity at constant pressure. Units: J/kmol/K. 
+    doublereal MargulesVPSSTP::cp_mole() const {
+      int kk = nSpecies();
+      double cpbar[kk], cp = 0;
+      getPartialMolarCp(cpbar);
+      for (int i = 0; i < kk; i++){
+	cp += moleFractions_[i]*cpbar[i];
+      }
+      return cp;
+    }
+
+    /// Molar heat capacity at constant volume. Units: J/kmol/K. 
+    doublereal MargulesVPSSTP::cv_mole() const {
+      return cp_mole() - GasConstant;
+    }
  
   // Returns an array of partial molar enthalpies for the species
   // in the mixture.
@@ -445,6 +482,44 @@ namespace Cantera {
     double RTT = RT * T;
     for (int k = 0; k < m_kk; k++) {
       hbar[k] -= RTT * dlnActCoeffdT_Scaled_[k];
+    }
+  }
+
+  // Returns an array of partial molar heat capacities for the species
+  // in the mixture.
+  /*
+   * Units (J/kmol)
+   *
+   * For this phase, the partial molar enthalpies are equal to the
+   * standard state enthalpies modified by the derivative of the
+   * activity coefficent wrt temperature
+   *
+   *  \f[
+   * ??????????? \bar s_k(T,P) = s^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}
+   * \f]
+   *
+   */
+  void MargulesVPSSTP::getPartialMolarCp(doublereal* cpbar) const {
+    /*
+     * Get the nondimensional standard state entropies
+     */
+    getCp_R(cpbar);
+    double T = temperature();
+    /*
+     * Update the activity coefficients, This also update the
+     * internally storred molalities.
+     */
+    s_update_lnActCoeff();
+    s_update_dlnActCoeff_dT();
+
+    for (int k = 0; k < m_kk; k++) {
+      cpbar[k] -= 2 * T * dlnActCoeffdT_Scaled_[k] + T * T * d2lnActCoeffdT2_Scaled_[k];
+    }  
+    /*
+     * dimensionalize it.
+     */
+   for (int k = 0; k < m_kk; k++) {
+      cpbar[k] *= GasConstant;
     }
   }
 
@@ -733,6 +808,7 @@ namespace Cantera {
     double RTT = GasConstant*T*T;
 
     fvo_zero_dbl_1(dlnActCoeffdT_Scaled_, m_kk);
+    fvo_zero_dbl_1(d2lnActCoeffdT2_Scaled_, m_kk);
     
     for ( iK = 0; iK < m_kk; iK++ ){
 
@@ -755,7 +831,9 @@ namespace Cantera {
 	g0 = -m_HE_b_ij[i] / RTT;
 	g1 = -m_HE_c_ij[i] / RTT;
 	
-	dlnActCoeffdT_Scaled_[iK] += (delAK*XB+XA*delBK-XA*XB)*(g0+g1*XB)+XA*XB*(delBK-XB)*g1;
+	double temp = (delAK*XB+XA*delBK-XA*XB)*(g0+g1*XB)+XA*XB*(delBK-XB)*g1;
+	dlnActCoeffdT_Scaled_[iK] += temp;
+	d2lnActCoeffdT2_Scaled_[iK] -= 2*temp/T;
       }
     }
   }
@@ -790,6 +868,13 @@ namespace Cantera {
     s_update_dlnActCoeff_dT();
     for (int k = 0; k < m_kk; k++) {
       dlnActCoeffdT[k] = dlnActCoeffdT_Scaled_[k];
+    }
+  }
+
+  void MargulesVPSSTP::getd2lnActCoeffdT2(doublereal *d2lnActCoeffdT2) const {
+    s_update_dlnActCoeff_dT();
+    for (int k = 0; k < m_kk; k++) {
+      d2lnActCoeffdT2[k] = d2lnActCoeffdT2_Scaled_[k];
     }
   }
 
