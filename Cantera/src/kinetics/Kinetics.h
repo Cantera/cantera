@@ -654,8 +654,10 @@ namespace Cantera {
       return -1.0;
     }
 
-    /**
-     * reactant Order of species k in reaction i.  
+    //! Reactant order of species k in reaction i.  
+    /*!
+     * This is the nominal order of the activity concentration in
+     * determining the forward rate of progress of the reaction
      *
      * @param k   kinetic species index
      * @param i   reaction index
@@ -663,6 +665,30 @@ namespace Cantera {
     virtual doublereal reactantOrder(int k, int i) const {
       err("reactantOrder");
       return -1.0;
+    }
+
+    //! product Order of species k in reaction i.  
+    /*!
+     * This is the nominal order of the activity concentration of species k in
+     * determining the reverse rate of progress of the reaction i
+     *
+     * For irreversible reactions, this will all be zero.
+     *
+     * @param k   kinetic species index
+     * @param i   reaction index
+     */
+    virtual doublereal productOrder(int k, int i) const {
+      err("productOrder");
+      return -1.0;
+    }
+
+    //! Get the vector of activity concentrations used in the kinetics object
+    /*!
+     *  @param conc  (output) Vector of activity concentrations. Length is 
+     *               equal to the number of species in the kinetics object
+     */
+    virtual void getActivityConcentrations(doublereal * const conc) {
+      err("getActivityConcentrations");
     }
 
     /**

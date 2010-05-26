@@ -296,6 +296,17 @@ namespace Cantera {
   }
 
 
+  // Get the vector of activity concentrations used in the kinetics object
+  /*
+   *  @param conc  (output) Vector of activity concentrations. Length is 
+   *               equal to the number of species in the kinetics object
+   */
+  void InterfaceKinetics::getActivityConcentrations(doublereal * const conc) {
+    _update_rates_C();
+    copy(m_conc.begin(), m_conc.end(), conc);
+  }
+
+
   /**
    * Update the equilibrium constants in molar units for all
    * reversible reactions. Irreversible reactions have their 
