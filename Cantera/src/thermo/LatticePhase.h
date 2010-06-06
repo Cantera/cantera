@@ -274,6 +274,20 @@ namespace Cantera {
      */
     LatticePhase& operator=(const LatticePhase& right);
 
+    //! Full constructor for a lattice phase
+    /*!
+     * @param inputFile String name of the input file
+     * @param id        string id of the phase name
+     */
+    LatticePhase(std::string inputFile, std::string id = "");
+
+    //! Full constructor for a water phase
+    /*!
+     * @param phaseRef  XML node referencing the lattice phase.
+     * @param id        string id of the phase name
+     */
+    LatticePhase(XML_Node& phaseRef, std::string id = "");
+
     //! Destructor
     virtual ~LatticePhase();
 
@@ -287,6 +301,31 @@ namespace Cantera {
      */
     ThermoPhase *duplMyselfAsThermoPhase() const;
 
+  /*
+   * @param infile XML file containing the description of the
+   *        phase
+   *
+   * @param id  Optional parameter identifying the name of the
+   *            phase. If none is given, the first XML
+   *            phase element will be used.
+   */
+    void constructPhaseXML(XML_Node& phaseNode, std::string idTarget);
+
+ /*
+   * constructPhaseFile
+   *
+   *
+   * This routine is a precursor to constructPhaseXML(XML_Node*)
+   * routine, which does most of the work.
+   *
+   * @param inputFile XML file containing the description of the
+   *        phase
+   *
+   * @param id  Optional parameter identifying the name of the
+   *            phase. If none is given, the first XML
+   *            phase element will be used.
+   */
+    void constructPhaseFile(std::string inputFile, std::string id);
 
     //! Equation of state flag. Returns the value cLattice
     virtual int eosType() const { return cLattice; }
@@ -814,6 +853,8 @@ namespace Cantera {
 
     //! Molar density of the lattice solid
     /*!
+     *  Currently, this does not change as a function of T, P or composition
+     *
      *  units are kmol m-3
      */
     doublereal            m_molar_density;

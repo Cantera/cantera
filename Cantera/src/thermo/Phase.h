@@ -138,6 +138,37 @@ namespace Cantera {
    *  vector, which is in general of length (2 + nSpecies()). The first
    *  two entries of the state vector is temperature and density.
    *
+   *  The class Phase contains two strings that identify a phase.
+   *  The string id() is the value of the ID attribute of the XML phase node
+   *  that is used to initialize a phase when it is read it.
+   *  The id() field will stay that way even if the name is changed.
+   *  The name field is also set to the value of the ID attribute of 
+   *  the XML phase node.
+   *
+   *  However, the name field  may be changed to another value during the course of a calculation.
+   *  For example, if a phase is located in two places, but has the same 
+   *  constituitive input, the id's of the two phases will be the same,
+   *  but the names of the two phases may be different. 
+   *
+   *  The name of a phase can be the same as the id of that same phase.
+   *  Actually, this is the default and normal condition to have the name and
+   *  the id for each phase to be the same. However, it is expected that
+   *  it's an error to have two phases in a single problem with the same name.
+   *  or the same id (or the name from one phase being the same as the id
+   *  of another phase).
+   *  Thus, it is expected that there is a 1-1 correspondence between
+   *  names and unique phases within a Cantera problem. 
+   *
+   *  A species name may be referred to via three methods:
+   *
+   *    -   "speciesName"
+   *    -   "PhaseId:speciesName"
+   *    -   "phaseName:speciesName"
+   *    .   
+   *
+   *  The first two methods of naming may not yield a unique species within
+   *  complicated assemblies of Cantera Phases.
+   *
    *
    *  @todo
    *   Make the concept of saving state vectors more general, so that
@@ -236,6 +267,39 @@ namespace Cantera {
      * @param m Integer index of the phase
      */
     void setIndex(int m);
+
+    //! Returns the index of a species named 'name' within the Phase object
+    /*!
+     * The first species in the phase will have an index 0, and the last one in the
+     * phase will have an index of nSpecies() - 1.
+     *
+     *  A species name may be referred to via three methods:
+     *
+     *    -   "speciesName"
+     *    -   "PhaseId:speciesName"
+     *    -   "phaseName:speciesName"
+     *    .   
+     *
+     *  The first two methods of naming may not yield a unique species within
+     *  complicated assemblies of Cantera phases. The last method is guarranteed
+     *  to be unique within a collection of Cantera phases.
+     *
+     * @param name String name of the species. It may also be the phase name
+     *             species name combination, separated by a colon.
+     * @return     Returns the index of the species. If the name is not found,
+     *             the value of -1 is returned.
+     */
+    int speciesIndex(std::string name) const;
+
+    //! Returns the expanded species name of a species, including the phase name
+    /*!
+     *  Returns the expanded phase name species name string.
+     *  This is guarranteed to be unique within a Cantera problem.
+     *
+     * @param k  Species index within the phase
+     * @return   Returns the "phaseName:speciesName" string
+     */
+    std::string speciesSPName(int k) const;
 
     //! Save the current internal state of the phase
     /*!
@@ -530,12 +594,22 @@ namespace Cantera {
     //! ID of the phase.
     /*!
      * This is the value of the ID attribute of the XML phase node.
+     * The field will stay that way even if the name is changed.
      */
     std::string m_id;
 
     //! Name of the phase.
     /*!
      * Initially, this is the value of the ID attribute of the XML phase node.
+     *
+     * It may be changed to another value during the course of a calculation.
+     * for example, if a phase is located in two places, but has the same 
+     * constituitive input, the id's of the two phases will be the same,
+     * but the names of the two phases may be different. 
+     *
+     * The name can be the same as the id, within a phase. However, besides
+     * that case, it is expected that there is a 1-1 correspondence between
+     * names and unique phases within a Cantera problem. 
      */
     std::string m_name;
   };

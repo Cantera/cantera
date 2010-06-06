@@ -23,8 +23,10 @@
 #include "mix_defs.h"
 #include "LatticePhase.h"
 #include "SpeciesThermo.h"
+#include "ThermoFactory.h"
 
 #include <cmath>
+#include <string>
 
 namespace Cantera {
 
@@ -70,7 +72,27 @@ namespace Cantera {
   // Destructor
   LatticePhase::~LatticePhase() {
   }
+ 
+
+  // Full constructor for a lattice phase
+  /*
+   * @param inputFile String name of the input file
+   * @param id        string id of the phase name
+   */
+  LatticePhase::LatticePhase(std::string inputFile, std::string id) {
+    constructPhaseFile(inputFile, id);
+  }
   
+  // Full constructor for a water phase
+  /*
+   * @param phaseRef  XML node referencing the lattice phase.
+   * @param id        string id of the phase name
+   */
+  LatticePhase::LatticePhase(XML_Node& phaseRef, std::string id) {
+    constructPhaseXML(phaseRef, id);
+  }
+
+
   // Duplication function
   /*
    * This virtual function is used to create a duplicate of the
@@ -84,6 +106,75 @@ namespace Cantera {
     return (ThermoPhase *) igp;
   }
   
+  /*
+   * @param infile XML file containing the description of the
+   *        phase
+   *
+   * @param id  Optional parameter identifying the name of the
+   *            phase. If none is given, the first XML
+   *            phase element will be used.
+   */
+  void LatticePhase::constructPhaseXML(XML_Node& phaseNode, std::string idTarget) {
+    std::string idattrib = phaseNode.id();
+    if (idTarget != idattrib) {
+      throw CanteraError("LatticePhase::constructPhaseXML","ids don't match");
+    }
+
+    /*
+     * Call the Cantera importPhase() function. This will import
+     * all of the species into the phase. This will also handle
+     * all of the solvent and solute standard states.
+     */
+    bool m_ok = importPhase(phaseNode, this);
+    if (!m_ok) {
+      throw CanteraError("LatticePhase::constructPhaseXML","importPhase failed ");
+    }
+  }
+
+  /*
+   * constructPhaseFile
+   *
+   *
+   * This routine is a precursor to constructPhaseXML(XML_Node*)
+   * routine, which does most of the work.
+   *
+   * @param inputFile XML file containing the description of the
+   *        phase
+   *
+   * @param id  Optional parameter identifying the name of the
+   *            phase. If none is given, the first XML
+   *            phase element will be used.
+   */
+  void LatticePhase::constructPhaseFile(std::string inputFile, std::string id) {
+
+    if (inputFile.size() == 0) {
+      throw CanteraError("LatticePhase::constructPhaseFile",
+                         "input file is null");
+    }
+    std::string path = findInputFile(inputFile);
+    std::ifstream fin(path.c_str());
+    if (!fin) {
+      throw CanteraError("LatticePhase::constructPhaseFile","could not open "
+                         +path+" for reading.");
+    }
+    /*
+     * The phase object automatically constructs an XML object.
+     * Use this object to store information.
+     */
+    XML_Node &phaseNode_XML = xml();
+    XML_Node *fxml = new XML_Node();
+    fxml->build(fin);
+    XML_Node *fxml_phase = findXMLPhase(fxml, id);
+    if (!fxml_phase) {
+      throw CanteraError("LatticePhase::constructPhaseFile",
+                         "ERROR: Can not find phase named " +
+                         id + " in file named " + inputFile);
+    }
+    fxml_phase->copy(&phaseNode_XML);
+    constructPhaseXML(*fxml_phase, id);
+    delete fxml;
+  }
+
   
   doublereal LatticePhase::
   enthalpy_mole() const {
@@ -247,7 +338,7 @@ namespace Cantera {
   }
 
   void LatticePhase::setParametersFromXML(const XML_Node& eosdata) {
-    eosdata._require("model","Lattice");
+    eosdata._require("model", "Lattice");
     m_molar_density = getFloat(eosdata, "site_density", "toSI");
     m_vacancy = getChildValue(eosdata, "vacancy_species");
   }

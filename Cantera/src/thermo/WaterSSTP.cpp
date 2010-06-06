@@ -162,13 +162,13 @@ namespace Cantera {
   void WaterSSTP::constructPhaseFile(std::string inputFile, std::string id) {
 
     if (inputFile.size() == 0) {
-      throw CanteraError("WaterTp::initThermo",
+      throw CanteraError("WaterSSTP::constructPhaseFile",
 			 "input file is null");
     }
     std::string path = findInputFile(inputFile);
     std::ifstream fin(path.c_str());
     if (!fin) {
-      throw CanteraError("WaterSSTP::initThermo","could not open "
+      throw CanteraError("WaterSSTP::constructPhaseFile","could not open "
 			 +path+" for reading.");
     }
     /*
@@ -180,7 +180,7 @@ namespace Cantera {
     fxml->build(fin);
     XML_Node *fxml_phase = findXMLPhase(fxml, id);
     if (!fxml_phase) {
-      throw CanteraError("WaterSSTP::initThermo",
+      throw CanteraError("WaterSSTP::constructPhaseFile",
 			 "ERROR: Can not find phase named " +
 			 id + " in file named " + inputFile);
     }
