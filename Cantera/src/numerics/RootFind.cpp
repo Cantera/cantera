@@ -119,7 +119,10 @@ namespace Cantera {
     m_atol(1.0E-11),
     m_rtol(1.0E-5),
     m_maxstep(1000),
-    printLvl(9)
+    printLvl(0),
+    DeltaXnorm_(0.01),
+    FuncIsGenerallyIncreasing_(false),
+    FuncIsGenerallyDecreasing_(false)
   {
   
   }
@@ -129,15 +132,24 @@ namespace Cantera {
   }
   //================================================================================================
   /*
-   * The following calculation is a Newton's method to
-   * get the surface fractions of the surface and bulk species by 
-   * requiring that the
-   * surface species production rate = 0 and that the bulk fractions are
-   * proportional to their production rates. 
+   * The following calculation is a line search method to find the root of a function
+   * 
+   *
+   *   xbest   Returns the x that satisfies the function
+   *           On input, xbest should contain the best estimate
+   *
+   *   return:
+   *    0  Found function
    */
   int RootFind::solve(double xmin, double xmax, int itmax, double funcTargetValue, double *xbest) {
 
+    /*
+     *   We store the function target and then actually calculate a modified functional
+     *
+     *       func = eval(x1) -  m_funcTargetValue = 0
+     */
     m_funcTargetValue = funcTargetValue;
+
     static int callNum = 0;
     const char *stre = "RootFind ERROR: ";
     const char *strw = "RootFind WARNING: ";
@@ -155,9 +167,9 @@ namespace Cantera {
     int foundStraddle = 0;
     double xPosF = 0.0;
     double xNegF = 0.0;
-    double fnorm;   /* A valid norm for the making the function value
-		     * dimensionless */
-    double c[9], f[3], xn1, xn2, x0 = 0.0, f0 = 0.0, root, theta, xquad;
+    double fnorm;   /* A valid norm for the making the function value  dimensionless */
+    double c[9], f[3], xn1, xn2, x0 = 0.0, f0 = 0.0, root, theta, xquad, xDelMin;
+    double CR0, CR1, CR2, CRnew, CRdenom;
 
     callNum++;
 #ifdef DEBUG_MODE
@@ -177,6 +189,10 @@ namespace Cantera {
       writelogf("%sxmin and xmax are bad: %g %g\n", stre, xmin, xmax);
       return ROOTFIND_BADINPUT;
     }
+    /*
+     *  Find the first function value f1 = func(x1), by using the value entered into xbest.
+     *  Process it 
+     */
     x1 = *xbest;
     if (x1 < xmin || x1 > xmax) {
       x1 = (xmin + xmax) / 2.0;     
@@ -202,12 +218,16 @@ namespace Cantera {
       xNegF = x1;
     }
 
-    x2 = x1 * 1.1;
+    if (x1 == 0.0) {
+      x2 = 0.00001 * (xmax - xmin);
+    } else {
+      x2 = x1 * 1.01;
+    }
     if (x2 > xmax) {
       x2 = x1 - (xmax - xmin) / 100.;
     }
-    f2 = func(x2);
 
+    f2 = func(x2);
 #ifdef DEBUG_MODE
     if (printLvl >= 3) {
       print_funcEval(fp, x2, f2, its);
@@ -221,9 +241,10 @@ namespace Cantera {
       fnorm = 0.5*(fabs(f1) + fabs(f2)) + fabs(m_funcTargetValue);
     }
 
-    if (f2 == 0.0)
+    if (f2 == 0.0) {
+      *xbest = x2;
       return retn;
-    else if (f2 > 0.0) {
+    } else if (f2 > 0.0) {
       if (!foundPosF) {
 	foundPosF = 1;
 	xPosF = x2;
@@ -234,37 +255,106 @@ namespace Cantera {
 	xNegF = x2;
       }
     }
+    /*
+     *  See if we have already achieved a straddle
+     */
     foundStraddle = foundPosF && foundNegF;
     if (foundStraddle) {
       if (xPosF > xNegF) posStraddle = 1;
       else               posStraddle = 0    ;
     }
-   
+    bool doQuad = false;
+    bool useNextStrat = false;
+    bool slopePointingToHigher = true;
+    // ---------------------------------------------------------------------------------------------
+    //                MAIN LOOP
+    // ---------------------------------------------------------------------------------------------
     do {
       /*
-       *    Find an estimate of the next point to try based on
-       *    a linear approximation.   
+       *    Find an estimate of the next point, xnew, to try based on
+       *    a linear approximation from the last two points.  
        */
       slope = (f2 - f1) / (x2 - x1);
-      if (slope == 0.0) {
-	writelogf("%s functions evals produced the same result, %g, at %g and %g\n",
-	      strw, f2, x1, x2);
-	xnew = 2*x2 - x1 + 1.0E-3;
+      if (fabs(slope) <= 1.0E-100) {
+	if (printLvl >= 2) {
+	  writelogf("%s functions evals produced the same result, %g, at %g and %g\n",
+		    strw, f2, x1, x2);
+	}
+	xnew = x2 +  DeltaXnorm_;
+	slopePointingToHigher = true;
       } else {
+        useNextStrat = false;
 	xnew = x2 - f2 / slope; 
-      } 
+	if (xnew > x2) {
+	  slopePointingToHigher = true;
+	} else {
+	  slopePointingToHigher = false;
+	}
+      }
 #ifdef DEBUG_MODE
       if (printLvl >= 3) {
-	fprintf(fp, " | xlin = %-9.4g", xnew);
+	fprintf(fp, " | xlin = %-11.5E", xnew);
       }
 #endif
+      /*
+       * If the suggested step size is too big, throw out step
+       */
+      if (!foundStraddle) {
+	if (fabs(xnew - x2) > 3.0 * DeltaXnorm_) {
+	  useNextStrat = true;
+	}
+      }
+      if (useNextStrat) {
+	if (f2 < 0.0) {
+	  if (FuncIsGenerallyIncreasing_) {
+	    if (slopePointingToHigher) {
+	      xnew = MIN(x2 + 3.0*DeltaXnorm_, xnew);
+	    } else {
+	      xnew = x2 + DeltaXnorm_;
+	    }
+	  } else if (FuncIsGenerallyDecreasing_) {
+	    if ( !slopePointingToHigher) {
+	      xnew = MAX(x2 - 3.0*DeltaXnorm_, xnew);
+	    } else {
+	      xnew = x2 - DeltaXnorm_;
+	    }
+	  } else {
+	    if (slopePointingToHigher) {
+	      xnew = x2 + DeltaXnorm_;
+	    } else {
+	      xnew = x2 - DeltaXnorm_;
+	    }
+	  }
+	} else {
+	  if (FuncIsGenerallyDecreasing_) {
+	    if (!slopePointingToHigher) {
+	      xnew = MAX(x2 + 3.0*DeltaXnorm_, xnew);
+	    } else {
+	      xnew = x2 + DeltaXnorm_;
+	    }
+	  } else if (FuncIsGenerallyIncreasing_) {
+	    if (! slopePointingToHigher) {
+	      xnew = MIN(x2 - 3.0*DeltaXnorm_, xnew);
+	    } else {
+	      xnew = x2 - DeltaXnorm_;
+	    }
+	  } else {
+	    if (slopePointingToHigher) {
+	      xnew = x2 + DeltaXnorm_;
+	    } else {
+	      xnew = x2 - DeltaXnorm_;
+	    }
+	  }
+	}
+      }
+
 
       /*
        *  Do a quadratic fit -> Note this algorithm seems
        *  to work OK. The quadratic approximation doesn't kick in until
        *  the end of the run, when it becomes reliable.
        */
-      if (its > 0) {
+      if (its > 0 && doQuad) {
 	c[0] = 1.; c[1] = 1.; c[2] = 1.;
 	c[3] = x0; c[4] = x1; c[5] = x2;
 	c[6] = SQUARE(x0); c[7] = SQUARE(x1); c[8] = SQUARE(x2);
@@ -283,7 +373,7 @@ namespace Cantera {
 #ifdef DEBUG_MODE
 	  if (printLvl >= 3) {
 	    if (theta != 1.0) {
-	      fprintf(fp, " | xquad = %-9.4g", xnew);
+	      fprintf(fp, " | xquad = %-11.5E", xnew);
 	    }
 	  }
 #endif
@@ -297,7 +387,7 @@ namespace Cantera {
 	    xnew += xnew - x2;
 #ifdef DEBUG_MODE
 	    if (printLvl >= 3) {
-	      fprintf(fp, " | xquada = %-9.4g", xnew);
+	      fprintf(fp, " | xquada = %-11.5E", xnew);
 	    }
 #endif
 	  }
@@ -305,57 +395,58 @@ namespace Cantera {
       }
     QUAD_BAIL: ;
       
-      
-      /*
+      /*   
+       *  OK, we have an estimate xnew.
+       *
        *
        *  Put heuristic bounds on the step jump
        */
-      if ( (xnew > x1 && xnew < x2) || (xnew < x1 && xnew > x2)) {
+      if ((xnew > x1 && xnew < x2) || (xnew < x1 && xnew > x2)) {
 	/*
-	 *
-	 *   If we are doing a jump inbetween two points, make sure
-	 *   the new trial is between 10% and 90% of the distance
-	 *   between the old points.
+	 *   If we are doing a jump in between the two previous points, make sure
+	 *   the new trial is no closer that 10% of the distances between x2-x1 to
+	 *   any of the original points.
 	 */
-	slope = fabs(x2 - x1) / 10.;
-	if (fabs(xnew - x1) < slope) {
-	  xnew = x1 + DSIGN(xnew-x1) * slope;
+	xDelMin = fabs(x2 - x1) / 10.;
+	if (fabs(xnew - x1) < xDelMin) {
+	  xnew = x1 + DSIGN(xnew-x1) * xDelMin;
 #ifdef DEBUG_MODE
 	  if (printLvl >= 3) {
-	    fprintf(fp, " | x10%% = %-9.4g", xnew);
+	    fprintf(fp, " | x10%% = %-11.5E", xnew);
 	  }
 #endif
 	}
-	if (fabs(xnew - x2) < slope) {
-	  xnew = x2 + DSIGN(xnew-x2) * slope; 
+	if (fabs(xnew - x2) < 0.1 * xDelMin) {
+	  xnew = x2 + DSIGN(xnew-x2) * 0.1 *  xDelMin; 
 #ifdef DEBUG_MODE
 	  if (printLvl >= 3) {
-	    fprintf(fp, " | x10%% = %-9.4g", xnew);
+	    fprintf(fp, " | x10%% = %-11.5E", xnew);
 	  }
 #endif
 	}
       } else {
 	/*
 	 *   If we are venturing into new ground, only allow the step jump
-	 *   to increase by 100% at each interation
+	 *   to increase by 50% at each interation
 	 */
-	slope = 2.0 * fabs(x2 - x1);
-	if (fabs(slope) < fabs(xnew - x2)) {
-	  xnew = x2 + DSIGN(xnew-x2) * slope;
+	double xDelMax = 1.5 * fabs(x2 - x1);
+	if (fabs(xDelMax) < fabs(xnew - x2)) {
+	  xnew = x2 + DSIGN(xnew-x2) * xDelMax;
 #ifdef DEBUG_MODE
 	  if (printLvl >= 3) {
-	    fprintf(fp, " | xlimitsize = %-9.4g", xnew);
+	    fprintf(fp, " | xlimitsize = %-11.5E", xnew);
 	  }
 #endif
 	}
       }
-      
-      
+      /*
+       *  Guard against going above xmax or below xmin
+       */
       if (xnew > xmax) {
         xnew = x2 + (xmax - x2) / 2.0;
 #ifdef DEBUG_MODE
 	if (printLvl >= 3) {
-	  fprintf(fp, " | xlimitmax = %-9.4g", xnew);
+	  fprintf(fp, " | xlimitmax = %-11.5E", xnew);
 	}
 #endif
       }
@@ -363,41 +454,60 @@ namespace Cantera {
 	xnew = x2 + (x2 - xmin) / 2.0;
 #ifdef DEBUG_MODE
 	if (printLvl >= 3) {
-	  fprintf(fp, " | xlimitmin = %-9.4g", xnew);
+	  fprintf(fp, " | xlimitmin = %-11.5E", xnew);
 	}
 #endif
       }
+
       if (foundStraddle) {
 #ifdef DEBUG_MODE
 	slope = xnew;	 
 #endif
 	if (posStraddle) {
 	  if (f2 > 0.0) {
-	    if (xnew > x2)    xnew = (xNegF + x2)/2;
-	    if (xnew < xNegF) xnew = (xNegF + x2)/2;
+	    if (xnew > x2) {
+	      xnew = (xNegF + x2)/2;
+	    }
+	    if (xnew < xNegF) {
+	      xnew = (xNegF + x2)/2;
+	    }
 	  } else {
-	    if (xnew < x2)    xnew = (xPosF + x2)/2;
-	    if (xnew > xPosF) xnew = (xPosF + x2)/2;
+	    if (xnew < x2) {
+	      xnew = (xPosF + x2)/2;
+	    }
+	    if (xnew > xPosF) {
+	      xnew = (xPosF + x2)/2;
+	    }
 	  }
 	} else {
 	  if (f2 > 0.0) {
-	    if (xnew < x2)    xnew = (xNegF + x2)/2;
-	    if (xnew > xNegF) xnew = (xNegF + x2)/2;
+	    if (xnew < x2)  {
+	      xnew = (xNegF + x2)/2;
+	    }
+	    if (xnew > xNegF) {
+	      xnew = (xNegF + x2)/2;
+	    }
 	  } else {
-	    if (xnew > x2)    xnew = (xPosF + x2)/2;
-	    if (xnew < xPosF) xnew = (xPosF + x2)/2;
+	    if (xnew > x2)  {
+	      xnew = (xPosF + x2)/2;
+	    }
+	    if (xnew < xPosF) {
+	      xnew = (xPosF + x2)/2;
+	    }
 	  }
 	}
 #ifdef DEBUG_MODE
 	if (printLvl >= 3) {
 	  if (slope != xnew) {
-	    fprintf(fp, " | xstraddle = %-9.4g", xnew);	    
+	    fprintf(fp, " | xstraddle = %-11.5E", xnew);	    
 	  }
 	}
 #endif	
       }
       
       fnew = func(xnew);
+      CRdenom = MAX(fabs(fnew), MAX(fabs(f2), MAX(fabs(f1), fnorm)));
+      CRnew = sqrt(fabs(fnew) / CRdenom);
 #ifdef DEBUG_MODE
       if (printLvl >= 3) {
 	fprintf(fp,"\n");
@@ -429,7 +539,7 @@ namespace Cantera {
 	    xPosF = xnew;
 	    foundStraddle = 1;
 	    if (xPosF > xNegF) posStraddle = 1;
-	    else    	          posStraddle = 0    ;
+	    else    	       posStraddle = 0;
 	  }	    
 	} else {
 	  if (!foundNegF) {
@@ -437,17 +547,20 @@ namespace Cantera {
 	    xNegF = xnew;
 	    foundStraddle = 1;
 	    if (xPosF > xNegF) posStraddle = 1;
-	    else    	          posStraddle = 0;
+	    else    	       posStraddle = 0;
 	  }	   
 	}
       }
       
       x0 = x1;
       f0 = f1;
+      CR0 = CR1;
       x1 = x2;
       f1 = f2;
+      CR1 = CR2;
       x2 = xnew; 
       f2 = fnew;
+      CR2 = CRnew;
       if (fabs(fnew / fnorm) < m_rtol) {
         converged = 1;	 
       }
@@ -497,6 +610,27 @@ namespace Cantera {
   void RootFind::setPrintLvl(int printlvl) 
   {
     printLvl = printlvl;
+  }
+  //================================================================================================
+  void RootFind::setFuncIsGenerallyIncreasing(bool value) 
+  {
+    if (value) {
+      FuncIsGenerallyDecreasing_ = false;
+    }
+    FuncIsGenerallyIncreasing_ = value;
+  }
+  //================================================================================================
+  void RootFind::setFuncIsGenerallyDecreasing(bool value) 
+  {
+    if (value) {
+      FuncIsGenerallyIncreasing_ = false;
+    }
+    FuncIsGenerallyDecreasing_ = value;
+  }
+  //================================================================================================
+  void RootFind::setDeltaX(double deltaXNorm) 
+  {
+    DeltaXnorm_ = deltaXNorm;
   }
   //================================================================================================
 }
