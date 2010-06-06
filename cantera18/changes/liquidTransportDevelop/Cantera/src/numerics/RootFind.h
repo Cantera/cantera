@@ -52,11 +52,14 @@ namespace Cantera {
   
     int solve(double xmin, double xmax, int itmax, double funcTargetValue, double *xbest) ;
 
-    double func(double x) ;
+    double func(double x);
 
     void setTol(double rtol, double atol);
 
-    void setPrintLvl(int printLvl) ;
+    void setPrintLvl(int printLvl);
+    void setFuncIsGenerallyIncreasing(bool value);
+    void setFuncIsGenerallyDecreasing(bool value);
+    void setDeltaX(double deltaXNorm); 
 
   public:
     ResidEval *m_residFunc;
@@ -64,7 +67,11 @@ namespace Cantera {
     double m_atol;
     double m_rtol;
     double m_maxstep;
+  protected:
     int    printLvl;
+    double DeltaXnorm_;
+    bool FuncIsGenerallyIncreasing_;
+    bool FuncIsGenerallyDecreasing_;
 
   };
 }
