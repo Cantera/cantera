@@ -137,6 +137,41 @@ namespace Cantera {
     m_index = m;
   }
 
+  // Returns the index of a species named 'name' within the Phase object
+  /*
+   * The first species in the phase will have an index 0, and the last one in the
+   * phase will have an index of nSpecies() - 1.
+   *
+   *
+   *  A species name may be referred to via three methods:
+   *
+   *    -   "speciesName"
+   *    -   "PhaseId:speciesName"
+   *    -   "phaseName:speciesName"
+   *    .   
+   *
+   *  The first two methods of naming may not yield a unique species within
+   *  complicated assemblies of Cantera Phases.
+   *
+   * @param nameStr String name of the species. It may also be the phase name
+   *                species name combination, separated by a colon.
+   * @return     Returns the index of the species. If the name is not found,
+   *             the value of -1 is returned.
+   */
+  int Phase::speciesIndex(std::string nameStr) const {
+    std::string pn;
+    std::string sn = parseSpeciesName(nameStr, pn);
+    if (pn == "" || pn == m_name || pn == m_id) {
+      return Constituents::speciesIndex(sn);
+    }
+    return -1;
+  }
+
+  std::string Phase::speciesSPName(int k) const {
+    std::string sn = Constituents::speciesName(k);
+    return(m_name + ":" + sn);
+  }
+
   void Phase::saveState(vector_fp& state) const {
     state.resize(nSpecies() + 2);
     saveState(state.size(),&(state[0]));
@@ -315,8 +350,8 @@ namespace Cantera {
     return State::moleFraction(k);
   }
 
-  doublereal Phase::moleFraction(std::string name) const {
-    int iloc = speciesIndex(name);
+  doublereal Phase::moleFraction(std::string nameSpec) const {
+    int iloc = speciesIndex(nameSpec);
     if (iloc >= 0) return State::moleFraction(iloc);
     else return 0.0;
   }
@@ -325,8 +360,8 @@ namespace Cantera {
     return State::massFraction(k);
   }
 
-  doublereal Phase::massFraction(std::string name) const {
-    int iloc = speciesIndex(name);
+  doublereal Phase::massFraction(std::string nameSpec) const {
+    int iloc = speciesIndex(nameSpec);
     if (iloc >= 0) return massFractions()[iloc];
     else return 0.0;
   }

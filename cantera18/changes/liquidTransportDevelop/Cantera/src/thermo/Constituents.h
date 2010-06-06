@@ -280,12 +280,13 @@ namespace Cantera {
 			  doublereal charge = 0.0, 
 			  doublereal size = 1.0);
       
-    //! Returns the index of a species named 'name' within the ThermoPhase
+    //! Returns the index of a species named 'name' within the Constituents object
     /*!
-     * The first species added will have index 0, and the last one index nSpecies() - 1.
+     * The first species in the phase will have an index 0, and the last one in the
+     * phase will have an index of nSpecies() - 1.
      *
      * @param name String name of the species
-     * @return     Returns the index of the species. If the name is not found
+     * @return     Returns the index of the species. If the name is not found,
      *             the value of -1 is returned.
      */
     int speciesIndex(std::string name) const;
