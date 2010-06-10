@@ -2,7 +2,7 @@
  * @file: RootFind.cpp  root finder for 1D problems
  */
 /*
- * $Id: solveSP.cpp 381 2010-01-15 21:20:41Z hkmoffa $
+ * $Id$
  */
 /*
  * Copywrite 2004 Sandia Corporation. Under the terms of Contract
@@ -15,6 +15,9 @@
 #include "RootFind.h"
 
 #include "global.h"
+#ifdef DEBUG_MODE
+#include "mdp_allo.h"
+#endif
 
 /* Standard include files */
 
@@ -49,7 +52,7 @@ namespace Cantera {
   /*****************************************************************************/
   /*****************************************************************************/
 #ifdef DEBUG_MODE
-  static void print_funcEval(FILE *fp, double xval, double fval, int its)  
+  static void print_funcEval(FILE *fp, doublereal xval, doublereal fval, int its)  
   {
     fprintf(fp,"\n");
     fprintf(fp,"...............................................................\n");
@@ -62,9 +65,9 @@ namespace Cantera {
   }
 #endif
   //================================================================================================
-  static int smlequ(double *c, int idem, int n, double *b, int m) {
+  static int smlequ(doublereal *c, int idem, int n, doublereal *b, int m) {
     int i, j, k, l;
-    double R;
+    doublereal R;
     if (n > idem || n <= 0) {
       writelogf("smlequ ERROR: badly dimensioned matrix: %d %d\n", n, idem);
       return 1;
@@ -141,7 +144,7 @@ namespace Cantera {
    *   return:
    *    0  Found function
    */
-  int RootFind::solve(double xmin, double xmax, int itmax, double funcTargetValue, double *xbest) {
+  int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal funcTargetValue, doublereal *xbest) {
 
     /*
      *   We store the function target and then actually calculate a modified functional
@@ -158,18 +161,18 @@ namespace Cantera {
     char fileName[80];
     FILE *fp = 0;
 #endif
-    double x1, x2, xnew, f1, f2, fnew, slope;
+    doublereal x1, x2, xnew, f1, f2, fnew, slope;
     int its = 0;
     int posStraddle = 0;
     int retn = 0;
     int foundPosF = 0;
     int foundNegF = 0;
     int foundStraddle = 0;
-    double xPosF = 0.0;
-    double xNegF = 0.0;
-    double fnorm;   /* A valid norm for the making the function value  dimensionless */
-    double c[9], f[3], xn1, xn2, x0 = 0.0, f0 = 0.0, root, theta, xquad, xDelMin;
-    double CR0, CR1, CR2, CRnew, CRdenom;
+    doublereal xPosF = 0.0;
+    doublereal xNegF = 0.0;
+    doublereal fnorm;   /* A valid norm for the making the function value  dimensionless */
+    doublereal c[9], f[3], xn1, xn2, x0 = 0.0, f0 = 0.0, root, theta, xquad, xDelMin;
+    doublereal CR0, CR1, CR2, CRnew, CRdenom;
 
     callNum++;
 #ifdef DEBUG_MODE
@@ -429,7 +432,7 @@ namespace Cantera {
 	 *   If we are venturing into new ground, only allow the step jump
 	 *   to increase by 50% at each interation
 	 */
-	double xDelMax = 1.5 * fabs(x2 - x1);
+	doublereal xDelMax = 1.5 * fabs(x2 - x1);
 	if (fabs(xDelMax) < fabs(xnew - x2)) {
 	  xnew = x2 + DSIGN(xnew-x2) * xDelMax;
 #ifdef DEBUG_MODE
@@ -564,6 +567,20 @@ namespace Cantera {
       if (fabs(fnew / fnorm) < m_rtol) {
         converged = 1;	 
       }
+      /*
+       *  Check for excess convergence in the x coordinate
+       */
+      if (foundStraddle) {
+	doublereal denom = fabs(x1) + fabs(x2);
+	if (denom < 1.0E-200) {
+	  retn = ROOTFIND_FAILEDCONVERGENCE;
+	  converged = true;
+	}
+	if (fabs(x2 - x1) / denom < 1.0E-13) {
+	  converged = true;
+	}
+
+      }
       its++;
     } while (! converged && its < itmax);
     if (converged) {
@@ -595,13 +612,19 @@ namespace Cantera {
     return retn;
   }
   //================================================================================================
-  double RootFind::func(double x) {
-    double r;
+  doublereal RootFind::func(doublereal x) {
+    doublereal r;
+#ifdef DEBUG_MODE
+    mdp::checkFinite(x);
+#endif
     m_residFunc->evalSS(0.0, &x, &r);
+#ifdef DEBUG_MODE
+    mdp::checkFinite(r);
+#endif
     return (r - m_funcTargetValue);
   } 
   //================================================================================================
-  void RootFind::setTol(double rtol, double atol)
+  void RootFind::setTol(doublereal rtol, doublereal atol)
   {
     m_atol = atol;
     m_rtol = rtol;
@@ -628,7 +651,7 @@ namespace Cantera {
     FuncIsGenerallyDecreasing_ = value;
   }
   //================================================================================================
-  void RootFind::setDeltaX(double deltaXNorm) 
+  void RootFind::setDeltaX(doublereal deltaXNorm) 
   {
     DeltaXnorm_ = deltaXNorm;
   }

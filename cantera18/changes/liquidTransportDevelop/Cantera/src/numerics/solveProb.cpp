@@ -2,7 +2,7 @@
  * @file: solveSP.cpp Implicit solver for nonlinear problems
  */
 /*
- * $Id: solveSP.cpp 381 2010-01-15 21:20:41Z hkmoffa $
+ * $Id$
  */
 /*
  * Copywrite 2004 Sandia Corporation. Under the terms of Contract

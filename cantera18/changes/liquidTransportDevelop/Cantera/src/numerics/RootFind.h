@@ -4,7 +4,7 @@
  *  (see \ref numerics and class \link Cantera::RootFind RootFind\endlink).
  */
 /*
- * $Id: solveSP.h 381 2010-01-15 21:20:41Z hkmoffa $
+ * $Id$
  */
 /*
  * Copywrite 2004 Sandia Corporation. Under the terms of Contract
@@ -13,8 +13,8 @@
  * See file License.txt for licensing information.
  */
 
-#ifndef ROOTFIND_H
-#define ROOTFIND_H
+#ifndef CT_ROOTFIND_H
+#define CT_ROOTFIND_H
 /**
  * @defgroup solverGroup Solvers for Equation Systems
  */
@@ -50,26 +50,26 @@ namespace Cantera {
 
   public:
   
-    int solve(double xmin, double xmax, int itmax, double funcTargetValue, double *xbest) ;
+    int solve(doublereal xmin, doublereal xmax, int itmax, doublereal funcTargetValue, doublereal *xbest) ;
 
-    double func(double x);
+    doublereal func(doublereal x);
 
-    void setTol(double rtol, double atol);
+    void setTol(doublereal rtol, doublereal atol);
 
     void setPrintLvl(int printLvl);
     void setFuncIsGenerallyIncreasing(bool value);
     void setFuncIsGenerallyDecreasing(bool value);
-    void setDeltaX(double deltaXNorm); 
+    void setDeltaX(doublereal deltaXNorm); 
 
   public:
     ResidEval *m_residFunc;
-    double m_funcTargetValue;
-    double m_atol;
-    double m_rtol;
-    double m_maxstep;
+    doublereal m_funcTargetValue;
+    doublereal m_atol;
+    doublereal m_rtol;
+    doublereal m_maxstep;
   protected:
     int    printLvl;
-    double DeltaXnorm_;
+    doublereal DeltaXnorm_;
     bool FuncIsGenerallyIncreasing_;
     bool FuncIsGenerallyDecreasing_;
 
