@@ -4,7 +4,7 @@
  *  (see \ref numerics and class \link Cantera::solveProb solveProb\endlink).
  */
 /*
- * $Id: solveSP.h 381 2010-01-15 21:20:41Z hkmoffa $
+ * $Id$
  */
 /*
  * Copywrite 2004 Sandia Corporation. Under the terms of Contract
