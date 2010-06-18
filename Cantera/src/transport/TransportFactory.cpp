@@ -298,44 +298,27 @@ namespace Cantera {
     single transport property as a function of temperature 
     and possibly composition.
   */
-  LTPspecies* TransportFactory::newLTP( const XML_Node &trNode, 
-					std::string &name, 
-					TransportPropertyList tp_ind, 
-					thermo_t* thermo) {
+  LTPspecies* TransportFactory::newLTP(const XML_Node &trNode, std::string &name, 
+				       TransportPropertyList tp_ind, thermo_t* thermo)
+  {
     LTPspecies* ltps = 0;
-
     std::string model = lowercase(trNode["model"]);
-    switch ( m_LTRmodelMap[model] ) {
+    switch (m_LTRmodelMap[model]) {
     case LTR_MODEL_CONSTANT:
-      ltps = new LTPspecies_Const( trNode, 
-				   name, 
-				   tp_ind,
-				   thermo );
+      ltps = new LTPspecies_Const(trNode, name, tp_ind, thermo);
       break;
     case LTR_MODEL_ARRHENIUS:
-      ltps = new LTPspecies_Arrhenius( trNode, 
-				       name, 
-				       tp_ind,
-				       thermo );
+      ltps = new LTPspecies_Arrhenius(trNode, name, tp_ind, thermo);
       break;
     case LTR_MODEL_POLY:
-      ltps = new LTPspecies_Poly( trNode, 
-				  name, 
-				  tp_ind,
-				  thermo );
+      ltps = new LTPspecies_Poly(trNode, name, tp_ind, thermo);
       break;
     case LTR_MODEL_EXPT:
-      ltps = new LTPspecies_ExpT( trNode, 
-				  name, 
-				  tp_ind,
-				  thermo );
+      ltps = new LTPspecies_ExpT(trNode, name, tp_ind, thermo);
       break;
     default:
-      throw CanteraError("newLTP","unknown transport model: " + model );
-      ltps = new LTPspecies( trNode, 
-			     name, 
-			     tp_ind,
-			     thermo );
+      throw CanteraError("newLTP","unknown transport model: " + model);
+      ltps = new LTPspecies(trNode, name, tp_ind, thermo);
     }
     return ltps;
   }
@@ -1549,5 +1532,53 @@ namespace Cantera {
     }
 #endif
   }
+  //====================================================================================================================
+  //  Create a new transport manager instance.
+  /*
+   *  @param transportModel  String identifying the transport model to be instantiated, defaults to the empty string
+   *  @param thermo          ThermoPhase object associated with the phase, defaults to null pointer
+   *  @param loglevel        int containing the Loglevel, defaults to zero
+   *  @param f               ptr to the TransportFactory object if it's been malloced.
+   *
+   * @ingroup transportProps
+   */
+  Transport* newTransportMgr(std::string transportModel, thermo_t* thermo, int loglevel, TransportFactory* f)
+  {
+    if (f == 0) {
+      f = TransportFactory::factory();
+    }
+    Transport* ptr = f->newTransport(transportModel, thermo, loglevel);
+    /*
+     * Note: We delete the static s_factory instance here, instead of in
+     *       appdelete() in misc.cpp, to avoid linking problems involving
+     *       the need for multiple cantera and transport library statements
+     *       for applications that don't have transport in them.
+     */
+    return ptr;
+  }
+  //==================================================================================================================== 
+  //  Create a new transport manager instance.
+  /*
+   *  @param thermo          ThermoPhase object associated with the phase, defaults to null pointer
+   *  @param loglevel        int containing the Loglevel, defaults to zero
+   *  @param f               ptr to the TransportFactory object if it's been malloced.
+   *
+   * @ingroup transportProps
+   */
+  Transport* newDefaultTransportMgr(thermo_t* thermo, int loglevel, TransportFactory* f) 
+  {
+    if (f == 0) {
+      f = TransportFactory::factory();
+    }
+    Transport* ptr = f->newTransport(thermo, loglevel);
+    /*
+     * Note: We delete the static s_factory instance here, instead of in
+     *       appdelete() in misc.cpp, to avoid linking problems involving
+     *       the need for multiple cantera and transport library statements
+     *       for applications that don't have transport in them.
+     */
+    return ptr;
+  }
+  //====================================================================================================================
 }
 
