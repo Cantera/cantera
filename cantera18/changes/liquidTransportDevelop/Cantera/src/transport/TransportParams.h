@@ -1,52 +1,57 @@
+/**
+ *  @file TransportParams.h
+ *  Class that holds the data that is read in from the xml file, and which is used for
+ *  processing of the transport object
+ *  (see \ref tranprops and \link Cantera::TransportParams TransportParams \endlink).
+ */
+/*
+ * Latest Checkin:
+ *  $Date$
+ *  $Revision$
+ */
+
 #ifndef CT_TRANSPORTPARAMS_H
 #define CT_TRANSPORTPARAMS_H
 
 #include <vector>
 
 #include "ct_defs.h"
-#include "TransportBase.h"
-#include "xml.h"
-#include "XML_Writer.h"
 #include "DenseMatrix.h"
+#include "TransportBase.h"
 
 namespace Cantera {
 
+  class XML_Writer;
+ 
+
+  //====================================================================================================================
+  //! Error class to indicate an unimplemented method
+  /*!
+   * This class is used by transport objects
+   */
   class NotImplemented : public CanteraError {
   public:
-    NotImplemented(std::string method) : CanteraError("Transport",
-						      "\n\n**** Method "+method+" not implemented. ****\n"
-						      "(Did you forget to specify a transport model?)\n\n") {}
+
+    //! Constructor for error class
+    /*!
+     *  @param method Single string indicating a method that is not implemented
+     */
+    NotImplemented(std::string method);
   };
-  
-  /** 
-   * Base class to hold transport model parameters.  
-   * Used by TransportFactory.
+  //====================================================================================================================
+  //! Base structure to hold transport model parameters. 
+  /*!
+   * This structure is used by TransportFactory.
    */
   class TransportParams {
 
   public:
 
     //! Default Constructor
-    TransportParams() : 
-      nsp_(0),
-      thermo(0),
-      mw(0),
-      velocityBasis_(VB_MASSAVG),
-      tmax(1000000.),
-      tmin(10.),
-      mode_(0),
-      xml(0),
-      log_level(-1)
-    {
-    }
+    TransportParams();
 
     //! Destructor
-    virtual ~TransportParams() 
-    {
-#ifdef DEBUG_MODE
-      delete xml;
-#endif
-    }
+    virtual ~TransportParams();
 
     //! Local storage of the number of species
     int nsp_;
@@ -58,7 +63,7 @@ namespace Cantera {
     /*!
      *  Length is nsp_ and units are kg kmol-1.
      */
-    vector_fp        mw;
+    vector_fp mw;
 
     //! A basis for the average velocity can be specified. 
     /*!
@@ -80,47 +85,23 @@ namespace Cantera {
 
     //! Log level
     int log_level;
-
   };
 
-
-  /**
-   * Holds transport model parameters relevant to transport in ideal 
-   * gases with a kinetic theory of gases derived transport model. 
-   * Used by TransportFactory.
+  //====================================================================================================================
+  //! This structure  holds transport model parameters relevant to transport in ideal 
+  //! gases with a kinetic theory of gases derived transport model.
+  /*!
+   * This structure is used by TransportFactory object.
    */
   class GasTransportParams : public TransportParams {
 
   public:
 
     //! Constructor
-    GasTransportParams() :
-      TransportParams(),
-      visccoeffs(0),
-      condcoeffs(0),
-      diffcoeffs(0),
-      poly(0),
-      omega22_poly(0),
-      astar_poly(0),
-      bstar_poly(0),
-      cstar_poly(0),
-      zrot(0),
-      crot(0),
-      polar(0),
-      alpha(0),
-      fitlist(0),
-      eps(0),
-      sigma(0),
-      reducedMass(0, 0),
-      diam(0, 0),
-      epsilon(0, 0),
-      dipole(0, 0),
-      delta(0, 0)
-    {
-    }
+    GasTransportParams();
 
     //! Destructor
-    virtual ~GasTransportParams() {}
+    virtual ~GasTransportParams();
 
     // polynomial fits
 
@@ -143,8 +124,7 @@ namespace Cantera {
      *  The outer loop the number of species, nsp
      *  The inner loop is over degree + 1, which is the polynomial order of the collision integral fit.
      */
-    std::vector<vector_fp>            diffcoeffs;
-
+    std::vector<vector_fp> diffcoeffs;
 
     //!  This is vector of vectors containing the integer ookup value for the (i,j) interaction
     /*!
@@ -222,7 +202,7 @@ namespace Cantera {
      *  Length = nsp
      *  Units = m^3
      */
-    vector_fp    alpha;
+    vector_fp alpha;
 
     //!  This is vector containing the values of delta(i,j) that are used in the collision integral fits.
     /*!
@@ -256,7 +236,7 @@ namespace Cantera {
      *
      *  Length nsp * nsp. This is a symmetric matrix
      */
-    DenseMatrix  reducedMass;    
+    DenseMatrix reducedMass;    
 
     //! hard-sphere diameter for (i,j) collision
     /*!
@@ -265,7 +245,7 @@ namespace Cantera {
      *
      *  Length nsp * nsp. This is a symmetric matrix.
      */
-    DenseMatrix  diam;
+    DenseMatrix diam;
 
     //! The effective well depth for (i,j) collisions
     /*!
@@ -274,7 +254,7 @@ namespace Cantera {
      *
      *  Length nsp * nsp. This is a symmetric matrix.
      */
-    DenseMatrix  epsilon; 
+    DenseMatrix epsilon; 
 
     //! The effective dipole moment for (i,j) collisions   
     /*!
@@ -286,7 +266,7 @@ namespace Cantera {
      *
      *  Length nsp * nsp. This is a symmetric matrix.
      */    
-    DenseMatrix  dipole;
+    DenseMatrix dipole;
 
     //! Matrix containing the reduced dipole moment of the interaction between two species
     /*!
@@ -295,10 +275,10 @@ namespace Cantera {
      *
      *  Length nsp * nsp .This is a symmetric matrix
      */
-    DenseMatrix delta;          
-
+    DenseMatrix delta;
   };
-
-}
+  //====================================================================================================================
+} // End of namespace Cantera
+//======================================================================================================================
 
 #endif //CT_TRANSPORTPARAMS_H

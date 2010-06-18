@@ -40,12 +40,10 @@
 #if defined(THREAD_SAFE_CANTERA)
 #include <boost/thread/mutex.hpp>
 #endif
-
+//======================================================================================================================
 namespace Cantera {
-
-  /**
-   * Struct to hold data read from a transport property database file.
-   */
+  //====================================================================================================================
+  //! Struct to hold data read from a transport property database file.
   struct GasTransportData {
     GasTransportData() : speciesName("-"), 
 			 geometry(-1), wellDepth(-1.0),
@@ -63,27 +61,25 @@ namespace Cantera {
     doublereal rotRelaxNumber;
   };
 
-
+  //====================================================================================================================
   // forward references
   class MMCollisionInt;
   class GasTransportParams; 
   class LiquidTransportParams;
   class XML_Node;
 
- 
-  //! The purpose of TransportFactory is to create new instances of
+  //====================================================================================================================
+  //! The purpose of the TransportFactory class is to create new instances of
   //! 'transport managers', which are classes that provide transport
-  //! properties and are derived from base class Transport.
+  //! properties and which are derived from the base class, %Transport.
   /*!
-   * TransportFactory handles all initialization
-   * required, including evaluation of collision integrals and
-   * generating polynomial fits.  Transport managers can also be
-   * created in other ways.
+   * TransportFactory handles all initialization required, including evaluation of collision integrals and
+   * generating polynomial fits.  Transport managers can also be created in other ways.
    *
    * @ingroup transportgroup
    * @ingroup transportProps
    */
-  class TransportFactory : FactoryBase {
+  class TransportFactory : public FactoryBase {
 
   public:
   
@@ -127,15 +123,19 @@ namespace Cantera {
     virtual ~TransportFactory();
 
 
-    /**
-     *  make one of several transport models, and return a base class
-     *  pointer to it.  This method operates at the level of a 
-     *  single transport property as a function of temperature 
-     *  and possibly composition.
+    
+    //! Make one of several transport models, and return a base class pointer to it.
+    /*!
+     *  This method operates at the level of a  single transport property as a function of temperature 
+     *  and possibly composition. It's a factory for LTPspecies classes.
+     *
+     *  @param trNode XML node 
+     *  @param name  reference to the name
+     *  @param tp_ind   TransportPropertyList class
+     *  @param thermo   Pointer to the %ThermoPhase class
      */
-    virtual LTPspecies* 
-      newLTP( const XML_Node &trNode, std::string &name, 
-	      TransportPropertyList tp_ind, thermo_t* thermo) ;
+    virtual LTPspecies* newLTP(const XML_Node &trNode, std::string &name, 
+			       TransportPropertyList tp_ind, thermo_t* thermo);
 
    
     //! Factory function for the construction of new LiquidTranInteraction
@@ -368,46 +368,32 @@ namespace Cantera {
     std::map<std::string, LiquidTranMixingModel> m_LTImodelMap;
   };
 
-
-  /**
-   *  Create a new transport manager instance.
+  //====================================================================================================================
+  //!  Create a new transport manager instance.
+  /*!
+   *  @param transportModel  String identifying the transport model to be instantiated, defaults to the empty string
+   *  @param thermo          ThermoPhase object associated with the phase, defaults to null pointer
+   *  @param loglevel        int containing the Loglevel, defaults to zero
+   *  @param f               ptr to the TransportFactory object if it's been malloced.
+   *
    * @ingroup transportProps
    */
-  inline Transport* newTransportMgr(std::string transportModel = "", 
-				    thermo_t* thermo = 0, int loglevel=0, 
-				    TransportFactory* f=0) {
-    if (f == 0) {
-      f = TransportFactory::factory();
-    }
-    Transport* ptr = f->newTransport(transportModel, thermo, loglevel);
-    /*
-     * Note: We delete the static s_factory instance here, instead of in
-     *       appdelete() in misc.cpp, to avoid linking problems involving
-     *       the need for multiple cantera and transport library statements
-     *       for applications that don't have transport in them.
-     */
-    return ptr;
-  }
-
-  /**
-   *  Create a new transport manager instance.
+  Transport* newTransportMgr(std::string transportModel = "",  thermo_t* thermo = 0, int loglevel = 0, 
+			     TransportFactory* f = 0);
+  //==================================================================================================================== 
+  //!  Create a new transport manager instance.
+  /*!
+   *  @param thermo          ThermoPhase object associated with the phase, defaults to null pointer
+   *  @param loglevel        int containing the Loglevel, defaults to zero
+   *  @param f               ptr to the TransportFactory object if it's been malloced.
+   *
+   *  @return                Returns a transport manager for the phase
+   *
    * @ingroup transportProps
    */
-  inline Transport* newDefaultTransportMgr(thermo_t* thermo, int loglevel=0,
-                                           TransportFactory* f=0) {
-    if (f == 0) {
-      f = TransportFactory::factory();
-    }
-    Transport* ptr = f->newTransport(thermo, loglevel);
-    /*
-     * Note: We delete the static s_factory instance here, instead of in
-     *       appdelete() in misc.cpp, to avoid linking problems involving
-     *       the need for multiple cantera and transport library statements
-     *       for applications that don't have transport in them.
-     */
-    return ptr;
-  }
+  Transport* newDefaultTransportMgr(thermo_t* thermo, int loglevel = 0,  TransportFactory* f = 0);
 
-
-}
+  //==================================================================================================================== 
+} // End of namespace Cantera
+//======================================================================================================================
 #endif
