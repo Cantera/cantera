@@ -89,7 +89,7 @@ namespace Cantera {
     return (dynamic_cast<Transport *>(tr));
   }
   //====================================================================================================================
-  void SolidTransport::setParameters(const int n, const int k, const double* const p) {
+  void SolidTransport::setParameters(const int n, const int k, const doublereal * const p) {
     switch (n) {
             
     case 0:
