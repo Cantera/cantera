@@ -213,21 +213,21 @@ namespace Cantera {
      *  These in turn employ subclasses of LTPspecies to 
      *  determine the mobility ratios in the pure species.
      */
-    virtual void mobilityRatio(double* mobRat);
+    virtual void mobilityRatio(doublereal* mobRat);
 
     //! Returns a double pointer to the mobility ratios of the 
     //! transported species in each pure species phase.
-    //! Has size of the number of binary interactions by the number 
-    //! of species (nsp*nsp X nsp)
     /*!
+     *  Has size of the number of binary interactions by the number 
+     *  of species (nsp*nsp X nsp)
      *  The pure species mobility ratios are evaluated using the 
      *  appropriate subclasses of LTPspecies as specified in the 
      *  input file.
      *
      * @param mobRat  array of length "number of species"
-     *              to hold returned mobility ratios.
+     *                to hold returned mobility ratios.
      */ 
-    virtual void getSpeciesMobilityRatio(double** mobRat);
+    virtual void getSpeciesMobilityRatio(doublereal** mobRat);
 
     //! Returns the self diffusion coefficients of the species in the phase.
     //! Has size of nsp(coeffs)
@@ -256,7 +256,7 @@ namespace Cantera {
      *                  Length = number of species in phase
      *                  units = m**2 s-1
      */
-    virtual void selfDiffusion(doublereal * const selfDiff);
+    virtual void selfDiffusion(doublereal* const selfDiff);
 
     //! Returns the self diffusion coefficients in the pure species phases.
     //! Has size of nsp(coeffs) x nsp(phases)
@@ -268,7 +268,7 @@ namespace Cantera {
      * @param selfDiff  array of length "number of species"
      *              to hold returned self diffusion coeffs.
      */
-    virtual void getSpeciesSelfDiffusion(double** selfDiff);
+    virtual void getSpeciesSelfDiffusion(doublereal** selfDiff);
 
     //! Returns the hydrodynamic radius for all species 
     /*!
