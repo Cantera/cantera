@@ -37,9 +37,11 @@ namespace Cantera {
    */
   //@{
   //! Standard state uses the molar convention
-  const int    cSS_CONVENTION_TEMPERATURE = 0;
+  const int cSS_CONVENTION_TEMPERATURE = 0;
   //! Standard state uses the molality convention
-  const int    cSS_CONVENTION_VPSS = 1;
+  const int cSS_CONVENTION_VPSS = 1;
+  //! Standard state thermodynamics is obtained from slave %ThermoPhase objects
+  const int cSS_CONVENTION_SLAVE = 2;
   //@}
 
 
@@ -1085,6 +1087,10 @@ namespace Cantera {
      *
      *  -  Variable Pressure and Temperature -based activities
      *   cSS_CONVENTION_VPSS 1
+     *
+     *  -  Thermodynamics is set via slave ThermoPhase objects with
+     *     nothing being carried out at this %ThermoPhase object level
+     *   cSS_CONVENTION_SLAVE 2
      */
     virtual int standardStateConvention() const;
         

@@ -627,7 +627,7 @@ namespace Cantera {
 
     // Perform any required subclass-specific initialization
     // that requires the XML phase object
-    string id = "";
+    std::string id = "";
     th->initThermoXML(phase, id);
 
     return true;
