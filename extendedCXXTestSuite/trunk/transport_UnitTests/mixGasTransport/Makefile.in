@@ -1,14 +1,14 @@
 #!/bin/sh
 ###############################################################
-#  $Author$
-#  $Date$
-#  $Revision$
+#  $Author: hkmoffa $
+#  $Date: 2010-03-19 18:26:02 -0600 (Fri, 19 Mar 2010) $
+#  $Revision: 420 $
 ###############################################################
 #
 #
 RM = /bin/rm -f
 #
-PROGRAM=SimpleTransportTest1
+PROGRAM=mixGasTransport
 #
 OBJ=$(PROGRAM).o
 #
@@ -80,7 +80,6 @@ depends:
 $(PROGRAM).d: $(PROGRAM).cpp Makefile
 
 rebaseline:
-	@ ./runtest
 	cp output_0.txt output_0_blessed.txt
 
 ############################################################################
@@ -105,8 +104,6 @@ test:
 clean:
 	$(RM) *.o fort.* *%  core *.trace tmp* *~
 	$(RM) $(PROGRAM) *.d .depends
-
-
 
 ###########################################################################
 #          INSTALL RULES
