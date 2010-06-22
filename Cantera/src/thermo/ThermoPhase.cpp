@@ -941,16 +941,20 @@ namespace Cantera {
     }
     xMol_Ref.resize(m_kk, 0.0);
   }
+  //====================================================================================================================
+  void ThermoPhase::installSlavePhases(Cantera::XML_Node* phaseNode) {
 
+  }
+ //====================================================================================================================
   void ThermoPhase::saveSpeciesData(const int k, const XML_Node* const data) {
     if ((int) m_speciesData.size() < (k + 1)) {
       m_speciesData.resize(k+1, 0);
     }
     m_speciesData[k] = new XML_Node(*data);
   }
-
-  //! Return a pointer to the XML tree containing the species
-  /// data for this phase.
+  //====================================================================================================================
+  // Return a pointer to the XML tree containing the species
+  // data for this phase.
   const std::vector<const XML_Node *> & ThermoPhase::speciesData() const { 
     if ((int) m_speciesData.size() != m_kk) {
       throw CanteraError("ThermoPhase::speciesData",

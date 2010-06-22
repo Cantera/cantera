@@ -249,6 +249,38 @@ namespace Cantera {
     }
   }
   //====================================================================================================================
+  void LatticeSolidPhase::installSlavePhases(Cantera::XML_Node* phaseNode) 
+  {
+    int m, k;
+    for (int n = 0; n < m_nlattice; n++) {
+      LatticePhase *lp = m_lattice[n];
+      int nsp =  lp->nSpecies();
+      vector<doublereal> constArr(lp->nElements());
+      for (k = 0; k < nsp; k++) {
+	std::string sname = lp->speciesName(k);
+	std::map<std::string, double> comp;
+	lp->getAtoms(k, DATA_PTR(constArr));
+	for (m = 0; m < lp->nElements(); m++) {
+	  if (constArr[m] != 0.0) {
+	    std::string ename = lp->elementName(m);
+	    comp[ename] = constArr[m];
+	  }
+	}
+	int nel = nElements();
+	vector_fp ecomp(nel, 0.0);            
+	for (m = 0; m < nel; m++) {
+	  double anum = comp[elementName(m)];
+	  if (anum  != 0.0) {
+	    ecomp[m] = anum;
+	  }
+	}
+	double chrg = lp->charge(k);
+	double sz = lp->size(k);
+        addUniqueSpecies(sname, &ecomp[0], chrg, sz);
+      }
+    }
+  }
+  //====================================================================================================================
   void LatticeSolidPhase::initThermo() {
     m_kk = nSpecies();
     m_mm = nElements();
