@@ -2016,6 +2016,12 @@ namespace Cantera {
      */
     virtual void initThermo();
     
+    //! Add in species from Slave phases
+    /*!
+     *  This hook is used for  cSS_CONVENTION_SLAVE phases
+     */
+    virtual void installSlavePhases(Cantera::XML_Node* phaseNode);
+
     // The following methods are used by the clib interface
     // library, and should not be used by application programs.
 

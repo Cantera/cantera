@@ -561,7 +561,7 @@ namespace Cantera {
       // file.            
       db = get_XML_Node(speciesArray["datasrc"], &phase.root());
       if (db == 0) {
-	throw CanteraError("importPhase",
+	throw CanteraError("importPhase()",
 			   " Can not find XML node for species database: " 
 			   + speciesArray["datasrc"]);
       }
@@ -597,17 +597,29 @@ namespace Cantera {
       
       // install it in the phase object
       th->setSpeciesThermo(spth);
-    } else {
+    } else if (ssConvention == cSS_CONVENTION_SLAVE) {
+      /*
+       * No species thermo manager for this type
+       */
+    } else if (ssConvention == cSS_CONVENTION_VPSS) {
       vp_spth = newVPSSMgr(vpss_ptr, &phase, spDataNodeList);
       vpss_ptr->setVPSSMgr(vp_spth);
       spth = vp_spth->SpeciesThermoMgr();
       th->setSpeciesThermo(spth);
+    } else {
+      throw CanteraError("importPhase()", "unknown convention");
     }
 
 
     int k = 0;
 
     int nsp = spDataNodeList.size();
+    if (ssConvention == cSS_CONVENTION_SLAVE) {
+      if (nsp > 0) {
+	throw CanteraError("importPhase()", "For Slave standard states, number of species must be zero: " 
+			   + int2str(nsp));
+      }
+    }
     for (int i = 0; i < nsp; i++) {
       XML_Node *s = spDataNodeList[i];
       AssertTrace(s != 0);
@@ -617,6 +629,10 @@ namespace Cantera {
 	th->saveSpeciesData(k, s);
 	++k;
       }
+    }
+
+    if (ssConvention == cSS_CONVENTION_SLAVE) {
+      th->installSlavePhases(&phase);
     }
 
     // done adding species. 

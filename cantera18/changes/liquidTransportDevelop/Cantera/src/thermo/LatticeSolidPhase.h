@@ -274,6 +274,12 @@ namespace Cantera {
 
     virtual void initThermo();
 
+    //! Add in species from Slave phases
+    /*!
+     *  This hook is used for  cSS_CONVENTION_SLAVE phases
+     */
+    virtual void installSlavePhases(Cantera::XML_Node* phaseNode);
+
     virtual void setParametersFromXML(const XML_Node& eosdata);
 
     void setLatticeMoleFractions(int n, std::string x);
