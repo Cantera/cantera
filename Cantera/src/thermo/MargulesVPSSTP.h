@@ -474,7 +474,24 @@ namespace Cantera {
      * @{
      */
 
-  
+    //! This method returns an array of generalized concentrations
+    /*!
+     * \f$ C^a_k\f$ are defined such that \f$ a_k = C^a_k /
+     * C^0_k, \f$ where \f$ C^0_k \f$ is a standard concentration
+     * defined below and \f$ a_k \f$ are activities used in the
+     * thermodynamic functions.  These activity (or generalized)
+     * concentrations are used
+     * by kinetics manager classes to compute the forward and
+     * reverse rates of elementary reactions. Note that they may
+     * or may not have units of concentration --- they might be
+     * partial pressures, mole fractions, or surface coverages,
+     * for example.
+     *
+     * @param c Output array of generalized concentrations. The
+     *           units depend upon the implementation of the
+     *           reaction rate expressions within the phase.
+     */
+    virtual void getActivityConcentrations(doublereal* c) const; 
  
 
     /**
