@@ -70,6 +70,10 @@ namespace Cantera {
     /// Destructor. 
     virtual ~ReactionStoichMgr();
 
+    ReactionStoichMgr(const ReactionStoichMgr &right);
+
+    ReactionStoichMgr & operator=(const ReactionStoichMgr &right);
+
     /**
      * Add a reaction with mass-action kinetics. Vectors
      * 'reactants' and 'products' contain the integer species
@@ -236,6 +240,9 @@ namespace Cantera {
       void writeNetProductionRates(std::ostream& f);
       void writeMultiplyReactants(std::ostream& f);
       void writeMultiplyRevProducts(std::ostream& f);
+
+ protected:
+
       StoichManagerN*  m_reactants;      
       StoichManagerN*  m_revproducts;
       StoichManagerN*  m_irrevproducts;
