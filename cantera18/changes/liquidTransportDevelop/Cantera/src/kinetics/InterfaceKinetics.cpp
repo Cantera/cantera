@@ -217,10 +217,14 @@ namespace Cantera {
    *
    *  These routines are basically wrappers around the derived copy
    *  constructor.
+   *
+   * @param  tpVector Vector of shallow pointers to ThermoPhase objects. this is the
+   *                  m_thermo vector within this object
    */
-  Kinetics *InterfaceKinetics::duplMyselfAsKinetics() const {
-    InterfaceKinetics* tp = new InterfaceKinetics(*this);
-    return dynamic_cast<Kinetics *>(tp);
+  Kinetics *InterfaceKinetics::duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVector) const {
+    InterfaceKinetics* iK = new InterfaceKinetics(*this);
+    iK->assignShallowPointers(tpVector);
+    return dynamic_cast<Kinetics *>(iK);
   }
   //====================================================================================================================
   // Update properties that depend on temperature
