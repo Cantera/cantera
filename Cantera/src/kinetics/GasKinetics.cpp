@@ -102,7 +102,10 @@ namespace Cantera {
     m_nirrev(0), 
     m_nrev(0),
     m_finalized(false)
-  {
+  {  
+    m_kdata = new GasKineticsData();
+    m_kdata->m_temp = 0.0;
+    m_rxnstoich = new ReactionStoichMgr();
     *this = right;
   }
   //====================================================================================================================
@@ -130,8 +133,7 @@ namespace Cantera {
     m_falloff_concm = right.m_falloff_concm;
     m_irrev = right.m_irrev;
 
-    // needs updating
-    m_rxnstoich = (right.m_rxnstoich);
+    *m_rxnstoich = *(right.m_rxnstoich);
 
     m_fwdOrder = right.m_fwdOrder;
     m_nirrev = right.m_nirrev;
