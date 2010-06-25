@@ -46,18 +46,21 @@ namespace Cantera {
    */
   class AqueousKineticsData {
   public:
-    AqueousKineticsData() :
-      m_logp_ref(0.0),
-      m_logc_ref(0.0),
-      m_ROP_ok(false),
-      m_temp(0.0)
-    {}
-    virtual ~AqueousKineticsData(){}
+    AqueousKineticsData();
 
-    doublereal m_logp_ref, m_logc_ref;
+    ~AqueousKineticsData();
+
+    AqueousKineticsData(const AqueousKineticsData &right);
+
+    AqueousKineticsData& operator=(const AqueousKineticsData &right);
+
+    doublereal m_logp_ref;
+    doublereal m_logc_ref;
     array_fp m_ropf;
-    array_fp m_ropr, m_ropnet;
-    array_fp m_rfn_low, m_rfn_high;
+    array_fp m_ropr;
+    array_fp m_ropnet;
+    array_fp m_rfn_low;
+    array_fp m_rfn_high;
     bool m_ROP_ok;
 
     doublereal m_temp;
@@ -88,8 +91,26 @@ namespace Cantera {
     /// Constructor.
     AqueousKinetics(thermo_t* thermo = 0);
 
+    AqueousKinetics(const AqueousKinetics &right);
+
+    AqueousKinetics& operator=(const AqueousKinetics &right);
+
     /// Destructor.
     virtual ~AqueousKinetics();
+
+
+    //! Duplication routine for objects which inherit from Kinetics
+    /*!
+     *  This virtual routine can be used to duplicate %Kinetics objects
+     *  inherited from %Kinetics even if the application only has
+     *  a pointer to %Kinetics to work with.
+     *
+     *  These routines are basically wrappers around the derived copy  constructor.
+     *
+     * @param  tpVector Vector of shallow pointers to ThermoPhase objects. this is the
+     *                  m_thermo vector within this object
+     */
+    virtual Kinetics *duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVector) const;
 
     virtual int ID() const { return cAqueousKinetics; }
     virtual int type() const { return cAqueousKinetics; }
