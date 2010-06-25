@@ -347,7 +347,7 @@ namespace Cantera {
   //================================================================================================
   // Parse a name string, separating out the phase name from the species name
   /*
-   *   Name strings must not contain these internal characters "; \n \t ," 
+   *   Name strings must not contain these internal characters "; \n \t " 
    *   Only one colon is allowed, the one separating the phase name from the
    *   species name. Therefore, names may not include a colon.
    *
@@ -363,11 +363,11 @@ namespace Cantera {
     std::string s = stripws(nameStr);
     std::string::size_type ibegin, iend, icolon;
     phaseName = "";
-    ibegin = s.find_first_not_of(", ;\n\t");
+    ibegin = s.find_first_not_of(" ;\n\t");
     if (ibegin != std::string::npos) {
       s = s.substr(ibegin,s.size());
       icolon = s.find(':');
-      iend = s.find_first_of(", ;\n\t");
+      iend = s.find_first_of(" ;\n\t");
       if (icolon != std::string::npos) {
 	phaseName = s.substr(0, icolon);
 	s = s.substr(icolon+1, s.size());
@@ -378,7 +378,7 @@ namespace Cantera {
       }
       if (iend != std::string::npos) {
 	throw CanteraError("parseSpeciesName()", 
-			   "Species name has \", ;/\n/\t\" in the middle of it: " + nameStr);
+			   "Species name has \" ;/\n/\t\" in the middle of it: " + nameStr);
       }
     }
     return s;
