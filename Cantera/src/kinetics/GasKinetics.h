@@ -46,22 +46,27 @@ namespace Cantera {
    */
   class GasKineticsData {
   public:
-    GasKineticsData() :
-      m_logp_ref(0.0),
-      m_logc_ref(0.0),
-      m_logStandConc(0.0),
-      m_ROP_ok(false),
-      m_temp(0.0)
-    {}
-    virtual ~GasKineticsData(){}
 
-    doublereal m_logp_ref, m_logc_ref, m_logStandConc;
-    array_fp m_ropf, m_ropr, m_ropnet;
-    array_fp m_rfn_low, m_rfn_high;
+    GasKineticsData();
+
+    GasKineticsData(const GasKineticsData &right);
+
+    virtual ~GasKineticsData();
+    
+    GasKineticsData& operator=(const GasKineticsData &right);
+
+    doublereal m_logp_ref;
+    doublereal m_logc_ref;
+    doublereal m_logStandConc;
+    array_fp m_ropf;
+    array_fp m_ropr;
+    array_fp m_ropnet;
+    array_fp m_rfn_low;
+    array_fp m_rfn_high;
     bool m_ROP_ok;
 
     doublereal m_temp;
-    array_fp  m_rfn;
+    array_fp m_rfn;
     array_fp falloff_work;
     array_fp concm_3b_values;
     array_fp concm_falloff_values;
