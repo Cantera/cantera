@@ -24,7 +24,45 @@
 using namespace std;
 
 namespace Cantera {
-
+  //====================================================================================================================
+  InterfaceKineticsData::InterfaceKineticsData() :
+    m_logp0(0.0),
+    m_logc0(0.0),
+    m_ROP_ok(false),
+    m_temp(0.0), 
+    m_logtemp(0.0)
+  {
+  }
+  //====================================================================================================================
+ InterfaceKineticsData:: InterfaceKineticsData(const InterfaceKineticsData &right) :
+   m_logp0(0.0),
+    m_logc0(0.0),
+    m_ROP_ok(false),
+    m_temp(0.0), 
+    m_logtemp(0.0)
+  {
+    *this = right;
+  }
+  //====================================================================================================================
+  InterfaceKineticsData::~InterfaceKineticsData() 
+  {
+  }
+  //====================================================================================================================
+  InterfaceKineticsData & InterfaceKineticsData::operator=(const InterfaceKineticsData &right)
+  {
+    if (this == &right) return *this;
+    m_logp0 = right.m_logp0;
+    m_logc0 = right.m_logc0;
+    m_ropf = right.m_ropf;
+    m_ropr = right.m_ropr;
+    m_ropnet = right.m_ropnet;
+    m_ROP_ok = right.m_ROP_ok;
+    m_temp = right.m_temp;
+    m_logtemp = right.m_logtemp;
+    m_rfn = right.m_rfn;
+    m_rkcn = right.m_rkcn;
+    return *this;
+  }
   //====================================================================================================================
   /*
    * Construct an empty InterfaceKinetics reaction mechanism.
@@ -136,8 +174,7 @@ namespace Cantera {
 
     Kinetics::operator=(right);
 
-    
-
+    m_grt                  = right.m_grt;
     m_kk                   = right.m_kk;
     m_revindex             = right.m_revindex;
     m_rates                = right.m_rates;
@@ -150,7 +187,8 @@ namespace Cantera {
     m_rrxn                 = right.m_rrxn;
     m_prxn                 = right.m_prxn;
     m_rxneqn               = right.m_rxneqn;
-    *m_kdata               = *right.m_kdata;  // needs to be developed
+    *m_kdata               = *right.m_kdata; 
+    m_conc                 = right.m_conc;
     m_mu0                  = right.m_mu0;
     m_phi                  = right.m_phi;
     m_pot                  = right.m_pot;
@@ -171,7 +209,6 @@ namespace Cantera {
     m_phaseExistsCheck     = right.m_phaseExistsCheck;
     m_phaseExists          = right.m_phaseExists;
 
-
     m_rxnPhaseIsReactant.resize(m_ii, 0);
     m_rxnPhaseIsProduct.resize(m_ii, 0);
     int np = nPhases();
@@ -183,7 +220,7 @@ namespace Cantera {
 	m_rxnPhaseIsProduct[i][p] = right.m_rxnPhaseIsProduct[i][p];  
       }
     }
-    m_rxnPhaseIsProduct    = right.m_rxnPhaseIsProduct;
+
     m_ioFlag               = right.m_ioFlag;
 
     return *this;
@@ -197,17 +234,6 @@ namespace Cantera {
   int InterfaceKinetics::type() const {
     return cInterfaceKinetics; 
   }
-  //====================================================================================================================
-  // Set the electric potential in the nth phase
-  /*
-   * @param n phase Index in this kinetics object.
-   * @param V Electric potential (volts)
-   */
-  void InterfaceKinetics::setElectricPotential(int n, doublereal V) {
-    thermo(n).setElectricPotential(V);
-    m_redo_rates = true;
-  }
-
   //====================================================================================================================
   // Duplication routine for objects which inherit from Kinetics
   /*
@@ -225,6 +251,16 @@ namespace Cantera {
     InterfaceKinetics* iK = new InterfaceKinetics(*this);
     iK->assignShallowPointers(tpVector);
     return dynamic_cast<Kinetics *>(iK);
+  }
+  //====================================================================================================================
+  // Set the electric potential in the nth phase
+  /*
+   * @param n phase Index in this kinetics object.
+   * @param V Electric potential (volts)
+   */
+  void InterfaceKinetics::setElectricPotential(int n, doublereal V) {
+    thermo(n).setElectricPotential(V);
+    m_redo_rates = true;
   }
   //====================================================================================================================
   // Update properties that depend on temperature

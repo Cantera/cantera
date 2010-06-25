@@ -30,7 +30,50 @@
 using namespace std;
 
 namespace Cantera {
+  //====================================================================================================================
+  AqueousKineticsData::AqueousKineticsData() :
+    m_logp_ref(0.0),
+    m_logc_ref(0.0),
+    m_ROP_ok(false),
+    m_temp(0.0)
+  {
+  }
+  //====================================================================================================================
+  AqueousKineticsData::~AqueousKineticsData()
+  {
+  }
+ //====================================================================================================================
+  AqueousKineticsData::AqueousKineticsData(const AqueousKineticsData &right) :
+    m_logp_ref(0.0),
+    m_logc_ref(0.0),
+    m_ROP_ok(false),
+    m_temp(0.0)
+  {
+    *this=right;
+  }
+  //====================================================================================================================
 
+  AqueousKineticsData&  AqueousKineticsData::operator=(const AqueousKineticsData &right)
+  {
+    if (this != &right) {
+      m_logp_ref = right.m_logp_ref;
+      m_logc_ref = right.m_logc_ref;
+      m_ropf = right.m_ropf;
+      m_ropr = right.m_ropr;
+      m_ropnet = right.m_ropnet;
+      m_rfn_low = right.m_rfn_low;
+      m_rfn_high = right.m_rfn_high;
+      m_ROP_ok  = right.m_ROP_ok;
+      m_temp = right.m_temp;
+      m_rfn = right.m_rfn;
+      m_rkcn = right.m_rkcn;
+    }
+    return *this;
+  }
+  //====================================================================================================================
+
+ 
+  //====================================================================================================================
   /**
    * Construct an empty reaction mechanism.
    */    
@@ -47,12 +90,70 @@ namespace Cantera {
     m_kdata->m_temp = 0.0;
     m_rxnstoich = new ReactionStoichMgr;
   }
-
+ //====================================================================================================================
+  AqueousKinetics::AqueousKinetics(const AqueousKinetics &right) :
+    Kinetics(),
+    m_kk(0), 
+    m_nfall(0), 
+    m_nirrev(0), 
+    m_nrev(0),
+    m_finalized(false)
+  {
+    *this = right;
+  }
+ //====================================================================================================================
   AqueousKinetics::~AqueousKinetics() {
     delete m_kdata; 
     delete m_rxnstoich;
-  }
+  } 
+  //====================================================================================================================
+   AqueousKinetics& AqueousKinetics::operator=(const AqueousKinetics &right)
+   {
+   if (this == &right) return *this;
 
+    Kinetics::operator=(right);
+   
+    m_kk = right.m_kk;
+    m_nfall = right.m_nfall;
+    m_rates = right.m_rates;
+    m_index = right.m_index;
+    m_irrev = right.m_irrev;
+
+    *m_rxnstoich = *(right.m_rxnstoich);
+
+    m_fwdOrder = right.m_fwdOrder;
+    m_nirrev = right.m_nirrev;
+    m_nrev = right.m_nrev;
+    m_rgroups = right.m_rgroups;
+    m_pgroups = right.m_pgroups;
+    m_rxntype = right.m_rxntype;
+    m_rrxn = right.m_rrxn;
+    m_prxn = right.m_prxn;
+    m_dn = right.m_dn;
+    m_revindex = right.m_revindex;
+    m_rxneqn = right.m_rxneqn;
+
+    *m_kdata = *(right.m_kdata);
+
+    m_conc = right.m_conc; 
+    m_grt = right.m_grt;
+    m_finalized = right.m_finalized;
+
+    throw CanteraError("GasKinetics::operator=()",
+		       "Unfinished implementation");
+
+    return *this;
+
+   }
+  //====================================================================================================================
+  Kinetics *AqueousKinetics::duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVector) const
+  {
+    AqueousKinetics* gK = new AqueousKinetics(*this);
+    gK->assignShallowPointers(tpVector);
+    return dynamic_cast<Kinetics *>(gK);
+  }
+  
+  //====================================================================================================================
   /**
    * Update temperature-dependent portions of reaction rates and
    * falloff functions.

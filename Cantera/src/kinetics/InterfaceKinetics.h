@@ -44,16 +44,17 @@ namespace Cantera {
    */
   class InterfaceKineticsData {
   public:
-    InterfaceKineticsData() :
-      m_logp0(0.0),
-      m_logc0(0.0),
-      m_ROP_ok(false),
-      m_temp(0.0), 
-      m_logtemp(0.0)
-    {}
+    InterfaceKineticsData();
+
+    InterfaceKineticsData(const InterfaceKineticsData &right);
+
+    InterfaceKineticsData &operator=(const InterfaceKineticsData &right);
+
     //! Virtual destructor
-    virtual ~InterfaceKineticsData() {
-    }
+    /*!
+     * todo - why is this virtual
+     */
+    virtual ~InterfaceKineticsData();
 
     doublereal m_logp0;
     doublereal m_logc0;
