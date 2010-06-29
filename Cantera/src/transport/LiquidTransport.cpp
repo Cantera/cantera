@@ -231,14 +231,13 @@ namespace Cantera {
 	 }
        }
        for ( int l=0;l < m_nsp2; l++ ){
-         if ( m_mobRatTempDep_Ns[l][k]   ) delete m_mobRatTempDep_Ns[l][k];
+         if (m_mobRatTempDep_Ns[l][k]) delete m_mobRatTempDep_Ns[l][k];
        }
        if ( m_lambdaTempDep_Ns[k] ) delete m_lambdaTempDep_Ns[k];
        if ( m_radiusTempDep_Ns[k] ) delete m_radiusTempDep_Ns[k];
        if ( m_diffTempDep_Ns[k]   ) delete m_diffTempDep_Ns[k];
-     //These are constructed in TransportFactory::newLTI 
-
-       if ( m_selfDiffMixModel[k]   ) delete m_selfDiffMixModel[k];
+       //These are constructed in TransportFactory::newLTI 
+       if (m_selfDiffMixModel[k]) delete m_selfDiffMixModel[k];
      }
 
      for ( int k = 0; k < m_nsp2; k++) {
@@ -548,12 +547,14 @@ namespace Cantera {
     update_T();
     update_C();
 
-    ////// LiquidTranInteraction method
-    if (!m_mobRat_mix_ok){
+    // LiquidTranInteraction method
+    if (!m_mobRat_mix_ok) {
       for (int k = 0; k < m_nsp2; k++){
 	if(m_mobRatMixModel[k]){
-	  m_mobRatMix[k] = m_mobRatMixModel[k]->getMixTransProp( m_mobRatTempDep_Ns[k] );
-	  if ( m_mobRatMix[k] > 0 ) m_mobRatMix[k/m_nsp+m_nsp*(k%m_nsp)] = 1.0/m_mobRatMix[k]; // Also must be off diagonal: k%(1+n)!=0, but then m_mobRatMixModel[k] shouldn't be initialized anyway
+	  m_mobRatMix[k] = m_mobRatMixModel[k]->getMixTransProp(m_mobRatTempDep_Ns[k]);
+	  if (m_mobRatMix[k] > 0) {
+            m_mobRatMix[k/m_nsp+m_nsp*(k%m_nsp)] = 1.0/m_mobRatMix[k]; // Also must be off diagonal: k%(1+n)!=0, but then m_mobRatMixModel[k] shouldn't be initialized anyway
+          }
 	}
       }
     }
@@ -576,7 +577,7 @@ namespace Cantera {
     if (!m_mobRat_temp_ok) {
       updateMobilityRatio_T();
     }
-    for (int k=0; k<m_nsp2; k++) {
+    for (int k=0; k < m_nsp2; k++) {
       for (int j=0; j < m_nsp; j++) {
 	mobRat[k][j] = m_mobRatSpecies(k,j); 
       }
@@ -1439,7 +1440,7 @@ namespace Cantera {
 
     for (k = 0; k < m_nsp2; k++) {
       for (j = 0; j < m_nsp; j++) {
-	m_mobRatSpecies(k,j) = m_mobRatTempDep_Ns[k][j]->getSpeciesTransProp() ;
+	m_mobRatSpecies(k,j) = m_mobRatTempDep_Ns[k][j]->getSpeciesTransProp();
       }
     }
     m_mobRat_temp_ok = true;
@@ -1630,7 +1631,7 @@ namespace Cantera {
      * They are still fortran ordered, so that i varies fastest.
      */
 
-    double condSum1, condSum2;
+    double condSum1;
     switch (m_nDim) {
     case 1:  /* 1-D approximation */
 

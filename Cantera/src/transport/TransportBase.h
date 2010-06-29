@@ -329,10 +329,23 @@ namespace Cantera {
     virtual void getSpeciesIonConductivity(doublereal* const ionCond)
     { err("getSpeciesIonConductivity"); }
 
-
-    
-    /**
-     * The mobility ratio. 
+ 
+    //! Returns the pointer to the mobility ratios of the species in the phase
+    /*!
+     *
+     * @param mobRat Returns a matrix of mobility ratios for the current problem.
+     *               The mobility ratio mobRat(i,j) is defined as the ratio of the
+     *               mobility of species i to species j.
+     * 
+     *         mobRat(i,j) = mu_i / mu_j  
+     *
+     *    It is returned in fortran-ordering format. ie. it is returned as mobRat[k], where
+     *
+     *        k = j * nsp + i
+     *
+     *    The size of mobRat must be at least equal to  nsp*nsp
+     *
+     * @deprecated This doesn't seem to be the essential input; it should just be the mobility.
      */
     virtual void mobilityRatio(double* mobRat)
     { err("mobilityRatio"); }
