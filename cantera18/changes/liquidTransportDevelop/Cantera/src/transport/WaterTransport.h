@@ -47,6 +47,13 @@ namespace Cantera {
   public:
 
     //! default constructor
+    /*!
+     *  @param thermo   ThermoPhase object that represents the phase. 
+     *                  Defaults to zero 
+     *
+     *  @param ndim     Number of dimensions of the flux expressions.
+     *                  Defaults to a value of one.
+     */
     WaterTransport(thermo_t* thermo = 0, int ndim = 1);
 
     //!Copy Constructor for the %LiquidThermo object.

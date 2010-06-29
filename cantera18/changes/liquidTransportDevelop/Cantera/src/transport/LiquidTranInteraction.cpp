@@ -709,7 +709,7 @@ namespace Cantera {
       for (i = 0; i < nsp; i++) {
 	if (m_mobRatMixModel[k]) {
 	  m_mobRatMix(i,j) = m_mobRatMixModel[k]->getMixTransProp(m_mobRatSpecies[k] );	
-	  if (m_mobRatMix(i,j) > 0) {
+	  if (m_mobRatMix(i,j) > 0.0) {
             m_mobRatMix(j,i) = 1.0/m_mobRatMix(i,j);
           }
 	}
