@@ -173,8 +173,22 @@ namespace Cantera {
     newTransport(thermo_t* thermo, int log_level=0);
 
     //! Initialize an existing transport manager
-    virtual void initTransport(Transport* tr,  
-			       thermo_t* thermo, int mode=0, int log_level=0);
+    /*!
+     *  This routine sets up an existing gas-phase transport manager.
+     *  It calculates the collision integrals and calls the initGas() function to 
+     *  populate the species-dependent data structure.
+     *
+     *  @param tr       Pointer to the Transport manager
+     *  @param thermo   Pointer to the ThermoPhase object
+     *  @param mode     Chemkin compatible mode or not. This alters the specification of the
+     *                  collision integrals. defaults to no.
+     *  @param log_level Defaults to zero, no logging
+     *
+     *                     In DEBUG_MODE, this routine will create the file transport_log.xml
+     *                     and write informative information to it.
+     *  
+     */
+    virtual void initTransport(Transport* tr, thermo_t* thermo, int mode=0, int log_level=0);
 
     //! Initialize an existing transport manager for liquid phase
     /*! Similar to initTransport except uses LiquidTransportParams
@@ -336,9 +350,15 @@ namespace Cantera {
     //! Corrections for polar-nonpolar binary diffusion coefficients
     /*!
      * Calculate corrections to the well depth parameter and the
-     * diamter for use in computing the binary diffusion coefficient
+     * diameter for use in computing the binary diffusion coefficient
      * of polar-nonpolar pairs. For more information about this
      * correction, see Dixon-Lewis, Proc. Royal Society (1968).
+     *
+     *  @param i          Species one - this is a bimolecular correction routine
+     *  @param j          species two - this is a bimolecular correction routine
+     *  @param tr         Database of species properties read in from the input xml file.
+     *  @param f_eps      Multiplicative correction factor to be applied to epsilon(i,j)
+     *  @param f_sigma    Multiplicative correction factor to be applied to diam(i,j)
      */
     void makePolarCorrections(int i, int j, 
 			      const GasTransportParams& tr, doublereal& f_eps, 
