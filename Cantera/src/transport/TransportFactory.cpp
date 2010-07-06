@@ -181,14 +181,20 @@ namespace Cantera {
       (q2*xk*xk + q1*xj*xj + q12*xk*xj);
   }
 
-
+  //=============================================================================================================================
   // Corrections for polar-nonpolar binary diffusion coefficients
   /*
-    Calculate corrections to the well depth parameter and the
-    diamter for use in computing the binary diffusion coefficient
-    of polar-nonpolar pairs. For more information about this
-    correction, see Dixon-Lewis, Proc. Royal Society (1968).
-  */
+   * Calculate corrections to the well depth parameter and the
+   * diameter for use in computing the binary diffusion coefficient
+   * of polar-nonpolar pairs. For more information about this
+   * correction, see Dixon-Lewis, Proc. Royal Society (1968).
+   *
+   *  @param i          Species one - this is a bimolecular correction routine
+   *  @param j          species two - this is a bimolecular correction routine
+   *  @param tr         Database of species properties read in from the input xml file.
+   *  @param f_eps      Multiplicative correction factor to be applied to epsilon(i,j)
+   *  @param f_sigma    Multiplicative correction factor to be applied to diam(i,j)
+   */
   void TransportFactory::makePolarCorrections(int i, int j, 
 					      const GasTransportParams& tr, doublereal& f_eps, doublereal& f_sigma) {
 
@@ -213,7 +219,7 @@ namespace Cantera {
     f_sigma = pow(xi, -1.0/6.0);
     f_eps = xi*xi;
   }
-
+  //=============================================================================================================================
   /*
     TransportFactory(): default constructor
     
@@ -224,7 +230,6 @@ namespace Cantera {
   TransportFactory::TransportFactory() :
     m_verbose(false),
     m_integrals(0)
-    
   {
     m_models["Mix"] = cMixtureAveraged;
     m_models["Multi"] = cMulticomponent;
@@ -664,8 +669,21 @@ namespace Cantera {
     }
   }
   //====================================================================================================================
-
-
+  // Initialize an existing transport manager
+  /*
+   *  This routine sets up an existing gas-phase transport manager.
+   *  It calculates the collision integrals and calls the initGas() function to 
+   *  populate the species-dependent data structure.
+   *
+   *  @param tr       Pointer to the Transport manager
+   *  @param thermo   Pointer to the ThermoPhase object
+   *  @param mode     Chemkin compatible mode or not. This alters the specification of the
+   *                  collision integrals. defaults to no.
+   *  @param log_level Defaults to zero, no logging
+   *
+   *                     In DEBUG_MODE, this routine will create the file transport_log.xml
+   *                     and write informative information to it.
+   */
   void TransportFactory::initTransport(Transport* tran, 
 				       thermo_t* thermo, int mode, int log_level) { 
 
@@ -673,6 +691,9 @@ namespace Cantera {
         
     GasTransportParams trParam;
 #ifdef DEBUG_MODE
+    if (log_level == 0) {
+      m_verbose = 0;
+    }
     ofstream flog("transport_log.xml");
     trParam.xml = new XML_Writer(flog);
     if (m_verbose) {
@@ -695,7 +716,7 @@ namespace Cantera {
 #endif
     return;
   }
-
+  //====================================================================================================================
 
   /* Similar to initTransport except uses LiquidTransportParams
      class and calls setupLiquidTransport().
