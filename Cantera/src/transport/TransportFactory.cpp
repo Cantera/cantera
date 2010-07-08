@@ -865,7 +865,7 @@ namespace Cantera {
     for (i = 0; i < nsp; i++) {
       const XML_Node& sp = *xspecies[i];
       name = sp["name"];
-     // std::cout << "Processing node for " << name << std::endl;
+      // std::cout << "Processing node for " << name << std::endl;
 
       // put in a try block so that species with no 'transport'
       // child are skipped, instead of throwing an exception.
@@ -905,8 +905,7 @@ namespace Cantera {
 				    "negative rotation relaxation number");
 
 	datatable[name] = data;
-      }
-      catch(CanteraError) {
+      } catch(CanteraError) {
 	;
       }
     }
