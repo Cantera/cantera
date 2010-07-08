@@ -178,10 +178,10 @@ namespace Cantera {
      *  It calculates the collision integrals and calls the initGas() function to 
      *  populate the species-dependent data structure.
      *
-     *  @param tr       Pointer to the Transport manager
-     *  @param thermo   Pointer to the ThermoPhase object
-     *  @param mode     Chemkin compatible mode or not. This alters the specification of the
-     *                  collision integrals. defaults to no.
+     *  @param tr        Pointer to the Transport manager
+     *  @param thermo    Pointer to the ThermoPhase object
+     *  @param mode      Chemkin compatible mode or not. This alters the specification of the
+     *                   collision integrals. defaults to no.
      *  @param log_level Defaults to zero, no logging
      *
      *                     In DEBUG_MODE, this routine will create the file transport_log.xml
@@ -191,12 +191,20 @@ namespace Cantera {
     virtual void initTransport(Transport* tr, thermo_t* thermo, int mode=0, int log_level=0);
 
     //! Initialize an existing transport manager for liquid phase
-    /*! Similar to initTransport except uses LiquidTransportParams
-     * class and calls setupLiquidTransport().
+    /*!
+     *  This routine sets up an existing liquid-phase transport manager.
+     *  It is similar to initTransport except that it uses the LiquidTransportParams
+     *  class and calls setupLiquidTransport().
+     *
+     * @param tr        Pointer to the Transport manager
+     * @param thermo    Pointer to the ThermoPhase object
+     * @param log_level Defaults to zero, no logging
+     *
+     *                     In DEBUG_MODE, this routine will create the file transport_log.xml
+     *                     and write informative information to it.
      */
-    virtual void initLiquidTransport(Transport* tr,
-                                     thermo_t* thermo, 
-                                     int log_level=0);
+    virtual void initLiquidTransport(Transport* tr, thermo_t* thermo, int log_level=0);
+
 
   private:
 
@@ -217,15 +225,22 @@ namespace Cantera {
      */
     TransportFactory();
 
-    //! Read Transport Database
+    //! Read the transport database
     /*!
      * Read transport property data from a file for a list of species.
      * Given the name of a file containing transport property
      * parameters and a list of species names, this method returns an
      * instance of TransportParams containing the transport data for
      * these species read from the file.
+     *
+     *  @param xspecies    Vector of pointers to species XML_Node databases.       
+     *  @param log         reference to an XML_Node that will contain the log (unused) 
+     *  @param names       vector of species names that must be filled in with valid transport parameters
+     *  @param tr          Output object containing the transport parameters
+     *                     for the species listed in names (in the order of their listing
+     *                     in names).  
      */
-    void getTransportData(const std::vector<const XML_Node*> &db,  
+    void getTransportData(const std::vector<const XML_Node*> &xspecies,  
 			  XML_Node& log, const std::vector<std::string>& names, 
 			  GasTransportParams& tr);
 
