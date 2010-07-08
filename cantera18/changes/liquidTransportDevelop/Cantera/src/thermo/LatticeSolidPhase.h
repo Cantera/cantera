@@ -62,6 +62,8 @@ namespace Cantera {
    *  The mole fraction vector has been redefined within the LatticeSolidPhase object. The mole fractions sum
    *  to one within each of the individual lattice phases. The routine getMoleFraction() and setMoleFraction()
    *  have been redefined to use this convention.
+   *
+   *  (This object is still under construction)
    *      
    */
   class LatticeSolidPhase : public ThermoPhase {
@@ -228,7 +230,24 @@ namespace Cantera {
       m_press = p;
       setMolarDensity(m_molar_density);
     }
+
+    //! Set the mole fractions to the specified values, and then 
+    //! normalize them so that they sum to 1.0 for each of the subphases
+    /*!
+     *
+     * @param x  Input vector of mole fractions. There is no restriction
+     *           on the sum of the mole fraction vector. Internally,
+     *           this object will normalize this vector before
+     *           storring its contents.
+     *           Length is m_kk.
+     */
     virtual void setMoleFractions(const doublereal *x);
+
+    //! Get the species mole fraction vector.
+    /*!
+     * @param x On return, x contains the mole fractions. Must have a
+     *          length greater than or equal to the number of species.
+     */
     virtual void getMoleFractions(doublereal *x) const;
 
     doublereal moleFraction(const int k) const {
