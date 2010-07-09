@@ -61,7 +61,9 @@
 namespace Cantera {
 
   TransportFactory* TransportFactory::s_factory = 0;
+
 #if defined(THREAD_SAFE_CANTERA)
+  // declaration of static storage for the mutex
   boost::mutex  TransportFactory::transport_mutex;
 #endif
 
@@ -656,16 +658,14 @@ namespace Cantera {
 
     XML_Node root, log;
     // Note that getLiquidSpeciesTransportData just populates the pure species transport data.  
-    getLiquidSpeciesTransportData(species_database, log,  
-				  trParam.thermo->speciesNames(), trParam);   
+    getLiquidSpeciesTransportData(species_database, log, trParam.thermo->speciesNames(), trParam);   
 
     // getLiquidInteractionsTransportData() populates the 
     // species-species  interaction models parameters 
     // like visc_Eij
     if (phase_database->hasChild("transport")) {
       XML_Node& transportNode = phase_database->child("transport");
-      getLiquidInteractionsTransportData(transportNode, log,  
-					 trParam.thermo->speciesNames(), trParam);   
+      getLiquidInteractionsTransportData(transportNode, log, trParam.thermo->speciesNames(), trParam);   
     }
   }
   //====================================================================================================================
@@ -749,18 +749,14 @@ namespace Cantera {
     return;
 
   }
-
-
-
-  /********************************************************
-   *
-   *      Collision Integral Fits
-   *
-   ********************************************************/
-
-
-  void TransportFactory::fitCollisionIntegrals(ostream& logfile, 
-					       GasTransportParams& tr) {
+  //====================================================================================================================
+  // Generate polynomial fits to collision integrals
+  /*
+   *     @param logfile  Reference to an ostream that will contain log information when in
+   *                     DEBUG_MODE
+   *     @param tr       Reference to the GasTransportParams object that will contain the results.
+   */
+  void TransportFactory::fitCollisionIntegrals(ostream& logfile, GasTransportParams& tr) {
 
     vector_fp::iterator dptr;
     doublereal dstar;
@@ -824,7 +820,7 @@ namespace Cantera {
     }
 #endif
   }
-
+  //====================================================================================================================
 
 
 
@@ -1230,28 +1226,33 @@ namespace Cantera {
    *********************************************************/
 
 
-
-  /*****************   fitProperties  ***************/
-
-  /* Generate polynomial fits for the pure-species viscosities and
-   * for the binary diffusion coefficients. If
-   * CK_mode, then the fits are of the
-   * form \f[
-   * \log(\eta(i)) = \sum_{n = 0}^3 a_n(i) (\log T)^n
-   * \f]
-   * and \f[
-   * \log(D(i,j)) = \sum_{n = 0}^3 a_n(i,j) (\log T)^n
-   * \f]
-   * Otherwise the fits are of the form
-   * \f[
-   * \eta(i)/sqrt(k_BT) = \sum_{n = 0}^4 a_n(i) (\log T)^n
-   * \f]
-   * and \f[
-   * D(i,j)/sqrt(k_BT)) = \sum_{n = 0}^4 a_n(i,j) (\log T)^n
-   * \f]
+  //====================================================================================================================
+  // Generate polynomial fits to the viscosity, conductivity, and
+  // the binary diffusion coefficients 
+  /*
+   * If CK_mode, then the fits are of the form 
+   *     \f[
+   *          \log(\eta(i)) = \sum_{n = 0}^3 a_n(i) (\log T)^n
+   *     \f]
+   *  and
+   *     \f[
+   *          \log(D(i,j)) = \sum_{n = 0}^3 a_n(i,j) (\log T)^n
+   *     \f]
+   *  Otherwise the fits are of the form
+   *     \f[
+   *          \eta(i)/sqrt(k_BT) = \sum_{n = 0}^4 a_n(i) (\log T)^n
+   *     \f]
+   *  and
+   *     \f[
+   *          D(i,j)/sqrt(k_BT)) = \sum_{n = 0}^4 a_n(i,j) (\log T)^n
+   *     \f]
+   *
+   *  @param tr       Reference to the GasTransportParams object that will contain the results.
+   *  @param logfile  Reference to an ostream that will contain log information when in
+   *                  DEBUG_MODE
    */
-  void TransportFactory::fitProperties(GasTransportParams& tr, 
-				       ostream& logfile) {
+  void TransportFactory::fitProperties(GasTransportParams& tr, std::ostream& logfile) {
+
     doublereal tstar;
     int k, j, n, ndeg = 0;
 #ifdef DEBUG_MODE
