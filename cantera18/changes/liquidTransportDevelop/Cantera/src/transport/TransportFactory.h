@@ -43,7 +43,7 @@
 //======================================================================================================================
 namespace Cantera {
   //====================================================================================================================
-  //! Struct to hold data read from a transport property database file.
+  //! Struct to hold data read from a transport property database file for gas-phase species
   struct GasTransportData {
     GasTransportData() : speciesName("-"), 
 			 geometry(-1), wellDepth(-1.0),
@@ -211,8 +211,10 @@ namespace Cantera {
     //! Static instance of the factor -> This is the only instance of this
     //! object allowed
     static TransportFactory* s_factory;
+
 #if defined(THREAD_SAFE_CANTERA)
-    static boost::mutex transport_mutex ;
+    //! Static instance of the mutex used to ensure the proper reading of the transport database
+    static boost::mutex transport_mutex;
 #endif
 
     //! The constructor is private; use static method factory() to
@@ -248,8 +250,8 @@ namespace Cantera {
     //! Read transport property data from a file for a list of species that comprise
     //! the phase.
     /*!
-     * Given the name of a file containing transport property
-     * parameters and a list of species names, this method constructs the LiquidTransport
+     * Given a vector of pointers to species XML data bases
+     * and a list of species names, this method constructs the LiquidTransport
      * Params object  containing the transport data for these species.
      *
      *  It is an error to not find a "transport" XML element within each of the species 
@@ -266,41 +268,58 @@ namespace Cantera {
 				       XML_Node& log, const std::vector<std::string>& names, 
 				       LiquidTransportParams& tr);
 
-    //! Read transport property data from a file for a list of species.
+    //! Read transport property data from a file for interactions between species.
     /*!
-     *
-     *  Given the name of a file containing transport property
-     * parameters and a list of species names, this method returns an
+     * Given the XML_Node database for transport interactions defined within the current phase
+     * and a list of species names within the phase, this method returns an
      * instance of TransportParams containing the transport data for
      * these species read from the file.
      *
+     * This routine reads interaction parameters between species within the phase.
+     *
+     * @param phaseTran_db   Reference to the transport XML field for the phase
+     * @param log  Reference to an XML log file. (currently unused)
+     * @param names Vector of names of species. On output, tr will contain transport data
+     *              for each of of these names in the order determined by this vector.
+     * @param tr   Reference to the LiquidTransportParams object that will contain the results.
      */
-    void getLiquidInteractionsTransportData(const XML_Node &db,  
-				XML_Node& log, const std::vector<std::string>& names, 
-				LiquidTransportParams& tr);
+    void getLiquidInteractionsTransportData(const XML_Node &phaseTran_db, XML_Node& log,
+					    const std::vector<std::string>& names, LiquidTransportParams& tr);
 
-    //! Generate polynomial fits to viscosity, conductivity, and
-    //!  binary diffusion coefficients */
-    /*! If CK_mode, then the fits are of the form 
-     * \f[
-     * \log(\eta(i)) = \sum_{n = 0}^3 a_n(i) (\log T)^n
-     * \f]
-     * and \f[
-     * \log(D(i,j)) = \sum_{n = 0}^3 a_n(i,j) (\log T)^n
-     * \f]
-     * Otherwise the fits are of the form
-     * \f[
-     * \eta(i)/sqrt(k_BT) = \sum_{n = 0}^4 a_n(i) (\log T)^n
-     * \f]
-     * and \f[
-     * D(i,j)/sqrt(k_BT)) = \sum_{n = 0}^4 a_n(i,j) (\log T)^n
-     * \f]
+    //! Generate polynomial fits to the viscosity, conductivity, and
+    //! the binary diffusion coefficients 
+    /*!
+     * If CK_mode, then the fits are of the form 
+     *     \f[
+     *          \log(\eta(i)) = \sum_{n = 0}^3 a_n(i) (\log T)^n
+     *     \f]
+     *  and
+     *     \f[
+     *          \log(D(i,j)) = \sum_{n = 0}^3 a_n(i,j) (\log T)^n
+     *     \f]
+     *  Otherwise the fits are of the form
+     *     \f[
+     *          \eta(i)/sqrt(k_BT) = \sum_{n = 0}^4 a_n(i) (\log T)^n
+     *     \f]
+     *  and
+     *     \f[
+     *          D(i,j)/sqrt(k_BT)) = \sum_{n = 0}^4 a_n(i,j) (\log T)^n
+     *     \f]
+     *
+     *  @param tr       Reference to the GasTransportParams object that will contain the results.
+     *  @param logfile  Reference to an ostream that will contain log information when in
+     *                  DEBUG_MODE
+     *
      */
-    void fitProperties(GasTransportParams& tr, std::ostream & logfile);
+    void fitProperties(GasTransportParams& tr, std::ostream &logfile);
 
     //! Generate polynomial fits to collision integrals
-    void fitCollisionIntegrals(std::ostream & logfile, 
-			       GasTransportParams& tr);
+    /*!
+     *     @param logfile  Reference to an ostream that will contain log information when in
+     *                     DEBUG_MODE
+     *     @param tr       Reference to the GasTransportParams object that will contain the results.
+     */
+    void fitCollisionIntegrals(std::ostream & logfile, GasTransportParams& tr);
 
  
     //! Prepare to build a new kinetic-theory-based transport manager for low-density gases
@@ -343,22 +362,20 @@ namespace Cantera {
      * d(j,k). This method computes the multiplier by which the
      * first-order binary diffusion coefficient should be multiplied
      * to produce the value correct to second order. The expressions
-     * here are taken from Marerro and Mason,
-     * J. Phys. Chem. Ref. Data, vol. 1, p. 3 (1972).
+     * here are taken from Marerro and Mason, J. Phys. Chem. Ref. Data, vol. 1, p. 3 (1972).
      *
      * @param t   Temperature (K)
      * @param tr  Transport parameters
      * @param k   index of first species
      * @param j   index of second species
-     * @param xmk mole fraction of species k
-     * @param xmj mole fraction of species j
+     * @param xk  Mole fraction of species k
+     * @param xj  Mole fraction of species j
      * @param fkj multiplier for d(k,j)
      * @param fjk multiplier for d(j,k) 
      *
      * @note This method is not used currently.
      */
-    void getBinDiffCorrection(doublereal t, 
-			      const GasTransportParams& tr, int k, int j,
+    void getBinDiffCorrection(doublereal t, const GasTransportParams& tr, int k, int j,
 			      doublereal xk, doublereal xj, 
 			      doublereal& fkj, doublereal& fjk);
 
