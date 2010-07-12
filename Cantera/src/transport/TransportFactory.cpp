@@ -49,7 +49,6 @@
 #include <cstdio>
 #include <cstring>
 
-//using namespace std;
 
 /**
  * polynomial degree used for fitting collision integrals
@@ -59,7 +58,7 @@
 
 
 namespace Cantera {
-
+ //====================================================================================================================
   TransportFactory* TransportFactory::s_factory = 0;
 
 #if defined(THREAD_SAFE_CANTERA)
@@ -70,54 +69,54 @@ namespace Cantera {
     
   ////////////////////////// exceptions /////////////////////////
 
-  /** 
-   * Exception thrown if an error is encountered while reading the 
-   * transport database.
-   */
+  //====================================================================================================================
+  //! Exception thrown if an error is encountered while reading the transport database
   class TransportDBError : public CanteraError {
   public:
-    TransportDBError(int linenum, std::string msg) 
-      : CanteraError("getTransportData",
-		     "error reading transport data: " 
-		     + msg + "\n") {}
+    //! Default constructor
+    /*!
+     *  @param linenum  inputs the line number
+     *  @param msg      String message to be sent to the user
+     */
+    TransportDBError(int linenum, std::string msg) :
+      CanteraError("getTransportData", "error reading transport data: "  + msg + "\n") 
+    {
+    }
   };
-
-
+  //====================================================================================================================
   /////////////////////////// constants //////////////////////////
 
   const doublereal ThreeSixteenths = 3.0/16.0;
   const doublereal TwoOverPi       = 2.0/Pi;
   const doublereal FiveThirds      = 5.0/3.0;
 
-
-
   //////////////////// class TransportFactory methods //////////////
 
-
+  //====================================================================================================================
   // Second-order correction to the binary diffusion coefficients
   /*
-    Calculate second-order corrections to binary diffusion
-    coefficient pair (dkj, djk). At first order, the binary
-    diffusion coefficients are independent of composition, and
-    d(k,j) = d(j,k). But at second order, there is a weak
-    dependence on composition, with the result that d(k,j) !=
-    d(j,k). This method computes the multiplier by which the
-    first-order binary diffusion coefficient should be multiplied
-    to produce the value correct to second order. The expressions
-    here are taken from Marerro and Mason,
-    J. Phys. Chem. Ref. Data, vol. 1, p. 3 (1972).
-   
-    @param t   Temperature (K)
-    @param tr  Transport parameters
-    @param k   index of first species
-    @param j   index of second species
-    @param xmk mole fraction of species k
-    @param xmj mole fraction of species j
-    @param fkj multiplier for d(k,j)
-    @param fjk multiplier for d(j,k) 
-    
-    @note This method is not used currently.
-  */
+   *    Calculate second-order corrections to binary diffusion
+   * coefficient pair (dkj, djk). At first order, the binary
+   * diffusion coefficients are independent of composition, and
+   * d(k,j) = d(j,k). But at second order, there is a weak
+   * dependence on composition, with the result that d(k,j) !=
+   * d(j,k). This method computes the multiplier by which the
+   * first-order binary diffusion coefficient should be multiplied
+   * to produce the value correct to second order. The expressions
+   * here are taken from Marerro and Mason,
+   * J. Phys. Chem. Ref. Data, vol. 1, p. 3 (1972).
+   * 
+   *  @param t   Temperature (K)
+   *   @param tr  Transport parameters
+   *   @param k   index of first species
+   *  @param j   index of second species
+   *  @param xmk mole fraction of species k
+   *  @param xmj mole fraction of species j
+   *  @param fkj multiplier for d(k,j)
+   *  @param fjk multiplier for d(j,k) 
+   *  
+   *  @note This method is not used currently.
+   */
   void TransportFactory::getBinDiffCorrection(doublereal t, 
 					      const GasTransportParams& tr, int k, int j, doublereal xk, doublereal xj, 
 					      doublereal& fkj, doublereal& fjk) {
@@ -182,7 +181,6 @@ namespace Cantera {
       (p2*xk*xk + p1*xj*xj + p12*xk*xj)/
       (q2*xk*xk + q1*xj*xj + q12*xk*xj);
   }
-
   //=============================================================================================================================
   // Corrections for polar-nonpolar binary diffusion coefficients
   /*

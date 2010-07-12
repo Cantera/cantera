@@ -117,14 +117,55 @@ namespace Cantera {
 
   private:
 
-    int m_nmobile;    // number of mobile species
+    //! number of mobile species
+    /*!
+     *   This is equal to the 
+     */
+    int m_nmobile;  
+
+    //! Coefficient for the diffusivity of species within a solid
+    /*!
+     *  This is with respect to the lattice
+     *  units = m**2 / s
+     *  vector of length m_nmobile
+     */
     vector_fp m_Adiff;
+
+    //! Temperature power coefficient for the diffusivity of species in a solid
+    /*!
+     *  vector of length m_nmobile
+     */
     vector_fp m_Ndiff;
+
+    //! Arrhenius factor for the species diffusivities of a solid
+    /*!
+     *  units = temperature
+     *  vector of length m_nmobile
+     */
     vector_fp m_Ediff;
+
+    //! Index of mobile species to global species
+    /*!
+     *  vector of length m_nmobile
+     */
     vector_int m_sp;
+
+    //! Coefficient for the thermal conductivity of a solid
+    /*!
+     *  units = kg m / s3 /K   = W/m/K
+     */
     doublereal m_Alam;
+
+    //! Temperature power coefficient for the thermal conductivity of a solid
     doublereal m_Nlam;
+
+    //! Arrhenius factor for the thermal conductivity of a solid
+    /*!
+     *  units = temperature
+     */
     doublereal m_Elam;
+
+    //! extra fp array of length nSpecies()
     vector_fp m_work;
   };
 }
