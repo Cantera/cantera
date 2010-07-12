@@ -45,19 +45,56 @@ namespace Cantera {
   //====================================================================================================================
   //! Struct to hold data read from a transport property database file for gas-phase species
   struct GasTransportData {
-    GasTransportData() : speciesName("-"), 
-			 geometry(-1), wellDepth(-1.0),
-			 diameter(-1.0), 
-			 dipoleMoment(-1.0), 
-			 polarizability(-1.0),
-			 rotRelaxNumber(-1.0) {}
+    //! Default constructor
+    GasTransportData() : 
+      speciesName("-"), 
+      geometry(-1),
+      wellDepth(-1.0),
+      diameter(-1.0), 
+      dipoleMoment(-1.0), 
+      polarizability(-1.0),
+      rotRelaxNumber(-1.0) 
+    {
+    }
 
+    //! gas phase species name
     std::string speciesName;
+    //! Geometry of the molecule
+    /*!
+     *  0  - single atom
+     *  1  - linear atom
+     *  2  - non-linear geom
+     */
     int geometry;
+
+    //! well-depth parameter
+    /*!
+     *  units - temperature (CHECK)
+     */
     doublereal wellDepth;
+
+    //! Lennard-Jones diameter of the molecule
+    /*!
+     *  units - Angstroms
+     */
     doublereal diameter;
+
+    //! dipole Moment of the molecule
+    /*!
+     *  units = Debye  (a debye is 10-18 cm3/2 erg1/2)
+     */
     doublereal dipoleMoment;
+
+    //! Polarizability of the molecule
+    /*!
+     *  units = A**3
+     */
     doublereal polarizability;
+
+    //! Rotational relaxation number
+    /*!
+     *  Number of collisions it takes to equilibrate the rotational dofs with the temperature
+     */
     doublereal rotRelaxNumber;
   };
 
