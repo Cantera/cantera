@@ -129,10 +129,7 @@ namespace Cantera {
    */
   class SimpleTransport : public Transport {
   public:
-
-    typedef  vector_fp Coeff_T_;
  
-
     //! Default constructor.  
     /*!
      * This requires call to initLiquid(LiquidTransportParams& tr)
@@ -185,9 +182,6 @@ namespace Cantera {
      *            in the phase.
      */
     virtual bool initLiquid(LiquidTransportParams& tr);
-
-    friend class TransportFactory;
-
 
     //! Return the model id for this transport parameterization
     virtual int model() const {
@@ -491,6 +485,11 @@ namespace Cantera {
      */
     int compositionDepType_;
 
+    //! Boolean indicating whether to use the hydrodynamic radius formulation
+    /*!
+     * If true, then the diffusion coefficient is calculated from the
+     * hydrodynamic radius.
+     */
     bool useHydroRadius_;
 
     //! Boolean indicating whether electro-migration term should be
