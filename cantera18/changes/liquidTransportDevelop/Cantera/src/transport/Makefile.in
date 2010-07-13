@@ -37,12 +37,12 @@ CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT) $(PIC_FLAG) $(DEBUG_FLAG)
 TRAN_OBJ    = TransportFactory.o MultiTransport.o MixTransport.o MMCollisionInt.o \
               SolidTransport.o DustyGasTransport.o TransportBase.o WaterTransport.o \
               SimpleTransport.o LiquidTransportData.o LiquidTransportParams.o LiquidTranInteraction.o \
-              TransportParams.o
+              TransportParams.o LTRspecies.o
 
 TRAN_H  =  TransportFactory.h MultiTransport.h MixTransport.h \
            MMCollisionInt.h  SolidTransport.h DustyGasTransport.h \
            TransportBase.h L_matrix.h TransportParams.h WaterTransport.h \
-           SimpleTransport.h LiquidTranInteraction.h Tortuosity.h
+           SimpleTransport.h LiquidTranInteraction.h Tortuosity.h 
 
 ifeq ($(do_electro),1)
 do_issp = 1
@@ -51,8 +51,8 @@ ELECTRO_H  =  AqueousTransport.h
 endif
 
 ifeq ($(do_issp),1)
-ISSP_OBJ = LiquidTransport.o LiquidTransportData.o
-ISSP_H   = LiquidTransport.h LiquidTransportParams.h LiquidTransportData.h
+ISSP_OBJ = LiquidTransport.o LiquidTransportData.o LTPspecies.o
+ISSP_H   = LiquidTransport.h LiquidTransportParams.h LiquidTransportData.h LTPspecies.h
 endif
 
 
