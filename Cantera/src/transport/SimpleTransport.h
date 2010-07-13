@@ -1,10 +1,8 @@
 /**
- *
  *  @file SimpleTransport.h
  *   Header file for the class SimpleTransport which provides simple
  *   transport properties for liquids and solids
  *   (see \ref tranprops and \link Cantera::SimpleTransport SimpleTransport \endlink) .
-
  */
 /*
  * $Revision$
@@ -176,7 +174,7 @@ namespace Cantera {
 
 
     //! virtual destructor
-    virtual ~SimpleTransport() {}
+    virtual ~SimpleTransport();
 
     //! Initialize the transport object
     /*!
@@ -196,7 +194,6 @@ namespace Cantera {
       return cSimpleTransport; 
     }
 
-    //! overloaded base class methods
 
     //! Returns the mixture viscosity of the solution
     /*!
@@ -214,6 +211,8 @@ namespace Cantera {
      *  
      * Here \f$ \mu_k \f$ is the viscosity of pure species \e k.
      *
+     * units are Pa s  or kg/m/s
+     *
      * @see updateViscosity_T();
      */ 
     virtual doublereal viscosity();
@@ -221,7 +220,12 @@ namespace Cantera {
     //! Returns the pure species viscosities
     /*!
      *  The pure species viscosities are to be given in an Arrhenius 
-     * form in accordance with activated-jump-process dominated transport.
+     *  form in accordance with activated-jump-process dominated transport.
+     *
+     * units are Pa s  or kg/m/s
+     *
+     *  @param visc Return the species viscosities as a vector of
+     *              length m_nsp
      */
     virtual void getSpeciesViscosities(doublereal* const visc);
 
@@ -322,8 +326,7 @@ namespace Cantera {
 
     //! Specify the value of the gradient of the temperature
     /*!
-     *
-     * @param grad_V Gradient of the temperature (length num dimensions);
+     * @param grad_T Gradient of the temperature (length num dimensions);
      */
     virtual void set_Grad_T(const doublereal* const grad_T);
 
@@ -335,15 +338,32 @@ namespace Cantera {
     virtual void set_Grad_X(const doublereal* const grad_X);
 
 
-    /**
-     * @param ndim The number of spatial dimensions (1, 2, or 3).
-     * @param grad_T The temperature gradient (ignored in this model).
-     * @param ldx  Leading dimension of the grad_X array.
-     * The diffusive mass flux of species \e k is computed from
+    //! Return the species fluxes given gradients in temperature and mole fraction
+    /*!
+     *  units = kg/m2/s
+     *  The diffusive mass flux of species \e k is computed from the following
+     *  formula
      *
      *
+     *    \f[
+     *         j_k = - \rho M_k D_k \nabla X_k - Y_k V_c
+     *    \f]
+     *
+     *    where V_c is the correction velocity
+     *
+     *    \f[
+     *         V_c =  - \sum_j {\rho M_j D_j \nabla X_j}
+     *    \f]
+     *
+     *
+     * @param ndim     The number of spatial dimensions (1, 2, or 3).
+     * @param grad_T   The temperature gradient (ignored in this model).
+     * @param ldx      Leading dimension of the grad_X array.
+     * @param grad_X   Gradient of the mole fractions(length nsp * num dimensions);
+     * @param ldf      Leading dimension of the fluxes array.         
+     * @param fluxes   Output fluxes of species. 
      */
-     virtual void getSpeciesFluxes(int ndim, 
+    virtual void getSpeciesFluxes(int ndim, 
 				  const doublereal* grad_T, 
 				  int ldx, const doublereal* grad_X, 
 				  int ldf, doublereal* fluxes);
@@ -493,20 +513,21 @@ namespace Cantera {
     vector_fp  m_mw;
 
     //! Pure species viscosities in Arrhenius temperature-dependent form.
-    std::vector<LTPspecies*>  m_coeffVisc_Ns; 
+    std::vector<LTPspecies *>  m_coeffVisc_Ns; 
   
     //! Pure species thermal conductivities in Arrhenius temperature-dependent form.
     /*!
      *
      */
-    std::vector<LTPspecies*>  m_coeffLambda_Ns; 
+    std::vector<LTPspecies *>  m_coeffLambda_Ns; 
   
 
     //! Pure species viscosities in Arrhenius temperature-dependent form.
-    std::vector<LTPspecies*>  m_coeffDiff_Ns; 
+    std::vector<LTPspecies *>  m_coeffDiff_Ns; 
 
     
-    std::vector<LTPspecies*>  m_coeffHydroRadius_Ns; 
+    //! Hydrodynamic radius in LTPspecies form
+    std::vector<LTPspecies *>  m_coeffHydroRadius_Ns; 
   
 
     //! Internal value of the gradient of the mole fraction vector
@@ -706,7 +727,7 @@ namespace Cantera {
     /*!
      * This probably indicates something is not yet implemented.
      *
-     * @pram msg   Indicates the member function which is not implemented
+     * @param msg   Indicates the member function which is not implemented
      */
     doublereal err(std::string msg) const;
 

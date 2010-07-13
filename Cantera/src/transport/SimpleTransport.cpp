@@ -26,6 +26,10 @@ using namespace std;
 #define MIN_X 1.e-14
 
 
+#ifndef SAFE_DELETE
+#define SAFE_DELETE(x)  if (x) { delete (x); x = 0; }
+#endif
+
 namespace Cantera {
   //================================================================================================
   SimpleTransport::SimpleTransport(thermo_t* thermo, int ndim) :
@@ -97,10 +101,34 @@ namespace Cantera {
     m_tmax                                = right.m_tmax;
     m_mw                                  = right.m_mw;
 
-    m_coeffVisc_Ns                        = right.m_coeffVisc_Ns;
-    m_coeffLambda_Ns                      = right.m_coeffLambda_Ns; 
-    m_coeffDiff_Ns                        = right.m_coeffDiff_Ns;
- 
+    m_coeffVisc_Ns = right.m_coeffVisc_Ns;
+    for (size_t k = 0; k <right.m_coeffVisc_Ns.size() ; k++) {
+      if (right.m_coeffVisc_Ns[k]) {
+	m_coeffVisc_Ns[k] = (right.m_coeffVisc_Ns[k])->duplMyselfAsLTPspecies();
+      }
+    }
+
+    m_coeffLambda_Ns = right.m_coeffLambda_Ns;
+    for (size_t k = 0; k < right.m_coeffLambda_Ns.size(); k++) {
+      if (right.m_coeffLambda_Ns[k]) {
+	m_coeffLambda_Ns[k] = (right.m_coeffLambda_Ns[k])->duplMyselfAsLTPspecies();
+      }
+    }
+
+    m_coeffDiff_Ns = right.m_coeffDiff_Ns;
+    for (size_t k = 0; k < right.m_coeffDiff_Ns.size(); k++) {
+      if (right.m_coeffDiff_Ns[k]) {
+	m_coeffDiff_Ns[k] = (right.m_coeffDiff_Ns[k])->duplMyselfAsLTPspecies();
+      }
+    }
+
+    m_coeffHydroRadius_Ns = right.m_coeffHydroRadius_Ns;
+    for (size_t k = 0; k < right.m_coeffHydroRadius_Ns.size(); k++) {
+      if (right.m_coeffHydroRadius_Ns[k]) {
+	m_coeffHydroRadius_Ns[k] = (right.m_coeffHydroRadius_Ns[k])->duplMyselfAsLTPspecies();
+      }
+    }
+
     m_Grad_X                              = right.m_Grad_X;
     m_Grad_T                              = right.m_Grad_T;
     m_Grad_P                              = right.m_Grad_P;
@@ -132,11 +160,25 @@ namespace Cantera {
 
     return *this; 
   }
-
   //================================================================================================
   Transport *SimpleTransport::duplMyselfAsTransport() const {
     SimpleTransport* tr = new SimpleTransport(*this);
     return (dynamic_cast<Transport *>(tr));
+  }
+  //================================================================================================
+  SimpleTransport::~SimpleTransport() {
+    for (size_t k = 0; k < m_coeffVisc_Ns.size() ; k++) {
+      SAFE_DELETE(m_coeffVisc_Ns[k]);
+    }
+    for (size_t k = 0; k < m_coeffLambda_Ns.size(); k++) {
+      SAFE_DELETE(m_coeffLambda_Ns[k]);
+    }
+    for (size_t k = 0; k < m_coeffDiff_Ns.size(); k++) {
+      SAFE_DELETE(m_coeffDiff_Ns[k]);
+    }
+    for (size_t k = 0; k < m_coeffHydroRadius_Ns.size(); k++) {
+      SAFE_DELETE(m_coeffHydroRadius_Ns[k]);
+    }
   }
   //================================================================================================
   // Initialize the object
@@ -230,6 +272,7 @@ namespace Cantera {
       }
       */
       m_coeffVisc_Ns[k] = ltd.viscosity;
+      ltd.viscosity = 0;
     }
 
     /*
@@ -260,6 +303,7 @@ namespace Cantera {
       }
       */
       m_coeffLambda_Ns[k] = ltd.thermalCond;
+      ltd.thermalCond = 0;
     }
 
     /*
@@ -317,10 +361,13 @@ namespace Cantera {
       */
 
       m_coeffDiff_Ns[k] = ltd.speciesDiffusivity;
+      ltd.speciesDiffusivity = 0;
       
-      if ( !(m_coeffDiff_Ns[k]) ) {
-	m_coeffHydroRadius_Ns[k] = ltd.hydroRadius;
-	if ( !(m_coeffHydroRadius_Ns[k]) ) {
+      if (!(m_coeffDiff_Ns[k])) {
+	if (ltd.hydroRadius) {
+	  m_coeffHydroRadius_Ns[k] = (ltd.hydroRadius)->duplMyselfAsLTPspecies();
+	}
+	if (!(m_coeffHydroRadius_Ns[k])) {
 	  throw CanteraError("SimpleTransport::initLiquid",
 			     "Neither diffusivity nor hydroradius is set for species " + spName);
 	}
@@ -344,8 +391,6 @@ namespace Cantera {
     m_Grad_T.resize(m_nDim, 0.0);
     m_Grad_P.resize(m_nDim, 0.0);
     m_Grad_V.resize(m_nDim, 0.0);
-
-
 
     // set all flags to false
     m_visc_mix_ok   = false;
@@ -793,7 +838,7 @@ namespace Cantera {
     return true;
   }
   //================================================================================================
-  /**
+  /*
    * Throw an exception if this method is invoked. 
    * This probably indicates something is not yet implemented.
    */
