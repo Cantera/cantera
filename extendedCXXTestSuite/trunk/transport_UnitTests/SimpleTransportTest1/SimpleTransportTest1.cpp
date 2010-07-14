@@ -121,10 +121,11 @@ int main(int argc, char **argv)
       printf("SpeciesFlux (%s) = %g\n", spName.c_str(), x[k]);
     }
 
-
-
     delete HMW;
     HMW=0;
+
+    delete tranSimple;
+    tranSimple = 0;
 
     Cantera::appdelete();
 

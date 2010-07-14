@@ -455,6 +455,8 @@ AC_OUTPUT(Makefile \
           transport_UnitTests/SimpleTransportTest1/runtest \
           transport_UnitTests/mixGasTransport/Makefile \
           transport_UnitTests/mixGasTransport/runtest \
+          transport_UnitTests/multiGasTransportTest1/Makefile \
+          transport_UnitTests/multiGasTransportTest1/runtest \
 	  kinetics_UnitTests/Makefile \
           kinetics_UnitTests/StoichSolidKinetics/Makefile \
           kinetics_UnitTests/StoichSolidKinetics/runtest \
@@ -463,6 +465,7 @@ AC_OUTPUT(Makefile \
 chmod +x kinetics_UnitTests/StoichSolidKinetics/runtest
 chmod +x transport_UnitTests/SimpleTransportTest1/runtest
 chmod +x transport_UnitTests/mixGasTransport/runtest
+chmod +x transport_UnitTests/multiGasTransportTest1/runtest
 
 #
 # -----------------------------------------------------------------------------
