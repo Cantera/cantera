@@ -1,8 +1,11 @@
 /**
  * @file L_matrix.h
- *
- * functions to evaluate portions of the L matrix needed for
+ * Functions to evaluate portions of the L matrix needed for
  * multicomponent transport properties.
+ */
+
+/*
+ * $Id$
  */
 
 #ifndef CT_LMATRIX_H
@@ -20,16 +23,15 @@
 #include <vector>
 
 
-
 /////////////////////////////////////////////////////////////////////
 
 namespace Cantera {
-
+  //====================================================================================================================
   //  #define CHEMKIN_COMPATIBILITY_MODE
 
   //! Constant to compare dimensionless heat capacities against zero
   const doublereal Min_C_Internal = 0.001;
-
+  //====================================================================================================================
   bool MultiTransport::hasInternalModes(int j) {
 #ifdef CHEMKIN_COMPATIBILITY_MODE
     return (m_crot[j] > Min_C_Internal);
@@ -38,11 +40,11 @@ namespace Cantera {
 #endif
   }
 
-
-  /**
+  //====================================================================================================================
+  /*
    * Evaluate the upper-left block of the L matrix. 
    */
-  void MultiTransport::eval_L0000(const doublereal* x) {
+  void MultiTransport::eval_L0000(const doublereal* const x) {
 
     doublereal prefactor = 16.0*m_temp/25.0;
     doublereal sum;
@@ -63,12 +65,8 @@ namespace Cantera {
       m_Lmatrix(i,i) = 0.0;
     }
   }
-
-
-  ////////////////////////////////////////////////////////////////////////////
-
-
-  void MultiTransport::eval_L0010(const doublereal* x) {
+ //====================================================================================================================
+  void MultiTransport::eval_L0010(const doublereal* const x) {
 
     doublereal prefactor = 1.6*m_temp;
 
@@ -91,11 +89,7 @@ namespace Cantera {
       m_Lmatrix(j,j+m_nsp) += sum; 
     }
   }
-
-
-
-  ////////////////////////////////////////////////////////////////////////
-
+ //====================================================================================================================
   void MultiTransport::eval_L1000() {
     int i, j;
     for (j = 0; j < m_nsp; j++) {
@@ -104,10 +98,7 @@ namespace Cantera {
       }
     }
   }
-
-
-  //////////////////////////////////////////////////////////////////////
-
+ //====================================================================================================================
   void MultiTransport::eval_L1010(const doublereal* x) {
 
     const doublereal fiveover3pi = 5.0/(3.0*Pi);
@@ -150,10 +141,7 @@ namespace Cantera {
       m_Lmatrix(j+m_nsp,j+m_nsp) -= sum*constant1;
     }
   }
-
-
-  //////////////////////////////////////////////////////////////////////////////////
-
+  //====================================================================================================================
   void MultiTransport::eval_L1001(const doublereal* x) {
 
     doublereal prefactor = 32.00*m_temp/(5.00*Pi);
@@ -180,18 +168,18 @@ namespace Cantera {
       }
     }
   }
-
-  ////////////////////////////////////////////////////////////////////////
+  //====================================================================================================================
 
   void MultiTransport::eval_L0001() {
     int i, j;
     int n2 = 2*m_nsp;
-    for (j = 0; j < m_nsp; j++)
-      for (i = 0; i < m_nsp; i++) 
+    for (j = 0; j < m_nsp; j++) {
+      for (i = 0; i < m_nsp; i++) {
 	m_Lmatrix(i,j+n2) = 0.0;
+      }
+    }
   }
-
-  ////////////////////////////////////////////////////////////////////////
+  //====================================================================================================================
 
   void MultiTransport::eval_L0100() {
     int i, j;
@@ -200,8 +188,7 @@ namespace Cantera {
       for (i = 0; i < m_nsp; i++) 
 	m_Lmatrix(i+n2,j) = 0.0;  //  see Eq. (12.123)
   }
-
-  ////////////////////////////////////////////////////////////////////////
+  //====================================================================================================================
 
   void MultiTransport::eval_L0110() {
     int i, j;
@@ -210,10 +197,7 @@ namespace Cantera {
       for (i = 0; i < m_nsp; i++) 
 	m_Lmatrix(i+n2,j+m_nsp) = m_Lmatrix(j+m_nsp,i+n2);  //  see Eq. (12.123)
   }
-
-  ////////////////////////////////////////////////////////////////////////
-
-
+  //====================================================================================================================
   void MultiTransport::eval_L0101(const doublereal* x) {
 
     const doublereal fivepi = 5.00*Pi;
@@ -245,11 +229,12 @@ namespace Cantera {
 	  - constant1*sum;
       }
       else {
-	for (k = 0; k < m_nsp; k++) 
+	for (k = 0; k < m_nsp; k++) {
 	  m_Lmatrix(i+n2,i+n2) = 1.0;
+        }
       }
     }
   }
 }
-
+//======================================================================================================================
 #endif
