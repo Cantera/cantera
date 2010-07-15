@@ -8,18 +8,23 @@
 
 all: 
 	cd StoichSolidKinetics;         @MAKE@ all
+	cd surfkin_dupl_test;         @MAKE@ all
 
 depends:
 	cd StoichSolidKinetics ;         @MAKE@ depends
+	cd surfkin_dupl_test;         @MAKE@ depends
 
 clean:
 	cd StoichSolidKinetics ;         @MAKE@ clean
+	cd surfkin_dupl_test;         @MAKE@ clean
 
 test:
 	cd StoichSolidKinetics ;         @MAKE@ -s test
+	cd surfkin_dupl_test;         @MAKE@  -s test
 
 rebaseline:
 	cd StoichSolidKinetics ;         @MAKE@ rebaseline
+	cd surfkin_dupl_test;         @MAKE@ rebaseline
 
 
 

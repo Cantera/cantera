@@ -460,6 +460,7 @@ AC_OUTPUT(Makefile \
 	  kinetics_UnitTests/Makefile \
           kinetics_UnitTests/StoichSolidKinetics/Makefile \
           kinetics_UnitTests/StoichSolidKinetics/runtest \
+          kinetics_UnitTests/surfkin_dupl_test/Makefile \
           )
 #
 chmod +x kinetics_UnitTests/StoichSolidKinetics/runtest
