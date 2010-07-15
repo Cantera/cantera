@@ -51,16 +51,24 @@ namespace Cantera {
    */
   class L_Matrix : public DenseMatrix {
   public:
+
+    //! default constructor
     L_Matrix() {}
+
+    //! destructor
     virtual ~L_Matrix(){}
 
-    /**
+    //! Conduct a multiply with the Dense matrix
+    /*!
      * This method is used by GMRES to multiply the L matrix by a
      * vector b.  The L matrix has a 3x3 block structure, where each
      * block is a K x K matrix.  The elements of the upper-right and
      * lower-left blocks are all zero.  This method is defined so
      * that the multiplication only involves the seven non-zero
      * blocks.
+     *
+     *   @param b
+     *   @param prod
      */
     virtual void mult(const doublereal* b, doublereal* prod) const;
   };
@@ -83,6 +91,9 @@ namespace Cantera {
   protected:
 
     //! default constructor
+    /*!
+     *   @param thermo  Optional parameter for the pointer to the ThermoPhase object
+     */
     MultiTransport(thermo_t* thermo=0);
 
   public:
@@ -189,17 +200,18 @@ namespace Cantera {
 			       const doublereal* state2, doublereal delta,
 			       doublereal* fluxes);
 
-    virtual void setSolutionMethod(TRANSOLVE_TYPE method) {
-      if (method == TRANSOLVE_GMRES) m_gmres = true;
-      else m_gmres = false;
-    }
+    //! Set the solution method for inverting the L matrix
+    /*!
+     *      @param method enum TRANSOLVE_TYPE Either use direct or TRANSOLVE_GMRES
+     */
+    virtual void setSolutionMethod(TRANSOLVE_TYPE method);
 
-    virtual void setOptions_GMRES(int m, doublereal eps) {
-      if (m > 0) m_mgmres = m;
-      if (eps > 0.0) m_eps_gmres = eps;
-    }
-
-    void save(std::string outfile);
+    //! Set the options for the GMRES solution
+    /*!
+     *      @param m    set the mgmres param
+     *      @param eps  Set the eps parameter
+     */
+    virtual void setOptions_GMRES(int m, doublereal eps);
 
     /**
      * @internal
@@ -241,31 +253,25 @@ namespace Cantera {
 
     friend class TransportFactory;
 
-    /**
-     * Return a structure containing all of the pertinent parameters
-     * about a species that was used to construct the Transport
-     * properties in this object.
-     *
-     * @param k Species number to obtain the properties from.
+    
+    //! Return a structure containing all of the pertinent parameters
+    //! about a species that was used to construct the Transport properties in this object
+    /*!
+     * @param k        Species index
      */
-    struct GasTransportData getGasTransportData(int);
-
+    struct GasTransportData getGasTransportData(int k);
 
   private:
 
-    //         int m_update_transport_T;
-    //         int m_update_transport_C;
-    //         int m_update_spvisc_T;
-    //         int m_update_visc_T;
-    //         int m_update_diff_T;
-    //         int m_update_thermal_T;
+    doublereal m_diff_tlast;
+    doublereal m_spvisc_tlast;
+    doublereal m_visc_tlast;
+    doublereal m_thermal_tlast;
 
-    doublereal m_diff_tlast, m_spvisc_tlast, m_visc_tlast,
-      m_thermal_tlast;
-
-    // mixture attributes
+    //! Number of species in the phase
     int m_nsp;
-    doublereal m_tmin, m_tmax;
+    doublereal m_tmin;
+    doublereal m_tmax;
     vector_fp  m_mw;
 
     // polynomial fits
@@ -289,8 +295,14 @@ namespace Cantera {
 
     //! Dense matrix for astar
     DenseMatrix          m_astar;
+
+    //! Dense matrix for bstar
     DenseMatrix          m_bstar;
+
+    //! Dense matrix for cstar
     DenseMatrix          m_cstar;
+
+    //! Dense matrix for omega22
     DenseMatrix          m_om22;
 
     DenseMatrix m_phi;            // viscosity weighting functions

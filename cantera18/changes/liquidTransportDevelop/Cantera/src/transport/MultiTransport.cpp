@@ -1,9 +1,8 @@
 /**
- *
  *  @file MultiTransport.cpp
  *  Implementation file for class MultiTransport
- *
- * @ingroup transportProps
+ */
+/*
  *
  *  $Author$
  *  $Date$
@@ -526,10 +525,22 @@ namespace Cantera {
       }
     }
   }
- //====================================================================================================================
-
-  void MultiTransport::getMassFluxes(const doublereal* state1,
-				     const doublereal* state2, doublereal delta, 
+  //====================================================================================================================
+  // Get the mass diffusional fluxes [kg/m^2/s] of the species, given the thermodynamic
+  // state at two nearby points. 
+  /*
+   * The specific diffusional fluxes are calculated with reference to the mass averaged 
+   * velocity. This is a one-dimensional vector
+   *
+   * @param state1 Array of temperature, density, and mass
+   *               fractions for state 1.
+   * @param state2 Array of temperature, density, and mass
+   *               fractions for state 2.  
+   * @param delta  Distance from state 1 to state 2 (m).
+   * @param fluxes Output mass fluxes of the species.
+   *               (length = m_nsp)
+   */ 
+  void MultiTransport::getMassFluxes(const doublereal* state1, const doublereal* state2, doublereal delta, 
 				     doublereal* fluxes) {
 
     double* x1 = DATA_PTR(m_spwork1);
@@ -650,6 +661,20 @@ namespace Cantera {
     for (k = 0; k < nsp; k++) {
       fluxes[k] /= m_mw[k];
     }
+  }
+  //====================================================================================================================
+  // Set the solution method for inverting the L matrix
+  /*
+   *      @param method enum TRANSOLVE_TYPE Either use direct or TRANSOLVE_GMRES
+   */
+  void MultiTransport::setSolutionMethod(TRANSOLVE_TYPE method) {
+    if (method == TRANSOLVE_GMRES) m_gmres = true;
+    else m_gmres = false;
+  }
+ //====================================================================================================================
+  void MultiTransport::setOptions_GMRES(int m, doublereal eps) {
+    if (m > 0) m_mgmres = m;
+    if (eps > 0.0) m_eps_gmres = eps;
   }
   //====================================================================================================================
   void MultiTransport::getMultiDiffCoeffs(const int ld, doublereal* const d) {
@@ -994,7 +1019,7 @@ namespace Cantera {
     }
   }
   //====================================================================================================================
-  /**
+  /*
    * This function returns a Transport data object for a given species.
    *
    */
@@ -1018,5 +1043,5 @@ namespace Cantera {
 
     return td;
   }
-
+  //====================================================================================================================
 }
