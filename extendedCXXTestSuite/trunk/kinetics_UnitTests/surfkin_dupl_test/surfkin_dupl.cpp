@@ -68,13 +68,25 @@ int main() {
 	   << wdot[k+gas.nSpecies()] << endl;
     }
 
+    std::vector<ThermoPhase *> thermoVec3;
+    for (int iph = 0; iph < nph; iph++) {
+      ThermoPhase * tp_ph = thermoVec[iph];
+      ThermoPhase *tp3_ph = tp_ph->duplMyselfAsThermoPhase();
+      thermoVec3.push_back(tp3_ph);  
+    }
 
-    Kinetics *ksurf3 = ksurf2->duplMyselfAsKinetics(thermoVec);
+
+
+    Kinetics *ksurf3 = ksurf2->duplMyselfAsKinetics(thermoVec3);
     Cantera::InterfaceKinetics *surf3 = dynamic_cast<InterfaceKinetics *>(ksurf3);
+
     delete ksurf2;
+    for (int iph = 0; iph < nph; iph++) {
+      delete  thermoVec[iph];
+    }
 
     isurf = surf3->surfacePhaseIndex();
-    tsurp = thermoVec[isurf];
+    tsurp = thermoVec3[isurf];
     surp = dynamic_cast<SurfPhase *>(tsurp);
 
     surp->setCoverages(DATA_PTR(cov));
@@ -88,10 +100,10 @@ int main() {
       cout << surp->speciesName(k) << "   " 
 	   << wdot[k+gas.nSpecies()] << endl;
     }
-   delete ksurf3;
+    delete ksurf3;
  
     for (int iph = 0; iph < nph; iph++) {
-      delete  thermoVec[iph];
+      delete  thermoVec3[iph];
     }
     Cantera::appdelete();
 
