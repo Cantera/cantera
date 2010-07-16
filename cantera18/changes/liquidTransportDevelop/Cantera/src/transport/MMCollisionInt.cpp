@@ -235,9 +235,17 @@ namespace Cantera {
   {
   }
   //====================================================================================================================
-
-  void MMCollisionInt::init(XML_Writer* xml,  
-			    doublereal tsmin, doublereal tsmax, int log_level) {
+  // Initialize the object for calculation
+  /*
+   *
+   *  @param xml         Pointer to the log file that will receive the debug output
+   *                     messages
+   *  @param tsmin       Minimum value of Tstar to carry out the fitting
+   *  @param tsmax       Maximum value of Tstar to carry out the fitting
+   *  @param loglevel    Set the loglevel for the object. The default
+   *                     loglevel is zero, indicating no output.
+   */
+  void MMCollisionInt::init(XML_Writer* xml, doublereal tsmin, doublereal tsmax, int log_level) {
 #ifdef DEBUG_MODE 
     if (!xml) {
       throw CanteraError("MMCollisionInt::init", "pointer to xml file is zero");
@@ -355,11 +363,9 @@ namespace Cantera {
 #endif
       }
   }
+  //====================================================================================================================
 
-
-
-  doublereal MMCollisionInt::fitDelta(int table, int ntstar, 
-				      int degree, doublereal* c) {
+  doublereal MMCollisionInt::fitDelta(int table, int ntstar, int degree, doublereal* c) {
     vector_fp w(8);
     doublereal* begin = 0;
     int ndeg=0;
@@ -378,6 +384,7 @@ namespace Cantera {
     w[0] = -1.0;
     return polyfit(8, delta, begin, DATA_PTR(w), degree, ndeg, 0.0, c);
   }
+  //====================================================================================================================
 
   doublereal MMCollisionInt::omega22(double ts, double deltastar) {
     int i;
@@ -398,6 +405,7 @@ namespace Cantera {
     return quadInterp(log(ts), DATA_PTR(m_logTemp) 
 		      + i1, DATA_PTR(values));
   }
+  //====================================================================================================================
 
   doublereal MMCollisionInt::astar(double ts, double deltastar) {
     int i;
@@ -418,6 +426,7 @@ namespace Cantera {
     return quadInterp(log(ts), DATA_PTR(m_logTemp) 
 		      + i1, DATA_PTR(values));
   }
+  //====================================================================================================================
 
 
   doublereal MMCollisionInt::bstar(double ts, double deltastar) {
@@ -439,7 +448,7 @@ namespace Cantera {
     return quadInterp(log(ts), DATA_PTR(m_logTemp) + i1, 
 		      DATA_PTR(values));
   }
-
+  //====================================================================================================================
 
   doublereal MMCollisionInt::cstar(double ts, double deltastar) {
     int i;
@@ -458,8 +467,10 @@ namespace Cantera {
       else values[i-i1] = poly5(deltastar, DATA_PTR(m_cpoly[i]));
     }
     return quadInterp(log(ts), DATA_PTR(m_logTemp) + i1, 
-		      DATA_PTR(values));        }
+		      DATA_PTR(values));       
+  }
 
+  //====================================================================================================================
 
   void MMCollisionInt::fit_omega22(ostream& logfile, int degree, 
 				   doublereal deltastar, doublereal* o22) 
@@ -488,6 +499,7 @@ namespace Cantera {
     }
 #endif
   }
+  //====================================================================================================================
 
   void MMCollisionInt::fit(ostream& logfile, int degree, 
 			   doublereal deltastar, doublereal* a, doublereal* b, doublereal* c) 
@@ -551,9 +563,9 @@ namespace Cantera {
     }
 #endif
   }
-
+  //====================================================================================================================
 } // namespace
-
+//======================================================================================================================
 
 
 
