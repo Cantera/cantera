@@ -90,14 +90,14 @@ namespace Cantera {
         CanteraError(std::string procedure, std::string msg);
 
         //! Destructor for base class does nothing
-        virtual ~CanteraError() throw() {}
+        virtual ~CanteraError() throw();
     protected:
         //! Empty base constructor is made protected so that it may be used only by 
         //! inherited classes.
         /*!
          *  We want to discourage throwing an error containing no information.
          */
-        CanteraError() {}
+        CanteraError();
     };
 
     //! Array size error.
