@@ -1509,6 +1509,15 @@ protected:
     CanteraError::CanteraError(std::string proc, std::string msg) {
         app()->addError(proc, msg);
     }
+
+    CanteraError::CanteraError()
+    {
+    }
+
+    CanteraError::~CanteraError() throw()
+    {
+    }
+
     
     ArraySizeError::ArraySizeError(std::string proc, int sz, int reqd) :
         CanteraError(proc, "Array size ("+int2str(sz)+
