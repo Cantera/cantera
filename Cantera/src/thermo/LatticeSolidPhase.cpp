@@ -34,7 +34,6 @@ namespace Cantera {
   // Base empty constructor
   LatticeSolidPhase::LatticeSolidPhase() : 
     m_mm(0),
-    m_kk(0),
     m_tlast(0.0),
     m_press(-1.0),
     m_molar_density(0.0),
@@ -50,7 +49,6 @@ namespace Cantera {
    */
   LatticeSolidPhase::LatticeSolidPhase(const LatticeSolidPhase &right) :
     m_mm(0),
-    m_kk(0),
     m_tlast(0.0),
     m_press(-1.0),
     m_molar_density(0.0),
@@ -70,7 +68,6 @@ namespace Cantera {
     if (&right != this) {
       ThermoPhase::operator=(right);
       m_mm = right.m_mm;
-      m_kk = right.m_kk;
       m_tlast = right.m_tlast;
       m_press = right.m_press;
       m_molar_density = right.m_molar_density;
@@ -180,7 +177,17 @@ namespace Cantera {
   }
 
   //====================================================================================================================
-  void LatticeSolidPhase::setMoleFractions(const doublereal* x) {
+  // Set the mole fractions to the specified values, and then 
+  // normalize them so that they sum to 1.0 for each of the subphases
+  /*
+   *
+   * @param x  Input vector of mole fractions. There is no restriction
+   *           on the sum of the mole fraction vector. Internally,
+   *           this object will pass portions of this vector to the sublattices which assume that the portions
+   *           individually sum to one.
+   *           Length is m_kk.
+   */
+  void LatticeSolidPhase::setMoleFractions(const doublereal* const x) {
     int nsp, strt = 0;
     doublereal sum = 0.0;
     for (int n = 0; n < m_nlattice; n++) {
@@ -197,7 +204,14 @@ namespace Cantera {
     State::setMoleFractions(DATA_PTR(m_x));
   }
   //====================================================================================================================
-  void LatticeSolidPhase::getMoleFractions(doublereal* x) const {
+  // Get the species mole fraction vector.
+  /*
+   * On output the mole fraction vector will sum to one for each of the subphases which make up this phase.
+   *
+   * @param x On return, x contains the mole fractions. Must have a
+   *          length greater than or equal to the number of species.
+   */
+  void LatticeSolidPhase::getMoleFractions(doublereal* const x) const {
     int nsp, strt = 0;
     State::getMoleFractions(x);
     doublereal sum;
@@ -249,6 +263,12 @@ namespace Cantera {
     }
   }
   //====================================================================================================================
+  // Add in species from Slave phases
+  /*
+   *  This hook is used for  cSS_CONVENTION_SLAVE phases
+   *
+   *  @param  phaseNode    XML_Node for the current phase
+   */
   void LatticeSolidPhase::installSlavePhases(Cantera::XML_Node* phaseNode) 
   {
     int m, k;

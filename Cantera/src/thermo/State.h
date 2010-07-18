@@ -163,14 +163,12 @@ namespace Cantera {
      */
     doublereal massFraction(const int k) const;
 
-    /**
-     * Set the mass fractions to the specified values, and then 
-     * normalize them so that they sum to 1.0.
-     * @param y Array of unnormalized mass fraction values (input). 
-     * Must have a length greater than or equal to the number of
-     * species.
-     *
-     * @param y  Input vector of mass fractions. There is no restriction
+    //! Set the mass fractions to the specified values, and then 
+    //! normalize them so that they sum to 1.0.
+    /*!
+     * @param y  Array of unnormalized mass fraction values (input). 
+     *           Must have a length greater than or equal to the number of species.
+     *           Input vector of mass fractions. There is no restriction
      *           on the sum of the mass fraction vector. Internally,
      *           the State object will normalize this vector before
      *           storring its contents.
@@ -178,12 +176,11 @@ namespace Cantera {
      */
     virtual void setMassFractions(const doublereal* const y);
 
-    /**
-     * Set the mass fractions to the specified values without
-     * normalizing. This is useful when the normalization
+    //! Set the mass fractions to the specified values without normalizing.
+    /*!
+     * This is useful when the normalization
      * condition is being handled by some other means, for example
-     * by a constraint equation as part of a larger set of
-     * equations.
+     * by a constraint equation as part of a larger set of equations.
      *
      * @param y  Input vector of mass fractions.
      *           Length is m_kk.

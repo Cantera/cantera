@@ -57,7 +57,7 @@ namespace Cantera {
     }
     constructPhaseFile(inputFile, id);
   }
-
+  //====================================================================================================================
   IdealSolidSolnPhase::IdealSolidSolnPhase(XML_Node& root, std::string id,
 					   int formGC) :
     ThermoPhase(),
@@ -75,12 +75,12 @@ namespace Cantera {
     }
     constructPhaseXML(root, id);
   }
-
+  //====================================================================================================================
   IdealSolidSolnPhase::IdealSolidSolnPhase(const IdealSolidSolnPhase &b) 
   {
     *this = b;
   }
-
+  //====================================================================================================================
     
   IdealSolidSolnPhase& IdealSolidSolnPhase::
   operator=(const IdealSolidSolnPhase &b) {
@@ -117,7 +117,7 @@ namespace Cantera {
     IdealSolidSolnPhase *ii = new IdealSolidSolnPhase(*this);
     return (ThermoPhase*) ii;
   }
-
+//====================================================================================================================
   /**
    * Equation of state flag. Returns the value cIdealGas, defined 
    * in mix_defs.h.
