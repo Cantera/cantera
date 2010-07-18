@@ -1,7 +1,6 @@
 /**
  *  @file LatticePhase.h
- *  Header for a simple thermodynamics model of a bulk phase
- *  derived from ThermoPhase,
+ *  Header for a simple thermodynamics model of a bulk phase derived from ThermoPhase,
  *  assuming a lattice of solid atoms
  *  (see \ref thermoprops and class \link Cantera::LatticePhase LatticePhase\endlink).
  *
@@ -255,7 +254,7 @@ namespace Cantera {
    * @ingroup thermoprops
    *
    */
-  class LatticePhase : public ThermoPhase  {
+  class LatticePhase : public ThermoPhase {
 
   public:
 
@@ -301,34 +300,33 @@ namespace Cantera {
      */
     ThermoPhase *duplMyselfAsThermoPhase() const;
 
-  /*
-   * @param infile XML file containing the description of the
-   *        phase
-   *
-   * @param id  Optional parameter identifying the name of the
-   *            phase. If none is given, the first XML
-   *            phase element will be used.
-   */
+    //! Import and initialize a %LatticePhase phase specification from an XML tree into the current object.
+    /*!
+     * @param phaseNode  XML file containing the description of the phase
+     *
+     * @param idTarget   Optional parameter identifying the name of the
+     *                   phase. If none is given, the first XML  phase element is used.
+     */
     void constructPhaseXML(XML_Node& phaseNode, std::string idTarget);
 
- /*
-   * constructPhaseFile
-   *
-   *
-   * This routine is a precursor to constructPhaseXML(XML_Node*)
-   * routine, which does most of the work.
-   *
-   * @param inputFile XML file containing the description of the
-   *        phase
-   *
-   * @param id  Optional parameter identifying the name of the
-   *            phase. If none is given, the first XML
-   *            phase element will be used.
-   */
+    //! Initialization of a %LatticePhase phase using an xml file
+    /*!
+     *
+     * This routine is a precursor to constructPhaseXML(XML_Node*)
+     * routine, which does most of the work.
+     *
+     * @param inputFile XML file containing the description of the phase
+     *
+     * @param id        Optional parameter identifying the name of the
+     *                  phase. If none is given, the first XML
+     *                  phase element will be used.
+     */
     void constructPhaseFile(std::string inputFile, std::string id);
 
     //! Equation of state flag. Returns the value cLattice
-    virtual int eosType() const { return cLattice; }
+    virtual int eosType() const {
+      return cLattice;
+    }
 
     /**
      * @name Molar Thermodynamic Properties of the Solution ------------------------
@@ -695,40 +693,28 @@ namespace Cantera {
      *               Enthalpies of the species.
      *               Length: m_kk
      */
-    const array_fp& enthalpy_RT_ref() const {
-      _updateThermo();
-      return m_h0_RT;
-    }
+    const array_fp& enthalpy_RT_ref() const;
   
     //! Returns a reference to the dimensionless reference state Gibbs free energy vector.
     /*!
      * This function is part of the layer that checks/recalculates the reference
      * state thermo functions.
      */
-    const array_fp& gibbs_RT_ref() const {
-      _updateThermo();
-      return m_g0_RT;
-    }
+    const array_fp& gibbs_RT_ref() const;
 
     //! Returns a reference to the dimensionless reference state Entropy vector.
     /*!
      * This function is part of the layer that checks/recalculates the reference
      * state thermo functions.
      */
-    const array_fp& entropy_R_ref() const {
-      _updateThermo();
-      return m_s0_R;
-    }
+    const array_fp& entropy_R_ref() const;
 
     //! Returns a reference to the dimensionless reference state Heat Capacity vector.
     /*!
      * This function is part of the layer that checks/recalculates the reference
      * state thermo functions.
      */
-    const array_fp& cp_R_ref() const {
-      _updateThermo();
-      return m_cp0_R;
-    }
+    const array_fp& cp_R_ref() const;
 
     //@}
     /// @name  Utilities for Initialization of the Object
@@ -827,29 +813,29 @@ namespace Cantera {
     doublereal m_p0;
 
     //! Current value of the temperature (Kelvin)
-    mutable doublereal     m_tlast;
+    mutable doublereal m_tlast;
 
     //! Reference state enthalpies / RT
-    mutable array_fp      m_h0_RT;
+    mutable array_fp m_h0_RT;
 
     //! Temporary storage for the reference state heat capacities
-    mutable array_fp      m_cp0_R;
+    mutable array_fp m_cp0_R;
 
     //! Temporary storage for the reference state gibbs energies
-    mutable array_fp      m_g0_RT;
+    mutable array_fp m_g0_RT;
 
-    //! Temporary storage for the reference state entropies
-    mutable array_fp      m_s0_R;
+    //! Temporary storage for the reference state entropies at the current temperature
+    mutable array_fp m_s0_R;
 
     //! Current value of the pressure (Pa)
-    doublereal            m_press;
+    doublereal m_press;
 
     //! String name for the species which represents a vacency
     //! in the lattice
     /*!
      *  This string is currently unused
      */
-    std::string                m_vacancy;
+    std::string m_vacancy;
 
     //! Molar density of the lattice solid
     /*!
@@ -857,7 +843,7 @@ namespace Cantera {
      *
      *  units are kmol m-3
      */
-    doublereal            m_molar_density;
+    doublereal m_molar_density;
 
   private:
 

@@ -289,7 +289,48 @@ namespace Cantera {
       vbar[k] = vv;
     }
   }
-
+  //=======================================================================================================
+  // Returns the vector of nondimensional Enthalpies of the reference state at the current temperature
+  //  of the solution and the reference pressure for the phase.
+  /*
+   * @return       Output vector of nondimensional reference state Enthalpies of the species.
+   *               Length: m_kk
+   */
+  const array_fp& LatticePhase::enthalpy_RT_ref() const {
+    _updateThermo();
+    return m_h0_RT;
+  }
+  //=======================================================================================================
+  // Returns a reference to the dimensionless reference state Gibbs free energy vector.
+  /*
+   * This function is part of the layer that checks/recalculates the reference
+   * state thermo functions.
+   */
+  const array_fp& LatticePhase::gibbs_RT_ref() const {
+    _updateThermo();
+    return m_g0_RT;
+  }
+  //=======================================================================================================
+  // Returns a reference to the dimensionless reference state Entropy vector.
+  /*
+   * This function is part of the layer that checks/recalculates the reference
+   * state thermo functions.
+   */
+  const array_fp& LatticePhase::entropy_R_ref() const {
+    _updateThermo();
+    return m_s0_R;
+  }
+  //=======================================================================================================
+  // Returns a reference to the dimensionless reference state Heat Capacity vector.
+  /*
+   * This function is part of the layer that checks/recalculates the reference
+   * state thermo functions.
+   */
+  const array_fp& LatticePhase::cp_R_ref() const {
+    _updateThermo();
+    return m_cp0_R;
+  }
+  //=======================================================================================================
   void LatticePhase::initThermo() {
     m_kk = nSpecies();
     m_mm = nElements();
@@ -306,8 +347,12 @@ namespace Cantera {
     m_s0_R.resize(leng);
     setMolarDensity(m_molar_density);
   }
-
-
+  //=====================================================================================================
+  // Update the species reference state thermodynamic functions
+  /*
+   * The polynomials for the standard state functions are only
+   * reevalulated if the temperature has changed.
+   */
   void LatticePhase::_updateThermo() const {
     doublereal tnow = temperature();
     if (fabs(molarDensity() - m_molar_density)/m_molar_density > 0.0001) {
@@ -315,33 +360,33 @@ namespace Cantera {
 			 +fp2str(m_molar_density)+" to "+fp2str(molarDensity()));
     }
     if (m_tlast != tnow) {
-      m_spthermo->update(tnow, &m_cp0_R[0], &m_h0_RT[0], 
-			 &m_s0_R[0]);
+      m_spthermo->update(tnow, &m_cp0_R[0], &m_h0_RT[0], &m_s0_R[0]);
       m_tlast = tnow;
-      int k;
-      for (k = 0; k < m_kk; k++) {
+      for (int k = 0; k < m_kk; k++) {
 	m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
       }
       m_tlast = tnow;
     }
   }
-
+  //=====================================================================================================
   void LatticePhase::setParameters(int n, doublereal* const c) {
     m_molar_density = c[0];
     setMolarDensity(m_molar_density);
   }
-
+  //=====================================================================================================
   void LatticePhase::getParameters(int &n, doublereal * const c) const {
     double d = molarDensity();
     c[0] = d;
     n = 1;
   }
-
+  //=====================================================================================================
   void LatticePhase::setParametersFromXML(const XML_Node& eosdata) {
     eosdata._require("model", "Lattice");
     m_molar_density = getFloat(eosdata, "site_density", "toSI");
     m_vacancy = getChildValue(eosdata, "vacancy_species");
   }
+  //=====================================================================================================
 }
-
+//=======================================================================================================
 #endif
+
