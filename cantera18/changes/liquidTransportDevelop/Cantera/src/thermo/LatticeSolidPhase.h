@@ -37,10 +37,10 @@ namespace Cantera {
   //! A phase that is comprised of an additive combination of other lattice phases
   /*!
    *  This is the main way Cantera describes semiconductors and other solid phases.
-   *  This Thermophase object calculates its properties as a sum over other LatticePhase objects. Each of the %LatticePhase
+   *  This %ThermoPhase object calculates its properties as a sum over other LatticePhase objects. Each of the %LatticePhase
    *  objects is a ThermoPhase object by itself.
    *
-   *  The sum over the LatticePhase objects is carried out by weighting each LatticePhase object
+   *  The sum over the %LatticePhase objects is carried out by weighting each %LatticePhase object
    *  value with the molarDensity of the LatticePhase. Then the resulting quantity is divided by
    *  the molar density of the total compound. The LatticeSolidPhase object therefore only contains a 
    *  listing of the number of Lattice Phases
@@ -237,18 +237,20 @@ namespace Cantera {
      *
      * @param x  Input vector of mole fractions. There is no restriction
      *           on the sum of the mole fraction vector. Internally,
-     *           this object will normalize this vector before
-     *           storring its contents.
+     *           this object will pass portions of this vector to the sublattices which assume that the portions
+     *           individually sum to one.
      *           Length is m_kk.
      */
-    virtual void setMoleFractions(const doublereal *x);
+    virtual void setMoleFractions(const doublereal * const x);
 
     //! Get the species mole fraction vector.
     /*!
+     * On output the mole fraction vector will sum to one for each of the subphases which make up this phase.
+     *
      * @param x On return, x contains the mole fractions. Must have a
      *          length greater than or equal to the number of species.
      */
-    virtual void getMoleFractions(doublereal *x) const;
+    virtual void getMoleFractions(doublereal * const x) const;
 
     doublereal moleFraction(const int k) const {
       return err("not implemented");
@@ -262,9 +264,32 @@ namespace Cantera {
       return err("not implemented");
     }
 
-    virtual void setMassFractions(const doublereal *y) {
+ 
+    //! Set the mass fractions to the specified values, and then 
+    //! normalize them so that they sum to 1.0.
+    /*!
+     * @param y  Array of unnormalized mass fraction values (input). 
+     *           Must have a length greater than or equal to the number of species.
+     *           Input vector of mass fractions. There is no restriction
+     *           on the sum of the mass fraction vector. Internally,
+     *           the State object will normalize this vector before
+     *           storring its contents.
+     *           Length is m_kk.
+     */
+    virtual void setMassFractions(const doublereal * const y) {
       err("not implemented");
     }
+
+
+    //! Set the mass fractions to the specified values without normalizing.
+    /*!
+     * This is useful when the normalization
+     * condition is being handled by some other means, for example
+     * by a constraint equation as part of a larger set of equations.
+     *
+     * @param y  Input vector of mass fractions.
+     *           Length is m_kk.
+     */
     virtual void setMassFractions_NoNorm(const doublereal* const y) {
       err("not implemented");
     }
@@ -296,6 +321,8 @@ namespace Cantera {
     //! Add in species from Slave phases
     /*!
      *  This hook is used for  cSS_CONVENTION_SLAVE phases
+     *
+     *  @param  phaseNode    XML_Node for the current phase
      */
     virtual void installSlavePhases(Cantera::XML_Node* phaseNode);
 
@@ -330,20 +357,35 @@ namespace Cantera {
     doublereal err(std::string msg) const;
 
   protected:
-        
+    
+    //! Number of elements
     int m_mm;
-    int m_kk;
-    mutable doublereal        m_tlast;
-    doublereal                m_press;
-    doublereal                m_molar_density;
 
+    //! Last temperature at which the reference thermo was calculated
+    mutable doublereal  m_tlast;
 
-    int                       m_nlattice;
-    std::vector<LatticePhase*>     m_lattice;
-    mutable vector_fp                 m_x;
+    //! Current value of the pressure
+    doublereal m_press;
+
+    //! Current value of the molar density
+    doublereal m_molar_density;
+
+    //! Number of sublattice phases
+    int m_nlattice;
+
+    //! Vector of sublattic ThermoPhase objects
+    std::vector<LatticePhase *> m_lattice;
+
+    //! Vector of mole fractions
+    /*!
+     *  Note these mole fractions sum to one when summed over all phases.
+     *  However, this is not what's passed down to the lower m_lattice objects.
+     */
+    mutable vector_fp m_x;
 
   private:
 
+    //! Update the reference thermodynamic functions
     void _updateThermo() const;
   };
 }
