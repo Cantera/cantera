@@ -66,20 +66,52 @@ namespace Cantera {
      */
     virtual void getThermalDiffCoeffs(doublereal* const dt);
 
-    //! returns the mixture thermal conductivity
+    //! Returns the mixture thermal conductivity (W/m /K)
+    /*!
+     * The thermal conductivity is computed from the following mixture rule:
+     *   \f[
+     *          \lambda = 0.5 \left( \sum_k X_k \lambda_k  + \frac{1}{\sum_k X_k/\lambda_k} \right)
+     *   \f]
+     *
+     *  It's used to compute the flux of energy due to a thermal gradient
+     *
+     *   \f[
+     *          j_T =  - \lambda  \nabla T
+     *   \f]
+     *   
+     *  The flux of energy has units of energy (kg m2 /s2) per second per area.
+     *
+     *  The units of lambda are W / m K which is equivalent to kg m / s^3 K.
+     *
+     * @return Returns the mixture thermal conductivity, with units of W/m/K
+     */
     virtual doublereal thermalConductivity();
 
     virtual void getBinaryDiffCoeffs(const int ld, doublereal* const d);
 
     
-    //! Mixture-averaged diffusion coefficients [m^2/s]. 
+    //! Returns the Mixture-averaged diffusion coefficients [m^2/s]. 
     /*!
-    * For the single species case or the pure fluid case
-    * the routine returns the self-diffusion coefficient.
-    * This is need to avoid a Nan result in the formula
-    * below.
-    */
+     * Returns the mixture averaged diffusion coefficients for a gas, appropriate for calculating the
+     * mass averged diffusive flux with respect to the mass averaged velocity using gradients of the
+     * mole fraction. 
+     * Note, for the single species case or the pure fluid case the routine returns the self-diffusion coefficient.
+     * This is need to avoid a Nan result in the formula below.
+     *
+     *  This is Eqn. 12.180 from "Chemicaly Reacting Flow"
+     *
+     *   \f[
+     *       D_{km}' = \frac{\left( \bar{M} - X_k M_k \right)}{ \bar{\qquad M \qquad } }  {\left( \sum_{j \ne k} \frac{X_j}{D_{kj}} \right) }^{-1} 
+     *   \f]
+     *
+     *
+     *
+     *  @param d  Output Vector of mixture diffusion coefficients, \f$  D_{km}'  \f$  ,  for each species (m^2/s).
+     *            length m_nsp
+     */
     virtual void getMixDiffCoeffs(doublereal* const d);
+
+
     virtual void getMobilities(doublereal* const mobil);
     virtual void update_T();
     virtual void update_C();
@@ -146,7 +178,14 @@ namespace Cantera {
 
     // mixture attributes
     int m_nsp;
-    doublereal m_tmin, m_tmax;
+
+    //! Minimum value of the temperature that this transport parameterization is valid
+    doublereal m_tmin;
+
+    //! Maximum value of the temperature that this transport parameterization is valid
+    doublereal m_tmax;
+
+    //! Local copy of the species molecular weights.
     vector_fp  m_mw;
 
     // polynomial fits
@@ -173,8 +212,10 @@ namespace Cantera {
     DenseMatrix          m_cstar;
     DenseMatrix          m_om22;
 
-    DenseMatrix m_phi;            // viscosity weighting functions
-    DenseMatrix m_wratjk, m_wratkj1;
+    //! Viscosity Weighting Functions
+    DenseMatrix m_phi;  
+    DenseMatrix m_wratjk;
+    DenseMatrix m_wratkj1;
 
     vector_fp   m_zrot;
     vector_fp   m_crot;

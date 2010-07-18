@@ -180,6 +180,7 @@ namespace Cantera {
   }
 
 
+  //===================================================================================================================
   void MixTransport::getMobilities(doublereal* const mobil) {
     int k;
     getMixDiffCoeffs(DATA_PTR(m_spwork));
@@ -188,16 +189,25 @@ namespace Cantera {
       mobil[k] = c1 * m_spwork[k] * m_thermo->charge(k);
     }
   } 
-        
-
-  /****************** thermal conductivity **********************/
-
-  /**
+  //===================================================================================================================
+  // Returns the mixture thermal conductivity (W/m /K)
+  /*
    * The thermal conductivity is computed from the following mixture rule:
-   * \[
-   * \lambda = 0.5 \left( \sum_k X_k \lambda_k 
-   * + \frac{1}{\sum_k X_k/\lambda_k}\right)
-   * \]
+   *   \f[
+   *          \lambda = 0.5 \left( \sum_k X_k \lambda_k  + \frac{1}{\sum_k X_k/\lambda_k} \right)
+   *   \f]
+   *
+   *  It's used to compute the flux of energy due to a thermal gradient
+   *
+   *   \f[
+   *          j_T =  - \lambda  \nabla T
+   *   \f]
+   *   
+   *  The flux of energy has units of energy (kg m2 /s2) per second per area.
+   *
+   *  The units of lambda are W / m K which is equivalent to kg m / s^3 K.
+   *
+   * @return Returns the mixture thermal conductivity, with units of W/m/K
    */
   doublereal MixTransport::thermalConductivity() {
     int k;
@@ -216,8 +226,7 @@ namespace Cantera {
     }
     return m_lambda;
   }
-
-
+  //===================================================================================================================
   /****************** thermal diffusion coefficients ************/
 
   /**
@@ -270,14 +279,16 @@ namespace Cantera {
       }
     }
   }
-
-  /**
-   * Mixture-averaged diffusion coefficients [m^2/s]. 
-   *
-   * For the single species case or the pure fluid case
-   * the routine returns the self-diffusion coefficient.
+  //===========================================================================================================
+  // Mixture-averaged diffusion coefficients [m^2/s]. 
+  /*
+   * Returns the mixture averaged diffusion coefficients for a gas.
+   * Note, for the single species case or the pure fluid case the routine returns the self-diffusion coefficient.
    * This is need to avoid a Nan result in the formula
    * below.
+   *
+   *  @param d  Output Vector of diffusion coefficients for each species (m^2/s)
+   *            length m_nsp
    */
   void MixTransport::getMixDiffCoeffs(doublereal* const d) {
 
@@ -310,8 +321,7 @@ namespace Cantera {
       }
     }
   }
-
-                 
+  //===========================================================================================================
   /**
    *  @internal This is called whenever a transport property is
    *  requested from ThermoSubstance if the temperature has changed
