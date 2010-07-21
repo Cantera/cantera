@@ -114,11 +114,15 @@ namespace Cantera {
     virtual void getSpeciesViscosities(doublereal* const visc)
     { updateViscosity_T(); std::copy(m_visc.begin(), m_visc.end(), visc); }
 
-    //! Return the thermal diffusion coefficients for the species
+  
+    //! Return the thermal diffusion coefficients (kg/m/s)
     /*!
-     *  
-     *  @param dt thermal diffusion coefficients
-     *             (length = m_nsp)
+     *  Eqn. (12.126) displays how they are calculated. The reference work is from
+     *  Dixon-Lewis.
+     *
+     *  Eqns. (12.168) shows how they are used in an expression for the species flux.
+     *
+     * @param dt  Vector of thermal diffusion coefficients. Units = kg/m/s
      */
     virtual void getThermalDiffCoeffs(doublereal* const dt);
 
