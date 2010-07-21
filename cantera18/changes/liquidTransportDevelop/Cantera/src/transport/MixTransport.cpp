@@ -31,25 +31,232 @@ using namespace std;
  * Mole fractions below MIN_X will be set to MIN_X when computing
  * transport properties.
  */
+#ifndef MIN_X
 #define MIN_X 1.e-20
-
+#endif
 
 namespace Cantera {
 
-  //////////////////// class MixTransport methods //////////////
 
-
+  //====================================================================================================================
   MixTransport::MixTransport() :
     m_nsp(0),
     m_tmin(-1.0),
     m_tmax(100000.),
+    m_mw(0),
+    m_visccoeffs(0),
+    m_condcoeffs(0),
+    m_diffcoeffs(0),
+    m_polytempvec(0),
+    m_bdiff(0, 0),
+    m_visc(0),
+    m_sqvisc(0),
+    m_cond(0),
+    m_molefracs(0),
+    m_poly(0),
+    m_astar_poly(0),
+    m_bstar_poly(0),
+    m_cstar_poly(0),
+    m_om22_poly(0),
+    m_astar(0, 0),
+    m_bstar(0, 0),
+    m_cstar(0, 0),
+    m_om22(0, 0),
+    m_phi(0,0),
+    m_wratjk(0,0),
+    m_wratkj1(0,0),
+    m_zrot(0),
+    m_crot(0),
+    m_cinternal(0),
+    m_eps(0),
+    m_alpha(0),
+    m_dipoleDiag(0),
     m_temp(-1.0),
-    m_logt(0.0)
+    m_logt(0.0),
+    m_kbt(0.0),
+    m_t14(0.0),
+    m_t32(0.0),
+    m_sqrt_kbt(0.0),
+    m_sqrt_t(0.0),
+    m_sqrt_eps_k(0),
+    m_log_eps_k(0, 0),
+    m_frot_298(0),
+    m_rotrelax(0),
+    m_lambda(0.0),
+    m_viscmix(0.0),
+    m_spwork(0),
+    m_viscmix_ok(false),
+    m_viscwt_ok(false),
+    m_spvisc_ok(false),
+    m_diffmix_ok(false),
+    m_bindiff_ok(false),
+    m_abc_ok (false),
+    m_spcond_ok(false),
+    m_condmix_ok(false),
+    m_mode(0),
+    m_epsilon(0, 0),
+    m_diam(0, 0),
+    incl(0, 0),
+    m_debug(false)
   {
-
-
   }
+  //====================================================================================================================
+    MixTransport::MixTransport(const MixTransport &right) :
+    m_nsp(0),
+    m_tmin(-1.0),
+    m_tmax(100000.),
+    m_mw(0),
+    m_visccoeffs(0),
+    m_condcoeffs(0),
+    m_diffcoeffs(0),
+    m_polytempvec(0),
+    m_bdiff(0, 0),
+    m_visc(0),
+    m_sqvisc(0),
+    m_cond(0),
+    m_molefracs(0),
+    m_poly(0),
+    m_astar_poly(0),
+    m_bstar_poly(0),
+    m_cstar_poly(0),
+    m_om22_poly(0),
+    m_astar(0, 0),
+    m_bstar(0, 0),
+    m_cstar(0, 0),
+    m_om22(0, 0),
+    m_phi(0,0),
+    m_wratjk(0,0),
+    m_wratkj1(0,0),
+    m_zrot(0),
+    m_crot(0),
+    m_cinternal(0),
+    m_eps(0),
+    m_alpha(0),
+    m_dipoleDiag(0),
+    m_temp(-1.0),
+    m_logt(0.0),
+    m_kbt(0.0),
+    m_t14(0.0),
+    m_t32(0.0),
+    m_sqrt_kbt(0.0),
+    m_sqrt_t(0.0),
+    m_sqrt_eps_k(0),
+    m_log_eps_k(0, 0),
+    m_frot_298(0),
+    m_rotrelax(0),
+    m_lambda(0.0),
+    m_viscmix(0.0),
+    m_spwork(0),
+    m_viscmix_ok(false),
+    m_viscwt_ok(false),
+    m_spvisc_ok(false),
+    m_diffmix_ok(false),
+    m_bindiff_ok(false),
+    m_abc_ok (false),
+    m_spcond_ok(false),
+    m_condmix_ok(false),
+    m_mode(0),
+    m_epsilon(0, 0),
+    m_diam(0, 0),
+    incl(0, 0),
+    m_debug(false)
+  {
+    *this = right;
+  }
+  //====================================================================================================================
+  // Assignment operator
+  /*
+   *  This is NOT a virtual function.
+   *
+   * @param right    Reference to %LiquidTransport object to be copied 
+   *                 into the current one.
+   */
+  MixTransport&  MixTransport::operator=(const MixTransport& right) {
+    if (&right == this) {
+      return *this;
+    }
+    Transport::operator=(right);
+    
+    m_nsp = right.m_nsp;
+    m_tmin = right.m_tmin;
+    m_tmax = right.m_tmax;
+    m_mw =right.m_mw;
+    m_visccoeffs = right.m_visccoeffs;
+    m_condcoeffs = right.m_condcoeffs;
+    m_diffcoeffs = right.m_diffcoeffs;
+    m_polytempvec = right.m_polytempvec;
+    m_bdiff = right.m_bdiff;
+    m_visc = right.m_visc;
+    m_sqvisc = right.m_sqvisc;
+    m_cond = right.m_cond;
+    m_molefracs = right.m_molefracs;
+    m_poly = right.m_poly;
+    m_astar_poly = right.m_astar_poly;
+    m_bstar_poly = right.m_bstar_poly;
+    m_cstar_poly = right.m_cstar_poly; 
+    m_om22_poly = right.m_om22_poly; 
+    m_astar = right.m_astar; 
+    m_bstar = right.m_bstar;
+    m_cstar = right.m_cstar;
+    m_om22 = right.m_om22;
+    m_phi = right.m_phi; 
+    m_wratjk = right.m_wratjk; 
+    m_wratkj1 = right.m_wratkj1; 
+    m_zrot = right.m_zrot;
+    m_crot = right.m_crot; 
+    m_cinternal = right.m_cinternal;
+    m_eps = right.m_eps;
+    m_alpha = right.m_alpha;
+    m_dipoleDiag = right.m_dipoleDiag;
+    m_temp = right.m_temp; 
+    m_logt = right.m_logt;
+    m_kbt = right.m_kbt; 
+    m_t14 = right.m_t14; 
+    m_t32 = right.m_t32;
+    m_sqrt_kbt = right.m_sqrt_kbt;
+    m_sqrt_t = right.m_sqrt_t;
+    m_sqrt_eps_k = right.m_sqrt_eps_k;
+    m_log_eps_k = right.m_log_eps_k;
+    m_frot_298 = right.m_frot_298;
+    m_rotrelax = right.m_rotrelax;  
+    m_lambda = right.m_lambda;
+    m_viscmix = right.m_viscmix;
+    m_spwork = right.m_spwork;
+    m_viscmix_ok = right.m_viscmix_ok;
+    m_viscwt_ok = right.m_viscwt_ok;
+    m_spvisc_ok = right.m_spvisc_ok;
+    m_diffmix_ok = right.m_diffmix_ok;
+    m_bindiff_ok = right.m_bindiff_ok;
+    m_abc_ok = right.m_abc_ok;
+    m_spcond_ok = right.m_spcond_ok;
+    m_condmix_ok = right.m_condmix_ok;
+    m_mode = right.m_mode;
+    m_epsilon = right.m_epsilon;
+    m_diam = right.m_diam;
+    incl = right.incl;
+    m_debug = right.m_debug;
 
+    return *this;
+  }
+  //====================================================================================================================
+  // Duplication routine for objects which inherit from %Transport
+  /*
+   *  This virtual routine can be used to duplicate %Transport objects
+   *  inherited from %Transport even if the application only has
+   *  a pointer to %Transport to work with.
+   *
+   *  These routines are basically wrappers around the derived copy
+   *  constructor.
+   */
+  Transport *MixTransport::duplMyselfAsTransport() const {
+    MixTransport* tr = new MixTransport(*this);
+    return (dynamic_cast<Transport *>(tr));
+  }
+  //====================================================================================================================
+  MixTransport::~MixTransport() 
+  {
+  }
+  //====================================================================================================================
   bool MixTransport::initGas( GasTransportParams& tr ) {
 
     // constant substance attributes
@@ -113,29 +320,24 @@ namespace Cantera {
 
     return true;
   }
-
-
-  /*********************************************************
+  //====================================================================================================================
+  // Viscosity of the mixture
+  /*
    *
-   *                Public methods
-   *
-   *********************************************************/
-
-
-  /******************  viscosity ******************************/
-
-  /**
    * The viscosity is computed using the Wilke mixture rule.
-   * \f[
-   * \mu = \sum_k \frac{\mu_k X_k}{\sum_j \Phi_{k,j} X_j}.
-   * \f]
-   * Here \f$ \mu_k \f$ is the viscosity of pure species \e k,
-   * and 
-   * \f[
-   * \Phi_{k,j} = \frac{\left[1 
-   * + \sqrt{\left(\frac{\mu_k}{\mu_j}\sqrt{\frac{M_j}{M_k}}\right)}\right]^2}
-   * {\sqrt{8}\sqrt{1 + M_k/M_j}}
-   * \f] 
+   *
+   *    \f[
+   *        \mu = \sum_k \frac{\mu_k X_k}{\sum_j \Phi_{k,j} X_j}.
+   *    \f]
+   *
+   *     Here \f$ \mu_k \f$ is the viscosity of pure species \e k, and
+   * 
+   *    \f[
+   *        \Phi_{k,j} = \frac{\left[1 
+   *                     + \sqrt{\left(\frac{\mu_k}{\mu_j}\sqrt{\frac{M_j}{M_k}}\right)}\right]^2}
+   *                     {\sqrt{8}\sqrt{1 + M_k/M_j}}
+   *    \f]
+   * 
    * @see updateViscosity_T();
    */ 
   doublereal MixTransport::viscosity() {
@@ -158,7 +360,7 @@ namespace Cantera {
     m_viscmix = vismix;
     return vismix;
   }
-
+  //====================================================================================================================
 
   /******************* binary diffusion coefficients **************/
 
@@ -321,7 +523,7 @@ namespace Cantera {
     }
   }
   //===========================================================================================================
-  /**
+  /*
    *  @internal This is called whenever a transport property is
    *  requested from ThermoSubstance if the temperature has changed
    *  since the last call to update_T.
@@ -360,8 +562,8 @@ namespace Cantera {
     m_abc_ok  = false;
     m_condmix_ok = false;                 
   }                 
-
-  /**
+  //====================================================================================================================
+  /*
    *  @internal This is called the first time any transport property
    *  is requested from Mixture after the concentrations
    *  have changed.
@@ -384,15 +586,15 @@ namespace Cantera {
       m_molefracs[k] = fmaxx(MIN_X, m_molefracs[k]);
     }
   }
-
+  //====================================================================================================================
 
   /*************************************************************************
    *
    *    methods to update temperature-dependent properties
    *
    *************************************************************************/
-
-  /**
+  //====================================================================================================================
+  /*
    * Update the temperature-dependent parts of the mixture-averaged 
    * thermal conductivity. 
    */
@@ -413,8 +615,8 @@ namespace Cantera {
     m_condmix_ok = false;
   }
 
-
-  /**
+  //====================================================================================================================
+  /*
    * Update the binary diffusion coefficients. These are evaluated
    * from the polynomial fits at unit pressure (1 Pa).
    */
@@ -446,9 +648,8 @@ namespace Cantera {
     m_bindiff_ok = true;
     m_diffmix_ok = false;
   }
-
-
-  /**
+  //====================================================================================================================
+  /*
    * Update the pure-species viscosities.
    */
   void MixTransport::updateSpeciesViscosities() {
@@ -470,8 +671,8 @@ namespace Cantera {
     m_spvisc_ok = true;
   }
 
-
-  /**
+  //====================================================================================================================
+  /*
    * Update the temperature-dependent viscosity terms.
    * Updates the array of pure species viscosities, and the 
    * weighting functions in the viscosity mixture rule.
@@ -499,14 +700,13 @@ namespace Cantera {
     }
     m_viscwt_ok = true;
   }
-
-  /**
+  //====================================================================================================================
+  /*
    * This function returns a Transport data object for a given species.
    *
    */
-  struct GasTransportData MixTransport::
-    getGasTransportData(int kSpecies) 
-  {
+  struct GasTransportData MixTransport::getGasTransportData(int kSpecies) const {
+
     struct GasTransportData td;
     td.speciesName = m_thermo->speciesName(kSpecies);
 
@@ -524,6 +724,6 @@ namespace Cantera {
 
     return td;
   }
-
+  //====================================================================================================================
 }
 
