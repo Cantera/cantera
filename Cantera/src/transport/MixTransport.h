@@ -63,6 +63,10 @@ namespace Cantera {
     //! Return the thermal diffusion coefficients
     /*!
      * For this approximation, these are all zero.
+     *
+     *  Eqns. (12.168) shows how they are used in an expression for the species flux.
+     *
+     * @param dt  Vector of thermal diffusion coefficients. Units = kg/m/s
      */
     virtual void getThermalDiffCoeffs(doublereal* const dt);
 

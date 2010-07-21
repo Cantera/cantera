@@ -227,21 +227,20 @@ namespace Cantera {
     return m_lambda;
   }
   //===================================================================================================================
-  /****************** thermal diffusion coefficients ************/
-
-  /**
-   * Thermal diffusion is not considered in this mixture-averaged
-   * model. To include thermal diffusion, use transport manager
-   * MultiTransport instead. This methods fills out array dt with
-   * zeros.
+  // Return the thermal diffusion coefficients
+  /*
+   * For this approximation, these are all zero.
+   *
+   *  Eqns. (12.168) shows how they are used in an expression for the species flux.
+   *
+   * @param dt  Vector of thermal diffusion coefficients. Units = kg/m/s
    */
   void MixTransport::getThermalDiffCoeffs(doublereal* const dt) {
-    int k;
-    for (k = 0; k < m_nsp; k++) {
+    for (int k = 0; k < m_nsp; k++) {
       dt[k] = 0.0;
     }
   }
-
+  //===================================================================================================================
   /**
    * @param ndim The number of spatial dimensions (1, 2, or 3).
    * @param grad_T The temperature gradient (ignored in this model).
