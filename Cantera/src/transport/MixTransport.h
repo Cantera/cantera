@@ -45,11 +45,52 @@ namespace Cantera {
    */
   class MixTransport : public Transport {
 
+  protected:
+    //! Default constructor.  
+    /*!
+     *
+     */
+    MixTransport();
+
   public:
+    //!Copy Constructor for the %MixTransport object.
+    /*!
+     * @param right  %LiquidTransport to be copied
+     */
+    MixTransport(const MixTransport &right);
 
-    virtual ~MixTransport() {}
+    //! Assignment operator
+    /*!
+     *  This is NOT a virtual function.
+     *
+     * @param right    Reference to %LiquidTransport object to be copied 
+     *                 into the current one.
+     */
+    MixTransport& operator=(const  MixTransport& right);
+    
+    //! Duplication routine for objects which inherit from
+    //! %Transport
+    /*!
+     *  This virtual routine can be used to duplicate %Transport objects
+     *  inherited from %Transport even if the application only has
+     *  a pointer to %Transport to work with.
+     *
+     *  These routines are basically wrappers around the derived copy
+     *  constructor.
+     */
+    virtual Transport *duplMyselfAsTransport() const;
 
-    virtual int model() const { return cMixtureAveraged; }
+
+    //! Destructor
+    virtual ~MixTransport();
+
+    //! Return the model id for transport
+    /*!
+     * @return cMixtureAverage
+     */
+    virtual int model() const {
+      return cMixtureAveraged;
+    }
 
     //! Viscosity of the mixture
     /*!
@@ -158,19 +199,17 @@ namespace Cantera {
 
     friend class TransportFactory;
 
-    /**
-     * Return a structure containing all of the pertinent parameters
-     * about a species that was used to construct the Transport
-     * properties in this object.
+    
+    //! Return a structure containing all of the pertinent parameters about a species that was
+    //! used to construct the Transport properties in this object.
+    /*!
+     * @param kspec Species number to obtain the properties from.
      *
-     * @param k Species number to obtain the properties from.
+     * @return GasTransportData  returned structure.
      */
-    struct GasTransportData getGasTransportData(int);
+    struct GasTransportData getGasTransportData(int kspec) const;
 
-  protected:
-
-    /// default constructor
-    MixTransport();
+ 
 
   private:
 
@@ -179,6 +218,16 @@ namespace Cantera {
       return (m_thermo->molarDensity() * GasConstant *
 	      m_thermo->temperature());
     }
+    void updateThermal_T();
+    void updateViscosity_T();
+    void updateCond_T();
+    void updateSpeciesViscosities();
+    void updateDiff_T();
+    void correctBinDiffCoeffs();
+
+
+
+    // --------- Member Data -------------
 
     // mixture attributes
     int m_nsp;
@@ -200,11 +249,14 @@ namespace Cantera {
 
     // property values
     DenseMatrix                  m_bdiff;
+
+    //! vector of species viscosities
     vector_fp                    m_visc;
     vector_fp                    m_sqvisc;
     vector_fp                    m_cond;
 
-    array_fp                    m_molefracs;
+    //! Vector of species molefractions
+    array_fp  m_molefracs;
 
     std::vector<std::vector<int> > m_poly;
     std::vector<vector_fp >   m_astar_poly;
@@ -228,8 +280,13 @@ namespace Cantera {
     vector_fp   m_alpha;
     vector_fp   m_dipoleDiag;
 
-    doublereal m_temp, m_logt, m_kbt, m_t14, m_t32;
-    doublereal m_sqrt_kbt, m_sqrt_t;
+    doublereal m_temp;
+    doublereal m_logt;
+    doublereal m_kbt;
+    doublereal m_t14;
+    doublereal m_t32;
+    doublereal m_sqrt_kbt;
+    doublereal m_sqrt_t;
 
     vector_fp  m_sqrt_eps_k;
     DenseMatrix m_log_eps_k;
@@ -242,12 +299,7 @@ namespace Cantera {
     // work space
     vector_fp  m_spwork;
 
-    void updateThermal_T();
-    void updateViscosity_T();
-    void updateCond_T();
-    void updateSpeciesViscosities();
-    void updateDiff_T();
-    void correctBinDiffCoeffs();
+  
     bool m_viscmix_ok;
     bool m_viscwt_ok;
     bool m_spvisc_ok;
@@ -262,6 +314,8 @@ namespace Cantera {
     DenseMatrix m_epsilon;
     DenseMatrix m_diam;
     DenseMatrix incl;
+
+    //! Debug flag - turns on more printing
     bool m_debug;
   };
 }
