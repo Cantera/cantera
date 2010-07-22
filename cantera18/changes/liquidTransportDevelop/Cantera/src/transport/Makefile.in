@@ -37,7 +37,7 @@ CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT) $(PIC_FLAG) $(DEBUG_FLAG)
 TRAN_OBJ    = TransportFactory.o MultiTransport.o MixTransport.o MMCollisionInt.o \
               SolidTransport.o DustyGasTransport.o TransportBase.o WaterTransport.o \
               SimpleTransport.o LiquidTransportData.o LiquidTransportParams.o LiquidTranInteraction.o \
-              TransportParams.o LTRspecies.o
+              TransportParams.o 
 
 TRAN_H  =  TransportFactory.h MultiTransport.h MixTransport.h \
            MMCollisionInt.h  SolidTransport.h DustyGasTransport.h \
