@@ -81,6 +81,7 @@ kernel-install:
 	( for ilib in @buildlib@/*.a ; do  \
 	  @INSTALL@ -c -m 644 $${ilib} @ct_libdir@ ; \
           done )
+	@INSTALL@ -d @ct_libdir@/apps
 ifeq ($(do_ranlib),1)
 	@RANLIB@ @ct_libdir@/*.a
 endif
@@ -116,7 +117,7 @@ hdr-install:
 	@INSTALL@ -d @ct_incdir@
 	cp -r -f build/include/cantera @ct_incroot@
 	@(if test -f @ct_incroot@/cantera/Cantera_bt.mak ; then rm -f @ct_incroot@/cantera/Cantera_bt.mak ; fi )
-
+	@INSTALL@ -d @ct_incroot@/apps
 
 f90-modules-install:
 ifeq ($(build_f90),1)
@@ -194,6 +195,7 @@ finish-install:
 	@INSTALL@ -d @ct_bindir@
 	-( cd bin ;   @INSTALL@ -c exp3to2.sh "@ct_bindir@" )
 	-( cd bin ;   @INSTALL@ -c csvdiff    "@ct_bindir@" )
+	-( cd bin ;   @INSTALL@ -c install_tsc "@ct_bindir@" )
 ifeq ($(os_is_win),0)
 #          Commands to be executed for non-win systems
 	cp -f License.rtf "@ct_bindir@"

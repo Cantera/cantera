@@ -662,6 +662,7 @@ FILE_PATTERNS          = Kinetics.h  Kinetics.cpp \
                          EdgePhase.h \
                          SurfPhase.cpp \
                          LatticePhase.h  LatticePhase.cpp \
+                         LatticeSolidPhase.h  LatticeSolidPhase.cpp \
                          SpeciesThermoFactory.h  SpeciesThermoFactory.cpp \
                          speciesThermoTypes.h \
                          SpeciesThermoMgr.h \
