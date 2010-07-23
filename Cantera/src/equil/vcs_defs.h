@@ -78,7 +78,8 @@ namespace VCSnonideal {
 
   /*!
    * @name  Sizes of Phases and Cutoff Mole Numbers
-   *
+   *     
+   *      All size parameters are listed here
    * @{
    */
 
@@ -103,14 +104,27 @@ namespace VCSnonideal {
   //! Cutoff relative moles below  which a phase is deleted 
   //! from  the equilibrium problem.
 #ifndef VCS_DELETE_PHASE_CUTOFF
-#define VCS_DELETE_PHASE_CUTOFF     1.0e-12
+#define VCS_DELETE_PHASE_CUTOFF     1.0e-13
 #endif
+
+  //! Relative mole number of species in a phase that is created
+  //! We want this to be comfortably larger than the VCS_DELETE_PHASE_CUTOFF value
+  //! so that the phase can have a chance to survive.
+#ifndef VCS_POP_PHASE_MOLENUM
+#define VCS_POP_PHASE_MOLENUM      1.0e-11
+#endif
+
 
   //! Cutoff moles below which a phase or species which
   //! comprises the bulk of an element's total concentration
   //! is deleted.
 #ifndef VCS_DELETE_ELEMENTABS_CUTOFF
 #define VCS_DELETE_ELEMENTABS_CUTOFF     1.0e-280
+#endif
+
+  //! Maximum steps in the inner loop
+#ifndef VCS_MAXSTEPS   
+#define VCS_MAXSTEPS 50000
 #endif
 
   //@}

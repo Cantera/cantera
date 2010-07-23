@@ -20,13 +20,17 @@ using namespace std;
 
 namespace VCSnonideal {
 
-
+  //====================================================================================================================
   // Utility function that evaluates whether a phase can be popped
   // into existence
   /*
    * A phase can be popped iff the stoichiometric coefficients for the
    * component species, whose concentrations will be lowered during the
    * process, are positive by at least a small degree.
+   *  
+   * If one of the phase species is a zeroed component, then the phase can
+   * be popped if the component increases in mole number as the phase moles
+   * are increased.
    * 
    * @param iphasePop  id of the phase, which is currently zeroed,
    *        
@@ -52,6 +56,13 @@ namespace VCSnonideal {
      */
     for (int k = 0; k < Vphase->nSpecies(); k++) {
       int kspec = Vphase->spGlobalIndexVCS(k);
+#ifdef DEBUG_MODE
+      if (m_molNumSpecies_old[kspec] > 0.0) {
+	printf("ERROR vcs_popPhasePossible we shouldn't be here %d %g > 0.0",
+	       kspec, m_molNumSpecies_old[kspec]);
+	exit(-1);
+      }
+#endif
       int irxn = kspec - m_numComponents;
       if (irxn >= 0) {
 	int iPopPossible = true;
@@ -62,7 +73,7 @@ namespace VCSnonideal {
 	      double negChangeComp = - stoicC * 1.0;
 	      if (negChangeComp > 0.0) {
 		// TODO: We may have to come up with a tolerance here
-		if (m_molNumSpecies_old[j] <= VCS_DELETE_ELEMENTABS_CUTOFF*0.1) {
+		if (m_molNumSpecies_old[j] <= VCS_DELETE_ELEMENTABS_CUTOFF*0.5) {
 		  iPopPossible = false;
 		}
 	      }
@@ -72,11 +83,56 @@ namespace VCSnonideal {
 	if (iPopPossible == true) {
 	  return true;
 	}
+      } else {
+	/*
+	 * We are here when the species in the phase is a component. Its mole number is zero.
+	 * We loop through the regular reaction looking for a reaction that can pop the
+	 * component.
+	 */
+        printf("WE are here at new logic - CHECK\n");
+	for (int jrxn = 0; jrxn < m_numRxnRdc; jrxn++) {
+	  bool foundJrxn = false;
+	  // First, if the component is a product of the reaction
+	  if (m_stoichCoeffRxnMatrix[jrxn][kspec] > 0.0) {
+	    foundJrxn = true;
+	    for (int kcomp = 0; kcomp < m_numComponents; kcomp++) {
+	      if (m_stoichCoeffRxnMatrix[jrxn][kcomp] < 0.0) {
+		if (m_molNumSpecies_old[kcomp] <= VCS_DELETE_ELEMENTABS_CUTOFF*0.5) {
+		  foundJrxn = false;
+		}
+	      }
+	    }
+            if (foundJrxn) {
+	      printf("We have found a component phase pop! CHECK1 \n");
+	      return true;
+	    }
+	  }
+	  // Second we are here if the component is a reactant in the reaction, and the reaction goes backwards.
+	  else if (m_stoichCoeffRxnMatrix[jrxn][kspec] < 0.0) {
+	    foundJrxn = true;
+	    int jspec = jrxn + m_numComponents;
+	    if (m_molNumSpecies_old[jspec] <= VCS_DELETE_ELEMENTABS_CUTOFF*0.5) {
+	      foundJrxn = false;
+	      continue;
+	    }
+	    for (int kcomp = 0; kcomp < m_numComponents; kcomp++) {
+	      if (m_stoichCoeffRxnMatrix[jrxn][kcomp] > 0.0) {
+		if (m_molNumSpecies_old[kcomp] <= VCS_DELETE_ELEMENTABS_CUTOFF*0.5) {
+		  foundJrxn = false;
+		}
+	      }
+	    }
+            if (foundJrxn) {
+	      printf("We have found a component phase pop! CHECK2 \n");
+	      return true;
+	    }
+	  }
+	}
       }
     }
     return false;
   }
-
+  //====================================================================================================================
   // Decision as to whether a phase pops back into existence
   /*
    * @return returns the phase id of the phase that pops back into 
@@ -195,7 +251,7 @@ namespace VCSnonideal {
 #endif
     return iphasePop;
   }
-
+  //====================================================================================================================
   // Calculates the deltas of the reactions due to phases popping
   // into existence
   /*
@@ -415,7 +471,7 @@ namespace VCSnonideal {
   
 
   //
-
+  //====================================================================================================================
   double VCS_SOLVE::vcs_phaseStabilityTest(const int iph) {
 
     /*
@@ -719,6 +775,7 @@ namespace VCSnonideal {
 #endif
     return funcPhaseStability;
   }
-
+  //====================================================================================================================
 }
 
+//======================================================================================================================

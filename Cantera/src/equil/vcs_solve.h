@@ -200,7 +200,7 @@ public:
    *      m_stoichCoeffRxnMatrix[irxn][jcomp]
    *                 Stoichiometric coefficient matrix for the reaction mechanism 
    *                 expressed in Reduced Canonical Form.
-   *                 j refers to the component number, and irxn 
+   *                 jcomp refers to the component number, and irxn 
    *                 refers to the irxn_th non-component species.
    *
    *      m_deltaMolNumPhase[irxn]
@@ -1438,7 +1438,7 @@ public:
   //! Number of components calculated for the problem
   int m_numComponents;
 
-  //! Total number of non-component species in  the problem
+  //! Total number of non-component species in the problem
   int m_numRxnTot;
 
   //! Current number of species in the problems
@@ -1448,7 +1448,7 @@ public:
    */
   int m_numSpeciesRdc;
 
-  //! Current number of non-component species in the  problem 
+  //! Current number of non-component species in the problem 
   /*!
    * Species can be deleted if they aren't
    * stable under the current conditions
@@ -1470,20 +1470,19 @@ public:
    */
   DoubleStarStar m_formulaMatrix;
 
-  //! Stoichiometric coefficient matrix for the reaction mechanism 
-  //! expressed in Reduced Canonical Form.
+  //! Stoichiometric coefficient matrix for the reaction mechanism expressed in Reduced Canonical Form.
   /*!
    *   This is the stoichiometric coefficient matrix for the 
-   *   reaction which forms species K from the component species. A
-   *   stoichiometric coefficient of one is assumed for the 
-   *   species K in this mechanism. 
+   *   reaction which forms species kspec from the component species. A
+   *   stoichiometric coefficient of one is assumed for the species kspec in this mechanism. 
    *
-   *              NOTE: kspec = Irxn + m_numComponents
+   *              NOTE: kspec = irxn + m_numComponents
    *
-   *   sc[irxn][j] :
-   *     j refers to the component number, and irxn 
-   *     refers to the irxn_th non-component species.
-   *  
+   *   m_stoichCoeffRxnMatrix[irxn][j] :
+   *     j refers to the component number, and irxn refers to the irxn_th non-component species.
+   *     The stoichiometric coefficents multilpled by the Formula coefficients of the
+   *     component species add up to the negative value of the number of elements in
+   *     the species kspec.
    *
    *   length = [nspecies0][nelements0]
    */
