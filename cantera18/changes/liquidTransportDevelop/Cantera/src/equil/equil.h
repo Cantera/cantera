@@ -19,6 +19,7 @@
 
 //#include "ChemEquil.h"
 #include "MultiPhase.h"
+#include "vcs_defs.h"
 
 namespace Cantera {
 
@@ -72,7 +73,7 @@ namespace Cantera {
    *      @ingroup equil
    */
   int equilibrate(thermo_t& s, const char* XY,
-		  int solver = -1, doublereal rtol = 1.0e-9, int maxsteps = 5000, 
+		  int solver = -1, doublereal rtol = 1.0e-9, int maxsteps = VCS_MAXSTEPS, 
 		  int maxiter = 100, int loglevel = -99);
 
   //! Equilibrate a MultiPhase object
