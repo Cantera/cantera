@@ -43,7 +43,7 @@ int linprogmax(double *XMOLES, double *CC, double *AX, double *BB,
    
    /*-----------------------------------------------------------------------
    * Find XMOLES(I), i = 1, M such that
-   *   Maximize CC dot W,  subject to the NE constraints:
+   *   Maximize CC dot XMOLES,  subject to the NE constraints:
    *
    *             [AX] [XMOLES] = [BB]
    *             and XMOLES(i) > 0
