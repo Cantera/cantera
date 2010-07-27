@@ -449,6 +449,7 @@ AC_SUBST(EXE_EXT)
 
 AC_OUTPUT(Makefile \
 	  numerics_UnitTests/Makefile \
+          numerics_UnitTests/nonlin_first/Makefile \
 	  thermo_UnitTests/Makefile \
 	  transport_UnitTests/Makefile \
           transport_UnitTests/SimpleTransportTest1/Makefile \
