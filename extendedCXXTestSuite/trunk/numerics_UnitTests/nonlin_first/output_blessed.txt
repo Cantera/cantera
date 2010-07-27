@@ -1,0 +1,139 @@
+		Solve_Nonlinear_Problem: iteration 1:
+			Getting a new Jacobian and solving system
+		boundStep: Decrease of Variable 4 causing delta damping of 0.00333304
+		dampNewt: Important Entries for Weighted Soln Updates: currentDamp = 1
+		         I  ysoln DeltaSolnTrial ysolnTrial DeltaSolnTrialTest weight relSoln0 relSoln1
+		   ------------------------------------------------------------------------------------------
+		      4   1.0000e-01   1.5001e+01   1.5101e+01   -2.2402e+03   1.0000e-10   1.5001e+11   2.2402e+13
+		      5   1.0000e-01  -1.0101e+01  -1.0001e+01    6.0484e+02   1.0000e-10   1.0101e+11   6.0484e+12
+		      2   1.0000e-01   5.3208e+00   5.4208e+00   -1.4226e+02   1.0000e-10   5.3208e+10   1.4226e+12
+		      7   1.0000e-01   4.4342e+00   4.5342e+00   -9.6786e+01   1.0000e-10   4.4342e+10   9.6786e+11
+		      1   1.0000e-01   3.4916e+00   3.5916e+00   -5.4788e+01   1.0000e-10   3.4916e+10   5.4788e+11
+		   ------------------------------------------------------------------------------------------
+			dampNewt: s0 = 6.9787e+10, s1 = 8.22899e+12, fbound = 1,damp = 1
+			dampStep: current step rejected: (s1 = 8.22899e+12 > s0 = 6.9787e+10) Decreasing damping factor and retrying
+		dampNewt: Important Entries for Weighted Soln Updates: currentDamp = 0.25
+		         I  ysoln DeltaSolnTrial ysolnTrial DeltaSolnTrialTest weight relSoln0 relSoln1
+		   ------------------------------------------------------------------------------------------
+		      4   1.0000e-01   1.5001e+01   3.8503e+00   -1.2876e+02   1.0000e-10   1.5001e+11   1.2876e+12
+		      5   1.0000e-01  -1.0101e+01  -2.4253e+00    3.0227e+01   1.0000e-10   1.0101e+11   3.0227e+11
+		      2   1.0000e-01   5.3208e+00   1.4302e+00   -4.9010e+00   1.0000e-10   5.3208e+10   4.9010e+10
+		      7   1.0000e-01   4.4342e+00   1.2085e+00   -2.7235e+00   1.0000e-10   4.4342e+10   2.7235e+10
+		      1   1.0000e-01   3.4916e+00   9.7289e-01   -8.0560e-01   1.0000e-10   3.4916e+10   8.0560e+09
+		   ------------------------------------------------------------------------------------------
+			dampNewt: s0 = 6.9787e+10, s1 = 4.68051e+11, fbound = 1,damp = 0.25
+			dampStep: current step rejected: (s1 = 4.68051e+11 > s0 = 6.9787e+10) Decreasing damping factor and retrying
+		dampNewt: Important Entries for Weighted Soln Updates: currentDamp = 0.0625
+		         I  ysoln DeltaSolnTrial ysolnTrial DeltaSolnTrialTest weight relSoln0 relSoln1
+		   ------------------------------------------------------------------------------------------
+		      4   1.0000e-01   1.5001e+01   1.0376e+00    5.3129e+00   1.0000e-10   1.5001e+11   5.3129e+10
+		      5   1.0000e-01  -1.0101e+01  -5.3133e-01   -7.1073e+00   1.0000e-10   1.0101e+11   7.1073e+10
+		      2   1.0000e-01   5.3208e+00   4.3255e-01    4.4325e+00   1.0000e-10   5.3208e+10   4.4325e+10
+		      7   1.0000e-01   4.4342e+00   3.7714e-01    3.7790e+00   1.0000e-10   4.4342e+10   3.7790e+10
+		      1   1.0000e-01   3.4916e+00   3.1822e-01    3.0593e+00   1.0000e-10   3.4916e+10   3.0593e+10
+		   ------------------------------------------------------------------------------------------
+			dampNewt: s0 = 6.9787e+10, s1 = 3.93617e+10, fbound = 1,damp = 0.0625
+			DampNewton iteration successful, get newdirection, sfinal = 3.93617e+10
+		Solve_Nonlinear_Problem: iteration 2:
+			Getting a new Jacobian and solving system
+		boundStep: Decrease of Variable 3 causing delta damping of 0.101458
+		dampNewt: Important Entries for Weighted Soln Updates: currentDamp = 1
+		         I  ysoln DeltaSolnTrial ysolnTrial DeltaSolnTrialTest weight relSoln0 relSoln1
+		   ------------------------------------------------------------------------------------------
+		      5  -5.3133e-01   1.1149e+00   5.8353e-01   -4.3951e+00   1.0000e-10   1.1149e+10   4.3951e+10
+		      4   1.0376e+00   3.9796e-01   1.4355e+00   -2.9259e+00   1.0000e-10   3.9796e+09   2.9259e+10
+		      1   3.1822e-01   9.7506e-01   1.2933e+00   -1.8312e+00   1.0000e-10   9.7506e+09   1.8312e+10
+		      7   3.7714e-01   9.8712e-01   1.3643e+00   -1.4268e+00   1.0000e-10   9.8712e+09   1.4268e+10
+		      2   4.3255e-01   9.9527e-01   1.4278e+00   -1.2988e+00   1.0000e-10   9.9527e+09   1.2988e+10
+		   ------------------------------------------------------------------------------------------
+			dampNewt: s0 = 7.91009e+09, s1 = 2.09955e+10, fbound = 1,damp = 1
+			dampStep: current step rejected: (s1 = 2.09955e+10 > s0 = 7.91009e+09) Decreasing damping factor and retrying
+		dampNewt: Important Entries for Weighted Soln Updates: currentDamp = 0.25
+		         I  ysoln DeltaSolnTrial ysolnTrial DeltaSolnTrialTest weight relSoln0 relSoln1
+		   ------------------------------------------------------------------------------------------
+		      5  -5.3133e-01   1.1149e+00  -2.5262e-01    5.6145e-01   1.0000e-10   1.1149e+10   5.6145e+09
+		      2   4.3255e-01   9.9527e-01   6.8137e-01    6.6527e-01   1.0000e-10   9.9527e+09   6.6527e+09
+		      7   3.7714e-01   9.8712e-01   6.2392e-01    6.5117e-01   1.0000e-10   9.8712e+09   6.5117e+09
+		      1   3.1822e-01   9.7506e-01   5.6199e-01    6.1684e-01   1.0000e-10   9.7506e+09   6.1684e+09
+		      0   1.8803e-01   6.4568e-01   3.4945e-01    4.5066e-01   1.0000e-10   6.4568e+09   4.5066e+09
+		   ------------------------------------------------------------------------------------------
+			dampNewt: s0 = 7.91009e+09, s1 = 4.90697e+09, fbound = 1,damp = 0.25
+			DampNewton iteration successful, get newdirection, sfinal = 4.90697e+09
+		Solve_Nonlinear_Problem: iteration 3:
+			Getting a new Jacobian and solving system
+		boundStep: Decrease of Variable 3 causing delta damping of 0.0312271
+		dampNewt: Important Entries for Weighted Soln Updates: currentDamp = 1
+		         I  ysoln DeltaSolnTrial ysolnTrial DeltaSolnTrialTest weight relSoln0 relSoln1
+		   ------------------------------------------------------------------------------------------
+		      2   6.8137e-01   3.8605e-01   1.0674e+00   -1.6468e-01   1.0000e-10   3.8605e+09   1.6468e+09
+		      7   6.2392e-01   3.6719e-01   9.9111e-01   -1.3364e-01   1.0000e-10   3.6719e+09   1.3364e+09
+		      1   5.6199e-01   2.8113e-01   8.4311e-01   -1.5273e-01   1.0000e-10   2.8113e+09   1.5273e+09
+		      0   3.4945e-01   3.5210e-01   7.0155e-01   -4.4840e-02   1.0000e-10   3.5210e+09   4.4840e+08
+		      3  -1.7101e-02  -2.7382e-01  -2.9092e-01   -1.1758e-02   1.0000e-10   2.7382e+09   1.1758e+08
+		   ------------------------------------------------------------------------------------------
+			dampNewt: s0 = 2.82966e+09, s1 = 9.59116e+08, fbound = 1,damp = 1
+			DampNewton iteration successful, get newdirection, sfinal = 9.59116e+08
+		Solve_Nonlinear_Problem: iteration 4:
+			Getting a new Jacobian and solving system
+		dampNewt: Important Entries for Weighted Soln Updates: currentDamp = 1
+		         I  ysoln DeltaSolnTrial ysolnTrial DeltaSolnTrialTest weight relSoln0 relSoln1
+		   ------------------------------------------------------------------------------------------
+		      2   1.0674e+00  -1.0913e-01   9.5828e-01   -5.7142e-03   1.0000e-10   1.0913e+09   5.7142e+07
+		      1   8.4311e-01  -9.6754e-02   7.4636e-01   -4.8463e-03   1.0000e-10   9.6754e+08   4.8463e+07
+		      7   9.9111e-01  -7.2466e-02   9.1864e-01   -3.8497e-03   1.0000e-10   7.2466e+08   3.8497e+07
+		      6   4.5394e-01  -4.9253e-02   4.0469e-01   -5.1052e-05   1.0000e-10   4.9253e+08   5.1052e+05
+		      0   7.0155e-01  -2.8406e-02   6.7314e-01   -1.4228e-03   1.0000e-10   2.8406e+08   1.4228e+07
+		   ------------------------------------------------------------------------------------------
+			dampNewt: s0 = 6.14711e+08, s1 = 3.03915e+07, fbound = 1,damp = 1
+			DampNewton iteration successful, get newdirection, sfinal = 3.03915e+07
+		Solve_Nonlinear_Problem: iteration 5:
+			Getting a new Jacobian and solving system
+		dampNewt: Important Entries for Weighted Soln Updates: currentDamp = 1
+		         I  ysoln DeltaSolnTrial ysolnTrial DeltaSolnTrialTest weight relSoln0 relSoln1
+		   ------------------------------------------------------------------------------------------
+		      2   9.5828e-01  -6.3686e-03   9.5191e-01   -2.1254e-05   1.0000e-10   6.3686e+07   2.1254e+05
+		      1   7.4636e-01  -5.3859e-03   7.4097e-01   -1.6691e-05   1.0000e-10   5.3859e+07   1.6691e+05
+		      7   9.1864e-01  -4.1567e-03   9.1448e-01   -9.4248e-06   1.0000e-10   4.1567e+07   9.4248e+04
+		      0   6.7314e-01  -1.5812e-03   6.7156e-01   -4.9004e-06   1.0000e-10   1.5812e+07   4.9004e+04
+		      5  -2.6559e-01  -9.9571e-04  -2.6658e-01   -5.2357e-06   1.0000e-10   9.9571e+06   5.2357e+04
+		   ------------------------------------------------------------------------------------------
+			dampNewt: s0 = 3.36352e+07, s1 = 104571, fbound = 1,damp = 1
+			DampNewton iteration successful, get newdirection, sfinal = 104571
+		Solve_Nonlinear_Problem: iteration 6:
+			Getting a new Jacobian and solving system
+		dampNewt: Important Entries for Weighted Soln Updates: currentDamp = 1
+		         I  ysoln DeltaSolnTrial ysolnTrial DeltaSolnTrialTest weight relSoln0 relSoln1
+		   ------------------------------------------------------------------------------------------
+		      2   9.5191e-01  -2.1397e-05   9.5189e-01   -2.5454e-10   1.0000e-10   2.1397e+05   2.5454e+00
+		      1   7.4097e-01  -1.6796e-05   7.4096e-01   -1.7170e-10   1.0000e-10   1.6796e+05   1.7170e+00
+		      7   9.1448e-01  -9.4676e-06   9.1448e-01   -4.8018e-11   1.0000e-10   9.4676e+04   4.8018e-01
+		      5  -2.6658e-01  -5.2697e-06  -2.6659e-01   -4.7944e-11   1.0000e-10   5.2697e+04   4.7944e-01
+		      0   6.7156e-01  -4.9309e-06   6.7155e-01   -5.0410e-11   1.0000e-10   4.9309e+04   5.0410e-01
+		   ------------------------------------------------------------------------------------------
+			dampNewt: s0 = 105233, s1 = 1.13298, fbound = 1,damp = 1
+			DampNewton iteration successful, get newdirection, sfinal = 1.13298
+		Solve_Nonlinear_Problem: iteration 7:
+			Getting a new Jacobian and solving system
+		dampNewt: Important Entries for Weighted Soln Updates: currentDamp = 1
+		         I  ysoln DeltaSolnTrial ysolnTrial DeltaSolnTrialTest weight relSoln0 relSoln1
+		   ------------------------------------------------------------------------------------------
+		      2   9.5189e-01  -2.5455e-10   9.5189e-01   -1.3413e-16   1.0000e-10   2.5455e+00   1.3413e-06
+		      1   7.4096e-01  -1.7171e-10   7.4096e-01    7.0441e-18   1.0000e-10   1.7171e+00   7.0441e-08
+		      0   6.7155e-01  -5.0411e-11   6.7155e-01    7.4889e-17   1.0000e-10   5.0411e-01   7.4889e-07
+		      7   9.1448e-01  -4.8019e-11   9.1448e-01    5.7551e-17   1.0000e-10   4.8019e-01   5.7551e-07
+		      5  -2.6659e-01  -4.7944e-11  -2.6659e-01    1.7791e-17   1.0000e-10   4.7944e-01   1.7791e-07
+		   ------------------------------------------------------------------------------------------
+			dampNewt: s0 = 1.133, s1 = 8.61023e-07, fbound = 1,damp = 1
+			DampNewton iteration successful, nonlin converged sfinal = 8.61023e-07
+		Nonlinear problem solved successfully in 7 its, time elapsed = 0 sec
+
+SOLN:
+ Unk    Value        residual if GE 1.0E-15
+    0   6.71554E-01   0.00000E+00
+    1   7.40955E-01   0.00000E+00
+    2   9.51893E-01   0.00000E+00
+    3  -3.06431E-01   0.00000E+00
+    4   9.63811E-01   0.00000E+00
+    5  -2.66587E-01   0.00000E+00
+    6   4.04641E-01   0.00000E+00
+    7   9.14475E-01   0.00000E+00

@@ -7,14 +7,19 @@
 #
 
 all: 
+	cd nonlin_first; @MAKE@ all
 
 depends:
+	cd nonlin_first; @MAKE@ depends
 
 clean:
+	cd nonlin_first; @MAKE@ clean
 
 test:
+	cd nonlin_first; @MAKE@ -s test
 
 rebaseline:
+	cd nonlin_first; @MAKE@ rebaseline
 
 
 
