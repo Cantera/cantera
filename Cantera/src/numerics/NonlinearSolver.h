@@ -41,6 +41,7 @@ namespace Cantera {
    */
   class NonlinearSolver {
 
+  public:
     //! Default constructor
     /*!
      * @param func   Residual and jacobian evaluator function object
@@ -192,13 +193,14 @@ namespace Cantera {
      * at a time step.
      */
     void calc_y_pred(int);
-
+   
     /**
      * Internal function to calculate the time derivative at the
      * new step
      */
-    void calc_ydot(int order, double * const y_curr, double * const ydot_curr);
-    
+    void calc_ydot(int, double *, double *);
+
+
 
     //! Function called to evaluate the jacobian matrix and the curent
     //! residual vector.
@@ -276,7 +278,7 @@ namespace Cantera {
 				 double damp,
 				 int num_entries);
 
-
+ private:
 
     //! Pointer to the residual and jacobian evaluator for the 
     //! function
@@ -284,6 +286,9 @@ namespace Cantera {
      *   See ResidJacEval.h for an evaluator.
      */
     ResidJacEval *m_func;
+
+    //! Solution type
+    int solnType_;
 
     //! Local copy of the number of equations
     int neq_;
@@ -293,6 +298,11 @@ namespace Cantera {
 
     std::vector<doublereal> m_y_n;
     std::vector<doublereal> m_y_nm1;
+
+
+    std::vector<doublereal> ydot_new;
+
+
     std::vector<doublereal> m_colScales;
 
     //! Weights for normalizing the values of the residuals
@@ -306,6 +316,7 @@ namespace Cantera {
 
     //! Lower bounds vector for each species
     std::vector<doublereal> m_y_low_bounds;
+
 
     double delta_t_n;
 
@@ -350,6 +361,8 @@ namespace Cantera {
     doublereal rtol_;
 
     doublereal atolBase_;
+
+    double *  m_ydot_nm1;
 
     std::vector<doublereal> atolk_;
   };

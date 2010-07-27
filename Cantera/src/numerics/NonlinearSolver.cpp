@@ -45,14 +45,14 @@ using namespace std;
 namespace Cantera {
 
 
-
+ //====================================================================================================================
   //-----------------------------------------------------------
   //                 Constants
   //-----------------------------------------------------------
 
   const double DampFactor = 4;
   const int NDAMP = 7;
-
+ //====================================================================================================================
   //-----------------------------------------------------------
   //                 Static Functions
   //-----------------------------------------------------------
@@ -63,13 +63,14 @@ namespace Cantera {
     }
     printf("\n");
   }
-
+ //====================================================================================================================
   // Default constructor
   /*
    * @param func   Residual and jacobian evaluator function object
    */
   NonlinearSolver::NonlinearSolver(ResidJacEval *func) :
     m_func(func),
+    solnType_(NSOLN_TYPE_STEADY_STATE),
     neq_(0),
     delta_t_n(-1.0),
     m_nfe(0),
@@ -92,6 +93,7 @@ namespace Cantera {
     m_ewt.resize(neq_, rtol_);
     m_y_n.resize(neq_, 0.0);
     m_y_nm1.resize(neq_, 0.0);
+    ydot_new.resize(neq_, 0.0);
     m_colScales.resize(neq_, 1.0);
     m_rowScales.resize(neq_, 1.0);
     m_resid.resize(neq_, 0.0);
@@ -105,9 +107,10 @@ namespace Cantera {
       m_ewt[i] = atolk_[i];
     }
   }
-
+ //====================================================================================================================
   NonlinearSolver::NonlinearSolver(const NonlinearSolver &right) :
-    m_func(right.m_func),
+    m_func(right.m_func), 
+    solnType_(NSOLN_TYPE_STEADY_STATE),
     neq_(0),
     delta_t_n(-1.0),
     m_nfe(0),
@@ -128,10 +131,10 @@ namespace Cantera {
     *this =operator=(right);
   }
 
-
+ //====================================================================================================================
   NonlinearSolver::~NonlinearSolver() {
   }
-
+ //====================================================================================================================
   NonlinearSolver& NonlinearSolver::operator=(const NonlinearSolver &right) {
     if (this == &right) {
       return *this;
@@ -140,10 +143,12 @@ namespace Cantera {
     // create a deep copy
     m_func = right.m_func->duplMyselfAsResidJacEval();
 
+    solnType_                  = right.solnType_;
     neq_                       = right.neq_;
     m_ewt                      = right.m_ewt;
     m_y_n                      = right.m_y_n;
     m_y_nm1                    = right.m_y_nm1;
+    ydot_new                   = right.ydot_new;
     m_colScales                = right.m_colScales;
     m_rowScales                = right.m_rowScales;
     m_resid                    = right.m_resid;
@@ -199,7 +204,7 @@ namespace Cantera {
       m_y_high_bounds[i] = y_high_bounds[i];
     }
   }
-
+ //====================================================================================================================
   /**
    * L2 Norm of a delta in the solution
    *
@@ -254,8 +259,8 @@ namespace Cantera {
     }
     return sum_norm;
   }
-
-  /**
+  //====================================================================================================================
+  /*
    * L2 Norm of the residual
    *
    *  The second argument has a default of false. However,
@@ -309,7 +314,7 @@ namespace Cantera {
     }
     return sum_norm;
   }
-
+  //====================================================================================================================
 
   /**
    * setColumnScales():
@@ -320,7 +325,7 @@ namespace Cantera {
     m_func->calcSolnScales(time_n, DATA_PTR(m_y_n), DATA_PTR(m_y_nm1),
 			   DATA_PTR(m_colScales));
   }
-
+  //====================================================================================================================
 
   void NonlinearSolver::doResidualCalc(const double time_curr, const int typeCalc,
 				       const double * const y_curr, 
@@ -336,7 +341,7 @@ namespace Cantera {
     m_nfe++;
   }
 
- 
+   //====================================================================================================================
   // Compute the undamped Newton step
   /*
    * Compute the undamped Newton step.  The residual function is
@@ -495,7 +500,7 @@ namespace Cantera {
 	
     m_numTotalLinearSolves++;
   }
-
+  //====================================================================================================================
   /**************************************************************************
    *
    * boundStep():
@@ -535,7 +540,7 @@ namespace Cantera {
        * Force the step to only take 80% a step towards the lower bounds
        */
       if (step0[i] < 0.0) {
-	if (y_new < m_y_low_bounds[i]) {
+	if (y_new < (y[i] + 0.8 * (m_y_low_bounds[i] - y[i]))) {
 	  double legalDelta = 0.8*(m_y_low_bounds[i] - y[i]);
 	  ff = legalDelta / step0[i];
 	  if (ff < f_bounds) {
@@ -548,7 +553,7 @@ namespace Cantera {
        * Force the step to only take 80% a step towards the high bounds
        */
       if (step0[i] > 0.0) {
-	if (y_new > m_y_high_bounds[i]) {
+	if (y_new > (y[i] + 0.8 * (m_y_high_bounds[i] - y[i]))) {
 	  double legalDelta = 0.8*(m_y_high_bounds[i] - y[i]);
 	  ff = legalDelta / step0[i];
 	  if (ff < f_bounds) {
@@ -557,22 +562,22 @@ namespace Cantera {
 	  }
 	}
       }
-      /**
+      /*
        * Now do a delta bounds
-       * Increase variables by a factor of 2 only
-       * decrease variables by a factor of 5 only
+       * Increase variables by a factor of 1.5 only
+       * decrease variables by a factor of 2 only
        */
       ff = 1.0;
-      if ((fabs(y_new) > 2.0 * fabs(y[i])) && 
+      if ((fabs(y_new) > 1.5 * fabs(y[i])) && 
 	  (fabs(y_new-y[i]) > m_ewt[i])) {
-	ff = fabs(y[i]/(y_new - y[i]));
+	ff = 0.5 * fabs(y[i]/(y_new - y[i]));
 	ff_alt = fabs(m_ewt[i] / (y_new - y[i]));
 	ff = MAX(ff, ff_alt);
 	ifbd = 1;
       }
-      if ((fabs(5.0 * y_new) < fabs(y[i])) &&
+      if ((fabs(2.0 * y_new) < fabs(y[i])) &&
 	  (fabs(y_new - y[i]) > m_ewt[i])) {
-	ff = y[i]/(y_new-y[i]) * (1.0 - 5.0)/5.0;
+	ff = y[i]/(y_new - y[i]) * (1.0 - 2.0)/2.0;
 	ff_alt = fabs(m_ewt[i] / (y_new - y[i]));
 	ff = MAX(ff, ff_alt);
 	ifbd = 0;
@@ -598,11 +603,11 @@ namespace Cantera {
 	  if (ifbd) {
 	    printf("\t\tboundStep: Decrease of Variable %d causing "
 		   "delta damping of %g\n",
-		   i_fbd, f_delta_bounds);
+		   i_fbounds, f_delta_bounds);
 	  } else {
 	    printf("\t\tboundStep: Increase of variable %d causing"
 		   "delta damping of %g\n",
-		   i_fbd, f_delta_bounds);
+		   i_fbounds, f_delta_bounds);
 	  }
 	}
       }
@@ -610,7 +615,7 @@ namespace Cantera {
     //return fbound;
     return 1.0;
   }
-
+  //====================================================================================================================
   /**************************************************************************
    *
    * dampStep():
@@ -670,7 +675,10 @@ namespace Cantera {
       for (j = 0; j < neq_; j++) {
 	y1[j] = y0[j] + ff * step0[j];
       }
-      calc_ydot(m_order, y1, ydot1);
+      
+      if (solnType_ != NSOLN_TYPE_STEADY_STATE) {
+	calc_ydot(m_order, y1, ydot1);
+      }
 
       doResidualCalc(time_curr, NSOLN_TYPE_STEADY_STATE, y1, ydot1, step1, loglevel);
 	  
@@ -743,8 +751,8 @@ namespace Cantera {
       return -2;
     }
   }
-
-  /**
+  //====================================================================================================================
+  /*
    *
    * solve_nonlinear_problem():
    *
@@ -768,6 +776,8 @@ namespace Cantera {
   {
     clockWC wc;
 
+    solnType_ = SolnType;
+
     bool m_residCurrent = false;
     int m = 0;
     bool forceNewJac = false;
@@ -779,13 +789,14 @@ namespace Cantera {
     std::vector<doublereal> stp1(neq_, 0.0);
 
     std::vector<doublereal> y_new(neq_, 0.0);
-    std::vector<doublereal> ydot_new(neq_, 0.0);
+   
 
     mdp::mdp_copy_dbl_1(DATA_PTR(y_curr), y_comm, neq_);
     // copyn((size_t)neq_, y_comm,    y_curr);
-    mdp::mdp_copy_dbl_1(DATA_PTR(ydot_curr), ydot_comm, neq_);
-
-    
+    if (SolnType != NSOLN_TYPE_STEADY_STATE) {
+      mdp::mdp_copy_dbl_1(DATA_PTR(ydot_curr), ydot_comm, neq_);
+    }
+     
 
     bool frst = true;
     num_newt_its = 0;
@@ -900,7 +911,10 @@ namespace Cantera {
       // Exchange new for curr solutions
       if (m == 0 || m == 1) {
 	mdp::mdp_copy_dbl_1(DATA_PTR(y_curr), DATA_PTR(y_new), neq_);
-	calc_ydot(m_order, DATA_PTR(y_curr), DATA_PTR(ydot_curr));
+
+	if (solnType_ != NSOLN_TYPE_STEADY_STATE) {
+	  calc_ydot(m_order, DATA_PTR(y_curr), DATA_PTR(ydot_curr));
+	}
       }
 
       // convergence
@@ -931,7 +945,7 @@ namespace Cantera {
     }
     return m;
   }
- 
+   //====================================================================================================================
   /***************************************************************8
    *
    *
@@ -987,8 +1001,8 @@ namespace Cantera {
     printf("\t\t   "); print_line("-", 90);
     mdp::mdp_safe_free((void **) &imax);
   }
+  //====================================================================================================================
 
-  //================================================================================================
   /*
    * subtractRD():
    *   This routine subtracts 2 numbers. If the difference is less
@@ -1145,8 +1159,43 @@ namespace Cantera {
 
 
   }
+  //====================================================================================================================
+  void NonlinearSolver::
+  calc_ydot(int order, double *y_curr, double *ydot_curr)
+  {
+    if (!ydot_curr) {
+      return;
+    }
+    int    i;
+    double c1;
+    switch (order) {
+    case 0:
+    case 1:             /* First order forward Euler/backward Euler */
+      c1 = 1.0 / delta_t_n;
+      for (i = 0; i < neq_; i++) {
+        ydot_curr[i] = c1 * (y_curr[i] - m_y_nm1[i]);
+      }
+      return;
+    case 2:             /* Second order Adams-Bashforth / Trapezoidal Rule */
+      c1 = 2.0 / delta_t_n;
+      for (i = 0; i < neq_; i++) {
+        ydot_curr[i] = c1 * (y_curr[i] - m_y_nm1[i])  - m_ydot_nm1[i];
+      }
+      throw CanteraError("", "not implemented");
+      return;
+    }
+  } 
+  //================================================================================================
+  /*
+   * filterNewStep():
+   *
+   * void BEulerInt::
+   *
+   */
+  double NonlinearSolver::filterNewStep(double timeCurrent, double *y_current, double *ydot_current) {
+    return 0.0;
+  }
 
-
-
+  //====================================================================================================================
 }
 
