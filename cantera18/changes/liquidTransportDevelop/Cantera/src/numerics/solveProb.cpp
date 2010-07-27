@@ -79,6 +79,8 @@ namespace Cantera {
     m_wtSpecies.resize(dim1, 0.0);
     m_resid.resize(dim1, 0.0);
     m_ipiv.resize(dim1, 0); 
+    m_topBounds.resize(dim1, 1.0);
+    m_botBounds.resize(dim1, 0.0);
 
     m_Jac.resize(dim1, dim1, 0.0);
     m_JacCol.resize(dim1, 0);
@@ -473,47 +475,55 @@ namespace Cantera {
   }
   //================================================================================================
 #define APPROACH 0.50
-  /* This function calculates a damping factor for the Newton iteration update
-   * vector, dxneg, to insure that all site and bulk fractions, x, remain
-   * bounded between zero and one.
+  //  This function calculates a damping factor for the Newton iteration update
+  //  vector, dxneg, to insure that all solution components stay within perscribed bounds
+  /*
+   *  The default for this class is that all solution components are bounded between zero and one.
+   *  this is because the original unknowns were mole fractions and surface site fractions.
    *
    *      dxneg[] = negative of the update vector.
    *
    * The constant "APPROACH" sets the fraction of the distance to the boundary
    * that the step can take.  If the full step would not force any fraction
-   * outside of 0-1, then Newton's method is allowed to operate normally.
+   * outside of the bounds, then Newton's method is mostly allowed to operate normally.
+   * There is also some solution damping employed.
+   *
+   *  @param x       Vector of the current solution components
+   *  @param dxneg   Vector of the negative of the full solution update vector.
+   *  @param dim     Size of the solution vector
+   *  @param label   return int, stating which solution component caused the most damping.
    */
   doublereal solveProb::calc_damping(doublereal x[], doublereal dxneg[], int dim, int *label)
   {
-    int       i;
-    doublereal    damp = 1.0, xnew, xtop, xbot;
+    doublereal  damp = 1.0, xnew, xtop, xbot;
     static doublereal damp_old = 1.0;
-
     *label = -1;
 
-    for (i = 0; i < dim; i++) {
-
+    for (int i = 0; i < dim; i++) {
+      doublereal topBounds = m_topBounds[i];
+      doublereal botBounds = m_botBounds[i];
       /*
        * Calculate the new suggested new value of x[i]
        */
-      //   x_raw =  x[i] - dxneg[i];
       double delta_x = - dxneg[i];
       xnew = x[i] - damp * dxneg[i];
 
       /*
        *  Calculate the allowed maximum and minimum values of x[i]
-       *   - Only going to allow x[i] to converge to zero by a
-       *     single order of magnitude at a time
+       *   - Only going to allow x[i] to converge to  the top and bottom bounds by a
+       *     single order of magnitude at one time
        */
 
-      xtop = 1.0 - 0.1*fabs(1.0-x[i]);
-      xbot = fabs(x[i]*0.1) - 1.0e-16;
+      xtop = topBounds - 0.1 * fabs(topBounds - x[i]);
+
+      xbot = botBounds + 0.1 * fabs(x[i] - botBounds);
+
       if (xnew > xtop) {
-	damp = - APPROACH * (1.0 - x[i]) / dxneg[i];
+	damp = - APPROACH * (xtop - x[i]) / dxneg[i];
 	*label = i;
       }
       else if (xnew < xbot) {
-	damp = APPROACH * x[i] / dxneg[i];
+	damp = APPROACH * (x[i] - xbot) / dxneg[i];
 	*label = i;
       } else  if (xnew > 3.0*MAX(x[i], 1.0E-10)) {
 	damp = - 2.0 * MAX(x[i], 1.0E-10) / dxneg[i];
@@ -527,7 +537,6 @@ namespace Cantera {
 
     }
 
-    // if (damp < 1.0e-2) damp = 1.0e-2;
     /*
      * Only allow the damping parameter to increase by a factor of three each
      * iteration. Heuristic to avoid oscillations in the value of damp
@@ -541,7 +550,6 @@ namespace Cantera {
      *      Save old value of the damping parameter for use
      *      in subsequent calls.
      */
-
     damp_old = damp;
     return damp;
 
@@ -628,7 +636,6 @@ namespace Cantera {
       }
     }
     
-
     /*
      * Increase time step exponentially as same species repeatedly
      * controls time step 
@@ -658,7 +665,22 @@ namespace Cantera {
     return (inv_timeScale);
     
   } 
-  //================================================================================================ 
+  //====================================================================================================================
+  // Set the bottom and top bounds on the solution vector
+  /*
+   *  The default is for the bottom is 0.0, while the default for the top is 1.0
+   *
+   *   @param botBounds Vector of bottom bounds
+   *   @param topBounds vector of top bounds
+   */
+  void solveProb::setBounds(const doublereal botBounds[], const doublereal topBounds[]) 
+  {
+    for (int k = 0; k < m_neq; k++) {
+      m_botBounds[k] = botBounds[k];
+      m_topBounds[k] = topBounds[k];
+    }
+  }
+  //====================================================================================================================
   /*
    *  printResJac(): prints out the residual and Jacobian.
    *

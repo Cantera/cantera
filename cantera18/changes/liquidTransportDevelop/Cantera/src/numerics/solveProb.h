@@ -66,12 +66,17 @@ namespace Cantera {
 
   //! Method to solve a pseudo steady state of a nonlinear problem
   /*!
-   *   The following class handles solving nonlinear problem.s
+   *   The following class handles the solution of a nonlinear problem.
+   *
+   *      Res_ss(C) =   - Res(C) = 0
    *   
+   *   Optionally a pseudo transient algorithm may be used to relax the residual if 
+   *   it is available.
    *
-   *   Note there are a couple of different types of species indecices
-   *   floating around in the formulation of this object.
-   *
+   *      Res_td(C) =  dC/dt  - Res(C) = 0;
+   *         
+   *    Res_ss(C) is the steady state residual to be solved. Res_td(C) is the 
+   *    time dependent residual which leads to the steady state residual.
    *
    *
    *  Solution Method
@@ -329,8 +334,36 @@ namespace Cantera {
 			     const doublereal *CSolnSPOld,  const bool do_time, 
 			     const doublereal deltaT);
 
+    //!  This function calculates a damping factor for the Newton iteration update
+    //!  vector, dxneg, to insure that all solution components stay within perscribed bounds
+    /*!
+     *  The default for this class is that all solution components are bounded between zero and one.
+     *  this is because the original unknowns were mole fractions and surface site fractions.
+     *
+     *      dxneg[] = negative of the update vector.
+     *
+     * The constant "APPROACH" sets the fraction of the distance to the boundary
+     * that the step can take.  If the full step would not force any fraction
+     * outside of the bounds, then Newton's method is mostly allowed to operate normally.
+     * There is also some solution damping employed.
+     *
+     *  @param x       Vector of the current solution components
+     *  @param dxneg   Vector of the negative of the full solution update vector.
+     *  @param dim     Size of the solution vector
+     *  @param label   return int, stating which solution component caused the most damping.
+     */
     virtual doublereal calc_damping(doublereal x[], doublereal dxneg[], int dim, int *label);
 
+    //! Set the bottom and top bounds on the solution vector
+    /*!
+     *  The default is for the bottom is 0.0, while the default for the top is 1.0
+     *
+     *   @param botBounds Vector of bottom bounds
+     *   @param topBounds vector of top bounds
+     */
+    virtual void setBounds(const doublereal botBounds[], const doublereal topBounds[]);
+
+    //! residual function pointer to be solved.
     ResidEval *m_residFunc;
 
     //! Total number of equations to solve in the implicit problem.
@@ -426,6 +459,18 @@ namespace Cantera {
      *   local Newton's method.
      */
     Array2D m_Jac;
+
+    //! Top bounds for the solution vector
+    /*!
+     *  This defaults to 1.0
+     */
+    vector_fp m_topBounds;
+
+    //! Bottom bounds for the solution vector
+    /*!
+     *  This defaults to 0.0
+     */
+    vector_fp m_botBounds;
 
 
   public:
