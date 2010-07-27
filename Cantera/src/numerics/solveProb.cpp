@@ -57,7 +57,7 @@ namespace Cantera {
   solveProb::solveProb(ResidEval* resid) :
     m_residFunc(resid),
     m_neq(0),
-    m_atol(1.0E-15),
+    m_atol(0),
     m_rtol(1.0E-4),
     m_maxstep(1000),
     m_ioflag(0)
@@ -67,7 +67,7 @@ namespace Cantera {
     // Dimension solution vector
     int dim1 = MAX(1, m_neq);
 
-    m_atol.resize(dim1, 0.0);
+    m_atol.resize(dim1, 1.0E-9);
     m_netProductionRatesSave.resize(dim1, 0.0);
     m_numEqn1.resize(dim1, 0.0);
     m_numEqn2.resize(dim1, 0.0);
@@ -102,7 +102,7 @@ namespace Cantera {
    * proportional to their production rates. 
    */
   int solveProb::solve(int ifunc, doublereal time_scale,
-		       doublereal reltol, doublereal abstol)
+		       doublereal reltol)
   {
     doublereal EXTRA_ACCURACY = 0.001;
     if (ifunc == SOLVEPROB_JACOBIAN) {
@@ -164,7 +164,7 @@ namespace Cantera {
   
   
     if (m_ioflag) {
-      print_header(m_ioflag, ifunc, time_scale, reltol, abstol, 
+      print_header(m_ioflag, ifunc, time_scale, reltol, 
 		   DATA_PTR(m_netProductionRatesSave));
     }
 
@@ -323,9 +323,7 @@ namespace Cantera {
       for (irow = 0; irow < m_neq; irow++) {
 	m_CSolnSP[irow] -= damp * m_resid[irow];
       }
-      for (irow = 0; irow < m_neq; irow++) {
-	m_CSolnSP[irow] = MAX(0.0, m_CSolnSP[irow]);
-      }
+
   
       if (do_time) t_real += damp/inv_t;
 
@@ -513,6 +511,10 @@ namespace Cantera {
        *   - Only going to allow x[i] to converge to  the top and bottom bounds by a
        *     single order of magnitude at one time
        */
+      bool canCrossOrigin = false;
+      if (topBounds > 0.0 && botBounds < 0.0) {
+	canCrossOrigin = true;
+      }
 
       xtop = topBounds - 0.1 * fabs(topBounds - x[i]);
 
@@ -525,13 +527,21 @@ namespace Cantera {
       else if (xnew < xbot) {
 	damp = APPROACH * (x[i] - xbot) / dxneg[i];
 	*label = i;
-      } else  if (xnew > 3.0*MAX(x[i], 1.0E-10)) {
-	damp = - 2.0 * MAX(x[i], 1.0E-10) / dxneg[i];
-	*label = i;
       }
-      double denom = fabs(x[i]) + m_atol[i];
+  // else  if (fabs(xnew) > 2.0*MAX(fabs(x[i]), 1.0E-10)) {
+//	damp = 0.5 * MAX(fabs(x[i]), 1.0E-9)/ fabs(xnew);
+//	*label = i;
+ //     }
+      double denom = fabs(x[i]) + 1.0E5 * m_atol[i];
       if ((fabs(delta_x) / denom) > 0.3) {
-	double newdamp = 0.3 * denom / delta_x;
+	double newdamp = 0.3 * denom / fabs(delta_x);
+	if (canCrossOrigin) {
+	  if (xnew * x[i] < 0.0) {
+	    if (fabs(x[i]) < 1.0E8 * m_atol[i]) {
+	      newdamp = 2.0 * fabs(x[i]) / fabs(delta_x);
+	    }
+	  }
+	}
 	damp = MIN(damp, newdamp);
       }
 
@@ -698,7 +708,7 @@ namespace Cantera {
    * Optional printing at the start of the solveProb problem
    */
   void solveProb::print_header(int ioflag, int ifunc, doublereal time_scale, 
-			       doublereal reltol, doublereal abstol,  
+			       doublereal reltol,   
 			       doublereal netProdRate[]) {
     int damping = 1;
     if (ioflag) {
@@ -732,7 +742,7 @@ namespace Cantera {
       else
 	printf("     Damping is OFF  \n");
 
-      printf("     Reltol = %9.3e, Abstol = %9.3e\n", reltol, abstol);
+      printf("     Reltol = %9.3e, Abstol = %9.3e\n", reltol, m_atol[0]);
     }
 
     /*
@@ -974,4 +984,11 @@ namespace Cantera {
   }
 #endif
   //================================================================================================ 
+  void solveProb::setAtol(const doublereal atol[]) {
+  
+    for (int k = 0; k < m_neq; k++, k++) {
+      m_atol[k] = atol[k];
+    }
+  }
+
 }

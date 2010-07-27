@@ -188,15 +188,13 @@ namespace Cantera {
      *                    where applicable
      * 
      * @param reltol      Relative tolerance to use
-     * @param abstol      absolute tolerance.
      *
      * @return  Returns 1 if the surface problem is successfully solved.
      *          Returns -1 if the surface problem wasn't solved successfully.
      *          Note the actual converged solution is returned as part of the
      *          internal state of the InterfaceKinetics objects.
      */
-    int solve(int ifunc, doublereal time_scale,
-	      doublereal reltol, doublereal abstol);
+    int solve(int ifunc, doublereal time_scale,  doublereal reltol);
 
     //! Report the current state of the solution
     /*!
@@ -204,13 +202,25 @@ namespace Cantera {
      */
     virtual void reportState(doublereal * const CSoln) const;
 
+    //! Set the bottom and top bounds on the solution vector
+    /*!
+     *  The default is for the bottom is 0.0, while the default for the top is 1.0
+     *
+     *   @param botBounds Vector of bottom bounds
+     *   @param topBounds vector of top bounds
+     */
+    virtual void setBounds(const doublereal botBounds[], const doublereal topBounds[]);
+
+
+    void setAtol(const doublereal atol[]);
+
 
   private:
 
     //! Printing routine that gets called at the start of every
     //! invocation
     virtual void print_header(int ioflag, int ifunc, doublereal time_scale,
-			      doublereal reltol, doublereal abstol,
+			      doublereal reltol, 
 			      doublereal netProdRate[]);
 
 #ifdef DEBUG_SOLVEPROB
@@ -353,15 +363,6 @@ namespace Cantera {
      *  @param label   return int, stating which solution component caused the most damping.
      */
     virtual doublereal calc_damping(doublereal x[], doublereal dxneg[], int dim, int *label);
-
-    //! Set the bottom and top bounds on the solution vector
-    /*!
-     *  The default is for the bottom is 0.0, while the default for the top is 1.0
-     *
-     *   @param botBounds Vector of bottom bounds
-     *   @param topBounds vector of top bounds
-     */
-    virtual void setBounds(const doublereal botBounds[], const doublereal topBounds[]);
 
     //! residual function pointer to be solved.
     ResidEval *m_residFunc;
