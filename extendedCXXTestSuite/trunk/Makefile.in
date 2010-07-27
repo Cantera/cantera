@@ -16,6 +16,8 @@ clean:
 	cd thermo_UnitTests;            @MAKE@ clean
 	cd kinetics_UnitTests;          @MAKE@ clean
 	cd transport_UnitTests;         @MAKE@ clean
+	/bin/rm -f svn-commit* *~ config.log .*swp .nfs*
+	/bin/rm -rf autom4te.cache
 
 depends:
 	cd numerics_UnitTests;          @MAKE@ depends
