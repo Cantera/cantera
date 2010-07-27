@@ -79,6 +79,8 @@ namespace Cantera {
     m_numTotalNewtIts(0),
     m_min_newt_its(0),
     filterNewstep(0),
+    m_jacFormMethod(NSOLN_JAC_NUM),
+    m_nJacEval(0),
     time_n(0.0),
     m_matrixConditioning(0),
     m_order(1),
@@ -104,7 +106,25 @@ namespace Cantera {
     }
   }
 
-  NonlinearSolver::NonlinearSolver(const NonlinearSolver &right) {
+  NonlinearSolver::NonlinearSolver(const NonlinearSolver &right) :
+    m_func(right.m_func),
+    neq_(0),
+    delta_t_n(-1.0),
+    m_nfe(0),
+    m_colScaling(0),
+    m_rowScaling(0),
+    m_numTotalLinearSolves(0),
+    m_numTotalNewtIts(0),
+    m_min_newt_its(0),
+    filterNewstep(0),
+    m_jacFormMethod(NSOLN_JAC_NUM),
+    m_nJacEval(0),
+    time_n(0.0),
+    m_matrixConditioning(0),
+    m_order(1),
+    rtol_(1.0E-3),
+    atolBase_(1.0E-10)
+  {
     *this =operator=(right);
   }
 
@@ -137,6 +157,8 @@ namespace Cantera {
     m_numTotalNewtIts          = right.m_numTotalNewtIts;
     m_min_newt_its             = right.m_min_newt_its;
     filterNewstep              = right.filterNewstep;
+    m_jacFormMethod            = right.m_jacFormMethod;
+    m_nJacEval                 = right.m_nJacEval;
     time_n                     = right.time_n;
     m_matrixConditioning       = right.m_matrixConditioning;
     m_order                    = right.m_order;
@@ -146,7 +168,7 @@ namespace Cantera {
 
     return *this;
   }
-
+  //====================================================================================================================
   // Create solution weights for convergence criteria
   /*
    *  We create soln weights from the following formula
@@ -163,7 +185,7 @@ namespace Cantera {
       m_ewt[i] = rtol_ * fabs(y[i]) + atolk_[i];
     }
   }
-
+  //====================================================================================================================
   // set bounds constraints for all variables in the problem
   /*
    *  
@@ -964,6 +986,164 @@ namespace Cantera {
     }
     printf("\t\t   "); print_line("-", 90);
     mdp::mdp_safe_free((void **) &imax);
+  }
+
+  //================================================================================================
+  /*
+   * subtractRD():
+   *   This routine subtracts 2 numbers. If the difference is less
+   *   than 1.0E-14 times the magnitude of the smallest number,
+   *   then diff returns an exact zero. 
+   *   It also returns an exact zero if the difference is less than
+   *   1.0E-300.
+   *
+   *   returns:  a - b
+   *
+   *   This routine is used in numerical differencing schemes in order
+   *   to avoid roundoff errors resulting in creating Jacobian terms.
+   *   Note: This is a slow routine. However, jacobian errors may cause
+   *         loss of convergence. Therefore, in practice this routine
+   *         has proved cost-effective.
+   */
+  static inline double subtractRD(double a, double b) {
+    double diff = a - b;
+    double d = MIN(fabs(a), fabs(b));
+    d *= 1.0E-14;
+    double ad = fabs(diff);
+    if (ad < 1.0E-300) {
+      diff = 0.0;
+    }
+    if (ad < d) {
+      diff = 0.0;
+    }
+    return diff;
+  }
+ //================================================================================================
+  /*
+   *
+   *  Function called by BEuler to evaluate the Jacobian matrix and the
+   *  current residual at the current time step.
+   *  @param N = The size of the equation system
+   *  @param J = Jacobian matrix to be filled in
+   *  @param f = Right hand side. This routine returns the current
+   *             value of the rhs (output), so that it does
+   *             not have to be computed again.
+   *
+   */
+  void NonlinearSolver::beuler_jac(SquareMatrix &J, double * const f,
+				   double time_curr, double CJ,
+				   double * const y,
+				   double * const ydot,
+				   int num_newt_its)
+  {
+    int i, j;
+    double* col_j;
+    double ysave, ydotsave, dy;
+    /*
+     * Clear the factor flag
+     */
+    J.clearFactorFlag();
+   if (m_jacFormMethod == NSOLN_JAC_ANAL) {
+      /********************************************************************
+       * Call the function to get a jacobian.
+       */
+      m_func->evalJacobian(time_curr, delta_t_n, y, ydot, J, f);
+#ifdef DEBUG_HKM
+      //double dddd = J(89, 89);
+      //checkFinite(dddd);
+#endif
+      m_nJacEval++;
+      m_nfe++;
+    }  else {
+      /*******************************************************************
+       * Generic algorithm to calculate a numerical Jacobian
+       */
+      /*
+       * Calculate the current value of the rhs given the
+       * current conditions.
+       */
+
+      m_func->evalResidNJ(time_curr, delta_t_n, y, ydot, f);
+      m_nfe++;
+      m_nJacEval++;
+
+
+      /*
+       * Malloc a vector and call the function object to return a set of
+       * deltaY's that are appropriate for calculating the numerical
+       * derivative.
+       */
+      double *dyVector = mdp::mdp_alloc_dbl_1(neq_, MDP_DBL_NOINIT);
+      m_func->calcDeltaSolnVariables(time_curr, y, ydot, dyVector, DATA_PTR(m_ewt));
+
+
+#ifdef DEBUG_HKM
+      bool print_NumJac = false;
+      if (print_NumJac) {
+        FILE *idy = fopen("NumJac.csv", "w");
+        fprintf(idy, "Unk          m_ewt        y     "
+                "dyVector      ResN\n");
+        for (int iii = 0; iii < neq_; iii++){
+          fprintf(idy, " %4d       %16.8e   %16.8e   %16.8e  %16.8e \n",
+                  iii,   m_ewt[iii],  y[iii], dyVector[iii], f[iii]);
+        }
+        fclose(idy);
+      }
+#endif
+      /*
+       * Loop over the variables, formulating a numerical derivative
+       * of the dense matrix.
+       * For the delta in the variable, we will use a variety of approaches
+       * The original approach was to use the error tolerance amount.
+       * This may not be the best approach, as it could be overly large in
+       * some instances and overly small in others.
+       * We will first protect from being overly small, by using the usual
+       * sqrt of machine precision approach, i.e., 1.0E-7,
+       * to bound the lower limit of the delta.
+       */
+      for (j = 0; j < neq_; j++) {
+
+
+        /*
+         * Get a pointer into the column of the matrix
+         */
+
+
+        col_j = (double *) J.ptrColumn(j);
+        ysave = y[j];
+        dy = dyVector[j];
+        //dy = fmaxx(1.0E-6 * m_ewt[j], fabs(ysave)*1.0E-7);
+
+        y[j] = ysave + dy;
+        dy = y[j] - ysave;
+        ydotsave = ydot[j];
+        ydot[j] += dy * CJ;
+        /*
+         * Call the functon
+         */
+
+
+        m_func->evalResidNJ(time_curr, delta_t_n, y, ydot, DATA_PTR(m_y_nm1),
+                            true, j, dy);
+        m_nfe++;
+        double diff;
+        for (i = 0; i < neq_; i++) {
+          diff = subtractRD(m_y_nm1[i], f[i]);
+          col_j[i] = diff / dy;
+          //col_j[i] = (m_wksp[i] - f[i])/dy;
+        }
+
+        y[j] = ysave;
+        ydot[j] = ydotsave;
+
+      }
+      /*
+       * Release memory
+       */
+      mdp::mdp_safe_free((void **) &dyVector);
+    }
+
+
   }
 
 

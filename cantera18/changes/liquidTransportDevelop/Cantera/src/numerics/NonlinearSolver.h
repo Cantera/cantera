@@ -23,12 +23,19 @@
 
 namespace Cantera {
 
+  // I think steady state is the only option I'm gunning for
 #define  NSOLN_TYPE_PSEUDO_TIME_DEPENDENT 2
 #define  NSOLN_TYPE_TIME_DEPENDENT 1
 #define  NSOLN_TYPE_STEADY_STATE   0
 
+#define NSOLN_JAC_NUM 1
+#define NSOLN_JAC_ANAL 2
+
+
+
   //! Class that calculates the solution to a nonlinear system
   /*!
+   *  UNDER CONSTRUCTION - do not use!!!!!!!!!!!!!!!!!!!!!!!!!
    *
    *  @ingroup numerics
    */
@@ -192,8 +199,16 @@ namespace Cantera {
      */
     void calc_ydot(int order, double * const y_curr, double * const ydot_curr);
     
-    void beuler_jac(SquareMatrix &, double * const,
-		    double, double, double * const, double * const, int);
+
+    //! Function called to evaluate the jacobian matrix and the curent
+    //! residual vector.
+    /*!
+     *
+     *
+     */
+    void beuler_jac(SquareMatrix &J, double * const f,
+		    double time_curr, double CJ, double * const y,
+		    double * const ydot, int num_newt_its);
 
 
     double filterNewStep(double, double *, double *);
@@ -310,6 +325,16 @@ namespace Cantera {
     int m_min_newt_its;
 
     int filterNewstep;
+
+    //! Jacobian formation method
+    /*!
+     *   1 = numerical  (default)
+     *   2 = analytical
+     */
+    int m_jacFormMethod;
+
+    int m_nJacEval;
+ 
 
     //! Current system time
     /*!

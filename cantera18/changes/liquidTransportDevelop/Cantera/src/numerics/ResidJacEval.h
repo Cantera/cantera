@@ -158,7 +158,6 @@ namespace Cantera {
      *  Backwards Euler is assumed.
      */
     virtual void evalJacobian(const doublereal t, const doublereal deltaT,
-                              
 			      const double* const y,
 			      const double* const ydot,
 			      SquareMatrix &J,
