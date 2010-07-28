@@ -213,7 +213,7 @@ namespace Cantera {
 
 
     void setAtol(const doublereal atol[]);
-
+    void setAtolConst(const doublereal atolconst);
 
   private:
 
