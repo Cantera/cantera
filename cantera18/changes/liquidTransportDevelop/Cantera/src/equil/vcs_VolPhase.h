@@ -873,7 +873,7 @@ namespace VCSnonideal {
 
     //! Vector of the current mole fractions for species 
     //! in the phase
-    std::vector<double> Xmol;
+    std::vector<double> Xmol_;
 
     //! Vector of current creationMoleNumbers_
     /*!
