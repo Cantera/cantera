@@ -32,7 +32,7 @@ namespace VCSnonideal {
    */
   vcs_VolPhase::vcs_VolPhase(VCS_SOLVE * owningSolverObject) :
     m_owningSolverObject(0),
-    VP_ID(-1),
+    VP_ID_(-1),
     Domain_ID(-1),
     m_singleSpecies(true),
     m_gasPhase(false),
@@ -94,7 +94,7 @@ namespace VCSnonideal {
    */
   vcs_VolPhase::vcs_VolPhase(const vcs_VolPhase& b) :
     m_owningSolverObject(b.m_owningSolverObject),
-    VP_ID(b.VP_ID),
+    VP_ID_(b.VP_ID_),
     Domain_ID(b.Domain_ID),
     m_singleSpecies(b.m_singleSpecies),
     m_gasPhase(b.m_gasPhase),
@@ -147,7 +147,7 @@ namespace VCSnonideal {
       //        operator but is true for a copy constructor
       // m_owningSolverObject = b.m_owningSolverObject;
 
-      VP_ID               = b.VP_ID;
+      VP_ID_               = b.VP_ID_;
       Domain_ID           = b.Domain_ID;
       m_singleSpecies     = b.m_singleSpecies;
       m_gasPhase            = b.m_gasPhase;
@@ -261,17 +261,17 @@ namespace VCSnonideal {
     m_phi = 0.0;
     m_phiVarIndex = -1;
 
-    if (phaseNum == VP_ID) {
+    if (phaseNum == VP_ID_) {
       if (strcmp(PhaseName.c_str(), phaseName)) {
 	plogf("Strings are different: %s %s :unknown situation\n",
 	      PhaseName.c_str(), phaseName);
 	exit(EXIT_FAILURE);
       }
     } else {
-      VP_ID = phaseNum;
+      VP_ID_ = phaseNum;
       if (!phaseName) {
 	char itmp[40];
-	sprintf(itmp, "Phase_%d", VP_ID);
+	sprintf(itmp, "Phase_%d", VP_ID_);
 	PhaseName = itmp;
       } else {
 	PhaseName = phaseName;
@@ -711,7 +711,7 @@ namespace VCSnonideal {
     /*
      * Check for consistency with TPhMoles[]
      */
-    double Tcheck = TPhMoles[VP_ID];
+    double Tcheck = TPhMoles[VP_ID_];
     if (Tcheck != v_totalMoles) {
       if (vcs_doubleEqual(Tcheck, v_totalMoles)) {
 	Tcheck = v_totalMoles;
@@ -1104,7 +1104,7 @@ namespace VCSnonideal {
 	if (m_numSpecies != 0) {
 	  plogf("Warning Nsp != NVolSpeces: %d %d \n", nsp, m_numSpecies);
 	}
-	resize(VP_ID, nsp, nelem, PhaseName.c_str());
+	resize(VP_ID_, nsp, nelem, PhaseName.c_str());
       }
       TP_ptr->getMoleFractions(VCS_DATA_PTR(Xmol));
       fractionCreationDelta_ = Xmol;
@@ -1567,7 +1567,7 @@ namespace VCSnonideal {
       std::string pname = tPhase->id();
       if (pname == "") {
 	char sss[50];
-	sprintf(sss, "phase%d", VP_ID);
+	sprintf(sss, "phase%d", VP_ID_);
 	pname = sss;
       }
       ename = "cn_" + pname;

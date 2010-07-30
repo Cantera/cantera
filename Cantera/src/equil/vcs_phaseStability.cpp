@@ -1,8 +1,17 @@
-/* ======================================================================= */
-/* $RCSfile: vcs_phaseStability.cpp,v $ */
-/* $Date$ */
-/* $Revision$ */
-/* ======================================================================= */
+/**
+ * @file vcs_phaseStability.cpp
+ *  Implementation class for functions associated with determining the stability of a phase 
+ *   (see Class \link Cantera::VCS_SOLVE VCS_SOLVE\endlink and \ref equilfunctions ).
+ */
+
+/*
+ * $Id$
+ */
+/*
+ * Copywrite (2005) Sandia Corporation. Under the terms of 
+ * Contract DE-AC04-94AL85000 with Sandia Corporation, the
+ * U.S. Government retains certain rights in this software.
+ */
 
 
 #include "vcs_solve.h"
@@ -138,7 +147,7 @@ namespace VCSnonideal {
    * @return returns the phase id of the phase that pops back into 
    *         existence. Returns -1 if there are no phases
    */
-  int VCS_SOLVE::vcs_popPhaseID() {
+  int VCS_SOLVE::vcs_popPhaseID(std::vector<int> & phasePopPhaseIDs) {
     int iphasePop = -1;
     int iph;
     int irxn, kspec;
@@ -151,8 +160,8 @@ namespace VCSnonideal {
     char anote[128];
     if (m_debug_print_lvl >= 2) {
       plogf("   --- vcs_popPhaseID() called\n");
-      plogf("   ---   Phase               Status      F_e         MoleNum\n");
-      plogf("   --------------------------------------------------------------\n");
+      plogf("   ---   Phase                 Status       F_e        MoleNum\n");
+      plogf("   --------------------------------------------------------------------------\n");
     }
 #endif
     for (iph = 0; iph < m_numPhases; iph++) {
@@ -165,7 +174,7 @@ namespace VCSnonideal {
 	
 #ifdef DEBUG_MODE
 	if (m_debug_print_lvl >= 2) {
-	  plogf("  ---    %18s %5d         NA     %11.3e\n", 
+	  plogf("  ---    %18s %5d           NA       %11.3e\n", 
 		Vphase->PhaseName.c_str(),
 		existence,
 		m_tPhaseMoles_old[iph]); 
@@ -194,10 +203,19 @@ namespace VCSnonideal {
 #endif
 	    }
 	  }
+#ifdef DEBUG_MODE
+	  if (Fephase < 0.0) {
+	    strcpy(anote," (not stable)");
+	    if (m_tPhaseMoles_old[iph] > 0.0) {
+	      printf("shouldn't be here\n");
+	      exit(-1);
+	    }
+	  }
+#endif
 
 #ifdef DEBUG_MODE
 	  if (m_debug_print_lvl >= 2) {
-	    plogf("  ---    %18s %5d         NA     %11.3g %s\n", 
+	    plogf("  ---    %18s %5d %10.3g %10.3g %s\n", 
 		  Vphase->PhaseName.c_str(),
 		  existence, Fephase,
 		  m_tPhaseMoles_old[iph], anote); 
@@ -242,11 +260,19 @@ namespace VCSnonideal {
 	}
       }
     }
+    phasePopPhaseIDs.resize(0);
+    if (iphasePop >= 0) {
+      phasePopPhaseIDs.push_back(iphasePop);
+    }
 
+    /*
+     *   Insert logic here to figure out if phase pops are linked together. Only do one linked
+     *   pop at a time.
+     */
 
 #ifdef DEBUG_MODE
     if (m_debug_print_lvl >= 2) {
-      plogf("   --------------------------------------------------------------\n");
+      plogf("   ---------------------------------------------------------------------\n");
     }
 #endif
     return iphasePop;
@@ -280,6 +306,7 @@ namespace VCSnonideal {
     int kspec = Vphase->spGlobalIndexVCS(0);
     // Identify the formation reaction for that species
     int irxn = kspec - m_numComponents;
+    std::vector<int> creationGlobalRxnNumbers;
   
     doublereal s;
     int j, k;
@@ -378,8 +405,10 @@ namespace VCSnonideal {
    } else {
      vector<doublereal> fracDelta(Vphase->nSpecies());
      vector<doublereal> X_est(Vphase->nSpecies());
+
+     //     fracDelta = Vphase->creationMoleNumbers(creationGlobalRxnNumbers);
      fracDelta = Vphase->fractionCreationDeltas();
- 
+
      double sumFrac = 0.0;
      for (k = 0; k < Vphase->nSpecies(); k++) {
        sumFrac += fracDelta[k];
@@ -490,6 +519,8 @@ namespace VCSnonideal {
     vector<doublereal> fracDelta_new(Vphase->nSpecies(), 0.0);
     vector<doublereal> fracDelta_old(Vphase->nSpecies(), 0.0);
     vector<doublereal> fracDelta_raw(Vphase->nSpecies(), 0.0);
+    vector<int>        creationGlobalRxnNumbers(Vphase->nSpecies(), -1);
+
 
     vector<doublereal> m_feSpecies_Deficient(m_numComponents, 0.0); 
     doublereal damp = 1.0;
@@ -505,8 +536,8 @@ namespace VCSnonideal {
 
     // Get the storred estimate for the composition of the phase if 
     // it gets created
+    //    fracDelta_new = Vphase->creationMoleNumbers(creationGlobalRxnNumbers);
     fracDelta_new = Vphase->fractionCreationDeltas();
-  
 
     bool oneIsComponent = false;
     std::vector<int> componentList;
@@ -539,6 +570,12 @@ namespace VCSnonideal {
 	plogf("   --- vcs_phaseStabilityTest() called for phase %d\n", iph);
       }
 #endif
+
+      for (k = 0; k < Vphase->nSpecies(); k++) {
+	if (fracDelta_new[k] < 1.0E-13) {
+	  fracDelta_new[k] = 1.0E-13;
+	}
+      }
       bool converged = false;
       for (int its = 0; its < 200  && (!converged); its++) {
 	
@@ -546,6 +583,8 @@ namespace VCSnonideal {
 	normUpdateOld = normUpdate;
 	fracDelta_old = fracDelta_new;
 	dirProdOld = dirProd;
+
+
 
 	// Given a set of fracDelta's, we calculate the fracDelta's
 	// for the component species, if any
@@ -753,7 +792,9 @@ namespace VCSnonideal {
       if (converged) {
 	Vphase->setMoleFractionsState(0.0, VCS_DATA_PTR(X_est), 
 				      VCS_STATECALC_PHASESTABILITY);
-	Vphase->setFractionCreationDeltas( VCS_DATA_PTR(fracDelta_new));
+	//	Vphase->setCreationMoleNumbers(VCS_DATA_PTR(fracDelta_new), creationGlobalRxnNumbers);
+	Vphase->setFractionCreationDeltas(VCS_DATA_PTR(fracDelta_new));
+
       }
 
 
