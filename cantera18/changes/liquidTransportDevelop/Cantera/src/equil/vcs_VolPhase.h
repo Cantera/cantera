@@ -425,11 +425,11 @@ namespace VCSnonideal {
      */
     void setCreationMoleNumbers(const double * const n_k, const std::vector<int> &creationGlobalRxnNumbers);
 
-    //! Sets the fractionCreationDelta's within the phase object
+    //! Return a const reference to the creationMoleNumbers storred in the object.
     /*!
-     * @param F_k Pointer to a vector of F_k's
+     * @return  Returns a const reference to the vector of creationMoleNumbers
      */
-    //   void setFractionCreationDeltas( const double * const F_k);
+    const std::vector<double> & creationMoleNumbers(std::vector<int> &creationGlobalRxnNumbers) const;
 
     //! Return a const reference to the fractionCreationDeltas storred in the
     //! object.
@@ -879,11 +879,31 @@ namespace VCSnonideal {
     //! in the phase
     std::vector<double> Xmol;
 
+    //! Vector of current creationMoleNumbers_
+    /*!
+     *  These are the actual unknowns in the phase stability problem
+     */
+    std::vector<double> creationMoleNumbers_;
+
+    //! Vector of creation global reaction numbers for the phase stability problem
+    /*!
+     *  The phase stability problem requires a global reaction number for each
+     *  species in the phase. Usually this is the krxn = kglob - M for species
+     *  in the phase that are not components. For component species, the
+     *  choice of the reaction is one which maximimes the chance that the phase
+     *  pops into (or remains in) existence.
+     *   The index here is the local phase species index.
+     *   the value of the variable is the global vcs reaction number. Note,
+     *   that the global reaction number will go out of order when the species positions
+     *   are swapped. So, this number has to be recalculated.
+     */
+    std::vector<int> creationGlobalRxnNumbers_;
+
     //! Vector of current fractionalCreationDeltas
     /*!
      *  These are the actual unknowns in the problem
      */
-    std::vector<double> fractionCreationDelta_;
+    //  std::vector<double> fractionCreationDelta_;
 
   
     //! If the potential is a solution variable in VCS, it acts as a species.

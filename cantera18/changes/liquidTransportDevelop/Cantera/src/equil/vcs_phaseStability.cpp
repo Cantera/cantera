@@ -405,10 +405,8 @@ namespace VCSnonideal {
    } else {
      vector<doublereal> fracDelta(Vphase->nSpecies());
      vector<doublereal> X_est(Vphase->nSpecies());
-
-     //     fracDelta = Vphase->creationMoleNumbers(creationGlobalRxnNumbers);
-     fracDelta = Vphase->fractionCreationDeltas();
-
+     fracDelta = Vphase->creationMoleNumbers(creationGlobalRxnNumbers);
+ 
      double sumFrac = 0.0;
      for (k = 0; k < Vphase->nSpecies(); k++) {
        sumFrac += fracDelta[k];
@@ -536,8 +534,8 @@ namespace VCSnonideal {
 
     // Get the storred estimate for the composition of the phase if 
     // it gets created
-    //    fracDelta_new = Vphase->creationMoleNumbers(creationGlobalRxnNumbers);
-    fracDelta_new = Vphase->fractionCreationDeltas();
+    fracDelta_new = Vphase->creationMoleNumbers(creationGlobalRxnNumbers);
+  
 
     bool oneIsComponent = false;
     std::vector<int> componentList;
@@ -793,8 +791,6 @@ namespace VCSnonideal {
 	Vphase->setMoleFractionsState(0.0, VCS_DATA_PTR(X_est), 
 				      VCS_STATECALC_PHASESTABILITY);
 	Vphase->setCreationMoleNumbers(VCS_DATA_PTR(fracDelta_new), creationGlobalRxnNumbers);
-	//Vphase->setFractionCreationDeltas(VCS_DATA_PTR(fracDelta_new));
-
       }
 
 
