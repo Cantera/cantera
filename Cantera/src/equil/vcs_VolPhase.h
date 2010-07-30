@@ -431,10 +431,6 @@ namespace VCSnonideal {
      */
     const std::vector<double> & creationMoleNumbers(std::vector<int> &creationGlobalRxnNumbers) const;
 
-    //! Return a const reference to the fractionCreationDeltas storred in the
-    //! object.
-    const std::vector<double> & fractionCreationDeltas() const;
-
     //! Returns whether the phase is an ideal solution phase
     bool isIdealSoln() const;
 
@@ -898,14 +894,7 @@ namespace VCSnonideal {
      *   are swapped. So, this number has to be recalculated.
      */
     std::vector<int> creationGlobalRxnNumbers_;
-
-    //! Vector of current fractionalCreationDeltas
-    /*!
-     *  These are the actual unknowns in the problem
-     */
-    //  std::vector<double> fractionCreationDelta_;
-
-  
+ 
     //! If the potential is a solution variable in VCS, it acts as a species.
     //!  This is the species index in the phase for the potential
     int m_phiVarIndex;
@@ -1024,13 +1013,12 @@ namespace VCSnonideal {
     mutable bool m_UpToDate_G0;
 
     //! Current value of the temperature for this object, and underlying objects
-    double Temp;
+    double Temp_;
 
     //! Current value of the pressure for this object, and underlying objects
-    double Pres;
+    double Pres_;
 
-    //! Reference pressure for the phase
-    double RefPres;
+  
 
   };
 
