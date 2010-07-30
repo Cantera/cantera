@@ -869,9 +869,9 @@ namespace VCSnonideal {
       vcs_VolPhase *vPhase = m_VolPhaseList[iph];
       vcs_VolPhase *pub_phase_ptr = pub->VPhaseList[iph];
 
-      if  (vPhase->VP_ID != pub_phase_ptr->VP_ID) {
+      if  (vPhase->VP_ID_ != pub_phase_ptr->VP_ID_) {
 	plogf("%sPhase numbers have changed:%d %d\n", yo.c_str(),
-	      vPhase->VP_ID, pub_phase_ptr->VP_ID);
+	      vPhase->VP_ID_, pub_phase_ptr->VP_ID_);
 	retn = VCS_PUB_BAD;
       }
 

@@ -1,6 +1,7 @@
 /**
  * @file vcs_solve.h
- *    Header file for the internal object that holds the problem
+ *    Header file for the internal object that holds the vcs equilibrium problem
+ *    (see Class \link Cantera::VCS_SOLVE VCS_SOLVE\endlink and \ref equilfunctions ).
  */
 /*
  * $Id$
@@ -501,7 +502,6 @@ public:
    */
   void vcs_updateVP(const int stateCalc);
 
-
   //! Utility function that evaluates whether a phase can be popped
   //! into existence
   /*!
@@ -514,10 +514,13 @@ public:
 
   //! Decision as to whether a phase pops back into existence
   /*!
+   * @param  phasePopPhaseIDs Vector containing the phase ids of the phases
+   *         that will be popped this step.
+   *
    * @return returns the phase id of the phase that pops back into 
    *         existence. Returns -1 if there are no phases
    */
-  int vcs_popPhaseID();
+  int vcs_popPhaseID(std::vector<int> &phasePopPhaseIDs);
 
   //! Calculates the deltas of the reactions due to phases popping
   //! into existence

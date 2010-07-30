@@ -122,6 +122,7 @@ namespace VCSnonideal {
     double *dnPhase_irxn;
     double atomComp;
     int iphasePop;
+    std::vector<int> phasePopPhaseIDs(0);
 #ifdef DEBUG_MODE
     char ANOTE[128];
     /*
@@ -399,7 +400,8 @@ namespace VCSnonideal {
      * First step is a major branch in the algorithm. 
      * We first determine if a phase pops into existence.
      */
-    iphasePop = vcs_popPhaseID();
+    phasePopPhaseIDs.clear();
+    iphasePop = vcs_popPhaseID(phasePopPhaseIDs);
     /*
      *
      */
