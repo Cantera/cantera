@@ -419,11 +419,17 @@ namespace VCSnonideal {
     //! object.
     const std::vector<double> & moleFractions() const;
 
+    //! Sets the creationMoleNum's within the phase object
+    /*!
+     * @param F_k Pointer to a vector of n_k's
+     */
+    void setCreationMoleNumbers(const double * const n_k, const std::vector<int> &creationGlobalRxnNumbers);
+
     //! Sets the fractionCreationDelta's within the phase object
     /*!
      * @param F_k Pointer to a vector of F_k's
      */
-    void setFractionCreationDeltas( const double * const F_k);
+    //   void setFractionCreationDeltas( const double * const F_k);
 
     //! Return a const reference to the fractionCreationDeltas storred in the
     //! object.

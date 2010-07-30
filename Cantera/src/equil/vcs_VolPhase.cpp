@@ -1159,11 +1159,17 @@ namespace VCSnonideal {
   }
   /***************************************************************************/
 
-  void vcs_VolPhase::setFractionCreationDeltas(const double * const F_k) {
-    for (int k = 0; k < m_numSpecies; k++) {
-      fractionCreationDelta_[k] = F_k[k];
-    }
+  void vcs_VolPhase::setCreationMoleNumbers(const double * const n_k,
+					    const std::vector<int> &creationGlobalRxnNumbers) {
+    vcs_dcopy(VCS_DATA_PTR(fractionCreationDelta_), n_k, m_numSpecies);
+    // vcs_icopy(VCS_DATA_PTR(creationGlobalRxnNumbers_),  VCS_DATA_PTR(creationGlobalRxnNumbers), m_numSpecies);
   }
+
+  //  void vcs_VolPhase::setFractionCreationDeltas(const double * const F_k) {
+  //  for (int k = 0; k < m_numSpecies; k++) {
+  //    fractionCreationDelta_[k] = F_k[k];
+  // }
+  //}
   /***************************************************************************/
 
   const std::vector<double> & vcs_VolPhase::fractionCreationDeltas() const {
