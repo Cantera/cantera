@@ -63,9 +63,8 @@ namespace VCSnonideal {
     m_UpToDate_VolPM(false),
     m_UpToDate_GStar(false),
     m_UpToDate_G0(false),
-    Temp(273.15),
-    Pres(1.01325E5),
-    RefPres(1.01325E5)
+    Temp_(273.15),
+    Pres_(1.01325E5)
   {
     m_owningSolverObject = owningSolverObject;
   }
@@ -125,8 +124,8 @@ namespace VCSnonideal {
     m_UpToDate_VolPM(false),
     m_UpToDate_GStar(false),
     m_UpToDate_G0(false),
-    Temp(b.Temp),
-    Pres(b.Pres)
+    Temp_(b.Temp_),
+    Pres_(b.Pres_)
   {
     /*
      * Call the Assignment operator to do the heavy
@@ -241,9 +240,9 @@ namespace VCSnonideal {
       m_UpToDate_VolPM      = false;
       m_UpToDate_GStar      = false;
       m_UpToDate_G0         = false;
-      Temp                = b.Temp;
-      Pres                = b.Pres;
-      setState_TP(Temp, Pres);
+      Temp_                = b.Temp_;
+      Pres_                = b.Pres_;
+      setState_TP(Temp_, Pres_);
       _updateMoleFractionDependencies();
     }
     return *this;
@@ -409,7 +408,7 @@ namespace VCSnonideal {
 	vcs_SpeciesProperties *sProp = ListSpeciesPtr[k];
 	VCS_SPECIES_THERMO *sTherm = sProp->SpeciesThermo;
 	SS0ChemicalPotential[k] =
-	  R * (sTherm->G0_R_calc(kglob, Temp));
+	  R * (sTherm->G0_R_calc(kglob, Temp_));
       }
     }
     m_UpToDate_G0 = true;
@@ -450,7 +449,7 @@ namespace VCSnonideal {
 	vcs_SpeciesProperties *sProp = ListSpeciesPtr[k];
 	VCS_SPECIES_THERMO *sTherm = sProp->SpeciesThermo;
 	StarChemicalPotential[k] =
-	  R * (sTherm->GStar_R_calc(kglob, Temp, Pres));
+	  R * (sTherm->GStar_R_calc(kglob, Temp_, Pres_));
       }
     }
     m_UpToDate_GStar = true;
@@ -508,7 +507,7 @@ namespace VCSnonideal {
   void vcs_VolPhase::_updateMoleFractionDependencies() {
     if (m_useCanteraCalls) {
       if (TP_ptr) {
-	TP_ptr->setState_PX(Pres, &(Xmol[m_MFStartIndex]));
+	TP_ptr->setState_PX(Pres_, &(Xmol[m_MFStartIndex]));
       }
     }
     if (!m_isIdealSoln) {
@@ -683,7 +682,8 @@ namespace VCSnonideal {
      */
     if (stateCalc == VCS_STATECALC_OLD) {
       if (v_totalMoles > 0.0) {
-	creationMoleNumbers_ = Xmol;
+	vcs_dcopy(VCS_DATA_PTR(creationMoleNumbers_), VCS_DATA_PTR(Xmol), m_numSpecies);
+
       }
     }
 
@@ -856,8 +856,8 @@ namespace VCSnonideal {
    */
   void vcs_VolPhase::setState_TP(const double temp, const double pres)
   {
-    if (Temp == temp) {
-      if (Pres == pres) {
+    if (Temp_ == temp) {
+      if (Pres_ == pres) {
 	return;
       }
     }
@@ -865,8 +865,8 @@ namespace VCSnonideal {
       TP_ptr->setElectricPotential(m_phi);
       TP_ptr->setState_TP(temp, pres);
     }
-    Temp = temp;
-    Pres = pres;
+    Temp_ = temp;
+    Pres_ = pres;
     m_UpToDate_AC      = false;
     m_UpToDate_VolStar = false;
     m_UpToDate_VolPM   = false;
@@ -885,7 +885,7 @@ namespace VCSnonideal {
    *  @param temperature_Kelvin    (Kelvin)
    */
   void vcs_VolPhase::setState_T(const double temp) {
-    setState_TP(temp, Pres);
+    setState_TP(temp, Pres_);
   }
   /***************************************************************************/
 
@@ -907,7 +907,7 @@ namespace VCSnonideal {
 	int kglob = IndSpecies[k];
 	vcs_SpeciesProperties *sProp = ListSpeciesPtr[k];
 	VCS_SPECIES_THERMO *sTherm = sProp->SpeciesThermo;
-	StarMolarVol[k] = (sTherm->VolStar_calc(kglob, Temp, Pres));
+	StarMolarVol[k] = (sTherm->VolStar_calc(kglob, Temp_, Pres_));
       }
     }
     m_UpToDate_VolStar = true;
@@ -952,7 +952,7 @@ namespace VCSnonideal {
 	kglob = IndSpecies[k];
 	vcs_SpeciesProperties *sProp = ListSpeciesPtr[k];
 	VCS_SPECIES_THERMO *sTherm = sProp->SpeciesThermo;
-	StarMolarVol[k] = (sTherm->VolStar_calc(kglob, Temp, Pres));
+	StarMolarVol[k] = (sTherm->VolStar_calc(kglob, Temp_, Pres_));
       }
       for (k = 0; k < m_numSpecies; k++) {
 	PartialMolarVol[k] = StarMolarVol[k];
@@ -967,7 +967,7 @@ namespace VCSnonideal {
 
     if (m_totalMolesInert > 0.0) {
       if (m_gasPhase) {
-	double volI = m_totalMolesInert * 8314.47215 * Temp / Pres;
+	double volI = m_totalMolesInert * 8314.47215 * Temp_ / Pres_;
 	m_totalVol += volI;
       } else {
 	printf("unknown situation\n");
@@ -1101,9 +1101,9 @@ namespace VCSnonideal {
     TP_ptr = tp_ptr;
     if (TP_ptr) {
       m_useCanteraCalls = true;
-      Temp = TP_ptr->temperature();
-      Pres = TP_ptr->pressure();
-      setState_TP(Temp, Pres);
+      Temp_ = TP_ptr->temperature();
+      Pres_ = TP_ptr->pressure();
+      setState_TP(Temp_, Pres_);
       p_VCS_UnitsFormat = VCS_UNITS_MKS;
       m_phi = TP_ptr->electricPotential();
       int nsp = TP_ptr->nSpecies();
@@ -1388,8 +1388,7 @@ namespace VCSnonideal {
    * @return Returns the VCS_SOLVE species index of the that species
    *         This changes as rearrangements are carried out. 
    */
-  void vcs_VolPhase::setSpGlobalIndexVCS(const int spIndex, 
-					 const int spGlobalIndex) {
+  void vcs_VolPhase::setSpGlobalIndexVCS(const int spIndex, const int spGlobalIndex) {
     IndSpecies[spIndex] = spGlobalIndex;
     if (spGlobalIndex >= m_numElemConstraints) {
       creationGlobalRxnNumbers_[spIndex] = spGlobalIndex - m_numElemConstraints;
