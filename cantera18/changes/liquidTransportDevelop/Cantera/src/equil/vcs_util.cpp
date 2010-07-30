@@ -61,7 +61,7 @@ namespace VCSnonideal {
   /***************************************************************************/
 
 #ifndef USE_MEMSET
-  void vcs_dcopy(double *vec_to, double *vec_from, int length)
+  void vcs_dcopy(double *const vec_to, const double * const vec_from, int length)
    
     /**************************************************************************
      *

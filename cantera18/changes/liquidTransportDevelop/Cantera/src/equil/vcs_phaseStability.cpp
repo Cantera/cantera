@@ -792,8 +792,8 @@ namespace VCSnonideal {
       if (converged) {
 	Vphase->setMoleFractionsState(0.0, VCS_DATA_PTR(X_est), 
 				      VCS_STATECALC_PHASESTABILITY);
-	//	Vphase->setCreationMoleNumbers(VCS_DATA_PTR(fracDelta_new), creationGlobalRxnNumbers);
-	Vphase->setFractionCreationDeltas(VCS_DATA_PTR(fracDelta_new));
+	Vphase->setCreationMoleNumbers(VCS_DATA_PTR(fracDelta_new), creationGlobalRxnNumbers);
+	//Vphase->setFractionCreationDeltas(VCS_DATA_PTR(fracDelta_new));
 
       }
 
