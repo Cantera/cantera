@@ -51,6 +51,8 @@ namespace VCSnonideal {
     m_useCanteraCalls(false),
     TP_ptr(0),
     v_totalMoles(0.0),
+    creationMoleNumbers_(0),
+    creationGlobalRxnNumbers_(0),
     m_phiVarIndex(-1),
     m_totalVol(0.0),
     m_vcsStateStatus(VCS_STATECALC_OLD),
@@ -110,7 +112,9 @@ namespace VCSnonideal {
     m_MFStartIndex(b.m_MFStartIndex),
     m_useCanteraCalls(b.m_useCanteraCalls),
     TP_ptr(b.TP_ptr),
-    v_totalMoles(b.v_totalMoles),
+    v_totalMoles(b.v_totalMoles),   
+    creationMoleNumbers_(0),
+    creationGlobalRxnNumbers_(0),
     m_phiVarIndex(-1),
     m_totalVol(b.m_totalVol),
     m_vcsStateStatus(VCS_STATECALC_OLD),
@@ -214,7 +218,9 @@ namespace VCSnonideal {
       v_totalMoles              = b.v_totalMoles;
  
       Xmol = b.Xmol;
-      fractionCreationDelta_ = b.fractionCreationDelta_;
+ 
+      creationMoleNumbers_ = b.creationMoleNumbers_;
+      creationGlobalRxnNumbers_ = b.creationGlobalRxnNumbers_;
 
       m_phi               = b.m_phi;
       m_phiVarIndex       = b.m_phiVarIndex;
@@ -309,10 +315,12 @@ namespace VCSnonideal {
     }
 
     Xmol.resize(nspecies, 0.0);
-    fractionCreationDelta_.resize(nspecies, 0.0);
+    creationMoleNumbers_.resize(nspecies, 0.0);
+    creationGlobalRxnNumbers_.resize(nspecies, -1);
     for (int i = 0; i < nspecies; i++) {
       Xmol[i] = 1.0/nspecies;
-      fractionCreationDelta_[i] = 1.0/nspecies;
+      creationMoleNumbers_[i] = 1.0/nspecies;  
+      creationGlobalRxnNumbers_[i] = IndSpecies[i] - m_numElemConstraints;
     }
 
     SS0ChemicalPotential.resize(nspecies, -1.0);
@@ -675,7 +683,7 @@ namespace VCSnonideal {
      */
     if (stateCalc == VCS_STATECALC_OLD) {
       if (v_totalMoles > 0.0) {
-	fractionCreationDelta_ = Xmol;
+	creationMoleNumbers_ = Xmol;
       }
     }
 
@@ -1107,7 +1115,7 @@ namespace VCSnonideal {
 	resize(VP_ID_, nsp, nelem, PhaseName.c_str());
       }
       TP_ptr->getMoleFractions(VCS_DATA_PTR(Xmol));
-      fractionCreationDelta_ = Xmol;
+      creationMoleNumbers_ = Xmol;
       _updateMoleFractionDependencies();
 
       /*
@@ -1161,20 +1169,16 @@ namespace VCSnonideal {
 
   void vcs_VolPhase::setCreationMoleNumbers(const double * const n_k,
 					    const std::vector<int> &creationGlobalRxnNumbers) {
-    vcs_dcopy(VCS_DATA_PTR(fractionCreationDelta_), n_k, m_numSpecies);
-    // vcs_icopy(VCS_DATA_PTR(creationGlobalRxnNumbers_),  VCS_DATA_PTR(creationGlobalRxnNumbers), m_numSpecies);
+    vcs_dcopy(VCS_DATA_PTR(creationMoleNumbers_), n_k, m_numSpecies);
+    vcs_icopy(VCS_DATA_PTR(creationGlobalRxnNumbers_),  VCS_DATA_PTR(creationGlobalRxnNumbers), m_numSpecies);
   }
-
-  //  void vcs_VolPhase::setFractionCreationDeltas(const double * const F_k) {
-  //  for (int k = 0; k < m_numSpecies; k++) {
-  //    fractionCreationDelta_[k] = F_k[k];
-  // }
-  //}
   /***************************************************************************/
 
-  const std::vector<double> & vcs_VolPhase::fractionCreationDeltas() const {
-    return fractionCreationDelta_;
+  const std::vector<double> & vcs_VolPhase::creationMoleNumbers(std::vector<int> &creationGlobalRxnNumbers) const {
+    creationGlobalRxnNumbers = creationGlobalRxnNumbers_;
+    return creationMoleNumbers_;
   }
+
   /***************************************************************************/
 
   // Sets the total moles in the phase
@@ -1387,6 +1391,9 @@ namespace VCSnonideal {
   void vcs_VolPhase::setSpGlobalIndexVCS(const int spIndex, 
 					 const int spGlobalIndex) {
     IndSpecies[spIndex] = spGlobalIndex;
+    if (spGlobalIndex >= m_numElemConstraints) {
+      creationGlobalRxnNumbers_[spIndex] = spGlobalIndex - m_numElemConstraints;
+    }
   }
   /**********************************************************************/
 
