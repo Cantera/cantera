@@ -1441,12 +1441,19 @@ namespace Cantera {
     }
 
   }
-
-
-
-  // get the gradient in the activity coefficients
-
-  void IonsFromNeutralVPSSTP::getdlnActCoeff(const doublereal dT, const doublereal * const dX, doublereal *dlnActCoeff) const {
+  //====================================================================================================================
+  // Get the change in activity coefficients w.r.t. change in state (temp, mole fraction, etc.) along
+  // a line in parameter space or along a line in physical space
+  /*
+   *
+   * @param dTds           Input of temperature change along the path
+   * @param dXds           Input vector of changes in mole fraction along the path. length = m_kk
+   *                       Along the path length it must be the case that the mole fractions sum to one.
+   * @param dlnActCoeffds  Output vector of the directional derivatives of the 
+   *                       log Activity Coefficients along the path. length = m_kk
+   */
+  void IonsFromNeutralVPSSTP::getdlnActCoeffds(const doublereal dTds, const doublereal * const dXds, 
+					       doublereal *dlnActCoeffds) const {
     int k, icat, jNeut;
     doublereal fmij;
     int numNeutMolSpec;
@@ -1456,7 +1463,7 @@ namespace Cantera {
     GibbsExcessVPSSTP *geThermo = dynamic_cast<GibbsExcessVPSSTP *>(neutralMoleculePhase_);
     if (!geThermo) {
       for ( k = 0; k < m_kk; k++ ){
-	dlnActCoeff[k] = dX[k]/moleFractions_[k];
+	dlnActCoeffds[k] = dXds[k] / moleFractions_[k];
       }
       return;
     }
@@ -1466,11 +1473,11 @@ namespace Cantera {
     vector_fp dX_NeutralMolecule(numNeutMolSpec);
 
 
-    getNeutralMoleculeMoleGrads(DATA_PTR(dX),DATA_PTR(dX_NeutralMolecule));
+    getNeutralMoleculeMoleGrads(DATA_PTR(dXds),DATA_PTR(dX_NeutralMolecule));
 
     // All mole fractions returned to normal
  
-    geThermo->getdlnActCoeff(dT, DATA_PTR(dX_NeutralMolecule), DATA_PTR(dlnActCoeff_NeutralMolecule));
+    geThermo->getdlnActCoeffds(dTds, DATA_PTR(dX_NeutralMolecule), DATA_PTR(dlnActCoeff_NeutralMolecule));
 
     switch (ionSolnType_) {
     case cIonSolnType_PASSTHROUGH:
@@ -1483,19 +1490,19 @@ namespace Cantera {
         icat = cationList_[k];
 	jNeut = fm_invert_ionForNeutral[icat];
 	fmij =  fm_neutralMolec_ions_[icat + jNeut * m_kk];
-        dlnActCoeff[icat] = dlnActCoeff_NeutralMolecule[jNeut]/fmij;
+        dlnActCoeffds[icat] = dlnActCoeff_NeutralMolecule[jNeut]/fmij;
       }
 
       // Do the anion list
       icat = anionList_[0];
       jNeut = fm_invert_ionForNeutral[icat];
-      dlnActCoeff[icat]= 0.0;
+      dlnActCoeffds[icat]= 0.0;
 
       // Do the list of neutral molecules
       for (k = 0; k <  numPassThroughSpecies_; k++) {
 	icat = passThroughList_[k];
 	jNeut = fm_invert_ionForNeutral[icat];
-	dlnActCoeff[icat] = dlnActCoeff_NeutralMolecule[jNeut];
+	dlnActCoeffds[icat] = dlnActCoeff_NeutralMolecule[jNeut];
       }
       break;
  
@@ -1511,8 +1518,8 @@ namespace Cantera {
     }
 
   }
-
-  // Update the temperatture derivative of the ln activity coefficients
+  //====================================================================================================================
+  // Update the temperature derivative of the ln activity coefficients
   /*
    * This function will be called to update the internally storred
    * temperature derivative of the natural logarithm of the activity coefficients

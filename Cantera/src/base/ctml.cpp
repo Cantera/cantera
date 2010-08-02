@@ -37,6 +37,13 @@ using namespace Cantera;
 
 namespace ctml {
 
+  //====================================================================================================================
+  //! Convert a floating point value from a string to a double
+  /*!
+   *   @param val String value input
+   *
+   *   @return Returns a double
+   */
   static doublereal fpValue(std::string val) {
     return atof(stripws(val).c_str());
   }

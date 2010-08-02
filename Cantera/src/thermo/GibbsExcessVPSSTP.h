@@ -304,23 +304,6 @@ namespace Cantera {
       err("getdlnActCoeffdT");
     }
 
-    //! Get the array of change in the log activity coefficients w.r.t. change in state (change temp, change mole fractions)
-    /*!
-     * This function is a virtual class, but it first appears in GibbsExcessVPSSTP
-     * class and derived classes from GibbsExcessVPSSTP.
-     *
-     * This function is a virtual method.  For ideal mixtures 
-     * (unity activity coefficients), this can gradX/X.  
-     *
-     * @param dT    Input of temperature change
-     * @param dX    Input vector of changes in mole fraction. length = m_kk
-     * @param dlnActCoeff    Output vector of derivatives of the 
-     *                         log Activity Coefficients. length = m_kk
-     */
-    virtual void getdlnActCoeff(const doublereal dT, const doublereal * const dX, doublereal *dlnActCoeff) const {
-      err("getdlnActCoeff");
-    }
- 
     //! Get the array of log concentration-like derivatives of the 
     //! log activity coefficients
     /*!

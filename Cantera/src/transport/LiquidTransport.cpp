@@ -1504,7 +1504,7 @@ namespace Cantera {
     for (k = 0; k < m_nDim; k++ ) {
       grad_T = m_Grad_T[k];
       grad_X.assign(m_Grad_X.begin()+m_nsp*k,m_Grad_X.begin()+m_nsp*(k+1)); 
-      m_thermo->getdlnActCoeff( grad_T, DATA_PTR(grad_X), DATA_PTR(grad_lnAC) );
+      m_thermo->getdlnActCoeffds( grad_T, DATA_PTR(grad_X), DATA_PTR(grad_lnAC) );
       for ( int i = 0; i < m_nsp; i++ )
 	if (m_molefracs[i] < 1.e-15)
 	  grad_lnAC[i] = 0;
@@ -1516,7 +1516,6 @@ namespace Cantera {
     
     return;
   }
-
 
   /*
    *

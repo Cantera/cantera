@@ -181,8 +181,8 @@ namespace Cantera {
      *   internal state of the InterfaceKinetics objects.
      *
      * @param ifunc Determines the type of solution algorithm to be
-     *                  used.  Possible values are  SFLUX_INITIALIZE  ,
-     *                  SFLUX_RESIDUAL SFLUX_JACOBIAN  SFLUX_TRANSIENT   .
+     *                  used.  Possible values are  SOLVEPROB_INITIALIZE  ,
+     *                  SOLVEPROB_RESIDUAL SOLVEPROB_JACOBIAN  SOLVEPROB_TRANSIENT   .
      *
      * @param time_scale  Time over which to integrate the surface equations,
      *                    where applicable

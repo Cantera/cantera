@@ -884,20 +884,20 @@ namespace Cantera {
       return err("cv_mole");
     }
 
-
-    //! Get the change in activity coefficients w.r.t. change in state 
-    //! (temp, mole fraction, etc.)
+    //! Get the change in activity coefficients w.r.t. change in state (temp, mole fraction, etc.) along
+    //! a line in parameter space or along a line in physical space
     /*!
-     * This function is a virtual method.  For ideal mixtures 
-     * (unity activity coefficients), this can gradX/X.  
      *
-     * @param dT    Input of temperature change
-     * @param dX    Input vector of changes in mole fraction. length = m_kk
-     * @param dlnActCoeff    Output vector of derivatives of the 
-     *                         log Activity Coefficients. length = m_kk
+     * @param dTds           Input of temperature change along the path
+     * @param dXds           Input vector of changes in mole fraction along the path. length = m_kk
+     *                       Along the path length it must be the case that the mole fractions sum to one.
+     * @param dlnActCoeffds  Output vector of the directional derivatives of the 
+     *                       log Activity Coefficients along the path. length = m_kk
+     *                       units are 1/units(s). if s is a physical coordinate then the units are 1/m.
      */
-    virtual void getdlnActCoeff(const doublereal dT, const doublereal * const dX, doublereal *dlnActCoeff) const {
-      err("getdlnActCoeff");
+    virtual void getdlnActCoeffds(const doublereal dTds, const doublereal * const dXds,
+				  doublereal *dlnActCoeffds) const {
+      err("getdlnActCoeffds");
     }
 
     //! Get the array of log concentration-like derivatives of the 
