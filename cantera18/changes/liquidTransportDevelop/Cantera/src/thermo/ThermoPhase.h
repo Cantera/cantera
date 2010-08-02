@@ -847,6 +847,17 @@ namespace Cantera {
     doublereal maxTemp(int k = -1) const {
       return m_spthermo->maxTemp(k);
     }
+
+    //! Returns the chargeNeutralityNecessity boolean
+    /*!
+     * Some phases must have zero net charge in order for their thermodynamics functions to be valid.
+     * If this is so, then the value returned from this function is true.
+     * If this is not the case, then this is false. Now, ideal gases have this parameter set to false,
+     * while solution with  molality-based activity coefficients have this parameter set to true. 
+     */
+    bool chargeNeutralityNecessary() const {
+      return m_chargeNeutralityNecessary;
+    }
       
     /**
      * @} 
@@ -882,66 +893,6 @@ namespace Cantera {
     /// Molar heat capacity at constant volume. Units: J/kmol/K. 
     virtual doublereal cv_mole() const {
       return err("cv_mole");
-    }
-
-    //! Get the change in activity coefficients w.r.t. change in state (temp, mole fraction, etc.) along
-    //! a line in parameter space or along a line in physical space
-    /*!
-     *
-     * @param dTds           Input of temperature change along the path
-     * @param dXds           Input vector of changes in mole fraction along the path. length = m_kk
-     *                       Along the path length it must be the case that the mole fractions sum to one.
-     * @param dlnActCoeffds  Output vector of the directional derivatives of the 
-     *                       log Activity Coefficients along the path. length = m_kk
-     *                       units are 1/units(s). if s is a physical coordinate then the units are 1/m.
-     */
-    virtual void getdlnActCoeffds(const doublereal dTds, const doublereal * const dXds,
-				  doublereal *dlnActCoeffds) const {
-      err("getdlnActCoeffds");
-    }
-
-    //! Get the array of log concentration-like derivatives of the 
-    //! log activity coefficients
-    /*!
-     * This function is a virtual method.  For ideal mixtures 
-     * (unity activity coefficients), this can return zero.  
-     * Implementations should take the derivative of the 
-     * logarithm of the activity coefficient with respect to the 
-     * logarithm of the concentration-like variable (i.e. mole fraction)
-     * that represents the standard state.  
-     * This quantity is to be used in conjunction with derivatives of 
-     * that concentration-like variable when the derivative of the chemical 
-     * potential is taken.  
-     *
-     *  units = dimensionless
-     *
-     * @param dlnActCoeffdlnX    Output vector of derivatives of the 
-     *                         log Activity Coefficients. length = m_kk
-     */
-    virtual void getdlnActCoeffdlnX(doublereal *dlnActCoeffdlnX) const {
-      err("getdlnActCoeffdlnX");
-    }
-
-    //! Get the array of log concentration-like derivatives of the 
-    //! log activity coefficients
-    /*!
-     * This function is a virtual method.  For ideal mixtures 
-     * (unity activity coefficients), this can return zero.  
-     * Implementations should take the derivative of the 
-     * logarithm of the activity coefficient with respect to the 
-     * logarithm of the concentration-like variable (i.e. moles)
-     * that represents the standard state.  
-     * This quantity is to be used in conjunction with derivatives of 
-     * that concentration-like variable when the derivative of the chemical 
-     * potential is taken.  
-     *
-     *  units = dimensionless
-     *
-     * @param dlnActCoeffdlnN    Output vector of derivatives of the 
-     *                         log Activity Coefficients. length = m_kk
-     */
-    virtual void getdlnActCoeffdlnN(doublereal *dlnActCoeffdlnN) const {
-      err("getdlnActCoeffdlnN");
     }
 
 
@@ -2098,24 +2049,99 @@ namespace Cantera {
      */
     virtual void setStateFromXML(const XML_Node& state);
 
-
-    //@}
-
-    //! Returns the chargeNeutralityNecessity boolean
-    /*!
-     * Some phases must have zero net charge in order for
-     * their thermodynamics functions to be valid.
-     * If this is so, then the value returned from this
-     * function is true.
-     * If this is not the case, then this is false.
-     * Now, ideal gases have this parameter set to false,
-     * while solution with  molality-based activity
-     * coefficients have this parameter set to true. 
+    /**
+     * @} 
+     * @name  Derivatives of Thermodynamic Variables needed for Applications
+     * @{
      */
-    bool chargeNeutralityNecessary() const {
-      return m_chargeNeutralityNecessary;
+
+    //! Get the change in activity coefficients wrt changes in state (temp, mole fraction, etc) along
+    //! a line in parameter space or along a line in physical space
+    /*!
+     *
+     * @param dTds           Input of temperature change along the path
+     * @param dXds           Input vector of changes in mole fraction along the path. length = m_kk
+     *                       Along the path length it must be the case that the mole fractions sum to one.
+     * @param dlnActCoeffds  Output vector of the directional derivatives of the 
+     *                       log Activity Coefficients along the path. length = m_kk
+     *                       units are 1/units(s). if s is a physical coordinate then the units are 1/m.
+     */
+    virtual void getdlnActCoeffds(const doublereal dTds, const doublereal * const dXds,
+				  doublereal *dlnActCoeffds) const {
+      err("getdlnActCoeffds");
     }
 
+    //! Get the array of log concentration-like derivatives of the 
+    //! log activity coefficients
+    /*!
+     * This function is a virtual method.  For ideal mixtures 
+     * (unity activity coefficients), this can return zero.  
+     * Implementations should take the derivative of the 
+     * logarithm of the activity coefficient with respect to the 
+     * logarithm of the concentration-like variable (i.e. mole fraction)
+     * that represents the standard state.  
+     * This quantity is to be used in conjunction with derivatives of 
+     * that concentration-like variable when the derivative of the chemical 
+     * potential is taken.  
+     *
+     *  units = dimensionless
+     *
+     * @param dlnActCoeffdlnX    Output vector of derivatives of the 
+     *                         log Activity Coefficients. length = m_kk
+     */
+    virtual void getdlnActCoeffdlnX(doublereal *dlnActCoeffdlnX) const {
+      err("getdlnActCoeffdlnX");
+    }
+
+    //! Get the array of log concentration-like derivatives of the 
+    //! log activity coefficients
+    /*!
+     * This function is a virtual method.  For ideal mixtures 
+     * (unity activity coefficients), this can return zero.  
+     * Implementations should take the derivative of the 
+     * logarithm of the activity coefficient with respect to the 
+     * logarithm of the concentration-like variable (i.e. moles)
+     * that represents the standard state.  
+     * This quantity is to be used in conjunction with derivatives of 
+     * that concentration-like variable when the derivative of the chemical 
+     * potential is taken.  
+     *
+     *  units = dimensionless
+     *
+     * @param dlnActCoeffdlnN    Output vector of derivatives of the 
+     *                         log Activity Coefficients. length = m_kk
+     */
+    virtual void getdlnActCoeffdlnN(doublereal *dlnActCoeffdlnN) const {
+      err("getdlnActCoeffdlnN");
+    }
+
+    //! Get the array of derivatives of the log activity coefficients with respect to the species mole numbers
+    /*!
+     * Implementations should take the derivative of the logarithm of the activity coefficient with respect to a
+     * species mole number (with all other species mole numbers held constant)
+     * 
+     *  units = 1 / kmol
+     *
+     *  dlnActCoeffdN[ ld * k  + m]  will contain the derivative of log act_coeff for the <I>m</I><SUP>th</SUP> 
+     *                               species with respect to the number of moles of the <I>k</I><SUP>th</SUP> species.
+     *
+     * \f[
+     *        \frac{d \ln(\gamma_m) }{d n_k }\Bigg|_{n_i}
+     * \f]
+     *
+     * @param ld               Number of rows in the matrix
+     * @param dlnActCoeffdN    Output vector of derivatives of the 
+     *                         log Activity Coefficients. length = m_kk * m_kk        
+     */
+    virtual void getdlnActCoeffdN(const int ld, doublereal * const dlnActCoeffdN) const {
+      err("getdlnActCoeffdN");
+    }
+
+    /**
+     * @} 
+     * @name Printing
+     * @{
+     */
 
     //! returns a summary of the state of the phase as a string
     /*!
@@ -2130,7 +2156,9 @@ namespace Cantera {
      *                    the phase
      */
     virtual void reportCSV(std::ofstream& csvFile) const;
-            
+
+    //@}
+
   protected:
 
     //! Pointer to the calculation manager for species
