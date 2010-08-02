@@ -552,7 +552,7 @@ namespace Cantera {
 
      //!  Return the species diffusive mass fluxes wrt to
      //!  the averaged velocity in [kmol/m^2/s].
-     /**
+     /*!
       *
       * The diffusive mass flux of species \e k is computed 
       * using the Stefan-Maxwell equation
@@ -606,7 +606,7 @@ namespace Cantera {
 
      //!  Return the species diffusive mass fluxes wrt to
      //!  the averaged velocity in [kmol/m^2/s].
-     /**
+     /*!
       *
       * The diffusive mass flux of species \e k is computed 
       * using the Stefan-Maxwell equation
@@ -658,7 +658,7 @@ namespace Cantera {
 
      //!  Return the species diffusive velocities relative to 
      //!  the averaged velocity.  
-     /**
+     /*!
       * This method acts similarly to getSpeciesVdiffES() but
       * requires all gradients to be preset using methods 
       * set_Grad_X(), set_Grad_V(), set_Grad_T().  
@@ -673,7 +673,7 @@ namespace Cantera {
 
      //!  Return the species diffusive fluxes relative to 
      //!  the averaged velocity.  
-     /**
+     /*!
       * This method acts similarly to getSpeciesFluxesES() but
       * requires all gradients to be preset using methods 
       * set_Grad_X(), set_Grad_V(), set_Grad_T().  
@@ -728,7 +728,7 @@ namespace Cantera {
     //!  Updates the internal value of the gradient of the  
     //!  logarithm of the activity, which is 
     //!  used in the gradient of the chemical potential. 
-    /**
+    /*!
      * Evaluate the gradients of the activity  
      * as they alter the diffusion coefficient.  
      *
@@ -753,7 +753,7 @@ namespace Cantera {
 
 
     //! Solve the stefan_maxell equations for the diffusive fluxes.
-    /**
+    /*!
      * The diffusive mass flux of species \e k is computed 
      * using the Stefan-Maxwell equation
      * \f[
@@ -777,10 +777,10 @@ namespace Cantera {
      * be specified as relative to a specific species (i.e. a 
      * solvent) all according to the \verbatim <velocityBasis> 
      * \endverbatim input para
-   *  The gradient in the activity coefficient requires the use of thermophase
-   *  getdlnActCoeff that calculates its change based on a change in the state
-   *  i.e. temperature and composition of each species.
-   *  First implemented in MargulesVPSSTP.cppmeter.
+     *  The gradient in the activity coefficient requires the use of thermophase
+     *  getdlnActCoeff that calculates its change based on a change in the state
+     *  i.e. temperature and composition of each species.
+     *  First implemented in MargulesVPSSTP.cppmeter.
      *
      * One of the Stefan Maxwell equations is replaced by the appropriate
      * definition of the mass-averaged velocity, the mole-averaged velocity 

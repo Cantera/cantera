@@ -78,7 +78,9 @@ namespace Cantera {
    * <H2> Specification of Solution Thermodynamic Properties </H2>
    * <HR>
    *
-   * The excess Gibbs free energy
+   * The molar excess Gibbs free energy is given by the following formula which is a sum over interactions i.
+   * This is the generalization of the Margules formulation within a phase
+   * that has more than 2 species. 
    *
    *      \f[
    *         G^E = \sum_i \left(  H_{Ei} - T S_{Ei} \right)
@@ -98,6 +100,12 @@ namespace Cantera {
    *            a_k = \gamma_k  X_k
    *       \f]
    *
+   *      where 
+   *
+   *      \f[
+   *           R T \log( \gamma_k )= \frac{d(n G^E)}{d(n_k)}\Bigg|_{n_i}
+   *      \f]
+   *
    * where \f$ X_k \f$ is the mole fraction of species <I>k</I>.
    * The chemical potential for species <I>k</I> is equal to
    *
@@ -106,7 +114,6 @@ namespace Cantera {
    *       \f]
    *
    * In terms of the reference state, the above can be rewritten
-   *
    *
    *       \f[
    *            \mu_k(T,P) = \mu^{ref}_k(T, P) + R T \log(\frac{P X_k}{P_{ref}})
@@ -640,19 +647,19 @@ namespace Cantera {
      */
     void getElectrochemPotentials(doublereal* mu) const;
 
- 
-    //! Get the array of change in the log activity coefficients with change in state (change temp, change mole fractions)
+    //! Get the change in activity coefficients w.r.t. change in state (temp, mole fraction, etc.) along
+    //! a line in parameter space or along a line in physical space
     /*!
-     * This function is a virtual class, but it first appears in GibbsExcessVPSSTP
-     * class and derived classes from GibbsExcessVPSSTP.
      *
-     *  units = 1/Kelvin
-     *
-     * @param dlnActCoeff    Output vector of temperature derivatives of the 
-     *                         log Activity Coefficients. length = m_kk
-     *
+     * @param dTds           Input of temperature change along the path
+     * @param dXds           Input vector of changes in mole fraction along the path. length = m_kk
+     *                       Along the path length it must be the case that the mole fractions sum to one.
+     * @param dlnActCoeffds  Output vector of the directional derivatives of the 
+     *                       log Activity Coefficients along the path. length = m_kk
+     *  units are 1/units(s). if s is a physical coordinate then the units are 1/m.
      */
-    virtual void getdlnActCoeff(const doublereal dT, const doublereal * const dX, doublereal *dlnActCoeffdT) const;
+    virtual void getdlnActCoeffds(const doublereal dTds, const doublereal * const dXds, doublereal *dlnActCoeffds) const;
+
 
     //! Get the array of temperature second derivatives of the log activity coefficients
     /*!

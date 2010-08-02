@@ -747,8 +747,7 @@ namespace Cantera {
 
 
   }
-
- 
+  //===================================================================================================================
   // Update the activity coefficients
   /*
    * This function will be called to update the internally storred
@@ -761,64 +760,25 @@ namespace Cantera {
     double XA, XB, XK, g0 , g1;
     double T = temperature();
     double RT = GasConstant*T;
-
     fvo_zero_dbl_1(lnActCoeff_Scaled_, m_kk);
-    
     for ( iK = 0; iK < m_kk; iK++ ){
-
       XK = moleFractions_[iK];  
-
       for (int i = 0; i <  numBinaryInteractions_; i++) {
-    
 	iA =  m_pSpecies_A_ij[i];    
 	iB =  m_pSpecies_B_ij[i];
-
 	delAK = 0;
 	delBK = 0;
-
-	if (iA==iK) delAK = 1;
+	if      (iA==iK) delAK = 1;
 	else if (iB==iK) delBK = 1;
-	
 	XA = moleFractions_[iA];
 	XB = moleFractions_[iB];
-	
 	g0 = (m_HE_b_ij[i] - T * m_SE_b_ij[i]) / RT;
 	g1 = (m_HE_c_ij[i] - T * m_SE_c_ij[i]) / RT;
-	
-	lnActCoeff_Scaled_[iK] += (delAK*XB+XA*delBK-XA*XB)*(g0+g1*XB)+XA*XB*(delBK-XB)*g1;
-	//lnActCoeff_Scaled_[iK] += XA*XB*(g0+g1*XB)+((delAK-XA)*XB+XA*(delBK-XB))*(g0+g1*XB)+XA*XB*(delBK-XB)*g1;
+	lnActCoeff_Scaled_[iK] += (delAK * XB + XA * delBK - XA * XB) * (g0 + g1 * XB) + XA * XB * (delBK - XB) * g1;
       }
     }
   }
-
-
-  /*
-  // Not Right???
-  void MargulesVPSSTP::s_update_lnActCoeff() const {
-
-    int iA, iB;
-    double XA, XB, g0 , g1;
-    double T = temperature();
-
-    fvo_zero_dbl_1(lnActCoeff_Scaled_, m_kk);
-
-    double RT = GasConstant * temperature();
-    for (int i = 0; i <  numBinaryInteractions_; i++) {
-      iA =  m_pSpecies_A_ij[i];    
-      iB =  m_pSpecies_B_ij[i];
-
-      XA = moleFractions_[iA];
-      XB = moleFractions_[iB];
-      
-      g0 = (m_HE_b_ij[i] - T * m_SE_b_ij[i]) / RT ;
-      g1 = (m_HE_c_ij[i] - T * m_SE_c_ij[i]) / RT;
-      
-      lnActCoeff_Scaled_[iA] += XB * XB * (g0 + g1 * (XB - XA));
-      lnActCoeff_Scaled_[iB] += XA * XA * g0 +  XA * XB * g1 * (2 * XA);
-    }
-  }
-  */
-
+  //===================================================================================================================
   // Update the derivative of the log of the activity coefficients wrt T
   /*
    * This function will be called to update the internally storred
@@ -828,89 +788,61 @@ namespace Cantera {
    */
   void MargulesVPSSTP::s_update_dlnActCoeff_dT() const {
     int iA, iB, iK, delAK, delBK;
-    double XA, XB, XK, g0 , g1;
-    double T = temperature();
-    double RTT = GasConstant*T*T;
-
+    doublereal XA, XB, XK, g0, g1;
+    doublereal T = temperature();
+    doublereal RTT = GasConstant*T*T;
     fvo_zero_dbl_1(dlnActCoeffdT_Scaled_, m_kk);
     fvo_zero_dbl_1(d2lnActCoeffdT2_Scaled_, m_kk);
-    
     for ( iK = 0; iK < m_kk; iK++ ){
-
       XK = moleFractions_[iK];  
-
       for (int i = 0; i <  numBinaryInteractions_; i++) {
-    
 	iA =  m_pSpecies_A_ij[i];    
 	iB =  m_pSpecies_B_ij[i];
-	
 	delAK = 0;
 	delBK = 0;
-
-	if (iA==iK) delAK = 1;
+	if      (iA==iK) delAK = 1;
 	else if (iB==iK) delBK = 1;
-	
 	XA = moleFractions_[iA];
 	XB = moleFractions_[iB];
-	
 	g0 = -m_HE_b_ij[i] / RTT;
 	g1 = -m_HE_c_ij[i] / RTT;
-	
-	double temp = (delAK*XB+XA*delBK-XA*XB)*(g0+g1*XB)+XA*XB*(delBK-XB)*g1;
+	double temp = (delAK * XB + XA * delBK - XA * XB) * (g0 + g1 * XB) + XA * XB * (delBK - XB) * g1;
 	dlnActCoeffdT_Scaled_[iK] += temp;
-	d2lnActCoeffdT2_Scaled_[iK] -= 2*temp/T;
+	d2lnActCoeffdT2_Scaled_[iK] -= 2.0 * temp / T;
       }
     }
   }
-
-  /* Not Right???
-  void MargulesVPSSTP::s_update_dlnActCoeff_dT() const {}
-
-    int iA, iB;
-    doublereal XA, XB, h0 , h1;
-    doublereal T = temperature();
-
-    fvo_zero_dbl_1(dlnActCoeffdT_Scaled_, m_kk);
-
-    doublereal RTT = GasConstant * T * T;
-    for (int i = 0; i <  numBinaryInteractions_; i++) {
-      iA =  m_pSpecies_A_ij[i];    
-      iB =  m_pSpecies_B_ij[i];
-
-      XA = moleFractions_[iA];
-      XB = moleFractions_[iB];
-      
-      h0 = m_HE_b_ij[i];
-      h1 = m_HE_c_ij[i];
-      
-      dlnActCoeffdT_Scaled_[iA] += -(XB * XB * (h0 + h1 * (XB - XA))) / RTT;
-      dlnActCoeffdT_Scaled_[iB] += -(XA * XA * h0 +  XA * XB * h1 * (2 * XA))/RTT;
-    }
-  }
-  */
-
+  //====================================================================================================================
   void MargulesVPSSTP::getdlnActCoeffdT(doublereal *dlnActCoeffdT) const {
     s_update_dlnActCoeff_dT();
     for (int k = 0; k < m_kk; k++) {
       dlnActCoeffdT[k] = dlnActCoeffdT_Scaled_[k];
     }
   }
-
+  //====================================================================================================================
   void MargulesVPSSTP::getd2lnActCoeffdT2(doublereal *d2lnActCoeffdT2) const {
     s_update_dlnActCoeff_dT();
     for (int k = 0; k < m_kk; k++) {
       d2lnActCoeffdT2[k] = d2lnActCoeffdT2_Scaled_[k];
     }
   }
+  //====================================================================================================================
 
-  // calculate the change of the log of the activity coefficients wrt change in state: dT, dX
+  // Get the change in activity coefficients w.r.t. change in state (temp, mole fraction, etc.) along
+  // a line in parameter space or along a line in physical space
   /*
-   * This function will be called to calculate gradient of the 
-   * logarithm of the activity coefficients based on gradients in temperature and mole fraction.
    *
-   *   he = X_A X_B(B + C X_B)
+   * @param dTds           Input of temperature change along the path
+   * @param dXds           Input vector of changes in mole fraction along the path. length = m_kk
+   *                       Along the path length it must be the case that the mole fractions sum to one.
+   * @param dlnActCoeffds  Output vector of the directional derivatives of the 
+   *                       log Activity Coefficients along the path. length = m_kk
+   *  units are 1/units(s). if s is a physical coordinate then the units are 1/m.
    */
-  void MargulesVPSSTP::getdlnActCoeff(const doublereal dT, const doublereal * const dX, doublereal* dlnActCoeff) const {
+  void  MargulesVPSSTP::getdlnActCoeffds(const doublereal dTds, const doublereal * const dXds,
+					 doublereal *dlnActCoeffds) const {
+  
+
     int iA, iB, iK, delAK, delBK;
     double XA, XB, XK, g0 , g1, dXA, dXB;
     double T = temperature();
@@ -922,7 +854,7 @@ namespace Cantera {
     for ( iK = 0; iK < m_kk; iK++ ){
 
       XK = moleFractions_[iK];  
-      dlnActCoeff[iK] = 0.0;
+      dlnActCoeffds[iK] = 0.0;
 
       for (int i = 0; i <  numBinaryInteractions_; i++) {
     
@@ -938,18 +870,19 @@ namespace Cantera {
 	XA = moleFractions_[iA];
 	XB = moleFractions_[iB];
 
-	dXA = dX[iA];
-	dXB = dX[iB];
+	dXA = dXds[iA];
+	dXB = dXds[iB];
 	
 	g0 = (m_HE_b_ij[i] - T * m_SE_b_ij[i]) / RT;
 	g1 = (m_HE_c_ij[i] - T * m_SE_c_ij[i]) / RT;
 	
-	dlnActCoeff[iK] += ((delBK-XB)*dXA + (delAK-XA)*dXB)*(g0+2*g1*XB) + (delBK-XB)*2*g1*XA*dXB + dlnActCoeffdT_Scaled_[iK]*dT;
+	dlnActCoeffds[iK] += ((delBK-XB)*dXA + (delAK-XA)*dXB)*(g0+2*g1*XB) + (delBK-XB)*2*g1*XA*dXB 
+	  + dlnActCoeffdT_Scaled_[iK]*dTds;
       }
     }
   }
-
-  // Update the derivative of the log of the activity coefficients wrt ln(X)
+  //====================================================================================================================
+  // Update the derivative of the log of the activity coefficients wrt dlnN
   /*
    * This function will be called to update the internally stored gradients of the 
    * logarithm of the activity coefficients.  These are used in the determination 
@@ -1017,25 +950,6 @@ namespace Cantera {
       dlnActCoeffdlnX_Scaled_[iA] += XA*XB*(2*g1*-2*g0-6*g1*XB);
       dlnActCoeffdlnX_Scaled_[iB] += XA*XB*(2*g1*-2*g0-6*g1*XB);
     }
-    
-    /*
-    // Wrong!!!
-    for (int i = 0; i <  numBinaryInteractions_; i++) {
-      iA =  m_pSpecies_A_ij[i];    
-      iB =  m_pSpecies_B_ij[i];
-
-      XA = moleFractions_[iA];
-      XB = moleFractions_[iB];
-      
-      g0 = (m_HE_b_ij[i] - T * m_SE_b_ij[i]) / RT ;
-      g1 = (m_HE_c_ij[i] - T * m_SE_c_ij[i]) / RT;
-      
-      dlnActCoeffdlnX_Scaled_[iA] += XA * ( ( - 2.0 + 2.0 * XA ) * g0
-					    + ( - 4.0 + 10.0 * XA - 6.0 * XA*XA ) * g1 ) ;
-      dlnActCoeffdlnX_Scaled_[iB] += XB * ( ( - 2.0 + 2.0 * XB ) * g0
-					    + (   2.0 -  8.0 * XB + 6.0 * XB*XB ) * g1 ) ;
-    }
-    */
   }
   
 
