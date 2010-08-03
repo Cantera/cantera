@@ -33,7 +33,15 @@ namespace Cantera {
    *
    */
   GibbsExcessVPSSTP::GibbsExcessVPSSTP() :
-    VPStandardStateTP()
+    VPStandardStateTP(),
+    moleFractions_(0),
+    lnActCoeff_Scaled_(0),
+    dlnActCoeffdT_Scaled_(0),
+    d2lnActCoeffdT2_Scaled_(0), 
+    dlnActCoeffdlnN_Scaled_(0),
+    dlnActCoeffdlnX_Scaled_(0),
+    dlnActCoeffdN_Scaled_(0,0),
+    m_pp(0)
   {
   }
 
@@ -44,7 +52,15 @@ namespace Cantera {
    *  has a working copy constructor
    */
   GibbsExcessVPSSTP::GibbsExcessVPSSTP(const GibbsExcessVPSSTP &b) :
-    VPStandardStateTP()
+    VPStandardStateTP(),
+    moleFractions_(0),
+    lnActCoeff_Scaled_(0),
+    dlnActCoeffdT_Scaled_(0),
+    d2lnActCoeffdT2_Scaled_(0), 
+    dlnActCoeffdlnN_Scaled_(0),
+    dlnActCoeffdlnX_Scaled_(0),
+    dlnActCoeffdN_Scaled_(0,0),  
+    m_pp(0)
   {
     GibbsExcessVPSSTP::operator=(b);
   }
@@ -69,6 +85,7 @@ namespace Cantera {
     d2lnActCoeffdT2_Scaled_   = b.d2lnActCoeffdT2_Scaled_;
     dlnActCoeffdlnX_Scaled_ = b.dlnActCoeffdlnX_Scaled_;
     dlnActCoeffdlnN_Scaled_ = b.dlnActCoeffdlnN_Scaled_;
+    dlnActCoeffdN_Scaled_  = b.dlnActCoeffdN_Scaled_;
     m_pp                 = b.m_pp;
 
     return *this;
@@ -328,6 +345,7 @@ namespace Cantera {
     d2lnActCoeffdT2_Scaled_.resize(m_kk);
     dlnActCoeffdlnX_Scaled_.resize(m_kk);
     dlnActCoeffdlnN_Scaled_.resize(m_kk);
+    dlnActCoeffdN_Scaled_.resize(m_kk, m_kk);
     m_pp.resize(m_kk);
   }
   

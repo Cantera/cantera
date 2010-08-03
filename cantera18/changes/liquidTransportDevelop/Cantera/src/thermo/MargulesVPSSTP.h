@@ -113,7 +113,7 @@ namespace Cantera {
    *      \f[ 
    *           R T \ln( \gamma_k )= \sum_i \left( \left( \delta_{Ai,k} X_{Bi} + \delta_{Bi,k} X_{Ai}  - X_{Ai} X_{Bi} \right)
    *            \left( g^E_{o,i} +  g^E_{1,i} X_{Bi} \right) +
-   *            \left( \delta_{Ai,k} - X_{Bi} \right)      X_{Ai} X_{Bi}  g^E_{1,i} \right)
+   *            \left( \delta_{Bi,k} - X_{Bi} \right)      X_{Ai} X_{Bi}  g^E_{1,i} \right)
    *      \f]
    * where
    *        \f$  g^E_{o,i} =  h_{o,i} - T s_{o,i} \f$ and \f$ g^E_{1,i} =  h_{1,i} - T s_{1,i} \f$
@@ -834,9 +834,8 @@ namespace Cantera {
      * @param dlnActCoeffdN    Output vector of derivatives of the 
      *                         log Activity Coefficients. length = m_kk * m_kk        
      */
-    virtual void getdlnActCoeffdN(const int ld, doublereal * const dlnActCoeffdN) const {
-      err("getdlnActCoeffdN");
-    }
+    virtual void getdlnActCoeffdN(const int ld, doublereal * const dlnActCoeffdN) const;
+
    //@}
 
   private:
@@ -897,6 +896,14 @@ namespace Cantera {
      * wrt logarithm of the moles.
      */
     void s_update_dlnActCoeff_dlnN() const;
+
+    //! Update the derivative of the log of the activity coefficients  wrt log(moles_m)
+    /*!
+     * This function will be called to update the internally storred
+     * derivative of the natural logarithm of the activity coefficients
+     * wrt logarithm of the mole number of species
+     */
+    void s_update_dlnActCoeff_dN() const;
 
 
   private:
@@ -961,6 +968,8 @@ namespace Cantera {
     //! Entropy term for the quaternary mole fraction interaction of the
     //! excess gibbs free energy expression
     mutable vector_fp m_VSE_d_ij;
+
+
     
     //! vector of species indices representing species A in the interaction
     /*!
