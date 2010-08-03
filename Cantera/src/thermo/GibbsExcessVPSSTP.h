@@ -542,6 +542,8 @@ namespace Cantera {
 
   protected:
 
+    // HKM get rid of _Scaled_ prefix
+
     //! Storage for the current values of the mole fractions of the species
     /*!
      * This vector is kept up-to-date when the setState functions are called.
@@ -553,28 +555,35 @@ namespace Cantera {
     mutable std::vector<doublereal> moleFractions_;
 
     //! Storage for the current values of the activity coefficients of the
-    //! species, divided by RT
+    //! species
     mutable std::vector<doublereal> lnActCoeff_Scaled_;
 
     //! Storage for the current derivative values of the 
     //! gradients with respect to temperature of the 
-    //! log of theactivity coefficients of the species
+    //! log of the activity coefficients of the species
     mutable std::vector<doublereal> dlnActCoeffdT_Scaled_;
 
     //! Storage for the current derivative values of the 
     //! gradients with respect to temperature of the 
-    //! log of theactivity coefficients of the species
+    //! log of the activity coefficients of the species
     mutable std::vector<doublereal> d2lnActCoeffdT2_Scaled_;
 
     //! Storage for the current derivative values of the 
     //! gradients with respect to logarithm of the mole fraction of the 
-    //! log of theactivity coefficients of the species
+    //! log of the activity coefficients of the species  @deprecated
     mutable std::vector<doublereal> dlnActCoeffdlnN_Scaled_;
 
     //! Storage for the current derivative values of the 
     //! gradients with respect to logarithm of the mole fraction of the 
-    //! log of theactivity coefficients of the species
+    //! log of theactivity coefficients of the species  @deprecated
     mutable std::vector<doublereal> dlnActCoeffdlnX_Scaled_;
+
+    //! Storage for the current derivative values of the  gradients with respect to logarithm of the species mole number of the 
+    //! log of the activity coefficients of the species 
+    /*!
+     *  dlnActCoeffdN_Scaled_(k, m)  is the derivative of ln(gamma_k) wrt ln mole number of species m
+     */
+    mutable Array2D dlnActCoeffdN_Scaled_;
 
     //! Temporary storage space that is fair game
     mutable std::vector<doublereal> m_pp;

@@ -223,6 +223,17 @@ namespace Cantera {
       for (; b != end(); ++b, ++xb, ++yb)  *b = a*(*xb) + *yb;
     }
 
+    //! Set all of the entries to zero
+    inline void zero() {
+      int nn = m_nrows * m_ncols;
+      if (nn > 0) {
+        /*
+         * Using memset is the fastest way to zero a contiguous
+         * section of memory.
+         */
+        (void) memset((void *) &m_data[0], 0, nn * sizeof(doublereal));
+      }
+    }
     
     //! Allows setting elements using the syntax A(i,j) = x.
     /*!
