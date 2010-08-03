@@ -612,9 +612,7 @@ namespace Cantera {
      * Get the standard state values in m^3 kmol-1
      */
     getStandardVolumes(vbar);
-    //cout << "species name(0) = " << speciesName(0) << endl;
-    //cout << "iA = " << speciesName(m_pSpecies_A_ij[0]) << endl;   
-    //cout << "iB = " << speciesName(m_pSpecies_B_ij[0]) << endl;   
+ 
     
     for ( iK = 0; iK < m_kk; iK++ ){
       delAK = 0;

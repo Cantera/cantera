@@ -1655,7 +1655,7 @@ UML_LOOK               = NO
 # If set to YES, the inheritance and collaboration graphs will show the
 # relations between templates and their instances.
 
-TEMPLATE_RELATIONS     = YES
+TEMPLATE_RELATIONS     = NO
 
 # If the ENABLE_PREPROCESSING, SEARCH_INCLUDES, INCLUDE_GRAPH, and HAVE_DOT
 # tags are set to YES then doxygen will generate a graph for each documented
@@ -1690,7 +1690,7 @@ CALLER_GRAPH           = NO
 # If the GRAPHICAL_HIERARCHY and HAVE_DOT tags are set to YES then doxygen
 # will graphical hierarchy of all classes instead of a textual one.
 
-GRAPHICAL_HIERARCHY    = YES
+GRAPHICAL_HIERARCHY    = NO
 
 # If the DIRECTORY_GRAPH, SHOW_DIRECTORIES and HAVE_DOT tags are set to YES
 # then doxygen will show the dependencies a directory has on other directories
