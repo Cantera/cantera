@@ -751,6 +751,15 @@ namespace Cantera {
      */
     void s_update_dlnActCoeff_dlnN_diag() const;
 
+    //! Update the derivative of the log of the activity coefficients
+    //!  wrt log(number of moles) - diagonal components
+    /*!
+     * This function will be called to update the internally storred
+     * derivative of the natural logarithm of the activity coefficients
+     * wrt logarithm of the number of moles of given species.
+     */
+    void s_update_dlnActCoeff_dlnN() const;
+
 
   private:
     //! Error function
@@ -889,6 +898,8 @@ namespace Cantera {
     mutable std::vector<doublereal> dlnActCoeffdT_NeutralMolecule_;
     mutable std::vector<doublereal> dlnActCoeffdlnX_diag_NeutralMolecule_;
     mutable std::vector<doublereal> dlnActCoeffdlnN_diag_NeutralMolecule_;
+
+    mutable Array2D dlnActCoeffdlnN_NeutralMolecule_;
 
   };
 

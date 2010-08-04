@@ -828,25 +828,25 @@ namespace Cantera {
     virtual void getdlnActCoeffdlnN_diag(doublereal *dlnActCoeffdlnN_diag) const;
 
 
-    //! Get the array of derivatives of the log activity coefficients with respect to the species mole numbers
+    //! Get the array of derivatives of the log activity coefficients with respect to the ln species mole numbers
     /*!
      * Implementations should take the derivative of the logarithm of the activity coefficient with respect to a
-     * species mole number (with all other species mole numbers held constant)
+     * log of a species mole number (with all other species mole numbers held constant)
      * 
      *  units = 1 / kmol
      *
-     *  dlnActCoeffdN[ ld * k  + m]  will contain the derivative of log act_coeff for the <I>m</I><SUP>th</SUP> 
-     *                               species with respect to the number of moles of the <I>k</I><SUP>th</SUP> species.
+     *  dlnActCoeffdlnN[ ld * k  + m]  will contain the derivative of log act_coeff for the <I>m</I><SUP>th</SUP> 
+     *                                 species with respect to the number of moles of the <I>k</I><SUP>th</SUP> species.
      *
      * \f[
-     *        \frac{d \ln(\gamma_m) }{d n_k }\Bigg|_{n_i}
+     *        \frac{d \ln(\gamma_m) }{d \ln( n_k ) }\Bigg|_{n_i}
      * \f]
      *
      * @param ld               Number of rows in the matrix
-     * @param dlnActCoeffdN    Output vector of derivatives of the 
+     * @param dlnActCoeffdlnN    Output vector of derivatives of the 
      *                         log Activity Coefficients. length = m_kk * m_kk        
      */
-    virtual void getdlnActCoeffdN(const int ld, doublereal * const dlnActCoeffdN) const;
+    virtual void getdlnActCoeffdlnN(const int ld, doublereal * const dlnActCoeffdlnN) const;
 
    //@}
 
@@ -915,7 +915,7 @@ namespace Cantera {
      * derivative of the natural logarithm of the activity coefficients
      * wrt logarithm of the mole number of species
      */
-    void s_update_dlnActCoeff_dN() const;
+    void s_update_dlnActCoeff_dlnN() const;
 
 
   private:
