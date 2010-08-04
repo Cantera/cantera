@@ -2072,7 +2072,7 @@ namespace Cantera {
     }
 
     //! Get the array of log concentration-like derivatives of the 
-    //! log activity coefficients
+    //! log activity coefficients - diagonal component only
     /*!
      * This function is a virtual method.  For ideal mixtures 
      * (unity activity coefficients), this can return zero.  
@@ -2086,11 +2086,11 @@ namespace Cantera {
      *
      *  units = dimensionless
      *
-     * @param dlnActCoeffdlnX    Output vector of derivatives of the 
+     * @param dlnActCoeffdln_diag    Output vector of derivatives of the 
      *                         log Activity Coefficients. length = m_kk
      */
-    virtual void getdlnActCoeffdlnX(doublereal *dlnActCoeffdlnX) const {
-      err("getdlnActCoeffdlnX");
+    virtual void getdlnActCoeffdlnX_diag(doublereal *dlnActCoeffdlnX_diag) const {
+      err("getdlnActCoeffdlnX_diag");
     }
 
     //! Get the array of log concentration-like derivatives of the 

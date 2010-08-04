@@ -59,7 +59,8 @@ namespace Cantera {
     m_spthermo = 0;
   }
 
-  /**
+  //====================================================================================================================
+  /*
    * Copy Constructor for the ThermoPhase object. 
    *
    * Currently, this is implemented, but not tested. If called it will

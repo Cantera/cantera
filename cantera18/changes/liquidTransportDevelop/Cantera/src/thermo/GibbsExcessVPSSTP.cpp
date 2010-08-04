@@ -39,7 +39,7 @@ namespace Cantera {
     dlnActCoeffdT_Scaled_(0),
     d2lnActCoeffdT2_Scaled_(0), 
     dlnActCoeffdlnN_diag_(0),
-    dlnActCoeffdlnX_Scaled_(0),
+    dlnActCoeffdlnX_diag_(0),
     dlnActCoeffdN_Scaled_(0,0),
     m_pp(0)
   {
@@ -58,7 +58,7 @@ namespace Cantera {
     dlnActCoeffdT_Scaled_(0),
     d2lnActCoeffdT2_Scaled_(0), 
     dlnActCoeffdlnN_diag_(0),
-    dlnActCoeffdlnX_Scaled_(0),
+    dlnActCoeffdlnX_diag_(0),
     dlnActCoeffdN_Scaled_(0,0),  
     m_pp(0)
   {
@@ -83,7 +83,7 @@ namespace Cantera {
     lnActCoeff_Scaled_   = b.lnActCoeff_Scaled_;
     dlnActCoeffdT_Scaled_   = b.dlnActCoeffdT_Scaled_;
     d2lnActCoeffdT2_Scaled_   = b.d2lnActCoeffdT2_Scaled_;
-    dlnActCoeffdlnX_Scaled_ = b.dlnActCoeffdlnX_Scaled_;
+    dlnActCoeffdlnX_diag_ = b.dlnActCoeffdlnX_diag_;
     dlnActCoeffdlnN_diag_ = b.dlnActCoeffdlnN_diag_;
     dlnActCoeffdN_Scaled_  = b.dlnActCoeffdN_Scaled_;
     m_pp                 = b.m_pp;
@@ -343,7 +343,7 @@ namespace Cantera {
     lnActCoeff_Scaled_.resize(m_kk);
     dlnActCoeffdT_Scaled_.resize(m_kk);
     d2lnActCoeffdT2_Scaled_.resize(m_kk);
-    dlnActCoeffdlnX_Scaled_.resize(m_kk);
+    dlnActCoeffdlnX_diag_.resize(m_kk);
     dlnActCoeffdlnN_diag_.resize(m_kk);
     dlnActCoeffdN_Scaled_.resize(m_kk, m_kk);
     m_pp.resize(m_kk);

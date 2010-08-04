@@ -794,25 +794,21 @@ namespace Cantera {
     virtual void getdlnActCoeffds(const doublereal dTds, const doublereal * const dXds, doublereal *dlnActCoeffds) const;
  
     //! Get the array of log concentration-like derivatives of the 
-    //! log activity coefficients
+    //! log activity coefficients - diagonal component
     /*!
      * This function is a virtual method.  For ideal mixtures 
      * (unity activity coefficients), this can return zero.  
      * Implementations should take the derivative of the 
      * logarithm of the activity coefficient with respect to the 
-     * logarithm of the concentration-like variable (i.e. mole fraction,
-     * molality, etc.) that represents the standard state.  
-     * This quantity is to be used in conjunction with derivatives of 
-     * that concentration-like variable when the derivative of the chemical 
-     * potential is taken.  
+     * logarithm of the mole fraction.
      *
      *  units = dimensionless
      *
-     * @param dlnActCoeffdlnX    Output vector of log(mole fraction)  
+     * @param dlnActCoeffdlnX_diag    Output vector of the diagonal component of the log(mole fraction)  
      *                 derivatives of the log Activity Coefficients.
      *                 length = m_kk
      */
-    virtual void getdlnActCoeffdlnX(doublereal *dlnActCoeffdlnX) const;
+    virtual void getdlnActCoeffdlnX_diag(doublereal *dlnActCoeffdlnX_diag) const;
 
     //! Get the array of  derivatives of the log activity coefficients wrt mole numbers - diagonal only
     /*!
@@ -822,13 +818,10 @@ namespace Cantera {
      * logarithm of the activity coefficient with respect to the 
      * logarithm of the concentration-like variable (i.e. mole fraction,
      * molality, etc.) that represents the standard state.  
-     * This quantity is to be used in conjunction with derivatives of 
-     * that concentration-like variable when the derivative of the chemical 
-     * potential is taken.  
      *
      *  units = dimensionless
      *
-     * @param dlnActCoeffdlnX    Output vector of the diagonal entries for the log(mole fraction)  
+     * @param dlnActCoeffdlnN_diag    Output vector of the diagonal entries for the log(mole fraction)  
      *                 derivatives of the log Activity Coefficients.
      *                 length = m_kk
      */
@@ -905,7 +898,7 @@ namespace Cantera {
      * derivative of the natural logarithm of the activity coefficients
      * wrt logarithm of the mole fractions.
      */
-    void s_update_dlnActCoeff_dlnX() const;
+    void s_update_dlnActCoeff_dlnX_diag() const;
 
     //! Update the derivative of the log of the activity coefficients
     //!  wrt log(moles) - diagonal only
