@@ -419,25 +419,21 @@ namespace Cantera {
 				  doublereal *dlnActCoeffds) const;
 
     //! Get the array of log concentration-like derivatives of the 
-    //! log activity coefficients
+    //! log activity coefficients - diagonal component
     /*!
      * This function is a virtual method.  For ideal mixtures 
      * (unity activity coefficients), this can return zero.  
      * Implementations should take the derivative of the 
      * logarithm of the activity coefficient with respect to the 
-     * logarithm of the concentration-like variable (i.e. mole fraction) 
-     * that represents the standard state.  
-     * This quantity is to be used in conjunction with derivatives of 
-     * that concentration-like variable when the derivative of the chemical 
-     * potential is taken.  
+     * logarithm of the mole fraction.
      *
      *  units = dimensionless
      *
-     * @param dlnActCoeffdlnX    Output vector of log(mole fraction)  
+     * @param dlnActCoeffdlnX_diag    Output vector of log(mole fraction)  
      *                 derivatives of the log Activity Coefficients.
      *                 length = m_kk
      */
-    virtual void getdlnActCoeffdlnX(doublereal *dlnActCoeffdlnX) const;
+    virtual void getdlnActCoeffdlnX_diag(doublereal *dlnActCoeffdlnX_diag) const;
 
     //! Get the array of log concentration-like derivatives of the 
     //! log activity coefficients - diagonal components
@@ -744,7 +740,7 @@ namespace Cantera {
      * derivative of the natural logarithm of the activity coefficients
      * wrt logarithm of the mole fractions.
      */
-    void s_update_dlnActCoeff_dlnX() const;
+    void s_update_dlnActCoeff_dlnX_diag() const;
 
     //! Update the derivative of the log of the activity coefficients
     //!  wrt log(number of moles) - diagonal components
@@ -891,7 +887,7 @@ namespace Cantera {
     mutable std::vector<doublereal> gammaNeutralMolecule_;
     mutable std::vector<doublereal> dlnActCoeff_NeutralMolecule_;
     mutable std::vector<doublereal> dlnActCoeffdT_NeutralMolecule_;
-    mutable std::vector<doublereal> dlnActCoeffdlnX_NeutralMolecule_;
+    mutable std::vector<doublereal> dlnActCoeffdlnX_diag_NeutralMolecule_;
     mutable std::vector<doublereal> dlnActCoeffdlnN_diag_NeutralMolecule_;
 
   };
