@@ -319,11 +319,11 @@ namespace Cantera {
      *
      *  units = dimensionless
      *
-     * @param dlnActCoeffdlnN    Output vector of derivatives of the 
+     * @param dlnActCoeffdlnN_diag    Output vector of derivatives of the 
      *                         log Activity Coefficients. length = m_kk
      */
-    virtual void getdlnActCoeffdlnN(doublereal *dlnActCoeffdlnN) const {
-      err("getdlnActCoeffdlnN");
+    virtual void getdlnActCoeffdlnN_diag(doublereal *dlnActCoeffdlnN_diag) const {
+      err("getdlnActCoeffdlnN_diag");
     }
 
     //! Get the array of log concentration-like derivatives of the 
@@ -571,7 +571,7 @@ namespace Cantera {
     //! Storage for the current derivative values of the 
     //! gradients with respect to logarithm of the mole fraction of the 
     //! log of the activity coefficients of the species  @deprecated
-    mutable std::vector<doublereal> dlnActCoeffdlnN_Scaled_;
+    mutable std::vector<doublereal> dlnActCoeffdlnN_diag_;
 
     //! Storage for the current derivative values of the 
     //! gradients with respect to logarithm of the mole fraction of the 

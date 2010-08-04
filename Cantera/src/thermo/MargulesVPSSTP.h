@@ -813,7 +813,26 @@ namespace Cantera {
      *                 length = m_kk
      */
     virtual void getdlnActCoeffdlnX(doublereal *dlnActCoeffdlnX) const;
-    virtual void getdlnActCoeffdlnN(doublereal *dlnActCoeffdlnN) const;
+
+    //! Get the array of  derivatives of the log activity coefficients wrt mole numbers - diagonal only
+    /*!
+     * This function is a virtual method.  For ideal mixtures 
+     * (unity activity coefficients), this can return zero.  
+     * Implementations should take the derivative of the 
+     * logarithm of the activity coefficient with respect to the 
+     * logarithm of the concentration-like variable (i.e. mole fraction,
+     * molality, etc.) that represents the standard state.  
+     * This quantity is to be used in conjunction with derivatives of 
+     * that concentration-like variable when the derivative of the chemical 
+     * potential is taken.  
+     *
+     *  units = dimensionless
+     *
+     * @param dlnActCoeffdlnX    Output vector of the diagonal entries for the log(mole fraction)  
+     *                 derivatives of the log Activity Coefficients.
+     *                 length = m_kk
+     */
+    virtual void getdlnActCoeffdlnN_diag(doublereal *dlnActCoeffdlnN_diag) const;
 
 
     //! Get the array of derivatives of the log activity coefficients with respect to the species mole numbers
@@ -889,13 +908,13 @@ namespace Cantera {
     void s_update_dlnActCoeff_dlnX() const;
 
     //! Update the derivative of the log of the activity coefficients
-    //!  wrt log(moles)
+    //!  wrt log(moles) - diagonal only
     /*!
-     * This function will be called to update the internally storred
+     * This function will be called to update the internally storred diagonal entries for the
      * derivative of the natural logarithm of the activity coefficients
      * wrt logarithm of the moles.
      */
-    void s_update_dlnActCoeff_dlnN() const;
+    void s_update_dlnActCoeff_dlnN_diag() const;
 
     //! Update the derivative of the log of the activity coefficients  wrt log(moles_m)
     /*!

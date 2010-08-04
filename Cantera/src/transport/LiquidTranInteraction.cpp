@@ -728,14 +728,14 @@ namespace Cantera {
     int zM = charges[anion[0]];
     doublereal xA, xB, eps;    
     doublereal inv_vP_vM_MutualDiff;
-    vector_fp dlnActCoeffdlnN;
-    dlnActCoeffdlnN.resize(neut_molefracs.size(),0.0);
-    marg_thermo->getdlnActCoeffdlnN(&dlnActCoeffdlnN[0]);
+    vector_fp dlnActCoeffdlnN_diag;
+    dlnActCoeffdlnN_diag.resize(neut_molefracs.size(),0.0);
+    marg_thermo->getdlnActCoeffdlnN_diag(&dlnActCoeffdlnN_diag[0]);
 
     xA = neut_molefracs[neutMolIndex[cation[0]]];
     xB = neut_molefracs[neutMolIndex[cation[1]]];
     eps = (1-m_mobRatMix(cation[1],cation[0]))/(xA+xB*m_mobRatMix(cation[1],cation[0]));
-    inv_vP_vM_MutualDiff = (xA*(1+dlnActCoeffdlnN[neutMolIndex[cation[1]]])/m_selfDiffMix[cation[1]]+xB*(1+dlnActCoeffdlnN[neutMolIndex[cation[0]]])/m_selfDiffMix[cation[0]]);
+    inv_vP_vM_MutualDiff = (xA*(1+dlnActCoeffdlnN_diag[neutMolIndex[cation[1]]])/m_selfDiffMix[cation[1]]+xB*(1+dlnActCoeffdlnN_diag[neutMolIndex[cation[0]]])/m_selfDiffMix[cation[0]]);
     
     mat.resize(nsp, nsp, 0.0 );
     mat(cation[0],cation[1]) = mat(cation[1],cation[0]) = (1+vM/vP)*(1+eps*xB)*(1-eps*xA)*inv_vP_vM_MutualDiff-zP*zP*Faraday*Faraday/GasConstant/temp/m_ionCondMix/vol;
