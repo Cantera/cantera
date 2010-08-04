@@ -2108,11 +2108,11 @@ namespace Cantera {
      *
      *  units = dimensionless
      *
-     * @param dlnActCoeffdlnN    Output vector of derivatives of the 
+     * @param dlnActCoeffdlnN_diag    Output vector of derivatives of the 
      *                         log Activity Coefficients. length = m_kk
      */
-    virtual void getdlnActCoeffdlnN(doublereal *dlnActCoeffdlnN) const {
-      err("getdlnActCoeffdlnN");
+    virtual void getdlnActCoeffdlnN_diag(doublereal *dlnActCoeffdlnN_diag) const {
+      err("getdlnActCoeffdlnN_diag");
     }
 
     //! Get the array of derivatives of the log activity coefficients with respect to the species mole numbers

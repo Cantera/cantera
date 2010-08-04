@@ -199,7 +199,7 @@ namespace Cantera {
     gammaNeutralMolecule_       = b.gammaNeutralMolecule_;
     dlnActCoeffdT_NeutralMolecule_ = b.dlnActCoeffdT_NeutralMolecule_;
     dlnActCoeffdlnX_NeutralMolecule_ = b.dlnActCoeffdlnX_NeutralMolecule_;
-    dlnActCoeffdlnN_NeutralMolecule_ = b.dlnActCoeffdlnN_NeutralMolecule_;
+    dlnActCoeffdlnN_diag_NeutralMolecule_ = b.dlnActCoeffdlnN_diag_NeutralMolecule_;
 
     return *this;
   }
@@ -621,31 +621,31 @@ namespace Cantera {
     }
   }  
   
-  //! Get the array of log concentration-like derivatives of the 
-    //! log activity coefficients
-    /*!
-     * This function is a virtual method.  For ideal mixtures 
-     * (unity activity coefficients), this can return zero.  
-     * Implementations should take the derivative of the 
-     * logarithm of the activity coefficient with respect to the 
-     * logarithm of the concentration-like variable (i.e. moles)
-     * that represents the standard state.  
-     * This quantity is to be used in conjunction with derivatives of 
-     * that concentration-like variable when the derivative of the chemical 
-     * potential is taken.  
-     *
-     *  units = dimensionless
-     *
-     * @param dlnActCoeffdlnN    Output vector of log(mole fraction)  
-     *                 derivatives of the log Activity Coefficients.
-     *                 length = m_kk
-     */
-  void IonsFromNeutralVPSSTP::getdlnActCoeffdlnN(doublereal *dlnActCoeffdlnN) const {
+  // Get the array of log concentration-like derivatives of the 
+  // log activity coefficients
+  /*
+   * This function is a virtual method.  For ideal mixtures 
+   * (unity activity coefficients), this can return zero.  
+   * Implementations should take the derivative of the 
+   * logarithm of the activity coefficient with respect to the 
+   * logarithm of the concentration-like variable (i.e. moles)
+   * that represents the standard state.  
+   * This quantity is to be used in conjunction with derivatives of 
+   * that concentration-like variable when the derivative of the chemical 
+   * potential is taken.  
+   *
+   *  units = dimensionless
+   *
+   * @param dlnActCoeffdlnN_diag    Output vector of log(mole fraction)  
+   *                 derivatives of the log Activity Coefficients.
+   *                 length = m_kk
+   */
+  void IonsFromNeutralVPSSTP::getdlnActCoeffdlnN_diag(doublereal *dlnActCoeffdlnN_diag) const {
     s_update_lnActCoeff();
-    s_update_dlnActCoeff_dlnN();
+    s_update_dlnActCoeff_dlnN_diag();
 
     for (int k = 0; k < m_kk; k++) {
-      dlnActCoeffdlnN[k] = dlnActCoeffdlnN_Scaled_[k];
+      dlnActCoeffdlnN_diag[k] = dlnActCoeffdlnN_diag_[k];
     }
   }
     
@@ -1193,9 +1193,9 @@ namespace Cantera {
     gammaNeutralMolecule_.resize(numNeutralMoleculeSpecies_);
     dlnActCoeffdT_NeutralMolecule_.resize(numNeutralMoleculeSpecies_);
     dlnActCoeffdlnX_NeutralMolecule_.resize(numNeutralMoleculeSpecies_);
-    dlnActCoeffdlnN_NeutralMolecule_.resize(numNeutralMoleculeSpecies_);
+    dlnActCoeffdlnN_diag_NeutralMolecule_.resize(numNeutralMoleculeSpecies_);
   }
-
+  //====================================================================================================================
   static double factorOverlap(const std::vector<std::string>&  elnamesVN ,
 			      const std::vector<double>& elemVectorN,
 			      const int  nElementsN,
@@ -1640,7 +1640,7 @@ namespace Cantera {
    * This function will be called to update the internally storred
    * temperature derivative of the natural logarithm of the activity coefficients
    */
-  void IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnN() const {
+  void IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnN_diag() const {
     int k, icat, jNeut;
     doublereal fmij;
     /*
@@ -1648,11 +1648,11 @@ namespace Cantera {
      */
     GibbsExcessVPSSTP *geThermo = dynamic_cast<GibbsExcessVPSSTP *>(neutralMoleculePhase_);
     if (!geThermo) {
-      fvo_zero_dbl_1(dlnActCoeffdlnN_Scaled_, m_kk);
+      fvo_zero_dbl_1(dlnActCoeffdlnN_diag_, m_kk);
       return;
     }
 
-    geThermo->getdlnActCoeffdlnN(DATA_PTR(dlnActCoeffdlnN_NeutralMolecule_));
+    geThermo->getdlnActCoeffdlnN_diag(DATA_PTR(dlnActCoeffdlnN_diag_NeutralMolecule_));
 
     switch (ionSolnType_) {
     case cIonSolnType_PASSTHROUGH:
@@ -1665,19 +1665,19 @@ namespace Cantera {
         icat = cationList_[k];
 	jNeut = fm_invert_ionForNeutral[icat];
 	fmij =  fm_neutralMolec_ions_[icat + jNeut * m_kk];
-        dlnActCoeffdlnN_Scaled_[icat] = dlnActCoeffdlnN_NeutralMolecule_[jNeut]/fmij;
+        dlnActCoeffdlnN_diag_[icat] = dlnActCoeffdlnN_diag_NeutralMolecule_[jNeut]/fmij;
       }
 
       // Do the anion list
       icat = anionList_[0];
       jNeut = fm_invert_ionForNeutral[icat];
-      dlnActCoeffdlnN_Scaled_[icat]= 0.0;
+      dlnActCoeffdlnN_diag_[icat]= 0.0;
 
       // Do the list of neutral molecules
       for (k = 0; k <  numPassThroughSpecies_; k++) {
 	icat = passThroughList_[k];
 	jNeut = fm_invert_ionForNeutral[icat];
-	dlnActCoeffdlnN_Scaled_[icat] = dlnActCoeffdlnN_NeutralMolecule_[jNeut];
+	dlnActCoeffdlnN_diag_[icat] = dlnActCoeffdlnN_diag_NeutralMolecule_[jNeut];
       }
       break;
  

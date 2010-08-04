@@ -440,25 +440,21 @@ namespace Cantera {
     virtual void getdlnActCoeffdlnX(doublereal *dlnActCoeffdlnX) const;
 
     //! Get the array of log concentration-like derivatives of the 
-    //! log activity coefficients
+    //! log activity coefficients - diagonal components
     /*!
      * This function is a virtual method.  For ideal mixtures 
      * (unity activity coefficients), this can return zero.  
      * Implementations should take the derivative of the 
      * logarithm of the activity coefficient with respect to the 
-     * logarithm of the concentration-like variable (i.e. number of moles)
-     * that represents the standard state.  
-     * This quantity is to be used in conjunction with derivatives of 
-     * that concentration-like variable when the derivative of the chemical 
-     * potential is taken.  
+     * logarithm of the species mole numbe. This routine just does the diagonal entries.
      *
      *  units = dimensionless
      *
-     * @param dlnActCoeffdlnN    Output vector of log(mole fraction)  
+     * @param dlnActCoeffdlnN_diag    Output vector of diagonal components of the log(mole fraction)  
      *                 derivatives of the log Activity Coefficients.
      *                 length = m_kk
      */
-    virtual void getdlnActCoeffdlnN(doublereal *dlnActCoeffdlnN) const;
+    virtual void getdlnActCoeffdlnN_diag(doublereal *dlnActCoeffdlnN_diag) const;
 
     //! Get the Salt Dissociation Coefficients
     //! Returns the vector of dissociation coefficients and vector of charges
@@ -751,13 +747,13 @@ namespace Cantera {
     void s_update_dlnActCoeff_dlnX() const;
 
     //! Update the derivative of the log of the activity coefficients
-    //!  wrt log(number of moles)
+    //!  wrt log(number of moles) - diagonal components
     /*!
      * This function will be called to update the internally storred
      * derivative of the natural logarithm of the activity coefficients
      * wrt logarithm of the number of moles of given species.
      */
-    void s_update_dlnActCoeff_dlnN() const;
+    void s_update_dlnActCoeff_dlnN_diag() const;
 
 
   private:
@@ -896,7 +892,7 @@ namespace Cantera {
     mutable std::vector<doublereal> dlnActCoeff_NeutralMolecule_;
     mutable std::vector<doublereal> dlnActCoeffdT_NeutralMolecule_;
     mutable std::vector<doublereal> dlnActCoeffdlnX_NeutralMolecule_;
-    mutable std::vector<doublereal> dlnActCoeffdlnN_NeutralMolecule_;
+    mutable std::vector<doublereal> dlnActCoeffdlnN_diag_NeutralMolecule_;
 
   };
 
