@@ -1392,7 +1392,6 @@ namespace Cantera {
    * This function will be called to update the internally storred
    * natural logarithm of the activity coefficients
    *
-   *   he = X_A X_B(B + C(X_A - X_B))
    */
   void IonsFromNeutralVPSSTP::s_update_lnActCoeff() const {
     int k, icat, jNeut;
@@ -1507,13 +1506,13 @@ namespace Cantera {
       break;
  
     case cIonSolnType_SINGLECATION:
-      throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeff", "Unimplemented type");
+      throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeffds", "Unimplemented type");
       break;
     case cIonSolnType_MULTICATIONANION:
-      throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeff", "Unimplemented type");
+      throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeffds", "Unimplemented type");
       break;
     default:
-      throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeff", "Unimplemented type");
+      throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeffds", "Unimplemented type");
       break;
     }
 
@@ -1566,13 +1565,13 @@ namespace Cantera {
       break;
  
     case cIonSolnType_SINGLECATION:
-      throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeff", "Unimplemented type");
+      throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeffdT", "Unimplemented type");
       break;
     case cIonSolnType_MULTICATIONANION:
-      throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeff", "Unimplemented type");
+      throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeffdT", "Unimplemented type");
       break;
     default:
-      throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeff", "Unimplemented type");
+      throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeffdT", "Unimplemented type");
       break;
     }
 
@@ -1624,13 +1623,13 @@ namespace Cantera {
       break;
  
     case cIonSolnType_SINGLECATION:
-      throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeff", "Unimplemented type");
+      throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeff_dlnX_diag()", "Unimplemented type");
       break;
     case cIonSolnType_MULTICATIONANION:
-      throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeff", "Unimplemented type");
+      throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeff_dlnX_diag()", "Unimplemented type");
       break;
     default:
-      throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeff", "Unimplemented type");
+      throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeff_dlnX_diag()", "Unimplemented type");
       break;
     }
 
@@ -1682,28 +1681,28 @@ namespace Cantera {
       break;
  
     case cIonSolnType_SINGLECATION:
-      throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeff", "Unimplemented type");
+      throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeff_dlnN_diag()", "Unimplemented type");
       break;
     case cIonSolnType_MULTICATIONANION:
-      throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeff", "Unimplemented type");
+      throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeff_dlnN_diag()", "Unimplemented type");
       break;
     default:
-      throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeff", "Unimplemented type");
+      throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeff_dlnN_diag()", "Unimplemented type");
       break;
     }
 
   }
   //====================================================================================================================
-   // Update the derivative of the log of the activity coefficients
-    //  wrt log(number of moles) - diagonal components
-    /*
-     * This function will be called to update the internally storred
-     * derivative of the natural logarithm of the activity coefficients
-     * wrt logarithm of the number of moles of given species.
-     */
+  // Update the derivative of the log of the activity coefficients
+  //  wrt log(number of moles) - diagonal components
+  /*
+   * This function will be called to update the internally storred
+   * derivative of the natural logarithm of the activity coefficients
+   * wrt logarithm of the number of moles of given species.
+   */
   void IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnN() const {
-    int k, icat, jNeut;
-    doublereal fmij;  
+    int k, m, kcat, kNeut, mcat, mNeut;
+    doublereal fmij, mfmij;  
     dlnActCoeffdlnN_.zero();
     /*
      * Get the activity coefficients of the neutral molecules
@@ -1724,34 +1723,73 @@ namespace Cantera {
    
       // Do the cation list
       for (k = 0; k < (int) cationList_.size(); k++) {
-	//! Get the id for the next cation
-        icat = cationList_[k];
-	jNeut = fm_invert_ionForNeutral[icat];
-	fmij =  fm_neutralMolec_ions_[icat + jNeut * m_kk];
-        dlnActCoeffdlnN_diag_[icat] = dlnActCoeffdlnN_diag_NeutralMolecule_[jNeut]/fmij;
+	for (m = 0; m < (int) cationList_.size(); m++) {
+	  //! Get the id for the next cation
+	  //icat = cationList_[k];
+	  //jNeut = fm_invert_ionForNeutral[icat];
+	  //fmij =  fm_neutralMolec_ions_[icat + jNeut * m_kk];
+	  //lnActCoeff_Scaled_[icat] = log(gammaNeutralMolecule_[jNeut])/fmij;
+	  
+	  kcat = cationList_[k];
+	  
+	  kNeut = fm_invert_ionForNeutral[kcat];
+	  fmij =  fm_neutralMolec_ions_[kcat + kNeut * m_kk];
+	  dlnActCoeffdlnN_diag_[kcat] = dlnActCoeffdlnN_diag_NeutralMolecule_[kNeut]/fmij;
+	  
+	  mcat = cationList_[m];
+	  mNeut = fm_invert_ionForNeutral[mcat];
+	  mfmij =  fm_neutralMolec_ions_[mcat + mNeut * m_kk];
+
+	  dlnActCoeffdlnN_(kcat, mcat) =  dlnActCoeffdlnN_NeutralMolecule_(kNeut,mNeut) * mfmij / fmij;
+
+
+	  for (m = 0; m < numPassThroughSpecies_; m++) {
+	    mcat = passThroughList_[m];
+	    mNeut = fm_invert_ionForNeutral[mcat];
+	    dlnActCoeffdlnN_(kcat, mcat) =  dlnActCoeffdlnN_NeutralMolecule_(kNeut, mNeut) / fmij;
+	  }
+	}
       }
 
-      // Do the anion list
-      icat = anionList_[0];
-      jNeut = fm_invert_ionForNeutral[icat];
-      dlnActCoeffdlnN_diag_[icat]= 0.0;
+      // Do the anion list -> anion activity coefficient is one
+      kcat = anionList_[0];
+      kNeut = fm_invert_ionForNeutral[kcat];
+      for (k = 0; k < m_kk; k++) {
+	dlnActCoeffdlnN_(kcat, k) = 0.0;
+	dlnActCoeffdlnN_(k, kcat) = 0.0;
+      }
 
       // Do the list of neutral molecules
       for (k = 0; k <  numPassThroughSpecies_; k++) {
-	icat = passThroughList_[k];
-	jNeut = fm_invert_ionForNeutral[icat];
-	dlnActCoeffdlnN_diag_[icat] = dlnActCoeffdlnN_diag_NeutralMolecule_[jNeut];
+	kcat = passThroughList_[k];
+	kNeut = fm_invert_ionForNeutral[kcat];
+	dlnActCoeffdlnN_diag_[kcat] = dlnActCoeffdlnN_diag_NeutralMolecule_[kNeut];
+
+	for (m = 0; m < m_kk; m++) {
+	  mcat = passThroughList_[m];
+	  mNeut = fm_invert_ionForNeutral[mcat];
+	  dlnActCoeffdlnN_(kcat, mcat) =  dlnActCoeffdlnN_NeutralMolecule_(kNeut, mNeut);
+	}
+
+
+	for (m = 0; m < (int) cationList_.size(); m++) {
+	  mcat = cationList_[m];
+	  mNeut = fm_invert_ionForNeutral[mcat];
+	  mfmij =  fm_neutralMolec_ions_[mcat + mNeut * m_kk];
+	  dlnActCoeffdlnN_(kcat, mcat) =  dlnActCoeffdlnN_NeutralMolecule_(kNeut,mNeut);
+	}
+
       }
       break;
  
     case cIonSolnType_SINGLECATION:
-      throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeff", "Unimplemented type");
+      throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeff_dlnN", "Unimplemented type");
       break;
     case cIonSolnType_MULTICATIONANION:
-      throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeff", "Unimplemented type");
+      throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeff_dlnN", "Unimplemented type");
       break;
     default:
-      throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeff", "Unimplemented type");
+      throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeff_dlnN", "Unimplemented type");
       break;
     }
 
