@@ -1907,9 +1907,9 @@ AC_OUTPUT(Makefile \
           ext/f2c_math/Makefile \
 	  examples/Makefile \
           examples/cxx/Makefile \
+	  docs/Makefile \
 	  tools/Makefile \
-          tools/doc/Cantera.cfg \
-          tools/doc/Makefile \
+          docs/Cantera.cfg \
           tools/src/Makefile \
           tools/src/sample.mak \
           tools/src/finish_install.py \
