@@ -35,9 +35,6 @@ clean:
 	cd src; @MAKE@ clean
 	cd testtools; @MAKE@ clean
 
-docs:
-	cd doc; doxygen Cantera.cfg
-
 depends:
 	cd src; @MAKE@ depends
 	cd testtools; @MAKE@ depends
