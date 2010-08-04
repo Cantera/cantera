@@ -667,7 +667,7 @@ namespace Cantera {
   //   been identified.
   void  MargulesVPSSTP::initLengths() {
     m_kk = nSpecies();
-    dlnActCoeffdN_Scaled_.resize(m_kk, m_kk);
+    dlnActCoeffdlnN_.resize(m_kk, m_kk);
   }
 
   /*
@@ -916,9 +916,25 @@ namespace Cantera {
 	g0 = (m_HE_b_ij[i] - T * m_SE_b_ij[i]) / RT;
 	g1 = (m_HE_c_ij[i] - T * m_SE_c_ij[i]) / RT;
 	
-	dlnActCoeffdlnN_diag_[iK] += 2*(delBK-XB)*(g0*(delAK-XA)+g1*(2*(delAK-XA)*XB+XA*(delBK-XB)));
+	//	dlnActCoeffdlnN_diag_[iK] += 2*(delBK-XB)*(g0*(delAK-XA)+g1*(2*(delAK-XA)*XB+XA*(delBK-XB)));
+
+	double gfac = g0 + g1 * XB;
+	double gggg = (delBK - XB) * g1;
+	
+
+	dlnActCoeffdlnN_diag_[iK] += gfac * delAK * ( - XB + delBK);
+	
+	dlnActCoeffdlnN_diag_[iK] += gfac * delBK * ( - XA + delAK);
+	
+	dlnActCoeffdlnN_diag_[iK] += gfac * (2.0 * XA * XB - delAK * XB - XA * delBK);
+	
+	dlnActCoeffdlnN_diag_[iK] += (delAK * XB + XA * delBK - XA * XB) * g1 * (-XB + delBK);
+	
+	dlnActCoeffdlnN_diag_[iK] += gggg * ( - 2.0 * XA * XB + delAK * XB + XA * delBK);
+	
+	dlnActCoeffdlnN_diag_[iK] += - g1 * XA * XB * (- XB + delBK);
       }
-      dlnActCoeffdlnN_diag_[iK] = XK*dlnActCoeffdlnN_diag_[iK]-XK;
+      //   dlnActCoeffdlnN_diag_[iK] = XK*dlnActCoeffdlnN_diag_[iK]-XK;
     }
   }
 
@@ -929,9 +945,8 @@ namespace Cantera {
    * logarithm of the activity coefficients.  These are used in the determination 
    * of the diffusion coefficients.
    *
-   *   he = X_A X_B(B + C X_B)
    */
-  void MargulesVPSSTP::s_update_dlnActCoeff_dN() const {
+  void MargulesVPSSTP::s_update_dlnActCoeff_dlnN() const {
     int iA, iB;
     doublereal delAK, delBK;
     double XA, XB, g0 , g1;
@@ -940,7 +955,7 @@ namespace Cantera {
  
     doublereal delAM, delBM;
 
-    dlnActCoeffdN_Scaled_.zero();
+    dlnActCoeffdlnN_.zero();
     
     /*
      *  Loop over the activity coefficient gamma_k
@@ -971,19 +986,18 @@ namespace Cantera {
 	  double gfac = g0 + g1 * XB;
 	  double gggg = (delBK - XB) * g1;
 
-	  // all values of  dlnActCoeffdN_Scaled_(iK, iM) hare an additional divisor of n_total 
 
-	  dlnActCoeffdN_Scaled_(iK, iM) += gfac * delAK * ( - XB + delBM);
+	  dlnActCoeffdlnN_(iK, iM) += gfac * delAK * ( - XB + delBM);
 
-	  dlnActCoeffdN_Scaled_(iK, iM) += gfac * delBK * ( - XA + delAM);
+	  dlnActCoeffdlnN_(iK, iM) += gfac * delBK * ( - XA + delAM);
 	  
-	  dlnActCoeffdN_Scaled_(iK, iM) += gfac * (2.0 * XA * XB - delAM * XB - XA * delBM);
+	  dlnActCoeffdlnN_(iK, iM) += gfac * (2.0 * XA * XB - delAM * XB - XA * delBM);
 	
-	  dlnActCoeffdN_Scaled_(iK, iM) += (delAK * XB + XA * delBK - XA * XB) * g1 * (-XB + delBM);
+	  dlnActCoeffdlnN_(iK, iM) += (delAK * XB + XA * delBK - XA * XB) * g1 * (-XB + delBM);
 
-	  dlnActCoeffdN_Scaled_(iK, iM) += gggg * ( - 2.0 * XA * XB + delAM * XB + XA * delBM);
+	  dlnActCoeffdlnN_(iK, iM) += gggg * ( - 2.0 * XA * XB + delAM * XB + XA * delBM);
 
-	  dlnActCoeffdN_Scaled_(iK, iM) += - g1 * XA * XB * (- XB + delBM);
+	  dlnActCoeffdlnN_(iK, iM) += - g1 * XA * XB * (- XB + delBM);
 	}
       }
     }
@@ -1031,12 +1045,12 @@ namespace Cantera {
     }
   }
   //====================================================================================================================
-  void MargulesVPSSTP::getdlnActCoeffdN(const int ld, doublereal *dlnActCoeffdN) const {
-    s_update_dlnActCoeff_dN();
-    double *data =  & dlnActCoeffdN_Scaled_(0,0);
+  void MargulesVPSSTP::getdlnActCoeffdlnN(const int ld, doublereal *dlnActCoeffdlnN) const {
+    s_update_dlnActCoeff_dlnN();
+    double *data =  & dlnActCoeffdlnN_(0,0);
     for (int k = 0; k < m_kk; k++) {
       for (int m = 0; m < m_kk; m++) {
-	dlnActCoeffdN[ld * k + m] = data[m_kk * k + m];
+	dlnActCoeffdlnN[ld * k + m] = data[m_kk * k + m];
       }
     }
   }

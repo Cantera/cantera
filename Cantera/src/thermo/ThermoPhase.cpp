@@ -81,7 +81,7 @@ namespace Cantera {
      */
     *this = operator=(right);
   }
-  
+  //====================================================================================================================
   /*
    * operator=()
    *
@@ -135,7 +135,7 @@ namespace Cantera {
     m_ssConvention = right.m_ssConvention;
     return *this;
   }
-
+//====================================================================================================================
   /*
    * Duplication routine for objects which inherit from 
    * ThermoPhase.
@@ -151,7 +151,7 @@ namespace Cantera {
     ThermoPhase* tp = new ThermoPhase(*this);
     return tp;
   }
-
+//====================================================================================================================
   int ThermoPhase::activityConvention() const {
     return cAC_CONVENTION_MOLAR;
   }
@@ -1031,7 +1031,33 @@ namespace Cantera {
     }
     return (m_hasElementPotentials);
   }
-
+  //====================================================================================================================
+  // Get the array of derivatives of the log activity coefficients with respect to the species mole numbers
+  /*
+   * Implementations should take the derivative of the logarithm of the activity coefficient with respect to a
+   * species mole number (with all other species mole numbers held constant)
+   * 
+   *  units = 1 / kmol
+   *
+   *  dlnActCoeffdN[ ld * k  + m]  will contain the derivative of log act_coeff for the <I>m</I><SUP>th</SUP> 
+   *                               species with respect to the number of moles of the <I>k</I><SUP>th</SUP> species.
+   *
+   * \f[
+   *        \frac{d \ln(\gamma_m) }{d n_k }\Bigg|_{n_i}
+   * \f]
+   *
+   * @param ld               Number of rows in the matrix
+   * @param dlnActCoeffdN    Output vector of derivatives of the 
+   *                         log Activity Coefficients. length = m_kk * m_kk        
+   */
+  void ThermoPhase::getdlnActCoeffdlnN(const int ld, doublereal * const dlnActCoeffdlnN) const {
+    for (int m = 0; m < m_kk; m++) {
+      for (int k = 0; k < m_kk; k++) {
+	dlnActCoeffdlnN[ld * k + m] = 0.0;
+      }
+    }
+  }
+  //====================================================================================================================
   /*
    * Format a summary of the mixture state for output.
    */           
@@ -1140,7 +1166,7 @@ namespace Cantera {
     }
     return s;
   }
-
+//====================================================================================================================
   /*
    * Format a summary of the mixture state for output.
    */           

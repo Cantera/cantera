@@ -40,7 +40,7 @@ namespace Cantera {
     d2lnActCoeffdT2_Scaled_(0), 
     dlnActCoeffdlnN_diag_(0),
     dlnActCoeffdlnX_diag_(0),
-    dlnActCoeffdN_Scaled_(0,0),
+    dlnActCoeffdlnN_(0,0),
     m_pp(0)
   {
   }
@@ -59,7 +59,7 @@ namespace Cantera {
     d2lnActCoeffdT2_Scaled_(0), 
     dlnActCoeffdlnN_diag_(0),
     dlnActCoeffdlnX_diag_(0),
-    dlnActCoeffdN_Scaled_(0,0),  
+    dlnActCoeffdlnN_(0,0),  
     m_pp(0)
   {
     GibbsExcessVPSSTP::operator=(b);
@@ -85,7 +85,7 @@ namespace Cantera {
     d2lnActCoeffdT2_Scaled_   = b.d2lnActCoeffdT2_Scaled_;
     dlnActCoeffdlnX_diag_ = b.dlnActCoeffdlnX_diag_;
     dlnActCoeffdlnN_diag_ = b.dlnActCoeffdlnN_diag_;
-    dlnActCoeffdN_Scaled_  = b.dlnActCoeffdN_Scaled_;
+    dlnActCoeffdlnN_  = b.dlnActCoeffdlnN_;
     m_pp                 = b.m_pp;
 
     return *this;
@@ -345,7 +345,7 @@ namespace Cantera {
     d2lnActCoeffdT2_Scaled_.resize(m_kk);
     dlnActCoeffdlnX_diag_.resize(m_kk);
     dlnActCoeffdlnN_diag_.resize(m_kk);
-    dlnActCoeffdN_Scaled_.resize(m_kk, m_kk);
+    dlnActCoeffdlnN_.resize(m_kk, m_kk);
     m_pp.resize(m_kk);
   }
   

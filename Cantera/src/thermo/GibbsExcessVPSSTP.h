@@ -304,6 +304,28 @@ namespace Cantera {
       err("getdlnActCoeffdT");
     }
 
+    //! Get the array of derivatives of the log activity coefficients with respect to the log of the species mole numbers
+    /*!
+     * Implementations should take the derivative of the logarithm of the activity coefficient with respect to a
+     * species log mole number (with all other species mole numbers held constant). The default treatment in the
+     * %ThermoPhase object is to set this vector to zero.
+     * 
+     *  units = 1 / kmol
+     *
+     *  dlnActCoeffdlnN[ ld * k  + m]  will contain the derivative of log act_coeff for the <I>m</I><SUP>th</SUP> 
+     *                               species with respect to the number of moles of the <I>k</I><SUP>th</SUP> species.
+     *
+     * \f[
+     *        \frac{d \ln(\gamma_m) }{d \ln( n_k ) }\Bigg|_{n_i}
+     * \f]
+     *
+     * @param ld               Number of rows in the matrix
+     * @param dlnActCoeffdlnN    Output vector of derivatives of the 
+     *                           log Activity Coefficients. length = m_kk * m_kk        
+     */
+    virtual void getdlnActCoeffdlnN(const int ld, doublereal * const dlnActCoeffdlnN) const {
+      err(" getdlnActCoeffdlnN: nonzero and nonimplemented");
+    }
  
 
     //@}
@@ -539,9 +561,9 @@ namespace Cantera {
     //! Storage for the current derivative values of the  gradients with respect to logarithm of the species mole number of the 
     //! log of the activity coefficients of the species 
     /*!
-     *  dlnActCoeffdN_Scaled_(k, m)  is the derivative of ln(gamma_k) wrt ln mole number of species m
+     *  dlnActCoeffdlnN_(k, m)  is the derivative of ln(gamma_k) wrt ln mole number of species m
      */
-    mutable Array2D dlnActCoeffdN_Scaled_;
+    mutable Array2D dlnActCoeffdlnN_;
 
     //! Temporary storage space that is fair game
     mutable std::vector<doublereal> m_pp;

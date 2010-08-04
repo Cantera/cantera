@@ -2115,27 +2115,26 @@ namespace Cantera {
       err("getdlnActCoeffdlnN_diag");
     }
 
-    //! Get the array of derivatives of the log activity coefficients with respect to the species mole numbers
+    //! Get the array of derivatives of the log activity coefficients with respect to the log of the species mole numbers
     /*!
      * Implementations should take the derivative of the logarithm of the activity coefficient with respect to a
-     * species mole number (with all other species mole numbers held constant)
+     * species log mole number (with all other species mole numbers held constant). The default treatment in the
+     * %ThermoPhase object is to set this vector to zero.
      * 
      *  units = 1 / kmol
      *
-     *  dlnActCoeffdN[ ld * k  + m]  will contain the derivative of log act_coeff for the <I>m</I><SUP>th</SUP> 
+     *  dlnActCoeffdlnN[ ld * k  + m]  will contain the derivative of log act_coeff for the <I>m</I><SUP>th</SUP> 
      *                               species with respect to the number of moles of the <I>k</I><SUP>th</SUP> species.
      *
      * \f[
-     *        \frac{d \ln(\gamma_m) }{d n_k }\Bigg|_{n_i}
+     *        \frac{d \ln(\gamma_m) }{d \ln( n_k ) }\Bigg|_{n_i}
      * \f]
      *
      * @param ld               Number of rows in the matrix
-     * @param dlnActCoeffdN    Output vector of derivatives of the 
-     *                         log Activity Coefficients. length = m_kk * m_kk        
+     * @param dlnActCoeffdlnN    Output vector of derivatives of the 
+     *                           log Activity Coefficients. length = m_kk * m_kk        
      */
-    virtual void getdlnActCoeffdN(const int ld, doublereal * const dlnActCoeffdN) const {
-      err("getdlnActCoeffdN");
-    }
+    virtual void getdlnActCoeffdlnN(const int ld, doublereal * const dlnActCoeffdlnN) const;
 
     /**
      * @} 

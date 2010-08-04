@@ -1221,7 +1221,7 @@ namespace Cantera {
     }
     return fMax;
   }
-
+  //====================================================================================================================
   /*
    * initThermoXML()                (virtual from ThermoPhase)
    *   Import and initialize a ThermoPhase object
@@ -1386,7 +1386,7 @@ namespace Cantera {
      * have charge conservation.
      */
   }
-
+  //====================================================================================================================
   // Update the activity coefficients
   /*
    * This function will be called to update the internally storred
@@ -1577,7 +1577,7 @@ namespace Cantera {
     }
 
   }
-
+  //====================================================================================================================
   /*
    * This function will be called to update the internally storred
    * temperature derivative of the natural logarithm of the activity coefficients
@@ -1635,7 +1635,7 @@ namespace Cantera {
     }
 
   }
-
+  //====================================================================================================================
   /*
    * This function will be called to update the internally storred
    * temperature derivative of the natural logarithm of the activity coefficients
@@ -1693,7 +1693,70 @@ namespace Cantera {
     }
 
   }
+  //====================================================================================================================
+   // Update the derivative of the log of the activity coefficients
+    //  wrt log(number of moles) - diagonal components
+    /*
+     * This function will be called to update the internally storred
+     * derivative of the natural logarithm of the activity coefficients
+     * wrt logarithm of the number of moles of given species.
+     */
+  void IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnN() const {
+    int k, icat, jNeut;
+    doublereal fmij;  
+    dlnActCoeffdlnN_.zero();
+    /*
+     * Get the activity coefficients of the neutral molecules
+     */
+    GibbsExcessVPSSTP *geThermo = dynamic_cast<GibbsExcessVPSSTP *>(neutralMoleculePhase_);
+  
+    if (!geThermo) {
+  
+      return;
+    }
+    int nsp_ge = geThermo->nSpecies();
+    geThermo->getdlnActCoeffdlnN(nsp_ge, &(dlnActCoeffdlnN_NeutralMolecule_(0,0)));
 
+    switch (ionSolnType_) {
+    case cIonSolnType_PASSTHROUGH:
+      break;
+    case cIonSolnType_SINGLEANION:
+   
+      // Do the cation list
+      for (k = 0; k < (int) cationList_.size(); k++) {
+	//! Get the id for the next cation
+        icat = cationList_[k];
+	jNeut = fm_invert_ionForNeutral[icat];
+	fmij =  fm_neutralMolec_ions_[icat + jNeut * m_kk];
+        dlnActCoeffdlnN_diag_[icat] = dlnActCoeffdlnN_diag_NeutralMolecule_[jNeut]/fmij;
+      }
+
+      // Do the anion list
+      icat = anionList_[0];
+      jNeut = fm_invert_ionForNeutral[icat];
+      dlnActCoeffdlnN_diag_[icat]= 0.0;
+
+      // Do the list of neutral molecules
+      for (k = 0; k <  numPassThroughSpecies_; k++) {
+	icat = passThroughList_[k];
+	jNeut = fm_invert_ionForNeutral[icat];
+	dlnActCoeffdlnN_diag_[icat] = dlnActCoeffdlnN_diag_NeutralMolecule_[jNeut];
+      }
+      break;
  
-}
+    case cIonSolnType_SINGLECATION:
+      throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeff", "Unimplemented type");
+      break;
+    case cIonSolnType_MULTICATIONANION:
+      throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeff", "Unimplemented type");
+      break;
+    default:
+      throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeff", "Unimplemented type");
+      break;
+    }
 
+
+  }
+  //====================================================================================================================
+}
+//======================================================================================================================
