@@ -249,20 +249,18 @@ clean:
 	-$(RMDIRTREE) *.*~ @buildlib@/*.* build/include/cantera/config.h svn*~
 	-cd Cantera; @MAKE@ clean
 	-cd tools; @MAKE@ clean
+	-cd docs; @MAKE@ clean
 	-cd ext; @MAKE@ clean
 	-cd test_problems; @MAKE@ clean
 	-$(RM) mt.mod
 
 docs:
-	cd tools/doxygen/Cantera; doxygen Cantera.cfg
+	cd docs; doxygen Cantera.cfg
 
 depends:
 	cd Cantera; @MAKE@ depends
 	cd tools; @MAKE@ depends
 	cd ext; @MAKE@ depends
-ifeq ($(build_particles),1)
-		cd Cantera/cads; @MAKE@ depends
-endif
 
 ChangeLog: CVS/Entries 
 	tools/bin/cvs2cl.pl --prune
