@@ -454,9 +454,23 @@ namespace Cantera {
 
     //! Get the Salt Dissociation Coefficients
     //! Returns the vector of dissociation coefficients and vector of charges
-    virtual void getDissociationCoeffs(vector_fp& coeffs, vector_fp& charges, std::vector<int>& neutMolIndex);
+    /*!
+     *  @param fm_neutralMolec_ions Returns the formula matrix for the composition of neutral molecules
+     *                              in terms of the ions.
+     *  @param charges              Returns a vector containing the charges of all species in this phase
+     *  @param neutMolIndex         Returns the vector fm_invert_ionForNeutral
+     *                               This is the mapping between ion species and neutral molecule for quick invert.
+     */
+    void getDissociationCoeffs(vector_fp& fm_neutralMolec_ions, vector_fp& charges, std::vector<int>& neutMolIndex) const;
 
-    virtual void getNeutralMolecMoleFractions(vector_fp& fracs){fracs=NeutralMolecMoleFractions_;}
+
+    //! Return the current value of the neutral mole fraction vector
+    /*!
+     *   @param neutralMoleculeMoleFractions  Vector of neutral molecule mole fractions.
+     */
+    void getNeutralMolecMoleFractions(vector_fp& neutralMoleculeMoleFractions) const {
+      neutralMoleculeMoleFractions = NeutralMolecMoleFractions_;
+    }
 
     //! Calculate neutral molecule mole fractions
     /*!
@@ -471,14 +485,29 @@ namespace Cantera {
      *  in the charge neutrality is allowed. The cation number
      *  is followed, while the difference in charge neutrality
      *  is dumped into the anion mole number to fix the imbalance.
+     *
+     *  @param  dx  input vector of ion mole fraction gradients
+     *  @param  dy  output Vector of neutral molecule mole fraction gradients
      */
-    virtual void getNeutralMoleculeMoleGrads(const doublereal * const x, doublereal *y) const;
+    void getNeutralMoleculeMoleGrads(const doublereal * const dx, doublereal *const dy) const;
 
-    virtual void getCationList(std::vector<int>& cation){cation=cationList_;}
-    virtual void getAnionList(std::vector<int>& anion){anion=anionList_;}
-    virtual void getSpeciesNames(std::vector<std::string>& names){names=m_speciesNames;}
+    //! Get the list of cations in this object
+    /*!
+     *  @param cation  List of cations
+     */
+    void getCationList(std::vector<int>& cation) const {
+      cation=cationList_;
+    }
 
+    //! Get the list of anions in this object
+    /*!
+     *  @param anion  List of anions
+     */
+    void getAnionList(std::vector<int>& anion) const {
+      anion=anionList_;
+    }
 
+ 
     //@}
     /// @name  Properties of the Standard State of the Species in the Solution
     //@{
@@ -876,18 +905,6 @@ namespace Cantera {
      *  as a shallow pointer.
      */
     bool IOwnNThermoPhase_;
-
-    //! ThermoPhase for the cation lattice
-    /*!
-     *  Currently this is unimplemented and may be deleted
-     */
-    // ThermoPhase *cationPhase_;
-
-    //! ThermoPhase for the anion lattice
-    /*!
-     *  Currently this is unimplemented and may be deleted
-     */
-    //ThermoPhase *anionPhase_;
    
     //! Temporary mole fraction vector
     mutable std::vector<doublereal> moleFractionsTmp_;
@@ -902,16 +919,6 @@ namespace Cantera {
      */
     mutable std::vector<doublereal> muNeutralMolecule_;
 
-    //! Storage vector for the neutral molecule activity coefficients
-    /*!
-     *  This vector is used as a temporary storage area when calculating the ion chemical
-     *  potentials and activity coefficients
-     * 
-     *  Units = none
-     *  Length =  numNeutralMoleculeSpecies_
-     */
-    // mutable std::vector<doublereal> gammaNeutralMolecule_;  
-
     //! Storage vector for the neutral molecule ln activity coefficients
     /*!
      *  This vector is used as a temporary storage area when calculating the ion chemical
@@ -922,10 +929,41 @@ namespace Cantera {
      */
     mutable std::vector<doublereal> lnActCoeff_NeutralMolecule_;
 
+    //! Storage vector for the neutral molecule d ln activity coefficients dT
+    /*!
+     *  This vector is used as a temporary storage area when calculating the ion derivatives
+
+     * 
+     *  Units =  1/Kelvin
+     *  Length =  numNeutralMoleculeSpecies_
+     */
     mutable std::vector<doublereal> dlnActCoeffdT_NeutralMolecule_;
+
+    //! Storage vector for the neutral molecule d ln activity coefficients dX - diagonal component
+    /*!
+     *  This vector is used as a temporary storage area when calculating the ion derivatives
+     * 
+     *  Units =  none
+     *  Length =  numNeutralMoleculeSpecies_
+     */
     mutable std::vector<doublereal> dlnActCoeffdlnX_diag_NeutralMolecule_;
+
+    //! Storage vector for the neutral molecule d ln activity coefficients dlnN - diagonal component
+    /*!
+     *  This vector is used as a temporary storage area when calculating the ion derivatives
+     * 
+     *  Units =  none
+     *  Length =  numNeutralMoleculeSpecies_
+     */
     mutable std::vector<doublereal> dlnActCoeffdlnN_diag_NeutralMolecule_;
 
+    //! Storage vector for the neutral molecule d ln activity coefficients dlnN 
+    /*!
+     *  This vector is used as a temporary storage area when calculating the ion derivatives
+     * 
+     *  Units =  none
+     *  Length =  numNeutralMoleculeSpecies_
+     */
     mutable Array2D dlnActCoeffdlnN_NeutralMolecule_;
 
   };

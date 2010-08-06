@@ -351,12 +351,11 @@ namespace Cantera {
     getActivities(c);
   }
 
-  void IonsFromNeutralVPSSTP::getDissociationCoeffs(vector_fp& coeffs,vector_fp& charges, std::vector<int>& neutMolIndex){
+  void IonsFromNeutralVPSSTP::getDissociationCoeffs(vector_fp& coeffs, 
+						    vector_fp& charges, std::vector<int>& neutMolIndex) const {
     coeffs = fm_neutralMolec_ions_;
     charges = m_speciesCharge;
     neutMolIndex = fm_invert_ionForNeutral;
-    //for ( int k = 0; k < fm_neutralMolec_ions_[k]; k++ )
-    //  coeffs.push_back(fm_neutralMolec_ions_[k]);
   }
  
   // Return the standard concentration for the kth species
@@ -884,7 +883,7 @@ namespace Cantera {
    *  is followed, while the difference in charge neutrality
    *  is dumped into the anion mole number to fix the imbalance.
    */
-  void IonsFromNeutralVPSSTP::getNeutralMoleculeMoleGrads(const doublereal * const dx, doublereal *dy) const {
+  void IonsFromNeutralVPSSTP::getNeutralMoleculeMoleGrads(const doublereal * const dx, doublereal * const dy) const {
     int k, icat, jNeut;
     doublereal sumCat; 
     doublereal sumAnion;
