@@ -39,7 +39,7 @@ using namespace std;
 namespace Cantera {
 
   static  const double xxSmall = 1.0E-150;
-
+  //====================================================================================================================
   /*
    * Default constructor.
    *
@@ -54,11 +54,14 @@ namespace Cantera {
     numAnionSpecies_(0),
     numPassThroughSpecies_(0),
     neutralMoleculePhase_(0),
-    IOwnNThermoPhase_(true)
+    IOwnNThermoPhase_(true), 
+    moleFractionsTmp_(0),
+    muNeutralMolecule_(0),
+    lnActCoeff_NeutralMolecule_(0)
   {
   }
 
- 
+  //====================================================================================================================
   // Construct and initialize an IonsFromNeutralVPSSTP object
   // directly from an asci input file
   /*
@@ -95,14 +98,17 @@ namespace Cantera {
     numAnionSpecies_(0),
     numPassThroughSpecies_(0),
     neutralMoleculePhase_(neutralPhase),
-    IOwnNThermoPhase_(true)
+    IOwnNThermoPhase_(true),  
+    moleFractionsTmp_(0),
+    muNeutralMolecule_(0),
+    lnActCoeff_NeutralMolecule_(0)
   {
     if (neutralPhase) {
       IOwnNThermoPhase_ = false;
     }
     constructPhaseFile(inputFile, id);
   }
-
+  //====================================================================================================================
   IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(XML_Node& phaseRoot, std::string id,
 					       ThermoPhase *neutralPhase) :
     GibbsExcessVPSSTP(),
@@ -114,7 +120,11 @@ namespace Cantera {
     numAnionSpecies_(0),
     numPassThroughSpecies_(0),
     neutralMoleculePhase_(neutralPhase),
-    IOwnNThermoPhase_(true)
+    IOwnNThermoPhase_(true),
+    moleFractionsTmp_(0),
+    muNeutralMolecule_(0),
+   
+    lnActCoeff_NeutralMolecule_(0)
   {
     if (neutralPhase) {
       IOwnNThermoPhase_ = false;
@@ -122,7 +132,7 @@ namespace Cantera {
     constructPhaseXML(phaseRoot, id);
   }
 
-
+  //====================================================================================================================
 
   /*
    * Copy Constructor:
@@ -140,11 +150,15 @@ namespace Cantera {
     numAnionSpecies_(0),
     numPassThroughSpecies_(0),
     neutralMoleculePhase_(0),
-    IOwnNThermoPhase_(true)
+    IOwnNThermoPhase_(true), 
+    moleFractionsTmp_(0),
+    muNeutralMolecule_(0),
+ 
+    lnActCoeff_NeutralMolecule_(0)
   {
     IonsFromNeutralVPSSTP::operator=(b);
   }
-
+  //====================================================================================================================
   /*
    * operator=()
    *
@@ -196,10 +210,12 @@ namespace Cantera {
     IOwnNThermoPhase_           = b.IOwnNThermoPhase_;
     moleFractionsTmp_           = b.moleFractionsTmp_;
     muNeutralMolecule_          = b.muNeutralMolecule_;
-    gammaNeutralMolecule_       = b.gammaNeutralMolecule_;
+    //  gammaNeutralMolecule_       = b.gammaNeutralMolecule_;
+    lnActCoeff_NeutralMolecule_ = b.lnActCoeff_NeutralMolecule_;
     dlnActCoeffdT_NeutralMolecule_ = b.dlnActCoeffdT_NeutralMolecule_;
     dlnActCoeffdlnX_diag_NeutralMolecule_ = b.dlnActCoeffdlnX_diag_NeutralMolecule_;
     dlnActCoeffdlnN_diag_NeutralMolecule_ = b.dlnActCoeffdlnN_diag_NeutralMolecule_;
+    dlnActCoeffdlnN_NeutralMolecule_ = b.dlnActCoeffdlnN_NeutralMolecule_;
 
     return *this;
   }
@@ -472,7 +488,8 @@ namespace Cantera {
       neutralMoleculePhase_->getChemPotentials(mu);
       break;
     case cIonSolnType_SINGLEANION:
-      neutralMoleculePhase_->getActivityCoefficients(DATA_PTR(gammaNeutralMolecule_));
+      //  neutralMoleculePhase_->getActivityCoefficients(DATA_PTR(gammaNeutralMolecule_));
+      neutralMoleculePhase_->getLnActivityCoefficients(DATA_PTR(lnActCoeff_NeutralMolecule_));
 
       fact2 = 2.0 * RT_ * log(2.0);
 
@@ -482,7 +499,7 @@ namespace Cantera {
         icat = cationList_[k];
 	jNeut = fm_invert_ionForNeutral[icat];
 	xx = fmaxx(SmallNumber, moleFractions_[icat]);
-	mu[icat] = muNeutralMolecule_[jNeut] + fact2 + RT_ * log(gammaNeutralMolecule_[jNeut] * xx);
+       	mu[icat] = muNeutralMolecule_[jNeut] + fact2 + RT_ * (lnActCoeff_NeutralMolecule_[jNeut] + log(xx));
       }
 
       // Do the anion list
@@ -496,7 +513,7 @@ namespace Cantera {
 	icat = passThroughList_[k];
 	jNeut = fm_invert_ionForNeutral[icat];
 	xx = fmaxx(SmallNumber, moleFractions_[icat]);
-	mu[icat] = muNeutralMolecule_[jNeut] + RT_ * log( gammaNeutralMolecule_[jNeut] * xx);
+	mu[icat] =  muNeutralMolecule_[jNeut]  + RT_ * (lnActCoeff_NeutralMolecule_[jNeut] + log(xx));
       }
       break;
  
@@ -1156,7 +1173,7 @@ namespace Cantera {
 
   }
 
-
+  //====================================================================================================================
   /*
    * @internal Initialize. This method is provided to allow
    * subclasses to perform any initialization required after all
@@ -1174,7 +1191,7 @@ namespace Cantera {
     initLengths();
     GibbsExcessVPSSTP::initThermo();
   }
-
+  //====================================================================================================================
 
   //   Initialize lengths of local variables after all species have
   //   been identified.
@@ -1190,7 +1207,7 @@ namespace Cantera {
     passThroughList_.resize(m_kk);
     moleFractionsTmp_.resize(m_kk);
     muNeutralMolecule_.resize(numNeutralMoleculeSpecies_);
-    gammaNeutralMolecule_.resize(numNeutralMoleculeSpecies_);
+    lnActCoeff_NeutralMolecule_.resize(numNeutralMoleculeSpecies_);
     dlnActCoeffdT_NeutralMolecule_.resize(numNeutralMoleculeSpecies_);
     dlnActCoeffdlnX_diag_NeutralMolecule_.resize(numNeutralMoleculeSpecies_);
     dlnActCoeffdlnN_diag_NeutralMolecule_.resize(numNeutralMoleculeSpecies_);
@@ -1399,7 +1416,7 @@ namespace Cantera {
     /*
      * Get the activity coefficiens of the neutral molecules
      */
-    neutralMoleculePhase_->getActivityCoefficients(DATA_PTR(gammaNeutralMolecule_));
+    neutralMoleculePhase_->getLnActivityCoefficients(DATA_PTR(lnActCoeff_NeutralMolecule_));
 
     switch (ionSolnType_) {
     case cIonSolnType_PASSTHROUGH:
@@ -1412,7 +1429,7 @@ namespace Cantera {
         icat = cationList_[k];
 	jNeut = fm_invert_ionForNeutral[icat];
 	fmij =  fm_neutralMolec_ions_[icat + jNeut * m_kk];
-        lnActCoeff_Scaled_[icat] = log(gammaNeutralMolecule_[jNeut])/fmij;
+        lnActCoeff_Scaled_[icat] = lnActCoeff_NeutralMolecule_[jNeut] / fmij;
       }
 
       // Do the anion list
@@ -1424,7 +1441,7 @@ namespace Cantera {
       for (k = 0; k <  numPassThroughSpecies_; k++) {
 	icat = passThroughList_[k];
 	jNeut = fm_invert_ionForNeutral[icat];
-	lnActCoeff_Scaled_[icat] = log(gammaNeutralMolecule_[jNeut]);
+	lnActCoeff_Scaled_[icat] = lnActCoeff_NeutralMolecule_[jNeut];
       }
       break;
  

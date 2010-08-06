@@ -892,9 +892,36 @@ namespace Cantera {
     //! Temporary mole fraction vector
     mutable std::vector<doublereal> moleFractionsTmp_;
 
+    //! Storage vector for the neutral molecule chemical potentials
+    /*!
+     *  This vector is used as a temporary storage area when calculating the ion chemical
+     *  potentials.
+     * 
+     *  Units = Joules/kmol
+     *  Length =  numNeutralMoleculeSpecies_
+     */
     mutable std::vector<doublereal> muNeutralMolecule_;
-    mutable std::vector<doublereal> gammaNeutralMolecule_;
-    mutable std::vector<doublereal> dlnActCoeff_NeutralMolecule_;
+
+    //! Storage vector for the neutral molecule activity coefficients
+    /*!
+     *  This vector is used as a temporary storage area when calculating the ion chemical
+     *  potentials and activity coefficients
+     * 
+     *  Units = none
+     *  Length =  numNeutralMoleculeSpecies_
+     */
+    // mutable std::vector<doublereal> gammaNeutralMolecule_;  
+
+    //! Storage vector for the neutral molecule ln activity coefficients
+    /*!
+     *  This vector is used as a temporary storage area when calculating the ion chemical
+     *  potentials and activity coefficients
+     * 
+     *  Units = none
+     *  Length =  numNeutralMoleculeSpecies_
+     */
+    mutable std::vector<doublereal> lnActCoeff_NeutralMolecule_;
+
     mutable std::vector<doublereal> dlnActCoeffdT_NeutralMolecule_;
     mutable std::vector<doublereal> dlnActCoeffdlnX_diag_NeutralMolecule_;
     mutable std::vector<doublereal> dlnActCoeffdlnN_diag_NeutralMolecule_;

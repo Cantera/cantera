@@ -1153,7 +1153,12 @@ namespace Cantera {
 	}
     }
 
-    virtual void getLNActivityCoefficients(doublereal * const lnac) const;
+    //! Get the array of non-dimensional molar-based ln activity coefficients at
+    //! the current solution temperature, pressure, and solution concentration.
+    /*!
+     * @param ac Output vector of ln activity coefficients. Length: m_kk.
+     */
+    virtual void getLnActivityCoefficients(doublereal * const lnac) const;
       
     //@}
     /// @name  Partial Molar Properties of the Solution

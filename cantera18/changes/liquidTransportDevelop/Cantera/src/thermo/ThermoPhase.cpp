@@ -135,7 +135,7 @@ namespace Cantera {
     m_ssConvention = right.m_ssConvention;
     return *this;
   }
-//====================================================================================================================
+  //====================================================================================================================
   /*
    * Duplication routine for objects which inherit from 
    * ThermoPhase.
@@ -151,45 +151,42 @@ namespace Cantera {
     ThermoPhase* tp = new ThermoPhase(*this);
     return tp;
   }
-//====================================================================================================================
+  //====================================================================================================================
   int ThermoPhase::activityConvention() const {
     return cAC_CONVENTION_MOLAR;
   }
-
+  //=================================================================================================================
   int ThermoPhase::standardStateConvention() const {
     return m_ssConvention;
   }
-
+  //=================================================================================================================
   doublereal ThermoPhase::logStandardConc(int k) const {
     return log(standardConcentration(k));
   }
-
+  //=================================================================================================================
   void ThermoPhase::getActivities(doublereal* a) const {
     getActivityConcentrations(a);
     int nsp = nSpecies();
     int k;
     for (k = 0; k < nsp; k++) a[k] /= standardConcentration(k);
   }
-
-  void ThermoPhase::getLNActivityCoefficients(doublereal *const lnac) const {
+  //=================================================================================================================
+  void ThermoPhase::getLnActivityCoefficients(doublereal *const lnac) const {
     getActivityCoefficients(lnac);
     for (int k = 0; k < m_kk; k++) {
        lnac[k] = std::log(lnac[k]);
     }
   }
-
-  void ThermoPhase::setState_TPX(doublereal t, doublereal p, 
-				 const doublereal* x) {
+  //=================================================================================================================
+  void ThermoPhase::setState_TPX(doublereal t, doublereal p, const doublereal* x) {
     setMoleFractions(x); setTemperature(t); setPressure(p);
   }
-
-  void ThermoPhase::setState_TPX(doublereal t, doublereal p, 
-				 compositionMap& x) {
+  //=================================================================================================================
+  void ThermoPhase::setState_TPX(doublereal t, doublereal p, compositionMap& x) {
     setMoleFractionsByName(x); setTemperature(t); setPressure(p);
   }
-
-  void ThermoPhase::setState_TPX(doublereal t, doublereal p, 
-				 const std::string& x) {
+  //=================================================================================================================
+  void ThermoPhase::setState_TPX(doublereal t, doublereal p, const std::string& x) {
     compositionMap xx;
     int kk = nSpecies();
     for (int k = 0; k < kk; k++) xx[speciesName(k)] = -1.0;
@@ -202,17 +199,17 @@ namespace Cantera {
     }
     setMoleFractionsByName(xx); setTemperature(t); setPressure(p);
   }        
-
+  //=================================================================================================================
   void ThermoPhase::setState_TPY(doublereal t, doublereal p, 
 				 const doublereal* y) {
     setMassFractions(y); setTemperature(t); setPressure(p);
   }
-
+  //=================================================================================================================
   void ThermoPhase::setState_TPY(doublereal t, doublereal p, 
 				 compositionMap& y) {
     setMassFractionsByName(y); setTemperature(t); setPressure(p);
   }
-        
+  //=================================================================================================================
   void ThermoPhase::setState_TPY(doublereal t, doublereal p, 
 				 const std::string& y) {
     compositionMap yy;
@@ -227,28 +224,34 @@ namespace Cantera {
     }
     setMassFractionsByName(yy); setTemperature(t); setPressure(p);
   }
+  //=================================================================================================================
 
   void ThermoPhase::setState_TP(doublereal t, doublereal p) {
     setTemperature(t); setPressure(p);
   }
+  //=================================================================================================================
 
   void ThermoPhase::setState_PX(doublereal p, doublereal* x) {
     setMoleFractions(x); setPressure(p);
   }
+  //=================================================================================================================
 
   void ThermoPhase::setState_PY(doublereal p, doublereal* y) {
     setMassFractions(y); setPressure(p);
   }
+  //=================================================================================================================
 
   void ThermoPhase::setState_HP(doublereal Htarget, doublereal p, 
 				doublereal dTtol) {
     setState_HPorUV(Htarget, p, dTtol, false);
   }
+  //=================================================================================================================
 
   void ThermoPhase::setState_UV(doublereal u, doublereal v, 
 				doublereal dTtol) {
     setState_HPorUV(u, v, dTtol, true);
   }
+  //=================================================================================================================
 
   // Do the convergence work
   /*
@@ -513,16 +516,19 @@ namespace Cantera {
       throw CanteraError("setState_HPorUV (HP)", ErrString);
     }
   }
+  //=================================================================================================================
 
   void ThermoPhase::setState_SP(doublereal Starget, doublereal p, 
 				doublereal dTtol) {
     setState_SPorSV(Starget, p, dTtol, false);
   }
+  //=================================================================================================================
 
   void ThermoPhase::setState_SV(doublereal Starget, doublereal v, 
 				doublereal dTtol) {
     setState_SPorSV(Starget, v, dTtol, true);
   }
+  //=================================================================================================================
 
   // Do the convergence work for fixed entropy situations
   /*
@@ -772,6 +778,7 @@ namespace Cantera {
       throw CanteraError("setState_SPorSV (SP)", ErrString);
     }
   }
+  //=================================================================================================================
 
   doublereal ThermoPhase::err(std::string msg) const {
     throw CanteraError("ThermoPhase","Base class method "
@@ -816,6 +823,7 @@ namespace Cantera {
       if (i == 5) uA[5] = 0.0;
     }
   }
+  //=================================================================================================================
 
   /*
    * initThermoFile():
@@ -861,6 +869,7 @@ namespace Cantera {
     initThermoXML(*fxml_phase, id);
     delete fxml;
   }
+  //=================================================================================================================
 
   /*
    *   Import and initialize a ThermoPhase object
