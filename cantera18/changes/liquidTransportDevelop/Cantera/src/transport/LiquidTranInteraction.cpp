@@ -680,8 +680,6 @@ namespace Cantera {
     vector<int> anion;
     ions_thermo->getCationList(cation);
     ions_thermo->getAnionList(anion);
-    vector<std::string> speciesNames;
-    ions_thermo->getSpeciesNames(speciesNames);
 
     // Reaction Coeffs and Charges
     std::vector<double> viS(6);
