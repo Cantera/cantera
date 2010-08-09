@@ -75,7 +75,7 @@ namespace Cantera {
    *  @param has_simple_constVol       Boolean indicating that one species has a simple ideal solution standard state
    *  @param has_water                 Boolean indicating that one species has a water standard state
    *  @param has_tpx                   Boolean indicating that one species has a tpx standard state
-   *  @param has_htpx                  Boolean indicating that one species has a htpx standard state
+   *  @param has_hptx                  Boolean indicating that one species has a htpx standard state
    *  @param has_other                 Boolean indicating that one species has different standard state than the ones listed above
    * 
    * @todo Make sure that spDadta_node is species Data XML node by checking 

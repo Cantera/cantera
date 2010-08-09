@@ -456,6 +456,11 @@ namespace Cantera {
 
 #endif
 
+  //!   Look up the elemental reference state entropies
+  /*!
+   *  @param elemName String name of the element
+   *  @param th_ptr   Pointer to the thermophase.
+   */
   static doublereal LookupGe(const std::string& elemName, ThermoPhase *th_ptr) {
 #ifdef OLDWAY
     int num = sizeof(geDataTable) / sizeof(struct GeData);
@@ -483,6 +488,13 @@ namespace Cantera {
 #endif
   }
 
+  //! Convert delta G formulation
+  /*!
+   *  Calculates the sum of the elemental reference state entropies
+   *
+   *  @param   k               species index
+   *  @param   th_ptr          Pointer to the ThermoPhase
+   */
  static doublereal convertDGFormation(int k, ThermoPhase *th_ptr) {
     /*
      * Ok let's get the element compositions and conversion factors.
@@ -505,7 +517,15 @@ namespace Cantera {
   }
 
 
-
+  //!  Install a NASA96 polynomial thermodynamic property parameterization for species k into a SpeciesThermo instance.
+  /*!
+   * This is called by method installThermoForSpecies if a MinEQ3node block is found in the XML input.
+   *
+   *  @param speciesName        String name of the species
+   *  @param sp                 SpeciesThermo object that will receive the nasa polynomial object
+   *  @param k                  Species index within the phase
+   *  @param MinEQ3node         Ptr to the first XML_Node for the first MinEQ3 parameterization
+   */
   static void installMinEQ3asShomateThermoFromXML(std::string speciesName, 
 						  ThermoPhase *th_ptr,
 						  SpeciesThermo& sp, int k, 

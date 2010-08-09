@@ -35,9 +35,10 @@
 
 namespace Cantera {
 
-
+  //!  Small value to be used in cutoff expressions with logs
   static double xxSmall = 1.0E-150;
-  /**
+
+  /*
    * Default constructor
    */
   IdealMolalSoln::IdealMolalSoln() :
