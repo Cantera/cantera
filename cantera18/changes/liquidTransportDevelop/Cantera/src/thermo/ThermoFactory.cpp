@@ -297,7 +297,21 @@ namespace Cantera {
       return (ThermoPhase *) 0;
   }
 
-
+  //====================================================================================================================
+  //!  Gather a vector of pointers to XML_Nodes for a phase
+  /*!
+   *
+   *   @param spDataNodeList         Output vector of pointer to XML_Nodes which contain the species XML_Nodes for the
+   *                                 species in the current phase.         
+   *   @param spNamesList            Output Vector of strings, which contain the names of the species in the phase
+   *   @param spRuleList             Output Vector of ints, which contain the value of sprule for each species in the phase
+   *   @param spArray_names          Vector of pointers to the XML_Nodes which contains the names of the 
+   *                                 species in the phase
+   *
+   *   @param spArray_dbases         Input vector of pointers to species data bases.
+   *                                 We search each data base for the required species names
+   *   @param  sprule                Input vector of sprule values
+   */
   static void formSpeciesXMLNodeList(std::vector<XML_Node *> &spDataNodeList,
 				     std::vector<std::string> &spNamesList,
 				     std::vector<int> &spRuleList,
@@ -318,7 +332,7 @@ namespace Cantera {
       // Get the top XML for the database
       const XML_Node *db = spArray_dbases[jsp];
 
-      // Get the array of species name strings and the count them
+      // Get the array of species name strings and then count them
       std::vector<std::string> spnames;
       getStringArray(speciesArray, spnames);
       int nsp = static_cast<int>(spnames.size());
@@ -408,7 +422,7 @@ namespace Cantera {
       }
     }
   }
-        
+  //====================================================================================================================
   /*
    * Import a phase specification.
    *   Here we read an XML description of the phase.
