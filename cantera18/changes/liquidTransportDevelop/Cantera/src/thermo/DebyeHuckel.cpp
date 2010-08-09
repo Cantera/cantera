@@ -915,11 +915,9 @@ namespace Cantera {
     delete fxml;
   }
 
-  /**
-   * interp_est()                          (static)
-   *
-   * utility function to assign an integer value from a string
-   * for the ElectrolyteSpeciesType field.
+  //! Utility function to assign an integer value from a string for the ElectrolyteSpeciesType field.
+  /*!
+   *  @param estString  input string that will be interpreted
    */
   static int interp_est(std::string estString) {
     const char *cc = estString.c_str();

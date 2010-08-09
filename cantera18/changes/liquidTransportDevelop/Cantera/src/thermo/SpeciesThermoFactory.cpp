@@ -53,15 +53,18 @@ namespace Cantera {
   boost::mutex SpeciesThermoFactory::species_thermo_mutex ;
 #endif
  
-
   
   //! Examine the types of species thermo parameterizations,
   //! and return a flag indicating the type of reference state thermo manager
   //! that will be needed in order to evaluate them all.
   /*!
    * 
-   *  @param spDataNodeList, This vector contains a list
-   *                         of species XML nodes that will be in the phase
+   *  @param spDataNodeList    This vector contains a list
+   *                           of species XML nodes that will be in the phase
+   *  @param has_nasa          Return int that indicates whether the phase has a NASA polynomial form for one of its species
+   *  @param has_shomate       Return int that indicates whether the phase has a SHOMATE polynomial form for one of its species
+   *  @param has_simple        Return int that indicates whether the phase has a SIMPLE polynomial form for one of its species
+   *  @param has_other         Return int that indicates whether the phase has a form for one of its species that is not one of the ones listed above.
    * 
    * @todo Make sure that spDadta_node is species Data XML node by checking its name is speciesData
    */
@@ -294,11 +297,15 @@ namespace Cantera {
   }
 
 
-  /** 
-   * Install a NASA polynomial thermodynamic property
-   * parameterization for species k into a SpeciesThermo instance.
-   * This is called by method installThermoForSpecies if a NASA
-   * block is found in the XML input.
+  //!  Install a NASA polynomial thermodynamic property parameterization for species k into a SpeciesThermo instance.
+  /*!
+   * This is called by method installThermoForSpecies if a NASA block is found in the XML input.
+   *
+   *  @param speciesName        String name of the species
+   *  @param sp                 SpeciesThermo object that will receive the nasa polynomial object
+   *  @param k                  Species index within the phase
+   *  @param f0ptr              Ptr to the first XML_Node for the first NASA polynomial
+   *  @param f1ptr              Ptr to the first XML_Node for the first NASA polynomial
    */
   static void installNasaThermoFromXML(std::string speciesName,
 				       SpeciesThermo& sp, int k, 
@@ -377,12 +384,17 @@ namespace Cantera {
 
 #ifdef INCL_NASA96
 
-  /** 
-   * Install a NASA96 polynomial thermodynamic property
-   * parameterization for species k into a SpeciesThermo instance.
+  //!  Install a NASA96 polynomial thermodynamic property parameterization for species k into a SpeciesThermo instance.
+  /*!
+   * This is called by method installThermoForSpecies if a NASA block is found in the XML input.
+   *
+   *  @param speciesName        String name of the species
+   *  @param sp                 SpeciesThermo object that will receive the nasa polynomial object
+   *  @param k                  Species index within the phase
+   *  @param f0ptr              Ptr to the first XML_Node for the first NASA polynomial
+   *  @param f1ptr              Ptr to the first XML_Node for the first NASA polynomial
    */
-  static void installNasa96ThermoFromXML(std::string speciesName,
-					 SpeciesThermo& sp, int k, 
+  static void installNasa96ThermoFromXML(std::string speciesName, SpeciesThermo& sp, int k, 
 					 const XML_Node* f0ptr, const XML_Node* f1ptr) {
     doublereal tmin0, tmax0, tmin1, tmax1, tmin, tmid, tmax;
 
@@ -570,13 +582,17 @@ namespace Cantera {
     sp.install(speciesName, k, SHOMATE, &coef[0], tmin0, tmax0, p0);
   }
 
-
-  /** 
-   * Install a Shomate polynomial thermodynamic property
-   * parameterization for species k.
+  //!  Install a Shomate polynomial thermodynamic property parameterization for species k into a SpeciesThermo instance.
+  /*!
+   * This is called by method installThermoForSpecies if a Shomate block is found in the XML input.
+   *
+   *  @param speciesName        String name of the species
+   *  @param sp                 SpeciesThermo object that will receive the nasa polynomial object
+   *  @param k                  Species index within the phase
+   *  @param f0ptr              Ptr to the first XML_Node for the first NASA polynomial
+   *  @param f1ptr              Ptr to the first XML_Node for the first NASA polynomial
    */
-  static void installShomateThermoFromXML(std::string speciesName, 
-					  SpeciesThermo& sp, int k, 
+  static void installShomateThermoFromXML(std::string speciesName, SpeciesThermo& sp, int k, 
 					  const XML_Node* f0ptr, const XML_Node* f1ptr) {
     doublereal tmin0, tmax0, tmin1, tmax1, tmin, tmid, tmax;
 
@@ -624,11 +640,14 @@ namespace Cantera {
     sp.install(speciesName, k, SHOMATE, &c[0], tmin, tmax, p0);
   }
 
-
-
-  /** 
-   * Install a constant-cp thermodynamic property
-   * parameterization for species k.
+  //! Install a Simple thermodynamic property parameterization for species k into a SpeciesThermo instance.
+  /*!
+   * This is called by method installThermoForSpecies if a SimpleThermo block is found
+   *
+   *  @param speciesName        String name of the species
+   *  @param sp                 SpeciesThermo object that will receive the nasa polynomial object
+   *  @param k                  Species index within the phase
+   *  @param f                  XML_Node for the SimpleThermo block
    */
   static void installSimpleThermoFromXML(std::string speciesName, 
 					 SpeciesThermo& sp, int k, 
@@ -647,11 +666,15 @@ namespace Cantera {
     sp.install(speciesName, k, SIMPLE, &c[0], tmin, tmax, p0);
   }
 
-  /** 
-   * Install a NASA9 polynomial thermodynamic property
-   * parameterization for species k into a SpeciesThermo instance.
-   * This is called by method installThermoForSpecies if a NASA9
-   * block is found in the XML input.
+   
+  //! Install a NASA9 polynomial thermodynamic property parameterization for species k into a SpeciesThermo instance.
+  /*!
+   * This is called by method installThermoForSpecies if a NASA9 block is found in the XML input.
+   *
+   *  @param speciesName        String name of the species
+   *  @param sp                 SpeciesThermo object that will receive the nasa polynomial object
+   *  @param k                  Species index within the phase
+   *  @param tp                 Vector of XML Nodes that make up the parameterization
    */
   static void installNasa9ThermoFromXML(std::string speciesName,
 					SpeciesThermo& sp, int k, 
@@ -705,13 +728,16 @@ namespace Cantera {
   }
 
 
-  /** 
-   * Install an Adsorbate thermodynamic property
-   * parameterization for species k into a SpeciesThermo instance.
-   * This is called by method installThermoForSpecies if a NASA9
-   * block is found in the XML input.
-   */
 #ifdef WITH_ADSORBATE
+  //! Install a Adsorbate polynomial thermodynamic property parameterization for species k into a SpeciesThermo instance.
+  /*!
+   * This is called by method installThermoForSpecies if a Adsorbate block is found in the XML input.
+   *
+   *  @param speciesName        String name of the species
+   *  @param sp                 SpeciesThermo object that will receive the nasa polynomial object
+   *  @param k                  Species index within the phase
+   *  @param tp                 Vector of XML Nodes that make up the parameterization
+   */
   static void installAdsorbateThermoFromXML(std::string speciesName,
 					    SpeciesThermo& sp, int k, 
 					    const XML_Node& f) { 		
@@ -739,8 +765,6 @@ namespace Cantera {
     coeffs[0] = nfreq;
     coeffs[1] = getFloat(f, "binding_energy", "toSI");
     copy(freqs.begin(), freqs.end(), coeffs.begin() + 2);
-    //posc = new Adsorbate(k, tmin, tmax, pref,  
-    //    DATA_PTR(coeffs)); 
     (&sp)->install(speciesName, k, ADSORBATE, &coeffs[0], tmin, tmax, pref);
   }
 #endif

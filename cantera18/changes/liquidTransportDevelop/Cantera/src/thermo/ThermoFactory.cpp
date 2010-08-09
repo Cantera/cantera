@@ -87,8 +87,13 @@ namespace Cantera {
 #if defined(THREAD_SAFE_CANTERA)
     boost::mutex ThermoFactory::thermo_mutex;
 #endif
-
+    //! Define the number of %ThermoPhase types for use in this factory routine
+    /*!
+     *  @deprecated This entire structure could be replaced with a std::map
+     */
     static int ntypes = 18;
+
+    //! Define the string name of the %ThermoPhase types that are handled by this factory routine
     static string _types[] = {"IdealGas", "Incompressible", 
                               "Surface", "Edge", "Metal", "StoichSubstance",
                               "PureFluid", "LatticeSolid", "Lattice",
@@ -98,6 +103,7 @@ namespace Cantera {
                               "IonsFromNeutralMolecule"
     };
 
+    //! Define the integer id of the %ThermoPhase types that are handled by this factory routine
     static int _itypes[]   = {cIdealGas, cIncompressible, 
                               cSurf, cEdge, cMetal, cStoichSubstance,
                               cPureFluid, cLatticeSolid, cLattice,

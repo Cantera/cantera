@@ -60,13 +60,23 @@ namespace Cantera {
   boost::mutex VPSSMgrFactory::vpss_species_thermo_mutex;
 #endif
  
-  /*
-   * Examine the types of species thermo parameterizations,
-   * and return a flag indicating the type of parameterization
-   * needed by the species.
+  
+  //! Examine the types of species thermo parameterizations, and return a flag indicating the type of parameterization
+  //! needed by the species.
+  /*!
    * 
-   *  @param spData_node Species Data XML node. This node contains a list
-   *                     of species XML nodes underneath it.
+   *  @param spDataNodeList            Species Data XML node. This node contains a list
+   *                                     of species XML nodes underneath it.
+   *  @param has_nasa_idealGas         Boolean indicating that one species has a nasa ideal gas standard state
+   *  @param has_nasa_constVol         Boolean indicating that one species has a nasa ideal solution standard state
+   *  @param has_shomate_idealGas      Boolean indicating that one species has a shomate ideal gas standard state
+   *  @param has_shomate_constVol      Boolean indicating that one species has a shomate ideal solution standard state
+   *  @param has_simple_idealGas       Boolean indicating that one species has a simple ideal gas standard state
+   *  @param has_simple_constVol       Boolean indicating that one species has a simple ideal solution standard state
+   *  @param has_water                 Boolean indicating that one species has a water standard state
+   *  @param has_tpx                   Boolean indicating that one species has a tpx standard state
+   *  @param has_htpx                  Boolean indicating that one species has a htpx standard state
+   *  @param has_other                 Boolean indicating that one species has different standard state than the ones listed above
    * 
    * @todo Make sure that spDadta_node is species Data XML node by checking 
    *      its name is speciesData
