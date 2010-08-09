@@ -183,12 +183,21 @@ namespace Cantera {
      */
     virtual doublereal gibbs_mole() const;
 
-    //! Return the molar gibbs free energy divided by RT
+    //! Return the molar gibbs free energy divided by <I>RT</I>
     /*!
-     * Returns the species standard state gibbs free energy divided by RT at the
+     * Returns the species standard state gibbs free energy divided by <I>RT</I> at the
      * current temperature and pressure.
      *
-     * @return returns the species standard state gibbs free energy divided by RT
+     *  \f[
+     *    \frac{\mu^o_k}{RT} = \sum_{m}{ \alpha_{m , k} \frac{\mu^o_{m}}{RT}} + ( 1 - \delta_{k,sp}) 2.0 \ln{2.0}
+     *  \f]
+     *  
+     *  <I>m</I> is the neutral molecule species index. \f$ \alpha_{m , k} \f$ is the stoiciometric 
+     *  coefficient for the neutral molecule,  <I>m</I>, that creates the thermodynamics for the ionic species  <I>k</I>.
+     *  A factor  \f$ 2.0 \ln{2.0} \f$ is added to all ions except for the species ionic species, which in this
+     *  case is the single anion species, with species index <I>sp</I>.
+     *
+     * @return Returns the species standard state gibbs free energy divided by <I>RT</I> 
      */
     virtual doublereal gibbs_RT() const;
 
@@ -388,10 +397,9 @@ namespace Cantera {
     void constructPDSSFile(VPStandardStateTP *vptp_ptr, int spindex, 
 			   std::string inputFile, std::string id);
 
-    //!Initialization of a PDSS object using an xml tree
+    //!  Initialization of a PDSS object using an xml tree
     /*!
-     * This routine is a driver for the initialization of the
-     * object.
+     * This routine is a driver for the initialization of the object.
      * 
      *   basic logic:
      *       initThermo()                 (cascade)
@@ -402,6 +410,9 @@ namespace Cantera {
      *                   This object must have already been malloced.
      *
      * @param spindex    Species index within the phase
+     *
+     * @param speciesNode  Reference to the phase Information for the species
+     *                     that this standard state refers to
      *
      * @param phaseNode  Reference to the phase Information for the phase
      *                   that owns this species.
@@ -461,16 +472,28 @@ namespace Cantera {
     ThermoPhase *neutralMoleculePhase_;
 
   public:
+
+    //! Number of neutral molecule species that make up the stoichiometric vector for
+    //! this species, in terms of calculating thermodynamic functions
     int numMult_;
 
+    //! Vector of species indecises in the neutral molecule ThermoPhase
     std::vector<int> idNeutralMoleculeVec;
 
+    //! Stoichiometric coefficient for this species using the Neutral Molecule Species
+    //! in the vector idNeutralMoleculeVec
     std::vector<double> factorVec;
     
+    //! Add 2RTln2 to the entropy and Gibbs free energies for this species
+    /*!
+     *  This is true if this species is not the special species
+     */
     bool add2RTln2_;
 
+    //! Vector of length equal to the number of species in the neutral molecule phase
     mutable std::vector<double> tmpNM;
     
+    //! True if this species is the special species
     int specialSpecies_;
   };
 }

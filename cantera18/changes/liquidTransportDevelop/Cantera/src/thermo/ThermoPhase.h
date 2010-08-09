@@ -1156,7 +1156,7 @@ namespace Cantera {
     //! Get the array of non-dimensional molar-based ln activity coefficients at
     //! the current solution temperature, pressure, and solution concentration.
     /*!
-     * @param ac Output vector of ln activity coefficients. Length: m_kk.
+     * @param lnac Output vector of ln activity coefficients. Length: m_kk.
      */
     virtual void getLnActivityCoefficients(doublereal * const lnac) const;
       
@@ -1975,6 +1975,8 @@ namespace Cantera {
     //! Add in species from Slave phases
     /*!
      *  This hook is used for  cSS_CONVENTION_SLAVE phases
+     *
+     *  @param phaseNode   XML Element for the phase
      */
     virtual void installSlavePhases(Cantera::XML_Node* phaseNode);
 
@@ -2076,45 +2078,43 @@ namespace Cantera {
       err("getdlnActCoeffds");
     }
 
-    //! Get the array of log concentration-like derivatives of the 
-    //! log activity coefficients - diagonal component only
+    //! Get the array of ln mole fraction derivatives of the log activity coefficients - diagonal component only
     /*!
      * This function is a virtual method.  For ideal mixtures 
      * (unity activity coefficients), this can return zero.  
      * Implementations should take the derivative of the 
      * logarithm of the activity coefficient with respect to the 
-     * logarithm of the concentration-like variable (i.e. mole fraction)
+     * logarithm of the mole fraction variable 
      * that represents the standard state.  
      * This quantity is to be used in conjunction with derivatives of 
-     * that concentration-like variable when the derivative of the chemical 
+     * that mole fraction variable when the derivative of the chemical 
      * potential is taken.  
      *
      *  units = dimensionless
      *
-     * @param dlnActCoeffdln_diag    Output vector of derivatives of the 
-     *                         log Activity Coefficients. length = m_kk
+     * @param dlnActCoeffdlnX_diag    Output vector of derivatives of the 
+     *                                log Activity Coefficients wrt the mole fractions. length = m_kk
      */
     virtual void getdlnActCoeffdlnX_diag(doublereal *dlnActCoeffdlnX_diag) const {
       err("getdlnActCoeffdlnX_diag");
     }
 
-    //! Get the array of log concentration-like derivatives of the 
-    //! log activity coefficients
+    //! Get the array of log species mole number derivatives of the log activity coefficients
     /*!
-     * This function is a virtual method.  For ideal mixtures 
-     * (unity activity coefficients), this can return zero.  
-     * Implementations should take the derivative of the 
-     * logarithm of the activity coefficient with respect to the 
-     * logarithm of the concentration-like variable (i.e. moles)
-     * that represents the standard state.  
-     * This quantity is to be used in conjunction with derivatives of 
-     * that concentration-like variable when the derivative of the chemical 
-     * potential is taken.  
+     *  This function is a virtual method. 
+     *  For ideal mixtures  (unity activity coefficients), this can return zero.  
+     *  Implementations should take the derivative of the 
+     *  logarithm of the activity coefficient with respect to the 
+     *  logarithm of the concentration-like variable (i.e. moles)
+     *  that represents the standard state.  
+     *  This quantity is to be used in conjunction with derivatives of 
+     *  that species mole number variable when the derivative of the chemical 
+     *  potential is taken.  
      *
      *  units = dimensionless
      *
      * @param dlnActCoeffdlnN_diag    Output vector of derivatives of the 
-     *                         log Activity Coefficients. length = m_kk
+     *                                log Activity Coefficients. length = m_kk
      */
     virtual void getdlnActCoeffdlnN_diag(doublereal *dlnActCoeffdlnN_diag) const {
       err("getdlnActCoeffdlnN_diag");
