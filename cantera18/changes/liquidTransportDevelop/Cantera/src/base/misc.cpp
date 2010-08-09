@@ -1891,9 +1891,13 @@ protected:
 
 #endif // WITH_HTML_LOGS
 
-
-  /// split a string at a '#' sign. Used to separate a file name
-  /// from an id string.
+  //===============================================================================================================
+  //! split a string at a '#' sign. Used to separate a file name from an id string.
+  /*!
+   *   @param    src     Original string to be split up. This is unchanged.
+   *   @param    file    Output string representing the first part of the string, which is the filename.
+   *   @param    id      Output string representing the last part of the string, which is the id.
+   */
   static void split_at_pound(const std::string& src, std::string& file, std::string& id) { 
     string::size_type ipound = src.find('#');
     if (ipound != string::npos) {
@@ -1905,6 +1909,7 @@ protected:
       file = src;
     }
   }
+  //===============================================================================================================
   /*
    * This routine will locate an XML node in either the input
    * XML tree or in another input file specified by the file
