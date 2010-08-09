@@ -384,6 +384,8 @@ namespace Cantera {
      * \bar h_k(T,P) = h^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}
      * \f]
      *
+     *  @param hbar  Output vector of species partial molar enthalpies.
+     *               Length: m_kk. Units: J/kmol
      */
     virtual void getPartialMolarEnthalpies(doublereal* hbar) const;
 
@@ -401,6 +403,10 @@ namespace Cantera {
      *                              - R \ln( \gamma_k X_k)
      *                              - R T \frac{d \ln(\gamma_k) }{dT}
      *  \f]
+     *
+     *
+     *  @param sbar  Output vector of species partial molar entropies.
+     *               Length: m_kk. Units: J/kmol/K
      */
     virtual void getPartialMolarEntropies(doublereal* sbar) const;
 
