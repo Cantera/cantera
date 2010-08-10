@@ -37,11 +37,44 @@ namespace Cantera {
 
   class GasTransportParams;
 
-  /**
-   * Class MixTransport implements mixture-averaged transport
-   * properties for ideal gas mixtures. The model is based on that
-   * described by Kee, Coltrin, and Glarborg, "Theoretical and
-   * Practical Aspects of Chemically Reacting Flow Modeling."
+  
+  //! Class MixTransport implements mixture-averaged transport properties for ideal gas mixtures.
+  /*!
+   *    The model is based on that described by Kee, Coltrin, and Glarborg, "Theoretical and
+   *    Practical Aspects of Chemically Reacting Flow Modeling."
+   *
+   *    
+   * The viscosity is computed using the Wilke mixture rule (kg /m /s)
+   *
+   *    \f[
+   *        \mu = \sum_k \frac{\mu_k X_k}{\sum_j \Phi_{k,j} X_j}.
+   *    \f]
+   *
+   *     Here \f$ \mu_k \f$ is the viscosity of pure species \e k, and
+   * 
+   *    \f[ 
+   *        \Phi_{k,j} = \frac{\left[1 
+   *                     + \sqrt{\left(\frac{\mu_k}{\mu_j}\sqrt{\frac{M_j}{M_k}}\right)}\right]^2}
+   *                     {\sqrt{8}\sqrt{1 + M_k/M_j}}
+   *    \f]
+   *
+   *
+   * The thermal conductivity is computed from the following mixture rule:
+   *   \f[
+   *          \lambda = 0.5 \left( \sum_k X_k \lambda_k  + \frac{1}{\sum_k X_k/\lambda_k} \right)
+   *   \f]
+   *
+   *  It's used to compute the flux of energy due to a thermal gradient
+   *
+   *   \f[
+   *          j_T =  - \lambda  \nabla T
+   *   \f]
+   *   
+   *  The flux of energy has units of energy (kg m2 /s2) per second per area.
+   *
+   *  The units of lambda are W / m K which is equivalent to kg m / s^3 K.
+   *
+   *
    */
   class MixTransport : public Transport {
 
@@ -53,6 +86,7 @@ namespace Cantera {
     MixTransport();
 
   public:
+
     //!Copy Constructor for the %MixTransport object.
     /*!
      * @param right  %LiquidTransport to be copied
@@ -92,9 +126,25 @@ namespace Cantera {
       return cMixtureAveraged;
     }
 
-    //! Viscosity of the mixture
+    //! Viscosity of the mixture  (kg /m /s)
     /*!
+     * The viscosity is computed using the Wilke mixture rule (kg /m /s)
      *
+     *    \f[
+     *        \mu = \sum_k \frac{\mu_k X_k}{\sum_j \Phi_{k,j} X_j}.
+     *    \f]
+     *
+     *     Here \f$ \mu_k \f$ is the viscosity of pure species \e k, and
+     * 
+     *    \f[ 
+     *        \Phi_{k,j} = \frac{\left[1 
+     *                     + \sqrt{\left(\frac{\mu_k}{\mu_j}\sqrt{\frac{M_j}{M_k}}\right)}\right]^2}
+     *                     {\sqrt{8}\sqrt{1 + M_k/M_j}}
+     *    \f]
+     * 
+     *  @return   Returns the viscosity of the mixture  ( units =  Pa s  = kg /m /s)
+     *
+     * @see updateViscosity_T();
      */
     virtual doublereal viscosity();
 
@@ -161,20 +211,25 @@ namespace Cantera {
     virtual void update_T();
     virtual void update_C();
 
-    //! Get the species diffusive mass fluxes wrt to 
-    //! the mass averaged velocity, 
+    //! Get the species diffusive mass fluxes wrt to the mass averaged velocity, 
     //! given the gradients in mole fraction and temperature
     /*!
      *  Units for the returned fluxes are kg m-2 s-1.
-     * 
-     *  @param ndim Number of dimensions in the flux expressions
-     *  @param grad_T Gradient of the temperature
-     *                 (length = ndim)
-     * @param ldx  Leading dimension of the grad_X array 
-     *              (usually equal to m_nsp but not always)
-     * @param grad_X Gradients of the mole fraction
-     *             Flat vector with the m_nsp in the inner loop.
-     *             length = ldx * ndim
+     *
+     *
+     * The diffusive mass flux of species \e k is computed from
+     * \f[
+     *          \vec{j}_k = -n M_k D_k \nabla X_k.
+     * \f]
+     *
+     *  @param ndim      Number of dimensions in the flux expressions
+     *  @param grad_T    Gradient of the temperature
+     *                    (length = ndim)
+     * @param ldx        Leading dimension of the grad_X array 
+     *                   (usually equal to m_nsp but not always)
+     * @param grad_X     Gradients of the mole fraction
+     *                   Flat vector with the m_nsp in the inner loop.
+     *                   length = ldx * ndim
      * @param ldf  Leading dimension of the fluxes array 
      *              (usually equal to m_nsp but not always)
      * @param fluxes  Output of the diffusive mass fluxes
@@ -250,20 +305,41 @@ namespace Cantera {
     // property values
     DenseMatrix                  m_bdiff;
 
-    //! vector of species viscosities
+    //! vector of species viscosities (kg /m /s)
+    /*!
+     *  These are used in wilke's rule to calculate the viscosity of the solution
+     *  length = m_kk
+     */
     vector_fp                    m_visc;
+
+    //! vector of square root of species viscosities sqrt(kg /m /s)
+    /*!
+     *  These are used in wilke's rule to calculate the viscosity of the solution
+     *  length = m_kk
+     */
     vector_fp                    m_sqvisc;
-    vector_fp                    m_cond;
+
+    //! vector of species thermal conductivities (W/m /K)
+    /*!
+     *  These are used in wilke's rule to calculate the viscosity of the solution
+     *  units = W /m /K = kg m /s^3 /K.
+     *  length = m_kk
+     */
+    vector_fp m_cond;
 
     //! Vector of species molefractions
-    array_fp  m_molefracs;
+    /*!
+     *  These are processed so that all mole fractions are >= MIN_X
+     *  Length = m_kk
+     */
+    vector_fp m_molefracs;
 
     std::vector<std::vector<int> > m_poly;
-    std::vector<vector_fp >   m_astar_poly;
+ 
     std::vector<vector_fp >   m_bstar_poly;
     std::vector<vector_fp >   m_cstar_poly;
     std::vector<vector_fp >   m_om22_poly;
-    DenseMatrix          m_astar;
+
     DenseMatrix          m_bstar;
     DenseMatrix          m_cstar;
     DenseMatrix          m_om22;

@@ -54,11 +54,9 @@ namespace Cantera {
     m_cond(0),
     m_molefracs(0),
     m_poly(0),
-    m_astar_poly(0),
     m_bstar_poly(0),
     m_cstar_poly(0),
     m_om22_poly(0),
-    m_astar(0, 0),
     m_bstar(0, 0),
     m_cstar(0, 0),
     m_om22(0, 0),
@@ -116,11 +114,9 @@ namespace Cantera {
     m_cond(0),
     m_molefracs(0),
     m_poly(0),
-    m_astar_poly(0),
     m_bstar_poly(0),
     m_cstar_poly(0),
     m_om22_poly(0),
-    m_astar(0, 0),
     m_bstar(0, 0),
     m_cstar(0, 0),
     m_om22(0, 0),
@@ -191,11 +187,9 @@ namespace Cantera {
     m_cond = right.m_cond;
     m_molefracs = right.m_molefracs;
     m_poly = right.m_poly;
-    m_astar_poly = right.m_astar_poly;
     m_bstar_poly = right.m_bstar_poly;
     m_cstar_poly = right.m_cstar_poly; 
     m_om22_poly = right.m_om22_poly; 
-    m_astar = right.m_astar; 
     m_bstar = right.m_bstar;
     m_cstar = right.m_cstar;
     m_om22 = right.m_om22;
@@ -425,6 +419,7 @@ namespace Cantera {
 	sum2 += m_molefracs[k] / m_cond[k];
       }
       m_lambda = 0.5*(sum1 + 1.0/sum2);
+      m_condmix_ok = true;
     }
     return m_lambda;
   }
@@ -443,14 +438,30 @@ namespace Cantera {
     }
   }
   //===================================================================================================================
-  /**
-   * @param ndim The number of spatial dimensions (1, 2, or 3).
-   * @param grad_T The temperature gradient (ignored in this model).
-   * @param ldx  Leading dimension of the grad_X array.
+  // Get the species diffusive mass fluxes wrt to the mass averaged velocity, 
+  // given the gradients in mole fraction and temperature
+  /*
+   *  Units for the returned fluxes are kg m-2 s-1.
+   *
+   *
    * The diffusive mass flux of species \e k is computed from
    * \f[
-   * \vec{j}_k = -n M_k D_k \nabla X_k.
+   *          \vec{j}_k = -n M_k D_k \nabla X_k.
    * \f]
+   *
+   *  @param ndim      Number of dimensions in the flux expressions
+   *  @param grad_T    Gradient of the temperature
+   *                    (length = ndim)
+   * @param ldx        Leading dimension of the grad_X array 
+   *                   (usually equal to m_nsp but not always)
+   * @param grad_X     Gradients of the mole fraction
+   *                   Flat vector with the m_nsp in the inner loop.
+   *                   length = ldx * ndim
+   * @param ldf  Leading dimension of the fluxes array 
+   *              (usually equal to m_nsp but not always)
+   * @param fluxes  Output of the diffusive mass fluxes
+   *             Flat vector with the m_nsp in the inner loop.
+   *             length = ldx * ndim
    */
   void MixTransport::getSpeciesFluxes(int ndim, 
 				      const doublereal* grad_T, int ldx, const doublereal* grad_X, 
@@ -608,7 +619,7 @@ namespace Cantera {
     }
     else {
       for (k = 0; k < m_nsp; k++) {
-	m_cond[k] = m_sqrt_t*dot5(m_polytempvec, m_condcoeffs[k]);
+	m_cond[k] = m_sqrt_t * dot5(m_polytempvec, m_condcoeffs[k]);
       }
     }
     m_spcond_ok = true;
@@ -653,7 +664,6 @@ namespace Cantera {
    * Update the pure-species viscosities.
    */
   void MixTransport::updateSpeciesViscosities() {
-
     int k;
     if (m_mode == CK_Mode) {
       for (k = 0; k < m_nsp; k++) {
@@ -664,13 +674,12 @@ namespace Cantera {
     else {
       for (k = 0; k < m_nsp; k++) {
 	// the polynomial fit is done for sqrt(visc/sqrt(T))
-	m_sqvisc[k] = m_t14*dot5(m_polytempvec, m_visccoeffs[k]);
-	m_visc[k] = (m_sqvisc[k]*m_sqvisc[k]);
+	m_sqvisc[k] = m_t14 * dot5(m_polytempvec, m_visccoeffs[k]);
+	m_visc[k] = (m_sqvisc[k] * m_sqvisc[k]);
       }
     }
     m_spvisc_ok = true;
   }
-
   //====================================================================================================================
   /*
    * Update the temperature-dependent viscosity terms.
