@@ -897,7 +897,11 @@ namespace VCSnonideal {
     fclose(FP);
   }
 
- 
+  //! print char repeatedly to log file
+  /*!
+   *  @param letter letter to be repeated
+   *  @param num    Number of times repeated
+   */
   static void print_char(const char letter, const int num) {
     for (int i = 0; i < num; i++) plogf("%c", letter);
   }
