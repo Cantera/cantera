@@ -29,10 +29,12 @@ using std::fabs;
  * routine, except for internal checks. All calculations here are done
  * in dimensionless units.
  */
+// \cond
 static const doublereal  T_c = 647.096;  // Kelvin
 static const doublereal  P_c = 22.064E6; // Pascals
 static const doublereal  Rho_c = 322.;    // kg m-3
 static const doublereal  M_water = 18.015268; // kg kmol-1
+//  \endcond
 
 /*
  * The added constants were calculated so that u = s = 0
@@ -42,6 +44,7 @@ static const doublereal  M_water = 18.015268; // kg kmol-1
  * H didn't turn out to be .611872 J/kg, but .611782 J/kg.
  * There may be a slight error here somehow.
  */
+//  \cond
 static const doublereal  ni0[9] = {
   0.0,
   -8.32044648201 - 0.000000001739715,
@@ -240,7 +243,6 @@ static const int tiR[55] = {
   1,
   4   // 54
 };
-
 static const doublereal  ni[57] = {
   +0.0,
   +0.12533547935523E-1, //  1
@@ -360,8 +362,9 @@ static const doublereal  Bbetai[2] = {
   +0.3,
   +0.3
 };
+// \endcond
 
-/**
+/*
  * Constructor for the object. 
  */
 WaterPropsIAPWSphi::WaterPropsIAPWSphi() :
@@ -1106,7 +1109,7 @@ doublereal  WaterPropsIAPWSphi::phiR_dt() const {
   return val;
 }
 
-/**
+/*
  * This program computes the reduced density, given the reduced pressure
  * and the reduced temperature, tau. It takes an initial guess, deltaGuess.
  * DeltaGuess is important as this is a multivalued function below the

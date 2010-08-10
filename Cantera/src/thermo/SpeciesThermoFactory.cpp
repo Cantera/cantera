@@ -522,6 +522,7 @@ namespace Cantera {
    * This is called by method installThermoForSpecies if a MinEQ3node block is found in the XML input.
    *
    *  @param speciesName        String name of the species
+   *  @param th_ptr             Pointer to the %ThermoPhase object
    *  @param sp                 SpeciesThermo object that will receive the nasa polynomial object
    *  @param k                  Species index within the phase
    *  @param MinEQ3node         Ptr to the first XML_Node for the first MinEQ3 parameterization
