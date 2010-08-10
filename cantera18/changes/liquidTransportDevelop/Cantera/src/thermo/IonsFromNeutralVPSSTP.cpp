@@ -33,6 +33,7 @@
 using namespace std;
 
 #ifndef MIN
+//! standard MIN function
 # define MIN(x,y) (( (x) < (y) ) ? (x) : (y))
 #endif
 
@@ -1212,6 +1213,16 @@ namespace Cantera {
     dlnActCoeffdlnN_diag_NeutralMolecule_.resize(numNeutralMoleculeSpecies_);
   }
   //====================================================================================================================
+  //!  Return the factor overlap
+  /*!
+   *     @param elnamesVN
+   *     @param elemVectorN
+   *     @param nElementsN
+   *     @param elnamesVI
+   *     @param elemVectorI
+   *     @param nElementsI
+   *
+   */
   static double factorOverlap(const std::vector<std::string>&  elnamesVN ,
 			      const std::vector<double>& elemVectorN,
 			      const int  nElementsN,

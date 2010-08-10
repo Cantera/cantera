@@ -496,7 +496,7 @@ namespace Cantera {
 
   // Parameters for the viscosityWater() function
 
-  //@{
+  // \cond
   const doublereal H[4] = {1.,
 		       0.978197,
 		       0.579829,
@@ -515,7 +515,7 @@ namespace Cantera {
   const doublereal rhoStar = 317.763;    // kg / m3
   const doublereal presStar = 22.115E6;  // Pa
   const doublereal muStar = 55.071E-6;   //Pa s
-  //@}
+  // \endcond
 
   // Returns the viscosity of water at the current conditions
   // (kg/m/s)
