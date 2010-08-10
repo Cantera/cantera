@@ -221,10 +221,12 @@ namespace Cantera {
     else return aline.substr(j+1, i - j - 1);
   }
 
-  /**
-   * Find the first position of a character, q, in string s,
-   * which is not immediately preceded by the backslash character
-   * '\'
+  
+  //! Find the first position of a character, q, in string, s, which is not immediately preceded by the backslash character
+  /*!
+   * @param s        Input string
+   * @param q        Search for this character
+   * @param istart   Defaults to 0
    */
   static string::size_type findUnbackslashed(std::string s, const char q,
 					     std::string::size_type istart = 0) {
