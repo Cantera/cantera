@@ -22,11 +22,68 @@ using namespace std;
 namespace Cantera {
   int BasisOptimize_print_lvl = 0;
 }
+
+//!    Print a string within a given space limit. This routine limits the amount of the string that will be printed to a
+//!   maximum of "space" characters.
+/*!
+ *
+ *    @param       str        String -> must be null terminated.
+ *    @param       space      space limit for the printing.
+ *    @param       alignment  0 centered
+ *                            1 right aligned
+ *                            2 left aligned
+ */
 static void print_stringTrunc(const char *str, int space, int alignment);
 #endif
 
+
+ //! Finds the location of the maximum component in a double vector INPUT
+ /*!
+  *  @param   x            Vector to search
+  *  @param   j            j <= i < n     : i is the range of indecises to search in X(*)
+  *  @param   n            Length of the vector
+  *
+  *    @return             index of the greatest value on X(*) searched
+  */
 static int amax(double *x, int j, int n);
+
+//! Switch the position in the vector
+/*!
+ *  @param       orderVector     Vector to be manipulated
+ *  @param       jr              first position
+ *  @param       kspec           second species
+ */
 static void switch_pos(vector_int &orderVector, int jr, int kspec);
+
+
+ //!  Invert an nxn matrix and solve m rhs's
+ /*!
+  *
+  *    Solve         C X + B = 0;
+  *
+  * This routine uses Gauss elimination and is optimized for the solution
+  * of lots of rhs's.
+  * A crude form of row pivoting is used here.
+  *
+  *  @param  c      C is the matrix to be inverted
+  *  @param  idem   first dimension in the calling routine
+  *                  idem >= n must be true
+  *  @param  n      number of rows and columns in the matrix
+  *  @param  b      rhs of the matrix problem
+  *  @param  m      number of rhs to be solved for
+  *
+  * c[i+j*idem] = c_i_j = Matrix to be inverted: i = row number
+  *                                              j = column number
+  * b[i+j*idem] = b_i_j = vectors of rhs's:      i = row number
+  *                                              j = column number
+  *            (each column is a new rhs)
+  *
+  *   @return Retuns the value
+  *      1 : Matrix is singluar
+  *      0 : solution is OK
+  *
+  *      The solution is returned in the matrix b.
+  */
 static int mlequ(double *c, int idem, int n, double *b, int m);
 
 //@{
