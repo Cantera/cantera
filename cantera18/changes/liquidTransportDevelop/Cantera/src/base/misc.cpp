@@ -53,11 +53,20 @@ using namespace std;
 
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/mutex.hpp>
-static boost::mutex  dir_mutex;  // For input directory access
-static boost::mutex  msg_mutex;  // For access to string messages
-static boost::mutex  app_mutex;  // Application state including creating singleton
-//static boost::mutex  log_mutex;  // Logger pointer
-static boost::mutex  xml_mutex;  // XML file storage
+//! Mutex for input directory access
+static boost::mutex  dir_mutex;  
+
+//! Mutex for access to string messages
+static boost::mutex  msg_mutex; 
+
+//! Mutex for creating singeltons within the application object
+static boost::mutex  app_mutex;  
+
+// Mutex for controlling access to the log file
+//static boost::mutex  log_mutex;
+
+//! Mutex for controlling access to XML file storage
+static boost::mutex  xml_mutex; 
 
 //! Macro for locking input directory access
 #define DIR_LOCK() boost::mutex::scoped_lock   d_lock(dir_mutex)
