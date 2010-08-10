@@ -22,6 +22,9 @@
 //! The ctml namespace adds functionality to the XML object, by providing
 //! standard functions that read, write, and interpret XML files and
 //! object trees.
+/*!
+ *  Standardization of reads and write from Cantera files occur here.
+ */
 namespace ctml {
 
   //! const Specifying the CTML version number
@@ -367,7 +370,7 @@ namespace ctml {
    *                        The default value for the node name is floatArray
    *   @return              Returns the number of floats read into v.
    */
-  int getFloatArray(const Cantera::XML_Node& node, Cantera::vector_fp& v, 
+  int getFloatArray(const Cantera::XML_Node& node, Cantera::vector_fp & v, 
 		     const bool convert=true, const std::string unitsString="",
 		     const std::string nodeName = "floatArray");
 
@@ -681,7 +684,7 @@ namespace ctml {
    *   @param v        Output map of the results.
    *   @param convert  Turn on conversion to SI units
    */
-  void getFloats(const Cantera::XML_Node& node, std::map<std::string, double>& v,
+  void getFloats(const Cantera::XML_Node& node, std::map<std::string, doublereal >& v,
 		 const bool convert=true);
 
   //!  Get an integer value from a child element.

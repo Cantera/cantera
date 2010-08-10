@@ -559,7 +559,7 @@ namespace ctml {
    *   @param v        Output map of the results.
    *   @param convert  Turn on conversion to SI units
    */
-  void getFloats(const Cantera::XML_Node& node, std::map<std::string, double>& v,
+  void getFloats(const Cantera::XML_Node& node, std::map<std::string, doublereal > & v,
 		 const bool convert) {
     std::vector<XML_Node*> f;
     node.getChildren("float",f);
@@ -629,8 +629,7 @@ namespace ctml {
    *                 and "" , for no conversion. The default value is ""
    *                 which implies that no conversion is allowed.
    */
-  doublereal getFloat(const Cantera::XML_Node& parent,
-		      const std::string &name,
+  doublereal getFloat(const Cantera::XML_Node& parent, const std::string &name,
 		      const std::string type) {
     if (!parent.hasChild(name)) 
       throw CanteraError("getFloat (called from XML Node \"" +
@@ -728,7 +727,7 @@ namespace ctml {
     return fctr*x;
   }
 
-   //====================================================================================================================
+  //====================================================================================================================
   bool getOptionalFloat(const Cantera::XML_Node& parent,
 			const std::string &name,
 			doublereal &fltRtn,
@@ -957,11 +956,13 @@ namespace ctml {
    *                        The default value for the node name is floatArray
    *
    *   @return              Returns the number of floats read
+   *
+   *  @note change the v to a std::vector to eliminate a doxygen error. No idea why doxygen needs this.
    */
-  int  getFloatArray(const Cantera::XML_Node& node, Cantera::vector_fp& v, 
+  int  getFloatArray(const Cantera::XML_Node& node, std::vector<double> &v, 
                      const bool convert, const std::string unitsString,
                      const std::string nodeName) {
-    string::size_type icom;
+    std::string::size_type icom;
     string numstr;
     doublereal dtmp;
     string nn = node.name();
@@ -1332,9 +1333,11 @@ namespace ctml {
    *                        units converter is used.
    *   @param  nodeName     XML Name of the XML node to read. 
    *                        The default value for the node name is floatArray
+   *
+   *  @note change the coeffs to a std::vector to eliminate a doxygen error. No idea why doxygen needs this.
    */
   void getFunction(const Cantera::XML_Node& node, std::string& type, doublereal& xmin,
-		   doublereal& xmax, Cantera::vector_fp& coeffs) {
+		   doublereal& xmax, std::vector< double > & coeffs) {
     const XML_Node& c = node.child("floatArray");
     coeffs.clear();
     getFloatArray(c,coeffs);

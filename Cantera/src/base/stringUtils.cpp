@@ -539,6 +539,14 @@ namespace Cantera {
     return (val * fp);
   }
   //================================================================================================
+  //!  Find the first white space in a string
+  /*!
+   *   Returns the location of the first white space character in a string
+   *
+   *   @param   val    Input string to be parsed
+   *   @return  In a size_type variable, return the location of the first white space character.
+   *             Return npos if none is found
+   */
   static std::string::size_type findFirstWS(const std::string& val) {
     std::string::size_type ibegin = std::string::npos;
     int j = 0;
@@ -555,6 +563,14 @@ namespace Cantera {
     return ibegin;  
   }
   //================================================================================================
+  //!  Find the first non-white space in a string
+  /*!
+   *   Returns the location of the first non-white space character in a string
+   *
+   *   @param   val    Input string to be parsed
+   *   @return  In a size_type variable, return the location of the first nonwhite space character.
+   *             Return npos if none is found
+   */
   static std::string::size_type findFirstNotOfWS(const std::string& val) {
     std::string::size_type ibegin = std::string::npos;
     int j = 0;
