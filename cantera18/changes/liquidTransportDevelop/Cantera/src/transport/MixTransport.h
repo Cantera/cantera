@@ -79,6 +79,7 @@ namespace Cantera {
   class MixTransport : public Transport {
 
   protected:
+
     //! Default constructor.  
     /*!
      *
@@ -303,21 +304,21 @@ namespace Cantera {
     vector_fp                    m_polytempvec;
 
     // property values
-    DenseMatrix                  m_bdiff;
+    DenseMatrix m_bdiff;
 
     //! vector of species viscosities (kg /m /s)
     /*!
      *  These are used in wilke's rule to calculate the viscosity of the solution
      *  length = m_kk
      */
-    vector_fp                    m_visc;
+    vector_fp m_visc;
 
     //! vector of square root of species viscosities sqrt(kg /m /s)
     /*!
      *  These are used in wilke's rule to calculate the viscosity of the solution
      *  length = m_kk
      */
-    vector_fp                    m_sqvisc;
+    vector_fp m_sqvisc;
 
     //! vector of species thermal conductivities (W/m /K)
     /*!
@@ -336,31 +337,53 @@ namespace Cantera {
 
     std::vector<std::vector<int> > m_poly;
  
-    std::vector<vector_fp >   m_bstar_poly;
-    std::vector<vector_fp >   m_cstar_poly;
-    std::vector<vector_fp >   m_om22_poly;
-
-    DenseMatrix          m_bstar;
-    DenseMatrix          m_cstar;
-    DenseMatrix          m_om22;
-
     //! Viscosity Weighting Functions
     DenseMatrix m_phi;  
     DenseMatrix m_wratjk;
     DenseMatrix m_wratkj1;
 
-    vector_fp   m_zrot;
-    vector_fp   m_crot;
-    vector_fp   m_cinternal;
-    vector_fp   m_eps;
-    vector_fp   m_alpha;
-    vector_fp   m_dipoleDiag;
+    //! Rotational relaxation number for the species in the current phase
+    /*!
+     *  Not used in this routine -> just a passthrough
+     *
+     * length is the number of species in the phase
+     * units are dimensionless
+     */
+    vector_fp m_zrot;
 
+    //! Dimensionless rotational heat capacity of the species in the current phase
+    /*!
+     *  These values are 0, 1 and 1.5 for single-molecule, linear, and nonlinear species respectively
+     *  length is the number of species in the pahse
+     *  units are dimensionless  (Cr / R)
+     */
+    vector_fp m_crot;
+    vector_fp m_cinternal;
+
+    //! Lennard-Jones well-depth of the species in the current phase
+    /*!
+     * length is the number of species in the phase
+     * Units are Joules (Note this is not Joules/kmol) (note, no kmol -> this is a per molecule amount)
+     */
+    vector_fp m_eps;
+    vector_fp m_alpha;
+    vector_fp m_dipoleDiag;
+
+    //! Current value of the temperature at which the properties in this object are calculated (Kelvin)
     doublereal m_temp;
+
+    //! Current value of the log of the temperature
     doublereal m_logt;
+
+    //! Current value of Boltzman's constant times the temperature (Joules)
     doublereal m_kbt;
+
+    //! Current value of temperature to 1/4 power
     doublereal m_t14;
+
+    //! Current value of temperature to the 3/2 power
     doublereal m_t32;
+
     doublereal m_sqrt_kbt;
     doublereal m_sqrt_t;
 
