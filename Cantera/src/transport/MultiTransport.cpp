@@ -112,7 +112,7 @@ namespace Cantera {
 
   }
 
-  bool MultiTransport::initGas( GasTransportParams& tr ) {
+  bool MultiTransport::initGas(GasTransportParams& tr) {
 
     // constant mixture attributes
     //m_phase = tr.mix;

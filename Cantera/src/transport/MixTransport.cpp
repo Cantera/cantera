@@ -54,16 +54,9 @@ namespace Cantera {
     m_cond(0),
     m_molefracs(0),
     m_poly(0),
-    m_bstar_poly(0),
-    m_cstar_poly(0),
-    m_om22_poly(0),
-    m_bstar(0, 0),
-    m_cstar(0, 0),
-    m_om22(0, 0),
     m_phi(0,0),
     m_wratjk(0,0),
     m_wratkj1(0,0),
-    m_zrot(0),
     m_crot(0),
     m_cinternal(0),
     m_eps(0),
@@ -114,16 +107,9 @@ namespace Cantera {
     m_cond(0),
     m_molefracs(0),
     m_poly(0),
-    m_bstar_poly(0),
-    m_cstar_poly(0),
-    m_om22_poly(0),
-    m_bstar(0, 0),
-    m_cstar(0, 0),
-    m_om22(0, 0),
     m_phi(0,0),
     m_wratjk(0,0),
     m_wratkj1(0,0),
-    m_zrot(0),
     m_crot(0),
     m_cinternal(0),
     m_eps(0),
@@ -187,12 +173,6 @@ namespace Cantera {
     m_cond = right.m_cond;
     m_molefracs = right.m_molefracs;
     m_poly = right.m_poly;
-    m_bstar_poly = right.m_bstar_poly;
-    m_cstar_poly = right.m_cstar_poly; 
-    m_om22_poly = right.m_om22_poly; 
-    m_bstar = right.m_bstar;
-    m_cstar = right.m_cstar;
-    m_om22 = right.m_om22;
     m_phi = right.m_phi; 
     m_wratjk = right.m_wratjk; 
     m_wratkj1 = right.m_wratkj1; 
@@ -251,7 +231,7 @@ namespace Cantera {
   {
   }
   //====================================================================================================================
-  bool MixTransport::initGas( GasTransportParams& tr ) {
+  bool MixTransport::initGas(GasTransportParams& tr) {
 
     // constant substance attributes
     m_thermo = tr.thermo;
