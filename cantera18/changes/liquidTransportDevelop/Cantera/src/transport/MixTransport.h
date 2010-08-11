@@ -276,16 +276,32 @@ namespace Cantera {
     }
     void updateThermal_T();
     void updateViscosity_T();
+
+    //! Update the temperature dependent parts of the species thermal conductivities
+    /*!
+     * These are evaluated from the polynomial fits of the temperature and are assumed to be 
+     * independent of pressure
+     */
     void updateCond_T();
+
+    //! Update the species viscosities
+    /*!
+     * These are evaluated from the polynomial fits of the temperature and are assumed to be 
+     * independent of pressure
+     */
     void updateSpeciesViscosities();
+
+    //! Update the binary diffusion coefficients
+    /*!
+     * These are evaluated from the polynomial fits of the temperature at the unit pressure of 1 Pa.
+     */
     void updateDiff_T();
-    void correctBinDiffCoeffs();
 
-
-
+ 
     // --------- Member Data -------------
+  private:
 
-    // mixture attributes
+    //! Number of species in the phase
     int m_nsp;
 
     //! Minimum value of the temperature that this transport parameterization is valid
@@ -301,6 +317,11 @@ namespace Cantera {
     std::vector<vector_fp>            m_visccoeffs;
     std::vector<vector_fp>            m_condcoeffs;
     std::vector<vector_fp>            m_diffcoeffs;
+
+    //! Powers of the ln temperature
+    /*!
+     *  up to fourth order
+     */
     vector_fp                    m_polytempvec;
 
     // property values
@@ -342,32 +363,11 @@ namespace Cantera {
     DenseMatrix m_wratjk;
     DenseMatrix m_wratkj1;
 
-    //! Rotational relaxation number for the species in the current phase
-    /*!
-     *  Not used in this routine -> just a passthrough
-     *
-     * length is the number of species in the phase
-     * units are dimensionless
-     */
-    vector_fp m_zrot;
+  
 
-    //! Dimensionless rotational heat capacity of the species in the current phase
-    /*!
-     *  These values are 0, 1 and 1.5 for single-molecule, linear, and nonlinear species respectively
-     *  length is the number of species in the pahse
-     *  units are dimensionless  (Cr / R)
-     */
-    vector_fp m_crot;
-    vector_fp m_cinternal;
 
-    //! Lennard-Jones well-depth of the species in the current phase
-    /*!
-     * length is the number of species in the phase
-     * Units are Joules (Note this is not Joules/kmol) (note, no kmol -> this is a per molecule amount)
-     */
-    vector_fp m_eps;
-    vector_fp m_alpha;
-    vector_fp m_dipoleDiag;
+ 
+ 
 
     //! Current value of the temperature at which the properties in this object are calculated (Kelvin)
     doublereal m_temp;
@@ -384,35 +384,111 @@ namespace Cantera {
     //! Current value of temperature to the 3/2 power
     doublereal m_t32;
 
+    //! current value of  Boltzman's constant times the temperature (Joules) to 1/2 power
     doublereal m_sqrt_kbt;
+
+    //! current value of temperature to 1/2 power
     doublereal m_sqrt_t;
 
-    vector_fp  m_sqrt_eps_k;
-    DenseMatrix m_log_eps_k;
-    vector_fp  m_frot_298;
-    vector_fp  m_rotrelax;
-
+    //! Internal storage for the calculated mixture thermal conductivity
+    /*!
+     *  Units = W /m /K
+     */
     doublereal m_lambda;
+
+    //! Internal storage for the viscosity of the mixture  (kg /m /s)
     doublereal m_viscmix;
 
-    // work space
+    //! work space length = m_kk
     vector_fp  m_spwork;
 
-  
+    //! Update boolean for mixture rule for the mixture viscosity
     bool m_viscmix_ok;
+
+    //! Update boolean for the weighting factors for the mixture viscosity
     bool m_viscwt_ok;
+
+    //! Update boolean for the species viscosities
     bool m_spvisc_ok;
-    bool m_diffmix_ok;
+
+    //! Update boolean for the binary diffusivities at unit pressure
     bool m_bindiff_ok;
-    bool m_abc_ok;
+
+    //! Update boolean for the species thermal conductivities
     bool m_spcond_ok;
+
+    //! Update boolean for the mixture rule for the mixture thermal conductivity
     bool m_condmix_ok;
 
+    //! Type of the polynomial fits to temperature
+    /*!
+     * CK_Mode means chemkin mode. Currently CA_Mode is used which are different types
+     * of fits to temperature.
+     */
     int m_mode;
 
-    DenseMatrix m_epsilon;
+    //! Lennard-Jones well-depth of the species in the current phase
+    /*!
+     *  Not used in this routine -> just a passthrough
+     *
+     * length is the number of species in the phase
+     * Units are Joules (Note this is not Joules/kmol) (note, no kmol -> this is a per molecule amount)
+     */
+    vector_fp m_eps;
+
+    //! hard-sphere diameter for (i,j) collision
+    /*!
+     *  Not used in this routine -> just a passthrough
+     *
+     *  diam(i,j) = 0.5*(tr.sigma[i] + tr.sigma[j]);
+     *  Units are m (note, no kmol -> this is a per molecule amount)
+     *
+     *  Length nsp * nsp. This is a symmetric matrix.
+     */
     DenseMatrix m_diam;
-    DenseMatrix incl;
+
+    //! The effective dipole moment for (i,j) collisions   
+    /*!
+     *  tr.dipoleMoment has units of Debye's. A Debye is 10-18 cm3/2 erg1/2
+     *
+     *  Not used in this routine -> just a passthrough
+     *
+     *    tr.dipole(i,i) = 1.e-25 * SqrtTen * trdat.dipoleMoment;
+     *    tr.dipole(i,j) = sqrt(tr.dipole(i,i)*tr.dipole(j,j));
+     *  Units are  in Debye  (note, no kmol -> this is a per molecule amount)
+     *
+     *  Length nsp. We store only the diagonal component here.
+     */
+    vector_fp m_dipoleDiag;
+
+    //! Polarizability of each species in the phase
+    /*!
+     *  Not used in this routine -> just a passthrough
+     *
+     *  Length = nsp
+     *  Units = m^3
+     */
+    vector_fp m_alpha;
+
+    //! Dimensionless rotational heat capacity of the species in the current phase
+    /*!
+     *  Not used in this routine -> just a passthrough
+     *
+     *  These values are 0, 1 and 1.5 for single-molecule, linear, and nonlinear species respectively
+     *  length is the number of species in the pahse
+     *  units are dimensionless  (Cr / R)
+     */
+    vector_fp m_crot;
+
+    //! Rotational relaxation number for the species in the current phase
+    /*!
+     *  Not used in this routine -> just a passthrough
+     *
+     * length is the number of species in the phase
+     * units are dimensionless
+     */
+    vector_fp m_zrot;
+
 
     //! Debug flag - turns on more printing
     bool m_debug;
