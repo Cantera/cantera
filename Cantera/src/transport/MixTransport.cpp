@@ -57,11 +57,6 @@ namespace Cantera {
     m_phi(0,0),
     m_wratjk(0,0),
     m_wratkj1(0,0),
-    m_crot(0),
-    m_cinternal(0),
-    m_eps(0),
-    m_alpha(0),
-    m_dipoleDiag(0),
     m_temp(-1.0),
     m_logt(0.0),
     m_kbt(0.0),
@@ -69,25 +64,22 @@ namespace Cantera {
     m_t32(0.0),
     m_sqrt_kbt(0.0),
     m_sqrt_t(0.0),
-    m_sqrt_eps_k(0),
-    m_log_eps_k(0, 0),
-    m_frot_298(0),
-    m_rotrelax(0),
     m_lambda(0.0),
     m_viscmix(0.0),
     m_spwork(0),
     m_viscmix_ok(false),
     m_viscwt_ok(false),
     m_spvisc_ok(false),
-    m_diffmix_ok(false),
     m_bindiff_ok(false),
-    m_abc_ok (false),
     m_spcond_ok(false),
     m_condmix_ok(false),
     m_mode(0),
-    m_epsilon(0, 0),
+    m_eps(0),
     m_diam(0, 0),
-    incl(0, 0),
+    m_dipoleDiag(0),
+    m_alpha(0),
+    m_crot(0),
+    m_zrot(0),
     m_debug(false)
   {
   }
@@ -110,11 +102,6 @@ namespace Cantera {
     m_phi(0,0),
     m_wratjk(0,0),
     m_wratkj1(0,0),
-    m_crot(0),
-    m_cinternal(0),
-    m_eps(0),
-    m_alpha(0),
-    m_dipoleDiag(0),
     m_temp(-1.0),
     m_logt(0.0),
     m_kbt(0.0),
@@ -122,25 +109,22 @@ namespace Cantera {
     m_t32(0.0),
     m_sqrt_kbt(0.0),
     m_sqrt_t(0.0),
-    m_sqrt_eps_k(0),
-    m_log_eps_k(0, 0),
-    m_frot_298(0),
-    m_rotrelax(0),
     m_lambda(0.0),
     m_viscmix(0.0),
     m_spwork(0),
     m_viscmix_ok(false),
     m_viscwt_ok(false),
     m_spvisc_ok(false),
-    m_diffmix_ok(false),
     m_bindiff_ok(false),
-    m_abc_ok (false),
     m_spcond_ok(false),
     m_condmix_ok(false),
     m_mode(0),
-    m_epsilon(0, 0),
+    m_eps(0),
     m_diam(0, 0),
-    incl(0, 0),
+    m_dipoleDiag(0),
+    m_alpha(0),
+    m_crot(0),
+    m_zrot(0),
     m_debug(false)
   {
     *this = right;
@@ -176,12 +160,6 @@ namespace Cantera {
     m_phi = right.m_phi; 
     m_wratjk = right.m_wratjk; 
     m_wratkj1 = right.m_wratkj1; 
-    m_zrot = right.m_zrot;
-    m_crot = right.m_crot; 
-    m_cinternal = right.m_cinternal;
-    m_eps = right.m_eps;
-    m_alpha = right.m_alpha;
-    m_dipoleDiag = right.m_dipoleDiag;
     m_temp = right.m_temp; 
     m_logt = right.m_logt;
     m_kbt = right.m_kbt; 
@@ -189,25 +167,22 @@ namespace Cantera {
     m_t32 = right.m_t32;
     m_sqrt_kbt = right.m_sqrt_kbt;
     m_sqrt_t = right.m_sqrt_t;
-    m_sqrt_eps_k = right.m_sqrt_eps_k;
-    m_log_eps_k = right.m_log_eps_k;
-    m_frot_298 = right.m_frot_298;
-    m_rotrelax = right.m_rotrelax;  
     m_lambda = right.m_lambda;
     m_viscmix = right.m_viscmix;
     m_spwork = right.m_spwork;
     m_viscmix_ok = right.m_viscmix_ok;
     m_viscwt_ok = right.m_viscwt_ok;
     m_spvisc_ok = right.m_spvisc_ok;
-    m_diffmix_ok = right.m_diffmix_ok;
     m_bindiff_ok = right.m_bindiff_ok;
-    m_abc_ok = right.m_abc_ok;
     m_spcond_ok = right.m_spcond_ok;
     m_condmix_ok = right.m_condmix_ok;
     m_mode = right.m_mode;
-    m_epsilon = right.m_epsilon;
+    m_eps = right.m_eps;
     m_diam = right.m_diam;
-    incl = right.incl;
+    m_dipoleDiag = right.m_dipoleDiag;
+    m_alpha = right.m_alpha;
+    m_crot = right.m_crot; 
+    m_zrot = right.m_zrot;
     m_debug = right.m_debug;
 
     return *this;
@@ -252,7 +227,6 @@ namespace Cantera {
 
     m_zrot       = tr.zrot;
     m_crot       = tr.crot;
-    m_epsilon    = tr.epsilon;
     m_mode       = tr.mode_;
     m_diam       = tr.diam;
     m_eps        = tr.eps;
@@ -288,9 +262,6 @@ namespace Cantera {
     m_spvisc_ok = false;
     m_spcond_ok = false;
     m_condmix_ok = false;
-    m_spcond_ok = false;
-    m_diffmix_ok = false;
-    m_abc_ok = false;
 
     return true;
   }
@@ -548,9 +519,7 @@ namespace Cantera {
     m_spvisc_ok = false;
     m_viscwt_ok = false;
     m_spcond_ok = false;
-    m_diffmix_ok = false;
     m_bindiff_ok = false;
-    m_abc_ok  = false;
     m_condmix_ok = false;                 
   }                 
   //====================================================================================================================
@@ -566,7 +535,6 @@ namespace Cantera {
     // fractions.
 
     m_viscmix_ok = false;
-    m_diffmix_ok = false;
     m_condmix_ok = false;
 
     m_thermo->getMoleFractions(DATA_PTR(m_molefracs));
@@ -577,13 +545,6 @@ namespace Cantera {
       m_molefracs[k] = fmaxx(MIN_X, m_molefracs[k]);
     }
   }
-  //====================================================================================================================
-
-  /*************************************************************************
-   *
-   *    methods to update temperature-dependent properties
-   *
-   *************************************************************************/
   //====================================================================================================================
   /*
    * Update the temperature-dependent parts of the mixture-averaged 
@@ -605,7 +566,6 @@ namespace Cantera {
     m_spcond_ok = true;
     m_condmix_ok = false;
   }
-
   //====================================================================================================================
   /*
    * Update the binary diffusion coefficients. These are evaluated
@@ -635,9 +595,7 @@ namespace Cantera {
 	}
       }
     }
-
     m_bindiff_ok = true;
-    m_diffmix_ok = false;
   }
   //====================================================================================================================
   /*
