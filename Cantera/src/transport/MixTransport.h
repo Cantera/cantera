@@ -275,6 +275,22 @@ namespace Cantera {
 	      m_thermo->temperature());
     }
     void updateThermal_T();
+
+    
+    //! Update the temperature-dependent viscosity terms.
+    /*!
+     * Updates the array of pure species viscosities, and the weighting functions in the viscosity mixture rule.
+     * The flag m_visc_ok is set to true.
+     *
+     * The formula for the weighting function is from Poling and Prausnitz.
+     * See Eq. (9-5.14) of  Poling, Prausnitz, and O'Connell. The equation for the weighting function
+     * \f$ \phi_{ij} \f$ is reproduced below.
+     *
+     *  \f[
+     *        \phi_{ij} = \frac{ \left[ 1 + \left( \mu_i / \mu_j \right)^{1/2} \left( M_j / M_i \right)^{1/4} \right]^2 }
+     *                    {\left[ 8 \left( 1 + M_i / M_j \right) \right]^{1/2}}
+     *  \f]
+     */
     void updateViscosity_T();
 
     //! Update the temperature dependent parts of the species thermal conductivities
@@ -356,16 +372,26 @@ namespace Cantera {
      */
     vector_fp m_molefracs;
 
-    std::vector<std::vector<int> > m_poly;
- 
-    //! Viscosity Weighting Functions
-    DenseMatrix m_phi;  
+    //! m_phi is a Viscosity Weighting Function
+    /*!
+     *  size = m_nsp * n_nsp
+     */
+    DenseMatrix m_phi; 
+
+    //! Holds square roots or molecular weight ratios
+    /*!
+     *   m_wratjk(j,k)  = sqrt(mw[j]/mw[k])        j < k
+     *   m_wratjk(k,j)  = sqrt(sqrt(mw[j]/mw[k]))  j < k
+     */
     DenseMatrix m_wratjk;
+
+    //! Holds square roots of molecular weight ratios
+    /*!
+     *   m_wratjk1(j,k)  = sqrt(1.0 + mw[k]/mw[j])        j < k
+     */
     DenseMatrix m_wratkj1;
 
-  
-
-
+ 
  
  
 

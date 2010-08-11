@@ -126,7 +126,7 @@ namespace Cantera {
      */
     std::vector<vector_fp> diffcoeffs;
 
-    //!  This is vector of vectors containing the integer ookup value for the (i,j) interaction
+    //!  This is vector of vectors containing the integer lookup value for the (i,j) interaction
     /*!
      *  The outer loop is over a flat (i,j) index that is parameterized on the tr.delta(i,j) value.
      *  Unique values of delta get their own spot in the array. The values of delta are storred in 
