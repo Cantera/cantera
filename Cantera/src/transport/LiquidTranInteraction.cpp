@@ -733,7 +733,7 @@ namespace Cantera {
     xA = neut_molefracs[neutMolIndex[cation[0]]];
     xB = neut_molefracs[neutMolIndex[cation[1]]];
     eps = (1-m_mobRatMix(cation[1],cation[0]))/(xA+xB*m_mobRatMix(cation[1],cation[0]));
-    inv_vP_vM_MutualDiff = (xA*(1+dlnActCoeffdlnN_diag[neutMolIndex[cation[1]]])/m_selfDiffMix[cation[1]]+xB*(1+dlnActCoeffdlnN_diag[neutMolIndex[cation[0]]])/m_selfDiffMix[cation[0]]);
+    inv_vP_vM_MutualDiff = (xA*(1-xB+dlnActCoeffdlnN_diag[neutMolIndex[cation[1]]])/m_selfDiffMix[cation[1]]+xB*(1-xA+dlnActCoeffdlnN_diag[neutMolIndex[cation[0]]])/m_selfDiffMix[cation[0]]);
     
     mat.resize(nsp, nsp, 0.0 );
     mat(cation[0],cation[1]) = mat(cation[1],cation[0]) = (1+vM/vP)*(1+eps*xB)*(1-eps*xA)*inv_vP_vM_MutualDiff-zP*zP*Faraday*Faraday/GasConstant/temp/m_ionCondMix/vol;
