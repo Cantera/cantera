@@ -53,7 +53,6 @@ namespace Cantera {
     m_sqvisc(0),
     m_cond(0),
     m_molefracs(0),
-    m_poly(0),
     m_phi(0,0),
     m_wratjk(0,0),
     m_wratkj1(0,0),
@@ -98,7 +97,6 @@ namespace Cantera {
     m_sqvisc(0),
     m_cond(0),
     m_molefracs(0),
-    m_poly(0),
     m_phi(0,0),
     m_wratjk(0,0),
     m_wratkj1(0,0),
@@ -156,7 +154,6 @@ namespace Cantera {
     m_sqvisc = right.m_sqvisc;
     m_cond = right.m_cond;
     m_molefracs = right.m_molefracs;
-    m_poly = right.m_poly;
     m_phi = right.m_phi; 
     m_wratjk = right.m_wratjk; 
     m_wratkj1 = right.m_wratkj1; 
@@ -220,7 +217,6 @@ namespace Cantera {
 	 m_thermo->molecularWeights().end(), m_mw.begin());
 
     // copy polynomials and parameters into local storage
-    m_poly       = tr.poly;
     m_visccoeffs = tr.visccoeffs;
     m_condcoeffs = tr.condcoeffs;
     m_diffcoeffs = tr.diffcoeffs;
@@ -619,11 +615,19 @@ namespace Cantera {
     m_spvisc_ok = true;
   }
   //====================================================================================================================
+  // Update the temperature-dependent viscosity terms.
   /*
-   * Update the temperature-dependent viscosity terms.
-   * Updates the array of pure species viscosities, and the 
-   * weighting functions in the viscosity mixture rule.
+   * Updates the array of pure species viscosities, and the weighting functions in the viscosity mixture rule.
    * The flag m_visc_ok is set to true.
+   *
+   * The formula for the weighting function is from Poling and Prausnitz.
+   * See Eq. (9-5.14) of  Poling, Prausnitz, and O'Connell. The equation for the weighting function
+   * \f$ \phi_{ij} \f$ is reproduced below.
+   *
+   *  \f[
+   *        \phi_{ij} = \frac{ \left[ 1 + \left( \mu_i / \mu_j \right)^{1/2} \left( M_j / M_i \right)^{1/4} \right]^2 }
+   *                    {\left[ 8 \left( 1 + M_i / M_j \right) \right]^{1/2}}
+   *  \f]
    */
   void MixTransport::updateViscosity_T() {
     doublereal vratiokj, wratiojk, factor1;
@@ -640,8 +644,7 @@ namespace Cantera {
 	// Note that m_wratjk(k,j) holds the square root of
 	// m_wratjk(j,k)!
 	factor1 = 1.0 + (m_sqvisc[k]/m_sqvisc[j]) * m_wratjk(k,j);
-	m_phi(k,j) = factor1*factor1 /
-	  (SqrtEight * m_wratkj1(j,k)); 
+	m_phi(k,j) = factor1*factor1 / (SqrtEight * m_wratkj1(j,k)); 
 	m_phi(j,k) = m_phi(k,j)/(vratiokj * wratiojk);
       }
     }
