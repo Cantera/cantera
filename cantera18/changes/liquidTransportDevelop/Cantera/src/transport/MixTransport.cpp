@@ -302,34 +302,36 @@ namespace Cantera {
     return vismix;
   }
   //====================================================================================================================
-
-  /******************* binary diffusion coefficients **************/
-
-
+  // Returns the matrix of binary diffusion coefficients.
+  /*
+   *
+   *        d[ld*j + i] = rp * m_bdiff(i,j);
+   *
+   *  units of m**2 / s
+   *
+   * @param ld   offset of rows in the storage
+   * @param d    output vector of diffusion coefficients
+   */
   void MixTransport::getBinaryDiffCoeffs(const int ld, doublereal* const d) {
-    int i,j;
-
     update_T();
-
-    // if necessary, evaluate the binary diffusion coefficents
-    // from the polynomial fits
+    // if necessary, evaluate the binary diffusion coefficents from the polynomial fits
     if (!m_bindiff_ok) updateDiff_T();
-
+    if (ld < m_nsp) {
+      throw CanteraError(" MixTransport::getBinaryDiffCoeffs()", "ld is too small");
+    }
     doublereal rp = 1.0/pressure_ig();
-    for (i = 0; i < m_nsp; i++) 
-      for (j = 0; j < m_nsp; j++) {
+    for (int i = 0; i < m_nsp; i++) 
+      for (int j = 0; j < m_nsp; j++) {
 	d[ld*j + i] = rp * m_bdiff(i,j);
       }
   }
-
-
   //===================================================================================================================
   void MixTransport::getMobilities(doublereal* const mobil) {
     int k;
     getMixDiffCoeffs(DATA_PTR(m_spwork));
     doublereal c1 = ElectronCharge / (Boltzmann * m_temp);
     for (k = 0; k < m_nsp; k++) {
-      mobil[k] = c1 * m_spwork[k] * m_thermo->charge(k);
+      mobil[k] = c1 * m_spwork[k];
     }
   } 
   //===================================================================================================================

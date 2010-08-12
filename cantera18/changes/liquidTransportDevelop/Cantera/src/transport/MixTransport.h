@@ -149,6 +149,10 @@ namespace Cantera {
      */
     virtual doublereal viscosity();
 
+    //! returns the vector of species viscosities
+    /*!
+     *   @param visc  Vector of species viscosities
+     */
     virtual void getSpeciesViscosities(doublereal* visc)
     { update_T();  updateViscosity_T(); copy(m_visc.begin(), m_visc.end(), visc); }
 
@@ -183,8 +187,17 @@ namespace Cantera {
      */
     virtual doublereal thermalConductivity();
 
+    //! Returns the matrix of binary diffusion coefficients.
+    /*!
+     *
+     *        d[ld*j + i] = rp * m_bdiff(i,j);
+     *
+     *  units of m**2 / s
+     *
+     * @param ld   offset of rows in the storage
+     * @param d    output vector of diffusion coefficients
+     */
     virtual void getBinaryDiffCoeffs(const int ld, doublereal* const d);
-
     
     //! Returns the Mixture-averaged diffusion coefficients [m^2/s]. 
     /*!
@@ -207,9 +220,36 @@ namespace Cantera {
      */
     virtual void getMixDiffCoeffs(doublereal* const d);
 
-
+    //! Get the Electrical mobilities (m^2/V/s).
+    /*!
+     *   This function returns the mobilities. In some formulations
+     *   this is equal to the normal mobility multiplied by Faraday's constant.
+     *
+     *   Here, the mobility is calculated from the diffusion coefficient using the Einstein relation
+     *
+     *     \f[ 
+     *          \mu^e_k = \frac{F D_k}{R T}
+     *     \f]
+     *
+     * @param mobil  Returns the mobilities of the species in array \c mobil. The array must be
+     *               dimensioned at least as large as the number of species.
+     */
     virtual void getMobilities(doublereal* const mobil);
+
+    //! Update the internal parameters whenever the temperature has changed
+    /*!
+     *  @internal
+     *      This is called whenever a transport property is requested if the temperature has changed
+     *      since the last call to update_T().
+     */
     virtual void update_T();
+
+    //! Update the internal parameters whenever the concentrations have changed
+    /*!
+     *  @internal
+     *      This is called whenever a transport property is requested if the concentrations have changed
+     *      since the last call to update_C().
+     */
     virtual void update_C();
 
     //! Get the species diffusive mass fluxes wrt to the mass averaged velocity, 
@@ -274,9 +314,7 @@ namespace Cantera {
       return (m_thermo->molarDensity() * GasConstant *
 	      m_thermo->temperature());
     }
-    void updateThermal_T();
 
-    
     //! Update the temperature-dependent viscosity terms.
     /*!
      * Updates the array of pure species viscosities, and the weighting functions in the viscosity mixture rule.
@@ -329,9 +367,34 @@ namespace Cantera {
     //! Local copy of the species molecular weights.
     vector_fp  m_mw;
 
-    // polynomial fits
+    //! Polynomial fits to the viscosity of each species
+    /*!
+     *  m_visccoeffs[k] is vector of polynomial coefficients for species k
+     *  that fits the viscosity as a function of temperature
+     */
     std::vector<vector_fp>            m_visccoeffs;
+
+    //! Polynomial fits to the thermal conductivity of each species
+    /*!
+     *  m_condcoeffs[k] is vector of polynomial coefficients for species k
+     *  that fits the thermal conductivity
+     */
     std::vector<vector_fp>            m_condcoeffs;
+
+    //! Polynomial fits to the binary diffusivity of each species
+    /*!
+     *  m_diffcoeff[ic] is vector of polynomial coefficients for species  i species  j
+     *  that fits the binary diffusion coefficient. The relationship between i
+     *  j and ic is determined from the following algorithm:
+     *
+     *     int ic = 0;
+     *     for (i = 0; i < m_nsp; i++) {
+     *        for (j = i; j < m_nsp; j++) {
+     *          ic++;
+     *        }
+     *     }
+     *
+     */
     std::vector<vector_fp>            m_diffcoeffs;
 
     //! Powers of the ln temperature
@@ -340,7 +403,10 @@ namespace Cantera {
      */
     vector_fp                    m_polytempvec;
 
-    // property values
+    //! Matrix of binary diffusion coefficients at the reference pressure and the current temperature
+    /*!
+     *   Size is nsp x nsp
+     */
     DenseMatrix m_bdiff;
 
     //! vector of species viscosities (kg /m /s)

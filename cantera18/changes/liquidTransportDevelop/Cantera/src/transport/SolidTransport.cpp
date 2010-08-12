@@ -127,7 +127,7 @@ namespace Cantera {
     int nsp = m_thermo->nSpecies();
     doublereal c1 = ElectronCharge / (Boltzmann * t);
     for (k = 0; k < nsp; k++) {
-      mobil[k] *= c1 * fabs(m_thermo->charge(k));
+      mobil[k] *= c1;
     }
   } 
   //====================================================================================================================
