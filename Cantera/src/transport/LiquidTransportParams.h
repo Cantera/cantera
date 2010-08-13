@@ -128,7 +128,17 @@ namespace Cantera {
     std::vector<LiquidTranInteraction*> selfDiffusion;
     LiquidTranInteraction* thermalCond;
     LiquidTranInteraction* speciesDiffusivity;
+
+    //! Pointer to the  LiquidTranInteraction object which handles the calculation of the 
+    //! electrical conductivity for the phase
     LiquidTranInteraction* electCond;
+
+    //! Pointer to the  LiquidTranInteraction object which handles the calculation of the hydrodynamic
+    //! radius for the phase
+    /*!
+     *  @note  I don't understand at the moment how one can define a hydrodynamic
+     *         radius for the phase
+     */
     LiquidTranInteraction* hydroRadius;
     
     //! Model for species interaction effects for viscosity
