@@ -491,7 +491,6 @@ namespace Cantera {
    *  These in turn employ subclasses of LTPspecies to 
    *  determine the individual species ionic conductivities.
    */ 
-
   doublereal LiquidTransport:: ionConductivity() {
         
     update_T();
@@ -550,10 +549,10 @@ namespace Cantera {
     // LiquidTranInteraction method
     if (!m_mobRat_mix_ok) {
       for (int k = 0; k < m_nsp2; k++){
-	if(m_mobRatMixModel[k]){
+	if (m_mobRatMixModel[k]) {
 	  m_mobRatMix[k] = m_mobRatMixModel[k]->getMixTransProp(m_mobRatTempDep_Ns[k]);
-	  if (m_mobRatMix[k] > 0) {
-            m_mobRatMix[k/m_nsp+m_nsp*(k%m_nsp)] = 1.0/m_mobRatMix[k]; // Also must be off diagonal: k%(1+n)!=0, but then m_mobRatMixModel[k] shouldn't be initialized anyway
+	  if (m_mobRatMix[k] > 0.0) {
+            m_mobRatMix[k / m_nsp + m_nsp * (k % m_nsp)] = 1.0 / m_mobRatMix[k]; // Also must be off diagonal: k%(1+n)!=0, but then m_mobRatMixModel[k] shouldn't be initialized anyway
           }
 	}
       }
@@ -577,8 +576,8 @@ namespace Cantera {
     if (!m_mobRat_temp_ok) {
       updateMobilityRatio_T();
     }
-    for (int k=0; k < m_nsp2; k++) {
-      for (int j=0; j < m_nsp; j++) {
+    for (int k = 0; k < m_nsp2; k++) {
+      for (int j = 0; j < m_nsp; j++) {
 	mobRat[k][j] = m_mobRatSpecies(k,j); 
       }
    }
@@ -1513,7 +1512,7 @@ namespace Cantera {
     
     return;
   }
-
+  //====================================================================================================================
   /*
    *
    *    Solve for the diffusional velocities in the Stefan-Maxwell equations
@@ -1782,20 +1781,18 @@ namespace Cantera {
       }
     }
   }
-
-
-  /**
-   * Throw an exception if this method is invoked. 
-   * This probably indicates something is not yet implemented.
+  //====================================================================================================================
+  // Throw an exception indicating something is not yet implemented.
+  /*
+   * @param msg    String with an informative message
    */
   doublereal LiquidTransport::err(std::string msg) const {
-    throw CanteraError("Liquid Transport Class",
+    throw CanteraError("LiquidTransport::err()",
 		       "\n\n\n**** Method "+ msg +" not implemented in model "
 		       + int2str(model()) + " ****\n"
 		       "(Did you forget to specify a transport model?)\n\n\n");
-      
     return 0.0;
   }
-
-
+  //====================================================================================================================
 }
+//======================================================================================================================
