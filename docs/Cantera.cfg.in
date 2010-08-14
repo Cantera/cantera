@@ -772,6 +772,8 @@ FILE_PATTERNS          = Kinetics.h  Kinetics.cpp \
                          MMCollisionInt.cpp \
                          TransportFactory.h \
                          TransportFactory.cpp \
+                         LTPspecies.h \
+                         LTPspecies.cpp \
                          MultiTransport.h \
                          MultiTransport.cpp \
                          MixTransport.h \
