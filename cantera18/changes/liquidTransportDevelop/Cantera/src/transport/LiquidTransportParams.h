@@ -72,7 +72,7 @@ namespace Cantera {
      *                <speciesB> Cl-  </speciesB>
      *                <Dij units="m2/s"> 1.2 </Dij>
      *             </interaction>
-     *          </compositionDependence>          
+     *          </compositionDependence>
      *       </speciesDiffusivity>
      *       <thermalConductivity>
      *          <compositionDependence model="massFractions"/>
@@ -124,9 +124,27 @@ namespace Cantera {
     //! Object that specifes the ionic Conductivity of the mixture
     LiquidTranInteraction* ionConductivity;
 
-    std::vector<LiquidTranInteraction*> mobilityRatio;
-    std::vector<LiquidTranInteraction*> selfDiffusion;
+    //! Vector of pointer to the LiquidTranInteraction object which handles the calculation of 
+    //! each species' mobility ratios for the phase
+    /*!      
+     *   mobRat(i,j) = mu_i / mu_j  
+     *
+     *    It is returned in fortran-ordering format. ie. it is returned as mobRat[k], where
+     *
+     *        k = j * nsp + i
+     */
+    std::vector<LiquidTranInteraction *> mobilityRatio;
+
+    //! Vector of pointer to the LiquidTranInteraction object which handles the calculation of 
+    //! each species' self diffusion coefficient for the phase
+    std::vector<LiquidTranInteraction *> selfDiffusion;
+
+    //! Pointer to the  LiquidTranInteraction object which handles the calculation of the 
+    //! mixture thermal conductivity for the phase
     LiquidTranInteraction* thermalCond;
+
+    //! Pointer to the  LiquidTranInteraction object which handles the calculation of the 
+    //! species diffusivity for the phase
     LiquidTranInteraction* speciesDiffusivity;
 
     //! Pointer to the  LiquidTranInteraction object which handles the calculation of the 

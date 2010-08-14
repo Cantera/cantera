@@ -1441,7 +1441,7 @@ namespace Cantera {
     /*!
      * This probably indicates something is not yet implemented.
      *
-     * @pram msg   Indicates the member function which is not implemented
+     * @param msg      Indicates the member function which is not implemented
      */
     doublereal err(std::string msg) const;
 
