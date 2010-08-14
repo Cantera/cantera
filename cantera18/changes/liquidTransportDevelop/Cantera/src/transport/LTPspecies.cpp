@@ -14,9 +14,9 @@ using namespace std;
 
 namespace Cantera {
 
+  //====================================================================================================================
   /** 
-   * Exception thrown if an error is encountered while reading the 
-   * transport database.
+   * Exception thrown if an error is encountered while reading the transport database.
    */
   class LTPError : public CanteraError {
   public:
@@ -25,12 +25,18 @@ namespace Cantera {
 		     "error parsing transport data: " 
 		     + msg + "\n") {}
   };
-
-
-  /**
-   * getArrhenius() parses the xml element called Arrhenius. 
+  //====================================================================================================================
+  //! getArrhenius() parses the xml element called Arrhenius. 
+  /*!
    * The Arrhenius expression is
-   * \f[        k =  A T^(b) exp (-E_a / RT). \f]
+   *    \f[ 
+   *         k =  A T^(b) exp (-E_a / RT)
+   *    \f]
+   *
+   *   @param    node       XML_Node to be read
+   *   @param    A          Output pre-exponential factor. The units are variable.
+   *   @param    b          output temperature power
+   *   @param    E          Output activation energy in units of Kelvin
    */
   static void getArrhenius(const XML_Node& node, 
 			   doublereal& A, doublereal& b, doublereal& E) {
@@ -41,15 +47,15 @@ namespace Cantera {
     E = getFloat(node, "E", "actEnergy");
     E /= GasConstant;
   }                
-
+  //====================================================================================================================
   // Copy constructor
-  LTPspecies::LTPspecies( const LTPspecies &right ) 
+  LTPspecies::LTPspecies(const LTPspecies &right) 
   {
     *this = right; //use assignment operator to do other work
   }
-  
+  //====================================================================================================================
   // Assignment operator
-  LTPspecies& LTPspecies::operator=(const LTPspecies& right ) 
+  LTPspecies& LTPspecies::operator=(const LTPspecies& right) 
   {
     if (&right != this) {
       m_speciesName = right.m_speciesName;
@@ -98,7 +104,7 @@ namespace Cantera {
   {
     *this = right; //use assignment operator to do other work
   }
-    //====================================================================================================================
+  //====================================================================================================================
   // Assignment operator
   LTPspecies_Const& LTPspecies_Const::operator=(const LTPspecies_Const& right ) 
   {
@@ -129,7 +135,6 @@ namespace Cantera {
     return m_coeffs[0];
   }
   //====================================================================================================================
-
   // Construct an LTPspecies object for a liquid tranport property 
   // expressed in extended Arrhenius form.
   /* The transport property is constructed from the XML node, 
@@ -318,11 +323,7 @@ namespace Cantera {
     //cout << "m_prop = " << m_prop << endl;
     return m_prop;
   }  
-
   //====================================================================================================================
-
-///////////////////////////////////////////////////////////////
-
   // Construct an LTPspecies object for a liquid tranport property 
   // expressed as an exponential in temperature.
   /* The transport property is constructed from the XML node, 
@@ -339,8 +340,6 @@ namespace Cantera {
     m_model = LTR_MODEL_EXPT;
     m_temp = 0.0;
     m_prop = 0.0;	
-
-
     getFloatArray(propNode, m_coeffs, "true", "toSI");
 
     /*    if (m_coeffs[0] <= 0.0) {
@@ -402,6 +401,5 @@ namespace Cantera {
     //cout << "m_prop = " << m_prop << endl;
     return m_prop;
   }
-
   //====================================================================================================================
 }

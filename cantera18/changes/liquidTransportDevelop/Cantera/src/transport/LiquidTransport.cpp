@@ -1467,12 +1467,11 @@ namespace Cantera {
     m_selfDiff_temp_ok = true;
     m_selfDiff_mix_ok = false;
   }
-
+  //=============================================================================================================
   void LiquidTransport::updateHydrodynamicRadius_C() {
     m_radi_conc_ok = true;
   }
-
-
+  //=============================================================================================================
   //  Update the temperature-dependent hydrodynamic radius terms
   //  for each species internally  using calls to the
   //  appropriate LTPspecies subclass
