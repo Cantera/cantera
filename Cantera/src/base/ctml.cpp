@@ -959,7 +959,7 @@ namespace ctml {
    *
    *  @note change the v to a std::vector to eliminate a doxygen error. No idea why doxygen needs this.
    */
-  int  getFloatArray(const Cantera::XML_Node& node, std::vector<double> &v, 
+  int  getFloatArray(const Cantera::XML_Node& node, Cantera::vector_fp & v, 
                      const bool convert, const std::string unitsString,
                      const std::string nodeName) {
     std::string::size_type icom;
@@ -1294,26 +1294,27 @@ namespace ctml {
    *   separating each field.
    *      If the node array has an units attribute field, then
    *   the units are used to convert the floats, iff convert is true.
+   *      This function is a wrapper around the function getFloatArray().
    *
    *  Example:  
    *
    * Code snipet:
-   *       @verbatum
+   *       @verbatim
      const XML_Node &State_XMLNode;
      vector_fp v;
      bool convert = true;
      unitsString = "";
      nodeName="floatArray";
      getFloatArray(State_XMLNode, v, convert, unitsString, nodeName);
-   @endverbatum
+   @endverbatim
    *
    *  reads the corresponding XML file:
    *
-   *  @verbatum
+   *  @verbatim
    <state>
      <floatArray  units="m3">   32.4, 1, 100. <\floatArray>
    <\state>
-   @endverbatum
+   @endverbatim
    *
    *  Will produce the vector
    *
@@ -1323,21 +1324,15 @@ namespace ctml {
    *
    *
    *   @param  node         XML parent node of the floatArray
-   *   @param  v            Output vector of floats containing the floatArray information.
-   *   @param  convert      Conversion to SI is carried out if this boolean is
-   *                        True. The default is true.
-   *   @param  typeString   String name of the type attribute. This is an optional 
-   *                        parameter. The default is to have an empty string.
-   *                        The only string that is recognized is actEnergy. 
-   *                        Anything else has no effect. This affects what
-   *                        units converter is used.
-   *   @param  nodeName     XML Name of the XML node to read. 
-   *                        The default value for the node name is floatArray
-   *
-   *  @note change the coeffs to a std::vector to eliminate a doxygen error. No idea why doxygen needs this.
+   *   @param  typeString   Returns the type attribute of the current node.
+   *   @param  xmin         Returns the minimum value attribute of the
+   *                        current node.
+   *   @param  xmax         Returns the maximum value attribute of the
+   *                        current node.
+   *   @param  coeffs       Output vector of floats containing the floatArray information.
    */
   void getFunction(const Cantera::XML_Node& node, std::string& type, doublereal& xmin,
-		   doublereal& xmax, std::vector< double > & coeffs) {
+		   doublereal& xmax,  Cantera::vector_fp & coeffs) {
     const XML_Node& c = node.child("floatArray");
     coeffs.clear();
     getFloatArray(c,coeffs);

@@ -833,12 +833,10 @@ namespace ctml {
    *                        current node.
    *   @param  xmax         Returns the maximum value attribute of the
    *                        current node.
-   *   @param  v            Output vector of floats containing the floatArray
-   *                        information.
+   *   @param  coeffs       Output vector of floats containing the floatArray information.
    */
   void getFunction(const Cantera::XML_Node& node, std::string& typeString, 
-		   doublereal& xmin, doublereal& xmax, Cantera::vector_fp& v);
-
+		   doublereal& xmin, doublereal& xmax, Cantera::vector_fp & coeffs);
 
   //! Search the child nodes of the current node for an XML Node with a Title
   //! attribute of a given name.
