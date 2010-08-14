@@ -48,7 +48,7 @@ namespace Cantera {
   /*
    *  @param tp_ind          Index indicating transport property type (i.e. viscosity) 
    */
-  LiquidTranInteraction::LiquidTranInteraction(TransportPropertyList tp_ind ) : 
+  LiquidTranInteraction::LiquidTranInteraction(TransportPropertyType tp_ind ) : 
     m_model(LTI_MODEL_NOTSET),
     m_property(tp_ind)
   {
@@ -234,7 +234,7 @@ namespace Cantera {
  
 
   //====================================================================================================================
-  LTI_Solvent::LTI_Solvent(TransportPropertyList tp_ind) :
+  LTI_Solvent::LTI_Solvent(TransportPropertyType tp_ind) :
     LiquidTranInteraction(tp_ind)
   {
     m_model = LTI_MODEL_SOLVENT;

@@ -147,7 +147,6 @@ namespace Cantera {
     //! Deletes the statically malloced instance.
     virtual void deleteFactory();
 
-
     /*!
      * Destructor 
      *
@@ -160,7 +159,6 @@ namespace Cantera {
     virtual ~TransportFactory();
 
 
-    
     //! Make one of several transport models, and return a base class pointer to it.
     /*!
      *  This method operates at the level of a  single transport property as a function of temperature 
@@ -168,11 +166,11 @@ namespace Cantera {
      *
      *  @param trNode XML node 
      *  @param name  reference to the name
-     *  @param tp_ind   TransportPropertyList class
+     *  @param tp_ind   TransportPropertyType class
      *  @param thermo   Pointer to the %ThermoPhase class
      */
     virtual LTPspecies* newLTP(const XML_Node &trNode, std::string &name, 
-			       TransportPropertyList tp_ind, thermo_t* thermo);
+			       TransportPropertyType tp_ind, thermo_t* thermo);
 
    
     //! Factory function for the construction of new LiquidTranInteraction
@@ -182,11 +180,11 @@ namespace Cantera {
      *  transport properties are addressed by the LTPspecies returned by newLTP.
      *
      *  @param trNode   XML_Node containing the information for the interaction
-     *  @param tp_ind   TransportPropertylist object
+     *  @param tp_ind   TransportPropertyType object
      *  @param trParam  reference to the LiquidTransportParams object
      */
     virtual LiquidTranInteraction* newLTI(const XML_Node &trNode, 
-					  TransportPropertyList tp_ind, 
+					  TransportPropertyType tp_ind, 
 					  LiquidTransportParams& trParam);
 
     
@@ -446,7 +444,7 @@ namespace Cantera {
 
     //! Mapping between between the string name
     //! for a transport property and the integer name.
-    std::map<std::string, TransportPropertyList> m_tranPropMap;
+    std::map<std::string, TransportPropertyType> m_tranPropMap;
 
     //! Mapping between between the string name for a 
     //! species-specific transport property model and the integer name.
