@@ -21,7 +21,7 @@ then
 fi
 
 ../../bin/exp3to2.sh output.txt > outputa.txt
-diff -w outputa.txt output_blessed.txt > diff_test.out
+diff -w  output_blessed.txt outputa.txt > diff_test.out
 retnStat=$?
 if [ $retnStat = "0" ]
 then
