@@ -67,14 +67,14 @@ namespace Cantera {
   };
 
   //====================================================================================================================
-  //! Class LTPspecies holds transport parameters for a 
-  //! specific liquid-phase species.
+  //! Class LTPspecies holds transport parameters for a specific liquid-phase species.
   /*!
    * Subclasses handle different means of specifying transport properties
    * like constant, %Arrhenius or polynomial fits.  In its current state, 
    * it is primarily suitable for specifying temperature dependence, but 
    * the adjustCoeffsForComposition() method can be implemented to 
    * adjust for composition dependence.  
+   *
    * Mixing rules for computing mixture transport properties are handled 
    * separately in LiquidTranInteraction subclasses.
    */
@@ -83,15 +83,16 @@ namespace Cantera {
   public:
 
     //! Construct an LTPspecies object for a liquid tranport property.
-    /** The transport property is constructed from the XML node, 
-     *  \verbatim <propNode>, \endverbatim that is a child of the
-     *  \verbatim <transport> \endverbatim node and specifies a type of
-     *  transport property (like viscosity)
+    /*!
+     *    The transport property is constructed from the XML node, 
+     *    \verbatim <propNode>, \endverbatim that is a child of the
+     *    \verbatim <transport> \endverbatim node and specifies a type of
+     *    transport property (like viscosity)
      */ 
     LTPspecies(const XML_Node &propNode = 0, 
 	       std::string name = "-", 
 	       TransportPropertyList tp_ind = TP_UNKNOWN, 
-	       thermo_t* thermo = 0 ) :
+	       const thermo_t* const thermo = 0) :
       m_speciesName(name), 
       m_model(LTR_MODEL_NOTSET),
       m_property(tp_ind),
@@ -99,7 +100,7 @@ namespace Cantera {
       m_mixWeight(1.0)
     {
       if (propNode.hasChild("mixtureWeighting") ) {
-	m_mixWeight = getFloat(propNode,"mixtureWeighting");
+	m_mixWeight = getFloat(propNode, "mixtureWeighting");
       }
     }
     
@@ -145,11 +146,11 @@ namespace Cantera {
     //! Model temperature-dependence ceofficients
     vector_fp m_coeffs;
 
-    //! pointer to thermo object to get current temperature
-    thermo_t* m_thermo;
+    //! Pointer to a const thermo object to get current temperature
+    const thermo_t * m_thermo;
 
     //! Weighting used for mixing.  
-    /** 
+    /*!
      * This weighting can be employed to allow salt transport 
      * properties to be represented by specific ions.  
      * For example, to have Li+ and Ca+ represent the mixing 
@@ -163,9 +164,10 @@ namespace Cantera {
     doublereal m_mixWeight;
 
     //! Internal model to adjust species-specific properties for composition.
-    /** Currently just a place holder, but this method could take 
-     * the composition from the thermo object and adjust coefficients 
-     * accoding to some unspecified model.
+    /*!
+     *  Currently just a place holder, but this method could take 
+     *  the composition from the thermo object and adjust coefficients 
+     *  accoding to some unspecified model.
      */
     virtual void adjustCoeffsForComposition() { }
   };
@@ -427,14 +429,15 @@ namespace Cantera {
   };
 
   //====================================================================================================================
-  //! Class LTPspecies_ExpT holds transport parameters for a 
-  //! specific liquid-phase species (LTPspecies) when the transport 
-  //! property is expressed as a exponential in temperature.
+  //! Class LTPspecies_ExpT holds transport parameters for a  specific liquid-phase species (LTPspecies) 
+  //! when the transport property is expressed as a exponential in temperature.
   /**
    * Used for pure species properties with equations of the form
-   * \f[
-   *    x = f[0] \exp( f[1] T + ... + f[N] T )  
-   * \f]
+   *
+   *    \f[
+   *       x = f[0] \exp( f[1] T + ... + f[N] T^{N} )  
+   *    \f]
+   *
    * where f[i] are elements of the float array passed in.
    *
    * As an example of the input required for LTPspecies_ExpT
@@ -459,18 +462,21 @@ namespace Cantera {
   //! Construct an LTPspecies object for a liquid tranport property 
   //! expressed as an exponential in temperature.
   /*!
-   *  The transport property is constructed from the XML node, 
-   *  \verbatim <propNode>, \endverbatim that is a child of the
-   *  \verbatim <transport> \endverbatim node and specifies a type of
-   *  transport property (like viscosity)
+   *  The transport property is constructed from the XML node, \verbatim <propNode>, \endverbatim that is a child of the
+   *  \verbatim <transport> \endverbatim node and specifies a type of transport property (like viscosity).
+   *
+   *  @param    propNode     
    */ 
-    LTPspecies_ExpT( const XML_Node &propNode, 
+    LTPspecies_ExpT(const XML_Node &propNode, 
 		     std::string name, 
 		     TransportPropertyList tp_ind, 
 		     thermo_t* thermo ); 
     
     //! Copy constructor
-    LTPspecies_ExpT( const LTPspecies_ExpT &right ); 
+    /*!
+     *  @param right   Object to be copied
+     */
+    LTPspecies_ExpT(const LTPspecies_ExpT &right); 
 
     //! Assignment operator
     LTPspecies_ExpT&  operator=(const LTPspecies_ExpT& right );
