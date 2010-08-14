@@ -877,7 +877,7 @@ namespace Cantera {
      * @internal
      */
     void updateHydrodynamicRadius_C();
- 
+
     //! Update the binary Stefan-Maxwell diffusion coefficients 
     //! wrt T using calls to the appropriate LTPspecies subclass
     void updateDiff_T();
@@ -1025,14 +1025,14 @@ namespace Cantera {
     DenseMatrix m_diff_Dij;
 
 
-    //!Hydrodynamic radius for each species expressed as an    
-    //! appropriate subclass of LTPspecies
+    //!   Hydrodynamic radius for each species expressed as an  appropriate subclass of LTPspecies
     /*!
      *  These subclasses of LTPspecies evaluate the species-specific
      *  transport properties according to the parameters parsed in 
      *  TransportFactory::getLiquidSpeciesTransportData().
+     *         length = nsp
      */
-    std::vector<LTPspecies*> m_radiusTempDep_Ns;
+    std::vector<LTPspecies *> m_radiusTempDep_Ns;
 
     //! (Not used in LiquidTransport) 
     //! Hydrodynamic radius of the mixture expressed as a subclass of 
