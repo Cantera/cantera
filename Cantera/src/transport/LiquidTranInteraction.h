@@ -120,7 +120,7 @@ namespace Cantera {
     /**
      *  @param tp_ind          Index indicating transport property type (i.e. viscosity) 
      */
-    LiquidTranInteraction(TransportPropertyList tp_ind = TP_UNKNOWN);
+    LiquidTranInteraction(TransportPropertyType tp_ind = TP_UNKNOWN);
     
     //! Copy constructor
     LiquidTranInteraction(const LiquidTranInteraction &right);
@@ -162,7 +162,7 @@ namespace Cantera {
     LiquidTranMixingModel m_model;
     
     //! enum indicating what property this is (i.e viscosity)
-    TransportPropertyList m_property;
+    TransportPropertyType m_property;
     
     //! pointer to thermo object to get current temperature
     thermo_t* m_thermo;
@@ -195,7 +195,7 @@ namespace Cantera {
   class LTI_Solvent : public LiquidTranInteraction {
 
   public:
-    LTI_Solvent(TransportPropertyList tp_ind = TP_UNKNOWN);
+    LTI_Solvent(TransportPropertyType tp_ind = TP_UNKNOWN);
 
     //! Copy constructor
     //    LTI_Solvent( const LTI_Solvent &right );
@@ -238,7 +238,7 @@ namespace Cantera {
   class LTI_MoleFracs : public LiquidTranInteraction {
 
   public:
-    LTI_MoleFracs( TransportPropertyList tp_ind = TP_UNKNOWN ) :
+    LTI_MoleFracs( TransportPropertyType tp_ind = TP_UNKNOWN ) :
       LiquidTranInteraction( tp_ind )
     {
       m_model = LTI_MODEL_MOLEFRACS;
@@ -289,7 +289,7 @@ namespace Cantera {
 
   public:
 
-    LTI_MassFracs( TransportPropertyList tp_ind = TP_UNKNOWN ) :
+    LTI_MassFracs(TransportPropertyType tp_ind = TP_UNKNOWN) :
       LiquidTranInteraction( tp_ind )
     {
       m_model = LTI_MODEL_MASSFRACS;
@@ -310,15 +310,15 @@ namespace Cantera {
      * as input (this method does not know what
      * transport property it is at this point.
      */
-    doublereal getMixTransProp( doublereal *valueSpecies, doublereal *weightSpecies = 0 );
-    doublereal getMixTransProp( std::vector<LTPspecies*> LTPptrs ) ;
+    doublereal getMixTransProp(doublereal *valueSpecies, doublereal *weightSpecies = 0 );
+    doublereal getMixTransProp(std::vector<LTPspecies*> LTPptrs) ;
 
     //! Return the matrix of binary interaction parameters.
     /** 
      * Takes the proper mixing rule for the binary interaction parameters 
      * and calculates them: Not implemented for this mixing rule.
      */
-    void getMatrixTransProp( DenseMatrix &mat, doublereal* speciesValues = 0 ) { mat = (*m_Aij[0]); }
+    void getMatrixTransProp(DenseMatrix &mat, doublereal* speciesValues = 0 ) { mat = (*m_Aij[0]); }
 
   protected:    
     
@@ -368,7 +368,7 @@ namespace Cantera {
   class LTI_Log_MoleFracs : public LiquidTranInteraction {
 
   public:
-    LTI_Log_MoleFracs( TransportPropertyList tp_ind = TP_UNKNOWN ) :
+    LTI_Log_MoleFracs( TransportPropertyType tp_ind = TP_UNKNOWN ) :
       LiquidTranInteraction( tp_ind )
     {
       m_model = LTI_MODEL_LOG_MOLEFRACS;
@@ -389,15 +389,15 @@ namespace Cantera {
      * as input (this method does not know what
      * transport property it is at this point.
      */
-    doublereal getMixTransProp( doublereal *valueSpecies, doublereal *weightSpecies = 0 );
-    doublereal getMixTransProp( std::vector<LTPspecies*> LTPptrs ) ;
+    doublereal getMixTransProp(doublereal *valueSpecies, doublereal *weightSpecies = 0 );
+    doublereal getMixTransProp(std::vector<LTPspecies*> LTPptrs ) ;
 
     //! Return the matrix of binary interaction parameters.
     /** 
      * Takes the proper mixing rule for the binary interaction parameters 
      * and calculates them: Not implemented for this mixing rule.
      */
-    void getMatrixTransProp( DenseMatrix &mat, doublereal* speciesValues = 0 ) { mat = m_Eij; }
+    void getMatrixTransProp(DenseMatrix &mat, doublereal* speciesValues = 0 ) { mat = m_Eij; }
 
   protected:    
     
@@ -430,7 +430,7 @@ namespace Cantera {
   class LTI_Pairwise_Interaction : public LiquidTranInteraction {
 
   public:
-    LTI_Pairwise_Interaction( TransportPropertyList tp_ind = TP_UNKNOWN ) :
+    LTI_Pairwise_Interaction( TransportPropertyType tp_ind = TP_UNKNOWN ) :
       LiquidTranInteraction( tp_ind )
     {
       m_model = LTI_MODEL_PAIRWISE_INTERACTION;
@@ -541,8 +541,8 @@ namespace Cantera {
   class LTI_StefanMaxwell_PPN : public LiquidTranInteraction {
 
   public:
-    LTI_StefanMaxwell_PPN( TransportPropertyList tp_ind = TP_UNKNOWN ) :
-      LiquidTranInteraction( tp_ind )
+    LTI_StefanMaxwell_PPN(TransportPropertyType tp_ind = TP_UNKNOWN) :
+      LiquidTranInteraction(tp_ind)
       {
 	m_model = LTI_MODEL_STEFANMAXWELL_PPN;
       }
@@ -556,7 +556,7 @@ namespace Cantera {
     
     virtual ~LTI_StefanMaxwell_PPN( ) { } 
     
-    void setParameters( LiquidTransportParams& trParam ) ;
+    void setParameters(LiquidTransportParams& trParam ) ;
 
     //! Return the mixture transport property value.
     /** 
@@ -593,8 +593,8 @@ namespace Cantera {
   class LTI_StokesEinstein : public LiquidTranInteraction {
 
   public:
-    LTI_StokesEinstein( TransportPropertyList tp_ind = TP_UNKNOWN ) :
-      LiquidTranInteraction( tp_ind )
+    LTI_StokesEinstein(TransportPropertyType tp_ind = TP_UNKNOWN) :
+      LiquidTranInteraction(tp_ind)
     {
       m_model = LTI_MODEL_STOKES_EINSTEIN;
     }
@@ -608,7 +608,7 @@ namespace Cantera {
     
     virtual ~LTI_StokesEinstein( ) { } 
 
-    void setParameters( LiquidTransportParams& trParam );
+    void setParameters(LiquidTransportParams& trParam);
   
     //! Return the mixture transport property value.
     /** 
@@ -616,15 +616,15 @@ namespace Cantera {
      * as input (this method does not know what
      * transport property it is at this point.
      */
-    doublereal getMixTransProp( doublereal *valueSpecies, doublereal *weightSpecies = 0 );
-    doublereal getMixTransProp( std::vector<LTPspecies*> LTPptrs ) ;
+    doublereal getMixTransProp(doublereal *valueSpecies, doublereal *weightSpecies = 0 );
+    doublereal getMixTransProp(std::vector<LTPspecies*> LTPptrs ) ;
 
     //! Return the matrix of binary interaction parameters.
     /** 
      * Takes the proper mixing rule for the binary interaction parameters 
      * and calculates them
      */
-    void getMatrixTransProp( DenseMatrix &mat, doublereal* speciesValues = 0 ) ;
+    void getMatrixTransProp(DenseMatrix &mat, doublereal* speciesValues = 0 ) ;
   protected:    
     
     std::vector<LTPspecies*> m_viscosity;
@@ -644,8 +644,8 @@ namespace Cantera {
   class LTI_MoleFracs_ExpT : public LiquidTranInteraction {
 
   public:
-    LTI_MoleFracs_ExpT( TransportPropertyList tp_ind = TP_UNKNOWN ) :
-      LiquidTranInteraction( tp_ind )
+    LTI_MoleFracs_ExpT(TransportPropertyType tp_ind = TP_UNKNOWN) :
+      LiquidTranInteraction(tp_ind)
       {
 	m_model = LTI_MODEL_MOLEFRACS_EXPT;
       }
@@ -665,15 +665,15 @@ namespace Cantera {
      * as input (this method does not know what
      * transport property it is at this point.
      */
-    doublereal getMixTransProp( doublereal *valueSpecies, doublereal *weightSpecies = 0 );
-    doublereal getMixTransProp( std::vector<LTPspecies*> LTPptrs ) ;
+    doublereal getMixTransProp(doublereal *valueSpecies, doublereal *weightSpecies = 0 );
+    doublereal getMixTransProp(std::vector<LTPspecies*> LTPptrs ) ;
 
     //! Return the matrix of binary interaction parameters.
     /** 
      * Takes the proper mixing rule for the binary interaction parameters 
      * and calculates them: Not Implemented for this mixing rule
      */
-    void getMatrixTransProp( DenseMatrix &mat, doublereal* speciesValues = 0 ) { mat = (*m_Aij[0]); }
+    void getMatrixTransProp(DenseMatrix &mat, doublereal* speciesValues = 0 ) { mat = (*m_Aij[0]); }
     //CAL    void getMatrixTransProp( DenseMatrix &mat, LiquidTransport* lt, doublereal* speciesValues = 0 ) { mat = (*m_Aij[0]); }
 
   protected:    

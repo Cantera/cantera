@@ -304,7 +304,7 @@ namespace Cantera {
     and possibly composition.
   */
   LTPspecies* TransportFactory::newLTP(const XML_Node &trNode, std::string &name, 
-				       TransportPropertyList tp_ind, thermo_t* thermo)
+				       TransportPropertyType tp_ind, thermo_t* thermo)
   {
     LTPspecies* ltps = 0;
     std::string model = lowercase(trNode["model"]);
@@ -336,7 +336,7 @@ namespace Cantera {
     returned by newLTP
   */
   LiquidTranInteraction* TransportFactory::newLTI(const XML_Node &trNode, 
-						  TransportPropertyList tp_ind, 
+						  TransportPropertyType tp_ind, 
 						  LiquidTransportParams& trParam) {
     LiquidTranInteraction* lti = 0;
 

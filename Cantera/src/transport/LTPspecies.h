@@ -33,13 +33,17 @@ namespace Cantera {
    * should handle exceptions where the transport property is not handled.
    *
    * Tranport properties currently on the list
+   *
    *    0  - viscosity
-   *    1  - thermal conductivity
-   *    2  - species diffusivity
-   *    3  - hydrodynamic radius
-   *    4  - thermal conductivity
+   *    1  - Ionic conductivity
+   *    2  - Mobility Ratio
+   *    3  - Self Diffusion coefficient
+   *    4  - Thermal conductivity
+   *    5  - species diffusivity
+   *    6  - hydrodynamic radius
+   *    7  - electrical conductivity
    */
-  enum TransportPropertyList {
+  enum TransportPropertyType {
     TP_UNKNOWN = -1,
     TP_VISCOSITY = 0,
     TP_IONCONDUCTIVITY,
@@ -91,7 +95,7 @@ namespace Cantera {
      */ 
     LTPspecies(const XML_Node &propNode = 0, 
 	       std::string name = "-", 
-	       TransportPropertyList tp_ind = TP_UNKNOWN, 
+	       TransportPropertyType tp_ind = TP_UNKNOWN, 
 	       const thermo_t* const thermo = 0) :
       m_speciesName(name), 
       m_model(LTR_MODEL_NOTSET),
@@ -141,7 +145,7 @@ namespace Cantera {
     LiquidTR_Model m_model;
 
     //! enum indicating which property this is (i.e viscosity)
-    TransportPropertyList m_property;
+    TransportPropertyType m_property;
 
     //! Model temperature-dependence ceofficients
     vector_fp m_coeffs;
@@ -206,7 +210,7 @@ namespace Cantera {
      */ 
     LTPspecies_Const(const XML_Node &propNode, 
 		     std::string name, 
-		     TransportPropertyList tp_ind, 
+		     TransportPropertyType tp_ind, 
 		     thermo_t* thermo);
     
     //! Copy constructor
@@ -284,7 +288,7 @@ namespace Cantera {
      */ 
     LTPspecies_Arrhenius( const XML_Node &propNode, 
 			  std::string name, 
-			  TransportPropertyList tp_ind, 
+			  TransportPropertyType tp_ind, 
 			  thermo_t* thermo ); 
     
     //! Copy constructor
@@ -386,7 +390,7 @@ namespace Cantera {
    */ 
     LTPspecies_Poly( const XML_Node &propNode, 
 		     std::string name, 
-		     TransportPropertyList tp_ind, 
+		     TransportPropertyType tp_ind, 
 		     thermo_t* thermo ); 
     
     //! Copy constructor
@@ -469,7 +473,7 @@ namespace Cantera {
    */ 
     LTPspecies_ExpT(const XML_Node &propNode, 
 		     std::string name, 
-		     TransportPropertyList tp_ind, 
+		     TransportPropertyType tp_ind, 
 		     thermo_t* thermo ); 
     
     //! Copy constructor
