@@ -331,11 +331,11 @@ namespace Cantera {
    *  \verbatim <transport> \endverbatim node and specifies a type of
    *  transport property (like viscosity)
    */ 
-  LTPspecies_ExpT::LTPspecies_ExpT( const XML_Node &propNode, 
-				    std::string name, 
-				    TransportPropertyList tp_ind, 
-				    thermo_t* thermo ) : 
-    LTPspecies( propNode, name, tp_ind, thermo) 
+  LTPspecies_ExpT::LTPspecies_ExpT(const XML_Node &propNode, 
+				   std::string name, 
+				   TransportPropertyList tp_ind, 
+				   thermo_t* thermo) : 
+    LTPspecies(propNode, name, tp_ind, thermo) 
   {
     m_model = LTR_MODEL_EXPT;
     m_temp = 0.0;
@@ -388,7 +388,7 @@ namespace Cantera {
     
     doublereal t = m_thermo->temperature();
     if (t != m_temp) {  
-      m_prop = 0;
+      m_prop = 0.0;
       m_temp=t;
       m_prop=m_coeffs[0];
       double tempN = 1.0;      

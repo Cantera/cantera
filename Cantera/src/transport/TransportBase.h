@@ -222,13 +222,16 @@ namespace Cantera {
     // Note ->need working copy constructors and operator=() functions for all first
     virtual Transport *duplMyselfAsTransport() const;
 
-    /**
-     * Transport model. The transport model is the set of
-     * equations used to compute the transport properties. This
+    
+    //! Transport model. 
+    /*!
+     * The transport model is the set of equations used to compute the transport properties. This
      * virtual method returns an integer flag that identifies the
      * transport model implemented. The base class returns 0.
      */
-    virtual int model() const {return 0;}
+    virtual int model() const {
+      return 0;
+    }
 
     /**
      * Phase object. Every transport manager is designed to compute
@@ -237,7 +240,9 @@ namespace Cantera {
      * returns a reference to the object representing the phase
      * itself.
      */        
-    thermo_t& thermo() { return *m_thermo; }
+    thermo_t& thermo() {
+      return *m_thermo;
+    }
 
 
     /**
@@ -495,8 +500,7 @@ namespace Cantera {
      * @param grad_X  The gradient of the mole fraction
      * @param ldf     Leading dimension of the grad_V and current vectors.
      * @param grad_V  The electrostatic potential gradient.
-     * @param current The electric current in A/m^2. this is a vector
-     *                of length ndim
+     * @param current The electric current in A/m^2. This is a vector of length ndim
      */
     virtual void getElectricCurrent(int ndim, 
 				    const doublereal* grad_T, 
