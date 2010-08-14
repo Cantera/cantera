@@ -12,7 +12,6 @@
 #ifndef CT_LTPSPECIES_H
 #define CT_LTPSPECIES_H
 
-
 // Cantera includes
 #include "ct_defs.h"
 #include "TransportBase.h"
@@ -25,7 +24,7 @@
 
 namespace Cantera {
 
-  
+  //====================================================================================================================
   //! Enumeration of the types of transport properties that can be 
   //! handled by the variables in the various Transport classes.
   /*!
@@ -53,8 +52,9 @@ namespace Cantera {
     TP_DIFFUSIVITY,
     TP_HYDRORADIUS,
     TP_ELECTCOND
-  };
+  }; 
 
+  //====================================================================================================================
   //! Temperature dependence type for pure (liquid) species properties
   /*!
    *  Types of temperature dependencies:
@@ -88,35 +88,38 @@ namespace Cantera {
 
     //! Construct an LTPspecies object for a liquid tranport property.
     /*!
-     *    The transport property is constructed from the XML node, 
-     *    \verbatim <propNode>, \endverbatim that is a child of the
-     *    \verbatim <transport> \endverbatim node and specifies a type of
-     *    transport property (like viscosity)
+     *    The species transport property is constructed from the XML node, 
+     *    \verbatim <propNode>, \endverbatim that is a child of the 
+     *    \verbatim <transport> \endverbatim node in the species block and specifies a type of transport
+     *    property (like viscosity)
+     *
+     *   @param   propNode      Pointer to the XML node that contains the property information. A default
+     *                          value of 0 is allowed for the base class, but not for classes which
+     *                          are assumed to be parameterized by reading XML_Node information.
+     *   @param   name          String containing the species name
+     *   @param   tp_ind        enum TransportPropertyType containing the property id that this object 
+     *                          is creating a parameterization for (e.g., viscosity)
+     *   @param   thermo        const pointer to the ThermoPhase object, which is used to find the temperature.
      */ 
-    LTPspecies(const XML_Node &propNode = 0, 
-	       std::string name = "-", 
-	       TransportPropertyType tp_ind = TP_UNKNOWN, 
-	       const thermo_t* const thermo = 0) :
-      m_speciesName(name), 
-      m_model(LTR_MODEL_NOTSET),
-      m_property(tp_ind),
-      m_thermo(thermo),
-      m_mixWeight(1.0)
-    {
-      if (propNode.hasChild("mixtureWeighting") ) {
-	m_mixWeight = getFloat(propNode, "mixtureWeighting");
-      }
-    }
+    LTPspecies(const XML_Node * const propNode = 0,  std::string name = "-", 
+	       TransportPropertyType tp_ind = TP_UNKNOWN, const thermo_t* const thermo = 0);
     
     //! Copy constructor
+    /*!
+     *  @param   right       Object to be copied
+     */
     LTPspecies(const LTPspecies &right); 
 
     //! Assignment operator
-    LTPspecies&  operator=(const LTPspecies& right);
+    /*!
+     *  @param   right       Object to be copied
+     */
+    LTPspecies& operator=(const LTPspecies& right);
 
-    virtual ~LTPspecies( ) { }
+    //! Destructor
+    virtual ~LTPspecies();
 
-    //! duplication routine 
+    //! Duplication routine 
     /*!
      *  @return  Returns a copy of this routine as a pointer to LTPspecies
      */
@@ -127,17 +130,36 @@ namespace Cantera {
      *  The pure species transport property (i.e. pure species viscosity)
      *  is returned.  Any temperature and composition dependence will be 
      *  adjusted internally according to the information provided by the 
-     *  subclass object. 
+     *  subclass object.
+     *
+     *  @return  Returns a single double containing the property evaluation
+     *           at the current ThermoPhase temperature.
      */
-    virtual doublereal getSpeciesTransProp( ) { return 0.0; }
+    virtual doublereal getSpeciesTransProp();
 
-    virtual bool checkPositive( ) { return ( m_coeffs[0] > 0 ); }
+    //! Check to see if the property evaluation will be positive
+    /*!
+     *  @return  returns a boolean
+     */
+    virtual bool checkPositive() const;
 
-    doublereal getMixWeight( ) {
-      return m_mixWeight; 
-    }
+    //! return the weight mixture
+    /*!
+     *  @return  returns a single double which is used as a weight
+     */
+    doublereal getMixWeight() const;
+
+  private:
+    //! Internal model to adjust species-specific properties for composition.
+    /*!
+     *  Currently just a place holder, but this method could take 
+     *  the composition from the thermo object and adjust coefficients 
+     *  accoding to some unspecified model.
+     */
+    virtual void adjustCoeffsForComposition();
 
   protected:
+
     //! Species Name
     std::string m_speciesName;
    
@@ -166,16 +188,7 @@ namespace Cantera {
      * 1.0--note that 0.0 is not innocuous if there are logarithms involved.
      */
     doublereal m_mixWeight;
-
-    //! Internal model to adjust species-specific properties for composition.
-    /*!
-     *  Currently just a place holder, but this method could take 
-     *  the composition from the thermo object and adjust coefficients 
-     *  accoding to some unspecified model.
-     */
-    virtual void adjustCoeffsForComposition() { }
   };
-
 
   //====================================================================================================================
   //! Class LTPspecies_Const holds transport parameters for a 
@@ -206,20 +219,32 @@ namespace Cantera {
     /** The transport property is constructed from the XML node, 
      *  \verbatim <propNode>, \endverbatim that is a child of the
      *  \verbatim <transport> \endverbatim node and specifies a type of
-     *  transport property (like viscosity)
+     *  transport property (like viscosity).
+     *
+     *
+     *   @param   propNode      Reference to the XML node that contains the property information.
+     *   @param   name          String containing the species name
+     *   @param   tp_ind        enum TransportPropertyType containing the property id that this object 
+     *                          is creating a parameterization for (e.g., viscosity)
+     *   @param   thermo        const pointer to the ThermoPhase object, which is used to find the temperature.
      */ 
-    LTPspecies_Const(const XML_Node &propNode, 
-		     std::string name, 
-		     TransportPropertyType tp_ind, 
-		     thermo_t* thermo);
+    LTPspecies_Const(const XML_Node &propNode,  std::string name, 
+		     TransportPropertyType tp_ind,  const thermo_t * const thermo);
     
     //! Copy constructor
+    /*!
+     *  @param   right       Object to be copied
+     */
     LTPspecies_Const(const LTPspecies_Const &right); 
 
     //! Assignment operator
-    LTPspecies_Const&  operator=(const LTPspecies_Const& right );
+    /*!
+     *  @param   right       Object to be copied
+     */
+    LTPspecies_Const& operator=(const LTPspecies_Const& right);
 
-    virtual ~LTPspecies_Const( ) { }
+    //! Destructor
+    virtual ~LTPspecies_Const();
 
     //! duplication routine 
     /*!
@@ -233,16 +258,8 @@ namespace Cantera {
      *  is returned.  Any temperature and composition dependence will be 
      *  adjusted internally according to the information provided.
      */
-    doublereal getSpeciesTransProp( );
+    doublereal getSpeciesTransProp();
 
-  protected:
-
-    //! Internal model to adjust species-specific properties for composition.
-    /** Currently just a place holder, but this method could take 
-     * the composition from the thermo object and adjust coefficients 
-     * accoding to some unspecified model.
-     */
-    void adjustCoeffsForComposition( ) { }
   };
 
   //====================================================================================================================
@@ -295,7 +312,7 @@ namespace Cantera {
     LTPspecies_Arrhenius( const LTPspecies_Arrhenius &right ); 
 
     //! Assignment operator
-    LTPspecies_Arrhenius&  operator=(const LTPspecies_Arrhenius& right );
+    LTPspecies_Arrhenius&  operator=(const LTPspecies_Arrhenius& right);
 
     virtual ~LTPspecies_Arrhenius( ) { }
 
@@ -326,7 +343,7 @@ namespace Cantera {
      * Any temperature and composition dependence will be 
      *  adjusted internally according to the information provided.
      */
-    doublereal getSpeciesTransProp( );
+    doublereal getSpeciesTransProp();
 
   protected:
 
@@ -341,14 +358,6 @@ namespace Cantera {
 
     //! logarithm of most recent evaluation of transport property
     doublereal m_logProp;
-
-    //! Internal model to adjust species-specific properties for composition.
-    /*!
-     * Currently just a place holder, but this method could take 
-     * the composition from the thermo object and adjust coefficients 
-     * accoding to some unspecified model.
-     */
-    void adjustCoeffsForComposition( ) { }
   };
 
   //====================================================================================================================
@@ -399,7 +408,8 @@ namespace Cantera {
     //! Assignment operator
     LTPspecies_Poly&  operator=(const LTPspecies_Poly& right );
 
-    virtual ~LTPspecies_Poly( ) { }
+    //! Destructor
+    virtual ~LTPspecies_Poly() { }
 
     //! Duplication routine 
     /*!
@@ -413,7 +423,7 @@ namespace Cantera {
      *  is returned.  Any temperature and composition dependence will be 
      *  adjusted internally according to the information provided.
      */
-    doublereal getSpeciesTransProp( );
+    doublereal getSpeciesTransProp();
 
   protected:
 
@@ -423,13 +433,6 @@ namespace Cantera {
     //! most recent evaluation of transport property
     doublereal m_prop;
 
-    //! Internal model to adjust species-specific properties for composition.
-    /*!
-     * Currently just a place holder, but this method could take 
-     * the composition from the thermo object and adjust coefficients 
-     * accoding to some unspecified model.
-     */
-    void adjustCoeffsForComposition( ){ }
   };
 
   //====================================================================================================================
@@ -485,7 +488,7 @@ namespace Cantera {
     //! Assignment operator
     LTPspecies_ExpT&  operator=(const LTPspecies_ExpT& right );
 
-    virtual ~LTPspecies_ExpT( ) { }
+    virtual ~LTPspecies_ExpT() { }
 
     //! duplication routine 
     /*!
@@ -499,7 +502,7 @@ namespace Cantera {
      *  is returned.  Any temperature and composition dependence will be 
      *  adjusted internally according to the information provided.
      */
-    doublereal getSpeciesTransProp( );
+    doublereal getSpeciesTransProp();
 
   protected:
 
@@ -509,12 +512,6 @@ namespace Cantera {
     //! most recent evaluation of transport property
     doublereal m_prop;
 
-    //! Internal model to adjust species-specific properties for composition.
-    /** Currently just a place holder, but this method could take 
-     * the composition from the thermo object and adjust coefficients 
-     * accoding to some unspecified model.
-     */
-    void adjustCoeffsForComposition( ){ }
   };
 
   //====================================================================================================================

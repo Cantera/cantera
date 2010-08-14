@@ -323,7 +323,7 @@ namespace Cantera {
       break;
     default:
       throw CanteraError("newLTP","unknown transport model: " + model);
-      ltps = new LTPspecies(trNode, name, tp_ind, thermo);
+      ltps = new LTPspecies(&trNode, name, tp_ind, thermo);
     }
     return ltps;
   }
