@@ -63,8 +63,8 @@ namespace Cantera {
    *     using the Stefan-Maxwell equations.  It is possible to set a 
    *     flag to calculate relative to a mass-averaged bulk velocity, 
    *     relative to a mole-averaged bulk velocity or relative to a 
-   *     single species velocity using the <velocityBasis basis="mass">, 
-   *     <velocityBasis basis="mass">, or <velocityBasis basis="Cl-"> 
+   *     single species velocity using the \<velocityBasis basis="mass"\>, 
+   *     \<velocityBasis basis="mass"\>, or \<velocityBasis basis="Cl-"\> 
    *     keyword. Mass-averaged velocities are the default for which 
    *     the diffusion velocities satisfy 
    *     \f[
@@ -96,6 +96,7 @@ namespace Cantera {
   class LiquidTransport : public Transport {
   public:
 
+    //! Typedef equating vector_fp with Coeff_T_
     typedef  vector_fp Coeff_T_;
  
 
@@ -199,8 +200,7 @@ namespace Cantera {
      *  appropriate subclasses of LTPspecies as specified in the 
      *  input file.
      *
-     * @param visc  array of length "number of species"
-     *              to hold returned ionic conductivities.
+     * @param ionCond  Array of length "number of species" to hold returned ionic conductivities.
      */
     virtual void getSpeciesIonConductivity(doublereal* const ionCond);
 
@@ -212,6 +212,8 @@ namespace Cantera {
      *  LiquidTranInteraction as specified in the input file.  
      *  These in turn employ subclasses of LTPspecies to 
      *  determine the mobility ratios in the pure species.
+     *
+     *  @param   mobRat           Vector of mobility ratios
      */
     virtual void mobilityRatio(doublereal* mobRat);
 
@@ -461,15 +463,17 @@ namespace Cantera {
       *  \f]
       *  where \f$ z_i \f$ is the charge on species i,
       *  \f$ F \f$ is Faradays constant,  \f$ \rho \f$  is the density,
-      *  \f$ W_i \f$ is the molecular mass of species i.
+      *  \f$ W_i \f$ is the molecular mass of species \c i.
       * 
-      * @param ndim The number of spatial dimensions (1, 2, or 3).
-      * @param grad_T The temperature gradient (ignored in this model).
-      * @param ldx  Leading dimension of the grad_X array.
-      * @param grad_T The temperature gradient (ignored in this model).
-      * @param ldf  Leading dimension of the grad_V and current vectors.
-      * @param grad_V The electrostatic potential gradient.
-      * @param current The electric current in A/m^2.
+      * @param ndim       The number of spatial dimensions (1, 2, or 3).
+      * @param grad_T     The temperature gradient (ignored in this model).
+      * @param ldx        Leading dimension of the grad_X array.
+      * @param grad_X     Gradients of the mole fraction
+      *                   Flat vector with the m_nsp in the inner loop.
+      *                     length = ldx * ndim
+      * @param ldf        Leading dimension of the grad_V and current vectors.
+      * @param grad_V     The electrostatic potential gradient.
+      * @param current    The electric current in A/m^2.
       */
     virtual void getElectricCurrent(int ndim, 
 				    const doublereal* grad_T, 
@@ -489,7 +493,7 @@ namespace Cantera {
      * be specified as relative to a specific species (i.e. a 
      * solvent) all according to the velocityBasis input parameter.
      *
-     *  Units for the returned fluxes are kg m-2 s-1.
+     *  Units for the returned velocities are m s-1.
      * 
      *  @param ndim Number of dimensions in the flux expressions
      *  @param grad_T Gradient of the temperature
@@ -512,94 +516,85 @@ namespace Cantera {
 				 int ldf, 
 				 doublereal* Vdiff);
 
-    //! Get the species diffusive mass fluxes wrt to 
-    //! the averaged velocity, 
-    //! given the gradients in mole fraction, temperature 
-    //! and electrostatic potential.
+    //! Get the species diffusive velocities wrt to the averaged velocity, 
+    //! given the gradients in mole fraction, temperature and electrostatic potential.
     /*!
      * The average velocity can be computed on a mole-weighted 
      * or mass-weighted basis, or the diffusion velocities may 
      * be specified as relative to a specific species (i.e. a 
      * solvent) all according to the velocityBasis input parameter.
      *
-     *  Units for the returned fluxes are kg m-2 s-1.
+     *  Units for the returned velocities are m s-1.
      * 
-     *  @param ndim Number of dimensions in the flux expressions
-     *  @param grad_T Gradient of the temperature
-     *                 (length = ndim)
-     * @param ldx  Leading dimension of the grad_X array 
-     *              (usually equal to m_nsp but not always)
-     * @param grad_X Gradients of the mole fraction
-     *             Flat vector with the m_nsp in the inner loop.
-     *             length = ldx * ndim
-     * @param ldf  Leading dimension of the fluxes array 
-     *              (usually equal to m_nsp but not always)
-     * @param grad_Phi Gradients of the electrostatic potential
-     *                 (length = ndim)
-     * @param fluxes  Output of the diffusive mass fluxes
-     *             Flat vector with the m_nsp in the inner loop.
-     *             length = ldx * ndim
+     *  @param ndim       Number of dimensions in the flux expressions
+     *  @param grad_T     Gradient of the temperature
+     *                       (length = ndim)
+     * @param ldx         Leading dimension of the grad_X array 
+     *                       (usually equal to m_nsp but not always)
+     * @param grad_X      Gradients of the mole fraction
+     *                    Flat vector with the m_nsp in the inner loop.
+     *                       length = ldx * ndim
+     * @param ldf         Leading dimension of the fluxes array 
+     *                        (usually equal to m_nsp but not always)
+     * @param grad_Phi   Gradients of the electrostatic potential
+     *                        (length = ndim)
+     * @param Vdiff      Output of the species diffusion velocities
+     *                   Flat vector with the m_nsp in the inner loop.
+     *                     length = ldx * ndim
      */
-    virtual void getSpeciesVdiffES(int ndim, 
-				    const doublereal* grad_T, 
-				    int ldx, 
-				    const doublereal* grad_X,
-				    int ldf, 
-				    const doublereal* grad_Phi,
+    virtual void getSpeciesVdiffES(int ndim,  const doublereal* grad_T, 
+				    int ldx,  const doublereal* grad_X,
+				    int ldf,  const doublereal* grad_Phi,
 				    doublereal* Vdiff) ;
 
 
-
-     //!  Return the species diffusive mass fluxes wrt to
-     //!  the averaged velocity in [kmol/m^2/s].
-     /*!
-      *
-      * The diffusive mass flux of species \e k is computed 
-      * using the Stefan-Maxwell equation
-      * \f[
-      *     X_i \nabla \mu_i 
-      *                     = RT \sum_i \frac{X_i X_j}{D_{ij}} 
-      *                           ( \vec{V}_j - \vec{V}_i )
-      * \f]
-      * to determine the diffusion velocity and 
-      * \f[
-      *      \vec{N}_i = C_T X_i \vec{V}_i
-      * \f]
-      * to determine the diffusion flux.  Here \f$ C_T \f$ is the 
-      * total concentration of the mixture [kmol/m^3], \f$ D_{ij} \f$
-      * are the Stefa-Maxwell interaction parameters in [m^2/s],
-      * \f$ \vec{V}_{i} \f$ is the diffusion velocity of species \e i,
-      * \f$ \mu_i \f$ is the electrochemical potential of species \e i.
-      *
-      * Note that for this method, there is no argument for the 
-      * gradient of the electric potential (voltage).  Electric 
-      * potential gradients can be set with set_Grad_V() or
-      * method getSpeciesFluxesES() can be called.x
-      *
-      * The diffusion velocity is relative to an average velocity 
-      * that can be computed on a mole-weighted 
-      * or mass-weighted basis, or the diffusion velocities may 
-      * be specified as relative to a specific species (i.e. a 
-      * solvent) all according to the \verbatim <velocityBasis> 
-      * \endverbatim input parameter.
-
-      * @param ndim The number of spatial dimensions (1, 2, or 3).
-      * @param grad_T The temperature gradient (ignored in this model).
-      *                 (length = ndim)
-      * @param ldx  Leading dimension of the grad_X array.
-      *              (usually equal to m_nsp but not always)
-      * @param grad_X Gradients of the mole fraction
-      *             Flat vector with the m_nsp in the inner loop.
-      *             length = ldx * ndim
-      * @param ldf  Leading dimension of the fluxes array 
-      *              (usually equal to m_nsp but not always)
-      * @param grad_Phi Gradients of the electrostatic potential
-      *             length = ndim
-      * @param fluxes  Output of the diffusive mass fluxes
-      *             Flat vector with the m_nsp in the inner loop.
-      *             length = ldx * ndim
-      */
-     virtual void getSpeciesFluxes(int ndim, 
+    //!  Return the species diffusive mass fluxes wrt to
+    //!  the averaged velocity in [kmol/m^2/s].
+    /*!
+     *
+     * The diffusive mass flux of species \e k is computed 
+     * using the Stefan-Maxwell equation
+     * \f[
+     *     X_i \nabla \mu_i 
+     *                     = RT \sum_i \frac{X_i X_j}{D_{ij}} 
+     *                           ( \vec{V}_j - \vec{V}_i )
+     * \f]
+     * to determine the diffusion velocity and 
+     * \f[
+     *      \vec{N}_i = C_T X_i \vec{V}_i
+     * \f]
+     * to determine the diffusion flux.  Here \f$ C_T \f$ is the 
+     * total concentration of the mixture [kmol/m^3], \f$ D_{ij} \f$
+     * are the Stefa-Maxwell interaction parameters in [m^2/s],
+     * \f$ \vec{V}_{i} \f$ is the diffusion velocity of species \e i,
+     * \f$ \mu_i \f$ is the electrochemical potential of species \e i.
+     *
+     * Note that for this method, there is no argument for the 
+     * gradient of the electric potential (voltage).  Electric 
+     * potential gradients can be set with set_Grad_V() or
+     * method getSpeciesFluxesES() can be called.x
+     *
+     * The diffusion velocity is relative to an average velocity 
+     * that can be computed on a mole-weighted 
+     * or mass-weighted basis, or the diffusion velocities may 
+     * be specified as relative to a specific species (i.e. a 
+     * solvent) all according to the \verbatim <velocityBasis> \endverbatim input parameter.
+     *
+     * @param ndim       The number of spatial dimensions (1, 2, or 3).
+     * @param grad_T     The temperature gradient (ignored in this model).
+     *                      (length = ndim)
+     * @param ldx        Leading dimension of the grad_X array.
+     *                       (usually equal to m_nsp but not always)
+     * @param grad_X     Gradients of the mole fraction
+     *                   Flat vector with the m_nsp in the inner loop.
+     *                   length = ldx * ndim
+     * @param ldf        Leading dimension of the fluxes array 
+     *                        (usually equal to m_nsp but not always)
+     * @param fluxes     Output of the diffusive mass fluxes
+     *                   Flat vector with the m_nsp in the inner loop.
+     *                   length = ldx * ndim
+     */
+    virtual void getSpeciesFluxes(int ndim, 
 				  const doublereal* grad_T, 
 				  int ldx, const doublereal* grad_X, 
 				  int ldf, doublereal* fluxes);
@@ -632,21 +627,21 @@ namespace Cantera {
       * solvent) all according to the \verbatim <velocityBasis> 
       * \endverbatim input parameter.
 
-      * @param ndim The number of spatial dimensions (1, 2, or 3).
-      * @param grad_T The temperature gradient (ignored in this model).
-      *                 (length = ndim)
-      * @param ldx  Leading dimension of the grad_X array.
-      *              (usually equal to m_nsp but not always)
-      * @param grad_X Gradients of the mole fraction
-      *             Flat vector with the m_nsp in the inner loop.
-      *             length = ldx * ndim
-      * @param ldf  Leading dimension of the fluxes array 
-      *              (usually equal to m_nsp but not always)
-      * @param grad_Phi Gradients of the electrostatic potential
-      *             length = ndim
-      * @param fluxes  Output of the diffusive mass fluxes
-      *             Flat vector with the m_nsp in the inner loop.
-      *             length = ldx * ndim
+      * @param ndim      The number of spatial dimensions (1, 2, or 3).
+      * @param grad_T    The temperature gradient (ignored in this model).
+      *                     (length = ndim)
+      * @param ldx       Leading dimension of the grad_X array.
+      *                     (usually equal to m_nsp but not always)
+      * @param grad_X    Gradients of the mole fraction
+      *                  Flat vector with the m_nsp in the inner loop.
+      *                     length = ldx * ndim
+      * @param ldf       Leading dimension of the fluxes array 
+      *                     (usually equal to m_nsp but not always)
+      * @param grad_Phi  Gradients of the electrostatic potential
+      *                     length = ndim
+      * @param fluxes    Output of the diffusive mass fluxes
+      *                  Flat vector with the m_nsp in the inner loop.
+      *                     length = ldx * ndim
       */
      virtual void getSpeciesFluxesES(int ndim, 
 				     const doublereal* grad_T, 
@@ -893,7 +888,7 @@ namespace Cantera {
     //! Number of species in the phase
     int m_nsp;
 
-
+    //! Number of species squared
     int m_nsp2;
 
     //! Minimum temperature applicable to the transport property eval
@@ -944,7 +939,9 @@ namespace Cantera {
      */
     LiquidTranInteraction *m_ionCondMixModel;
 
+    //! Type def for LTPvector equating it with a vector of pointers to LTPspecies
     typedef std::vector<LTPspecies*> LTPvector;
+
     //! Mobility ratio for the binary cominations of each species in each 
     //! pure phase expressed as an appropriate subclass of LTPspecies
     /*!
@@ -1289,6 +1286,7 @@ namespace Cantera {
     //! Specific volume for each species.  Local copy from thermo object.
     vector_fp m_volume_spec;
 
+    //! Vector of activity coefficients
     vector_fp m_actCoeff;
 
     //! RHS to the stefan-maxwell equation
@@ -1370,6 +1368,8 @@ namespace Cantera {
     //! Flag to indicate that the pure species ionic conductivities
     //! are current wrt the concentration
     bool m_ionCond_conc_ok;
+
+    //! Flag to indicate that the mixture conductivity is current
     bool m_cond_mix_ok;
 
     //! Boolean indicating that the top-level mixture mobility ratio is current
