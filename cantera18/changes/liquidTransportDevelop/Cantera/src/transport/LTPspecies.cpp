@@ -62,7 +62,7 @@ namespace Cantera {
    *   @param   thermo        const pointer to the ThermoPhase object, which is used to find the temperature.
    */ 
   LTPspecies::LTPspecies(const XML_Node * const propNode, std::string name, 
-                         TransportPropertyType tp_ind, const thermo_t* const thermo) :
+                         TransportPropertyType tp_ind, const thermo_t * thermo) :
      m_speciesName(name), 
      m_model(LTR_MODEL_NOTSET),
      m_property(tp_ind),
@@ -200,13 +200,22 @@ namespace Cantera {
   //====================================================================================================================
   // Construct an LTPspecies object for a liquid tranport property 
   // expressed in extended Arrhenius form.
-  /* The transport property is constructed from the XML node, 
+  /*
+   *  The transport property is constructed from the XML node, 
    *  \verbatim <propNode>, \endverbatim that is a child of the
-   *  \verbatim <transport> \endverbatim node and specifies a type of
-   *  transport property (like viscosity)
+   *  \verbatim <transport> \endverbatim node and specifies a type of  transport property (like viscosity)
+   *
+   *
+   *   @param   propNode      Referenc to the XML node that contains the property information.This class
+   *                          is assumed to be parameterized by reading XML_Node information.
+   *   @param   name          String containing the species name
+   *   @param   tp_ind        enum TransportPropertyType containing the property id that this object 
+   *                          is creating a parameterization for (e.g., viscosity)
+   *   @param   thermo        const pointer to the ThermoPhase object, which is used to find the temperature.
+   *
    */ 
   LTPspecies_Arrhenius::LTPspecies_Arrhenius(const XML_Node &propNode,  std::string name, 
-					     TransportPropertyType tp_ind,  thermo_t* thermo) : 
+					     TransportPropertyType tp_ind,  const thermo_t* thermo) : 
     LTPspecies(&propNode, name, tp_ind, thermo) 
   {
     m_model = LTR_MODEL_ARRHENIUS;
@@ -249,6 +258,11 @@ namespace Cantera {
       m_logProp = right.m_logProp;
     }
     return *this; 
+  }
+  //====================================================================================================================
+  // Destructor
+  LTPspecies_Arrhenius::~LTPspecies_Arrhenius() 
+  {
   }
   //====================================================================================================================
   // Duplication routine 
@@ -312,7 +326,7 @@ namespace Cantera {
    *  transport property (like viscosity)
    */ 
   LTPspecies_Poly::LTPspecies_Poly(const XML_Node &propNode,  std::string name, 
-				   TransportPropertyType tp_ind,  thermo_t* thermo) : 
+				   TransportPropertyType tp_ind, const thermo_t* thermo) : 
     LTPspecies(&propNode, name, tp_ind, thermo) 
   {
     m_model = LTR_MODEL_POLY;
@@ -389,7 +403,7 @@ namespace Cantera {
    *  transport property (like viscosity)
    */ 
   LTPspecies_ExpT::LTPspecies_ExpT(const XML_Node &propNode, std::string name, TransportPropertyType tp_ind, 
-				   thermo_t* thermo) : 
+				   const thermo_t* thermo) : 
     LTPspecies(&propNode, name, tp_ind, thermo) 
   {
     m_model = LTR_MODEL_EXPT;
