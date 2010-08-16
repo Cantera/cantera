@@ -102,7 +102,7 @@ namespace Cantera {
      *   @param   thermo        const pointer to the ThermoPhase object, which is used to find the temperature.
      */ 
     LTPspecies(const XML_Node * const propNode = 0,  std::string name = "-", 
-	       TransportPropertyType tp_ind = TP_UNKNOWN, const thermo_t* const thermo = 0);
+	       TransportPropertyType tp_ind = TP_UNKNOWN, const thermo_t* thermo = 0);
     
     //! Copy constructor
     /*!
@@ -300,21 +300,34 @@ namespace Cantera {
     /*!
      *  The transport property is constructed from the XML node, 
      *  \verbatim <propNode>, \endverbatim that is a child of the
-     *  \verbatim <transport> \endverbatim node and specifies a type of
-     *  transport property (like viscosity)
+     *  \verbatim <transport> \endverbatim node and specifies a type of  transport property (like viscosity)
+     *
+     *
+     *   @param   propNode      Referenc to the XML node that contains the property information.This class
+     *                          is assumed to be parameterized by reading XML_Node information.
+     *   @param   name          String containing the species name
+     *   @param   tp_ind        enum TransportPropertyType containing the property id that this object 
+     *                          is creating a parameterization for (e.g., viscosity)
+     *   @param   thermo        const pointer to the ThermoPhase object, which is used to find the temperature.
+     *
      */ 
-    LTPspecies_Arrhenius( const XML_Node &propNode, 
-			  std::string name, 
-			  TransportPropertyType tp_ind, 
-			  thermo_t* thermo ); 
+    LTPspecies_Arrhenius(const XML_Node &propNode, std::string name, 
+			  TransportPropertyType tp_ind, const thermo_t * thermo); 
     
     //! Copy constructor
-    LTPspecies_Arrhenius( const LTPspecies_Arrhenius &right ); 
+    /*!
+     *  @param Object to be copied
+     */
+    LTPspecies_Arrhenius(const LTPspecies_Arrhenius &right); 
 
     //! Assignment operator
-    LTPspecies_Arrhenius&  operator=(const LTPspecies_Arrhenius& right);
+    /*!
+     *  @param Object to be copied
+     */
+    LTPspecies_Arrhenius& operator=(const LTPspecies_Arrhenius& right);
 
-    virtual ~LTPspecies_Arrhenius( ) { }
+    //! Destructor
+    virtual ~LTPspecies_Arrhenius();
 
     //! duplication routine 
     /*!
@@ -397,16 +410,16 @@ namespace Cantera {
    *  \verbatim <transport> \endverbatim node and specifies a type of
    *  transport property (like viscosity)
    */ 
-    LTPspecies_Poly( const XML_Node &propNode, 
+    LTPspecies_Poly(const XML_Node &propNode, 
 		     std::string name, 
 		     TransportPropertyType tp_ind, 
-		     thermo_t* thermo ); 
+		     const thermo_t * thermo); 
     
     //! Copy constructor
-    LTPspecies_Poly( const LTPspecies_Poly &right ); 
+    LTPspecies_Poly(const LTPspecies_Poly &right); 
 
     //! Assignment operator
-    LTPspecies_Poly&  operator=(const LTPspecies_Poly& right );
+    LTPspecies_Poly&  operator=(const LTPspecies_Poly& right);
 
     //! Destructor
     virtual ~LTPspecies_Poly() { }
@@ -477,7 +490,7 @@ namespace Cantera {
     LTPspecies_ExpT(const XML_Node &propNode, 
 		     std::string name, 
 		     TransportPropertyType tp_ind, 
-		     thermo_t* thermo ); 
+		     const thermo_t* thermo); 
     
     //! Copy constructor
     /*!
@@ -486,7 +499,7 @@ namespace Cantera {
     LTPspecies_ExpT(const LTPspecies_ExpT &right); 
 
     //! Assignment operator
-    LTPspecies_ExpT&  operator=(const LTPspecies_ExpT& right );
+    LTPspecies_ExpT&  operator=(const LTPspecies_ExpT& right);
 
     virtual ~LTPspecies_ExpT() { }
 
