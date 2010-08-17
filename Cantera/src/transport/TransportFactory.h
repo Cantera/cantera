@@ -448,7 +448,7 @@ namespace Cantera {
 
     //! Mapping between between the string name for a 
     //! species-specific transport property model and the integer name.
-    std::map<std::string, LiquidTR_Model> m_LTRmodelMap;
+    std::map<std::string, LTPTemperatureDependenceType> m_LTRmodelMap;
 
     //! Mapping between between the string name for a 
     //! liquid mixture transport property model and the integer name.

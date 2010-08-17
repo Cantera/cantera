@@ -8,22 +8,23 @@
  *  $Revision: 427 $
  *
  */
-
 #include "LTPspecies.h"
 using namespace std;
 
 namespace Cantera {
-
   //====================================================================================================================
-  /*
-   * Exception thrown if an error is encountered while reading the transport database.
-   */
+  //! Exception thrown if an error is encountered while reading the transport database.
   class LTPError : public CanteraError {
   public:
-    LTPError(std::string msg) 
-      : CanteraError("LTPspecies",
-		     "error parsing transport data: " 
-		     + msg + "\n") {}
+    
+    //! Constructor is a wrapper around CanteraError
+    /*!
+     *  @param msg    Informative message
+     */
+    LTPError(std::string msg) :
+      CanteraError("LTPspecies", "error parsing transport data: " + msg + "\n") 
+    {
+    }
   };
   //====================================================================================================================
   //! getArrhenius() parses the xml element called Arrhenius. 
@@ -64,7 +65,7 @@ namespace Cantera {
   LTPspecies::LTPspecies(const XML_Node * const propNode, std::string name, 
                          TransportPropertyType tp_ind, const thermo_t * thermo) :
      m_speciesName(name), 
-     m_model(LTR_MODEL_NOTSET),
+     m_model(LTP_TD_NOTSET),
      m_property(tp_ind),
      m_thermo(thermo),
      m_mixWeight(1.0)
@@ -79,7 +80,7 @@ namespace Cantera {
   // Copy constructor
   LTPspecies::LTPspecies(const LTPspecies &right) 
   {
-    *this = right; //use assignment operator to do other work
+    *this = right;
   }
   //====================================================================================================================
   // Assignment operator
@@ -154,7 +155,7 @@ namespace Cantera {
 				     TransportPropertyType tp_ind, const thermo_t * const thermo) : 
     LTPspecies(&propNode, name, tp_ind, thermo) 
   {
-    m_model = LTR_MODEL_CONSTANT;	
+    m_model = LTP_TD_CONSTANT;	
     double A_k = getFloatCurrent(propNode, "toSI");
     if (A_k > 0.0) {
       m_coeffs.push_back(A_k);
@@ -218,7 +219,7 @@ namespace Cantera {
 					     TransportPropertyType tp_ind,  const thermo_t* thermo) : 
     LTPspecies(&propNode, name, tp_ind, thermo) 
   {
-    m_model = LTR_MODEL_ARRHENIUS;
+    m_model = LTP_TD_ARRHENIUS;
     m_temp = 0.0;
     m_prop = 0.0;	
 
@@ -237,21 +238,14 @@ namespace Cantera {
   LTPspecies_Arrhenius::LTPspecies_Arrhenius(const LTPspecies_Arrhenius &right) 
     : LTPspecies()
   {
-    *this = right; //use assignment operator to do other work
+    *this = right; 
   }
   //====================================================================================================================
   // Assignment operator
   LTPspecies_Arrhenius& LTPspecies_Arrhenius::operator=(const LTPspecies_Arrhenius& right)
   {
     if (&right != this) {
-      // LTPspecies::operator=(right);
-      m_speciesName = right.m_speciesName;
-      m_property    = right.m_property;
-      m_model       = right.m_model;
-      m_coeffs      = right.m_coeffs;
-      m_thermo      = right.m_thermo;
-      m_mixWeight   = right.m_mixWeight;
-
+      LTPspecies::operator=(right);
       m_temp    = right.m_temp;
       m_logt    = right.m_logt;
       m_prop    = right.m_prop;
@@ -318,52 +312,50 @@ namespace Cantera {
     return m_prop;
   }
   //====================================================================================================================
-  // Construct an LTPspecies object for a liquid tranport property 
-  // expressed as a polynomial in temperature.
-  /* The transport property is constructed from the XML node, 
-   *  \verbatim <propNode>, \endverbatim that is a child of the
-   *  \verbatim <transport> \endverbatim node and specifies a type of
-   *  transport property (like viscosity)
+  // Construct an LTPspecies object for a liquid tranport property expressed as a polynomial in temperature.
+  /*
+   *  The transport property is constructed from the XML node, \verbatim <propNode>, \endverbatim that is a child of the
+   *  \verbatim <transport> \endverbatim node and specifies a type of transport property (like viscosity).
+   *
+   *
+   *   @param   propNode      Referenc to the XML node that contains the property information. This class
+   *                          must be parameterized by reading XML_Node information.
+   *   @param   name          String containing the species name
+   *   @param   tp_ind        enum TransportPropertyType containing the property id that this object 
+   *                          is creating a parameterization for (e.g., viscosity)
+   *   @param   thermo        const pointer to the ThermoPhase object, which is used to find the temperature.
+   *
    */ 
   LTPspecies_Poly::LTPspecies_Poly(const XML_Node &propNode,  std::string name, 
 				   TransportPropertyType tp_ind, const thermo_t* thermo) : 
-    LTPspecies(&propNode, name, tp_ind, thermo) 
+    LTPspecies(&propNode, name, tp_ind, thermo),
+    m_temp(-1.0),
+    m_prop(0.0)
   {
-    m_model = LTR_MODEL_POLY;
-    m_temp = 0.0;
-    m_prop = 0.0;	
-
-
+    m_model = LTP_TD_POLY;
     getFloatArray(propNode, m_coeffs, "true", "toSI");
-
-    /*    if (m_coeffs[0] <= 0.0) {
-      throw LTPError("negative or zero " + propNode.name());
-      }*/
   }
   //====================================================================================================================
   // Copy constructor
   LTPspecies_Poly::LTPspecies_Poly(const LTPspecies_Poly &right) 
     : LTPspecies()
   {
-    *this = right; //use assignment operator to do other work
+    *this = right;
   }
   //====================================================================================================================
   // Assignment operator
   LTPspecies_Poly& LTPspecies_Poly::operator=(const LTPspecies_Poly& right)
   {
     if (&right != this) {
-      //LTPspecies::operator=(right);
-      m_speciesName = right.m_speciesName;
-      m_property    = right.m_property;
-      m_model       = right.m_model;
-      m_coeffs      = right.m_coeffs;
-      m_thermo      = right.m_thermo;
-      m_mixWeight   = right.m_mixWeight;
-
+      LTPspecies::operator=(right);
       m_temp    = right.m_temp;
       m_prop    = right.m_prop;
     }
     return *this; 
+  }
+  //====================================================================================================================
+  LTPspecies_Poly::~LTPspecies_Poly()
+  {
   }
   //====================================================================================================================
   // Duplication routine 
@@ -376,44 +368,44 @@ namespace Cantera {
     return (dynamic_cast<LTPspecies *>(prp));
   }
   //====================================================================================================================
-  // Return the value for this transport property evaluated 
-  // from the polynomial expression
+  // Return the value for this transport property evaluated from the polynomial expression
   doublereal LTPspecies_Poly::getSpeciesTransProp() {
-    
     doublereal t = m_thermo->temperature();
     if (t != m_temp) {  
-      m_prop = 0;
-      m_temp=t;
+      m_prop = 0.0;
+      m_temp = t;
       double tempN = 1.0;      
       for (int i = 0; i < (int) m_coeffs.size() ; i++) {
 	m_prop += m_coeffs[i] * tempN;
-	//cout << "m_coeff = " <<m_coeffs[i] << ", tempN = " << tempN << ", m_prop = " << m_prop << endl;
 	tempN *= m_temp;
       }
     }
-    //cout << "m_prop = " << m_prop << endl;
     return m_prop;
   }  
   //====================================================================================================================
   // Construct an LTPspecies object for a liquid tranport property 
   // expressed as an exponential in temperature.
-  /* The transport property is constructed from the XML node, 
-   *  \verbatim <propNode>, \endverbatim that is a child of the
-   *  \verbatim <transport> \endverbatim node and specifies a type of
-   *  transport property (like viscosity)
+  /*
+   *  The transport property is constructed from the XML node, \verbatim <propNode>, \endverbatim that is a child of the
+   *  \verbatim <transport> \endverbatim node and specifies a type of transport property (like viscosity).
+   *
+   *
+   *   @param   propNode      Referenc to the XML node that contains the property information. This class
+   *                          must be parameterized by reading XML_Node information.
+   *   @param   name          String containing the species name
+   *   @param   tp_ind        enum TransportPropertyType containing the property id that this object 
+   *                          is creating a parameterization for (e.g., viscosity)
+   *   @param   thermo        const pointer to the ThermoPhase object, which is used to find the temperature.
+   *
    */ 
   LTPspecies_ExpT::LTPspecies_ExpT(const XML_Node &propNode, std::string name, TransportPropertyType tp_ind, 
 				   const thermo_t* thermo) : 
-    LTPspecies(&propNode, name, tp_ind, thermo) 
+    LTPspecies(&propNode, name, tp_ind, thermo),
+    m_temp(-1.0),
+    m_prop(0.0)
   {
-    m_model = LTR_MODEL_EXPT;
-    m_temp = 0.0;
-    m_prop = 0.0;	
+    m_model = LTP_TD_EXPT;
     getFloatArray(propNode, m_coeffs, "true", "toSI");
-
-    /*    if (m_coeffs[0] <= 0.0) {
-      throw LTPError("negative or zero " + propNode.name());
-      }*/
   }
   //====================================================================================================================
   // Copy constructor
@@ -427,18 +419,15 @@ namespace Cantera {
   LTPspecies_ExpT& LTPspecies_ExpT::operator=(const LTPspecies_ExpT& right)
   {
     if (&right != this) {
-      //LTPspecies::operator=(right);
-      m_speciesName = right.m_speciesName;
-      m_property    = right.m_property;
-      m_model       = right.m_model;
-      m_coeffs      = right.m_coeffs;
-      m_thermo      = right.m_thermo;
-      m_mixWeight   = right.m_mixWeight;
-
+      LTPspecies::operator=(right);
       m_temp    = right.m_temp;
       m_prop    = right.m_prop;
     }
     return *this; 
+  }
+  //====================================================================================================================
+  LTPspecies_ExpT::~LTPspecies_ExpT()
+  { 
   }
   //====================================================================================================================
   // Duplication routine 
@@ -454,19 +443,18 @@ namespace Cantera {
   // Return the value for this transport property evaluated 
   // from the exponential in temperature expression
   doublereal LTPspecies_ExpT::getSpeciesTransProp() {
-    
     doublereal t = m_thermo->temperature();
     if (t != m_temp) {  
-      m_prop = 0.0;
       m_temp=t;
-      m_prop=m_coeffs[0];
-      double tempN = 1.0;      
+      m_prop = m_coeffs[0];
+      doublereal tempN = 1.0;      
+      doublereal tmp = 0.0;
       for (int i = 1; i < (int) m_coeffs.size() ; i++) {
 	tempN *= m_temp;
-	m_prop *= exp(m_coeffs[i] * tempN);
+        tmp += m_coeffs[i] * tempN;
       }
+      m_prop *= exp(tmp);
     }
-    //cout << "m_prop = " << m_prop << endl;
     return m_prop;
   }
   //====================================================================================================================
