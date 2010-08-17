@@ -3,9 +3,9 @@
  *  Header file defining class LTPspecies and its child classes
  */
 /*
- *  $Author: christopher.lueth@gmail.com $
- *  $Date: 2010-03-30 12:30:39 -0600 (Tue, 30 Mar 2010) $
- *  $Revision: 427 $
+ *  $Author$
+ *  $Date$
+ *  $Revision$
 
  */
 

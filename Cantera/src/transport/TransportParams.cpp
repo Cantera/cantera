@@ -6,9 +6,9 @@
  */
 /*
  * Latest Checkin:
- *  $Author: hkmoffa $
- *  $Date: 2010-04-02 11:40:52 -0600 (Fri, 02 Apr 2010) $
- *  $Revision: 429 $
+ *  $Author$
+ *  $Date$
+ *  $Revision$
  */
 
 #include "TransportParams.h"
