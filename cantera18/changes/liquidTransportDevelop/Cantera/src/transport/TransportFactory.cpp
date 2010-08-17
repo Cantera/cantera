@@ -253,11 +253,11 @@ namespace Cantera {
     m_tranPropMap["hydrodynamicRadius"] = TP_HYDRORADIUS;
     m_tranPropMap["electricalConductivity"] = TP_ELECTCOND;
 
-    m_LTRmodelMap[""] = LTR_MODEL_CONSTANT;
-    m_LTRmodelMap["constant"] = LTR_MODEL_CONSTANT;
-    m_LTRmodelMap["arrhenius"] = LTR_MODEL_ARRHENIUS;
-    m_LTRmodelMap["coeffs"] = LTR_MODEL_POLY;
-    m_LTRmodelMap["exptemp"] = LTR_MODEL_EXPT;
+    m_LTRmodelMap[""] = LTP_TD_CONSTANT;
+    m_LTRmodelMap["constant"] = LTP_TD_CONSTANT;
+    m_LTRmodelMap["arrhenius"] = LTP_TD_ARRHENIUS;
+    m_LTRmodelMap["coeffs"] = LTP_TD_POLY;
+    m_LTRmodelMap["exptemp"] = LTP_TD_EXPT;
 
     m_LTImodelMap[""] = LTI_MODEL_NOTSET;
     m_LTImodelMap["none"] = LTI_MODEL_NONE;
@@ -309,16 +309,16 @@ namespace Cantera {
     LTPspecies* ltps = 0;
     std::string model = lowercase(trNode["model"]);
     switch (m_LTRmodelMap[model]) {
-    case LTR_MODEL_CONSTANT:
+    case LTP_TD_CONSTANT:
       ltps = new LTPspecies_Const(trNode, name, tp_ind, thermo);
       break;
-    case LTR_MODEL_ARRHENIUS:
+    case LTP_TD_ARRHENIUS:
       ltps = new LTPspecies_Arrhenius(trNode, name, tp_ind, thermo);
       break;
-    case LTR_MODEL_POLY:
+    case LTP_TD_POLY:
       ltps = new LTPspecies_Poly(trNode, name, tp_ind, thermo);
       break;
-    case LTR_MODEL_EXPT:
+    case LTP_TD_EXPT:
       ltps = new LTPspecies_ExpT(trNode, name, tp_ind, thermo);
       break;
     default:
@@ -1202,7 +1202,7 @@ namespace Cantera {
 	  else if (trParam.thermo->speciesIndex(velocityBasis) > 0) 
 	    trParam.velocityBasis_ = trParam.thermo->speciesIndex(velocityBasis) ;
 	  else {
-	    int linenum;
+	    int linenum = __LINE__;
 	    throw TransportDBError(linenum, "Unknown attribute \"" + velocityBasis + "\" for <velocityBasis> node. ");
 	  }
 	}

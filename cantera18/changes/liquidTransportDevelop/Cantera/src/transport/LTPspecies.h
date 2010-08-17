@@ -61,13 +61,14 @@ namespace Cantera {
    *     0  - Independent of temperature 
    *     1  - extended arrhenius form
    *     2  - polynomial in temperature form
+   *     3 -  exponential temperature polynomial
    */
-  enum LiquidTR_Model {
-    LTR_MODEL_NOTSET=-1,
-    LTR_MODEL_CONSTANT, 
-    LTR_MODEL_ARRHENIUS,
-    LTR_MODEL_POLY,
-    LTR_MODEL_EXPT
+  enum LTPTemperatureDependenceType {
+    LTP_TD_NOTSET=-1,
+    LTP_TD_CONSTANT, 
+    LTP_TD_ARRHENIUS,
+    LTP_TD_POLY,
+    LTP_TD_EXPT
   };
 
   //====================================================================================================================
@@ -139,13 +140,13 @@ namespace Cantera {
 
     //! Check to see if the property evaluation will be positive
     /*!
-     *  @return  returns a boolean
+     *  @return  Returns a boolean
      */
     virtual bool checkPositive() const;
 
-    //! return the weight mixture
+    //! Return the weight mixture
     /*!
-     *  @return  returns a single double which is used as a weight
+     *  @return  Returns a single double which is used as a weight
      */
     doublereal getMixWeight() const;
 
@@ -164,7 +165,7 @@ namespace Cantera {
     std::string m_speciesName;
    
     //! Model type for the temperature dependence
-    LiquidTR_Model m_model;
+    LTPTemperatureDependenceType m_model;
 
     //! enum indicating which property this is (i.e viscosity)
     TransportPropertyType m_property;
@@ -291,7 +292,7 @@ namespace Cantera {
    *    </species>
    * \endverbatim
    */
-  class LTPspecies_Arrhenius : public  LTPspecies{
+  class LTPspecies_Arrhenius : public  LTPspecies {
 
   public:
 
@@ -316,13 +317,13 @@ namespace Cantera {
     
     //! Copy constructor
     /*!
-     *  @param Object to be copied
+     *  @param right     Object to be copied
      */
     LTPspecies_Arrhenius(const LTPspecies_Arrhenius &right); 
 
     //! Assignment operator
     /*!
-     *  @param Object to be copied
+     *  @param right     Object to be copied
      */
     LTPspecies_Arrhenius& operator=(const LTPspecies_Arrhenius& right);
 
@@ -403,26 +404,36 @@ namespace Cantera {
 
   public:
 
-  //! Construct an LTPspecies object for a liquid tranport property 
-  //! expressed as a polynomial in temperature.
-  /** The transport property is constructed from the XML node, 
-   *  \verbatim <propNode>, \endverbatim that is a child of the
-   *  \verbatim <transport> \endverbatim node and specifies a type of
-   *  transport property (like viscosity)
-   */ 
-    LTPspecies_Poly(const XML_Node &propNode, 
-		     std::string name, 
-		     TransportPropertyType tp_ind, 
-		     const thermo_t * thermo); 
+    //! Construct an LTPspecies object for a liquid tranport property expressed as a polynomial in temperature.
+    /*!
+     *  The transport property is constructed from the XML node, \verbatim <propNode>, \endverbatim that is a child of the
+     *  \verbatim <transport> \endverbatim node and specifies a type of transport property (like viscosity).
+     *
+     *
+     *   @param   propNode      Referenc to the XML node that contains the property information. This class
+     *                          must be parameterized by reading XML_Node information.
+     *   @param   name          String containing the species name
+     *   @param   tp_ind        enum TransportPropertyType containing the property id that this object 
+     *                          is creating a parameterization for (e.g., viscosity)
+     *   @param   thermo        const pointer to the ThermoPhase object, which is used to find the temperature.
+     *
+     */ 
+    LTPspecies_Poly(const XML_Node &propNode, std::string name, TransportPropertyType tp_ind, const thermo_t * thermo);
     
     //! Copy constructor
+    /*!
+     *  @param right   Object to be copied
+     */
     LTPspecies_Poly(const LTPspecies_Poly &right); 
 
     //! Assignment operator
-    LTPspecies_Poly&  operator=(const LTPspecies_Poly& right);
+    /*!
+     *  @param right   Object to be copied
+     */
+    LTPspecies_Poly& operator=(const LTPspecies_Poly& right);
 
     //! Destructor
-    virtual ~LTPspecies_Poly() { }
+    virtual ~LTPspecies_Poly();
 
     //! Duplication routine 
     /*!
@@ -450,8 +461,8 @@ namespace Cantera {
 
   //====================================================================================================================
   //! Class LTPspecies_ExpT holds transport parameters for a  specific liquid-phase species (LTPspecies) 
-  //! when the transport property is expressed as a exponential in temperature.
-  /**
+  //! when the transport property is expressed as an exponential in temperature.
+  /*!
    * Used for pure species properties with equations of the form
    *
    *    \f[
@@ -479,18 +490,23 @@ namespace Cantera {
 
   public:
 
-  //! Construct an LTPspecies object for a liquid tranport property 
-  //! expressed as an exponential in temperature.
-  /*!
-   *  The transport property is constructed from the XML node, \verbatim <propNode>, \endverbatim that is a child of the
-   *  \verbatim <transport> \endverbatim node and specifies a type of transport property (like viscosity).
-   *
-   *  @param    propNode     
-   */ 
-    LTPspecies_ExpT(const XML_Node &propNode, 
-		     std::string name, 
-		     TransportPropertyType tp_ind, 
-		     const thermo_t* thermo); 
+    //! Construct an LTPspecies object for a liquid tranport property 
+    //! expressed as an exponential in temperature.
+    /*!
+     *  The transport property is constructed from the XML node, \verbatim <propNode>, \endverbatim that is a child of the
+     *  \verbatim <transport> \endverbatim node and specifies a type of transport property (like viscosity).
+     *
+     *
+     *   @param   propNode      Referenc to the XML node that contains the property information. This class
+     *                          must be parameterized by reading XML_Node information.
+     *   @param   name          String containing the species name
+     *   @param   tp_ind        enum TransportPropertyType containing the property id that this object 
+     *                          is creating a parameterization for (e.g., viscosity)
+     *   @param   thermo        const pointer to the ThermoPhase object, which is used to find the temperature.
+     *
+     */ 
+    LTPspecies_ExpT(const XML_Node &propNode,  std::string name, 
+		    TransportPropertyType tp_ind,  const thermo_t* thermo); 
     
     //! Copy constructor
     /*!
@@ -499,11 +515,15 @@ namespace Cantera {
     LTPspecies_ExpT(const LTPspecies_ExpT &right); 
 
     //! Assignment operator
+    /*!
+     *  @param right   Object to be copied
+     */
     LTPspecies_ExpT&  operator=(const LTPspecies_ExpT& right);
 
-    virtual ~LTPspecies_ExpT() { }
+    //! Destructor
+    virtual ~LTPspecies_ExpT();
 
-    //! duplication routine 
+    //! Duplication routine 
     /*!
      *  @return  Returns a copy of this routine as a pointer to LTPspecies
      */
