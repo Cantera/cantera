@@ -42,8 +42,6 @@ namespace Cantera {
   DustyGasTransport::DustyGasTransport(thermo_t* thermo) :
       Transport(thermo),
       m_nsp(0),
-      m_tmin(0.0),
-      m_tmax(1.0E300),
       m_mw(0),
       m_dk(0),
       m_temp(-1.0),     
@@ -67,8 +65,6 @@ namespace Cantera {
   DustyGasTransport::DustyGasTransport(const DustyGasTransport &right) :
       Transport(),
       m_nsp(0),
-      m_tmin(0.0),
-      m_tmax(1.0E300),
       m_mw(0),
       m_dk(0),
       m_temp(-1.0),     
@@ -105,8 +101,6 @@ namespace Cantera {
     Transport::operator=(right);
 
     m_nsp = right.m_nsp;
-    m_tmin = right.m_tmin;
-    m_tmax = right.m_tmax;
     m_mw = right.m_mw;
     m_d = right.m_d;
     m_x = right.m_x;
@@ -183,8 +177,6 @@ namespace Cantera {
     // constant mixture attributes
     m_thermo = phase;
     m_nsp   = m_thermo->nSpecies();
-    m_tmin  = m_thermo->minTemp();
-    m_tmax  = m_thermo->maxTemp();
     m_gastran = gastr;
 
     // make a local copy of the molecular weights
@@ -332,21 +324,31 @@ namespace Cantera {
 			 "invert returned ierr = "+int2str(ierr));
     }
   }
- //====================================================================================================================
+  //====================================================================================================================
+  // Return the Multicomponent diffusion coefficients. Units: [m^2/s]. 
+  /*
+   * Returns the array of multicomponent diffusion coefficients.
+   *
+   *  @param ld  The dimension of the inner loop of d (usually equal to m_nsp)
+   *  @param d  flat vector of diffusion coefficients, fortran ordering.
+   *            d[ld*j+i] is the D_ij diffusion coefficient (the diffusion
+   *            coefficient for species i due to species j).
+   */
   void DustyGasTransport::getMultiDiffCoeffs(const int ld, doublereal* const d) {
     int i,j;
     updateMultiDiffCoeffs();
     for (i = 0; i < m_nsp; i++) {
-      for (j = 0; j < m_nsp; j++) {            
+      for (j = 0; j < m_nsp; j++) {
 	d[ld*j + i] = m_multidiff(i,j);
       }
     }
   }
-
   //====================================================================================================================    
-  /**
-   *  Update temperature-dependent quantities.
-   */ 
+  // Update temperature-dependent quantities within the object
+  /*
+   *  The object keeps a value m_temp, which is the temperature at which quantities were last evaluated
+   *  at. If the temperature is changed, update Booleans are set false, triggering recomputation.
+   */
   void DustyGasTransport::updateTransport_T() 
   {
     if (m_temp == m_thermo->temperature()) return;

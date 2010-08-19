@@ -77,6 +77,16 @@ namespace Cantera {
 
     virtual void setParameters(const int type, const int k, const doublereal* const p);
         
+
+    //! Return the Multicomponent diffusion coefficients. Units: [m^2/s]. 
+    /*!
+     * Returns the array of multicomponent diffusion coefficients.
+     *
+     *  @param ld  The dimension of the inner loop of d (usually equal to m_nsp)
+     *  @param d  flat vector of diffusion coefficients, fortran ordering.
+     *            d[ld*j+i] is the D_ij diffusion coefficient (the diffusion
+     *            coefficient for species i due to species j).
+     */
     virtual void getMultiDiffCoeffs(const int ld, doublereal* const d);
         
     //! Get the molar fluxes [kmol/m^2/s], given the thermodynamic
@@ -168,6 +178,12 @@ namespace Cantera {
      *  at. If the temperature is changed, update Booleans are set false, triggering recomputation.
      */
     void updateTransport_T();
+
+    //! Update concentration-dependent quantities within the object
+    /*!
+     *  The object keeps a value m_temp, which is the temperature at which quantities were last evaluated
+     *  at. If the temperature is changed, update Booleans are set false, triggering recomputation.
+     */
     void updateTransport_C();
 
     void updateBinaryDiffCoeffs();
@@ -176,12 +192,16 @@ namespace Cantera {
     void eval_H_matrix();
 
 
-    // gas attributes
+    //! Number of species in the gas phase
     int m_nsp;
-    doublereal m_tmin, m_tmax;
+ 
+    //! Local copy of the species molecular weights
+    /*!
+     *  units kg /kmol 
+     *  length = m_nsp;
+     */
     vector_fp  m_mw;
 
-  
     //! binary diffusion coefficients
     DenseMatrix                  m_d;
 
