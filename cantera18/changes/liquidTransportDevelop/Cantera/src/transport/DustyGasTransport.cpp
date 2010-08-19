@@ -53,7 +53,6 @@ namespace Cantera {
       m_gradP(0.0),
       m_knudsen_ok(false),
       m_bulk_ok(false),
-      m_conc_set(false),
       m_gradConc_set(false),
       m_gradP_set(false),
       m_porosity(0.0),
@@ -79,7 +78,6 @@ namespace Cantera {
       m_gradP(0.0),
       m_knudsen_ok(false),
       m_bulk_ok(false),
-      m_conc_set(false),
       m_gradConc_set(false),
       m_gradP_set(false),
       m_porosity(0.0),
@@ -120,7 +118,6 @@ namespace Cantera {
     m_gradP = right.m_gradP;
     m_knudsen_ok = right.m_knudsen_ok;
     m_bulk_ok= right.m_bulk_ok;
-    m_conc_set = right.m_conc_set;
     m_gradConc_set = right.m_gradConc_set;
     m_gradP_set = right.m_gradP_set;
     m_porosity = right.m_porosity;  
@@ -204,7 +201,6 @@ namespace Cantera {
     // set flags all false
     m_knudsen_ok = false;
     m_bulk_ok = false;
-    m_conc_set = false;
     m_gradConc_set = false;
     m_gradP_set = false;
   
@@ -248,11 +244,17 @@ namespace Cantera {
     for (k = 0; k < m_nsp; k++) {
 
       // evaluate off-diagonal terms
-      for (l = 0; l < m_nsp; l++) m_multidiff(k,l) = -m_x[k]/m_d(k,l);
+      for (l = 0; l < m_nsp; l++) {
+	m_multidiff(k,l) = -m_x[k]/m_d(k,l);
+      }
 
       // evaluate diagonal term
       sum = 0.0;
-      for (j = 0; j < m_nsp; j++) if (j != k) sum += m_x[j]/m_d(k,j);
+      for (j = 0; j < m_nsp; j++) {
+	if (j != k) {
+	  sum += m_x[j]/m_d(k,j);
+	}
+      }
       m_multidiff(k,k) = 1.0/m_dk[k] + sum;
     }
   }

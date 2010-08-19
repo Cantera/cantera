@@ -189,12 +189,30 @@ namespace Cantera {
     vector_fp                    m_x;
 
     //! Knudsen diffusion coefficients
+    /*!
+     *  The Knudsen diffusion coefficients are given by the following form
+     *  
+     *     \f[
+     *        \mathcal{D}^{knud}_k =  \frac{2}{3} \frac{r_{pore} \phi}{\tau} \left( \frac{8 R T}{\pi W_k}  \right)^{1/2}
+     *     \f]
+     *
+     */
     vector_fp                    m_dk;
 
     //! temperature
     doublereal                   m_temp;
 
-    //! multicomponent diffusion coefficients
+    //! Multicomponent diffusion coefficients
+    /*!
+     *  The multicomponent diffusion matrix \f$  H_{k,l} \f$ is given by the following form
+     *
+     *     \f[
+     *        H_{k,l} = - \frac{X_k}{D_{k,l}}
+     *     \f]
+     *     \f[
+     *        H_{k,k} = \frac{1}{\mathcal(D)^{knud}_{k}} + \sum_{j \ne k}^N{ \frac{X_j}{D_{k,j}} }
+     *     \f]
+     */
     DenseMatrix                  m_multidiff;
 
     //!  work space of size m_nsp;
@@ -207,10 +225,14 @@ namespace Cantera {
     //! Pressure Gradient
     doublereal m_gradP;
 
+    //! Update-to-date variable for Knudsen diffusion coefficients
     bool m_knudsen_ok;
+
+   //! Update-to-date variable for Binary diffusion coefficients
     bool m_bulk_ok;
-    bool m_conc_set;
+
     bool m_gradConc_set;
+
     bool m_gradP_set;
 
     //! Porosity
