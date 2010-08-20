@@ -138,6 +138,18 @@ namespace Cantera {
     return (dynamic_cast<Transport *>(tr));
   }
   //====================================================================================================================
+  //   Set the Parameters in the model
+  /*
+   *    @param type     Type of the parameter to set
+   *                     0 - porosity
+   *                     1 - tortuosity
+   *                     2 - mean pore radius
+   *                     3 - mean particle radius
+   *                     4 - permeability
+   *    @param k         Unused int
+   *    @param p         pointer to double for the input list of parameters
+   *
+   */
   void DustyGasTransport::setParameters(const int type, const int k, const doublereal* const p) {
     switch(type) {
     case 0:
@@ -151,8 +163,7 @@ namespace Cantera {
     case 4:
       setPermeability(p[0]); break;
     default:
-      throw CanteraError("DustyGasTransport::init",
-			 "unknown parameter");
+      throw CanteraError("DustyGasTransport::init", "unknown parameter");
     }
   }
   //====================================================================================================================
