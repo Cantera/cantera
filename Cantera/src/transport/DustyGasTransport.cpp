@@ -51,8 +51,6 @@ namespace Cantera {
       m_gradP(0.0),
       m_knudsen_ok(false),
       m_bulk_ok(false),
-      m_gradConc_set(false),
-      m_gradP_set(false),
       m_porosity(0.0),
       m_tortuosity(1.0),
       m_pore_radius(0.0),
@@ -74,8 +72,6 @@ namespace Cantera {
       m_gradP(0.0),
       m_knudsen_ok(false),
       m_bulk_ok(false),
-      m_gradConc_set(false),
-      m_gradP_set(false),
       m_porosity(0.0),
       m_tortuosity(1.0),
       m_pore_radius(0.0),
@@ -112,8 +108,6 @@ namespace Cantera {
     m_gradP = right.m_gradP;
     m_knudsen_ok = right.m_knudsen_ok;
     m_bulk_ok= right.m_bulk_ok;
-    m_gradConc_set = right.m_gradConc_set;
-    m_gradP_set = right.m_gradP_set;
     m_porosity = right.m_porosity;  
     m_tortuosity = right.m_tortuosity;   
     m_pore_radius = right.m_pore_radius;  
@@ -193,18 +187,26 @@ namespace Cantera {
     // set flags all false
     m_knudsen_ok = false;
     m_bulk_ok = false;
-    m_gradConc_set = false;
-    m_gradP_set = false;
   
     m_spwork.resize(m_nsp);
     m_spwork2.resize(m_nsp);
   }
   //====================================================================================================================
-
+  // Private routine to update the dusty gas binary diffusion coefficients
+  /*
+   *  The dusty gas binary diffusion coefficients \f$  D^{dg}_{i,j} \f$ are evaluated from the binary
+   *  gas-phase diffusion coefficients \f$  D^{bin}_{i,j} \f$  using the following formula
+   *
+   *     \f[
+   *         D^{dg}_{i,j} =  \frac{\phi}{\tau} D^{bin}_{i,j} 
+   *     \f]
+   *
+   *  where \f$ \phi \f$ is the porosity of the media and \f$ \tau \f$ is the tortuosity of the media.
+   *
+   */
   void DustyGasTransport::updateBinaryDiffCoeffs() {
     if (m_bulk_ok) return;
     int n,m;
-
     // get the gaseous binary diffusion coefficients
     m_gastran->getBinaryDiffCoeffs(m_nsp, m_d.ptrColumn(0));
     doublereal por2tort = m_porosity / m_tortuosity;
@@ -216,6 +218,15 @@ namespace Cantera {
     m_bulk_ok = true;
   }
   //====================================================================================================================
+  // Private routine to update the Knudsen diffusion coefficients
+  /*
+   *  The Knudsen diffusion coefficients are given by the following form
+   *  
+   *     \f[
+   *        \mathcal{D}^{knud}_k =  \frac{2}{3} \frac{r_{pore} \phi}{\tau} \left( \frac{8 R T}{\pi W_k}  \right)^{1/2}
+   *     \f]
+   *
+   */
   void DustyGasTransport::updateKnudsenDiffCoeffs() {
     if (m_knudsen_ok) return;
     doublereal K_g = m_pore_radius * m_porosity / m_tortuosity;
@@ -227,7 +238,21 @@ namespace Cantera {
     m_knudsen_ok = true;
   }
 
-  //====================================================================================================================      
+  //====================================================================================================================
+  // Private routine to calculate the H matrix
+  /*
+   *  The H matrix is the term we have given to the matrix of coefficients in the equation for the molar
+   *  fluxes. The matrix must be inverted in order to calculate the molar fluxes. 
+   *
+   *  The multicomponent diffusion H matrix \f$  H_{k,l} \f$ is given by the following formulas
+   *
+   *     \f[
+   *        H_{k,l} = - \frac{X_k}{D^e_{k,l}}
+   *     \f]
+   *     \f[
+   *        H_{k,k} = \frac{1}{\mathcal(D)^{e}_{k, knud}} + \sum_{j \ne k}^N{ \frac{X_j}{D^e_{k,j}} }
+   *     \f]
+   */  
   void DustyGasTransport::eval_H_matrix() {
     updateBinaryDiffCoeffs();
     updateKnudsenDiffCoeffs();
@@ -258,25 +283,30 @@ namespace Cantera {
 
     int k;
     doublereal conc1, conc2;
-    doublereal* cbar = DATA_PTR(m_spwork);
-    doublereal* gradc = DATA_PTR(m_spwork2);
-    doublereal t1 = state1[0];
-    doublereal t2 = state2[0];
-    doublereal rho1 = state1[1];
-    doublereal rho2 = state2[1];
-    const doublereal* y1 = state1 + 2;
-    const doublereal* y2 = state2 + 2;
+
+    // cbar will be the average concentration between the two points
+    doublereal * const cbar = DATA_PTR(m_spwork);
+    doublereal * const gradc = DATA_PTR(m_spwork2);
+    const doublereal t1 = state1[0];
+    const doublereal t2 = state2[0];
+    const doublereal rho1 = state1[1];
+    const doublereal rho2 = state2[1];
+    const doublereal* const y1 = state1 + 2;
+    const doublereal* const y2 = state2 + 2;
     doublereal c1sum = 0.0, c2sum = 0.0;
+
     for (k = 0; k < m_nsp; k++) {
-      conc1 = rho1*y1[k]/m_mw[k];
-      conc2 = rho2*y2[k]/m_mw[k];
+      conc1 = rho1 * y1[k] / m_mw[k];
+      conc2 = rho2 * y2[k] / m_mw[k];
       cbar[k] = 0.5*(conc1 + conc2);
-      gradc[k] = (conc2 - conc1)/delta;
+      gradc[k] = (conc2 - conc1) / delta;
       c1sum += conc1;
       c2sum += conc2;
     }
-    doublereal p1 = c1sum * GasConstant * state1[0];
-    doublereal p2 = c2sum * GasConstant * state2[0];
+
+    // Calculate the pressures at p1 p2 and pbar
+    doublereal p1 = c1sum * GasConstant * t1;
+    doublereal p2 = c2sum * GasConstant * t2;
     doublereal pbar = 0.5*(p1 + p2);
     doublereal gradp = (p2 - p1)/delta;
     doublereal tbar = 0.5*(t1 + t2);
@@ -285,7 +315,9 @@ namespace Cantera {
 
     updateMultiDiffCoeffs();
 
+    // Multiply m_multidiff and gradc together and store the result in fluxes[]
     multiply(m_multidiff, gradc, fluxes);
+
     divide_each(cbar, cbar + m_nsp, m_dk.begin());
 
     // if no permeability has been specified, use result for 
@@ -302,11 +334,16 @@ namespace Cantera {
     }
     b *= gradp / m_gastran->viscosity();
     scale(cbar, cbar + m_nsp, cbar, b);
+
+    // Multiply m_multidiff with cbar and add it to fluxes
     increment(m_multidiff, cbar, fluxes);
     scale(fluxes, fluxes + m_nsp, fluxes, -1.0);
   }
   //====================================================================================================================
-
+  // Private routine to update the Multicomponent diffusion coefficients that are used in the approximation
+  /*
+   *  This routine updates the H matrix and then inverts it.
+   */
   void DustyGasTransport::updateMultiDiffCoeffs() {
     // see if temperature has changed
     updateTransport_T();
@@ -369,5 +406,69 @@ namespace Cantera {
     // diffusion coeffs depend on Pressure
     m_bulk_ok = false;
   } 
+  //====================================================================================================================
+  // Set the porosity (dimensionless)
+  /*
+   *  @param   porosity       Set the value of the porosity
+   */
+  void DustyGasTransport::setPorosity(doublereal porosity) {
+    m_porosity = porosity;
+    m_knudsen_ok = false;
+    m_bulk_ok = false;
+  }
+  //====================================================================================================================
+  // Set the tortuosity (dimensionless)
+  /*
+   *   @param    tort   Value of the tortuosity
+   */
+  void DustyGasTransport::setTortuosity(doublereal tort) {
+    m_tortuosity = tort;
+    m_knudsen_ok = false;
+    m_bulk_ok = false;
+  }
+  //====================================================================================================================
+  // Set the mean pore radius (m)
+  /*
+   *     @param   rbar    Value of the pore radius ( m)
+   */
+  void DustyGasTransport::setMeanPoreRadius(doublereal rbar) {
+    m_pore_radius = rbar;
+    m_knudsen_ok = false;
+  } 
+  //====================================================================================================================
+  // Set the mean particle diameter
+  /*
+   *   @param dbar   Set the mean particle diameter (m)
+   */   
+  void  DustyGasTransport::setMeanParticleDiameter(doublereal dbar) {
+    m_diam = dbar;
+  }
+  //====================================================================================================================  
+  // Set the permeability of the media
+  /*
+   * If not set, the value for close-packed spheres will be used by default. 
+   *
+   *  The value for close-packed spheres is given below, where p is the porosity,
+   *  t is the tortuosity, and d is the diameter of the sphere
+   *
+   *  \f[
+   *      \kappa = \frac{p^3 d^2}{72 t (1 - p)^2}
+   *  \f]
+   *
+   * @param B  set the permeability of the media (units = m^2)
+   */
+  void  DustyGasTransport::setPermeability(doublereal B) {
+    m_perm = B;
+  }
+  //====================================================================================================================  
+  //   Return a reference to the transport manager used to compute the gas
+  //   binary diffusion coefficients and the visdcosity.
+  /*
+   *   @return  Returns a reference to the gas transport object
+   */
+  Transport&  DustyGasTransport::gasTransport() {
+    return *m_gastran;
+  }
+  
   //====================================================================================================================
 }
