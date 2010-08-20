@@ -110,6 +110,19 @@ namespace Cantera {
 
     virtual int model() const { return cDustyGasTransport; }
 
+
+    //! Set the Parameters in the model
+    /*!
+     *    @param type     Type of the parameter to set
+     *                     0 - porosity
+     *                     1 - tortuosity
+     *                     2 - mean pore radius
+     *                     3 - mean particle radius
+     *                     4 - permeability
+     *    @param k        Unused int
+     *    @param p         pointer to double for the input list of parameters
+     *
+     */
     virtual void setParameters(const int type, const int k, const doublereal* const p);
         
 
