@@ -50,14 +50,20 @@
 #include <cstring>
 
 
-/**
- * polynomial degree used for fitting collision integrals
- * except in CK mode, where the degree is 6.
- */
+
+//! polynomial degree used for fitting collision integrals
+//! except in CK mode, where the degree is 6.
 #define COLL_INT_POLY_DEGREE 8
 
-
 namespace Cantera {
+  /////////////////////////// constants //////////////////////////
+  //@ \cond
+  const doublereal ThreeSixteenths = 3.0/16.0;
+  const doublereal TwoOverPi       = 2.0/Pi;
+  const doublereal FiveThirds      = 5.0/3.0;
+  //@ \endcond
+  
+
  //====================================================================================================================
   TransportFactory* TransportFactory::s_factory = 0;
 
@@ -84,11 +90,6 @@ namespace Cantera {
     }
   };
   //====================================================================================================================
-  /////////////////////////// constants //////////////////////////
-
-  const doublereal ThreeSixteenths = 3.0/16.0;
-  const doublereal TwoOverPi       = 2.0/Pi;
-  const doublereal FiveThirds      = 5.0/3.0;
 
   //////////////////// class TransportFactory methods //////////////
 

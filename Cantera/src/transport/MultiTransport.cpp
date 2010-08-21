@@ -111,7 +111,7 @@ namespace Cantera {
   MultiTransport::~MultiTransport() {
 
   }
-
+  //====================================================================================================================
   bool MultiTransport::initGas(GasTransportParams& tr) {
 
     // constant mixture attributes
@@ -272,7 +272,7 @@ namespace Cantera {
     return vismix;
   }
 
-
+ //====================================================================================================================
 
   /******************* binary diffusion coefficients **************/
 
@@ -408,13 +408,29 @@ namespace Cantera {
     m_lmatrix_soln_ok = true;
   }
 
-
-  /**
+  //====================================================================================================================
+  //  Get the species diffusive mass fluxes wrt to  the mass averaged velocity, 
+  //  given the gradients in mole fraction and temperature
+  /*
+   *  Units for the returned fluxes are kg m-2 s-1.
    * 
+   *  @param ndim     Number of dimensions in the flux expressions
+   *  @param grad_T   Gradient of the temperature
+   *                   (length = ndim)
+   * @param ldx       Leading dimension of the grad_X array 
+   *                   (usually equal to m_nsp but not always)
+   * @param grad_X    Gradients of the mole fraction
+   *                  Flat vector with the m_nsp in the inner loop.
+   *                   length = ldx * ndim
+   * @param ldf       Leading dimension of the fluxes array 
+   *                   (usually equal to m_nsp but not always)
+   * @param fluxes    Output of the diffusive mass fluxes
+   *                  Flat vector with the m_nsp in the inner loop.
+   *                   length = ldx * ndim
    */
-  void MultiTransport::getSpeciesFluxes(int ndim, 
-					const doublereal* grad_T, int ldx, const doublereal* grad_X, 
-					int ldf, doublereal* fluxes) {
+  void MultiTransport::getSpeciesFluxes(int ndim, const doublereal * const grad_T, int ldx,
+					const doublereal * const grad_X, 
+					int ldf, doublereal * const fluxes) {
 
     // update the binary diffusion coefficients if necessary
     updateDiff_T();
