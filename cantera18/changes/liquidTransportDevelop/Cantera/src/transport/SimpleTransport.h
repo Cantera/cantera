@@ -316,29 +316,32 @@ namespace Cantera {
      *
      * @param grad_V Gradient of the voltage (length num dimensions);
      */
-    virtual void set_Grad_V(const doublereal* const grad_V);
+    virtual void set_Grad_V(const doublereal * const grad_V);
 
     //! Specify the value of the gradient of the temperature
     /*!
      * @param grad_T Gradient of the temperature (length num dimensions);
      */
-    virtual void set_Grad_T(const doublereal* const grad_T);
+    virtual void set_Grad_T(const doublereal * const grad_T);
 
     //! Specify the value of the gradient of the MoleFractions
     /*!
      *
      * @param grad_X Gradient of the mole fractions(length nsp * num dimensions);
      */
-    virtual void set_Grad_X(const doublereal* const grad_X);
+    virtual void set_Grad_X(const doublereal * const grad_X);
 
-
-    //! Return the species fluxes given gradients in temperature and mole fraction
+    //! Get the species diffusive mass fluxes wrt to the specified solution averaged velocity, 
+    //! given the gradients in mole fraction and temperature
     /*!
      *  units = kg/m2/s
+     *
      *  The diffusive mass flux of species \e k is computed from the following
      *  formula
-     *
-     *
+     *  
+     *  Usually the specified solution average velocity is the mass averaged velocity.
+     *  This is changed in some subclasses, however.
+     * 
      *    \f[
      *         j_k = - \rho M_k D_k \nabla X_k - Y_k V_c
      *    \f]
@@ -357,10 +360,9 @@ namespace Cantera {
      * @param ldf      Leading dimension of the fluxes array.         
      * @param fluxes   Output fluxes of species. 
      */
-    virtual void getSpeciesFluxes(int ndim, 
-				  const doublereal* grad_T, 
-				  int ldx, const doublereal* grad_X, 
-				  int ldf, doublereal* fluxes);
+    virtual void getSpeciesFluxes(int ndim, const doublereal * const grad_T, 
+				  int ldx, const doublereal * const grad_X, 
+				  int ldf, doublereal * const fluxes);
 
     //!  Return the species diffusive mass fluxes wrt to
     //!  the mass averaged velocity,

@@ -430,51 +430,51 @@ namespace Cantera {
      */
     virtual void set_Grad_X(const doublereal* const grad_X);
 
-     //! Compute the mixture electrical conductivity from 
-     //! the Stefan-Maxwell equation.
-     /*!
-      *  To compute the mixture electrical conductance, the Stefan
-      *  Maxwell equation is solved for zero species gradients and 
-      *  for unit potential gradient, \f$ \nabla V \f$.  
-      *  The species fluxes are converted to current by summing over 
-      *  the charge-weighted fluxes according to 
-      *  \f[
-      *      \vec{i} = \sum_{i} z_i F \rho \vec{V_i} / W_i 
-      *  \f]
-      *  where \f$ z_i \f$ is the charge on species i,
-      *  \f$ F \f$ is Faradays constant,  \f$ \rho \f$  is the density,
-      *  \f$ W_i \f$ is the molecular mass of species i.
-      *  The conductance, \f$ \kappa \f$ is obtained from 
-      *  \f[
-      *      \kappa = \vec{i} / \nabla V.
-      *  \f]
-      * 
-      */
+    //! Compute the mixture electrical conductivity from 
+    //! the Stefan-Maxwell equation.
+    /*!
+     *  To compute the mixture electrical conductance, the Stefan
+     *  Maxwell equation is solved for zero species gradients and 
+     *  for unit potential gradient, \f$ \nabla V \f$.  
+     *  The species fluxes are converted to current by summing over 
+     *  the charge-weighted fluxes according to 
+     *  \f[
+     *      \vec{i} = \sum_{i} z_i F \rho \vec{V_i} / W_i 
+     *  \f]
+     *  where \f$ z_i \f$ is the charge on species i,
+     *  \f$ F \f$ is Faradays constant,  \f$ \rho \f$  is the density,
+     *  \f$ W_i \f$ is the molecular mass of species i.
+     *  The conductance, \f$ \kappa \f$ is obtained from 
+     *  \f[
+     *      \kappa = \vec{i} / \nabla V.
+     *  \f]
+     * 
+     */
     virtual doublereal getElectricConduct();
 
-     //! Compute the electric current density in A/m^2
-     /*!
-      *  The electric current is computed first by computing the 
-      *  species diffusive fluxes using  the Stefan Maxwell solution
-      *  and then the current, \f$ \vec{i} \f$ by summing over 
-      *  the charge-weighted fluxes according to 
-      *  \f[
-      *      \vec{i} = \sum_{i} z_i F \rho \vec{V_i} / W_i 
-      *  \f]
-      *  where \f$ z_i \f$ is the charge on species i,
-      *  \f$ F \f$ is Faradays constant,  \f$ \rho \f$  is the density,
-      *  \f$ W_i \f$ is the molecular mass of species \c i.
-      * 
-      * @param ndim       The number of spatial dimensions (1, 2, or 3).
-      * @param grad_T     The temperature gradient (ignored in this model).
-      * @param ldx        Leading dimension of the grad_X array.
-      * @param grad_X     Gradients of the mole fraction
-      *                   Flat vector with the m_nsp in the inner loop.
-      *                     length = ldx * ndim
-      * @param ldf        Leading dimension of the grad_V and current vectors.
-      * @param grad_V     The electrostatic potential gradient.
-      * @param current    The electric current in A/m^2.
-      */
+    //! Compute the electric current density in A/m^2
+    /*!
+     *  The electric current is computed first by computing the 
+     *  species diffusive fluxes using  the Stefan Maxwell solution
+     *  and then the current, \f$ \vec{i} \f$ by summing over 
+     *  the charge-weighted fluxes according to 
+     *  \f[
+     *      \vec{i} = \sum_{i} z_i F \rho \vec{V_i} / W_i 
+     *  \f]
+     *  where \f$ z_i \f$ is the charge on species i,
+     *  \f$ F \f$ is Faradays constant,  \f$ \rho \f$  is the density,
+     *  \f$ W_i \f$ is the molecular mass of species \c i.
+     * 
+     * @param ndim       The number of spatial dimensions (1, 2, or 3).
+     * @param grad_T     The temperature gradient (ignored in this model).
+     * @param ldx        Leading dimension of the grad_X array.
+     * @param grad_X     Gradients of the mole fraction
+     *                   Flat vector with the m_nsp in the inner loop.
+     *                     length = ldx * ndim
+     * @param ldf        Leading dimension of the grad_V and current vectors.
+     * @param grad_V     The electrostatic potential gradient.
+     * @param current    The electric current in A/m^2.
+     */
     virtual void getElectricCurrent(int ndim, 
 				    const doublereal* grad_T, 
 				    int ldx, 
@@ -543,26 +543,29 @@ namespace Cantera {
      *                     length = ldx * ndim
      */
     virtual void getSpeciesVdiffES(int ndim,  const doublereal* grad_T, 
-				    int ldx,  const doublereal* grad_X,
-				    int ldf,  const doublereal* grad_Phi,
-				    doublereal* Vdiff) ;
+				   int ldx,  const doublereal* grad_X,
+				   int ldf,  const doublereal* grad_Phi,
+				   doublereal* Vdiff) ;
 
 
     //!  Return the species diffusive mass fluxes wrt to
     //!  the averaged velocity in [kmol/m^2/s].
     /*!
      *
-     * The diffusive mass flux of species \e k is computed 
+     * The diffusive mass flux of species \e k [kmol/m^2/s] is computed 
      * using the Stefan-Maxwell equation
+     *
      * \f[
-     *     X_i \nabla \mu_i 
-     *                     = RT \sum_i \frac{X_i X_j}{D_{ij}} 
+     *     X_i \nabla \mu_i  = RT \sum_i \frac{X_i X_j}{D_{ij}} 
      *                           ( \vec{V}_j - \vec{V}_i )
      * \f]
+     *
      * to determine the diffusion velocity and 
+     *
      * \f[
      *      \vec{N}_i = C_T X_i \vec{V}_i
      * \f]
+     *
      * to determine the diffusion flux.  Here \f$ C_T \f$ is the 
      * total concentration of the mixture [kmol/m^3], \f$ D_{ij} \f$
      * are the Stefa-Maxwell interaction parameters in [m^2/s],
@@ -594,93 +597,92 @@ namespace Cantera {
      *                   Flat vector with the m_nsp in the inner loop.
      *                   length = ldx * ndim
      */
-    virtual void getSpeciesFluxes(int ndim, 
-				  const doublereal* grad_T, 
-				  int ldx, const doublereal* grad_X, 
-				  int ldf, doublereal* fluxes);
+    virtual void getSpeciesFluxes(int ndim,  const doublereal * const grad_T, 
+				  int ldx, const doublereal * const grad_X, 
+				  int ldf, doublereal * const fluxes);
 
-     //!  Return the species diffusive mass fluxes wrt to
-     //!  the averaged velocity in [kmol/m^2/s].
-     /*!
-      *
-      * The diffusive mass flux of species \e k is computed 
-      * using the Stefan-Maxwell equation
-      * \f[
-      *     X_i \nabla \mu_i 
-      *                     = RT \sum_i \frac{X_i X_j}{D_{ij}} 
-      *                           ( \vec{V}_j - \vec{V}_i )
-      * \f]
-      * to determine the diffusion velocity and 
-      * \f[
-      *      \vec{N}_i = C_T X_i \vec{V}_i
-      * \f]
-      * to determine the diffusion flux.  Here \f$ C_T \f$ is the 
-      * total concentration of the mixture [kmol/m^3], \f$ D_{ij} \f$
-      * are the Stefa-Maxwell interaction parameters in [m^2/s],
-      * \f$ \vec{V}_{i} \f$ is the diffusion velocity of species \e i,
-      * \f$ \mu_i \f$ is the electrochemical potential of species \e i.
-      *
-      * The diffusion velocity is relative to an average velocity 
-      * that can be computed on a mole-weighted 
-      * or mass-weighted basis, or the diffusion velocities may 
-      * be specified as relative to a specific species (i.e. a 
-      * solvent) all according to the \verbatim <velocityBasis> 
-      * \endverbatim input parameter.
+    //!  Return the species diffusive mass fluxes wrt to
+    //!  the averaged velocity in [kmol/m^2/s].
+    /*!
+     *
+     * The diffusive mass flux of species \e k is computed 
+     * using the Stefan-Maxwell equation
+     * \f[
+     *     X_i \nabla \mu_i 
+     *                     = RT \sum_i \frac{X_i X_j}{D_{ij}} 
+     *                           ( \vec{V}_j - \vec{V}_i )
+     * \f]
+     * to determine the diffusion velocity and 
+     * \f[
+     *      \vec{N}_i = C_T X_i \vec{V}_i
+     * \f]
+     * to determine the diffusion flux.  Here \f$ C_T \f$ is the 
+     * total concentration of the mixture [kmol/m^3], \f$ D_{ij} \f$
+     * are the Stefa-Maxwell interaction parameters in [m^2/s],
+     * \f$ \vec{V}_{i} \f$ is the diffusion velocity of species \e i,
+     * \f$ \mu_i \f$ is the electrochemical potential of species \e i.
+     *
+     * The diffusion velocity is relative to an average velocity 
+     * that can be computed on a mole-weighted 
+     * or mass-weighted basis, or the diffusion velocities may 
+     * be specified as relative to a specific species (i.e. a 
+     * solvent) all according to the \verbatim <velocityBasis> 
+     * \endverbatim input parameter.
 
-      * @param ndim      The number of spatial dimensions (1, 2, or 3).
-      * @param grad_T    The temperature gradient (ignored in this model).
-      *                     (length = ndim)
-      * @param ldx       Leading dimension of the grad_X array.
-      *                     (usually equal to m_nsp but not always)
-      * @param grad_X    Gradients of the mole fraction
-      *                  Flat vector with the m_nsp in the inner loop.
-      *                     length = ldx * ndim
-      * @param ldf       Leading dimension of the fluxes array 
-      *                     (usually equal to m_nsp but not always)
-      * @param grad_Phi  Gradients of the electrostatic potential
-      *                     length = ndim
-      * @param fluxes    Output of the diffusive mass fluxes
-      *                  Flat vector with the m_nsp in the inner loop.
-      *                     length = ldx * ndim
-      */
-     virtual void getSpeciesFluxesES(int ndim, 
-				     const doublereal* grad_T, 
-				     int ldx, 
-				     const doublereal* grad_X, 
-				     int ldf, 
-				     const doublereal* grad_Phi,
-				     doublereal* fluxes);
+     * @param ndim      The number of spatial dimensions (1, 2, or 3).
+     * @param grad_T    The temperature gradient (ignored in this model).
+     *                     (length = ndim)
+     * @param ldx       Leading dimension of the grad_X array.
+     *                     (usually equal to m_nsp but not always)
+     * @param grad_X    Gradients of the mole fraction
+     *                  Flat vector with the m_nsp in the inner loop.
+     *                     length = ldx * ndim
+     * @param ldf       Leading dimension of the fluxes array 
+     *                     (usually equal to m_nsp but not always)
+     * @param grad_Phi  Gradients of the electrostatic potential
+     *                     length = ndim
+     * @param fluxes    Output of the diffusive mass fluxes
+     *                  Flat vector with the m_nsp in the inner loop.
+     *                     length = ldx * ndim
+     */
+    virtual void getSpeciesFluxesES(int ndim, 
+				    const doublereal* grad_T, 
+				    int ldx, 
+				    const doublereal* grad_X, 
+				    int ldf, 
+				    const doublereal* grad_Phi,
+				    doublereal* fluxes);
 
-     //!  Return the species diffusive velocities relative to 
-     //!  the averaged velocity.  
-     /*!
-      * This method acts similarly to getSpeciesVdiffES() but
-      * requires all gradients to be preset using methods 
-      * set_Grad_X(), set_Grad_V(), set_Grad_T().  
-      * See the documentation of getSpeciesVdiffES() for details.
-      *      
-      *  @param ldf  Leading dimension of the Vdiff array.
-      *  @param Vdiff  Output of the diffusive velocities.
-      *             Flat vector with the m_nsp in the inner loop.
-      *             length = ldx * ndim
-      */
+    //!  Return the species diffusive velocities relative to 
+    //!  the averaged velocity.  
+    /*!
+     * This method acts similarly to getSpeciesVdiffES() but
+     * requires all gradients to be preset using methods 
+     * set_Grad_X(), set_Grad_V(), set_Grad_T().  
+     * See the documentation of getSpeciesVdiffES() for details.
+     *      
+     *  @param ldf  Leading dimension of the Vdiff array.
+     *  @param Vdiff  Output of the diffusive velocities.
+     *             Flat vector with the m_nsp in the inner loop.
+     *             length = ldx * ndim
+     */
     virtual void getSpeciesVdiffExt(int ldf, doublereal* Vdiff);
 
-     //!  Return the species diffusive fluxes relative to 
-     //!  the averaged velocity.  
-     /*!
-      * This method acts similarly to getSpeciesFluxesES() but
-      * requires all gradients to be preset using methods 
-      * set_Grad_X(), set_Grad_V(), set_Grad_T().  
-      * See the documentation of getSpeciesFluxesES() for details.
-      *      
-      *  units = kg/m2/s
-      *
-      *  @param ldf  Leading dimension of the Vdiff array.
-      *  @param fluxes  Output of the diffusive fluxes.
-      *             Flat vector with the m_nsp in the inner loop.
-      *             length = ldx * ndim
-      */
+    //!  Return the species diffusive fluxes relative to 
+    //!  the averaged velocity.  
+    /*!
+     * This method acts similarly to getSpeciesFluxesES() but
+     * requires all gradients to be preset using methods 
+     * set_Grad_X(), set_Grad_V(), set_Grad_T().  
+     * See the documentation of getSpeciesFluxesES() for details.
+     *      
+     *  units = kg/m2/s
+     *
+     *  @param ldf  Leading dimension of the Vdiff array.
+     *  @param fluxes  Output of the diffusive fluxes.
+     *             Flat vector with the m_nsp in the inner loop.
+     *             length = ldx * ndim
+     */
     virtual void getSpeciesFluxesExt(int ldf, doublereal* fluxes);
 
   protected:
@@ -744,7 +746,7 @@ namespace Cantera {
      *  (i.e. temperature and composition of each species) which was first 
      *  implemented in MargulesVPSSTP.cpp (LiquidTransport.h doxygen)
      */
-     virtual void update_Grad_lnAC();
+    virtual void update_Grad_lnAC();
 
 
     //! Solve the stefan_maxell equations for the diffusive fluxes.
@@ -924,7 +926,7 @@ namespace Cantera {
     //! Ionic conductivity for each species expressed as an appropriate subclass 
     //! of LTPspecies
     /*!
-    *  These subclasses of LTPspecies evaluate the species-specific
+     *  These subclasses of LTPspecies evaluate the species-specific
      *  transport properties according to the parameters parsed in 
      *  TransportFactory::getLiquidSpeciesTransportData().
      */

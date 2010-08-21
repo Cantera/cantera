@@ -142,4 +142,11 @@ namespace Cantera {
 			 "finalize has already been called.");
   }
 
+  //====================================================================================================================
+  void Transport::getSpeciesFluxes(int ndim, const doublereal * const grad_T, 
+				   int ldx, const doublereal * const grad_X,
+				   int ldf, doublereal * const fluxes) { 
+    err("getSpeciesFluxes"); 
+  }
+  //====================================================================================================================
 }

@@ -140,8 +140,7 @@ namespace Cantera {
      */
     virtual void getMixDiffCoeffs(doublereal* const d);
 
-    //! Get the species diffusive mass fluxes wrt to 
-    //! the mass averaged velocity, 
+    //! Get the species diffusive mass fluxes wrt to  the mass averaged velocity, 
     //! given the gradients in mole fraction and temperature
     /*!
      *  Units for the returned fluxes are kg m-2 s-1.
@@ -160,12 +159,9 @@ namespace Cantera {
      *                  Flat vector with the m_nsp in the inner loop.
      *                   length = ldx * ndim
      */
-    virtual void getSpeciesFluxes(int ndim,
-				  const doublereal* grad_T, 
-				  int ldx, 
-				  const doublereal* grad_X,
-				  int ldf,
-				  doublereal* fluxes);
+    virtual void getSpeciesFluxes(int ndim, const doublereal * const grad_T, 
+				  int ldx,  const doublereal * const grad_X,
+				  int ldf, doublereal * const fluxes);
 
     //! Get the molar diffusional fluxes [kmol/m^2/s] of the species, given the thermodynamic
     //! state at two nearby points. 

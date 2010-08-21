@@ -596,21 +596,39 @@ namespace Cantera {
       dt[k] = 0.0;
     }
   }
-//================================================================================================
-  /**
-   * @param ndim The number of spatial dimensions (1, 2, or 3).
-   * @param grad_T The temperature gradient (ignored in this model).
-   * @param ldx  Leading dimension of the grad_X array.
-   * The diffusive mass flux of species \e k is computed from
+  //================================================================================================
+  //   Get the species diffusive mass fluxes wrt to the specified solution averaged velocity, 
+  //   given the gradients in mole fraction and temperature
+  /*
+   *  units = kg/m2/s
    *
-   * \f[
-   *      \vec{j}_k = -n M_k D_k \nabla X_k.
-   * \f]
+   *  The diffusive mass flux of species \e k is computed from the following
+   *  formula
+   *  
+   *  Usually the specified solution average velocity is the mass averaged velocity.
+   *  This is changed in some subclasses, however.
+   * 
+   *    \f[
+   *         j_k = - \rho M_k D_k \nabla X_k - Y_k V_c
+   *    \f]
+   *
+   *    where V_c is the correction velocity
+   *
+   *    \f[
+   *         V_c =  - \sum_j {\rho M_j D_j \nabla X_j}
+   *    \f]
+   *
+   *
+   * @param ndim     The number of spatial dimensions (1, 2, or 3).
+   * @param grad_T   The temperature gradient (ignored in this model).
+   * @param ldx      Leading dimension of the grad_X array.
+   * @param grad_X   Gradient of the mole fractions(length nsp * num dimensions);
+   * @param ldf      Leading dimension of the fluxes array.         
+   * @param fluxes   Output fluxes of species. 
    */
-  void SimpleTransport::getSpeciesFluxes(int ndim, 
-					 const doublereal* grad_T, 
-					 int ldx, const doublereal* grad_X, 
-					 int ldf, doublereal* fluxes) {
+  void SimpleTransport::getSpeciesFluxes(int ndim,  const doublereal * const grad_T, 
+					 int ldx, const doublereal * const grad_X, 
+					 int ldf, doublereal * const fluxes) {
     set_Grad_T(grad_T);
     set_Grad_X(grad_X);
     getSpeciesFluxesExt(ldf, fluxes);

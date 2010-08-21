@@ -247,13 +247,13 @@ namespace Cantera {
     }
   }
   //================================================================================================
- void AqueousTransport::set_Grad_X(const doublereal* const grad_X) {
-   int itop = m_nDim * m_nsp;
-   for (int i = 0; i < itop; i++) {
-     m_Grad_X[i] = grad_X[i];
-   }
- }
-
+  void AqueousTransport::set_Grad_X(const doublereal* const grad_X) {
+    int itop = m_nDim * m_nsp;
+    for (int i = 0; i < itop; i++) {
+      m_Grad_X[i] = grad_X[i];
+    }
+  }
+  //====================================================================================================================
 
   /****************** thermal conductivity **********************/
 
@@ -284,7 +284,7 @@ namespace Cantera {
 
 
   /****************** thermal diffusion coefficients ************/
-
+  //====================================================================================================================
   /**
    * Thermal diffusion is not considered in this mixture-averaged
    * model. To include thermal diffusion, use transport manager
@@ -298,41 +298,70 @@ namespace Cantera {
     }
   }
 
-  /**
-   * @param ndim The number of spatial dimensions (1, 2, or 3).
-   * @param grad_T The temperature gradient (ignored in this model).
-   * @param ldx  Leading dimension of the grad_X array.
-   * The diffusive mass flux of species \e k is computed from
+
+  //====================================================================================================================
+  // Get the species diffusive mass fluxes wrt to the specified solution averaged velocity, 
+  // given the gradients in mole fraction and temperature
+  /*
+   *  Units for the returned fluxes are kg m-2 s-1.
    *
-   * \f[
-   *      \vec{j}_k = -n M_k D_k \nabla X_k.
-   * \f]
+   *  Usually the specified solution average velocity is the mass averaged velocity.
+   *  This is changed in some subclasses, however.
+   * 
+   *  @param ndim       Number of dimensions in the flux expressions
+   *  @param grad_T     Gradient of the temperature
+   *                       (length = ndim)
+   *  @param ldx        Leading dimension of the grad_X array 
+   *                       (usually equal to m_nsp but not always)
+   *  @param grad_X     Gradients of the mole fraction
+   *                    Flat vector with the m_nsp in the inner loop.
+   *                       length = ldx * ndim
+   *  @param ldf        Leading dimension of the fluxes array 
+   *                     (usually equal to m_nsp but not always)
+   *  @param fluxes     Output of the diffusive mass fluxes
+   *                    Flat vector with the m_nsp in the inner loop.
+   *                        length = ldx * ndim
    */
-  void AqueousTransport::getSpeciesFluxes(int ndim, 
-					 const doublereal* grad_T, 
-					 int ldx, const doublereal* grad_X, 
-					 int ldf, doublereal* fluxes) {
+  void AqueousTransport::getSpeciesFluxes(int ndim, const doublereal * const grad_T, 
+					 int ldx, const doublereal * const grad_X, 
+					 int ldf, doublereal * const fluxes) {
     set_Grad_T(grad_T);
     set_Grad_X(grad_X);
     getSpeciesFluxesExt(ldf, fluxes);
   }
-
-  /**
-   * @param ndim The number of spatial dimensions (1, 2, or 3).
-   * @param grad_T The temperature gradient (ignored in this model).
-   * @param ldx  Leading dimension of the grad_X array.
-   * The diffusive mass flux of species \e k is computed from
+  //====================================================================================================================
+  //  Return the species diffusive mass fluxes wrt to the specified averaged velocity,
+  /*
+   *   This method acts similarly to getSpeciesFluxesES() but
+   *   requires all gradients to be preset using methods set_Grad_X(), set_Grad_V(), set_Grad_T().  
+   *   See the documentation of getSpeciesFluxesES() for details.
    *
-   * \f[
-   *      \vec{j}_k = -n M_k D_k \nabla X_k.
-   * \f]
+   *  units = kg/m2/s
+   *
+   * Internally, gradients in the in mole fraction, temperature
+   * and electrostatic potential contribute to the diffusive flux
+   *  
+   * The diffusive mass flux of species \e k is computed from the following formula
+   *
+   *    \f[
+   *         j_k = - \rho M_k D_k \nabla X_k - Y_k V_c
+   *    \f]
+   *
+   *    where V_c is the correction velocity
+   *
+   *    \f[
+   *         V_c =  - \sum_j {\rho M_j D_j \nabla X_j}
+   *    \f]
+   *
+   *  @param ldf     Stride of the fluxes array. Must be equal to or greater than the number of species.
+   *  @param fluxes  Output of the diffusive fluxes. Flat vector with the m_nsp in the inner loop.
+   *                   length = ldx * ndim
    */
-  void AqueousTransport::getSpeciesFluxesExt(int ldf, doublereal* fluxes) {
+  void AqueousTransport::getSpeciesFluxesExt(int ldf, doublereal * const fluxes) {
     int n, k;
 
     update_T();
     update_C();
-
 
     getMixDiffCoeffs(DATA_PTR(m_spwork));
 
@@ -355,7 +384,7 @@ namespace Cantera {
       }
     }
   }
-
+  //====================================================================================================================
   /**
    * Mixture-averaged diffusion coefficients [m^2/s]. 
    *
@@ -396,7 +425,7 @@ namespace Cantera {
     }
   }
 
-                 
+  //====================================================================================================================                
   // Handles the effects of changes in the Temperature, internally
   // within the object.
   /*
@@ -447,7 +476,7 @@ namespace Cantera {
     // For now, for a concentration redo also
     m_iStateMF   = -1;
   }                 
-
+  //====================================================================================================================
   /**
    *  @internal This is called the first time any transport property
    *  is requested from Mixture after the concentrations
@@ -486,7 +515,7 @@ namespace Cantera {
       m_molefracs[k] = fmaxx(MIN_X, m_molefracs[k]);
     }
   }
-
+ //====================================================================================================================
 
   /*************************************************************************
    *
@@ -514,7 +543,7 @@ namespace Cantera {
     m_spcond_ok = true;
     m_condmix_ok = false;
   }
-
+  //====================================================================================================================
 
   /**
    * Update the binary diffusion coefficients. These are evaluated
@@ -548,7 +577,7 @@ namespace Cantera {
     m_bindiff_ok = true;
     m_diffmix_ok = false;
   }
-
+ //====================================================================================================================
 
   /**
    * Update the pure-species viscosities.
@@ -572,7 +601,7 @@ namespace Cantera {
     m_spvisc_ok = true;
   }
 
-
+  //====================================================================================================================
   /**
    * Update the temperature-dependent viscosity terms.
    * Updates the array of pure species viscosities, and the 
@@ -601,7 +630,7 @@ namespace Cantera {
     }
     m_viscwt_ok = true;
   }
-
+ //====================================================================================================================
   /**
    * This function returns a Transport data object for a given species.
    *
@@ -619,7 +648,7 @@ namespace Cantera {
     return td;
   }
 
-
+ //====================================================================================================================
   /*
    *
    *    Solve for the diffusional velocities in the Stefan-Maxwell equations
@@ -750,5 +779,6 @@ namespace Cantera {
     }
 
 
-  }
+  } 
+  //====================================================================================================================
 }
