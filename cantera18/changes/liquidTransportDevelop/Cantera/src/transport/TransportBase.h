@@ -683,14 +683,18 @@ namespace Cantera {
     //! Return a vector of Thermal diffusion coefficients [kg/m/sec].
     /*!
      * The thermal diffusion coefficient \f$ D^T_k \f$ is defined
-     * so that the diffusive mass flux of species k induced by the
-     * local temperature gradient is \f[ M_k J_k = -D^T_k \nabla
-     * \ln T. \f]. The thermal diffusion coefficient can be either
-     * positive or negative.
+     * so that the diffusive mass flux of species <I>k</I> induced by the
+     * local temperature gradient is given by the following formula
+     *
+     *    \f[ 
+     *         M_k J_k = -D^T_k \nabla \ln T.
+     *    \f]
+     *
+     *   The thermal diffusion coefficient can be either positive or negative.
      * 
      * @param dt On return, dt will contain the species thermal
      *           diffusion coefficients.  Dimension dt at least as large as
-     *           the number of species.
+     *           the number of species. Units are kg/m/s.
      */
     virtual void getThermalDiffCoeffs(doublereal* const dt)  {
       err("getThermalDiffCoeffs"); 

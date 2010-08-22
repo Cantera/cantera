@@ -135,9 +135,9 @@ namespace Cantera {
     virtual ~AqueousTransport() {}
 
     //! Return the model id for this transport parameterization
-    virtual int model() const { return cAqueousTransport; }
-
-    //! overloaded base class methods
+    virtual int model() const {
+      return cAqueousTransport; 
+    }
 
     //! Returns the viscosity of the solution
     /*!
@@ -162,11 +162,30 @@ namespace Cantera {
     /*!
      *
      * Controlling update boolean = m_viscwt_ok
+     *
+     *  @param visc     Vector of species viscosities
      */
-    virtual void getSpeciesViscosities(doublereal* visc)
-    { updateViscosity_T(); copy(m_visc.begin(), m_visc.end(), visc); }
+    virtual void getSpeciesViscosities(doublereal * const visc);
 
-    virtual void getThermalDiffCoeffs(doublereal* const dt);
+    //! Return a vector of Thermal diffusion coefficients [kg/m/sec].
+    /*!
+     * The thermal diffusion coefficient \f$ D^T_k \f$ is defined
+     * so that the diffusive mass flux of species <I>k</I> induced by the
+     * local temperature gradient is given by the following formula
+     *
+     *    \f[ 
+     *         M_k J_k = -D^T_k \nabla \ln T.
+     *    \f]
+     *
+     *   The thermal diffusion coefficient can be either positive or negative.
+     *
+     *  In this method we set it to zero.
+     * 
+     * @param dt On return, dt will contain the species thermal
+     *           diffusion coefficients.  Dimension dt at least as large as
+     *           the number of species. Units are kg/m/s.
+     */
+     virtual void getThermalDiffCoeffs(doublereal* const dt);
 
     //! Return the thermal conductivity of the solution
     /*!
@@ -242,7 +261,7 @@ namespace Cantera {
     //! Specify the value of the gradient of the temperature
     /*!
      *
-     * @param grad_V Gradient of the temperature (length num dimensions);
+     * @param grad_T Gradient of the temperature (length num dimensions);
      */
     virtual void set_Grad_T(const doublereal* const grad_T);
 
@@ -378,9 +397,6 @@ namespace Cantera {
      *  Length is Equal to the number of species in the mechanism.
      */
     vector_fp  m_mw;
-
-    // polynomial fits
-    vector<vector<int> >         m_poly;
 
     //! Polynomial coefficients of the viscosity
     /*!
@@ -597,10 +613,8 @@ namespace Cantera {
     //! Saved value of the mixture viscosity
     doublereal m_viscmix;
 
-    // work space
+    //! work space of size m_nsp
     vector_fp  m_spwork;
-
-    //! Internal Function
 
     //!  Update the temperature-dependent viscosity terms.
     //!  Updates the array of pure species viscosities, and the 
