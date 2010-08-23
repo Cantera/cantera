@@ -42,7 +42,10 @@ namespace Cantera {
   class WaterProps;
   class PDSS_Water;
 
-
+  //! Transport Parameters for pure water
+  /*!
+   *
+   */
   class WaterTransport : public Transport {
   public:
 
