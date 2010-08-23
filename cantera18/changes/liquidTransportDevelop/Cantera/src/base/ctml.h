@@ -370,7 +370,7 @@ namespace ctml {
    *                        The default value for the node name is floatArray
    *   @return              Returns the number of floats read into v.
    */
-  int getFloatArray(const Cantera::XML_Node& node, Cantera::vector_fp & v, 
+  int getFloatArray(const Cantera::XML_Node& node, std::vector<doublereal> & v, 
 		     const bool convert=true, const std::string unitsString="",
 		     const std::string nodeName = "floatArray");
 
@@ -836,7 +836,7 @@ namespace ctml {
    *   @param  coeffs       Output vector of floats containing the floatArray information.
    */
   void getFunction(const Cantera::XML_Node& node, std::string& typeString, 
-		   doublereal& xmin, doublereal& xmax, Cantera::vector_fp & coeffs);
+		   doublereal& xmin, doublereal& xmax, std::vector<doublereal> & coeffs);
 
   //! Search the child nodes of the current node for an XML Node with a Title
   //! attribute of a given name.
