@@ -371,7 +371,7 @@ namespace Cantera {
     }
   }
   //====================================================================================================================
-  void LatticeSolidPhase::setLatticeMoleFractions(int nn, std::string x) {
+  void LatticeSolidPhase::setLatticeMoleFractionsByName(int nn, std::string x) {
     m_lattice[nn]->setMoleFractionsByName(x);
     int n, k, loc=0, nsp;
     doublereal ndens;

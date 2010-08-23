@@ -252,14 +252,34 @@ namespace Cantera {
      */
     virtual void getMoleFractions(doublereal * const x) const;
 
+    //! The mole fraction of species k.
+    /*!
+     *   If k is ouside the valid
+     *   range, an exception will be thrown. Note that it is
+     *   somewhat more efficent to call getMoleFractions if the
+     *   mole fractions of all species are desired.
+     *   @param k species index
+     */
     doublereal moleFraction(const int k) const {
       return err("not implemented");
     }
     
-
+    //! Get the species mass fractions.  
+    /*!
+     * @param y On return, y contains the mass fractions. Array \a y must have a length
+     *          greater than or equal to the number of species.
+     */
     void getMassFractions(doublereal* const y) const {
       err("not implemented");
-    }
+    } 
+
+    //! Mass fraction of species k. 
+    /*!
+     *  If k is outside the valid range, an exception will be thrown. Note that it is
+     *  somewhat more efficent to call getMassFractions if the mass fractions of all species are desired.
+     * 
+     * @param k    species index
+     */
     doublereal massFraction(const int k) const {
       return err("not implemented");
     }
@@ -306,16 +326,98 @@ namespace Cantera {
       err("not implemented");
     }
 
-
+    //! This method returns an array of generalized activity concentrations
+    /*!
+     *  The generalized activity concentrations,
+     * \f$ C^a_k \f$,  are defined such that \f$ a_k = C^a_k /
+     * C^0_k, \f$ where \f$ C^0_k \f$ is a standard concentration
+     * defined below and \f$ a_k \f$ are activities used in the
+     * thermodynamic functions.  These activity (or generalized)
+     * concentrations are used by kinetics manager classes to compute the forward and
+     * reverse rates of elementary reactions. Note that they may
+     * or may not have units of concentration --- they might be
+     * partial pressures, mole fractions, or surface coverages,
+     * for example.
+     *
+     * @param c Output array of generalized concentrations. The 
+     *           units depend upon the implementation of the
+     *           reaction rate expressions within the phase.
+     */
     virtual void getActivityConcentrations(doublereal* c) const;
 
+    //! Get the array of non-dimensional molar-based activity coefficients at
+    //! the current solution temperature, pressure, and solution concentration.
+    /*!
+     * @param ac Output vector of activity coefficients. Length: m_kk.
+     */
     virtual void getActivityCoefficients(doublereal* ac) const;
 
+    //! Get the species chemical potentials. Units: J/kmol.
+    /*!
+     * This function returns a vector of chemical potentials of the 
+     * species in solution at the current temperature, pressure
+     * and mole fraction of the solution.
+     *
+     * @param mu  Output vector of species chemical 
+     *            potentials. Length: m_kk. Units: J/kmol
+     */
     virtual void getChemPotentials(doublereal* mu) const;
+
+    //! Get the array of standard state chemical potentials at unit activity for the species
+    //! at their standard states at the current <I>T</I> and <I>P</I> of the solution.
+    /*!
+     * These are the standard state chemical potentials \f$ \mu^0_k(T,P)
+     * \f$. The values are evaluated at the current
+     * temperature and pressure of the solution
+     *
+     * @param mu0    Output vector of chemical potentials. 
+     *                Length: m_kk.
+     */
     virtual void getStandardChemPotentials(doublereal* mu0) const;
+    
+    //! Return the standard concentration for the kth species
+    /*!
+     * The standard concentration \f$ C^0_k \f$ used to normalize
+     * the activity (i.e., generalized) concentration. In many cases, this quantity
+     * will be the same for all species in a phase - for example,
+     * for an ideal gas \f$ C^0_k = P/\hat R T \f$. For this
+     * reason, this method returns a single value, instead of an
+     * array.  However, for phases in which the standard
+     * concentration is species-specific (e.g. surface species of
+     * different sizes), this method may be called with an
+     * optional parameter indicating the species.
+     *
+     * @param k Optional parameter indicating the species. The default
+     *          is to assume this refers to species 0.
+     * @return 
+     *   Returns the standard concentration. The units are by definition
+     *   dependent on the ThermoPhase and kinetics manager representation.
+     */
     virtual doublereal standardConcentration(int k=0) const;
+
+    //! Natural logarithm of the standard concentration of the kth species.
+    /*!
+     * @param k    index of the species (defaults to zero)
+     */
     virtual doublereal logStandardConc(int k=0) const;
 
+    //! Initialize the ThermoPhase object after all species have been set up
+    /*!
+     * @internal Initialize.
+     *
+     * This method is provided to allow
+     * subclasses to perform any initialization required after all
+     * species have been added. For example, it might be used to
+     * resize internal work arrays that must have an entry for
+     * each species.  The base class implementation does nothing,
+     * and subclasses that do not require initialization do not
+     * need to overload this method.  When importing a CTML phase
+     * description, this method is called from ThermoPhase::initThermoXML(),
+     * which is called from importPhase(),
+     * just prior to returning from function importPhase().
+     *
+     * @see importCTML.cpp
+     */
     virtual void initThermo();
 
     //! Add in species from Slave phases
@@ -326,9 +428,31 @@ namespace Cantera {
      */
     virtual void installSlavePhases(Cantera::XML_Node* phaseNode);
 
+
+    //! Set equation of state parameter values from XML entries.
+    /*!
+     *
+     * This method is called by function importPhase() in
+     * file importCTML.cpp when processing a phase definition in
+     * an input file. It should be overloaded in subclasses to set
+     * any parameters that are specific to that particular phase
+     * model. Note, this method is called before the phase is
+     * initialzed with elements and/or species.
+     *   
+     * @param eosdata An XML_Node object corresponding to
+     *                the "thermo" entry for this phase in the input file.
+     */
     virtual void setParametersFromXML(const XML_Node& eosdata);
 
-    void setLatticeMoleFractions(int n, std::string x);
+
+    //! Set the Lattice mole fractions using a string
+    /*!
+     *
+     *  @param n     Integer value of the lattice whose mole fractions are being set
+     *  @param x     string comtaining Name:value pairs that will specify the mole fractions 
+     *               of species on a particular lattice
+     */
+    void setLatticeMoleFractionsByName(int n, std::string x);
 
 
 #ifdef H298MODIFY_CAPABILITY
@@ -339,7 +463,7 @@ namespace Cantera {
      *   of the species from its constituent elements in their standard states at 298 K and 1 bar.
      *
      *   @param  k           Species k
-     *   @param  HF298New    Specify the new value of the Heat of Formation at 298K and 1 bar                      
+     *   @param  Hf298New    Specify the new value of the Heat of Formation at 298K and 1 bar                      
      */
     virtual void modifyOneHf298SS(const int k, const doublereal Hf298New) {
        m_spthermo->modifyOneHf298(k, Hf298New);
