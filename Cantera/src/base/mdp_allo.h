@@ -45,7 +45,7 @@
  *  then it may be freed, always (and vica-versa).
  *
  *  Where possible, the low leve routines 
- *   memcopy and memset are used to copy or zero memory.
+ *   memcpy and memset are used to copy or zero memory.
  *
  *  No array bounds checking is ever done within these routines. buyer beware.
  *  The bounds of arrays are not carried with the array object, ever.

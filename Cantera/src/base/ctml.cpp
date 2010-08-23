@@ -959,7 +959,7 @@ namespace ctml {
    *
    *  @note change the v to a std::vector to eliminate a doxygen error. No idea why doxygen needs this.
    */
-  int  getFloatArray(const Cantera::XML_Node& node, Cantera::vector_fp & v, 
+  int  getFloatArray(const Cantera::XML_Node& node, std::vector<doublereal> & v, 
                      const bool convert, const std::string unitsString,
                      const std::string nodeName) {
     std::string::size_type icom;
@@ -1332,7 +1332,7 @@ namespace ctml {
    *   @param  coeffs       Output vector of floats containing the floatArray information.
    */
   void getFunction(const Cantera::XML_Node& node, std::string& type, doublereal& xmin,
-		   doublereal& xmax,  Cantera::vector_fp & coeffs) {
+		   doublereal& xmax, std::vector<doublereal> & coeffs) {
     const XML_Node& c = node.child("floatArray");
     coeffs.clear();
     getFloatArray(c,coeffs);
