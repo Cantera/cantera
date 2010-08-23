@@ -39,7 +39,7 @@ namespace Cantera {
   /*!
    * \addtogroup tranprops 
    */
-  //@{ 
+  //!  \cond
 
   const int CK_Mode = 10;
 
@@ -58,7 +58,7 @@ namespace Cantera {
   const int cSimpleTransport     = 770;
   const int cRadiativeTransport  = 800;
   const int cWaterTransport      = 721;
-  //@} 
+  //!   \endcond
 
   // forward reference
   class XML_Writer;
@@ -899,7 +899,7 @@ namespace Cantera {
 
   //! General definition for the transport class
   /*!
-   * \ingroups tranprops
+   * \ingroup tranprops
    */
   typedef Transport transport_t;
 
