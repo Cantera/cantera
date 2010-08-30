@@ -327,8 +327,11 @@ namespace Cantera {
     index_t i;
     doublereal sum = 0.0;
     updatePhases();
-    for (i = 0; i < m_np; i++) 
-      sum += m_phase[i]->gibbs_mole() * m_moles[i];
+    for (i = 0; i < m_np; i++) {
+      if (m_moles[i] > 0.0) {
+	sum += m_phase[i]->gibbs_mole() * m_moles[i];
+      }
+    }
     return sum;
   }
 
@@ -337,8 +340,11 @@ namespace Cantera {
     index_t i;
     doublereal sum = 0.0;
     updatePhases();
-    for (i = 0; i < m_np; i++) 
-      sum += m_phase[i]->enthalpy_mole() * m_moles[i];
+    for (i = 0; i < m_np; i++) {
+      if (m_moles[i] > 0.0) {
+	sum += m_phase[i]->enthalpy_mole() * m_moles[i];
+      }
+    }
     return sum;
   }
 
@@ -347,8 +353,11 @@ namespace Cantera {
     index_t i;
     doublereal sum = 0.0;
     updatePhases();
-    for (i = 0; i < m_np; i++) 
-      sum += m_phase[i]->intEnergy_mole() * m_moles[i];
+    for (i = 0; i < m_np; i++) {
+      if (m_moles[i] > 0.0) {
+	sum += m_phase[i]->intEnergy_mole() * m_moles[i];
+      }
+    }
     return sum;
   }
 
@@ -357,8 +366,11 @@ namespace Cantera {
     index_t i;
     doublereal sum = 0.0;
     updatePhases();
-    for (i = 0; i < m_np; i++) 
-      sum += m_phase[i]->entropy_mole() * m_moles[i];
+    for (i = 0; i < m_np; i++) {
+      if (m_moles[i] > 0.0) {
+	sum += m_phase[i]->entropy_mole() * m_moles[i];
+      }
+    }
     return sum;
   }
 
@@ -369,8 +381,11 @@ namespace Cantera {
     index_t i;
     doublereal sum = 0.0;
     updatePhases();
-    for (i = 0; i < m_np; i++) 
-      sum += m_phase[i]->cp_mole() * m_moles[i];
+    for (i = 0; i < m_np; i++) {
+      if (m_moles[i] > 0.0) {
+	sum += m_phase[i]->cp_mole() * m_moles[i];
+      }
+    }
     return sum;
   }
 
