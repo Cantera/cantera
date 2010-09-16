@@ -27,11 +27,6 @@
 namespace Cantera {
 
 #ifdef DAE_DEVEL
-    /**
-     * @defgroup numerics  Numerical Utilities within Cantera
-     *
-     *
-     */
 
     class Jacobian {
     public:
