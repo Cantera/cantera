@@ -67,7 +67,7 @@ namespace Cantera {
 	     static_cast<int>(nRows()), b, 1, 0.0, prod, 1);
   }
   //====================================================================================================================
-  void DenseMatrix::leftMult(const double* b, double* prod) const {
+  void DenseMatrix::leftMult(const double* const b, double* const prod) const {
     int nc = static_cast<int>(nColumns());
     int nr = static_cast<int>(nRows());
     int n, i;
@@ -81,14 +81,30 @@ namespace Cantera {
     }
   }
   //====================================================================================================================
+  vector_int& DenseMatrix::ipiv() { 
+    return m_ipiv; 
+  }
+  //====================================================================================================================
   int solve(DenseMatrix& A, double* b) {
+    if (A.nColumns() != A.nRows()) {
+        throw CanteraError("DenseMatrix::solve", "Can only solve a square matrix");
+    }
     int info=0;
     ct_dgetrf(static_cast<int>(A.nRows()), 
 	      static_cast<int>(A.nColumns()), A.ptrColumn(0), //begin(), 
 	      static_cast<int>(A.nRows()), &A.ipiv()[0], info);
-    if (info != 0) 
-      throw CanteraError("DenseMatrix::solve",
-			 "DGETRF returned INFO = "+int2str(info));
+    if (info != 0) {
+      if (info > 0) {
+        throw CanteraError("DenseMatrix::solve",
+                           "DGETRF returned INFO = "+int2str(info) + ".   U(i,i) is exactly zero. The factorization has"
+                           " been completed, but the factor U is exactly singular, and division by zero will occur if "
+                           "it is used to solve a system of equations.");
+
+      } else {
+        throw CanteraError("DenseMatrix::solve",
+                           "DGETRF returned INFO = "+int2str(info) + ". The argument i has an illegal value");
+      }
+    }
     ct_dgetrs(ctlapack::NoTranspose, 
 	      static_cast<int>(A.nRows()), 1, A.ptrColumn(0), //begin(), 
 	      static_cast<int>(A.nRows()), 
@@ -101,6 +117,9 @@ namespace Cantera {
   }
   //====================================================================================================================
   int solve(DenseMatrix& A, DenseMatrix& b) {
+    if (A.nColumns() != A.nRows()) {
+        throw CanteraError("DenseMatrix::solve", "Can only solve a square matrix");
+    }
     int info=0;
     ct_dgetrf(static_cast<int>(A.nRows()), 
 	      static_cast<int>(A.nColumns()), A.ptrColumn(0), 
@@ -143,14 +162,13 @@ namespace Cantera {
   }
 #endif
   //====================================================================================================================
-  void multiply(const DenseMatrix& A, const double* b, double* prod) {
+  void multiply(const DenseMatrix& A, const double * const b, double * const prod) {
     ct_dgemv(ctlapack::ColMajor, ctlapack::NoTranspose, 
 	     static_cast<int>(A.nRows()), static_cast<int>(A.nColumns()), 1.0, 
 	     A.ptrColumn(0), static_cast<int>(A.nRows()), b, 1, 0.0, prod, 1);
   }
   //====================================================================================================================
-  void increment(const DenseMatrix& A, 
-		 const double* b, double* prod) {
+  void increment(const DenseMatrix& A, const double* b, double* prod) {
     ct_dgemv(ctlapack::ColMajor, ctlapack::NoTranspose, 
 	     static_cast<int>(A.nRows()), static_cast<int>(A.nRows()), 1.0, 
 	     A.ptrColumn(0), static_cast<int>(A.nRows()), b, 1, 1.0, prod, 1);
