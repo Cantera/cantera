@@ -835,15 +835,29 @@ namespace Cantera {
   const std::vector<XML_Node*>& XML_Node::children() const { 
     return m_children; 
   }
-
-  // return the number of children
+  //=====================================================================================================================
+  // Return the number of children
   /*
-   *
+   *  @param discardComments Bool indicating whether we should ignore comments in the count. defaults to false
    */
-  int XML_Node::nChildren() const { 
+  int XML_Node::nChildren(const bool discardComments) const { 
+    if (discardComments) {
+      int count = 0;
+      for (int i = 0; i < m_nchildren; i++) {
+        XML_Node *xc = m_children[i];
+        if (!(xc->isComment())) {
+          count++;
+        }
+      }
+      return count;
+    } 
     return m_nchildren;
   }
- 
+  //=====================================================================================================================
+  bool XML_Node::isComment() const {
+    return m_iscomment;
+  }
+  //=====================================================================================================================
   //    Require that the current xml node have an attribute named
   //    by the first argument, a, and that this attribute have the
   //    the string value listed in the second argument, v.
