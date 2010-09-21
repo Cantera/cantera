@@ -472,12 +472,16 @@ namespace Cantera {
      */
     const std::vector<XML_Node*>& children() const;
 
-    //! return the number of children
+    //! Return the number of children
     /*!
-     *
+     * @param discardComments If true comments are discarded when adding up the number of children. 
+     *                        Defaults to false.
      */
-    int nChildren() const;
+    int nChildren(bool discardComments = false) const;
 
+    //!  Boolean function indicating whether a comment
+    bool isComment() const;
+    
     //!    Require that the current xml node have an attribute named
     //!    by the first argument, a, and that this attribute have the
     //!    the string value listed in the second argument, v.
