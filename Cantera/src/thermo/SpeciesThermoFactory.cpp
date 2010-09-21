@@ -816,7 +816,17 @@ namespace Cantera {
 				      speciesNode["name"], "<nonexistent>");
     }
     const XML_Node& thermo = speciesNode.child("thermo");
-    const std::vector<XML_Node*>& tp = thermo.children();
+
+    // Get the children of the thermo XML node. In the next bit of code we take out the comments that
+    // may have been childrent of the thermo XML node by doing a selective copy. 
+    // These shouldn't interfere with the algorithm at any point.
+    const std::vector<XML_Node*>& tpWC = thermo.children();
+    std::vector<XML_Node *> tp;
+    for (int i = 0; i < static_cast<int>(tpWC.size()); i++) {
+      if (! (tpWC[i])->isComment()) {
+	tp.push_back(tpWC[i]);
+      }
+    }
     int nc = static_cast<int>(tp.size());
     string mname = thermo["model"];
 
@@ -845,9 +855,6 @@ namespace Cantera {
 	else if (f->name() == "NASA9") {
 	  installNasa9ThermoFromXML(speciesNode["name"], spthermo, k, tp);
 	}
-	// else if (f->name() == "HKFT") {
-	//	installHKFTThermoFromXML(s["name"], spthermo, k, tp);
-	//}
 #ifdef WITH_ADSORBATE
 	else if (f->name() == "adsorbate") {
 	  installAdsorbateThermoFromXML(speciesNode["name"], spthermo, k, *f);
