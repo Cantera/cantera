@@ -119,17 +119,21 @@ int main(int argc, char** argv) {
     RoboFunc r1;
     int neq = r1.nEquations();
     double y_comm[8];
+    double deltaBounds[8];
     double ydot_comm[8];;
     double time_curr = 0.0;
     SquareMatrix jac(8);
     double CJ = 0.0;
     for (k = 0; k < neq; k++) {
       y_comm[k] = 0.1;
+      deltaBounds[k] = 0.1;
     }
   
     NonlinearSolver *nls = new NonlinearSolver(&r1);
 
     int solnType =       NSOLN_TYPE_STEADY_STATE ;
+
+    nls->setDeltaBoundsMagnitudes(deltaBounds);
 
     nls->solve_nonlinear_problem(solnType, y_comm,
 				 ydot_comm, CJ,
