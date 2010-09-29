@@ -144,12 +144,33 @@ namespace Cantera {
      *  recomputed. The row scales are recomputed here, after column
      *  scaling has been implemented.
      *
+     *  @param timeCurrent    Current value of the time
+     *  @param y_current      Current value of the solution
+     *  @param ydot_current   Current value of the solution derivative.
+     *
      */ 
     void doNewtonSolve(const double time_curr, const double * const y_curr, 
 		       const double * const ydot_curr, double* const delta_y,
 		       SquareMatrix& jac, int loglevel);
+
+
+    //! Set default deulta bounds amounts
+    /*!
+     *     Delta bounds are set to 0.01 for all unknowns arbitrarily and capriciously
+     *     Then, for each call to the nonlinear solver
+     *     Then, they are increased to  1000 x atol
+     *     then, they are increased to 0.1 fab(y[i])
+     */
+    void setDefaultDeltaBoundsMagnitudes();
+
+    //! Set the delta Bounds magnitudes by hand
+    /*!
+     *  @param deltaboundsMagnitudes          
+     */
+    void setDeltaBoundsMagnitudes(const double * const deltaBoundsMagnitudes);
+
   
-    //!
+    //! Bound the step
     /*!
      *
      * Return the factor by which the undamped Newton step 'step0'
@@ -194,13 +215,14 @@ namespace Cantera {
      */
     void calc_y_pred(int);
    
-    /**
-     * Internal function to calculate the time derivative at the
-     * new step
-     */
-    void calc_ydot(int, double *, double *);
-
-
+   
+    //!   Internal function to calculate the time derivative at the new step
+    /*!
+     *   @param  order of the BDF method
+     *   @param   y_curr current value of the solution
+     *   @param   ydot_curr  Calculated value of the solution derivative that is consistent with y_curr
+     */ 
+    void calc_ydot(const int order, const double * const y_curr, double * const ydot_curr);
 
     //! Function called to evaluate the jacobian matrix and the curent
     //! residual vector.
@@ -213,8 +235,36 @@ namespace Cantera {
 		    double * const ydot, int num_newt_its);
 
 
-    double filterNewStep(double, double *, double *);
-
+    //! Apply a filtering step
+    /*!
+     *  @param timeCurrent   Current value of the time
+     *  @param y_current     current value of the solution
+     *  @param ydot_current   Current value of the solution derivative.
+     *
+     *  @return Returns the norm of the value of the amount filtered
+     */
+    double filterNewStep(const double timeCurrent, double * const y_current, double * const ydot_current);
+  
+  
+    //! Return the factor by which the undamped Newton step 'step0'
+    //!  must be multiplied in order to keep the update within the bounds of an accurate jacobian.
+    /*!
+     *
+     *  The idea behind these is that the Jacobian couldn't possibly be representative, if the
+     *  variable is changed by a lot. (true for nonlinear systems, false for linear systems)
+     *  Maximum increase in variable in any one newton iteration:
+     *   factor of 1.5
+     *  Maximum decrease in variable in any one newton iteration:
+     *   factor of 2
+     *
+     *  @param y   Initial value of the solution vector
+     *  @param step0  initial proposed step size
+     *  @param loglevel log level
+     *
+     *  @return returns the damping factor
+     */
+    double deltaBoundStep(const double * const y, const double * const step0, const int loglevel);
+			       
     //!  Find a damping coefficient through a look-ahead mechanism
     /*!
      *    On entry, step0 must contain an undamped Newton step for the
@@ -242,8 +292,6 @@ namespace Cantera {
 
    
 
-    // Compute the weighted norm of the undamped step size step0
-
     //! Find the solution to F(X) = 0 by damped Newton iteration. 
     /*!
      *  On
@@ -265,8 +313,11 @@ namespace Cantera {
 				int loglevelInput);
 
 
+    //! Set the column scales
     void setColumnScales();
 
+
+    //! Print solution norm contribution
     void
     print_solnDelta_norm_contrib(const double * const solnDelta0,
 				 const char * const s0,
@@ -295,6 +346,12 @@ namespace Cantera {
   
     //! Soln error weights
     std::vector<doublereal> m_ewt;
+
+    //! Boolean indicating whether a manual delta bounds has been input.
+
+    int m_manualDeltaBoundsSet;
+    //! Soln Delta bounds magnitudes
+    std::vector<doublereal> m_deltaBoundsMagnitudes;
 
     std::vector<doublereal> m_y_n;
     std::vector<doublereal> m_y_nm1;

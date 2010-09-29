@@ -72,6 +72,9 @@ namespace Cantera {
     m_func(func),
     solnType_(NSOLN_TYPE_STEADY_STATE),
     neq_(0),
+    m_ewt(0),
+    m_manualDeltaBoundsSet(0),
+    m_deltaBoundsMagnitudes(0),
     delta_t_n(-1.0),
     m_nfe(0),
     m_colScaling(0),
@@ -91,6 +94,7 @@ namespace Cantera {
     neq_ = m_func->nEquations();
 
     m_ewt.resize(neq_, rtol_);
+    m_deltaBoundsMagnitudes.resize(neq_, 0.001);
     m_y_n.resize(neq_, 0.0);
     m_y_nm1.resize(neq_, 0.0);
     ydot_new.resize(neq_, 0.0);
@@ -112,6 +116,9 @@ namespace Cantera {
     m_func(right.m_func), 
     solnType_(NSOLN_TYPE_STEADY_STATE),
     neq_(0),
+    m_ewt(0),
+    m_manualDeltaBoundsSet(0),
+    m_deltaBoundsMagnitudes(0),
     delta_t_n(-1.0),
     m_nfe(0),
     m_colScaling(0),
@@ -146,6 +153,8 @@ namespace Cantera {
     solnType_                  = right.solnType_;
     neq_                       = right.neq_;
     m_ewt                      = right.m_ewt;
+    m_manualDeltaBoundsSet     = right.m_manualDeltaBoundsSet;
+    m_deltaBoundsMagnitudes    = right.m_deltaBoundsMagnitudes;
     m_y_n                      = right.m_y_n;
     m_y_nm1                    = right.m_y_nm1;
     ydot_new                   = right.ydot_new;
@@ -335,13 +344,13 @@ namespace Cantera {
 
 
     // Calculate the current residual
-    //   Put the current residual into the vector, delta_y[]
+    //   Put the current residual into the vector, residual
     //   We need to pull this out of this function and carry it in.
     m_func->evalResidNJ(time_curr, delta_t_n, y_curr, ydot_curr, residual);
     m_nfe++;
   }
 
-   //====================================================================================================================
+  //====================================================================================================================
   // Compute the undamped Newton step
   /*
    * Compute the undamped Newton step.  The residual function is
@@ -356,7 +365,7 @@ namespace Cantera {
    *  scaling has been implemented.
    */ 
   void NonlinearSolver::doNewtonSolve(const double time_curr, const double * const y_curr, 
-				      const double * const ydot_curr, double* const delta_y,
+				      const double * const ydot_curr, double * const delta_y,
 				      SquareMatrix& jac, int loglevel)
   {	 
     int irow, jcol;
@@ -393,15 +402,7 @@ namespace Cantera {
       }	  
     }
 
-    //  if (m_matrixConditioning) {
-    //  if (jac.m_factored) {
-    //	m_func->matrixConditioning(0, neq_, delta_y);
-    // } else {
-    //double *jptr = &(*(jac.begin()));
-    //	m_func->matrixConditioning(jptr, neq_, delta_y);
-    // }
-    //}
-
+  
     /*
      * row sum scaling -> Note, this is an unequivical success
      *      at keeping the small numbers well balanced and
@@ -501,7 +502,138 @@ namespace Cantera {
     m_numTotalLinearSolves++;
   }
   //====================================================================================================================
-  /**************************************************************************
+  void  NonlinearSolver::setDefaultDeltaBoundsMagnitudes()
+  {
+    for (int i = 0; i < neq_; i++) {
+      m_deltaBoundsMagnitudes[i] = MAX(m_deltaBoundsMagnitudes[i], 1000. * atolk_[i]);
+      m_deltaBoundsMagnitudes[i] = MAX(m_deltaBoundsMagnitudes[i], 0.1 * fabs(m_y_n[i]));
+    }
+  }
+  //====================================================================================================================
+  void  NonlinearSolver::setDeltaBoundsMagnitudes(const double * const deltaBoundsMagnitudes)
+  {
+    
+    for (int i = 0; i < neq_; i++) {
+      m_deltaBoundsMagnitudes[i] = deltaBoundsMagnitudes[i];
+    }
+    m_manualDeltaBoundsSet = 1;
+  }
+  //====================================================================================================================
+  /*
+   *
+   * Return the factor by which the undamped Newton step 'step0'
+   * must be multiplied in order to keep the update within the bounds of an accurate jacobian.
+   *
+   *  The idea behind these is that the Jacobian couldn't possibly be representative, if the
+   *  variable is changed by a lot. (true for nonlinear systems, false for linear systems)
+   *  Maximum increase in variable in any one newton iteration:
+   *   factor of 1.5
+   *  Maximum decrease in variable in any one newton iteration:
+   *   factor of 2
+   *
+   *  @param y   Initial value of the solution vector
+   *  @param step0  initial proposed step size
+   *  @param loglevel log level
+   *
+   *  @return returns the damping factor
+   */
+  double
+  NonlinearSolver::deltaBoundStep(const double * const y, const double * const step0, const int loglevel)  {
+			       
+    int i_fbounds = 0;
+    int ifbd = 0;
+    int i_fbd = 0;
+    
+    double sameSign = 0.0;
+    double ff;
+    double f_delta_bounds = 1.0;
+    double ff_alt;
+    for (int i = 0; i < neq_; i++) {
+      double y_new = y[i] + step0[i];
+      sameSign = y_new * y[i];
+     
+      /*
+       * Now do a delta bounds
+       * Increase variables by a factor of 1.5 only
+       * decrease variables by a factor of 2 only
+       */
+      ff = 1.0;
+
+
+      if (sameSign >= 0.0) {
+	if ((fabs(y_new) > 1.5 * fabs(y[i])) && 
+	    (fabs(y_new - y[i]) > m_deltaBoundsMagnitudes[i])) {
+	  ff = 0.5 * fabs(y[i]/(y_new - y[i]));
+	  ff_alt = fabs(m_deltaBoundsMagnitudes[i] / (y_new - y[i]));
+	  ff = MAX(ff, ff_alt);
+	  ifbd = 1;
+	}
+	if ((fabs(2.0 * y_new) < fabs(y[i])) &&
+	    (fabs(y_new - y[i]) > m_deltaBoundsMagnitudes[i])) {
+	  ff = y[i]/(y_new - y[i]) * (1.0 - 2.0)/2.0;
+	  ff_alt = fabs(m_deltaBoundsMagnitudes[i] / (y_new - y[i]));
+	  ff = MAX(ff, ff_alt);
+	  ifbd = 0;
+	}
+      } else {
+	/*
+	 *  This handles the case where the value crosses the origin.
+	 *       - First we don't let it cross the origin until its shrunk to the size of m_deltaBoundsMagnitudes[i]
+	 */
+	if (fabs(y[i]) > m_deltaBoundsMagnitudes[i]) {
+	  ff = y[i]/(y_new - y[i]) * (1.0 - 2.0)/2.0;
+	  ff_alt = fabs(m_deltaBoundsMagnitudes[i] / (y_new - y[i]));
+	  ff = MAX(ff, ff_alt);
+	  if (y[i] >= 0.0) {
+	    ifbd = 0;
+	  } else {
+	    ifbd = 1;
+	  }
+	}
+	/*
+	 *  Second when it does cross the origin, we make sure that its magnitude is only 50% of the previous value.
+	 */
+	else if (fabs(y_new) > 0.5 * fabs(y[i])) {
+	  ff = y[i]/(y_new - y[i]) * (-1.5);
+	  ff_alt = fabs(m_deltaBoundsMagnitudes[i] / (y_new - y[i]));
+	  ff = MAX(ff, ff_alt);
+	  ifbd = 0;
+	}
+      }
+
+      if (ff < f_delta_bounds) {
+	f_delta_bounds = ff;
+	i_fbounds = i;
+	i_fbd = ifbd;
+      }
+    
+    
+    }
+ 
+  
+    /*
+     * Report on any corrections
+     */
+    if (loglevel > 1) {
+      if (f_delta_bounds < 1.0) {
+	if (i_fbd) {
+	  printf("\t\tdeltaBoundStep: Increase of Variable %d causing "
+		 "delta damping of %g\n",
+		 i_fbounds, f_delta_bounds);
+	} else {
+	  printf("\t\tdeltaBoundStep: Decrease of variable %d causing"
+		 "delta damping of %g\n",
+		 i_fbounds, f_delta_bounds);
+	}
+      }
+    }
+    
+    
+    return f_delta_bounds;
+  }
+  //====================================================================================================================  
+
+  /*
    *
    * boundStep():
    *
@@ -528,11 +660,10 @@ namespace Cantera {
    *  Maximum decrease in variable in any one newton iteration:
    *   factor of 5
    */
-  double NonlinearSolver::boundStep(const double* const y, 
-				    const double* const step0, const int loglevel) {
-    int i, i_lower = -1, i_fbounds, ifbd = 0, i_fbd = 0;
-    double fbound = 1.0, f_bounds = 1.0, f_delta_bounds = 1.0;
-    double ff, y_new, ff_alt;
+  double NonlinearSolver::boundStep(const double * const y, const double * const step0, const int loglevel) {
+    int i, i_lower = -1;
+    double fbound = 1.0, f_bounds = 1.0;
+    double ff, y_new;
     
     for (i = 0; i < neq_; i++) {
       y_new = y[i] + step0[i];
@@ -562,61 +693,26 @@ namespace Cantera {
 	  }
 	}
       }
-      /*
-       * Now do a delta bounds
-       * Increase variables by a factor of 1.5 only
-       * decrease variables by a factor of 2 only
-       */
-      ff = 1.0;
-      if ((fabs(y_new) > 1.5 * fabs(y[i])) && 
-	  (fabs(y_new-y[i]) > m_ewt[i])) {
-	ff = 0.5 * fabs(y[i]/(y_new - y[i]));
-	ff_alt = fabs(m_ewt[i] / (y_new - y[i]));
-	ff = MAX(ff, ff_alt);
-	ifbd = 1;
-      }
-      if ((fabs(2.0 * y_new) < fabs(y[i])) &&
-	  (fabs(y_new - y[i]) > m_ewt[i])) {
-	ff = y[i]/(y_new - y[i]) * (1.0 - 2.0)/2.0;
-	ff_alt = fabs(m_ewt[i] / (y_new - y[i]));
-	ff = MAX(ff, ff_alt);
-	ifbd = 0;
-      }
-      if (ff < f_delta_bounds) {
-	f_delta_bounds = ff;
-	i_fbounds = i;
-	i_fbd = ifbd;
-      }
-      f_delta_bounds = MIN(f_delta_bounds, ff);
+    
     }
-    fbound = MIN(f_bounds, f_delta_bounds);
+
+  
     /*
      * Report on any corrections
      */
     if (loglevel > 1) {
-      if (fbound != 1.0) {
-	if (f_bounds < f_delta_bounds) {
-	  printf("\t\tboundStep: Variable %d causing bounds "
-		 "damping of %g\n",
-		 i_lower, f_bounds);
-	} else {
-	  if (ifbd) {
-	    printf("\t\tboundStep: Decrease of Variable %d causing "
-		   "delta damping of %g\n",
-		   i_fbounds, f_delta_bounds);
-	  } else {
-	    printf("\t\tboundStep: Increase of variable %d causing"
-		   "delta damping of %g\n",
-		   i_fbounds, f_delta_bounds);
-	  }
-	}
+      if (f_bounds != 1.0) {
+	printf("\t\tboundStep: Variable %d causing bounds damping of %g\n", i_lower, f_bounds);
       }
     }
-    //return fbound;
-    return 1.0;
+
+    double f_delta_bounds = deltaBoundStep(y, step0, loglevel);
+    fbound = MIN(f_bounds, f_delta_bounds);
+
+    return fbound;
   }
   //====================================================================================================================
-  /**************************************************************************
+  /*
    *
    * dampStep():
    *
@@ -678,14 +774,22 @@ namespace Cantera {
       
       if (solnType_ != NSOLN_TYPE_STEADY_STATE) {
 	calc_ydot(m_order, y1, ydot1);
-      }
+      } else {
 
-      doResidualCalc(time_curr, NSOLN_TYPE_STEADY_STATE, y1, ydot1, step1, loglevel);
+      }
+      if (solnType_ != NSOLN_TYPE_STEADY_STATE) {
+	doResidualCalc(time_curr, solnType_, y1, ydot1, step1, loglevel);
+      } else {
+	doResidualCalc(time_curr, solnType_, y1, ydot0, step1, loglevel);
+      }
 	  
       // compute the next undamped step, step1[], that would result 
       // if y1[] were accepted.
-
-      doNewtonSolve(time_curr, y1, ydot1, step1, jac, loglevel);
+      if (solnType_ != NSOLN_TYPE_STEADY_STATE) {
+	doNewtonSolve(time_curr, y1, ydot1, step1, jac, loglevel);
+      } else {
+	doNewtonSolve(time_curr, y1, ydot0, step1, jac, loglevel);
+      }
 
       // compute the weighted norm of step1
       s1 = solnErrorNorm(step1);
@@ -693,9 +797,9 @@ namespace Cantera {
       // write log information
       if (loglevel > 3) {
 	print_solnDelta_norm_contrib((const double *) step0, 
-				     "DeltaSolnTrial",
+				     "DeltaSoln",
 				     (const double *) step1,
-				     "DeltaSolnTrialTest",
+				     "DeltaSolnTrial",
 				     "dampNewt: Important Entries for "
 				     "Weighted Soln Updates:",
 				     y0, y1, ff, 5);
@@ -793,8 +897,9 @@ namespace Cantera {
 
     mdp::mdp_copy_dbl_1(DATA_PTR(y_curr), y_comm, neq_);
     // copyn((size_t)neq_, y_comm,    y_curr);
-    if (SolnType != NSOLN_TYPE_STEADY_STATE) {
+    if (SolnType != NSOLN_TYPE_STEADY_STATE || ydot_comm) {
       mdp::mdp_copy_dbl_1(DATA_PTR(ydot_curr), ydot_comm, neq_);
+      mdp::mdp_copy_dbl_1(DATA_PTR(ydot_new), ydot_comm, neq_);
     }
      
 
@@ -805,6 +910,9 @@ namespace Cantera {
     int i_backtracks;
     int loglevel = loglevelInput;
 
+
+
+
     while (1 > 0) {
 
       /*
@@ -813,6 +921,13 @@ namespace Cantera {
       m_numTotalNewtIts++;
       num_newt_its++;
 
+      mdp::mdp_copy_dbl_1(DATA_PTR(m_y_n), DATA_PTR(y_curr), neq_);
+      /*
+       * Set default values of Delta bounds constraints
+       */
+      if (!m_manualDeltaBoundsSet) {
+	setDefaultDeltaBoundsMagnitudes();
+      }
 
       if (loglevel > 1) {
 	printf("\t\tSolve_Nonlinear_Problem: iteration %d:\n",
@@ -930,8 +1045,9 @@ namespace Cantera {
 
   done:
     mdp::mdp_copy_dbl_1(y_comm, DATA_PTR(y_curr), neq_);
-    mdp::mdp_copy_dbl_1(ydot_comm, DATA_PTR(ydot_curr), neq_);
-   
+    if (solnType_ != NSOLN_TYPE_STEADY_STATE) {
+      mdp::mdp_copy_dbl_1(ydot_comm, DATA_PTR(ydot_curr), neq_);
+    }
  
     num_linear_solves += m_numTotalLinearSolves;
  
@@ -945,8 +1061,8 @@ namespace Cantera {
     }
     return m;
   }
-   //====================================================================================================================
-  /***************************************************************8
+  //====================================================================================================================
+  /*
    *
    *
    */
@@ -964,10 +1080,10 @@ namespace Cantera {
     bool used;
     double dmax0, dmax1, error, rel_norm;
     printf("\t\t%s currentDamp = %g\n", title, damp);
-    printf("\t\t         I  ysoln %10s ysolnTrial "
-	   "%10s weight relSoln0 relSoln1\n", s0, s1);
+    printf("\t\t     I   ysolnOld %10s ysolnNewRaw ysolnNewTrial "
+	   "%10s ysolnNewTrialRaw solnWeight wtDelSoln wtDelSolnTrial\n", s0, s1);
     int *imax = mdp::mdp_alloc_int_1(num_entries, -1);
-    printf("\t\t   "); print_line("-", 90);
+    printf("\t\t   "); print_line("-", 120);
     for (jnum = 0; jnum < num_entries; jnum++) {
       dmax1 = -1.0;
       for (i = 0; i < neq_; i++) {
@@ -992,13 +1108,12 @@ namespace Cantera {
 	dmax0 = sqrt(error * error);
 	error = solnDelta1[i] /  m_ewt[i];
 	dmax1 = sqrt(error * error);
-	printf("\t\t   %4d %12.4e %12.4e %12.4e  %12.4e "
-	       "%12.4e %12.4e %12.4e\n",
-	       i, y0[i], solnDelta0[i], y1[i],
-	       solnDelta1[i], m_ewt[i], dmax0, dmax1);
+	printf("\t\t   %4d %12.4e %12.4e %12.4e | %12.4e %12.4e %12.4e | %12.4e %12.4e %12.4e\n",
+	       i, y0[i], solnDelta0[i],  y0[i] + solnDelta0[i], y1[i],
+	       solnDelta1[i], y1[i]+ solnDelta1[i], m_ewt[i], dmax0, dmax1);
       }
     }
-    printf("\t\t   "); print_line("-", 90);
+    printf("\t\t   "); print_line("-", 120);
     mdp::mdp_safe_free((void **) &imax);
   }
   //====================================================================================================================
@@ -1032,7 +1147,7 @@ namespace Cantera {
     }
     return diff;
   }
- //================================================================================================
+  //====================================================================================================================
   /*
    *
    *  Function called by BEuler to evaluate the Jacobian matrix and the
@@ -1130,8 +1245,10 @@ namespace Cantera {
 
         y[j] = ysave + dy;
         dy = y[j] - ysave;
-        ydotsave = ydot[j];
-        ydot[j] += dy * CJ;
+	if (solnType_ != NSOLN_TYPE_STEADY_STATE) {
+	  ydotsave = ydot[j];
+	  ydot[j] += dy * CJ;
+	}
         /*
          * Call the functon
          */
@@ -1146,9 +1263,10 @@ namespace Cantera {
           col_j[i] = diff / dy;
           //col_j[i] = (m_wksp[i] - f[i])/dy;
         }
-
-        y[j] = ysave;
-        ydot[j] = ydotsave;
+	y[j] = ysave;
+	if (solnType_ != NSOLN_TYPE_STEADY_STATE) {
+	  ydot[j] = ydotsave;
+	}
 
       }
       /*
@@ -1160,8 +1278,14 @@ namespace Cantera {
 
   }
   //====================================================================================================================
+  //   Internal function to calculate the time derivative at the new step
+  /*
+   *   @param  order of the BDF method
+   *   @param   y_curr current value of the solution
+   *   @param   ydot_curr  Calculated value of the solution derivative that is consistent with y_curr
+   */ 
   void NonlinearSolver::
-  calc_ydot(int order, double *y_curr, double *ydot_curr)
+  calc_ydot(const int order, const double * const y_curr, double * const ydot_curr)
   {
     if (!ydot_curr) {
       return;
@@ -1185,17 +1309,18 @@ namespace Cantera {
       return;
     }
   } 
-  //================================================================================================
+  //====================================================================================================================
+  // Apply a filtering step
   /*
-   * filterNewStep():
+   *  @param timeCurrent   Current value of the time
+   *  @param y_current     current value of the solution
+   *  @param ydot_current   Current value of the solution derivative. 
    *
-   * void BEulerInt::
-   *
+   *  @return Returns the norm of the value of the amount filtered
    */
-  double NonlinearSolver::filterNewStep(double timeCurrent, double *y_current, double *ydot_current) {
+  double NonlinearSolver::filterNewStep(const double timeCurrent, double * const y_current, double *const ydot_current) {
     return 0.0;
   }
-
   //====================================================================================================================
 }
 
