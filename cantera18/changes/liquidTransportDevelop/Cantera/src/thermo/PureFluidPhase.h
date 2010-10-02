@@ -34,7 +34,7 @@
 #include "mix_defs.h"
 
 namespace tpx {
-    class Substance;
+  class Substance;
 }
 
 namespace Cantera {
@@ -107,7 +107,7 @@ namespace Cantera {
     /// Molar Gibbs function. Units: J/kmol. 
     virtual doublereal gibbs_mole() const;
 
-      /// Molar heat capacity at constant pressure. Units: J/kmol/K. 
+    /// Molar heat capacity at constant pressure. Units: J/kmol/K. 
     virtual doublereal cp_mole() const;
 
     /// Molar heat capacity at constant volume. Units: J/kmol/K. 
@@ -163,20 +163,77 @@ namespace Cantera {
     //! Returns a reference to the substance object
     tpx::Substance& TPX_Substance();
 
-    /// critical temperature 
-    virtual doublereal critTemperature() const;
- 
-    /// critical pressure
-    virtual doublereal critPressure() const;
-        
-    /// critical density
-    virtual doublereal critDensity() const;
-        
-    /// saturation temperature
+    //@}
+    /// @name Properties of the Standard State of the Species in the Solution 
+    //@{
+
+
+    //! Get the nondimensional Enthalpy functions for the species
+    //! at their standard states at the current <I>T</I> and <I>P</I> of the solution.
     /*!
-     * @param p  Pressure (Pa)
+     * @param hrt      Output vector of  nondimensional standard state enthalpies.
+     *                 Length: m_kk.
      */
-    virtual doublereal satTemperature(doublereal p) const;
+    virtual void getEnthalpy_RT(doublereal* hrt) const;
+
+    //! Get the array of nondimensional Entropy functions for the
+    //! standard state species at the current <I>T</I> and <I>P</I> of the solution.
+    /*!
+     * @param sr   Output vector of  nondimensional standard state entropies.
+     *             Length: m_kk.
+     */
+    virtual void getEntropy_R(doublereal* sr) const;
+
+    //! Get the nondimensional Gibbs functions for the species
+    //! in their standard states at the current <I>T</I> and <I>P</I> of the solution.
+    /*!
+     * @param grt  Output vector of nondimensional standard state gibbs free energies
+     *             Length: m_kk.
+     */
+    virtual void getGibbs_RT(doublereal* grt) const;
+
+
+    //@}
+    /// @name Thermodynamic Values for the Species Reference States 
+    //@{
+
+    //!  Returns the vector of nondimensional enthalpies of the reference state at the current temperature
+    //!  of the solution and the reference pressure for the species.
+    /*!
+     *  This base function will throw a CanteraException unless
+     *  it is overwritten in a derived class.
+     *
+     * @param hrt     Output vector containing the nondimensional reference state enthalpies
+     *                Length: m_kk.
+     */
+    virtual void getEnthalpy_RT_ref(doublereal *hrt) const;
+
+    //!  Returns the vector of nondimensional
+    //!  Gibbs Free Energies of the reference state at the current temperature
+    //!  of the solution and the reference pressure for the species.
+    /*!
+     * @param grt     Output vector containing the nondimensional reference state 
+     *                Gibbs Free energies.  Length: m_kk.
+     */
+    virtual void getGibbs_RT_ref(doublereal *grt) const;
+
+    //!  Returns the vector of nondimensional
+    //!  entropies of the reference state at the current temperature
+    //!  of the solution and the reference pressure for each species.
+    /*!
+     * @param er      Output vector containing the nondimensional reference state 
+     *                entropies.  Length: m_kk.
+     */
+    virtual void getEntropy_R_ref(doublereal *er) const;
+
+
+    /**
+     * @name Setting the State
+     *
+     * These methods set all or part of the thermodynamic state.
+     * @{
+     */
+
 
     //! Set the internally storred specific enthalpy (J/kg) and pressure (Pa) of the phase.
     /*!
@@ -227,8 +284,25 @@ namespace Cantera {
     virtual void setState_SP(doublereal s, doublereal p, 
 			     doublereal tol = 1.e-8);
 
+    //@}
 
+    //! @name Critical State Properties
+    /*!
+     *      Critical properties for the pure fluid
+     */
+    //@{
+
+    //! critical temperature 
+    virtual doublereal critTemperature() const;
+ 
+    //! critical pressure
+    virtual doublereal critPressure() const;
+        
+    //! critical density
+    virtual doublereal critDensity() const;
       
+    //@}
+
     //! @name Saturation properties.
     /*!
      * These methods are only implemented by subclasses that 
@@ -236,6 +310,13 @@ namespace Cantera {
      * moved out of ThermoPhase at a later date.
      */
     //@{
+
+        
+    //! saturation temperature
+    /*!
+     * @param p  Pressure (Pa)
+     */
+    virtual doublereal satTemperature(doublereal p) const;
 
     //! Return the saturation pressure given the temperatur
     /*!

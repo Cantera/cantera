@@ -76,239 +76,323 @@ namespace Cantera {
 
 
 
-    PureFluidPhase::~PureFluidPhase() {
-      delete m_sub; 
-    }
+  PureFluidPhase::~PureFluidPhase() {
+    delete m_sub; 
+  }
 
-    void PureFluidPhase::
-    initThermo() {
-        if (m_sub) delete m_sub;
-        m_sub = tpx::GetSub(m_subflag);
-        if (m_sub == 0) {
-            throw CanteraError("PureFluidPhase::initThermo",
-                "could not create new substance object.");
-        }
-        m_mw = m_sub->MolWt();
-        m_weight[0] = m_mw;
-        setMolecularWeight(0,m_mw);
-        double one = 1.0;
-        setMoleFractions(&one);
-        double cp0_R, h0_RT, s0_R, T0, p;
-        T0 = 298.15;
-        if (T0 < m_sub->Tcrit()) {
-            m_sub->Set(tpx::TX, T0, 1.0);
-            p = 0.01*m_sub->P();
-        }
-        else {
-            p = 0.001*m_sub->Pcrit();
-        }
-        m_sub->Set(tpx::TP, T0, p);
+  void PureFluidPhase::
+  initThermo() {
+    if (m_sub) delete m_sub;
+    m_sub = tpx::GetSub(m_subflag);
+    if (m_sub == 0) {
+      throw CanteraError("PureFluidPhase::initThermo",
+			 "could not create new substance object.");
+    }
+    m_mw = m_sub->MolWt();
+    m_weight[0] = m_mw;
+    setMolecularWeight(0,m_mw);
+    double one = 1.0;
+    setMoleFractions(&one);
+    double cp0_R, h0_RT, s0_R, T0, p;
+    T0 = 298.15;
+    if (T0 < m_sub->Tcrit()) {
+      m_sub->Set(tpx::TX, T0, 1.0);
+      p = 0.01*m_sub->P();
+    }
+    else {
+      p = 0.001*m_sub->Pcrit();
+    }
+    p = 0.001 * p;
+    m_sub->Set(tpx::TP, T0, p);
         
-        m_spthermo->update_one(0, T0, &cp0_R, &h0_RT, &s0_R);
-        double s_R = s0_R - log(p/refPressure());
-        m_sub->setStdState(h0_RT*GasConstant*298.15/m_mw,
-            s_R*GasConstant/m_mw, T0, p);
-        if (m_verbose) {
-            writelog("PureFluidPhase::initThermo: initialized phase "
-                +id()+"\n");
-        }
+    m_spthermo->update_one(0, T0, &cp0_R, &h0_RT, &s0_R);
+    double s_R = s0_R - log(p/refPressure());
+    m_sub->setStdState(h0_RT*GasConstant*298.15/m_mw,
+		       s_R*GasConstant/m_mw, T0, p);
+    if (m_verbose) {
+      writelog("PureFluidPhase::initThermo: initialized phase "
+	       +id()+"\n");
     }
+  }
 
-    void PureFluidPhase::
-    setParametersFromXML(const XML_Node& eosdata) {
-        eosdata._require("model","PureFluid");
-        m_subflag = atoi(eosdata["fluid_type"].c_str());
-        if (m_subflag < 0) 
-            throw CanteraError("PureFluidPhase::setParametersFromXML",
-                "missing or negative substance flag");
-    }
+  void PureFluidPhase::
+  setParametersFromXML(const XML_Node& eosdata) {
+    eosdata._require("model","PureFluid");
+    m_subflag = atoi(eosdata["fluid_type"].c_str());
+    if (m_subflag < 0) 
+      throw CanteraError("PureFluidPhase::setParametersFromXML",
+			 "missing or negative substance flag");
+  }
 
-    doublereal PureFluidPhase::
-    enthalpy_mole() const {
-        setTPXState();
-        doublereal h = m_sub->h() * m_mw;
-        check(h);
-        return h;            
-    }
+  doublereal PureFluidPhase::
+  enthalpy_mole() const {
+    setTPXState();
+    doublereal h = m_sub->h() * m_mw;
+    check(h);
+    return h;            
+  }
         
-    doublereal PureFluidPhase::
-    intEnergy_mole() const {
-        setTPXState();
-        doublereal u = m_sub->u() * m_mw;
-        check(u);
-        return u;            
-    }
+  doublereal PureFluidPhase::
+  intEnergy_mole() const {
+    setTPXState();
+    doublereal u = m_sub->u() * m_mw;
+    check(u);
+    return u;            
+  }
 
-    doublereal PureFluidPhase::
-    entropy_mole() const {
-        setTPXState();
-        doublereal s = m_sub->s() * m_mw;
-        check(s);
-        return s;            
-    }
+  doublereal PureFluidPhase::
+  entropy_mole() const {
+    setTPXState();
+    doublereal s = m_sub->s() * m_mw;
+    check(s);
+    return s;            
+  }
 
-    doublereal PureFluidPhase::
-    gibbs_mole() const {
-        setTPXState();
-        doublereal g = m_sub->g() * m_mw;
-        check(g);
-        return g;            
-    }
+  doublereal PureFluidPhase::
+  gibbs_mole() const {
+    setTPXState();
+    doublereal g = m_sub->g() * m_mw;
+    check(g);
+    return g;            
+  }
 
-    doublereal PureFluidPhase::
-    cp_mole() const {
-        setTPXState();
-        doublereal cp = m_sub->cp() * m_mw;
-        check(cp);
-        return cp;            
-    }
+  doublereal PureFluidPhase::
+  cp_mole() const {
+    setTPXState();
+    doublereal cp = m_sub->cp() * m_mw;
+    check(cp);
+    return cp;            
+  }
 
-    doublereal PureFluidPhase::
-    cv_mole() const {
-        setTPXState();
-        doublereal cv = m_sub->cv() * m_mw;
-        check(cv);
-        return cv;
-    }
+  doublereal PureFluidPhase::
+  cv_mole() const {
+    setTPXState();
+    doublereal cv = m_sub->cv() * m_mw;
+    check(cv);
+    return cv;
+  }
         
-    doublereal PureFluidPhase::
-    pressure() const {
-        setTPXState();
-        doublereal p = m_sub->P();
-        check(p);
-        return p;
-    }
+  doublereal PureFluidPhase::
+  pressure() const {
+    setTPXState();
+    doublereal p = m_sub->P();
+    check(p);
+    return p;
+  }
         
-    void PureFluidPhase::
-    setPressure(doublereal p) {
-        Set(tpx::TP, temperature(), p);
-        setDensity(1.0/m_sub->v());
-        check();
-    }
+  void PureFluidPhase::
+  setPressure(doublereal p) {
+    Set(tpx::TP, temperature(), p);
+    setDensity(1.0/m_sub->v());
+    check();
+  }
 
-    void PureFluidPhase::Set(int n, double x, double y) const {
-        try { 
-            m_sub->Set(n, x, y); 
-        }
-        catch(tpx::TPX_Error) {
-            reportTPXError();
-        }
+  void PureFluidPhase::Set(int n, double x, double y) const {
+    try { 
+      m_sub->Set(n, x, y); 
     }
+    catch(tpx::TPX_Error) {
+      reportTPXError();
+    }
+  }
             
-    void PureFluidPhase::setTPXState() const {
-        Set(tpx::TV, temperature(), 1.0/density());
-    }
+  void PureFluidPhase::setTPXState() const {
+    Set(tpx::TV, temperature(), 1.0/density());
+  }
         
-    void PureFluidPhase::check(doublereal v) const {
-        if (m_sub->Error() || v == tpx::Undef) {
-            throw CanteraError("PureFluidPhase",string(tpx::errorMsg(
-                                                           m_sub->Error())));
-        }
+  void PureFluidPhase::check(doublereal v) const {
+    if (m_sub->Error() || v == tpx::Undef) {
+      throw CanteraError("PureFluidPhase",string(tpx::errorMsg(
+							       m_sub->Error())));
     }
+  }
 
-    void PureFluidPhase::reportTPXError() const {
-        string msg = tpx::TPX_Error::ErrorMessage;
-        string proc = "tpx::"+tpx::TPX_Error::ErrorProcedure;
-        throw CanteraError(proc,msg);
-    }
+  void PureFluidPhase::reportTPXError() const {
+    string msg = tpx::TPX_Error::ErrorMessage;
+    string proc = "tpx::"+tpx::TPX_Error::ErrorProcedure;
+    throw CanteraError(proc,msg);
+  }
 
 
-    doublereal PureFluidPhase::isothermalCompressibility() const {
-        return m_sub->isothermalCompressibility();
-    }
+  doublereal PureFluidPhase::isothermalCompressibility() const {
+    return m_sub->isothermalCompressibility();
+  }
 
-    doublereal PureFluidPhase::thermalExpansionCoeff() const {
-        return m_sub->thermalExpansionCoeff();
-    }
+  doublereal PureFluidPhase::thermalExpansionCoeff() const {
+    return m_sub->thermalExpansionCoeff();
+  }
 
-    tpx::Substance& PureFluidPhase::TPX_Substance() { return *m_sub; }
+  tpx::Substance& PureFluidPhase::TPX_Substance() { return *m_sub; }
 
-    /// critical temperature 
-    doublereal PureFluidPhase::critTemperature() const { return m_sub->Tcrit(); }
+
+  //====================================================================================================================
+  //   Get the nondimensional Enthalpy functions for the species
+  //   at their standard states at the current <I>T</I> and <I>P</I> of the solution.
+  /*
+   * @param hrt      Output vector of  nondimensional standard state enthalpies.
+   *                 Length: m_kk.
+   */
+  void PureFluidPhase::getEnthalpy_RT(doublereal* hrt) const {
+    doublereal rt = _RT();
+    doublereal h = enthalpy_mole();
+    hrt[0] = h / rt;
+  }
+
+  //====================================================================================================================
+  //   Get the array of nondimensional Entropy functions for the
+  //   standard state species at the current <I>T</I> and <I>P</I> of the solution.
+  /*
+   * @param sr   Output vector of  nondimensional standard state entropies.
+   *             Length: m_kk.
+   */
+  void PureFluidPhase::getEntropy_R(doublereal* sr) const {
+    doublereal s = entropy_mole();
+    sr[0] = s / GasConstant;
+  }
+  //====================================================================================================================
+  // Get the nondimensional Gibbs functions for the species
+  // in their standard states at the current <I>T</I> and <I>P</I> of the solution.
+  /*
+   * @param grt  Output vector of nondimensional standard state gibbs free energies
+   *             Length: m_kk.
+   */
+  void  PureFluidPhase::getGibbs_RT(doublereal* grt) const {
+    doublereal rt = _RT();
+    doublereal g = gibbs_mole();
+    grt[0] = g / rt;
+  }
+  //====================================================================================================================
+  //  Returns the vector of nondimensional enthalpies of the reference state at the current temperature
+  //  of the solution and the reference pressure for the species.
+  /*
+   *  This base function will throw a CanteraException unless
+   *  it is overwritten in a derived class.
+   *
+   * @param hrt     Output vector containing the nondimensional reference state enthalpies
+   *                Length: m_kk.
+   */
+  void PureFluidPhase::getEnthalpy_RT_ref(doublereal *hrt) const {
+    double psave = pressure();
+    double t = temperature();
+    double pref = m_spthermo->refPressure();
+    Set(tpx::TP, t, pref);
+    getEnthalpy_RT(hrt);
+    Set(tpx::TP, t, psave);
+ 
+  }
+  //====================================================================================================================
+  //  Returns the vector of nondimensional Gibbs Free Energies of the reference state at the current temperature
+  //  of the solution and the reference pressure for the species.
+  /*
+   * @param grt     Output vector containing the nondimensional reference state 
+   *                Gibbs Free energies.  Length: m_kk.
+   */
+  void  PureFluidPhase::getGibbs_RT_ref(doublereal *grt) const {
+    double psave = pressure();
+    double t = temperature();
+    double pref = m_spthermo->refPressure();
+    Set(tpx::TP, t, pref);
+    getGibbs_RT(grt);
+    Set(tpx::TP, t, psave);
+  }
+  //====================================================================================================================
+  //  Returns the vector of nondimensional entropies of the reference state at the current temperature
+  //  of the solution and the reference pressure for each species.
+  /*!
+   * @param er      Output vector containing the nondimensional reference state 
+   *                entropies.  Length: m_kk.
+   */
+  void PureFluidPhase::getEntropy_R_ref(doublereal *er) const {
+
+  }
+  //====================================================================================================================
+
+  /// critical temperature 
+  doublereal PureFluidPhase::critTemperature() const { return m_sub->Tcrit(); }
         
-    /// critical pressure
-    doublereal PureFluidPhase::critPressure() const { return m_sub->Pcrit(); }
+  /// critical pressure
+  doublereal PureFluidPhase::critPressure() const { return m_sub->Pcrit(); }
         
-    /// critical density
-    doublereal PureFluidPhase::critDensity() const { return 1.0/m_sub->Vcrit(); }
+  /// critical density
+  doublereal PureFluidPhase::critDensity() const { return 1.0/m_sub->Vcrit(); }
         
         
-    /// saturation temperature
-    doublereal PureFluidPhase::satTemperature(doublereal p) const { 
-        try {
-            doublereal ts = m_sub->Tsat(p);
-            return ts;
-        }
-        catch(tpx::TPX_Error) {
-            reportTPXError();
-            return -1.0;
-        }
+  /// saturation temperature
+  doublereal PureFluidPhase::satTemperature(doublereal p) const { 
+    try {
+      doublereal ts = m_sub->Tsat(p);
+      return ts;
     }
-        
-    void PureFluidPhase::setState_HP(doublereal h, doublereal p, 
-        doublereal tol) {
-        Set(tpx::HP, h, p);
-        setState_TR(m_sub->Temp(), 1.0/m_sub->v());
-        check();
+    catch(tpx::TPX_Error) {
+      reportTPXError();
+      return -1.0;
     }
+  }
+        
+  void PureFluidPhase::setState_HP(doublereal h, doublereal p, 
+				   doublereal tol) {
+    Set(tpx::HP, h, p);
+    setState_TR(m_sub->Temp(), 1.0/m_sub->v());
+    check();
+  }
 
-    void PureFluidPhase::setState_UV(doublereal u, doublereal v, 
-        doublereal tol) {
-        Set(tpx::UV, u, v);
-        setState_TR(m_sub->Temp(), 1.0/m_sub->v());
-        check();
-    }
+  void PureFluidPhase::setState_UV(doublereal u, doublereal v, 
+				   doublereal tol) {
+    Set(tpx::UV, u, v);
+    setState_TR(m_sub->Temp(), 1.0/m_sub->v());
+    check();
+  }
 
-    void PureFluidPhase::setState_SV(doublereal s, doublereal v, 
-        doublereal tol) {
-        Set(tpx::SV, s, v);
-        setState_TR(m_sub->Temp(), 1.0/m_sub->v());
-        check();
-    }
+  void PureFluidPhase::setState_SV(doublereal s, doublereal v, 
+				   doublereal tol) {
+    Set(tpx::SV, s, v);
+    setState_TR(m_sub->Temp(), 1.0/m_sub->v());
+    check();
+  }
 
-    void PureFluidPhase::setState_SP(doublereal s, doublereal p, 
-        doublereal tol) {
-        Set(tpx::SP, s, p);
-        setState_TR(m_sub->Temp(), 1.0/m_sub->v());
-        check();
-    }
+  void PureFluidPhase::setState_SP(doublereal s, doublereal p, 
+				   doublereal tol) {
+    Set(tpx::SP, s, p);
+    setState_TR(m_sub->Temp(), 1.0/m_sub->v());
+    check();
+  }
 
-    /// saturation pressure
-    doublereal PureFluidPhase::satPressure(doublereal t) const {
-        doublereal vsv = m_sub->v();
-        try {
-            Set(tpx::TV,t,vsv);
-            doublereal ps = m_sub->Ps();
-            return ps;
-        }
-        catch(tpx::TPX_Error) {
-            reportTPXError();
-            return -1.0;
-        }
+  // saturation pressure
+  doublereal PureFluidPhase::satPressure(doublereal t) const {
+    doublereal vsv = m_sub->v();
+    try {
+      Set(tpx::TV,t,vsv);
+      doublereal ps = m_sub->Ps();
+      return ps;
     }
+    catch(tpx::TPX_Error) {
+      reportTPXError();
+      return -1.0;
+    }
+  }
         
-    doublereal PureFluidPhase::vaporFraction() const {
-        setTPXState();
-        doublereal x = m_sub->x();
-        check(x);
-        return x;
-    }
+  doublereal PureFluidPhase::vaporFraction() const {
+    setTPXState();
+    doublereal x = m_sub->x();
+    check(x);
+    return x;
+  }
         
-    void PureFluidPhase::setState_Tsat(doublereal t, doublereal x) {
-        setTemperature(t);
-        setTPXState();
-        Set(tpx::TX, t, x);
-        setDensity(1.0/m_sub->v());
-        check();
-    }
+  void PureFluidPhase::setState_Tsat(doublereal t, doublereal x) {
+    setTemperature(t);
+    setTPXState();
+    Set(tpx::TX, t, x);
+    setDensity(1.0/m_sub->v());
+    check();
+  }
 
-    void PureFluidPhase::setState_Psat(doublereal p, doublereal x) {
-        setTPXState();
-        Set(tpx::PX, p, x);
-        setTemperature(m_sub->Temp());
-        setDensity(1.0/m_sub->v());
-        check();
-    }
+  void PureFluidPhase::setState_Psat(doublereal p, doublereal x) {
+    setTPXState();
+    Set(tpx::PX, p, x);
+    setTemperature(m_sub->Temp());
+    setDensity(1.0/m_sub->v());
+    check();
+  }
 
 
   /**
@@ -435,7 +519,7 @@ namespace Cantera {
   void PureFluidPhase::reportCSV(std::ofstream& csvFile) const {
 
 
-   csvFile.precision(3);
+    csvFile.precision(3);
     int tabS = 15;
     int tabM = 30;
     int tabL = 40;
@@ -541,9 +625,9 @@ namespace Cantera {
       }
       csvFile << endl;
       /*
-      csvFile.fill('-');
-      csvFile << setw(tabS+(tabM+1)*pNames.size()) << "-\n";
-      csvFile.fill(' ');
+	csvFile.fill('-');
+	csvFile << setw(tabS+(tabM+1)*pNames.size()) << "-\n";
+	csvFile.fill(' ');
       */
       for (int k = 0; k < kk; k++) {
 	csvFile << setw(tabS) << speciesName(k) + ",";
