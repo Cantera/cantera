@@ -90,10 +90,12 @@ namespace tpx {
         void setStdState(double h0 = 0.0, double s0 = 0.0,
             double t0 = 298.15, double p0 = 1.01325e5) {
             Set(TP, t0, p0);
-            double hoff = h0 - h();
-            double soff = s0 - s();
-            m_entropy_offset = soff;
-            m_energy_offset = hoff;
+            double hh = h();
+            double ss = s();
+            double hoff = h0 - hh;
+            double soff = s0 - ss;
+            m_entropy_offset += soff;
+            m_energy_offset += hoff;
         }
 
         // information about a substance:
