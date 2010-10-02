@@ -616,12 +616,21 @@ namespace Cantera {
   static void installShomateThermoFromXML(std::string speciesName, SpeciesThermo& sp, int k, 
 					  const XML_Node* f0ptr, const XML_Node* f1ptr) {
     doublereal tmin0, tmax0, tmin1, tmax1, tmin, tmid, tmax;
-
     const XML_Node& f0 = *f0ptr;
     bool dualRange = false;
     if (f1ptr) {dualRange = true;}
     tmin0 = fpValue(f0["Tmin"]);
     tmax0 = fpValue(f0["Tmax"]);
+
+    doublereal p0 = OneAtm;
+    if (f0.hasAttrib("P0")) {
+      p0 = fpValue(f0["P0"]);
+    }
+    if (f0.hasAttrib("Pref")) {
+      p0 = fpValue(f0["Pref"]);
+    }
+    p0 = OneAtm;
+
     tmin1 = tmax0;
     tmax1 = tmin1 + 0.0001;
     if (dualRange) {
@@ -655,7 +664,6 @@ namespace Cantera {
     }
     array_fp c(15);
     c[0] = tmid;
-    doublereal p0 = OneAtm;
     copy(c0.begin(), c0.begin()+7, c.begin() + 1);
     copy(c1.begin(), c1.begin()+7, c.begin() + 8);
     sp.install(speciesName, k, SHOMATE, &c[0], tmin, tmax, p0);
