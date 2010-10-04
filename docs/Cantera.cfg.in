@@ -790,7 +790,9 @@ FILE_PATTERNS          = Kinetics.h  Kinetics.cpp \
                          AqueousTransport.h \
                          AqueousTransport.cpp \
                          WaterTransport.h \
-                         WaterTransport.cpp
+                         WaterTransport.cpp \
+                         DenseMatrix.h \
+                         DenseMatrix.cpp
 
 # The RECURSIVE tag can be used to turn specify whether or not subdirectories
 # should be searched for input files as well. Possible values are YES and NO.
