@@ -7,14 +7,24 @@
 #
 
 all: 
+	cd CO2_tester;     @MAKE@
+	cd CO2_fugacity;   @MAKE@
 
 depends:
+	cd CO2_tester;     @MAKE@ depends
+	cd CO2_fugacity;   @MAKE@ depends
 
 clean:
+	cd CO2_tester;     @MAKE@ clean
+	cd CO2_fugacity;   @MAKE@ clean
 
 test:
+	cd CO2_tester;     @MAKE@ test
+	cd CO2_fugacity;   @MAKE@ test
 
 rebaseline:
+	cd CO2_tester;      @MAKE@ rebaseline
+	cd CO2_fugacity;    @MAKE@ rebaselin
 
 
 
