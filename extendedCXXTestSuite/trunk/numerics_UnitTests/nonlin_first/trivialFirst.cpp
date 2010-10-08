@@ -59,7 +59,7 @@ public:
 			   const doublereal * const y,
 			   const doublereal * const ydot,
 			   doublereal * const resid,
-			   bool NJevaluation = false,
+			   ResidEval_Type_Enum evalType = Base_ResidEval,
 			   int id_x = 0,
 			   doublereal delta_x = 0.0)
   {

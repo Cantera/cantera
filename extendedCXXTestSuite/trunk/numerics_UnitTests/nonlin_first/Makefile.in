@@ -80,7 +80,7 @@ depends:
 $(PROGRAM).d: $(PROGRAM).cpp Makefile
 
 rebaseline:
-	cp output_0.txt output_0_blessed.txt
+	cp output_0.txt output_blessed.txt
 
 ############################################################################
 #  Section to set up dependence of objects on Makefiles
