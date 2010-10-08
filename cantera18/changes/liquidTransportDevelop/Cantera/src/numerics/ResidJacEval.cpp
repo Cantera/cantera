@@ -23,21 +23,14 @@
 using namespace std;
 
 namespace Cantera {
-
-  /*************************************************************************
-   *
-   *  ResidJacEval():
-   *
-   *  Default constructor for the ResidJacEval class. 
-   *
-   *  atol has a default of 1.0E-13.
-   */
+  //====================================================================================================================
+  
   ResidJacEval::ResidJacEval(doublereal atol) :
     ResidEval(),
     m_atol(atol)
   {
   }
-
+  //====================================================================================================================
   //   Copy Constructor for the %ResidJacEval object
   /*
    */
@@ -46,14 +39,11 @@ namespace Cantera {
   {
     *this = operator=(right);
   }
-
-  /*
-   *
-   */
+  //====================================================================================================================
   ResidJacEval::~ResidJacEval() 
   {
   }
-
+  //====================================================================================================================
   ResidJacEval& ResidJacEval::operator=(const ResidJacEval &right) {
     if (this == &right) {
       return *this;
@@ -66,9 +56,8 @@ namespace Cantera {
 
     return *this;
   }
-
-  // Duplication routine for objects which inherit from
-  // %ResidJacEval
+  //====================================================================================================================
+  // Duplication routine for objects which inherit from %ResidJacEval
   /*
    *  This virtual routine can be used to duplicate %ResidJacEval objects
    *  inherited from %ResidJacEval even if the application only has
@@ -81,16 +70,14 @@ namespace Cantera {
     ResidJacEval *ff = new ResidJacEval(*this);
     return ff;
   }
-
+  //====================================================================================================================
   int ResidJacEval::nEquations() const {
     return neq_;
   }
-
+  //====================================================================================================================
+  // Set a global value of the absolute tolerance
   /*
-   *
-   * setAtol():
-   *
-   * Set the absolute tolerance value
+   *  @param atol   Value of atol
    */
   void ResidJacEval::setAtol(doublereal atol)
   {
@@ -100,17 +87,17 @@ namespace Cantera {
 			 "atol must be greater than zero");
     }
   }
-
-  /**************************************************************************
+  //====================================================================================================================
+  //! Fill in the initial conditions
+  /*!
+   * Values for both the solution and the value of ydot may be provided.
    *
-   *
-   *
-   *       Fill the solution vector with the initial conditions
-   *       at initial time t0.
+   * @param t0            Time                    (input) 
+   * @param y             Solution vector (output)
+   * @param ydot          Rate of change of solution vector. (output)
    */
   void ResidJacEval::
-  getInitialConditionsDot(const doublereal t0, const size_t leny, 
-			  doublereal * const y, doublereal * const ydot) {
+  getInitialConditions(doublereal t0, doublereal * const y, doublereal * const ydot) {
     for (int i = 0; i < neq_; i++) {
       y[i] = 0.0;
     }
@@ -120,65 +107,75 @@ namespace Cantera {
       }
     }
   }
-
-  /**************************************************************************
+  //====================================================================================================================
+  // This function may be used to create output at various points in the execution of an application.
+  /*
    *
+   *  @param ifunc     identity of the call
+   *                          0  Initial call
+   *                          1  Called at the end of every successful time step
+   *                         -1  Called at the end of every unsuccessful time step
+   *                          2  Called at the end of every call to integrateRJE()
    *
-   *
-   * Fill the solution vector with the initial conditions
-   *       at initial time t0.
-   *
-   */
-  void ResidJacEval::
-  getInitialConditions(doublereal t0, 
-		       doublereal * const y, doublereal * const ydot) {
-    size_t leny = neq_;
-    getInitialConditionsDot(t0, leny, y, 0);
-  }
-
-  /**************************************************************************
-   *
-   * user_out():
-   *
-   * This function may be used to create output at various points in the
-   * execution of an application.
-   *
+   * @param t             Time                    (input) 
+   * @param delta_t       The current value of the time step (input)
+   * @param y             Solution vector (input, do not modify)
+   * @param ydot          Rate of change of solution vector. (input)
    */
   void ResidJacEval::
   user_out2(const int ifunc, const doublereal t, const doublereal deltaT,
 	    const doublereal *y, const doublereal *ydot) {
-
   }
 
+  //====================================================================================================================
+  // This function may be used to create output at various points in the execution of an application.
+  /*
+   *  This routine calls user_out2().
+   *
+   *  @param ifunc     identity of the call
+   * @param t             Time                    (input) 
+   * @param y             Solution vector (input, do not modify)
+   * @param ydot          Rate of change of solution vector. (input)
+   */
   void ResidJacEval::
   user_out(const int ifunc, const doublereal t,
 	   const doublereal *y, const doublereal *ydot) {
     user_out2(ifunc, t, 0.0, y, ydot);
   }
-
-  /**************************************************************************
+ //====================================================================================================================
+  //! Evaluate the time tracking equations, if any
+  /*!
+   * Evaluate time integrated quantities that are calculated at the
+   * end of every successful time step.  This call is made once at the end of every successful
+   * time step that advances the time. It's also made once at the start of the time stepping.
    *
-   *
+   * @param t             Time                    (input) 
+   * @param delta_t       The current value of the time step (input)
+   * @param y             Solution vector (input, do not modify)
+   * @param ydot          Rate of change of solution vector. (input, do not modify)
    */
   void ResidJacEval::
-  evalTimeTrackingEqns(const doublereal t, const doublereal deltaT,
-		       const doublereal *y, 
-		       const doublereal *ydot) {
-
+  evalTimeTrackingEqns(const doublereal t, const doublereal delta_t, const doublereal *y, 
+		       const doublereal *ydot)
+  {
   }
-
-  /********************************************************************
+  //====================================================================================================================
+  //  Return a vector of delta y's for calculation of the numerical Jacobian 
+  /*
+   *   There is a default algorithm provided. 
    *
+   *        delta_y[i] = atol[i] + 1.0E-6 ysoln[i]
+   *        delta_y[i] = atol[i] + MAX(1.0E-6 ysoln[i] * 0.01 * solnWeights[i])
    *
-   *
-   * Return a vector of delta y's for calculation of the
-   * numerical Jacobian
+   * @param t             Time                    (input) 
+   * @param y             Solution vector (input, do not modify)
+   * @param ydot          Rate of change of solution vector. (input, do not modify)
+   * @param delta_y       Value of the delta to be used in calculating the numerical jacobian
+   * @param solnWeights   Value of the solution weights that are used in determining convergence (default = 0)
    */
   void ResidJacEval::
-  calcDeltaSolnVariables(const doublereal t,
-			 const doublereal * const ySoln,
-			 const doublereal * const ySolnDot,
-			 doublereal * const deltaYSoln,
+  calcDeltaSolnVariables(const doublereal t, const doublereal * const ySoln,
+			 const doublereal * const ySolnDot, doublereal * const deltaYSoln,
 			 const doublereal *const solnWeights)
   {
     if (!solnWeights) {
@@ -192,95 +189,123 @@ namespace Cantera {
       }
     }
   }
-
-  /******************************************************************
+  //====================================================================================================================
+  //  Returns a vector of column scale factors that can be used to column scale Jacobians.
+  /*
+   *  Default to yScales[] = 1.0
    *
-   * calcSolnScales():
-   *
-   *  Returns a vector of ysolnScales[] that can be used to column scale
-   *  Jacobians.
+   * @param t             Time                    (input) 
+   * @param y             Solution vector (input, do not modify)
+   * @param y_old         Old Solution vector (input, do not modify)
+   * @param yScales       Value of the column scales
    */
   void ResidJacEval::
-  calcSolnScales(const doublereal t,
-		 const doublereal * const ysoln,
-		 const doublereal * const ysolnOld,
+  calcSolnScales(const doublereal t, const doublereal * const ysoln, const doublereal * const ysolnOld,
 		 doublereal * const ysolnScales)
   {
-    for (int i = 0; i < neq_; i++) {
-      ysolnScales[i] = 1.0;
+    if (ysolnScales[0] == 0.0) {
+      for (int i = 0; i < neq_; i++) {
+	ysolnScales[i] = 1.0;
+      }
     }
   }
-
-  void ResidJacEval::filterSolnPrediction(doublereal t,
-					  doublereal * const y) {
-
+  //====================================================================================================================
+  // Filter the solution predictions
+  /*
+   * Codes might provide a predicted solution vector. This routine filters the predicted
+   * solution vector.
+   *
+   * @param t             Time                    (input) 
+   * @param y             Solution vector (input, output)
+   */
+  void ResidJacEval::filterSolnPrediction(doublereal t, doublereal * const y)
+  {
   }
-
-  /**************************************************************************
+  //====================================================================================================================
+  // Evalulate any stopping criteria other than a final time limit
+  /*
+   *  If we are to stop the time integration for any reason other than reaching a final time limit, tout,
+   *  provide a test here. This call is made at the end of every succesful time step iteration
    *
-   *  evalStoppingCriteria()
+   *  @return    If true, the the time stepping is stopped. If false, then time stepping is stopped if t >= tout
+   *             Defaults to false.
    *
-   * If there is a stopping critera other than time set it here.
-   *
+   * @param t             Time                    (input) 
+   * @param delta_t       The current value of the time step (input)
+   * @param y             Solution vector (input, do not modify)
+   * @param ydot          Rate of change of solution vector. (input, do not modify)
    */
   bool ResidJacEval::
-  evalStoppingCritera(doublereal &time_current,
-		      doublereal &delta_t_n,
-		      doublereal *y_n, 
-		      doublereal *ydot_n)
+  evalStoppingCritera(const doublereal t,
+		      const doublereal delta_t,
+		      const doublereal * const y, 
+		      const doublereal * const ydot)
   {
     return false;
   }
-
-  /**************************************************************************
+  //====================================================================================================================
+  // Multiply the matrix by another matrix that leads to better conditioning
+  /*
+   *  Provide a left sided matrix that will multiply the current jacobian, after scaling 
+   *  and lead to a better conditioned system.
+   *  This routine is called just before the matrix is factored.
+   * 
+   *  Original Problem:
+   *        J delta_x = - Resid
    *
-   * matrixConditioning()
+   *  New problem:
+   *      M (J delta_x) = - M Resid
    *
-   * Multiply the matrix by the inverse of a matrix which lead to a 
-   * better conditioned system. The default, specified here, is to 
-   * do nothing.
+   *  @param    matrix     Pointer to the current jacobian (if zero, it's already been factored)
+   *  @param    nrows      offsets for the matrix
+   *  @param    rhs        residual vector. This also needs to be lhs multiplied by M
    */
   void ResidJacEval::
-  matrixConditioning(doublereal * const matrix, const int nrows,
-		     doublereal * const rhs)
+  matrixConditioning(doublereal * const matrix, const int nrows, doublereal * const rhs)
   {
   }
-
-  /**************************************************************************
-   *
-   */
+  //====================================================================================================================
+  // Evaluate the residual function
+  /*
+   * @param t             Time                    (input) 
+   * @param delta_t       The current value of the time step (input)
+   * @param y             Solution vector (input, do not modify)
+   * @param ydot          Rate of change of solution vector. (input, do not modify)
+   * @param resid         Value of the residual that is computed (output)
+   * @param evalType      Type of the residual being computed (defaults to Base_ResidEval)
+   * @param id_x          Index of the variable that is being numerically differenced to find
+   *                      the jacobian (defaults to -1, which indicates that no variable is being
+   *                      differenced or that the residual doesn't take this issue into account)
+   * @param delta_x       Value of the delta used in the numerical differencing
+   */ 
   void ResidJacEval::
-  evalResidNJ(doublereal t, const doublereal deltaT, 
-	      const doublereal * y,
-	      const doublereal * ydot,
-	      doublereal * resid,
-	      bool NJevaluation,
-	      int id_x, 
-	      doublereal delta_x) 
-  {
-    printf("Not implemented\n");
-    std::exit(-1);
+  evalResidNJ(const doublereal t, const doublereal deltaT,  const doublereal * y,
+	      const doublereal * ydot, doublereal * const resid, const ResidEval_Type_Enum evalType,
+	      const int id_x, const doublereal delta_x) 
+  {  
+    throw CanteraError("ResidJacEval::evalResidNJ()", "Not implemented\n");
   }
-
-  /**************************************************************************
+  //====================================================================================================================
+  // Calculate an analytical jacobian and the residual at the current time and values.
+  /*
+   *  Only called if the jacFormation method is set to analytical
    *
-   * evalJacobian() 
-   *
-   *  Calculate the jacobian and the residual at the current
-   *  time and values.
-   *  Backwards Euler is assumed.
+   * @param t             Time                    (input) 
+   * @param delta_t       The current value of the time step (input)
+   * @param y             Solution vector (input, do not modify)
+   * @param ydot          Rate of change of solution vector. (input, do not modify)
+   * @param J             Reference to the SquareMatrix object to be calculated (output)
+   * @param resid         Value of the residual that is computed (output)
    */
   void ResidJacEval::
-  evalJacobian(const doublereal t, const doublereal deltaT,
+  evalJacobian(const doublereal t, const doublereal delta_t,
 	       const doublereal * const y,
 	       const doublereal * const ydot,
 	       SquareMatrix &J,
 	       doublereal * const resid)
   {
-    printf("Not implemented\n");
-    std::exit(-1);
+    throw CanteraError("ResidJacEval::evalJacobian()", "Not implemented\n");
   }
-
+  //====================================================================================================================
 
 }
-
