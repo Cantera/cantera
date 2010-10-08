@@ -272,7 +272,7 @@ namespace Cantera {
     /*
      * Get the initial conditions.
      */
-    func.getInitialConditionsDot(m_t0, m_neq, m_y_n, m_ydot_n);
+    func.getInitialConditions(m_t0, m_y_n, m_ydot_n);
 
     // Store a pointer to the residual routine in the object
     m_func = &func;
@@ -672,7 +672,7 @@ namespace Cantera {
        * current conditions.
        */
  
-      m_func->evalResidNJ(time_curr, delta_t_n, y, ydot, f);
+      m_func->evalResidNJ(time_curr, delta_t_n, y, ydot, f, JacBase_ResidEval);
       m_nfe++;
       m_nJacEval++;
 
@@ -732,7 +732,7 @@ namespace Cantera {
 
 
 	m_func->evalResidNJ(time_curr, delta_t_n, y, ydot, m_wksp,
-			    true, j, dy);
+			    JacDelta_ResidEval, j, dy);
 	m_nfe++;
 	double diff;
 	for (i = 0; i < m_neq; i++) {
@@ -1669,7 +1669,7 @@ namespace Cantera {
     int irow, jcol;
  
     m_func->evalResidNJ(time_curr, delta_t_n, y_curr,
-			ydot_curr, delta_y);
+			ydot_curr, delta_y, Base_ResidEval);
     m_nfe++;
     int sz = m_func->nEquations();
     for (int n = 0; n < sz; n++) {

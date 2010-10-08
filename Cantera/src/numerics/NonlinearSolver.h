@@ -87,12 +87,18 @@ namespace Cantera {
      *  calculate the norm of the solution vector. This will
      *  involve the column scaling of the matrix
      *
-     *    The second argument has a default of false. However,
+     *    The third argument has a default of false. However,
      *    if true, then a table of the largest values is printed
      *    out to standard output.
+     *
+     *  @param delta_y       Vector to take the norm of
+     *  @param title         Optional title to be printed out
+     *  @param printLargest  int indicating how many specific lines should be printed out
+     *  @param dampFactor    Current value of the damping factor. Defaults to 1.
+     *                       only used for printout out a table.
      */
-    double solnErrorNorm(const double * const delta_y, 
-			 bool printLargest = false);
+    double solnErrorNorm(const double * const delta_y,  const char * title = 0, int printLargest = 0, 
+			 const double dampFactor = 1.0);
 
     //! L2 norm of the residual of the equation system
     /*!
@@ -102,33 +108,42 @@ namespace Cantera {
      *  The second argument has a default of false. However,
      *  if true, then a table of the largest values is printed
      *  out to standard output.
+     *
+     *  @param resid    Vector of the residuals
+     *  @param title    Optional title to be printed out
+     *  @param printLargest  Number of specific entries to be printed
+     *  @param y        Current value of y - only used for printouts
      */
-    double residErrorNorm(const double * const resid, 
-			    bool printLargest = false);
+    double residErrorNorm(const double * const resid, const char * title = 0, const int printLargest = 0,
+			  const double * const y = 0);
 
     //! Compute the current Residual
     /*!
      *   Compute the time dependent residual of 
      *   the set of equations.
      */
-    void doTDResidualCalc(const double time_curr, const int typeCalc,
-			  const double * const y_curr, 
-			const double * const ydot_curr, double* const residual,
-			int loglevel);
+    // void doTDResidualCalc(const double time_curr, const int typeCalc,
+    //			  const double * const y_curr, const double * const ydot_curr, int loglevel);
 
     //! Compute the current Residual
     /*!
      *   Compute the steady state residual of 
      *   the set of equations.
      */
-    void doSteadyResidualCalc(const double time_curr, const int typeCalc,
-			      const double * const y_curr, 
-			      double* const residual, int loglevel);
+    // void doSteadyResidualCalc(const double time_curr, const int typeCalc,
+    //		      const double * const y_curr,  int loglevel);
 
-    void doResidualCalc(const double time_curr, const int typeCalc, 
-			const double * const y_curr, 
-			const double * const ydot_curr, double* const residual,
-			int loglevel);
+    //! Compute the current residual
+    /*!
+     *  The current value of the residual is storred in the internal work array m_resid.
+     *
+     *  @param time_curr    Value of the time 
+     *  @param typeCalc     Type of the calculation
+     *  @param y_curr       Current value of the solution vector
+     *  @param ydot_curr    Current value of the time derivative of the solution vector
+     */
+    void doResidualCalc(const double time_curr, const int typeCalc, const double * const y_curr, 
+			const double * const ydot_curr);
 
     //! Compute the undamped Newton step
     /*!
@@ -316,6 +331,12 @@ namespace Cantera {
     //! Set the column scales
     void setColumnScales();
 
+    //! Scale the matrix
+    /*!
+     *
+     */
+    void scaleMatrix(SquareMatrix& jac, double* y_comm, double* ydot_comm, double time_curr);
+
 
     //! Print solution norm contribution
     void
@@ -328,6 +349,41 @@ namespace Cantera {
 				 const double * const y1,
 				 double damp,
 				 int num_entries);
+
+    //! Compute the Residual Weights
+    /*!
+     *  The residual weights are defined here to be equal to the inverse of the row scaling factors used to
+     *  row scale the matrix, after column scaling is used. They are multiplied by 10-3 because the column
+     *  weights are also multiplied by that same quantity.
+     *
+     *  The basic idea is that a change in the solution vector on the order of the convergence tolerance
+     *  multiplied by  [RJC] which is of order one after row scaling should give you the relative weight
+     *  of the row. Values of the residual for that row can then be normalized by the value of this weight.
+     *  When the tolerance in delta x is achieved, the tolerance in the residual is also achieved.
+     */
+    void computeResidWts();
+
+    //! Return the residual weights
+    /*!
+     *  @param residWts  Vector of length neq_
+     */
+    void  getResidWts(double * const residWts) const;
+
+
+    //! Check to see if the nonlinear problem has converged
+    /*!
+     *
+     * @return integer is returned. If positive, then the problem has converged
+     *           1 Successful step was taken: Next step's norm is less than 1.0.
+     *                                        The final residual norm is less than 1.0.
+     *           2 Successful step: Next step's norm is less than 0.8.
+     *                              This step's norm is less than 1.0.
+     *                              The residual norm can be anything.
+     *           3 Success:  The final residual is less than 1.0
+     *                        The predicted deltaSoln is below 1.0.
+     *           0 Not converged yet
+     */
+    int convergenceCheck(int dampCode, double s1);
 
  private:
 
@@ -347,9 +403,13 @@ namespace Cantera {
     //! Soln error weights
     std::vector<doublereal> m_ewt;
 
-    //! Boolean indicating whether a manual delta bounds has been input.
 
+
+
+
+    //! Boolean indicating whether a manual delta bounds has been input.
     int m_manualDeltaBoundsSet;
+
     //! Soln Delta bounds magnitudes
     std::vector<doublereal> m_deltaBoundsMagnitudes;
 
@@ -359,14 +419,54 @@ namespace Cantera {
 
     std::vector<doublereal> ydot_new;
 
-
+    //! Vector of column scaling factors
     std::vector<doublereal> m_colScales;
 
     //! Weights for normalizing the values of the residuals
-    
+    /*!
+     *  These are computed if row scaling, m_rowScaling, is turned on. They are calculated currently as the
+     *  sum of the absolute values of the rows of the jacobian.
+     */
     std::vector<doublereal> m_rowScales;
 
+
+    //! Value of the residual for the nonlinear problem
     std::vector<doublereal> m_resid;
+
+    //! Workspace of length neq_
+    std::vector<doublereal> m_wksp;
+
+    /*****************************************************************************************
+     *        INTERNAL WEIGHTS FOR TAKING SOLUTION NORMS
+     ******************************************************************************************/
+    //! Vector of residual weights
+    /*!
+     *   These are used to establish useful and informative weighted norms of the residual vector.
+     */
+    std::vector<doublereal> m_residWts;
+
+    //! Norm of the residual at the start of each nonlinear iteration
+    double m_normResid0;
+
+    //! Norm of the residual before damping
+    double m_normResidFRaw;
+
+    //! Norm of the solution update created by the iteration in its raw, undamped form.
+    double m_normSolnFRaw;
+
+    //! Norm of the residual for a trial calculation which may or may not be used
+    double m_normResidTrial;
+
+    //! Vector of the norm
+    double m_normResidPoints[15];
+
+    bool m_resid_scaled;
+
+
+    /*****************************************************************************************
+     *        INTERNAL BOUNDARY INFO FOR SOLUTIONS
+     *****************************************************************************************/
+
 
     //! Bounds vector for each species
     std::vector<doublereal> m_y_high_bounds;
@@ -374,13 +474,24 @@ namespace Cantera {
     //! Lower bounds vector for each species
     std::vector<doublereal> m_y_low_bounds;
 
+    //! Damping factor imposed by hard bounds and by delta bounds
+    double m_dampBound;
 
+    //! Additional damping factor due to bounds on the residual and solution norms
+    double m_dampRes;
+
+    //! Delta t for the current step
     double delta_t_n;
 
     //! Counter for the total number of function evaluations
     int m_nfe;
 
     //! The type of column scaled used in the solution of the problem
+    /*!
+     *    If true then colScaling = m_ewt[]
+     *    if false then colScaling = 1.0
+     *  Currently, this is not part of the interface
+     */
     bool m_colScaling;
 
     //! int indicating whether row scaling is turned on (1) or not (0)
@@ -417,11 +528,26 @@ namespace Cantera {
 
     doublereal rtol_;
 
+    //! Base value of the absolute tolerance
     doublereal atolBase_;
 
     double *  m_ydot_nm1;
 
     std::vector<doublereal> atolk_;
+
+    //! Determines the level of printing for each time step.
+    /*!
+     *   0 -> absolutely nothing is printed for a single time step.
+     *   1 -> One line summary per solve_nonlinear call
+     *   2 -> short description, points of interest: Table of nonlinear solve - one line per iteration
+     *   3 -> Table is included -> More printing per nonlinear iteration (default) that occurs during the table
+     *   4 -> Summaries of the nonlinear solve iteration as they are occurring -> table no longer printed
+     *   5 -> Algorithm information on the nonlinear iterates are printed out
+     *   6 -> Additional info on the nonlinear iterates are printed out
+     *   7 -> Additional info on the linear solve is printed out.
+     *   8 -> Info on a per iterate of the linear solve is printed out.
+     */
+    int m_print_flag;
   };
 
 }
