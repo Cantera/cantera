@@ -1702,5 +1702,19 @@ namespace Cantera {
     return retn;
   }
   //=====================================================================================================================
+  // Set the absolute tolerances for the solution variables
+  /*
+   *   Set the absolute tolerances used in the calculation
+   *
+   *  @param atol   Vector of length neq_ that contains the tolerances to be used for the solution variables
+   */
+  void NonlinearSolver::setAtol(const doublereal * const atol)
+  {
+    for (int i = 0; i < neq_; i++) {
+      atolk_[i]= atol[i];
+    }
+  }
+  //=====================================================================================================================
+  
 }
 

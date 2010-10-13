@@ -385,6 +385,15 @@ namespace Cantera {
      */
     int convergenceCheck(int dampCode, double s1);
 
+
+    //! Set the absolute tolerances for the solution variables
+    /*!
+     *   Set the absolute tolerances used in the calculation
+     *
+     *  @param atol   Vector of length neq_ that contains the tolerances to be used for the solution variables
+     */
+    void setAtol(const doublereal * const atol);
+
  private:
 
     //! Pointer to the residual and jacobian evaluator for the 
@@ -497,12 +506,16 @@ namespace Cantera {
     //! int indicating whether row scaling is turned on (1) or not (0)
     int m_rowScaling;
 
+    //! Total number of linear solves
     int m_numTotalLinearSolves;
 
+    //! Total number of newton iterations
     int m_numTotalNewtIts;
 
+    //! Minimum number of newton iterations to use
     int m_min_newt_its;
 
+    //! Boolean that turns on solution filtering
     int filterNewstep;
 
     //! Jacobian formation method
@@ -512,8 +525,8 @@ namespace Cantera {
      */
     int m_jacFormMethod;
 
+    //! Number of Jacobian evaluations
     int m_nJacEval;
- 
 
     //! Current system time
     /*!
