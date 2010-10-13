@@ -961,7 +961,12 @@ namespace Cantera {
 	 *  We aren't going to solve the system if we don't need to. Therefore, return an estimate
 	 *  of the next solution update based on the ratio of the residual reduction.
 	 */
-	s1 = s0 * m_normResidTrial / m_normResid0;
+	if (m_normResid0 > 0.0) {
+	  s1 = s0 * m_normResidTrial / m_normResid0;
+	}
+	else {
+	  s1 = 0;
+	}
 	if (m_normResidTrial < 1.0) {
 	  retnTrial = 3;
 	} else {
