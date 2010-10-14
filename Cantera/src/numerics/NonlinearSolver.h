@@ -79,7 +79,7 @@ namespace Cantera {
      *
      * param y  vector of the current solution values
      */
-    void createSolnWeights(const double * const y);
+    void createSolnWeights(const doublereal * const y);
 
 
     //!  L2 norm of the delta of the solution vector
@@ -97,8 +97,8 @@ namespace Cantera {
      *  @param dampFactor    Current value of the damping factor. Defaults to 1.
      *                       only used for printout out a table.
      */
-    double solnErrorNorm(const double * const delta_y,  const char * title = 0, int printLargest = 0, 
-			 const double dampFactor = 1.0);
+    doublereal solnErrorNorm(const doublereal * const delta_y,  const char * title = 0, int printLargest = 0, 
+			 const doublereal dampFactor = 1.0);
 
     //! L2 norm of the residual of the equation system
     /*!
@@ -114,8 +114,8 @@ namespace Cantera {
      *  @param printLargest  Number of specific entries to be printed
      *  @param y        Current value of y - only used for printouts
      */
-    double residErrorNorm(const double * const resid, const char * title = 0, const int printLargest = 0,
-			  const double * const y = 0);
+    doublereal residErrorNorm(const doublereal * const resid, const char * title = 0, const int printLargest = 0,
+			  const doublereal * const y = 0);
 
     //! Compute the current Residual
     /*!
@@ -142,8 +142,8 @@ namespace Cantera {
      *  @param y_curr       Current value of the solution vector
      *  @param ydot_curr    Current value of the time derivative of the solution vector
      */
-    void doResidualCalc(const double time_curr, const int typeCalc, const double * const y_curr, 
-			const double * const ydot_curr);
+    void doResidualCalc(const doublereal time_curr, const int typeCalc, const doublereal * const y_curr, 
+			const doublereal * const ydot_curr);
 
     //! Compute the undamped Newton step
     /*!
@@ -164,8 +164,8 @@ namespace Cantera {
      *  @param ydot_current   Current value of the solution derivative.
      *
      */ 
-    void doNewtonSolve(const double time_curr, const double * const y_curr, 
-		       const double * const ydot_curr, double* const delta_y,
+    void doNewtonSolve(const doublereal time_curr, const doublereal * const y_curr, 
+		       const doublereal * const ydot_curr, doublereal * const delta_y,
 		       SquareMatrix& jac, int loglevel);
 
 
@@ -182,7 +182,7 @@ namespace Cantera {
     /*!
      *  @param deltaboundsMagnitudes          
      */
-    void setDeltaBoundsMagnitudes(const double * const deltaBoundsMagnitudes);
+    void setDeltaBoundsMagnitudes(const doublereal * const deltaBoundsMagnitudes);
 
   
     //! Bound the step
@@ -211,7 +211,7 @@ namespace Cantera {
      *  Maximum decrease in variable in any one newton iteration:
      *   factor of 5
      */
-    double boundStep(const double* const  y, 
+    doublereal boundStep(const double* const  y, 
 		     const double* const step0,  const int loglevel);
 
 
@@ -221,8 +221,8 @@ namespace Cantera {
      *   @param y_low_bounds  Vector of lower bounds
      *   @param y_high_bounds Vector of high bounds
      */
-    void setBoundsConstraints(const double * const y_low_bounds,
-			      const double * const y_high_bounds);
+    void setBoundsConstraints(const doublereal * const y_low_bounds,
+			      const doublereal * const y_high_bounds);
 
    
     //!   Internal function to calculate the time derivative at the new step
@@ -231,7 +231,7 @@ namespace Cantera {
      *   @param   y_curr current value of the solution
      *   @param   ydot_curr  Calculated value of the solution derivative that is consistent with y_curr
      */ 
-    void calc_ydot(const int order, const double * const y_curr, double * const ydot_curr);
+    void calc_ydot(const int order, const doublereal * const y_curr, doublereal * const ydot_curr);
 
     //! Function called to evaluate the jacobian matrix and the curent
     //! residual vector.
@@ -239,9 +239,9 @@ namespace Cantera {
      *
      *
      */
-    void beuler_jac(SquareMatrix &J, double * const f,
-		    double time_curr, double CJ, double * const y,
-		    double * const ydot, int num_newt_its);
+    void beuler_jac(SquareMatrix &J, doublereal * const f,
+		    doublereal time_curr, doublereal CJ, doublereal * const y,
+		    doublereal * const ydot, int num_newt_its);
 
 
     //! Apply a filtering step
@@ -252,7 +252,7 @@ namespace Cantera {
      *
      *  @return Returns the norm of the value of the amount filtered
      */
-    double filterNewStep(const double timeCurrent, double * const y_current, double * const ydot_current);
+    doublereal filterNewStep(const doublereal timeCurrent, doublereal * const y_current, doublereal * const ydot_current);
   
   
     //! Return the factor by which the undamped Newton step 'step0'
@@ -272,7 +272,7 @@ namespace Cantera {
      *
      *  @return returns the damping factor
      */
-    double deltaBoundStep(const double * const y, const double * const step0, const int loglevel);
+    doublereal deltaBoundStep(const doublereal * const y, const doublereal * const step0, const int loglevel);
 			       
     //!  Find a damping coefficient through a look-ahead mechanism
     /*!
@@ -292,8 +292,8 @@ namespace Cantera {
      *    @param step0     Initial step suggested.
      *    @param y1        
      */
-    int dampStep(const double time_curr, const double* y0, 
-		 const double *ydot0, const double* step0, 
+    int dampStep(const doublereal time_curr, const double* y0, 
+		 const doublereal *ydot0, const double* step0, 
 		 double* const y1, double* const ydot1, double* step1,
 		 double& s1, SquareMatrix& jac, 
 		 int& loglevel, bool writetitle,
@@ -317,8 +317,8 @@ namespace Cantera {
      *            -1  Failed convergence
      */
     int solve_nonlinear_problem(int SolnType, double* y_comm,
-				double* ydot_comm, double CJ,
-				double time_curr, 
+				double* ydot_comm, doublereal CJ,
+				doublereal time_curr, 
 				SquareMatrix& jac,
 				int &num_newt_its,
 				int &num_linear_solves,
@@ -333,19 +333,19 @@ namespace Cantera {
     /*!
      *
      */
-    void scaleMatrix(SquareMatrix& jac, double* y_comm, double* ydot_comm, double time_curr);
+    void scaleMatrix(SquareMatrix& jac, double* y_comm, double* ydot_comm, doublereal time_curr);
 
 
     //! Print solution norm contribution
     void
-    print_solnDelta_norm_contrib(const double * const solnDelta0,
+    print_solnDelta_norm_contrib(const doublereal * const solnDelta0,
 				 const char * const s0,
-				 const double * const solnDelta1,
+				 const doublereal * const solnDelta1,
 				 const char * const s1,
 				 const char * const title,
-				 const double * const y0,
-				 const double * const y1,
-				 double damp,
+				 const doublereal * const y0,
+				 const doublereal * const y1,
+				 doublereal damp,
 				 int num_entries);
 
     //! Compute the Residual Weights
@@ -365,7 +365,7 @@ namespace Cantera {
     /*!
      *  @param residWts  Vector of length neq_
      */
-    void  getResidWts(double * const residWts) const;
+    void  getResidWts(doublereal * const residWts) const;
 
 
     //! Check to see if the nonlinear problem has converged
@@ -381,7 +381,7 @@ namespace Cantera {
      *                        The predicted deltaSoln is below 1.0.
      *           0 Not converged yet
      */
-    int convergenceCheck(int dampCode, double s1);
+    int convergenceCheck(int dampCode, doublereal s1);
 
 
     //! Set the absolute tolerances for the solution variables
@@ -392,6 +392,20 @@ namespace Cantera {
      */
     void setAtol(const doublereal * const atol);
 
+    //! Set the relative tolerances for the solution variables
+    /*!
+     *   Set the relative tolerances used in the calculation
+     *
+     *  @param rtol  single double
+     */
+    void setRtol(const doublereal rtol);
+
+    //! Set the value of the maximum # of newton iterations
+    /*!
+     *  @param maxNewtIts   Maximum number of newton iterations
+     */
+    void setMaxNewtIts(const int maxNewtIts);
+      
  private:
 
     //! Pointer to the residual and jacobian evaluator for the 
@@ -409,10 +423,6 @@ namespace Cantera {
   
     //! Soln error weights
     std::vector<doublereal> m_ewt;
-
-
-
-
 
     //! Boolean indicating whether a manual delta bounds has been input.
     int m_manualDeltaBoundsSet;
@@ -462,19 +472,19 @@ namespace Cantera {
     std::vector<doublereal> m_residWts;
 
     //! Norm of the residual at the start of each nonlinear iteration
-    double m_normResid0;
+    doublereal m_normResid0;
 
     //! Norm of the residual before damping
-    double m_normResidFRaw;
+    doublereal m_normResidFRaw;
 
     //! Norm of the solution update created by the iteration in its raw, undamped form.
-    double m_normSolnFRaw;
+    doublereal m_normSolnFRaw;
 
     //! Norm of the residual for a trial calculation which may or may not be used
-    double m_normResidTrial;
+    doublereal m_normResidTrial;
 
     //! Vector of the norm
-    double m_normResidPoints[15];
+    doublereal m_normResidPoints[15];
 
     bool m_resid_scaled;
 
@@ -491,13 +501,13 @@ namespace Cantera {
     std::vector<doublereal> m_y_low_bounds;
 
     //! Damping factor imposed by hard bounds and by delta bounds
-    double m_dampBound;
+    doublereal m_dampBound;
 
     //! Additional damping factor due to bounds on the residual and solution norms
-    double m_dampRes;
+    doublereal m_dampRes;
 
     //! Delta t for the current step
-    double delta_t_n;
+    doublereal delta_t_n;
 
     //! Counter for the total number of function evaluations
     int m_nfe;
@@ -525,6 +535,9 @@ namespace Cantera {
     //! Boolean that turns on solution filtering
     int filterNewstep;
 
+    //! Maximum number of newton iterations
+    int maxNewtIts_;
+
     //! Jacobian formation method
     /*!
      *   1 = numerical  (default)
@@ -540,18 +553,19 @@ namespace Cantera {
      *  Note, we assume even for steady state problems that the residual
      *  is a function of a system time. 
      */
-    double time_n;
+    doublereal time_n;
 
     int m_matrixConditioning;
 
     int m_order;
 
+    //! value of the relative tolerance to use in solving the equation set
     doublereal rtol_;
 
     //! Base value of the absolute tolerance
     doublereal atolBase_;
 
-    double *  m_ydot_nm1;
+    doublereal *  m_ydot_nm1;
 
     std::vector<doublereal> atolk_;
 

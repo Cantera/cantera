@@ -50,7 +50,7 @@ namespace Cantera {
   //                 Constants
   //-----------------------------------------------------------
 
-  const double DampFactor = 4;
+  const doublereal DampFactor = 4;
   const int NDAMP = 7;
  //====================================================================================================================
   //-----------------------------------------------------------
@@ -103,6 +103,7 @@ namespace Cantera {
     m_numTotalNewtIts(0),
     m_min_newt_its(0),
     filterNewstep(0),
+    maxNewtIts_(50),
     m_jacFormMethod(NSOLN_JAC_NUM),
     m_nJacEval(0),
     time_n(0.0),
@@ -171,6 +172,7 @@ namespace Cantera {
     m_numTotalNewtIts(0),
     m_min_newt_its(0),
     filterNewstep(0),
+    maxNewtIts_(50),
     m_jacFormMethod(NSOLN_JAC_NUM),
     m_nJacEval(0),
     time_n(0.0),
@@ -228,6 +230,7 @@ namespace Cantera {
     m_numTotalNewtIts          = right.m_numTotalNewtIts;
     m_min_newt_its             = right.m_min_newt_its;
     filterNewstep              = right.filterNewstep;
+    maxNewtIts_                = right.maxNewtIts_;
     m_jacFormMethod            = right.m_jacFormMethod;
     m_nJacEval                 = right.m_nJacEval;
     time_n                     = right.time_n;
@@ -252,7 +255,7 @@ namespace Cantera {
    *
    * param y  vector of the current solution values
    */
-  void NonlinearSolver::createSolnWeights(const double * const y) {
+  void NonlinearSolver::createSolnWeights(const doublereal * const y) {
     for (int i = 0; i < neq_; i++) {
       m_ewt[i] = rtol_ * fabs(y[i]) + atolk_[i];
     }
@@ -264,8 +267,8 @@ namespace Cantera {
    *   @param y_low_bounds  Vector of lower bounds
    *   @param y_high_bounds Vector of high bounds
    */
-  void NonlinearSolver::setBoundsConstraints(const double * const y_low_bounds,
-					     const double * const y_high_bounds) {
+  void NonlinearSolver::setBoundsConstraints(const doublereal * const y_low_bounds,
+					     const doublereal * const y_high_bounds) {
     for (int i = 0; i < neq_; i++) {
       m_y_low_bounds[i]  = y_low_bounds[i];
       m_y_high_bounds[i] = y_high_bounds[i];
@@ -287,11 +290,11 @@ namespace Cantera {
    *  @param dampFactor    Current value of the damping factor. Defaults to 1.
    *                       only used for printout out a table.
    */
-  double NonlinearSolver::solnErrorNorm(const double * const delta_y, const char * title, int printLargest,
-					const double dampFactor)
+  doublereal NonlinearSolver::solnErrorNorm(const doublereal * const delta_y, const char * title, int printLargest,
+					const doublereal dampFactor)
   {
     int  i;
-    double sum_norm = 0.0, error;
+    doublereal sum_norm = 0.0, error;
     for (i = 0; i < neq_; i++) {
       error     = delta_y[i] / m_ewt[i];
       sum_norm += (error * error);
@@ -322,7 +325,7 @@ namespace Cantera {
         }
         printf(" = %-11.4E\n", sum_norm);
 
-	double dmax1, normContrib;
+	doublereal dmax1, normContrib;
 	int j; 
 	int *imax = mdp::mdp_alloc_int_1(num_entries, -1);
         printf("\t\t   Printout of Largest Contributors:\n");
@@ -372,11 +375,11 @@ namespace Cantera {
    *  if true, then a table of the largest values is printed
    *  out to standard output.
    */
-  double NonlinearSolver::residErrorNorm(const double * const resid, const char * title, const int printLargest,
-					 const double * const y)
+  doublereal NonlinearSolver::residErrorNorm(const doublereal * const resid, const char * title, const int printLargest,
+					 const doublereal * const y)
   {
     int    i;
-    double sum_norm = 0.0, error;
+    doublereal sum_norm = 0.0, error;
     for (i = 0; i < neq_; i++) {
       error     = resid[i] / m_residWts[i];
       sum_norm += (error * error);
@@ -384,7 +387,7 @@ namespace Cantera {
     sum_norm = sqrt(sum_norm / neq_); 
     if (printLargest) {
       const int num_entries = printLargest;
-      double dmax1, normContrib;
+      doublereal dmax1, normContrib;
       int j;
       int *imax = mdp::mdp_alloc_int_1(num_entries, -1);
 
@@ -461,8 +464,8 @@ namespace Cantera {
    *  @param y_curr       Current value of the solution vector
    *  @param ydot_curr    Current value of the time derivative of the solution vector
    */
-  void NonlinearSolver::doResidualCalc(const double time_curr, const int typeCalc, const double * const y_curr, 
-				       const double * const ydot_curr)
+  void NonlinearSolver::doResidualCalc(const doublereal time_curr, const int typeCalc, const doublereal * const y_curr, 
+				       const doublereal * const ydot_curr)
   {
     m_func->evalResidNJ(time_curr, delta_t_n, y_curr, ydot_curr, DATA_PTR(m_resid), Base_ResidEval);
     m_nfe++;
@@ -482,7 +485,7 @@ namespace Cantera {
    *  recomputed. The row scales are recomputed here, after column
    *  scaling has been implemented.
    */ 
-  void NonlinearSolver::scaleMatrix(SquareMatrix& jac, double* y_comm,	double* ydot_comm, double time_curr)
+  void NonlinearSolver::scaleMatrix(SquareMatrix& jac, double* y_comm,	double* ydot_comm, doublereal time_curr)
   {	 
     int irow, jcol;
 
@@ -503,7 +506,7 @@ namespace Cantera {
 	/*
 	 * Scale the new Jacobian
 	 */
-	double *jptr = &(*(jac.begin()));
+	doublereal *jptr = &(*(jac.begin()));
 	for (jcol = 0; jcol < neq_; jcol++) {
 	  for (irow = 0; irow < neq_; irow++) {
 	    *jptr *= m_colScales[jcol];
@@ -523,9 +526,9 @@ namespace Cantera {
       /*
        * Ok, this is ugly. jac.begin() returns an vector<double> iterator
        * to the first data location.
-       * Then &(*()) reverts it to a double *.
+       * Then &(*()) reverts it to a doublereal *.
        */
-      double *jptr = &(*(jac.begin()));
+      doublereal *jptr = &(*(jac.begin()));
       for (irow = 0; irow < neq_; irow++) {
 	m_rowScales[irow] = 0.0;
 	m_rowWtScales[irow] = 0.0;
@@ -578,8 +581,8 @@ namespace Cantera {
    *  recomputed. The row scales are recomputed here, after column
    *  scaling has been implemented.
    */ 
-  void NonlinearSolver::doNewtonSolve(const double time_curr, const double * const y_curr, 
-				      const double * const ydot_curr,  double* const delta_y, SquareMatrix& jac, int loglevel)
+  void NonlinearSolver::doNewtonSolve(const doublereal time_curr, const doublereal * const y_curr, 
+				      const doublereal * const ydot_curr,  double* const delta_y, SquareMatrix& jac, int loglevel)
   {	 
     int irow;
 
@@ -618,9 +621,9 @@ namespace Cantera {
     if (printJacContributions) {
       for (int iNum = 0; iNum < numRows; iNum++) {
 	if (iNum > 0) focusRow++;
-	double dsum = 0.0;
+	doublereal dsum = 0.0;
 	vector_fp& Jdata = jacBack.data();
-	double dRow = Jdata[neq_ * focusRow + focusRow];
+	doublereal dRow = Jdata[neq_ * focusRow + focusRow];
 	printf("\n Details on delta_Y for row %d \n", focusRow);
 	printf("  Value before = %15.5e, delta = %15.5e,"
 	       "value after = %15.5e\n", y_curr[focusRow], 
@@ -639,8 +642,8 @@ namespace Cantera {
 	dsum +=  RRow[iNum] / dRow;
 	for (int ii = 0; ii < neq_; ii++) {
 	  if (ii != focusRow) {
-	    double aij =  Jdata[neq_ * ii + focusRow];
-	    double contrib = aij * delta_y[ii] * (-1.0) / dRow;
+	    doublereal aij =  Jdata[neq_ * ii + focusRow];
+	    doublereal contrib = aij * delta_y[ii] * (-1.0) / dRow;
 	    dsum += contrib;
 	    if (fabs(contrib) > Pcutoff) {
 	      printf("%6d  %15.5e  %15.5e  %15.5e\n", ii,
@@ -668,7 +671,7 @@ namespace Cantera {
     }
   }
   //====================================================================================================================
-  void  NonlinearSolver::setDeltaBoundsMagnitudes(const double * const deltaBoundsMagnitudes)
+  void  NonlinearSolver::setDeltaBoundsMagnitudes(const doublereal * const deltaBoundsMagnitudes)
   {
     
     for (int i = 0; i < neq_; i++) {
@@ -696,18 +699,18 @@ namespace Cantera {
    *  @return returns the damping factor
    */
   double
-  NonlinearSolver::deltaBoundStep(const double * const y, const double * const step0, const int loglevel)  {
+  NonlinearSolver::deltaBoundStep(const doublereal * const y, const doublereal * const step0, const int loglevel)  {
 			       
     int i_fbounds = 0;
     int ifbd = 0;
     int i_fbd = 0;
     
-    double sameSign = 0.0;
-    double ff;
-    double f_delta_bounds = 1.0;
-    double ff_alt;
+    doublereal sameSign = 0.0;
+    doublereal ff;
+    doublereal f_delta_bounds = 1.0;
+    doublereal ff_alt;
     for (int i = 0; i < neq_; i++) {
-      double y_new = y[i] + step0[i];
+      doublereal y_new = y[i] + step0[i];
       sameSign = y_new * y[i];
      
       /*
@@ -818,10 +821,10 @@ namespace Cantera {
    *  Maximum decrease in variable in any one newton iteration:
    *   factor of 5
    */
-  double NonlinearSolver::boundStep(const double * const y, const double * const step0, const int loglevel) {
+  doublereal NonlinearSolver::boundStep(const doublereal * const y, const doublereal * const step0, const int loglevel) {
     int i, i_lower = -1;
-    double fbound = 1.0, f_bounds = 1.0;
-    double ff, y_new;
+    doublereal fbound = 1.0, f_bounds = 1.0;
+    doublereal ff, y_new;
     
     for (i = 0; i < neq_; i++) {
       y_new = y[i] + step0[i];
@@ -830,7 +833,7 @@ namespace Cantera {
        */
       if (step0[i] < 0.0) {
 	if (y_new < (y[i] + 0.8 * (m_y_low_bounds[i] - y[i]))) {
-	  double legalDelta = 0.8*(m_y_low_bounds[i] - y[i]);
+	  doublereal legalDelta = 0.8*(m_y_low_bounds[i] - y[i]);
 	  ff = legalDelta / step0[i];
 	  if (ff < f_bounds) {
 	    f_bounds = ff;
@@ -843,7 +846,7 @@ namespace Cantera {
        */
       if (step0[i] > 0.0) {
 	if (y_new > (y[i] + 0.8 * (m_y_high_bounds[i] - y[i]))) {
-	  double legalDelta = 0.8*(m_y_high_bounds[i] - y[i]);
+	  doublereal legalDelta = 0.8*(m_y_high_bounds[i] - y[i]);
 	  ff = legalDelta / step0[i];
 	  if (ff < f_bounds) {
 	    f_bounds = ff;
@@ -864,7 +867,7 @@ namespace Cantera {
       }
     }
 
-    double f_delta_bounds = deltaBoundStep(y, step0, loglevel);
+    doublereal f_delta_bounds = deltaBoundStep(y, step0, loglevel);
     fbound = MIN(f_bounds, f_delta_bounds);
 
     return fbound;
@@ -886,23 +889,23 @@ namespace Cantera {
    *                                        s1 is calculated
    *           2 Successful step: Next step's norm is less than 0.8
    *           3 Success:  The final residual is less than 1.0
-   *                        A predicted deltaSoln is not produced however. s1 is estimated.
+   *                        A predicted deltaSoln1 is not produced however. s1 is estimated.
    *           4 Success:  The final residual is less than the residual
    *                       from the previous step.
-   *                        A predicted deltaSoln is not produced however. s1 is estimated.
+   *                        A predicted deltaSoln1 is not produced however. s1 is estimated.
    *           0 Uncertain Success: s1 is about the same as s0
    *          -2 Unsuccessful step.
    */
-  int NonlinearSolver::dampStep(const double time_curr, const double* y0, 
-				const double *ydot0, const double* step0, 
+  int NonlinearSolver::dampStep(const doublereal time_curr, const double* y0, 
+				const doublereal *ydot0, const double* step0, 
 				double* const y1, double* const ydot1, double* step1,
-				double& s1, SquareMatrix& jac, 
-				int& loglevel, bool writetitle,
-				int& num_backtracks) {
+				double& s1, SquareMatrix& jac, int& loglevel, bool writetitle,
+				int& num_backtracks) 
+  {
     
     int retnTrial = -2;
     // Compute the weighted norm of the undamped step size step0
-    double s0 = solnErrorNorm(step0);
+    doublereal s0 = solnErrorNorm(step0);
 
     // Compute the multiplier to keep all components in bounds
     // A value of one indicates that there is no limitation
@@ -927,7 +930,7 @@ namespace Cantera {
     // damping coefficient starts at 1.0
     m_dampRes = 1.0;
     int j, m;
-    double ff =  m_dampBound;
+    doublereal ff =  m_dampBound;
     num_backtracks = 0;
     for (m = 0; m < NDAMP; m++) {
 
@@ -947,6 +950,10 @@ namespace Cantera {
       } else {
 
       }
+      /*
+       *  Calculate the residual that would result if y1[] were the new solution vector
+       *  -> m_resid[] contains the result of the residual calculation
+       */
       if (solnType_ != NSOLN_TYPE_STEADY_STATE) {
 	doResidualCalc(time_curr, solnType_, y1, ydot1);
       } else {
@@ -988,8 +995,8 @@ namespace Cantera {
 	break;
       }
       
-      // compute the next undamped step, step1[], that would result 
-      // if y1[] were accepted.
+      // Compute the next undamped step, step1[], that would result  if y1[] were accepted.
+      //   We now have two steps that we have calculated step0[] and step1[]
       if (solnType_ != NSOLN_TYPE_STEADY_STATE) {
 	doNewtonSolve(time_curr, y1, ydot1, step1, jac, loglevel);
       } else {
@@ -1001,9 +1008,9 @@ namespace Cantera {
 
       // write log information
       if (loglevel > 3) {
-	print_solnDelta_norm_contrib((const double *) step0, 
+	print_solnDelta_norm_contrib((const doublereal *) step0, 
 				     "DeltaSoln",
-				     (const double *) step1,
+				     (const doublereal *) step1,
 				     "DeltaSolnTrial",
 				     "dampNewt: Important Entries for "
 				     "Weighted Soln Updates:",
@@ -1093,8 +1100,8 @@ namespace Cantera {
    * 
    */
   int NonlinearSolver::solve_nonlinear_problem(int SolnType, double* y_comm,
-					       double* ydot_comm, double CJ,
-					       double time_curr, 
+					       double* ydot_comm, doublereal CJ,
+					       doublereal time_curr, 
 					       SquareMatrix& jac,
 					       int &num_newt_its,
 					       int &num_linear_solves,
@@ -1108,7 +1115,7 @@ namespace Cantera {
     bool m_residCurrent = false;
     int m = 0;
     bool forceNewJac = false;
-    double s1=1.e30;
+    doublereal s1=1.e30;
 
     //  std::vector<doublereal> y_curr(neq_, 0.0); 
     std::vector<doublereal> ydot_curr(neq_, 0.0);
@@ -1256,7 +1263,7 @@ namespace Cantera {
       /*
        * Impose max newton iteration
        */
-      if (num_newt_its > 20) {
+      if (num_newt_its > maxNewtIts_) {
 	m = -1;
 	if (m_print_flag > 1) {
 	  printf("\t\tsolve_nonlinear_problem(): Damped newton unsuccessful (max newts exceeded) sfinal = %g\n", s1);
@@ -1355,7 +1362,7 @@ namespace Cantera {
  
     num_linear_solves += m_numTotalLinearSolves;
  
-    double time_elapsed =  wc.secondsWC();
+    doublereal time_elapsed =  wc.secondsWC();
     if (m_print_flag > 1) {
       if (m > 0) {
 	if (NonlinearSolver::m_TurnOffTiming) {
@@ -1375,18 +1382,18 @@ namespace Cantera {
    *
    */
   void NonlinearSolver::
-  print_solnDelta_norm_contrib(const double * const solnDelta0,
+  print_solnDelta_norm_contrib(const doublereal * const solnDelta0,
 			       const char * const s0,
-			       const double * const solnDelta1,
+			       const doublereal * const solnDelta1,
 			       const char * const s1,
 			       const char * const title,
-			       const double * const y0,
-			       const double * const y1,
-			       double damp,
+			       const doublereal * const y0,
+			       const doublereal * const y1,
+			       doublereal damp,
 			       int num_entries) {
     int i, j, jnum;
     bool used;
-    double dmax0, dmax1, error, rel_norm;
+    doublereal dmax0, dmax1, error, rel_norm;
     printf("\t\t%s currentDamp = %g\n", title, damp);
     printf("\t\t     I     ysolnOld %13s ysolnNewRaw | ysolnNewTrial "
 	   "%10s ysolnNewTrialRaw | solnWeight  wtDelSoln wtDelSolnTrial\n", s0, s1);
@@ -1442,11 +1449,11 @@ namespace Cantera {
    *         loss of convergence. Therefore, in practice this routine
    *         has proved cost-effective.
    */
-  static inline double subtractRD(double a, double b) {
-    double diff = a - b;
-    double d = MIN(fabs(a), fabs(b));
+  static inline doublereal subtractRD(doublereal a, doublereal b) {
+    doublereal diff = a - b;
+    doublereal d = MIN(fabs(a), fabs(b));
     d *= 1.0E-14;
-    double ad = fabs(diff);
+    doublereal ad = fabs(diff);
     if (ad < 1.0E-300) {
       diff = 0.0;
     }
@@ -1467,15 +1474,15 @@ namespace Cantera {
    *             not have to be computed again.
    *
    */
-  void NonlinearSolver::beuler_jac(SquareMatrix &J, double * const f,
-				   double time_curr, double CJ,
-				   double * const y,
-				   double * const ydot,
+  void NonlinearSolver::beuler_jac(SquareMatrix &J, doublereal * const f,
+				   doublereal time_curr, doublereal CJ,
+				   doublereal * const y,
+				   doublereal * const ydot,
 				   int num_newt_its)
   {
     int i, j;
     double* col_j;
-    double ysave, ydotsave, dy;
+    doublereal ysave, ydotsave, dy;
     /*
      * Clear the factor flag
      */
@@ -1486,7 +1493,7 @@ namespace Cantera {
        */
       m_func->evalJacobian(time_curr, delta_t_n, y, ydot, J, f);
 #ifdef DEBUG_HKM
-      //double dddd = J(89, 89);
+      //doublereal dddd = J(89, 89);
       //checkFinite(dddd);
 #endif
       m_nJacEval++;
@@ -1510,7 +1517,7 @@ namespace Cantera {
        * deltaY's that are appropriate for calculating the numerical
        * derivative.
        */
-      double *dyVector = mdp::mdp_alloc_dbl_1(neq_, MDP_DBL_NOINIT);
+      doublereal *dyVector = mdp::mdp_alloc_dbl_1(neq_, MDP_DBL_NOINIT);
       m_func->calcDeltaSolnVariables(time_curr, y, ydot, dyVector, DATA_PTR(m_ewt));
 
 
@@ -1546,7 +1553,7 @@ namespace Cantera {
          */
 
 
-        col_j = (double *) J.ptrColumn(j);
+        col_j = (doublereal *) J.ptrColumn(j);
         ysave = y[j];
         dy = dyVector[j];
         //dy = fmaxx(1.0E-6 * m_ewt[j], fabs(ysave)*1.0E-7);
@@ -1565,7 +1572,7 @@ namespace Cantera {
         m_func->evalResidNJ(time_curr, delta_t_n, y, ydot, DATA_PTR(m_wksp),
 			    JacDelta_ResidEval, j, dy);
         m_nfe++;
-        double diff;
+        doublereal diff;
         for (i = 0; i < neq_; i++) {
           diff = subtractRD(m_wksp[i], f[i]);
           col_j[i] = diff / dy;
@@ -1593,13 +1600,13 @@ namespace Cantera {
    *   @param   ydot_curr  Calculated value of the solution derivative that is consistent with y_curr
    */ 
   void NonlinearSolver::
-  calc_ydot(const int order, const double * const y_curr, double * const ydot_curr)
+  calc_ydot(const int order, const doublereal * const y_curr, doublereal * const ydot_curr)
   {
     if (!ydot_curr) {
       return;
     }
     int    i;
-    double c1;
+    doublereal c1;
     switch (order) {
     case 0:
     case 1:             /* First order forward Euler/backward Euler */
@@ -1626,7 +1633,7 @@ namespace Cantera {
    *
    *  @return Returns the norm of the value of the amount filtered
    */
-  double NonlinearSolver::filterNewStep(const double timeCurrent, double * const y_current, double *const ydot_current) {
+  doublereal NonlinearSolver::filterNewStep(const doublereal timeCurrent, doublereal * const y_current, doublereal *const ydot_current) {
     return 0.0;
   }
   //====================================================================================================================
@@ -1661,7 +1668,7 @@ namespace Cantera {
    *  @param residWts  Vector of length neq_
    */
   void
-  NonlinearSolver::getResidWts(double * const residWts) const
+  NonlinearSolver::getResidWts(doublereal * const residWts) const
   {
     for (int i = 0; i < neq_; i++) {
       residWts[i] = (m_residWts)[i];
@@ -1684,7 +1691,7 @@ namespace Cantera {
    *           0 Not converged yet
    */
   int
-  NonlinearSolver::convergenceCheck(int dampCode, double s1)
+  NonlinearSolver::convergenceCheck(int dampCode, doublereal s1)
   {
     int retn = 0;
     if (m_dampBound < 0.9999) {
@@ -1742,6 +1749,18 @@ namespace Cantera {
     for (int i = 0; i < neq_; i++) {
       atolk_[i]= atol[i];
     }
+  }
+
+  //=====================================================================================================================
+  // Set the relative tolerances for the solution variables
+  /*
+   *   Set the relative tolerances used in the calculation
+   *
+   *  @param rtol  single double
+   */
+  void NonlinearSolver::setRtol(const doublereal rtol)
+  {
+    rtol_ = rtol;
   }
   //=====================================================================================================================
   
