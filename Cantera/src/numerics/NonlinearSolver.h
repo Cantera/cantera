@@ -215,7 +215,7 @@ namespace Cantera {
 		     const double* const step0,  const int loglevel);
 
 
-    //! set bounds constraints for all variables in the problem
+    //! Set bounds constraints for all variables in the problem
     /*!
      *  
      *   @param y_low_bounds  Vector of lower bounds
@@ -224,12 +224,6 @@ namespace Cantera {
     void setBoundsConstraints(const double * const y_low_bounds,
 			      const double * const y_high_bounds);
 
-    /**
-     * Internal function to calculate the predicted solution
-     * at a time step.
-     */
-    void calc_y_pred(int);
-   
    
     //!   Internal function to calculate the time derivative at the new step
     /*!
@@ -316,7 +310,11 @@ namespace Cantera {
      * SolnType = TRANSIENT -> we will assume we are relaxing a transient
      *        equation system for now. Will make it more general later,
      *        if an application comes up.
-     * 
+     *
+     *
+     *
+     *   @return  A positive value indicates a successful convergence
+     *            -1  Failed convergence
      */
     int solve_nonlinear_problem(int SolnType, double* y_comm,
 				double* ydot_comm, double CJ,
@@ -437,6 +435,15 @@ namespace Cantera {
      *  sum of the absolute values of the rows of the jacobian.
      */
     std::vector<doublereal> m_rowScales;
+
+    //! Weights for normalizing the values of the residuals
+    /*!
+     *  These are computed if row scaling, m_rowScaling, is turned on. They are calculated currently as the
+     *  sum of the absolute values  jacobian multiplied by the solution weight function
+     */
+    std::vector<doublereal> m_rowWtScales;
+
+
 
 
     //! Value of the residual for the nonlinear problem
@@ -561,6 +568,13 @@ namespace Cantera {
      *   8 -> Info on a per iterate of the linear solve is printed out.
      */
     int m_print_flag;
+
+  public:
+    //! Turn off printing of time
+    /*!
+     *  Necessary to do for test suites
+     */
+    static bool m_TurnOffTiming;
   };
 
 }

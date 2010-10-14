@@ -63,6 +63,8 @@ namespace Cantera {
     }
     printf("\n");
   }
+
+  bool NonlinearSolver::m_TurnOffTiming(false);
  //====================================================================================================================
   // Default constructor
   /*
@@ -80,6 +82,7 @@ namespace Cantera {
     ydot_new(0),
     m_colScales(0),
     m_rowScales(0),
+    m_rowWtScales(0),
     m_resid(0),
     m_wksp(0),
     m_residWts(0),
@@ -120,6 +123,7 @@ namespace Cantera {
     ydot_new.resize(neq_, 0.0);
     m_colScales.resize(neq_, 1.0);
     m_rowScales.resize(neq_, 1.0);
+    m_rowWtScales.resize(neq_, 1.0);
     m_resid.resize(neq_, 0.0);
     m_wksp.resize(neq_, 0.0);
     m_residWts.resize(neq_, 0.0);
@@ -146,6 +150,7 @@ namespace Cantera {
     ydot_new(0),
     m_colScales(0),
     m_rowScales(0),
+    m_rowWtScales(0),
     m_resid(0),
     m_wksp(0),
     m_residWts(0),
@@ -202,6 +207,7 @@ namespace Cantera {
     ydot_new                   = right.ydot_new;
     m_colScales                = right.m_colScales;
     m_rowScales                = right.m_rowScales;
+    m_rowWtScales              = right.m_rowWtScales;
     m_resid                    = right.m_resid;
     m_wksp                     = right.m_wksp;
     m_residWts                 = right.m_residWts;
@@ -231,7 +237,7 @@ namespace Cantera {
     atolBase_                  = right.atolBase_;
     atolk_                     = right.atolk_;
     m_print_flag               = right.m_print_flag;
-
+  
     return *this;
   }
   //====================================================================================================================
@@ -522,16 +528,23 @@ namespace Cantera {
       double *jptr = &(*(jac.begin()));
       for (irow = 0; irow < neq_; irow++) {
 	m_rowScales[irow] = 0.0;
+	m_rowWtScales[irow] = 0.0;
       }
       for (jcol = 0; jcol < neq_; jcol++) {
 	for (irow = 0; irow < neq_; irow++) {
 	  m_rowScales[irow] += fabs(*jptr);
+	  if (m_colScaling) {
+	    m_rowWtScales[irow] += fabs(*jptr) * m_ewt[jcol] / m_colScales[jcol];
+	  } else {
+	    m_rowWtScales[irow] += fabs(*jptr) * m_ewt[jcol];
+	  }
 	  jptr++;
 	}
       }
 
       for (irow = 0; irow < neq_; irow++) {
 	m_rowScales[irow] = 1.0/m_rowScales[irow];
+	m_rowWtScales[irow] = 1.0/m_rowWtScales[irow];
       }
 
       if (m_rowScaling) {
@@ -1212,8 +1225,7 @@ namespace Cantera {
 	m_normSolnFRaw = solnErrorNorm(DATA_PTR(stp),  "Initial Undamped Step of the iteration", 10);
       } else {
 	m_normSolnFRaw = solnErrorNorm(DATA_PTR(stp), "Initial Undamped Step of the iteration", 0);
-      }
-      
+      } 
 	  
       // Damp the Newton step
       /*
@@ -1247,7 +1259,7 @@ namespace Cantera {
       if (num_newt_its > 20) {
 	m = -1;
 	if (m_print_flag > 1) {
-	  printf("\t\tDampnewton unsuccessful (max newts exceeded) sfinal = %g\n", s1);
+	  printf("\t\tsolve_nonlinear_problem(): Damped newton unsuccessful (max newts exceeded) sfinal = %g\n", s1);
 	}
       }
 
@@ -1346,9 +1358,13 @@ namespace Cantera {
     double time_elapsed =  wc.secondsWC();
     if (m_print_flag > 1) {
       if (m > 0) {
-	printf("\t\tNonlinear problem solved successfully in "
-	       "%d its, time elapsed = %g sec\n",
-	       num_newt_its, time_elapsed);
+	if (NonlinearSolver::m_TurnOffTiming) {
+	  printf("\t\tNonlinear problem solved successfully in %d its\n",
+		 num_newt_its);
+	} else {
+	  printf("\t\tNonlinear problem solved successfully in %d its, time elapsed = %g sec\n",
+		 num_newt_its, time_elapsed);
+	}
       }
     }
     return m;
@@ -1631,12 +1647,12 @@ namespace Cantera {
   {
     doublereal sum = 0.0;  
     for (int i = 0; i < neq_; i++) {
-      m_residWts[i] = 1.0 / m_rowScales[i];
+      m_residWts[i] = 1.0 / m_rowWtScales[i];
       sum += m_residWts[i];
     }
     sum /= neq_;
     for (int i = 0; i < neq_; i++) {
-      m_residWts[i] = rtol_ * m_residWts[i] +  atolBase_ * sum;
+      m_residWts[i] = m_residWts[i] +  atolBase_ * sum;
     }
   }
   //=====================================================================================================================
@@ -1663,8 +1679,8 @@ namespace Cantera {
    *           2 Successful step: Next step's norm is less than 0.8.
    *                              This step's norm is less than 1.0.
    *                              The residual norm can be anything.
-   *           3 Success:  The final residual is less than 1.0
-   *                        The predicted deltaSoln is below 1.0.
+   *           3 Success:  The final residual is less than 1.0E-2
+   *                        The predicted deltaSoln is below 1.0E-2.
    *           0 Not converged yet
    */
   int
@@ -1681,27 +1697,35 @@ namespace Cantera {
       return retn;
     }
     if (dampCode == 3) {
-      if (s1 < 1.0) {
-	if (m_normResidTrial < 1.0) {
+      if (s1 < 1.0E-2) {
+	if (m_normResidTrial < 1.0E-2) {
 	  return 3;
+	}
+      }
+      if (s1 < 0.8) {
+	if (m_normSolnFRaw < 1.0) {
+	  return 2;
 	}
       }
     }
     if (dampCode == 4) {
-      if (s1 < 1.0) {
-	if (m_normResidTrial < 1.0) {
+      if (s1 < 1.0E-2) {
+	if (m_normResidTrial < 1.0E-2) {
 	  return 3;
 	}
       }
     }
+
     if (s1 < 0.8) {
       if (m_normSolnFRaw < 1.0) {
 	return 2;
       }
     }
-    if (s1 < 1.0) {
-      if (m_normSolnFRaw < 1.0) {
-	return 1;
+    if (dampCode == 1 || dampCode == 2) {
+      if (s1 < 1.0) {
+	if (m_normResidTrial < 1.0) {
+	  return 1;
+	}
       }
     }
     return retn;
