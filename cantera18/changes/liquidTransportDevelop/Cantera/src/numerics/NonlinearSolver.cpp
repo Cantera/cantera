@@ -1174,7 +1174,7 @@ namespace Cantera {
 	setDefaultDeltaBoundsMagnitudes();
       }
 
-      if (m_print_flag > 1) {
+      if (m_print_flag > 3) {
 	printf("\tsolve_nonlinear_problem(): iteration %d:\n",
 	       num_newt_its);
       }
