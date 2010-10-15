@@ -184,8 +184,7 @@ namespace Cantera {
       }
     } else {
       for (int i = 0; i < neq_; i++) {
-	deltaYSoln[i] = m_atol +
-	  fmaxx(1.0E-2 * solnWeights[i], 1.0E-6 * fabs(ySoln[i]));
+	deltaYSoln[i] = fmaxx(1.0E-2 * solnWeights[i], 1.0E-6 * fabs(ySoln[i]));
       }
     }
   }
