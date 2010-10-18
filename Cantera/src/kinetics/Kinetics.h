@@ -509,18 +509,31 @@ namespace Cantera {
       err("getReactionDelta");
     }
 
-    /**
-     * Return the vector of values for the reaction gibbs free
-     * energy change.  These values depend upon the concentration
-     * of the solution.
+    //! Return the vector of values for the reaction gibbs free energy change. 
+    /*!
+     * These values depend upon the concentration of the solution.
      *
      *  units = J kmol-1
      *
      * @param deltaG  Output vector of  deltaG's for reactions
      *                Length: m_ii.
      */
-    virtual void getDeltaGibbs( doublereal* deltaG) {
+    virtual void getDeltaGibbs(doublereal* deltaG) {
       err("getDeltaGibbs");
+    }
+
+    //! Return the vector of values for the reaction electrochemical free energy change. 
+    /*!
+     * These values depend upon the concentration of the solution and
+     * the voltage of the phases
+     *
+     *  units = J kmol-1
+     *
+     * @param deltaM  Output vector of  deltaM's for reactions
+     *                Length: m_ii.
+     */
+    virtual void getDeltaElectrochemPotentials(doublereal* deltaM) {
+      err("getDeltaElectrochemPotentials");
     }
 
     /**
@@ -533,7 +546,7 @@ namespace Cantera {
      * @param deltaH  Output vector of deltaH's for reactions
      *                Length: m_ii.
      */
-    virtual void getDeltaEnthalpy( doublereal* deltaH) {
+    virtual void getDeltaEnthalpy(doublereal* deltaH) {
       err("getDeltaEnthalpy");
     }
 
@@ -547,7 +560,7 @@ namespace Cantera {
      * @param deltaS  Output vector of deltaS's for reactions
      *                Length: m_ii.
      */
-    virtual void getDeltaEntropy( doublereal* deltaS) {
+    virtual void getDeltaEntropy(doublereal* deltaS) {
       err("getDeltaEntropy");
     }
 
@@ -561,7 +574,7 @@ namespace Cantera {
      * @param deltaG  Output vector of ss deltaG's for reactions
      *                Length: m_ii.
      */
-    virtual void getDeltaSSGibbs( doublereal* deltaG) {
+    virtual void getDeltaSSGibbs(doublereal* deltaG) {
       err("getDeltaSSGibbs");
     }
 
@@ -575,7 +588,7 @@ namespace Cantera {
      * @param deltaH  Output vector of ss deltaH's for reactions
      *                Length: m_ii.
      */
-    virtual void getDeltaSSEnthalpy( doublereal* deltaH) {
+    virtual void getDeltaSSEnthalpy(doublereal* deltaH) {
       err("getDeltaSSEnthalpy");
     }
 
@@ -589,7 +602,7 @@ namespace Cantera {
      * @param deltaS  Output vector of ss deltaS's for reactions
      *                Length: m_ii.
      */
-    virtual void getDeltaSSEntropy( doublereal* deltaS) {
+    virtual void getDeltaSSEntropy(doublereal* deltaS) {
       err("getDeltaSSEntropy");
     }
 
