@@ -190,8 +190,28 @@ namespace Cantera {
 
     void getExchangeCurrentQuantities();
 
+    //! Return the vector of values for the reaction gibbs free energy change. 
+    /*!
+     * These values depend upon the concentration of the solution.
+     *
+     *  units = J kmol-1
+     *
+     * @param deltaG  Output vector of  deltaG's for reactions
+     *                Length: m_ii.
+     */
+    virtual void getDeltaGibbs(doublereal* deltaG);
 
-    virtual void getDeltaGibbs( doublereal* deltaG);
+    //! Return the vector of values for the reaction electrochemical free energy change. 
+    /*!
+     * These values depend upon the concentration of the solution and
+     * the voltage of the phases
+     *
+     *  units = J kmol-1
+     *
+     * @param deltaM  Output vector of  deltaM's for reactions
+     *                Length: m_ii.
+     */
+    virtual void getDeltaElectrochemPotentials(doublereal* deltaM);
 
     /**
      * Return the vector of values for the reactions change in
@@ -201,7 +221,7 @@ namespace Cantera {
      *
      *  units = J kmol-1
      */
-    virtual void getDeltaEnthalpy( doublereal* deltaH);
+    virtual void getDeltaEnthalpy(doublereal* deltaH);
       
     //! Return the vector of values for the change in
     //! entropy due to each reaction

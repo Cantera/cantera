@@ -780,8 +780,8 @@ namespace Cantera {
     m_kdata->m_ROP_ok = true;
   }
 
-
-  /**
+  //=================================================================================================
+  /*
    *
    * getDeltaGibbs():
    *
@@ -812,8 +812,35 @@ namespace Cantera {
      */
     m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_grt), deltaG);
   }
-    
-  /**
+  //=================================================================================================
+  // Return the vector of values for the reaction electrochemical free energy change. 
+  /*
+   * These values depend upon the concentration of the solution and
+   * the voltage of the phases
+   *
+   *  units = J kmol-1
+   *
+   * @param deltaM  Output vector of  deltaM's for reactions
+   *                Length: m_ii.
+   */
+  void InterfaceKinetics::getDeltaElectrochemPotentials(doublereal* deltaM) {
+    /*
+     * Get the chemical potentials of the species in the 
+     * ideal gas solution.
+     */
+    int np = nPhases();
+    int n;
+    for (n = 0; n < np; n++) {
+      thermo(n).getElectrochemPotentials(DATA_PTR(m_grt) + m_start[n]);
+    }
+    /*
+     * Use the stoichiometric manager to find deltaG for each
+     * reaction.
+     */
+    m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_grt), deltaM);
+  }
+  //=================================================================================================
+  /*
    *
    * getDeltaEnthalpy():
    * 
