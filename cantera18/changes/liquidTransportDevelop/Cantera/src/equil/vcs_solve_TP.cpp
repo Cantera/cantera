@@ -216,20 +216,20 @@ namespace VCSnonideal {
       if (m_VCS_UnitsFormat == VCS_UNITS_MKS) {
 	plogf(" Stan. Chem. Pot. in J/kmol\n");
       }
-      plogf("\n SPECIES       FORMULA VECTOR");
-      print_space(29);
-      plogf("   STAN_CHEM_POT   EQUILIBRIUM_EST.  Species_Type\n\n");
-      print_space(14);
-      for (i = 0; i < m_numElemConstraints; ++i) plogf(" %-2.2s", m_elementName[i].c_str());
-      plogf(" SI(I)\n");
+      plogf("\n SPECIES            FORMULA VECTOR   ");
+      print_space(41);
+      plogf("   STAN_CHEM_POT  EQUILIBRIUM_EST.  Species_Type\n\n");
+      print_space(20);
+      for (i = 0; i < m_numElemConstraints; ++i) plogf("%-4.4s    ", m_elementName[i].c_str());
+      plogf("   PhaseID\n");
       RT = vcs_nondimMult_TP(m_VCS_UnitsFormat, m_temperature);
       for (i = 0; i < m_numSpeciesTot; ++i) {
-	plogf(" %-12s", m_speciesName[i].c_str());
+	plogf(" %-18.18s", m_speciesName[i].c_str());
 	for (j = 0; j < m_numElemConstraints; ++j) {
-	  plogf("%3g", m_formulaMatrix[j][i]);
+	  plogf("% -7.3g ", m_formulaMatrix[j][i]);
 	}
-	plogf("%3d", m_phaseID[i]);
-	print_space(47-m_numElemConstraints*3);
+	plogf("  %3d  ", m_phaseID[i]);
+	print_space(55-m_numElemConstraints*8);
 	plogf("%12.5E  %12.5E", RT * m_SSfeSpecies[i], m_molNumSpecies_old[i]);
 	if (m_speciesUnknownType[i] == VCS_SPECIES_TYPE_MOLNUM) {
 	  plogf("       Mol_Num");
