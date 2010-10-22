@@ -158,22 +158,22 @@ VCS CALCULATION METHOD
  USER ESTIMATE OF EQUILIBRIUM
  Stan. Chem. Pot. in J/kmol
 
- SPECIES       FORMULA VECTOR                                STAN_CHEM_POT   EQUILIBRIUM_EST.  Species_Type
+ SPECIES            FORMULA VECTOR                                               STAN_CHEM_POT  EQUILIBRIUM_EST.  Species_Type
 
-               O  H  C  N  Na Cl cn Fe E  Si Ca SI(I)
- NaCl(S)       0  0  0  0  1  1  0  0  0  0  0  2              -4.32620E+08   5.00000E+00       Mol_Num
- N2            0  0  0  2  0  0  0  0  0  0  0  1              -5.71282E+07   4.00000E+00       Mol_Num
- H2O(L)        1  2  0  0  0  0  0  0 -0  0  0  0              -3.06686E+08   2.00000E+00       Mol_Num
- H+            0  1  0  0  0  0  1  0 -1  0  0  0               0.00000E+00   0.00000E+00       Mol_Num
- Na+           0  0  0  0  1  0  1  0 -1  0  0  0              -2.57752E+08   0.00000E+00       Mol_Num
- OH            1  1  0  0  0  0  0  0  0  0  0  1              -2.26793E+08   0.00000E+00       Mol_Num
- CO2           2  0  1  0  0  0  0  0  0  0  0  1              -4.57249E+08   0.00000E+00       Mol_Num
- H2            0  2  0  0  0  0  0  0  0  0  0  1              -3.89624E+07   0.00000E+00       Mol_Num
- H2O           1  2  0  0  0  0  0  0  0  0  0  1              -2.98124E+08   0.00000E+00       Mol_Num
- NaCl          0  0  0  0  1  1  0  0  0  0  0  1              -2.49904E+08   0.00000E+00       Mol_Num
- Cl-           0  0  0  0  0  1 -1  0  1  0  0  0              -1.83974E+08   0.00000E+00       Mol_Num
- O2            2  0  0  0  0  0  0  0  0  0  0  1              -6.11650E+07   0.00000E+00       Mol_Num
- OH-           1  1  0  0  0  0 -1  0  1  0  0  0              -2.26784E+08   0.00000E+00       Mol_Num
+                    O       H       C       N       Na      Cl      cn_N    Fe      E       Si      Ca         PhaseID
+ NaCl(S)            0       0       0       0       1       1       0       0       0       0       0          2  -4.32620E+08   5.00000E+00       Mol_Num
+ N2                 0       0       0       2       0       0       0       0       0       0       0          1  -5.71282E+07   4.00000E+00       Mol_Num
+ H2O(L)             1       2       0       0       0       0       0       0      -0       0       0          0  -3.06686E+08   2.00000E+00       Mol_Num
+ H+                 0       1       0       0       0       0       1       0      -1       0       0          0   0.00000E+00   0.00000E+00       Mol_Num
+ Na+                0       0       0       0       1       0       1       0      -1       0       0          0  -2.57752E+08   0.00000E+00       Mol_Num
+ OH                 1       1       0       0       0       0       0       0       0       0       0          1  -2.26793E+08   0.00000E+00       Mol_Num
+ CO2                2       0       1       0       0       0       0       0       0       0       0          1  -4.57249E+08   0.00000E+00       Mol_Num
+ H2                 0       2       0       0       0       0       0       0       0       0       0          1  -3.89624E+07   0.00000E+00       Mol_Num
+ H2O                1       2       0       0       0       0       0       0       0       0       0          1  -2.98124E+08   0.00000E+00       Mol_Num
+ NaCl               0       0       0       0       1       1       0       0       0       0       0          1  -2.49904E+08   0.00000E+00       Mol_Num
+ Cl-                0       0       0       0       0       1      -1       0       1       0       0          0  -1.83974E+08   0.00000E+00       Mol_Num
+ O2                 2       0       0       0       0       0       0       0       0       0       0          1  -6.11650E+07   0.00000E+00       Mol_Num
+ OH-                1       1       0       0       0       0      -1       0       1       0       0          0  -2.26784E+08   0.00000E+00       Mol_Num
 
 
 
