@@ -306,6 +306,33 @@ namespace VCSnonideal {
 	     *          added back into the component species. 
 	     */
 	    if (dss != 0.0) {
+	      
+	      if ((k == kspec) && (m_SSPhase[kspec] != 1)) {
+		/*
+		 *  Found out that we can be in this spot, when components of multispecies phases
+		 *  are zeroed, leaving noncomponent species of the same phase having all of the
+		 *  mole numbers of that phases. it seems that we can suggest a zero of the species
+		 *  and the code will recover.
+		 */
+#ifdef DEBUG_MODE
+		  sprintf(ANOTE, "Delta damped from %g to %g due to delete %s", 
+			  m_deltaMolNumSpecies[kspec],
+			  -m_molNumSpecies_old[kspec],  m_speciesName[kspec].c_str());
+#endif
+		  m_deltaMolNumSpecies[kspec] = -m_molNumSpecies_old[kspec];
+#ifdef DEBUG_MODE
+		  if (m_debug_print_lvl >= 2) {
+		    plogf("   --- %-12.12s", m_speciesName[kspec].c_str());
+		    plogf("  %12.4E %12.4E %12.4E | %s\n", 
+			  m_molNumSpecies_old[kspec], m_deltaMolNumSpecies[kspec],
+			  m_deltaGRxn_new[irxn], ANOTE);
+		  }
+#endif	
+		  continue;
+	      }
+	      /*
+	       * Delete the single species phase
+	       */
 	      m_molNumSpecies_old[kspec] += dss;
 	      m_tPhaseMoles_old[m_phaseID[kspec]] += dss;
 	      for (j = 0; j < m_numComponents; ++j) {
