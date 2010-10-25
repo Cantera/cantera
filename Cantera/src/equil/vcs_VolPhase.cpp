@@ -539,7 +539,16 @@ namespace VCSnonideal {
 	m_existence = VCS_PHASE_EXIST_NO;
       }
     }
+    double fractotal = 1.0;
     v_totalMoles = totalMoles;
+    if (m_totalMolesInert > 0.0) {
+      if (m_totalMolesInert > v_totalMoles) {
+	printf("vcs_VolPhase::setMolesFractionsState: inerts greater than total: %g %g\n",
+	       v_totalMoles,  m_totalMolesInert);
+	exit(EXIT_FAILURE);
+      }
+      fractotal = 1.0 - m_totalMolesInert/v_totalMoles;
+    }
     double sum = 0.0;
     for (int k = 0; k < m_numSpecies; k++) {
       Xmol_[k] = moleFractions[k];
@@ -549,9 +558,9 @@ namespace VCSnonideal {
       printf("vcs_VolPhase::setMolesFractionsState: inappropriate usage\n");
       exit(EXIT_FAILURE);
     }
-    if (sum  != 1.0) {
+    if (sum  != fractotal) {
       for (int k = 0; k < m_numSpecies; k++) {
-	Xmol_[k] /= sum;
+	Xmol_[k] *= (fractotal /sum);
       }
     }
     _updateMoleFractionDependencies();

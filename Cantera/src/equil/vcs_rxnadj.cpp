@@ -43,8 +43,9 @@ namespace VCSnonideal {
    *                   in this routine. The species is a noncomponent 
    *            -  2 : Same as one but, the zeroed species is a component. 
    */
-  int VCS_SOLVE::vcs_RxnStepSizes() {
-    int  j, irxn, kspec, soldel = 0, iph;
+  int VCS_SOLVE::vcs_RxnStepSizes(int & forceComponentCalc, int &kSpecial) {
+    int  j, irxn, kspec,  iph;
+    int iphDel = -1;
     double s, xx, dss;
     int k = 0;
     vcs_VolPhase *Vphase = 0;
@@ -315,24 +316,25 @@ namespace VCSnonideal {
 		 *  and the code will recover.
 		 */
 #ifdef DEBUG_MODE
-		  sprintf(ANOTE, "Delta damped from %g to %g due to delete %s", 
-			  m_deltaMolNumSpecies[kspec],
-			  -m_molNumSpecies_old[kspec],  m_speciesName[kspec].c_str());
+		sprintf(ANOTE, "Delta damped from %g to %g due to delete %s", 
+			m_deltaMolNumSpecies[kspec],
+			-m_molNumSpecies_old[kspec],  m_speciesName[kspec].c_str());
 #endif
-		  m_deltaMolNumSpecies[kspec] = -m_molNumSpecies_old[kspec];
+		m_deltaMolNumSpecies[kspec] = -m_molNumSpecies_old[kspec];
 #ifdef DEBUG_MODE
-		  if (m_debug_print_lvl >= 2) {
-		    plogf("   --- %-12.12s", m_speciesName[kspec].c_str());
-		    plogf("  %12.4E %12.4E %12.4E | %s\n", 
-			  m_molNumSpecies_old[kspec], m_deltaMolNumSpecies[kspec],
-			  m_deltaGRxn_new[irxn], ANOTE);
-		  }
+		if (m_debug_print_lvl >= 2) {
+		  plogf("   --- %-12.12s", m_speciesName[kspec].c_str());
+		  plogf("  %12.4E %12.4E %12.4E | %s\n", 
+			m_molNumSpecies_old[kspec], m_deltaMolNumSpecies[kspec],
+			m_deltaGRxn_new[irxn], ANOTE);
+		}
 #endif	
-		  continue;
+		continue;
 	      }
 	      /*
 	       * Delete the single species phase
 	       */
+#ifdef OLDSTUFF
 	      m_molNumSpecies_old[kspec] += dss;
 	      m_tPhaseMoles_old[m_phaseID[kspec]] += dss;
 	      for (j = 0; j < m_numComponents; ++j) {
@@ -351,29 +353,53 @@ namespace VCSnonideal {
 		  exit(EXIT_FAILURE);
 		}
 	      }
+#else 
+	      
+	      for (j = 0; j < m_numSpeciesTot; j++) {
+		m_deltaMolNumSpecies[j] = 0.0;
+	      }
+	      m_deltaMolNumSpecies[kspec] = dss;
+	      for (j = 0; j < m_numComponents; ++j) {
+		m_deltaMolNumSpecies[j] = dss * m_stoichCoeffRxnMatrix[irxn][j];
+	      }
+
+	      iphDel = m_phaseID[k];
+	      kSpecial = k;
+
 #ifdef DEBUG_MODE
+	      if (k != kspec) {
+		sprintf(ANOTE, "Delete component SS phase %d named %s - SS phases only", 
+			iphDel,  m_speciesName[k].c_str());
+	      } else {
+		sprintf(ANOTE, "Delete this SS phase %d - SS components only", iphDel);
+	      }
 	      if (m_debug_print_lvl >= 2) {
-		plogf("   --- vcs_RxnStepSizes Special section to delete %s",
+		plogf("   --- %-12.12s", m_speciesName[kspec].c_str());
+		plogf("  %12.4E %12.4E %12.4E | %s\n", 
+		      m_molNumSpecies_old[kspec], m_deltaMolNumSpecies[kspec],
+		      m_deltaGRxn_new[irxn], ANOTE);
+		plogf("   --- vcs_RxnStepSizes Special section to set up to delete %s",
 		      m_speciesName[k].c_str());
 		plogendl();
 	      }
+
 #endif
-	      /*
-	       *            We need to immediately recompute the 
-	       *            component basis, because we just zeroed 
-	       *            it out. 
-	       */
-	      soldel = 1;
 	      if (k != kspec) {
-		soldel = 2;
+		forceComponentCalc = 1;
 #ifdef DEBUG_MODE
 		if (m_debug_print_lvl >= 2) {
-		  plogf("   ---   Immediate return to get new basis - Restart iteration\n");
+		  plogf("   ---   Force a component recalculation \n");
 		  plogendl();
 		}
 #endif
-		return soldel;
 	      }
+#ifdef DEBUG_MODE
+	      if (m_debug_print_lvl >= 2) {
+		plogf("   "); vcs_print_line("-", 82);
+	      }
+#endif
+	      return iphDel;
+#endif
 	    }
 	  }
 	} /* End of regular processing */
@@ -392,13 +418,12 @@ namespace VCSnonideal {
       plogf("   "); vcs_print_line("-", 82);
     }
 #endif
-    return soldel;
+    return iphDel;
   }
-  /*****************************************************************************/
-
-
-  //!  Calculates reaction adjustments using a full Hessian approximation
-  /*!
+ 
+  //====================================================================================================================
+  //  Calculates reaction adjustments using a full Hessian approximation
+  /*
    *  Calculates reaction adjustments. This does what equation 6.4-16, p. 143
    * in Smith and Missen is suppose to do. However, a full matrix is
    * formed and then solved via a conjugate gradient algorithm. No
@@ -613,8 +638,8 @@ namespace VCSnonideal {
 #endif
     return soldel;
   }
-  /*****************************************************************************/
  
+  //====================================================================================================================
   //  Calculates the diagonal contribution to the Hessian due to 
   //  the dependence of the activity coefficients on the mole numbers.
   /*
@@ -642,8 +667,8 @@ namespace VCSnonideal {
     }
     return diag;
   }
-  /*****************************************************************************/
 
+  //====================================================================================================================
   //! Calculates the diagonal contribution to the Hessian due to 
   //!  the dependence of the activity coefficients on the mole numbers.
   /*!
@@ -680,8 +705,7 @@ namespace VCSnonideal {
     }
     return s;
   }
-  /*****************************************************************************/
- 
+  //====================================================================================================================
   // Recalculate all of the activity coefficients in all of the phases
   // based on input mole numbers
   /*
