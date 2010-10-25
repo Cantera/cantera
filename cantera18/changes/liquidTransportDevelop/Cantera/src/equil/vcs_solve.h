@@ -549,13 +549,13 @@ public:
    * Special branching occurs sometimes. This causes the component basis 
    * to be reevaluated 
    *
-   * @return  Returns an int representing the status of the step
-   *            -  0 : normal return
-   *            -  1 : A single species phase species has been zeroed out
-   *                   in this routine. The species is a noncomponent 
-   *            -  2 : Same as one but, the zeroed species is a component. 
+   * @param forceComponentRecalc  integer flagging whether a component recalculation needs 
+   *                              to be carried out.
+   * @param kSpecial              species number of phase being zeroed.
+   *
+   * @return  Returns an int representing which phase may need to be zeroed
    */
-  int vcs_RxnStepSizes();
+  int vcs_RxnStepSizes(int & forceComponentCalc, int & kSpecial);
 
   //!  Calculates the total number of moles of species in all phases.
   /*!
