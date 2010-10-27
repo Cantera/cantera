@@ -76,9 +76,11 @@ namespace Cantera {
    *
    * <b> Instanteation of the Class </b>
    *
-   * The constructor for this phase is located in the default ThermoFactory
-   * for %Cantera. A new %FixedChemPotSSTP may be created by a standalone xml file 
-   * which is given below.
+   * This phase may be instanteated by calling the default ThermoFactory routine
+   * for %Cantera. This new %FixedChemPotSSTP object must then have a standalone xml file 
+   * description an example of which is given below.
+   *
+   *
    *
    * It may also be created by the following code snippets. The code
    * includes the special member function setChemicalPotential( chempot), which
@@ -101,13 +103,19 @@ namespace Cantera {
    *    importPhase(*xm, &solid);
    * @endcode
    *
+   * The phase may also be created by a special constructor so that element 
+   * potentials may be set. The constructor takes the name of the element and
+   * the value of the element chemical potential. An example is given below.
+   *
+   * @code
+   *     FixedChemPotSSTP *LiFixed = new FixedChemPotSSTP("Li", -2.3E7); 
+   * @endcode
+   *
    *   <b> XML Example </b>
    *
-   * The phase model name for this is called StoichSubstance. It must be supplied
+   * The phase model name for this is called FixedChemPot. It must be supplied
    * as the model attribute of the thermo XML element entry.
-   * Within the phase XML block,
-   * the density of the phase must be specified. An example of an XML file
-   * this phase is given below. 
+   *
    * 
    * @verbatim
    <?xml version="1.0"?>
@@ -182,6 +190,18 @@ namespace Cantera {
      * @param right Object to be copied
      */
     FixedChemPotSSTP(const FixedChemPotSSTP  &right);
+
+    //! Special constructor for the FixecChemPotSSTP class setting an element chemical
+    //! potential directly
+    /*!
+     *  This will create a %FixedChemPotSSTP consisting of a single species with the
+     *  stoichiometry of one of the specified atom. It will have a chemical potential
+     *  that is given by the second argument.
+     *
+     *  @param Ename String name of the element
+     *  @param chemPot  Value of the chemical potential of that element (J/kmol)
+     */
+    FixedChemPotSSTP(std::string Ename, doublereal chemPot);
     
     //! Assignment operator
     /*!
@@ -619,8 +639,11 @@ namespace Cantera {
 
   protected:
 
-
-    double chemPot_;
+    //!  Value of the chemical potential of the bath species
+    /*!
+     *  units are J/kmol
+     */
+    doublereal chemPot_;
 
   };
  
