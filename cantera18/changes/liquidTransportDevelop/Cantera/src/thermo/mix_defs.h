@@ -55,6 +55,9 @@ namespace Cantera {
   /// An edge between two 2D surfaces    
   const int cEdge = 6;
 
+  //! Stoichiometric compound with a constant chemical potential
+  const int cFixedChemPot = 70;
+
   /// Constant partial molar volume solution IdealSolidSolnPhase.h
   const int cIdealSolidSolnPhase = 5009;
 

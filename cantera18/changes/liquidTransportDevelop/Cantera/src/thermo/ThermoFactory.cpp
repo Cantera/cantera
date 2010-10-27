@@ -51,7 +51,6 @@
 #ifdef WITH_STOICH_SUBSTANCE
 #ifdef USE_SSTP
 #include "StoichSubstanceSSTP.h"
-
 #else
 #include "StoichSubstance.h"
 #endif
@@ -60,6 +59,7 @@
 #ifdef WITH_STOICH_SUBSTANCE
 #include "MineralEQ3.h"
 #include "MetalSHEelectrons.h"
+#include "FixedChemPotSSTP.h"
 #endif
 
 //#include "importCTML.h"
@@ -91,7 +91,7 @@ namespace Cantera {
     /*!
      *  @deprecated This entire structure could be replaced with a std::map
      */
-    static int ntypes = 18;
+    static int ntypes = 19;
 
     //! Define the string name of the %ThermoPhase types that are handled by this factory routine
     static string _types[] = {"IdealGas", "Incompressible", 
@@ -100,7 +100,7 @@ namespace Cantera {
                               "HMW", "IdealSolidSolution", "DebyeHuckel", 
                               "IdealMolalSolution", "IdealGasVPSS",
 			      "MineralEQ3", "MetalSHEelectrons", "Margules",
-                              "IonsFromNeutralMolecule"
+                              "IonsFromNeutralMolecule", "FixedChemPot"
     };
 
     //! Define the integer id of the %ThermoPhase types that are handled by this factory routine
@@ -110,7 +110,7 @@ namespace Cantera {
                               cHMW, cIdealSolidSolnPhase, cDebyeHuckel,
                               cIdealMolalSoln, cVPSS_IdealGas,
 			      cMineralEQ3, cMetalSHEelectrons,
-			      cMargulesVPSSTP, cIonsFromNeutral
+			      cMargulesVPSSTP, cIonsFromNeutral, cFixedChemPot
     };
 
   /*
@@ -170,6 +170,12 @@ namespace Cantera {
 #else
       th = new StoichSubstance;
 #endif
+      break;
+#endif
+
+#ifdef WITH_STOICH_SUBSTANCE
+    case cFixedChemPot:
+      th = new FixedChemPotSSTP;
       break;
 #endif
 

@@ -80,10 +80,10 @@ endif
 ifeq ($(do_issp),1)
 ISSP_OBJ = IdealSolidSolnPhase.o  StoichSubstanceSSTP.o SingleSpeciesTP.o MineralEQ3.o \
            GibbsExcessVPSSTP.o PseudoBinaryVPSSTP.o MargulesVPSSTP.o \
-           IonsFromNeutralVPSSTP.o PDSS_IonsFromNeutral.o 
+           IonsFromNeutralVPSSTP.o PDSS_IonsFromNeutral.o FixedChemPotSSTP.o
 ISSP_H   = IdealSolidSolnPhase.h  StoichSubstanceSSTP.h SingleSpeciesTP.h MineralEQ3.h \
            GibbsExcessVPSSTP.h PseudoBinaryVPSSTP.h MargulesVPSSTP.h \
-           IonsFromNeutralVPSSTP.h  PDSS_IonsFromNeutral.h
+           IonsFromNeutralVPSSTP.h  PDSS_IonsFromNeutral.h FixedChemPotSSTP.h
 endif
 
 CATHERMO_OBJ = $(THERMO_OBJ) $(ELECTRO_OBJ) $(ISSP_OBJ) 
