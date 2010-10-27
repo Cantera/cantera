@@ -22,8 +22,9 @@
 #include "SpeciesThermo.h"
 #include "ThermoFactory.h"
 
-#include <string>
 
+#include <string>
+#include "SimpleThermo.h"
 namespace Cantera {
   //====================================================================================================================
   /*
@@ -96,6 +97,38 @@ namespace Cantera {
       chemPot_ = (m_h0_RT[0] - m_s0_R[0]) * GasConstant * temperature();
     }
   }
+ //====================================================================================================================
+  FixedChemPotSSTP::FixedChemPotSSTP(std::string Ename, doublereal val) :
+    SingleSpeciesTP(),
+    chemPot_(0.0)
+  {
+    
+    std::string pname = Ename + "Fixed";
+    setID(pname);
+    setName(pname);
+    setNDim(3); 
+    addUniqueElement(Ename, -12345.);
+    freezeElements();
+    int nel = nElements();
+    vector_fp ecomp(nel, 0.0);  
+    ecomp[0] = 1.0;
+    double chrg = 0.0;
+    SpeciesThermo* spth = new SimpleThermo();
+    setSpeciesThermo(spth);
+    addUniqueSpecies(pname, &ecomp[0], chrg, 0.0);
+    double c[4];
+    c[0] = 298.15;
+    c[1] = val;
+    c[2] = 0.0;
+    c[3] = 0.0;
+    m_spthermo->install(pname, 0, SIMPLE, c, 0.0, 1.0E30, OneAtm);
+    freezeSpecies();
+    initThermo();
+    m_p0 = OneAtm;
+    m_tlast = 298.15;
+    setChemicalPotential(val);
+  }
+  
   //====================================================================================================================
   // Copy constructor
   /*
