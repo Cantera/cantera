@@ -512,6 +512,21 @@ public:
    */
   bool vcs_popPhasePossible(const int iphasePop) const;
 
+
+  //! Determine the list of problems that need to be checked to see if there are any phases pops
+  /*!
+   *  This routine evaluates and fills in the following quantities
+   *              phasePopProblemLists_
+   *
+   *  @return    Returns the number of problems that must be checked.
+   */
+  int vcs_phasePopDeterminePossibleList();
+
+
+
+
+
+
   //! Decision as to whether a phase pops back into existence
   /*!
    * @param  phasePopPhaseIDs Vector containing the phase ids of the phases
@@ -1959,6 +1974,8 @@ public:
    * Length = number of species
    */
   std::vector<double> m_chargeSpecies;
+
+  std::vector<std::vector<int> > phasePopProblemLists_;
 
   //! Vector of pointers to thermostructures which identify the model
   //! and parameters for evaluating the  thermodynamic functions for that 
