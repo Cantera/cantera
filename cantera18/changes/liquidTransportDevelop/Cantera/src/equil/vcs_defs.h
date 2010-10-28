@@ -146,7 +146,16 @@ namespace VCSnonideal {
    * These defines are valid values for spStatus()
    */
   //@{
-  //! Species is a component
+
+  //! Species is a component which can never be nonzero because of a
+  //! stoichiometric constraint
+  /*!
+   *  An example of this would be a species that contains Ni. But,
+   *  the amount of Ni elements is exactly zero.
+   */
+#define VCS_SPECIES_COMPONENT_STOICHZERO  3
+
+  //! Species is a component which can be nonzero
 #define VCS_SPECIES_COMPONENT      2
 
   //! Species is a major species
@@ -223,10 +232,11 @@ namespace VCSnonideal {
   //! Species lies in a multicomponent phase that is active,
   //! but species concentration is zero due to stoich constraint
   /*!
-   *  The species lies in a multicomponent phase which
-   *  currently does exist.  Its concentration is currently
-   *  identically zero, though the phase exists. This is
-   *  a permament condition due to stoich constraints
+   *  The species lies in a multicomponent phase which currently does exist.  Its concentration is currently
+   *  identically zero, though the phase exists. This is a permament condition due to stoich constraints.
+   *
+   *  An example of this would be a species that contains Ni. But,
+   *  the amount of Ni elements in the current problem statement is exactly zero.
    */
 #define VCS_SPECIES_STOICHZERO  -8
 

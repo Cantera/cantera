@@ -30,8 +30,7 @@ using namespace std;
 namespace VCSnonideal {
 
   //====================================================================================================================
-  // Utility function that evaluates whether a phase can be popped
-  // into existence
+  // Utility function that evaluates whether a phase can be popped into existence
   /*
    * A phase can be popped iff the stoichiometric coefficients for the
    * component species, whose concentrations will be lowered during the
@@ -142,9 +141,163 @@ namespace VCSnonideal {
     return false;
   }
   //====================================================================================================================
+ 
+  int inList(const std::vector<int> &list, int val)
+  {
+    for (int i = 0; i < (int) list.size(); i++) {
+      if (val == list[i]) {
+	return i;
+      }
+    }
+    return -1;
+  }
+  
+  //====================================================================================================================
+  // Determine the list of problems that need to be checked to see if there are any phases pops
+  /*
+   *  This routine evaluates and fills in the following quantities
+   *              phasePopProblemLists_
+   *
+   *  Need to work in species that are zeroed by element constraints
+   *
+   *  @return    Returns the number of problems that must be checked.
+   */
+  int  VCS_SOLVE::vcs_phasePopDeterminePossibleList() {
+
+    int nfound = 0;
+    int irxn, kspec;
+    vcs_VolPhase *Vphase = 0;
+    int iph, j, k;
+    int nsp;
+    double stoicC;
+    double molComp;
+    std::vector<int> linkedPhases;
+    phasePopProblemLists_.clear();
+
+    /*
+     *  This is a vector over each component.
+     *  For zeroed components it lists the phases, which are currently zeroed,
+     *     which have a species with a positive stoichiometric value wrt the component.
+     *     Therefore, we could pop the component species and pop that phase at the same time
+     *     if we considered no other factors than keeping the component mole number positve.
+     *
+     *     It does not count species with positive stoichiometric values if that species
+     *     already has a positive mole number. The phase is already popped. 
+     */
+    std::vector< std::vector<int> > zeroedComponentLinkedPhasePops(m_numComponents);
+    /*
+     *  The logic below calculates zeroedComponentLinkedPhasePops
+     */
+    for (j = 0; j < m_numComponents; j++) {
+      if (m_elType[j] == VCS_ELEM_TYPE_ABSPOS) {
+	molComp = m_molNumSpecies_old[j];
+	if (molComp <= 0.0) {	
+	  std::vector<int> &jList = zeroedComponentLinkedPhasePops[j];
+	  iph = m_phaseID[j];
+	  jList.push_back(iph);
+	  for (irxn = 0; irxn < m_numRxnTot; irxn++) {
+	    kspec = irxn +  m_numComponents;
+	    iph = m_phaseID[kspec];
+	    Vphase = m_VolPhaseList[iph];
+	    int existence = Vphase->exists();
+	    if (existence < 0) {
+	      stoicC = m_stoichCoeffRxnMatrix[irxn][j];
+	      if (stoicC > 0.0) {
+		if (inList(jList, iph) != -1) {
+		  jList.push_back(iph);
+		}
+	      }
+	    }
+	  }
+	}
+      }
+    }
+    /*
+     *   This is a vector over each zeroed phase
+     *   For zeroed phases, it lists the components, which are currently zereoed,
+     *     which have a species with a negative stoichiometric value wrt one or more species in the phase.
+     *     Cut out components which have a pos stoichiometric value with another species in the phase.
+     */
+    std::vector< std::vector<int> > zeroedPhaseLinkedZeroComponents(m_numPhases);
+    /*
+     *   The logic below calculates  zeroedPhaseLinkedZeroComponents
+     */
+    for (iph = 0; iph < m_numPhases; iph++) {
+      std::vector<int> &iphList = zeroedPhaseLinkedZeroComponents[iph];
+      iphList.clear();
+      Vphase = m_VolPhaseList[iph];
+      int existence = Vphase->exists();
+      if (existence < 0) {
+       
+	linkedPhases.clear();
+	nsp = Vphase->nSpecies();
+	for (k = 0; k < nsp; k++) {
+
+	  kspec = Vphase->spGlobalIndexVCS(k);
+	  irxn = kspec - m_numComponents;
+	  
+	  for (j = 0; j < m_numComponents; j++) {
+	    if (m_elType[j] == VCS_ELEM_TYPE_ABSPOS) {
+	      molComp = m_molNumSpecies_old[j];
+	      if (molComp <= 0.0) {
+		stoicC = m_stoichCoeffRxnMatrix[irxn][j];
+		if (stoicC < 0.0) {
+		  bool foundPos = false;
+		  for (int kk = 0; kk < nsp; kk++) {
+		    int kkspec  = Vphase->spGlobalIndexVCS(kk);
+		    int iirxn = kkspec - m_numComponents;
+		    if (iirxn >= 0) {
+		      if (m_stoichCoeffRxnMatrix[iirxn][j] > 0.0) {
+			foundPos = true;
+		      }
+		    }
+		  }
+		  if (!foundPos) {
+		    if (inList(iphList, j) != -1) {
+		      iphList.push_back(j);
+		    }
+		  }
+		}
+	      }
+	    }
+	  }
+	}
+      }
+    }
+  
+    /*
+     *  Now fill in the   phasePopProblemLists_  list.
+     * 
+     */
+    for (iph = 0; iph < m_numPhases; iph++) {
+      Vphase = m_VolPhaseList[iph];
+      int existence = Vphase->exists();
+      if (existence < 0) {
+	std::vector<int> &iphList = zeroedPhaseLinkedZeroComponents[iph];
+	std::vector<int> popProblem(0);
+	popProblem.push_back(iph);
+	for (int i = 0; i < (int) iphList.size(); i++) {
+	  j = iphList[i];
+	  std::vector<int> &jList = zeroedComponentLinkedPhasePops[j];
+	  for (int jjl = 0; jjl < (int) jList.size(); jjl++) {
+	    int jph = jList[jjl];
+	    if (inList(popProblem, jph) != -1) {
+	      popProblem.push_back(jph);
+	    }
+	  }
+	}
+        phasePopProblemLists_.push_back(popProblem);
+      }
+    }
+
+    return nfound;
+  }
+
+
+  //====================================================================================================================
   // Decision as to whether a phase pops back into existence
   /*
-   * @return returns the phase id of the phase that pops back into 
+   * @return returns the phase id of the phases that pops back into 
    *         existence. Returns -1 if there are no phases
    */
   int VCS_SOLVE::vcs_popPhaseID(std::vector<int> & phasePopPhaseIDs) {

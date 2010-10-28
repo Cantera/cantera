@@ -387,12 +387,11 @@ namespace VCSnonideal {
     /*
      *  Copy the old solution into the new solution as an initial guess
      */
-    vcs_dcopy(VCS_DATA_PTR(m_feSpecies_new), 
-	      VCS_DATA_PTR(m_feSpecies_old), m_numSpeciesRdc);
-    vcs_dcopy(VCS_DATA_PTR(m_actCoeffSpecies_new), 
-	      VCS_DATA_PTR(m_actCoeffSpecies_old), m_numSpeciesRdc);
+    vcs_dcopy(VCS_DATA_PTR(m_feSpecies_new), VCS_DATA_PTR(m_feSpecies_old), m_numSpeciesRdc);
+    vcs_dcopy(VCS_DATA_PTR(m_actCoeffSpecies_new), VCS_DATA_PTR(m_actCoeffSpecies_old), m_numSpeciesRdc);
     vcs_dcopy(VCS_DATA_PTR(m_deltaGRxn_new), VCS_DATA_PTR(m_deltaGRxn_old), m_numRxnRdc);
     vcs_dcopy(VCS_DATA_PTR(m_deltaGRxn_Deficient), VCS_DATA_PTR(m_deltaGRxn_old), m_numRxnRdc);
+    vcs_dcopy(VCS_DATA_PTR(m_tPhaseMoles_new), VCS_DATA_PTR(m_tPhaseMoles_old), m_numPhases);
  
     /*
      *     Zero out the entire vector of updates. We sometimes would
