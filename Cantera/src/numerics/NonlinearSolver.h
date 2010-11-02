@@ -430,6 +430,11 @@ namespace Cantera {
     //! Soln Delta bounds magnitudes
     std::vector<doublereal> m_deltaBoundsMagnitudes;
 
+    //! Boolean indicating whether a manual delta steps have been input.
+    int m_manualDeltaStepSet;
+    
+    std::vector<doublereal> m_deltaStepMagnitudes;
+
     std::vector<doublereal> m_y_n;
     std::vector<doublereal> m_y_nm1;
 
