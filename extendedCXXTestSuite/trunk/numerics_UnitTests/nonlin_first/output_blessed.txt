@@ -30,9 +30,17 @@
 		      3   1.4878e+03       |  -4.2080e-01   1.0000e-01  -3.2080e-01   1.0000e-04
 		   ------------------------------------------------------------------------------------------
 		deltaBoundStep: Increase of Variable 4 causing delta damping of 0.00666611
-	  dampStep(): Current trial step and damping coefficient accepted because resid0 > residTrial:
-	              resid0 = 17415.3, residTrial = 17223.1
-	  dampStep(): current trial step accepted retnTrial = 4, its = 1, damp = 0.00666611
+		dampNewt: Important Entries for Weighted Soln Updates: currentDamp = 0.00666611
+		     I     ysolnOld     DeltaSoln ysolnNewRaw | ysolnNewTrial DeltaSolnTrial ysolnNewTrialRaw | solnWeight  wtDelSoln wtDelSolnTrial
+		   -----------------------------------------------------------------------------------------------------------------------------
+		     4   1.0000e-01   1.5001e+01   1.5101e+01 |    2.0000e-01    1.4802e+01     1.5002e+01    |  1.0000e-04   1.5001e+05   1.4802e+05
+		     5   1.0000e-01  -1.0101e+01  -1.0001e+01 |    3.2664e-02   -1.0007e+01    -9.9744e+00    |  1.0000e-04   1.0101e+05   1.0007e+05
+		     2   1.0000e-01   5.3208e+00   5.4208e+00 |    1.3547e-01    5.2790e+00     5.4145e+00    |  1.0000e-04   5.3208e+04   5.2790e+04
+		     7   1.0000e-01   4.4342e+00   4.5342e+00 |    1.2956e-01    4.4003e+00     4.5299e+00    |  1.0000e-04   4.4342e+04   4.4003e+04
+		     1   1.0000e-01   3.4915e+00   3.5915e+00 |    1.2327e-01    3.4658e+00     3.5891e+00    |  1.0000e-04   3.4915e+04   3.4658e+04
+		   -----------------------------------------------------------------------------------------------------------------------------
+			dampStep(): s0 = 69786.6, s1 = 68994.4, dampBound = 0.00666611,dampRes = 1
+	  dampStep(): current trial step accepted retnTrial = 1, its = 1, damp = 0.00666611
 	  ------------------------------------------------------------------------------------------
 		  residErrorNorm(): Resulting Residual Norm =   1.7223E+04
 		   Printout of Largest Contributors to norm:
@@ -47,7 +55,7 @@
 		      0       1.7109e+03      -3.6440e-01       2.1299e-04 |   1.0939e-01
 		      2       7.8137e+02       4.3954e-02       5.6253e-05 |   1.3547e-01
 		   --------------------------------------------------------------------------------
-	  Damped Newton iteration successful, final estimate of the next solution update norm = 6.9017E+04  
+	  Damped Newton iteration successful, final estimate of the next solution update norm = 6.8994E+04  
 	solve_nonlinear_problem(): iteration 2:
 	solve_nonlinear_problem(): Getting a new Jacobian and solving system
 	  ------------------------------------------------------------------------------------------
@@ -80,9 +88,17 @@
 		      6   1.5041e+03       |   4.3864e-01   1.0311e-01   5.4174e-01   1.0311e-04
 		   ------------------------------------------------------------------------------------------
 		deltaBoundStep: Decrease of variable 5 causingdelta damping of 0.021393
-	  dampStep(): Current trial step and damping coefficient accepted because resid0 > residTrial:
-	              resid0 = 11720.6, residTrial = 11388.3
-	  dampStep(): current trial step accepted retnTrial = 4, its = 1, damp = 0.021393
+		dampNewt: Important Entries for Weighted Soln Updates: currentDamp = 0.021393
+		     I     ysolnOld     DeltaSoln ysolnNewRaw | ysolnNewTrial DeltaSolnTrial ysolnNewTrialRaw | solnWeight  wtDelSoln wtDelSolnTrial
+		   -----------------------------------------------------------------------------------------------------------------------------
+		     5   3.2664e-02  -4.6744e+00  -4.6418e+00 |   -6.7336e-02   -4.5010e+00    -4.5683e+00    |  3.2664e-05   1.4311e+05   1.3780e+05
+		     2   1.3547e-01   3.8872e+00   4.0226e+00 |    2.1863e-01    3.7781e+00     3.9967e+00    |  1.3547e-04   2.8694e+04   2.7889e+04
+		     7   1.2956e-01   3.4044e+00   3.5339e+00 |    2.0239e-01    3.3110e+00     3.5134e+00    |  1.2956e-04   2.6277e+04   2.5556e+04
+		     1   1.2327e-01   2.8622e+00   2.9855e+00 |    1.8451e-01    2.7867e+00     2.9712e+00    |  1.2328e-04   2.3218e+04   2.2606e+04
+		     4   2.0000e-01   3.1607e+00   3.3607e+00 |    2.6762e-01    3.0447e+00     3.3123e+00    |  2.0000e-04   1.5804e+04   1.5223e+04
+		   -----------------------------------------------------------------------------------------------------------------------------
+			dampStep(): s0 = 53553, s1 = 51617.6, dampBound = 0.021393,dampRes = 1
+	  dampStep(): current trial step accepted retnTrial = 1, its = 1, damp = 0.021393
 	  ------------------------------------------------------------------------------------------
 		  residErrorNorm(): Resulting Residual Norm =   1.1388E+04
 		   Printout of Largest Contributors to norm:
@@ -97,7 +113,7 @@
 		      0       1.6335e+03      -3.5842e-01       2.1942e-04 |   1.3551e-01
 		      2       7.4152e+02       3.5731e-02       4.8186e-05 |   2.1863e-01
 		   --------------------------------------------------------------------------------
-	  Damped Newton iteration successful, final estimate of the next solution update norm = 5.2035E+04  
+	  Damped Newton iteration successful, final estimate of the next solution update norm = 5.1618E+04  
 	solve_nonlinear_problem(): iteration 3:
 	solve_nonlinear_problem(): Getting a new Jacobian and solving system
 	  ------------------------------------------------------------------------------------------
@@ -130,9 +146,17 @@
 		      6   1.2746e+03       |   4.0555e-01   1.1249e-01   5.1803e-01   1.1249e-04
 		   ------------------------------------------------------------------------------------------
 		deltaBoundStep: Increase of Variable 2 causing delta damping of 0.0471296
-	  dampStep(): Current trial step and damping coefficient accepted because resid0 > residTrial:
-	              resid0 = 5937.02, residTrial = 5593.52
-	  dampStep(): current trial step accepted retnTrial = 4, its = 1, damp = 0.0471296
+		dampNewt: Important Entries for Weighted Soln Updates: currentDamp = 0.0471296
+		     I     ysolnOld     DeltaSoln ysolnNewRaw | ysolnNewTrial DeltaSolnTrial ysolnNewTrialRaw | solnWeight  wtDelSoln wtDelSolnTrial
+		   -----------------------------------------------------------------------------------------------------------------------------
+		     5  -6.7336e-02  -1.1562e+00  -1.2235e+00 |   -1.2183e-01   -1.0713e+00    -1.1932e+00    |  6.7336e-05   1.7170e+04   1.5910e+04
+		     2   2.1863e-01   2.3194e+00   2.5380e+00 |    3.2794e-01    2.1818e+00     2.5098e+00    |  2.1863e-04   1.0609e+04   9.9797e+03
+		     7   2.0239e-01   2.1126e+00   2.3150e+00 |    3.0196e-01    1.9880e+00     2.2899e+00    |  2.0239e-04   1.0439e+04   9.8227e+03
+		     1   1.8451e-01   1.8873e+00   2.0718e+00 |    2.7345e-01    1.7764e+00     2.0499e+00    |  1.8451e-04   1.0229e+04   9.6280e+03
+		     0   1.3551e-01   9.2675e-01   1.0623e+00 |    1.7919e-01    8.7664e-01     1.0558e+00    |  1.3551e-04   6.8388e+03   6.4691e+03
+		   -----------------------------------------------------------------------------------------------------------------------------
+			dampStep(): s0 = 9549.26, s1 = 8941.1, dampBound = 0.0471296,dampRes = 1
+	  dampStep(): current trial step accepted retnTrial = 1, its = 1, damp = 0.0471296
 	  ------------------------------------------------------------------------------------------
 		  residErrorNorm(): Resulting Residual Norm =   5.5935E+03
 		   Printout of Largest Contributors to norm:
@@ -147,7 +171,7 @@
 		      0       1.4339e+03      -3.4498e-01       2.4059e-04 |   1.7919e-01
 		      2       3.7358e+02       2.8622e-02       7.6615e-05 |   3.2794e-01
 		   --------------------------------------------------------------------------------
-	  Damped Newton iteration successful, final estimate of the next solution update norm = 8.9968E+03  
+	  Damped Newton iteration successful, final estimate of the next solution update norm = 8.9411E+03  
 	solve_nonlinear_problem(): iteration 4:
 	solve_nonlinear_problem(): Getting a new Jacobian and solving system
 	  ------------------------------------------------------------------------------------------
@@ -180,9 +204,17 @@
 		      6   9.8733e+02       |   3.6751e-01   1.3160e-01   4.9911e-01   1.3160e-04
 		   ------------------------------------------------------------------------------------------
 		deltaBoundStep: Increase of Variable 2 causing delta damping of 0.114585
-	  dampStep(): Current trial step and damping coefficient accepted because resid0 > residTrial:
-	              resid0 = 2924.94, residTrial = 2513.62
-	  dampStep(): current trial step accepted retnTrial = 4, its = 1, damp = 0.114585
+		dampNewt: Important Entries for Weighted Soln Updates: currentDamp = 0.114585
+		     I     ysolnOld     DeltaSoln ysolnNewRaw | ysolnNewTrial DeltaSolnTrial ysolnNewTrialRaw | solnWeight  wtDelSoln wtDelSolnTrial
+		   -----------------------------------------------------------------------------------------------------------------------------
+		     3   6.9659e-02  -3.6577e-01  -2.9611e-01 |    2.7747e-02   -3.2330e-01    -2.9555e-01    |  6.9659e-05   5.2508e+03   4.6411e+03
+		     2   3.2794e-01   1.4310e+00   1.7589e+00 |    4.9191e-01    1.2232e+00     1.7151e+00    |  3.2794e-04   4.3636e+03   3.7300e+03
+		     7   3.0196e-01   1.3160e+00   1.6180e+00 |    4.5275e-01    1.1254e+00     1.5782e+00    |  3.0196e-04   4.3584e+03   3.7270e+03
+		     1   2.7345e-01   1.1744e+00   1.4479e+00 |    4.0802e-01    1.0022e+00     1.4102e+00    |  2.7345e-04   4.2947e+03   3.6650e+03
+		     0   1.7919e-01   6.9990e-01   8.7909e-01 |    2.5939e-01    6.0865e-01     8.6804e-01    |  1.7919e-04   3.9059e+03   3.3967e+03
+		   -----------------------------------------------------------------------------------------------------------------------------
+			dampStep(): s0 = 4036.23, s1 = 3485.16, dampBound = 0.114585,dampRes = 1
+	  dampStep(): current trial step accepted retnTrial = 1, its = 1, damp = 0.114585
 	  ------------------------------------------------------------------------------------------
 		  residErrorNorm(): Resulting Residual Norm =   2.5136E+03
 		   Printout of Largest Contributors to norm:
@@ -197,7 +229,7 @@
 		      0       1.1074e+03      -3.1329e-01       2.8290e-04 |   2.5939e-01
 		      2       1.3117e+02       1.8231e-02       1.3898e-04 |   4.9191e-01
 		   --------------------------------------------------------------------------------
-	  Damped Newton iteration successful, final estimate of the next solution update norm = 3.4686E+03  
+	  Damped Newton iteration successful, final estimate of the next solution update norm = 3.4852E+03  
 	solve_nonlinear_problem(): iteration 5:
 	solve_nonlinear_problem(): Getting a new Jacobian and solving system
 	  ------------------------------------------------------------------------------------------
@@ -230,9 +262,17 @@
 		      5   3.5054e+02       |  -1.6754e-01  -1.6898e-01  -3.3653e-01   1.6899e-04
 		   ------------------------------------------------------------------------------------------
 		deltaBoundStep: Increase of Variable 0 causing delta damping of 0.260808
-	  dampStep(): Current trial step and damping coefficient accepted because resid0 > residTrial:
-	              resid0 = 1246.37, residTrial = 861.17
-	  dampStep(): current trial step accepted retnTrial = 4, its = 1, damp = 0.260808
+		dampNewt: Important Entries for Weighted Soln Updates: currentDamp = 0.260808
+		     I     ysolnOld     DeltaSoln ysolnNewRaw | ysolnNewTrial DeltaSolnTrial ysolnNewTrialRaw | solnWeight  wtDelSoln wtDelSolnTrial
+		   -----------------------------------------------------------------------------------------------------------------------------
+		     3   2.7747e-02  -3.1895e-01  -2.9120e-01 |   -5.5437e-02   -2.3593e-01    -2.9137e-01    |  2.7747e-05   1.1495e+04   8.5028e+03
+		     0   2.5939e-01   4.9728e-01   7.5666e-01 |    3.8908e-01    3.5448e-01     7.4357e-01    |  2.5939e-04   1.9171e+03   1.3666e+03
+		     6   1.7371e-01   3.0053e-01   4.7424e-01 |    2.5209e-01    2.1706e-01     4.6916e-01    |  1.7371e-04   1.7300e+03   1.2496e+03
+		     7   4.5275e-01   7.2934e-01   1.1821e+00 |    6.4297e-01    4.9433e-01     1.1373e+00    |  4.5275e-04   1.6109e+03   1.0918e+03
+		     4   4.6727e-01   7.4527e-01   1.2125e+00 |    6.6164e-01    5.1293e-01     1.1746e+00    |  4.6727e-04   1.5950e+03   1.0977e+03
+		   -----------------------------------------------------------------------------------------------------------------------------
+			dampStep(): s0 = 4327.43, s1 = 3177.41, dampBound = 0.260808,dampRes = 1
+	  dampStep(): current trial step accepted retnTrial = 1, its = 1, damp = 0.260808
 	  ------------------------------------------------------------------------------------------
 		  residErrorNorm(): Resulting Residual Norm =   8.6117E+02
 		   Printout of Largest Contributors to norm:
@@ -247,7 +287,7 @@
 		      3       6.1296e+02       1.7717e-01       2.8905e-04 |  -5.5437e-02
 		      2       2.0843e+01       5.1641e-03       2.4776e-04 |   6.9735e-01
 		   --------------------------------------------------------------------------------
-	  Damped Newton iteration successful, final estimate of the next solution update norm = 2.9900E+03  
+	  Damped Newton iteration successful, final estimate of the next solution update norm = 3.1774E+03  
 	solve_nonlinear_problem(): iteration 6:
 	solve_nonlinear_problem(): Getting a new Jacobian and solving system
 	  ------------------------------------------------------------------------------------------
@@ -280,9 +320,17 @@
 		      5   1.1656e+02       |  -7.0117e-02  -2.1268e-01  -2.8280e-01   2.1268e-04
 		   ------------------------------------------------------------------------------------------
 		deltaBoundStep: Increase of Variable 3 causing delta damping of 0.417806
-	  dampStep(): Current trial step and damping coefficient accepted because resid0 > residTrial:
-	              resid0 = 449.469, residTrial = 244.518
-	  dampStep(): current trial step accepted retnTrial = 4, its = 1, damp = 0.417806
+		dampNewt: Important Entries for Weighted Soln Updates: currentDamp = 0.417806
+		     I     ysolnOld     DeltaSoln ysolnNewRaw | ysolnNewTrial DeltaSolnTrial ysolnNewTrialRaw | solnWeight  wtDelSoln wtDelSolnTrial
+		   -----------------------------------------------------------------------------------------------------------------------------
+		     3  -5.5437e-02  -2.3935e-01  -2.9478e-01 |   -1.5544e-01   -1.4095e-01    -2.9639e-01    |  5.5437e-05   4.3174e+03   2.5425e+03
+		     0   3.8908e-01   3.0581e-01   6.9489e-01 |    5.1685e-01    1.7220e-01     6.8905e-01    |  3.8908e-04   7.8598e+02   4.4259e+02
+		     6   2.5209e-01   1.8973e-01   4.4183e-01 |    3.3137e-01    1.0407e-01     4.3544e-01    |  2.5209e-04   7.5263e+02   4.1284e+02
+		     4   6.6164e-01   3.6816e-01   1.0298e+00 |    8.1546e-01    1.9709e-01     1.0125e+00    |  6.6164e-04   5.5643e+02   2.9788e+02
+		     7   6.4297e-01   3.3234e-01   9.7531e-01 |    7.8183e-01    1.7611e-01     9.5794e-01    |  6.4297e-04   5.1688e+02   2.7391e+02
+		   -----------------------------------------------------------------------------------------------------------------------------
+			dampStep(): s0 = 1618.25, s1 = 944.677, dampBound = 0.417806,dampRes = 1
+	  dampStep(): current trial step accepted retnTrial = 1, its = 1, damp = 0.417806
 	  ------------------------------------------------------------------------------------------
 		  residErrorNorm(): Resulting Residual Norm =   2.4452E+02
 		   Printout of Largest Contributors to norm:
@@ -297,7 +345,7 @@
 		      1       1.9892e+02      -2.1400e-01       1.0758e-03 |   6.7491e-01
 		      2       2.5547e+00      -1.0613e-03       4.1541e-04 |   8.4237e-01
 		   --------------------------------------------------------------------------------
-	  Damped Newton iteration successful, final estimate of the next solution update norm = 8.8035E+02  
+	  Damped Newton iteration successful, final estimate of the next solution update norm = 9.4468E+02  
 	solve_nonlinear_problem(): iteration 7:
 	solve_nonlinear_problem(): Getting a new Jacobian and solving system
 	  ------------------------------------------------------------------------------------------
@@ -330,9 +378,17 @@
 		      5   4.1411e+01       |  -2.8342e-02  -2.4198e-01  -2.7032e-01   2.4198e-04
 		   ------------------------------------------------------------------------------------------
 		deltaBoundStep: Increase of Variable 3 causing delta damping of 0.684202
-	  dampStep(): Current trial step and damping coefficient accepted because resid0 > residTrial:
-	              resid0 = 166.597, residTrial = 46.9447
-	  dampStep(): current trial step accepted retnTrial = 4, its = 1, damp = 0.684202
+		dampNewt: Important Entries for Weighted Soln Updates: currentDamp = 0.684202
+		     I     ysolnOld     DeltaSoln ysolnNewRaw | ysolnNewTrial DeltaSolnTrial ysolnNewTrialRaw | solnWeight  wtDelSoln wtDelSolnTrial
+		   -----------------------------------------------------------------------------------------------------------------------------
+		     3  -1.5544e-01  -1.4616e-01  -3.0159e-01 |   -2.5544e-01   -4.8229e-02    -3.0367e-01    |  1.5544e-04   9.4029e+02   3.1028e+02
+		     0   5.1685e-01   1.5973e-01   6.7658e-01 |    6.2614e-01    4.7746e-02     6.7388e-01    |  5.1685e-04   3.0904e+02   9.2379e+01
+		     6   3.3137e-01   8.6224e-02   4.1759e-01 |    3.9036e-01    2.1316e-02     4.1168e-01    |  3.3137e-04   2.6021e+02   6.4326e+01
+		     4   8.1546e-01   1.6111e-01   9.7657e-01 |    9.2569e-01    4.3768e-02     9.6946e-01    |  8.1546e-04   1.9757e+02   5.3673e+01
+		     7   7.8183e-01   1.4185e-01   9.2367e-01 |    8.7888e-01    3.9053e-02     9.1793e-01    |  7.8183e-04   1.8143e+02   4.9951e+01
+		   -----------------------------------------------------------------------------------------------------------------------------
+			dampStep(): s0 = 382.822, s1 = 120.987, dampBound = 0.684202,dampRes = 1
+	  dampStep(): current trial step accepted retnTrial = 1, its = 1, damp = 0.684202
 	  ------------------------------------------------------------------------------------------
 		  residErrorNorm(): Resulting Residual Norm =   4.6945E+01
 		   Printout of Largest Contributors to norm:
@@ -347,7 +403,7 @@
 		      1       3.8880e+01      -6.1498e-02       1.5818e-03 |   7.3181e-01
 		      2       3.9139e+00      -2.2172e-03       5.6649e-04 |   9.3205e-01
 		   --------------------------------------------------------------------------------
-	  Damped Newton iteration successful, final estimate of the next solution update norm = 1.0787E+02  
+	  Damped Newton iteration successful, final estimate of the next solution update norm = 1.2099E+02  
 	solve_nonlinear_problem(): iteration 8:
 	solve_nonlinear_problem(): Getting a new Jacobian and solving system
 	  ------------------------------------------------------------------------------------------
@@ -394,7 +450,7 @@
 		      2       2.8738e-01      -1.9741e-04       6.8692e-04 |   9.5366e-01
 		      1       1.9852e-01       3.9148e-04       1.9720e-03 |   7.4213e-01
 		      0       6.3141e-02      -7.5149e-05       1.1902e-03 |   6.7190e-01
-		      3       2.4159e-11       1.5488e-14       6.4108e-04 |  -3.0583e-01
+		      3       1.7604e-10       1.1285e-13       6.4108e-04 |  -3.0583e-01
 		   --------------------------------------------------------------------------------
 	  Damped Newton iteration successful, final estimate of the next solution update norm = 1.7546E+00  
 	solve_nonlinear_problem(): iteration 9:
@@ -411,7 +467,7 @@
 		      2       2.8156e-01      -1.9741e-04       7.0112e-04 |   9.5366e-01
 		      1       1.9535e-01       3.9148e-04       2.0039e-03 |   7.4213e-01
 		      0       6.2676e-02      -7.5149e-05       1.1990e-03 |   6.7190e-01
-		      3       2.4159e-11       1.5488e-14       6.4108e-04 |  -3.0583e-01
+		      3       1.7604e-10       1.1285e-13       6.4108e-04 |  -3.0583e-01
 		   --------------------------------------------------------------------------------
 		   ------------------------------------------------------------------------------------------
 		   solnErrorNorm(): Initial Undamped Step of the iteration = 1.8275E+00 
@@ -443,7 +499,7 @@
 		      0       6.1604e-04      -7.3864e-07       1.1990e-03 |   6.7155e-01
 		      6       3.1425e-04       6.0501e-07       1.9252e-03 |   4.0464e-01
 		      2       9.0442e-05      -6.3411e-08       7.0112e-04 |   9.5189e-01
-		      3       8.6590e-14       5.5511e-17       6.4108e-04 |  -3.0643e-01
+		      3       1.4287e-11       9.1593e-15       6.4108e-04 |  -3.0643e-01
 		   --------------------------------------------------------------------------------
 	  Damped Newton iteration successful, nonlin converged, final estimate of the next solution update norm = 2.0136E-03  
 		Nonlinear problem solved successfully in 9 its, time elapsed = 0 sec
@@ -453,7 +509,7 @@ SOLN:
     0   6.71554E-01  -7.38639E-07
     1   7.40956E-01   1.71599E-06
     2   9.51895E-01  -6.34108E-08
-    3  -3.06431E-01   0.00000E+00
+    3  -3.06431E-01   9.15934E-15
     4   9.63811E-01   1.50043E-06
     5  -2.66587E-01   3.51303E-06
     6   4.04642E-01   6.05007E-07
