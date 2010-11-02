@@ -103,7 +103,7 @@ namespace Cantera {
     m_numTotalNewtIts(0),
     m_min_newt_its(0),
     filterNewstep(0),
-    maxNewtIts_(50),
+    maxNewtIts_(100),
     m_jacFormMethod(NSOLN_JAC_NUM),
     m_nJacEval(0),
     time_n(0.0),
@@ -172,7 +172,7 @@ namespace Cantera {
     m_numTotalNewtIts(0),
     m_min_newt_its(0),
     filterNewstep(0),
-    maxNewtIts_(50),
+    maxNewtIts_(100),
     m_jacFormMethod(NSOLN_JAC_NUM),
     m_nJacEval(0),
     time_n(0.0),
@@ -666,7 +666,7 @@ namespace Cantera {
   void  NonlinearSolver::setDefaultDeltaBoundsMagnitudes()
   {
     for (int i = 0; i < neq_; i++) {
-      m_deltaBoundsMagnitudes[i] = MAX(m_deltaBoundsMagnitudes[i], 1000. * atolk_[i]);
+      m_deltaBoundsMagnitudes[i] = 1000. * atolk_[i];
       m_deltaBoundsMagnitudes[i] = MAX(m_deltaBoundsMagnitudes[i], 0.1 * fabs(m_y_n[i]));
     }
   }
@@ -918,7 +918,7 @@ namespace Cantera {
     // boundary and step0 points out of the allowed domain. In
     // this case, the Newton algorithm fails, so return an error
     // condition.
-    if (m_dampBound < 1.e-10) {
+    if (m_dampBound < 1.e-30) {
       if (loglevel > 1) printf("\t\t\tdampStep: At limits.\n");
       return -3;
     }
@@ -961,15 +961,17 @@ namespace Cantera {
       }
       m_normResidTrial = residErrorNorm(DATA_PTR(m_resid));
 
-      if (m_normResidTrial < 1.0 || m_normResidTrial < m_normResid0) {
+      bool steepEnough = (m_normResidTrial <  m_normResid0 * (0.9 * (1.0 - ff) * (1.0 - ff)* (1.0 - ff) + 0.1));
+
+      if (m_normResidTrial < 1.0 || steepEnough) {
 	if (loglevel >= 5) {
 	  if (m_normResidTrial < 1.0) {
 	    printf("\t  dampStep(): Current trial step and damping"
 		   " coefficient accepted because residTrial test step < 1:\n");
 	    printf("\t              resid0 = %g, residTrial = %g\n", m_normResid0, m_normResidTrial);
-	  } else if (m_normResidTrial < m_normResid0) {
+	  } else if (steepEnough) {
 	    printf("\t  dampStep(): Current trial step and damping"
-		   " coefficient accepted because resid0 > residTrial:\n");
+		   " coefficient accepted because resid0 > residTrial and steep enough:\n");
 	    printf("\t              resid0 = %g, residTrial = %g\n", m_normResid0, m_normResidTrial);
 	  } else {
 	    printf("\t  dampStep(): Current trial step and damping"
@@ -1179,6 +1181,11 @@ namespace Cantera {
 	       num_newt_its);
       }
 
+#ifdef DEBUG_HKM
+      if (num_newt_its > 2) {
+	//	printf("we are > 2\n");
+      }
+#endif
       // Check whether the Jacobian should be re-evaluated.
             
       forceNewJac = true;
@@ -1200,6 +1207,7 @@ namespace Cantera {
        * Go get new scales
        */
       setColumnScales();
+
 
 
       doResidualCalc(time_curr, NSOLN_TYPE_STEADY_STATE, DATA_PTR(m_y_n), DATA_PTR(ydot_curr));
