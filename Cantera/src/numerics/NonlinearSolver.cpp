@@ -1491,6 +1491,11 @@ namespace Cantera {
     int i, j;
     double* col_j;
     doublereal ysave, ydotsave, dy;
+#ifdef DEBUG_NUMJAC
+    bool print_NumJac = true;
+#else
+    bool print_NumJac = false;
+#endif
     /*
      * Clear the factor flag
      */
@@ -1500,10 +1505,6 @@ namespace Cantera {
        * Call the function to get a jacobian.
        */
       m_func->evalJacobian(time_curr, delta_t_n, y, ydot, J, f);
-#ifdef DEBUG_HKM
-      //doublereal dddd = J(89, 89);
-      //checkFinite(dddd);
-#endif
       m_nJacEval++;
       m_nfe++;
     }  else {
@@ -1519,7 +1520,6 @@ namespace Cantera {
       m_nfe++;
       m_nJacEval++;
 
-
       /*
        * Malloc a vector and call the function object to return a set of
        * deltaY's that are appropriate for calculating the numerical
@@ -1528,18 +1528,17 @@ namespace Cantera {
       doublereal *dyVector = mdp::mdp_alloc_dbl_1(neq_, MDP_DBL_NOINIT);
       m_func->calcDeltaSolnVariables(time_curr, y, ydot, dyVector, DATA_PTR(m_ewt));
 
-
-#ifdef DEBUG_HKM
-      bool print_NumJac = false;
+ #ifdef DEBUG_NUMJAC
       if (print_NumJac) {
-        FILE *idy = fopen("NumJac.csv", "w");
-        fprintf(idy, "Unk          m_ewt        y     "
-                "dyVector      ResN\n");
-        for (int iii = 0; iii < neq_; iii++){
-          fprintf(idy, " %4d       %16.8e   %16.8e   %16.8e  %16.8e \n",
-                  iii,   m_ewt[iii],  y[iii], dyVector[iii], f[iii]);
-        }
-        fclose(idy);
+	if (m_print_flag >= 7 && print_NumJac ) {
+	  if (neq_ < 20) {
+	    printf("\t\tUnk            m_ewt              y                dyVector            ResN\n");
+	    for (int iii = 0; iii < neq_; iii++){
+	      printf("\t\t %4d       %16.8e   %16.8e   %16.8e  %16.8e \n",
+		      iii,   m_ewt[iii],  y[iii], dyVector[iii], f[iii]);
+	    }
+	  }
+	}
       }
 #endif
       /*
@@ -1584,7 +1583,6 @@ namespace Cantera {
         for (i = 0; i < neq_; i++) {
           diff = subtractRD(m_wksp[i], f[i]);
           col_j[i] = diff / dy;
-          //col_j[i] = (m_wksp[i] - f[i])/dy;
         }
 	y[j] = ysave;
 	if (solnType_ != NSOLN_TYPE_STEADY_STATE) {
@@ -1597,8 +1595,38 @@ namespace Cantera {
        */
       mdp::mdp_safe_free((void **) &dyVector);
     }
+#ifdef DEBUG_NUMJAC
+    if (m_print_flag >= 7 && print_NumJac) {
+      if (neq_ < 30) {
+	printf("\t\tCurrent Matrix:\n");
+	printf("\t\t    I,J | ");
+	for (j = 0; j < neq_; j++) {
+	  printf("  %5d     ", j);
+	}
+	printf("\n");
+	printf("\t\t        --");
+	for (j = 0; j < neq_; j++) {
+	  printf("------------");
+	}
+	printf("\n");
 
 
+	for (i = 0; i < neq_; i++) {
+	  printf("\t\t   %4d |", i);
+	  for (j = 0; j < neq_; j++) {
+	    printf(" % 11.4E", J(i,j) );
+	  }
+	  printf("\n");
+	}
+
+	printf("\t\t        --");
+	for (j = 0; j < neq_; j++) {
+	  printf("------------");
+	}
+	printf("\n");
+      }
+    }
+#endif
   }
   //====================================================================================================================
   //   Internal function to calculate the time derivative at the new step
