@@ -465,9 +465,9 @@ namespace Cantera {
    *  @param ydot_curr    Current value of the time derivative of the solution vector
    */
   void NonlinearSolver::doResidualCalc(const doublereal time_curr, const int typeCalc, const doublereal * const y_curr, 
-				       const doublereal * const ydot_curr)
+				       const doublereal * const ydot_curr, const ResidEval_Type_Enum evalType)
   {
-    m_func->evalResidNJ(time_curr, delta_t_n, y_curr, ydot_curr, DATA_PTR(m_resid), Base_ResidEval);
+    m_func->evalResidNJ(time_curr, delta_t_n, y_curr, ydot_curr, DATA_PTR(m_resid), evalType);
     m_nfe++;
     m_resid_scaled = false;
   }
@@ -955,9 +955,9 @@ namespace Cantera {
        *  -> m_resid[] contains the result of the residual calculation
        */
       if (solnType_ != NSOLN_TYPE_STEADY_STATE) {
-	doResidualCalc(time_curr, solnType_, y1, ydot1);
+	doResidualCalc(time_curr, solnType_, y1, ydot1, Base_LaggedSolutionComponents);
       } else {
-	doResidualCalc(time_curr, solnType_, y1, ydot0);
+	doResidualCalc(time_curr, solnType_, y1, ydot0, Base_LaggedSolutionComponents);
       }
       m_normResidTrial = residErrorNorm(DATA_PTR(m_resid));
 

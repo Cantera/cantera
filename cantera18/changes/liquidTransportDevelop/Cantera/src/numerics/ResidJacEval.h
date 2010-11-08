@@ -38,7 +38,14 @@ namespace Cantera {
       /*!
        *    We calculate this when we want to display a solution
        */
-      Base_ShowSolution
+      Base_ShowSolution,
+      //! Base residual calculation containing any lagged components
+      /*!
+       *  We use this to calculate residuals when doing line searches along
+       *  directions determined by Jacobians that are missing contributions
+       *  from lagged entries.
+       */
+      Base_LaggedSolutionComponents
     };
   
   //! Wrappers for the function evaluators for Nonlinear solvers and Time steppers
