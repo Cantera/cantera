@@ -141,9 +141,12 @@ namespace Cantera {
      *  @param typeCalc     Type of the calculation
      *  @param y_curr       Current value of the solution vector
      *  @param ydot_curr    Current value of the time derivative of the solution vector
+     *  @param evalType     Base evalulation type
+     *                        Defaults to Base_ResidEval
      */
     void doResidualCalc(const doublereal time_curr, const int typeCalc, const doublereal * const y_curr, 
-			const doublereal * const ydot_curr);
+			const doublereal * const ydot_curr,
+			const ResidEval_Type_Enum evalType = Base_ResidEval);
 
     //! Compute the undamped Newton step
     /*!
