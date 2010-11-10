@@ -247,7 +247,16 @@ namespace Cantera {
 		    doublereal * const ydot, int num_newt_its);
 
 
-    //! Apply a filtering step
+    //! Apply a filtering process to the step
+    /*!
+     *  @param timeCurrent    Current value of the time
+     *  @param ybase          current value of the solution
+     *
+     *  @return Returns the norm of the value of the amount filtered
+     */
+    doublereal filterNewStep(const doublereal timeCurrent, const doublereal * const ybase, doublereal * const step0);
+
+    //! Apply a filter to the solution
     /*!
      *  @param timeCurrent   Current value of the time
      *  @param y_current     current value of the solution
@@ -255,8 +264,8 @@ namespace Cantera {
      *
      *  @return Returns the norm of the value of the amount filtered
      */
-    doublereal filterNewStep(const doublereal timeCurrent, doublereal * const y_current, doublereal * const ydot_current);
-  
+    doublereal filterNewSolution(const doublereal timeCurrent, doublereal * const y_current, doublereal * const ydot_current);
+
   
     //! Return the factor by which the undamped Newton step 'step0'
     //!  must be multiplied in order to keep the update within the bounds of an accurate jacobian.
@@ -542,9 +551,6 @@ namespace Cantera {
 
     //! Minimum number of newton iterations to use
     int m_min_newt_its;
-
-    //! Boolean that turns on solution filtering
-    int filterNewstep;
 
     //! Maximum number of newton iterations
     int maxNewtIts_;
