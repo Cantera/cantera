@@ -211,14 +211,29 @@ namespace Cantera {
   //====================================================================================================================
   // Filter the solution predictions
   /*
+   * Codes might provide a predicted step change. This routine filters the predicted
+   * solution vector eliminating illegal directions.
+   *
+   * @param t             Time                    (input) 
+   * @param y             Solution vector (input, output)
+   * @param step          Proposed step in the solution that will be cropped
+   */
+  doublereal ResidJacEval::filterNewStep(doublereal t, const doublereal * const ybase, doublereal * const step)
+  {
+    return 0.0;
+  }
+  //====================================================================================================================
+  // Filter the solution predictions
+  /*
    * Codes might provide a predicted solution vector. This routine filters the predicted
    * solution vector.
    *
    * @param t             Time                    (input) 
    * @param y             Solution vector (input, output)
    */
-  void ResidJacEval::filterSolnPrediction(doublereal t, doublereal * const y)
+  doublereal ResidJacEval::filterSolnPrediction(doublereal t, doublereal * const y)
   {
+    return 0.0;
   }
   //====================================================================================================================
   // Evalulate any stopping criteria other than a final time limit

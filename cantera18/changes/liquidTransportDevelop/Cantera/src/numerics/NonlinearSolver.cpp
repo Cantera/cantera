@@ -108,7 +108,6 @@ namespace Cantera {
     m_numTotalLinearSolves(0),
     m_numTotalNewtIts(0),
     m_min_newt_its(0),
-    filterNewstep(0),
     maxNewtIts_(100),
     m_jacFormMethod(NSOLN_JAC_NUM),
     m_nJacEval(0),
@@ -178,7 +177,6 @@ namespace Cantera {
     m_numTotalLinearSolves(0),
     m_numTotalNewtIts(0),
     m_min_newt_its(0),
-    filterNewstep(0),
     maxNewtIts_(100),
     m_jacFormMethod(NSOLN_JAC_NUM),
     m_nJacEval(0),
@@ -237,7 +235,6 @@ namespace Cantera {
     m_numTotalLinearSolves     = right.m_numTotalLinearSolves;
     m_numTotalNewtIts          = right.m_numTotalNewtIts;
     m_min_newt_its             = right.m_min_newt_its;
-    filterNewstep              = right.filterNewstep;
     maxNewtIts_                = right.maxNewtIts_;
     m_jacFormMethod            = right.m_jacFormMethod;
     m_nJacEval                 = right.m_nJacEval;
@@ -1261,6 +1258,12 @@ namespace Cantera {
 	m_normSolnFRaw = solnErrorNorm(DATA_PTR(stp), "Initial Undamped Step of the iteration", 0);
       } 
       calcSolnToResNormVector();
+
+      /*
+       * Filter out bad directions
+       */
+      doublereal normFilter = filterNewStep(time_curr, DATA_PTR(m_y_n), DATA_PTR(stp));
+   
   
       // Damp the Newton step
       /*
@@ -1328,7 +1331,7 @@ namespace Cantera {
       bool m_filterIntermediate = false;
       if (m_filterIntermediate) {
 	if (m == 0) {
-	  (void) filterNewStep(time_n, DATA_PTR(y_new), DATA_PTR(ydot_new));
+	  (void) filterNewSolution(time_n, DATA_PTR(y_new), DATA_PTR(ydot_new));
 	}
       }
 
@@ -1592,7 +1595,7 @@ namespace Cantera {
 	  ydot[j] += dy * CJ;
 	}
         /*
-         * Call the functon
+         * Call the function
          */
 
 
@@ -1618,17 +1621,17 @@ namespace Cantera {
 
     if (m_print_flag >= 7 && s_print_NumJac) {
       if (neq_ < 30) {
-	printf("\t\tCurrent Matrix:\n");
+	printf("\t\tCurrent Matrix and Residual:\n");
 	printf("\t\t    I,J | ");
 	for (j = 0; j < neq_; j++) {
 	  printf("  %5d     ", j);
 	}
-	printf("\n");
+	printf("|   Residual  \n");
 	printf("\t\t        --");
 	for (j = 0; j < neq_; j++) {
 	  printf("------------");
 	}
-	printf("\n");
+	printf("|  -----------\n");
 
 
 	for (i = 0; i < neq_; i++) {
@@ -1636,14 +1639,14 @@ namespace Cantera {
 	  for (j = 0; j < neq_; j++) {
 	    printf(" % 11.4E", J(i,j) );
 	  }
-	  printf("\n");
+	  printf(" |  % 11.4E\n", f[i]);
 	}
 
 	printf("\t\t        --");
 	for (j = 0; j < neq_; j++) {
 	  printf("------------");
 	}
-	printf("\n");
+	printf("--------------\n");
       }
     }
 
@@ -1681,7 +1684,7 @@ namespace Cantera {
     }
   } 
   //====================================================================================================================
-  // Apply a filtering step
+  // Apply a filtering process to the new step
   /*
    *  @param timeCurrent   Current value of the time
    *  @param y_current     current value of the solution
@@ -1689,8 +1692,24 @@ namespace Cantera {
    *
    *  @return Returns the norm of the value of the amount filtered
    */
-  doublereal NonlinearSolver::filterNewStep(const doublereal timeCurrent, doublereal * const y_current, doublereal *const ydot_current) {
-    return 0.0;
+  doublereal NonlinearSolver::filterNewStep(const doublereal timeCurrent,
+					    const doublereal * const ybase, doublereal * const step0) {
+    doublereal tmp = m_func->filterNewStep(timeCurrent, ybase, step0);
+    return tmp;
+  }
+  //====================================================================================================================
+  // Apply a filtering process to the new solution
+  /*
+   *  @param timeCurrent   Current value of the time
+   *  @param y_current     current value of the solution
+   *  @param ydot_current   Current value of the solution derivative. 
+   *
+   *  @return Returns the norm of the value of the amount filtered
+   */
+  doublereal NonlinearSolver::filterNewSolution(const doublereal timeCurrent,
+						doublereal * const y_current, doublereal *const ydot_current) {
+   doublereal tmp = m_func->filterSolnPrediction(timeCurrent, y_current);
+    return tmp;
   }
   //====================================================================================================================
   // Compute the Residual Weights

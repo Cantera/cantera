@@ -134,13 +134,25 @@ namespace Cantera {
   
     //! Filter the solution predictions
     /*!
+     * Codes might provide a predicted step change. This routine filters the predicted
+     * solution vector eliminating illegal directions.
+     *
+     * @param t             Time                    (input) 
+     * @param y             Solution vector (input, output)
+     * @param step          Proposed step in the solution that will be cropped
+     */
+    virtual doublereal filterNewStep(const doublereal t, const doublereal * const ybase,
+                                     doublereal * const step);
+
+    //! Filter the solution predictions
+    /*!
      * Codes might provide a predicted solution vector. This routine filters the predicted
      * solution vector.
      *
      * @param t             Time                    (input) 
      * @param y             Solution vector (input, output)
      */
-    virtual void filterSolnPrediction(const doublereal t, doublereal * const y);
+    virtual doublereal filterSolnPrediction(const doublereal t, doublereal * const y);
 
     //! Set a global value of the absolute tolerance
     /*!
