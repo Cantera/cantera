@@ -65,6 +65,12 @@ namespace Cantera {
   }
 
   bool NonlinearSolver::m_TurnOffTiming(false);
+
+#ifdef DEBUG_NUMJAC 
+  bool NonlinearSolver::s_print_NumJac(true);
+#else
+  bool NonlinearSolver::s_print_NumJac(false);
+#endif
  //====================================================================================================================
   // Default constructor
   /*
@@ -113,7 +119,8 @@ namespace Cantera {
     atolBase_(1.0E-10),
     m_ydot_nm1(0),
     atolk_(0),
-    m_print_flag(0)
+    m_print_flag(0),
+    m_ScaleSolnNormToResNorm(0.001)
   {
     neq_ = m_func->nEquations();
 
@@ -182,7 +189,8 @@ namespace Cantera {
     atolBase_(1.0E-10),
     m_ydot_nm1(0),
     atolk_(0),
-    m_print_flag(0)
+    m_print_flag(0),
+    m_ScaleSolnNormToResNorm(0.001)
   {
     *this =operator=(right);
   }
@@ -240,6 +248,7 @@ namespace Cantera {
     atolBase_                  = right.atolBase_;
     atolk_                     = right.atolk_;
     m_print_flag               = right.m_print_flag;
+    m_ScaleSolnNormToResNorm   = right.m_ScaleSolnNormToResNorm;
   
     return *this;
   }
@@ -547,8 +556,10 @@ namespace Cantera {
 
       for (irow = 0; irow < neq_; irow++) {
 	m_rowScales[irow] = 1.0/m_rowScales[irow];
-	m_rowWtScales[irow] = 1.0/m_rowWtScales[irow];
+	m_rowWtScales[irow] = m_rowWtScales[irow];
       }
+      // What we have defined is a maximum value that the residual can be and still pass.
+      // This isn't sufficient.
 
       if (m_rowScaling) {
 	
@@ -568,6 +579,18 @@ namespace Cantera {
 
   }
   //====================================================================================================================
+  void NonlinearSolver::calcSolnToResNormVector()
+  { 
+    double oldVal =  m_ScaleSolnNormToResNorm;
+    if (m_normSolnFRaw > 1.0E-13) {
+      m_ScaleSolnNormToResNorm = m_normResid0 / m_normSolnFRaw * oldVal;
+    } 
+    m_normResid0 = m_normSolnFRaw;
+    computeResidWts();
+
+    //double tmp = residErrorNorm(DATA_PTR(m_resid));
+  }
+  //====================================================================================================================
   // Compute the undamped Newton step
   /*
    * Compute the undamped Newton step.  The residual function is
@@ -583,7 +606,7 @@ namespace Cantera {
    */ 
   void NonlinearSolver::doNewtonSolve(const doublereal time_curr, const doublereal * const y_curr, 
 				      const doublereal * const ydot_curr,  double* const delta_y, SquareMatrix& jac, int loglevel)
-  {	 
+  {
     int irow;
 
 
@@ -1181,11 +1204,7 @@ namespace Cantera {
 	       num_newt_its);
       }
 
-#ifdef DEBUG_HKM
-      if (num_newt_its > 2) {
-	//	printf("we are > 2\n");
-      }
-#endif
+
       // Check whether the Jacobian should be re-evaluated.
             
       forceNewJac = true;
@@ -1241,10 +1260,11 @@ namespace Cantera {
       } else {
 	m_normSolnFRaw = solnErrorNorm(DATA_PTR(stp), "Initial Undamped Step of the iteration", 0);
       } 
-	  
+      calcSolnToResNormVector();
+  
       // Damp the Newton step
       /*
-       *  On return the recommended new solution and derivative is located in:
+       *  On return the recommended new solution and derivatisve is located in:
        *          m_y_new
        *          m_y_dot_new
        *  The estimate of the solution update norm for the next step is located in
@@ -1277,6 +1297,10 @@ namespace Cantera {
 	  printf("\t\tsolve_nonlinear_problem(): Damped newton unsuccessful (max newts exceeded) sfinal = %g\n", s1);
 	}
       }
+
+
+      doResidualCalc(time_curr, NSOLN_TYPE_STEADY_STATE, DATA_PTR(y_new), DATA_PTR(ydot_new));
+
 
       if (m_print_flag > 3) {
 	residErrorNorm(DATA_PTR(m_resid), "Resulting Residual Norm", 10, DATA_PTR(y_new));
@@ -1491,11 +1515,7 @@ namespace Cantera {
     int i, j;
     double* col_j;
     doublereal ysave, ydotsave, dy;
-#ifdef DEBUG_NUMJAC
-    bool print_NumJac = true;
-#else
-    bool print_NumJac = false;
-#endif
+
     /*
      * Clear the factor flag
      */
@@ -1528,9 +1548,9 @@ namespace Cantera {
       doublereal *dyVector = mdp::mdp_alloc_dbl_1(neq_, MDP_DBL_NOINIT);
       m_func->calcDeltaSolnVariables(time_curr, y, ydot, dyVector, DATA_PTR(m_ewt));
 
- #ifdef DEBUG_NUMJAC
-      if (print_NumJac) {
-	if (m_print_flag >= 7 && print_NumJac ) {
+
+      if (s_print_NumJac) {
+	if (m_print_flag >= 7) {
 	  if (neq_ < 20) {
 	    printf("\t\tUnk            m_ewt              y                dyVector            ResN\n");
 	    for (int iii = 0; iii < neq_; iii++){
@@ -1540,7 +1560,7 @@ namespace Cantera {
 	  }
 	}
       }
-#endif
+
       /*
        * Loop over the variables, formulating a numerical derivative
        * of the dense matrix.
@@ -1595,8 +1615,8 @@ namespace Cantera {
        */
       mdp::mdp_safe_free((void **) &dyVector);
     }
-#ifdef DEBUG_NUMJAC
-    if (m_print_flag >= 7 && print_NumJac) {
+
+    if (m_print_flag >= 7 && s_print_NumJac) {
       if (neq_ < 30) {
 	printf("\t\tCurrent Matrix:\n");
 	printf("\t\t    I,J | ");
@@ -1626,7 +1646,7 @@ namespace Cantera {
 	printf("\n");
       }
     }
-#endif
+
   }
   //====================================================================================================================
   //   Internal function to calculate the time derivative at the new step
@@ -1690,12 +1710,13 @@ namespace Cantera {
   {
     doublereal sum = 0.0;  
     for (int i = 0; i < neq_; i++) {
-      m_residWts[i] = 1.0 / m_rowWtScales[i];
+      m_residWts[i] =m_rowWtScales[i];
+      
       sum += m_residWts[i];
     }
     sum /= neq_;
     for (int i = 0; i < neq_; i++) {
-      m_residWts[i] = m_residWts[i] +  atolBase_ * sum;
+      m_residWts[i] =  m_ScaleSolnNormToResNorm * (m_residWts[i] +  atolBase_ * sum);
     }
   }
   //=====================================================================================================================
@@ -1741,7 +1762,7 @@ namespace Cantera {
     }
     if (dampCode == 3) {
       if (s1 < 1.0E-2) {
-	if (m_normResidTrial < 1.0E-2) {
+	if (m_normResidTrial < 1.0E-6) {
 	  return 3;
 	}
       }
@@ -1753,7 +1774,7 @@ namespace Cantera {
     }
     if (dampCode == 4) {
       if (s1 < 1.0E-2) {
-	if (m_normResidTrial < 1.0E-2) {
+	if (m_normResidTrial < 1.0E-6) {
 	  return 3;
 	}
       }

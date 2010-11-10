@@ -370,7 +370,6 @@ namespace Cantera {
      */
     void  getResidWts(doublereal * const residWts) const;
 
-
     //! Check to see if the nonlinear problem has converged
     /*!
      *
@@ -408,7 +407,11 @@ namespace Cantera {
      *  @param maxNewtIts   Maximum number of newton iterations
      */
     void setMaxNewtIts(const int maxNewtIts);
-      
+
+    //! Calculate the scaling factor for translating residual norms into 
+    //! solution norms.
+    void calcSolnToResNormVector();
+
  private:
 
     //! Pointer to the residual and jacobian evaluator for the 
@@ -591,12 +594,21 @@ namespace Cantera {
      */
     int m_print_flag;
 
+    //! Scale factor for turning residual norms into solution norms
+    double m_ScaleSolnNormToResNorm;
+
   public:
     //! Turn off printing of time
     /*!
      *  Necessary to do for test suites
      */
     static bool m_TurnOffTiming;
+
+    // Turn on or off printing of the Jacobian
+    /*!
+     *
+     */
+    static bool s_print_NumJac;
   };
 
 }
