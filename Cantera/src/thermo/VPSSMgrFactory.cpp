@@ -210,7 +210,7 @@ namespace Cantera {
   void VPSSMgrFactory::deleteFactory() {
 
 #if defined(THREAD_SAFE_CANTERA)
-      boost::mutex::scoped_lock lock(species_thermo_mutex);
+      boost::mutex::scoped_lock lock(vpss_species_thermo_mutex);
 #endif
       if (s_factory) {
 	delete s_factory;
