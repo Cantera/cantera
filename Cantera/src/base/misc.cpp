@@ -553,7 +553,7 @@ namespace Cantera {
       tmp_dir("."),
       xmlfiles(),
       m_sleep("1"),              
-      pMessenger(0)
+      pMessenger()
     {
 #if !defined( THREAD_SAFE_CANTERA )
      pMessenger = std::auto_ptr<Messages>(new Messages());
