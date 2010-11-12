@@ -361,22 +361,17 @@ namespace Cantera {
     switch (type) {
     case cVPSSMGR_IDEALGAS:
       return new VPSSMgr_IdealGas(vp_ptr, &spthermoRef);
-      break;
     case cVPSSMGR_CONSTVOL:
       return new VPSSMgr_ConstVol(vp_ptr, &spthermoRef);
-      break;
     case cVPSSMGR_PUREFLUID:
       throw CanteraError("VPSSMgrFactory::newVPSSMgr",
 			 "unimplemented");
     case cVPSSMGR_WATER_CONSTVOL:
       return new VPSSMgr_Water_ConstVol(vp_ptr, &spthermoRef);
-      break;
     case cVPSSMGR_WATER_HKFT:
       return new VPSSMgr_Water_HKFT(vp_ptr, &spthermoRef);
-      break;
     case cVPSSMGR_GENERAL:
       return new VPSSMgr_General(vp_ptr, &spthermoRef);
-      break;
     case cVPSSMGR_UNDEF:
     default:
       throw UnknownVPSSMgrModel("VPSSMgrFactory::newVPSSMgr", int2str(type));

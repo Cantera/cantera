@@ -27,7 +27,7 @@ namespace Cantera {
   doublereal equilibrate(MultiPhase& s, const char* XY, 
 			 doublereal tol, int maxsteps, int maxiter, 
 			 int loglevel) {
-
+    
     if (loglevel > 0) {
       beginLogGroup("equilibrate",loglevel);
       addLogEntry("multiphase equilibrate function");
@@ -65,9 +65,9 @@ namespace Cantera {
 	endLogGroup("equilibrate");
       }
       throw CanteraError("equilibrate","unsupported option");
-      //return -1.0;
+      return -1.0;
     }
-    
+    return 0.0; 
   }
 
   /*

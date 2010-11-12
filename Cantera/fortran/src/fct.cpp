@@ -33,7 +33,7 @@
 // Assert that there is storage 
 // for the templated classes' static member
 // (needed to compile on solaris)
-template<> Cabinet<XML_Node> * Cabinet<XML_Node>::__storage;
+//template<> Cabinet<XML_Node> * Cabinet<XML_Node>::__storage;
 
 inline XML_Node* _xml(const integer* n) {
     return Cabinet<XML_Node>::cabinet()->item(*n);
@@ -93,6 +93,7 @@ extern "C" {
         catch (CanteraError) {
             handleError(); return -1;
         }
+        return -1;
     }
 
     //--------------- Phase ---------------------//

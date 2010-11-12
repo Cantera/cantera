@@ -85,15 +85,16 @@ namespace Cantera {
    * that has more than 2 species. 
    *
    *      \f[
-   *         G^E = \sum_i \left(  H_{Ei} - T S_{Ei} \right)
+   *          G^E = \sum_i \left(  H_{Ei} - T S_{Ei} \right)
    *      \f]
    *      \f[
-   *         H^E_i = X_{Ai} X_{Bi} \left( h_{o,i} +  h_{1,i} X_{Bi} \right)
+   *         H^E_i = n X_{Ai} X_{Bi} \left( h_{o,i} +  h_{1,i} X_{Bi} \right)
    *      \f]
    *      \f[
-   *         S^E_i = X_{Ai} X_{Bi} \left( s_{o,i} +  s_{1,i} X_{Bi} \right)
+   *         S^E_i = n X_{Ai} X_{Bi} \left( s_{o,i} +  s_{1,i} X_{Bi} \right)
    *      \f]
    *      
+   *  where n is the total moles in the solution.
    *
    * The activity of a species defined in the phase is given by an excess 
    * Gibbs free energy formulation.

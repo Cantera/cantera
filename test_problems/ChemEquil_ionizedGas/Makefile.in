@@ -43,7 +43,7 @@ CXX = @CXX@
 # LOCAL_DEFS=-DDEBUG_CHEMEQUIL
 #
 # C++ compile flags
-CXX_FLAGS = @CXXFLAGS@ $(LOCAL_DEFS)
+CXX_FLAGS = @CXXFLAGS@ $(LOCAL_DEFS) @CXX_INCLUDES@
 
 # Ending C++ linking libraries
 LCXX_END_LIBS = @LCXX_END_LIBS@

@@ -260,6 +260,7 @@ namespace Cantera {
       if (k >= 0) return thermo(n);
     }
     throw CanteraError("speciesPhase", "unknown species "+nm);
+    return thermo(0);
   }
 
   //==============================================================================================
@@ -276,8 +277,8 @@ namespace Cantera {
 	return n;
       }
     }
-    throw CanteraError("speciesPhaseIndex", 
-		       "illegal species index: "+int2str(k));
+    throw CanteraError("speciesPhaseIndex", "illegal species index: "+int2str(k));
+    return -1;
   }
 
   /*
@@ -338,7 +339,6 @@ namespace Cantera {
     }
   }
 
-  
   // Private function of the class Kinetics, indicating that a function
   //  inherited from the base class hasn't had a definition assigned to it
   /*

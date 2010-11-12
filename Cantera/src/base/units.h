@@ -173,10 +173,9 @@ namespace Cantera {
         static boost::mutex units_mutex;
 #endif
 
-        /*!
-         * Units class constructor, containing the default mappings between
-         * strings and units.
-         */
+
+         //! Units class constructor, containing the default mappings between
+         //! strings and units.
         Unit() :
           m_u(),
           m_act_u()
@@ -234,13 +233,16 @@ namespace Cantera {
             m_u["hr"]       = 3600.0;
             m_u["ms"]       = 0.001;
 
-            /*// frequency
+
+            /*
+            // frequency  - Took frequency out to reevaluate it. Inverse cm is probably the wrong default unit
             m_u["hZ"]       = 0.01/(lightSpeed);
             m_u["cm^-1"]    = 1.0;
             m_u["m^-1"]     = 0.1; 
             m_u["cm-1"]     = m_u["cm^-1"];
             m_u["m-1"]      = m_u["m^-1"];
-            m_u["wavenumbers"] = m_u["cm^-1"];*/
+            m_u["wavenumbers"] = m_u["cm^-1"];
+            */
 
             // viscosity
 	    m_u["Pa-s"] = 1;
@@ -258,7 +260,6 @@ namespace Cantera {
 	    m_u["ml"] = 1.0e-6;
 	    m_u["cc"] = 1.0e-6;
 	    
-
             m_act_u["eV"] = m_u["eV"]; // /m_u["molec"];
             m_act_u["K"] =  GasConstant;
             m_act_u["Kelvin"] =  GasConstant;

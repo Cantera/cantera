@@ -5,6 +5,11 @@
 #define CT_CONFIG_H
 
 //---------------------------- Version Flags ------------------//
+// Cantera version -> this will be a double-quoted string value
+//                    refering to branch number within svn
+#undef CANTERA_VERSION
+
+//---------------------------- Version Flags ------------------//
 //
 // Cantera version -> this will be a double-quoted string value
 //                    refering to branch number within svn
@@ -19,6 +24,7 @@
 //  Flag indictaing that its part of 1.8_LiquidTransportDevelop branch
 #define CANTERA_VERSION_18_LTD   1
 //
+
 //------------------------ Development flags ------------------//
 //
 // Compile in additional debug printing where available.

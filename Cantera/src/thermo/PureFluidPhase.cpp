@@ -743,9 +743,7 @@ namespace Cantera {
     catch (CanteraError) {
       ;
     } 
-  }
-
-
+  }   
 }
 
 #endif  // WITH_PURE_FLUIDS

@@ -68,7 +68,7 @@ then
   echo "diamond.py returned with bad status, $retnStat, check output"
 fi
 
-$CANTERA_BIN/csvdiff diamond.csv diamond_blessed.csv > diamond_test.out
+$CANTERA_BIN/csvdiff diamond.csv diamond_blessed.csv > diamond_test_csv.out
 retnStat=$?
 if [ $retnStat = "0" ]
 then
