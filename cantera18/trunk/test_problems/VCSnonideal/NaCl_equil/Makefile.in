@@ -45,7 +45,7 @@ CANTERA_INCDIR=@ctroot@/build/include/cantera
 INCLUDE_DIRS = -I$(CANTERA_INCDIR) 
 
 # C++ compile flags
-CXX_FLAGS = @CXXFLAGS@ $(INCLUDE_DIRS)
+CXX_FLAGS = @CXXFLAGS@ $(INCLUDE_DIRS) @CXX_INCLUDES@
 
 # Ending C++ linking libraries
 LCXX_END_LIBS = @LCXX_END_LIBS@

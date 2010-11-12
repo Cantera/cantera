@@ -39,7 +39,7 @@ endif
 CXX = @CXX@
 
 # C++ compile flags
-CXX_FLAGS = -DSRCDIRTREE @CXXFLAGS@
+CXX_FLAGS = -DSRCDIRTREE @CXXFLAGS@ @CXX_INCLUDES@
 
 # Ending C++ linking libraries
 LCXX_END_LIBS = @LCXX_END_LIBS@
