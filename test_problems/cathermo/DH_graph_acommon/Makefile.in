@@ -38,7 +38,7 @@ endif
 CXX = @CXX@
 
 # C++ compile flags
-CXX_FLAGS = @CXXFLAGS@
+CXX_FLAGS = @CXXFLAGS@ @CXX_INCLUDES@
 
 # Ending C++ linking libraries
 LCXX_END_LIBS = @LCXX_END_LIBS@
