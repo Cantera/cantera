@@ -746,6 +746,7 @@ namespace Cantera {
 
   }
   //===================================================================================================================
+ 
   // Update the activity coefficients
   /*
    * This function will be called to update the internally storred

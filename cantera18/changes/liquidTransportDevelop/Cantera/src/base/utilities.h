@@ -687,7 +687,6 @@ namespace Cantera {
   }
 
   
-
   //@}
 }
 

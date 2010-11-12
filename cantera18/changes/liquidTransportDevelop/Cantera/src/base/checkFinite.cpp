@@ -14,6 +14,8 @@
  * See file License.txt for licensing information.
  */
 
+#include "ct_defs.h"
+
 #include <stdexcept>
 #include <string>
 

@@ -59,7 +59,10 @@ namespace Cantera {
     else if (flag == "SP") return SP;
     else if (flag == "SV") return SV;
     else if (flag == "UP") return UP;
-    else throw CanteraError("_equilflag","unknown property pair "+flag);
+    else {
+      throw CanteraError("_equilflag","unknown property pair "+flag);
+    }
+    return -1;
   }
 
 

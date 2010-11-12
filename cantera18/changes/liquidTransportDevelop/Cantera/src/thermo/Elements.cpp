@@ -321,12 +321,11 @@ namespace Cantera {
    * index. If m < 0 or m >= nElements() an exception is thrown.
    */
   string Elements::elementName(int m) const {
-    if (m >= 0 && m < nElements())  
-      return m_elementNames[m];
-    else
+    if (m < 0 || m >= nElements()) {
       throw ElementRangeError("Elements::elementName", m, nElements());
+    }
+    return m_elementNames[m];
   }
-
 
 
   doublereal Elements::entropyElement298(int m) const {

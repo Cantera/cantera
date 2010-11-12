@@ -67,6 +67,7 @@ namespace CanteraZeroD {
             throw CanteraError("ReactorFactory::newReactor",
                 "unknown reactor type!");
         }
+        return 0;
     }
 
 }

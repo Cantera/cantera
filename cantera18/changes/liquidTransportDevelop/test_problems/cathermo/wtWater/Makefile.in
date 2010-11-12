@@ -37,7 +37,7 @@ endif
 CXX = @CXX@
 
 # C++ compile flags
-CXX_FLAGS = @CXXFLAGS@
+CXX_FLAGS = @CXXFLAGS@ @CXX_INCLUDES@
 
 # Ending C++ linking libraries
 LCXX_END_LIBS = @LCXX_END_LIBS@
@@ -101,7 +101,6 @@ endif
 
 clean:
 	$(RM) $(OBJS) $(PROGRAM) $(DEPENDS) .depends
-	../../../bin/rm_cvsignore
 	(if test -d SunWS_cache ; then \
            $(RM) -rf SunWS_cache ; \
          fi )

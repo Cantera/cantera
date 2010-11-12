@@ -25,6 +25,10 @@ in_CanteraBuildTree = 0
 #
 CANTERA_VERSION=@ctversion@
 #
+CANTERA_VERSION=@ctversion@
+
+CANTERA_VERSION=@ctversion@
+
 ###############################################################################
 #        CANTERA CORE 
 ###############################################################################

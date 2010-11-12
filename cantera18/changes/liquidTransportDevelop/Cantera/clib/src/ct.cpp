@@ -60,6 +60,7 @@ static PureFluidPhase* purefluid(int n) {
     catch (CanteraError) {
         return 0;
     }
+    return 0;
 }
 
 static double pfprop(int n, int i, double v=0.0, double x=0.0) {

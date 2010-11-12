@@ -29,7 +29,6 @@ namespace Cantera {
    *
    */
   class Arrhenius {
-
   public:
         
     //! return the rate coefficient type.
@@ -128,10 +127,10 @@ namespace Cantera {
   class ArrheniusSum {
 
   public:
+
     static int type() {
       return ARRHENIUS_SUM_REACTION_RATECOEFF_TYPE; 
     }
-        
     ArrheniusSum() : m_nterms(0) {}
 
     void addArrheniusTerm(doublereal A, doublereal b, doublereal E) {
@@ -350,6 +349,7 @@ namespace Cantera {
     
 
 
+
   //! Arrhenius reaction rate type depends only on temperature
   /**
    * A reaction rate coefficient of the following form.
@@ -360,9 +360,8 @@ namespace Cantera {
    *
    */
   class ExchangeCurrent {
-
   public:
-        
+
     //! return the rate coefficient type.
     static int type() {
       return EXCHANGE_CURRENT_REACTION_RATECOEFF_TYPE;
@@ -436,7 +435,6 @@ namespace Cantera {
     doublereal updateRC(doublereal logT, doublereal recipT) const {
       return m_A * exp(m_b*logT - m_E*recipT);
     }
-
         
     void writeUpdateRHS(std::ostream& s) const {
       s << " exp(" << m_logA;
@@ -483,7 +481,6 @@ namespace Cantera {
   //     };
     
   //}
-
 }
 
 #endif

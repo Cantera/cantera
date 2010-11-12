@@ -326,6 +326,28 @@ namespace Cantera {
     virtual void getdlnActCoeffdlnN(const int ld, doublereal * const dlnActCoeffdlnN) const {
       err(" getdlnActCoeffdlnN: nonzero and nonimplemented");
     }
+
+    //! Get the array of log concentration-like derivatives of the 
+    //! log activity coefficients
+    /*!
+     * This function is a virtual method.  For ideal mixtures 
+     * (unity activity coefficients), this can return zero.  
+     * Implementations should take the derivative of the 
+     * logarithm of the activity coefficient with respect to the 
+     * logarithm of the concentration-like variable (i.e. number of moles in
+     * in a unit volume. ) that represents the standard state.  
+     * This quantity is to be used in conjunction with derivatives of 
+     * that concentration-like variable when the derivative of the chemical 
+     * potential is taken.  
+     *
+     *  units = dimensionless
+     *
+     * @param dlnActCoeffdlnX    Output vector of derivatives of the 
+     *                         log Activity Coefficients. length = m_kk
+     */
+    virtual void getdlnActCoeffdlnX(doublereal *dlnActCoeffdlnX) const {
+      err("getdlnActCoeffdlnX");
+    }
  
 
     //@}
