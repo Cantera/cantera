@@ -206,7 +206,9 @@ ifneq ($(build_python),0)
 	cp -f "@homedir@/setup_cantera" "@ct_bindir@"
 	chmod +x @ct_bindir@/setup_cantera
 	chmod +x @ct_bindir@/ctnew
+ifeq ($(build_python),2)
 	chmod +x @ct_bindir@/mixmaster
+endif
 endif
 else
 #          Commands to be executed for win systems
