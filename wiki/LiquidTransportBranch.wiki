@@ -22,3 +22,11 @@ We will be merging back the Liquid Transport back into the main branch at the ea
 
 There is still a lot to do with formulating liquid transport models for brines and electrolyte systems used in batteries that are on the development list. So, I don’t think we can close out the branch. However, we’ll limit it to transport development from now on.
 Additionally, there are a lot of fixes and minor development that have ended up there by default. This is ending; bug fixes will be going onto the main development branch. The idea here is to clearly identify commits as either bug fixes or development efforts. If they are development efforts, they should be identified development efforts with project plans.
+
+==How to check out the branch==
+
+{{{
+
+svn co https:://cantera.googlecode.com/svn/cantera18/changes/liquidTransportDevelop cantera_LTD
+
+}}}
