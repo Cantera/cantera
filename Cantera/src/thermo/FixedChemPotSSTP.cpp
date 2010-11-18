@@ -127,6 +127,23 @@ namespace Cantera {
     m_p0 = OneAtm;
     m_tlast = 298.15;
     setChemicalPotential(val);
+
+    // Create an XML_Node entry for this species
+    XML_Node *s = new XML_Node("species", 0);
+    s->addAttribute("name", pname);
+    std::string aaS = Ename + ":1";
+    s->addChild("atomArray", aaS);
+    XML_Node &tt = s->addChild("thermo");
+    XML_Node &ss = tt.addChild("Simple");
+    ss.addAttribute("Pref", "1 bar");
+    ss.addAttribute("Tmax", "5000.");
+    ss.addAttribute("Tmin", "100.");
+    ss.addChild("t0", "298.15");
+    ss.addChild("cp0", "0.0");
+    std::string sval = fp2str(val);
+    ss.addChild("h", sval);
+    ss.addChild("s", "0.0");
+    saveSpeciesData(0, s);
   }
   
   //====================================================================================================================
