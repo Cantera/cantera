@@ -31,6 +31,22 @@ namespace Cantera {
    *
    */
 
+  
+  //! Exception thrown when an LAPACK error is encountered associated with inverting or solving a matrix
+  class CELapackError : public CanteraError {
+  public:
+
+    //! Constructor passes through to main Cantera error handler
+    /*!
+     *  @param routine  Name of calling routine
+     *  @param msg      Informative message
+     */
+    CELapackError(std::string routine, std::string msg) : 
+      CanteraError(routine + " LAPACK ERROR", msg)
+    {
+    }
+
+  };
  
   //! A class for full (non-sparse) matrices with Fortran-compatible
   //!  data storage, which adds matrix operations to class Array2D.
@@ -116,6 +132,24 @@ namespace Cantera {
 
     //! Vector of pivots. Length is equal to the max of m and n.
     vector_int     m_ipiv;
+
+  public:
+    //! Error Handling Flag
+    /*!
+     *  The default is to set this to 0. In this case, if a factorization is requested and can't be achieved,
+     *  a CESingularMatrix exception is triggered. No return code is used, because an exception is thrown.
+     *  If this is set to 1, then an exception is not thrown. Routines return with an error code, that is up
+     *  to the calling routine to handle correctly
+     */
+    int m_useReturnErrorCode;
+
+    //! Print Level
+    /*!
+     *  Printing is done to the log file using the routine writelogf().
+     *
+     *  Level of printing that is carried out. Only error conditions are printed out, if this value is nonzero.
+     */
+    int m_printLevel;
   };
 
   //==================================================================================================================

@@ -601,8 +601,8 @@ namespace Cantera {
    *  recomputed. The row scales are recomputed here, after column
    *  scaling has been implemented.
    */ 
-  void NonlinearSolver::doNewtonSolve(const doublereal time_curr, const doublereal * const y_curr, 
-				      const doublereal * const ydot_curr,  double* const delta_y, SquareMatrix& jac, int loglevel)
+  int NonlinearSolver::doNewtonSolve(const doublereal time_curr, const doublereal * const y_curr, 
+				     const doublereal * const ydot_curr,  double* const delta_y, SquareMatrix& jac, int loglevel)
   {
     int irow;
 
@@ -625,7 +625,7 @@ namespace Cantera {
      * Solve the system -> This also involves inverting the
      * matrix
      */
-    (void) jac.solve(DATA_PTR(delta_y));
+    int info = jac.solve(DATA_PTR(delta_y));
 
 
     /*
@@ -681,6 +681,7 @@ namespace Cantera {
 #endif
 	
     m_numTotalLinearSolves++;
+    return info;
   }
   //====================================================================================================================
   void  NonlinearSolver::setDefaultDeltaBoundsMagnitudes()
@@ -922,7 +923,7 @@ namespace Cantera {
 				double& s1, SquareMatrix& jac, int& loglevel, bool writetitle,
 				int& num_backtracks) 
   {
-    
+    int info = 0;
     int retnTrial = -2;
     // Compute the weighted norm of the undamped step size step0
     doublereal s0 = solnErrorNorm(step0);
@@ -1020,9 +1021,15 @@ namespace Cantera {
       // Compute the next undamped step, step1[], that would result  if y1[] were accepted.
       //   We now have two steps that we have calculated step0[] and step1[]
       if (solnType_ != NSOLN_TYPE_STEADY_STATE) {
-	doNewtonSolve(time_curr, y1, ydot1, step1, jac, loglevel);
+	info = doNewtonSolve(time_curr, y1, ydot1, step1, jac, loglevel);
       } else {
-	doNewtonSolve(time_curr, y1, ydot0, step1, jac, loglevel);
+	info = doNewtonSolve(time_curr, y1, ydot0, step1, jac, loglevel);
+      }
+      if (info) {
+	if (loglevel > 0) {
+	  printf("\t\t\tdampStep: current trial step and damping led to LAPACK ERROR %d. Bailing\n", info);
+	}
+	return -1;
       }
 
       // compute the weighted norm of step1
@@ -1133,11 +1140,13 @@ namespace Cantera {
     clockWC wc;
     int convRes = 0;
     solnType_ = SolnType;
+    int info = 0;
 
     bool m_residCurrent = false;
     int m = 0;
     bool forceNewJac = false;
     doublereal s1=1.e30;
+    
 
     //  std::vector<doublereal> y_curr(neq_, 0.0); 
     std::vector<doublereal> ydot_curr(neq_, 0.0);
@@ -1161,6 +1170,11 @@ namespace Cantera {
     num_backtracks = 0;
     int i_backtracks;
     m_print_flag = loglevelInput;
+    if (m_print_flag > 1) {
+      jac.m_printLevel = 1;
+    } else {
+      jac.m_printLevel = 0;
+    }
 
 
     if (m_print_flag == 2 || m_print_flag == 3) {
@@ -1249,8 +1263,11 @@ namespace Cantera {
       
 
       // compute the undamped Newton step
-      doNewtonSolve(time_curr, DATA_PTR(m_y_n), DATA_PTR(ydot_curr), DATA_PTR(stp), jac, m_print_flag);
-
+      info = doNewtonSolve(time_curr, DATA_PTR(m_y_n), DATA_PTR(ydot_curr), DATA_PTR(stp), jac, m_print_flag);
+      if (info) {
+	m = -1;
+	goto done;
+      }
 
       if (m_print_flag > 3) {
 	m_normSolnFRaw = solnErrorNorm(DATA_PTR(stp),  "Initial Undamped Step of the iteration", 10);
@@ -1262,7 +1279,7 @@ namespace Cantera {
       /*
        * Filter out bad directions
        */
-      doublereal normFilter = filterNewStep(time_curr, DATA_PTR(m_y_n), DATA_PTR(stp));
+      filterNewStep(time_curr, DATA_PTR(m_y_n), DATA_PTR(stp));
    
   
       // Damp the Newton step
@@ -1407,6 +1424,8 @@ namespace Cantera {
 	  printf("\t\tNonlinear problem solved successfully in %d its, time elapsed = %g sec\n",
 		 num_newt_its, time_elapsed);
 	}
+      } else {
+	printf("\t\tNonlinear problem failed to solve after %d its\n", num_newt_its);
       }
     }
     return m;
