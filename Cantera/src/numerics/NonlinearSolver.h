@@ -166,10 +166,12 @@ namespace Cantera {
      *  @param y_current      Current value of the solution
      *  @param ydot_current   Current value of the solution derivative.
      *
+     *  @return returns the result code from lapack. A zero means success. Anything
+     *          else indicates a failure.
      */ 
-    void doNewtonSolve(const doublereal time_curr, const doublereal * const y_curr, 
-		       const doublereal * const ydot_curr, doublereal * const delta_y,
-		       SquareMatrix& jac, int loglevel);
+    int doNewtonSolve(const doublereal time_curr, const doublereal * const y_curr, 
+		      const doublereal * const ydot_curr, doublereal * const delta_y,
+		      SquareMatrix& jac, int loglevel);
 
 
     //! Set default deulta bounds amounts

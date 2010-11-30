@@ -14,11 +14,16 @@
 #include "utilities.h"
 #include "DenseMatrix.h"
 #include "stringUtils.h"
+#include "global.h"
 
 namespace Cantera {
   //====================================================================================================================
   // Default Constructor
-  DenseMatrix::DenseMatrix()
+  DenseMatrix::DenseMatrix() :
+    Array2D(0,0,0.0),
+    m_ipiv(0),
+    m_useReturnErrorCode(0),
+    m_printLevel(0)
   {
   }
   //====================================================================================================================
@@ -27,17 +32,23 @@ namespace Cantera {
    * all elements to \c v.
    */
   DenseMatrix::DenseMatrix(int n, int m, doublereal v) : 
-    Array2D(n, m, v)
+    Array2D(n, m, v),
+    m_ipiv(0),
+    m_useReturnErrorCode(0),
+    m_printLevel(0)
   {
     m_ipiv.resize(max(n, m));
   }
   //====================================================================================================================
-  // copy constructor
+  // Copy constructor
   /*
    *   @param y Object to be copied
    */
   DenseMatrix::DenseMatrix(const DenseMatrix& y) :
-    Array2D(y)
+    Array2D(y),
+    m_ipiv(0),
+    m_useReturnErrorCode(0),
+    m_printLevel(0)
   {
     m_ipiv = y.ipiv();
   }
@@ -47,6 +58,8 @@ namespace Cantera {
     if (&y == this) return *this;
     Array2D::operator=(y);
     m_ipiv = y.ipiv();
+    m_useReturnErrorCode = y.m_useReturnErrorCode;
+    m_printLevel = y.m_printLevel;
     return *this;
   } 
   //====================================================================================================================
@@ -86,56 +99,113 @@ namespace Cantera {
   }
   //====================================================================================================================
   int solve(DenseMatrix& A, double* b) {
+    int info = 0;
     if (A.nColumns() != A.nRows()) {
-        throw CanteraError("DenseMatrix::solve", "Can only solve a square matrix");
+        if (A.m_printLevel) {
+          writelogf("solve(DenseMatrix& A, double* b): Can only solve a square matrix\n");
+        }
+        if (! A.m_useReturnErrorCode) {
+          throw CELapackError("solve(DenseMatrix& A, double* b)", "Can only solve a square matrix");
+        }
+        return -1;
     }
-    int info=0;
     ct_dgetrf(static_cast<int>(A.nRows()), 
 	      static_cast<int>(A.nColumns()), A.ptrColumn(0), //begin(), 
 	      static_cast<int>(A.nRows()), &A.ipiv()[0], info);
     if (info != 0) {
       if (info > 0) {
-        throw CanteraError("DenseMatrix::solve",
+        if (A.m_printLevel) {
+           writelogf("solve(DenseMatrix& A, double* b): DGETRF returned INFO = %d   U(i,i) is exactly zero. The factorization has"
+                     " been completed, but the factor U is exactly singular, and division by zero will occur if "
+                     "it is used to solve a system of equations.\n", info);
+        }
+        if (! A.m_useReturnErrorCode) {
+          throw CELapackError("solve(DenseMatrix& A, double* b)",
                            "DGETRF returned INFO = "+int2str(info) + ".   U(i,i) is exactly zero. The factorization has"
                            " been completed, but the factor U is exactly singular, and division by zero will occur if "
                            "it is used to solve a system of equations.");
-
+        }
       } else {
-        throw CanteraError("DenseMatrix::solve",
+         if (A.m_printLevel) {
+           writelogf("solve(DenseMatrix& A, double* b): DGETRF returned INFO = %d. The argument i has an illegal value\n", info);
+         }
+         if (! A.m_useReturnErrorCode) {
+           throw CELapackError("solve(DenseMatrix& A, double* b)",
                            "DGETRF returned INFO = "+int2str(info) + ". The argument i has an illegal value");
+         }
       }
+      return info;
     }
     ct_dgetrs(ctlapack::NoTranspose, 
 	      static_cast<int>(A.nRows()), 1, A.ptrColumn(0), //begin(), 
 	      static_cast<int>(A.nRows()), 
 	      &A.ipiv()[0], b, 
 	      static_cast<int>(A.nColumns()), info);
-    if (info != 0) 
-      throw CanteraError("DenseMatrix::solve",
-			 "DGETRS returned INFO = "+int2str(info));
-    return 0;
+    if (info != 0) {
+      if (A.m_printLevel) {
+         writelogf("solve(DenseMatrix& A, double* b): DGETRS returned INFO = %d\n", info);
+      }
+      if (! A.m_useReturnErrorCode) {
+        throw CELapackError("solve(DenseMatrix& A, double* b)", "DGETRS returned INFO = "+int2str(info));
+      }
+    }
+    return info;
   }
   //====================================================================================================================
   int solve(DenseMatrix& A, DenseMatrix& b) {
+    int info = 0;
     if (A.nColumns() != A.nRows()) {
-        throw CanteraError("DenseMatrix::solve", "Can only solve a square matrix");
+      if (A.m_printLevel) {
+	writelogf("solve(DenseMatrix& A, DenseMatrix& b): Can only solve a square matrix\n");
+      }  
+      if (! A.m_useReturnErrorCode) {
+	throw CELapackError("solve(DenseMatrix& A, DenseMatrix& b)", "Can only solve a square matrix");
+      }
+      return -1;
     }
-    int info=0;
     ct_dgetrf(static_cast<int>(A.nRows()), 
 	      static_cast<int>(A.nColumns()), A.ptrColumn(0), 
 	      static_cast<int>(A.nRows()), &A.ipiv()[0], info);
-    if (info != 0) 
-      throw CanteraError("DenseMatrix::solve",
-			 "DGETRF returned INFO = "+int2str(info)); 
+    if (info != 0) {
+      if (info > 0) {
+        if (A.m_printLevel) {
+	  writelogf("solve(DenseMatrix& A, DenseMatrix& b): DGETRF returned INFO = %d   U(i,i) is exactly zero. The factorization has"
+		    " been completed, but the factor U is exactly singular, and division by zero will occur if "
+		    "it is used to solve a system of equations.\n", info);
+        }
+        if (! A.m_useReturnErrorCode) {
+          throw CELapackError("solve(DenseMatrix& A, DenseMatrix& b)",
+			     "DGETRF returned INFO = "+int2str(info) + ".   U(i,i) is exactly zero. The factorization has"
+			     " been completed, but the factor U is exactly singular, and division by zero will occur if "
+			     "it is used to solve a system of equations.");
+        }
+      } else {
+	if (A.m_printLevel) {
+	  writelogf("solve(DenseMatrix& A, DenseMatrix& b): DGETRF returned INFO = %d. The argument i has an illegal value\n", info);
+	}
+	if (! A.m_useReturnErrorCode) {
+	  throw CELapackError("solve(DenseMatrix& A, DenseMatrix& b)",
+			     "DGETRF returned INFO = "+int2str(info) + ". The argument i has an illegal value");
+	}
+      }
+      return info;
+    }
+  
     ct_dgetrs(ctlapack::NoTranspose, static_cast<int>(A.nRows()),
 	      static_cast<int>(b.nColumns()), 
 	      A.ptrColumn(0), static_cast<int>(A.nRows()), 
 	      &A.ipiv()[0], b.ptrColumn(0), 
 	      static_cast<int>(b.nRows()), info);
-    if (info != 0)
-      throw CanteraError("DenseMatrix::solve",
-			 "DGETRS returned INFO = "+int2str(info));
-    return 0;
+    if (info != 0) {
+      if (A.m_printLevel) {
+	writelogf("solve(DenseMatrix& A, DenseMatrix& b): DGETRS returned INFO = %d\n", info);
+      }
+      if (! A.m_useReturnErrorCode) {
+        throw CELapackError("solve(DenseMatrix& A, DenseMatrix& b)", "DGETRS returned INFO = "+int2str(info));
+      }
+    }
+  
+    return info;
   }
   //====================================================================================================================
 
@@ -155,10 +225,15 @@ namespace Cantera {
 	      static_cast<int>(A.nRows()), b, 
 	      static_cast<int>(A.nColumns()), &s[0], //.begin(),
 	      rcond, rank, &work[0], work.size(), info);
-    if (info != 0) 
-      throw CanteraError("DenseMatrix::leaseSquares",
-			 "DGELSS returned INFO = "+int2str(info));
-    return 0; 
+    if (info != 0) {
+      if (A.m_printLevel) {
+	writelogf("leastSquares(): DGELSS returned INFO = %d\n", info);
+      }
+      if (! A.m_useReturnErrorCode) {
+	throw CELapackError("leastSquares()", "DGELSS returned INFO = " + int2str(info));
+      }
+    }
+    return info; 
   }
 #endif
   //====================================================================================================================
@@ -179,19 +254,29 @@ namespace Cantera {
     int info=0;
     ct_dgetrf(n, n, A.ptrColumn(0), static_cast<int>(A.nRows()), 
 	      &A.ipiv()[0], info);
-    if (info != 0) 
-      throw CanteraError("invert",
-			 "DGETRF returned INFO="+int2str(info));
+    if (info != 0) {
+     if (A.m_printLevel) {
+	writelogf("invert(DenseMatrix& A, int nn): DGETRS returned INFO = %d\n", info);
+      }
+      if (! A.m_useReturnErrorCode) {
+        throw CELapackError("invert(DenseMatrix& A, int nn)", "DGETRS returned INFO = "+int2str(info));
+      }
+      return info;
+    }
 
     vector_fp work(n);
     integer lwork = static_cast<int>(work.size()); 
     ct_dgetri(n, A.ptrColumn(0), static_cast<int>(A.nRows()),
-	      &A.ipiv()[0], 
-	      &work[0], lwork, info);
-    if (info != 0) 
-      throw CanteraError("invert",
-			 "DGETRI returned INFO="+int2str(info));
-    return 0;
+	      &A.ipiv()[0],  &work[0], lwork, info);
+    if (info != 0) {
+      if (A.m_printLevel) {
+	writelogf("invert(DenseMatrix& A, int nn): DGETRS returned INFO = %d\n", info);
+      } 
+      if (! A.m_useReturnErrorCode) {
+	throw CELapackError("invert(DenseMatrix& A, int nn)", "DGETRI returned INFO="+int2str(info));
+      }
+    }
+    return info;
   }
   //====================================================================================================================
 }

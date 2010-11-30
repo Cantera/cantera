@@ -17,6 +17,7 @@
 #include "stringUtils.h"
 #include "ctlapack.h"
 #include "SquareMatrix.h"
+#include "global.h"
 
 #include <iostream>
 #include <vector>
@@ -56,7 +57,10 @@ namespace Cantera {
      * Check to see whether the matrix has been factored.
      */
     if (!m_factored) {
-      factor();
+      int retn = factor();
+      if (retn) {
+	return retn;
+      }
     }
     /*
      * Solve the factored system
@@ -64,10 +68,15 @@ namespace Cantera {
     ct_dgetrs(ctlapack::NoTranspose, static_cast<int>(nRows()),
 	      1, &(*(begin())), static_cast<int>(nRows()), 
 	      DATA_PTR(ipiv()), b, static_cast<int>(nColumns()), info);
-    if (info != 0)
-      throw CanteraError("SquareMatrix::solve",
-			 "DGETRS returned INFO = "+int2str(info));
-    return 0;
+    if (info != 0) {
+      if (m_printLevel) {
+	writelogf("SquareMatrix::solve(): DGETRS returned INFO = %d\n", info);
+      }
+      if (! m_useReturnErrorCode) {
+	throw CELapackError("SquareMatrix::solve()", "DGETRS returned INFO = " + int2str(info));
+      }
+    }
+    return info;
   }
 
   /**
@@ -96,11 +105,14 @@ namespace Cantera {
     ct_dgetrf(n, n, &(*(begin())), static_cast<int>(nRows()),
 	      DATA_PTR(ipiv()), info);
     if (info != 0) {
-      cout << "Singular matrix, info = " << info << endl;
-      throw CanteraError("invert",
-			 "DGETRF returned INFO="+int2str(info));
+      if (m_printLevel) {
+	writelogf("SquareMatrix::factor(): DGETRS returned INFO = %d\n", info);
+      }
+      if (! m_useReturnErrorCode) {
+        throw CELapackError("SquareMatrix::factor()", "DGETRS returned INFO = "+int2str(info));
+      }
     }
-    return 0;
+    return info;
   }
   /*
    * clear the factored flag
