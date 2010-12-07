@@ -86,7 +86,8 @@ export F77
 CFLAGS="-g -Wall"
 export CFLAGS
 
-CXXFLAGS="-g  -Wall -Woverloaded-virtual -DDEBUG_HKM -DDEBUG_HKM_EPEQUIL"
+#CXXFLAGS="-g  -Wall -Woverloaded-virtual -DDEBUG_HKM -DDEBUG_HKM_EPEQUIL -DDEBUG_NUMJAC"
+CXXFLAGS="-g  -Wall -Woverloaded-virtual -DDEBUG_HKM -DDEBUG_HKM_EPEQUIL "
 export CXXFLAGS
 
 FFLAGS="-g -DDEBUG_HKM  -fno-second-underscore"

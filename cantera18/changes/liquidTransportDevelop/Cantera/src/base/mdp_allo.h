@@ -674,6 +674,13 @@ namespace mdp {
    */
   extern void mdp_zero_dbl_1(double * const v , const int len);
 
+  //! Zeroes an int vector
+  /*!
+   *  @param v = Vector of values to be assigned
+   *  @param len       = Length of the vector
+   */
+  extern void mdp_zero_int_1(int * const v , const int len);
+
   //!  Assigns a single value to a double matrix. Contiguous data for the
   //!  matrix is assumed.
   /*!

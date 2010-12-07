@@ -281,6 +281,14 @@ namespace Cantera {
     }
   }
   //====================================================================================================================
+  std::vector<double> &  NonlinearSolver::lowBoundsConstraintVector() {
+    return  m_y_low_bounds;
+  }
+  //====================================================================================================================
+  std::vector<double> &  NonlinearSolver::highBoundsConstraintVector() {
+    return  m_y_high_bounds;
+  }
+  //====================================================================================================================
   //  L2 norm of the delta of the solution vector
   /*
    *  calculate the norm of the solution vector. This will
@@ -1224,8 +1232,11 @@ namespace Cantera {
 	if (m_print_flag > 3) {
 	  printf("\tsolve_nonlinear_problem(): Getting a new Jacobian and solving system\n");
 	}
-	beuler_jac(jac, DATA_PTR(m_resid), time_curr, CJ,  DATA_PTR(m_y_n), DATA_PTR(ydot_curr),
-		   num_newt_its);
+	info = beuler_jac(jac, DATA_PTR(m_resid), time_curr, CJ,  DATA_PTR(m_y_n), DATA_PTR(ydot_curr), num_newt_its);
+	if (info == 0) {
+	  m = -1;
+	  goto done;
+	}
 	m_residCurrent = true;
       } else {
 	if (m_print_flag > 1) {
@@ -1526,9 +1537,12 @@ namespace Cantera {
    *  @param f = Right hand side. This routine returns the current
    *             value of the rhs (output), so that it does
    *             not have to be computed again.
-   *
+   *  
+   * @return Returns a flag to indicate that operation is successful.
+   *            1  Means a successful operation
+   *            0  Means an unsuccessful operation
    */
-  void NonlinearSolver::beuler_jac(SquareMatrix &J, doublereal * const f,
+  int NonlinearSolver::beuler_jac(SquareMatrix &J, doublereal * const f,
 				   doublereal time_curr, doublereal CJ,
 				   doublereal * const y,
 				   doublereal * const ydot,
@@ -1537,7 +1551,7 @@ namespace Cantera {
     int i, j;
     double* col_j;
     doublereal ysave, ydotsave, dy;
-
+    int retn = 1;
     /*
      * Clear the factor flag
      */
@@ -1568,7 +1582,8 @@ namespace Cantera {
        * derivative.
        */
       doublereal *dyVector = mdp::mdp_alloc_dbl_1(neq_, MDP_DBL_NOINIT);
-      m_func->calcDeltaSolnVariables(time_curr, y, ydot, dyVector, DATA_PTR(m_ewt));
+      retn = m_func->calcDeltaSolnVariables(time_curr, y, ydot, dyVector, DATA_PTR(m_ewt));
+      
 
 
       if (s_print_NumJac) {
@@ -1668,7 +1683,7 @@ namespace Cantera {
 	printf("--------------\n");
       }
     }
-
+    return retn;
   }
   //====================================================================================================================
   //   Internal function to calculate the time derivative at the new step

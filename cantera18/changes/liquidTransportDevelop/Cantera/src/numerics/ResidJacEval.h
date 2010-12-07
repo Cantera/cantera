@@ -138,8 +138,10 @@ namespace Cantera {
      * solution vector eliminating illegal directions.
      *
      * @param t             Time                    (input) 
-     * @param y             Solution vector (input, output)
+     * @param ybase         Solution vector (input, output)
      * @param step          Proposed step in the solution that will be cropped
+     *
+     * @return              Return the norm of the amount of filtering
      */
     virtual doublereal filterNewStep(const doublereal t, const doublereal * const ybase,
                                      doublereal * const step);
@@ -151,6 +153,8 @@ namespace Cantera {
      *
      * @param t             Time                    (input) 
      * @param y             Solution vector (input, output)
+     *
+     * @return              Return the norm of the amount of filtering
      */
     virtual doublereal filterSolnPrediction(const doublereal t, doublereal * const y);
 
@@ -205,8 +209,12 @@ namespace Cantera {
      * @param ydot          Rate of change of solution vector. (input, do not modify)
      * @param delta_y       Value of the delta to be used in calculating the numerical jacobian
      * @param solnWeights   Value of the solution weights that are used in determining convergence (default = 0)
+     *
+     * @return Returns a flag to indicate that operation is successful.
+     *            1  Means a successful operation
+     *           -0 or neg value Means an unsuccessful operation
      */
-    virtual void 
+    virtual int 
     calcDeltaSolnVariables(const doublereal t,
 			   const doublereal * const y,
 			   const doublereal * const ydot,

@@ -172,8 +172,12 @@ namespace Cantera {
    * @param ydot          Rate of change of solution vector. (input, do not modify)
    * @param delta_y       Value of the delta to be used in calculating the numerical jacobian
    * @param solnWeights   Value of the solution weights that are used in determining convergence (default = 0)
+   *
+   * @return Returns a flag to indicate that operation is successful.
+   *            1  Means a successful operation
+   *            0  Means an unsuccessful operation
    */
-  void ResidJacEval::
+  int ResidJacEval::
   calcDeltaSolnVariables(const doublereal t, const doublereal * const ySoln,
 			 const doublereal * const ySolnDot, doublereal * const deltaYSoln,
 			 const doublereal *const solnWeights)
@@ -187,6 +191,7 @@ namespace Cantera {
 	deltaYSoln[i] = fmaxx(1.0E-2 * solnWeights[i], 1.0E-6 * fabs(ySoln[i]));
       }
     }
+    return 1;
   }
   //====================================================================================================================
   //  Returns a vector of column scale factors that can be used to column scale Jacobians.

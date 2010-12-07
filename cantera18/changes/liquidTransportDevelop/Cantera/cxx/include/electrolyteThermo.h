@@ -9,8 +9,8 @@
 #ifndef CT_ELECTROLYTETHERMO_INCL
 #define CT_ELECTROLYTETHERMO_INCL
 
-#include "thermo.h"
 
+#ifdef WITH_ELECTROLYTES
 #include "kernel/electrolytes.h"
 #include "kernel/MolalityVPSSTP.h"
 #include "kernel/VPStandardStateTP.h"
@@ -25,4 +25,6 @@
 #include "kernel/WaterSSTP.h"
 #include "kernel/VPSSMgr_Water_HKFT.h"
 #include "kernel/VPSSMgr_Water_ConstVol.h"
+#endif
+
 #endif
