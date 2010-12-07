@@ -33,6 +33,10 @@ namespace Cantera {
 
   
   //! Exception thrown when an LAPACK error is encountered associated with inverting or solving a matrix
+  /*!
+   *  A named error condition is used so that the calling code may differentiate this type of error
+   *  from other error conditions.
+   */
   class CELapackError : public CanteraError {
   public:
 
@@ -48,11 +52,24 @@ namespace Cantera {
 
   };
  
-  //! A class for full (non-sparse) matrices with Fortran-compatible
+  //!  A class for full (non-sparse) matrices with Fortran-compatible
   //!  data storage, which adds matrix operations to class Array2D.
   /*!
    *  The dense matrix class adds matrix operations onto the Array2D class.
    *  These matrix operations are carried out by the appropriate BLAS and LAPACK routines
+   *
+   *  Error handling from BLAS and LAPACK are handled via the following formulation.
+   *  Depending on a variable, a singular matrix or other terminal error condition from
+   *  LAPACK is handled by either throwing an exception of type, CELapackError, or by
+   *  returning the error code condition to the calling routine. 
+   *
+   *  The int variable,  m_useReturnErrorCode, determines which method is used.
+   *  The default value of zero means that an exception is thrown. A value of 1
+   *  means that a return code is used.
+   *
+   *  Reporting of these LAPACK error conditions is handled by the class variable
+   *  m_printLevel. The default is for no reporting. If m_printLevel is nonzero,
+   *  the error condition is reported to Cantera's log file.
    *
    *  @ingroup numerics
    */
@@ -134,6 +151,7 @@ namespace Cantera {
     vector_int     m_ipiv;
 
   public:
+
     //! Error Handling Flag
     /*!
      *  The default is to set this to 0. In this case, if a factorization is requested and can't be achieved,
@@ -150,6 +168,17 @@ namespace Cantera {
      *  Level of printing that is carried out. Only error conditions are printed out, if this value is nonzero.
      */
     int m_printLevel;
+
+
+    //  Listing of friend functions which are defined below
+
+    friend int solve(DenseMatrix& A, double* b); 
+    friend int solve(DenseMatrix& A, DenseMatrix& b); 
+    friend int invert(DenseMatrix& A, int nn);
+#ifdef INCL_LEAST_SQUARES
+    friend int leastSquares(DenseMatrix& A, double* b);
+#endif
+
   };
 
   //==================================================================================================================

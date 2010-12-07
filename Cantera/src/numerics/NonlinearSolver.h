@@ -229,6 +229,11 @@ namespace Cantera {
     void setBoundsConstraints(const doublereal * const y_low_bounds,
 			      const doublereal * const y_high_bounds);
 
+    //! return an editable vector of the low bounds constraints
+    std::vector<double> & lowBoundsConstraintVector();
+
+    //! return an editable vector of the high bounds constraints
+    std::vector<double> & highBoundsConstraintVector();
    
     //!   Internal function to calculate the time derivative at the new step
     /*!
@@ -238,13 +243,22 @@ namespace Cantera {
      */ 
     void calc_ydot(const int order, const doublereal * const y_curr, doublereal * const ydot_curr);
 
-    //! Function called to evaluate the jacobian matrix and the curent
-    //! residual vector.
+    //! Function called to evaluate the jacobian matrix and the current
+    //! residual vector at the current time step
     /*!
+     *  
      *
+     *  @param J = Jacobian matrix to be filled in
+     *  @param f = Right hand side. This routine returns the current
+     *             value of the rhs (output), so that it does
+     *             not have to be computed again.
+     *  
+     * @return Returns a flag to indicate that operation is successful.
+     *            1  Means a successful operation
+     *            0  Means an unsuccessful operation
      *
      */
-    void beuler_jac(SquareMatrix &J, doublereal * const f,
+    int  beuler_jac(SquareMatrix &J, doublereal * const f,
 		    doublereal time_curr, doublereal CJ, doublereal * const y,
 		    doublereal * const ydot, int num_newt_its);
 
