@@ -394,11 +394,21 @@ namespace Cantera {
   {
     int    i;
     doublereal sum_norm = 0.0, error;
+
     for (i = 0; i < neq_; i++) {
+#ifdef DEBUG_HKM
+      mdp::checkFinite(resid[i]);
+#endif
       error     = resid[i] / m_residWts[i];
+#ifdef DEBUG_HKM
+      mdp::checkFinite(error);
+#endif
       sum_norm += (error * error);
     }
     sum_norm = sqrt(sum_norm / neq_); 
+#ifdef DEBUG_HKM
+    mdp::checkFinite(sum_norm);
+#endif
     if (printLargest) {
       const int num_entries = printLargest;
       doublereal dmax1, normContrib;
@@ -588,7 +598,7 @@ namespace Cantera {
   { 
     double oldVal =  m_ScaleSolnNormToResNorm;
     if (m_normSolnFRaw > 1.0E-13) {
-      m_ScaleSolnNormToResNorm = m_normResid0 / m_normSolnFRaw * oldVal;
+      m_ScaleSolnNormToResNorm = 1.0E-2 * m_normResid0 / m_normSolnFRaw * oldVal;
     } 
     m_normResid0 = m_normSolnFRaw;
     computeResidWts();
@@ -1769,7 +1779,7 @@ namespace Cantera {
     }
     sum /= neq_;
     for (int i = 0; i < neq_; i++) {
-      m_residWts[i] =  m_ScaleSolnNormToResNorm * (m_residWts[i] +  atolBase_ * sum);
+      m_residWts[i] =  m_ScaleSolnNormToResNorm * (m_residWts[i] +  atolBase_ * atolBase_ * sum);
     }
   }
   //=====================================================================================================================
