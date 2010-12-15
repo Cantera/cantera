@@ -73,12 +73,38 @@ namespace Cantera {
   };
 
 
-  ///
-  ///  A kinetics manager for heterogeneous reaction mechanisms. The
-  ///  reactions are assumed to occur at a 2D interface between two
-  ///  3D phases.
-  ///
-  ///  @ingroup chemkinetics
+ 
+  //!  A kinetics manager for heterogeneous reaction mechanisms. The
+  //!  reactions are assumed to occur at a 2D interface between two 3D phases.
+  /*!
+   *
+   *    There are some important additions to the behavior of the kinetics class due to the
+   *    presence of multiple phases and a heterogeneous interface.  If a reactant phase
+   *    doesn't exists, i.e., has a mole number of zero, a heterogeneous reaction can not
+   *    proceed from reactants to products. Note it could perhaps proceed from products to 
+   *    reactants if all of the product phases exist. 
+   *
+   *    In order to make the determination of whether a phase exists or not actually involves
+   *    the specification of additional information to the kinetics object., which heretofore
+   *    has only had access to intrinsic field information about the phases (i.e., temperature
+   *    pressure, and mole fraction).
+   *  
+   *    The extrinsic specification of whether a phase exists or not  must be specified on top of the
+   *    intrinsic calculation of the reaction rate.  This routine carries a set of
+   *    booleans indicating whether a phase in the heterogeneous mechanism exists or not.
+   *   
+   *    Additionally, the routine carries a set of booleans around indicating whether a product
+   *    phase is stable or not. If a phase is not thermodynamically stable, it may be the case that
+   *    a particular reaction in a heterogeneous mechanism will create a product species in the
+   *    unstable phase. However, other reactions in the mechanism will destruct that species.
+   *    This may cause oscillations in the formation of the unstable phase from time step to time
+   *    step within a ODE solver, in practice. In order to avoid this situation, a set of 
+   *    booleans is tracked which sets the stability of a phase. If a phase is deemed to be unstable,
+   *    then species in that phase will not be allowed to be birthed by the kinetics operator.
+   *    Nonexistent phases are deemed to be unstable by default, but this can be changed.
+   *
+   *  @ingroup chemkinetics
+   */
   class InterfaceKinetics : public Kinetics {
 
   public:
@@ -557,13 +583,34 @@ namespace Cantera {
     /*!
      *    Tell the kinetics object whether a phase in the object exists.
      *    This is actually an extrinsic specification that must be carried out on top of the
-     *    intrinsic calculation of the reaction rate
+     *    intrinsic calculation of the reaction rate.
+     *    The routine will also flip the IsStable boolean within the kinetics object as well.
      *
      *  @param iphase  Index of the phase. This is the order within the internal thermo vector object
      *  @param exists  Boolean indicating whether the phase exists or not
      */
     void setPhaseExistence(const int iphase, const bool exists);
  
+
+    //! Set the stability of a phase in the reaction object
+    /*!
+     *    Tell the kinetics object whether a phase in the object is stable. Species in an unstable phase
+     *    will not be allowed to have a positive rate of formation from this kinetics object.
+     *    This is actually an extrinsic specification that must be carried out on top of the
+     *    intrinsic calculation of the reaction rate.
+     *
+     *    While conceptually not needed since kinetics is consistent with thermo when taken as a whole, 
+     *    in practice it has found to be very useful to turn off the creation of phases which shouldn't
+     *    be forming. Typically thais can reduce the oscillations in phase formation and destruction
+     *    which are observed.
+     *
+     *  @param iphase  Index of the phase. This is the order within the internal thermo vector object
+     *  @param exists  Boolean indicating whether the phase exists or not
+     */
+    void setPhaseStability(const int iphase, const bool isStable);
+ 
+
+
   protected:
      
     //! Temporary work vector of length m_kk
@@ -795,7 +842,31 @@ namespace Cantera {
      */
     std::vector<bool> m_phaseExists;
 
+    //!  Vector of booleans indicating whether phases are stable or not
+    /*!
+     *    Vector of booleans indicating whether a phase is stable or not
+     *    under the current conditions.
+     *    We use this to set the ROP's so that unphysical things don't happen
+     *
+     *    length = number of phases in the object
+     *    By default all phases are stable
+     */
+    std::vector<bool> m_phaseIsStable;
+
+    //!  Vector of vector of booleans indicating whether a phase participates in a
+    //!  reaction as a reactant
+    /*!
+     *      m_rxnPhaseIsReactant[j][p] indicates whether a species in phase p
+     *               participates in reaction j as a reactant.
+     */
     std::vector<bool *> m_rxnPhaseIsReactant;
+
+    //!  Vector of vector of booleans indicating whether a phase participates in a
+    //!  reaction as a product
+    /*!
+     *      m_rxnPhaseIsReactant[j][p] indicates whether a species in phase p
+     *               participates in reaction j as a product.
+     */
     std::vector<bool *> m_rxnPhaseIsProduct;
 
     int m_ioFlag;
