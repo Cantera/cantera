@@ -411,9 +411,7 @@ namespace VCSnonideal {
        *    a 2x2 Newton's method, using loops over vcs_TP() to
        *    calculate the residual and Jacobian)
        */
-    
       iconv = vcs_TP(ipr, ip1, maxit, vprob->T, vprob->PresPA);
-
 	     
       /*
        *        If requested to print anything out, go ahead and do so;

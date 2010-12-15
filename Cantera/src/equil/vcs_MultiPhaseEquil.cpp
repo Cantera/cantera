@@ -42,7 +42,7 @@ using namespace std;
 //using namespace VCSnonideal;
 
 namespace VCSnonideal {
-
+  //====================================================================================================================
 
   vcs_MultiPhaseEquil::vcs_MultiPhaseEquil() :
     m_vprob(0),
@@ -51,7 +51,7 @@ namespace VCSnonideal {
     m_vsolvePtr(0)
   {
   }
-
+  //====================================================================================================================
   vcs_MultiPhaseEquil::vcs_MultiPhaseEquil(mix_t* mix, int printLvl) :
     m_vprob(0),
     m_mix(0),
@@ -89,7 +89,7 @@ namespace VCSnonideal {
       m_vsolvePtr = 0;
     }
   }
-
+  //====================================================================================================================
   int vcs_MultiPhaseEquil::equilibrate_TV(int XY, doublereal xtarget,
 					  int estimateEquil,
 					  int printLvl, doublereal err, 
@@ -209,7 +209,7 @@ namespace VCSnonideal {
     return iSuccess;
   }
 
-
+  //====================================================================================================================
   int vcs_MultiPhaseEquil::equilibrate_HP(doublereal Htarget, 
 					  int XY, double Tlow, double Thigh,
 					  int estimateEquil,
@@ -359,7 +359,7 @@ namespace VCSnonideal {
   done:;
     return iSuccess;
   }
-
+  //====================================================================================================================
   int vcs_MultiPhaseEquil::equilibrate_SP(doublereal Starget, 
 					  double Tlow, double Thigh,
 					  int estimateEquil,
@@ -515,7 +515,7 @@ namespace VCSnonideal {
   done:;
     return iSuccess;
   }
-
+  //====================================================================================================================
 
   /*
    * Equilibrate the solution using the current element abundances
@@ -566,7 +566,7 @@ namespace VCSnonideal {
     }
     return iSuccess;
   }
-     
+  //====================================================================================================================
   /*
    * Equilibrate the solution using the current element abundances
    */
@@ -733,7 +733,7 @@ namespace VCSnonideal {
   }
 
 
-
+  //====================================================================================================================
   /**************************************************************************
    *
    *
@@ -905,7 +905,7 @@ namespace VCSnonideal {
   static void print_char(const char letter, const int num) {
     for (int i = 0; i < num; i++) plogf("%c", letter);
   }
-  
+    //====================================================================================================================
   /*
    * 
    *
@@ -1299,7 +1299,7 @@ namespace VCSnonideal {
  
     return VCS_SUCCESS;
   }
-
+  //====================================================================================================================
   // Transfer the current state of mphase into the VCS_PROB object
   /*
    * The basic problem has already been set up.
@@ -1421,7 +1421,7 @@ namespace VCSnonideal {
  
     return VCS_SUCCESS;
   }
-
+  //====================================================================================================================
   // This routine hasn't been checked yet
   void vcs_MultiPhaseEquil::getStoichVector(index_t rxn, Cantera::vector_fp& nu) {
     int nsp = m_vsolvePtr->m_numSpeciesTot;
@@ -1442,7 +1442,7 @@ namespace VCSnonideal {
     }
     
   }
-  
+    //====================================================================================================================
   int vcs_MultiPhaseEquil::numComponents() const {
     int nc = -1;
     if (m_vsolvePtr) {
@@ -1450,7 +1450,7 @@ namespace VCSnonideal {
     }
     return nc;
   }
-
+  //====================================================================================================================
   int vcs_MultiPhaseEquil::numElemConstraints() const {
     int nec = -1;
     if (m_vsolvePtr) {
@@ -1459,11 +1459,185 @@ namespace VCSnonideal {
     return nec;
   }
  
-
+  //====================================================================================================================
   int vcs_MultiPhaseEquil::component(int m) const {
     int nc = numComponents();
     if (m < nc) return m_vsolvePtr->m_speciesMapIndex[m]; 
     else return -1;
   }
+
+  //====================================================================================================================
+  // Determine the phase stability of a phase at the current conditions
+  /*
+   * Equilibration of the solution is not done before the determination is made.
+   *
+   *  @param iph       Phase number to determine the equilibrium. If the phase
+   *                   has a non-zero mole number....
+   *
+   *  @param funcStab  Value of the phase pop function
+   *
+   *  @param printLvl  Determines the amount of printing that
+   *                   gets sent to stdout from the vcs package
+   *                   (Note, you may have to compile with debug
+   *                    flags to get some printing).
+   *
+   *  @param loglevel Determines the amount of printing to the HTML
+   *                  output file.
+   */
+  int vcs_MultiPhaseEquil::determine_PhaseStability(int iph, double &funcStab, int printLvl, int loglevel) {
+   
+  
+    clockWC tickTock;
+    int nsp = m_mix->nSpecies();
+    int nel = m_mix->nElements();
+    int nph = m_mix->nPhases();
+    if (m_vprob == 0) {
+      m_vprob = new VCS_PROB(nsp, nel, nph);
+    }
+    m_printLvl = printLvl;
+    m_vprob->m_printLvl = printLvl;
+  
+    /*    
+     *     Extract the current state information
+     *     from the MultiPhase object and
+     *     Transfer it to VCS_PROB object.
+     */
+    int res = vcs_Cantera_update_vprob(m_mix, m_vprob);
+    if (res != 0) {
+      plogf("problems\n");
+    }
+ 
+
+
+    // Check obvious bounds on the temperature and pressure
+    // NOTE, we may want to do more here with the real bounds 
+    // given by the ThermoPhase objects.
+    double T = m_mix->temperature();
+    if (T <= 0.0) {
+      throw CanteraError("vcs_MultiPhaseEquil::determine_PhaseStability",
+			 "Temperature less than zero on input");
+    }
+    double pres = m_mix->pressure();
+    if (pres <= 0.0) {
+      throw CanteraError("vcs_MultiPhaseEquil::determine_PhaseStability",
+			 "Pressure less than zero on input");
+    }
+   
+    beginLogGroup("vcs_MultiPhaseEquil::determine_PhaseStability", loglevel);
+    addLogEntry("problem type", "fixed T,P");
+    addLogEntry("Temperature", T);
+    addLogEntry("Pressure", pres);
+   
+
+    /*
+     * Print out the problem specification from the point of
+     * view of the vprob object.
+     */
+    m_vprob->prob_report(m_printLvl);
+
+    /*
+     * Call the thermo Program
+     */
+    int ip1 = m_printLvl;
+    if (m_printLvl >= 3) {  
+      ip1 = m_printLvl - 2;
+    } else {
+      ip1 = 0;
+    }
+    if (!m_vsolvePtr) {
+      m_vsolvePtr = new VCS_SOLVE();
+    }
+    double feStable;
+    int iStable = m_vsolvePtr->vcs_PS(m_vprob, iph, printLvl, feStable);
+
+    /*
+     * Transfer the information back to the MultiPhase object.
+     * Note we don't just call setMoles, because some multispecies
+     * solution phases may be zeroed out, and that would cause a problem
+     * for that routine. Also, the mole fractions of such zereod out
+     * phases actually contain information about likely reemergent
+     * states.
+     */
+    m_mix->uploadMoleFractionsFromPhases();
+    int kGlob = 0;
+    for (int ip = 0; ip < m_vprob->NPhase; ip++) {
+      double phaseMole = 0.0;
+      Cantera::ThermoPhase &tref = m_mix->phase(ip);
+      int nspPhase = tref.nSpecies();
+      for (int k = 0; k < nspPhase; k++, kGlob++) {
+	phaseMole += m_vprob->w[kGlob];
+      }
+      //phaseMole *= 1.0E-3;
+      m_mix->setPhaseMoles(ip, phaseMole);
+    }
+  
+    double te = tickTock.secondsWC();
+    if (printLvl > 0) {
+      plogf("\n Results from vcs_PS:\n");
+  
+      plogf("\n");
+      plogf("Temperature = %g Kelvin\n",  m_vprob->T);
+      plogf("Pressure    = %g Pa\n", m_vprob->PresPA);
+      std::string sss = m_mix->phaseName(iph);
+      if (iStable) {
+	plogf("Phase %d named %s is     stable, function value = %g > 0\n", iph, sss.c_str(), feStable);
+      } else {
+	plogf("Phase %d named %s is not stable + function value = %g < 0\n", iph, sss.c_str(), feStable);
+      }
+      plogf("\n");
+      plogf("----------------------------------------"
+	    "---------------------\n");
+      plogf(" Name             Mole_Number");
+      if (m_vprob->m_VCS_UnitsFormat == VCS_UNITS_MKS) {
+	plogf("(kmol)");
+      } else {
+	plogf("(gmol)");
+      }
+      plogf("  Mole_Fraction     Chem_Potential");
+      if (m_vprob->m_VCS_UnitsFormat == VCS_UNITS_KCALMOL) 
+	plogf(" (kcal/mol)\n");
+      else if (m_vprob->m_VCS_UnitsFormat == VCS_UNITS_UNITLESS) 
+	plogf(" (Dimensionless)\n");
+      else if (m_vprob->m_VCS_UnitsFormat == VCS_UNITS_KJMOL) 
+	plogf(" (kJ/mol)\n");
+      else if (m_vprob->m_VCS_UnitsFormat == VCS_UNITS_KELVIN) 
+	plogf(" (Kelvin)\n");
+      else if (m_vprob->m_VCS_UnitsFormat == VCS_UNITS_MKS) 
+	plogf(" (J/kmol)\n");
+      plogf("-------------------------------------------------------------\n");
+      for (int i = 0; i < m_vprob->nspecies; i++) {
+	plogf("%-12s", m_vprob->SpName[i].c_str());
+	if (m_vprob->SpeciesUnknownType[i] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+	  plogf("  %15.3e %15.3e  ", 0.0, m_vprob->mf[i]);
+	  plogf("%15.3e\n", m_vprob->m_gibbsSpecies[i]);
+	} else {
+	  plogf("  %15.3e   %15.3e  ", m_vprob->w[i], m_vprob->mf[i]);
+	  if (m_vprob->w[i] <= 0.0) {
+	    int iph = m_vprob->PhaseID[i];
+	    vcs_VolPhase *VPhase = m_vprob->VPhaseList[iph];
+	    if (VPhase->nSpecies() > 1) {
+	      plogf("     -1.000e+300\n");
+	    } else {
+	      plogf("%15.3e\n", m_vprob->m_gibbsSpecies[i]);
+	    }
+	  } else {
+	    plogf("%15.3e\n", m_vprob->m_gibbsSpecies[i]);
+	  }
+	}
+      }
+      plogf("------------------------------------------"
+	    "-------------------\n"); 
+      if (printLvl > 2) {
+	if (m_vsolvePtr->m_timing_print_lvl > 0) {
+	  plogf("Total time = %12.6e seconds\n", te);
+	}
+      }
+    }
+    if (loglevel > 0) {
+      endLogGroup();
+    }
+    return iStable;
+  }
+//====================================================================================================================
 
 }

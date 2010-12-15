@@ -154,7 +154,7 @@ namespace Cantera {
    *  themselves. Two other thermodynamic quantities, determined by the
    *  XY string,  are held constant during the equilibration.
    *
-   *  @param s The object to set to an equilibrium state
+   *  @param s The MultiPhase object to be set to an equilibrium state
    *
    *  @param ixy An integer specifying the two properties to be held
    *             constant.
@@ -204,6 +204,30 @@ namespace Cantera {
 			int solver = 2,
 			doublereal rtol = 1.0e-9, int maxsteps = VCS_MAXSTEPS, 
 			int maxiter = 100, int loglevel = -99);
+
+  //! Determine the phase stability of a single phase given the current conditions
+  //! in a MultiPhase object
+  /*!
+   * 
+   *  @param s         The MultiPhase object to be set to an equilibrium state
+   *  @param iphase    Phase index within the multiphase object to be 
+   *                   tested for stability.
+   *  @param funcStab  Function value that tests equilibrium. > 0 indicates stable
+   *                   < 0 indicates unstable
+   *
+   *  @param printLvl   Determines the amount of printing that
+   *                  gets sent to stdout from the vcs package
+   *                  (Note, you may have to compile with debug
+   *                   flags to get some printing).
+   *
+   *  @param loglevel Controls amount of diagnostic output. loglevel
+   *                  = 0 suppresses diagnostics, and increasingly-verbose
+   *                  messages are written as loglevel increases. The 
+   *                  messages are written to a file in HTML format for viewing 
+   *                  in a web browser. @see HTML_logs
+   */
+  int vcs_determine_PhaseStability(MultiPhase& s, int iphase, 
+				   double &funcStab, int printLvl, int loglevel);
 
 }
 
@@ -540,6 +564,22 @@ namespace VCSnonideal {
 		       int printLvl = 0, doublereal err = 1.0E-6, 
 		       int maxsteps = VCS_MAXSTEPS, int loglevel = -99);
 
+    //! Determine the phase stability of a phase at the current conditions
+    /*!
+     * Equilibration of the solution is not done before the determination is made.
+     *
+     *  @param iph       Phase number to determine the equilibrium. If the phase
+     *                   has a non-zero mole number....
+     *  @param funcStab  Value of the phase pop function
+     *  @param printLvl  Determines the amount of printing that
+     *                   gets sent to stdout from the vcs package
+     *                   (Note, you may have to compile with debug
+     *                    flags to get some printing).
+     *  @param loglevel Determines the amount of printing to the HTML
+     *                  output file.
+     */
+    int determine_PhaseStability(int iph, double &funcStab,  int printLvl= 0, int logLevel = -99);
+
     //! Report the equilibrium answer in a comma separated table format
     /*!
      *  This routine is used for in the test suite.
@@ -562,6 +602,8 @@ namespace VCSnonideal {
      *          problem hasn't been solved yet, it returns -1.
      */
     int numElemConstraints() const;
+
+
 
     // Friend functions
 
@@ -638,8 +680,7 @@ namespace VCSnonideal {
     //! Pointer to the object that does all of the equilibration work.
     /*!
      * VCS_SOLVE will have different ordering for species and element constraints
-     * than this object or the VCS_PROB object.
-     * This object owns the pointer.
+     * than this object or the VCS_PROB object. This object owns the pointer.
      */
     VCSnonideal::VCS_SOLVE *m_vsolvePtr;
 
