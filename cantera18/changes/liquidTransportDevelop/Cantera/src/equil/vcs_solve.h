@@ -147,6 +147,9 @@ public:
    */
   int vcs_solve_TP(int print_lvl, int printDetails, int maxit);
 
+
+  int vcs_PS(VCS_PROB *vprob, int iph, int printLvl, double &feStable);
+
   void vcs_reinsert_deleted(int kspec);
 
   //!  Choose the optimum species basis for the calculations
@@ -550,6 +553,7 @@ public:
    */
   int vcs_popPhaseRxnStepSizes(const int iphasePop);
 
+
   //! Calculates formation reaction step sizes.
   /*!
    *     This is equation 6.4-16, p. 143 in Smith and Missen. 
@@ -681,7 +685,8 @@ public:
    *              have.
    */
   double vcs_birthGuess(const int kspec);
-
+ 
+  int vcs_solve_phaseStability(const int iphase, int ifunc, double &funcval, int print_lvl);
 
   //! Main program to test whether a deleted phase should be brought
   //! back into existence
