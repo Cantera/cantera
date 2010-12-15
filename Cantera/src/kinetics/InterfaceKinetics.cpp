@@ -92,6 +92,7 @@ namespace Cantera {
     m_has_exchange_current_density_formulation(false),
     m_phaseExistsCheck(false),
     m_phaseExists(0),
+    m_phaseIsStable(0),
     m_rxnPhaseIsReactant(0),
     m_rxnPhaseIsProduct(0),
     m_ioFlag(0)
@@ -140,6 +141,7 @@ namespace Cantera {
     m_has_exchange_current_density_formulation(false),
     m_phaseExistsCheck(false),
     m_phaseExists(0),
+    m_phaseIsStable(0),
     m_rxnPhaseIsReactant(0),
     m_rxnPhaseIsProduct(0),
     m_ioFlag(0)
@@ -208,6 +210,7 @@ namespace Cantera {
     m_has_exchange_current_density_formulation = right.m_has_exchange_current_density_formulation;
     m_phaseExistsCheck     = right.m_phaseExistsCheck;
     m_phaseExists          = right.m_phaseExists;
+    m_phaseIsStable        = right.m_phaseIsStable;
 
     m_rxnPhaseIsReactant.resize(m_ii, 0);
     m_rxnPhaseIsProduct.resize(m_ii, 0);
@@ -753,6 +756,12 @@ namespace Cantera {
 		}
 	      }
 	    }
+	    if (m_rxnPhaseIsReactant[j][p]) {
+	      if (! m_phaseIsStable[p]) {
+		ropnet[j] = 0.0;
+		ropr[j] = ropf[j];
+	      }
+	    }
 	  }
 	} else if ((ropf[j] > ropr[j]) && (ropf[j] > 0.0)) {
 	  for (int p = 0; p < nPhases(); p++) {
@@ -770,6 +779,12 @@ namespace Cantera {
 		    }
 		  }
 		}
+	      }
+	    }
+	    if (m_rxnPhaseIsProduct[j][p]) {
+	      if (! m_phaseIsStable[p]) {
+		ropnet[j] = 0.0;
+		ropf[j] = ropr[j];
 	      }
 	    }
 	  }
@@ -1229,6 +1244,7 @@ namespace Cantera {
   void InterfaceKinetics::addPhase(thermo_t &thermo) {
     Kinetics::addPhase(thermo);
     m_phaseExists.push_back(true);
+    m_phaseIsStable.push_back(true);
   }
   //================================================================================================
   /**
@@ -1358,12 +1374,26 @@ namespace Cantera {
       if (!m_phaseExists[iphase]) {
 	m_phaseExistsCheck--;
 	m_phaseExists[iphase] = true;
+	m_phaseIsStable[iphase] = true;
       }
     } else {
       if (m_phaseExists[iphase]) {
 	m_phaseExistsCheck++;
 	m_phaseExists[iphase] = false;
+	m_phaseIsStable[iphase] = false;
       }
+    }
+  }
+ //================================================================================================
+
+  void InterfaceKinetics::setPhaseStability(const int iphase, const bool isStable) {
+    if (iphase < 0 || iphase >= (int) m_thermo.size()) {
+      throw CanteraError("InterfaceKinetics:setPhaseStability", "out of bounds");
+    }
+    if (isStable) {
+      m_phaseIsStable[iphase] = true;
+    } else {
+      m_phaseIsStable[iphase] = false;
     }
   }
   //================================================================================================
