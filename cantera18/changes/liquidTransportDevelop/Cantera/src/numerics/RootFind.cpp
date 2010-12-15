@@ -224,7 +224,7 @@ namespace Cantera {
     if (x1 == 0.0) {
       x2 = 0.00001 * (xmax - xmin);
     } else {
-      x2 = x1 * 1.01;
+      x2 = x1 * 1.0001;
     }
     if (x2 > xmax) {
       x2 = x1 - (xmax - xmin) / 100.;
