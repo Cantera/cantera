@@ -41,7 +41,16 @@ namespace VCSnonideal {
     int ifunc = 0;
     int iStab = 0;
 
-  
+    /*
+     *         This function is called to create the private data
+     *         using the public data.
+     */
+    int nspecies0 = vprob->nspecies + 10;
+    int nelements0 = vprob->ne;
+    int nphase0 = vprob->NPhase;
+    
+    vcs_initSizes(nspecies0, nelements0, nphase0);
+      
 
     if (ifunc < 0 || ifunc > 2) {
       plogf("vcs: Unrecognized value of ifunc, %d: bailing!\n",
@@ -131,8 +140,7 @@ namespace VCSnonideal {
      * (all information concerning Temperature and Pressure has already
      *  been derived. The free energies are now in dimensionless form.)
      */
-    double funcVal;
-    iStab  = vcs_solve_phaseStability(iphase, ifunc, funcVal, printLvl);
+    iStab  = vcs_solve_phaseStability(iphase, ifunc, feStable, printLvl);
 
 
     /*
@@ -140,6 +148,23 @@ namespace VCSnonideal {
      *        the reverse of vcs_nondim to add back units.
      */
     vcs_redim_TP();
+
+    /*
+    vcs_VolPhase *Vphase = m_VolPhaseList[iphase];
+
+    std::vector<double> mfPop = Vphase->moleFractions();
+    int nsp = Vphase->nSpecies();
+
+    vcs_VolPhase *VPphase = vprob->VPhaseList[iphase];
+    int kstart = Vphase->spGlobalIndexVCS(0);
+    for (int k = 0; k < nsp; k++) {
+      vprob->mf[kstart + k] = mfPop[k];
+    }
+    VPphase->setMoleFractionsState(Vphase->totalMoles(),
+				   VCS_DATA_PTR(Vphase->moleFractions()),
+				   VCS_STATECALC_TMP);
+    */
+    vcs_prob_update(vprob);
     /*
      *        Return the convergence success flag.
      */
@@ -197,6 +222,11 @@ namespace VCSnonideal {
     retn = vcs_basopt(FALSE, VCS_DATA_PTR(aw), VCS_DATA_PTR(sa),
 		      VCS_DATA_PTR(sm), VCS_DATA_PTR(ss),
 		      test, &usedZeroedSpecies);
+
+
+    vcs_dfe(VCS_STATECALC_OLD, 0, 0, m_numSpeciesRdc);
+    vcs_deltag(0, true, VCS_STATECALC_OLD);
+
     phasePopPhaseIDs.clear();
     iphasePop = vcs_popPhaseID(phasePopPhaseIDs);
     funcVal = vcs_phaseStabilityTest(iph);

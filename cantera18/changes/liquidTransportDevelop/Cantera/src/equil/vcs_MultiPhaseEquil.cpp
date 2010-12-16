@@ -1559,18 +1559,14 @@ namespace VCSnonideal {
      * states.
      */
     m_mix->uploadMoleFractionsFromPhases();
-    int kGlob = 0;
-    for (int ip = 0; ip < m_vprob->NPhase; ip++) {
-      double phaseMole = 0.0;
-      Cantera::ThermoPhase &tref = m_mix->phase(ip);
-      int nspPhase = tref.nSpecies();
-      for (int k = 0; k < nspPhase; k++, kGlob++) {
-	phaseMole += m_vprob->w[kGlob];
-      }
-      //phaseMole *= 1.0E-3;
-      m_mix->setPhaseMoles(ip, phaseMole);
-    }
-  
+   for (int i = 0; i < m_vprob->nspecies; i++) {
+     plogf("%d %15.3e\n", m_vprob->m_gibbsSpecies[i]);
+   }
+    m_mix->getChemPotentials(DATA_PTR(m_vprob->m_gibbsSpecies));
+   for (int i = 0; i < m_vprob->nspecies; i++) {
+     plogf("%d %15.3e\n", m_vprob->m_gibbsSpecies[i]);
+   }
+
     double te = tickTock.secondsWC();
     if (printLvl > 0) {
       plogf("\n Results from vcs_PS:\n");
@@ -1615,11 +1611,11 @@ namespace VCSnonideal {
 	  if (m_vprob->w[i] <= 0.0) {
 	    int iph = m_vprob->PhaseID[i];
 	    vcs_VolPhase *VPhase = m_vprob->VPhaseList[iph];
-	    if (VPhase->nSpecies() > 1) {
-	      plogf("     -1.000e+300\n");
-	    } else {
+	    //if (VPhase->nSpecies() > 1) {
+	    // plogf("     -1.000e+300\n");
+	    //} else {
 	      plogf("%15.3e\n", m_vprob->m_gibbsSpecies[i]);
-	    }
+	      //}
 	  } else {
 	    plogf("%15.3e\n", m_vprob->m_gibbsSpecies[i]);
 	  }

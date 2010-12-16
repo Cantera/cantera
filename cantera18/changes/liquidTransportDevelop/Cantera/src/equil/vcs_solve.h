@@ -1257,16 +1257,16 @@ private:
    *    the mole numbers of the component species. Therefore the following 
    *    approximation is valid for a small component of an ideal phase:
    *
-   *       0 = m_deltaGrxn_old(I) + log(molNum_new(I)/molNum_old(I))
+   *       0 = m_deltaGRxn_old(I) + log(molNum_new(I)/molNum_old(I))
    * 
-   *       m_deltaGrxn_old contains the contribution from
+   *       m_deltaGRxn_old contains the contribution from
    *
    *        m_feSpecies_old(I) =
    *              m_SSfeSpecies(I) +
    *              log(ActCoeff[i] * molNum_old(I) / m_tPhaseMoles_old(iph)) 
    *    Thus,
    * 
-   *        molNum_new(I)= molNum_old(I) * EXP(-m_deltaGrxn_old(I))
+   *        molNum_new(I)= molNum_old(I) * EXP(-m_deltaGRxn_old(I))
    * 
    *    Most of this section is mainly restricting the update to reasonable 
    *    values.

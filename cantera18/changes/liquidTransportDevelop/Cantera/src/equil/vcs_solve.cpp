@@ -896,7 +896,7 @@ namespace VCSnonideal {
 	retn = VCS_PUB_BAD;
       }
 
-      if (vPhase->PhaseName == pub_phase_ptr->PhaseName) {
+      if (vPhase->PhaseName != pub_phase_ptr->PhaseName) {
 	plogf("%sPhaseName value have changed:%s %s\n", yo.c_str(),
 	      vPhase->PhaseName.c_str(),
 	      pub_phase_ptr->PhaseName.c_str());
