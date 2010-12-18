@@ -671,7 +671,7 @@ namespace VCSnonideal {
     vector<doublereal> fracDelta_old(Vphase->nSpecies(), 0.0);
     vector<doublereal> fracDelta_raw(Vphase->nSpecies(), 0.0);
     vector<int>        creationGlobalRxnNumbers(Vphase->nSpecies(), -1);
-
+    vcs_dcopy(VCS_DATA_PTR(m_deltaGRxn_Deficient), VCS_DATA_PTR(m_deltaGRxn_old), m_numRxnRdc);
 
     vector<doublereal> m_feSpecies_Deficient(m_numComponents, 0.0); 
     doublereal damp = 1.0;
@@ -779,18 +779,16 @@ namespace VCSnonideal {
 	Vphase->sendToVCS_ActCoeff(VCS_STATECALC_OLD, VCS_DATA_PTR(m_actCoeffSpecies_new));
 
 	/*
-	 * first Calculate altered chemical potentials for component species
+	 * First calculate altered chemical potentials for component species
 	 * belonging to this phase.
 	 */
 	for (i = 0; i < (int) componentList.size(); i++) {
 	  kc = componentList[i];
 	  kc_spec = Vphase->spGlobalIndexVCS(kc);
 	  if ( X_est[kc] > VCS_DELETE_MINORSPECIES_CUTOFF) {
-	    m_feSpecies_Deficient[kc_spec] = m_feSpecies_old[kc_spec] 
-	      + log(m_actCoeffSpecies_new[kc_spec] * X_est[kc]);
+	    m_feSpecies_Deficient[kc_spec] = m_feSpecies_old[kc_spec] + log(m_actCoeffSpecies_new[kc_spec] * X_est[kc]);
 	  } else {
-	    m_feSpecies_Deficient[kc_spec] = m_feSpecies_old[kc_spec] 
-	      + log(m_actCoeffSpecies_new[kc_spec] * VCS_DELETE_MINORSPECIES_CUTOFF);
+	    m_feSpecies_Deficient[kc_spec] = m_feSpecies_old[kc_spec] + log(m_actCoeffSpecies_new[kc_spec] * VCS_DELETE_MINORSPECIES_CUTOFF);
 	  }
 	}
 
@@ -807,8 +805,7 @@ namespace VCSnonideal {
 	      }
 	      double *dtmp_ptr = m_stoichCoeffRxnMatrix[irxn];
 	      if (dtmp_ptr[kc_spec] != 0.0) {
-		m_deltaGRxn_Deficient[irxn] += 
-		  dtmp_ptr[kc_spec] * (m_feSpecies_Deficient[kc_spec]- m_feSpecies_old[kc_spec]);
+		m_deltaGRxn_Deficient[irxn] += dtmp_ptr[kc_spec] * (m_feSpecies_Deficient[kc_spec]- m_feSpecies_old[kc_spec]);
 	      }
 	    }
 

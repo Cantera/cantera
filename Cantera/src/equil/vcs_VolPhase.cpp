@@ -507,6 +507,10 @@ namespace VCSnonideal {
   const std::vector<double> & vcs_VolPhase::moleFractions() const {
     return Xmol_;
   }
+
+  double vcs_VolPhase::moleFraction(int k) const {
+    return Xmol_[k];
+  }
   /***************************************************************************/
 
   // Set the moles and/or mole fractions within the phase

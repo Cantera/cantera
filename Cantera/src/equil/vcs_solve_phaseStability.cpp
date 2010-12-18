@@ -203,7 +203,7 @@ namespace VCSnonideal {
    */
   int VCS_SOLVE::vcs_solve_phaseStability(const int iph, const int ifunc,
 					  double &funcVal,
-					  int printLv) {
+					  int printLvl) {
     int retn = 0;
     double test = -1.0E-10;
     int usedZeroedSpecies;
@@ -222,11 +222,18 @@ namespace VCSnonideal {
     retn = vcs_basopt(FALSE, VCS_DATA_PTR(aw), VCS_DATA_PTR(sa),
 		      VCS_DATA_PTR(sm), VCS_DATA_PTR(ss),
 		      test, &usedZeroedSpecies);
-
+    vcs_evaluate_speciesType();
 
     vcs_dfe(VCS_STATECALC_OLD, 0, 0, m_numSpeciesRdc);
+    if (printLvl > 3) {
+      vcs_printSpeciesChemPot(VCS_STATECALC_OLD);
+    }
     vcs_deltag(0, true, VCS_STATECALC_OLD);
 
+    if (printLvl > 3) {
+      vcs_printDeltaG(VCS_STATECALC_OLD);
+    }
+    vcs_dcopy(VCS_DATA_PTR(m_deltaGRxn_Deficient), VCS_DATA_PTR(m_deltaGRxn_old), m_numRxnRdc);
     phasePopPhaseIDs.clear();
     iphasePop = vcs_popPhaseID(phasePopPhaseIDs);
     funcVal = vcs_phaseStabilityTest(iph);
