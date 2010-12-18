@@ -4371,10 +4371,10 @@ namespace VCSnonideal {
 		  feSpecies[kspec] = m_SSfeSpecies[kspec] 
 		    + log(actCoeff_ptr[kspec] * VCS_DELETE_MINORSPECIES_CUTOFF)
 		    - tlogMoles[m_phaseID[kspec]] - m_lnMnaughtSpecies[kspec]
-		    + m_chargeSpecies[kspec] * m_Faraday_dim * m_phasePhi[iphase]; ;
+		    + m_chargeSpecies[kspec] * m_Faraday_dim * m_phasePhi[iphase]; 
 		} else {
 		  feSpecies[kspec] = m_SSfeSpecies[kspec]  - m_lnMnaughtSpecies[kspec]
-                    + m_chargeSpecies[kspec] * m_Faraday_dim * m_phasePhi[iphase]; ;
+                    + m_chargeSpecies[kspec] * m_Faraday_dim * m_phasePhi[iphase]; 
 		}
 	      } else {
 		feSpecies[kspec] = m_SSfeSpecies[kspec] 
@@ -4438,7 +4438,93 @@ namespace VCSnonideal {
 	}
       }
     }
+ 
+
   }
+  //====================================================================================================================
+  // Print out a table of chemical potentials
+  /*
+   *    @param vcsState Determines where to get the mole numbers from.
+   *                -  VCS_STATECALC_OLD -> from m_molNumSpecies_old
+   *                -  VCS_STATECALC_NEW -> from m_molNumSpecies_new
+   */
+  void  VCS_SOLVE::vcs_printSpeciesChemPot(const int stateCalc) const {
+    double mfValue = 1.0;
+    bool zeroedPhase = false;
+    int kspec;
+
+    const double * molNum = VCS_DATA_PTR(m_molNumSpecies_old);
+    const double * tPhMoles_ptr = VCS_DATA_PTR(m_tPhaseMoles_old);
+    const double * actCoeff_ptr = VCS_DATA_PTR(m_actCoeffSpecies_old);
+    if (stateCalc == VCS_STATECALC_NEW) {
+      tPhMoles_ptr = VCS_DATA_PTR(m_tPhaseMoles_new);
+      actCoeff_ptr = VCS_DATA_PTR(m_actCoeffSpecies_new);
+      molNum = VCS_DATA_PTR(m_molNumSpecies_new);
+    }
+
+    double * tMoles = VCS_DATA_PTR(m_TmpPhase);
+    const double *tPhInertMoles = VCS_DATA_PTR(TPhInertMoles);
+    for (int iph = 0; iph < m_numPhases; iph++) {
+      tMoles[iph] = tPhInertMoles[iph];
+    }
+    for (kspec = 0; kspec < m_numSpeciesTot; kspec++) {
+      if(m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+	int iph = m_phaseID[kspec];
+	tMoles[iph] += molNum[kspec];
+      }
+    }
+
+    double RT = m_temperature * Cantera::GasConstant;
+    printf("   ---  CHEMICAL POT TABLE (J/kmol) Name PhID     MolFR     ChemoSS   "
+	   "   logMF       Gamma       Elect       extra       ElectrChem\n");
+    printf("   ");
+    vcs_print_line("-", 132);
+
+    for (kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
+      mfValue = 1.0;
+      int iphase = m_phaseID[kspec];
+      const vcs_VolPhase * Vphase = m_VolPhaseList[iphase];
+      if ((m_speciesStatus[kspec] == VCS_SPECIES_ZEROEDMS)    ||
+	  (m_speciesStatus[kspec] == VCS_SPECIES_ZEROEDPHASE) || 
+	  (m_speciesStatus[kspec] == VCS_SPECIES_ZEROEDSS)    ) {
+	zeroedPhase = true;
+      } else {
+	zeroedPhase = false;
+      }
+      if (tMoles[iphase] > 0.0) {
+	if (molNum[kspec] <= VCS_DELETE_MINORSPECIES_CUTOFF) {
+	  mfValue = VCS_DELETE_MINORSPECIES_CUTOFF / tMoles[iphase];
+	} else {
+	  mfValue = molNum[kspec]/tMoles[iphase];
+	}
+      } else {
+	int klocal = m_speciesLocalPhaseIndex[kspec];
+	mfValue = Vphase->moleFraction(klocal);
+      } 
+      double volts = Vphase->electricPotential();
+      double elect = m_chargeSpecies[kspec] * m_Faraday_dim * volts;
+      double comb = - m_lnMnaughtSpecies[kspec];
+      double total = (m_SSfeSpecies[kspec] + log(mfValue) + elect + log(actCoeff_ptr[kspec]) + comb);
+
+      if (zeroedPhase) {
+	printf("   --- ** zp *** ");
+      } else {
+	printf("   ---           ");
+      }
+      printf("%-24.24s", m_speciesName[kspec].c_str());
+      printf(" %-3d", iphase);
+      printf(" % -12.4e", mfValue);
+      printf(" % -12.4e", m_SSfeSpecies[kspec] * RT);
+      printf(" % -12.4e", log(mfValue) * RT);
+      printf(" % -12.4e", log(actCoeff_ptr[kspec]) * RT);
+      printf(" % -12.4e", elect * RT);
+      printf(" % -12.4e", comb * RT);
+      printf(" % -12.4e\n", total *RT);
+    }
+    printf("   ");
+    vcs_print_line("-", 132);
+  }
+
   /*****************************************************************************/
 
 #ifdef DEBUG_MODE
@@ -4990,8 +5076,125 @@ namespace VCSnonideal {
     }
 #endif
   }
-  /*****************************************************************************/
+  //====================================================================================================================
+  void  VCS_SOLVE::vcs_printDeltaG( const int stateCalc) {
+    int j;
+    double * deltaGRxn = VCS_DATA_PTR(m_deltaGRxn_old);
+    double * feSpecies = VCS_DATA_PTR(m_feSpecies_old);
+    double * molNumSpecies = VCS_DATA_PTR(m_molNumSpecies_old);
+    const double * tPhMoles_ptr = VCS_DATA_PTR(m_tPhaseMoles_old);  
+    const double * actCoeff_ptr = VCS_DATA_PTR(m_actCoeffSpecies_old);
+    if (stateCalc == VCS_STATECALC_NEW) {
+      deltaGRxn     = VCS_DATA_PTR(m_deltaGRxn_new);
+      feSpecies     = VCS_DATA_PTR(m_feSpecies_new);
+      molNumSpecies = VCS_DATA_PTR(m_molNumSpecies_new);  
+      actCoeff_ptr = VCS_DATA_PTR(m_actCoeffSpecies_new);
+      tPhMoles_ptr = VCS_DATA_PTR(m_tPhaseMoles_new);
+    }  
+    double RT = m_temperature * Cantera::GasConstant;
+    bool zeroedPhase = false;
+    if (m_debug_print_lvl >= 2) {
+      plogf("   --- DELTA_G TABLE  Components:");
+      for (j = 0; j < m_numComponents; j++) {
+	plogf("     %3d  ", j);
+      }
+      plogf("\n   ---          Components Moles:");
+      for (j = 0; j < m_numComponents; j++) {
+	plogf("%10.3g", m_molNumSpecies_old[j]);
+      }
+      plogf("\n   ---   NonComponent|   Moles  |       ");
+      for (j = 0; j < m_numComponents; j++) {
+	plogf("%-10.10s", m_speciesName[j].c_str());
+      }
+      //plogf("|    m_scSize");
+      plogf("\n");
+      for (int i = 0; i < m_numRxnTot; i++) {
+	plogf("   --- %3d ", m_indexRxnToSpecies[i]);
+	plogf("%-10.10s", m_speciesName[m_indexRxnToSpecies[i]].c_str());
+	plogf("|%10.3g|", m_molNumSpecies_old[m_indexRxnToSpecies[i]]);
+	for (j = 0; j < m_numComponents; j++) {
+	  plogf("     %6.2f", m_stoichCoeffRxnMatrix[i][j]);
+	}
+	//plogf(" |  %6.2f", m_scSize[i]);
+	plogf("\n");
+      }
+      plogf("   "); for(int i=0; i<77; i++) plogf("-"); plogf("\n");
+    }
 
+    printf("   --- DeltaG Table (J/kmol) Name       PhID   MoleNum      MolFR  "
+	   "  ElectrChemStar ElectrChem    DeltaGStar   DeltaG(Pred)  Stability\n");
+    printf("   ");
+    vcs_print_line("-", 132);
+
+    for (int kspec = 0; kspec < m_numSpeciesTot; kspec++) {
+   
+      int irxn = kspec -  m_numComponents;
+     
+      double mfValue = 1.0;
+      int iphase = m_phaseID[kspec];
+      const vcs_VolPhase * Vphase = m_VolPhaseList[iphase];
+      if ((m_speciesStatus[kspec] == VCS_SPECIES_ZEROEDMS)    ||
+	  (m_speciesStatus[kspec] == VCS_SPECIES_ZEROEDPHASE) || 
+	  (m_speciesStatus[kspec] == VCS_SPECIES_ZEROEDSS)    ) {
+	zeroedPhase = true;
+      } else {
+	zeroedPhase = false;
+      }
+      if (tPhMoles_ptr[iphase] > 0.0) {
+	if (molNumSpecies[kspec] <= VCS_DELETE_MINORSPECIES_CUTOFF) {
+	  mfValue = VCS_DELETE_MINORSPECIES_CUTOFF / tPhMoles_ptr[iphase];
+	} else {
+	  mfValue = molNumSpecies[kspec] / tPhMoles_ptr[iphase];
+	}
+      } else {
+	int klocal = m_speciesLocalPhaseIndex[kspec];
+	mfValue = Vphase->moleFraction(klocal);
+      } 
+      if (zeroedPhase) {
+	printf("   --- ** zp *** ");
+      } else {
+	printf("   ---           ");
+      }
+      double feFull =  feSpecies[kspec];
+      if ((m_speciesStatus[kspec] == VCS_SPECIES_ZEROEDMS)    ||
+	  (m_speciesStatus[kspec] == VCS_SPECIES_ZEROEDPHASE) ) {
+	feFull += log(actCoeff_ptr[kspec]) + log(mfValue);
+      }
+      printf("%-24.24s", m_speciesName[kspec].c_str());
+      printf(" %-3d", iphase);
+      printf(" % -12.4e", molNumSpecies[kspec]);
+      printf(" % -12.4e", mfValue);
+      printf(" % -12.4e", feSpecies[kspec] * RT);
+      printf(" % -12.4e", feFull * RT);
+      if (irxn >= 0) {
+	printf(" % -12.4e", deltaGRxn[irxn] * RT);
+	printf(" % -12.4e", (deltaGRxn[irxn] + feFull - feSpecies[kspec]) * RT);
+      
+	if (deltaGRxn[irxn] < 0.0) {
+	  if ( molNumSpecies[kspec] > 0.0) {
+	    printf("   growing");
+	  } else {
+	    printf("    stable");
+	  }
+	} else if (deltaGRxn[irxn] > 0.0) {
+	  if ( molNumSpecies[kspec] > 0.0) {
+	    printf(" shrinking");
+	  } else {
+	    printf("  unstable");
+	  }
+	} else {
+	  printf(" balanced");
+	}
+      }
+  
+      printf(" \n");
+    }
+
+    printf("   ");
+    vcs_print_line("-", 132);
+
+  }
+  //====================================================================================================================
   //    Calculate deltag of formation for all species in a single phase.
   /*
    *     Calculate deltag of formation for all species in a single

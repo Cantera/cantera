@@ -419,6 +419,8 @@ namespace VCSnonideal {
     //! object.
     const std::vector<double> & moleFractions() const;
 
+    double moleFraction(int klocal) const;
+
     //! Sets the creationMoleNum's within the phase object
     /*!
      * @param F_k Pointer to a vector of n_k's

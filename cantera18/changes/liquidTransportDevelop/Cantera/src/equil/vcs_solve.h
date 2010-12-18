@@ -495,13 +495,20 @@ public:
    */
   void vcs_dfe(const int stateCalc, const int ll, const int lbot, const int ltop);
 
+  //! Print out a table of chemical potentials
+  /*!
+   *    @param vcsState Determines where to get the mole numbers from.
+   *                -  VCS_STATECALC_OLD -> from m_molNumSpecies_old
+   *                -  VCS_STATECALC_NEW -> from m_molNumSpecies_new
+   */
+  void vcs_printSpeciesChemPot(const int stateCalc) const;
+
   //!  This routine uploads the state of the system into all of the 
   //!  vcs_VolumePhase objects in the current problem.
   /*!
    *  @param vcsState Determines where to get the mole numbers from.
    *                -  VCS_STATECALC_OLD -> from m_molNumSpecies_old
    *                -  VCS_STATECALC_NEW -> from m_molNumSpecies_new
-   *
    */
   void vcs_updateVP(const int stateCalc);
 
@@ -620,6 +627,8 @@ public:
    */
   void vcs_deltag(const int l, const bool doDeleted, const int vcsState,
 		  const bool alterZeroedPhases = true);
+
+  void vcs_printDeltaG(const int stateCalc);
 
   //!   Calculate deltag of formation for all species in a single phase.
   /*!
@@ -1618,8 +1627,10 @@ public:
   //!  Last deltag[irxn] from the previous step 
   std::vector<double> m_deltaGRxn_old;
 
-  //! Last deltag[irxn] from the previous step with additions for
-  //! possible births of zeroed phases.
+  //! Last deltag[irxn] from the previous step with additions for possible births of zeroed phases for component species
+  /*!
+   *    
+   */
   std::vector<double> m_deltaGRxn_Deficient;
 
   //! Temporary vector of Rxn DeltaG's
@@ -1684,10 +1695,10 @@ public:
   std::vector<double> m_tPhaseMoles_new;
 
   //! Temporary vector of length NPhase 
-  std::vector<double> m_TmpPhase;
+  mutable std::vector<double> m_TmpPhase;
 
   //! Temporary vector of length NPhase 
-  std::vector<double> m_TmpPhase2;
+  mutable std::vector<double> m_TmpPhase2;
 
   //! Change in the total moles in each phase
   /*!
