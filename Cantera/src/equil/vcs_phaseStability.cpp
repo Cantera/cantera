@@ -97,7 +97,7 @@ namespace VCSnonideal {
 	 * We loop through the regular reaction looking for a reaction that can pop the
 	 * component.
 	 */
-        printf("WE are here at new logic - CHECK\n");
+        //printf("WE are here at new logic - CHECK\n");
 	for (int jrxn = 0; jrxn < m_numRxnRdc; jrxn++) {
 	  bool foundJrxn = false;
 	  // First, if the component is a product of the reaction
@@ -111,7 +111,7 @@ namespace VCSnonideal {
 	      }
 	    }
             if (foundJrxn) {
-	      printf("We have found a component phase pop! CHECK1 \n");
+	      //printf("We have found a component phase pop! CHECK1 \n");
 	      return true;
 	    }
 	  }
@@ -131,7 +131,7 @@ namespace VCSnonideal {
 	      }
 	    }
             if (foundJrxn) {
-	      printf("We have found a component phase pop! CHECK2 \n");
+	      //printf("We have found a component phase pop! CHECK2 \n");
 	      return true;
 	    }
 	  }
@@ -717,7 +717,7 @@ namespace VCSnonideal {
 	      "  normUpdate     damp     FuncPhaseStability\n", KP, KP, KP, KP);
 	plogf("   --------------------------------------------------------------"
 	      "--------------------------------------------------------\n");
-      } else {
+      } else if (m_debug_print_lvl == 1) {
 	plogf("   --- vcs_phaseStabilityTest() called for phase %d\n", iph);
       }
 #endif
@@ -756,6 +756,10 @@ namespace VCSnonideal {
 	double sumFrac = 0.0;
 	for (k = 0; k < Vphase->nSpecies(); k++) {
 	  sumFrac += fracDelta_old[k];
+	}
+        // Necessary because this can be identically zero. -> we need to fix this algorithm!
+	if (sumFrac <= 0.0) {
+	  sumFrac = 1.0;
 	}
 	double sum_Xcomp = 0.0;
 	for (k = 0; k < Vphase->nSpecies(); k++) {

@@ -1547,8 +1547,7 @@ namespace VCSnonideal {
     if (!m_vsolvePtr) {
       m_vsolvePtr = new VCS_SOLVE();
     }
-    double feStable;
-    int iStable = m_vsolvePtr->vcs_PS(m_vprob, iph, printLvl, feStable);
+    int iStable = m_vsolvePtr->vcs_PS(m_vprob, iph, printLvl, funcStab);
 
     /*
      * Transfer the information back to the MultiPhase object.
@@ -1559,13 +1558,13 @@ namespace VCSnonideal {
      * states.
      */
     m_mix->uploadMoleFractionsFromPhases();
-   for (int i = 0; i < m_vprob->nspecies; i++) {
-     plogf("%d %15.3e\n", m_vprob->m_gibbsSpecies[i]);
-   }
+    //  for (int i = 0; i < m_vprob->nspecies; i++) {
+    // plogf("%d %15.3e\n", m_vprob->m_gibbsSpecies[i]);
+    //}
     m_mix->getChemPotentials(DATA_PTR(m_vprob->m_gibbsSpecies));
-   for (int i = 0; i < m_vprob->nspecies; i++) {
-     plogf("%d %15.3e\n", m_vprob->m_gibbsSpecies[i]);
-   }
+    //for (int i = 0; i < m_vprob->nspecies; i++) {
+    // plogf("%d %15.3e\n", m_vprob->m_gibbsSpecies[i]);
+    //}
 
     double te = tickTock.secondsWC();
     if (printLvl > 0) {
@@ -1576,9 +1575,9 @@ namespace VCSnonideal {
       plogf("Pressure    = %g Pa\n", m_vprob->PresPA);
       std::string sss = m_mix->phaseName(iph);
       if (iStable) {
-	plogf("Phase %d named %s is     stable, function value = %g > 0\n", iph, sss.c_str(), feStable);
+	plogf("Phase %d named %s is     stable, function value = %g > 0\n", iph, sss.c_str(), funcStab);
       } else {
-	plogf("Phase %d named %s is not stable + function value = %g < 0\n", iph, sss.c_str(), feStable);
+	plogf("Phase %d named %s is not stable + function value = %g < 0\n", iph, sss.c_str(), funcStab);
       }
       plogf("\n");
       plogf("----------------------------------------"
