@@ -556,13 +556,13 @@ namespace VCSnonideal {
      *
      *  @param maxsteps max steps allowed.
      *
-     *  @param loglevel Determines the amount of printing to the HTML
+     *  @param logLevel Determines the amount of printing to the HTML
      *                  output file.
      */
     int equilibrate_TV(int XY, doublereal xtarget,
 		       int  estimateEquil = 0,
 		       int printLvl = 0, doublereal err = 1.0E-6, 
-		       int maxsteps = VCS_MAXSTEPS, int loglevel = -99);
+		       int maxsteps = VCS_MAXSTEPS, int logLevel = -99);
 
     //! Determine the phase stability of a phase at the current conditions
     /*!
@@ -575,8 +575,7 @@ namespace VCSnonideal {
      *                   gets sent to stdout from the vcs package
      *                   (Note, you may have to compile with debug
      *                    flags to get some printing).
-     *  @param loglevel Determines the amount of printing to the HTML
-     *                  output file.
+     *  @param logLevel Determines the amount of printing to the HTML output file.
      */
     int determine_PhaseStability(int iph, double &funcStab,  int printLvl= 0, int logLevel = -99);
 
