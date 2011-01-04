@@ -28,6 +28,12 @@ namespace Cantera {
 #define ROOTFIND_FAILEDCONVERGENCE  -1
 #define ROOTFIND_BADINPUT           -2
 
+  //! Root finder for 1D problems
+  /*!
+   *
+   *
+   *
+   */
   class RootFind {
 
   public:
@@ -48,10 +54,53 @@ namespace Cantera {
     //! Unimplemented private assignment operator
     RootFind& operator=(const RootFind &right);
 
-  public:
   
-    int solve(doublereal xmin, doublereal xmax, int itmax, doublereal funcTargetValue, doublereal *xbest) ;
+    double delXNonzero(double x1) const;
+  
+    double delXMeaningful(double x1) const;
+ 
+    double deltaXControlled(double x2, double x1) const;
+   
+    bool theSame(double x2, double x1) const;
 
+  public:
+
+    //!  Using a line search method, find the root of a 1D function
+    /*!
+     *  This routine solves the following equation.
+     * 
+     *    \f[
+     *       R(x) = f(x) - f_o = 0
+     *    \f]
+     *
+     *    @param   xmin    Minimum value of x to be used.
+     *    @param   xmax    Maximum value of x to be used
+     *    @param   itmax   maximum number of iterations. Usually, it can be less than 50.
+     *    @param   funcTargetValue   Value of \f$ f_o \f$ in the equation.
+     *    @param   xbest   Returns the x that satisfies the function
+     *                     On input, xbest should contain the best estimate of the solution.
+     *                     An attempt to find the solution near xbest is made.
+     *
+     *   @return:
+     *    0  =  ROOTFIND_SUCCESS            Found function     
+     *   -1  =  ROOTFIND_FAILEDCONVERGENCE  Failed to find the answer
+     *   -2  =  ROOTFIND_BADINPUT           Bad input was detected
+     */
+    int solve(doublereal xmin, doublereal xmax, int itmax, doublereal funcTargetValue, doublereal *xbest);
+
+
+    //! Return the function value
+    /*! 
+     * This routine evaluates the following equation.
+     * 
+     *    \f[
+     *       R(x) = f(x) - f_o = 0
+     *    \f]
+     *
+     *  @param x  Value of the independent variable
+     *
+     *  @return   The routine returns the value of \f$ R(x) \f$
+     */
     doublereal func(doublereal x);
 
     void setTol(doublereal rtol, doublereal atol);
@@ -72,6 +121,7 @@ namespace Cantera {
     doublereal DeltaXnorm_;
     bool FuncIsGenerallyIncreasing_;
     bool FuncIsGenerallyDecreasing_;
+    doublereal deltaXConverged_;
 
   };
 }
