@@ -101,10 +101,13 @@ namespace Cantera {
     /**
      * Fill the solution and derivative vectors with the initial
      * conditions at initial time t0.  
+     * @return 1   Everything is fine
+     *         0 or neg Something went wrong
      */
-    virtual void getInitialConditions(const doublereal t0, doublereal * const y, 
+    virtual int getInitialConditions(const doublereal t0, doublereal * const y, 
 				      doublereal * const ydot) {
       throw CanteraError("ResidEval::GetInitialConditions()", "base class called");
+      return 1;
     }
 
     //! Return the number of equations in the equation system

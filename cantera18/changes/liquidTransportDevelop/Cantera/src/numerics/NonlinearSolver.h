@@ -96,6 +96,8 @@ namespace Cantera {
      *  @param printLargest  int indicating how many specific lines should be printed out
      *  @param dampFactor    Current value of the damping factor. Defaults to 1.
      *                       only used for printout out a table.
+     *
+     *  @return Returns the L2 norm of the delta
      */
     doublereal solnErrorNorm(const doublereal * const delta_y,  const char * title = 0, int printLargest = 0, 
 			 const doublereal dampFactor = 1.0);
@@ -113,25 +115,12 @@ namespace Cantera {
      *  @param title    Optional title to be printed out
      *  @param printLargest  Number of specific entries to be printed
      *  @param y        Current value of y - only used for printouts
+     *
+     *
+     *  @return Returns the L2 norm of the delta
      */
     doublereal residErrorNorm(const doublereal * const resid, const char * title = 0, const int printLargest = 0,
 			  const doublereal * const y = 0);
-
-    //! Compute the current Residual
-    /*!
-     *   Compute the time dependent residual of 
-     *   the set of equations.
-     */
-    // void doTDResidualCalc(const double time_curr, const int typeCalc,
-    //			  const double * const y_curr, const double * const ydot_curr, int loglevel);
-
-    //! Compute the current Residual
-    /*!
-     *   Compute the steady state residual of 
-     *   the set of equations.
-     */
-    // void doSteadyResidualCalc(const double time_curr, const int typeCalc,
-    //		      const double * const y_curr,  int loglevel);
 
     //! Compute the current residual
     /*!
@@ -143,10 +132,14 @@ namespace Cantera {
      *  @param ydot_curr    Current value of the time derivative of the solution vector
      *  @param evalType     Base evalulation type
      *                        Defaults to Base_ResidEval
+     *
+     * @return Returns a flag to indicate that operation is successful.
+     *            1  Means a successful operation
+     *           -0 or neg value Means an unsuccessful operation
      */
-    void doResidualCalc(const doublereal time_curr, const int typeCalc, const doublereal * const y_curr, 
-			const doublereal * const ydot_curr,
-			const ResidEval_Type_Enum evalType = Base_ResidEval);
+    int doResidualCalc(const doublereal time_curr, const int typeCalc, const doublereal * const y_curr, 
+		       const doublereal * const ydot_curr,
+		       const ResidEval_Type_Enum evalType = Base_ResidEval);
 
     //! Compute the undamped Newton step
     /*!
@@ -166,7 +159,7 @@ namespace Cantera {
      *  @param y_current      Current value of the solution
      *  @param ydot_current   Current value of the solution derivative.
      *
-     *  @return returns the result code from lapack. A zero means success. Anything
+     *  @return Returns the result code from lapack. A zero means success. Anything
      *          else indicates a failure.
      */ 
     int doNewtonSolve(const doublereal time_curr, const doublereal * const y_curr, 
@@ -215,9 +208,10 @@ namespace Cantera {
      *   factor of 2
      *  Maximum decrease in variable in any one newton iteration:
      *   factor of 5
+     *
+     *  @return  Returns the damping factor determined by the bounds calculation
      */
-    doublereal boundStep(const double* const  y, 
-		     const double* const step0,  const int loglevel);
+    doublereal boundStep(const double* const  y, const double* const step0,  const int loglevel);
 
 
     //! Set bounds constraints for all variables in the problem
@@ -229,13 +223,13 @@ namespace Cantera {
     void setBoundsConstraints(const doublereal * const y_low_bounds,
 			      const doublereal * const y_high_bounds);
 
-    //! return an editable vector of the low bounds constraints
+    //! Return an editable vector of the low bounds constraints
     std::vector<double> & lowBoundsConstraintVector();
 
-    //! return an editable vector of the high bounds constraints
+    //! Return an editable vector of the high bounds constraints
     std::vector<double> & highBoundsConstraintVector();
    
-    //!   Internal function to calculate the time derivative at the new step
+    //! Internal function to calculate the time derivative at the new step
     /*!
      *   @param  order of the BDF method
      *   @param   y_curr current value of the solution
@@ -256,12 +250,10 @@ namespace Cantera {
      * @return Returns a flag to indicate that operation is successful.
      *            1  Means a successful operation
      *            0  Means an unsuccessful operation
-     *
      */
     int  beuler_jac(SquareMatrix &J, doublereal * const f,
 		    doublereal time_curr, doublereal CJ, doublereal * const y,
 		    doublereal * const ydot, int num_newt_its);
-
 
     //! Apply a filtering process to the step
     /*!
@@ -290,9 +282,9 @@ namespace Cantera {
      *  The idea behind these is that the Jacobian couldn't possibly be representative, if the
      *  variable is changed by a lot. (true for nonlinear systems, false for linear systems)
      *  Maximum increase in variable in any one newton iteration:
-     *   factor of 1.5
+     *      factor of 1.5
      *  Maximum decrease in variable in any one newton iteration:
-     *   factor of 2
+     *      factor of 2
      *
      *  @param y   Initial value of the solution vector
      *  @param step0  initial proposed step size
@@ -436,6 +428,8 @@ namespace Cantera {
     //! Calculate the scaling factor for translating residual norms into 
     //! solution norms.
     void calcSolnToResNormVector();
+
+    void setPrintLvl(int printLvl);
 
  private:
 

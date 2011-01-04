@@ -125,7 +125,8 @@ namespace Cantera {
     printLvl(0),
     DeltaXnorm_(0.01),
     FuncIsGenerallyIncreasing_(false),
-    FuncIsGenerallyDecreasing_(false)
+    FuncIsGenerallyDecreasing_(false),
+    deltaXConverged_(0.0)
   {
   
   }
@@ -133,6 +134,49 @@ namespace Cantera {
   // Empty destructor
   RootFind::~RootFind() {
   }
+  //================================================================================================ 
+  double RootFind::delXNonzero(double x1) const {
+    double deltaX = 1.0E-14 * fabs(x1);
+    double delmin = DeltaXnorm_ * 1.0E-14;
+    if (delmin > deltaX) {
+      return delmin;
+    }
+    return deltaX;
+  }
+  //================================================================================================
+  double RootFind::delXMeaningful(double x1) const {
+    double del = delXNonzero(x1);
+    if (deltaXConverged_ > del) {
+      return deltaXConverged_;
+    }
+    return del;
+  }
+  //================================================================================================ 
+  double RootFind::deltaXControlled(double x2, double x1) const {
+    double sgnn = 1.0;
+    if (x1 > x2) {
+      sgnn = -1.0;
+    }
+    double deltaX = x2 - x1;
+    double x = fabs(x2) + fabs(x1);
+    double deltaXm = delXMeaningful(x);
+    if (fabs(deltaX) < deltaXm) {
+      deltaX = sgnn * deltaXm;
+    }
+    return deltaX;
+  }
+  //================================================================================================ 
+  bool RootFind::theSame(double x2, double x1) const {
+    double x = fabs(x2) + fabs(x1);
+    double deltaX = delXMeaningful(x);
+    if (fabs(x2 - x1) < deltaX) {
+      return true;
+    }
+    return false;
+  }
+
+
+
   //================================================================================================
   /*
    * The following calculation is a line search method to find the root of a function
@@ -162,6 +206,7 @@ namespace Cantera {
     FILE *fp = 0;
 #endif
     doublereal x1, x2, xnew, f1, f2, fnew, slope;
+    doublereal deltaX1 = 0.0, deltaX2 = 0.0, deltaXnew = 0.0;
     int its = 0;
     int posStraddle = 0;
     int retn = 0;
@@ -173,6 +218,7 @@ namespace Cantera {
     doublereal fnorm;   /* A valid norm for the making the function value  dimensionless */
     doublereal c[9], f[3], xn1, xn2, x0 = 0.0, f0 = 0.0, root, theta, xquad, xDelMin;
     doublereal CR0, CR1, CR2, CRnew, CRdenom;
+    doublereal sgn;
 
     callNum++;
 #ifdef DEBUG_MODE
@@ -230,6 +276,7 @@ namespace Cantera {
       x2 = x1 - (xmax - xmin) / 100.;
     }
 
+    deltaX2 = x2 - x1;
     f2 = func(x2);
 #ifdef DEBUG_MODE
     if (printLvl >= 3) {
@@ -277,7 +324,13 @@ namespace Cantera {
        *    Find an estimate of the next point, xnew, to try based on
        *    a linear approximation from the last two points.  
        */
-      slope = (f2 - f1) / (x2 - x1);
+#ifdef DEBUG_HKM
+      if (fabs(x2 - x1) < 1.0E-14) {
+	printf(" RootFind: we are here x2 = %g x1 = %g\n", x2, x1);
+      }
+#endif
+      double delXtmp = deltaXControlled(x2, x1);
+      slope = (f2 - f1) / delXtmp;
       if (fabs(slope) <= 1.0E-100) {
 	if (printLvl >= 2) {
 	  writelogf("%s functions evals produced the same result, %g, at %g and %g\n",
@@ -299,12 +352,17 @@ namespace Cantera {
 	fprintf(fp, " | xlin = %-11.5E", xnew);
       }
 #endif
+      deltaXnew = xnew - x2;
       /*
        * If the suggested step size is too big, throw out step
        */
       if (!foundStraddle) {
 	if (fabs(xnew - x2) > 3.0 * DeltaXnorm_) {
 	  useNextStrat = true;
+	}
+	if (fabs(deltaXnew) < fabs(deltaX2)) {
+	  deltaXnew = DSIGN(deltaXnew) * 1.1 * fabs(deltaX2);
+	  xnew = deltaXnew + x2;
 	}
       }
       if (useNextStrat) {
@@ -442,26 +500,7 @@ namespace Cantera {
 #endif
 	}
       }
-      /*
-       *  Guard against going above xmax or below xmin
-       */
-      if (xnew > xmax) {
-        xnew = x2 + (xmax - x2) / 2.0;
-#ifdef DEBUG_MODE
-	if (printLvl >= 3) {
-	  fprintf(fp, " | xlimitmax = %-11.5E", xnew);
-	}
-#endif
-      }
-      if (xnew < xmin) {
-	xnew = x2 + (x2 - xmin) / 2.0;
-#ifdef DEBUG_MODE
-	if (printLvl >= 3) {
-	  fprintf(fp, " | xlimitmin = %-11.5E", xnew);
-	}
-#endif
-      }
-
+ 
       if (foundStraddle) {
 #ifdef DEBUG_MODE
 	slope = xnew;	 
@@ -507,7 +546,42 @@ namespace Cantera {
 	}
 #endif	
       }
-      
+
+      /*
+       *  Enforce a minimum stepsize if we haven't found a straddle.
+       */
+      deltaXnew = xnew - x2;
+      if (fabs(deltaXnew) < 1.2 * delXMeaningful(xnew)) {
+	if (!foundStraddle) {
+	  sgn = 1.0;
+	  if (x2 < xnew) {
+	    sgn = -1.0;
+	  }
+	  deltaXnew = 1.2 * delXMeaningful(xnew) * sgn;
+	  xnew = x2 + deltaXnew;
+	}
+      }
+
+      /*
+       *  Guard against going above xmax or below xmin
+       */
+      if (xnew > xmax) {
+        xnew = x2 + (xmax - x2) / 2.0;
+#ifdef DEBUG_MODE
+	if (printLvl >= 3) {
+	  fprintf(fp, " | xlimitmax = %-11.5E", xnew);
+	}
+#endif
+      }
+      if (xnew < xmin) {
+	xnew = x2 + (x2 - xmin) / 2.0;
+#ifdef DEBUG_MODE
+	if (printLvl >= 3) {
+	  fprintf(fp, " | xlimitmin = %-11.5E", xnew);
+	}
+#endif
+      }
+    
       fnew = func(xnew);
       CRdenom = MAX(fabs(fnew), MAX(fabs(f2), MAX(fabs(f1), fnorm)));
       CRnew = sqrt(fabs(fnew) / CRdenom);
@@ -563,6 +637,8 @@ namespace Cantera {
       CR1 = CR2;
       x2 = xnew; 
       f2 = fnew;
+      deltaX1 = deltaX2;
+      deltaX2 = deltaXnew;
       CR2 = CRnew;
       if (fabs(fnew / fnorm) < m_rtol) {
         converged = 1;	 
@@ -576,10 +652,9 @@ namespace Cantera {
 	  retn = ROOTFIND_FAILEDCONVERGENCE;
 	  converged = true;
 	}
-	if (fabs(x2 - x1) / denom < 1.0E-13) {
+	if (theSame(x2, x1)) {
 	  converged = true;
 	}
-
       }
       its++;
     } while (! converged && its < itmax);

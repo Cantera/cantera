@@ -487,13 +487,18 @@ namespace Cantera {
    *  @param typeCalc     Type of the calculation
    *  @param y_curr       Current value of the solution vector
    *  @param ydot_curr    Current value of the time derivative of the solution vector
+   *
+   * @return Returns a flag to indicate that operation is successful.
+   *            1  Means a successful operation
+   *           -0 or neg value Means an unsuccessful operation
    */
-  void NonlinearSolver::doResidualCalc(const doublereal time_curr, const int typeCalc, const doublereal * const y_curr, 
+  int NonlinearSolver::doResidualCalc(const doublereal time_curr, const int typeCalc, const doublereal * const y_curr, 
 				       const doublereal * const ydot_curr, const ResidEval_Type_Enum evalType)
   {
-    m_func->evalResidNJ(time_curr, delta_t_n, y_curr, ydot_curr, DATA_PTR(m_resid), evalType);
+    int retn = m_func->evalResidNJ(time_curr, delta_t_n, y_curr, ydot_curr, DATA_PTR(m_resid), evalType);
     m_nfe++;
     m_resid_scaled = false;
+    return retn;
   }
  //====================================================================================================================
   // Compute the undamped Newton step
@@ -994,9 +999,15 @@ namespace Cantera {
        *  -> m_resid[] contains the result of the residual calculation
        */
       if (solnType_ != NSOLN_TYPE_STEADY_STATE) {
-	doResidualCalc(time_curr, solnType_, y1, ydot1, Base_LaggedSolutionComponents);
+	info = doResidualCalc(time_curr, solnType_, y1, ydot1, Base_LaggedSolutionComponents);
       } else {
-	doResidualCalc(time_curr, solnType_, y1, ydot0, Base_LaggedSolutionComponents);
+	info = doResidualCalc(time_curr, solnType_, y1, ydot0, Base_LaggedSolutionComponents);
+      }
+      if (info != 1) {
+	if (loglevel > 0) {
+	  printf("\t\t\tdampStep: current trial step and damping led to Residual Calc ERROR %d. Bailing\n", info);
+	}
+	return -1;
       }
       m_normResidTrial = residErrorNorm(DATA_PTR(m_resid));
 
@@ -1143,8 +1154,10 @@ namespace Cantera {
    *
    * SolnType = TRANSIENT -> we will assume we are relaxing a transient
    *        equation system for now. Will make it more general later,
-   *        if an application comes up.
-   * 
+   *        if an application comes up. 
+   *
+   *  @return  A positive value indicates a successful convergence
+   *           -1  Failed convergence
    */
   int NonlinearSolver::solve_nonlinear_problem(int SolnType, double* y_comm,
 					       double* ydot_comm, doublereal CJ,
@@ -1261,8 +1274,14 @@ namespace Cantera {
 
 
 
-      doResidualCalc(time_curr, NSOLN_TYPE_STEADY_STATE, DATA_PTR(m_y_n), DATA_PTR(ydot_curr));
-
+      info = doResidualCalc(time_curr, NSOLN_TYPE_STEADY_STATE, DATA_PTR(m_y_n), DATA_PTR(ydot_curr));
+      if (info != 1) {
+	if (m_print_flag > 0) {
+	  printf("\t\t\tsolve_nonlinear_problem(): Residual Calc ERROR %d. Bailing\n", info);
+	}
+	m = -1;
+	goto done;
+      }
 
       /*
        * Scale the matrix and the rhs, if they aren't already scaled
@@ -1340,8 +1359,14 @@ namespace Cantera {
       }
 
 
-      doResidualCalc(time_curr, NSOLN_TYPE_STEADY_STATE, DATA_PTR(y_new), DATA_PTR(ydot_new));
-
+      info = doResidualCalc(time_curr, NSOLN_TYPE_STEADY_STATE, DATA_PTR(y_new), DATA_PTR(ydot_new));
+      if (info != 1) {
+	if (m_print_flag > 0) {
+	  printf("\t\t\tdampStep: current trial step and damping led to Residual Calc ERROR %d. Bailing\n", info);
+	}
+	m = -1;
+	goto done;
+      }
 
       if (m_print_flag > 3) {
 	residErrorNorm(DATA_PTR(m_resid), "Resulting Residual Norm", 10, DATA_PTR(y_new));
@@ -1884,5 +1909,10 @@ namespace Cantera {
   }
   //=====================================================================================================================
   
+  void NonlinearSolver::setPrintLvl( int printLvl) 
+  {
+    m_print_flag = printLvl;
+  }
+  //=====================================================================================================================
 }
 

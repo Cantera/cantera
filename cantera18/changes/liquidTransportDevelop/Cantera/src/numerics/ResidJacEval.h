@@ -112,8 +112,12 @@ namespace Cantera {
      *                      the jacobian (defaults to -1, which indicates that no variable is being
      *                      differenced or that the residual doesn't take this issue into account)
      * @param delta_x       Value of the delta used in the numerical differencing
+     *
+     * @return Returns a flag to indicate that operation is successful.
+     *            1  Means a successful operation
+     *           -0 or neg value Means an unsuccessful operation
      */
-    virtual void evalResidNJ(const doublereal t, const doublereal delta_t,
+    virtual int evalResidNJ(const doublereal t, const doublereal delta_t,
 			     const doublereal * const y,
 			     const doublereal * const ydot,
 			     doublereal * const resid,
@@ -129,8 +133,12 @@ namespace Cantera {
      * @param t0            Time                    (input) 
      * @param y             Solution vector (output)
      * @param ydot          Rate of change of solution vector. (output)
+     *
+     * @return Returns a flag to indicate that operation is successful.
+     *            1  Means a successful operation
+     *           -0 or neg value Means an unsuccessful operation
      */
-    virtual void getInitialConditions(const doublereal t0, doublereal * const y, doublereal * const ydot);
+    virtual int  getInitialConditions(const doublereal t0, doublereal * const y, doublereal * const ydot);
   
     //! Filter the solution predictions
     /*!
@@ -174,8 +182,12 @@ namespace Cantera {
      * @param delta_t       The current value of the time step (input)
      * @param y             Solution vector (input, do not modify)
      * @param ydot          Rate of change of solution vector. (input, do not modify)
+     *
+     * @return Returns a flag to indicate that operation is successful.
+     *            1  Means a successful operation
+     *           -0 or neg value Means an unsuccessful operation
      */
-    virtual void evalTimeTrackingEqns(const doublereal t, const doublereal delta_t, const doublereal * const y,
+    virtual int  evalTimeTrackingEqns(const doublereal t, const doublereal delta_t, const doublereal * const y,
 				      const doublereal * const ydot);
 
     //! Evalulate any stopping criteria other than a final time limit
@@ -281,8 +293,12 @@ namespace Cantera {
      *  @param    matrix     Pointer to the current jacobian (if zero, it's already been factored)
      *  @param    nrows      offsets for the matrix
      *  @param    rhs        residual vector. This also needs to be lhs multiplied by M
+     *
+     * @return Returns a flag to indicate that operation is successful.
+     *            1  Means a successful operation
+     *           -0 or neg value Means an unsuccessful operation
      */
-    virtual void matrixConditioning(doublereal * const matrix, const int nrows,
+    virtual int  matrixConditioning(doublereal * const matrix, const int nrows,
 				    doublereal * const rhs);
 
     //! Calculate an analytical jacobian and the residual at the current time and values.
@@ -295,12 +311,16 @@ namespace Cantera {
      * @param ydot          Rate of change of solution vector. (input, do not modify)
      * @param J             Reference to the SquareMatrix object to be calculated (output)
      * @param resid         Value of the residual that is computed (output)
+     *
+     * @return Returns a flag to indicate that operation is successful.
+     *            1  Means a successful operation
+     *           -0 or neg value Means an unsuccessful operation
      */
-    virtual void evalJacobian(const doublereal t, const doublereal delta_t,
-			      const doublereal* const y,
-			      const doublereal* const ydot,
-			      SquareMatrix &J,
-			      doublereal * const resid);
+    virtual int evalJacobian(const doublereal t, const doublereal delta_t,
+		             const doublereal* const y,
+			     const doublereal* const ydot,
+			     SquareMatrix &J,
+			     doublereal * const resid);
 
 
   protected:

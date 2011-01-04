@@ -96,7 +96,7 @@ namespace Cantera {
    * @param y             Solution vector (output)
    * @param ydot          Rate of change of solution vector. (output)
    */
-  void ResidJacEval::
+  int ResidJacEval::
   getInitialConditions(doublereal t0, doublereal * const y, doublereal * const ydot) {
     for (int i = 0; i < neq_; i++) {
       y[i] = 0.0;
@@ -106,6 +106,7 @@ namespace Cantera {
 	ydot[i] = 0.0;
       }
     }
+    return 1;
   }
   //====================================================================================================================
   // This function may be used to create output at various points in the execution of an application.
@@ -154,10 +155,11 @@ namespace Cantera {
    * @param y             Solution vector (input, do not modify)
    * @param ydot          Rate of change of solution vector. (input, do not modify)
    */
-  void ResidJacEval::
+  int ResidJacEval::
   evalTimeTrackingEqns(const doublereal t, const doublereal delta_t, const doublereal *y, 
 		       const doublereal *ydot)
   {
+    return 1;
   }
   //====================================================================================================================
   //  Return a vector of delta y's for calculation of the numerical Jacobian 
@@ -279,9 +281,10 @@ namespace Cantera {
    *  @param    nrows      offsets for the matrix
    *  @param    rhs        residual vector. This also needs to be lhs multiplied by M
    */
-  void ResidJacEval::
+  int ResidJacEval::
   matrixConditioning(doublereal * const matrix, const int nrows, doublereal * const rhs)
   {
+    return 1;
   }
   //====================================================================================================================
   // Evaluate the residual function
@@ -297,12 +300,13 @@ namespace Cantera {
    *                      differenced or that the residual doesn't take this issue into account)
    * @param delta_x       Value of the delta used in the numerical differencing
    */ 
-  void ResidJacEval::
+  int ResidJacEval::
   evalResidNJ(const doublereal t, const doublereal deltaT,  const doublereal * y,
 	      const doublereal * ydot, doublereal * const resid, const ResidEval_Type_Enum evalType,
 	      const int id_x, const doublereal delta_x) 
   {  
     throw CanteraError("ResidJacEval::evalResidNJ()", "Not implemented\n");
+    return 1;
   }
   //====================================================================================================================
   // Calculate an analytical jacobian and the residual at the current time and values.
@@ -316,7 +320,7 @@ namespace Cantera {
    * @param J             Reference to the SquareMatrix object to be calculated (output)
    * @param resid         Value of the residual that is computed (output)
    */
-  void ResidJacEval::
+  int ResidJacEval::
   evalJacobian(const doublereal t, const doublereal delta_t,
 	       const doublereal * const y,
 	       const doublereal * const ydot,
@@ -324,6 +328,7 @@ namespace Cantera {
 	       doublereal * const resid)
   {
     throw CanteraError("ResidJacEval::evalJacobian()", "Not implemented\n");
+    return 1;
   }
   //====================================================================================================================
 
