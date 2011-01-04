@@ -96,17 +96,17 @@ public:
     return 0;
   }
 
-  virtual void getInitialConditions(const doublereal t0, doublereal * const y,
+  virtual int getInitialConditions(const doublereal t0, doublereal * const y,
 				    doublereal * const ydot) {
   
     for (int k = 0; k < neq_; k++) {
       y[k] = 1.0E-1;
     }
-
+    return 1;
   }
   
   int neq_;
-
+ 
 };
 
 

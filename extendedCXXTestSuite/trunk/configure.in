@@ -72,7 +72,7 @@ then
 else
   echo 'Cantera Version to be used is Overwritten. Will use the Version ' $CANTERA_VERSION
 fi
-# echo 'CANTERA_VERSION = ' $CANTERA_VERSION
+echo 'CANTERA_VERSION = ' $CANTERA_VERSION
 #
 # -----------------------------------------------------------------------------
 #                    PURIFY

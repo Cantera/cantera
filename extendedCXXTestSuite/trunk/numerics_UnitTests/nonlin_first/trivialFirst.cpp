@@ -55,7 +55,7 @@ public:
     return neq_;
   }
 
-  virtual void evalResidNJ(doublereal t, const doublereal deltaT,
+  virtual int  evalResidNJ(doublereal t, const doublereal deltaT,
 			   const doublereal * const y,
 			   const doublereal * const ydot,
 			   doublereal * const resid,
@@ -96,7 +96,7 @@ public:
     resid[6] = eq7; 
     resid[7] = eq8; 
 
- 
+    return 1; 
   }
 
 

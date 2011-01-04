@@ -1,14 +1,16 @@
 #!/bin/sh
 #
 #
-CANTERA_INSTALL_DIR=${HOME}/arch/linux64_gcc444/cantera-1.8_liquidTransportDevelop
+CANTERA_INSTALL_DIR=/home/hkmoffa/arch/linux64_gcc444/cantera-1.8_liquidTransportDevelop
 export CANTERA_INSTALL_DIR
 #
-CANTERA_ROOT=${HOME}/Cantera/gc/canteraLiquidTransportDevelop
+CANTERA_ROOT=/home/hkmoffa/Cantera/gc/canteraLiquidTransportDevelop
 export CANTERA_ROOT
 #
+CADS_ROOT=/home/hkmoffa/Cantera/cads_linux64_gcc424
+export CADS_ROOT
 #
-PYTHON_DIR=${HOME}/arch/linux64_gcc444/python-2.6.4
+PYTHON_DIR=/home/hkmoffa/arch/linux64_gcc444/python-2.6.4
 export PYTHON_DIR
 #
 #  BUILD_WITH_F2C is optional on linux. 

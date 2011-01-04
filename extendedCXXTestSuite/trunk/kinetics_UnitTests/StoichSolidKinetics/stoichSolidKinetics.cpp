@@ -293,7 +293,7 @@ int main(int argc, char** argv) {
 
     int ip_cao = iKin_ptr->phaseIndex("CaO(S)");
     iKin_ptr->setPhaseExistence(ip_cao, false);
-
+    iKin_ptr->setPhaseStability(ip_cao, true);
 
     iKin_ptr->getNetRatesOfProgress(DATA_PTR(Rnet));
     cout << "ROP_net       = ";
@@ -329,6 +329,7 @@ int main(int argc, char** argv) {
 
     int ip_caco3 = iKin_ptr->phaseIndex("CaCO3(S)");
     iKin_ptr->setPhaseExistence(ip_caco3, false);
+    iKin_ptr->setPhaseStability(ip_caco3, true);
 
 
     iKin_ptr->getNetRatesOfProgress(DATA_PTR(Rnet));
@@ -402,6 +403,7 @@ int main(int argc, char** argv) {
 
     int ip_gas = iKin_ptr->phaseIndex("air");
     iKin_ptr->setPhaseExistence(ip_gas, false);
+    iKin_ptr->setPhaseStability(ip_gas, true);
 
     iKin_ptr->getNetRatesOfProgress(DATA_PTR(Rnet));
     cout << "ROP_net       = ";
