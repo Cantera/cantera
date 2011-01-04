@@ -966,7 +966,7 @@ namespace VCSnonideal {
 	pub->w[i] = m_molNumSpecies_old[k1];
       } else {
 	pub->w[i] = 0.0;
-	plogf("voltage species = %g\n", m_molNumSpecies_old[k1]);
+        // plogf("voltage species = %g\n", m_molNumSpecies_old[k1]);
       }
       //pub->mf[i] = m_molNumSpecies_new[k1];
       pub->m_gibbsSpecies[i] = m_feSpecies_old[k1];
