@@ -76,7 +76,9 @@ namespace Cantera {
      *    @param   xmin    Minimum value of x to be used.
      *    @param   xmax    Maximum value of x to be used
      *    @param   itmax   maximum number of iterations. Usually, it can be less than 50.
-     *    @param   funcTargetValue   Value of \f$ f_o \f$ in the equation.
+     *    @param   funcTargetValue   
+     *                     Value of \f$ f_o \f$ in the equation.
+     *                     On return, it contains the value of the function actually obtained.
      *    @param   xbest   Returns the x that satisfies the function
      *                     On input, xbest should contain the best estimate of the solution.
      *                     An attempt to find the solution near xbest is made.
@@ -86,7 +88,7 @@ namespace Cantera {
      *   -1  =  ROOTFIND_FAILEDCONVERGENCE  Failed to find the answer
      *   -2  =  ROOTFIND_BADINPUT           Bad input was detected
      */
-    int solve(doublereal xmin, doublereal xmax, int itmax, doublereal funcTargetValue, doublereal *xbest);
+    int solve(doublereal xmin, doublereal xmax, int itmax, doublereal &funcTargetValue, doublereal *xbest);
 
 
     //! Return the function value
