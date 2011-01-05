@@ -188,7 +188,7 @@ namespace Cantera {
    *   return:
    *    0  Found function
    */
-  int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal funcTargetValue, doublereal *xbest) {
+  int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal &funcTargetValue, doublereal *xbest) {
 
     /*
      *   We store the function target and then actually calculate a modified functional
@@ -201,6 +201,8 @@ namespace Cantera {
     const char *stre = "RootFind ERROR: ";
     const char *strw = "RootFind WARNING: ";
     int converged = 0;
+    int bottomBump = 0;
+    int topBump = 0;
 #ifdef DEBUG_MODE
     char fileName[80];
     FILE *fp = 0;
@@ -236,6 +238,7 @@ namespace Cantera {
 #endif
     if (xmax <= xmin) {
       writelogf("%sxmin and xmax are bad: %g %g\n", stre, xmin, xmax);
+      funcTargetValue = func(*xbest);
       return ROOTFIND_BADINPUT;
     }
     /*
@@ -566,7 +569,18 @@ namespace Cantera {
        *  Guard against going above xmax or below xmin
        */
       if (xnew > xmax) {
-        xnew = x2 + (xmax - x2) / 2.0;
+	topBump++;
+	if (topBump < 5) {
+	  xnew = x2 + (xmax - x2) / 2.0;
+	} else {
+	  if (x2 == xmax || x1 == xmax) {
+	    // we are here when we are bumping against the top limit.
+	    // No further action is possible
+	    goto done;
+	  } else {
+	    xnew = xmax;
+	  }
+	}
 #ifdef DEBUG_MODE
 	if (printLvl >= 3) {
 	  fprintf(fp, " | xlimitmax = %-11.5E", xnew);
@@ -574,7 +588,18 @@ namespace Cantera {
 #endif
       }
       if (xnew < xmin) {
-	xnew = x2 + (x2 - xmin) / 2.0;
+	bottomBump++;
+	if (bottomBump < 5) {
+	  xnew = x2 + (x2 - xmin) / 2.0;
+	} else {
+	  if (x2 == xmin || x1 == xmin) {
+	    // we are here when we are bumping against the bottom limit.
+	    // No further action is possible
+	    goto done;
+	  } else {
+	    xnew = xmin;
+	  }
+	}
 #ifdef DEBUG_MODE
 	if (printLvl >= 3) {
 	  fprintf(fp, " | xlimitmin = %-11.5E", xnew);
@@ -658,6 +683,8 @@ namespace Cantera {
       }
       its++;
     } while (! converged && its < itmax);
+
+  done:
     if (converged) {
       if (printLvl >= 1) {
 	writelogf("RootFind success: convergence achieved\n");
@@ -679,11 +706,13 @@ namespace Cantera {
 #endif
     }
     *xbest = x2;
+    funcTargetValue = f2 + m_funcTargetValue;
 #ifdef DEBUG_MODE
     if (printLvl >= 3) {
       fclose(fp);
     }
 #endif
+    
     return retn;
   }
   //================================================================================================

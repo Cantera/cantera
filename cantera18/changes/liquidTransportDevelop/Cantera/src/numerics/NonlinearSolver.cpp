@@ -1585,6 +1585,7 @@ namespace Cantera {
   {
     int i, j;
     double* col_j;
+    int info;
     doublereal ysave, ydotsave, dy;
     int retn = 1;
     /*
@@ -1595,9 +1596,12 @@ namespace Cantera {
       /********************************************************************
        * Call the function to get a jacobian.
        */
-      m_func->evalJacobian(time_curr, delta_t_n, y, ydot, J, f);
+      info = m_func->evalJacobian(time_curr, delta_t_n, y, ydot, J, f);
       m_nJacEval++;
       m_nfe++;
+      if (info != 1) {
+	return info;
+      }
     }  else {
       /*******************************************************************
        * Generic algorithm to calculate a numerical Jacobian
@@ -1607,8 +1611,11 @@ namespace Cantera {
        * current conditions.
        */
 
-      m_func->evalResidNJ(time_curr, delta_t_n, y, ydot, f, JacBase_ResidEval);
+      info = m_func->evalResidNJ(time_curr, delta_t_n, y, ydot, f, JacBase_ResidEval);
       m_nfe++;
+      if (info != 1) {
+	return info;
+      }
       m_nJacEval++;
 
       /*
@@ -1668,9 +1675,14 @@ namespace Cantera {
          */
 
 
-        m_func->evalResidNJ(time_curr, delta_t_n, y, ydot, DATA_PTR(m_wksp),
-			    JacDelta_ResidEval, j, dy);
+        info =  m_func->evalResidNJ(time_curr, delta_t_n, y, ydot, DATA_PTR(m_wksp),
+				    JacDelta_ResidEval, j, dy);
         m_nfe++;
+	if (info != 1) {
+	  mdp::mdp_safe_free((void **) &dyVector);
+	  return info;
+	}
+
         doublereal diff;
         for (i = 0; i < neq_; i++) {
           diff = subtractRD(m_wksp[i], f[i]);
