@@ -427,6 +427,54 @@ namespace Cantera {
     m_rxnstoich->getReactionDelta(m_ii, &m_grt[0], deltaS);
   }
 
+  //====================================================================================================================
+  // Return the species net production rates
+  /*
+   * Species net production rates [kmol/m^3/s]. Return the species
+   * net production rates (creation - destruction) in array
+   * wdot, which must be dimensioned at least as large as the
+   * total number of species.
+   *
+   *  @param net  Array of species production rates.
+   *             units kmol m-3 s-1
+   */
+  void GasKinetics::getNetProductionRates(doublereal* net) {
+    updateROP();
+    m_rxnstoich->getNetProductionRates(m_kk, &m_kdata->m_ropnet[0], net);
+  } 
+  //====================================================================================================================
+  // Return the species creation rates
+  /*
+   * Species creation rates [kmol/m^3]. Return the species
+   * creation rates in array cdot, which must be
+   * dimensioned at least as large as the total number of
+   * species.
+   *
+   *  @param cdot  Array of species production rates.
+   *              units kmol m-3 s-1
+   */
+  void GasKinetics::getCreationRates(doublereal* cdot) {
+    updateROP();
+    m_rxnstoich->getCreationRates(m_kk, &m_kdata->m_ropf[0], &m_kdata->m_ropr[0], cdot);
+  }
+  //====================================================================================================================
+  //   Return a vector of the species destruction rates
+  /*
+   * Species destruction rates [kmol/m^3]. Return the species
+   * destruction rates in array ddot, which must be
+   * dimensioned at least as large as the total number of
+   * species.
+   *
+   *
+   *  @param ddot  Array of species destruction rates.
+   *               units kmol m-3 s-1
+   *
+   */
+  void GasKinetics::getDestructionRates(doublereal* ddot) {
+    updateROP();
+    m_rxnstoich->getDestructionRates(m_kk, &m_kdata->m_ropf[0], &m_kdata->m_ropr[0], ddot);
+  }
+  //====================================================================================================================
   void GasKinetics::processFalloffReactions() {
 
     int i;
