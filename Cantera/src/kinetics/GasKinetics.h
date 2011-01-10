@@ -273,46 +273,33 @@ namespace Cantera {
      *  @param net  Array of species production rates.
      *             units kmol m-3 s-1
      */
-    virtual void getNetProductionRates(doublereal* net) {
-      updateROP();
-      //#ifdef HWMECH
-      //get_wdot(&m_kdata->m_ropnet[0], net);
-      //#else
-      m_rxnstoich->getNetProductionRates(m_kk, 
-					 &m_kdata->m_ropnet[0], net);
-      //#endif
-    }
+    virtual void getNetProductionRates(doublereal* net);
 
-    /**
+    //! Return the species creation rates
+    /*!
      * Species creation rates [kmol/m^3]. Return the species
      * creation rates in array cdot, which must be
      * dimensioned at least as large as the total number of
      * species.
      *
+     *  @param cdot  Array of species creation rates.
+     *              units kmol m-3 s-1
      */
-    virtual void getCreationRates(doublereal* cdot) {
-      updateROP();
-      m_rxnstoich->getCreationRates(m_kk, &m_kdata->m_ropf[0],
-				    &m_kdata->m_ropr[0], cdot);
-    }
+    virtual void getCreationRates(doublereal* cdot);
 
-    /**
+    //! Return a vector of the species destruction rates
+    /*!
      * Species destruction rates [kmol/m^3]. Return the species
      * destruction rates in array ddot, which must be
      * dimensioned at least as large as the total number of
      * species.
      *
+     *
+     *  @param ddot  Array of species destruction rates.
+     *               units kmol m-3 s-1
+     *
      */
-    virtual void getDestructionRates(doublereal* ddot) {
-      updateROP();
-      m_rxnstoich->getDestructionRates(m_kk, &m_kdata->m_ropf[0],
-				       &m_kdata->m_ropr[0], ddot);
-      //            fill(ddot, ddot + m_kk, 0.0);
-      //m_revProductStoich.incrementSpecies(
-      //    m_kdata->m_ropr.begin(), ddot);
-      //m_reactantStoich.incrementSpecies(
-      //    m_kdata->m_ropf.begin(), ddot);
-    }
+    virtual void getDestructionRates(doublereal* ddot);
 
     //@}
     /**
