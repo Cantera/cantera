@@ -134,50 +134,80 @@ namespace Cantera {
   // Empty destructor
   RootFind::~RootFind() {
   }
-  //================================================================================================ 
-  double RootFind::delXNonzero(double x1) const {
-    double deltaX = 1.0E-14 * fabs(x1);
-    double delmin = DeltaXnorm_ * 1.0E-14;
+  //================================================================================================
+  // Calculate a deltaX from an input value of x
+  /*
+   *  This routine ensure that the deltaX will be greater or equal to DeltaXNorm_
+   *  or 1.0E-14 x
+   *
+   * @param x1  input value of x
+   */
+  doublereal RootFind::delXNonzero(doublereal x1) const {
+    doublereal deltaX = 1.0E-14 * fabs(x1);
+    doublereal delmin = DeltaXnorm_ * 1.0E-14;
     if (delmin > deltaX) {
       return delmin;
     }
     return deltaX;
   }
   //================================================================================================
-  double RootFind::delXMeaningful(double x1) const {
-    double del = delXNonzero(x1);
+  // Calculate a deltaX from an input value of x
+  /*
+   *  This routine ensure that the deltaX will be greater or equal to DeltaXNorm_
+   *  or 1.0E-14 x or deltaXConverged_.
+   *
+   * @param x1  input value of x
+   */
+  doublereal RootFind::delXMeaningful(doublereal x1) const {
+    doublereal del = delXNonzero(x1);
     if (deltaXConverged_ > del) {
       return deltaXConverged_;
     }
     return del;
   }
   //================================================================================================ 
-  double RootFind::deltaXControlled(double x2, double x1) const {
-    double sgnn = 1.0;
+  // Calcuated a controlled, nonzero delta between two numbers
+  /*
+   *  The delta is designed to be greater than or equal to delXMeaningful(x) defined above
+   *  with the same sign as the original delta. Therefore if you subtract it from either
+   *  of the two original numbers, you get a different number.
+   *
+   *  @param x2   first number
+   *  @param x2   second number
+   */
+  double RootFind::deltaXControlled(doublereal x2, doublereal x1) const {
+    doublereal sgnn = 1.0;
     if (x1 > x2) {
       sgnn = -1.0;
     }
-    double deltaX = x2 - x1;
-    double x = fabs(x2) + fabs(x1);
-    double deltaXm = delXMeaningful(x);
+    doublereal deltaX = x2 - x1;
+    doublereal x = fabs(x2) + fabs(x1);
+    doublereal deltaXm = delXMeaningful(x);
     if (fabs(deltaX) < deltaXm) {
       deltaX = sgnn * deltaXm;
     }
     return deltaX;
   }
-  //================================================================================================ 
-  bool RootFind::theSame(double x2, double x1) const {
-    double x = fabs(x2) + fabs(x1);
-    double deltaX = delXMeaningful(x);
+  //====================================================================================================================
+  // Function to decide whether two real numbers are the same or not
+  /*
+   *  A comparison is made between the two numbers to decide whether they
+   *  are close to one another. This is defined as being within delXMeaningful() of each other
+   *
+   * @param x2  First number
+   * @param x2  second number
+   *
+   * @return Returns a boolean indicating whether the two numbers are the same or not.
+   */
+  bool RootFind::theSame(doublereal x2, doublereal x1) const {
+    doublereal x = fabs(x2) + fabs(x1);
+    doublereal deltaX = delXMeaningful(x);
     if (fabs(x2 - x1) < deltaX) {
       return true;
     }
     return false;
   }
-
-
-
-  //================================================================================================
+  //====================================================================================================================
   /*
    * The following calculation is a line search method to find the root of a function
    * 
@@ -313,8 +343,8 @@ namespace Cantera {
      */
     foundStraddle = foundPosF && foundNegF;
     if (foundStraddle) {
-      if (xPosF > xNegF) posStraddle = 1;
-      else               posStraddle = 0    ;
+      if (xPosF > xNegF) posStraddle = 1; 
+     else               posStraddle = 0    ;
     }
     bool doQuad = false;
     bool useNextStrat = false;
@@ -332,7 +362,7 @@ namespace Cantera {
 	printf(" RootFind: we are here x2 = %g x1 = %g\n", x2, x1);
       }
 #endif
-      double delXtmp = deltaXControlled(x2, x1);
+      doublereal delXtmp = deltaXControlled(x2, x1);
       slope = (f2 - f1) / delXtmp;
       if (fabs(slope) <= 1.0E-100) {
 	if (printLvl >= 2) {
@@ -715,7 +745,7 @@ namespace Cantera {
     
     return retn;
   }
-  //================================================================================================
+  //====================================================================================================================
   doublereal RootFind::func(doublereal x) {
     doublereal r;
 #ifdef DEBUG_MODE
@@ -727,18 +757,52 @@ namespace Cantera {
 #endif
     return (r - m_funcTargetValue);
   } 
-  //================================================================================================
+  //====================================================================================================================
+  // Set the tolerance parameters for the rootfinder
+  /*
+   *  These tolerance parameters are used on the function value to determine convergence
+   *  
+   *
+   * @param rtol  Relative tolerance. The default is 10^-5
+   * @param atol  absolute tolerance. The default is 10^-11
+   */
   void RootFind::setTol(doublereal rtol, doublereal atol)
   {
     m_atol = atol;
     m_rtol = rtol;
   }
-  //================================================================================================
+  //====================================================================================================================
+  // Set the print level from the rootfinder
+  /*
+   * 
+   *   0 -> absolutely nothing is printed for a single time step.
+   *   1 -> One line summary per solve_nonlinear call
+   *   2 -> short description, points of interest: Table of nonlinear solve - one line per iteration
+   *   3 -> Table is included -> More printing per nonlinear iteration (default) that occurs during the table
+   *   4 -> Summaries of the nonlinear solve iteration as they are occurring -> table no longer printed
+   *   5 -> Algorithm information on the nonlinear iterates are printed out
+   *   6 -> Additional info on the nonlinear iterates are printed out
+   *   7 -> Additional info on the linear solve is printed out.
+   *   8 -> Info on a per iterate of the linear solve is printed out.
+   *
+   *  @param printLvl  integer value
+   */
   void RootFind::setPrintLvl(int printlvl) 
   {
     printLvl = printlvl;
   }
-  //================================================================================================
+  //====================================================================================================================
+  // Set the function behavior flag
+  /*
+   *  If this is true, the function is generally an increasing function of x.
+   *  In particular, if the algorithm is seeking a higher value of f, it will look
+   *  in the positive x direction.
+   *
+   *  This type of function is needed because this algorithm must deal with regions of f(x) where 
+   *  f is not changing with x.
+   *  
+   *  @param value   boolean value
+   */
   void RootFind::setFuncIsGenerallyIncreasing(bool value) 
   {
     if (value) {
@@ -746,7 +810,18 @@ namespace Cantera {
     }
     FuncIsGenerallyIncreasing_ = value;
   }
-  //================================================================================================
+  //====================================================================================================================
+  // Set the function behavior flag
+  /*
+   *  If this is true, the function is generally a decreasing function of x.
+   *  In particular, if the algorithm is seeking a higher value of f, it will look
+   *  in the negative x direction.
+   *
+   *  This type of function is needed because this algorithm must deal with regions of f(x) where 
+   *  f is not changing with x.
+   *  
+   *  @param value   boolean value
+   */
   void RootFind::setFuncIsGenerallyDecreasing(bool value) 
   {
     if (value) {
@@ -754,10 +829,16 @@ namespace Cantera {
     }
     FuncIsGenerallyDecreasing_ = value;
   }
-  //================================================================================================
+  //====================================================================================================================
+  // Set the minimum value of deltaX
+  /*
+   *  This sets the value of deltaXNorm_
+   *
+   *  @param deltaXNorm
+   */
   void RootFind::setDeltaX(doublereal deltaXNorm) 
   {
     DeltaXnorm_ = deltaXNorm;
   }
-  //================================================================================================
+  //====================================================================================================================
 }

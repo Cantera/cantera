@@ -28,35 +28,37 @@
 #include "mdp_allo.h"
 #include <cfloat>
 
-extern void print_line(const char *, int);
-
 #include <vector>
 #include <cstdio>
 #include <cmath>
 
+//@{
+extern void print_line(const char *, int);
 
 #ifndef MAX
 #define MAX(x,y)    (( (x) > (y) ) ? (x) : (y))
 #define MIN(x,y)    (( (x) < (y) ) ? (x) : (y))
 #endif
-
+//@}
 using namespace std;
 
 namespace Cantera {
 
 
- //====================================================================================================================
+  //====================================================================================================================
   //-----------------------------------------------------------
   //                 Constants
   //-----------------------------------------------------------
-
-  const doublereal DampFactor = 4;
+  //! Dampfactor is the factor by which the damping factor is reduced by when a reduction in step length is warranted
+  const doublereal DampFactor = 4.0;
+  //! Number of damping steps that are carried out before the solution is deemed a failure
   const int NDAMP = 7;
- //====================================================================================================================
-  //-----------------------------------------------------------
-  //                 Static Functions
-  //-----------------------------------------------------------
-
+  //====================================================================================================================
+  //! Print a line of a single repeated character string
+  /*!
+   *  @param str  Character string
+   *  @param n    Iteration length
+   */
   static void print_line(const char *str, int n)  {
     for (int i = 0; i < n; i++) {
       printf("%s", str);
@@ -625,7 +627,8 @@ namespace Cantera {
    *  scaling has been implemented.
    */ 
   int NonlinearSolver::doNewtonSolve(const doublereal time_curr, const doublereal * const y_curr, 
-				     const doublereal * const ydot_curr,  double* const delta_y, SquareMatrix& jac, int loglevel)
+				     const doublereal * const ydot_curr,  doublereal * const delta_y, 
+				     SquareMatrix& jac, int loglevel)
   {
     int irow;
 
@@ -837,7 +840,6 @@ namespace Cantera {
     return f_delta_bounds;
   }
   //====================================================================================================================  
-
   /*
    *
    * boundStep():
@@ -865,7 +867,8 @@ namespace Cantera {
    *  Maximum decrease in variable in any one newton iteration:
    *   factor of 5
    */
-  doublereal NonlinearSolver::boundStep(const doublereal * const y, const doublereal * const step0, const int loglevel) {
+  doublereal NonlinearSolver::boundStep(const doublereal * const y, const doublereal * const step0, 
+					const int loglevel) {
     int i, i_lower = -1;
     doublereal fbound = 1.0, f_bounds = 1.0;
     doublereal ff, y_new;
@@ -1532,12 +1535,10 @@ namespace Cantera {
     mdp::mdp_safe_free((void **) &imax);
   }
   //====================================================================================================================
-
-  /*
-   * subtractRD():
+  //!  This routine subtracts two numbers for one another
+  /*!
    *   This routine subtracts 2 numbers. If the difference is less
-   *   than 1.0E-14 times the magnitude of the smallest number,
-   *   then diff returns an exact zero. 
+   *   than 1.0E-14 times the magnitude of the smallest number, then diff returns an exact zero. 
    *   It also returns an exact zero if the difference is less than
    *   1.0E-300.
    *
@@ -1546,8 +1547,12 @@ namespace Cantera {
    *   This routine is used in numerical differencing schemes in order
    *   to avoid roundoff errors resulting in creating Jacobian terms.
    *   Note: This is a slow routine. However, jacobian errors may cause
-   *         loss of convergence. Therefore, in practice this routine
-   *         has proved cost-effective.
+   *         loss of convergence. Therefore, in practice this routine has proved cost-effective.
+   *
+   * @param a   Value of a
+   * @param b   value of b
+   *
+   * @return    returns the difference between a and b
    */
   static inline doublereal subtractRD(doublereal a, doublereal b) {
     doublereal diff = a - b;
