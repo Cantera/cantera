@@ -1,7 +1,8 @@
 /**
  *  @file Integrator.h
- *
- *  $Author$
+ */
+
+/*  $Author$
  *  $Date$
  *  $Revision$
  *

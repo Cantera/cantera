@@ -1,5 +1,5 @@
 /**
- *  @file NonlinearSolve.h
+ *  @file NonlinearSolver.h
  *    Class that calculates the solution to a nonlinear, dense, set
  *    of equations (see \ref numerics
  *    and class \link Cantera::NonlinearSolver NonlinearSolver\endlink).
@@ -22,20 +22,55 @@
 #include "ResidJacEval.h"
 
 namespace Cantera {
-
-  // I think steady state is the only option I'm gunning for
+  
+  //@{
+  ///  @name  Constant which determines the type of the nonlinear solve
+  /*!
+   *  I think steady state is the only option I'm gunning for
+   */
+  //!  The nonlinear problem is part of a pseudo time dependent calculation (NOT TESTED)
 #define  NSOLN_TYPE_PSEUDO_TIME_DEPENDENT 2
+  //! The nonlinear problem is part of a time dependent calculation
 #define  NSOLN_TYPE_TIME_DEPENDENT 1
+  //!  The nonlinear problem is part of a steady state calculation
 #define  NSOLN_TYPE_STEADY_STATE   0
+   //@}
 
+  //@{
+  ///  @name  Constant which determines the type of the Jacobian
+  //! The jacobian will be calculated from a numerical method
 #define NSOLN_JAC_NUM 1
+  //! The jacobian is calculated from an analytical function
 #define NSOLN_JAC_ANAL 2
-
+  //@}
 
 
   //! Class that calculates the solution to a nonlinear system
   /*!
-   *  UNDER CONSTRUCTION - do not use!!!!!!!!!!!!!!!!!!!!!!!!!
+   *  This is a small nonlinear solver that can solve highly nonlinear problems that
+   *  must use a dense matrix to relax the system.
+   *
+   *  Newton's method is used.
+   *
+   *  Damping is used extensively when relaxing the system
+   *
+   *  
+   *
+   *  @code 
+   *
+   *
+   *  NonlinearSolver *nls = new NonlinearSolver(&r1);
+   *  
+   *  int solnType =       NSOLN_TYPE_STEADY_STATE ;
+   *
+   *  nls->setDeltaBoundsMagnitudes(deltaBounds);
+   *
+   *  nls->solve_nonlinear_problem(solnType, y_comm, ydot_comm, CJ, time_curr, jac,
+   *                                num_newt_its,  num_linear_solves, numBacktracks,
+   *                               loglevelInput);
+   *
+   *  @endcode  
+   *
    *
    *  @ingroup numerics
    */
@@ -77,7 +112,7 @@ namespace Cantera {
      *  The program always assumes that atol is specific
      *  to the solution component
      *
-     * param y  vector of the current solution values
+     * @param y  vector of the current solution values
      */
     void createSolnWeights(const doublereal * const y);
 
@@ -155,9 +190,12 @@ namespace Cantera {
      *  recomputed. The row scales are recomputed here, after column
      *  scaling has been implemented.
      *
-     *  @param timeCurrent    Current value of the time
-     *  @param y_current      Current value of the solution
-     *  @param ydot_current   Current value of the solution derivative.
+     *  @param time_curr      Current value of the time
+     *  @param y_curr         Current value of the solution
+     *  @param ydot_curr      Current value of the solution derivative.
+     *  @param delta_y        return value of the raw change in y
+     *  @param jac            Jacobian
+     *  @param loglevel       Log level
      *
      *  @return Returns the result code from lapack. A zero means success. Anything
      *          else indicates a failure.
@@ -178,7 +216,7 @@ namespace Cantera {
 
     //! Set the delta Bounds magnitudes by hand
     /*!
-     *  @param deltaboundsMagnitudes          
+     *  @param deltaBoundsMagnitudes  set the deltaBoundsMagnitude vector      
      */
     void setDeltaBoundsMagnitudes(const doublereal * const deltaBoundsMagnitudes);
 
@@ -209,9 +247,13 @@ namespace Cantera {
      *  Maximum decrease in variable in any one newton iteration:
      *   factor of 5
      *
+     *   @param y         Current solution value of the old step
+     *   @param step0     Proposed step change in the solution
+     *   @param loglevel  Log level
+     *
      *  @return  Returns the damping factor determined by the bounds calculation
      */
-    doublereal boundStep(const double* const  y, const double* const step0,  const int loglevel);
+    doublereal boundStep(const doublereal * const  y, const doublereal * const step0,  const int loglevel);
 
 
     //! Set bounds constraints for all variables in the problem
@@ -242,10 +284,15 @@ namespace Cantera {
     /*!
      *  
      *
-     *  @param J = Jacobian matrix to be filled in
-     *  @param f = Right hand side. This routine returns the current
+     *  @param J  Jacobian matrix to be filled in
+     *  @param f   Right hand side. This routine returns the current
      *             value of the rhs (output), so that it does
      *             not have to be computed again.
+     *  @param time_curr Current time
+     *  @param CJ  inverse of the value of deltaT
+     *  @param y    value of the solution vector
+     *  @param ydot  value of the time derivative of the solution vector
+     *  @param num_newt_its Number of newton iterations
      *  
      * @return Returns a flag to indicate that operation is successful.
      *            1  Means a successful operation
@@ -259,6 +306,7 @@ namespace Cantera {
     /*!
      *  @param timeCurrent    Current value of the time
      *  @param ybase          current value of the solution
+     *   @param step0     Proposed step change in the solution
      *
      *  @return Returns the norm of the value of the amount filtered
      */
@@ -310,7 +358,16 @@ namespace Cantera {
      *    @param ydot0     Base value of the time derivative of teh
      *                     solution
      *    @param step0     Initial step suggested.
-     *    @param y1        
+     *    @param y1        Value of y1, the suggested solution after damping
+     *    @param ydot1     Value of the time derivative of the solution at y1
+     *    @param step1     Value of the step change from y0 to y1
+     *    @param s1        norm of the step change in going from y0 to y1
+     *    @param jac       Jacobian
+     *    @param loglevel  Log level to be used
+     *    @param writetitle  Write a title line
+     *    @param num_backtracks Number of backtracks taken
+     *
+     *  @return returns an integer indicating what happened.
      */
     int dampStep(const doublereal time_curr, const double* y0, 
 		 const doublereal *ydot0, const double* step0, 
@@ -331,6 +388,18 @@ namespace Cantera {
      *        equation system for now. Will make it more general later,
      *        if an application comes up.
      *
+     *  @param SolnType  Solution type
+     *  @param y_comm    Initial value of the solution. On return this is the converged
+     *                   value of the solution
+     *  @param ydot_comm  Initial value of the solution derivative. On return this is the
+     *                    converged value of the solution derivative.
+     *  @param CJ        Inverse of the value of deltaT
+     *  @param time_curr  Current value of the time
+     *  @param jac        Matrix that will be used to store the jacobian
+     *  @param num_newt_its Number of newton iterations taken 
+     *  @param num_linear_solves Number of linear solves taken
+     *  @param num_backtracks Number of backtracking steps taken
+     *  @param loglevelInput  Input log level determines the amount of printing.
      *
      *
      *   @return  A positive value indicates a successful convergence
@@ -390,6 +459,9 @@ namespace Cantera {
     //! Check to see if the nonlinear problem has converged
     /*!
      *
+     * @param dampCode Code from the damping routine
+     * @param s1       Value of the norm of the step change
+     *
      * @return integer is returned. If positive, then the problem has converged
      *           1 Successful step was taken: Next step's norm is less than 1.0.
      *                                        The final residual norm is less than 1.0.
@@ -429,6 +501,21 @@ namespace Cantera {
     //! solution norms.
     void calcSolnToResNormVector();
 
+    //! Set the print level from the rootfinder
+    /*!
+     * 
+     *   0 -> absolutely nothing is printed for a single time step.
+     *   1 -> One line summary per solve_nonlinear call
+     *   2 -> short description, points of interest: Table of nonlinear solve - one line per iteration
+     *   3 -> Table is included -> More printing per nonlinear iteration (default) that occurs during the table
+     *   4 -> Summaries of the nonlinear solve iteration as they are occurring -> table no longer printed
+     *   5 -> Algorithm information on the nonlinear iterates are printed out
+     *   6 -> Additional info on the nonlinear iterates are printed out
+     *   7 -> Additional info on the linear solve is printed out.
+     *   8 -> Info on a per iterate of the linear solve is printed out.
+     *
+     *  @param printLvl  integer value
+     */
     void setPrintLvl(int printLvl);
 
  private:
@@ -457,13 +544,17 @@ namespace Cantera {
 
     //! Boolean indicating whether a manual delta steps have been input.
     int m_manualDeltaStepSet;
-    
+
+    //! Value of the delta step magnitudes
     std::vector<doublereal> m_deltaStepMagnitudes;
 
+    //! Vector containing the current solution of the nonlinear solver
     std::vector<doublereal> m_y_n;
+
+    //! Vector containing the solution at the previous time step
     std::vector<doublereal> m_y_nm1;
 
-
+    //! New value of the solution time derivative
     std::vector<doublereal> ydot_new;
 
     //! Vector of column scaling factors
@@ -482,9 +573,6 @@ namespace Cantera {
      *  sum of the absolute values  jacobian multiplied by the solution weight function
      */
     std::vector<doublereal> m_rowWtScales;
-
-
-
 
     //! Value of the residual for the nonlinear problem
     std::vector<doublereal> m_resid;
@@ -516,13 +604,13 @@ namespace Cantera {
     //! Vector of the norm
     doublereal m_normResidPoints[15];
 
+    //! Boolean indicating whether we should scale the residual
     bool m_resid_scaled;
 
 
     /*****************************************************************************************
      *        INTERNAL BOUNDARY INFO FOR SOLUTIONS
      *****************************************************************************************/
-
 
     //! Bounds vector for each species
     std::vector<doublereal> m_y_high_bounds;
@@ -582,8 +670,10 @@ namespace Cantera {
      */
     doublereal time_n;
 
+    //! Boolean indicating matrix conditioning
     int m_matrixConditioning;
 
+    //! Order of the time step method = 1 
     int m_order;
 
     //! value of the relative tolerance to use in solving the equation set
@@ -592,8 +682,13 @@ namespace Cantera {
     //! Base value of the absolute tolerance
     doublereal atolBase_;
 
+    //! Vector containing the solution derivative at the previous time step
     doublereal *  m_ydot_nm1;
 
+    //! absolute tolerance in the solution unknown
+    /*!
+     * This is used to evaluating the weighting factor
+     */
     std::vector<doublereal> atolk_;
 
     //! Determines the level of printing for each time step.
@@ -620,10 +715,7 @@ namespace Cantera {
      */
     static bool m_TurnOffTiming;
 
-    // Turn on or off printing of the Jacobian
-    /*!
-     *
-     */
+    //! Turn on or off printing of the Jacobian
     static bool s_print_NumJac;
   };
 
