@@ -502,20 +502,14 @@ namespace Cantera {
     m_resid_scaled = false;
     return retn;
   }
- //====================================================================================================================
-  // Compute the undamped Newton step
+  //====================================================================================================================
+  // Scale the matrix
   /*
-   * Compute the undamped Newton step.  The residual function is
-   * evaluated at the current time, t_n, at the current values of the
-   * solution vector, m_y_n, and the solution time derivative, m_ydot_n. 
-   * The Jacobian is not recomputed.
-   *
-   *  A factored jacobian is reused, if available. If a factored jacobian
-   *  is not available, then the jacobian is factored. Before factoring,
-   *  the jacobian is row and column-scaled. Column scaling is not 
-   *  recomputed. The row scales are recomputed here, after column
-   *  scaling has been implemented.
-   */ 
+   *  @param jac              Jacobian
+   *  @param y_comm           Current value of the solution vector
+   *  @param ydot_comm        Current value of the time derivative of the solution vector
+   *  @param time_curr        current value of the time
+   */
   void NonlinearSolver::scaleMatrix(SquareMatrix& jac, double* y_comm,	double* ydot_comm, doublereal time_curr)
   {	 
     int irow, jcol;
@@ -1480,9 +1474,19 @@ namespace Cantera {
     return m;
   }
   //====================================================================================================================
+  // Print solution norm contribution
   /*
+   *  Prints out the most important entries to the update to the solution vector for the current step
    *
-   *
+   *   @param solnDelta0             Raw update vector for the current nonlinear step
+   *   @param s0                     Norm of the vector solnDelta0
+   *   @param solnDelta1             Raw update vector for the next solution value based on the old matrix
+   *   @param s1                     Norm of the vector solnDelta1
+   *   @param title                  title of the printout
+   *   @param y0                     Old value of the solution
+   *   @param y1                     New value of the solution after damping corrections
+   *   @param damp                   Value of the damping factor
+   *   @param num_entries            Number of entries to print out
    */
   void NonlinearSolver::
   print_solnDelta_norm_contrib(const doublereal * const solnDelta0,

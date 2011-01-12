@@ -102,7 +102,6 @@ namespace Cantera {
      */
     NonlinearSolver& operator=(const NonlinearSolver &right);
 
-
     //! Create solution weights for convergence criteria
     /*!
      *  We create soln weights from the following formula
@@ -115,7 +114,6 @@ namespace Cantera {
      * @param y  vector of the current solution values
      */
     void createSolnWeights(const doublereal * const y);
-
 
     //!  L2 norm of the delta of the solution vector
     /*!
@@ -204,7 +202,6 @@ namespace Cantera {
 		      const doublereal * const ydot_curr, doublereal * const delta_y,
 		      SquareMatrix& jac, int loglevel);
 
-
     //! Set default deulta bounds amounts
     /*!
      *     Delta bounds are set to 0.01 for all unknowns arbitrarily and capriciously
@@ -219,7 +216,6 @@ namespace Cantera {
      *  @param deltaBoundsMagnitudes  set the deltaBoundsMagnitude vector      
      */
     void setDeltaBoundsMagnitudes(const doublereal * const deltaBoundsMagnitudes);
-
   
     //! Bound the step
     /*!
@@ -254,7 +250,6 @@ namespace Cantera {
      *  @return  Returns the damping factor determined by the bounds calculation
      */
     doublereal boundStep(const doublereal * const  y, const doublereal * const step0,  const int loglevel);
-
 
     //! Set bounds constraints for all variables in the problem
     /*!
@@ -320,9 +315,9 @@ namespace Cantera {
      *
      *  @return Returns the norm of the value of the amount filtered
      */
-    doublereal filterNewSolution(const doublereal timeCurrent, doublereal * const y_current, doublereal * const ydot_current);
+    doublereal filterNewSolution(const doublereal timeCurrent, doublereal * const y_current, 
+				 doublereal * const ydot_current);
 
-  
     //! Return the factor by which the undamped Newton step 'step0'
     //!  must be multiplied in order to keep the update within the bounds of an accurate jacobian.
     /*!
@@ -372,11 +367,8 @@ namespace Cantera {
     int dampStep(const doublereal time_curr, const double* y0, 
 		 const doublereal *ydot0, const double* step0, 
 		 double* const y1, double* const ydot1, double* step1,
-		 double& s1, SquareMatrix& jac, 
-		 int& loglevel, bool writetitle,
+		 double& s1, SquareMatrix& jac, int& loglevel, bool writetitle,
 		 int& num_backtracks);
-
-   
 
     //! Find the solution to F(X) = 0 by damped Newton iteration. 
     /*!
@@ -405,37 +397,41 @@ namespace Cantera {
      *   @return  A positive value indicates a successful convergence
      *            -1  Failed convergence
      */
-    int solve_nonlinear_problem(int SolnType, double* y_comm,
-				double* ydot_comm, doublereal CJ,
-				doublereal time_curr, 
-				SquareMatrix& jac,
-				int &num_newt_its,
-				int &num_linear_solves,
-				int &num_backtracks, 
-				int loglevelInput);
-
+    int solve_nonlinear_problem(int SolnType, double* y_comm,double* ydot_comm, doublereal CJ,
+				doublereal time_curr, SquareMatrix& jac,int &num_newt_its,
+				int &num_linear_solves,	int &num_backtracks, int loglevelInput);
 
     //! Set the column scales
     void setColumnScales();
 
     //! Scale the matrix
     /*!
-     *
+     *  @param jac              Jacobian
+     *  @param y_comm           Current value of the solution vector
+     *  @param ydot_comm        Current value of the time derivative of the solution vector
+     *  @param time_curr        current value of the time
      */
     void scaleMatrix(SquareMatrix& jac, double* y_comm, double* ydot_comm, doublereal time_curr);
 
-
     //! Print solution norm contribution
+    /*!
+     *  Prints out the most important entries to the update to the solution vector for the current step
+     *
+     *   @param solnDelta0             Raw update vector for the current nonlinear step
+     *   @param s0                     Norm of the vector solnDelta0
+     *   @param solnDelta1             Raw update vector for the next solution value based on the old matrix
+     *   @param s1                     Norm of the vector solnDelta1
+     *   @param title                  title of the printout
+     *   @param y0                     Old value of the solution
+     *   @param y1                     New value of the solution after damping corrections
+     *   @param damp                   Value of the damping factor
+     *   @param num_entries            Number of entries to print out
+     */
     void
-    print_solnDelta_norm_contrib(const doublereal * const solnDelta0,
-				 const char * const s0,
-				 const doublereal * const solnDelta1,
-				 const char * const s1,
-				 const char * const title,
-				 const doublereal * const y0,
-				 const doublereal * const y1,
-				 doublereal damp,
-				 int num_entries);
+    print_solnDelta_norm_contrib(const doublereal * const solnDelta0, const char * const s0,
+				 const doublereal * const solnDelta1, const char * const s1,
+				 const char * const title, const doublereal * const y0, const doublereal * const y1,
+				 doublereal damp, int num_entries);
 
     //! Compute the Residual Weights
     /*!
@@ -473,7 +469,6 @@ namespace Cantera {
      *           0 Not converged yet
      */
     int convergenceCheck(int dampCode, doublereal s1);
-
 
     //! Set the absolute tolerances for the solution variables
     /*!
@@ -606,7 +601,6 @@ namespace Cantera {
 
     //! Boolean indicating whether we should scale the residual
     bool m_resid_scaled;
-
 
     /*****************************************************************************************
      *        INTERNAL BOUNDARY INFO FOR SOLUTIONS
