@@ -52,6 +52,13 @@ namespace Cantera {
   /*****************************************************************************/
   /*****************************************************************************/
 #ifdef DEBUG_MODE
+  //!  Print out a form for the current function evaluation
+  /*!
+   *  @param fp     Pointer to the FILE object
+   *  @param xval   Current value of x
+   *  @param fval   Current value of f
+   *  @param its    Current iteration value
+   */
   static void print_funcEval(FILE *fp, doublereal xval, doublereal fval, int its)  
   {
     fprintf(fp,"\n");
@@ -65,6 +72,14 @@ namespace Cantera {
   }
 #endif
   //================================================================================================
+  //! Solve Ax = b using gauss's method
+  /*!
+   *     @param c      Matrix
+   *     @param idem   Assumed number of rows in the matrix
+   *     @param n      Number of rows and columns
+   *     @param b      right hand side
+   *     @param m      Number of right hand sides
+   */
   static int smlequ(doublereal *c, int idem, int n, doublereal *b, int m) {
     int i, j, k, l;
     doublereal R;
