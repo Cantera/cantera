@@ -1349,8 +1349,7 @@ namespace Cantera {
    * reduce the computational cost of repeated calls.
    */
   void InterfaceKinetics::
-  solvePseudoSteadyStateProblem(int ifuncOverride,
-				doublereal timeScaleOverride) {
+  solvePseudoSteadyStateProblem(int ifuncOverride, doublereal timeScaleOverride) {
     // create our own solver object
     if (m_integrator == 0) {
       vector<InterfaceKinetics*> k;
@@ -1366,7 +1365,7 @@ namespace Cantera {
   }
   //================================================================================================
 
-  void InterfaceKinetics::setPhaseExistence(const int iphase, const bool exists) {
+  void InterfaceKinetics::setPhaseExistence(const int iphase, const int exists) {
     if (iphase < 0 || iphase >= (int) m_thermo.size()) {
       throw CanteraError("InterfaceKinetics:setPhaseExistence", "out of bounds");
     }
@@ -1384,9 +1383,39 @@ namespace Cantera {
       }
     }
   }
+  //================================================================================================
+  // Gets the phase existence int for the ith phase
+  /*
+   * @param iphase  Phase Id 
+   *
+   * @return Returns the int specifying whether the kinetics object thinks the phase exists
+   *         or not. If it exists, then species in that phase can be a reactant in reactions.
+   */
+  int InterfaceKinetics::phaseExistence(const int iphase) const {
+    if (iphase < 0 || iphase >= (int) m_thermo.size()) {
+      throw CanteraError("InterfaceKinetics:phaseExistence()", "out of bounds");
+    }
+    return m_phaseExists[iphase];
+  }
+  //================================================================================================
+  // Gets the phase stability int for the ith phase
+  /*
+   * @param iphase  Phase Id 
+   *
+   * @return Returns the int specifying whether the kinetics object thinks the phase is stable
+   *         with nonzero mole numbers. 
+   *         If it stable, then the kinetics object will allow for rates of production of
+   *         of species in that phase that are positive.
+   */
+  int InterfaceKinetics::phaseStability(const int iphase) const {
+    if (iphase < 0 || iphase >= (int) m_thermo.size()) {
+      throw CanteraError("InterfaceKinetics:phaseStability()", "out of bounds");
+    }
+    return m_phaseIsStable[iphase];
+  }
  //================================================================================================
 
-  void InterfaceKinetics::setPhaseStability(const int iphase, const bool isStable) {
+  void InterfaceKinetics::setPhaseStability(const int iphase, const int isStable) {
     if (iphase < 0 || iphase >= (int) m_thermo.size()) {
       throw CanteraError("InterfaceKinetics:setPhaseStability", "out of bounds");
     }
@@ -1396,6 +1425,7 @@ namespace Cantera {
       m_phaseIsStable[iphase] = false;
     }
   }
+
   //================================================================================================
   void EdgeKinetics::finalize() {
     m_rwork.resize(nReactions());

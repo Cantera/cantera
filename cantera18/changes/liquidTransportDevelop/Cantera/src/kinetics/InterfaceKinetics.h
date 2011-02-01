@@ -492,7 +492,16 @@ namespace Cantera {
      */
     void _update_rates_T();
 
+    //! Update properties that depend on the electric potential
+    /*!
+     *  This is called to update all of the properties that depend on potential 
+     */
     void _update_rates_phi();
+
+    //! Update properties that depend on the species mole fractions and/or concentration
+    /*!
+     *  This is called to update all of the properties that depend on concentration 
+     */
     void _update_rates_C();
       
     //! Advance the surface coverages in time
@@ -589,8 +598,7 @@ namespace Cantera {
      *  @param iphase  Index of the phase. This is the order within the internal thermo vector object
      *  @param exists  Boolean indicating whether the phase exists or not
      */
-    void setPhaseExistence(const int iphase, const bool exists);
- 
+    void setPhaseExistence(const int iphase, const int exists);
 
     //! Set the stability of a phase in the reaction object
     /*!
@@ -607,8 +615,27 @@ namespace Cantera {
      *  @param iphase  Index of the phase. This is the order within the internal thermo vector object
      *  @param exists  Boolean indicating whether the phase exists or not
      */
-    void setPhaseStability(const int iphase, const bool isStable);
+    void setPhaseStability(const int iphase, const int isStable);
  
+    //! Gets the phase existence int for the ith phase
+    /*!
+     * @param iphase  Phase Id 
+     *
+     * @return Returns the int specifying whether the kinetics object thinks the phase exists
+     *         or not. If it exists, then species in that phase can be a reactant in reactions.
+     */
+    int phaseExistence(const int iphase) const;
+
+    //! Gets the phase stability int for the ith phase
+    /*!
+     * @param iphase  Phase Id 
+     *
+     * @return Returns the int specifying whether the kinetics object thinks the phase is stable
+     *         with nonzero mole numbers. 
+     *         If it stable, then the kinetics object will allow for rates of production of
+     *         of species in that phase that are positive.
+     */
+    int phaseStability(const int iphase) const;
 
 
   protected:
@@ -840,9 +867,9 @@ namespace Cantera {
      *    length = number of phases in the object
      *    By default all phases exist.
      */
-    std::vector<bool> m_phaseExists;
+    std::vector<int> m_phaseExists;
 
-    //!  Vector of booleans indicating whether phases are stable or not
+    //!  Vector of int indicating whether phases are stable or not
     /*!
      *    Vector of booleans indicating whether a phase is stable or not
      *    under the current conditions.
@@ -851,7 +878,7 @@ namespace Cantera {
      *    length = number of phases in the object
      *    By default all phases are stable
      */
-    std::vector<bool> m_phaseIsStable;
+    std::vector<int> m_phaseIsStable;
 
     //!  Vector of vector of booleans indicating whether a phase participates in a
     //!  reaction as a reactant
