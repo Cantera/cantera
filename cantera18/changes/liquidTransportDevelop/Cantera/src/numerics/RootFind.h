@@ -250,6 +250,12 @@ namespace Cantera {
      */
     doublereal deltaXConverged_;
 
+    doublereal x_maxTried_;
+    doublereal fx_maxTried_;
+
+    doublereal x_minTried_;
+    doublereal fx_minTried_;
+
   };
 }
 #endif

@@ -48,6 +48,11 @@ namespace Cantera {
 #define DSIGN(x) (( (x) == (0.0) ) ? (0.0) : ( ((x) > 0.0) ? 1.0 : -1.0 ))
 #endif
 
+// turn on debugging for now
+#ifndef DEBUG_MODE
+#define DEBUG_MODE
+#endif
+
   /*****************************************************************************/
   /*****************************************************************************/
   /*****************************************************************************/
@@ -141,7 +146,11 @@ namespace Cantera {
     DeltaXnorm_(0.01),
     FuncIsGenerallyIncreasing_(false),
     FuncIsGenerallyDecreasing_(false),
-    deltaXConverged_(0.0)
+    deltaXConverged_(0.0),
+    x_maxTried_(-1.0E300),
+    fx_maxTried_(0.0),
+    x_minTried_(1.0E300),
+    fx_minTried_(0.0)
   {
   
   }
@@ -239,6 +248,8 @@ namespace Cantera {
      *   We store the function target and then actually calculate a modified functional
      *
      *       func = eval(x1) -  m_funcTargetValue = 0
+     *
+     * 
      */
     m_funcTargetValue = funcTargetValue;
 
@@ -295,6 +306,8 @@ namespace Cantera {
       x1 = (xmin + xmax) / 2.0;     
     }
 
+    x_maxTried_ = x1;
+    x_minTried_ = x1;
     f1 = func(x1);
 
 #ifdef DEBUG_MODE
@@ -372,7 +385,7 @@ namespace Cantera {
        *    Find an estimate of the next point, xnew, to try based on
        *    a linear approximation from the last two points.  
        */
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
       if (fabs(x2 - x1) < 1.0E-14) {
 	printf(" RootFind: we are here x2 = %g x1 = %g\n", x2, x1);
       }
@@ -386,6 +399,7 @@ namespace Cantera {
 	}
 	xnew = x2 +  DeltaXnorm_;
 	slopePointingToHigher = true;
+	useNextStrat = true;
       } else {
         useNextStrat = false;
 	xnew = x2 - f2 / slope; 
@@ -770,7 +784,16 @@ namespace Cantera {
 #ifdef DEBUG_MODE
     mdp::checkFinite(r);
 #endif
-    return (r - m_funcTargetValue);
+    doublereal ff = r  - m_funcTargetValue;
+    if (x >= x_maxTried_) {
+      x_maxTried_ = x;
+      fx_maxTried_ = ff;
+    }
+    if (x <= x_minTried_) {
+      x_minTried_ = x;
+      fx_minTried_ = ff;
+    }
+    return ff;
   } 
   //====================================================================================================================
   // Set the tolerance parameters for the rootfinder
