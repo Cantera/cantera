@@ -1,0 +1,153 @@
+
+
+This is the classic problem of the solubility of NaCl in water.
+The result is a saturated solution of Na+ and Cl- in water in equilibrium
+with NaCl solid. This problem also has a gas phase consisting of N2, H2O,
+H2, and O2. CO2 has been thrown in as well. However, the element abundance
+of C is zero. So, CO2 should turn out to have a zero concentration.
+
+
+
+The problem can be divided up into two parts: estimating the Gibbs
+reaction delta for
+        Na+ + Cl- = NaCl(solid)
+
+ (so that Del(Gf) = G(NaCl(solid)) - G(Na+) - G(Cl-))
+
+and estimating the activity coefficients for the electrolytes at
+the solubility limit.
+
+By far the most important as always is estimating the delta G
+for the reaction above. Note the electrolytes are using the
+molality basis.
+
+Using the NASA basis we get
+  NaCl(solid) :  Hf(298.15) = -411.1207 kJ/gmol
+                 S(298.15)  = 72.1093    J/(gmol K)
+      (from NIST Webbook)
+                 Gf(298.15) = -432.6200 kJ/gmol
+
+From Codata key values for Thermodynamics:
+     Cl-        Hf(298.15) = -167.080  kJ/gmol
+                S(298.15)  =   56.60    J/(gmol K)
+                Gf(298.15) = -183.9552 kJ/gmol
+
+     Na+        Hf(298.15) = -240.34 kJ/gmol
+                 S(298.15) =   58.45   J/(gmol K)
+             -> Gf(298.15) = -257.7668 kJ/gmol
+
+
+           Del(Gf)(298.15) =  9.1020 kJ/gmol
+
+
+
+In addition, the relative humidity of the salt solution may be compared
+to the humidity above a pure water solution in order to understand
+the effects of the lowering of the water activity.
+
+
+If you run the equilibrium calculation without salt, you get the
+equilibrium of water vapor above water, consistent with the
+current thermo.
+    X_H2O(g) = 0.03169 
+   at 25C and 1atm
+
+If you then run the calculation with a saturated salt solution you
+get a smaller amount of water vapor in equilibrium with the water
+electrolyte:
+
+    X_H2O(g) = 0.023243
+    at 25V and 1atm
+
+The ratio of these two numbers is the relative humidity at which
+the a saturated salt solution deliqueses from a salt particle.
+
+  rel humidity = 0.733
+
+
+This is a very important number in terms of its effect on aqueous
+corrosion.
+
+
+
+
+Next, let's compare the above calculation with the calculation presented 
+in the current directory. First, getting Gabs from the cttables calculation:
+
+   G(298.15) NaCl(solid)      = -432.6201 kJ/gmol
+
+   G(298.15) Na+              = -257.7668  kJ/gmol
+
+   G(298.15) Cl-              = -183.9552  kJ/gmol
+
+         (note, Na+ and Cl- have screwed up H and S values. However, the
+          G value seems to be correct).
+
+Putting this together yields:
+     Delta G = 9.1019 kJ / gmol
+
+----------------------------------------------------------------------------
+   H2O(l) = H+ + OH- Equilibrium Reaction
+------------------------------------------------------------------------
+
+  The equilibrium constant for water is given in Robinson and Stokes, p. 363 
+and p.544.
+ 
+      10^(-13.996) = actCoef(H+) actCoef(OH-) Molal(H+) Molal(OH-) / activity_H2O.
+
+This works out to a value of
+      DeltaG =  79.88936 kJ/gmol
+      DeltaH =  56.576 kJ/gmol
+      DeptaCp = -194.68 J/K gmol
+
+In the current database:
+      G(298, OH-)    = -226.7839 kJ / gmol
+      G(298  H+)     =    0.0
+      G(298, H2O(L)) = -306.6858.
+          -------------------------
+            DeltaG =     79.902
+
+Therefore, there is a slight error of 0.013 kJ/gmol, but the database is roughly correct.
+
+
+
+Silvestre & Pitzer
+------------------------------------------------------------------------
+
+The equilibrium condition for this simple system comes down to the
+following equation
+ 
+  Delta G = - 2 R T ln (m * actCoeff)
+
+This is the basic test of the system.
+
+Delta G = -2161 cal gmol-1 = -9.0416 kJ gmol-l
+M_sat = 6.146
+ActCoeff_mixed_molalityScale = 1.008
+
+
+Using the given files and conditions, I calculate equilibrium as:
+
+Delta G =  9.1019  kJ gmol-l
+M_sat = 6.193
+ActCoeff_mixed_molalityScale = 1.0132
+
+
+Relative Humidity Lowering
+------------------------------------------------------
+from the saturated NaCl calculation using HMW 
+          x_H2O = 0.0237641
+From the pure water equilibrium case:
+          x_H2O = 0.0316882
+
+Therefore the relative humidity lowering is 0.7504
+
+
+
+
+
+
+
+
+
+

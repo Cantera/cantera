@@ -1,0 +1,57 @@
+#/bin/sh
+###############################################################
+#  $Author: hkmoffa $
+#  $Date: 2009/04/04 03:27:43 $
+#  $Revision: 1.14 $
+#
+#  Copyright 2001 California Institute of Technology
+#  See file License.txt for licensing information
+#
+###############################################################
+
+build_f90=@BUILD_F90@
+build_python=@BUILD_PYTHON@
+
+INCDIR =      ../../build/include/cantera
+INSTALL_TSC = ../../../bin/install_tsc
+
+CXX_H = Cantera.h  equilibrium.h  IncompressibleSolid.h \
+        kinetics.h onedim.h  surface.h GRI30.h  integrators.h \
+        Metal.h   PureFluid.h   transport.h Edge.h  \
+        IdealGasMix.h  Interface.h    numerics.h  \
+        reactionpaths.h  zerodim.h importPhase.h thermo.h \
+        radiation.h spectra.h electrolyteThermo.h Cantera.mak Cantera_bt.mak
+
+all:
+	@(cd include ; \
+          for lh in $(CXX_H) ; do \
+          $(INSTALL_TSC) "$${lh}" "../"$(INCDIR) ; \
+	done)
+	cd src;   @MAKE@
+#	cd demos; @MAKE@
+
+clean:
+	@(for lh in $(CXX_H) ; do \
+            th=$(INCDIR)/"$${lh}" ; \
+            if test -f "$${th}" ; then \
+              $(RM) "$${th}"  ; \
+              echo "$(RM) $${th}" ; \
+            fi \
+          done)
+	cd src;   $(RM) .depends ; @MAKE@ clean
+	cd demos; $(RM) .depends ; @MAKE@ clean
+
+depends:
+	cd src; @MAKE@ depends
+#	cd demos; @MAKE@ depends
+
+install:
+	cd src; @MAKE@ install
+	cd demos; @MAKE@ install
+
+demos:
+	cd demos; @MAKE@
+
+
+# end of file
+

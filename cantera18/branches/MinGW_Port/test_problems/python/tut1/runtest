@@ -1,0 +1,76 @@
+#!/bin/sh
+#
+#
+if test "$#" -ge "2" ; then
+  echo "runtest ERROR: program requires one argument."
+  echo "        runtest PYTHON_CMD"
+  exit 0
+fi
+
+temp_success="1"
+/bin/rm  -f output.txt  diff_test.out csvCode.txt ct2ctml.log \
+            gri30.xml
+
+testName=tut1
+#################################################################
+#
+#################################################################
+#
+# Try to create a default python executable location if no
+# argument to runtest is supplied.
+#
+if test -z "$PYTHON_CMD" ; then
+  if test -z "$PYTHONHOME" ; then
+    PYTHON_CMDA=python
+  else
+    PYTHON_CMDA=$PYTHONHOME/bin/python
+  fi
+else
+  PYTHON_CMDA=$PYTHON_CMD
+fi
+FIRSTARG=$1
+PYTHON_CMDB=${FIRSTARG:=$PYTHON_CMDA}
+
+#
+# Check to see whether the python executable exists in the
+# current user path
+#
+locThere=`which $PYTHON_CMDB 2>&1`
+isThere=$?
+if test "$isThere" != "0" ; then
+  echo 'Can not find the python executable: ' $PYTHON_CMDB
+  echo ' '
+  echo $locThere
+  exit 1
+fi
+#pVersion=`$PYTHON_CMDB -V 2>&1`
+
+#################################################################
+#
+#################################################################
+
+echo -n  "Testing \"$PYTHON_CMDB tut1\" ...   "
+$PYTHON_CMDB tut1.py > output.txt
+retnStat=$?
+if [ $retnStat != "0" ]
+then
+  temp_success="0"
+  echo "ERROR: tut1.py returned with bad status, $retnStat, check output"
+fi
+
+diff -w output.txt output_blessed.txt > diff_test.out
+retnStat=$?
+if [ $retnStat = "0" ]
+then
+  echo "successful diff comparison on $testName test" 
+  if [ $temp_success = "1" ]
+  then
+    echo "PASSED" > csvCode.txt
+  fi
+else
+  echo "unsuccessful diff comparison on $testName test"
+  echo "FAILED" > csvCode.txt
+  temp_success="0"
+fi
+echo 
+

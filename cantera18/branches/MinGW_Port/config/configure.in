@@ -1,0 +1,1000 @@
+dnl Process this file with autoconf to produce a configure script.
+define([AC_CACHE_LOAD], )dnl
+define([AC_CACHE_SAVE], )dnl
+AC_INIT(Cantera.README)
+AC_CONFIG_HEADER(../config.h)
+AC_CONFIG_AUX_DIR(.)
+
+echo " "
+echo "--------------------------------------------------------------"
+echo " " 
+echo "           Cantera Configuration Script "
+echo " " 
+echo "--------------------------------------------------------------"
+echo " "
+
+AC_DEFINE(NDEBUG)
+
+ac_sys_system=`uname -s`
+ac_sys_release=`uname -r`
+sys_hardware='unknown'
+
+#
+# Determine the number of hardware bits in the system
+#
+# BITHARDWARE is the default number of compilation bits in pointers
+#
+case $ac_sys_system in
+  Linux* )
+       sys_harware=`uname -i`
+       echo 'linux ' $sys_hardware
+       case $sys_hardware in
+          x86_64 )  BITHARDWARE=64 ;;
+          * ) BITHARDWARE=${BITHARDWARE:="32"} ;;
+       esac ;;
+  * ) BITHARDWARE=${BITHARDWARE:="32"} ;;
+esac
+#
+# BITCOMPILE is the desired number of compilation bits in pointers
+# Note, it can be different than the number of hardware bits.
+# Many times you will want to compile 32 bits on a 64 bit
+# machine
+if test -z $BITCOMPILE ; then
+  BITCOMPILE=$BITHARDWARE
+fi
+
+BITCHANGE=
+if test $BITCOMPILE != $BITHARDWARE ; then
+  BITCHANGE='y'
+fi
+
+# echo 'BITHARDWARE= ' $BITHARDWARE
+# echo 'BITCOMPILE= ' $BITCOMPILE
+AC_SUBST(BITCOMPILE)
+AC_SUBST(BITHARDWARE)
+AC_SUBST(BITCHANGE)
+
+SHARED_CTLIB=0
+OS_IS_DARWIN=0
+OS_IS_WIN=0
+OS_IS_CYGWIN=0
+EXTRA_LINK=${EXTRA_LINK:=""}
+
+mex_ext=mexglx
+ldemulationarg=
+
+case $ac_sys_system in
+  Darwin*)  OS_IS_DARWIN=1
+            EXTRA_LINK="-framework Accelerate "$EXTRA_LINK
+            CXX_INCLUDES="$CXX_INCLUDES -I/System/Library/Frameworks/Accelerate.framework/Headers"
+            mex_ext=mexmac;;
+  CYGWIN*)  OS_IS_CYGWIN=1; mex_ext=dll;;
+  Linux* )  case $BITHARDWARE in
+             64 ) if test "$BITCHANGE" = "y" ; then
+                     ldemulationarg='-melf_i386'
+                  fi ;;
+            esac
+esac
+
+CVF_LIBDIR=""
+if test "x${OS_IS_CYGWIN}" = "x1"; then
+  if test "${USE_VISUAL_STUDIO}" = "y"; then
+    OS_IS_WIN=1;
+    OS_IS_CYGWIN=0;
+    CVF_LIBDIR=$FORTRAN_LIB_DIR
+  fi
+fi
+AC_SUBST(CVF_LIBDIR)
+
+#echo "ldemulationarg = " $ldemulationarg
+AC_SUBST(ldemulationarg)
+
+#
+# Determine if clib is to be a static or dynamic library
+# -> will test to see if USE_DLL is defined in the cygwmin environment
+#
+USE_CLIB_DLL=0
+if test "x${OS_IS_WIN}" = "x1"; then
+   if test -n ${USE_CLIB_DLL} ; then
+     USE_CLIB_DLL=1
+   fi
+fi
+AC_SUBST(USE_CLIB_DLL)
+
+prdef="/usr/local/cantera"
+if test "x$OS_IS_DARWIN" = "x1"; then prdef="/Applications/Cantera"; fi
+
+local_inst=1
+if test "x${prefix}" = "xNONE"; then
+   prefix=${prdef}
+   local_inst=0
+fi
+exec_prefix=${prefix}
+
+if test "x${OS_IS_WIN}" = "x1"; then
+  prefix=`cygpath -a -m "${prefix}" `
+fi
+echo "Cantera will be installed in ${prefix}"
+AC_SUBST(prefix)
+
+AC_SUBST(local_inst)
+
+#
+# Determination of Python site-package directory location
+#
+local_python_inst=${local_inst}
+if test "x${SET_PYTHON_SITE_PACKAGE_TOPDIR}" = "xy"; then
+   python_prefix=${PYTHON_SITE_PACKAGE_TOPDIR}
+   python_win_prefix=$python_prefix
+   if test "x${OS_IS_WIN}" = "x1" ; then
+     python_prefix=`cygpath -a -m "${python_prefix}"`
+     python_win_prefix=`cygpath -a -w "${python_prefix}"`
+   elif  test  "x${OS_IS_CYGWIN}" = "x1" ; then
+     python_prefix=`cygpath -a -u "${python_prefix}"`
+     python_win_prefix=`cygpath -a -w "${python_prefix}"`
+   fi
+   local_python_inst=1
+   echo "Cantera's Python packages will be installed in ${python_prefix}"
+else
+   python_prefix=$prefix
+   python_win_prefix=$python_prefix
+   if test "x${OS_IS_WIN}" = "x1"; then
+     python_win_prefix=`cygpath -a -w "${python_prefix}" `
+   fi
+fi
+
+AC_SUBST(local_python_inst)
+AC_SUBST(python_prefix)
+AC_SUBST(python_win_prefix)
+
+ctversion=${CANTERA_VERSION}
+AC_SUBST(ctversion)
+AC_DEFINE_UNQUOTED(CANTERA_VERSION,"$ctversion")
+
+homedir=${HOME}
+AC_SUBST(homedir)
+
+# A compact installation is one in which the $prefix directory
+# contains only Cantera files. It is different than a local
+# installation, in that the Python package is installed with other
+# Python packages and modules in site-packages, rather than with the
+# rest of the Cantera files, as in a local installation.  Therefore,
+# with a compact installation, there is no need to set PYTHONPATH. A
+# compact installation is done on all machines now by default.
+# This simplifies the installation issues, because now all Cantera
+# installations look the same, except perhaps for the locations
+# of the python packages.
+# An option called, "distributed installations", is no longer
+# supported.
+
+ct_libdir=${prefix}/lib
+ct_bindir=${prefix}/bin
+ct_incdir=${prefix}/include/cantera
+ct_incroot=${prefix}/include
+ct_datadir=${prefix}/data
+ct_demodir=${prefix}/demos
+ct_templdir=${prefix}/templates
+ct_tutdir=${prefix}/tutorials
+ct_docdir=${prefix}/doc
+ct_dir=${prefix}
+ct_mandir=${prefix}
+
+AC_SUBST(ct_libdir)
+AC_SUBST(ct_bindir)
+AC_SUBST(ct_incdir)
+AC_SUBST(ct_incroot)
+AC_SUBST(ct_datadir)
+AC_SUBST(ct_demodir)
+AC_SUBST(ct_templdir)
+AC_SUBST(ct_tutdir)
+AC_SUBST(ct_docdir)
+AC_SUBST(ct_dir)
+AC_SUBST(ct_mandir)
+
+COMPACT_INSTALL=1
+AC_SUBST(COMPACT_INSTALL)
+
+AC_CANONICAL_SYSTEM()
+# the root of the source tree
+ctroot=`(cd ..;pwd)`
+builddir=$target
+if test "x${OS_IS_WIN}" = "x1"; then
+  ctroot=`cygpath -a -m "${ctroot}" | sed 's/\\\/\\//g'`
+  builddir="i686-pc-win32"
+fi
+
+if test -z "$username"; then username=$USER; fi
+AC_SUBST(username)
+ 
+AC_SUBST(ctroot)
+
+# The include directory in the 'build' subdirectory. 
+# This is required to build the test problems
+# before Cantera has been installed.
+buildinc=$ctroot/build/include
+AC_SUBST(buildinc)
+
+buildlib=$ctroot/build/lib/$builddir
+AC_SUBST(buildlib)
+buildbin=$ctroot/build/bin/$builddir
+AC_SUBST(buildbin)
+
+# add definitions to config.h
+if test "x${OS_IS_DARWIN}" = "x1"; then
+  AC_DEFINE_UNQUOTED(DARWIN,$OS_IS_DARWIN)
+fi
+if test "x${OS_IS_CYGWIN}" = "x1"; then
+  AC_DEFINE_UNQUOTED(CYGWIN,$OS_IS_CYGWIN)
+fi
+if test "x${OS_IS_WIN}" = "x1"; then
+  AC_DEFINE_UNQUOTED(WINMSVC,$OS_IS_WIN)
+fi
+AC_DEFINE_UNQUOTED(RXNPATH_FONT,"$RPFONT")
+#AC_DEFINE_UNQUOTED(CANTERA_ROOT,"$prefix/cantera")
+AC_DEFINE_UNQUOTED(CANTERA_DATA,"$ct_datadir")
+
+
+if test -z "$MAKE"; then MAKE='make'; fi
+AC_SUBST(MAKE)
+
+#----------- ARCHIVE --------------------
+
+if test "x${OS_IS_DARWIN}" = "x1"; then
+ARCHIVE='libtool -static -o'
+fi
+
+AC_SUBST(ARCHIVE)
+
+DO_RANLIB=1
+if test "x${RANLIB}" = "x"; then
+DO_RANLIB=0
+fi
+
+AC_SUBST(DO_RANLIB)
+AC_SUBST(RANLIB)
+
+#----------------------------------------
+
+
+AC_SUBST(SOEXT)
+
+if test -z "$SHARED"; then SHARED='-shared'; fi
+AC_SUBST(SHARED)
+
+if test -z "$PIC"; then PIC='-fPIC'; fi
+AC_SUBST(PIC)
+
+#if test -z "$LCXX_FLAGS"; then LCXX_FLAGS="$CXXFLAGS"; fi
+AC_SUBST(LCXX_FLAGS)
+
+#if test -z "$LCXX_END_LIBS"; then LCXX_END_LIBS='-lm'; fi
+AC_SUBST(LCXX_END_LIBS)
+
+AC_SUBST(CXX_INCLUDES)
+
+#########################################################
+#  User Code
+#########################################################
+USERDIR=""
+INCL_USER_CODE=0
+if test -n "$USER_SRC_DIR"; then USERDIR=$USER_SRC_DIR; INCL_USER_CODE=1; fi
+AC_SUBST(USERDIR)
+AC_SUBST(INCL_USER_CODE)
+
+use_sundials=0
+sundials_inc=
+CVODE_LIBS='-lcvode'
+
+############################################################################
+#     SUNDIALS SETUP
+###########################################################################
+if test "$USE_SUNDIALS" = "default"; then
+ldsave=$LDFLAGS
+LDFLAGS='-L'$SUNDIALS_HOME/lib' '$ldsave
+fi
+
+AC_CHECK_LIB(sundials_cvodes, CVodeCreate, [use_sundials=1], [use_sundials=0],\
+[-lsundials_shared -lsundials_nvecserial -lm])
+
+if test "x$USE_SUNDIALS" = "xy"; then
+use_sundials=1
+fi
+
+if test ${use_sundials} = 1; then
+AC_DEFINE(HAS_SUNDIALS)
+echo "using CVODES from SUNDIALS... Sensitivity analysis enabled."
+CVODE_LIBS='-lsundials_cvodes -lsundials_shared -lsundials_nvecserial' 
+sundials_include='-I'${SUNDIALS_HOME}/include
+fi
+
+if test ${use_sundials} = 0; then
+echo "using CVODE... Sensitivity analysis disabled."
+echo "-> To enable sensitivity analysis, install the SUNDIALS package with CVODES."
+fi
+
+AC_SUBST(use_sundials)
+AC_SUBST(CVODE_LIBS)
+AC_SUBST(sundials_include)
+
+
+#########################################################
+#  The Cantera Kernel
+#########################################################
+KERNEL='base'
+KERNEL_OBJ='$(BASE_OBJ)'
+BUILD_CK=
+
+NEED_CKREADER=
+NEED_LAPACK=
+#NEED_RECIPES=
+NEED_MATH=
+NEED_TPX=
+NEED_F2C=
+NEED_CVODE=
+NEED_TRANSPORT=
+NEED_ZEROD=
+NEED_ONED=
+
+if test "$ENABLE_THERMO" = "y"; then 
+  KERNEL=$KERNEL' 'thermo; 
+  KERNEL_OBJ=$KERNEL_OBJ' $(THERMO_OBJ)'
+fi
+
+if test "$WITH_METAL" = "y"; then
+  AC_DEFINE(WITH_METAL)
+  hdrs=$hdrs' MetalPhase.h'
+fi
+if test "$WITH_STOICH_SUBSTANCE" = "y"; then
+  AC_DEFINE(WITH_STOICH_SUBSTANCE)
+  hdrs=$hdrs' StoichSubstance.h'
+  objs=$objs' StoichSubstance.o'
+fi
+if test "$WITH_PURE_FLUIDS" = "y"; then
+  AC_DEFINE(WITH_PURE_FLUIDS)
+  hdrs=$hdrs' PureFluidPhase.h'
+  objs=$objs' PureFluidPhase.o'
+fi
+if test "$WITH_LATTICE_SOLID" = "y"; then
+  AC_DEFINE(WITH_LATTICE_SOLID)
+  hdrs=$hdrs' LatticeSolidPhase.h'
+  objs=$objs' LatticeSolidPhase.o'
+fi  
+phase_object_files=$objs
+phase_header_files=$hdrs
+AC_SUBST(phase_object_files)
+AC_SUBST(phase_header_files)
+
+COMPILE_CATHERMO=0
+if test "$WITH_ELECTROLYTES" = "y"; then
+   AC_DEFINE(WITH_ELECTROLYTES)
+   COMPILE_CATHERMO=1 
+fi
+AC_SUBST(COMPILE_CATHERMO)
+
+if test "$ENABLE_KINETICS" = "y"; then 
+  KERNEL=$KERNEL' 'kinetics; 
+  KERNEL_OBJ=$KERNEL_OBJ' $(KINETICS_OBJ) $(HETEROKIN_OBJ)'
+fi
+
+if test "$ENABLE_CK" = "y" ; then
+  BUILD_CK=1
+  NEED_CKREADER=1
+  KERNEL=$KERNEL' 'ck 
+fi
+
+if test "$ENABLE_TRANSPORT" = "y" ; then
+  KERNEL=$KERNEL' 'trprops
+  NEED_LAPACK=1
+  NEED_MATH=1
+  NEED_TRANSPORT=1
+fi
+
+if test "$ENABLE_EQUIL" = "y" ; then 
+  KERNEL=$KERNEL' 'equil
+  KERNEL_OBJ=$KERNEL_OBJ' $(EQUIL_OBJ)'
+  NEED_LAPACK=1
+#  NEED_RECIPES=1
+fi
+
+if test "$ENABLE_REACTORS" = "y" ; then
+  KERNEL=$KERNEL' 'reactor
+  NEED_CVODE=1
+  NEED_ZEROD=1
+fi
+
+if test "$ENABLE_SOLVERS" = "y" ; then
+  KERNEL=$KERNEL' 'solvers
+  KERNEL_OBJ=$KERNEL_OBJ' $(SOLVERS_OBJ)'
+  NEED_CVODE=1
+  NEED_MATH=1
+fi
+
+if test "$ENABLE_FLOW1D" = "y" ; then 
+  KERNEL=$KERNEL' 'flow1D
+  NEED_LAPACK=1
+  NEED_MATH=1
+  NEED_ONED=1
+fi
+
+if test "$ENABLE_RXNPATH" = "y" ; then
+  KERNEL=$KERNEL' 'rpath
+  KERNEL_OBJ=$KERNEL_OBJ' $(RPATH_OBJ)'
+fi
+
+if test "$WITH_PURE_FLUIDS" = "y" ; then 
+  KERNEL=$KERNEL' 'tpx
+  NEED_TPX=1
+  AC_DEFINE(INCL_PURE_FLUIDS)
+fi
+
+AC_SUBST(KERNEL)
+AC_SUBST(KERNEL_OBJ)
+AC_SUBST(BUILD_CK)
+AC_SUBST(LIB_DIR)
+
+
+########################################################
+# BLAS and LAPACK
+########################################################
+#
+# if lapack and blas libraries have been specified, then skip building the
+# supplied libraries
+
+
+build_lapack=0
+build_blas=0
+if test -z "$BLAS_LAPACK_LIBS"; then
+  if test "x$OS_IS_DARWIN" = "x0"; then 
+    BLAS_LAPACK_LIBS="-lctlapack -lctblas"
+    BLAS_LAPACK_DIR="$buildlib"
+    build_blas=1
+    build_lapack=1
+  fi
+fi
+
+AC_SUBST(build_lapack)
+
+AC_SUBST(build_blas)
+
+AC_SUBST(BLAS_LAPACK_LIBS)
+AC_SUBST(BLAS_LAPACK_DIR)
+
+#
+# Stubout section for f2c versions of lapack:
+#    Define these variables, but turn them off in main version of code
+# 
+build_with_f2c=0
+if test -n $BUILD_WITH_F2C ; then
+  if test $BUILD_WITH_F2C = "y" -o $BUILD_WITH_F2C = "Y" ; then
+    build_with_f2c=1
+  elif test $BUILD_WITH_F2C = "n" -o $BUILD_WITH_F2C = "N" ; then
+    build_with_f2c=0
+  elif test $BUILD_WITH_F2C = "default" ; then
+    if test x$OS_IS_WIN = "x1" ; then
+       build_with_f2c=1
+    else
+       build_with_f2c=0
+    fi
+  fi
+fi
+
+#
+# Determine if you need the f2c library at link time
+# -> Note, Linux systems already have the g2c library
+#          added in, which is the same thing as our
+#          f2c library.
+if test x"$build_with_f2c" = "x1" ; then
+  NEED_F2C=1
+  case $ac_sys_system in
+    Linux)    NEED_F2C= ;;
+  esac
+fi
+#     Darwin*)  NEED_F2C= ;;
+
+AC_SUBST(build_with_f2c)
+
+# LOCAL_LIBS:
+# Build a string of Cantera libraries necessary to link
+# Cantera applications
+#
+LOCAL_LIBS= 
+
+if test -n "$INCL_USER_CODE"
+then LOCAL_LIBS=$LOCAL_LIBS' '-luser
+fi
+
+if test -n "$NEED_ONED"
+then LOCAL_LIBS=$LOCAL_LIBS' '-loneD
+fi
+
+if test -n "$NEED_ZEROD"
+then LOCAL_LIBS=$LOCAL_LIBS' '-lzeroD
+fi
+
+if test -n "$NEED_TRANSPORT"
+then LOCAL_LIBS=$LOCAL_LIBS' '-ltransport
+fi
+
+LOCAL_LIBS=$LOCAL_LIBS' '-lcantera
+
+#if test -n "$NEED_RECIPES"
+#then LOCAL_LIBS=$LOCAL_LIBS' '-lrecipes
+#fi
+
+if test -n "$NEED_CVODE"; then 
+LOCAL_LIBS=$LOCAL_LIBS' '$CVODE_LIBS
+fi
+
+if test -n "$NEED_LAPACK"
+then LOCAL_LIBS=$LOCAL_LIBS' '$BLAS_LAPACK_LIBS
+fi
+
+if test -n "$NEED_MATH"
+then LOCAL_LIBS=$LOCAL_LIBS' '-lctmath
+fi
+
+if test -n "$NEED_TPX"
+then LOCAL_LIBS=$LOCAL_LIBS' '-ltpx
+fi
+
+if test -n "$NEED_F2C"
+then LOCAL_LIBS=$LOCAL_LIBS' '-lctf2c
+else
+  case $ac_sys_system in
+    Linux)    LOCAL_LIBS=$LOCAL_LIBS' '-lg2c;;
+  esac
+fi
+#    Darwin*)  LOCAL_LIBS=$LOCAL_LIBS' '-lg2c;;
+
+if test -n "$NEED_CKREADER"
+then LOCAL_LIBS=$LOCAL_LIBS' '-lconverters
+fi
+
+LOCAL_LIB_DIRS=
+if test -n "$BLAS_LAPACK_DIR"
+then LOCAL_LIB_DIRS=$LOCAL_LIB_DIRS' -L'$BLAS_LAPACK_DIR
+fi
+
+
+if test -n "$SUNDIALS_HOME"
+then LOCAL_LIB_DIRS=$LOCAL_LIB_DIRS' -L'$SUNDIALS_HOME/lib
+fi
+
+
+AC_SUBST(LOCAL_LIB_DIRS)
+AC_SUBST(LOCAL_LIBS)
+
+#-------------------------------------------------
+#      Language Interfaces
+#-------------------------------------------------
+
+AC_SUBST(CT_SHARED_LIB)
+
+
+BUILD_F90=1
+if test "x$BUILD_F90_INTERFACE" = "xn"; then
+  BUILD_F90=0
+fi
+
+if test "x$F77FLAGS" = "x"; then
+  F77FLAGS=$FFLAGS
+fi
+AC_SUBST(F77FLAGS)
+
+BUILD_CLIB=1
+
+
+
+#----------------------------------------------------------------       
+#     Python Interface
+#----------------------------------------------------------------
+
+BUILD_PYTHON=0
+if test "x$PYTHON_PACKAGE" = "xfull"; then
+   BUILD_PYTHON=2
+elif test "x$PYTHON_PACKAGE" = "xdefault"; then
+   BUILD_PYTHON=2
+elif test "x$PYTHON_PACKAGE" = "xminimal"; then
+   BUILD_PYTHON=1
+elif test "x$PYTHON_PACKAGE" = "xnone"; then
+   BUILD_PYTHON=0
+fi
+
+if test "$PYTHON_CMD" = "default" -o \
+        "$PYTHON_CMD"x = "x"; then
+    AC_PATH_PROGS(PYTHON_CMD, python2 python, "none")
+    if test "$PYTHON_CMD" = "none"; then
+      BUILD_PYTHON=0
+      echo "Python not found. Only those portions of Cantera that"
+      echo "can be installed without Python will be installed."
+#     echo 
+#     echo "********************************************************************"
+#     echo "Configuration error. Python is required to build Cantera, but it"
+#     echo "cannot be found. Set environment variable PYTHON_CMD to the full path to"
+#     echo "the Python interpreter on your system, and run configure again."
+#     echo "********************************************************************"
+#     exit 1
+    else
+      echo "Python command set by configure to " $PYTHON_CMD
+    fi
+else
+    echo "Python command preset to $PYTHON_CMD"
+fi
+
+
+AC_SUBST(BUILD_PYTHON)
+AC_DEFINE_UNQUOTED(PYTHON_EXE,"$PYTHON_CMD")
+
+if test "$USE_NUMERIC" = "y"; then
+AC_DEFINE(HAS_NUMERIC)
+fi
+
+NUMARRAY_INC_DIR=""
+if test -n "$NUMARRAY_HOME"; then
+NUMARRAY_INC_DIR="$NUMARRAY_HOME/include/python"
+fi
+AC_SUBST(NUMARRAY_INC_DIR)
+AC_SUBST(NUMARRAY_HOME)
+AC_SUBST(CANTERA_PYTHON_HOME)
+
+#--------------------------
+# CVS Tag
+#--------------------------
+CVSTAG=`${PYTHON_CMD} ../tools/src/findtag.py ..`
+if test "x$CVSTAG" = "x"; then
+CVSTAG="HEAD"
+fi
+AC_SUBST(CVSTAG)
+
+
+#       
+#     Matlab Interface
+#
+BUILD_MATLAB=0
+if test "$BUILD_MATLAB_TOOLBOX" != "n"; then 
+  if test -z "$MATLAB_CMD"; then
+    AC_PATH_PROG(MATLAB_CMD, matlab, "none")
+    if test "$MATLAB_CMD" != "none"; then BUILD_MATLAB=1; BUILD_CLIB=1; fi
+  else
+    echo "Matlab command preset to $(MATLAB_CMD)$"
+  fi
+  if test "x$OS_IS_WIN" = "x1"; then
+    MATLAB_CMD=`cygpath -a -m "$MATLAB_CMD" `
+    echo "Windows MATLAB command: ${MATLAB_CMD}"
+  fi 
+else
+  echo "MATLAB interface will not be installed"
+  if test -z "$MATLAB_CMD"; then
+    MATLAB_CMD="matlab"
+  fi
+fi
+AC_SUBST(BUILD_MATLAB)
+AC_SUBST(MATLAB_CMD)
+AC_SUBST(BUILD_CLIB)
+
+#-------------------------------------------------
+
+export_name=$target
+AC_SUBST(export_name)
+
+
+dnl Checks for programs.
+AC_PROG_INSTALL
+precompile_headers=no
+if test "x$OS_IS_WIN" = "x1"; then
+CXX=cl.exe
+CC=cl.exe
+else
+
+AC_PROG_CXX()
+AC_PROG_CC()
+
+AC_MSG_CHECKING(for ability to precompile headers)
+
+if test -n "$GCC"; then
+ msg=`rm -f *h.gch; $CXX testpch.h &> /dev/null`
+ if test -f testpch.h.gch; then 
+  precompile_headers=yes
+  AC_DEFINE(USE_PCH)
+ fi
+fi
+AC_MSG_RESULT(${precompile_headers})
+fi
+
+has_sstream=no
+AC_MSG_CHECKING(for sstream)
+cat >> testsstream.cpp << EOF
+#include <sstream>
+main() {}
+EOF
+ msg=`${CXX} -c testsstream.cpp &> /dev/null`
+ if test -f testsstream.o; then 
+  has_sstream=yes
+  rm testsstream.o
+  AC_DEFINE(HAS_SSTREAM)
+ fi
+rm -f testsstream.cpp
+AC_MSG_RESULT(${has_sstream})
+
+
+#---------------------------------
+#     Fortran
+#---------------------------------
+
+#if test x"$build_with_f2c" = "x0"; then
+  AC_PROG_F77()
+
+# if G77 is defined, then add a flag to turn off adding a second underscore
+# to procedures that have an underscore in the name
+  if test -n "$G77"; then
+    FFLAGS=$FFLAGS' -fno-second-underscore'
+  fi
+
+dnl Checks for libraries.
+AC_F77_LIBRARY_LDFLAGS()
+
+override_f77_libs=0;
+case $ac_sys_system in
+  Darwin*)  FLIBS='-lSystem'; override_f77_libs=1; SHARED_CTLIB=0;;
+esac
+
+if test $override_f77_libs -gt 0; then
+  echo The Fortran 77 libraries on this platform are not correctly determined by 
+  echo the configuration process. They are being manually set to 
+  echo     FLIBS = $FLIBS
+fi
+
+#fi
+
+#--------------------------------------------
+
+
+if test "x${BUILD_F90}" != "x0"; then
+  if test "$F90" = "default" -o \
+          "$F90"x = "x"; then
+    AC_PATH_PROGS(F90, f95 gfortran g95, "none")
+    if test "$F90" = "none" ; then
+      echo "ERROR: Fortran 90 requested, but no Fortran 90/95 compiler found!"
+    else
+      echo "Fortran compiler set to " $F90
+    fi
+  else
+    echo "Fortran 90/95 compiler preset to $F90"
+  fi
+fi
+
+has_f90=no
+f90type=none
+f90_module_dir='-I'
+f90_opts=''
+
+if test "x${BUILD_F90}" != "x0"; then
+  AC_MSG_CHECKING(Fortran 90 compiler ($F90) type)
+  cat >> testf90.f90 << EOF
+module mt
+double precision, parameter :: x = 2.3
+end module mt
+program testf90
+use mt
+integer :: i
+end program testf90
+EOF
+  msg=`${F90} -c testf90.f90 &> /dev/null`
+  if test -f testf90.o; then 
+    has_f90=yes
+    rm testf90.o
+    f90type=unknown
+  fi
+#
+  msg=`${F90} --version &> f90out`
+  isgfortran=`grep -c 'GNU Fortran 95' f90out`
+  if test "x${isgfortran}" != "x0"; then 
+    f90type="gfortran"
+    f90opts="-fno-second-underscore -I. -I${ct_incdir}"
+    f90buildopts="-fno-second-underscore -I."
+  fi
+
+  isg95=`grep -c 'G95' f90out`
+  if test "x${isg95}" != "x0"; then 
+    f90type="g95"
+    f90opts="-fno-second-underscore -I. -I${ct_incdir}"
+    f90buildopts="-fno-second-underscore -I."
+    #case $ac_sys_system in
+    #  Darwin*)  FLIBS='-lg2c -lcc_dynamic';;
+    #esac
+  fi
+
+  msg=`${F90} -V &> f90out`
+  isnag=`grep -c NAGWare f90out`
+  if test "x${isnag}" != "x0"; then 
+    f90type="NAG"
+    f90opts="-I. -I${ct_incdir}"
+    f90buildopts="-I."
+  fi
+#
+  msg=`${F90} -V -c testf90.f90 &> f90out`
+  isabsoft=`grep -c Absoft f90out`
+  if test "x${isabsoft}" != "x0"; then  
+    f90type="Absoft"
+    f90opts="-p. -p${ct_incdir} -s -YEXT_NAMES=LCS -YEXT_SFX=_ -YCFRL=1"
+    f90buildopts="-p. -s -YEXT_NAMES=LCS -YEXT_SFX=_ -YCFRL=1"
+  fi
+  rm -f testf90.f90
+  AC_MSG_RESULT(${f90type})
+  if test -n $BUILD_F90; then
+    if test "x${has_f90}" = "xno"; then
+      echo "   -> cannot build the Fortran 90 interface"
+      BUILD_F90=0
+    fi
+  fi
+fi
+savef90flags=${F90FLAGS}
+F90FLAGS=${f90opts}' '${F90FLAGS}
+F90BUILDFLAGS=${f90buildopts}' '${savef90flags}
+AC_SUBST(BUILD_F90)
+AC_SUBST(F90)
+AC_SUBST(F90FLAGS)
+AC_SUBST(F90BUILDFLAGS)
+
+AC_OBJEXT
+AC_EXEEXT
+
+AC_SUBST(precompile_headers)
+AC_SUBST(CXX_DEPENDS)
+AC_SUBST(FLIBS)
+AC_SUBST(OS_IS_DARWIN)
+AC_SUBST(OS_IS_WIN)
+AC_SUBST(OS_IS_CYGWIN)
+AC_SUBST(SHARED_CTLIB)
+AC_SUBST(mex_ext)
+
+# filename extensions for Fortran 77
+if test -z "$F77_EXT"; then F77_EXT=f; fi
+AC_SUBST(F77_EXT)
+
+
+AC_LANG_CPLUSPLUS
+
+if test -z "$CXX_EXT"; then CXX_EXT=cpp; fi
+AC_SUBST(CXX_EXT)
+
+if test -z "$OBJ_EXT"; then OBJ_EXT='o'; fi
+AC_SUBST(OBJ_EXT)
+
+if test -z "$EXE_EXT"; then EXE_EXT=$EXEEXT; fi
+AC_SUBST(EXE_EXT)
+
+dnl AC_LANG_FORTRAN77
+#local_math_libs='-lcvode'
+#AC_SUBST(local_math_libs)
+
+
+math_libs='-lcvode -lctmath'
+AC_SUBST(math_libs)
+
+if test "$LAPACK_FTN_TRAILING_UNDERSCORE" = "y"
+then AC_DEFINE(LAPACK_FTN_TRAILING_UNDERSCORE)
+fi
+
+if test "$LAPACK_FTN_STRING_LEN_AT_END" = "y"
+then AC_DEFINE(LAPACK_FTN_STRING_LEN_AT_END)
+fi
+
+if test "$LAPACK_NAMES" = "lower"
+then AC_DEFINE(LAPACK_NAMES_LOWERCASE)
+fi
+
+# from the Python configure.in file...
+
+# Set info about shared libraries.
+AC_SUBST(SO)
+AC_SUBST(LDSHARED)
+#
+# This command is used in the the linking statement
+# of the shared libraries used to communicate with python.
+#
+AC_SUBST(EXTRA_LINK)
+
+# SO is the extension of shared libraries `(including the dot!)
+# -- usually .so, .sl on HP-UX, .dll on Cygwin
+AC_MSG_CHECKING(SO)
+if test -z "$SO"
+then
+	case $ac_sys_system in
+	hp*|HP*)   SO=.sl;;
+	CYGWIN*)   SO=.dll;;
+        Darwin*)  SO=.dylib;;
+	*)	   SO=.so;;
+	esac
+fi
+AC_MSG_RESULT($SO)
+
+dnl Checks for header files.
+
+dnl Checks for typedefs, structures, and compiler characteristics.
+
+AC_LANG_CPLUSPLUS
+
+dnl AC_MSG_CHECKING(for the Standard Template Library)
+
+dnl Checks for library functions.
+
+AC_OUTPUT(../Cantera/Makefile \
+	  ../Cantera/src/Makefile \
+	  ../Cantera/src/zeroD/Makefile \
+	  ../Cantera/src/oneD/Makefile \
+	  ../Cantera/src/converters/Makefile \
+	  ../Cantera/src/transport/Makefile \
+	  ../Cantera/src/thermo/Makefile \
+	  ../Cantera/clib/src/Makefile \
+	  ../Cantera/fortran/src/Makefile \
+	  ../Cantera/fortran/f77demos/f77demos.mak \
+	  ../Cantera/fortran/f77demos/isentropic.dsp \
+	  ../Cantera/matlab/Makefile \
+          ../Cantera/matlab/setup_matlab.py \
+          ../Cantera/matlab/setup_winmatlab.py \
+	  ../Cantera/python/Makefile \
+          ../Cantera/python/setup.py \
+	  ../Cantera/cxx/Makefile \
+	  ../Cantera/cxx/src/Makefile \
+	  ../Cantera/cxx/demos/Makefile \
+	  ../Cantera/user/Makefile \
+	  ../Cantera/python/src/Makefile \
+          ../ext/lapack/Makefile \
+	  ../ext/blas/Makefile \
+	  ../ext/cvode/Makefile \
+	  ../ext/math/Makefile \
+	  ../ext/tpx/Makefile \
+	  ../ext/Makefile \
+          ../ext/f2c_libs/Makefile \
+          ../ext/f2c_blas/Makefile \
+          ../ext/f2c_lapack/Makefile \
+          ../ext/f2c_math/Makefile \
+	  ../examples/Makefile \
+          ../examples/cxx/Makefile \
+          ../Makefile \
+	  ../tools/Makefile \
+          ../tools/src/Makefile \
+          ../tools/src/sample.mak \
+          ../tools/src/finish_install.py \
+          ../tools/src/package4mac \
+          ../tools/templates/f77/demo.mak \
+          ../tools/templates/f90/demo.mak \
+          ../tools/templates/cxx/demo.mak \
+	  ../tools/testtools/Makefile \
+          ../data/inputs/Makefile  \
+          ../test_problems/Makefile \
+          ../test_problems/cxx_ex/Makefile \
+          ../test_problems/silane_equil/Makefile \
+          ../test_problems/surfkin/Makefile \
+          ../test_problems/diamondSurf/Makefile \
+          ../test_problems/ck2cti_test/Makefile \
+          ../test_problems/ck2cti_test/runtest \
+          ../test_problems/python/Makefile \
+          ../bin/install_tsc \
+          )
+#	)
+if test "x${OS_IS_WIN}" = "x1"; then
+#cp -f ../config.h ../Cantera/src
+cd ../ext/f2c_libs
+cp arith.hwin32 arith.h
+cd ../../config
+fi
+if test -f "../test_problems/ck2cti_test/runtest"; then
+  chmod +x ../test_problems/ck2cti_test/runtest
+fi
+if test -f "../bin/install_tsc"; then
+  chmod +x ../bin/install_tsc
+fi
+
+
+echo
+if test "x${OS_IS_WIN}" = "x0"; then
+  echo "Now type '${MAKE}' to build Cantera"
+#  else
+#  echo "Now start Visual Studio, open workspace 'win32/cantera.dsw',"
+#  echo "and build project 'all'. When this finishes, come back here and "
+#  echo "type 'make win' to make the Python and/or MATLAB interfaces."
+fi 
+echo  
+

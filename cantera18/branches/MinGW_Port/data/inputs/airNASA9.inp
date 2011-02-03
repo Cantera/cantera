@@ -1,0 +1,10 @@
+!
+!
+!
+!
+ELEMENTS
+O  N  E
+END
+SPECIES
+N2 O2 NO N O N2+ O2+ NO+ N+ O+ e-
+END

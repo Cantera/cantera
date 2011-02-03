@@ -1,0 +1,28 @@
+#!/bin/sh
+
+INST_DIR=@ct_demodir@/python/surface_chemistry
+
+all:
+	cd catcomb_stagflow; @MAKE@ 
+	cd diamond_cvd;      @MAKE@ 
+
+run:
+	cd catcomb_stagflow; @MAKE@ run
+	cd diamond_cvd;      @MAKE@ run
+
+test:
+	cd catcomb_stagflow; @MAKE@ test
+	cd diamond_cvd;      @MAKE@ test
+
+install:
+	@INSTALL@ -d  $(INST_DIR)
+	@INSTALL@ -c -m ug+rw,o+r Makefile   $(INST_DIR)
+	cd catcomb_stagflow; @MAKE@ install
+	cd diamond_cvd;      @MAKE@ install
+
+clean:
+	cd catcomb_stagflow; @MAKE@ clean
+	cd diamond_cvd;      @MAKE@ clean
+
+# end of file
+

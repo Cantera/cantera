@@ -1,0 +1,104 @@
+#/bin/sh
+#
+# $Source: /cvsroot/cantera/cantera/ext/Makefile.in,v $
+# $Author: dggoodwin $
+# $Revision: 1.10 $
+# $Date: 2008/02/13 06:43:27 $
+#
+# Makefile for ext directory
+#
+BUILD_LAPACK=@build_lapack@
+BUILD_BLAS=@build_blas@
+BUILD_WITH_F2C=@build_with_f2c@
+BUILD_F2C_LIB=@build_f2c_lib@
+USE_SUNDIALS=@use_sundials@
+
+LIBS = blas/libctblas.a lapack/libctlapack.a math/libctmath.a \
+       cvode/libcvode.a tpx/libtpx.a
+ 
+all: 
+ifeq ($(BUILD_F2C_LIB),1)
+	(if test -d "f2c_libs" ; then  \
+            cd f2c_libs ; @MAKE@ ; \
+         fi)
+endif
+ifeq ($(BUILD_WITH_F2C),1)
+ifeq ($(BUILD_LAPACK),1)
+	cd f2c_lapack; @MAKE@
+else
+	cd f2c_lapack; @MAKE@ clean
+endif
+ifeq ($(BUILD_BLAS),1)
+	cd f2c_blas; @MAKE@
+else
+	cd f2c_blas; @MAKE@ clean
+endif
+#	cd f2c_recipes; @MAKE@
+	cd f2c_math; @MAKE@
+else
+ifeq ($(BUILD_LAPACK),1)
+	cd lapack; @MAKE@
+else
+	cd lapack; @MAKE@ clean
+endif
+ifeq ($(BUILD_BLAS),1)
+	cd blas; @MAKE@
+else
+	cd blas; @MAKE@ clean
+endif
+#	cd recipes; @MAKE@
+	cd math; @MAKE@
+endif
+ifeq ($(USE_SUNDIALS),0)
+	cd cvode; @MAKE@
+endif
+	cd tpx;   @MAKE@
+
+clean:
+	cd lapack; @MAKE@ clean
+	cd blas; @MAKE@ clean
+	cd recipes; @MAKE@ clean
+	cd cvode; @MAKE@ clean
+	cd math; @MAKE@ clean
+	cd tpx; @MAKE@ clean
+	(if test -d "f2c_libs" ; then  \
+            cd f2c_libs ; @MAKE@ clean ; \
+         fi)
+	(if test -d "f2c_lapack" ; then  \
+            cd f2c_lapack ; @MAKE@ clean ; \
+         fi)
+	(if test -d "f2c_blas" ; then  \
+            cd f2c_blas ; @MAKE@ clean ; \
+         fi)
+	(if test -d "f2c_math" ; then  \
+            cd f2c_math ; @MAKE@ clean ; \
+         fi)
+#	(if test -d "f2c_recipes" ; then  \
+#            cd f2c_recipes ; @MAKE@ clean ; \
+#         fi)
+
+depends:
+ifeq ($(BUILD_WITH_F2C),1)
+	(if test -d "f2c_libs" ; then  \
+            cd f2c_libs ; @MAKE@ depends ; \
+         fi)
+	(if test -d "f2c_lapack" ; then  \
+            cd f2c_lapack ; @MAKE@ depends ; \
+         fi)
+	(if test -d "f2c_blas" ; then  \
+            cd f2c_blas ; @MAKE@ depends ; \
+         fi)
+	(if test -d "f2c_math" ; then  \
+            cd f2c_math ; @MAKE@ depends ; \
+         fi)
+#	(if test -d "f2c_recipes" ; then  \
+            cd f2c_recipes ; @MAKE@ depends ; \
+         fi)
+else
+	cd lapack;   @MAKE@ depends
+	cd blas;     @MAKE@ depends
+#	cd recipes;  @MAKE@ depends
+	cd math;     @MAKE@ depends
+endif
+	cd cvode;    @MAKE@ depends
+	cd tpx;      @MAKE@ depends

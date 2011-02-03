@@ -1,0 +1,15 @@
+#!/bin/sh
+
+
+run:
+	$(PYTHON_CMD) rankine.py
+
+test:
+	./runtest
+
+
+clean:
+	./cleanup
+
+# end of file
+

@@ -1,0 +1,39 @@
+#!/bin/sh
+#
+#
+temp_success="1"
+/bin/rm  -f output.txt outputa.txt
+
+doDebug=@CANTERA_DEBUG_MODE@
+#################################################################
+#
+#################################################################
+CANTERA_DATA=${CANTERA_DATA:=../../data/inputs}; export CANTERA_DATA
+
+CANTERA_BIN=${CANTERA_BIN:=../../bin}
+./VPsilane_test > output.txt
+retnStat=$?
+if [ $retnStat != "0" ]
+then
+  temp_success="0"
+  echo "VPsilane_test returned with bad status, $retnStat, check output"
+fi
+
+if test "x$doDebug" = "x1"
+then
+diff -w output.txt output_debug_blessed.txt > diff_test.out
+retnStat=$?
+else 
+diff -w output.txt output_blessed.txt > diff_test.out
+retnStat=$?
+
+fi
+if [ $retnStat = "0" ]
+then
+  echo "successful diff comparison on VPsilane_test test"
+else
+  echo "unsuccessful diff comparison on VPsilane_test test"
+  echo "FAILED" > csvCode.txt
+  temp_success="0"
+fi
+

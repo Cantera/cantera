@@ -1,0 +1,161 @@
+#
+# $Revision: 1.36 $
+# $Author: hkmoffa $
+# $Date: 2009/03/25 01:03:05 $
+#
+#
+test_python=@BUILD_PYTHON@
+test_ck=@BUILD_CK@
+test_cathermo=@NEED_CATHERMO@
+test_pure_fluids=@COMPILE_PURE_FLUIDS@
+test_vcs_nonideal=@COMPILE_VCSNONIDEAL@
+
+all:
+	cd cxx_ex;       @MAKE@ all
+	cd surfkin;      @MAKE@ all
+	cd fracCoeff;    @MAKE@ all
+	cd silane_equil; @MAKE@ all
+	cd VPsilane_test; @MAKE@ all
+	cd negATest;     @MAKE@ all
+	cd diamondSurf;  @MAKE@ all
+	cd diamondSurf_dupl;  @MAKE@ all
+	cd surfSolverTest;  @MAKE@ all
+	cd ChemEquil_gri_matrix; @MAKE@ all
+	cd ChemEquil_gri_pairs; @MAKE@ all
+	cd ChemEquil_ionizedGas; @MAKE@ all
+	cd ChemEquil_red1; @MAKE@ all
+	cd CpJump; @MAKE@ all
+	cd mixGasTransport; @MAKE@ all
+	cd multiGasTransport; @MAKE@ all
+	cd printUtilUnitTest; @MAKE@ all
+ifeq ($(test_pure_fluids),1)
+	cd pureFluidTest;     @MAKE@ all
+	cd rankine_democxx;     @MAKE@ all
+endif
+ifeq ($(test_python),1)
+	cd min_python;   @MAKE@ all
+endif
+ifeq ($(test_python),2)
+	cd min_python;   @MAKE@ all
+endif
+ifeq ($(test_ck),1)
+	cd ck2cti_test;  @MAKE@ all
+	cd nasa9_reader; @MAKE@ all
+endif
+ifeq ($(test_cathermo),1)
+	cd cathermo;     @MAKE@ all
+endif
+ifeq ($(test_vcs_nonideal),1)
+	cd VCSnonideal;     @MAKE@ all
+endif
+
+test:
+	@ cd cxx_ex;               @MAKE@ -s test
+	@ cd surfkin;              @MAKE@ -s test
+	@ cd fracCoeff;            @MAKE@ -s test
+	@ cd silane_equil;         @MAKE@ -s test
+	@ cd VPsilane_test;        @MAKE@ -s test
+	@ cd negATest;             @MAKE@ -s test
+	@ cd diamondSurf;          @MAKE@ -s test
+	@ cd diamondSurf_dupl;     @MAKE@ -s test
+	@ cd surfSolverTest;       @MAKE@ -s test
+	@ cd NASA9poly_test;       @MAKE@ -s test
+	@ cd ChemEquil_gri_matrix; @MAKE@ -s test
+	@ cd ChemEquil_gri_pairs;  @MAKE@ -s test
+	@ cd ChemEquil_ionizedGas; @MAKE@ -s test
+	@ cd ChemEquil_red1;       @MAKE@ -s test
+	@ cd CpJump;               @MAKE@ -s test
+	@ cd mixGasTransport;      @MAKE@ -s test
+	@ cd multiGasTransport;    @MAKE@ -s test
+	@ cd printUtilUnitTest;    @MAKE@ -s test
+ifeq ($(test_pure_fluids),1)
+	@ cd pureFluidTest;        @MAKE@  -s test
+	@ cd rankine_democxx;      @MAKE@  -s test
+endif
+ifeq ($(test_ck),1)
+	@ cd ck2cti_test;  @MAKE@ -s test
+	@ cd nasa9_reader;  @MAKE@ -s test
+endif
+ifeq ($(test_python),1)
+	cd min_python;   @MAKE@ -s test
+endif
+ifeq ($(test_python),2)
+	cd min_python;   @MAKE@ -s test
+	cd python;       @MAKE@ -s test
+endif
+ifeq ($(test_cathermo),1)
+	cd cathermo;     @MAKE@ -s test
+endif
+ifeq ($(test_vcs_nonideal),1)
+	cd VCSnonideal;     @MAKE@ -s test
+endif
+
+clean:
+	$(RM) *.*~ 
+	cd cxx_ex;                $(RM) .depends ; @MAKE@ clean
+	cd surfkin;               $(RM) .depends ; @MAKE@ clean
+	cd fracCoeff;             $(RM) .depends ; @MAKE@ clean
+	cd silane_equil;          $(RM) .depends ; @MAKE@ clean
+	cd VPsilane_test;         $(RM) .depends ; @MAKE@ clean
+	cd negATest;              $(RM) .depends ; @MAKE@ clean
+	cd diamondSurf;           $(RM) .depends ; @MAKE@ clean
+	cd diamondSurf_dupl;      $(RM) .depends ; @MAKE@ clean
+	cd surfSolverTest;        $(RM) .depends ; @MAKE@ clean
+	cd NASA9poly_test;        $(RM) .depends ; @MAKE@ clean
+	cd ChemEquil_gri_matrix;  $(RM) .depends ; @MAKE@ clean
+	cd ChemEquil_gri_pairs;   $(RM) .depends ; @MAKE@ clean
+	cd ChemEquil_ionizedGas;  $(RM) .depends ; @MAKE@ clean
+	cd ChemEquil_red1;        $(RM) .depends ; @MAKE@ clean
+	cd CpJump;                $(RM) .depends ; @MAKE@ clean
+	cd mixGasTransport;       $(RM) .depends ; @MAKE@ clean
+	cd multiGasTransport;     $(RM) .depends ; @MAKE@ clean
+	cd printUtilUnitTest;     $(RM) .depends ; @MAKE@ clean
+	cd pureFluidTest;         $(RM) .depends ; @MAKE@ clean
+	cd rankine_democxx;       $(RM) .depends ; @MAKE@ clean
+	cd ck2cti_test;           $(RM) .depends ; @MAKE@ clean
+	cd nasa9_reader;          $(RM) .depends ; @MAKE@ clean
+	cd min_python;                             @MAKE@ clean
+	cd python;                                 @MAKE@ clean
+	cd cathermo;                               @MAKE@ clean
+	cd VCSnonideal;	                           @MAKE@ clean
+
+depends:
+	cd cxx_ex;               @MAKE@ depends
+	cd surfkin;              @MAKE@ depends
+	cd fracCoeff;            @MAKE@ depends
+	cd silane_equil;         @MAKE@ depends
+	cd VPsilane_test;        @MAKE@ depends
+	cd negATest;             @MAKE@ depends
+	cd diamondSurf;          @MAKE@ depends
+	cd diamondSurf_dupl;     @MAKE@ depends
+	cd surfSolverTest;       @MAKE@ depends
+	cd NASA9poly_test;       @MAKE@ depends
+	cd ChemEquil_gri_matrix; @MAKE@ depends
+	cd ChemEquil_gri_pairs;  @MAKE@ depends
+	cd ChemEquil_ionizedGas; @MAKE@ depends
+	cd ChemEquil_red1;       @MAKE@ depends
+	cd CpJump;               @MAKE@ depends
+	cd mixGasTransport;      @MAKE@ depends
+	cd multiGasTransport;    @MAKE@ depends
+	cd printUtilUnitTest;    @MAKE@ depends
+ifeq ($(test_cathermo),1)
+	cd pureFluidTest;        @MAKE@ depends
+	cd rankine_democxx;      @MAKE@ depends
+endif
+ifeq ($(test_ck),1)
+	cd ck2cti_test;          @MAKE@ depends
+	cd nasa9_reader;         @MAKE@ depends
+endif
+ifeq ($(test_python),1)
+	cd min_python;           @MAKE@ depends
+endif
+ifeq ($(test_python),2)
+	cd min_python;           @MAKE@ depends
+	cd python;               @MAKE@ depends
+endif
+ifeq ($(test_cathermo),1)
+	cd cathermo;             @MAKE@ depends
+endif
+ifeq ($(test_vcs_nonideal),1)
+	cd VCSnonideal;    	 @MAKE@ depends
+endif

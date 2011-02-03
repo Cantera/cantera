@@ -1,0 +1,57 @@
+#/bin/sh
+###############################################################
+#  $Author: hkmoffa $
+#  $Date: 2007/05/06 17:16:43 $
+#  $Revision: 1.8 $
+#
+#  Copyright 2001 California Institute of Technology
+#  See file License.txt for licensing information
+#
+###############################################################
+
+build_f90=@BUILD_F90@
+build_python=@BUILD_PYTHON@
+build_matlab = @BUILD_MATLAB@
+
+all:
+	cd src; @MAKE@
+	cd cxx; @MAKE@
+	cd clib/src; @MAKE@
+ifeq ($(build_f90),1)
+	cd fortran/src; @MAKE@
+endif
+	cd user; @MAKE@
+
+clean:
+	cd src;                            @MAKE@ clean
+	cd cxx;                            @MAKE@ clean
+	cd clib/src;      $(RM) .depends ; @MAKE@ clean
+	cd python;                         @MAKE@ clean
+ifeq ($(build_f90),1)
+	cd fortran/src;   $(RM) .depends ; @MAKE@ clean
+endif
+	cd user;          $(RM) .depends ; @MAKE@ clean
+
+depends:
+	cd src;         @MAKE@ depends
+	cd cxx/src;     @MAKE@ depends
+	cd clib/src;    @MAKE@ depends
+ifeq ($(build_f90),1)
+	cd fortran/src; @MAKE@ depends
+endif
+ifeq ($(build_matlab),1)
+	cd matlab;      @MAKE@ depends
+endif
+	cd user;        @MAKE@ depends
+
+install:
+	cd src; @MAKE@ install
+	cd cxx/src; @MAKE@ install
+	cd clib/src; @MAKE@ install
+ifeq ($(build_f90),1)
+	cd fortran/src; @MAKE@ install
+endif
+	cd user; @MAKE@ install
+
+# end of file
+

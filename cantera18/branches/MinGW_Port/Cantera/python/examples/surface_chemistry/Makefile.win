@@ -1,0 +1,22 @@
+#!/bin/sh
+
+
+all:
+	cd catcomb_stagflow; make 
+	cd diamond_cvd;      make 
+
+run:
+	cd catcomb_stagflow; make run
+	cd diamond_cvd;      make run
+
+test:
+	cd catcomb_stagflow; make test
+	cd diamond_cvd;      make test
+
+
+clean:
+	cd catcomb_stagflow; make clean
+	cd diamond_cvd;      make clean
+
+# end of file
+

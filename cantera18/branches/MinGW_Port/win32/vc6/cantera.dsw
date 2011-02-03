@@ -1,0 +1,254 @@
+Microsoft Developer Studio Workspace File, Format Version 6.00
+# WARNING: DO NOT EDIT OR DELETE THIS WORKSPACE FILE!
+
+###############################################################################
+
+Project: "all"=.\all\all.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name blas
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name cantera
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name clib
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name ctmath
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name cvode
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name cxxutils
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name lapack
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name oneD
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name recipes
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name transport
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name zeroD
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tpx
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name ck2cti
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name converters
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "blas"=.\blas\blas.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "cantera"=.\cantera\cantera.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "ck2cti"=.\ck2cti\ck2cti.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name cantera
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name converters
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name cxxutils
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tpx
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "clib"=.\clib\clib.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "converters"=.\converters\converters.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "ctmath"=.\ctmath\ctmath.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "cvode"=.\cvode\cvode.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "cxxutils"=.\cxxutils\cxxutils.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "lapack"=.\lapack\lapack.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name blas
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "oneD"=.\oneD\oneD.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "recipes"=.\recipes\recipes.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "tpx"=.\tpx\tpx.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "transport"=.\transport\transport.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "zeroD"=.\zeroD\zeroD.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Global:
+
+Package=<5>
+{{{
+}}}
+
+Package=<3>
+{{{
+}}}
+
+###############################################################################
+

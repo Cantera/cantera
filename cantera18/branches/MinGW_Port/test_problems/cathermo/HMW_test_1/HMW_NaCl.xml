@@ -1,0 +1,181 @@
+<?xml version="1.0"?>
+<ctml>
+  <phase id="NaCl_electrolyte" dim="3">
+    <speciesArray datasrc="#species_waterSolution">
+               H2O(L) Cl- H+ Na+ OH-
+    </speciesArray>
+    <state>
+      <temperature units="K"> 298.15 </temperature>
+      <pressure units="Pa"> 101325.0 </pressure>
+      <soluteMolalities>
+             Na+:6.0954
+             Cl-:6.0954
+             H+:2.1628E-9
+             OH-:1.3977E-6
+      </soluteMolalities>
+    </state>
+    <!-- thermo model identifies the inherited class 
+         from ThermoPhase that will handle the thermodynamics.
+      -->
+    <thermo model="HMW">
+       <standardConc model="solvent_volume" />
+       <activityCoefficients model="Pitzer">
+                <!-- A_Debye units = sqrt(kg/gmol)
+                     This is adjusted to match the GWB value so 
+                     that numerical comparisons can be made
+                     Aln = 0.5107
+                  -->
+                <A_Debye> 1.175930 </A_Debye>
+                <!-- B_Debye units = sqrt(kg/gmol)/m
+                  -->
+                <B_Debye> 3.28640E9 </B_Debye>
+                <ionicRadius default="3.042843"  units="Angstroms">
+                </ionicRadius>
+                <binarySaltParameters cation="Na+" anion="Cl-">
+                  <beta0> 0.0765 </beta0>
+                  <beta1> 0.2664 </beta1>
+                  <beta2> 0.0    </beta2>
+                  <Cphi> 0.00127 </Cphi>
+                  <Alpha1> 2.0 </Alpha1>
+                </binarySaltParameters>
+
+                <binarySaltParameters cation="H+" anion="Cl-">
+                  <beta0> 0.1775 </beta0>
+                  <beta1> 0.2945 </beta1>
+                  <beta2> 0.0    </beta2>
+                  <Cphi> 0.0008 </Cphi>
+                  <Alpha1> 2.0 </Alpha1>
+                </binarySaltParameters>
+
+                <binarySaltParameters cation="Na+" anion="OH-">
+                  <beta0> 0.0864 </beta0>
+                  <beta1> 0.253 </beta1>
+                  <beta2> 0.0    </beta2>
+                  <Cphi> 0.0044 </Cphi>
+                  <Alpha1> 2.0 </Alpha1>
+                </binarySaltParameters>
+
+                <thetaAnion anion1="Cl-" anion2="OH-">
+                  <theta> -0.05 </theta>
+                </thetaAnion>
+
+                <psiCommonCation cation="Na+" anion1="Cl-" anion2="OH-">
+                  <theta> -0.05 </theta>
+                  <Psi> -0.006 </Psi>
+                </psiCommonCation>
+
+                <thetaCation cation1="Na+" cation2="H+">
+                  <theta> 0.036 </theta>
+                </thetaCation>
+
+                <psiCommonAnion anion="Cl-" cation1="Na+" cation2="H+">
+                  <Theta> 0.036 </Theta>
+                  <Psi> -0.004 </Psi>
+                </psiCommonAnion>
+
+       </activityCoefficients>
+       <solvent> H2O(L) </solvent>
+    </thermo>
+    <elementArray datasrc="elements.xml"> O H C E Fe Si N Na Cl </elementArray>
+  </phase>
+
+  <speciesData id="species_waterSolution">
+
+    <!-- species H2O(L)    -->
+    <species name="H2O(L)">
+      <atomArray>H:2 O:1 </atomArray>
+      <thermo>
+        <NASA Tmax="600.0" Tmin="273.14999999999998" P0="100000.0">
+           <floatArray name="coeffs" size="7">
+             7.255750050E+01,  -6.624454020E-01,   2.561987460E-03,  -4.365919230E-06,
+             2.781789810E-09,  -4.188654990E+04,  -2.882801370E+02
+           </floatArray>
+        </NASA>
+      </thermo>
+      <standardState model="waterIAPWS"> 
+      </standardState>
+    </species>
+                                               
+    <species name="Na+">
+      <atomArray> Na:1 E:-1 </atomArray>
+      <charge> +1 </charge>
+      <thermo>
+       <Mu0 Pref="100000.0" Tmax="1000.0" Tmin="200.0">
+         <H298 units="cal/mol"> 0.0  </H298>
+         <numPoints> 2            </numPoints>
+         <floatArray size="2" title="Mu0Values" units="Dimensionless">
+             -125.5213,  -125.5213       
+         </floatArray>
+          <floatArray size="2" title="Mu0Temperatures">
+             298.15,    333.15
+          </floatArray>
+       </Mu0>
+      </thermo>
+      <standardState model="constant_incompressible"> 
+         <molarVolume> 1.3 </molarVolume>
+      </standardState>
+    </species>
+
+    <species name="Cl-">
+      <atomArray> Cl:1 E:1 </atomArray>
+      <charge> -1 </charge>
+      <standardState model="constant_incompressible"> 
+          <molarVolume> 1.3 </molarVolume>
+      </standardState>
+      <thermo>
+        <Mu0 Pref="100000.0" Tmax="333." Tmin="298.">
+         <H298 units="cal/mol"> 0.0  </H298>
+         <numPoints> 2            </numPoints>
+         <floatArray size="2" title="Mu0Values" units="Dimensionless">
+            -52.8716 , -52.8716       
+         </floatArray>
+          <floatArray size="2" title="Mu0Temperatures">
+             298.15,    333.15
+          </floatArray>
+        </Mu0>
+      </thermo>
+     </species>
+
+    <species name="H+">
+      <atomArray> H:1 E:-1 </atomArray>
+      <charge> +1 </charge>
+      <standardState model="constant_incompressible"> 
+          <molarVolume> 1.3 </molarVolume>
+      </standardState>
+      <thermo>
+        <Mu0 Pref="100000.0" Tmax="333." Tmin="298.">
+         <H298 units="cal/mol"> 0.0  </H298>
+         <numPoints> 2            </numPoints>
+         <floatArray size="2" title="Mu0Values" units="Dimensionless">
+            0.0 , 0.0       
+         </floatArray>
+          <floatArray size="2" title="Mu0Temperatures">
+             298.15,    333.15
+          </floatArray>
+        </Mu0>
+      </thermo>
+     </species>
+
+    <species name="OH-">
+      <atomArray> O:1 H:1 E:1 </atomArray>
+      <charge> -1 </charge>
+      <standardState model="constant_incompressible"> 
+          <molarVolume> 1.3 </molarVolume>
+      </standardState>
+      <thermo>
+        <Mu0 Pref="100000.0" Tmax="333." Tmin="298.">
+         <H298 units="cal/mol"> 0.0  </H298>
+         <numPoints> 2            </numPoints>
+         <floatArray size="2" title="Mu0Values" units="Dimensionless">
+            -91.523 ,  -91.523     
+         </floatArray>
+          <floatArray size="2" title="Mu0Temperatures">
+             298.15,    333.15
+          </floatArray>
+        </Mu0>
+      </thermo>
+     </species>
+
+  </speciesData>
+
+</ctml>

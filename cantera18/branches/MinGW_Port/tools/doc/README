@@ -1,0 +1,15 @@
+Doxygen information:
+
+
+The current version is 1.4.7: 
+I have version 1.3.9.1
+
+Support is provided in the following versions for the following features
+
+SEPARATE_MEMBER_PAGES = 1.4.2
+FILE_VERSION_FILTER   = 1.4.0
+WARN_NO_PARAMDOC      = 1.4.0
+GROUP_GRAPHS          = 1.4.0
+DIRECTORY_GRAPHS      = 1.4.0
+DOT_TRANSPARENT       = 1.4.0
+DOT_MULTI_TARGET      =1.4.0
