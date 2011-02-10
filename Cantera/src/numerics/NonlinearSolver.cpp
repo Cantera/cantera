@@ -122,6 +122,11 @@ namespace Cantera {
     atolk_(0),
     m_print_flag(0),
     m_ScaleSolnNormToResNorm(0.001)
+#ifdef DEBUG_DOGLEG
+    ,descentDir_(0),
+    residNorm2Cauchy_(0.0),
+    Jd_(0)
+#endif
   {
     neq_ = m_func->nEquations();
 
@@ -145,6 +150,13 @@ namespace Cantera {
       atolk_[i] = atolBase_;
       m_ewt[i] = atolk_[i];
     }
+
+#ifdef DEBUG_DOGLEG
+    jacCopy_.resize(neq_, neq_, 0.0);
+    descentDir_.resize(neq_, 0.0);
+    Jd_.resize(neq_, 0.0);
+#endif
+
   }
  //====================================================================================================================
   NonlinearSolver::NonlinearSolver(const NonlinearSolver &right) :
@@ -191,6 +203,11 @@ namespace Cantera {
     atolk_(0),
     m_print_flag(0),
     m_ScaleSolnNormToResNorm(0.001)
+#ifdef DEBUG_DOGLEG
+    ,descentDir_(0),
+    residNorm2Cauchy_(0.0),
+    Jd_(0)
+#endif
   {
     *this =operator=(right);
   }
@@ -248,6 +265,11 @@ namespace Cantera {
     atolk_                     = right.atolk_;
     m_print_flag               = right.m_print_flag;
     m_ScaleSolnNormToResNorm   = right.m_ScaleSolnNormToResNorm;
+#ifdef DEBUG_DOGLEG
+    jacCopy_                   = right.jacCopy_;
+    descentDir_                = right.descentDir_;
+    Jd_                        = right.Jd_;
+#endif
   
     return *this;
   }
@@ -703,6 +725,75 @@ namespace Cantera {
     m_numTotalLinearSolves++;
     return info;
   }
+  //====================================================================================================================
+ #ifdef DEBUG_DOGLEG
+  // Do a steepest descent calculation
+  /*
+   *  This call must be made on the unfactored jacobian!
+   */
+  int NonlinearSolver::doCauchyPointSolve(SquareMatrix& jac)
+  {
+    double rowFac = 1.0;
+    //  Calculate desDir = -0.5 * R dot J
+    /*
+     *  this would be faster::
+     *    vector_fp &dd = jac.data();
+     *    descentDir[j] -= 0.5 * resid[i] * dd[i*neq_ * j[;
+     */ 
+    for (int j = 0; j < neq_; j++) {
+      descentDir_[j] = 0.0;
+      double colFac = 1.0;
+      if (m_colScaling) {
+	colFac = 1.0/m_colScales[j];
+      }
+      for (int i = 0; i < neq_; i++) {
+	if (m_rowScaling) {
+	  rowFac = 1.0/m_rowScales[i];
+	}
+	descentDir_[j] -= 0.5 * m_resid[i] * jac.value(i,j) *colFac / (m_residWts[i] * m_residWts[i]);
+      }
+    }
+    for (int j = 0; j < neq_; j++) {
+      Jd_[j] = 0.0;
+      double colFac = 1.0;
+      if (m_colScaling) {
+	colFac = 1.0/m_colScales[j];
+      }
+      for (int i = 0; i < neq_; i++) {
+	if (m_rowScaling) {
+	  rowFac = 1.0/m_rowScales[i];
+	}
+	Jd_[j] += descentDir_[j] * jac.value(i,j) *rowFac * colFac/ m_residWts[i];
+      }
+    }
+    double RJd_norm = 0.0;
+    double JdJd_norm = 0.0;
+    for (int i = 0; i < neq_; i++) {
+      RJd_norm +=  m_resid[i] * Jd_[i] / m_residWts[i];
+      JdJd_norm += Jd_[i] * Jd_[i];
+    }
+    double lambda = -  RJd_norm / (JdJd_norm);
+
+    for (int i = 0; i < neq_; i++) {
+      descentDir_[i] *= lambda;
+    }
+
+    residNorm2Cauchy_ = m_normResidFRaw * m_normResidFRaw -  RJd_norm *  RJd_norm / (JdJd_norm*JdJd_norm);
+
+    // Compute the weighted norm of the undamped step size descentDir_[]
+    doublereal sDD = solnErrorNorm(DATA_PTR(descentDir_), "SteepestDescentDir", 10);
+
+
+    if (m_print_flag > 2) {
+      printf("\t\t\tdoCauchyPointSolve: Steepest descent to Cauchy point: \n");
+      printf("\t\t\t   Rraw = %g Rpred = %g, deltaX = %g\n", m_normResidFRaw, residNorm2Cauchy_,  sDD);
+    }
+    
+    
+
+    return 0;
+  }
+#endif
   //====================================================================================================================
   void  NonlinearSolver::setDefaultDeltaBoundsMagnitudes()
   {
@@ -1174,7 +1265,9 @@ namespace Cantera {
     int m = 0;
     bool forceNewJac = false;
     doublereal s1=1.e30;
-    
+#ifdef DEBUG_DOGLEG
+    jacCopy_ = jac;
+#endif
 
     //  std::vector<doublereal> y_curr(neq_, 0.0); 
     std::vector<doublereal> ydot_curr(neq_, 0.0);
@@ -1298,6 +1391,9 @@ namespace Cantera {
 	m_normResid0 = residErrorNorm(DATA_PTR(m_resid), "Initial norm of the residual", 0, DATA_PTR(m_y_n));
       }
       
+#ifdef DEBUG_DOGLEG
+      doCauchyPointSolve(jac);
+#endif
 
       // compute the undamped Newton step
       info = doNewtonSolve(time_curr, DATA_PTR(m_y_n), DATA_PTR(ydot_curr), DATA_PTR(stp), jac, m_print_flag);

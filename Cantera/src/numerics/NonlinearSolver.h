@@ -496,6 +496,11 @@ namespace Cantera {
     //! solution norms.
     void calcSolnToResNormVector();
 
+#ifdef DEBUG_DOGLEG
+    int doCauchyPointSolve(SquareMatrix& jac);
+
+#endif
+
     //! Set the print level from the rootfinder
     /*!
      * 
@@ -701,6 +706,22 @@ namespace Cantera {
 
     //! Scale factor for turning residual norms into solution norms
     double m_ScaleSolnNormToResNorm;
+
+
+#ifdef DEBUG_DOGLEG
+    //! Copy of the jacobian that doesn't get overwritten when the inverse is determined
+    SquareMatrix jacCopy_;
+
+    //!  Steepest descent direction. This is also the distance to the Cauchy Point
+    std::vector<doublereal> descentDir_;
+
+    //! Expected value of the residual norm at the Cauchy point
+    doublereal residNorm2Cauchy_;
+
+    //!  Jacobian times the Steepest descent direction. 
+    std::vector<doublereal> Jd_;
+
+#endif
 
   public:
     //! Turn off printing of time
