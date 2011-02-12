@@ -83,8 +83,8 @@ namespace Cantera {
     solnType_(NSOLN_TYPE_STEADY_STATE),
     neq_(0),
     m_ewt(0),
-    m_manualDeltaBoundsSet(0),
-    m_deltaBoundsMagnitudes(0),
+    m_manualDeltaStepSet(0),
+    m_deltaStepMinimum(0),
     m_y_n(0),
     m_y_nm1(0),
     ydot_new(0),
@@ -121,17 +121,19 @@ namespace Cantera {
     m_ydot_nm1(0),
     atolk_(0),
     m_print_flag(0),
-    m_ScaleSolnNormToResNorm(0.001)
-#ifdef DEBUG_DOGLEG
-    ,descentDir_(0),
+    m_ScaleSolnNormToResNorm(0.001),
+    jacCopy_(0),
+    descentDir_(0),
     residNorm2Cauchy_(0.0),
-    Jd_(0)
-#endif
+    Jd_(0),
+    trustDeltaX_(0)
+
   {
     neq_ = m_func->nEquations();
 
     m_ewt.resize(neq_, rtol_);
-    m_deltaBoundsMagnitudes.resize(neq_, 0.001);
+    m_deltaStepMinimum.resize(neq_, 0.001);
+    m_deltaStepMaximum.resize(neq_, 1.0E10);
     m_y_n.resize(neq_, 0.0);
     m_y_nm1.resize(neq_, 0.0);
     ydot_new.resize(neq_, 0.0);
@@ -142,7 +144,7 @@ namespace Cantera {
     m_wksp.resize(neq_, 0.0);
     m_residWts.resize(neq_, 0.0);
     atolk_.resize(neq_, atolBase_);
-	doublereal hb = std::numeric_limits<double>::max();
+    doublereal hb = std::numeric_limits<double>::max();
     m_y_high_bounds.resize(neq_, hb);
     m_y_low_bounds.resize(neq_, -hb);    
 
@@ -155,6 +157,7 @@ namespace Cantera {
     jacCopy_.resize(neq_, neq_, 0.0);
     descentDir_.resize(neq_, 0.0);
     Jd_.resize(neq_, 0.0);
+    trustDeltaX_.resize(neq_, 0.0);
 #endif
 
   }
@@ -164,8 +167,8 @@ namespace Cantera {
     solnType_(NSOLN_TYPE_STEADY_STATE),
     neq_(0),
     m_ewt(0),
-    m_manualDeltaBoundsSet(0),
-    m_deltaBoundsMagnitudes(0),
+    m_manualDeltaStepSet(0),
+    m_deltaStepMinimum(0),
     m_y_n(0),
     m_y_nm1(0),
     ydot_new(0),
@@ -202,12 +205,12 @@ namespace Cantera {
     m_ydot_nm1(0),
     atolk_(0),
     m_print_flag(0),
-    m_ScaleSolnNormToResNorm(0.001)
-#ifdef DEBUG_DOGLEG
-    ,descentDir_(0),
+    m_ScaleSolnNormToResNorm(0.001),
+    jacCopy_(0),
+    descentDir_(0),
     residNorm2Cauchy_(0.0),
-    Jd_(0)
-#endif
+    Jd_(0),
+    trustDeltaX_(0)
   {
     *this =operator=(right);
   }
@@ -227,8 +230,8 @@ namespace Cantera {
     solnType_                  = right.solnType_;
     neq_                       = right.neq_;
     m_ewt                      = right.m_ewt;
-    m_manualDeltaBoundsSet     = right.m_manualDeltaBoundsSet;
-    m_deltaBoundsMagnitudes    = right.m_deltaBoundsMagnitudes;
+    m_manualDeltaStepSet       = right.m_manualDeltaStepSet;
+    m_deltaStepMinimum         = right.m_deltaStepMinimum;
     m_y_n                      = right.m_y_n;
     m_y_nm1                    = right.m_y_nm1;
     ydot_new                   = right.ydot_new;
@@ -265,11 +268,12 @@ namespace Cantera {
     atolk_                     = right.atolk_;
     m_print_flag               = right.m_print_flag;
     m_ScaleSolnNormToResNorm   = right.m_ScaleSolnNormToResNorm;
-#ifdef DEBUG_DOGLEG
+
     jacCopy_                   = right.jacCopy_;
     descentDir_                = right.descentDir_;
     Jd_                        = right.Jd_;
-#endif
+    trustDeltaX_               = right.trustDeltaX_;	
+
   
     return *this;
   }
@@ -726,7 +730,7 @@ namespace Cantera {
     return info;
   }
   //====================================================================================================================
- #ifdef DEBUG_DOGLEG
+
   // Do a steepest descent calculation
   /*
    *  This call must be made on the unfactored jacobian!
@@ -750,7 +754,9 @@ namespace Cantera {
 	if (m_rowScaling) {
 	  rowFac = 1.0/m_rowScales[i];
 	}
-	descentDir_[j] -= 0.5 * m_resid[i] * jac.value(i,j) *colFac / (m_residWts[i] * m_residWts[i]);
+        descentDir_[j] -= 0.5 * m_resid[i] * jac.value(i,j) *colFac / (m_residWts[i] * m_residWts[i]);
+	//	descentDir_[j] -= 0.5 * m_resid[i] * jac.value(i,j) *colFac / ( m_residWts[i]);
+	//descentDir_[j] -= 0.5 * m_resid[i] * jac.value(i,j) *colFac;
       }
     }
     for (int j = 0; j < neq_; j++) {
@@ -763,7 +769,8 @@ namespace Cantera {
 	if (m_rowScaling) {
 	  rowFac = 1.0/m_rowScales[i];
 	}
-	Jd_[j] += descentDir_[j] * jac.value(i,j) *rowFac * colFac/ m_residWts[i];
+	Jd_[j] += descentDir_[j] * jac.value(i,j) * rowFac * colFac/ m_residWts[i];
+	//Jd_[j] += descentDir_[j] * jac.value(i,j) *rowFac * colFac;
       }
     }
     double RJd_norm = 0.0;
@@ -778,7 +785,13 @@ namespace Cantera {
       descentDir_[i] *= lambda;
     }
 
-    residNorm2Cauchy_ = m_normResidFRaw * m_normResidFRaw -  RJd_norm *  RJd_norm / (JdJd_norm*JdJd_norm);
+    residNorm2Cauchy_ = m_normResid0 * m_normResid0 -  RJd_norm *  RJd_norm / (JdJd_norm);
+    double residCauchy = 0.0;
+    if (residNorm2Cauchy_ > 0.0) {
+      residCauchy = sqrt(residNorm2Cauchy_);
+    } else {
+      residCauchy =  m_normResid0 -  sqrt(RJd_norm *  RJd_norm / (JdJd_norm));
+    }
 
     // Compute the weighted norm of the undamped step size descentDir_[]
     doublereal sDD = solnErrorNorm(DATA_PTR(descentDir_), "SteepestDescentDir", 10);
@@ -786,30 +799,34 @@ namespace Cantera {
 
     if (m_print_flag > 2) {
       printf("\t\t\tdoCauchyPointSolve: Steepest descent to Cauchy point: \n");
-      printf("\t\t\t   Rraw = %g Rpred = %g, deltaX = %g\n", m_normResidFRaw, residNorm2Cauchy_,  sDD);
+      printf("\t\t\t      R0     = %g \n", m_normResid0);
+      printf("\t\t\t      Rpred  = %g\n", residCauchy);
+      printf("\t\t\t      Rjd    = %g\n",  RJd_norm);
+      printf("\t\t\t      JdJd   = %g\n",  JdJd_norm);
+      printf("\t\t\t      deltaX = %g\n",  sDD);
     }
     
     
 
     return 0;
   }
-#endif
+
   //====================================================================================================================
   void  NonlinearSolver::setDefaultDeltaBoundsMagnitudes()
   {
     for (int i = 0; i < neq_; i++) {
-      m_deltaBoundsMagnitudes[i] = 1000. * atolk_[i];
-      m_deltaBoundsMagnitudes[i] = MAX(m_deltaBoundsMagnitudes[i], 0.1 * fabs(m_y_n[i]));
+      m_deltaStepMinimum[i] = 1000. * atolk_[i];
+      m_deltaStepMinimum[i] = MAX(m_deltaStepMinimum[i], 0.1 * fabs(m_y_n[i]));
     }
   }
   //====================================================================================================================
-  void  NonlinearSolver::setDeltaBoundsMagnitudes(const doublereal * const deltaBoundsMagnitudes)
+  void  NonlinearSolver::setDeltaBoundsMagnitudes(const doublereal * const deltaStepMinimum)
   {
     
     for (int i = 0; i < neq_; i++) {
-      m_deltaBoundsMagnitudes[i] = deltaBoundsMagnitudes[i];
+      m_deltaStepMinimum[i] = deltaStepMinimum[i];
     }
-    m_manualDeltaBoundsSet = 1;
+    m_manualDeltaStepSet = 1;
   }
   //====================================================================================================================
   /*
@@ -855,16 +872,16 @@ namespace Cantera {
 
       if (sameSign >= 0.0) {
 	if ((fabs(y_new) > 1.5 * fabs(y[i])) && 
-	    (fabs(y_new - y[i]) > m_deltaBoundsMagnitudes[i])) {
+	    (fabs(y_new - y[i]) > m_deltaStepMinimum[i])) {
 	  ff = 0.5 * fabs(y[i]/(y_new - y[i]));
-	  ff_alt = fabs(m_deltaBoundsMagnitudes[i] / (y_new - y[i]));
+	  ff_alt = fabs(m_deltaStepMinimum[i] / (y_new - y[i]));
 	  ff = MAX(ff, ff_alt);
 	  ifbd = 1;
 	}
 	if ((fabs(2.0 * y_new) < fabs(y[i])) &&
-	    (fabs(y_new - y[i]) > m_deltaBoundsMagnitudes[i])) {
+	    (fabs(y_new - y[i]) > m_deltaStepMinimum[i])) {
 	  ff = y[i]/(y_new - y[i]) * (1.0 - 2.0)/2.0;
-	  ff_alt = fabs(m_deltaBoundsMagnitudes[i] / (y_new - y[i]));
+	  ff_alt = fabs(m_deltaStepMinimum[i] / (y_new - y[i]));
 	  ff = MAX(ff, ff_alt);
 	  ifbd = 0;
 	}
@@ -873,9 +890,9 @@ namespace Cantera {
 	 *  This handles the case where the value crosses the origin.
 	 *       - First we don't let it cross the origin until its shrunk to the size of m_deltaBoundsMagnitudes[i]
 	 */
-	if (fabs(y[i]) > m_deltaBoundsMagnitudes[i]) {
+	if (fabs(y[i]) > m_deltaStepMinimum[i]) {
 	  ff = y[i]/(y_new - y[i]) * (1.0 - 2.0)/2.0;
-	  ff_alt = fabs(m_deltaBoundsMagnitudes[i] / (y_new - y[i]));
+	  ff_alt = fabs(m_deltaStepMinimum[i] / (y_new - y[i]));
 	  ff = MAX(ff, ff_alt);
 	  if (y[i] >= 0.0) {
 	    ifbd = 0;
@@ -888,7 +905,7 @@ namespace Cantera {
 	 */
 	else if (fabs(y_new) > 0.5 * fabs(y[i])) {
 	  ff = y[i]/(y_new - y[i]) * (-1.5);
-	  ff_alt = fabs(m_deltaBoundsMagnitudes[i] / (y_new - y[i]));
+	  ff_alt = fabs(m_deltaStepMinimum[i] / (y_new - y[i]));
 	  ff = MAX(ff, ff_alt);
 	  ifbd = 0;
 	}
@@ -924,6 +941,28 @@ namespace Cantera {
     
     return f_delta_bounds;
   }
+ //====================================================================================================================
+
+  void  NonlinearSolver::calcTrustVector(const doublereal * const y, const int loglevel)  
+  {
+    double oldVal; 
+    double fabsy;
+    for (int i = 0; i < neq_; i++) {
+      oldVal = trustDeltaX_[i];
+      fabsy = fabs(y[i]);
+      if (oldVal > 0.5 * fabsy) {
+	if (fabsy > m_deltaStepMinimum[i]) {
+	  trustDeltaX_[i] = 0.5 * fabsy;
+	} else {
+	  trustDeltaX_[i] = m_deltaStepMinimum[i];
+	}
+      }
+
+   }
+
+
+  }
+
   //====================================================================================================================  
   /*
    *
@@ -1266,7 +1305,7 @@ namespace Cantera {
     bool forceNewJac = false;
     doublereal s1=1.e30;
 #ifdef DEBUG_DOGLEG
-    jacCopy_ = jac;
+    //jacCopy_ = jac;
 #endif
 
     //  std::vector<doublereal> y_curr(neq_, 0.0); 
@@ -1327,7 +1366,7 @@ namespace Cantera {
       /*
        * Set default values of Delta bounds constraints
        */
-      if (!m_manualDeltaBoundsSet) {
+      if (!m_manualDeltaStepSet) {
 	setDefaultDeltaBoundsMagnitudes();
       }
 
