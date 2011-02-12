@@ -29,21 +29,21 @@ namespace Cantera {
 
   public:
 
-    SquareMatrix():
-      DenseMatrix(),
-      m_factored(false)
-    {
-    }
 
-    /** 
-     * Constructor. Create an \c n by \c n matrix, and initialize
-     * all elements to \c v.
+    //! Base Constructor.
+    /*!
+     * Create an \c 0 by \c 0 matrix, and initialize all elements to \c 0.
      */
-    SquareMatrix(int n, doublereal v = 0.0)  : 
-      DenseMatrix(n, n, v),
-      m_factored(false)
-    {
-    }
+    SquareMatrix();
+
+    //! Constructor.
+    /*!
+     * Create an \c n by \c n matrix, and initialize all elements to \c v.
+     *
+     * @param n   size of the square matrix
+     * @param v   intial value of all matrix components.
+     */
+    SquareMatrix(int n, doublereal v = 0.0);
 
     /**
      * Copy Constructor
@@ -63,6 +63,9 @@ namespace Cantera {
      * Solves the Ax = b system returning x in the b spot.
      */
     int solve(double *b);
+
+    void resize(int n, int m, doublereal v = 0.0);
+
 
     /**
      * Zero the matrix

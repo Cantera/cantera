@@ -20,6 +20,7 @@
 #define CT_NONLINEARSOLVER_H
 
 #include "ResidJacEval.h"
+#include "SquareMatrix.h"
 
 namespace Cantera {
   
@@ -217,6 +218,10 @@ namespace Cantera {
      */
     void setDeltaBoundsMagnitudes(const doublereal * const deltaBoundsMagnitudes);
   
+
+    void calcTrustVector(const doublereal * const y, const int loglevel);
+
+
     //! Bound the step
     /*!
      *
@@ -496,10 +501,16 @@ namespace Cantera {
     //! solution norms.
     void calcSolnToResNormVector();
 
-#ifdef DEBUG_DOGLEG
+    //! Calculate the Steepest descent direction and the Cauchy Point where the quadratic formulation 
+    //! of the nonlinear problem expects a minimum along the descent direction.
+    /*!
+     *  @param jac   Jacobian matrix: must be unfactored.
+     *
+     *  @return Returns 0 for success.
+     */
     int doCauchyPointSolve(SquareMatrix& jac);
 
-#endif
+
 
     //! Set the print level from the rootfinder
     /*!
@@ -537,16 +548,13 @@ namespace Cantera {
     std::vector<doublereal> m_ewt;
 
     //! Boolean indicating whether a manual delta bounds has been input.
-    int m_manualDeltaBoundsSet;
-
-    //! Soln Delta bounds magnitudes
-    std::vector<doublereal> m_deltaBoundsMagnitudes;
-
-    //! Boolean indicating whether a manual delta steps have been input.
     int m_manualDeltaStepSet;
 
+    //! Soln Delta bounds magnitudes
+    std::vector<doublereal> m_deltaStepMinimum;
+
     //! Value of the delta step magnitudes
-    std::vector<doublereal> m_deltaStepMagnitudes;
+    std::vector<doublereal> m_deltaStepMaximum;
 
     //! Vector containing the current solution of the nonlinear solver
     std::vector<doublereal> m_y_n;
@@ -707,10 +715,8 @@ namespace Cantera {
     //! Scale factor for turning residual norms into solution norms
     double m_ScaleSolnNormToResNorm;
 
-
-#ifdef DEBUG_DOGLEG
     //! Copy of the jacobian that doesn't get overwritten when the inverse is determined
-    SquareMatrix jacCopy_;
+    Cantera::SquareMatrix jacCopy_;
 
     //!  Steepest descent direction. This is also the distance to the Cauchy Point
     std::vector<doublereal> descentDir_;
@@ -721,7 +727,8 @@ namespace Cantera {
     //!  Jacobian times the Steepest descent direction. 
     std::vector<doublereal> Jd_;
 
-#endif
+    std::vector<doublereal> trustDeltaX_;
+
 
   public:
     //! Turn off printing of time

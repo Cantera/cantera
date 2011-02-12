@@ -27,7 +27,30 @@
 using namespace std;
 
 namespace Cantera {
-  /**
+
+
+  //====================================================================================================================
+  SquareMatrix::SquareMatrix() :
+    DenseMatrix(),
+    m_factored(false)
+  {
+  }
+
+  // Constructor.
+  /*
+   * Create an \c n by \c n matrix, and initialize
+   * all elements to \c v.
+   *
+   * @param n   size of the square matrix
+   * @param v   intial value of all matrix components.
+   */
+  SquareMatrix::SquareMatrix(int n, doublereal v)  : 
+    DenseMatrix(n, n, v),
+    m_factored(false)
+  {
+  }
+
+  /*
    *
    * copy constructor
    */
@@ -94,7 +117,11 @@ namespace Cantera {
       (void) memset((void *) sm, 0, nn * sizeof(double));
     }
   }
-   
+  //====================================================================================================================
+  void SquareMatrix::resize(int n, int m, doublereal v) {
+    DenseMatrix::resize(n, m, v);
+  } 
+  //====================================================================================================================
   /**
    * Factor A. A is overwritten with the LU decomposition of A.
    */
