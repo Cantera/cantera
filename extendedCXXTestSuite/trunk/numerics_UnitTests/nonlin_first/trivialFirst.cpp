@@ -162,6 +162,9 @@ int main(int argc, char** argv) {
       printf("    %d %13.5E %13.5E\n", k, y_comm[k], tmp);
  
     }
+
+    delete nls;
+    appdelete();
  
 
   }
