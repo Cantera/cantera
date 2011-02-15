@@ -128,7 +128,8 @@ namespace Cantera {
     RJd_norm_(0.0),
     lambda_(0.0),
     Jd_(0),
-    trustDeltaX_(0)
+    trustDeltaX_(0),
+    trustDelta_(1.0)
 
   {
     neq_ = m_func->nEquations();
@@ -159,7 +160,7 @@ namespace Cantera {
     jacCopy_.resize(neq_, neq_, 0.0);
     descentDir_.resize(neq_, 0.0);
     Jd_.resize(neq_, 0.0);
-    trustDeltaX_.resize(neq_, 0.0);
+    trustDeltaX_.resize(neq_, 1.0);
 #endif
 
   }
@@ -214,7 +215,8 @@ namespace Cantera {
     RJd_norm_(0.0),
     lambda_(0.0),
     Jd_(0),
-    trustDeltaX_(0)
+    trustDeltaX_(0),
+    trustDelta_(1.0)
   {
     *this =operator=(right);
   }
@@ -279,7 +281,7 @@ namespace Cantera {
     lambda_                    = right.lambda_;
     Jd_                        = right.Jd_;
     trustDeltaX_               = right.trustDeltaX_;	
-
+    trustDelta_                = right.trustDelta_;
   
     return *this;
   }
@@ -429,7 +431,7 @@ namespace Cantera {
    *  out to standard output.
    */
   doublereal NonlinearSolver::residErrorNorm(const doublereal * const resid, const char * title, const int printLargest,
-					 const doublereal * const y)
+					     const doublereal * const y)
   {
     int    i;
     doublereal sum_norm = 0.0, error;
@@ -996,27 +998,73 @@ namespace Cantera {
     return f_delta_bounds;
   }
  //====================================================================================================================
-
-  void  NonlinearSolver::calcTrustVector(const doublereal * const y, const int loglevel)  
+  //! Calculate the trust region vectors
+  /*!
+   *  The trust region is made up of the trust region vector calculation and the trustDelta_ value
+   *  We periodically recalculate the trustVector_ values so that they renormalize to the
+   *  correct length.
+   */
+  void  NonlinearSolver::calcTrustVector()  
   {
+    double wtSum = 0.0;
+    for (int i = 0; i < neq_; i++) {
+      wtSum += m_ewt[i];
+    }
+
+    // This is the size of each component.
+    double trustDeltaEach = trustDelta_ / neq_;
     double oldVal; 
     double fabsy;
+    // we use the old value of the trust region as an indicator
     for (int i = 0; i < neq_; i++) {
       oldVal = trustDeltaX_[i];
-      fabsy = fabs(y[i]);
+      fabsy = fabs(m_y_n[i]);
+      // First off make sure that each trust region vector is 1/2 the size of each variable or smaller
+      // unless overridden by the deltaStepMininum value. 
       if (oldVal > 0.5 * fabsy) {
 	if (fabsy > m_deltaStepMinimum[i]) {
 	  trustDeltaX_[i] = 0.5 * fabsy;
 	} else {
 	  trustDeltaX_[i] = m_deltaStepMinimum[i];
 	}
+      } else {
+        double newValue =  trustDeltaEach * m_ewt[i] / wtSum;
+	if (newValue > 2.0 * oldVal) { 
+	  newValue = 2.0 * oldVal;
+	} else if (newValue < 0.5 * oldVal) {
+	  newValue = 0.5 * oldVal;
+	}
+	trustDeltaX_[i] = newValue;
+	if (trustDeltaX_[i] > 0.75 * m_deltaStepMaximum[i]) {
+	  trustDeltaX_[i] = m_deltaStepMaximum[i];
+	}
       }
+    }
 
-   }
 
-
+    // Final renormalization. 
+    double sum = 0.0;
+    for (int i = 0; i < neq_; i++) {
+      sum += trustDeltaX_[i];
+    }
+    for (int i = 0; i < neq_; i++) {
+      trustDeltaX_[i] = trustDelta_ / sum;
+    }
+    trustDelta_ = 1.0;
+    
   }
-
+  //====================================================================================================================
+  doublereal  NonlinearSolver::calcTrustDistance(std::vector<doublereal> const & deltaX) const
+  {
+    doublereal sum = 0.0;
+    doublereal tmp = 0.0;
+    for (int i = 0; i < neq_; i++) {
+      tmp = deltaX[i] / trustDeltaX_[i];
+      sum += tmp * tmp;
+    }
+    sum = sqrt(sum / neq_);
+    return sum;
+  }
   //====================================================================================================================  
   /*
    *
@@ -1344,10 +1392,8 @@ namespace Cantera {
 					       double* ydot_comm, doublereal CJ,
 					       doublereal time_curr, 
 					       SquareMatrix& jac,
-					       int &num_newt_its,
-					       int &num_linear_solves,
-					       int &num_backtracks, 
-					       int loglevelInput)
+					       int &num_newt_its,  int &num_linear_solves,
+					       int &num_backtracks,  int loglevelInput)
   {
     clockWC wc;
     int convRes = 0;
@@ -1410,10 +1456,21 @@ namespace Cantera {
       num_newt_its++;
 
       /*
-       *  If we are far enough away from the solution, redo the solution weights.
+       *  If we are far enough away from the solution, redo the solution weights and the trust vectors.
        */
       if (m_normSolnFRaw > 1.0E2) {
 	createSolnWeights(DATA_PTR(m_y_n));
+#ifdef DEBUG_DOGLEG
+	calcTrustVector();
+#endif
+      } else {
+	// Do this stuff every 5 iterations
+        if ( (num_newt_its % 5) == 1) {
+	  createSolnWeights(DATA_PTR(m_y_n));
+#ifdef DEBUG_DOGLEG
+	  calcTrustVector();
+#endif
+	}
       }
 
       //mdp::mdp_copy_dbl_1(DATA_PTR(m_y_n), DATA_PTR(y_curr), neq_);
@@ -1500,10 +1557,16 @@ namespace Cantera {
       } else {
 	m_normSolnFRaw = solnErrorNorm(DATA_PTR(stp), "Initial Undamped Step of the iteration", 0);
       } 
-      //  calcSolnToResNormVector();
+   
 
-
-
+#ifdef DEBUG_DOGLEG
+      double trustD = calcTrustDistance(stp);
+      if (trustD > trustDelta_) {
+	printf("newton's method trustD, %g, larger than trust region, %g\n", trustD, trustDelta_);
+      } else {
+	printf("newton's method trustD, %g, smaller than trust region, %g\n", trustD, trustDelta_);
+      }
+#endif
 
 
       /*
