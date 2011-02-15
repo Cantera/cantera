@@ -53,7 +53,12 @@ namespace Cantera {
    *
    *  Newton's method is used.
    *
-   *  Damping is used extensively when relaxing the system
+   *  Damping is used extensively when relaxing the system.
+   *
+   *
+   *   The basic idea is that we predict a direction that is parameterized by an overall coordinate
+   *   value, beta, from zero to one, This may or may not be the same as the value, damp,
+   *   depending upon whether the direction is straight.
    *
    *  
    *
@@ -218,10 +223,31 @@ namespace Cantera {
      */
     void setDeltaBoundsMagnitudes(const doublereal * const deltaBoundsMagnitudes);
   
+  protected:
+    //! Calculate the trust region vectors
+    /*!
+     *  The trust region is made up of the trust region vector calculation and the trustDelta_ value
+     *  We periodically recalculate the trustVector_ values so that they renormalize to the
+     *  correct length.  We change the trustDelta_ values regularly
+     *
+     *    The trust region calculate is based on 
+     *
+     *        || delta_x   dot  1/trustDeltaX_ ||   <= trustDelta_
+     *
+     * @param y   current value of the solution
+     */
+    void calcTrustVector();
 
-    void calcTrustVector(const doublereal * const y, const int loglevel);
-
-
+    //! Calculate the trust distance
+    /*!
+     *  We calculate the trust distance by the following method
+     *  
+     *      trustDist =  || delta_x   dot  1/trustDeltaX_ || 
+     *
+     * @param deltaX  Current value of deltaX
+     */
+    doublereal calcTrustDistance(std::vector<doublereal> const & deltaX) const;
+  public:
     //! Bound the step
     /*!
      *
@@ -753,6 +779,10 @@ namespace Cantera {
 
     //! Vector of trust region values.
     std::vector<doublereal> trustDeltaX_;
+
+    //! Current value of trust radius. This is used with trustDeltaX_ to 
+    //! calculate the max step size.
+    doublereal trustDelta_;
 
 
   public:
