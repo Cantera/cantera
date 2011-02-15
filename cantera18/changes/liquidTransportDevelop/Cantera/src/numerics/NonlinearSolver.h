@@ -501,7 +501,7 @@ namespace Cantera {
     //! solution norms.
     void calcSolnToResNormVector();
 
-    //! Calculate the Steepest descent direction and the Cauchy Point where the quadratic formulation 
+    //! Calculate the steepest descent direction and the Cauchy Point where the quadratic formulation 
     //! of the nonlinear problem expects a minimum along the descent direction.
     /*!
      *  @param jac   Jacobian matrix: must be unfactored.
@@ -510,6 +510,24 @@ namespace Cantera {
      */
     int doCauchyPointSolve(SquareMatrix& jac);
 
+    //! This is a utility routine that can be used to print out the rates of the initial residual decline
+    /*!
+     *  The residual**2 decline for various directions is printed out. The rate of decline of the
+     *  square of the residuals multiplied by the number of equations along each direction is printed out
+     *  This quantity can be directly related to the theory, and may be calculated from derivatives at the
+     *  original point.
+     *
+     *   ( (r)**2 * neq   - (r0)**2 * neq ) / distance
+     *
+     *  What's printed out:
+     *
+     *  The theoretical linearized residual decline
+     *  The actual residual decline in the steepest descent direction determined by numerical differencing
+     *  The actual residual decline in the newton direction determined by numerical differencing
+     *
+     *  This routine doesn't need to be called for the solution of the nonlinear problem.
+     */
+    void descentComparison(double time_curr ,double *ydot0, double *ydot1, const double *newtDir);
 
 
     //! Set the print level from the rootfinder
@@ -724,9 +742,16 @@ namespace Cantera {
     //! Expected value of the residual norm at the Cauchy point
     doublereal residNorm2Cauchy_;
 
+    //! Residual dot Jd norm
+    doublereal RJd_norm_;
+
+    //! Value of lambda_ which is used to calculate the Cauchy point
+    doublereal lambda_;
+
     //!  Jacobian times the Steepest descent direction. 
     std::vector<doublereal> Jd_;
 
+    //! Vector of trust region values.
     std::vector<doublereal> trustDeltaX_;
 
 
