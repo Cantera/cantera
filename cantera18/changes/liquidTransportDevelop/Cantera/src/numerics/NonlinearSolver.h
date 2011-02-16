@@ -204,7 +204,7 @@ namespace Cantera {
      *  @return Returns the result code from lapack. A zero means success. Anything
      *          else indicates a failure.
      */ 
-    int doNewtonSolve(const doublereal time_curr, const doublereal * const y_curr, 
+    int doNewtonSolve(const doublereal time_curr, const doublereal * const y_curr,
 		      const doublereal * const ydot_curr, doublereal * const delta_y,
 		      SquareMatrix& jac, int loglevel);
 
@@ -532,9 +532,9 @@ namespace Cantera {
     /*!
      *  @param jac   Jacobian matrix: must be unfactored.
      *
-     *  @return Returns 0 for success.
+     *  @return Returns the norm of the solution update
      */
-    int doCauchyPointSolve(SquareMatrix& jac);
+    doublereal doCauchyPointSolve(SquareMatrix& jac);
 
     //! This is a utility routine that can be used to print out the rates of the initial residual decline
     /*!
@@ -555,6 +555,8 @@ namespace Cantera {
      */
     void descentComparison(double time_curr ,double *ydot0, double *ydot1, const double *newtDir);
 
+    void setupDoubleDogleg();
+    double expectedResid(double lambda);
 
     //! Set the print level from the rootfinder
     /*!
@@ -600,7 +602,7 @@ namespace Cantera {
     //! Value of the delta step magnitudes
     std::vector<doublereal> m_deltaStepMaximum;
 
-    //! Vector containing the current solution of the nonlinear solver
+    //! Vector containing the current solution vector within the nonlinear solver
     std::vector<doublereal> m_y_n;
 
     //! Vector containing the solution at the previous time step
@@ -648,7 +650,11 @@ namespace Cantera {
     doublereal m_normResidFRaw;
 
     //! Norm of the solution update created by the iteration in its raw, undamped form.
-    doublereal m_normSolnFRaw;
+    doublereal m_normDeltaSoln_Newton;
+
+
+    //! Norm of the solution update created by the iteration in its raw, undamped form.
+    doublereal m_normDeltaSoln_CP;
 
     //! Norm of the residual for a trial calculation which may or may not be used
     doublereal m_normResidTrial;
@@ -783,6 +789,15 @@ namespace Cantera {
     //! Current value of trust radius. This is used with trustDeltaX_ to 
     //! calculate the max step size.
     doublereal trustDelta_;
+
+    doublereal Nuu_;
+
+    doublereal dist_R0_;
+    doublereal dist_R1_;
+    doublereal dist_R2_;
+    doublereal dist_Total_;
+    doublereal m_normSolnCP;
+
 
 
   public:
