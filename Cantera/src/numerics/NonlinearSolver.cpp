@@ -96,7 +96,8 @@ namespace Cantera {
     m_residWts(0),
     m_normResid0(0.0),
     m_normResidFRaw(0.0),
-    m_normSolnFRaw(0.0),
+    m_normDeltaSoln_Newton(0.0),
+    m_normDeltaSoln_CP(0.0),
     m_normResidTrial(0.0),
     m_resid_scaled(false),
     m_y_high_bounds(0),
@@ -183,7 +184,8 @@ namespace Cantera {
     m_residWts(0),
     m_normResid0(0.0),
     m_normResidFRaw(0.0),
-    m_normSolnFRaw(0.0),
+    m_normDeltaSoln_Newton(0.0), 
+    m_normDeltaSoln_CP(0.0),
     m_normResidTrial(0.0),
     m_resid_scaled(false),
     m_y_high_bounds(0),
@@ -249,7 +251,8 @@ namespace Cantera {
     m_residWts                 = right.m_residWts;
     m_normResid0               = right.m_normResid0;
     m_normResidFRaw            = right.m_normResidFRaw;
-    m_normSolnFRaw             = right.m_normSolnFRaw;
+    m_normDeltaSoln_Newton     = right.m_normDeltaSoln_Newton;
+    m_normDeltaSoln_CP         = right.m_normDeltaSoln_CP;
     m_normResidTrial           = right.m_normResidTrial;
     m_resid_scaled             = right.m_resid_scaled;
     m_y_high_bounds            = right.m_y_high_bounds;
@@ -645,7 +648,7 @@ namespace Cantera {
     //double tmp = residErrorNorm(DATA_PTR(m_resid));
   }
   //====================================================================================================================
-  // Compute the undamped Newton step
+  // Compute the undamped Newton step based on the current jacobian and an input rhs
   /*
    * Compute the undamped Newton step.  The residual function is
    * evaluated at the current time, t_n, at the current values of the
@@ -705,8 +708,7 @@ namespace Cantera {
 	printf("\n Details on delta_Y for row %d \n", focusRow);
 	printf("  Value before = %15.5e, delta = %15.5e,"
 	       "value after = %15.5e\n", y_curr[focusRow], 
-	       delta_y[focusRow],
-	       y_curr[focusRow] +  delta_y[focusRow]);
+	       delta_y[focusRow],  y_curr[focusRow] + delta_y[focusRow]);
 	if (!freshJac) {
 	  printf("    Old Jacobian\n");
 	}
@@ -746,9 +748,10 @@ namespace Cantera {
   /*
    *  This call must be made on the unfactored jacobian!
    */
-  int NonlinearSolver::doCauchyPointSolve(SquareMatrix& jac)
+  doublereal NonlinearSolver::doCauchyPointSolve(SquareMatrix& jac)
   {
     double rowFac = 1.0;
+    double normSoln;
     //  Calculate desDir = -0.5 * R dot J
     /*
      * For confirmation of the scaling factors, see Dennis and Schnabel p, 152, p, 156 and my notes
@@ -804,17 +807,17 @@ namespace Cantera {
       }
       
       // Compute the weighted norm of the undamped step size descentDir_[]
-      doublereal sDD = solnErrorNorm(DATA_PTR(descentDir_), "SteepestDescentDir", 10);
+      normSoln = solnErrorNorm(DATA_PTR(descentDir_), "SteepestDescentDir", 10);
      
       printf("\t\t\tdoCauchyPointSolve: Steepest descent to Cauchy point: \n");
       printf("\t\t\t      R0     = %g \n", m_normResid0);
       printf("\t\t\t      Rpred  = %g\n", residCauchy);
       printf("\t\t\t      Rjd    = %g\n",  RJd_norm_);
       printf("\t\t\t      JdJd   = %g\n",  JdJd_norm);
-      printf("\t\t\t      deltaX = %g\n",  sDD);
+      printf("\t\t\t      deltaX = %g\n",  normSoln);
       printf("\t\t\t      lambda = %g\n",  lambda_);
     }
-    return 0;
+    return normSoln;
   }
   //===================================================================================================================
   void  NonlinearSolver::descentComparison(double time_curr, double *ydot0, double *ydot1, const double *newtDir)
@@ -859,14 +862,59 @@ namespace Cantera {
     double residDecreaseNewt2 = (residNewt2 - normResid02) / ( ff * sNewt);
 
     double residDL = 2.0 * RJd_norm_ / s1 * lambda_;
+
+    double residDecreaseNewtExp2 = - 2.0 * normResid02 / sNewt;
+
     /*
      * HKM These have been shown to exactly match up.
      *   The steepest direction is always largest even when there are variable solution weights
      */
     printf("descentComparison: rate of decrease in linearized cauchy dir = %g\n", residDL);
     printf("descentComparison: rate of decrease in cauchy dir            = %g\n", residDecrease2);
+    printf("\n");
+    printf("descentComparison: rate of decrease in newtondir (expected)  = %g\n", residDecreaseNewtExp2);
     printf("descentComparison: rate of decrease in newtondir             = %g\n", residDecreaseNewt2);
   }
+
+  //====================================================================================================================
+  //  Setup the line search along the double dog leg
+  /*
+   *  the calls the doCauchySolve() and doNewtonSolve() are done at the main level
+   */
+  void NonlinearSolver::setupDoubleDogleg()
+  {
+   
+    for (int i = 0; i < neq_; i++) {
+      //      m_wksp[i] = Nuu_ * stepNewton_[i] - descentCauchy_[i];
+    }
+    
+
+    double   gamma =  m_normDeltaSoln_CP / m_normDeltaSoln_Newton;
+
+    
+    Nuu_ = 0.8 * gamma + 0.2;
+
+    dist_R0_ = m_normDeltaSoln_CP;
+    dist_R1_ = solnErrorNorm( DATA_PTR(m_wksp));
+    dist_R2_ = (1.0 - Nuu_) * m_normDeltaSoln_Newton;
+    dist_Total_ = dist_R0_ + dist_R1_ + dist_R2_;
+
+
+  } 
+  //====================================================================================================================
+  double NonlinearSolver::expectedResid(double lambda) {
+    if (lambda < dist_R0_ / dist_Total_) {
+
+    } else if (lambda < ((dist_R0_ + dist_R1_)/ dist_Total_)) {
+
+    } else {
+      
+    }
+
+    return 0.0;
+
+  }
+
   //====================================================================================================================
   void  NonlinearSolver::setDefaultDeltaBoundsMagnitudes()
   {
@@ -1423,7 +1471,7 @@ namespace Cantera {
     }
     // Redo the solution weights every time we enter the function
     createSolnWeights(DATA_PTR(m_y_n));
-    m_normSolnFRaw = 1.0E1;
+    m_normDeltaSoln_Newton = 1.0E1;
     bool frst = true;
     num_newt_its = 0;
     num_linear_solves = - m_numTotalLinearSolves;
@@ -1458,7 +1506,7 @@ namespace Cantera {
       /*
        *  If we are far enough away from the solution, redo the solution weights and the trust vectors.
        */
-      if (m_normSolnFRaw > 1.0E2) {
+      if (m_normDeltaSoln_Newton > 1.0E2) {
 	createSolnWeights(DATA_PTR(m_y_n));
 #ifdef DEBUG_DOGLEG
 	calcTrustVector();
@@ -1542,7 +1590,7 @@ namespace Cantera {
       }
       
 #ifdef DEBUG_DOGLEG
-      doCauchyPointSolve(jac);
+      m_normSolnCP = doCauchyPointSolve(jac);
 #endif
 
       // compute the undamped Newton step
@@ -1553,9 +1601,9 @@ namespace Cantera {
       }
 
       if (m_print_flag > 3) {
-	m_normSolnFRaw = solnErrorNorm(DATA_PTR(stp),  "Initial Undamped Step of the iteration", 10);
+	m_normDeltaSoln_Newton = solnErrorNorm(DATA_PTR(stp),  "Initial Undamped Step of the iteration", 10);
       } else {
-	m_normSolnFRaw = solnErrorNorm(DATA_PTR(stp), "Initial Undamped Step of the iteration", 0);
+	m_normDeltaSoln_Newton = solnErrorNorm(DATA_PTR(stp), "Initial Undamped Step of the iteration", 0);
       } 
    
 
@@ -1583,8 +1631,10 @@ namespace Cantera {
       // Damp the Newton step
       /*
        *  On return the recommended new solution and derivatisve is located in:
-       *          m_y_new
-       *          m_y_dot_new
+       *          y_new
+       *          y_dot_new
+       *  The update delta vector is located in
+       *          stp1
        *  The estimate of the solution update norm for the next step is located in
        *          s1
        */
@@ -1676,7 +1726,7 @@ namespace Cantera {
 	  printf("   N  |");
 	}
 	printf("%5d %11.3E  | %10.2E %10.2E %2d | %11.3E %11.3E ", m_numTotalLinearSolves, 0.0, m_dampBound, m_dampRes,
-	       i_backtracks, m_normSolnFRaw, m_normResidFRaw);
+	       i_backtracks, m_normDeltaSoln_Newton, m_normResidFRaw);
 	printf("\n");
       
       }
@@ -2134,7 +2184,7 @@ namespace Cantera {
 	}
       }
       if (s1 < 0.8) {
-	if (m_normSolnFRaw < 1.0) {
+	if (m_normDeltaSoln_Newton < 1.0) {
 	  return 2;
 	}
       }
@@ -2148,7 +2198,7 @@ namespace Cantera {
     }
 
     if (s1 < 0.8) {
-      if (m_normSolnFRaw < 1.0) {
+      if (m_normDeltaSoln_Newton < 1.0) {
 	return 2;
       }
     }
