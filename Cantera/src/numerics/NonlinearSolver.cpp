@@ -869,11 +869,10 @@ namespace Cantera {
      * HKM These have been shown to exactly match up.
      *   The steepest direction is always largest even when there are variable solution weights
      */
-    printf("descentComparison: rate of decrease in linearized cauchy dir = %g\n", residDL);
-    printf("descentComparison: rate of decrease in cauchy dir            = %g\n", residDecrease2);
-    printf("\n");
-    printf("descentComparison: rate of decrease in newtondir (expected)  = %g\n", residDecreaseNewtExp2);
-    printf("descentComparison: rate of decrease in newtondir             = %g\n", residDecreaseNewt2);
+    printf("descentComparison: initial rate of decrease in cauchy dir (expected) = %g\n", residDL);
+    printf("descentComparison: initial rate of decrease in cauchy dir            = %g\n", residDecrease2);
+    printf("descentComparison: initial rate of decrease in newton dir (expected) = %g\n", residDecreaseNewtExp2);
+    printf("descentComparison: initial rate of decrease in newton dir            = %g\n", residDecreaseNewt2);
   }
 
   //====================================================================================================================
@@ -904,6 +903,10 @@ namespace Cantera {
   //====================================================================================================================
   double NonlinearSolver::expectedResid(double lambda) {
     if (lambda < dist_R0_ / dist_Total_) {
+      /*
+       * We are on the steepest descent line
+       */
+      
 
     } else if (lambda < ((dist_R0_ + dist_R1_)/ dist_Total_)) {
 
@@ -2130,7 +2133,7 @@ namespace Cantera {
   {
     doublereal sum = 0.0;  
     for (int i = 0; i < neq_; i++) {
-      m_residWts[i] = m_rowWtScales[i];
+      m_residWts[i] = m_rowWtScales[i] / neq_;
       sum += m_residWts[i];
     }
     sum /= neq_;
