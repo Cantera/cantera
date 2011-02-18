@@ -1373,14 +1373,14 @@ namespace Cantera {
       if (!m_phaseExists[iphase]) {
 	m_phaseExistsCheck--;
 	m_phaseExists[iphase] = true;
-	m_phaseIsStable[iphase] = true;
       }
+      m_phaseIsStable[iphase] = true;
     } else {
       if (m_phaseExists[iphase]) {
 	m_phaseExistsCheck++;
 	m_phaseExists[iphase] = false;
-	m_phaseIsStable[iphase] = false;
       }
+      m_phaseIsStable[iphase] = false;
     }
   }
   //================================================================================================
