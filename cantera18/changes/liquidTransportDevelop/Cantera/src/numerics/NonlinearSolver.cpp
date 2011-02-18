@@ -39,6 +39,9 @@ extern void print_line(const char *, int);
 #define MAX(x,y)    (( (x) > (y) ) ? (x) : (y))
 #define MIN(x,y)    (( (x) < (y) ) ? (x) : (y))
 #endif
+#ifndef CONSTD_DATA_PTR
+#define CONSTD_DATA_PTR(x) (( const double *) (&x[0]))
+#endif
 //@}
 using namespace std;
 
@@ -124,7 +127,8 @@ namespace Cantera {
     m_print_flag(0),
     m_ScaleSolnNormToResNorm(0.001),
     jacCopy_(0),
-    descentDir_(0),
+    deltax_cp_(0),
+    deltaX_Newton_(0),
     residNorm2Cauchy_(0.0),
     RJd_norm_(0.0),
     lambda_(0.0),
@@ -148,6 +152,7 @@ namespace Cantera {
     m_wksp.resize(neq_, 0.0);
     m_residWts.resize(neq_, 0.0);
     atolk_.resize(neq_, atolBase_);
+    deltaX_Newton_.resize(neq_, 0.0);
     doublereal hb = std::numeric_limits<double>::max();
     m_y_high_bounds.resize(neq_, hb);
     m_y_low_bounds.resize(neq_, -hb);    
@@ -159,7 +164,7 @@ namespace Cantera {
 
 #ifdef DEBUG_DOGLEG
     jacCopy_.resize(neq_, neq_, 0.0);
-    descentDir_.resize(neq_, 0.0);
+    deltax_cp_.resize(neq_, 0.0);
     Jd_.resize(neq_, 0.0);
     trustDeltaX_.resize(neq_, 1.0);
 #endif
@@ -212,7 +217,8 @@ namespace Cantera {
     m_print_flag(0),
     m_ScaleSolnNormToResNorm(0.001),
     jacCopy_(0),
-    descentDir_(0),
+    deltax_cp_(0),
+    deltaX_Newton_(0),
     residNorm2Cauchy_(0.0),
     RJd_norm_(0.0),
     lambda_(0.0),
@@ -279,7 +285,8 @@ namespace Cantera {
     m_ScaleSolnNormToResNorm   = right.m_ScaleSolnNormToResNorm;
 
     jacCopy_                   = right.jacCopy_;
-    descentDir_                = right.descentDir_;
+    deltax_cp_                 = right.deltax_cp_;
+    deltaX_Newton_             = right.deltaX_Newton_;
     RJd_norm_                  = right.RJd_norm_;
     lambda_                    = right.lambda_;
     Jd_                        = right.Jd_;
@@ -349,7 +356,7 @@ namespace Cantera {
    *                       only used for printout out a table.
    */
   doublereal NonlinearSolver::solnErrorNorm(const doublereal * const delta_y, const char * title, int printLargest,
-					    const doublereal dampFactor)
+					    const doublereal dampFactor) const
   {
     int  i;
     doublereal sum_norm = 0.0, error;
@@ -758,7 +765,7 @@ namespace Cantera {
      * 
      */
     for (int j = 0; j < neq_; j++) {
-      descentDir_[j] = 0.0;
+      deltax_cp_[j] = 0.0;
       double colFac = 1.0;
       if (m_colScaling) {
 	colFac = 1.0 / m_colScales[j];
@@ -767,8 +774,8 @@ namespace Cantera {
 	if (m_rowScaling) {
 	  rowFac = 1.0 / m_rowScales[i];
 	}
-        descentDir_[j] -= 0.5 * m_resid[i] * jac.value(i,j) * colFac * rowFac * m_ewt[j] * m_ewt[j] 
-	  / (m_residWts[i] * m_residWts[i]);
+        deltax_cp_[j] -= m_resid[i] * jac.value(i,j) * colFac * rowFac * m_ewt[j] * m_ewt[j] 
+                	  / (m_residWts[i] * m_residWts[i]);
       }
     }
     for (int i = 0; i < neq_; i++) {
@@ -779,23 +786,23 @@ namespace Cantera {
 	rowFac = 1.0;
       }
       for (int j = 0; j < neq_; j++) {
-	Jd_[i] += descentDir_[j] * jac.value(i,j) * rowFac/ m_residWts[i];
+	Jd_[i] += deltax_cp_[j] * jac.value(i,j) * rowFac/ m_residWts[i];
       }
     }
 
     RJd_norm_ = 0.0;
-    double JdJd_norm = 0.0;
+    JdJd_norm_ = 0.0;
     for (int i = 0; i < neq_; i++) {
       RJd_norm_ += m_resid[i] * Jd_[i] / m_residWts[i];
-      JdJd_norm += Jd_[i] * Jd_[i];
+      JdJd_norm_ += Jd_[i] * Jd_[i];
     }
-    lambda_ = - RJd_norm_ / (JdJd_norm);
+    lambda_ = - RJd_norm_ / (JdJd_norm_);
 
     for (int i = 0; i < neq_; i++) {
-      descentDir_[i] *= lambda_;
+      deltax_cp_[i] *= lambda_;
     }
 
-    residNorm2Cauchy_ = m_normResid0 * m_normResid0 - RJd_norm_ * RJd_norm_ / (JdJd_norm);
+    residNorm2Cauchy_ = m_normResid0 * m_normResid0 - RJd_norm_ * RJd_norm_ / (JdJd_norm_);
 
     if (m_print_flag > 2) {
 
@@ -803,17 +810,17 @@ namespace Cantera {
       if (residNorm2Cauchy_ > 0.0) {
 	residCauchy = sqrt(residNorm2Cauchy_);
       } else {
-	residCauchy =  m_normResid0 - sqrt(RJd_norm_ * RJd_norm_ / (JdJd_norm));
+	residCauchy =  m_normResid0 - sqrt(RJd_norm_ * RJd_norm_ / (JdJd_norm_));
       }
       
       // Compute the weighted norm of the undamped step size descentDir_[]
-      normSoln = solnErrorNorm(DATA_PTR(descentDir_), "SteepestDescentDir", 10);
+      normSoln = solnErrorNorm(DATA_PTR(deltax_cp_), "SteepestDescentDir", 10);
      
       printf("\t\t\tdoCauchyPointSolve: Steepest descent to Cauchy point: \n");
       printf("\t\t\t      R0     = %g \n", m_normResid0);
-      printf("\t\t\t      Rpred  = %g\n", residCauchy);
+      printf("\t\t\t      Rpred  = %g\n",  residCauchy);
       printf("\t\t\t      Rjd    = %g\n",  RJd_norm_);
-      printf("\t\t\t      JdJd   = %g\n",  JdJd_norm);
+      printf("\t\t\t      JdJd   = %g\n",  JdJd_norm_);
       printf("\t\t\t      deltaX = %g\n",  normSoln);
       printf("\t\t\t      lambda = %g\n",  lambda_);
     }
@@ -825,9 +832,9 @@ namespace Cantera {
     int info;
     double ff = 1.0E-5;
     double *y1 = DATA_PTR(m_wksp);
-    double s1 = solnErrorNorm(DATA_PTR(descentDir_));
+    double s1 = solnErrorNorm(DATA_PTR(deltax_cp_));
     for (int i = 0; i < neq_; i++) {
-      y1[i] = m_y_n[i] + ff * descentDir_[i];
+      y1[i] = m_y_n[i] + ff * deltax_cp_[i];
     }
     /*
      *  Calculate the residual that would result if y1[] were the new solution vector
@@ -842,7 +849,8 @@ namespace Cantera {
     double normResid02 = m_normResid0 * m_normResid0 * neq_;
     double residSteep = residErrorNorm(DATA_PTR(m_resid));
     double residSteep2 = residSteep * residSteep * neq_;
-    double residDecrease2 = (residSteep2 - normResid02) / ( ff * s1);
+    double funcDecrease2 = 0.5 * (residSteep2 - normResid02) / ( ff * s1);
+
     double sNewt = solnErrorNorm(DATA_PTR(newtDir));
     for (int i = 0; i < neq_; i++) {
       y1[i] = m_y_n[i] + ff * newtDir[i];
@@ -859,20 +867,20 @@ namespace Cantera {
     double residNewt = residErrorNorm(DATA_PTR(m_resid));
     double residNewt2 = residNewt * residNewt * neq_;
 
-    double residDecreaseNewt2 = (residNewt2 - normResid02) / ( ff * sNewt);
+    double funcDecreaseNewt2 = 0.5 * (residNewt2 - normResid02) / ( ff * sNewt);
 
-    double residDL = 2.0 * RJd_norm_ / s1 * lambda_;
+    double funcDecreaseSDExp = RJd_norm_ / s1 * lambda_;
 
-    double residDecreaseNewtExp2 = - 2.0 * normResid02 / sNewt;
+    double funcDecreaseNewtExp2 = -  normResid02 / sNewt;
 
     /*
      * HKM These have been shown to exactly match up.
      *   The steepest direction is always largest even when there are variable solution weights
      */
-    printf("descentComparison: initial rate of decrease in cauchy dir (expected) = %g\n", residDL);
-    printf("descentComparison: initial rate of decrease in cauchy dir            = %g\n", residDecrease2);
-    printf("descentComparison: initial rate of decrease in newton dir (expected) = %g\n", residDecreaseNewtExp2);
-    printf("descentComparison: initial rate of decrease in newton dir            = %g\n", residDecreaseNewt2);
+    printf("descentComparison: initial rate of decrease in cauchy dir (expected) = %g\n", funcDecreaseSDExp);
+    printf("descentComparison: initial rate of decrease in cauchy dir            = %g\n", funcDecrease2);
+    printf("descentComparison: initial rate of decrease in newton dir (expected) = %g\n", funcDecreaseNewtExp2);
+    printf("descentComparison: initial rate of decrease in newton dir            = %g\n", funcDecreaseNewt2);
   }
 
   //====================================================================================================================
@@ -880,41 +888,235 @@ namespace Cantera {
   /*
    *  the calls the doCauchySolve() and doNewtonSolve() are done at the main level
    */
-  void NonlinearSolver::setupDoubleDogleg()
+  void NonlinearSolver::setupDoubleDogleg(double * newtDir)
   {
-   
-    for (int i = 0; i < neq_; i++) {
-      //      m_wksp[i] = Nuu_ * stepNewton_[i] - descentCauchy_[i];
-    }
-    
+    /*
+     *  Gamma =                  ||grad f ||**4
+     *         ---------------------------------------------
+     *           (grad f)T H (grad f)  (grad f)T H-1 (grad f)
+     */
+    // doublereal sumG = 0.0;
+    // doublereal sumH = 0.0;
+    //    for (int i = 0; i < neq_; i++) {
+    //  sumG =  deltax_cp_[i] *  deltax_cp_[i];
+    //   sumH =  deltax_cp_[i] *  newtDir[i];
+    //  }
+    // double  fac1 = sumG / lambda_;
+    // double  fac2 = sumH / lambda_;
+    // double  gamma = fac1 / fac2;
+    // double   gamma =  m_normDeltaSoln_CP / m_normDeltaSoln_Newton;
+    /*
+     * This hasn't worked. so will do it heuristically. One issue is that the newton
+     * direction is not the inverse of the Hessian times the gradient. The Hession
+     * is the matrix squared. Until I have the inverse of the Hessian from QR factorization
+     * I may not be able to do it this way.
+     */
 
-    double   gamma =  m_normDeltaSoln_CP / m_normDeltaSoln_Newton;
+    /*
+     *  Heuristic algorithm - Find out where on the Newton line the residual is the same
+     *                        as the residual at the cauchy point. Then, go halfway to
+     *                        the newton point and call that Nuu.
+     *                        Maybe we need to check that the linearized residual is
+     *                        monotonic along that line. However, we haven't needed to yet.
+     */
+    double residSteepLin = expectedResidLeg(0, 1.0);
+    double Nres2CP = residSteepLin * residSteepLin * neq_;
+    double Nres2_o = m_normResid0 * m_normResid0 * neq_;
+    double a = Nres2CP /  Nres2_o;
+    double betaEqual = (2.0 - sqrt(4.0 - 4 * (1.0 - a))) / 2.0;
+    double  beta = (1.0 + betaEqual) / 2.0;
 
-    
-    Nuu_ = 0.8 * gamma + 0.2;
+
+    Nuu_ = beta;
+
+    // put in a loop here to test derivative.
+
 
     dist_R0_ = m_normDeltaSoln_CP;
     dist_R1_ = solnErrorNorm( DATA_PTR(m_wksp));
     dist_R2_ = (1.0 - Nuu_) * m_normDeltaSoln_Newton;
     dist_Total_ = dist_R0_ + dist_R1_ + dist_R2_;
 
+    /*
+     * Calculate the trust distances
+     */
+    
 
   } 
   //====================================================================================================================
-  double NonlinearSolver::expectedResid(double lambda) {
+  int NonlinearSolver::lambdaToLeg(const double lambda, double &alpha) const {
+
     if (lambda < dist_R0_ / dist_Total_) {
+      alpha = lambda * dist_Total_ / dist_R0_;
+      return 0;
+    } else if (lambda < ((dist_R0_ + dist_R1_)/ dist_Total_)) {
+      alpha = (lambda * dist_Total_ - dist_R0_) / dist_R1_;
+      return 1;
+    } 
+    alpha = (lambda * dist_Total_ - dist_R0_ - dist_R1_) / dist_R2_;
+    return 2;
+  }
+  //====================================================================================================================
+  double NonlinearSolver::expectedResidLeg(int leg, double alpha) const {
+
+    double resD2, res2, resNorm;
+    double normResid02 = m_normResid0 * m_normResid0 * neq_;
+
+    if (leg == 0) {
       /*
        * We are on the steepest descent line
+       *  along that line 
+       *   R2 = R2 + 2 lambda R dot Jd + lambda**2 Jd dot Jd
        */
-      
 
-    } else if (lambda < ((dist_R0_ + dist_R1_)/ dist_Total_)) {
+      double tmp = - 2.0 * alpha + alpha * alpha;
+      double tmp2 = - RJd_norm_ * lambda_;
+      resD2 = tmp2 * tmp;
+
+    } else if (leg == 1) {
+
+ 
+      double tmp2 = - RJd_norm_ * lambda_;
+      resD2 =- tmp2;
+
+      double res2 = m_normResid0 * m_normResid0 * neq_ + resD2;
+      double resCP;
+      if (res2 < 0.0) {
+	resCP =  m_normResid0 - sqrt(resD2/neq_);
+      } else {
+	resCP = sqrt(res2 / neq_);
+      }
+      
+      double beta = Nuu_;
+      double tmpN2 =  normResid02;
+      double tmpN = 1.0 - 2.0 * beta + 1.0 * beta * beta - 1.0;
+      double resNu2 = tmpN * tmpN2;
+      res2 = m_normResid0 * m_normResid0 * neq_ + resNu2;    
+      double resNuu;
+      if (res2 < 0.0) {
+	resNuu =  m_normResid0 - sqrt(res2/neq_);
+      } else {
+	resNuu = sqrt(res2 / neq_);
+      }
+      resNorm = resCP + alpha * (resNuu - resCP);
+      return resNorm;
+
 
     } else {
-      
+      double beta = Nuu_ + alpha * (1.0 - Nuu_);
+      double tmp2 =  normResid02;
+      double tmp = 1.0 - 2.0 * beta + 1.0 * beta * beta - 1.0;
+      resD2 = tmp * tmp2;
     }
 
-    return 0.0;
+    res2 = m_normResid0 * m_normResid0 * neq_ + resD2;
+    if (res2 < 0.0) {
+      resNorm =  m_normResid0 - sqrt(resD2/neq_);
+    } else {
+      resNorm = sqrt(res2 / neq_);
+    }
+      
+    return resNorm;
+
+  } 
+  //====================================================================================================================
+  //  Here we print out the residual at various points along the double dogleg, comparing against the quadratic model
+
+  void NonlinearSolver::residualComparisonLeg(const double time_curr, const double *ydot0, 
+					      const double *ydot1, const double *newtDir)  {
+    double *y1 = DATA_PTR(m_wksp);
+    double sLen;
+    printf("     residualComparisonLeg() \n");
+    printf("  Point    StepLen   Residual_Actual  Residual_Linear   RelativeMatch\n");
+    // First compare at 1/4 along SD curve
+    std::vector<double> alphaT;
+    alphaT.push_back(0.00);
+    alphaT.push_back(0.01);
+    alphaT.push_back(0.1);
+    alphaT.push_back(0.25);
+    alphaT.push_back(0.50);
+    alphaT.push_back(0.75);
+    alphaT.push_back(1.0);
+    for (int iteration = 0; iteration < (int) alphaT.size(); iteration++) {
+      double alpha = alphaT[iteration];
+      for (int i = 0; i < neq_; i++) {
+	y1[i] = m_y_n[i] + alpha * deltax_cp_[i];
+      }
+      sLen = alpha * solnErrorNorm(DATA_PTR(deltax_cp_));
+      /*
+       *  Calculate the residual that would result if y1[] were the new solution vector
+       *  -> m_resid[] contains the result of the residual calculation
+       */
+      if (solnType_ != NSOLN_TYPE_STEADY_STATE) {
+	doResidualCalc(time_curr, solnType_, y1, ydot1, Base_LaggedSolutionComponents);
+      } else {
+	doResidualCalc(time_curr, solnType_, y1, ydot0, Base_LaggedSolutionComponents);
+      }  
+
+
+      double residSteep = residErrorNorm(DATA_PTR(m_resid));
+      double residSteepLin = expectedResidLeg(0, alpha);
+
+      double relFit = (residSteep - residSteepLin) / (fabs(residSteepLin) + 1.0E-10);
+ 
+      printf("  (%2d - % 10.3g)  % 15.8E  % 15.8E % 15.8E  % 15.8E\n", 0, alpha, sLen, residSteep, residSteepLin , relFit);
+    }
+
+    for (int iteration = 0; iteration < (int) alphaT.size(); iteration++) {
+      double alpha = alphaT[iteration];
+      for (int i = 0; i < neq_; i++) {
+	y1[i] = m_y_n[i] + (1.0 - alpha) * deltax_cp_[i];
+	y1[i] += alpha * Nuu_ * newtDir[i];
+      }
+      /*
+       *  Calculate the residual that would result if y1[] were the new solution vector
+       *  -> m_resid[] contains the result of the residual calculation
+       */
+      if (solnType_ != NSOLN_TYPE_STEADY_STATE) {
+	doResidualCalc(time_curr, solnType_, y1, ydot1, Base_LaggedSolutionComponents);
+      } else {
+	doResidualCalc(time_curr, solnType_, y1, ydot0, Base_LaggedSolutionComponents);
+      }  
+
+      for (int i = 0; i < neq_; i++) {
+	y1[i] -= m_y_n[i];
+      }
+      sLen = solnErrorNorm(DATA_PTR(y1));
+
+      double residSteep = residErrorNorm(DATA_PTR(m_resid));
+      double residSteepLin = expectedResidLeg(1, alpha);
+
+      double relFit = (residSteep - residSteepLin) / (fabs(residSteepLin) + 1.0E-10);
+ 
+      printf("  (%2d - % 10.3g) % 15.8E   % 15.8E  % 15.8E  % 15.8E\n", 1, alpha, sLen,  residSteep, residSteepLin , relFit);
+    }
+
+    for (int iteration = 0; iteration < (int) alphaT.size(); iteration++) {
+      double alpha = alphaT[iteration];
+      for (int i = 0; i < neq_; i++) {
+	y1[i] = m_y_n[i] + ( Nuu_ + alpha * (1.0 - Nuu_))* newtDir[i];
+      }
+      sLen = ( Nuu_ + alpha * (1.0 - Nuu_)) * solnErrorNorm(DATA_PTR(newtDir));
+      /*
+       *  Calculate the residual that would result if y1[] were the new solution vector
+       *  -> m_resid[] contains the result of the residual calculation
+       */
+      if (solnType_ != NSOLN_TYPE_STEADY_STATE) {
+	doResidualCalc(time_curr, solnType_, y1, ydot1, Base_LaggedSolutionComponents);
+      } else {
+	doResidualCalc(time_curr, solnType_, y1, ydot0, Base_LaggedSolutionComponents);
+      }  
+
+
+
+      double residSteep = residErrorNorm(DATA_PTR(m_resid));
+      double residSteepLin = expectedResidLeg(2, alpha);
+
+      double relFit = (residSteep - residSteepLin) / (fabs(residSteepLin) + 1.0E-10);
+ 
+      printf("  (%2d - % 10.3g)  % 15.8E % 15.8E  % 15.8E  % 15.8E\n", 2, alpha, sLen, residSteep, residSteepLin , relFit);
+    }
+
 
   }
 
@@ -1593,15 +1795,16 @@ namespace Cantera {
       }
       
 #ifdef DEBUG_DOGLEG
-      m_normSolnCP = doCauchyPointSolve(jac);
+      m_normDeltaSoln_CP = doCauchyPointSolve(jac);
 #endif
 
       // compute the undamped Newton step
-      info = doNewtonSolve(time_curr, DATA_PTR(m_y_n), DATA_PTR(ydot_curr), DATA_PTR(stp), jac, m_print_flag);
+      info = doNewtonSolve(time_curr, DATA_PTR(m_y_n), DATA_PTR(ydot_curr), DATA_PTR(deltaX_Newton_), jac, m_print_flag);
       if (info) {
 	m = -1;
 	goto done;
       }
+      mdp::mdp_copy_dbl_1(DATA_PTR(stp), CONSTD_DATA_PTR(deltaX_Newton_), neq_);
 
       if (m_print_flag > 3) {
 	m_normDeltaSoln_Newton = solnErrorNorm(DATA_PTR(stp),  "Initial Undamped Step of the iteration", 10);
@@ -1629,6 +1832,9 @@ namespace Cantera {
       
 #ifdef DEBUG_DOGLEG
       descentComparison(time_curr, DATA_PTR(ydot_curr), DATA_PTR(ydot_new), DATA_PTR(stp));
+      setupDoubleDogleg(DATA_PTR(stp));
+      residualComparisonLeg(time_curr, DATA_PTR(ydot_curr), DATA_PTR(ydot_new), DATA_PTR(stp));
+
 #endif   
   
       // Damp the Newton step
@@ -1711,7 +1917,7 @@ namespace Cantera {
 
       // Exchange new for curr solutions
       if (m >= 0) {
-	mdp::mdp_copy_dbl_1(DATA_PTR(m_y_n), DATA_PTR(y_new), neq_);
+	mdp::mdp_copy_dbl_1(DATA_PTR(m_y_n), CONSTD_DATA_PTR(y_new), neq_);
 
 	if (solnType_ != NSOLN_TYPE_STEADY_STATE) {
 	  calc_ydot(m_order, DATA_PTR(m_y_n), DATA_PTR(ydot_curr));
@@ -1764,9 +1970,9 @@ namespace Cantera {
     }
     
 
-    mdp::mdp_copy_dbl_1(y_comm, DATA_PTR(m_y_n), neq_);
+    mdp::mdp_copy_dbl_1(y_comm, CONSTD_DATA_PTR(m_y_n), neq_);
     if (solnType_ != NSOLN_TYPE_STEADY_STATE) {
-      mdp::mdp_copy_dbl_1(ydot_comm, DATA_PTR(ydot_curr), neq_);
+      mdp::mdp_copy_dbl_1(ydot_comm, CONSTD_DATA_PTR(ydot_curr), neq_);
     }
  
     num_linear_solves += m_numTotalLinearSolves;
