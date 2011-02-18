@@ -139,7 +139,7 @@ namespace Cantera {
      *  @return Returns the L2 norm of the delta
      */
     doublereal solnErrorNorm(const doublereal * const delta_y,  const char * title = 0, int printLargest = 0, 
-			 const doublereal dampFactor = 1.0);
+			 const doublereal dampFactor = 1.0) const;
 
     //! L2 norm of the residual of the equation system
     /*!
@@ -247,6 +247,7 @@ namespace Cantera {
      * @param deltaX  Current value of deltaX
      */
     doublereal calcTrustDistance(std::vector<doublereal> const & deltaX) const;
+
   public:
     //! Bound the step
     /*!
@@ -555,8 +556,28 @@ namespace Cantera {
      */
     void descentComparison(double time_curr ,double *ydot0, double *ydot1, const double *newtDir);
 
-    void setupDoubleDogleg();
-    double expectedResid(double lambda);
+    void setupDoubleDogleg(double *newtDir);
+
+    //! Change the global lambda coordinate into the (leg,alpha) coordinate for the double dogleg
+    /*!
+     * @param lambda Global value of the distance along the double dogleg
+     * @param alpha  relative value along the particular leg
+     *
+     * @return Returns the leg number ( 0, 1, or 2).
+     */
+    int lambdaToLeg(const double lambda, double &alpha) const;
+
+    //! Calculated the expected residual along the double dogleg curve. 
+    /*!
+     *  @param leg 0, 1, or 2 representing the curves of the dogleg
+     *  @param alpha  Relative distance along the particular curve.
+     *
+     *  @return Returns the expected value of the residual at that point according to the quadratic model.
+     *          The residual at the newton point will always be zero.
+     */
+    double expectedResidLeg(int leg, doublereal alpha) const;
+
+    void residualComparisonLeg(const double time_curr, const double *ydot0, const double *ydot1, const double *newtDir);
 
     //! Set the print level from the rootfinder
     /*!
@@ -575,6 +596,11 @@ namespace Cantera {
      */
     void setPrintLvl(int printLvl);
 
+    /*
+     * -----------------------------------------------------------------------------------------------------------------
+     *              MEMBER DATA
+     * ------------------------------------------------------------------------------------------------
+     */
  private:
 
     //! Pointer to the residual and jacobian evaluator for the 
@@ -632,7 +658,7 @@ namespace Cantera {
     std::vector<doublereal> m_resid;
 
     //! Workspace of length neq_
-    std::vector<doublereal> m_wksp;
+    mutable std::vector<doublereal> m_wksp;
 
     /*****************************************************************************************
      *        INTERNAL WEIGHTS FOR TAKING SOLUTION NORMS
@@ -652,8 +678,6 @@ namespace Cantera {
     //! Norm of the solution update created by the iteration in its raw, undamped form.
     doublereal m_normDeltaSoln_Newton;
 
-
-    //! Norm of the solution update created by the iteration in its raw, undamped form.
     doublereal m_normDeltaSoln_CP;
 
     //! Norm of the residual for a trial calculation which may or may not be used
@@ -686,6 +710,10 @@ namespace Cantera {
 
     //! Counter for the total number of function evaluations
     int m_nfe;
+
+    /***********************************************************************************************
+     *             MATRIX INFORMATION
+     **************************************************************************************/
 
     //! The type of column scaled used in the solution of the problem
     /*!
@@ -739,8 +767,8 @@ namespace Cantera {
     //! Base value of the absolute tolerance
     doublereal atolBase_;
 
-    //! Vector containing the solution derivative at the previous time step
-    doublereal *  m_ydot_nm1;
+    //! Pointer containing the solution derivative at the previous time step
+    doublereal *m_ydot_nm1;
 
     //! absolute tolerance in the solution unknown
     /*!
@@ -768,8 +796,18 @@ namespace Cantera {
     //! Copy of the jacobian that doesn't get overwritten when the inverse is determined
     Cantera::SquareMatrix jacCopy_;
 
+    /*********************************************************************************************
+     *      VARIABLES ASSOCIATED WITH STEPS AND ASSOCIATED DOUBLE DOGLEG PARAMETERS
+     *********************************************************************************************/
+
     //!  Steepest descent direction. This is also the distance to the Cauchy Point
-    std::vector<doublereal> descentDir_;
+    std::vector<doublereal> deltax_cp_;
+
+    //! Newton Step - This is the newton step determined from the straight Jacobian
+    /*
+     *  Newton step for the current step only
+     */
+    std::vector<doublereal> deltaX_Newton_;
 
     //! Expected value of the residual norm at the Cauchy point
     doublereal residNorm2Cauchy_;
@@ -790,14 +828,18 @@ namespace Cantera {
     //! calculate the max step size.
     doublereal trustDelta_;
 
+    //! Relative distance down the Newton step that the second dogleg starts
     doublereal Nuu_;
 
     doublereal dist_R0_;
     doublereal dist_R1_;
     doublereal dist_R2_;
     doublereal dist_Total_;
-    doublereal m_normSolnCP;
+    doublereal JdJd_norm_;
 
+    /*******************************************************************************************
+     *      OTHER COUNTERS
+     *****************************************************************************************/
 
 
   public:
