@@ -67,6 +67,10 @@ dorml2.o \
 dormlq.o \
 dormqr.o \
 drscl.o \
+dtrtrs.o \
+dgerfs.o \
+dgecon.o \
+dgeequ.o \
 ilaenv.o 
 
 #SRCS = $(OBJS:.o=.cpp)

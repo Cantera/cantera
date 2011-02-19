@@ -127,15 +127,22 @@ namespace Cantera {
     m_print_flag(0),
     m_ScaleSolnNormToResNorm(0.001),
     jacCopy_(0),
-    deltax_cp_(0),
+    deltaX_CP_(0),
     deltaX_Newton_(0),
     residNorm2Cauchy_(0.0),
     RJd_norm_(0.0),
     lambda_(0.0),
     Jd_(0),
-    trustDeltaX_(0),
-    trustDelta_(1.0)
-
+    deltaX_trust_(0),
+    trustDelta_(1.0),
+    Nuu_(0.0),
+    dist_R0_(0.0),
+    dist_R1_(0.0),
+    dist_R2_(0.0),
+    dist_Total_(0.0),
+    JdJd_norm_(0.0),
+    normTrust_Newton_(0.0),
+    normTrust_CP_(0.0)
   {
     neq_ = m_func->nEquations();
 
@@ -164,9 +171,9 @@ namespace Cantera {
 
 #ifdef DEBUG_DOGLEG
     jacCopy_.resize(neq_, neq_, 0.0);
-    deltax_cp_.resize(neq_, 0.0);
+    deltaX_CP_.resize(neq_, 0.0);
     Jd_.resize(neq_, 0.0);
-    trustDeltaX_.resize(neq_, 1.0);
+    deltaX_trust_.resize(neq_, 1.0);
 #endif
 
   }
@@ -217,14 +224,22 @@ namespace Cantera {
     m_print_flag(0),
     m_ScaleSolnNormToResNorm(0.001),
     jacCopy_(0),
-    deltax_cp_(0),
+    deltaX_CP_(0),
     deltaX_Newton_(0),
     residNorm2Cauchy_(0.0),
     RJd_norm_(0.0),
     lambda_(0.0),
     Jd_(0),
-    trustDeltaX_(0),
-    trustDelta_(1.0)
+    deltaX_trust_(0),
+    trustDelta_(1.0),
+    Nuu_(0.0),
+    dist_R0_(0.0),
+    dist_R1_(0.0),
+    dist_R2_(0.0),
+    dist_Total_(0.0),
+    JdJd_norm_(0.0),
+    normTrust_Newton_(0.0),
+    normTrust_CP_(0.0)
   {
     *this =operator=(right);
   }
@@ -285,14 +300,23 @@ namespace Cantera {
     m_ScaleSolnNormToResNorm   = right.m_ScaleSolnNormToResNorm;
 
     jacCopy_                   = right.jacCopy_;
-    deltax_cp_                 = right.deltax_cp_;
+    deltaX_CP_                 = right.deltaX_CP_;
     deltaX_Newton_             = right.deltaX_Newton_;
     RJd_norm_                  = right.RJd_norm_;
     lambda_                    = right.lambda_;
     Jd_                        = right.Jd_;
-    trustDeltaX_               = right.trustDeltaX_;	
+    deltaX_trust_              = right.deltaX_trust_;	
     trustDelta_                = right.trustDelta_;
-  
+
+    Nuu_                       = right.Nuu_;
+    dist_R0_                   = right.dist_R0_;
+    dist_R1_                   = right.dist_R1_;
+    dist_R2_                   = right.dist_R2_;
+    dist_Total_                = right.dist_Total_;
+    JdJd_norm_                 = right.JdJd_norm_;
+    normTrust_Newton_          = right.normTrust_Newton_;
+    normTrust_CP_              = right.normTrust_CP_;
+
     return *this;
   }
   //====================================================================================================================
@@ -765,7 +789,7 @@ namespace Cantera {
      * 
      */
     for (int j = 0; j < neq_; j++) {
-      deltax_cp_[j] = 0.0;
+      deltaX_CP_[j] = 0.0;
       double colFac = 1.0;
       if (m_colScaling) {
 	colFac = 1.0 / m_colScales[j];
@@ -774,7 +798,7 @@ namespace Cantera {
 	if (m_rowScaling) {
 	  rowFac = 1.0 / m_rowScales[i];
 	}
-        deltax_cp_[j] -= m_resid[i] * jac.value(i,j) * colFac * rowFac * m_ewt[j] * m_ewt[j] 
+        deltaX_CP_[j] -= m_resid[i] * jac.value(i,j) * colFac * rowFac * m_ewt[j] * m_ewt[j] 
                 	  / (m_residWts[i] * m_residWts[i]);
       }
     }
@@ -786,7 +810,7 @@ namespace Cantera {
 	rowFac = 1.0;
       }
       for (int j = 0; j < neq_; j++) {
-	Jd_[i] += deltax_cp_[j] * jac.value(i,j) * rowFac/ m_residWts[i];
+	Jd_[i] += deltaX_CP_[j] * jac.value(i,j) * rowFac/ m_residWts[i];
       }
     }
 
@@ -799,7 +823,7 @@ namespace Cantera {
     lambda_ = - RJd_norm_ / (JdJd_norm_);
 
     for (int i = 0; i < neq_; i++) {
-      deltax_cp_[i] *= lambda_;
+      deltaX_CP_[i] *= lambda_;
     }
 
     residNorm2Cauchy_ = m_normResid0 * m_normResid0 - RJd_norm_ * RJd_norm_ / (JdJd_norm_);
@@ -814,7 +838,7 @@ namespace Cantera {
       }
       
       // Compute the weighted norm of the undamped step size descentDir_[]
-      normSoln = solnErrorNorm(DATA_PTR(deltax_cp_), "SteepestDescentDir", 10);
+      normSoln = solnErrorNorm(DATA_PTR(deltaX_CP_), "SteepestDescentDir", 10);
      
       printf("\t\t\tdoCauchyPointSolve: Steepest descent to Cauchy point: \n");
       printf("\t\t\t      R0     = %g \n", m_normResid0);
@@ -832,9 +856,9 @@ namespace Cantera {
     int info;
     double ff = 1.0E-5;
     double *y1 = DATA_PTR(m_wksp);
-    double s1 = solnErrorNorm(DATA_PTR(deltax_cp_));
+    double s1 = solnErrorNorm(DATA_PTR(deltaX_CP_));
     for (int i = 0; i < neq_; i++) {
-      y1[i] = m_y_n[i] + ff * deltax_cp_[i];
+      y1[i] = m_y_n[i] + ff * deltaX_CP_[i];
     }
     /*
      *  Calculate the residual that would result if y1[] were the new solution vector
@@ -940,7 +964,9 @@ namespace Cantera {
     /*
      * Calculate the trust distances
      */
-    
+    normTrust_Newton_ = calcTrustDistance(deltaX_Newton_);
+
+    normTrust_CP_ = calcTrustDistance(deltaX_CP_);
 
   } 
   //====================================================================================================================
@@ -1040,9 +1066,9 @@ namespace Cantera {
     for (int iteration = 0; iteration < (int) alphaT.size(); iteration++) {
       double alpha = alphaT[iteration];
       for (int i = 0; i < neq_; i++) {
-	y1[i] = m_y_n[i] + alpha * deltax_cp_[i];
+	y1[i] = m_y_n[i] + alpha * deltaX_CP_[i];
       }
-      sLen = alpha * solnErrorNorm(DATA_PTR(deltax_cp_));
+      sLen = alpha * solnErrorNorm(DATA_PTR(deltaX_CP_));
       /*
        *  Calculate the residual that would result if y1[] were the new solution vector
        *  -> m_resid[] contains the result of the residual calculation
@@ -1065,7 +1091,7 @@ namespace Cantera {
     for (int iteration = 0; iteration < (int) alphaT.size(); iteration++) {
       double alpha = alphaT[iteration];
       for (int i = 0; i < neq_; i++) {
-	y1[i] = m_y_n[i] + (1.0 - alpha) * deltax_cp_[i];
+	y1[i] = m_y_n[i] + (1.0 - alpha) * deltaX_CP_[i];
 	y1[i] += alpha * Nuu_ * newtDir[i];
       }
       /*
@@ -1270,15 +1296,15 @@ namespace Cantera {
     double fabsy;
     // we use the old value of the trust region as an indicator
     for (int i = 0; i < neq_; i++) {
-      oldVal = trustDeltaX_[i];
+      oldVal = deltaX_trust_[i];
       fabsy = fabs(m_y_n[i]);
       // First off make sure that each trust region vector is 1/2 the size of each variable or smaller
       // unless overridden by the deltaStepMininum value. 
       if (oldVal > 0.5 * fabsy) {
 	if (fabsy > m_deltaStepMinimum[i]) {
-	  trustDeltaX_[i] = 0.5 * fabsy;
+	  deltaX_trust_[i] = 0.5 * fabsy;
 	} else {
-	  trustDeltaX_[i] = m_deltaStepMinimum[i];
+	  deltaX_trust_[i] = m_deltaStepMinimum[i];
 	}
       } else {
         double newValue =  trustDeltaEach * m_ewt[i] / wtSum;
@@ -1287,9 +1313,9 @@ namespace Cantera {
 	} else if (newValue < 0.5 * oldVal) {
 	  newValue = 0.5 * oldVal;
 	}
-	trustDeltaX_[i] = newValue;
-	if (trustDeltaX_[i] > 0.75 * m_deltaStepMaximum[i]) {
-	  trustDeltaX_[i] = m_deltaStepMaximum[i];
+	deltaX_trust_[i] = newValue;
+	if (deltaX_trust_[i] > 0.75 * m_deltaStepMaximum[i]) {
+	  deltaX_trust_[i] = m_deltaStepMaximum[i];
 	}
       }
     }
@@ -1298,10 +1324,10 @@ namespace Cantera {
     // Final renormalization. 
     double sum = 0.0;
     for (int i = 0; i < neq_; i++) {
-      sum += trustDeltaX_[i];
+      sum += deltaX_trust_[i];
     }
     for (int i = 0; i < neq_; i++) {
-      trustDeltaX_[i] = trustDelta_ / sum;
+      deltaX_trust_[i] = deltaX_trust_[i] / sum;
     }
     trustDelta_ = 1.0;
     
@@ -1312,11 +1338,50 @@ namespace Cantera {
     doublereal sum = 0.0;
     doublereal tmp = 0.0;
     for (int i = 0; i < neq_; i++) {
-      tmp = deltaX[i] / trustDeltaX_[i];
+      tmp = deltaX[i] / deltaX_trust_[i];
       sum += tmp * tmp;
     }
     sum = sqrt(sum / neq_);
     return sum;
+  }
+  //====================================================================================================================
+  int  NonlinearSolver::calcTrustIntersection(double trustDelta, double &lambda, double &alpha) const
+  {
+    double dist;
+    if (normTrust_Newton_ < trustDelta) {
+      lambda = 1.0;
+      alpha = 1.0;
+      return 2;
+    }
+   
+    if (normTrust_Newton_ * Nuu_ > trustDelta) {
+      alpha =  (trustDelta - normTrust_Newton_ * Nuu_) / (normTrust_Newton_ - normTrust_Newton_ * Nuu_);
+      dist = dist_R0_ + dist_R1_ + alpha * dist_R2_;
+      lambda = dist / dist_Total_;
+      return 2;
+    }
+    if (normTrust_CP_ > trustDelta) {
+      lambda = 1.0;
+      dist = dist_R0_ * trustDelta / normTrust_CP_;
+      lambda = dist / dist_Total_;
+      alpha = trustDelta / normTrust_CP_;
+      return 0;
+    }
+    double sumv = 0.0;
+    for (int i = 0; i < neq_; i++) {
+      sumv += (deltaX_Newton_[i] / deltaX_trust_[i]) * (deltaX_CP_[i] / deltaX_trust_[i]);
+    }
+
+    double a = normTrust_Newton_ * normTrust_Newton_ * Nuu_ * Nuu_;
+    double b = 2.0 * Nuu_ * sumv;
+    double c = normTrust_CP_ *  normTrust_CP_  - trustDelta * trustDelta;
+
+    alpha =( -b + sqrt( b * b - 4.0 * a * c)) / (2.0 * a);
+    // alpha = (trustDelta - normTrust_CP_) / (normTrust_Newton_ * Nuu_ - normTrust_CP_);
+
+    dist = dist_R0_ + alpha * dist_R1_;
+    lambda = dist / dist_Total_;
+    return 1; 
   }
   //====================================================================================================================  
   /*
@@ -1624,6 +1689,50 @@ namespace Cantera {
       printf("\t  dampStep(): current direction is rejected! retnTrial = %d, its = %d, damp = %g\n", -2, m+1, ff);
     }
     return -2;
+  }
+
+  //====================================================================================================================
+
+  int NonlinearSolver::dampDogLeg(const doublereal time_curr, const double* y0, 
+				  const doublereal *ydot0, const double* step0, 
+				  double* const y1, double* const ydot1, double* step1,
+				  double& s1, SquareMatrix& jac, int& loglevel, bool writetitle,
+				  int& num_backtracks) 
+  {
+    double lambda;
+    double alpha;
+  
+    //--------------------------------------------
+    //           Attempt damped step
+    //-------------------------------------------- 
+
+    // damping coefficient starts at 1.0
+    m_dampRes = 1.0;
+    int j, m;
+    doublereal ff =  m_dampBound;
+    num_backtracks = 0;
+
+    /*
+     *  Find the initial value of lambda that satisfies the trust distance
+     */
+    int leg = calcTrustIntersection(trustDelta_, lambda, alpha);
+
+    for (m = 0; m < NDAMP; m++) {
+
+
+      
+
+
+
+
+
+
+
+
+
+
+    }
+
   }
   //====================================================================================================================
   /*

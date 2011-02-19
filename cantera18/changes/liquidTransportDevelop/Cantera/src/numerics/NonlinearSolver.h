@@ -248,6 +248,7 @@ namespace Cantera {
      */
     doublereal calcTrustDistance(std::vector<doublereal> const & deltaX) const;
 
+    int  calcTrustIntersection(double trustDelta, double &lambda, double &alpha) const;
   public:
     //! Bound the step
     /*!
@@ -567,6 +568,14 @@ namespace Cantera {
      */
     int lambdaToLeg(const double lambda, double &alpha) const;
 
+    int calcTrustIntersection(double trustVal, const double &lambda, double &alpha) const;
+
+    int dampDogLeg(const doublereal time_curr, const double* y0, 
+				  const doublereal *ydot0, const double* step0, 
+				  double* const y1, double* const ydot1, double* step1,
+				  double& s1, SquareMatrix& jac, int& loglevel, bool writetitle,
+				  int& num_backtracks);
+
     //! Calculated the expected residual along the double dogleg curve. 
     /*!
      *  @param leg 0, 1, or 2 representing the curves of the dogleg
@@ -801,7 +810,7 @@ namespace Cantera {
      *********************************************************************************************/
 
     //!  Steepest descent direction. This is also the distance to the Cauchy Point
-    std::vector<doublereal> deltax_cp_;
+    std::vector<doublereal> deltaX_CP_;
 
     //! Newton Step - This is the newton step determined from the straight Jacobian
     /*
@@ -822,7 +831,7 @@ namespace Cantera {
     std::vector<doublereal> Jd_;
 
     //! Vector of trust region values.
-    std::vector<doublereal> trustDeltaX_;
+    std::vector<doublereal> deltaX_trust_;
 
     //! Current value of trust radius. This is used with trustDeltaX_ to 
     //! calculate the max step size.
@@ -836,6 +845,14 @@ namespace Cantera {
     doublereal dist_R2_;
     doublereal dist_Total_;
     doublereal JdJd_norm_;
+
+    //! Norm of the Newton Step wrt trust region
+    doublereal normTrust_Newton_;
+
+    //! Norm of the Cauchy Step direction wrt trust region
+    doublereal normTrust_CP_;
+
+
 
     /*******************************************************************************************
      *      OTHER COUNTERS

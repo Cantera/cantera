@@ -120,6 +120,16 @@ namespace Cantera {
       m_data.resize(n*m, v);
     }
 
+    //! Copy the data from one array into another without doing any checking
+    /*!
+     *  This differs from the assignment operator as no resizing is done and memcpy() is used.
+     *  @param y Array to be copied
+     */ 
+    void copyData(const Array2D& y) {
+      size_t n = sizeof(doublereal) * m_nrows * m_ncols;
+      (void) memcpy(DATA_PTR(m_data), y.ptrColumn(0), n);
+    }
+
     //! Append a column to the existing matrix using a std vector
     /*!
      *  This operation will add a column onto the existing matrix.

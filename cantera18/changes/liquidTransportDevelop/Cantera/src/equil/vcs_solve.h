@@ -7,7 +7,7 @@
  * $Id$
  */
 /*
- * Copywrite (2005) Sandia Corporation. Under the terms of 
+ *_ Copywrite (2005) Sandia Corporation. Under the terms of 
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -2072,6 +2072,8 @@ public:
    *                           3:  Pa
    */
   int m_VCS_UnitsFormat;
+
+  friend class vcs_phaseStabilitySolve;
 
 }; 
 
