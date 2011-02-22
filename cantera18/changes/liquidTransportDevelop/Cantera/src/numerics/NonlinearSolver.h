@@ -208,6 +208,13 @@ namespace Cantera {
 		      const doublereal * const ydot_curr, doublereal * const delta_y,
 		      SquareMatrix& jac, int loglevel);
 
+    //! Calculate the size of the current trust region
+    /*!
+     *  We carry out a norm of deltaX_trust_ first. Then, we multiply that value
+     *  by trustDelta_
+     */
+    double trustRegionLength() const;
+
     //! Set default deulta bounds amounts
     /*!
      *     Delta bounds are set to 0.01 for all unknowns arbitrarily and capriciously
@@ -262,7 +269,6 @@ namespace Cantera {
 
 
 
-    int  calcTrustIntersection(double trustDelta, double &lambda, double &alpha) const;
   public:
     //! Bound the step
     /*!
@@ -582,7 +588,9 @@ namespace Cantera {
      */
     int lambdaToLeg(const double lambda, double &alpha) const;
 
-    int calcTrustIntersection(double trustVal, const double &lambda, double &alpha) const;
+    int calcTrustIntersection(double trustVal, double &lambda, double &alpha) const;
+
+    void initializeTrustRegion();
 
     int dampDogLeg(const doublereal time_curr, const double* y0, 
 				  const doublereal *ydot0,  std::vector<doublereal> & step0,
@@ -622,6 +630,15 @@ namespace Cantera {
      *  @param printLvl  integer value
      */
     void setPrintLvl(int printLvl);
+
+    //! Parameter to turn on solution solver schemes
+    /*!
+     *     @param doDogLeg Parameter to turn on the double dog leg scheme
+     *                     Default is to always use a damping scheme in the Newton Direction.
+     *                     When this is nonzero, a model trust region approach is used using a double dog leg
+     *                     with the steepest descent direction used for small step sizes.
+     */
+    void setSolverScheme(int doDogLeg = 0);
 
     /*
      * -----------------------------------------------------------------------------------------------------------------
@@ -869,6 +886,10 @@ namespace Cantera {
 
     //! Norm of the Cauchy Step direction wrt trust region
     doublereal normTrust_CP_;
+
+
+    //! General toggle for turning on dog leg damping.
+    int doDogLeg_;
 
 
 
