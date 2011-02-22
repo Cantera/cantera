@@ -983,6 +983,7 @@ namespace Cantera {
     return 2;
   }
   //====================================================================================================================
+  
   double NonlinearSolver::expectedResidLeg(int leg, double alpha) const {
 
     double resD2, res2, resNorm;
@@ -1001,32 +1002,23 @@ namespace Cantera {
 
     } else if (leg == 1) {
 
- 
+      /*
+       *  Same formula as above for lambda=1.
+       */
       double tmp2 = - RJd_norm_ * lambda_;
-      resD2 =- tmp2;
+      double RdotJS = - tmp2;
+      double JsJs =     tmp2;
 
-      double res2 = m_normResid0 * m_normResid0 * neq_ + resD2;
-      double resCP;
-      if (res2 < 0.0) {
-	resCP =  m_normResid0 - sqrt(resD2/neq_);
-      } else {
-	resCP = sqrt(res2 / neq_);
-      }
-      
-      double beta = Nuu_;
-      double tmpN2 =  normResid02;
-      double tmpN = 1.0 - 2.0 * beta + 1.0 * beta * beta - 1.0;
-      double resNu2 = tmpN * tmpN2;
-      res2 = m_normResid0 * m_normResid0 * neq_ + resNu2;    
-      double resNuu;
-      if (res2 < 0.0) {
-	resNuu =  m_normResid0 - sqrt(res2/neq_);
-      } else {
-	resNuu = sqrt(res2 / neq_);
-      }
-      resNorm = resCP + alpha * (resNuu - resCP);
+
+      double res0_2 = m_normResid0 * m_normResid0 * neq_;
+
+      res2 =  res0_2 + (1.0 - alpha) * 2 * RdotJS - 2 * alpha * Nuu_ * res0_2
+	+ (1.0 - alpha) * (1.0 - alpha) * JsJs
+	+ alpha * alpha * Nuu_ * Nuu_ * res0_2 
+	- 2 * alpha * Nuu_ * (1.0 - alpha) * RdotJS;
+
+      resNorm = sqrt(res2 / neq_);
       return resNorm;
-
 
     } else {
       double beta = Nuu_ + alpha * (1.0 - Nuu_);
@@ -1053,7 +1045,7 @@ namespace Cantera {
     double *y1 = DATA_PTR(m_wksp);
     double sLen;
     printf("     residualComparisonLeg() \n");
-    printf("  Point    StepLen   Residual_Actual  Residual_Linear   RelativeMatch\n");
+    printf("      Point               StepLen     Residual_Actual  Residual_Linear  RelativeMatch\n");
     // First compare at 1/4 along SD curve
     std::vector<double> alphaT;
     alphaT.push_back(0.00);
@@ -1333,6 +1325,40 @@ namespace Cantera {
     
   }
   //====================================================================================================================
+  // Fill a dogleg solution step vector
+  /*
+   *   Previously, we have filled up deltaX_Newton_[], deltaX_CP_[], and Nuu_, so that
+   *   this routine is straightforward.
+   *
+   *  @param leg      Leg of the dog leg you are on (0, 1, or 2)
+   *  @param alpha    Relative length along the dog length that you are on.
+   *  @param deltaX   Vector to be filled up
+   */
+  void  NonlinearSolver::fillDogLegStep(int leg, double alpha, std::vector<doublereal>  & deltaX) const {
+    if (leg == 0) {
+      for (int i = 0; i < neq_; i++) {
+	deltaX[i] = alpha * deltaX_CP_[i];
+      }
+    } else if (leg == 2) {
+      for (int i = 0; i < neq_; i++) {
+	deltaX[i] = (alpha + (1.0 - alpha) * Nuu_) * deltaX_Newton_[i];
+      }
+    } else {
+      for (int i = 0; i < neq_; i++) {
+	deltaX[i] = deltaX_CP_[i] * (1.0 - alpha) + alpha * Nuu_ * deltaX_Newton_[i];
+      }
+    }
+  }
+  //====================================================================================================================
+  // Calculate the trust distance of a step in the solution variables
+  /*
+   *  The trust distance is defined as the length of the step according to the norm wrt to the trust region.
+   *  We calculate the trust distance by the following method
+   *  
+   *      trustDist =  || delta_x   dot  1/trustDeltaX_ || 
+   *
+   * @param deltaX  Current value of deltaX
+   */
   doublereal  NonlinearSolver::calcTrustDistance(std::vector<doublereal> const & deltaX) const
   {
     doublereal sum = 0.0;
@@ -1354,7 +1380,7 @@ namespace Cantera {
       return 2;
     }
    
-    if (normTrust_Newton_ * Nuu_ > trustDelta) {
+    if (normTrust_Newton_ * Nuu_ < trustDelta) {
       alpha =  (trustDelta - normTrust_Newton_ * Nuu_) / (normTrust_Newton_ - normTrust_Newton_ * Nuu_);
       dist = dist_R0_ + dist_R1_ + alpha * dist_R2_;
       lambda = dist / dist_Total_;
@@ -1538,8 +1564,6 @@ namespace Cantera {
       
       if (solnType_ != NSOLN_TYPE_STEADY_STATE) {
 	calc_ydot(m_order, y1, ydot1);
-      } else {
-
       }
       /*
        *  Calculate the residual that would result if y1[] were the new solution vector
@@ -1694,14 +1718,20 @@ namespace Cantera {
   //====================================================================================================================
 
   int NonlinearSolver::dampDogLeg(const doublereal time_curr, const double* y0, 
-				  const doublereal *ydot0, const double* step0, 
-				  double* const y1, double* const ydot1, double* step1,
+				  const doublereal *ydot0, std::vector<doublereal> & step0,
+				  double* const y_new, double* const ydot_new, double* step1,
 				  double& s1, SquareMatrix& jac, int& loglevel, bool writetitle,
 				  int& num_backtracks) 
   {
     double lambda;
     double alpha;
-  
+    int info;
+    int leg = 2;
+    bool success = false;
+    int retn = 0;
+    bool haveASuccess = false;
+    double normResid02 = m_normResid0 * m_normResid0 * neq_;
+    double trustDeltaOld = trustDelta_;
     //--------------------------------------------
     //           Attempt damped step
     //-------------------------------------------- 
@@ -1711,28 +1741,170 @@ namespace Cantera {
     int j, m;
     doublereal ff =  m_dampBound;
     num_backtracks = 0;
+    double deltaSolnNorm = solnErrorNorm(DATA_PTR(deltaX_CP_));
+    double funcDecreaseSDExp = RJd_norm_ / deltaSolnNorm * lambda_;
+    bool goodStep = false;
 
-    /*
-     *  Find the initial value of lambda that satisfies the trust distance
-     */
-    int leg = calcTrustIntersection(trustDelta_, lambda, alpha);
+   
 
     for (m = 0; m < NDAMP; m++) {
+      /*
+       *  Find the initial value of lambda that satisfies the trust distance, trustDelta_
+       */
+      leg = calcTrustIntersection(trustDelta_, lambda, alpha);
+      /*
+       *  Figure out the new step vector, step0, based on (leg, alpha)
+       */
+      fillDogLegStep(leg, alpha, step0);
+    
+      /*
+       * OK, we have the step0. Now, ask the question whether it satisfies the acceptance criteria
+       * as a good step. Also, make sure that it stays within bounds.
+       */
+      info = decideStep(time_curr, leg, alpha, y0, ydot0,  step0, y_new, ydot_new,  loglevel, trustDeltaOld);
 
+      /*
+       *  The algorithm failed to find a solution vector sufficiently different than the current point
+       */
+      if (info == -1) {
+	if (loglevel >= 1) {
+	  double stepNorm =  solnErrorNorm(DATA_PTR(step0));
+	  printf("\t\t\tdampDogLeg: Current direction rejected, update became too small %g\n", stepNorm);
+	  success = false;
+	  retn = -1;
+	  break;
+	}
+      }
+      if (info == -2) {
+	if (loglevel >= 1) {
+	  printf("\t\t\tdampStep: current trial step and damping led to LAPACK ERROR %d. Bailing\n", info);
+	  success = false;
+	  retn = -1;
+	  break;
+	}
+      }
+      if (info == 0) {
+	success = true;
+	break;
+      }
+      if (info == 3) {
+	haveASuccess = true;
+	// Store the good results in step1
+	mdp::mdp_copy_dbl_1(DATA_PTR(step1), CONSTD_DATA_PTR(step0), neq_);
 
-      
-
-
-
-
-
-
-
-
+      }
+      if (info == 2) {
+	if (haveASuccess) {
+	  mdp::mdp_copy_dbl_1(DATA_PTR(step0), CONSTD_DATA_PTR(step1), neq_);
+	  for (j = 0; j < neq_; j++) {
+	    y_new[j] = y0[j] + step0[j];
+	  }    
+	  if (solnType_ != NSOLN_TYPE_STEADY_STATE) {
+	    calc_ydot(m_order, y_new, ydot_new);
+	  } 
+	  success = true;
+	  break;
+	}
+      }
 
 
     }
 
+    if (success) {
+      if (m_normResidTrial < 1.0) {
+	return 1;
+      }
+      return 0;
+    }
+    return -1;
+  }  
+  //====================================================================================================================
+  int NonlinearSolver::decideStep(const doublereal time_curr, int leg, double alpha, const double* y0, const doublereal *ydot0, 
+				  std::vector<doublereal> & step0,
+				  double* const y1, double* const ydot1,  int& loglevel, double trustDeltaOld) 
+
+  {
+    int retn = 2;
+    bool goodStep = false;
+    int j;
+    int info;
+    double stepNorm =  solnErrorNorm(DATA_PTR(step0));
+    double normResid02 = m_normResid0 * m_normResid0 * neq_;  
+    double deltaSolnNorm = solnErrorNorm(DATA_PTR(deltaX_CP_));
+    double funcDecreaseSDExp = RJd_norm_ / deltaSolnNorm * lambda_;
+    // Compute the multiplier to keep all components in bounds
+    // A value of one indicates that there is no limitation
+    // on the current step size in the nonlinear method due to
+    // bounds constraints (either negative values of delta
+    // bounds constraints.
+    m_dampBound = boundStep(y0, DATA_PTR(step0), loglevel);
+
+    double ff = m_dampBound;
+
+    for (j = 0; j < neq_; j++) {
+      y1[j] = y0[j] + ff * step0[j];
+    }
+      
+    if (solnType_ != NSOLN_TYPE_STEADY_STATE) {
+      calc_ydot(m_order, y1, ydot1);
+    } 
+     
+      
+    /*
+     *  Calculate the residual that would result if y1[] were the new solution vector
+     *  -> m_resid[] contains the result of the residual calculation
+     */
+    if (solnType_ != NSOLN_TYPE_STEADY_STATE) {
+      info = doResidualCalc(time_curr, solnType_, y1, ydot1, Base_LaggedSolutionComponents);
+    } else {
+      info = doResidualCalc(time_curr, solnType_, y1, ydot0, Base_LaggedSolutionComponents);
+    }
+    if (info != 1) {
+      if (loglevel > 0) {
+	printf("\t\t\tdecideStep: current trial step and damping led to Residual Calc ERROR %d. Bailing\n", info);
+      }
+      return -2;
+    }
+    m_normResidTrial = residErrorNorm(DATA_PTR(m_resid));
+
+    double funcDecrease = 0.5 * (m_normResidTrial - normResid02) / (ff * stepNorm);
+    if (funcDecrease < 1.0E-4 * funcDecreaseSDExp) {
+      goodStep = true;
+      retn = 0;
+    } else {
+      trustDelta_ *= 0.33;
+      retn = 2;
+      // error condition if step is getting too small
+      if (stepNorm * .5 < 0.2) {
+	retn = -1;
+      }
+      return retn;
+    }
+    /* 
+     *  Figure out the next trust region
+     *
+     *      If we had to bounds delta the update, decrease the trust region
+     */
+    if (m_dampBound < 1.0) {
+      trustDelta_ *= 0.5;
+    } else {
+      retn = 0;
+      double expectedNormRes = expectedResidLeg(leg, alpha);
+      if (m_normResidTrial > 1.1 * expectedNormRes) {
+	trustDelta_ *= 0.5;
+      } else {
+
+	if (trustDelta_ <= trustDeltaOld) {
+	  trustDelta_ *= 2.0;
+	  retn = 3;
+	} else {
+	  if (m_normResidTrial < 0.75 * expectedNormRes) {
+	    trustDelta_ *= 2.0;
+	  }
+	}
+      }
+    }
+    return retn;
   }
   //====================================================================================================================
   /*
@@ -1939,13 +2111,18 @@ namespace Cantera {
 
 
       
+      int doDogLeg = 0;
 #ifdef DEBUG_DOGLEG
+      doDogLeg = 0;
       descentComparison(time_curr, DATA_PTR(ydot_curr), DATA_PTR(ydot_new), DATA_PTR(stp));
       setupDoubleDogleg(DATA_PTR(stp));
       residualComparisonLeg(time_curr, DATA_PTR(ydot_curr), DATA_PTR(ydot_new), DATA_PTR(stp));
-
-#endif   
-  
+      if (doDogLeg) {
+	m =  dampDogLeg(time_curr, DATA_PTR(m_y_n), DATA_PTR(ydot_curr), 
+			stp, DATA_PTR(y_new), DATA_PTR(ydot_new), 
+			DATA_PTR(stp1), s1, jac, m_print_flag, frst, i_backtracks);
+      }
+#endif
       // Damp the Newton step
       /*
        *  On return the recommended new solution and derivatisve is located in:
@@ -1956,12 +2133,13 @@ namespace Cantera {
        *  The estimate of the solution update norm for the next step is located in
        *          s1
        */
-      m = dampStep(time_curr, DATA_PTR(m_y_n), DATA_PTR(ydot_curr), 
-		   DATA_PTR(stp), DATA_PTR(y_new), DATA_PTR(ydot_new), 
-		   DATA_PTR(stp1), s1, jac, m_print_flag, frst, i_backtracks);
-      frst = false;
-      num_backtracks += i_backtracks;
-
+      if (!doDogLeg) {
+	m = dampStep(time_curr, DATA_PTR(m_y_n), DATA_PTR(ydot_curr), 
+		     DATA_PTR(stp), DATA_PTR(y_new), DATA_PTR(ydot_new), 
+		     DATA_PTR(stp1), s1, jac, m_print_flag, frst, i_backtracks);
+	frst = false;
+	num_backtracks += i_backtracks;
+      }
       /*
        * Impose the minimum number of newton iterations critera
        */
