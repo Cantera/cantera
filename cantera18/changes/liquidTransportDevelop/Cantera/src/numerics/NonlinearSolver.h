@@ -238,15 +238,29 @@ namespace Cantera {
      */
     void calcTrustVector();
 
-    //! Calculate the trust distance
+    //! Fill a dogleg solution step vector
     /*!
-     *  We calculate the trust distance by the following method
+     *   Previously, we have filled up deltaX_Newton_[], deltaX_CP_[], and Nuu_, so that
+     *   this routine is straightforward.
+     *
+     *  @param leg      Leg of the dog leg you are on (0, 1, or 2)
+     *  @param alpha    Relative length along the dog length that you are on.
+     *  @param deltaX   Vector to be filled up
+     */
+    void fillDogLegStep(int leg, double alpha, std::vector<doublereal>  & deltaX) const;
+
+    //! Calculate the trust distance of a step in the solution variables
+    /*!
+     *  The trust distance is defined as the length of the step according to the norm wrt to the trust region.
+     *  We calculate the trust distance by the following method.
      *  
      *      trustDist =  || delta_x   dot  1/trustDeltaX_ || 
      *
      * @param deltaX  Current value of deltaX
      */
     doublereal calcTrustDistance(std::vector<doublereal> const & deltaX) const;
+
+
 
     int  calcTrustIntersection(double trustDelta, double &lambda, double &alpha) const;
   public:
@@ -571,10 +585,14 @@ namespace Cantera {
     int calcTrustIntersection(double trustVal, const double &lambda, double &alpha) const;
 
     int dampDogLeg(const doublereal time_curr, const double* y0, 
-				  const doublereal *ydot0, const double* step0, 
+				  const doublereal *ydot0,  std::vector<doublereal> & step0,
 				  double* const y1, double* const ydot1, double* step1,
 				  double& s1, SquareMatrix& jac, int& loglevel, bool writetitle,
 				  int& num_backtracks);
+
+    int decideStep(const doublereal time_curr, int leg, double alpha, const double* y0, const doublereal *ydot0, 
+		   std::vector<doublereal> & step0,
+		   double* const y1, double* const ydot1,  int& loglevel, double trustDeltaOld);
 
     //! Calculated the expected residual along the double dogleg curve. 
     /*!
