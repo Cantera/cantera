@@ -579,9 +579,9 @@ namespace Cantera {
     /// @name  Partial Molar Properties of the Solution -----------------------------
     //@{
 
-    /**
-     * Returns an array of partial molar enthalpies for the species
-     * in the mixture.
+    
+    //! Returns an array of partial molar enthalpies for the species in the mixture.
+    /*!
      * Units (J/kmol)
      * For this phase, the partial molar enthalpies are equal to the
      * pure species enthalpies
@@ -1057,8 +1057,9 @@ namespace Cantera {
      */
     doublereal m_Pcurrent;
 
+    //! Vector of molar volumes for each species in the solution
     /**
-     * Species molar volume \f$ m^3 kmol^-1 \f$
+     * Species molar volumes \f$ m^3 kmol^-1 \f$
      */
     array_fp   m_speciesMolarVolume;
 

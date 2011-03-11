@@ -110,7 +110,6 @@ namespace Cantera {
     ///          exception, ElementRangeError, is thrown.
     std::string elementName(int m) const;
 
-
     /// Index of element named 'name'.
     /// The index is an integer
     /// assigned to each element in the order it was added,
@@ -140,6 +139,8 @@ namespace Cantera {
      *  @param m Element index
      */
     int atomicNumber(int m) const;
+
+    int elementType(int m) const;
 
     /// Return a read-only reference to the vector of element names.
     const std::vector<std::string>& elementNames() const;
@@ -193,7 +194,7 @@ namespace Cantera {
      */
     void addUniqueElement(const std::string& symbol, doublereal weight,
 			  int atomicNumber = 0,
-			  doublereal entropy298 = ENTROPY298_UNKNOWN);
+			  doublereal entropy298 = ENTROPY298_UNKNOWN, int elem_type = CT_ELEM_TYPE_ABSPOS);
 
     //! Adde an element, checking for uniqueness
     /*!
@@ -215,6 +216,23 @@ namespace Cantera {
 
     /// True if freezeElements has been called.
     bool elementsFrozen();
+
+    //! Add an element after the elements have been frozen, checking for uniqueness
+    /*!
+     * The uniqueness is checked by comparing the string symbol. If
+     * not unique, nothing is done.
+     *
+     * @param symbol  String symbol of the element
+     * @param weight  Atomic weight of the element (kg kmol-1).
+     * @param atomicNumber Atomic number of the element (unitless)
+     * @param entropy298 Entropy of the element at 298 K and 1 bar
+     *                   in its most stable form. The default is
+     *                   the value ENTROPY298_UNKNOWN, which is 
+     *                   interpreted as an unknown, and if used
+     *                   will cause Cantera to throw an error.
+     */
+    int addUniqueElementAfterFreeze(const std::string& symbol, doublereal weight, int atomicNumber, 
+				    doublereal entropy298 = ENTROPY298_UNKNOWN, int elem_type = CT_ELEM_TYPE_ABSPOS);
 
     //@}
       

@@ -47,7 +47,7 @@ namespace Cantera {
   const int cMetalSHEelectrons = 9; // SHE electrode electrons
 
   const int cLatticeSolid = 20; // LatticeSolidPhase.h
-  const int cLattice = 21; 
+  const int cLattice = 21; //LatticePhase.h
 
   // pure fluids with liquid/vapor eqs of state
   const int cPureFluid = 10;

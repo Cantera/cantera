@@ -1571,6 +1571,7 @@ namespace VCSnonideal {
     for (eT = 0; eT < nebase; eT++) {
       ename = tPhase->elementName(eT);
       m_elementNames[e] = ename;
+      m_elementType[e] = tPhase->elementType(eT);
       e++;
     }
 

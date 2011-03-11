@@ -822,9 +822,47 @@ namespace Cantera {
       if (i == 4) uA[4] = 0.0;
       if (i == 5) uA[5] = 0.0;
     }
+  } 
+  //=================================================================================================================
+  //  Install a species thermodynamic property manager. 
+  /*
+   * The species thermodynamic property manager
+   * computes properties of the pure species for use in
+   * constructing solution properties. It is meant for internal
+   * use, and some classes derived from ThermoPhase may not use
+   * any species thermodynamic property manager. This method is
+   * called by function importPhase() in importCTML.cpp.
+   *
+   * @param spthermo input pointer to the species thermodynamic property
+   *                 manager.
+   *
+   *  @internal
+   */
+  void ThermoPhase::setSpeciesThermo(SpeciesThermo* spthermo) {
+    if (m_spthermo) {
+      if (m_spthermo != spthermo) {
+	delete m_spthermo;
+      }
+    }
+    m_spthermo = spthermo;
   }
   //=================================================================================================================
-
+  // Return a changeable reference to the calculation manager
+  // for species reference-state thermodynamic properties
+  /*
+   *
+   * @param k   Speices id. The default is -1, meaning return the default
+   *
+   * @internal
+   */
+  SpeciesThermo& ThermoPhase::speciesThermo(int k) {
+    if (!m_spthermo) {
+      throw CanteraError("ThermoPhase::speciesThermo()",
+			 "species reference state thermo manager was not set");
+    }
+    return *m_spthermo;
+  }
+  //=================================================================================================================
   /*
    * initThermoFile():
    *

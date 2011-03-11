@@ -525,7 +525,9 @@ namespace Cantera {
     /***************************************************************
      * Add the elements.
      ***************************************************************/
-    th->addElementsFromXML(phase);
+    if (ssConvention != cSS_CONVENTION_SLAVE) {
+      th->addElementsFromXML(phase);
+    }
 
     /***************************************************************
      * Add the species. 
@@ -538,11 +540,13 @@ namespace Cantera {
     vector<XML_Node*> sparrays;
     phase.getChildren("speciesArray", sparrays);
     int jsp, nspa = static_cast<int>(sparrays.size());
-    if (nspa == 0) {
-      throw CanteraError("importPhase",
-			 "phase, " + th->id() + ", has zero \"speciesArray\" XML nodes.\n"
+    if (ssConvention != cSS_CONVENTION_SLAVE) {
+      if (nspa == 0) {
+        throw CanteraError("importPhase",
+  			 "phase, " + th->id() + ", has zero \"speciesArray\" XML nodes.\n"
 			 + " There must be at least one speciesArray nodes "
 			 "with one or more species");
+      }
     }
     vector<XML_Node*> dbases;
     vector_int sprule(nspa,0);
@@ -608,7 +612,7 @@ namespace Cantera {
 
     // If the phase has a species thermo manager already installed,
     // delete it since we are adding new species.
-    delete &th->speciesThermo();
+    //delete &th->speciesThermo();
 
     // Decide whether the the phase has a variable pressure ss or not
     SpeciesThermo* spth = 0;

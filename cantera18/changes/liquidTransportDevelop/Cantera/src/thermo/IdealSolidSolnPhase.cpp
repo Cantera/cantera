@@ -117,7 +117,7 @@ namespace Cantera {
     IdealSolidSolnPhase *ii = new IdealSolidSolnPhase(*this);
     return (ThermoPhase*) ii;
   }
-//====================================================================================================================
+  //====================================================================================================================
   /**
    * Equation of state flag. Returns the value cIdealGas, defined 
    * in mix_defs.h.
@@ -679,8 +679,7 @@ namespace Cantera {
    * property manager. They are polynomial functions of temperature.
    * @see SpeciesThermo 
    */
-  void IdealSolidSolnPhase::
-  getPartialMolarEnthalpies(doublereal* hbar) const {
+  void IdealSolidSolnPhase::getPartialMolarEnthalpies(doublereal* hbar) const {
     const array_fp& _h = enthalpy_RT_ref();
     doublereal rt = GasConstant * temperature();
     scale(_h.begin(), _h.end(), hbar, rt);
@@ -892,8 +891,7 @@ namespace Cantera {
    * units = m^3 / kmol
    */
   void IdealSolidSolnPhase::getStandardVolumes(doublereal *vol) const {
-    copy(m_speciesMolarVolume.begin(),
-	 m_speciesMolarVolume.end(), vol);
+    copy(m_speciesMolarVolume.begin(), m_speciesMolarVolume.end(), vol);
   }
 
 
@@ -1227,8 +1225,7 @@ namespace Cantera {
 			   "Unknown standardConc model: " + formStringa);
       }
     } else {
-      throw CanteraError(subname.c_str(),
-			 "Unspecified standardConc model");
+      throw CanteraError(subname.c_str(), "Unspecified standardConc model");
     }
 
     /*

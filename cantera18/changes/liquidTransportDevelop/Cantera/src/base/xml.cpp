@@ -52,9 +52,8 @@ namespace Cantera {
      */
     XML_Error(int line=0) :
       m_line(line),
-      m_msg(0)
+      m_msg("Error in XML file")
     {
-      m_msg = "Error in XML file";
       if (line > 0) {
 	m_msg += " at line " + int2str(line+1);
       }

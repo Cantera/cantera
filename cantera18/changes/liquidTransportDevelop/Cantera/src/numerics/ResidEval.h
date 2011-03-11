@@ -31,7 +31,7 @@ namespace Cantera {
    *  Virtual base class for DAE residual function evaluators.
    *  Classes derived from ResidEval evaluate the residual function
    * \f[
-   \vec{F}(t,\vec{y}, \vec{y^\prime})
+   *             \vec{F}(t,\vec{y}, \vec{y^\prime}) 
    * \f]
    * The DAE solver attempts to find a solution y(t) such that F = 0.
    *  @ingroup DAE_Group 
@@ -59,13 +59,28 @@ namespace Cantera {
        return c_NONE; 
      }
 
+     //! Initialization function
+     virtual void initSizes()
+     {
+       int neq = nEquations();
+       m_alg.resize(neq, 0);
+     }
+
     /** 
      * Specify that solution component k is purely algebraic -
      * that is, the derivative of this component does not appear
      * in the residual function.
      */
-    virtual void setAlgebraic(const int k) { m_alg[k] = 1; }
-    virtual bool isAlgebraic(const int k) {return (m_alg[k] == 1); }
+    virtual void setAlgebraic(const int k) { 
+      if ((int) m_alg.size() < (k+1)) {
+        initSizes();
+      }
+      m_alg[k] = 1;
+     }
+
+    virtual bool isAlgebraic(const int k) {
+      return (m_alg[k] == 1); 
+    }
         
 
     /**
@@ -106,6 +121,7 @@ namespace Cantera {
      */
     virtual int getInitialConditions(const doublereal t0, doublereal * const y, 
 				      doublereal * const ydot) {
+      initSizes();
       throw CanteraError("ResidEval::GetInitialConditions()", "base class called");
       return 1;
     }
@@ -143,7 +159,12 @@ namespace Cantera {
 
   protected:
 
-    std::map<int, int> m_alg;
+    //! Mapping vector that stores whether a degree of freedom is a DAE or not
+    /*!
+     *   The first index is the equation number. The second index is 1 if it is a DAE,
+     *   and zero if it is not.
+     */
+    std::vector<int> m_alg;
     std::map<int, int> m_constrain;
 
   private:

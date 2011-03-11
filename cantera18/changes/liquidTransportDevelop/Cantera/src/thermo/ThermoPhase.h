@@ -758,7 +758,7 @@ namespace Cantera {
      * Returns the reference pressure in Pa. This function is a wrapper
      * that calls the species thermo refPressure function.
      */
-    doublereal refPressure() const {
+    virtual doublereal refPressure() const {
       return m_spthermo->refPressure();
     }
 
@@ -775,7 +775,7 @@ namespace Cantera {
      * @param k index of the species. Default is -1, which will return the max of the min value
      *          over all species.
      */
-    doublereal minTemp(int k = -1) const {
+    virtual doublereal minTemp(int k = -1) const {
       return m_spthermo->minTemp(k);
     }
         
@@ -844,7 +844,7 @@ namespace Cantera {
      * @param k index of the species. Default is -1, which will return the min of the max value
      *          over all species.
      */
-    doublereal maxTemp(int k = -1) const {
+    virtual doublereal maxTemp(int k = -1) const {
       return m_spthermo->maxTemp(k);
     }
 
@@ -1883,19 +1883,17 @@ namespace Cantera {
      *
      *  @internal
      */
-    void setSpeciesThermo(SpeciesThermo* spthermo) 
-    { m_spthermo = spthermo; }
+    void setSpeciesThermo(SpeciesThermo* spthermo);
         
     //! Return a changeable reference to the calculation manager
     //! for species reference-state thermodynamic properties
     /*!
      *
-     *  @todo This method will fail if no species thermo
-     *        manager has been installed.
+     * @param k   Speices id. The default is -1, meaning return the default
      *
      * @internal
      */
-    SpeciesThermo& speciesThermo() { return *m_spthermo; }
+    virtual SpeciesThermo& speciesThermo(int k = -1);
 
     /**
      * @internal
