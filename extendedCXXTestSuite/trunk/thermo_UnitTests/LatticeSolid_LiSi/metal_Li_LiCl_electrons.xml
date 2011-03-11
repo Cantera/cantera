@@ -1,0 +1,60 @@
+ <?xml version="1.0"?>
+ <ctml>
+   <validate reactions="yes" species="yes"/>
+    
+   <!-- phase metal_Li_LiCl_electrons    -->
+   <phase dim="3" id="metal_Li_LiCl_electrons">
+       <!--      -->
+      <elementArray datasrc="elements.xml">
+        E 
+      </elementArray>
+      <speciesArray datasrc="#species_electrode"> electron_Li_LiCl </speciesArray>
+      <thermo model="StoichSubstance">
+      <density units="g/cm3"> 100. </density>
+     </thermo>
+     <transport model="None"/>
+     <kinetics model="none"/>
+   </phase>
+           
+          
+   <!-- species definitions     qq-->
+   <speciesData id="species_electrode">
+        
+      <!-- species electron_Li_LiCl -->
+      <! --   temperature 400 to 2700 K -->
+      <! --   stoichiometric quantity in electrode rxn =    5.763152824644609 -->
+      <species name="electron_Li_LiCl">
+       <atomArray> E:1.0  </atomArray>
+       <charge> -1 </charge>
+       <thermo>
+        <Shomate Pref="1 bar" Tmax="700.0" Tmin="400.0">
+           <floatArray size="7">
+               -40.71053  ,
+               6.411257   ,
+               -6.010738  ,
+               4.150772   ,
+               -0.007908  ,
+               410.01408  ,
+               -77.614337  
+           </floatArray>
+        </Shomate>
+        <Shomate Pref="1 bar" Tmax="2700.0" Tmin="700.0">
+           <floatArray size="7">
+               -47.17129  ,
+               14.679607  ,
+               -3.696837  ,
+               0.794099   ,
+               0.330556   ,
+               412.93171  ,
+               -85.545107  
+           </floatArray>
+        </Shomate>
+       </thermo>
+        <density units="g/cm3"> 100. </density>
+      </species>
+                
+                
+    </speciesData>
+        
+  </ctml>
+        

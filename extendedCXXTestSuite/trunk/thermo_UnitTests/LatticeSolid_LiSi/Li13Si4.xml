@@ -1,0 +1,87 @@
+ <?xml version="1.0"?>
+ <ctml>
+   <validate reactions="yes" species="yes"/>
+    
+   <!-- phase Li13Si4(S)    -->
+   <phase dim="3" id="Li13Si4(S)">
+      <elementArray datasrc="elements.xml">
+         Li  Si
+      </elementArray>
+      <speciesArray datasrc="#species_LiSi(S)"> Li13Si4(S) </speciesArray>
+      <thermo model="StoichSubstance">
+      <density units="g/cm3"> 1.24 </density>
+     </thermo>
+     <transport model="None"/>
+     <kinetics model="none"/>
+   </phase>
+           
+          
+   <!-- species definitions     -->
+   <speciesData id="species_LiSi(S)">
+        
+      <!-- species Li13Si4(S)   -->
+      <! --      melting temperature = 861 K (phase diagram in Guidotti, Masset)) -->
+      <species name="Li13Si4(S)">
+       <atomArray> Li:13 Si:4  </atomArray>
+       <thermo>
+        <Shomate Pref="1 bar" Tmax="700.0" Tmin="250.0">
+           <floatArray size="7">
+               513.37512  ,
+               -18.669635 ,
+               -82.584204 ,
+               55.163111  ,
+               -1.342334  ,
+               -589.2471  ,
+               949.39284   
+           </floatArray>
+        </Shomate>
+        <Shomate Pref="1 bar" Tmax="2700.0" Tmin="700.0">
+           <floatArray size="7">
+               429.38524  ,
+               88.818915  ,
+               -52.503491 ,
+               11.526362  ,
+               3.057698   ,
+               -551.31792 ,
+               846.29281   
+           </floatArray>
+        </Shomate>
+       </thermo>
+        <density units="g/cm3"> 1.24 </density>
+      </species>
+                
+      <!-- species Li13d4Si(S)   -->
+      <! --      melting temperature = 861 K (phase diagram in Guidotti, Masset)) -->
+      <species name="Li13d4Si(S)">
+       <atomArray> Li:3.25  Si:1.0  </atomArray>
+       <thermo>
+        <Shomate Pref="1 bar" Tmax="700.0" Tmin="250.0">
+           <floatArray size="7">
+               128.34378  ,
+               -4.6674087 ,
+               -20.646051 ,
+               13.790778  ,
+               -0.3355835 ,
+               -147.31178 ,
+               237.34821   
+           </floatArray>
+        </Shomate>
+        <Shomate Pref="1 bar" Tmax="2700.0" Tmin="700.0">
+           <floatArray size="7">
+               107.34631  ,
+               22.204729  ,
+               -13.125873 ,
+               2.8815905  ,
+               0.7644245  ,
+               -137.82948 ,
+               211.5732    
+           </floatArray>
+        </Shomate>
+       </thermo>
+        <density units="g/cm3"> 1.24 </density>
+      </species>
+                
+    </speciesData>
+        
+  </ctml>
+        

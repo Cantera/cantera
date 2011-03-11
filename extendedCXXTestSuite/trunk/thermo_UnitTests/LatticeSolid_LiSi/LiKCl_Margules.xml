@@ -1,0 +1,79 @@
+
+<?xml version="1.0"?>
+<ctml>
+  <validate reactions="yes" species="yes"/>
+                   
+ <!-- phase KLiCl(L)    -->
+  <!--
+         Ok, the eutectic is measured to be X_b = X_LiCl = 0.595
+         and 355 C = 628.15
+    -->
+  <phase dim="3" id="LiKCl_Margules">
+    <elementArray datasrc="elements.xml">
+       Li K Cl
+    </elementArray>
+    <speciesArray datasrc="#species_MoltenSalt"> 
+        LiCl(L) KCl(L)
+    </speciesArray>
+    <thermo model="Margules">
+      <activityCoefficients model="Margules" TempModel="constant">
+         <binaryNeutralSpeciesParameters speciesA="KCl(L)" speciesB="LiCl(L)">
+            <excessEnthalpy model="poly_Xb" terms="2" units="J/kmol">
+                  -17570.E3, -377.E3
+            </excessEnthalpy>
+            <excessEntropy  model="poly_Xb" terms="2" units="J/kmol/K">
+                 -7.627E3, 4.958E3
+            </excessEntropy>
+          </binaryNeutralSpeciesParameters>
+       </activityCoefficients>
+    </thermo>
+    <transport model="None"/>
+    <kinetics model="none"/>
+    <state>
+       <temperature> 725.0 </temperature>
+       <pressure units="atm"> 1.0 </pressure>
+       <moleFractions> LiCl(L):1.0  </moleFractions>
+    </state>
+  </phase>
+
+ <!-- species definitions     -->
+  <speciesData id="species_MoltenSalt">
+
+
+    <species name="KCl(L)">
+      <atomArray> K:1 Cl:1 </atomArray>
+      <standardState  model="constant_incompressible"> 
+         <molarVolume> 0.0375761 </molarVolume>
+      </standardState>
+      <thermo>
+         <Shomate Pref="1 bar" Tmax="2000.0" Tmin="700.0">
+          <floatArray size="7">
+           73.59698,  0.0,      0.0,
+           0.0,       0.0,      -443.7341,
+           175.7209
+          </floatArray>
+        </Shomate>
+      </thermo>
+      <density units="g/cm3"> 1.984 </density>
+    </species>
+
+    <species name="LiCl(L)">
+      <atomArray> Li:1 Cl:1 </atomArray>
+      <standardState  model="constant_incompressible"> 
+         <molarVolume> 0.02048004 </molarVolume>
+      </standardState>
+      <thermo>
+        <Shomate Pref="1 bar" Tmax="2000.0" Tmin="700.0">
+          <floatArray size="7">
+           73.18025, -9.047232, -0.316390,
+           0.079587, 0.013594, -417.1314,
+           157.6711
+          </floatArray>
+        </Shomate>
+      </thermo>
+      <density units="g/cm3"> 2.07 </density>
+    </species>
+
+  </speciesData>
+
+</ctml>
