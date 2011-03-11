@@ -26,6 +26,74 @@ namespace Cantera {
   class XML_Node;
   class ElementRangeError;
 
+ /*!
+   *  @name Types of Element Constraint Equations
+   * 
+   *   There may be several different types of element constraints handled
+   *   by the equilibrium program and by Cantera in other contexts.  
+   *   These defines are used to assign each constraint to one category.
+   *   @{
+   */
+
+  //! An element constraint that is current turned off
+#define CT_ELEM_TYPE_TURNEDOFF       -1
+
+  //! Normal element constraint consisting of positive coefficients for the
+  //! formula matrix.
+  /*!
+   * All species have positive coefficients within the formula matrix.
+   * With this constraint, we may employ various strategies to handle 
+   * small values of the element number successfully.
+   */
+#define CT_ELEM_TYPE_ABSPOS           0
+
+  //! This refers to conservation of electrons
+  /*!
+   * Electrons may have positive or negative values in the Formula matrix.
+   */
+#define CT_ELEM_TYPE_ELECTRONCHARGE   1
+
+  //! This refers to a charge neutrality of a single phase
+  /*!
+   * Charge neutrality may have positive or negative values in the Formula matrix.
+   */
+#define CT_ELEM_TYPE_CHARGENEUTRALITY 2
+
+  //! Constraint associated with maintaing a fixed lattice stoichiometry int eh
+  //! solids
+  /*!
+   * The constraint may have positive or negative values. The lattice 0 species will
+   * have negative values while higher lattices will have positive values
+   */
+#define CT_ELEM_TYPE_LATTICERATIO 3
+
+  //! Constraint associated with maintaining frozen kinetic equilibria in
+  //! some functional groups within molecules
+  /*!
+   *  We seek here to say that some functional groups or ionic states should be
+   *  treated as if they are separate elements given the time scale of the problem.
+   *  This will be abs positive constraint. We have not implemented any examples yet.
+   *  A requirement will be that we must be able to add and subtract these contraints.
+   */
+#define CT_ELEM_TYPE_KINETICFROZEN 4
+
+  //! Constraint associated with the maintenance of a surface phase
+  /*!
+   *  We don't have any examples of this yet either. However, surfaces only exist
+   *  because they are interfaces between bulk layers. If we want to treat surfaces 
+   *  within thermodynamic systems we must come up with a way to constrain their total
+   *  number. 
+   */
+#define CT_ELEM_TYPE_SURFACECONSTRAINT 5
+
+  //! Other constraint equations
+  /*!
+   * currently there are none
+   */
+#define CT_ELEM_TYPE_OTHERCONSTRAINT  6
+  //@}
+
+
   //! Positive number indicating we don't know the gibbs free energy 
   //! of the element in its most stable state at 298.15 K and 1 bar.
   //#define GIBSSFE298_UNKNOWN 123456789.
@@ -120,6 +188,37 @@ namespace Cantera {
      */
     doublereal entropyElement298(int m) const;
 
+    //! Return the element constraint type
+    /*!
+     * Possible types include:
+     *
+     * CT_ELEM_TYPE_ABSPOS           0
+     * CT_ELEM_TYPE_ELECTRONCHARGE   1
+     * CT_ELEM_TYPE_CHARGENEUTRALITY 2
+     * CT_ELEM_TYPE_LATTICERATIO 3
+     * CT_ELEM_TYPE_KINETICFROZEN 4
+     * CT_ELEM_TYPE_SURFACECONSTRAINT 5
+     * CT_ELEM_TYPE_OTHERCONSTRAINT  6
+     *
+     * The default is  CT_ELEM_TYPE_ABSPOS  
+     *
+     *  @param m  Element index
+     * 
+     *  @return Returns the element type
+     */
+    int elementType(int m) const;
+
+    //! Change the element type of the mth constraint
+    /*! 
+     *  Reassigns an element type
+     *
+     *  @param m  Element index
+     *  @param elem_type New elem type to be assigned 
+     * 
+     *  @return Returns the old element type
+     */
+    int changeElementType(int m, int elem_type);
+
     /// vector of element atomic weights
     const vector_fp& atomicWeights() const { return m_atomicWeights; }
 
@@ -199,7 +298,7 @@ namespace Cantera {
      */
     void addUniqueElement(const std::string& symbol, 
 			  doublereal weight = -12345.0, int atomicNumber = 0,
-			  doublereal entropy298 = ENTROPY298_UNKNOWN);
+			  doublereal entropy298 = ENTROPY298_UNKNOWN, int elem_type = CT_ELEM_TYPE_ABSPOS);
 
     //! Add an element to the current set of elements in the current object.
     /*!
@@ -258,7 +357,7 @@ namespace Cantera {
      *    If this is true, then no elements may be added to the
      *    object.
      */
-    bool                           m_elementsFrozen;
+    bool m_elementsFrozen;
 
     /**
      *  Vector of element atomic weights:
@@ -284,6 +383,9 @@ namespace Cantera {
      *   units J kmol-1
      */
     vector_fp m_entropy298;
+
+    //! Vector of element types
+    vector_int m_elem_type;
 
     /**
      * Number of Constituents Objects that use this object

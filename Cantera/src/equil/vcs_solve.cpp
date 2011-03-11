@@ -518,8 +518,17 @@ namespace VCSnonideal {
      * FormulaMatrix[] -> Copy the formula matrix over
      */
     for (i = 0; i < nspecies; i++) {
+      bool nonzero = false;
       for (j = 0; j < nelements; j++) {
+        if (pub->FormulaMatrix[j][i] != 0.0) {
+          nonzero = true;
+        }
 	m_formulaMatrix[j][i] = pub->FormulaMatrix[j][i];
+      }
+      if (!nonzero) {
+        plogf("vcs_prob_specifyFully:: species %d %s has a zero formula matrix!\n", i,
+	      pub->SpName[i].c_str());
+        return VCS_PUB_BAD;
       }
     }
   
@@ -573,17 +582,31 @@ namespace VCSnonideal {
     /*
      * Formulate the Goal Element Abundance Vector
      */
+    double sum;
     if (pub->gai.size() != 0) {
-      for (i = 0; i < nelements; i++) m_elemAbundancesGoal[i] = pub->gai[i];
+      for (i = 0; i < nelements; i++) {
+         m_elemAbundancesGoal[i] = pub->gai[i];
+         if (pub->m_elType[i] == VCS_ELEM_TYPE_LATTICERATIO) {
+           if (m_elemAbundancesGoal[i] < 1.0E-10) {
+             m_elemAbundancesGoal[i] = 0.0;
+           }
+         }
+      }
     } else {
       if (m_doEstimateEquil == 0) {
 	for (j = 0; j < nelements; j++) {
 	  m_elemAbundancesGoal[j] = 0.0;
 	  for (kspec = 0; kspec < nspecies; kspec++) {
 	    if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+              sum += m_molNumSpecies_old[kspec];
 	      m_elemAbundancesGoal[j] += m_formulaMatrix[j][kspec] * m_molNumSpecies_old[kspec];
 	    }
 	  }
+          if (pub->m_elType[j] == VCS_ELEM_TYPE_LATTICERATIO) {
+            if (m_elemAbundancesGoal[j] < 1.0E-10 * sum) {
+              m_elemAbundancesGoal[j] = 0.0;
+            } 
+          }
 	}
       } else {
 	plogf("%sElement Abundances, m_elemAbundancesGoal[], not specified\n", ser);

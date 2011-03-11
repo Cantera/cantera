@@ -60,7 +60,6 @@ namespace Cantera {
 
   public:
 
-    
     //!Default constructor
     /*!
      *  @param atol   Initial value of the global tolerance (defaults to 1.0E-13)
@@ -208,7 +207,6 @@ namespace Cantera {
 				     const doublereal * const y, 
 				     const doublereal * const ydot);
 
-    
     //! Return a vector of delta y's for calculation of the numerical Jacobian 
     /*!
      *   There is a default algorithm provided. 
@@ -233,7 +231,6 @@ namespace Cantera {
 			   doublereal * const delta_y,
 			   const doublereal * const solnWeights = 0);
 
-    
     //!  Returns a vector of column scale factors that can be used to column scale Jacobians.
     /*!
      *  Default to yScales[] = 1.0
@@ -322,7 +319,6 @@ namespace Cantera {
 			     SquareMatrix &J,
 			     doublereal * const resid);
 
-
   protected:
 
     //! constant value of atol
@@ -334,6 +330,4 @@ namespace Cantera {
 }
 
 #endif
-
-
 

@@ -314,6 +314,11 @@ namespace VCSnonideal {
    *   constraint to one category.
    *   @{
    */
+
+
+  //! An element constraint that is current turned off
+#define VCS_ELEM_TYPE_TURNEDOFF       -1
+
   //! Normal element constraint consisting of positive coefficients for the
   //! formula matrix.
   /*!
@@ -335,11 +340,37 @@ namespace VCSnonideal {
    */
 #define VCS_ELEM_TYPE_CHARGENEUTRALITY 2
 
+  //! Constraint associated with maintaing a fixed lattice stoichiometry int eh
+  //! solids
+  /*!
+   * The constraint may have positive or negative values. The lattice 0 species will
+   * have negative values while higher lattices will have positive values
+   */
+#define VCS_ELEM_TYPE_LATTICERATIO 3
+
+  //! Constraint associated with maintaining frozen kinetic equilibria in
+  //! some functional groups within molecules
+  /*!
+   *  We seek here to say that some functional groups or ionic states should be
+   *  treated as if they are separate elements given the time scale of the problem.
+   *  This will be abs positive constraint. We have not implemented any examples yet.
+   *  A requirement will be that we must be able to add and subtract these contraints.
+   */
+#define VCS_ELEM_TYPE_KINETICFROZEN 4
+
+  //! Constraint associated with the maintenance of a surface phase
+  /*!
+   *  We don't have any examples of this yet either. However, surfaces only exist
+   *  because they are interfaces between bulk layers. If we want to treat surfaces 
+   *  within thermodynamic systems we must come up with a way to constrain their total
+   *  number. 
+   */
+#define VCS_ELEM_TYPE_SURFACECONSTRAINT 5
   //! Other constraint equations
   /*!
    * currently there are none
    */
-#define VCS_ELEM_TYPE_OTHERCONSTRAINT  3
+#define VCS_ELEM_TYPE_OTHERCONSTRAINT  6
   //@}
   
   /*!

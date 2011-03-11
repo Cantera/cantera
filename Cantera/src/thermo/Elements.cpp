@@ -222,6 +222,7 @@ namespace Cantera {
   Elements::Elements() :
     m_mm(0),
     m_elementsFrozen(false),
+    m_elem_type(0),
     numSubscribers(0)
   {
   }
@@ -256,7 +257,7 @@ namespace Cantera {
     m_atomicNumbers  = right.m_atomicNumbers;
     m_elementNames   = right.m_elementNames;
     m_entropy298     = right.m_entropy298;
-
+    m_elem_type      = right.m_elem_type;
     numSubscribers = 0;
 
     return *this;
@@ -335,7 +336,43 @@ namespace Cantera {
     AssertTrace(m >= 0 && m < m_mm);
     return (m_entropy298[m]);
   }
-  
+  //====================================================================================================================
+  //! Return the element constraint type
+  /*!
+   * Possible types include:
+   *
+   * CT_ELEM_TYPE_TURNEDOFF         -1
+   * CT_ELEM_TYPE_ABSPOS           0
+   * CT_ELEM_TYPE_ELECTRONCHARGE   1
+   * CT_ELEM_TYPE_CHARGENEUTRALITY 2
+   * CT_ELEM_TYPE_LATTICERATIO 3
+   * CT_ELEM_TYPE_KINETICFROZEN 4
+   * CT_ELEM_TYPE_SURFACECONSTRAINT 5
+   * CT_ELEM_TYPE_OTHERCONSTRAINT  6
+   *
+   * The default is  CT_ELEM_TYPE_ABSPOS  
+   */
+  int Elements::elementType(int m) const
+  {
+    return m_elem_type[m];
+  } 
+  //====================================================================================================================
+  // Change the element type of the mth constraint
+  /* 
+   *  Reassigns an element type
+   *
+   *  @param m  Element index
+   *  @param elem_type New elem type to be assigned 
+   * 
+   *  @return Returns the old element type
+   */
+  int Elements::changeElementType(int m, int elem_type) 
+  {
+    int old =  m_elem_type[m];
+    m_elem_type[m] = elem_type;
+    return old;
+  }  
+  //====================================================================================================================
   /*
    *
    * Add an element to the current set of elements in the current object.
@@ -367,16 +404,22 @@ namespace Cantera {
 #ifdef USE_DGG_CODE
     m_definedElements[symbol] = nElements() + 1;
 #endif
+    if (symbol == "E") {
+      m_elem_type.push_back(CT_ELEM_TYPE_ELECTRONCHARGE);
+    } else {
+      m_elem_type.push_back(CT_ELEM_TYPE_ABSPOS);
+    }
+
     m_mm++;
   }
-
+  //===========================================================================================================
   void Elements::
   addElement(const XML_Node& e) {
     doublereal weight = atof(e["atomicWt"].c_str());
     string symbol = e["name"];
     addElement(symbol, weight);
   }
-
+  //===========================================================================================================
   /*
    *  addUniqueElement():
    *
@@ -393,7 +436,7 @@ namespace Cantera {
 #ifdef USE_DGG_CODE
   void Elements::
   addUniqueElement(const std::string& symbol, doublereal weight, int atomicNumber,
-		   doublereal entropy298) 
+		   doublereal entropy298, int elem_type) 
   {
     if (m_elementsFrozen) 
       throw ElementsFrozen("addElement");
@@ -413,13 +456,17 @@ namespace Cantera {
       m_elementNames.push_back(symbol);
       m_atomicNumbers.push_back(atomicNumber);
       m_entropy298.push_back(entropy298);
+      if (symbol == "E") {
+	m_elem_type.push_back(CT_ELEM_TYPE_ELECTRONCHARGE);
+      } else {
+	m_elem_type.push_back(elem_type);
+      }
       m_mm++;
     } 
     else {
       if (m_atomicWeights[i] != weight) {
 	throw CanteraError("AddUniqueElement", 
-			   "Duplicate Elements (" + symbol +
-			   ") have different weights");
+			   "Duplicate Elements (" + symbol + ") have different weights");
       }
     }
   }
@@ -427,7 +474,8 @@ namespace Cantera {
 #else
   void Elements::
   addUniqueElement(const std::string& symbol, 
-		   doublereal weight, int atomicNumber, doublereal entropy298) 
+		   doublereal weight, int atomicNumber, doublereal entropy298,
+		   int elem_type) 
   {
     if (weight == -12345.0) {
       weight =  LookupWtElements(symbol);
@@ -458,12 +506,16 @@ namespace Cantera {
       m_elementNames.push_back(symbol);
       m_atomicNumbers.push_back(atomicNumber);
       m_entropy298.push_back(entropy298);
+      if (symbol == "E") {
+	m_elem_type.push_back(CT_ELEM_TYPE_ELECTRONCHARGE);
+      } else {
+	m_elem_type.push_back(elem_type);
+      }
       m_mm++;
     } else {
       if (m_atomicWeights[i] != weight) {
 	throw CanteraError("AddUniqueElement", 
-			   "Duplicate Elements (" + symbol +
-			   ") have different weights");
+			   "Duplicate Elements (" + symbol + ") have different weights");
       }
     }
   }
@@ -506,6 +558,8 @@ namespace Cantera {
     m_mm = 0;
     m_atomicWeights.resize(0);
     m_elementNames.resize(0);
+    m_entropy298.resize(0);
+    m_elem_type.resize(0);
     m_elementsFrozen = false;
   }
 
