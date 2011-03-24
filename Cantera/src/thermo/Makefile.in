@@ -67,7 +67,7 @@ ELECTRO_OBJ = MolalityVPSSTP.o  VPStandardStateTP.o \
               PDSS.o PDSS_Water.o PDSS_HKFT.o  \
 	      HMWSoln.o HMWSoln_input.o DebyeHuckel.o \
               WaterSSTP.o MetalSHEelectrons.o \
-              VPSSMgr_Water_ConstVol.o VPSSMgr_Water_HKFT.o
+              VPSSMgr_Water_ConstVol.o VPSSMgr_Water_HKFT.o PhaseCombo_Interaction.o
 
 ELECTRO_H   = MolalityVPSSTP.h  VPStandardStateTP.h \
               IdealMolalSoln.h \
@@ -75,7 +75,7 @@ ELECTRO_H   = MolalityVPSSTP.h  VPStandardStateTP.h \
               PDSS.h PDSS_Water.h PDSS_HKFT.h \
               HMWSoln.h electrolytes.h   \
 	      DebyeHuckel.h WaterSSTP.h MetalSHEelectrons.h VPSSMgr_Water_HKFT.h \
-              VPSSMgr_Water_ConstVol.h
+              VPSSMgr_Water_ConstVol.h PhaseCombo_Interaction.h
 endif
 ifeq ($(do_issp),1)
 ISSP_OBJ = IdealSolidSolnPhase.o  StoichSubstanceSSTP.o SingleSpeciesTP.o MineralEQ3.o \
