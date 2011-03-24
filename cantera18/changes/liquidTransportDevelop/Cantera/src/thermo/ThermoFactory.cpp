@@ -29,6 +29,7 @@
 #include "IdealSolidSolnPhase.h"
 #include "MargulesVPSSTP.h"
 #include "IonsFromNeutralVPSSTP.h"
+#include "PhaseCombo_Interaction.h"
 #endif
 
 #ifdef WITH_PURE_FLUIDS
@@ -99,7 +100,7 @@ namespace Cantera {
                               "PureFluid", "LatticeSolid", "Lattice",
                               "HMW", "IdealSolidSolution", "DebyeHuckel", 
                               "IdealMolalSolution", "IdealGasVPSS",
-			      "MineralEQ3", "MetalSHEelectrons", "Margules",
+			      "MineralEQ3", "MetalSHEelectrons", "Margules", "PhaseCombo_Interaction",
                               "IonsFromNeutralMolecule", "FixedChemPot"
     };
 
@@ -110,7 +111,7 @@ namespace Cantera {
                               cHMW, cIdealSolidSolnPhase, cDebyeHuckel,
                               cIdealMolalSoln, cVPSS_IdealGas,
 			      cMineralEQ3, cMetalSHEelectrons,
-			      cMargulesVPSSTP, cIonsFromNeutral, cFixedChemPot
+			      cMargulesVPSSTP,  cPhaseCombo_Interaction, cIonsFromNeutral, cFixedChemPot
     };
 
   /*
@@ -150,6 +151,10 @@ namespace Cantera {
 
     case cMargulesVPSSTP:
       th = new MargulesVPSSTP();
+      break;
+
+    case cPhaseCombo_Interaction:
+      th = new PhaseCombo_Interaction();
       break;
 
     case cIonsFromNeutral:

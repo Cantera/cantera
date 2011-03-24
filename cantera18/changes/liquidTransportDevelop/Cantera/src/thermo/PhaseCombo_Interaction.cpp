@@ -1,9 +1,5 @@
 /**
- *  @file MargulesVPSSTP.cpp
- *   Definitions for ThermoPhase object for phases which
- *   employ excess gibbs free energy formulations related to Margules
- *   expansions (see \ref thermoprops 
- *    and class \link Cantera::MargulesVPSSTP MargulesVPSSTP\endlink).
+ *  @file 
  *
  */
 /*
@@ -12,12 +8,12 @@
  * U.S. Government retains certain rights in this software.
  */
 /*
- *  $Date$
- *  $Revision$
+ *  $Date: 2010-11-12 14:37:41 -0700 (Fri, 12 Nov 2010) $
+ *  $Revision: 641 $
  */
 
 
-#include "MargulesVPSSTP.h"
+#include "PhaseCombo_Interaction.h"
 #include "ThermoFactory.h"
 #include <iomanip>
 
@@ -25,29 +21,32 @@ using namespace std;
 
 namespace Cantera {
 
- static  const double xxSmall = 1.0E-150;
+ static  const double xxSmall = 1.0E-150; 
+  //====================================================================================================================
   /*
    * Default constructor.
-   *
+   *  
+   * HKM - Checked for Transition
    */
-  MargulesVPSSTP::MargulesVPSSTP() :
+  PhaseCombo_Interaction::PhaseCombo_Interaction() :
     GibbsExcessVPSSTP(),
     numBinaryInteractions_(0),
     formMargules_(0),
     formTempModel_(0)
   {
   }
-
+  //====================================================================================================================
   /*
    * Working constructors
    *
    *  The two constructors below are the normal way
-   *  the phase initializes itself. They are shells that call
+   *  the phase initializes itself. They are shells that call\
    *  the routine initThermo(), with a reference to the
    *  XML database to get the info for the phase.
-
+   *
+   * HKM - Checked for Transition
    */
-  MargulesVPSSTP::MargulesVPSSTP(std::string inputFile, std::string id) :
+  PhaseCombo_Interaction::PhaseCombo_Interaction(std::string inputFile, std::string id) :
     GibbsExcessVPSSTP(),
     numBinaryInteractions_(0),
     formMargules_(0),
@@ -55,8 +54,13 @@ namespace Cantera {
   {
     constructPhaseFile(inputFile, id);
   }
-
-  MargulesVPSSTP::MargulesVPSSTP(XML_Node& phaseRoot, std::string id) :
+  //====================================================================================================================
+  //
+  /*
+   *
+   * HKM - Checked for Transition
+   */
+  PhaseCombo_Interaction::PhaseCombo_Interaction(XML_Node& phaseRoot, std::string id) :
     GibbsExcessVPSSTP(),
     numBinaryInteractions_(0),
     formMargules_(0),
@@ -65,27 +69,31 @@ namespace Cantera {
     constructPhaseXML(phaseRoot, id);
   }
 
-
+  //====================================================================================================================
   /*
    * Copy Constructor:
    *
    *  Note this stuff will not work until the underlying phase
    *  has a working copy constructor
+   *
+   * HKM - Checked for Transition
    */
-  MargulesVPSSTP::MargulesVPSSTP(const MargulesVPSSTP &b) :
+  PhaseCombo_Interaction::PhaseCombo_Interaction(const PhaseCombo_Interaction &b) :
     GibbsExcessVPSSTP()
   {
-    MargulesVPSSTP::operator=(b);
+    PhaseCombo_Interaction::operator=(b);
   }
-
+  //====================================================================================================================
   /*
    * operator=()
    *
    *  Note this stuff will not work until the underlying phase
    *  has a working assignment operator
+   *
+   * HKM - Checked for Transition
    */
-  MargulesVPSSTP& MargulesVPSSTP::
-  operator=(const MargulesVPSSTP &b) {
+  PhaseCombo_Interaction& PhaseCombo_Interaction::
+  operator=(const PhaseCombo_Interaction &b) {
     if (&b == this) {
       return *this;
     }
@@ -112,27 +120,29 @@ namespace Cantera {
     
     return *this;
   }
-
+  //====================================================================================================================
   /**
    *
-   * ~MargulesVPSSTP():   (virtual)
+   * ~PhaseCombo_Interaction():   (virtual)
    *
    * Destructor: does nothing:
-   *
+   *  
+   * HKM - Checked for Transition
    */
-  MargulesVPSSTP::~MargulesVPSSTP() {
+  PhaseCombo_Interaction::~PhaseCombo_Interaction() {
   }
-
+  //====================================================================================================================
   /*
-   * This routine duplicates the current object and returns
-   * a pointer to ThermoPhase.
+   * This routine duplicates the current object and returnsa pointer to ThermoPhase.
+   *
+   * HKM - Checked for Transition
    */
   ThermoPhase* 
-  MargulesVPSSTP::duplMyselfAsThermoPhase() const {
-    MargulesVPSSTP* mtp = new MargulesVPSSTP(*this);
+  PhaseCombo_Interaction::duplMyselfAsThermoPhase() const {
+    PhaseCombo_Interaction* mtp = new PhaseCombo_Interaction(*this);
     return (ThermoPhase *) mtp;
   }
-
+  //====================================================================================================================
   // Special constructor for a hard-coded problem
   /*
    *
@@ -140,7 +150,7 @@ namespace Cantera {
    *   -> test to predict the eutectic and liquidus correctly.
    *
    */
-  MargulesVPSSTP::MargulesVPSSTP(int testProb)  :
+  PhaseCombo_Interaction::PhaseCombo_Interaction(int testProb)  :
     GibbsExcessVPSSTP(),
     numBinaryInteractions_(0),
     formMargules_(0),
@@ -148,7 +158,7 @@ namespace Cantera {
   {
   
 
-    constructPhaseFile("LiKCl_liquid.xml", "");
+    constructPhaseFile("PhaseCombo_Interaction.xml", "");
 
 
     numBinaryInteractions_ = 1;
@@ -183,22 +193,23 @@ namespace Cantera {
     m_SE_d_ij[0] =  0.0;
     
 
-    int iLiCl = speciesIndex("LiCl(L)");
-    if (iLiCl < 0) {
-      throw CanteraError("MargulesVPSSTP test1 constructor",
-			 "Unable to find LiCl(L)");
+    int iLiT = speciesIndex("LiTFe1S2(S)");
+    if (iLiT < 0) {
+      throw CanteraError("PhaseCombo_Interaction test1 constructor",
+			 "Unable to find LiTFe1S2(S)");
     }
-    m_pSpecies_B_ij[0] = iLiCl;
+    m_pSpecies_A_ij[0] = iLiT;
 
 
-    int iKCl = speciesIndex("KCl(L)");
-    if (iKCl < 0) {
-      throw CanteraError("MargulesVPSSTP test1 constructor",
-			 "Unable to find KCl(L)");
+    int iLi2 = speciesIndex("Li2Fe1S2(S)");
+    if (iLi2 < 0) {
+      throw CanteraError("PhaseCombo_Interaction test1 constructor",
+			 "Unable to find Li2Fe1S2(S)");
     }
-    m_pSpecies_A_ij[0] = iKCl;
+    m_pSpecies_B_ij[0] = iLi2;
+    throw CanteraError("", "unimplemented");
   }
-
+  //====================================================================================================================
 
   /*
    *  -------------- Utilities -------------------------------
@@ -210,13 +221,13 @@ namespace Cantera {
    * The ThermoPhase base class returns
    * zero. Subclasses should define this to return a unique
    * non-zero value. Known constants defined for this purpose are
-   * listed in mix_defs.h. The MargulesVPSSTP class also returns
+   * listed in mix_defs.h. The PhaseCombo_Interaction class also returns
    * zero, as it is a non-complete class.
    */
-  int MargulesVPSSTP::eosType() const { 
-    return 0;
+  int PhaseCombo_Interaction::eosType() const { 
+    return cPhaseCombo_Interaction;
   }
-
+  //====================================================================================================================
   /*
    *   Import, construct, and initialize a phase
    *   specification from an XML tree into the current object.
@@ -230,18 +241,20 @@ namespace Cantera {
    * @param id  Optional parameter identifying the name of the
    *            phase. If none is given, the first XML
    *            phase element will be used.
+   *
+   * HKM - Checked for Transition
    */
-  void MargulesVPSSTP::constructPhaseFile(std::string inputFile, std::string id) {
+  void PhaseCombo_Interaction::constructPhaseFile(std::string inputFile, std::string id) {
 
     if ((int) inputFile.size() == 0) {
-      throw CanteraError("MargulesVPSSTP:constructPhaseFile",
+      throw CanteraError("PhaseCombo_Interaction:constructPhaseFile",
                          "input file is null");
     }
     string path = findInputFile(inputFile);
     std::ifstream fin(path.c_str());
     if (!fin) {
-      throw CanteraError("MargulesVPSSTP:constructPhaseFile","could not open "
-                         +path+" for reading.");
+      throw CanteraError("PhaseCombo_Interaction:constructPhaseFile",
+			 "Could not open " +path+" for reading.");
     }
     /*
      * The phase object automatically constructs an XML object.
@@ -252,15 +265,14 @@ namespace Cantera {
     fxml->build(fin);
     XML_Node *fxml_phase = findXMLPhase(fxml, id);
     if (!fxml_phase) {
-      throw CanteraError("MargulesVPSSTP:constructPhaseFile",
-                         "ERROR: Can not find phase named " +
-                         id + " in file named " + inputFile);
+      throw CanteraError("PhaseCombo_Interaction:constructPhaseFile",
+                         "ERROR: Can not find phase named " + id + " in file named " + inputFile);
     }
     fxml_phase->copy(&phaseNode_XML);
     constructPhaseXML(*fxml_phase, id);
     delete fxml;
   }
-
+  //====================================================================================================================
   /*
    *   Import, construct, and initialize a HMWSoln phase 
    *   specification from an XML tree into the current object.
@@ -287,49 +299,49 @@ namespace Cantera {
    * @param id   ID of the phase. If nonnull, a check is done
    *             to see if phaseNode is pointing to the phase
    *             with the correct id. 
+   *
+   * HKM - Checked for Transition
    */
-  void MargulesVPSSTP::constructPhaseXML(XML_Node& phaseNode, std::string id) {
+  void PhaseCombo_Interaction::constructPhaseXML(XML_Node& phaseNode, std::string id) {
     string stemp;
     if ((int) id.size() > 0) {
       string idp = phaseNode.id();
       if (idp != id) {
-	throw CanteraError("MargulesVPSSTP::constructPhaseXML", 
+	throw CanteraError("PhaseCombo_Interaction::constructPhaseXML", 
 			   "phasenode and Id are incompatible");
       }
     }
 
     /*
-     * Find the Thermo XML node 
+     * Find the Thermo XML node
      */
     if (!phaseNode.hasChild("thermo")) {
-      throw CanteraError("MargulesVPSSTP::constructPhaseXML",
+      throw CanteraError("PhaseCombo_Interaction::constructPhaseXML",
 			 "no thermo XML node");
     }
     XML_Node& thermoNode = phaseNode.child("thermo");
 
     /*
-     * Make sure that the thermo model is Margules
+     * Make sure that the thermo model is PhaseCombo_Interaction
      */ 
     stemp = thermoNode.attrib("model");
     string formString = lowercase(stemp);
-    if (formString != "margules") {
-      throw CanteraError("MargulesVPSSTP::constructPhaseXML",
-			 "model name isn't Margules: " + formString);
-    
+    if (formString != "phasecombo_interaction") {
+      throw CanteraError("PhaseCombo_Interaction::constructPhaseXML",
+			 "model name isn't PhaseCombo_Interaction: " + formString);
     }
 
     /*
      * Call the Cantera importPhase() function. This will import
      * all of the species into the phase. This will also handle
-     * all of the solvent and solute standard states
+     * all of the species standard states
      */
     bool m_ok = importPhase(phaseNode, this);
     if (!m_ok) {
-      throw CanteraError("MargulesVPSSTP::constructPhaseXML","importPhase failed "); 
+      throw CanteraError("PhaseCombo_Interaction::constructPhaseXML","importPhase failed "); 
     }
-    
   }
-
+  //====================================================================================================================
 
   /*
    * ------------ Molar Thermodynamic Properties ----------------------
@@ -360,17 +372,17 @@ namespace Cantera {
    *           units depend upon the implementation of the
    *           reaction rate expressions within the phase.
    */
-  void MargulesVPSSTP::getActivityConcentrations(doublereal* c) const {
+  void PhaseCombo_Interaction::getActivityConcentrations(doublereal* c) const {
     getActivities(c);
   }
-
-  doublereal MargulesVPSSTP::standardConcentration(int k) const {
+  //====================================================================================================================
+  doublereal PhaseCombo_Interaction::standardConcentration(int k) const {
     //err("standardConcentration");
     //return -1.0;
     return 1.0;
   }
-
-  doublereal MargulesVPSSTP::logStandardConc(int k) const {
+  //====================================================================================================================
+  doublereal PhaseCombo_Interaction::logStandardConc(int k) const {
     //err("logStandardConc");
     //return -1.0;
     return 0.0;
@@ -381,7 +393,7 @@ namespace Cantera {
   /*
    * @param ac Output vector of activity coefficients. Length: m_kk.
    */
-  void MargulesVPSSTP::getActivityCoefficients(doublereal* ac) const {
+  void PhaseCombo_Interaction::getActivityCoefficients(doublereal* ac) const {
     /*
      * Update the activity coefficients
      */
@@ -399,9 +411,9 @@ namespace Cantera {
    * ------------ Partial Molar Properties of the Solution ------------
    */
 
+  //====================================================================================================================
 
-
-  void MargulesVPSSTP::getElectrochemPotentials(doublereal* mu) const {
+  void PhaseCombo_Interaction::getElectrochemPotentials(doublereal* mu) const {
     getChemPotentials(mu);
     double ve = Faraday * electricPotential();
     for (int k = 0; k < m_kk; k++) {
@@ -409,8 +421,8 @@ namespace Cantera {
     }
   }
 
-
-  void MargulesVPSSTP::getChemPotentials(doublereal* mu) const {
+  //====================================================================================================================
+  void PhaseCombo_Interaction::getChemPotentials(doublereal* mu) const {
     doublereal xx;
     /*
      * First get the standard chemical potentials in
@@ -432,45 +444,45 @@ namespace Cantera {
       mu[k] += RT * (log(xx) + lnActCoeff_Scaled_[k]);      
     }
   }
-
-      /// Molar enthalpy. Units: J/kmol. 
-    doublereal MargulesVPSSTP::enthalpy_mole() const {
-      int kk = nSpecies();
-      double hbar[kk], h = 0;
-      getPartialMolarEnthalpies(hbar);
-      for (int i = 0; i < kk; i++){
-	h += moleFractions_[i]*hbar[i];
-      }
-      return h;
+  //====================================================================================================================
+  // Molar enthalpy. Units: J/kmol. 
+  doublereal PhaseCombo_Interaction::enthalpy_mole() const {
+    int kk = nSpecies();
+    double hbar[kk], h = 0;
+    getPartialMolarEnthalpies(hbar);
+    for (int i = 0; i < kk; i++){
+      h += moleFractions_[i]*hbar[i];
     }
-
-      /// Molar entropy. Units: J/kmol. 
-    doublereal MargulesVPSSTP::entropy_mole() const {
-      int kk = nSpecies();
-      double sbar[kk], s = 0;
-      getPartialMolarEntropies(sbar);
-      for (int i = 0; i < kk; i++){
-	s += moleFractions_[i]*sbar[i];
-      }
-      return s;
+    return h;
+  }
+  //====================================================================================================================
+  // Molar entropy. Units: J/kmol. 
+  doublereal PhaseCombo_Interaction::entropy_mole() const {
+    int kk = nSpecies();
+    double sbar[kk], s = 0;
+    getPartialMolarEntropies(sbar);
+    for (int i = 0; i < kk; i++){
+      s += moleFractions_[i]*sbar[i];
     }
-
-    /// Molar heat capacity at constant pressure. Units: J/kmol/K. 
-    doublereal MargulesVPSSTP::cp_mole() const {
-      int kk = nSpecies();
-      double cpbar[kk], cp = 0;
-      getPartialMolarCp(cpbar);
-      for (int i = 0; i < kk; i++){
-	cp += moleFractions_[i]*cpbar[i];
-      }
-      return cp;
+    return s;
+  }
+  //====================================================================================================================
+  // Molar heat capacity at constant pressure. Units: J/kmol/K. 
+  doublereal PhaseCombo_Interaction::cp_mole() const {
+    int kk = nSpecies();
+    double cpbar[kk], cp = 0;
+    getPartialMolarCp(cpbar);
+    for (int i = 0; i < kk; i++){
+      cp += moleFractions_[i]*cpbar[i];
     }
-
-    /// Molar heat capacity at constant volume. Units: J/kmol/K. 
-    doublereal MargulesVPSSTP::cv_mole() const {
-      return cp_mole() - GasConstant;
-    }
- 
+    return cp;
+  }
+  //====================================================================================================================
+  // Molar heat capacity at constant volume. Units: J/kmol/K. 
+  doublereal PhaseCombo_Interaction::cv_mole() const {
+    return cp_mole() - GasConstant;
+  }
+  //====================================================================================================================
   // Returns an array of partial molar enthalpies for the species
   // in the mixture.
   /*
@@ -485,7 +497,7 @@ namespace Cantera {
    * \f]
    *
    */
-  void MargulesVPSSTP::getPartialMolarEnthalpies(doublereal* hbar) const {
+  void PhaseCombo_Interaction::getPartialMolarEnthalpies(doublereal* hbar) const {
     /*
      * Get the nondimensional standard state enthalpies
      */
@@ -509,9 +521,8 @@ namespace Cantera {
       hbar[k] -= RTT * dlnActCoeffdT_Scaled_[k];
     }
   }
-
-  // Returns an array of partial molar heat capacities for the species
-  // in the mixture.
+  //====================================================================================================================
+  // Returns an array of partial molar heat capacities for the species in the mixture.
   /*
    * Units (J/kmol)
    *
@@ -524,7 +535,7 @@ namespace Cantera {
    * \f]
    *
    */
-  void MargulesVPSSTP::getPartialMolarCp(doublereal* cpbar) const {
+  void PhaseCombo_Interaction::getPartialMolarCp(doublereal* cpbar) const {
     /*
      * Get the nondimensional standard state entropies
      */
@@ -547,7 +558,7 @@ namespace Cantera {
       cpbar[k] *= GasConstant;
     }
   }
-
+  //====================================================================================================================
   // Returns an array of partial molar entropies for the species
   // in the mixture.
   /*
@@ -558,11 +569,11 @@ namespace Cantera {
    * activity coefficent wrt temperature
    *
    *  \f[
-   * \bar s_k(T,P) = s^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}
+   *         \bar s_k(T,P) = s^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}
    * \f]
    *
    */
-  void MargulesVPSSTP::getPartialMolarEntropies(doublereal* sbar) const {
+  void PhaseCombo_Interaction::getPartialMolarEntropies(doublereal* sbar) const {
     double xx;
     /*
      * Get the nondimensional standard state entropies
@@ -578,7 +589,7 @@ namespace Cantera {
 
     for (int k = 0; k < m_kk; k++) {
       xx = fmaxx(moleFractions_[k], xxSmall);
-      sbar[k] += - lnActCoeff_Scaled_[k] -log(xx) - T * dlnActCoeffdT_Scaled_[k];
+      sbar[k] += - lnActCoeff_Scaled_[k] - log(xx) - T * dlnActCoeffdT_Scaled_[k];
     }  
     /*
      * dimensionalize it.
@@ -587,13 +598,12 @@ namespace Cantera {
       sbar[k] *= GasConstant;
     }
   }
-  
+  //====================================================================================================================
   /*
    * ------------ Partial Molar Properties of the Solution ------------
    */
 
-  // Return an array of partial molar volumes for the
-  // species in the mixture. Units: m^3/kmol.
+  // Return an array of partial molar volumes for the species in the mixture. Units: m^3/kmol.
   /*
    *  Frequently, for this class of thermodynamics representations,
    *  the excess Volume due to mixing is zero. Here, we set it as
@@ -602,7 +612,7 @@ namespace Cantera {
    *  @param vbar   Output vector of speciar partial molar volumes.
    *                Length = m_kk. units are m^3/kmol.
    */
-  void MargulesVPSSTP::getPartialMolarVolumes(doublereal* vbar) const {
+  void PhaseCombo_Interaction::getPartialMolarVolumes(doublereal* vbar) const {
 
     int iA, iB, iK, delAK, delBK;
     double XA, XB, XK, g0 , g1;
@@ -613,7 +623,6 @@ namespace Cantera {
      */
     getStandardVolumes(vbar);
  
-    
     for ( iK = 0; iK < m_kk; iK++ ){
       delAK = 0;
       delBK = 0;
@@ -636,14 +645,14 @@ namespace Cantera {
       }
     }
   }  
-
-  doublereal MargulesVPSSTP::err(std::string msg) const {
-    throw CanteraError("MargulesVPSSTP","Base class method "
+  //====================================================================================================================
+  doublereal PhaseCombo_Interaction::err(std::string msg) const {
+    throw CanteraError("PhaseCombo_Interaction","Base class method "
 		       +msg+" called. Equation of state type: "+int2str(eosType()));
     return 0;
   }
 
-
+  //====================================================================================================================
   /*
    * @internal Initialize. This method is provided to allow
    * subclasses to perform any initialization required after all
@@ -657,19 +666,19 @@ namespace Cantera {
    *
    * @see importCTML.cpp
    */
-  void MargulesVPSSTP::initThermo() {
+  void PhaseCombo_Interaction::initThermo() {
     initLengths();
     GibbsExcessVPSSTP::initThermo();
   }
 
-
+  //====================================================================================================================
   //   Initialize lengths of local variables after all species have
   //   been identified.
-  void  MargulesVPSSTP::initLengths() {
+  void  PhaseCombo_Interaction::initLengths() {
     m_kk = nSpecies();
     dlnActCoeffdlnN_.resize(m_kk, m_kk);
   }
-
+  //====================================================================================================================
   /*
    * initThermoXML()                (virtual from ThermoPhase)
    *   Import and initialize a ThermoPhase object
@@ -685,8 +694,8 @@ namespace Cantera {
    *             to see if phaseNode is pointing to the phase
    *             with the correct id. 
    */
-  void MargulesVPSSTP::initThermoXML(XML_Node& phaseNode, std::string id) {
-    string subname = "MargulesVPSSTP::initThermoXML";
+  void PhaseCombo_Interaction::initThermoXML(XML_Node& phaseNode, std::string id) {
+    string subname = "PhaseCombo_Interaction::initThermoXML";
     string stemp;
 
     /*
@@ -697,9 +706,8 @@ namespace Cantera {
     XML_Node& thermoNode = phaseNode.child("thermo");
     string mStringa = thermoNode.attrib("model");
     string mString = lowercase(mStringa);
-    if (mString != "margules") {
-      throw CanteraError(subname.c_str(),
-			 "Unknown thermo model: " + mStringa);
+    if (mString != "phasecombo_interaction") {
+      throw CanteraError(subname.c_str(), "Unknown thermo model: " + mStringa);
     }
  
 
@@ -746,22 +754,36 @@ namespace Cantera {
 
   }
   //===================================================================================================================
- 
   // Update the activity coefficients
   /*
    * This function will be called to update the internally storred
    * natural logarithm of the activity coefficients
    *
    *   he = X_A X_B(B + C X_B)
+   *
+   *  HKM - Checked for Transition
    */
-    void MargulesVPSSTP::s_update_lnActCoeff() const {
+    void PhaseCombo_Interaction::s_update_lnActCoeff() const {
     int iA, iB, iK, delAK, delBK;
-    double XA, XB, XK, g0 , g1;
-    double T = temperature();
-    double RT = GasConstant*T;
+    doublereal XA, XB, g0 , g1;
+    doublereal xx;
+    doublereal T = temperature();
+    doublereal RT = GasConstant*T;
     fvo_zero_dbl_1(lnActCoeff_Scaled_, m_kk);
+
     for (iK = 0; iK < m_kk; iK++) {
-      XK = moleFractions_[iK];  
+      /*
+       *  We never sample the end of the mole fraction domains
+       */
+      xx = fmaxx(moleFractions_[iK], xxSmall);
+      /*
+       *  First wipe out the ideal solution mixing term
+       */  
+      lnActCoeff_Scaled_[iK] = - log(xx);
+
+      /*
+       *  Then add in the Margules interaction terms. that's it!
+       */
       for (int i = 0; i <  numBinaryInteractions_; i++) {
 	iA =  m_pSpecies_A_ij[i];    
 	iB =  m_pSpecies_B_ij[i];
@@ -784,8 +806,10 @@ namespace Cantera {
    * natural logarithm of the activity coefficients
    *
    *   he = X_A X_B(B + C X_B)
+   *
+   *  HKM - Checked for Transition
    */
-  void MargulesVPSSTP::s_update_dlnActCoeff_dT() const {
+  void PhaseCombo_Interaction::s_update_dlnActCoeff_dT() const {
     int iA, iB, iK, delAK, delBK;
     doublereal XA, XB, g0, g1;
     doublereal T = temperature();
@@ -811,14 +835,22 @@ namespace Cantera {
     }
   }
   //====================================================================================================================
-  void MargulesVPSSTP::getdlnActCoeffdT(doublereal *dlnActCoeffdT) const {
+  //
+  /*
+   * HKM - Checked for Transition
+   */
+  void PhaseCombo_Interaction::getdlnActCoeffdT(doublereal *dlnActCoeffdT) const {
     s_update_dlnActCoeff_dT();
     for (int k = 0; k < m_kk; k++) {
       dlnActCoeffdT[k] = dlnActCoeffdT_Scaled_[k];
     }
   }
   //====================================================================================================================
-  void MargulesVPSSTP::getd2lnActCoeffdT2(doublereal *d2lnActCoeffdT2) const {
+  //
+  /*
+   * HKM - Checked for Transition
+   */
+  void PhaseCombo_Interaction::getd2lnActCoeffdT2(doublereal *d2lnActCoeffdT2) const {
     s_update_dlnActCoeff_dT();
     for (int k = 0; k < m_kk; k++) {
       d2lnActCoeffdT2[k] = d2lnActCoeffdT2_Scaled_[k];
@@ -836,23 +868,36 @@ namespace Cantera {
    * @param dlnActCoeffds  Output vector of the directional derivatives of the 
    *                       log Activity Coefficients along the path. length = m_kk
    *  units are 1/units(s). if s is a physical coordinate then the units are 1/m.
+   *
+   * HKM - Checked for Transition
    */
-  void  MargulesVPSSTP::getdlnActCoeffds(const doublereal dTds, const doublereal * const dXds,
+  void  PhaseCombo_Interaction::getdlnActCoeffds(const doublereal dTds, const doublereal * const dXds,
 					 doublereal *dlnActCoeffds) const {
   
 
     int iA, iB, iK, delAK, delBK;
-    double XA, XB, XK, g0 , g1, dXA, dXB;
-    double T = temperature();
-    double RT = GasConstant*T;
+    doublereal XA, XB, XK, g0 , g1, dXA, dXB;
+    doublereal T = temperature();
+    doublereal RT = GasConstant*T;
+    doublereal xx;
 
     //fvo_zero_dbl_1(dlnActCoeff, m_kk);
     s_update_dlnActCoeff_dT();
 
-    for ( iK = 0; iK < m_kk; iK++ ){
+    for (iK = 0; iK < m_kk; iK++) {
 
       XK = moleFractions_[iK];  
-      dlnActCoeffds[iK] = 0.0;
+ 
+      /*
+       *  We never sample the end of the mole fraction domains
+       */
+      xx = fmaxx(moleFractions_[iK], xxSmall);
+      /*
+       *  First wipe out the ideal solution mixing term
+       */  
+      if (xx > xxSmall) {
+	dlnActCoeffds[iK] += - 1.0 / xx;
+      }
 
       for (int i = 0; i <  numBinaryInteractions_; i++) {
     
@@ -880,25 +925,41 @@ namespace Cantera {
     }
   }
   //====================================================================================================================
-  // Update the derivative of the log of the activity coefficients wrt dlnN
+  // Update the derivative of the log of the activity coefficients wrt the log of the corresponding species number density
   /*
    * This function will be called to update the internally stored gradients of the 
    * logarithm of the activity coefficients.  These are used in the determination 
    * of the diffusion coefficients.
    *
    *   he = X_A X_B(B + C X_B)
+   *
+   *  This function only carries out the diagonal calculation
+   *
+   * HKM - Checked for Transition
    */
-  void MargulesVPSSTP::s_update_dlnActCoeff_dlnN_diag() const {
+  void PhaseCombo_Interaction::s_update_dlnActCoeff_dlnN_diag() const {
     int iA, iB, iK, delAK, delBK;
-    double XA, XB, XK, g0 , g1;
-    double T = temperature();
-    double RT = GasConstant*T;
+    doublereal XA, XB, XK, g0 , g1;
+    doublereal T = temperature();
+    doublereal RT = GasConstant*T;
+    doublereal xx;
 
     fvo_zero_dbl_1(dlnActCoeffdlnN_diag_, m_kk);
     
-    for ( iK = 0; iK < m_kk; iK++ ){
+    for (iK = 0; iK < m_kk; iK++) {
 
       XK = moleFractions_[iK];  
+      /*
+       *  We never sample the end of the mole fraction domains
+       */
+      xx = fmaxx(moleFractions_[iK], xxSmall);
+      /*
+       *  First wipe out the ideal solution mixing term
+       */  
+      // lnActCoeff_Scaled_[iK] = - log(xx);
+      if (xx > xxSmall) {
+	dlnActCoeffdlnN_diag_[iK] = - 1.0 + xx;
+      }
 
       for (int i = 0; i <  numBinaryInteractions_; i++) {
     
@@ -918,39 +979,25 @@ namespace Cantera {
 	g1 = (m_HE_c_ij[i] - T * m_SE_c_ij[i]) / RT;
 	
 	dlnActCoeffdlnN_diag_[iK] += 2*(delBK-XB)*(g0*(delAK-XA)+g1*(2*(delAK-XA)*XB+XA*(delBK-XB)));
-
-// 	double gfac = g0 + g1 * XB;
-// 	double gggg = (delBK - XB) * g1;
-	
-
-// 	dlnActCoeffdlnN_diag_[iK] += gfac * delAK * ( - XB + delBK);
-	
-// 	dlnActCoeffdlnN_diag_[iK] += gfac * delBK * ( - XA + delAK);
-	
-// 	dlnActCoeffdlnN_diag_[iK] += gfac * (2.0 * XA * XB - delAK * XB - XA * delBK);
-	
-// 	dlnActCoeffdlnN_diag_[iK] += (delAK * XB + XA * delBK - XA * XB) * g1 * (-XB + delBK);
-	
-// 	dlnActCoeffdlnN_diag_[iK] += gggg * ( - 2.0 * XA * XB + delAK * XB + XA * delBK);
-	
-// 	dlnActCoeffdlnN_diag_[iK] += - g1 * XA * XB * (- XB + delBK);
       }
-      dlnActCoeffdlnN_diag_[iK] = XK*dlnActCoeffdlnN_diag_[iK];//-XK;
+      dlnActCoeffdlnN_diag_[iK] = XK*dlnActCoeffdlnN_diag_[iK];
     }
+   
   }
-
   //====================================================================================================================
-  // Update the derivative of the log of the activity coefficients wrt dlnN
+  // Update the derivative of the log of the activity coefficients wrt ln N_k
   /*
-   * This function will be called to update the internally stored gradients of the 
+   * This function will be called to update the internally storred gradients of the 
    * logarithm of the activity coefficients.  These are used in the determination 
    * of the diffusion coefficients.
    *
+   * HKM - Checked for Transition
    */
-  void MargulesVPSSTP::s_update_dlnActCoeff_dlnN() const {
+  void PhaseCombo_Interaction::s_update_dlnActCoeff_dlnN() const {
     int iA, iB;
     doublereal delAK, delBK;
-    double XA, XB, g0 , g1, XK,XM;
+    double XA, XB, g0 , g1, XK, XM;
+    double xx , delKM;
     double T = temperature();
     double RT = GasConstant*T;
  
@@ -963,8 +1010,22 @@ namespace Cantera {
      */
     for (int iK = 0; iK < m_kk; iK++) {
       XK = moleFractions_[iK];
+      /*
+       *  We never sample the end of the mole fraction domains
+       */
+      xx = fmaxx(moleFractions_[iK], xxSmall);
+
       for (int iM = 0; iM < m_kk; iM++) {
 	XM = moleFractions_[iM];
+
+	if (xx > xxSmall) {
+	  delKM = 0.0;
+	  if (iK == iM) delKM = 1.0;
+	  // this gets multiplied by XM at the bottom
+	  dlnActCoeffdlnN_(iK,iM) += - delKM/XM + 1.0;
+	}
+
+
 	for (int i = 0; i <  numBinaryInteractions_; i++) {
     
 	  iA =  m_pSpecies_A_ij[i];    
@@ -988,28 +1049,13 @@ namespace Cantera {
 	  dlnActCoeffdlnN_(iK,iM) += g0*((delAM-XA)*(delBK-XB)+(delAK-XA)*(delBM-XB));
 	  dlnActCoeffdlnN_(iK,iM) += 2*g1*((delAM-XA)*(delBK-XB)*XB+(delAK-XA)*(delBM-XB)*XB+(delBM-XB)*(delBK-XB)*XA);
 
-// 	  double gfac = g0 + g1 * XB;
-// 	  double gggg = (delBK - XB) * g1;
-
-
-// 	  dlnActCoeffdlnN_(iK, iM) += gfac * delAK * ( - XB + delBM);
-
-// 	  dlnActCoeffdlnN_(iK, iM) += gfac * delBK * ( - XA + delAM);
-	  
-// 	  dlnActCoeffdlnN_(iK, iM) += gfac * (2.0 * XA * XB - delAM * XB - XA * delBM);
-	
-// 	  dlnActCoeffdlnN_(iK, iM) += (delAK * XB + XA * delBK - XA * XB) * g1 * (-XB + delBM);
-
-// 	  dlnActCoeffdlnN_(iK, iM) += gggg * ( - 2.0 * XA * XB + delAM * XB + XA * delBM);
-
-// 	  dlnActCoeffdlnN_(iK, iM) += - g1 * XA * XB * (- XB + delBM);
 	}
-	dlnActCoeffdlnN_(iK,iM) = XM*dlnActCoeffdlnN_(iK,iM);
+	dlnActCoeffdlnN_(iK,iM) = XM * dlnActCoeffdlnN_(iK,iM);
       }
     }
   }
   //====================================================================================================================
-  void MargulesVPSSTP::s_update_dlnActCoeff_dlnX_diag() const {
+  void PhaseCombo_Interaction::s_update_dlnActCoeff_dlnX_diag() const {
 
     int iA, iB;
     doublereal XA, XB, g0 , g1;
@@ -1033,35 +1079,52 @@ namespace Cantera {
       
       dlnActCoeffdlnX_diag_[iA] += XA*XB*(2*g1*-2*g0-6*g1*XB);
       dlnActCoeffdlnX_diag_[iB] += XA*XB*(2*g1*-2*g0-6*g1*XB);
-    }
+    }  
+    throw CanteraError("", "unimplemented");
   }
   
   //====================================================================================================================
-  void MargulesVPSSTP::getdlnActCoeffdlnN_diag(doublereal *dlnActCoeffdlnN_diag) const {
+  //
+  /*
+   * HKM - Checked for Transition
+   */
+  void PhaseCombo_Interaction::getdlnActCoeffdlnN_diag(doublereal *dlnActCoeffdlnN_diag) const {
     s_update_dlnActCoeff_dlnN_diag();
     for (int k = 0; k < m_kk; k++) {
       dlnActCoeffdlnN_diag[k] = dlnActCoeffdlnN_diag_[k];
     }
   }
   //====================================================================================================================
-  void MargulesVPSSTP::getdlnActCoeffdlnX_diag(doublereal *dlnActCoeffdlnX_diag) const {
+  //
+  /*
+   * HKM - Checked for Transition
+   */
+  void PhaseCombo_Interaction::getdlnActCoeffdlnX_diag(doublereal *dlnActCoeffdlnX_diag) const {
     s_update_dlnActCoeff_dlnX_diag();
     for (int k = 0; k < m_kk; k++) {
       dlnActCoeffdlnX_diag[k] = dlnActCoeffdlnX_diag_[k];
     }
   }
   //====================================================================================================================
-  void MargulesVPSSTP::getdlnActCoeffdlnN(const int ld, doublereal *dlnActCoeffdlnN) const {
+  //
+  /*
+   * HKM - Checked for Transition
+   */
+  void PhaseCombo_Interaction::getdlnActCoeffdlnN(const int ld, doublereal *dlnActCoeffdlnN) const {
     s_update_dlnActCoeff_dlnN();
     double *data =  & dlnActCoeffdlnN_(0,0);
     for (int k = 0; k < m_kk; k++) {
       for (int m = 0; m < m_kk; m++) {
 	dlnActCoeffdlnN[ld * k + m] = data[m_kk * k + m];
-      }
+      } 
     }
   }
- //====================================================================================================================
-  void MargulesVPSSTP::resizeNumInteractions(const int num) {
+  //====================================================================================================================
+  //
+  /*
+   * HKM - Checked for Transition
+   */
+  void PhaseCombo_Interaction::resizeNumInteractions(const int num) {
     numBinaryInteractions_ = num;
     m_HE_b_ij.resize(num, 0.0);
     m_HE_c_ij.resize(num, 0.0);
@@ -1078,7 +1141,7 @@ namespace Cantera {
 
     m_pSpecies_A_ij.resize(num, -1);
     m_pSpecies_B_ij.resize(num, -1);
-
+   throw CanteraError("", "unimplemented");
   }
   //====================================================================================================================
 
@@ -1089,10 +1152,10 @@ namespace Cantera {
    * This function reads the XML file and writes the coefficients
    * it finds to an internal data structures.
    */
-  void MargulesVPSSTP::readXMLBinarySpecies(XML_Node &xmLBinarySpecies) {
+  void PhaseCombo_Interaction::readXMLBinarySpecies(XML_Node &xmLBinarySpecies) {
     string xname = xmLBinarySpecies.name();
     if (xname != "binaryNeutralSpeciesParameters") {
-      throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies",
+      throw CanteraError("PhaseCombo_Interaction::readXMLBinarySpecies",
                          "Incorrect name for processing this routine: " + xname);
     }
     double *charge = DATA_PTR(m_speciesCharge);
@@ -1101,11 +1164,11 @@ namespace Cantera {
     vector_fp vParams;
     string iName = xmLBinarySpecies.attrib("speciesA");
     if (iName == "") {
-      throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies", "no speciesA attrib");
+      throw CanteraError("PhaseCombo_Interaction::readXMLBinarySpecies", "no speciesA attrib");
     }
     string jName = xmLBinarySpecies.attrib("speciesB");
     if (jName == "") {
-      throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies", "no speciesB attrib");
+      throw CanteraError("PhaseCombo_Interaction::readXMLBinarySpecies", "no speciesB attrib");
     }
     /*
      * Find the index of the species in the current phase. It's not
@@ -1117,7 +1180,7 @@ namespace Cantera {
     }
     string ispName = speciesName(iSpecies);
     if (charge[iSpecies] != 0) {
-      throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies", "speciesA charge problem");
+      throw CanteraError("PhaseCombo_Interaction::readXMLBinarySpecies", "speciesA charge problem");
     }
     int jSpecies = speciesIndex(jName);
     if (jSpecies < 0) {
@@ -1125,7 +1188,7 @@ namespace Cantera {
     }
     string jspName = speciesName(jSpecies);
     if (charge[jSpecies] != 0) {
-      throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies", "speciesB charge problem");
+      throw CanteraError("PhaseCombo_Interaction::readXMLBinarySpecies", "speciesB charge problem");
     }
 
     resizeNumInteractions(numBinaryInteractions_ + 1);
@@ -1149,7 +1212,7 @@ namespace Cantera {
         nParamsFound = vParams.size();
        
 	if (nParamsFound != 2) {
-	  throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies::excessEnthalpy for " + ispName
+	  throw CanteraError("PhaseCombo_Interaction::readXMLBinarySpecies::excessEnthalpy for " + ispName
 			     + "::" + jspName,
 			     "wrong number of params found");
 	}
@@ -1165,7 +1228,7 @@ namespace Cantera {
         nParamsFound = vParams.size();
        
 	if (nParamsFound != 2) {
-	  throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies::excessEntropy for " + ispName
+	  throw CanteraError("PhaseCombo_Interaction::readXMLBinarySpecies::excessEntropy for " + ispName
 			     + "::" + jspName,
 			     "wrong number of params found");
 	}
@@ -1181,7 +1244,7 @@ namespace Cantera {
         nParamsFound = vParams.size();
        
 	if (nParamsFound != 2) {
-	  throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies::excessVolume_Enthalpy for " + ispName
+	  throw CanteraError("PhaseCombo_Interaction::readXMLBinarySpecies::excessVolume_Enthalpy for " + ispName
 			     + "::" + jspName,
 			     "wrong number of params found");
 	}
@@ -1197,7 +1260,7 @@ namespace Cantera {
         nParamsFound = vParams.size();
        
 	if (nParamsFound != 2) {
-	  throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies::excessVolume_Entropy for " + ispName
+	  throw CanteraError("PhaseCombo_Interaction::readXMLBinarySpecies::excessVolume_Entropy for " + ispName
 			     + "::" + jspName,
 			     "wrong number of params found");
 	}
@@ -1207,8 +1270,7 @@ namespace Cantera {
 
 
     } 
-    
   }
- 
+  //====================================================================================================================
 }
-
+//======================================================================================================================

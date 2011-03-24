@@ -75,6 +75,7 @@ namespace Cantera {
 
   const int cMargulesVPSSTP = 301;
 
+  const int cPhaseCombo_Interaction = 305;
 
   const int cIonsFromNeutral = 2000;
 
