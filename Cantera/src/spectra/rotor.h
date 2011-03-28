@@ -14,7 +14,6 @@
  */
 
 #include "ct_defs.h"
-using namespace Cantera;
 
 /**
  * Namespace for spectroscopic functions and classes. 
@@ -63,24 +62,24 @@ namespace CanteraSpectra {
 
     /** convert from Hz to wavenmbers */
     inline doublereal hz_to_wnum(doublereal freq) {
-        return freq/(100.0*lightSpeed);
+        return freq/(100.0*Cantera::lightSpeed);
     }
 
     /** Convert from wavenumbers to Joules. */
     inline doublereal wnum_to_J(doublereal w) {
-        return Planck * w * 100.0 * lightSpeed;
+        return Cantera::Planck * w * 100.0 * Cantera::lightSpeed;
     }
 
     inline doublereal J_to_wnum(doublereal e) {
-        return e /(Planck * 100.0 * lightSpeed);
+        return e /(Cantera::Planck * 100.0 * Cantera::lightSpeed);
     }
 
     inline doublereal wnum_to_eV(doublereal w) {
-        return Planck * w * 100.0 * lightSpeed / ElectronCharge;
+        return Cantera::Planck * w * 100.0 * Cantera::lightSpeed / Cantera::ElectronCharge;
     }
 
     inline doublereal eV_to_wnum(doublereal e) {
-        return e * ElectronCharge / (Planck * 100.0 * lightSpeed);
+        return e * Cantera::ElectronCharge / (Cantera::Planck * 100.0 * Cantera::lightSpeed);
     }
 }
 
