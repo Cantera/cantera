@@ -82,7 +82,7 @@ namespace CanteraZeroD {
             setKineticsMgr(contents);
         }
 
-        void setKineticsMgr(Kinetics& kin) {
+        void setKineticsMgr(Cantera::Kinetics& kin) {
             m_kin = &kin;
             if (m_kin->nReactions() == 0) disableChemistry();
         }
@@ -122,24 +122,24 @@ namespace CanteraZeroD {
 
     protected:
         
-        Kinetics*   m_kin;
+        Cantera::Kinetics*   m_kin;
 
         doublereal m_temp_atol;      // tolerance on T
         doublereal m_maxstep;        // max step size
         doublereal m_vdot, m_Q;
-        vector_fp m_atol;
+        Cantera::vector_fp m_atol;
         doublereal m_rtol;
-        vector_fp m_work;
-        vector_fp m_sdot;            // surface production rates
+        Cantera::vector_fp m_work;
+        Cantera::vector_fp m_sdot;            // surface production rates
         bool m_chem;
         bool m_energy;
         int m_nv;
 
         int m_nsens;
-        vector_int m_pnum;
+        Cantera::vector_int m_pnum;
         std::vector<std::string> m_pname;
-        vector_int m_nsens_wall;
-        vector_fp m_mult_save;
+        Cantera::vector_int m_nsens_wall;
+        Cantera::vector_fp m_mult_save;
 
     private:
     };

@@ -20,8 +20,6 @@
 
 #include "ThermoPhase.h"
 
-using namespace Cantera;
-
 /// Namespace for classes implementing zero-dimensional reactor networks. 
 namespace CanteraZeroD {
 
@@ -82,7 +80,7 @@ namespace CanteraZeroD {
          * a pointer to this substance is stored, and as the integration
          * proceeds, the state of the substance is modified.
          */
-        void setThermoMgr(thermo_t& thermo);
+        void setThermoMgr(Cantera::thermo_t& thermo);
 
         void addInlet(FlowDevice& inlet);
         void addOutlet(FlowDevice& outlet);
@@ -118,9 +116,9 @@ namespace CanteraZeroD {
         void resetState();
 
         /// return a reference to the contents.
-        thermo_t& contents() { return *m_thermo; }
+        Cantera::thermo_t& contents() { return *m_thermo; }
 
-        const thermo_t& contents() const { return *m_thermo; }
+        const Cantera::thermo_t& contents() const { return *m_thermo; }
 
         doublereal residenceTime();
 
@@ -148,14 +146,14 @@ namespace CanteraZeroD {
         //@}
 
         int error(std::string msg) const {
-            writelog("Error: "+msg);
+            Cantera::writelog("Error: "+msg);
             return 1;
         }
 
     protected:
  
         int m_nsp;
-        thermo_t*  m_thermo;
+        Cantera::thermo_t*  m_thermo;
         doublereal m_time;
         doublereal m_vol, m_vol0;
         bool m_init;
@@ -164,10 +162,10 @@ namespace CanteraZeroD {
         doublereal m_enthalpy;
         doublereal m_intEnergy;
         doublereal m_pressure;
-        vector_fp m_state;
+        Cantera::vector_fp m_state;
         std::vector<FlowDevice*> m_inlet, m_outlet;
         std::vector<Wall*> m_wall;
-        vector_int m_lr;
+        Cantera::vector_int m_lr;
         int m_nwalls;
         std::string m_name;
         double m_rho0;
@@ -175,7 +173,7 @@ namespace CanteraZeroD {
     private:
 
         void tilt(std::string method="") const { 
-        throw CanteraError("ReactorBase::"+method,
+        throw Cantera::CanteraError("ReactorBase::"+method,
             "ReactorBase method called!"); }
     };
 }
