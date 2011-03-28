@@ -14,9 +14,6 @@
 #include <string>
 #include <iostream>
 #include <vector>
-//using namespace std;
-
-//#include "../ctvector.h"
 
 /// the namespace for the CKReader packaage
 namespace ckr {
