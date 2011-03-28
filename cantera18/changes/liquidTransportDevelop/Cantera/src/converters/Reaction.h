@@ -12,7 +12,7 @@
 #include <string>
 #include <vector>
 #include <map>
-using namespace std;
+#include <ostream>
 
 #include "ckr_defs.h"
 #include "ckr_utils.h"
@@ -183,7 +183,7 @@ namespace ckr {
          *  third body collision partners, or a species name if only 
          *  one species does.
          */
-        string thirdBody;
+        std::string thirdBody;
 
         /// Reaction number.
         int number;
@@ -192,21 +192,21 @@ namespace ckr {
          * list of species that participate as reactants,
          * and their stoichiometric coefficients
          */
-        vector<RxnSpecies> reactants;
+        std::vector<RxnSpecies> reactants;
         
-        mutable map<string, double> fwdOrder;
+        mutable std::map<std::string, double> fwdOrder;
 
         /** 
          * list of species that participate as products,
          * and their stoichiometric coefficients
          */
-        vector<RxnSpecies> products;
+        std::vector<RxnSpecies> products;
         
         
         /**
          * map from species names to enhanced third-body collision efficiencies
          */
-        mutable map<string, double> e3b;
+        mutable std::map<std::string, double> e3b;
         
         /**
          *  Forward rate coefficient. For falloff reactions, this is the 
@@ -231,28 +231,28 @@ namespace ckr {
         /**
          * auxiliary data not handled elsewhere.
          */
-        mutable map<string, auxdata> otherAuxData;
+        mutable std::map<std::string, auxdata> otherAuxData;
 
         /**
          * input file lines
          */ 
-        vector<string> lines;
+        std::vector<std::string> lines;
 
         /**
          * comments
          */
-        vector<string> comment;
+        std::vector<std::string> comment;
 
         // methods
 
-        double stoichCoefficient(const string& s) const;        
+        double stoichCoefficient(const std::string& s) const;        
         bool operator==(const Reaction& r) const;
-        void write(ostream& s) const;
+        void write(std::ostream& s) const;
 
     };
 
     /// a list of Reaction objects
-    typedef vector<Reaction>     reactionList;
+    typedef std::vector<Reaction>     reactionList;
 
     Reaction forwardReaction(const Reaction& rxn);
     Reaction reverseReaction(const Reaction& rxn);

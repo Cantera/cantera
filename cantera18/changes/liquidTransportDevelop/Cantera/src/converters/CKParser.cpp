@@ -22,7 +22,6 @@
 #include "ckr_utils.h"
 #include "writelog.h"
 #include <cstdio>
-//#include "../stringUtils.h"
 #include <cstdlib>
 
 using namespace std;
