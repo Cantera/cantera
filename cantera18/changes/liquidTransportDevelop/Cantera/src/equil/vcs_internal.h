@@ -249,8 +249,6 @@ namespace VCSnonideal {
     
      #include "Cantera.h"
      #include "kernel/vcs_internal.h"
-     using namespace Cantera;
-     using namespace VCSnonideal;
 
      const double g_cgs = 980.;
      const double mass_cyl = 0.066;

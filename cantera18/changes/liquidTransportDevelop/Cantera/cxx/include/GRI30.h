@@ -11,6 +11,7 @@
 #include "kernel/importKinetics.h"
 #include "kernel/stringUtils.h"
 
+
 namespace Cantera_CXX {
 
     /**

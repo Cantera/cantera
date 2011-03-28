@@ -210,8 +210,8 @@ namespace Cantera {
 	 * <compositionDependence model="Mixture_Averaged"/>
 	 */
 	std::string modelName = "";
-	if (getOptionalModel(transportNode, "compositionDependence",
-			      modelName)) {
+	if (ctml::getOptionalModel(transportNode, "compositionDependence",
+	                           modelName)) {
 	  modelName = lowercase(modelName);
           if (modelName == "solvent_only") {
 	    compositionDepType_ = 0;

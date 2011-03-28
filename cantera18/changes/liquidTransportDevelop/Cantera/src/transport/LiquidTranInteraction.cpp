@@ -15,7 +15,7 @@
 #include "MargulesVPSSTP.h"
 #include <stdlib.h>
 using namespace std;
-
+using namespace ctml;
 
 namespace Cantera {
 

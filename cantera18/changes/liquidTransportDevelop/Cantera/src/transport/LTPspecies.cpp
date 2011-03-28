@@ -13,6 +13,7 @@
  */
 #include "LTPspecies.h"
 using namespace std;
+using namespace ctml;
 
 namespace Cantera {
   //====================================================================================================================

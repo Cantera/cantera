@@ -4,7 +4,6 @@
 #include <cantera/kernel/Array.h>
 #include <cantera/kernel/plots.h>
 
-using namespace Cantera;
 namespace CanteraZeroD{}
 
 // Save the temperature, density, pressure, and mole fractions at one

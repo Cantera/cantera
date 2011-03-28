@@ -19,6 +19,7 @@
 
 using namespace ctml;
 using namespace std;
+using namespace Cantera;
 
 #include "../../clib/src/Cabinet.h"
 
