@@ -33,6 +33,8 @@
 #endif
 //@}
 
+using namespace ctml;
+
 namespace Cantera {
 
   //!  Small value to be used in cutoff expressions with logs

@@ -22,6 +22,8 @@
 
 #include <cmath>
 
+using namespace ctml;
+
 namespace Cantera {
 
   ConstDensityThermo::ConstDensityThermo() : m_tlast(0.0) {

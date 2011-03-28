@@ -639,7 +639,7 @@ namespace Cantera {
     std::vector<string> pnam;
     std::vector<string> pval;
     XML_Node& ls = eosdata.child("LatticeStoichiometry");
-    int np = getPairs(ls, pnam, pval);
+    int np = ctml::getPairs(ls, pnam, pval);
     theta_.resize(nl);
     for (int i = 0; i < np; i++) {
        double val = fpValueCheck(pval[i]);

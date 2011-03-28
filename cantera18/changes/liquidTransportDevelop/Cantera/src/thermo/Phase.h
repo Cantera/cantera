@@ -22,7 +22,6 @@
 #include "vec_functions.h"
 
 #include "ctml.h"
-using namespace ctml;
 
 namespace Cantera {
     

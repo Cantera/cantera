@@ -489,7 +489,7 @@ namespace Cantera {
 			 "thermo model attribute must be FixedChemPot or StoichSubstance or StoichSubstanceSSTP");
     }
     if (model == "FixedChemPot") {
-      double val = getFloatDefaultUnits(tnode, "chemicalPotential", "J/kmol");
+      double val = ctml::getFloatDefaultUnits(tnode, "chemicalPotential", "J/kmol");
       chemPot_ = val;
     }
     SingleSpeciesTP::initThermoXML(phaseNode, id);
@@ -528,7 +528,7 @@ namespace Cantera {
 			 "thermo model attribute must be FixedChemPot or StoichSubstance or StoichSubstanceSSTP");
     } 
     if (model == "FixedChemPotSSTP") {
-      doublereal val = getFloatDefaultUnits(eosdata, "chemicalPotential", "J/kmol");
+      doublereal val = ctml::getFloatDefaultUnits(eosdata, "chemicalPotential", "J/kmol");
       chemPot_ = val;
     }
   }

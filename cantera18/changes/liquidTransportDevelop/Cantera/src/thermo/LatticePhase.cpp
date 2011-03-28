@@ -499,7 +499,7 @@ namespace Cantera {
       XML_Node *ss = s->findByName("standardState");
       if (ss) {
 	if (ss->findByName("molarVolume")) {
-	  m_speciesMolarVolume[k] = getFloat(*ss, "molarVolume", "toSI");
+	  m_speciesMolarVolume[k] = ctml::getFloat(*ss, "molarVolume", "toSI");
 	}
       }
     }
@@ -541,8 +541,8 @@ namespace Cantera {
   //=====================================================================================================
   void LatticePhase::setParametersFromXML(const XML_Node& eosdata) {
     eosdata._require("model", "Lattice");
-    m_site_density = getFloat(eosdata, "site_density", "toSI");
-    m_vacancy = getChildValue(eosdata, "vacancy_species");
+    m_site_density = ctml::getFloat(eosdata, "site_density", "toSI");
+    m_vacancy = ctml::getChildValue(eosdata, "vacancy_species");
   }
   //=====================================================================================================
 }

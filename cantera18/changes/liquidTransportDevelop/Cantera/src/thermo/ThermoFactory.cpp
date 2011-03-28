@@ -81,6 +81,7 @@
 #include <cstdlib>
 
 using namespace std;
+using namespace ctml;
 
 namespace Cantera {
 

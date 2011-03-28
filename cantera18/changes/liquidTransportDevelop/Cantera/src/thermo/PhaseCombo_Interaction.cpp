@@ -1208,7 +1208,7 @@ namespace Cantera {
         /*
          * Get the string containing all of the values
          */
-        getFloatArray(xmlChild, vParams, true, "toSI", "excessEnthalpy");
+        ctml::getFloatArray(xmlChild, vParams, true, "toSI", "excessEnthalpy");
         nParamsFound = vParams.size();
        
 	if (nParamsFound != 2) {
@@ -1224,7 +1224,7 @@ namespace Cantera {
         /*
          * Get the string containing all of the values
          */
-        getFloatArray(xmlChild, vParams, true, "toSI", "excessEntropy");
+        ctml::getFloatArray(xmlChild, vParams, true, "toSI", "excessEntropy");
         nParamsFound = vParams.size();
        
 	if (nParamsFound != 2) {
@@ -1240,7 +1240,7 @@ namespace Cantera {
         /*
          * Get the string containing all of the values
          */
-        getFloatArray(xmlChild, vParams, true, "toSI", "excessVolume_Enthalpy");
+        ctml::getFloatArray(xmlChild, vParams, true, "toSI", "excessVolume_Enthalpy");
         nParamsFound = vParams.size();
        
 	if (nParamsFound != 2) {
@@ -1256,7 +1256,7 @@ namespace Cantera {
         /*
          * Get the string containing all of the values
          */
-        getFloatArray(xmlChild, vParams, true, "toSI", "excessVolume_Entropy");
+        ctml::getFloatArray(xmlChild, vParams, true, "toSI", "excessVolume_Entropy");
         nParamsFound = vParams.size();
        
 	if (nParamsFound != 2) {
