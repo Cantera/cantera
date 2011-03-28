@@ -24,6 +24,8 @@
 
 using namespace Cantera;
 using namespace Cantera_CXX;
+using namespace std;
+using namespace CanteraZeroD;
 
 // Kinetics example. This is written as a function so that one 
 // driver program can run multiple examples.
