@@ -23,6 +23,8 @@
 #include "EdgePhase.h"
 #include "ThermoFactory.h"
 
+using namespace ctml;
+
 using namespace std;
 
     ///////////////////////////////////////////////////////////

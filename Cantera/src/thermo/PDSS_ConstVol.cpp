@@ -119,7 +119,7 @@ namespace Cantera {
 			 "standardState model for species isn't constant_incompressible: " + speciesNode.name());
     }
   
-    m_constMolarVolume = getFloat(*ss, "molarVolume", "toSI");
+    m_constMolarVolume = ctml::getFloat(*ss, "molarVolume", "toSI");
   
     std::string id = "";
     // initThermoXML(phaseNode, id);

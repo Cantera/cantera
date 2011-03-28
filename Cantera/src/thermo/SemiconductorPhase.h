@@ -70,15 +70,15 @@ namespace Cantera {
 
         virtual void setParametersFromXML(const XML_Node& eosdata) {
             eosdata._require("model","Semiconductor");
-            doublereal rho = getFloat(eosdata, "density", "-");
+            doublereal rho = ctml::getFloat(eosdata, "density", "-");
             setDensity(rho);
-            doublereal bandgap = getFloat(eosdata, "bandgap", "-");
-            doublereal e_mass = getFloat(eosdata, "electron_mass", "-");
-            doublereal h_mass = getFloat(eosdata, "hole_mass", "-");
-            doublereal e_donor = getFloat(eosdata, "donor_energy", "-");
-            doublereal n_donor = getFloat(eosdata, "donor_concentration", "-");
-            doublereal e_acceptor = getFloat(eosdata, "acceptor_energy", "-");
-            doublereal n_acceptor = getFloat(eosdata, "acceptor_concentration", "-");
+            doublereal bandgap = ctml::getFloat(eosdata, "bandgap", "-");
+            doublereal e_mass = ctml::getFloat(eosdata, "electron_mass", "-");
+            doublereal h_mass = ctml::getFloat(eosdata, "hole_mass", "-");
+            doublereal e_donor = ctml::getFloat(eosdata, "donor_energy", "-");
+            doublereal n_donor = ctml::getFloat(eosdata, "donor_concentration", "-");
+            doublereal e_acceptor = ctml::getFloat(eosdata, "acceptor_energy", "-");
+            doublereal n_acceptor = ctml::getFloat(eosdata, "acceptor_concentration", "-");
             setEffectiveMasses(e_mass, h_mass);
             setDonorDoping(n_donor, e_donor);
             setAcceptorDoping(n_acceptor, e_acceptor);

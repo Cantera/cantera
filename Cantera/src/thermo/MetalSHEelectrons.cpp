@@ -433,7 +433,7 @@ namespace Cantera {
     XML_Node &tnode = phaseNode.child("thermo");
     doublereal dens = 2.65E3;
     if (tnode.hasChild("density")) {
-      dens = getFloatDefaultUnits(tnode, "density", "kg/m3");
+      dens = ctml::getFloatDefaultUnits(tnode, "density", "kg/m3");
     }
     setDensity(dens);
     SingleSpeciesTP::initThermoXML(phaseNode, id);
@@ -537,7 +537,7 @@ namespace Cantera {
     }
     doublereal rho = 2.65E3;
     if (eosdata.hasChild("density")) {
-      rho = getFloat(eosdata, "density", "toSI");
+      rho = ctml::getFloat(eosdata, "density", "toSI");
     }
     setDensity(rho);
   }

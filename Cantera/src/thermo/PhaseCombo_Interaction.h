@@ -17,8 +17,8 @@
  *  $Revision: 255 $
  */
 
-#ifndef CT_LIFES_X_ONEPHASE_VPSSTP_H
-#define CT_LIFES_X_ONEPHASE_VPSSTP_H
+#ifndef CT_PHASECOMBO_INTERACTION_H
+#define CT_PHASECOMBO_INTERACTION_H
 
 
 #include "GibbsExcessVPSSTP.h"
