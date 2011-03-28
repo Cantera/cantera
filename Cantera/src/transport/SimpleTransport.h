@@ -21,8 +21,6 @@
 #include <numeric>
 #include <algorithm>
 
-using namespace std;
-
 // Cantera includes
 #include "TransportBase.h"
 #include "DenseMatrix.h"
@@ -30,9 +28,6 @@ using namespace std;
 #include "LiquidTransportParams.h"
 
 namespace Cantera {
-
-
-
 
   class LiquidTransportParams;
 

@@ -49,6 +49,7 @@
 #include <cstdio>
 #include <cstring>
 
+using namespace std;
 
 
 //! polynomial degree used for fitting collision integrals
