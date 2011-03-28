@@ -21,19 +21,18 @@
 
 #include <iostream>
 #include <string>
-using namespace std;
 
 namespace tpx {
 
     class TPX_Error {
     public:
-        TPX_Error(string p, string e) {
+        TPX_Error(std::string p, std::string e) {
             ErrorMessage = e;
             ErrorProcedure = p;
         }
         virtual ~TPX_Error(){}
-        static string ErrorMessage;
-        static string ErrorProcedure;
+        static std::string ErrorMessage;
+        static std::string ErrorProcedure;
     };
 
 
@@ -70,7 +69,7 @@ namespace tpx {
 
     const double Undef = 999.1234;
 
-    string errorMsg(int flag);
+    std::string errorMsg(int flag);
 
     class Substance { 
     public:
@@ -202,8 +201,8 @@ namespace tpx {
 	int Err;
         double m_energy_offset;
         double m_entropy_offset;
-        string m_name;
-        string m_formula;
+        std::string m_name;
+        std::string m_formula;
 
         //	virtual double Xm(int k) { return 1.0;}
         //virtual int Species() { return 1;}
