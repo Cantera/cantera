@@ -5,9 +5,7 @@
 #include <cantera/kernel/plots.h>
 
 using namespace Cantera;
-using namespace std;
 namespace CanteraZeroD{}
-using namespace CanteraZeroD;
 
 // Save the temperature, density, pressure, and mole fractions at one
 // time
@@ -47,22 +45,22 @@ void makeDataLabels(const G& gas, V& names) {
 }
 
 template<class G, class A>
-void plotSoln(string fname, string fmt, string title, const G& gas, const A& soln) {
-    vector<string> names;
+void plotSoln(std::string fname, std::string fmt, std::string title, const G& gas, const A& soln) {
+    std::vector<std::string> names;
     makeDataLabels(gas, names);
     writePlotFile(fname, fmt, title, names, soln);
 }
 
-inline void writeCanteraHeader(ostream& s) {
-    s << endl;
+inline void writeCanteraHeader(std::ostream& s) {
+    s << std::endl;
 #ifdef CANTERA_VERSION
-    s << "     Cantera version " << CANTERA_VERSION << endl;        
+    s << "     Cantera version " << CANTERA_VERSION << std::endl;        
 #else
-    s << "     ???" << endl;
+    s << "     ???" << std::endl;
 #endif
-    s << "     Copyright California Institute of Technology, 2002." << endl;
-    s << "     http://www.cantera.org" << endl;
-    s << endl;
+    s << "     Copyright California Institute of Technology, 2002." << std::endl;
+    s << "     http://www.cantera.org" << std::endl;
+    s << std::endl;
 }
 
 #endif

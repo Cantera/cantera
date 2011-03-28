@@ -24,6 +24,8 @@
 
 using namespace Cantera;
 using namespace Cantera_CXX;
+using namespace CanteraZeroD;
+using namespace std;
 
 template<class G, class V>
 void makeTransportDataLabels(const G& gas, V& names) {

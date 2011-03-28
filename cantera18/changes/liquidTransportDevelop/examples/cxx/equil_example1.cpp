@@ -25,6 +25,8 @@
 
 using namespace Cantera;
 using namespace Cantera_CXX;
+using namespace CanteraZeroD;
+using namespace std;
 //-------------------------------------------------------------------
 
 // utility functions for plotting

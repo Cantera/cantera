@@ -24,6 +24,8 @@
 
 using namespace Cantera;
 using namespace Cantera_CXX;
+using namespace CanteraZeroD;
+using namespace std;
 /**
  * Same as kinetics_example1, except that it uses class GRI30 instead
  * of class IdealGasMix.
