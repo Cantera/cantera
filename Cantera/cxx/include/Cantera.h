@@ -21,8 +21,6 @@
 
 namespace Cantera_CXX{ }
 
-using namespace Cantera_CXX;
-
 #include "kernel/ct_defs.h"
 
 // some useful functions

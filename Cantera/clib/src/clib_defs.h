@@ -48,8 +48,6 @@
 #endif
 
 namespace Cantera {}
-//using namespace Cantera;
 namespace std {}
-//using namespace std;
 
 #endif

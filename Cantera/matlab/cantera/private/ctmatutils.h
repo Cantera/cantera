@@ -2,7 +2,6 @@ const double Undef = -999.123;
 //const double DERR = -999.999;
 
 #include <string>
-using namespace std;
 
 void reportError();
 
@@ -24,13 +23,13 @@ inline char* getString(const mxArray* p) {
     int m = mxGetM(p);
     int n = mxGetN(p);
     int buflen = m*n + 1;
-    string msg;
+    std::string msg;
 
     if (m == 1) {
         input_buf = (char*)mxCalloc(buflen, sizeof(char));
         status = mxGetString(p, input_buf, buflen);
         if(status != 0) {
-            msg = string(input_buf) 
+            msg = std::string(input_buf) 
                   + "\nNot enough space. String is truncated.";
             mexWarnMsgTxt(msg.c_str());
         }

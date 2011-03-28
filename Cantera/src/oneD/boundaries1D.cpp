@@ -262,8 +262,8 @@ namespace Cantera {
     restore(const XML_Node& dom, doublereal* soln) {
         //map<string, double> x;
         //getFloats(dom, x);
-        soln[0] = getFloat(dom, "mdot", "massflowrate"); // x["mdot"];
-        soln[1] = getFloat(dom, "temperature", "temperature"); // x["temperature"];
+        soln[0] = ctml::getFloat(dom, "mdot", "massflowrate"); // x["mdot"];
+        soln[1] = ctml::getFloat(dom, "temperature", "temperature"); // x["temperature"];
         resize(2,1);
     }
 
@@ -726,7 +726,7 @@ namespace Cantera {
     void Surf1D::
     restore(const XML_Node& dom, doublereal* soln) {
         map<string, double> x;
-        getFloats(dom, x);
+        ctml::getFloats(dom, x);
         soln[0] = x["temperature"];
         resize(1,1);
     }
@@ -886,7 +886,7 @@ namespace Cantera {
     void ReactingSurf1D::
     restore(const XML_Node& dom, doublereal* soln) {
         map<string, double> x;
-        getFloats(dom, x);
+        ctml::getFloats(dom, x);
         soln[0] = x["temperature"];
         resize(1,1);
     }

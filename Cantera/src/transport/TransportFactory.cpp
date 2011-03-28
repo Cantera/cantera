@@ -867,15 +867,15 @@ namespace Cantera {
       // child are skipped, instead of throwing an exception.
       try {
 	XML_Node& tr = sp.child("transport");
-	getString(tr, "geometry", val, type);
+	ctml::getString(tr, "geometry", val, type);
 	geom = gindx[val] - 100;
 	map<std::string, doublereal> fv;
 
-	welldepth = getFloat(tr, "LJ_welldepth");
-	diam = getFloat(tr, "LJ_diameter");
-	dipole = getFloat(tr, "dipoleMoment");
-	polar = getFloat(tr, "polarizability");
-	rot = getFloat(tr, "rotRelax");
+	welldepth = ctml::getFloat(tr, "LJ_welldepth");
+	diam = ctml::getFloat(tr, "LJ_diameter");
+	dipole = ctml::getFloat(tr, "dipoleMoment");
+	polar = ctml::getFloat(tr, "polarizability");
+	rot = ctml::getFloat(tr, "rotRelax");
 
 	GasTransportData data;
 	data.speciesName = name;
