@@ -24,7 +24,7 @@
 namespace CanteraZeroD {
 
 
-    class ReactorFactory : FactoryBase {
+    class ReactorFactory : Cantera::FactoryBase {
 
     public:
 

@@ -33,8 +33,8 @@ namespace CanteraZeroD {
         virtual void initialize(doublereal t0 = 0.0) {}
         virtual void advance(doublereal time) {m_time = time;}
 
-        void insert(ThermoPhase& contents) {
-            setThermoMgr(contents);
+        void insert(Cantera::ThermoPhase& contents) {
+                    setThermoMgr(contents);
         }
 
     private:
