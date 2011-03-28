@@ -17,10 +17,11 @@
 #include "Func1.h"
 #include "ctexceptions.h"
 
-using namespace Cantera;
 
 #include "Cabinet.h"
 
+using namespace Cantera;
+using namespace std;
 
 typedef Func1 func_t;
 
