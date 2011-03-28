@@ -19,6 +19,8 @@
 #include <cstdlib>
 #include <iomanip>
 
+using namespace std;
+
 namespace Cantera {
 
   // Base Constructor
