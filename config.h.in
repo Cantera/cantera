@@ -189,6 +189,10 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 //    accessed by specifying the solver=2 option
 #undef WITH_VCSNONIDEAL
 
+//    Enable intermediate zeroed phases to be included in the 
+//    interfacial kinetics operator
+#undef KINETICS_WITH_INTERMEDIATE_ZEROED_PHASES
+
 //-------------- Optional Cantera Capabilities ----------------------
 
 //    Enable sensitivity analysis via changing H298 directly
