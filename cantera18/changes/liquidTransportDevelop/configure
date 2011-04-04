@@ -308,7 +308,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS BITCOMPILE BITHARDWARE BITCHANGE ldemulationarg CVF_LIBDIR USE_CLIB_DLL local_inst local_python_inst python_prefix python_win_prefix ctversion homedir ct_libdir ct_bindir ct_incdir ct_incroot ct_datadir ct_demodir ct_templdir ct_tutdir ct_docdir ct_dir ct_mandir build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os username ctroot buildinc buildlib buildbin MAKE GRAPHVIZDIR ARCHIVE DO_RANLIB RANLIB CXX_DEPENDS USERDIR INCL_USER_CODE CXX CXXFLAGS LDFLAGS CPPFLAGS ac_ct_CXX EXEEXT OBJEXT use_sundials CVODE_LIBS IDA_LIBS sundials_include sundials_lib_dir sundials_lib sundials_lib_dep CANTERA_DEBUG_MODE COMPILE_PURE_FLUIDS phase_object_files phase_header_files COMPILE_IDEAL_SOLUTIONS COMPILE_ELECTROLYTES NEED_CATHERMO COMPILE_KINETICS COMPILE_HETEROKIN COMPILE_RXNPATH WITH_REACTORS KERNEL KERNEL_OBJ BUILD_CK LIB_DIR COMPILE_VCSNONIDEAL COMPILE_H298MODIFY_CAPABILITY BOOST_INCLUDE BOOST_LIB PURIFY build_lapack build_blas BLAS_LAPACK_LIBS BLAS_LAPACK_LINK BLAS_LAPACK_DIR build_with_f2c build_f2c_lib F2C_SYSTEMLIB BOOST_LIB_DIR LOCAL_LIB_DIRS LOCAL_LIBS LOCAL_LIBS_DEP INSTALL_LIBS_DEP RAW_LIBS_DEP CANTERA_CORE_LIBS CANTERA_CORE_LIBS_DEP CT_SHARED_LIB PYTHON_CMD BUILD_PYTHON NUMPY_INC_DIR NUMPY_HOME NUMARRAY_INC_DIR NUMARRAY_HOME CANTERA_PYTHON_HOME CVSTAG MATLAB_CMD BUILD_MATLAB BUILD_CLIB export_name PIC INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CC CFLAGS ac_ct_CC CXXCPP EGREP SOEXT SHARED CXX_INCLUDES LCXX_FLAGS LCXX_END_LIBS HAVE_STRIPSYMBOLS F77 FFLAGS ac_ct_F77 FLIBS F90 BUILD_F90 F90FLAGS F90BUILDFLAGS F90LIBS LCXX_FLIBS precompile_headers OS_IS_DARWIN OS_IS_WIN OS_IS_CYGWIN SHARED_CTLIB mex_ext F77_EXT CXX_EXT OBJ_EXT EXE_EXT math_libs SO LDSHARED EXTRA_LINK TSCOMPARE_abs INSTALL_abs INSTALL_VERBOSE LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS BITCOMPILE BITHARDWARE BITCHANGE ldemulationarg CVF_LIBDIR USE_CLIB_DLL local_inst local_python_inst python_prefix python_win_prefix ctversion homedir ct_libdir ct_bindir ct_incdir ct_incroot ct_datadir ct_demodir ct_templdir ct_tutdir ct_docdir ct_dir ct_mandir build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os username ctroot buildinc buildlib buildbin MAKE GRAPHVIZDIR ARCHIVE DO_RANLIB RANLIB CXX_DEPENDS USERDIR INCL_USER_CODE CXX CXXFLAGS LDFLAGS CPPFLAGS ac_ct_CXX EXEEXT OBJEXT use_sundials CVODE_LIBS IDA_LIBS sundials_include sundials_lib_dir sundials_lib sundials_lib_dep CANTERA_DEBUG_MODE COMPILE_PURE_FLUIDS phase_object_files phase_header_files COMPILE_IDEAL_SOLUTIONS COMPILE_ELECTROLYTES NEED_CATHERMO COMPILE_KINETICS COMPILE_HETEROKIN COMPILE_RXNPATH WITH_REACTORS KERNEL KERNEL_OBJ BUILD_CK LIB_DIR COMPILE_VCSNONIDEAL COMPILE_H298MODIFY_CAPABILITY COMPILE_INTERMEDIATE_ZEROED_KINETICS BOOST_INCLUDE BOOST_LIB PURIFY build_lapack build_blas BLAS_LAPACK_LIBS BLAS_LAPACK_LINK BLAS_LAPACK_DIR build_with_f2c build_f2c_lib F2C_SYSTEMLIB BOOST_LIB_DIR LOCAL_LIB_DIRS LOCAL_LIBS LOCAL_LIBS_DEP INSTALL_LIBS_DEP RAW_LIBS_DEP CANTERA_CORE_LIBS CANTERA_CORE_LIBS_DEP CT_SHARED_LIB PYTHON_CMD BUILD_PYTHON NUMPY_INC_DIR NUMPY_HOME NUMARRAY_INC_DIR NUMARRAY_HOME CANTERA_PYTHON_HOME CVSTAG MATLAB_CMD BUILD_MATLAB BUILD_CLIB export_name PIC INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CC CFLAGS ac_ct_CC CXXCPP EGREP SOEXT SHARED CXX_INCLUDES LCXX_FLAGS LCXX_END_LIBS HAVE_STRIPSYMBOLS F77 FFLAGS ac_ct_F77 FLIBS F90 BUILD_F90 F90FLAGS F90BUILDFLAGS F90LIBS LCXX_FLIBS precompile_headers OS_IS_DARWIN OS_IS_WIN OS_IS_CYGWIN SHARED_CTLIB mex_ext F77_EXT CXX_EXT OBJ_EXT EXE_EXT math_libs SO LDSHARED EXTRA_LINK TSCOMPARE_abs INSTALL_abs INSTALL_VERBOSE LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -2745,6 +2745,17 @@ if test "$WITH_H298MODIFY_CAPABILITY" = "y"; then
 _ACEOF
 
   COMPILE_H298MODIFY_CAPABILITY=1
+fi
+
+
+
+COMPILE_INTERMEDIATE_ZEROED_KINETICS=0
+if test "$KINETICS_WITH_INTERMEDIATE_ZEROED_KINETICS" = "y"; then
+  cat >>confdefs.h <<\_ACEOF
+#define KINETICS_WITH_INTERMEDIATE_ZEROED_KINETICS 1
+_ACEOF
+
+  COMPILE_INTERMEDIATE_ZEROED_KINETICS=1
 fi
 
 
@@ -10047,7 +10058,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:10050:" \
+echo "$as_me:10061:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -10254,7 +10265,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_verb"
-(eval echo $as_me:10257: \"$ac_link\") >&5
+(eval echo $as_me:10268: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -10332,7 +10343,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_cv_prog_f77_v"
-(eval echo $as_me:10335: \"$ac_link\") >&5
+(eval echo $as_me:10346: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -11635,6 +11646,7 @@ s,@BUILD_CK@,$BUILD_CK,;t t
 s,@LIB_DIR@,$LIB_DIR,;t t
 s,@COMPILE_VCSNONIDEAL@,$COMPILE_VCSNONIDEAL,;t t
 s,@COMPILE_H298MODIFY_CAPABILITY@,$COMPILE_H298MODIFY_CAPABILITY,;t t
+s,@COMPILE_INTERMEDIATE_ZEROED_KINETICS@,$COMPILE_INTERMEDIATE_ZEROED_KINETICS,;t t
 s,@BOOST_INCLUDE@,$BOOST_INCLUDE,;t t
 s,@BOOST_LIB@,$BOOST_LIB,;t t
 s,@PURIFY@,$PURIFY,;t t

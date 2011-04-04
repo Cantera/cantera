@@ -795,6 +795,36 @@ namespace Cantera {
     m_kdata->m_ROP_ok = true;
   }
 
+#ifdef KINETICS_WITH_INTERMEDIATE_ZEROED_PHASES
+  //=================================================================================================
+  InterfaceKinetics::adjustRatesForIntermediatePhases() {
+    doublereal sFac = 1.0;
+
+    array_fp& ropf = m_kdata->m_ropf;
+    array_fp& ropr = m_kdata->m_ropr;
+    array_fp& ropnet = m_kdata->m_ropnet;
+
+    getCreatingRates(DATA_PTR(m_speciestmpP));
+    getDestructionRates(DATA_PTR(m_speciestmpD));
+ 
+    for (iphase = 0; iphase < nphases; iphase++) {
+      if (m_intermediatePhases(iphase)) {
+	for (isp = 0; isp < nspecies; isp++) {
+	  if (m_speciesTmpD[ispI] > m_speciesTmpP[I]) {
+	    sFac = m_speciesTmpD[ispI]/ m_speciesTmpP[I];
+	  }
+	  // Loop over reactions that are reactants for the species in the phase
+	  // reducing their rates.
+
+
+	}
+      }
+
+    }
+
+  }
+#endif
+  //=================================================================================================
   //=================================================================================================
   /*
    *
@@ -1303,7 +1333,7 @@ namespace Cantera {
 
     m_finalized = true;
   }
-
+ //================================================================================================
   doublereal InterfaceKinetics::electrochem_beta(int irxn) const{
     int n = m_ctrxn.size();
     for (int i = 0; i < n; i++) {
@@ -1314,7 +1344,7 @@ namespace Cantera {
     return 0.0;
   }
 
-
+ //================================================================================================
   bool InterfaceKinetics::ready() const {
     return (m_finalized);
   }
