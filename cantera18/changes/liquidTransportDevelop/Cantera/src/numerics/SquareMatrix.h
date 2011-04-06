@@ -77,6 +77,15 @@ namespace Cantera {
      * boolean to indicate that the matrix is now A-1.
      */
     int factor();
+
+    //! Factors the A matrix using the QR algorithm, overwriting A
+    /*!
+     * we set m_factored to 2 to indicate the matrix is now QR factored
+     *
+     * @return  Returns the info variable from lapack
+     */
+    int factorQR();
+
     /**
      * clear the factored flag
      */
@@ -89,7 +98,10 @@ namespace Cantera {
     /*
      * the factor flag
      */
-    bool m_factored;
+    int m_factored;
+
+    vector_fp tau;
+    vector_fp work;
   };
 }
 
