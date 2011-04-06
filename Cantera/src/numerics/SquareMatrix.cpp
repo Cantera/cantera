@@ -32,7 +32,7 @@ namespace Cantera {
   //====================================================================================================================
   SquareMatrix::SquareMatrix() :
     DenseMatrix(),
-    m_factored(false)
+    m_factored(0)
   {
   }
 
@@ -46,7 +46,7 @@ namespace Cantera {
    */
   SquareMatrix::SquareMatrix(int n, doublereal v)  : 
     DenseMatrix(n, n, v),
-    m_factored(false)
+    m_factored(0)
   {
   }
 
@@ -128,7 +128,7 @@ namespace Cantera {
   int SquareMatrix::factor() {
     integer n = static_cast<int>(nRows());
     int info=0;
-    m_factored = true;
+    m_factored = 1;
     ct_dgetrf(n, n, &(*(begin())), static_cast<int>(nRows()),
 	      DATA_PTR(ipiv()), info);
     if (info != 0) {
@@ -141,17 +141,47 @@ namespace Cantera {
     }
     return info;
   }
+  //=====================================================================================================================
   /*
    * clear the factored flag
    */
   void SquareMatrix::clearFactorFlag() {
-    m_factored = false;
+    m_factored = 0;
   }
-  /**
+  //=====================================================================================================================
+  /*
    * set the factored flag
    */
   void SquareMatrix::setFactorFlag() {
-    m_factored = true;
+    m_factored = 1;
   }
+  //=====================================================================================================================
+  int SquareMatrix::factorQR() {
+     if ((int) tau.size() < m_nrows)  {
+       tau.resize(m_nrows, 0.0);
+       work.resize(9 * m_nrows, 0.0);
+     }
+     int info;
+     int lwork = work.size(); 
+     ct_dgeqrf(m_nrows, m_nrows, &(*(begin())), m_nrows, DATA_PTR(tau), DATA_PTR(work), lwork, info); 
+     if (info != 0) {
+      if (m_printLevel) {
+	writelogf("SquareMatrix::factorQR(): DGEQRF returned INFO = %d\n", info);
+      }
+      if (! m_useReturnErrorCode) {
+        throw CELapackError("SquareMatrix::factorQR()", "DGEQRF returned INFO = " + int2str(info));
+      }
+     }
+     int lworkOpt = work[0];
+     if (lworkOpt != lwork) {
+       work.resize(lworkOpt);
+     }
+     return info;
+  }
+  //=====================================================================================================================
+
+
+
+
 }
 

@@ -35,6 +35,9 @@
 
 #define _DSCAL_   dscal
 
+#define _DGEQRF_  dgeqrf
+#define _DORMQR_  dormqr
+
 #else
 
 #define _DGEMV_   dgemv_
@@ -48,14 +51,21 @@
 
 #define _DSCAL_   dscal_
 
+#define _DGEQRF_  dgreqrf_
+#define _DORMQR_  dormqr_
+
 #endif
 
 
 namespace ctlapack {
     typedef enum {Transpose = 1, NoTranspose = 0} transpose_t;
     typedef enum {ColMajor = 1, RowMajor = 0} storage_t;
+    typedef enum {UpperTriangular = 0, LowerTriangular = 1} upperlower_t;
+    typedef enum {Left = 0, Right = 1} side_t;
 }
 const char no_yes[2] = {'N', 'T'};
+const char upper_lower[2] = {'U', 'L'};
+const char left_right[2] = {'L', 'R'};
 
 #ifdef USE_CBLAS
 #include <Accelerate.h>
@@ -129,7 +139,36 @@ extern "C" {
 #endif
 
     int _DSCAL_(integer *n, doublereal *da, doublereal *dx, integer *incx);
-void cblas_dscal(const int N, const double alpha, double *X, const int incX);
+  void cblas_dscal(const int N, const double alpha, double *X, const int incX);
+
+
+  int _DGEQRF_(const integer* m, const integer* n, doublereal* a, const integer* lda, 
+	       doublereal* tau, doublereal* work,  const integer *lwork, integer *info);
+
+#ifdef LAPACK_FTN_STRING_LEN_AT_END
+  int _DORMQR_(const char* side, const char* trans, const integer* m,  const integer* n, 
+	       const integer * k, doublereal* a, const integer* lda, 
+	       doublereal* tau, doublereal* c, const integer* ldc,
+	       doublereal* work,  const integer *lwork, integer *info, ftnlen sisize, ftnlen trsize);
+#else
+  int _DORMQR_(const char* side, ftnlen sisize, const char* trans, ftnlen trsize, const integer* m, 
+	       const integer* n, const integer * k, doublereal* a, const integer* lda, 
+	       doublereal* tau,doublereal* c, const integer* ldc,
+	       doublereal* work,  const integer *lwork, integer *info);
+#endif
+
+#ifdef LAPACK_FTN_STRING_LEN_AT_END
+  int _DTRTRS_(const char* uplo, const char* trans, const char *diag,  const integer* n, 
+	       const integer * nrhs, doublereal* a, const integer* lda, 
+	       doublereal* b, const integer* ldb, integer *info, 
+	       ftnlen upsize, ftnlen trsize, ftnlen disize);
+#else
+  int _DTRTRS_(const char* uplo, ftnlen upsize, const char* trans, ftnlen trsize, const char *diag,
+	       ftnlen disize, const integer* n, const integer * nrhs, doublereal* a, const integer* lda, 
+	       doublereal* b, const integer* ldb, integer *info); 
+#endif
+
+
 
 }
 //#endif
@@ -230,11 +269,9 @@ namespace Cantera {
 #else
         ftnlen trsize = 1;
 #ifdef LAPACK_FTN_STRING_LEN_AT_END
-        _DGETRS_(&tr, &f_n, &f_nrhs, a, &f_lda, ipiv, b, &f_ldb, 
-            &f_info, trsize);
+        _DGETRS_(&tr, &f_n, &f_nrhs, a, &f_lda, ipiv, b, &f_ldb, &f_info, trsize);
 #else
-        _DGETRS_(&tr, trsize, &f_n, &f_nrhs, a, &f_lda, ipiv, b, &f_ldb, 
-            &f_info);
+        _DGETRS_(&tr, trsize, &f_n, &f_nrhs, a, &f_lda, ipiv, b, &f_ldb, &f_info);
 #endif
 #endif
         info = f_info;
@@ -260,13 +297,72 @@ namespace Cantera {
         rank = f_rank;
     }
 
-    inline void ct_dscal(int n, doublereal da, doublereal* dx, int incx) {
+  inline void ct_dscal(int n, doublereal da, doublereal* dx, int incx) {
         //integer f_n = n, f_incx = incx;
         //_DSCAL_(&f_n, &da, dx, &f_incx);
-        cblas_dscal(n, da, dx, incx);
+    cblas_dscal(n, da, dx, incx);
+  }
 
+  inline void ct_dgeqrf(int m, int n, doublereal* a, int lda, doublereal *tau,
+			doublereal* work, int lwork, int &info) {
+    integer f_m = m;
+    integer f_n = n;
+    integer f_lda = lda;
+    integer f_lwork = lwork;
+    integer f_info = info;
+    _DGEQRF_(&f_m, &f_n, a, &f_lda, tau, work, &f_lwork, &f_info);
+    info = f_info;
+  }
+
+  inline void ct_dormqr(ctlapack::side_t rlside, ctlapack::transpose_t trans, int m,
+                        int n, int k, doublereal* a, int lda, doublereal *tau, doublereal *c, int ldc, 
+                        doublereal *work, const integer *lwork, int &info) {
+    char side = left_right[rlside];
+    char tr = no_yes[trans];
+    integer f_m = m;
+    integer f_n = n;
+    integer f_k = k;
+    integer f_lda = lda;
+    integer f_ldc = ldc;
+    integer f_info = info;
+#ifdef NO_FTN_STRING_LEN_AT_END
+    _DORMQR_(&side, &tr, &f_m, &f_n,  &f_k, a, &f_lda, tau, c, &f_ldc, work, lwork, &f_info);
+#else
+    ftnlen trsize = 1;
+#ifdef LAPACK_FTN_STRING_LEN_AT_END
+    _DORMQR_(&side, &tr, &f_m, &f_n,  &f_k, a, &f_lda, tau, c, &f_ldc, work, lwork, &f_info, trsize, trsize);
+#else
+    _DORMQR_(&side, trsize, &tr, trsize, &f_m, &f_n,  &f_k, a, &f_lda, tau, c, &f_ldc, work, lwork, &f_info);
+#endif
+#endif
+    info = f_info;
+  }
+
+  inline void ct_dtrtrs(ctlapack::upperlower_t uplot, ctlapack::transpose_t trans, const char *diag,
+                        int n, int nrhs, doublereal* a, int lda, doublereal *b, int ldb, int &info) {
+    char uplo = upper_lower[uplot];
+    char tr = no_yes[trans];
+    char dd = 'N';
+    if (diag) {
+      dd = diag[0];
     }
- 
+    integer f_n = n;
+    integer f_nrhs = nrhs;
+    integer f_lda = lda;
+    integer f_ldb = ldb;
+    integer f_info = info;
+#ifdef NO_FTN_STRING_LEN_AT_END
+    _DTRTRS_(&uplo, &tr, &dd, &f_n, &f_nrhs, a, &f_lda, b, &f_ldb, &f_info);
+#else
+    ftnlen trsize = 1;
+#ifdef LAPACK_FTN_STRING_LEN_AT_END
+    _DTRTRS_(&uplo, &tr, &dd, &f_n, &f_nrhs, a, &f_lda, b, &f_ldb, &f_info, trsize, trsize, trsize);
+#else
+    _DTRTRS_(&uplo, trsize, &tr, trsize, &dd, trsize, &f_n, &f_nrhs, a, &f_lda, b, &f_ldb, &f_info);
+#endif
+#endif
+    info = f_info;
+  }
 
 }
 
