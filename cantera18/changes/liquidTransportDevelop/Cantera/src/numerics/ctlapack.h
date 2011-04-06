@@ -316,23 +316,24 @@ namespace Cantera {
 
   inline void ct_dormqr(ctlapack::side_t rlside, ctlapack::transpose_t trans, int m,
                         int n, int k, doublereal* a, int lda, doublereal *tau, doublereal *c, int ldc, 
-                        doublereal *work, const integer *lwork, int &info) {
+                        doublereal *work, int lwork, int &info) {
     char side = left_right[rlside];
     char tr = no_yes[trans];
     integer f_m = m;
     integer f_n = n;
     integer f_k = k;
+    integer f_lwork = lwork;
     integer f_lda = lda;
     integer f_ldc = ldc;
     integer f_info = info;
 #ifdef NO_FTN_STRING_LEN_AT_END
-    _DORMQR_(&side, &tr, &f_m, &f_n,  &f_k, a, &f_lda, tau, c, &f_ldc, work, lwork, &f_info);
+    _DORMQR_(&side, &tr, &f_m, &f_n,  &f_k, a, &f_lda, tau, c, &f_ldc, work, &f_lwork, &f_info);
 #else
     ftnlen trsize = 1;
 #ifdef LAPACK_FTN_STRING_LEN_AT_END
-    _DORMQR_(&side, &tr, &f_m, &f_n,  &f_k, a, &f_lda, tau, c, &f_ldc, work, lwork, &f_info, trsize, trsize);
+    _DORMQR_(&side, &tr, &f_m, &f_n,  &f_k, a, &f_lda, tau, c, &f_ldc, work, &f_lwork, &f_info, trsize, trsize);
 #else
-    _DORMQR_(&side, trsize, &tr, trsize, &f_m, &f_n,  &f_k, a, &f_lda, tau, c, &f_ldc, work, lwork, &f_info);
+    _DORMQR_(&side, trsize, &tr, trsize, &f_m, &f_n,  &f_k, a, &f_lda, tau, c, &f_ldc, work, &f_lwork, &f_info);
 #endif
 #endif
     info = f_info;
