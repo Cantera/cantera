@@ -86,6 +86,13 @@ namespace Cantera {
      */
     int factorQR();
 
+    //! Solves the linear problem Ax=b using the QR algorithm
+    //! returning x in the b spot
+    /*!
+     *  @param b  RHS to be solved.
+     */
+    int solveQR(doublereal *b); 
+
     /**
      * clear the factored flag
      */

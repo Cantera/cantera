@@ -179,6 +179,62 @@ namespace Cantera {
      return info;
   }
   //=====================================================================================================================
+  /*
+   * Solve Ax = b. Vector b is overwritten on exit with x.
+   */
+  int SquareMatrix::solveQR(double* b)
+  {
+    int info=0;
+    /*
+     * Check to see whether the matrix has been factored.
+     */
+    if (!m_factored) {
+      int retn = factorQR();
+      if (retn) {
+        return retn;
+      }
+    }
+    
+    int lwork = work.size(); 
+    if (lwork < m_nrows) {
+      work.resize(8 * m_nrows, 0.0);
+      lwork = 8 * m_nrows;
+    }
+
+    /*
+     * Solve the factored system
+     */
+    ct_dormqr(ctlapack::Left, ctlapack::Transpose, m_nrows, 1, m_nrows, &(*(begin())), m_nrows, DATA_PTR(tau), b, m_nrows, 
+                        DATA_PTR(work), lwork, info);
+    if (info != 0) {
+      if (m_printLevel) {
+        writelogf("SquareMatrix::solveQR(): DORMQR returned INFO = %d\n", info);
+      }
+      if (! m_useReturnErrorCode) {
+        throw CELapackError("SquareMatrix::solveQR()", "DORMQR returned INFO = " + int2str(info));
+      }
+    }
+    int lworkOpt = work[0];
+    if (lworkOpt <= lwork) {
+      work.resize(lworkOpt);
+    }
+
+    char dd = 'N';
+
+    ct_dtrtrs(ctlapack::UpperTriangular, ctlapack::NoTranspose, &dd, m_nrows, 1,  &(*(begin())), m_nrows, b,
+              m_nrows, info);
+    if (info != 0) {
+      if (m_printLevel) {
+        writelogf("SquareMatrix::solveQR(): DTRTRS returned INFO = %d\n", info);
+      }
+      if (! m_useReturnErrorCode) {
+        throw CELapackError("SquareMatrix::solveQR()", "DTRTRS returned INFO = " + int2str(info));
+      }
+    }
+
+    return info;
+  }
+  //=====================================================================================================================
 
 
 
