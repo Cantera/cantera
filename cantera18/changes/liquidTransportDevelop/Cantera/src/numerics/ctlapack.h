@@ -37,6 +37,7 @@
 
 #define _DGEQRF_  dgeqrf
 #define _DORMQR_  dormqr
+#define _DTRTRS_  dtrtrs
 
 #else
 
@@ -51,8 +52,9 @@
 
 #define _DSCAL_   dscal_
 
-#define _DGEQRF_  dgreqrf_
+#define _DGEQRF_  dgeqrf_
 #define _DORMQR_  dormqr_
+#define _DTRTRS_  dtrtrs_
 
 #endif
 
