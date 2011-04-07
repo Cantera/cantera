@@ -45,25 +45,35 @@ namespace Cantera {
      */
     SquareMatrix(int n, doublereal v = 0.0);
 
-    /**
-     * Copy Constructor
+    //! Copy Constructor
+    /*!
+     *  @param right Object to be copied 
      */
-    SquareMatrix(const SquareMatrix&);
-
-    /**
-     * Assignment operator
+    SquareMatrix(const SquareMatrix& right);
+   
+    //! Assignment operator
+    /*!
+     *  @param right  Object to be copied
      */
-    SquareMatrix& operator=(const SquareMatrix&);
+    SquareMatrix& operator=(const SquareMatrix& right);
 
 
-    /// Destructor. Does nothing.
-    virtual ~SquareMatrix(){}
+    //! Destructor. Does nothing.
+    virtual ~SquareMatrix();
 
-    /**
-     * Solves the Ax = b system returning x in the b spot.
+    
+     //! Solves the Ax = b system returning x in the b spot.
+    /*!
+     *  @param b  Vector for the rhs of the equation system
      */
-    int solve(double *b);
+    int solve(doublereal *b);
 
+    //! Resize the matrix
+    /*!
+     *  @param n Number of rows
+     *  @param m Number of columns
+     *  @param v double to fill the new space (defaults to zero)
+     */
     void resize(int n, int m, doublereal v = 0.0);
 
 
@@ -86,16 +96,14 @@ namespace Cantera {
      */
     int factorQR();
 
-    //! Solves the linear problem Ax=b using the QR algorithm
-    //! returning x in the b spot
+    //! Solves the linear problem Ax=b using the QR algorithm returning x in the b spot
     /*!
      *  @param b  RHS to be solved.
      */
     int solveQR(doublereal *b); 
 
-    /**
-     * clear the factored flag
-     */
+    
+    //! clear the factored flag
     void clearFactorFlag();
     /**
      * set the factored flag
@@ -107,8 +115,15 @@ namespace Cantera {
      */
     int m_factored;
 
+    //! Work vector for QR algorithm
     vector_fp tau;
+
+    //! Work vector for QR algorithm
     vector_fp work;
+
+  public:
+    //!  Use the QR algorithm to factor and invert the matrix
+    int useQR_;
   };
 }
 
