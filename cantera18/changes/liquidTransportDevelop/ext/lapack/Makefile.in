@@ -38,6 +38,7 @@ dlabrd.o \
 dlacpy.o \
 dlamch.o \
 dlange.o \
+dlangtr.o \
 dlapy2.o \
 dlarf.o \
 dlarfb.o \
