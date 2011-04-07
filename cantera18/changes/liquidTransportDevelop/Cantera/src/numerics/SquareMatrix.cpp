@@ -32,10 +32,12 @@ namespace Cantera {
   //====================================================================================================================
   SquareMatrix::SquareMatrix() :
     DenseMatrix(),
-    m_factored(0)
+    m_factored(0),
+    useQR_(0)
   {
   }
 
+  //====================================================================================================================
   // Constructor.
   /*
    * Create an \c n by \c n matrix, and initialize
@@ -46,21 +48,24 @@ namespace Cantera {
    */
   SquareMatrix::SquareMatrix(int n, doublereal v)  : 
     DenseMatrix(n, n, v),
-    m_factored(0)
+    m_factored(0),
+    useQR_(0)
   {
   }
-
+  //====================================================================================================================
   /*
    *
    * copy constructor
    */
   SquareMatrix::SquareMatrix(const SquareMatrix& y) :
     DenseMatrix(y),
-    m_factored(y.m_factored)
+    m_factored(y.m_factored),
+    useQR_(y.useQR_)
   {
   }
     
-  /**
+  //====================================================================================================================
+  /*
    * Assignment operator
    */
   SquareMatrix& SquareMatrix::operator=(const SquareMatrix& y) {
@@ -69,12 +74,18 @@ namespace Cantera {
     m_factored = y.m_factored;
     return *this;
   }
-    
-  /**
+  //====================================================================================================================
+  SquareMatrix::~SquareMatrix() {
+  }
+  //====================================================================================================================
+  /*
    * Solve Ax = b. Vector b is overwritten on exit with x.
    */
   int SquareMatrix::solve(double* b) 
   {
+    if (useQR_) {
+      return solveQR(b);
+    }
     int info=0;
     /*
      * Check to see whether the matrix has been factored.
@@ -122,10 +133,13 @@ namespace Cantera {
     DenseMatrix::resize(n, m, v);
   } 
   //====================================================================================================================
-  /**
+  /*
    * Factor A. A is overwritten with the LU decomposition of A.
    */
   int SquareMatrix::factor() {
+    if (useQR_) {
+      return factorQR();
+    }
     integer n = static_cast<int>(nRows());
     int info=0;
     m_factored = 1;
@@ -159,9 +173,10 @@ namespace Cantera {
   int SquareMatrix::factorQR() {
      if ((int) tau.size() < m_nrows)  {
        tau.resize(m_nrows, 0.0);
-       work.resize(9 * m_nrows, 0.0);
+       work.resize(8 * m_nrows, 0.0);
      }
      int info;
+     m_factored = 2;
      int lwork = work.size(); 
      ct_dgeqrf(m_nrows, m_nrows, &(*(begin())), m_nrows, DATA_PTR(tau), DATA_PTR(work), lwork, info); 
      if (info != 0) {
@@ -173,7 +188,7 @@ namespace Cantera {
       }
      }
      int lworkOpt = work[0];
-     if (lworkOpt != lwork) {
+     if (lworkOpt > lwork) {
        work.resize(lworkOpt);
      }
      return info;
@@ -215,7 +230,7 @@ namespace Cantera {
       }
     }
     int lworkOpt = work[0];
-    if (lworkOpt <= lwork) {
+    if (lworkOpt > lwork) {
       work.resize(lworkOpt);
     }
 
