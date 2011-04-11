@@ -241,7 +241,7 @@ WITH_H298MODIFY_CAPABILITY=${WITH_H298MODIFY_CAPABILITY:="n"}
 # Capability in the planning and implementation stage
 # Phases may be intermediates but actually have zero mole numbers
 # in the InterfacialKinetics object
-KINETICS_WITH_INTERMEDIATE_ZEROED_PHASES=${KINETICS_WITH_INTERMEDIATE_ZEROED_PHASES:="n'}
+KINETICS_WITH_INTERMEDIATE_ZEROED_PHASES=${KINETICS_WITH_INTERMEDIATE_ZEROED_PHASES:="n"}
 
 ######################################################################
 # if set to 'y', the ck2cti program that converts Chemkin input files
