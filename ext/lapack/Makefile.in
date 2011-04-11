@@ -38,7 +38,7 @@ dlabrd.o \
 dlacpy.o \
 dlamch.o \
 dlange.o \
-dlangtr.o \
+dlantr.o \
 dlapy2.o \
 dlarf.o \
 dlarfb.o \
