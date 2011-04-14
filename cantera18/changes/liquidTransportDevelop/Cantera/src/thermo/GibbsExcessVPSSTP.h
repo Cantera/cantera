@@ -323,7 +323,7 @@ namespace Cantera {
      * @param dlnActCoeffdlnN    Output vector of derivatives of the 
      *                           log Activity Coefficients. length = m_kk * m_kk        
      */
-    virtual void getdlnActCoeffdlnN(const int ld, doublereal * const dlnActCoeffdlnN) const {
+    virtual void getdlnActCoeffdlnN(const int ld, doublereal * const dlnActCoeffdlnN)  {
       err(" getdlnActCoeffdlnN: nonzero and nonimplemented");
     }
 
