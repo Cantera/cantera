@@ -1243,11 +1243,12 @@ namespace VCSnonideal {
 	    vcs_Total_Gibbs(VCS_DATA_PTR(m_molNumSpecies_new), VCS_DATA_PTR(m_feSpecies_new), 
 			    VCS_DATA_PTR(m_tPhaseMoles_new)));
       plogendl();
+#ifdef DEBUG_MODE
       if (m_VCount->Its > 550) {
 	plogf("   --- Troublesome solve"); 
 	plogendl();
       }
-
+#endif
     }
 
     /*************************************************************************/
@@ -2056,12 +2057,15 @@ namespace VCSnonideal {
 				       , char *ANOTE  
 #endif
 				       ) const {
-    double dx = 0.0;
+    double dx = 0.0, a;
     double w_kspec = m_molNumSpecies_old[kspec];
     double molNum_kspec_new;
     double wTrial;
-    double dg_irxn = m_deltaGRxn_old[irxn];
+    double dg_irxn = m_deltaGRxn_old[irxn]; 
+    doublereal  s; 
+    vcs_VolPhase * Vphase = 0;
     int iph = m_phaseID[kspec];
+    
     *do_delete = FALSE;
     if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
       if (w_kspec <= 0.0) {
@@ -2086,8 +2090,36 @@ namespace VCSnonideal {
 	  return 0.0;
 	}
       }
-        
-      wTrial = w_kspec * exp(-dg_irxn);
+
+      /*
+       * get the diagonal of the activity coefficent jacobian
+       */ 
+      Vphase = m_VolPhaseList[iph];
+      s = m_dLnActCoeffdMolNum[kspec][kspec];
+      // s *= (m_tPhaseMoles_old[iph]);
+      /*
+       *   We fit it to a power law approximation of the activity coefficient
+       *
+       *      gamma = gamma_0 * ( x / x0)**a  
+       *
+       *   where a is forced to be a little bit greater than -1.
+       *   We do this so that the resulting expression is always nonnegative
+       *
+       *   We then solve the resulting calculation:
+       *
+       *      gamma * x  = gamma_0 * x0 exp (-deltaG/RT);
+       *
+       *
+       */
+      a = w_kspec * s;
+      if (a < (-1.0 + 0.01)) {
+	a = -1.0 + 0.01;
+      } else  if (a > 1.0) {
+	a = 1.0;
+      }
+      wTrial =  w_kspec * (exp( -dg_irxn / (1.0 + a)));
+      // wTrial = w_kspec * exp(-dg_irxn);
+
       molNum_kspec_new = wTrial;
  
       if (wTrial > 100. * w_kspec) {
@@ -2785,10 +2817,8 @@ namespace VCSnonideal {
     }
     return false;
   }
-  /*************************************************************************************/
-
-  //  Provide an estimate for the deleted species in phases that
-  //  are not zeroed out
+  //====================================================================================================================
+  //  Provide an estimate for the deleted species in phases that are not zeroed out
   /*
    *  Try to add back in all deleted species. An estimate of the kmol numbers
    *  are obtained and the species is added back into the equation system,
@@ -2798,38 +2828,53 @@ namespace VCSnonideal {
     int iph, kspec, retn;
     if (m_numSpeciesRdc == m_numSpeciesTot) return 0;
     /*
-     * Use the standard chemical potentials for the chemical potentials
-     * of deleted species. Then, calculate Delta G for 
+     * Use the standard chemical potentials for the chemical potentials of deleted species. Then, calculate Delta G for 
      * for formation reactions.
      *     We are relying here on a old saved value of m_actCoeffSpecies_old[kspec]
-     *  being sufficiently good. Note, we will recalculate everything at the
-     *  end of the routine.
+     *  being sufficiently good. Note, we will recalculate everything at the end of the routine.
      */
-    for (kspec = m_numSpeciesRdc; kspec < m_numSpeciesTot; ++kspec) {
-      iph = m_phaseID[kspec];
-      m_feSpecies_new[kspec] = (m_SSfeSpecies[kspec] + log(m_actCoeffSpecies_old[kspec])
-				- m_lnMnaughtSpecies[kspec] 
-				+ m_chargeSpecies[kspec] * m_Faraday_dim * m_phasePhi[iph]);
+    vcs_dcopy(VCS_DATA_PTR(m_molNumSpecies_new), VCS_DATA_PTR(m_molNumSpecies_old), m_numSpeciesTot);
+
+    for (int cits = 0; cits < 3; cits++) {
+      for (kspec = m_numSpeciesRdc; kspec < m_numSpeciesTot; ++kspec) {
+	iph = m_phaseID[kspec];
+	vcs_VolPhase *Vphase = m_VolPhaseList[iph];
+	if (m_molNumSpecies_new[kspec] == 0.0) {
+	  m_molNumSpecies_new[kspec] = VCS_DELETE_MINORSPECIES_CUTOFF * 1.0E-10;
+	}
+	if (!Vphase->m_singleSpecies) {
+	  Vphase->sendToVCS_ActCoeff(VCS_STATECALC_NEW, VCS_DATA_PTR(m_actCoeffSpecies_new));
+	}
+	m_feSpecies_new[kspec] = (m_SSfeSpecies[kspec] + log(m_actCoeffSpecies_new[kspec]) - m_lnMnaughtSpecies[kspec] 
+				  + m_chargeSpecies[kspec] * m_Faraday_dim * m_phasePhi[iph]);
+      }
+      /*
+       * Recalculate the DeltaG's of the formation reactions for the deleted species in the mechanism
+       */
+      vcs_deltag(0, true, VCS_STATECALC_NEW);
+      for (int irxn = m_numRxnRdc; irxn < m_numRxnTot; ++irxn) {
+	kspec = m_indexRxnToSpecies[irxn];
+	iph = m_phaseID[kspec];
+	if (m_tPhaseMoles_old[iph] > 0.0) {
+	  double maxDG = MIN(m_deltaGRxn_new[irxn], 690.0);	
+	  double dx = m_tPhaseMoles_old[iph] * exp(- maxDG);
+	  m_molNumSpecies_new[kspec] = dx;
+	  if (m_molNumSpecies_new[kspec] > 2 *VCS_DELETE_MINORSPECIES_CUTOFF) {
+	    m_molNumSpecies_new[kspec] = 2 * VCS_DELETE_MINORSPECIES_CUTOFF;
+	  }
+	}
+      }
     }
-    /*
-     *      Recalculate the DeltaG's of the formation reactions for the
-     *      deleted species in the mechanism
-     */
-    vcs_deltag(0, true, VCS_STATECALC_NEW);
-  
     for (int irxn = m_numRxnRdc; irxn < m_numRxnTot; ++irxn) {
       kspec = m_indexRxnToSpecies[irxn];
       iph = m_phaseID[kspec];
       if (m_tPhaseMoles_old[iph] > 0.0) {
-	double maxDG = MIN(m_deltaGRxn_new[irxn], 690.0);
-
-	double dx = m_tPhaseMoles_old[iph] * exp(- maxDG);
+	double dx =  m_molNumSpecies_new[kspec];
 	retn = delta_species(kspec, &dx);
 	if (retn == 0) {
 #ifdef DEBUG_MODE
 	  if (m_debug_print_lvl) {
-	    plogf("  --- add_deleted(): delta_species() failed for "
-		  "species %s (%d) with mol number %g\n",
+	    plogf("  --- add_deleted(): delta_species() failed for species %s (%d) with mol number %g\n",
 		  m_speciesName[kspec].c_str(), kspec, dx);
 	  }
 #endif
@@ -2839,8 +2884,7 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
 	    if (retn == 0) {
 	      if (m_debug_print_lvl) {
-		plogf("  --- add_deleted(): delta_species() failed for "
-		      "species %s (%d) with mol number %g\n",
+		plogf("  --- add_deleted(): delta_species() failed for species %s (%d) with mol number %g\n",
 		      m_speciesName[kspec].c_str(), kspec, dx);
 	      }
 	    }
@@ -2877,8 +2921,7 @@ namespace VCSnonideal {
 	    retn++;
 #ifdef DEBUG_MODE
 	    if (m_debug_print_lvl >= 2) {	
-	      plogf("  --- add_deleted():  species %s "
-		    "with mol number %g not converged: DG = %g",
+	      plogf("  --- add_deleted():  species %s with mol number %g not converged: DG = %g",
 		    m_speciesName[kspec].c_str(), m_molNumSpecies_old[kspec],
 		    m_deltaGRxn_old[irxn]);
 	      plogendl();
