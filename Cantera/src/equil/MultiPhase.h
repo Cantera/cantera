@@ -123,7 +123,7 @@ namespace Cantera {
 
     //! Add a phase to the mixture.
     /*!
-     *  This function must be called befure the init() function is called,
+     *  This function must be called before the init() function is called,
      *  which serves to freeze the MultiPhase.
      *
      *  @param p pointer to the phase object

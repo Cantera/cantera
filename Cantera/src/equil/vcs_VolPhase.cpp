@@ -984,15 +984,30 @@ namespace VCSnonideal {
    */
   void vcs_VolPhase::_updateLnActCoeffJac() {
     int k, j;
-    double deltaMoles_j = 0.0;
- 
+
     /*
      * Evaluate the current base activity coefficients if necessary
      */ 
     if (!m_UpToDate_AC) { 
       _updateActCoeff();
     }
+#ifndef NOOLD
+    if (!TP_ptr) return;
+    TP_ptr->getdlnActCoeffdlnN(m_numSpecies, &dLnActCoeffdMolNumber[0][0]);
+    for (j = 0; j < m_numSpecies; j++) {
+      double moles_j_base = v_totalMoles * Xmol_[j];
+      double * const lnActCoeffCol = dLnActCoeffdMolNumber[j];
+      if (moles_j_base < 1.0E-200) {
+	moles_j_base = 1.0E-7 * moles_j_base + 1.0E-20 * v_totalMoles + 1.0E-150;
+      }
+      for (k = 0; k < m_numSpecies; k++) {
+	lnActCoeffCol[k] /= moles_j_base;
+      }
+    }
+#endif
 
+ 
+    double deltaMoles_j = 0.0;
     // Make copies of ActCoeff and Xmol_ for use in taking differences
     std::vector<double> ActCoeff_Base(ActCoeff);
     std::vector<double> Xmol_Base(Xmol_);
@@ -1008,7 +1023,7 @@ namespace VCSnonideal {
        *    quantities.
        */
       double moles_j_base = v_totalMoles * Xmol_Base[j];
-      deltaMoles_j = 1.0E-7 * moles_j_base + 1.0E-20 * v_totalMoles + 1.0E-150;
+      deltaMoles_j = 1.0E-7 * moles_j_base + 1.0E-13 * v_totalMoles + 1.0E-150;
       /*
        * Now, update the total moles in the phase and all of the
        * mole fractions based on this.
@@ -1030,8 +1045,15 @@ namespace VCSnonideal {
        */
       double * const lnActCoeffCol = dLnActCoeffdMolNumber[j];
       for (k = 0; k < m_numSpecies; k++) {
-	lnActCoeffCol[k] = (ActCoeff[k] - ActCoeff_Base[k]) /
+	double tmp;
+	tmp = (ActCoeff[k] - ActCoeff_Base[k]) /
 	  ((ActCoeff[k] + ActCoeff_Base[k]) * 0.5 * deltaMoles_j);
+	if (fabs(tmp - 	lnActCoeffCol[k]) > 1.0E-4 * fabs(tmp) +  fabs(lnActCoeffCol[k])) {
+	  //  printf(" we have an error\n");
+	
+	}
+	//tmp = 	lnActCoeffCol[k];
+
       }
       /*
        * Revert to the base case Xmol_, v_totalMoles
@@ -1048,6 +1070,7 @@ namespace VCSnonideal {
     setMoleFractions(VCS_DATA_PTR(Xmol_Base));
     _updateMoleFractionDependencies();
     _updateActCoeff();
+
   }
   /***************************************************************************/
 
