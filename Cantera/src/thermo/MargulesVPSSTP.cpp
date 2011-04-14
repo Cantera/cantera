@@ -1051,7 +1051,7 @@ namespace Cantera {
     }
   }
   //====================================================================================================================
-  void MargulesVPSSTP::getdlnActCoeffdlnN(const int ld, doublereal *dlnActCoeffdlnN) const {
+  void MargulesVPSSTP::getdlnActCoeffdlnN(const int ld, doublereal *dlnActCoeffdlnN) {
     s_update_dlnActCoeff_dlnN();
     double *data =  & dlnActCoeffdlnN_(0,0);
     for (int k = 0; k < m_kk; k++) {

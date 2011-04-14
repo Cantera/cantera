@@ -812,8 +812,8 @@ namespace Cantera {
      * @param dlnActCoeffdlnN    Output vector of derivatives of the 
      *                           log Activity Coefficients. length = m_kk * m_kk        
      */
-    virtual void getdlnActCoeffdlnN(const int ld, doublereal * const dlnActCoeffdlnN) const {
-      err(" getdlnActCoeffdlnN: nonzero and nonimplemented");
+    virtual void getdlnActCoeffdlnN(const int ld, doublereal * const dlnActCoeffdlnN) {
+      getdlnActCoeffdlnN_numderiv(ld, dlnActCoeffdlnN);
     }
 
     //! returns a summary of the state of the phase as a string

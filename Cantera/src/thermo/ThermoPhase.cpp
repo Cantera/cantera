@@ -21,6 +21,7 @@
 #endif
 
 #include "ThermoPhase.h"
+#include "mdp_allo.h"
 #include <iomanip>
 
 //@{
@@ -1098,12 +1099,88 @@ namespace Cantera {
    * @param dlnActCoeffdN    Output vector of derivatives of the 
    *                         log Activity Coefficients. length = m_kk * m_kk        
    */
-  void ThermoPhase::getdlnActCoeffdlnN(const int ld, doublereal * const dlnActCoeffdlnN) const {
-    for (int m = 0; m < m_kk; m++) {
-      for (int k = 0; k < m_kk; k++) {
-	dlnActCoeffdlnN[ld * k + m] = 0.0;
+  void ThermoPhase::getdlnActCoeffdlnN(const int ld, doublereal * const dlnActCoeffdlnN)  {
+   
+      
+      for (int m = 0; m < m_kk; m++) {
+	for (int k = 0; k < m_kk; k++) {
+	  dlnActCoeffdlnN[ld * k + m] = 0.0;
+	}
       }
+      return;
+  }
+  //====================================================================================================================
+  void ThermoPhase::getdlnActCoeffdlnN_numderiv(const int ld, doublereal * const dlnActCoeffdlnN) {
+  
+    int k, j;
+    double deltaMoles_j = 0.0;
+    double pres = pressure();
+    
+    /*
+     * Evaluate the current base activity coefficients if necessary
+     */
+    std::vector<double> ActCoeff_Base(m_kk);
+    getActivityCoefficients(DATA_PTR(ActCoeff_Base));
+    std::vector<double> Xmol_Base(m_kk);
+    getMoleFractions(DATA_PTR(Xmol_Base));
+
+    // Make copies of ActCoeff and Xmol_ for use in taking differences
+    std::vector<double> ActCoeff(m_kk);
+    std::vector<double> Xmol(m_kk);
+    double v_totalMoles = 1.0;
+    double TMoles_base = v_totalMoles;
+
+    /*
+     *  Loop over the columns species to be deltad
+     */
+    for (j = 0; j < m_kk; j++) {
+      /*
+       * Calculate a value for the delta moles of species j
+       * -> NOte Xmol_[] and Tmoles are always positive or zero
+       *    quantities.
+       * -> experience has shown that you always need to make the deltas greater than needed to 
+       *    change the other mole fractions in order to capture some effects. 
+       */
+      double moles_j_base = v_totalMoles * Xmol_Base[j];
+      deltaMoles_j = 1.0E-7 * moles_j_base + v_totalMoles * 1.0E-13 + 1.0E-150;
+      /*
+       * Now, update the total moles in the phase and all of the
+       * mole fractions based on this.
+       */
+      v_totalMoles = TMoles_base + deltaMoles_j;
+      for (k = 0; k < m_kk; k++) {
+        Xmol[k] = Xmol_Base[k] * TMoles_base / v_totalMoles;
+      }
+      Xmol[j] = (moles_j_base + deltaMoles_j) / v_totalMoles;
+
+      /*
+       * Go get new values for the activity coefficients.
+       * -> Note this calls setState_PX();
+       */
+      setState_PX(pres, DATA_PTR(Xmol));
+      getActivityCoefficients(DATA_PTR(ActCoeff));
+
+      /*
+       * Calculate the column of the matrix
+       */
+      double * const lnActCoeffCol = dlnActCoeffdlnN + ld * j;
+      for (k = 0; k < m_kk; k++) {
+        lnActCoeffCol[k] = (2*moles_j_base + deltaMoles_j) *(ActCoeff[k] - ActCoeff_Base[k]) /
+          ((ActCoeff[k] + ActCoeff_Base[k]) * deltaMoles_j);
+      }
+      /*
+       * Revert to the base case Xmol_, v_totalMoles
+       */
+      v_totalMoles = TMoles_base;
+      mdp::mdp_copy_dbl_1(DATA_PTR(Xmol), DATA_PTR(Xmol_Base), m_kk);
     }
+    /*
+     * Go get base values for the activity coefficients.
+     * -> Note this calls setState_TPX() again;
+     * -> Just wanted to make sure that cantera is in sync
+     *    with VolPhase after this call.
+     */
+    setState_PX(pres, DATA_PTR(Xmol_Base));
   }
   //====================================================================================================================
   /*

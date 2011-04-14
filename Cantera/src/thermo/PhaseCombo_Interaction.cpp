@@ -1110,7 +1110,7 @@ namespace Cantera {
   /*
    * HKM - Checked for Transition
    */
-  void PhaseCombo_Interaction::getdlnActCoeffdlnN(const int ld, doublereal *dlnActCoeffdlnN) const {
+  void PhaseCombo_Interaction::getdlnActCoeffdlnN(const int ld, doublereal *dlnActCoeffdlnN)  {
     s_update_dlnActCoeff_dlnN();
     double *data =  & dlnActCoeffdlnN_(0,0);
     for (int k = 0; k < m_kk; k++) {
@@ -1141,7 +1141,6 @@ namespace Cantera {
 
     m_pSpecies_A_ij.resize(num, -1);
     m_pSpecies_B_ij.resize(num, -1);
-   throw CanteraError("", "unimplemented");
   }
   //====================================================================================================================
 
