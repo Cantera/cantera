@@ -2060,7 +2060,7 @@ namespace VCSnonideal {
     double dx = 0.0, a;
     double w_kspec = m_molNumSpecies_old[kspec];
     double molNum_kspec_new;
-    double wTrial;
+    double wTrial, tmp;
     double dg_irxn = m_deltaGRxn_old[irxn]; 
     doublereal  s; 
     vcs_VolPhase * Vphase = 0;
@@ -2112,12 +2112,18 @@ namespace VCSnonideal {
        *
        */
       a = w_kspec * s;
-      if (a < (-1.0 + 0.01)) {
-	a = -1.0 + 0.01;
-      } else  if (a > 1.0) {
-	a = 1.0;
+      if (a < (-1.0 + 1.0E-8)) {
+	a = -1.0 + 1.0E-8;
+      } else  if (a > 100.0) {
+	a = 100.0;
       }
-      wTrial =  w_kspec * (exp( -dg_irxn / (1.0 + a)));
+      tmp = -dg_irxn / (1.0 + a);
+      if (tmp < 200.) {
+	tmp = -200.;
+      } else if ( tmp > 200.) {
+	tmp = 200.;
+      }
+      wTrial =  w_kspec * exp(tmp);
       // wTrial = w_kspec * exp(-dg_irxn);
 
       molNum_kspec_new = wTrial;
