@@ -2118,7 +2118,7 @@ namespace VCSnonideal {
 	a = 100.0;
       }
       tmp = -dg_irxn / (1.0 + a);
-      if (tmp < 200.) {
+      if (tmp < -200.) {
 	tmp = -200.;
       } else if ( tmp > 200.) {
 	tmp = 200.;
