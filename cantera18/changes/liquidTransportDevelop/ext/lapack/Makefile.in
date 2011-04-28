@@ -35,6 +35,7 @@ dgetri.o \
 dgetrs.o \
 dlabad.o \
 dlabrd.o \
+dlacon.o \
 dlacpy.o \
 dlamch.o \
 dlange.o \
@@ -45,6 +46,7 @@ dlarfb.o \
 dlarfg.o \
 dlarft.o \
 dlartg.o \
+dlatrs.o \
 dlas2.o \
 dlascl.o \
 dlaset.o \
@@ -68,6 +70,7 @@ dorml2.o \
 dormlq.o \
 dormqr.o \
 drscl.o \
+dtrcon.o \
 dtrtrs.o \
 dgerfs.o \
 dgecon.o \
