@@ -907,6 +907,9 @@ namespace Cantera {
 
     //! Turn on or off printing of the Jacobian
     static bool s_print_NumJac;
+
+    //! Turn on all printing of dogleg information
+    static bool s_print_DogLeg;
   };
 
 }
