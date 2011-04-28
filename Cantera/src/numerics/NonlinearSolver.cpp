@@ -76,6 +76,9 @@ namespace Cantera {
 #else
   bool NonlinearSolver::s_print_NumJac(false);
 #endif
+
+  // Turn off printing of dogleg information
+  bool NonlinearSolver::s_print_DogLeg(false);
  //====================================================================================================================
   // Default constructor
   /*
@@ -845,15 +848,20 @@ namespace Cantera {
       }
       
       // Compute the weighted norm of the undamped step size descentDir_[]
-      normSoln = solnErrorNorm(DATA_PTR(deltaX_CP_), "SteepestDescentDir", 10);
-     
-      printf("\t\t\tdoCauchyPointSolve: Steepest descent to Cauchy point: \n");
-      printf("\t\t\t      R0     = %g \n", m_normResid0);
-      printf("\t\t\t      Rpred  = %g\n",  residCauchy);
-      printf("\t\t\t      Rjd    = %g\n",  RJd_norm_);
-      printf("\t\t\t      JdJd   = %g\n",  JdJd_norm_);
-      printf("\t\t\t      deltaX = %g\n",  normSoln);
-      printf("\t\t\t      lambda = %g\n",  lambda_);
+      if (s_print_DogLeg || (doDogLeg_ && m_print_flag > 6)) {
+	normSoln = solnErrorNorm(DATA_PTR(deltaX_CP_), "SteepestDescentDir", 10);
+      } else {
+	normSoln = solnErrorNorm(DATA_PTR(deltaX_CP_), "SteepestDescentDir", 0);
+      }
+      if (s_print_DogLeg || (doDogLeg_ && m_print_flag > 3)) {
+	printf("\t\t\tdoCauchyPointSolve: Steepest descent to Cauchy point: \n");
+	printf("\t\t\t      R0     = %g \n", m_normResid0);
+	printf("\t\t\t      Rpred  = %g\n",  residCauchy);
+	printf("\t\t\t      Rjd    = %g\n",  RJd_norm_);
+	printf("\t\t\t      JdJd   = %g\n",  JdJd_norm_);
+	printf("\t\t\t      deltaX = %g\n",  normSoln);
+	printf("\t\t\t      lambda = %g\n",  lambda_);
+      }
     }
     return normSoln;
   }
@@ -908,10 +916,12 @@ namespace Cantera {
      * HKM These have been shown to exactly match up.
      *   The steepest direction is always largest even when there are variable solution weights
      */
-    printf("descentComparison: initial rate of decrease in cauchy dir (expected) = %g\n", funcDecreaseSDExp);
-    printf("descentComparison: initial rate of decrease in cauchy dir            = %g\n", funcDecrease2);
-    printf("descentComparison: initial rate of decrease in newton dir (expected) = %g\n", funcDecreaseNewtExp2);
-    printf("descentComparison: initial rate of decrease in newton dir            = %g\n", funcDecreaseNewt2);
+    if (s_print_DogLeg || (doDogLeg_ && m_print_flag > 3)) {
+      printf("descentComparison: initial rate of decrease in cauchy dir (expected) = %g\n", funcDecreaseSDExp);
+      printf("descentComparison: initial rate of decrease in cauchy dir            = %g\n", funcDecrease2);
+      printf("descentComparison: initial rate of decrease in newton dir (expected) = %g\n", funcDecreaseNewtExp2);
+      printf("descentComparison: initial rate of decrease in newton dir            = %g\n", funcDecreaseNewt2);
+    }
   }
 
   //====================================================================================================================
@@ -1051,8 +1061,10 @@ namespace Cantera {
 					      const double *ydot1, const double *newtDir)  {
     double *y1 = DATA_PTR(m_wksp);
     double sLen;
-    printf("     residualComparisonLeg() \n");
-    printf("      Point               StepLen     Residual_Actual  Residual_Linear  RelativeMatch\n");
+    if (s_print_DogLeg || (doDogLeg_ && m_print_flag > 6)) {
+      printf("     residualComparisonLeg() \n");
+      printf("      Point               StepLen     Residual_Actual  Residual_Linear  RelativeMatch\n");
+    }
     // First compare at 1/4 along SD curve
     std::vector<double> alphaT;
     alphaT.push_back(0.00);
@@ -1083,8 +1095,9 @@ namespace Cantera {
       double residSteepLin = expectedResidLeg(0, alpha);
 
       double relFit = (residSteep - residSteepLin) / (fabs(residSteepLin) + 1.0E-10);
- 
-      printf("  (%2d - % 10.3g)  % 15.8E  % 15.8E % 15.8E  % 15.8E\n", 0, alpha, sLen, residSteep, residSteepLin , relFit);
+      if (s_print_DogLeg || (doDogLeg_ && m_print_flag > 6)) {
+	printf("  (%2d - % 10.3g)  % 15.8E  % 15.8E % 15.8E  % 15.8E\n", 0, alpha, sLen, residSteep, residSteepLin , relFit);
+      }
     }
 
     for (int iteration = 0; iteration < (int) alphaT.size(); iteration++) {
@@ -1112,8 +1125,9 @@ namespace Cantera {
       double residSteepLin = expectedResidLeg(1, alpha);
 
       double relFit = (residSteep - residSteepLin) / (fabs(residSteepLin) + 1.0E-10);
- 
-      printf("  (%2d - % 10.3g) % 15.8E   % 15.8E  % 15.8E  % 15.8E\n", 1, alpha, sLen,  residSteep, residSteepLin , relFit);
+      if (s_print_DogLeg || (doDogLeg_ && m_print_flag > 6)) {
+	printf("  (%2d - % 10.3g) % 15.8E   % 15.8E  % 15.8E  % 15.8E\n", 1, alpha, sLen,  residSteep, residSteepLin , relFit);
+      }
     }
 
     for (int iteration = 0; iteration < (int) alphaT.size(); iteration++) {
@@ -1138,8 +1152,9 @@ namespace Cantera {
       double residSteepLin = expectedResidLeg(2, alpha);
 
       double relFit = (residSteep - residSteepLin) / (fabs(residSteepLin) + 1.0E-10);
- 
-      printf("  (%2d - % 10.3g)  % 15.8E % 15.8E  % 15.8E  % 15.8E\n", 2, alpha, sLen, residSteep, residSteepLin , relFit);
+      if (s_print_DogLeg || (doDogLeg_ && m_print_flag > 6)) {
+	printf("  (%2d - % 10.3g)  % 15.8E % 15.8E  % 15.8E  % 15.8E\n", 2, alpha, sLen, residSteep, residSteepLin , relFit);
+      }
     }
 
 
@@ -1338,22 +1353,30 @@ namespace Cantera {
       deltaX_trust_[i] = deltaX_trust_[i] * sum;
     }
     trustDelta_ = 1.0;
-    printf("calcTrustVector():  Trust vector size (SolnNorm Basis) changed from %g to %g \n",
-	   trustNorm, trustNormGoal);
+    if (s_print_DogLeg || (doDogLeg_ && m_print_flag > 3)) {
+      printf("calcTrustVector():  Trust vector size (SolnNorm Basis) changed from %g to %g \n",
+	     trustNorm, trustNormGoal);
+    }
   } 
   //====================================================================================================================
   void  NonlinearSolver::initializeTrustRegion() 
   {
     double cpd = calcTrustDistance(deltaX_CP_);
-    printf("Relative Distance of Cauchy Vector wrt Trust Vector = %g\n", cpd);
+    if (s_print_DogLeg || (doDogLeg_ && m_print_flag > 3)) {
+      printf("Relative Distance of Cauchy Vector wrt Trust Vector = %g\n", cpd);
+    }
     trustDelta_ = trustDelta_ * cpd;
     calcTrustVector();
     cpd = calcTrustDistance(deltaX_CP_);
-    printf("Relative Distance of Cauchy Vector wrt Trust Vector = %g\n", cpd);
+    if (s_print_DogLeg || (doDogLeg_ && m_print_flag > 3)) {
+      printf("Relative Distance of Cauchy Vector wrt Trust Vector = %g\n", cpd);
+    }
     trustDelta_ = trustDelta_ * cpd;
     calcTrustVector();
     cpd = calcTrustDistance(deltaX_CP_);
-    printf("Relative Distance of Cauchy Vector wrt Trust Vector = %g\n", cpd);
+    if (s_print_DogLeg || (doDogLeg_ && m_print_flag > 3)) {
+      printf("Relative Distance of Cauchy Vector wrt Trust Vector = %g\n", cpd);
+    }
   }
 
   //====================================================================================================================
@@ -1435,7 +1458,7 @@ namespace Cantera {
     double c = normTrust_CP_ *  normTrust_CP_  - trustDelta * trustDelta;
 
     alpha =( -b + sqrt( b * b - 4.0 * a * c)) / (2.0 * a);
-    // alpha = (trustDelta - normTrust_CP_) / (normTrust_Newton_ * Nuu_ - normTrust_CP_);
+   
 
     dist = dist_R0_ + alpha * dist_R1_;
     lambda = dist / dist_Total_;
@@ -1762,7 +1785,6 @@ namespace Cantera {
     bool success = false;
     int retn = 0;
     bool haveASuccess = false;
-    double normResid02 = m_normResid0 * m_normResid0 * neq_;
     double trustDeltaOld = trustDelta_;
     //--------------------------------------------
     //           Attempt damped step
@@ -1771,11 +1793,9 @@ namespace Cantera {
     // damping coefficient starts at 1.0
     m_dampRes = 1.0;
     int j, m;
-    doublereal ff =  m_dampBound;
     num_backtracks = 0;
     double deltaSolnNorm = solnErrorNorm(DATA_PTR(deltaX_CP_));
     double funcDecreaseSDExp = RJd_norm_ / deltaSolnNorm * lambda_;
-    bool goodStep = false;
     double tlen;
    
 
@@ -2183,10 +2203,12 @@ namespace Cantera {
       if (doDogLeg_) { 
 	double trustD = calcTrustDistance(stp);
 #ifdef DEBUG_DOGLEG
-	if (trustD > trustDelta_) {
-	  printf("newton's method trustD, %g, larger than trust region, %g\n", trustD, trustDelta_);
-	} else {
-	  printf("newton's method trustD, %g, smaller than trust region, %g\n", trustD, trustDelta_);
+	if (s_print_DogLeg || m_print_flag > 3) {
+	  if (trustD > trustDelta_) {
+	    printf("newton's method trustD, %g, larger than trust region, %g\n", trustD, trustDelta_);
+	  } else {
+	    printf("newton's method trustD, %g, smaller than trust region, %g\n", trustD, trustDelta_);
+	  }
 	}
 #endif
       }
