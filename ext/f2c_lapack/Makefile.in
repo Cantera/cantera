@@ -64,6 +64,7 @@ dgetri.o \
 dgetrs.o \
 dlabad.o \
 dlabrd.o \
+dlacon.o \
 dlacpy.o \
 dlamch.o \
 dlange.o \
@@ -88,6 +89,7 @@ dlasrt.o \
 dlassq.o \
 dlasv2.o \
 dlaswp.o \
+dlatrs.o \
 dorg2r.o \
 dorgbr.o \
 dorgl2.o \
@@ -99,6 +101,7 @@ dorml2.o \
 dormlq.o \
 dormqr.o \
 drscl.o \
+dtrcon.o \
 dtrtri.o \
 dtrti2.o \
 dtrtrs.o \
