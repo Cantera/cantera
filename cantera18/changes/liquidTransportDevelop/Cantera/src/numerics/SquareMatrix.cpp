@@ -112,8 +112,8 @@ namespace Cantera {
     }
     return info;
   }
-
-  /**
+  //====================================================================================================================
+  /*
    * Set all entries to zero
    */
   void SquareMatrix::zero() {
@@ -191,6 +191,8 @@ namespace Cantera {
      if (lworkOpt > lwork) {
        work.resize(lworkOpt);
      }
+
+ 
      return info;
   }
   //=====================================================================================================================
@@ -250,9 +252,33 @@ namespace Cantera {
     return info;
   }
   //=====================================================================================================================
-
-
-
+  doublereal SquareMatrix::rcondQR() {
+    
+    if ((int) iwork_.size() < m_nrows) {
+      iwork_.resize(m_nrows);
+    }
+    if ((int) work.size() <3 * m_nrows) {
+      work.resize(3 * m_nrows);
+    }
+    doublereal rcond = 0.0;
+    if (m_factored != 2) {
+      throw CELapackError("SquareMatrix::rcondQR()", "matrix isn't factored correctly");
+    }
+    
+    int rinfo;
+    rcond =  ct_dtrcon(0, ctlapack::UpperTriangular, 0, m_nrows, &(*(begin())), m_nrows, DATA_PTR(work), 
+		       DATA_PTR(iwork_), rinfo);
+    if (rinfo != 0) {
+      if (m_printLevel) {
+        writelogf("SquareMatrix::rcondQR(): DTRCON returned INFO = %d\n", rinfo);
+      }
+      if (! m_useReturnErrorCode) {
+        throw CELapackError("SquareMatrix::rcondQR()", "DTRCON returned INFO = " + int2str(rinfo));
+      }
+    }
+    return rcond;
+  }
+  //=====================================================================================================================
 
 }
 
