@@ -96,6 +96,14 @@ namespace Cantera {
      */
     int factorQR();
 
+    //! Returns an estimate of the inverse of the condition number for the matrix
+    /*!
+     *   The matrix must have been previously factored using the QR algorithm
+     *
+     * @return  returns the inverse of the condition number
+     */
+    doublereal rcondQR();
+
     //! Solves the linear problem Ax=b using the QR algorithm returning x in the b spot
     /*!
      *  @param b  RHS to be solved.
@@ -120,6 +128,9 @@ namespace Cantera {
 
     //! Work vector for QR algorithm
     vector_fp work;
+
+    //! Integer work vector for QR algorithms
+    std::vector<int> iwork_;
 
   public:
     //!  Use the QR algorithm to factor and invert the matrix

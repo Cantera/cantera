@@ -38,6 +38,7 @@
 #define _DGEQRF_  dgeqrf
 #define _DORMQR_  dormqr
 #define _DTRTRS_  dtrtrs
+#define _DTRCON_  dtrcon
 
 #else
 
@@ -55,6 +56,7 @@
 #define _DGEQRF_  dgeqrf_
 #define _DORMQR_  dormqr_
 #define _DTRTRS_  dtrtrs_
+#define _DTRCON_  dtrcon_
 
 #endif
 
@@ -169,6 +171,19 @@ extern "C" {
 	       ftnlen disize, const integer* n, const integer * nrhs, doublereal* a, const integer* lda, 
 	       doublereal* b, const integer* ldb, integer *info); 
 #endif
+
+
+#ifdef LAPACK_FTN_STRING_LEN_AT_END
+  int _DTRCON_(const char* norm, const char* uplo, const char *diag,  const integer* n, 
+	       doublereal* a, const integer* lda, const doublereal *rcond,
+	       doublereal* work, const integer* iwork, integer *info, ftnlen nosize, 
+	       ftnlen upsize, ftnlen disize);
+#else
+  int _DTRCON_(const char* norm, ftnlen nosize, const char* uplo, ftnlen upsize, const char *diag,
+	       ftnlen disize, const integer* n, doublereal* a, const integer* lda, const doublereal *rcond,
+	       doublereal* work, const integer* iwork, integer *info); 
+#endif
+
 
 
 
@@ -304,7 +319,7 @@ namespace Cantera {
         //_DSCAL_(&f_n, &da, dx, &f_incx);
     cblas_dscal(n, da, dx, incx);
   }
-
+  //====================================================================================================================
   inline void ct_dgeqrf(int m, int n, doublereal* a, int lda, doublereal *tau,
 			doublereal* work, int lwork, int &info) {
     integer f_m = m;
@@ -315,7 +330,7 @@ namespace Cantera {
     _DGEQRF_(&f_m, &f_n, a, &f_lda, tau, work, &f_lwork, &f_info);
     info = f_info;
   }
-
+  //====================================================================================================================
   inline void ct_dormqr(ctlapack::side_t rlside, ctlapack::transpose_t trans, int m,
                         int n, int k, doublereal* a, int lda, doublereal *tau, doublereal *c, int ldc, 
                         doublereal *work, int lwork, int &info) {
@@ -340,7 +355,7 @@ namespace Cantera {
 #endif
     info = f_info;
   }
-
+  //====================================================================================================================
   inline void ct_dtrtrs(ctlapack::upperlower_t uplot, ctlapack::transpose_t trans, const char *diag,
                         int n, int nrhs, doublereal* a, int lda, doublereal *b, int ldb, int &info) {
     char uplo = upper_lower[uplot];
@@ -366,7 +381,42 @@ namespace Cantera {
 #endif
     info = f_info;
   }
+  //====================================================================================================================
 
+  //!
+  /*!
+   *  @param work   Must be dimensioned equal to greater than 3N
+   *  @param iwork  Must be dimensioned equal to or greater than N
+   */
+  inline doublereal ct_dtrcon(const char *norm, ctlapack::upperlower_t uplot,  const char *diag,
+			      int n, doublereal* a, int lda, doublereal *work, int *iwork, int &info) {
+    char uplo = upper_lower[uplot];
+    char dd = 'N';
+    if (diag) {
+      dd = diag[0];
+    }
+    char nn = '1';
+    if (norm) {
+      nn = norm[0];
+    }
+    integer f_n = n;
+    integer f_lda = lda;
+    integer f_info = info;
+    doublereal rcond;
+#ifdef NO_FTN_STRING_LEN_AT_END
+    _DTRCON_(&nn, &uplo, &dd, &f_n, a, &f_lda, &rcond, work, iwork, &f_info);
+#else
+    ftnlen trsize = 1;
+#ifdef LAPACK_FTN_STRING_LEN_AT_END
+    _DTRCON_(&nn, &uplo, &dd, &f_n, a, &f_lda, &rcond, work, iwork, &f_info, trsize, trsize, trsize);
+#else
+    _DTRCON_(&nn, trsize, &uplo, trsize, &dd, trsize, &f_n, a, &f_lda, &rcond work, iwork, &f_info);
+#endif
+#endif
+    info = f_info;
+    return rcond;
+  }
+  //====================================================================================================================
 }
 
 #endif
