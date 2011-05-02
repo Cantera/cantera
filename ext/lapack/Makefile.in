@@ -71,6 +71,7 @@ dormlq.o \
 dormqr.o \
 dpotrf.o \
 dpotrs.o \
+dpotf2.o \
 drscl.o \
 dtrcon.o \
 dtrtrs.o \
