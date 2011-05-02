@@ -39,6 +39,8 @@
 #define _DORMQR_  dormqr
 #define _DTRTRS_  dtrtrs
 #define _DTRCON_  dtrcon
+#define _DPOTRF_  dpotrf
+#define _DPOTRS_  dpotrs
 
 #else
 
@@ -57,6 +59,9 @@
 #define _DORMQR_  dormqr_
 #define _DTRTRS_  dtrtrs_
 #define _DTRCON_  dtrcon_
+
+#define _DPOTRF_  dpotrf_
+#define _DPOTRS_  dpotrs_
 
 #endif
 
@@ -185,13 +190,28 @@ extern "C" {
 #endif
 
 
+#ifdef LAPACK_FTN_STRING_LEN_AT_END
+  int _DPOTRF_(const char* uplo,  const integer* n,  doublereal* a, const integer* lda, integer *info, 
+	       ftnlen upsize);
+#else
+  int _DPOTRF_(const char* uplo, ftnlen upsize, const integer* n,  doublereal* a, const integer* lda,
+	       integer *info );
+#endif
+
+#ifdef LAPACK_FTN_STRING_LEN_AT_END
+  int _DPOTRS_(const char* uplo,  const integer* n,  const integer* nrhs, doublereal* a, const integer* lda, 
+	       doublereal* b, const integer* ldb, integer *info, ftnlen upsize);
+#else
+  int _DPOTRS_(const char* uplo, ftnlen upsize, const integer* n,  const integer* nrhs, doublereal* a, const integer* lda,
+	       doublereal* b, const integer* ldb, integer *info);
+#endif
 
 
 }
 //#endif
 
 namespace Cantera {
-
+  //====================================================================================================================
     inline void ct_dgemv(ctlapack::storage_t storage, 
         ctlapack::transpose_t trans, 
         int m, int n, doublereal alpha, const doublereal* a, int lda, 
@@ -221,7 +241,7 @@ namespace Cantera {
 
     }
         
-
+  //====================================================================================================================
     inline void ct_dgbsv(int n, int kl, int ku, int nrhs,  
         doublereal* a, int lda, integer* ipiv, doublereal* b, int ldb, 
         int& info) {
@@ -231,7 +251,7 @@ namespace Cantera {
             b, &f_ldb, &f_info);
         info = f_info;
     }
-
+ //====================================================================================================================
     inline void ct_dgbtrf(int m, int n, int kl, int ku, 
         doublereal* a, int lda, integer* ipiv, int& info) {
         integer f_m = m, f_n = n, f_kl = kl, f_ku = ku, 
@@ -239,7 +259,7 @@ namespace Cantera {
         _DGBTRF_(&f_m, &f_n, &f_kl, &f_ku, a, &f_lda, ipiv, &f_info);
         info = f_info;
     }
-
+  //====================================================================================================================
     inline void ct_dgbtrs(ctlapack::transpose_t trans, int n, 
         int kl, int ku, int nrhs, doublereal* a, int lda, 
         integer* ipiv, doublereal* b, int ldb, int& info) {
@@ -261,7 +281,7 @@ namespace Cantera {
 #endif
         info = f_info;
     }
-
+ //====================================================================================================================
     inline void ct_dgetrf(int m, int n, 
         doublereal* a, int lda, integer* ipiv, int& info) {
         integer mm = m;
@@ -271,7 +291,7 @@ namespace Cantera {
         _DGETRF_(&mm, &nn, a, &ldaa, ipiv, &infoo);
         info = infoo;
     }
-
+  //====================================================================================================================
     inline void ct_dgetrs(ctlapack::transpose_t trans, int n, 
         int nrhs, doublereal* a, int lda,
         integer* ipiv, doublereal* b, int ldb, int& info) 
@@ -293,13 +313,13 @@ namespace Cantera {
 #endif
         info = f_info;
     }
-
+  //====================================================================================================================
     inline void ct_dgetri(int n, doublereal* a, int lda, integer* ipiv,
         doublereal* work, int lwork, int& info) {
         integer f_n = n, f_lda = lda, f_lwork = lwork, f_info = info;
         _DGETRI_(&f_n, a, &f_lda, ipiv, work, &f_lwork, &f_info);
     }
-
+  //====================================================================================================================
     inline void ct_dgelss(int m, int n, int nrhs, doublereal* a, 
         int lda, doublereal* b, int ldb, doublereal* s,
         doublereal rcond, int& rank, doublereal* work, int lwork,
@@ -382,7 +402,6 @@ namespace Cantera {
     info = f_info;
   }
   //====================================================================================================================
-
   //!
   /*!
    *  @param work   Must be dimensioned equal to greater than 3N
@@ -410,13 +429,66 @@ namespace Cantera {
 #ifdef LAPACK_FTN_STRING_LEN_AT_END
     _DTRCON_(&nn, &uplo, &dd, &f_n, a, &f_lda, &rcond, work, iwork, &f_info, trsize, trsize, trsize);
 #else
-    _DTRCON_(&nn, trsize, &uplo, trsize, &dd, trsize, &f_n, a, &f_lda, &rcond work, iwork, &f_info);
+    _DTRCON_(&nn, trsize, &uplo, trsize, &dd, trsize, &f_n, a, &f_lda, &rcond, work, iwork, &f_info);
 #endif
 #endif
     info = f_info;
     return rcond;
   }
   //====================================================================================================================
+  //!
+  /*!
+   *  @param work   Must be dimensioned equal to greater than 3N
+   *  @param iwork  Must be dimensioned equal to or greater than N
+   */
+  inline void ct_dpotrf(ctlapack::upperlower_t uplot, int n, doublereal* a, int lda, int &info) {
+    char uplo = upper_lower[uplot];
+    integer f_n = n;
+    integer f_lda = lda;
+    integer f_info = info;
+
+#ifdef NO_FTN_STRING_LEN_AT_END
+    _DPOTRF_(&uplo, &f_n, a, &f_lda, &f_info);
+#else
+    ftnlen trsize = 1;
+#ifdef LAPACK_FTN_STRING_LEN_AT_END
+    _DPOTRF_(&uplo, &f_n, a, &f_lda, &f_info, trsize);
+#else
+    _DPOTRF_(&uplo, trsize, &f_n, a, &f_lda, &f_info);
+#endif
+#endif
+    info = f_info;
+    return;
+  }
+  //====================================================================================================================
+  //!
+  /*!
+   */
+  inline void ct_dpotrs(ctlapack::upperlower_t uplot, int n, int nrhs, doublereal* a, int lda, 
+			doublereal* b, int ldb, int &info) {
+    char uplo = upper_lower[uplot];
+    integer f_n = n;
+    integer f_nrhs = nrhs;
+    integer f_lda = lda;
+    integer f_ldb = ldb;
+    integer f_info = info;
+
+#ifdef NO_FTN_STRING_LEN_AT_END
+    _DPOTRS_(&uplo, &f_n, &f_nrhs, a, &f_lda, b, &f_ldb, &f_info);
+#else
+    ftnlen trsize = 1;
+#ifdef LAPACK_FTN_STRING_LEN_AT_END
+    _DPOTRS_(&uplo, &f_n, &f_nrhs, a, &f_lda, b, &f_ldb, &f_info, trsize);
+#else
+    _DPOTRS_(&uplo, trsize, &f_n, &f_nrhs, a, &f_lda, b, &f_ldb, &f_info);
+#endif
+#endif
+    info = f_info;
+    return;
+  }
+  //====================================================================================================================
+
+
 }
 
 #endif
