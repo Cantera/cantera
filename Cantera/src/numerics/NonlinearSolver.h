@@ -208,6 +208,40 @@ namespace Cantera {
 		      const doublereal * const ydot_curr, doublereal * const delta_y,
 		      SquareMatrix& jac, int loglevel);
 
+    //! Compute the newton step, either by direct newton's or by solving a close problem that is represented
+    //! by a Hessian (
+    /*!
+     * This is algorith A.6.5.1 in Dennis / Schnabel
+     *
+     * Compute the QR decomposition
+     * 
+     * Compute the undamped Newton step.  The residual function is
+     * evaluated at the current time, t_n, at the current values of the
+     * solution vector, m_y_n, and the solution time derivative, m_ydot_n. 
+     * The Jacobian is not recomputed.
+     *
+     *  A factored jacobian is reused, if available. If a factored jacobian
+     *  is not available, then the jacobian is factored. Before factoring,
+     *  the jacobian is row and column-scaled. Column scaling is not 
+     *  recomputed. The row scales are recomputed here, after column
+     *  scaling has been implemented.
+     *
+     *  @param y_curr         Current value of the solution
+     *  @param ydot_curr      Current value of the solution derivative.
+     *  @param delta_y        return value of the raw change in y
+     *  @param jac            Jacobian
+     *
+     *  Internal input
+     * ---------------
+     *  internal m_resid      Storred residual is used as input
+     *
+     *
+     *  @return Returns the result code from lapack. A zero means success. Anything
+     *          else indicates a failure.
+     */
+    int doAffineNewtonSolve(const doublereal * const y_curr, const doublereal * const ydot_curr, 
+			    doublereal * const delta_y, SquareMatrix& jac);
+
     //! Calculate the size of the current trust region
     /*!
      *  We carry out a norm of deltaX_trust_ first. Then, we multiply that value
@@ -637,8 +671,11 @@ namespace Cantera {
      *                     Default is to always use a damping scheme in the Newton Direction.
      *                     When this is nonzero, a model trust region approach is used using a double dog leg
      *                     with the steepest descent direction used for small step sizes.
+     *
+     *     @param doAffineSolve  Parameter to turn on or off the solution of the system using a Hessian
+     *                           if the matrix has a bad condition number.
      */
-    void setSolverScheme(int doDogLeg = 0);
+    void setSolverScheme(int doDogLeg, int doAffineSolve);
 
     /*
      * -----------------------------------------------------------------------------------------------------------------
@@ -838,7 +875,13 @@ namespace Cantera {
     double m_ScaleSolnNormToResNorm;
 
     //! Copy of the jacobian that doesn't get overwritten when the inverse is determined
+    /*!
+     *  The jacobian storred here is the raw matrix, before any row or column scaling is carried out
+     */
     Cantera::SquareMatrix jacCopy_;
+
+    //! Hessian
+    Cantera::SquareMatrix Hessian_;
 
     /*********************************************************************************************
      *      VARIABLES ASSOCIATED WITH STEPS AND ASSOCIATED DOUBLE DOGLEG PARAMETERS
@@ -891,6 +934,9 @@ namespace Cantera {
     //! General toggle for turning on dog leg damping.
     int doDogLeg_;
 
+    //! General toggle for turning on Affine solve with Hessian
+    int doAffineSolve_;
+
 
 
     /*******************************************************************************************
@@ -910,6 +956,13 @@ namespace Cantera {
 
     //! Turn on all printing of dogleg information
     static bool s_print_DogLeg;
+
+    //! Turn on solving both the Newton and Hessian systems and comparing the results
+    /*!
+     *  This is off by default
+     */
+    static bool s_doBothSolvesAndCompare;
+
   };
 
 }
