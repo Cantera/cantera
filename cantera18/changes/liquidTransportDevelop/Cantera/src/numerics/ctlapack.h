@@ -32,6 +32,8 @@
 #define _DGBSV_   dgbsv
 #define _DGBTRF_  dgbtrf
 #define _DGBTRS_  dgbtrs
+#define _DGECON_  dgecon
+#define _DLANGE_  dlange
 
 #define _DSCAL_   dscal
 
@@ -52,6 +54,8 @@
 #define _DGBSV_   dgbsv_
 #define _DGBTRF_  dgbtrf_
 #define _DGBTRS_  dgbtrs_
+#define _DGECON_  dgecon_
+#define _DLANGE_  dlange_
 
 #define _DSCAL_   dscal_
 
@@ -147,7 +151,7 @@ extern "C" {
         doublereal *b, integer *ldb, integer *info);
 #endif
 
-    int _DSCAL_(integer *n, doublereal *da, doublereal *dx, integer *incx);
+  int _DSCAL_(integer *n, doublereal *da, doublereal *dx, integer *incx);
   void cblas_dscal(const int N, const double alpha, double *X, const int incX);
 
 
@@ -204,6 +208,26 @@ extern "C" {
 #else
   int _DPOTRS_(const char* uplo, ftnlen upsize, const integer* n,  const integer* nrhs, doublereal* a, const integer* lda,
 	       doublereal* b, const integer* ldb, integer *info);
+#endif
+
+
+#ifdef LAPACK_FTN_STRING_LEN_AT_END
+  int _DGECON_(const char *norm, const integer* n,  doublereal* a, const integer* lda,
+	       const doublereal *rnorm, const doublereal *rcond,
+	       doublereal* work, const integer* iwork, integer *info, ftnlen nosize);
+#else
+  int _DGECON_(const char *norm, ftnlen nosize, const integer* n, doublereal* a, const integer* lda,  
+	       const doublereal *rnorm, const doublereal *rcond,
+	       doublereal* work, const integer* iwork, integer *info);
+#endif
+
+
+#ifdef LAPACK_FTN_STRING_LEN_AT_END
+  doublereal _DLANGE_(const char *norm, const integer* m, const integer* n, doublereal* a, const integer* lda,
+		      doublereal* work, ftnlen nosize);
+#else
+  doublereal _DLANGE_(const char *norm, ftnlen nosize, const integer* m, const integer* n, doublereal* a, const integer* lda, 
+		      doublereal* work);
 #endif
 
 
@@ -315,7 +339,7 @@ namespace Cantera {
     }
   //====================================================================================================================
     inline void ct_dgetri(int n, doublereal* a, int lda, integer* ipiv,
-        doublereal* work, int lwork, int& info) {
+			  doublereal* work, int lwork, int& info) {
         integer f_n = n, f_lda = lda, f_lwork = lwork, f_info = info;
         _DGETRI_(&f_n, a, &f_lda, ipiv, work, &f_lwork, &f_info);
     }
@@ -486,9 +510,64 @@ namespace Cantera {
     info = f_info;
     return;
   }
+
   //====================================================================================================================
+  //!
+  /*!
+   */
+  inline doublereal ct_dgecon(const char norm, int n, doublereal* a, int lda, doublereal anorm,
+			      doublereal* work, int *iwork, int &info) {
+    char cnorm = '1';
+    if (norm) {
+      cnorm = norm;
+    }
+    integer f_n = n;
+    integer f_lda = lda;
+    integer f_info = info;
+    doublereal rcond;
 
+#ifdef NO_FTN_STRING_LEN_AT_END
+    _DGECON_(&cnorm, &f_n  a, &f_lda, &anorm, &rcond, work, iwork, &f_info);
+#else
+    ftnlen trsize = 1;
+#ifdef LAPACK_FTN_STRING_LEN_AT_END
+    _DGECON_(&cnorm, &f_n, a, &f_lda,  &anorm, &rcond, work, iwork, &f_info, trsize);
+#else
+    _DGECON_(&cnorm, trsize, &f_n, a, &f_lda,  &anorm, &rcond, work, iwork, &f_info);
+#endif
+#endif
+    info = f_info;
+    return rcond;
+  } 
 
+  //====================================================================================================================
+  //!
+  /*!
+   */
+  inline doublereal ct_dlange(const char norm, int m, int n, doublereal* a, int lda, 
+			      doublereal* work) {
+    char cnorm = '1';
+    if (norm) {
+      cnorm = norm;
+    }
+    integer f_m = m;
+    integer f_n = n;
+    integer f_lda = lda;
+    doublereal anorm;
+
+#ifdef NO_FTN_STRING_LEN_AT_END
+    anorm = _DLANGE_(&cnorm, &f_m, &f_n  a, &f_lda, work);
+#else
+    ftnlen trsize = 1;
+#ifdef LAPACK_FTN_STRING_LEN_AT_END
+    anorm =  _DLANGE_(&cnorm, &f_m, &f_n, a, &f_lda, work, trsize);
+#else
+    anorm =  _DLANGE_(&cnorm, trsize, &f_m, &f_n, a, &f_lda, work);
+#endif
+#endif
+    return anorm;
+  } 
+  //====================================================================================================================
 }
 
 #endif

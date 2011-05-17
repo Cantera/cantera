@@ -20,6 +20,7 @@
 
 #include "SquareMatrix.h"
 #include "NonlinearSolver.h"
+#include "ctlapack.h"
 
 #include "clockWC.h"
 #include "vec_functions.h"
@@ -79,6 +80,12 @@ namespace Cantera {
 
   // Turn off printing of dogleg information
   bool NonlinearSolver::s_print_DogLeg(false);
+
+  // Turn off solving the system twice and comparing the answer.
+  /*
+   *  Turn this on if you want to compare the Hessian and Newton solve results.
+   */
+  bool  NonlinearSolver::s_doBothSolvesAndCompare(false);
  //====================================================================================================================
   // Default constructor
   /*
@@ -130,6 +137,7 @@ namespace Cantera {
     m_print_flag(0),
     m_ScaleSolnNormToResNorm(0.001),
     jacCopy_(0),
+    Hessian_(0),
     deltaX_CP_(0),
     deltaX_Newton_(0),
     residNorm2Cauchy_(0.0),
@@ -146,7 +154,8 @@ namespace Cantera {
     JdJd_norm_(0.0),
     normTrust_Newton_(0.0),
     normTrust_CP_(0.0),
-    doDogLeg_(0)
+    doDogLeg_(0),
+    doAffineSolve_(0)
   {
     neq_ = m_func->nEquations();
 
@@ -173,12 +182,12 @@ namespace Cantera {
       m_ewt[i] = atolk_[i];
     }
 
-#ifdef DEBUG_DOGLEG
+
     jacCopy_.resize(neq_, neq_, 0.0);
     deltaX_CP_.resize(neq_, 0.0);
     Jd_.resize(neq_, 0.0);
     deltaX_trust_.resize(neq_, 1.0);
-#endif
+
 
   }
  //====================================================================================================================
@@ -228,6 +237,7 @@ namespace Cantera {
     m_print_flag(0),
     m_ScaleSolnNormToResNorm(0.001),
     jacCopy_(0),
+    Hessian_(0),
     deltaX_CP_(0),
     deltaX_Newton_(0),
     residNorm2Cauchy_(0.0),
@@ -244,7 +254,8 @@ namespace Cantera {
     JdJd_norm_(0.0),
     normTrust_Newton_(0.0),
     normTrust_CP_(0.0),
-    doDogLeg_(0)
+    doDogLeg_(0),
+    doAffineSolve_(0)
   {
     *this =operator=(right);
   }
@@ -305,6 +316,7 @@ namespace Cantera {
     m_ScaleSolnNormToResNorm   = right.m_ScaleSolnNormToResNorm;
 
     jacCopy_                   = right.jacCopy_;
+    Hessian_                   = right.Hessian_;
     deltaX_CP_                 = right.deltaX_CP_;
     deltaX_Newton_             = right.deltaX_Newton_;
     RJd_norm_                  = right.RJd_norm_;
@@ -322,6 +334,7 @@ namespace Cantera {
     normTrust_Newton_          = right.normTrust_Newton_;
     normTrust_CP_              = right.normTrust_CP_;
     doDogLeg_                  = right.doDogLeg_;
+    doAffineSolve_             = right.doAffineSolve_;
 
     return *this;
   }
@@ -362,8 +375,17 @@ namespace Cantera {
     }
   }
   //====================================================================================================================
-  void NonlinearSolver::setSolverScheme(int doDogLeg) {
+  void NonlinearSolver::setSolverScheme(int doDogLeg, int doAffineSolve) {
     doDogLeg_ = doDogLeg;
+    doAffineSolve_ = doAffineSolve;
+#ifdef DEBUG_DOGLEG
+
+#else
+    if (doDogLeg_) {
+      throw CanteraError("NonlinearSolver::setSolverScheme",
+			 "ifdef block not on");
+    }
+#endif
   }
   //====================================================================================================================
   std::vector<double> &  NonlinearSolver::lowBoundsConstraintVector() {
@@ -783,6 +805,305 @@ namespace Cantera {
 	
     m_numTotalLinearSolves++;
     return info;
+  }
+  //====================================================================================================================
+  // Compute the newton step, either by direct newton's or by solving a close problem that is represented
+  // by a Hessian (
+  /*
+   * This is algorith A.6.5.1 in Dennis / Schnabel
+   *
+   * Compute the QR decomposition
+   */
+  int NonlinearSolver::doAffineNewtonSolve(const doublereal * const y_curr,   const doublereal * const ydot_curr, 
+					   doublereal * const delta_y, SquareMatrix& jac)
+  {
+    bool newtonGood = true;
+    int irow;
+    doublereal *delyNewton = 0;
+    // We can default to QR here ( or not )
+    jac.useQR_ = true;
+    // multiply the residual by -1
+    // Scale the residual if there is row scaling. Note, the matrix has already been scaled
+    if (m_rowScaling  && !m_resid_scaled) {
+      for (int n = 0; n < neq_; n++) {
+	delta_y[n] = -m_rowScales[n] * m_resid[n];
+      }
+      m_resid_scaled = true;
+    } else {
+      for (int n = 0; n < neq_; n++) {
+        delta_y[n] = -m_resid[n];
+      }
+    }
+
+    // Factor the matrix
+    double cond = 1.0E300;
+    int info = 0;
+    if (!jac.m_factored) { 
+      if (jac.useQR_) {
+	info = jac.factorQR();
+      } else {
+	info = jac.factor();
+      }
+    }
+    /*
+     *  Find the condition number of the matrix
+     *  If we have failed to factor, we will fall back to calculating and factoring a modified Hessian
+     */
+    if (info == 0) {  
+      double rcond = 0.0;
+      if (jac.useQR_) {
+	rcond = jac.rcondQR();
+      } else {
+	rcond = jac.rcond(jac.a1norm_);
+      }
+      if (rcond > 0.0) {
+	cond = 1.0 / rcond;
+      }
+    }
+    bool doHessian = false;
+    if (s_doBothSolvesAndCompare) {
+      doHessian = true;
+    }
+    bool doNewton = false;
+    if (cond < 1.0E7) {
+      doNewton = true;
+      if (m_print_flag >= 3) {
+	printf("\t\t\tdoAffineNewtonSolve: Condition number = %g during regular solve\n", cond);
+      }
+
+      /*
+       * Solve the system -> This also involves inverting the matrix
+       */
+      int info = jac.solve(DATA_PTR(delta_y));
+      if (info) {
+	if (m_print_flag >= 2) {
+	  printf("\t\t\tNonlinearSolver::doAffineSolve QRSolve returned INFO = %d. Switching to Hessian solve\n", info);
+	}
+	doHessian = true;
+	newtonGood = false;
+      }
+      /*
+       * reverse the column scaling if there was any on a successful solve
+       */
+      if (m_colScaling) {
+	for (irow = 0; irow < neq_; irow++) {
+	  delta_y[irow] = delta_y[irow] * m_colScales[irow];
+	}
+      }
+      
+    } else {
+      doHessian = true;
+      newtonGood = false;
+      if (m_print_flag >= 3) {
+	printf("\t\t\tdoAffineNewtonSolve: Condition number too large, %g. Doing a Hessian solve \n", cond);
+      }
+    }
+
+    if (doHessian) {
+      // Store the old value for later comparison
+      if (doNewton) {
+	delyNewton = mdp::mdp_alloc_dbl_1(neq_, MDP_DBL_NOINIT);
+	for (irow = 0; irow < neq_; irow++) {
+	  delyNewton[irow] = delta_y[irow];
+	}
+      }
+      // Get memory if not done before
+      if (Hessian_.nRows() == 0) {
+	Hessian_.resize(neq_, neq_);
+      }
+
+      /*
+       * Calculate the symmetric Hessian
+       */
+      Hessian_.zero();
+      if (m_rowScaling) {
+	for (int i = 0; i < neq_; i++) {
+	  for (int j = i; j < neq_; j++) {
+	    for (int k = 0; k < neq_; k++) {
+	      Hessian_(i,j) += jacCopy_(k,i) * jacCopy_(k,j) * m_rowScales[k] * m_rowScales[k];
+	    }
+	    Hessian_(j,i) = Hessian_(i,j);
+	  }
+	}
+      } else {
+	for (int i = 0; i < neq_; i++) {
+	  for (int j = i; j < neq_; j++) {
+	    for (int k = 0; k < neq_; k++) {
+	      Hessian_(i,j) += jacCopy_(k,i) * jacCopy_(k,j);
+	    }
+	    Hessian_(j,i) = Hessian_(i,j);
+	  }
+	}
+      }
+
+      /*
+       * Calculate the matrix norm of the Hessian
+       */
+      doublereal hnorm = 0.0;
+      doublereal hcol = 0.0;
+      if (m_colScaling) {
+	for (int i = 0; i < neq_; i++) {
+	  for (int j = i; j < neq_; j++) {
+	    hcol += fabs(Hessian_(j,i)) * m_colScales[j];
+	  }
+	  for (int j = i+1; j < neq_; j++) {
+	    hcol += fabs(Hessian_(i,j)) * m_colScales[j];
+	  }
+	  hcol *= m_colScales[i];
+	  if (hcol > hnorm) {
+	    hnorm = hcol;
+	  }
+	}
+      } else {
+	for (int i = 0; i < neq_; i++) {
+	  for (int j = i; j < neq_; j++) {
+	    hcol += fabs(Hessian_(j,i));
+	  }
+	  for (int j = i+1; j < neq_; j++) {
+	    hcol += fabs(Hessian_(i,j));
+	  }
+	  if (hcol > hnorm) {
+	    hnorm = hcol;
+	  }
+	}
+      }
+      /*
+       * Add junk to the Hessian diagonal
+       */
+      hcol = sqrt(neq_) * 1.0E-7 * hnorm;
+      if (m_colScaling) {
+	for (int i = 0; i < neq_; i++) {
+	  Hessian_(i,i) += hcol / (m_colScales[i] * m_colScales[i]);
+	}
+      } else {
+	for (int i = 0; i < neq_; i++) {
+	  Hessian_(i,i) += hcol;
+	}
+      }
+
+      /*
+       *  Factor the Hessian
+       */
+      int info;
+      ct_dpotrf(ctlapack::UpperTriangular, neq_, &(*(Hessian_.begin())), neq_, info);
+      if (info) {
+	if (m_print_flag >= 2) {
+	  printf("\t\t\tNonlinearSolver::doAffineSolve DPOTRF returned INFO = %d\n", info);
+	}
+	return info;
+      }
+
+      // doublereal *JTF = delta_y;
+      doublereal *delyH = mdp::mdp_alloc_dbl_1(neq_, MDP_DBL_NOINIT);
+      // First recalculate the scaled residual. It got wiped out doing the newton solve
+      if (m_rowScaling) {
+	for (int n = 0; n < neq_; n++) {
+	  delyH[n] = -m_rowScales[n] * m_resid[n];
+	}
+      } else {
+	for (int n = 0; n < neq_; n++) {
+	  delyH[n] = -m_resid[n];
+	}
+      }
+
+      if (m_rowScaling) {
+	for (int j = 0; j < neq_; j++) {
+	  delta_y[j] = 0.0;
+	  for (int i = 0; i < neq_; i++) {
+	    delta_y[j] += delyH[i] * jacCopy_.value(i,j) * m_rowScales[i];
+	  }
+	}
+      } else {
+	for (int j = 0; j < neq_; j++) {
+	  delta_y[j] = 0.0;
+	  for (int i = 0; i < neq_; i++) {
+	    delta_y[j] += delyH[i] * jacCopy_.value(i,j);
+	  }
+	}
+      }
+
+    
+      /*
+       * Solve the factored Hessian System
+       */
+      ct_dpotrs(ctlapack::UpperTriangular, neq_, 1,&(*(Hessian_.begin())), neq_, delta_y, neq_, info);
+      if (info) {
+	if (m_print_flag >= 2) {
+	  printf("\t\t\tNonlinearSolver::doAffineSolve DPOTRS returned INFO = %d\n", info);
+	}
+	return info;
+      }
+      /*
+       * reverse the column scaling if there was any.
+       */
+      if (m_colScaling) {
+	for (irow = 0; irow < neq_; irow++) {
+	  delta_y[irow] = delta_y[irow] * m_colScales[irow];
+	}
+      }
+
+
+      if (s_print_DogLeg || (doDogLeg_ && m_print_flag > 3)) {
+	printf("\t\t\t Comparison between Hessian deltaX and newton deltaX\n");
+	printf("\t\t\t   i    Hessian+Junk  Newton \n");
+	printf("\t\t\t--------------------------------------------------------\n");
+	for (int i =0; i < neq_; i++) {
+	  printf("\t\t\t%3d  %12.5g %12.5g\n", i, delta_y[i], delyNewton[i]);
+	}
+	printf("\t\t\t--------------------------------------------------------\n");
+
+      }
+
+      if (newtonGood) {
+	mdp::mdp_copy_dbl_1(DATA_PTR(delta_y), CONSTD_DATA_PTR(delyNewton), neq_);
+      }
+      mdp::mdp_safe_free((void **) &delyH);
+      mdp::mdp_safe_free((void **) &delyNewton);
+    }
+	
+#ifdef DEBUG_JAC
+    if (printJacContributions) {
+      for (int iNum = 0; iNum < numRows; iNum++) {
+	if (iNum > 0) focusRow++;
+	doublereal dsum = 0.0;
+	vector_fp& Jdata = jacBack.data();
+	doublereal dRow = Jdata[neq_ * focusRow + focusRow];
+	printf("\n Details on delta_Y for row %d \n", focusRow);
+	printf("  Value before = %15.5e, delta = %15.5e,"
+	       "value after = %15.5e\n", y_curr[focusRow], 
+	       delta_y[focusRow],  y_curr[focusRow] + delta_y[focusRow]);
+	if (!freshJac) {
+	  printf("    Old Jacobian\n");
+	}
+	printf("     col          delta_y            aij     "
+	       "contrib   \n");
+	printf("-----------------------------------------------------------------------------------------------\n");
+	printf(" Res(%d) %15.5e  %15.5e  %15.5e  (Res = %g)\n",
+	       focusRow, delta_y[focusRow],
+	       dRow, RRow[iNum] / dRow, RRow[iNum]);
+	dsum +=  RRow[iNum] / dRow;
+	for (int ii = 0; ii < neq_; ii++) {
+	  if (ii != focusRow) {
+	    doublereal aij =  Jdata[neq_ * ii + focusRow];
+	    doublereal contrib = aij * delta_y[ii] * (-1.0) / dRow;
+	    dsum += contrib;
+	    if (fabs(contrib) > Pcutoff) {
+	      printf("%6d  %15.5e  %15.5e  %15.5e\n", ii,
+		     delta_y[ii]  , aij, contrib); 
+	    }
+	  }
+	}
+	printf("-----------------------------------------------------------------------------------------------\n");
+	printf("        %15.5e                   %15.5e\n",
+	       delta_y[focusRow], dsum);
+      }
+    }
+
+#endif
+	
+    m_numTotalLinearSolves++;
+    return info;
+
   }
   //====================================================================================================================
   // Do a steepest descent calculation
@@ -1794,8 +2115,8 @@ namespace Cantera {
     m_dampRes = 1.0;
     int j, m;
     num_backtracks = 0;
-    double deltaSolnNorm = solnErrorNorm(DATA_PTR(deltaX_CP_));
-    double funcDecreaseSDExp = RJd_norm_ / deltaSolnNorm * lambda_;
+    //double deltaSolnNorm = solnErrorNorm(DATA_PTR(deltaX_CP_));
+    //double funcDecreaseSDExp = RJd_norm_ / deltaSolnNorm * lambda_;
     double tlen;
    
 
@@ -2185,7 +2506,12 @@ namespace Cantera {
 #endif
 
       // compute the undamped Newton step
-      info = doNewtonSolve(time_curr, DATA_PTR(m_y_n), DATA_PTR(ydot_curr), DATA_PTR(deltaX_Newton_), jac, m_print_flag);
+      if (doAffineSolve_) {
+	info = doAffineNewtonSolve(DATA_PTR(m_y_n), DATA_PTR(ydot_curr), DATA_PTR(deltaX_Newton_), jac);
+      } else {
+	info = doNewtonSolve(time_curr, DATA_PTR(m_y_n), DATA_PTR(ydot_curr), DATA_PTR(deltaX_Newton_), jac, m_print_flag);
+      }
+
       if (info) {
 	m = -1;
 	goto done;
@@ -2201,8 +2527,8 @@ namespace Cantera {
 
 
       if (doDogLeg_) { 
-	double trustD = calcTrustDistance(stp);
 #ifdef DEBUG_DOGLEG
+	double trustD = calcTrustDistance(stp);
 	if (s_print_DogLeg || m_print_flag > 3) {
 	  if (trustD > trustDelta_) {
 	    printf("newton's method trustD, %g, larger than trust region, %g\n", trustD, trustDelta_);
@@ -2664,6 +2990,12 @@ namespace Cantera {
 	printf("--------------\n");
       }
     }
+    /*
+     *  Make a copy of the data. Note, this jacobian copy occurs before any matrix scaling operations.
+     *  It's the raw matrix producted by this routine.
+     */
+    jacCopy_.copyData(J);
+
     return retn;
   }
   //====================================================================================================================

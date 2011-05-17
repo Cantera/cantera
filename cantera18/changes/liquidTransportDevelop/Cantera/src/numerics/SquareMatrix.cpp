@@ -32,7 +32,8 @@ namespace Cantera {
   //====================================================================================================================
   SquareMatrix::SquareMatrix() :
     DenseMatrix(),
-    m_factored(0),
+    m_factored(0), 
+    a1norm_(0.0),
     useQR_(0)
   {
   }
@@ -48,8 +49,10 @@ namespace Cantera {
    */
   SquareMatrix::SquareMatrix(int n, doublereal v)  : 
     DenseMatrix(n, n, v),
-    m_factored(0),
+    m_factored(0), 
+    a1norm_(0.0),
     useQR_(0)
+  
   {
   }
   //====================================================================================================================
@@ -60,6 +63,7 @@ namespace Cantera {
   SquareMatrix::SquareMatrix(const SquareMatrix& y) :
     DenseMatrix(y),
     m_factored(y.m_factored),
+    a1norm_(y.a1norm_),
     useQR_(y.useQR_)
   {
   }
@@ -71,7 +75,9 @@ namespace Cantera {
   SquareMatrix& SquareMatrix::operator=(const SquareMatrix& y) {
     if (&y == this) return *this;
     DenseMatrix::operator=(y);
-    m_factored = y.m_factored;
+    m_factored = y.m_factored; 
+    a1norm_ = y.a1norm_;
+    useQR_ = y.useQR_;
     return *this;
   }
   //====================================================================================================================
@@ -140,11 +146,11 @@ namespace Cantera {
     if (useQR_) {
       return factorQR();
     }
+    a1norm_ = ct_dlange('1', m_nrows, m_nrows, &(*(begin())), m_nrows, DATA_PTR(work));
     integer n = static_cast<int>(nRows());
     int info=0;
     m_factored = 1;
-    ct_dgetrf(n, n, &(*(begin())), static_cast<int>(nRows()),
-	      DATA_PTR(ipiv()), info);
+    ct_dgetrf(n, n, &(*(begin())), static_cast<int>(nRows()), DATA_PTR(ipiv()), info);
     if (info != 0) {
       if (m_printLevel) {
 	writelogf("SquareMatrix::factor(): DGETRS returned INFO = %d\n", info);
@@ -174,7 +180,8 @@ namespace Cantera {
      if ((int) tau.size() < m_nrows)  {
        tau.resize(m_nrows, 0.0);
        work.resize(8 * m_nrows, 0.0);
-     }
+     } 
+     a1norm_ = ct_dlange('1', m_nrows, m_nrows, &(*(begin())), m_nrows, DATA_PTR(work));
      int info;
      m_factored = 2;
      int lwork = work.size(); 
@@ -252,6 +259,36 @@ namespace Cantera {
     return info;
   }
   //=====================================================================================================================
+  doublereal SquareMatrix::rcond(doublereal anorm) {
+    
+    if ((int) iwork_.size() < m_nrows) {
+      iwork_.resize(m_nrows);
+    }
+    if ((int) work.size() <4 * m_nrows) {
+      work.resize(4 * m_nrows);
+    }
+    doublereal rcond = 0.0;
+    if (m_factored != 1) {
+      throw CELapackError("SquareMatrix::rcond()", "matrix isn't factored correctly");
+    }
+    
+    //  doublereal anorm = ct_dlange('1', m_nrows, m_nrows, &(*(begin())), m_nrows, DATA_PTR(work));
+
+
+    int rinfo;
+    rcond = ct_dgecon('1', m_nrows, &(*(begin())), m_nrows, anorm, DATA_PTR(work), 
+		      DATA_PTR(iwork_), rinfo);
+    if (rinfo != 0) {
+      if (m_printLevel) {
+        writelogf("SquareMatrix::rcond(): DGECON returned INFO = %d\n", rinfo);
+      }
+      if (! m_useReturnErrorCode) {
+        throw CELapackError("SquareMatrix::rcond()", "DGECON returned INFO = " + int2str(rinfo));
+      }
+    }
+    return rcond;
+  }
+ //=====================================================================================================================
   doublereal SquareMatrix::rcondQR() {
     
     if ((int) iwork_.size() < m_nrows) {

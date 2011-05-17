@@ -104,6 +104,16 @@ namespace Cantera {
      */
     doublereal rcondQR();
 
+    //! Returns an estimate of the inverse of the condition number for the matrix
+    /*!
+     *   The matrix must have been previously factored using the LU algorithm
+     *
+     * @param a1norm Norm of the matrix
+     *
+     * @return  returns the inverse of the condition number
+     */
+    doublereal rcond(doublereal a1norm);
+
     //! Solves the linear problem Ax=b using the QR algorithm returning x in the b spot
     /*!
      *  @param b  RHS to be solved.
@@ -131,6 +141,9 @@ namespace Cantera {
 
     //! Integer work vector for QR algorithms
     std::vector<int> iwork_;
+    
+    //! 1-norm of the matrix. This is determined immediately before every factorization
+    doublereal a1norm_;
 
   public:
     //!  Use the QR algorithm to factor and invert the matrix
