@@ -14,8 +14,8 @@
     * Download the most recent release of the 1.x series for Python 2.6.
     * Run the installer.
   # *Install Cantera*
-    * *32-bit*: Download [Cantera-1.8.r444-x86.msi Cantera-1.8.r444-x86.msi].
-    * *64-bit*: Download [Cantera-1.8.r444-amd64.msi Cantera-1.8.r444-amd64.msi].
+    * *32-bit*: Download [http://code.google.com/p/cantera/downloads/list Cantera-1.8.r444-x86.msi].
+    * *64-bit*: Download [http://code.google.com/p/cantera/downloads/list Cantera-1.8.r444-amd64.msi].
     * Run the installer.
     * Be sure to complete the installation of the Cantera Python module as well.
   # *Configure Matlab* (optional)
@@ -58,6 +58,6 @@ h2o = importPhase('liquidvapor.cti','water')
 }}}
   * *Install Sundials* (optional)
     * This step is necessary only to build and link C/C++ programs that use the Sundials integrators CVODE and IDA.
-    * *32-bit*: Download [sundials-2.4.0-x86.zip sundials-2.4.0-x86.zip]
-    * *64-bit*: Download [sundials-2.4.0-amd64.zip sundials-2.4.0-amd64.zip]
+    * *32-bit*: Download [http://code.google.com/p/cantera/downloads/list sundials-2.4.0-x86.zip]
+    * *64-bit*: Download [http://code.google.com/p/cantera/downloads/list sundials-2.4.0-amd64.zip]
     * Extract the contents of the ZIP file to the Cantera installation directory, e.g. `C:\Program Files\Cantera`, merging the contents of the `lib` and `include` subdirectories.
