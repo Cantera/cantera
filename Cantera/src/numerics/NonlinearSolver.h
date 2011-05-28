@@ -896,7 +896,8 @@ namespace Cantera {
      */
     std::vector<doublereal> deltaX_Newton_;
 
-    //! Expected value of the residual norm at the Cauchy point
+    //! Expected value of the residual norm at the Cauchy point if the quadratic model
+    //! were valid
     doublereal residNorm2Cauchy_;
 
     //! Residual dot Jd norm
