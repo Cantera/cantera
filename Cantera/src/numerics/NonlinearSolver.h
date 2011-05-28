@@ -632,6 +632,34 @@ namespace Cantera {
 				  double& s1, SquareMatrix& jac, int& loglevel, bool writetitle,
 				  int& num_backtracks);
 
+    //! Decide whether the current step is acceptable and adjust the trust region size
+    /*!
+     *  This is an extension of algorithm 6.4.5 of Dennis and Schnabel.
+     *
+     *  Here we decide whether to accept the current step
+     *  At the end of the calculation a new estimate of the trust region is calculated
+     *
+     * @param time_curr  INPUT     Current value of the time
+     * @param leg        INPUT    Leg of the dogleg that we are on
+     * @param alpha      INPUT    Distance down that leg that we are on
+     * @param y0         INPUT    Current value of the solution vector
+     * @param ydot0      INPUT    Current value of the derivative of the solution vector
+     * @param step0      INPUT    Trial step
+     * @param y1         OUTPUT   Solution values at the conditions which are evalulated for success
+     * @param ydot1      OUTPUT   Time derivates of solution at the conditions which are evalulated for success
+     * @param loglevel   INPUT    Current loglevel
+     * @param trustDeltaOld INPUT Value of the trust length at the old conditions
+     *
+     *
+     * @return This function returns a code which indicates whether the step will be accepted or not.
+     *        3  Step passed with flying colors. Try redoing the calculation with a bigger trust region.
+     *        2  Step didn't pass deltaF requirement. Decrease the size of the next  trust region for a retry and return
+     *        0  The step passed.
+     *       -1  The step size is now too small (||d || < 0.1). A really small step isn't decreasing the function.
+     *           This is an error condition.
+     *       -2  Current value of the solution vector caused a residual error in its evaluation. 
+     *           Step is a failure, and the step size must be reduced in order to proceed further.
+     */
     int decideStep(const doublereal time_curr, int leg, double alpha, const double* y0, const doublereal *ydot0, 
 		   std::vector<doublereal> & step0,
 		   double* const y1, double* const ydot1,  int& loglevel, double trustDeltaOld);

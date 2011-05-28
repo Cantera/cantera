@@ -1248,6 +1248,8 @@ namespace Cantera {
 
     double funcDecreaseNewt2 = 0.5 * (residNewt2 - normResid02) / ( ff * sNewt);
 
+    // This is the expected inital rate of decrease in the cauchy direction.
+    //   -> This is Eqn. 29 = Rhat dot Jhat dy / || d ||
     double funcDecreaseSDExp = RJd_norm_ / cauchyDistanceNorm * lambda_;
 
     double funcDecreaseNewtExp2 = -  normResid02 / sNewt;
@@ -2240,22 +2242,32 @@ namespace Cantera {
     return -1;
   }  
   //====================================================================================================================
-  // Decide whether the current step is acceptable
+  // Decide whether the current step is acceptable and adjust the trust region size
   /*
    *  This is an extension of algorithm 6.4.5 of Dennis and Schnabel.
    *
    *  Here we decide whether to accept the current step
+   *  At the end of the calculation a new estimate of the trust region is calculated
    *
    * @param time_curr  INPUT     Current value of the time
+   * @param leg        INPUT    Leg of the dogleg that we are on
+   * @param alpha      INPUT    Distance down that leg that we are on
+   * @param y0         INPUT    Current value of the solution vector
+   * @param ydot0      INPUT    Current value of the derivative of the solution vector
    * @param step0      INPUT    Trial step
    * @param y1         OUTPUT   Solution values at the conditions which are evalulated for success
+   * @param ydot1      OUTPUT   Time derivates of solution at the conditions which are evalulated for success
+   * @param loglevel   INPUT    Current loglevel
+   * @param trustDeltaOld INPUT Value of the trust length at the old conditions
    *
    *
    * @return This function returns a code which indicates whether the step will be accepted or not.
-   *
-   *        2  Step is successful
-   *
-   *       -2  Current value fo the solution vector caused a residual error in its evaluation. 
+   *        3  Step passed with flying colors. Try redoing the calculation with a bigger trust region.
+   *        2  Step didn't pass deltaF requirement. Decrease the size of the next  trust region for a retry and return
+   *        0  The step passed.
+   *       -1  The step size is now too small (||d || < 0.1). A really small step isn't decreasing the function.
+   *           This is an error condition.
+   *       -2  Current value of the solution vector caused a residual error in its evaluation. 
    *           Step is a failure, and the step size must be reduced in order to proceed further.
    */
   int NonlinearSolver::decideStep(const doublereal time_curr, int leg, double alpha, const double* y0, 
@@ -2272,13 +2284,19 @@ namespace Cantera {
     double stepNorm =  solnErrorNorm(DATA_PTR(step0));
 
     // Calculate the initial (R**2 * neq) value for the old function
-    double normResid02 = m_normResid0 * m_normResid0 * neq_;
+    double normResid0_2 = m_normResid0 * m_normResid0 * neq_;
 
     // Calculate the distance to the cauchy point
     double cauchyDistanceNorm = solnErrorNorm(DATA_PTR(deltaX_CP_));
 
     // This is the expected inital rate of decrease in the cauchy direction.
+    //   -> This is Eqn. 29 = Rhat dot Jhat dy / || d ||
     double funcDecreaseSDExp = RJd_norm_ / cauchyDistanceNorm * lambda_;
+    if (funcDecreaseSDExp > 0.0) {
+      if (loglevel > 0) {
+	printf("\t\tdecideStep(): Unexpected condition -> cauchy slope is positive\n");
+      }
+    }
 
     /*
      *  Calculate the newsolution value y1[] given the step size
@@ -2305,7 +2323,7 @@ namespace Cantera {
 
     if (info != 1) {
       if (loglevel > 0) {
-	printf("\t\t\tdecideStep: current trial step and damping led to Residual Calc ERROR %d. Bailing\n", info);
+	printf("\t\tdecideStep: current trial step and damping led to Residual Calc ERROR %d. Bailing\n", info);
       }
       return -2;
     }
@@ -2314,11 +2332,15 @@ namespace Cantera {
      *  m_normResidTrial
      */
     m_normResidTrial = residErrorNorm(DATA_PTR(m_resid));
+    double normResidTrial_2 = neq_ *  m_normResidTrial *  m_normResidTrial;
 
-
-
-    double funcDecrease = 0.5 * (m_normResidTrial - normResid02) / (stepNorm);
-    if (funcDecrease < 1.0E-4 * funcDecreaseSDExp) {
+    /*
+     *  We have a minimal acceptance test for passage. deltaf < 1.0E-4 (CauchySlope) (deltS)
+     *  This is the condition that D&S use in 6.4.5
+     */
+    double funcDecrease = 0.5 * (normResidTrial_2 - normResid0_2);
+    double acceptableDelF =  funcDecreaseSDExp * stepNorm * 1.0E-4;
+    if (funcDecrease < acceptableDelF) {
       goodStep = true;
       retn = 0;
     } else {
@@ -2331,39 +2353,50 @@ namespace Cantera {
       return retn;
     }
     /* 
-     *  Figure out the next trust region
+     *  Figure out the next trust region. We are here iff retn = 0
      *
      *      If we had to bounds delta the update, decrease the trust region
      */
     if (m_dampBound < 1.0) {
       trustDelta_ *= 0.5;
       ll = trustRegionLength();
-      printf("decideStep(): Trust region decreased from %g to %g due to bounds constraint\n",
+      printf("\t\tdecideStep(): Trust region decreased from %g to %g due to bounds constraint\n",
 	     ll*2, ll);
     } else {
       retn = 0;
+      /*
+       *  Calculate the expected residual from the quadratic model
+       */
       double expectedNormRes = expectedResidLeg(leg, alpha);
-      if (m_normResidTrial > 1.1 * expectedNormRes) {
-	if ((m_normResidTrial > 0.2 * m_normResid0) && (m_normResidTrial > 0.1)) {
+      double expectedFuncDecrease = 0.5 * (neq_ * expectedNormRes * expectedNormRes - normResid0_2);
+      if (funcDecrease > 0.1 * expectedFuncDecrease) {
+	if ((m_normResidTrial > 0.5 * m_normResid0) && (m_normResidTrial > 0.1)) {
 	  trustDelta_ *= 0.5;
 	  ll = trustRegionLength();
-	  printf("decideStep(): Trust region decreased from %g to %g due to bad quad approximation\n",
+	  printf("\t\tdecideStep(): Trust region decreased from %g to %g due to bad quad approximation\n",
 		 ll*2, ll);
 	}
       } else {
-
-	if (trustDelta_ <= trustDeltaOld) {
-	  trustDelta_ *= 2.0;
-	  ll = trustRegionLength();
-	  printf("decideStep(): Trust region increased from %g to %g due to good quad approximation\n",
-		 ll*0.5, ll);
-	  retn = 3;
-	} else {
-	  if (m_normResidTrial < 0.75 * expectedNormRes) {
+	/*
+	 *  If we are doing well, consider increasing the trust region and recalculating
+	 */
+	if (funcDecrease < 0.8 * expectedFuncDecrease ||  (m_normResidTrial < 0.33 * m_normResid0)) {
+	  if (trustDelta_ <= trustDeltaOld) {
 	    trustDelta_ *= 2.0;
 	    ll = trustRegionLength();
-	    printf("decideStep(): Trust region further increased from %g to %g due to good nonlinear behavior\n",
-		 ll*0.5, ll);
+	    printf("\td\tecideStep(): Trust region increased from %g to %g due to good quad approximation\n",
+		   ll*0.5, ll);
+	    retn = 3;
+	  } else {
+	    /*
+	     *  Increase the size of the trust region for the next calculation
+	     */
+	    if (m_normResidTrial < 0.75 * expectedNormRes) {
+	      trustDelta_ *= 2.0;
+	      ll = trustRegionLength();
+	      printf("\t\tdecideStep(): Trust region further increased from %g to %g due to good nonlinear behavior\n",
+		     ll*0.5, ll);
+	    }
 	  }
 	}
       }
