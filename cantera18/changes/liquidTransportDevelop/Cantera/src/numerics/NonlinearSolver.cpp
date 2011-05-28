@@ -1118,6 +1118,11 @@ namespace Cantera {
     /*
      * For confirmation of the scaling factors, see Dennis and Schnabel p, 152, p, 156 and my notes
      * 
+     *  The colFac and rowFac values are used to eliminate the scaling of the matrix from the 
+     *  actual equation
+     *
+     *  Here we calculate the steepest direction. this is equation (10) in the notes. It is
+     *  storred in deltaX_CP_[].The value corresponds to d_descent[].
      */
     for (int j = 0; j < neq_; j++) {
       deltaX_CP_[j] = 0.0;
@@ -1133,6 +1138,10 @@ namespace Cantera {
                 	  / (m_residWts[i] * m_residWts[i]);
       }
     }
+
+    /*
+     *  Calculate J_hat d_y_descent. This is formula 17 in the notes.
+     */
     for (int i = 0; i < neq_; i++) {
       Jd_[i] = 0.0;
       if (m_rowScaling) {
@@ -1145,6 +1154,10 @@ namespace Cantera {
       }
     }
 
+    /*
+     * Calculate the distance along the steepest descent until the Cauchy point
+     * This is Eqn. 16 in the notes.
+     */
     RJd_norm_ = 0.0;
     JdJd_norm_ = 0.0;
     for (int i = 0; i < neq_; i++) {
@@ -1153,17 +1166,23 @@ namespace Cantera {
     }
     lambda_ = - RJd_norm_ / (JdJd_norm_);
 
+    /*
+     *  Now we modify the steepest descent vector such that its length is equal to the 
+     *  Cauchy distance. From now on, if we want to recreate the descent vector, we have
+     *  to unnormalize it by dividing by lambda_.
+     */
     for (int i = 0; i < neq_; i++) {
       deltaX_CP_[i] *= lambda_;
     }
+    double normResid02 = m_normResid0 * m_normResid0 * neq_;
 
-    residNorm2Cauchy_ = m_normResid0 * m_normResid0 - RJd_norm_ * RJd_norm_ / (JdJd_norm_);
+    residNorm2Cauchy_ = normResid02 - RJd_norm_ * RJd_norm_ / (JdJd_norm_);
 
     if (m_print_flag > 2) {
 
       double residCauchy = 0.0;
       if (residNorm2Cauchy_ > 0.0) {
-	residCauchy = sqrt(residNorm2Cauchy_);
+	residCauchy = sqrt(residNorm2Cauchy_ / neq_);
       } else {
 	residCauchy =  m_normResid0 - sqrt(RJd_norm_ * RJd_norm_ / (JdJd_norm_));
       }
@@ -1192,7 +1211,7 @@ namespace Cantera {
     int info;
     double ff = 1.0E-5;
     double *y1 = DATA_PTR(m_wksp);
-    double s1 = solnErrorNorm(DATA_PTR(deltaX_CP_));
+    double cauchyDistanceNorm = solnErrorNorm(DATA_PTR(deltaX_CP_));
     for (int i = 0; i < neq_; i++) {
       y1[i] = m_y_n[i] + ff * deltaX_CP_[i];
     }
@@ -1209,7 +1228,7 @@ namespace Cantera {
     double normResid02 = m_normResid0 * m_normResid0 * neq_;
     double residSteep = residErrorNorm(DATA_PTR(m_resid));
     double residSteep2 = residSteep * residSteep * neq_;
-    double funcDecrease2 = 0.5 * (residSteep2 - normResid02) / ( ff * s1);
+    double funcDecrease2 = 0.5 * (residSteep2 - normResid02) / ( ff * cauchyDistanceNorm);
 
     double sNewt = solnErrorNorm(DATA_PTR(newtDir));
     for (int i = 0; i < neq_; i++) {
@@ -1229,7 +1248,7 @@ namespace Cantera {
 
     double funcDecreaseNewt2 = 0.5 * (residNewt2 - normResid02) / ( ff * sNewt);
 
-    double funcDecreaseSDExp = RJd_norm_ / s1 * lambda_;
+    double funcDecreaseSDExp = RJd_norm_ / cauchyDistanceNorm * lambda_;
 
     double funcDecreaseNewtExp2 = -  normResid02 / sNewt;
 
@@ -2221,9 +2240,27 @@ namespace Cantera {
     return -1;
   }  
   //====================================================================================================================
-  int NonlinearSolver::decideStep(const doublereal time_curr, int leg, double alpha, const double* y0, const doublereal *ydot0, 
-				  std::vector<doublereal> & step0,
-				  double* const y1, double* const ydot1,  int& loglevel, double trustDeltaOld) 
+  // Decide whether the current step is acceptable
+  /*
+   *  This is an extension of algorithm 6.4.5 of Dennis and Schnabel.
+   *
+   *  Here we decide whether to accept the current step
+   *
+   * @param time_curr  INPUT     Current value of the time
+   * @param step0      INPUT    Trial step
+   * @param y1         OUTPUT   Solution values at the conditions which are evalulated for success
+   *
+   *
+   * @return This function returns a code which indicates whether the step will be accepted or not.
+   *
+   *        2  Step is successful
+   *
+   *       -2  Current value fo the solution vector caused a residual error in its evaluation. 
+   *           Step is a failure, and the step size must be reduced in order to proceed further.
+   */
+  int NonlinearSolver::decideStep(const doublereal time_curr, int leg, double alpha, const double* y0, 
+				  const doublereal *ydot0,  std::vector<doublereal> & step0,
+				  double * const y1, double* const ydot1,  int& loglevel, double trustDeltaOld) 
 
   {
     int retn = 2;
@@ -2231,21 +2268,31 @@ namespace Cantera {
     int j;
     int info;
     double ll;
+    // Calculate the solution step length
     double stepNorm =  solnErrorNorm(DATA_PTR(step0));
-    double normResid02 = m_normResid0 * m_normResid0 * neq_;  
-    double deltaSolnNorm = solnErrorNorm(DATA_PTR(deltaX_CP_));
-    double funcDecreaseSDExp = RJd_norm_ / deltaSolnNorm * lambda_;
 
- 
+    // Calculate the initial (R**2 * neq) value for the old function
+    double normResid02 = m_normResid0 * m_normResid0 * neq_;
+
+    // Calculate the distance to the cauchy point
+    double cauchyDistanceNorm = solnErrorNorm(DATA_PTR(deltaX_CP_));
+
+    // This is the expected inital rate of decrease in the cauchy direction.
+    double funcDecreaseSDExp = RJd_norm_ / cauchyDistanceNorm * lambda_;
+
+    /*
+     *  Calculate the newsolution value y1[] given the step size
+     */
     for (j = 0; j < neq_; j++) {
       y1[j] = y0[j] + step0[j];
     }
-      
+    /*
+     *  Calculate the new solution time derivative given the step size
+     */
     if (solnType_ != NSOLN_TYPE_STEADY_STATE) {
       calc_ydot(m_order, y1, ydot1);
     } 
-     
-      
+        
     /*
      *  Calculate the residual that would result if y1[] were the new solution vector
      *  -> m_resid[] contains the result of the residual calculation
@@ -2255,13 +2302,20 @@ namespace Cantera {
     } else {
       info = doResidualCalc(time_curr, solnType_, y1, ydot0, Base_LaggedSolutionComponents);
     }
+
     if (info != 1) {
       if (loglevel > 0) {
 	printf("\t\t\tdecideStep: current trial step and damping led to Residual Calc ERROR %d. Bailing\n", info);
       }
       return -2;
     }
+    /*
+     *  Ok we have a successful new residual. Calculate the normalized residual value and store it in 
+     *  m_normResidTrial
+     */
     m_normResidTrial = residErrorNorm(DATA_PTR(m_resid));
+
+
 
     double funcDecrease = 0.5 * (m_normResidTrial - normResid02) / (stepNorm);
     if (funcDecrease < 1.0E-4 * funcDecreaseSDExp) {
