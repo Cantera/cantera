@@ -1157,6 +1157,9 @@ namespace Cantera {
 	}
         deltaX_CP_[j] -= m_resid[i] * jac.value(i,j) * colFac * rowFac * m_ewt[j] * m_ewt[j] 
                 	  / (m_residWts[i] * m_residWts[i]);
+#ifdef DEBUG_DOGLEG
+	mdp::checkFinite(deltaX_CP_[j]);
+#endif
       }
     }
 
@@ -1185,7 +1188,18 @@ namespace Cantera {
       RJd_norm_ += m_resid[i] * Jd_[i] / m_residWts[i];
       JdJd_norm_ += Jd_[i] * Jd_[i];
     }
-    lambda_ = - RJd_norm_ / (JdJd_norm_);
+    //if (RJd_norm_ > -1.0E-300) {
+    //  printf("we are here: zero residual\n");
+    //}
+    if (fabs(JdJd_norm_) < 1.0E-290) {
+      if (fabs(RJd_norm_) < 1.0E-300) {
+	lambda_ = 0.0;
+      } else {
+	throw CanteraError("NonlinearSolver::doCauchyPointSolve()", "Unexpected condition: norms are zero");
+      }
+    } else {
+      lambda_ = - RJd_norm_ / (JdJd_norm_);
+    }
 
     /*
      *  Now we modify the steepest descent vector such that its length is equal to the 
@@ -1197,7 +1211,11 @@ namespace Cantera {
     }
     double normResid02 = m_normResid0 * m_normResid0 * neq_;
 
-    residNorm2Cauchy_ = normResid02 - RJd_norm_ * RJd_norm_ / (JdJd_norm_);
+    if (fabs(JdJd_norm_) < 1.0E-290) {
+      residNorm2Cauchy_ = normResid02;
+    } else {
+      residNorm2Cauchy_ = normResid02 - RJd_norm_ * RJd_norm_ / (JdJd_norm_);
+    }
 
     if (m_print_flag > 2) {
 
@@ -1205,7 +1223,11 @@ namespace Cantera {
       if (residNorm2Cauchy_ > 0.0) {
 	residCauchy = sqrt(residNorm2Cauchy_ / neq_);
       } else {
-	residCauchy =  m_normResid0 - sqrt(RJd_norm_ * RJd_norm_ / (JdJd_norm_));
+	if (fabs(JdJd_norm_) < 1.0E-290) {
+	  residCauchy =  m_normResid0;
+	} else {
+	  residCauchy =  m_normResid0 - sqrt(RJd_norm_ * RJd_norm_ / (JdJd_norm_));
+	}
       }
       
       // Compute the weighted norm of the undamped step size descentDir_[]
@@ -1234,6 +1256,7 @@ namespace Cantera {
     double *y1 = DATA_PTR(m_wksp);
     double cauchyDistanceNorm = solnErrorNorm(DATA_PTR(deltaX_CP_));
     for (int i = 0; i < neq_; i++) {
+      mdp::checkFinite(deltaX_CP_[i]);
       y1[i] = m_y_n[i] + ff * deltaX_CP_[i];
     }
     /*
