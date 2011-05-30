@@ -348,17 +348,12 @@ namespace Cantera {
    *  The program always assumes that atol is specific
    *  to the solution component
    *
-   * param y  vector of the current solution values
+   * @param y  vector of the current solution values
    */
   void NonlinearSolver::createSolnWeights(const doublereal * const y) {
     for (int i = 0; i < neq_; i++) {
       m_ewt[i] = rtol_ * fabs(y[i]) + atolk_[i];
     }
-#ifdef DEBUG_DOGLEG
-    //  for (int i = 0; i < neq_; i++) {
-    //   m_ewt[i] = 1.0E-4;
-    // }
-#endif
   }
   //====================================================================================================================
   // set bounds constraints for all variables in the problem
@@ -665,8 +660,10 @@ namespace Cantera {
       }
       for (jcol = 0; jcol < neq_; jcol++) {
 	for (irow = 0; irow < neq_; irow++) {
-	  m_rowScales[irow] += fabs(*jptr);
+	  //m_rowScales[irow] += fabs(*jptr);
 	  if (m_colScaling) {
+	    // This is needed in order to mitgate the change in J_ij carried out just above this loop.
+	    // Alternatively, we could move this loop up to the top
 	    m_rowWtScales[irow] += fabs(*jptr) * m_ewt[jcol] / m_colScales[jcol];
 	  } else {
 	    m_rowWtScales[irow] += fabs(*jptr) * m_ewt[jcol];
@@ -699,16 +696,40 @@ namespace Cantera {
 
   }
   //====================================================================================================================
+  // Calculate the scaling factor for translating residual norms into solution norms.
+  /*
+   *  This routine calls computeResidWts() a couple of times in the calculation of m_ScaleSolnNormToResNorm.
+   *  A more sophisticated routine may do more with signs to get a better value. Perhaps, a series of calculations
+   *  with different signs attached may be in order. Then, m_ScaleSolnNormToResNorm would be calculated
+   *  as the minimum of a series of calculations.
+   */
   void NonlinearSolver::calcSolnToResNormVector()
   { 
-    //  double oldVal =  m_ScaleSolnNormToResNorm;
-    // if (m_normSolnFRaw > 1.0E-13) {
-    // m_ScaleSolnNormToResNorm = 1.0E-2 * m_normResid0 / m_normSolnFRaw * oldVal;
-    //} 
-    // m_normResid0 = m_normSolnFRaw;
-    //computeResidWts();
-    m_ScaleSolnNormToResNorm = 1.0;
-    //double tmp = residErrorNorm(DATA_PTR(m_resid));
+    if (! jacCopy_.m_factored) { 
+      m_ScaleSolnNormToResNorm = 1.0;
+      computeResidWts();
+      for (int n = 0; n < neq_; n++) {
+        m_wksp[n] = 0.0;
+      }   
+      doublereal *jptr = &(*(jacCopy_.begin()));
+      for (int jcol = 0; jcol < neq_; jcol++) {
+	for (int irow = 0; irow < neq_; irow++) {
+	  m_wksp[irow] += (*jptr) * m_ewt[jcol];
+	  jptr++;
+	}
+      }
+      double resNormOld = residErrorNorm(DATA_PTR(m_wksp));
+      if (resNormOld > 0.0) {
+	m_ScaleSolnNormToResNorm = m_ScaleSolnNormToResNorm * resNormOld;
+      }
+      if (m_ScaleSolnNormToResNorm < 1.0E-8) {
+	m_ScaleSolnNormToResNorm = 1.0E-8;
+      }
+      // Recalculate the residual weights now that we know the value of m_ScaleSolnNormToResNorm 
+      computeResidWts();
+    } else {
+      throw CanteraError("NonlinearSolver::calcSolnToResNormVector()" , "Logic error");
+    }
   }
   //====================================================================================================================
   // Compute the undamped Newton step based on the current jacobian and an input rhs
