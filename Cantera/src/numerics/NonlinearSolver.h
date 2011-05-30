@@ -579,8 +579,13 @@ namespace Cantera {
      */
     void setMaxNewtIts(const int maxNewtIts);
 
-    //! Calculate the scaling factor for translating residual norms into 
-    //! solution norms.
+    //! Calculate the scaling factor for translating residual norms into solution norms.
+    /*!
+     *  This routine calls computeResidWts() a couple of times in the calculation of m_ScaleSolnNormToResNorm.
+     *  A more sophisticated routine may do more with signs to get a better value. Perhaps, a series of calculations
+     *  with different signs attached may be in order. Then, m_ScaleSolnNormToResNorm would be calculated
+     *  as the minimum of a series of calculations.
+     */
     void calcSolnToResNormVector();
 
     //! Calculate the steepest descent direction and the Cauchy Point where the quadratic formulation 
@@ -758,8 +763,9 @@ namespace Cantera {
 
     //! Weights for normalizing the values of the residuals
     /*!
-     *  These are computed if row scaling, m_rowScaling, is turned on. They are calculated currently as the
-     *  sum of the absolute values  jacobian multiplied by the solution weight function
+     *  They are calculated as the  sum of the absolute values of the jacobian 
+     *  multiplied by the solution weight function.
+     *  This is carried out in scaleMatrix().
      */
     std::vector<doublereal> m_rowWtScales;
 
