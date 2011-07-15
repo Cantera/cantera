@@ -2150,9 +2150,9 @@ namespace Cantera {
 	return 0;
       }
     }
-    if (loglevel >= 4 ) {
+    //if (loglevel >= 4 ) {
       printf("\t  dampStep(): current direction is rejected! retnTrial = %d, its = %d, damp = %g\n", -2, m+1, ff);
-    }
+      //}
     return -2;
   }
 
@@ -2578,7 +2578,7 @@ namespace Cantera {
 	}
 	info = beuler_jac(jac, DATA_PTR(m_resid), time_curr, CJ,  DATA_PTR(m_y_n), DATA_PTR(ydot_curr), num_newt_its);
 	if (info == 0) {
-	  m = -1;
+	  m = -4;
 	  goto done;
 	}
 	m_residCurrent = true;
@@ -2600,7 +2600,7 @@ namespace Cantera {
 	if (m_print_flag > 0) {
 	  printf("\t\t\tsolve_nonlinear_problem(): Residual Calc ERROR %d. Bailing\n", info);
 	}
-	m = -1;
+	m = -5;
 	goto done;
       }
 
@@ -2644,7 +2644,7 @@ namespace Cantera {
       }
 
       if (info) {
-	m = -1;
+	m = -6;
 	goto done;
       }
       mdp::mdp_copy_dbl_1(DATA_PTR(stp), CONSTD_DATA_PTR(deltaX_Newton_), neq_);
@@ -2731,7 +2731,7 @@ namespace Cantera {
        * Impose max newton iteration
        */
       if (num_newt_its > maxNewtIts_) {
-	m = -1;
+	m = -7;
 	if (m_print_flag > 1) {
 	  printf("\t\tsolve_nonlinear_problem(): Damped newton unsuccessful (max newts exceeded) sfinal = %g\n", s1);
 	}
@@ -2743,7 +2743,7 @@ namespace Cantera {
 	if (m_print_flag > 0) {
 	  printf("\t\t\tdampStep: current trial step and damping led to Residual Calc ERROR %d. Bailing\n", info);
 	}
-	m = -1;
+	m = -8;
 	goto done;
       }
 
