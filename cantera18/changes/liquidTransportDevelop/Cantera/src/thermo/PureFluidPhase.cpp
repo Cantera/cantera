@@ -355,7 +355,8 @@ namespace Cantera {
     double psave = pressure();
     double t = temperature();
     double pref = m_spthermo->refPressure();
-    Set(tpx::TP, t, pref);
+    double plow = 1.0E-8;
+    Set(tpx::TP, t, plow);
     getEnthalpy_RT(hrt);
     Set(tpx::TP, t, psave);
  
@@ -371,8 +372,10 @@ namespace Cantera {
     double psave = pressure();
     double t = temperature();
     double pref = m_spthermo->refPressure();
-    Set(tpx::TP, t, pref);
+    double plow = 1.0E-8;
+    Set(tpx::TP, t, plow);
     getGibbs_RT(grt);
+    grt[0] += log(pref/plow);
     Set(tpx::TP, t, psave);
   }
   //====================================================================================================================
@@ -399,8 +402,10 @@ namespace Cantera {
     double psave = pressure();
     double t = temperature();
     double pref = m_spthermo->refPressure();
-    Set(tpx::TP, t, pref);
+    double plow = 1.0E-8;
+    Set(tpx::TP, t, plow);
     getEntropy_R(er);
+    er[0] -= log(pref/plow);
     Set(tpx::TP, t, psave);
   }
   //====================================================================================================================
