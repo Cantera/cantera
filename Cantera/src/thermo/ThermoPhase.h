@@ -1544,7 +1544,7 @@ namespace Cantera {
      * @param x    Vector of mole fractions.
      *             Length is equal to m_kk.
      */
-    void setState_TPX(doublereal t, doublereal p, const doublereal* x);
+    virtual void setState_TPX(doublereal t, doublereal p, const doublereal* x);
 
     //! Set the temperature (K), pressure (Pa), and mole fractions.  
     /*!

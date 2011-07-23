@@ -182,8 +182,9 @@ namespace Cantera {
 	  ", has a different reference pressure, "
 	  + fp2str(refPressure) + ", than existing reference pressure, " 	+ fp2str(m_p0) + "\n";
 	writelog(logmsg);
-	logmsg = "                  This may become a fatal error in the future \n";
+	logmsg = "                  This is now a fatal error\n";
 	writelog(logmsg);
+        throw CanteraError("install()", "Species have different reference pressures");
       }
       m_p0 = refPressure;
     }

@@ -137,7 +137,6 @@ namespace Cantera {
      */
     int solve(doublereal xmin, doublereal xmax, int itmax, doublereal &funcTargetValue, doublereal *xbest);
 
-
     //! Return the function value
     /*! 
      * This routine evaluates the following equation.

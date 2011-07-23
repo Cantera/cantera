@@ -50,11 +50,11 @@ namespace mdp {
   void checkFinite(const double tmp) throw(std::range_error) {
     if (_finite(tmp)) {
       if(_isnan(tmp)) {
-	    printf("ERROR: we have encountered a nan!\n");
+	    printf("checkFinite() ERROR: we have encountered a nan!\n");
       } else if (_fpclass(tmp) == _FPCLASS_PINF) {
-	    printf("ERROR: we have encountered a pos inf!\n");
+	    printf("checkFinite() ERROR: we have encountered a pos inf!\n");
       } else {
-	  	printf("ERROR: we have encountered a neg inf!\n");
+	  	printf("checkFinite() ERROR: we have encountered a neg inf!\n");
       }
       const std::string s = "checkFinite()";
       throw std::range_error(s);
@@ -64,11 +64,11 @@ namespace mdp {
   void checkFinite(const double tmp) throw(std::range_error) {
     if (! finite(tmp)) {
       if(isnan(tmp)) {
-	printf("ERROR: we have encountered a nan!\n");
+	printf("checkFinite() ERROR: we have encountered a nan!\n");
       } else if (isinf(tmp) == 1) {
-	printf("ERROR: we have encountered a pos inf!\n");
+	printf("checkFinite() ERROR: we have encountered a pos inf!\n");
       } else {
-	printf("ERROR: we have encountered a neg inf!\n");
+	printf("checkFinite() ERROR: we have encountered a neg inf!\n");
       }
       const std::string s = "checkFinite()";
       throw std::range_error(s);
@@ -102,7 +102,7 @@ namespace mdp {
     checkFinite(tmp); 
     if (fabs(tmp) >= trigger) {
       char sbuf[64];
-      sprintf(sbuf, "checkMagnitude: Trigger %g exceeded: %g\n", trigger,
+      sprintf(sbuf, "checkMagnitude() ERROR: Trigger %g exceeded: %g\n", trigger,
 	     tmp);
       throw std::range_error(sbuf);
     }
@@ -119,16 +119,16 @@ namespace mdp {
 void checkZeroFinite(const double tmp) throw(std::range_error) {
     if ((tmp == 0.0) || (! _finite(tmp))) {
       if (tmp == 0.0) {
-	    printf("ERROR: we have encountered a zero!\n");
+	    printf("checkZeroFinite() ERROR: we have encountered a zero!\n");
       } else if(_isnan(tmp)) {
-	    printf("ERROR: we have encountered a nan!\n");
+	    printf("checkZeroFinite() ERROR: we have encountered a nan!\n");
       } else if (_fpclass(tmp) == _FPCLASS_PINF) {
-        printf("ERROR: we have encountered a pos inf!\n");
+        printf("checkZeroFinite() ERROR: we have encountered a pos inf!\n");
       } else {
-        printf("ERROR: we have encountered a neg inf!\n");
+        printf("checkZeroFinite() ERROR: we have encountered a neg inf!\n");
       }
       char sbuf[64];
-      sprintf(sbuf, "checkZeroFinite: zero or indef exceeded: %g\n",
+      sprintf(sbuf, "checkZeroFinite() ERROR: zero or indef exceeded: %g\n",
               tmp);
       throw std::range_error(sbuf);
     }
@@ -137,16 +137,16 @@ void checkZeroFinite(const double tmp) throw(std::range_error) {
   void checkZeroFinite(const double tmp) throw(std::range_error) {
     if ((tmp == 0.0) || (! finite(tmp))) {
       if (tmp == 0.0) {
-	printf("ERROR: we have encountered a zero!\n");
+	printf("checkZeroFinite() ERROR: we have encountered a zero!\n");
       } else if(isnan(tmp)) {
-	printf("ERROR: we have encountered a nan!\n");
+	printf("checkZeroFinite() ERROR: we have encountered a nan!\n");
       } else if (isinf(tmp) == 1) {
-	printf("ERROR: we have encountered a pos inf!\n");
+	printf("checkZeroFinite() ERROR: we have encountered a pos inf!\n");
       } else {
-	printf("ERROR: we have encountered a neg inf!\n");
+	printf("checkZeroFinite() ERROR: we have encountered a neg inf!\n");
       }
       char sbuf[64];
-      sprintf(sbuf, "checkZeroFinite: zero or indef exceeded: %g\n",
+      sprintf(sbuf, "checkZeroFinite() ERROR: zero or indef exceeded: %g\n",
 	      tmp);
       throw std::range_error(sbuf);
     }
