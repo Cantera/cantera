@@ -304,6 +304,12 @@ namespace Cantera {
 
     //@}
     /// @name Properties of the Standard State of the Species in the Solution 
+    /*!
+     *  The standard state of the pure fluid is defined as the real properties
+     *  of the pure fluid at the most stable state of the fluid at the current 
+     *  temperature and pressure of the solution. With this definition, the
+     *  activity of the fluid is always then defined to be equal to one.
+     */
     //@{
 
     //! Get the array of chemical potentials at unit activity for the species
@@ -342,15 +348,19 @@ namespace Cantera {
      */
     virtual void getGibbs_RT(doublereal* grt) const;
 
-
     //@}
+
     /// @name Thermodynamic Values for the Species Reference States 
+    /*!
+     *    The species reference state for pure fluids is defined as an ideal gas at the
+     *    reference pressure and current temperature of the fluid.
+     */
     //@{
 
     //!  Returns the vector of nondimensional enthalpies of the reference state at the current temperature
     //!  of the solution and the reference pressure for the species.
     /*!
-     *  This base function will throw a CanteraException unless
+     *  This base function will throw a Cantera exception unless
      *  it is overwritten in a derived class.
      *
      * @param hrt     Output vector containing the nondimensional reference state enthalpies
@@ -358,8 +368,7 @@ namespace Cantera {
      */
     virtual void getEnthalpy_RT_ref(doublereal *hrt) const;
 
-    //!  Returns the vector of nondimensional
-    //!  Gibbs Free Energies of the reference state at the current temperature
+    //!  Returns the vector of nondimensional Gibbs Free Energies of the reference state at the current temperature
     //!  of the solution and the reference pressure for the species.
     /*!
      * @param grt     Output vector containing the nondimensional reference state 
@@ -372,15 +381,14 @@ namespace Cantera {
     /*!
      *  units = J/kmol
      *
-     * @param g       Output vector containing the  reference state 
+     * @param g       Output vector containing the reference state 
      *                Gibbs Free energies.  Length: m_kk. Units: J/kmol.
      */
     virtual void getGibbs_ref(doublereal *g) const;
 
 
 
-    //!  Returns the vector of nondimensional
-    //!  entropies of the reference state at the current temperature
+    //!  Returns the vector of nondimensional entropies of the reference state at the current temperature
     //!  of the solution and the reference pressure for each species.
     /*!
      * @param er      Output vector containing the nondimensional reference state 
@@ -388,14 +396,12 @@ namespace Cantera {
      */
     virtual void getEntropy_R_ref(doublereal *er) const;
 
-
     /**
      * @name Setting the State
      *
      * These methods set all or part of the thermodynamic state.
      * @{
      */
-
 
     //! Set the internally storred specific enthalpy (J/kg) and pressure (Pa) of the phase.
     /*!
