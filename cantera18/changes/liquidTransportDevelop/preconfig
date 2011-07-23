@@ -228,6 +228,10 @@ WITH_IDEAL_SOLUTIONS=${WITH_IDEAL_SOLUTIONS:="y"}
 # models for electrolyte solutions
 WITH_ELECTROLYTES=${WITH_ELECTROLYTES:="y"}
 
+# Enable Real Gas Equations of State
+# This supports the multicomponent Redlich-Kwong equation of state.
+WITH_REAL_GASSES=${WITH_REAL_GASSES:="n"}
+
 # Enable generating phase models from PrIMe models. For more
 # information about PrIME, see http://www.primekinetics.org
 # WARNING: Support for PrIMe is experimental!

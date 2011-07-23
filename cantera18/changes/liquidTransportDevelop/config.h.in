@@ -183,6 +183,9 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 //    models for electrolyte solutions.
 #undef WITH_ELECTROLYTES
 
+//    Enable Real Gasses
+#undef WITH_REAL_GASSES
+
 #undef WITH_PRIME
 
 //    Enable the VCS NonIdeal equilibrium solver. This is

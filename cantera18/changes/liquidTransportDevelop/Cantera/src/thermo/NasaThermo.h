@@ -209,11 +209,12 @@ namespace Cantera {
       if (m_p0 < 0.0) {
 	m_p0 = refPressure;
       } else if (fabs(m_p0 - refPressure) > 0.1) {
-	std::string logmsg =  " WARNING NasaThermo: New Species, " + name +  ", has a different reference pressure, "
+	std::string logmsg =  " ERROR NasaThermo: New Species, " + name +  ", has a different reference pressure, "
 	  + fp2str(refPressure) + ", than existing reference pressure, " 	+ fp2str(m_p0) + "\n";
 	writelog(logmsg);
-	logmsg = "                  This may become a fatal error in the future \n";
+	logmsg = "                  This is now a fatal error\n";
 	writelog(logmsg);
+        throw CanteraError("install()", "species have different reference pressures");
       }
       m_p0 = refPressure;
     }

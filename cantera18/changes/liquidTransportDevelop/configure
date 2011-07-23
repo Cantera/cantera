@@ -2585,6 +2585,16 @@ _ACEOF
 fi
 
 
+if test "$WITH_REAL_GASSES" = "y"; then
+  cat >>confdefs.h <<\_ACEOF
+#define WITH_REAL_GASSES 1
+_ACEOF
+
+  hdrs=$hdrs' RedlichKwongMFTP.h'
+  objs=$objs' RedlichKwongMFTP.o'
+fi
+
+
 if test "$WITH_LATTICE_SOLID" = "y"; then
   cat >>confdefs.h <<\_ACEOF
 #define WITH_LATTICE_SOLID 1
@@ -10058,7 +10068,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:10061:" \
+echo "$as_me:10071:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -10265,7 +10275,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_verb"
-(eval echo $as_me:10268: \"$ac_link\") >&5
+(eval echo $as_me:10278: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -10343,7 +10353,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_cv_prog_f77_v"
-(eval echo $as_me:10346: \"$ac_link\") >&5
+(eval echo $as_me:10356: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS

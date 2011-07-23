@@ -1012,7 +1012,7 @@ namespace Cantera {
     }
     return m_speciesData;
   }
-
+  //====================================================================================================================
   /*
    * Set the thermodynamic state.
    */
@@ -1038,7 +1038,7 @@ namespace Cantera {
       setDensity(rho);
     }
   }
-
+  //====================================================================================================================
   /*
    * Called by function 'equilibrate' in ChemEquil.h to transfer
    * the element potentials to this object after every successful

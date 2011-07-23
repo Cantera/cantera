@@ -486,6 +486,13 @@ if test "$WITH_PURE_FLUIDS" = "y"; then
 fi
 AC_SUBST(COMPILE_PURE_FLUIDS)
 
+if test "$WITH_REAL_GASSES" = "y"; then
+  AC_DEFINE(WITH_REAL_GASSES)
+  hdrs=$hdrs' RedlichKwongMFTP.h'
+  objs=$objs' RedlichKwongMFTP.o'
+fi
+
+
 if test "$WITH_LATTICE_SOLID" = "y"; then
   AC_DEFINE(WITH_LATTICE_SOLID)
   hdrs=$hdrs' LatticeSolidPhase.h'

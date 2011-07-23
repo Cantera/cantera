@@ -36,6 +36,10 @@
 #include "PureFluidPhase.h"
 #endif
 
+#ifdef WITH_REAL_GASSES
+#include "RedlichKwongMFTP.h"
+#endif
+
 #include "ConstDensityThermo.h"
 #include "SurfPhase.h"
 #include "EdgePhase.h"
@@ -212,6 +216,13 @@ namespace Cantera {
       th = new PureFluidPhase;
       break;
 #endif
+
+#ifdef WITH_REAL_GASSES
+    case cRedlichKwongMFTP:
+      th = new RedlichKwongMFTP;
+      break;
+#endif
+
 #ifdef WITH_ELECTROLYTES
     case cHMW:
       th = new HMWSoln;

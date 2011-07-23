@@ -73,6 +73,10 @@ namespace Cantera {
   const int cIdealSolnGasVPSS = 500;
   const int cIdealSolnGasVPSS_iscv = 501;
 
+  //! Fugacity Models
+  const int cMixtureFugacityTP = 700;
+  const int cRedlichKwongMFTP = 701;
+
   const int cMargulesVPSSTP = 301;
 
   const int cPhaseCombo_Interaction = 305;
