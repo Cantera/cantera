@@ -740,8 +740,10 @@ namespace VCSnonideal {
 		  m_elementName[i].c_str(), m_elemAbundancesGoal[i]);
 	    exit(EXIT_FAILURE);
 	  } else {
-	    plogf("Charge neutrality condition %s not zero, %g. Setting it zero\n",
-		  m_elementName[i].c_str(), m_elemAbundancesGoal[i]);
+            if (m_debug_print_lvl >= 2) {
+	      plogf("Charge neutrality condition %s not zero, %g. Setting it zero\n",
+	  	    m_elementName[i].c_str(), m_elemAbundancesGoal[i]);
+            }
 	    m_elemAbundancesGoal[i] = 0.0;
 	  }
 	  
