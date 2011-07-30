@@ -47,18 +47,20 @@ namespace Cantera {
     Adams_Method         /**< Adams                    */
   };
 
-  /**
-   * Specifies the method used for iteration.
+  //! Specifies the method used for iteration.
+  /*!
    * Not all methods are supported by all integrators.
    */
   enum IterType { 
-    Newton_Iter,         /**< Newton iteration         */ 
-    Functional_Iter      /**< Functional iteration     */
+    //!  Newton Iteration
+    Newton_Iter,     
+    //! Functional Iteration
+    Functional_Iter   
   };
 
 
-  /**
-   *  Abstract base class for ODE system integrators.
+  //!  Abstract base class for ODE system integrators.
+  /*!
    *  @ingroup odeGroup
    */
   class Integrator {
@@ -77,8 +79,8 @@ namespace Cantera {
     /** Set or reset the number of equations. */ 
     //virtual void resize(int n)=0;
 
-    /**
-     * Set error tolerances. 
+    //!  Set error tolerances. 
+    /*!
      * @param reltol scalar relative tolerance
      * @param number of equations
      * @param abstol array of N absolute tolerance values
@@ -96,13 +98,20 @@ namespace Cantera {
     virtual void setTolerances(doublereal reltol, doublereal abstol)
     { warn("setTolerances"); }
 
-    virtual void setSensitivityTolerances(doublereal reltol, doublereal abstol)
-    {}//            { warn("setSensitivityTolerances"); }
-
-    /**
-     * Set problem type.
+    //!  Set the sensitvity error tolerances
+    /*!
+     * @param reltol scalar relative tolerance
+     * @param abstol scalar absolute tolerance
      */
-    virtual void setProblemType(int probtype) { warn("setProblemType"); }
+    virtual void setSensitivityTolerances(doublereal reltol, doublereal abstol)
+    { }
+
+     //!    Set the problem type.
+    /*!
+     * @param probtype    Type of the problem
+     */ 
+    virtual void setProblemType(int probtype) 
+    { warn("setProblemType"); }
 
     /**
      * Initialize the integrator for a new problem. Call after
@@ -116,10 +125,10 @@ namespace Cantera {
     virtual void reinitialize(doublereal t0, FuncEval& func)
     { warn("reinitialize"); }
 
-    /**
-     * Integrate the system of equations.
-     * @param tout integrate to this time. Note that this is the
-     * absolute time value, not a time interval.
+    //! Integrate the system of equations.
+    /*!
+     * @param tout Integrate to this time. Note that this is the
+     *             absolute time value, not a time interval.
      */
     virtual void integrate(doublereal tout)
     { warn("integrate"); }

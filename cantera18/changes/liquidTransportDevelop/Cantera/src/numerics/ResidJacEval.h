@@ -125,6 +125,20 @@ namespace Cantera {
 			     const doublereal delta_x = 0.0);
 
 
+    /**
+     * Evaluate the residual function. Called by the
+     * integrator.
+     * @param t time. (input)
+     * @param y solution vector. (input)
+     * @param ydot rate of change of solution vector. (input)
+     * @param r residual vector (output)
+     */
+    virtual int eval(const doublereal t, const doublereal * const y,
+                     const doublereal * const ydot,
+                     doublereal * const r);
+
+
+
     //! Fill in the initial conditions
     /*!
      * Values for both the solution and the value of ydot may be provided.

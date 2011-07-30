@@ -309,6 +309,13 @@ namespace Cantera {
     return 1;
   }
   //====================================================================================================================
+  int ResidJacEval::eval(const doublereal t, const doublereal * const y, const doublereal * const ydot,
+			 doublereal * const r) {
+    double deltaT = -1.0;
+    int flag = evalResidNJ(t, deltaT, y, ydot, r);
+    return flag;
+  }
+  //====================================================================================================================
   // Calculate an analytical jacobian and the residual at the current time and values.
   /*
    *  Only called if the jacFormation method is set to analytical
