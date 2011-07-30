@@ -6,5 +6,7 @@
 #define CT_INTEG_H_INCL
 
 #include "kernel/Integrator.h"
+#include "kernel/DAE_Solver.h"
+#include "kernel/IDA_Solver.h"
 
 #endif
