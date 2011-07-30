@@ -155,7 +155,14 @@ namespace Cantera {
       }
     }
   
-
+    //!  Return the number of parameters in the calculation
+    /*!
+     *  This is the number of parameters in the sensitivity calculation. We have
+     *  set this to zero and have included it for later expansion
+     */
+    int nparams () const {
+       return 0;
+    }
 
   protected:
 

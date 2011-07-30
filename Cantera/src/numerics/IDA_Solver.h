@@ -13,121 +13,304 @@
  *
  */
 
-#ifndef CT_IDA_Solver_H
-#define CT_IDA_Solver_H
+#ifndef CT_IDA_SOLVER_H
+#define CT_IDA_SOLVER_H
 
 #include <vector>
 
 #include "DAE_Solver.h"
 #include "ctexceptions.h"
 
+
+#ifdef SUNDIALS_VERSION_22
+#include <nvector_serial.h>
+#else
+#include <sundials/sundials_nvector.h>
+
+// These constants are defined internally in the ida package, ida.c
+#define IDA_NN  0
+#define IDA_SS  1
+#define IDA_SV  2
+#define IDA_WF  3
+
+#endif
+#if defined(SUNDIALS_VERSION_24)
+#define REAL_WORKSPACE_SIZE 0
+#endif
+
 namespace Cantera {
 
-    /**
-     * Exception thrown when a IDA error is encountered.
+  /**
+   * Exception thrown when a IDA error is encountered.
+   */
+  class IDA_Err : public CanteraError {
+  public:
+    IDA_Err(std::string msg) : CanteraError("IDA_Solver", msg){}
+  };
+
+
+  class ResidData; // forward reference
+
+  class IDA_Solver : public DAE_Solver {
+  public:
+      
+    //! Constructor.
+    /*!
+     * Default settings: dense jacobian, no user-supplied Jacobian function, Newton iteration.
+     *
+     * @param f    Function that will supply the time dependent residual to be solved
      */
-    class IDA_Err : public CanteraError {
-    public:
-        IDA_Err(std::string msg) : CanteraError("IDA_Solver", msg){}
-    };
+    IDA_Solver(ResidJacEval& f);
+
+    virtual ~IDA_Solver();
+
+    /** 
+     * Set error tolerances. This version specifies a scalar
+     * relative tolerance, and a vector absolute tolerance.
+     */
+    virtual void setTolerances(doublereal reltol, 
+			       doublereal* abstol);
+
+    /** 
+     * Set error tolerances. This version specifies a scalar
+     * relative tolerance, and a scalar absolute tolerance.
+     */
+    virtual void setTolerances(doublereal reltol, doublereal abstol);
+
+    virtual void setLinearSolverType(int solverType);
+
+    //! Set up the problem to use a dense linear direct solver 
+    virtual void setDenseLinearSolver();
+
+    //! Set up the problem to use a band solver
+    /*!
+     *  @param m_upper   upper band width of the matrix
+     *  @param m_lower   lower band width of the matrix
+     */
+    virtual void setBandedLinearSolver(int m_upper, int m_lower);
+
+    virtual void setMaxOrder(int n);
+
+    //! Set the maximum number of time steps
+    /*!
+     *  @param n  input of maximum number of time steps
+     */
+    virtual void setMaxNumSteps(int n);
+
+    //! Sset the initial step size
+    /*!
+     *  @param h0  initial step size value
+     */  
+    virtual void setInitialStepSize(doublereal h0);
+
+    //! Set the stop time
+    /*!
+     *  @param tstop the independent variable value past  which the solution is not to proceed. 
+     */
+    virtual void setStopTime(doublereal tstop);
 
 
-    class ResidData; // forward reference
+    virtual void setMaxErrTestFailures(int n);
 
-    class IDA_Solver : public DAE_Solver {
-    public:
+    //! Set the maximum number of nonlinear iterations on a timestep
+    /*!
+     * @param n  Set the max iterations. The default is 4, which seems awefully low to me.
+     */
+    virtual void setMaxNonlinIterations(int n);
 
-        IDA_Solver(ResidEval& f);
-
-        virtual ~IDA_Solver();
-
-        /** 
-         * Set error tolerances. This version specifies a scalar
-         * relative tolerance, and a vector absolute tolerance.
-         */
-        virtual void setTolerances(doublereal reltol, 
-            doublereal* abstol);
-
-        /** 
-         * Set error tolerances. This version specifies a scalar
-         * relative tolerance, and a scalar absolute tolerance.
-         */
-        virtual void setTolerances(doublereal reltol, doublereal abstol);
-
-        virtual void setLinearSolverType(int solverType);
-
-        virtual void setDenseLinearSolver();
-        virtual void setBandedLinearSolver(int m_upper, int m_lower);
-
-        virtual void setMaxTime(doublereal tmax);
-
-        virtual void setMaxOrder(int n);
-
-        virtual void setMaxNumSteps(int n);
-        virtual void setInitialStepSize(doublereal h0);
-        virtual void setStopTime(doublereal tstop);
-        virtual void setMaxErrTestFailures(int n);
-        virtual void setMaxNonlinIterations(int n);
-        virtual void setMaxNonlinConvFailures(int n);
-        virtual void inclAlgebraicInErrorTest(bool yesno);
-
-        virtual void setInputParameter(int flag, doublereal value);
-        virtual doublereal getOutputParameter(int flag);
+    //! Set the maximum number of nonlinear solver convergence failures
+    /*!
+     *  @param n  Value of nonlin failures. If value is exceeded, the calculation terminates.
+     */
+    virtual void setMaxNonlinConvFailures(int n);
 
 
-        /**
-         * This method may be called if the initial conditions do not
-         * satisfy the residual equation F = 0. Given the derivatives
-         * of all variables, this method computes the initial y
-         * values.
-         */
-        virtual void correctInitial_Y_given_Yp(doublereal* y, doublereal* yp, 
-            doublereal tout);
+    virtual void inclAlgebraicInErrorTest(bool yesno);
 
-        /**
-         * This method may be called if the initial conditions do not
-         * satisfy the residual equation F = 0. Given the initial
-         * values of all differential variables, it computes the
-         * initial values of all algebraic variables and the initial
-         * derivatives of all differential variables.
-         */
-        virtual void correctInitial_YaYp_given_Yd(doublereal* y, doublereal* yp,
-            doublereal tout);
+    /**
+     * Get the value of a solver-specific output parameter.
+     */
+    virtual doublereal getOutputParameter(int flag) const;
+
+    //! Calculate consistent value of the starting solution given the starting solution derivatives
+    /*!
+     * This method may be called if the initial conditions do not
+     * satisfy the residual equation F = 0. Given the derivatives
+     * of all variables, this method computes the initial y
+     * values.
+     */
+    virtual void correctInitial_Y_given_Yp(doublereal* y, doublereal* yp, 
+					   doublereal tout);
+
+    //! Calculate consistent value of the algebraic constraints and derivatives at the start of the problem
+    /*!
+     * This method may be called if the initial conditions do not
+     * satisfy the residual equation F = 0. Given the initial
+     * values of all differential variables, it computes the
+     * initial values of all algebraic variables and the initial
+     * derivatives of all differential variables.
+     */
+    virtual void correctInitial_YaYp_given_Yd(doublereal* y, doublereal* yp, doublereal tout);
+      
+    //! Step the system to a final value of the time
+    /*!
+     *  @param tout  Final value of the time
+     *
+     *  @return  Returns the IDASolve() return flag
+     *
+     *   The return values for IDASolve are described below.            
+     *   (The numerical return values are defined above in this file.)  
+     *    All unsuccessful returns give a negative return value.         
+     *                                                                
+     * IDA_SUCCESS
+     *   IDASolve succeeded and no roots were found.                       
+     *
+     * IDA_ROOT_RETURN:  IDASolve succeeded, and found one or more roots.
+     *   If nrtfn > 1, call IDAGetRootInfo to see which g_i were found
+     *   to have a root at (*tret).
+     *
+     * IDA_TSTOP_RETURN: 
+     *   IDASolve returns computed results for the independent variable 
+     *   value tstop. That is, tstop was reached.                            
+     *                                                                
+     * IDA_MEM_NULL: 
+     *   The IDA_mem argument was NULL.            
+     *                                                                
+     * IDA_ILL_INPUT: 
+     *   One of the inputs to IDASolve is illegal. This includes the 
+     *   situation when a component of the error weight vectors 
+     *   becomes < 0 during internal stepping.  It also includes the
+     *   situation where a root of one of the root functions was found
+     *   both at t0 and very near t0.  The ILL_INPUT flag          
+     *   will also be returned if the linear solver function IDA---
+     *   (called by the user after calling IDACreate) failed to set one 
+     *   of the linear solver-related fields in ida_mem or if the linear 
+     *   solver's init routine failed. In any case, the user should see 
+     *   the printed error message for more details.                
+     *                                                                
+     *                                                                
+     * IDA_TOO_MUCH_WORK: 
+     *   The solver took mxstep internal steps but could not reach tout. 
+     *   The default value for mxstep is MXSTEP_DEFAULT = 500.                
+     *                                                                
+     * IDA_TOO_MUCH_ACC: 
+     *   The solver could not satisfy the accuracy demanded by the user 
+     *   for some internal step.   
+     *                                                                
+     * IDA_ERR_FAIL:
+     *   Error test failures occurred too many times (=MXETF = 10) during 
+     *   one internal step.  
+     *                                                                
+     * IDA_CONV_FAIL: 
+     *   Convergence test failures occurred too many times (= MXNCF = 10) 
+     *   during one internal step.                                          
+     *                                                                
+     * IDA_LSETUP_FAIL: 
+     *   The linear solver's setup routine failed  
+     *   in an unrecoverable manner.                    
+     *                                                                
+     * IDA_LSOLVE_FAIL: 
+     *   The linear solver's solve routine failed  
+     *   in an unrecoverable manner.                    
+     *                                                                
+     * IDA_CONSTR_FAIL:
+     *    The inequality constraints were violated, 
+     *    and the solver was unable to recover.         
+     *                                                                
+     * IDA_REP_RES_ERR: 
+     *    The user's residual function repeatedly returned a recoverable 
+     *    error flag, but the solver was unable to recover.                 
+     *                                                                
+     * IDA_RES_FAIL:
+     *    The user's residual function returned a nonrecoverable error 
+     *    flag.
+     *                              
+     */
+    virtual int solve(doublereal tout);
+
+    virtual doublereal step(doublereal tout);
+
+    virtual void init(doublereal t0);
+
+    //! the current value of solution component k.
+    /*!
+     *  @param k  index of the solution 
+     */
+    virtual doublereal solution(int k) const;
+
+    virtual const doublereal* solutionVector() const;
+
+    //! the current value of the derivative of solution component k.
+    virtual doublereal derivative(int k) const;
+
+    virtual const doublereal* derivativeVector() const;
+
+    void *IDAMemory() {
+      return m_ida_mem;
+    }
+
+  protected:
+
+    //! Pointer to the IDA memory for the problem
+    void* m_ida_mem;
+
+    //! Initial value of the time
+    doublereal m_t0;
+
+    //!  Current value of the solution vector
+    void *m_y;
+
+    //! Current value of the derivative of the solution vector
+    void *m_ydot;
+    void *m_id; 
+    void *m_constraints;
+    void *m_abstol;
+    int m_type;
 
 
-        virtual int solve(doublereal tout);
+    int m_itol;
+    int m_iter;
+    doublereal m_reltol;
+    doublereal m_abstols;
+    int m_nabs;
 
-        virtual doublereal step(doublereal tout);
+    //! Maximum value of the timestep allowed
+    doublereal m_hmax;
 
-        virtual void init(doublereal t0);
+    //! Minimum value of the timestep allowd
+    doublereal m_hmin;
 
-        /// the current value of solution component k.
-        virtual doublereal solution(int k) const;
+    //! Value of the initial time step
+    doublereal m_h0;
 
-        virtual const doublereal* solutionVector() const;
+    //! Maximum number of time steps allowed
+    int m_maxsteps;
 
-        /// the current value of the derivative of solution component k.
-        virtual doublereal derivative(int k) const;
+    //!  maximum time step order of the method
+    int m_maxord;
 
-        virtual const doublereal* derivativeVector() const;
+    //! maximum time
+    doublereal m_tstop;
 
-    protected:
+    //! maximum number of error test failures
+    int m_maxErrTestFails;
 
-	int m_neq;
-        void* m_ida_mem;
-        doublereal m_t0;
-        void *m_y, *m_ydot, *m_id, *m_constraints, *m_abstol;
-        int m_type;
-        int m_itol;
-        int m_iter;
-        doublereal m_reltol;
-        doublereal m_abstols;
-        int m_nabs;
-        doublereal m_hmax, m_hmin;
-        int m_maxsteps, m_maxord;
-        ResidData* m_fdata;
-        int m_mupper, m_mlower;        
-    };
+    //! Maximum number of nonlinear solver iterations at one solution
+    /*!
+     *  If zero, this is the default of 4.
+     */
+    int m_maxNonlinIters;
+
+    //! Maximum number of nonlinear convergence failures
+    int m_maxNonlinConvFails;
+
+    //! If true, the algebraic variables don't contribute to error tolerances
+    int m_setSuppressAlg;
+
+    ResidData* m_fdata;
+    int m_mupper;
+    int m_mlower;        
+  };
 
 }
 
