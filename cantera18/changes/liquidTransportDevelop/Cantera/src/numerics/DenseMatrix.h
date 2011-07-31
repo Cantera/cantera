@@ -113,7 +113,27 @@ namespace Cantera {
      *  @param m  New number of columns
      *  @param v  Default fill value. defaults to zero.
      */
-    void resize(int n, int m, doublereal v = 0.0);
+    void resize(int n, int m, doublereal v);
+
+    //! Return a vector of const pointers to the columns
+    /*!
+     *  Note the value of the pointers are protected by their being const.
+     *  However, the value of the matrix is open to being changed.
+     *
+     *   @return returns a vector of pointers to the top of the columns
+     *           of the matrices.  
+     */
+    doublereal  * const * colPts();
+
+    //! Return a const vector of const pointers to the columns
+    /*!
+     *  Note, the jacobian can not be altered by this routine, and
+     *  therefore the member function is const.
+     *
+     *   @return returns a vector of pointers to the top of the columns
+     *           of the matrices.  
+     */
+    const doublereal * const * const_colPts() const;
 
     //! Multiply A*b and write result to \c prod.
     /*!
@@ -149,6 +169,9 @@ namespace Cantera {
 
     //! Vector of pivots. Length is equal to the max of m and n.
     vector_int     m_ipiv;
+
+    //! Vector of column pointers
+    std::vector<doublereal *> m_colPts;
 
   public:
 

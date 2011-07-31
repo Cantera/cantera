@@ -38,6 +38,10 @@ namespace Cantera {
     m_printLevel(0)
   {
     m_ipiv.resize(max(n, m));
+    m_colPts.resize(m);
+    for (int j = 0; j < m; j++) {
+      m_colPts[j] = &(m_data[m_nrows*j]);
+    }
   }
   //====================================================================================================================
   // Copy constructor
@@ -51,6 +55,10 @@ namespace Cantera {
     m_printLevel(0)
   {
     m_ipiv = y.ipiv();
+    m_colPts.resize(m_ncols);
+    for (int j = 0; j < m_ncols; j++) {
+      m_colPts[j] = &(m_data[m_nrows*j]);
+    }
   }
   //====================================================================================================================
   // assignment
@@ -58,6 +66,10 @@ namespace Cantera {
     if (&y == this) return *this;
     Array2D::operator=(y);
     m_ipiv = y.ipiv();
+    m_colPts.resize(m_ncols);
+    for (int j = 0; j < m_ncols; j++) {
+      m_colPts[j] = &(m_data[m_nrows*j]);
+    }
     m_useReturnErrorCode = y.m_useReturnErrorCode;
     m_printLevel = y.m_printLevel;
     return *this;
@@ -71,6 +83,18 @@ namespace Cantera {
   void DenseMatrix::resize(int n, int m, doublereal v) {
     Array2D::resize(n,m,v);
     m_ipiv.resize( max(n,m) );
+    m_colPts.resize(m_ncols);
+    for (int j = 0; j < m_ncols; j++) {
+      m_colPts[j] = &(m_data[m_nrows*j]);
+    }
+  }
+  //====================================================================================================================
+  doublereal  * const * DenseMatrix::colPts() {
+    return &(m_colPts[0]);
+  }
+  //====================================================================================================================
+  const doublereal  * const * DenseMatrix::const_colPts() const {
+    return &(m_colPts[0]);
   }
   //====================================================================================================================
   void DenseMatrix::mult(const double* b, double* prod) const {
