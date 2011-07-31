@@ -333,6 +333,27 @@ namespace Cantera {
 			     SquareMatrix &J,
 			     doublereal * const resid);
 
+    //! Calculate an analytical jacobian and the residual at the current time and values.
+    /*!
+     *  Only called if the jacFormation method is set to analytical
+     *
+     * @param t             Time                    (input) 
+     * @param delta_t       The current value of the time step (input)
+     * @param y             Solution vector (input, do not modify)
+     * @param ydot          Rate of change of solution vector. (input, do not modify)
+     * @param J             Reference to the SquareMatrix object to be calculated (output)
+     * @param resid         Value of the residual that is computed (output)
+     *
+     * @return Returns a flag to indicate that operation is successful.
+     *            1  Means a successful operation
+     *           -0 or neg value Means an unsuccessful operation
+     */
+    virtual int evalJacobianDP(const doublereal t, const doublereal delta_t, doublereal cj,
+			       const doublereal* const y,
+			       const doublereal* const ydot,
+			       doublereal * const *jacobianColPts,
+			       doublereal * const resid);
+
   protected:
 
     //! constant value of atol

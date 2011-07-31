@@ -44,14 +44,16 @@ namespace Cantera {
    
   public:
 
-    ResidData(ResidJacEval* f, int npar = 0) {
+    ResidData(ResidJacEval* f, IDA_Solver *s, int npar = 0) {
       m_func = f;
+      m_solver = s;
     }
 
     virtual ~ResidData() {
     }
 
     ResidJacEval* m_func;
+    IDA_Solver * m_solver;
   };
 }
 
@@ -71,9 +73,41 @@ extern "C" {
     double* rdata = NV_DATA_S(r);
     Cantera::ResidData* d = (Cantera::ResidData*) f_data;
     Cantera::ResidJacEval* f = d->m_func;
+    Cantera::IDA_Solver *s = d->m_solver;
     f->eval(t, ydata, ydotdata, rdata);
     return 0;
   }
+
+  //! Function called by by IDA to evaluate the Jacobian, given y and ydot.
+  /*!
+   *
+   *  
+   * typedef int (*IDADlsDenseJacFn)(int N, realtype t, realtype c_j,
+   *                             N_Vector y, N_Vector yp, N_Vector r,
+   *                             DlsMat Jac, void *user_data,
+   *                             N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+   *
+   * A IDADlsDenseJacFn should return                                
+   *     0 if successful,                                           
+   *     a positive int if a recoverable error occurred, or         
+   *     a negative int if a nonrecoverable error occurred.         
+   * In the case of a recoverable error return, the integrator will 
+   * attempt to recover by reducing the stepsize (which changes cj).
+   */
+  static int ida_jacobian(int nrows, realtype t, realtype c_j,  N_Vector y, N_Vector ydot, N_Vector r,
+                          DlsMat Jac,  void *f_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3) {
+    doublereal * ydata    = NV_DATA_S(y);
+    doublereal * ydotdata = NV_DATA_S(ydot);
+    doublereal * rdata    = NV_DATA_S(r);
+    Cantera::ResidData* d = (Cantera::ResidData*) f_data;
+    Cantera::ResidJacEval* f = d->m_func;
+    doublereal * const * colPts = Jac->cols;
+    doublereal delta_t = 0.0;
+    f->evalJacobianDP(t, delta_t, c_j,  ydata, ydotdata, colPts, rdata);
+    return 0;
+  }
+
+
 }
 
 namespace Cantera {
@@ -103,7 +137,12 @@ namespace Cantera {
     m_h0(0.0),
     m_maxsteps(20000), 
     m_maxord(0),
+    m_formJac(0),
     m_tstop(0.0),
+    m_told_old(0.0),
+    m_told(0.0),
+    m_tcurrent(0.0),
+    m_deltat(0.0),
     m_maxErrTestFails(-1),
     m_maxNonlinIters(0),
     m_maxNonlinConvFails(-1),
@@ -151,10 +190,12 @@ namespace Cantera {
     for (int i = 0; i < m_neq; i++) {
       NV_Ith_S(nv(m_abstol), i) = abstol[i];
     }
-    m_reltol = reltol; 
-    int flag = IDASVtolerances(m_ida_mem, m_reltol, nv(m_abstol));
-    if (flag != IDA_SUCCESS) {
-      throw IDA_Err("Memory allocation failed."); 
+    m_reltol = reltol;
+    if (m_ida_mem) {
+      int flag = IDASVtolerances(m_ida_mem, m_reltol, nv(m_abstol));
+      if (flag != IDA_SUCCESS) {
+	throw IDA_Err("Memory allocation failed."); 
+      }
     }
   }
   //====================================================================================================================
@@ -162,9 +203,11 @@ namespace Cantera {
     m_itol = IDA_SS;
     m_reltol = reltol;
     m_abstols = abstol;
-    int flag = IDASStolerances(m_ida_mem, m_reltol, m_abstols);
-    if (flag != IDA_SUCCESS) {
-      throw IDA_Err("Memory allocation failed."); 
+    if (m_ida_mem) {
+      int flag = IDASStolerances(m_ida_mem, m_reltol, m_abstols);
+      if (flag != IDA_SUCCESS) {
+	throw IDA_Err("Memory allocation failed."); 
+      }
     }
   }
   //====================================================================================================================
@@ -198,6 +241,18 @@ namespace Cantera {
     m_tstop = tstop;
   }
   //====================================================================================================================
+  void IDA_Solver::setJacobianType(int formJac) {
+    m_formJac = formJac;
+    if (m_ida_mem) {
+      if (m_formJac == 1) {
+	int flag = IDADlsSetDenseJacFn(m_ida_mem, ida_jacobian);
+	if (flag != IDA_SUCCESS) {
+	  throw IDA_Err("IDADlsSetDenseJacFn failed.");
+	}
+      }
+    }
+  }
+  //====================================================================================================================
   void IDA_Solver::setMaxErrTestFailures(int maxErrTestFails) {
     m_maxErrTestFails = maxErrTestFails;
   }
@@ -222,6 +277,9 @@ namespace Cantera {
   void IDA_Solver::init(doublereal t0) {
 
     m_t0 = t0;
+    m_told = t0;
+    m_told_old = t0;
+    m_tcurrent = t0;
     if (m_y) { 
       N_VDestroy_Serial(nv(m_y));
     }
@@ -338,9 +396,15 @@ namespace Cantera {
       throw IDA_Err("unsupported linear solver type");
     }
 
+    if (m_formJac == 1) {
+      flag = IDADlsSetDenseJacFn(m_ida_mem, ida_jacobian);
+      if (flag != IDA_SUCCESS) {
+	throw IDA_Err("IDADlsSetDenseJacFn failed.");
+      }
+    }
 
     // pass a pointer to func in m_data 
-    m_fdata = new ResidData(&m_resid, m_resid.nparams());
+    m_fdata = new ResidData(&m_resid, this, m_resid.nparams());
 #if defined(SUNDIALS_VERSION_22) || defined(SUNDIALS_VERSION_23)
     flag = IDASetRdata(m_ida_mem, (void*)m_fdata);
     if (flag != IDA_SUCCESS) {
@@ -383,7 +447,7 @@ namespace Cantera {
 	throw IDA_Err("IDASetMaxErrTestFails failed.");
       }
     }
-    if (m_maxNonlinIters >= 0) {
+    if (m_maxNonlinIters > 0) {
       flag = IDASetMaxNonlinIters(m_ida_mem, m_maxNonlinIters);
       if (flag != IDA_SUCCESS) {
 	throw IDA_Err("IDASetmaxNonlinIters failed.");
@@ -490,11 +554,35 @@ namespace Cantera {
   //====================================================================================================================
   int IDA_Solver::solve(double tout)
   {
-    double t;
+    double tretn;
     int flag;
-    flag = IDASolve(m_ida_mem, tout, &t, nv(m_y), nv(m_ydot), IDA_NORMAL);
-    if (flag != IDA_SUCCESS) 
+    flag = IDASetStopTime(m_ida_mem, tout);
+    if (flag != IDA_SUCCESS) {
       throw IDA_Err(" IDA error encountered.");
+    }
+    do {
+      if (tout <= m_tcurrent) {
+	throw IDA_Err(" tout <= tcurrent");
+      }
+      m_told_old = m_told;
+      m_told = m_tcurrent;
+      flag = IDASolve(m_ida_mem, tout, &tretn, nv(m_y), nv(m_ydot), IDA_ONE_STEP);
+      if (flag < 0) {
+	throw IDA_Err(" IDA error encountered.");
+      } else   if (flag == IDA_TSTOP_RETURN) {
+	// we've reached our goal, and have actually integrated past it
+      } else if (flag == IDA_ROOT_RETURN) {
+	// not sure what to do with this yet
+      } else if (flag == IDA_WARNING) {
+	throw IDA_Err(" IDA Warning encountered.");
+      }
+      m_tcurrent = tretn;
+      m_deltat = m_tcurrent - m_told;
+    } while (tretn < tout);
+
+    if (flag != IDA_SUCCESS && flag != IDA_TSTOP_RETURN) {
+      throw IDA_Err(" IDA error encountered.");
+    }
     return flag;
   }
   //====================================================================================================================
@@ -502,9 +590,23 @@ namespace Cantera {
   {
     double t;
     int flag;
+    if (tout <= m_tcurrent) {
+      throw IDA_Err(" tout <= tcurrent");
+    }
+    m_told_old = m_told;
+    m_told = m_tcurrent;
     flag = IDASolve(m_ida_mem, tout, &t, nv(m_y), nv(m_ydot), IDA_ONE_STEP);
-    if (flag != IDA_SUCCESS) 
+    if (flag < 0) {
       throw IDA_Err(" IDA error encountered.");
+    } else   if (flag == IDA_TSTOP_RETURN) {
+      // we've reached our goal, and have actually integrated past it
+    } else if (flag == IDA_ROOT_RETURN) {
+      // not sure what to do with this yet
+    } else if (flag == IDA_WARNING) {
+      throw IDA_Err(" IDA Warning encountered.");
+    }
+    m_tcurrent = t;
+    m_deltat = m_tcurrent - m_told;
     return t;
   }
   //====================================================================================================================

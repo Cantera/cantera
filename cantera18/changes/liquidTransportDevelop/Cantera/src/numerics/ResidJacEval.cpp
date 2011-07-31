@@ -334,7 +334,35 @@ namespace Cantera {
 	       SquareMatrix &J,
 	       doublereal * const resid)
   {
-    throw CanteraError("ResidJacEval::evalJacobian()", "Not implemented\n");
+    doublereal * const * jac_colPts = J.colPts();
+    doublereal cj = 0.0;
+    if (delta_t > 0.0) {
+      cj = 1.0/delta_t;
+    }
+    return evalJacobianDP(t, delta_t, cj, y, ydot, jac_colPts, resid);
+  }
+  //====================================================================================================================
+  // Calculate an analytical jacobian and the residual at the current time and values.
+  /*
+   *  Only called if the jacFormation method is set to analytical
+   *
+   * @param t             Time                    (input) 
+   * @param delta_t       The current value of the time step (input)
+   * @param c_j           The current value of the coefficient of the time derivative
+   * @param y             Solution vector (input, do not modify)
+   * @param ydot          Rate of change of solution vector. (input, do not modify)
+   * @param jac_colPts       Reference to the SquareMatrix object to be calculated (output)
+   * @param resid         Value of the residual that is computed (output)
+   */
+  int ResidJacEval::
+  evalJacobianDP(const doublereal t, const doublereal delta_t, 
+		 const doublereal c_j,
+		 const doublereal * const y,
+		 const doublereal * const ydot,
+		 doublereal * const * jac_colPts,
+		 doublereal * const resid)
+  {
+    throw CanteraError("ResidJacEval::evalJacobianDP()", "Not implemented\n");
     return 1;
   }
   //====================================================================================================================

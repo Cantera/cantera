@@ -55,7 +55,7 @@ namespace Cantera {
    *  steps for efficiently handling mixture of gases that whose standard states
    *  are defined as ideal gases, but which describe also non-ideal solutions.  
    *  In addition a multicomponent liquid phase below the critical temperature of the
-   *  mixture is also allowed. The main subclass will be a mixture Redlich-kwong class.
+   *  mixture is also allowed. The main subclass is currently a mixture Redlich-Kwong class.
    *
    *  Several concepts are introduced. The first concept is there are temporary
    *  variables for holding the species standard state values 
