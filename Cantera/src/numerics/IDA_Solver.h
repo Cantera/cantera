@@ -110,6 +110,17 @@ namespace Cantera {
     virtual void setStopTime(doublereal tstop);
 
 
+    //! Set the form of the jacobian
+    /*!
+     *
+     *   @param formJac  Form of the jacobian
+     *
+     *                   0 numerical jacobian
+     *                   1 analytical jacobian given by the evalJacobianDP() function
+     */
+    virtual void setJacobianType(int formJac);
+
+
     virtual void setMaxErrTestFailures(int n);
 
     //! Set the maximum number of nonlinear iterations on a timestep
@@ -289,8 +300,29 @@ namespace Cantera {
     //!  maximum time step order of the method
     int m_maxord;
 
+    //! Form of the jacobian
+    /*!
+     *  0 numerical jacobian created by ida
+     *  1 analytical jacobian. Must have populated the evalJacobianDP() 
+     *    function in the ResidJacEval class.
+     *  2 numerical jacobian formed by the ResidJacEval class (unimplemented)
+     */
+    int m_formJac;
+
     //! maximum time
     doublereal m_tstop;
+
+    //! Value of the previous, previous time 
+    doublereal m_told_old;
+
+    //! Value of the previous time
+    doublereal m_told;
+
+    //! Value of the current time
+    doublereal m_tcurrent;
+
+    //! Value of deltaT for the current step
+    doublereal m_deltat;
 
     //! maximum number of error test failures
     int m_maxErrTestFails;

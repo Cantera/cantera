@@ -113,7 +113,7 @@ namespace Cantera {
      *  @param m  New number of columns
      *  @param v  Default fill value. defaults to zero.
      */
-    void resize(int n, int m, doublereal v);
+    void resize(int n, int m, doublereal v = 0.0);
 
     //! Return a vector of const pointers to the columns
     /*!
