@@ -328,17 +328,13 @@ namespace Cantera {
    * @param resid         Value of the residual that is computed (output)
    */
   int ResidJacEval::
-  evalJacobian(const doublereal t, const doublereal delta_t,
+  evalJacobian(const doublereal t, const doublereal delta_t, doublereal cj,
 	       const doublereal * const y,
 	       const doublereal * const ydot,
 	       SquareMatrix &J,
 	       doublereal * const resid)
   {
     doublereal * const * jac_colPts = J.colPts();
-    doublereal cj = 0.0;
-    if (delta_t > 0.0) {
-      cj = 1.0/delta_t;
-    }
     return evalJacobianDP(t, delta_t, cj, y, ydot, jac_colPts, resid);
   }
   //====================================================================================================================

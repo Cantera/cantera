@@ -656,7 +656,7 @@ namespace Cantera {
       /********************************************************************
        * Call the function to get a jacobian.
        */
-      m_func->evalJacobian(time_curr, delta_t_n, y, ydot, J, f);
+      m_func->evalJacobian(time_curr, delta_t_n, CJ, y, ydot, J, f);
 #ifdef DEBUG_HKM
       //double dddd = J(89, 89);
       //checkFinite(dddd);

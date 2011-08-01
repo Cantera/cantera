@@ -109,6 +109,12 @@ namespace Cantera {
      */
     virtual void setStopTime(doublereal tstop);
 
+    //! Get the current step size from IDA via a call
+    /*!
+     *   @return Returns the current step size.
+     */
+    virtual double getCurrentStepFromIDA();
+
 
     //! Set the form of the jacobian
     /*!

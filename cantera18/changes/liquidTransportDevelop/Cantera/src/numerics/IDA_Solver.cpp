@@ -66,6 +66,13 @@ extern "C" {
    *  the sundials data types N_Vector, etc.), we define this function as the single function that IDA always calls. The
    *  real evaluation of the residual is done by an instance of a subclass of ResidEval, passed in to this
    *  function as a pointer in the parameters. 
+   *
+   * FROM IDA WRITEUP -> What the IDA solver expects as a return flag from its residual routines ------
+   *   A IDAResFn res should return a value of 0 if successful, a positive
+   *   value if a recoverable error occured (e.g. yy has an illegal value),
+   *   or a negative value if a nonrecoverable error occured. In the latter
+   *   case, the program halts. If a recoverable error occured, the integrator
+   *   will attempt to correct and retry.
    */
   static int ida_resid(realtype t, N_Vector y, N_Vector ydot, N_Vector r, void *f_data) {
     double* ydata = NV_DATA_S(y);
@@ -74,8 +81,15 @@ extern "C" {
     Cantera::ResidData* d = (Cantera::ResidData*) f_data;
     Cantera::ResidJacEval* f = d->m_func;
     Cantera::IDA_Solver *s = d->m_solver;
-    f->eval(t, ydata, ydotdata, rdata);
-    return 0;
+    double delta_t = s->getCurrentStepFromIDA();
+    // TODO evaluate  evalType. Assumed to be Base_ResidEval
+    int retn = 0;
+    int flag = f->evalResidNJ(t, delta_t, ydata, ydotdata, rdata);
+    if (flag < 0) {
+      // This signals to IDA that a nonrecoverable error has occurred.
+      retn = flag;
+    }
+    return retn;
   }
 
   //! Function called by by IDA to evaluate the Jacobian, given y and ydot.
@@ -102,7 +116,9 @@ extern "C" {
     Cantera::ResidData* d = (Cantera::ResidData*) f_data;
     Cantera::ResidJacEval* f = d->m_func;
     doublereal * const * colPts = Jac->cols;
-    doublereal delta_t = 0.0;
+    Cantera::IDA_Solver *s = d->m_solver;
+    double delta_t = s->getCurrentStepFromIDA();
+    // printf(" delta_t = %g 1/cj = %g\n", delta_t, 1.0/c_j);
     f->evalJacobianDP(t, delta_t, c_j,  ydata, ydotdata, colPts, rdata);
     return 0;
   }
@@ -239,6 +255,12 @@ namespace Cantera {
   //====================================================================================================================
   void IDA_Solver::setStopTime(doublereal tstop) {
     m_tstop = tstop;
+  }
+  //====================================================================================================================
+  doublereal IDA_Solver::getCurrentStepFromIDA() {
+    doublereal hcur;
+    IDAGetCurrentStep(m_ida_mem, &hcur);
+    return hcur;
   }
   //====================================================================================================================
   void IDA_Solver::setJacobianType(int formJac) {

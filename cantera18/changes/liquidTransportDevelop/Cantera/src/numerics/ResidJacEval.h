@@ -318,6 +318,7 @@ namespace Cantera {
      *
      * @param t             Time                    (input) 
      * @param delta_t       The current value of the time step (input)
+     * @param cj            Coefficient of yprime used in the evalulation of the jacobian
      * @param y             Solution vector (input, do not modify)
      * @param ydot          Rate of change of solution vector. (input, do not modify)
      * @param J             Reference to the SquareMatrix object to be calculated (output)
@@ -327,11 +328,9 @@ namespace Cantera {
      *            1  Means a successful operation
      *           -0 or neg value Means an unsuccessful operation
      */
-    virtual int evalJacobian(const doublereal t, const doublereal delta_t,
-		             const doublereal* const y,
-			     const doublereal* const ydot,
-			     SquareMatrix &J,
-			     doublereal * const resid);
+    virtual int evalJacobian(const doublereal t, const doublereal delta_t, doublereal cj,
+		             const doublereal* const y, const doublereal* const ydot,
+			     SquareMatrix &J, doublereal * const resid);
 
     //! Calculate an analytical jacobian and the residual at the current time and values.
     /*!
@@ -339,6 +338,7 @@ namespace Cantera {
      *
      * @param t             Time                    (input) 
      * @param delta_t       The current value of the time step (input)
+     * @param cj            Coefficient of yprime used in the evalulation of the jacobian
      * @param y             Solution vector (input, do not modify)
      * @param ydot          Rate of change of solution vector. (input, do not modify)
      * @param J             Reference to the SquareMatrix object to be calculated (output)

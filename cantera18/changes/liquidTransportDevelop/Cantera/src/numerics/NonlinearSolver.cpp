@@ -2979,6 +2979,7 @@ namespace Cantera {
     int info;
     doublereal ysave, ydotsave, dy;
     int retn = 1;
+    
     /*
      * Clear the factor flag
      */
@@ -2987,7 +2988,7 @@ namespace Cantera {
       /********************************************************************
        * Call the function to get a jacobian.
        */
-      info = m_func->evalJacobian(time_curr, delta_t_n, y, ydot, J, f);
+      info = m_func->evalJacobian(time_curr, delta_t_n, CJ, y, ydot, J, f);
       m_nJacEval++;
       m_nfe++;
       if (info != 1) {
