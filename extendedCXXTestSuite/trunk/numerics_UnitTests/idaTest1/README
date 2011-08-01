@@ -1,0 +1,19 @@
+List of serial IDA examples
+
+  idaFoodWeb_bnd   : 2-D food web system, banded Jacobian
+  idaHeat2D_bnd    : 2-D heat equation, banded Jacobian
+  idaHeat2D_kry    : 2-D heat equation, diagonal preconditioner
+  idaKrylovDemo_ls : demonstration program with 3 Krylov solvers
+  idaRoberts_dns   : 3-species Robertson kinetics system
+  idaSlCrank_dns   : slider-crank example (stabilized index-2 DAE)
+
+Sample results:
+
+  SUNDIALS was built with the following options:
+
+  ./configure CC=gcc F77=gfortran CFLAGS="-g3 -O0" FFLAGS="-g3 -O0" --enable-examples
+
+  System Architecture: IA-32
+  Processor Type: Intel Pentium 4 Xeon DP (i686)
+  Operating System: Red Hat Enterprise Linux WS 3 (Taroon Update 7)
+  C/Fortran Compilers: gcc/gfortran v4.1.0

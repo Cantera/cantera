@@ -451,6 +451,7 @@ AC_OUTPUT(Makefile \
 	  numerics_UnitTests/Makefile \
           numerics_UnitTests/nonlin_first/Makefile \
           numerics_UnitTests/solveProb_first/Makefile \
+          numerics_UnitTests/idaTest1/Makefile \
 	  thermo_UnitTests/Makefile \
 	  thermo_UnitTests/CO2_tester/Makefile \
 	  thermo_UnitTests/CO2_fugacity/Makefile \

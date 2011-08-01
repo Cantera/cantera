@@ -9,21 +9,26 @@
 all: 
 	cd nonlin_first; @MAKE@ all
 	cd solveProb_first; @MAKE@ all
+	cd idaTest1; @MAKE@ all
 
 depends:
 	cd nonlin_first; @MAKE@ depends
 	cd solveProb_first; @MAKE@ depends
+	cd idaTest1; @MAKE@  depends
 
 clean:
 	cd nonlin_first; @MAKE@ clean
 	cd solveProb_first; @MAKE@ clean
+	cd idaTest1; @MAKE@ clean
 
 test:
 	cd nonlin_first; @MAKE@ -s test
 	cd solveProb_first; @MAKE@  -s test
+	cd idaTest1; @MAKE@  -s test
 
 rebaseline:
 	cd nonlin_first; @MAKE@ rebaseline
 	cd solveProb_first; @MAKE@   rebaseline
+	cd idaTest1; @MAKE@ rebaseline
 
 
