@@ -185,7 +185,7 @@ namespace Cantera {
      */
   virtual doublereal isothermalCompressibility() const;
 
-  protected:
+   protected:
     /**
      * Calculate the density of the mixture using the partial
      * molar volumes and mole fractions as input
@@ -211,6 +211,7 @@ namespace Cantera {
      */
     virtual void calcDensity();
 
+   protected:
     //! Set the temperature (K)
     /*!
      * Overwritten setTemperature(double) from State.h. This
@@ -608,7 +609,7 @@ namespace Cantera {
      * @return  Returns the change in enthalpy in units of J kmol-1.
      */
     virtual doublereal hresid() const;
-
+  public:
     //! Estimate for the molar volume of the liquid
     /*!
      *   Note: this is only used as a starting guess for later routines that actually calculate an
@@ -624,7 +625,7 @@ namespace Cantera {
      */
     virtual doublereal liquidVolEst(doublereal TKelvin, doublereal &pres) const;
 
-  protected:
+  public:
     //!  Calculates the density given the temperature and the pressure and a guess at the density.
     /*!
      * Note, below T_c, this is a multivalued function. We do not cross the vapor dome in this.

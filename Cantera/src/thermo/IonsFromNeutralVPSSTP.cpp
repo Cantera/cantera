@@ -637,7 +637,7 @@ namespace Cantera {
       dlnActCoeffdlnX_diag[k] = dlnActCoeffdlnX_diag_[k];
     }
   }  
-  
+  //====================================================================================================================
   // Get the array of log concentration-like derivatives of the 
   // log activity coefficients
   /*
@@ -665,19 +665,28 @@ namespace Cantera {
       dlnActCoeffdlnN_diag[k] = dlnActCoeffdlnN_diag_[k];
     }
   }
-    
-  // This is temporary. We will get rid of this
+  //====================================================================================================================
+  void IonsFromNeutralVPSSTP::getdlnActCoeffdlnN(const int ld, doublereal *dlnActCoeffdlnN) {
+    s_update_lnActCoeff();
+    s_update_dlnActCoeff_dlnN();
+    double *data =  & dlnActCoeffdlnN_(0,0);
+    for (int k = 0; k < m_kk; k++) {
+      for (int m = 0; m < m_kk; m++) {
+	dlnActCoeffdlnN[ld * k + m] = data[m_kk * k + m];
+      }
+    }
+  }
+  //====================================================================================================================
   void IonsFromNeutralVPSSTP::setTemperature(const doublereal temp) {
     double p = pressure();
     IonsFromNeutralVPSSTP::setState_TP(temp, p);
   }
-
- // This is temporary. We will get rid of this
+  //====================================================================================================================
   void IonsFromNeutralVPSSTP::setPressure(doublereal p) {
     double t = temperature();
     IonsFromNeutralVPSSTP::setState_TP(t, p);
   }
-
+  //====================================================================================================================
   // Set the temperature (K) and pressure (Pa)
   /*
    * Setting the pressure may involve the solution of a nonlinear equation.
@@ -741,7 +750,7 @@ namespace Cantera {
      }
 
   }
-
+  //====================================================================================================================
   // Calculate neutral molecule mole fractions
   /*
    *  This routine calculates the neutral molecule mole
@@ -869,8 +878,8 @@ namespace Cantera {
 
     } 
   } 
-
-// Calculate neutral molecule mole fractions
+  //====================================================================================================================
+  // Calculate neutral molecule mole fractions
   /*
    *  This routine calculates the neutral molecule mole
    *  fraction given the vector of ion mole fractions,
@@ -1211,6 +1220,7 @@ namespace Cantera {
     dlnActCoeffdT_NeutralMolecule_.resize(numNeutralMoleculeSpecies_);
     dlnActCoeffdlnX_diag_NeutralMolecule_.resize(numNeutralMoleculeSpecies_);
     dlnActCoeffdlnN_diag_NeutralMolecule_.resize(numNeutralMoleculeSpecies_);
+    dlnActCoeffdlnN_NeutralMolecule_.resize(numNeutralMoleculeSpecies_, numNeutralMoleculeSpecies_, 0.0);
   }
   //====================================================================================================================
   //!  Return the factor overlap
@@ -1734,11 +1744,9 @@ namespace Cantera {
     /*
      * Get the activity coefficients of the neutral molecules
      */
-    GibbsExcessVPSSTP *geThermo = dynamic_cast<GibbsExcessVPSSTP *>(neutralMoleculePhase_);
-  
+    GibbsExcessVPSSTP *geThermo = dynamic_cast<GibbsExcessVPSSTP *>(neutralMoleculePhase_);  
     if (!geThermo) {
-  
-      return;
+      throw CanteraError("IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnN()", "dynamic cast failed");
     }
     int nsp_ge = geThermo->nSpecies();
     geThermo->getdlnActCoeffdlnN(nsp_ge, &(dlnActCoeffdlnN_NeutralMolecule_(0,0)));
@@ -1750,13 +1758,7 @@ namespace Cantera {
    
       // Do the cation list
       for (k = 0; k < (int) cationList_.size(); k++) {
-	for (m = 0; m < (int) cationList_.size(); m++) {
-	  //! Get the id for the next cation
-	  //icat = cationList_[k];
-	  //jNeut = fm_invert_ionForNeutral[icat];
-	  //fmij =  fm_neutralMolec_ions_[icat + jNeut * m_kk];
-	  //lnActCoeff_Scaled_[icat] = log(gammaNeutralMolecule_[jNeut])/fmij;
-	  
+	for (m = 0; m < (int) cationList_.size(); m++) {	  
 	  kcat = cationList_[k];
 	  
 	  kNeut = fm_invert_ionForNeutral[kcat];
@@ -1767,14 +1769,13 @@ namespace Cantera {
 	  mNeut = fm_invert_ionForNeutral[mcat];
 	  mfmij =  fm_neutralMolec_ions_[mcat + mNeut * m_kk];
 
-	  dlnActCoeffdlnN_(kcat, mcat) =  dlnActCoeffdlnN_NeutralMolecule_(kNeut,mNeut) * mfmij / fmij;
+	  dlnActCoeffdlnN_(kcat,mcat) = dlnActCoeffdlnN_NeutralMolecule_(kNeut,mNeut) * mfmij / fmij;
 
-
-	  for (m = 0; m < numPassThroughSpecies_; m++) {
-	    mcat = passThroughList_[m];
-	    mNeut = fm_invert_ionForNeutral[mcat];
-	    dlnActCoeffdlnN_(kcat, mcat) =  dlnActCoeffdlnN_NeutralMolecule_(kNeut, mNeut) / fmij;
-	  }
+	}
+	for (m = 0; m < numPassThroughSpecies_; m++) {
+	  mcat = passThroughList_[m];
+	  mNeut = fm_invert_ionForNeutral[mcat];
+	  dlnActCoeffdlnN_(kcat, mcat) =  dlnActCoeffdlnN_NeutralMolecule_(kNeut, mNeut) / fmij;
 	}
       }
 
@@ -1819,8 +1820,6 @@ namespace Cantera {
       throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeff_dlnN", "Unimplemented type");
       break;
     }
-
-
   }
   //====================================================================================================================
 }

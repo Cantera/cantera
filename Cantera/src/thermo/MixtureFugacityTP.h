@@ -753,7 +753,7 @@ protected:
      *  @return returns the estimated saturation pressure at the given temperature
      */
     virtual doublereal psatEst(doublereal TKelvin) const;
-
+  public:
     //! Estimate for the molar volume of the liquid
     /*!
      *   Note: this is only used as a starting guess for later routines that actually calculate an
@@ -770,7 +770,7 @@ protected:
      */
     virtual doublereal liquidVolEst(doublereal TKelvin, doublereal &pres) const;
 
-  protected:
+  public:
     //!  Calculates the density given the temperature and the pressure and a guess at the density.
     /*!
      * Note, below T_c, this is a multivalued function. We do not cross the vapor dome in this.
@@ -797,7 +797,7 @@ protected:
      */
     virtual doublereal densityCalc(doublereal TKelvin, doublereal pressure, int phaseRequested,
 				   doublereal rhoguess);
- 
+ protected: 
     //! Utility routine in the calculation of the saturation pressure
     /*!
      *  Private routine

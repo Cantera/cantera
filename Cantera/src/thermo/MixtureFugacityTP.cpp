@@ -1008,7 +1008,7 @@ namespace Cantera {
    *     WATER_SUPERCRIT   above the critical temperature
    */
   int MixtureFugacityTP::phaseState(bool checkState) const {
-    int state;
+    int state = iState_;
     if (checkState) {
       double t = temperature();
       double tcrit = critTemperature();
