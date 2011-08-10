@@ -342,7 +342,7 @@ namespace Cantera {
 
     double pp = GasConstant * T/(molarV - m_b_current) - m_a_current/(sqrt(T) * molarV * (molarV + m_b_current));
 
-    if (fabs(pp -m_Pcurrent) > 1.0E-5 * m_Pcurrent) {
+    if (fabs(pp -m_Pcurrent) > 1.0E-5 * fabs(m_Pcurrent)) {
       throw CanteraError(" RedlichKwongMFTP::pressure()", "setState broken down, maybe");
     }
 #endif    
@@ -1306,7 +1306,10 @@ namespace Cantera {
    */
   doublereal RedlichKwongMFTP::densityCalc(doublereal TKelvin, doublereal presPa, int phaseRequested, doublereal rhoguess) {
 
-    //setTemperature(TKelvin);
+    /*
+     *  It's necessary to set the temperature so that m_a_current is set correctly.
+     */
+    setTemperature(TKelvin);
     double tcrit = critTemperature();
     doublereal mmw = meanMolecularWeight();
     double densBase = 0.0;
@@ -1331,7 +1334,7 @@ namespace Cantera {
       }
 
     }
- 
+
 
     doublereal volguess = mmw / rhoguess;
     NSolns_ = NicholsSolve(TKelvin, presPa, m_a_current, m_b_current, Vroot_);
