@@ -139,11 +139,16 @@ namespace Cantera {
   RootFind::RootFind (ResidEval* resid) :
     m_residFunc(resid),
     m_funcTargetValue(0.0),
-    m_atol(1.0E-11),
-    m_rtol(1.0E-5),
+    m_atolf(1.0E-11),
+    m_atolx(1.0E-11),
+    m_rtolf(1.0E-5),
+    m_rtolx(1.0E-5),
     m_maxstep(1000),
     printLvl(0),
     DeltaXnorm_(0.01),
+    specifiedDeltaXnorm_(0),
+    DeltaXMax_(1.0E6),
+    specifiedDeltaXMax_(0),
     FuncIsGenerallyIncreasing_(false),
     FuncIsGenerallyDecreasing_(false),
     deltaXConverged_(0.0),
@@ -153,10 +158,61 @@ namespace Cantera {
     fx_minTried_(0.0)
   {
   
+  } 
+  //================================================================================================
+  RootFind::RootFind(const RootFind &r) :
+    m_residFunc(r.m_residFunc),
+    m_funcTargetValue(0.0),
+    m_atolf(1.0E-11),
+    m_atolx(1.0E-11),
+    m_rtolf(1.0E-5),
+    m_rtolx(1.0E-5),
+    m_maxstep(1000),
+    printLvl(0),
+    DeltaXnorm_(0.01),
+    specifiedDeltaXnorm_(0),
+    DeltaXMax_(1.0E6),
+    specifiedDeltaXMax_(0),
+    FuncIsGenerallyIncreasing_(false),
+    FuncIsGenerallyDecreasing_(false),
+    deltaXConverged_(0.0),
+    x_maxTried_(-1.0E300),
+    fx_maxTried_(0.0),
+    x_minTried_(1.0E300),
+    fx_minTried_(0.0)
+  {
+    *this = r;
   }
   //================================================================================================ 
   // Empty destructor
   RootFind::~RootFind() {
+  }
+  //====================================================================================================================
+  RootFind & RootFind::operator=(const RootFind &right) {
+    if (this == &right) {
+      return *this;
+    }
+    m_residFunc = right.m_residFunc;
+    m_funcTargetValue = right.m_funcTargetValue;
+    m_atolf = right.m_atolf;
+    m_atolx = right.m_atolx;
+    m_rtolf = right.m_rtolf;
+    m_rtolx = right.m_rtolx;
+    m_maxstep = right.m_maxstep;
+    printLvl  = right.printLvl;
+    DeltaXnorm_  = right.DeltaXnorm_;
+    specifiedDeltaXnorm_ = right.specifiedDeltaXnorm_;
+    DeltaXMax_  = right.DeltaXMax_;
+    specifiedDeltaXMax_ = right.specifiedDeltaXMax_;
+    FuncIsGenerallyIncreasing_   = right.FuncIsGenerallyIncreasing_;
+    FuncIsGenerallyDecreasing_  = right.FuncIsGenerallyDecreasing_;
+    deltaXConverged_  = right.deltaXConverged_;
+    x_maxTried_   = right.x_maxTried_;
+    fx_maxTried_  = right.fx_maxTried_;
+    x_minTried_   = right.x_minTried_;
+    fx_minTried_  = right.fx_minTried_;
+    
+    return *this;
   }
   //================================================================================================
   // Calculate a deltaX from an input value of x
@@ -192,11 +248,11 @@ namespace Cantera {
   //================================================================================================ 
   // Calcuated a controlled, nonzero delta between two numbers
   /*
-   *  The delta is designed to be greater than or equal to delXMeaningful(x) defined above
+   *  The delta is designed to be greater than or equal to delXNonzero(x) defined above
    *  with the same sign as the original delta. Therefore if you subtract it from either
    *  of the two original numbers, you get a different number.
    *
-   *  @param x2   first number
+   *  @param x1   first number
    *  @param x2   second number
    */
   double RootFind::deltaXControlled(doublereal x2, doublereal x1) const {
@@ -206,7 +262,7 @@ namespace Cantera {
     }
     doublereal deltaX = x2 - x1;
     doublereal x = fabs(x2) + fabs(x1);
-    doublereal deltaXm = delXMeaningful(x);
+    doublereal deltaXm = delXNonzero(x);
     if (fabs(deltaX) < deltaXm) {
       deltaX = sgnn * deltaXm;
     }
@@ -267,16 +323,19 @@ namespace Cantera {
     doublereal deltaX1 = 0.0, deltaX2 = 0.0, deltaXnew = 0.0;
     int its = 0;
     int posStraddle = 0;
-    int retn = 0;
+    int retn = ROOTFIND_FAILEDCONVERGENCE;
     int foundPosF = 0;
     int foundNegF = 0;
     int foundStraddle = 0;
     doublereal xPosF = 0.0;
+    doublereal fPosF = 1.0E300;
     doublereal xNegF = 0.0;
+    doublereal fNegF = -1.0E300;
     doublereal fnorm;   /* A valid norm for the making the function value  dimensionless */
     doublereal c[9], f[3], xn1, xn2, x0 = 0.0, f0 = 0.0, root, theta, xquad, xDelMin;
     doublereal CR0, CR1, CR2, CRnew, CRdenom;
     doublereal sgn;
+
 
     callNum++;
 #ifdef DEBUG_MODE
@@ -297,6 +356,37 @@ namespace Cantera {
       funcTargetValue = func(*xbest);
       return ROOTFIND_BADINPUT;
     }
+
+    /*
+     *  If the maximum step size has not been specified, set it here to 1/5 of the
+     *  domain range of x.
+     */
+    if (!specifiedDeltaXMax_) {
+      DeltaXMax_ = 0.2 *(xmax - xmin); 
+    }
+
+    if (!specifiedDeltaXnorm_) {
+      DeltaXnorm_ = 0.2 * DeltaXMax_;
+    } else {
+      if (DeltaXnorm_ > DeltaXMax_ ) {
+	if (specifiedDeltaXnorm_) {
+	  DeltaXMax_ = DeltaXnorm_;
+	} else {
+	  DeltaXnorm_ = 0.5 * DeltaXMax_;
+	}
+      }
+    }
+
+    /*
+     *  Calculate an initial value of deltaXConverged_
+     */
+    deltaXConverged_ = m_rtolx * (*xbest) + m_atolx;
+    if (DeltaXnorm_ < deltaXConverged_ ) {
+      writelogf("%s DeltaXnorm_, %g, is too small compared to tols, increasing to %g\n",
+		stre, DeltaXnorm_,  deltaXConverged_);
+      DeltaXnorm_ =  deltaXConverged_;
+    }
+
     /*
      *  Find the first function value f1 = func(x1), by using the value entered into xbest.
      *  Process it 
@@ -323,20 +413,30 @@ namespace Cantera {
     } else if (f1 > 0.0) {
       foundPosF = 1;
       xPosF = x1;
+      fPosF = f1;
     } else {
       foundNegF = 1;
       xNegF = x1;
+      fNegF = x1;
     }
 
+    /*
+     * Now, this is actually a tricky part of the algorithm - Find the x value for 
+     * the second point. It's tricky because we don't have a valid idea of the scale of x yet
+     * 
+     */
     if (x1 == 0.0) {
-      x2 = 0.00001 * (xmax - xmin);
+      x2 = x1 +  0.01 * DeltaXnorm_;
     } else {
       x2 = x1 * 1.0001;
     }
     if (x2 > xmax) {
-      x2 = x1 - (xmax - xmin) / 100.;
+      x2 = x1 - 0.01 * DeltaXnorm_;
     }
 
+    /*
+     *  Find the second function value f2 = func(x2),  Process it 
+     */
     deltaX2 = x2 - x1;
     f2 = func(x2);
 #ifdef DEBUG_MODE
@@ -346,24 +446,30 @@ namespace Cantera {
     }
 #endif
  
+    /*
+     * Calculate the norm of the function, this is the nominal value of f. We try
+     * to reduce the nominal value of f by rtolf, this is the main convergence requirement.
+     */
     if (m_funcTargetValue != 0.0) {
-      fnorm =  1.0E-6 + m_atol / m_rtol;
+      fnorm = m_atolf + fabs(m_funcTargetValue);
     } else {
-      fnorm = 0.5*(fabs(f1) + fabs(f2)) + fabs(m_funcTargetValue);
+      fnorm = 0.5*(fabs(f1) + fabs(f2)) + fabs(m_funcTargetValue) + m_atolf;
     }
 
     if (f2 == 0.0) {
       *xbest = x2;
-      return retn;
+      return ROOTFIND_SUCCESS;
     } else if (f2 > 0.0) {
       if (!foundPosF) {
 	foundPosF = 1;
 	xPosF = x2;
+	fPosF = x2;
       }
     } else {
       if (!foundNegF) {
 	foundNegF = 1;
 	xNegF = x2;
+	fNegF = f2;
       }
     }
     /*
@@ -372,7 +478,7 @@ namespace Cantera {
     foundStraddle = foundPosF && foundNegF;
     if (foundStraddle) {
       if (xPosF > xNegF) posStraddle = 1; 
-     else               posStraddle = 0    ;
+      else               posStraddle = 0;
     }
     bool doQuad = false;
     bool useNextStrat = false;
@@ -419,12 +525,12 @@ namespace Cantera {
        * If the suggested step size is too big, throw out step
        */
       if (!foundStraddle) {
-	if (fabs(xnew - x2) > 3.0 * DeltaXnorm_) {
+	if (fabs(xnew - x2) > DeltaXMax_) {
 	  useNextStrat = true;
 	}
 	if (fabs(deltaXnew) < fabs(deltaX2)) {
-	  deltaXnew = DSIGN(deltaXnew) * 1.1 * fabs(deltaX2);
-	  xnew = deltaXnew + x2;
+	  deltaXnew = 1.2 * deltaXnew;
+	  xnew = x2 + deltaXnew;
 	}
       }
       if (useNextStrat) {
@@ -482,8 +588,8 @@ namespace Cantera {
 	c[3] = x0; c[4] = x1; c[5] = x2;
 	c[6] = SQUARE(x0); c[7] = SQUARE(x1); c[8] = SQUARE(x2);
 	f[0] = - f0; f[1] = - f1; f[2] = - f2;
-	retn = smlequ(c, 3, 3, f, 1);
-	if (retn == 1) goto QUAD_BAIL;
+	int rrr = smlequ(c, 3, 3, f, 1);
+	if (rrr == 1) goto QUAD_BAIL;
 	root = f[1]* f[1] - 4.0 * f[0] * f[2];
 	if (root >= 0.0) {
 	  xn1 = (- f[1] + sqrt(root)) / (2.0 * f[2]);
@@ -550,9 +656,15 @@ namespace Cantera {
       } else {
 	/*
 	 *   If we are venturing into new ground, only allow the step jump
-	 *   to increase by 50% at each interation
+	 *   to increase by 50% at each interation, unless the step jump is less than
+	 *   the user has said that it is ok to take
 	 */
 	doublereal xDelMax = 1.5 * fabs(x2 - x1);
+	if  (specifiedDeltaXnorm_) {
+	  if (0.5 * DeltaXnorm_ >  xDelMax) {
+	    xDelMax = 0.5 *DeltaXnorm_ ;
+	  }
+	}
 	if (fabs(xDelMax) < fabs(xnew - x2)) {
 	  xnew = x2 + DSIGN(xnew-x2) * xDelMax;
 #ifdef DEBUG_MODE
@@ -616,7 +728,7 @@ namespace Cantera {
       if (fabs(deltaXnew) < 1.2 * delXMeaningful(xnew)) {
 	if (!foundStraddle) {
 	  sgn = 1.0;
-	  if (x2 < xnew) {
+	  if (x2 > xnew) {
 	    sgn = -1.0;
 	  }
 	  deltaXnew = 1.2 * delXMeaningful(xnew) * sgn;
@@ -629,12 +741,20 @@ namespace Cantera {
        */
       if (xnew > xmax) {
 	topBump++;
-	if (topBump < 5) {
+	if (topBump < 3) {
 	  xnew = x2 + (xmax - x2) / 2.0;
 	} else {
 	  if (x2 == xmax || x1 == xmax) {
 	    // we are here when we are bumping against the top limit.
 	    // No further action is possible
+	    if (xnew > xmax) {
+	      slope = (f2 - f1) / delXtmp;
+	      xnew = x2 - f2 / slope; 
+	      if (xnew > xmax) {
+		retn = ROOTFIND_SOLNHIGHERTHANXMAX;
+		*xbest = xnew;
+	      }
+	    }
 	    goto done;
 	  } else {
 	    xnew = xmax;
@@ -648,12 +768,20 @@ namespace Cantera {
       }
       if (xnew < xmin) {
 	bottomBump++;
-	if (bottomBump < 5) {
+	if (bottomBump < 3) {
 	  xnew = x2 + (x2 - xmin) / 2.0;
 	} else {
 	  if (x2 == xmin || x1 == xmin) {
 	    // we are here when we are bumping against the bottom limit.
 	    // No further action is possible
+	    if (xnew < xmin) {
+	      slope = (f2 - f1) / delXtmp;
+	      xmin = x2 - f2 / slope; 
+	      if (xnew < xmin) {
+		retn = ROOTFIND_SOLNLOWERTHANXMIN;
+		*xbest = xnew;
+	      }
+	    }
 	    goto done;
 	  } else {
 	    xnew = xmin;
@@ -680,15 +808,27 @@ namespace Cantera {
       if (foundStraddle) {
 	if (posStraddle) {
 	  if (fnew > 0.0) {
-	    if (xnew < xPosF) xPosF = xnew;
+	    if (xnew < xPosF) {
+	      xPosF = xnew;
+	      fPosF = fnew;
+	    }
 	  } else {
-	    if (xnew > xNegF) xNegF = xnew;	       
+	    if (xnew > xNegF) {
+	      xNegF = xnew;
+	      fNegF = fnew;
+	    }	       
 	  }
 	} else {
 	  if (fnew > 0.0) {
-	    if (xnew > xPosF) xPosF = xnew;	       
+	    if (xnew > xPosF) {
+	      xPosF = xnew;
+	      fPosF = fnew;
+	    }	       
 	  } else {
-	    if (xnew < xNegF) xNegF = xnew;	  	       
+	    if (xnew < xNegF) {
+	      xNegF = xnew;
+	      fNegF = fnew;
+	    }	       
 	  }	   
 	}
       }
@@ -698,6 +838,7 @@ namespace Cantera {
 	  if (!foundPosF) {
 	    foundPosF = 1;
 	    xPosF = xnew;
+	    fPosF = fnew;
 	    foundStraddle = 1;
 	    if (xPosF > xNegF) posStraddle = 1;
 	    else    	       posStraddle = 0;
@@ -706,6 +847,7 @@ namespace Cantera {
 	  if (!foundNegF) {
 	    foundNegF = 1;
 	    xNegF = xnew;
+	    fNegF = fnew;
 	    foundStraddle = 1;
 	    if (xPosF > xNegF) posStraddle = 1;
 	    else    	       posStraddle = 0;
@@ -721,11 +863,105 @@ namespace Cantera {
       CR1 = CR2;
       x2 = xnew; 
       f2 = fnew;
+
+      /*
+       *  As we go on to new data points, we make sure that
+       * we have the best straddle of the solution with the choice of F1 and F2 when
+       * we do have a straddle to work with.
+       */
+      if (foundStraddle) {
+	bool foundBetterPos = false;
+	bool foundBetterNeg = false;
+	if (posStraddle) {
+	  if (f2 > 0.0) {
+	    if (xPosF < x2) {
+	      foundBetterPos = false;
+	      x2 = xPosF;
+	      f2 = fPosF;
+	    }
+	    if (f1 > 0.0) {
+	      if (foundBetterPos) {
+		x1 = xNegF;
+		f1 = fNegF;
+	      } else {
+		if (x1 >= x2) {
+		  x1 = xNegF;
+		  f1 = fNegF;
+		}
+	      }
+	    }
+	  } else {
+	    if (xNegF > x2) {
+	      foundBetterNeg = false;
+	      x2 = xNegF;
+	      f2 = fNegF;
+	    }
+	    if (f1 < 0.0) {
+	      if (foundBetterNeg) {
+		x1 = xPosF;
+		f1 = fPosF;
+	      } else {
+		if (x1 <= x2) {
+		  x1 = xPosF;
+		  f1 = fPosF;
+		}
+	      }
+	    }
+	  }
+	} else {
+	  if (f2 < 0.0) {
+	    if (xNegF < x2) {
+	      foundBetterNeg = false;
+	      x2 = xNegF;
+	      f2 = fNegF;
+	    }
+	    if (f1 < 0.0) {
+	      if (foundBetterNeg) {
+		x1 = xPosF;
+		f1 = fPosF;
+	      } else {
+		if (x1 >= x2) {
+		  x1 = xPosF;
+		  f1 = fPosF;
+		}
+	      }
+	    }
+	  } else {
+	    if (xPosF > x2) {
+	      foundBetterPos = true;
+	      x2 = xPosF;
+	      f2 = fPosF;
+	    }
+	    if (f1 > 0.0) {
+	      if (foundBetterNeg) {
+		x1 = xNegF;
+		f1 = fNegF;
+	      } else {
+		if (x1 <= x2) {
+		  x1 = xNegF;
+		  f1 = fNegF;
+		}
+	      }
+	    }
+	  }
+	}
+      }
+
       deltaX1 = deltaX2;
       deltaX2 = deltaXnew;
       CR2 = CRnew;
-      if (fabs(fnew / fnorm) < m_rtol) {
-        converged = 1;	 
+      deltaXConverged_ = 0.5 * deltaXConverged_ + 0.5 * (m_rtolx * 0.5 * (fabs(x2) + fabs(x1)) + m_atolx);
+      if (fabs(fnew / fnorm) < m_rtolf) {
+	if (deltaX2 < deltaXConverged_ &&  deltaXnew < deltaXConverged_) {
+	  converged = 1; 
+	}
+	if (fabs(slope) > 1.0E-100) {
+	  double xdels = fabs(fnew / slope);
+	  if (xdels < deltaXConverged_ * 0.5) {
+	    converged = 1;
+	  }
+	}
+
       }
       /*
        *  Check for excess convergence in the x coordinate
@@ -745,6 +981,28 @@ namespace Cantera {
 
   done:
     if (converged) {
+      retn = ROOTFIND_SUCCESS;
+      if (fabs(f1) < 2.0 * fabs(f2)) {
+	slope = (f2 - f1) / (x2 - x1);
+	xnew = x2 - f2 / slope;
+
+	fnew = func(xnew);
+	if (fabs(fnew) < fabs(f2)) {
+	  x2 = xnew;
+	  f2 = fnew;
+	  *xbest = x2;
+	}
+	if (fabs(f1) < fabs(f2)) {
+	  x2 = x1;
+	  f2 = f1;
+	  *xbest = x1;
+	  fnew = func(x2);
+	}
+      }
+
+
+
+
       if (printLvl >= 1) {
 	writelogf("RootFind success: convergence achieved\n");
       }
@@ -754,9 +1012,19 @@ namespace Cantera {
       }
 #endif  
     } else {
-      retn = ROOTFIND_FAILEDCONVERGENCE;
-      if (printLvl >= 1) {
-	writelogf("RootFind ERROR: maximum iterations exceeded without convergence\n");
+      if (retn == ROOTFIND_SOLNHIGHERTHANXMAX) {
+	if (printLvl >= 1) {
+	  writelogf("RootFind ERROR: Soln probably lies higher than xmax, %g: best guess = %g\n", xmax, *xbest);
+	}
+      } else   if (retn == ROOTFIND_SOLNLOWERTHANXMIN) {
+	if (printLvl >= 1) {
+	  writelogf("RootFind ERROR: Soln probably lies lower than xmin, %g: best guess = %g\n", xmin, *xbest);
+	}
+      } else {
+	retn = ROOTFIND_FAILEDCONVERGENCE;
+	if (printLvl >= 1) {
+	  writelogf("RootFind ERROR: maximum iterations exceeded without convergence, cause unknown\n");
+	}
       }
 #ifdef DEBUG_MODE
       if (printLvl >= 3) {
@@ -804,10 +1072,20 @@ namespace Cantera {
    * @param rtol  Relative tolerance. The default is 10^-5
    * @param atol  absolute tolerance. The default is 10^-11
    */
-  void RootFind::setTol(doublereal rtol, doublereal atol)
+  void RootFind::setTol(doublereal rtolf, doublereal atolf, doublereal rtolx, doublereal atolx)
   {
-    m_atol = atol;
-    m_rtol = rtol;
+    m_atolf = atolf;
+    m_rtolf = rtolf;
+    if (rtolx <= 0.0) {
+      m_rtolx = atolf;
+    } else {
+      m_rtolx = rtolx;
+    }
+    if (atolx <= 0.0) {
+      m_atolx = atolf;
+    } else {
+      m_atolx = atolx;
+    }
   }
   //====================================================================================================================
   // Set the print level from the rootfinder
@@ -868,7 +1146,7 @@ namespace Cantera {
     FuncIsGenerallyDecreasing_ = value;
   }
   //====================================================================================================================
-  // Set the minimum value of deltaX
+  // Set the nominal value of deltaX
   /*
    *  This sets the value of deltaXNorm_
    *
@@ -877,6 +1155,19 @@ namespace Cantera {
   void RootFind::setDeltaX(doublereal deltaXNorm) 
   {
     DeltaXnorm_ = deltaXNorm;
+    specifiedDeltaXnorm_ = 1;
+  }
+ //====================================================================================================================
+  // Set the maximum value of deltaX
+  /*
+   *  This sets the value of deltaXMax_
+   *
+   *  @param deltaX
+   */
+  void RootFind::setDeltaXMax(doublereal deltaX) 
+  {
+    DeltaXMax_ = deltaX;
+    specifiedDeltaXMax_ = 1;
   }
   //====================================================================================================================
 }
