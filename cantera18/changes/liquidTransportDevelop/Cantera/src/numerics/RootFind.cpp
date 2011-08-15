@@ -145,6 +145,7 @@ namespace Cantera {
     m_rtolx(1.0E-5),
     m_maxstep(1000),
     printLvl(0),
+    writeLogAllowed_(false),
     DeltaXnorm_(0.01),
     specifiedDeltaXnorm_(0),
     DeltaXMax_(1.0E6),
@@ -169,6 +170,7 @@ namespace Cantera {
     m_rtolx(1.0E-5),
     m_maxstep(1000),
     printLvl(0),
+    writeLogAllowed_(false),
     DeltaXnorm_(0.01),
     specifiedDeltaXnorm_(0),
     DeltaXMax_(1.0E6),
@@ -200,6 +202,7 @@ namespace Cantera {
     m_rtolx = right.m_rtolx;
     m_maxstep = right.m_maxstep;
     printLvl  = right.printLvl;
+    writeLogAllowed_ = right.writeLogAllowed_;
     DeltaXnorm_  = right.DeltaXnorm_;
     specifiedDeltaXnorm_ = right.specifiedDeltaXnorm_;
     DeltaXMax_  = right.DeltaXMax_;
@@ -339,7 +342,7 @@ namespace Cantera {
 
     callNum++;
 #ifdef DEBUG_MODE
-    if (printLvl >= 3) {
+    if (printLvl >= 3 && writeLogAllowed_) {
       sprintf(fileName, "RootFind_%d.log", callNum);
       fp = fopen(fileName, "w");
       fprintf(fp, " Iter   TP_its  xval   Func_val  |  Reasoning\n");
@@ -401,7 +404,7 @@ namespace Cantera {
     f1 = func(x1);
 
 #ifdef DEBUG_MODE
-    if (printLvl >= 3) {
+    if (printLvl >= 3 && writeLogAllowed_) {
       print_funcEval(fp, x1, f1, its); 
       fprintf(fp, "%-5d  %-5d  %-15.5E %-15.5E\n", -2, 0, x1, f1);
     }
@@ -440,7 +443,7 @@ namespace Cantera {
     deltaX2 = x2 - x1;
     f2 = func(x2);
 #ifdef DEBUG_MODE
-    if (printLvl >= 3) {
+    if (printLvl >= 3 && writeLogAllowed_) {
       print_funcEval(fp, x2, f2, its);
       fprintf(fp, "%-5d  %-5d  %-15.5E %-15.5E", -1, 0, x2, f2);
     }
@@ -516,7 +519,7 @@ namespace Cantera {
 	}
       }
 #ifdef DEBUG_MODE
-      if (printLvl >= 3) {
+      if (printLvl >= 3 && writeLogAllowed_) {
 	fprintf(fp, " | xlin = %-11.5E", xnew);
       }
 #endif
@@ -600,7 +603,7 @@ namespace Cantera {
 	  theta = MIN(1.0, theta);
 	  xnew = theta * xnew + (1.0 - theta) * xquad;
 #ifdef DEBUG_MODE
-	  if (printLvl >= 3) {
+	  if (printLvl >= 3 && writeLogAllowed_) {
 	    if (theta != 1.0) {
 	      fprintf(fp, " | xquad = %-11.5E", xnew);
 	    }
@@ -615,7 +618,7 @@ namespace Cantera {
 	      (DSIGN(x2   - x1) == DSIGN(x1 - x0))    ) {
 	    xnew += xnew - x2;
 #ifdef DEBUG_MODE
-	    if (printLvl >= 3) {
+	    if (printLvl >= 3 && writeLogAllowed_) {
 	      fprintf(fp, " | xquada = %-11.5E", xnew);
 	    }
 #endif
@@ -640,7 +643,7 @@ namespace Cantera {
 	if (fabs(xnew - x1) < xDelMin) {
 	  xnew = x1 + DSIGN(xnew-x1) * xDelMin;
 #ifdef DEBUG_MODE
-	  if (printLvl >= 3) {
+	  if (printLvl >= 3 && writeLogAllowed_) {
 	    fprintf(fp, " | x10%% = %-11.5E", xnew);
 	  }
 #endif
@@ -648,7 +651,7 @@ namespace Cantera {
 	if (fabs(xnew - x2) < 0.1 * xDelMin) {
 	  xnew = x2 + DSIGN(xnew-x2) * 0.1 *  xDelMin; 
 #ifdef DEBUG_MODE
-	  if (printLvl >= 3) {
+	  if (printLvl >= 3 && writeLogAllowed_) {
 	    fprintf(fp, " | x10%% = %-11.5E", xnew);
 	  }
 #endif
@@ -668,7 +671,7 @@ namespace Cantera {
 	if (fabs(xDelMax) < fabs(xnew - x2)) {
 	  xnew = x2 + DSIGN(xnew-x2) * xDelMax;
 #ifdef DEBUG_MODE
-	  if (printLvl >= 3) {
+	  if (printLvl >= 3 && writeLogAllowed_) {
 	    fprintf(fp, " | xlimitsize = %-11.5E", xnew);
 	  }
 #endif
@@ -713,7 +716,7 @@ namespace Cantera {
 	  }
 	}
 #ifdef DEBUG_MODE
-	if (printLvl >= 3) {
+	if (printLvl >= 3 && writeLogAllowed_) {
 	  if (slope != xnew) {
 	    fprintf(fp, " | xstraddle = %-11.5E", xnew);	    
 	  }
@@ -761,7 +764,7 @@ namespace Cantera {
 	  }
 	}
 #ifdef DEBUG_MODE
-	if (printLvl >= 3) {
+	if (printLvl >= 3 && writeLogAllowed_) {
 	  fprintf(fp, " | xlimitmax = %-11.5E", xnew);
 	}
 #endif
@@ -788,7 +791,7 @@ namespace Cantera {
 	  }
 	}
 #ifdef DEBUG_MODE
-	if (printLvl >= 3) {
+	if (printLvl >= 3 && writeLogAllowed_) {
 	  fprintf(fp, " | xlimitmin = %-11.5E", xnew);
 	}
 #endif
@@ -798,7 +801,7 @@ namespace Cantera {
       CRdenom = MAX(fabs(fnew), MAX(fabs(f2), MAX(fabs(f1), fnorm)));
       CRnew = sqrt(fabs(fnew) / CRdenom);
 #ifdef DEBUG_MODE
-      if (printLvl >= 3) {
+      if (printLvl >= 3 && writeLogAllowed_) {
 	fprintf(fp,"\n");
 	print_funcEval(fp, xnew, fnew, its);
 	fprintf(fp, "%-5d  %-5d  %-15.5E %-15.5E", its, 0, xnew, fnew);
@@ -1007,7 +1010,7 @@ namespace Cantera {
 	writelogf("RootFind success: convergence achieved\n");
       }
 #ifdef DEBUG_MODE
-      if (printLvl >= 3) {
+      if (printLvl >= 3 && writeLogAllowed_) {
 	fprintf(fp, " | RootFind success in %d its, fnorm = %g\n", its, fnorm);
       }
 #endif  
@@ -1027,7 +1030,7 @@ namespace Cantera {
 	}
       }
 #ifdef DEBUG_MODE
-      if (printLvl >= 3) {
+      if (printLvl >= 3 && writeLogAllowed_) {
 	fprintf(fp, "\nRootFind failure in %d its\n", its);
       }
 #endif
@@ -1035,7 +1038,7 @@ namespace Cantera {
     *xbest = x2;
     funcTargetValue = f2 + m_funcTargetValue;
 #ifdef DEBUG_MODE
-    if (printLvl >= 3) {
+    if (printLvl >= 3 && writeLogAllowed_) {
       fclose(fp);
     }
 #endif
