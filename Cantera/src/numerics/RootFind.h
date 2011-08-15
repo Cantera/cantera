@@ -33,6 +33,13 @@ namespace Cantera {
 #define ROOTFIND_FAILEDCONVERGENCE  -1
   //!  This means that the input to the root solver was defective
 #define ROOTFIND_BADINPUT           -2
+  //!  This means that the rootfinder believes the solution is lower than xmin
+#define ROOTFIND_SOLNLOWERTHANXMIN  -3
+  //!  This means that the rootfinder believes the solution is higher than xmax
+  /*!
+   *
+   */
+#define ROOTFIND_SOLNHIGHERTHANXMAX  -4
  //@{
 
   //! Root finder for 1D problems
@@ -51,24 +58,26 @@ namespace Cantera {
      * @param resid  Pointer to the residual function to be used to calculate f(x)
      */ 
     RootFind(ResidEval* resid);
+
+    //! Copy constructor
+    /*!
+     * @param r  object to be copied
+     */
+    RootFind(const RootFind &r);
    
     //! Destructor. Deletes the integrator.
     ~RootFind();
 
+    //! Assignment operator
+    /*!
+     *  @param right object to be copied
+     *
+     * @return returns a reference to the current object
+     */
+    RootFind & operator=(const RootFind &right); 
+
+
   private:
-
-    //! Unimplemented private copy constructor
-    /*!
-     *  @param right object to be copied
-     */
-    RootFind(const RootFind &right);
-
-    //! Unimplemented private assignment operator
-    /*!
-     *  @param right object to be copied
-     */
-    RootFind& operator=(const RootFind &right);
-
     //! Calculate a deltaX from an input value of x
     /*!
      *  This routine ensure that the deltaX will be greater or equal to DeltaXNorm_
@@ -153,13 +162,17 @@ namespace Cantera {
 
     //! Set the tolerance parameters for the rootfinder
     /*!
-     *  These tolerance parameters are used on the function value to determine convergence
+     *  These tolerance parameters are used on the function value and the independent value
+     *  to determine convergence
      *  
-     *
-     * @param rtol  Relative tolerance. The default is 10^-5
-     * @param atol  absolute tolerance. The default is 10^-11
+     * @param rtolf  Relative tolerance. The default is 10^-5
+     * @param atolf  absolute tolerance. The default is 10^-11
+     * @param rtolx  Relative tolerance. The default is 10^-5
+     *                   Default parameter is 0.0, in which case rtolx is set equal to rtolf
+     * @param atolx  absolute tolerance. The default is 10^-11
+     *                   Default parameter is 0.0, in which case atolx is set equal to atolf
      */
-    void setTol(doublereal rtol, doublereal atol);
+    void setTol(doublereal rtolf, doublereal atolf, doublereal rtolx = 0.0, doublereal atolx = 0.0);
 
     //! Set the print level from the rootfinder
     /*!
@@ -212,6 +225,14 @@ namespace Cantera {
      */
     void setDeltaX(doublereal deltaXNorm); 
 
+    //! Set the maximum value of deltaX
+    /*!
+     *  This sets the value of deltaXMax_
+     *
+     *  @param deltaX
+     */
+    void setDeltaXMax(doublereal deltaX); 
+
   public:
 
     //!   Pointer to the residual function evaluator
@@ -221,20 +242,35 @@ namespace Cantera {
     doublereal m_funcTargetValue;
 
     //!  Absolute tolerance for the value of f
-    doublereal m_atol;
+    doublereal m_atolf;
 
-    //!  Relative tolerance for the value of f
-    doublereal m_rtol;
+    //!  Absolute tolerance for the value of x
+    doublereal m_atolx;
+
+    //!  Relative tolerance for the value of f and x
+    doublereal m_rtolf;
+    //!  Relative tolerance for the value of x
+    doublereal m_rtolx;
 
     //!  Maximum number of step sizes
     doublereal m_maxstep;
   protected:
 
     //!  Print level
-    int    printLvl;
+    int printLvl;
 
-    //! Delta X norm. This is the minimum value of deltaX that will be used by the program
+    //! Delta X norm. This is the nominal value of deltaX that will be used by the program
     doublereal DeltaXnorm_;
+
+    int specifiedDeltaXnorm_;
+
+    //! Delta X Max. This is the maximum value of deltaX that will be used by the program
+    /*!  
+     *  Sometimes a large change in x causes problems. 
+     */
+    doublereal DeltaXMax_;
+
+    int specifiedDeltaXMax_;
 
     //! Boolean indicating whether the function is an increasing with x
     bool FuncIsGenerallyIncreasing_;
@@ -249,10 +285,16 @@ namespace Cantera {
      */
     doublereal deltaXConverged_;
 
+    //! Internal variable tracking largest x tried.
     doublereal x_maxTried_;
+
+    //! Internal variable tracking f(x) of largest x tried.
     doublereal fx_maxTried_;
 
+    //! Internal variable tracking smallest x tried.
     doublereal x_minTried_;
+
+    //! Internal variable tracking f(x) of smallest x tried.
     doublereal fx_minTried_;
 
   };
