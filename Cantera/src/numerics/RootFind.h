@@ -254,11 +254,16 @@ namespace Cantera {
 
     //!  Maximum number of step sizes
     doublereal m_maxstep;
-  protected:
 
+  protected:
     //!  Print level
     int printLvl;
 
+  public:
+    //! Boolean to turn on the possibility of writing a log file.
+    bool writeLogAllowed_;
+
+  protected:
     //! Delta X norm. This is the nominal value of deltaX that will be used by the program
     doublereal DeltaXnorm_;
 
