@@ -772,14 +772,14 @@ namespace Cantera {
       if (xnew < xmin) {
 	bottomBump++;
 	if (bottomBump < 3) {
-	  xnew = x2 + (x2 - xmin) / 2.0;
+	  xnew = x2 - (x2 - xmin) / 2.0;
 	} else {
 	  if (x2 == xmin || x1 == xmin) {
 	    // we are here when we are bumping against the bottom limit.
 	    // No further action is possible
 	    if (xnew < xmin) {
 	      slope = (f2 - f1) / delXtmp;
-	      xmin = x2 - f2 / slope; 
+	      xnew = x2 - f2 / slope; 
 	      if (xnew < xmin) {
 		retn = ROOTFIND_SOLNLOWERTHANXMIN;
 		*xbest = xnew;
