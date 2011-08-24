@@ -230,7 +230,7 @@ WITH_ELECTROLYTES=${WITH_ELECTROLYTES:="y"}
 
 # Enable Real Gas Equations of State
 # This supports the multicomponent Redlich-Kwong equation of state.
-WITH_REAL_GASSES=${WITH_REAL_GASSES:="n"}
+WITH_REAL_GASSES=${WITH_REAL_GASSES:="y"}
 
 # Enable generating phase models from PrIMe models. For more
 # information about PrIME, see http://www.primekinetics.org
@@ -592,7 +592,8 @@ export WITH_ADSORBATE
 export WITH_SPECTRA
 export WITH_STOICH_SUBSTANCE
 export WITH_PURE_FLUIDS
-export WITH_IDEAL_SOLUTIONS
+export WITH_IDEAL_SOLUTION
+export WITH_REAL_GASSES
 export WITH_ELECTROLYTES
 export WITH_PRIME
 export WITH_H298MODIFY_CAPABILITY
