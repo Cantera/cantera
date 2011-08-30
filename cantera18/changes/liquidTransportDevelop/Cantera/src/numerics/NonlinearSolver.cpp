@@ -2150,9 +2150,9 @@ namespace Cantera {
 	return 0;
       }
     }
-    //if (loglevel >= 4 ) {
+    if (loglevel >= 4 ) {
       printf("\t  dampStep(): current direction is rejected! retnTrial = %d, its = %d, damp = %g\n", -2, m+1, ff);
-      //}
+    }
     return -2;
   }
 
