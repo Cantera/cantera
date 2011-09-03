@@ -484,9 +484,9 @@ namespace Cantera {
      *
      *   The units are Siemens m-1,  where 1 S = 1 A / volt = 1 s^3 A^2 /kg /m^2
      */
-    virtual doublereal getElectricConductivity() 
+    virtual doublereal getElectricConduct() 
     {
-      err("getElectricConductivity"); return 0.0;
+      err("getElectricConduct"); return 0.0;
     }
 
     //! Compute the electric current density in A/m^2
