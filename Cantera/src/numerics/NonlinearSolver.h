@@ -616,7 +616,12 @@ namespace Cantera {
      */
     void descentComparison(double time_curr ,double *ydot0, double *ydot1, const double *newtDir);
 
-    void setupDoubleDogleg(double *newtDir);
+    //!  Setup the parameters for the double dog leg
+    /*!
+     *  The calls to the doCauchySolve() and doNewtonSolve() routines are done at the main level. This routine comes
+     *  after those calls.
+     */
+    void setupDoubleDogleg();
 
     //! Change the global lambda coordinate into the (leg,alpha) coordinate for the double dogleg
     /*!
@@ -935,12 +940,18 @@ namespace Cantera {
     doublereal residNorm2Cauchy_;
 
     //! Residual dot Jd norm
+    /*!
+     *  This is equal to  R_hat dot  J_hat d_y_descent 
+     */
     doublereal RJd_norm_;
 
-    //! Value of lambda_ which is used to calculate the Cauchy point
-    doublereal lambda_;
+    //! Value of lambdaStar_ which is used to calculate the Cauchy point
+    doublereal lambdaStar_;
 
-    //!  Jacobian times the Steepest descent direction. 
+    //!  Jacobian times the steepest descent direction in the normalized coordinates. 
+    /*!
+     *  This is equal to [ Jhat d^y_{descent} ] in the notes, Eqn. 18. 
+     */
     std::vector<doublereal> Jd_;
 
     //! Vector of trust region values.
@@ -957,6 +968,8 @@ namespace Cantera {
     doublereal dist_R1_;
     doublereal dist_R2_;
     doublereal dist_Total_;
+
+    //! Dot product of the Jd_ variable defined above with itself.
     doublereal JdJd_norm_;
 
     //! Norm of the Newton Step wrt trust region

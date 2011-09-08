@@ -142,7 +142,7 @@ namespace Cantera {
     deltaX_Newton_(0),
     residNorm2Cauchy_(0.0),
     RJd_norm_(0.0),
-    lambda_(0.0),
+    lambdaStar_(0.0),
     Jd_(0),
     deltaX_trust_(0),
     trustDelta_(1.0),
@@ -242,7 +242,7 @@ namespace Cantera {
     deltaX_Newton_(0),
     residNorm2Cauchy_(0.0),
     RJd_norm_(0.0),
-    lambda_(0.0),
+    lambdaStar_(0.0),
     Jd_(0),
     deltaX_trust_(0),
     trustDelta_(1.0),
@@ -320,7 +320,7 @@ namespace Cantera {
     deltaX_CP_                 = right.deltaX_CP_;
     deltaX_Newton_             = right.deltaX_Newton_;
     RJd_norm_                  = right.RJd_norm_;
-    lambda_                    = right.lambda_;
+    lambdaStar_                = right.lambdaStar_;
     Jd_                        = right.Jd_;
     deltaX_trust_              = right.deltaX_trust_;	
     trustDelta_                = right.trustDelta_;
@@ -376,10 +376,10 @@ namespace Cantera {
 #ifdef DEBUG_DOGLEG
 
 #else
-    if (doDogLeg_) {
-      throw CanteraError("NonlinearSolver::setSolverScheme",
-			 "ifdef block not on");
-    }
+    //   if (doDogLeg_) {
+    //throw CanteraError("NonlinearSolver::setSolverScheme",
+    //		 "ifdef block not on");
+    //}
 #endif
   }
   //====================================================================================================================
@@ -706,10 +706,21 @@ namespace Cantera {
   void NonlinearSolver::calcSolnToResNormVector()
   { 
     if (! jacCopy_.m_factored) { 
-      m_ScaleSolnNormToResNorm = 1.0;
-      computeResidWts();
-      for (int n = 0; n < neq_; n++) {
-        m_wksp[n] = 0.0;
+   
+
+      double sum = 0.0;
+      for (int irow = 0; irow < neq_; irow++) {
+	m_residWts[irow] = m_rowWtScales[irow] / neq_;
+	sum += m_residWts[irow];
+      }
+      sum /= neq_;
+      for (int irow = 0; irow < neq_; irow++) {
+	m_residWts[irow] = (m_residWts[irow] + atolBase_ * atolBase_ * sum);
+      }
+      
+      
+      for (int irow = 0; irow < neq_; irow++) {
+        m_wksp[irow] = 0.0;
       }   
       doublereal *jptr = &(*(jacCopy_.begin()));
       for (int jcol = 0; jcol < neq_; jcol++) {
@@ -718,9 +729,17 @@ namespace Cantera {
 	  jptr++;
 	}
       }
-      double resNormOld = residErrorNorm(DATA_PTR(m_wksp));
+      double resNormOld = 0.0;
+      double error;
+     
+      for (int irow = 0; irow < neq_; irow++) {
+	error = m_wksp[irow] /  m_residWts[irow];
+        resNormOld  += error * error;
+      }
+      resNormOld = sqrt(resNormOld / neq_);
+
       if (resNormOld > 0.0) {
-	m_ScaleSolnNormToResNorm = m_ScaleSolnNormToResNorm * resNormOld;
+	m_ScaleSolnNormToResNorm = resNormOld;
       }
       if (m_ScaleSolnNormToResNorm < 1.0E-8) {
 	m_ScaleSolnNormToResNorm = 1.0E-8;
@@ -1135,14 +1154,14 @@ namespace Cantera {
   {
     double rowFac = 1.0;
     double normSoln;
-    //  Calculate desDir = -0.5 * R dot J
+    //  Calculate the descent direction
     /*
      * For confirmation of the scaling factors, see Dennis and Schnabel p, 152, p, 156 and my notes
      * 
      *  The colFac and rowFac values are used to eliminate the scaling of the matrix from the 
      *  actual equation
      *
-     *  Here we calculate the steepest direction. this is equation (10) in the notes. It is
+     *  Here we calculate the steepest descent direction. This is equation (11) in the notes. It is
      *  storred in deltaX_CP_[].The value corresponds to d_descent[].
      */
     for (int j = 0; j < neq_; j++) {
@@ -1164,7 +1183,7 @@ namespace Cantera {
     }
 
     /*
-     *  Calculate J_hat d_y_descent. This is formula 17 in the notes.
+     *  Calculate J_hat d_y_descent. This is formula 18 in the notes.
      */
     for (int i = 0; i < neq_; i++) {
       Jd_[i] = 0.0;
@@ -1180,7 +1199,7 @@ namespace Cantera {
 
     /*
      * Calculate the distance along the steepest descent until the Cauchy point
-     * This is Eqn. 16 in the notes.
+     * This is Eqn. 17 in the notes.
      */
     RJd_norm_ = 0.0;
     JdJd_norm_ = 0.0;
@@ -1193,21 +1212,21 @@ namespace Cantera {
     //}
     if (fabs(JdJd_norm_) < 1.0E-290) {
       if (fabs(RJd_norm_) < 1.0E-300) {
-	lambda_ = 0.0;
+	lambdaStar_ = 0.0;
       } else {
 	throw CanteraError("NonlinearSolver::doCauchyPointSolve()", "Unexpected condition: norms are zero");
       }
     } else {
-      lambda_ = - RJd_norm_ / (JdJd_norm_);
+      lambdaStar_ = - RJd_norm_ / (JdJd_norm_);
     }
 
     /*
      *  Now we modify the steepest descent vector such that its length is equal to the 
      *  Cauchy distance. From now on, if we want to recreate the descent vector, we have
-     *  to unnormalize it by dividing by lambda_.
+     *  to unnormalize it by dividing by lambdaStar_.
      */
     for (int i = 0; i < neq_; i++) {
-      deltaX_CP_[i] *= lambda_;
+      deltaX_CP_[i] *= lambdaStar_;
     }
     double normResid02 = m_normResid0 * m_normResid0 * neq_;
 
@@ -1243,7 +1262,7 @@ namespace Cantera {
 	printf("\t\t\t      Rjd    = %g\n",  RJd_norm_);
 	printf("\t\t\t      JdJd   = %g\n",  JdJd_norm_);
 	printf("\t\t\t      deltaX = %g\n",  normSoln);
-	printf("\t\t\t      lambda = %g\n",  lambda_);
+	printf("\t\t\t      lambda = %g\n",  lambdaStar_);
       }
     }
     return normSoln;
@@ -1294,7 +1313,7 @@ namespace Cantera {
 
     // This is the expected inital rate of decrease in the cauchy direction.
     //   -> This is Eqn. 29 = Rhat dot Jhat dy / || d ||
-    double funcDecreaseSDExp = RJd_norm_ / cauchyDistanceNorm * lambda_;
+    double funcDecreaseSDExp = RJd_norm_ / cauchyDistanceNorm * lambdaStar_;
 
     double funcDecreaseNewtExp2 = -  normResid02 / sNewt;
 
@@ -1311,11 +1330,12 @@ namespace Cantera {
   }
 
   //====================================================================================================================
-  //  Setup the line search along the double dog leg
+  //  Setup the parameters for the double dog leg
   /*
-   *  the calls the doCauchySolve() and doNewtonSolve() are done at the main level
+   *  The calls to the doCauchySolve() and doNewtonSolve() routines are done at the main level. This routine comes
+   *  after those calls.
    */
-  void NonlinearSolver::setupDoubleDogleg(double * newtDir)
+  void NonlinearSolver::setupDoubleDogleg()
   {
     /*
      *  Gamma =                  ||grad f ||**4
@@ -1328,8 +1348,8 @@ namespace Cantera {
     //  sumG =  deltax_cp_[i] *  deltax_cp_[i];
     //   sumH =  deltax_cp_[i] *  newtDir[i];
     //  }
-    // double  fac1 = sumG / lambda_;
-    // double  fac2 = sumH / lambda_;
+    // double  fac1 = sumG / lambdaStar_;
+    // double  fac2 = sumH / lambdaStar_;
     // double  gamma = fac1 / fac2;
     // double   gamma =  m_normDeltaSoln_CP / m_normDeltaSoln_Newton;
     /*
@@ -1400,7 +1420,7 @@ namespace Cantera {
        */
 
       double tmp = - 2.0 * alpha + alpha * alpha;
-      double tmp2 = - RJd_norm_ * lambda_;
+      double tmp2 = - RJd_norm_ * lambdaStar_;
       resD2 = tmp2 * tmp;
 
     } else if (leg == 1) {
@@ -1408,7 +1428,7 @@ namespace Cantera {
       /*
        *  Same formula as above for lambda=1.
        */
-      double tmp2 = - RJd_norm_ * lambda_;
+      double tmp2 = - RJd_norm_ * lambdaStar_;
       double RdotJS = - tmp2;
       double JsJs =     tmp2;
 
@@ -1628,7 +1648,7 @@ namespace Cantera {
       } else {
 	/*
 	 *  This handles the case where the value crosses the origin.
-	 *       - First we don't let it cross the origin until its shrunk to the size of m_deltaBoundsMagnitudes[i]
+	 *       - First we don't let it cross the origin until its shrunk to the size of m_deltaStepMinimum[i]
 	 */
 	if (fabs(y[i]) > m_deltaStepMinimum[i]) {
 	  ff = y[i]/(y_new - y[i]) * (1.0 - 2.0)/2.0;
@@ -1688,7 +1708,7 @@ namespace Cantera {
    *  We periodically recalculate the trustVector_ values so that they renormalize to the
    *  correct length.
    */
-  void  NonlinearSolver::calcTrustVector()  
+  void  NonlinearSolver::calcTrustVector()
   {
     double wtSum = 0.0;
     for (int i = 0; i < neq_; i++) {
@@ -1708,14 +1728,14 @@ namespace Cantera {
       fabsy = fabs(m_y_n[i]);
       // First off make sure that each trust region vector is 1/2 the size of each variable or smaller
       // unless overridden by the deltaStepMininum value. 
-      if (oldVal > 0.5 * fabsy) {
-	if (fabsy > m_deltaStepMinimum[i]) {
+      double newValue =  trustDeltaEach * m_ewt[i] / wtSum;
+      if (newValue > 0.5 * fabsy) {
+	if (fabsy * 0.5 > m_deltaStepMinimum[i]) {
 	  deltaX_trust_[i] = 0.5 * fabsy;
 	} else {
 	  deltaX_trust_[i] = m_deltaStepMinimum[i];
 	}
       } else {
-        double newValue =  trustDeltaEach * m_ewt[i] / wtSum;
 	if (newValue > 4.0 * oldVal) { 
 	  newValue = 4.0 * oldVal;
 	} else if (newValue < 0.25 * oldVal) {
@@ -1739,6 +1759,7 @@ namespace Cantera {
       deltaX_trust_[i] = deltaX_trust_[i] * sum;
     }
     trustDelta_ = 1.0;
+
     if (s_print_DogLeg || (doDogLeg_ && m_print_flag > 3)) {
       printf("calcTrustVector():  Trust vector size (SolnNorm Basis) changed from %g to %g \n",
 	     trustNorm, trustNormGoal);
@@ -1965,17 +1986,13 @@ namespace Cantera {
     // Compute the weighted norm of the undamped step size step0
     doublereal s0 = solnErrorNorm(step0);
 
-    // Compute the multiplier to keep all components in bounds
-    // A value of one indicates that there is no limitation
-    // on the current step size in the nonlinear method due to
-    // bounds constraints (either negative values of delta
+    // Compute the multiplier to keep all components in bounds.A value of one indicates that there is no limitation
+    // on the current step size in the nonlinear method due to bounds constraints (either negative values of delta
     // bounds constraints.
     m_dampBound = boundStep(y0, step0, loglevel);
 
-    // if fbound is very small, then y0 is already close to the
-    // boundary and step0 points out of the allowed domain. In
-    // this case, the Newton algorithm fails, so return an error
-    // condition.
+    // If fbound is very small, then y0 is already close to the boundary and step0 points out of the allowed domain. In
+    // this case, the Newton algorithm fails, so return an error condition.
     if (m_dampBound < 1.e-30) {
       if (loglevel > 1) printf("\t\t\tdampStep: At limits.\n");
       return -3;
@@ -2158,6 +2175,14 @@ namespace Cantera {
 
   //====================================================================================================================
 
+
+  // Using Damping along a dog leg to calculate the next step 
+  /*!
+   *
+   *
+   *   @param step0  (output)  On return this contains the suggested step vector for the current iteration
+   *
+   */
   int NonlinearSolver::dampDogLeg(const doublereal time_curr, const double* y0, 
 				  const doublereal *ydot0, std::vector<doublereal> & step0,
 				  double* const y_new, double* const ydot_new, double* step1,
@@ -2181,7 +2206,7 @@ namespace Cantera {
     int j, m;
     num_backtracks = 0;
     //double deltaSolnNorm = solnErrorNorm(DATA_PTR(deltaX_CP_));
-    //double funcDecreaseSDExp = RJd_norm_ / deltaSolnNorm * lambda_;
+    //double funcDecreaseSDExp = RJd_norm_ / deltaSolnNorm * lambdaStar_;
     double tlen;
    
 
@@ -2197,7 +2222,8 @@ namespace Cantera {
 	       tlen, leg, alpha);
       }
       /*
-       *  Figure out the new step vector, step0, based on (leg, alpha)
+       *  Figure out the new step vector, step0, based on (leg, alpha). Here we are using the
+       *  inter
        */
       fillDogLegStep(leg, alpha, step0);
 
@@ -2210,20 +2236,21 @@ namespace Cantera {
        */
       if (m_dampBound < 1.0) {
 	for (j = 0; j < neq_; j++) {
-	  step0[j] =  step0[j] *  m_dampBound;
+	  step0[j] =  step0[j] * m_dampBound;
 	}
       }
     
       /*
        * OK, we have the step0. Now, ask the question whether it satisfies the acceptance criteria
-       * as a good step. Also, make sure that it stays within bounds.
+       * as a good step. 
        */
-      info = decideStep(time_curr, leg, alpha, y0, ydot0,  step0, y_new, ydot_new,  loglevel, trustDeltaOld);
+      info = decideStep(time_curr, leg, alpha, y0, ydot0, step0, y_new, ydot_new,  loglevel, trustDeltaOld);
 
       /*
        *  The algorithm failed to find a solution vector sufficiently different than the current point
        */
       if (info == -1) {
+	num_backtracks++;
 	if (loglevel >= 1) {
 	  double stepNorm =  solnErrorNorm(DATA_PTR(step0));
 	  printf("\t\t\tdampDogLeg: Current direction rejected, update became too small %g\n", stepNorm);
@@ -2233,6 +2260,7 @@ namespace Cantera {
 	}
       }
       if (info == -2) {
+	num_backtracks++;
 	if (loglevel >= 1) {
 	  printf("\t\t\tdampStep: current trial step and damping led to LAPACK ERROR %d. Bailing\n", info);
 	  success = false;
@@ -2248,9 +2276,15 @@ namespace Cantera {
 	haveASuccess = true;
 	// Store the good results in step1
 	mdp::mdp_copy_dbl_1(DATA_PTR(step1), CONSTD_DATA_PTR(step0), neq_);
-
+	// Within the program decideStep(), we have already increased the value of trustDelta_. We store the
+	// value of step0 in step1, recalculate a larger step0 in the next fillDogLegStep(),
+	// and then attempt to see if the larger step works in the next iteration
       }
       if (info == 2) {
+	// Step was a failure. If we had a previous success with a smaller stepsize, haveASuccess is true
+	// and we execute the next block and break. If we didn't have a previous success, trustDelta_ has
+	// already been decreased in the decideStep() routine. We go back and try another iteration with
+	// a smaller trust region. 
 	if (haveASuccess) {
 	  mdp::mdp_copy_dbl_1(DATA_PTR(step0), CONSTD_DATA_PTR(step1), neq_);
 	  for (j = 0; j < neq_; j++) {
@@ -2261,6 +2295,8 @@ namespace Cantera {
 	  } 
 	  success = true;
 	  break;
+	} else {
+	  num_backtracks++;
 	}
       }
 
@@ -2335,7 +2371,7 @@ namespace Cantera {
 
     // This is the expected inital rate of decrease in the cauchy direction.
     //   -> This is Eqn. 29 = Rhat dot Jhat dy / || d ||
-    double funcDecreaseSDExp = RJd_norm_ / cauchyDistanceNorm * lambda_;
+    double funcDecreaseSDExp = RJd_norm_ / cauchyDistanceNorm * lambdaStar_;
     if (funcDecreaseSDExp > 0.0) {
       if (loglevel > 0) {
 	printf("\t\tdecideStep(): Unexpected condition -> cauchy slope is positive\n");
@@ -2594,7 +2630,9 @@ namespace Cantera {
       setColumnScales();
 
 
-
+      /*
+       *  Calculate the base residual 
+       */
       info = doResidualCalc(time_curr, NSOLN_TYPE_STEADY_STATE, DATA_PTR(m_y_n), DATA_PTR(ydot_curr));
       if (info != 1) {
 	if (m_print_flag > 0) {
@@ -2684,13 +2722,13 @@ namespace Cantera {
     
  
       if (doDogLeg_) { 
-	setupDoubleDogleg(DATA_PTR(stp));  
+	setupDoubleDogleg();  
 #ifdef DEBUG_DOGLEG
 	residualComparisonLeg(time_curr, DATA_PTR(ydot_curr), DATA_PTR(ydot_new), DATA_PTR(stp));
 #endif
-	m =  dampDogLeg(time_curr, DATA_PTR(m_y_n), DATA_PTR(ydot_curr), 
-			stp, DATA_PTR(y_new), DATA_PTR(ydot_new), 
-			DATA_PTR(stp1), s1, jac, m_print_flag, frst, i_backtracks);
+	m = dampDogLeg(time_curr, DATA_PTR(m_y_n), DATA_PTR(ydot_curr), 
+		       stp, DATA_PTR(y_new), DATA_PTR(ydot_new), 
+		       DATA_PTR(stp1), s1, jac, m_print_flag, frst, i_backtracks);
       }
 #ifdef DEBUG_DOGLEG
       else {
@@ -3302,7 +3340,6 @@ namespace Cantera {
       atolk_[i]= atol[i];
     }
   }
-
   //=====================================================================================================================
   // Set the relative tolerances for the solution variables
   /*
