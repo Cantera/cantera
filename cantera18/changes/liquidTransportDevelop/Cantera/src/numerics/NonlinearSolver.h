@@ -60,6 +60,29 @@ namespace Cantera {
    *   value, beta, from zero to one, This may or may not be the same as the value, damp,
    *   depending upon whether the direction is straight.
    *
+   *
+   * TIME STEP TYPE
+   *
+   *   The code solves a nonlinear problem. Frequently the nonlinear problem is created from time-dependent
+   *   residual. Whenever you change the solution vector, you are also changing the derivative of the
+   *   solution vector. Therefore, the code has the option of altering ydot, a vector of time derivatives
+   *   of the solution in tandem with the solution vector and then feeding a residual and Jacobian routine
+   *   with the time derivatives as well as the solution. The code has support for a backwards euler method
+   *   and a second order  Adams-Bashforth or Trapezoidal Rule.
+   *
+   *   In order to use these methods, the solver must be initialized with delta_t and m_y_nm1[i] to specify
+   *   the conditions at the previous time step. For second order methods, the time derivative at t_nm1 must
+   *   also be supplied,  m_ydot_nm1[i]. Then the solution type  NSOLN_TYPE_TIME_DEPENDENT may be used to 
+   *   solve the problem.
+   *   
+   *   For steady state problem whose residual doesn't have a solution time derivative in it, you should
+   *   use the NSOLN_TYPE_STEADY_STATE problem type.
+   *
+   *   We have a NSOLN_TYPE_PSEUDO_TIME_DEPENDENT defined. However, this is not implemented yet. This would
+   *   be a pseudo time dependent calculation, where an optional time derivative could be added in order to 
+   *   help equilibrate a nonlinear steady state system. The time transient is not important in and of
+   *   itself. Many physical systems have a time dependence to them that provides a natural way to relax
+   *   the nonlinear system. 
    *  
    *
    *  @code 
@@ -159,11 +182,12 @@ namespace Cantera {
      *  @return Returns the L2 norm of the delta
      */
     doublereal residErrorNorm(const doublereal * const resid, const char * title = 0, const int printLargest = 0,
-			  const doublereal * const y = 0);
+			  const doublereal * const y = 0) const;
 
     //! Compute the current residual
     /*!
-     *  The current value of the residual is storred in the internal work array m_resid.
+     *  The current value of the residual is storred in the internal work array m_resid, which is defined
+     *  as mutable
      *
      *  @param time_curr    Value of the time 
      *  @param typeCalc     Type of the calculation
@@ -178,7 +202,7 @@ namespace Cantera {
      */
     int doResidualCalc(const doublereal time_curr, const int typeCalc, const doublereal * const y_curr, 
 		       const doublereal * const ydot_curr,
-		       const ResidEval_Type_Enum evalType = Base_ResidEval);
+		       const ResidEval_Type_Enum evalType = Base_ResidEval) const;
 
     //! Compute the undamped Newton step
     /*!
@@ -350,14 +374,17 @@ namespace Cantera {
 
     //! Return an editable vector of the high bounds constraints
     std::vector<double> & highBoundsConstraintVector();
-   
-    //! Internal function to calculate the time derivative at the new step
+ 
+    //!   Internal function to calculate the time derivative of the solution at the new step
     /*!
+     *  Previously, the user must have supplied information about the previous time step for this routine to
+     *  work as intended.
+     *
      *   @param  order of the BDF method
      *   @param   y_curr current value of the solution
      *   @param   ydot_curr  Calculated value of the solution derivative that is consistent with y_curr
-     */ 
-    void calc_ydot(const int order, const doublereal * const y_curr, doublereal * const ydot_curr);
+     */  
+    void calc_ydot(const int order, const doublereal * const y_curr, doublereal * const ydot_curr) const;
 
     //! Function called to evaluate the jacobian matrix and the current
     //! residual vector at the current time step
@@ -630,6 +657,14 @@ namespace Cantera {
      */
     int lambdaToLeg(const double lambda, double &alpha) const;
 
+    //! Given a trust distance, this routine calculates the intersection of the this distance with the
+    //! double dogleg curve
+    /*!
+     *   @param      trustDelta  (INPUT)     Value of the trust distance
+     *   @param      lambda      (OUTPUT)    Returns the internal coordinate of the double dogleg
+     *   @param      alpha       (OUTPUT)    Returns the relative distance along the appropriate leg
+     *   @return     leg         (OUTPUT)    Returns the leg ID (0, 1, or 2)
+     */
     int calcTrustIntersection(double trustVal, double &lambda, double &alpha) const;
 
     //! Initialize the size of the trust vector.
@@ -686,7 +721,14 @@ namespace Cantera {
      */
     double expectedResidLeg(int leg, doublereal alpha) const;
 
-    void residualComparisonLeg(const double time_curr, const double * const ydot0, double * const ydot1);
+    //!  Here we print out the residual at various points along the double dogleg, comparing against the quadratic model
+    //!  in a table format
+    /*
+     *  @param time_curr     INPUT    current time
+     *  @param ydot0         INPUT    Current value of the derivative of the solution vector for non-time dependent
+     *                                determinations
+     */
+    void residualComparisonLeg(const double time_curr, const double * const ydot0) const;
 
     //! Set the print level from the rootfinder
     /*!
@@ -750,7 +792,11 @@ namespace Cantera {
     std::vector<doublereal> m_deltaStepMaximum;
 
     //! Vector containing the current solution vector within the nonlinear solver
-    std::vector<doublereal> m_y_n;
+    std::vector<doublereal> m_y_n_curr;
+
+    //! Vector containing the time derivative of the current solution vector within the nonlinear solver
+    //! (where applicable)
+    std::vector<doublereal> m_ydot_n_curr;
 
     //! Vector containing the solution at the previous time step
     std::vector<doublereal> m_y_nm1;
@@ -777,10 +823,13 @@ namespace Cantera {
     std::vector<doublereal> m_rowWtScales;
 
     //! Value of the residual for the nonlinear problem
-    std::vector<doublereal> m_resid;
+    mutable std::vector<doublereal> m_resid;
 
     //! Workspace of length neq_
     mutable std::vector<doublereal> m_wksp;
+
+    //! Workspace of length neq_
+    mutable std::vector<doublereal> m_wksp_2;
 
     /*****************************************************************************************
      *        INTERNAL WEIGHTS FOR TAKING SOLUTION NORMS
@@ -809,7 +858,7 @@ namespace Cantera {
     doublereal m_normResidPoints[15];
 
     //! Boolean indicating whether we should scale the residual
-    bool m_resid_scaled;
+    mutable bool m_resid_scaled;
 
     /*****************************************************************************************
      *        INTERNAL BOUNDARY INFO FOR SOLUTIONS
@@ -831,7 +880,7 @@ namespace Cantera {
     doublereal delta_t_n;
 
     //! Counter for the total number of function evaluations
-    int m_nfe;
+    mutable int m_nfe;
 
     /***********************************************************************************************
      *             MATRIX INFORMATION
@@ -999,7 +1048,7 @@ namespace Cantera {
     /*!
      *  Necessary to do for test suites
      */
-    static bool m_TurnOffTiming;
+    static bool s_TurnOffTiming;
 
     //! Turn on or off printing of the Jacobian
     static bool s_print_NumJac;
