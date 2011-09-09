@@ -199,14 +199,13 @@ namespace Cantera {
      *  @param ydot_curr      Current value of the solution derivative.
      *  @param delta_y        return value of the raw change in y
      *  @param jac            Jacobian
-     *  @param loglevel       Log level
      *
      *  @return Returns the result code from lapack. A zero means success. Anything
      *          else indicates a failure.
      */ 
     int doNewtonSolve(const doublereal time_curr, const doublereal * const y_curr,
 		      const doublereal * const ydot_curr, doublereal * const delta_y,
-		      SquareMatrix& jac, int loglevel);
+		      SquareMatrix& jac);
 
     //! Compute the newton step, either by direct newton's or by solving a close problem that is represented
     //! by a Hessian (
@@ -332,11 +331,10 @@ namespace Cantera {
      *
      *   @param y         Current solution value of the old step
      *   @param step0     Proposed step change in the solution
-     *   @param loglevel  Log level
      *
      *  @return  Returns the damping factor determined by the bounds calculation
      */
-    doublereal boundStep(const doublereal * const  y, const doublereal * const step0,  const int loglevel);
+    doublereal boundStep(const doublereal * const  y, const doublereal * const step0);
 
     //! Set bounds constraints for all variables in the problem
     /*!
@@ -418,11 +416,10 @@ namespace Cantera {
      *
      *  @param y   Initial value of the solution vector
      *  @param step0  initial proposed step size
-     *  @param loglevel log level
      *
      *  @return returns the damping factor
      */
-    doublereal deltaBoundStep(const doublereal * const y, const doublereal * const step0, const int loglevel);
+    doublereal deltaBoundStep(const doublereal * const y, const doublereal * const step0);
 			       
     //!  Find a damping coefficient through a look-ahead mechanism
     /*!
@@ -445,7 +442,6 @@ namespace Cantera {
      *    @param step1     Value of the step change from y0 to y1
      *    @param s1        norm of the step change in going from y0 to y1
      *    @param jac       Jacobian
-     *    @param loglevel  Log level to be used
      *    @param writetitle  Write a title line
      *    @param num_backtracks Number of backtracks taken
      *
@@ -454,7 +450,7 @@ namespace Cantera {
     int dampStep(const doublereal time_curr, const double* y0, 
 		 const doublereal *ydot0, const double* step0, 
 		 double* const y1, double* const ydot1, double* step1,
-		 double& s1, SquareMatrix& jac, int& loglevel, bool writetitle,
+		 double& s1, SquareMatrix& jac, bool writetitle,
 		 int& num_backtracks);
 
     //! Find the solution to F(X) = 0 by damped Newton iteration. 
@@ -616,10 +612,12 @@ namespace Cantera {
      */
     void descentComparison(double time_curr ,double *ydot0, double *ydot1, const double *newtDir);
 
+  
     //!  Setup the parameters for the double dog leg
     /*!
      *  The calls to the doCauchySolve() and doNewtonSolve() routines are done at the main level. This routine comes
-     *  after those calls.
+     *  after those calls.  We calculate the point Nuu_ here, the distances of the dog-legs,
+     *  and the norms of the CP and Newton points in terms of the trust vectors.
      */
     void setupDoubleDogleg();
 
@@ -634,12 +632,16 @@ namespace Cantera {
 
     int calcTrustIntersection(double trustVal, double &lambda, double &alpha) const;
 
+    //! Initialize the size of the trust vector.
+    /*!
+     *  The algorithm we use is to set it equal to the length of the Distance to the Cauchy point.
+     */
     void initializeTrustRegion();
 
     int dampDogLeg(const doublereal time_curr, const double* y0, 
 				  const doublereal *ydot0,  std::vector<doublereal> & step0,
 				  double* const y1, double* const ydot1, double* step1,
-				  double& s1, SquareMatrix& jac, int& loglevel, bool writetitle,
+				  double& s1, SquareMatrix& jac, bool writetitle,
 				  int& num_backtracks);
 
     //! Decide whether the current step is acceptable and adjust the trust region size
@@ -684,7 +686,7 @@ namespace Cantera {
      */
     double expectedResidLeg(int leg, doublereal alpha) const;
 
-    void residualComparisonLeg(const double time_curr, const double *ydot0, const double *ydot1, const double *newtDir);
+    void residualComparisonLeg(const double time_curr, const double * const ydot0, double * const ydot1);
 
     //! Set the print level from the rootfinder
     /*!
