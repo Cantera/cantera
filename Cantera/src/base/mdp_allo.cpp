@@ -1658,7 +1658,7 @@ namespace mdp {
       } else {
 	int m = len % 7;
 	if (m != 0) {
-	  for (int i = 0; i < m; m++) {
+	  for (int i = 0; i < m; i++) {
 	    v[i] = value;
 	  }
 	  if (len < 7) return;
@@ -1751,7 +1751,7 @@ namespace mdp {
       } else {
 	int m = len % 7;
 	if (m != 0) {
-	  for (int i = 0; i < m; m++) {
+	  for (int i = 0; i < m; i++) {
 	    dstart[i] = value;
 	  }
 	  if (len < 7) return;
@@ -1795,7 +1795,7 @@ namespace mdp {
       } else {
 	int m = len % 7;
 	if (m != 0) {
-	  for (int i = 0; i < m; m++) {
+	  for (int i = 0; i < m; i++) {
 	    v[i] = value;
 	  }
 	  if (len < 7) return;
