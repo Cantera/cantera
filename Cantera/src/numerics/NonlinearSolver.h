@@ -637,7 +637,7 @@ namespace Cantera {
      *
      *  This routine doesn't need to be called for the solution of the nonlinear problem.
      */
-    void descentComparison(double time_curr ,double *ydot0, double *ydot1, const double *newtDir);
+    void descentComparison(double time_curr ,double *ydot0, double *ydot1);
 
   
     //!  Setup the parameters for the double dog leg
@@ -694,7 +694,6 @@ namespace Cantera {
      * @param step0      INPUT    Trial step
      * @param y1         OUTPUT   Solution values at the conditions which are evalulated for success
      * @param ydot1      OUTPUT   Time derivates of solution at the conditions which are evalulated for success
-     * @param loglevel   INPUT    Current loglevel
      * @param trustDeltaOld INPUT Value of the trust length at the old conditions
      *
      *
@@ -707,9 +706,9 @@ namespace Cantera {
      *       -2  Current value of the solution vector caused a residual error in its evaluation. 
      *           Step is a failure, and the step size must be reduced in order to proceed further.
      */
-    int decideStep(const doublereal time_curr, int leg, double alpha, const double* y0, const doublereal *ydot0, 
-		   std::vector<doublereal> & step0,
-		   double* const y1, double* const ydot1,  int& loglevel, double trustDeltaOld);
+    int decideStep(const doublereal time_curr, int leg, double alpha, const double* const y0, const doublereal * const ydot0, 
+		   const std::vector<doublereal> & step0,
+		   const double* const y1, const double* const ydot1, double trustDeltaOld);
 
     //! Calculated the expected residual along the double dogleg curve. 
     /*!
@@ -801,8 +800,8 @@ namespace Cantera {
     //! Vector containing the solution at the previous time step
     std::vector<doublereal> m_y_nm1;
 
-    //! New value of the solution time derivative
-    std::vector<doublereal> ydot_new;
+    //! Value of the solution time derivative at the new point that is to be considered
+    std::vector<doublereal> m_ydot_n_1;
 
     //! Vector of column scaling factors
     std::vector<doublereal> m_colScales;
