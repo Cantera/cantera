@@ -551,13 +551,57 @@ namespace VCSnonideal {
   }
   //====================================================================================================================
   //! Linear equation solution by Gauss-Jordan elimination for multiple rhs vectors
+  /*
+   * Solve a square matrix with multiple right hand sides
+   *
+   * \f[
+   *     C X + B = 0;
+   * \f]
+   *
+   * This routine uses Gauss elimination and is optimized for the solution
+   * of lots of rhs's. 
+   *
+   * @return Routine returns an integer representing success:
+   *     -   1 : Matrix is singluar
+   *     -   0 : solution is OK
+   *    The solution x[] is returned in the matrix b.
+   *
+   *  @param c  Matrix to be inverted. c is in fortran format, i.e., rows
+   *            are the inner loop. Row  numbers equal to idem.
+   *            c[i+j*idem] = c_i_j = Matrix to be inverted: i = row number
+   *                                                         j = column number
+   *  @param idem number of row dimensions in c
+   *  @param n  Number of rows and columns in c
+   *  @param b  Multiple RHS. Note, b is actually the negative of 
+   *            most formulations.  Row  numbers equal to idem.
+   *             b[i+j*idem] = b_i_j = vectors of rhs's:      i = row number
+   *                                                          j = column number
+   *            (each column is a new rhs)
+   *  @param m  number of rhs's
+   */
+  int vcsUtil_gaussj(double *c, int idem, int n, double *b, int m) {
 
-  static int vcsUtil_gaussj(double *c, int idem, int n, double *b, int m) {
     int i, j, k, l, ll;
     int irow = -1;
     int icol = -1;
     bool needInverse = false;
     double pivinv, dum;
+#ifdef DEBUG_HKM
+    static int s_numCalls = 0;
+    s_numCalls++;
+#endif
+#ifdef DEBUG_HKM
+    // mlequ_matrixDump(c, idem, n);
+#endif
+    /*
+     *  Preprocess the problem
+     */
+    vcsUtil_mlequ_preprocess(c, idem, n, b, m);
+
+#ifdef DEBUG_HKM
+    // mlequ_matrixDump(c, idem, n);
+#endif
+
     std::vector<int> indxc(n);
     std::vector<int> indxr(n);
     std::vector<int> ipiv(n, 0);
@@ -618,6 +662,17 @@ namespace VCSnonideal {
 	    SWAP(c[k + idem * indxr[l]], c[k + idem * indxr[l]], dum);
 	  }
 	}
+      }
+    }
+
+
+    /*
+     *  The negative in the last expression is due to the form of B upon
+     *  input
+     */
+    for (i = 0; i < n; ++i) {
+      for (j = 0; j < m; ++j) {
+	b[i + j * idem] = -b[i + j * idem];
       }
     }
     return 0;

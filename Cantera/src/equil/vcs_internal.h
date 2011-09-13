@@ -158,6 +158,8 @@ namespace VCSnonideal {
    */
   int  vcsUtil_mlequ(double *c, int idem, int n, double *b, int m);
 
+  int vcsUtil_gaussj(double *c, int idem, int n, double *b, int m);
+
   //! Swap values in vector of doubles
   /*!
    * Switches the value of x[i1] with x[i2]
