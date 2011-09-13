@@ -10,6 +10,8 @@
 
 #include <iostream>
 
+#ifdef HAS_SUNDIALS
+
 #ifdef SUNDIALS_VERSION_22
 #include <sundials_types.h>
 #include <sundials_math.h>
@@ -29,6 +31,8 @@
 #endif
 
 using namespace std;
+
+
 
 inline static N_Vector nv(void* x) {
   return reinterpret_cast<N_Vector>(x);
@@ -645,3 +649,4 @@ namespace Cantera {
   //====================================================================================================================
 
 }
+#endif
