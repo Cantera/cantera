@@ -3517,7 +3517,11 @@ namespace VCSnonideal {
      *     Use Gauss-Jordon block elimination to calculate
      *     the reaction matrix, m_stoichCoeffRxnMatrix[][].
      */
-    j = vcsUtil_mlequ(sm, m_numElemConstraints, ncTrial, m_stoichCoeffRxnMatrix[0], m_numRxnTot);
+
+    j = vcsUtil_gaussj(sm, m_numElemConstraints, ncTrial, m_stoichCoeffRxnMatrix[0], m_numRxnTot);
+    // j = vcsUtil_mlequ(sm, m_numElemConstraints, ncTrial, m_stoichCoeffRxnMatrix[0], m_numRxnTot);
+
+
     if (j == 1) {
       plogf("vcs_solve_TP ERROR: mlequ returned an error condition\n");
       return  VCS_FAILED_CONVERGENCE;
@@ -3566,7 +3570,9 @@ namespace VCSnonideal {
 	    }
 	  }
 	}  
-	j = vcsUtil_mlequ(sm, m_numElemConstraints, ncTrial, aw, 1);
+
+	j = vcsUtil_gaussj(sm, m_numElemConstraints, ncTrial, aw, 1);
+	// j = vcsUtil_mlequ(sm, m_numElemConstraints, ncTrial, aw, 1);
 	if (j == 1) {
 	  plogf("vcs_solve_TP ERROR: mlequ returned an error condition\n");
 	  return  VCS_FAILED_CONVERGENCE;
