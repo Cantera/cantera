@@ -233,10 +233,8 @@ namespace VCSnonideal {
     }
     return retn;
   }
-  /*****************************************************************************/
-  /*****************************************************************************/
-  /*****************************************************************************/
 
+  //====================================================================================================================
   // Swap values in a std vector string
   /*
    * Switches the value of vecStrings[i1] with vecStrings[i2]
@@ -250,7 +248,7 @@ namespace VCSnonideal {
     vstr[i2] = vstr[i1];
     vstr[i1] = tmp;
   }
-
+  //====================================================================================================================
   // Swap values in vector of doubles
   /*
    * Switches the value of x[i1] with x[i2]
@@ -264,7 +262,7 @@ namespace VCSnonideal {
     x[i1] = x[i2];
     x[i2] = t;
   }
-
+  //====================================================================================================================
   // Swap values in an integer array
   /*
    * Switches the value of x[i1] with x[i2]
@@ -279,6 +277,148 @@ namespace VCSnonideal {
     x[i2] = t;
   }
 
+  //====================================================================================================================
+#ifdef DEBUG_HKM
+  static void mlequ_matrixDump(double *c, int idem, int n) {
+    int i, j;
+    printf("vcsUtil_mlequ()     MATRIX DUMP --------------------------------------------------\n");
+    printf("      ");
+    for (j = 0; j < n; ++j) {
+      printf("     % 3d   ", j);
+    } 
+    printf("\n");
+    for (j = 0; j < n; ++j) {
+      printf("-----------"); 
+    }
+    printf("\n");
+    for (i = 0; i < n; ++i) {
+      printf(" %3d | ", i);
+      for (j = 0; j < n; ++j) {
+	printf("% 10.3e ", c[i + j * idem]);
+      }
+      printf("\n");
+    }
+    for (j = 0; j < n; ++j) {
+      printf("-----------");
+    }
+    printf("\n");
+    printf("vcsUtil_mlequ() END MATRIX DUMP --------------------------------------------------\n");
+
+  }
+#endif
+  //====================================================================================================================
+  //!  Swap rows in the c matrix and the b rhs matrix
+  /*!
+   *  @param c          Matrix of size nxn, row first
+   *  @param idem       C storage dimension for the number of rows
+   *  @param n          Size of the matrix
+   *  @param b          RHS of the Ax=b problem to solve
+   *  @param m          Number of rhs to solve
+   *  @param irowa      first row to swap
+   *  @param irowb      second row to swap
+   */
+  static void vcsUtil_swapRows(double *c, int idem, int n, double *b, int m, int irowa, int irowb) {
+    double t1;
+    int j;
+    if (irowa == irowb) return;
+    for (j = 0; j < n; j++) {
+      SWAP(c[irowa + j * idem], c[irowb + j * idem], t1);
+    }
+    for (j = 0; j < m; j++) {
+      SWAP(b[irowa + j * idem], b[irowb + j * idem], t1);
+    }
+  }
+ //====================================================================================================================
+  //!  Swap rows in the c matrix and the b rhs matrix to lower the condition number of the matrix
+  /*!
+   *  @param c          Matrix of size nxn, row first
+   *  @param idem       C storage dimension for the number of rows
+   *  @param n          Size of the matrix
+   *  @param b          RHS of the Ax=b problem to solve
+   *  @param m          Number of rhs to solve
+   */
+  static void vcsUtil_mlequ_preprocess(double *c, int idem, int n, double *b, int m) {
+    int j = 0; 
+    std::vector<int> irowUsed(n, 0);
+   
+    for (j = 0; j < n; j++) {
+      int numNonzero = 0;
+      int inonzero = -1;
+      for (int i = 0; i < n; i++) {
+	if (c[i + j * idem] != 0.0) {
+	  numNonzero++;
+	  inonzero = i;
+	}
+      }
+      if (numNonzero == 1 ) {
+	if (inonzero != j) {
+	  if (irowUsed[inonzero] == 0) {
+	    vcsUtil_swapRows(c, idem, n, b, m, j, inonzero);
+#ifdef DEBUG_HKM
+	    // mlequ_matrixDump(c, idem, n);
+#endif
+	  }
+	}
+	irowUsed[j] = 1;
+      }
+    }
+
+    for (j = 0; j < n; j++) {
+      if (c[j + j * idem] == 0.0) {
+	int numNonzero = 0;
+	int inonzero = -1;
+	for (int i = 0; i < n; i++) {
+	  if (! irowUsed[i]) {
+	    if (c[i + j * idem] != 0.0) {
+	      if ((c[i + i * idem] == 0.0) || (c[j + i * idem] != 0.0)) {
+		numNonzero++;
+		inonzero = i;
+	      }
+	    }
+	  }
+	}
+	if (numNonzero == 1) {
+	  if (inonzero != j) {
+	    if (irowUsed[inonzero] == 0) {
+	      vcsUtil_swapRows(c, idem, n, b, m, j, inonzero);
+#ifdef DEBUG_HKM
+	      // mlequ_matrixDump(c, idem, n);
+#endif
+	    }
+	  }
+	  irowUsed[j] = 1;
+	}
+      }
+    }
+
+    for (j = 0; j < n; j++) {
+      if (c[j + j * idem] == 0.0) {
+	int numNonzero = 0;
+	int inonzero = -1;
+	for (int i = 0; i < n; i++) {
+	  if (! irowUsed[i]) {
+	    if (c[i + j * idem] != 0.0) {
+	      if ((c[i + i * idem] == 0.0) || (c[j + i * idem] != 0.0)) {
+		numNonzero++;
+		inonzero = i;
+	      }
+	    }
+	  }
+	}
+	if (inonzero != -1) {
+	  if (inonzero != j) {
+	    if (irowUsed[inonzero] == 0) {
+	      vcsUtil_swapRows(c, idem, n, b, m, j, inonzero);
+#ifdef DEBUG_HKM
+	      // mlequ_matrixDump(c, idem, n);
+#endif
+	    }
+	  }
+	}
+      }
+    }
+  }
+  //====================================================================================================================
   // Invert an n x n matrix and solve m rhs's
   /*
    * Solve a square matrix with multiple right hand sides
@@ -310,13 +450,58 @@ namespace VCSnonideal {
    *  @param m  number of rhs's
    */
   int vcsUtil_mlequ(double *c, int idem, int n, double *b, int m) {
+#ifdef DEBUG_HKM
+    // mlequ_matrixDump(c, idem, n);
+#endif
+    vcsUtil_mlequ_preprocess(c, idem, n, b, m);
+#ifdef DEBUG_HKM
+    // mlequ_matrixDump(c, idem, n);
+#endif
+    int dmatrix = 0;
+#ifdef DEBUG_HKM
+    static int s_numCalls = 0;
+    s_numCalls++;
+#endif
+
     int i, j, k, l;
     double R;
     if (n > idem || n <= 0) {
       plogf("vcsUtil_mlequ ERROR: badly dimensioned matrix: %d %d\n", n, idem);
       return 1;
     }
-   
+
+#ifdef DEBUG_HKM
+    for (i = 0; i < n; ++i) {
+      bool notFound = true;
+      for (j = 0; j < n; ++j) {
+	if (c[i + j * idem] != 0.0) {
+	  notFound = false;
+	}
+      }
+      if (notFound) {
+	printf(" vcsUtil_mlequ ERROR(): row %d is identically zero\n", i);
+      }
+    }
+    for (j = 0; j < n; ++j) {
+      bool notFound = true;
+      for (i = 0; i < n; ++i) {
+	if (c[i + j * idem] != 0.0) {
+	  notFound = false;
+	}
+      }
+      if (notFound) {
+	printf(" vcsUtil_mlequ ERROR(): column %d is identically zero\n", j);
+      }
+    }
+    //  if (s_numCalls >= 32) {
+    // printf("vcsUtil_mlequ: we are here\n");
+    //  dmatrix = 1;
+    // }
+
+    if (dmatrix) {
+      mlequ_matrixDump(c, idem, n);
+    }
+#endif  
     /*
      * Loop over the rows
      *    -> At the end of each loop, the only nonzero entry in the column
@@ -332,6 +517,12 @@ namespace VCSnonideal {
 	  if (c[k + i * idem] != 0.0) goto FOUND_PIVOT;
 	}
 	plogf("vcsUtil_mlequ ERROR: Encountered a zero column: %d\n", i);
+#ifdef DEBUG_HKM
+	plogf("                     call # %d\n", s_numCalls);
+#endif
+#ifdef DEBUG_HKM
+	mlequ_matrixDump(c, idem, n);
+#endif
 	return 1;
       FOUND_PIVOT: ;
 	for (j = 0; j < n; ++j) c[i + j * idem] += c[k + j * idem];
@@ -358,6 +549,80 @@ namespace VCSnonideal {
     }
     return 0;
   }
+  //====================================================================================================================
+  //! Linear equation solution by Gauss-Jordan elimination for multiple rhs vectors
+
+  static int vcsUtil_gaussj(double *c, int idem, int n, double *b, int m) {
+    int i, j, k, l, ll;
+    int irow = -1;
+    int icol = -1;
+    bool needInverse = false;
+    double pivinv, dum;
+    std::vector<int> indxc(n);
+    std::vector<int> indxr(n);
+    std::vector<int> ipiv(n, 0);
+    doublereal big = 0.0;
+    /*
+     *  This is the main loop over the columns to be reduced.
+     */
+    for (i = 0; i < n; i++) {
+      big = 0.0;
+      for (j = 0; j < n; j++) {
+	if (ipiv[j] != 1) {
+	  for (k = 0; k < n; k++) {
+	    if (ipiv[k] == 0) {
+	      if (fabs(c[j + idem * k]) >= big) {
+		big = fabs(c[j + idem * k]);
+		irow = j;
+		icol = k;
+	      }
+	    }
+	  }
+	}
+      }
+      ++(ipiv[icol]);
+      if (irow != icol) {
+	vcsUtil_swapRows(c, idem, n, b, m, irow, icol);
+      }
+      indxr[i] = irow;
+      indxc[i] = icol;
+      if (c[icol + idem * icol] == 0.0) {
+      	plogf("vcsUtil_gaussj ERROR: Encountered a zero column: %d\n", i);
+	return 1;
+      }
+      pivinv = 1.0 / c[icol + idem * icol];
+      c[icol + idem * icol] = 1.0;
+      for (l = 0; l < n; l++) {
+	c[icol + idem * l] *= pivinv;
+      }
+      for (l = 0; l < m; l++) {
+	b[icol + idem * l] *= pivinv;
+      }      
+      for (ll = 0; ll < n; ll++) {
+	if (ll != icol) {
+	  dum = c[ll + idem * icol];
+	  c[ll + idem * icol] = 0;
+	  for (l = 0; l < n; l++) {
+	    c[ll + idem * l] -=  c[icol + idem * l] * dum;
+	  }
+	  for (l = 0; l < m; l++) {
+	    b[ll + idem * l] -=  b[icol + idem * l] * dum;
+	  }
+	}
+      }
+    }
+    if (needInverse) {
+      for (l = n-1; l >= 0; l--) {
+	if (indxr[l] != indxc[l]) {
+	  for (k = 0; k < n; k++) {
+	    SWAP(c[k + idem * indxr[l]], c[k + idem * indxr[l]], dum);
+	  }
+	}
+      }
+    }
+    return 0;
+  }
+  //====================================================================================================================
 
   //  Returns the value of the gas constant in the units specified by a parameter
   /*
@@ -550,3 +815,5 @@ namespace VCSnonideal {
   }
 
 }
+
+

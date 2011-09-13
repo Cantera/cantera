@@ -3595,24 +3595,24 @@ namespace VCSnonideal {
     if (m_debug_print_lvl >= 2) {
       plogf("   ---                Components:");
       for (j = 0; j < ncTrial; j++) {
-	plogf("     %3d  ", j);
+	plogf("        %3d", j);
       }
       plogf("\n   ---          Components Moles:");
       for (j = 0; j < ncTrial; j++) {
-	plogf("%10.3g", m_molNumSpecies_old[j]);
+	plogf(" % -10.3E", m_molNumSpecies_old[j]);
       }
-      plogf("\n   ---   NonComponent|   Moles  |       ");
+      plogf("\n   ---   NonComponent|   Moles  |");
       for (j = 0; j < ncTrial; j++) {
-	plogf("%-10.10s", m_speciesName[j].c_str());
+	plogf(" %10.10s", m_speciesName[j].c_str());
       }
       //plogf("|    m_scSize");
       plogf("\n");
       for (i = 0; i < m_numRxnTot; i++) {
 	plogf("   --- %3d ", m_indexRxnToSpecies[i]);
 	plogf("%-10.10s", m_speciesName[m_indexRxnToSpecies[i]].c_str());
-	plogf("|%10.3g|", m_molNumSpecies_old[m_indexRxnToSpecies[i]]);
+	plogf("|% -10.3E|", m_molNumSpecies_old[m_indexRxnToSpecies[i]]);
 	for (j = 0; j < ncTrial; j++) {
-	  plogf("     %6.2f", m_stoichCoeffRxnMatrix[i][j]);
+	  plogf("    %+7.3f", m_stoichCoeffRxnMatrix[i][j]);
 	}
 	//plogf(" |  %6.2f", m_scSize[i]);
 	plogf("\n");
