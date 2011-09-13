@@ -21,6 +21,7 @@
 #include "DAE_Solver.h"
 #include "ctexceptions.h"
 
+#ifdef HAS_SUNDIALS
 
 #ifdef SUNDIALS_VERSION_22
 #include <nvector_serial.h>
@@ -352,5 +353,6 @@ namespace Cantera {
 
 }
 
+#endif
 #endif
 
