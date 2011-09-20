@@ -550,7 +550,7 @@ namespace VCSnonideal {
     return 0;
   }
   //====================================================================================================================
-  //! Linear equation solution by Gauss-Jordan elimination for multiple rhs vectors
+  // Linear equation solution by Gauss-Jordan elimination for multiple rhs vectors
   /*
    * Solve a square matrix with multiple right hand sides
    *
@@ -558,7 +558,7 @@ namespace VCSnonideal {
    *     C X + B = 0;
    * \f]
    *
-   * This routine uses Gauss elimination and is optimized for the solution
+   * This routine uses Gauss-Jordan elimination with full pivoting and is optimized for the solution
    * of lots of rhs's. 
    *
    * @return Routine returns an integer representing success:
