@@ -3623,9 +3623,59 @@ namespace VCSnonideal {
 	//plogf(" |  %6.2f", m_scSize[i]);
 	plogf("\n");
       }
+    
+
+      /*
+       *  Manual check on the satisfaction of the reaction matrix's ability
+       *  to conserve elements
+       */
+      double sum;
+      double sumMax = -1.0;
+      int iMax = -1;
+      int jMax = -1;
+      int n;
+      for (i = 0; i < m_numRxnTot; ++i) {
+	k = m_indexRxnToSpecies[i];
+	for (j = 0; j < ncTrial; ++j) {
+	  if (j == jlose) {
+	    sum = m_formulaMatrix[juse][k];
+	    for (n = 0; n < ncTrial; n++) {
+	      double numElements = m_formulaMatrix[juse][n];
+	      double coeff =  m_stoichCoeffRxnMatrix[i][n];
+	      sum += coeff * numElements;
+	    }
+	  } else {
+	    sum = m_formulaMatrix[j][k];
+	    for (n = 0; n < ncTrial; n++) {
+	      double numElements = m_formulaMatrix[j][n];
+	      double coeff =  m_stoichCoeffRxnMatrix[i][n];
+	      sum += coeff * numElements;
+	    }
+	  }
+	  if (fabs(sum) > sumMax) {
+	    sumMax = fabs(sum);
+	    iMax = i;
+	    jMax = j;
+	    if (j == jlose) {
+	      jMax = juse;
+	    }
+	  }
+	  if (fabs(sum) > 1.0E-6) {
+	    printf("we have a prob\n");
+	    exit(-1);
+	  }
+	}
+      }
+      plogf("   ---               largest error in Stoich coeff = %g at rxn = %d ", sumMax, iMax);
+      plogf("%-10.10s", m_speciesName[m_indexRxnToSpecies[iMax]].c_str());
+      plogf(" element = %d ", jMax);
+      plogf("%-5.5s", m_elementName[jMax].c_str());
+      plogf("\n");
       plogf("   "); for(i=0; i<77; i++) plogf("-"); plogf("\n");
     }
 #endif
+
+
     /* **************************************************** */
     /* **** EVALUATE DELTA N VALUES *********************** */
     /* **************************************************** */
