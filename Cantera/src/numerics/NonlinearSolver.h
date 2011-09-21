@@ -288,6 +288,7 @@ namespace Cantera {
     void setDeltaBoundsMagnitudes(const doublereal * const deltaBoundsMagnitudes);
   
   protected:
+
     //! Calculate the trust region vectors
     /*!
      *  The trust region is made up of the trust region vector calculation and the trustDelta_ value
@@ -298,7 +299,6 @@ namespace Cantera {
      *
      *        || delta_x   dot  1/trustDeltaX_ ||   <= trustDelta_
      *
-     * @param y   current value of the solution
      */
     void calcTrustVector();
 
@@ -636,6 +636,10 @@ namespace Cantera {
      *  The actual residual decline in the newton direction determined by numerical differencing
      *
      *  This routine doesn't need to be called for the solution of the nonlinear problem.
+     *
+     *  @param time_curr   Current time
+     *  @param ydot0       INPUT    Current value of the derivative of the solution vector
+     *  @param ydot1       INPUT  Time derivates of solution at the conditions which are evalulated for success
      */
     void descentComparison(double time_curr ,double *ydot0, double *ydot1);
 
@@ -660,7 +664,7 @@ namespace Cantera {
     //! Given a trust distance, this routine calculates the intersection of the this distance with the
     //! double dogleg curve
     /*!
-     *   @param      trustDelta  (INPUT)     Value of the trust distance
+     *   @param      trustVal    (INPUT)     Value of the trust distance
      *   @param      lambda      (OUTPUT)    Returns the internal coordinate of the double dogleg
      *   @param      alpha       (OUTPUT)    Returns the relative distance along the appropriate leg
      *   @return     leg         (OUTPUT)    Returns the leg ID (0, 1, or 2)
@@ -673,11 +677,34 @@ namespace Cantera {
      */
     void initializeTrustRegion();
 
-    int dampDogLeg(const doublereal time_curr, const double* y0, 
-				  const doublereal *ydot0,  std::vector<doublereal> & step0,
-				  double* const y1, double* const ydot1, double* step1,
-				  double& s1, SquareMatrix& jac, bool writetitle,
-				  int& num_backtracks);
+
+    //! Damp using the dog leg approach
+    /*!
+     *  
+     * @param time_curr  INPUT     Current value of the time
+     * @param y_n_curr   INPUT    Current value of the solution vector
+     * @param ydot_n_curr INPUT   Current value of the derivative of the solution vector
+     * @param step_1     INPUT    First trial step for the first iteration
+     * @param y_n_1   INPUT       First trial value of the solution vector
+     * @param ydot_n_1 INPUT      First trial value of the derivative of the solution vector
+     * @param s1         OUTPUT   Norm of the vector step_1
+     * @param jac        INPUT    jacobian
+     * @param num_backtracks OUTPUT  number of backtracks taken in the current damping step
+     *
+     *  @return  1 Successful step was taken. The predicted residual norm is less than one
+     *           2 Successful step: Next step's norm is less than 0.8
+     *           3 Success:  The final residual is less than 1.0
+     *                        A predicted deltaSoln1 is not produced however. s1 is estimated.
+     *           4 Success:  The final residual is less than the residual
+     *                       from the previous step.
+     *                        A predicted deltaSoln1 is not produced however. s1 is estimated.
+     *           0 Uncertain Success: s1 is about the same as s0
+     *          -2 Unsuccessful step.
+     */
+    int dampDogLeg(const doublereal time_curr, const doublereal* y_n_curr, 
+		   const doublereal *ydot_n_curr,  std::vector<doublereal> & step_1,
+		   doublereal* const y_n_1, doublereal* const ydot_n_1, 
+		   doublereal& s1, SquareMatrix& jac, int& num_backtracks);
 
     //! Decide whether the current step is acceptable and adjust the trust region size
     /*!
@@ -718,18 +745,21 @@ namespace Cantera {
      *  @return Returns the expected value of the residual at that point according to the quadratic model.
      *          The residual at the newton point will always be zero.
      */
-    double expectedResidLeg(int leg, doublereal alpha) const;
+    doublereal expectedResidLeg(int leg, doublereal alpha) const;
 
     //!  Here we print out the residual at various points along the double dogleg, comparing against the quadratic model
     //!  in a table format
-    /*
+    /*!
      *  @param time_curr     INPUT    current time
      *  @param ydot0         INPUT    Current value of the derivative of the solution vector for non-time dependent
      *                                determinations
+     *  @param legBest       OUTPUT   leg of the dogleg that gives the lowest residual
+     *  @param alphaBest     OUTPUT   distance along dogleg for best result.
      */
-    void residualComparisonLeg(const double time_curr, const double * const ydot0) const;
+    void residualComparisonLeg(const doublereal time_curr, const doublereal * const ydot0, int & legBest, 
+			       doublereal & alphaBest) const;
 
-    //! Set the print level from the rootfinder
+    //! Set the print level from the nonlinear solver
     /*!
      * 
      *   0 -> absolutely nothing is printed for a single time step.
@@ -845,9 +875,10 @@ namespace Cantera {
     //! Norm of the residual before damping
     doublereal m_normResidFRaw;
 
-    //! Norm of the solution update created by the iteration in its raw, undamped form.
+    //! Norm of the solution update created by the iteration in its raw, undamped form, using the solution norm
     doublereal m_normDeltaSoln_Newton;
 
+    //! Norm of the distance to the cauchy point using the solution norm
     doublereal m_normDeltaSoln_CP;
 
     //! Norm of the residual for a trial calculation which may or may not be used
@@ -1007,16 +1038,26 @@ namespace Cantera {
     //! Vector of trust region values.
     std::vector<doublereal> deltaX_trust_;
 
-    //! Current value of trust radius. This is used with trustDeltaX_ to 
+    //! Current norm of the vector deltaX_trust_ in terms of the solution norm
+    mutable  doublereal norm_deltaX_trust_;
+
+    //! Current value of trust radius. This is used with deltaX_trust_ to 
     //! calculate the max step size.
     doublereal trustDelta_;
 
     //! Relative distance down the Newton step that the second dogleg starts
     doublereal Nuu_;
 
+    //! Distance of the zeroeth leg of the dogleg in terms of the solution norm
     doublereal dist_R0_;
+
+    //! Distance of the first leg of the dogleg in terms of the solution norm
     doublereal dist_R1_;
+
+    //! Distance of the second leg of the dogleg in terms of the solution norm
     doublereal dist_R2_;
+
+    //! Distance of the sum of all legs of the doglegs in terms of the solution norm
     doublereal dist_Total_;
 
     //! Dot product of the Jd_ variable defined above with itself.
@@ -1027,7 +1068,6 @@ namespace Cantera {
 
     //! Norm of the Cauchy Step direction wrt trust region
     doublereal normTrust_CP_;
-
 
     //! General toggle for turning on dog leg damping.
     int doDogLeg_;
