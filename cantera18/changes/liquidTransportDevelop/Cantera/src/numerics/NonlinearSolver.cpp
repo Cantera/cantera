@@ -147,6 +147,7 @@ namespace Cantera {
     lambdaStar_(0.0),
     Jd_(0),
     deltaX_trust_(0),
+    norm_deltaX_trust_(0.0),
     trustDelta_(1.0),
     Nuu_(0.0),
     dist_R0_(0.0),
@@ -251,6 +252,7 @@ namespace Cantera {
     lambdaStar_(0.0),
     Jd_(0),
     deltaX_trust_(0),
+    norm_deltaX_trust_(0.0),
     trustDelta_(1.0),
     Nuu_(0.0),
     dist_R0_(0.0),
@@ -331,6 +333,7 @@ namespace Cantera {
     lambdaStar_                = right.lambdaStar_;
     Jd_                        = right.Jd_;
     deltaX_trust_              = right.deltaX_trust_;	
+    norm_deltaX_trust_         = right.norm_deltaX_trust_;
     trustDelta_                = right.trustDelta_;
 
     Nuu_                       = right.Nuu_;
@@ -439,8 +442,7 @@ namespace Cantera {
 
 
 	const int num_entries = printLargest;
-	printf("\t\t   ");
-        print_line("-", 90);
+	printf("\t\t   "); print_line("-", 90);
         printf("\t\t   solnErrorNorm(): ");
         if (title) {
           printf("%s", title);
@@ -452,12 +454,10 @@ namespace Cantera {
 	doublereal dmax1, normContrib;
 	int j; 
 	int *imax = mdp::mdp_alloc_int_1(num_entries, -1);
-        printf("\t\t   Printout of Largest Contributors:\n");
-        printf("\t\t                                                      (damp = %g)\n", dampFactor);
-        printf("\t\t      I   weightdeltaY/sqtN|     deltaY    "
+        printf("\t\t        Printout of Largest Contributors:                     (damp = %g)\n", dampFactor);
+        printf("\t\t        I   weightdeltaY/sqtN|     deltaY    "
 	       "ysolnOld     ysolnNew   Soln_Weights\n");
-        printf("\t\t   ");
-        print_line("-", 90);
+        printf("\t\t     "); print_line("-", 88);
 
 	for (int jnum = 0; jnum < num_entries; jnum++) {
 	  dmax1 = -1.0;
@@ -479,13 +479,12 @@ namespace Cantera {
 	  if (i >= 0) {
 	    error = delta_y[i] / m_ewt[i];
 	    normContrib = sqrt(error * error);
-	    printf("\t\t   %4d %12.4e       | %12.4e %12.4e %12.4e %12.4e\n", i, normContrib/sqrt((double)neq_), 
+	    printf("\t\t     %4d %12.4e       | %12.4e %12.4e %12.4e %12.4e\n", i, normContrib/sqrt((double)neq_), 
 		   delta_y[i], m_y_n_curr[i], m_y_n_curr[i] + dampFactor * delta_y[i], m_ewt[i]);
 
 	  }	  
 	}
-	printf("\t\t   "); 
-	print_line("-", 90);
+	printf("\t\t   "); print_line("-", 90);
 	mdp::mdp_safe_free((void **) &imax);
       }
     }
@@ -525,22 +524,30 @@ namespace Cantera {
       int j;
       int *imax = mdp::mdp_alloc_int_1(num_entries, -1);
 
-
-      printf("\t  ");
-      print_line("-", 90);
-      printf("\t\t  residErrorNorm():");
-      if (title) {
-        printf(" %s ", title);
-      } else {
-        printf("  residual L2 norm ");
+      if (m_print_flag >= 4 && m_print_flag <= 5) {
+	printf("\t  ");
+	print_line("-", 90);
+	printf("\t\t  residErrorNorm():");
+	if (title) {
+	  printf(" %s ", title);
+	} else {
+	  printf("  residual L2 norm ");
+	}
+	printf("= %12.4E\n", sum_norm);
       }
-      printf("= %12.4E\n", sum_norm);
-      
       if (m_print_flag >= 6) {
-        printf("\t\t   Printout of Largest Contributors to norm:\n");
-        printf("\t\t      I       |Resid/ResWt|     UnsclRes          ResWt   |  y_curr\n");
-        printf("\t\t   ");
-        print_line("-", 80);
+	printf("\t\t   "); print_line("-", 90);
+        printf("\t\t   residErrorNorm(): ");
+	if (title) {
+	  printf(" %s ", title);
+	} else {
+	  printf("  residual L2 norm ");
+	}
+	printf("= %12.4E\n", sum_norm);
+        printf("\t\t        Printout of Largest Contributors to norm:\n");
+        printf("\t\t        I       |Resid/ResWt|     UnsclRes          ResWt    |  y_curr\n");
+        printf("\t\t     ");
+        print_line("-", 88);
 	for (int jnum = 0; jnum < num_entries; jnum++) {
 	  dmax1 = -1.0;
 	  for (i = 0; i < neq_; i++) {
@@ -561,12 +568,12 @@ namespace Cantera {
 	  if (i >= 0) {
 	    error = resid[i] / m_residWts[i];
 	    normContrib = sqrt(error * error);
-	    printf("\t\t   %4d     %12.4e     %12.4e     %12.4e | %12.4e\n", i,  normContrib, resid[i], m_residWts[i], y[i]);
+	    printf("\t\t     %4d     %12.4e     %12.4e     %12.4e | %12.4e\n", i,  normContrib, resid[i], m_residWts[i], y[i]);
 	  }	  
 	}
       
 	printf("\t\t   "); 
-	print_line("-", 80);
+	print_line("-", 90);
       }
       mdp::mdp_safe_free((void **) &imax);
     }
@@ -916,7 +923,7 @@ namespace Cantera {
     if (cond < 1.0E7) {
       doNewton = true;
       if (m_print_flag >= 3) {
-	printf("\t\t\tdoAffineNewtonSolve: Condition number = %g during regular solve\n", cond);
+	printf("\t\t   doAffineNewtonSolve: Condition number = %g during regular solve\n", cond);
       }
 
       /*
@@ -925,7 +932,7 @@ namespace Cantera {
       int info = jac.solve(DATA_PTR(delta_y));
       if (info) {
 	if (m_print_flag >= 2) {
-	  printf("\t\t\tNonlinearSolver::doAffineSolve QRSolve returned INFO = %d. Switching to Hessian solve\n", info);
+	  printf("\t\t   NonlinearSolver::doAffineSolve() ERROR: QRSolve returned INFO = %d. Switching to Hessian solve\n", info);
 	}
 	doHessian = true;
 	newtonGood = false;
@@ -943,7 +950,7 @@ namespace Cantera {
       doHessian = true;
       newtonGood = false;
       if (m_print_flag >= 3) {
-	printf("\t\t\tdoAffineNewtonSolve: Condition number too large, %g. Doing a Hessian solve \n", cond);
+	printf("\t\t   doAffineNewtonSolve() WARNING: Condition number too large, %g. Doing a Hessian solve \n", cond);
       }
     }
 
@@ -1036,7 +1043,7 @@ namespace Cantera {
       ct_dpotrf(ctlapack::UpperTriangular, neq_, &(*(Hessian_.begin())), neq_, info);
       if (info) {
 	if (m_print_flag >= 2) {
-	  printf("\t\t\tNonlinearSolver::doAffineSolve DPOTRF returned INFO = %d\n", info);
+	  printf("\t\t   NonlinearSolver::doAffineSolve() ERROR: DPOTRF returned INFO = %d\n", info);
 	}
 	return info;
       }
@@ -1077,7 +1084,7 @@ namespace Cantera {
       ct_dpotrs(ctlapack::UpperTriangular, neq_, 1,&(*(Hessian_.begin())), neq_, delta_y, neq_, info);
       if (info) {
 	if (m_print_flag >= 2) {
-	  printf("\t\t\tNonlinearSolver::doAffineSolve DPOTRS returned INFO = %d\n", info);
+	  printf("\t\t   NonlinearSolver::doAffineSolve() ERROR: DPOTRS returned INFO = %d\n", info);
 	}
 	return info;
       }
@@ -1092,13 +1099,13 @@ namespace Cantera {
 
 
       if (s_print_DogLeg || (doDogLeg_ && m_print_flag > 3)) {
-	printf("\t\t\t Comparison between Hessian deltaX and newton deltaX\n");
-	printf("\t\t\t   i    Hessian+Junk  Newton \n");
-	printf("\t\t\t--------------------------------------------------------\n");
+	printf("\t\t        Comparison between Hessian deltaX and newton deltaX\n");
+	printf("\t\t          I    Hessian+Junk  Newton \n");
+	printf("\t\t      --------------------------------------------------------\n");
 	for (int i =0; i < neq_; i++) {
-	  printf("\t\t\t%3d  %12.5g %12.5g\n", i, delta_y[i], delyNewton[i]);
+	  printf("\t\t        %3d  %12.5g %12.5g\n", i, delta_y[i], delyNewton[i]);
 	}
-	printf("\t\t\t--------------------------------------------------------\n");
+	printf("\t\t      --------------------------------------------------------\n");
 
       }
 
@@ -1264,7 +1271,7 @@ namespace Cantera {
 	normSoln = solnErrorNorm(DATA_PTR(deltaX_CP_), "SteepestDescentDir", 0);
       }
       if (s_print_DogLeg || (doDogLeg_ && m_print_flag > 3)) {
-	printf("\t\t\tdoCauchyPointSolve: Steepest descent to Cauchy point: \n");
+	printf("\t\t   doCauchyPointSolve: Steepest descent to Cauchy point: \n");
 	printf("\t\t\t      R0     = %g \n", m_normResid0);
 	printf("\t\t\t      Rpred  = %g\n",  residCauchy);
 	printf("\t\t\t      Rjd    = %g\n",  RJd_norm_);
@@ -1330,10 +1337,10 @@ namespace Cantera {
      *   The steepest direction is always largest even when there are variable solution weights
      */
     if (s_print_DogLeg || (doDogLeg_ && m_print_flag > 3)) {
-      printf("descentComparison: initial rate of decrease in cauchy dir (expected) = %g\n", funcDecreaseSDExp);
-      printf("descentComparison: initial rate of decrease in cauchy dir            = %g\n", funcDecrease2);
-      printf("descentComparison: initial rate of decrease in newton dir (expected) = %g\n", funcDecreaseNewtExp2);
-      printf("descentComparison: initial rate of decrease in newton dir            = %g\n", funcDecreaseNewt2);
+      printf("\t\t   descentComparison: initial rate of decrease in cauchy dir (expected) = %g\n", funcDecreaseSDExp);
+      printf("\t\t   descentComparison: initial rate of decrease in cauchy dir            = %g\n", funcDecrease2);
+      printf("\t\t   descentComparison: initial rate of decrease in newton dir (expected) = %g\n", funcDecreaseNewtExp2);
+      printf("\t\t   descentComparison: initial rate of decrease in newton dir            = %g\n", funcDecreaseNewt2);
     }
   }
 
@@ -1429,7 +1436,7 @@ namespace Cantera {
    *  @return Returns the expected value of the residual at that point according to the quadratic model.
    *          The residual at the newton point will always be zero.
    */
-  double NonlinearSolver::expectedResidLeg(int leg, double alpha) const {
+  doublereal NonlinearSolver::expectedResidLeg(int leg, doublereal alpha) const {
 
     double resD2, res2, resNorm;
     double normResid02 = m_normResid0 * m_normResid0 * neq_;
@@ -1489,15 +1496,21 @@ namespace Cantera {
    *  @param time_curr     INPUT    current time
    *  @param ydot0         INPUT    Current value of the derivative of the solution vector for non-time dependent
    *                                determinations
-   *  @param ydot1         INPUT    Time derivate of solution at the conditions which are evalulated 
+   *  @param legBest       OUTPUT   leg of the dogleg that gives the lowest residual
+   *  @param alphaBest     OUTPUT   distance along dogleg for best result.
    */
-  void NonlinearSolver::residualComparisonLeg(const double time_curr, const double * const ydot0) const {
+  void NonlinearSolver::residualComparisonLeg(const doublereal time_curr, const doublereal * const ydot0, int &legBest,
+					      doublereal &alphaBest) const {
     double *y1 = DATA_PTR(m_wksp);
     double *ydot1 = DATA_PTR(m_wksp_2);
     double sLen;
+    double alpha;
+
+    double residSteepBest = 1.0E300;
+    double residSteepLinBest = 0.0;
     if (s_print_DogLeg || (doDogLeg_ && m_print_flag > 6)) {
-      printf("     residualComparisonLeg() \n");
-      printf("      Point               StepLen     Residual_Actual  Residual_Linear  RelativeMatch\n");
+      printf("\t\t   residualComparisonLeg() \n");
+      printf("\t\t          Point               StepLen     Residual_Actual  Residual_Linear  RelativeMatch\n");
     }
     // First compare at 1/4 along SD curve
     std::vector<double> alphaT;
@@ -1509,7 +1522,7 @@ namespace Cantera {
     alphaT.push_back(0.75);
     alphaT.push_back(1.0);
     for (int iteration = 0; iteration < (int) alphaT.size(); iteration++) {
-      double alpha = alphaT[iteration];
+      alpha = alphaT[iteration];
       for (int i = 0; i < neq_; i++) {
 	y1[i] = m_y_n_curr[i] + alpha * deltaX_CP_[i];
       }
@@ -1530,10 +1543,16 @@ namespace Cantera {
 
       double residSteep = residErrorNorm(DATA_PTR(m_resid));
       double residSteepLin = expectedResidLeg(0, alpha);
+      if (residSteep < residSteepBest) {
+	legBest = 0;
+        alphaBest = alpha;
+	residSteepBest = residSteep;
+	residSteepLinBest = residSteepLin;
+      }
 
       double relFit = (residSteep - residSteepLin) / (fabs(residSteepLin) + 1.0E-10);
       if (s_print_DogLeg || (doDogLeg_ && m_print_flag > 6)) {
-	printf("  (%2d - % 10.3g)  % 15.8E  % 15.8E % 15.8E  % 15.8E\n", 0, alpha, sLen, residSteep, residSteepLin , relFit);
+	printf("\t\t      (%2d - % 10.3g)  % 15.8E  % 15.8E % 15.8E  % 15.8E\n", 0, alpha, sLen, residSteep, residSteepLin , relFit);
       }
     }
 
@@ -1563,10 +1582,16 @@ namespace Cantera {
 
       double residSteep = residErrorNorm(DATA_PTR(m_resid));
       double residSteepLin = expectedResidLeg(1, alpha);
+      if (residSteep < residSteepBest) {
+	legBest = 1;
+        alphaBest = alpha;
+	residSteepBest = residSteep;
+	residSteepLinBest = residSteepLin;
+      }
 
       double relFit = (residSteep - residSteepLin) / (fabs(residSteepLin) + 1.0E-10);
       if (s_print_DogLeg || (doDogLeg_ && m_print_flag > 6)) {
-	printf("  (%2d - % 10.3g) % 15.8E   % 15.8E  % 15.8E  % 15.8E\n", 1, alpha, sLen,  residSteep, residSteepLin , relFit);
+	printf("\t\t      (%2d - % 10.3g) % 15.8E   % 15.8E  % 15.8E  % 15.8E\n", 1, alpha, sLen,  residSteep, residSteepLin , relFit);
       }
     }
 
@@ -1593,20 +1618,46 @@ namespace Cantera {
 
       double residSteep = residErrorNorm(DATA_PTR(m_resid));
       double residSteepLin = expectedResidLeg(2, alpha);
-
+      if (residSteep < residSteepBest) {
+	legBest = 2;
+        alphaBest = alpha;
+	residSteepBest = residSteep;
+	residSteepLinBest = residSteepLin;
+      }
       double relFit = (residSteep - residSteepLin) / (fabs(residSteepLin) + 1.0E-10);
       if (s_print_DogLeg || (doDogLeg_ && m_print_flag > 6)) {
-	printf("  (%2d - % 10.3g)  % 15.8E % 15.8E  % 15.8E  % 15.8E\n", 2, alpha, sLen, residSteep, residSteepLin , relFit);
+	printf("\t\t      (%2d - % 10.3g)  % 15.8E % 15.8E  % 15.8E  % 15.8E\n", 2, alpha, sLen, residSteep, residSteepLin , relFit);
       }
     }
-
+    if (s_print_DogLeg || (doDogLeg_ && m_print_flag > 6)) {
+      printf("\t\t       Best Result: \n");
+      double relFit = (residSteepBest - residSteepLinBest) / (fabs(residSteepLinBest) + 1.0E-10);
+      if (m_print_flag <= 6) {
+      printf("\t\t       Leg %2d alpha %5g: NonlinResid = %g LinResid = %g, relfit = %g\n",
+	     legBest, alphaBest, residSteepBest, residSteepLinBest, relFit);
+      } else {
+	if (legBest == 0) {
+	  sLen = alpha * solnErrorNorm(DATA_PTR(deltaX_CP_));
+	} else if (legBest == 1) {
+	  for (int i = 0; i < neq_; i++) {
+	    y1[i] = (1.0 - alphaBest) * deltaX_CP_[i];
+	    y1[i] += alphaBest * Nuu_ * deltaX_Newton_[i];
+	  }
+	  sLen = solnErrorNorm(DATA_PTR(y1));
+	} else {
+	  sLen = ( Nuu_ + alpha * (1.0 - Nuu_)) * solnErrorNorm(DATA_PTR(deltaX_Newton_));
+	}
+	printf("\t\t      (%2d - % 10.3g)  % 15.8E % 15.8E  % 15.8E  % 15.8E\n", legBest, alphaBest, sLen, 
+	       residSteepBest, residSteepLinBest , relFit);
+      }
+    }
 
   }
   //====================================================================================================================
   double  NonlinearSolver::trustRegionLength() const
   {
-    double dlen = solnErrorNorm(DATA_PTR(deltaX_trust_));
-    return (trustDelta_ * dlen);
+    norm_deltaX_trust_ = solnErrorNorm(DATA_PTR(deltaX_trust_));
+    return (trustDelta_ * norm_deltaX_trust_);
   }
   //====================================================================================================================
   void  NonlinearSolver::setDefaultDeltaBoundsMagnitudes()
@@ -1789,15 +1840,16 @@ namespace Cantera {
 
 
     // Final renormalization. 
-    trustNorm = solnErrorNorm(DATA_PTR(deltaX_trust_));
+    norm_deltaX_trust_ = solnErrorNorm(DATA_PTR(deltaX_trust_));
     double  sum = trustNormGoal / trustNorm;
     for (int i = 0; i < neq_; i++) {
       deltaX_trust_[i] = deltaX_trust_[i] * sum;
-    }
+    } 
+    norm_deltaX_trust_ = solnErrorNorm(DATA_PTR(deltaX_trust_));
     trustDelta_ = 1.0;
 
     if (s_print_DogLeg || (doDogLeg_ && m_print_flag > 3)) {
-      printf("calcTrustVector():  Trust vector size (SolnNorm Basis) changed from %g to %g \n",
+      printf("\t\t   calcTrustVector(): Trust vector size (SolnNorm Basis) changed from %g to %g \n",
 	     trustNorm, trustNormGoal);
     }
   } 
@@ -1810,13 +1862,13 @@ namespace Cantera {
   {
     double cpd = calcTrustDistance(deltaX_CP_);
     if (s_print_DogLeg || (doDogLeg_ && m_print_flag > 3)) {
-      printf("Relative Distance of Cauchy Vector wrt Trust Vector = %g\n", cpd);
+      printf("\t\t   initializeTrustRegion(): Relative Distance of Cauchy Vector wrt Trust Vector = %g\n", cpd);
     }
     trustDelta_ = trustDelta_ * cpd;
     calcTrustVector();
     cpd = calcTrustDistance(deltaX_CP_);
     if (s_print_DogLeg || (doDogLeg_ && m_print_flag > 3)) {
-      printf("Relative Distance of Cauchy Vector wrt Trust Vector = %g\n", cpd);
+      printf("\t\t   initializeTrustRegion(): Relative Distance of Cauchy Vector wrt Trust Vector = %g\n", cpd);
     }
   }
 
@@ -2213,15 +2265,20 @@ namespace Cantera {
     }
     return -2;
   }
-
   //====================================================================================================================
-
-
-  // Using Damping along a dog leg to calculate the next step 
-  /*!
+  // Damp using the dog leg approach
+  /*
+   *  
+   * @param time_curr  INPUT     Current value of the time
+   * @param y_n_curr   INPUT    Current value of the solution vector
+   * @param ydot_n_curr INPUT   Current value of the derivative of the solution vector
+   * @param step_1     INPUT    First trial step for the first iteration
+   * @param y_n_1   INPUT       First trial value of the solution vector
+   * @param ydot_n_1 INPUT      First trial value of the derivative of the solution vector
+   * @param s1         OUTPUT   Norm of the vector step_1
+   * @param jac        INPUT    jacobian
+   * @param num_backtracks OUTPUT  number of backtracks taken in the current damping step
    *
-   *
-   *   @param step0  (output)  On return this contains the suggested step vector for the current iteration
    *
    *  @return  1 Successful step was taken. The predicted residual norm is less than one
    *           2 Successful step: Next step's norm is less than 0.8
@@ -2233,11 +2290,10 @@ namespace Cantera {
    *           0 Uncertain Success: s1 is about the same as s0
    *          -2 Unsuccessful step.
    */
-  int NonlinearSolver::dampDogLeg(const doublereal time_curr, const double* y_n_curr, 
+  int NonlinearSolver::dampDogLeg(const doublereal time_curr, const doublereal* y_n_curr, 
 				  const doublereal *ydot_n_curr, std::vector<doublereal> & step_1,
-				  double* const y_n_1, double* const ydot_n_1, double* stepLastGood,
-				  double& s1, SquareMatrix& jac, bool writetitle,
-				  int& num_backtracks) 
+				  doublereal* const y_n_1, doublereal* const ydot_n_1, 
+				  doublereal& s1, SquareMatrix& jac, int& num_backtracks) 
   {
     double lambda;
     double alpha;
@@ -2247,6 +2303,7 @@ namespace Cantera {
     int retn = 0;
     bool haveASuccess = false;
     double trustDeltaOld = trustDelta_;
+    doublereal* stepLastGood = DATA_PTR(m_wksp);
     //--------------------------------------------
     //           Attempt damped step
     //-------------------------------------------- 
@@ -2563,8 +2620,10 @@ namespace Cantera {
     int m = 0;
     bool forceNewJac = false;
     doublereal s1=1.e30;
-
-
+#ifdef DEBUG_DOGLEG
+    int legBest;
+    doublereal alphaBest;
+#endif
     //  std::vector<doublereal> y_curr(neq_, 0.0); 
     //  std::vector<doublereal> ydot_curr(neq_, 0.0);
     std::vector<doublereal> stp(neq_, 0.0);
@@ -2613,6 +2672,12 @@ namespace Cantera {
       m_numTotalNewtIts++;
       num_newt_its++;
 
+      if (m_print_flag > 3) {
+	printf("\t");
+	print_line("=", 100);
+	printf("\tsolve_nonlinear_problem(): iteration %d:\n",
+	       num_newt_its);
+      }
       /*
        *  If we are far enough away from the solution, redo the solution weights and the trust vectors.
        */
@@ -2647,19 +2712,13 @@ namespace Cantera {
 	setDefaultDeltaBoundsMagnitudes();
       }
 
-      if (m_print_flag > 3) {
-	printf("\tsolve_nonlinear_problem(): iteration %d:\n",
-	       num_newt_its);
-      }
-
-
       // Check whether the Jacobian should be re-evaluated.
             
       forceNewJac = true;
             
       if (forceNewJac) {
 	if (m_print_flag > 3) {
-	  printf("\tsolve_nonlinear_problem(): Getting a new Jacobian and solving system\n");
+	  printf("\t   solve_nonlinear_problem(): Getting a new Jacobian\n");
 	}
 	info = beuler_jac(jac, DATA_PTR(m_resid), time_curr, CJ,  DATA_PTR(m_y_n_curr), 
 			  DATA_PTR(m_ydot_n_curr), num_newt_its);
@@ -2670,7 +2729,7 @@ namespace Cantera {
 	m_residCurrent = true;
       } else {
 	if (m_print_flag > 1) {
-	  printf("\tsolve_nonlinear_problem(): Solving system with old jacobian\n");
+	  printf("\t   solve_nonlinear_problem(): Solving system with old jacobian\n");
 	}
 	m_residCurrent = false;
       }
@@ -2683,10 +2742,13 @@ namespace Cantera {
       /*
        *  Calculate the base residual 
        */
+      if (m_print_flag > 3) {
+	printf("\t   solve_nonlinear_problem(): Calculate the base residual\n");
+      }
       info = doResidualCalc(time_curr, NSOLN_TYPE_STEADY_STATE, DATA_PTR(m_y_n_curr), DATA_PTR(m_ydot_n_curr));
       if (info != 1) {
 	if (m_print_flag > 0) {
-	  printf("\t\t\tsolve_nonlinear_problem(): Residual Calc ERROR %d. Bailing\n", info);
+	  printf("\t   solve_nonlinear_problem(): Residual Calc ERROR %d. Bailing\n", info);
 	}
 	m = -5;
 	goto done;
@@ -2711,14 +2773,26 @@ namespace Cantera {
       }
       
 #ifdef DEBUG_DOGLEG
+      if (m_print_flag > 3) {
+	printf("\t   solve_nonlinear_problem(): Calculate the steepest descent direction and Cauchy Point\n");
+      }
       m_normDeltaSoln_CP = doCauchyPointSolve(jac);
       if (num_newt_its == 1) {
+	if (m_print_flag > 3) {
+	  printf("\t   solve_nonlinear_problem(): Initialize the trust region size as the length to the Cauchy Point\n");
+	}
 	initializeTrustRegion();
       }
 #else
-      if (doDogLeg_) { 
+      if (doDogLeg_) {
+	if (m_print_flag > 3) {
+	  printf("\t   solve_nonlinear_problem(): Calculate the steepest descent direction and Cauchy Point\n");
+	}
 	m_normDeltaSoln_CP = doCauchyPointSolve(jac);
 	if (m_numTotalNewtIts == 1) {
+	  if (m_print_flag > 3) {
+	    printf("\t   solve_nonlinear_problem(): Initialize the trust region size as the length to the Cauchy Point\n");
+	  }
 	  initializeTrustRegion();
 	}
       }
@@ -2726,8 +2800,14 @@ namespace Cantera {
 
       // compute the undamped Newton step
       if (doAffineSolve_) {
+	if (m_print_flag > 3) {
+	  printf("\t   solve_nonlinear_problem(): Calculate the Newton direction via an Affine solve\n");
+	}
 	info = doAffineNewtonSolve(DATA_PTR(m_y_n_curr), DATA_PTR(m_ydot_n_curr), DATA_PTR(deltaX_Newton_), jac);
       } else {
+	if (m_print_flag > 3) {
+	  printf("\t   solve_nonlinear_problem(): Calculate the Newton direction via a Newton solve\n");
+	}
 	info = doNewtonSolve(time_curr, DATA_PTR(m_y_n_curr), DATA_PTR(m_ydot_n_curr), DATA_PTR(deltaX_Newton_), jac);
       }
 
@@ -2750,9 +2830,13 @@ namespace Cantera {
 	double trustD = calcTrustDistance(stp);
 	if (s_print_DogLeg || m_print_flag > 3) {
 	  if (trustD > trustDelta_) {
-	    printf("newton's method trustD, %g, larger than trust region, %g\n", trustD, trustDelta_);
+	    printf("\t\t   newton's method step size, %g trustVectorUnits, larger than trust region, %g trustVectorUnits\n",
+		   trustD, trustDelta_);
+	    printf("\t\t   newton's method step size, %g trustVectorUnits, larger than trust region, %g trustVectorUnits\n",
+		   trustD, trustDelta_);
 	  } else {
-	    printf("newton's method trustD, %g, smaller than trust region, %g\n", trustD, trustDelta_);
+	    printf("\t\t   newton's method step size, %g trustVectorUnits, smaller than trust region, %g trustVectorUnits\n", 
+		   trustD, trustDelta_);
 	  }
 	}
 #endif
@@ -2767,6 +2851,9 @@ namespace Cantera {
       
   
 #ifdef DEBUG_DOGLEG
+      if (m_print_flag > 3) {
+	printf("\t   solve_nonlinear_problem(): Compare descent rates for Cauchy and Newton directions\n");
+      }
       descentComparison(time_curr, DATA_PTR(m_ydot_n_curr), DATA_PTR(m_ydot_n_1));
 #endif
     
@@ -2774,15 +2861,23 @@ namespace Cantera {
       if (doDogLeg_) { 
 	setupDoubleDogleg();  
 #ifdef DEBUG_DOGLEG
-	residualComparisonLeg(time_curr, DATA_PTR(m_ydot_n_curr));
+	if (m_print_flag > 3) {
+	  printf("\t   solve_nonlinear_problem(): Compare Linear and nonlinear residuals along double dog-leg path\n");
+	}
+	residualComparisonLeg(time_curr, DATA_PTR(m_ydot_n_curr), legBest, alphaBest);
 #endif
+	if (m_print_flag > 3) {
+	  printf("\t   solve_nonlinear_problem(): Calculate damping along dog-leg path to ensure residual decrease\n");
+	}
 	m = dampDogLeg(time_curr, DATA_PTR(m_y_n_curr), DATA_PTR(m_ydot_n_curr), 
-		       stp, DATA_PTR(y_new), DATA_PTR(m_ydot_n_1), 
-		       DATA_PTR(stp1), s1, jac, frst, i_backtracks);
+		       stp, DATA_PTR(y_new), DATA_PTR(m_ydot_n_1), s1, jac, i_backtracks);
       }
 #ifdef DEBUG_DOGLEG
       else {
-	residualComparisonLeg(time_curr, DATA_PTR(m_ydot_n_curr));
+	if (m_print_flag > 3) {
+	  printf("\t   solve_nonlinear_problem(): Compare Linear and nonlinear residuals along double dog-leg path\n");
+	}
+	residualComparisonLeg(time_curr, DATA_PTR(m_ydot_n_curr), legBest, alphaBest);
       }
 #endif 
 
@@ -2809,7 +2904,7 @@ namespace Cantera {
       if (num_newt_its < m_min_newt_its) {
 	if (m > 0) {
 	  if (m_print_flag > 2) {
-	    printf("\t  Damped Newton successful (m=%d) but minimum newton iterations not attained. Resolving ...\n", m);
+	    printf("\t   solve_nonlinear_problem(): Damped Newton successful (m=%d) but minimum newton iterations not attained. Resolving ...\n", m);
 	  }
 	  m = 0;
 	}
@@ -2821,7 +2916,7 @@ namespace Cantera {
       if (num_newt_its > maxNewtIts_) {
 	m = -7;
 	if (m_print_flag > 1) {
-	  printf("\t\tsolve_nonlinear_problem(): Damped newton unsuccessful (max newts exceeded) sfinal = %g\n", s1);
+	  printf("\t   solve_nonlinear_problem(): Damped newton unsuccessful (max newts exceeded) sfinal = %g\n", s1);
 	}
       }
 
@@ -2829,14 +2924,14 @@ namespace Cantera {
       info = doResidualCalc(time_curr, NSOLN_TYPE_STEADY_STATE, DATA_PTR(y_new), DATA_PTR(m_ydot_n_1));
       if (info != 1) {
 	if (m_print_flag > 0) {
-	  printf("\t\t\tsolve_nonlinear_problem(): current trial step and damping led to Residual Calc ERROR %d. Bailing\n", info);
+	  printf("\t   solve_nonlinear_problem(): current trial step and damping led to Residual Calc ERROR %d. Bailing\n", info);
 	}
 	m = -8;
 	goto done;
       }
 
       if (m_print_flag > 3) {
-	residErrorNorm(DATA_PTR(m_resid), "Resulting Residual Norm", 10, DATA_PTR(y_new));
+	residErrorNorm(DATA_PTR(m_resid), "\t   solve_nonlinear_problem():Resulting Residual Norm", 10, DATA_PTR(y_new));
       }
 
       convRes = 0;
@@ -2846,13 +2941,13 @@ namespace Cantera {
       
       if (m_print_flag >= 4) {
 	if (convRes > 0) {
-	  printf("\t  Damped Newton iteration successful, nonlin "
+	  printf("\t   solve_nonlinear_problem(): Damped Newton iteration successful, nonlin "
 		 "converged, final estimate of the next solution update norm = %-12.4E\n", s1);
 	} else if (m >= 0) {
-	  printf("\t  Damped Newton iteration successful, "
+	  printf("\t   solve_nonlinear_problem(): Damped Newton iteration successful, "
 		 "final estimate of the next solution update norm = %-12.4E\n", s1);
 	} else {
-	  printf("\t  Damped Newton unsuccessful, final estimate of the next solution update norm = %-12.4E\n", s1);
+	  printf("\t   solve_nonlinear_problem(): Damped Newton unsuccessful, final estimate of the next solution update norm = %-12.4E\n", s1);
 	}
       }
 

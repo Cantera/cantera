@@ -267,6 +267,7 @@ namespace Cantera {
     //! Delta X norm. This is the nominal value of deltaX that will be used by the program
     doublereal DeltaXnorm_;
 
+    //!  Boolean indicating whether DeltaXnorm_ has been specified by the user or not
     int specifiedDeltaXnorm_;
 
     //! Delta X Max. This is the maximum value of deltaX that will be used by the program
@@ -275,6 +276,7 @@ namespace Cantera {
      */
     doublereal DeltaXMax_;
 
+   //!  Boolean indicating whether DeltaXMax_ has been specified by the user or not
     int specifiedDeltaXMax_;
 
     //! Boolean indicating whether the function is an increasing with x
