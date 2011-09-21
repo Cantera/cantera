@@ -106,7 +106,7 @@ namespace Cantera {
    *
    *   
    *  \f[
-   *         V_i = \sum_k{ \X_k V_k}
+   *         V_i = \sum_k{ X_k V_k}
    *  \f]
    *
    *  where k is a species in the ith sublattice.
@@ -325,7 +325,7 @@ namespace Cantera {
 
     //! Set the mole fractions to the specified values, and then 
     //! normalize them so that they sum to 1.0 for each of the subphases
-    /*
+    /*!
      *  On input, the mole fraction vector is assumed to sum to one for each of the sublattices. The sublattices
      *  are updated with this mole fraction vector. The mole fractions are also storred within this object, after
      *  they are normalized to one by dividing by the number of sublattices.
@@ -567,29 +567,31 @@ namespace Cantera {
     /// @name Thermodynamic Values for the Species Reference States --------------------
     //@{
 
-   /**
-     *  Returns the vector of nondimensional
-     *  enthalpies of the reference state at the current temperature
-     *  of the solution and the reference pressure for the species.
-     *
+    //! Returns the vector of nondimensional enthalpies of the reference state at the current
+    //!  temperature of the solution and the reference pressure for the species.
+    /*!
      *  This function fills in its one entry in hrt[] by calling
      *  the underlying species thermo function for the 
      *  dimensionless gibbs free energy, calculated from the
      *  dimensionless enthalpy and entropy.
+     *
+     *  @param grt  Vector of dimensionless Gibbs free energies of the reference state
+     *              length = m_kk
      */
     virtual void getGibbs_RT_ref(doublereal *grt) const;
 
 
-    /**
-     *  Returns the vector of the 
-     *  gibbs function of the reference state at the current temperature
-     *  of the solution and the reference pressure for the species.
+    //!  Returns the vector of the  gibbs function of the reference state at the current
+    //! temperatureof the solution and the reference pressure for the species.
+    /*!
      *  units = J/kmol
      *
-     *  This function fills in its one entry in g[] by calling
-     *  the underlying species thermo functions for the 
-     *  gibbs free energy, calculated from enthalpy and the
+     *  This function fills in its one entry in g[] by calling the underlying species thermo
+     *  functions for the  gibbs free energy, calculated from enthalpy and the
      *  entropy, and the multiplying by RT.
+     *
+     *  @param g  Vector of Gibbs free energies of the reference state.
+     *              length = m_kk
      */
     virtual void  getGibbs_ref(doublereal *g) const;
 
