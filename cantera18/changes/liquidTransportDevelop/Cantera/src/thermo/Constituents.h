@@ -191,6 +191,8 @@ namespace Cantera {
      *                   the value ENTROPY298_UNKNOWN, which is 
      *                   interpreted as an unknown, and if used
      *                   will cause Cantera to throw an error.
+     * @param elem_type Specifies the type of the element constraint equation. This defaults
+     *                   to CT_ELEM_TYPE_ABSPOS, i.e., an element.
      */
     void addUniqueElement(const std::string& symbol, doublereal weight,
 			  int atomicNumber = 0,
@@ -230,6 +232,8 @@ namespace Cantera {
      *                   the value ENTROPY298_UNKNOWN, which is 
      *                   interpreted as an unknown, and if used
      *                   will cause Cantera to throw an error.
+     * @param elem_type Specifies the type of the element constraint equation. This defaults
+     *                   to CT_ELEM_TYPE_ABSPOS, i.e., an element.
      */
     int addUniqueElementAfterFreeze(const std::string& symbol, doublereal weight, int atomicNumber, 
 				    doublereal entropy298 = ENTROPY298_UNKNOWN, int elem_type = CT_ELEM_TYPE_ABSPOS);
