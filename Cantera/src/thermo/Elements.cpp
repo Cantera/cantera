@@ -548,7 +548,13 @@ namespace Cantera {
       addUniqueElement(symbol);
     }
   }
- 
+   
+  // True if freezeElements has been called.
+  bool Elements::elementsFrozen() const 
+  {
+    return m_elementsFrozen; 
+  }
+
   /*
    * clear()
    *
@@ -562,7 +568,7 @@ namespace Cantera {
     m_elem_type.resize(0);
     m_elementsFrozen = false;
   }
-
+  
   /*
    * ready():
    *

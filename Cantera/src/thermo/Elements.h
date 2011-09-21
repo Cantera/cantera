@@ -294,6 +294,8 @@ namespace Cantera {
      *                    The default is to specify an ENTROPY298_UNKNOWN value,
      *                    which will cause a throw error if its ever
      *                    needed.
+     *  @param elem_type  New elem type to be assigned. 
+     *                    The default is a regular element, CT_ELEM_TYPE_ABSPOS
      */
     void addUniqueElement(const std::string& symbol, 
 			  doublereal weight = -12345.0, int atomicNumber = 0,
@@ -316,8 +318,8 @@ namespace Cantera {
     //! Prohibit addition of more elements, and prepare to add species.
     void freezeElements();
     
-    /// True if freezeElements has been called.
-    bool elementsFrozen() { return m_elementsFrozen; }
+    //! True if freezeElements has been called.
+    bool elementsFrozen() const;
 
     /// Remove all elements
     void clear();
