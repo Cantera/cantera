@@ -18,7 +18,7 @@
 #ifdef DEBUG_MODE
 #include "mdp_allo.h"
 #endif
-
+#include "stringUtils.h"
 /* Standard include files */
 
 #include <cstdio>
@@ -46,6 +46,13 @@ namespace Cantera {
 
 #ifndef DSIGN
 #define DSIGN(x) (( (x) == (0.0) ) ? (0.0) : ( ((x) > 0.0) ? 1.0 : -1.0 ))
+#endif
+
+#ifdef SWAP
+#undef SWAP
+#endif
+#ifndef SWAP
+#define SWAP(x1, x2, tmp) ((tmp) = (x2), (x2) = (x1), (x1) = (tmp))
 #endif
 
 // turn on debugging for now
@@ -275,17 +282,20 @@ namespace Cantera {
   // Function to decide whether two real numbers are the same or not
   /*
    *  A comparison is made between the two numbers to decide whether they
-   *  are close to one another. This is defined as being within delXMeaningful() of each other
+   *  are close to one another. This is defined as being within factor * delXMeaningful() of each other.
    *
    * @param x2  First number
-   * @param x2  second number
+   * @param x1  second number
+   * @param factor  Multiplicative factor for delta X. defaults to 1
    *
    * @return Returns a boolean indicating whether the two numbers are the same or not.
    */
-  bool RootFind::theSame(doublereal x2, doublereal x1) const {
+  bool RootFind::theSame(doublereal x2, doublereal x1, doublereal factor) const {
     doublereal x = fabs(x2) + fabs(x1);
     doublereal deltaX = delXMeaningful(x);
-    if (fabs(x2 - x1) < deltaX) {
+    doublereal deltaXSmall = factor * deltaX;
+    deltaXSmall = MAX(deltaXSmall , x * 1.0E-15);
+    if (fabs(x2 - x1) < deltaXSmall) {
       return true;
     }
     return false;
@@ -322,9 +332,10 @@ namespace Cantera {
     char fileName[80];
     FILE *fp = 0;
 #endif
+    int doFinalFuncCall = 0;
     doublereal x1, x2, xnew, f1, f2, fnew, slope;
     doublereal deltaX1 = 0.0, deltaX2 = 0.0, deltaXnew = 0.0;
-    int its = 0;
+   
     int posStraddle = 0;
     int retn = ROOTFIND_FAILEDCONVERGENCE;
     int foundPosF = 0;
@@ -335,11 +346,15 @@ namespace Cantera {
     doublereal xNegF = 0.0;
     doublereal fNegF = -1.0E300;
     doublereal fnorm;   /* A valid norm for the making the function value  dimensionless */
-    doublereal c[9], f[3], xn1, xn2, x0 = 0.0, f0 = 0.0, root, theta, xquad, xDelMin;
-    doublereal CR0, CR1, CR2, CRnew, CRdenom;
+    doublereal x0 = 0.0, f0 = 0.0,  xDelMin;
     doublereal sgn;
-
-
+    doublereal dtmp;
+    doublereal fnoise = 0.0;
+    rfHistory_.clear();
+    rfTable rfT;
+    rfT.clear();
+    rfT.reasoning = "First Point: ";
+   
     callNum++;
 #ifdef DEBUG_MODE
     if (printLvl >= 3 && writeLogAllowed_) {
@@ -397,10 +412,14 @@ namespace Cantera {
     x1 = *xbest;
     if (x1 < xmin || x1 > xmax) {
       x1 = (xmin + xmax) / 2.0;     
+      rfT.reasoning += " x1 set middle between xmin and xmax because entrance is outside bounds.";
+    } else {
+      rfT.reasoning += " x1 set to entrance x.";
     }
 
     x_maxTried_ = x1;
     x_minTried_ = x1;
+    int its = 1;
     f1 = func(x1);
 
 #ifdef DEBUG_MODE
@@ -410,45 +429,62 @@ namespace Cantera {
     }
 #endif
 
+
     if (f1 == 0.0) {
       *xbest = x1;
       return 0; 
-    } else if (f1 > 0.0) {
+    } else if (f1 > fnoise) {
       foundPosF = 1;
       xPosF = x1;
       fPosF = f1;
-    } else {
+    } else if (f1 < -fnoise) {
       foundNegF = 1;
       xNegF = x1;
-      fNegF = x1;
+      fNegF = f1;
     }
-
+    rfT.its = its;
+    rfT.TP_its = 0;
+    rfT.xval = x1;
+    rfT.fval = f1;
+    rfT.foundPos = foundPosF;
+    rfT.foundNeg = foundNegF;
+    rfT.deltaXConverged = m_rtolx * (fabs(x1) + 0.001);
+    rfT.deltaFConverged = fabs(f1) * m_rtolf;
+    rfT.delX = xmax - xmin;
+    rfHistory_.push_back(rfT);
+    rfT.clear();
+    
     /*
      * Now, this is actually a tricky part of the algorithm - Find the x value for 
      * the second point. It's tricky because we don't have a valid idea of the scale of x yet
      * 
      */
+    rfT.reasoning = "Second Point: ";
     if (x1 == 0.0) {
       x2 = x1 +  0.01 * DeltaXnorm_;
+      rfT.reasoning += "Set by DeltaXnorm_";
     } else {
       x2 = x1 * 1.0001;
+      rfT.reasoning += "Set slightly higher.";
     }
     if (x2 > xmax) {
       x2 = x1 - 0.01 * DeltaXnorm_;
+      rfT.reasoning += " - But adjusted to be within bounds";
     }
 
     /*
      *  Find the second function value f2 = func(x2),  Process it 
      */
     deltaX2 = x2 - x1;
-    f2 = func(x2);
+    its++;
+    f2 = func(x2); 
 #ifdef DEBUG_MODE
     if (printLvl >= 3 && writeLogAllowed_) {
       print_funcEval(fp, x2, f2, its);
       fprintf(fp, "%-5d  %-5d  %-15.5E %-15.5E", -1, 0, x2, f2);
     }
 #endif
- 
+  
     /*
      * Calculate the norm of the function, this is the nominal value of f. We try
      * to reduce the nominal value of f by rtolf, this is the main convergence requirement.
@@ -458,23 +494,33 @@ namespace Cantera {
     } else {
       fnorm = 0.5*(fabs(f1) + fabs(f2)) + fabs(m_funcTargetValue) + m_atolf;
     }
+    fnoise = 1.0E-100;
 
-    if (f2 == 0.0) {
-      *xbest = x2;
-      return ROOTFIND_SUCCESS;
-    } else if (f2 > 0.0) {
+
+    if (f2 > fnoise) {
       if (!foundPosF) {
 	foundPosF = 1;
 	xPosF = x2;
-	fPosF = x2;
+	fPosF = f2;
       }
-    } else {
+    } else if (f2 < - fnoise) {
       if (!foundNegF) {
 	foundNegF = 1;
 	xNegF = x2;
 	fNegF = f2;
       }
+    } else if (f2 == 0.0) {
+      *xbest = x2;
+      return ROOTFIND_SUCCESS; 
     }
+    rfT.its = its;
+    rfT.TP_its = 0;
+    rfT.xval = x2;
+    rfT.fval = f2;
+    rfT.foundPos = foundPosF;
+    rfT.foundNeg = foundNegF;
+
+ 
     /*
      *  See if we have already achieved a straddle
      */
@@ -483,7 +529,7 @@ namespace Cantera {
       if (xPosF > xNegF) posStraddle = 1; 
       else               posStraddle = 0;
     }
-    bool doQuad = false;
+ 
     bool useNextStrat = false;
     bool slopePointingToHigher = true;
     // ---------------------------------------------------------------------------------------------
@@ -499,8 +545,13 @@ namespace Cantera {
 	printf(" RootFind: we are here x2 = %g x1 = %g\n", x2, x1);
       }
 #endif
+    
       doublereal delXtmp = deltaXControlled(x2, x1);
       slope = (f2 - f1) / delXtmp;
+      rfT.slope = slope;
+      rfHistory_.push_back(rfT);
+      rfT.clear();
+      rfT.reasoning = "";
       if (fabs(slope) <= 1.0E-100) {
 	if (printLvl >= 2) {
 	  writelogf("%s functions evals produced the same result, %g, at %g and %g\n",
@@ -509,6 +560,7 @@ namespace Cantera {
 	xnew = x2 +  DeltaXnorm_;
 	slopePointingToHigher = true;
 	useNextStrat = true;
+	rfT.reasoning += "Slope is close to zero. ";
       } else {
         useNextStrat = false;
 	xnew = x2 - f2 / slope; 
@@ -517,6 +569,7 @@ namespace Cantera {
 	} else {
 	  slopePointingToHigher = false;
 	}
+	rfT.reasoning += "Slope is good. ";
       }
 #ifdef DEBUG_MODE
       if (printLvl >= 3 && writeLogAllowed_) {
@@ -530,13 +583,18 @@ namespace Cantera {
       if (!foundStraddle) {
 	if (fabs(xnew - x2) > DeltaXMax_) {
 	  useNextStrat = true;
+	  rfT.reasoning += "Too large change in xnew from slope. ";
 	}
 	if (fabs(deltaXnew) < fabs(deltaX2)) {
 	  deltaXnew = 1.2 * deltaXnew;
 	  xnew = x2 + deltaXnew;
 	}
       }
+      /*
+       * If the slope can't be trusted using a different strategy for picking the next point
+       */
       if (useNextStrat) {
+	rfT.reasoning += "Using DeltaXnorm, " + fp2str(DeltaXnorm_) + " and FuncIsGenerallyIncreasing hints. ";
 	if (f2 < 0.0) {
 	  if (FuncIsGenerallyIncreasing_) {
 	    if (slopePointingToHigher) {
@@ -580,53 +638,24 @@ namespace Cantera {
 	}
       }
 
-
       /*
-       *  Do a quadratic fit -> Note this algorithm seems
-       *  to work OK. The quadratic approximation doesn't kick in until
-       *  the end of the run, when it becomes reliable.
+       *  Here, if we have a straddle, we purposefully overshoot the smaller side by 5%. Yes it does lead to
+       *  more iterations. However, we're interested in bounding x, and not just doing Newton's method.
        */
-      if (its > 0 && doQuad) {
-	c[0] = 1.; c[1] = 1.; c[2] = 1.;
-	c[3] = x0; c[4] = x1; c[5] = x2;
-	c[6] = SQUARE(x0); c[7] = SQUARE(x1); c[8] = SQUARE(x2);
-	f[0] = - f0; f[1] = - f1; f[2] = - f2;
-	int rrr = smlequ(c, 3, 3, f, 1);
-	if (rrr == 1) goto QUAD_BAIL;
-	root = f[1]* f[1] - 4.0 * f[0] * f[2];
-	if (root >= 0.0) {
-	  xn1 = (- f[1] + sqrt(root)) / (2.0 * f[2]);
-	  xn2 = (- f[1] - sqrt(root)) / (2.0 * f[2]);	
-	  if (fabs(xn2 - x2) < fabs(xn1 - x2) && xn2 > 0.0 ) xquad = xn2;
-	  else                                               xquad = xn1;
-	  theta = fabs(xquad - xnew) / fabs(xnew - x2);
-	  theta = MIN(1.0, theta);
-	  xnew = theta * xnew + (1.0 - theta) * xquad;
-#ifdef DEBUG_MODE
-	  if (printLvl >= 3 && writeLogAllowed_) {
-	    if (theta != 1.0) {
-	      fprintf(fp, " | xquad = %-11.5E", xnew);
-	    }
-	  }
-#endif
-	} else {
-	  /*
-	   *   Pick out situations where the convergence may be
-	   *   accelerated.
-	   */
-	  if ((DSIGN(xnew - x2) == DSIGN(x2 - x1)) &&
-	      (DSIGN(x2   - x1) == DSIGN(x1 - x0))    ) {
-	    xnew += xnew - x2;
-#ifdef DEBUG_MODE
-	    if (printLvl >= 3 && writeLogAllowed_) {
-	      fprintf(fp, " | xquada = %-11.5E", xnew);
-	    }
-#endif
+      if (foundStraddle) {
+	double delta = fabs(x2 - x1);
+	if (fabs(xnew - x1) < .01 * delta) {
+	  xnew = x1 + 0.01 * (x2 - x1);
+	} else if (fabs(xnew - x2) < .01 * delta) {
+	  xnew = x1 + 0.01 * (x2 - x1);
+	} else if ((xnew > x1 && xnew < x2) || (xnew < x1 && xnew > x2)) {
+	  if (fabs(xnew - x1) < fabs(x2 - xnew)) {
+	    xnew = x1 + 20./19. * (xnew - x1);
+	  } else {
+	    xnew = x2 + 20./19. * (xnew - x2);
 	  }
 	}
       }
-    QUAD_BAIL: ;
-      
       /*   
        *  OK, we have an estimate xnew.
        *
@@ -637,7 +666,7 @@ namespace Cantera {
 	/*
 	 *   If we are doing a jump in between the two previous points, make sure
 	 *   the new trial is no closer that 10% of the distances between x2-x1 to
-	 *   any of the original points.
+	 *   any of the original points. This is an important part of finding a good bound.
 	 */
 	xDelMin = fabs(x2 - x1) / 10.;
 	if (fabs(xnew - x1) < xDelMin) {
@@ -676,11 +705,35 @@ namespace Cantera {
 	  }
 #endif
 	}
+	/*
+	 *   If we are doing a jump outside the two previous points, make sure
+	 *   the new trial is no closer that 10% of the distances between x2-x1 to
+	 *   any of the original points. This is an important part of finding a good bound.
+	 */
+	xDelMin = 0.1 * fabs(x2 - x1);
+	if (fabs(xnew - x2) < xDelMin) {
+	  xnew = x2 + DSIGN(xnew - x2) * xDelMin;
+#ifdef DEBUG_MODE
+	  if (printLvl >= 3 && writeLogAllowed_) {
+	    fprintf(fp, " | x10%% = %-11.5E", xnew);
+	  }
+#endif
+	}
+	if (fabs(xnew - x1) < xDelMin) {
+	  xnew = x1 + DSIGN(xnew - x1) * xDelMin;
+#ifdef DEBUG_MODE
+	  if (printLvl >= 3 && writeLogAllowed_) {
+	    fprintf(fp, " | x10%% = %-11.5E", xnew);
+	  }
+#endif
+	}
       }
- 
+      /*
+       *  HKM -> Not sure this section is needed
+       */
       if (foundStraddle) {
 #ifdef DEBUG_MODE
-	slope = xnew;	 
+	double xorig = xnew;	 
 #endif
 	if (posStraddle) {
 	  if (f2 > 0.0) {
@@ -717,7 +770,7 @@ namespace Cantera {
 	}
 #ifdef DEBUG_MODE
 	if (printLvl >= 3 && writeLogAllowed_) {
-	  if (slope != xnew) {
+	  if (xorig != xnew) {
 	    fprintf(fp, " | xstraddle = %-11.5E", xnew);	    
 	  }
 	}
@@ -735,6 +788,8 @@ namespace Cantera {
 	    sgn = -1.0;
 	  }
 	  deltaXnew = 1.2 * delXMeaningful(xnew) * sgn;
+	  rfT.reasoning += "Enforcing minimum stepsize from " + fp2str(xnew - x2) + 
+	    " to " + fp2str(deltaXnew);
 	  xnew = x2 + deltaXnew;
 	}
       }
@@ -746,20 +801,18 @@ namespace Cantera {
 	topBump++;
 	if (topBump < 3) {
 	  xnew = x2 + (xmax - x2) / 2.0;
+	  rfT.reasoning += ("xval reduced to " + fp2str(xnew) + " because predicted xnew was above max value of " + fp2str(xmax));
 	} else {
 	  if (x2 == xmax || x1 == xmax) {
 	    // we are here when we are bumping against the top limit.
 	    // No further action is possible
-	    if (xnew > xmax) {
-	      slope = (f2 - f1) / delXtmp;
-	      xnew = x2 - f2 / slope; 
-	      if (xnew > xmax) {
-		retn = ROOTFIND_SOLNHIGHERTHANXMAX;
-		*xbest = xnew;
-	      }
-	    }
+	    retn = ROOTFIND_SOLNHIGHERTHANXMAX;
+	    *xbest = xnew; 
+	    rfT.slope = slope;
+	    rfT.reasoning += "Giving up because we're at xmax and xnew point higher: " + fp2str(xnew); 
 	    goto done;
 	  } else {
+	    rfT.reasoning += "xval reduced from " + fp2str(xnew) + " to the max value, " + fp2str(xmax);
 	    xnew = xmax;
 	  }
 	}
@@ -772,21 +825,20 @@ namespace Cantera {
       if (xnew < xmin) {
 	bottomBump++;
 	if (bottomBump < 3) {
+	  rfT.reasoning += ("xnew increased from " + fp2str(xnew) +"  to " + fp2str(x2 - (x2 - xmin) / 2.0) + 
+			    " because above min value of " + fp2str(xmin));
 	  xnew = x2 - (x2 - xmin) / 2.0;
 	} else {
 	  if (x2 == xmin || x1 == xmin) {
 	    // we are here when we are bumping against the bottom limit.
 	    // No further action is possible
-	    if (xnew < xmin) {
-	      slope = (f2 - f1) / delXtmp;
-	      xnew = x2 - f2 / slope; 
-	      if (xnew < xmin) {
-		retn = ROOTFIND_SOLNLOWERTHANXMIN;
-		*xbest = xnew;
-	      }
-	    }
+	    retn = ROOTFIND_SOLNLOWERTHANXMIN;
+	    *xbest = xnew;	    
+	    rfT.slope = slope;
+	    rfT.reasoning = "Giving up because we're already at xmin and xnew points lower: " + fp2str(xnew);
 	    goto done;
-	  } else {
+	  } else {	  
+	    rfT.reasoning += "xval increased from " + fp2str(xnew) + " to the min value, " + fp2str(xmin);
 	    xnew = xmin;
 	  }
 	}
@@ -796,10 +848,10 @@ namespace Cantera {
 	}
 #endif
       }
-    
+ 
+      its++;
       fnew = func(xnew);
-      CRdenom = MAX(fabs(fnew), MAX(fabs(f2), MAX(fabs(f1), fnorm)));
-      CRnew = sqrt(fabs(fnew) / CRdenom);
+
 #ifdef DEBUG_MODE
       if (printLvl >= 3 && writeLogAllowed_) {
 	fprintf(fp,"\n");
@@ -807,7 +859,9 @@ namespace Cantera {
 	fprintf(fp, "%-5d  %-5d  %-15.5E %-15.5E", its, 0, xnew, fnew);
       }
 #endif
-      
+      rfT.xval = xnew;
+      rfT.fval = fnew;
+      rfT.its = its;
       if (foundStraddle) {
 	if (posStraddle) {
 	  if (fnew > 0.0) {
@@ -837,18 +891,20 @@ namespace Cantera {
       }
 
       if (! foundStraddle) {
-	if (fnew > 0.0) {
+	if (fnew > fnoise) {
 	  if (!foundPosF) {
 	    foundPosF = 1;
+	    rfT.foundPos = 1;
 	    xPosF = xnew;
 	    fPosF = fnew;
 	    foundStraddle = 1;
 	    if (xPosF > xNegF) posStraddle = 1;
 	    else    	       posStraddle = 0;
 	  }	    
-	} else {
+	} else if (fnew < - fnoise) {
 	  if (!foundNegF) {
 	    foundNegF = 1;
+	    rfT.foundNeg = 1;
 	    xNegF = xnew;
 	    fNegF = fnew;
 	    foundStraddle = 1;
@@ -860,15 +916,14 @@ namespace Cantera {
       
       x0 = x1;
       f0 = f1;
-      CR0 = CR1;
       x1 = x2;
       f1 = f2;
-      CR1 = CR2;
+ 
       x2 = xnew; 
       f2 = fnew;
 
       /*
-       *  As we go on to new data points, we make sure that
+       * As we go on to new data points, we make sure that
        * we have the best straddle of the solution with the choice of F1 and F2 when
        * we do have a straddle to work with.
        */
@@ -947,64 +1002,190 @@ namespace Cantera {
 	      }
 	    }
 	  }
-	}
+	}   
+	AssertThrow((f1 * f2 <= 0.0), "F1 and F2 aren't bounding");
       }
 
       deltaX1 = deltaX2;
       deltaX2 = deltaXnew;
-      CR2 = CRnew;
+      deltaXnew = x2 - x1;
       deltaXConverged_ = 0.5 * deltaXConverged_ + 0.5 * (m_rtolx * 0.5 * (fabs(x2) + fabs(x1)) + m_atolx);
-      if (fabs(fnew / fnorm) < m_rtolf) {
-	if (deltaX2 < deltaXConverged_ &&  deltaXnew < deltaXConverged_) {
-	  converged = 1; 
+      rfT.deltaXConverged =  deltaXConverged_;
+      rfT.deltaFConverged =  fnorm * m_rtolf;
+      if (foundStraddle) {
+	rfT.delX = MAX(fabs(deltaX2), fabs(deltaXnew)); 
+      } else {
+	rfT.delX = MAX(fabs(deltaX2), fabs(deltaXnew)); 
+	if (x2 < x1) {
+	  rfT.delX = MAX(rfT.delX, x2 - xmin);
+	} else {
+	  rfT.delX = MAX(rfT.delX, xmax - x2);
 	}
-	if (fabs(slope) > 1.0E-100) {
-	  double xdels = fabs(fnew / slope);
-	  if (xdels < deltaXConverged_ * 0.5) {
-	    converged = 1;
-	  }
-	}
-
       }
       /*
-       *  Check for excess convergence in the x coordinate
+       *     Section To Determine CONVERGENCE criteria
        */
-      if (foundStraddle) {
-	doublereal denom = fabs(x1) + fabs(x2);
-	if (denom < 1.0E-200) {
-	  retn = ROOTFIND_FAILEDCONVERGENCE;
-	  converged = true;
+      doFinalFuncCall = 0;
+      if ((fabs(fnew / fnorm) < m_rtolf) && foundStraddle) {
+	if (fabs(deltaX2) < deltaXConverged_ && fabs(deltaXnew) < deltaXConverged_) {
+	  converged = 1;
+	  rfT.reasoning += "NormalConvergence"; 
+	  retn = ROOTFIND_SUCCESS;
+	} 
+	
+	else if (fabs(slope) > 1.0E-100) {
+	  double xdels = fabs(fnew / slope);
+	  if (xdels < deltaXConverged_ * 0.3) {
+	    converged = 1;
+	    rfT.reasoning += "NormalConvergence-SlopelimitsDelX";
+	    doFinalFuncCall = 1; 
+	    retn = ROOTFIND_SUCCESS;
+	  }
 	}
-	if (theSame(x2, x1)) {
-	  converged = true;
+	
+
+	/*
+	 *  Check for excess convergence in the x coordinate
+	 */
+	if (!converged) {
+	  if (foundStraddle) {
+	    doublereal denom = fabs(x1 - x2);
+	    if (denom < 1.0E-200) {
+	      retn = ROOTFIND_FAILEDCONVERGENCE;
+	      converged = true;
+	      rfT.reasoning += "ConvergenceFZero but X1X2Identical";
+	    }
+	    if (theSame(x2, x1, 1.0E-2)) {
+	      converged = true;
+	      rfT.reasoning += " ConvergenceF and XSame";
+	      retn = ROOTFIND_SUCCESS;
+	    }
+	  }
+	}
+      } else {
+	/*
+	 *  We are here when F is not converged, but we may want to end anyway
+	 */
+	if (!converged) {
+	  if (foundStraddle) {
+	    doublereal denom = fabs(x1 - x2);
+	    if (denom < 1.0E-200) {
+	      retn = ROOTFIND_FAILEDCONVERGENCE;
+	      converged = true;
+	      rfT.reasoning += "FNotConverged but X1X2Identical";
+	    }
+	    /*
+	     *  The premise here is that if x1 and x2 get close to one another,
+	     *  then the accuracy of the calculation gets destroyed. 
+	     */
+	    if (theSame(x2, x1, 1.0E-5)) {
+	      converged = true;
+	      retn = ROOTFIND_SUCCESS_XCONVERGENCEONLY;
+	      rfT.reasoning += "FNotConverged but XSame";
+	    }
+	  }
 	}
       }
-      its++;
     } while (! converged && its < itmax);
 
   done:
     if (converged) {
-      retn = ROOTFIND_SUCCESS;
-      if (fabs(f1) < 2.0 * fabs(f2)) {
-	slope = (f2 - f1) / (x2 - x1);
-	xnew = x2 - f2 / slope;
+      rfT.slope = slope;
+      rfHistory_.push_back(rfT);
+      rfT.clear();
+      rfT.its = its;
+      AssertThrow((f1 * f2 <= 0.0), "F1 and F2 aren't bounding");
 
+      double x_fpos = x2;
+      double x_fneg = x1;
+      if (f2 < 0.0) {
+	x_fpos = x1;
+	x_fneg = x2;
+      }
+      rfT.delX = fabs(x_fpos - x_fneg);
+      if (doFinalFuncCall || (fabs(f1) < 2.0 * fabs(f2))) {
+	double delXtmp = deltaXControlled(x2, x1);
+	slope = (f2 - f1) / delXtmp;
+	xnew = x2 - f2 / slope;
+	its++;
 	fnew = func(xnew);
-	if (fabs(fnew) < fabs(f2)) {
+	if (fnew > 0.0) {
+	  if (fabs(xnew - x_fneg) < fabs(x_fpos - x_fneg)) {
+	    x_fpos = xnew;
+	    rfT.delX = fabs(xnew - x_fneg);
+	  }
+	} else {
+	  if (fabs(xnew - x_fpos) < fabs(x_fpos - x_fneg)) {
+	    x_fneg = xnew;
+	    rfT.delX = fabs(xnew - x_fpos);
+	  }
+	}
+	rfT.its = its;
+	if (fabs(fnew) < fabs(f2) && (fabs(fnew) < fabs(f1))) {
+	  *xbest = xnew;
+	  if (doFinalFuncCall) {
+	    rfT.reasoning += "CONVERGENCE: Another Evaluation Requested";
+	    rfT.delX = fabs(xnew - x2);
+	  } else {
+	    rfT.reasoning += "CONVERGENCE: Another Evaluation done because f1 < f2";
+	    rfT.delX = fabs(xnew - x1);
+	  }
+	  rfT.fval = fnew;
+	  rfT.xval = xnew;
 	  x2 = xnew;
 	  f2 = fnew;
+	} else if (fabs(f1) < fabs(f2)) {
+	  rfT.its = its;
+	  rfT.xval = xnew;
+	  rfT.fval = fnew;
+
+	  rfT.slope = slope;
+	  rfT.reasoning += "CONVERGENCE: Another Evaluation not as good as Second Point ";
+	  rfHistory_.push_back(rfT);
+	  rfT.clear();
+	  rfT.its = its;
+	  SWAP(f1, f2, dtmp);
+	  SWAP(x1, x2, dtmp);
 	  *xbest = x2;
+	  if (fabs(fnew) < fabs(f1)) {
+	    if (f1 * fnew > 0.0) {
+	      SWAP(f1, fnew, dtmp);
+	      SWAP(x1, xnew, dtmp);
+	    }
+	  }
+
+	  rfT.its = its;
+	  rfT.xval = *xbest;
+	  rfT.fval = f2;
+	  rfT.delX = fabs(x_fpos - x_fneg);
+	  rfT.reasoning += "CONVERGENCE: NormalEnding -> Second point used";
+	} else {
+	  rfT.its = its;
+	  rfT.xval = xnew;
+	  rfT.fval = fnew;
+
+	  rfT.slope = slope; 
+	  rfT.reasoning += "CONVERGENCE: Another Evaluation not as good as First Point ";
+	  rfHistory_.push_back(rfT);
+	  rfT.clear();
+	  rfT.its = its;
+	  *xbest = x2;
+	  rfT.xval = *xbest;
+	  rfT.fval = f2;
+	  rfT.delX = fabs(x_fpos - x_fneg);
+	  rfT.reasoning += "CONVERGENCE: NormalEnding -> Last point used";
 	}
-	if (fabs(f1) < fabs(f2)) {
-	  x2 = x1;
-	  f2 = f1;
-	  *xbest = x1;
-	  fnew = func(x2);
-	}
+      } else {
+
+	*xbest = x2;
+
+	rfT.xval = *xbest;
+	rfT.fval = f2;
+	rfT.delX = fabs(x2 - x1);
+	rfT.reasoning += "CONVERGENCE: NormalEnding -> Last point used";
       }
-
-
-
+      funcTargetValue = f2 + m_funcTargetValue;
+      rfT.slope = slope;
 
       if (printLvl >= 1) {
 	writelogf("RootFind success: convergence achieved\n");
@@ -1013,35 +1194,50 @@ namespace Cantera {
       if (printLvl >= 3 && writeLogAllowed_) {
 	fprintf(fp, " | RootFind success in %d its, fnorm = %g\n", its, fnorm);
       }
-#endif  
+#endif 
+      rfHistory_.push_back(rfT);
     } else {
+      rfT.reasoning = "FAILED CONVERGENCE ";
+      rfT.slope = slope;
+      rfT.its = its;
       if (retn == ROOTFIND_SOLNHIGHERTHANXMAX) {
 	if (printLvl >= 1) {
 	  writelogf("RootFind ERROR: Soln probably lies higher than xmax, %g: best guess = %g\n", xmax, *xbest);
 	}
+	rfT.reasoning += "Soln probably lies higher than xmax, " + fp2str(xmax) + ": best guess = " + fp2str(*xbest);
       } else   if (retn == ROOTFIND_SOLNLOWERTHANXMIN) {
 	if (printLvl >= 1) {
 	  writelogf("RootFind ERROR: Soln probably lies lower than xmin, %g: best guess = %g\n", xmin, *xbest);
 	}
+	rfT.reasoning += "Soln probably lies lower than xmin, " + fp2str(xmin) + ": best guess = " + fp2str(*xbest);
       } else {
 	retn = ROOTFIND_FAILEDCONVERGENCE;
 	if (printLvl >= 1) {
 	  writelogf("RootFind ERROR: maximum iterations exceeded without convergence, cause unknown\n");
 	}
+	rfT.reasoning += "Maximum iterations exceeded without convergence, cause unknown";
       }
 #ifdef DEBUG_MODE
       if (printLvl >= 3 && writeLogAllowed_) {
 	fprintf(fp, "\nRootFind failure in %d its\n", its);
       }
 #endif
+    
+      *xbest = x2;
+      funcTargetValue = f2 + m_funcTargetValue;
+      rfT.xval = *xbest;
+      rfT.fval = f2;
+      rfHistory_.push_back(rfT);
     }
-    *xbest = x2;
-    funcTargetValue = f2 + m_funcTargetValue;
 #ifdef DEBUG_MODE
     if (printLvl >= 3 && writeLogAllowed_) {
       fclose(fp);
     }
 #endif
+
+    if (printLvl >= 2) {
+     printTable();
+    }
     
     return retn;
   }
@@ -1173,4 +1369,22 @@ namespace Cantera {
     specifiedDeltaXMax_ = 1;
   }
   //====================================================================================================================
+
+  //====================================================================================================================
+  void RootFind::printTable() {
+    printf("\t----------------------------------------------------------------------------------------------------------------------------------------\n");
+    printf("\t  RootFinder Summary table: \n");
+    printf("\t         FTarget = %g\n", m_funcTargetValue);
+    printf("\t Iter |       xval             delX        deltaXConv    |    slope    | foundP foundN|   F - F_targ  deltaFConv  |   Reasoning\n");
+    printf("\t----------------------------------------------------------------------------------------------------------------------------------------\n");
+    for (int i = 0; i < (int) rfHistory_.size(); i++) {
+      struct rfTable rfT = rfHistory_[i]; 
+      printf("\t  %3d |%- 17.11E %- 13.7E  %- 13.7E |%- 13.5E|   %3d   %3d  | %- 12.5E %- 12.5E | %s \n",
+	     rfT.its, rfT.xval, rfT.delX, rfT.deltaXConverged, rfT.slope, rfT.foundPos, rfT.foundNeg, rfT.fval,
+	     rfT.deltaFConverged, (rfT.reasoning).c_str());
+    }
+    printf("\t----------------------------------------------------------------------------------------------------------------------------------------\n");
+  }
+  //====================================================================================================================
+ 
 }
