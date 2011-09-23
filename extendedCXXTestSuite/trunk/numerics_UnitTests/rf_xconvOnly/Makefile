@@ -1,13 +1,14 @@
 #!/bin/sh
 ###############################################################
 #  $Author: hkmoffa $
-#  $Date: 2011/07/30 03:12:24 $
-#  $Revision: 1.1 $
+#  $Date: 2010-03-19 18:26:02 -0600 (Fri, 19 Mar 2010) $
+#  $Revision: 420 $
 ###############################################################
+#
 #
 RM = /bin/rm -f
 #
-PROGRAM=idaRoberts_Cantera
+PROGRAM=xconvOnly
 #
 OBJ=$(PROGRAM).o
 #
@@ -17,13 +18,30 @@ OBJ=$(PROGRAM).o
 #
 # The directory where Cantera include files may be found.
 #
-CANTERA_INCROOT=@ct_incroot@
+CANTERA_INCROOT=/home/hkmoffa/arch/linux64_gcc444/cantera-1.8_liquidTransportDevelop/include
 #
 include $(CANTERA_INCROOT)/cantera/Cantera.mak
+#
+#
+# Set up the various local and global defines
+#
+LDEFINES = -DDEBUG  -DDEBUG_TEST
 #
 # Set up the global include directory macro
 #
 INCLUDE_DIRS = $(CANTERA_TOTAL_INCLUDES) 
+#
+# the C++ compiler
+#
+CXX = /sierra/Sntools/extras/compilers/gcc-4.4.4/bin/g++
+CXXFLAGS = -g -Wall -DDEBUG_HKM $(DEBUG_FLAG)
+LCXX_FLAGS = -g -Wall -DDEBUG_HKM
+LCXX_END_LIBS =  -lgfortran -lm -lstdc++ 
+CXXLDR = $(CXX)
+#
+# Both the C and C++ compiler predefines
+#
+CCFLAGS =  $(GDEFINES) $(INCLUDE_DIRS) $(LDEFINES)
 #
 debug_mode = 0
 ifeq ($(debug_mode), 1)
@@ -31,23 +49,10 @@ ifeq ($(debug_mode), 1)
 else
    DEBUG_FLAG=
 endif
-#
-# the C++ compiler
-#
 
-CXX = @CXX@
-CXXFLAGS = @CXXFLAGS@ $(DEBUG_FLAG)
-LCXX_FLAGS = @LCXX_FLAGS@
-LCXX_END_LIBS = @LCXX_END_LIBS@
-CXXLDR = $(CXX)
-#
-# Both the C and C++ compiler predefines
-#
-CCFLAGS =  $(GDEFINES) $(INCLUDE_DIRS) $(LDEFINES)
-#
 ######################################################################
 
-all: .depends $(PROGRAM) 
+all: .depends $(PROGRAM)
 
 ######################################################################
 
@@ -61,7 +66,7 @@ all: .depends $(PROGRAM)
 ###########################################################################
 
 .cpp.d:
-	@CXX_DEPENDS@ $(CXXFLAGS) $(CCFLAGS) -c $*.cpp > $*.d
+	/sierra/Sntools/extras/mpi/RHEL5/openmpi-1.4.1/gcc-4.4.4-64Bit/bin/mpiCC -MM $(CXXFLAGS) $(CCFLAGS) -c $*.cpp > $*.d
 
 DEPENDS = $(PROGRAM).d
 
@@ -70,7 +75,7 @@ DEPENDS = $(PROGRAM).d
 
 depends:
 	$(RM) *.d .depends
-	@MAKE@ .depends
+	gmake .depends
 
 $(PROGRAM).d: $(PROGRAM).cpp Makefile
 
@@ -83,6 +88,10 @@ rebaseline:
 
 $(OBJ): Makefile
 
+############################################################################
+############################################################################
+#
+
 $(PROGRAM): $(OBJ) Makefile $(CANTERA_TOTAL_LIBS_DEP) 
 	$(CXXLDR) $(LCXX_FLAGS) $(FLIB_BSD) -o $(PROGRAM) \
                   $(OBJ) \
@@ -93,7 +102,8 @@ test:
 	@ ./runtest
 
 clean:
-	$(RM) *.o fort.* *%  core *.trace tmp* *~  $(PROGRAM) *.d .depends
+	$(RM) *.o fort.* *%  core *.trace tmp* *~ diff* output_0.txt
+	$(RM) $(PROGRAM) *.d .depends
 
 ###########################################################################
 #          INSTALL RULES
@@ -102,4 +112,8 @@ clean:
 ifeq ($(wildcard .depends), .depends)
 include .depends
 endif
+
+install:
+
+
 

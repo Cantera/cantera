@@ -178,10 +178,11 @@ VCS CALCULATION METHOD
    ---   KCl(L)      (        3) remains                          as component   2
    ---   Li7Si3(S)   (      0.5) remains                          as component   3
    ---   V(i)        (     0.49) remains                          as component   4
-   ---                Components:       0         1         2         3         4  
-   ---          Components Moles:       100         7         3       0.5     0.495
-   ---   NonComponent|   Moles  |       LiFixed   LiCl(L)   KCl(L)    Li7Si3(S) V(i)      
-   ---   5 Li(i)     |     0.005|      -1.00      -0.00       0.00      -0.00      -1.00
+   ---                Components:          0          1          2          3          4
+   ---          Components Moles:  1.000E+02  7.000E+00  3.000E+00  5.000E-01  4.950E-01
+   ---   NonComponent|   Moles  |    LiFixed    LiCl(L)     KCl(L)  Li7Si3(S)       V(i)
+   ---   5 Li(i)     | 5.000E-03|     -1.000     -0.000     -0.000     -0.000     -1.000
+   ---               largest error in Stoich coeff = 0 at rxn = 0 Li(i)      element = 0 Li   
    -----------------------------------------------------------------------------
    --- Subroutine vcs_deltag called for all noncomponents
   --- Species Status decision is reavaluated: All species are minor except for:
