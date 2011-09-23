@@ -97,7 +97,7 @@ namespace Cantera {
     /*!
      *  @deprecated This entire structure could be replaced with a std::map
      */
-    static int ntypes = 19;
+    static int ntypes = 20;
 
     //! Define the string name of the %ThermoPhase types that are handled by this factory routine
     static string _types[] = {"IdealGas", "Incompressible", 
