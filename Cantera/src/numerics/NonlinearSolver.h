@@ -37,6 +37,32 @@ namespace Cantera {
 #define  NSOLN_TYPE_STEADY_STATE   0
    //@}
 
+ 
+  //@{
+  ///  @name  Constant which determines the Return int from the nonlinear solver
+  /*!
+   *  This int is returned from the nonlinear solver
+   */
+  //!  The nonlinear solve is successful.
+#define  NSOLN_RETN_SUCCESS 1
+  //! Problem isn't solved yet
+#define   NSOLN_RETN_CONTINUE  0 
+  //! The nonlinear problem started to take too small an update step. This indicates that either the 
+  //! Jacobian is bad, or a constraint is being bumped up against.
+#define  NSOLN_RETN_FAIL_STEPTOOSMALL -1
+  //! The nonlinear problem didn't solve the problem
+#define  NSOLN_RETN_FAIL_DAMPSTEP  -2
+  //!  The nonlinear problem's jacobian is singular
+#define  NSOLN_RETN_MATRIXINVERSIONERROR   -3
+  //!  The nonlinear problem's jacobian formation produced an error
+#define  NSOLN_RETN_JACOBIANFORMATIONERROR   -4
+  //!  The nonlinear problem's base residual produced an error
+#define  NSOLN_RETN_RESIDUALFORMATIONERROR   -5
+  //!  The nonlinear problem's max number of iterations has been exceeded
+#define  NSOLN_RETN_MAXIMUMITERATIONSEXCEEDED   -7
+   //@}
+   //@}
+
   //@{
   ///  @name  Constant which determines the type of the Jacobian
   //! The jacobian will be calculated from a numerical method
@@ -162,7 +188,7 @@ namespace Cantera {
      *  @return Returns the L2 norm of the delta
      */
     doublereal solnErrorNorm(const doublereal * const delta_y,  const char * title = 0, int printLargest = 0, 
-			 const doublereal dampFactor = 1.0) const;
+			     const doublereal dampFactor = 1.0) const;
 
     //! L2 norm of the residual of the equation system
     /*!
@@ -270,7 +296,7 @@ namespace Cantera {
      *  We carry out a norm of deltaX_trust_ first. Then, we multiply that value
      *  by trustDelta_
      */
-    double trustRegionLength() const;
+    doublereal trustRegionLength() const;
 
     //! Set default deulta bounds amounts
     /*!
@@ -280,6 +306,8 @@ namespace Cantera {
      *     then, they are increased to 0.1 fab(y[i])
      */
     void setDefaultDeltaBoundsMagnitudes();
+
+    void adjustUpStepMinimums();
 
     //! Set the delta Bounds magnitudes by hand
     /*!
@@ -311,7 +339,7 @@ namespace Cantera {
      *  @param alpha    Relative length along the dog length that you are on.
      *  @param deltaX   Vector to be filled up
      */
-    void fillDogLegStep(int leg, double alpha, std::vector<doublereal>  & deltaX) const;
+    void fillDogLegStep(int leg, doublereal alpha, std::vector<doublereal>  & deltaX) const;
 
     //! Calculate the trust distance of a step in the solution variables
     /*!
@@ -370,10 +398,10 @@ namespace Cantera {
 			      const doublereal * const y_high_bounds);
 
     //! Return an editable vector of the low bounds constraints
-    std::vector<double> & lowBoundsConstraintVector();
+    std::vector<doublereal> & lowBoundsConstraintVector();
 
     //! Return an editable vector of the high bounds constraints
-    std::vector<double> & highBoundsConstraintVector();
+    std::vector<doublereal> & highBoundsConstraintVector();
  
     //!   Internal function to calculate the time derivative of the solution at the new step
     /*!
@@ -450,34 +478,34 @@ namespace Cantera {
 			       
     //!  Find a damping coefficient through a look-ahead mechanism
     /*!
-     *    On entry, step0 must contain an undamped Newton step for the
-     *    solution x0. This method attempts to find a damping coefficient
+     *    On entry, step_1 must contain an undamped Newton step for the
+     *    solution y_n_curr. This method attempts to find a damping coefficient
      *    such that all components stay in bounds, and  the next
      *    undamped step would have a norm smaller than
-     *    that of step0. If successful, the new solution after taking the
-     *    damped step is returned in y1, and the undamped step at y1 is
-     *    returned in step1.
+     *    that of step_1. If successful, the new solution after taking the
+     *    damped step is returned in y_n_1, and the undamped step at y_n_1 is
+     *    returned in step_2.
      *
      *    @param time_curr Current physical time
-     *    @param y0        Base value of the solution before any steps 
-     *                     are taken
-     *    @param ydot0     Base value of the time derivative of teh
-     *                     solution
-     *    @param step0     Initial step suggested.
-     *    @param y1        Value of y1, the suggested solution after damping
-     *    @param ydot1     Value of the time derivative of the solution at y1
-     *    @param step1     Value of the step change from y0 to y1
-     *    @param s1        norm of the step change in going from y0 to y1
-     *    @param jac       Jacobian
-     *    @param writetitle  Write a title line
+     *    @param y_n_curr     Base value of the solution before any steps 
+     *                        are taken
+     *    @param ydot_n_curr  Base value of the time derivative of teh
+     *                        solution
+     *    @param step_1       Initial step suggested.
+     *    @param y_n_1        Value of y1, the suggested solution after damping
+     *    @param ydot_n_1     Value of the time derivative of the solution at y_n_1
+     *    @param step_2       Value of the step change from y_n_1 to y_n_2
+     *    @param stepNorm_2   norm of the step change in going from y_n_1 to y_n_2
+     *    @param jac          Jacobian
+     *    @param writetitle   Write a title line
      *    @param num_backtracks Number of backtracks taken
      *
      *  @return returns an integer indicating what happened.
      */
-    int dampStep(const doublereal time_curr, const double* y0, 
-		 const doublereal *ydot0, const double* step0, 
-		 double* const y1, double* const ydot1, double* step1,
-		 double& s1, SquareMatrix& jac, bool writetitle,
+    int dampStep(const doublereal time_curr, const double* y_n_curr, 
+		 const doublereal *ydot_n_curr, double * const step_1, 
+		 double* const y_n_1, double* const ydot_n_1, double* step_2,
+		 double& stepNorm_2, SquareMatrix& jac, bool writetitle,
 		 int& num_backtracks);
 
     //! Find the solution to F(X) = 0 by damped Newton iteration. 
@@ -521,27 +549,27 @@ namespace Cantera {
      *  @param ydot_comm        Current value of the time derivative of the solution vector
      *  @param time_curr        current value of the time
      */
-    void scaleMatrix(SquareMatrix& jac, double* y_comm, double* ydot_comm, doublereal time_curr);
+    void scaleMatrix(SquareMatrix& jac, double* y_comm, double* ydot_comm, doublereal time_curr, int num_newt_its);
 
     //! Print solution norm contribution
     /*!
      *  Prints out the most important entries to the update to the solution vector for the current step
      *
-     *   @param solnDelta0             Raw update vector for the current nonlinear step
-     *   @param s0                     Norm of the vector solnDelta0
-     *   @param solnDelta1             Raw update vector for the next solution value based on the old matrix
-     *   @param s1                     Norm of the vector solnDelta1
+     *   @param step_1                 Raw update vector for the current nonlinear step
+     *   @param stepNorm_1             Norm of the vector step_1
+     *   @param step_2                 Raw update vector for the next solution value based on the old matrix
+     *   @param stepNorm_2             Norm of the vector step_2
      *   @param title                  title of the printout
-     *   @param y0                     Old value of the solution
-     *   @param y1                     New value of the solution after damping corrections
+     *   @param y_n_curr               Old value of the solution
+     *   @param y_n_1                  New value of the solution after damping corrections
      *   @param damp                   Value of the damping factor
      *   @param num_entries            Number of entries to print out
      */
     void
-    print_solnDelta_norm_contrib(const doublereal * const solnDelta0, const char * const s0,
-				 const doublereal * const solnDelta1, const char * const s1,
-				 const char * const title, const doublereal * const y0, const doublereal * const y1,
-				 doublereal damp, int num_entries);
+    print_solnDelta_norm_contrib(const doublereal * const step_1, const char * const stepNorm_1,
+				 const doublereal * const step_2, const char * const stepNorm_2,
+				 const char * const title, const doublereal * const y_n_curr,
+				 const doublereal * const y_n_1,  doublereal damp, int num_entries);
 
     //! Compute the Residual Weights
     /*!
@@ -640,8 +668,9 @@ namespace Cantera {
      *  @param time_curr   Current time
      *  @param ydot0       INPUT    Current value of the derivative of the solution vector
      *  @param ydot1       INPUT  Time derivates of solution at the conditions which are evalulated for success
+     *  @param numTrials   OUTPUT Counter for the number of residual evaluations
      */
-    void descentComparison(double time_curr ,double *ydot0, double *ydot1);
+    void descentComparison(doublereal time_curr ,doublereal * ydot0, doublereal * ydot1, int &numTrials);
 
   
     //!  Setup the parameters for the double dog leg
@@ -659,7 +688,7 @@ namespace Cantera {
      *
      * @return Returns the leg number ( 0, 1, or 2).
      */
-    int lambdaToLeg(const double lambda, double &alpha) const;
+    int lambdaToLeg(const doublereal lambda, doublereal &alpha) const;
 
     //! Given a trust distance, this routine calculates the intersection of the this distance with the
     //! double dogleg curve
@@ -669,7 +698,7 @@ namespace Cantera {
      *   @param      alpha       (OUTPUT)    Returns the relative distance along the appropriate leg
      *   @return     leg         (OUTPUT)    Returns the leg ID (0, 1, or 2)
      */
-    int calcTrustIntersection(double trustVal, double &lambda, double &alpha) const;
+    int calcTrustIntersection(doublereal trustVal, doublereal &lambda, doublereal &alpha) const;
 
     //! Initialize the size of the trust vector.
     /*!
@@ -687,7 +716,8 @@ namespace Cantera {
      * @param step_1     INPUT    First trial step for the first iteration
      * @param y_n_1   INPUT       First trial value of the solution vector
      * @param ydot_n_1 INPUT      First trial value of the derivative of the solution vector
-     * @param s1         OUTPUT   Norm of the vector step_1
+     * @param stepNorm_1        OUTPUT   Norm of the vector step_1
+     * @param stepNorm_2        OUTPUT   Estimated norm of the vector step_2
      * @param jac        INPUT    jacobian
      * @param num_backtracks OUTPUT  number of backtracks taken in the current damping step
      *
@@ -704,7 +734,7 @@ namespace Cantera {
     int dampDogLeg(const doublereal time_curr, const doublereal* y_n_curr, 
 		   const doublereal *ydot_n_curr,  std::vector<doublereal> & step_1,
 		   doublereal* const y_n_1, doublereal* const ydot_n_1, 
-		   doublereal& s1, SquareMatrix& jac, int& num_backtracks);
+		   doublereal& stepNorm_1, doublereal& stepNorm_2, SquareMatrix& jac, int& num_backtracks);
 
     //! Decide whether the current step is acceptable and adjust the trust region size
     /*!
@@ -733,9 +763,10 @@ namespace Cantera {
      *       -2  Current value of the solution vector caused a residual error in its evaluation. 
      *           Step is a failure, and the step size must be reduced in order to proceed further.
      */
-    int decideStep(const doublereal time_curr, int leg, double alpha, const double* const y0, const doublereal * const ydot0, 
+    int decideStep(const doublereal time_curr, int leg, doublereal alpha, const doublereal * const y0, 
+		   const doublereal * const ydot0, 
 		   const std::vector<doublereal> & step0,
-		   const double* const y1, const double* const ydot1, double trustDeltaOld);
+		   const doublereal * const y1, const doublereal * const ydot1, doublereal trustDeltaOld);
 
     //! Calculated the expected residual along the double dogleg curve. 
     /*!
@@ -830,8 +861,13 @@ namespace Cantera {
     //! Vector containing the solution at the previous time step
     std::vector<doublereal> m_y_nm1;
 
+    //! Vector containing the solution at the previous time step
+    std::vector<doublereal> m_y_n_1;
+
     //! Value of the solution time derivative at the new point that is to be considered
     std::vector<doublereal> m_ydot_n_1;
+
+    std::vector<doublereal> m_step_1;
 
     //! Vector of column scaling factors
     std::vector<doublereal> m_colScales;
@@ -870,10 +906,16 @@ namespace Cantera {
     std::vector<doublereal> m_residWts;
 
     //! Norm of the residual at the start of each nonlinear iteration
-    doublereal m_normResid0;
+    doublereal m_normResid_0;
 
-    //! Norm of the residual before damping
-    doublereal m_normResidFRaw;
+    //! Norm of the residual after it has been bounded 
+    doublereal m_normResid_Bound;
+
+    //! Norm of the residual at the end of the first leg of the current iteration
+    doublereal m_normResid_1;
+
+    //! Norm of the residual at the end of the first leg of the current iteration
+    doublereal m_normResid_full;
 
     //! Norm of the solution update created by the iteration in its raw, undamped form, using the solution norm
     doublereal m_normDeltaSoln_Newton;
@@ -927,8 +969,11 @@ namespace Cantera {
     //! int indicating whether row scaling is turned on (1) or not (0)
     int m_rowScaling;
 
-    //! Total number of linear solves
+    //! Total number of linear solves taken by the solver object
     int m_numTotalLinearSolves;
+
+    //! Number of local linear solves done during the current iteration
+    int m_numLocalLinearSolves;
 
     //! Total number of newton iterations
     int m_numTotalNewtIts;
@@ -992,7 +1037,7 @@ namespace Cantera {
     int m_print_flag;
 
     //! Scale factor for turning residual norms into solution norms
-    double m_ScaleSolnNormToResNorm;
+    doublereal m_ScaleSolnNormToResNorm;
 
     //! Copy of the jacobian that doesn't get overwritten when the inverse is determined
     /*!
@@ -1019,6 +1064,12 @@ namespace Cantera {
     //! Expected value of the residual norm at the Cauchy point if the quadratic model
     //! were valid
     doublereal residNorm2Cauchy_;
+
+    //! Current leg
+    int dogLegID_;
+
+    //! Current Alpha param along the leg
+    doublereal dogLegAlpha_;
 
     //! Residual dot Jd norm
     /*!
@@ -1075,12 +1126,33 @@ namespace Cantera {
     //! General toggle for turning on Affine solve with Hessian
     int doAffineSolve_;
 
+    //! Condition number of the matrix
+    doublereal m_conditionNumber;
 
+    //! Factor indicating how much trust region has been changed this iteration - output variable
+    doublereal CurrentTrustFactor_;
+
+    //! Factor indicating how much trust region has been changed next iteration - output variable
+    doublereal NextTrustFactor_;
+
+    //! Boolean indicating that the residual weights have been reevalulated this iteration - output variable
+    bool ResidWtsReevaluated_;
+
+    //! Expected DResid_dS for the steepest descent path - output variable
+    doublereal ResidDecreaseSDExp_;
+
+    //! Actual DResid_dS for the steepest descent path - output variable
+    doublereal ResidDecreaseSD_;
+
+    //! Expected DResid_dS for the Newton path - output variable
+    doublereal ResidDecreaseNewtExp_;
+
+    //! Actual DResid_dS for the newton path - output variable
+    doublereal ResidDecreaseNewt_;
 
     /*******************************************************************************************
-     *      OTHER COUNTERS
+     *     STATIC VARIABLES
      *****************************************************************************************/
-
 
   public:
     //! Turn off printing of time
@@ -1092,7 +1164,7 @@ namespace Cantera {
     //! Turn on or off printing of the Jacobian
     static bool s_print_NumJac;
 
-    //! Turn on all printing of dogleg information
+    //! Turn on extra printing of dogleg information
     static bool s_print_DogLeg;
 
     //! Turn on solving both the Newton and Hessian systems and comparing the results
