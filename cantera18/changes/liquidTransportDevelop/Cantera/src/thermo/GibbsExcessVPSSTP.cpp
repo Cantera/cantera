@@ -332,6 +332,7 @@ namespace Cantera {
   void GibbsExcessVPSSTP::initThermo() {
     initLengths();
     VPStandardStateTP::initThermo();
+    getMoleFractions(DATA_PTR(moleFractions_));
   }
 
 
