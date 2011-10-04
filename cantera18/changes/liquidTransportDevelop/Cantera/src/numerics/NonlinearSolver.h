@@ -588,7 +588,7 @@ namespace Cantera {
     /*!
      *  @param residWts  Vector of length neq_
      */
-    void  getResidWts(doublereal * const residWts) const;
+    void getResidWts(doublereal * const residWts) const;
 
     //! Check to see if the nonlinear problem has converged
     /*!
@@ -1172,6 +1172,12 @@ namespace Cantera {
      *  This is off by default
      */
     static bool s_doBothSolvesAndCompare;
+
+    //! This toggle turns off the use of the Hessian when it is warranted by the condition number.
+    /*!
+     *   This is a debugging option.
+     */
+    static bool s_alwaysAssumeNewtonGood;
 
   };
 
