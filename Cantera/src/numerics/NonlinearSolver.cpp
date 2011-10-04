@@ -86,6 +86,13 @@ namespace Cantera {
    *  Turn this on if you want to compare the Hessian and Newton solve results.
    */
   bool  NonlinearSolver::s_doBothSolvesAndCompare(false);
+
+  // This toggle turns off the use of the Hessian when it is warranted by the condition number.
+  /*
+   *   This is a debugging option.
+   */
+  bool NonlinearSolver::s_alwaysAssumeNewtonGood(false);
+
   //====================================================================================================================
   // Default constructor
   /*
@@ -923,7 +930,7 @@ namespace Cantera {
       }
     }
 
-    // Factor the matrix
+    // Factor the matrix using a standard Newton solve
     m_conditionNumber = 1.0E300;
     int info = 0;
     if (!jac.m_factored) { 
@@ -952,9 +959,9 @@ namespace Cantera {
     if (s_doBothSolvesAndCompare) {
       doHessian = true;
     }
-    bool doNewton = false;
+    bool useNewton = false;
     if (m_conditionNumber < 1.0E7) {
-      doNewton = true;
+      useNewton = true;
       if (m_print_flag >= 4) {
 	printf("\t\t   doAffineNewtonSolve: Condition number = %g during regular solve\n", m_conditionNumber);
       }
@@ -965,7 +972,7 @@ namespace Cantera {
       int info = jac.solve(DATA_PTR(delta_y));
       if (info) {
 	if (m_print_flag >= 2) {
-	  printf("\t\t   NonlinearSolver::doAffineSolve() ERROR: QRSolve returned INFO = %d. Switching to Hessian solve\n", info);
+	  printf("\t\t   doAffineNewtonSolve() ERROR: QRSolve returned INFO = %d. Switching to Hessian solve\n", info);
 	}
 	doHessian = true;
 	newtonGood = false;
@@ -989,12 +996,12 @@ namespace Cantera {
 
     if (doHessian) {
       // Store the old value for later comparison
-      if (doNewton) {
-	delyNewton = mdp::mdp_alloc_dbl_1(neq_, MDP_DBL_NOINIT);
-	for (irow = 0; irow < neq_; irow++) {
-	  delyNewton[irow] = delta_y[irow];
-	}
+ 
+      delyNewton = mdp::mdp_alloc_dbl_1(neq_, MDP_DBL_NOINIT);
+      for (irow = 0; irow < neq_; irow++) {
+	delyNewton[irow] = delta_y[irow];
       }
+      
       // Get memory if not done before
       if (Hessian_.nRows() == 0) {
 	Hessian_.resize(neq_, neq_);
@@ -1057,8 +1064,14 @@ namespace Cantera {
       }
       /*
        * Add junk to the Hessian diagonal
+       *  -> Note, testing indicates that this will get too big for ill-conditioned systems.
        */
       hcol = sqrt(neq_) * 1.0E-7 * hnorm;
+#ifdef DEBUG_HKM_NOT
+      if (hcol > 1.0) {
+	hcol = 1.0E1;
+      }
+#endif
       if (m_colScaling) {
 	for (int i = 0; i < neq_; i++) {
 	  Hessian_(i,i) += hcol / (m_colScales[i] * m_colScales[i]);
@@ -1076,7 +1089,7 @@ namespace Cantera {
       ct_dpotrf(ctlapack::UpperTriangular, neq_, &(*(Hessian_.begin())), neq_, info);
       if (info) {
 	if (m_print_flag >= 2) {
-	  printf("\t\t   NonlinearSolver::doAffineSolve() ERROR: DPOTRF returned INFO = %d\n", info);
+	  printf("\t\t    doAffineNewtonSolve() ERROR: Hessian isn't positive definate DPOTRF returned INFO = %d\n", info);
 	}
 	return info;
       }
@@ -1117,7 +1130,7 @@ namespace Cantera {
       ct_dpotrs(ctlapack::UpperTriangular, neq_, 1,&(*(Hessian_.begin())), neq_, delta_y, neq_, info);
       if (info) {
 	if (m_print_flag >= 2) {
-	  printf("\t\t   NonlinearSolver::doAffineSolve() ERROR: DPOTRS returned INFO = %d\n", info);
+	  printf("\t\t   NonlinearSolver::doAffineNewtonSolve() ERROR: DPOTRS returned INFO = %d\n", info);
 	}
 	return info;
       }
@@ -1131,18 +1144,40 @@ namespace Cantera {
       }
 
 
-      if (s_print_DogLeg || (doDogLeg_ && m_print_flag > 3)) {
-	printf("\t\t        Comparison between Hessian deltaX and newton deltaX\n");
-	printf("\t\t          I    Hessian+Junk  Newton \n");
-	printf("\t\t      --------------------------------------------------------\n");
-	for (int i =0; i < neq_; i++) {
-	  printf("\t\t        %3d  %12.5g %12.5g\n", i, delta_y[i], delyNewton[i]);
+      if (s_print_DogLeg || (doDogLeg_ && m_print_flag > 7)) {
+        double normNewt = solnErrorNorm(CONSTD_DATA_PTR(delyNewton));
+	double normHess = solnErrorNorm(CONSTD_DATA_PTR(delta_y));
+	printf("\t\t          doAffineNewtonSolve(): Printout Comparison between Hessian deltaX and Newton deltaX\n");
+	
+	printf("\t\t               I    Hessian+Junk     Newton");
+	if (newtonGood || s_alwaysAssumeNewtonGood) {
+	  printf(" (USING NEWTON DIRECTION)\n");
+	} else {
+	  printf(" (USING HESSIAN DIRECTION)\n");
 	}
-	printf("\t\t      --------------------------------------------------------\n");
-
+	printf("\t\t            Norm: %12.4E %12.4E\n", normHess, normNewt);
+       
+	printf("\t\t          --------------------------------------------------------\n");
+	for (int i =0; i < neq_; i++) {
+	  printf("\t\t             %3d  %13.5E %13.5E\n", i, delta_y[i], delyNewton[i]);
+	}
+	printf("\t\t          --------------------------------------------------------\n");
+      } else if (s_print_DogLeg || (doDogLeg_ && m_print_flag >= 4)) {
+	double normNewt = solnErrorNorm(CONSTD_DATA_PTR(delyNewton));
+	double normHess = solnErrorNorm(CONSTD_DATA_PTR(delta_y));
+	printf("\t\t          doAffineNewtonSolve():  Hessian update norm = %12.4E \n"
+	       "\t\t                                  Newton  update norm = %12.4E \n", normHess, normNewt);
+	if (newtonGood || s_alwaysAssumeNewtonGood) {
+	  printf("\t\t                                 (USING NEWTON DIRECTION)\n");
+	} else {
+	  printf("\t\t                                 (USING HESSIAN DIRECTION)\n");
+	}
       }
 
-      if (newtonGood) {
+      /*
+       *  Choose the delta_y to use
+       */
+      if (newtonGood || s_alwaysAssumeNewtonGood) {
 	mdp::mdp_copy_dbl_1(DATA_PTR(delta_y), CONSTD_DATA_PTR(delyNewton), neq_);
       }
       mdp::mdp_safe_free((void **) &delyH);
@@ -1330,6 +1365,7 @@ namespace Cantera {
   {
     int info;
     doublereal ff = 1.0E-5;
+    doublereal ffNewt = 1.0E-5;
     doublereal *y_n_1 = DATA_PTR(m_wksp);
     doublereal cauchyDistanceNorm = solnErrorNorm(DATA_PTR(deltaX_CP_));
     if (cauchyDistanceNorm < 1.0E-2) {
@@ -1357,8 +1393,11 @@ namespace Cantera {
     doublereal funcDecreaseSD = 0.5 * (residSteep2 - normResid02) / ( ff * cauchyDistanceNorm);
 
     doublereal sNewt = solnErrorNorm(DATA_PTR(deltaX_Newton_));
+    if (sNewt > 1.0) {
+      ffNewt = ffNewt / sNewt;
+    }
     for (int i = 0; i < neq_; i++) {
-      y_n_1[i] = m_y_n_curr[i] + ff * deltaX_Newton_[i];
+      y_n_1[i] = m_y_n_curr[i] + ffNewt * deltaX_Newton_[i];
     }
     /*
      *  Calculate the residual that would result if y1[] were the new solution vector.
@@ -1375,7 +1414,7 @@ namespace Cantera {
     doublereal residNewt = residErrorNorm(DATA_PTR(m_resid));
     doublereal residNewt2 = residNewt * residNewt * neq_;
 
-    doublereal funcDecreaseNewt2 = 0.5 * (residNewt2 - normResid02) / ( ff * sNewt);
+    doublereal funcDecreaseNewt2 = 0.5 * (residNewt2 - normResid02) / ( ffNewt * sNewt);
 
     // This is the expected inital rate of decrease in the Cauchy direction.
     //   -> This is Eqn. 29 = Rhat dot Jhat dy / || d ||
@@ -1397,8 +1436,14 @@ namespace Cantera {
     numTrials += 2;
 
     /*
-     * HKM These have been shown to exactly match up.
+     *   HKM These have been shown to exactly match up.
      *   The steepest direction is always largest even when there are variable solution weights
+     *
+     *   HKM When a hessian is used with junk on the diagonal,  funcDecreaseNewtExp2 is no longer accurate as the
+     *  direction gets signficantly shorter with increasing condition number. This suggests an algorithm where the 
+     *  newton step from the Hessian should be increased so as to match funcDecreaseNewtExp2 =  funcDecreaseNewt2.
+     *  This roughly equals the ratio of the norms of the hessian and newton steps. This increased Newton step can
+     *  then be used with the trust region double dogleg algorithm. 
      */
     if (s_print_DogLeg || (doDogLeg_ && m_print_flag >= 5)) {
       printf("\t\t   descentComparison: initial rate of decrease of func in cauchy dir (expected) = %g\n", funcDecreaseSDExp);
@@ -1412,6 +1457,36 @@ namespace Cantera {
       printf("\t\t   descentComparison: initial rate of decrease of Resid in newton dir (expected) = %g\n", ResidDecreaseNewtExp_);
       printf("\t\t   descentComparison: initial rate of decrease of Resid in newton dir            = %g\n", ResidDecreaseNewt_);
     }
+
+   if (s_print_DogLeg || (doDogLeg_ && m_print_flag >= 4)) {
+     if (funcDecreaseNewt2 >= 0.0) {
+       printf("\t\t                            %13.5E  %22.16E\n", funcDecreaseNewtExp2, m_normResid_0);
+       double ff = ffNewt * 1.0E-5;
+       for (int ii = 0; ii < 13; ii++) {
+	 ff *= 10.;
+	 if (ii == 12) {
+	   ff = ffNewt;
+	 }
+	 for (int i = 0; i < neq_; i++) {
+	   y_n_1[i] = m_y_n_curr[i] + ff * deltaX_Newton_[i];
+	 } 
+	 numTrials += 1;
+	 if (solnType_ != NSOLN_TYPE_STEADY_STATE) {
+	   info = doResidualCalc(time_curr, solnType_, y_n_1, ydot1, Base_LaggedSolutionComponents);
+	 } else {
+	   info = doResidualCalc(time_curr, solnType_, y_n_1, ydot0, Base_LaggedSolutionComponents);
+	 }  
+	 residNewt = residErrorNorm(DATA_PTR(m_resid));
+	 residNewt2 = residNewt * residNewt * neq_;
+	 funcDecreaseNewt2 = 0.5 * (residNewt2 - normResid02) / ( ff * sNewt);
+	 printf("\t\t                 %10.3E %13.5E  %22.16E\n", ff, funcDecreaseNewt2, residNewt );
+       }
+
+     }
+
+
+   }
+
   }
 
   //====================================================================================================================
@@ -2851,6 +2926,9 @@ namespace Cantera {
 	info = beuler_jac(jac, DATA_PTR(m_resid), time_curr, CJ,  DATA_PTR(m_y_n_curr), 
 			  DATA_PTR(m_ydot_n_curr), num_newt_its);
 	if (info == 0) {
+	  if (m_print_flag > 0) {
+	    printf("\t   solve_nonlinear_problem(): Jacobian Formation Error: %d Bailing\n", info);
+	  }
 	  retnDamp = NSOLN_RETN_JACOBIANFORMATIONERROR ;
 	  goto done;
 	}
@@ -2941,6 +3019,9 @@ namespace Cantera {
 
       if (info) {
 	retnDamp = NSOLN_RETN_MATRIXINVERSIONERROR;
+	if (m_print_flag > 0) {
+	  printf("\t   solve_nonlinear_problem(): Matrix Inversion Error: %d Bailing\n", info);
+	}
 	goto done;
       }
       mdp::mdp_copy_dbl_1(DATA_PTR(m_step_1), CONSTD_DATA_PTR(deltaX_Newton_), neq_);
