@@ -618,13 +618,61 @@ namespace Cantera {
     return sum_norm;
   }
   //====================================================================================================================
+  // Set the column scaling that are used for the inversion of the matrix
   /*
-   * setColumnScales():
+   *  There are three ways to do this.
+   *
+   *  The first method is to set the bool useColScaling to true, leaving the scaling factors unset.
+   *  Then, the column scales will be set to the solution error weighting factors. This has the
+   *  effect of ensuring that all delta variables will have the same order of magnitude at convergence
+   *  end.
+   *  
+   *  The second way is the explicity set the column factors in the second argument of this function call.
+   *
+   *  The final way to input the scales is to override the ResidJacEval member function call,
+   *
+   *     calcSolnScales(double time_n, const double *m_y_n_curr, const double *m_y_nm1, double *m_colScales)
+   *
+   *  Overriding this function call will trump all other ways to specify the column scaling factors.
+   *  
+   *  @param useColScaling   Turn this on if you want to use column scaling in the calculations
+   *  @param scaleFactors    A vector of doubles that specifies the column factors.
+   */
+  void NonlinearSolver::setColumnScaling(bool useColScaling, const double * const scaleFactors) {
+    if (useColScaling) {
+      if (scaleFactors) {
+        m_colScaling = 2;
+        for (int i = 0; i < neq_; i++) {
+          m_colScales[i] = scaleFactors[i];
+          if (m_colScales[i] <= 1.0E-200) {
+            throw CanteraError("NonlinearSolver::setColumnScaling() ERROR", "Bad column scale factor");
+          }
+        }
+      } else {
+        m_colScaling = 1; 
+      }
+    } else {
+      m_colScaling = 0;
+    }
+  }
+  //====================================================================================================================
+  // Set the rowscaling that are used for the inversion of the matrix
+  /*
+   * Row scaling is set here. Right now the row scaling is set internally in the code.
+   *
+   * @param useRowScaling   Turn row scaling on or off.
+   */
+  void NonlinearSolver::setRowScaling(bool useRowScaling) {
+     m_rowScaling = useRowScaling;
+  }
+  //====================================================================================================================
+  /*
+   * calcColumnScales():
    *
    * Set the column scaling vector at the current time
    */
-  void NonlinearSolver::setColumnScales() {
-    if (m_colScaling) {
+  void NonlinearSolver::calcColumnScales() {
+    if (m_colScaling == 1) {
       for (int i = 0; i < neq_; i++) {
 	m_colScales[i] = m_ewt[i];
       }
@@ -633,7 +681,9 @@ namespace Cantera {
 	m_colScales[i] = 1.0;
       }
     }
-    m_func->calcSolnScales(time_n, DATA_PTR(m_y_n_curr), DATA_PTR(m_y_nm1), DATA_PTR(m_colScales));
+    if (m_colScaling) {
+      m_func->calcSolnScales(time_n, DATA_PTR(m_y_n_curr), DATA_PTR(m_y_nm1), DATA_PTR(m_colScales));
+    }
   }
   //====================================================================================================================
   // Compute the current residual
@@ -667,9 +717,6 @@ namespace Cantera {
 				    int num_newt_its)
   {	 
     int irow, jcol;
-
-
-
     /*
      * Column scaling -> We scale the columns of the Jacobian
      * by the nominal important change in the solution vector
@@ -694,13 +741,10 @@ namespace Cantera {
 	}
       }	  
     }
-
-  
     /*
      * row sum scaling -> Note, this is an unequivical success
      *      at keeping the small numbers well balanced and nonnegative.
      */
-   
     if (! jac.m_factored) {
       /*
        * Ok, this is ugly. jac.begin() returns an vector<double> iterator
@@ -714,7 +758,9 @@ namespace Cantera {
       }
       for (jcol = 0; jcol < neq_; jcol++) {
 	for (irow = 0; irow < neq_; irow++) {
-	  //m_rowScales[irow] += fabs(*jptr);
+          if (m_rowScaling) {
+	    m_rowScales[irow] += fabs(*jptr);
+          }
 	  if (m_colScaling) {
 	    // This is needed in order to mitgate the change in J_ij carried out just above this loop.
 	    // Alternatively, we could move this loop up to the top
@@ -725,15 +771,19 @@ namespace Cantera {
 	  jptr++;
 	}
       }
-
+      if (m_rowScaling) {
       for (irow = 0; irow < neq_; irow++) {
 	m_rowScales[irow] = 1.0/m_rowScales[irow];
+      }
+      } else {
+      for (irow = 0; irow < neq_; irow++) {
+	m_rowScales[irow] = 1.0;
+      }
       }
       // What we have defined is a maximum value that the residual can be and still pass.
       // This isn't sufficient.
 
       if (m_rowScaling) {
-	
 	jptr = &(*(jac.begin()));
 	for (jcol = 0; jcol < neq_; jcol++) {
 	  for (irow = 0; irow < neq_; irow++) {
@@ -1144,7 +1194,7 @@ namespace Cantera {
       }
 
 
-      if (s_print_DogLeg || (doDogLeg_ && m_print_flag > 7)) {
+      if (doDogLeg_ && m_print_flag > 7) {
         double normNewt = solnErrorNorm(CONSTD_DATA_PTR(delyNewton));
 	double normHess = solnErrorNorm(CONSTD_DATA_PTR(delta_y));
 	printf("\t\t          doAffineNewtonSolve(): Printout Comparison between Hessian deltaX and Newton deltaX\n");
@@ -1162,7 +1212,7 @@ namespace Cantera {
 	  printf("\t\t             %3d  %13.5E %13.5E\n", i, delta_y[i], delyNewton[i]);
 	}
 	printf("\t\t          --------------------------------------------------------\n");
-      } else if (s_print_DogLeg || (doDogLeg_ && m_print_flag >= 4)) {
+      } else if (doDogLeg_ && m_print_flag >= 4) {
 	double normNewt = solnErrorNorm(CONSTD_DATA_PTR(delyNewton));
 	double normHess = solnErrorNorm(CONSTD_DATA_PTR(delta_y));
 	printf("\t\t          doAffineNewtonSolve():  Hessian update norm = %12.4E \n"
@@ -1237,6 +1287,7 @@ namespace Cantera {
   doublereal NonlinearSolver::doCauchyPointSolve(SquareMatrix& jac)
   {
     doublereal rowFac = 1.0;
+    doublereal colFac = 1.0;
     doublereal normSoln;
     //  Calculate the descent direction
     /*
@@ -1250,7 +1301,6 @@ namespace Cantera {
      */
     for (int j = 0; j < neq_; j++) {
       deltaX_CP_[j] = 0.0;
-      doublereal colFac = 1.0;
       if (m_colScaling) {
 	colFac = 1.0 / m_colScales[j];
       }
@@ -1277,7 +1327,10 @@ namespace Cantera {
 	rowFac = 1.0;
       }
       for (int j = 0; j < neq_; j++) {
-	Jd_[i] += deltaX_CP_[j] * jac.value(i,j) * rowFac/ m_residWts[i];
+        if (m_colScaling) {
+          colFac = 1.0 / m_colScales[j];
+        }
+	Jd_[i] += deltaX_CP_[j] * jac.value(i,j) * rowFac * colFac / m_residWts[i];
       }
     }
 
@@ -1445,20 +1498,20 @@ namespace Cantera {
      *  This roughly equals the ratio of the norms of the hessian and newton steps. This increased Newton step can
      *  then be used with the trust region double dogleg algorithm. 
      */
-    if (s_print_DogLeg || (doDogLeg_ && m_print_flag >= 5)) {
+    if ((s_print_DogLeg && m_print_flag >= 3) || (doDogLeg_ && m_print_flag >= 5)) {
       printf("\t\t   descentComparison: initial rate of decrease of func in cauchy dir (expected) = %g\n", funcDecreaseSDExp);
       printf("\t\t   descentComparison: initial rate of decrease of func in cauchy dir            = %g\n", funcDecreaseSD);
       printf("\t\t   descentComparison: initial rate of decrease of func in newton dir (expected) = %g\n", funcDecreaseNewtExp2);
       printf("\t\t   descentComparison: initial rate of decrease of func in newton dir            = %g\n", funcDecreaseNewt2);
     }
-    if (s_print_DogLeg || (doDogLeg_ && m_print_flag >= 4)) {
+    if ((s_print_DogLeg && m_print_flag >= 3) || (doDogLeg_ && m_print_flag >= 4)) {
       printf("\t\t   descentComparison: initial rate of decrease of Resid in cauchy dir (expected) = %g\n", ResidDecreaseSDExp_);
       printf("\t\t   descentComparison: initial rate of decrease of Resid in cauchy dir            = %g\n", ResidDecreaseSD_);
       printf("\t\t   descentComparison: initial rate of decrease of Resid in newton dir (expected) = %g\n", ResidDecreaseNewtExp_);
       printf("\t\t   descentComparison: initial rate of decrease of Resid in newton dir            = %g\n", ResidDecreaseNewt_);
     }
 
-   if (s_print_DogLeg || (doDogLeg_ && m_print_flag >= 4)) {
+    if ((s_print_DogLeg && m_print_flag >= 5) || (doDogLeg_ && m_print_flag >= 5)) {
      if (funcDecreaseNewt2 >= 0.0) {
        printf("\t\t                            %13.5E  %22.16E\n", funcDecreaseNewtExp2, m_normResid_0);
        double ff = ffNewt * 1.0E-5;
@@ -2006,7 +2059,7 @@ namespace Cantera {
     norm_deltaX_trust_ = solnErrorNorm(DATA_PTR(deltaX_trust_));
     trustDelta_ = 1.0;
 
-    if (s_print_DogLeg || (doDogLeg_ && m_print_flag > 3)) {
+    if (doDogLeg_ && m_print_flag >= 4) {
       printf("\t\t   calcTrustVector(): Trust vector size (SolnNorm Basis) changed from %g to %g \n",
 	     trustNorm, trustNormGoal);
     }
@@ -2019,13 +2072,13 @@ namespace Cantera {
   void  NonlinearSolver::initializeTrustRegion() 
   {
     doublereal cpd = calcTrustDistance(deltaX_CP_);
-    if (s_print_DogLeg || (doDogLeg_ && m_print_flag > 3)) {
+    if ((doDogLeg_ && m_print_flag >= 4)) {
       printf("\t\t   initializeTrustRegion(): Relative Distance of Cauchy Vector wrt Trust Vector = %g\n", cpd);
     }
     trustDelta_ = trustDelta_ * cpd;
     calcTrustVector();
     cpd = calcTrustDistance(deltaX_CP_);
-    if (s_print_DogLeg || (doDogLeg_ && m_print_flag > 3)) {
+    if ((doDogLeg_ && m_print_flag >= 4)) {
       printf("\t\t   initializeTrustRegion(): Relative Distance of Cauchy Vector wrt Trust Vector = %g\n", cpd);
     }
   }
@@ -2942,7 +2995,7 @@ namespace Cantera {
       /*
        * Go get new scales
        */
-      setColumnScales();
+      calcColumnScales();
 
 
       /*
@@ -3036,7 +3089,7 @@ namespace Cantera {
       if (doDogLeg_) { 
 #ifdef DEBUG_MODE
 	doublereal trustD = calcTrustDistance(m_step_1);
-	if (s_print_DogLeg || m_print_flag > 3) {
+	if (m_print_flag >= 4) {
 	  if (trustD > trustDelta_) {
 	    printf("\t\t   Newton's method step size, %g trustVectorUnits, larger than trust region, %g trustVectorUnits\n",
 		   trustD, trustDelta_);
@@ -3057,7 +3110,7 @@ namespace Cantera {
 
 
       
-      if (s_print_DogLeg &&m_print_flag >= 4) {
+      if (s_print_DogLeg && m_print_flag >= 4) {
 	printf("\t   solve_nonlinear_problem(): Compare descent rates for Cauchy and Newton directions\n");
 	descentComparison(time_curr, DATA_PTR(m_ydot_n_curr), DATA_PTR(m_ydot_n_1), i_numTrials);
       } else { 
