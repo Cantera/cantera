@@ -109,6 +109,10 @@ namespace Cantera {
    *   help equilibrate a nonlinear steady state system. The time transient is not important in and of
    *   itself. Many physical systems have a time dependence to them that provides a natural way to relax
    *   the nonlinear system. 
+   *
+   *   MATRIX SCALING
+   *
+   *
    *  
    *
    *  @code 
@@ -539,8 +543,42 @@ namespace Cantera {
 				doublereal time_curr, SquareMatrix& jac,int &num_newt_its,
 				int &num_linear_solves,	int &num_backtracks, int loglevelInput);
 
+  private:
     //! Set the column scales
-    void setColumnScales();
+    void calcColumnScales();
+
+  public:
+
+    //! Set the column scaling that are used for the inversion of the matrix
+    /*!
+     *  There are three ways to do this.
+     *
+     *  The first method is to set the bool useColScaling to true, leaving the scaling factors unset.
+     *  Then, the column scales will be set to the solution error weighting factors. This has the
+     *  effect of ensuring that all delta variables will have the same order of magnitude at convergence
+     *  end.
+     *  
+     *  The second way is the explicity set the column factors in the second argument of this function call.
+     *
+     *  The final way to input the scales is to override the ResidJacEval member function call,
+     *
+     *     calcSolnScales(double time_n, const double *m_y_n_curr, const double *m_y_nm1, double *m_colScales)
+     *
+     *  Overriding this function call will trump all other ways to specify the column scaling factors.
+     *  
+     *  @param useColScaling   Turn this on if you want to use column scaling in the calculations
+     *  @param scaleFactors    A vector of doubles that specifies the column factors.
+     */
+    void setColumnScaling(bool useColScaling, const double * const scaleFactors = 0);
+
+
+    //! Set the rowscaling that are used for the inversion of the matrix
+    /*!
+     * Row scaling is set here. Right now the row scaling is set internally in the code.
+     *
+     * @param useRowScaling   Turn row scaling on or off.
+     */
+    void setRowScaling(bool useRowScaling);
 
     //! Scale the matrix
     /*!
@@ -589,6 +627,8 @@ namespace Cantera {
      *  @param residWts  Vector of length neq_
      */
     void getResidWts(doublereal * const residWts) const;
+
+    
 
     //! Check to see if the nonlinear problem has converged
     /*!
@@ -958,13 +998,13 @@ namespace Cantera {
      *             MATRIX INFORMATION
      **************************************************************************************/
 
-    //! The type of column scaled used in the solution of the problem
+    //!  The type of column scaling used in the matrix inversion of the problem
     /*!
-     *    If true then colScaling = m_ewt[]
-     *    if false then colScaling = 1.0
-     *  Currently, this is not part of the interface
+     *    If 1 then colScaling = m_ewt[]
+     *    If 2 then colScaling = user set
+     *    if 0 then colScaling = 1.0
      */
-    bool m_colScaling;
+    int m_colScaling;
 
     //! int indicating whether row scaling is turned on (1) or not (0)
     int m_rowScaling;

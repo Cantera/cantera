@@ -209,10 +209,12 @@ namespace Cantera {
   calcSolnScales(const doublereal t, const doublereal * const ysoln, const doublereal * const ysolnOld,
 		 doublereal * const ysolnScales)
   {
+    if (ysolnScales) {
     if (ysolnScales[0] == 0.0) {
       for (int i = 0; i < neq_; i++) {
 	ysolnScales[i] = 1.0;
       }
+    }
     }
   }
   //====================================================================================================================
