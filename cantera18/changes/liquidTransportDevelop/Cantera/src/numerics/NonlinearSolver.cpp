@@ -160,6 +160,8 @@ namespace Cantera {
     deltaX_trust_(0),
     norm_deltaX_trust_(0.0),
     trustDelta_(1.0),
+    trustRegionInitializationMethod_(2),
+    trustRegionInitializationFactor_(1.0),
     Nuu_(0.0),
     dist_R0_(0.0),
     dist_R1_(0.0),
@@ -279,6 +281,8 @@ namespace Cantera {
     deltaX_trust_(0),
     norm_deltaX_trust_(0.0),
     trustDelta_(1.0),
+    trustRegionInitializationMethod_(2),
+    trustRegionInitializationFactor_(1.0),
     Nuu_(0.0),
     dist_R0_(0.0),
     dist_R1_(0.0),
@@ -373,7 +377,8 @@ namespace Cantera {
     deltaX_trust_              = right.deltaX_trust_;	
     norm_deltaX_trust_         = right.norm_deltaX_trust_;
     trustDelta_                = right.trustDelta_;
-
+    trustRegionInitializationMethod_ = right.trustRegionInitializationMethod_;
+    trustRegionInitializationFactor_ = right.trustRegionInitializationFactor_;
     Nuu_                       = right.Nuu_;
     dist_R0_                   = right.dist_R0_;
     dist_R1_                   = right.dist_R1_;
@@ -466,7 +471,7 @@ namespace Cantera {
     }
     sum_norm = sqrt(sum_norm / neq_); 
     if (printLargest) { 
-      if (m_print_flag >= 4 && m_print_flag <= 5) {
+      if ((printLargest == 1) || (m_print_flag >= 4 && m_print_flag <= 5)) {
 
 	printf("\t\t   solnErrorNorm(): ");
 	if (title) {
@@ -1393,12 +1398,12 @@ namespace Cantera {
 	}
       }  
       // Compute the weighted norm of the undamped step size descentDir_[]
-      if (s_print_DogLeg || (doDogLeg_ && m_print_flag > 6)) {
+      if ((s_print_DogLeg || doDogLeg_) && m_print_flag >= 6) {
 	normSoln = solnErrorNorm(DATA_PTR(deltaX_CP_), "SteepestDescentDir", 10);
       } else {
 	normSoln = solnErrorNorm(DATA_PTR(deltaX_CP_), "SteepestDescentDir", 0);
       }
-      if (s_print_DogLeg || (doDogLeg_ && m_print_flag >= 4)) {
+      if ((s_print_DogLeg || doDogLeg_) && m_print_flag >= 5) {
 	printf("\t\t   doCauchyPointSolve: Steepest descent to Cauchy point: \n");
 	printf("\t\t\t      R0     = %g \n", m_normResid_0);
 	printf("\t\t\t      Rpred  = %g\n",  residCauchy);
@@ -1852,6 +1857,11 @@ namespace Cantera {
 
   }
   //====================================================================================================================
+  // Calculate the length of the current trust region in terms of the solution error norm
+  /*
+   *  We carry out a norm of deltaX_trust_ first. Then, we multiply that value
+   *  by trustDelta_
+   */
   doublereal  NonlinearSolver::trustRegionLength() const
   {
     norm_deltaX_trust_ = solnErrorNorm(DATA_PTR(deltaX_trust_));
@@ -2000,24 +2010,26 @@ namespace Cantera {
     return f_delta_bounds;
   }
   //====================================================================================================================
-  // Calculate the trust region vectors
+  // Readjust the trust region vectors
   /*
    *  The trust region is made up of the trust region vector calculation and the trustDelta_ value
    *  We periodically recalculate the trustVector_ values so that they renormalize to the
    *  correct length.
    */
-  void  NonlinearSolver::calcTrustVector()
+  void  NonlinearSolver::readjustTrustVector()
   {
+    doublereal trustDeltaOld = trustDelta_;
     doublereal wtSum = 0.0;
     for (int i = 0; i < neq_; i++) {
       wtSum += m_ewt[i];
     }
     wtSum /= neq_;
     doublereal trustNorm = solnErrorNorm(DATA_PTR(deltaX_trust_));
+    doublereal deltaXSizeOld = trustNorm;
     doublereal trustNormGoal = trustNorm * trustDelta_;
 
     // This is the size of each component.
-    doublereal trustDeltaEach = trustDelta_ * trustNorm / neq_;
+    //    doublereal trustDeltaEach = trustDelta_ * trustNorm / neq_;
     doublereal oldVal; 
     doublereal fabsy;
     // we use the old value of the trust region as an indicator
@@ -2026,7 +2038,8 @@ namespace Cantera {
       fabsy = fabs(m_y_n_curr[i]);
       // First off make sure that each trust region vector is 1/2 the size of each variable or smaller
       // unless overridden by the deltaStepMininum value. 
-      doublereal newValue =  trustDeltaEach * m_ewt[i] / wtSum;
+      //      doublereal newValue =  trustDeltaEach * m_ewt[i] / wtSum;
+      doublereal newValue =  trustNormGoal  * m_ewt[i];
       if (newValue > 0.5 * fabsy) {
 	if (fabsy * 0.5 > m_deltaStepMinimum[i]) {
 	  deltaX_trust_[i] = 0.5 * fabsy;
@@ -2057,11 +2070,12 @@ namespace Cantera {
       deltaX_trust_[i] = deltaX_trust_[i] * sum;
     } 
     norm_deltaX_trust_ = solnErrorNorm(DATA_PTR(deltaX_trust_));
-    trustDelta_ = 1.0;
+    trustDelta_ = trustNormGoal /  norm_deltaX_trust_;
 
     if (doDogLeg_ && m_print_flag >= 4) {
-      printf("\t\t   calcTrustVector(): Trust vector size (SolnNorm Basis) changed from %g to %g \n",
-	     trustNorm, trustNormGoal);
+      printf("\t\t   reajustTrustVector(): Trust size = %11.3E: Old deltaX size = %11.3E trustDelta_ = %11.3E\n"
+	     "\t\t                                                     new deltaX size = %11.3E trustdelta_ = %11.3E\n",
+	     trustNormGoal,  deltaXSizeOld,  trustDeltaOld, norm_deltaX_trust_, trustDelta_ );
     }
   } 
   //====================================================================================================================
@@ -2071,15 +2085,44 @@ namespace Cantera {
    */
   void  NonlinearSolver::initializeTrustRegion() 
   {
-    doublereal cpd = calcTrustDistance(deltaX_CP_);
-    if ((doDogLeg_ && m_print_flag >= 4)) {
-      printf("\t\t   initializeTrustRegion(): Relative Distance of Cauchy Vector wrt Trust Vector = %g\n", cpd);
+    if (trustRegionInitializationMethod_ == 0) {
+      return;
     }
-    trustDelta_ = trustDelta_ * cpd;
-    calcTrustVector();
-    cpd = calcTrustDistance(deltaX_CP_);
-    if ((doDogLeg_ && m_print_flag >= 4)) {
-      printf("\t\t   initializeTrustRegion(): Relative Distance of Cauchy Vector wrt Trust Vector = %g\n", cpd);
+    if (trustRegionInitializationMethod_ == 1) {
+      for (int i = 0; i < neq_; i++) {
+	deltaX_trust_[i] = m_ewt[i] * trustRegionInitializationFactor_;
+       }
+      trustDelta_ = 1.0;
+    }
+    if (trustRegionInitializationMethod_ == 2) {
+      for (int i = 0; i < neq_; i++) {
+	deltaX_trust_[i] = m_ewt[i] * m_normDeltaSoln_CP * trustRegionInitializationFactor_;
+       }
+      doublereal cpd = calcTrustDistance(deltaX_CP_);
+      if ((doDogLeg_ && m_print_flag >= 4)) {
+	printf("\t\t   initializeTrustRegion(): Relative Distance of Cauchy Vector wrt Trust Vector = %g\n", cpd);
+      }
+      trustDelta_ = trustDelta_ * cpd * trustRegionInitializationFactor_;
+      readjustTrustVector();
+      cpd = calcTrustDistance(deltaX_CP_);
+      if ((doDogLeg_ && m_print_flag >= 4)) {
+	printf("\t\t   initializeTrustRegion(): Relative Distance of Cauchy Vector wrt Trust Vector = %g\n", cpd);
+      }
+    }
+    if (trustRegionInitializationMethod_ == 3) {
+      for (int i = 0; i < neq_; i++) {
+	deltaX_trust_[i] = m_ewt[i] *  m_normDeltaSoln_Newton * trustRegionInitializationFactor_;
+       }
+      doublereal cpd = calcTrustDistance(deltaX_Newton_);
+      if ((doDogLeg_ && m_print_flag >= 4)) {
+	printf("\t\t   initializeTrustRegion(): Relative Distance of Newton Vector wrt Trust Vector = %g\n", cpd);
+      }
+      trustDelta_ = trustDelta_ * cpd;
+      readjustTrustVector();
+      cpd = calcTrustDistance(deltaX_Newton_);
+      if ((doDogLeg_ && m_print_flag >= 4)) {
+	printf("\t\t   initializeTrustRegion(): Relative Distance of Newton Vector wrt Trust Vector = %g\n", cpd);
+      }
     }
   }
 
@@ -2537,15 +2580,14 @@ namespace Cantera {
        *  Find the initial value of lambda that satisfies the trust distance, trustDelta_
        */
       dogLegID_ = calcTrustIntersection(trustDelta_, lambda, dogLegAlpha_);
-      
-      if (m_print_flag > 5) {
+      if (m_print_flag >= 4) {
 	tlen = trustRegionLength();
-	printf("\tdampDogLeg: trust region with length %13.5E has intersection at leg = %d, alpha = %g\n",
-	       tlen, dogLegID_, dogLegAlpha_);
+	printf("\t\t   dampDogLeg: trust region with length %13.5E has intersection at leg = %d, alpha = %g, lambda = %g\n",
+	       tlen, dogLegID_, dogLegAlpha_, lambda);
       }
       /*
-       *  Figure out the new step vector, step0, based on (leg, alpha). Here we are using the
-       *  inter
+       *  Figure out the new step vector, step_1, based on (leg, alpha). Here we are using the
+       *  intersection of the trust oval with the dog-leg curve.
        */
       fillDogLegStep(dogLegID_, dogLegAlpha_, step_1);
 
@@ -2587,7 +2629,7 @@ namespace Cantera {
 
 	if (m_print_flag >= 1) {
 	  doublereal stepNorm =  solnErrorNorm(DATA_PTR(step_1));
-	  printf("\t\t\tdampDogLeg: Current direction rejected, update became too small %g\n", stepNorm);
+	  printf("\t\t   dampDogLeg: Current direction rejected, update became too small %g\n", stepNorm);
 	  success = false;
 	  retn = NSOLN_RETN_FAIL_STEPTOOSMALL;
 	  break;
@@ -2595,7 +2637,7 @@ namespace Cantera {
       }
       if (info == -2) {
 	if (m_print_flag >= 1) {
-	  printf("\t\t\tdampStep: current trial step and damping led to LAPACK ERROR %d. Bailing\n", info);
+	  printf("\t\t dampDogLeg: current trial step and damping led to LAPACK ERROR %d. Bailing\n", info);
 	  success = false;
 	  retn = NSOLN_RETN_MATRIXINVERSIONERROR;
 	  break;
@@ -2876,6 +2918,7 @@ namespace Cantera {
     int legBest;
     doublereal alphaBest;
 #endif
+    bool trInit = false;
 
   
     mdp::mdp_copy_dbl_1(DATA_PTR(m_y_n_curr), DATA_PTR(y_comm), neq_);
@@ -2897,8 +2940,15 @@ namespace Cantera {
     } else {
       jac.m_printLevel = 0;
     }
-    mdp::mdp_init_dbl_1(DATA_PTR(deltaX_trust_), 1.0, neq_); 
-    trustDelta_ = 1.0;
+    if (trustRegionInitializationMethod_ == 0) {
+      trInit = true;
+    } else if (trustRegionInitializationMethod_ == 1) {
+      trInit = true;
+      initializeTrustRegion();
+    } else {
+      mdp::mdp_init_dbl_1(DATA_PTR(deltaX_trust_), 1.0, neq_); 
+      trustDelta_ = 1.0;
+    }
 
     if (m_print_flag == 2 || m_print_flag == 3) {
       printf("\tsolve_nonlinear_problem():\n\n");
@@ -2941,10 +2991,12 @@ namespace Cantera {
       if (m_normDeltaSoln_Newton > 1.0E2) {
 	createSolnWeights(DATA_PTR(m_y_n_curr));
 #ifdef DEBUG_MODE
-	calcTrustVector();
+	if (trInit) {
+	  readjustTrustVector();
+	}
 #else
-	if (doDogLeg_) {
-	  calcTrustVector();
+	if (doDogLeg_ && trInit) {
+	  readjustTrustVector();
 	}
 #endif
       } else {
@@ -2952,10 +3004,12 @@ namespace Cantera {
         if ((num_newt_its % 5) == 1) {
 	  createSolnWeights(DATA_PTR(m_y_n_curr));
 #ifdef DEBUG_MODE
-	  calcTrustVector();
+	  if (trInit) {
+	    readjustTrustVector();
+	  }
 #else
-	  if (doDogLeg_) {
-	    calcTrustVector();
+	  if (doDogLeg_ && trInit) {
+	    readjustTrustVector();
 	  }
 #endif
 	}
@@ -3001,7 +3055,7 @@ namespace Cantera {
       /*
        *  Calculate the base residual 
        */
-      if (m_print_flag > 3) {
+      if (m_print_flag >= 6) {
 	printf("\t   solve_nonlinear_problem(): Calculate the base residual\n");
       }
       info = doResidualCalc(time_curr, NSOLN_TYPE_STEADY_STATE, DATA_PTR(m_y_n_curr), DATA_PTR(m_ydot_n_curr));
@@ -3025,46 +3079,37 @@ namespace Cantera {
        */
       if (m_print_flag >= 6) {
 	m_normResid_0 = residErrorNorm(DATA_PTR(m_resid), "Initial norm of the residual", 10, DATA_PTR(m_y_n_curr));
-      } else if (m_print_flag == 4 || m_print_flag == 5) {
-	m_normResid_0 = residErrorNorm(DATA_PTR(m_resid), "Initial norm of the residual", 0, DATA_PTR(m_y_n_curr));
       } else {
 	m_normResid_0 = residErrorNorm(DATA_PTR(m_resid), "Initial norm of the residual", 0, DATA_PTR(m_y_n_curr));
+	if (m_print_flag == 4 || m_print_flag == 5 ) {
+	  printf("\t   solve_nonlinear_problem(): Initial Residual Norm = %13.4E\n", m_normResid_0);
+	}
       }
+    
       
 #ifdef DEBUG_MODE
       if (m_print_flag > 3) {
 	printf("\t   solve_nonlinear_problem(): Calculate the steepest descent direction and Cauchy Point\n");
       }
       m_normDeltaSoln_CP = doCauchyPointSolve(jac);
-      if (num_newt_its == 1) {
-	if (m_print_flag > 3) {
-	  printf("\t   solve_nonlinear_problem(): Initialize the trust region size as the length to the Cauchy Point\n");
-	}
-	initializeTrustRegion();
-      }
+   
 #else
       if (doDogLeg_) {
 	if (m_print_flag > 3) {
 	  printf("\t   solve_nonlinear_problem(): Calculate the steepest descent direction and Cauchy Point\n");
 	}
 	m_normDeltaSoln_CP = doCauchyPointSolve(jac);
-	if (m_numTotalNewtIts == 1) {
-	  if (m_print_flag > 3) {
-	    printf("\t   solve_nonlinear_problem(): Initialize the trust region size as the length to the Cauchy Point\n");
-	  }
-	  initializeTrustRegion();
-	}
       }
 #endif
 
       // compute the undamped Newton step
       if (doAffineSolve_) {
-	if (m_print_flag > 3) {
+	if (m_print_flag >= 4) {
 	  printf("\t   solve_nonlinear_problem(): Calculate the Newton direction via an Affine solve\n");
 	}
 	info = doAffineNewtonSolve(DATA_PTR(m_y_n_curr), DATA_PTR(m_ydot_n_curr), DATA_PTR(deltaX_Newton_), jac);
       } else {
-	if (m_print_flag > 3) {
+	if (m_print_flag >= 4) {
 	  printf("\t   solve_nonlinear_problem(): Calculate the Newton direction via a Newton solve\n");
 	}
 	info = doNewtonSolve(time_curr, DATA_PTR(m_y_n_curr), DATA_PTR(m_ydot_n_curr), DATA_PTR(deltaX_Newton_), jac);
@@ -3079,14 +3124,33 @@ namespace Cantera {
       }
       mdp::mdp_copy_dbl_1(DATA_PTR(m_step_1), CONSTD_DATA_PTR(deltaX_Newton_), neq_);
 
-      if (m_print_flag > 3) {
-	m_normDeltaSoln_Newton = solnErrorNorm(DATA_PTR(deltaX_Newton_),  "Initial Undamped Step of the iteration", 10);
+      if (m_print_flag >= 6) {
+	m_normDeltaSoln_Newton = solnErrorNorm(DATA_PTR(deltaX_Newton_),  "Initial Undamped Newton Step of the iteration", 10);
       } else {
-	m_normDeltaSoln_Newton = solnErrorNorm(DATA_PTR(deltaX_Newton_), "Initial Undamped Step of the iteration", 0);
+	m_normDeltaSoln_Newton = solnErrorNorm(DATA_PTR(deltaX_Newton_), "Initial Undamped Newton Step of the iteration", 0);
+      }
+
+      if (m_numTotalNewtIts == 1) {
+	if (trustRegionInitializationMethod_ == 2 || trustRegionInitializationMethod_ == 3) {
+	  if (m_print_flag > 3) {
+	    if (trustRegionInitializationMethod_ == 2) {
+	      printf("\t   solve_nonlinear_problem(): Initialize the trust region size as the length of the Cauchy Vector times %f\n",
+		     trustRegionInitializationFactor_);
+	    } else {
+	      printf("\t   solve_nonlinear_problem(): Initialize the trust region size as the length of the Newton Vector times %f\n",
+		     trustRegionInitializationFactor_);
+	    }
+	  }
+	  initializeTrustRegion();
+	  trInit = true;
+	}
       }
    
 
       if (doDogLeg_) { 
+
+
+
 #ifdef DEBUG_MODE
 	doublereal trustD = calcTrustDistance(m_step_1);
 	if (m_print_flag >= 4) {

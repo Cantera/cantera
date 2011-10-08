@@ -295,7 +295,7 @@ namespace Cantera {
     int doAffineNewtonSolve(const doublereal * const y_curr, const doublereal * const ydot_curr, 
 			    doublereal * const delta_y, SquareMatrix& jac);
 
-    //! Calculate the size of the current trust region
+    //! Calculate the length of the current trust region in terms of the solution error norm
     /*!
      *  We carry out a norm of deltaX_trust_ first. Then, we multiply that value
      *  by trustDelta_
@@ -321,7 +321,7 @@ namespace Cantera {
   
   protected:
 
-    //! Calculate the trust region vectors
+    //! Readjust the trust region vectors
     /*!
      *  The trust region is made up of the trust region vector calculation and the trustDelta_ value
      *  We periodically recalculate the trustVector_ values so that they renormalize to the
@@ -332,7 +332,7 @@ namespace Cantera {
      *        || delta_x   dot  1/trustDeltaX_ ||   <= trustDelta_
      *
      */
-    void calcTrustVector();
+    void readjustTrustVector();
 
     //! Fill a dogleg solution step vector
     /*!
@@ -746,6 +746,22 @@ namespace Cantera {
      */
     void initializeTrustRegion();
 
+    //! Set Trust region initialization strategy
+    /*!
+     *  The default is use method 2 with a factor of 1.
+     *  Then, on subsequent invocations of solve_nonlinear_problem() the strategy flips to method 0.
+     *
+     * @param method Method to set the strategy
+     *            0 No strategy - Use the previous strategy
+     *            1 Factor of the solution error weights
+     *            2 Factor of the first Cauchy Point distance
+     *            3 Factor of the first Newton step distance
+     *
+     *  @param factor Factor to use in combination with the method 
+     *
+     */
+    void setTrustRegionInitializationMethod(int method, doublereal factor);
+
 
     //! Damp using the dog leg approach
     /*!
@@ -1135,6 +1151,21 @@ namespace Cantera {
     //! Current value of trust radius. This is used with deltaX_trust_ to 
     //! calculate the max step size.
     doublereal trustDelta_;
+
+    //! Method for handling the trust region initialization
+    /*!
+     *  Then, on subsequent invocations of solve_nonlinear_problem() the strategy flips to method 0.
+     *
+     *  method Method to set the strategy
+     *            0 No strategy - Use the previous strategy
+     *            1 Factor of the solution error weights
+     *            2 Factor of the first Cauchy Point distance
+     *            3 Factor of the first Newton step distance
+     */
+    int trustRegionInitializationMethod_;
+
+    //! Factor used to set the initial trust region
+    doublereal trustRegionInitializationFactor_;
 
     //! Relative distance down the Newton step that the second dogleg starts
     doublereal Nuu_;
