@@ -568,9 +568,7 @@ namespace Cantera {
       int *imax = mdp::mdp_alloc_int_1(num_entries, -1);
 
       if (m_print_flag >= 4 && m_print_flag <= 5) {
-	printf("\t  ");
-	print_line("-", 90);
-	printf("\t\t  residErrorNorm():");
+	printf("\t\t   residErrorNorm():");
 	if (title) {
 	  printf(" %s ", title);
 	} else {
@@ -2792,7 +2790,13 @@ namespace Cantera {
       goodStep = true;
       m_normResid_1 =  m_normResidTrial;
       retn = 0;
+      if (m_print_flag >= 4) {
+	printf("\t\t   decideStep: Norm Residual(leg=%1d, alpha=%10.2E) = %11.4E passes\n", dogLegID_, dogLegAlpha_, m_normResidTrial);
+      }
     } else {
+      if (m_print_flag >= 4) {
+	printf("\t\t   decideStep: Norm Residual(leg=%1d, alpha=%10.2E) = %11.4E failes\n", dogLegID_, dogLegAlpha_, m_normResidTrial);
+      }
       trustDelta_ *= 0.33;
       CurrentTrustFactor_ *= 0.33;
       retn = 2;
@@ -2826,8 +2830,8 @@ namespace Cantera {
 	  trustDelta_ *= 0.5;
 	  NextTrustFactor_ *= 0.5;
 	  ll = trustRegionLength();
-	  if (m_print_flag >= 5) {
-	    printf("\t\tdecideStep(): Trust region decreased from %g to %g due to bad quad approximation\n",
+	  if (m_print_flag >= 4) {
+	    printf("\t\t   decideStep: Trust region decreased from %g to %g due to bad quad approximation\n",
 		   ll*2, ll);
 	  }
 	}
@@ -2841,16 +2845,22 @@ namespace Cantera {
 	    CurrentTrustFactor_ *= 2;
 	    adjustUpStepMinimums();
 	    ll = trustRegionLength();
-	    if (m_print_flag >= 5) {
-	      printf("\t\tdecideStep(): Trust region increased from %g to %g due to good quad approximation\n",
-		     ll*0.5, ll);
+	    if (m_print_flag >= 4) {
+	      if  (m_normResidTrial < 0.33 * m_normResid_0) { 
+		printf("\t\t   decideStep: Redo line search with trust region increased from %g to %g due to good nonlinear behavior\n",
+		       ll*0.5, ll);
+	      } else {
+		printf("\t\t   decideStep: Redi line search with trust region increased from %g to %g due to good linear model approximation\n",
+		       ll*0.5, ll);
+	      }
 	    }
 	    retn = 3;
 	  } else {
 	    /*
 	     *  Increase the size of the trust region for the next calculation
 	     */
-	    if (m_normResidTrial < 0.75 * expectedNormRes ||  (m_normResidTrial < 0.20 * m_normResid_0)) {
+	    if (m_normResidTrial < 0.99 * expectedNormRes ||  (m_normResidTrial < 0.20 * m_normResid_0) ||
+		(funcDecrease < -1.0E-50 && ( funcDecrease < 0.9 *expectedFuncDecrease)) ) {
 	      if (leg == 2 && alpha == 1.0 ) {
 		ll = trustRegionLength();
 		if (ll < 2.0 * m_normDeltaSoln_Newton) {
@@ -2858,8 +2868,8 @@ namespace Cantera {
 		  NextTrustFactor_ *= 2.0;
 		  adjustUpStepMinimums();
 		  ll = trustRegionLength();
-		  if (m_print_flag >= 5) {
-		    printf("\t\tdecideStep(): Trust region further increased from %g to %g due to good nonlinear behavior\n",
+		  if (m_print_flag >= 4) {
+		    printf("\t\t   decideStep: Trust region further increased from %g to %g next step due to good linear model behavior\n",
 			   ll*0.5, ll);
 		  }
 		}
@@ -2869,8 +2879,8 @@ namespace Cantera {
 		NextTrustFactor_ *= 2.0;
 		adjustUpStepMinimums();
 		ll = trustRegionLength();
-		if (m_print_flag >= 5) {
-		  printf("\t\tdecideStep(): Trust region further increased from %g to %g due to good nonlinear behavior\n",
+		if (m_print_flag >= 4) {
+		  printf("\t\t   decideStep: Trust region further increased from %g to %g next step due to good linear model behavior\n",
 			 ll*0.5, ll);
 		}
 	      }
@@ -2981,7 +2991,7 @@ namespace Cantera {
 
       if (m_print_flag > 3) {
 	printf("\t");
-	print_line("=", 100);
+	print_line("=", 119);
 	printf("\tsolve_nonlinear_problem(): iteration %d:\n",
 	       num_newt_its);
       }
@@ -3266,11 +3276,10 @@ namespace Cantera {
 	goto done;
       }
       if (m_print_flag >= 4) {
-	m_normResid_full  = residErrorNorm(DATA_PTR(m_resid), "\t   solve_nonlinear_problem():Resulting Residual Norm",
-					   10, DATA_PTR(m_y_n_1));
+	m_normResid_full  = residErrorNorm(DATA_PTR(m_resid), " Resulting full residual norm", 10, DATA_PTR(m_y_n_1));
 	if (fabs(m_normResid_full - m_normResid_1) >  1.0E-3 * ( m_normResid_1 + m_normResid_full + 1.0E-4)) {
 	  if (m_print_flag >= 4) {
-	    printf("\t    solve_nonlinear_problem(): Residual norm changed from %g to %g due to "
+	    printf("\t    solve_nonlinear_problem(): Full residual norm changed from %g to %g due to "
 		   "lagging of components\n",  m_normResid_1, m_normResid_full);
 	  }
 	}
@@ -3285,18 +3294,7 @@ namespace Cantera {
       if (retnDamp > NSOLN_RETN_CONTINUE) {
 	convRes = convergenceCheck(retnDamp, stepNorm_1);
       }      
-      if (m_print_flag >= 4) {
-	if (convRes > 0) {
-	  printf("\t   solve_nonlinear_problem(): Damped Newton iteration successful, nonlin "
-		 "converged, final estimate of the next solution update norm = %-12.4E\n", stepNorm_2);
-	} else if (retnDamp >= NSOLN_RETN_CONTINUE) {
-	  printf("\t   solve_nonlinear_problem(): Damped Newton iteration successful, "
-		 "estimate of the next solution update norm = %-12.4E\n", stepNorm_2);
-	} else {
-	  printf("\t   solve_nonlinear_problem(): Damped Newton unsuccessful, final estimate "
-		 "of the next solution update norm = %-12.4E\n", stepNorm_2);
-	}
-      }
+   
 
 
 
@@ -3349,6 +3347,32 @@ namespace Cantera {
 	}
 	printf("\n");
       
+      }
+      if (m_print_flag >= 4) {
+	if (doDogLeg_) {
+	  if (convRes > 0) {
+	    printf("\t   solve_nonlinear_problem(): Problem Converged, stepNorm = %11.3E, reduction of res from %11.3E to %11.3E\n",
+		   stepNorm_1, m_normResid_0, m_normResid_full);
+	    printf("\t");
+	    print_line("=", 119);
+	  } else {
+	    printf("\t   solve_nonlinear_problem(): Successfull step taken with stepNorm = %11.3E, reduction of res from %11.3E to %11.3E\n",
+		   stepNorm_1, m_normResid_0, m_normResid_full);
+	  }
+	} else {
+	  if (convRes > 0) {
+	    printf("\t   solve_nonlinear_problem(): Damped Newton iteration successful, nonlin "
+		   "converged, final estimate of the next solution update norm = %-12.4E\n", stepNorm_2);
+	    printf("\t");
+	    print_line("=", 119);
+	  } else if (retnDamp >= NSOLN_RETN_CONTINUE) {
+	    printf("\t   solve_nonlinear_problem(): Damped Newton iteration successful, "
+		   "estimate of the next solution update norm = %-12.4E\n", stepNorm_2);
+	  } else {
+	    printf("\t   solve_nonlinear_problem(): Damped Newton unsuccessful, final estimate "
+		   "of the next solution update norm = %-12.4E\n", stepNorm_2);
+	  }
+	}
       }
       // convergence
       if (convRes) {
@@ -3405,17 +3429,17 @@ namespace Cantera {
     num_linear_solves += m_numTotalLinearSolves;
  
     doublereal time_elapsed =  wc.secondsWC();
-    if (m_print_flag > 1) {
+    if (m_print_flag > 1 ) {
       if (retnDamp > 0) {
 	if (NonlinearSolver::s_TurnOffTiming) {
-	  printf("\t\tNonlinear problem solved successfully in %d its\n",
+	  printf("\tNonlinear problem solved successfully in %d its\n",
 		 num_newt_its);
 	} else {
-	  printf("\t\tNonlinear problem solved successfully in %d its, time elapsed = %g sec\n",
+	  printf("\tNonlinear problem solved successfully in %d its, time elapsed = %g sec\n",
 		 num_newt_its, time_elapsed);
 	}
       } else {
-	printf("\t\tNonlinear problem failed to solve after %d its\n", num_newt_its);
+	printf("\tNonlinear problem failed to solve after %d its\n", num_newt_its);
       }
     }
     retnCode = retnDamp;
