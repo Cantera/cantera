@@ -311,6 +311,7 @@ namespace Cantera {
      */
     void setDefaultDeltaBoundsMagnitudes();
 
+    //! Adjust the step minimums
     void adjustUpStepMinimums();
 
     //! Set the delta Bounds magnitudes by hand
@@ -506,10 +507,10 @@ namespace Cantera {
      *
      *  @return returns an integer indicating what happened.
      */
-    int dampStep(const doublereal time_curr, const double* y_n_curr, 
-		 const doublereal *ydot_n_curr, double * const step_1, 
-		 double* const y_n_1, double* const ydot_n_1, double* step_2,
-		 double& stepNorm_2, SquareMatrix& jac, bool writetitle,
+    int dampStep(const doublereal time_curr, const doublereal * const y_n_curr, 
+		 const doublereal * const ydot_n_curr, doublereal * const step_1, 
+		 doublereal * const y_n_1, doublereal * const ydot_n_1, doublereal * step_2,
+		 doublereal & stepNorm_2, SquareMatrix& jac, bool writetitle,
 		 int& num_backtracks);
 
     //! Find the solution to F(X) = 0 by damped Newton iteration. 
@@ -539,7 +540,7 @@ namespace Cantera {
      *   @return  A positive value indicates a successful convergence
      *            -1  Failed convergence
      */
-    int solve_nonlinear_problem(int SolnType, double* y_comm,double* ydot_comm, doublereal CJ,
+    int solve_nonlinear_problem(int SolnType, doublereal * const y_comm, doublereal * const ydot_comm, doublereal CJ,
 				doublereal time_curr, SquareMatrix& jac,int &num_newt_its,
 				int &num_linear_solves,	int &num_backtracks, int loglevelInput);
 
@@ -586,8 +587,10 @@ namespace Cantera {
      *  @param y_comm           Current value of the solution vector
      *  @param ydot_comm        Current value of the time derivative of the solution vector
      *  @param time_curr        current value of the time
+     *  @param num_newt_its      Current value of the number of newt its
      */
-    void scaleMatrix(SquareMatrix& jac, double* y_comm, double* ydot_comm, doublereal time_curr, int num_newt_its);
+    void scaleMatrix(SquareMatrix& jac, doublereal * const y_comm, doublereal * const ydot_comm, 
+		     doublereal time_curr, int num_newt_its);
 
     //! Print solution norm contribution
     /*!
@@ -802,11 +805,11 @@ namespace Cantera {
      * @param time_curr  INPUT     Current value of the time
      * @param leg        INPUT    Leg of the dogleg that we are on
      * @param alpha      INPUT    Distance down that leg that we are on
-     * @param y0         INPUT    Current value of the solution vector
-     * @param ydot0      INPUT    Current value of the derivative of the solution vector
-     * @param step0      INPUT    Trial step
-     * @param y1         OUTPUT   Solution values at the conditions which are evalulated for success
-     * @param ydot1      OUTPUT   Time derivates of solution at the conditions which are evalulated for success
+     * @param y_n_curr   INPUT    Current value of the solution vector
+     * @param ydot_n_curr INPUT    Current value of the derivative of the solution vector
+     * @param step_1     INPUT    Trial step
+     * @param y_n_1         OUTPUT   Solution values at the conditions which are evalulated for success
+     * @param ydot_n_1      OUTPUT   Time derivates of solution at the conditions which are evalulated for success
      * @param trustDeltaOld INPUT Value of the trust length at the old conditions
      *
      *
@@ -819,10 +822,10 @@ namespace Cantera {
      *       -2  Current value of the solution vector caused a residual error in its evaluation. 
      *           Step is a failure, and the step size must be reduced in order to proceed further.
      */
-    int decideStep(const doublereal time_curr, int leg, doublereal alpha, const doublereal * const y0, 
-		   const doublereal * const ydot0, 
-		   const std::vector<doublereal> & step0,
-		   const doublereal * const y1, const doublereal * const ydot1, doublereal trustDeltaOld);
+    int decideStep(const doublereal time_curr, int leg, doublereal alpha, const doublereal * const y_n_curr, 
+		   const doublereal * const ydot_n_curr, 
+		   const std::vector<doublereal> & step_1,
+		   const doublereal * const y_n_1, const doublereal * const ydot_n_1, doublereal trustDeltaOld);
 
     //! Calculated the expected residual along the double dogleg curve. 
     /*!
@@ -923,6 +926,7 @@ namespace Cantera {
     //! Value of the solution time derivative at the new point that is to be considered
     std::vector<doublereal> m_ydot_n_1;
 
+    //! Value of the step to be taken in the solution
     std::vector<doublereal> m_step_1;
 
     //! Vector of column scaling factors
