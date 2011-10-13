@@ -716,8 +716,8 @@ namespace Cantera {
    *  @param ydot_comm        Current value of the time derivative of the solution vector
    *  @param time_curr        current value of the time
    */
-  void NonlinearSolver::scaleMatrix(SquareMatrix& jac, double* y_comm,	double* ydot_comm, doublereal time_curr,
-				    int num_newt_its)
+  void NonlinearSolver::scaleMatrix(SquareMatrix& jac, doublereal * const y_comm, doublereal * const ydot_comm,
+				    doublereal time_curr, int num_newt_its)
   {	 
     int irow, jcol;
     /*
@@ -2319,10 +2319,10 @@ namespace Cantera {
    *           NSOLN_RETN_FAIL_DAMPSTEP 
    *             Unsuccessful step. We can not find a damping factor that is suitable.
    */
-  int NonlinearSolver::dampStep(const doublereal time_curr, const doublereal * y_n_curr, 
-				const doublereal * ydot_n_curr, doublereal * const step_1, 
-				doublereal * const y_n_1, double* const ydot_n_1, doublereal * const step_2,
-				double& stepNorm_2, SquareMatrix& jac, bool writetitle, int& num_backtracks) 
+  int NonlinearSolver::dampStep(const doublereal time_curr, const doublereal * const y_n_curr, 
+				const doublereal * const ydot_n_curr, doublereal * const step_1, 
+				doublereal * const y_n_1, doublereal * const ydot_n_1, doublereal * const step_2,
+				doublereal & stepNorm_2, SquareMatrix& jac, bool writetitle, int& num_backtracks) 
   {  
     int j, m;
     int info = 0;
@@ -2729,7 +2729,7 @@ namespace Cantera {
    */
   int NonlinearSolver::decideStep(const doublereal time_curr, int leg, doublereal alpha, const doublereal * const y_n_curr, 
 				  const doublereal * const ydot_n_curr, const std::vector<doublereal> & step_1,
-				  const doublereal * const y_n_1, const double* const ydot_n_1, doublereal trustDeltaOld) 
+				  const doublereal * const y_n_1, const doublereal * const ydot_n_1, doublereal trustDeltaOld) 
   {
     int retn = 2;
     bool goodStep = false;
@@ -2906,8 +2906,8 @@ namespace Cantera {
    *  @return  A positive value indicates a successful convergence
    *           -1  Failed convergence
    */
-  int NonlinearSolver::solve_nonlinear_problem(int SolnType, double* y_comm, double* ydot_comm, doublereal CJ,
-					       doublereal time_curr,  SquareMatrix& jac,
+  int NonlinearSolver::solve_nonlinear_problem(int SolnType, doublereal * const y_comm, doublereal * const ydot_comm, 
+					       doublereal CJ, doublereal time_curr,  SquareMatrix& jac,
 					       int &num_newt_its,  int &num_linear_solves,
 					       int &num_backtracks,  int loglevelInput)
   {
