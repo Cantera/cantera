@@ -32,6 +32,7 @@ namespace Cantera {
   //====================================================================================================================
   SquareMatrix::SquareMatrix() :
     DenseMatrix(),
+    GeneralMatrix(0),
     m_factored(0), 
     a1norm_(0.0),
     useQR_(0)
@@ -48,7 +49,8 @@ namespace Cantera {
    * @param v   intial value of all matrix components.
    */
   SquareMatrix::SquareMatrix(int n, doublereal v)  : 
-    DenseMatrix(n, n, v),
+    DenseMatrix(n, n, v), 
+   GeneralMatrix(0),
     m_factored(0), 
     a1norm_(0.0),
     useQR_(0)
@@ -61,7 +63,8 @@ namespace Cantera {
    * copy constructor
    */
   SquareMatrix::SquareMatrix(const SquareMatrix& y) :
-    DenseMatrix(y),
+    DenseMatrix(y), 
+    GeneralMatrix(0),
     m_factored(y.m_factored),
     a1norm_(y.a1norm_),
     useQR_(y.useQR_)
@@ -75,6 +78,7 @@ namespace Cantera {
   SquareMatrix& SquareMatrix::operator=(const SquareMatrix& y) {
     if (&y == this) return *this;
     DenseMatrix::operator=(y);
+    GeneralMatrix::operator=(y);
     m_factored = y.m_factored; 
     a1norm_ = y.a1norm_;
     useQR_ = y.useQR_;
@@ -87,7 +91,7 @@ namespace Cantera {
   /*
    * Solve Ax = b. Vector b is overwritten on exit with x.
    */
-  int SquareMatrix::solve(double* b) 
+  int SquareMatrix::solve(doublereal * b) 
   {
     if (useQR_) {
       return solveQR(b);
@@ -138,6 +142,25 @@ namespace Cantera {
   void SquareMatrix::resize(int n, int m, doublereal v) {
     DenseMatrix::resize(n, m, v);
   } 
+
+  //====================================================================================================================
+  // Multiply A*b and write result to prod.
+  /*
+   *  @param b    Vector to do the rh multiplcation
+   *  @param prod OUTPUT vector to receive the result 
+   */
+  void  SquareMatrix::mult(const doublereal * const b, doublereal * const prod) const {
+    DenseMatrix::mult(b, prod);
+  }
+  //====================================================================================================================
+  // Multiply b*A and write result to prod.
+  /*
+   *  @param b    Vector to do the lh multiplcation
+   *  @param prod OUTPUT vector to receive the result 
+   */
+  void  SquareMatrix::leftMult(const doublereal * const b, doublereal * const prod) const {
+    DenseMatrix::leftMult(b, prod);
+  }
   //====================================================================================================================
   /*
    * Factor A. A is overwritten with the LU decomposition of A.
@@ -206,7 +229,7 @@ namespace Cantera {
   /*
    * Solve Ax = b. Vector b is overwritten on exit with x.
    */
-  int SquareMatrix::solveQR(double* b)
+  int SquareMatrix::solveQR(doublereal * b)
   {
     int info=0;
     /*
@@ -288,7 +311,11 @@ namespace Cantera {
     }
     return rcond;
   }
- //=====================================================================================================================
+  //=====================================================================================================================
+  doublereal SquareMatrix::oneNorm() const {
+    return a1norm_;
+  }
+  //=====================================================================================================================
   doublereal SquareMatrix::rcondQR() {
     
     if ((int) iwork_.size() < m_nrows) {
@@ -316,6 +343,111 @@ namespace Cantera {
     return rcond;
   }
   //=====================================================================================================================
+  void SquareMatrix::useFactorAlgorithm(int fAlgorithm) {
+    useQR_ = fAlgorithm;
+  }
+  //=====================================================================================================================
+  int SquareMatrix::factorAlgorithm() const {
+    return (int) useQR_;
+  }
+  //=====================================================================================================================
+  bool SquareMatrix::factored() const {
+    return m_factored;
+  }
+  //=====================================================================================================================
+  // Return a pointer to the top of column j, columns are contiguous in memory
+  /*
+   *  @param j   Value of the column
+   *
+   *  @return  Returns a pointer to the top of the column
+   */
+  doublereal * SquareMatrix::ptrColumn(int j) {
+    return Array2D::ptrColumn(j);
+  }
+  //=====================================================================================================================
+  // Copy the data from one array into another without doing any checking
+  /*
+   *  This differs from the assignment operator as no resizing is done and memcpy() is used.
+   *  @param y Array to be copied
+   */
+  void  SquareMatrix::copyData(const GeneralMatrix& y) {
+    const SquareMatrix *yy_ptr = dynamic_cast<const SquareMatrix *>(& y);
+    Array2D::copyData(*yy_ptr);
+  }
+ //=====================================================================================================================
+  size_t  SquareMatrix::nRows() const {
+    return m_nrows;
+  } 
+  //=====================================================================================================================
+  size_t SquareMatrix::nRowsAndStruct(int * const iStruct) const {
+    return m_nrows;
+  }
+ //=====================================================================================================================
+  GeneralMatrix * SquareMatrix::duplMyselfAsGeneralMatrix() const {
+    SquareMatrix *dd = new SquareMatrix(*this);
+    return static_cast<GeneralMatrix *>(dd);
+  }
+  //=====================================================================================================================
+  // Return an iterator pointing to the first element
+  vector_fp::iterator SquareMatrix::begin() {
+    return m_data.begin();
+  }
+  //=====================================================================================================================
+  // Return a const iterator pointing to the first element
+  vector_fp::const_iterator SquareMatrix::begin() const {
+    return m_data.begin(); 
+  }
+  //=====================================================================================================================
+  // Return a vector of const pointers to the columns
+  /*
+   *  Note the value of the pointers are protected by their being const.
+   *  However, the value of the matrix is open to being changed.
+   *
+   *   @return returns a vector of pointers to the top of the columns
+   *           of the matrices.  
+   */
+  doublereal  * const * SquareMatrix::colPts() {
+    return DenseMatrix::colPts();
+  }
+ //=====================================================================================================================
+
+ int SquareMatrix::checkRows(doublereal &valueSmall) const {
+    valueSmall = 1.0E300;
+    int iSmall = -1;
+    for (int i = 0; i < m_nrows; i++) {
+      double valueS = 0.0;
+      for (int j = 0; j < m_nrows; j++) {
+	if (fabs(value(i,j)) > valueS) {
+	  valueS = fabs(value(i,j));
+	}
+      }
+      if (valueS < valueSmall) {
+	iSmall = i;
+	valueSmall = valueS;
+      }
+    }
+    return iSmall;
+  }
+  //=====================================================================================================================
+  int SquareMatrix::checkColumns(doublereal &valueSmall) const {
+    valueSmall = 1.0E300;
+    int jSmall = -1;
+    for (int j = 0; j < m_nrows; j++) {
+      double valueS = 0.0;
+      for (int i = 0; i < m_nrows; i++) {
+	if (fabs(value(i,j)) > valueS) {
+	  valueS = fabs(value(i,j));
+	}
+      }
+      if (valueS < valueSmall) {
+	jSmall = j;
+	valueSmall = valueS;
+      }
+    }
+    return jSmall;
+  }
+ //=====================================================================================================================
+
 
 }
 

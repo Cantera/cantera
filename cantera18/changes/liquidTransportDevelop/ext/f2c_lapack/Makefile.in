@@ -111,6 +111,9 @@ dtrtrs.o \
 dgecon.o \
 dgeequ.o \
 dgerfs.o \
+dgbcon.o \
+dgbequ.o \
+dlatbs.o \
 ieeeck.o \
 ilaenv.o 
 

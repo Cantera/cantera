@@ -354,7 +354,7 @@ namespace Cantera {
   void PureFluidPhase::getEnthalpy_RT_ref(doublereal *hrt) const {
     double psave = pressure();
     double t = temperature();
-    double pref = m_spthermo->refPressure();
+    //double pref = m_spthermo->refPressure();
     double plow = 1.0E-8;
     Set(tpx::TP, t, plow);
     getEnthalpy_RT(hrt);

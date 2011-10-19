@@ -1,15 +1,15 @@
 /**
- *  @file PseudoBinaryVPSSTP.h
+ *  @file MolarityIonicVPSSTP.h
  *   Header for intermediate ThermoPhase object for phases which
  *   employ gibbs excess free energy based formulations
  *  (see \ref thermoprops 
- * and class \link Cantera::gibbsExcessVPSSTP gibbsExcessVPSSTP\endlink).
+ * and class \link Cantera::MolarityIonicVPSSTP MolarityIonicVPSSTP\endlink).
  *
  * Header file for a derived class of ThermoPhase that handles
  * variable pressure standard state methods for calculating
  * thermodynamic properties that are further based upon activities
- * based on the molality scale.  These include most of the methods for
- * calculating liquid electrolyte thermodynamics.
+ * based on the molarity scale.  In this class, we expect that there are
+ * ions, but they are treated on the molarity scale.
  */
 /*
  * Copywrite (2006) Sandia Corporation. Under the terms of 
@@ -17,11 +17,11 @@
  * U.S. Government retains certain rights in this software.
  */
 /*
- *  $Id$
+ *  $Id: MolarityIonicVPSSTP.h 255 2009-11-09 23:36:49Z hkmoffa $
  */
 
-#ifndef CT_PSEUDOBINARYVPSSTP_H
-#define CT_PSEUDOBINARYVPSSTP_H
+#ifndef CT_MOLARITYIONICVPSSTP_H
+#define CT_MOLARITYIONICVPSSTP_H
 
 #include "GibbsExcessVPSSTP.h"
 
@@ -32,22 +32,14 @@ namespace Cantera {
    */
 
   /*!
-   *  PseudoBinaryVPSSTP is a derived class of ThermoPhase
+   *  MolarityIonicVPSSTP is a derived class of ThermoPhase
    *  GibbsExcessVPSSTP that handles
    *  variable pressure standard state methods for calculating
    *  thermodynamic properties that are further based on
    *  expressing the Excess Gibbs free energy as a function of
-   *  the mole fractions (or pseudo mole fractions) of consitituents.
-   *  This category is the workhorse for describing molten salts, 
-   *  solid-phase mixtures of semiconductors, and mixtures of miscible
-   *  and semi-miscible compounds.
-   *
-   * It includes 
-   *   . regular solutions
-   *   . Margueles expansions
-   *   . NTRL equation
-   *   . Wilson's equation
-   *   . UNIQUAC equation of state.
+   *  the mole fractions (or pseudo mole fractions) of the consitituents.
+   *  This category is the workhorse for describing ionic systems which
+   *  are not on the molality scale.
    *
    *  This class adds additional functions onto the %ThermoPhase interface
    *  that handles the calculation of the excess Gibbs free energy. The %ThermoPhase
@@ -60,15 +52,14 @@ namespace Cantera {
    *  symmetrical formulations. 
    *
    *  This layer will massage the mole fraction vector to implement
-   *  cation and anion based mole numbers in an optional manner
-   *
-   *  The way that it collects the cation and anion based mole numbers
-   *  is via holding two extra ThermoPhase objects. These
-   *  can include standard states for salts. 
-   *        
+   *  cation and anion based mole numbers in an optional manner, such that
+   *  it is expected that there exists a charge balance at all times.
+   *  One of the ions must be a "special ion" in the sense that its' thermodynamic
+   *  functions are set to zero, and the thermo functions of all other
+   *  ions are based on a valuation relative to the special ion.
    *
    */
-  class PseudoBinaryVPSSTP : public GibbsExcessVPSSTP  {
+  class MolarityIonicVPSSTP : public GibbsExcessVPSSTP  {
 
   public:
         
@@ -81,7 +72,7 @@ namespace Cantera {
      * density conservation and therefore element conservation
      * is the more important principle to follow.
      */
-    PseudoBinaryVPSSTP();
+    MolarityIonicVPSSTP();
 
     //! Copy constructor
     /*!
@@ -90,17 +81,17 @@ namespace Cantera {
      *
      * @param b class to be copied
      */
-    PseudoBinaryVPSSTP(const  PseudoBinaryVPSSTP&b);
+    MolarityIonicVPSSTP(const  MolarityIonicVPSSTP&b);
 
     /// Assignment operator
     /*!
      *
      * @param b class to be copied.
      */
-    PseudoBinaryVPSSTP& operator=(const PseudoBinaryVPSSTP&b);
+    MolarityIonicVPSSTP& operator=(const MolarityIonicVPSSTP&b);
 
     /// Destructor. 
-    virtual ~PseudoBinaryVPSSTP();
+    virtual ~MolarityIonicVPSSTP();
 
     //! Duplication routine for objects which inherit from  ThermoPhase.
     /*!
@@ -344,6 +335,13 @@ namespace Cantera {
 
   protected:
 
+    // Pseudobinary type
+    /*!
+     *      PBTYPE_PASSTHROUGH       All species are passthrough species
+     *      PBTYPE_SINGLEANION       there is only one anion in the mixture
+     *      PBTYPE_SINGLECATION      there is only one cation in the mixture
+     *      PBTYPE_MULTICATIONANION  Complex mixture
+     */
     int PBType_;
 
     //! Number of pseudo binary species
@@ -354,20 +352,20 @@ namespace Cantera {
     
     mutable std::vector<doublereal> PBMoleFractions_;
 
+    //! Vector of cation indecises in the mixture
     std::vector<int> cationList_;
+
+    //! Number of cations in the mixture
     int numCationSpecies_;
 
-    std::vector<int>anionList_;
+    std::vector<int> anionList_;
     int numAnionSpecies_;
 
     std::vector<int> passThroughList_;
     int numPassThroughSpecies_;
     int neutralPBindexStart;
 
-    ThermoPhase *cationPhase_;
 
-    ThermoPhase *anionPhase_;
-   
     mutable std::vector<doublereal> moleFractionsTmp_;
 
   private:

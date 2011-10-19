@@ -32,7 +32,7 @@ namespace Cantera {
    * all elements to \c v.
    */
   DenseMatrix::DenseMatrix(int n, int m, doublereal v) : 
-    Array2D(n, m, v),
+    Array2D(n, m, v),  
     m_ipiv(0),
     m_useReturnErrorCode(0),
     m_printLevel(0)

@@ -19,6 +19,7 @@
 #include <limits>
 
 #include "SquareMatrix.h"
+#include "GeneralMatrix.h"
 #include "NonlinearSolver.h"
 #include "ctlapack.h"
 
@@ -147,8 +148,8 @@ namespace Cantera {
     atolk_(0),
     m_print_flag(0),
     m_ScaleSolnNormToResNorm(0.001),
-    jacCopy_(0),
-    Hessian_(0),
+    jacCopyPtr_(0),
+    HessianPtr_(0),
     deltaX_CP_(0),
     deltaX_Newton_(0),
     residNorm2Cauchy_(0.0),
@@ -211,7 +212,7 @@ namespace Cantera {
     }
 
 
-    jacCopy_.resize(neq_, neq_, 0.0);
+    // jacCopyPtr_->resize(neq_, 0.0);
     deltaX_CP_.resize(neq_, 0.0);
     Jd_.resize(neq_, 0.0);
     deltaX_trust_.resize(neq_, 1.0);
@@ -268,8 +269,8 @@ namespace Cantera {
     atolk_(0),
     m_print_flag(0),
     m_ScaleSolnNormToResNorm(0.001),
-    jacCopy_(0),
-    Hessian_(0),
+    jacCopyPtr_(0),
+    HessianPtr_(0),
     deltaX_CP_(0),
     deltaX_Newton_(0),
     residNorm2Cauchy_(0.0),
@@ -306,6 +307,12 @@ namespace Cantera {
 
   //====================================================================================================================
   NonlinearSolver::~NonlinearSolver() {
+    if (jacCopyPtr_) {
+      delete jacCopyPtr_;
+    }
+    if (HessianPtr_) {
+      delete HessianPtr_;
+    }
   }
   //====================================================================================================================
   NonlinearSolver& NonlinearSolver::operator=(const NonlinearSolver &right) {
@@ -364,8 +371,15 @@ namespace Cantera {
     m_print_flag               = right.m_print_flag;
     m_ScaleSolnNormToResNorm   = right.m_ScaleSolnNormToResNorm;
 
-    jacCopy_                   = right.jacCopy_;
-    Hessian_                   = right.Hessian_;
+    if (jacCopyPtr_) {
+      delete (jacCopyPtr_);
+    }
+    jacCopyPtr_                = (right.jacCopyPtr_)->duplMyselfAsGeneralMatrix();
+    if (HessianPtr_) {
+      delete (HessianPtr_);
+    }
+    HessianPtr_                = (right.HessianPtr_)->duplMyselfAsGeneralMatrix();
+
     deltaX_CP_                 = right.deltaX_CP_;
     deltaX_Newton_             = right.deltaX_Newton_;
     residNorm2Cauchy_          = right.residNorm2Cauchy_;
@@ -716,39 +730,57 @@ namespace Cantera {
    *  @param ydot_comm        Current value of the time derivative of the solution vector
    *  @param time_curr        current value of the time
    */
-  void NonlinearSolver::scaleMatrix(SquareMatrix& jac, doublereal * const y_comm, doublereal * const ydot_comm,
+  void NonlinearSolver::scaleMatrix(GeneralMatrix& jac, doublereal * const y_comm, doublereal * const ydot_comm,
 				    doublereal time_curr, int num_newt_its)
   {	 
     int irow, jcol;
+    int ku, kl;
+    int ivec[2];
+    int n = jac.nRowsAndStruct(ivec);
+    double *colP_j;
+
     /*
      * Column scaling -> We scale the columns of the Jacobian
      * by the nominal important change in the solution vector
      */
     if (m_colScaling) {
-      if (!jac.m_factored) {
-	/*
-	 * Go get new scales -> Took this out of this inner loop. 
-	 * Needs to be done at a larger scale.
-	 */
-	// setColumnScales();
+      if (!jac.factored()) {
+	if (jac.matrixType_ == 0) {
+	  /*
+	   * Go get new scales -> Took this out of this inner loop. 
+	   * Needs to be done at a larger scale.
+	   */
+	  // setColumnScales();
 
-	/*
-	 * Scale the new Jacobian
-	 */
-	doublereal *jptr = &(*(jac.begin()));
-	for (jcol = 0; jcol < neq_; jcol++) {
-	  for (irow = 0; irow < neq_; irow++) {
-	    *jptr *= m_colScales[jcol];
-	    jptr++;
+	  /*
+	   * Scale the new Jacobian
+	   */
+	  doublereal *jptr = &(*(jac.begin()));
+	  for (jcol = 0; jcol < neq_; jcol++) {
+	    for (irow = 0; irow < neq_; irow++) {
+	      *jptr *= m_colScales[jcol];
+	      jptr++;
+	    }
+	  }
+	} else if (jac.matrixType_ == 1) {
+	  kl = ivec[0];
+	  ku = ivec[1];
+	  for (jcol = 0; jcol < neq_; jcol++) {
+	    colP_j = (doublereal *) jac.ptrColumn(jcol);
+	    for (irow = jcol - ku; irow <= jcol + kl; irow++) {
+	      if (irow >= 0 && irow < neq_) {
+		colP_j[kl + ku + irow - jcol] *= m_colScales[jcol];
+	      }
+	    }
 	  }
 	}
-      }	  
+      }
     }
     /*
      * row sum scaling -> Note, this is an unequivical success
      *      at keeping the small numbers well balanced and nonnegative.
      */
-    if (! jac.m_factored) {
+    if (! jac.factored()) {
       /*
        * Ok, this is ugly. jac.begin() returns an vector<double> iterator
        * to the first data location.
@@ -759,39 +791,75 @@ namespace Cantera {
 	m_rowScales[irow] = 0.0;
 	m_rowWtScales[irow] = 0.0;
       }
-      for (jcol = 0; jcol < neq_; jcol++) {
-	for (irow = 0; irow < neq_; irow++) {
-          if (m_rowScaling) {
-	    m_rowScales[irow] += fabs(*jptr);
-          }
-	  if (m_colScaling) {
-	    // This is needed in order to mitgate the change in J_ij carried out just above this loop.
-	    // Alternatively, we could move this loop up to the top
-	    m_rowWtScales[irow] += fabs(*jptr) * m_ewt[jcol] / m_colScales[jcol];
-	  } else {
-	    m_rowWtScales[irow] += fabs(*jptr) * m_ewt[jcol];
+      if (jac.matrixType_ == 0) {
+	for (jcol = 0; jcol < neq_; jcol++) {
+	  for (irow = 0; irow < neq_; irow++) {
+	    if (m_rowScaling) {
+	      m_rowScales[irow] += fabs(*jptr);
+	    }
+	    if (m_colScaling) {
+	      // This is needed in order to mitgate the change in J_ij carried out just above this loop.
+	      // Alternatively, we could move this loop up to the top
+	      m_rowWtScales[irow] += fabs(*jptr) * m_ewt[jcol] / m_colScales[jcol];
+	    } else {
+	      m_rowWtScales[irow] += fabs(*jptr) * m_ewt[jcol];
+	    }
+	    jptr++;
 	  }
-	  jptr++;
+	}	
+      } else if (jac.matrixType_ == 1) {
+	kl = ivec[0];
+	ku = ivec[1];
+	for (jcol = 0; jcol < neq_; jcol++) {
+	  colP_j = (doublereal *) jac.ptrColumn(jcol);
+	  for (irow = jcol - ku; irow <= jcol + kl; irow++) {
+	    if (irow >= 0 && irow < neq_) {
+	      double vv = fabs(colP_j[kl + ku + irow - jcol]);
+	      if (m_rowScaling) {
+		m_rowScales[irow] += vv;
+	      }
+	      if (m_colScaling) {
+		// This is needed in order to mitgate the change in J_ij carried out just above this loop.
+		// Alternatively, we could move this loop up to the top
+		m_rowWtScales[irow] += vv * m_ewt[jcol] / m_colScales[jcol];
+	      } else {
+		m_rowWtScales[irow] += vv * m_ewt[jcol];
+	      }	      
+	    }
+	  }
 	}
       }
       if (m_rowScaling) {
-      for (irow = 0; irow < neq_; irow++) {
-	m_rowScales[irow] = 1.0/m_rowScales[irow];
-      }
+	for (irow = 0; irow < neq_; irow++) {
+	  m_rowScales[irow] = 1.0/m_rowScales[irow];
+	}
       } else {
-      for (irow = 0; irow < neq_; irow++) {
-	m_rowScales[irow] = 1.0;
-      }
+	for (irow = 0; irow < neq_; irow++) {
+	  m_rowScales[irow] = 1.0;
+	}
       }
       // What we have defined is a maximum value that the residual can be and still pass.
       // This isn't sufficient.
-
+      
       if (m_rowScaling) {
-	jptr = &(*(jac.begin()));
-	for (jcol = 0; jcol < neq_; jcol++) {
-	  for (irow = 0; irow < neq_; irow++) {
-	    *jptr *= m_rowScales[irow];
-	    jptr++;
+	if (jac.matrixType_ == 0) {
+	  jptr = &(*(jac.begin()));
+	  for (jcol = 0; jcol < neq_; jcol++) {
+	    for (irow = 0; irow < neq_; irow++) {
+	      *jptr *= m_rowScales[irow];
+	      jptr++;
+	    }
+	  }
+	} else if (jac.matrixType_ == 1) {
+	  kl = ivec[0];
+	  ku = ivec[1];
+	  for (jcol = 0; jcol < neq_; jcol++) {
+	    colP_j = (doublereal *) jac.ptrColumn(jcol);
+	    for (irow = jcol - ku; irow <= jcol + kl; irow++) {
+	      if (irow >= 0 && irow < neq_) {
+		colP_j[kl + ku + irow - jcol] *= m_rowScales[irow];
+	      }
+	    }
 	  }
 	}
       }
@@ -812,7 +880,7 @@ namespace Cantera {
    */
   void NonlinearSolver::calcSolnToResNormVector()
   { 
-    if (! jacCopy_.m_factored) { 
+    if (! jacCopyPtr_->factored()) { 
    
 
       doublereal sum = 0.0;
@@ -829,7 +897,7 @@ namespace Cantera {
       for (int irow = 0; irow < neq_; irow++) {
         m_wksp[irow] = 0.0;
       }   
-      doublereal *jptr = &(*(jacCopy_.begin()));
+      doublereal *jptr = &(jacCopyPtr_->operator()(0,0));
       for (int jcol = 0; jcol < neq_; jcol++) {
 	for (int irow = 0; irow < neq_; irow++) {
 	  m_wksp[irow] += (*jptr) * m_ewt[jcol];
@@ -873,7 +941,7 @@ namespace Cantera {
    */ 
   int NonlinearSolver::doNewtonSolve(const doublereal time_curr, const doublereal * const y_curr, 
 				     const doublereal * const ydot_curr,  doublereal * const delta_y, 
-				     SquareMatrix& jac)
+				     GeneralMatrix& jac)
   {
     int irow;
 
@@ -961,16 +1029,22 @@ namespace Cantera {
    * This is algorith A.6.5.1 in Dennis / Schnabel
    *
    * Compute the QR decomposition
+   *
+   *  Notes on banded Hessian solve:
+   *   The matrix for jT j  has a larger band width. Both the top and bottom band widths
+   *   are doubled, going from KU to KU+KL  and KL to KU+KL in size. This is not an impossible increase in cost, but
+   *   has to be considered.
    */
   int NonlinearSolver::doAffineNewtonSolve(const doublereal * const y_curr,   const doublereal * const ydot_curr, 
-					   doublereal * const delta_y, SquareMatrix& jac)
+					   doublereal * const delta_y, GeneralMatrix& jac)
   {
     bool newtonGood = true;
     int irow;
     doublereal *delyNewton = 0;
     // We can default to QR here ( or not )
-    jac.useQR_ = true;
-    // multiply the residual by -1
+    jac.useFactorAlgorithm(1);
+    int useQR = jac.factorAlgorithm();
+    // multiplyl the residual by -1
     // Scale the residual if there is row scaling. Note, the matrix has already been scaled
     if (m_rowScaling  && !m_resid_scaled) {
       for (int n = 0; n < neq_; n++) {
@@ -986,8 +1060,8 @@ namespace Cantera {
     // Factor the matrix using a standard Newton solve
     m_conditionNumber = 1.0E300;
     int info = 0;
-    if (!jac.m_factored) { 
-      if (jac.useQR_) {
+    if (!jac.factored()) { 
+      if (useQR) {
 	info = jac.factorQR();
       } else {
 	info = jac.factor();
@@ -999,13 +1073,26 @@ namespace Cantera {
      */
     if (info == 0) {  
       doublereal rcond = 0.0;
-      if (jac.useQR_) {
+      if (useQR) {
 	rcond = jac.rcondQR();
       } else {
-	rcond = jac.rcond(jac.a1norm_);
+	doublereal a1norm = jac.oneNorm();
+	rcond = jac.rcond(a1norm);
       }
       if (rcond > 0.0) {
 	m_conditionNumber = 1.0 / rcond;
+      }
+    } else {
+      m_conditionNumber = 1.0E300;
+      newtonGood = false;
+      if (m_print_flag >= 1) {
+	printf("\t\t   doAffineNewtonSolve: ");
+	if (useQR) {
+	  printf("factorQR()");
+	} else {
+	  printf("factor()");
+	}
+	printf(" returned with info = %d, indicating a zero row or column\n", info);
       }
     }
     bool doHessian = false;
@@ -1040,10 +1127,19 @@ namespace Cantera {
       }
       
     } else {
-      doHessian = true;
-      newtonGood = false;
-      if (m_print_flag >= 3) {
-	printf("\t\t   doAffineNewtonSolve() WARNING: Condition number too large, %g. Doing a Hessian solve \n", m_conditionNumber);
+      if (jac.matrixType_ == 1) {
+	useNewton = true;
+	newtonGood = true;
+	if (m_print_flag >= 3) {
+	  printf("\t\t   doAffineNewtonSolve() WARNING: Condition number too large, %g, But Banded Hessian solve "
+		 "not implemented yet \n", m_conditionNumber);
+	}
+      } else {
+	doHessian = true;
+	newtonGood = false;
+	if (m_print_flag >= 3) {
+	  printf("\t\t   doAffineNewtonSolve() WARNING: Condition number too large, %g. Doing a Hessian solve \n", m_conditionNumber);
+	}
       }
     }
 
@@ -1056,30 +1152,32 @@ namespace Cantera {
       }
       
       // Get memory if not done before
-      if (Hessian_.nRows() == 0) {
-	Hessian_.resize(neq_, neq_);
+      if (HessianPtr_ == 0) {
+	HessianPtr_ = jac.duplMyselfAsGeneralMatrix();
       }
 
       /*
        * Calculate the symmetric Hessian
        */
-      Hessian_.zero();
+      GeneralMatrix &hessian = *HessianPtr_;
+      GeneralMatrix &jacCopy = *jacCopyPtr_;
+      hessian.zero();
       if (m_rowScaling) {
 	for (int i = 0; i < neq_; i++) {
 	  for (int j = i; j < neq_; j++) {
 	    for (int k = 0; k < neq_; k++) {
-	      Hessian_(i,j) += jacCopy_(k,i) * jacCopy_(k,j) * m_rowScales[k] * m_rowScales[k];
+	      hessian(i,j) += jacCopy(k,i) * jacCopy(k,j) * m_rowScales[k] * m_rowScales[k];
 	    }
-	    Hessian_(j,i) = Hessian_(i,j);
+	    hessian(j,i) = hessian(i,j);
 	  }
 	}
       } else {
 	for (int i = 0; i < neq_; i++) {
 	  for (int j = i; j < neq_; j++) {
 	    for (int k = 0; k < neq_; k++) {
-	      Hessian_(i,j) += jacCopy_(k,i) * jacCopy_(k,j);
+	      hessian(i,j) += jacCopy(k,i) * jacCopy(k,j);
 	    }
-	    Hessian_(j,i) = Hessian_(i,j);
+	    hessian(j,i) = hessian(i,j);
 	  }
 	}
       }
@@ -1092,10 +1190,10 @@ namespace Cantera {
       if (m_colScaling) {
 	for (int i = 0; i < neq_; i++) {
 	  for (int j = i; j < neq_; j++) {
-	    hcol += fabs(Hessian_(j,i)) * m_colScales[j];
+	    hcol += fabs(hessian(j,i)) * m_colScales[j];
 	  }
 	  for (int j = i+1; j < neq_; j++) {
-	    hcol += fabs(Hessian_(i,j)) * m_colScales[j];
+	    hcol += fabs(hessian(i,j)) * m_colScales[j];
 	  }
 	  hcol *= m_colScales[i];
 	  if (hcol > hnorm) {
@@ -1105,10 +1203,10 @@ namespace Cantera {
       } else {
 	for (int i = 0; i < neq_; i++) {
 	  for (int j = i; j < neq_; j++) {
-	    hcol += fabs(Hessian_(j,i));
+	    hcol += fabs(hessian(j,i));
 	  }
 	  for (int j = i+1; j < neq_; j++) {
-	    hcol += fabs(Hessian_(i,j));
+	    hcol += fabs(hessian(i,j));
 	  }
 	  if (hcol > hnorm) {
 	    hnorm = hcol;
@@ -1127,11 +1225,11 @@ namespace Cantera {
 #endif
       if (m_colScaling) {
 	for (int i = 0; i < neq_; i++) {
-	  Hessian_(i,i) += hcol / (m_colScales[i] * m_colScales[i]);
+	  hessian(i,i) += hcol / (m_colScales[i] * m_colScales[i]);
 	}
       } else {
 	for (int i = 0; i < neq_; i++) {
-	  Hessian_(i,i) += hcol;
+	  hessian(i,i) += hcol;
 	}
       }
 
@@ -1139,7 +1237,7 @@ namespace Cantera {
        *  Factor the Hessian
        */
       int info;
-      ct_dpotrf(ctlapack::UpperTriangular, neq_, &(*(Hessian_.begin())), neq_, info);
+      ct_dpotrf(ctlapack::UpperTriangular, neq_, &(*(HessianPtr_->begin())), neq_, info);
       if (info) {
 	if (m_print_flag >= 2) {
 	  printf("\t\t    doAffineNewtonSolve() ERROR: Hessian isn't positive definate DPOTRF returned INFO = %d\n", info);
@@ -1164,14 +1262,14 @@ namespace Cantera {
 	for (int j = 0; j < neq_; j++) {
 	  delta_y[j] = 0.0;
 	  for (int i = 0; i < neq_; i++) {
-	    delta_y[j] += delyH[i] * jacCopy_.value(i,j) * m_rowScales[i];
+	    delta_y[j] += delyH[i] * jacCopy(i,j) * m_rowScales[i];
 	  }
 	}
       } else {
 	for (int j = 0; j < neq_; j++) {
 	  delta_y[j] = 0.0;
 	  for (int i = 0; i < neq_; i++) {
-	    delta_y[j] += delyH[i] * jacCopy_.value(i,j);
+	    delta_y[j] += delyH[i] * jacCopy(i,j);
 	  }
 	}
       }
@@ -1180,7 +1278,7 @@ namespace Cantera {
       /*
        * Solve the factored Hessian System
        */
-      ct_dpotrs(ctlapack::UpperTriangular, neq_, 1,&(*(Hessian_.begin())), neq_, delta_y, neq_, info);
+      ct_dpotrs(ctlapack::UpperTriangular, neq_, 1,&(*(hessian.begin())), neq_, delta_y, neq_, info);
       if (info) {
 	if (m_print_flag >= 2) {
 	  printf("\t\t   NonlinearSolver::doAffineNewtonSolve() ERROR: DPOTRS returned INFO = %d\n", info);
@@ -1287,7 +1385,7 @@ namespace Cantera {
   /*
    *  This call must be made on the unfactored jacobian!
    */
-  doublereal NonlinearSolver::doCauchyPointSolve(SquareMatrix& jac)
+  doublereal NonlinearSolver::doCauchyPointSolve(GeneralMatrix& jac)
   {
     doublereal rowFac = 1.0;
     doublereal colFac = 1.0;
@@ -1311,7 +1409,7 @@ namespace Cantera {
 	if (m_rowScaling) {
 	  rowFac = 1.0 / m_rowScales[i];
 	}
-        deltaX_CP_[j] -= m_resid[i] * jac.value(i,j) * colFac * rowFac * m_ewt[j] * m_ewt[j] 
+        deltaX_CP_[j] -= m_resid[i] * jac(i,j) * colFac * rowFac * m_ewt[j] * m_ewt[j] 
 	  / (m_residWts[i] * m_residWts[i]);
 #ifdef DEBUG_MODE
 	mdp::checkFinite(deltaX_CP_[j]);
@@ -1333,7 +1431,7 @@ namespace Cantera {
         if (m_colScaling) {
           colFac = 1.0 / m_colScales[j];
         }
-	Jd_[i] += deltaX_CP_[j] * jac.value(i,j) * rowFac * colFac / m_residWts[i];
+	Jd_[i] += deltaX_CP_[j] * jac(i,j) * rowFac * colFac / m_residWts[i];
       }
     }
 
@@ -2322,7 +2420,7 @@ namespace Cantera {
   int NonlinearSolver::dampStep(const doublereal time_curr, const doublereal * const y_n_curr, 
 				const doublereal * const ydot_n_curr, doublereal * const step_1, 
 				doublereal * const y_n_1, doublereal * const ydot_n_1, doublereal * const step_2,
-				doublereal & stepNorm_2, SquareMatrix& jac, bool writetitle, int& num_backtracks) 
+				doublereal & stepNorm_2, GeneralMatrix& jac, bool writetitle, int& num_backtracks) 
   {  
     int j, m;
     int info = 0;
@@ -2552,7 +2650,7 @@ namespace Cantera {
   int NonlinearSolver::dampDogLeg(const doublereal time_curr, const doublereal* y_n_curr, 
 				  const doublereal *ydot_n_curr, std::vector<doublereal> & step_1,
 				  doublereal* const y_n_1, doublereal* const ydot_n_1, 
-				  doublereal& stepNorm_1,   doublereal& stepNorm_2, SquareMatrix& jac, int& numTrials) 
+				  doublereal& stepNorm_1,   doublereal& stepNorm_2, GeneralMatrix& jac, int& numTrials) 
   {
     doublereal lambda;
     int info;
@@ -2907,7 +3005,7 @@ namespace Cantera {
    *           -1  Failed convergence
    */
   int NonlinearSolver::solve_nonlinear_problem(int SolnType, doublereal * const y_comm, doublereal * const ydot_comm, 
-					       doublereal CJ, doublereal time_curr,  SquareMatrix& jac,
+					       doublereal CJ, doublereal time_curr,  GeneralMatrix& jac,
 					       int &num_newt_its,  int &num_linear_solves,
 					       int &num_backtracks,  int loglevelInput)
   {
@@ -2921,6 +3019,11 @@ namespace Cantera {
     int retnDamp = 0;
     int retnCode = 0;
     bool forceNewJac = false;
+
+    if (jacCopyPtr_) {
+      delete jacCopyPtr_;
+    }
+    jacCopyPtr_ = jac.duplMyselfAsGeneralMatrix();
   
     doublereal stepNorm_1;
     doublereal stepNorm_2;
@@ -2945,11 +3048,7 @@ namespace Cantera {
     num_backtracks = 0;
     int i_numTrials;
     m_print_flag = loglevelInput;
-    if (m_print_flag > 1) {
-      jac.m_printLevel = 1;
-    } else {
-      jac.m_printLevel = 0;
-    }
+
     if (trustRegionInitializationMethod_ == 0) {
       trInit = true;
     } else if (trustRegionInitializationMethod_ == 1) {
@@ -3563,10 +3662,9 @@ namespace Cantera {
    *            1  Means a successful operation
    *            0  Means an unsuccessful operation
    */
-  int NonlinearSolver::beuler_jac(SquareMatrix &J, doublereal * const f,
+  int NonlinearSolver::beuler_jac(GeneralMatrix &J, doublereal * const f,
 				  doublereal time_curr, doublereal CJ,
-				  doublereal * const y,
-				  doublereal * const ydot,
+				  doublereal * const y,  doublereal * const ydot,
 				  int num_newt_its)
   {
     int i, j;
@@ -3590,101 +3688,190 @@ namespace Cantera {
 	return info;
       }
     }  else {
-      /*******************************************************************
-       * Generic algorithm to calculate a numerical Jacobian
-       */
-      /*
-       * Calculate the current value of the rhs given the
-       * current conditions.
-       */
+      if (J.matrixType_ == 0) {
+	/*******************************************************************
+	 * Generic algorithm to calculate a numerical Jacobian
+	 */
+	/*
+	 * Calculate the current value of the rhs given the
+	 * current conditions.
+	 */
 
-      info = m_func->evalResidNJ(time_curr, delta_t_n, y, ydot, f, JacBase_ResidEval);
-      m_nfe++;
-      if (info != 1) {
-	return info;
-      }
-      m_nJacEval++;
+	info = m_func->evalResidNJ(time_curr, delta_t_n, y, ydot, f, JacBase_ResidEval);
+	m_nfe++;
+	if (info != 1) {
+	  return info;
+	}
+	m_nJacEval++;
 
-      /*
-       * Malloc a vector and call the function object to return a set of
-       * deltaY's that are appropriate for calculating the numerical
-       * derivative.
-       */
-      doublereal *dyVector = mdp::mdp_alloc_dbl_1(neq_, MDP_DBL_NOINIT);
-      retn = m_func->calcDeltaSolnVariables(time_curr, y, ydot, dyVector, DATA_PTR(m_ewt));
+	/*
+	 * Malloc a vector and call the function object to return a set of
+	 * deltaY's that are appropriate for calculating the numerical
+	 * derivative.
+	 */
+	doublereal *dyVector = mdp::mdp_alloc_dbl_1(neq_, MDP_DBL_NOINIT);
+	retn = m_func->calcDeltaSolnVariables(time_curr, y, ydot, dyVector, DATA_PTR(m_ewt));
       
 
 
-      if (s_print_NumJac) {
-	if (m_print_flag >= 7) {
-	  if (neq_ < 20) {
-	    printf("\t\tUnk            m_ewt              y                dyVector            ResN\n");
-	    for (int iii = 0; iii < neq_; iii++){
-	      printf("\t\t %4d       %16.8e   %16.8e   %16.8e  %16.8e \n",
-		     iii,   m_ewt[iii],  y[iii], dyVector[iii], f[iii]);
+	if (s_print_NumJac) {
+	  if (m_print_flag >= 7) {
+	    if (neq_ < 20) {
+	      printf("\t\tUnk            m_ewt              y                dyVector            ResN\n");
+	      for (int iii = 0; iii < neq_; iii++){
+		printf("\t\t %4d       %16.8e   %16.8e   %16.8e  %16.8e \n",
+		       iii,   m_ewt[iii],  y[iii], dyVector[iii], f[iii]);
+	      }
 	    }
 	  }
 	}
-      }
 
-      /*
-       * Loop over the variables, formulating a numerical derivative
-       * of the dense matrix.
-       * For the delta in the variable, we will use a variety of approaches
-       * The original approach was to use the error tolerance amount.
-       * This may not be the best approach, as it could be overly large in
-       * some instances and overly small in others.
-       * We will first protect from being overly small, by using the usual
-       * sqrt of machine precision approach, i.e., 1.0E-7,
-       * to bound the lower limit of the delta.
-       */
-      for (j = 0; j < neq_; j++) {
-
-
-        /*
-         * Get a pointer into the column of the matrix
-         */
+	/*
+	 * Loop over the variables, formulating a numerical derivative
+	 * of the dense matrix.
+	 * For the delta in the variable, we will use a variety of approaches
+	 * The original approach was to use the error tolerance amount.
+	 * This may not be the best approach, as it could be overly large in
+	 * some instances and overly small in others.
+	 * We will first protect from being overly small, by using the usual
+	 * sqrt of machine precision approach, i.e., 1.0E-7,
+	 * to bound the lower limit of the delta.
+	 */
+	for (j = 0; j < neq_; j++) {
 
 
-        col_j = (doublereal *) J.ptrColumn(j);
-        ysave = y[j];
-        dy = dyVector[j];
-        //dy = fmaxx(1.0E-6 * m_ewt[j], fabs(ysave)*1.0E-7);
+	  /*
+	   * Get a pointer into the column of the matrix
+	   */
 
-        y[j] = ysave + dy;
-        dy = y[j] - ysave;
-	if (solnType_ != NSOLN_TYPE_STEADY_STATE) {
-	  ydotsave = ydot[j];
-	  ydot[j] += dy * CJ;
+
+	  col_j = (doublereal *) J.ptrColumn(j);
+	  ysave = y[j];
+	  dy = dyVector[j];
+	  //dy = fmaxx(1.0E-6 * m_ewt[j], fabs(ysave)*1.0E-7);
+
+	  y[j] = ysave + dy;
+	  dy = y[j] - ysave;
+	  if (solnType_ != NSOLN_TYPE_STEADY_STATE) {
+	    ydotsave = ydot[j];
+	    ydot[j] += dy * CJ;
+	  }
+	  /*
+	   * Call the function
+	   */
+
+
+	  info =  m_func->evalResidNJ(time_curr, delta_t_n, y, ydot, DATA_PTR(m_wksp),
+				      JacDelta_ResidEval, j, dy);
+	  m_nfe++;
+	  if (info != 1) {
+	    mdp::mdp_safe_free((void **) &dyVector);
+	    return info;
+	  }
+
+	  doublereal diff;
+	  for (i = 0; i < neq_; i++) {
+	    diff = subtractRD(m_wksp[i], f[i]);
+	    col_j[i] = diff / dy;
+	  }
+	  y[j] = ysave;
+	  if (solnType_ != NSOLN_TYPE_STEADY_STATE) {
+	    ydot[j] = ydotsave;
+	  }
+
 	}
-        /*
-         * Call the function
-         */
+	/*
+	 * Release memory
+	 */
+	mdp::mdp_safe_free((void **) &dyVector);
+      } else if (J.matrixType_ == 1) {
+	int ku, kl;
+	int ivec[2];
+	int n = J.nRowsAndStruct(ivec);
+	kl = ivec[0];
+	ku = ivec[1];
+	if (n != neq_) {
+	  printf("we have probs\n"); exit(-1);
+	}
 
-
-        info =  m_func->evalResidNJ(time_curr, delta_t_n, y, ydot, DATA_PTR(m_wksp),
-				    JacDelta_ResidEval, j, dy);
-        m_nfe++;
+	// --------------------------------- BANDED MATRIX BRAIN DEAD ---------------------------------------------------
+	info = m_func->evalResidNJ(time_curr, delta_t_n, y, ydot, f, JacBase_ResidEval);
+	m_nfe++;
 	if (info != 1) {
-	  mdp::mdp_safe_free((void **) &dyVector);
 	  return info;
 	}
+	m_nJacEval++;
 
-        doublereal diff;
-        for (i = 0; i < neq_; i++) {
-          diff = subtractRD(m_wksp[i], f[i]);
-          col_j[i] = diff / dy;
-        }
-	y[j] = ysave;
-	if (solnType_ != NSOLN_TYPE_STEADY_STATE) {
-	  ydot[j] = ydotsave;
+
+	doublereal *dyVector = mdp::mdp_alloc_dbl_1(neq_, MDP_DBL_NOINIT);
+	retn = m_func->calcDeltaSolnVariables(time_curr, y, ydot, dyVector, DATA_PTR(m_ewt));
+      	if (s_print_NumJac) {
+	  if (m_print_flag >= 7) {
+	    if (neq_ < 20) {
+	      printf("\t\tUnk            m_ewt              y                dyVector            ResN\n");
+	      for (int iii = 0; iii < neq_; iii++){
+		printf("\t\t %4d       %16.8e   %16.8e   %16.8e  %16.8e \n",
+		       iii,   m_ewt[iii],  y[iii], dyVector[iii], f[iii]);
+	      }
+	    }
+	  }
 	}
 
+
+	for (j = 0; j < neq_; j++) {
+
+
+	  col_j = (doublereal *) J.ptrColumn(j);
+	  ysave = y[j];
+	  dy = dyVector[j];
+	 
+
+	  y[j] = ysave + dy;
+	  dy = y[j] - ysave;
+	  if (solnType_ != NSOLN_TYPE_STEADY_STATE) {
+	    ydotsave = ydot[j];
+	    ydot[j] += dy * CJ;
+	  }
+
+	  info =  m_func->evalResidNJ(time_curr, delta_t_n, y, ydot, DATA_PTR(m_wksp), JacDelta_ResidEval, j, dy);
+	  m_nfe++;
+	  if (info != 1) {
+	    mdp::mdp_safe_free((void **) &dyVector);
+	    return info;
+	  }
+
+	  doublereal diff;
+
+
+
+	  for (int i = j - ku; i <= j + kl; i++) {
+	    if (i >= 0 &&  i < neq_) {
+	      diff = subtractRD(m_wksp[i], f[i]);
+	      col_j[kl + ku + i - j] = diff / dy;
+	    }
+	  }
+	  y[j] = ysave;
+	  if (solnType_ != NSOLN_TYPE_STEADY_STATE) {
+	    ydot[j] = ydotsave;
+	  }
+
+	}
+
+	mdp::mdp_safe_free((void **) &dyVector);
+	double vSmall;
+	int ismall = J.checkRows(vSmall);
+	if (vSmall < 1.0E-100) {
+	  printf("WE have a zero row, %d\n", ismall);
+	  exit(-1);
+	}
+        ismall = J.checkColumns(vSmall);
+	if (vSmall < 1.0E-100) {
+	  printf("WE have a zero column, %d\n", ismall);
+	  exit(-1);
+	}
+
+	// ---------------------BANDED MATRIX BRAIN DEAD -----------------------
       }
-      /*
-       * Release memory
-       */
-      mdp::mdp_safe_free((void **) &dyVector);
     }
 
     if (m_print_flag >= 7 && s_print_NumJac) {
@@ -3721,7 +3908,7 @@ namespace Cantera {
      *  Make a copy of the data. Note, this jacobian copy occurs before any matrix scaling operations.
      *  It's the raw matrix producted by this routine.
      */
-    jacCopy_.copyData(J);
+    jacCopyPtr_->copyData(J);
 
     return retn;
   }

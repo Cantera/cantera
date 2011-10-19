@@ -23,7 +23,7 @@
 #ifndef CT_MIXEDSOLVENTELECTROLYTEVPSSTP_H
 #define CT_MIXEDSOLVENTELECTROLYTEVPSSTP_H
 
-#include "PseudoBinaryVPSSTP.h"
+#include "MolarityIonicVPSSTP.h"
 
 namespace Cantera {
 
@@ -311,7 +311,7 @@ namespace Cantera {
    *
 
   */
-  class MixedSolventElectrolyte : public GibbsExcessVPSSTP {
+  class MixedSolventElectrolyte : public MolarityIonicVPSSTP {
 
   public:
         

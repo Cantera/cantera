@@ -21,7 +21,7 @@
 #define CT_RESIDJACEVAL_H
 
 #include "ResidEval.h"
-#include "SquareMatrix.h"
+#include "GeneralMatrix.h"
 
 namespace Cantera { 
 
@@ -312,7 +312,7 @@ namespace Cantera {
     virtual int  matrixConditioning(doublereal * const matrix, const int nrows,
 				    doublereal * const rhs);
 
-    //! Calculate an analytical jacobian and the residual at the current time and values.
+   //! Calculate an analytical jacobian and the residual at the current time and values.
     /*!
      *  Only called if the jacFormation method is set to analytical
      *
@@ -329,8 +329,9 @@ namespace Cantera {
      *           -0 or neg value Means an unsuccessful operation
      */
     virtual int evalJacobian(const doublereal t, const doublereal delta_t, doublereal cj,
-		             const doublereal* const y, const doublereal* const ydot,
-			     SquareMatrix &J, doublereal * const resid);
+                             const doublereal* const y, const doublereal* const ydot,
+                             GeneralMatrix &J, doublereal * const resid);
+
 
     //! Calculate an analytical jacobian and the residual at the current time and values.
     /*!

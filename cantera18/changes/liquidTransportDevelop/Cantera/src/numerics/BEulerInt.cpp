@@ -421,7 +421,7 @@ namespace Cantera {
    * Here a small weighting indicates that the change in solution is
    * very sensitive to that equation.
    */
-  void BEulerInt::computeResidWts(SquareMatrix &jac) 
+  void BEulerInt::computeResidWts(GeneralMatrix &jac) 
   {
     int i, j;
     double *data = &(*(jac.begin()));
@@ -637,7 +637,7 @@ namespace Cantera {
    *             not have to be computed again.
    *
    */
-  void BEulerInt::beuler_jac(SquareMatrix &J, double * const f,
+  void BEulerInt::beuler_jac(GeneralMatrix &J, double * const f,
 			     double time_curr, double CJ, 
 			     double * const y, 
 			     double * const ydot,
@@ -1664,7 +1664,7 @@ namespace Cantera {
    */ 
   void BEulerInt::doNewtonSolve(double time_curr, double *y_curr, 
 				double *ydot_curr, double* delta_y,
-				SquareMatrix& jac, int loglevel)
+				GeneralMatrix& jac, int loglevel)
   {	
     int irow, jcol;
  
@@ -1682,7 +1682,7 @@ namespace Cantera {
      * by the nominal important change in the solution vector
      */
     if (m_colScaling) {
-      if (!jac.m_factored) {
+      if (!jac.factored()) {
 	/*
 	 * Go get new scales
 	 */
@@ -1702,7 +1702,7 @@ namespace Cantera {
     }
 
     if (m_matrixConditioning) {
-      if (jac.m_factored) {
+      if (jac.factored()) {
 	m_func->matrixConditioning(0, sz, delta_y);
       } else {
 	double *jptr = &(*(jac.begin()));
@@ -1716,7 +1716,7 @@ namespace Cantera {
      *      nonnegative.
      */
     if (m_rowScaling) {
-      if (! jac.m_factored) {
+      if (! jac.factored()) {
 	/*
 	 * Ok, this is ugly. jac.begin() returns an vector<double> iterator
 	 * to the first data location.
@@ -1940,7 +1940,7 @@ namespace Cantera {
   int BEulerInt::dampStep(double time_curr, const double * y0, 
 			  const double *ydot0, const double* step0, 
 			  double* y1, double* ydot1, double* step1,
-			  double& s1, SquareMatrix& jac, 
+			  double& s1, GeneralMatrix & jac, 
 			  int& loglevel, bool writetitle,
 			  int& num_backtracks) {
 
@@ -2107,7 +2107,7 @@ namespace Cantera {
   int BEulerInt::solve_nonlinear_problem(double * const y_comm,
 					 double * const ydot_comm, double CJ,
 					 double time_curr, 
-					 SquareMatrix& jac,
+					 GeneralMatrix & jac,
 					 int &num_newt_its,
 					 int &num_linear_solves,
 					 int &num_backtracks, 

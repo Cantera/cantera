@@ -23,7 +23,7 @@
 #ifndef CT_MARGULESVPSSTP_H
 #define CT_MARGULESVPSSTP_H
 
-#include "PseudoBinaryVPSSTP.h"
+#include "GibbsExcessVPSSTP.h"
 
 namespace Cantera {
 

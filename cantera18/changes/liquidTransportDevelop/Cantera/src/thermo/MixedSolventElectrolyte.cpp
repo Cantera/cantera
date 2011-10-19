@@ -31,7 +31,7 @@ namespace Cantera {
    *
    */
   MixedSolventElectrolyte::MixedSolventElectrolyte() :
-    GibbsExcessVPSSTP(),
+    MolarityIonicVPSSTP(),
     numBinaryInteractions_(0),
     formMargules_(0),
     formTempModel_(0)
@@ -48,7 +48,7 @@ namespace Cantera {
 
    */
   MixedSolventElectrolyte::MixedSolventElectrolyte(std::string inputFile, std::string id) :
-    GibbsExcessVPSSTP(),
+    MolarityIonicVPSSTP(),
     numBinaryInteractions_(0),
     formMargules_(0),
     formTempModel_(0)
@@ -57,7 +57,7 @@ namespace Cantera {
   }
 
   MixedSolventElectrolyte::MixedSolventElectrolyte(XML_Node& phaseRoot, std::string id) :
-    GibbsExcessVPSSTP(),
+    MolarityIonicVPSSTP(),
     numBinaryInteractions_(0),
     formMargules_(0),
     formTempModel_(0)
@@ -73,7 +73,7 @@ namespace Cantera {
    *  has a working copy constructor
    */
   MixedSolventElectrolyte::MixedSolventElectrolyte(const MixedSolventElectrolyte &b) :
-    GibbsExcessVPSSTP()
+    MolarityIonicVPSSTP()
   {
     MixedSolventElectrolyte::operator=(b);
   }
@@ -90,7 +90,7 @@ namespace Cantera {
       return *this;
     }
    
-    GibbsExcessVPSSTP::operator=(b);
+    MolarityIonicVPSSTP::operator=(b);
     
     numBinaryInteractions_      = b.numBinaryInteractions_ ;
     m_HE_b_ij                   = b.m_HE_b_ij;
@@ -141,7 +141,7 @@ namespace Cantera {
    *
    */
   MixedSolventElectrolyte::MixedSolventElectrolyte(int testProb)  :
-    GibbsExcessVPSSTP(),
+    MolarityIonicVPSSTP(),
     numBinaryInteractions_(0),
     formMargules_(0),
     formTempModel_(0)
@@ -659,7 +659,7 @@ namespace Cantera {
    */
   void MixedSolventElectrolyte::initThermo() {
     initLengths();
-    GibbsExcessVPSSTP::initThermo();
+    MolarityIonicVPSSTP::initThermo();
   }
 
 
@@ -741,7 +741,7 @@ namespace Cantera {
     /*
      * Go down the chain
      */
-    GibbsExcessVPSSTP::initThermoXML(phaseNode, id);
+    MolarityIonicVPSSTP::initThermoXML(phaseNode, id);
 
 
   }

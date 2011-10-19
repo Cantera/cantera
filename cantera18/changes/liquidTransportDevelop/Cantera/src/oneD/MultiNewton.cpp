@@ -133,7 +133,7 @@ namespace Cantera {
         }
 #endif
 
-        iok = jac.solve(sz, step, step);
+        iok = jac.solve(step, step);
 
         // if iok is non-zero, then solve failed
         if (iok > 0) {

@@ -79,6 +79,9 @@ namespace Cantera {
 
   const int cMargulesVPSSTP = 301;
 
+  const int cMolarityIonicVPSSTP = 401;
+  const int cMixedSolventElectrolyte = 402;
+
   const int cPhaseCombo_Interaction = 305;
 
   const int cIonsFromNeutral = 2000;

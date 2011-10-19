@@ -1,9 +1,9 @@
 /**
- *  @file PseudoBinaryVPSSTP.cpp
+ *  @file MolarityIonicVPSSTP.cpp
  *   Definitions for intermediate ThermoPhase object for phases which
  *   employ excess gibbs free energy formulations
  *  (see \ref thermoprops 
- * and class \link Cantera::PseudoBinaryVPSSTP PseudoBinaryVPSSTP\endlink).
+ * and class \link Cantera::MolarityIonicVPSSTP MolarityIonicVPSSTP\endlink).
  *
  * Header file for a derived class of ThermoPhase that handles
  * variable pressure standard state methods for calculating
@@ -17,24 +17,24 @@
  * U.S. Government retains certain rights in this software.
  */
 /*
- *  $Date$
- *  $Revision$
+ *  $Date: 2009-11-09 16:36:49 -0700 (Mon, 09 Nov 2009) $
+ *  $Revision: 255 $
  */
 
 
-#include "PseudoBinaryVPSSTP.h"
+#include "MolarityIonicVPSSTP.h"
 
 #include <cmath>
 
 using namespace std;
 
 namespace Cantera {
-
+  //====================================================================================================================
   /*
    * Default constructor.
    *
    */
-  PseudoBinaryVPSSTP::PseudoBinaryVPSSTP() :
+  MolarityIonicVPSSTP::MolarityIonicVPSSTP() :
     GibbsExcessVPSSTP(),
     PBType_(PBTYPE_PASSTHROUGH),
     numPBSpecies_(m_kk),
@@ -42,19 +42,17 @@ namespace Cantera {
     numCationSpecies_(0),
     numAnionSpecies_(0),
     numPassThroughSpecies_(0),
-    neutralPBindexStart(0),
-    cationPhase_(0),
-    anionPhase_(0)
+    neutralPBindexStart(0)
   {
   }
-
+  //====================================================================================================================
   /*
    * Copy Constructor:
    *
    *  Note this stuff will not work until the underlying phase
    *  has a working copy constructor
    */
-  PseudoBinaryVPSSTP::PseudoBinaryVPSSTP(const PseudoBinaryVPSSTP &b) :
+  MolarityIonicVPSSTP::MolarityIonicVPSSTP(const MolarityIonicVPSSTP &b) :
     GibbsExcessVPSSTP(),
     PBType_(PBTYPE_PASSTHROUGH),
     numPBSpecies_(m_kk),
@@ -62,21 +60,19 @@ namespace Cantera {
     numCationSpecies_(0),
     numAnionSpecies_(0),
     numPassThroughSpecies_(0),
-    neutralPBindexStart(0),
-    cationPhase_(0),
-    anionPhase_(0)
+    neutralPBindexStart(0)
   {
     *this = operator=(b);
   }
-
+  //====================================================================================================================
   /*
    * operator=()
    *
    *  Note this stuff will not work until the underlying phase
    *  has a working assignment operator
    */
-  PseudoBinaryVPSSTP& PseudoBinaryVPSSTP::
-  operator=(const PseudoBinaryVPSSTP &b) {
+  MolarityIonicVPSSTP& MolarityIonicVPSSTP::
+  operator=(const MolarityIonicVPSSTP &b) {
     if (&b != this) {
       GibbsExcessVPSSTP::operator=(b);
     }
@@ -92,21 +88,19 @@ namespace Cantera {
     passThroughList_            = b.passThroughList_;
     numPassThroughSpecies_      = b.numPassThroughSpecies_;
     neutralPBindexStart         = b.neutralPBindexStart;
-    cationPhase_                = b.cationPhase_;
-    anionPhase_                 = b.anionPhase_;
     moleFractionsTmp_           = b.moleFractionsTmp_;
 
     return *this;
   }
-
+  //====================================================================================================================
   /**
    *
-   * ~PseudoBinaryVPSSTP():   (virtual)
+   * ~MolarityIonicVPSSTP():   (virtual)
    *
    * Destructor: does nothing:
    *
    */
-  PseudoBinaryVPSSTP::~PseudoBinaryVPSSTP() {
+  MolarityIonicVPSSTP::~MolarityIonicVPSSTP() {
   }
 
   /*
@@ -114,25 +108,25 @@ namespace Cantera {
    * a pointer to ThermoPhase.
    */
   ThermoPhase* 
-  PseudoBinaryVPSSTP::duplMyselfAsThermoPhase() const {
-    PseudoBinaryVPSSTP* mtp = new PseudoBinaryVPSSTP(*this);
+  MolarityIonicVPSSTP::duplMyselfAsThermoPhase() const {
+    MolarityIonicVPSSTP* mtp = new MolarityIonicVPSSTP(*this);
     return (ThermoPhase *) mtp;
   }
 
   /*
    *  -------------- Utilities -------------------------------
    */
-
+  //====================================================================================================================
  
   // Equation of state type flag.
   /*
    * The ThermoPhase base class returns
    * zero. Subclasses should define this to return a unique
    * non-zero value. Known constants defined for this purpose are
-   * listed in mix_defs.h. The PseudoBinaryVPSSTP class also returns
+   * listed in mix_defs.h. The MolarityIonicVPSSTP class also returns
    * zero, as it is a non-complete class.
    */
-  int PseudoBinaryVPSSTP::eosType() const { 
+  int MolarityIonicVPSSTP::eosType() const { 
     return 0;
   }
 
@@ -147,32 +141,35 @@ namespace Cantera {
    * - Activities, Standard States, Activity Concentrations -----------
    */
 
-
-  doublereal PseudoBinaryVPSSTP::standardConcentration(int k) const {
+  //====================================================================================================================
+  doublereal MolarityIonicVPSSTP::standardConcentration(int k) const {
     err("standardConcentration");
     return -1.0;
   }
-
-  doublereal PseudoBinaryVPSSTP::logStandardConc(int k) const {
+  //====================================================================================================================
+  doublereal MolarityIonicVPSSTP::logStandardConc(int k) const {
     err("logStandardConc");
     return -1.0;
   }
+  //====================================================================================================================
 
-
-
-  void PseudoBinaryVPSSTP::getElectrochemPotentials(doublereal* mu) const {
+  void MolarityIonicVPSSTP::getElectrochemPotentials(doublereal* mu) const {
     getChemPotentials(mu);
     double ve = Faraday * electricPotential();
     for (int k = 0; k < m_kk; k++) {
       mu[k] += ve*charge(k);
     }
   }
-  
-  void PseudoBinaryVPSSTP::calcPseudoBinaryMoleFractions() const {
+  //====================================================================================================================
+  void MolarityIonicVPSSTP::calcPseudoBinaryMoleFractions() const {
     int k;
+    int kCat;
+    int kMax;
     doublereal sumCat; 
     doublereal sumAnion;
+    doublereal chP, chM;
     doublereal sum = 0.0;
+    doublereal sumMax;
     switch (PBType_) {
     case PBTYPE_PASSTHROUGH:
       for (k = 0; k < m_kk; k++) {
@@ -185,26 +182,43 @@ namespace Cantera {
       for (k = 0; k < m_kk; k++) {
 	moleFractionsTmp_[k] = moleFractions_[k];
       }
+      kMax = -1;
+      sumMax = 0.0;
       for (k = 0; k < (int) cationList_.size(); k++) {
-	sumCat += moleFractions_[cationList_[k]];
+	kCat = cationList_[k];
+	chP = m_speciesCharge[kCat];
+	if (moleFractions_[kCat] > sumMax) {
+	  kMax = k;
+	  sumMax = moleFractions_[kCat];
+	}
+	sumCat += chP * moleFractions_[kCat];
       }
-      sumAnion =  moleFractions_[anionList_[k]];
-      PBMoleFractions_[0] = sumCat -sumAnion;
-      moleFractionsTmp_[indexSpecialSpecies_] -= PBMoleFractions_[0];
+      k = anionList_[0];
+      chM = m_speciesCharge[k];
+      sumAnion = moleFractions_[k] * chM;
+      sum = sumCat - sumAnion;
+      if (fabs(sum) > 1.0E-16) {
+	moleFractionsTmp_[cationList_[kMax]] -= sum / m_speciesCharge[kMax];
+	sum = 0.0;
+	for (k = 0; k < numCationSpecies_; k++) {
+	  sum +=  moleFractionsTmp_[k];
+	}
+	for (k = 0; k < numCationSpecies_; k++) {
+	  moleFractionsTmp_[k]/= sum;
+	}
+      }
 
-      
       for (k = 0; k < numCationSpecies_; k++) {
-        PBMoleFractions_[1+k] = moleFractionsTmp_[cationList_[k]];
+        PBMoleFractions_[k] = moleFractionsTmp_[cationList_[k]];
       }
-
       for (k = 0; k <  numPassThroughSpecies_; k++) {
-	    PBMoleFractions_[neutralPBindexStart + k] =
-			moleFractions_[cationList_[k]];
+	PBMoleFractions_[neutralPBindexStart + k] = moleFractions_[passThroughList_[k]];
       }
       
       sum = fmaxx(0.0, PBMoleFractions_[0]);
       for (k = 1; k < numPBSpecies_; k++) {
         sum += PBMoleFractions_[k];
+	
       }
       for (k = 0; k < numPBSpecies_; k++) {
         PBMoleFractions_[k] /= sum;
@@ -226,19 +240,17 @@ namespace Cantera {
 
     } 
   }
-
+  //====================================================================================================================
   /*
    * ------------ Partial Molar Properties of the Solution ------------
    */
-
-
-  doublereal PseudoBinaryVPSSTP::err(std::string msg) const {
-    throw CanteraError("PseudoBinaryVPSSTP","Base class method "
+  //====================================================================================================================
+  doublereal MolarityIonicVPSSTP::err(std::string msg) const {
+    throw CanteraError("MolarityIonicVPSSTP","Base class method "
 		       +msg+" called. Equation of state type: "+int2str(eosType()));
     return 0;
   }
-
-
+  //====================================================================================================================
   /*
    * @internal Initialize. This method is provided to allow
    * subclasses to perform any initialization required after all
@@ -252,19 +264,49 @@ namespace Cantera {
    *
    * @see importCTML.cpp
    */
-  void PseudoBinaryVPSSTP::initThermo() {
-    initLengths();
+  void MolarityIonicVPSSTP::initThermo() {
     GibbsExcessVPSSTP::initThermo();
+    initLengths();
+    /*
+     *  Go find the list of cations and anions
+     */
+    double ch;
+    numCationSpecies_ = 0.0;
+    cationList_.clear();
+    anionList_.clear();
+    passThroughList_.clear();
+    for (int k = 0; k < m_kk; k++) {
+      ch = m_speciesCharge[k];
+      if (ch > 0.0) {
+	cationList_.push_back(k);
+	numCationSpecies_++;
+      } else if (ch < 0.0) {
+	anionList_.push_back(k);
+	numAnionSpecies_++;
+      } else {
+	passThroughList_.push_back(k);
+	numPassThroughSpecies_++;
+      }
+    }
+    numPBSpecies_ = numCationSpecies_ + numAnionSpecies_ - 1;
+    neutralPBindexStart = numPBSpecies_;
+    PBType_ = PBTYPE_MULTICATIONANION;
+    if (numAnionSpecies_ == 1) {
+      PBType_ = PBTYPE_SINGLEANION;
+    } else if (numCationSpecies_ == 1) {
+      PBType_ = PBTYPE_SINGLECATION;
+    }
+    if (numAnionSpecies_ == 0 && numCationSpecies_ == 0) {
+      PBType_ = PBTYPE_PASSTHROUGH;
+    }
   }
-
-
-  //   Initialize lengths of local variables after all species have
-  //   been identified.
-  void  PseudoBinaryVPSSTP::initLengths() {
+  //====================================================================================================================
+  //   Initialize lengths of local variables after all species have been identified.
+  void  MolarityIonicVPSSTP::initLengths() {
     m_kk = nSpecies();
-    moleFractions_.resize(m_kk);
+    moleFractionsTmp_.resize(m_kk);    
   }
-
+  //====================================================================================================================
   /*
    * initThermoXML()                (virtual from ThermoPhase)
    *   Import and initialize a ThermoPhase object
@@ -280,18 +322,16 @@ namespace Cantera {
    *             to see if phaseNode is pointing to the phase
    *             with the correct id. 
    */
-  void PseudoBinaryVPSSTP::initThermoXML(XML_Node& phaseNode, std::string id) {
+  void MolarityIonicVPSSTP::initThermoXML(XML_Node& phaseNode, std::string id) {
 
  
     GibbsExcessVPSSTP::initThermoXML(phaseNode, id);
   }
-  
- /**
+  //====================================================================================================================
+  /*
    * Format a summary of the mixture state for output.
    */           
-  std::string PseudoBinaryVPSSTP::report(bool show_thermo) const {
-
-
+  std::string MolarityIonicVPSSTP::report(bool show_thermo) const {
     char p[800];
     string s = "";
     try {
@@ -364,7 +404,6 @@ namespace Cantera {
     }
     return s;
   }
-
- 
+  //====================================================================================================================
 }
 
