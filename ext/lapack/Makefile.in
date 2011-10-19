@@ -18,6 +18,7 @@ F_FLAGS = @FFLAGS@ $(PIC_FLAG)
 
 OBJS = \
 dbdsqr.o \
+dgbcon.o \
 dgbtrf.o \
 dgbtf2.o \
 dgbtrs.o \
@@ -59,6 +60,7 @@ dlasrt.o \
 dlassq.o \
 dlasv2.o \
 dlaswp.o \
+dlatbs.o \
 dorg2r.o \
 dorgbr.o \
 dorgl2.o \

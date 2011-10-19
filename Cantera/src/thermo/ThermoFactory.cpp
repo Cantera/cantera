@@ -78,6 +78,8 @@
 #include "HMWSoln.h"
 #include "DebyeHuckel.h"
 #include "IdealMolalSoln.h"
+#include "MolarityIonicVPSSTP.h"
+#include "MixedSolventElectrolyte.h"
 #endif
 
 #include "IdealSolnGasVPSS.h"
@@ -97,7 +99,7 @@ namespace Cantera {
     /*!
      *  @deprecated This entire structure could be replaced with a std::map
      */
-    static int ntypes = 20;
+    static int ntypes = 22;
 
     //! Define the string name of the %ThermoPhase types that are handled by this factory routine
     static string _types[] = {"IdealGas", "Incompressible", 
@@ -106,7 +108,8 @@ namespace Cantera {
                               "HMW", "IdealSolidSolution", "DebyeHuckel", 
                               "IdealMolalSolution", "IdealGasVPSS",
 			      "MineralEQ3", "MetalSHEelectrons", "Margules", "PhaseCombo_Interaction",
-                              "IonsFromNeutralMolecule", "FixedChemPot"
+                              "IonsFromNeutralMolecule", "FixedChemPot", "MolarityIonicVPSSTP",
+                              "MixedSolventElectrolyte"
     };
 
     //! Define the integer id of the %ThermoPhase types that are handled by this factory routine
@@ -116,7 +119,8 @@ namespace Cantera {
                               cHMW, cIdealSolidSolnPhase, cDebyeHuckel,
                               cIdealMolalSoln, cVPSS_IdealGas,
 			      cMineralEQ3, cMetalSHEelectrons,
-			      cMargulesVPSSTP,  cPhaseCombo_Interaction, cIonsFromNeutral, cFixedChemPot
+			      cMargulesVPSSTP,  cPhaseCombo_Interaction, cIonsFromNeutral, cFixedChemPot,
+                              cMolarityIonicVPSSTP, cMixedSolventElectrolyte
     };
 
   /*

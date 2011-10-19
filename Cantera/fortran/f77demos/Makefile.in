@@ -18,6 +18,10 @@ FORT = @F77@
 # Fortran compile flags  
 FORT_FLAGS = @FFLAGS@ 
 
+FCLIBS= @FCLIBS@
+FLIBS = @FLIBS@
+
+
 # Fortran libraries
 FORT_LIBS = @LCXX_FLIBS@ @LCXX_END_LIBS@ @FLIBS@ 
 

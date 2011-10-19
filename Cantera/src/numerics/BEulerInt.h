@@ -24,7 +24,7 @@
 #include "Integrator.h"
 #include "ResidJacEval.h"
 
-#include "SquareMatrix.h"
+#include "GeneralMatrix.h"
 #include "NonlinearSolver.h"
 
 #include "mdp_allo.h"
@@ -119,7 +119,7 @@ namespace Cantera {
 				   bool printLargest = false);
     virtual void setInitialTimeStep(double delta_t);
 
-    void beuler_jac(SquareMatrix &, double * const,
+    void beuler_jac(GeneralMatrix &, double * const,
 		    double, double, double * const, double * const, int);
 
 
@@ -175,7 +175,7 @@ namespace Cantera {
     int solve_nonlinear_problem(double * const y_comm,
 				double * const ydot_comm, double CJ,
 				double time_curr, 
-				SquareMatrix& jac,
+				GeneralMatrix& jac,
 				int &num_newt_its,
 				int &num_linear_solves,
 				int &num_backtracks, 
@@ -186,7 +186,7 @@ namespace Cantera {
      * evaluated at x, but the Jacobian is not recomputed.
      */
     void doNewtonSolve(double, double *, double*, double *, 
-		       SquareMatrix&, int);
+		       GeneralMatrix&, int);
 
     
     //!  Bound the Newton step while relaxing the solution
@@ -228,12 +228,12 @@ namespace Cantera {
      */
     int dampStep(double, const double*, const double*, 
 		 const double *, double*, double*,
-		 double*, double&, SquareMatrix&, int&, bool, int&);
+		 double*, double&, GeneralMatrix&, int&, bool, int&);
 
     /*
      * Compute Residual Weights
      */
-    void computeResidWts(SquareMatrix &jac);
+    void computeResidWts(GeneralMatrix &jac);
 
     /*
      * Filter a new step
@@ -421,7 +421,7 @@ namespace Cantera {
      * Pointer to the jacobian representing the
      * time dependent problem
      */
-    SquareMatrix *tdjac_ptr;
+    GeneralMatrix *tdjac_ptr;
     /**
      * Determines the level of printing for each time
      * step.

@@ -85,6 +85,9 @@ export CC
 
 F77='/sierra/Sntools/extras/compilers/gcc-4.4.4/bin/gfortran'
 export F77
+FFLAGS="-g  -fno-second-underscore"
+export FFLAGS
+
 
 CFLAGS="-g -Wall"
 export CFLAGS

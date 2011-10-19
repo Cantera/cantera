@@ -259,7 +259,7 @@ namespace Cantera {
      */ 
     int doNewtonSolve(const doublereal time_curr, const doublereal * const y_curr,
 		      const doublereal * const ydot_curr, doublereal * const delta_y,
-		      SquareMatrix& jac);
+		      GeneralMatrix& jac);
 
     //! Compute the newton step, either by direct newton's or by solving a close problem that is represented
     //! by a Hessian (
@@ -293,7 +293,7 @@ namespace Cantera {
      *          else indicates a failure.
      */
     int doAffineNewtonSolve(const doublereal * const y_curr, const doublereal * const ydot_curr, 
-			    doublereal * const delta_y, SquareMatrix& jac);
+			    doublereal * const delta_y, GeneralMatrix& jac);
 
     //! Calculate the length of the current trust region in terms of the solution error norm
     /*!
@@ -438,7 +438,7 @@ namespace Cantera {
      *            1  Means a successful operation
      *            0  Means an unsuccessful operation
      */
-    int  beuler_jac(SquareMatrix &J, doublereal * const f,
+    int  beuler_jac(GeneralMatrix &J, doublereal * const f,
 		    doublereal time_curr, doublereal CJ, doublereal * const y,
 		    doublereal * const ydot, int num_newt_its);
 
@@ -510,7 +510,7 @@ namespace Cantera {
     int dampStep(const doublereal time_curr, const doublereal * const y_n_curr, 
 		 const doublereal * const ydot_n_curr, doublereal * const step_1, 
 		 doublereal * const y_n_1, doublereal * const ydot_n_1, doublereal * step_2,
-		 doublereal & stepNorm_2, SquareMatrix& jac, bool writetitle,
+		 doublereal & stepNorm_2, GeneralMatrix& jac, bool writetitle,
 		 int& num_backtracks);
 
     //! Find the solution to F(X) = 0 by damped Newton iteration. 
@@ -541,7 +541,7 @@ namespace Cantera {
      *            -1  Failed convergence
      */
     int solve_nonlinear_problem(int SolnType, doublereal * const y_comm, doublereal * const ydot_comm, doublereal CJ,
-				doublereal time_curr, SquareMatrix& jac,int &num_newt_its,
+				doublereal time_curr, GeneralMatrix & jac, int &num_newt_its,
 				int &num_linear_solves,	int &num_backtracks, int loglevelInput);
 
   private:
@@ -589,7 +589,7 @@ namespace Cantera {
      *  @param time_curr        current value of the time
      *  @param num_newt_its      Current value of the number of newt its
      */
-    void scaleMatrix(SquareMatrix& jac, doublereal * const y_comm, doublereal * const ydot_comm, 
+    void scaleMatrix(GeneralMatrix& jac, doublereal * const y_comm, doublereal * const ydot_comm, 
 		     doublereal time_curr, int num_newt_its);
 
     //! Print solution norm contribution
@@ -689,7 +689,7 @@ namespace Cantera {
      *
      *  @return Returns the norm of the solution update
      */
-    doublereal doCauchyPointSolve(SquareMatrix& jac);
+    doublereal doCauchyPointSolve(GeneralMatrix& jac);
 
     //! This is a utility routine that can be used to print out the rates of the initial residual decline
     /*!
@@ -793,7 +793,7 @@ namespace Cantera {
     int dampDogLeg(const doublereal time_curr, const doublereal* y_n_curr, 
 		   const doublereal *ydot_n_curr,  std::vector<doublereal> & step_1,
 		   doublereal* const y_n_1, doublereal* const ydot_n_1, 
-		   doublereal& stepNorm_1, doublereal& stepNorm_2, SquareMatrix& jac, int& num_backtracks);
+		   doublereal& stepNorm_1, doublereal& stepNorm_2, GeneralMatrix& jac, int& num_backtracks);
 
     //! Decide whether the current step is acceptable and adjust the trust region size
     /*!
@@ -1103,10 +1103,10 @@ namespace Cantera {
     /*!
      *  The jacobian storred here is the raw matrix, before any row or column scaling is carried out
      */
-    Cantera::SquareMatrix jacCopy_;
+    Cantera::GeneralMatrix * jacCopyPtr_;
 
     //! Hessian
-    Cantera::SquareMatrix Hessian_;
+    Cantera::GeneralMatrix * HessianPtr_;
 
     /*********************************************************************************************
      *      VARIABLES ASSOCIATED WITH STEPS AND ASSOCIATED DOUBLE DOGLEG PARAMETERS

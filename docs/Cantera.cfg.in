@@ -798,7 +798,13 @@ FILE_PATTERNS          = Kinetics.h  Kinetics.cpp \
                          RootFind.h \
                          RootFind.cpp \
                          NonlinearSolver.h \
-                         NonlinearSolver.cpp
+                         NonlinearSolver.cpp \
+                         BandMatrix.h \
+                         BandMatrix.cpp \
+                         GeneralMatrix.h \
+                         GeneralMatrix.cpp \
+                         SquareMatrix.h \
+                         SquareMatrix.cpp 
 
 # The RECURSIVE tag can be used to turn specify whether or not subdirectories
 # should be searched for input files as well. Possible values are YES and NO.

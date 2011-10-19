@@ -333,7 +333,7 @@ namespace Cantera {
   evalJacobian(const doublereal t, const doublereal delta_t, doublereal cj,
 	       const doublereal * const y,
 	       const doublereal * const ydot,
-	       SquareMatrix &J,
+	       GeneralMatrix &J,
 	       doublereal * const resid)
   {
     doublereal * const * jac_colPts = J.colPts();
@@ -349,7 +349,7 @@ namespace Cantera {
    * @param c_j           The current value of the coefficient of the time derivative
    * @param y             Solution vector (input, do not modify)
    * @param ydot          Rate of change of solution vector. (input, do not modify)
-   * @param jac_colPts       Reference to the SquareMatrix object to be calculated (output)
+   * @param jac_colPts    Reference to the SquareMatrix object to be calculated (output)
    * @param resid         Value of the residual that is computed (output)
    */
   int ResidJacEval::

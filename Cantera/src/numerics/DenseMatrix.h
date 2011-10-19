@@ -21,6 +21,7 @@
 #include "ct_defs.h"
 #include "Array.h"
 
+
 namespace Cantera { 
   /**
    * @defgroup numerics  Numerical Utilities within Cantera
@@ -123,7 +124,7 @@ namespace Cantera {
      *   @return returns a vector of pointers to the top of the columns
      *           of the matrices.  
      */
-    doublereal  * const * colPts();
+    virtual doublereal  * const * colPts();
 
     //! Return a const vector of const pointers to the columns
     /*!

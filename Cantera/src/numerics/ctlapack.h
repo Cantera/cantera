@@ -29,6 +29,7 @@
 #define _DGETRS_  dgetrs
 #define _DGETRI_  dgetri
 #define _DGELSS_  dgelss
+#define _DGBCON_  dgbcon
 #define _DGBSV_   dgbsv
 #define _DGBTRF_  dgbtrf
 #define _DGBTRS_  dgbtrs
@@ -51,6 +52,7 @@
 #define _DGETRS_  dgetrs_
 #define _DGETRI_  dgetri_
 #define _DGELSS_  dgelss_
+#define _DGBCON_  dgbcon_
 #define _DGBSV_   dgbsv_
 #define _DGBTRF_  dgbtrf_
 #define _DGBTRS_  dgbtrs_
@@ -221,6 +223,16 @@ extern "C" {
 	       doublereal* work, const integer* iwork, integer *info);
 #endif
 
+
+#ifdef LAPACK_FTN_STRING_LEN_AT_END
+  int _DGBCON_(const char *norm, const integer* n, integer *kl, integer *ku, doublereal* ab, const integer* ldab,
+               const integer *ipiv, const doublereal *anorm, const doublereal *rcond,
+	       doublereal* work, const integer* iwork, integer *info, ftnlen nosize);
+#else
+  int _DGBCON_(const char *norm, ftnlen nosize, const integer* n,  integer *kl, integer *ku, doublereal* ab, const integer* ldab,  
+               const integer *ipiv, const doublereal *anorm, const doublereal *rcond,
+	       doublereal* work, const integer* iwork, integer *info);
+#endif
 
 #ifdef LAPACK_FTN_STRING_LEN_AT_END
   doublereal _DLANGE_(const char *norm, const integer* m, const integer* n, doublereal* a, const integer* lda,
@@ -534,6 +546,37 @@ namespace Cantera {
     _DGECON_(&cnorm, &f_n, a, &f_lda,  &anorm, &rcond, work, iwork, &f_info, trsize);
 #else
     _DGECON_(&cnorm, trsize, &f_n, a, &f_lda,  &anorm, &rcond, work, iwork, &f_info);
+#endif
+#endif
+    info = f_info;
+    return rcond;
+  } 
+
+ //====================================================================================================================
+  //!
+  /*!
+   */
+  inline doublereal ct_dgbcon(const char norm, int n, int kl, int ku,  doublereal* a, int ldab, int *ipiv, doublereal anorm,
+                              doublereal* work, int *iwork, int &info) {
+    char cnorm = '1';
+    if (norm) {
+      cnorm = norm;
+    }
+    integer f_n = n;
+    integer f_kl = kl;
+    integer f_ku = ku;
+    integer f_ldab = ldab;
+    integer f_info = info;
+    doublereal rcond;
+    
+#ifdef NO_FTN_STRING_LEN_AT_END
+    _DGBCON_(&cnorm, &f_n , &f_kl, &f_ku, a, &f_ldab, ipiv, &anorm, &rcond, work, iwork, &f_info);
+#else
+    ftnlen trsize = 1;
+#ifdef LAPACK_FTN_STRING_LEN_AT_END
+    _DGBCON_(&cnorm, &f_n, &f_kl, &f_ku, a, &f_ldab, ipiv, &anorm, &rcond, work, iwork, &f_info, trsize);
+#else
+    _DGBCON_(&cnorm, trsize, &f_n, &f_kl, &f_ku, a, &f_ldab, ipiv, &anorm, &rcond, work, iwork, &f_info);
 #endif
 #endif
     info = f_info;
