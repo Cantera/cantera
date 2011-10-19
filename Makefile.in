@@ -193,6 +193,11 @@ endif
 finish-install:
 	@INSTALL@ -d @ct_docdir@
 	@INSTALL@ -d @ct_bindir@
+	@INSTALL@ -d @ct_dir@/apps
+	@INSTALL@ -d @ct_dir@/apps/include
+	@INSTALL@ -d @ct_dir@/apps/bin
+	@INSTALL@ -d @ct_dir@/apps/lib
+	-( cd @ct_dir/apps ; -$(RMDIRTREE) lib/* include/* bin/* )
 	-( cd bin ;   @INSTALL@ -c exp3to2.sh "@ct_bindir@" )
 	-( cd bin ;   @INSTALL@ -c csvdiff    "@ct_bindir@" )
 	-( cd bin ;   @INSTALL@ -c install_tsc "@ct_bindir@" )
@@ -244,6 +249,7 @@ uninstall:
 	-$(RMDIRTREE) @ct_demodir@
 	-$(RMDIRTREE) @ct_docdir@
 	-$(RMDIRTREE) @ct_tutdir@
+	-$(RMDIRTREE) @ct_dir@/apps
 	-$(RMDIRTREE) @prefix@/matlab/toolbox/cantera
 	cd tools; @MAKE@ uninstall
 
