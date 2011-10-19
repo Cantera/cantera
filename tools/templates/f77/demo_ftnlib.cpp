@@ -37,6 +37,7 @@
 
 using namespace Cantera;
 using namespace Cantera_CXX;
+using namespace std;
 
 // store a pointer to an IdealGasMix object
 static IdealGasMix* _gas = 0;
