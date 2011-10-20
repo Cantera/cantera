@@ -99,7 +99,10 @@ test:
 
 clean:
 	$(RM) *.o fort.* *%  core *.trace tmp* *~
-	$(RM) $(PROGRAM) *.d .depends
+	$(RM) $(PROGRAM) *.d .depends  output_0.txt  *.log
+
+rebaseline:
+	cp output_0.txt output_0_blessed.txt
 
 ###########################################################################
 #          INSTALL RULES
