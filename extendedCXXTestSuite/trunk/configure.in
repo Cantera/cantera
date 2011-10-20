@@ -464,6 +464,7 @@ AC_OUTPUT(Makefile \
           transport_UnitTests/mixGasTransport/runtest \
           transport_UnitTests/multiGasTransportTest1/Makefile \
           transport_UnitTests/multiGasTransportTest1/runtest \
+          transport_UnitTests/DustyGasTransportTest1/Makefile \
 	  kinetics_UnitTests/Makefile \
           kinetics_UnitTests/StoichSolidKinetics/Makefile \
           kinetics_UnitTests/StoichSolidKinetics/runtest \
