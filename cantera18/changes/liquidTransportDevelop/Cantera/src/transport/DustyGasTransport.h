@@ -378,6 +378,9 @@ namespace Cantera {
     doublereal m_perm; 
 
     //! Pointer to the transport object for the gas phase
+    /*!
+     * Note, this object owns the gastran object
+     */
     Transport* m_gastran;
 
   };

@@ -746,10 +746,9 @@ namespace Cantera {
 
     //! Set model parameters for derived classes
     /*!
-     *   This method may be
-     *   overloaded in subclasses to set model-specific parameters.
-     *   The primary use of this class is to set parameters while in the
-     *   middle of a calculation.
+     *   This method may be derived in subclasses to set model-specific parameters.
+     *   The primary use of this class is to set parameters while in the middle of a calculation
+     *   without actually having to dynamically cast the base Transport pointer.
      *
      *  @param type    Specifies the type of parameters to set
      *                 0 : Diffusion coefficient
@@ -759,8 +758,7 @@ namespace Cantera {
      *  @param p       Vector of parameters. The length of the vector
      *                 varies with the parameterization
      */
-    virtual void setParameters(const int type, const int k,
-			       const doublereal* const p); 
+    virtual void setParameters(const int type, const int k, const doublereal* const p); 
    
     //! Sets the velocity basis
     /*!

@@ -114,14 +114,19 @@ namespace Cantera {
     m_diam = right.m_diam;
     m_perm = right.m_perm;
 
-    // Warning -> This is a shallow pointer copy. gastran may not point to the correct object
+    // Warning -> gastran may not point to the correct object
     //            after this copy. The routine initialize() must be called 
-    m_gastran = right.m_gastran;
+    if (m_gastran) {
+      delete m_gastran;
+    }
+    m_gastran = right.duplMyselfAsTransport();
+
 
     return *this;
   }
   //====================================================================================================================
   DustyGasTransport::~DustyGasTransport() {
+    delete m_gastran;
   }
   //====================================================================================================================
   // Duplication routine for objects which inherit from %Transport
@@ -182,7 +187,12 @@ namespace Cantera {
     // constant mixture attributes
     m_thermo = phase;
     m_nsp   = m_thermo->nSpecies();
-    m_gastran = gastr;
+    if (m_gastran != gastr) {
+      if (m_gastran) {
+	delete m_gastran;
+      }
+      m_gastran = gastr;
+    }
 
     // make a local copy of the molecular weights
     m_mw.resize(m_nsp);
