@@ -43,7 +43,7 @@ export BUILD_MATLAB_TOOLBOX
 INSTALL_BIN=config/install-sh
 export INSTALL_BIN
 
-MATLAB_CMD="/usr/local/matlab/7.9/bin/matlab"
+MATLAB_CMD="/usr/local/matlab/7.13/bin/matlab"
 export MATLAB_CMD
 
 BUILD_F90_INTERFACE="y"
@@ -85,19 +85,16 @@ export CC
 
 F77='/sierra/Sntools/extras/compilers/gcc-4.4.4/bin/gfortran'
 export F77
-FFLAGS="-g  -fno-second-underscore"
+
+FFLAGS="-g "
 export FFLAGS
 
-
-CFLAGS="-g -Wall"
+CFLAGS="-g "
 export CFLAGS
 
 #CXXFLAGS="-g  -Wall -Woverloaded-virtual -DDEBUG_HKM -DDEBUG_HKM_EPEQUIL -DDEBUG_NUMJAC"
-CXXFLAGS="-g  -Wall -Woverloaded-virtual -DDEBUG_HKM -DDEBUG_HKM_EPEQUIL "
+CXXFLAGS="-g  -Wall -Woverloaded-virtual  -DDEBUG_HKM -DDEBUG_HKM_EPEQUIL "
 export CXXFLAGS
-
-FFLAGS="-g -DDEBUG_HKM  -fno-second-underscore"
-export FFLAGS
 
 LDFLAGS=' '
 export LDFLAGS

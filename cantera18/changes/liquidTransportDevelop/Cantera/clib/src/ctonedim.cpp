@@ -565,12 +565,13 @@ extern "C" {
         catch (CanteraError) { return -1; }
     }
 
-    int DLL_EXPORT sim1D_writeStats(int i) {
+    int DLL_EXPORT sim1D_writeStats(int i, int printTime) {
         try {
-            _sim1D(i)->writeStats();
+            _sim1D(i)->writeStats(printTime);
             return 0;
+        } catch (CanteraError) { 
+          return -1;
         }
-        catch (CanteraError) { return -1; }
     }
 
     int DLL_EXPORT sim1D_domainIndex(int i, char* name) {

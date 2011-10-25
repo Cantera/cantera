@@ -101,20 +101,26 @@ namespace Cantera {
     MultiJac& OneDim::jacobian() { return *m_jac; }
     MultiNewton& OneDim::newton() { return *m_newt; }
 
-    void OneDim::writeStats() {
+    //==============================================================================================================
+    void OneDim::writeStats(int printTime) {
         saveStats();
         char buf[100];
         sprintf(buf,"\nStatistics:\n\n Grid   Functions   Time      Jacobians   Time \n");
         writelog(buf);
         int n = m_gridpts.size();
         for (int i = 0; i < n; i++) {
-            sprintf(buf,"%5i   %5i    %9.4f    %5i    %9.4f \n", 
-                m_gridpts[i], m_funcEvals[i], m_funcElapsed[i], 
-                m_jacEvals[i], m_jacElapsed[i]);
-            writelog(buf);
+          if (printTime) {
+            sprintf(buf,"%5i   %5i    %9.4f    %5i    %9.4f \n",
+                    m_gridpts[i], m_funcEvals[i], m_funcElapsed[i], 
+                    m_jacEvals[i], m_jacElapsed[i]);
+          } else {
+            sprintf(buf,"%5i   %5i       NA        %5i        NA    \n", 
+                    m_gridpts[i], m_funcEvals[i], m_jacEvals[i]);
+          }
+          writelog(buf);
         }
     }
-
+    //==============================================================================================================
 
     /**
      * Save statistics on function and Jacobiab evaulation, and reset
