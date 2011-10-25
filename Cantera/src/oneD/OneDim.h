@@ -137,7 +137,13 @@ namespace Cantera {
         double timeStep(int nsteps, double dt, double* x, 
             double* r, int loglevel);
 
-        void writeStats();
+        //! Write statistics about the number of iterations and Jacobians at each grid level
+        /*!
+         *  @param printTime  Boolean that indicates whether time should be printed out
+         *                    The default is true. It's turned off for test problems where
+         *                    we don't want to print any times
+         */
+        void writeStats(int printTime = 1);
 
         void save(std::string fname, std::string id, std::string desc, doublereal* sol);
 

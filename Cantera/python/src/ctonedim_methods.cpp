@@ -870,11 +870,14 @@ py_sim1D_writeStats(PyObject *self, PyObject *args)
 {
     int _val;
     int i;
-    if (!PyArg_ParseTuple(args, "i:sim1D_writeStats", &i)) 
+    int printTime;
+    if (!PyArg_ParseTuple(args, "ii:sim1D_writeStats", &i, &printTime)) {
         return NULL;
-        
-    _val = sim1D_writeStats(i); 
-    if (int(_val) == -1) return reportCanteraError();
+    } 
+    _val = sim1D_writeStats(i, printTime); 
+    if (int(_val) == -1) {
+      return reportCanteraError();
+    }
     return Py_BuildValue("i",_val);
 }
 
