@@ -707,6 +707,8 @@ FILE_PATTERNS          = Kinetics.h  Kinetics.cpp \
                          GibbsExcessVPSSTP.cpp \
                          MargulesVPSSTP.h \
                          MargulesVPSSTP.cpp \
+                         RedlichKisterVPSSTP.h \
+                         RedlichKisterVPSSTP.cpp \
                          IonsFromNeutralVPSSTP.h \
                          IonsFromNeutralVPSSTP.cpp \
                          VPSSMgr.h \

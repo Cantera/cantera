@@ -255,8 +255,7 @@ namespace Cantera {
    *
    * @ingroup thermoprops
    */
-  bool importPhase(XML_Node& phase, ThermoPhase* th, 
-		   SpeciesThermoFactory* spfactory = 0);
+  bool importPhase(XML_Node& phase, ThermoPhase* th, SpeciesThermoFactory* spfactory = 0);
 
   //! Install a species into a ThermoPhase object, which defines
   //! the phase thermodynamics and speciation.
@@ -305,7 +304,7 @@ namespace Cantera {
                       VPSSMgr *vpss_ptr = 0,
 		      SpeciesThermoFactory* factory = 0);
 
-  //!Search an XML tree for species data.
+  //!  Search an XML tree for species data.
   /*!
    *   This utility routine will search the XML tree for the species
    *   named by the string, kname. It will return the XML_Node
