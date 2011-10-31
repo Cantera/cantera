@@ -79,6 +79,8 @@ namespace Cantera {
 
   const int cMargulesVPSSTP = 301;
 
+  const int cRedlichKisterVPSSTP = 303;
+
   const int cMolarityIonicVPSSTP = 401;
   const int cMixedSolventElectrolyte = 402;
 

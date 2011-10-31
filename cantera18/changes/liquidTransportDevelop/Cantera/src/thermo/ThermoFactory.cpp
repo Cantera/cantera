@@ -28,6 +28,7 @@
 #ifdef WITH_IDEAL_SOLUTIONS
 #include "IdealSolidSolnPhase.h"
 #include "MargulesVPSSTP.h"
+#include "RedlichKisterVPSSTP.h"
 #include "IonsFromNeutralVPSSTP.h"
 #include "PhaseCombo_Interaction.h"
 #endif
@@ -99,7 +100,7 @@ namespace Cantera {
     /*!
      *  @deprecated This entire structure could be replaced with a std::map
      */
-    static int ntypes = 22;
+    static int ntypes = 23;
 
     //! Define the string name of the %ThermoPhase types that are handled by this factory routine
     static string _types[] = {"IdealGas", "Incompressible", 
@@ -109,7 +110,7 @@ namespace Cantera {
                               "IdealMolalSolution", "IdealGasVPSS",
 			      "MineralEQ3", "MetalSHEelectrons", "Margules", "PhaseCombo_Interaction",
                               "IonsFromNeutralMolecule", "FixedChemPot", "MolarityIonicVPSSTP",
-                              "MixedSolventElectrolyte"
+                              "MixedSolventElectrolyte", "Redlich-Kister"
     };
 
     //! Define the integer id of the %ThermoPhase types that are handled by this factory routine
@@ -120,7 +121,7 @@ namespace Cantera {
                               cIdealMolalSoln, cVPSS_IdealGas,
 			      cMineralEQ3, cMetalSHEelectrons,
 			      cMargulesVPSSTP,  cPhaseCombo_Interaction, cIonsFromNeutral, cFixedChemPot,
-                              cMolarityIonicVPSSTP, cMixedSolventElectrolyte
+                              cMolarityIonicVPSSTP, cMixedSolventElectrolyte, cRedlichKisterVPSSTP
     };
 
   /*
@@ -160,6 +161,10 @@ namespace Cantera {
 
     case cMargulesVPSSTP:
       th = new MargulesVPSSTP();
+      break;
+
+    case cRedlichKisterVPSSTP:
+      th = new RedlichKisterVPSSTP();
       break;
 
     case cPhaseCombo_Interaction:
@@ -810,7 +815,6 @@ namespace Cantera {
       // the species thermo manager for phase th
       factory->installThermoForSpecies(k, s, &th, *spthermo_ptr, phaseNode_ptr);
     }
-    
     
     return true;
   }

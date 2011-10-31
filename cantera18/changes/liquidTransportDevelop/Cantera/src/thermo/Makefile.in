@@ -81,11 +81,11 @@ ifeq ($(do_issp),1)
 ISSP_OBJ = IdealSolidSolnPhase.o  StoichSubstanceSSTP.o SingleSpeciesTP.o MineralEQ3.o \
            GibbsExcessVPSSTP.o MolarityIonicVPSSTP.o MargulesVPSSTP.o \
            IonsFromNeutralVPSSTP.o PDSS_IonsFromNeutral.o FixedChemPotSSTP.o \
-           MixedSolventElectrolyte.o
+           MixedSolventElectrolyte.o RedlichKisterVPSSTP.o
 ISSP_H   = IdealSolidSolnPhase.h  StoichSubstanceSSTP.h SingleSpeciesTP.h MineralEQ3.h \
            GibbsExcessVPSSTP.h MolarityIonicVPSSTP.h MargulesVPSSTP.h \
            IonsFromNeutralVPSSTP.h  PDSS_IonsFromNeutral.h FixedChemPotSSTP.h \
-           MixedSolventElectrolyte.h
+           MixedSolventElectrolyte.h  RedlichKisterVPSSTP.h
 endif
 
 CATHERMO_OBJ = $(THERMO_OBJ) $(ELECTRO_OBJ) $(ISSP_OBJ) 

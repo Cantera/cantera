@@ -293,6 +293,9 @@ namespace Cantera {
   }
   //====================================================================================================================
   int MultiPhase::speciesIndex(std::string speciesName, std::string phaseName) {
+    if (!m_init) {
+      init();
+    }
     int p = phaseIndex(phaseName);
     if (p < 0) {
       throw CanteraError("MultiPhase::speciesIndex", "phase not found: " + phaseName);
@@ -382,7 +385,7 @@ namespace Cantera {
     else
       return false;
   }
-
+  //====================================================================================================================
   /// The Gibbs free energy of the mixture (J).
   doublereal MultiPhase::gibbs() const {
     index_t i;
@@ -455,6 +458,9 @@ namespace Cantera {
   /// Set the mole fractions of phase \a n to the values in 
   /// array \a x.  
   void MultiPhase::setPhaseMoleFractions(const index_t n, const doublereal* const x) {
+    if (!m_init) {
+      init();
+    }
     phase_t* p = m_phase[n];
     p->setState_TPX(m_temp, m_press, x);
     int nsp = p->nSpecies();
