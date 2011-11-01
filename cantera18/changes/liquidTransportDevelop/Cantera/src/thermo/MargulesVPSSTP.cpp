@@ -376,12 +376,12 @@ namespace Cantera {
     return 0.0;
   }
   //====================================================================================================================
-  // Get the array of non-dimensional molar-based activity coefficients at
+  // Get the array of non-dimensional molar-based ln activity coefficients at
   // the current solution temperature, pressure, and solution concentration.
   /*
-   * @param ac Output vector of activity coefficients. Length: m_kk.
+   * @param lnac Output vector of ln activity coefficients. Length: m_kk.
    */
-  void MargulesVPSSTP::getActivityCoefficients(doublereal* ac) const {
+  void MargulesVPSSTP::getLnActivityCoefficients(doublereal* lnac) const {
     /*
      * Update the activity coefficients
      */
@@ -391,10 +391,10 @@ namespace Cantera {
      * take the exp of the internally storred coefficients.
      */
     for (int k = 0; k < m_kk; k++) {
-      ac[k] = exp(lnActCoeff_Scaled_[k]); 
+      lnac[k] = lnActCoeff_Scaled_[k]; 
     }
   }
-
+  //====================================================================================================================
   /*
    * ------------ Partial Molar Properties of the Solution ------------
    */

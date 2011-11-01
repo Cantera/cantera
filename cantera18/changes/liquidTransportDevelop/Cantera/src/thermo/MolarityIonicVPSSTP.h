@@ -38,8 +38,7 @@ namespace Cantera {
    *  thermodynamic properties that are further based on
    *  expressing the Excess Gibbs free energy as a function of
    *  the mole fractions (or pseudo mole fractions) of the consitituents.
-   *  This category is the workhorse for describing ionic systems which
-   *  are not on the molality scale.
+   *  This category is the workhorse for describing ionic systems which are not on the molality scale.
    *
    *  This class adds additional functions onto the %ThermoPhase interface
    *  that handles the calculation of the excess Gibbs free energy. The %ThermoPhase
@@ -56,7 +55,7 @@ namespace Cantera {
    *  it is expected that there exists a charge balance at all times.
    *  One of the ions must be a "special ion" in the sense that its' thermodynamic
    *  functions are set to zero, and the thermo functions of all other
-   *  ions are based on a valuation relative to the special ion.
+   *  ions are based on a valuation relative to that special ion.
    *
    */
   class MolarityIonicVPSSTP : public GibbsExcessVPSSTP  {
@@ -73,6 +72,31 @@ namespace Cantera {
      * is the more important principle to follow.
      */
     MolarityIonicVPSSTP();
+
+    //! Construct and initialize a MolarityIonicVPSSTP ThermoPhase object
+    //! directly from an xml input file
+    /*!
+     * Working constructors
+     *
+     *  The two constructors below are the normal way the phase initializes itself. They are shells that call
+     *  the routine initThermo(), with a reference to the XML database to get the info for the phase.
+     *
+     * @param inputFile Name of the input file containing the phase XML data
+     *                  to set up the object
+     * @param id        ID of the phase in the input file. Defaults to the
+     *                  empty string.
+     */
+    MolarityIonicVPSSTP(std::string inputFile, std::string id = "");
+
+    //! Construct and initialize a MolarityIonicVPSSTP ThermoPhase object
+    //! directly from an XML database
+    /*!
+     *  @param phaseRef XML phase node containing the description of the phase
+     *  @param id     id attribute containing the name of the phase.
+     *                (default is the empty string)
+     */
+    MolarityIonicVPSSTP(XML_Node& phaseRef, std::string id = "");
+
 
     //! Copy constructor
     /*!
@@ -118,7 +142,46 @@ namespace Cantera {
      */
     virtual int eosType() const;
 
-   
+     //! Initialization of a phase using an xml file
+    /*!
+     * This routine is a precursor to 
+     * routine, which does most of the work.
+     *
+     * @param inputFile XML file containing the description of the
+     *        phase
+     *
+     * @param id  Optional parameter identifying the name of the
+     *            phase. If none is given, the first XML
+     *            phase element will be used.
+     */
+    void constructPhaseFile(std::string inputFile, std::string id);
+
+    //!   Import and initialize a phase 
+    //!   specification in an XML tree into the current object.
+    /*!
+     *   Here we read an XML description of the phase.
+     *   We import descriptions of the elements that make up the
+     *   species in a phase.
+     *   We import information about the species, including their
+     *   reference state thermodynamic polynomials. We then freeze
+     *   the state of the species.
+     *
+     *   Then, we read the species molar volumes from the xml 
+     *   tree to finish the initialization.
+     *
+     * @param phaseNode This object must be the phase node of a
+     *             complete XML tree
+     *             description of the phase, including all of the
+     *             species data. In other words while "phase" must
+     *             point to an XML phase object, it must have
+     *             sibling nodes "speciesData" that describe
+     *             the species in the phase.
+     *
+     * @param id   ID of the phase. If nonnull, a check is done
+     *             to see if phaseNode is pointing to the phase
+     *             with the correct id. 
+     */
+    void constructPhaseXML(XML_Node& phaseNode, std::string id);
 
     /**
      * @} 
@@ -165,7 +228,24 @@ namespace Cantera {
      * @{
      */
 
-  
+     //! This method returns an array of generalized concentrations
+    /*!
+     * \f$ C^a_k\f$ are defined such that \f$ a_k = C^a_k /
+     * C^0_k, \f$ where \f$ C^0_k \f$ is a standard concentration
+     * defined below and \f$ a_k \f$ are activities used in the
+     * thermodynamic functions.  These activity (or generalized)
+     * concentrations are used
+     * by kinetics manager classes to compute the forward and
+     * reverse rates of elementary reactions. Note that they may
+     * or may not have units of concentration --- they might be
+     * partial pressures, mole fractions, or surface coverages,
+     * for example.
+     *
+     * @param c Output array of generalized concentrations. The
+     *           units depend upon the implementation of the
+     *           reaction rate expressions within the phase.
+     */
+    virtual void getActivityConcentrations(doublereal* c) const; 
  
 
     /**
@@ -191,6 +271,15 @@ namespace Cantera {
      */
     virtual doublereal logStandardConc(int k=0) const;
 
+    //! Get the array of non-dimensional molar-based ln activity coefficients at
+    //! the current solution temperature, pressure, and solution concentration.
+    /*!
+     * @param lnac Output vector of ln activity coefficients. Length: m_kk.
+     */
+    virtual void getLnActivityCoefficients(doublereal* ac) const;
+ 
+
+
  
    
  
@@ -198,6 +287,16 @@ namespace Cantera {
     /// @name  Partial Molar Properties of the Solution 
     //@{
 
+    //! Get the species chemical potentials. Units: J/kmol.
+    /*!
+     * This function returns a vector of chemical potentials of the
+     * species in solution at the current temperature, pressure
+     * and mole fraction of the solution.
+     *
+     * @param mu  Output vector of species chemical
+     *            potentials. Length: m_kk. Units: J/kmol
+     */
+    virtual void getChemPotentials(doublereal* mu) const;
 
     /**
      * Get the species electrochemical potentials. 
@@ -212,7 +311,79 @@ namespace Cantera {
      */
     void getElectrochemPotentials(doublereal* mu) const;
 
+    //! Returns an array of partial molar enthalpies for the species
+    //! in the mixture.
+    /*!
+     * Units (J/kmol)
+     *
+     * For this phase, the partial molar enthalpies are equal to the
+     * standard state enthalpies modified by the derivative of the
+     * molality-based activity coefficent wrt temperature
+     *
+     *  \f[
+     *   \bar h_k(T,P) = h^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}
+     *  \f]
+     *
+     * @param hbar  Vector of returned partial molar enthalpies
+     *              (length m_kk, units = J/kmol)
+     */
+    virtual void getPartialMolarEnthalpies(doublereal* hbar) const;
+
+    //! Returns an array of partial molar entropies for the species
+    //! in the mixture.
+    /*!
+     * Units (J/kmol)
+     *
+     * For this phase, the partial molar enthalpies are equal to the
+     * standard state enthalpies modified by the derivative of the
+     * activity coefficent wrt temperature
+     *
+     *  \f[
+     *   \bar s_k(T,P) = s^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}
+     *                              - R \ln( \gamma_k X_k)
+     *                              - R T \frac{d \ln(\gamma_k) }{dT}
+     *  \f]
+     *
+     * @param sbar  Vector of returned partial molar entropies
+     *              (length m_kk, units = J/kmol/K)
+     */
+    virtual void getPartialMolarEntropies(doublereal* sbar) const;
+
+    //! Returns an array of partial molar entropies for the species
+    //! in the mixture.
+    /*!
+     * Units (J/kmol)
+     *
+     * For this phase, the partial molar enthalpies are equal to the
+     * standard state enthalpies modified by the derivative of the
+     * activity coefficent wrt temperature
+     *
+     *  \f[
+     *   ???????????????
+     *   \bar s_k(T,P) = s^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}
+     *                              - R \ln( \gamma_k X_k)
+     *                              - R T \frac{d \ln(\gamma_k) }{dT}
+     *   ???????????????
+     *  \f]
+     *
+     * @param cpbar  Vector of returned partial molar heat capacities
+     *              (length m_kk, units = J/kmol/K)
+     */
+    virtual void getPartialMolarCp(doublereal* cpbar) const;
  
+    //! Return an array of partial molar volumes for the
+    //! species in the mixture. Units: m^3/kmol.
+    /*!
+     *  Frequently, for this class of thermodynamics representations,
+     *  the excess Volume due to mixing is zero. Here, we set it as
+     *  a default. It may be overriden in derived classes.
+     *
+     *  @param vbar   Output vector of speciar partial molar volumes.
+     *                Length = m_kk. units are m^3/kmol.
+     */
+    virtual void getPartialMolarVolumes(doublereal* vbar) const;
+
+    
     //@}
     /// @name  Properties of the Standard State of the Species in the Solution
     //@{
@@ -318,10 +489,47 @@ namespace Cantera {
   private:
   
 
-    //! Initialize lengths of local variables after all species have
-    //! been identified.
+    //! Initialize lengths of local variables after all species have been identified.
     void initLengths();
+
+   //! Process an XML node called "binaryNeutralSpeciesParameters"
+    /*!
+     * This node contains all of the parameters necessary to describe
+     * the Redlich-Kister model for a particular binary interaction.
+     * This function reads the XML file and writes the coefficients
+     * it finds to an internal data structures.
+     *
+     * @param xmlBinarySpecies  Reference to the XML_Node named "binaryNeutralSpeciesParameters"
+     *                          containing the binary interaction
+     */
+    void readXMLBinarySpecies(XML_Node &xmlBinarySpecies);
             
+
+    //! Update the activity coefficients
+    /*!
+     * This function will be called to update the internally storred
+     * natural logarithm of the activity coefficients
+     */
+    void s_update_lnActCoeff() const;
+
+    //! Update the derivative of the log of the activity coefficients wrt T
+    /*!
+     * This function will be called to update the internally storred
+     * derivative of the natural logarithm of the activity coefficients
+     * wrt temperature.
+     */
+    void s_update_dlnActCoeff_dT() const;
+
+    //! Internal routine that calculates the derivative of the activity coefficients wrt
+    //! the mole fractions.
+    /*!
+     *  This routine calculates the the derivative of the activity coefficients wrt to mole fraction
+     *  with all other mole fractions held constant. This is strictly not permitted. However, if the
+     *  resulting matrix is multiplied by a permissible deltaX vector then everything is ok.
+     *
+     *  This is the natural way to handle concentration derivatives in this routine.
+     */
+    void s_update_dlnActCoeff_dX_() const;
 
 
   private:

@@ -233,7 +233,29 @@ namespace Cantera {
     }
   }
 
+  //====================================================================================================================
+  //  Get the array of non-dimensional molar-based activity coefficients at
+  //  the current solution temperature, pressure, and solution concentration.
+  /* 
+   * @param ac Output vector of activity coefficients. Length: m_kk.
+   */
+  void GibbsExcessVPSSTP::getActivityCoefficients(doublereal * const ac) const {
+     
+    getLnActivityCoefficients(ac);
 
+    // Protect against roundoff when taking exponentials
+    for (int k = 0; k < m_kk; k++) {
+      if (ac[k] > 700.) {
+	ac[k] = exp(700.);
+      } else if (ac[k] < -700.) {
+	ac[k] = exp(-700);
+      } else {
+	ac[k] = exp(ac[k]);
+      }
+    }
+  }
+  //====================================================================================================================
+    
   void GibbsExcessVPSSTP::getElectrochemPotentials(doublereal* mu) const {
     getChemPotentials(mu);
     double ve = Faraday * electricPotential();
