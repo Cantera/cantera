@@ -387,7 +387,7 @@ namespace Cantera {
   /*
    * @param ac Output vector of activity coefficients. Length: m_kk.
    */
-  void RedlichKisterVPSSTP::getActivityCoefficients(doublereal* ac) const {
+  void RedlichKisterVPSSTP::getLnActivityCoefficients(doublereal* lnac) const {
     /*
      * Update the activity coefficients
      */
@@ -397,7 +397,7 @@ namespace Cantera {
      * take the exp of the internally storred coefficients.
      */
     for (int k = 0; k < m_kk; k++) {
-      ac[k] = exp(lnActCoeff_Scaled_[k]); 
+      lnac[k] = lnActCoeff_Scaled_[k]; 
     }
   }
   //====================================================================================================================
@@ -728,6 +728,12 @@ namespace Cantera {
     doublereal RT = GasConstant * T;
   
     fvo_zero_dbl_1(lnActCoeff_Scaled_, m_kk);
+
+    /*
+     *  Scaling:  I moved the division of RT higher so that we are always dealing with G/RT dimensionless terms 
+     *            within the routine. There is a severe problem with roundoff error in these calculations. The
+     *            dimensionless terms help. 
+     */
  
     for (int i = 0; i <  numBinaryInteractions_; i++) {
       iA =  m_pSpecies_A_ij[i];    
@@ -744,7 +750,7 @@ namespace Cantera {
       doublereal sumMm1 = 0.0;
       doublereal sum2 = 0.0;
       for (m = 0; m < N; m++) {
-	doublereal A_ge = he_vec[m] -  T * se_vec[m];
+	doublereal A_ge = (he_vec[m] -  T * se_vec[m]) / RT;
 	sum += A_ge * poly;
 	sum2 += A_ge * (m + 1) * poly;
 	poly *= deltaX;
@@ -771,7 +777,7 @@ namespace Cantera {
       double polyk = 1.0;
       double fac = 2.0 * XA - 1.0;
       for (m = 0; m < N; m++) {
-	doublereal A_ge = he_vec[m] - T * se_vec[m];
+	doublereal A_ge = (he_vec[m] - T * se_vec[m]) / RT;
 	lnA += A_ge * oneMXA * oneMXA * polyk * (1.0 + 2.0 * XA * m / fac);
 	lnB += A_ge * XA * XA * polyk * (1.0 - 2.0 * oneMXA * m / fac);
 	polyk *= fac;
@@ -783,9 +789,7 @@ namespace Cantera {
 #endif
 
     }
-    for (k = 0; k < m_kk; k++) {
-      lnActCoeff_Scaled_[k] /= RT;
-    }
+  
   }
   //===================================================================================================================
   // Update the derivative of the log of the activity coefficients wrt T
@@ -1117,7 +1121,7 @@ namespace Cantera {
       double poly1mk = fac;
       
       for (m = 0; m < N; m++) {
-	doublereal A_ge = he_vec[m];
+	doublereal A_ge = he_vec[m] - T * se_vec[m];
 	Volts += A_ge * ( polykp1 - (2.0 * XA * m * (1.0-XA) ) / poly1mk );
 	polykp1 *= fac;
 	poly1mk /= fac;
