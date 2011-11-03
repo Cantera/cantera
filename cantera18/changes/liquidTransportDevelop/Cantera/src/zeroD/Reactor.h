@@ -59,10 +59,8 @@ namespace CanteraZeroD {
 
     public:
 
-        /**
-         * Default constructor.
-         */
-        Reactor();
+      //!  Default constructor.
+      Reactor();
 
         /**
          * Destructor. Deletes the integrator.
@@ -121,26 +119,27 @@ namespace CanteraZeroD {
         virtual int componentIndex(std::string nm) const;
 
     protected:
-        
-        Cantera::Kinetics*   m_kin;
+      //! Pointer to the homogeneous Kinetics object that handles the reactions
+      Cantera::Kinetics*   m_kin;
 
-        doublereal m_temp_atol;      // tolerance on T
-        doublereal m_maxstep;        // max step size
-        doublereal m_vdot, m_Q;
-        Cantera::vector_fp m_atol;
-        doublereal m_rtol;
-        Cantera::vector_fp m_work;
-        Cantera::vector_fp m_sdot;            // surface production rates
-        bool m_chem;
-        bool m_energy;
-        int m_nv;
-
-        int m_nsens;
-        Cantera::vector_int m_pnum;
-        std::vector<std::string> m_pname;
-        Cantera::vector_int m_nsens_wall;
-        Cantera::vector_fp m_mult_save;
-
+      //! Tolerance on the temperature
+      doublereal m_temp_atol;
+      doublereal m_maxstep;        // max step size
+      doublereal m_vdot, m_Q;
+      Cantera::vector_fp m_atol;
+      doublereal m_rtol;
+      Cantera::vector_fp m_work;
+      Cantera::vector_fp m_sdot;            // surface production rates
+      bool m_chem;
+      bool m_energy;
+      int m_nv;
+      
+      int m_nsens;
+      Cantera::vector_int m_pnum;
+      std::vector<std::string> m_pname;
+      Cantera::vector_int m_nsens_wall;
+      Cantera::vector_fp m_mult_save;
+      
     private:
     };
 }

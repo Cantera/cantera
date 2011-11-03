@@ -133,7 +133,14 @@ namespace CanteraZeroD {
         /// the current time (s).
         doublereal time() const { return m_time; }
 
-        doublereal volume() const { return m_vol; }
+
+      //! Returns the current volume of the reactor
+      /*!
+       * @return  Return the volume in m**3
+       */
+      doublereal volume() const { 
+	return m_vol; 
+      }
         doublereal density() const { return m_state[1]; }
         doublereal temperature() const { return m_state[0]; }
         doublereal enthalpy_mass() const { return m_enthalpy; }
@@ -152,7 +159,9 @@ namespace CanteraZeroD {
 
     protected:
  
-        int m_nsp;
+      //! Number of homogeneous species in the mixture
+      int m_nsp;
+
         Cantera::thermo_t*  m_thermo;
         doublereal m_time;
         doublereal m_vol, m_vol0;
