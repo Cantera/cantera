@@ -70,11 +70,16 @@ all:  $(LIB) .depends
 	@(for lh in $(CATRAN_H) ; do \
 	  $(INSTALL_TSC) "$${lh}" $(INCDIR) ; \
 	done)
-%.d: Makefile %.o
+
+.cpp.d: 
 	@CXX_DEPENDS@ $(CXX_FLAGS) $(CXX_INCLUDES) $*.cpp > $*.d
 
 .cpp.o:
 	$(PURIFY) @CXX@ -c $< $(CXX_FLAGS) $(CXX_INCLUDES)
+
+$(DEPENDS): Makefile
+
+$(CATRAN_OBJ): Makefile
 
 $(LIB): $(CATRAN_OBJ) $(CATRAN_H)
 	@ARCHIVE@ $(LIB) $(CATRAN_OBJ) > /dev/null
