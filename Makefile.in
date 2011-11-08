@@ -197,7 +197,7 @@ finish-install:
 	@INSTALL@ -d @ct_dir@/apps/include
 	@INSTALL@ -d @ct_dir@/apps/bin
 	@INSTALL@ -d @ct_dir@/apps/lib
-	-( cd @ct_dir/apps ; -$(RMDIRTREE) lib/* include/* bin/* )
+	-( cd @ct_dir@/apps ; -$(RMDIRTREE) lib/* include/* bin/* )
 	-( cd bin ;   @INSTALL@ -c exp3to2.sh "@ct_bindir@" )
 	-( cd bin ;   @INSTALL@ -c csvdiff    "@ct_bindir@" )
 	-( cd bin ;   @INSTALL@ -c install_tsc "@ct_bindir@" )
