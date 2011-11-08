@@ -890,7 +890,6 @@ fi
 case $ac_sys_system in
   Linux)    NEED_F2C=1 ;;
 esac
-NEED_F2C=
 
 #
 #  Create a variable build_f2c_lib that determines whether
