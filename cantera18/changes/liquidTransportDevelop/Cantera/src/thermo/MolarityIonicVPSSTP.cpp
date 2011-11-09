@@ -261,10 +261,9 @@ namespace Cantera {
      */ 
     stemp = thermoNode.attrib("model");
     string formString = lowercase(stemp);
-    if (formString != "molarityionicvpss") {
+    if (formString != "molarityionicvpss" && formString != "molarityionicvpsstp") {
       throw CanteraError("MolarityIonicVPSSTP::constructPhaseXML",
-			 "model name isn't MolarityIonicVPSS: " + formString);
-    
+			 "model name isn't MolarityIonicVPSSTP: " + formString);
     }
 
     /*
@@ -713,9 +712,9 @@ namespace Cantera {
     XML_Node& thermoNode = phaseNode.child("thermo");
     std::string mStringa = thermoNode.attrib("model");
     std::string mString = lowercase(mStringa);
-    if (mString != "molarityionicvpss") {
+    if (mString != "molarityionicvpss" && mString != "molarityionicvpsstp") {
       throw CanteraError(subname.c_str(),
-			 "Unknown thermo model: " + mStringa + " - This object only knows \"MolarityIonicVPSS\" ");
+			 "Unknown thermo model: " + mStringa + " - This object only knows \"MolarityIonicVPSSTP\" ");
     }
     /*
      * Go get all of the coefficients and factors in the
