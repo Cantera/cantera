@@ -167,6 +167,10 @@ namespace Cantera {
       th = new RedlichKisterVPSSTP();
       break;
 
+    case cMolarityIonicVPSSTP:
+      th = new MolarityIonicVPSSTP();
+      break;
+
     case cPhaseCombo_Interaction:
       th = new PhaseCombo_Interaction();
       break;
