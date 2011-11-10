@@ -43,17 +43,16 @@ AM_SANITY_CHECK
 # ---------------- 
 
 # DX_DOXYGEN_FEATURE(ON)
-DX_HTML_FEATURE(ON)
-DX_CHM_FEATURE(OFF)
-DX_CHI_FEATURE(OFF)
+# DX_HTML_FEATURE(ON)
+# DX_CHM_FEATURE(OFF)
+# DX_CHI_FEATURE(OFF)
 
-DX_MAN_FEATURE(OFF)
-DX_RTF_FEATURE(OFF)
-DX_XML_FEATURE(OFF)
-DX_PDF_FEATURE(ON)
-DX_PS_FEATURE(OFF)
-
-DX_INIT_DOXYGEN(cantera, doxygen/cantera.dox, docs) 
+# DX_MAN_FEATURE(OFF)
+# DX_RTF_FEATURE(OFF)
+# DX_XML_FEATURE(OFF)
+# DX_PDF_FEATURE(ON)
+# DX_PS_FEATURE(OFF)
+# DX_INIT_DOXYGEN(cantera, doxygen/cantera.dox, docs) 
 
 # Generate Output Files
 AC_OUTPUT( Makefile Cantera/Makefile test_problems/Makefile examples/Makefile doxygen/Makefile)
