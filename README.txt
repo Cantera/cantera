@@ -1,9 +1,9 @@
-        
+       
                              C A N T E R A
 
-                              release 1.8
+                              release 1.8 + autotools
 
-                               08/2009
+                               12/2011
 
 ***************************************************************
 ***                                                         
@@ -18,7 +18,6 @@ for usage, and a DISCLAIMER OF ALL WARRANTIES.
 
 All trademarks referenced herein are property of their respective
 holders.
-
 
 Web sites
 ==========
