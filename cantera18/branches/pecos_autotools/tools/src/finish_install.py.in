@@ -1,0 +1,178 @@
+import sys, os, string
+prefix = '@python_prefix@' 
+pycmd = '@PYTHON_CMD@' # sys.argv[2]
+localinst = @local_inst@
+
+build_python = @BUILD_PYTHON@
+build_matlab = @BUILD_MATLAB@
+
+bindir = '@ct_bindir@'
+libdir = '@ct_libdir@' 
+hdrdir = '@ct_incdir@'
+demodir = '@ct_demodir@'
+datadir = '@ct_datadir@'
+templdir = '@ct_templdir@'
+ctdir = '@ct_dir@'
+home = '@homedir@'
+isdarwin = '@OS_IS_DARWIN@'
+numarray_home = '@NUMARRAY_HOME@'
+
+f = open(home+'/setup_cantera','w')
+f.write('#!/bin/sh\n')
+f.write('LD_LIBRARY_PATH='+libdir+':$LD_LIBRARY_PATH\nexport LD_LIBRARY_PATH\n')
+f.write('PATH='+bindir+':$PATH\nexport PATH\n')
+f.write('PYTHON_CMD='+pycmd+'\nexport PYTHON_CMD\n')
+if pycmd <> 'python':
+    f.write('alias ctpython='+pycmd+'\n')
+
+ctloc = '-'
+warn = ''
+warn2 = ''
+pypath = ''
+if localinst and build_python == 2:
+    try:
+        v = sys.version_info
+        ctloc = prefix+'/lib/python'+`v[0]`+'.'+`v[1]`+'/site-packages'
+        try:
+            import Cantera
+            ctpath = Cantera.__path__[0]
+            if ctpath <> ctloc+'/Cantera':
+                warn = """
+ ######################################################################
+    Warning: the Cantera Python package is already installed at
+    """+ctpath+""".
+    The newly-installed package at
+    """+ctloc+"""/Cantera
+    cannot be accessed until the existing one is removed.
+ ######################################################################
+
+"""
+        except:
+            pass
+
+        pypath = ctloc
+        if numarray_home <> '':
+            pypath += ':'+numarray_home+'/lib/python'
+            
+        sys.path.append(ctloc)
+        sys.path.append(numarray_home+'/lib/python')
+        f.write('PYTHONPATH='+pypath+':$PYTHONPATH\nexport PYTHONPATH\n')
+    except:
+        print 'error'
+
+f.write('# Uncomment this if you want to specify the tmp dir location where Cantera writes temporary files\n')
+f.write('#    (the default is (1) getenv("TMP") (2) getenv("TEMP") (3) ".")\n')
+f.write('#  CANTERA_TMPDIR="FILL_IN"\n')
+f.write('#  export CANTERA_TMPDIR\n')
+
+f.close()
+
+
+if localinst and build_python == 1:
+    try:
+        v = sys.version_info
+        ctloc = prefix+'/lib/python'+`v[0]`+'.'+`v[1]`+'/site-packages'
+        f.write('PYTHONPATH='+ctloc+':$PYTHONPATH\nexport PYTHONPATH\n')
+    except:
+        print 'error'
+f.close()
+
+
+if build_python == 2:
+    # write the script to run MixMaster
+    f = open(bindir+'/mixmaster','w')
+    if isdarwin == '1':
+        f.write('#!/bin/sh\n'+pycmd+"""w -c 'from MixMaster import MixMaster; MixMaster()'
+        """)
+    else:
+        f.write('#!/bin/sh\n'+pycmd+""" -c 'from MixMaster import MixMaster; MixMaster()'
+        """)
+    f.close()
+
+
+# write the script to copy files to build a new app
+f = open(bindir+'/ctnew','w')
+f.write("""#!/bin/sh
+if test "x$1" = "x-f77"; then
+cp """+templdir+"""/f77/*.* .
+elif test "x$1" = "x-f90"; then
+cp """+templdir+"""/f90/*.* .
+else
+cp """+templdir+"""/cxx/*.* .
+fi
+""")
+f.close()
+
+
+try:
+    import Cantera
+    ctpath = Cantera.__path__[0]
+except:
+    print "Cantera not found on sys.path = ",sys.path
+    ctpath = "-"
+
+if build_matlab:
+    fm = open(ctdir+"/ctpath.m","w")
+    fm.write("""path('"""+prefix+"""/matlab/toolbox/cantera/cantera',path)\n""")
+    fm.write("""path('"""+prefix+"""/matlab/toolbox/cantera/cantera/1D',path)\n""")
+    fm.close()
+
+    fm = open(ctdir+"/cantera_demos.m","w")
+    fm.write("""ctpath;\n""")
+    fm.write("""cd demos/matlab;\n""")
+    fm.write("""run_examples;\n""")
+    fm.close()
+
+print """
+
+Cantera has been successfully installed.
+
+File locations:
+
+    applications      """+bindir+"""
+    library files     """+libdir+"""
+    C++ headers       """+hdrdir+"""
+    demos             """+demodir+"""
+    data files        """+datadir
+
+if build_matlab:
+    print """
+    
+    Matlab toolbox    """+prefix+"""/matlab/toolbox/cantera/cantera
+    Matlab demos      """+prefix+"""/matlab/toolbox/cantera/cantera-demos
+    Matlab tutorials  """+prefix+"""/matlab/toolbox/cantera/cantera-tutorials
+
+    An m-file to set the correct matlab path for Cantera
+    is at """+ctdir+"""/ctpath.m"""
+    
+if ctpath <> "-":
+    print """
+    Python package    """+ctpath
+    if warn <> '':
+        print warn
+elif build_python == 2:
+    print """
+ ######################################################################
+    Warning: the Cantera Python package is not installed. If you
+    intentionally skipped it, ignore this message. Otherwise, type
+    'make python' and/or 'make python-install' and look for error messages.
+    Note that you must first install the 'numarray' package before installing
+    the Cantera package.
+ ######################################################################            
+"""
+
+
+print """
+    
+    setup script      """+home+"""/setup_cantera
+    
+    The setup script configures the environment for Cantera. It is
+    recommended that you run this script by typing
+
+      source """+home+"""/setup_cantera
+    
+    before using Cantera, or else
+    include its contents in your shell login script.
+    """
+
+    

@@ -1,0 +1,288 @@
+namespace cantera {
+
+/**
+
+\page configCantera Configuring Cantera
+
+
+Before you build %Cantera, it is necessary to configure it for your system.
+
+This is done by running the 'preconfig' script.
+
+In many cases, running the preconfig script as it comes "out of the box" 
+will do what you want. The default settings are set so that as much of 
+%Cantera will be built and installed as possible. For example, if 
+MATLAB is found on your system, then the MATLAB toolbox will be built, 
+if a working Fortran 90/95 compiler is found, then the Fortran 90/95 
+interface will be built, and so on.
+
+But if you want to customize the build, you can do so. All you need to 
+do is edit the 'preconfig' script. Here we'll go over some of the options you can set.
+
+\section installCantera Where to install Cantera
+
+By default, %Cantera will be installed in /usr/local/cantera. All 
+Cantera-related files will be put here. If you want to install it somewhere 
+else (perhaps because you don't have write access to /usr/local/cantera), 
+all you need to do is run the preconfig script with the --prefix option:
+
+\verbatim
+./preconfig --prefix=$HOME/cantera
+\endverbatim
+
+If preconfig is run as shown here, then %Cantera will be installed in a 
+directory named 'cantera' within your home directory.
+
+If you'd rather not have to specify the prefix on the command line, 
+you can set it within the preconfig script itself, by setting the 
+value of <tt> CANTERA_CONFIG_PREFIX </tt>:
+
+\verbatim
+CANTERA_CONFIG_PREFIX=$HOME/cantera
+\endverbatim
+
+This is useful if you want to be able to build several different 
+versions of %Cantera -- perhaps a version with no optimization for debugging, 
+and another one with optimization turned on for speed. All you need to 
+do is to make 2 copies of the 'preconfig' script, say 'preconfig_debug' 
+and 'preconfig_opt'. In file 'preconfig_debug', you might set
+
+\verbatim
+CANTERA_CONFIG_PREFIX=$HOME/cantera_debug
+\endverbatim
+
+and in 'preconfig_opt' you might set
+
+\verbatim
+CANTERA_CONFIG_PREFIX=$HOME/cantera_optimized
+\endverbatim
+
+This way you can use one source distribution to build several different installations, 
+and keep them separate. But note that if you do this, be sure to run 'make clean' 
+before 'make' each time you have run a new 'preconfig' script, to force 
+everything to be built from scratch again.
+
+\section langConfigure Language Interfaces
+
+%Cantera has several programming language interfaces. Select the ones you want to build. The default is to try to build all language interfaces.
+Python, in addition to being one of the supported language interfaces, is used internally 
+by Cantera, both in the build process and at run time (to process .cti input files). 
+Therefore, you need to have Python on your system; if you don't, first install it 
+from http://www.python.org before proceeding with the installation of %Cantera.
+
+\verbatim
+PYTHON_PACKAGE=${PYTHON_PACKAGE:="default"}
+\endverbatim
+
+If you plan to work in Python, or you want to use the graphical MixMaster application, 
+then you need the full %Cantera Python Package. If, on the other hand, you will only 
+use Cantera from some other language (e.g. MATLAB or Fortran 90/95) and only need 
+Python to process .cti files, then you only need a minimal subset of the 
+package (actually, only one file).
+
+    - PYTHON_PACKAGE Set PYTHON_PACKAGE to one of these three strings:
+          - full. Install everything needed to use Cantera from Python
+          - minimal Install only enough to process .cti files
+          - none Don't install or run any Python scripts during the build process
+          - default try to do a full installation, but fall back to a minimal one in case of errors
+    .
+
+\verbatim
+PYTHON_CMD=${PYTHON_CMD:="default"}
+\endverbatim
+
+%Cantera needs to know where to find the Python interpreter. 
+If PYTHON_CMD is set to "default", then the configuration process will look 
+for the Python Interpreter somewhere on your PATH, either as 'python2' or as 'python'. 
+If it is not on the PATH, or has a different name, set this to the full path to the 
+Python interpreter. 
+
+
+\verbatim
+ USE_NUMERIC=${USE_NUMERIC:="default"}
+\endverbatim
+
+The %Cantera Python full interface can be built with either the numarray 
+or Numeric packages. Set this to "y" to use Numeric, or anything else to use 
+numarray. Using numarray is preferred.
+
+\verbatim
+NUMARRAY_HOME=${NUMARRAY_HOME:="$HOME/python_modules"}
+\endverbatim
+
+If numarray was installed using the --home option, set this to the home 
+directory for numarray. 
+
+\verbatim
+ CANTERA_PYTHON_HOME=${CANTERA_PYTHON_HOME:="$HOME/python_modules"}
+\endverbatim
+
+If you want to install the %Cantera Python package somewhere other than 
+the default 'site-packages' directory within the Python library directory, 
+then set <tt> CANTERA_PYTHON_HOME </tt> to the desired directory. 
+This is useful when you do not have 
+write access to the Python library directory.
+
+\verbatim
+SET_PYTHON_SITE_PACKAGE_TOPDIR=${SET_PYTHON_SITE_PACKAGE_TOPDIR:="n"}
+PYTHON_SITE_PACKAGE_TOPDIR=${PYTHON_SITE_PACKAGE_TOPDIR:="/usr/local"}
+\endverbatim
+
+Set <tt> SET_PYTHON_SITE_PACKAGE_TOPDIR </tt> to 'y' 
+when site packages must be put in system directories 
+but %Cantera tutorials must be put in the user space. An alternative to doing 
+this is to put everything in the user space by running this script with 
+the 'prefix' option, and defining the environment variable <tt>PYTHONPATH</tt> 
+to tell Python where to find the %Cantera package.
+
+
+\subsection configMatlab  MATLAB Configuration
+
+ \verbatim
+ BUILD_MATLAB_TOOLBOX=${BUILD_MATLAB_TOOLBOX:="default"}
+ \endverbatim
+
+This variable controls whether the MATLAB toolbox will be built. It should be set to one of these strings:
+
+    - "default" the 'preconfig' script will try to build a simple 
+      MATLAB MEX file. If this succeeds, BUILD_MATLAB_TOOLBOX will be 
+      set to "y", otherwise it will be set to "n".
+
+    - "y" build the MATLAB toolbox. 
+
+    - "n" do not build the MATLAB toolbox, even if MATLAB is installed.
+
+Note that you may need to run 'mex -setup' within MATLAB to preconfigure
+it for your C++ compiler before running this script.
+
+\subsection configFortran90  Fortran 90/95 Configuration
+
+
+This variable controls whether the Fortran 90/95 interface will be built. It should be set to one of these strings:
+
+"default" The 'preconfig' script will attempt to compile a small Fortran 90/05 program; if this succeeds, BUILD_F90_INTERFACE will be set to "y", and otherwise to "n". "y" Build the Fortran 90/95 interface. "n" Do not build the Fortran 90/95 interface, even if a Fortran 90/95 compiler is installed.
+
+BUILD_F90_INTERFACE=${BUILD_F90_INTERFACE:="default"}
+
+The Fortran 90/95 compiler. If set to "default", the script will look for a Fortran 90/95 compiler on your system by the name of "f95", "gfortran", or "g95". F90=${F90:="default"}
+
+Compiler option flags for the Fortran 90/95 compiler. If you are using the Absoft or the NAG compiler, additional options specific to these compilers will be added automatically, and you do not need to specify them here. Otherwise, add any required compiler-specific flags here. F90FLAGS=${F90FLAGS:='-O3 -g'}
+
+\subsection custConfig Customizations / Extensions
+
+You can build your own libraries as part of the %Cantera build process. This allows you to derive your own classes from those provided by %Cantera and build them automatically along with the rest of %Cantera. All you need to do is specify the directory where your source code is located. This capability is not yet fully functional, but should work for C++ applications. USER_SRC_DIR="Cantera/user" don't change this
+
+\subsection kernelConfig Kernel Configuration 
+
+If you are only planning to use a portion of %Cantera, you may only need a stripped-down kernel. Set those features you want enabled to 'y', and set those you want to skip to 'n' (actually anything but 'y') or comment them out. Some features are dependent on others; for example, enabling 'CK' automatically enables KINETICS and THERMO.
+
+If you only need to use %Cantera to evaluate thermodynamic, kinetic, and transport properties, it is sufficient to enable only KINETICS and TRANSPORT.
+
+Note: if you are building the full Python interface or the MATLAB interface, it is necessary to build the full kernel.
+
+thermodynamic properties ENABLE_THERMO='y'
+
+optional phase types. These may not be needed by all users. Set them to 'n' to omit them from the kernel.
+
+WITH_LATTICE_SOLID='y' WITH_METAL='y' WITH_STOICH_SUBSTANCE='y' WITH_PURE_FLUIDS='y'
+
+if set to 'y', the ck2cti program that converts Chemkin input files to %Cantera format will be built. If you don't use Chemkin format files, or if you run ck2cti on some other machine, you can set this to 'n'. ENABLE_CK='y'
+
+homogeneous and heterogeneous kinetics ENABLE_KINETICS='y'
+
+transport properties ENABLE_TRANSPORT='y'
+
+chemical equilibrium ENABLE_EQUIL='y'
+
+stirred reactor models ENABLE_REACTORS='y'
+
+One-dimensional flows ENABLE_FLOW1D='y'
+
+ODE integrators and DAE solvers ENABLE_SOLVERS='y'
+
+reaction path analysis ENABLE_RXNPATH='y'
+
+non-ideal pure substance models for a few fluids imported from the 'TPX' package. (http://adam.caltech.edu/software/tpx) ENABLE_TPX='y'
+
+----------------------------------------------------------------- BLAS and LAPACK -----------------------------------------------------------------
+
+%Cantera comes with Fortran versions of those parts of BLAS and LAPACK it requires. But performance *may* be better if you use a version of these libraries optimized for your machine hardware. If you want to use your own libraries, set BLAS_LAPACK_LIBS to the string that should be passed to the linker to link to these libraries, and set BLAS_LAPACK_DIR to the directory where these libraries are located. Otherwise, leave these lines commented out.
+
+(The settings shown here are appropriate if you are using the ATLAS libraries.)
+
+BLAS_LAPACK_LIBS='-llapack -lblas' '-llapack -lf77blas -lcblas -latlas' BLAS_LAPACK_DIR='/usr/lib'
+
+The options below do not need to be set if you are using the default libraries.
+
+Set to 'lower' or 'upper', depending on whether the procedure names in the libraries are lowercase or uppercase. If you don't know, run 'nm' on the library file (e.g. 'nm libblas.a') Note that the these options apply to both the BLAS and LAPACK libraries. LAPACK_NAMES='lower' LAPACK_FTN_TRAILING_UNDERSCORE='y'
+
+Currently this must be set to 'y'. LAPACK_FTN_STRING_LEN_AT_END='y'
+
+------------------------------------------------------------------ C++ compiler options ------------------------------------------------------------------
+
+the C++ compiler to use.
+
+CXX=${CXX:=g++}
+
+the C compiler to use. This is only used to compile CVODE and the Python extension module. CC=${CC:=gcc}
+
+C++ compiler flags CXXFLAGS=${CXXFLAGS:="-O3 -g -Wall"}
+
+the C++ flags required for linking. Uncomment if additional flags need to be passed to the linker. LCXX_FLAGS="-framework Accelerate"
+
+Ending libraries to tack onto the linking of all C++ programs LCXX_END_LIBS=${LCXX_END_LIBS:="-lm"}
+
+the compiler flag to use to compile code that will be inserted into shared libraries. PIC=${PIC:=-fPIC}
+
+the compiler option to create a shared library from object files SHARED=${SHARED:="-shared"}
+
+------------------------------------------------------------------- External procedures -------------------------------------------------------------------
+
+%Cantera uses several external software packages, which are all in the 'ext' directory.. These options control how these packages are built.
+
+For external procedures written in Fortran 77, both the original F77 source code and C souce code generated by the 'f2c' program are included. Set this to "y" if you want to build %Cantera using the f2c-generated C sources instead of using the F77 sources in the ext directory.
+
+The default is not to do this on all platforms except vc++. Set this to "n" to never do this on any platform. Note, if set to "y", %Cantera does not need a fortran compiler, and all fortran compiler parameters below are irrelevant.
+
+BUILD_WITH_F2C=${BUILD_WITH_F2C:="y"}
+
+if you are building the external Fortran 77 procedures from the Fortran source code, enter the compiler here. F77=${F77:=g77}
+
+Fortran 77 compiler flags. Note that the Fortran compiler flags must be set to produce object code compatible with the C/C++ compiler you are using. FFLAGS=${FFLAGS:='-O3 -g'}
+
+the additional Fortran flags required for linking, if any. Leave commented out if no additional flags are required. LFORT_FLAGS="-lcc_dynamic"
+
+------------------------------------------------------ other programs ------------------------------------------------------
+
+the command to create a static library. ARCHIVE=${ARCHIVE:="ar ruv"} linux ARCHIVE=${ARCHIVE:="libtool -static -o"} Mac OSX
+
+the command to run 'ranlib' if it is needed. RANLIB=${RANLIB:="ranlib"}
+
+the command to run the 'make' utility. The %Cantera Makefiles are compatible with the GNU make utility, so if your make utility doesn't work, try GNU make. MAKE=${MAKE:=make}
+
+file extensions CXX_EXT=${CXX_EXT:=cpp} F77_EXT=${F77_EXT:=f} F90_EXT=${F90_EXT:=f90}
+
+CT_SHARED_LIB=${CT_SHARED_LIB:=clib}
+
+The font to use in reaction path diagrams. This must be a font name recognized by the 'dot' program. On linux systems, this should be lowercase 'helvetica'. RPFONT=${RPFONT:="Helvetica"}
+
+CANTERA_VERSION=${CANTERA_VERSION:="1.6.0"}
+
+----------------------------------------------------------------------- ------------------- don't change anything below!! --------------------- -----------------------------------------------------------------------
+
+export CANTERA_VERSION export USER_SRC_DIR export ARCHIVE export RANLIB export BLAS_LAPACK_LIBS export BLAS_LAPACK_DIR export BUILD_WITH_F2C export BUILD_F90_INTERFACE export PYTHON_PACKAGE export BUILD_MATLAB_TOOLBOX export MATLAB_CMD export CANTERA_ROOT export CT_SHARED_LIB export CXX export CXX_EXT export CXXFLAGS export CXX_INCLUDES export ENABLE_THERMO export ENABLE_KINETICS export ENABLE_TRANSPORT export ENABLE_CK export ENABLE_EQUIL export ENABLE_REACTORS export ENABLE_SOLVERS export ENABLE_RXNPATH export ENABLE_TPX export ENABLE_FLOW1D export EXE_EXT export F77 export F77_EXT export F90 export F90_EXT export FFLAGS export F77FLAGS export F90FLAGS export LAPACK_NAMES export LCXX_FLAGS export LCXX_END_LIBS export LFORT_FLAGS export LAPACK_FTN_STRING_LEN_AT_END export LAPACK_FTN_TRAILING_UNDERSCORE export LIB_DIR export FORT_MODULE_DIRECTORY export FORT_MODULE_PATH_COMMAND export OBJ_EXT export PYTHON_CMD export SET_PYTHON_SITE_PACKAGE_DIR export PYTHON_SITE_PACKAGE_TOPDIR export PIC export SHARED export SOEXT export MAKE export RPFONT export USE_VISUAL_STUDIO export FORTRAN_LIB_DIR export CANTERA_INSTALL_DIR export USE_NUMERIC export NUMARRAY_HOME export CANTERA_PYTHON_HOME
+
+export WITH_LATTICE_SOLID export WITH_METAL export WITH_STOICH_SUBSTANCE export WITH_PURE_FLUIDS
+
+cd config chmod +x ./preconfig chmod +x ./config.guess chmod +x ./config.sub chmod +x ./install-sh
+
+Decide whether to add a prefix variable to the preconfig line
+
+if (test "x$CANTERA_CONFIG_PREFIX" = "x") then CCPREFIX="" else CCPREFIX="--prefix="$CANTERA_CONFIG_PREFIX fi
+
+run the preconfig command in the config directory
+
+./preconfig $CCPREFIX $1 $2 $3 $4
+
+*/
+} 

@@ -1,0 +1,46 @@
+#!/bin/sh
+#
+#
+temp_success="1"
+/bin/rm  -f output_0.txt    diff_csv.txt diff_out_0.txt
+
+##########################################################################
+prog=soundSpeed.py
+if test ! -f $prog ; then
+   echo $prog ' does not exist'
+   exit -1
+fi
+#################################################################
+#
+CANTERA_DATA=${CANTERA_DATA:=../../../data/inputs}; export CANTERA_DATA
+CANTERA_BIN=${CANTERA_BIN:=../../../bin}
+
+#################################################################
+
+$PYTHON_CMD $prog  > output_0.txt <<+
+1.0
++
+retnStat=$?
+if [ $retnStat != "0" ]
+then
+  temp_success="0"
+  echo "$prog returned with bad status, $retnStat, check output"
+fi
+
+diff -w output_blessed_0.txt output_0.txt > diff_out_0.txt
+retnStat_0=$?
+
+retnTotal=1
+if test $retnStat_0 = "0" 
+then
+  retnTotal=0
+fi
+
+if test $retnTotal = "0"
+then
+  echo "Successful test comparison on "`pwd`
+else
+  echo "Unsuccessful test comparison of txt files on "`pwd` " test"
+  echo "     see diff_outi_0.txt "
+fi
+

@@ -1,0 +1,15 @@
+#!/bin/sh
+
+
+all:
+
+run:
+	$(PYTHON_CMD) diamond.py
+
+test:
+	./runtest
+
+
+clean:
+	./cleanup
+

@@ -1,0 +1,140 @@
+//
+// Input file for CMAKE to generate config.h
+//
+
+
+#ifndef CT_CONFIG_H
+#define CT_CONFIG_H
+
+
+//------------------------ Development flags ------------------//
+//
+// Compile in additional debug printing where available.
+// Note, the printing may need to be turned on via a switch.
+// This just compiles in the code.
+#cmakedefine DEBUG_MODE
+
+// define types doublereal, integer, and ftnlen to match the 
+// corresponding Fortran data types on your system. The defaults
+// are OK for most systems
+
+typedef  double       doublereal;   // Fortran double precision 
+typedef  int          integer;      // Fortran integer
+typedef  int          ftnlen;       // Fortran hidden string length type
+
+
+// Fortran compilers pass character strings in argument lists by
+// adding a hidden argement with the length of the string. Some
+// compilers add the hidden length argument immediately after the
+// CHARACTER variable being passed, while others put all of the hidden
+// length arguments at the end of the argument list. Define this if 
+// the lengths are at the end of the argument list. This is usually the
+// case for most unix Fortran compilers, but is (by default) false for
+// Visual Fortran under Windows.
+#cmakedefine STRING_LEN_AT_END
+
+
+// Define this if Fortran adds a trailing underscore to names in object files.
+// For linux and most unix systems, this is the case.
+#cmakedefine FTN_TRAILING_UNDERSCORE
+
+
+#cmakedefine HAS_SUNDIALS
+#cmakedefine SUNDIALS_VERSION_22
+#cmakedefine SUNDIALS_VERSION_23
+
+//-------- LAPACK / BLAS ---------
+
+#define LAPACK_FTN_STRING_LEN_AT_END
+#define LAPACK_NAMES_LOWERCASE
+#define LAPACK_FTN_TRAILING_UNDERSCORE
+
+
+//--------- operating system --------------------------------------
+
+// The configure script defines this if the operatiing system is Mac
+// OS X, This used to add some Mac-specific directories to the default
+// data file search path.
+#cmakedefine DARWIN
+#cmakedefine HAS_SSTREAM
+
+// Cantera version
+#define CANTERA_VERSION "@CANTERA_VERSION@"
+
+// Identify whether the operating system is cygwin's overlay of
+// windows, with gcc being used as the compiler.
+#cmakedefine CYGWIN
+
+// Identify whether the operating system is windows based, with
+// microsoft vc++ being used as the compiler
+#cmakedefine WINMSVC
+
+//--------- Fonts for reaction path diagrams ----------------------
+#define RXNPATH_FONT Helvetica
+
+//--------------------- Python ------------------------------------
+// This path to the python executable is created during
+// Cantera's setup. It identifies the python executable 
+// used to run Python to process .cti files. Note that this is only
+// used if environment variable PYTHON_CMD is not set.
+#define PYTHON_EXE "@PYTHON_EXE@"
+
+// If this is defined, the Cantera Python interface will use the
+// Numeric package; otherwise, it will use numarray.
+#cmakedefine HAS_NUMERIC
+
+// If this is defined, then python will not be assumed to be
+// present to support conversions
+#cmakedefine HAS_NO_PYTHON
+
+//--------------------- Cantera ----------------------------------- 
+// This is the data pathway used to locate the top of the 
+// build directory.
+#cmakedefine CANTERA_ROOT
+
+// This data pathway is used to locate a directory where datafiles
+// are to be found. Note, the local directory is always searched
+// as well. 
+#cmakedefine CANTERA_DATA
+
+
+#cmakedefine WITH_HTML_LOGS
+
+// define STORE_MOLE_FRACTIONS if you want Cantera to internally
+// represent the composition of a mixture as mole fractions. Usually
+// the best choice.
+#define STORE_MOLE_FRACTIONS
+
+// define STORE_MASS_FRACTIONS if you want Cantera to internally
+// represent the composition of a mixture as mass fractions. Usually
+// results in slightly worse performance, but may not in all cases.
+//#define STORE_MASS_FRACTIONS
+#cmakedefine STORE_MASS_FRACTIONS
+
+//--------------------- compile options ----------------------------
+#cmakedefine USE_PCH
+
+#cmakedefine THREAD_SAFE_CANTERA
+
+//--------------------- optional phase models ----------------------
+//    This define indicates the enabling of the inclusion of
+//    accurate liquid/vapor equations
+//    of state for several fluids, including water, nitrogen, hydrogen,
+//    oxygen, methane, andd HFC-134a.
+#cmakedefine INCL_PURE_FLUIDS
+#cmakedefine WITH_PURE_FLUIDS
+
+#cmakedefine WITH_LATTICE_SOLID
+#cmakedefine WITH_METAL
+#cmakedefine WITH_STOICH_SUBSTANCE
+//    Enable expanded thermodynamic capabilities, adding
+//    ideal solid solutions
+#cmakedefine WITH_IDEAL_SOLUTIONS
+//    Enable expanded electrochemistry capabilities, include thermo
+//    models for electrolyte solutions.
+#cmakedefine WITH_ELECTROLYTES
+
+#cmakedefine WITH_PRIME
+
+
+#endif

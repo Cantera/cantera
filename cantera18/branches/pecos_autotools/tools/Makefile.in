@@ -1,0 +1,63 @@
+#
+# $Revision: 1.13 $
+# $Author: hkmoffa $
+# $Date: 2008/09/08 23:56:40 $
+#
+build_ck=@BUILD_CK@
+
+all: apps
+
+install: templates-install apps-install man-install
+
+apps:
+	cd src; @MAKE@
+	cd testtools; @MAKE@
+
+apps-install:
+	@INSTALL@ -d @ct_bindir@
+ifeq ($(build_ck),1)
+	@INSTALL@ -c @buildbin@/ck2cti @ct_bindir@
+endif
+	@INSTALL@ -c @buildbin@/cti2ctml @ct_bindir@
+	@INSTALL@ -c @buildbin@/csvdiff @ct_bindir@
+
+man-install:
+	@INSTALL@ -d @ct_mandir@/man1
+	@INSTALL@ -c man/ck2cti.1 @ct_mandir@/man1
+	@INSTALL@ -c man/mixmaster.1 @ct_mandir@/man1
+
+uninstall:
+	rm -r -f @ct_mandir@/man1/ck2cti.1
+	rm -f @ct_bindir@/ck2cti
+
+clean:
+	$(RM) *.*~ 
+	cd src; @MAKE@ clean
+	cd testtools; @MAKE@ clean
+
+docs:
+	cd doc; doxygen Cantera.cfg
+
+depends:
+	cd src; @MAKE@ depends
+	cd testtools; @MAKE@ depends
+
+templates-install:
+	@INSTALL@ -d @ct_dir@/templates
+	@INSTALL@ -d @ct_dir@/templates/f77
+	@(for ihhh in templates/f77/*.mak templates/f77/*.f  ; do  \
+                  @INSTALL@ -c $${ihhh} @ct_dir@/templates/f77 ; \
+                  echo "@INSTALL@ -c $${ihhh} @ct_dir@/templates/f77" ; \
+         done ) 
+	@INSTALL@  -d @ct_dir@/templates/f90
+	@(for ihhh in templates/f90/*.mak templates/f90/*.f90 templates/f90/*.cpp ; do  \
+                  @INSTALL@ -c $${ihhh} @ct_dir@/templates/f90 ; \
+                  echo "@INSTALL@ -c $${ihhh} @ct_dir@/templates/f90" ; \
+         done ) 
+	@INSTALL@ -d @ct_dir@/templates/cxx
+	@(for ihhh in templates/cxx/*.mak templates/cxx/*.cpp; do  \
+                  @INSTALL@ -c $${ihhh} @ct_dir@/templates/cxx ; \
+                  echo "@INSTALL@ -c $${ihhh} @ct_dir@/templates/cxx" ; \
+         done ) 
+	chown -R @username@ @ct_dir@/templates
+

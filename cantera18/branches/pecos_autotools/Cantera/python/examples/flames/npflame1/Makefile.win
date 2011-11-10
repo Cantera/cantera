@@ -1,0 +1,13 @@
+#!/bin/sh
+
+run:
+	$(PYTHON_CMD) npflame1.py
+
+test:
+	./runtest
+
+clean:
+	./cleanup
+
+# end of file
+

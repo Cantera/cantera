@@ -1,0 +1,69 @@
+#!/bin/sh
+
+INSTALL='@INSTALL@'
+
+PYVERSION=2.3
+PKGDIR=$HOME/Packages
+
+ctname=Cantera
+mixname=MixMaster
+
+CTDIR=$PKGDIR/Cantera/root_dir/Applications/$ctname
+PYDIR=$PKGDIR/Cantera/root_dir/Library/Python/$PYVERSION
+RESDIR=$PKGDIR/Cantera/resources_dir
+
+#NUMPYDIR=$PKGDIR/Numeric/root_dir/Library/Python/$PYVERSION
+#NUMRESDIR=$PKGDIR/Numeric/resources_dir
+
+NUMARRAYPYDIR=$PKGDIR/numarray/root_dir/Library/Python/$PYVERSION
+NUMARRAYRESDIR=$PKGDIR/numarray/resources_dir
+
+# where Cantera has been installed
+instdir=/Applications/Cantera
+
+pylibdir=/Library/Python/$PYVERSION
+
+$INSTALL -d $CTDIR
+$INSTALL -d $PYDIR
+$INSTALL -d $PYDIR
+$INSTALL -d $RESDIR
+
+$INSTALL -d $NUMARRAYPYDIR
+$INSTALL -d $NUMARRAYRESDIR
+
+rm -r -f $CTDIR/*
+rm -r -f $PYDIR/*
+rm -r -f $RESDIR/*
+rm -r -f $NUMARRAYPYDIR/*
+rm -r -f $NUMARRAYRESDIR/*
+
+$INSTALL -d $PYDIR/$ctname
+$INSTALL -d $PYDIR/$mixname
+$INSTALL -d $RESDIR
+
+$INSTALL -d $NUMARRAYPYDIR/numarray
+$INSTALL -d $NUMARRAYRESDIR
+
+cp -R -f $instdir/* $CTDIR
+rm -r -f $CTDIR/*.xml
+rm -r -f $CTDIR/*.csv
+cp -R -f $instdir/data/*.xml $CTDIR/data
+
+chmod +x $CTDIR/bin/*
+rm -r -f $CTDIR/lib
+
+cp -R -f $PKGDIR/apps/* $CTDIR
+
+cp -R -f $pylibdir/Cantera/*.py $PYDIR/$ctname
+cp -R -f $pylibdir/Cantera/_cantera.so $PYDIR/$ctname
+cp -R -f $pylibdir/MixMaster/*.py $PYDIR/$mixname
+cp -f $pylibdir/ctml_writer.py $PYDIR
+cp -f ~/setup_cantera $CTDIR
+
+chmod +x @ctroot@/tools/src/postflight
+cp -f @ctroot@/tools/src/postflight $RESDIR
+cp -f @ctroot@/License.rtf $RESDIR
+
+cp -R -f $pylibdir/numarray/*.py $NUMARRAYPYDIR/numarray
+cp -R -f $pylibdir/numarray/*.so $NUMARRAYPYDIR/numarray
+

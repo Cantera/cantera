@@ -1,0 +1,26 @@
+/**
+ \mainpage Cantera Reference
+
+
+Choose one of the links below for an introduction to %Cantera, or use
+ the menu at the top to view detailed documentation of the code.
+
+-
+
+- \subpage languages
+
+- Building and Installing %Cantera
+  - \subpage cantera-build
+  - \subpage cantera-winbuild
+
+- Working with %Cantera in MATLAB
+  - \subpage matlab-tutorial
+
+- Working with %Cantera in C++
+  - \subpage start
+  - \subpage cxx-ctnew
+
+- Computing Properties of Matter
+  - \subpage thermopage
+
+*/
