@@ -1,3 +1,8 @@
+
+2011-11-10 15:09 nick
+
+	* major overhaul of build system to use GNU autotools
+
 2008-01-07 15:02  hkmoffa
 
 	* test_problems/Makefile.in: Added a missing test
