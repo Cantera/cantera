@@ -55,7 +55,7 @@ AM_SANITY_CHECK
 # DX_INIT_DOXYGEN(cantera, doxygen/cantera.dox, docs) 
 
 # Generate Output Files
-AC_OUTPUT( Makefile Cantera/Makefile test_problems/Makefile examples/Makefile) #doxygen/Makefile
+AC_OUTPUT( Makefile test_problems/Makefile examples/Makefile Cantera/Makefile) #doxygen/Makefile
 
 # FINAL SUMMARY
 AX_SUMMARIZE_CONFIG 
