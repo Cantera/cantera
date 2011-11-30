@@ -4,9 +4,9 @@
 = Installing Cantera for Windows =
 
   # *Install Python*
-    * Go to [http://www.python.org/download python.org].
-    * *32-bit*: Download the most recent "Windows installer" for Python 2.6.
-    * *64-bit*: Download the most recent "Windows X86-64 installer" for Python 2.6.
+    * Go to [http://www.python.org/download/releases/2.6.6/ python.org].
+    * *32-bit*: Download the most recent "Windows x86 MSI Installer" for Python 2.6.
+    * *64-bit*: Download the most recent "Windows X86-64 MSI Installer" for Python 2.6.
     * Run the installer. The default installation options should be fine.
   # *Install Numpy*
     * *32-bit*: Go to the [http://sourceforge.net/projects/numpy/files/ NumPy download page].
