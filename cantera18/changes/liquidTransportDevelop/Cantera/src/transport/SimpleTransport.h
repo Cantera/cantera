@@ -32,7 +32,7 @@ namespace Cantera {
   class LiquidTransportParams;
 
     
-  //! Class LiquidTransport implements mixture-averaged transport
+  //! Class SimpleTransport implements mixture-averaged transport
   //! properties for liquid phases.
   /*!
    *  The model is based on that
@@ -116,8 +116,46 @@ namespace Cantera {
    * 
    *  The viscosity calculation may be broken down into two parts.
    *  In the first part, the viscosity of the pure species are calculated
-   *  In the second part, a mixing rule is applied, based on the
-   *  Wilkes correlation, to yield the mixture viscosity.
+   *  In the second part, a mixing rule is applied. There are two mixing rules.
+   *  Solvent-only and mixture-averaged.
+   *
+   *  For the solvent-only mixing rule, we use the pure species viscosity calculated for
+   *  the solvent as the viscosity of the entire mixture. For the mixture averaged rule
+   *  we do a mole fraction based average of the pure species viscosities:
+   * 
+   *  Solvent-only:
+   *    \f[
+   *         \mu = \mu_0
+   *    \f]
+   *  Mixture-average:
+   *    \f[
+   *         \mu = \sum_k {\mu_k X_k}
+   *    \f]
+   *   
+   *
+   *  <H2> Calculate of the Binary Diffusion Coefficients </H2>
+   * 
+   *  The binary diffusion coefficients are obtained from the pure species diffusion coefficients
+   *  using an additive process
+   *
+   *    \f[
+   *        D_{i,j} = \frac{1}{2} \left( D^0_i(T) +  D^0_j(T) \right)
+   *    \f]
+   *
+   *
+   * 
+   *
+   *  <H2> Electrical Mobilities </H2>
+   * 
+   *   The mobility \f$  \mu^e_k \f$  is calculated from the diffusion coefficient using the Einstein relation.
+   *
+   *     \f[
+   *          \mu^e_k = \frac{F D_k}{R T}
+   *     \f]
+   *
+   *   The diffusion coefficients,  \f$  D_k \f$ , is calculated from a call to the mixture diffusion
+   *   coefficient routine.
+   *
    *  
    *  @ingroup tranprops
    *
