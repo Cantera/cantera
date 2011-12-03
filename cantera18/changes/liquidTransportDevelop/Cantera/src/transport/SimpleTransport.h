@@ -156,6 +156,53 @@ namespace Cantera {
    *   The diffusion coefficients,  \f$  D_k \f$ , is calculated from a call to the mixture diffusion
    *   coefficient routine.
    *
+   *  <H2> Species Diffusive Fluxes </H2>
+   * 
+   *  The diffusive mass flux of species \e k is computed from the following
+   *  formula
+   *  
+   *  Usually the specified solution average velocity is the mass averaged velocity.
+   *  This is changed in some subclasses, however.
+   * 
+   *    \f[
+   *         j_k = - c^T M_k D_k \nabla X_k - \rho Y_k V_c
+   *    \f]
+   *
+   *    where V_c is the correction velocity
+   *
+   *    \f[
+   *         \rho V_c =  - \sum_j {c^T M_j D_j \nabla X_j}
+   *    \f]
+   *
+   *  In the above equation, \f$ D_k \f$ is the mixture diffusivity for species k calculated for the current
+   *  conditions, which may depend on T, P, and X_k. \f$ C^T \f$ is the total concentration of the phase.
+   *
+   *  When this is electrical migration, the formulas above are enhanced to
+   *  
+   *    \f[
+   *         j_k = - C^T M_k D_k \nabla X_k  + F C^T M_k \frac{D_k}{ R T } X_k z_k   \nabla V   - \rho Y_k V_c
+   *    \f]
+   *
+   *   where V_c is the correction velocity
+   *
+   *    \f[
+   *         \rho V_c =  - \sum_j {c^T M_j D_j \nabla X_j} + \sum_j  F C^T M_j \frac{D_j}{ R T } X_j z_j  \nabla V 
+   *    \f]
+   *
+   *
+   *  <H2> Species Diffusional Velocities </H2>
+   *
+   *  Species diffusional velocities are calculated from the species diffusional fluxes, within this object,
+   *  using the following formula for the diffusional velocity of the kth species, \f$  V_k^d \f$
+   *
+   *     \f[
+   *         j_k = \rho Y_k V_k^d
+   *     \f]
+   *
+   *  
+   *         TODO
+   *   This object has to be made compatible with different types of reference velocities. Right now, elements
+   *   of the formulas are only compatible with the mass-averaged velocity.
    *  
    *  @ingroup tranprops
    *
@@ -363,6 +410,69 @@ namespace Cantera {
      * @param grad_X Gradient of the mole fractions(length nsp * num dimensions);
      */
     virtual void set_Grad_X(const doublereal * const grad_X);
+
+    //! Get the species diffusive velocities wrt to the averaged velocity, 
+    //! given the gradients in mole fraction and temperature
+    /*!
+     * The average velocity can be computed on a mole-weighted 
+     * or mass-weighted basis, or the diffusion velocities may 
+     * be specified as relative to a specific species (i.e. a 
+     * solvent) all according to the velocityBasis input parameter.
+     *
+     *  Units for the returned velocities are m s-1.
+     * 
+     *  @param ndim Number of dimensions in the flux expressions
+     *  @param grad_T Gradient of the temperature
+     *                 (length = ndim)
+     * @param ldx  Leading dimension of the grad_X array 
+     *              (usually equal to m_nsp but not always)
+     * @param grad_X Gradients of the mole fraction
+     *             Flat vector with the m_nsp in the inner loop.
+     *             length = ldx * ndim
+     * @param ldf  Leading dimension of the fluxes array 
+     *              (usually equal to m_nsp but not always)
+     * @param Vdiff  Output of the diffusive velocities.
+     *             Flat vector with the m_nsp in the inner loop.
+     *             length = ldx * ndim
+     */
+    virtual void getSpeciesVdiff(int ndim,
+                                 const doublereal* grad_T,
+                                 int ldx,
+                                 const doublereal* grad_X,
+                                 int ldf,
+                                 doublereal* Vdiff);
+
+    //! Get the species diffusive velocities wrt to the averaged velocity, 
+    //! given the gradients in mole fraction, temperature and electrostatic potential.
+    /*!
+     * The average velocity can be computed on a mole-weighted 
+     * or mass-weighted basis, or the diffusion velocities may 
+     * be specified as relative to a specific species (i.e. a 
+     * solvent) all according to the velocityBasis input parameter.
+     *
+     *  Units for the returned velocities are m s-1.
+     * 
+     *  @param ndim       Number of dimensions in the flux expressions
+     *  @param grad_T     Gradient of the temperature
+     *                       (length = ndim)
+     * @param ldx         Leading dimension of the grad_X array 
+     *                       (usually equal to m_nsp but not always)
+     * @param grad_X      Gradients of the mole fraction
+     *                    Flat vector with the m_nsp in the inner loop.
+     *                       length = ldx * ndim
+     * @param ldf         Leading dimension of the fluxes array 
+     *                        (usually equal to m_nsp but not always)
+     * @param grad_Phi   Gradients of the electrostatic potential
+     *                        (length = ndim)
+     * @param Vdiff      Output of the species diffusion velocities
+     *                   Flat vector with the m_nsp in the inner loop.
+     *                     length = ldx * ndim
+     */
+    virtual void getSpeciesVdiffES(int ndim, const doublereal* grad_T,
+                                   int ldx,  const doublereal* grad_X,
+                                   int ldf,  const doublereal* grad_Phi,
+                                   doublereal* Vdiff);
+
 
     //! Get the species diffusive mass fluxes wrt to the specified solution averaged velocity, 
     //! given the gradients in mole fraction and temperature
@@ -723,6 +833,8 @@ namespace Cantera {
      */
     vector_fp  m_spwork;
 
+    vector_fp m_fluxes;
+
 
 
   private:    
@@ -754,6 +866,9 @@ namespace Cantera {
      * Either 1, 2, or 3
      */
     int m_nDim;
+
+    //! Temporary variable that stores the rho Vc value
+    double rhoVc[3];
 
   private:
     
