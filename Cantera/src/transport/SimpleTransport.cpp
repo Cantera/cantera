@@ -598,6 +598,104 @@ namespace Cantera {
       dt[k] = 0.0;
     }
   }
+
+  //====================================================================================================================
+  //! Get the species diffusive velocities wrt to the averaged velocity, 
+  //! given the gradients in mole fraction and temperature
+  /*!
+   * The average velocity can be computed on a mole-weighted 
+   * or mass-weighted basis, or the diffusion velocities may 
+   * be specified as relative to a specific species (i.e. a 
+   * solvent) all according to the velocityBasis input parameter.
+   *
+   *  Units for the returned velocities are m s-1.
+   * 
+   *  @param ndim Number of dimensions in the flux expressions
+   *  @param grad_T Gradient of the temperature
+   *                 (length = ndim)
+   * @param ldx  Leading dimension of the grad_X array 
+   *              (usually equal to m_nsp but not always)
+   * @param grad_X Gradients of the mole fraction
+   *             Flat vector with the m_nsp in the inner loop.
+   *             length = ldx * ndim
+   * @param ldf  Leading dimension of the fluxes array 
+   *              (usually equal to m_nsp but not always)
+   * @param Vdiff  Output of the diffusive velocities.
+   *             Flat vector with the m_nsp in the inner loop.
+   *             length = ldx * ndim
+   */
+  void SimpleTransport::getSpeciesVdiff(int ndim,
+					const doublereal* grad_T,
+					int ldx,
+					const doublereal* grad_X,
+					int ldf,
+					doublereal* Vdiff) {
+    set_Grad_T(grad_T);
+    set_Grad_X(grad_X);
+    const doublereal* y  = m_thermo->massFractions();
+    const doublereal rho = m_thermo->density();
+
+    getSpeciesFluxesExt(m_nsp, DATA_PTR(Vdiff));
+
+    for (int n = 0; n < m_nDim; n++) {
+      for (int k = 0; k < m_nsp; k++) {
+	if (y[k] > 1.0E-200) {
+	  Vdiff[n * m_nsp + k] *=  1.0 / (rho * y[k]);
+	} else {
+	  Vdiff[n * m_nsp + k] = 0.0;
+	}
+      }
+    }
+  }
+  //================================================================================================
+  // Get the species diffusive velocities wrt to the averaged velocity, 
+  // given the gradients in mole fraction, temperature and electrostatic potential.
+  /*
+   * The average velocity can be computed on a mole-weighted 
+   * or mass-weighted basis, or the diffusion velocities may 
+   * be specified as relative to a specific species (i.e. a 
+   * solvent) all according to the velocityBasis input parameter.
+   *
+   *  Units for the returned velocities are m s-1.
+   * 
+   *  @param ndim       Number of dimensions in the flux expressions
+   *  @param grad_T     Gradient of the temperature
+   *                       (length = ndim)
+   * @param ldx         Leading dimension of the grad_X array 
+   *                       (usually equal to m_nsp but not always)
+   * @param grad_X      Gradients of the mole fraction
+   *                    Flat vector with the m_nsp in the inner loop.
+   *                       length = ldx * ndim
+   * @param ldf         Leading dimension of the fluxes array 
+   *                        (usually equal to m_nsp but not always)
+   * @param grad_Phi   Gradients of the electrostatic potential
+   *                        (length = ndim)
+   * @param Vdiff      Output of the species diffusion velocities
+   *                   Flat vector with the m_nsp in the inner loop.
+   *                     length = ldx * ndim
+   */
+  void SimpleTransport::getSpeciesVdiffES(int ndim, const doublereal* grad_T,
+					  int ldx,  const doublereal* grad_X,
+					  int ldf,  const doublereal* grad_Phi,
+					  doublereal* Vdiff) {
+    set_Grad_T(grad_T);
+    set_Grad_X(grad_X);
+    set_Grad_V(grad_Phi);
+    const doublereal* y  = m_thermo->massFractions();
+    const doublereal rho = m_thermo->density();
+
+    getSpeciesFluxesExt(m_nsp, DATA_PTR(Vdiff));
+
+    for (int n = 0; n < m_nDim; n++) {
+      for (int k = 0; k < m_nsp; k++) {
+	if (y[k] > 1.0E-200) {
+	  Vdiff[n * m_nsp + k] *=  1.0 / (rho * y[k]);
+	} else {
+	  Vdiff[n * m_nsp + k] = 0.0;
+	}
+      }
+    }
+  }
   //================================================================================================
   //   Get the species diffusive mass fluxes wrt to the specified solution averaged velocity, 
   //   given the gradients in mole fraction and temperature
@@ -673,33 +771,34 @@ namespace Cantera {
 
     const array_fp& mw = m_thermo->molecularWeights();
     const doublereal* y  = m_thermo->massFractions();
-    doublereal conc = m_thermo->molarDensity();
+    doublereal concTotal = m_thermo->molarDensity();
     // Unroll wrt ndim
     
-    vector_fp sum(m_nDim, 0.0);
-
+  
     if (doMigration_) {
       double FRT =  ElectronCharge / (Boltzmann * m_temp);
       for (n = 0; n < m_nDim; n++) {
+	rhoVc[n] = 0.0;
 	for (k = 0; k < m_nsp; k++) {
-	  fluxes[n*ldf + k] = -conc * mw[k] * m_spwork[k] *
+	  fluxes[n*ldf + k] = - concTotal * mw[k] * m_spwork[k] *
 	    ( m_Grad_X[n*m_nsp + k] + FRT * m_molefracs[k] * m_chargeSpecies[k] * m_Grad_V[n]);
-	  sum[n] += fluxes[n*ldf + k];
+	  rhoVc[n] += fluxes[n*ldf + k];
 	}
       }
     } else {
       for (n = 0; n < m_nDim; n++) {
+	rhoVc[n] = 0.0;
 	for (k = 0; k < m_nsp; k++) {
-	  fluxes[n*ldf + k] = -conc * mw[k] * m_spwork[k] * m_Grad_X[n*m_nsp + k];
-	  sum[n] += fluxes[n*ldf + k];
+	  fluxes[n*ldf + k] = - concTotal * mw[k] * m_spwork[k] * m_Grad_X[n*m_nsp + k];
+	  rhoVc[n] += fluxes[n*ldf + k];
 	}
       }
     }
 
-    // add correction flux to enforce sum to zero
+    // Add correction flux to enforce sum to zero
     for (n = 0; n < m_nDim; n++) {
       for (k = 0; k < m_nsp; k++) {
-	fluxes[n*ldf + k] -= y[k]*sum[n];
+	fluxes[n*ldf + k] -= y[k] * rhoVc[n];
       }
     }
   }

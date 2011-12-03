@@ -482,8 +482,7 @@ namespace Cantera {
 				    doublereal* current);
 
 
-    //! Get the species diffusive velocities wrt to 
-    //! the averaged velocity, 
+    //! Get the species diffusive velocities wrt to the averaged velocity, 
     //! given the gradients in mole fraction and temperature
     /*!
      * The average velocity can be computed on a mole-weighted 
