@@ -2,8 +2,7 @@
 
 # Build in these directories:
 SUBDIRS  = Cantera examples test_problems
-#SUBDIRS += doxygen
-
+SUBDIRS += doxygen
 
 # Distribute these directories:
 DIST_SUBDIRS = Cantera examples

@@ -3,8 +3,6 @@
 using namespace Cantera;
 using namespace std;
 
-//#include "ctexceptions.h"
-
 // turn off warnings under Windows
 #ifdef WIN32
 #pragma warning(disable:4786)
