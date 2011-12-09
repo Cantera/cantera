@@ -42,25 +42,28 @@ AM_SANITY_CHECK
 # Doxygen support 
 # ---------------- 
 
-# DX_DOXYGEN_FEATURE(ON)
-# DX_HTML_FEATURE(ON)
-# DX_CHM_FEATURE(OFF)
-# DX_CHI_FEATURE(OFF)
+DX_HTML_FEATURE(ON)
+DX_CHM_FEATURE(OFF)
+DX_CHI_FEATURE(OFF)
 
-# DX_MAN_FEATURE(OFF)
-# DX_RTF_FEATURE(OFF)
-# DX_XML_FEATURE(OFF)
-# DX_PDF_FEATURE(ON)
-# DX_PS_FEATURE(OFF)
-# DX_INIT_DOXYGEN(cantera, doxygen/cantera.dox, docs) 
+DX_MAN_FEATURE(OFF)
+DX_RTF_FEATURE(OFF)
+DX_XML_FEATURE(OFF)
+DX_PDF_FEATURE(ON)
+DX_PS_FEATURE(OFF)
+DX_INIT_DOXYGEN(cantera, doxygen/cantera.dox, docs) 
 
 # Generate Output Files
-AC_OUTPUT(Makefile test_problems/Makefile examples/Makefile Cantera/Makefile     \
-                   Cantera/src/Makefile Cantera/src/base/Makefile                \
-                   Cantera/src/converters/Makefile Cantera/src/kinetics/Makefile \
-                   Cantera/src/numerics/Makefile Cantera/src/oneD/Makefile       \
-                   Cantera/src/thermo/Makefile Cantera/src/transport/Makefile    \
-                   Cantera/src/spectra/Makefile Cantera/src/zeroD/Makefile       \
+AC_OUTPUT(Makefile test_problems/Makefile examples/Makefile                \
+		   doxygen/Makefile                                        \
+		   Cantera/Makefile                                        \
+                   Cantera/src/Makefile Cantera/src/base/Makefile          \
+                   Cantera/src/converters/Makefile                         \
+		   Cantera/src/kinetics/Makefile                           \
+                   Cantera/src/numerics/Makefile Cantera/src/oneD/Makefile \
+                   Cantera/src/thermo/Makefile                             \
+		   Cantera/src/transport/Makefile                          \
+                   Cantera/src/spectra/Makefile Cantera/src/zeroD/Makefile \
                    Cantera/src/equil/Makefile)
 
 # FINAL SUMMARY
