@@ -54,7 +54,8 @@ DX_PS_FEATURE(OFF)
 DX_INIT_DOXYGEN(cantera, doxygen/cantera.dox, docs) 
 
 # Generate Output Files
-AC_OUTPUT(Makefile test_problems/Makefile examples/Makefile                \
+AC_OUTPUT(Makefile examples/Makefile                                       \
+                   test_problems/Makefile                                  \
 		   doxygen/Makefile                                        \
 		   Cantera/Makefile                                        \
                    Cantera/src/Makefile Cantera/src/base/Makefile          \
