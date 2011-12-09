@@ -5,7 +5,7 @@ h_sources  = ArrayViewer.h DenseMatrix.h \
              SquareMatrix.h ResidJacEval.h NonlinearSolver.h
 
 cc_sources = DenseMatrix.cpp funcs.cpp Func1.cpp ODE_integrators.cpp \
-	     BandMatrix.cpp DAE_solvers.cpp funcs.cpp sort.cpp       \
+	     BandMatrix.cpp DAE_solvers.cpp sort.cpp                 \
 	     SquareMatrix.cpp ResidJacEval.cpp NonlinearSolver.cpp
 
 INCLUDES                = -I../base -I../../../
