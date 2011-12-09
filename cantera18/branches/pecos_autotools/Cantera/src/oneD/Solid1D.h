@@ -14,14 +14,17 @@
 #ifndef CT_SOLID1D_H
 #define CT_SOLID1D_H
 
-#include "../transport/TransportBase.h"
+#include "TransportBase.h"
 #include "Domain1D.h"
-#include "../Array.h"
-#include "../sort.h"
-#include "../ThermoPhase.h"
-#include "../Kinetics.h"
-#include "../funcs.h"
+#include "Array.h"
+#include "sort.h"
+#include "ThermoPhase.h"
+#include "Kinetics.h"
+#include "funcs.h"
 
+// nick hack
+#include <fstream>
+#include <iostream>
 
 namespace Cantera {
 
@@ -192,7 +195,7 @@ namespace Cantera {
          * Write a Tecplot zone corresponding to the current solution.
          * May be called multiple times to generate animation.
          */
-        void outputTEC(ostream &s, const doublereal* x, 
+      void outputTEC(std::ostream &s, const doublereal* x, 
             std::string title, int zone);
 
         virtual void showSolution(const doublereal* x);

@@ -5,6 +5,7 @@
 #include <string>
 
 #include "ctml.h"
+#include "stringUtils.h"
 
 namespace ckr{
   class CKReader;

@@ -21,14 +21,16 @@
 #include <time.h>
 
 #include "Solid1D.h"
-#include "../ArrayViewer.h"
-#include "../ctml.h"
+#include "ArrayViewer.h"
+#include "ctml.h"
 #include "MultiJac.h"
+
+//nick adding 
+#include "StFlow.h"
 
 using namespace ctml;
 
 namespace Cantera {
-
 
     int Solid1D::c_T_loc = 0;
     int Solid1D::c_C_loc = 1;
