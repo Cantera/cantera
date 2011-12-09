@@ -140,8 +140,8 @@ namespace Cantera {
    *
    * @return  returns the RMS error of the polynomial of degree ndeg .
    */
-  doublereal polyfit(int n, doublereal* x, doublereal* y, doublereal* w, 
-		     int maxdeg, int& ndeg, doublereal eps, doublereal* r) {
+  doublereal polyfit(int n, doublereal* x, doublereal* y, doublereal* w, int maxdeg, int& ndeg, doublereal eps, doublereal* r) 
+  {
     integer nn = n;
     integer mdeg = maxdeg;
     integer ndg = ndeg;

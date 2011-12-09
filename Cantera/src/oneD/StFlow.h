@@ -20,8 +20,6 @@
 #include "IdealGasPhase.h"
 #include "Kinetics.h"
 #include "funcs.h"
-//#include "../flowBoundaries.h"
-
 
 namespace Cantera {
 

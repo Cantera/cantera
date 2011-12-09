@@ -20,7 +20,6 @@ using namespace std;
 #include "Reaction.h"
 #include "writelog.h"
 
-
 #include "xml.h"
 #include "ck2ctml.h"
 
