@@ -9,7 +9,7 @@ class Test(object):
     def __init__(self, subdir, programName,
                  blessedName, arguments=(),
                  extensions=('cpp',), artifacts=(),
-                 comparisons=()):
+                 comparisons=(), tolerance=1e-5, threshold=1e-14):
         self.subdir = subdir
         self.programName = programName
         if isinstance(arguments, str):
@@ -20,6 +20,8 @@ class Test(object):
         self.artifacts = artifacts
         self.passedFile = '.passed-%s-%s' % (programName, blessedName)
         self.comparisons = comparisons
+        self.tolerance = tolerance # error tolerance for CSV comparison
+        self.threshold = threshold # error threshold for CSV comparison
 
     def run(self, env):
         prog = env.Program(pjoin(self.subdir, self.programName),
@@ -28,7 +30,9 @@ class Test(object):
         arguments = [pjoin(self.subdir, arg) for arg in self.arguments]
         source = [prog, pjoin(self.subdir, self.blessedName)] + arguments
         test = env.RegressionTest(pjoin(self.subdir, self.passedFile), source,
-                                  test_comparisons=self.comparisons)
+                                  test_comparisons=self.comparisons,
+                                  test_csv_threshold=self.threshold,
+                                  test_csv_tolerance=self.tolerance)
 
         return test
 
@@ -148,7 +152,17 @@ tests = [Test(pjoin('cathermo', 'DH_graph_1'),
          Test('ChemEquil_red1', 'basopt_red1', 'output_blessed.txt'),
          # Skipping ck2cti_test because of automatically generated file
          Test('CpJump', 'CpJump', 'output_blessed.txt'),
-         # Skipping cxx_ex because of complicated behavior
+         Test('cxx_ex', 'cxx_examples', 'output_blessed.txt',
+              comparisons=[('eq1_blessed.csv', 'eq1.csv'),
+                           ('kin1_blessed.csv', 'kin1.csv'),
+                           ('kin2_blessed.csv', 'kin2.csv'),
+                           ('tr1_blessed.csv', 'tr1.csv'),
+                           ('tr2_blessed.csv', 'tr2.csv')],
+              tolerance=2e-3,
+              threshold=1e-7,
+              artifacts=['eq1.csv', 'eq1.dat', 'kin1.csv', 'kin1.dat',
+                         'kin2.csv', 'kin2.dat', 'kin3.csv', 'kin3.dat',
+                         'tr1.csv', 'tr1.dat', 'tr2.csv', 'tr2.dat']),
          Test('diamondSurf', 'runDiamond', 'runDiamond_blessed.out'),
          Test('fracCoeff', 'fracCoeff', 'frac_blessed.out'),
          # skipping min_python
