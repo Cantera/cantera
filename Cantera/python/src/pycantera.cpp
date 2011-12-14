@@ -11,7 +11,7 @@
 #pragma warning(disable:4503)
 #endif
 
-#include "cantera/config.h"
+#include "cantera/kernel/config.h"
 
 #include "Python.h"
 

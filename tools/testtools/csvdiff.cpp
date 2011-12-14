@@ -36,7 +36,7 @@
 #include <math.h>
 #include <float.h>
 #include <limits.h>
-#include "../../config.h"
+#include "kernel/config.h"
 #ifndef WINMSVC
 #include <unistd.h>
 #else
