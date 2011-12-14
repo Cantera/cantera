@@ -5,7 +5,6 @@ localenv = env.Clone()
 
 programs = [('cti2ctml', ['src/cti2ctml.cpp'], ['ctbase']),
             ('ck2cti', ['src/ck2cti.cpp'], ['converters','ctbase','tpx','ctcxx']),
-            ('fixtext', ['src/fixtext.cpp'] , []),
             ('csvdiff', mglob(localenv, 'testtools', 'cpp'), [])]
 
 for name, src, libs in programs:
