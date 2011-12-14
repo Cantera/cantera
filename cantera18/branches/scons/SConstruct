@@ -109,7 +109,8 @@ if env['matlab_toolbox'] != 'n':
 # Options that apply only if building the Fortran interface
 if env['f90_interface']:
     opts.AddVariables(
-        PathVariable('f90', 'Fortran compiler', 'gfortran'),
+        PathVariable('f90', 'Fortran compiler',
+                     'gfortran', PathVariable.PathAccept),
         ('f90flags', '', '-O3')
         )
 
