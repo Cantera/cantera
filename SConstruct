@@ -1,8 +1,10 @@
 from buildutils import *
+import subst
 import platform, sys, os
 
-env = Environment()
+env = Environment(tools = ['default', 'textfile'])
 env.AddMethod(RecursiveInstall)
+subst.TOOL_SUBST(env)
 
 # ******************************************************
 # *** Set system-dependent defaults for some options ***
@@ -102,7 +104,7 @@ if env['python_package'] in ('full', 'default'):
                      'numpy', ('numpy', 'numarray', 'numeric')),
         PathVariable('python_array_home',
                      'Location for array package (e.g. if installed with --home)',
-                     None, PathVariable.PathAccept),
+                     '', PathVariable.PathAccept),
         PathVariable('cantera_python_home', 'where to install the python package',
                      pyprefix, PathVariable.PathAccept)
         )
@@ -254,6 +256,7 @@ env['ct_tutdir'] = pjoin(env['prefix'], 'tutorials')
 env['ct_docdir'] = pjoin(env['prefix'], 'doc')
 env['ct_dir'] = env['prefix']
 env['ct_mandir'] = pjoin(env['prefix'], 'man1')
+env['ct_matlab_dir'] = pjoin(env['prefix'], 'matlab', 'toolbox')
 
 # *********************
 # *** Build Cantera ***
@@ -341,6 +344,10 @@ SConscript('build/tools/SConscript')
 
 # Data files
 inst = env.Install('$ct_datadir', mglob(env, pjoin('data','inputs'), 'cti', 'xml'))
+installTargets.extend(inst)
+
+# Install exp3to2.sh (used by some of the tests)
+inst = env.Install('$ct_bindir', pjoin('bin', 'exp3to2.sh'))
 installTargets.extend(inst)
 
 ### Meta-targets ###

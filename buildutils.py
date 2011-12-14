@@ -1,6 +1,7 @@
 from glob import glob
 import os
 import shutil
+import sys
 from os.path import join as pjoin
 
 class DefineDict(object):

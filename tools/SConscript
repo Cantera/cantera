@@ -28,3 +28,38 @@ installTargets.extend(
 # Copy man pages
 inst = localenv.Install('$ct_mandir', mglob(localenv, 'man', '*'))
 installTargets.extend(inst)
+
+### Generate customized scripts ###
+
+# 'setup_cantera'
+v = sys.version_info
+localenv['python_module_loc'] = pjoin(localenv['prefix'], 'lib', 'python%i.%i' % v[:2], 'site-packages')
+target = localenv.SubstFile('setup_cantera', 'setup_cantera.in')
+buildTargets.extend(target)
+inst = localenv.Install('$ct_bindir','setup_cantera')
+installTargets.append(inst)
+
+# 'mixmaster'
+if env['BUILD_PYTHON'] >= 2:
+    target = localenv.SubstFile('mixmaster', 'mixmaster.in')
+    buildTargets.extend(target)
+    inst = localenv.Install('$ct_bindir', 'mixmaster')
+    localenv.AddPostAction(inst, Chmod('$TARGET', 0755))
+    installTargets.extend(inst)
+
+# 'ctnew'
+target = localenv.SubstFile('ctnew', 'ctnew.in')
+buildTargets.extend(target)
+inst = localenv.Install('$ct_bindir', 'ctnew')
+localenv.AddPostAction(inst, Chmod('$TARGET', 0755))
+installTargets.extend(inst)
+
+# 'ctpath.m', 'cantera_demos.m'
+if env['matlab_toolbox'] == 'y':
+    target = localenv.SubstFile('ctpath.m', 'ctpath.m.in')
+    buildTargets.extend(target)
+    inst = localenv.Install(pjoin('$prefix','matlab'), target)
+    installTargets.extend(inst)
+
+    inst = localenv.Install(pjoin('$prefix','matlab'), 'cantera_demos.m')
+    installTargets.extend(inst)
