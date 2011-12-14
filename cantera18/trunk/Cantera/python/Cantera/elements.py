@@ -9,9 +9,6 @@ def elementMoles(s, element):
     s       -- an object representing a solution.
     element -- the symbol for an element in 's'.
     """
-    
-    nsp = mix.nSpecies()
-
     # see if 'element' corresponds to a symbol for one of the elements
     # in s. If it does not, return zero moles.
     try:
@@ -19,12 +16,9 @@ def elementMoles(s, element):
 	if m < 0.0: return 0.0
     except:
         return 0.0
-    
+
     x = s.moleFractions()
     moles = 0.0
-    for k in range(nsp):
+    for k in range(s.nSpecies()):
         moles += x[k]*s.nAtoms(k,m)
     return moles
-
-
-
