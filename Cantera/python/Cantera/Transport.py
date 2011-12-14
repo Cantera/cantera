@@ -166,3 +166,7 @@ class Transport:
                                             asarray(state1), asarray(state2),
                                             delta)
 
+    def massFluxes(self, state1, state2, delta):
+        return _cantera.tran_getMassFluxes(self.__tr_id, self.trnsp,
+                                           asarray(state1), asarray(state2),
+                                           delta)
