@@ -521,6 +521,33 @@ elif env['matlab_toolbox'] == 'default':
         print """INFO: Skipping compilation of the Matlab toolbox. """
 
 
+# **********************************************
+# *** Set additional configuration variables ***
+# **********************************************
+if env['blas_lapack_libs'] == '':
+    # External BLAS/LAPACK were not given, so we need to compile them
+    env['BUILD_BLAS_LAPACK'] = True
+    env['blas_lapack_libs'] = ['ctlapack', 'ctblas']
+else:
+    ens['blas_lapack_libs'] = ','.split(env['blas_lapack_libs'])
+
+if env['use_sundials'] == 'y' and env['sundials_include']:
+    env.Append(CPPPATH=env['sundials_include'])
+if env['use_sundials'] == 'y' and env['sundials_libdir']:
+    env.Append(LIBPATH=env['sundials_libdir'])
+
+env['ct_libdir'] = pjoin(env['prefix'], 'lib')
+env['ct_bindir'] = pjoin(env['prefix'], 'bin')
+env['ct_incdir'] = pjoin(env['prefix'], 'include', 'cantera')
+env['ct_incroot'] = pjoin(env['prefix'], 'include')
+env['ct_datadir'] = pjoin(env['prefix'], 'data')
+env['ct_demodir'] = pjoin(env['prefix'], 'demos')
+env['ct_templdir'] = pjoin(env['prefix'], 'templates')
+env['ct_tutdir'] = pjoin(env['prefix'], 'tutorials')
+env['ct_mandir'] = pjoin(env['prefix'], 'man1')
+env['ct_matlab_dir'] = pjoin(env['prefix'], 'matlab', 'toolbox')
+
+
 # **************************************
 # *** Set options needed in config.h ***
 # **************************************
@@ -577,7 +604,8 @@ cdefine('LAPACK_NAMES_LOWERCASE', 'lapack_names', 'lower')
 configh['RXNPATH_FONT'] = quoted(env['rpfont'])
 cdefine('THREAD_SAFE_CANTERA', 'build_thread_safe')
 cdefine('HAS_SSTREAM', 'HAS_SSTREAM')
-configh['CANTERA_DATA'] = quoted(os.path.join(env['prefix'], 'data'))
+escaped_datadir = env['ct_datadir'].replace('\\', '\\\\')
+configh['CANTERA_DATA'] = quoted(escaped_datadir)
 
 if not env['HAS_MATH_H_ERF']:
     if env['HAS_BOOST_MATH']:
@@ -590,32 +618,6 @@ else:
 
 config_h = env.Command('config.h', 'config.h.in.scons', ConfigBuilder(configh))
 env.AlwaysBuild(config_h)
-
-# **********************************************
-# *** Set additional configuration variables ***
-# **********************************************
-if env['blas_lapack_libs'] == '':
-    # External BLAS/LAPACK were not given, so we need to compile them
-    env['BUILD_BLAS_LAPACK'] = True
-    env['blas_lapack_libs'] = ['ctlapack', 'ctblas']
-else:
-    ens['blas_lapack_libs'] = ','.split(env['blas_lapack_libs'])
-
-if env['use_sundials'] == 'y' and env['sundials_include']:
-    env.Append(CPPPATH=env['sundials_include'])
-if env['use_sundials'] == 'y' and env['sundials_libdir']:
-    env.Append(LIBPATH=env['sundials_libdir'])
-
-env['ct_libdir'] = pjoin(env['prefix'], 'lib')
-env['ct_bindir'] = pjoin(env['prefix'], 'bin')
-env['ct_incdir'] = pjoin(env['prefix'], 'include', 'cantera')
-env['ct_incroot'] = pjoin(env['prefix'], 'include')
-env['ct_datadir'] = pjoin(env['prefix'], 'data')
-env['ct_demodir'] = pjoin(env['prefix'], 'demos')
-env['ct_templdir'] = pjoin(env['prefix'], 'templates')
-env['ct_tutdir'] = pjoin(env['prefix'], 'tutorials')
-env['ct_mandir'] = pjoin(env['prefix'], 'man1')
-env['ct_matlab_dir'] = pjoin(env['prefix'], 'matlab', 'toolbox')
 
 # *********************
 # *** Build Cantera ***
