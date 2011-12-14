@@ -1,4 +1,3 @@
-from glob import glob
 import os
 import shutil
 import sys
@@ -11,6 +10,12 @@ import time
 import types
 
 class DefineDict(object):
+    """
+    A dictionary-like object which generates appropriate preprocessor
+    define statements from its dict of variable / value
+    pairs. Variables whose value is None or that are not in the dict
+    are left undefined.
+    """
     def __init__(self, data):
         self.data = data
         self.undefined = set()
@@ -26,6 +31,10 @@ class DefineDict(object):
 
 
 class ConfigBuilder(object):
+    """
+    Used along with DefineDict to generate a customized config.h file
+    from a config.h.in file using the variables given in 'defines'.
+    """
     def __init__(self, defines):
         self.defines = DefineDict(defines)
 
@@ -49,6 +58,11 @@ class ConfigBuilder(object):
 
 
 class TestResults(object):
+    """
+    A class that stores information about all the regression tests
+    that are defined and which ones have passed / failed in order to
+    print a summary at the end of the build process.
+    """
     def __init__(self):
         self.tests = {}
         self.passed = {}
@@ -74,6 +88,23 @@ testResults = TestResults()
 
 
 def regression_test(target, source, env):
+    """
+    Run a regression test comparing the output of a test program with
+    existing "blessed" output files.
+
+    target - The name of an output file that will be generated if
+    the test is successful.
+
+    source - A list containing the name of the program to run and
+    (optionally) a list of file names to be passed as command line
+    arguments.
+
+    The test also relies on several parameters that are passed in via
+    variables in the SCons environment:
+
+    env['test_command_options'] - non-file command line options
+    to be passed to to the test program
+    """
     # unpack:
     program = source[0]
     if len(source) > 1:
@@ -124,6 +155,10 @@ def regression_test(target, source, env):
 
 
 def compareFiles(env, file1, file2):
+    """
+    Compare the contents of two files, using a method chosen based on
+    their file extensions.
+    """
     if file1.endswith('csv') and file2.endswith('csv'):
         return compareCsvFiles(env, file1, file2)
     else:
@@ -131,6 +166,11 @@ def compareFiles(env, file1, file2):
 
 
 def compareTextFiles(env, file1, file2):
+    """
+    Compare the contents of two text files, ignoring trailing
+    whitespace and any lines starting with strings specified in the
+    variable env['test_ignoreLines'].
+    """
     text1 = [line.rstrip() for line in open(file1).readlines()
              if not line.startswith(tuple(env['test_ignoreLines']))]
     text2 = [line.rstrip() for line in open(file2).readlines()
@@ -148,6 +188,22 @@ def compareTextFiles(env, file1, file2):
 
 
 def compareCsvFiles(env, file1, file2):
+    """
+    Compare the contents of two .csv file to see if they are
+    similar. Similarity is defined according to tolerances stored in
+    the environment as:
+
+        env['test_csv_threshold']
+        env['test_csv_tolerance']
+
+    The comparison for each variable is:
+
+        |a-b|/(max(|a|,|b|) + threshold) < tolerance
+
+    Returns 0 if all variables in the files are similar and 1 if the
+    files are dissimilar. Lines containing non-numeric data are
+    automatically ignored.
+    """
     try:
         import numpy as np
     except ImportError:
@@ -171,21 +227,31 @@ def compareCsvFiles(env, file1, file2):
         print e
         return 1
 
-    relerror = np.abs(data2-data1) / (np.maximum(np.abs(data2), np.abs(data1)) + env['test_csv_threshold'])
+    relerror = (np.abs(data2-data1) /
+                (np.maximum(np.abs(data2), np.abs(data1)) +
+                 env['test_csv_threshold']))
     maxerror = np.nanmax(relerror.flat)
     tol = env['test_csv_tolerance']
     if maxerror > tol: # Threshold based on printing 6 digits in the CSV file
-        print "Files differ. %i / %i elements above specified tolerance" % (np.sum(relerror > tol), relerror.size)
+        print ("Files differ. %i / %i elements above specified tolerance" %
+               (np.sum(relerror > tol), relerror.size))
         return 1
     else:
         return 0
 
 
 def regression_test_message(target, source, env):
+    """
+    Determines the message printed by SCons while building a
+    RegressionTest target.
+    """
     return """* Running test '%s'...""" % env['active_test_name']
 
 
 def add_RegressionTest(env):
+    """
+    Add "RegressionTest" as a Builder in the specified Scons Environment.
+    """
     env['BUILDERS']['RegressionTest'] = env.Builder(
         action=env.Action(regression_test, regression_test_message))
 
@@ -212,15 +278,8 @@ class CopyNoPrefix(object):
         shutil.copyfile(str(source[0]), pjoin(*targetpath[depth:]))
 
 
-class BuildOpts(object):
-    def __init__(self, subdir, name, exts=('cpp',), **kwargs):
-        self.subdir = subdir
-        self.name = name
-        self.extensions = exts
-        self.linklibs = kwargs.get('libs', [])
-
-
 def quoted(s):
+    """ Returns the given string wrapped in double quotes."""
     return '"%s"' % s
 
 
@@ -240,6 +299,10 @@ def mglob(env, subdir, *args):
 
 
 def psplit(s):
+    """
+    Split a path given as a string into a list.
+    This is the inverse of os.path.join.
+    """
     head, tail = os.path.split(s)
     path = [tail]
     while head:
@@ -252,7 +315,6 @@ def psplit(s):
 
 def which(program):
     """ Replicates the functionality of the 'which' shell command """
-    import os
     def is_exe(fpath):
         return os.path.exists(fpath) and os.access(fpath, os.X_OK)
 
@@ -278,7 +340,6 @@ def formatOption(env, opt):
     option, it's permitted values, default value, and current value
     if different from the default.
     """
-
     # Extract the help description from the permitted values. Original format
     # is in the format: "Help text ( value1|value2 )" or "Help text"
     if opt.help.endswith(')'):
@@ -330,9 +391,8 @@ def formatOption(env, opt):
 
 def listify(value):
     """
-    Convert an option specified as a string to a list.
-    Allow both comma and space as delimiters. Passes
-    lists transparently.
+    Convert an option specified as a string to a list.  Allow both
+    comma and space as delimiters. Passes lists transparently.
     """
     if isinstance(value, types.StringTypes):
         return value.replace(',', ' ').split()
@@ -340,32 +400,34 @@ def listify(value):
         # Already a sequence. Return as a list
         return list(value)
 
-# This tool adds the builder:
-#
-#   env.RecursiveInstall(target, path)
-#
-# This is useful for doing:
-#
-#   k = env.RecursiveInstall(dir_target, dir_source)
-#
-# and if any thing in dir_source is updated the install is rerun
-#
-# It behaves similar to the env.Install builtin. However it expects
-# two directories and correctly sets up the dependencies between each
-# sub file instead of just between the two directories.
-#
-# Note in also traverses the in memory node tree for the source
-# directory and can detect things that are not built yet. Internally
-# we use the env.Glob function for this support.
-#
-# You can see the effect of this function by doing:
-#
-#   scons --tree=all,prune
-#
-# and see the one to one correspondence between source and target
-# files within each directory.
 
 def RecursiveInstall(env, target, dir):
+    """
+    This tool adds the builder:
+
+        env.RecursiveInstall(target, path)
+
+    This is useful for doing:
+
+        k = env.RecursiveInstall(dir_target, dir_source)
+
+    and if any thing in dir_source is updated the install is rerun
+
+    It behaves similar to the env.Install builtin. However it expects
+    two directories and correctly sets up the dependencies between each
+    sub file instead of just between the two directories.
+
+    Note in also traverses the in memory node tree for the source
+    directory and can detect things that are not built yet. Internally
+    we use the env.Glob function for this support.
+
+    You can see the effect of this function by doing:
+
+        scons --tree=all,prune
+
+    and see the one to one correspondence between source and target
+    files within each directory.
+    """
     nodes = _recursive_install(env, dir)
 
     dir = env.Dir(dir).abspath
@@ -383,7 +445,9 @@ def RecursiveInstall(env, target, dir):
 
     return out
 
+
 def _recursive_install(env, path):
+    """ Helper function for RecursiveInstall """
     nodes = env.Glob(os.path.join(path, '*'), strings=False)
     nodes.extend(env.Glob(os.path.join(path, '*.*'), strings=False))
     out = []
