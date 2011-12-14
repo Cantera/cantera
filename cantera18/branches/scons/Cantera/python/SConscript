@@ -17,8 +17,12 @@ if localenv['OS'] == 'Windows':
 make_setup = localenv.SubstFile('setup.py', 'setup.py.in')
 
 if env['python_package'] == 'full':
+    libs = ['clib']
+    if localenv['OS'] != 'Windows':
+        libs.extend(env['cantera_libs'])
+
     pymodule = localenv.SharedLibrary('Cantera/_cantera', ['src/pycantera.cpp'],
-                                      LIBS='clib',
+                                      LIBS=libs,
                                       SHLIBPREFIX='',
                                       SHLIBSUFFIX=gcv('SO'))
     buildTargets.extend(pymodule)
