@@ -195,7 +195,7 @@ opts.AddVariables(
     BoolVariable(
         'with_vcsnonideal',
         """Enable vcs equilibrium package for nonideal phases""",
-        False),
+        True),
     BoolVariable(
         'enable_transport',
         'Enable transport property calculations.',
@@ -507,7 +507,7 @@ cdefine('WITH_STOICH_SUBSTANCE', 'with_stoich_substance')
 cdefine('WITH_SEMICONDUCTOR', 'with_semiconductor')
 cdefine('WITH_PRIME', 'with_prime')
 cdefine('H298MODIFY_CAPABILITY', 'with_n298modify_capability')
-cdefine('WITH_PURE_FLUIDS', 'with_pure_fluids5A')
+cdefine('WITH_PURE_FLUIDS', 'with_pure_fluids')
 cdefine('WITH_HTML_LOGS', 'with_html_log_files')
 cdefine('WITH_VCSNONIDEAL', 'with_vcsnonideal')
 

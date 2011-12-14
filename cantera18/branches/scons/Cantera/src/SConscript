@@ -6,7 +6,7 @@ localenv = env.Clone()
 # (subdir, library name, (file extensions))
 libs = [('base', 'ctbase', ['cpp']),
         ('thermo', 'thermo', ['cpp']),
-        ('equil', 'equil', ['cpp']),
+        ('equil', 'equil', ['cpp','c']),
         ('converters', 'converters', ['cpp']),
         ('numerics', 'ctnumerics', ['cpp']),
         ('kinetics', 'kinetics', ['cpp']),
