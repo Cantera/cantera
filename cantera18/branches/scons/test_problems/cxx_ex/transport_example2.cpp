@@ -18,7 +18,6 @@
 
 #include <cantera/Cantera.h>
 #include <cantera/transport.h>
-#include <time.h>
 #include "example_utils.h"
 #include <cantera/equilibrium.h>
 #include <cantera/IdealGasMix.h>
@@ -83,7 +82,6 @@ int transport_example2(int job) {
         Array2D output(nsp+3, ntemps);
 
         // main loop
-        clock_t t0 = clock();
         for (int i = 0; i < ntemps; i++) {
             temp = 500.0 + 100.0*i;
             gas.setState_TP(temp, pres);
@@ -92,7 +90,6 @@ int transport_example2(int job) {
             output(2,i) = tr->thermalConductivity();
             tr->getThermalDiffCoeffs(&output(3,i));
         }
-        clock_t t1 = clock();
 
         // make a Tecplot data file and an Excel spreadsheet
         string plotTitle = "transport example 2: "
@@ -100,10 +97,7 @@ int transport_example2(int job) {
         plotTransportSoln("tr2.dat", "TEC", plotTitle, gas, output);
         plotTransportSoln("tr2.csv", "XL", plotTitle, gas, output);
 
-        // print final temperature and timing data
-        doublereal tmm = 1.0*(t1 - t0)/CLOCKS_PER_SEC;
-        cout << " time = " << tmm << endl << endl;
-
+        // print final temperature
         cout << "Output files:" << endl
              << "  tr2.csv    (Excel CSV file)" << endl
              << "  tr2.dat    (Tecplot data file)" << endl;

@@ -19,7 +19,6 @@
 #include <cantera/Cantera.h>
 #include <cantera/GRI30.h>
 #include <cantera/zerodim.h>
-#include <time.h>
 #include "example_utils.h"
 
 using namespace Cantera;
@@ -91,14 +90,11 @@ int kinetics_example2(int job) {
         saveSoln(0, 0.0, gas, soln);
 
         // main loop
-        clock_t t0 = clock();
         for (int i = 1; i <= nsteps; i++) {
             tm = i*dt;
             sim.advance(tm);
             saveSoln(tm, gas, soln);
         }
-        clock_t t1 = clock();
-
 
         // make a Tecplot data file and an Excel spreadsheet
         string plotTitle = "kinetics example 2: constant-pressure ignition";
@@ -106,14 +102,10 @@ int kinetics_example2(int job) {
         plotSoln("kin2.csv", "XL", plotTitle, gas, soln);
 
 
-        // print final temperature and timing data
-        doublereal tmm = 1.0*(t1 - t0)/CLOCKS_PER_SEC;
+        // print final temperature
         cout << " Tfinal = " << r.temperature() << endl;
-        cout << " time = " << tmm << endl;
         cout << " number of residual function evaluations = " 
              << sim.integrator().nEvals() << endl;
-        cout << " time per evaluation = " << tmm/sim.integrator().nEvals() 
-             << endl << endl;
 
         cout << "Output files:" << endl
              << "  kin2.csv    (Excel CSV file)" << endl

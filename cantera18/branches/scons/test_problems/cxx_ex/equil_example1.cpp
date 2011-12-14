@@ -17,7 +17,6 @@
 #endif
 
 #include <cantera/Cantera.h>
-#include <time.h>
 #include "example_utils.h"
 #include <cantera/equilibrium.h>
 
@@ -84,7 +83,6 @@ int equil_example1(int job) {
     doublereal tlow = 500.0;
     doublereal dt = (thigh - tlow)/(ntemps);
     doublereal pres = 0.01*OneAtm;
-    clock_t t0 = clock();
     for (int i = 0; i < ntemps; i++) {
         temp = tlow + dt*i;
         if (temp > gas.maxTemp()) break;
@@ -97,17 +95,12 @@ int equil_example1(int job) {
         gas.getMoleFractions(&output(2,i));
 
     }
-    clock_t t1 = clock();
 
     // make a Tecplot data file and an Excel spreadsheet
     string plotTitle = "equilibrium example 1: "
                        "chemical equilibrium";
     plotEquilSoln("eq1.dat", "TEC", plotTitle, gas, output);
     plotEquilSoln("eq1.csv", "XL", plotTitle, gas, output);
-
-    // print timing data
-    doublereal tmm = 1.0*(t1 - t0)/CLOCKS_PER_SEC;
-    cout << " time = " << tmm << endl << endl;
 
     cout << "Output files:" << endl
          << "  eq1.csv    (Excel CSV file)" << endl
