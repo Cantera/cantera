@@ -43,7 +43,10 @@ class Func1:
         self._own = 1
         self._func_id = 0
         self._typ = typ
-        self.coeffs = asarray(coeffs,'d')
+        if _cantera.nummod == 'numpy':
+            self.coeffs = array(coeffs, dtype=float, ndmin=1)
+        else:
+            self.coeffs = asarray(coeffs,'d')
         self._func_id = _cantera.func_new(typ, n, self.coeffs)
 
     def __del__(self):
