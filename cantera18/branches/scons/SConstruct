@@ -67,11 +67,18 @@ else:
 
 if env['CC'] == 'gcc':
     defaults.cxxFlags = ''
-    defaults.ccFlags = '-O3 -Wall'
+    defaults.ccFlags = ['-ftemplate-depth-128', '-Wall', '-g']
+    defaults.debugCcFlags = ['-O0', '-fno-inline']
+    defaults.releaseCcFlags = ['-O3', '-finline-functions', '-Wno-inline', '-DNDEBUG']
+    defaults.debugLinkFlags = []
     defaults.fPIC = ['-fPIC']
 elif env['CC'] == 'cl': # Visual Studio
-    defaults.cxxFlags = '/EHsc'
-    defaults.ccFlags = ['/MD','/nologo']
+    defaults.cxxFlags = ['/EHsc']
+    defaults.ccFlags = ['/nologo', '/Zi', '/W3', '/Zc:wchar_t', '/Zc:forScope',
+                        '/D_SCL_SECURE_NO_WARNINGS', '/D_CRT_SECURE_NO_WARNINGS']
+    defaults.debugCcFlags = ['/Od', '/Ob0',  '/MD'] # note: MDd breaks the Python module
+    defaults.releaseCcFlags = ['/O2', '/MD', '/DNDEBUG']
+    defaults.debugLinkFlags = ['/DEBUG']
     defaults.fPIC = []
 else:
     print "Error: Unrecognized C compiler '%s'" % env['CC']
@@ -201,7 +208,7 @@ opts.AddVariables(
     BoolVariable(
         'with_prime',
         """Enable generating phase models from PrIMe models. For more
-           information about PrIME, see http://www.primekinetics.org 
+           information about PrIME, see http://www.primekinetics.org
            WARNING: Support for PrIMe is experimental!""",
         False),
     BoolVariable(
@@ -329,12 +336,23 @@ opts.AddVariables(
      """The C compiler to use. This is only used to compile CVODE and
         the Python extension module.""",
      env['CC']),
-    ('CXXFLAGS',
+    ('cxx_flags',
      'Compiler flags passed to the C++ compiler only.',
      defaults.cxxFlags),
-    ('CCFLAGS',
-     'Compiler flags passed to both the C and C++ compilers',
+    ('cc_flags',
+     'Compiler flags passed to both the C and C++ compilers, regardless of optimization level',
      defaults.ccFlags),
+    BoolVariable(
+        'optimize',
+        """Enable extra compiler optimizations specified by the "release_flags" variable,
+           instead of the flags specified by the "debug_flags" variable""",
+        True),
+    ('release_flags',
+     'Additional compiler flags passed to the C/C++ compiler when optimize=yes.',
+     defaults.releaseCcFlags),
+    ('debug_flags',
+     'Additional compiler flags passed to the C/C++ compiler when optimize=no.',
+     defaults.debugCcFlags),
     BoolVariable(
         'build_thread_safe',
         """Cantera can be built so that it is thread safe. Doing so
@@ -547,6 +565,12 @@ env['ct_tutdir'] = pjoin(env['prefix'], 'tutorials')
 env['ct_mandir'] = pjoin(env['prefix'], 'man1')
 env['ct_matlab_dir'] = pjoin(env['prefix'], 'matlab', 'toolbox')
 
+env['CXXFLAGS'] = env['cxx_flags']
+if env['optimize']:
+    env['CCFLAGS'] = env['cc_flags'] + env['release_flags']
+else:
+    env['CCFLAGS'] = env['cc_flags'] + env['debug_flags']
+    env['LINKFLAGS'] += defaults.debugLinkFlags
 
 # **************************************
 # *** Set options needed in config.h ***
