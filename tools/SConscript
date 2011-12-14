@@ -14,3 +14,16 @@ for name, src, libs in programs:
     inst = localenv.Install('$ct_bindir', prog)
     buildTargets.extend(prog)
     installTargets.extend(inst)
+
+# Copy application templates
+installTargets.extend(
+    localenv.Install(pjoin('$ct_templdir','cxx'),
+                     mglob(localenv, pjoin('templates','cxx'), '*')) +
+    localenv.Install(pjoin('$ct_templdir','f90'),
+                     mglob(localenv, pjoin('templates','f90'), '*')) +
+    localenv.Install(pjoin('$ct_templdir','f77'),
+                     mglob(localenv, pjoin('templates','f77'), '*')))
+
+# Copy man pages
+inst = localenv.Install('$ct_mandir', mglob(localenv, 'man', '*'))
+installTargets.extend(inst)

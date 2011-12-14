@@ -153,6 +153,8 @@ if env['F90'] == 'gfortran':
     env['FORTRANMODDIRPREFIX'] = '-J'
 elif env['F90'] == 'g95':
     env['FORTRANMODDIRPREFIX'] = '-fmod='
+elif env['F90'] == 'ifort':
+    env['FORTRANMODDIRPREFIX'] = '-module '
 
 env['FORTRANMODDIR'] = '${TARGET.dir}'
 
@@ -250,7 +252,7 @@ env['ct_templdir'] = pjoin(env['prefix'], 'templates')
 env['ct_tutdir'] = pjoin(env['prefix'], 'tutorials')
 env['ct_docdir'] = pjoin(env['prefix'], 'doc')
 env['ct_dir'] = env['prefix']
-env['ct_mandir'] = pjoin(env['prefix'])
+env['ct_mandir'] = pjoin(env['prefix'], 'man1')
 
 # *********************
 # *** Build Cantera ***
@@ -259,6 +261,7 @@ env['ct_mandir'] = pjoin(env['prefix'])
 buildDir = 'build'
 buildTargets = []
 installTargets = []
+demoTargets = []
 
 env.SConsignFile()
 
@@ -286,12 +289,29 @@ for header in mglob(env, 'Cantera/clib/src', 'h'):
     inst = env.Install(pjoin('$ct_incdir','clib'), header)
     installTargets.extend(inst)
 
+### List of libraries needed to link to Cantera ###
+linkLibs = ['clib','oneD','zeroD','equil','kinetics','transport',
+            'thermo','ctnumerics','ctmath','tpx',
+            'ctspectra','converters','ctbase']
+
+if env['use_sundials']:
+    linkLibs.extend(('sundials_cvodes','sundials_nvecserial'))
+
+linkLibs.extend(env['blas_lapack_libs'])
+
+if env['build_with_f2c']:
+    linkLibs.append('ctf2c')
+else:
+    linkLibs.append('gfortran')
+
+env['cantera_libs'] = linkLibs
+
 configh = env.Command('build/include/cantera/config.h', 'config.h', Copy('$TARGET', '$SOURCE'))
 inst = env.Install('$ct_incdir', configh)
 installTargets.extend(inst)
 
 # Add targets from the SConscript files in the various subdirectories
-Export('env', 'buildDir', 'buildTargets', 'installTargets')
+Export('env', 'buildDir', 'buildTargets', 'installTargets', 'demoTargets')
 
 VariantDir('build/ext', 'ext', duplicate=0)
 SConscript('build/ext/SConscript')
@@ -318,8 +338,13 @@ if env['matlab_toolbox'] == 'y':
 VariantDir('build/tools', 'tools', duplicate=0)
 SConscript('build/tools/SConscript')
 
-# Meta-targets
+# Data files
+inst = env.Install('$ct_datadir', mglob(env, pjoin('data','inputs'), 'cti', 'xml'))
+installTargets.extend(inst)
+
+### Meta-targets ###
 build_cantera = Alias('build', buildTargets)
 install_cantera = Alias('install', installTargets)
+build_demos = Alias('demos', demoTargets)
 
 Default(build_cantera)

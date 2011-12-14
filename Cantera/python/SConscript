@@ -20,22 +20,8 @@ localenv.Append(CPPPATH=[gcv('INCLUDEPY')],
                 SHLINKFLAGS=gcv('LDFLAGS'),
                 CPPFLAGS=[gcv('BASECFLAGS'), gcv('OPT')])
 
-linkLibs = ['clib','oneD','zeroD','equil','kinetics','transport',
-            'thermo','ctnumerics','ctmath','tpx',
-            'ctspectra','converters','ctbase']
-
-if env['use_sundials']:
-    linkLibs.extend(('sundials_cvodes','sundials_nvecserial'))
-
-linkLibs.extend(localenv['blas_lapack_libs'])
-
-if env['build_with_f2c']:
-    linkLibs.append('ctf2c')
-else:
-    linkLibs.append('gfortran')
-
 pymodule = localenv.SharedLibrary('Cantera/_cantera', ['src/pycantera.cpp'],
-                                  LIBS=linkLibs,
+                                  LIBS=localenv['cantera_libs'],
                                   SHLIBPREFIX='',
                                   SHLIBSUFFIX=gcv('SO'))
 buildTargets.extend(pymodule)
@@ -43,6 +29,7 @@ buildTargets.extend(pymodule)
 localenv.AddPreAction(pymodule, make_ctconf)
 localenv.AddPostAction(pymodule, 'cd Cantera/python; $python_cmd setup.py build')
 
+# Install the Python module
 if env['cantera_python_home'] is None:
     # Install Python module in the default location
     extra = ''
@@ -56,3 +43,14 @@ else:
 inst = localenv.Command('dummy', pymodule,
                         'cd Cantera/python; $python_cmd setup.py install %s' % extra)
 installTargets.extend(inst)
+
+# Copy tutorials
+inst = localenv.Install('$ct_tutdir', mglob(localenv, 'tutorial', 'py'))
+installTargets.extend(inst)
+
+# Copy examples
+exampleFiles = sum([localenv.Glob(pjoin('examples', '*', '*', name))
+                    for name in ['runtest', 'cleanup', '*.txt', '*.py', '*.csv']], [])
+for f in exampleFiles:
+    subdir1, subdir2 = psplit(f.path)[3:5]
+    installTargets.extend(localenv.Install(pjoin('$ct_demodir','python',subdir1,subdir2), f))

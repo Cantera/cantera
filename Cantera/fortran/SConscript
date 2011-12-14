@@ -1,6 +1,6 @@
 from buildutils import *
 
-Import('env', 'buildTargets', 'installTargets')
+Import('env', 'buildTargets', 'installTargets', 'demoTargets')
 
 localenv = env.Clone()
 
@@ -25,3 +25,21 @@ for mod in mods:
                             action=Copy('$TARGET', '$SOURCE'))
     localenv.AddPostAction(lib, copy)
     buildTargets.extend(copy)
+
+# (subdir, program name, [source extensions])
+demos = [('f77demos', 'ctlib', ['^ctlib.f']),
+         ('f77demos', 'isentropic', ['^isentropic.f'])]
+
+ftn_demo = localenv.Object(pjoin('f77demos','demo_ftnlib.cpp'))
+for subdir, name, extensions in demos:
+    prog = localenv.Program(pjoin(subdir, name),
+                            mglob(localenv, subdir, *extensions) + ftn_demo,
+                            LIBS=env['cantera_libs']+['fct']+['stdc++'],
+                            LINK='$F77')
+    demoTargets.extend(prog)
+
+inst = localenv.Install(pjoin('$ct_demodir', 'f77'),
+                        mglob(localenv, 'f77demos',
+                              'csv','txt','cpp','f','^runtest'))
+
+installTargets.extend(inst)

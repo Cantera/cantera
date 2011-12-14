@@ -1,11 +1,36 @@
 from buildutils import *
 
-Import('env', 'buildTargets', 'installTargets')
+Import('env', 'buildTargets', 'installTargets', 'demoTargets')
 
 localenv = env.Clone()
+
+### C++ Interface Library ###
+
 lib = localenv.Library(pjoin('../../lib', 'ctcxx'),
                        source=mglob(localenv, 'src', 'cpp'))
 inst = localenv.Install('$ct_libdir', lib)
 
 buildTargets.extend(lib)
 installTargets.extend(inst)
+
+
+### Demos ###
+
+# (subdir, program name, [source extensions])
+demos = [('combustor', 'combustor', ['cpp']),
+         ('flamespeed', 'flamespeed', ['cpp']),
+         ('kinetics1', 'kinetics1', ['cpp']),
+         ('NASA_coeffs', 'NASA_coeffs', ['cpp']),
+         ('rankine', 'rankine', ['cpp'])]
+
+for subdir, name, extensions in demos:
+    prog = localenv.Program(pjoin('demos',subdir, name),
+                            mglob(localenv, pjoin('demos',subdir), *extensions),
+                            LIBS=env['cantera_libs'])
+    demoTargets.extend(prog)
+
+    inst = localenv.Install(pjoin('$ct_demodir', 'cxx', subdir),
+                            mglob(localenv, pjoin('demos', subdir),
+                                  'csv','txt','cpp','h','^runtest'))
+
+    installTargets.extend(inst)

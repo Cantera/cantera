@@ -27,23 +27,9 @@ exit
 
 localenv = env.Clone()
 
-linkLibs = ['clib','oneD','zeroD','equil','kinetics','transport',
-            'thermo','ctnumerics','ctmath','tpx',
-            'ctspectra','converters','ctbase']
-
-if env['use_sundials']:
-    linkLibs.extend(('sundials_cvodes','sundials_nvecserial'))
-
-linkLibs.extend(localenv['blas_lapack_libs'])
-
-if env['build_with_f2c']:
-    linkLibs.append('ctf2c')
-else:
-    linkLibs.append('gfortran')
-
 localenv.Command('cantera/build_cantera.m',
                  mglob(localenv, 'cantera/private', 'cpp'),
-                 MatlabBuilder(linkLibs))
+                 MatlabBuilder(localenv['cantera_libs']))
 
 localenv['ENV']['PATH'] = os.environ['PATH']
 
