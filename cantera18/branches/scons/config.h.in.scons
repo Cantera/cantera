@@ -23,11 +23,7 @@
 // This just compiles in the code.
 %(DEBUG_MODE)s
 
-// Compiling with PURIFY instrumentation
-%(PURIFY_MODE)s
-
 //------------------------ Fortran settings -------------------//
-
 
 // define types doublereal, integer, and ftnlen to match the 
 // corresponding Fortran data types on your system. The defaults
@@ -36,7 +32,6 @@
 typedef  double       doublereal;   // Fortran double precision 
 typedef  int          integer;      // Fortran integer
 typedef  int          ftnlen;       // Fortran hidden string length type
-
 
 
 // Fortran compilers pass character strings in argument lists by

@@ -39,13 +39,11 @@ opts.AddVariables(
     EnumVariable('f90_interface', 'Build Fortran90 interface?', 'default', ('y', 'n', 'default')),
     PathVariable('F90', 'Fortran compiler',
                  '', PathVariable.PathAccept),
-    ('purify', '', ''),
-    ('user_src_dir', '', 'Cantera/user'),
     BoolVariable('debug', '', False), # ok
     BoolVariable('with_lattice_solid', '', True), # ok
     BoolVariable('with_metal', '', True), # ok
     BoolVariable('with_stoich_substance', '', True), # ok
-    BoolVariable('with_semiconductor', '', True), # ??
+    BoolVariable('with_semiconductor', '', True), # ok
     BoolVariable('with_adsorbate', '', True),
     BoolVariable('with_spectra', '', True),
     BoolVariable('with_pure_fluids', '', True),
@@ -75,7 +73,6 @@ opts.AddVariables(
     EnumVariable('lapack_names', '', 'lower', ('lower','upper')),
     BoolVariable('lapack_ftn_trailing_underscore', '', True),
     BoolVariable('lapack_ftn_string_len_at_end', '', True),
-    ('bitcompile', '', ''), # '32' or '64'
     ('CXX', '', env['CXX']),
     ('CC', '', env['CC']),
     ('CXXFLAGS', '', '-O3 -Wall'),
@@ -87,20 +84,10 @@ opts.AddVariables(
     ('F77', '', env['F77']),
     ('F77FLAGS', '', '-O3'),
     ('F90FLAGS', '', '-O3'),
-    ('install_bin', '', 'config/install-sh'),
     ('graphvisdir', '' ,''),
     ('ct_shared_lib', '', 'clib'),
     ('rpfont', '', 'Helvetica'),
     ('cantera_version', '', '1.8.x')
-# These variables shouldn't be necessary any more...
-#    ('exe_ext', '', ''),
-#    ('lcxx_end_libs', '-lm'),
-#    ('pic', '', '-fPIC'),
-#    ('shared', '', '-dynamic'),
-#    ('lfort_flags', '', '-L/usr/local/lib'),
-#    ('AR', '', env['AR']),
-#    ('ARFLAGS', '', env['ARFLAGS']), # ('archive', '', 'ar ruv'),
-#    ('ranlib', '', 'ranlib'),
     )
 
 opts.Update(env)
@@ -203,7 +190,6 @@ def cdefine(definevar, configvar, comp=True, value=1):
         configh[definevar] = None
 
 cdefine('DEBUG_MODE', 'debug')
-cdefine('PURIFY_MODE', 'purify')
 
 # Need to test all of these to see what platform.system() returns
 configh['SOLARIS'] = 1 if env['OS'] == 'Solaris' else None
@@ -273,8 +259,6 @@ env['ct_datadir'] = pjoin(env['prefix'], 'data')
 env['ct_demodir'] = pjoin(env['prefix'], 'demos')
 env['ct_templdir'] = pjoin(env['prefix'], 'templates')
 env['ct_tutdir'] = pjoin(env['prefix'], 'tutorials')
-env['ct_docdir'] = pjoin(env['prefix'], 'doc')
-env['ct_dir'] = env['prefix']
 env['ct_mandir'] = pjoin(env['prefix'], 'man1')
 env['ct_matlab_dir'] = pjoin(env['prefix'], 'matlab', 'toolbox')
 
