@@ -215,10 +215,6 @@ opts.AddVariables(
         'Enable reaction path analysis',
         True),
     BoolVariable(
-        'enable_tpx',
-        'Enable two-phase pure fluids',
-        True),
-    BoolVariable(
         'with_html_log_files',
         """write HTML log files. Some multiphase equilibrium
            procedures can write copious diagnostic log messages. Set
@@ -509,8 +505,7 @@ cdefine('WITH_STOICH_SUBSTANCE', 'with_stoich_substance')
 cdefine('WITH_SEMICONDUCTOR', 'with_semiconductor')
 cdefine('WITH_PRIME', 'with_prime')
 cdefine('H298MODIFY_CAPABILITY', 'with_n298modify_capability')
-cdefine('WITH_PURE_FLUIDS', 'with_pure_fluids')
-cdefine('INCL_PURE_FLUIDS', 'with_pure_fluids') # TODO: fix redundancy
+cdefine('WITH_PURE_FLUIDS', 'with_pure_fluids5A')
 cdefine('WITH_HTML_LOGS', 'with_html_log_files')
 cdefine('WITH_VCSNONIDEAL', 'with_vcsnonideal')
 

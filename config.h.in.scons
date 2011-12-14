@@ -138,7 +138,6 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 //    accurate liquid/vapor equations
 //    of state for several fluids, including water, nitrogen, hydrogen,
 //    oxygen, methane, andd HFC-134a.
-%(INCL_PURE_FLUIDS)s
 %(WITH_PURE_FLUIDS)s
 
 %(WITH_LATTICE_SOLID)s
