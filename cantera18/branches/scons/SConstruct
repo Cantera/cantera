@@ -626,7 +626,7 @@ for header in mglob(env, 'Cantera/clib/src', 'h'):
     installTargets.extend(inst)
 
 ### List of libraries needed to link to Cantera ###
-linkLibs = ['clib','oneD','zeroD','equil','kinetics','transport',
+linkLibs = ['oneD','zeroD','equil','kinetics','transport',
             'thermo','ctnumerics','ctmath','tpx',
             'ctspectra','converters','ctbase']
 

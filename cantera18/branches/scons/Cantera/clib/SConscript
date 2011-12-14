@@ -3,8 +3,9 @@ from buildutils import *
 Import('env', 'buildTargets', 'installTargets')
 
 localenv = env.Clone()
-lib = localenv.Library(pjoin('../../lib', 'clib'),
-                       source=mglob(localenv, 'src', 'cpp'))
+lib = localenv.SharedLibrary(pjoin('../../lib', 'clib'),
+                             source=mglob(localenv, 'src', 'cpp'),
+                             LIBS=env['cantera_libs'])
 inst = localenv.Install('$ct_libdir', lib)
 buildTargets.extend(lib)
 installTargets.extend(inst)

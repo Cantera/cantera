@@ -9,6 +9,7 @@
 #ifndef CTC_DEFS_H
 #define CTC_DEFS_H
 
+#include "ct_defs.h"
 
 #ifdef WIN32
 //   Either build as a DLL under Windows or  not. 

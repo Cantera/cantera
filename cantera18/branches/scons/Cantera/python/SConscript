@@ -15,7 +15,7 @@ make_setup = localenv.SubstFile('setup.py', 'setup.py.in')
 
 if env['python_package'] == 'full':
     pymodule = localenv.SharedLibrary('Cantera/_cantera', ['src/pycantera.cpp'],
-                                      LIBS=localenv['cantera_libs'],
+                                      LIBS='clib',
                                       SHLIBPREFIX='',
                                       SHLIBSUFFIX=gcv('SO'))
     buildTargets.extend(pymodule)
