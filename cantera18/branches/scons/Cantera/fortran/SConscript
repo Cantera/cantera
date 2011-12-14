@@ -1,13 +1,15 @@
 from buildutils import *
 
-Import('env', 'build')
+Import('env', 'buildTargets', 'installTargets')
 
 localenv = env.Clone()
 
-localenv.Library(target=pjoin('..','..','lib','fct'),
-                 source=mglob(localenv, 'src', 'f90', 'cpp'))
+lib = localenv.Library(target=pjoin('..','..','lib','fct'),
+                       source=mglob(localenv, 'src', 'f90', 'cpp'))
+inst = localenv.Install('$ct_libdir', lib)
 
 # Copy the mod files to the include directory
 for mod in mglob(localenv, 'src', 'mod'):
-    env.Command('../../include/cantera/%s' % mod.name, mod,
-                Copy('$TARGET', '$SOURCE'))
+    copy = localenv.Command('../../include/cantera/%s' % mod.name, mod,
+                            Copy('$TARGET', '$SOURCE'))
+    localenv.AddPostAction(lib, copy)

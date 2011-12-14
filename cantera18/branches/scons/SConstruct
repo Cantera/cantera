@@ -221,11 +221,22 @@ if env['blas_lapack_libs'] == '':
 else:
     ens['blas_lapack_libs'] = ','.split(env['blas_lapack_libs'])
 
-
 if env['use_sundials'] == 'y' and env['sundials_include']:
     env.Append(CPPPATH=env['sundials_include'])
 if env['use_sundials'] == 'y' and env['sundials_libdir']:
     env.Append(LIBPATH=env['sundials_libdir'])
+
+env['ct_libdir'] = pjoin(env['prefix'], 'lib')
+env['ct_bindir'] = pjoin(env['prefix'], 'bin')
+env['ct_incdir'] = pjoin(env['prefix'], 'include', 'cantera')
+env['ct_incroot'] = pjoin(env['prefix'], 'include')
+env['ct_datadir'] = pjoin(env['prefix'], 'data')
+env['ct_demodir'] = pjoin(env['prefix'], 'demos')
+env['ct_templdir'] = pjoin(env['prefix'], 'templates')
+env['ct_tutdir'] = pjoin(env['prefix'], 'tutorials')
+env['ct_docdir'] = pjoin(env['prefix'], 'doc')
+env['ct_dir'] = env['prefix']
+env['ct_mandir'] = pjoin(env['prefix'])
 
 # *********************
 # *** Build Cantera ***
@@ -242,7 +253,9 @@ for header in mglob(env, 'Cantera/clib/src', 'h'):
 
 env.Command('build/include/cantera/config.h', 'config.h', Copy('$TARGET', '$SOURCE'))
 
-build = 'build'
+buildDir = 'build'
+buildTargets = []
+installTargets = []
 env.SConsignFile()
 env.Append(CPPPATH=[Dir(os.getcwd()),
                     Dir('build/include/cantera/kernel'),
@@ -253,7 +266,7 @@ env.Append(CPPPATH=[Dir(os.getcwd()),
            FORTRANFLAGS=['-fPIC'],
            F90FLAGS=['-fPIC'])
 
-Export('env', 'build')
+Export('env', 'buildDir', 'buildTargets', 'installTargets')
 
 VariantDir('build/ext', 'ext', duplicate=0)
 SConscript('build/ext/SConscript')
@@ -267,13 +280,21 @@ SConscript('build/interfaces/clib/SConscript')
 VariantDir('build/interfaces/cxx', 'Cantera/cxx', duplicate=0)
 SConscript('build/interfaces/cxx/SConscript')
 
-VariantDir('build/interfaces/fortran/', 'Cantera/fortran', duplicate=1)
-SConscript('build/interfaces/fortran/SConscript')
+if env['f90_interface']:
+    VariantDir('build/interfaces/fortran/', 'Cantera/fortran', duplicate=1)
+    SConscript('build/interfaces/fortran/SConscript')
 
-SConscript('Cantera/python/SConscript')
+if env['BUILD_PYTHON']:
+    SConscript('Cantera/python/SConscript')
 
 if env['matlab_toolbox'] == 'y':
     SConscript('Cantera/matlab/SConscript')
 
 VariantDir('build/tools', 'tools', duplicate=0)
 SConscript('build/tools/SConscript')
+
+# Meta-targets
+build_cantera = Alias('build', buildTargets)
+install_cantera = Alias('install', installTargets)
+
+Default(build_cantera)

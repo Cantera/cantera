@@ -1,6 +1,6 @@
 from buildutils import *
 
-Import('env', 'build')
+Import('env','buildTargets','installTargets')
 localenv = env.Clone()
 
 # (subdir, library name, (file extensions))
@@ -16,10 +16,12 @@ libs = [('base', 'ctbase', ['cpp']),
         ('zeroD', 'zeroD', ['cpp']),
         ]
 
-print os.getcwd()
 for subdir, libname, extensions in libs:
     for header in mglob(localenv, subdir, 'h'):      
         env.Command('../include/cantera/kernel/%s' % header.name, header,
                     Copy('$TARGET', '$SOURCE'))
     lib = localenv.Library(pjoin('../lib', libname),
                            source=mglob(localenv, subdir, *extensions))
+    inst = localenv.Install('$ct_libdir', lib)
+    buildTargets.extend(lib)
+    installTargets.extend(inst)

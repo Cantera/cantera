@@ -1,6 +1,6 @@
 from buildutils import *
 
-Import('env', 'build')
+Import('env', 'buildTargets', 'installTargets')
 
 class MatlabBuilder(object):
     def __init__(self, libs):
@@ -41,10 +41,15 @@ if env['build_with_f2c']:
 else:
     linkLibs.append('gfortran')
 
-localenv.Command('cantera/build_cantera.m', mglob(localenv, 'cantera/private', 'cpp'),
+localenv.Command('cantera/build_cantera.m',
+                 mglob(localenv, 'cantera/private', 'cpp'),
                  MatlabBuilder(linkLibs))
 
 localenv['ENV']['PATH'] = os.environ['PATH']
 
-localenv.Command('cantera/ctfunctions.mexa64', 'cantera/build_cantera.m',
-                 'cd ${SOURCE.dir}; %(matlab_cmd)s -nojvm -nosplash -r build_cantera' % localenv)
+build_cmd = 'cd ${SOURCE.dir}; %(matlab_cmd)s -nojvm -nosplash -r build_cantera'
+target = localenv.Command('cantera/ctfunctions.mexa64',
+                          'cantera/build_cantera.m',
+                          build_cmd % localenv)
+
+buildTargets.extend(target)
