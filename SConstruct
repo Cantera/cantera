@@ -16,8 +16,6 @@ Basic usage:
 """
 
 from buildutils import *
-import subst
-import platform, sys, os
 
 if not COMMAND_LINE_TARGETS:
     # Print usage help
@@ -42,10 +40,9 @@ if os.name == 'nt':
     else:
         extraEnvArgs['TARGET_ARCH'] = 'x86'
 
-env = Environment(tools=['default', 'textfile'],
+env = Environment(tools=['default', 'textfile', 'subst', 'recursiveInstall'],
                   **extraEnvArgs)
-env.AddMethod(RecursiveInstall)
-subst.TOOL_SUBST(env)
+
 add_RegressionTest(env)
 
 # ******************************************************
@@ -762,10 +759,6 @@ SConscript('build/tools/SConscript')
 
 # Data files
 inst = env.Install('$ct_datadir', mglob(env, pjoin('data','inputs'), 'cti', 'xml'))
-installTargets.extend(inst)
-
-# Install exp3to2.sh (used by some of the tests)
-inst = env.Install('$ct_bindir', pjoin('bin', 'exp3to2.sh'))
 installTargets.extend(inst)
 
 ### Meta-targets ###
