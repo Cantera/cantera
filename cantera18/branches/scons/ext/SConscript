@@ -9,6 +9,7 @@ libs = [('tpx','tpx',['cpp'])]
 if env['build_with_f2c']:
     libs.append(('f2c_math', 'ctmath', ['cpp','c']))
 
+    localenv.Append(CPPPATH=Dir('#ext/f2c_libs'))
     if not localenv['HAS_TIMES_H']:
         localenv.Append(CPPDEFINES=['USE_CLOCK'])
     if not localenv['HAS_UNISTD_H']:

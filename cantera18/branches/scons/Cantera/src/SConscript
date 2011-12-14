@@ -1,22 +1,29 @@
 from buildutils import *
 
 Import('env','buildTargets','installTargets')
-localenv = env.Clone()
 
-# (subdir, library name, (file extensions))
-libs = [('base', 'ctbase', ['cpp']),
-        ('thermo', 'thermo', ['cpp']),
-        ('equil', 'equil', ['cpp','c']),
-        ('converters', 'converters', ['cpp']),
-        ('numerics', 'ctnumerics', ['cpp']),
-        ('kinetics', 'kinetics', ['cpp']),
-        ('transport', 'transport', ['cpp']),
-        ('spectra', 'ctspectra', ['cpp']),
-        ('oneD', 'oneD', ['cpp']),
-        ('zeroD', 'zeroD', ['cpp']),
+def empty(env):
+    pass
+
+def equilSetup(env):
+    env.Append(CPPPATH=['#ext/f2c_libs'])
+
+# (subdir, library name, (file extensions), (extra setup(env)))
+libs = [('base', 'ctbase', ['cpp'], empty),
+        ('thermo', 'thermo', ['cpp'], empty),
+        ('equil', 'equil', ['cpp','c'], equilSetup),
+        ('converters', 'converters', ['cpp'], empty),
+        ('numerics', 'ctnumerics', ['cpp'], empty),
+        ('kinetics', 'kinetics', ['cpp'], empty),
+        ('transport', 'transport', ['cpp'], empty),
+        ('spectra', 'ctspectra', ['cpp'], empty),
+        ('oneD', 'oneD', ['cpp'], empty),
+        ('zeroD', 'zeroD', ['cpp'], empty),
         ]
 
-for subdir, libname, extensions in libs:
+for subdir, libname, extensions, setup in libs:
+    localenv = env.Clone()
+    setup(localenv)
     for header in mglob(localenv, subdir, 'h'):      
         h = localenv.Command('../include/cantera/kernel/%s' % header.name, header,
                              Copy('$TARGET', '$SOURCE'))
