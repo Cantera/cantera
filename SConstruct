@@ -211,10 +211,6 @@ opts.AddVariables(
         'Enable ODE integrators and DAE solvers',
         True),
     BoolVariable(
-        'enable_rxnpath',
-        'Enable reaction path analysis',
-        True),
-    BoolVariable(
         'with_html_log_files',
         """write HTML log files. Some multiphase equilibrium
            procedures can write copious diagnostic log messages. Set
