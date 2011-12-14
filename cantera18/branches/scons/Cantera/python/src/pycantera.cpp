@@ -17,20 +17,14 @@
 
 #ifdef HAS_NUMERIC
 #include "Numeric/arrayobject.h"
-#else
+#endif
+
 #ifdef HAS_NUMARRAY
 #include "numarray/arrayobject.h"
-#else
+#endif
+
 #ifdef HAS_NUMPY
 #include "numpy/arrayobject.h"
-#else
-// Create a compilation error to cause the program to bomb
-#include "Numeric/arrayobject.h"
-#include "numarray/arrayobject.h"
-#include "numpy/libnumarray.h"
-#include "numpy/arrayobject.h"
-#endif
-#endif
 #endif
 
 #include "clib/ct.h"
