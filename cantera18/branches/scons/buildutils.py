@@ -76,8 +76,19 @@ def quoted(s):
 
 
 def mglob(env, subdir, *args):
-    """ each arg in args is assumed to be file extension """
-    return sum((env.Glob('%s/*.%s' % (subdir, ext)) for ext in args), [])
+    """
+    Each arg in args is assumed to be file extension,
+    unless the arg starts with a '^', in which case the remainder
+    of the arg is taken to be a complete pattern.
+    """
+    matches = []
+    for ext in args:
+        if ext.startswith('^'):
+            matches += env.Glob(pjoin(subdir, ext[1:]))
+        else:
+            matches += env.Glob(pjoin(subdir, '*.%s' % ext))
+    return matches
+#    return sum((env.Glob('%s/*.%s' % (subdir, ext)) for ext in args), [])
 
 
 def psplit(s):
