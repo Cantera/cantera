@@ -33,10 +33,27 @@ add_RegressionTest(env)
 # *** Set system-dependent defaults for some options ***
 # ******************************************************
 
+class defaults: pass
 if os.name == 'posix':
-    defaultPrefix = '/usr/local'
+    defaults.prefix = '/usr/local'
+    defaults.boostIncDir = '/usr/include'
+    defaults.boostLibDir = '/usr/lib'
 elif os.name == 'nt':
-    defaultPrefix = os.environ['ProgramFiles']
+    defaults.prefix = os.environ['ProgramFiles']
+    defaults.boostIncDir = ''
+    defaults.boostLibDir = ''
+else:
+    print "Error: Unrecognized operating system '%s'" % os.name
+    sys.exit(1)
+
+if env['CC'] == 'gcc':
+    defaults.cxxFlags = '-O3 -Wall'
+    defaults.fPIC = ['-fPIC']
+elif env['CC'] == 'cl': # Visual Studio
+    defaults.cxxFlags = '/EHsc'
+    defaults.fPIC = []
+else:
+    print "Error: Unrecognized C compiler '%s'" % env['CC']
 
 # **************************************
 # *** Read user-configurable options ***
@@ -47,7 +64,7 @@ opts.AddVariables(
     PathVariable(
         'prefix',
         'Set this to the directory where Cantera should be installed.',
-        defaultPrefix, PathVariable.PathIsDirCreate),
+        defaults.prefix, PathVariable.PathIsDirCreate),
     EnumVariable(
         'python_package',
         """If you plan to work in Python, or you want to use the
@@ -254,13 +271,13 @@ opts.AddVariables(
            "cvodes", "nvector", etc. subdirectories. Not needed if the
            headers are installed in a standard location,
            e.g. /usr/include.""",
-        ''),
+        '', PathVariable.PathAccept),
     PathVariable(
         'sundials_libdir',
         """The directory where the sundials static libraries are
            installed.  Not needed if the libraries are installed in a
            standard location, e.g. /usr/lib.""",
-        ''),
+        '', PathVariable.PathAccept),
     ('blas_lapack_libs',
      """Cantera comes with Fortran (or C) versions of those parts of
         BLAS and LAPACK it requires. But performance may be better if
@@ -270,9 +287,9 @@ opts.AddVariables(
         passed to the linker, separated by commas, e.g. "lapack,blas"
         or "lapack,f77blas,cblas,atlas". """,
      ''),
-    ('blas_lapack_dir',
+    PathVariable('blas_lapack_dir',
      """Directory containing the libraries specified by 'blas_lapack_libs'.""",
-     ''),
+     '', PathVariable.PathAccept),
     EnumVariable(
         'lapack_names',
         """Set depending on whether the procedure names in the
@@ -293,7 +310,7 @@ opts.AddVariables(
      env['CC']),
     ('CXXFLAGS',
      'C++ Compiler flags.',
-     '-O3 -Wall'),
+     defaults.cxxFlags),
     BoolVariable(
         'build_thread_safe',
         """Cantera can be built so that it is thread safe. Doing so
@@ -306,11 +323,11 @@ opts.AddVariables(
     PathVariable(
         'boost_inc_dir',
         'Location of the Boost header files',
-        '/usr/include/'),
+        defaults.boostIncDir, PathVariable.PathAccept),
     PathVariable(
         'boost_lib_dir',
         'Directory containing the Boost.Thread library',
-        '/usr/lib/'),
+        defaults.boostLibDir, PathVariable.PathAccept),
     ('boost_thread_lib',
      'The name of the Boost.Thread library.',
      'boost_thread'),
@@ -330,14 +347,14 @@ opts.AddVariables(
       flags must be set to produce object code compatible with the
       C/C++ compiler you are using.""",
      '-O3'),
-    ('graphvisdir',
+    PathVariable('graphvisdir',
      """The directory location of the graphviz program, dot. dot is
         used for creating the documentation, and for making reaction
         path diagrams. If "dot" is in your path, you can leave this
         unspecified. NOTE: Matlab comes with a stripped-down version
         of 'dot'. If 'dot' is on your path, make sure it is not the
         Matlab version!""",
-     ''),
+     '', PathVariable.PathAccept),
     ('ct_shared_lib',
      '',
      'clib'),
@@ -428,7 +445,7 @@ env['HAS_SSTREAM'] = conf.CheckCXXHeader('sstream', '<>')
 
 env = conf.Finish()
 
-if env['cantera_python_home'] == '' and env['prefix'] != defaultPrefix:
+if env['cantera_python_home'] == '' and env['prefix'] != defaults.prefix:
     env['cantera_python_home'] = env['prefix']
 
 if env['python_package'] in ('full','default'):
@@ -566,9 +583,9 @@ env.Append(CPPPATH=[Dir(os.getcwd()),
                     Dir('build/include/cantera'),
                     Dir('build/include')],
            LIBPATH=[Dir('build/lib')],
-           CCFLAGS=['-fPIC'],
-           FORTRANFLAGS=['-fPIC'],
-           F90FLAGS=['-fPIC'])
+           CCFLAGS=defaults.fPIC,
+           FORTRANFLAGS=defaults.fPIC,
+           F90FLAGS=defaults.fPIC)
 
 # Put headers in place
 for header in mglob(env, 'Cantera/cxx/include', 'h'):
