@@ -941,87 +941,76 @@ namespace Cantera {
      
       csvFile.precision(8);
 
-      int kk = nSpecies();
-      double x[kk];
-      double molal[kk];
-      double mu[kk];
-      double muss[kk];
-      double aMolal[kk];
-      double acMolal[kk];
-      double hbar[kk];
-      double sbar[kk];
-      double ubar[kk];
-      double cpbar[kk];
-      double vbar[kk];
       vector<std::string> pNames;
-      vector<double*> data;
+      vector<vector_fp> data;
+      vector_fp temp(nSpecies());
 
-      getMoleFractions(x);
+      getMoleFractions(&temp[0]);
       pNames.push_back("X");
-      data.push_back(x);
+      data.push_back(temp);
       try{
-	getMolalities(molal);
+	getMolalities(&temp[0]);
 	pNames.push_back("Molal");
-	data.push_back(molal);
+	data.push_back(temp);
       }
       catch (CanteraError) {;}
       try{
-	getChemPotentials(mu);
+	getChemPotentials(&temp[0]);
 	pNames.push_back("Chem. Pot. (J/kmol)");
-	data.push_back(mu);
+	data.push_back(temp);
       }
       catch (CanteraError) {;}
       try{
-	getStandardChemPotentials(muss);
+	getStandardChemPotentials(&temp[0]);
 	pNames.push_back("Chem. Pot. SS (J/kmol)");
-	data.push_back(muss);
+	data.push_back(temp);
       }
       catch (CanteraError) {;}
       try{
-	getMolalityActivityCoefficients(acMolal);
+	getMolalityActivityCoefficients(&temp[0]);
 	pNames.push_back("Molal Act. Coeff.");
-	data.push_back(acMolal);
+	data.push_back(temp);
       }
       catch (CanteraError) {;}
       try{
-	getActivities(aMolal);
+	getActivities(&temp[0]);
 	pNames.push_back("Molal Activity");
-	data.push_back(aMolal);
+	data.push_back(temp);
 	int iHp = speciesIndex("H+");
 	if (iHp >= 0) {
-	  double pH = -log(aMolal[iHp]) / log(10.0);
+	  double pH = -log(temp[iHp]) / log(10.0);
 	  csvFile << setw(tabL) << "pH = " << setw(tabS) << pH << endl;
 	}
       }
       catch (CanteraError) {;}
       try{
-	getPartialMolarEnthalpies(hbar);
+	getPartialMolarEnthalpies(&temp[0]);
 	pNames.push_back("Part. Mol Enthalpy (J/kmol)");
-	data.push_back(hbar);
+	data.push_back(temp);
       }
       catch (CanteraError) {;}
       try{
-	getPartialMolarEntropies(sbar);
+	getPartialMolarEntropies(&temp[0]);
 	pNames.push_back("Part. Mol. Entropy (J/K/kmol)");
-	data.push_back(sbar);
+	data.push_back(temp);
       }
       catch (CanteraError) {;}
       try{
-	getPartialMolarIntEnergies(ubar);
+	getPartialMolarIntEnergies(&temp[0]);
 	pNames.push_back("Part. Mol. Energy (J/kmol)");
-	data.push_back(ubar);
+	data.push_back(temp);
       }
       catch (CanteraError) {;}
       try{
-	getPartialMolarCp(cpbar);
+	getPartialMolarCp(&temp[0]);
 	pNames.push_back("Part. Mol. Cp (J/K/kmol");
-	data.push_back(cpbar);
+	data.push_back(temp);
       }
       catch (CanteraError) {;}
       try{
-	getPartialMolarVolumes(vbar);
+	getPartialMolarVolumes(&temp[0]);
 	pNames.push_back("Part. Mol. Cv (J/K/kmol)");
-	data.push_back(vbar);
+	data.push_back(temp);
       }
       catch (CanteraError) {;}
 
@@ -1035,9 +1024,9 @@ namespace Cantera {
       csvFile << setw(tabS+(tabM+1)*pNames.size()) << "-\n";
       csvFile.fill(' ');
       */
-      for (int k = 0; k < kk; k++) {
+      for (int k = 0; k < nSpecies(); k++) {
 	csvFile << setw(tabS) << speciesName(k) + ",";
-	if (x[k] > SmallNumber) {
+	if (data[0][k] > SmallNumber) {
 	  for ( int i = 0; i < (int)pNames.size(); i++ ){
 	    csvFile << setw(tabM) << data[i][k] << ",";
 	  }
