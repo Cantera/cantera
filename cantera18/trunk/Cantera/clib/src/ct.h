@@ -155,6 +155,8 @@ extern "C" {
     EEXXTT int DLL_CPREFIX trans_setParameters(int n, int type, int k, double* d);
     EEXXTT int DLL_CPREFIX trans_getMolarFluxes(int n, const double* state1,
         const double* state2, double delta, double* fluxes);
+    EEXXTT int DLL_CPREFIX trans_getMassFluxes(int n, const double* state1,
+        const double* state2, double delta, double* fluxes);
 
     EEXXTT int DLL_CPREFIX import_phase(int nth, int nxml, char* id);
     EEXXTT int DLL_CPREFIX import_kinetics(int nxml, char* id, 

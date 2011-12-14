@@ -1107,6 +1107,17 @@ extern "C" {
         catch (CanteraError) { return -1; }
     }
 
+    int DLL_EXPORT trans_getMassFluxes(int n, const double* state1,
+                                       const double* state2, double delta, double* fluxes)
+    {
+        try {
+            trans(n)->getMassFluxes(state1, state2, delta, fluxes);
+            return 0;
+        } catch (CanteraError) {
+            return -1;
+        }
+    }
+
     //-------------------- Functions ---------------------------
 
     int DLL_EXPORT import_phase(int nth, int nxml, char* id) {
