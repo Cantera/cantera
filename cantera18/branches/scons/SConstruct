@@ -2,6 +2,7 @@ from buildutils import *
 import platform, sys, os
 
 env = Environment()
+env.AddMethod(RecursiveInstall)
 
 # ******************************************************
 # *** Set system-dependent defaults for some options ***

@@ -6,9 +6,9 @@
  */
 
 #include "mex.h"
-#include "../../../clib/src/ct.h"
-#include "../../../clib/src/ctonedim.h"
-#include "../../../clib/src/ctxml.h"
+#include <cantera/clib/ct.h>
+#include <cantera/clib/ctonedim.h>
+#include <cantera/clib/ctxml.h>
 #include "ctmatutils.h"
 #include <string.h>
 #include <iostream>

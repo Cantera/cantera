@@ -5,7 +5,7 @@
  * $Id: thermomethods.cpp,v 1.11 2009/07/11 16:43:13 hkmoffa Exp $
  */
 #include "mex.h"
-#include "../../../clib/src/ct.h"
+#include <cantera/clib/ct.h>
 #include "ctmatutils.h"
 
 static void thermoset( int nlhs, mxArray *plhs[],

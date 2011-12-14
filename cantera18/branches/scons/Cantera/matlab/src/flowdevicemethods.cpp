@@ -1,17 +1,13 @@
-/**
- *  @file wallmethods.cpp
- */
-/*
- *   $Id: wallmethods.cpp,v 1.5 2009/07/11 16:43:13 hkmoffa Exp $
- */
+
 #include "mex.h"
-#include "../../../clib/src/ctreactor.h"
-#include "../../../clib/src/ct.h"
 #include "ctmatutils.h"
+#include <cantera/clib/ctreactor.h>
+#include <cantera/clib/ct.h>
+
 
 //const double Undef = -999.123;
 
-    void wallmethods( int nlhs, mxArray *plhs[],
+    void flowdevicemethods( int nlhs, mxArray *plhs[],
         int nrhs, const mxArray *prhs[] )
     {
         int m, iok, n;
@@ -24,7 +20,7 @@
 
         // constructor
         if (job == 0) {
-            n = wall_new(i);
+            n = flowdev_new(i);
             plhs[0] = mxCreateNumericMatrix(1,1,mxDOUBLE_CLASS,mxREAL);
             double *h = mxGetPr(plhs[0]);
             *h = double(n);
@@ -38,46 +34,26 @@
             switch (job) {
 
             case 1:
-                iok = wall_del(i);
+                iok = flowdev_del(i);
                 break;
             case 2:
-                iok = wall_copy(i);
+                m = getInt(prhs[4]);
+                iok = flowdev_install(i, int(v), m);
                 break;
             case 3:
-                iok = wall_assign(i,int(v));
+                iok = flowdev_setMassFlowRate(i, v);
                 break;
             case 4:
-                m = getInt(prhs[4]);
-                iok = wall_install(i, int(v), m);
+                iok = flowdev_setParameters(i, 1, &v);
                 break;
             case 5:
-                iok = wall_setArea(i, v);
+                iok = flowdev_setFunction(i, int(v));
                 break;
             case 6:
-                iok = wall_setThermalResistance(i, v);
+                iok = flowdev_ready(i);
                 break;
             case 7:
-                iok = wall_setHeatTransferCoeff(i, v);
-                break;
-            case 8:
-                iok = wall_setHeatFlux(i, int(v));
-                break;
-            case 9:
-                iok = wall_setExpansionRateCoeff(i, v);
-                break;
-            case 10:
-                iok = wall_setVelocity(i, int(v));
-                break;
-            case 11:
-                iok = wall_ready(i);
-                break;
-            case 12:
-                n = getInt(prhs[3]);
-                m = getInt(prhs[4]);
-                iok = wall_setkinetics(i, n, m);
-                break;
-            case 13:
-                iok = wall_setEmissivity(i, v);
+                iok = flowdev_setMaster(i, int(v));
                 break;
             default:
                 mexErrMsgTxt("unknown job parameter");
@@ -95,13 +71,7 @@
         else if (job < 40) {
             switch (job) {
             case 21:
-                r = wall_vdot(i, v);
-                break;
-            case 22:
-                r = wall_Q(i, v);
-                break;
-            case 23:
-                r = wall_area(i);
+                r = flowdev_massFlowRate(i, v);
                 break;
             default:
                 mexErrMsgTxt("unknown job parameter");
@@ -113,4 +83,3 @@
             return;
         }
     }
-

@@ -7,7 +7,7 @@
 
 #include "mex.h"
 #include "ctmatutils.h"
-#include "../../../clib/src/ct.h"
+#include <cantera/clib/ct.h>
 
     void phasemethods( int nlhs, mxArray *plhs[],
         int nrhs, const mxArray *prhs[] )

@@ -8,13 +8,14 @@ class MatlabBuilder(object):
 
     def __call__(self, target, source, env):
         filenames = [os.path.split(node.path)[1] for node in source]
-        sourcestr = ' '.join(pjoin('private',name) for name in filenames)
+        sourcestr = ' '.join(pjoin('..','src',name) for name in filenames)
         includes = ' '.join('-I%s' % Dir(s).abspath for s in env['CPPPATH'])
         libdir = ' '.join('-L%s' % Dir(s).abspath for s in env['LIBPATH'])
         libs = ' '.join('-l'+s for s in self.libs)
         text = """
 disp('building Cantera...');
-mex -cxx -v %(sourcestr)s %(include)s %(libdir)s %(libs)s
+cd cantera
+mex -cxx -v -output ctmethods %(sourcestr)s %(include)s %(libdir)s %(libs)s
 disp('done.');
 exit
 """ % dict(sourcestr=sourcestr,
@@ -27,15 +28,24 @@ exit
 
 localenv = env.Clone()
 
-localenv.Command('cantera/build_cantera.m',
-                 mglob(localenv, 'cantera/private', 'cpp'),
+localenv.Command('build_cantera.m',
+                 mglob(localenv, 'src', 'cpp'),
                  MatlabBuilder(localenv['cantera_libs']))
 
 localenv['ENV']['PATH'] = os.environ['PATH']
 
 build_cmd = 'cd ${SOURCE.dir}; %(matlab_cmd)s -nojvm -nosplash -r build_cantera'
-target = localenv.Command('cantera/ctfunctions.mexa64',
-                          'cantera/build_cantera.m',
+target = localenv.Command('cantera/ctmethods.mexa64',
+                          'build_cantera.m',
                           build_cmd % localenv)
-
 buildTargets.extend(target)
+
+### Install the Matlab toolbox ###
+inst = localenv.RecursiveInstall(pjoin('$prefix', 'matlab','toolbox'), 'cantera')
+installTargets.extend(inst)
+
+inst = localenv.RecursiveInstall(pjoin('$ct_tutdir', 'matlab'), 'tutorial')
+installTargets.extend(inst)
+
+inst = localenv.RecursiveInstall(pjoin('$ct_demodir', 'matlab'), 'examples')
+installTargets.extend(inst)
