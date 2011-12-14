@@ -8,6 +8,7 @@ import re
 import subprocess
 import difflib
 import time
+import types
 
 class DefineDict(object):
     def __init__(self, data):
@@ -290,6 +291,18 @@ def formatOption(env, opt):
 
     return lines
 
+
+def listify(value):
+    """
+    Convert an option specified as a string to a list.
+    Allow both comma and space as delimiters. Passes
+    lists transparently.
+    """
+    if isinstance(value, types.StringTypes):
+        return value.replace(',', ' ').split()
+    else:
+        # Already a sequence. Return as a list
+        return list(value)
 
 # This tool adds the builder:
 #
