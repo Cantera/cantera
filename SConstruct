@@ -24,7 +24,26 @@ if not COMMAND_LINE_TARGETS:
     print __doc__
     sys.exit(0)
 
-env = Environment(tools = ['default', 'textfile'])
+extraEnvArgs = {}
+
+if os.name == 'nt':
+    # On Windows, use the same version of Visual Studio that was used
+    # to compile Python, and target the same architecture.
+    pycomp = platform.python_compiler()
+    if pycomp.startswith('MSC v.1400'):
+        extraEnvArgs['MSVC_VERSION'] = '8.0' # Visual Studio 2005
+    elif pycomp.startswith('MSC v.1500'):
+        extraEnvArgs['MSVC_VERSION'] = '9.0' # Visual Studio 2008
+    elif pycomp.startswith('MSC v.1600'):
+        extraEnvArgs['MSVC_VERSION'] = '10.0' # Visual Studio 2010
+
+    if '64 bit' in pycomp:
+        extraEnvArgs['TARGET_ARCH'] = 'amd64'
+    else:
+        extraEnvArgs['TARGET_ARCH'] = 'x86'
+
+env = Environment(tools=['default', 'textfile'],
+                  **extraEnvArgs)
 env.AddMethod(RecursiveInstall)
 subst.TOOL_SUBST(env)
 add_RegressionTest(env)
@@ -47,10 +66,12 @@ else:
     sys.exit(1)
 
 if env['CC'] == 'gcc':
-    defaults.cxxFlags = '-O3 -Wall'
+    defaults.cxxFlags = ''
+    defaults.ccFlags = '-O3 -Wall'
     defaults.fPIC = ['-fPIC']
 elif env['CC'] == 'cl': # Visual Studio
     defaults.cxxFlags = '/EHsc'
+    defaults.ccFlags = ['/MD','/nologo']
     defaults.fPIC = []
 else:
     print "Error: Unrecognized C compiler '%s'" % env['CC']
@@ -309,8 +330,11 @@ opts.AddVariables(
         the Python extension module.""",
      env['CC']),
     ('CXXFLAGS',
-     'C++ Compiler flags.',
+     'Compiler flags passed to the C++ compiler only.',
      defaults.cxxFlags),
+    ('CCFLAGS',
+     'Compiler flags passed to both the C and C++ compilers',
+     defaults.ccFlags),
     BoolVariable(
         'build_thread_safe',
         """Cantera can be built so that it is thread safe. Doing so
