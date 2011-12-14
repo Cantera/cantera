@@ -7,9 +7,12 @@ localenv = env.Clone()
 
 gcv = distutils.sysconfig.get_config_var
 
-localenv.Append(CPPPATH=[gcv('INCLUDEPY')],
+localenv.Append(CPPPATH=[gcv('INCLUDEPY'), env['python_array_include']],
                 SHLINKFLAGS=gcv('LDFLAGS'),
                 CPPFLAGS=[gcv('BASECFLAGS'), gcv('OPT')])
+
+if localenv['OS'] == 'Windows':
+    localenv.Append(LIBPATH=pjoin(gcv('prefix'), 'libs'))
 
 make_setup = localenv.SubstFile('setup.py', 'setup.py.in')
 

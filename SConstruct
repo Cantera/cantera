@@ -467,7 +467,13 @@ if env['python_package'] in ('full','default'):
     if env['python_array_home']:
         sys.path.append(env['python_array_home'])
     try:
-        __import__(env['python_array'])
+        np = __import__(env['python_array'])
+        try:
+            env['python_array_include'] = np.get_include()
+        except AttributeError:
+            print """WARNING: Couldn't find include directory for Python array package"""
+            env['python_array_include'] = ''
+
         print """INFO: Building the full Python package using %s.""" % env['python_array']
         env['python_package'] = 'full'
     except ImportError:
