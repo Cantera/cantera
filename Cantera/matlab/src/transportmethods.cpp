@@ -1,6 +1,6 @@
 
 #include "mex.h"
-#include "../../../clib/src/ct.h"
+#include <cantera/clib/ct.h>
 #include "ctmatutils.h"
 #include <fstream>
 

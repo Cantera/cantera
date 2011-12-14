@@ -1,7 +1,7 @@
 
 #include "mex.h"
 #include "ctmatutils.h"
-#include "../../../clib/src/ct.h"
+#include <cantera/clib/ct.h>
 
 void checkNArgs(const int n, const int nrhs) {
     if (n != nrhs) {

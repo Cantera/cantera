@@ -9,11 +9,8 @@
  * class is indicated by the first parameter in the call from MATLAB.
  */
 
-#include "../../../clib/src/ct.h"
+#include <cantera/clib/ct.h>
 #include <string>
-//#include "../../../src/base/ct_defs.h"
-//#include "../../../src/base/global.h"
-//#include "../../../src/base/logger.h"
 #include "mex.h"
 #include "ctmatutils.h"
 #include "mllogger.h"

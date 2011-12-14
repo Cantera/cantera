@@ -6,8 +6,8 @@
  */
 
 #include "mex.h"
-#include "../../../clib/src/ctreactor.h"
-#include "../../../clib/src/ct.h"
+#include <cantera/clib/ctreactor.h>
+#include <cantera/clib/ct.h>
 #include "ctmatutils.h"
 
     void reactormethods( int nlhs, mxArray *plhs[],

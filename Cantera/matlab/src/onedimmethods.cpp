@@ -1,7 +1,7 @@
 
 #include "mex.h"
 #include "ctmatutils.h"
-#include "../../../clib/src/ctonedim.h"
+#include <cantera/clib/ctonedim.h>
 
 #include <iostream>
 #include <string>

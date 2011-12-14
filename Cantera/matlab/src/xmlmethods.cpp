@@ -6,8 +6,8 @@
  */
 
 #include "mex.h"
-#include "../../../clib/src/ctxml.h"
-#include "../../../clib/src/ct.h"
+#include <cantera/clib/ctxml.h>
+#include <cantera/clib/ct.h>
 #include "ctmatutils.h"
 
 void reportError();

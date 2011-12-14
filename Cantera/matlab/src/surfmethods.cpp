@@ -1,8 +1,8 @@
 
 #include "mex.h"
 #include "ctmatutils.h"
-#include "../../../clib/src/ctsurf.h"
-#include "../../../clib/src/ct.h"
+#include <cantera/clib/ctsurf.h>
+#include <cantera/clib/ct.h>
 
 #include <iostream>
 #include <string>

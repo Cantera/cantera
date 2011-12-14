@@ -5,8 +5,8 @@
  *    $Id: mixturemethods.cpp,v 1.3 2009/07/11 16:43:12 hkmoffa Exp $
  */
 #include "mex.h"
-#include "../../../clib/src/ctmultiphase.h"
-#include "../../../clib/src/ct.h"
+#include <cantera/clib/ctmultiphase.h>
+#include <cantera/clib/ct.h>
 #include "ctmatutils.h"
 #include <iostream>
 using namespace std;
