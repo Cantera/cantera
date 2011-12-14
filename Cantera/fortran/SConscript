@@ -4,12 +4,24 @@ Import('env', 'buildTargets', 'installTargets')
 
 localenv = env.Clone()
 
+f90_src = mglob(localenv, 'src', 'f90', 'cpp')
+
+artifacts = localenv.Object(f90_src)
+mods = [o for o in artifacts if o.path.endswith('.mod')]
+objs = [o for o in artifacts if not o.path.endswith('.mod')]
+
 lib = localenv.Library(target=pjoin('..','..','lib','fct'),
-                       source=mglob(localenv, 'src', 'f90', 'cpp'))
+                       source=objs)
+buildTargets.extend(lib)
 inst = localenv.Install('$ct_libdir', lib)
+installTargets.extend(inst)
+
+installTargets.extend(localenv.Install('$ct_incdir', mods))
 
 # Copy the mod files to the include directory
-for mod in mglob(localenv, 'src', 'mod'):
-    copy = localenv.Command('../../include/cantera/%s' % mod.name, mod,
-                            Copy('$TARGET', '$SOURCE'))
+for mod in mods:
+    copy = localenv.Command(target=pjoin('..','..','include','cantera', mod.name),
+                            source=mod,
+                            action=Copy('$TARGET', '$SOURCE'))
     localenv.AddPostAction(lib, copy)
+    buildTargets.extend(copy)
