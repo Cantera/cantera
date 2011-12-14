@@ -771,10 +771,12 @@ namespace Cantera {
 
     const array_fp& mw = m_thermo->molecularWeights();
     const doublereal* y  = m_thermo->massFractions();
+ 
     doublereal concTotal = m_thermo->molarDensity();
+ 
     // Unroll wrt ndim
     
-  
+    
     if (doMigration_) {
       double FRT =  ElectronCharge / (Boltzmann * m_temp);
       for (n = 0; n < m_nDim; n++) {
@@ -795,11 +797,47 @@ namespace Cantera {
       }
     }
 
-    // Add correction flux to enforce sum to zero
-    for (n = 0; n < m_nDim; n++) {
-      for (k = 0; k < m_nsp; k++) {
-	fluxes[n*ldf + k] -= y[k] * rhoVc[n];
+    if (m_velocityBasis == VB_MASSAVG) {
+      for (n = 0; n < m_nDim; n++) {
+	rhoVc[n] = 0.0;
+	for (k = 0; k < m_nsp; k++) {
+	  rhoVc[n] += fluxes[n*ldf + k];
+	}
       }
+      for (n = 0; n < m_nDim; n++) {
+	for (k = 0; k < m_nsp; k++) {
+	  fluxes[n*ldf + k] -= y[k] * rhoVc[n];
+	}
+      }
+    } else if (m_velocityBasis == VB_MOLEAVG) {
+      for (n = 0; n < m_nDim; n++) {
+	rhoVc[n] = 0.0;
+	for (k = 0; k < m_nsp; k++) {
+	  rhoVc[n] += fluxes[n*ldf + k] / mw[k];
+	}
+      }
+      for (n = 0; n < m_nDim; n++) {
+	for (k = 0; k < m_nsp; k++) {
+	  fluxes[n*ldf + k] -= m_molefracs[k] * rhoVc[n] * mw[k];
+	}
+      }
+    } else if (m_velocityBasis >= 0) {
+      for (n = 0; n < m_nDim; n++) {
+	rhoVc[n] = - fluxes[n*ldf + m_velocityBasis] / mw[m_velocityBasis];
+	for (k = 0; k < m_nsp; k++) {
+	  rhoVc[n] += fluxes[n*ldf + k] / mw[k];
+	}
+      }
+      for (n = 0; n < m_nDim; n++) {
+	for (k = 0; k < m_nsp; k++) {
+	  fluxes[n*ldf + k] -= m_molefracs[k] * rhoVc[n] * mw[k];
+	}
+	fluxes[n*ldf + m_velocityBasis] = 0.0;
+      }
+
+    } else {
+      throw CanteraError("SimpleTransport::getSpeciesFluxesExt()",
+			 "unknown velocity basis");
     }
   }
   //================================================================================================
