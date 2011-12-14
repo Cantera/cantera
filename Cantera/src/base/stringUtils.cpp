@@ -11,6 +11,8 @@
 // Copyright 2001  California Institute of Technology
 
 //@{
+#include "ct_defs.h"
+
 #ifdef WIN32
 #pragma warning(disable:4786)
 #pragma warning(disable:4503)
@@ -20,7 +22,7 @@
 #define SNPRINTF snprintf
 #endif
 //@}
-#include "ct_defs.h"
+
 #include "stringUtils.h"
 #include "ctexceptions.h"
 #include "global.h"

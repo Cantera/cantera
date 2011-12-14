@@ -439,10 +439,18 @@ elif env['F90'] == 'ifort':
 
 env['FORTRANMODDIR'] = '${TARGET.dir}'
 
+if env['CC'] == 'gcc':
+    env['WIN32'] = False
+elif env['CC'] == 'cl':
+    env['WIN32'] = True
+else:
+    assert False
+
 conf = Configure(env)
 
 env['HAS_SSTREAM'] = conf.CheckCXXHeader('sstream', '<>')
-
+env['HAS_TIMES_H'] = conf.CheckCHeader('sys/times.h', '""')
+env['HAS_UNISTD_H'] = conf.CheckCHeader('unistd.h', '""')
 env = conf.Finish()
 
 if env['cantera_python_home'] == '' and env['prefix'] != defaults.prefix:
@@ -496,6 +504,7 @@ def cdefine(definevar, configvar, comp=True, value=1):
         configh[definevar] = None
 
 cdefine('DEBUG_MODE', 'debug')
+cdefine('WIN32', 'WIN32')
 
 # Need to test all of these to see what platform.system() returns
 configh['SOLARIS'] = 1 if env['OS'] == 'Solaris' else None
