@@ -1,7 +1,7 @@
 from buildutils import *
 import distutils.sysconfig
 
-Import('env', 'build')
+Import('env', 'buildTargets', 'installTargets')
 
 localenv = env.Clone()
 
@@ -38,6 +38,7 @@ pymodule = localenv.SharedLibrary('Cantera/_cantera', ['src/pycantera.cpp'],
                                   LIBS=linkLibs,
                                   SHLIBPREFIX='',
                                   SHLIBSUFFIX=gcv('SO'))
+buildTargets.extend(pymodule)
 
 localenv.AddPreAction(pymodule, make_ctconf)
 localenv.AddPostAction(pymodule, 'cd Cantera/python; python setup.py build')

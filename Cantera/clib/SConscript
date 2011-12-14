@@ -1,13 +1,10 @@
 from buildutils import *
 
-Import('env', 'build')
+Import('env', 'buildTargets', 'installTargets')
 
-# (subdir, library name, (file extensions))
-libs = [BuildOpts('src', 'clib')]
-
-print os.getcwd()
-for lib in libs:
-    localenv = env.Clone()
-    localenv.Library(pjoin('../../lib', lib.name),
-                     source=mglob(localenv, lib.subdir, *lib.extensions))
-
+localenv = env.Clone()
+lib = localenv.Library(pjoin('../../lib', 'clib'),
+                       source=mglob(localenv, 'src', 'cpp'))
+inst = localenv.Install('$ct_libdir', lib)
+buildTargets.extend(lib)
+installTargets.extend(inst)
