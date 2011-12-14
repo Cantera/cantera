@@ -616,8 +616,10 @@ linkLibs = ['clib','oneD','zeroD','equil','kinetics','transport',
             'thermo','ctnumerics','ctmath','tpx',
             'ctspectra','converters','ctbase']
 
-if env['use_sundials']:
+if env['use_sundials'] == 'y':
     linkLibs.extend(('sundials_cvodes','sundials_nvecserial'))
+else:
+    linkLibs.append('cvode')
 
 linkLibs.extend(env['blas_lapack_libs'])
 

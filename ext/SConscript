@@ -31,18 +31,19 @@ if env['build_with_f2c']:
     libs.append(('f2c_libs', 'ctf2c', 'c'))
 
     if env['BUILD_BLAS_LAPACK']:
-        libs.append(('f2c_blas', 'ctblas', ('c')))
-        libs.append(('f2c_lapack', 'ctlapack', ('c')))
+        libs.append(('f2c_blas', 'ctblas', ['c']))
+        libs.append(('f2c_lapack', 'ctlapack', ['c']))
 
 else:
     libs.append(('math', 'ctmath', ['cpp','c','f']))
 
     if env['BUILD_BLAS_LAPACK']:
-        libs.append(('blas', 'ctblas', ('f')))
-        libs.append(('lapack', 'ctlapack', ('f')))
+        libs.append(('blas', 'ctblas', ['f']))
+        libs.append(('lapack', 'ctlapack', ['f']))
 
 if env['use_sundials'] == 'n':
-    libs.append(('cvode', 'cvode', 'c'))
+    libs.append(('cvode/source', 'cvode', ['c']))
+    localenv.Append(CPPPATH=Dir('#ext/cvode/include'))
 
 for subdir, libname, extensions in libs:
     lib = localenv.Library(pjoin('../lib', libname),

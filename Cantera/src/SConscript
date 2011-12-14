@@ -2,28 +2,37 @@ from buildutils import *
 
 Import('env','buildTargets','installTargets')
 
-def empty(env):
-    pass
+def defaultSetup(env, subdir, extensions):
+    return mglob(env, subdir, *extensions)
 
-def equilSetup(env):
+def equilSetup(env, subdir, extensions):
     env.Append(CPPPATH=['#ext/f2c_libs'])
+    return defaultSetup(env, subdir, extensions)
+
+def numericsSetup(env, subdir, extensions):
+    if env['use_sundials'] == 'y':
+        remove = 'CVodeInt.cpp'
+    else:
+        remove = 'CVodesIntegrator.cpp'
+    return [s for s in mglob(env, subdir, *extensions)
+            if s.name != remove]
 
 # (subdir, library name, (file extensions), (extra setup(env)))
-libs = [('base', 'ctbase', ['cpp'], empty),
-        ('thermo', 'thermo', ['cpp'], empty),
+libs = [('base', 'ctbase', ['cpp'], defaultSetup),
+        ('thermo', 'thermo', ['cpp'], defaultSetup),
         ('equil', 'equil', ['cpp','c'], equilSetup),
-        ('converters', 'converters', ['cpp'], empty),
-        ('numerics', 'ctnumerics', ['cpp'], empty),
-        ('kinetics', 'kinetics', ['cpp'], empty),
-        ('transport', 'transport', ['cpp'], empty),
-        ('spectra', 'ctspectra', ['cpp'], empty),
-        ('oneD', 'oneD', ['cpp'], empty),
-        ('zeroD', 'zeroD', ['cpp'], empty),
+        ('converters', 'converters', ['cpp'], defaultSetup),
+        ('numerics', 'ctnumerics', ['cpp'], numericsSetup),
+        ('kinetics', 'kinetics', ['cpp'], defaultSetup),
+        ('transport', 'transport', ['cpp'], defaultSetup),
+        ('spectra', 'ctspectra', ['cpp'], defaultSetup),
+        ('oneD', 'oneD', ['cpp'], defaultSetup),
+        ('zeroD', 'zeroD', ['cpp'], defaultSetup),
         ]
 
 for subdir, libname, extensions, setup in libs:
     localenv = env.Clone()
-    setup(localenv)
+    source = setup(localenv, subdir, extensions)
     for header in mglob(localenv, subdir, 'h'):      
         h = localenv.Command('../include/cantera/kernel/%s' % header.name, header,
                              Copy('$TARGET', '$SOURCE'))
@@ -32,7 +41,7 @@ for subdir, libname, extensions, setup in libs:
         installTargets.extend(inst)
 
     lib = localenv.Library(pjoin('../lib', libname),
-                           source=mglob(localenv, subdir, *extensions))
+                           source=source)
     inst = localenv.Install('$ct_libdir', lib)
     buildTargets.extend(lib)
     installTargets.extend(inst)
