@@ -49,6 +49,43 @@ else
     s = ['Gaussian(' num2str(p.coeffs(1)) ',' ...
 	 num2str(p.coeffs(2)) ',' ...
 	 num2str(p.coeffs(3)) ')'];
+  elseif strcmp(p.typ,'fourier')
+      c = reshape(p.coeffs, [],2);
+      Ao = c(1,1);
+      w = c(1,2);
+      A = c(2:end,1);
+      B = c(2:end,2);
+      N = size(c,1)-1;
+      if Ao ~= 0
+          s = [num2str(Ao/2)];
+      else
+          s = '';
+      end
+      for n=1:N
+          if A(n) ~= 0
+              if A(n) < 0
+                  prefix = ' - ';
+              elseif s
+                  prefix = ' + ';
+              else
+                  prefix = '';
+              end
+
+              s = [s prefix num2str(abs(A(n))) '*cos(' num2str(n*w) '*x)'];
+          end
+
+          if B(n) ~= 0
+              if B(n) < 0
+                  prefix = ' - ';
+              elseif s
+                  prefix = ' + ';
+              else
+                  prefix = '';
+              end
+
+              s = [s prefix num2str(abs(B(n))) '*sin(' num2str(n*w) '*x)'];
+          end
+      end
   else
     s = ['*** char not yet implemented for' p.typ ' ***'];
   end    
