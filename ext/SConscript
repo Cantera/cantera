@@ -5,10 +5,12 @@ localenv = env.Clone()
 
 # (subdir, library name, (file extensions))
 libs = [('tpx','tpx',['cpp']),
-        ('math', 'ctmath', ['cpp','c','f'])]
+        ]
 
 print os.getcwd()
 if env['build_with_f2c']:
+    libs.append(('f2c_math', 'ctmath', ['cpp','c']))
+
     # Create arith.h using the arithchk program
     if not os.path.exists('arith.h'):
         arithenv = env.Clone()
@@ -22,13 +24,15 @@ if env['build_with_f2c']:
     localenv.Command('f2c_libs/signal1.h', 'f2c_libs/signal1.h0', CopyNoPrefix(build))
     localenv.Command('f2c_libs/sysdep1.h', 'f2c_libs/sysdep1.h0', CopyNoPrefix(build))
 
-    libs.append(('f2c_libs', 'f2c', 'c'))
+    libs.append(('f2c_libs', 'ctf2c', 'c'))
 
     if env['BUILD_BLAS_LAPACK']:
         libs.append(('f2c_blas', 'ctblas', ('c')))
         libs.append(('f2c_lapack', 'ctlapack', ('c')))
 
 else:
+    libs.append(('math', 'ctmath', ['cpp','c','f']))
+
     if env['BUILD_BLAS_LAPACK']:
         libs.append(('blas', 'ctblas', ('f')))
         libs.append(('lapack', 'ctlapack', ('f')))
