@@ -194,9 +194,7 @@ def SubstHeader(env, target, source):
                             SUBST_REPLACE=_SubstHeader_replace)
 
 
-# Create builders
-##############################################################################
-def TOOL_SUBST(env):
+def generate(env, **kw):
     # The generic builder
     subst = SCons.Action.Action(_subst_action, _subst_message)
     env['BUILDERS']['SubstGeneric'] = Builder(action=subst,
@@ -205,3 +203,7 @@ def TOOL_SUBST(env):
     # Additional ones
     env.AddMethod(SubstFile)
     env.AddMethod(SubstHeader)
+
+
+def exists(env):
+    return True
