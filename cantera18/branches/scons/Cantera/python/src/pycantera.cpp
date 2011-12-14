@@ -33,15 +33,15 @@
 #endif
 #endif
 
-#include "ct.h"
-#include "ctxml.h"
-#include "ctsurf.h"
-#include "ctbdry.h"
-#include "ctrpath.h"
-#include "ctreactor.h" 
-#include "ctfunc.h"
-#include "ctonedim.h"
-#include "ctmultiphase.h"
+#include "clib/ct.h"
+#include "clib/ctxml.h"
+#include "clib/ctsurf.h"
+#include "clib/ctbdry.h"
+#include "clib/ctrpath.h"
+#include "clib/ctreactor.h"
+#include "clib/ctfunc.h"
+#include "clib/ctonedim.h"
+#include "clib/ctmultiphase.h"
 
 #include <iostream>
 using namespace std;

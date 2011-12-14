@@ -1,0 +1,46 @@
+from buildutils import *
+import distutils.sysconfig
+
+Import('env', 'build')
+
+localenv = env.Clone()
+
+def make_ctconf(target, source, env):
+    text = """
+buildPython = %(BUILD_PYTHON)s
+ctversion = %(cantera_version)r
+""" % env
+
+    with open(str(target[0]), 'w') as f:
+        f.write(text)
+
+conf = localenv.Command('ctconf.py', [], make_ctconf)
+gcv = distutils.sysconfig.get_config_var
+
+localenv.Append(CPPPATH=[gcv('INCLUDEPY')],
+                SHLINKFLAGS=gcv('LDFLAGS'),
+                CPPFLAGS=[gcv('BASECFLAGS'), gcv('OPT')])
+
+linkLibs = ['clib','oneD','zeroD','equil','kinetics','transport',
+            'thermo','ctnumerics','ctmath','tpx',
+            'ctspectra','converters','ctbase']
+
+if env['use_sundials']:
+    linkLibs.extend(('sundials_cvodes','sundials_nvecserial'))
+
+linkLibs.extend(localenv['blas_lapack_libs'])
+
+if env['build_with_f2c']:
+    linkLibs.append('ctf2c')
+else:
+    linkLibs.append('gfortran')
+
+pymodule = localenv.SharedLibrary('Cantera/_cantera', ['src/pycantera.cpp'],
+                                  LIBS=linkLibs,
+                                  SHLIBPREFIX='',
+                                  SHLIBSUFFIX=gcv('SO'))
+
+pybuild = localenv.Command('built_python', 'Cantera/_cantera.so',
+                           'cd Cantera/python; python setup.py build; touch built_python')
+
+localenv.Depends(pybuild, [pymodule, conf])

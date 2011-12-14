@@ -44,7 +44,7 @@ opts.AddVariables(
     BoolVariable('enable_tpx', '', True),
     BoolVariable('with_html_log_files', '', True),
     EnumVariable('use_sundials', '', 'default', ('default', 'y', 'n')),
-    ('blas_lapack_libs', '', ''), # '-llapack -lblas' or '-llapack -lf77blas -lcblas -latlas' etc.
+    ('blas_lapack_libs', '', ''), # 'lapack,blas' or 'lapack,f77blas,cblas,atlas' etc.
     ('blas_lapack_dir', '', ''), # '/usr/lib/lapack' etc
     EnumVariable('lapack_names', '', 'lower', ('lower','upper')),
     BoolVariable('lapack_ftn_trailing_underscore', '', True),
@@ -93,6 +93,11 @@ if env['python_package'] in ('full', 'default'):
         PathVariable('cantera_python_home', 'where to install the python package',
                      None, PathVariable.PathAccept),
         )
+    env['BUILD_PYTHON'] = 3
+elif env['python_package'] == 'minimal':
+    env['BUILD_PYTHON'] = 1
+else:
+    env['BUILD_PYTHON'] = 0
 
 # Options that apply only if building the Matlab interface
 if env['matlab_toolbox'] != 'n':
@@ -112,7 +117,8 @@ if env['f90_interface']:
 if env['use_sundials'] != 'n':
     opts.AddVariables(
         EnumVariable('sundials_version' ,'', '2.4', ('2.2','2.3','2.4')),
-        PathVariable('sundials_include' ,'', ''))
+        PathVariable('sundials_include' ,'', ''),
+        PathVariable('sundials_libdir', '', ''))
 
 # Extra options for Boost.Thread
 if env['build_thread_safe']:
@@ -211,10 +217,15 @@ env.AlwaysBuild(config_h)
 if env['blas_lapack_libs'] == '':
     # External BLAS/LAPACK were not given, so we need to compile them
     env['BUILD_BLAS_LAPACK'] = True
-    env['blas_lapack_libs'] = '-lctlapack -lctblas'
+    env['blas_lapack_libs'] = ['ctlapack', 'ctblas']
+else:
+    ens['blas_lapack_libs'] = ','.split(env['blas_lapack_libs'])
+
 
 if env['use_sundials'] == 'y' and env['sundials_include']:
     env.Append(CPPPATH=env['sundials_include'])
+if env['use_sundials'] == 'y' and env['sundials_libdir']:
+    env.Append(LIBPATH=env['sundials_libdir'])
 
 # *********************
 # *** Build Cantera ***
@@ -229,12 +240,18 @@ for header in mglob(env, 'Cantera/clib/src', 'h'):
     env.Command('build/include/cantera/clib/%s' % header.name, header,
                 Copy('$TARGET', '$SOURCE'))
 
+env.Command('build/include/cantera/config.h', 'config.h', Copy('$TARGET', '$SOURCE'))
 
 build = 'build'
 env.SConsignFile()
 env.Append(CPPPATH=[Dir(os.getcwd()),
                     Dir('build/include/cantera/kernel'),
-                    Dir('build/include/cantera')])
+                    Dir('build/include/cantera'),
+                    Dir('build/include')],
+           LIBPATH=[Dir('build/lib')],
+           CCFLAGS=['-fPIC'],
+           FORTRANFLAGS=['-fPIC'],
+           F90FLAGS=['-fPIC'])
 
 Export('env', 'build')
 
@@ -244,8 +261,13 @@ SConscript('build/ext/SConscript')
 VariantDir('build/kernel', 'Cantera/src', duplicate=0)
 SConscript('build/kernel/SConscript')
 
-VariantDir('build/interfaces/', 'Cantera', duplicate=0)
-SConscript('build/interfaces/SConscript')
+VariantDir('build/interfaces/clib', 'Cantera/clib', duplicate=0)
+SConscript('build/interfaces/clib/SConscript')
+
+VariantDir('build/interfaces/cxx', 'Cantera/cxx', duplicate=0)
+SConscript('build/interfaces/cxx/SConscript')
 
 VariantDir('build/interfaces/fortran/', 'Cantera/fortran', duplicate=1)
 SConscript('build/interfaces/fortran/SConscript')
+
+SConscript('Cantera/python/SConscript')

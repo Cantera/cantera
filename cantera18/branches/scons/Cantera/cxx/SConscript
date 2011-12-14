@@ -3,12 +3,11 @@ from buildutils import *
 Import('env', 'build')
 
 # (subdir, library name, (file extensions))
-libs = [LibOpts('cxx/src', 'ctcxx'),
-        LibOpts('clib/src', 'clib')]
+libs = [LibOpts('src', 'ctcxx')]
 
 print os.getcwd()
 for lib in libs:
     localenv = env.Clone()
-    localenv.Library(pjoin('../lib', lib.name),
+    localenv.Library(pjoin('../../lib', lib.name),
                      source=mglob(localenv, lib.subdir, *lib.extensions))
 
