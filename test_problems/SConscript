@@ -29,7 +29,8 @@ class Test(object):
         self.testName = testName
         self.passedFile = '.passed-%s' % testName
 
-        localenv.Alias('test', self.run(localenv))
+        testResults.tests[self.testName] = self
+        localenv.Alias('test-run', self.run(localenv))
         localenv.Alias('test-clean', self.clean(localenv))
 
     def run(self, env, *args):
@@ -64,7 +65,7 @@ class Test(object):
         files += [comp[1] for comp in self.comparisons]
         files = [pjoin(os.getcwd(), self.subdir, name) for name in files]
 
-        uniqueName = 'clean-%s-%s' % ('-'.join(psplit(self.subdir)), self.testName)
+        uniqueName = 'clean-%s-' % self.testName
         target = env.Command(uniqueName, [],
                              [Delete(f) for f in files
                               if os.path.exists(f)])
@@ -72,7 +73,7 @@ class Test(object):
 
 class CompileAndTest(Test):
     def __init__(self, subdir, programName, blessedName, **kwargs):
-        testName = '%s-%s' % (programName, blessedName)
+        testName = '%s-%s-%s' % ('-'.join(psplit(subdir)), programName, blessedName)
         self.extensions = kwargs.get('extensions') or ('cpp',)
         Test.__init__(self, subdir, testName, programName, blessedName, **kwargs)
 
@@ -221,7 +222,6 @@ CompileAndTest(pjoin('VCSnonideal', 'NaCl_equil'),
 CompileAndTest('VPsilane_test', 'VPsilane_test', 'output_blessed.txt')
 
 # Python Tests
-
 if localenv['python_package'] == 'full':
     Test('python', 'python-diamond', '$python_cmd', None,
          options='../../Cantera/python/examples/surface_chemistry/diamond_cvd/diamond.py',
@@ -237,3 +237,7 @@ if localenv['python_package'] == 'full':
     # Skipping Python Tutorial 3 (documentation only)
     Test(pjoin('python','tut4'), 'python-tut4', '$python_cmd',
          'output_blessed.txt', arguments='tut4.py', artifacts=['gri30.xml'])
+
+finish_tests = localenv.Command('finish_tests', [], testResults.printReport)
+localenv.Depends(finish_tests, 'test-run')
+Alias('test', finish_tests)

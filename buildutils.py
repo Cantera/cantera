@@ -48,6 +48,31 @@ class ConfigBuilder(object):
             print "    %-35s %s" % (key, '*undefined*')
 
 
+class TestResults(object):
+    def __init__(self):
+        self.tests = {}
+        self.passed = {}
+        self.failed = {}
+
+    def printReport(self, target, source, env):
+        total = len(self.passed) + len(self.failed)
+        print """
+**********************************
+*** Regression Testing Summary ***
+**********************************
+
+Tests passed: %(passed)s
+Tests failed: %(failed)s
+Up-to-date tests skipped: %(skipped)s
+
+**********************************""" % dict(
+            passed=len(self.passed),
+            failed=len(self.failed),
+            skipped=len(self.tests))
+
+testResults = TestResults()
+
+
 def regression_test(target, source, env):
     # unpack:
     program = source[0]
@@ -83,15 +108,19 @@ def regression_test(target, source, env):
         print """Comparing '%s' with '%s'""" % (blessed, output)
         diff |= compareFiles(env, pjoin(dir, blessed), pjoin(dir, output))
 
+    del testResults.tests[env['active_test_name']]
+
     if diff or code:
         print 'FAILED'
 
         if os.path.exists(target[0].abspath):
             os.path.unlink(target[0].abspath)
-        return -1
+
+        testResults.failed[env['active_test_name']] = 1
     else:
         print 'PASSED'
         open(target[0].path, 'w').write(time.asctime()+'\n')
+        testResults.passed[env['active_test_name']] = 1
 
 
 def compareFiles(env, file1, file2):
@@ -117,6 +146,7 @@ def compareTextFiles(env, file1, file2):
 
     return 0
 
+
 def compareCsvFiles(env, file1, file2):
     try:
         import numpy as np
@@ -137,7 +167,7 @@ def compareCsvFiles(env, file1, file2):
     try:
         data1 = np.genfromtxt(file1, skiprows=headerRows, delimiter=',')
         data2 = np.genfromtxt(file2, skiprows=headerRows, delimiter=',')
-    except IOError as e:
+    except (IOError, StopIteration) as e:
         print e
         return 1
 
