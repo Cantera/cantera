@@ -6,6 +6,8 @@ localenv = env.Clone()
 lib = localenv.SharedLibrary(pjoin('../../lib', 'clib'),
                              source=mglob(localenv, 'src', 'cpp'),
                              LIBS=env['cantera_libs'])
+env['clib_shared'] = lib
+
 inst = localenv.Install('$ct_libdir', lib)
 buildTargets.extend(lib)
 installTargets.extend(inst)

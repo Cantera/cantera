@@ -1,13 +1,10 @@
-import sys
-import string
 from distutils.core import setup, Extension
+from distutils.sysconfig import get_config_var
+import os
 
-platform = sys.platform
-
-# values:
-#  0   do nothing
-#  1   install only ctml_writer.py
-#  2   install full package
+dataFiles = ['_cantera%s' % get_config_var('SO')]
+if os.name == 'nt':
+    dataFiles.append('clib.dll')
 
 if '@python_package@' == 'full':
     setup(name="Cantera",
@@ -21,7 +18,7 @@ if '@python_package@' == 'full':
           package_dir = {'MixMaster':'../../apps/MixMaster'},
           packages = ["","Cantera","Cantera.OneD",
                       "MixMaster","MixMaster.Units"],
-          package_data = {'Cantera': ['_cantera.so']})
+          package_data = {'Cantera': dataFiles})
 elif '@python_package@' == 'minimal':
     setup(name="Cantera CTI File Processor",
           version="@cantera_version@",

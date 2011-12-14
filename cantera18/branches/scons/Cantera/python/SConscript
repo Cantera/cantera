@@ -23,24 +23,28 @@ if env['python_package'] == 'full':
                                       SHLIBSUFFIX=gcv('SO'))
     buildTargets.extend(pymodule)
     localenv.Depends(pymodule, make_setup)
+    if localenv['OS'] == 'Windows':
+        for file in localenv['clib_shared']:
+            dest = pjoin('Cantera', 'python', 'Cantera', file.name)
+            localenv.AddPreAction(pymodule,Copy(dest, file))
+
 elif env['python_package'] == 'minimal':
     pymodule = make_setup
 
-localenv.AddPostAction(make_setup, 'cd Cantera/python; $python_cmd setup.py build')
+moddir = pjoin('Cantera', 'python')
+localenv.AddPostAction(make_setup,
+                       'cd %s && $python_cmd setup.py build' % moddir)
 
 # Install the Python module
-if env['cantera_python_home'] is None:
+if env['python_prefix']:
+    # A specific location for the Cantera python module has been specified
+    extra = '--prefix="%s"' % env['python_prefix']
+else:
     # Install Python module in the default location
     extra = ''
-elif env['cantera_python_home'] == env['prefix']:
-    # Cantera is being installed with a non-default prefix
-    extra = '--prefix=' + env['prefix']
-else:
-    # A specific location for the Cantera python module has been specified
-    extra = '--home=' + env['cantera_python_home']
 
 inst = localenv.Command('dummy', pymodule,
-                        'cd Cantera/python; $python_cmd setup.py install %s' % extra)
+                        'cd %s && $python_cmd setup.py install %s' % (moddir,extra))
 installTargets.extend(inst)
 
 if env['python_package'] == 'full':
