@@ -18,7 +18,6 @@
 
 #include <cantera/Cantera.h>
 #include <cantera/zerodim.h>
-#include <time.h>
 #include "example_utils.h"
 #include <cantera/reactionpaths.h>
 #include <cantera/IdealGasMix.h>
@@ -142,17 +141,13 @@ int rxnpath_example1(int job) {
         b.init(rplog, gas);         // initialize
 
         // main loop
-        clock_t t0 = clock();
         for (int i = 1; i <= nsteps; i++) {
             tm = i*dt;
             sim.advance(tm);
             writeRxnPathDiagram(tm, b, gas, rplog, rplot);
         }
-        clock_t t1 = clock();
 
-        // print final temperature and timing data
-        doublereal tmm = 1.0*(t1 - t0)/CLOCKS_PER_SEC;
-        cout << " time = " << tmm << endl;
+        // print final temperature
         cout << "Output files:" << endl
              << "  rp1.log    (log file)" << endl
              << "  rp1.dot    (input file for dot)" << endl;
