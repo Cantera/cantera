@@ -66,8 +66,8 @@ else:
     sys.exit(1)
 
 if env['CC'] == 'gcc':
-    defaults.cxxFlags = ''
-    defaults.ccFlags = ['-ftemplate-depth-128', '-Wall', '-g']
+    defaults.cxxFlags = ['-ftemplate-depth-128']
+    defaults.ccFlags = ['-Wall', '-g']
     defaults.debugCcFlags = ['-O0', '-fno-inline']
     defaults.releaseCcFlags = ['-O3', '-finline-functions', '-Wno-inline', '-DNDEBUG']
     defaults.debugLinkFlags = []
