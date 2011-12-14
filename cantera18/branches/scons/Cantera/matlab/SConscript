@@ -12,13 +12,15 @@ class MatlabBuilder(object):
         includes = ' '.join('-I%s' % Dir(s).abspath for s in env['CPPPATH'])
         libdir = ' '.join('-L%s' % Dir(s).abspath for s in env['LIBPATH'])
         libs = ' '.join('-l'+s for s in self.libs)
+        extraFlag = '-cxx' if os.name == 'posix' else ''
         text = """
 disp('building Cantera...');
 cd cantera
-mex -cxx -v -output ctmethods %(sourcestr)s %(include)s %(libdir)s %(libs)s
+mex %(extraFlag)s -v -output ctmethods %(include)s %(libdir)s %(libs)s %(sourcestr)s
 disp('done.');
 exit
 """ % dict(sourcestr=sourcestr,
+           extraFlag=extraFlag,
            include=includes,
            libdir=libdir,
            libs=libs)
@@ -28,14 +30,25 @@ exit
 
 localenv = env.Clone()
 
+libs = ['clib']
+if localenv['OS'] != 'Windows':
+    libs.extend(env['cantera_libs'])
+
 localenv.Command('build_cantera.m',
                  mglob(localenv, 'src', 'cpp'),
-                 MatlabBuilder(localenv['cantera_libs']))
+                 MatlabBuilder(libs))
 
 localenv['ENV']['PATH'] = os.environ['PATH']
 
-build_cmd = 'cd ${SOURCE.dir}; %(matlab_cmd)s -nojvm -nosplash -r build_cantera'
-target = localenv.Command('cantera/ctmethods.mexa64',
+build_cmd = 'cd ${SOURCE.dir} && "%(matlab_cmd)s" -nojvm -nosplash -r build_cantera'
+
+
+if os.name == 'posix':
+    mexFile = 'cantera/ctmethods.mexa%i' % localenv['OS_BITS']
+elif os.name == 'nt':
+    mexFile = 'cantera/ctmethods.mexw%i' % localenv['OS_BITS']
+
+target = localenv.Command(mexFile,
                           'build_cantera.m',
                           build_cmd % localenv)
 buildTargets.extend(target)
@@ -49,3 +62,8 @@ installTargets.extend(inst)
 
 inst = localenv.RecursiveInstall(pjoin('$ct_demodir', 'matlab'), 'examples')
 installTargets.extend(inst)
+
+if os.name == 'nt':
+    inst = localenv.Install(pjoin('$prefix', 'matlab', 'toolbox'),
+                            localenv['clib_shared'])
+    installTargets.extend(inst)
