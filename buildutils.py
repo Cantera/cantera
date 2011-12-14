@@ -50,41 +50,33 @@ class ConfigBuilder(object):
 def regression_test(target, source, env):
     # unpack:
     program = source[0]
-    blessedFile = source[1]
+    blessedName = source[1].name
     if len(source) > 2:
         clargs = [s.name for s in source[2:]]
     else:
         clargs = []
 
+
     # Name to use for the output file
-    if 'blessed' in blessedFile.name:
-        output = blessedFile.abspath.replace('blessed', 'output')
+    if 'blessed' in blessedName:
+        outputName = blessedName.replace('blessed', 'output')
     else:
-        output = pjoin(blessedFile.dir.abspath, 'test_output.txt')
+        outputName = 'test_output.txt'
 
     dir = str(target[0].dir.abspath)
-    with open(output, 'w') as outfile:
+    with open(pjoin(dir,outputName), 'w') as outfile:
         code = subprocess.call([program.abspath] + clargs,
                                stdout=outfile, stderr=outfile,
                                cwd=dir)
 
-    diff = compareFiles(blessedFile.abspath, output)
-
-    # Compare other output files
-    for blessed,output in env['test_comparisons']:
-        print blessed, output, diff,
-        print pjoin(dir, blessed), ',', pjoin(dir, output)
-        diff |= compareFiles(pjoin(dir, blessed), pjoin(dir, output))
-        print diff
+    diff = 0
+    # Compare output files
+    for blessed,output in [(blessedName,outputName)] + env['test_comparisons']:
+        print """Comparing '%s' with '%s'""" % (blessed, output)
+        diff |= compareFiles(env, pjoin(dir, blessed), pjoin(dir, output))
 
     if diff or code:
         print 'FAILED'
-
-        if diff:
-            print 'Difference between blessed output and current output:'
-            print '>>>'
-            print '\n'.join(diff)
-            print '<<<'
 
         if os.path.exists(target[0].abspath):
             os.path.unlink(target[0].abspath)
@@ -93,7 +85,15 @@ def regression_test(target, source, env):
         print 'PASSED'
         open(target[0].path, 'w').write(time.asctime()+'\n')
 
-def compareFiles(file1, file2):
+
+def compareFiles(env, file1, file2):
+    if file1.endswith('csv') and file2.endswith('csv'):
+        return compareCsvFiles(env, file1, file2)
+    else:
+        return compareTextFiles(env, file1, file2)
+
+
+def compareTextFiles(env, file1, file2):
     text1 = [line.rstrip() for line in open(file1).readlines()]
     text2 = [line.rstrip() for line in open(file2).readlines()]
 
@@ -107,8 +107,42 @@ def compareFiles(file1, file2):
 
     return 0
 
+def compareCsvFiles(env, file1, file2):
+    try:
+        import numpy as np
+    except ImportError:
+        print 'WARNING: skipping .csv diff because numpy is not installed'
+        return 0
+
+    # decide how many header lines to skip
+    f = open(file1)
+    headerRows = 0
+    goodChars = set('0123456789.+-eE, ')
+    for line in f:
+        if not set(line[:-1]).issubset(goodChars):
+            headerRows += 1
+        else:
+            break
+
+    try:
+        data1 = np.genfromtxt(file1, skiprows=headerRows, delimiter=',')
+        data2 = np.genfromtxt(file2, skiprows=headerRows, delimiter=',')
+    except IOError as e:
+        print e
+        return 1
+
+    relerror = np.abs(data2-data1) / (np.maximum(np.abs(data2), np.abs(data1)) + env['test_csv_threshold'])
+    maxerror = np.nanmax(relerror.flat)
+    tol = env['test_csv_tolerance']
+    if maxerror > tol: # Threshold based on printing 6 digits in the CSV file
+        print "Files differ. %i / %i elements above specified tolerance" % (np.sum(relerror > tol), relerror.size)
+        return 1
+    else:
+        return 0
+
+
 def regression_test_message(target, source, env):
-    print """* Running test '%s'...""" % source[0].name,
+    return """* Running test '%s'...""" % source[0].name
 
 
 def add_RegressionTest(env):
