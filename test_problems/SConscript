@@ -85,8 +85,9 @@ class CompileAndTest(Test):
         return Test.run(self, env, *source)
 
     def clean(self, env):
-        files = [self.programName,
-                 self.programName + '.o']
+        files = [self.programName + ext
+                 for ext in ['', '.o', '.exe', '.exe.manifest', '.ilk',
+                             '.obj', '.pdb']]
         return Test.clean(self, env, files=files)
 
 
