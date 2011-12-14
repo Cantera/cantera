@@ -62,15 +62,20 @@ def regression_test(target, source, env):
     else:
         output = pjoin(blessedFile.dir.abspath, 'test_output.txt')
 
-    dir = str(target[0].dir)
-    blessed = [line.rstrip() for line in open(blessedFile.abspath).readlines()]
-
+    dir = str(target[0].dir.abspath)
     with open(output, 'w') as outfile:
         code = subprocess.call([program.abspath] + clargs,
-                               stdout=outfile, stderr=outfile, cwd=dir)
+                               stdout=outfile, stderr=outfile,
+                               cwd=dir)
 
-    outputText = [line.rstrip() for line in open(output).readlines()]
-    diff = list(difflib.unified_diff(blessed, outputText))
+    diff = compareFiles(blessedFile.abspath, output)
+
+    # Compare other output files
+    for blessed,output in env['test_comparisons']:
+        print blessed, output, diff,
+        print pjoin(dir, blessed), ',', pjoin(dir, output)
+        diff |= compareFiles(pjoin(dir, blessed), pjoin(dir, output))
+        print diff
 
     if diff or code:
         print 'FAILED'
@@ -88,6 +93,19 @@ def regression_test(target, source, env):
         print 'PASSED'
         open(target[0].path, 'w').write(time.asctime()+'\n')
 
+def compareFiles(file1, file2):
+    text1 = [line.rstrip() for line in open(file1).readlines()]
+    text2 = [line.rstrip() for line in open(file2).readlines()]
+
+    diff = list(difflib.unified_diff(text1, text2))
+    if diff:
+        'Found differences between %s and %s:' % (file1, file2)
+        print '>>>'
+        print '\n'.join(diff)
+        print '<<<'
+        return 1
+
+    return 0
 
 def regression_test_message(target, source, env):
     print """* Running test '%s'...""" % source[0].name,

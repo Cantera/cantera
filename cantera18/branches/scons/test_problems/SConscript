@@ -8,7 +8,8 @@ os.environ['PYTHONPATH'] = pjoin(os.getcwd(), '..','Cantera','python')
 class Test(object):
     def __init__(self, subdir, programName,
                  blessedName, arguments=(),
-                 extensions=('cpp',), artifacts=()):
+                 extensions=('cpp',), artifacts=(),
+                 comparisons=()):
         self.subdir = subdir
         self.programName = programName
         if isinstance(arguments, str):
@@ -18,6 +19,7 @@ class Test(object):
         self.extensions = extensions
         self.artifacts = artifacts
         self.passedFile = '.passed-%s-%s' % (programName, blessedName)
+        self.comparisons = comparisons
 
     def run(self, env):
         prog = env.Program(pjoin(self.subdir, self.programName),
@@ -25,7 +27,8 @@ class Test(object):
                                 LIBS=env['cantera_libs'])
         arguments = [pjoin(self.subdir, arg) for arg in self.arguments]
         source = [prog, pjoin(self.subdir, self.blessedName)] + arguments
-        test = env.RegressionTest(pjoin(self.subdir, self.passedFile), source)
+        test = env.RegressionTest(pjoin(self.subdir, self.passedFile), source,
+                                  test_comparisons=self.comparisons)
 
         return test
 
@@ -140,7 +143,8 @@ tests = [Test(pjoin('cathermo', 'DH_graph_1'),
          Test('ChemEquil_gri_pairs', 'gri_pairs', 'output_blessed.txt'),
          Test('ChemEquil_ionizedGas', 'ionizedGasEquil',
               'output_blessed.txt',
-              artifacts=['table.csv']), # needs .csv comparison
+              artifacts=['table.csv'],
+              comparisons=[('table_blessed.csv', 'table.csv')]),
          Test('ChemEquil_red1', 'basopt_red1', 'output_blessed.txt'),
          # Skipping ck2cti_test because of automatically generated file
          Test('CpJump', 'CpJump', 'output_blessed.txt'),
