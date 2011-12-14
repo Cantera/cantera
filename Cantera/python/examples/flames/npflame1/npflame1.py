@@ -51,6 +51,7 @@ refine_grid = 1                     # 1 to enable refinement, 0 to
 # you need to convert from Chemkin format, use the ck2cti utility
 # program first.
 gas = GRI30('Mix')
+gas.setPressure(p)
 
 # create an object representing the counterflow flame configuration,
 # which consists of a fuel inlet on the left, the flow in the middle,
