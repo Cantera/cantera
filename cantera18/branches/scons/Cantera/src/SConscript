@@ -37,11 +37,11 @@ for subdir, libname, extensions, setup in libs:
         h = localenv.Command('../include/cantera/kernel/%s' % header.name, header,
                              Copy('$TARGET', '$SOURCE'))
         buildTargets.extend(h)
-        inst = localenv.Install(pjoin('$ct_incdir', 'kernel'), h)
+        inst = localenv.Install(pjoin('$inst_incdir', 'kernel'), h)
         installTargets.extend(inst)
 
     lib = localenv.Library(pjoin('../lib', libname),
                            source=source)
-    inst = localenv.Install('$ct_libdir', lib)
+    inst = localenv.Install('$inst_libdir', lib)
     buildTargets.extend(lib)
     installTargets.extend(inst)

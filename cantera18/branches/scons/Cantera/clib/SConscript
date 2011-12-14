@@ -9,12 +9,12 @@ if localenv['OS'] == 'Windows':
                                  source=mglob(localenv, 'src', 'cpp'),
                                  LIBS=env['cantera_libs'])
     env['clib_shared'] = lib
-    inst = localenv.Install('$ct_libdir', lib)
+    inst = localenv.Install('$inst_libdir', lib)
     buildTargets.extend(lib)
     installTargets.extend(inst)
 else:
     static_lib = localenv.Library(pjoin('../../lib', 'clib'),
                                   source=mglob(localenv, 'src', 'cpp'))
-    inst_static = localenv.Install('$ct_libdir', static_lib)
+    inst_static = localenv.Install('$inst_libdir', static_lib)
     buildTargets.extend(static_lib)
     installTargets.extend(inst_static)
