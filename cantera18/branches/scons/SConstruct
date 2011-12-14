@@ -66,20 +66,20 @@ else:
     sys.exit(1)
 
 if env['CC'] == 'gcc':
-    defaults.cxxFlags = ['-ftemplate-depth-128']
-    defaults.ccFlags = ['-Wall', '-g']
-    defaults.debugCcFlags = ['-O0', '-fno-inline']
-    defaults.releaseCcFlags = ['-O3', '-finline-functions', '-Wno-inline', '-DNDEBUG']
-    defaults.debugLinkFlags = []
-    defaults.fPIC = ['-fPIC']
+    defaults.cxxFlags = '-ftemplate-depth-128'
+    defaults.ccFlags = '-Wall -g'
+    defaults.debugCcFlags = '-O0 -fno-inline'
+    defaults.releaseCcFlags = '-O3 -finline-functions -Wno-inline -DNDEBUG'
+    defaults.debugLinkFlags = ''
+    defaults.fPIC = '-fPIC'
 elif env['CC'] == 'cl': # Visual Studio
-    defaults.cxxFlags = ['/EHsc']
-    defaults.ccFlags = ['/nologo', '/Zi', '/W3', '/Zc:wchar_t', '/Zc:forScope',
-                        '/D_SCL_SECURE_NO_WARNINGS', '/D_CRT_SECURE_NO_WARNINGS']
-    defaults.debugCcFlags = ['/Od', '/Ob0',  '/MD'] # note: MDd breaks the Python module
-    defaults.releaseCcFlags = ['/O2', '/MD', '/DNDEBUG']
-    defaults.debugLinkFlags = ['/DEBUG']
-    defaults.fPIC = []
+    defaults.cxxFlags = '/EHsc'
+    defaults.ccFlags = ' '.join(['/nologo', '/Zi', '/W3', '/Zc:wchar_t', '/Zc:forScope',
+                                 '/D_SCL_SECURE_NO_WARNINGS', '/D_CRT_SECURE_NO_WARNINGS'])
+    defaults.debugCcFlags = '/Od /Ob0 /MD' # note: MDd breaks the Python module
+    defaults.releaseCcFlags = '/O2 /MD /DNDEBUG'
+    defaults.debugLinkFlags = '/DEBUG'
+    defaults.fPIC = ''
 else:
     print "Error: Unrecognized C compiler '%s'" % env['CC']
 
@@ -565,12 +565,12 @@ env['ct_tutdir'] = pjoin(env['prefix'], 'tutorials')
 env['ct_mandir'] = pjoin(env['prefix'], 'man1')
 env['ct_matlab_dir'] = pjoin(env['prefix'], 'matlab', 'toolbox')
 
-env['CXXFLAGS'] = env['cxx_flags']
+env['CXXFLAGS'] = listify(env['cxx_flags'])
 if env['optimize']:
-    env['CCFLAGS'] = env['cc_flags'] + env['release_flags']
+    env['CCFLAGS'] = listify(env['cc_flags']) + listify(env['release_flags'])
 else:
-    env['CCFLAGS'] = env['cc_flags'] + env['debug_flags']
-    env['LINKFLAGS'] += defaults.debugLinkFlags
+    env['CCFLAGS'] = listify(env['cc_flags']) + listify(env['debug_flags'])
+    env['LINKFLAGS'] += listify(defaults.debugLinkFlags)
 
 # **************************************
 # *** Set options needed in config.h ***
@@ -659,9 +659,9 @@ env.Append(CPPPATH=[Dir(os.getcwd()),
                     Dir('build/include/cantera'),
                     Dir('build/include')],
            LIBPATH=[Dir('build/lib')],
-           CCFLAGS=defaults.fPIC,
-           FORTRANFLAGS=defaults.fPIC,
-           F90FLAGS=defaults.fPIC)
+           CCFLAGS=[defaults.fPIC],
+           FORTRANFLAGS=[defaults.fPIC],
+           F90FLAGS=[defaults.fPIC])
 
 # Put headers in place
 for header in mglob(env, 'Cantera/cxx/include', 'h'):
