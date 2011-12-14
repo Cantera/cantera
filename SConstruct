@@ -118,7 +118,7 @@ opts.AddVariables(
            the home directory for numpy.""",
         '', PathVariable.PathAccept),
     PathVariable(
-        'cantera_python_home',
+        'python_prefix',
         """If you want to install the Cantera Python package somewhere
            other than the default 'site-packages' directory within the
            Python library directory, then set this to the desired
@@ -481,9 +481,6 @@ env['HAS_UNISTD_H'] = conf.CheckCHeader('unistd.h', '""')
 env['HAS_MATH_H_ERF'] = conf.CheckDeclaration('erf', '#include <math.h>', 'C++')
 env['HAS_BOOST_MATH'] = conf.CheckCXXHeader('boost/math/special_functions/erf.hpp', '<>')
 env = conf.Finish()
-
-if env['cantera_python_home'] == '' and env['prefix'] != defaults.prefix:
-    env['cantera_python_home'] = env['prefix']
 
 if env['python_package'] in ('full','default'):
     # Test to see if we can import the specified array module
