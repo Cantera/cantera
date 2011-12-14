@@ -56,16 +56,19 @@ def regression_test(target, source, env):
     else:
         clargs = []
 
-
     # Name to use for the output file
     if 'blessed' in blessedName:
         outputName = blessedName.replace('blessed', 'output')
     else:
         outputName = 'test_output.txt'
 
+    # command line options
+    clopts = env['test_command_options'].split()
+
+    # Run the test program
     dir = str(target[0].dir.abspath)
     with open(pjoin(dir,outputName), 'w') as outfile:
-        code = subprocess.call([program.abspath] + clargs,
+        code = subprocess.call([program.abspath] + clopts + clargs,
                                stdout=outfile, stderr=outfile,
                                cwd=dir)
 
