@@ -40,7 +40,7 @@ inst = localenv.Install('$ct_bindir','setup_cantera')
 installTargets.append(inst)
 
 # 'mixmaster'
-if env['BUILD_PYTHON'] >= 2:
+if env['python_package'] == 'full':
     target = localenv.SubstFile('mixmaster', 'mixmaster.in')
     buildTargets.extend(target)
     inst = localenv.Install('$ct_bindir', 'mixmaster')

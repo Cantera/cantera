@@ -11,9 +11,9 @@ subst.TOOL_SUBST(env)
 # ******************************************************
 
 if os.name == 'posix':
-    env['default_prefix'] = '/usr/local'
+    defaultPrefix = '/usr/local'
 elif os.name == 'nt':
-    env['default_prefix'] = os.environ['ProgramFiles']
+    defaultPrefix = os.environ['ProgramFiles']
 
 # **************************************
 # *** Read user-configurable options ***
@@ -22,12 +22,24 @@ elif os.name == 'nt':
 opts = Variables('cantera.conf')
 opts.AddVariables(
     PathVariable('prefix', 'Where to install Cantera',
-                 env['default_prefix'], PathVariable.PathIsDirCreate),
-    EnumVariable('python_package', 'build python package?', 'full',
-                 ('full', 'minimal', 'none')),
+                 defaultPrefix, PathVariable.PathIsDirCreate),
+    EnumVariable('python_package', 'build python package?', 'default',
+                 ('full', 'minimal', 'none','default')),
     PathVariable('python_cmd', 'Path to the python interpreter', sys.executable),
+    EnumVariable('python_array', 'Which Python array package to use',
+                 'numpy', ('numpy', 'numarray', 'numeric')),
+    PathVariable('python_array_home',
+                 'Location for array package (e.g. if installed with --home)',
+                 '', PathVariable.PathAccept),
+    PathVariable('cantera_python_home', 'where to install the python package',
+                 '', PathVariable.PathAccept),
     EnumVariable('matlab_toolbox', '', 'n', ('y', 'n', 'default')),
+    PathVariable('matlab_cmd', 'Path to the matlab executable',
+                 'matlab', PathVariable.PathAccept),
     BoolVariable('f90_interface', 'Build Fortran90 interface?', False),
+    PathVariable('f90', 'Fortran compiler',
+                 'gfortran', PathVariable.PathAccept),
+    ('f90flags', '', '-O3'),
     ('purify', '', ''),
     ('user_src_dir', '', 'Cantera/user'),
     BoolVariable('debug', '', False), # ok
@@ -56,6 +68,9 @@ opts.AddVariables(
     BoolVariable('enable_tpx', '', True),
     BoolVariable('with_html_log_files', '', True),
     EnumVariable('use_sundials', '', 'default', ('default', 'y', 'n')),
+    EnumVariable('sundials_version' ,'', '2.4', ('2.2','2.3','2.4')),
+    PathVariable('sundials_include' ,'', ''),
+    PathVariable('sundials_libdir', '', ''),
     ('blas_lapack_libs', '', ''), # 'lapack,blas' or 'lapack,f77blas,cblas,atlas' etc.
     ('blas_lapack_dir', '', ''), # '/usr/lib/lapack' etc
     EnumVariable('lapack_names', '', 'lower', ('lower','upper')),
@@ -66,6 +81,9 @@ opts.AddVariables(
     ('CC', '', env['CC']),
     ('CXXFLAGS', '', '-O3 -Wall'),
     BoolVariable('build_thread_safe', '', False),
+    PathVariable('boost_inc_dir', '', '/usr/include/'),
+    PathVariable('boost_lib_dir', '', '/usr/lib/'),
+    ('boost_thread_lib', '', 'boost_thread'),
     BoolVariable('build_with_f2c', '', True),
     ('F77', '', env['F77']),
     ('F77FLAGS', '', '-O3'),
@@ -91,60 +109,6 @@ opts.AddVariables(
     )
 
 opts.Update(env)
-
-# Additional options that apply only if building the full python package
-if env['prefix'] == env['default_prefix']:
-    pyprefix = None
-else:
-    pyprefix = env['prefix']
-
-if env['python_package'] in ('full', 'default'):
-    opts.AddVariables(
-        EnumVariable('python_array', 'Which Python array package to use',
-                     'numpy', ('numpy', 'numarray', 'numeric')),
-        PathVariable('python_array_home',
-                     'Location for array package (e.g. if installed with --home)',
-                     '', PathVariable.PathAccept),
-        PathVariable('cantera_python_home', 'where to install the python package',
-                     pyprefix, PathVariable.PathAccept)
-        )
-
-    env['BUILD_PYTHON'] = 3
-elif env['python_package'] == 'minimal':
-    env['BUILD_PYTHON'] = 1
-else:
-    env['BUILD_PYTHON'] = 0
-
-# Options that apply only if building the Matlab interface
-if env['matlab_toolbox'] != 'n':
-    opts.AddVariables(
-        PathVariable('matlab_cmd', 'Path to the matlab executable',
-                     'matlab', PathVariable.PathAccept)
-        )
-
-# Options that apply only if building the Fortran interface
-if env['f90_interface']:
-    opts.AddVariables(
-        PathVariable('f90', 'Fortran compiler',
-                     'gfortran', PathVariable.PathAccept),
-        ('f90flags', '', '-O3')
-        )
-
-# Extra options for Sundials
-if env['use_sundials'] != 'n':
-    opts.AddVariables(
-        EnumVariable('sundials_version' ,'', '2.4', ('2.2','2.3','2.4')),
-        PathVariable('sundials_include' ,'', ''),
-        PathVariable('sundials_libdir', '', ''))
-
-# Extra options for Boost.Thread
-if env['build_thread_safe']:
-    opts.AddVariables(
-        PathVariable('boost_inc_dir', '', '/usr/include/'),
-        PathVariable('boost_lib_dir', '', '/usr/lib/'),
-        ('boost_thread_lib', '', 'boost_thread'))
-
-opts.Update(env)
 opts.Save('cantera.conf', env)
 
 # ********************************************
@@ -167,6 +131,28 @@ env['HAS_SSTREAM'] = conf.CheckCXXHeader('sstream', '<>')
 
 env = conf.Finish()
 
+if env['cantera_python_home'] == '' and env['prefix'] != defaultPrefix:
+    env['cantera_python_home'] = env['prefix']
+
+if env['python_package'] in ('full','default'):
+    # Test to see if we can import the specified array module
+    warnNoPython = False
+    if env['python_array_home']:
+        sys.path.append(env['python_array_home'])
+    try:
+        __import__(env['python_array'])
+        print """INFO: Building the full Python package using %s.""" % env['python_array']
+        env['python_package'] = 'full'
+    except ImportError:
+        if env['python_package'] == 'full':
+            print ("""ERROR: Unable to find the array package """
+                   """'%s' required by the full Python package.""" % env['python_array'])
+            sys.exit(1)
+        else:
+            print ("""WARNING: Not building the full Python package """
+                   """ because the array package '%s' could not be found.""" % env['python_array'])
+            warnNoPython = True
+            env['python_package'] = 'minimal'
 
 # **************************************
 # *** Set options needed in config.h ***
@@ -333,7 +319,7 @@ if env['f90_interface']:
     VariantDir('build/interfaces/fortran/', 'Cantera/fortran', duplicate=1)
     SConscript('build/interfaces/fortran/SConscript')
 
-if env['BUILD_PYTHON']:
+if env['python_package'] in ('full','minimal'):
     SConscript('Cantera/python/SConscript')
 
 if env['matlab_toolbox'] == 'y':
@@ -375,6 +361,12 @@ File locations:
     if env['python_package'] == 'full':
         print """
     Python package    %(python_module_loc)s""" % env
+    elif warnNoPython:
+        print """
+    #################################################################
+     WARNING: the Cantera Python package was not installed because a
+     suitable array package (e.g. numpy) could not be found.
+    #################################################################"""
 
     if env['matlab_toolbox'] == 'y':
         print """
