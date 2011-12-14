@@ -103,7 +103,7 @@ else:
 if env['matlab_toolbox'] != 'n':
     opts.AddVariables(
         PathVariable('matlab_cmd', 'Path to the matlab executable',
-                     'default', PathVariable.PathAccept)
+                     'matlab', PathVariable.PathAccept)
         )
 
 # Options that apply only if building the Fortran interface
@@ -271,3 +271,6 @@ VariantDir('build/interfaces/fortran/', 'Cantera/fortran', duplicate=1)
 SConscript('build/interfaces/fortran/SConscript')
 
 SConscript('Cantera/python/SConscript')
+
+if env['matlab_toolbox'] == 'y':
+    SConscript('Cantera/matlab/SConscript')
