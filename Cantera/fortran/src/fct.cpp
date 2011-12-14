@@ -23,8 +23,8 @@
 #include "ThermoFactory.h"
 #include "ctml.h"
 #include "importKinetics.h"
-#include "../../clib/src/Storage.h"
-#include "../../clib/src/Cabinet.h"
+#include "clib/Storage.h"
+#include "clib/Cabinet.h"
 #include "InterfaceKinetics.h"
 #include "PureFluidPhase.h"
 

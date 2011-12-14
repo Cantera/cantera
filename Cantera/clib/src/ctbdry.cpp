@@ -27,7 +27,7 @@
 using namespace std;
 using namespace Cantera;
 
-Cabinet<Bdry1D>*  Cabinet<Bdry1D>::__storage = 0;
+template<> Cabinet<Bdry1D>*  Cabinet<Bdry1D>::__storage = 0;
 
 inline Bdry1D* _bndry(int i) {
     return Cabinet<Bdry1D>::cabinet()->item(i);

@@ -1,0 +1,13 @@
+from buildutils import *
+
+Import('env', 'build')
+
+localenv = env.Clone()
+
+localenv.Library(target=pjoin('..','..','lib','fct'),
+                 source=mglob(localenv, 'src', 'f90', 'cpp'))
+
+# Copy the mod files to the include directory
+for mod in mglob(localenv, 'src', 'mod'):
+    env.Command('../../include/cantera/%s' % mod.name, mod,
+                Copy('$TARGET', '$SOURCE'))

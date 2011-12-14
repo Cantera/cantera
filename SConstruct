@@ -129,20 +129,16 @@ opts.Save('cantera.conf', env)
 # ********************************************
 env['OS'] = platform.system()
 
-#def ArithCheck(context):
-#    context.Message('Trying to generate arith.h\n')
-#    exitStatus = context.TryLink(file('ext/f2c_libs/arithchk.c').read(), '.c')
-#    print exitStatus
-#    exitStatus, output = context.TryRun(file('ext/f2c_libs/arithchk.c').read(), '.c')
-#    print exitStatus, output
-#    context.Result(output)
-#    return exitStatus
+if env['F90'] == 'gfortran':
+    env['FORTRANMODDIRPREFIX'] = '-J'
+elif env['F90'] == 'g95':
+    env['FORTRANMODDIRPREFIX'] = '-fmod='
+
+env['FORTRANMODDIR'] = '${TARGET.dir}'
 
 conf = Configure(env)
-#conf = Configure(env, custom_tests = {'ArithCheck':ArithCheck})
 
 env['HAS_SSTREAM'] = conf.CheckCXXHeader('sstream', '<>')
-#conf.ArithCheck()
 
 env = conf.Finish()
 
@@ -223,9 +219,23 @@ if env['use_sundials'] == 'y' and env['sundials_include']:
 # *********************
 # *** Build Cantera ***
 # *********************
+
+# Put headers in place
+for header in mglob(env, 'Cantera/cxx/include', 'h'):
+    env.Command('build/include/cantera/%s' % header.name, header,
+                Copy('$TARGET', '$SOURCE'))
+
+for header in mglob(env, 'Cantera/clib/src', 'h'):
+    env.Command('build/include/cantera/clib/%s' % header.name, header,
+                Copy('$TARGET', '$SOURCE'))
+
+
 build = 'build'
 env.SConsignFile()
-env.Append(CPPPATH=[Dir(os.getcwd()), Dir('build/include/cantera/kernel/')])
+env.Append(CPPPATH=[Dir(os.getcwd()),
+                    Dir('build/include/cantera/kernel'),
+                    Dir('build/include/cantera')])
+
 Export('env', 'build')
 
 VariantDir('build/ext', 'ext', duplicate=0)
@@ -233,3 +243,9 @@ SConscript('build/ext/SConscript')
 
 VariantDir('build/kernel', 'Cantera/src', duplicate=0)
 SConscript('build/kernel/SConscript')
+
+VariantDir('build/interfaces/', 'Cantera', duplicate=0)
+SConscript('build/interfaces/SConscript')
+
+VariantDir('build/interfaces/fortran/', 'Cantera/fortran', duplicate=1)
+SConscript('build/interfaces/fortran/SConscript')
