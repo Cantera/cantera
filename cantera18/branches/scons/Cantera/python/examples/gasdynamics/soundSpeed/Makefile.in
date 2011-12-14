@@ -1,0 +1,25 @@
+#!/bin/sh
+
+INST_DIR=@ct_demodir@/python/gasdynamics/soundSpeed
+
+PYTHON_CMD = @PYTHON_CMD@
+
+run:
+	$(PYTHON_CMD) soundSpeed.py
+
+test:
+	./runtest
+
+install:
+	@INSTALL@ -d  $(INST_DIR)
+	@INSTALL@ -c -m ug+rw,o+r Makefile        $(INST_DIR)
+	@INSTALL@ -c -m ug+rw,o+r soundSpeed.py   $(INST_DIR)
+	@INSTALL@ -c   runtest $(INST_DIR)
+	@INSTALL@ -c   cleanup $(INST_DIR)
+	@INSTALL@ -c -m ug+rw,o+r output_blessed_0.txt    $(INST_DIR)
+
+clean:
+	./cleanup
+
+# end of file
+

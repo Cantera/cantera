@@ -1,0 +1,8 @@
+#!/bin/sh
+#
+#  Test whether $1 has a modification time
+#  greater than $2
+#
+# This is the default base case, if no other
+# script works.
+exit 0

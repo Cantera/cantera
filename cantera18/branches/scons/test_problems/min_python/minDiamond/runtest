@@ -1,0 +1,47 @@
+#!/bin/sh
+#
+#
+temp_success="1"
+/bin/rm  -f output.txt outputa.txt diamond.xml diamonda.xml
+
+#################################################################
+#
+#################################################################
+CANTERA_DATA=${CANTERA_DATA:=../../../data/inputs}
+export CANTERA_DATA
+
+CANTERA_BIN=${CANTERA_BIN:=../../../bin}
+export CANTERA_BIN
+
+./runDiamond > output.txt
+retnStat=$?
+if [ $retnStat != "0" ]
+then
+  temp_success="0"
+  echo "runDiamond returned with bad status, $retnStat, check output"
+fi
+
+../../../bin/exp3to2.sh output.txt > outputa.txt
+diff -w outputa.txt runDiamond_blessed.out > diff_test.out
+retnStat=$?
+if [ $retnStat = "0" ]
+then
+  echo "successful diff comparison on diamond test"
+else
+  echo "unsuccessful diff comparison on diamond test"
+  echo "FAILED" > csvCode.txt
+  temp_success="0"
+fi
+
+../../../bin/exp3to2.sh diamond.xml > diamonda.xml
+diff -w diamonda.xml diamond_blessed.xml > xml_diff_test.out
+retnStat=$?
+if [ $retnStat = "0" ]
+then
+  echo "successful diff comparison on diamond.xml test"
+else
+  echo "unsuccessful diff comparison on diamond.xml test"
+  echo "FAILED" > csvCode.txt
+  temp_success="0"
+fi
+

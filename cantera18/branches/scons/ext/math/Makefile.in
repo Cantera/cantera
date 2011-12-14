@@ -1,0 +1,74 @@
+#
+# $Source: /cvsroot/cantera/cantera/ext/math/Makefile.in,v $
+# $Author: hkmoffa $
+# $Revision: 1.13 $
+# $Date: 2008/12/30 21:58:10 $
+#
+
+.SUFFIXES :
+.SUFFIXES : .f .d .o .cpp
+
+do_ranlib = @DO_RANLIB@
+
+LIB = @buildlib@/libctmath.a
+
+all: $(LIB)
+
+PURIFY=@PURIFY@
+
+PIC_FLAG=@PIC@
+
+F_FLAGS = @FFLAGS@ $(PIC_FLAG)
+
+OBJS = \
+mach.o \
+ddaspk.o \
+dgbfa.o \
+dgbsl.o \
+dgefa.o \
+dgesl.o \
+dp1vlu.o \
+dpcoef.o \
+dpolft.o \
+fdump.o \
+j4save.o \
+pcoef.o \
+polfit.o \
+pvalue.o \
+xercnt.o \
+xerhlt.o \
+xermsg.o \
+xerprn.o \
+xersve.o \
+xgetua.o \
+printstring.o 
+
+SRCS = $(OBJS:.o=.cpp)
+all = $(LIB)
+
+$(LIB):  $(OBJS)
+	@ARCHIVE@ $(LIB) $(OBJS) > /dev/null
+ifeq ($(do_ranlib),1)
+	@RANLIB@ $(LIB)
+endif
+
+%.o : %.c
+	$(PURIFY) @CXX@ -c $< @DEFS@  @CXXFLAGS@ @PIC@ -I../.. $(INCLUDES)
+
+%.o : %.cpp
+	$(PURIFY) @CXX@ -c $< @DEFS@  @CXXFLAGS@ @PIC@ $(INCLUDES)
+#
+# Right now g77 is not known to PURIFY. Why I don't know.
+#
+%.o : %.f
+	@F77@ -c $< $(F_FLAGS)
+
+$(OBJS): Makefile
+
+clean:
+	$(RM) $(OBJS) $(LIB)
+
+depends:
+	echo '...'
+
+ 

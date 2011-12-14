@@ -1,0 +1,14 @@
+#!/bin/sh
+
+
+run:
+	$(PYTHON_CMD) stflame1.py
+
+test:
+	./runtest
+
+clean:
+	./cleanup
+
+# end of file
+

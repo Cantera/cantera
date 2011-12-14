@@ -1,0 +1,449 @@
+<?xml version="1.0"?>
+<ctml>
+  <validate reactions="yes" species="yes"/>
+
+  <!-- phase gas     -->
+  <phase dim="3" id="gas">
+    <elementArray datasrc="elements.xml">H C</elementArray>
+    <speciesArray datasrc="gri30.xml#species_data">H H2 CH3 CH4</speciesArray>
+    <state>
+      <temperature units="K">1200.0</temperature>
+      <pressure units="Pa">2666.4473684210525</pressure>
+      <moleFractions>H:0.002, H2:0.988, CH3:0.0002, CH4:0.01</moleFractions>
+    </state>
+    <thermo model="IdealGas"/>
+    <kinetics model="GasKinetics"/>
+    <transport model="None"/>
+  </phase>
+
+  <!-- phase diamond     -->
+  <phase dim="3" id="diamond">
+    <elementArray datasrc="elements.xml">H C</elementArray>
+    <speciesArray datasrc="#species_data">C(d)</speciesArray>
+    <thermo model="StoichSubstance">
+      <density units="g/cm3">3.52</density>
+    </thermo>
+    <transport model="None"/>
+    <kinetics model="none"/>
+  </phase>
+
+  <!-- phase diamond_100     -->
+  <phase dim="2" id="diamond_100">
+    <elementArray datasrc="elements.xml">H C </elementArray>
+    <speciesArray datasrc="#species_data">c6HH c6H* c6*H c6** c6HM c6HM* c6*M c6B</speciesArray>
+    <reactionArray datasrc="#reaction_data"/>
+    <state>
+      <temperature units="K">1200.0</temperature>
+      <coverages>c6H*:0.1, c6HH:0.9</coverages>
+    </state>
+    <thermo model="Surface">
+      <site_density units="mol/cm2">3e-09</site_density>
+    </thermo>
+    <kinetics model="Interface"/>
+    <transport model="None"/>
+    <phaseArray>gas diamond</phaseArray>
+  </phase>
+
+  <!-- species definitions     -->
+  <speciesData id="species_data">
+
+    <!-- species C(d)    -->
+    <species name="C(d)">
+      <atomArray>C:1 </atomArray>
+      <thermo>
+        <const_cp Tmax="5000.0" Tmin="100.0">
+           <t0 units="K">298.14999999999998</t0>
+           <h0 units="J/mol">0.0</h0>
+           <s0 units="J/mol/K">0.0</s0>
+           <cp0 units="J/mol/K">0.0</cp0>
+        </const_cp>
+      </thermo>
+    </species>
+
+    <!-- species c6H*    -->
+    <species name="c6H*">
+      <atomArray>H:1 </atomArray>
+      <thermo>
+        <const_cp Tmax="5000.0" Tmin="100.0">
+           <t0 units="K">298.14999999999998</t0>
+           <h0 units="kcal/mol">51.700000000000003</h0>
+           <s0 units="cal/mol/K">19.5</s0>
+           <cp0 units="J/mol/K">0.0</cp0>
+        </const_cp>
+      </thermo>
+    </species>
+
+    <!-- species c6*H    -->
+    <species name="c6*H">
+      <atomArray>H:1 </atomArray>
+      <thermo>
+        <const_cp Tmax="5000.0" Tmin="100.0">
+           <t0 units="K">298.14999999999998</t0>
+           <h0 units="kcal/mol">46.100000000000001</h0>
+           <s0 units="cal/mol/K">19.899999999999999</s0>
+           <cp0 units="J/mol/K">0.0</cp0>
+        </const_cp>
+      </thermo>
+    </species>
+
+    <!-- species c6HH    -->
+    <species name="c6HH">
+      <atomArray>H:2 </atomArray>
+      <thermo>
+        <const_cp Tmax="5000.0" Tmin="100.0">
+           <t0 units="K">298.14999999999998</t0>
+           <h0 units="kcal/mol">11.4</h0>
+           <s0 units="cal/mol/K">21.0</s0>
+           <cp0 units="J/mol/K">0.0</cp0>
+        </const_cp>
+      </thermo>
+    </species>
+
+    <!-- species c6HM    -->
+    <species name="c6HM">
+      <atomArray>H:4 C:1 </atomArray>
+      <thermo>
+        <const_cp Tmax="5000.0" Tmin="100.0">
+           <t0 units="K">298.14999999999998</t0>
+           <h0 units="kcal/mol">26.899999999999999</h0>
+           <s0 units="cal/mol/K">40.299999999999997</s0>
+           <cp0 units="J/mol/K">0.0</cp0>
+        </const_cp>
+      </thermo>
+    </species>
+
+    <!-- species c6HM*    -->
+    <species name="c6HM*">
+      <atomArray>H:3 C:1 </atomArray>
+      <thermo>
+        <const_cp Tmax="5000.0" Tmin="100.0">
+           <t0 units="K">298.14999999999998</t0>
+           <h0 units="kcal/mol">65.799999999999997</h0>
+           <s0 units="cal/mol/K">40.100000000000001</s0>
+           <cp0 units="J/mol/K">0.0</cp0>
+        </const_cp>
+      </thermo>
+    </species>
+
+    <!-- species c6*M    -->
+    <species name="c6*M">
+      <atomArray>H:3 C:1 </atomArray>
+      <thermo>
+        <const_cp Tmax="5000.0" Tmin="100.0">
+           <t0 units="K">298.14999999999998</t0>
+           <h0 units="kcal/mol">53.299999999999997</h0>
+           <s0 units="cal/mol/K">38.899999999999999</s0>
+           <cp0 units="J/mol/K">0.0</cp0>
+        </const_cp>
+      </thermo>
+    </species>
+
+    <!-- species c6**    -->
+    <species name="c6**">
+      <atomArray>C:0 </atomArray>
+      <thermo>
+        <const_cp Tmax="5000.0" Tmin="100.0">
+           <t0 units="K">298.14999999999998</t0>
+           <h0 units="kcal/mol">90.0</h0>
+           <s0 units="cal/mol/K">18.399999999999999</s0>
+           <cp0 units="J/mol/K">0.0</cp0>
+        </const_cp>
+      </thermo>
+    </species>
+
+    <!-- species c6B    -->
+    <species name="c6B">
+      <atomArray>H:2 C:1 </atomArray>
+      <thermo>
+        <const_cp Tmax="5000.0" Tmin="100.0">
+           <t0 units="K">298.14999999999998</t0>
+           <h0 units="kcal/mol">40.899999999999999</h0>
+           <s0 units="cal/mol/K">26.899999999999999</s0>
+           <cp0 units="J/mol/K">0.0</cp0>
+        </const_cp>
+      </thermo>
+    </species>
+  </speciesData>
+  <reactionData id="reaction_data">
+
+    <!-- reaction 0001    -->
+    <reaction reversible="yes" type="surface" id="0001">
+      <equation>c6HH + H   [=] c6H* + H2</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>1.300000E+11</A>
+           <b>0.0</b>
+           <E units="kcal/mol">7.300000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>H:1 c6HH:1.0</reactants>
+      <products>H2:1 c6H*:1.0</products>
+    </reaction>
+
+    <!-- reaction 0002    -->
+    <reaction reversible="yes" type="surface" id="0002">
+      <equation>c6H* + H   [=] c6HH</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>1.000000E+10</A>
+           <b>0.0</b>
+           <E units="kcal/mol">0.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>c6H*:1.0 H:1</reactants>
+      <products>c6HH:1.0</products>
+    </reaction>
+
+    <!-- reaction 0003    -->
+    <reaction reversible="yes" type="surface" id="0003">
+      <equation>c6H* + CH3 [=] c6HM</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>5.000000E+09</A>
+           <b>0.0</b>
+           <E units="kcal/mol">0.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>c6H*:1.0 CH3:1</reactants>
+      <products>c6HM:1.0</products>
+    </reaction>
+
+    <!-- reaction 0004    -->
+    <reaction reversible="yes" type="surface" id="0004">
+      <equation>c6HM + H   [=] c6*M + H2</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>1.300000E+11</A>
+           <b>0.0</b>
+           <E units="kcal/mol">7.300000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>H:1 c6HM:1.0</reactants>
+      <products>H2:1 c6*M:1.0</products>
+    </reaction>
+
+    <!-- reaction 0005    -->
+    <reaction reversible="yes" type="surface" id="0005">
+      <equation>c6*M + H   [=] c6HM</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>1.000000E+10</A>
+           <b>0.0</b>
+           <E units="kcal/mol">0.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>H:1 c6*M:1.0</reactants>
+      <products>c6HM:1.0</products>
+    </reaction>
+
+    <!-- reaction 0006    -->
+    <reaction reversible="yes" type="surface" id="0006">
+      <equation>c6HM + H   [=] c6HM* + H2</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>2.800000E+04</A>
+           <b>0.0</b>
+           <E units="kcal/mol">7.700000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>H:1 c6HM:1.0</reactants>
+      <products>H2:1 c6HM*:1.0</products>
+    </reaction>
+
+    <!-- reaction 0007    -->
+    <reaction reversible="yes" type="surface" id="0007">
+      <equation>c6HM* + H  [=] c6HM</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>1.000000E+10</A>
+           <b>0.0</b>
+           <E units="kcal/mol">0.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>c6HM*:1.0 H:1</reactants>
+      <products>c6HM:1.0</products>
+    </reaction>
+
+    <!-- reaction 0008    -->
+    <reaction reversible="yes" type="surface" id="0008">
+      <equation>c6HM*      [=] c6*M</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>1.000000E+08</A>
+           <b>0.0</b>
+           <E units="kcal/mol">0.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>c6HM*:1.0</reactants>
+      <products>c6*M:1.0</products>
+    </reaction>
+
+    <!-- reaction 0009    -->
+    <reaction reversible="yes" type="surface" id="0009">
+      <equation>c6HM* + H  [=] c6H* + CH3</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>3.000000E+10</A>
+           <b>0.0</b>
+           <E units="kcal/mol">0.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>c6HM*:1.0 H:1</reactants>
+      <products>c6H*:1.0 CH3:1</products>
+    </reaction>
+
+    <!-- reaction 0010    -->
+    <reaction reversible="yes" type="surface" id="0010">
+      <equation>c6HM* + H  [=] c6B + H2</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>1.300000E+11</A>
+           <b>0.0</b>
+           <E units="kcal/mol">7.300000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>c6HM*:1.0 H:1</reactants>
+      <products>H2:1 c6B:1.0</products>
+    </reaction>
+
+    <!-- reaction 0011    -->
+    <reaction reversible="yes" type="surface" id="0011">
+      <equation>c6*M + H   [=] c6B + H2</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>2.800000E+04</A>
+           <b>2.0</b>
+           <E units="kcal/mol">7.700000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>H:1 c6*M:1.0</reactants>
+      <products>H2:1 c6B:1.0</products>
+    </reaction>
+
+    <!-- reaction 0012    -->
+    <reaction reversible="yes" type="surface" id="0012">
+      <equation>c6HH + H   [=] c6*H + H2</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>1.300000E+11</A>
+           <b>0.0</b>
+           <E units="kcal/mol">7.300000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>H:1 c6HH:1.0</reactants>
+      <products>H2:1 c6*H:1.0</products>
+    </reaction>
+
+    <!-- reaction 0013    -->
+    <reaction reversible="yes" type="surface" id="0013">
+      <equation>c6*H + H   [=] c6HH</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>1.000000E+10</A>
+           <b>0.0</b>
+           <E units="kcal/mol">0.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>c6*H:1.0 H:1</reactants>
+      <products>c6HH:1.0</products>
+    </reaction>
+
+    <!-- reaction 0014    -->
+    <reaction reversible="yes" type="surface" id="0014">
+      <equation>c6H* + H   [=] c6** + H2</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>1.300000E+11</A>
+           <b>0.0</b>
+           <E units="kcal/mol">7.300000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>c6H*:1.0 H:1</reactants>
+      <products>H2:1 c6**:1.0</products>
+    </reaction>
+
+    <!-- reaction 0015    -->
+    <reaction reversible="yes" type="surface" id="0015">
+      <equation>c6** + H   [=] c6H*</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>1.000000E+10</A>
+           <b>0.0</b>
+           <E units="kcal/mol">0.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>H:1 c6**:1.0</reactants>
+      <products>c6H*:1.0</products>
+    </reaction>
+
+    <!-- reaction 0016    -->
+    <reaction reversible="yes" type="surface" id="0016">
+      <equation>c6*H + H   [=] c6** + H2</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>4.500000E+03</A>
+           <b>2.0</b>
+           <E units="kcal/mol">5.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>c6*H:1.0 H:1</reactants>
+      <products>H2:1 c6**:1.0</products>
+    </reaction>
+
+    <!-- reaction 0017    -->
+    <reaction reversible="yes" type="surface" id="0017">
+      <equation>c6** + H   [=] c6*H</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>1.000000E+10</A>
+           <b>0.0</b>
+           <E units="kcal/mol">0.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>H:1 c6**:1.0</reactants>
+      <products>c6*H:1.0</products>
+    </reaction>
+
+    <!-- reaction 0018    -->
+    <reaction reversible="yes" type="surface" id="0018">
+      <equation>c6** + CH3 [=] c6*M</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>5.000000E+09</A>
+           <b>0.0</b>
+           <E units="kcal/mol">0.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>CH3:1 c6**:1.0</reactants>
+      <products>c6*M:1.0</products>
+    </reaction>
+
+    <!-- reaction 0019    -->
+    <reaction reversible="yes" type="surface" id="0019">
+      <equation>c6H*       [=] c6*H</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>1.000000E+08</A>
+           <b>0.0</b>
+           <E units="kcal/mol">0.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>c6H*:1.0</reactants>
+      <products>c6*H:1.0</products>
+    </reaction>
+
+    <!-- reaction 0020    -->
+    <reaction reversible="yes" type="surface" id="0020">
+      <equation>c6B       [=] c6HH + C(d)</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>1.000000E+09</A>
+           <b>0.0</b>
+           <E units="kcal/mol">0.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>c6B:1.0</reactants>
+      <products>C(d):1 c6HH:1.0</products>
+    </reaction>
+  </reactionData>
+</ctml>

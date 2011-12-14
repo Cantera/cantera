@@ -1,0 +1,83 @@
+#/bin/sh
+#
+# $Source: /cvsroot/cantera/cantera/ext/f2c_recipes/Makefile.in,v $
+# $Author: hkmoffa $
+# $Revision: 1.5 $
+# $Date: 2008/12/30 21:49:42 $
+#
+
+.SUFFIXES :
+.SUFFIXES : .c .d .o
+
+do_ranlib = @DO_RANLIB@
+
+PURIFY=@PURIFY@
+
+# the directory where the Cantera libraries are located
+CANTERA_LIBDIR=@buildlib@
+
+# the directory where Cantera include files may be found.
+CANTERA_INCDIR=@ctroot@/build/include/cantera
+
+# the C++ compiler
+CXX = @CXX@
+
+# the C compiler
+CC = @CC@
+
+# C++ compile flags
+PIC_FLAG=@PIC@
+CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT) $(PIC_FLAG)
+
+# Local include files
+CXX_INCLUDES=-I../f2c_libs
+
+# How to compile the dependency file
+.c.d:
+	@CXX_DEPENDS@  $(CXX_FLAGS) $(CXX_INCLUDES) $*.c > $*.d
+
+# How to compile a C file
+.c.o:
+	$(PURIFY) @CC@ -c $< @DEFS@ $(CXX_FLAGS) $(CXX_INCLUDES)
+
+# -----------------------------------------------
+
+LIB = $(CANTERA_LIBDIR)/librecipes.a
+
+all:  $(LIB)
+
+# list of object files
+OBJS = simp1.o simp2.o simp3.o simplx.o splint.o \
+       splie2.o spline.o splin2.o
+
+# list of source files
+SRCS = $(OBJS:.o=.c)
+
+# List of dependency files to be created
+DEPENDS=$(OBJS:.o=.d)
+
+# rule to make library
+$(LIB): $(OBJS)
+	@ARCHIVE@ $(LIB) $(OBJS) > /dev/null
+ifeq ($(do_ranlib),1)
+	@RANLIB@ $(LIB)
+endif
+
+# ------------------------------------------------
+# Utility Targets
+
+clean:
+	$(RM) $(OBJS) $(LIB) *.d .depends
+
+# depends target
+depends:
+	$(RM) *.d .depends
+	@MAKE@ .depends
+
+.depends: $(DEPENDS)
+	cat *.d > .depends
+
+
+ifeq ($(wildcard .depends), .depends)
+include .depends
+endif

@@ -1,0 +1,15 @@
+#!/bin/sh
+
+
+run:
+	$(PYTHON_CMD) reactor1.py
+
+test:
+	./runtest
+
+
+clean:
+	./cleanup
+
+# end of file
+

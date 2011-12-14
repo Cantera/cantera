@@ -1,0 +1,15 @@
+This example program solves the Blasius boundary value problem for the
+velocity profile of a laminar boundary layer over a flat plate. It
+uses class BoundaryValueProblem, which provides a simplified interface
+to the boundary value problem capabilities of Cantera.
+
+To build this example, type "ctnew" to generate a demo c++ program and
+a makefile (demo.mak) that is correctly configured for your Cantera
+installation. It it is not on your path, you can find the ctnew script
+in the "bin" directory of your Cantera installation directory. 
+
+First make sure the Cantera demo works by typing "make -f demo.mak",
+then "./demo". Assuming this works, now edit demo.mak and change the
+line "OBJS = demo.o" to "OBJS = blasius.o". You can optionally change
+the program name too. Now when you rebuild the executable and run it,
+it will solve the blasius boundary layer problem.

@@ -1,0 +1,27 @@
+#!/bin/sh
+
+INST_DIR=@ct_demodir@/python/flames/free_h2_air
+
+PYTHON_CMD = @PYTHON_CMD@
+
+run:
+	$(PYTHON_CMD) free_h2_air.py 
+
+test:
+	./runtest
+
+install:
+	@INSTALL@ -d  $(INST_DIR)
+	@INSTALL@ -c -m ug+rw,o+r Makefile $(INST_DIR)
+	@INSTALL@ -c -m ug+rw,o+r free_h2_air.py $(INST_DIR)
+	@INSTALL@ -c   runtest $(INST_DIR)
+	@INSTALL@ -c   cleanup $(INST_DIR)
+	@INSTALL@ -c -m ug+rw,o+r output_blessed_0.txt    $(INST_DIR)
+	@INSTALL@ -c -m ug+rw,o+r freeflame1_blessed_0.csv $(INST_DIR)
+
+clean:
+	rm -f *.log output_0.txt freeflame1.csv  freeflame1.xml 
+	./cleanup
+
+# end of file
+

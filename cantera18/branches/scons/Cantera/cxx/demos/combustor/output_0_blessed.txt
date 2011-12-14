@@ -1,0 +1,6 @@
+Adding reactor (none)
+Initializing reactor network.
+Reactor 0: 55 variables.
+            0 sensitivity params.
+Number of equations: 55
+Maximum time step:                6

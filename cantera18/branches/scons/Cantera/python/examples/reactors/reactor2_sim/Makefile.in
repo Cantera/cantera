@@ -1,0 +1,30 @@
+#!/bin/sh
+
+INST_DIR=@ct_demodir@/python/reactors/reactor2_sim
+
+
+PYTHON_CMD = @PYTHON_CMD@
+
+all:
+	
+run:
+	$(PYTHON_CMD) combustor.py
+
+test:
+	./runtest
+
+
+install:
+	@INSTALL@ -d  $(INST_DIR)
+	@INSTALL@ -c -m ug+rw,o+r Makefile      $(INST_DIR)
+	@INSTALL@ -c -m ug+rw,o+r reactor2.py   $(INST_DIR)
+	@INSTALL@ -c   runtest $(INST_DIR)
+	@INSTALL@ -c   cleanup $(INST_DIR)
+	@INSTALL@ -c -m ug+rw,o+r output_blessed_0.txt    $(INST_DIR)
+	@INSTALL@ -c -m ug+rw,o+r  piston_blessed_0.csv   $(INST_DIR)
+
+clean:
+	./cleanup
+
+# end of file
+
