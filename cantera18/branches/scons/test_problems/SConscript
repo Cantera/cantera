@@ -165,12 +165,12 @@ CompileAndTest('ChemEquil_ionizedGas', 'ionizedGasEquil',
                'output_blessed.txt',
                comparisons=[('table_blessed.csv', 'table.csv')])
 CompileAndTest('ChemEquil_red1', 'basopt_red1', 'output_blessed.txt')
-Test('ck2cti_test', 'ck2cti-gri30', '#build/bin/ck2cti', None,
+Test('ck2cti_test', 'ck2cti-gri30', '#build/bin/ck2cti$PROGSUFFIX', None,
      options='-i gri30.inp -id gri30 -tr gri30_tran.dat',
      comparisons=[('gri30a_blessed.cti','gri30.cti')],
      ignoreLines=['#'],
      artifacts=['ck2cti.log'])
-Test('ck2cti_test', 'ck2cti-soot', '#build/bin/ck2cti', None,
+Test('ck2cti_test', 'ck2cti-soot', '#build/bin/ck2cti$PROGSUFFIX', None,
      options='-i soot.inp -id soot -t therm_soot.dat',
      comparisons=[('soot_blessed.cti', 'soot.cti')],
      ignoreLines=['#'],
@@ -197,7 +197,7 @@ CompileAndTest(pjoin('min_python', 'negATest'),
 CompileAndTest('mixGasTransport', 'mixGasTransport', 'output_blessed.txt')
 CompileAndTest('multiGasTransport', 'multiGasTransport', 'output_blessed.txt')
 CompileAndTest('NASA9poly_test', 'NASA9poly_test', 'output_blessed.txt')
-Test('nasa9_reader', 'nasa9_reader', '#build/bin/ck2cti', None,
+Test('nasa9_reader', 'nasa9_reader', '#build/bin/ck2cti$PROGSUFFIX', None,
      options='-i sample.inp -id sample -t sampleData.inp',
      comparisons=[('sample_blessed.cti', 'sample.cti')],
      ignoreLines=['#'],
