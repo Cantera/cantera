@@ -256,28 +256,6 @@ def add_RegressionTest(env):
         action=env.Action(regression_test, regression_test_message))
 
 
-class CopyNoPrefix(object):
-    """
-    Copy a file, ignoring leading directories that are part
-    of 'prefix' (e.g. the variant directory)
-    """
-    def __init__(self, prefix):
-        self.prefix = prefix
-
-    def __call__(self, source, target, env):
-        sourcepath = psplit(str(source[0]))
-        targetpath = psplit(str(target[0]))
-
-        depth = 0
-        for a,b in zip(targetpath, psplit(self.prefix)):
-            if a == b:
-                depth += 1
-            else:
-                break
-        print str(source[0]), pjoin(*targetpath[depth:])
-        shutil.copyfile(str(source[0]), pjoin(*targetpath[depth:]))
-
-
 def quoted(s):
     """ Returns the given string wrapped in double quotes."""
     return '"%s"' % s

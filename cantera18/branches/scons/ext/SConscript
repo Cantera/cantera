@@ -21,12 +21,15 @@ if env['build_with_f2c']:
         # TODO: make link flag more general
         arithenv.Append(LINKFLAGS='-lm', CPPFLAGS='-DNO_FPINIT')
         arithenv.Program('f2c_libs/arithchk/arithchk', source='f2c_libs/arithchk/arithchk.c')
-        arithenv.Command('arith.h', 'f2c_libs/arithchk/arithchk', '$SOURCE > $TARGET')
-        arithenv.Command('f2c_libs/arith.h', 'arith.h', CopyNoPrefix(buildDir))
+        arithenv.Command('#ext/f2c_libs/arith.h', 'f2c_libs/arithchk/arithchk$PROGSUFFIX',
+                         '$SOURCE > $TARGET')
 
     # Possibly system-depenent headers
-    localenv.Command('f2c_libs/signal1.h', 'f2c_libs/signal1.h0', CopyNoPrefix(buildDir))
-    localenv.Command('f2c_libs/sysdep1.h', 'f2c_libs/sysdep1.h0', CopyNoPrefix(buildDir))
+    localenv.Command('#ext/f2c_libs/signal1.h', 'f2c_libs/signal1.h0',
+                     Copy('$TARGET', '$SOURCE'))
+
+    localenv.Command('#ext/f2c_libs/sysdep1.h', 'f2c_libs/sysdep1.h0',
+                     Copy('$TARGET', '$SOURCE'))
 
     libs.append(('f2c_libs', 'ctf2c', 'c'))
 
