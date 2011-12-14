@@ -1,38 +1,54 @@
+
 /** 
- * @file Tortuosity.h
- * Class to compute the increase in diffusive path length associated with 
- * tortuous path diffusion through, for example, porous media.
+ * @file TortuosityBruggeman.h
+ *  Class to compute the increase in diffusive path length in porous media
+ *  assuming the Bruggeman exponent relation
  */
+
+/*
+ * Copywrite (2005) Sandia Corporation. Under the terms of
+ * Contract DE-AC04-94AL85000 with Sandia Corporation, the
+ * U.S. Government retains certain rights in this software.
+ */
+
+/* 
+ * $Revision: 572 $
+ * $Date: 2010-08-13 20:21:57 -0600 (Fri, 13 Aug 2010) $
+ */
+#ifndef CT_TORTUOSITYBRUGGEMAN_H
+#define CT_TORTUOSITYBRUGGEMAN_H
+
 
 namespace Cantera {
 
-/**
- * Class to compute the increase in diffusive path length associated with 
- * tortuous path diffusion through, for example, porous media.
- * This base class implementation relates tortuosity to volume fraction
- * through a power-law relationship that goes back to Bruggemann.  The 
- * exponent is referred to as the Bruggemann exponent.
- * 
- * Note that the total diffusional flux is generally written as 
- * 
- * \f[ 
- *   \frac{ \phi C_T D_i \nabla X_i }{ \tau^2 } 
- * \f]
- * 
- * where \f$ \phi \f$ is the volume fraction of the transported phase,
- * \f$ \tau \f$ is referred to as the tortuosity.  (Other variables are 
- * \f$ C_T \f$, the total concentration, \f$ D_i \f$, the diffusion 
- * coefficient, and \f$ X_i \f$, the mole fraction with Fickian 
- * transport assumed.)
- *
- * The tortuosity comes into play in conjunction the the 
-
- */
-  class Tortuosity {
+  //! Specific Class to handle tortuosity corrections for diffusive transport
+  //! in porous media using the Bruggeman exponent
+  /*!
+   * Class to compute the increase in diffusive path length associated with 
+   * tortuous path diffusion through, for example, porous media.
+   * This base class implementation relates tortuosity to volume fraction
+   * through a power-law relationship that goes back to Bruggemann.  The 
+   * exponent is referred to as the Bruggemann exponent.
+   * 
+   * Note that the total diffusional flux is generally written as 
+   * 
+   * \f[ 
+   *   \frac{ \phi C_T D_i \nabla X_i }{ \tau^2 } 
+   * \f]
+   * 
+   * where \f$ \phi \f$ is the volume fraction of the transported phase,
+   * \f$ \tau \f$ is referred to as the tortuosity.  (Other variables are 
+   * \f$ C_T \f$, the total concentration, \f$ D_i \f$, the diffusion 
+   * coefficient, and \f$ X_i \f$, the mole fraction with Fickian 
+   * transport assumed.)
+   *
+   * The tortuosity comes into play in conjunction the the 
+   */
+  class TortuosityBruggeman {
     
   public: 
     //! Default constructor uses Bruggemann exponent of 1.5 
-    Tortuosity( double setPower = 1.5 ) : expBrug_(setPower) {
+    TortuosityBruggeman(double setPower = 1.5 ) : expBrug_(setPower) {
     }
     
     //! The tortuosity factor models the effective increase in the
