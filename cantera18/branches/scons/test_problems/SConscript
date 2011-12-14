@@ -6,192 +6,212 @@ localenv = env.Clone()
 os.environ['PYTHONPATH'] = pjoin(os.getcwd(), '..','Cantera','python')
 
 class Test(object):
-    def __init__(self, subdir, programName,
-                 blessedName, arguments=(), options='',
-                 extensions=('cpp',), artifacts=(),
-                 comparisons=(), tolerance=1e-5, threshold=1e-14):
+    def __init__(self, subdir, testName, programName, blessedName, **kwargs):
+        assert set(kwargs.keys()) <= set(['arguments', 'options', 'artifacts',
+                                          'comparisons', 'tolerance', 'threshold',
+                                          'ignoreLines', 'extensions']), kwargs.keys()
         self.subdir = subdir
         self.programName = programName
+        arguments = kwargs.get('arguments') or []
         if isinstance(arguments, str):
             arguments = [arguments]
         self.arguments = arguments # file arguments
-        self.options = options
+        self.options = kwargs.get('options') or ''
         self.blessedName = blessedName
-        self.extensions = extensions
-        self.artifacts = artifacts
-        self.passedFile = '.passed-%s-%s' % (programName, blessedName)
-        self.comparisons = comparisons
-        self.tolerance = tolerance # error tolerance for CSV comparison
-        self.threshold = threshold # error threshold for CSV comparison
+        self.artifacts = kwargs.get('artifacts') or ()
+        self.comparisons = kwargs.get('comparisons') or ()
+        self.tolerance = kwargs.get('tolerance') or 1e-5 # error tolerance for CSV comparison
+        self.threshold = kwargs.get('threshold') or 1e-14 # error threshold for CSV comparison
+
+        # ignore lines starting with specified strings when comparing output files
+        self.ignoreLines = kwargs.get('ignoreLines') or []
+
+        self.testName = testName
+        self.passedFile = '.passed-%s' % testName
+
+        localenv.Alias('test', self.run(localenv))
+        localenv.Alias('test-clean', self.clean(localenv))
+
+    def run(self, env, *args):
+        source = list(args)
+        if not source:
+            source.append(self.programName)
+
+        source.extend(pjoin(self.subdir, arg) for arg in self.arguments)
+
+        test = env.RegressionTest(pjoin(self.subdir, self.passedFile), source,
+                                  active_test_name=self.testName,
+                                  test_blessed_file=self.blessedName,
+                                  test_command_options=self.options,
+                                  test_comparisons=self.comparisons,
+                                  test_csv_threshold=self.threshold,
+                                  test_csv_tolerance=self.tolerance,
+                                  test_ignoreLines=self.ignoreLines)
+        return test
+
+    def clean(self, env, **kwargs):
+        # Name used for the output file
+        if self.blessedName is not None and 'blessed' in self.blessedName:
+            outName = self.blessedName.replace('blessed', 'output')
+        else:
+            outName = 'test_output.txt'
+
+        files = kwargs.get('files') or []
+        files += [self.passedFile,
+                  'ct2ctml.log',
+                  outName]
+        files += list(self.artifacts)
+        files = [pjoin(os.getcwd(), self.subdir, name) for name in files]
+
+        target = env.Command('clean-'+self.testName, [],
+                             [Delete(f) for f in files
+                              if os.path.exists(f)])
+        return target
+
+class CompileAndTest(Test):
+    def __init__(self, subdir, programName, blessedName, **kwargs):
+        testName = '%s-%s' % (programName, blessedName)
+        self.extensions = kwargs.get('extensions') or ('cpp',)
+        Test.__init__(self, subdir, testName, programName, blessedName, **kwargs)
 
     def run(self, env):
         prog = env.Program(pjoin(self.subdir, self.programName),
                            mglob(env, self.subdir, *self.extensions),
                                 LIBS=env['cantera_libs'])
-        arguments = [pjoin(self.subdir, arg) for arg in self.arguments]
-        source = [prog, pjoin(self.subdir, self.blessedName)] + arguments
-        test = env.RegressionTest(pjoin(self.subdir, self.passedFile), source,
-                                  test_command_options=self.options,
-                                  test_comparisons=self.comparisons,
-                                  test_csv_threshold=self.threshold,
-                                  test_csv_tolerance=self.tolerance)
-
-        return test
+        source = [prog]
+        return Test.run(self, env, *source)
 
     def clean(self, env):
-        # Name used for the output file
-        if 'blessed' in self.blessedName:
-            outName = self.blessedName.replace('blessed', 'output')
-        else:
-            outName = 'test_output.txt'
-
         files = [self.programName,
-                 self.programName + '.o',
-                 self.passedFile,
-                 'ct2ctml.log',
-                 outName]
-        files += list(self.artifacts)
-        files = [pjoin(os.getcwd(), self.subdir, name) for name in files]
-        files = [f for f in files if os.path.exists(f)]
+                 self.programName + '.o']
+        return Test.clean(self, env, files=files)
 
-        target = env.Command('clean-'+self.programName, [],
-                             [Delete(f) for f in files])
-        return target
 
-tests = [Test(pjoin('cathermo', 'DH_graph_1'),
-              'DH_graph_1',
-              'DH_NaCl_dilute_blessed.csv',
-              artifacts=['DH_graph_1.log'],
-              arguments='DH_NaCl_dilute.xml'),
-         Test(pjoin('cathermo', 'DH_graph_acommon'),
-              'DH_graph_acommon',
-              'DH_NaCl_acommon_blessed.csv',
-              artifacts=['DH_graph_1.log'],
-              arguments='DH_NaCl_acommon.xml'),
-         Test(pjoin('cathermo', 'DH_graph_bdotak'),
-              'DH_graph_bdotak',
-              'DH_NaCl_bdotak_blessed.csv',
-              artifacts=['DH_graph_1.log'],
-              arguments='DH_NaCl_bdotak.xml'),
-         Test(pjoin('cathermo', 'DH_graph_NM'),
-              'DH_graph_NM',
-              'DH_NaCl_NM_blessed.csv',
-              artifacts=['DH_graph_1.log'],
-              arguments='DH_NaCl_NM.xml'),
-         Test(pjoin('cathermo', 'DH_graph_Pitzer'),
-              'DH_graph_Pitzer',
-              'DH_NaCl_Pitzer_blessed.csv',
-              artifacts=['DH_graph_1.log'],
-              arguments='DH_NaCl_Pitzer.xml'),
-         Test(pjoin('cathermo', 'HMW_dupl_test'),
-              'HMW_dupl_test',
-              'output_blessed.txt',
-              artifacts=['DH_graph_1.log'],
-              arguments='HMW_NaCl_sp1977_alt.xml'),
-         Test(pjoin('cathermo', 'HMW_graph_CpvT'),
-              'HMW_graph_CpvT',
-              'output_blessed.txt',
-              extensions=['^HMW_graph_CpvT.cpp', '^sortAlgorithms.cpp'],
-              arguments='HMW_NaCl_sp1977_alt.xml'),
-         # Skipping cathermo/HMW_graph_GvI because of the way it generates output files.
-         Test(pjoin('cathermo', 'HMW_graph_GvT'),
-              'HMW_graph_GvT',
-              'output_blessed.txt',
-              extensions=['^HMW_graph_GvT.cpp', '^sortAlgorithms.cpp'],
-              arguments='HMW_NaCl_sp1977_alt.xml'),
-         Test(pjoin('cathermo', 'HMW_graph_HvT'),
-              'HMW_graph_HvT',
-              'output_blessed.txt',
-              extensions=['^HMW_graph_HvT.cpp', '^sortAlgorithms.cpp'],
-              arguments='HMW_NaCl_sp1977_alt.xml'),
-         Test(pjoin('cathermo', 'HMW_graph_VvT'),
-              'HMW_graph_VvT',
-              'output_blessed.txt',
-              extensions=['^HMW_graph_VvT.cpp', '^sortAlgorithms.cpp'],
-              arguments='HMW_NaCl_sp1977_alt.xml'),
-         Test(pjoin('cathermo', 'HMW_test_1'),
-              'HMW_test_1',
-              'output_noD_blessed.txt'),
-         Test(pjoin('cathermo', 'HMW_test_3'),
-              'HMW_test_3',
-              'output_noD_blessed.txt'),
-         Test(pjoin('cathermo', 'ims'),
-              'IMSTester',
-              'output_blessed.txt'),
-         Test(pjoin('cathermo', 'issp'),
-              'ISSPTester',
-              'output_blessed.txt'),
-         Test(pjoin('cathermo', 'stoichSubSSTP'),
-              'stoichSubSSTP',
-              'output_blessed.txt'),
-         Test(pjoin('cathermo', 'testIAPWS'),
-              'testIAPWSphi',
-              'output_blessed.txt'),
-         Test(pjoin('cathermo', 'testIAPWSPres'),
-              'testIAPWSPres',
-              'output_blessed.txt'),
-         Test(pjoin('cathermo', 'testIAPWSTripP'),
-              'testIAPWSTripP',
-              'output_blessed.txt'),
-         Test(pjoin('cathermo', 'testWaterPDSS'),
-              'testWaterPDSS',
-              'output_blessed.txt'),
-         Test(pjoin('cathermo', 'testWaterTP'),
-              'testWaterSSTP',
-              'output_blessed.txt'),
-         Test(pjoin('cathermo', 'VPissp'),
-              'ISSPTester2',
-              'output_blessed.txt'),
-         Test(pjoin('cathermo', 'wtWater'),
-              'wtWater',
-              'output_blessed.txt'),
-         Test('ChemEquil_gri_matrix', 'gri_matrix', 'output_blessed.txt'),
-         Test('ChemEquil_gri_pairs', 'gri_pairs', 'output_blessed.txt'),
-         Test('ChemEquil_ionizedGas', 'ionizedGasEquil',
-              'output_blessed.txt',
-              artifacts=['table.csv'],
-              comparisons=[('table_blessed.csv', 'table.csv')]),
-         Test('ChemEquil_red1', 'basopt_red1', 'output_blessed.txt'),
-         # Skipping ck2cti_test because of automatically generated file
-         Test('CpJump', 'CpJump', 'output_blessed.txt'),
-         Test('cxx_ex', 'cxx_examples', 'output_blessed.txt',
-              comparisons=[('eq1_blessed.csv', 'eq1.csv'),
-                           ('kin1_blessed.csv', 'kin1.csv'),
-                           ('kin2_blessed.csv', 'kin2.csv'),
-                           ('tr1_blessed.csv', 'tr1.csv'),
-                           ('tr2_blessed.csv', 'tr2.csv')],
-              tolerance=2e-3,
-              threshold=1e-7,
-              artifacts=['eq1.csv', 'eq1.dat', 'kin1.csv', 'kin1.dat',
-                         'kin2.csv', 'kin2.dat', 'kin3.csv', 'kin3.dat',
-                         'tr1.csv', 'tr1.dat', 'tr2.csv', 'tr2.dat']),
-         Test('diamondSurf', 'runDiamond', 'runDiamond_blessed.out'),
-         Test('fracCoeff', 'fracCoeff', 'frac_blessed.out'),
-         # skipping min_python
-         Test('mixGasTransport', 'mixGasTransport', 'output_blessed.txt'),
-         Test('multiGasTransport', 'multiGasTransport', 'output_blessed.txt'),
-         Test('NASA9poly_test', 'NASA9poly_test', 'output_blessed.txt'),
-         # skipping nasa9_reader because of automatically generated file
-         Test('negATest', 'negATest', 'negATest_blessed.out'),
-         Test('printUtilUnitTest', 'pUtest', 'output_blessed.txt'),
-         Test('pureFluidTest', 'testPureWater', 'output_blessed.txt'),
-         # skipping python
-         Test('rankine_democxx', 'rankine', 'output_blessed.txt',
-              artifacts=['liquidvapor.xml']),
-         Test('silane_equil', 'silane_equi', 'output_blessed.txt'),
-         # spectroscopy is incomplete
-         Test('surfkin', 'surfdemo', 'output_blessed.txt'),
-         Test('surfSolverTest', 'surfaceSolver',
-              'surfaceSolver_blessed.out',
-              arguments='haca2.xml',
-              artifacts=['results.txt', 'diamond.xml'],
-              extensions=['^surfaceSolver.cpp']), # needs .csv, extra tests
-         Test(pjoin('VCSnonideal', 'NaCl_equil'),
-              'nacl_equil', 'good_out.txt',
-              options='-d 3',
-              artifacts=['vcs_equilibrate_res.csv']), # not testing this file because it's not really csv
-         Test('VPsilane_test', 'VPsilane_test', 'output_blessed.txt')
-         ]
-
-env.Alias('test', [test.run(localenv) for test in tests])
-env.Alias('test-clean', sum([test.clean(localenv) for test in tests], []))
+CompileAndTest(pjoin('cathermo', 'DH_graph_1'),
+               'DH_graph_1', 'DH_NaCl_dilute_blessed.csv',
+               artifacts=['DH_graph_1.log'],
+               arguments='DH_NaCl_dilute.xml')
+CompileAndTest(pjoin('cathermo', 'DH_graph_acommon'),
+               'DH_graph_acommon', 'DH_NaCl_acommon_blessed.csv',
+               artifacts=['DH_graph_1.log'],
+               arguments='DH_NaCl_acommon.xml')
+CompileAndTest(pjoin('cathermo', 'DH_graph_bdotak'),
+               'DH_graph_bdotak', 'DH_NaCl_bdotak_blessed.csv',
+               artifacts=['DH_graph_1.log'],
+               arguments='DH_NaCl_bdotak.xml')
+CompileAndTest(pjoin('cathermo', 'DH_graph_NM'),
+               'DH_graph_NM', 'DH_NaCl_NM_blessed.csv',
+               artifacts=['DH_graph_1.log'],
+               arguments='DH_NaCl_NM.xml')
+CompileAndTest(pjoin('cathermo', 'DH_graph_Pitzer'),
+               'DH_graph_Pitzer', 'DH_NaCl_Pitzer_blessed.csv',
+               artifacts=['DH_graph_1.log'],
+               arguments='DH_NaCl_Pitzer.xml')
+CompileAndTest(pjoin('cathermo', 'HMW_dupl_test'),
+               'HMW_dupl_test', 'output_blessed.txt',
+               artifacts=['DH_graph_1.log'],
+               arguments='HMW_NaCl_sp1977_alt.xml')
+CompileAndTest(pjoin('cathermo', 'HMW_graph_CpvT'),
+               'HMW_graph_CpvT', 'output_blessed.txt',
+               extensions=['^HMW_graph_CpvT.cpp', '^sortAlgorithms.cpp'],
+               arguments='HMW_NaCl_sp1977_alt.xml')
+CompileAndTest(pjoin('cathermo', 'HMW_graph_GvI'),
+               'HMW_graph_GvI', None,
+               comparisons=[('T298_blessed.csv', 'T298.csv'),
+                            ('T523_blessed.csv', 'T523.csv')],
+               artifacts=['T298.csv','T373.csv','T423.csv','T473.csv',
+                          'T548.csv','T523.csv','T573.csv'])
+CompileAndTest(pjoin('cathermo', 'HMW_graph_GvT'),
+               'HMW_graph_GvT', 'output_blessed.txt',
+               extensions=['^HMW_graph_GvT.cpp', '^sortAlgorithms.cpp'],
+               arguments='HMW_NaCl_sp1977_alt.xml')
+CompileAndTest(pjoin('cathermo', 'HMW_graph_HvT'),
+               'HMW_graph_HvT', 'output_blessed.txt',
+               extensions=['^HMW_graph_HvT.cpp', '^sortAlgorithms.cpp'],
+               arguments='HMW_NaCl_sp1977_alt.xml')
+CompileAndTest(pjoin('cathermo', 'HMW_graph_VvT'),
+               'HMW_graph_VvT', 'output_blessed.txt',
+               extensions=['^HMW_graph_VvT.cpp', '^sortAlgorithms.cpp'],
+               arguments='HMW_NaCl_sp1977_alt.xml')
+CompileAndTest(pjoin('cathermo', 'HMW_test_1'),
+               'HMW_test_1', 'output_noD_blessed.txt')
+CompileAndTest(pjoin('cathermo', 'HMW_test_3'),
+               'HMW_test_3', 'output_noD_blessed.txt')
+CompileAndTest(pjoin('cathermo', 'ims'),
+               'IMSTester', 'output_blessed.txt')
+CompileAndTest(pjoin('cathermo', 'issp'),
+               'ISSPTester', 'output_blessed.txt')
+CompileAndTest(pjoin('cathermo', 'stoichSubSSTP'),
+               'stoichSubSSTP', 'output_blessed.txt')
+CompileAndTest(pjoin('cathermo', 'testIAPWS'),
+               'testIAPWSphi', 'output_blessed.txt')
+CompileAndTest(pjoin('cathermo', 'testIAPWSPres'),
+               'testIAPWSPres', 'output_blessed.txt')
+CompileAndTest(pjoin('cathermo', 'testIAPWSTripP'),
+               'testIAPWSTripP', 'output_blessed.txt')
+CompileAndTest(pjoin('cathermo', 'testWaterPDSS'),
+               'testWaterPDSS', 'output_blessed.txt')
+CompileAndTest(pjoin('cathermo', 'testWaterTP'),
+               'testWaterSSTP', 'output_blessed.txt')
+CompileAndTest( pjoin('cathermo', 'VPissp'),
+                'ISSPTester2', 'output_blessed.txt')
+CompileAndTest(pjoin('cathermo', 'wtWater'),
+               'wtWater', 'output_blessed.txt')
+CompileAndTest('ChemEquil_gri_matrix', 'gri_matrix', 'output_blessed.txt')
+CompileAndTest('ChemEquil_gri_pairs', 'gri_pairs', 'output_blessed.txt')
+CompileAndTest('ChemEquil_ionizedGas', 'ionizedGasEquil',
+               'output_blessed.txt',
+               artifacts=['table.csv'],
+               comparisons=[('table_blessed.csv', 'table.csv')])
+CompileAndTest('ChemEquil_red1', 'basopt_red1', 'output_blessed.txt')
+Test('ck2cti_test', 'ck2cti-gri30', '#build/bin/ck2cti', None,
+     options='-i gri30.inp -id gri30 -tr gri30_tran.dat',
+     comparisons=[('gri30a_blessed.cti','gri30.cti')],
+     ignoreLines=['#'],
+     artifacts=['ck2cti.log', 'gri30.cti'])
+Test('ck2cti_test', 'ck2cti-soot', '#build/bin/ck2cti', None,
+     options='-i soot.inp -id soot -t therm_soot.dat',
+     comparisons=[('soot_blessed.cti', 'soot.cti')],
+     ignoreLines=['#'],
+     artifacts=['ck2cti.log', 'soot.cti'])
+CompileAndTest('CpJump', 'CpJump', 'output_blessed.txt')
+CompileAndTest('cxx_ex', 'cxx_examples', 'output_blessed.txt',
+               comparisons=[('eq1_blessed.csv', 'eq1.csv'),
+                            ('kin1_blessed.csv', 'kin1.csv'),
+                            ('kin2_blessed.csv', 'kin2.csv'),
+                            ('tr1_blessed.csv', 'tr1.csv'),
+                            ('tr2_blessed.csv', 'tr2.csv')],
+               tolerance=2e-3,
+               threshold=1e-7,
+               artifacts=['eq1.csv', 'eq1.dat', 'kin1.csv', 'kin1.dat',
+                          'kin2.csv', 'kin2.dat', 'kin3.csv', 'kin3.dat',
+                          'tr1.csv', 'tr1.dat', 'tr2.csv', 'tr2.dat'])
+CompileAndTest('diamondSurf', 'runDiamond', 'runDiamond_blessed.out')
+CompileAndTest('fracCoeff', 'fracCoeff', 'frac_blessed.out')
+# skipping min_python
+CompileAndTest('mixGasTransport', 'mixGasTransport', 'output_blessed.txt')
+CompileAndTest('multiGasTransport', 'multiGasTransport', 'output_blessed.txt')
+CompileAndTest('NASA9poly_test', 'NASA9poly_test', 'output_blessed.txt')
+Test('nasa9_reader', 'nasa9_reader', '#build/bin/ck2cti', None,
+     options='-i sample.inp -id sample -t sampleData.inp',
+     comparisons=[('sample_blessed.cti', 'sample.cti')],
+     ignoreLines=['#'],
+     artifacts=['ck2cti.log', 'sample.cti'])
+CompileAndTest('negATest', 'negATest', 'negATest_blessed.out')
+CompileAndTest('printUtilUnitTest', 'pUtest', 'output_blessed.txt')
+CompileAndTest('pureFluidTest', 'testPureWater', 'output_blessed.txt')
+# skipping python
+CompileAndTest('rankine_democxx', 'rankine', 'output_blessed.txt',
+               artifacts=['liquidvapor.xml'])
+CompileAndTest('silane_equil', 'silane_equi', 'output_blessed.txt')
+# spectroscopy is incomplete
+CompileAndTest('surfkin', 'surfdemo', 'output_blessed.txt')
+CompileAndTest('surfSolverTest', 'surfaceSolver', 'surfaceSolver_blessed.out',
+               arguments='haca2.xml',
+               artifacts=['results.txt', 'diamond.xml'],
+               extensions=['^surfaceSolver.cpp']) # needs .csv, extra tests
+CompileAndTest(pjoin('VCSnonideal', 'NaCl_equil'),
+               'nacl_equil', 'good_out.txt',
+               options='-d 3',
+               artifacts=['vcs_equilibrate_res.csv']), # not testing this file because it's not really csv
+CompileAndTest('VPsilane_test', 'VPsilane_test', 'output_blessed.txt')
