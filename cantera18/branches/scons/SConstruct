@@ -274,3 +274,6 @@ SConscript('Cantera/python/SConscript')
 
 if env['matlab_toolbox'] == 'y':
     SConscript('Cantera/matlab/SConscript')
+
+VariantDir('build/tools', 'tools', duplicate=0)
+SConscript('build/tools/SConscript')

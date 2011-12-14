@@ -63,7 +63,7 @@ class CopyNoPrefix(object):
         shutil.copyfile(str(source[0]), pjoin(*targetpath[depth:]))
 
 
-class LibOpts(object):
+class BuildOpts(object):
     def __init__(self, subdir, name, exts=('cpp',), **kwargs):
         self.subdir = subdir
         self.name = name

@@ -1,0 +1,18 @@
+from buildutils import *
+
+Import('env')
+localenv = env.Clone()
+
+bindir = pjoin('..','bin')
+
+localenv = env.Clone()
+localenv.Program(target=pjoin(bindir, 'cti2ctml'),
+                 source=['src/cti2ctml.cpp'],
+                 LIBS=['ctbase'])
+
+localenv.Program(target=pjoin(bindir, 'ck2cti'),
+                 source=['src/ck2cti.cpp'],
+                 LIBS=['converters','ctbase','tpx','ctcxx'])
+
+localenv.Program(target=pjoin(bindir, 'fixtext'),
+                 source=['src/fixtext.cpp'])
