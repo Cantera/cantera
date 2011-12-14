@@ -9,6 +9,11 @@ libs = [('tpx','tpx',['cpp'])]
 if env['build_with_f2c']:
     libs.append(('f2c_math', 'ctmath', ['cpp','c']))
 
+    if not localenv['HAS_TIMES_H']:
+        localenv.Append(CPPDEFINES=['USE_CLOCK'])
+    if not localenv['HAS_UNISTD_H']:
+        localenv.Append(CPPDEFINES=['MSDOS'])
+
     # Create arith.h using the arithchk program
     if not os.path.exists('arith.h'):
         arithenv = env.Clone()
