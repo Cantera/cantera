@@ -1,0 +1,25 @@
+from buildutils import *
+
+Import('env', 'build')
+localenv = env.Clone()
+
+# (subdir, library name, (file extensions))
+libs = [('base', 'ctbase', ['cpp']),
+        ('thermo', 'thermo', ['cpp']),
+        ('equil', 'equil', ['cpp']),
+        ('converters', 'converters', ['cpp']),
+        ('numerics', 'ctnumerics', ['cpp']),
+        ('kinetics', 'kinetics', ['cpp']),
+        ('transport', 'transport', ['cpp']),
+        ('spectra', 'ctspectra', ['cpp']),
+        ('oneD', 'oneD', ['cpp']),
+        ('zeroD', 'zeroD', ['cpp']),
+        ]
+
+print os.getcwd()
+for subdir, libname, extensions in libs:
+    for header in mglob(localenv, subdir, 'h'):      
+        env.Command('../include/cantera/kernel/%s' % header.name, header,
+                    Copy('$TARGET', '$SOURCE'))
+    lib = localenv.Library(pjoin('../lib', libname),
+                           source=mglob(localenv, subdir, *extensions))
