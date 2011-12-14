@@ -12,6 +12,14 @@ from gases import *
 from set import set
 from importFromFile import *
 
+import os as _os
+import sys as _sys
+
+if not os.getenv('PYTHON_CMD'):
+    # Setting PYTHON_CMD here avoids issues with .cti -> .xml conversions
+    # in cases where the python interpreter isn't in the system path.
+    os.environ['PYTHON_CMD'] = _sys.executable
+
 def writeCSV(f, list):
     """
     Write list items to file 'f' in
