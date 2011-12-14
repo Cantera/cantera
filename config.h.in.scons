@@ -61,6 +61,9 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 %(LAPACK_NAMES_LOWERCASE)s
 %(LAPACK_FTN_TRAILING_UNDERSCORE)s
 
+//-------- BOOST --------
+%(USE_BOOST_MATH)s
+
 //--------- operating system --------------------------------------
 
 // The configure script defines this if the operatiing system is Mac

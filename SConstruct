@@ -446,11 +446,16 @@ elif env['CC'] == 'cl':
 else:
     assert False
 
+if env['boost_inc_dir']:
+    env.Append(CPPPATH=env['boost_inc_dir'])
+
 conf = Configure(env)
 
 env['HAS_SSTREAM'] = conf.CheckCXXHeader('sstream', '<>')
 env['HAS_TIMES_H'] = conf.CheckCHeader('sys/times.h', '""')
 env['HAS_UNISTD_H'] = conf.CheckCHeader('unistd.h', '""')
+env['HAS_MATH_H_ERF'] = conf.CheckDeclaration('erf', '#include <math.h>', 'C++')
+env['HAS_BOOST_MATH'] = conf.CheckCXXHeader('boost/math/special_functions/erf.hpp', '<>')
 env = conf.Finish()
 
 if env['cantera_python_home'] == '' and env['prefix'] != defaults.prefix:
@@ -546,6 +551,15 @@ configh['RXNPATH_FONT'] = quoted(env['rpfont'])
 cdefine('THREAD_SAFE_CANTERA', 'build_thread_safe')
 cdefine('HAS_SSTREAM', 'HAS_SSTREAM')
 configh['CANTERA_DATA'] = quoted(os.path.join(env['prefix'], 'data'))
+
+if not env['HAS_MATH_H_ERF']:
+    if env['HAS_BOOST_MATH']:
+        configh['USE_BOOST_MATH'] = 1
+    else:
+        print "Error: Couldn't find 'erf' in either <math.h> or Boost.Math"
+        sys.exit(1)
+else:
+    configh['USE_BOOST_MATH'] = None
 
 config_h = env.Command('config.h', 'config.h.in.scons', ConfigBuilder(configh))
 env.AlwaysBuild(config_h)
