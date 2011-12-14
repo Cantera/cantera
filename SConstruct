@@ -446,6 +446,8 @@ of this file is:
 # ********************************************
 env['OS'] = platform.system()
 
+env['OS_BITS'] = int(platform.architecture()[0][:2])
+
 # Try to find a Fortran compiler:
 if env['f90_interface'] in ('y','default'):
     foundF90 = False

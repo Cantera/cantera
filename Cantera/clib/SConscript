@@ -12,9 +12,9 @@ if localenv['OS'] == 'Windows':
     inst = localenv.Install('$ct_libdir', lib)
     buildTargets.extend(lib)
     installTargets.extend(inst)
-
-static_lib = localenv.Library(pjoin('../../lib', 'clib'),
-                              source=mglob(localenv, 'src', 'cpp'))
-inst_static = localenv.Install('$ct_libdir', static_lib)
-buildTargets.extend(static_lib)
-installTargets.extend(inst_static)
+else:
+    static_lib = localenv.Library(pjoin('../../lib', 'clib'),
+                                  source=mglob(localenv, 'src', 'cpp'))
+    inst_static = localenv.Install('$ct_libdir', static_lib)
+    buildTargets.extend(static_lib)
+    installTargets.extend(inst_static)
