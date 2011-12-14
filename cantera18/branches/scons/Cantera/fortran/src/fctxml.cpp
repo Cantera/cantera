@@ -20,7 +20,7 @@
 using namespace ctml;
 using namespace std;
 
-#include "../../clib/src/Cabinet.h"
+#include "clib/Cabinet.h"
 
 // Assign storage for the templated classes static member
 template<> Cabinet<XML_Node> * Cabinet<XML_Node>::__storage = 0;
