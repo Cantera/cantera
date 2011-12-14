@@ -14,7 +14,7 @@
 #ifdef CANTERA_USE_INTERNAL
 #include "config.h"
 #else
-#include "cantera/config.h"
+#include "cantera/kernel/config.h"
 #endif
 
 extern "C" {

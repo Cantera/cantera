@@ -668,7 +668,9 @@ if not env['HAS_MATH_H_ERF']:
 else:
     configh['USE_BOOST_MATH'] = None
 
-config_h = env.Command('config.h', 'config.h.in.scons', ConfigBuilder(configh))
+config_h = env.Command('build/include/cantera/kernel/config.h',
+                       'Cantera/src/base/config.h.in',
+                       ConfigBuilder(configh))
 env.AlwaysBuild(config_h)
 
 # *********************
@@ -682,8 +684,7 @@ demoTargets = []
 
 env.SConsignFile()
 
-env.Append(CPPPATH=[Dir(os.getcwd()),
-                    Dir('build/include/cantera/kernel'),
+env.Append(CPPPATH=[Dir('build/include/cantera/kernel'),
                     Dir('build/include/cantera'),
                     Dir('build/include')],
            LIBPATH=[Dir('build/lib')],
@@ -725,9 +726,8 @@ else:
 
 env['cantera_libs'] = linkLibs
 
-configh = env.Command('build/include/cantera/config.h', 'config.h', Copy('$TARGET', '$SOURCE'))
-inst = env.Install('$ct_incdir', configh)
-installTargets.extend(inst)
+#inst = env.Install('$ct_incdir/kernel', 'build/include/cantera/kernel/config.h')
+#installTargets.extend(inst)
 
 # Add targets from the SConscript files in the various subdirectories
 Export('env', 'buildDir', 'buildTargets', 'installTargets', 'demoTargets')
