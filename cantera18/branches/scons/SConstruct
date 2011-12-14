@@ -550,9 +550,9 @@ else:
     ens['blas_lapack_libs'] = ','.split(env['blas_lapack_libs'])
 
 if env['use_sundials'] == 'y' and env['sundials_include']:
-    env.Append(CPPPATH=env['sundials_include'])
+    env.Append(CPPPATH=[env['sundials_include']])
 if env['use_sundials'] == 'y' and env['sundials_libdir']:
-    env.Append(LIBPATH=env['sundials_libdir'])
+    env.Append(LIBPATH=[env['sundials_libdir']])
 
 env['ct_libdir'] = pjoin(env['prefix'], 'lib')
 env['ct_bindir'] = pjoin(env['prefix'], 'bin')
