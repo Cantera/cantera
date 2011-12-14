@@ -7,14 +7,15 @@ os.environ['PYTHONPATH'] = pjoin(os.getcwd(), '..','Cantera','python')
 
 class Test(object):
     def __init__(self, subdir, programName,
-                 blessedName, arguments=(),
+                 blessedName, arguments=(), options='',
                  extensions=('cpp',), artifacts=(),
                  comparisons=(), tolerance=1e-5, threshold=1e-14):
         self.subdir = subdir
         self.programName = programName
         if isinstance(arguments, str):
             arguments = [arguments]
-        self.arguments = arguments
+        self.arguments = arguments # file arguments
+        self.options = options
         self.blessedName = blessedName
         self.extensions = extensions
         self.artifacts = artifacts
@@ -30,6 +31,7 @@ class Test(object):
         arguments = [pjoin(self.subdir, arg) for arg in self.arguments]
         source = [prog, pjoin(self.subdir, self.blessedName)] + arguments
         test = env.RegressionTest(pjoin(self.subdir, self.passedFile), source,
+                                  test_command_options=self.options,
                                   test_comparisons=self.comparisons,
                                   test_csv_threshold=self.threshold,
                                   test_csv_tolerance=self.tolerance)
@@ -184,10 +186,10 @@ tests = [Test(pjoin('cathermo', 'DH_graph_1'),
               arguments='haca2.xml',
               artifacts=['results.txt', 'diamond.xml'],
               extensions=['^surfaceSolver.cpp']), # needs .csv, extra tests
-# # Disabled because of need for command line arguments
-#         Test(pjoin('VCSnonideal', 'NaCl_equil'),
-#              'nacl_equil',
-#              'good_out.txt'), # needs .csv diff
+         Test(pjoin('VCSnonideal', 'NaCl_equil'),
+              'nacl_equil', 'good_out.txt',
+              options='-d 3',
+              artifacts=['vcs_equilibrate_res.csv']), # not testing this file because it's not really csv
          Test('VPsilane_test', 'VPsilane_test', 'output_blessed.txt')
          ]
 
