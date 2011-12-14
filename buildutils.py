@@ -5,6 +5,9 @@ import sys
 from os.path import join as pjoin
 import textwrap
 import re
+import subprocess
+import difflib
+import time
 
 class DefineDict(object):
     def __init__(self, data):
@@ -42,6 +45,57 @@ class ConfigBuilder(object):
                 print "    %-35s %s" % (key, val)
         for key in sorted(self.defines.undefined):
             print "    %-35s %s" % (key, '*undefined*')
+
+
+def regression_test(target, source, env):
+    # unpack:
+    program = source[0]
+    blessedFile = source[1]
+    if len(source) > 2:
+        clargs = [s.name for s in source[2:]]
+    else:
+        clargs = []
+
+    # Name to use for the output file
+    if 'blessed' in blessedFile.name:
+        output = blessedFile.abspath.replace('blessed', 'output')
+    else:
+        output = pjoin(blessedFile.dir.abspath, 'test_output.txt')
+
+    dir = str(target[0].dir)
+    blessed = [line.rstrip() for line in open(blessedFile.abspath).readlines()]
+
+    with open(output, 'w') as outfile:
+        code = subprocess.call([program.abspath] + clargs,
+                               stdout=outfile, stderr=outfile, cwd=dir)
+
+    outputText = [line.rstrip() for line in open(output).readlines()]
+    diff = list(difflib.unified_diff(blessed, outputText))
+
+    if diff or code:
+        print 'FAILED'
+
+        if diff:
+            print 'Difference between blessed output and current output:'
+            print '>>>'
+            print '\n'.join(diff)
+            print '<<<'
+
+        if os.path.exists(target[0].abspath):
+            os.path.unlink(target[0].abspath)
+        return -1
+    else:
+        print 'PASSED'
+        open(target[0].path, 'w').write(time.asctime()+'\n')
+
+
+def regression_test_message(target, source, env):
+    print """* Running test '%s'...""" % source[0].name,
+
+
+def add_RegressionTest(env):
+    env['BUILDERS']['RegressionTest'] = env.Builder(
+        action=env.Action(regression_test, regression_test_message))
 
 
 class CopyNoPrefix(object):

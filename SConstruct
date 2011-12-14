@@ -8,6 +8,11 @@ Basic usage:
                     default options.
 
     '[sudo] scons install' - Install Cantera.
+
+    'scons test' - Run regression test suite
+
+    'scons test-clean' - Delete files created while running the
+                         regression tests.
 """
 
 from buildutils import *
@@ -22,6 +27,7 @@ if not COMMAND_LINE_TARGETS:
 env = Environment(tools = ['default', 'textfile'])
 env.AddMethod(RecursiveInstall)
 subst.TOOL_SUBST(env)
+add_RegressionTest(env)
 
 # ******************************************************
 # *** Set system-dependent defaults for some options ***
@@ -701,3 +707,7 @@ File locations:
 finish_install = env.Command('finish_install', [], postInstallMessage)
 env.Depends(finish_install, installTargets)
 install_cantera = Alias('install', finish_install)
+
+### Tests ###
+if 'test' in COMMAND_LINE_TARGETS or 'test-clean' in COMMAND_LINE_TARGETS:
+    SConscript('test_problems/SConscript')

@@ -1,0 +1,94 @@
+from buildutils import *
+
+Import('env','buildTargets','installTargets')
+localenv = env.Clone()
+
+class Test(object):
+    def __init__(self, subdir, programName,
+                 blessedName, arguments=(),
+                 extensions=('cpp',), artifacts=()):
+        self.subdir = subdir
+        self.programName = programName
+        if isinstance(arguments, str):
+            arguments = [arguments]
+        self.arguments = arguments
+        self.blessedName = blessedName
+        self.extensions = extensions
+        self.artifacts = artifacts
+        self.passedFile = '.passed-%s-%s' % (programName, blessedName)
+
+    def run(self, env):
+        prog = env.Program(pjoin(self.subdir, self.programName),
+                           mglob(env, self.subdir, *self.extensions),
+                                LIBS=env['cantera_libs'])
+        arguments = [pjoin(self.subdir, arg) for arg in self.arguments]
+        source = [prog, pjoin(self.subdir, self.blessedName)] + arguments
+        test = env.RegressionTest(pjoin(self.subdir, self.passedFile), source)
+
+        return test
+
+    def clean(self, env):
+        # Name used for the output file
+        if 'blessed' in self.blessedName:
+            outName = self.blessedName.replace('blessed', 'output')
+        else:
+            outName = 'test_output.txt'
+
+        files = [self.programName,
+                 self.programName + '.o',
+                 self.passedFile,
+                 'ct2ctml.log',
+                 outName]
+        files += list(self.artifacts)
+        files = [pjoin(os.getcwd(), self.subdir, name) for name in files]
+        files = [f for f in files if os.path.exists(f)]
+
+        target = env.Command('clean-'+self.programName, [],
+                             [Delete(f) for f in files])
+        return target
+
+tests = [Test(pjoin('cathermo', 'DH_graph_1'),
+              'DH_graph_1',
+              'DH_NaCl_dilute_blessed.csv',
+              artifacts=['DH_graph_1.log'],
+              arguments='DH_NaCl_dilute.xml'),
+         Test(pjoin('cathermo', 'DH_graph_acommon'),
+              'DH_graph_acommon',
+              'DH_NaCl_acommon_blessed.csv',
+              artifacts=['DH_graph_1.log'],
+              arguments='DH_NaCl_acommon.xml'),
+         Test(pjoin('cathermo', 'DH_graph_bdotak'),
+              'DH_graph_bdotak',
+              'DH_NaCl_bdotak_blessed.csv',
+              artifacts=['DH_graph_1.log'],
+              arguments='DH_NaCl_bdotak.xml'),
+         Test(pjoin('cathermo', 'DH_graph_NM'),
+              'DH_graph_NM',
+              'DH_NaCl_NM_blessed.csv',
+              artifacts=['DH_graph_1.log'],
+              arguments='DH_NaCl_NM.xml'),
+         Test(pjoin('cathermo', 'DH_graph_Pitzer'),
+              'DH_graph_Pitzer',
+              'DH_NaCl_Pitzer_blessed.csv',
+              artifacts=['DH_graph_1.log'],
+              arguments='DH_NaCl_Pitzer.xml'),
+         Test(pjoin('cathermo', 'HMW_dupl_test'),
+              'HMW_dupl_test',
+              'output_blessed.txt',
+              artifacts=['DH_graph_1.log'],
+              arguments='HMW_NaCl_sp1977_alt.xml'),
+         Test(pjoin('cathermo', 'HMW_graph_CpvT'),
+              'HMW_graph_CpvT',
+              'output_blessed.txt',
+              extensions=['^HMW_graph_CpvT.cpp', '^sortAlgorithms.cpp'],
+              arguments='HMW_NaCl_sp1977_alt.xml'),
+         # Skipping cathermo/HMW_graph_GvI because of the way it generates output files.
+         Test(pjoin('cathermo', 'HMW_graph_GvT'),
+              'HMW_graph_GvT',
+              'output_blessed.txt',
+              extensions=['^HMW_graph_GvT.cpp', '^sortAlgorithms.cpp'],
+              arguments='HMW_NaCl_sp1977_alt.xml')
+         ]
+
+env.Alias('test', [test.run(localenv) for test in tests])
+env.Alias('test-clean', sum([test.clean(localenv) for test in tests], []))
