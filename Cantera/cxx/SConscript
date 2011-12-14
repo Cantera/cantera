@@ -3,7 +3,7 @@ from buildutils import *
 Import('env', 'build')
 
 # (subdir, library name, (file extensions))
-libs = [LibOpts('src', 'ctcxx')]
+libs = [BuildOpts('src', 'ctcxx')]
 
 print os.getcwd()
 for lib in libs:
