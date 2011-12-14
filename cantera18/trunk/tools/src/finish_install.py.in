@@ -25,6 +25,11 @@ f.write('PYTHON_CMD='+pycmd+'\nexport PYTHON_CMD\n')
 if pycmd <> 'python':
     f.write('alias ctpython='+pycmd+'\n')
 
+if build_matlab:
+    matlabdir = prefix + '/matlab/toolbox/cantera/cantera'
+    f.write('MATLABPATH=$MATLABPATH:%s/:%s/1D\n' % (matlabdir, matlabdir))
+    f.write('export MATLABPATH\n')
+
 ctloc = '-'
 warn = ''
 warn2 = ''
@@ -115,6 +120,9 @@ if build_matlab:
     fm = open(ctdir+"/ctpath.m","w")
     fm.write("""path('"""+prefix+"""/matlab/toolbox/cantera/cantera',path)\n""")
     fm.write("""path('"""+prefix+"""/matlab/toolbox/cantera/cantera/1D',path)\n""")
+    if build_python:
+        fm.write("setenv('PYTHON_CMD','%s')\n" % pycmd)
+        fm.write("setenv('PYTHONPATH', [getenv('PYTHONPATH'), '%s'])\n" % pypath)
     fm.close()
 
     fm = open(ctdir+"/cantera_demos.m","w")
