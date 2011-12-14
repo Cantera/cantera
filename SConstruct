@@ -1,6 +1,23 @@
+"""
+SCons build script for Cantera
+
+Basic usage:
+    'scons help' - print a description of user-specifiable options.
+
+    'scons build' - Compile Cantera and the language interfaces using
+                    default options.
+
+    '[sudo] scons install' - Install Cantera.
+"""
+
 from buildutils import *
 import subst
 import platform, sys, os
+
+if not COMMAND_LINE_TARGETS:
+    # Print usage help
+    print __doc__
+    sys.exit(0)
 
 env = Environment(tools = ['default', 'textfile'])
 env.AddMethod(RecursiveInstall)
@@ -21,77 +38,351 @@ elif os.name == 'nt':
 
 opts = Variables('cantera.conf')
 opts.AddVariables(
-    PathVariable('prefix', 'Where to install Cantera',
-                 defaultPrefix, PathVariable.PathIsDirCreate),
-    EnumVariable('python_package', 'build python package?', 'default',
-                 ('full', 'minimal', 'none','default')),
-    PathVariable('python_cmd', 'Path to the python interpreter', sys.executable),
-    EnumVariable('python_array', 'Which Python array package to use',
-                 'numpy', ('numpy', 'numarray', 'numeric')),
-    PathVariable('python_array_home',
-                 'Location for array package (e.g. if installed with --home)',
-                 '', PathVariable.PathAccept),
-    PathVariable('cantera_python_home', 'where to install the python package',
-                 '', PathVariable.PathAccept),
-    EnumVariable('matlab_toolbox', '', 'default', ('y', 'n', 'default')),
-    PathVariable('matlab_cmd', 'Path to the matlab executable',
-                 'matlab', PathVariable.PathAccept),
-    EnumVariable('f90_interface', 'Build Fortran90 interface?', 'default', ('y', 'n', 'default')),
-    PathVariable('F90', 'Fortran compiler',
-                 '', PathVariable.PathAccept),
-    BoolVariable('debug', '', False), # ok
-    BoolVariable('with_lattice_solid', '', True), # ok
-    BoolVariable('with_metal', '', True), # ok
-    BoolVariable('with_stoich_substance', '', True), # ok
-    BoolVariable('with_semiconductor', '', True), # ok
-    BoolVariable('with_adsorbate', '', True),
-    BoolVariable('with_spectra', '', True),
-    BoolVariable('with_pure_fluids', '', True),
-    BoolVariable('with_ideal_solutions', '', True), # ok
-    BoolVariable('with_electrolytes', '', True), # ok
-    BoolVariable('with_prime', '', False), # ok
-    BoolVariable('with_h298modify_capability', '', False), # ok
-    BoolVariable('enable_ck', '', True),
-    BoolVariable('with_kinetics', '', True),
-    BoolVariable('with_hetero_kinetics', '', True),
-    BoolVariable('with_reaction_paths', '', True),
-    BoolVariable('with_vcsnonideal', '', False),
-    BoolVariable('enable_transport', '', True),
-    BoolVariable('enable_equil', '', True),
-    BoolVariable('enable_reactors', '', True),
-    BoolVariable('enable_flow1d', '', True),
-    BoolVariable('enable_solvers', '', True),
-    BoolVariable('enable_rxnpath', '', True),
-    BoolVariable('enable_tpx', '', True),
-    BoolVariable('with_html_log_files', '', True),
-    EnumVariable('use_sundials', '', 'default', ('default', 'y', 'n')),
-    EnumVariable('sundials_version' ,'', '2.4', ('2.2','2.3','2.4')),
-    PathVariable('sundials_include' ,'', ''),
-    PathVariable('sundials_libdir', '', ''),
-    ('blas_lapack_libs', '', ''), # 'lapack,blas' or 'lapack,f77blas,cblas,atlas' etc.
-    ('blas_lapack_dir', '', ''), # '/usr/lib/lapack' etc
-    EnumVariable('lapack_names', '', 'lower', ('lower','upper')),
-    BoolVariable('lapack_ftn_trailing_underscore', '', True),
-    BoolVariable('lapack_ftn_string_len_at_end', '', True),
-    ('CXX', '', env['CXX']),
-    ('CC', '', env['CC']),
-    ('CXXFLAGS', '', '-O3 -Wall'),
-    BoolVariable('build_thread_safe', '', False),
-    PathVariable('boost_inc_dir', '', '/usr/include/'),
-    PathVariable('boost_lib_dir', '', '/usr/lib/'),
-    ('boost_thread_lib', '', 'boost_thread'),
-    BoolVariable('build_with_f2c', '', True),
-    ('F77', '', env['F77']),
-    ('F77FLAGS', '', '-O3'),
-    ('F90FLAGS', '', '-O3'),
-    ('graphvisdir', '' ,''),
-    ('ct_shared_lib', '', 'clib'),
-    ('rpfont', '', 'Helvetica'),
+    PathVariable(
+        'prefix',
+        'Set this to the directory where Cantera should be installed.',
+        defaultPrefix, PathVariable.PathIsDirCreate),
+    EnumVariable(
+        'python_package',
+        """If you plan to work in Python, or you want to use the
+           graphical MixMaster application, then you need the 'full'
+           Cantera Python Package. If, on the other hand, you will
+           only use Cantera from some other language (e.g. MATLAB or
+           Fortran 90/95) and only need Python to process .cti files,
+           then you only need a 'minimal' subset of the package
+           (actually, only one file). The default behavior is to build
+           the Python package if the required prerequsites (numpy) are
+           installed.""",
+        'default', ('full', 'minimal', 'none','default')),
+    PathVariable(
+        'python_cmd',
+        """Cantera needs to know where to find the Python
+           interpreter. If PYTHON_CMD is not set, then the
+           configuration process will use the same Python interpreter
+           being used by SCons.""",
+        sys.executable),
+    EnumVariable(
+        'python_array',
+        """The Cantera Python interface requires one of the Python
+           array packages listed. Support for the legacy 'numeric' and
+           'numarray' packages is deprecated, and will be removed in a
+           future version of Cantera.""",
+        'numpy', ('numpy', 'numarray', 'numeric')),
+    PathVariable(
+        'python_array_home',
+        """If numpy was installed using the --home option, set this to
+           the home directory for numpy.""",
+        '', PathVariable.PathAccept),
+    PathVariable(
+        'cantera_python_home',
+        """If you want to install the Cantera Python package somewhere
+           other than the default 'site-packages' directory within the
+           Python library directory, then set this to the desired
+           directory. This is useful when you do not have write access
+           to the Python library directory.""",
+        '', PathVariable.PathAccept),
+    EnumVariable(
+        'matlab_toolbox',
+        """This variable controls whether the Matlab toolbox will be
+           built. If it is set to 'default', the Matlab toolbox will
+           be built if Matlab can be found in the $PATH. Note that you
+           may need to run 'mex -setup' within Matlab to configure it
+           for your C++ compiler before building Cantera.""",
+        'default', ('y', 'n', 'default')),
+    PathVariable(
+        'matlab_cmd',
+        'Path to the Matlab executable.',
+        'matlab', PathVariable.PathAccept),
+    EnumVariable(
+        'f90_interface',
+        """This variable controls whether the Fortran 90/95 interface
+           will be built. If set to 'default', the builder will look
+           for a compatible Fortran compiler in the $PATH, and compile
+           the Fortran 90 interface if one is found.""",
+        'default', ('y', 'n', 'default')),
+    PathVariable(
+        'F90',
+        """The Fortran 90 compiler. If unspecified, the builder will
+           look for a compatible compiler (gfortran, ifort, g95) in
+           the $PATH.""",
+        '', PathVariable.PathAccept),
+    ('F90FLAGS',
+     'Compilation options for the Fortran 90 compiler.',
+     '-O3'),
+    BoolVariable(
+        'debug',
+        """Enable extra printing code to aid in debugging.""",
+        False),
+    BoolVariable(
+        'with_lattice_solid',
+        """Include thermodynamic model for lattice solids in the
+           Cantera kernel.""",
+        True),
+    BoolVariable(
+        'with_metal',
+        """Include thermodynamic model for metals in the Cantera kernel.""",
+        True),
+    BoolVariable(
+        'with_stoich_substance',
+        """Include thermodynamic model for stoichiometric substances
+           in the Cantera kernel.""",
+        True),
+    BoolVariable(
+        'with_semiconductor',
+        """Include thermodynamic model for semiconductors in the Cantera kernel.""",
+        True),
+    BoolVariable(
+        'with_adsorbate',
+        """Include thermodynamic model for adsorbates in the Cantera kernel""",
+        True),
+    BoolVariable(
+        'with_spectra',
+        """Include spectroscopy capability in the Cantera kernel.""",
+        True),
+    BoolVariable(
+        'with_pure_fluids',
+        """Include accurate liquid/vapor equations of state for
+           several fluids, including water, nitrogen, hydrogen,
+           oxygen, methane, and HFC-134a.""",
+        True),
+    BoolVariable(
+        'with_ideal_solutions',
+        """Include capabilities for working with ideal solutions.""",
+        True),
+    BoolVariable(
+        'with_electrolytes',
+        """Enable expanded electrochemistry capabilities, including
+           thermodynamic models for electrolyte solutions.""",
+        True),
+    BoolVariable(
+        'with_prime',
+        """Enable generating phase models from PrIMe models. For more
+           information about PrIME, see http://www.primekinetics.org 
+           WARNING: Support for PrIMe is experimental!""",
+        False),
+    BoolVariable(
+        'with_h298modify_capability',
+        """Enable changing the 298K heats of formation directly via
+           the C++ layer.""",
+        False),
+    BoolVariable(
+        'enable_ck',
+        """Build the ck2cti program that converts Chemkin input files
+           to Cantera format (.cti). If you don't use Chemkin format
+           files, or if you run ck2cti on some other machine, you can
+           set this to 'n'.""",
+        True),
+    BoolVariable(
+        'with_kinetics',
+        """Enable homogeneous kinetics.""",
+        True),
+    BoolVariable(
+        'with_hetero_kinetics',
+        """Enable heterogeneous kinetics (surface chemistry). This
+           also enables charge transfer reactions for
+           electrochemistry.""",
+        True),
+    BoolVariable(
+        'with_reaction_paths',
+        """Enable reaction path analysis""",
+        True),
+    BoolVariable(
+        'with_vcsnonideal',
+        """Enable vcs equilibrium package for nonideal phases""",
+        False),
+    BoolVariable(
+        'enable_transport',
+        'Enable transport property calculations.',
+        True),
+    BoolVariable(
+        'enable_equil',
+        'Enable chemical equilibrium calculations',
+        True),
+    BoolVariable(
+        'enable_reactors',
+        'Enable stirred reactor models',
+        True),
+    BoolVariable(
+        'enable_flow1d',
+        'Enable one-dimensional flow models',
+        True),
+    BoolVariable(
+        'enable_solvers',
+        'Enable ODE integrators and DAE solvers',
+        True),
+    BoolVariable(
+        'enable_rxnpath',
+        'Enable reaction path analysis',
+        True),
+    BoolVariable(
+        'enable_tpx',
+        'Enable two-phase pure fluids',
+        True),
+    BoolVariable(
+        'with_html_log_files',
+        """write HTML log files. Some multiphase equilibrium
+           procedures can write copious diagnostic log messages. Set
+           this to 'n' to disable this capability. (results in
+           slightly faster equilibrium  calculations)""",
+        True),
+    EnumVariable(
+        'use_sundials',
+        """Cantera uses the CVODE or CVODES ODE integrator to
+           time-integrate reactor network ODE's and for various other
+           purposes. An older version of CVODE comes with Cantera, but
+           it is possible to use the latest version as well, which now
+           supports sensitivity analysis (CVODES). CVODES is a part of
+           the 'sundials' package from Lawrence Livermore National
+           Laboratory. Sundials is not distributed with Cantera, but
+           it is free software that may be downloaded and installed
+           separately. If you leave USE_SUNDIALS = 'default', then it
+           will be used if you have it, and if not the older CVODE
+           will be used. Or set USE_SUNDIALS to 'y' or 'n' to force
+           using it or not. Note that sensitivity analysis with
+           Cantera requires use of sundials. See:
+           http://www.llnl.gov/CASC/sundials""",
+        'default', ('default', 'y', 'n')),
+    EnumVariable(
+        'sundials_version',
+        """It is recommended that you install the newest release of
+           sundials (currently 2.4.0) before building Cantera. But if
+           you want to use an older version, set SUNDIALS_VERSION to
+           the version you have.""",
+        '2.4', ('2.2','2.3','2.4')),
+    PathVariable(
+        'sundials_include',
+        """The directory where the Sundials header files are
+           installed. This should be the directory that contains the
+           "cvodes", "nvector", etc. subdirectories. Not needed if the
+           headers are installed in a standard location,
+           e.g. /usr/include.""",
+        ''),
+    PathVariable(
+        'sundials_libdir',
+        """The directory where the sundials static libraries are
+           installed.  Not needed if the libraries are installed in a
+           standard location, e.g. /usr/lib.""",
+        ''),
+    ('blas_lapack_libs',
+     """Cantera comes with Fortran (or C) versions of those parts of
+        BLAS and LAPACK it requires. But performance may be better if
+        you use a version of these libraries optimized for your
+        machine hardware. If you want to use your own libraries, set
+        blas_lapack_libs to the the list of libraries that should be
+        passed to the linker, separated by commas, e.g. "lapack,blas"
+        or "lapack,f77blas,cblas,atlas". """,
+     ''),
+    ('blas_lapack_dir',
+     """Directory containing the libraries specified by 'blas_lapack_libs'.""",
+     ''),
+    EnumVariable(
+        'lapack_names',
+        """Set depending on whether the procedure names in the
+           specified libraries are lowercase or uppercase. If you
+           don't know, run 'nm' on the library file (e.g. 'nm
+           libblas.a').""",
+        'lower', ('lower','upper')),
+    BoolVariable(
+        'lapack_ftn_trailing_underscore', '', True),
+    BoolVariable(
+        'lapack_ftn_string_len_at_end', '', True),
+    ('CXX',
+     'The C++ compiler to use.',
+     env['CXX']),
+    ('CC',
+     """The C compiler to use. This is only used to compile CVODE and
+        the Python extension module.""",
+     env['CC']),
+    ('CXXFLAGS',
+     'C++ Compiler flags.',
+     '-O3 -Wall'),
+    BoolVariable(
+        'build_thread_safe',
+        """Cantera can be built so that it is thread safe. Doing so
+           requires using procedures from the Boost library, so if you
+           want thread safety then you need to get and install Boost
+           (http://www.boost.org) if you don't have it.  This is
+           turned off by default, in which case Boost is not required
+           to build Cantera.""",
+        False),
+    PathVariable(
+        'boost_inc_dir',
+        'Location of the Boost header files',
+        '/usr/include/'),
+    PathVariable(
+        'boost_lib_dir',
+        'Directory containing the Boost.Thread library',
+        '/usr/lib/'),
+    ('boost_thread_lib',
+     'The name of the Boost.Thread library.',
+     'boost_thread'),
+    BoolVariable(
+        'build_with_f2c',
+        """For external procedures written in Fortran 77, both the
+           original F77 source code and C souce code generated by the
+           'f2c' program are included.  Set this to "n" if you want to
+           build Cantera using the F77 sources in the ext directory.""",
+        True),
+    ('F77',
+     """Compiler used to build the external Fortran 77 procedures from
+        the Fortran source code""",
+     env['F77']),
+    ('F77FLAGS',
+     """Fortran 77 Compiler flags. Note that the Fortran compiler
+      flags must be set to produce object code compatible with the
+      C/C++ compiler you are using.""",
+     '-O3'),
+    ('graphvisdir',
+     """The directory location of the graphviz program, dot. dot is
+        used for creating the documentation, and for making reaction
+        path diagrams. If "dot" is in your path, you can leave this
+        unspecified. NOTE: Matlab comes with a stripped-down version
+        of 'dot'. If 'dot' is on your path, make sure it is not the
+        Matlab version!""",
+     ''),
+    ('ct_shared_lib',
+     '',
+     'clib'),
+    ('rpfont',
+     """The font to use in reaction path diagrams. This must be a font
+        name recognized by the 'dot' program. On linux systems, this
+        should be lowercase 'helvetica'.""",
+     'Helvetica'),
     ('cantera_version', '', '1.8.x')
     )
 
 opts.Update(env)
 opts.Save('cantera.conf', env)
+
+
+if 'help' in COMMAND_LINE_TARGETS:
+    ### Print help about configuration options and exit.
+    print """
+        **************************************************
+        *   Configuration options for building Cantera   *
+        **************************************************
+
+The following options can be passed to SCons to customize the Cantera
+build process. They should be given in the form:
+
+    scons build option1=value1 option2=value2
+
+Variables set in this way will be stored in the 'cantera.conf' file
+and reused automatically on subsequent invocations of
+scons. Alternatively, the configuration options can be entered
+directly into 'cantera.conf' before running 'scons build'. The format
+of this file is:
+
+    option1 = 'value1'
+    option2 = 'value2'
+
+        **************************************************
+"""
+
+    for opt in opts.options:
+        print '\n'.join(formatOption(env, opt))
+    sys.exit(0)
+
 
 # ********************************************
 # *** Configure system-specific properties ***
