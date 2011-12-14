@@ -51,14 +51,14 @@ class ConfigBuilder(object):
 def regression_test(target, source, env):
     # unpack:
     program = source[0]
-    blessedName = source[1].name
-    if len(source) > 2:
-        clargs = [s.name for s in source[2:]]
+    if len(source) > 1:
+        clargs = [s.name for s in source[1:]]
     else:
         clargs = []
 
     # Name to use for the output file
-    if 'blessed' in blessedName:
+    blessedName = env['test_blessed_file']
+    if blessedName is not None and 'blessed' in blessedName:
         outputName = blessedName.replace('blessed', 'output')
     else:
         outputName = 'test_output.txt'
@@ -75,7 +75,11 @@ def regression_test(target, source, env):
 
     diff = 0
     # Compare output files
-    for blessed,output in [(blessedName,outputName)] + env['test_comparisons']:
+    comparisons = env['test_comparisons']
+    if blessedName is not None:
+        comparisons.append((blessedName,outputName))
+
+    for blessed,output in comparisons:
         print """Comparing '%s' with '%s'""" % (blessed, output)
         diff |= compareFiles(env, pjoin(dir, blessed), pjoin(dir, output))
 
@@ -98,8 +102,10 @@ def compareFiles(env, file1, file2):
 
 
 def compareTextFiles(env, file1, file2):
-    text1 = [line.rstrip() for line in open(file1).readlines()]
-    text2 = [line.rstrip() for line in open(file2).readlines()]
+    text1 = [line.rstrip() for line in open(file1).readlines()
+             if not line.startswith(tuple(env['test_ignoreLines']))]
+    text2 = [line.rstrip() for line in open(file2).readlines()
+             if not line.startswith(tuple(env['test_ignoreLines']))]
 
     diff = list(difflib.unified_diff(text1, text2))
     if diff:
@@ -146,7 +152,7 @@ def compareCsvFiles(env, file1, file2):
 
 
 def regression_test_message(target, source, env):
-    return """* Running test '%s'...""" % source[0].name
+    return """* Running test '%s'...""" % env['active_test_name']
 
 
 def add_RegressionTest(env):
