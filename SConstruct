@@ -36,10 +36,9 @@ opts.AddVariables(
     EnumVariable('matlab_toolbox', '', 'default', ('y', 'n', 'default')),
     PathVariable('matlab_cmd', 'Path to the matlab executable',
                  'matlab', PathVariable.PathAccept),
-    BoolVariable('f90_interface', 'Build Fortran90 interface?', False),
-    PathVariable('f90', 'Fortran compiler',
-                 'gfortran', PathVariable.PathAccept),
-    ('f90flags', '', '-O3'),
+    EnumVariable('f90_interface', 'Build Fortran90 interface?', 'default', ('y', 'n', 'default')),
+    PathVariable('F90', 'Fortran compiler',
+                 '', PathVariable.PathAccept),
     ('purify', '', ''),
     ('user_src_dir', '', 'Cantera/user'),
     BoolVariable('debug', '', False), # ok
@@ -87,7 +86,6 @@ opts.AddVariables(
     BoolVariable('build_with_f2c', '', True),
     ('F77', '', env['F77']),
     ('F77FLAGS', '', '-O3'),
-    ('F90', '', env['F90']),
     ('F90FLAGS', '', '-O3'),
     ('install_bin', '', 'config/install-sh'),
     ('graphvisdir', '' ,''),
@@ -95,9 +93,6 @@ opts.AddVariables(
     ('rpfont', '', 'Helvetica'),
     ('cantera_version', '', '1.8.x')
 # These variables shouldn't be necessary any more...
-#    ('cxx_ext', '', 'cpp'),
-#    ('f77_ext', '', 'f'),
-#    ('f90_ext', '', 'f90'),
 #    ('exe_ext', '', ''),
 #    ('lcxx_end_libs', '-lm'),
 #    ('pic', '', '-fPIC'),
@@ -115,6 +110,32 @@ opts.Save('cantera.conf', env)
 # *** Configure system-specific properties ***
 # ********************************************
 env['OS'] = platform.system()
+
+# Try to find a Fortran compiler:
+if env['f90_interface'] in ('y','default'):
+    foundF90 = False
+    if env['F90']:
+        env['f90_interface'] = 'y'
+        if which(env['F90']) is not None:
+            foundF90 = True
+        else:
+            print "WARNING: Couldn't find specified Fortran compiler: '%s'" % env['F90']
+
+    for compiler in ['gfortran', 'ifort', 'g95']:
+        if foundF90:
+            break
+        if which(compiler) is not None:
+            print "INFO: Using '%s' to build the Fortran 90 interface" % which(compiler)
+            env['F90'] = compiler
+            foundF90 = True
+
+    if foundF90:
+        env['f90_interface'] = 'y'
+    elif env['f90_interface'] == 'y':
+        print "ERROR: Couldn't find a suitable Fortran compiler to build the Fortran 90 interface"
+        sys.exit(1)
+    else:
+        print "INFO: Skipping compilation of the Fortran 90 interface."
 
 if env['F90'] == 'gfortran':
     env['FORTRANMODDIRPREFIX'] = '-J'
@@ -328,7 +349,7 @@ SConscript('build/interfaces/clib/SConscript')
 VariantDir('build/interfaces/cxx', 'Cantera/cxx', duplicate=0)
 SConscript('build/interfaces/cxx/SConscript')
 
-if env['f90_interface']:
+if env['f90_interface'] == 'y':
     VariantDir('build/interfaces/fortran/', 'Cantera/fortran', duplicate=1)
     SConscript('build/interfaces/fortran/SConscript')
 
