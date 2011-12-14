@@ -18,8 +18,12 @@ libs = [('base', 'ctbase', ['cpp']),
 
 for subdir, libname, extensions in libs:
     for header in mglob(localenv, subdir, 'h'):      
-        env.Command('../include/cantera/kernel/%s' % header.name, header,
-                    Copy('$TARGET', '$SOURCE'))
+        h = localenv.Command('../include/cantera/kernel/%s' % header.name, header,
+                             Copy('$TARGET', '$SOURCE'))
+        buildTargets.extend(h)
+        inst = localenv.Install(pjoin('$ct_incdir', 'kernel'), h)
+        installTargets.extend(inst)
+
     lib = localenv.Library(pjoin('../lib', libname),
                            source=mglob(localenv, subdir, *extensions))
     inst = localenv.Install('$ct_libdir', lib)

@@ -6,7 +6,6 @@ localenv = env.Clone()
 # (subdir, library name, (file extensions))
 libs = [('tpx','tpx',['cpp'])]
 
-print os.getcwd()
 if env['build_with_f2c']:
     libs.append(('f2c_math', 'ctmath', ['cpp','c']))
 

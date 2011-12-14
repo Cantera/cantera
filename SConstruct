@@ -242,21 +242,12 @@ env['ct_mandir'] = pjoin(env['prefix'])
 # *** Build Cantera ***
 # *********************
 
-# Put headers in place
-for header in mglob(env, 'Cantera/cxx/include', 'h'):
-    env.Command('build/include/cantera/%s' % header.name, header,
-                Copy('$TARGET', '$SOURCE'))
-
-for header in mglob(env, 'Cantera/clib/src', 'h'):
-    env.Command('build/include/cantera/clib/%s' % header.name, header,
-                Copy('$TARGET', '$SOURCE'))
-
-env.Command('build/include/cantera/config.h', 'config.h', Copy('$TARGET', '$SOURCE'))
-
 buildDir = 'build'
 buildTargets = []
 installTargets = []
+
 env.SConsignFile()
+
 env.Append(CPPPATH=[Dir(os.getcwd()),
                     Dir('build/include/cantera/kernel'),
                     Dir('build/include/cantera'),
@@ -266,6 +257,26 @@ env.Append(CPPPATH=[Dir(os.getcwd()),
            FORTRANFLAGS=['-fPIC'],
            F90FLAGS=['-fPIC'])
 
+# Put headers in place
+for header in mglob(env, 'Cantera/cxx/include', 'h'):
+    header = env.Command('build/include/cantera/%s' % header.name, header,
+                         Copy('$TARGET', '$SOURCE'))
+    buildTargets.extend(header)
+    inst = env.Install('$ct_incdir', header)
+    installTargets.extend(inst)
+
+for header in mglob(env, 'Cantera/clib/src', 'h'):
+    hcopy = env.Command('build/include/cantera/clib/%s' % header.name, header,
+                        Copy('$TARGET', '$SOURCE'))
+    buildTargets.append(header)
+    inst = env.Install(pjoin('$ct_incdir','clib'), header)
+    installTargets.extend(inst)
+
+configh = env.Command('build/include/cantera/config.h', 'config.h', Copy('$TARGET', '$SOURCE'))
+inst = env.Install('$ct_incdir', configh)
+installTargets.extend(inst)
+
+# Add targets from the SConscript files in the various subdirectories
 Export('env', 'buildDir', 'buildTargets', 'installTargets')
 
 VariantDir('build/ext', 'ext', duplicate=0)
