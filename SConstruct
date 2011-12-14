@@ -379,14 +379,24 @@ opts.AddVariables(
       flags must be set to produce object code compatible with the
       C/C++ compiler you are using.""",
      '-O3'),
-    PathVariable('graphvisdir',
-     """The directory location of the graphviz program, dot. dot is
-        used for creating the documentation, and for making reaction
-        path diagrams. If "dot" is in your path, you can leave this
-        unspecified. NOTE: Matlab comes with a stripped-down version
-        of 'dot'. If 'dot' is on your path, make sure it is not the
-        Matlab version!""",
-     '', PathVariable.PathAccept),
+    PathVariable(
+        'stage_dir',
+        """ Directory relative to the Cantera source directory to be
+            used as a staging area for building e.g. a Debian
+            package. If specified, 'scons install' will install files
+            to 'stage_dir/prefix/...' instead of installing into the
+            local filesystem.""",
+        '',
+        PathVariable.PathAccept),
+    PathVariable(
+        'graphvisdir',
+        """The directory location of the graphviz program, dot. dot is
+           used for creating the documentation, and for making
+           reaction path diagrams. If "dot" is in your path, you can
+           leave this unspecified. NOTE: Matlab comes with a
+           stripped-down version of 'dot'. If 'dot' is on your path,
+           make sure it is not the Matlab version!""",
+        '', PathVariable.PathAccept),
     ('ct_shared_lib',
      '',
      'clib'),
@@ -582,6 +592,9 @@ if env['blas_lapack_libs'] == '':
 else:
     ens['blas_lapack_libs'] = ','.split(env['blas_lapack_libs'])
 
+# Directories where things will be after actually being installed
+# These variables are the ones that are used to populate header files,
+# scripts, etc.
 env['ct_libdir'] = pjoin(env['prefix'], 'lib')
 env['ct_bindir'] = pjoin(env['prefix'], 'bin')
 env['ct_incdir'] = pjoin(env['prefix'], 'include', 'cantera')
@@ -592,6 +605,25 @@ env['ct_templdir'] = pjoin(env['prefix'], 'templates')
 env['ct_tutdir'] = pjoin(env['prefix'], 'tutorials')
 env['ct_mandir'] = pjoin(env['prefix'], 'man1')
 env['ct_matlab_dir'] = pjoin(env['prefix'], 'matlab', 'toolbox')
+
+# Directories where things will be staged for package creation. These
+# variables should always be used by the Install(...) targets
+if env['stage_dir']:
+    instRoot = pjoin(os.getcwd(), env['stage_dir'], env['prefix'].strip('/'))
+    env['python_prefix'] = instRoot
+else:
+    instRoot = env['prefix']
+
+env['inst_libdir'] = pjoin(instRoot, 'lib')
+env['inst_bindir'] = pjoin(instRoot, 'bin')
+env['inst_incdir'] = pjoin(instRoot, 'include', 'cantera')
+env['inst_incroot'] = pjoin(instRoot, 'include')
+env['inst_datadir'] = pjoin(instRoot, 'data')
+env['inst_demodir'] = pjoin(instRoot, 'demos')
+env['inst_templdir'] = pjoin(instRoot, 'templates')
+env['inst_tutdir'] = pjoin(instRoot, 'tutorials')
+env['inst_mandir'] = pjoin(instRoot, 'man1')
+env['inst_matlab_dir'] = pjoin(instRoot, 'matlab', 'toolbox')
 
 env['CXXFLAGS'] = listify(env['cxx_flags'])
 if env['optimize']:
@@ -697,14 +729,14 @@ for header in mglob(env, 'Cantera/cxx/include', 'h'):
     header = env.Command('build/include/cantera/%s' % header.name, header,
                          Copy('$TARGET', '$SOURCE'))
     buildTargets.extend(header)
-    inst = env.Install('$ct_incdir', header)
+    inst = env.Install('$inst_incdir', header)
     installTargets.extend(inst)
 
 for header in mglob(env, 'Cantera/clib/src', 'h'):
     hcopy = env.Command('build/include/cantera/clib/%s' % header.name, header,
                         Copy('$TARGET', '$SOURCE'))
     buildTargets.append(header)
-    inst = env.Install(pjoin('$ct_incdir','clib'), header)
+    inst = env.Install(pjoin('$inst_incdir','clib'), header)
     installTargets.extend(inst)
 
 ### List of libraries needed to link to Cantera ###
@@ -725,9 +757,6 @@ else:
     linkLibs.append('gfortran')
 
 env['cantera_libs'] = linkLibs
-
-#inst = env.Install('$ct_incdir/kernel', 'build/include/cantera/kernel/config.h')
-#installTargets.extend(inst)
 
 # Add targets from the SConscript files in the various subdirectories
 Export('env', 'buildDir', 'buildTargets', 'installTargets', 'demoTargets')
@@ -758,7 +787,7 @@ VariantDir('build/tools', 'tools', duplicate=0)
 SConscript('build/tools/SConscript')
 
 # Data files
-inst = env.Install('$ct_datadir', mglob(env, pjoin('data','inputs'), 'cti', 'xml'))
+inst = env.Install('$inst_datadir', mglob(env, pjoin('data','inputs'), 'cti', 'xml'))
 installTargets.extend(inst)
 
 ### Meta-targets ###

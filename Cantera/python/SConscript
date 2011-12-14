@@ -53,7 +53,7 @@ installTargets.extend(inst)
 
 if env['python_package'] == 'full':
     # Copy tutorials
-    inst = localenv.Install('$ct_tutdir', mglob(localenv, 'tutorial', 'py'))
+    inst = localenv.Install('$inst_tutdir', mglob(localenv, 'tutorial', 'py'))
     installTargets.extend(inst)
 
     # Copy examples
@@ -61,4 +61,4 @@ if env['python_package'] == 'full':
                         for name in ['runtest', 'cleanup', '*.txt', '*.py', '*.csv']], [])
     for f in exampleFiles:
         subdir1, subdir2 = psplit(f.path)[3:5]
-        installTargets.extend(localenv.Install(pjoin('$ct_demodir','python',subdir1,subdir2), f))
+        installTargets.extend(localenv.Install(pjoin('$inst_demodir','python',subdir1,subdir2), f))

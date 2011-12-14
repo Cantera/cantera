@@ -51,6 +51,6 @@ if env['use_sundials'] == 'n':
 for subdir, libname, extensions in libs:
     lib = localenv.Library(pjoin('../lib', libname),
                            source=mglob(localenv, subdir, *extensions))
-    inst = localenv.Install('$ct_libdir', lib)
+    inst = localenv.Install('$inst_libdir', lib)
     buildTargets.extend(lib)
     installTargets.extend(inst)

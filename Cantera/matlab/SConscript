@@ -54,16 +54,15 @@ target = localenv.Command(mexFile,
 buildTargets.extend(target)
 
 ### Install the Matlab toolbox ###
-inst = localenv.RecursiveInstall(pjoin('$prefix', 'matlab','toolbox'), 'cantera')
+inst = localenv.RecursiveInstall('$inst_matlab_dir', 'cantera')
 installTargets.extend(inst)
 
-inst = localenv.RecursiveInstall(pjoin('$ct_tutdir', 'matlab'), 'tutorial')
+inst = localenv.RecursiveInstall(pjoin('$inst_tutdir', 'matlab'), 'tutorial')
 installTargets.extend(inst)
 
-inst = localenv.RecursiveInstall(pjoin('$ct_demodir', 'matlab'), 'examples')
+inst = localenv.RecursiveInstall(pjoin('$inst_demodir', 'matlab'), 'examples')
 installTargets.extend(inst)
 
 if os.name == 'nt':
-    inst = localenv.Install(pjoin('$prefix', 'matlab', 'toolbox'),
-                            localenv['clib_shared'])
+    inst = localenv.Install('$inst_matlab_dir', localenv['clib_shared'])
     installTargets.extend(inst)

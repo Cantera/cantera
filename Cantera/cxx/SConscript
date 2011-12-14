@@ -8,7 +8,7 @@ localenv = env.Clone()
 
 lib = localenv.Library(pjoin('../../lib', 'ctcxx'),
                        source=mglob(localenv, 'src', 'cpp'))
-inst = localenv.Install('$ct_libdir', lib)
+inst = localenv.Install('$inst_libdir', lib)
 
 buildTargets.extend(lib)
 installTargets.extend(inst)
@@ -29,7 +29,7 @@ for subdir, name, extensions in demos:
                             LIBS=env['cantera_libs'])
     demoTargets.extend(prog)
 
-    inst = localenv.Install(pjoin('$ct_demodir', 'cxx', subdir),
+    inst = localenv.Install(pjoin('$inst_demodir', 'cxx', subdir),
                             mglob(localenv, pjoin('demos', subdir),
                                   'csv','txt','cpp','h','^runtest'))
 
