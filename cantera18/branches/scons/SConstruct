@@ -111,7 +111,8 @@ if env['f90_interface']:
 # Extra options for Sundials
 if env['use_sundials'] != 'n':
     opts.AddVariables(
-        EnumVariable('sundials_version' ,'', '2.4', ('2.2','2.3','2.4')))
+        EnumVariable('sundials_version' ,'', '2.4', ('2.2','2.3','2.4')),
+        PathVariable('sundials_include' ,'', ''))
 
 # Extra options for Boost.Thread
 if env['build_thread_safe']:
@@ -206,7 +207,7 @@ cdefine('HAS_SSTREAM', 'HAS_SSTREAM')
 configh['CANTERA_DATA'] = quoted(os.path.join(env['prefix'], 'data'))
 
 config_h = env.Command('config.h', 'config.h.in.scons', ConfigBuilder(configh))
-#env.AlwaysBuild(config_h)
+env.AlwaysBuild(config_h)
 
 # **********************************************
 # *** Set additional configuration variables ***
@@ -216,13 +217,19 @@ if env['blas_lapack_libs'] == '':
     env['BUILD_BLAS_LAPACK'] = True
     env['blas_lapack_libs'] = '-lctlapack -lctblas'
 
+if env['use_sundials'] == 'y' and env['sundials_include']:
+    env.Append(CPPPATH=env['sundials_include'])
+
 # *********************
 # *** Build Cantera ***
 # *********************
 build = 'build'
 env.SConsignFile()
-env.Append(CPPPATH=os.getcwd())
-Export('env', 'build', 'config_h')
+env.Append(CPPPATH=[Dir(os.getcwd()), Dir('build/include/cantera/kernel/')])
+Export('env', 'build')
 
 VariantDir('build/ext', 'ext', duplicate=0)
 SConscript('build/ext/SConscript')
+
+VariantDir('build/kernel', 'Cantera/src', duplicate=0)
+SConscript('build/kernel/SConscript')
