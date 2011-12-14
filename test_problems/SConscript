@@ -61,9 +61,11 @@ class Test(object):
                   'ct2ctml.log',
                   outName]
         files += list(self.artifacts)
+        files += [comp[1] for comp in self.comparisons]
         files = [pjoin(os.getcwd(), self.subdir, name) for name in files]
 
-        target = env.Command('clean-'+self.testName, [],
+        uniqueName = 'clean-%s-%s' % ('-'.join(psplit(self.subdir)), self.testName)
+        target = env.Command(uniqueName, [],
                              [Delete(f) for f in files
                               if os.path.exists(f)])
         return target
@@ -119,8 +121,8 @@ CompileAndTest(pjoin('cathermo', 'HMW_graph_GvI'),
                'HMW_graph_GvI', None,
                comparisons=[('T298_blessed.csv', 'T298.csv'),
                             ('T523_blessed.csv', 'T523.csv')],
-               artifacts=['T298.csv','T373.csv','T423.csv','T473.csv',
-                          'T548.csv','T523.csv','T573.csv'])
+               artifacts=['T373.csv','T423.csv','T473.csv',
+                          'T548.csv','T573.csv'])
 CompileAndTest(pjoin('cathermo', 'HMW_graph_GvT'),
                'HMW_graph_GvT', 'output_blessed.txt',
                extensions=['^HMW_graph_GvT.cpp', '^sortAlgorithms.cpp'],
@@ -161,19 +163,18 @@ CompileAndTest('ChemEquil_gri_matrix', 'gri_matrix', 'output_blessed.txt')
 CompileAndTest('ChemEquil_gri_pairs', 'gri_pairs', 'output_blessed.txt')
 CompileAndTest('ChemEquil_ionizedGas', 'ionizedGasEquil',
                'output_blessed.txt',
-               artifacts=['table.csv'],
                comparisons=[('table_blessed.csv', 'table.csv')])
 CompileAndTest('ChemEquil_red1', 'basopt_red1', 'output_blessed.txt')
 Test('ck2cti_test', 'ck2cti-gri30', '#build/bin/ck2cti', None,
      options='-i gri30.inp -id gri30 -tr gri30_tran.dat',
      comparisons=[('gri30a_blessed.cti','gri30.cti')],
      ignoreLines=['#'],
-     artifacts=['ck2cti.log', 'gri30.cti'])
+     artifacts=['ck2cti.log'])
 Test('ck2cti_test', 'ck2cti-soot', '#build/bin/ck2cti', None,
      options='-i soot.inp -id soot -t therm_soot.dat',
      comparisons=[('soot_blessed.cti', 'soot.cti')],
      ignoreLines=['#'],
-     artifacts=['ck2cti.log', 'soot.cti'])
+     artifacts=['ck2cti.log'])
 CompileAndTest('CpJump', 'CpJump', 'output_blessed.txt')
 CompileAndTest('cxx_ex', 'cxx_examples', 'output_blessed.txt',
                comparisons=[('eq1_blessed.csv', 'eq1.csv'),
@@ -183,12 +184,16 @@ CompileAndTest('cxx_ex', 'cxx_examples', 'output_blessed.txt',
                             ('tr2_blessed.csv', 'tr2.csv')],
                tolerance=2e-3,
                threshold=1e-7,
-               artifacts=['eq1.csv', 'eq1.dat', 'kin1.csv', 'kin1.dat',
-                          'kin2.csv', 'kin2.dat', 'kin3.csv', 'kin3.dat',
-                          'tr1.csv', 'tr1.dat', 'tr2.csv', 'tr2.dat'])
+               artifacts=['eq1.dat', 'kin1.dat', 'kin2.dat', 'kin3.csv',
+                          'kin3.dat', 'tr1.dat', 'tr2.dat'])
 CompileAndTest('diamondSurf', 'runDiamond', 'runDiamond_blessed.out')
 CompileAndTest('fracCoeff', 'fracCoeff', 'frac_blessed.out')
-# skipping min_python
+CompileAndTest(pjoin('min_python', 'minDiamond'),
+               'runDiamond', 'runDiamond_blessed.out',
+               comparisons=[('diamond_blessed.xml', 'diamond.xml')])
+CompileAndTest(pjoin('min_python', 'negATest'),
+               'negATest', 'negATest_blessed.out',
+               comparisons=[('noxNeg_blessed.xml', 'noxNeg.xml')])
 CompileAndTest('mixGasTransport', 'mixGasTransport', 'output_blessed.txt')
 CompileAndTest('multiGasTransport', 'multiGasTransport', 'output_blessed.txt')
 CompileAndTest('NASA9poly_test', 'NASA9poly_test', 'output_blessed.txt')
@@ -196,11 +201,10 @@ Test('nasa9_reader', 'nasa9_reader', '#build/bin/ck2cti', None,
      options='-i sample.inp -id sample -t sampleData.inp',
      comparisons=[('sample_blessed.cti', 'sample.cti')],
      ignoreLines=['#'],
-     artifacts=['ck2cti.log', 'sample.cti'])
+     artifacts=['ck2cti.log'])
 CompileAndTest('negATest', 'negATest', 'negATest_blessed.out')
 CompileAndTest('printUtilUnitTest', 'pUtest', 'output_blessed.txt')
 CompileAndTest('pureFluidTest', 'testPureWater', 'output_blessed.txt')
-# skipping python
 CompileAndTest('rankine_democxx', 'rankine', 'output_blessed.txt',
                artifacts=['liquidvapor.xml'])
 CompileAndTest('silane_equil', 'silane_equi', 'output_blessed.txt')
@@ -215,3 +219,21 @@ CompileAndTest(pjoin('VCSnonideal', 'NaCl_equil'),
                options='-d 3',
                artifacts=['vcs_equilibrate_res.csv']), # not testing this file because it's not really csv
 CompileAndTest('VPsilane_test', 'VPsilane_test', 'output_blessed.txt')
+
+# Python Tests
+
+if localenv['python_package'] == 'full':
+    Test('python', 'python-diamond', '$python_cmd', None,
+         options='../../Cantera/python/examples/surface_chemistry/diamond_cvd/diamond.py',
+         comparisons=[('diamond_blessed.csv', 'diamond.csv')],
+         artifacts=['diamond.xml'])
+    Test('python', 'python-frac', '$python_cmd', 'frac_blessed.out',
+         arguments='frac.py', artifacts=['frac.xml'])
+    Test(pjoin('python','tut1'), 'python-tut1', '$python_cmd',
+         'output_blessed.txt', arguments='tut1.py', artifacts=['gri30.xml'])
+    Test(pjoin('python','tut2'), 'python-tut2', '$python_cmd',
+         'output_blessed.txt', arguments='tut2.py',
+         artifacts=['gri30.xml', 'diamond.xml'])
+    # Skipping Python Tutorial 3 (documentation only)
+    Test(pjoin('python','tut4'), 'python-tut4', '$python_cmd',
+         'output_blessed.txt', arguments='tut4.py', artifacts=['gri30.xml'])
