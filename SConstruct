@@ -3,6 +3,15 @@ import platform, sys, os
 
 env = Environment()
 
+# ******************************************************
+# *** Set system-dependent defaults for some options ***
+# ******************************************************
+
+if os.name == 'posix':
+    env['default_prefix'] = '/usr/local'
+elif os.name == 'nt':
+    env['default_prefix'] = os.environ['ProgramFiles']
+
 # **************************************
 # *** Read user-configurable options ***
 # **************************************
@@ -10,9 +19,9 @@ env = Environment()
 opts = Variables('cantera.conf')
 opts.AddVariables(
     PathVariable('prefix', 'Where to install Cantera',
-                 '/usr/local', PathVariable.PathIsDirCreate),
-    EnumVariable('python_package', 'build python package?', 'default',
-                 ('full', 'minimal', 'none', 'default')),
+                 env['default_prefix'], PathVariable.PathIsDirCreate),
+    EnumVariable('python_package', 'build python package?', 'full',
+                 ('full', 'minimal', 'none')),
     PathVariable('python_cmd', 'Path to the python interpreter', sys.executable),
     EnumVariable('matlab_toolbox', '', 'n', ('y', 'n', 'default')),
     BoolVariable('f90_interface', 'Build Fortran90 interface?', False),
@@ -81,18 +90,22 @@ opts.AddVariables(
 opts.Update(env)
 
 # Additional options that apply only if building the full python package
+if env['prefix'] == env['default_prefix']:
+    pyprefix = None
+else:
+    pyprefix = env['prefix']
+
 if env['python_package'] in ('full', 'default'):
     opts.AddVariables(
         EnumVariable('python_array', 'Which Python array package to use',
                      'numpy', ('numpy', 'numarray', 'numeric')),
-        BoolVariable('set_python_site_package_topdir', '', False),
-        PathVariable('python_site_package_topdir', '', '/usr/local'),
         PathVariable('python_array_home',
                      'Location for array package (e.g. if installed with --home)',
                      None, PathVariable.PathAccept),
         PathVariable('cantera_python_home', 'where to install the python package',
-                     None, PathVariable.PathAccept),
+                     pyprefix, PathVariable.PathAccept)
         )
+
     env['BUILD_PYTHON'] = 3
 elif env['python_package'] == 'minimal':
     env['BUILD_PYTHON'] = 1
