@@ -131,7 +131,7 @@ static void thermoget( int nlhs, mxArray *plhs[],
                 vv = th_maxTemp(n); break;
             case 18:
                 vv = double(th_eosType(n)); break;
-#ifdef INCL_PURE_FLUIDS
+#ifdef WITH_PURE_FLUIDS
             case 19:
                 vv  = th_critTemperature(n); break;
             case 20:
