@@ -19,8 +19,9 @@ if env['build_with_f2c']:
     if not os.path.exists('arith.h'):
         arithenv = env.Clone()
         # TODO: make link flag more general
-        arithenv.Append(LINKFLAGS='-lm', CPPFLAGS='-DNO_FPINIT')
-        arithenv.Program('f2c_libs/arithchk/arithchk', source='f2c_libs/arithchk/arithchk.c')
+        arithenv.Append(CPPFLAGS='-DNO_FPINIT')
+        arithenv.Program('f2c_libs/arithchk/arithchk', source='f2c_libs/arithchk/arithchk.c',
+                         LIBS=['m'])
         arithenv.Command('#ext/f2c_libs/arith.h', 'f2c_libs/arithchk/arithchk$PROGSUFFIX',
                          '$SOURCE > $TARGET')
 
