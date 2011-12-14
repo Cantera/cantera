@@ -352,7 +352,52 @@ installTargets.extend(inst)
 
 ### Meta-targets ###
 build_cantera = Alias('build', buildTargets)
-install_cantera = Alias('install', installTargets)
 build_demos = Alias('demos', demoTargets)
 
 Default(build_cantera)
+
+def postInstallMessage(target, source, env):
+    v = sys.version_info
+    env['python_module_loc'] = pjoin(
+        env['prefix'], 'lib', 'python%i.%i' % v[:2], 'site-packages')
+
+    print """
+Cantera has been successfully installed.
+
+File locations:
+
+    applications      %(ct_bindir)s
+    library files     %(ct_libdir)s
+    C++ headers       %(ct_incdir)s
+    demos             %(ct_demodir)s
+    data files        %(ct_datadir)s""" % env
+
+    if env['python_package'] == 'full':
+        print """
+    Python package    %(python_module_loc)s""" % env
+
+    if env['matlab_toolbox'] == 'y':
+        print """
+    Matlab toolbox    %(ct_matlab_dir)s
+    Matlab demos      %(ct_demodir)s/matlab
+    Matlab tutorials  %(ct_tutdir)s/matlab
+
+    An m-file to set the correct matlab path for Cantera is at:
+
+        %(prefix)s/matlab/ctpath.m""" % env
+
+    print """
+    setup script      %(ct_bindir)s/setup_cantera
+
+    The setup script configures the environment for Cantera. It is
+    recommended that you run this script by typing:
+
+        source %(ct_bindir)s/setup_cantera
+
+    before using Cantera, or else include its contents in your shell
+    login script.
+    """ % env
+
+finish_install = env.Command('finish_install', [], postInstallMessage)
+env.Depends(finish_install, installTargets)
+install_cantera = Alias('install', finish_install)
