@@ -285,13 +285,6 @@ opts.AddVariables(
            Cantera requires use of sundials. See:
            http://www.llnl.gov/CASC/sundials""",
         'default', ('default', 'y', 'n')),
-    EnumVariable(
-        'sundials_version',
-        """It is recommended that you install the newest release of
-           sundials (currently 2.4.0) before building Cantera. But if
-           you want to use an older version, set SUNDIALS_VERSION to
-           the version you have.""",
-        '2.4', ('2.2','2.3','2.4')),
     PathVariable(
         'sundials_include',
         """The directory where the Sundials header files are
@@ -493,6 +486,12 @@ else:
 if env['boost_inc_dir']:
     env.Append(CPPPATH=env['boost_inc_dir'])
 
+if env['use_sundials'] in ('y','default'):
+    if env['sundials_include']:
+        env.Append(CPPPATH=[env['sundials_include']])
+    if env['sundials_libdir']:
+        env.Append(LIBPATH=[env['sundials_libdir']])
+
 conf = Configure(env)
 
 env['HAS_SSTREAM'] = conf.CheckCXXHeader('sstream', '<>')
@@ -500,6 +499,27 @@ env['HAS_TIMES_H'] = conf.CheckCHeader('sys/times.h', '""')
 env['HAS_UNISTD_H'] = conf.CheckCHeader('unistd.h', '""')
 env['HAS_MATH_H_ERF'] = conf.CheckDeclaration('erf', '#include <math.h>', 'C++')
 env['HAS_BOOST_MATH'] = conf.CheckCXXHeader('boost/math/special_functions/erf.hpp', '<>')
+env['HAS_SUNDIALS'] = conf.CheckLibWithHeader('sundials_cvodes', 'cvodes/cvodes.h', 'C++',
+                                              'CVodeCreate(CV_BDF, CV_NEWTON);', False)
+
+if env['HAS_SUNDIALS'] and env['use_sundials'] != 'n':
+    # Determine Sundials version
+    sundials_version_source = """
+#include <iostream>
+#include "sundials/sundials_config.h"
+int main(int argc, char** argv) {
+    std::cout << SUNDIALS_PACKAGE_VERSION << std::endl;
+    return 0;
+}"""
+    retcode, sundials_version = conf.TryRun(sundials_version_source, '.cpp')
+    if retcode == 0:
+        print """ERROR: Failed to determine Sundials version."""
+        sys.exit(0)
+
+    # Ignore the minor version, e.g. 2.4.x -> 2.4
+    env['sundials_version'] = '.'.join(sundials_version.strip().split('.')[:2])
+    print """INFO: Using Sundials version %s""" % sundials_version.strip()
+
 env = conf.Finish()
 
 if env['python_package'] in ('full','default'):
@@ -541,6 +561,20 @@ elif env['matlab_toolbox'] == 'default':
         print """INFO: Skipping compilation of the Matlab toolbox. """
 
 
+if env['use_sundials'] == 'default':
+    if env['HAS_SUNDIALS']:
+        env['use_sundials'] = 'y'
+    else:
+        print "INFO: Sundials was not found. Building with minimal ODE solver capabilities."
+        env['use_sundials'] = 'n'
+elif env['use_sundials'] == 'y' and not env['HAS_SUNDIALS']:
+    print """ERROR: Unable to find Sundials headers"""
+    sys.exit(1)
+elif env['use_sundials'] == 'y' and env['sundials_version'] not in ('2.2','2.3','2.4'):
+    print """ERROR: Sundials version %r is not supported."""
+    sys.exit(1)
+
+
 # **********************************************
 # *** Set additional configuration variables ***
 # **********************************************
@@ -550,11 +584,6 @@ if env['blas_lapack_libs'] == '':
     env['blas_lapack_libs'] = ['ctlapack', 'ctblas']
 else:
     ens['blas_lapack_libs'] = ','.split(env['blas_lapack_libs'])
-
-if env['use_sundials'] == 'y' and env['sundials_include']:
-    env.Append(CPPPATH=[env['sundials_include']])
-if env['use_sundials'] == 'y' and env['sundials_libdir']:
-    env.Append(LIBPATH=[env['sundials_libdir']])
 
 env['ct_libdir'] = pjoin(env['prefix'], 'lib')
 env['ct_bindir'] = pjoin(env['prefix'], 'bin')
