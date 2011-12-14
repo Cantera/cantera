@@ -50,28 +50,32 @@ opts.AddVariables(
     BoolVariable('lapack_ftn_trailing_underscore', '', True),
     BoolVariable('lapack_ftn_string_len_at_end', '', True),
     ('bitcompile', '', ''), # '32' or '64'
-    ('cxx', '', 'g++'),
-    ('cc', '', 'gcc'),
-    ('cxxflags', '', '-O3 -Wall'),
-    ('lcxx_end_libs', '-lm'),
-    ('pic', '', ''),
-    ('shared', '', '-dynamic'),
+    ('CXX', '', env['CXX']),
+    ('CC', '', env['CC']),
+    ('CXXFLAGS', '', '-O3 -Wall'),
     BoolVariable('build_thread_safe', '', False),
     BoolVariable('build_with_f2c', '', True),
-    ('f77', '', 'g77'),
-    ('fflags', '', '-O3'),
-    ('lfort_flags', '', '-L/usr/local/lib'),
-    ('archive', '', 'ar ruv'),
-    ('ranlib', '', 'ranlib'),
+    ('F77', '', env['F77']),
+    ('F77FLAGS', '', '-O3'),
+    ('F90', '', env['F90']),
+    ('F90FLAGS', '', '-O3'),
     ('install_bin', '', 'config/install-sh'),
     ('graphvisdir', '' ,''),
-    ('cxx_ext', '', 'cpp'),
-    ('f77_ext', '', 'f'),
-    ('f90_ext', '', 'f90'),
-    ('exe_ext', '', ''),
     ('ct_shared_lib', '', 'clib'),
     ('rpfont', '', 'Helvetica'),
     ('cantera_version', '', '1.8.x')
+# These variables shouldn't be necessary any more...
+#    ('cxx_ext', '', 'cpp'),
+#    ('f77_ext', '', 'f'),
+#    ('f90_ext', '', 'f90'),
+#    ('exe_ext', '', ''),
+#    ('lcxx_end_libs', '-lm'),
+#    ('pic', '', '-fPIC'),
+#    ('shared', '', '-dynamic'),
+#    ('lfort_flags', '', '-L/usr/local/lib'),
+#    ('AR', '', env['AR']),
+#    ('ARFLAGS', '', env['ARFLAGS']), # ('archive', '', 'ar ruv'),
+#    ('ranlib', '', 'ranlib'),
     )
 
 opts.Update(env)
@@ -88,13 +92,12 @@ if env['python_package'] in ('full', 'default'):
                      None, PathVariable.PathAccept),
         PathVariable('cantera_python_home', 'where to install the python package',
                      None, PathVariable.PathAccept),
-                     
         )
 
 # Options that apply only if building the Matlab interface
 if env['matlab_toolbox'] != 'n':
     opts.AddVariables(
-        PathVariable('matlab_cmd', 'Path to the matlab executable', 
+        PathVariable('matlab_cmd', 'Path to the matlab executable',
                      'default', PathVariable.PathAccept)
         )
 
@@ -125,9 +128,20 @@ opts.Save('cantera.conf', env)
 # ********************************************
 env['OS'] = platform.system()
 
+#def ArithCheck(context):
+#    context.Message('Trying to generate arith.h\n')
+#    exitStatus = context.TryLink(file('ext/f2c_libs/arithchk.c').read(), '.c')
+#    print exitStatus
+#    exitStatus, output = context.TryRun(file('ext/f2c_libs/arithchk.c').read(), '.c')
+#    print exitStatus, output
+#    context.Result(output)
+#    return exitStatus
+
 conf = Configure(env)
+#conf = Configure(env, custom_tests = {'ArithCheck':ArithCheck})
 
 env['HAS_SSTREAM'] = conf.CheckCXXHeader('sstream', '<>')
+#conf.ArithCheck()
 
 env = conf.Finish()
 
@@ -151,8 +165,8 @@ cdefine('PURIFY_MODE', 'purify')
 
 # Need to test all of these to see what platform.system() returns
 configh['SOLARIS'] = 1 if env['OS'] == 'Solaris' else None
-configh['DARWIN'] = 1 if env['OS'] == 'Darwin' else None 
-configh['CYGWIN'] = 1 if env['OS'] == 'Cygwin' else None 
+configh['DARWIN'] = 1 if env['OS'] == 'Darwin' else None
+configh['CYGWIN'] = 1 if env['OS'] == 'Cygwin' else None
 configh['WINMSVC'] = 1 if env['OS'] == 'Windows' else None
 cdefine('NEEDS_GENERIC_TEMPL_STATIC_DECL', 'OS', 'Solaris')
 
@@ -191,8 +205,24 @@ cdefine('THREAD_SAFE_CANTERA', 'build_thread_safe')
 cdefine('HAS_SSTREAM', 'HAS_SSTREAM')
 configh['CANTERA_DATA'] = quoted(os.path.join(env['prefix'], 'data'))
 
-env.AlwaysBuild(env.Command('config.h', 'config.h.in.scons', ConfigBuilder(configh)))
+config_h = env.Command('config.h', 'config.h.in.scons', ConfigBuilder(configh))
+#env.AlwaysBuild(config_h)
+
+# **********************************************
+# *** Set additional configuration variables ***
+# **********************************************
+if env['blas_lapack_libs'] == '':
+    # External BLAS/LAPACK were not given, so we need to compile them
+    env['BUILD_BLAS_LAPACK'] = True
+    env['blas_lapack_libs'] = '-lctlapack -lctblas'
 
 # *********************
 # *** Build Cantera ***
 # *********************
+build = 'build'
+env.SConsignFile()
+env.Append(CPPPATH=os.getcwd())
+Export('env', 'build', 'config_h')
+
+VariantDir('build/ext', 'ext', duplicate=0)
+SConscript('build/ext/SConscript')
