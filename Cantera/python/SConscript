@@ -14,7 +14,6 @@ ctversion = %(cantera_version)r
     with open(str(target[0]), 'w') as f:
         f.write(text)
 
-conf = localenv.Command('ctconf.py', [], make_ctconf)
 gcv = distutils.sysconfig.get_config_var
 
 localenv.Append(CPPPATH=[gcv('INCLUDEPY')],
@@ -40,7 +39,5 @@ pymodule = localenv.SharedLibrary('Cantera/_cantera', ['src/pycantera.cpp'],
                                   SHLIBPREFIX='',
                                   SHLIBSUFFIX=gcv('SO'))
 
-pybuild = localenv.Command('built_python', 'Cantera/_cantera.so',
-                           'cd Cantera/python; python setup.py build; touch built_python')
-
-localenv.Depends(pybuild, [pymodule, conf])
+localenv.AddPreAction(pymodule, make_ctconf)
+localenv.AddPostAction(pymodule, 'cd Cantera/python; python setup.py build')
