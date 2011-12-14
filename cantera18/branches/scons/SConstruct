@@ -33,7 +33,7 @@ opts.AddVariables(
                  '', PathVariable.PathAccept),
     PathVariable('cantera_python_home', 'where to install the python package',
                  '', PathVariable.PathAccept),
-    EnumVariable('matlab_toolbox', '', 'n', ('y', 'n', 'default')),
+    EnumVariable('matlab_toolbox', '', 'default', ('y', 'n', 'default')),
     PathVariable('matlab_cmd', 'Path to the matlab executable',
                  'matlab', PathVariable.PathAccept),
     BoolVariable('f90_interface', 'Build Fortran90 interface?', False),
@@ -153,6 +153,19 @@ if env['python_package'] in ('full','default'):
                    """ because the array package '%s' could not be found.""" % env['python_array'])
             warnNoPython = True
             env['python_package'] = 'minimal'
+
+
+if env['matlab_toolbox'] == 'y' and which(env['matlab_cmd']) is None:
+    print """ERROR: Unable to find the Matlab executable '%s'""" % env['matlab_cmd']
+    sys.exit(1)
+elif env['matlab_toolbox'] == 'default':
+    cmd = which(env['matlab_cmd'])
+    if cmd is not None:
+        env['matlab_toolbox'] = 'y'
+        print """INFO: Building the Matlab toolbox using '%s'""" % cmd
+    else:
+        print """INFO: Skipping compilation of the Matlab toolbox. """
+
 
 # **************************************
 # *** Set options needed in config.h ***
@@ -337,10 +350,18 @@ inst = env.Install('$ct_bindir', pjoin('bin', 'exp3to2.sh'))
 installTargets.extend(inst)
 
 ### Meta-targets ###
-build_cantera = Alias('build', buildTargets)
 build_demos = Alias('demos', demoTargets)
 
-Default(build_cantera)
+def postBuildMessage(target, source, env):
+    print "**************************************************************"
+    print "Compiliation complete. Type '[sudo] scons install' to install."
+    print "**************************************************************"
+
+finish_build = env.Command('finish_build', [], postBuildMessage)
+env.Depends(finish_build, buildTargets)
+build_cantera = Alias('build', finish_build)
+
+Default('build')
 
 def postInstallMessage(target, source, env):
     v = sys.version_info
