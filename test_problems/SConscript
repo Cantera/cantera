@@ -3,6 +3,8 @@ from buildutils import *
 Import('env','buildTargets','installTargets')
 localenv = env.Clone()
 
+os.environ['PYTHONPATH'] = pjoin(os.getcwd(), '..','Cantera','python')
+
 class Test(object):
     def __init__(self, subdir, programName,
                  blessedName, arguments=(),
@@ -87,7 +89,88 @@ tests = [Test(pjoin('cathermo', 'DH_graph_1'),
               'HMW_graph_GvT',
               'output_blessed.txt',
               extensions=['^HMW_graph_GvT.cpp', '^sortAlgorithms.cpp'],
-              arguments='HMW_NaCl_sp1977_alt.xml')
+              arguments='HMW_NaCl_sp1977_alt.xml'),
+         Test(pjoin('cathermo', 'HMW_graph_HvT'),
+              'HMW_graph_HvT',
+              'output_blessed.txt',
+              extensions=['^HMW_graph_HvT.cpp', '^sortAlgorithms.cpp'],
+              arguments='HMW_NaCl_sp1977_alt.xml'),
+         Test(pjoin('cathermo', 'HMW_graph_VvT'),
+              'HMW_graph_VvT',
+              'output_blessed.txt',
+              extensions=['^HMW_graph_VvT.cpp', '^sortAlgorithms.cpp'],
+              arguments='HMW_NaCl_sp1977_alt.xml'),
+         Test(pjoin('cathermo', 'HMW_test_1'),
+              'HMW_test_1',
+              'output_noD_blessed.txt'),
+         Test(pjoin('cathermo', 'HMW_test_3'),
+              'HMW_test_3',
+              'output_noD_blessed.txt'),
+         Test(pjoin('cathermo', 'ims'),
+              'IMSTester',
+              'output_blessed.txt'),
+         Test(pjoin('cathermo', 'issp'),
+              'ISSPTester',
+              'output_blessed.txt'),
+         Test(pjoin('cathermo', 'stoichSubSSTP'),
+              'stoichSubSSTP',
+              'output_blessed.txt'),
+         Test(pjoin('cathermo', 'testIAPWS'),
+              'testIAPWSphi',
+              'output_blessed.txt'),
+         Test(pjoin('cathermo', 'testIAPWSPres'),
+              'testIAPWSPres',
+              'output_blessed.txt'),
+         Test(pjoin('cathermo', 'testIAPWSTripP'),
+              'testIAPWSTripP',
+              'output_blessed.txt'),
+         Test(pjoin('cathermo', 'testWaterPDSS'),
+              'testWaterPDSS',
+              'output_blessed.txt'),
+         Test(pjoin('cathermo', 'testWaterTP'),
+              'testWaterSSTP',
+              'output_blessed.txt'),
+         Test(pjoin('cathermo', 'VPissp'),
+              'ISSPTester2',
+              'output_blessed.txt'),
+         Test(pjoin('cathermo', 'wtWater'),
+              'wtWater',
+              'output_blessed.txt'),
+         Test('ChemEquil_gri_matrix', 'gri_matrix', 'output_blessed.txt'),
+         Test('ChemEquil_gri_pairs', 'gri_pairs', 'output_blessed.txt'),
+         Test('ChemEquil_ionizedGas', 'ionizedGasEquil',
+              'output_blessed.txt',
+              artifacts=['table.csv']), # needs .csv comparison
+         Test('ChemEquil_red1', 'basopt_red1', 'output_blessed.txt'),
+         # Skipping ck2cti_test because of automatically generated file
+         Test('CpJump', 'CpJump', 'output_blessed.txt'),
+         # Skipping cxx_ex because of complicated behavior
+         Test('diamondSurf', 'runDiamond', 'runDiamond_blessed.out'),
+         Test('fracCoeff', 'fracCoeff', 'frac_blessed.out'),
+         # skipping min_python
+         Test('mixGasTransport', 'mixGasTransport', 'output_blessed.txt'),
+         Test('multiGasTransport', 'multiGasTransport', 'output_blessed.txt'),
+         Test('NASA9poly_test', 'NASA9poly_test', 'output_blessed.txt'),
+         # skipping nasa9_reader because of automatically generated file
+         Test('negATest', 'negATest', 'negATest_blessed.out'),
+         Test('printUtilUnitTest', 'pUtest', 'output_blessed.txt'),
+         Test('pureFluidTest', 'testPureWater', 'output_blessed.txt'),
+         # skipping python
+         Test('rankine_democxx', 'rankine', 'output_blessed.txt',
+              artifacts=['liquidvapor.xml']),
+         Test('silane_equil', 'silane_equi', 'output_blessed.txt'),
+         # spectroscopy is incomplete
+         Test('surfkin', 'surfdemo', 'output_blessed.txt'),
+         Test('surfSolverTest', 'surfaceSolver',
+              'surfaceSolver_blessed.out',
+              arguments='haca2.xml',
+              artifacts=['results.txt', 'diamond.xml'],
+              extensions=['^surfaceSolver.cpp']), # needs .csv, extra tests
+# # Disabled because of need for command line arguments
+#         Test(pjoin('VCSnonideal', 'NaCl_equil'),
+#              'nacl_equil',
+#              'good_out.txt'), # needs .csv diff
+         Test('VPsilane_test', 'VPsilane_test', 'output_blessed.txt')
          ]
 
 env.Alias('test', [test.run(localenv) for test in tests])
