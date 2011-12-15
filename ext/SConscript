@@ -21,7 +21,7 @@ if env['build_with_f2c']:
         # TODO: make link flag more general
         arithenv.Append(CPPFLAGS='-DNO_FPINIT')
         arithenv.Program('f2c_libs/arithchk/arithchk', source='f2c_libs/arithchk/arithchk.c',
-                         LIBS=['m'])
+                         LIBS=env['LIBM'])
         arithenv.Command('#ext/f2c_libs/arith.h', 'f2c_libs/arithchk/arithchk$PROGSUFFIX',
                          '$SOURCE > $TARGET')
 

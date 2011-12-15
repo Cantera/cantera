@@ -485,8 +485,10 @@ env['FORTRANMODDIR'] = '${TARGET.dir}'
 
 if env['CC'] == 'gcc':
     env['WIN32'] = False
+    env['LIBM'] = ['m']
 elif env['CC'] == 'cl':
     env['WIN32'] = True
+    env['LIBM'] = []
 else:
     assert False
 
