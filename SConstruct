@@ -54,10 +54,12 @@ if os.name == 'posix':
     defaults.prefix = '/usr/local'
     defaults.boostIncDir = '/usr/include'
     defaults.boostLibDir = '/usr/lib'
+    env['INSTALL_MANPAGES'] = True
 elif os.name == 'nt':
-    defaults.prefix = os.environ['ProgramFiles']
+    defaults.prefix = pjoin(os.environ['ProgramFiles'], 'Cantera')
     defaults.boostIncDir = ''
     defaults.boostLibDir = ''
+    env['INSTALL_MANPAGES'] = False
 else:
     print "Error: Unrecognized operating system '%s'" % os.name
     sys.exit(1)
