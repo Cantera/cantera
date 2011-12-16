@@ -1,0 +1,12 @@
+*~
+*.o
+*.so
+*.os
+*.pyc
+*.obj
+*.exe.manifest
+build
+.sconsign.dblite
+.sconf_temp
+cantera.conf
+config.log
