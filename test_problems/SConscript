@@ -3,7 +3,8 @@ from buildutils import *
 Import('env','buildTargets','installTargets')
 localenv = env.Clone()
 
-os.environ['PYTHONPATH'] = pjoin(os.getcwd(), '..','Cantera','python')
+os.environ['PYTHONPATH'] = pjoin(os.getcwd(), '..', 'Cantera', 'python')
+os.environ['CANTERA_DATA'] = pjoin(os.getcwd(), '..', 'data', 'inputs')
 
 class Test(object):
     def __init__(self, subdir, testName, programName, blessedName, **kwargs):
