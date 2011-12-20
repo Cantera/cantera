@@ -12,8 +12,6 @@
  */
 
 // Copyright 2001-2004  California Institute of Technology            
-
-
              
 #include "InterfaceKinetics.h"
 #include "SurfPhase.h"            
