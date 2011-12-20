@@ -568,7 +568,44 @@ WARN_LOGFILE           =
 # directories like "/usr/src/myproject". Separate the files or directories 
 # with spaces.
 
-INPUT                  = Cantera/src/kinetics/Kinetics.h \
+INPUT                  = Cantera/src/kinetics/Kinetics.h  \
+                         Cantera/src/base/Array.h         \
+                         Cantera/src/base/config.h        \
+                         Cantera/src/base/clockWC.h       \
+                         Cantera/src/base/ctexceptions.h  \
+                         Cantera/src/base/ct_defs.h       \
+                         Cantera/src/base/ctml.h          \
+                         Cantera/src/base/FactoryBase.h   \
+                         Cantera/src/base/global.h        \
+                         Cantera/src/base/logger.h        \
+                         Cantera/src/base/LogPrintCtrl.h  \
+                         Cantera/src/base/mpd_allo.h      \
+                         Cantera/src/base/plots.h         \
+                         Cantera/src/base/PrintCtrl.h     \
+                         Cantera/src/base/stringUtils.h   \
+                         Cantera/src/base/units.h         \
+                         Cantera/src/base/utilities.h     \
+                         Cantera/src/base/vec_functions.h \ 
+                         Cantera/src/base/xml.h           \
+                         Cantera/src/base/XML_Writer.h    \		       
+			 Cantera/src/converters/ck2ct.h        \			  
+			 Cantera/src/converters/CKParser.h     \
+			 Cantera/src/converters/CKReader.h     \
+			 Cantera/src/converters/Constituent.h     \
+			 Cantera/src/converters/Reaction.h        \
+			 Cantera/src/converters/Species.h         \    
+			 Cantera/src/converters/writelog.h        \
+			 Cantera/src/converters/ck2ctml.h         \
+			 Cantera/src/converters/ckr_defs.h        \
+			 Cantera/src/converters/ckr_utils.h       \
+			 Cantera/src/converters/Element.h         \
+			 Cantera/src/converters/RxnSpecies.h      \
+			 Cantera/src/converters/thermoFunctions.h \
+                         Cantera/src/equil/MultiPhase.h           \
+                         Cantera/src/equil/PropertyCalculator.h   \
+                         Cantera/src/equil/ChemEquil.h            \
+                         Cantera/src/numerics/polyfit.h           \
+			 Cantera/src/kinetics/Kinetics.h          \
 		         $(SRCDIR)/doxygen/cantera.page \
 			 $(SRCDIR)/doxygen/fortran_interface.page \
 			 $(SRCDIR)/doxygen/txt_common/acknowledgment.page  \
