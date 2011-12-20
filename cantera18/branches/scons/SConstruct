@@ -492,14 +492,10 @@ elif env['F90'] == 'ifort':
 
 env['FORTRANMODDIR'] = '${TARGET.dir}'
 
-if env['CC'] == 'gcc':
-    env['WIN32'] = False
-    env['LIBM'] = ['m']
-elif env['CC'] == 'cl':
+if env['CC'] == 'cl':
     env['WIN32'] = True
-    env['LIBM'] = []
 else:
-    assert False
+    env['WIN32'] = False
 
 if env['boost_inc_dir']:
     env.Append(CPPPATH=env['boost_inc_dir'])
@@ -519,6 +515,11 @@ env['HAS_MATH_H_ERF'] = conf.CheckDeclaration('erf', '#include <math.h>', 'C++')
 env['HAS_BOOST_MATH'] = conf.CheckCXXHeader('boost/math/special_functions/erf.hpp', '<>')
 env['HAS_SUNDIALS'] = conf.CheckLibWithHeader('sundials_cvodes', 'cvodes/cvodes.h', 'C++',
                                               'CVodeCreate(CV_BDF, CV_NEWTON);', False)
+env['NEED_LIBM'] = not conf.CheckLibWithHeader(None, 'math.h', 'C', 'double x = 2.0; sqrt(x);', False)
+if env['NEED_LIBM']:
+    env['LIBM'] = ['m']
+else:
+    env['LIBM'] = []
 
 if env['HAS_SUNDIALS'] and env['use_sundials'] != 'n':
     # Determine Sundials version
