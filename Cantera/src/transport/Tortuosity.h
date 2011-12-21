@@ -1,4 +1,3 @@
-
 /** 
  * @file TortuosityBruggeman.h
  *  Class to compute the increase in diffusive path length in porous media
@@ -15,8 +14,8 @@
  * $Revision: 572 $
  * $Date: 2010-08-13 20:21:57 -0600 (Fri, 13 Aug 2010) $
  */
-#ifndef CT_TORTUOSITYBRUGGEMAN_H
-#define CT_TORTUOSITYBRUGGEMAN_H
+#ifndef CT_TORTUOSITY_H
+#define CT_TORTUOSITY_H
 
 
 namespace Cantera {
@@ -44,11 +43,11 @@ namespace Cantera {
    *
    * The tortuosity comes into play in conjunction the the 
    */
-  class TortuosityBruggeman {
+  class Tortuosity {
     
   public: 
     //! Default constructor uses Bruggemann exponent of 1.5 
-    TortuosityBruggeman(double setPower = 1.5 ) : expBrug_(setPower) {
+    Tortuosity(double setPower = 1.5 ) : expBrug_(setPower) {
     }
     
     //! The tortuosity factor models the effective increase in the
@@ -190,3 +189,4 @@ namespace Cantera {
     };
 
 }
+#endif
