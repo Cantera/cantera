@@ -41,6 +41,7 @@ if os.name == 'nt':
         extraEnvArgs['TARGET_ARCH'] = 'x86'
 
 env = Environment(tools=['default', 'textfile', 'subst', 'recursiveInstall'],
+                  ENV={'PATH': os.environ['PATH']},
                   **extraEnvArgs)
 
 add_RegressionTest(env)
@@ -64,6 +65,18 @@ else:
     print "Error: Unrecognized operating system '%s'" % os.name
     sys.exit(1)
 
+opts = Variables('cantera.conf')
+opts.AddVariables(
+    ('CXX',
+     'The C++ compiler to use.',
+     env['CXX']),
+    ('CC',
+     """The C compiler to use. This is only used to compile CVODE and
+        the Python extension module.""",
+     env['CC']),
+    )
+opts.Update(env)
+
 if env['CC'] == 'gcc':
     defaults.cxxFlags = '-ftemplate-depth-128'
     defaults.ccFlags = '-Wall -g'
@@ -80,7 +93,13 @@ elif env['CC'] == 'cl': # Visual Studio
     defaults.debugLinkFlags = '/DEBUG'
     defaults.fPIC = ''
 else:
-    print "Error: Unrecognized C compiler '%s'" % env['CC']
+    print "Warning: Unrecognized C compiler '%s'" % env['CC']
+    defaults.cxxFlags = ''
+    defaults.ccFlags = ''
+    defaults.debugCcFlags = ''
+    defaults.releaseCcFlags = ''
+    defaults.debugLinkFlags = ''
+    defaults.fPIC = ''
 
 # **************************************
 # *** Read user-configurable options ***
@@ -566,6 +585,8 @@ if env['python_package'] in ('full','default'):
                    """ because the array package '%s' could not be found.""" % env['python_array'])
             warnNoPython = True
             env['python_package'] = 'minimal'
+else:
+    env['python_array_include'] = ''
 
 
 if env['matlab_toolbox'] == 'y' and which(env['matlab_cmd']) is None:
