@@ -92,6 +92,13 @@ elif env['CC'] == 'cl': # Visual Studio
     defaults.releaseCcFlags = '/O2 /MD /DNDEBUG'
     defaults.debugLinkFlags = '/DEBUG'
     defaults.fPIC = ''
+elif env['CC'] == 'icc':
+    defaults.cxxFlags = '-ftemplate-depth-128'
+    defaults.ccFlags = '-Wcheck -g -vec-report0'
+    defaults.debugCcFlags = '-O0 -fno-inline'
+    defaults.releaseCcFlags = '-O3 -finline-functions -DNDEBUG'
+    defaults.debugLinkFlags = ''
+    defaults.fPIC = '-fPIC'
 else:
     print "Warning: Unrecognized C compiler '%s'" % env['CC']
     defaults.cxxFlags = ''
