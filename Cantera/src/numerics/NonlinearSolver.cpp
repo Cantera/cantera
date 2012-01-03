@@ -3141,7 +3141,7 @@ namespace Cantera {
 	}
 	info = beuler_jac(jac, DATA_PTR(m_resid), time_curr, CJ,  DATA_PTR(m_y_n_curr), 
 			  DATA_PTR(m_ydot_n_curr), num_newt_its);
-	if (info == 0) {
+	if (info != 1) {
 	  if (m_print_flag > 0) {
 	    printf("\t   solve_nonlinear_problem(): Jacobian Formation Error: %d Bailing\n", info);
 	  }
