@@ -22,12 +22,16 @@ namespace Cantera {
     s += '\n';
     writelog(s.c_str());
   }
-
-  Sim1D::Sim1D() : OneDim() { 
+  //====================================================================================================================
+  Sim1D::Sim1D() :
+    OneDim()
+  { 
     //writelog("Sim1D default constructor\n"); 
   }
-
-  Sim1D::Sim1D(vector<Domain1D*>& domains) : OneDim(domains) {
+  //====================================================================================================================
+  Sim1D::Sim1D(vector<Domain1D*>& domains) :
+    OneDim(domains)
+  {
 
     // resize the internal solution vector and the wprk array,
     // and perform domain-specific initialization of the
@@ -49,7 +53,7 @@ namespace Cantera {
     m_steps.push_back(10);
 
   }
-
+  //====================================================================================================================
 	
   // added by Karl Meredith
   void Sim1D::setInitialGuess(string component, vector_fp& locs, vector_fp& vals){
