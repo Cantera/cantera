@@ -264,95 +264,12 @@ namespace Cantera {
      * @{
      */
 
-    //! This method returns an array of generalized concentrations
-    /*!
-     * \f$ C^a_k\f$ are defined such that \f$ a_k = C^a_k /
-     * C^0_k, \f$ where \f$ C^0_k \f$ is a standard concentration
-     * defined below and \f$ a_k \f$ are activities used in the
-     * thermodynamic functions.  These activity (or generalized)
-     * concentrations are used
-     * by kinetics manager classes to compute the forward and
-     * reverse rates of elementary reactions. Note that they may
-     * or may not have units of concentration --- they might be
-     * partial pressures, mole fractions, or surface coverages,
-     * for example.
-     *
-     * @param c Output array of generalized concentrations. The
-     *           units depend upon the implementation of the
-     *           reaction rate expressions within the phase.
-     */
-    virtual void getActivityConcentrations(doublereal* c) const;
-  
-    //! Return the standard concentration for the kth species
-    /*!
-     * The standard concentration \f$ C^0_k \f$ used to normalize
-     * the activity (i.e., generalized) concentration. In many cases, this quantity
-     * will be the same for all species in a phase - for example,
-     * for an ideal gas \f$ C^0_k = P/\hat R T \f$. For this
-     * reason, this method returns a single value, instead of an
-     * array.  However, for phases in which the standard
-     * concentration is species-specific (e.g. surface species of
-     * different sizes), this method may be called with an
-     * optional parameter indicating the species.
-     *
-     *  Here we define the standard concentration as being equal to 1.0.
-     *  Therefore, the kinetics operators will be dealing in unitless
-     *  activities for all kinetics expressions involving the molten
-     *  salts. This assignment is subject to further assessment.
-     *
-     * @param k Optional parameter indicating the species. The default
-     *          is to assume this refers to species 0.
-     * @return 
-     *   Returns the standard concentration. The units are by definition
-     *   dependent on the ThermoPhase and kinetics manager representation.
-     */
-    virtual doublereal standardConcentration(int k=0) const;
-
-
-    //! Natural logarithm of the standard concentration of the kth species.
-    /*!
-     * @param k    index of the species (defaults to zero)
-     */
-    virtual doublereal logStandardConc(int k=0) const; 
-
-    //! Returns the units of the standard and generalized concentrations.
-    /*!
-     * Note they have the same units, as their
-     * ratio is defined to be equal to the activity of the kth
-     * species in the solution, which is unitless.
-     *
-     * This routine is used in print out applications where the
-     * units are needed. Usually, MKS units are assumed throughout
-     * the program and in the XML input files.
-     *
-     * The base %ThermoPhase class assigns the default quantities
-     * of (kmol/m3) for all species.
-     * Inherited classes are responsible for overriding the default 
-     * values if necessary.
-     *
-     * @param uA Output vector containing the units
-     *  uA[0] = kmol units - default  = 1
-     *  uA[1] = m    units - default  = -nDim(), the number of spatial
-     *                                dimensions in the Phase class.
-     *  uA[2] = kg   units - default  = 0;
-     *  uA[3] = Pa(pressure) units - default = 0;
-     *  uA[4] = Temperature units - default = 0;
-     *  uA[5] = time units - default = 0
-     * @param k species index. Defaults to 0.
-     * @param sizeUA output int containing the size of the vector.
-     *        Currently, this is equal to 6.
-     */
-    virtual void getUnitsStandardConc(double *uA, int k = 0,
-				      int sizeUA = 6) const;
-
-   
     //! Get the array of non-dimensional molar-based activity coefficients at
     //! the current solution temperature, pressure, and solution concentration.
     /*!
      * @param ac Output vector of activity coefficients. Length: m_kk.
      */
     virtual void getActivityCoefficients(doublereal* ac) const;
-
 
  
     //@}

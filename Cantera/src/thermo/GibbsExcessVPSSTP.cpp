@@ -213,16 +213,17 @@ namespace Cantera {
   /*
    * - Activities, Standard States, Activity Concentrations -----------
    */
+  void GibbsExcessVPSSTP::getActivityConcentrations(doublereal* c) const {
+    getActivities(c);
+  }
 
 
   doublereal GibbsExcessVPSSTP::standardConcentration(int k) const {
-    err("standardConcentration");
-    return -1.0;
+    return 1.0;
   }
 
   doublereal GibbsExcessVPSSTP::logStandardConc(int k) const {
-    err("logStandardConc");
-    return -1.0;
+    return 0.0;
   }
 
   void GibbsExcessVPSSTP::getActivities(doublereal* ac) const {
@@ -328,8 +329,8 @@ namespace Cantera {
    */
   void GibbsExcessVPSSTP::getUnitsStandardConc(double *uA, int k, int sizeUA) const {
     for (int i = 0; i < sizeUA; i++) {
-      if (i == 0) uA[0] = 1.0;
-      if (i == 1) uA[1] = -nDim();
+      if (i == 0) uA[0] = 0.0;
+      if (i == 1) uA[1] = 0.0;
       if (i == 2) uA[2] = 0.0;
       if (i == 3) uA[3] = 0.0;
       if (i == 4) uA[4] = 0.0;

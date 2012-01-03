@@ -342,51 +342,13 @@ namespace Cantera {
     }
   }
   //====================================================================================================================
-
   /*
    * ------------ Molar Thermodynamic Properties ----------------------
    */
-
-
+  //====================================================================================================================
   /*
    * - Activities, Standard States, Activity Concentrations -----------
    */
-
-  // This method returns an array of generalized concentrations
-  /*
-   * \f$ C^a_k\f$ are defined such that \f$ a_k = C^a_k /
-   * C^0_k, \f$ where \f$ C^0_k \f$ is a standard concentration
-   * defined below and \f$ a_k \f$ are activities used in the
-   * thermodynamic functions.  These activity (or generalized)
-   * concentrations are used
-   * by kinetics manager classes to compute the forward and
-   * reverse rates of elementary reactions. Note that they may
-   * or may not have units of concentration --- they might be
-   * partial pressures, mole fractions, or surface coverages,
-   * for example.
-   *
-   *  Here we define the activity concentrations as equal
-   *  to the activities, because the standard concentration is 1.
-   *
-   * @param c Output array of generalized concentrations. The
-   *           units depend upon the implementation of the
-   *           reaction rate expressions within the phase.
-   */
-  void PhaseCombo_Interaction::getActivityConcentrations(doublereal* c) const {
-    getActivities(c);
-  }
-  //====================================================================================================================
-  doublereal PhaseCombo_Interaction::standardConcentration(int k) const {
-    //err("standardConcentration");
-    //return -1.0;
-    return 1.0;
-  }
-  //====================================================================================================================
-  doublereal PhaseCombo_Interaction::logStandardConc(int k) const {
-    //err("logStandardConc");
-    //return -1.0;
-    return 0.0;
-  }
   //====================================================================================================================
   // Get the array of non-dimensional molar-based activity coefficients at
   // the current solution temperature, pressure, and solution concentration.
