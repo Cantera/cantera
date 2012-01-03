@@ -48,9 +48,14 @@ else:
     # Install Python module in the default location
     extra = ''
 
-inst = localenv.Command('dummy', pymodule,
-                        'cd %s && $python_cmd setup.py install %s' % (moddir,extra))
-installTargets.extend(inst)
+if env['PYTHON_INSTALLER'] == 'direct':
+    inst = localenv.Command('dummy', pymodule,
+                            'cd %s && $python_cmd setup.py install %s' % (moddir,extra))
+    installTargets.extend(inst)
+elif env['PYTHON_INSTALLER'] == 'binary':
+    inst = localenv.Command('dummy', pymodule,
+                            'cd %s && $python_cmd setup.py bdist_msi --dist-dir=../..' % moddir)
+    installTargets.extend(inst)
 
 if env['python_package'] == 'full':
     # Copy tutorials

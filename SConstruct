@@ -442,7 +442,7 @@ opts.AddVariables(
         name recognized by the 'dot' program. On linux systems, this
         should be lowercase 'helvetica'.""",
      'Helvetica'),
-    ('cantera_version', '', '1.8.x')
+    ('cantera_version', '', '2.0.0b1')
     )
 
 opts.Update(env)
@@ -652,12 +652,14 @@ env['ct_matlab_dir'] = pjoin(env['prefix'], 'matlab', 'toolbox')
 if 'msi' in COMMAND_LINE_TARGETS:
     env['stage_dir'] = 'stage'
     env['prefix'] = '.'
+    env['PYTHON_INSTALLER'] = 'binary'
+else:
+    env['PYTHON_INSTALLER'] = 'direct'
 
 # Directories where things will be staged for package creation. These
 # variables should always be used by the Install(...) targets
 if env['stage_dir']:
     instRoot = pjoin(os.getcwd(), env['stage_dir'], stripDrive(env['prefix']).strip('/\\'))
-    env['python_prefix'] = instRoot
 else:
     instRoot = env['prefix']
 
