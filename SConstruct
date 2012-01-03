@@ -18,6 +18,7 @@ Basic usage:
 """
 
 from buildutils import *
+import wxsgen
 
 if not COMMAND_LINE_TARGETS:
     # Print usage help
@@ -42,7 +43,7 @@ if os.name == 'nt':
     else:
         extraEnvArgs['TARGET_ARCH'] = 'x86'
 
-env = Environment(tools=['default', 'textfile', 'subst', 'recursiveInstall'],
+env = Environment(tools=['default', 'textfile', 'subst', 'recursiveInstall', 'wix'],
                   ENV={'PATH': os.environ['PATH']},
                   **extraEnvArgs)
 
@@ -904,6 +905,20 @@ File locations:
 finish_install = env.Command('finish_install', [], postInstallMessage)
 env.Depends(finish_install, installTargets)
 install_cantera = Alias('install', finish_install)
+
+def build_wxs(target, source, env):
+    wxsgen.make_wxs(env['stage_dir'], str(target[0]))
+
+if 'msi' in COMMAND_LINE_TARGETS:
+    wxs_target = env.Command(pjoin('build', 'wix', 'cantera.wxs'),
+                             [], build_wxs)
+    env.AlwaysBuild(wxs_target)
+    msi_target = env.WiX('cantera.msi',
+                         [pjoin('build', 'wix', 'cantera.wxs')])
+    env.Depends(wxs_target, installTargets)
+    env.Depends(msi_target, wxs_target)
+    build_msi = Alias('msi', msi_target)
+
 
 ### Tests ###
 if 'test' in COMMAND_LINE_TARGETS or 'test-clean' in COMMAND_LINE_TARGETS:
