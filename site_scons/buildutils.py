@@ -291,6 +291,16 @@ def psplit(s):
     return path
 
 
+def stripDrive(s):
+    """
+    Remove a Windows drive letter specification from a path.
+    """
+    if len(s) > 1 and s[1] == ':':
+        return s[2:]
+    else:
+        return s
+
+
 def which(program):
     """ Replicates the functionality of the 'which' shell command """
     def is_exe(fpath):

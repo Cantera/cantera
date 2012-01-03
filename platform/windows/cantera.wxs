@@ -1,0 +1,67 @@
+<?xml version='1.0' encoding='windows-1252'?>
+<Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
+
+  <Product Name='Cantera 2.0' Id='1B36CAF0-279D-11E1-8979-001FBC085391' 
+	   UpgradeCode='2340BEE1-279D-11E1-A4AA-001FBC085391'
+	   Language='1033' Codepage='1252' Version='2.0.0' 
+	   Manufacturer='Cantera Developers'>
+
+    <Package Id='*' Keywords='Installer' Description="Cantera 2.0 Installer"
+	     InstallerVersion='100' Languages='1033' Compressed='yes' SummaryCodepage='1252' />
+
+    <Media Id='1' Cabinet='cantera.cab' EmbedCab='yes' DiskPrompt='CD-ROM #1' />
+    <Property Id='DiskPrompt' Value="Cantera Installation Disk" />
+
+    <Directory Id='TARGETDIR' Name='SourceDir'>
+
+      <Directory Id='ProgramFilesFolder' Name='PFiles'>
+        <Directory Id='INSTALLDIR' Name='Cantera'>
+          <Directory Id='bin' Name='bin'>
+
+            <Component Id='MainExecutable' Guid='0ABCA730-279D-11E1-984E-001FBC085391'>
+              <File Id='ck2ctiEXE' Name='ck2cti.exe' DiskId='1' Source='../../stage/bin/ck2cti.exe' KeyPath='yes'>
+                <!-- <Shortcut Id="startmenuFoobar10" Directory="ProgramMenuDir" Name="Foobar 1.0" -->
+                <!--   WorkingDirectory='INSTALLDIR' Icon="Foobar10.exe" IconIndex="0" Advertise="yes" /> -->
+                <!-- <Shortcut Id="desktopFoobar10" Directory="DesktopFolder" Name="Foobar 1.0" -->
+                <!--   WorkingDirectory='INSTALLDIR' Icon="Foobar10.exe" IconIndex="0" Advertise="yes" /> -->
+              </File>
+            </Component>
+
+            <!-- <Component Id='HelperLibrary' Guid='YOURGUID-6BE3-460D-A14F-75658D16550B'> -->
+            <!--   <File Id='HelperDLL' Name='Helper.dll' DiskId='1' Source='Helper.dll' KeyPath='yes' /> -->
+            <!-- </Component> -->
+
+            <!-- <Component Id='Manual' Guid='YOURGUID-574D-4A9A-A266-5B5EC2C022A4'> -->
+            <!--   <File Id='Manual' Name='Manual.pdf' DiskId='1' Source='Manual.pdf' KeyPath='yes'> -->
+            <!--     <Shortcut Id='startmenuManual' Directory='ProgramMenuDir' Name='Instruction Manual' Advertise='yes' /> -->
+            <!--   </File> -->
+            <!-- </Component> -->
+          </Directory>
+        </Directory>
+      </Directory>
+
+      <!-- <Directory Id="ProgramMenuFolder" Name="Programs"> -->
+      <!--   <Directory Id="ProgramMenuDir" Name="Foobar 1.0"> -->
+      <!--     <Component Id="ProgramMenuDir" Guid="YOURGUID-7E98-44CE-B049-C477CC0A2B00"> -->
+      <!--       <RemoveFolder Id='ProgramMenuDir' On='uninstall' /> -->
+      <!--       <RegistryValue Root='HKCU' Key='Software\[Manufacturer]\[ProductName]' Type='string' Value='' KeyPath='yes' /> -->
+      <!--     </Component> -->
+      <!--   </Directory> -->
+      <!-- </Directory> -->
+
+      <!-- <Directory Id="DesktopFolder" Name="Desktop" /> -->
+    </Directory>
+
+    <Feature Id='Complete' Level='1'>
+      <ComponentRef Id='MainExecutable' />
+      <!-- <ComponentRef Id='HelperLibrary' /> -->
+      <!-- <ComponentRef Id='Manual' /> -->
+      <!-- <ComponentRef Id='ProgramMenuDir' /> -->
+    </Feature>
+
+    <!-- <Icon Id="Foobar10.exe" SourceFile="FoobarAppl10.exe" />  -->
+    <!-- <Shortcut Id="desktopFoobar10" Directory="DesktopFolder" Name="Foobar 1.0" WorkingDirectory='INSTALLDIR' Icon="Foobar10.ico" IconIndex="0" /> -->
+    <!-- <Icon Id="Foobar10.ico" SourceFile="FoobarAppl10.ico" /> -->
+
+  </Product>
+</Wix>

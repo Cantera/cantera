@@ -13,6 +13,8 @@ Basic usage:
 
     'scons test-clean' - Delete files created while running the
                          regression tests.
+
+    'scons msi' - Build a Windows installer (.msi) for Cantera
 """
 
 from buildutils import *
@@ -646,10 +648,15 @@ env['ct_tutdir'] = pjoin(env['prefix'], 'tutorials')
 env['ct_mandir'] = pjoin(env['prefix'], 'man1')
 env['ct_matlab_dir'] = pjoin(env['prefix'], 'matlab', 'toolbox')
 
+# Always set the stage directory before building an MSI installer
+if 'msi' in COMMAND_LINE_TARGETS:
+    env['stage_dir'] = 'stage'
+    env['prefix'] = '.'
+
 # Directories where things will be staged for package creation. These
 # variables should always be used by the Install(...) targets
 if env['stage_dir']:
-    instRoot = pjoin(os.getcwd(), env['stage_dir'], env['prefix'].strip('/'))
+    instRoot = pjoin(os.getcwd(), env['stage_dir'], stripDrive(env['prefix']).strip('/\\'))
     env['python_prefix'] = instRoot
 else:
     instRoot = env['prefix']
