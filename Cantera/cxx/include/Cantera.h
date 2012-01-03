@@ -1,7 +1,6 @@
 /**
  * @file Cantera.h
- *  Basic include file to be used in all Cantera application
- *  environments.
+ *  Basic include file to be used in all Cantera application environments.
  */
 
 /* 
@@ -11,16 +10,24 @@
 
 // Copyright 2001  California Institute of Technology
 
+/*
+ *  Note, this include should be the first include that code containing the
+ *  Cantera namespace sees when in the Cantera application environment.
+ */
+
 #ifndef CANTERA_H_INCL
 #define CANTERA_H_INCL
 
-// definitions
+// If we are using this file, then we are in the Cantera Apps environment.
+// Define a variable to signify this fact. 
 #ifndef CANTERA_APP
 #define CANTERA_APP
 #endif
 
+// define the presence of the Cantera_CXX namespace
 namespace Cantera_CXX{ }
 
+// Include global typedefs and values for physical constants using SI units
 #include "kernel/ct_defs.h"
 
 // some useful functions
@@ -28,9 +35,6 @@ namespace Cantera_CXX{ }
 
 // the CanteraError exception class
 #include "kernel/ctexceptions.h"
-
-//
-//#include "kernel/importCTML.h"
 
 // The Cantera logger class
 #include "kernel/logger.h"
@@ -44,10 +48,9 @@ namespace Cantera_CXX{ }
 // Include string utility routines
 #include "kernel/stringUtils.h"
 
+// Include the array object
+#include "kernel/Array.h"
+
 #endif
-
-
-
-
 
 
