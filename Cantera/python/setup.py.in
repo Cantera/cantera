@@ -18,7 +18,9 @@ if '@python_package@' == 'full':
           package_dir = {'MixMaster':'../../apps/MixMaster'},
           packages = ["","Cantera","Cantera.OneD",
                       "MixMaster","MixMaster.Units"],
-          package_data = {'Cantera': dataFiles})
+          package_data = {'Cantera': dataFiles},
+          ext_modules=[Extension('_spam', ['src/spam.c'])])
+
 elif '@python_package@' == 'minimal':
     setup(name="Cantera CTI File Processor",
           version="@cantera_version@",
