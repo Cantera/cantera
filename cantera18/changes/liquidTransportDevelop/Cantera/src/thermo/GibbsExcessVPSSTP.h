@@ -74,7 +74,27 @@ namespace Cantera {
    * fraction vector. That's one of its primary usages. In order to keep the mole fraction
    * vector constant, all of the setState functions are redesigned at this layer.
    *
-   *  <H3> SetState Strategy  </H3>
+   *
+   *  <H3>
+   *        Activity Concentrations: Relationship of %ThermoPhase to %Kinetics Expressions
+   * </H3>
+   *
+   *   As explained in a similar discussion in the ThermoPhase class, the actual units used
+   *   in kinetics expressions must be specified in the ThermoPhase class for the corresponding
+   *   species. These units vary with the field of study. %Cantera uses the concept of
+   *   activity concentrations to represent this. Activity concentrations are used directly
+   *   in the expressions for kinetics. Standard concentrations are used as the multiplicative
+   *   constant that takes the activity of a species and turns it into an activity concentration.
+   *   Standard concentrations must not depend on the concentration of the species in the phase.
+   *
+   *   Here we set a standard for the specification of the standard concentrations for this class
+   *   and all child classes underneath it. We specify here that the standard concentration is
+   *   equal to 1 for all species. Therefore, the activities appear directly in kinetics expressions
+   *   involving species in underlying %GibbsExcessVPSSTP phases.
+   *
+   *  <H3>
+   *       SetState Strategy
+   * </H3>
    *
    *  All setState functions that set the internal state of the ThermoPhase object are
    *  overloaded at this level, so that a current mole fraction vector is maintained within
@@ -223,7 +243,24 @@ namespace Cantera {
      * @{
      */
 
-  
+    //! This method returns an array of generalized concentrations
+    /*!
+     * \f$ C^a_k\f$ are defined such that \f$ a_k = C^a_k /
+     * C^0_k, \f$ where \f$ C^0_k \f$ is a standard concentration
+     * defined below and \f$ a_k \f$ are activities used in the
+     * thermodynamic functions.  These activity (or generalized)
+     * concentrations are used by kinetics manager classes to compute the forward and
+     * reverse rates of elementary reactions. Note that they may
+     * or may not have units of concentration --- they might be
+     * partial pressures, mole fractions, or surface coverages,
+     * for example.
+     *
+     * @param c Output array of generalized concentrations. The
+     *           units depend upon the implementation of the
+     *           reaction rate expressions within the phase.
+     */
+    virtual void getActivityConcentrations(doublereal* c) const;
+
  
 
     /**
@@ -236,6 +273,9 @@ namespace Cantera {
      * concentration is species-specific (e.g. surface species of
      * different sizes), this method may be called with an
      * optional parameter indicating the species.
+     *
+     * The standard concentration for defaulted to 1. In other words
+     * the activity concentration is assumed to be 1.
      *
      * @param k species index. Defaults to zero.
      */

@@ -340,41 +340,7 @@ namespace Cantera {
    * - Activities, Standard States, Activity Concentrations -----------
    */
 
-  // This method returns an array of generalized concentrations
-  /*
-   * \f$ C^a_k\f$ are defined such that \f$ a_k = C^a_k /
-   * C^0_k, \f$ where \f$ C^0_k \f$ is a standard concentration
-   * defined below and \f$ a_k \f$ are activities used in the
-   * thermodynamic functions.  These activity (or generalized)
-   * concentrations are used
-   * by kinetics manager classes to compute the forward and
-   * reverse rates of elementary reactions. Note that they may
-   * or may not have units of concentration --- they might be
-   * partial pressures, mole fractions, or surface coverages,
-   * for example.
-   *
-   *  Here we define the activity concentrations as equal
-   *  to the activities, because the standard concentration is 1.
-   *
-   * @param c Output array of generalized concentrations. The
-   *           units depend upon the implementation of the
-   *           reaction rate expressions within the phase.
-   */
-  void MargulesVPSSTP::getActivityConcentrations(doublereal* c) const {
-    getActivities(c);
-  }
 
-  doublereal MargulesVPSSTP::standardConcentration(int k) const {
-    //err("standardConcentration");
-    //return -1.0;
-    return 1.0;
-  }
-
-  doublereal MargulesVPSSTP::logStandardConc(int k) const {
-    //err("logStandardConc");
-    //return -1.0;
-    return 0.0;
-  }
   //====================================================================================================================
   // Get the array of non-dimensional molar-based ln activity coefficients at
   // the current solution temperature, pressure, and solution concentration.
@@ -1151,7 +1117,7 @@ namespace Cantera {
 	if (nParamsFound != 2) {
 	  throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies::excessEnthalpy for " + ispName
 			     + "::" + jspName,
-			     "wrong number of params found");
+			     "wrong number of params found. Need 2");
 	}
 	m_HE_b_ij[iSpot] = vParams[0];
 	m_HE_c_ij[iSpot] = vParams[1];
@@ -1167,7 +1133,7 @@ namespace Cantera {
 	if (nParamsFound != 2) {
 	  throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies::excessEntropy for " + ispName
 			     + "::" + jspName,
-			     "wrong number of params found");
+			     "wrong number of params found. Need 2");
 	}
 	m_SE_b_ij[iSpot] = vParams[0];
 	m_SE_c_ij[iSpot] = vParams[1];
@@ -1183,7 +1149,7 @@ namespace Cantera {
 	if (nParamsFound != 2) {
 	  throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies::excessVolume_Enthalpy for " + ispName
 			     + "::" + jspName,
-			     "wrong number of params found");
+			     "wrong number of params found. Need 2");
 	}
 	m_VHE_b_ij[iSpot] = vParams[0];
 	m_VHE_c_ij[iSpot] = vParams[1];
@@ -1199,7 +1165,7 @@ namespace Cantera {
 	if (nParamsFound != 2) {
 	  throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies::excessVolume_Entropy for " + ispName
 			     + "::" + jspName,
-			     "wrong number of params found");
+			     "wrong number of params found. Need 2");
 	}
 	m_VSE_b_ij[iSpot] = vParams[0];
 	m_VSE_c_ij[iSpot] = vParams[1];

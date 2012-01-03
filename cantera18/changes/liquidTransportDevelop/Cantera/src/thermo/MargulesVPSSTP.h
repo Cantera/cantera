@@ -493,48 +493,6 @@ namespace Cantera {
      * @{
      */
 
-    //! This method returns an array of generalized concentrations
-    /*!
-     * \f$ C^a_k\f$ are defined such that \f$ a_k = C^a_k /
-     * C^0_k, \f$ where \f$ C^0_k \f$ is a standard concentration
-     * defined below and \f$ a_k \f$ are activities used in the
-     * thermodynamic functions.  These activity (or generalized)
-     * concentrations are used
-     * by kinetics manager classes to compute the forward and
-     * reverse rates of elementary reactions. Note that they may
-     * or may not have units of concentration --- they might be
-     * partial pressures, mole fractions, or surface coverages,
-     * for example.
-     *
-     * @param c Output array of generalized concentrations. The
-     *           units depend upon the implementation of the
-     *           reaction rate expressions within the phase.
-     */
-    virtual void getActivityConcentrations(doublereal* c) const; 
- 
-
-    /**
-     * The standard concentration \f$ C^0_k \f$ used to normalize
-     * the generalized concentration. In many cases, this quantity
-     * will be the same for all species in a phase - for example,
-     * for an ideal gas \f$ C^0_k = P/\hat R T \f$. For this
-     * reason, this method returns a single value, instead of an
-     * array.  However, for phases in which the standard
-     * concentration is species-specific (e.g. surface species of
-     * different sizes), this method may be called with an
-     * optional parameter indicating the species.
-     *
-     * @param k species index. Defaults to zero.
-     */
-    virtual doublereal standardConcentration(int k=0) const;
-
-    /**
-     * Returns the natural logarithm of the standard 
-     * concentration of the kth species
-     *
-     * @param k  species index
-     */
-    virtual doublereal logStandardConc(int k=0) const;
 
     //! Get the array of non-dimensional molar-based ln activity coefficients at
     //! the current solution temperature, pressure, and solution concentration.
