@@ -6,7 +6,13 @@
 *.obj
 *.exe.manifest
 build
+stage
 .sconsign.dblite
 .sconf_temp
 cantera.conf
 config.log
+*.lib
+*.exp
+*.manifest
+*.dll
+*.msi

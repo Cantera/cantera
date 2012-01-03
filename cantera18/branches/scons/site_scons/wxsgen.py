@@ -49,7 +49,7 @@ def addDirectoryContents(prefix, directory, parent, feature):
 
     directories[directory] = Directory(parent, directory, directory)
     for path, dirs, files in os.walk('/'.join((prefix, directory))):
-        path = path.lstrip(prefix + '/').replace('\\', '/')
+        path = path.replace(prefix + '/', '', 1).replace('\\', '/')
         for d in dirs:
             dpath = '/'.join((path, d))
             ID = dpath.replace('/', '_')
@@ -105,6 +105,11 @@ def make_wxs(stageDir, outFile):
     # Files
     includes = addDirectoryContents(stageDir, 'include', instdir, complete)
     binaries = addDirectoryContents(stageDir, 'bin', instdir, complete)
+    lib_dir = addDirectoryContents(stageDir, 'lib', instdir, complete)
+    data_dir = addDirectoryContents(stageDir, 'data', instdir, complete)
+    demos_dir = addDirectoryContents(stageDir, 'demos', instdir, complete)
+    templates_dir = addDirectoryContents(stageDir, 'templates', instdir, complete)
+    tutorials_dir = addDirectoryContents(stageDir, 'tutorials', instdir, complete)
 
     # Format and save as XML
     indent(wix)
