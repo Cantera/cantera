@@ -32,8 +32,8 @@ namespace Cantera {
         /// Add a domain.
         void addDomain(Domain1D* d);
 
-        /// Return a reference to the Jacobian evaluator.
-        MultiJac& jacobian();
+      //! Return a reference to the Jacobian evaluator.
+      MultiJac& jacobian();
 
         /// Return a reference to the Newton iterator.
         MultiNewton& newton();
@@ -173,7 +173,10 @@ namespace Cantera {
         MultiNewton* m_newt;      // Newton iterator
         doublereal m_rdt;         // reciprocal of time step
         bool m_jac_ok;            // if true, Jacobian is current
-        int m_nd;                 // number of domains
+
+      //! number of domains
+      int m_nd;
+         
         int m_bw;                 // Jacobian bandwidth
         int m_size;               // solution vector size
         
