@@ -1,3 +1,5 @@
+SUBDIRS  = cxx
+
 EXTRA_DIST =
 
 dist-hook:

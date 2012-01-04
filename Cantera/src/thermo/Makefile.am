@@ -27,12 +27,12 @@ cc_sources = State.cpp Elements.cpp Constituents.cpp Phase.cpp             \
 INCLUDES                = -I../base -I../../../
 AM_CXXFLAGS             = $(INCLUDES)
 
-lib_LTLIBRARIES         = libthermo.la
+lib_LTLIBRARIES         = $(top_builddir)/build/lib/libthermo.la
 library_includedir      = $(includedir)
 
 #-----------------------
 # Cantera thermo C/C++ library
 #-----------------------
 
-libthermo_la_LDFLAGS      = $(all_libraries) -release $(GENERIC_RELEASE)
-libthermo_la_SOURCES      = $(cc_sources) $(h_sources)
+__top_builddir__build_lib_libthermo_la_LDFLAGS      = $(all_libraries) -release $(GENERIC_RELEASE)
+__top_builddir__build_lib_libthermo_la_SOURCES      = $(cc_sources) $(h_sources)

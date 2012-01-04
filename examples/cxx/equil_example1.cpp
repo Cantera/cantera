@@ -16,7 +16,7 @@
 #pragma warning(disable:4503)
 #endif
 
-#include <cantera/Cantera.h>
+#include <Cantera.h>
 #include <time.h>
 #include "example_utils.h"
 #include <cantera/equilibrium.h>

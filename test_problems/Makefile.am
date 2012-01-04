@@ -5,6 +5,7 @@
              ChemEquil_ionizedGas ChemEquil_red1 CpJump           \
 	     mixGasTransport multiGasTransport printUtilUnitTest 
 
+SUBDIRS    = cxx_ex
 #
 # would be good to add:
 #

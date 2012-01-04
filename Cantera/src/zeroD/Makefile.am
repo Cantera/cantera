@@ -9,12 +9,12 @@ cc_sources = Reactor.cpp ReactorBase.cpp FlowDevice.cpp Wall.cpp \
 INCLUDES                = -I../base -I../thermo -I../kinetics -I../numerics -I../../../
 AM_CXXFLAGS             = $(INCLUDES)
 
-lib_LTLIBRARIES         = libzeroD.la
+lib_LTLIBRARIES         = $(top_builddir)/build/lib/libzeroD.la
 library_includedir      = $(includedir)
 
 #-----------------------
 # Cantera OneD C/C++ library
 #-----------------------
 
-libzeroD_la_LDFLAGS      = $(all_libraries) -release $(GENERIC_RELEASE)
-libzeroD_la_SOURCES      = $(cc_sources) $(h_sources)
+__top_builddir__build_lib_libzeroD_la_LDFLAGS      = $(all_libraries) -release $(GENERIC_RELEASE)
+__top_builddir__build_lib_libzeroD_la_SOURCES      = $(cc_sources) $(h_sources)

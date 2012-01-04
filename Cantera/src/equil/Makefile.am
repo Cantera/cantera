@@ -8,12 +8,12 @@ INCLUDES    = -I../base -I../thermo -I../numerics -I../../../
 INCLUDES   += -I../../../ext/f2c_libs/
 AM_CXXFLAGS = $(INCLUDES)
 
-lib_LTLIBRARIES         = libequil.la
+lib_LTLIBRARIES         = $(top_builddir)/build/lib/libequil.la
 library_includedir      = $(includedir)
 
 #-----------------------
 # Cantera Converters C/C++ library
 #-----------------------
 
-libequil_la_LDFLAGS      = $(all_libraries) -release $(GENERIC_RELEASE)
-libequil_la_SOURCES      = $(cc_sources) $(h_sources)
+__top_builddir__build_lib_libequil_la_LDFLAGS      = $(all_libraries) -release $(GENERIC_RELEASE)
+__top_builddir__build_lib_libequil_la_SOURCES      = $(cc_sources) $(h_sources)

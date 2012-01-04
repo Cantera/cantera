@@ -12,12 +12,12 @@ cc_sources = importKinetics.cpp GRI_30_Kinetics.cpp KineticsFactory.cpp \
 INCLUDES                = -I../base -I../thermo -I../../../
 AM_CXXFLAGS             = $(INCLUDES)
 
-lib_LTLIBRARIES         = libkinetics.la
+lib_LTLIBRARIES         = $(top_builddir)/build/lib/libkinetics.la
 library_includedir      = $(includedir)
 
 #-----------------------
 # Cantera Kinetics C/C++ library
 #-----------------------
 
-libkinetics_la_LDFLAGS      = $(all_libraries) -release $(GENERIC_RELEASE)
-libkinetics_la_SOURCES      = $(cc_sources) $(h_sources)
+__top_builddir__build_lib_libkinetics_la_LDFLAGS      = $(all_libraries) -release $(GENERIC_RELEASE)
+__top_builddir__build_lib_libkinetics_la_SOURCES      = $(cc_sources) $(h_sources)
