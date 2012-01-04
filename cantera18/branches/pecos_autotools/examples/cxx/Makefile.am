@@ -4,7 +4,7 @@ cc_sources = equil_example1.cpp examples.cpp flame1.cpp kinetics_example1.cpp \
 	     kinetics_example2.cpp kinetics_example3.cpp rxnpath_example1.cpp \
 	     transport_example1.cpp transport_example2.cpp
 
-INCLUDES                = -I../base -I../../Cantera/cxx/include
+INCLUDES                = -I../base -I../../build/include/
 AM_CXXFLAGS             = $(INCLUDES)
 
 bin_PROGRAMS            = cxx_examples
