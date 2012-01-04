@@ -9,12 +9,12 @@ cc_sources = atomicWeightDB.cpp ck2ctml.cpp CKReader.cpp filter.cpp  \
 INCLUDES                = -I../base -I../../../
 AM_CXXFLAGS             = $(INCLUDES)
 
-lib_LTLIBRARIES         = libconverters.la
+lib_LTLIBRARIES         = $(top_builddir)/build/lib/libconverters.la
 library_includedir      = $(includedir)
 
 #-----------------------
 # Cantera Converters C/C++ library
 #-----------------------
 
-libconverters_la_LDFLAGS      = $(all_libraries) -release $(GENERIC_RELEASE)
-libconverters_la_SOURCES      = $(cc_sources) $(h_sources)
+__top_builddir__build_lib_libconverters_la_LDFLAGS      = $(all_libraries) -release $(GENERIC_RELEASE)
+__top_builddir__build_lib_libconverters_la_SOURCES      = $(cc_sources) $(h_sources)

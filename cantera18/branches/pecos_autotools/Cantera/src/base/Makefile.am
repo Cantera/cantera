@@ -12,12 +12,12 @@ cc_sources              = ct2ctml.cpp ctml.cpp misc.cpp plots.cpp     \
 INCLUDES                = 
 AM_CXXFLAGS             = $(INCLUDES)
 
-lib_LTLIBRARIES         = libctbase.la
+lib_LTLIBRARIES         = $(top_builddir)/build/lib/libctbase.la
 library_includedir      = $(includedir)
 
 #-----------------------
 # Cantera Converters C/C++ library
 #-----------------------
 
-libctbase_la_LDFLAGS      = $(all_libraries) -release $(GENERIC_RELEASE)
-libctbase_la_SOURCES      = $(cc_sources) $(h_sources)
+__top_builddir__build_lib_libctbase_la_LDFLAGS      = $(all_libraries) -release $(GENERIC_RELEASE)
+__top_builddir__build_lib_libctbase_la_SOURCES      = $(cc_sources) $(h_sources)

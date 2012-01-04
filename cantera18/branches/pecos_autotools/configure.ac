@@ -55,6 +55,7 @@ DX_INIT_DOXYGEN(cantera, doxygen/cantera.dox, docs)
 
 # Generate Output Files
 AC_OUTPUT(Makefile examples/Makefile                                       \
+		   examples/cxx/Makefile                                   \
                    test_problems/Makefile                                  \
 		   doxygen/Makefile                                        \
 		   Cantera/Makefile                                        \

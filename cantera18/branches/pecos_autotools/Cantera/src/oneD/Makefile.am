@@ -8,12 +8,12 @@ h_sources  = Inlet1D.h MultiJac.h Sim1D.h StFlow.h \
 INCLUDES                = -I../base -I../thermo -I../kinetics -I../transport -I../numerics -I../../../
 AM_CXXFLAGS             = $(INCLUDES) -fPIC
 
-lib_LTLIBRARIES         = liboneD.la
+lib_LTLIBRARIES         = $(top_builddir)/build/lib/liboneD.la
 library_includedir      = $(includedir)
 
 #-----------------------
 # Cantera OneD C/C++ library
 #-----------------------
 
-liboneD_la_LDFLAGS      = $(all_libraries) -release $(GENERIC_RELEASE)
-liboneD_la_SOURCES      = $(cc_sources) $(h_sources)
+__top_builddir__build_lib_liboneD_la_LDFLAGS      = $(all_libraries) -release $(GENERIC_RELEASE)
+__top_builddir__build_lib_liboneD_la_SOURCES      = $(cc_sources) $(h_sources)

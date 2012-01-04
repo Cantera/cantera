@@ -11,12 +11,12 @@ cc_sources = DenseMatrix.cpp funcs.cpp Func1.cpp ODE_integrators.cpp \
 INCLUDES                = -I../base -I../../../
 AM_CXXFLAGS             = $(INCLUDES)
 
-lib_LTLIBRARIES         = libctnumerics.la
+lib_LTLIBRARIES         = $(top_builddir)/build/lib/libctnumerics.la
 library_includedir      = $(includedir)
 
 #-----------------------
 # Cantera numerics C/C++ library
 #-----------------------
 
-libctnumerics_la_LDFLAGS      = $(all_libraries) -release $(GENERIC_RELEASE)
-libctnumerics_la_SOURCES      = $(cc_sources) $(h_sources)
+__top_builddir__build_lib_libctnumerics_la_LDFLAGS      = $(all_libraries) -release $(GENERIC_RELEASE)
+__top_builddir__build_lib_libctnumerics_la_SOURCES      = $(cc_sources) $(h_sources)

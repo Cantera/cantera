@@ -13,12 +13,12 @@ cc_sources = AqueousTransport.cpp LiquidTransport.cpp MMCollisionInt.cpp \
 INCLUDES                = -I../base -I../thermo -I../numerics -I../../../
 AM_CXXFLAGS             = $(INCLUDES)
 
-lib_LTLIBRARIES         = libtransport.la
+lib_LTLIBRARIES         = $(top_builddir)/build/lib/libtransport.la
 library_includedir      = $(includedir)
 
 #-----------------------
 # Cantera Transport C/C++ library
 #-----------------------
 
-libtransport_la_LDFLAGS      = $(all_libraries) -release $(GENERIC_RELEASE)
-libtransport_la_SOURCES      = $(cc_sources) $(h_sources)
+__top_builddir__build_lib_libtransport_la_LDFLAGS      = $(all_libraries) -release $(GENERIC_RELEASE)
+__top_builddir__build_lib_libtransport_la_SOURCES      = $(cc_sources) $(h_sources)
