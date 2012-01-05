@@ -1,2 +1,2 @@
-SUBDIRS                 = tpx math
+SUBDIRS                 = tpx math cvode
 

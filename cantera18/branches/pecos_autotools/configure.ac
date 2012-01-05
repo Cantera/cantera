@@ -61,8 +61,11 @@ AC_OUTPUT(Makefile examples/Makefile                                       \
 		   ext/Makefile                                            \
 		   ext/tpx/Makefile                                        \
 		   ext/math/Makefile                                       \
+		   ext/cvode/Makefile                                      \
 		   Cantera/Makefile                                        \
-                   Cantera/src/Makefile Cantera/src/base/Makefile          \
+                   Cantera/user/Makefile                                   \
+                   Cantera/src/Makefile                                    \
+                   Cantera/src/base/Makefile                               \
                    Cantera/src/converters/Makefile                         \
 		   Cantera/src/kinetics/Makefile                           \
                    Cantera/src/numerics/Makefile Cantera/src/oneD/Makefile \
