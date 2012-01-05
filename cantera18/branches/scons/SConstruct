@@ -527,6 +527,11 @@ env['FORTRANMODDIR'] = '${TARGET.dir}'
 
 if env['CC'] == 'cl':
     env['WIN32'] = True
+    # embed manifest file
+    env['LINKCOM'] = [env['LINKCOM'],
+                      'if exist ${TARGET}.manifest mt.exe -nologo -manifest ${TARGET}.manifest -outputresource:$TARGET;1']
+    env['SHLINKCOM'] = [env['SHLINKCOM'],
+                        'if exist ${TARGET}.manifest mt.exe -nologo -manifest ${TARGET}.manifest -outputresource:$TARGET;2']
 else:
     env['WIN32'] = False
 
