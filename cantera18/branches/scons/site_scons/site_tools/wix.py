@@ -17,6 +17,9 @@ import SCons.Scanner
 
 def generate(env):
     """Add Builders and construction variables for WiX to an Environment."""
+    if not exists(env):
+        return
+
     env['WIXCANDLE'] = '"%sbin/candle.exe"' % os.environ['WIX']
     env['WIXCANDLEFLAGS'] = ['-nologo']
     env['WIXCANDLEINCLUDE'] = []
@@ -39,4 +42,4 @@ def generate(env):
     env['BUILDERS']['WiX'] = linker_builder
 
 def exists(env):
-    return 1 # TODO: Should we do a better job of detecting?
+    return 'WIX' in os.environ
