@@ -1,5 +1,5 @@
 
-#include <cantera/Cantera.h>
+#include <Cantera.h>
 using namespace Cantera;
 using namespace std;
 

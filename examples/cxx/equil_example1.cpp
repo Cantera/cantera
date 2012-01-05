@@ -19,9 +19,9 @@
 #include <Cantera.h>
 #include <time.h>
 #include "example_utils.h"
-#include <cantera/equilibrium.h>
+#include <equilibrium.h>
 
-#include <cantera/IdealGasMix.h>
+#include <IdealGasMix.h>
 
 using namespace Cantera;
 using namespace Cantera_CXX;

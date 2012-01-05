@@ -1,7 +1,7 @@
 
-#include "/Applications/Cantera/include/cantera/Cantera.h"
-#include "cantera/IdealGasMix.h"
-#include "cantera/transport.h"
+#include "Cantera.h"
+#include "IdealGasMix.h"
+#include "transport.h"
 
 int main() {
 
