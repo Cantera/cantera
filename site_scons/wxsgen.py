@@ -100,16 +100,45 @@ def make_wxs(stageDir, outFile):
     instdir = Directory(pfiles, 'INSTALLDIR', 'Cantera')
 
     # Features
-    complete = et.SubElement(product, 'Feature', dict(Id='Complete', Level='1'))
+    core = et.SubElement(product, 'Feature',
+                             dict(Id='Core', Level='1',
+                                  Title='Cantera',
+                                  Description='Cantera base files',
+                                  Display='expand',
+                                  ConfigurableDirectory='INSTALLDIR',
+                                  AllowAdvertise='no',
+                                  Absent='disallow'))
+    devel = et.SubElement(product, 'Feature',
+                          dict(Id='DevTools', Level='1000',
+                               Title='Develpment Tools',
+                               Description='Header files and static libraries needed to develop applications that use Cantera.',
+                               Display='expand',
+                               AllowAdvertise='no'))
+    extras = et.SubElement(product, 'Feature',
+                           dict(Id='Extras', Level='1',
+                                Title='Extras',
+                                Description='Demos, tutorials and templates which show you some ways of using Cantera.',
+                                Display='expand',
+                                AllowAdvertise='no'))
 
     # Files
-    includes = addDirectoryContents(stageDir, 'include', instdir, complete)
-    binaries = addDirectoryContents(stageDir, 'bin', instdir, complete)
-    lib_dir = addDirectoryContents(stageDir, 'lib', instdir, complete)
-    data_dir = addDirectoryContents(stageDir, 'data', instdir, complete)
-    demos_dir = addDirectoryContents(stageDir, 'demos', instdir, complete)
-    templates_dir = addDirectoryContents(stageDir, 'templates', instdir, complete)
-    tutorials_dir = addDirectoryContents(stageDir, 'tutorials', instdir, complete)
+    includes = addDirectoryContents(stageDir, 'include', instdir, devel)
+    binaries = addDirectoryContents(stageDir, 'bin', instdir, core)
+    lib_dir = addDirectoryContents(stageDir, 'lib', instdir, devel)
+    data_dir = addDirectoryContents(stageDir, 'data', instdir, core)
+    demos_dir = addDirectoryContents(stageDir, 'demos', instdir, extras)
+    templates_dir = addDirectoryContents(stageDir, 'templates', instdir, extras)
+    tutorials_dir = addDirectoryContents(stageDir, 'tutorials', instdir, extras)
+
+    # Wix UI
+    et.SubElement(product, 'UIRef', dict(Id='WixUI_FeatureTree'))
+    et.SubElement(product, 'UIRef', dict(Id='WixUI_ErrorProgressText'))
+    et.SubElement(product, 'Property', dict(Id='WIXUI_INSTALLDIR',
+                                            Value='INSTALLDIR'))
+
+    # License
+    et.SubElement(product, 'WixVariable',
+                  dict(Id='WixUILicenseRtf', Value='platform/windows/License.rtf'))
 
     # Format and save as XML
     indent(wix)
