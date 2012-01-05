@@ -17,7 +17,7 @@ if localenv['OS'] == 'Windows':
 
 make_setup = localenv.SubstFile('setup.py', 'setup.py.in')
 
-if env['python_package'] == 'full':
+if localenv['python_package'] == 'full':
     libs = ['clib']
     if localenv['OS'] != 'Windows':
         libs.extend(env['cantera_libs'])
@@ -33,7 +33,7 @@ if env['python_package'] == 'full':
             dest = pjoin('Cantera', 'python', 'Cantera', file.name)
             localenv.AddPreAction(pymodule,Copy(dest, file))
 
-elif env['python_package'] == 'minimal':
+elif localenv['python_package'] == 'minimal':
     pymodule = make_setup
 
 moddir = pjoin('Cantera', 'python')
@@ -41,23 +41,26 @@ localenv.AddPostAction(make_setup,
                        'cd %s && $python_cmd setup.py build' % moddir)
 
 # Install the Python module
-if env['python_prefix']:
+if localenv['python_prefix']:
     # A specific location for the Cantera python module has been specified
-    extra = '--prefix="%s"' % env['python_prefix']
+    extra = '--prefix="%s"' % localenv['python_prefix']
 else:
     # Install Python module in the default location
     extra = ''
 
-if env['PYTHON_INSTALLER'] == 'direct':
+if localenv['PYTHON_INSTALLER'] == 'direct':
     inst = localenv.Command('dummy', pymodule,
                             'cd %s && $python_cmd setup.py install %s' % (moddir,extra))
     installTargets.extend(inst)
-elif env['PYTHON_INSTALLER'] == 'binary':
+elif localenv['PYTHON_INSTALLER'] == 'binary':
+    if 'MSSdk' in os.environ:
+        localenv['ENV']['DISTUTILS_USE_SDK'] = '1'
+        localenv['ENV']['MSSdk'] = os.environ['MSSdk']
     inst = localenv.Command('dummy', pymodule,
                             'cd %s && $python_cmd setup.py bdist_msi --dist-dir=../..' % moddir)
     installTargets.extend(inst)
 
-if env['python_package'] == 'full':
+if localenv['python_package'] == 'full':
     # Copy tutorials
     inst = localenv.Install('$inst_tutdir', mglob(localenv, 'tutorial', 'py'))
     installTargets.extend(inst)
