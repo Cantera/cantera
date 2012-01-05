@@ -9,8 +9,8 @@ gcv = distutils.sysconfig.get_config_var
 
 localenv.Append(CPPPATH=[gcv('INCLUDEPY'), env['python_array_include']],
                 SHLINKFLAGS=gcv('LDFLAGS'),
-                CPPFLAGS=(gcv('BASECFLAGS').split() +
-                          gcv('OPT').split()))
+                CPPFLAGS=((gcv('BASECFLAGS') or '').split() +
+                          (gcv('OPT') or '').split()))
 
 if localenv['OS'] == 'Windows':
     localenv.Append(LIBPATH=pjoin(gcv('prefix'), 'libs'))
