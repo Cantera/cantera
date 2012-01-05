@@ -917,6 +917,8 @@ if 'msi' in COMMAND_LINE_TARGETS:
     wxs_target = env.Command(pjoin('build', 'wix', 'cantera.wxs'),
                              [], build_wxs)
     env.AlwaysBuild(wxs_target)
+
+    env.Append(WIXLIGHTFLAGS=['-ext', 'WixUIExtension'])
     msi_target = env.WiX('cantera.msi',
                          [pjoin('build', 'wix', 'cantera.wxs')])
     env.Depends(wxs_target, installTargets)
