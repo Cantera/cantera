@@ -911,7 +911,8 @@ env.Depends(finish_install, installTargets)
 install_cantera = Alias('install', finish_install)
 
 def build_wxs(target, source, env):
-    wxsgen.make_wxs(env['stage_dir'], str(target[0]))
+    wxs = wxsgen.WxsGenerator(env['stage_dir'], env['TARGET_ARCH']=='amd64')
+    wxs.make_wxs(str(target[0]))
 
 if 'msi' in COMMAND_LINE_TARGETS:
     wxs_target = env.Command(pjoin('build', 'wix', 'cantera.wxs'),
