@@ -58,6 +58,9 @@ AC_OUTPUT(Makefile examples/Makefile                                       \
 		   examples/cxx/Makefile                                   \
                    test_problems/Makefile                                  \
 		   doxygen/Makefile                                        \
+		   ext/Makefile                                            \
+		   ext/tpx/Makefile                                        \
+		   ext/math/Makefile                                       \
 		   Cantera/Makefile                                        \
                    Cantera/src/Makefile Cantera/src/base/Makefile          \
                    Cantera/src/converters/Makefile                         \

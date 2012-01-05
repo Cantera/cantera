@@ -1,2 +1,2 @@
-SUBDIRS                 = tpx
+SUBDIRS                 = tpx math
 
