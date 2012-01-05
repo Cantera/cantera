@@ -8,6 +8,7 @@ import subprocess
 import difflib
 import time
 import types
+import shutil
 
 class DefineDict(object):
     """
@@ -387,3 +388,16 @@ def listify(value):
     else:
         # Already a sequence. Return as a list
         return list(value)
+
+
+def removeFile(name):
+    """ Remove file (if it exists) and print a log message """
+    if os.path.exists(name):
+        print 'Removing file "%s"' % name
+        os.remove(name)
+
+def removeDirectory(name):
+    """ Remove directory recursively and print a log message """
+    if os.path.exists(name):
+        print 'Removing directory "%s"' % name
+        shutil.rmtree(name)
