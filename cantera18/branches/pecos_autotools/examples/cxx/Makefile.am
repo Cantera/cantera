@@ -1,18 +1,25 @@
 h_sources  = example_utils.h
 
-cc_sources = equil_example1.cpp examples.cpp flame1.cpp kinetics_example1.cpp \
-	     kinetics_example2.cpp kinetics_example3.cpp rxnpath_example1.cpp \
-	     transport_example1.cpp transport_example2.cpp
+cc_sources = examples.cpp kinetics_example1.cpp kinetics_example2.cpp \
+	     kinetics_example3.cpp  equil_example1.cpp                \
+	     transport_example1.cpp transport_example2.cpp            \
+	     rxnpath_example1.cpp 
 
-INCLUDES                = -I../base -I../../build/include/
-AM_CXXFLAGS             = $(INCLUDES)
+LINK                 = -lkinetics -ltransport -lthermo -lctnumerics
+LINK                += -lctbase -ltpx -lctmath -lconverters 
+# -luser -lcvode -lctlapack -lctblas -lctf2c -lctcxx -luser -lstdc++
 
-bin_PROGRAMS            = cxx_examples
-library_includedir      = $(includedir)
+LIBS                 = -L$(top_builddir)/build/lib/ $(LINK)
+
+INCLUDES             = -I../base -I$(top_builddir)/build/include/ -I$(top_builddir)/build/include/cantera
+AM_CXXFLAGS          = $(INCLUDES)
+
+bin_PROGRAMS         = cxx_examples
+library_includedir   = $(includedir)
 
 #-----------------------
 # Cantera cxx examples
 #-----------------------
 
-cxx_examples_LDFLAGS      = $(all_libraries) -release $(GENERIC_RELEASE)
-cxx_examples_SOURCES      = $(cc_sources) $(h_sources)
+cxx_examples_LDFLAGS = $(all_libraries) -release $(GENERIC_RELEASE)
+cxx_examples_SOURCES = $(cc_sources) $(h_sources)
