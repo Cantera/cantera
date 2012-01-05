@@ -7,14 +7,16 @@ Basic usage:
     'scons build' - Compile Cantera and the language interfaces using
                     default options.
 
+    'scons clean' - Delete files created while building Cantera.
+
     '[sudo] scons install' - Install Cantera.
 
-    'scons test' - Run regression test suite
+    'scons test' - Run regression test suite.
 
     'scons test-clean' - Delete files created while running the
                          regression tests.
 
-    'scons msi' - Build a Windows installer (.msi) for Cantera
+    'scons msi' - Build a Windows installer (.msi) for Cantera.
 """
 
 from buildutils import *
@@ -26,6 +28,17 @@ if not COMMAND_LINE_TARGETS:
     sys.exit(0)
 
 extraEnvArgs = {}
+
+if 'clean' in COMMAND_LINE_TARGETS:
+    removeDirectory('build')
+    removeDirectory('stage')
+    removeDirectory('.sconf_temp')
+    removeFile('.sconsign.dblite')
+    for name in os.listdir('.'):
+        if name.endswith('.msi'):
+            removeFile(name)
+    print 'Done removing output files.'
+    sys.exit(0)
 
 if os.name == 'nt':
     # On Windows, use the same version of Visual Studio that was used
