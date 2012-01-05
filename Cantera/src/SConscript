@@ -5,6 +5,11 @@ Import('env','buildTargets','installTargets')
 def defaultSetup(env, subdir, extensions):
     return mglob(env, subdir, *extensions)
 
+def baseSetup(env, subdir, extensions):
+    escaped_datadir = '\\"' + env['ct_datadir'].replace('\\', '\\\\') + '\\"'
+    env.Append(CPPDEFINES={'CANTERA_DATA': escaped_datadir})
+    return defaultSetup(env, subdir, extensions)
+
 def equilSetup(env, subdir, extensions):
     env.Append(CPPPATH=['#ext/f2c_libs'])
     return defaultSetup(env, subdir, extensions)
@@ -18,7 +23,7 @@ def numericsSetup(env, subdir, extensions):
             if s.name != remove]
 
 # (subdir, library name, (file extensions), (extra setup(env)))
-libs = [('base', 'ctbase', ['cpp'], defaultSetup),
+libs = [('base', 'ctbase', ['cpp'], baseSetup),
         ('thermo', 'thermo', ['cpp'], defaultSetup),
         ('equil', 'equil', ['cpp','c'], equilSetup),
         ('converters', 'converters', ['cpp'], defaultSetup),
@@ -33,7 +38,7 @@ libs = [('base', 'ctbase', ['cpp'], defaultSetup),
 for subdir, libname, extensions, setup in libs:
     localenv = env.Clone()
     source = setup(localenv, subdir, extensions)
-    for header in mglob(localenv, subdir, 'h'):      
+    for header in mglob(localenv, subdir, 'h'):
         h = localenv.Command('../include/cantera/kernel/%s' % header.name, header,
                              Copy('$TARGET', '$SOURCE'))
         buildTargets.extend(h)

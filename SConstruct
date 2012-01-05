@@ -760,8 +760,6 @@ cdefine('LAPACK_NAMES_LOWERCASE', 'lapack_names', 'lower')
 configh['RXNPATH_FONT'] = quoted(env['rpfont'])
 cdefine('THREAD_SAFE_CANTERA', 'build_thread_safe')
 cdefine('HAS_SSTREAM', 'HAS_SSTREAM')
-escaped_datadir = env['ct_datadir'].replace('\\', '\\\\')
-configh['CANTERA_DATA'] = quoted(escaped_datadir)
 
 if not env['HAS_MATH_H_ERF']:
     if env['HAS_BOOST_MATH']:
