@@ -129,6 +129,14 @@ class WxsGenerator(object):
         templates_dir = self.addDirectoryContents('templates', instdir, extras)
         tutorials_dir = self.addDirectoryContents('tutorials', instdir, extras)
 
+        # Registry entries
+        reg_key = self.addRegistryKey(core, product, Id='CanteraRegRoot', Root='HKLM',
+                                      Key='Software\\Cantera\\Cantera 2.0',
+                                      Action='createAndRemoveOnUninstall')
+        et.SubElement(reg_key, 'RegistryValue', dict(Type='string',
+                                                     Name='InstallDir',
+                                                     Value='[INSTALLDIR]'))
+
         # Wix UI
         et.SubElement(product, 'UIRef', dict(Id='WixUI_FeatureTree'))
         et.SubElement(product, 'UIRef', dict(Id='WixUI_ErrorProgressText'))
@@ -143,6 +151,17 @@ class WxsGenerator(object):
         indent(wix)
         tree = et.ElementTree(wix)
         tree.write(outFile)
+
+    def addRegistryKey(self, feature, parent, Id, Root, Key, Action):
+        guid = str(uuid.uuid5(self.CANTERA_UUID, Id))
+
+        fields = {'Win64': 'yes'} if self.x64 else {}
+        dr = et.SubElement(parent, "DirectoryRef", dict(Id="TARGETDIR"))
+        c = et.SubElement(dr, "Component",
+                          dict(Id=Id, Guid=guid, **fields))
+        r = et.SubElement(c, "RegistryKey", dict(Id=Id, Root=Root, Key=Key, Action=Action))
+        et.SubElement(feature, 'ComponentRef', dict(Id=Id))
+        return r
 
 
 def indent(elem, level=0):
