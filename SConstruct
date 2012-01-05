@@ -47,6 +47,10 @@ env = Environment(tools=['default', 'textfile', 'subst', 'recursiveInstall', 'wi
                   ENV={'PATH': os.environ['PATH']},
                   **extraEnvArgs)
 
+# Fixes a linker error in Windows
+if os.name == 'nt' and 'TMP' in os.environ:
+    env['ENV']['TMP'] = os.environ['TMP']
+
 add_RegressionTest(env)
 
 # ******************************************************
