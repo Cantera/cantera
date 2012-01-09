@@ -11,10 +11,14 @@ Basic usage:
 
     '[sudo] scons install' - Install Cantera.
 
-    'scons test' - Run regression test suite.
+    'scons test' - Run full regression test suite.
 
     'scons test-clean' - Delete files created while running the
                          regression tests.
+
+    'scons test-help' - List available regression tests.
+
+    'scons test-NAME' - Run the regression test named "FOO".
 
     'scons msi' - Build a Windows installer (.msi) for Cantera.
 """
@@ -497,7 +501,6 @@ of this file is:
         print '\n'.join(formatOption(env, opt))
     sys.exit(0)
 
-
 # ********************************************
 # *** Configure system-specific properties ***
 # ********************************************
@@ -947,5 +950,5 @@ if 'msi' in COMMAND_LINE_TARGETS:
 
 
 ### Tests ###
-if 'test' in COMMAND_LINE_TARGETS or 'test-clean' in COMMAND_LINE_TARGETS:
+if any(target.startswith('test') for target in COMMAND_LINE_TARGETS):
     SConscript('test_problems/SConscript')
