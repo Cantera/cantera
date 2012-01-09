@@ -65,18 +65,21 @@ namespace Cantera {
     _update_rates_T() {
         doublereal T = thermo().temperature();
         m_kdata->m_logStandConc = log(thermo().standardConcentration()); 
-        //if (fabs(T - m_kdata->m_temp) > 0.0) { 
         doublereal logT = log(T);
-        m_rates.update(T, logT, &m_kdata->m_rfn[0]);
-        m_falloff_low_rates.update(T, logT, &m_kdata->m_rfn_low[0]); 
-        m_falloff_high_rates.update(T, logT, &m_kdata->m_rfn_high[0]);
-        m_falloffn.updateTemp(T, &m_kdata->falloff_work[0]);
+        if (!m_kdata->m_rfn.empty()) {
+          m_rates.update(T, logT, &m_kdata->m_rfn[0]);
+        }
+        if (!m_kdata->m_rfn_low.empty()) {
+          m_falloff_low_rates.update(T, logT, &m_kdata->m_rfn_low[0]);
+          m_falloff_high_rates.update(T, logT, &m_kdata->m_rfn_high[0]);
+        }
+        if (!m_kdata->falloff_work.empty()) {
+          m_falloffn.updateTemp(T, &m_kdata->falloff_work[0]);
+        }
         m_kdata->m_temp = T;
         updateKc();
         m_kdata->m_ROP_ok = false;
-        //}
-    };
-
+    }
 
     /**
      * Update properties that depend on concentrations. Currently only
@@ -86,9 +89,13 @@ namespace Cantera {
     _update_rates_C() {
         thermo().getActivityConcentrations(&m_conc[0]);
         doublereal ctot = thermo().molarDensity();
-        m_3b_concm.update(m_conc, ctot, &m_kdata->concm_3b_values[0]);
-        m_falloff_concm.update(m_conc, ctot, 
+        if (!m_kdata->concm_3b_values.empty()) {
+          m_3b_concm.update(m_conc, ctot, &m_kdata->concm_3b_values[0]);
+        }
+        if (!m_kdata->concm_falloff_values.empty()) {
+          m_falloff_concm.update(m_conc, ctot,
             &m_kdata->concm_falloff_values[0]);
+        }
         m_kdata->m_ROP_ok = false;
     }
 
@@ -316,7 +323,9 @@ namespace Cantera {
             pr[i] = fc[i] * m_rf_low[i] / m_rf_high[i];
         }
 
-        m_falloffn.pr_to_falloff( &pr[0], &m_kdata->falloff_work[0] );
+        double* falloff_work =
+            (m_kdata->falloff_work.empty()) ? 0 : &m_kdata->falloff_work[0];
+        m_falloffn.pr_to_falloff(&pr[0], falloff_work);
         
         for (i = 0; i < m_nfall; i++) {
             pr[i] *= m_rf_high[i]; 
@@ -344,9 +353,13 @@ namespace Cantera {
         copy(rf.begin(), rf.end(), ropf.begin());
 
         // multiply ropf by enhanced 3b conc for all 3b rxns
-        m_3b_concm.multiply( &ropf[0], &m_kdata->concm_3b_values[0] );
+        if (!m_kdata->concm_3b_values.empty()) {
+          m_3b_concm.multiply( &ropf[0], &m_kdata->concm_3b_values[0] );
+        }
 
-        processFalloffReactions();
+        if (m_nfall) {
+          processFalloffReactions();
+        }
 
         // multiply by perturbation factor
         multiply_each(ropf.begin(), ropf.end(), m_perturb.begin());
@@ -394,13 +407,17 @@ namespace Cantera {
         copy(rf.begin(), rf.end(), ropf.begin());
 
         // multiply ropf by enhanced 3b conc for all 3b rxns
-        m_3b_concm.multiply(&ropf[0], &m_kdata->concm_3b_values[0] );
+        if (!m_kdata->concm_3b_values.empty()) {
+          m_3b_concm.multiply(&ropf[0], &m_kdata->concm_3b_values[0] );
+        }
 
 	/*
 	 * This routine is hardcoded to replace some of the values
 	 * of the ropf vector.
 	 */
-        processFalloffReactions();
+        if (m_nfall) {
+          processFalloffReactions();
+        }
 
         // multiply by perturbation factor
         multiply_each(ropf.begin(), ropf.end(), m_perturb.begin());
