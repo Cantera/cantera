@@ -91,9 +91,6 @@ int rxnpath_example1(int job) {
         }
         if (job < 2) return 0;
 
-        // header
-        writeCanteraHeader(cout);
-
         // create an ideal gas mixture that corresponds to GRI-Mech
         // 3.0
         IdealGasMix gas("gri30.cti", "gri30");

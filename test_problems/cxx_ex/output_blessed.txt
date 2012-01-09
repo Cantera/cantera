@@ -12,13 +12,7 @@ Description:
 Ignition simulation using class IdealGasMix with file gri30.cti.
 Constant-pressure ignition of a hydrogen/oxygen/nitrogen mixture 
 beginning at T = 1001 K and P = 1 atm.
-
-     Cantera version 1.8.x
-     Copyright California Institute of Technology, 2002.
-     http://www.cantera.org
-
  Tfinal = 2663.78
- number of residual function evaluations = 1876
 Output files:
   kin1.csv    (Excel CSV file)
   kin1.dat    (Tecplot data file)
@@ -32,13 +26,7 @@ Description:
 Ignition simulation using class GRI30.
 Constant-pressure ignition of a hydrogen/oxygen/nitrogen mixture 
 beginning at T = 1001 K and P = 1 atm.
-
-     Cantera version 1.8.x
-     Copyright California Institute of Technology, 2002.
-     http://www.cantera.org
-
  Tfinal = 2663.78
- number of residual function evaluations = 1970
 Output files:
   kin2.csv    (Excel CSV file)
   kin2.dat    (Tecplot data file)
@@ -52,13 +40,7 @@ Description:
 Ignition simulation using class IdealGasMix with file gri30.cti.
 Constant-pressure ignition of a hydrogen/oxygen/nitrogen mixture 
 beginning at T = 1001 K and P = 1 atm.
-
-     Cantera version 1.8.x
-     Copyright California Institute of Technology, 2002.
-     http://www.cantera.org
-
  Tfinal = 2663.78
- number of residual function evaluations = 1980
 Output files:
   kin3.csv    (Excel CSV file)
   kin3.dat    (Tecplot data file)
@@ -71,11 +53,6 @@ Output files:
 Description:  
 Chemical equilibrium.
 Equilibrium composition and pressure for a range of temperatures at constant density.
-
-     Cantera version 1.8.x
-     Copyright California Institute of Technology, 2002.
-     http://www.cantera.org
-
 
 
 **** WARNING ****
@@ -107,11 +84,6 @@ Description:
 Mixture-averaged transport properties.
 Viscosity, thermal conductivity, and mixture-averaged
 diffusion coefficients at 2 atm for a range of temperatures
-
-     Cantera version 1.8.x
-     Copyright California Institute of Technology, 2002.
-     http://www.cantera.org
-
 Output files:
   tr1.csv    (Excel CSV file)
   tr1.dat    (Tecplot data file)
@@ -125,11 +97,6 @@ Description:
 Multicomponent transport properties.
 Viscosity, thermal conductivity, and thermal diffusion
  coefficients at 2 atm for a range of temperatures
-
-     Cantera version 1.8.x
-     Copyright California Institute of Technology, 2002.
-     http://www.cantera.org
-
 Output files:
   tr2.csv    (Excel CSV file)
   tr2.dat    (Tecplot data file)
