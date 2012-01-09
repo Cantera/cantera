@@ -39,6 +39,8 @@ localenv.Command('build_cantera.m',
                  MatlabBuilder(libs))
 
 localenv['ENV']['PATH'] = os.environ['PATH']
+if 'TEMP' in os.environ:
+    localenv['ENV']['TEMP'] = os.environ['TEMP']
 
 build_cmd = 'cd ${SOURCE.dir} && "%(matlab_cmd)s" -nojvm -nosplash -r build_cantera'
 
@@ -47,6 +49,10 @@ if os.name == 'posix':
     mexFile = 'cantera/ctmethods.mexa%i' % localenv['OS_BITS']
 elif os.name == 'nt':
     mexFile = 'cantera/ctmethods.mexw%i' % localenv['OS_BITS']
+    if localenv['OS_BITS'] == 64:
+        localenv['ENV']['PROCESSOR_ARCHITECTURE'] = "AMD64"
+    else:
+        localenv['ENV']['PROCESSOR_ARCHITECTURE'] = "x86"
 
 target = localenv.Command(mexFile,
                           'build_cantera.m',

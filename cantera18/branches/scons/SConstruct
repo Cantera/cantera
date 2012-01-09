@@ -194,7 +194,9 @@ opts.AddVariables(
         'default', ('y', 'n', 'default')),
     PathVariable(
         'matlab_cmd',
-        'Path to the Matlab executable.',
+        """Path to the Matlab executable. In Windows, this is probably
+           something like "C:/Program Files/MATLAB/R2009a/bin/win64/MATLAB.exe"
+        """,
         'matlab', PathVariable.PathAccept),
     EnumVariable(
         'f90_interface',
