@@ -2,12 +2,6 @@
  * @file fctxml.cpp
  *
  */
-
-/*
- * $Revision: 1.9 $
- * $Date: 2009/07/23 17:03:04 $
- */
-
 // Copyright 2001  California Institute of Technology
 
 

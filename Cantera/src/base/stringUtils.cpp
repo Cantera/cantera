@@ -3,11 +3,6 @@
  * Contains definitions for string manipulation functions
  *       within Cantera.
  */
-
-/*
- * $Id$
- */
-
 // Copyright 2001  California Institute of Technology
 
 //@{

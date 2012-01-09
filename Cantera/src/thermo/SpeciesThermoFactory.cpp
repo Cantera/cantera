@@ -4,11 +4,6 @@
  *    standard-state thermodynamic properties of a set of species 
  *    (see \ref spthermo and class \link Cantera::SpeciesThermoFactory SpeciesThermoFactory\endlink);
  */
-/* 
- * $Revision$
- * $Date$
- */
-
 // Copyright 2001  California Institute of Technology
 
 #ifdef WIN32

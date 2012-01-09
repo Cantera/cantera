@@ -3,12 +3,6 @@
  * Definitions for the \link Cantera::MultiPhase MultiPhase\endlink 
  * object that is used to set up multiphase equilibrium problems (see \ref equilfunctions).
  */
-/*
- *
- *  $Date$
- *  $Revision$
- */
-
 #include "MultiPhase.h"
 #include "MultiPhaseEquil.h"
 

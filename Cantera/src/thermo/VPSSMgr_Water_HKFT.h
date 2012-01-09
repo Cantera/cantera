@@ -6,12 +6,6 @@
  * (see \ref mgrpdssthermocalc and
  * class \link Cantera::VPSSMgr_Water_HKFT VPSSMgr_Water_HKFT\endlink).
  */
-
-/*
- * $Revision$
- * $Date$
- */
-
 /*
  * Copywrite (2006) Sandia Corporation. Under the terms of 
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the

@@ -4,11 +4,8 @@
  * (see \ref thermoprops and \link Cantera::ConstDensityThermo ConstDensityThermo
 \endlink).
  */
-/*
- * $Id$
- *
- *  Copyright 2002 California Institute of Technology
- */
+
+//  Copyright 2002 California Institute of Technology
 
 #ifdef WIN32
 #pragma warning(disable:4786)

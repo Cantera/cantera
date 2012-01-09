@@ -1,10 +1,6 @@
 /**
  * @file ctmultiphase.h
  */
-/*
- *      $Id$
- */
-
 #ifndef CTC_MULTIPHASE_H
 #define CTC_MULTIPHASE_H
 

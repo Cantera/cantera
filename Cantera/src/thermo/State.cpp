@@ -6,13 +6,8 @@
  */
 
 /*
- *  
- *  $Date$
- *  $Revision$
- *
  *  Copyright 2003-2004 California Institute of Technology
  *  See file License.txt for licensing information
- *
  */
 
 #include "utilities.h"

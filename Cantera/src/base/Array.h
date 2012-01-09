@@ -2,13 +2,6 @@
  *  @file Array.h
  *  Header file for class Array2D
  */
-
-/*
- *  $Author$
- *  $Revision$
- *  $Date$
- */
-
 // Copyright 2001  California Institute of Technology
 
 

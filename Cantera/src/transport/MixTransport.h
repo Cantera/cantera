@@ -2,12 +2,6 @@
  *  @file MixTransport.h
  *   Header file defining class MixTransport
  */
-
-/* $Author$
- * $Revision$
- * $Date$
- */
-
 // Copyright 2001  California Institute of Technology
 
 

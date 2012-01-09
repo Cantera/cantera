@@ -5,12 +5,6 @@
  *
  *  This file contains the declarations for the elements class.
  */
-/***********************************************************************
- *  $RCSfile: Elements.h,v $
- *  $Author$ 
- *  $Date$
- *  $Revision$
- ***********************************************************************/
 //  Copyright 2001  California Institute of Technology
 
 #ifndef CT_ELEMENTS_H

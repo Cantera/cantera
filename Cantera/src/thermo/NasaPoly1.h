@@ -12,13 +12,6 @@
 
 #ifndef CT_NASAPOLY1_H
 #define CT_NASAPOLY1_H
-
-
-/* $Author$
- * $Revision$
- * $Date$
- */
-
 // Copyright 2001  California Institute of Technology
 
 

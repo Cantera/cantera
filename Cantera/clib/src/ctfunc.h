@@ -1,10 +1,6 @@
 /**
  * @file ctfunc.h
  */
-/*
- *      $Id$
- */
-
 #ifndef CTC_FUNC1_H
 #define CTC_FUNC1_H
 

@@ -2,12 +2,6 @@
  *  @file MixTransport.cpp
  *  Mixture-averaged transport properties for ideal gas mixtures.
  */
-
-/* $Author$
- * $Revision$
- * $Date$
- */
-
 // copyright 2001 California Institute of Technology
 
 

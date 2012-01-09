@@ -2,9 +2,6 @@
  *  @file Species.h
  *
  */
-/*
- * $Id$
- */
 // Copyright 2001  California Institute of Technology
 
 

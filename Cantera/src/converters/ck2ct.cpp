@@ -2,10 +2,6 @@
  * @file ck2ct.cpp
  *   Convert CK-format reaction mechanism files to Cantera input format.
  */
-/*
- * $Id$
- *
- */
 #ifdef WIN32
 #pragma warning(disable:4786)
 #pragma warning(disable:4503)

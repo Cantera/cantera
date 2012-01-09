@@ -3,13 +3,6 @@
  *
  *  Header file for class DoubleStarStar
  */
-
-/*
- *  $Author$
- *  $Revision$
- *  $Date$
- */
-
 #include "vcs_DoubleStarStar.h"
 
 namespace VCSnonideal {

@@ -1,15 +1,9 @@
 /**
- *
  *  @file MultiJac.h
  */
 
 /*
- *  $Author$
- *  $Date$
- *  $Revision$
- *
  *  Copyright 2002 California Institute of Technology
- *
  */
 
 #ifndef CT_MULTIJAC_H

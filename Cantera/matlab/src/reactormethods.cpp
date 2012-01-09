@@ -1,10 +1,6 @@
 /**
  * @file reactormethods.cpp
  */
-/*
- *  $Id: reactormethods.cpp,v 1.5 2009/07/11 16:43:12 hkmoffa Exp $
- */
-
 #include "mex.h"
 #include <cantera/clib/ctreactor.h>
 #include <cantera/clib/ct.h>

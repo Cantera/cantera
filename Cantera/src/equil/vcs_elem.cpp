@@ -4,10 +4,6 @@
  *  element abundances constraints and the algorithm for fixing violations
  *  of the element abundances constraints.
  */
-/*
- * $Id$
- */
-
 #include "vcs_solve.h"
 #include "vcs_internal.h" 
 #include "math.h"

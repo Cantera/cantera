@@ -1,13 +1,8 @@
 /**
  *  @file FalloffMgr.h
- *
- *  $Author$
- *  $Date$
- *  $Revision$
  */
 
 // Copyright 2001  California Institute of Technology
-
 
 #ifndef CT_FALLOFFMGR_H
 #define CT_FALLOFFMGR_H

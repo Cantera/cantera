@@ -3,12 +3,6 @@
  *       Contains declarations for string manipulation functions
  *       within Cantera.
  */
-
-/*
- * $Revision$
- * $Date$
- */
-
 // Copyright 2001  California Institute of Technology
 
 #ifndef CT_STRINGUTILS_H

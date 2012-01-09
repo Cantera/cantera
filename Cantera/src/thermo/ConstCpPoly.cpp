@@ -4,12 +4,6 @@
  * employs a constant heat capacity assumption (see \ref spthermo and
  * \link Cantera::ConstCpPoly ConstCpPoly \endlink).
  */
-/*
- * $Author$
- * $Revision$
- * $Date$
- */
-
 // Copyright 2001  California Institute of Technology
 
 

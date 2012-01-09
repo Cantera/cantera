@@ -5,13 +5,6 @@
  *  on a piecewise constant mu0 interpolation
  *  (see \ref spthermo and class \link Cantera::Mu0Poly Mu0Poly\endlink).
  */
-/*
- * $Author$
- * $Revision$
- * $Date$
- */
-
-
 #include "Mu0Poly.h"
 #include "ctexceptions.h"
 #include "speciesThermoTypes.h"

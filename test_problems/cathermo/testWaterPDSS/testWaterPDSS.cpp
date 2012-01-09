@@ -1,6 +1,4 @@
-/*
- * $Id: testWaterPDSS.cpp,v 1.6 2008/12/17 17:31:13 hkmoffa Exp $
- */
+
 #include "kernel/ct_defs.h"
 #include "kernel/ctexceptions.h"
 #include "kernel/global.h"

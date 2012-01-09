@@ -1,15 +1,4 @@
-/*====================================================================
- * ------------------------
- * | CVS File Information | 
- * ------------------------
- * $RCSfile: csvdiff.cpp,v $
- * $Author$
- * $Date$
- * $Revision$
- * $Name:  $
- *====================================================================*/
 /*
- *
  *  csvdiff File1.csv File2.csv
  *
  *  Compares the variable values in two Excel formatted

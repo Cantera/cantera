@@ -1,11 +1,6 @@
 /**
  * @file clib_defs.h
  */
-/*
- *      $Id$
- */
-
-
 #ifndef CTC_DEFS_H
 #define CTC_DEFS_H
 

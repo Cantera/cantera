@@ -1,7 +1,5 @@
 /**
  *  @file sort.cpp
- *
- *  $Id$
  */
 
 #ifdef WIN32

@@ -3,11 +3,7 @@
  *  Templates for operations on vector-like objects. 
  */
 /*
- *  $Date$
- *  $Revision$
- *
  *  Copyright 2001 California Institute of Technology
- *
  */
 
 #ifndef CT_VEC_FUNCTIONS_H

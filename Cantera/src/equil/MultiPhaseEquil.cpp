@@ -1,10 +1,6 @@
 /**
  * @file MultiPhaseEquil.cpp
  */
-/*
- * $Id$
- */
-
 #include "MultiPhaseEquil.h"
 #include "MultiPhase.h"
 #ifdef WITH_ELECTROLYTES

@@ -1,6 +1,3 @@
-/*
- * $Id$
- */
 #ifndef CXX_PUREFLUID
 #define CXX_PUREFLUID
 

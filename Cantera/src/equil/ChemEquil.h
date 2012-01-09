@@ -2,13 +2,9 @@
  *  @file ChemEquil.h
  *
  *  Chemical equilibrium.
- *
- *  $Author$
- *  $Date$
- *  $Revision$
- *
+ */
+/*
  *  Copyright 2001 California Institute of Technology
- *
  */
 
 

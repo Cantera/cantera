@@ -3,12 +3,6 @@
  *  Basic include file to be used in all Cantera application
  *  environments.
  */
-
-/* 
- * $Revision$
- * $Date$
- */
-
 // Copyright 2001  California Institute of Technology
 
 #ifndef CANTERA_H_INCL

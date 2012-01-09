@@ -18,12 +18,6 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-/*
- *  $Author$
- *  $Date$
- *  $Revision$
- */
-
 #ifndef CT_IDEALMOLALSOLN_H
 #define CT_IDEALMOLALSOLN_H
 

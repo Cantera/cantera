@@ -1,10 +1,5 @@
 /**
  *  @file Integrator.h
- *
- *  $Author$
- *  $Date$
- *  $Revision$
- *
  */
 
 /**
@@ -12,7 +7,6 @@
  */
 
 // Copyright 2001  California Institute of Technology
-
 
 #ifndef CT_INTEGRATOR_H
 #define CT_INTEGRATOR_H

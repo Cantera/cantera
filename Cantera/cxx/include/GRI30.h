@@ -1,6 +1,3 @@
-/*
- * $Id$
- */
 #ifndef CXX_GRI30H
 #define CXX_GRI30H
 

@@ -3,12 +3,6 @@
  *  @file SolidTransport.h
  *   Header file defining class SolidTransport
  */
-
-/* $Author$
- * $Revision$
- * $Date$
- */
-
 // Copyright 2003  California Institute of Technology
 
 

@@ -1,11 +1,4 @@
 
-/*
- *  $Author: dggoodwin $
- *  $Date: 2007/05/04 15:18:45 $
- *  $Revision: 1.3 $
- *
-
- */
 #ifdef SRCDIRTREE
 #include "ct_defs.h"
 #include "ctml.h"

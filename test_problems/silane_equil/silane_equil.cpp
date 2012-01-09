@@ -1,11 +1,5 @@
-
 /*
- *  $Author: hkmoffa $
- *  $Date: 2008/08/23 00:55:58 $
- *  $Revision: 1.10 $
- *
  *  Copyright 2002 California Institute of Technology
- *
  */
 
 #ifdef SRCDIRTREE

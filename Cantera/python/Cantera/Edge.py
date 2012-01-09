@@ -1,4 +1,3 @@
-
 import string
 import os
 
@@ -6,8 +5,6 @@ from constants import *
 from SurfacePhase import EdgePhase
 from Kinetics import Kinetics
 import XML
-
-__revision__ = "$Id: Edge.py,v 1.1 2006/04/23 07:27:10 dggoodwin Exp $"
 
 class Edge(EdgePhase, Kinetics):    
     """
@@ -77,4 +74,3 @@ class Edge(EdgePhase, Kinetics):
         """Delete the Edge instance."""
         Kinetics.__del__(self)
         EdgePhase.__del__(self)
-    

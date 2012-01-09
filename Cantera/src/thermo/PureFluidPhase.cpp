@@ -5,9 +5,6 @@
  *   and supercritical fluid (see \ref thermoprops 
  *   and class \link Cantera::PureFluidPhase PureFluidPhase\endlink).
  */
-/*
- *  $Id$
- */
 #include "xml.h"
 #include "PureFluidPhase.h"
 

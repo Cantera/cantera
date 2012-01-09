@@ -8,8 +8,6 @@ import Interface
 import Edge
 import XML
 
-__revision__ = "$Id: importFromFile.py,v 1.12 2007/02/17 10:48:09 dggoodwin Exp $"
-
 def importPhase(file, name = '', loglevel = 0, debug = 0):
     """Import one phase from an input  file.  If 'name' is specified, the
     phase definition with this name will be imported, otherwise the first

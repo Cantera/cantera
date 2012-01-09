@@ -3,11 +3,6 @@
  *  Implementation for the Interface class for the vcs thermo
  *  equilibrium solver package,
  */
-
-/*
- * $Id$
- */
-
 /*
  * Copywrite (2005) Sandia Corporation. Under the terms of 
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the

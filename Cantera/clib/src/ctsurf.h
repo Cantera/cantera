@@ -1,10 +1,6 @@
 /**
  * @file ctsurf.h
  */
-/*
- *      $Id$
- */
-
 #ifndef CTC_SURF_H
 #define CTC_SURF_H
 

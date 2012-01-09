@@ -1,12 +1,8 @@
 /**
  *  @file Domain1D.h
- *
- *  $Author$
- *  $Date$
- *  $Revision$
- *
+ */
+/*
  *  Copyright 2002 California Institute of Technology
- *
  */
 
 #ifndef CT_DOMAIN1D_H

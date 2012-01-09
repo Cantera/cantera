@@ -15,12 +15,6 @@
  *     -  textlogs    (see \ref textlogs)
  *     -  HTML_logs   (see \ref HTML_logs)
  */
-
-/* 
- * $Revision$
- * $Date$
- */
-
 // Copyright 2001  California Institute of Technology
 
 #ifndef CT_GLOBAL_H

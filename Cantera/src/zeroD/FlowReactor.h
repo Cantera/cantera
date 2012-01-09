@@ -1,9 +1,5 @@
 /**
  *  @file FlowReactor.h
- *
- * $Author$
- * $Revision$
- * $Date$
  */
 
 // Copyright 2001  California Institute of Technology

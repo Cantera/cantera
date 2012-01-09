@@ -1,13 +1,6 @@
 /**
  * @file boundaries1D.cpp
  */
-
-/*
- * $Author$
- * $Revision$
- * $Date$
- */
-
 // Copyright 2002-3  California Institute of Technology
 
 // turn off warnings under Windows

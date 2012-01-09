@@ -10,8 +10,6 @@ import types
 from Cantera.num import asarray
 from exceptions import CanteraError
 
-__revision__ = "$Id: Phase.py,v 1.9 2007/05/25 14:17:38 dggoodwin Exp $"
-
 # return true is x is a sequence
 def _isseq(n, x):
     try:

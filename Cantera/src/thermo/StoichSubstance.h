@@ -4,14 +4,7 @@
  * ThermoPhase class.
  */
 
-/*  
- *  $Date$
- *  $Revision$
- *
- *  Copyright 2001 California Institute of Technology
- *
- */
-
+//  Copyright 2001 California Institute of Technology
 
 #ifndef CT_STOICHSUBSTANCE_H
 #define CT_STOICHSUBSTANCE_H

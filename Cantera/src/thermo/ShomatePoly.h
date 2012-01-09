@@ -7,12 +7,6 @@
  *   \link Cantera::ShomatePoly2 ShomatePoly2\endlink).
  *    Shomate polynomial expressions.
  */
-/*
- * $Author$
- * $Revision$
- * $Date$
- */
-
 // Copyright 2001  California Institute of Technology
 
 

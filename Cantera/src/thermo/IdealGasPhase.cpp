@@ -6,10 +6,6 @@
  * and class \link Cantera::IdealGasPhase IdealGasPhase\endlink).
  *
  */
-/*
- * $Id$
- */
-
 #ifdef WIN32
 #pragma warning(disable:4786)
 #pragma warning(disable:4503)

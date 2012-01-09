@@ -2,14 +2,9 @@
  * @file AqueousKinetics.h
  *
  * @ingroup chemkinetics
- *
- * $Author$
- * $Revision$
- * $Date$
  */
 
 // Copyright 2001  California Institute of Technology
-
 
 #ifndef CT_AQUEOUSKINETICS_H
 #define CT_AQUEOUSKINETICS_H

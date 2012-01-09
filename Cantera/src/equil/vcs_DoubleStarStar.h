@@ -3,13 +3,6 @@
  *
  *  Header file for class DoubleStarStar
  */
-
-/*
- *  $Author$
- *  $Revision$
- *  $Date$
- */
-
 #ifndef VCS_DOUBLESTARSTAR_H
 #define VCS_DOUBLESTARSTAR_H
 

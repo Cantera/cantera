@@ -1,10 +1,6 @@
 /**
  * @file vcs_SpeciesProperties.cpp
  */
-/*
- * $Id $
- */
-
 #include "vcs_defs.h"
 #include "vcs_SpeciesProperties.h"
 #include "vcs_VolPhase.h"

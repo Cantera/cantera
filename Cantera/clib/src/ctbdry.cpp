@@ -1,11 +1,6 @@
 /**
  * @file ctbdry.cpp
  */
-/*
- *      $Id$
- */
-
-
 #define CANTERA_USE_INTERNAL
 #include "ctbdry.h"
 

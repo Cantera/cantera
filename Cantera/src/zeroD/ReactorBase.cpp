@@ -1,13 +1,8 @@
 /**
  *  @file ReactorBase.cpp
- *
- * $Author$
- * $Revision$
- * $Date$
  */
 
 // Copyright 2001  California Institute of Technology
-
 
 #ifdef WIN32
 #pragma warning(disable:4786)

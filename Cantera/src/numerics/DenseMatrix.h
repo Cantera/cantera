@@ -3,14 +3,6 @@
  *
  * Dense (not sparse) matrices.
  */
-
-/*
- *  $Author$
- *  $Date$
- *  $Revision$
- *
- */
-
 // Copyright 2001  California Institute of Technology
 
 

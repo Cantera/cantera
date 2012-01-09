@@ -1,12 +1,6 @@
 /**
  * @file Storage.cpp
  */
-/*
- *      $Id$
- */
-
-
-
 // Cantera includes
 #include "kernel/Kinetics.h"
 #include "kernel/TransportFactory.h"

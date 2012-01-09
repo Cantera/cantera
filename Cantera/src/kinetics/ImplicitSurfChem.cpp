@@ -4,13 +4,6 @@
  *  (see \ref  kineticsmgr and class
  *  \link Cantera::ImplicitSurfChem ImplicitSurfChem\endlink).
  */
-
-/*
- * $Author$
- * $Revision$
- * $Date$
- */
-
 // Copyright 2001  California Institute of Technology
 
 

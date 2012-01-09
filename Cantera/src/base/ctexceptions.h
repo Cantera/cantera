@@ -4,12 +4,6 @@
  *   thrown when %Cantera experiences an error condition 
  *   (also contains errorhandling module text - see \ref errorhandling).
  */
-
-/*
- *  $Date$
- *  $Revision$
- */
-
 // Copyright 2001  California Institute of Technology
 
 #ifndef CT_CTEXCEPTIONS_H

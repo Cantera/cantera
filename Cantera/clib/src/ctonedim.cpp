@@ -1,10 +1,6 @@
 /**
  * @file ctonedim.cpp
  */
-/*
- *      $Id$
- */
-
 // turn off warnings under Windows
 #ifdef WIN32
 #pragma warning(disable:4786)

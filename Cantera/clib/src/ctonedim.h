@@ -1,10 +1,6 @@
 /**
  * @file ctonedim.h
  */
-/*
- *      $Id$
- */
-
 #ifndef CTC_ONEDIM_H
 #define CTC_ONEDIM_H
 

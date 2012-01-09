@@ -1,7 +1,5 @@
 /**
  *  @file CVodeInt.cpp
- *
- *  $Id$
  */
 
 // Copyright 2001  California Institute of Technology

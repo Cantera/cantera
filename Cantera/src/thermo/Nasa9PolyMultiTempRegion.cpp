@@ -10,11 +10,6 @@
  *
  *  This parameterization has one NASA temperature region.
  */
-
-/* $Author$
- * $Revision$
- * $Date$
- */
 // Copyright 2007  Sandia National Laboratories
 
 #include "global.h"

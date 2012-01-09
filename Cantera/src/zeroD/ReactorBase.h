@@ -1,13 +1,6 @@
 /**
  *  @file ReactorBase.h
  */
-
-/*
- * $Author$
- * $Revision$
- * $Date$
- */
-
 // Copyright 2001  California Institute of Technology
 
 #ifndef CT_REACTORBASE_H

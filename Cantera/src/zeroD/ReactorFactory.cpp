@@ -1,13 +1,6 @@
 /**
  *  @file ReactorFactory.cpp
  */
-
-/*
- * $Author$
- * $Revision$
- * $Date$
- */
-
 // Copyright 2006  California Institute of Technology
 
 

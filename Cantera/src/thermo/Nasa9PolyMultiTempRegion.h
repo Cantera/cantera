@@ -13,12 +13,6 @@
 
 #ifndef CT_NASA9POLYMULTITEMPREGION_H
 #define CT_NASA9POLYMULTITEMPREGION_H
-
-/* $Author$
- * $Revision$
- * $Date$
- */
-
 // Copyright 2007  Sandia National Laboratories
 
 

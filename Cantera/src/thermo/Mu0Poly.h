@@ -5,14 +5,6 @@
  *  on a piecewise constant mu0 interpolation
  *  (see \ref spthermo and class \link Cantera::Mu0Poly Mu0Poly\endlink).
  */
-
-/* $Author$
- * $Revision$
- * $Date$
- */
-
-
-
 #ifndef CT_MU0POLY_H
 #define CT_MU0POLY_H
 

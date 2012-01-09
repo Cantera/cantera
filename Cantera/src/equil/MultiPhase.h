@@ -3,12 +3,6 @@
  * Headers for the \link Cantera::MultiPhase MultiPhase\endlink 
  * object that is used to set up multiphase equilibrium problems (see \ref equilfunctions).
  */
-
-/*
- *  $Date$
- *  $Revision$
- */
-
 //  Copyright 2004  California Institute of Technology
 
 

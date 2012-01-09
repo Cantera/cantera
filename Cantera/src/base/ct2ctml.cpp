@@ -3,12 +3,6 @@
  * Driver for the system call to the python executable that converts
  * cti files to ctml files (see \ref inputfiles).
  */
-
-/*
- * $Revision$
- * $Date$
- */
-
 // Copyright 2001-2005  California Institute of Technology
 
 // turn off warnings under Windows

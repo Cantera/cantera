@@ -4,12 +4,6 @@
  * to store data. These functions read and write it. 
  * (see \ref inputfiles and importCTML, ck2ctml)
  */
-
-/* 
- * $Revision$
- * $Date$
- */
-
 // Copyright 2002  California Institute of Technology
 
 #ifndef CT_CTML_H

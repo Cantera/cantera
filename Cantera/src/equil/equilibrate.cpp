@@ -3,9 +3,6 @@
  * Driver routines for the chemical equilibrium solvers.
  *
  */
-/*
- * $Id$
- */
 #include "equil.h"
 #include "ChemEquil.h"
 #include "MultiPhaseEquil.h"

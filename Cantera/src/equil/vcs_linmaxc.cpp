@@ -1,7 +1,3 @@
-/*  $Author$
- *  $Date$
- *  $Revision$
- */
 
 /*
  * Copywrite (2005) Sandia Corporation. Under the terms of 

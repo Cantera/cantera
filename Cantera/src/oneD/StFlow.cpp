@@ -1,13 +1,6 @@
 /**
  * @file StFlow.cpp
  */
-
-/*
- * $Author$
- * $Revision$
- * $Date$
- */
-
 // Copyright 2002  California Institute of Technology
 
 

@@ -2,13 +2,6 @@
  *  @file ReactionPath.cpp
  *  Implementation file for classes used in reaction path analysis.
  */
-
-/*
- * $Author$
- * $Revision$
- * $Date$
- */
-
 // Copyright 2001  California Institute of Technology
 
 #ifdef WIN32

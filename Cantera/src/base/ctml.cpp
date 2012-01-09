@@ -3,12 +3,6 @@
  * Definitions for functions to read and write CTML.
  *
  */
-
-/*
- * $Revision$
- * $Date$
- */
-
 // Copyright 2002  California Institute of Technology
 
 

@@ -1,10 +1,6 @@
 /**
  *   @file ctfunctions.cpp
  */
-/*
- *  $Id: ctfunctions.cpp,v 1.10 2009/07/11 16:43:12 hkmoffa Exp $
- */
-
 #include "mex.h"
 #include <cantera/clib/ct.h>
 #include <cantera/clib/ctonedim.h>

@@ -4,12 +4,7 @@
  * (see \ref thermoprops and \link Cantera::ConstDensityThermo ConstDensityThermo\endlink).
  */
 /*
- *  $Author$
- *  $Date$
- *  $Revision$
- *
  *  Copyright 2002 California Institute of Technology
- *
  */
 
 #ifndef CT_CONSTRHOTHERMO_H

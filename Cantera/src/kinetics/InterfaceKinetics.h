@@ -3,12 +3,6 @@
  *
  * @ingroup chemkinetics
  */
-/*
- * $Author$
- * $Revision$
- * $Date$
- */
-
 // Copyright 2001  California Institute of Technology
 
 #ifndef CT_IFACEKINETICS_H

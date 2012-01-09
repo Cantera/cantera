@@ -3,12 +3,6 @@
  *       Contains declarations for utility functions for
  *   outputing to plotting programs.
  */
-
-/*
- * $Revision$
- * $Date$
- */
-
 // Copyright 2001  California Institute of Technology
 
 #ifndef CT_PLOTS_H

@@ -4,9 +4,6 @@
  *  manager for a phase (see \ref spthermo and
  * \link Cantera::GeneralSpeciesThermo GeneralSpeciesThermo\endlink).
  */
-/*
- * $Id$
- */
 // Copyright 2001-2004  California Institute of Technology
                 
 #include "GeneralSpeciesThermo.h"

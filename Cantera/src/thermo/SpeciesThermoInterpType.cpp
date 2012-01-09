@@ -2,11 +2,6 @@
  *  @file SpeciesThermoInterpType.cpp
  *  Definitions for a 
  */
-
-/* $Author$
- * $Revision$
- * $Date$
- */
 // Copyright 2007  Sandia National Laboratories
 
 #include "SpeciesThermoInterpType.h"

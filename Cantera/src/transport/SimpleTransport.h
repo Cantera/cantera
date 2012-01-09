@@ -3,11 +3,6 @@
  *  @file SimpleTransport.h
  *   Header file defining class SimpleTransport
  */
-/*
- * $Revision: 1.9 $
- * $Date: 2009/03/27 18:24:39 $
- */
-
 #ifndef CT_SIMPLETRAN_H
 #define CT_SIMPLETRAN_H
 

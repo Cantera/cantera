@@ -1,10 +1,6 @@
 /**
  * @file Storage.h
  */
-/*
- *      $Id$
- */
-
 #ifndef CTC_STORAGE_H
 #define CTC_STORAGE_H
 

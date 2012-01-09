@@ -4,12 +4,6 @@
  * @ingroup chemkinetics
  * @ingroup electrochem
  */
-
-/* $Author$
- * $Revision$
- * $Date$
- */
-
 // Copyright 2001  California Institute of Technology
 
 

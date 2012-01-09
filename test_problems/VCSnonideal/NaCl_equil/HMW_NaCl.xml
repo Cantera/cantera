@@ -1,9 +1,5 @@
 <?xml version="1.0"?>
 <!--
-    $Id: HMW_NaCl.xml,v 1.3 2009/01/11 21:42:22 hkmoffa Exp $
-    $Source: /cvsroot/cantera/cantera/test_problems/VCSnonideal/NaCl_equil/HMW_NaCl.xml,v $
-    $Name:  $
-
     NaCl modeling Based on the Silvester&Pitzer 1977 treatment:
 
     (L. F. Silvester, K. S. Pitzer, "Thermodynamics of Electrolytes:

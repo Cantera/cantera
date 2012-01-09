@@ -1,8 +1,5 @@
 /**
- *
  *  @file LatticeSolidPhase.cpp
- *
- * $Id$
  */
 
 #ifdef WIN32
