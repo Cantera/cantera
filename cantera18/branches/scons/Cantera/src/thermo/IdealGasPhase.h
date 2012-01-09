@@ -3,17 +3,9 @@
  *   ThermoPhase object for the ideal gas equation of
  * state - workhorse for %Cantera (see \ref thermoprops 
  * and class \link Cantera::IdealGasPhase IdealGasPhase\endlink).
- * 
  */
 
-/*  $Author$
- *  $Date$
- *  $Revision$
- *
- *  Copyright 2001 California Institute of Technology
- *
- */
-
+//  Copyright 2001 California Institute of Technology
 
 #ifndef CT_IDEALGASPHASE_H
 #define CT_IDEALGASPHASE_H

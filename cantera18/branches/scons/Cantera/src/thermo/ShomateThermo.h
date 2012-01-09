@@ -5,9 +5,6 @@
  *   \link Cantera::SpeciesThermo SpeciesThermo\endlink base class (see \ref mgrsrefcalc and
  *   \link Cantera::ShomateThermo ShomateThermo\endlink).
  */
-/*
- * $Id$
- */
 // Copyright 2001  California Institute of Technology
 
 

@@ -5,12 +5,6 @@
  *   \link Cantera::SpeciesThermo SpeciesThermo\endlink base class (see \ref mgrsrefcalc and
  *   \link Cantera::NasaThermo NasaThermo\endlink).
  */
-
-/*
- * $Revision$
- * $Date$
- */
-
 // Copyright 2003 California Institute of Technology
 
 #ifndef CT_NASATHERMO_H

@@ -5,10 +5,6 @@
  *   \link Cantera::SpeciesThermo SpeciesThermo\endlink base class (see \ref spthermo and
  *   \link Cantera::SimpleThermo SimpleThermo\endlink).
  */
-/*
- * $Id$
- */
-
 #ifndef CT_SIMPLETHERMO_H
 #define CT_SIMPLETHERMO_H
 

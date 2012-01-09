@@ -1,6 +1,3 @@
-/*
- * $Id$
- */
 #ifndef CXX_INCL_KINETICS
 #define CXX_INCL_KINETICS
 

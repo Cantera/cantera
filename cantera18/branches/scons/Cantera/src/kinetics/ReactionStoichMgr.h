@@ -3,13 +3,6 @@
  *
  * Header file declaring class ReactionStoichMgr.
  */
-
-/*
- * $Author$
- * $Revision$
- * $Date$
- */
-
 #ifndef CT_RXN_STOICH
 #define CT_RXN_STOICH
 

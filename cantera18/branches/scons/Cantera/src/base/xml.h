@@ -4,12 +4,6 @@
  * implement only those aspects of XML required to read, write, and
  * manipulate CTML data files.
  */
-
-/* 
- * $Revision$
- * $Date$
- */
-
 // Copyright 2001  California Institute of Technology
 
 #ifndef CT_XML_H

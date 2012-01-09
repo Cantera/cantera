@@ -1,22 +1,14 @@
 /**
- *
  *  @file DustyGasTransport.cpp
  *  Implementation file for class DustyGasTransport
  *
  *  @ingroup transportProps
- *
  */
 
 /*
- *  $Author$
- *  $Date$
- *  $Revision$
- *
  *  Copyright 2003 California Institute of Technology
  *  See file License.txt for licensing information
- *
  */
-
 
 // turn off warnings under Windows
 #ifdef WIN32

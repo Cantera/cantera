@@ -4,8 +4,6 @@
  */
 
 // Copyright 2001  California Institute of Technology
-//
-// $Id$
 
 // turn off warnings about truncating long names under Windows
 #ifdef WIN32

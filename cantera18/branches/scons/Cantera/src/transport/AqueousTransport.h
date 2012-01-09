@@ -2,11 +2,6 @@
  *  @file LiquidTransport.h
  *   Header file defining class AqueousTransport
  */
-/* 
- * $Revision$
- * $Date$
- */
-
 // Copyright 2001  California Institute of Technology
 
 

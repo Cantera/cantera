@@ -1,10 +1,6 @@
 /**
  * @file ctrpath.cpp
  */
-/*
- *      $Id$
- */
-
 #define CANTERA_USE_INTERNAL
 #include "ctrpath.h"
 

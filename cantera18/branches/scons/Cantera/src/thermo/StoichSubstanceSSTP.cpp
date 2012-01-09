@@ -12,11 +12,6 @@
  *
  * Copyright 2001 California Institute of Technology
  */
-
-/*
- * $Id$ 
- */
-
 #include "ct_defs.h"
 #include "mix_defs.h"
 #include "StoichSubstanceSSTP.h"

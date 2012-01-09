@@ -6,15 +6,6 @@
  *  This file contains the definitions for functions in the class Elements.
  *  It also contains a database of atomic weights.
  */
-
-/****************************************************************************
- *  $RCSfile: Elements.cpp,v $
- *  $Author$
- *  $Date$
- *  $Revision$
- *
- *
- ****************************************************************************/
 //  Copyright 2003  California Institute of Technology
 
 

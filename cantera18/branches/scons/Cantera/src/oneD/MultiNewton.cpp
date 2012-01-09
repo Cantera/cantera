@@ -1,17 +1,11 @@
 /**
- *
  *  @file MultiNewton.cpp
  *
  *  Damped Newton solver for 1D multi-domain problems
  */
 
 /*
- *  $Author$
- *  $Date$
- *  $Revision$
- *
  *  Copyright 2001 California Institute of Technology
- *
  */
 
 #ifdef WIN32

@@ -2,12 +2,6 @@
  *
  *  @file SolidTransport.cpp
  */
-
-/* $Author$
- * $Revision$
- * $Date$
- */
-
 // copyright 2008 California Institute of Technology
 
 

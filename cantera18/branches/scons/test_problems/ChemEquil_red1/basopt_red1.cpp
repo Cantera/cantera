@@ -1,10 +1,3 @@
-/*
- *  $Author: hkmoffa $
- *  $Date: 2008/02/16 21:44:47 $
- *  $Revision: 1.5 $
- *
- */
-
 #include "cantera/Cantera.h"
 #include "cantera/IdealGasMix.h"
 #include "cantera/equilibrium.h"

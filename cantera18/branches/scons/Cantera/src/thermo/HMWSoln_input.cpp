@@ -12,10 +12,6 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-/*
- * $Id$
- */
-
 #include "HMWSoln.h"
 #include "ThermoFactory.h"
 #include "WaterProps.h"

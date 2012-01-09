@@ -2,11 +2,6 @@
  *  @file SimpleTransport.cpp
  *  Simple mostly constant transport properties
  */
-/* 
- * $Revision: 1.10 $
- * $Date: 2009/03/24 20:44:30 $
- */
-
 #include "ThermoPhase.h"
 #include "SimpleTransport.h"
 

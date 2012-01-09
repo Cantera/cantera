@@ -9,10 +9,6 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-/*
- * $Id$
- */
-
 #ifndef WATERPROPSIAPWS_H
 #define WATERPROPSIAPWS_H
 

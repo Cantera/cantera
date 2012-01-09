@@ -4,12 +4,7 @@
  * themodynamic managers and text for the spthermo module 
  * (see \ref spthermo and class \link Cantera::SpeciesThermoInterpType SpeciesThermoInterpType \endlink).
  */
- /*
- * $Author$
- * $Revision$
- * $Date$
- */
-
+ 
 // Copyright 2001  California Institute of Technology
 
 #include "speciesThermoTypes.h"

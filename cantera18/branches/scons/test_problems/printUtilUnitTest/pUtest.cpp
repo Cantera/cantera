@@ -1,6 +1,4 @@
-/*
- * $Id: pUtest.cpp,v 1.1 2009/03/25 00:17:06 hkmoffa Exp $
- */
+
 #include <iostream>
 #include <fstream>
 #include <cmath>

@@ -2,12 +2,6 @@
  *  @file TransportBase.h  
  *   Provides class Transport.
  */
-
-/*
- * $Revision$
- * $Date$
- */
-
 // Copyright 2001-2003  California Institute of Technology
 
 

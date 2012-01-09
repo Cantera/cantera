@@ -1,13 +1,6 @@
 /**
  *  @file MMCollisionInt.cpp
  */
-
-/*
- * $Author$
- * $Revision$
- * $Date$
- */
-
 // Copyright 2001  California Institute of Technology */
 
 #ifdef WIN32

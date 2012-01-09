@@ -7,10 +7,6 @@
  *  (see \ref thermoprops and class \link Cantera::LatticePhase LatticePhase\endlink).
  *
  */
-/*
- * $Id$
- */
-
 #include "config.h"
 #ifdef WITH_LATTICE_SOLID
 

@@ -1,10 +1,6 @@
 /**
  * @file ctrpath.h
  */
-/*
- *      $Id$
- */
-
 #ifndef CTC_RXNPATH_H
 #define CTC_RXNPATH_H
 

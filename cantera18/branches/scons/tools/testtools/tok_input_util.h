@@ -1,23 +1,3 @@
-/*====================================================================
- * ------------------------
- * | CVS File Information |
- * ------------------------
- *
- * $RCSfile: tok_input_util.h,v $
- *
- * $Author$
- *
- * $Date$
- *
- * $Revision$
- * Symbolic $Name:  $
- *
- * $Id$
- * $Source: /cvsroot/cantera/cantera/tools/testtools/tok_input_util.h,v $
- *
- *
- *====================================================================*/
-
 #ifndef TOK_INPUT_UTIL_H
 #define TOK_INPUT_UTIL_H
 

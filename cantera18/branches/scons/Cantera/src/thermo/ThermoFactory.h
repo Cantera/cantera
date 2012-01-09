@@ -4,13 +4,6 @@
  *     (see \ref thermoprops and class \link Cantera::ThermoFactory ThermoFactory\endlink).
  *
  */
-
-/*
- * $Author$
- * $Revision$
- * $Date$
- */
-
 // Copyright 2001  California Institute of Technology
 
 

@@ -4,13 +4,6 @@
  *  reference-state property managers and text for the mgrsrefcalc module (see \ref mgrsrefcalc 
  *  and class \link Cantera::SpeciesThermo SpeciesThermo\endlink).
  */
-
-/*
- * $Author$
- * $Revision$
- * $Date$
- */
-
 // Copyright 2001  California Institute of Technology
 
 

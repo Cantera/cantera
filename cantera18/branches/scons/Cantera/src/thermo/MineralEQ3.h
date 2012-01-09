@@ -12,12 +12,6 @@
  *
  * Copyright 2001 California Institute of Technology
  */
-
-/* 
- *  $Date$
- *  $Revision$
- */
-
 #ifndef CT_MINERALEQ3_H
 #define CT_MINERALEQ3_H
 

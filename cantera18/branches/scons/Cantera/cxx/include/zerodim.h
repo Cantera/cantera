@@ -1,6 +1,3 @@
-/*
- * $Id$
- */
 #ifndef CT_INCL_ZERODIM_H
 #define CT_INCL_ZERODIM_H
 #include "kernel/Reactor.h"

@@ -3,18 +3,10 @@
  *  Header file defining class TransportFactory
  *     (see \link Cantera::TransportFactory TransportFactory\endlink)
  */
-/*
- *  $Author$
- *  $Date$
- *  $Revision$
- *
- *  Copyright 2001 California Institute of Technology
- *
- */
+//  Copyright 2001 California Institute of Technology
 
 #ifndef CT_TRANFACTORY_H
 #define CT_TRANFACTORY_H
-
 
 // turn off warnings under Windows
 #ifdef WIN32
@@ -27,8 +19,6 @@
 #include <string>
 #include <iostream>
 #include <new>
-
-
 
 // Cantera includes
 #include "ct_defs.h"

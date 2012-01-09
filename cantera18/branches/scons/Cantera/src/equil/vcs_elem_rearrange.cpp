@@ -3,10 +3,6 @@
  *   Contains implementations for rearranging the element columns, and
  *   it contains the algorithm for choosing the rearrangement.
  */
-/*  $Author$
- *  $Date$
- *  $Revision$
- */
 /*
  * Copywrite (2005) Sandia Corporation. Under the terms of 
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the

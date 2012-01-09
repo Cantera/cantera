@@ -2,14 +2,9 @@
  *  @file ReactionPath.h
  *
  *  Classes for reaction path analysis.
- *
- * $Author$
- * $Revision$
- * $Date$
  */
 
 // Copyright 2001  California Institute of Technology
-
 
 #ifndef CT_RXNPATH_H
 #define CT_RXNPATH_H

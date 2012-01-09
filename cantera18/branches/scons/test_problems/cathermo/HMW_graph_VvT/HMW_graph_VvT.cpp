@@ -1,13 +1,6 @@
 /**
  *  @file HMW_graph_VvT
  */
-
-/*
- *  $Author: hkmoffa $
- *  $Date: 2008/12/17 17:31:12 $
- *  $Revision: 1.8 $
- */
-
 #ifdef SRCDIRTREE
 #include "ct_defs.h"
 #include "logger.h"

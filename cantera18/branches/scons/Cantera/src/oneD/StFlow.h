@@ -2,13 +2,6 @@
  * @file StFlow.h
  *
  */
-
-/*
- * $Author$
- * $Revision$
- * $Date$
- */
-
 // Copyright 2001  California Institute of Technology
 
 #ifndef CT_STFLOW_H

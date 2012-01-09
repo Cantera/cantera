@@ -3,11 +3,6 @@
  *  @file LiquidTransport.h
  *   Header file defining class LiquidTransport
  */
-/*
- * $Revision: 1.9 $
- * $Date: 2009/03/27 18:24:39 $
- */
-
 #ifndef CT_WATERTRAN_H
 #define CT_WATERTRAN_H
 

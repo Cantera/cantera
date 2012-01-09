@@ -1,6 +1,4 @@
 
-/* $Id$ */
-
 #ifndef VCS_SPECIES_PROPERTIES_H
 #define VCS_SPECIES_PROPERTIES_H
 

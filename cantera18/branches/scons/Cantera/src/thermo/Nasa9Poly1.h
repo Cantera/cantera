@@ -17,14 +17,6 @@
 
 #ifndef CT_NASA9POLY1_H
 #define CT_NASA9POLY1_H
-
-/* 
- * $Revision$
- * $Date$
- */
-
-
-
 #include "global.h"
 #include "SpeciesThermoInterpType.h"
 

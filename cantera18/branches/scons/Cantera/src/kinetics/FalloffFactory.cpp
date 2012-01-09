@@ -1,12 +1,6 @@
 /**
  *  @file FalloffFactory.cpp
  */
-
-/*  $Author$
- *  $Date$
- *  $Revision$
- */
-
 // Copyright 2001  California Institute of Technology
 
 #ifdef WIN32

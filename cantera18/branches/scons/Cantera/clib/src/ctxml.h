@@ -1,10 +1,6 @@
 /**
  * @file ctxml.h
  */
-/*
- *      $Id$
- */
-
 #ifndef CTC_XML_H
 #define CTC_XML_H
 

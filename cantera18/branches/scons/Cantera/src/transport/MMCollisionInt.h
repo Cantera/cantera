@@ -2,12 +2,6 @@
  * @file MMCollisionInt.h
  *  Monk and Monchick collision integrals
  */
-/*
- * $Author$
- * $Revision$
- * $Date$
- */
-
 // Copyright 2001  California Institute of Technology 
 
 

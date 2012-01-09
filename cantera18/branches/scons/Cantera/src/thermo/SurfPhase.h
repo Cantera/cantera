@@ -6,13 +6,7 @@
  *  (see \ref thermoprops and class \link Cantera::SurfPhase SurfPhase\endlink).
  */
 
-/* 
- *  $Date$
- *  $Revision$
- *
- *  Copyright 2002 California Institute of Technology
- *
- */
+//  Copyright 2002 California Institute of Technology
 
 #ifndef CT_SURFPHASE_H
 #define CT_SURFPHASE_H

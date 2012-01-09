@@ -2,17 +2,11 @@
  * @file Inlet1D.h
  *
  * Boundary objects for one-dimensional simulations.
- *
  */
 
 /*
- * $Author$
- * $Revision$
- * $Date$
- *
  * Copyright 2002-3  California Institute of Technology
  */
-
 
 #ifndef CT_BDRY1D_H
 #define CT_BDRY1D_H

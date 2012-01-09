@@ -1,12 +1,6 @@
 /**
  * @file plots.cpp
  */
-
-/*
- * $Revision$
- * $Date$
- */
-
 // Copyright 2002  California Institute of Technology
 
 

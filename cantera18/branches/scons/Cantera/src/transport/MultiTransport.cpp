@@ -4,16 +4,11 @@
  *  Implementation file for class MultiTransport
  *
  * @ingroup transportProps
- *
- *  $Author$
- *  $Date$
- *  $Revision$
- *
+ */
+/*
  *  Copyright 2001 California Institute of Technology
  *  See file License.txt for licensing information
- *
  */
-
 
 // turn off warnings under Windows
 #ifdef WIN32

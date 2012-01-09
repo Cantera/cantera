@@ -3,13 +3,6 @@
  *
  *  Header file for class IntStarStar
  */
-
-/*
- *  $Author$
- *  $Revision$
- *  $Date$
- */
-
 #include "vcs_IntStarStar.h"
 
 namespace VCSnonideal {

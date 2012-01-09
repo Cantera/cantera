@@ -5,12 +5,6 @@
  *  (see \ref thermoprops and class 
  *  \link Cantera::SurfPhase SurfPhase\endlink).
  */
-
-/*
- * $Revision$
- * $Date$
- */
-
 // Copyright 2002  California Institute of Technology
 
 // turn off warnings under Windows

@@ -7,12 +7,6 @@
  *  thermo properties of a species with several vibrational models.
  *
  */
-
-/* $Author$
- * $Revision$
- * $Date$
- */
-
 // Copyright 2007  California Institute of Technology
 
 

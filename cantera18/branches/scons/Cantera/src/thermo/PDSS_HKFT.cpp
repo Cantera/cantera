@@ -5,11 +5,6 @@
  *    HKFT standard state
  *    (see \ref pdssthermo and class \link Cantera::PDSS_HKFT PDSS_HKFT\endlink).
  */
-
-/*
- * $Id$
- */
-
 /*
  * Copywrite (2006) Sandia Corporation. Under the terms of 
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the

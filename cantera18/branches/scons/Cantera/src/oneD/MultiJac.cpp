@@ -1,17 +1,11 @@
 /**
- *
  *  @file MultiJac.cpp
  *
  *  Implementation file for class MultiJac
  */
 
 /*
- *  $Author$
- *  $Date$
- *  $Revision$
- *
  *  Copyright 2002 California Institute of Technology
- *
  */
 
 #ifdef WIN32

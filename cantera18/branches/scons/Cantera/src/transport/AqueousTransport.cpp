@@ -2,12 +2,6 @@
  *  @file MixTransport.cpp
  *  Mixture-averaged transport properties for ideal gas mixtures.
  */
-/*
- * $Revision$
- * $Date$
- */
-
-
 // turn off warnings under Windows
 #ifdef WIN32
 #pragma warning(disable:4786)

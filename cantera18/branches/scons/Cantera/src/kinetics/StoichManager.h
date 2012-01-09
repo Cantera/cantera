@@ -1,13 +1,8 @@
 /**
  *  @file StoichManager.h
- *
- * $Author$
- * $Revision$
- * $Date$
  */
 
 // Copyright 2001  California Institute of Technology
-
 
 #ifndef CT_STOICH_MGR_H
 #define CT_STOICH_MGR_H

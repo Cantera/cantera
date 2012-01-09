@@ -3,9 +3,6 @@
  *  Internal definitions for utility functions for the VCSnonideal package
  */
 /*
- * $Id$
- */
-/*
  * Copywrite (2005) Sandia Corporation. Under the terms of 
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.

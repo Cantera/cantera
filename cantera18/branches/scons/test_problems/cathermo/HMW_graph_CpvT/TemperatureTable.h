@@ -1,6 +1,4 @@
-/*
- * $Id: TemperatureTable.h,v 1.1 2006/07/06 21:00:19 hkmoffa Exp $
- */
+
 /*
  * Copywrite 2004 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000, there is a non-exclusive license for use of this

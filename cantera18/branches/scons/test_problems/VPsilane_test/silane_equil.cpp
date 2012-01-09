@@ -1,11 +1,5 @@
-
 /*
- *  $Author: hkmoffa $
- *  $Date: 2009/03/14 00:51:16 $
- *  $Revision: 1.2 $
- *
  *  Copyright 2002 California Institute of Technology
- *
  */
 
 #include "Cantera.h"

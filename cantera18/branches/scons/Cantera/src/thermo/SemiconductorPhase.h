@@ -1,17 +1,8 @@
 /**
- *
  *  @file SemiconductorPhase.h
- *
  */
 
-/*  $Author$
- *  $Date$
- *  $Revision$
- *
- *  Copyright 2003 California Institute of Technology
- *
- */
-
+//  Copyright 2003 California Institute of Technology
 
 #ifndef CT_SEMICONDPHASE_H
 #define CT_SEMICONDPHASE_H

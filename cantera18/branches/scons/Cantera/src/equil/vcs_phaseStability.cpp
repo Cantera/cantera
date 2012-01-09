@@ -1,10 +1,3 @@
-/* ======================================================================= */
-/* $RCSfile: vcs_phaseStability.cpp,v $ */
-/* $Date$ */
-/* $Revision$ */
-/* ======================================================================= */
-
-
 #include "vcs_solve.h"
 #include "vcs_internal.h" 
 #include "vcs_species_thermo.h"

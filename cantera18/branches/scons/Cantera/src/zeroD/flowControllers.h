@@ -2,14 +2,9 @@
  *  @file flowControllers.h
  *
  *  Some flow devices derived from class FlowDevice.
- *
- * $Author$
- * $Revision$
- * $Date$
  */
 
 // Copyright 2001  California Institute of Technology
-
 
 #ifndef CT_FLOWCONTR_H
 #define CT_FLOWCONTR_H

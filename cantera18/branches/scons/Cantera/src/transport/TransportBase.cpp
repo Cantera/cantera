@@ -2,11 +2,6 @@
  *  @file TransportBase.cpp
  *  Mixture-averaged transport properties for ideal gas mixtures.
  */
-/* 
- * $Revision$
- * $Date$
- */
-
 #include "ThermoPhase.h"
 #include "LiquidTransport.h"
 #include "ctexceptions.h"

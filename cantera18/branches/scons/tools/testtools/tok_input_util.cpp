@@ -1,25 +1,6 @@
-/*====================================================================
- * ------------------------
- * | CVS File Information |
- * ------------------------
- *
- * $RCSfile: tok_input_util.cpp,v $
- *
- * $Author$
- *
- * $Date$
- *
- * $Revision$
- * Symbolic $Name:  $
- *
- * $Id$
- * $Source: /cvsroot/cantera/cantera/tools/testtools/tok_input_util.cpp,v $
- *
- *====================================================================*/
 #ifdef WIN32
 #pragma warning(disable:4996)
 #endif
-
 
 #include <stdlib.h>
 #include <stdio.h>

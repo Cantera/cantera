@@ -2,14 +2,9 @@
  * @file Group.cpp
  *
  *  Implementation file for the Group class used in reaction path analysis.
- *
- * $Author$
- * $Revision$
- * $Date$
  */
 
 // Copyright 2001  California Institute of Technology
-
 
 // reaction path analysis support
 

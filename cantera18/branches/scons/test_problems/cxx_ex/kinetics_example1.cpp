@@ -2,10 +2,6 @@
 //
 //  zero-dimensional kinetics example program
 //
-//  $Author: hkmoffa $
-//  $Revision: 1.13 $
-//  $Date: 2009/07/11 17:25:05 $
-//
 //  copyright California Institute of Technology 2002
 //
 /////////////////////////////////////////////////////////////

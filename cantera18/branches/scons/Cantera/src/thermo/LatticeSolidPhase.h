@@ -4,16 +4,9 @@
  *  derived from ThermoPhase,
  *  assuming an ideal solution model based on a lattice of solid atoms
  *  (see \ref thermoprops and class \link Cantera::LatticeSolidPhase LatticeSolidPhase\endlink).
-
  */
 
-/*  $Author$
- *  $Date$
- *  $Revision$
- *
- *  Copyright 2005 California Institute of Technology
- *
- */
+//  Copyright 2005 California Institute of Technology
 
 #ifndef CT_LATTICESOLID_H
 #define CT_LATTICESOLID_H

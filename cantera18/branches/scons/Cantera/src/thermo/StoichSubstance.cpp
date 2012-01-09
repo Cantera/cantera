@@ -4,13 +4,8 @@
  *  This file contains the class definitions for the StoichSubstance
  *  ThermoPhase class.
  */
-/*
- *  $Date$
- *  $Revision$
- *
- *  Copyright 2001 California Institute of Technology
- *
- */
+
+//  Copyright 2001 California Institute of Technology
 
 #ifdef WIN32
 #pragma warning(disable:4786)

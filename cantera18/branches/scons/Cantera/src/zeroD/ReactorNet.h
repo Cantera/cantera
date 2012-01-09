@@ -1,13 +1,6 @@
 /**
  *  @file ReactorNet.h
  */
-
-/*
- * $Author$
- * $Revision$
- * $Date$
- */
-
 // Copyright 2004  California Institute of Technology
 
 #ifndef CT_REACTORNET_H

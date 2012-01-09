@@ -4,10 +4,6 @@
  */
 
 // Copyright 2001  California Institute of Technology
-//
-// $Id$
-//
-
 
 #include <numeric>
 #include <algorithm>

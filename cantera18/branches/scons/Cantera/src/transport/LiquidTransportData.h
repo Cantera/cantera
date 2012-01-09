@@ -3,15 +3,6 @@
  *  Header file defining class TransportFactory
  *     (see \link Cantera::TransportFactory TransportFactory\endlink)
  */
-/*
- *  $Author: hkmoffa $
- *  $Date: 2008/12/24 18:19:01 $
- *  $Revision: 1.14 $
- *
- *
- *
- */
-
 #ifndef CT_LIQUIDTRANSPORTDATA_H
 #define CT_LIQUIDTRANSPORTDATA_H
 

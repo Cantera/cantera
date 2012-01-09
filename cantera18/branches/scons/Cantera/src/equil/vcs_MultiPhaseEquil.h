@@ -2,14 +2,6 @@
  *  @file  vcs_MultiPhaseEquil.h
  *  Interface class for the vcsnonlinear solver
  */
-
-/*
- *  $Author$
- *  $Revision$
- *  $Date$
- */
-
-
 #ifndef VCS_MULTIPHASEEQUIL_H
 #define VCS_MULTIPHASEEQUIL_H
 

@@ -2,12 +2,6 @@
  * @file ctkinetics_methods.cpp
  *
  */
-
-/*
- * $Id: ctkinetics_methods.cpp,v 1.8 2009/04/19 21:03:10 hkmoffa Exp $
- */
-
-
 static PyObject*
 kin_newFromXML(PyObject *self, PyObject *args) {
     int mxml, iphase, neighbor1, neighbor2, neighbor3, neighbor4;

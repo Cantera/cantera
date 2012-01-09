@@ -2,10 +2,6 @@
  *  @file ResidEval.h
  *
  */
-/*
- *  $Date$
- *  $Revision$
- */
 // Copyright 2006  California Institute of Technology
 
 #ifndef CT_RESIDEVAL_H

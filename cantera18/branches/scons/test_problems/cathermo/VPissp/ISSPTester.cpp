@@ -1,7 +1,5 @@
 /**
  *  @file ISSPTester.cpp
- *
- *  $Id: ISSPTester.cpp,v 1.2 2008/12/17 17:31:12 hkmoffa Exp $
  */
 /*
  * Copywrite 2004 Sandia Corporation. Under the terms of Contract
@@ -16,8 +14,6 @@
 //  class IdealSolidSolnPhase in order to test that it's
 //  working correctly
 //
-
-
 
 #include <iostream>
 #include <string>

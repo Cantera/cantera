@@ -4,9 +4,6 @@
  *    standard-state thermodynamic properties of a set of species
  *    (see \ref pdssthermo and class \link Cantera::SpeciesThermoFactory SpeciesThermoFactory\endlink);
  */
-/*
- * $Id$
- */
 // Copyright 2001  California Institute of Technology
 
 #ifdef WIN32

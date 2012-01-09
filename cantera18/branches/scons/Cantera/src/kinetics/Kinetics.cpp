@@ -6,11 +6,6 @@
  *
  *      Kinetics managers calculate rates of progress of species due to homogeneous or heterogeneous kinetics.
  */
-/*
- *  $Date$
- *  $Revision$
- */
-
 // Copyright 2001-2004  California Institute of Technology            
 
 

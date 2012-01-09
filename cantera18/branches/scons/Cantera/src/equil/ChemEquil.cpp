@@ -1,18 +1,10 @@
 /**
- *
  *  @file ChemEquil.cpp
  *  Chemical equilibrium.  Implementation file for class
  *  ChemEquil. 
  */
 
- /*
- *
- *
- *  $Id$
- *
- *  Copyright 2001 California Institute of Technology
- *
- */
+//  Copyright 2001 California Institute of Technology
 
 #ifdef WIN32
 #pragma warning(disable:4786)

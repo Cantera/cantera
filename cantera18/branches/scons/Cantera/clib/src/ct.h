@@ -1,10 +1,6 @@
 /**
  * @file ct.h
  */
-/*
- *      $Id$
- */
-
 #ifndef CTC_CT_H
 #define CTC_CT_H
 

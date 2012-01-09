@@ -1,10 +1,6 @@
 /**
  * @file ctreactor.h
  */
-/*
- *      $Id$
- */
-
 #ifndef CTC_REACTOR_H
 #define CTC_REACTOR_H
 

@@ -5,9 +5,6 @@
  *  (see \ref mgrsrefcalc and classes 
  *   \link Cantera::SpeciesThermoDuo SpeciesThermoDuo\endlink and
  *  \link Cantera::SpeciesThermo1 SpeciesThermo1\endlink)
- *
- * $Revision$
- * $Date$
  */
 
 // Copyright 2001  California Institute of Technology

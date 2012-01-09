@@ -1,12 +1,6 @@
 /**
  * @file ctlapack.h
  */
-
-/* $Author$
- * $Revision$
- * $Date$
- */
-
 // Copyright 2001 California Institute of Technology.  
 
 #ifndef CT_CTLAPACK_H

@@ -12,11 +12,6 @@
  * U.S. Government retains certain rights in this software.
  *
  */
-
-/*
- * $Id: MetalSHEelectrons.cpp 279 2009-12-05 19:08:43Z hkmoffa $ 
- */
-
 #include "ct_defs.h"
 
 #include "MetalSHEelectrons.h"

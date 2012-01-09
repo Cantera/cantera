@@ -1,21 +1,11 @@
 /**
- *
  *  @file MetalPhase.h
- *
  */
 
-/*  $Author$
- *  $Date$
- *  $Revision$
- *
- *  Copyright 2003 California Institute of Technology
- *
- */
-
+//  Copyright 2003 California Institute of Technology
 
 #ifndef CT_METALPHASE_H
 #define CT_METALPHASE_H
-
 
 #include "mix_defs.h"
 #include "ThermoPhase.h"

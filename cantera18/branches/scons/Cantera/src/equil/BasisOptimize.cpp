@@ -3,11 +3,6 @@
  *     Functions which calculation optimized basis of the 
  *     stoichiometric coefficient matrix (see /ref equil functions)
  */
-
-/*
- * $Id$
- */
-
 #include "ct_defs.h"
 #include "global.h"
 #include "ThermoPhase.h"

@@ -3,13 +3,7 @@
  *  Output routines for phases
  */
 
-/* 
- *  $Date$
- *  $Revision$
- *
- *  Copyright 2001 California Institute of Technology
- *
- */
+//  Copyright 2001 California Institute of Technology
 
 // turn off warnings under Windows
 #ifdef WIN32

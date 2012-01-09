@@ -6,10 +6,6 @@
  *   Cantera objects are stored and referenced by integers - no
  *   pointers are passed to or from the calling application.
  */
-/*
- * $Id: fct.cpp,v 1.14 2009/07/23 16:56:48 hkmoffa Exp $
- */
-
 // turn off warnings under Windows
 #ifdef WIN32
 #pragma warning(disable:4786)

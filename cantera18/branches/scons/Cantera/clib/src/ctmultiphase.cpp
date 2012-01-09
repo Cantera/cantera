@@ -1,11 +1,6 @@
 /**
  * @file ctmultiphase.cpp
  */
-/*
- *      $Id$
- */
-
-
 #define CANTERA_USE_INTERNAL
 #include "ctmultiphase.h"
 

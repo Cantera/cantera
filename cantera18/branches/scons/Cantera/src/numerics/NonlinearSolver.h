@@ -4,11 +4,6 @@
  *    of equations (see \ref numerics
  *    and class \link Cantera::NonlinearSolver NonlinearSolver\endlink).
  */
-
-/*
- *  $Date$
- *  $Revision$
- */
 /*
  * Copywrite 2004 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government

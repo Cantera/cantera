@@ -2,13 +2,8 @@
  *  @file polyfit.h  C interface for Fortran DPOLFT subroutine
  */
 /*
- *  $Author$
- *  $Date$
- *  $Revision$
- *
  *  Copyright 2001-2003 California Institute of Technology
  *  See file License.txt for licensing information
- *
  */
 
 #ifndef CT_POLYFIT_H

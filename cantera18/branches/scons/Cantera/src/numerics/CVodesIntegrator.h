@@ -1,12 +1,6 @@
 /**
  *  @file CVodesWrapper.h
  */
-
-/* 
- * $Date$
- * $Revision$
- */
-
 // Copyright 2005  California Institute of Technology
 
 

@@ -3,13 +3,6 @@
  *
  *  Header file for class IntStarStar
  */
-
-/*
- *  $Author$
- *  $Revision$
- *  $Date$
- */
-
 #ifndef VCS_INTSTARSTAR_H
 #define VCS_INTSTARSTAR_H
 

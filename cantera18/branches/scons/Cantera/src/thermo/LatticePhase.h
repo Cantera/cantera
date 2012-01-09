@@ -4,15 +4,9 @@
  *  derived from ThermoPhase,
  *  assuming a lattice of solid atoms
  *  (see \ref thermoprops and class \link Cantera::LatticePhase LatticePhase\endlink).
- *
  */
-/*  $Author$
- *  $Date$
- *  $Revision$
- *
- *  Copyright 2005 California Institute of Technology
- *
- */
+
+//  Copyright 2005 California Institute of Technology
 
 #ifndef CT_LATTICE_H
 #define CT_LATTICE_H

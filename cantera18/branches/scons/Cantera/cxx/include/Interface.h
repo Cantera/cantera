@@ -3,11 +3,6 @@
  *   Declaration and Definition for the class Interface, part of 
  *   Cantera's Cantera_CXX namespace.
  */
-
-/*
- * $Id$
- */
-
 #ifndef CXX_INTERFACE
 #define CXX_INTERFACE
 

@@ -5,10 +5,6 @@
  */
 
 // Copyright 2001  California Institute of Technology
-/*
- * $Id$
-
- */
 /**
  * @defgroup utils Templated Utility Functions
  *

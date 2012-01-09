@@ -11,12 +11,6 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-
-/*
- *  $Date: 2009-12-05 12:08:43 -0700 (Sat, 05 Dec 2009) $
- *  $Revision: 279 $
- */
-
 #ifndef CT_METALSHEELECTRONS_H
 #define CT_METALSHEELECTRONS_H
 

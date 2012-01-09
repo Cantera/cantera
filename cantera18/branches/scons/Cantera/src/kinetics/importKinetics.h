@@ -9,13 +9,6 @@
  *     of these routines is to intialize the %Cantera objects with data
  *     from the ctml tree structures.
  */
-/*
- * $Author$
- * $Revision$
- * $Date$
- *
- */
-
 // Copyright 2002  California Institute of Technology
 
 

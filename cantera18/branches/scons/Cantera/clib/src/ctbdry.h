@@ -1,10 +1,6 @@
 /**
  * @file ctbdry.h
  */
-/*
- *      $Id$
- */
-
 #ifndef CTC_BDRY_H
 #define CTC_BDRY_H
 

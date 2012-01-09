@@ -3,12 +3,6 @@
  *  Header file  Class \link Cantera::Constituents Constitutents\endlink which 
  *  manages a set of elements and species (see \ref phases).
  */
-
-/*  
- *  $Date$
- *  $Revision$
- */
-
 //  Copyright 2001  California Institute of Technology
 
 

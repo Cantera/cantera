@@ -6,13 +6,7 @@
  * ThermoPhase\endlink).
  */
 
-/*
- *  $Date$
- *  $Revision$
- *
- *  Copyright 2002 California Institute of Technology
- *
- */
+//  Copyright 2002 California Institute of Technology
 
 #ifndef CT_THERMOPHASE_H
 #define CT_THERMOPHASE_H

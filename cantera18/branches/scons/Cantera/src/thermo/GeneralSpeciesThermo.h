@@ -6,13 +6,6 @@
  *
  *  Because it is general, it is slow.
  */
-
-/*
- * $Author$
- * $Revision$
- * $Date$
- */
-
 #ifndef CT_GENERALSPECIESTHERMO_H
 #define CT_GENERALSPECIESTHERMO_H
 #include <string>

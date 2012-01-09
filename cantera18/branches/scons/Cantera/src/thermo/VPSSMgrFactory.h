@@ -4,12 +4,6 @@
  *    standard-state thermodynamic properties of a set of species 
  *    (see \ref mgrpdssthermocalc and class \link Cantera::VPSSMgrFactory VPSSMgrFactory\endlink);
  */
-
-/*
- * $Revision$
- * $Date$
- */
-
 /*
  * Copywrite (2006) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the

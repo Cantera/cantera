@@ -3,9 +3,6 @@
  *  Routines for carrying out various adjustments to the reaction steps
  */
 /*
- *  $Id$
- */
-/*
  * Copywrite (2006) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
