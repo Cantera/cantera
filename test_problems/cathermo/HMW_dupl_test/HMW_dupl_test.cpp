@@ -21,7 +21,7 @@
 #include "kernel/logger.h"
 #include "thermo.h"
 #include "TemperatureTable.h"
-#include "HMWSoln.h"
+#include "kernel/HMWSoln.h"
 #endif
 
 #include <cstdio>

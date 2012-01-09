@@ -16,7 +16,7 @@
 #define ERR -999
 #define DERR -999.999
 
-#include "config.h"
+#include "kernel/config.h"
 
 typedef integer status_t;
 

@@ -16,9 +16,8 @@
 #include "HMWSoln.h"
 #include "importCTML.h"
 #else
-#include "ThermoPhase.h"
-
 #include "Cantera.h"
+#include "kernel/ThermoPhase.h"
 #include "kernel/logger.h"
 #include "thermo.h"
 #include "kernel/HMWSoln.h"

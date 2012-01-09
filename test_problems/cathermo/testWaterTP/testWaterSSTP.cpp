@@ -4,7 +4,7 @@
 
 #include "Cantera.h"
 #include "thermo.h"
-#include "WaterSSTP.h"
+#include "kernel/WaterSSTP.h"
 
 #include <cstdio>
 #include <cmath>

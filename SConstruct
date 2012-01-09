@@ -788,8 +788,7 @@ demoTargets = []
 
 env.SConsignFile()
 
-env.Append(CPPPATH=[Dir('build/include/cantera/kernel'),
-                    Dir('build/include/cantera'),
+env.Append(CPPPATH=[Dir('build/include/cantera'),
                     Dir('build/include')],
            LIBPATH=[Dir('build/lib')],
            CCFLAGS=[defaults.fPIC],

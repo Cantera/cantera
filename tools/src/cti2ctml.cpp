@@ -14,9 +14,9 @@
 #include <string>
 #include <vector>
 
-#include "ct_defs.h"
-#include "xml.h"
-#include "ctml.h"
+#include "kernel/ct_defs.h"
+#include "kernel/xml.h"
+#include "kernel/ctml.h"
 
 using namespace Cantera;
 using namespace std;

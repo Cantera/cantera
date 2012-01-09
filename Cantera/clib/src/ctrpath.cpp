@@ -11,7 +11,7 @@
 
 // Cantera includes
 
-#include "ReactionPath.h"
+#include "kernel/ReactionPath.h"
 #include "Cabinet.h"
 #include "Storage.h"
 

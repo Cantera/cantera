@@ -17,9 +17,9 @@
 
 
 // Cantera includes
-#include "OneDim.h"
-#include "Inlet1D.h"
-#include "InterfaceKinetics.h"
+#include "kernel/OneDim.h"
+#include "kernel/Inlet1D.h"
+#include "kernel/InterfaceKinetics.h"
 #include "Cabinet.h"
 #include "Storage.h"
 

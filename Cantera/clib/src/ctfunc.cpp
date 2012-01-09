@@ -14,8 +14,8 @@
 #define CANTERA_USE_INTERNAL
 #include "ctfunc.h"
 
-#include "Func1.h"
-#include "ctexceptions.h"
+#include "kernel/Func1.h"
+#include "kernel/ctexceptions.h"
 
 using namespace Cantera;
 

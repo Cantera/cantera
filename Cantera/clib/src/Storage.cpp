@@ -8,8 +8,8 @@
 
 
 // Cantera includes
-#include "Kinetics.h"
-#include "TransportFactory.h"
+#include "kernel/Kinetics.h"
+#include "kernel/TransportFactory.h"
 
 #include "Storage.h"
 
