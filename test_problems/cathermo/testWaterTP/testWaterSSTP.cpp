@@ -21,7 +21,9 @@ double tvalue(double val, double atol = 1.0E-9) {
 
 
 int main () {
-
+#ifdef _MSC_VER
+    _set_output_format(_TWO_DIGIT_EXPONENT);
+#endif
   double pres;
   try {
     WaterSSTP *w = new WaterSSTP("waterTPphase.xml","");

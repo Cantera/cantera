@@ -7,6 +7,9 @@ using namespace Cantera;
 using namespace Cantera_CXX;
 
 int main(int argc, char **argv) {
+#ifdef _MSC_VER
+    _set_output_format(_TWO_DIGIT_EXPONENT);
+#endif
   try {
     IdealGasMix g("red1.xml", "gri30_mix");
 

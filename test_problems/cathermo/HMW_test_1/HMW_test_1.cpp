@@ -48,7 +48,9 @@ void pAtable(HMWSoln *HMW) {
 
 int main(int argc, char **argv)
 {
-
+#ifdef _MSC_VER
+    _set_output_format(_TWO_DIGIT_EXPONENT);
+#endif
    int retn = 0;
 
    try {

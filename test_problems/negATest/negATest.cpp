@@ -8,6 +8,9 @@ using namespace Cantera;
 using namespace std; 
 
 int main(int argc, char **argv) {
+#ifdef _MSC_VER
+    _set_output_format(_TWO_DIGIT_EXPONENT);
+#endif
   try {   
     int i;
     std::string infile = "noxNeg.xml";
