@@ -13,17 +13,19 @@ class MatlabBuilder(object):
         libdir = ' '.join('-L%s' % Dir(s).abspath for s in env['LIBPATH'])
         libs = ' '.join('-l'+s for s in self.libs)
         extraFlag = '-cxx' if os.name == 'posix' else ''
+        debugFlag = '-g' if not env['optimize'] else ''
         text = """
 disp('building Cantera...');
 cd cantera
-mex %(extraFlag)s -v -output ctmethods %(include)s %(libdir)s %(libs)s %(sourcestr)s
+mex %(debugFlag)s %(extraFlag)s -v -output ctmethods %(include)s %(libdir)s %(libs)s %(sourcestr)s
 disp('done.');
 exit
 """ % dict(sourcestr=sourcestr,
            extraFlag=extraFlag,
            include=includes,
            libdir=libdir,
-           libs=libs)
+           libs=libs,
+           debugFlag=debugFlag)
 
         with open(str(target[0]), 'w') as f:
             f.write(text)
