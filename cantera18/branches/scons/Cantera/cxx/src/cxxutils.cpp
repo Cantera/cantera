@@ -4,7 +4,7 @@
 #pragma warning(disable:4503)
 #endif
 
-#include "ThermoPhase.h"
+#include "kernel/ThermoPhase.h"
 #include <stdio.h>
 
 using namespace std;

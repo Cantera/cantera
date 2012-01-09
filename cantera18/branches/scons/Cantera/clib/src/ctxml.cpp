@@ -14,9 +14,8 @@
 #define CANTERA_USE_INTERNAL
 #include "ctxml.h"
 
-
 // Cantera includes
-#include "ctml.h"
+#include "kernel/ctml.h"
 #include "Cabinet.h"
 #include "Storage.h"
 

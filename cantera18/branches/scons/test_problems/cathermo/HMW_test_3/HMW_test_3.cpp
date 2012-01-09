@@ -11,7 +11,7 @@
 #include "HMWSoln.h"
 #else
 #include "Cantera.h"
-#include "HMWSoln.h"
+#include "kernel/HMWSoln.h"
 #endif
 
 #include <cstdio>

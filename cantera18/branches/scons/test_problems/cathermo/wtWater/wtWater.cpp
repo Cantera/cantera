@@ -1,16 +1,16 @@
 /*
  * $Id: testWaterPDSS.cpp,v 1.6 2008/12/17 17:31:13 hkmoffa Exp $
  */
-#include "ct_defs.h"
-#include "ctexceptions.h"
-#include "global.h"
-#include "xml.h"
-#include "ctml.h"
-#include "ThermoPhase.h"
-#include "VPStandardStateTP.h"
+#include "kernel/ct_defs.h"
+#include "kernel/ctexceptions.h"
+#include "kernel/global.h"
+#include "kernel/xml.h"
+#include "kernel/ctml.h"
+#include "kernel/ThermoPhase.h"
+#include "kernel/VPStandardStateTP.h"
 
-#include "WaterSSTP.h"
-#include "WaterTransport.h"
+#include "kernel/WaterSSTP.h"
+#include "kernel/WaterTransport.h"
 #include <new>
 
 #include <cstdio>

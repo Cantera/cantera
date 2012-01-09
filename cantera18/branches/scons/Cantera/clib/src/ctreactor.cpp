@@ -15,13 +15,13 @@
 #include "ctreactor.h"
 
 // Cantera includes
-#include "Reactor.h"
-#include "FlowReactor.h"
-#include "ConstPressureReactor.h"
-#include "ReactorNet.h"
-#include "Reservoir.h"
-#include "Wall.h"
-#include "flowControllers.h"
+#include "kernel/Reactor.h"
+#include "kernel/FlowReactor.h"
+#include "kernel/ConstPressureReactor.h"
+#include "kernel/ReactorNet.h"
+#include "kernel/Reservoir.h"
+#include "kernel/Wall.h"
+#include "kernel/flowControllers.h"
 
 #include "Cabinet.h"
 #include "Storage.h"

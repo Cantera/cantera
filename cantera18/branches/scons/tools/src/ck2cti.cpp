@@ -40,9 +40,9 @@
 #include <string>
 using namespace std;
 
-#include "ct_defs.h"
-#include "global.h"
-#include "ck2ct.h"
+#include "kernel/ct_defs.h"
+#include "kernel/global.h"
+#include "kernel/ck2ct.h"
 
 using namespace Cantera;
 

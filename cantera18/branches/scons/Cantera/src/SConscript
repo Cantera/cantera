@@ -37,6 +37,7 @@ libs = [('base', 'ctbase', ['cpp'], baseSetup),
 
 for subdir, libname, extensions, setup in libs:
     localenv = env.Clone()
+    localenv.Append(CPPPATH=Dir('../include/cantera/kernel'))
     source = setup(localenv, subdir, extensions)
     for header in mglob(localenv, subdir, 'h'):
         h = localenv.Command('../include/cantera/kernel/%s' % header.name, header,

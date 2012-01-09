@@ -15,15 +15,12 @@
 #define CANTERA_USE_INTERNAL
 #include "ctonedim.h"
 
-
 // Cantera includes
-#include "config.h"
-#include "Sim1D.h"
-#include "StFlow.h"
-#include "Inlet1D.h"
-#include "DenseMatrix.h"
-
-
+#include "kernel/config.h"
+#include "kernel/Sim1D.h"
+#include "kernel/StFlow.h"
+#include "kernel/Inlet1D.h"
+#include "kernel/DenseMatrix.h"
 
 // local includes
 #include "Cabinet.h"

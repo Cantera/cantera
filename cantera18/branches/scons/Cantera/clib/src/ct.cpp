@@ -20,17 +20,17 @@
 #include "ct.h"
 
 // Cantera includes
-#include "equil.h" 
-#include "KineticsFactory.h"
-#include "TransportFactory.h"
-#include "ctml.h"
-#include "importKinetics.h"
-#include "ThermoFactory.h"
-#include "ck2ct.h"
+#include "kernel/equil.h"
+#include "kernel/KineticsFactory.h"
+#include "kernel/TransportFactory.h"
+#include "kernel/ctml.h"
+#include "kernel/importKinetics.h"
+#include "kernel/ThermoFactory.h"
+#include "kernel/ck2ct.h"
 #include "Storage.h"
 #include "Cabinet.h"
-#include "InterfaceKinetics.h"
-#include "PureFluidPhase.h"
+#include "kernel/InterfaceKinetics.h"
+#include "kernel/PureFluidPhase.h"
 
 
 using namespace std;

@@ -10,10 +10,10 @@
 #include "ctmultiphase.h"
 
 // Cantera includes
-#include "equil.h"
-#include "MultiPhase.h"
-#include "MultiPhaseEquil.h"
-#include "vcs_MultiPhaseEquil.h"
+#include "kernel/equil.h"
+#include "kernel/MultiPhase.h"
+#include "kernel/MultiPhaseEquil.h"
+#include "kernel/vcs_MultiPhaseEquil.h"
 
 #include "Cabinet.h"
 #include "Storage.h"

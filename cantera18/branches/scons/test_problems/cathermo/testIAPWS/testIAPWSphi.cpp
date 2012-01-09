@@ -1,7 +1,7 @@
 /*
  * $Id: testIAPWSphi.cpp,v 1.2 2008/12/17 17:31:13 hkmoffa Exp $
  */
-#include "WaterPropsIAPWSphi.h"
+#include "kernel/WaterPropsIAPWSphi.h"
 #include <new>
 
 #include <cstdio>

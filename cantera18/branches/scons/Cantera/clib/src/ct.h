@@ -11,7 +11,7 @@
 #include "clib_defs.h"
 
 #ifdef CANTERA_USE_INTERNAL
-#include "config.h"
+#include "kernel/config.h"
 #else
 #include "cantera/kernel/config.h"
 #endif
