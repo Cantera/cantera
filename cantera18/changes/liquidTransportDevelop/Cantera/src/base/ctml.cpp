@@ -416,7 +416,7 @@ namespace ctml {
     if (!parent.hasChild(nameString)) return "";
     return parent(nameString);
   }
- //====================================================================================================================
+  //====================================================================================================================
   //  This function reads a child node with the name, "string", with a specific
   //  title attribute named "titleString"
   /* 
@@ -440,10 +440,11 @@ namespace ctml {
    <\string>
    @endverbatum
    *
-   *   @param node          reference to the XML_Node object of the parent XML element
+   *   @param node          Reference to the XML_Node object of the parent XML element
    *   @param titleString   String name of the title attribute of the child node
    *   @param valueString   Value string that is found in the child node. output variable
-   *   @param typeString    String type. This is an optional output variable
+   *   @param typeString    String type. This is an optional output variable. It is filled
+   *                        with the attribute "type" of the XML entry.
    */
   void getString(const Cantera::XML_Node& node, const std::string &titleString, std::string& valueString, 
 		 std::string& typeString) {
@@ -458,6 +459,69 @@ namespace ctml {
       }
   }
 
+  //====================================================================================================================
+  //  This function attempts to read a named child node and returns with the contents in the value string.
+  //  title attribute named "titleString"
+  /* 
+   *   This function will read a child node to the current XML node, with the
+   *   name "string". It must have a title attribute, named titleString, and the body
+   *   of the XML node will be read into the valueString output argument.
+   *
+   *   If the child node is not found then the empty string is returned.
+   *
+   *  Example:  
+   *
+   * Code snipet:
+   *       @verbatum
+     const XML_Node &node;
+     std::string valueString;
+     std::string typeString;
+     std::string nameString = "timeIncrement";
+     getString(XML_Node& node, nameString, valueString, valueString, typeString);
+   @endverbatum
+   *
+   *  Reads the following the snippet in the XML file:
+   *
+   *  *  @verbatum
+   <nameString type="typeString">
+     valueString
+   <\nameString>
+   @endverbatum
+   *
+   *  or alternatively as a retrofit and special case, it also reads the following case
+   *
+   *  @verbatum
+   <string title="nameString" type="typeString">
+     valueString
+   <\string>
+   @endverbatum
+   *
+   *   @param node          Reference to the XML_Node object of the parent XML element
+   *   @param nameString    Name of the XML Node                               input  variable
+   *   @param valueString   Value string that is found in the child node.      output variable
+   *   @param typeString    String type. This is an optional output variable. It is filled
+   *                        with the attribute "type" of the XML entry.         output variable
+   */
+  void getNamedStringValue(const Cantera::XML_Node& node, const std::string &nameString, std::string& valueString, 
+			   std::string& typeString)
+  {
+    valueString = "";
+    typeString = "";
+    if (node.hasChild(nameString)) {
+      XML_Node &xc = node.child(nameString);
+      valueString = xc.value();
+      typeString = xc["type"];
+    } else {
+      XML_Node* s = getByTitle(node, nameString);
+      if (s) {
+	if (s->name() == "string") {
+	  valueString = (*s).value();
+	  typeString = (*s)["type"];
+	  return;
+	}
+      }
+    }
+  }
   //====================================================================================================================
   //  Get a vector of integer values from a child element. 
   /* 
