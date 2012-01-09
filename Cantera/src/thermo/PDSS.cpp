@@ -203,6 +203,7 @@ namespace Cantera {
   void PDSS::initThermo() {
     AssertThrow(m_tp != 0, "PDSS::initThermo()");
     m_vpssmgr_ptr = m_tp->provideVPSSMgr();
+    m_vpssmgr_ptr->initThermo();
     initPtrs();
     m_mw = m_tp->molecularWeight(m_spindex);
   }
@@ -216,6 +217,7 @@ namespace Cantera {
   } 
 
   void PDSS::initPtrs() {
+    AssertThrow(m_vpssmgr_ptr->mPDSS_h0_RT.size() != 0, "PDSS::initPtrs()");
     m_h0_RT_ptr  = &(m_vpssmgr_ptr->mPDSS_h0_RT[0]);
     m_cp0_R_ptr  = &(m_vpssmgr_ptr->mPDSS_cp0_R[0]);
     m_s0_R_ptr   = &(m_vpssmgr_ptr->mPDSS_s0_R[0]);
