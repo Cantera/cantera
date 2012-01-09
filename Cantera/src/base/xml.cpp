@@ -925,7 +925,7 @@ namespace Cantera {
   }
     
   //   This routine carries out a recursive search for an XML node based
-  //   on the xml element attribute ID.
+  //   on the xml element attribute, "id" .
   /*
    * If exact match is found, the pointer
    * to the matching XML Node is returned. If not, 0 is returned.
