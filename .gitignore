@@ -14,5 +14,14 @@ config.log
 *.lib
 *.exp
 *.manifest
+*.pdb
+*.ilk
+*.suo
 *.dll
 *.msi
+*.mex*
+.cproject
+.project
+.pydevproject
+.settings
+Cantera/matlab/build_cantera.m
