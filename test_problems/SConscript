@@ -6,8 +6,10 @@ localenv = env.Clone()
 os.environ['PYTHONPATH'] = pjoin(os.getcwd(), '..', 'Cantera', 'python')
 os.environ['CANTERA_DATA'] = pjoin(os.getcwd(), '..', 'data', 'inputs')
 
+testNames = []
+
 class Test(object):
-    def __init__(self, subdir, testName, programName, blessedName, **kwargs):
+    def __init__(self, testName, subdir, programName, blessedName, **kwargs):
         assert set(kwargs.keys()) <= set(['arguments', 'options', 'artifacts',
                                           'comparisons', 'tolerance', 'threshold',
                                           'ignoreLines', 'extensions']), kwargs.keys()
@@ -31,8 +33,11 @@ class Test(object):
         self.passedFile = '.passed-%s' % testName
 
         testResults.tests[self.testName] = self
-        localenv.Alias('test-run', self.run(localenv))
+        run = self.run(localenv)
+        localenv.Alias('test-run', run)
         localenv.Alias('test-clean', self.clean(localenv))
+        localenv.Alias('test-%s' % self.testName, run)
+        testNames.append(self.testName)
 
     def run(self, env, *args):
         source = list(args)
@@ -73,10 +78,9 @@ class Test(object):
         return target
 
 class CompileAndTest(Test):
-    def __init__(self, subdir, programName, blessedName, **kwargs):
-        testName = '%s-%s-%s' % ('-'.join(psplit(subdir)), programName, blessedName)
+    def __init__(self, testName, subdir, programName, blessedName, **kwargs):
         self.extensions = kwargs.get('extensions') or ('cpp',)
-        Test.__init__(self, subdir, testName, programName, blessedName, **kwargs)
+        Test.__init__(self, testName, subdir, programName, blessedName, **kwargs)
 
     def run(self, env):
         prog = env.Program(pjoin(self.subdir, self.programName),
@@ -92,94 +96,123 @@ class CompileAndTest(Test):
         return Test.clean(self, env, files=files)
 
 
-CompileAndTest(pjoin('cathermo', 'DH_graph_1'),
+CompileAndTest('DH_graph_1',
+               pjoin('cathermo', 'DH_graph_1'),
                'DH_graph_1', 'DH_NaCl_dilute_blessed.csv',
                artifacts=['DH_graph_1.log'],
                arguments='DH_NaCl_dilute.xml')
-CompileAndTest(pjoin('cathermo', 'DH_graph_acommon'),
+CompileAndTest('DH_graph_acommon',
+               pjoin('cathermo', 'DH_graph_acommon'),
                'DH_graph_acommon', 'DH_NaCl_acommon_blessed.csv',
                artifacts=['DH_graph_1.log'],
                arguments='DH_NaCl_acommon.xml')
-CompileAndTest(pjoin('cathermo', 'DH_graph_bdotak'),
+CompileAndTest('DH_graph_bdotak',
+               pjoin('cathermo', 'DH_graph_bdotak'),
                'DH_graph_bdotak', 'DH_NaCl_bdotak_blessed.csv',
                artifacts=['DH_graph_1.log'],
                arguments='DH_NaCl_bdotak.xml')
-CompileAndTest(pjoin('cathermo', 'DH_graph_NM'),
+CompileAndTest('DH_graph_NM',
+               pjoin('cathermo', 'DH_graph_NM'),
                'DH_graph_NM', 'DH_NaCl_NM_blessed.csv',
                artifacts=['DH_graph_1.log'],
                arguments='DH_NaCl_NM.xml')
-CompileAndTest(pjoin('cathermo', 'DH_graph_Pitzer'),
+CompileAndTest('DH_graph_Pitzer',
+               pjoin('cathermo', 'DH_graph_Pitzer'),
                'DH_graph_Pitzer', 'DH_NaCl_Pitzer_blessed.csv',
                artifacts=['DH_graph_1.log'],
                arguments='DH_NaCl_Pitzer.xml')
-CompileAndTest(pjoin('cathermo', 'HMW_dupl_test'),
+CompileAndTest('HMW_dupl_test',
+               pjoin('cathermo', 'HMW_dupl_test'),
                'HMW_dupl_test', 'output_blessed.txt',
                artifacts=['DH_graph_1.log'],
                arguments='HMW_NaCl_sp1977_alt.xml')
-CompileAndTest(pjoin('cathermo', 'HMW_graph_CpvT'),
+CompileAndTest('HMW_graph_CpvT',
+               pjoin('cathermo', 'HMW_graph_CpvT'),
                'HMW_graph_CpvT', 'output_blessed.txt',
                extensions=['^HMW_graph_CpvT.cpp', '^sortAlgorithms.cpp'],
                arguments='HMW_NaCl_sp1977_alt.xml')
-CompileAndTest(pjoin('cathermo', 'HMW_graph_GvI'),
+CompileAndTest('HMW_graph_GvI',
+               pjoin('cathermo', 'HMW_graph_GvI'),
                'HMW_graph_GvI', None,
                comparisons=[('T298_blessed.csv', 'T298.csv'),
                             ('T523_blessed.csv', 'T523.csv')],
                artifacts=['T373.csv','T423.csv','T473.csv',
                           'T548.csv','T573.csv'])
-CompileAndTest(pjoin('cathermo', 'HMW_graph_GvT'),
+CompileAndTest('HMW_graph_GvT',
+               pjoin('cathermo', 'HMW_graph_GvT'),
                'HMW_graph_GvT', 'output_blessed.txt',
                extensions=['^HMW_graph_GvT.cpp', '^sortAlgorithms.cpp'],
                arguments='HMW_NaCl_sp1977_alt.xml')
-CompileAndTest(pjoin('cathermo', 'HMW_graph_HvT'),
+CompileAndTest('HMW_graph_HvT',
+               pjoin('cathermo', 'HMW_graph_HvT'),
                'HMW_graph_HvT', 'output_blessed.txt',
                extensions=['^HMW_graph_HvT.cpp', '^sortAlgorithms.cpp'],
                arguments='HMW_NaCl_sp1977_alt.xml')
-CompileAndTest(pjoin('cathermo', 'HMW_graph_VvT'),
+CompileAndTest('HMW_graph_VvT',
+               pjoin('cathermo', 'HMW_graph_VvT'),
                'HMW_graph_VvT', 'output_blessed.txt',
                extensions=['^HMW_graph_VvT.cpp', '^sortAlgorithms.cpp'],
                arguments='HMW_NaCl_sp1977_alt.xml')
-CompileAndTest(pjoin('cathermo', 'HMW_test_1'),
+CompileAndTest('HMW_test_1',
+               pjoin('cathermo', 'HMW_test_1'),
                'HMW_test_1', 'output_noD_blessed.txt')
-CompileAndTest(pjoin('cathermo', 'HMW_test_3'),
+CompileAndTest('HMW_test_3',
+               pjoin('cathermo', 'HMW_test_3'),
                'HMW_test_3', 'output_noD_blessed.txt')
-CompileAndTest(pjoin('cathermo', 'ims'),
+CompileAndTest('IMSTester',
+               pjoin('cathermo', 'ims'),
                'IMSTester', 'output_blessed.txt')
-CompileAndTest(pjoin('cathermo', 'issp'),
+CompileAndTest('ISSPTester',
+               pjoin('cathermo', 'issp'),
                'ISSPTester', 'output_blessed.txt')
-CompileAndTest(pjoin('cathermo', 'stoichSubSSTP'),
+CompileAndTest('stoichSubSSTP',
+               pjoin('cathermo', 'stoichSubSSTP'),
                'stoichSubSSTP', 'output_blessed.txt')
-CompileAndTest(pjoin('cathermo', 'testIAPWS'),
+CompileAndTest('IAPWSphi',
+               pjoin('cathermo', 'testIAPWS'),
                'testIAPWSphi', 'output_blessed.txt')
-CompileAndTest(pjoin('cathermo', 'testIAPWSPres'),
+CompileAndTest('IAPWSPres',
+               pjoin('cathermo', 'testIAPWSPres'),
                'testIAPWSPres', 'output_blessed.txt')
-CompileAndTest(pjoin('cathermo', 'testIAPWSTripP'),
+CompileAndTest('IAPWSTripP',
+               pjoin('cathermo', 'testIAPWSTripP'),
                'testIAPWSTripP', 'output_blessed.txt')
-CompileAndTest(pjoin('cathermo', 'testWaterPDSS'),
+CompileAndTest('WaterPDSS',
+               pjoin('cathermo', 'testWaterPDSS'),
                'testWaterPDSS', 'output_blessed.txt')
-CompileAndTest(pjoin('cathermo', 'testWaterTP'),
+CompileAndTest('WaterSSTP',
+               pjoin('cathermo', 'testWaterTP'),
                'testWaterSSTP', 'output_blessed.txt')
-CompileAndTest( pjoin('cathermo', 'VPissp'),
-                'ISSPTester2', 'output_blessed.txt')
-CompileAndTest(pjoin('cathermo', 'wtWater'),
+CompileAndTest('ISSPTester2',
+               pjoin('cathermo', 'VPissp'),
+               'ISSPTester2', 'output_blessed.txt')
+CompileAndTest('wtWater',
+               pjoin('cathermo', 'wtWater'),
                'wtWater', 'output_blessed.txt')
-CompileAndTest('ChemEquil_gri_matrix', 'gri_matrix', 'output_blessed.txt')
-CompileAndTest('ChemEquil_gri_pairs', 'gri_pairs', 'output_blessed.txt')
-CompileAndTest('ChemEquil_ionizedGas', 'ionizedGasEquil',
+CompileAndTest('ChemEquil_gri_matrix',
+               'ChemEquil_gri_matrix', 'gri_matrix', 'output_blessed.txt')
+CompileAndTest('ChemEquil_gri_pairs',
+               'ChemEquil_gri_pairs', 'gri_pairs', 'output_blessed.txt')
+CompileAndTest('ChemEquil_ionizedGas',
+               'ChemEquil_ionizedGas', 'ionizedGasEquil',
                'output_blessed.txt',
                comparisons=[('table_blessed.csv', 'table.csv')])
-CompileAndTest('ChemEquil_red1', 'basopt_red1', 'output_blessed.txt')
-Test('ck2cti_test', 'ck2cti-gri30', '#build/bin/ck2cti$PROGSUFFIX', None,
+CompileAndTest('ChemEquil_red1',
+               'ChemEquil_red1', 'basopt_red1', 'output_blessed.txt')
+Test('ck2cti-gri30',
+     'ck2cti_test', '#build/bin/ck2cti$PROGSUFFIX', None,
      options='-i gri30.inp -id gri30 -tr gri30_tran.dat',
      comparisons=[('gri30a_blessed.cti','gri30.cti')],
      ignoreLines=['#'],
      artifacts=['ck2cti.log'])
-Test('ck2cti_test', 'ck2cti-soot', '#build/bin/ck2cti$PROGSUFFIX', None,
+Test('ck2cti-soot',
+     'ck2cti_test', '#build/bin/ck2cti$PROGSUFFIX', None,
      options='-i soot.inp -id soot -t therm_soot.dat',
      comparisons=[('soot_blessed.cti', 'soot.cti')],
      ignoreLines=['#'],
      artifacts=['ck2cti.log'])
-CompileAndTest('CpJump', 'CpJump', 'output_blessed.txt')
-CompileAndTest('cxx_ex', 'cxx_examples', 'output_blessed.txt',
+CompileAndTest('CpJump', 'CpJump', 'CpJump', 'output_blessed.txt')
+CompileAndTest('cxx_ex', 'cxx_ex', 'cxx_examples', 'output_blessed.txt',
                comparisons=[('eq1_blessed.csv', 'eq1.csv'),
                             ('kin1_blessed.csv', 'kin1.csv'),
                             ('kin2_blessed.csv', 'kin2.csv'),
@@ -189,57 +222,65 @@ CompileAndTest('cxx_ex', 'cxx_examples', 'output_blessed.txt',
                threshold=1e-7,
                artifacts=['eq1.dat', 'kin1.dat', 'kin2.dat', 'kin3.csv',
                           'kin3.dat', 'tr1.dat', 'tr2.dat'])
-CompileAndTest('diamondSurf', 'runDiamond', 'runDiamond_blessed.out')
-CompileAndTest('fracCoeff', 'fracCoeff', 'frac_blessed.out')
-CompileAndTest(pjoin('min_python', 'minDiamond'),
+CompileAndTest('diamondSurf', 'diamondSurf', 'runDiamond', 'runDiamond_blessed.out')
+CompileAndTest('fracCoeff', 'fracCoeff', 'fracCoeff', 'frac_blessed.out')
+CompileAndTest('minDiamond', pjoin('min_python', 'minDiamond'),
                'runDiamond', 'runDiamond_blessed.out',
                comparisons=[('diamond_blessed.xml', 'diamond.xml')])
-CompileAndTest(pjoin('min_python', 'negATest'),
+CompileAndTest('minNegA', pjoin('min_python', 'negATest'),
                'negATest', 'negATest_blessed.out',
                comparisons=[('noxNeg_blessed.xml', 'noxNeg.xml')])
-CompileAndTest('mixGasTransport', 'mixGasTransport', 'output_blessed.txt')
-CompileAndTest('multiGasTransport', 'multiGasTransport', 'output_blessed.txt')
-CompileAndTest('NASA9poly_test', 'NASA9poly_test', 'output_blessed.txt')
+CompileAndTest('mixGasTransport',
+               'mixGasTransport', 'mixGasTransport', 'output_blessed.txt')
+CompileAndTest('multiGasTransport',
+               'multiGasTransport', 'multiGasTransport', 'output_blessed.txt')
+CompileAndTest('NASA9poly', 'NASA9poly_test', 'NASA9poly_test', 'output_blessed.txt')
 Test('nasa9_reader', 'nasa9_reader', '#build/bin/ck2cti$PROGSUFFIX', None,
      options='-i sample.inp -id sample -t sampleData.inp',
      comparisons=[('sample_blessed.cti', 'sample.cti')],
      ignoreLines=['#'],
      artifacts=['ck2cti.log'])
-CompileAndTest('negATest', 'negATest', 'negATest_blessed.out')
-CompileAndTest('printUtilUnitTest', 'pUtest', 'output_blessed.txt')
-CompileAndTest('pureFluidTest', 'testPureWater', 'output_blessed.txt')
-CompileAndTest('rankine_democxx', 'rankine', 'output_blessed.txt',
+CompileAndTest('negA', 'negATest', 'negATest', 'negATest_blessed.out')
+CompileAndTest('printUtil', 'printUtilUnitTest', 'pUtest', 'output_blessed.txt')
+CompileAndTest('pureFluid', 'pureFluidTest', 'testPureWater', 'output_blessed.txt')
+CompileAndTest('rankine_democxx', 'rankine_democxx', 'rankine', 'output_blessed.txt',
                artifacts=['liquidvapor.xml'])
-CompileAndTest('silane_equil', 'silane_equi', 'output_blessed.txt')
+CompileAndTest('silane_equil', 'silane_equil', 'silane_equi', 'output_blessed.txt')
 # spectroscopy is incomplete
-CompileAndTest('surfkin', 'surfdemo', 'output_blessed.txt')
-CompileAndTest('surfSolverTest', 'surfaceSolver', 'surfaceSolver_blessed.out',
+CompileAndTest('surfkin', 'surfkin', 'surfdemo', 'output_blessed.txt')
+CompileAndTest('surfSolver', 'surfSolverTest', 'surfaceSolver', 'surfaceSolver_blessed.out',
                arguments='haca2.xml',
                artifacts=['results.txt', 'diamond.xml'],
                extensions=['^surfaceSolver.cpp']) # needs .csv, extra tests
-CompileAndTest(pjoin('VCSnonideal', 'NaCl_equil'),
+CompileAndTest('VCSnonideal', pjoin('VCSnonideal', 'NaCl_equil'),
                'nacl_equil', 'good_out.txt',
                options='-d 3',
                artifacts=['vcs_equilibrate_res.csv']), # not testing this file because it's not really csv
-CompileAndTest('VPsilane_test', 'VPsilane_test', 'output_blessed.txt')
+CompileAndTest('VPsilane_test', 'VPsilane_test', 'VPsilane_test', 'output_blessed.txt')
 
 # Python Tests
 if localenv['python_package'] == 'full':
-    Test('python', 'python-diamond', '$python_cmd', None,
+    Test('python-diamond', 'python', '$python_cmd', None,
          options='../../Cantera/python/examples/surface_chemistry/diamond_cvd/diamond.py',
          comparisons=[('diamond_blessed.csv', 'diamond.csv')],
          artifacts=['diamond.xml'])
-    Test('python', 'python-frac', '$python_cmd', 'frac_blessed.out',
+    Test('python-frac', 'python', '$python_cmd', 'frac_blessed.out',
          arguments='frac.py', artifacts=['frac.xml'])
-    Test(pjoin('python','tut1'), 'python-tut1', '$python_cmd',
+    Test('python-tut1', pjoin('python','tut1'), '$python_cmd',
          'output_blessed.txt', arguments='tut1.py', artifacts=['gri30.xml'])
-    Test(pjoin('python','tut2'), 'python-tut2', '$python_cmd',
+    Test('python-tut2', pjoin('python','tut2'), '$python_cmd',
          'output_blessed.txt', arguments='tut2.py',
          artifacts=['gri30.xml', 'diamond.xml'])
     # Skipping Python Tutorial 3 (documentation only)
-    Test(pjoin('python','tut4'), 'python-tut4', '$python_cmd',
+    Test('python-tut4', pjoin('python','tut4'), '$python_cmd',
          'output_blessed.txt', arguments='tut4.py', artifacts=['gri30.xml'])
 
 finish_tests = localenv.Command('finish_tests', [], testResults.printReport)
 localenv.Depends(finish_tests, 'test-run')
 Alias('test', finish_tests)
+
+if 'test-help' in COMMAND_LINE_TARGETS:
+    print '\n*** Available regression tests ***\n'
+    for name in testNames:
+        print name
+    sys.exit(0)
