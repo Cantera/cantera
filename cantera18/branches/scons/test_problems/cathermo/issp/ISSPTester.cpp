@@ -47,6 +47,9 @@ static void printUsage()
 using namespace Cantera;
 
 int main(int argc, char** argv) {
+#ifdef _MSC_VER
+    _set_output_format(_TWO_DIGIT_EXPONENT);
+#endif
   string infile;  
   // look for command-line options
   if (argc > 1) {

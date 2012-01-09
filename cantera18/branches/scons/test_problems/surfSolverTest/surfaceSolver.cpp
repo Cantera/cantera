@@ -157,6 +157,9 @@ void printSurf(ostream &oooo,
 }
 
 int main(int argc, char** argv) {
+#ifdef _MSC_VER
+    _set_output_format(_TWO_DIGIT_EXPONENT);
+#endif
   string infile;
   int ioflag = 1;
   int i, k;

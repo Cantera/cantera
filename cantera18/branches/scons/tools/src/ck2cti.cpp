@@ -77,6 +77,9 @@ string getp(int& i, int argc, char** args) {
 
 
 int main(int argc, char** argv) {
+#ifdef _MSC_VER
+    _set_output_format(_TWO_DIGIT_EXPONENT);
+#endif
     string infile="chem.inp", dbfile="", trfile="", logfile;
     string idtag = "gas";
     bool debug = false;

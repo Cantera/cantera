@@ -13,6 +13,9 @@ using namespace std;
 using namespace Cantera;
 
 int main(int argc, char **argv) {
+#ifdef _MSC_VER
+    _set_output_format(_TWO_DIGIT_EXPONENT);
+#endif
   try {
     PrintCtrl::GlobalCrop = PrintCtrl::GCT_CROP;
     Cantera::IdealSolnGasVPSS gg("silane.xml", "silane");
