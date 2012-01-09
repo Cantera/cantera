@@ -175,10 +175,10 @@ namespace Cantera {
      *  @param nm  Name of the node.
      *             The default name of the node is "--"
      *
-     *  @param p pointer to the root for this node in the tree.
-     *           The default is 0 indicating this is the top of the tree.
+     *  @param parent   Pointer to the parent for this node in the tree.
+     *                  A value of 0 indicates this is the top of the tree.
      */
-    XML_Node(const std::string nm, XML_Node * const p);
+    XML_Node(const std::string nm, XML_Node * const parent);
    
     //! Copy constructor
     /*!
@@ -203,18 +203,31 @@ namespace Cantera {
      */
     void addComment(const std::string &comment);
 
-    //! Add a child node to the current node
+    //! Merge an existing node as a child node to the current node
     /*!
-     * This will add an XML_Node as a child to the current node.
+     * This will merge an XML_Node as a child to the current node.
      * Note, this actually adds the node. Therefore, the current node is changed.
-     * There is no copy made of the child node.
+     * There is no copy made of the child node. The child node should not be deleted in the future
      *
      *  @param node  Reference to a child XML_Node object
      *
      *  @return      Returns a reference to the added child node
      */
-    XML_Node& addChild(XML_Node& node);
+    XML_Node& mergeAsChild(XML_Node& node);
 
+    // Add a child node to the current node by makeing a copy of an existing node tree
+    /*
+     * This will add an XML_Node as a child to the current node.
+     * Note, this actually adds the node. Therefore, node is changed.
+     * A copy is made of the underlying tree
+     *
+     *  @param node  Reference to a child XML_Node object
+     *
+     *  @return returns a reference to the added node
+     */
+    XML_Node& addChild(const XML_Node& node);
+
+   
     //! Add a child node to the current node with a specified name
     /*!
      * This will add an XML_Node as a child to the current node.
@@ -225,6 +238,17 @@ namespace Cantera {
      *  @return         Returns a reference to the added node
      */
     XML_Node& addChild(const std::string &sname);
+
+    //! Add a child node to the current node with a specified name
+    /*!
+     * This will add an XML_Node as a child to the current node.
+     * The node will be blank except for the specified name.
+     *
+     *  @param cstring  Name of the new child as a c string
+     *
+     *  @return         Returns a reference to the added node
+     */
+    XML_Node& addChild(const char * cstring);
 
     //!    Add a child node to the current xml node, and at the
     //!    same time add a value to the child

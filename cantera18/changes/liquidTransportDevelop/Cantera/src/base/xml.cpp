@@ -393,13 +393,15 @@ namespace Cantera {
 
   //////////////////////////  XML_Node  /////////////////////////////////
 
-  XML_Node::XML_Node(const char * cnm)  
-    : m_name(""),
-      m_value(""), 
-      m_parent(0),
-      m_locked(false),
-      m_nchildren(0), 
-      m_iscomment(false) 
+  XML_Node::XML_Node(const char * cnm)  :
+    m_name(""),
+    m_value(""), 
+    m_parent(0),
+    m_root(0),
+    m_locked(false),
+    m_nchildren(0), 
+    m_iscomment(false) ,
+    m_linenum(0)
   {
     if (! cnm) {
       m_name = "--";
@@ -417,19 +419,21 @@ namespace Cantera {
    *  @param nm  Name of the node.
    *             The default name of the node is "--"
    *
-   *  @param p pointer to the root for this node in the tree.
-   *           The default is 0 indicating this is the top of the tree.
+   *  @param parent   Pointer to the parent for this node in the tree.
+   *                  A value of zero 0 indicates this is the top of the tree.
    */
-  XML_Node::XML_Node(const std::string nm, XML_Node * const p) 
-    : m_name(nm),
-      m_value(""), 
-      m_parent(p),
-      m_locked(false),
-      m_nchildren(0), 
-      m_iscomment(false) 
+  XML_Node::XML_Node(const std::string nm, XML_Node * const parent) :
+    m_name(nm),
+    m_value(""), 
+    m_parent(parent),
+    m_root(0),
+    m_locked(false),
+    m_nchildren(0), 
+    m_iscomment(false),
+    m_linenum(0)
   {
-    if (!p) m_root = this;
-    else m_root = &p->root();
+    if (!parent) m_root = this;
+    else m_root = &(parent->root());
   }
 
   // Copy constructor
@@ -440,11 +444,15 @@ namespace Cantera {
     m_name(""), 
     m_value(""),
     m_parent(0),
+    m_root(0),
     m_locked(false),
     m_nchildren(0), 
-    m_iscomment(false) 
+    m_iscomment(right.m_iscomment),
+    m_linenum(right.m_linenum)
   {
-    m_root = this;
+    m_root = & right.root();
+    m_name = right.m_name;
+    m_value = right.m_value;
     right.copy(this);
   }
 
@@ -517,17 +525,18 @@ namespace Cantera {
     addChild("comment", comment);
   }
 
-  // Add a child node to the current node
-  /*
-   * This will add an XML_Node as a child to the current node.
-   * Note, this actually adds the node. Therefore, node is changed.
-   * There is no copy made of the child node.
+
+  //! Merge an existing node as a child node to the current node
+  /*!
+   * This will merge an XML_Node as a child to the current node.
+   * Note, this actually adds the node. Therefore, the current node is changed.
+   * There is no copy made of the child node. The child node should not be deleted in the future.
    *
    *  @param node  Reference to a child XML_Node object
    *
-   *  @return returns a reference to the added node
+   *  @return      Returns a reference to the added child node
    */
-  XML_Node& XML_Node::addChild(XML_Node& node) {
+  XML_Node& XML_Node::mergeAsChild(XML_Node& node) {
     m_children.push_back(&node);
     m_nchildren = static_cast<int>(m_children.size());
     m_childindex[node.name()] = m_children.back();
@@ -536,7 +545,27 @@ namespace Cantera {
     return *m_children.back();
   }
 
-  // Add a child node to the current node with a specified name
+  // Add a child node to the current node by makeing a copy of an existing node tree
+  /*
+   * This will add an XML_Node as a child to the current node.
+   * Note, this actually adds the node. Therefore, node is changed.
+   * A copy is made of the underlying tree.
+   *
+   *  @param node  Reference to a child XML_Node object
+   *
+   *  @return returns a reference to the added node
+   */
+  XML_Node& XML_Node::addChild(const XML_Node& node) {
+    XML_Node *xx = new XML_Node(node);
+    m_children.push_back(xx);
+    m_nchildren = static_cast<int>(m_children.size());
+    m_childindex[xx->name()] = m_children.back();
+    xx->setRoot(root());
+    xx->setParent(this);
+    return *m_children.back();
+  }
+
+  // Add a new malloced child node to the current node with a specified name
   /*
    * This will add an XML_Node as a child to the current node.
    * The node will be blank except for the specified name.
@@ -555,7 +584,11 @@ namespace Cantera {
     return *m_children.back();
   }
 
-  //    Add a child node to the current xml node, and at the
+  XML_Node& XML_Node::addChild(const char *cstring) { 
+    return addChild(std::string(cstring));
+  }
+
+  //    Add a new malloced child node to the current xml node, and at the
   //    same time add a value to the child
   /*
    *    Resulting XML string:
@@ -1179,11 +1212,14 @@ namespace Cantera {
     for (int n = 0; n < m_nchildren; n++) {
       sc = m_children[n];
       ndc = node_dest->nChildren();
+      // Here is where we do a malloc of the child node.
       (void) node_dest->addChild(sc->name());
       dc = vsc[ndc];
       sc->copy(dc);
     }
   }
+
+
 
   // Set the lock for this node
   void XML_Node::lock() {
@@ -1402,7 +1438,10 @@ namespace Cantera {
   }
  
   void XML_Node::setRoot(const XML_Node& root) {
-     m_root = const_cast<XML_Node*>(&root); 
+     m_root = const_cast<XML_Node*>(&root);
+     for (int i = 0; i < m_nchildren; i++) {
+       m_children[i]->setRoot(root);
+     } 
   }
         
   XML_Node * findXMLPhase(XML_Node *root, 
