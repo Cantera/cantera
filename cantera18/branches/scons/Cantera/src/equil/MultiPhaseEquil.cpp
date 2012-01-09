@@ -181,8 +181,10 @@ namespace Cantera {
         // Take a very small step in composition space, so that no
         // species has precisely zero moles.
         vector_fp dxi(m_nsp - m_nel, 1.0e-20);
-        multiply(m_N, DATA_PTR(dxi), DATA_PTR(m_work));
-        unsort(m_work);
+        if (!dxi.empty()) {
+          multiply(m_N, DATA_PTR(dxi), DATA_PTR(m_work));
+          unsort(m_work);
+        }
 
         for (k = 0; k < m_nsp; k++) {
             m_moles[k] += m_work[k];
