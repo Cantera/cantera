@@ -3,9 +3,10 @@ import uuid
 import xml.etree.ElementTree as et
 
 class WxsGenerator(object):
-    def __init__(self, stageDir, x64=False):
+    def __init__(self, stageDir, includeMatlab=False, x64=False):
         self.prefix = stageDir
         self.x64 = x64
+        self.includeMatlab = includeMatlab
 
         # Use separate UUIDs for 64- and 32-bit components
         if self.x64:
@@ -51,11 +52,11 @@ class WxsGenerator(object):
             path = path.replace(self.prefix + '/', '', 1).replace('\\', '/')
             for d in dirs:
                 dpath = '/'.join((path, d))
-                ID = dpath.replace('/', '_')
+                ID = dpath.replace('/', '_').replace('@', 'a')
                 directories[dpath] = self.Directory(directories[path], ID, d)
 
             for f in files:
-                ID = '_'.join((path, f)).replace('/', '_')
+                ID = '_'.join((path, f)).replace('/', '_').replace('@', 'a')
                 self.FileComponent(directories[path], ID, ID, f,
                               '/'.join((self.prefix, path, f)))
                 et.SubElement(feature, 'ComponentRef', dict(Id=ID))
@@ -120,6 +121,14 @@ class WxsGenerator(object):
                                     Display='expand',
                                     AllowAdvertise='no'))
 
+        if self.includeMatlab:
+            matlab = et.SubElement(product, 'Feature',
+                                   dict(Id='Matlab', Level='1',
+                                        Title='Matlab Toolbox',
+                                        Description='Cantera Matlab toolbox',
+                                        Display='expand',
+                                        AllowAdvertise='no'))
+
         # Files
         includes = self.addDirectoryContents('include', instdir, devel)
         binaries = self.addDirectoryContents('bin', instdir, core)
@@ -128,6 +137,8 @@ class WxsGenerator(object):
         demos_dir = self.addDirectoryContents('demos', instdir, extras)
         templates_dir = self.addDirectoryContents('templates', instdir, extras)
         tutorials_dir = self.addDirectoryContents('tutorials', instdir, extras)
+        if self.includeMatlab:
+            matlab_dir = self.addDirectoryContents('matlab', instdir, matlab)
 
         # Registry entries
         reg_key = self.addRegistryKey(core, product, Id='CanteraRegRoot', Root='HKLM',
@@ -179,7 +190,6 @@ def indent(elem, level=0):
     else:
         if level and (not elem.tail or not elem.tail.strip()):
             elem.tail = i
-
 
 
 def usage():
