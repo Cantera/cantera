@@ -52,10 +52,6 @@ int transport_example1(int job) {
         }
         if (job <= 1) return 0;
 
-        // header
-        writeCanteraHeader(cout);
-
-
         // create a gas mixture, and set its state
 
         IdealGasMix gas("gri30.cti", "gri30");

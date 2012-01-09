@@ -53,16 +53,4 @@ void plotSoln(string fname, string fmt, string title, const G& gas, const A& sol
     writePlotFile(fname, fmt, title, names, soln);
 }
 
-inline void writeCanteraHeader(ostream& s) {
-    s << endl;
-#ifdef CANTERA_VERSION
-    s << "     Cantera version " << CANTERA_VERSION << endl;        
-#else
-    s << "     ???" << endl;
-#endif
-    s << "     Copyright California Institute of Technology, 2002." << endl;
-    s << "     http://www.cantera.org" << endl;
-    s << endl;
-}
-
 #endif

@@ -40,9 +40,6 @@ int kinetics_example2(int job) {
         }
         if (job < 2) return 0;
 
-        // header
-        writeCanteraHeader(cout);
-
         // create a GRI30 object
         GRI30 gas;
         gas.setState_TPX(1001.0, OneAtm, "H2:2.0, O2:1.0, N2:4.0");
@@ -100,9 +97,6 @@ int kinetics_example2(int job) {
 
         // print final temperature
         cout << " Tfinal = " << r.temperature() << endl;
-        cout << " number of residual function evaluations = " 
-             << sim.integrator().nEvals() << endl;
-
         cout << "Output files:" << endl
              << "  kin2.csv    (Excel CSV file)" << endl
              << "  kin2.dat    (Tecplot data file)" << endl;

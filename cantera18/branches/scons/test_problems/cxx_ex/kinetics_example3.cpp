@@ -46,9 +46,6 @@ int kinetics_example3(int job) {
         }
         if (job < 2) return 0;
 
-        // header
-        writeCanteraHeader(cout);
-
         // create an ideal gas mixture that corresponds to GRI-Mech
         // 3.0
         IdealGasMix* gg = new IdealGasMix("gri30.xml", "gri30");
@@ -105,8 +102,6 @@ int kinetics_example3(int job) {
 
         // print final temperature
         cout << " Tfinal = " << r.temperature() << endl;
-        cout << " number of residual function evaluations = " 
-             << sim.integrator().nEvals() << endl;
         cout << "Output files:" << endl
              << "  kin3.csv    (Excel CSV file)" << endl
              << "  kin3.dat    (Tecplot data file)" << endl;
