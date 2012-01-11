@@ -31,8 +31,10 @@
 #include <sunmath.h>
 #endif
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <float.h>
+#endif
+#ifdef _MSC_VER
 #pragma warning(disable:4290)
 #pragma warning(disable:4996)
 #endif
@@ -46,7 +48,7 @@ namespace mdp {
   /*
    *  @param tmp number to be checked
    */
-#ifdef WIN32
+#ifdef _WIN32
   void checkFinite(const double tmp) throw(std::range_error) {
     if (_finite(tmp)) {
       if(_isnan(tmp)) {
@@ -115,7 +117,7 @@ namespace mdp {
    *
    *  @param tmp number to be checked
    */
-#ifdef WIN32
+#ifdef _WIN32
 void checkZeroFinite(const double tmp) throw(std::range_error) {
     if ((tmp == 0.0) || (! _finite(tmp))) {
       if (tmp == 0.0) {

@@ -9,7 +9,7 @@
 #ifndef CKR_CKPARSER_H
 #define CKR_CKPARSER_H
 
-#ifdef WIN32
+#ifdef _MSC_VER
 #pragma warning(disable:4786)
 #endif
 

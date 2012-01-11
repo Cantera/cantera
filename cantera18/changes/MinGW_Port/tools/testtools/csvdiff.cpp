@@ -57,7 +57,7 @@ using namespace std;
 #  define TRUE  1
 #  define FALSE 0
 #endif
-#ifdef WIN32
+#ifdef _MSC_VER
 #pragma warning(disable:4996)
 #endif
 #ifndef MAX

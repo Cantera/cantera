@@ -11,7 +11,7 @@
 #ifndef CKR_THERMOFUNCTIONS_H
 #define CKR_THERMOFUNCTIONS_H
 
-#ifdef WIN32
+#ifdef _MSC_VER
 #pragma warning(disable:4786)
 #endif
 

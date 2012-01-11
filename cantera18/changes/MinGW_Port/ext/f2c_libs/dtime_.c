@@ -1,10 +1,10 @@
 #include "time.h"
 
-#ifdef WIN32
+#ifdef _MSC_VER
 #pragma warning(disable:4244)
 #endif
 
-#ifdef MSDOS
+#if defined(MSDOS) || defined (__MINGW32__)
 #undef USE_CLOCK
 #define USE_CLOCK
 #endif

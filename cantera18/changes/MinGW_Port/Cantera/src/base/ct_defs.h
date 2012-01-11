@@ -38,7 +38,7 @@
 namespace Cantera {
 
 
-#ifdef WIN32
+#ifdef _MSC_VER
 #define TYPENAME_KEYWORD
 #pragma warning(disable:4267)
 #else

@@ -18,7 +18,7 @@
 #ifndef MDP_ALLO_H
 #define MDP_ALLO_H
 
-#ifdef WIN32
+#ifdef _MSC_VER
 #pragma warning(disable:4290)
 #endif
 

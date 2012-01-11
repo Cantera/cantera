@@ -108,7 +108,7 @@ extern void f_init(void);
 extern int (*f__donewrec)(void), t_putc(int), x_wSL(void);
 extern void b_char(char*,char*,ftnlen), g_char(char*,ftnlen,char*);
 extern int c_sfe(cilist*), z_rnew(void);
-#ifndef WIN32
+#ifndef _WIN32
 extern int isatty(int);
 #endif
 extern int err__fl(int,int,char*);

@@ -16,7 +16,7 @@
  * $Source: /cvsroot/cantera/cantera/tools/testtools/tok_input_util.cpp,v $
  *
  *====================================================================*/
-#ifdef WIN32
+#ifdef _MSC_VER
 #pragma warning(disable:4996)
 #endif
 
@@ -1549,13 +1549,14 @@ void strip_item_from_token(int iword, TOKEN *tok)
 {
   if (!tok) return;
   if (iword < 0 || iword > tok->ntokes) return;
-#ifdef WIN32
+// Note (David Fronczek 05/2011): __w64 does not work with MinGW; seems to be compiler specific instead of OS specific
+#ifdef _MSC_VER
   __w64 int ioffset = tok->tok_ptr[iword] - tok->tok_str;
 #else
   int ioffset = tok->tok_ptr[iword] - tok->tok_str;
 #endif
   size_t ilength = strlen(tok->tok_ptr[iword]);
-#ifdef WIN32
+#ifdef _MSC_VER
   __w64 int i = ioffset;
   __w64 int j = ioffset + ilength;
 #else

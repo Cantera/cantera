@@ -8,7 +8,7 @@
 #ifndef CKR_UTILS_H
 #define CKR_UTILS_H
 
-#ifdef WIN32
+#ifdef _MSC_VER
 #pragma warning(disable:4786)
 #endif
 
@@ -19,7 +19,7 @@
 
 using namespace std;
 
-#ifdef WIN32
+#ifdef _MSC_VER
 #define TYPENAME_KEYWORD
 #else
 #define TYPENAME_KEYWORD typename

@@ -20,7 +20,7 @@ extern "C" {
 extern "C" {
 #endif
 extern int getpid(void); 
-#ifndef WIN32
+#ifndef _WIN32
 extern int isatty(int); 
 #endif
 extern int pause(void);

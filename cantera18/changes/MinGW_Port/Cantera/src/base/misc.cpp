@@ -13,7 +13,7 @@
  *  $Id$
  */
 
-#ifdef WIN32
+#ifdef _MSC_VER
 #pragma warning(disable:4786)
 #pragma warning(disable:4503)
 #pragma warning(disable:4996)
@@ -35,7 +35,7 @@
 #include <fstream>
 #include <memory>
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <algorithm>
 #include <functional>
 #include <new>
@@ -1030,7 +1030,7 @@ protected:
         // so it is replaced by:
         path = findInputFile(file);
         // 
-#ifdef WIN32
+#ifdef _WIN32
         // RFB: For Windows make the path POSIX compliant so code looking for directory 
         // separators is simpler.  Just look for '/' not both '/' and '\\'
         replace_if( path.begin(), path.end(), bind2nd( equal_to<char>(), '\\'), '/' ) ; 
@@ -1342,7 +1342,7 @@ protected:
         dirs.push_back(".");
 
 
-#ifdef WIN32
+#ifdef _WIN32
         //
         // Under Windows, the Cantera setup utility puts data files in
         // a directory 'Cantera\data' below the one the environment
@@ -1613,7 +1613,7 @@ protected:
        
     va_start( args, fmt ) ;
        
-#if defined(WIN32) && defined(MSC_VER)
+#if defined(_WIN32) && defined(_MSC_VER)
     _vsnprintf( sbuf, BUFSIZE, fmt, args ) ; 
 #else
     vsprintf( sbuf, fmt, args ) ;

@@ -31,7 +31,7 @@
  * input file name without the extension. Since only one phase definition
  * is present in the ck2cti output, this parameter is not required.  
  */
-#ifdef WIN32
+#ifdef _MSC_VER
 #pragma warning(disable:4786)
 #pragma warning(disable:4503)
 #endif

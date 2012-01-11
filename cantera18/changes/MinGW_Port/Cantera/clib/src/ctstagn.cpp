@@ -9,7 +9,7 @@
 #include "Storage.h"
 
 // Build as a DLL under Windows
-#ifdef WIN32
+#ifdef _WIN32
 #ifdef NO_DLL_BUILD
 #define DLL_EXPORT
 #else

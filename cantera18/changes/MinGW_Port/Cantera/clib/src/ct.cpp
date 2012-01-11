@@ -11,7 +11,7 @@
 /* $Id$  */
 
 // turn off warnings under Windows
-#ifdef WIN32
+#ifdef _MSC_VER
 #pragma warning(disable:4786)
 #pragma warning(disable:4503)
 #endif
@@ -36,7 +36,7 @@
 using namespace std;
 using namespace Cantera;
 
-#ifdef WIN32
+#ifdef _WIN32
 #include "windows.h"
 #endif
 

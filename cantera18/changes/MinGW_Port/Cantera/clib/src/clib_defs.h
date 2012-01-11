@@ -9,22 +9,23 @@
 #ifndef CTC_DEFS_H
 #define CTC_DEFS_H
 
+#ifdef _MSC_VER
+#pragma warning(disable:4786)
+#pragma warning(disable:4267)
+#pragma warning(disable:4503)
+#endif
 
-#ifdef WIN32
+#ifdef _WIN32
 //   Either build as a DLL under Windows or  not. 
 //   the decision relies upon whether the NO_DLL_BUILD define is 
 //   set or not.
 #ifdef NO_DLL_BUILD
-#define DLL_EXPORT
-#define DLL_IMPORT
+# define DLL_EXPORT
+# define DLL_IMPORT
 #else
-#define DLL_IMPORT __declspec(dllimport)
-#define DLL_EXPORT __declspec(dllexport)
+# define DLL_IMPORT __declspec(dllimport)
+# define DLL_EXPORT __declspec(dllexport)
 #endif
-
-#pragma warning(disable:4786)
-#pragma warning(disable:4267)
-#pragma warning(disable:4503)
 #else
 //   On other platforms, we turn off the DLL macros.
 #define DLL_EXPORT

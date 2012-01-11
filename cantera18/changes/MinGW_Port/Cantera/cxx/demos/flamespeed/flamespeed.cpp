@@ -1,5 +1,5 @@
 //
-#ifdef WIN32
+#ifdef _MSC_VER
 #pragma warning(disable:4786)
 /*Warning messages that are identified as Warning C4786: are created
   when MSVC generates extremely long names that it uses for debugging
