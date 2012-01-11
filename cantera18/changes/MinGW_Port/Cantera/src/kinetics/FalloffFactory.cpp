@@ -210,8 +210,6 @@ namespace Cantera {
    *   T_1 is required to greater than or equal to zero. If it is zero,
    *   then the term is set to zero.
    *
-   *   T_2 is required to be greater than  zero. 
-   *
    * @ingroup falloffGroup 
    */
   class Troe4 : public Falloff {
@@ -248,9 +246,6 @@ namespace Cantera {
 	}
       } else {
 	m_rt1 = 1.0/c[2];
-      }
-      if (c[3] < 0.0) {
-	throw CanteraError("Troe4::init()", "T2 parameter is less than zero");
       }
       m_t2 = c[3];
     }

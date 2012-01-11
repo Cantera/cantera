@@ -165,3 +165,29 @@ py_getMolarFluxes(PyObject *self, PyObject *args) {
     if (iok < 0) return reportError(iok);
     return PyArray_Return(f);
 }
+
+static PyObject*
+py_getMassFluxes(PyObject *self, PyObject *args)
+{
+    int n, id;
+    PyObject *state1, *state2;
+    double delta;
+    if (!PyArg_ParseTuple(args, "iiOOd:py_getMassFluxes", &n, &id,
+                          &state1, &state2, &delta))
+
+        return NULL;
+    PyArrayObject* state1array = (PyArrayObject*)state1;
+    PyArrayObject* state2array = (PyArrayObject*)state2;
+    double* d1 = (double*)state1array->data;
+    double* d2 = (double*)state2array->data;
+#ifdef HAS_NUMPY
+    npy_intp nid = id;
+    PyArrayObject* f = (PyArrayObject*)PyArray_SimpleNew(1, &nid, PyArray_DOUBLE);
+#else
+    PyArrayObject* f = (PyArrayObject*)PyArray_FromDims(1, &id, PyArray_DOUBLE);
+#endif
+    double* fd = (double*)f->data;
+    int iok = trans_getMassFluxes(n, d1, d2, delta, fd);
+    if (iok < 0) return reportError(iok);
+    return PyArray_Return(f);
+}

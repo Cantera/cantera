@@ -64,7 +64,7 @@ namespace ctml {
     if (!py) {
       const char* hm = getenv("HOME");
       string home = stripws(string(hm));
-      string cmd = string("source ")+home
+      string cmd = string(". ")+home
 	+string("/setup_cantera &> /dev/null");
       system(cmd.c_str());
       py = getenv("PYTHON_CMD");

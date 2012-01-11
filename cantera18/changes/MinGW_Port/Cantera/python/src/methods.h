@@ -84,6 +84,7 @@ static PyMethodDef ct_methods[] = {
     {"tran_multiDiffCoeffs", py_multiDiffCoeffs,  METH_VARARGS},
     {"tran_setParameters", py_setParameters,  METH_VARARGS},
     {"tran_getMolarFluxes", py_getMolarFluxes,  METH_VARARGS},
+    {"tran_getMassFluxes", py_getMassFluxes,  METH_VARARGS},
    
     {"get_Cantera_Error", ct_get_cantera_error,  METH_VARARGS},
     //{"ct_print", ct_print,  METH_VARARGS},

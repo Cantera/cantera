@@ -198,6 +198,9 @@ namespace pip {
         case 0: fprintf(f,"                     geom = \"atom\",\n"); break;
         case 1: fprintf(f,"                     geom = \"linear\",\n"); break;
         case 2: fprintf(f,"                     geom = \"nonlinear\",\n"); break;
+        default:
+          throw CanteraError("addTransportParams",
+                             "Unrecognized geometry flag for species " + name);
         }
 #define FULL_TRANSPORT_PARAMETER_PRECISION
 #ifdef  FULL_TRANSPORT_PARAMETER_PRECISION
