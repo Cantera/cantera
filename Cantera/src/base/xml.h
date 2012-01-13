@@ -45,8 +45,7 @@ namespace Cantera {
      */
     XML_Reader(std::istream& input);
 
-    //! Read a single character from the input stream
-    //! and return it
+    //! Read a single character from the input stream and returns it
     /*!
      *  All low level reads occur through this function.
      *  The function also keeps track of the line numbers.
@@ -130,13 +129,14 @@ namespace Cantera {
     std::string readValue();
 
   protected:
-    //! Input Stream containing the XML file
+
+    //! Input stream containing the XML file
     std::istream& m_s;
 
   public:
+
     //! Line count
     int m_line;
-
   };
 
 
@@ -412,6 +412,7 @@ namespace Cantera {
     void clear();
 
   private:
+
     //! Returns a changeable value of the attributes map for the current node
     /*!
      *  Note this is a simple accessor routine. And, it is a private function.
@@ -420,6 +421,13 @@ namespace Cantera {
     std::map<std::string,std::string>& attribs();
 
   public:
+
+    //! Returns an unchangeable value of the attributs map for the current node
+    /*!
+     *
+     * @return  Returns an unchangeable reference to the attributes map
+     */
+    const std::map<std::string,std::string>& attribsConst() const;
 
     //! Set the line number 
     /*!
@@ -432,7 +440,6 @@ namespace Cantera {
      *  @return  returns the member data m_linenum
      */
     int lineNumber() const;
-
  
     //! Returns a pointer to the parent node of the current node
     XML_Node* parent() const;
@@ -642,9 +649,10 @@ namespace Cantera {
      * to denote the top of the tree.
      *
      *  @param s       ostream to write to
-     *  @param level   Indentation level to work from
+     *  @param level   Indentation level to work from  
+     *  @param numRecursivesAllowed Number of recursive calls allowed
      */
-    void write(std::ostream& s, const int level = 0) const;
+    void write(std::ostream& s, const int level = 0, int numRecursivesAllowed = 60000) const;
 
     //! Return the root of the current XML_Node tree
     /*!
@@ -705,15 +713,16 @@ namespace Cantera {
     
     //! Write an XML subtree to an output stream. 
     /*!
-     * This is the
-     * main recursive routine. It doesn't put a final endl
-     * on. This is fixed up in the public method.
+     * This is the main recursive routine. It doesn't put a final endl
+     * on. This is fixed up in the public method. A method to only write out a limited
+     * amount of the xml tree has been added.
      *
      *
      *  @param s       ostream to write to
      *  @param level   Indentation level to work from
+     *  @param numRecurvivesAllowed Number of recursive calls allowed
      */
-    void write_int(std::ostream& s, int level = 0) const;
+    void write_int(std::ostream& s, int level = 0, int numRecursivesAllowed = 60000) const;
 
   protected:
 
@@ -785,7 +794,7 @@ namespace Cantera {
     //! True if the current node is a comment node
     bool m_iscomment;
 
-    //! the member data m_linenum
+    //! The member data m_linenum
     /*!
      *  Currently, unimplemented functionality
      */

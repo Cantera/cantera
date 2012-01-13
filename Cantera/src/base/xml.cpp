@@ -450,7 +450,7 @@ namespace Cantera {
     m_iscomment(right.m_iscomment),
     m_linenum(right.m_linenum)
   {
-    m_root = & right.root();
+    m_root = this;
     m_name = right.m_name;
     m_value = right.m_value;
     right.copy(this);
@@ -797,6 +797,10 @@ namespace Cantera {
     return m_attribs;
   }
 
+  const std::map<std::string,std::string>& XML_Node::attribsConst() const { 
+    return m_attribs;
+  }
+
   // Set the line number 
   /*
    *  @param n   the member data m_linenum is set to n
@@ -1127,8 +1131,7 @@ namespace Cantera {
       }
       else {
 	if (node->name() != nm.substr(1,nm.size()-1)) 
-	  throw XML_TagMismatch(node->name(), 
-				nm.substr(1,nm.size()-1), lnum);
+	  throw XML_TagMismatch(node->name(), nm.substr(1,nm.size()-1), lnum);
 	node = node->parent();
       }
     }
@@ -1202,6 +1205,7 @@ namespace Cantera {
     int ndc;
     node_dest->addValue(m_value);
     node_dest->setName(m_name);
+    node_dest->setLineNumber(m_linenum);
     if (m_name == "") return;
     map<string,string>::const_iterator b = m_attribs.begin();
     for (; b != m_attribs.end(); ++b) {
@@ -1292,7 +1296,7 @@ namespace Cantera {
    * main recursive routine. It doesn't put a final endl
    * on. This is fixed up in the public method.
    */
-  void XML_Node::write_int(std::ostream& s, int level) const {
+  void XML_Node::write_int(std::ostream& s, int level, int numRecursivesAllowed) const {
 
     if (m_name == "") return;
 
@@ -1402,9 +1406,11 @@ namespace Cantera {
 	}
       }
       int i;
-      for (i = 0; i < m_nchildren; i++) {
-	s << endl;
-	m_children[i]->write_int(s,level + 2);
+      if (numRecursivesAllowed > 0) {
+	for (i = 0; i < m_nchildren; i++) {
+	  s << endl;
+	  m_children[i]->write_int(s,level + 2, numRecursivesAllowed - 1);
+	}
       }
       if (m_nchildren > 0) s << endl << indent;
       s << "</" << m_name << ">";
@@ -1421,14 +1427,14 @@ namespace Cantera {
    * is skipped and the children are processed. "--" is used
    * to denote the top of the tree.
    */
-  void XML_Node::write(std::ostream& s, const int level) const {
+  void XML_Node::write(std::ostream& s, const int level, int numRecursivesAllowed) const {
     if (m_name == "--" && m_root == this) {
       for (int i = 0; i < m_nchildren; i++) {
-	m_children[i]->write_int(s,level);
+	m_children[i]->write_int(s,level, numRecursivesAllowed-1);
 	s << endl;
       }
     } else {
-      write_int(s, level);
+      write_int(s, level, numRecursivesAllowed);
       s << endl;
     }
   }
