@@ -960,7 +960,63 @@ namespace Cantera {
     }
     return scResult;
   }
-    
+  //====================================================================================================================
+  // This routine carries out a search for an XML node based
+  // on both the xml element name and the attribute ID and an integer index.
+  /*
+   * If exact matches are found for all fields, the pointer
+   * to the matching XML Node is returned. The search is only carried out on
+   * the current element and the child elements of the current element.
+   * 
+   * The "id" attribute may be defaulted by setting it to "".
+   * In this case the pointer to the first xml element matching the name
+   * only is returned.
+   *
+   *  @param nameTarget  Name of the XML Node that is being searched for
+   *  @param idTarget    "id" attribute of the XML Node that the routine
+   *                     looks for
+   *  @param index       Integer describing the index. The index is an
+   *                     attribute of the form index = "3"
+   *
+   *  @return   Returns the pointer to the XML node that fits the criteria
+   *
+   */
+  XML_Node* XML_Node::findNameIDIndex(const std::string & nameTarget, 
+				      const std::string & idTarget, const int index_i) const {
+    XML_Node *scResult = 0;
+    XML_Node *sc;
+    std::string idattrib = id();
+    std::string ii = attrib("index");
+    std::string index_s = int2str(index_i);
+    int iMax = -1000000;
+    if (name() == nameTarget) {
+      if (idTarget == "" || idTarget == idattrib) {
+	if (index_s == ii) {
+	  return const_cast<XML_Node*>(this);
+	}
+      }
+    }
+    for (int n = 0; n < m_nchildren; n++) {
+      sc = m_children[n];
+      if (sc->name() == nameTarget) {
+	ii = sc->attrib("index");
+	int indexR = atoi(ii.c_str());
+	idattrib = sc->id();
+	if (idTarget == idattrib || idTarget == "") {
+	  if (index_s == ii) {
+	    return sc;
+	  }
+	}
+	if (indexR > iMax) {
+	  scResult = sc;
+	  iMax = indexR;
+	}
+      }
+    }
+ 
+    return scResult;
+  }
+  //====================================================================================================================
   //   This routine carries out a recursive search for an XML node based
   //   on the xml element attribute, "id" .
   /*
@@ -1014,17 +1070,19 @@ namespace Cantera {
    *
    */
   XML_Node* XML_Node::findByAttr(const std::string& attr, 
-   			         const std::string& val) const {
+   			         const std::string& val, int depth) const {
     if (hasAttrib(attr)) {
       if (attrib(attr) == val) {
 	return const_cast<XML_Node*>(this);
       }
     }
-    XML_Node* r = 0;
-    int n = nChildren();
-    for (int i = 0; i < n; i++) {
-      r = m_children[i]->findByAttr(attr, val);
-      if (r != 0) return r;
+    if (depth > 0) {
+      XML_Node* r = 0;
+      int n = nChildren();
+      for (int i = 0; i < n; i++) {
+	r = m_children[i]->findByAttr(attr, val, depth - 1);
+	if (r != 0) return r;
+      }
     }
     return 0;
   }

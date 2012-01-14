@@ -547,6 +547,29 @@ namespace Cantera {
     XML_Node* findNameID(const std::string &nameTarget, 
 			 const std::string &idTarget) const;
 
+    //! This routine carries out a search for an XML node based
+    //! on both the xml element name and the attribute ID and an integer index.
+    /*!
+     * If exact matches are found for all fields, the pointer
+     * to the matching XML Node is returned. The search is only carried out on
+     * the current element and the child elements of the current element.
+     * 
+     * The "id" attribute may be defaulted by setting it to "".
+     * In this case the pointer to the first xml element matching the name
+     * only is returned.
+     *
+     *  @param nameTarget  Name of the XML Node that is being searched for
+     *  @param idTarget    "id" attribute of the XML Node that the routine
+     *                     looks for
+     *  @param index       Integer describing the index. The index is an
+     *                     attribute of the form index = "3"
+     *
+     *  @return   Returns the pointer to the XML node that fits the criteria
+     *
+     */
+    XML_Node* findNameIDIndex(const std::string &nameTarget, 
+			      const std::string &idTarget, const int index) const;
+
     //! This routine carries out a recursive search for an XML node based
     //! on the xml element attribute, "id" 
     /*!
@@ -581,11 +604,14 @@ namespace Cantera {
      *  @param attr     Attribute of the XML Node that the routine
      *                  looks for
      *  @param val      Value of the attribute
+     *  @param depth    Depth of the search. A value of 1 means that only the
+     *                  immediate children are searched.
      *
      *  @return         Returns the pointer to the XML node that fits the criteria
      *
      */
-    XML_Node* findByAttr(const std::string& attr, const std::string& val) const;
+    XML_Node* findByAttr(const std::string& attr, const std::string& val,
+			 int depth = 100000) const;
 
     //! This routine carries out a recursive search for an XML node based
     //! on the name of the node.
