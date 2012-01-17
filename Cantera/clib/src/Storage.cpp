@@ -20,7 +20,7 @@ Storage::Storage() {
 Storage::~Storage() { clear(); }
 
 int Storage::addThermo(thermo_t* th) {
-    if (th->index() >= 0)
+    if (th->index() != -1)
         return th->index();
     __thtable.push_back(th);
     int n = static_cast<int>(__thtable.size()) - 1;
@@ -42,7 +42,7 @@ int Storage::nThermo() {
 }
 
 int Storage::addKinetics(Kinetics* kin) {
-    if (kin->index() >= 0)
+    if (kin->index() != -1)
         return kin->index();
     __ktable.push_back(kin);
     int n = static_cast<int>(__ktable.size()) - 1;
@@ -51,7 +51,7 @@ int Storage::addKinetics(Kinetics* kin) {
 }
 
 int Storage::addTransport(Transport* tr) {
-    if (tr->index() >= 0)
+    if (tr->index() != -1)
         return tr->index();
     __trtable.push_back(tr);
     int n = static_cast<int>(__trtable.size()) - 1;
