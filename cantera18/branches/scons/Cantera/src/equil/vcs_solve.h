@@ -30,6 +30,8 @@
 #include "vcs_DoubleStarStar.h"
 #include "vcs_IntStarStar.h"
 
+#define ALTLINPROG
+
 namespace VCSnonideal {
 /*
  * Forward references
