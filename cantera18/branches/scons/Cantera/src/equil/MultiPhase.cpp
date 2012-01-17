@@ -375,7 +375,7 @@ namespace Cantera {
     phase_t* p = m_phase[n];
     p->setState_TPX(m_temp, m_press, x);
     size_t istart = m_spstart[n];
-    for (int k = 0; k < p->nSpecies(); k++) {
+    for (size_t k = 0; k < p->nSpecies(); k++) {
       m_moleFractions[istart+k] = x[k];
     }
   }
@@ -387,7 +387,7 @@ namespace Cantera {
     size_t kk = nSpecies();
     doublereal x;
     vector_fp moles(kk, 0.0);
-    for (int k = 0; k < kk; k++) {
+    for (size_t k = 0; k < kk; k++) {
       x = xMap[speciesName(k)];
       if (x > 0.0) moles[k] = x;
     }
@@ -402,7 +402,7 @@ namespace Cantera {
     // add an entry in the map for every species, with value -1.0.
     // Function parseCompString (stringUtils.cpp) uses the names
     // in the map to specify the allowed species.
-    for (int k = 0; k < nSpecies(); k++) {
+    for (size_t k = 0; k < nSpecies(); k++) {
       xx[speciesName(k)] = -1.0;
     }
 
