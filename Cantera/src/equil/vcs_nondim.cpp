@@ -104,12 +104,11 @@ namespace VCSnonideal {
    *        the algorithm would have problems.
    */
   void VCS_SOLVE::vcs_nondim_TP() {
-    int i;
     double tf;
     if (m_unitsState == VCS_DIMENSIONAL_G) {
       m_unitsState = VCS_NONDIMENSIONAL_G;
       tf = 1.0 / vcs_nondimMult_TP(m_VCS_UnitsFormat, m_temperature);
-      for (i = 0; i < m_numSpeciesTot; ++i) {
+      for (size_t i = 0; i < m_numSpeciesTot; ++i) {
 	/* 
 	 *        Modify the standard state and total chemical potential data,
 	 *        FF(I),  to make it dimensionless, i.e.,  mu / RT.
@@ -134,7 +133,7 @@ namespace VCSnonideal {
        * or the other is specified here. 
        */
       double esum = 0.0;
-      for (i = 0; i < m_numElemConstraints; ++i) {
+      for (size_t i = 0; i < m_numElemConstraints; ++i) {
 	if (m_elType[i] == VCS_ELEM_TYPE_ABSPOS) {
 	  esum += fabs(m_elemAbundancesGoal[i]);
 	}
@@ -171,16 +170,16 @@ namespace VCSnonideal {
 	    plogendl();
 	  }
 #endif
-	  for (i = 0; i < m_numSpeciesTot; ++i) {
+	  for (size_t i = 0; i < m_numSpeciesTot; ++i) {
 	    if (m_speciesUnknownType[i] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	      m_molNumSpecies_old[i] *= (1.0 / m_totalMoleScale);
 	    }
 	  }
-	  for (i = 0; i < m_numElemConstraints; ++i) {
+	  for (size_t i = 0; i < m_numElemConstraints; ++i) {
 	    m_elemAbundancesGoal[i] *= (1.0 / m_totalMoleScale);
 	  }
 
-	  for (int iph = 0; iph < m_numPhases; iph++) {
+	  for (size_t iph = 0; iph < m_numPhases; iph++) {
 	    TPhInertMoles[iph] *= (1.0 / m_totalMoleScale);
 	    if (TPhInertMoles[iph] != 0.0) {
 	      vcs_VolPhase *vphase = m_VolPhaseList[iph];
@@ -205,12 +204,11 @@ namespace VCSnonideal {
    */
   void VCS_SOLVE::vcs_redim_TP(void)
   {
-    int i;
     double tf;
     if (m_unitsState != VCS_DIMENSIONAL_G) {
       m_unitsState = VCS_DIMENSIONAL_G;
       tf = vcs_nondimMult_TP(m_VCS_UnitsFormat, m_temperature);
-      for (i = 0; i < m_numSpeciesTot; ++i) {
+      for (size_t i = 0; i < m_numSpeciesTot; ++i) {
 	/* 
 	 *        Modify the standard state and total chemical potential data,
 	 *        FF(I),  to make it have units, i.e. mu = RT * mu_star
@@ -230,16 +228,16 @@ namespace VCSnonideal {
 	  plogendl();
 	}
 #endif
-	for (i = 0; i < m_numSpeciesTot; ++i) {
+	for (size_t i = 0; i < m_numSpeciesTot; ++i) {
 	  if (m_speciesUnknownType[i] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	    m_molNumSpecies_old[i] *= m_totalMoleScale;
 	  }
 	}
-	for (i = 0; i < m_numElemConstraints; ++i) {
+	for (size_t i = 0; i < m_numElemConstraints; ++i) {
 	  m_elemAbundancesGoal[i] *= m_totalMoleScale;
 	}
 
-	for (int iph = 0; iph < m_numPhases; iph++) {
+	for (size_t iph = 0; iph < m_numPhases; iph++) {
 	  TPhInertMoles[iph] *= m_totalMoleScale;
 	  if (TPhInertMoles[iph] != 0.0) {
 	    vcs_VolPhase *vphase = m_VolPhaseList[iph];

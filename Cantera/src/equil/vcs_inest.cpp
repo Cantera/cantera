@@ -107,7 +107,7 @@ namespace VCSnonideal {
       plogendl();
       plogf("%s     Element           Goal         Actual\n", pprefix);
       int jj = 0;
-      for (int j = 0; j < m_numElemConstraints; j++) {
+      for (size_t j = 0; j < m_numElemConstraints; j++) {
 	if (m_elementActive[j]) {
 	  double tmp = 0.0;
 	  for (kspec = 0; kspec < nspecies; ++kspec) {

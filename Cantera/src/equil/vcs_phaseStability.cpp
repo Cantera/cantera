@@ -75,9 +75,8 @@ namespace VCSnonideal {
    * @return returns the phase id of the phase that pops back into 
    *         existence. Returns -1 if there are no phases
    */
-  int VCS_SOLVE::vcs_popPhaseID() {
-    int iphasePop = -1;
-    int iph;
+  size_t VCS_SOLVE::vcs_popPhaseID() {
+    size_t iphasePop = -1;
     size_t irxn, kspec;
     doublereal FephaseMax = -1.0E30;
     doublereal Fephase = -1.0E30;
@@ -92,7 +91,7 @@ namespace VCSnonideal {
       plogf("   --------------------------------------------------------------\n");
     }
 #endif
-    for (iph = 0; iph < m_numPhases; iph++) {
+    for (size_t iph = 0; iph < m_numPhases; iph++) {
       Vphase = m_VolPhaseList[iph];
       int existence = Vphase->exists();
 #ifdef DEBUG_MODE
@@ -219,7 +218,6 @@ namespace VCSnonideal {
     size_t irxn = kspec - m_numComponents;
   
     doublereal s;
-    int j, k;
     // Calculate the initial moles of the phase being born.
     //   Here we set it to 10x of the value which would cause the phase to be
     //   zeroed out within the algorithm.  We may later adjust the value.
@@ -243,14 +241,14 @@ namespace VCSnonideal {
    if (Vphase->m_singleSpecies) {
      s = 0.0;
      double *dnPhase_irxn = m_deltaMolNumPhase[irxn];
-     for (j = 0; j < m_numComponents; ++j) {
+     for (size_t j = 0; j < m_numComponents; ++j) {
        if (!m_SSPhase[j]) {
 	 if (m_molNumSpecies_old[j] > 0.0) {
 	   s += SQUARE(m_stoichCoeffRxnMatrix[irxn][j]) / m_molNumSpecies_old[j];
 	 }
        }
      }
-     for (j = 0; j < m_numPhases; j++) {
+     for (size_t j = 0; j < m_numPhases; j++) {
        Vphase = m_VolPhaseList[j];
        if (! Vphase->m_singleSpecies) {
 	 if (m_tPhaseMoles_old[j] > 0.0) 
@@ -276,7 +274,7 @@ namespace VCSnonideal {
      /*
       * section to do damping of the m_deltaMolNumSpecies[] 
       */
-     for (j = 0; j < m_numComponents; ++j) {
+     for (size_t j = 0; j < m_numComponents; ++j) {
        double stoicC = m_stoichCoeffRxnMatrix[irxn][j];
        if (stoicC != 0.0) {
 	 if (m_elType[j] == VCS_ELEM_TYPE_ABSPOS) {
@@ -318,10 +316,10 @@ namespace VCSnonideal {
      fracDelta = Vphase->fractionCreationDeltas();
  
      double sumFrac = 0.0;
-     for (k = 0; k < Vphase->nSpecies(); k++) {
+     for (size_t k = 0; k < Vphase->nSpecies(); k++) {
        sumFrac += fracDelta[k];
      }
-     for (k = 0; k < Vphase->nSpecies(); k++) {
+     for (size_t k = 0; k < Vphase->nSpecies(); k++) {
        X_est[k] = fracDelta[k] / sumFrac;
      }
 
@@ -331,12 +329,12 @@ namespace VCSnonideal {
      double * molNumSpecies_tmp = DATA_PTR(m_deltaGRxn_tmp);
 
 
-     for (k = 0; k < Vphase->nSpecies(); k++) {
+     for (size_t k = 0; k < Vphase->nSpecies(); k++) {
        kspec = Vphase->spGlobalIndexVCS(k);
        double delmol =  deltaMolNumPhase * X_est[k];
        if (kspec >= m_numComponents) {
 	 irxn = kspec - m_numComponents;
-	 for (j = 0; j < m_numComponents; ++j) {
+	 for (size_t j = 0; j < m_numComponents; ++j) {
 	   double stoicC = m_stoichCoeffRxnMatrix[irxn][j];
 	   if (stoicC != 0.0) {
 	     if (m_elType[j] == VCS_ELEM_TYPE_ABSPOS) {
@@ -348,7 +346,7 @@ namespace VCSnonideal {
      }
 
      doublereal ratioComp = 0.0;
-     for (j = 0; j < m_numComponents; ++j) {
+     for (size_t j = 0; j < m_numComponents; ++j) {
        double deltaJ = m_molNumSpecies_old[j] - molNumSpecies_tmp[j];
        if (molNumSpecies_tmp[j] < 0.0) {
 	 ratioComp = 1.0;
@@ -387,7 +385,7 @@ namespace VCSnonideal {
        return 3;
      }
 
-     for (k = 0; k < Vphase->nSpecies(); k++) {
+     for (size_t k = 0; k < Vphase->nSpecies(); k++) {
        kspec = Vphase->spGlobalIndexVCS(k);
        if (kspec < m_numComponents) {
 	 m_speciesStatus[kspec] = VCS_SPECIES_COMPONENT;

@@ -297,7 +297,7 @@ namespace VCSnonideal {
    */
   bool VCS_SOLVE::vcs_wellPosed(VCS_PROB *vprob) {
     double sum = 0.0;
-    for (int e = 0; e < vprob->ne; e++) {
+    for (size_t e = 0; e < vprob->ne; e++) {
       sum = sum + vprob->gai[e];
     }
     if (sum < 1.0E-20) {

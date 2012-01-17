@@ -87,7 +87,7 @@ namespace VCSnonideal {
     WtSpecies.resize(nspecies, 0.0);
     Charge.resize(nspecies, 0.0);
     SpeciesThermo.resize(nspecies,0);
-    for (int kspec = 0; kspec < nspecies; kspec++) {
+    for (size_t kspec = 0; kspec < nspecies; kspec++) {
       VCS_SPECIES_THERMO *ts_tmp = new VCS_SPECIES_THERMO(0, 0);
       if (ts_tmp == 0) {
 	plogf("Failed to init a ts struct\n");
@@ -96,7 +96,7 @@ namespace VCSnonideal {
       SpeciesThermo[kspec] = ts_tmp;
     }
     VPhaseList.resize(nph, 0);
-    for (int iphase = 0; iphase < NPhase; iphase++) {
+    for (size_t iphase = 0; iphase < NPhase; iphase++) {
       VPhaseList[iphase] = new vcs_VolPhase();
     }
   }
@@ -193,13 +193,12 @@ namespace VCSnonideal {
    */
   void VCS_PROB::set_gai () 
   {
-    int kspec, j;
     double *ElemAbund = VCS_DATA_PTR(gai);
     double *const *const fm = FormulaMatrix.baseDataAddr();
     vcs_dzero(ElemAbund, ne);
     
-    for (j = 0; j < ne; j++) {
-      for (kspec = 0; kspec < nspecies; kspec++) {
+    for (size_t j = 0; j < ne; j++) {
+      for (size_t kspec = 0; kspec < nspecies; kspec++) {
 	ElemAbund[j] += fm[j][kspec] * w[kspec];
       }
     }
@@ -223,7 +222,6 @@ namespace VCSnonideal {
    */
   void VCS_PROB::prob_report(int print_lvl) {
     m_printLvl = print_lvl;
-    int i, iphase;
     vcs_VolPhase *Vphase = 0;
     /*
      *          Printout the species information: PhaseID's and mole nums
@@ -250,7 +248,7 @@ namespace VCSnonideal {
       plogf("             Phase IDs of species\n");
       plogf("            species     phaseID        phaseName   ");
       plogf(" Initial_Estimated_Moles   Species_Type\n");
-      for (i = 0; i < nspecies; i++) {
+      for (size_t i = 0; i < nspecies; i++) {
 	Vphase = VPhaseList[PhaseID[i]];
 	plogf("%16s      %5d   %16s", SpName[i].c_str(), PhaseID[i],
 	      Vphase->PhaseName.c_str());
@@ -275,7 +273,7 @@ namespace VCSnonideal {
 	    " EqnState    NumSpec");
       plogf("  TMolesInert      TKmoles\n");
    
-      for (iphase = 0; iphase < NPhase; iphase++) {
+      for (size_t iphase = 0; iphase < NPhase; iphase++) {
 	Vphase = VPhaseList[iphase];
 	std::string EOS_cstr = string16_EOSType(Vphase->m_eqnState);
 	plogf("%16s %5d %5d %8d ", Vphase->PhaseName.c_str(),
@@ -293,7 +291,7 @@ namespace VCSnonideal {
 	//fac = 1.0E3;
 	fac = 1.0;
       }
-      for (i = 0; i < ne; ++i) {
+      for (size_t i = 0; i < ne; ++i) {
 	print_space(26); plogf("%-2.2s", ElName[i].c_str());
 	plogf("%20.12E  ", fac * gai[i]);
 	plogf("%3d       %3d\n", m_elType[i], ElActive[i]);
@@ -314,7 +312,7 @@ namespace VCSnonideal {
       plogf("\n");
       plogf("             Species       (phase)    "
 	    "    SS0ChemPot       StarChemPot\n");
-      for (iphase = 0; iphase < NPhase; iphase++) {
+      for (size_t iphase = 0; iphase < NPhase; iphase++) {
 	Vphase = VPhaseList[iphase];
 	Vphase->setState_TP(T, PresPA);
 	for (size_t kindex = 0; kindex < Vphase->nSpecies(); kindex++) {

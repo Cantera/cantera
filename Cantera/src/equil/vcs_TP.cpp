@@ -143,14 +143,14 @@ namespace VCSnonideal {
     // ff[i] = R * spt->GStar_R_calc(i, Temp, pres);
     //}
 
-    for (int iph = 0; iph < m_numPhases; iph++) {
+    for (size_t iph = 0; iph < m_numPhases; iph++) {
       vcs_VolPhase* vph = m_VolPhaseList[iph];
       vph->setState_TP(m_temperature, m_pressurePA);
       vph->sendToVCS_GStar(VCS_DATA_PTR(m_SSfeSpecies));
     }
    
     if (m_VCS_UnitsFormat == VCS_UNITS_UNITLESS) {
-      for (int i = 0; i < m_numSpeciesTot; ++i) {
+      for (size_t i = 0; i < m_numSpeciesTot; ++i) {
 	m_SSfeSpecies[i]  /= Temp;
       }
     }
@@ -168,8 +168,7 @@ namespace VCSnonideal {
      *
      ***************************************************************************/
   {
-    int i;
-    for (i = 0; i < m_numSpeciesTot; ++i) {
+    for (size_t i = 0; i < m_numSpeciesTot; ++i) {
       /*
        *        For single species phases, initialize the chemical
        *        potential with the value of the standard state chemical

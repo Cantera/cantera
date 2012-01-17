@@ -516,7 +516,7 @@ public:
    * @return returns the phase id of the phase that pops back into 
    *         existence. Returns -1 if there are no phases
    */
-  int vcs_popPhaseID();
+  size_t vcs_popPhaseID();
 
   //! Calculates the deltas of the reactions due to phases popping
   //! into existence

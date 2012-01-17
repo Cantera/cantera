@@ -249,7 +249,7 @@ namespace VCSnonideal {
     }
     plogf(" |     Gibbs Total     |\n");
     print_line("-", m_numElemConstraints*10 + 58);
-    for (int iphase = 0; iphase < m_numPhases; iphase++) {
+    for (size_t iphase = 0; iphase < m_numPhases; iphase++) {
       plogf(" %3d ", iphase);
       vcs_VolPhase *VPhase = m_VolPhaseList[iphase];
       plogf("%-12.12s |",VPhase->PhaseName.c_str());

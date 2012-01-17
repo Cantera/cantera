@@ -649,7 +649,7 @@ namespace VCSnonideal {
     */
    m_mix->uploadMoleFractionsFromPhases();
    size_t kGlob = 0;
-   for (int ip = 0; ip < m_vprob->NPhase; ip++) {
+   for (size_t ip = 0; ip < m_vprob->NPhase; ip++) {
      double phaseMole = 0.0;
      Cantera::ThermoPhase &tref = m_mix->phase(ip);
      for (size_t k = 0; k < tref.nSpecies(); k++, kGlob++) {
@@ -690,7 +690,7 @@ namespace VCSnonideal {
        plogf(" (J/kmol)\n");
      plogf("--------------------------------------------------"
 	    "-----------\n");
-     for (int i = 0; i < m_vprob->nspecies; i++) {
+     for (size_t i = 0; i < m_vprob->nspecies; i++) {
        plogf("%-12s", m_vprob->SpName[i].c_str());
        if (m_vprob->SpeciesUnknownType[i] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	 plogf("  %15.3e %15.3e  ", 0.0, m_vprob->mf[i]);
@@ -1119,7 +1119,7 @@ namespace VCSnonideal {
 	sProp->SpeciesThermo = ts_ptr;
 	sProp->WtSpecies = tPhase->molecularWeight(k);
 	sProp->FormulaMatrixCol.resize(vprob->ne, 0.0);
-	for (int e = 0; e < vprob->ne; e++) {
+	for (size_t e = 0; e < vprob->ne; e++) {
 	  sProp->FormulaMatrixCol[e] = vprob->FormulaMatrix[e][kT];
 	}
 	sProp->Charge = tPhase->charge(k);
@@ -1250,7 +1250,7 @@ namespace VCSnonideal {
       plogf("             Phase IDs of species\n");
       plogf("            species     phaseID        phaseName   ");
       plogf(" Initial_Estimated_kMols\n");
-      for (int i = 0; i < vprob->nspecies; i++) {
+      for (size_t i = 0; i < vprob->nspecies; i++) {
 	size_t iphase = vprob->PhaseID[i];
 
 	vcs_VolPhase *VolPhase = vprob->VPhaseList[iphase];
@@ -1267,7 +1267,7 @@ namespace VCSnonideal {
       plogf("  PhaseName    PhaseNum SingSpec GasPhase EqnState NumSpec");
       plogf("  TMolesInert       Tmoles(kmol)\n");
    
-      for (int iphase = 0; iphase < vprob->NPhase; iphase++) {
+      for (size_t iphase = 0; iphase < vprob->NPhase; iphase++) {
 	vcs_VolPhase *VolPhase = vprob->VPhaseList[iphase];
 	std::string sEOS = string16_EOSType(VolPhase->m_eqnState);
 	plogf("%16s %5d %5d %8d %16s %8d %16e ", VolPhase->PhaseName.c_str(),

@@ -87,7 +87,6 @@ int VCS_SOLVE::vcs_setMolesLinProg() {
   double nu;
   double delta_xi, dxi_min = 1.0e10;
   bool redo = true;
-  int jcomp;
   int retn;
   int iter = 0;
   bool abundancesOK = true;
@@ -156,7 +155,7 @@ int VCS_SOLVE::vcs_setMolesLinProg() {
       dg_rt = m_SSfeSpecies[ik];
       dxi_min = 1.0e10;
       const double *sc_irxn = m_stoichCoeffRxnMatrix[irxn];
-      for (jcomp = 0; jcomp < m_numElemConstraints; jcomp++) {
+      for (size_t jcomp = 0; jcomp < m_numElemConstraints; jcomp++) {
 	dg_rt += m_SSfeSpecies[jcomp] * sc_irxn[jcomp];
       }
       // fwd or rev direction. 
@@ -167,7 +166,7 @@ int VCS_SOLVE::vcs_setMolesLinProg() {
 	dxi_min = m_molNumSpecies_old[ik];
       }
 	    
-      for (jcomp = 0; jcomp < m_numComponents; jcomp++) {
+      for (size_t jcomp = 0; jcomp < m_numComponents; jcomp++) {
 	nu = sc_irxn[jcomp];
 	      
 	// set max change in progress variable by
@@ -196,7 +195,7 @@ int VCS_SOLVE::vcs_setMolesLinProg() {
       double dsLocal = idir*dxi_min;
       m_molNumSpecies_old[ik] += dsLocal;
       m_molNumSpecies_old[ik] = MAX(0.0,  m_molNumSpecies_old[ik]);
-      for (jcomp = 0; jcomp < m_numComponents; jcomp++) {
+      for (size_t jcomp = 0; jcomp < m_numComponents; jcomp++) {
 	bool full = false;
 	if (m_molNumSpecies_old[jcomp] > 1.0E-15) {
 	  full = true;

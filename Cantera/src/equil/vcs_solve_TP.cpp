@@ -52,7 +52,7 @@ namespace VCSnonideal {
 	dchange[iph] += dsLocal[k];
       }
     }
-    for (int iphase = 0; iphase < m_numPhases; iphase++) {
+    for (size_t iphase = 0; iphase < m_numPhases; iphase++) {
       double denom = MAX(m_totalMolNum, 1.0E-4);
       if (!vcs_doubleEqual(dchange[iphase]/denom, delTPhMoles[iphase]/denom)) {
 	plogf("checkDelta1: we have found a problem\n");
@@ -114,7 +114,7 @@ namespace VCSnonideal {
     double     *sc_irxn = NULL;  /* Stoichiometric coefficients for cur rxn  */
     double *dnPhase_irxn;
     double atomComp;
-    int iphasePop;
+    size_t iphasePop;
 #ifdef DEBUG_MODE
     char ANOTE[128];
     /*
@@ -397,7 +397,7 @@ namespace VCSnonideal {
      *
      */
     soldel = -1;
-    if (iphasePop >= 0) {
+    if (iphasePop != -1) {
       soldel = vcs_popPhaseRxnStepSizes(iphasePop);
       if (soldel == 3) {
 	iphasePop = -1;
@@ -409,7 +409,7 @@ namespace VCSnonideal {
 #endif
       }
     }
-    if (iphasePop < 0) {
+    if (iphasePop == -1) {
       /*
        * Figure out the new reaction step sizes
        * for the major species (do minor species in the future too)  
@@ -488,7 +488,7 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
       ANOTE[0] = '\0';	 
 #endif
-      if (iphasePop >= 0) {
+      if (iphasePop != -1) {
 	if (iph == iphasePop) {
 	  dx =  m_deltaMolNumSpecies[kspec];
 	  m_molNumSpecies_new[kspec] = m_molNumSpecies_old[kspec] +  m_deltaMolNumSpecies[kspec];
@@ -546,7 +546,7 @@ namespace VCSnonideal {
 	    }
 #endif
 	  } else {
-	    for (int j = 0; j < m_numElemConstraints; ++j) {
+	    for (size_t j = 0; j < m_numElemConstraints; ++j) {
 	      int elType = m_elType[j];
 	      if (elType == VCS_ELEM_TYPE_ABSPOS) {
 		atomComp = m_formulaMatrix[j][kspec];
@@ -840,7 +840,7 @@ namespace VCSnonideal {
 		++m_numRxnMinorZeroed;
 		allMinorZeroedSpecies = (m_numRxnMinorZeroed == m_numRxnRdc);
 
-		for (int kk = 0; kk < m_numSpeciesTot; kk++) {
+		for (size_t kk = 0; kk < m_numSpeciesTot; kk++) {
 		  m_deltaMolNumSpecies[kk] = 0.0;
 		  m_molNumSpecies_new[kk] = m_molNumSpecies_old[kk];
 		}
@@ -2084,7 +2084,6 @@ namespace VCSnonideal {
   int VCS_SOLVE::delta_species(const size_t kspec, double * const delta_ptr) {
     size_t irxn = kspec - m_numComponents;
     int retn = 1;
-    int j;
     double tmp;
     double delta = *delta_ptr;
 #ifdef DEBUG_MODE
@@ -2101,7 +2100,7 @@ namespace VCSnonideal {
        */
       double dx = delta;
       double *sc_irxn = m_stoichCoeffRxnMatrix[irxn];
-      for (j = 0; j < m_numComponents; ++j) {
+      for (size_t j = 0; j < m_numComponents; ++j) {
 	if (m_molNumSpecies_old[j] > 0.0) {
 	  tmp = sc_irxn[j] * dx;
 	  if (-tmp > m_molNumSpecies_old[j]) {
@@ -2129,7 +2128,7 @@ namespace VCSnonideal {
       m_tPhaseMoles_old[iph] += dx;
       vcs_setFlagsVolPhase(iph, false, VCS_STATECALC_OLD);
       
-      for (j = 0; j < m_numComponents; ++j) {
+      for (size_t j = 0; j < m_numComponents; ++j) {
 	tmp = sc_irxn[j] * dx;
 	if (tmp != 0.0) {
 	  iph = m_phaseID[j];
@@ -2253,7 +2252,7 @@ namespace VCSnonideal {
     if (! m_SSPhase[klast]) {
       if (Vphase->exists() != VCS_PHASE_EXIST_ALWAYS) {
 	bool stillExists = false;
-	for (int k = 0; k < m_numSpeciesRdc; k++) {
+	for (size_t k = 0; k < m_numSpeciesRdc; k++) {
 	  if (m_speciesUnknownType[k] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	    if (m_phaseID[k] == iph) {
 	      if (m_molNumSpecies_old[k] > 0.0) {
@@ -2432,9 +2431,9 @@ namespace VCSnonideal {
 	}
       }
     }
-    int jcomp;
+
     double deltaLarge, dj, dxWant, dxPerm = 0.0, dxPerm2 = 0.0;
-    for (int kcomp = 0; kcomp < m_numComponents; ++kcomp) {
+    for (size_t kcomp = 0; kcomp < m_numComponents; ++kcomp) {
       if (m_phaseID[kcomp] == iph) {
 #ifdef DEBUG_MODE
 	if (m_debug_print_lvl >= 2) {
@@ -2452,7 +2451,7 @@ namespace VCSnonideal {
 		if (dxWant + m_molNumSpecies_old[kspec]  < 0.0) {
 		  dxPerm = -m_molNumSpecies_old[kspec];
 		}
-		for (jcomp = 0;  kcomp < m_numComponents; ++kcomp) {
+		for (size_t jcomp = 0;  kcomp < m_numComponents; ++kcomp) {
 		  if (jcomp != kcomp) {
 		    if (m_phaseID[jcomp] == iph) {
 		      dxPerm = 0.0;
@@ -3190,7 +3189,7 @@ namespace VCSnonideal {
 	      if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 		maxConcPossKspec = 1.0E10;
 		nonZeroesKspec = 0;
-		for (int j = 0; j < m_numElemConstraints; ++j) {
+		for (size_t j = 0; j < m_numElemConstraints; ++j) {
 		  if (m_elementActive[j]) {
 		    if (m_elType[j] == VCS_ELEM_TYPE_ABSPOS) {
 		      double nu = m_formulaMatrix[j][kspec];
@@ -3642,7 +3641,7 @@ namespace VCSnonideal {
        *     which is so low that species will always be zero
        *
        */
-      for (int j = 0; j < m_numElemConstraints; ++j) {
+      for (size_t j = 0; j < m_numElemConstraints; ++j) {
 	int elType = m_elType[j];
 	if (elType == VCS_ELEM_TYPE_ABSPOS) {
 	  double atomComp = m_formulaMatrix[j][kspec];
@@ -3676,7 +3675,7 @@ namespace VCSnonideal {
        *        existence.
        */
       if (irxn >= 0) {
-	for (int j = 0; j < m_numComponents; ++j) {
+	for (size_t j = 0; j < m_numComponents; ++j) {
 	  double stoicC = m_stoichCoeffRxnMatrix[irxn][j];
 	  if (stoicC != 0.0) {
 	    double negChangeComp = - stoicC;
@@ -3798,7 +3797,7 @@ namespace VCSnonideal {
       return VCS_SPECIES_MAJOR;
     } else {
     double szAdj = m_scSize[irxn] * std::sqrt((double)m_numRxnTot);
-    for (int k = 0; k < m_numComponents; ++k) {
+    for (size_t k = 0; k < m_numComponents; ++k) {
       if (!(m_SSPhase[k])) {
 	if (m_stoichCoeffRxnMatrix[irxn][k] != 0.0) {
 	  if (m_molNumSpecies_old[kspec] * szAdj >= m_molNumSpecies_old[k] * 0.01) {
@@ -4437,19 +4436,18 @@ namespace VCSnonideal {
    *  Reconciles Phase existence flags with total moles in each phase.
    */
   double VCS_SOLVE::vcs_tmoles() {
-    int i;
     double sum;
     vcs_VolPhase *Vphase;
-    for (i = 0; i < m_numPhases; i++) {
+    for (size_t i = 0; i < m_numPhases; i++) {
       m_tPhaseMoles_old[i] = TPhInertMoles[i];
     }
-    for (i = 0; i < m_numSpeciesTot; i++) {
+    for (size_t i = 0; i < m_numSpeciesTot; i++) {
       if (m_speciesUnknownType[i] == VCS_SPECIES_TYPE_MOLNUM) {
 	m_tPhaseMoles_old[m_phaseID[i]] += m_molNumSpecies_old[i];
       }
     }
     sum = 0.0;
-    for (i = 0; i < m_numPhases; i++) {
+    for (size_t i = 0; i < m_numPhases; i++) {
       sum += m_tPhaseMoles_old[i];
       Vphase = m_VolPhaseList[i];
       // Took out because we aren't updating mole fractions in Vphase
@@ -4471,7 +4469,7 @@ namespace VCSnonideal {
     for (i = 0; i < m_numPhases; i++) {
       double m_tPhaseMoles_old_a = TPhInertMoles[i];
     
-      for (int k = 0; k < m_numSpeciesTot; k++) {
+      for (size_t k = 0; k < m_numSpeciesTot; k++) {
 	if (m_speciesUnknownType[k] == VCS_SPECIES_TYPE_MOLNUM) {
 	  if (m_phaseID[k] == i) {
 	    m_tPhaseMoles_old_a += m_molNumSpecies_old[k];
@@ -4499,7 +4497,7 @@ namespace VCSnonideal {
    */
   void VCS_SOLVE::vcs_updateVP(const int vcsState) {
     vcs_VolPhase *Vphase;
-    for (int i = 0; i < m_numPhases; i++) {
+    for (size_t i = 0; i < m_numPhases; i++) {
       Vphase = m_VolPhaseList[i];
       if (vcsState == VCS_STATECALC_OLD) {
 	Vphase->setMolesFromVCSCheck(VCS_STATECALC_OLD, 
@@ -4570,7 +4568,6 @@ namespace VCSnonideal {
    *
    */
   bool VCS_SOLVE::vcs_evaluate_speciesType() {
-    int kspec;
     bool allMinorZeroedSpecies;
   
     m_numRxnMinorZeroed = 0;
@@ -4582,7 +4579,7 @@ namespace VCSnonideal {
       plogendl();
     }
 #endif
-    for (kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
+    for (size_t kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
       m_speciesStatus[kspec] = vcs_species_type(kspec);
 #ifdef DEBUG_MODE
       if (m_debug_print_lvl >= 5) {
@@ -4864,7 +4861,6 @@ namespace VCSnonideal {
      *         This can probably be solved by successive iteration.
      *         This should be implemented.
      */
-    int k;
     //alterZeroedPhases = false;
     if (alterZeroedPhases  && false) {
       for (iph = 0; iph < m_numPhases; iph++) {
@@ -4872,7 +4868,7 @@ namespace VCSnonideal {
 	vcs_VolPhase *Vphase = m_VolPhaseList[iph];
 	if (! Vphase->m_singleSpecies) {
 	  double sum = 0.0;
-	  for (k = 0; k < Vphase->nSpecies(); k++) {
+	  for (size_t k = 0; k < Vphase->nSpecies(); k++) {
 	    kspec = Vphase->spGlobalIndexVCS(k);
 	    if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	      sum += molNumSpecies[kspec];
@@ -4886,7 +4882,7 @@ namespace VCSnonideal {
       
 	if (lneed) {
 	  double poly = 0.0;
-	  for (k = 0; k < Vphase->nSpecies(); k++) {
+	  for (size_t k = 0; k < Vphase->nSpecies(); k++) {
 	    kspec = Vphase->spGlobalIndexVCS(k);
 	    // We may need to look at deltaGRxn for components!
 	    if (kspec >= m_numComponents) {
@@ -4901,7 +4897,7 @@ namespace VCSnonideal {
 	   *      All of the m_deltaGRxn_new[]'s will be equal. If deltaGRxn[] is 
 	   *      negative, then the phase will come back into existence.
 	   */
-	  for (k = 0; k < Vphase->nSpecies(); k++) {
+	  for (size_t k = 0; k < Vphase->nSpecies(); k++) {
 	    kspec = Vphase->spGlobalIndexVCS(k);
 	    if (kspec >= m_numComponents) {
 	      irxn = kspec - m_numComponents;
@@ -5302,15 +5298,14 @@ namespace VCSnonideal {
   /*******************************************************************************/
 
   void VCS_SOLVE::vcs_setFlagsVolPhases(const bool upToDate, const int stateCalc) {
-    int iph;
     vcs_VolPhase *Vphase;
     if (!upToDate) {
-      for (iph = 0; iph < m_numPhases; iph++) {
+      for (size_t iph = 0; iph < m_numPhases; iph++) {
 	Vphase = m_VolPhaseList[iph];
 	Vphase->setMolesOutOfDate(stateCalc);
       }
     } else {
-      for (iph = 0; iph < m_numPhases; iph++) {
+      for (size_t iph = 0; iph < m_numPhases; iph++) {
 	Vphase = m_VolPhaseList[iph]; 
 	Vphase->setMolesCurrent(stateCalc);
       } 
@@ -5338,9 +5333,8 @@ namespace VCSnonideal {
    *         VCS_STATECALC_OLD).
    */
   void VCS_SOLVE::vcs_updateMolNumVolPhases(const int stateCalc) {
-    int iph;
     vcs_VolPhase *Vphase;
-    for (iph = 0; iph < m_numPhases; iph++) {
+    for (size_t iph = 0; iph < m_numPhases; iph++) {
       Vphase = m_VolPhaseList[iph];  
       Vphase->updateFromVCS_MoleNumbers(stateCalc);
     }

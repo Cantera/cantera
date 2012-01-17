@@ -73,7 +73,7 @@ namespace VCSnonideal {
    *   Destructor for the VolPhase object.
    */
   vcs_VolPhase::~vcs_VolPhase() {
-    for (int k = 0; k < m_numSpecies; k++) {
+    for (size_t k = 0; k < m_numSpecies; k++) {
       vcs_SpeciesProperties *sp = ListSpeciesPtr[k];
       delete sp;
       sp = 0;
@@ -164,7 +164,7 @@ namespace VCSnonideal {
   
       m_formulaMatrix.resize(m_numElemConstraints, m_numSpecies, 0.0);
       for (size_t e = 0; e < m_numElemConstraints; e++) {
-	for (int k = 0; k < m_numSpecies; k++) {
+	for (size_t k = 0; k < m_numSpecies; k++) {
 	  m_formulaMatrix[e][k] = b.m_formulaMatrix[e][k];
 	}
       }
@@ -292,7 +292,7 @@ namespace VCSnonideal {
     IndSpecies.resize(nspecies, -1);
 
     if ((int) ListSpeciesPtr.size() >= m_numSpecies) {
-      for (int i = 0; i < m_numSpecies; i++) {
+      for (size_t i = 0; i < m_numSpecies; i++) {
 	if (ListSpeciesPtr[i]) {
 	  delete ListSpeciesPtr[i]; 
 	  ListSpeciesPtr[i] = 0;
@@ -306,7 +306,7 @@ namespace VCSnonideal {
 
     Xmol.resize(nspecies, 0.0);
     fractionCreationDelta_.resize(nspecies, 0.0);
-    for (int i = 0; i < nspecies; i++) {
+    for (size_t i = 0; i < nspecies; i++) {
       Xmol[i] = 1.0/nspecies;
       fractionCreationDelta_[i] = 1.0/nspecies;
     }
@@ -473,12 +473,12 @@ namespace VCSnonideal {
    */
   void vcs_VolPhase::setMoleFractions(const double * const xmol) {
     double sum = -1.0;
-    for (int k = 0; k < m_numSpecies; k++) {
+    for (size_t k = 0; k < m_numSpecies; k++) {
       Xmol[k] = xmol[k];
       sum+= xmol[k];
     }
     if (std::fabs(sum) > 1.0E-13) {
-      for (int k = 0; k < m_numSpecies; k++) {
+      for (size_t k = 0; k < m_numSpecies; k++) {
 	Xmol[k] /= sum;
       }
     }
@@ -544,7 +544,7 @@ namespace VCSnonideal {
     }
     v_totalMoles = totalMoles;
     double sum = 0.0;
-    for (int k = 0; k < m_numSpecies; k++) {
+    for (size_t k = 0; k < m_numSpecies; k++) {
       Xmol[k] = moleFractions[k];
       sum += moleFractions[k];
     }
@@ -553,7 +553,7 @@ namespace VCSnonideal {
       exit(EXIT_FAILURE);
     }
     if (sum  != 1.0) {
-      for (int k = 0; k < m_numSpecies; k++) {
+      for (size_t k = 0; k < m_numSpecies; k++) {
 	Xmol[k] /= sum;
       }
     }
@@ -803,7 +803,7 @@ namespace VCSnonideal {
     if (!m_UpToDate_GStar) {
       _updateGStar();
     }
-    for (int k = 0; k < m_numSpecies; k++) {
+    for (size_t k = 0; k < m_numSpecies; k++) {
       size_t kglob = IndSpecies[k];
       gstar[kglob] = StarChemicalPotential[k];
     }
@@ -967,7 +967,6 @@ namespace VCSnonideal {
    *
    */
   void vcs_VolPhase::_updateLnActCoeffJac() {
-    int k, j;
     double deltaMoles_j = 0.0;
  
     /*
@@ -985,7 +984,7 @@ namespace VCSnonideal {
     /*
      *  Loop over the columns species to be deltad
      */
-    for (j = 0; j < m_numSpecies; j++) {
+    for (size_t j = 0; j < m_numSpecies; j++) {
       /*
        * Calculate a value for the delta moles of species j
        * -> NOte Xmol[] and Tmoles are always positive or zero
@@ -998,7 +997,7 @@ namespace VCSnonideal {
        * mole fractions based on this.
        */
       v_totalMoles = TMoles_base + deltaMoles_j;      
-      for (k = 0; k < m_numSpecies; k++) {
+      for (size_t k = 0; k < m_numSpecies; k++) {
 	Xmol[k] = Xmol_Base[k] * TMoles_base / v_totalMoles;
       }
       Xmol[j] = (moles_j_base + deltaMoles_j) / v_totalMoles;
@@ -1013,7 +1012,7 @@ namespace VCSnonideal {
        * Calculate the column of the matrix
        */
       double * const lnActCoeffCol = dLnActCoeffdMolNumber[j];
-      for (k = 0; k < m_numSpecies; k++) {
+      for (size_t k = 0; k < m_numSpecies; k++) {
 	lnActCoeffCol[k] = (ActCoeff[k] - ActCoeff_Base[k]) /
 	  ((ActCoeff[k] + ActCoeff_Base[k]) * 0.5 * deltaMoles_j);
       }
@@ -1150,7 +1149,7 @@ namespace VCSnonideal {
   /***************************************************************************/
 
   void vcs_VolPhase::setFractionCreationDeltas(const double * const F_k) {
-    for (int k = 0; k < m_numSpecies; k++) {
+    for (size_t k = 0; k < m_numSpecies; k++) {
       fractionCreationDelta_[k] = F_k[k];
     }
   }
