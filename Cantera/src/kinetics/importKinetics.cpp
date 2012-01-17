@@ -1107,7 +1107,7 @@ namespace Cantera {
 
 	  // if no phase with this id has been added to 
 	  //the kinetics manager yet, then add this one
-	  if (kin.phaseIndex(phase_id) < 0) {
+	  if (kin.phaseIndex(phase_id) == -1) {
 	    kin.addPhase(*th[m]);
 	  }
 	}

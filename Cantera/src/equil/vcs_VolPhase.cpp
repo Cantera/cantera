@@ -1569,7 +1569,7 @@ namespace VCSnonideal {
 	fm[e][k] = tPhase->nAtoms(k, eT);
 	e++;
       }
-      if (eFound >= 0) {
+      if (eFound != -2) {
 	fm[eFound][k] = - tPhase->charge(k);
       }
     }

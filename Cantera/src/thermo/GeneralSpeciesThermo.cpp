@@ -114,7 +114,7 @@ namespace Cantera {
 	 * Resize the arrays if necessary, filling the empty
 	 * slots with the zero pointer.
 	 */
-	if (index > m_kk - 1) {
+	if (index >= m_kk) {
 	  m_sp.resize(index+1, 0);
           m_kk = index+1;
 	}
@@ -188,7 +188,7 @@ namespace Cantera {
 			 "zero pointer");
     }
     size_t index = stit_ptr->speciesIndex();
-    if (index > m_kk - 1) {
+    if (index >= m_kk) {
       m_sp.resize(index+1, 0);
       m_kk = index+1;
     }

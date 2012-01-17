@@ -9,7 +9,7 @@
 #include <vector>
 
 namespace VCSnonideal {
-
+    using std::size_t;
 //!  A class for 2D int arrays storred in column-major
 //!  (Fortran-compatible) form.
 /*!
