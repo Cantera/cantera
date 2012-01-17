@@ -1,2 +1,2 @@
-SUBDIRS                 = tpx math cvode lapack
+SUBDIRS                 = tpx math cvode lapack blas
 
