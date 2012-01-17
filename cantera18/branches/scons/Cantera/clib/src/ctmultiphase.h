@@ -42,7 +42,7 @@ extern "C" {
 					int maxiter, int loglevel);
   EEXXTT int DLL_CPREFIX mix_getChemPotentials(int i, size_t lenmu, double* mu);
   EEXXTT int DLL_CPREFIX mix_getValidChemPotentials(int i, double bad_mu, 
-					    int standard, int lenmu, double* mu);
+					    int standard, size_t lenmu, double* mu);
 
   EEXXTT double DLL_CPREFIX mix_enthalpy(int i);
   EEXXTT double DLL_CPREFIX mix_entropy(int i);

@@ -36,7 +36,7 @@ extern "C" {
     EEXXTT int DLL_CPREFIX xml_addChildNode(int i, int j);
     EEXXTT int DLL_CPREFIX xml_write(int i, const char* file);
     EEXXTT int DLL_CPREFIX xml_removeChild(int i, int j);
-    EEXXTT int DLL_CPREFIX ctml_getFloatArray(int i, int n, double* data, int iconvert=0);
+    EEXXTT int DLL_CPREFIX ctml_getFloatArray(int i, size_t n, double* data, int iconvert=0);
 }
 
 #endif

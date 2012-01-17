@@ -230,7 +230,7 @@ extern "C" {
             ThermoPhase* p = ph(n);
             compositionMap xx;
             size_t nsp = p->nSpecies();
-            for (int n = 0; n < nsp; n++) {
+            for (size_t n = 0; n < nsp; n++) {
                 xx[p->speciesName(n)] = -1;
             }
             parseCompString(string(x), xx);
@@ -258,7 +258,7 @@ extern "C" {
             ThermoPhase* p = ph(n);
             compositionMap yy;
             size_t nsp = p->nSpecies();
-            for (int n = 0; n < nsp; n++) {
+            for (size_t n = 0; n < nsp; n++) {
                 yy[p->speciesName(n)] = -1;
             }
             parseCompString(string(y), yy);
@@ -306,7 +306,7 @@ extern "C" {
         return 0;
     }
 
-    int DLL_EXPORT phase_getSpeciesName(int n, size_t k, int lennm, char* nm) {
+    int DLL_EXPORT phase_getSpeciesName(int n, size_t k, size_t lennm, char* nm) {
         try {
             string spnm = ph(n)->speciesName(k);
             size_t lout = min(lennm, spnm.size());
@@ -318,7 +318,7 @@ extern "C" {
         //catch (...) {return ERR;}
     }
 
-    int DLL_EXPORT phase_getElementName(int n, size_t m, int lennm, char* nm) {
+    int DLL_EXPORT phase_getElementName(int n, size_t m, size_t lennm, char* nm) {
         try {
             string elnm = ph(n)->elementName(m);
             size_t lout = min(lennm, elnm.size());
@@ -909,7 +909,7 @@ extern "C" {
     }
 
 
-    int DLL_EXPORT kin_getDeltaEntropy(int n, int len, double* deltaS) {
+    int DLL_EXPORT kin_getDeltaEntropy(int n, size_t len, double* deltaS) {
         try {
             Kinetics* k = kin(n);
             if (len >= k->nReactions()) {
@@ -968,7 +968,7 @@ extern "C" {
             Kinetics* k = kin(n);
             ThermoPhase* p = &k->thermo();
             const vector_fp& mw = p->molecularWeights();
-            int nsp = static_cast<int>(mw.size());
+            size_t nsp = mw.size();
             double rrho = 1.0/p->density();
             if (len >= nsp) {            
                 k->getNetProductionRates(ydot);

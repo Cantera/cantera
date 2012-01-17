@@ -247,7 +247,7 @@ extern "C" {
         return 0;
     }
 
-    int DLL_EXPORT ctml_getFloatArray(int i, int n, doublereal* data, int iconvert) {
+    int DLL_EXPORT ctml_getFloatArray(int i, size_t n, doublereal* data, int iconvert) {
         try {
             XML_Node& node = *_xml(i);
             vector_fp v;
@@ -262,7 +262,7 @@ extern "C" {
                     "array must be dimensioned at least "+int2str(int(nv)));
             }
             
-            for (int i = 0; i < nv; i++) {
+            for (size_t i = 0; i < nv; i++) {
                 data[i] = v[i];
             }
         }
