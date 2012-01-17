@@ -699,13 +699,13 @@ namespace mdp {
    *
    *  @param tmp number to be checked
    */
-  extern void checkZeroFinite(const double tmp) throw(std::range_error);
+  extern void checkZeroFinite(const double tmp);
 
   //! Utility routine to check to see that a number is finite.
   /*!
    *  @param tmp number to be checked
    */
-  extern void checkFinite(const double tmp) throw(std::range_error);
+  extern void checkFinite(const double tmp);
   
   //! Utility routine to link checkFinte() to fortran program
   /*!
@@ -725,8 +725,7 @@ namespace mdp {
    * @param tmp     Number to be checked
    * @param trigger bounds on the number. Defaults to 1.0E20
    */
-  extern void checkMagnitude(const double tmp, const double trigger = 1.0E20)
-      throw(std::range_error);
+  extern void checkMagnitude(const double tmp, const double trigger = 1.0E20);
 
 }  /* end of mdp namespace */
 /****************************************************************************/
