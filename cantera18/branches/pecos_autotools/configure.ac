@@ -61,6 +61,7 @@ AC_OUTPUT(Makefile examples/Makefile                                       \
 		   ext/Makefile                                            \
 		   ext/tpx/Makefile                                        \
 		   ext/math/Makefile                                       \
+		   ext/blas/Makefile                                       \
 		   ext/cvode/Makefile                                      \
 		   ext/lapack/Makefile                                     \
 		   Cantera/Makefile                                        \
