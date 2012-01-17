@@ -48,7 +48,7 @@ namespace CanteraZeroD {
         // coverages on the walls
         size_t loc = m_nsp + 2;
         SurfPhase* surf;
-        for (int m = 0; m < m_nwalls; m++) {
+        for (size_t m = 0; m < m_nwalls; m++) {
             surf = m_wall[m]->surface(m_lr[m]);
             if (surf) {
                 m_wall[m]->getCoverages(m_lr[m], y + loc);
@@ -61,7 +61,7 @@ namespace CanteraZeroD {
         m_thermo->restoreState(m_state);
         m_sdot.resize(m_nsp, 0.0);
         m_nv = m_nsp + 2;
-        for (int w = 0; w < m_nwalls; w++)
+        for (size_t w = 0; w < m_nwalls; w++)
             if (m_wall[w]->surface(m_lr[w]))
                 m_nv += m_wall[w]->surface(m_lr[w])->nSpecies();
         m_enthalpy = m_thermo->enthalpy_mass();
@@ -106,7 +106,7 @@ namespace CanteraZeroD {
 
         size_t loc = m_nsp + 2;
         SurfPhase* surf;
-        for (int m = 0; m < m_nwalls; m++) {
+        for (size_t m = 0; m < m_nwalls; m++) {
             surf = m_wall[m]->surface(m_lr[m]);
             if (surf) {
                 m_wall[m]->setCoverages(m_lr[m], y+loc);

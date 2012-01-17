@@ -130,8 +130,8 @@ namespace CanteraZeroD {
             else
                 return m_pright.size();
         }
-        void addSensitivityReaction(int leftright, int rxn);
-        std::string sensitivityParamID(int leftright, int p) { 
+        void addSensitivityReaction(int leftright, size_t rxn);
+        std::string sensitivityParamID(int leftright, size_t p) {
             if (leftright == 0)
                 return m_pname_left[p]; 
             else 
