@@ -27,9 +27,9 @@ namespace Cantera {
      * not in the old one are set to zero. The new solution is created
      * with the same number of grid points as in the old solution.
      */ 
-    void importSolution(int points,  
+    void importSolution(size_t points,
         doublereal* oldSoln, igthermo_t& oldmech,
-        int size_new, doublereal* newSoln, igthermo_t& newmech) {
+        size_t size_new, doublereal* newSoln, igthermo_t& newmech) {
         
         // Number of components in old and new solutions
         size_t nv_old = oldmech.nSpecies() + 4;
@@ -157,8 +157,7 @@ namespace Cantera {
         vmax[3] = 1.e20;
 
         // mass fraction bounds
-        int k;
-        for (k = 0; k < m_nsp; k++) {
+        for (size_t k = 0; k < m_nsp; k++) {
             vmin[4+k] = -1.0e-5;
             vmax[4+k] = 1.0e5;
         }
@@ -178,7 +177,7 @@ namespace Cantera {
         m_refiner->setActive(3, false);
 
         vector_fp gr;
-        for (int ng = 0; ng < m_points; ng++) gr.push_back(1.0*ng/m_points);
+        for (size_t ng = 0; ng < m_points; ng++) gr.push_back(1.0*ng/m_points);
         setupGrid(m_points, DATA_PTR(gr));
         setID("stagnation flow");
     }
@@ -989,7 +988,7 @@ namespace Cantera {
         else if (name=="T") {return 2;}
         else if (name=="lambda") {return 3;}
         else {
-            for (int n=4;n<m_nsp+4;n++){
+            for (size_t n=4;n<m_nsp+4;n++){
                 if(componentName(n)==name){
                     return n;
                 }	
@@ -1022,7 +1021,7 @@ namespace Cantera {
 
         vector<XML_Node*> d;
         dom.child("grid_data").getChildren("floatArray",d);
-        int nd = static_cast<int>(d.size());
+        size_t nd = d.size();
 
         vector_fp x;
         size_t n, np = 0, j, ks, k;
@@ -1074,7 +1073,7 @@ namespace Cantera {
             }
             else if (nm == "T") {
                 writelog("temperature   ");
-                if ((int) x.size() == np) {
+                if (x.size() == np) {
                     for (j = 0; j < np; j++)
                         soln[index(2,j)] = x[j];
 
@@ -1084,7 +1083,7 @@ namespace Cantera {
                     // *after* restoring the solution.
 
                     vector_fp zz(np);
-                    for (int jj = 0; jj < np; jj++) 
+                    for (size_t jj = 0; jj < np; jj++)
                         zz[jj] = (grid(jj) - zmin())/(zmax() - zmin());
                     setFixedTempProfile(zz, x);
                 }
@@ -1092,7 +1091,7 @@ namespace Cantera {
             }
             else if (nm == "L") {
                 writelog("lambda   ");
-                if ((int) x.size() == np) {
+                if (x.size() == np) {
                     for (j = 0; j < np; j++)
                         soln[index(3,j)] = x[j];
                 }
@@ -1100,7 +1099,7 @@ namespace Cantera {
             }
             else if (m_thermo->speciesIndex(nm) >= 0) {
                 writelog(nm+"   ");
-                if ((int) x.size() == np) {
+                if (x.size() == np) {
                     k = m_thermo->speciesIndex(nm);
                     did_species[k] = 1;
                     for (j = 0; j < np; j++) 
@@ -1114,8 +1113,8 @@ namespace Cantera {
         if (ignored.size() != 0) {
             writelog("\n\n");
             writelog("Ignoring datasets:\n");
-            int nn = static_cast<int>(ignored.size());
-            for (int n = 0; n < nn; n++) {
+            size_t nn = ignored.size();
+            for (size_t n = 0; n < nn; n++) {
                 writelog(ignored[n]+"   ");
             }
         }

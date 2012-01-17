@@ -115,10 +115,9 @@ namespace Cantera {
         /// Write the initial solution estimate into
         /// array x.
         virtual void _getInitialSoln(doublereal* x) {
-            int k, j;
-            for (j = 0; j < m_points; j++) {
+            for (size_t j = 0; j < m_points; j++) {
                 x[index(2,j)] = T_fixed(j);
-                for (k = 0; k < m_nsp; k++) {
+                for (size_t k = 0; k < m_nsp; k++) {
                     x[index(4+k,j)] = Y_fixed(k,j);
                 }
             }
@@ -183,7 +182,7 @@ namespace Cantera {
 
         void solveEnergyEqn(int j=-1) {
             if (j < 0)
-                for (int i = 0; i < m_points; i++)
+                for (size_t i = 0; i < m_points; i++)
                     m_do_energy[i] = true;
             else
                 m_do_energy[j] = true;
@@ -195,7 +194,7 @@ namespace Cantera {
 
         void fixTemperature(int j=-1) {
             if (j < 0)
-                for (int i = 0; i < m_points; i++) {
+                for (size_t i = 0; i < m_points; i++) {
                     m_do_energy[i] = false;
                 }
             else m_do_energy[j] = false;
@@ -210,7 +209,7 @@ namespace Cantera {
 
         void solveSpecies(int k=-1) {
             if (k == -1) {
-                for (int i = 0; i < m_nsp; i++)
+                for (size_t i = 0; i < m_nsp; i++)
                     m_do_species[i] = true;
             }
             else m_do_species[k] = true;
@@ -219,7 +218,7 @@ namespace Cantera {
 
         void fixSpecies(int k=-1) {
             if (k == -1) {
-                for (int i = 0; i < m_nsp; i++)
+                for (size_t i = 0; i < m_nsp; i++)
                     m_do_species[i] = false;
             }
             else m_do_species[k] = false;

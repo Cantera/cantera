@@ -131,7 +131,7 @@ namespace Cantera {
             writelog(buf);
             if (m_flow) {
                 writelog("    Mass Fractions: \n");
-                for (int k = 0; k < m_flow->phase().nSpecies(); k++) {
+                for (size_t k = 0; k < m_flow->phase().nSpecies(); k++) {
                     if (m_yin[k] != 0.0) {
                         sprintf(buf, "        %16s  %10.4g \n",
                             m_flow->phase().speciesName(k).c_str(), m_yin[k]);
@@ -387,7 +387,7 @@ namespace Cantera {
 
         virtual ~ReactingSurf1D(){}
 
-        virtual std::string componentName(int n) const;
+        virtual std::string componentName(size_t n) const;
 
         virtual void init();
 
@@ -412,7 +412,7 @@ namespace Cantera {
             sprintf(buf, "    Temperature: %10.4g K \n", x[0]);
             writelog(buf);
             writelog("    Coverages: \n");
-            for (int k = 0; k < m_nsp; k++) {
+            for (size_t k = 0; k < m_nsp; k++) {
                 sprintf(buf, "    %20s %10.4g \n", m_sphase->speciesName(k).c_str(),
                     x[k+1]);
                 writelog(buf);

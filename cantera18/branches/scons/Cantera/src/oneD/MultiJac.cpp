@@ -34,8 +34,7 @@ namespace Cantera {
     }
 
     void MultiJac::updateTransient(doublereal rdt, integer* mask) {
-        int n;
-        for (n = 0; n < m_size; n++) {
+        for (size_t n = 0; n < m_size; n++) {
             value(n,n) = m_ssdiag[n] - mask[n]*rdt;
         }
     }

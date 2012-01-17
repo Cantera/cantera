@@ -29,7 +29,7 @@ namespace Cantera {
 
     m_x.resize(size(), 0.0);
     m_xnew.resize(size(), 0.0);
-    for (int n = 0; n < m_nd; n++) {
+    for (size_t n = 0; n < m_nd; n++) {
       domain(n)._getInitialSoln(DATA_PTR(m_x) + start(n));
       domain(n).m_adiabatic=false;
     }
@@ -267,7 +267,7 @@ namespace Cantera {
 	  if (loglevel > 0) {
 	    writelog("    success.\n\n");
 	    writelog("Problem solved on [");
-	    for (int mm = 1; mm < nDomains(); mm+=2) {
+	    for (size_t mm = 1; mm < nDomains(); mm+=2) {
 	      writelog(int2str(int(domain(mm).nPoints())));
 	      if (mm + 2 < nDomains()) writelog(", ");
 	    }
@@ -531,8 +531,7 @@ namespace Cantera {
 
   //added by Karl Meredith
   void Sim1D::setAdiabaticFlame(void){
-    int n;
-    for (n = 0; n < m_nd; n++) {
+    for (size_t n = 0; n < m_nd; n++) {
       Domain1D& d = domain(n);
       d.m_adiabatic=true;
     }
@@ -550,7 +549,7 @@ namespace Cantera {
       r.setCriteria(ratio, slope, curve, prune);
     }
     else {
-      for (int n = 0; n < m_nd; n++) {
+      for (size_t n = 0; n < m_nd; n++) {
 	Refiner& r = domain(n).refiner();
 	r.setCriteria(ratio, slope, curve, prune);
       }                    
@@ -563,7 +562,7 @@ namespace Cantera {
       r.setMaxPoints(npoints);
     }
     else {
-      for (int n = 0; n < m_nd; n++) {
+      for (size_t n = 0; n < m_nd; n++) {
 	Refiner& r = domain(n).refiner();
 	r.setMaxPoints(npoints);
       }                    
