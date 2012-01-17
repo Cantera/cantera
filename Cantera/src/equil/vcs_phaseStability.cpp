@@ -441,15 +441,12 @@ namespace VCSnonideal {
     // Get the storred estimate for the composition of the phase if 
     // it gets created
     fracDelta_new = Vphase->fractionCreationDeltas();
-  
 
-    bool oneIsComponent = false;
     std::vector<size_t> componentList;
 
     for (k = 0; k < Vphase->nSpecies(); k++) {
       kspec = Vphase->spGlobalIndexVCS(k);
       if (kspec < m_numComponents) {
-	oneIsComponent = true;
         componentList.push_back(k);
       }
     }

@@ -945,8 +945,6 @@ namespace Cantera {
         doublereal sden, tmp;
         size_t kindexSP = 0;
         *label = 0;
-        size_t ispSpecial = 0;
-        size_t kspSpecial = 0;
         updateMFSolnSP(XMolSolnSP);
         for (isp = 0; isp < m_numSurfPhases; isp++) {
             nsp = m_nSpeciesSurfPhase[isp];
@@ -977,8 +975,6 @@ namespace Cantera {
                 if (tmp > inv_timeScale) {
                     inv_timeScale = tmp;
                     *label = int(kindexSP);
-                    ispSpecial = isp;
-                    kspSpecial = k;
                 }
             }
         }

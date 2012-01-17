@@ -192,8 +192,6 @@ namespace ckr {
     string s;
     vector<string> toks;
     string defaultDate="";
-    size_t nreg = 2;
-
     int nsp = static_cast<int>(names.size());
 
     // Comment string

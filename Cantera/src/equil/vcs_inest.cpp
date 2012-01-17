@@ -44,7 +44,6 @@ namespace VCSnonideal {
     int finished;
     size_t nspecies = m_numSpeciesTot;
     size_t nrxn = m_numRxnTot;
-    vcs_VolPhase *Vphase = 0;
  
     // double *molNum   = VCS_DATA_PTR(m_molNumSpecies_old);
     double TMolesMultiphase;
@@ -130,7 +129,6 @@ namespace VCSnonideal {
     vcs_dzero(VCS_DATA_PTR(m_deltaMolNumSpecies), nspecies);
     for (kspec = 0; kspec < nspecies; ++kspec) {
       iph = m_phaseID[kspec];
-      Vphase = m_VolPhaseList[iph];
       if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	if (m_molNumSpecies_old[kspec] <= 0.0) {
 	  /*
@@ -458,13 +456,11 @@ namespace VCSnonideal {
      */
     int rangeCheck  = vcs_elabcheck(1);
     if (!vcs_elabcheck(0)) {
-#ifdef DEBUG_MODE
-      if (m_debug_print_lvl >= 2) {
+      if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
 	plogf("%sInitial guess failed element abundances\n", pprefix);  
 	plogf("%sCall vcs_elcorr to attempt fix", pprefix);
         plogendl();
       }
-#endif
       vcs_elcorr(VCS_DATA_PTR(sm), VCS_DATA_PTR(aw));
       rangeCheck  = vcs_elabcheck(1);
       if (!vcs_elabcheck(0)) {
@@ -475,8 +471,7 @@ namespace VCSnonideal {
         plogendl();
 	retn = -1;
       } else {
-#ifdef DEBUG_MODE
-	if (m_debug_print_lvl >= 2) {
+	if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
 	  if (rangeCheck) {
 	    plogf("%sInitial guess now satisfies element abundances", pprefix);
             plogendl();
@@ -488,12 +483,10 @@ namespace VCSnonideal {
             plogendl();
 	  }
 	}
-#endif 
       }
     }
     else {
-#ifdef DEBUG_MODE
-      if (m_debug_print_lvl >= 2) {
+      if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
 	if (rangeCheck) {
 	  plogf("%sInitial guess satisfies element abundances", pprefix);
           plogendl();
@@ -505,7 +498,6 @@ namespace VCSnonideal {
           plogendl();
 	}
       }
-#endif
     } 
       
 #ifdef DEBUG_MODE

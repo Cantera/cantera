@@ -98,12 +98,11 @@ namespace VCSnonideal {
     bool allMinorZeroedSpecies = false, forced;
     size_t iph;
     double dx, xx, par;
-    size_t dofast, ll = 0, it1 = 0;
+    size_t dofast, it1 = 0;
     size_t lec, npb, iti, lnospec;
     int rangeErrorFound = 0;
     bool giveUpOnElemAbund = false;
     int finalElemAbundAttempts = 0;
-    bool MajorSpeciesHaveConverged = false;
     bool uptodate_minors = true;
     bool justDeletedMultiPhase = false;
     size_t usedZeroedSpecies; /* return flag from basopt indicating that
@@ -282,7 +281,6 @@ namespace VCSnonideal {
       goto L_RETURN_BLOCK;
     }
     it1 = 1;
-    MajorSpeciesHaveConverged = false;
 
     /*************************************************************************/
     /************** EVALUATE INITIAL SPECIES STATUS VECTOR *******************/
@@ -583,7 +581,6 @@ namespace VCSnonideal {
 	      }
 #endif
 	      m_speciesStatus[kspec] = VCS_SPECIES_MAJOR;
-	      MajorSpeciesHaveConverged = false;
 	      allMinorZeroedSpecies = false;
 	    } else {
 #ifdef DEBUG_MODE
@@ -939,14 +936,12 @@ namespace VCSnonideal {
     L_MAIN_LOOP_END_NO_PRINT: ;
 #endif
       if (doPhaseDeleteIph != -1) {
-#ifdef DEBUG_MODE
-	if (m_debug_print_lvl >= 2) {
+	if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
 	  plogf("   --- "); 
 	  plogf("%-12.12s Main Loop Special Case deleting phase with species: ",
 		m_speciesName[doPhaseDeleteKspec].c_str());
 	  plogendl();
 	}
-#endif
 	break;
       }
     }  /**************** END OF MAIN LOOP OVER FORMATION REACTIONS ************/
@@ -1579,12 +1574,6 @@ namespace VCSnonideal {
 	    }
 #endif
 	    /*
-	     *  Set MajorSpeciesHaveConverged to false to indicate that
-	     *  convergence amongst 
-	     *  major species has not been achieved
-	     */
-	    MajorSpeciesHaveConverged = false;
-	    /*
 	     *   Go back and do another iteration with variable ITI 
 	     */
 	    goto L_MAINLOOP_MM4_SPECIES;
@@ -1607,11 +1596,6 @@ namespace VCSnonideal {
       }
     }
 #endif
-    /*
-     *  Set MajorSpeciesHaveConverged to true to indicate
-     * that convergence amongst major species has been achieved
-     */
-    MajorSpeciesHaveConverged = true;
     /*************************************************************************/
     /*************** EQUILIBRIUM CHECK FOR MINOR SPECIES *********************/
     /*************************************************************************/
@@ -1823,7 +1807,6 @@ namespace VCSnonideal {
      *        If we have found something to add, recalculate everything 
      *        for minor species and go back to do a full iteration
      */
-    MajorSpeciesHaveConverged = true;
     vcs_setFlagsVolPhases(false, VCS_STATECALC_OLD);
     vcs_dfe(VCS_STATECALC_OLD, 1, 0, m_numSpeciesRdc);
     vcs_deltag(0, false, VCS_STATECALC_OLD);
@@ -1843,7 +1826,6 @@ namespace VCSnonideal {
        *        If we have found something to add, recalculate everything 
        *        for minor species and go back to do a full iteration
        */
-      MajorSpeciesHaveConverged = true;
       vcs_setFlagsVolPhases(false, VCS_STATECALC_OLD);
       vcs_dfe(VCS_STATECALC_OLD, 1, 0, m_numSpeciesRdc);
       vcs_deltag(0, false, VCS_STATECALC_OLD);
@@ -1859,7 +1841,6 @@ namespace VCSnonideal {
      */
     npb = vcs_add_all_deleted();
     if (npb > 0) {
-      MajorSpeciesHaveConverged = true;
       iti = 0;
 #ifdef DEBUG_MODE
       if (m_debug_print_lvl >= 1) {
@@ -2207,13 +2188,11 @@ namespace VCSnonideal {
      *     -> This zeroes w[kspec] and modifies m_tPhaseMoles_old[]
      */
     const int retn = vcs_zero_species(kspec);
-#ifdef DEBUG_MODE
-    if (! retn) {
+    if (DEBUG_MODE_ENABLED && !retn) {
       plogf("Failed to delete a species!");
       plogendl();
       exit(EXIT_FAILURE);
     }
-#endif
     /*
      *    Decrement the minor species counter if the current species is
      *    a minor species
@@ -2293,7 +2272,7 @@ namespace VCSnonideal {
    * This routine is responsible for the global data manipulation only.
    */
   void VCS_SOLVE::vcs_reinsert_deleted(size_t kspec) {
-    size_t i, k;
+    size_t k;
     // int irxn = kspec - m_numComponents;
     size_t iph = m_phaseID[kspec];
     double dx;
@@ -2334,7 +2313,6 @@ namespace VCSnonideal {
 	Vphase->setExistence(VCS_PHASE_EXIST_YES);
 	for (k = 0; k < m_numSpeciesTot; k++) {
 	  if (m_phaseID[k] == iph) {
-	    i = k - m_numComponents;
 	    if (m_speciesStatus[k] != VCS_SPECIES_DELETED) {
 	      m_speciesStatus[k] = VCS_SPECIES_MINOR;
 	    }
@@ -2432,7 +2410,7 @@ namespace VCSnonideal {
       }
     }
 
-    double deltaLarge, dj, dxWant, dxPerm = 0.0, dxPerm2 = 0.0;
+    double dj, dxWant, dxPerm = 0.0, dxPerm2 = 0.0;
     for (size_t kcomp = 0; kcomp < m_numComponents; ++kcomp) {
       if (m_phaseID[kcomp] == iph) {
 #ifdef DEBUG_MODE
@@ -2442,7 +2420,6 @@ namespace VCSnonideal {
 	}
 #endif
 	if (m_molNumSpecies_old[kcomp] != 0.0) {
-	  deltaLarge = 0.0;
 	  for (kspec = m_numComponents; kspec < m_numSpeciesRdc; ++kspec) {
 	    irxn = kspec - m_numComponents;
 	    if (m_phaseID[kspec] != iph) {

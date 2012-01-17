@@ -498,7 +498,7 @@ namespace Cantera {
    */
   double NonlinearSolver::boundStep(const double* const y, 
 				    const double* const step0, const int loglevel) {
-    int i, i_lower = -1, i_fbounds, ifbd = 0, i_fbd = 0;
+    int i, i_lower = -1, ifbd = 0, i_fbd = 0;
     double fbound = 1.0, f_bounds = 1.0, f_delta_bounds = 1.0;
     double ff, y_new, ff_alt;
     
@@ -552,7 +552,6 @@ namespace Cantera {
       }
       if (ff < f_delta_bounds) {
 	f_delta_bounds = ff;
-	i_fbounds = i;
 	i_fbd = ifbd;
       }
       f_delta_bounds = MIN(f_delta_bounds, ff);
@@ -741,7 +740,6 @@ namespace Cantera {
   {
     clockWC wc;
 
-    bool m_residCurrent = false;
     int m = 0;
     bool forceNewJac = false;
     double s1=1.e30;
@@ -791,12 +789,10 @@ namespace Cantera {
 	}
 	beuler_jac(jac, DATA_PTR(m_resid), time_curr, CJ,  DATA_PTR(y_curr), DATA_PTR(ydot_curr),
 		   num_newt_its);
-	m_residCurrent = true;
       } else {
 	if (loglevel > 1) {
 	  printf("\t\t\tSolving system with old jacobian\n");
 	}
-	m_residCurrent = false;
       }
       /*
        * Go get new scales

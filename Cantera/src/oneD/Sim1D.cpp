@@ -155,7 +155,7 @@ namespace Cantera {
     }
 
     vector<XML_Node*> xd;
-    size_t sz = 0, np, nv, m;
+    size_t sz = 0, np, m;
     for (m = 0; m < m_nd; m++) {
       XML_Node* d = f->findID(domain(m).id());
       if (!d) {
@@ -167,7 +167,6 @@ namespace Cantera {
 	const XML_Node& node = *d;
 	xd.push_back(d);
 	np = intValue(node["points"]);
-	nv = intValue(node["components"]);
 	sz += np*domain(m).nComponents();
       }
     } 
@@ -429,14 +428,13 @@ namespace Cantera {
     doublereal xmid;
     doublereal zfixed,interp_factor;
     doublereal z1 = 0.0, z2 = 0.0, t1,t2;
-    size_t strt, n, m, i;
+    size_t n, m, i;
     size_t m1 = 0;
     std::vector<size_t> dsize;
 
 
     for (n = 0; n < m_nd; n++) {
       bool addnewpt=false;
-      strt = znew.size();
       Domain1D& d = domain(n);
             
       size_t comp = d.nComponents();

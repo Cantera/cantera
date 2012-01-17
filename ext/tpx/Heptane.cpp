@@ -213,7 +213,6 @@ double Heptane::up() {
  *  see Reynolds eqn (16) section 2
  */
 double Heptane::sp() {
-    double Tinverse = 1.0/T;   
     double T2inverse = pow(T, -2);
     double T3inverse = pow(T, -3);
     double T4inverse = pow(T, -4);

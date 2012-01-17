@@ -926,7 +926,6 @@ namespace VCSnonideal {
 
     Cantera::ThermoPhase *tPhase = 0;
 
-    int iSurPhase = -1;
     bool gasPhase;
     int printLvl = vprob->m_printLvl;
 
@@ -939,7 +938,6 @@ namespace VCSnonideal {
       /*
        * Get the thermophase object - assume volume phase
        */
-      iSurPhase = -1;
       tPhase = &(mphase->phase(iphase));
       size_t nelem = tPhase->nElements();
     

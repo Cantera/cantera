@@ -499,7 +499,7 @@ namespace Cantera {
   void MargulesVPSSTP::getPartialMolarVolumes(doublereal* vbar) const {
 
     size_t iA, iB, delAK, delBK;
-    double XA, XB, XK, g0 , g1;
+    double XA, XB, g0 , g1;
     double T = temperature();
 
     /*
@@ -513,7 +513,6 @@ namespace Cantera {
     for (size_t iK = 0; iK < m_kk; iK++) {
       delAK = 0;
       delBK = 0;
-      XK = moleFractions_[iK];  
       for (size_t i = 0; i <  numBinaryInteractions_; i++) {
     
 	iA =  m_pSpecies_A_ij[i];    
@@ -652,16 +651,13 @@ namespace Cantera {
    */
     void MargulesVPSSTP::s_update_lnActCoeff() const {
     size_t iA, iB, iK, delAK, delBK;
-    double XA, XB, XK, g0 , g1;
+    double XA, XB, g0 , g1;
     double T = temperature();
     double RT = GasConstant*T;
 
     fvo_zero_dbl_1(lnActCoeff_Scaled_, m_kk);
     
     for ( iK = 0; iK < m_kk; iK++ ){
-
-      XK = moleFractions_[iK];  
-
       for (size_t i = 0; i <  numBinaryInteractions_; i++) {
     
 	iA =  m_pSpecies_A_ij[i];    
@@ -722,18 +718,14 @@ namespace Cantera {
    */
   void MargulesVPSSTP::s_update_dlnActCoeff_dT() const {
     size_t iA, iB, iK, delAK, delBK;
-    double XA, XB, XK, g0 , g1;
+    double XA, XB, g0 , g1;
     double T = temperature();
     double RTT = GasConstant*T*T;
 
     fvo_zero_dbl_1(dlnActCoeffdT_Scaled_, m_kk);
     
     for ( iK = 0; iK < m_kk; iK++ ){
-
-      XK = moleFractions_[iK];  
-
       for (size_t i = 0; i <  numBinaryInteractions_; i++) {
-    
 	iA =  m_pSpecies_A_ij[i];    
 	iB =  m_pSpecies_B_ij[i];
 	
@@ -796,7 +788,7 @@ namespace Cantera {
    */
   void MargulesVPSSTP::getdlnActCoeff(const doublereal dT, const doublereal * const dX, doublereal* dlnActCoeff) const {
     size_t iA, iB, iK, delAK, delBK;
-    double XA, XB, XK, g0 , g1, dXA, dXB;
+    double XA, XB, g0 , g1, dXA, dXB;
     double T = temperature();
     double RT = GasConstant*T;
 
@@ -804,10 +796,7 @@ namespace Cantera {
     s_update_dlnActCoeff_dT();
 
     for ( iK = 0; iK < m_kk; iK++ ){
-
-      XK = moleFractions_[iK];  
       dlnActCoeff[iK] = 0.0;
-
       for (size_t i = 0; i <  numBinaryInteractions_; i++) {
     
 	iA =  m_pSpecies_A_ij[i];    

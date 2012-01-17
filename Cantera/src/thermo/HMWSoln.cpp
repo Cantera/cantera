@@ -674,11 +674,9 @@ namespace Cantera {
       return L;
     }
     double xuse = xcation;
-    int kuse = kcation;
     double factor = 1;
     if (xanion < xcation) {
       xuse = xanion;
-      kuse = kanion;
       if (charge[kcation] != 1.0) {
 	factor = charge[kcation];
       }
@@ -2377,7 +2375,6 @@ namespace Cantera {
       printE = 0;
     }
 #endif
-    double wateract;
     std::string sni,  snj, snk; 
 
     /*
@@ -3376,7 +3373,6 @@ namespace Cantera {
     }
 #endif
     lnwateract = -(m_weightSolvent/1000.0) * molalitysumUncropped * osmotic_coef;
-    wateract = exp(lnwateract);
 
     /*
      * In Cantera, we define the activity coefficient of the solvent as
@@ -3391,6 +3387,7 @@ namespace Cantera {
     m_lnActCoeffMolal_Unscaled[0] = lnwateract - log(xx);
 #ifdef DEBUG_MODE
     if (m_debugCalc) {
+      double wateract = exp(lnwateract);
       printf(" Weight of Solvent = %16.7g\n", m_weightSolvent);
       printf(" molalitySumUncropped = %16.7g\n", molalitysumUncropped);
       printf(" ln_a_water=%10.6f a_water=%10.6f\n\n", 
@@ -3470,7 +3467,6 @@ namespace Cantera {
       exit(EXIT_FAILURE);
     }
 
-    double d_wateract_dT;
     std::string sni, snj, snk; 
 
     const double *molality  =  DATA_PTR(m_molalitiesCropped);
@@ -3516,7 +3512,7 @@ namespace Cantera {
     double *CMX_L    =  DATA_PTR(m_CMX_IJ_L);
 
     double x1, x2;
-    double Aphi, dFdT, zsqdFdT;
+    double dFdT, zsqdFdT;
     double sum1, sum2, sum3, sum4, sum5, term1;
     double sum_m_phi_minus_1, d_osmotic_coef_dT, d_lnwateract_dT;
 
@@ -3813,7 +3809,6 @@ namespace Cantera {
     // A_Debye_Huckel = 0.5107; <- This value is used to match GWB data
     //                             ( A * ln(10) = 1.17593)
     // Aphi = A_Debye_Huckel * 2.30258509 / 3.0;
-    Aphi = m_A_Debye / 3.0;
 
     double dA_DebyedT = dA_DebyedT_TP();
     double dAphidT = dA_DebyedT /3.0;
@@ -4253,7 +4248,6 @@ namespace Cantera {
     }
 #endif
     d_lnwateract_dT = -(m_weightSolvent/1000.0) * molalitysum * d_osmotic_coef_dT;
-    d_wateract_dT = exp(d_lnwateract_dT);
 
     /*
      * In Cantera, we define the activity coefficient of the solvent as
@@ -4267,6 +4261,7 @@ namespace Cantera {
     m_dlnActCoeffMolaldT_Unscaled[0] = d_lnwateract_dT;
 #ifdef DEBUG_MODE
     if (m_debugCalc) {
+      double d_wateract_dT = exp(d_lnwateract_dT);
       printf(" d_ln_a_water_dT = %10.6f d_a_water_dT=%10.6f\n\n", 
 	     d_lnwateract_dT, d_wateract_dT); 
     }
@@ -5224,7 +5219,6 @@ namespace Cantera {
       exit(EXIT_FAILURE);
     }
 
-    double d_wateract_dP;
     std::string sni, snj, snk; 
 
     const double *molality  =  DATA_PTR(m_molalitiesCropped);
@@ -5270,7 +5264,7 @@ namespace Cantera {
     double *CMX_P    =  DATA_PTR(m_CMX_IJ_P);
 
     double x1, x2;
-    double Aphi, dFdP, zsqdFdP;
+    double dFdP, zsqdFdP;
     double sum1, sum2, sum3, sum4, sum5, term1;
     double sum_m_phi_minus_1, d_osmotic_coef_dP, d_lnwateract_dP;
 
@@ -5571,7 +5565,6 @@ namespace Cantera {
     // A_Debye_Huckel = 0.5107; <- This value is used to match GWB data
     //                             ( A * ln(10) = 1.17593)
     // Aphi = A_Debye_Huckel * 2.30258509 / 3.0;
-    Aphi = m_A_Debye / 3.0;
 
     double dA_DebyedP = dA_DebyedP_TP(currTemp, currPres);
     double dAphidP = dA_DebyedP /3.0;
@@ -6018,7 +6011,7 @@ namespace Cantera {
     }
 #endif
     d_lnwateract_dP = -(m_weightSolvent/1000.0) * molalitysum * d_osmotic_coef_dP;
-    d_wateract_dP = exp(d_lnwateract_dP);
+
 
     /*
      * In Cantera, we define the activity coefficient of the solvent as
@@ -6032,6 +6025,7 @@ namespace Cantera {
     m_dlnActCoeffMolaldP_Unscaled[0] = d_lnwateract_dP;
 #ifdef DEBUG_MODE
     if (m_debugCalc) {
+      double d_wateract_dP = exp(d_lnwateract_dP);
       printf(" d_ln_a_water_dP = %10.6f d_a_water_dP=%10.6f\n\n", 
 	     d_lnwateract_dP, d_wateract_dP); 
     }

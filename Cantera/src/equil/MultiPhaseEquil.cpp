@@ -839,13 +839,11 @@ namespace Cantera {
     }
 
     doublereal MultiPhaseEquil::error() {
-        index_t j, ik, k;
         doublereal err, maxerr = 0.0;
 
         // examine every reaction
-        for (j = 0; j < m_nsp - m_nel; j++) {
-            ik = j + m_nel;
-            k = m_order[ik];
+        for (size_t j = 0; j < m_nsp - m_nel; j++) {
+            size_t ik = j + m_nel;
 
             // don't require formation reactions for solution species
             // present in trace amounts to be equilibrated

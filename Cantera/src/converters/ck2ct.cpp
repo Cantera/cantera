@@ -256,7 +256,6 @@ namespace pip {
         int nel = static_cast<int>(sp.elements.size());
         int m, num;
         string nm, str="";
-        doublereal charge = 0.0;
         for (m = 0; m < nel; m++) {
 	  /*
 	   * Copy the element name into the string, nm. Lower case the
@@ -276,10 +275,6 @@ namespace pip {
 	   */
 	  str += " "+nm+":"+int2str(num)+" ";
 
-          /* if the species contains the special element E (electron),
-           * then set the charge.
-           */
-          if (nm == "E") charge = -sp.elements[m].number;
         }
 
         fprintf(f,"    atoms = \"%s\",\n", str.c_str());

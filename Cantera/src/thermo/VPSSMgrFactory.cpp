@@ -268,15 +268,6 @@ namespace Cantera {
       vpss = newVPSSMgr(type, vp_ptr);
       return vpss;
     }
-
- 
-    // If it comes back as general, then there may be some unknown 
-    // parameterizations to the SpeciesThermo factory routine.
-    bool haveSomeUnknowns = true;
-    GeneralSpeciesThermo *ttmp = dynamic_cast<GeneralSpeciesThermo *>(spth);
-    if (ttmp == 0) {
-      haveSomeUnknowns = false;
-    }
  
     // Handle special cases based on the VPStandardState types
     if (vp_ptr->eosType() == cVPSS_IdealGas) {

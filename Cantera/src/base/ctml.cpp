@@ -482,7 +482,7 @@ namespace ctml {
     std::vector<XML_Node*> f;
     node.getChildren("integer",f);
     int n = static_cast<int>(f.size());
-    integer x, x0, x1;
+    integer x;
     std::string typ, title, vmin, vmax;
     for (int i = 0; i < n; i++) {
       const XML_Node& fi = *(f[i]);
@@ -491,9 +491,7 @@ namespace ctml {
       vmin = fi["min"];
       vmax = fi["max"];
       if (vmin != "")
-	x0 = atoi(vmin.c_str());
       if (fi["max"] != "")
-	x1 = atoi(vmax.c_str());
       v[title] = x;
     }
   }
