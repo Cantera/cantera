@@ -69,9 +69,9 @@ namespace Cantera {
 	    m_numTotalBulkSpecies += nsp;
 	    imatch = m_bulkPhases.size() - 1;
 	  } 
-	  pLocTmp[ip] = imatch;
+	  pLocTmp[ip] = int(imatch);
 	} else {
-	  pLocTmp[ip] = -n;
+	  pLocTmp[ip] = -int(n);
 	}
       }
       pLocVec.push_back(pLocTmp);

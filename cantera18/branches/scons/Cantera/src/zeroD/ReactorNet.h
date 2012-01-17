@@ -107,7 +107,7 @@ namespace CanteraZeroD {
     //-----------------------------------------------------
 
     // overloaded methods of class FuncEval
-    virtual int neq() { return m_nv; }
+    virtual size_t neq() { return m_nv; }
     virtual void eval(doublereal t, doublereal* y, 
 		      doublereal* ydot, doublereal* p);
     virtual void getInitialConditions(doublereal t0, size_t leny, 

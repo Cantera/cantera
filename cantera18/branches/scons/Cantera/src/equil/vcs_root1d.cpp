@@ -116,7 +116,7 @@ static void print_funcEval(FILE *fp, double xval, double fval, int its)
    * @endverbatim
    *
    */
-  int vcsUtil_root1d(double xmin, double xmax, int itmax,
+  int vcsUtil_root1d(double xmin, double xmax, size_t itmax,
 		     VCS_FUNC_PTR func, void *fptrPassthrough,
 		     double FuncTargVal, int varID,
 		     double *xbest, int printLvl) {

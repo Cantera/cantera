@@ -50,12 +50,12 @@ public:
   /**
    * Index of the phase that this species belongs to.
    */
-  int IndexPhase;
+  size_t IndexPhase;
     
   /**
    * Index of this species in the current phase.
    */
-  int IndexSpeciesPhase;
+  size_t IndexSpeciesPhase;
 
   /**
    * Pointer to the owning phase object.
@@ -167,7 +167,7 @@ public:
   /*
    * constructor and destructor
    */
-  VCS_SPECIES_THERMO(int indexPhase, int indexSpeciesPhase);
+  VCS_SPECIES_THERMO(size_t indexPhase, size_t indexSpeciesPhase);
   virtual ~VCS_SPECIES_THERMO();
 
   /*
@@ -194,7 +194,7 @@ public:
    * Output
    *    return value = standard state free energy in units of Kelvin.
    */
-  virtual double GStar_R_calc(int kspec, double TKelvin, double pres);
+  virtual double GStar_R_calc(size_t kspec, double TKelvin, double pres);
     
   /**
    *
@@ -209,7 +209,7 @@ public:
    * Output
    *    return value = standard state free energy in Kelvin.
    */
-  virtual double G0_R_calc(int kspec, double TKelvin);
+  virtual double G0_R_calc(size_t kspec, double TKelvin);
 
   /**
    * cpc_ts_VStar_calc:
@@ -225,7 +225,7 @@ public:
    *    return value = standard state volume in cm**3 per mol.
    *                   (if__=3)                     m**3 / kmol
    */
-  virtual double VolStar_calc(int kglob, double TKelvin, double Pres);
+  virtual double VolStar_calc(size_t kglob, double TKelvin, double Pres);
 
   /**
    *  This function evaluates the activity coefficient
@@ -244,7 +244,7 @@ public:
    * Output
    *    return value = activity coefficient for species kspec
    */
-  virtual double eval_ac(int kspec);
+  virtual double eval_ac(size_t kspec);
 
   /**
    *  Get the pointer to the vcs_VolPhase object for this species. 

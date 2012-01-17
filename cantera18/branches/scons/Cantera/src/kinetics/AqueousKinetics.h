@@ -89,11 +89,11 @@ namespace Cantera {
     virtual int ID() const { return cAqueousKinetics; }
     virtual int type() const { return cAqueousKinetics; }
 
-    virtual doublereal reactantStoichCoeff(int k, int i) const {
+    virtual doublereal reactantStoichCoeff(size_t k, size_t i) const {
       return m_rrxn[k][i];
     }
 
-    virtual doublereal productStoichCoeff(int k, int i) const {
+    virtual doublereal productStoichCoeff(size_t k, size_t i) const {
       return m_prxn[k][i];
     }
 
@@ -265,11 +265,11 @@ namespace Cantera {
      * their meaning are specific to the particular kinetics
      * manager.
      */
-    virtual int reactionType(int i) const {
+    virtual int reactionType(size_t i) const {
       return m_index[i].first;
     }
 
-    virtual std::string reactionString(int i) const {
+    virtual std::string reactionString(size_t i) const {
       return m_rxneqn[i];
     }
 
@@ -278,7 +278,7 @@ namespace Cantera {
      * isReversible(i) is false, then the reverse rate of progress
      * for reaction i is always zero.
      */
-    virtual bool isReversible(int i) {
+    virtual bool isReversible(size_t i) {
       if (std::find(m_revindex.begin(), m_revindex.end(), i)
 	  < m_revindex.end()) return true;
       else return false;
@@ -323,9 +323,9 @@ namespace Cantera {
     void updateROP();
 
 
-    const std::vector<grouplist_t>& reactantGroups(int i)
+    const std::vector<grouplist_t>& reactantGroups(size_t i)
     { return m_rgroups[i]; }
-    const std::vector<grouplist_t>& productGroups(int i)
+    const std::vector<grouplist_t>& productGroups(size_t i)
     { return m_pgroups[i]; }
 
 
@@ -340,9 +340,9 @@ namespace Cantera {
   
     Rate1<Arrhenius>                    m_rates;
 
-    mutable std::map<int, std::pair<int, int> >   m_index;
+    mutable std::map<size_t, std::pair<int, size_t> >   m_index;
 
-    std::vector<int> m_irrev;
+    std::vector<size_t> m_irrev;
 
     ReactionStoichMgr*                   m_rxnstoich;
 
@@ -351,13 +351,13 @@ namespace Cantera {
     int m_nirrev;
     int m_nrev;
 
-    std::map<int, std::vector<grouplist_t> >      m_rgroups;
-    std::map<int, std::vector<grouplist_t> >      m_pgroups;
+    std::map<size_t, std::vector<grouplist_t> > m_rgroups;
+    std::map<size_t, std::vector<grouplist_t> > m_pgroups;
 
     std::vector<int>                         m_rxntype;
 
-    mutable std::vector<std::map<int, doublereal> >     m_rrxn;
-    mutable std::vector<std::map<int, doublereal> >     m_prxn;
+    mutable std::vector<std::map<size_t, doublereal> >     m_rrxn;
+    mutable std::vector<std::map<size_t, doublereal> >     m_prxn;
 
     /**
      * Difference between the input global reactants order
@@ -366,7 +366,7 @@ namespace Cantera {
      * stoichiometries.
      */
     array_fp  m_dn;
-    array_int m_revindex;
+    std::vector<size_t> m_revindex;
 
     std::vector<std::string> m_rxneqn;
 
@@ -390,8 +390,8 @@ namespace Cantera {
 		       const std::vector<grouplist_t>& p);
     void updateKc();
 
-    void registerReaction(int rxnNumber, int type, int loc) {
-      m_index[rxnNumber] = std::pair<int, int>(type, loc);
+    void registerReaction(size_t rxnNumber, int type, size_t loc) {
+      m_index[rxnNumber] = std::pair<int, size_t>(type, loc);
     }
     bool m_finalized;
   };

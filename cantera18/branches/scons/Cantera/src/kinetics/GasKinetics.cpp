@@ -96,7 +96,6 @@ namespace Cantera {
      * Update the equilibrium constants in molar units.
      */
     void GasKinetics::updateKc() {
-        int i, irxn;
         vector_fp& m_rkc = m_kdata->m_rkcn;
         
         thermo().getStandardChemPotentials(&m_grt[0]);
@@ -107,12 +106,12 @@ namespace Cantera {
  
         doublereal logStandConc = m_kdata->m_logStandConc;
         doublereal rrt = 1.0/(GasConstant * thermo().temperature());
-        for (i = 0; i < m_nrev; i++) {
-            irxn = m_revindex[i];
+        for (size_t i = 0; i < m_nrev; i++) {
+          size_t irxn = m_revindex[i];
             m_rkc[irxn] = exp(m_rkc[irxn]*rrt - m_dn[irxn]*logStandConc);
         }
 
-        for(i = 0; i != m_nirrev; ++i) {
+        for(size_t i = 0; i != m_nirrev; ++i) {
             m_rkc[ m_irrev[i] ] = 0.0;
         }
     }
@@ -622,10 +621,10 @@ namespace Cantera {
     }
 
 
-    void GasKinetics::installGroups(int irxn, 
+    void GasKinetics::installGroups(size_t irxn,
         const vector<grouplist_t>& r, const vector<grouplist_t>& p) {
         if (!r.empty()) {
-            writelog("installing groups for reaction "+int2str(reactionNumber()));
+            writelog("installing groups for reaction "+int2str(int(reactionNumber())));
             m_rgroups[reactionNumber()] = r;
             m_pgroups[reactionNumber()] = p;
         }

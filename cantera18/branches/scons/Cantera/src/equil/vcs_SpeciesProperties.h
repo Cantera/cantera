@@ -13,10 +13,10 @@ class vcs_VolPhase;
 class vcs_SpeciesProperties {
 
 public:
-  int    IndexPhase;
-  int    IndexSpeciesPhase; 
+  size_t    IndexPhase;
+  size_t    IndexSpeciesPhase;
   vcs_VolPhase *OwningPhase;
-  int    NumElements;
+  size_t    NumElements;
 
   //! Name of the species
   std::string SpName;

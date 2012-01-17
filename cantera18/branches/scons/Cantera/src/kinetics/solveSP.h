@@ -266,11 +266,11 @@ namespace Cantera {
 
     //! Printing routine that gets called after every iteration
     void printIteration(int ioflag, doublereal damp, int label_d, int label_t,
-			doublereal inv_t, doublereal t_real, int iter,
+			doublereal inv_t, doublereal t_real, size_t iter,
 			doublereal update_norm, doublereal resid_norm,
 			doublereal netProdRate[], doublereal CSolnSP[],
 			doublereal resid[], doublereal XMolSolnSP[],
-			doublereal wtSpecies[], int dim, bool do_time);
+			doublereal wtSpecies[], size_t dim, bool do_time);
 
 
     //! Print a summary of the solution
@@ -278,12 +278,12 @@ namespace Cantera {
      *
      */
     void printFinal(int ioflag, doublereal damp, int label_d, int label_t,
-		    doublereal inv_t, doublereal t_real, int iter,
+		    doublereal inv_t, doublereal t_real, size_t iter,
 		    doublereal update_norm, doublereal resid_norm,
 		    doublereal netProdRateKinSpecies[], const doublereal CSolnSP[],
 		    const doublereal resid[], doublereal XMolSolnSP[], 
 		    const doublereal wtSpecies[], const doublereal wtRes[],
-		    int dim, bool do_time,
+		    size_t dim, bool do_time,
 		    doublereal TKelvin, doublereal PGas);
     
     //! Calculate a conservative delta T to use in a pseudo-steady state
@@ -434,7 +434,7 @@ namespace Cantera {
     /*!
      * Note, this can be zero, and frequently is
      */
-    int  m_neq;
+    size_t m_neq;
 
     //! This variable determines how the bulk phases are to be handled
     /*!
@@ -454,7 +454,7 @@ namespace Cantera {
      * This number is equal to the number of InterfaceKinetics objects
      * in the problem. (until further noted)
      */
-    int m_numSurfPhases;
+    size_t m_numSurfPhases;
     
     //! Total number of surface species in all surface phases.
     /*!
@@ -462,7 +462,7 @@ namespace Cantera {
      * It's equal to the sum of the number of species in each of the
      * m_numSurfPhases.
      */
-    int m_numTotSurfSpecies;
+    size_t m_numTotSurfSpecies;
 
     //! Mapping between the surface phases and the InterfaceKinetics objects
     /*!
@@ -470,14 +470,14 @@ namespace Cantera {
      *  in some places)
      *  m_surfKinObjID[i] = i
      */
-    std::vector<int> m_indexKinObjSurfPhase;
+    std::vector<size_t> m_indexKinObjSurfPhase;
 
     //! Vector of length number of surface phases containing
     //! the number of surface species in each phase
     /*!
      *  Length is equal to the number of surface phases, m_numSurfPhases
      */
-    std::vector<int> m_nSpeciesSurfPhase;
+    std::vector<size_t> m_nSpeciesSurfPhase;
     
     //!  Vector of surface phase pointers
     /*!
@@ -496,7 +496,7 @@ namespace Cantera {
      *  i_eqn is the equation number of the first unknown in the
      *  solution vector corresponding to isp'th phase.
      */
-    std::vector<int> m_eqnIndexStartSolnPhase;
+    std::vector<size_t> m_eqnIndexStartSolnPhase;
 
     //! Phase ID in the InterfaceKinetics object of the surface phase
     /*!
@@ -505,7 +505,7 @@ namespace Cantera {
      *
      * Length is equal to m_numSurfPhases   
      */
-    std::vector<int> m_kinObjPhaseIDSurfPhase;
+    std::vector<size_t> m_kinObjPhaseIDSurfPhase;
 
     //! Total number of volumetric condensed phases included in the steady state
     //! problem handled by this routine.
@@ -518,13 +518,13 @@ namespace Cantera {
      *
      * This is equal to 0, for the time being
      */
-    int m_numBulkPhasesSS;
+    size_t m_numBulkPhasesSS;
     
     //! Vector of number of species in the m_numBulkPhases phases.
     /*!
      * Length is number of bulk phases 
      */
-    std::vector<int>              m_numBulkSpecies;
+    std::vector<size_t>              m_numBulkSpecies;
 
     //std::vector<int>              m_bulkKinObjID;
     //std::vector<int>              m_bulkKinObjPhaseID;
@@ -535,7 +535,7 @@ namespace Cantera {
      *      This is also the number of bulk equations to solve when bulk
      *      equation solving is turned on.
      */
-    int m_numTotBulkSpeciesSS;
+    size_t m_numTotBulkSpeciesSS;
 
     //! Vector of bulk phase pointers, length is equal to m_numBulkPhases.
     /*!
@@ -552,14 +552,14 @@ namespace Cantera {
      *  ksp = m_kinSpecIndex[ieq]
      *  ksp is the kinetic species index for the ieq'th equation.
      */
-    std::vector<int> m_kinSpecIndex;
+    std::vector<size_t> m_kinSpecIndex;
 
     //! Index between the equation index and the index of the
     //! InterfaceKinetics object
     /*!
      *   Length m_neq
      */
-    std::vector<int> m_kinObjIndex;
+    std::vector<size_t> m_kinObjIndex;
 
     //! Vector containing the indecies of the largest species 
     //! in each surface phase
@@ -572,7 +572,7 @@ namespace Cantera {
      *
      *  length is equal to m_numSurfPhases
      */
-    std::vector<int>  m_spSurfLarge;
+    std::vector<size_t>  m_spSurfLarge;
 
     //! m_atol is the absolute tolerance in real units.
     /*!

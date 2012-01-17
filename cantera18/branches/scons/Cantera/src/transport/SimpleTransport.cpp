@@ -386,7 +386,7 @@ namespace Cantera {
     copy(m_viscSpecies.begin(), m_viscSpecies.end(), visc); 
   }
   //================================================================================================
-  void SimpleTransport::getBinaryDiffCoeffs(int ld, doublereal* d) {
+  void SimpleTransport::getBinaryDiffCoeffs(size_t ld, doublereal* d) {
     int i, j;
     double bdiff;
     update_T();

@@ -295,7 +295,7 @@ namespace Cantera {
 
     /******************* binary diffusion coefficients **************/
 
-    void MultiTransport::getBinaryDiffCoeffs(int ld, doublereal* d) {
+    void MultiTransport::getBinaryDiffCoeffs(size_t ld, doublereal* d) {
         int i,j;
 
         // if necessary, evaluate the binary diffusion coefficents
@@ -671,7 +671,7 @@ namespace Cantera {
         }
     }
 
-    void MultiTransport::getMultiDiffCoeffs(const int ld, doublereal* const d) {
+    void MultiTransport::getMultiDiffCoeffs(const size_t ld, doublereal* const d) {
         int i,j;
 
         doublereal p = pressure_ig();

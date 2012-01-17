@@ -89,7 +89,7 @@ namespace Cantera {
      * @param products vector of integer product indices
      * @param reversible true if the reaction is reversible, false otherwise
      */
-    virtual void add(int rxn, const std::vector<size_t>& reactants,
+    virtual void add(size_t rxn, const std::vector<size_t>& reactants,
                      const std::vector<size_t>& products, bool reversible);
 
     /**
@@ -109,7 +109,7 @@ namespace Cantera {
       //	     bool reversible, const vector_fp& fwdOrder);
 
 
-      virtual void add(int rxn, const ReactionData& r);
+      virtual void add(size_t rxn, const ReactionData& r);
 
     /**
      * Species creation rates. 
@@ -181,7 +181,7 @@ namespace Cantera {
      *                    An example would be the delta change in enthalpy,
      *                    i.e., the enthalpy of reaction.
      */
-      virtual void getReactionDelta(int nReactions, 
+      virtual void getReactionDelta(size_t nReactions,
 			  const doublereal* g, 
 			  doublereal* dg);
 
@@ -198,7 +198,7 @@ namespace Cantera {
      * calculating reveerse rate coefficients from thermochemistry
      * for reversible reactions.
      */
-      virtual void getRevReactionDelta(int nr, const doublereal* g, doublereal* dg);
+      virtual void getRevReactionDelta(size_t nr, const doublereal* g, doublereal* dg);
 
 
     /** 

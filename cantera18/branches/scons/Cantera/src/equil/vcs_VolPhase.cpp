@@ -135,9 +135,8 @@ namespace VCSnonideal {
    *   (note, this is used, so keep it current!)
    */
   vcs_VolPhase& vcs_VolPhase::operator=(const vcs_VolPhase& b) {
-    int k;
     if (&b != this) {
-      int old_num = m_numSpecies;
+      size_t old_num = m_numSpecies;
 
       //  Note: we comment this out for the assignment operator
       //        specifically, because it isn't true for the assignment
@@ -186,14 +185,14 @@ namespace VCSnonideal {
       IndSpecies = b.IndSpecies;
       //IndSpeciesContig = b.IndSpeciesContig;
 
-      for (k = 0; k < old_num; k++) {
+      for (size_t k = 0; k < old_num; k++) {
 	if ( ListSpeciesPtr[k]) {
 	  delete  ListSpeciesPtr[k];
 	  ListSpeciesPtr[k] = 0;
 	}
       }
       ListSpeciesPtr.resize(m_numSpecies, 0);
-      for (k = 0; k < m_numSpecies; k++) {
+      for (size_t k = 0; k < m_numSpecies; k++) {
 	ListSpeciesPtr[k] = 
 	  new vcs_SpeciesProperties(*(b.ListSpeciesPtr[k]));
       }
@@ -393,8 +392,8 @@ namespace VCSnonideal {
       TP_ptr->getGibbs_ref(VCS_DATA_PTR(SS0ChemicalPotential));
     } else {
       double R = vcsUtil_gasConstant(p_VCS_UnitsFormat);
-      for (int k = 0; k < m_numSpecies; k++) {
-	int kglob = IndSpecies[k];
+      for (size_t k = 0; k < m_numSpecies; k++) {
+	size_t kglob = IndSpecies[k];
 	vcs_SpeciesProperties *sProp = ListSpeciesPtr[k];
 	VCS_SPECIES_THERMO *sTherm = sProp->SpeciesThermo;
 	SS0ChemicalPotential[k] =
@@ -413,7 +412,7 @@ namespace VCSnonideal {
    *
    *  @return return value of the gibbs free energy
    */
-  double vcs_VolPhase::G0_calc_one(int kspec) const {
+  double vcs_VolPhase::G0_calc_one(size_t kspec) const {
     if (!m_UpToDate_G0) {
       _updateG0();
     }
@@ -434,8 +433,8 @@ namespace VCSnonideal {
       TP_ptr->getStandardChemPotentials(VCS_DATA_PTR(StarChemicalPotential));
     } else {
       double R = vcsUtil_gasConstant(p_VCS_UnitsFormat);
-      for (int k = 0; k < m_numSpecies; k++) {
-	int kglob = IndSpecies[k];
+      for (size_t k = 0; k < m_numSpecies; k++) {
+	size_t kglob = IndSpecies[k];
 	vcs_SpeciesProperties *sProp = ListSpeciesPtr[k];
 	VCS_SPECIES_THERMO *sTherm = sProp->SpeciesThermo;
 	StarChemicalPotential[k] =
@@ -458,7 +457,7 @@ namespace VCSnonideal {
    * @return Gstar[kspec] returns the gibbs free energy for the
    *         standard state of the kspec species.
    */
-  double vcs_VolPhase::GStar_calc_one(int kspec) const {
+  double vcs_VolPhase::GStar_calc_one(size_t kspec) const {
     if (!m_UpToDate_GStar) {
       _updateGStar();
     }
@@ -578,7 +577,7 @@ namespace VCSnonideal {
    */
   void vcs_VolPhase::setMolesFromVCS(const int stateCalc, 
 				     const double * molesSpeciesVCS) {
-    int kglob;
+    size_t kglob;
     double tmp;
     v_totalMoles = m_totalMolesInert;
 
@@ -619,14 +618,14 @@ namespace VCSnonideal {
     }
 #endif
 
-    for (int k = 0; k < m_numSpecies; k++) {
+    for (size_t k = 0; k < m_numSpecies; k++) {
       if (m_speciesUnknownType[k] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	kglob = IndSpecies[k];
 	v_totalMoles += MAX(0.0, molesSpeciesVCS[kglob]);
       }
     }
     if (v_totalMoles > 0.0) {
-      for (int k = 0; k < m_numSpecies; k++) {
+      for (size_t k = 0; k < m_numSpecies; k++) {
 	if (m_speciesUnknownType[k] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	  kglob = IndSpecies[k];
 	  tmp = MAX(0.0, molesSpeciesVCS[kglob]);
@@ -761,9 +760,8 @@ namespace VCSnonideal {
     if (!m_UpToDate_AC) {
       _updateActCoeff();
     }
-    int kglob;
-    for (int k = 0; k < m_numSpecies; k++) {
-      kglob = IndSpecies[k];
+    for (size_t k = 0; k < m_numSpecies; k++) {
+      size_t kglob = IndSpecies[k];
       AC[kglob] = ActCoeff[k];
     }
   }
@@ -783,9 +781,8 @@ namespace VCSnonideal {
     if (!m_UpToDate_VolPM) {
       (void) _updateVolPM();
     }
-    int kglob;
-    for (int k = 0; k < m_numSpecies; k++) {
-      kglob = IndSpecies[k];
+    for (size_t k = 0; k < m_numSpecies; k++) {
+      size_t kglob = IndSpecies[k];
       VolPM[kglob] = PartialMolarVol[k];
     }
     return m_totalVol;
@@ -806,9 +803,8 @@ namespace VCSnonideal {
     if (!m_UpToDate_GStar) {
       _updateGStar();
     }
-    int kglob;
     for (int k = 0; k < m_numSpecies; k++) {
-      kglob = IndSpecies[k];
+      size_t kglob = IndSpecies[k];
       gstar[kglob] = StarChemicalPotential[k];
     }
   }
@@ -892,8 +888,8 @@ namespace VCSnonideal {
     if (m_useCanteraCalls) {
       TP_ptr->getStandardVolumes(VCS_DATA_PTR(StarMolarVol));
     } else {
-      for (int k = 0; k < m_numSpecies; k++) {
-	int kglob = IndSpecies[k];
+      for (size_t k = 0; k < m_numSpecies; k++) {
+	size_t kglob = IndSpecies[k];
 	vcs_SpeciesProperties *sProp = ListSpeciesPtr[k];
 	VCS_SPECIES_THERMO *sTherm = sProp->SpeciesThermo;
 	StarMolarVol[k] = (sTherm->VolStar_calc(kglob, Temp, Pres));
@@ -916,7 +912,7 @@ namespace VCSnonideal {
    * @return molar volume of the kspec species's standard
    *         state
    */
-  double vcs_VolPhase::VolStar_calc_one(int kspec) const {
+  double vcs_VolPhase::VolStar_calc_one(size_t kspec) const {
     if (!m_UpToDate_VolStar) {
       _updateVolStar();
     }
@@ -932,24 +928,22 @@ namespace VCSnonideal {
    * @return total volume  (m**3)
    */
   double vcs_VolPhase::_updateVolPM() const {
-    int k, kglob;
-
     if (m_useCanteraCalls) {
       TP_ptr->getPartialMolarVolumes(VCS_DATA_PTR(PartialMolarVol));
     } else {
-      for (k = 0; k < m_numSpecies; k++) {
-	kglob = IndSpecies[k];
+      for (size_t k = 0; k < m_numSpecies; k++) {
+	size_t kglob = IndSpecies[k];
 	vcs_SpeciesProperties *sProp = ListSpeciesPtr[k];
 	VCS_SPECIES_THERMO *sTherm = sProp->SpeciesThermo;
 	StarMolarVol[k] = (sTherm->VolStar_calc(kglob, Temp, Pres));
       }
-      for (k = 0; k < m_numSpecies; k++) {
+      for (size_t k = 0; k < m_numSpecies; k++) {
 	PartialMolarVol[k] = StarMolarVol[k];
       }
     }
 
     m_totalVol = 0.0;
-    for (k = 0; k < m_numSpecies; k++) {
+    for (size_t k = 0; k < m_numSpecies; k++) {
       m_totalVol += PartialMolarVol[k] * Xmol[k];
     }
     m_totalVol *= v_totalMoles;
@@ -1065,13 +1059,12 @@ namespace VCSnonideal {
     /*
      *  Now copy over the values
      */
-    int j, k, jglob, kglob;
-    for (j = 0; j < m_numSpecies; j++) {
-      jglob = IndSpecies[j];
+    for (size_t j = 0; j < m_numSpecies; j++) {
+      size_t jglob = IndSpecies[j];
       double * const lnACJacVCS_col = LnACJac_VCS[jglob];
       const double * const lnACJac_col = dLnActCoeffdMolNumber[j];
-      for (k = 0; k < m_numSpecies; k++) {
-	kglob = IndSpecies[k];
+      for (size_t k = 0; k < m_numSpecies; k++) {
+	size_t kglob = IndSpecies[k];
 	lnACJacVCS_col[kglob] = lnACJac_col[k];
       }
     }
@@ -1151,7 +1144,7 @@ namespace VCSnonideal {
   }
   /***************************************************************************/
 
-  double vcs_VolPhase::molefraction(int k) const {
+  double vcs_VolPhase::molefraction(size_t k) const {
     return Xmol[k];
   }
   /***************************************************************************/
@@ -1418,8 +1411,7 @@ namespace VCSnonideal {
   /**********************************************************************/
 
   // Returns the global index of the local element index for the phase
-  int vcs_VolPhase::elemGlobalIndex(const int e) const {
-    DebugAssertThrowVCS(e >= 0, " vcs_VolPhase::elemGlobalIndex") ;
+  size_t vcs_VolPhase::elemGlobalIndex(const size_t e) const {
     DebugAssertThrowVCS(e < m_numElemConstraints, " vcs_VolPhase::elemGlobalIndex") ;
     return m_elemGlobalIndex[e];
   }
@@ -1427,7 +1419,6 @@ namespace VCSnonideal {
 
   // Returns the global index of the local element index for the phase
   void vcs_VolPhase::setElemGlobalIndex(const size_t eLocal, const size_t eGlobal) {
-    DebugAssertThrowVCS(eLocal >= 0, "vcs_VolPhase::setElemGlobalIndex");
     DebugAssertThrowVCS(eLocal < m_numElemConstraints,
 			"vcs_VolPhase::setElemGlobalIndex");
     m_elemGlobalIndex[eLocal] = eGlobal;
@@ -1475,7 +1466,7 @@ namespace VCSnonideal {
     return false;
   }
 
-  int vcs_VolPhase::transferElementsFM(const Cantera::ThermoPhase * const tPhase) {
+  size_t vcs_VolPhase::transferElementsFM(const Cantera::ThermoPhase * const tPhase) {
     size_t e, k, eT;
     std::string ename; 
     size_t eFound = -2;
@@ -1642,7 +1633,7 @@ namespace VCSnonideal {
   /***************************************************************************/
 
   //! Return the number of species in the phase
-  int vcs_VolPhase::nSpecies() const {
+  size_t vcs_VolPhase::nSpecies() const {
     return m_numSpecies;
   }
   /***************************************************************************/

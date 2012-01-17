@@ -36,7 +36,7 @@ public:
    * @param mcol  Number of columns
    * @param nrow  Number of rows
    */
-  IntStarStar(int mcol, int nrow, int v = 0);
+  IntStarStar(size_t mcol, size_t nrow, int v = 0);
     
   //! copy constructor
   IntStarStar(const IntStarStar& y);
@@ -51,19 +51,19 @@ public:
    * @param nrow  This is the number of rows
    * @param v     Default fill value -> defaults to zero.
    */
-  void resize(int mcol, int nrow, int v = 0);
+  void resize(size_t mcol, size_t nrow, int v = 0);
 
   //! Pointer to the top of the column
   /*!
    *  @param jcol Pointer to the top of the jth column
    */
-  int * const operator[](int jcol);
+  int * const operator[](size_t jcol);
 
   //! Pointer to the top of the column
   /*!
    *  @param j Pointer to the top of the jth column
    */
-  const int * const operator[](int jcol) const;
+  const int * const operator[](size_t jcol) const;
 
   //! Returns a int ** pointer to the base address
   /*!
@@ -74,10 +74,10 @@ public:
   int * const * const baseDataAddr();
 
   //! Number of rows
-  int nRows() const;
+  size_t nRows() const;
 
   //! Number of columns
-  int nColumns() const;
+  size_t nColumns() const;
 
 private:
   //! Storage area
@@ -86,10 +86,10 @@ private:
   std::vector<int *> m_colAddr;
 
   //! number of rows
-  int m_nrows;
+  size_t m_nrows;
 
   //! number of columns
-  int m_ncols;
+  size_t m_ncols;
 };
 
 }

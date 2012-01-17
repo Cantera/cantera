@@ -43,12 +43,12 @@ namespace VCSnonideal {
      * can be popped, if there is one species in the phase that can be
      * popped.
      */
-    for (int k = 0; k < Vphase->nSpecies(); k++) {
-      int kspec = Vphase->spGlobalIndexVCS(k);
-      int irxn = kspec - m_numComponents;
-      if (irxn >= 0) {
+    for (size_t k = 0; k < Vphase->nSpecies(); k++) {
+      size_t kspec = Vphase->spGlobalIndexVCS(k);
+      if (kspec >= m_numComponents) {
+	size_t irxn = kspec - m_numComponents;
 	bool iPopPossible = true;
-	for (int j = 0; j < m_numComponents; ++j) {
+	for (size_t j = 0; j < m_numComponents; ++j) {
 	  if (m_elType[j] == VCS_ELEM_TYPE_ABSPOS) {
 	    double stoicC = m_stoichCoeffRxnMatrix[irxn][j];
 	    if (stoicC != 0.0) {    
@@ -78,7 +78,7 @@ namespace VCSnonideal {
   int VCS_SOLVE::vcs_popPhaseID() {
     int iphasePop = -1;
     int iph;
-    int irxn, kspec;
+    size_t irxn, kspec;
     doublereal FephaseMax = -1.0E30;
     doublereal Fephase = -1.0E30;
     vcs_VolPhase *Vphase = 0;
@@ -211,12 +211,12 @@ namespace VCSnonideal {
    *            -  3 : Nothing was done because the phase couldn't be birthed
    *                   because a needed component is zero.
    */
-  int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const int iphasePop) {
+  int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop) {
     vcs_VolPhase *Vphase = m_VolPhaseList[iphasePop];
     // Identify the first species in the phase
-    int kspec = Vphase->spGlobalIndexVCS(0);
+    size_t kspec = Vphase->spGlobalIndexVCS(0);
     // Identify the formation reaction for that species
-    int irxn = kspec - m_numComponents;
+    size_t irxn = kspec - m_numComponents;
   
     doublereal s;
     int j, k;
@@ -334,8 +334,8 @@ namespace VCSnonideal {
      for (k = 0; k < Vphase->nSpecies(); k++) {
        kspec = Vphase->spGlobalIndexVCS(k);
        double delmol =  deltaMolNumPhase * X_est[k];
-       irxn = kspec - m_numComponents;
        if (kspec >= m_numComponents) {
+	 irxn = kspec - m_numComponents;
 	 for (j = 0; j < m_numComponents; ++j) {
 	   double stoicC = m_stoichCoeffRxnMatrix[irxn][j];
 	   if (stoicC != 0.0) {
@@ -361,7 +361,7 @@ namespace VCSnonideal {
 	 }
        } else {
 	 if (m_elType[j] == VCS_ELEM_TYPE_ABSPOS) {
-	   int jph =  m_phaseID[j];
+	   size_t jph = m_phaseID[j];
 	   if ((jph != iphasePop) && (!m_SSPhase[j])) {
 	     double fdeltaJ = fabs(deltaJ);
 	     if ( m_molNumSpecies_old[j] > 0.0) {
@@ -414,7 +414,7 @@ namespace VCSnonideal {
     /*
      * We will use the _new state calc here
      */
-    int kspec, irxn, k, i, kc, kc_spec;
+    size_t kspec, irxn, k, i, kc, kc_spec;
     vcs_VolPhase *Vphase = m_VolPhaseList[iph];
     doublereal deltaGRxn;
 
@@ -446,7 +446,7 @@ namespace VCSnonideal {
   
 
     bool oneIsComponent = false;
-    std::vector<int> componentList;
+    std::vector<size_t> componentList;
 
     for (k = 0; k < Vphase->nSpecies(); k++) {
       kspec = Vphase->spGlobalIndexVCS(k);
@@ -486,14 +486,14 @@ namespace VCSnonideal {
 
 	// Given a set of fracDelta's, we calculate the fracDelta's
 	// for the component species, if any
-	for (i = 0; i < (int) componentList.size(); i++) {
+	for (i = 0; i < componentList.size(); i++) {
 	  kc = componentList[i];
 	  kc_spec = Vphase->spGlobalIndexVCS(kc);
 	  fracDelta_old[kc] = 0.0;
 	  for (k = 0; k <  Vphase->nSpecies(); k++) {
 	    kspec = Vphase->spGlobalIndexVCS(k);
-	    irxn = kspec - m_numComponents;
-	    if (irxn >= 0) {
+	    if (kspec >= m_numComponents) {
+	      irxn = kspec - m_numComponents;
 	      fracDelta_old[kc] += m_stoichCoeffRxnMatrix[irxn][kc_spec] *  fracDelta_old[k];
 	    }
 	  } 
@@ -512,7 +512,7 @@ namespace VCSnonideal {
 	    sum_Xcomp += X_est[k];
 	  }
 	}
-	
+
 
 	/*
 	 * Feed the newly formed estimate of the mole fractions back into the
@@ -529,7 +529,7 @@ namespace VCSnonideal {
 	 * first Calculate altered chemical potentials for component species
 	 * belonging to this phase.
 	 */
-	for (i = 0; i < (int) componentList.size(); i++) {
+	for (i = 0; i < componentList.size(); i++) {
 	  kc = componentList[i];
 	  kc_spec = Vphase->spGlobalIndexVCS(kc);
 	  if ( X_est[kc] > VCS_DELETE_MINORSPECIES_CUTOFF) {
@@ -541,14 +541,14 @@ namespace VCSnonideal {
 	  }
 	}
 
-	for (i = 0; i < (int) componentList.size(); i++) {
+	for (i = 0; i < componentList.size(); i++) {
 	  kc = componentList[i];
 	  kc_spec = Vphase->spGlobalIndexVCS(kc);
 	  
 	  for (k = 0; k <  Vphase->nSpecies(); k++) {
 	    kspec = Vphase->spGlobalIndexVCS(k);
-	    irxn = kspec - m_numComponents;
-	    if (irxn >= 0) {
+	    if (kspec >= m_numComponents) {
+	      irxn = kspec - m_numComponents;
 	      if (i == 0) {
 		m_deltaGRxn_Deficient[irxn] = m_deltaGRxn_old[irxn];
 	      }
@@ -569,8 +569,8 @@ namespace VCSnonideal {
 	funcPhaseStability = sum_Xcomp - 1.0;
 	for (k = 0; k <  Vphase->nSpecies(); k++) {
 	  kspec = Vphase->spGlobalIndexVCS(k);
-	  irxn = kspec - m_numComponents;
-	  if (irxn >= 0) {
+	  if (kspec >= m_numComponents) {
+	    irxn = kspec - m_numComponents;
 	    deltaGRxn = m_deltaGRxn_Deficient[irxn];
 	    if (deltaGRxn >  50.0) deltaGRxn =  50.0;
 	    if (deltaGRxn < -50.0) deltaGRxn = -50.0;
@@ -587,9 +587,9 @@ namespace VCSnonideal {
 	 */
 	for (k = 0; k <  Vphase->nSpecies(); k++) {
 	  kspec = Vphase->spGlobalIndexVCS(k);
-	  irxn = kspec - m_numComponents;
 	  double b =  E_phi[k] / sum * (1.0 - sum_Xcomp);
-	  if (irxn >= 0) {
+	  if (kspec >= m_numComponents) {
+	    irxn = kspec - m_numComponents;
 	    fracDelta_raw[k] = b;
 	  } 
 	}
@@ -597,14 +597,14 @@ namespace VCSnonideal {
 
 	// Given a set of fracDelta's, we calculate the fracDelta's
 	// for the component species, if any
-	for (i = 0; i < (int) componentList.size(); i++) {
+	for (i = 0; i < componentList.size(); i++) {
 	  kc = componentList[i];
 	  kc_spec = Vphase->spGlobalIndexVCS(kc);
 	  fracDelta_raw[kc] = 0.0;
 	  for (k = 0; k <  Vphase->nSpecies(); k++) {
 	    kspec = Vphase->spGlobalIndexVCS(k);
-	    irxn = kspec - m_numComponents;
-	    if (irxn >= 0) {
+	    if (kspec >= m_numComponents) {
+	      irxn = kspec - m_numComponents;
 	      fracDelta_raw[kc] += m_stoichCoeffRxnMatrix[irxn][kc_spec] * fracDelta_raw[k];
 	    }
 	  } 

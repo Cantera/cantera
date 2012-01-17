@@ -88,8 +88,8 @@ namespace Cantera {
     virtual void getThermalDiffCoeffs(doublereal* const dt);
     virtual doublereal thermalConductivity();
 
-    virtual void getBinaryDiffCoeffs(const int ld, doublereal* const d);
-    virtual void getMultiDiffCoeffs(const int ld, doublereal* const d);
+    virtual void getBinaryDiffCoeffs(const size_t ld, doublereal* const d);
+    virtual void getMultiDiffCoeffs(const size_t ld, doublereal* const d);
 
     //! Although this class implements a multicomponent diffusion
     //! model, it is convenient to be able to compute
@@ -209,7 +209,7 @@ namespace Cantera {
       m_thermal_tlast;
 
     // mixture attributes
-    int m_nsp;
+    size_t m_nsp;
     doublereal m_tmin, m_tmax;
     vector_fp  m_mw;
 

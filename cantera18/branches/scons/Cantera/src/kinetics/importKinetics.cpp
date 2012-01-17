@@ -49,7 +49,7 @@ namespace Cantera {
     //! string vector of ints
     std::vector<int> m_dup;
     //! string vector of ints
-    std::vector<int>  m_nr;
+    std::vector<size_t>  m_nr;
     //! string vector of ints
     std::vector<int>  m_typ;
     //! vector of bools.
@@ -107,8 +107,7 @@ namespace Cantera {
 	//     << " atoms of " << ph.elementName(m) << " and kstoich = " << kstoich << endl;
       }
     }
-    int nr = rdata.reactants.size();
-    for (size_t index = 0; index < nr; index++) {
+    for (size_t index = 0; index < rdata.reactants.size(); index++) {
       size_t kr = rdata.reactants[index];
       size_t n = kin.speciesPhaseIndex(kr);
       //klocal = kr - kin.start(n);
@@ -485,13 +484,11 @@ namespace Cantera {
 
     vector<string> key, val;
     getPairs(eff, key, val);
-    int ne = static_cast<int>(key.size());
     string nm;
     string phse = kin.thermo(0).id();
-    int n, k;
-    for (n = 0; n < ne; n++) { // ; bb != ee; ++bb) {
+    for (size_t n = 0; n < key.size(); n++) { // ; bb != ee; ++bb) {
       nm = key[n];// bb->first;
-      k = kin.kineticsSpeciesIndex(nm, phse);
+      size_t k = kin.kineticsSpeciesIndex(nm, phse);
       rdata.thirdBodyEfficiencies[k] = fpValue(val[n]); // bb->second;
     }
   }
@@ -761,9 +758,8 @@ namespace Cantera {
      *  the bool isReversibleWithFrac to true.
      */
     if (rdata.reversible == true) {
-      int np = rdata.products.size();
-      for (int i = 0; i < np; i++) {
-	int k = rdata.products[i];
+      for (size_t i = 0; i < rdata.products.size(); i++) {
+	size_t k = rdata.products[i];
 	doublereal po = rdata.porder[i];
 	AssertTrace(po == rdata.pstoich[i]);
 	doublereal chk = po - 1.0 * int(po);
@@ -780,9 +776,8 @@ namespace Cantera {
           
 	}
       }
-      int nr = rdata.reactants.size();
-      for (int i = 0; i < nr; i++) {
-	int k = rdata.reactants[i];
+      for (size_t i = 0; i < rdata.reactants.size(); i++) {
+	size_t k = rdata.reactants[i];
 	doublereal ro = rdata.rorder[i];
 	AssertTrace(ro == rdata.rstoich[i]);
 	doublereal chk = ro - 1.0 * int(ro);
@@ -837,17 +832,14 @@ namespace Cantera {
 
       map<int, doublereal> rxnstoich;
       rxnstoich.clear();
-      int nr = rdata.reactants.size();
-      for (nn = 0; nn < nr; nn++) {
-	rxnstoich[-1 - rdata.reactants[nn]] -= rdata.rstoich[nn];
+      for (nn = 0; nn < rdata.reactants.size(); nn++) {
+	rxnstoich[-1 - int(rdata.reactants[nn])] -= rdata.rstoich[nn];
       }
-      int np = rdata.products.size();
-      for (nn = 0; nn < np; nn++) {
-	rxnstoich[rdata.products[nn]+1] += rdata.pstoich[nn];
+      for (nn = 0; nn < rdata.products.size(); nn++) {
+	rxnstoich[int(rdata.products[nn])+1] += rdata.pstoich[nn];
       }
-      int nrxns = static_cast<int>(m_rdata.size());
-      for (nn = 0; nn < nrxns; nn++) {
-	if ((int(rdata.reactants.size()) == m_nr[nn]) 
+      for (nn = 0; nn < m_rdata.size(); nn++) {
+	if ((rdata.reactants.size() == m_nr[nn])
 	    && (rdata.reactionType == m_typ[nn])) {
 	  c = isDuplicateReaction(rxnstoich, m_rdata[nn]);
 	  if (c > 0.0 

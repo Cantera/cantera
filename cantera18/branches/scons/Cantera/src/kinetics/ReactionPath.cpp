@@ -22,7 +22,7 @@ namespace Cantera {
     }
         
     void SpeciesNode::printPaths() {
-        for (int i = 0; i < int(m_paths.size()); i++) {
+        for (size_t i = 0; i < m_paths.size(); i++) {
             cout << m_paths[i]->begin()->name << " -->  "
                  << m_paths[i]->end()->name << ":   "
                  << m_paths[i]->flow() << endl;
@@ -46,7 +46,7 @@ namespace Cantera {
      * reaction, the total flow, and the flow associated with this
      * label.
      */
-    void Path::addReaction(int rxnNumber, doublereal value, 
+    void Path::addReaction(size_t rxnNumber, doublereal value,
         string label) {
         m_rxn[rxnNumber] += value;
         m_total += value;
@@ -60,7 +60,7 @@ namespace Cantera {
      */
     void Path::writeLabel(ostream& s, doublereal threshold) 
     {
-        int nn = static_cast<int>(m_label.size());
+        size_t nn = m_label.size();
         if (nn == 0) return;
         doublereal v;
         map<string, doublereal>::const_iterator i = m_label.begin();
@@ -112,18 +112,17 @@ namespace Cantera {
     ReactionPathDiagram::~ReactionPathDiagram() 
     {
         // delete the nodes
-        map<int, SpeciesNode*>::const_iterator i = m_nodes.begin();
+        map<size_t, SpeciesNode*>::const_iterator i = m_nodes.begin();
         for (; i != m_nodes.end(); ++i) delete i->second;
         
         // delete the paths
-        int nn = nPaths();
-        int n;
-        for (n = 0; n < nn; n++) delete m_pathlist[n];
+        size_t nn = nPaths();
+        for (size_t n = 0; n < nn; n++) delete m_pathlist[n];
     }
 
 
     vector_int ReactionPathDiagram::reactions() {
-        int i, npaths = nPaths();
+        size_t i, npaths = nPaths();
         doublereal flmax = 0.0, flxratio;
         Path* p;
         for (i = 0; i < npaths; i++) 
@@ -145,8 +144,8 @@ namespace Cantera {
             }
         }
         vector_int r;
-        map<int, int>::const_iterator begin = m_rxns.begin();
-        for (; begin != m_rxns.end(); ++begin) r.push_back(abs(begin->first));
+        map<size_t, int>::const_iterator begin = m_rxns.begin();
+        for (; begin != m_rxns.end(); ++begin) r.push_back(int(begin->first));
         return r;
     }
 
@@ -157,8 +156,8 @@ namespace Cantera {
 //             throw CanteraError("ReactionPathDiagram::add",
 //                 "number of nodes must be the same");
 //         }
-        int np = nPaths();
-        int n, k1, k2;
+        size_t np = nPaths();
+        size_t n, k1, k2;
         Path* p = 0;
         for (n = 0; n < np; n++) {
             p = path(n);
@@ -170,8 +169,8 @@ namespace Cantera {
 
     void ReactionPathDiagram::findMajorPaths(doublereal athreshold, int lda, 
         doublereal* a) {
-        int nn = nNodes();
-        int n, m, k1, k2;
+        size_t nn = nNodes();
+        size_t n, m, k1, k2;
         doublereal fl, netmax = 0.0;
         for (n = 0; n < nn; n++) {
             for (m = n+1; m < nn; m++) {
@@ -194,8 +193,8 @@ namespace Cantera {
 
     void ReactionPathDiagram::writeData(ostream& s) {
         doublereal f1, f2;
-        int nnodes = nNodes();
-        int i1, i2, k1, k2;
+        size_t nnodes = nNodes();
+        size_t i1, i2, k1, k2;
         s << title << endl;
         for (i1 = 0; i1 < nnodes; i1++) 
         {
@@ -236,7 +235,6 @@ namespace Cantera {
      */    
     void ReactionPathDiagram::exportToDot(ostream& s) 
     {
-        int i;
         doublereal flxratio, flmax = 0.0, lwidth;
         //s.flags(std::ios_base::showpoint+std::ios_base::fixed);
         s.precision(3);
@@ -258,11 +256,9 @@ namespace Cantera {
         if (dot_options != "") 
             s << dot_options << endl;
 
-        int npaths = nPaths();
         Path* p;
 
-        int nnodes = nNodes();
-        int kbegin, kend, i1, i2, k1, k2;
+        size_t kbegin, kend, i1, i2, k1, k2;
         doublereal flx;
 
         // draw paths representing net flows
@@ -273,11 +269,11 @@ namespace Cantera {
             // net flows by the maximum net flow
             if (scale <= 0.0) 
             {
-                for (i1 = 0; i1 < nnodes; i1++) 
+                for (i1 = 0; i1 < nNodes(); i1++)
                 {
                     k1 = m_speciesNumber[i1];
                     node(k1)->visible  = false;
-                    for (i2 = i1+1; i2 < nnodes; i2++) 
+                    for (i2 = i1+1; i2 < nNodes(); i2++)
                     {
                         k2 = m_speciesNumber[i2];
                         flx = netFlow(k1, k2);
@@ -293,14 +289,14 @@ namespace Cantera {
 
             // loop over all unique pairs of nodes
 
-            for (i1 = 0; i1 < nnodes; i1++) 
+            for (i1 = 0; i1 < nNodes(); i1++)
             {
                 k1 = m_speciesNumber[i1];
-                for (i2 = i1+1; i2 < nnodes; i2++) 
+                for (i2 = i1+1; i2 < nNodes(); i2++)
                 {
                     k2 = m_speciesNumber[i2];
                     flx = netFlow(k1, k2);
-                    if (m_local >= 0) {
+                    if (m_local != -1) {
                         if (k1 != m_local && k2 != m_local) flx = 0.0;
                     }
                     if (flx != 0.0) 
@@ -378,16 +374,16 @@ namespace Cantera {
         }
 
         else {
-            for (i = 0; i < npaths; i++) 
+            for (size_t i = 0; i < nPaths(); i++)
             {
                 p = path(i);
                 if (p->flow() > flmax) flmax = p->flow();
             }
 
-            for (i = 0; i < npaths; i++) {
+            for (size_t i = 0; i < nPaths(); i++) {
                 p = path(i);
                 flxratio = p->flow()/flmax;
-                if (m_local >= 0) {
+                if (m_local != -1) {
                     if (p->begin()->number != m_local 
                         && p->end()->number != m_local) flxratio = 0.0;
                 }
@@ -430,7 +426,7 @@ namespace Cantera {
             }
         }
         s.precision(2);
-        map<int, SpeciesNode*>::const_iterator b = m_nodes.begin();
+        map<size_t, SpeciesNode*>::const_iterator b = m_nodes.begin();
         for (; b != m_nodes.end(); ++b) {
             if (b->second->visible) {
             s << "s" << b->first << " [ fontname=\""+m_font+"\", label=\"" << b->second->name
@@ -444,7 +440,7 @@ namespace Cantera {
     }
 
 
-    void ReactionPathDiagram::addNode(int k, string nm, doublereal x) {
+    void ReactionPathDiagram::addNode(size_t k, string nm, doublereal x) {
         if (!m_nodes[k]) {
             m_nodes[k] = new SpeciesNode;
             m_nodes[k]->number = k;
@@ -454,7 +450,7 @@ namespace Cantera {
         }
     }
 
-    void ReactionPathDiagram::linkNodes(int k1, int k2, int rxn, 
+    void ReactionPathDiagram::linkNodes(size_t k1, size_t k2, size_t rxn,
         doublereal value, string legend) {
         SpeciesNode* begin = m_nodes[k1];
         SpeciesNode* end   = m_nodes[k2];
@@ -469,7 +465,7 @@ namespace Cantera {
         if (ff->flow() > m_flxmax) m_flxmax = ff->flow();
     }
     
-    vector_int ReactionPathDiagram::species(){
+    std::vector<size_t> ReactionPathDiagram::species(){
         return m_speciesNumber;
     }
 
@@ -491,8 +487,8 @@ namespace Cantera {
             const std::vector<size_t>& r = s.reactants(i);
             const std::vector<size_t>& p = s.products(i);
 
-            size_t nr = s.reactants(i).size();
-            size_t np = s.products(i).size();
+            size_t nr = r.size();
+            size_t np = p.size();
  
             Group b0, b1, bb;
 
@@ -517,12 +513,12 @@ namespace Cantera {
                 // loop over reactants 
                 for (size_t igr = 0; igr < nrg; igr++) {
                     kr = r[igr];
-                    ngrpr = static_cast<int>(rgroups[igr].size());
+                    ngrpr = rgroups[igr].size();
 
                     // loop over products
                     for (size_t igp = 0; igp < npg; igp++) {
                         kp = p[igp];
-                        ngrpp = static_cast<int>(pgroups[igp].size());
+                        ngrpp = pgroups[igp].size();
 
                         // loop over pairs of reactant and product groups
                         for (size_t kgr = 0; kgr < ngrpr; kgr++) {
@@ -781,7 +777,7 @@ namespace Cantera {
         vector_int comp(m_nel);
         m_sgroup.resize(m_ns);
         for (size_t j = 0; j < m_ns; j++) {
-            for (int m = 0; m < m_nel; m++) comp[m] = int(m_atoms(j,m)); //ph.nAtoms(j,m));
+            for (size_t m = 0; m < m_nel; m++) comp[m] = int(m_atoms(j,m)); //ph.nAtoms(j,m));
             m_sgroup[j] = Group(comp);
         }
 
@@ -841,7 +837,7 @@ namespace Cantera {
     {    
         doublereal f, ropf, ropr, fwd, rev;
         string fwdlabel, revlabel;
-        map<int, int> warn;
+        map<size_t, int> warn;
 
         doublereal threshold = 0.0;
         bool fwd_incl, rev_incl, force_incl;
@@ -975,10 +971,10 @@ namespace Cantera {
                                 }
                             }
                             if (fwd_incl) {
-                                r.linkNodes(kkr, kkp, i, fwd, fwdlabel);
+                                r.linkNodes(kkr, kkp, int(i), fwd, fwdlabel);
                             }
                             if (rev_incl) {
-                                r.linkNodes(kkp, kkr, -i, rev, revlabel);
+                                r.linkNodes(kkp, kkr, -int(i), rev, revlabel);
                             }		
                         }
                     }

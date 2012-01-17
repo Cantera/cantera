@@ -236,7 +236,7 @@ namespace Cantera {
      * identifies the one surface phase. For homogeneous
      * mechanisms, this reurns -1.
      */
-    int surfacePhaseIndex() { return m_surfphase; }
+    size_t surfacePhaseIndex() { return m_surfphase; }
 
     /**
      * Phase where the reactions occur. For heterogeneous
@@ -248,7 +248,7 @@ namespace Cantera {
      * index of the first one is returned. For homogeneous
      * mechanisms, the value 0 is returned.
      */
-    int reactionPhaseIndex() { return m_rxnphase; }
+    size_t reactionPhaseIndex() { return m_rxnphase; }
 
 
     /**
@@ -391,7 +391,7 @@ namespace Cantera {
      *
      * @param k          Species index
      */
-    thermo_t& speciesPhase(int k) {
+    thermo_t& speciesPhase(size_t k) {
       return thermo(speciesPhaseIndex(k));                
     }
 
@@ -403,7 +403,7 @@ namespace Cantera {
      *
      * @param k          Species index
      */
-    int speciesPhaseIndex(int k);
+    size_t speciesPhaseIndex(size_t k);
       
     //@}
       
@@ -634,7 +634,7 @@ namespace Cantera {
      * @param k   kinetic species index
      * @param i   reaction index
      */
-    virtual doublereal reactantStoichCoeff(int k, int i) const { 
+    virtual doublereal reactantStoichCoeff(size_t k, size_t i) const {
       err("reactantStoichCoeff");
       return -1.0;
     }
@@ -646,7 +646,7 @@ namespace Cantera {
      * @param k   kinetic species index
      * @param i   reaction index
      */
-    virtual doublereal productStoichCoeff(int k, int i) const { 
+    virtual doublereal productStoichCoeff(size_t k, size_t i) const {
       err("productStoichCoeff");
       return -1.0;
     }
@@ -657,7 +657,7 @@ namespace Cantera {
      * @param k   kinetic species index
      * @param i   reaction index
      */
-    virtual doublereal reactantOrder(int k, int i) const {
+    virtual doublereal reactantOrder(size_t k, size_t i) const {
       err("reactantOrder");
       return -1.0;
     }
@@ -668,7 +668,7 @@ namespace Cantera {
      *
      * @param i  reaction index
      */ 
-    virtual const std::vector<size_t>& reactants(int i) const {
+    virtual const std::vector<size_t>& reactants(size_t i) const {
       return m_reactants[i]; 
     }
 
@@ -678,7 +678,7 @@ namespace Cantera {
      *
      * @param i reaction index
      */ 
-    virtual const std::vector<size_t>& products(int i) const {
+    virtual const std::vector<size_t>& products(size_t i) const {
       return m_products[i]; 
     }
 
@@ -689,7 +689,7 @@ namespace Cantera {
      *
      * @param i   reaction index
      */
-    virtual int reactionType(int i) const { 
+    virtual int reactionType(size_t i) const {
       err("reactionType"); 
       return -1; 
     }
@@ -701,7 +701,7 @@ namespace Cantera {
      *
      * @param i   reaction index
      */
-    virtual bool isReversible(int i){
+    virtual bool isReversible(size_t i){
       err("isReversible");
       return false;
     }
@@ -711,7 +711,7 @@ namespace Cantera {
      *
      * @param i   reaction index
      */
-    virtual std::string reactionString(int i) const {
+    virtual std::string reactionString(size_t i) const {
       err("reactionStd::String"); return "<null>";
     }
       
@@ -821,12 +821,12 @@ namespace Cantera {
       err("addReaction");
     }
 
-    virtual const std::vector<grouplist_t>& reactantGroups(int i) { 
+    virtual const std::vector<grouplist_t>& reactantGroups(size_t i) {
       //err("reactantGroups"); 
       return m_dummygroups;
     }
 
-    virtual const std::vector<grouplist_t>& productGroups(int i) {
+    virtual const std::vector<grouplist_t>& productGroups(size_t i) {
       //err("productGroups"); 
       return m_dummygroups;
     }
@@ -887,7 +887,7 @@ namespace Cantera {
 		     doublereal* phase_data);
 
     /// For internal use. May be removed in a future release.
-    int index(){ return m_index; }
+    size_t index(){ return m_index; }
 
     //! Set the index of the Kinetics Manager
     /*!
@@ -969,7 +969,7 @@ namespace Cantera {
      * returning the index value, so that missing phases return
      * -1.
      */
-    std::map<std::string, int> m_phaseindex;
+    std::map<std::string, size_t> m_phaseindex;
     //! Index of the Kinetics Manager
     size_t m_index;
 
@@ -985,7 +985,7 @@ namespace Cantera {
     size_t m_rxnphase;
 
     /// number of spatial dimensions of lowest-dimensional phase.
-    int m_mindim;
+    size_t m_mindim;
 
   private:
 

@@ -188,9 +188,9 @@ namespace VCSnonideal {
    * RETURN
    *    return index of the greatest value on X(*) searched 
    */
-  int vcs_optMax(const double *x, const double * xSize, int j, int n) {
-    int i;
-    int largest = j;
+  size_t vcs_optMax(const double *x, const double * xSize, size_t j, size_t n) {
+    size_t i;
+    size_t largest = j;
     double big = x[j];
     if (xSize) {
       assert(xSize[j] > 0.0);
@@ -242,7 +242,7 @@ namespace VCSnonideal {
    * @param i1 first index
    * @param i2 second index
    */
-  void vcsUtil_stsw(std::vector<std::string> & vstr, int i1, int i2) {
+  void vcsUtil_stsw(std::vector<std::string> & vstr, size_t i1, size_t i2) {
     std::string tmp(vstr[i2]);
     vstr[i2] = vstr[i1];
     vstr[i1] = tmp;
@@ -256,7 +256,7 @@ namespace VCSnonideal {
    * @param i1 first index
    * @param i2 second index
    */
-  void vcsUtil_dsw(double x[], int i1, int i2) {
+  void vcsUtil_dsw(double x[], size_t i1, size_t i2) {
     double t = x[i1];
     x[i1] = x[i2];
     x[i2] = t;
@@ -270,8 +270,22 @@ namespace VCSnonideal {
    * @param i1 first index
    * @param i2 second index
    */
-  void vcsUtil_isw(int x[], int i1, int i2) {
+  void vcsUtil_isw(int x[], size_t i1, size_t i2) {
     int t = x[i1];
+    x[i1] = x[i2];
+    x[i2] = t;
+  }
+
+  // Swap values in an size_t array
+  /*
+   * Switches the value of x[i1] with x[i2]
+   *
+   * @param x  Vector of integers
+   * @param i1 first index
+   * @param i2 second index
+   */
+  void vcsUtil_ssw(size_t x[], size_t i1, size_t i2) {
+    size_t t = x[i1];
     x[i1] = x[i2];
     x[i2] = t;
   }
@@ -306,7 +320,7 @@ namespace VCSnonideal {
    *            (each column is a new rhs)
    *  @param m  number of rhs's
    */
-  int vcsUtil_mlequ(double *c, int idem, int n, double *b, int m) {
+  int vcsUtil_mlequ(double *c, size_t idem, size_t n, double *b, size_t m) {
     int i, j, k, l;
     double R;
     if (n > idem || n <= 0) {

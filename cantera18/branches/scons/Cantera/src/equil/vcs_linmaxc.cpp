@@ -35,7 +35,7 @@ namespace VCSnonideal {
 #ifdef ALTLINPROG
 #else
 int linprogmax(double *XMOLES, double *CC, double *AX, double *BB, 
-	       int NE, int M, int NE0)
+               size_t NE, size_t M, size_t NE0)
    
    /*-----------------------------------------------------------------------
    * Find XMOLES(I), i = 1, M such that
@@ -60,14 +60,14 @@ int linprogmax(double *XMOLES, double *CC, double *AX, double *BB,
    int    *IND, *IW, *IOPT;
 
    MROWS = 1;
-   MCON = NE;
-   NCOLS = M;
+   MCON = (int) NE;
+   NCOLS = (int) M;
    MDW = MCON + NCOLS;
    NX = 0;
    NI = 0;
    
    sum = 0.0;
-   for (i = 0; i < M; i++) {
+   for (i = 0; i < NCOLS; i++) {
       sum += fabs(CC[i]);
    }
    F[0] = sum * 1000.;

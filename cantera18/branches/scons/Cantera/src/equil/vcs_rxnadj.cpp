@@ -40,10 +40,10 @@ namespace VCSnonideal {
    *                   in this routine. The species is a noncomponent 
    *            -  2 : Same as one but, the zeroed species is a component. 
    */
-  int VCS_SOLVE::vcs_RxnStepSizes() {
-    int  j, irxn, kspec, soldel = 0, iph;
+  size_t VCS_SOLVE::vcs_RxnStepSizes() {
+    size_t  j, irxn, kspec, soldel = 0, iph;
     double s, xx, dss;
-    int k = 0;
+    size_t k = 0;
     vcs_VolPhase *Vphase = 0;
     double *dnPhase_irxn;
 #ifdef DEBUG_MODE
@@ -126,7 +126,7 @@ namespace VCSnonideal {
 		      m_deltaGRxn_new[irxn]);   
 #endif
 	      Vphase = m_VolPhaseList[iph];
-	      int numSpPhase = Vphase->nSpecies();
+	      size_t numSpPhase = Vphase->nSpecies();
 	      m_deltaMolNumSpecies[kspec] = 
 		m_totalMolNum * 10.0 * VCS_DELETE_PHASE_CUTOFF / numSpPhase;
 	    }
@@ -393,9 +393,9 @@ namespace VCSnonideal {
    *  NOTE: currently this routine is not used.
    */
   int VCS_SOLVE::vcs_rxn_adj_cg() {  
-    int irxn, j;
-    int k = 0;
-    int kspec, soldel = 0;
+    size_t irxn, j;
+    size_t k = 0;
+    size_t kspec, soldel = 0;
     double s, xx, dss;
     double *dnPhase_irxn;
 #ifdef DEBUG_MODE
@@ -596,7 +596,7 @@ namespace VCSnonideal {
    *
    *  NOTE: currently this routine is not used
    */
-  double VCS_SOLVE::vcs_Hessian_diag_adj(int irxn, double hessianDiag_Ideal) {
+  double VCS_SOLVE::vcs_Hessian_diag_adj(size_t irxn, double hessianDiag_Ideal) {
     double diag = hessianDiag_Ideal;
     double hessActCoef = vcs_Hessian_actCoeff_diag(irxn);
     if (hessianDiag_Ideal <= 0.0) {
@@ -621,8 +621,8 @@ namespace VCSnonideal {
    *
    *  NOTE: currently this routine is not used
    */
-  double VCS_SOLVE::vcs_Hessian_actCoeff_diag(int irxn) {
-    int kspec, k, l, kph;
+  double VCS_SOLVE::vcs_Hessian_actCoeff_diag(size_t irxn) {
+    size_t kspec, k, l, kph;
     double s;
     double *sc_irxn;
     kspec = m_indexRxnToSpecies[irxn];
@@ -719,18 +719,18 @@ namespace VCSnonideal {
    * an unknown state.
    */
   double VCS_SOLVE::deltaG_Recalc_Rxn(const int stateCalc, 
-				      const int irxn, const double *const molNum,
+				      const size_t irxn, const double *const molNum,
 				      double * const ac, double * const mu_i) {
-    int kspec = irxn + m_numComponents;
+    size_t kspec = irxn + m_numComponents;
     int *pp_ptr = m_phaseParticipation[irxn];
-    for (int iphase = 0; iphase < m_numPhases; iphase++) {
+    for (size_t iphase = 0; iphase < m_numPhases; iphase++) {
       if (pp_ptr[iphase]) {
 	vcs_chemPotPhase(stateCalc, iphase, molNum, ac, mu_i);
       }
     }
     double deltaG = mu_i[kspec];
     double *sc_irxn = m_stoichCoeffRxnMatrix[irxn];
-    for (int k = 0; k < m_numComponents; k++) {
+    for (size_t k = 0; k < m_numComponents; k++) {
       deltaG += sc_irxn[k] * mu_i[k];
     }
     return deltaG;
@@ -751,15 +751,15 @@ namespace VCSnonideal {
    *
    *  @return         Returns the optimized step length found by the search
    */
-  double VCS_SOLVE::vcs_line_search(const int irxn, const double dx_orig, 
+  double VCS_SOLVE::vcs_line_search(const size_t irxn, const double dx_orig,
 				    char * const ANOTE)
 #else
-    double VCS_SOLVE::vcs_line_search(const int irxn, const double dx_orig)
+    double VCS_SOLVE::vcs_line_search(const size_t irxn, const double dx_orig)
 #endif
   {
     int its = 0;
-    int k;
-    int kspec = m_indexRxnToSpecies[irxn];
+    size_t k;
+    size_t kspec = m_indexRxnToSpecies[irxn];
     const int MAXITS = 10;
     double dx = dx_orig;
     double *sc_irxn = m_stoichCoeffRxnMatrix[irxn];

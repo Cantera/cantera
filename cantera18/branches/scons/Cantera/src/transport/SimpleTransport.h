@@ -222,7 +222,7 @@ namespace Cantera {
      *   @param ld 
      *   @param d   
      */
-    virtual void getBinaryDiffCoeffs(const int ld, doublereal* const d);
+    virtual void getBinaryDiffCoeffs(const size_t ld, doublereal* const d);
 
     //! Get the Mixture diffusion coefficients
     /*!

@@ -58,8 +58,9 @@ namespace VCSnonideal {
    */
   int VCS_SOLVE::vcs_elem_rearrange(double * const aw, double * const sa,
 				    double * const sm, double * const ss) {
-    int  j, k, l, i, jl, ml, jr, lindep, ielem;
-    int ncomponents = m_numComponents;
+    size_t  j, k, l, i, jl, ml, jr, ielem;
+    bool lindep;
+    size_t ncomponents = m_numComponents;
     double test = -1.0E10;
 #ifdef DEBUG_MODE
     if (m_debug_print_lvl >= 2) {
@@ -75,13 +76,13 @@ namespace VCSnonideal {
      *        Use a temporary work array for the element numbers 
      *        Also make sure the value of test is unique.
      */
-    lindep = FALSE;
+    lindep = false;
     do {
-      lindep = FALSE;
+      lindep = false;
       for (i = 0; i < m_numElemConstraints; ++i) {
 	test -= 1.0;
 	aw[i] = m_elemAbundancesGoal[i];
-	if (test == aw[i]) lindep = TRUE;
+	if (test == aw[i]) lindep = true;
       }
     } while (lindep);
    
@@ -175,8 +176,8 @@ namespace VCSnonideal {
 	/* **************************************************** */
 	/* **** IF NORM OF NEW ROW  .LT. 1E-6 REJECT ********** */
 	/* **************************************************** */
-	if (sa[jr] < 1.0e-6)  lindep = TRUE;
-	else                  lindep = FALSE;
+	if (sa[jr] < 1.0e-6)  lindep = true;
+	else                  lindep = false;
       } while(lindep);
       /* ****************************************** */
       /* **** REARRANGE THE DATA ****************** */
@@ -213,14 +214,14 @@ namespace VCSnonideal {
    *  @param ipos  first global element index
    *  @param jpos  second global element index
    */
-  void VCS_SOLVE::vcs_switch_elem_pos(int ipos, int jpos) {
+  void VCS_SOLVE::vcs_switch_elem_pos(size_t ipos, size_t jpos) {
     if (ipos == jpos) return;
-    int j;
+    size_t j;
     double dtmp;
     vcs_VolPhase *volPhase;
 #ifdef DEBUG_MODE
-    if (ipos < 0 || ipos > (m_numElemConstraints - 1) ||
-	jpos < 0 || jpos > (m_numElemConstraints - 1)    ) {
+    if (ipos > (m_numElemConstraints - 1) ||
+	jpos > (m_numElemConstraints - 1)) {
       plogf("vcs_switch_elem_pos: ifunc = 0: inappropriate args: %d %d\n",
 	    ipos, jpos);
       plogendl();
@@ -231,7 +232,7 @@ namespace VCSnonideal {
      * Change the element Global Index list in each vcs_VolPhase object
      * to reflect the switch in the element positions.
      */
-    for (int iph = 0; iph < m_numPhases; iph++) {
+    for (size_t iph = 0; iph < m_numPhases; iph++) {
       volPhase = m_VolPhaseList[iph];
       for (size_t e = 0; e < volPhase->nElemConstraints(); e++) {
 	if (volPhase->elemGlobalIndex(e) == ipos) {
@@ -244,7 +245,7 @@ namespace VCSnonideal {
     }
     vcsUtil_dsw(VCS_DATA_PTR(m_elemAbundancesGoal), ipos, jpos);
     vcsUtil_dsw(VCS_DATA_PTR(m_elemAbundances), ipos, jpos);
-    vcsUtil_isw(VCS_DATA_PTR(m_elementMapIndex), ipos, jpos);
+    vcsUtil_ssw(VCS_DATA_PTR(m_elementMapIndex), ipos, jpos);
     vcsUtil_isw(VCS_DATA_PTR(m_elType),  ipos, jpos);
     vcsUtil_isw(VCS_DATA_PTR(m_elementActive),  ipos, jpos);
     for (j = 0; j < m_numSpeciesTot; ++j) {

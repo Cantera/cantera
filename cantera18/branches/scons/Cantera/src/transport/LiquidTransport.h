@@ -222,7 +222,7 @@ namespace Cantera {
      *   @param ld 
      *   @param d   
      */
-    virtual void getBinaryDiffCoeffs(const int ld, doublereal* const d);
+    virtual void getBinaryDiffCoeffs(const size_t ld, doublereal* const d);
 
     //! Get the Mixture diffusion coefficients
     /*!
@@ -373,7 +373,7 @@ namespace Cantera {
 
 
     //! Number of species in the mixture
-    int m_nsp;
+    size_t m_nsp;
 
     //! Minimum temperature applicable to the transport property eval
     doublereal m_tmin;

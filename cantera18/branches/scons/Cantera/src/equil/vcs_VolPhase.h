@@ -258,7 +258,7 @@ namespace VCSnonideal {
      * @return Gstar[kspec] returns the gibbs free energy for the
      *         standard state of the kth species.
      */
-    double GStar_calc_one(int kspec) const;
+    double GStar_calc_one(size_t kspec) const;
 
     //! Gibbs free energy calculation at a temperature for the reference state
     //! of a species, return a value for one species
@@ -268,7 +268,7 @@ namespace VCSnonideal {
      *
      *  @return return value of the gibbs free energy
      */
-    double G0_calc_one(int kspec) const;
+    double G0_calc_one(size_t kspec) const;
 
     //! Molar volume calculation for standard state of one species
     /*!
@@ -283,7 +283,7 @@ namespace VCSnonideal {
      * @return molar volume of the kspec species's standard
      *         state (m**3/kmol)
      */
-    double VolStar_calc_one(int kglob) const;
+    double VolStar_calc_one(size_t kglob) const;
 
     //! Fill in the partial molar volume vector for VCS
     /*!
@@ -377,7 +377,7 @@ namespace VCSnonideal {
      *
      * @return  Value of the mole fraction
      */
-    double molefraction(int kspec) const;
+    double molefraction(size_t kspec) const;
 
     //! Sets the total moles in the phase
     /*!
@@ -512,7 +512,7 @@ namespace VCSnonideal {
     double totalMolesInert() const;
 
     //! Returns the global index of the local element index for the phase
-    int elemGlobalIndex(const int e) const;
+    size_t elemGlobalIndex(const size_t e) const;
 
     //! sets a local phase element to a global index value
     /*!
@@ -552,7 +552,7 @@ namespace VCSnonideal {
      *
      * @param tPhase Pointer to the thermophase object
      */
-    int transferElementsFM(const Cantera::ThermoPhase * const tPhase);
+    size_t transferElementsFM(const Cantera::ThermoPhase * const tPhase);
 
     //! Get a constant form of the Species Formula Matrix
     /*!
@@ -579,7 +579,7 @@ namespace VCSnonideal {
 
 
     //! Return the number of species in the phase
-    int nSpecies() const;
+    size_t nSpecies() const;
 
   private:
 
