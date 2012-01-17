@@ -658,7 +658,7 @@ namespace Cantera {
    * @return
    *  Returns true if everything is ok, false otherwise.
    */
-  bool installSpecies(int k, const XML_Node& s, thermo_t& th, 
+  bool installSpecies(size_t k, const XML_Node& s, thermo_t& th,
 		      SpeciesThermo *spthermo_ptr, int rule, 
 		      XML_Node *phaseNode_ptr,
 		      VPSSMgr *vpss_ptr,
@@ -695,9 +695,9 @@ namespace Cantera {
     // element in phase th. Elements not declared in the
     // species (i.e., not in map comp) will have zero
     // entries in the vector.
-    int m, nel = th.nElements();
+    size_t nel = th.nElements();
     vector_fp ecomp(nel, 0.0);            
-    for (m = 0; m < nel; m++) {
+    for (size_t m = 0; m < nel; m++) {
       const char *es = comp[th.elementName(m)].c_str();
       if (strlen(es) > 0) {
         ecomp[m] = atofCheck(es);

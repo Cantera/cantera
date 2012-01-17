@@ -124,7 +124,7 @@ namespace Cantera {
   void MultiPhase::init() {
     if (m_init) return;
     index_t ip, kp, k = 0, nsp, m;
-    int mlocal;
+    size_t mlocal;
     string sym;
 
     // allocate space for the atomic composition matrix
@@ -144,7 +144,7 @@ namespace Cantera {
 	nsp = p->nSpecies();
 	mlocal = p->elementIndex(sym);    
 	for (kp = 0; kp < nsp; kp++) {
-	  if (mlocal >= 0) {
+	  if (mlocal != -1) {
 	    m_atoms(m, k) = p->nAtoms(kp, mlocal);
 	  }
 	  if (m == 0) {
@@ -224,13 +224,13 @@ namespace Cantera {
     return sum;
   }
 
-  int MultiPhase::speciesIndex(std::string speciesName, std::string phaseName) {
-    int p = phaseIndex(phaseName);
-    if (p < 0) {
+  size_t MultiPhase::speciesIndex(std::string speciesName, std::string phaseName) {
+    size_t p = phaseIndex(phaseName);
+    if (p == -1) {
       throw CanteraError("MultiPhase::speciesIndex", "phase not found: " + phaseName);
     }
-    int k = m_phase[p]->speciesIndex(speciesName);
-    if (k < 0) {
+    size_t k = m_phase[p]->speciesIndex(speciesName);
+    if (k == -1) {
       throw CanteraError("MultiPhase::speciesIndex", "species not found: " + speciesName);
     }
     return m_spstart[p] + k;
@@ -374,9 +374,8 @@ namespace Cantera {
   void MultiPhase::setPhaseMoleFractions(const index_t n, const doublereal* const x) {
     phase_t* p = m_phase[n];
     p->setState_TPX(m_temp, m_press, x);
-    int nsp = p->nSpecies();
-    int istart = m_spstart[n];
-    for (int k = 0; k < nsp; k++) {
+    size_t istart = m_spstart[n];
+    for (int k = 0; k < p->nSpecies(); k++) {
       m_moleFractions[istart+k] = x[k];
     }
   }
@@ -385,7 +384,7 @@ namespace Cantera {
   // species name strings to mole numbers. Mole numbers that are
   // less than or equal to zero will be set to zero.
   void MultiPhase::setMolesByName(compositionMap& xMap) {
-    int kk = nSpecies();
+    size_t kk = nSpecies();
     doublereal x;
     vector_fp moles(kk, 0.0);
     for (int k = 0; k < kk; k++) {
@@ -403,8 +402,7 @@ namespace Cantera {
     // add an entry in the map for every species, with value -1.0.
     // Function parseCompString (stringUtils.cpp) uses the names
     // in the map to specify the allowed species.
-    int kk = nSpecies();
-    for (int k = 0; k < kk; k++) { 
+    for (int k = 0; k < nSpecies(); k++) {
       xx[speciesName(k)] = -1.0;
     }
 
@@ -904,7 +902,7 @@ namespace Cantera {
     m_moles[n] = moles;
   }
 
-  int MultiPhase::speciesPhaseIndex(const index_t kGlob) const {
+  size_t MultiPhase::speciesPhaseIndex(const index_t kGlob) const {
     return m_spphase[kGlob];
   }
 

@@ -459,7 +459,7 @@ namespace Cantera {
      
       csvFile.precision(8);
 
-      int kk = nSpecies();
+      size_t kk = nSpecies();
       std::vector<double> x(kk, 0.0);
       std::vector<double> y(kk, 0.0);
       std::vector<double> mu(kk, 0.0);

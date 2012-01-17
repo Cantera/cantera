@@ -249,7 +249,8 @@ namespace Cantera {
     for (size_t k = 0; k < m_kk; k++) {
       if (m_molwts[k] < 0.0) {
 	throw CanteraError("State::init",
-			   "negative molecular weight for species number "+int2str(k));
+			   "negative molecular weight for species number "
+			   + int2str(int(k)));
       }
       /*
        * Some surface phases may define species representing

@@ -172,7 +172,7 @@ namespace Cantera {
      *                      information for the phase in which the species
      *                      resides
      */
-    void installThermoForSpecies(int k, const XML_Node& speciesNode, 
+    void installThermoForSpecies(size_t k, const XML_Node& speciesNode,
 				 ThermoPhase *th_ptr, SpeciesThermo& spthermo,
 				 const XML_Node *phaseNode_ptr = 0) const;
 
@@ -196,7 +196,7 @@ namespace Cantera {
      *                      information for the phase in which the species
      *                      resides
      */
-    void installVPThermoForSpecies(int k, const XML_Node& speciesNode, 
+    void installVPThermoForSpecies(size_t k, const XML_Node& speciesNode,
 				   VPStandardStateTP *vp_ptr,
 				   VPSSMgr *vpss_ptr,
 				   SpeciesThermo *spthermo_ptr,

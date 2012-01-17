@@ -159,7 +159,7 @@ namespace Cantera {
      * @see ShomatePoly
      * @see ShomatePoly2
      */
-    virtual void install(string name, int index, int type, 
+    virtual void install(string name, size_t index, int type,
 			 const doublereal* c,
 			 doublereal minTemp, doublereal maxTemp, 
 			 doublereal refPressure) {
@@ -230,7 +230,7 @@ namespace Cantera {
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
      */
-    virtual void update_one(int k, doublereal t, doublereal* cp_R, 
+    virtual void update_one(size_t k, doublereal t, doublereal* cp_R,
 			    doublereal* h_RT, doublereal* s_R) const {
 
       doublereal tt = 1.e-3*t;
@@ -242,8 +242,8 @@ namespace Cantera {
       m_t[5] = 1.0/GasConstant;
       m_t[6] = 1.0/(GasConstant * t);
 
-      int grp = m_group_map[k];
-      int pos = m_posInGroup_map[k];
+      size_t grp = m_group_map[k];
+      size_t pos = m_posInGroup_map[k];
       const vector<ShomatePoly> &mlg = m_low[grp-1];
       const ShomatePoly *nlow = &(mlg[pos]);
 
@@ -311,8 +311,8 @@ namespace Cantera {
      *
      * @param k    Species index
      */ 
-    virtual doublereal minTemp(int k=-1) const {
-      if (k < 0)
+    virtual doublereal minTemp(size_t k=-1) const {
+      if (k == -1)
 	return m_tlow_max;
       else
 	return m_tlow[k];
@@ -328,8 +328,8 @@ namespace Cantera {
      *
      * @param k  species index
      */
-    virtual doublereal maxTemp(int k=-1) const {
-      if (k < 0)
+    virtual doublereal maxTemp(size_t k=-1) const {
+      if (k == -1)
 	return m_thigh_min;
       else
 	return m_thigh[k];
@@ -348,7 +348,7 @@ namespace Cantera {
      *
      * @param k species index
      */
-    virtual doublereal refPressure(int k=-1) const {
+    virtual doublereal refPressure(size_t k=-1) const {
       return m_p0;
     }
 
@@ -358,7 +358,7 @@ namespace Cantera {
      *
      * @param index  Species index
      */
-    virtual int reportType(int index) const { return SHOMATE; }
+    virtual int reportType(size_t index) const { return SHOMATE; }
   
     /*!
      * This utility function reports back the type of 
@@ -374,15 +374,15 @@ namespace Cantera {
      * @param maxTemp   output - Maximum temperature
      * @param refPressure output - reference pressure (Pa).
      */
-    virtual void reportParams(int index, int &type, 
+    virtual void reportParams(size_t index, int &type,
 			      doublereal * const c, 
 			      doublereal &minTemp, 
 			      doublereal &maxTemp, 
 			      doublereal &refPressure) const {
       type = reportType(index);
       if (type == SHOMATE) {
-	int grp = m_group_map[index];
-	int pos = m_posInGroup_map[index];
+	size_t grp = m_group_map[index];
+	size_t pos = m_posInGroup_map[index];
 	int itype = SHOMATE;
 	const vector<ShomatePoly> &mlg = m_low[grp-1];
 	const vector<ShomatePoly> &mhg = m_high[grp-1];
@@ -390,7 +390,7 @@ namespace Cantera {
 	const ShomatePoly *highPoly = &(mhg[pos]);
 	doublereal tmid = lowPoly->maxTemp();
 	c[0] = tmid;
-	int n;
+	size_t n;
 	double ttemp;
 	lowPoly->reportParameters(n, itype, minTemp, ttemp, refPressure,
 				  c + 1);
@@ -419,11 +419,11 @@ namespace Cantera {
      * @param c     Vector of coefficients used to set the
      *              parameters for the standard state.
      */
-    virtual void modifyParams(int index, doublereal *c) {
+    virtual void modifyParams(size_t index, doublereal *c) {
       int type = reportType(index);
       if (type == SHOMATE) {
-	int grp = m_group_map[index];
-	int pos = m_posInGroup_map[index];
+	size_t grp = m_group_map[index];
+	size_t pos = m_posInGroup_map[index];
 	vector<ShomatePoly> &mlg = m_low[grp-1];
         vector<ShomatePoly> &mhg = m_high[grp-1];
         ShomatePoly *lowPoly  = &(mlg[pos]);
@@ -560,14 +560,14 @@ namespace Cantera {
      * for that species are stored. group indecises start at 1,
      * so a decrement is always performed to access vectors.
      */
-    mutable map<int, int>              m_group_map;
+    mutable map<size_t, size_t>              m_group_map;
 
     /*!
      * This map takes as its index, the species index in the phase.
      * It returns the position index within the group, where the 
      * temperature polynomials for that species are storred.
      */
-    mutable map<int, int>              m_posInGroup_map;
+    mutable map<size_t, size_t>              m_posInGroup_map;
   };
 
 }

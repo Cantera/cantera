@@ -48,7 +48,7 @@ public:
   /*
    * constructor and destructor
    */
-  vcs_SpeciesProperties(int indexPhase, int indexSpeciesPhase,
+  vcs_SpeciesProperties(size_t indexPhase, size_t indexSpeciesPhase,
 			vcs_VolPhase *owning);
   virtual ~vcs_SpeciesProperties();
 

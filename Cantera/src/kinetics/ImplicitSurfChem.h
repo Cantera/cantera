@@ -244,10 +244,10 @@ namespace Cantera {
     std::vector<InterfaceKinetics*> m_vecKinPtrs;
 
     //! Vector of number of species in each Surface Phase
-    vector_int  m_nsp;
+    std::vector<size_t>  m_nsp;
 
     //! index of the surface phase in each InterfaceKinetics object
-    vector_int m_surfindex;
+    std::vector<size_t> m_surfindex;
 
     
     vector_int m_specStartIndex;
@@ -258,18 +258,18 @@ namespace Cantera {
      * as there is a 1-1 correspondence between InterfaceKinetics objects
      * and surface phases.
      */
-    int m_nsurf;
+    size_t m_nsurf;
 
     //! Total number of surface species in all surface phases
     /*!
      * This is the total number of unknowns in m_mode 0 problem
      */
-    int m_nv;
+    size_t m_nv;
 
-    int m_numBulkPhases;
+    size_t m_numBulkPhases;
     vector_int  m_nspBulkPhases;
-    int  m_numTotalBulkSpecies;
-    int m_numTotalSpecies;
+    size_t  m_numTotalBulkSpecies;
+    size_t m_numTotalSpecies;
 
     std::vector<vector_int> pLocVec;
     //! Pointer to the cvode integrator

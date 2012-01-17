@@ -292,7 +292,7 @@ namespace Cantera {
    * @return
    *  Returns true if everything is ok, false otherwise.
    */
-  bool installSpecies(int k, const XML_Node& s, thermo_t& p, 
+  bool installSpecies(size_t k, const XML_Node& s, thermo_t& p,
 		      SpeciesThermo* spthermo_ptr, int rule, 
 		      XML_Node *phaseNode_ptr = 0,
                       VPSSMgr *vpss_ptr = 0,

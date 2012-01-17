@@ -38,8 +38,8 @@ namespace Cantera {
 
     int number;
     int rxn_number;
-    vector_int reactants;
-    vector_int products;
+    std::vector<size_t> reactants;
+    std::vector<size_t> products;
     vector_fp rorder;
     vector_fp porder;
     vector_fp rstoich;

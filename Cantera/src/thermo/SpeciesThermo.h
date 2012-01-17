@@ -233,7 +233,7 @@ namespace Cantera {
      *                    parameterization. 
      * @see speciesThermoTypes.h 
      */
-    virtual void install(std::string name, int index, int type, 
+    virtual void install(std::string name, size_t index, int type,
 			 const doublereal* c, 
 			 doublereal minTemp, doublereal maxTemp,
 			 doublereal refPressure)=0;
@@ -281,7 +281,7 @@ namespace Cantera {
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
      */
-    virtual void update_one(int k, doublereal T, 
+    virtual void update_one(size_t k, doublereal T,
 			    doublereal* cp_R, 
 			    doublereal* h_RT, 
 			    doublereal* s_R) const {
@@ -298,7 +298,7 @@ namespace Cantera {
      *
      * @param k    Species index
      */ 
-    virtual doublereal minTemp(int k=-1) const =0;
+    virtual doublereal minTemp(size_t k=-1) const =0;
 
     //! Maximum temperature.
     /*!
@@ -310,7 +310,7 @@ namespace Cantera {
      *
      * @param k  Species Index
      */
-    virtual doublereal maxTemp(int k=-1) const =0;
+    virtual doublereal maxTemp(size_t k=-1) const =0;
     
     //! The reference-state pressure for species k.
     /*!
@@ -325,7 +325,7 @@ namespace Cantera {
      *
      * @param k Species Index
      */
-    virtual doublereal refPressure(int k=-1) const =0;
+    virtual doublereal refPressure(size_t k=-1) const =0;
 
     //! This utility function reports the type of parameterization
     //! used for the species with index number index.
@@ -333,7 +333,7 @@ namespace Cantera {
      *
      * @param index  Species index
      */
-    virtual int reportType(int index = -1) const = 0;
+    virtual int reportType(size_t index = -1) const = 0;
 
     
     //! This utility function reports back the type of 
@@ -347,7 +347,7 @@ namespace Cantera {
      * @param maxTemp   output - Maximum temperature
      * @param refPressure output - reference pressure (Pa).
      */
-    virtual void reportParams(int index, int &type, 
+    virtual void reportParams(size_t index, int &type,
 			      doublereal * const c, 
 			      doublereal &minTemp, 
 			      doublereal &maxTemp, 
@@ -359,7 +359,7 @@ namespace Cantera {
      * @param c     Vector of coefficients used to set the
      *              parameters for the standard state.
      */
-    virtual void modifyParams(int index, doublereal *c) = 0;
+    virtual void modifyParams(size_t index, doublereal *c) = 0;
   
 #ifdef H298MODIFY_CAPABILITY
     //! Report the 298 K Heat of Formation of the standard state of one species (J kmol-1)

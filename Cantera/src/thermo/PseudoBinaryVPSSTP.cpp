@@ -142,12 +142,12 @@ namespace Cantera {
    */
 
 
-  doublereal PseudoBinaryVPSSTP::standardConcentration(int k) const {
+  doublereal PseudoBinaryVPSSTP::standardConcentration(size_t k) const {
     err("standardConcentration");
     return -1.0;
   }
 
-  doublereal PseudoBinaryVPSSTP::logStandardConc(int k) const {
+  doublereal PseudoBinaryVPSSTP::logStandardConc(size_t k) const {
     err("logStandardConc");
     return -1.0;
   }

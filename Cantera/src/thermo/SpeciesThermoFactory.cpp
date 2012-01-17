@@ -288,7 +288,7 @@ namespace Cantera {
    * block is found in the XML input.
    */
   static void installNasaThermoFromXML(std::string speciesName,
-				       SpeciesThermo& sp, int k, 
+				       SpeciesThermo& sp, size_t k,
 				       const XML_Node* f0ptr, const XML_Node* f1ptr) {
     doublereal tmin0, tmax0, tmin1, tmax1, tmin, tmid, tmax;
 
@@ -458,7 +458,7 @@ namespace Cantera {
 #endif
   }
 
- static doublereal convertDGFormation(int k, ThermoPhase *th_ptr) {
+ static doublereal convertDGFormation(size_t k, ThermoPhase *th_ptr) {
     /*
      * Ok let's get the element compositions and conversion factors.
      */
@@ -483,7 +483,7 @@ namespace Cantera {
 
   static void installMinEQ3asShomateThermoFromXML(std::string speciesName, 
 						  ThermoPhase *th_ptr,
-						  SpeciesThermo& sp, int k, 
+						  SpeciesThermo& sp, size_t k,
 						  const XML_Node* MinEQ3node) {
 
     array_fp coef(15), c0(7, 0.0);
@@ -563,7 +563,7 @@ namespace Cantera {
    * parameterization for species k.
    */
   static void installShomateThermoFromXML(std::string speciesName, 
-					  SpeciesThermo& sp, int k, 
+					  SpeciesThermo& sp, size_t k,
 					  const XML_Node* f0ptr, const XML_Node* f1ptr) {
     doublereal tmin0, tmax0, tmin1, tmax1, tmin, tmid, tmax;
 
@@ -618,7 +618,7 @@ namespace Cantera {
    * parameterization for species k.
    */
   static void installSimpleThermoFromXML(std::string speciesName, 
-					 SpeciesThermo& sp, int k, 
+					 SpeciesThermo& sp, size_t k,
 					 const XML_Node& f) {
     doublereal tmin, tmax;
     tmin = fpValue(f["Tmin"]);
@@ -641,7 +641,7 @@ namespace Cantera {
    * block is found in the XML input.
    */
   static void installNasa9ThermoFromXML(std::string speciesName,
-					SpeciesThermo& sp, int k, 
+					SpeciesThermo& sp, size_t k,
 					const std::vector<XML_Node*>& tp)
   { 				
     const XML_Node * fptr = tp[0];
@@ -744,10 +744,10 @@ namespace Cantera {
    *                      information for the phase in which the species
    *                      resides
    */
-  void SpeciesThermoFactory::
-  installThermoForSpecies(int k, const XML_Node& speciesNode, ThermoPhase *th_ptr,
-			  SpeciesThermo& spthermo,
-			  const XML_Node *phaseNode_ptr) const {
+  void SpeciesThermoFactory::installThermoForSpecies
+  (size_t k, const XML_Node& speciesNode, ThermoPhase *th_ptr,
+   SpeciesThermo& spthermo, const XML_Node *phaseNode_ptr) const
+  {
     /*
      * Check to see that the species block has a thermo block
      * before processing. Throw an error if not there.
@@ -851,7 +851,7 @@ namespace Cantera {
    *                      resides
    */
   void SpeciesThermoFactory::
-  installVPThermoForSpecies(int k, const XML_Node& speciesNode, 
+  installVPThermoForSpecies(size_t k, const XML_Node& speciesNode,
 			    VPStandardStateTP *vp_ptr,
 			    VPSSMgr *vpssmgr_ptr,
 			    SpeciesThermo *spthermo_ptr,

@@ -93,8 +93,8 @@ namespace Cantera {
    */
   bool getReagents(const XML_Node& rxn, kinetics_t& kin, int rp,
 		   std::string default_phase, 
-		   vector_int& spnum, vector_fp& stoich, vector_fp& order,
-		   int rule);
+		   std::vector<size_t>& spnum, vector_fp& stoich,
+		   vector_fp& order, int rule);
 
   //! Read the rate coefficient data from the XML file. 
   /*!

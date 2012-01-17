@@ -140,11 +140,11 @@ namespace VCSnonideal {
      *  @param phaseName   String name for the phase
      *  @param molesInert  kmoles of inert in the phase (defaults to zero)
      */
-    void resize(const int phaseNum, const int numSpecies, 
-		const int numElem, const char * const phaseName,
+    void resize(const size_t phaseNum, const size_t numSpecies,
+		const size_t numElem, const char * const phaseName,
 		const double molesInert = 0.0);
 
-    void elemResize(const int numElemConstraints);
+    void elemResize(const size_t numElemConstraints);
 
     //! Evaluate activity coefficients and return the kspec coefficient
     /*!
@@ -153,7 +153,7 @@ namespace VCSnonideal {
      *
      * @param kspec species number
      */
-    double AC_calc_one(int kspec) const;
+    double AC_calc_one(size_t kspec) const;
 
 
     //! Set the moles and/or mole fractions within the phase
@@ -434,9 +434,9 @@ namespace VCSnonideal {
 
     //! Return the index of the species that represents the 
     //! the voltage of the phase
-    int phiVarIndex() const;
+    size_t phiVarIndex() const;
 
-    void setPhiVarIndex(int phiVarIndex);
+    void setPhiVarIndex(size_t phiVarIndex);
 
     //! Retrieve the kth Species structure for the species belonging to this phase
     /*!
@@ -444,7 +444,7 @@ namespace VCSnonideal {
      *
      * @param kindex kth species index.
      */
-    vcs_SpeciesProperties * speciesProperty(const int kindex);
+    vcs_SpeciesProperties * speciesProperty(const size_t kindex);
 
     //! int indicating whether the phase exists or not
     /*!
@@ -485,7 +485,7 @@ namespace VCSnonideal {
      * @return Returns the VCS_SOLVE species index of the species.
      *         This changes as rearrangements are carried out. 
      */
-    int spGlobalIndexVCS(const int spIndex) const;
+    size_t spGlobalIndexVCS(const size_t spIndex) const;
 
 
     //! set the Global VCS index of the kth species in the phase
@@ -496,7 +496,7 @@ namespace VCSnonideal {
      * @return Returns the VCS_SOLVE species index of the that species
      *         This changes as rearrangements are carried out. 
      */
-    void setSpGlobalIndexVCS(const int spIndex, const int spGlobalIndex);
+    void setSpGlobalIndexVCS(const size_t spIndex, const size_t spGlobalIndex);
 
     //! Sets the total moles of inert in the phase
     /*!
@@ -519,29 +519,29 @@ namespace VCSnonideal {
      * @param eLocal Local phase element index
      * @param eGlobal Global phase element index
      */
-    void setElemGlobalIndex(const int eLocal, const int eGlobal);
+    void setElemGlobalIndex(const size_t eLocal, const size_t eGlobal);
 
     //! Returns the number of element constraints
-    int nElemConstraints() const;
+    size_t nElemConstraints() const;
 
     //! Name of the element constraint with index \c e.
     /*!
      * @param e Element index.
      */
-    std::string elementName(const int e) const;
+    std::string elementName(const size_t e) const;
 
     //! Type of the element constraint with index \c e.
     /*!
      * @param e Element index.
      */
-    int elementType(const int e) const;
+    int elementType(const size_t e) const;
 
     //! Set the element Type of the element constraint with index \c e.
     /*!
      * @param e Element index
      * @param eType  type of the element.
      */
-    void setElementType(const int e, const int eType);
+    void setElementType(const size_t e, const int eType);
 
     //! Transfer all of the element information from the
     //! ThermoPhase object to the vcs_VolPhase object.
@@ -572,10 +572,10 @@ namespace VCSnonideal {
      *            metal electron -> VCS_SPECIES_INTERFACIALVOLTAGE
      *                 ( unknown is the interfacial voltage (volts) 
      */
-    int speciesUnknownType(const int k) const;
+    int speciesUnknownType(const size_t k) const;
 
 
-    int elementActive(const int e) const;
+    int elementActive(const size_t e) const;
 
 
     //! Return the number of species in the phase
@@ -670,7 +670,7 @@ namespace VCSnonideal {
      *  miscibility gap, these numbers will stay the
      * same after the split.                          
      */
-    int VP_ID;
+    size_t VP_ID;
 
     //! ID of the surface or volume domain in which the
     //!  this phase exists
@@ -703,7 +703,7 @@ namespace VCSnonideal {
      *  If it has one.  If it does not have a charge neutrality 
      * constraint, then this value is equal to -1    
      */
-    int ChargeNeutralityElement;
+    size_t ChargeNeutralityElement;
 
     //! Units for the chemical potential data, pressure data, volume,
     //! and species amounts
@@ -745,7 +745,7 @@ namespace VCSnonideal {
     /*!
      *  This is usually equal to the number of elements.
      */
-    int m_numElemConstraints;
+    size_t m_numElemConstraints;
 
     //! vector of strings containing the element constraint names
     /*!
@@ -791,10 +791,10 @@ namespace VCSnonideal {
 
     //!  Index of the element number in the global list of elements
     //!  storred in VCS_PROB or VCS_SOLVE       
-    std::vector<int> m_elemGlobalIndex;
+    std::vector<size_t> m_elemGlobalIndex;
 
     //! Number of species in the phase       
-    int m_numSpecies;
+    size_t m_numSpecies;
 
   public:
     //! String name for the phase
@@ -843,7 +843,7 @@ namespace VCSnonideal {
      *  Note, as part of the vcs algorithm, the order of the species 
      *  vector is changed during the algorithm      
      */
-    std::vector<int> IndSpecies;
+    std::vector<size_t> IndSpecies;
 
     //! Vector of Species structures for the species belonging to this phase
     /*!
@@ -879,7 +879,7 @@ namespace VCSnonideal {
   
     //! If the potential is a solution variable in VCS, it acts as a species.
     //!  This is the species index in the phase for the potential
-    int m_phiVarIndex;
+    size_t m_phiVarIndex;
  
     //! Total Volume of the phase 
     /*!

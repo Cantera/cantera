@@ -89,8 +89,8 @@ namespace Cantera {
      * @param products vector of integer product indices
      * @param reversible true if the reaction is reversible, false otherwise
      */
-    virtual void add(int rxn, const vector_int& reactants, const vector_int& products,
-	     bool reversible); 
+    virtual void add(int rxn, const std::vector<size_t>& reactants,
+                     const std::vector<size_t>& products, bool reversible);
 
     /**
      * Add a reaction with specified, possibly non-integral, reaction orders. 
@@ -120,7 +120,7 @@ namespace Cantera {
      *  C = N_p Q_f  + N_r Q_r.
      * \f]
      */
-     virtual void getCreationRates(int nSpecies, 
+     virtual void getCreationRates(size_t nSpecies,
 			  const doublereal* fwdRatesOfProgress, 
 			  const doublereal* revRatesOfProgress, 
 			  doublereal* creationRates);
@@ -137,7 +137,7 @@ namespace Cantera {
      * Note that the stoichiometric coefficient matrices are very sparse, integer
      * matrices. 
      */
-     virtual void getDestructionRates(int nSpecies, 
+     virtual void getDestructionRates(size_t nSpecies,
 			     const doublereal* fwdRatesOfProgress, 
 			     const doublereal* revRatesOfProgress, 
 			     doublereal* destructionRates);
@@ -157,7 +157,7 @@ namespace Cantera {
      *  W = (N_r - N_p) Q_{\rm net},
      * \f]
      */
-      virtual void getNetProductionRates(int nsp, const doublereal* ropnet, doublereal* w);
+      virtual void getNetProductionRates(size_t nsp, const doublereal* ropnet, doublereal* w);
 
 
 

@@ -48,7 +48,7 @@ namespace Cantera {
   {
   }
 
-  PDSS::PDSS(VPStandardStateTP *tp, int spindex) :
+  PDSS::PDSS(VPStandardStateTP *tp, size_t spindex) :
     m_pdssType(cPDSS_UNDEF),
     m_temp(-1.0),
     m_pres(-1.0),
@@ -485,7 +485,7 @@ namespace Cantera {
   }
 
 
-  void PDSS::reportParams(int &kindex, int &type,
+  void PDSS::reportParams(size_t &kindex, int &type,
 			  doublereal * const c,
 			  doublereal &minTemp,
 			  doublereal &maxTemp,

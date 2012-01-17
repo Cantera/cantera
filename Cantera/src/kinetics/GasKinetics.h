@@ -339,7 +339,7 @@ namespace Cantera {
 
     protected:
 
-        int                                 m_kk, m_nfall;
+        size_t m_kk, m_nfall;
 
         array_int                          m_fallindx;
 
@@ -347,7 +347,7 @@ namespace Cantera {
         Rate1<Arrhenius>                    m_falloff_high_rates;
         Rate1<Arrhenius>                    m_rates;
 
-        mutable std::map<int, std::pair<int, int> >   m_index;
+        mutable std::map<size_t, std::pair<int, size_t> > m_index;
 
         FalloffMgr                          m_falloffn;
 
@@ -358,7 +358,7 @@ namespace Cantera {
 
         ReactionStoichMgr*                   m_rxnstoich;
 
-        std::vector<int>                         m_fwdOrder;
+        std::vector<size_t> m_fwdOrder;
 
         int m_nirrev;
         int m_nrev;
@@ -391,7 +391,7 @@ namespace Cantera {
 
     private:
 
-        int reactionNumber(){ return m_ii;}
+        size_t reactionNumber(){ return m_ii;}
         std::vector<std::map<int, doublereal> > m_stoich;
 
         void addElementaryReaction(const ReactionData& r);
@@ -404,8 +404,8 @@ namespace Cantera {
             const std::vector<grouplist_t>& p);
         void updateKc();
 
-        void registerReaction(int rxnNumber, int type, int loc) {
-            m_index[rxnNumber] = std::pair<int, int>(type, loc);
+        void registerReaction(size_t rxnNumber, int type, size_t loc) {
+            m_index[rxnNumber] = std::pair<int, size_t>(type, loc);
         }
         bool m_finalized;
     };

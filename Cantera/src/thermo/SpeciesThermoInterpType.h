@@ -187,7 +187,7 @@ namespace Cantera {
     virtual int reportType() const = 0;
 
     //! Returns an integer representing the species index
-    virtual int speciesIndex() const = 0;
+    virtual size_t speciesIndex() const = 0;
   
     //! Update the properties for this species, given a temperature
     //! polynomial
@@ -247,7 +247,7 @@ namespace Cantera {
      * @param coeffs    Vector of coefficients used to set the
      *                  parameters for the standard state.
      */
-    virtual void reportParameters(int &index, int &type,
+    virtual void reportParameters(size_t &index, int &type,
 				  doublereal &minTemp, doublereal &maxTemp,
 				  doublereal &refPressure,
 				  doublereal* const coeffs) const = 0;
@@ -318,7 +318,7 @@ namespace Cantera {
      *
      *  @param PDSS_ptr     Pointer to the PDSS object that handles calls for this object
      */
-    STITbyPDSS(int speciesIndex, VPSSMgr *vpssmgr_ptr, PDSS *PDSS_ptr);
+    STITbyPDSS(size_t speciesIndex, VPSSMgr *vpssmgr_ptr, PDSS *PDSS_ptr);
 
     //! copy constructor
     /*!
@@ -364,7 +364,7 @@ namespace Cantera {
     virtual int reportType() const;
 
     //! Returns an integer representing the species index
-    virtual int speciesIndex() const;
+    virtual size_t speciesIndex() const;
   
     //! Update the properties for this species, given a temperature
     //! polynomial
@@ -424,7 +424,7 @@ namespace Cantera {
      * @param coeffs    Vector of coefficients used to set the
      *                  parameters for the standard state.
      */
-    virtual void reportParameters(int &index, int &type,
+    virtual void reportParameters(size_t &index, int &type,
 				  doublereal &minTemp, doublereal &maxTemp,
 				  doublereal &refPressure,
 				  doublereal* const coeffs) const;
@@ -451,7 +451,7 @@ namespace Cantera {
     PDSS *m_PDSS_ptr;
 
     //! Species index within the phase
-    int m_speciesIndex;
+    size_t m_speciesIndex;
   };
 
 }

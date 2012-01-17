@@ -20,14 +20,14 @@ DoubleStarStar::DoubleStarStar() :
  *  Constructor. Create an \c m by \c n array, and initialize
  *  all elements to \c v.
  */
-DoubleStarStar::DoubleStarStar(int m, int n, double v) :
+DoubleStarStar::DoubleStarStar(size_t m, size_t n, double v) :
   m_nrows(n),
   m_ncols(m) 
 {
   m_data.resize(n*m);
   std::fill(m_data.begin(), m_data.end(), v);
   m_colAddr.resize(m);
-  for (int jcol = 0; jcol < m_ncols; jcol++) {
+  for (size_t jcol = 0; jcol < m_ncols; jcol++) {
     m_colAddr[jcol] = &(m_data[jcol*m_nrows]);
   }
 }
@@ -39,7 +39,7 @@ DoubleStarStar::DoubleStarStar(const DoubleStarStar& y) {
   m_data.resize(m_nrows*m_ncols);
   m_data = y.m_data;
   m_colAddr.resize(m_ncols);
-  for (int jcol = 0; jcol < m_ncols; jcol++) {
+  for (size_t jcol = 0; jcol < m_ncols; jcol++) {
     m_colAddr[jcol] = &(m_data[jcol*m_nrows]);
   }
 }
@@ -52,7 +52,7 @@ DoubleStarStar& DoubleStarStar::operator=(const DoubleStarStar& y) {
   m_data.resize(m_nrows*m_ncols);
   m_data = y.m_data;
   m_colAddr.resize(m_ncols);
-  for (int jcol = 0; jcol < m_ncols; jcol++) {
+  for (size_t jcol = 0; jcol < m_ncols; jcol++) {
     m_colAddr[jcol] = &(m_data[jcol*m_nrows]);
   }
   return *this;
@@ -65,7 +65,7 @@ DoubleStarStar& DoubleStarStar::operator=(const DoubleStarStar& y) {
  * @param m  This is the number of columns in the new matrix
  * @param v  Default fill value -> defaults to zero.
  */
-void DoubleStarStar::resize(int m, int n, double v) {
+void DoubleStarStar::resize(size_t m, size_t n, double v) {
   std::vector<double> old_data;
   bool doCopy = false;
   if (m_nrows > 0 && m_ncols > 0) {
@@ -77,23 +77,23 @@ void DoubleStarStar::resize(int m, int n, double v) {
   m_data.resize(n*m, v);
   if (doCopy) {
     if (n >= m_nrows && m >= m_ncols) {
-      for (int jcol = 0; jcol < m_ncols; jcol++) {
-        for (int irow = 0; irow < m_nrows; irow++) {
+      for (size_t jcol = 0; jcol < m_ncols; jcol++) {
+        for (size_t irow = 0; irow < m_nrows; irow++) {
           m_data[jcol*n + irow] = old_data[jcol*m_nrows + irow];
         }
-        for (int irow = m_nrows; irow < n; irow++) {
+        for (size_t irow = m_nrows; irow < n; irow++) {
           m_data[jcol*n + irow] = v;
         }
       }
-      for (int jcol = m_ncols; jcol < m; jcol++) {
-        for (int irow = 0; irow < n; irow++) {
+      for (size_t jcol = m_ncols; jcol < m; jcol++) {
+        for (size_t irow = 0; irow < n; irow++) {
           m_data[jcol*n + irow] = v;
         }
       }
     } else {
       std::fill(m_data.begin(), m_data.end(), v);
-      for (int jcol = 0; jcol < m_ncols; jcol++) {
-        for (int irow = 0; irow < m_nrows; irow++) {
+      for (size_t jcol = 0; jcol < m_ncols; jcol++) {
+        for (size_t irow = 0; irow < m_nrows; irow++) {
           m_data[jcol*n + irow] = old_data[jcol*m_nrows + irow];
         }
       }
@@ -102,16 +102,16 @@ void DoubleStarStar::resize(int m, int n, double v) {
   m_nrows = n;
   m_ncols = m;
   m_colAddr.resize(m_ncols);
-  for (int jcol = 0; jcol < m_ncols; jcol++) {
+  for (size_t jcol = 0; jcol < m_ncols; jcol++) {
     m_colAddr[jcol] = &(m_data[jcol*m_nrows]);
   }
 }
 
-double * const DoubleStarStar::operator[](int jcol) {
+double * const DoubleStarStar::operator[](size_t jcol) {
   return m_colAddr[jcol];
 }
 
-const double * const DoubleStarStar::operator[](int jcol) const {
+const double * const DoubleStarStar::operator[](size_t jcol) const {
   return (const double * const) m_colAddr[jcol];
 }
 
@@ -124,12 +124,12 @@ double const * const * const DoubleStarStar::constBaseDataAddr() const {
 }
 
 // Number of rows
-int DoubleStarStar::nRows() const { 
+size_t DoubleStarStar::nRows() const {
   return m_nrows; 
 }
 
 // Number of columns
-int DoubleStarStar::nColumns() const { 
+size_t DoubleStarStar::nColumns() const {
   return m_ncols;
 }
 

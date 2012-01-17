@@ -29,7 +29,7 @@ namespace VCSnonideal {
    *  We initialize the arrays in the structure to the appropriate sizes.
    *  And, we initialize all of the elements of the arrays to defaults.  
    */
-  VCS_PROB::VCS_PROB(int nsp, int nel, int nph) :
+  VCS_PROB::VCS_PROB(size_t nsp, size_t nel, size_t nph) :
     prob_type(VCS_PROBTYPE_TP),
     nspecies(nsp),
     NSPECIES0(0),
@@ -357,7 +357,7 @@ namespace VCSnonideal {
   void VCS_PROB::addPhaseElements(vcs_VolPhase *volPhase) {
     int e, eVP;
     int foundPos = -1;
-    int neVP = volPhase->nElemConstraints();
+    size_t neVP = volPhase->nElemConstraints();
     std::string en;
     std::string enVP;
     /*
@@ -430,7 +430,7 @@ namespace VCSnonideal {
    *
    */
   int VCS_PROB::addOnePhaseSpecies(vcs_VolPhase *volPhase, int k, int kT) {
-    int e, eVP;
+    size_t e, eVP;
     if (kT > nspecies) {
       /*
        * Need to expand the number of species here

@@ -354,7 +354,7 @@ bool CKReader::writeReactions(std::ostream& log) {
 bool CKReader::validateSpecies(std::ostream& log) {
     int nel = static_cast<int>(elements.size());
     int nsp = static_cast<int>(species.size());
-    double nm, tol;
+    double tol;
     int j, k, m;
 
     log << newTask("validating species");
@@ -382,7 +382,7 @@ bool CKReader::validateSpecies(std::ostream& log) {
 	Species& s = species[k];
 
 	getMapKeys(s.comp, esyms);
-	nm = esyms.size();
+	size_t nm = esyms.size();
 
 	for (m = 0; m < nm; m++) {
 	  for (j = 0; j < nel; j++) {

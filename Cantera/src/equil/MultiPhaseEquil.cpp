@@ -460,7 +460,7 @@ namespace Cantera {
         // The left m_nel columns of A are now upper-diagonal.  Now
         // reduce the m_nel columns to diagonal form by back-solving
         for (m = nRows-1; m > 0; m--) {
-            for (int n = m-1; n>= 0; n--) {
+            for (size_t n = m-1; n != -1; n--) {
                 if (m_A(n,m) != 0.0) {
                     fctr = m_A(n,m);
                     for (k = m; k < m_nsp; k++) {
@@ -770,7 +770,7 @@ namespace Cantera {
                         psum = 0.0;
                         for (k = 0; k < m_nsp; k++) {
                             kc = m_species[k];
-                            if (m_mix->speciesPhaseIndex(kc) == (int) ip) {
+                            if (m_mix->speciesPhaseIndex(kc) == ip) {
                                 // bug fixed 7/12/06 DGG
                                 stoich = nu[k]; // nu[kc];
                                 psum += stoich * stoich;

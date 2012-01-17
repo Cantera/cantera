@@ -66,7 +66,7 @@ namespace Cantera {
      *           -   c[3] = \f$ {Cp}_k^o(T_0, p_{ref}) \f$  (J(kmol K)
      *
      */
-    ConstCpPoly(int n, doublereal tlow, doublereal thigh, 
+    ConstCpPoly(size_t n, doublereal tlow, doublereal thigh,
 		doublereal pref,
 		const doublereal* coeffs);
 
@@ -97,7 +97,7 @@ namespace Cantera {
     virtual int reportType() const { return CONSTANT_CP; }
 
     //! Returns an integer representing the species index
-    virtual int speciesIndex() const { return m_index; }
+    virtual size_t speciesIndex() const { return m_index; }
   
     //! Update the properties for this species, given a temperature polynomial
     /*!
@@ -154,7 +154,7 @@ namespace Cantera {
      * @param coeffs    Vector of coefficients used to set the
      *                  parameters for the standard state.
      */
-    void reportParameters(int &n, int &type,
+    void reportParameters(size_t &n, int &type,
 			  doublereal &tlow, doublereal &thigh,
 			  doublereal &pref,
 			  doublereal* const coeffs) const;
@@ -191,7 +191,7 @@ namespace Cantera {
     //! Reference pressure (Pa)
     doublereal m_Pref;
     //! Species Index
-    int m_index;
+    size_t m_index;
     
   private:
 

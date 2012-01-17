@@ -139,16 +139,16 @@ namespace pip {
 		       const std::vector<vector_fp *> &region_coeffs,
 		       const vector_fp &minTemps, const vector_fp &maxTemps) 
   {
-    int nReg = region_coeffs.size();
-    if ((int) minTemps.size() != nReg) {
+    size_t nReg = region_coeffs.size();
+    if (minTemps.size() != nReg) {
       throw CanteraError("addNASA9", "incompat");
     }
-    if ((int) maxTemps.size() != nReg) {
+    if (maxTemps.size() != nReg) {
       throw CanteraError("addNASA9", "incompat");
     }
 
     fprintf(f,"    thermo = (\n");
-    for (int i = 0; i < nReg; i++) {
+    for (size_t i = 0; i < nReg; i++) {
       double minT = minTemps[i];
       double maxT = maxTemps[i];
       const vector_fp &coeffs = *(region_coeffs[i]);
@@ -403,11 +403,10 @@ namespace pip {
         if (rxn.isDuplicate) {
             options.push_back("duplicate");
         }
-        int nopt = options.size();
+        size_t nopt = options.size();
         if (nopt > 0) {
             fprintf(f,  ",\n         options = [");
-            int n;
-            for (n = 0; n < nopt; n++) {
+            for (size_t n = 0; n < nopt; n++) {
                 fprintf(f,  "\"%s\"", options[n].c_str());
                 if (n < nopt-1) fprintf(f,  ", ");
             }

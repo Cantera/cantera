@@ -100,11 +100,11 @@ namespace Cantera {
 	}
     }
 
-    doublereal ConstDensityThermo::standardConcentration(int k) const {
+    doublereal ConstDensityThermo::standardConcentration(size_t k) const {
         return molarDensity();
     }
 
-    doublereal ConstDensityThermo::logStandardConc(int k) const {
+    doublereal ConstDensityThermo::logStandardConc(size_t k) const {
         return log(molarDensity());
     }
 

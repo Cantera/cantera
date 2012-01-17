@@ -26,7 +26,7 @@ namespace Cantera {
        m_index(0) {
   }
     
-  ConstCpPoly::ConstCpPoly(int n, doublereal tlow, doublereal thigh, 
+  ConstCpPoly::ConstCpPoly(size_t n, doublereal tlow, doublereal thigh,
 			   doublereal pref,
 			   const doublereal* coeffs) :
     m_lowT      (tlow),
@@ -109,7 +109,7 @@ namespace Cantera {
     s_R[m_index]  = m_s0_R + m_cp0_R * (logt - m_logt0);
   }
 
-  void ConstCpPoly::reportParameters(int &n, int &type,
+  void ConstCpPoly::reportParameters(size_t &n, int &type,
 				     doublereal &tlow, doublereal &thigh,
 				     doublereal &pref,
 				     doublereal* const coeffs) const {

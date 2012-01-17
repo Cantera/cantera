@@ -212,14 +212,14 @@ namespace Cantera {
      * atomic weights used in the Element class and calculate
      * a consistent H2O molecular weight based on that.
      */
-    int nH = elementIndex("H");
-    if (nH < 0) {
+    size_t nH = elementIndex("H");
+    if (nH == -1) {
       throw CanteraError("WaterSSTP::initThermo",
 			 "H not an element");
     }
     double mw_H = atomicWeight(nH);
-    int nO = elementIndex("O");
-    if (nO < 0) {
+    size_t nO = elementIndex("O");
+    if (nO == -1) {
       throw CanteraError("WaterSSTP::initThermo",
 			 "O not an element");
     }

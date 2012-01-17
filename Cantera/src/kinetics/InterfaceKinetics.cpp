@@ -297,22 +297,20 @@ namespace Cantera {
    * equilibrium constant set to zero.
    */
   void InterfaceKinetics::updateKc() {
-    int i, irxn;
-
     vector_fp& m_rkc = m_kdata->m_rkcn;
     fill(m_rkc.begin(), m_rkc.end(), 0.0);
 
     //static vector_fp mu(nTotalSpecies());
     if (m_nrev > 0) {
 
-      int n, nsp, k, ik = 0;
+      size_t nsp, ik = 0;
       doublereal rt = GasConstant*thermo(0).temperature();
       doublereal rrt = 1.0 / rt;
-      int np = nPhases();
-      for (n = 0; n < np; n++) {
+      size_t np = nPhases();
+      for (size_t n = 0; n < np; n++) {
 	thermo(n).getStandardChemPotentials(DATA_PTR(m_mu0) + m_start[n]);
 	nsp = thermo(n).nSpecies();
-	for (k = 0; k < nsp; k++) {
+	for (size_t k = 0; k < nsp; k++) {
 	  m_mu0[ik] -= rt * thermo(n).logStandardConc(k);
 	  m_mu0[ik] += Faraday * m_phi[n] * thermo(n).charge(k);
 	  ik++;
@@ -323,15 +321,15 @@ namespace Cantera {
       m_rxnstoich.getRevReactionDelta(m_ii, DATA_PTR(m_mu0), 
 				      DATA_PTR(m_rkc));
 
-      for (i = 0; i < m_nrev; i++) {
-	irxn = m_revindex[i];
+      for (size_t i = 0; i < m_nrev; i++) {
+	size_t irxn = m_revindex[i];
 	if (irxn < 0 || irxn >= nReactions()) {
 	  throw CanteraError("InterfaceKinetics",
-			     "illegal value: irxn = "+int2str(irxn));
+			     "illegal value: irxn = "+int2str(int(irxn)));
 	}
 	m_rkc[irxn] = exp(m_rkc[irxn]*rrt);
       }
-      for (i = 0; i != m_nirrev; ++i) {
+      for (size_t i = 0; i != m_nirrev; ++i) {
 	m_rkc[ m_irrev[i] ] = 0.0;
       }
     }
@@ -350,15 +348,14 @@ namespace Cantera {
     if (m_nrev > 0) {
       doublereal rt = GasConstant*thermo(0).temperature();
       cout << "T = " << thermo(0).temperature() << " " << rt << endl;
-      int n, nsp, k, ik=0;
+      size_t nsp, ik=0;
       //doublereal rt = GasConstant*thermo(0).temperature();
       //            doublereal rrt = 1.0/rt;
-      int np = nPhases();
       doublereal delta;
-      for (n = 0; n < np; n++) {
+      for (size_t n = 0; n < nPhases(); n++) {
 	thermo(n).getChemPotentials(DATA_PTR(dmu) + m_start[n]);
 	nsp = thermo(n).nSpecies();
-	for (k = 0; k < nsp; k++) {
+	for (size_t k = 0; k < nsp; k++) {
 	  delta = Faraday * m_phi[n] * thermo(n).charge(k);
 	  //cout << thermo(n).speciesName(k) << "   " << (delta+dmu[ik])/rt << " " << dmu[ik]/rt << endl;
 	  dmu[ik] += delta;
@@ -388,16 +385,14 @@ namespace Cantera {
    * reversible or not.
    */
   void InterfaceKinetics::getEquilibriumConstants(doublereal* kc) {
-    int i;
-
-    int n, nsp, k, ik=0;
+    size_t ik=0;
     doublereal rt = GasConstant*thermo(0).temperature();
     doublereal rrt = 1.0/rt;
     int np = nPhases();
-    for (n = 0; n < np; n++) {
+    for (size_t n = 0; n < np; n++) {
       thermo(n).getStandardChemPotentials(DATA_PTR(m_mu0) + m_start[n]);
-      nsp = thermo(n).nSpecies();
-      for (k = 0; k < nsp; k++) {
+      size_t nsp = thermo(n).nSpecies();
+      for (size_t k = 0; k < nsp; k++) {
 	m_mu0[ik] -= rt*thermo(n).logStandardConc(k);
 	m_mu0[ik] += Faraday * m_phi[n] * thermo(n).charge(k);
 	ik++;
@@ -408,7 +403,7 @@ namespace Cantera {
 
     m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_mu0), kc);
 
-    for (i = 0; i < m_ii; i++) {
+    for (size_t i = 0; i < m_ii; i++) {
       kc[i] = exp(-kc[i]*rrt);
     }
   }
@@ -420,22 +415,20 @@ namespace Cantera {
      *   - m_mu0
      *   - m_logStandardConc
      */
-    int ik = 0;  
-    int np = nPhases();
+    size_t ik = 0;
 
-    for (int n = 0; n < np; n++) {
+    for (size_t n = 0; n < nPhases(); n++) {
       thermo(n).getStandardChemPotentials(DATA_PTR(m_mu0) + m_start[n]);
-      int nsp = thermo(n).nSpecies();
-      for (int k = 0; k < nsp; k++) {
+      size_t nsp = thermo(n).nSpecies();
+      for (size_t k = 0; k < nsp; k++) {
         m_StandardConc[ik] = thermo(n).standardConcentration(k);
         ik++;
       }
     }
 
     m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_mu0), DATA_PTR(m_deltaG0));
-
     
-    for (int i = 0; i < m_ii; i++) {
+    for (size_t i = 0; i < m_ii; i++) {
        m_ProdStanConcReac[i] = 1.0;
     }
 
@@ -501,17 +494,11 @@ namespace Cantera {
    *            the correction applied
    */
   void InterfaceKinetics::applyButlerVolmerCorrection(doublereal* const kf) {
-    int i;
-
-    int n, nsp, k, ik=0;
-    doublereal rt = GasConstant*thermo(0).temperature();
-    doublereal rrt = 1.0/rt;
-    int np = nPhases();
-
     // compute the electrical potential energy of each species
-    for (n = 0; n < np; n++) {
-      nsp = thermo(n).nSpecies();
-      for (k = 0; k < nsp; k++) {
+    size_t ik = 0;
+    for (size_t n = 0; n < nPhases(); n++) {
+      size_t nsp = thermo(n).nSpecies();
+      for (size_t k = 0; k < nsp; k++) {
 	m_pot[ik] = Faraday*thermo(n).charge(k)*m_phi[n];
 	ik++;
       }
@@ -538,7 +525,7 @@ namespace Cantera {
 #endif
     int nct = m_beta.size();
     int irxn;
-    for (i = 0; i < nct; i++) {
+    for (size_t i = 0; i < nct; i++) {
       irxn = m_ctrxn[i];
       eamod = m_beta[i]*m_rwork[irxn];
       //  if (eamod != 0.0 && m_E[irxn] != 0.0) {
@@ -556,6 +543,8 @@ namespace Cantera {
 	  }
 	}
 #endif
+	doublereal rt = GasConstant*thermo(0).temperature();
+	doublereal rrt = 1.0/rt;
 	kf[irxn] *= exp(-eamod*rrt);
       }
     }
@@ -939,8 +928,8 @@ namespace Cantera {
     m_rxnPhaseIsReactant.resize(m_ii, 0);
     m_rxnPhaseIsProduct.resize(m_ii, 0);
  
-    int np = nPhases(); 
-    int i = m_ii -1;
+    size_t np = nPhases();
+    size_t i = m_ii - 1;
     m_rxnPhaseIsReactant[i] = new bool[np];
     m_rxnPhaseIsProduct[i] = new bool[np];
 
@@ -949,35 +938,31 @@ namespace Cantera {
       m_rxnPhaseIsProduct[i][p] = false;
     }
 
-    const vector_int& vr = reactants(i);
-    for (int ik = 0; ik < (int) vr.size(); ik++) {
-      int k = vr[ik];
-      int p = speciesPhaseIndex(k);
+    const std::vector<size_t>& vr = reactants(i);
+    for (size_t ik = 0; ik < vr.size(); ik++) {
+      size_t k = vr[ik];
+      size_t p = speciesPhaseIndex(k);
       m_rxnPhaseIsReactant[i][p] = true;
     }
-    const vector_int& vp = products(i);
-    for (int ik = 0; ik < (int) vp.size(); ik++) {
-      int k = vp[ik];
-      int p = speciesPhaseIndex(k);
+    const std::vector<size_t>& vp = products(i);
+    for (size_t ik = 0; ik < vp.size(); ik++) {
+      size_t k = vp[ik];
+      size_t p = speciesPhaseIndex(k);
       m_rxnPhaseIsProduct[i][p] = true;
     }
  }
   //====================================================================================================================
   void InterfaceKinetics::addElementaryReaction(const ReactionData& r) {
-    int iloc;
-
     // install rate coeff calculator
-
     vector_fp rp = r.rateCoeffParameters;
-    int ncov = r.cov.size();
+    size_t ncov = r.cov.size();
     if (ncov > 3) {
       m_has_coverage_dependence = true;
     }
-    for (int m = 0; m < ncov; m++) {
+    for (size_t m = 0; m < ncov; m++) {
       rp.push_back(r.cov[m]);
     }
-    //    iloc = m_rates.install(reactionNumber(), r.rateCoeffType, rp.size(), DATA_PTR(rp));
-    iloc = m_rates.install(reactionNumber(), ARRHENIUS_REACTION_RATECOEFF_TYPE, rp.size(), DATA_PTR(rp));
+    size_t iloc = m_rates.install(reactionNumber(), ARRHENIUS_REACTION_RATECOEFF_TYPE, rp.size(), DATA_PTR(rp));
     // store activation energy
     m_E.push_back(r.rateCoeffParameters[2]);
 
@@ -1036,7 +1021,7 @@ namespace Cantera {
         
   void InterfaceKinetics::installReagents(const ReactionData& r) {
 
-    int n, ns, m; 
+    size_t n, ns, m;
     doublereal nsFlt;
     /*
      * extend temporary storage by one for this rxn.
@@ -1059,11 +1044,11 @@ namespace Cantera {
     // faster method 'multiply' can be used to compute the rate of
     // progress instead of 'power'.
 
-    vector_int rk;
-    int nr = r.reactants.size();
+    std::vector<size_t> rk;
+    size_t nr = r.reactants.size();
     for (n = 0; n < nr; n++) {
       nsFlt = r.rstoich[n];
-      ns = (int) nsFlt;
+      ns = (size_t) nsFlt;
       if ((doublereal) ns != nsFlt) {
 	if (ns < 1) ns = 1;
       }
@@ -1084,11 +1069,11 @@ namespace Cantera {
      * of reactants for the rnum'th reaction
      */
     m_reactants.push_back(rk);
-    vector_int pk;
-    int np = r.products.size();
+    std::vector<size_t> pk;
+    size_t np = r.products.size();
     for (n = 0; n < np; n++) {
       nsFlt = r.pstoich[n];
-      ns = (int) nsFlt;
+      ns = (size_t) nsFlt;
       if ((doublereal) ns != nsFlt) {
 	if (ns < 1) ns = 1;
       }

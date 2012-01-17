@@ -89,7 +89,7 @@ namespace Cantera {
   }
 
   PDSS *
-  VPSSMgr_IdealGas::createInstallPDSS(int k, const XML_Node& speciesNode,  
+  VPSSMgr_IdealGas::createInstallPDSS(size_t k, const XML_Node& speciesNode,
 				      const XML_Node * const phaseNode_ptr) {
     //VPSSMgr::installSpecies(k, speciesNode, phaseNode_ptr);
     const XML_Node *ss = speciesNode.findByName("standardState");

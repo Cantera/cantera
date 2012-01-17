@@ -238,7 +238,7 @@ namespace Cantera {
      *  If the species or phase name is not recognized, this routine throws
      *  a CanteraError.
      */
-    int speciesIndex(std::string speciesName, std::string phaseName);
+    size_t speciesIndex(std::string speciesName, std::string phaseName);
 
     /// Minimum temperature for which all solution phases have
     /// valid thermo data. Stoichiometric phases are not
@@ -426,7 +426,7 @@ namespace Cantera {
      * @return
      *     Returns the index of the owning phase.
      */
-    int speciesPhaseIndex(const index_t kGlob) const;
+    size_t speciesPhaseIndex(const index_t kGlob) const;
 
     //! Returns the mole fraction of global species k
     /*!
@@ -758,10 +758,10 @@ namespace Cantera {
    *
    *  @ingroup equilfunctions
    */
-  int BasisOptimize( int *usedZeroedSpecies, bool doFormRxn,
-		     MultiPhase *mphase, vector_int & orderVectorSpecies,
-		     vector_int & orderVectorElements,
-		     vector_fp & formRxnMatrix);
+  size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
+                       MultiPhase* mphase, std::vector<size_t>& orderVectorSpecies,
+                       std::vector<size_t>& orderVectorElements,
+                       vector_fp& formRxnMatrix);
 
   //!   This subroutine handles the potential rearrangement of the constraint
   //!   equations represented by the Formula Matrix. 
@@ -813,10 +813,10 @@ namespace Cantera {
    *
    *  @ingroup equilfunctions
    */
-  int ElemRearrange(int nComponents,  const vector_fp & elementAbundances,
-		    MultiPhase *mphase,
-		    vector_int & orderVectorSpecies,
-		    vector_int & orderVectorElements);
+  size_t ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
+                       MultiPhase* mphase,
+                       std::vector<size_t>& orderVectorSpecies,
+                       std::vector<size_t>& orderVectorElements);
 
 #ifdef DEBUG_MODE
   //! External int that is used to turn on debug printing for the

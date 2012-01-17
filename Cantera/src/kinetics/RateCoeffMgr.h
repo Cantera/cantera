@@ -35,8 +35,8 @@ namespace Cantera {
          * @param m length of coefficient array
          * @param coefficients
          */
-        int install( int rxnNumber,  int rateType, int m, 
-            const doublereal* c ) {
+        size_t install(size_t rxnNumber, int rateType, size_t m,
+                       const doublereal* c) {
             /*
 	     * Check to see if the current reaction rate type
 	     * is the same as the type of this class. If not,
@@ -49,11 +49,11 @@ namespace Cantera {
             // if any coefficient other than the first is non-zero, or
             // if alwaysComputeRate() is true, install a rate
             // calculator and return the index of the calculator.
-            for (int i = 1; i < m; i++) {
+            for (size_t i = 1; i < m; i++) {
                 if (c[i] != 0.0 || R::alwaysComputeRate() ) {
                     m_rxn.push_back(rxnNumber);
                     m_rates.push_back(R(m, c));
-                    return static_cast<int>(m_rates.size()) - 1;
+                    return m_rates.size() - 1;
                 }
             }
             return -1;
@@ -111,7 +111,7 @@ namespace Cantera {
 
     protected:
         std::vector<R>             m_rates;
-        std::vector<int>           m_rxn;
+        std::vector<size_t>           m_rxn;
         array_fp              m_const; // not used
     };
 
@@ -128,8 +128,8 @@ namespace Cantera {
         Rate2(){}
         virtual ~Rate2(){}
 
-        int install( int rxnNumber,  int rateType, int m,
-            const doublereal* c) {
+        int install(size_t rxnNumber, int rateType, size_t m,
+                    const doublereal* c) {
             if (rateType == R1::type())
                 return m_r1.install(rxnNumber, rateType, m, c);
             else if (rateType == R2::type())

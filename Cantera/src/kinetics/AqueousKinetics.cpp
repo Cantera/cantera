@@ -87,8 +87,7 @@ namespace Cantera {
         
     thermo().getStandardChemPotentials(&m_grt[0]);
     fill(m_rkc.begin(), m_rkc.end(), 0.0);
-    int nsp = thermo().nSpecies();
-    for (int k = 0; k < nsp; k++) {
+    for (size_t k = 0; k < thermo().nSpecies(); k++) {
       doublereal logStandConc_k = thermo().logStandardConc(k);
       m_grt[k] -= rt * logStandConc_k;
     }
@@ -120,8 +119,7 @@ namespace Cantera {
     thermo().getStandardChemPotentials(&m_grt[0]);
     fill(rkc.begin(), rkc.end(), 0.0);
     doublereal rt = GasConstant * m_kdata->m_temp;
-    int nsp = thermo().nSpecies();
-    for (int k = 0; k < nsp; k++) {
+    for (size_t k = 0; k < thermo().nSpecies(); k++) {
       doublereal logStandConc_k = thermo().logStandardConc(k);
       m_grt[k] -= rt * logStandConc_k;
     }
@@ -445,18 +443,18 @@ namespace Cantera {
     m_kdata->m_ropf.push_back(0.0);     // extend by one for new rxn
     m_kdata->m_ropr.push_back(0.0);
     m_kdata->m_ropnet.push_back(0.0);
-    int n, ns, m;
+    size_t n, ns, m;
     doublereal nsFlt;
     doublereal reactantGlobalOrder = 0.0;
     doublereal productGlobalOrder  = 0.0;
     int rnum = reactionNumber();
 
-    vector_int rk;
-    int nr = r.reactants.size();
+    std::vector<size_t> rk;
+    size_t nr = r.reactants.size();
     for (n = 0; n < nr; n++) {
       nsFlt = r.rstoich[n];
       reactantGlobalOrder += nsFlt;
-      ns = (int) nsFlt;
+      ns = (size_t) nsFlt;
       if ((doublereal) ns != nsFlt) {
 	if (ns < 1) {
 	  ns = 1;
@@ -470,12 +468,12 @@ namespace Cantera {
     }
     m_reactants.push_back(rk);
 
-    vector_int pk;
-    int np = r.products.size();
+    std::vector<size_t> pk;
+    size_t np = r.products.size();
     for (n = 0; n < np; n++) {
       nsFlt = r.pstoich[n];
       productGlobalOrder += nsFlt;
-      ns = (int) nsFlt;
+      ns = (size_t) nsFlt;
       if ((double) ns != nsFlt) {
 	if (ns < 1) {
 	  ns = 1;
@@ -506,7 +504,7 @@ namespace Cantera {
   }
 
 
-  void AqueousKinetics::installGroups(int irxn, 
+  void AqueousKinetics::installGroups(size_t irxn,
 				      const vector<grouplist_t>& r, 
 				      const vector<grouplist_t>& p) {
     if (!r.empty()) {

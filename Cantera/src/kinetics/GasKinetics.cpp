@@ -477,10 +477,10 @@ namespace Cantera {
 
         // install high and low rate coeff calculators
 
-        int iloc = m_falloff_high_rates.install(m_nfall,
-						r.rateCoeffType,
-					        r.rateCoeffParameters.size(),
-					        &r.rateCoeffParameters[0] );     
+        size_t iloc = m_falloff_high_rates.install(m_nfall,
+						   r.rateCoeffType,
+						   r.rateCoeffParameters.size(),
+						   &r.rateCoeffParameters[0] );
     
         m_falloff_low_rates.install( m_nfall, 
             r.rateCoeffType, r.auxRateCoeffParameters.size(), 
@@ -520,7 +520,7 @@ namespace Cantera {
 
     void GasKinetics::
     addElementaryReaction(const ReactionData& r) {
-        int iloc;
+        size_t iloc;
 
         // install rate coeff calculator
         iloc = m_rates.install( reactionNumber(),
@@ -538,8 +538,7 @@ namespace Cantera {
 
     void GasKinetics::
     addThreeBodyReaction(const ReactionData& r) {
-            
-        int iloc;
+        size_t iloc;
         // install rate coeff calculator
         iloc = m_rates.install( reactionNumber(),
             r.rateCoeffType, r.rateCoeffParameters.size(),
@@ -562,18 +561,18 @@ namespace Cantera {
         m_kdata->m_ropf.push_back(0.0);     // extend by one for new rxn
         m_kdata->m_ropr.push_back(0.0);
         m_kdata->m_ropnet.push_back(0.0);
-        int n, ns, m;
+        size_t n, ns, m;
 	doublereal nsFlt;
 	doublereal reactantGlobalOrder = 0.0;
 	doublereal productGlobalOrder  = 0.0;
-        int rnum = reactionNumber();
+	size_t rnum = reactionNumber();
 
-        vector_int rk;
-        int nr = r.reactants.size();
+        std::vector<size_t> rk;
+        size_t nr = r.reactants.size();
         for (n = 0; n < nr; n++) {
             nsFlt = r.rstoich[n];
 	    reactantGlobalOrder += nsFlt;
-	    ns = (int) nsFlt;
+	    ns = (size_t) nsFlt;
 	    if ((doublereal) ns != nsFlt) {
 	      if (ns < 1) {
 		ns = 1;
@@ -587,12 +586,12 @@ namespace Cantera {
         }
         m_reactants.push_back(rk);
 
-        vector_int pk;
-        int np = r.products.size();
+        std::vector<size_t> pk;
+        size_t np = r.products.size();
         for (n = 0; n < np; n++) {
             nsFlt = r.pstoich[n];
 	    productGlobalOrder += nsFlt;
-            ns = (int) nsFlt;
+            ns = (size_t) nsFlt;
             if ((double) ns != nsFlt) {
 	      if (ns < 1) {
 		ns = 1;

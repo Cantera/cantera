@@ -335,12 +335,12 @@ namespace Cantera {
    */
 
 
-  doublereal MargulesVPSSTP::standardConcentration(int k) const {
+  doublereal MargulesVPSSTP::standardConcentration(size_t k) const {
     err("standardConcentration");
     return -1.0;
   }
 
-  doublereal MargulesVPSSTP::logStandardConc(int k) const {
+  doublereal MargulesVPSSTP::logStandardConc(size_t k) const {
     err("logStandardConc");
     return -1.0;
   }
@@ -498,7 +498,7 @@ namespace Cantera {
    */
   void MargulesVPSSTP::getPartialMolarVolumes(doublereal* vbar) const {
 
-    int iA, iB, iK, delAK, delBK;
+    size_t iA, iB, iK, delAK, delBK;
     double XA, XB, XK, g0 , g1;
     double T = temperature();
 
@@ -514,7 +514,7 @@ namespace Cantera {
       delAK = 0;
       delBK = 0;
       XK = moleFractions_[iK];  
-      for (int i = 0; i <  numBinaryInteractions_; i++) {
+      for (size_t i = 0; i <  numBinaryInteractions_; i++) {
     
 	iA =  m_pSpecies_A_ij[i];    
 	iB =  m_pSpecies_B_ij[i];
@@ -651,7 +651,7 @@ namespace Cantera {
    *   he = X_A X_B(B + C X_B)
    */
     void MargulesVPSSTP::s_update_lnActCoeff() const {
-    int iA, iB, iK, delAK, delBK;
+    size_t iA, iB, iK, delAK, delBK;
     double XA, XB, XK, g0 , g1;
     double T = temperature();
     double RT = GasConstant*T;
@@ -662,7 +662,7 @@ namespace Cantera {
 
       XK = moleFractions_[iK];  
 
-      for (int i = 0; i <  numBinaryInteractions_; i++) {
+      for (size_t i = 0; i <  numBinaryInteractions_; i++) {
     
 	iA =  m_pSpecies_A_ij[i];    
 	iB =  m_pSpecies_B_ij[i];
@@ -721,7 +721,7 @@ namespace Cantera {
    *   he = X_A X_B(B + C X_B)
    */
   void MargulesVPSSTP::s_update_dlnActCoeff_dT() const {
-    int iA, iB, iK, delAK, delBK;
+    size_t iA, iB, iK, delAK, delBK;
     double XA, XB, XK, g0 , g1;
     double T = temperature();
     double RTT = GasConstant*T*T;
@@ -732,7 +732,7 @@ namespace Cantera {
 
       XK = moleFractions_[iK];  
 
-      for (int i = 0; i <  numBinaryInteractions_; i++) {
+      for (size_t i = 0; i <  numBinaryInteractions_; i++) {
     
 	iA =  m_pSpecies_A_ij[i];    
 	iB =  m_pSpecies_B_ij[i];
@@ -795,7 +795,7 @@ namespace Cantera {
    *   he = X_A X_B(B + C X_B)
    */
   void MargulesVPSSTP::getdlnActCoeff(const doublereal dT, const doublereal * const dX, doublereal* dlnActCoeff) const {
-    int iA, iB, iK, delAK, delBK;
+    size_t iA, iB, iK, delAK, delBK;
     double XA, XB, XK, g0 , g1, dXA, dXB;
     double T = temperature();
     double RT = GasConstant*T;
@@ -808,7 +808,7 @@ namespace Cantera {
       XK = moleFractions_[iK];  
       dlnActCoeff[iK] = 0.0;
 
-      for (int i = 0; i <  numBinaryInteractions_; i++) {
+      for (size_t i = 0; i <  numBinaryInteractions_; i++) {
     
 	iA =  m_pSpecies_A_ij[i];    
 	iB =  m_pSpecies_B_ij[i];
@@ -842,7 +842,7 @@ namespace Cantera {
    *   he = X_A X_B(B + C X_B)
    */
   void MargulesVPSSTP::s_update_dlnActCoeff_dlnN() const {
-    int iA, iB, iK, delAK, delBK;
+    size_t iA, iB, iK, delAK, delBK;
     double XA, XB, XK, g0 , g1;
     double T = temperature();
     double RT = GasConstant*T;
@@ -853,7 +853,7 @@ namespace Cantera {
 
       XK = moleFractions_[iK];  
 
-      for (int i = 0; i <  numBinaryInteractions_; i++) {
+      for (size_t i = 0; i <  numBinaryInteractions_; i++) {
     
 	iA =  m_pSpecies_A_ij[i];    
 	iB =  m_pSpecies_B_ij[i];
@@ -877,18 +877,15 @@ namespace Cantera {
   }
 
   void MargulesVPSSTP::s_update_dlnActCoeff_dlnX() const {
-
-    int iA, iB;
+    size_t iA, iB;
     doublereal XA, XB, g0 , g1;
     doublereal T = temperature();
 
     fvo_zero_dbl_1(dlnActCoeffdlnX_Scaled_, m_kk);
 
     doublereal RT = GasConstant * T;
-    
-    
-    for (int i = 0; i <  numBinaryInteractions_; i++) {
-      
+
+    for (size_t i = 0; i <  numBinaryInteractions_; i++) {
       iA =  m_pSpecies_A_ij[i];    
       iB =  m_pSpecies_B_ij[i];
       

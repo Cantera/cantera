@@ -45,23 +45,23 @@ namespace VCSnonideal {
     int prob_type;
 
     //! Total number of species in the problems
-    int nspecies;
+    size_t nspecies;
 
     //! Species number used to malloc data structures 
-    int NSPECIES0;
+    size_t NSPECIES0;
 
     //! Number of element contraints in the equilibrium problem
-    int ne;
+    size_t ne;
 
     //! Number of element constraints used to malloc data structures
     //! involving elements
-    int NE0;
+    size_t NE0;
 
     //! Number of phases in the problem
-    int NPhase; 
+    size_t NPhase;
   
     //! Number of phases used to malloc data structures
-    int NPHASE0;
+    size_t NPHASE0;
 
     //! Vector of chemical potentials of the species
     /*!
@@ -185,7 +185,7 @@ namespace VCSnonideal {
     double tolmin;
 
     //! Mapping between the species and the phases
-    std::vector<int> PhaseID; 
+    std::vector<size_t> PhaseID;
 
     //! Vector of strings containing the species names
     std::vector<std::string> SpName;
@@ -250,7 +250,7 @@ namespace VCSnonideal {
      * @param nel number of elements
      * @param nph number of phases
      */
-    VCS_PROB(int nsp, int nel, int nph);
+    VCS_PROB(size_t nsp, size_t nel, size_t nph);
 
     //! Destructor
     ~VCS_PROB();

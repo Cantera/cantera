@@ -297,7 +297,7 @@ namespace Cantera {
    *         preserved.
    */
   void MolalityVPSSTP::setMolalitiesByName(compositionMap& mMap) {
-    int kk = nSpecies();
+    size_t kk = nSpecies();
     doublereal x;
     /*
      * Get a vector of mole fractions
@@ -428,12 +428,12 @@ namespace Cantera {
       err("getActivityConcentrations");
   }
 
-  doublereal MolalityVPSSTP::standardConcentration(int k) const {
+  doublereal MolalityVPSSTP::standardConcentration(size_t k) const {
     err("standardConcentration");
     return -1.0;
   }
 
-  doublereal MolalityVPSSTP::logStandardConc(int k) const {
+  doublereal MolalityVPSSTP::logStandardConc(size_t k) const {
     err("logStandardConc");
     return -1.0;
   }

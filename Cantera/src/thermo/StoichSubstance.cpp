@@ -160,11 +160,11 @@ namespace Cantera {
     c[0] = 1.0;
   }
 
-  doublereal StoichSubstance::standardConcentration(int k) const {
+  doublereal StoichSubstance::standardConcentration(size_t k) const {
     return 1.0;
   }
 
-  doublereal StoichSubstance::logStandardConc(int k) const {
+  doublereal StoichSubstance::logStandardConc(size_t k) const {
     return 0.0;
   }
 

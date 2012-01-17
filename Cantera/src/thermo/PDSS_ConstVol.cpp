@@ -23,21 +23,21 @@ namespace Cantera {
    * Basic list of constructors and duplicators
    */
 
-  PDSS_ConstVol::PDSS_ConstVol(VPStandardStateTP *tp, int spindex) :
+  PDSS_ConstVol::PDSS_ConstVol(VPStandardStateTP *tp, size_t spindex) :
     PDSS(tp, spindex)
   {
     m_pdssType = cPDSS_CONSTVOL;
   }
 
 
-  PDSS_ConstVol::PDSS_ConstVol(VPStandardStateTP *tp, int spindex, std::string inputFile, std::string id) :
+  PDSS_ConstVol::PDSS_ConstVol(VPStandardStateTP *tp, size_t spindex, std::string inputFile, std::string id) :
     PDSS(tp, spindex)
   {
     m_pdssType = cPDSS_CONSTVOL;
     constructPDSSFile(tp, spindex, inputFile, id);
   }
 
-  PDSS_ConstVol::PDSS_ConstVol(VPStandardStateTP *tp, int spindex,
+  PDSS_ConstVol::PDSS_ConstVol(VPStandardStateTP *tp, size_t spindex,
 			       const XML_Node& speciesNode, 
 			       const XML_Node& phaseRoot, 
 			       bool spInstalled) :
@@ -93,7 +93,7 @@ namespace Cantera {
    *            phase. If none is given, the first XML
    *            phase element will be used.
    */
-  void PDSS_ConstVol::constructPDSSXML(VPStandardStateTP *tp, int spindex,
+  void PDSS_ConstVol::constructPDSSXML(VPStandardStateTP *tp, size_t spindex,
 				       const XML_Node& speciesNode, 
 				       const XML_Node& phaseNode, bool spInstalled) {
     PDSS::initThermo();
@@ -138,7 +138,7 @@ namespace Cantera {
    *            phase. If none is given, the first XML
    *            phase element will be used.
    */
-  void PDSS_ConstVol::constructPDSSFile(VPStandardStateTP *tp, int spindex,
+  void PDSS_ConstVol::constructPDSSFile(VPStandardStateTP *tp, size_t spindex,
 					std::string inputFile, std::string id) {
 
     if (inputFile.size() == 0) {

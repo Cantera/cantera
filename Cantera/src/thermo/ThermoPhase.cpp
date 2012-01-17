@@ -146,20 +146,20 @@ namespace Cantera {
     return m_ssConvention;
   }
 
-  doublereal ThermoPhase::logStandardConc(int k) const {
+  doublereal ThermoPhase::logStandardConc(size_t k) const {
     return log(standardConcentration(k));
   }
 
   void ThermoPhase::getActivities(doublereal* a) const {
     getActivityConcentrations(a);
-    int nsp = nSpecies();
-    int k;
-    for (k = 0; k < nsp; k++) a[k] /= standardConcentration(k);
+    for (size_t k = 0; k < nSpecies(); k++) {
+      a[k] /= standardConcentration(k);
+    }
   }
 
   void ThermoPhase::getLNActivityCoefficients(doublereal *const lnac) const {
     getActivityCoefficients(lnac);
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
        lnac[k] = std::log(lnac[k]);
     }
   }
@@ -177,8 +177,9 @@ namespace Cantera {
   void ThermoPhase::setState_TPX(doublereal t, doublereal p, 
 				 const std::string& x) {
     compositionMap xx;
-    int kk = nSpecies();
-    for (int k = 0; k < kk; k++) xx[speciesName(k)] = -1.0;
+    for (size_t k = 0; k < nSpecies(); k++) {
+      xx[speciesName(k)] = -1.0;
+    }
     try {
       parseCompString(x, xx);
     }
@@ -202,8 +203,9 @@ namespace Cantera {
   void ThermoPhase::setState_TPY(doublereal t, doublereal p, 
 				 const std::string& y) {
     compositionMap yy;
-    int kk = nSpecies();
-    for (int k = 0; k < kk; k++) yy[speciesName(k)] = -1.0;
+    for (size_t k = 0; k < nSpecies(); k++) {
+      yy[speciesName(k)] = -1.0;
+    }
     try {
       parseCompString(y, yy);
     }
@@ -795,7 +797,7 @@ namespace Cantera {
   void ThermoPhase::getUnitsStandardConc(double *uA, int k, int sizeUA) const {
     for (int i = 0; i < sizeUA; i++) {
       if (i == 0) uA[0] = 1.0;
-      if (i == 1) uA[1] = -nDim();
+      if (i == 1) uA[1] = -int(nDim());
       if (i == 2) uA[2] = 0.0;
       if (i == 3) uA[3] = 0.0;
       if (i == 4) uA[4] = 0.0;
@@ -922,14 +924,14 @@ namespace Cantera {
    */
   void ThermoPhase::initThermo() {
     // Check to see that there is at least one species defined in the phase
-    if (m_kk <= 0) {
+    if (m_kk == 0) {
       throw CanteraError("ThermoPhase::initThermo()",
-			 "Number of species is less than or equal to zero");
+			 "Number of species is equal to zero");
     }
     xMol_Ref.resize(m_kk, 0.0);
   }
 
-  void ThermoPhase::saveSpeciesData(const int k, const XML_Node* const data) {
+  void ThermoPhase::saveSpeciesData(const size_t k, const XML_Node* const data) {
     if ((int) m_speciesData.size() < (k + 1)) {
       m_speciesData.resize(k+1, 0);
     }
@@ -939,7 +941,7 @@ namespace Cantera {
   //! Return a pointer to the XML tree containing the species
   /// data for this phase.
   const std::vector<const XML_Node *> & ThermoPhase::speciesData() const { 
-    if ((int) m_speciesData.size() != m_kk) {
+    if (m_speciesData.size() != m_kk) {
       throw CanteraError("ThermoPhase::speciesData",
 			 "m_speciesData is the wrong size");
     }
@@ -983,14 +985,14 @@ namespace Cantera {
    */
   void ThermoPhase::setElementPotentials(const vector_fp& lambda) {
     doublereal rrt = 1.0/(GasConstant* temperature());
-    int mm = nElements();
-    if (lambda.size() < (size_t) mm) {
+    size_t mm = nElements();
+    if (lambda.size() < mm) {
       throw CanteraError("setElementPotentials", "lambda too small");
     }
     if (!m_hasElementPotentials) {
       m_lambdaRRT.resize(mm);
     }
-    for (int m = 0; m < mm; m++) {
+    for (size_t m = 0; m < mm; m++) {
       m_lambdaRRT[m] = lambda[m] * rrt;
     }
     m_hasElementPotentials = true;
@@ -1005,9 +1007,8 @@ namespace Cantera {
    */
   bool ThermoPhase::getElementPotentials(doublereal* lambda) const {
     doublereal rt = GasConstant* temperature();
-    int mm = nElements();
     if (m_hasElementPotentials) {
-      for (int m = 0; m < mm; m++) {
+      for (int m = 0; m < nElements(); m++) {
 	lambda[m] =  m_lambdaRRT[m] * rt;
       }
     }
@@ -1072,7 +1073,7 @@ namespace Cantera {
         }
       }
 
-      int kk = nSpecies();
+      size_t kk = nSpecies();
       array_fp x(kk);
       array_fp y(kk);
       array_fp mu(kk);
@@ -1080,7 +1081,6 @@ namespace Cantera {
       getMassFractions(&y[0]);
       getChemPotentials(&mu[0]);
       doublereal rt = GasConstant * temperature(); 
-      int k;
       //if (th.nSpecies() > 1) {
 
       if (show_thermo) {
@@ -1090,7 +1090,7 @@ namespace Cantera {
 	sprintf(p, "                     -------------     "
 		"------------     ------------\n");
 	s += p;
-	for (k = 0; k < kk; k++) {
+	for (size_t k = 0; k < kk; k++) {
 	  if (x[k] > SmallNumber) {
 	    sprintf(p, "%18s   %12.6g     %12.6g     %12.6g\n", 
 		    speciesName(k).c_str(), x[k], y[k], mu[k]/rt);
@@ -1109,7 +1109,7 @@ namespace Cantera {
 	sprintf(p, "                     -------------"
 		"     ------------\n");
 	s += p;
-	for (k = 0; k < kk; k++) {
+	for (size_t k = 0; k < kk; k++) {
 	  sprintf(p, "%18s   %12.6g     %12.6g\n", 
 		  speciesName(k).c_str(), x[k], y[k]);
 	  s += p;
@@ -1158,7 +1158,7 @@ namespace Cantera {
      
       csvFile.precision(8);
 
-      int kk = nSpecies();
+      size_t kk = nSpecies();
       doublereal *x    = new doublereal[kk];
       doublereal *y    = new doublereal[kk];
       doublereal *mu   = new doublereal[kk];

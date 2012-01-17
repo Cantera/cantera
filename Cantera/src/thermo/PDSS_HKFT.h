@@ -65,7 +65,7 @@ namespace Cantera {
      *  @param tp        Pointer to the ThermoPhase object pertaining to the phase
      *  @param spindex   Species index of the species in the phase
      */
-    PDSS_HKFT(VPStandardStateTP *tp, int spindex);
+    PDSS_HKFT(VPStandardStateTP *tp, size_t spindex);
 
     //! Copy Constructor
     /*!
@@ -91,7 +91,7 @@ namespace Cantera {
      *                   is the empty string, in which case the first phase in the
      *                   file is used.
      */
-    PDSS_HKFT(VPStandardStateTP *vptp_ptr, int spindex,
+    PDSS_HKFT(VPStandardStateTP *vptp_ptr, size_t spindex,
 	      std::string inputFile, std::string id = "");
 
     //! Constructor that initializes the object by examining the input file
@@ -106,7 +106,7 @@ namespace Cantera {
      *  @param spInstalled Boolean indicating whether the species is installed yet
      *                     or not.
      */
-    PDSS_HKFT(VPStandardStateTP *vptp_ptr, int spindex, const XML_Node& speciesNode,
+    PDSS_HKFT(VPStandardStateTP *vptp_ptr, size_t spindex, const XML_Node& speciesNode,
 	      const XML_Node& phaseRef, bool spInstalled);
 
     //! Destructor for the phase
@@ -377,7 +377,7 @@ namespace Cantera {
      *                    phase. If none is given, the first XML
      *                    phase element will be used.
      */
-    void constructPDSSFile(VPStandardStateTP *vptp_ptr, int spindex, 
+    void constructPDSSFile(VPStandardStateTP *vptp_ptr, size_t spindex,
 			   std::string inputFile, std::string id);
 
     //!  Initialization of a PDSS object using an xml tree
@@ -403,7 +403,7 @@ namespace Cantera {
      * @param spInstalled  Boolean indicating whether the species is 
      *                     already installed.
      */
-    void constructPDSSXML(VPStandardStateTP *vptp_ptr, int spindex, 
+    void constructPDSSXML(VPStandardStateTP *vptp_ptr, size_t spindex,
 			  const XML_Node& speciesNode, 
 			  const XML_Node& phaseNode, bool spInstalled);
 
@@ -468,7 +468,7 @@ namespace Cantera {
      * @param refPressure output - reference pressure (Pa).
      *
      */
-    virtual void reportParams(int &kindex, int &type, doublereal * const c,
+    virtual void reportParams(size_t &kindex, int &type, doublereal * const c,
                               doublereal &minTemp, doublereal &maxTemp,
                               doublereal &refPressure) const;
 
