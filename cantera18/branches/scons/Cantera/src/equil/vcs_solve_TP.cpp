@@ -3623,7 +3623,7 @@ namespace VCSnonideal {
     }
  
     size_t iph = m_phaseID[kspec];
-    size_t irxn = kspec - m_numComponents;
+    int irxn = int(kspec) - int(m_numComponents);
     vcs_VolPhase *VPhase = m_VolPhaseList[iph];
     int phaseExist = VPhase->exists();
 

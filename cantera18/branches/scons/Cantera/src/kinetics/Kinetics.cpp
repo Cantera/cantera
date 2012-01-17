@@ -194,7 +194,7 @@ namespace Cantera {
 	 * ThermoPhase object to find a match.
 	 */
 	k = thermo(n).speciesIndex(nm);
-	if (k >= 0) return k + m_start[n];
+	if (k != -1) return k + m_start[n];
       }                    
     }
     return -2;

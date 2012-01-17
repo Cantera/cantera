@@ -27,8 +27,8 @@ int main(int argc, char **argv) {
     mphase.addPhase(&g, 10.0);
     mphase.init();
     int usedZeroedSpecies = 0;
-    vector_int orderVectorSpecies;
-    vector_int orderVectorElements;
+    std::vector<size_t> orderVectorSpecies;
+    std::vector<size_t> orderVectorElements;
 
     bool doFormMatrix = true;
     vector_fp formRxnMatrix;

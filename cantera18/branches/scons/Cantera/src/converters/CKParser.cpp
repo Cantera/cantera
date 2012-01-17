@@ -1038,7 +1038,7 @@ next:
 	      }   
             }
 
-            else if (eqloc >= 0 && eqloc < int(s.size())) {
+            else if (eqloc != string::npos && eqloc < s.size()) {
                 if (nRxns > 0) {
                     rxn.number = nRxns;
                     reactions.push_back(rxn);
@@ -1062,17 +1062,17 @@ next:
                 // irreversible, and separate it into strings for 
                 // each side.
 	
-                if (eqloc = int(s.find("<=>")), eqloc >= 0) {
+                if (eqloc = s.find("<=>"), eqloc != string::npos) {
                     rxn.isReversible = true;
                     sleft = s.substr(0, eqloc);
                     sright = s.substr(eqloc+3,1000);
                 }
-                else if (eqloc = int(s.find("=>")), eqloc >= 0) {
+                else if (eqloc = s.find("=>"), eqloc != string::npos) {
                     rxn.isReversible = false;
                     sleft = s.substr(0, eqloc);
                     sright = s.substr(eqloc+2,1000);
                 }
-                else if (eqloc = int(s.find("=")), eqloc >= 0) {
+                else if (eqloc = s.find("="), eqloc != string::npos) {
                     rxn.isReversible = true;
                     sleft = s.substr(0, eqloc);
                     sright = s.substr(eqloc+1,1000);

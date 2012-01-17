@@ -1336,7 +1336,7 @@ namespace VCSnonideal {
 
 	kT++;
       }
-      if (volPhase->phiVarIndex() >= 0) {
+      if (volPhase->phiVarIndex() != -1) {
 	size_t kphi = volPhase->phiVarIndex();
 	size_t kglob = volPhase->spGlobalIndexVCS(kphi);
 	vprob->w[kglob] = tPhase->electricPotential();
