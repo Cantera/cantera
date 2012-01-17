@@ -306,7 +306,7 @@ namespace Cantera {
    * Name of the element with index \c m.  @param m Element
    * index. If m < 0 or m >= nElements() an exception is thrown.
    */
-  string Elements::elementName(int m) const {
+  string Elements::elementName(size_t m) const {
     if (m < 0 || m >= nElements()) {
       throw ElementRangeError("Elements::elementName", m, nElements());
     }

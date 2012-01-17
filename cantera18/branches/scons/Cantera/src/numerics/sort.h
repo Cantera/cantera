@@ -11,7 +11,7 @@ namespace Cantera {
 
     /// Given two arrays x and y, sort the (x,y) pairs by the x
     /// values. This version is for floating-point x, and integer y.
-    void heapsort(vector_fp& x, vector_int& y);
+    void heapsort(vector_fp& x, std::vector<size_t>& y);
 
     /// Given two arrays x and y, sort the (x,y) pairs by the x
     /// values. This version is for floating-point x, and

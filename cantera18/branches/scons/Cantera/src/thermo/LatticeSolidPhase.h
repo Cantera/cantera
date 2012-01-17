@@ -146,10 +146,9 @@ namespace Cantera {
     doublereal                m_press;
     doublereal                m_molar_density;
 
-
-    int                       m_nlattice;
-    std::vector<LatticePhase*>     m_lattice;
-    mutable vector_fp                 m_x;
+    size_t m_nlattice;
+    std::vector<LatticePhase*> m_lattice;
+    mutable vector_fp m_x;
 
   private:
 

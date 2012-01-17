@@ -68,7 +68,7 @@ namespace Cantera {
     }
     double *charge = DATA_PTR(m_speciesCharge);
     string stemp;
-    int nParamsFound, i;
+    size_t nParamsFound, i;
     vector_fp vParams;
     string iName = BinSalt.attrib("cation");
     if (iName == "") {
@@ -269,7 +269,7 @@ namespace Cantera {
   void HMWSoln::readXMLThetaAnion(XML_Node &BinSalt) {
     string xname = BinSalt.name();
     vector_fp vParams;
-    int nParamsFound = 0;
+    size_t nParamsFound = 0;
     if (xname != "thetaAnion") {
       throw CanteraError("HMWSoln::readXMLThetaAnion",
 			 "Incorrect name for processing this routine: " + xname);
@@ -356,7 +356,7 @@ namespace Cantera {
   void HMWSoln::readXMLThetaCation(XML_Node &BinSalt) {
     string xname = BinSalt.name();
     vector_fp vParams;
-    int nParamsFound = 0;
+    size_t nParamsFound = 0;
     if (xname != "thetaCation") {
       throw CanteraError("HMWSoln::readXMLThetaCation",
 			 "Incorrect name for processing this routine: " + xname);
@@ -449,7 +449,7 @@ namespace Cantera {
     double *charge = DATA_PTR(m_speciesCharge);
     string stemp;
     vector_fp vParams;
-    int nParamsFound = 0;
+    size_t nParamsFound = 0;
     string kName = BinSalt.attrib("cation");
     if (kName == "") {
       throw CanteraError("HMWSoln::readXMLPsiCommonCation", "no cation attrib");
@@ -595,7 +595,7 @@ namespace Cantera {
     double *charge = DATA_PTR(m_speciesCharge);
     string stemp;
     vector_fp vParams;
-    int nParamsFound = 0;
+    size_t nParamsFound = 0;
     string kName = BinSalt.attrib("anion");
     if (kName == "") {
       throw CanteraError("HMWSoln::readXMLPsiCommonAnion", "no anion attrib");
@@ -739,7 +739,7 @@ namespace Cantera {
   void HMWSoln::readXMLLambdaNeutral(XML_Node &BinSalt) {
     string xname = BinSalt.name();
     vector_fp vParams;
-    int nParamsFound;
+    size_t nParamsFound;
     if (xname != "lambdaNeutral") {
       throw CanteraError("HMWSoln::readXMLLanbdaNeutral",
 			 "Incorrect name for processing this routine: " + xname);
@@ -825,7 +825,7 @@ namespace Cantera {
   void HMWSoln::readXMLMunnnNeutral(XML_Node &BinSalt) {
     string xname = BinSalt.name();
     vector_fp vParams;
-    int nParamsFound;
+    size_t nParamsFound;
     if (xname != "MunnnNeutral") {
       throw CanteraError("HMWSoln::readXMLMunnnNeutral",
 			 "Incorrect name for processing this routine: " + xname);
@@ -907,7 +907,7 @@ namespace Cantera {
     double *charge = DATA_PTR(m_speciesCharge);
     string stemp;
     vector_fp vParams;
-    int nParamsFound = 0;
+    size_t nParamsFound = 0;
     
     string iName = BinSalt.attrib("neutral");
     if (iName == "") {
@@ -1492,7 +1492,7 @@ namespace Cantera {
       std::vector<const XML_Node *> xspecies = speciesData();
    
       string kname, jname;
-      int jj = xspecies.size();
+      size_t jj = xspecies.size();
       for (k = 0; k < m_kk; k++) {
 	int jmap = -1;
 	kname = speciesName(k);

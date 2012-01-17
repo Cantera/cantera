@@ -43,7 +43,8 @@ etime_(float *tarray)
 #endif
 	double t = clock();
 	tarray[1] = 0;
-	return (float) (tarray[0] = t / CLOCKS_PER_SECOND);
+	tarray[0] = (float) (t / CLOCKS_PER_SECOND);
+	return tarray[0];
 #else
 	struct tms t;
 

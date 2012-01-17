@@ -113,7 +113,7 @@ namespace Cantera {
          * @param sz   This is the length supplied to Cantera.
          * @param reqd This is the required length needed by Cantera
          */
-        ArraySizeError(std::string procedure, int sz, int reqd);
+        ArraySizeError(std::string procedure, size_t sz, size_t reqd);
     };
 
     //! An element index is out of range.
@@ -133,7 +133,7 @@ namespace Cantera {
          * @param mmax This is the maximum allowed value of the index. The
          *             minimum allowed value is assumed to be 0.
          */
-        ElementRangeError(std::string func, int m, int mmax);
+        ElementRangeError(std::string func, size_t m, size_t mmax);
     };
 
     //! Print a warning when a deprecated method is called.

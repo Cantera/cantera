@@ -16,7 +16,7 @@ extern "C" {
   EEXXTT int DLL_CPREFIX mix_init(int i);
   EEXXTT int DLL_CPREFIX mix_nElements(int i);
   EEXXTT int DLL_CPREFIX mix_elementIndex(int i, char* name);
-  EEXXTT int DLL_CPREFIX mix_speciesIndex(int i, int k, int p);
+  EEXXTT size_t DLL_CPREFIX mix_speciesIndex(int i, int k, int p);
   EEXXTT int DLL_CPREFIX mix_nSpecies(int i);
   EEXXTT int DLL_CPREFIX mix_setTemperature(int i, double t);
   EEXXTT double DLL_CPREFIX mix_temperature(int i);

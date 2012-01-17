@@ -736,9 +736,9 @@ namespace VCSnonideal {
    *
    */
   void vcs_MultiPhaseEquil::reportCSV(const std::string &reportFile) {
-    int k;
-    int istart;
-    int nSpecies;
+    size_t k;
+    size_t istart;
+    size_t nSpecies;
   
     double vol = 0.0;
     string sName;

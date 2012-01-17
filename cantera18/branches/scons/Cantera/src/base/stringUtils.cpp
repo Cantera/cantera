@@ -326,10 +326,9 @@ namespace Cantera {
    *              default is 70.
    */
   std::string wrapString(const std::string& s, const int len) {
-    int nc = s.size();
-    int n, count=0;
+    int count=0;
     std::string r;
-    for (n = 0; n < nc; n++) {
+    for (size_t n = 0; n < s.size(); n++) {
       if (s[n] == '\n') count = 0;
       else count++;
       if (count > len && s[n] == ' ') {
@@ -486,7 +485,7 @@ namespace Cantera {
     std::vector<std::string> v;
     tokenizeString(strSI, v);
     doublereal fp = 1.0;
-    int n = v.size();
+    size_t n = v.size();
     if (n > 2 || n < 1) {
       throw CanteraError("strSItoDbl",
 			 "number of tokens is too high");

@@ -361,9 +361,9 @@ namespace ctml {
    *                        The default value for the node name is floatArray
    *   @return              Returns the number of floats read into v.
    */
-  int getFloatArray(const Cantera::XML_Node& node, Cantera::vector_fp& v, 
-		     const bool convert=true, const std::string unitsString="",
-		     const std::string nodeName = "floatArray");
+  size_t getFloatArray(const Cantera::XML_Node& node, Cantera::vector_fp& v,
+                       const bool convert=true, const std::string unitsString="",
+                       const std::string nodeName = "floatArray");
 
   //! This function interprets the value portion of an XML element
   //! as a string. It then separates the string up into tokens

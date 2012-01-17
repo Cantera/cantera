@@ -8,7 +8,7 @@ namespace Cantera {
 
   // sort (x,y) pairs by x
 
-  void heapsort(vector_fp& x, vector_int& y) {
+  void heapsort(vector_fp& x, std::vector<size_t>& y) {
     int n = x.size();
     if (n < 2) return;
     doublereal rra;

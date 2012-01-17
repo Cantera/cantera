@@ -973,7 +973,7 @@ namespace Cantera {
     }
     double *charge = DATA_PTR(m_speciesCharge);
     string stemp;
-    int nParamsFound;
+    size_t nParamsFound;
     vector_fp vParams;
     string iName = xmLBinarySpecies.attrib("speciesA");
     if (iName == "") {

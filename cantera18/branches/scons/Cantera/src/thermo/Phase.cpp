@@ -136,7 +136,7 @@ namespace Cantera {
     state.resize(nSpecies() + 2);
     saveState(state.size(),&(state[0]));
   }
-  void Phase::saveState(int lenstate, doublereal* state) const {
+  void Phase::saveState(size_t lenstate, doublereal* state) const {
     state[0] = temperature();
     state[1] = density();
     getMassFractions(state + 2);
@@ -146,7 +146,7 @@ namespace Cantera {
     restoreState(state.size(),&state[0]);
   }
 
-  void Phase::restoreState(int lenstate, const doublereal* state) {
+  void Phase::restoreState(size_t lenstate, const doublereal* state) {
     if (int(lenstate) >= nSpecies() + 2) {
       setMassFractions_NoNorm(state + 2);
       setTemperature(state[0]);

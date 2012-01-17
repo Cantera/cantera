@@ -1272,7 +1272,7 @@ namespace Cantera {
 	      if (ieol == 0) {
 		s << endl << indent << "  ";
 	      } else {
-		int jf = ieol - 1;
+		size_t jf = ieol - 1;
 		for (int j = 0; j < (int) ieol; j++) {
 		  if (! isspace(vv[j])) {
 		    jf = j;

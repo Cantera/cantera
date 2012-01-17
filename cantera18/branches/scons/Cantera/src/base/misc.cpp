@@ -1522,13 +1522,13 @@ protected:
         app()->addError(proc, msg);
     }
     
-    ArraySizeError::ArraySizeError(std::string proc, int sz, int reqd) :
-        CanteraError(proc, "Array size ("+int2str(sz)+
-            ") too small. Must be at least "+int2str(reqd)) {}
+    ArraySizeError::ArraySizeError(std::string proc, size_t sz, size_t reqd) :
+        CanteraError(proc, "Array size ("+int2str(int(sz))+
+            ") too small. Must be at least "+int2str(int(reqd))) {}
 
-    ElementRangeError::ElementRangeError(std::string func, int m, int mmax) :
-        CanteraError(func, "Element index " + int2str(m) + 
-            " outside valid range of 0 to " + int2str(mmax-1)) {}
+    ElementRangeError::ElementRangeError(std::string func, size_t m, size_t mmax) :
+        CanteraError(func, "Element index " + int2str(int(m)) +
+            " outside valid range of 0 to " + int2str(int(mmax-1))) {}
 
 
 

@@ -878,9 +878,9 @@ namespace ctml {
    *
    *   @return              Returns the number of floats read
    */
-  int  getFloatArray(const Cantera::XML_Node& node, Cantera::vector_fp& v, 
-                     const bool convert, const std::string unitsString,
-                     const std::string nodeName) {
+  size_t getFloatArray(const Cantera::XML_Node& node, Cantera::vector_fp& v,
+                       const bool convert, const std::string unitsString,
+                       const std::string nodeName) {
     string::size_type icom;
     string numstr;
     doublereal dtmp;
@@ -938,8 +938,7 @@ namespace ctml {
 	 * would appear to be odd. So, we keep the
 	 * possibilty in for backwards compatibility.
 	 */
-	int nlen = strlen(val.c_str());
-	if (nlen > 0) {
+	if (!val.empty()) {
 	  dtmp = atofCheck(val.c_str());
 	  v.push_back(dtmp);
 	}
@@ -955,8 +954,7 @@ namespace ctml {
 		 " is above upper limit of " +fp2str(vmin)+".\n");
       }
     }
-    int nv = v.size();
-    for (int n = 0; n < nv; n++) {
+    for (size_t n = 0; n < v.size(); n++) {
       v[n] *= funit;
     }
     return v.size();
@@ -1094,10 +1092,10 @@ namespace ctml {
 		       const std::vector<std::string>& keyStringCol,
 		       Cantera::Array2D &retnValues, const bool convert,
 		       const bool matrixSymmetric) {
-    int szKey1 = keyStringRow.size();
-    int szKey2 = keyStringCol.size();
-    int nrow   = retnValues.nRows();
-    int ncol   = retnValues.nColumns();
+    size_t szKey1 = keyStringRow.size();
+    size_t szKey2 = keyStringCol.size();
+    size_t nrow   = retnValues.nRows();
+    size_t ncol   = retnValues.nColumns();
     if (szKey1 > nrow) {
       throw CanteraError("getMatrixValues", 
 			 "size of key1 greater than numrows");

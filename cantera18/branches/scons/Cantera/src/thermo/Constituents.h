@@ -102,7 +102,7 @@ namespace Cantera {
     ///   \param m  Element index. 
     ///   \exception If m < 0 or m >= nElements(), the
     ///          exception, ElementRangeError, is thrown.
-    std::string elementName(int m) const;
+    std::string elementName(size_t m) const;
 
 
     /// Index of element named 'name'.
@@ -133,7 +133,7 @@ namespace Cantera {
     /*!
      *  @param m Element index
      */
-    int atomicNumber(int m) const;
+    int atomicNumber(size_t m) const;
 
     /// Return a read-only reference to the vector of element names.
     const std::vector<std::string>& elementNames() const;
@@ -213,7 +213,7 @@ namespace Cantera {
     //@}
       
     /// Returns the number of species in the phase
-    int nSpecies() const { return m_kk; }
+    size_t nSpecies() const { return m_kk; }
 
     //! Molecular weight of species \c k.
     /*!
@@ -248,7 +248,7 @@ namespace Cantera {
      *
      * @param k species index
      */
-    doublereal charge(int k) const;
+    doublereal charge(size_t k) const;
 
     /**
      * @name Adding Species
@@ -288,7 +288,7 @@ namespace Cantera {
     /*!
      * @param k index of the species
      */
-    std::string speciesName(int k) const;
+    std::string speciesName(size_t k) const;
        
     /// Return a const referernce to the vector of species names
     const std::vector<std::string>& speciesNames() const;
@@ -336,7 +336,7 @@ namespace Cantera {
   protected:
     
     //! Number of species in the phase.
-    int                            m_kk;
+    size_t m_kk;
     //! Vector of molecular weights of the species
     /*!
      * This vector has length m_kk.

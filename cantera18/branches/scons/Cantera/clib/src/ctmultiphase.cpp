@@ -110,7 +110,7 @@ extern "C" {
         return _mix(i)->nSpecies();
     }
 
-    int DLL_EXPORT mix_speciesIndex(int i, int k, int p) {
+    size_t DLL_EXPORT mix_speciesIndex(int i, int k, int p) {
         return _mix(i)->speciesIndex(k, p);
     }
 

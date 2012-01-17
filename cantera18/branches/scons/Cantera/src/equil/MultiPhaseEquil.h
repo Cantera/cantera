@@ -81,7 +81,7 @@ namespace Cantera {
 
     protected:
 
-        void getComponents(const vector_int& order);
+        void getComponents(const std::vector<size_t>& order);
         int setInitialMoles(int loglevel = 0);
         void computeN();
         doublereal stepComposition(int loglevel = 0);
@@ -93,12 +93,12 @@ namespace Cantera {
         void finish();
 
         // moles of the species with sorted index ns
-        double moles(int ns) const { return m_moles[m_order[ns]]; }
-        double& moles(int ns) { return m_moles[m_order[ns]]; }
-        int solutionSpecies(int n) const { return m_dsoln[m_order[n]]; }
-        bool isStoichPhase(int n) const { return (m_dsoln[m_order[n]] == 0); }
-        doublereal mu(int n) const { return m_mu[m_species[m_order[n]]]; }
-        std::string speciesName(int n) const { return 
+        double moles(size_t ns) const { return m_moles[m_order[ns]]; }
+        double& moles(size_t ns) { return m_moles[m_order[ns]]; }
+        int solutionSpecies(size_t n) const { return m_dsoln[m_order[n]]; }
+        bool isStoichPhase(size_t n) const { return (m_dsoln[m_order[n]] == 0); }
+        doublereal mu(size_t n) const { return m_mu[m_species[m_order[n]]]; }
+        std::string speciesName(size_t n) const { return
                 m_mix->speciesName(m_species[m_order[n]]); }
 
         index_t m_nel_mix, m_nsp_mix, m_np;
@@ -107,13 +107,13 @@ namespace Cantera {
         int m_iter;
         mix_t* m_mix;
         doublereal m_press, m_temp;
-        vector_int m_order;
+        std::vector<size_t> m_order;
         matrix_t m_N, m_A;
         vector_fp m_work, m_work2, m_work3;
         vector_fp m_moles, m_lastmoles, m_dxi;
         vector_fp m_deltaG_RT, m_mu;
         std::vector<bool> m_majorsp;
-        vector_int m_sortindex;
+        std::vector<size_t> m_sortindex;
         vector_int m_lastsort;
         vector_int m_dsoln;
         vector_int m_incl_element, m_incl_species;
@@ -121,8 +121,8 @@ namespace Cantera {
         // Vector of indices for species that are included in the
         // calculation.  This is used to exclude pure-phase species
         // with invalid thermo data
-        vector_int m_species;
-        vector_int m_element;
+        std::vector<size_t> m_species;
+        std::vector<size_t> m_element;
         std::vector<bool> m_solnrxn;
         bool m_force;
     };

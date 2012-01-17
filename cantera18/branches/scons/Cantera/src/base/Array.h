@@ -65,7 +65,7 @@ namespace Cantera {
      *  @param n   Number of columns
      *  @param v   Default fill value. The default is 0.0
      */
-    Array2D(const int m, const int n, const doublereal v = 0.0) 
+    Array2D(const size_t m, const size_t n, const doublereal v = 0.0)
       :  m_data(0), m_nrows(m), m_ncols(n) {
       m_data.resize(n*m);
       std::fill(m_data.begin(), m_data.end(), v);
@@ -105,7 +105,7 @@ namespace Cantera {
      * @param m  This is the number of columns in the new matrix
      * @param v  Default fill value -> defaults to zero.
      */
-    void resize(int n, int m, doublereal v = 0.0) {
+    void resize(size_t n, size_t m, doublereal v = 0.0) {
       m_nrows = n;
       m_ncols = m;
       m_data.resize(n*m, v);
@@ -122,7 +122,7 @@ namespace Cantera {
     void appendColumn(const vector_fp& c) {
       m_ncols++;
       m_data.resize(m_nrows*m_ncols);
-      int m;
+      size_t m;
       for (m = 0;  m < m_nrows; m++) value(m_ncols, m) = c[m];
     }
 
@@ -137,7 +137,7 @@ namespace Cantera {
     void appendColumn(const doublereal* const c) {
       m_ncols++;
       m_data.resize(m_nrows*m_ncols);
-      int m;
+      size_t m;
       for (m = 0;  m < m_nrows; m++) value(m_ncols, m) = c[m];
     }
 
@@ -146,8 +146,8 @@ namespace Cantera {
      *  @param  n  Index of the row to be changed
      *  @param  rw  Vector for the row. Must have a length of m_ncols.
      */
-    void setRow(int n, const doublereal* const rw) {
-      for (int j = 0; j < m_ncols; j++) {
+    void setRow(size_t n, const doublereal* const rw) {
+      for (size_t j = 0; j < m_ncols; j++) {
 	m_data[m_nrows*j + n] = rw[j];
       }
     }
@@ -158,8 +158,8 @@ namespace Cantera {
      *   @param rw   Return Vector  for the operation. 
      *               Must have a length of m_ncols.
      */
-    void getRow(int n, doublereal* const rw) {
-      for (int j = 0; j < m_ncols; j++) {
+    void getRow(size_t n, doublereal* const rw) {
+      for (size_t j = 0; j < m_ncols; j++) {
 	rw[j] = m_data[m_nrows*j + n];
       }
     }
@@ -172,8 +172,8 @@ namespace Cantera {
      *  @param col  pointer to a col vector. Vector 
      *              must have a length of m_nrows.
      */
-    void setColumn(int m, doublereal* const col) {
-      for (int i = 0; i < m_nrows; i++) {
+    void setColumn(size_t m, doublereal* const col) {
+      for (size_t i = 0; i < m_nrows; i++) {
 	m_data[m_nrows*m + i] = col[i];
       }
     }
@@ -185,8 +185,8 @@ namespace Cantera {
      *  @param m    Column to set
      *  @param col  pointer to a col vector that will be returned
      */
-    void getColumn(int m, doublereal* const col) {
-      for (int i = 0; i < m_nrows; i++) {
+    void getColumn(size_t m, doublereal* const col) {
+      for (size_t i = 0; i < m_nrows; i++) {
 	col[i] = m_data[m_nrows*m + i];
       }
     }
@@ -224,7 +224,7 @@ namespace Cantera {
      *
      *  @return Returns a reference to A(i,j) which may be assigned.
      */ 
-    doublereal& operator()( int i, int j) { return value(i,j); }
+    doublereal& operator()(size_t i, size_t j) { return value(i,j); }
 
     
     //! Allows retrieving elements using the syntax x = A(i,j).
@@ -234,7 +234,7 @@ namespace Cantera {
      *
      *   @return    Returns the value of the matrix entry
      */ 
-    doublereal operator() (int i, int j) const {
+    doublereal operator() (size_t i, size_t j) const {
       return value(i,j);
     }
 
@@ -248,7 +248,7 @@ namespace Cantera {
      *
      * @return  Returns a changeable reference to the matrix entry
      */
-    doublereal& value(int i, int j) {
+    doublereal& value(size_t i, size_t j) {
       return m_data[m_nrows*j + i];
     }
 
@@ -260,7 +260,7 @@ namespace Cantera {
      * @param i   The row index
      * @param j   The column index
      */
-    doublereal value(int i, int j) const {
+    doublereal value(size_t i, size_t j) const {
       return m_data[m_nrows*j + i];
     }
 
@@ -295,7 +295,7 @@ namespace Cantera {
      *
      *  @return  Returns a pointer to the top of the column
      */
-    doublereal * ptrColumn(int j) { return &(m_data[m_nrows*j]); }
+    doublereal * ptrColumn(size_t j) { return &(m_data[m_nrows*j]); }
 
     //! Return a const pointer to the top of column j, columns are contiguous
     //! in memory
@@ -304,7 +304,7 @@ namespace Cantera {
      *
      *  @return  Returns a const pointer to the top of the column
      */
-    const doublereal * ptrColumn(int j) const { 
+    const doublereal * ptrColumn(size_t j) const {
       return &(m_data[m_nrows*j]); 
     }
 
@@ -314,10 +314,10 @@ namespace Cantera {
     vector_fp m_data;
 
     //! Number of rows
-    int m_nrows;
+    size_t m_nrows;
 
     //! Number of columns
-    int m_ncols;
+    size_t m_ncols;
   };
 
   //! Output the current contents of the Array2D object
@@ -331,9 +331,9 @@ namespace Cantera {
    *  @return    Returns a reference to the ostream.
    */
   inline std::ostream& operator<<(std::ostream& s, const Array2D& m) {
-    int nr = static_cast<int>(m.nRows());
-    int nc = static_cast<int>(m.nColumns());
-    int i,j;
+    size_t nr = m.nRows();
+    size_t nc = m.nColumns();
+    size_t i,j;
     for (i = 0; i < nr; i++) {
       for (j = 0; j < nc; j++) {
 	s << m(i,j) << ", ";

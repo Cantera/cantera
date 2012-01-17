@@ -103,7 +103,7 @@ namespace Cantera {
   /*
    * Return the atomic number of element m.
    */
-  int Constituents::atomicNumber(int m) const {
+  int Constituents::atomicNumber(size_t m) const {
     return m_Elements->atomicNumber(m);
   }
 
@@ -195,7 +195,7 @@ namespace Cantera {
    *   \exception If m < 0 or m >= nElements(), the
    *              exception, ElementRangeError, is thrown.
    */
-  string Constituents::elementName(int m) const {
+  string Constituents::elementName(size_t m) const {
     return (m_Elements->elementName(m));
   }
 
@@ -252,7 +252,7 @@ namespace Cantera {
    * Electrical charge of one species k molecule, divided by
    * \f$ e = 1.602 \times 10^{-19}\f$ Coulombs.
    */ 
-  doublereal Constituents::charge(int k) const { 
+  doublereal Constituents::charge(size_t k) const {
     return m_speciesCharge[k];
   }
 
@@ -420,7 +420,7 @@ namespace Cantera {
    *
    *      Name of the species with index k
    */
-  string Constituents::speciesName(int k) const {
+  string Constituents::speciesName(size_t k) const {
     if (k < 0 || k >= nSpecies()) 
       throw SpeciesRangeError("Constituents::speciesName",
 			      k, nSpecies());

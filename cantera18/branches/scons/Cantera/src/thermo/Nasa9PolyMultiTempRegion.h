@@ -224,7 +224,7 @@ namespace Cantera {
     //! species index
     int m_index;  
     //! Number of temperature regions
-    int m_numTempRegions;
+    size_t m_numTempRegions;
     
     //! Lower boundaries of each temperature regions
     vector_fp m_lowerTempBounds;
