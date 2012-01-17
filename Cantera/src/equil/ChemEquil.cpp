@@ -148,7 +148,7 @@ namespace Cantera {
 	  // if negative atom numbers have already been specified
 	  // for some element other than this one, throw
 	  // an exception
-	  if (mneg != -1 && mneg != m)
+	  if (mneg != npos && mneg != m)
 	    throw CanteraError("ChemEquil::initialize",
 			       "negative atom numbers allowed for only one element"); 
 	  mneg = m;
@@ -1573,7 +1573,7 @@ namespace Cantera {
 	  if (n_i_calc[k] > nCutoff) {
 	    if (fabs(nAtoms(k,m)) > 0.001) {
 	      nSpeciesWithElem++;
-	      if (kMSp != -1) {
+	      if (kMSp != npos) {
 		kMSp2 = k;
 		double factor = fabs(nAtoms(kMSp,m) / nAtoms(kMSp2,m));
 		for (n = 0; n < m_mm; n++) {
@@ -1763,7 +1763,7 @@ namespace Cantera {
        */
       modifiedMatrix = false;
       for (m = 0; m < m_mm; m++) {
-	size_t sameAsRow = -1;
+	size_t sameAsRow = npos;
 	for (size_t im = 0; im < m; im++) {
 	  bool theSame = true;
 	  for (n = 0; n < m_mm; n++) {
@@ -1776,7 +1776,7 @@ namespace Cantera {
 	    sameAsRow = im;
 	  }
 	}
-	if (sameAsRow != -1 || lumpSum[m]) {
+	if (sameAsRow != npos || lumpSum[m]) {
 #ifdef DEBUG_MODE
 	  if (ChemEquil_print_lvl > 0) {
 	    if (lumpSum[m]) {
@@ -1897,7 +1897,7 @@ namespace Cantera {
    *
    */
   void ChemEquil::adjustEloc(thermo_t &s, vector_fp & elMolesGoal) {
-    if (m_eloc == -1) return;
+    if (m_eloc == npos) return;
     if (fabs(elMolesGoal[m_eloc]) > 1.0E-20) return; 
     s.getMoleFractions(DATA_PTR(m_molefractions));
     size_t k;

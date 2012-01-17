@@ -193,16 +193,15 @@ namespace Cantera {
   }
 
   void State::setConcentrations(const doublereal* const conc) {
-    int k;
     doublereal sum = 0.0, norm = 0.0;
-    for (k = 0; k != m_kk; ++k) {
+    for (size_t k = 0; k != m_kk; ++k) {
       sum += conc[k]*m_molwts[k];
       norm += conc[k];
     }
     m_mmw = sum/norm;
     setDensity(sum);
     doublereal rsum = 1.0/sum;
-    for (k = 0; k != m_kk; ++k) {
+    for (size_t k = 0; k != m_kk; ++k) {
       m_ym[k] = conc[k] * rsum;
       m_y[k] =  m_ym[k] * m_molwts[k];
     }

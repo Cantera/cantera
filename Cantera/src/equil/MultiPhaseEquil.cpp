@@ -460,7 +460,7 @@ namespace Cantera {
         // The left m_nel columns of A are now upper-diagonal.  Now
         // reduce the m_nel columns to diagonal form by back-solving
         for (m = nRows-1; m > 0; m--) {
-            for (size_t n = m-1; n != -1; n--) {
+            for (size_t n = m-1; n != npos; n--) {
                 if (m_A(n,m) != 0.0) {
                     fctr = m_A(n,m);
                     for (k = m; k < m_nsp; k++) {
@@ -828,7 +828,7 @@ namespace Cantera {
             }
             ok = false;
             for (ij = 0; ij < m_nel; ij++) {
-                if (int(k) == m_order[ij]) ok = true;
+                if (k == m_order[ij]) ok = true;
             }
             if (!ok || m_force) {
                 getComponents(m_sortindex);

@@ -213,7 +213,7 @@ namespace Cantera {
        * for the species in all phases defined in the kinetics operator. 
        */
       size_t isp = kin.kineticsSpeciesIndex(sp,"<any>");
-      if (isp == -2) {
+      if (isp == npos) {
 	if (rule == 1) 
 	  return false;
 	else {
@@ -1105,7 +1105,7 @@ namespace Cantera {
 
 	  // if no phase with this id has been added to 
 	  //the kinetics manager yet, then add this one
-	  if (kin.phaseIndex(phase_id) == -1) {
+	  if (kin.phaseIndex(phase_id) == npos) {
 	    kin.addPhase(*th[m]);
 	  }
 	}

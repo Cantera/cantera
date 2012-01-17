@@ -881,7 +881,7 @@ namespace Cantera {
       break;
 
     case cIonSolnType_SINGLEANION:
-      for (size_t k = 0; k < (int) cationList_.size(); k++) {
+      for (size_t k = 0; k < cationList_.size(); k++) {
 	//! Get the id for the next cation
         icat = cationList_[k];
 	jNeut = fm_invert_ionForNeutral[icat];

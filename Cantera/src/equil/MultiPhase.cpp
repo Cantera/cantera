@@ -144,7 +144,7 @@ namespace Cantera {
 	nsp = p->nSpecies();
 	mlocal = p->elementIndex(sym);    
 	for (kp = 0; kp < nsp; kp++) {
-	  if (mlocal != -1) {
+	  if (mlocal != npos) {
 	    m_atoms(m, k) = p->nAtoms(kp, mlocal);
 	  }
 	  if (m == 0) {
@@ -159,12 +159,12 @@ namespace Cantera {
       }
     }
 
-    if (m_eloc >= 0) {
+    if (m_eloc != npos) {
       doublereal esum;
       for (k = 0; k < m_nsp; k++) {
 	esum = 0.0;
 	for (m = 0; m < m_nel; m++) {
-	  if (int(m) != m_eloc)
+	  if (m != m_eloc)
 	    esum += m_atoms(m,k) * m_atomicNumber[m];
 	}
 	//m_atoms(m_eloc, k) += esum;
@@ -226,11 +226,11 @@ namespace Cantera {
 
   size_t MultiPhase::speciesIndex(std::string speciesName, std::string phaseName) {
     size_t p = phaseIndex(phaseName);
-    if (p == -1) {
+    if (p == npos) {
       throw CanteraError("MultiPhase::speciesIndex", "phase not found: " + phaseName);
     }
     size_t k = m_phase[p]->speciesIndex(speciesName);
-    if (k == -1) {
+    if (k == npos) {
       throw CanteraError("MultiPhase::speciesIndex", "species not found: " + speciesName);
     }
     return m_spstart[p] + k;

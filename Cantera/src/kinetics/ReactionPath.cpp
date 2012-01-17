@@ -296,7 +296,7 @@ namespace Cantera {
                 {
                     k2 = m_speciesNumber[i2];
                     flx = netFlow(k1, k2);
-                    if (m_local != -1) {
+                    if (m_local != npos) {
                         if (k1 != m_local && k2 != m_local) flx = 0.0;
                     }
                     if (flx != 0.0) 
@@ -383,7 +383,7 @@ namespace Cantera {
             for (size_t i = 0; i < nPaths(); i++) {
                 p = path(i);
                 flxratio = p->flow()/flmax;
-                if (m_local != -1) {
+                if (m_local != npos) {
                     if (p->begin()->number != m_local 
                         && p->end()->number != m_local) flxratio = 0.0;
                 }
@@ -678,7 +678,7 @@ namespace Cantera {
                 size_t nsp = p->nSpecies();
                 size_t mlocal = p->elementIndex(sym);
                 for (size_t kp = 0; kp < nsp; kp++) {
-                    if (mlocal != -1) {
+                    if (mlocal != npos) {
                         m_atoms(k, m) = p->nAtoms(kp, mlocal);
                     }
                     k++;

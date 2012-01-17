@@ -72,7 +72,7 @@ namespace Cantera {
   }
 
 
-  void STITbyPDSS::initAllPtrs(int speciesIndex, VPSSMgr *vpssmgr_ptr, PDSS *PDSS_ptr) {
+  void STITbyPDSS::initAllPtrs(size_t speciesIndex, VPSSMgr *vpssmgr_ptr, PDSS *PDSS_ptr) {
     AssertThrow(speciesIndex == m_speciesIndex, "STITbyPDSS::initAllPtrs internal confusion");
     m_vpssmgr_ptr = vpssmgr_ptr;
     m_PDSS_ptr = PDSS_ptr;

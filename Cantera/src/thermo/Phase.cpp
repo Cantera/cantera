@@ -147,7 +147,7 @@ namespace Cantera {
   }
 
   void Phase::restoreState(size_t lenstate, const doublereal* state) {
-    if (int(lenstate) >= nSpecies() + 2) {
+    if (lenstate >= nSpecies() + 2) {
       setMassFractions_NoNorm(state + 2);
       setTemperature(state[0]);
       setDensity(state[1]);
@@ -312,7 +312,7 @@ namespace Cantera {
 
   doublereal Phase::moleFraction(std::string name) const {
     size_t iloc = speciesIndex(name);
-    if (iloc != -1) return State::moleFraction(iloc);
+    if (iloc != npos) return State::moleFraction(iloc);
     else return 0.0;
   }
 
@@ -322,7 +322,7 @@ namespace Cantera {
 
   doublereal Phase::massFraction(std::string name) const {
     size_t iloc = speciesIndex(name);
-    if (iloc != -1) return massFractions()[iloc];
+    if (iloc != npos) return massFractions()[iloc];
     else return 0.0;
   }
 

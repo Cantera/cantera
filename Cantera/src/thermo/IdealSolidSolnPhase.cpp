@@ -906,7 +906,7 @@ namespace Cantera {
    */
   void IdealSolidSolnPhase::getEnthalpy_RT_ref(doublereal *hrt) const {
     _updateThermo();
-    for (int k = 0; k != m_kk; k++) {
+    for (size_t k = 0; k != m_kk; k++) {
       hrt[k] = m_h0_RT[k];
     }
   }
@@ -919,7 +919,7 @@ namespace Cantera {
    */
   void IdealSolidSolnPhase::getGibbs_RT_ref(doublereal *grt) const {
     _updateThermo();
-    for (int k = 0; k != m_kk; k++) {
+    for (size_t k = 0; k != m_kk; k++) {
       grt[k] = m_g0_RT[k];
     }
   }
@@ -933,7 +933,7 @@ namespace Cantera {
   void IdealSolidSolnPhase::getGibbs_ref(doublereal *g) const {
     _updateThermo();
     double tmp = GasConstant * temperature();
-    for (int k = 0; k != m_kk; k++) {
+    for (size_t k = 0; k != m_kk; k++) {
       g[k] = tmp * m_g0_RT[k];
     }
   }
@@ -960,7 +960,7 @@ namespace Cantera {
    */
   void IdealSolidSolnPhase::getEntropy_R_ref(doublereal *er) const {
     _updateThermo();
-    for (int k = 0; k != m_kk; k++) {
+    for (size_t k = 0; k != m_kk; k++) {
       er[k] = m_s0_R[k];
     }
   }
@@ -973,7 +973,7 @@ namespace Cantera {
    */
   void IdealSolidSolnPhase::getCp_R_ref(doublereal *cpr) const {
     _updateThermo();
-    for (int k = 0; k != m_kk; k++) {
+    for (size_t k = 0; k != m_kk; k++) {
       cpr[k] = m_cp0_R[k];
     }
   }
@@ -999,8 +999,7 @@ namespace Cantera {
    */
   const array_fp& IdealSolidSolnPhase::expGibbs_RT_ref() const {
     _updateThermo();
-    int k;
-    for (k = 0; k != m_kk; k++) m_expg0_RT[k] = exp(m_g0_RT[k]);
+    for (size_t k = 0; k != m_kk; k++) m_expg0_RT[k] = exp(m_g0_RT[k]);
     return m_expg0_RT;
   }
 

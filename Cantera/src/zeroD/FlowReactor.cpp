@@ -132,7 +132,7 @@ namespace CanteraZeroD {
         if (nm == "U") return 1;
         // check for a gas species name
         size_t k = m_thermo->speciesIndex(nm);
-        if (k != -1) return k + 2;
+        if (k != npos) return k + 2;
         else return -1;
     }
 

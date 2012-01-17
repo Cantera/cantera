@@ -178,7 +178,7 @@ namespace Cantera {
     
 
     size_t iLiCl = speciesIndex("LiCl(L)");
-    if (iLiCl == -1) {
+    if (iLiCl == npos) {
       throw CanteraError("MargulesVPSSTP test1 constructor",
 			 "Unable to find LiCl(L)");
     }
@@ -186,7 +186,7 @@ namespace Cantera {
 
 
     size_t iKCl = speciesIndex("KCl(L)");
-    if (iKCl == -1) {
+    if (iKCl == npos) {
       throw CanteraError("MargulesVPSSTP test1 constructor",
 			 "Unable to find KCl(L)");
     }
@@ -974,7 +974,7 @@ namespace Cantera {
      * an error to not find the species
      */
     size_t iSpecies = speciesIndex(iName);
-    if (iSpecies == -1) {
+    if (iSpecies == npos) {
       return;
     }
     string ispName = speciesName(iSpecies);
@@ -982,7 +982,7 @@ namespace Cantera {
       throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies", "speciesA charge problem");
     }
     size_t jSpecies = speciesIndex(jName);
-    if (jSpecies == -1) {
+    if (jSpecies == npos) {
       return;
     }
     string jspName = speciesName(jSpecies);

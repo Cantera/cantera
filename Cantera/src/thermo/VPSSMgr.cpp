@@ -429,7 +429,7 @@ namespace Cantera {
 
  /*****************************************************************/
   doublereal VPSSMgr::minTemp(size_t k) const {
-    if (k != -1) {
+    if (k != npos) {
       const PDSS *kPDSS = m_vptp_ptr->providePDSS(k);
       return kPDSS->minTemp();
     }
@@ -437,7 +437,7 @@ namespace Cantera {
   }
 
  doublereal VPSSMgr::maxTemp(size_t k) const {
-    if (k != -1) {
+    if (k != npos) {
       const PDSS *kPDSS = m_vptp_ptr->providePDSS(k);
       return kPDSS->maxTemp();
     }
@@ -445,7 +445,7 @@ namespace Cantera {
   }
 
   doublereal VPSSMgr::refPressure(size_t k) const {
-    if (k != -1) {
+    if (k != npos) {
       const PDSS *kPDSS = m_vptp_ptr->providePDSS(k);
       return kPDSS->refPressure();
     }

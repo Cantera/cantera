@@ -83,7 +83,7 @@ namespace Cantera {
      * an error to not find the species
      */
     size_t iSpecies = speciesIndex(iName);
-    if (iSpecies == -1) {
+    if (iSpecies == npos) {
       return;
     }
     string ispName = speciesName(iSpecies);
@@ -91,7 +91,7 @@ namespace Cantera {
       throw CanteraError("HMWSoln::readXMLBinarySalt", "cation charge problem");
     }
     size_t jSpecies = speciesIndex(jName);
-    if (jSpecies == -1) {
+    if (jSpecies == npos) {
       return;
     }
     string jspName = speciesName(jSpecies);
@@ -289,14 +289,14 @@ namespace Cantera {
      * an error to not find the species
      */
     size_t iSpecies = speciesIndex(ispName);
-    if (iSpecies == -1) {
+    if (iSpecies == npos) {
       return;
     }
     if (charge[iSpecies] >= 0) {
       throw CanteraError("HMWSoln::readXMLThetaAnion", "anion1 charge problem");
     }
     size_t jSpecies = speciesIndex(jspName);
-    if (jSpecies == -1) {
+    if (jSpecies == npos) {
       return;
     }
     if (charge[jSpecies] >= 0) {
@@ -376,14 +376,14 @@ namespace Cantera {
      * an error to not find the species
      */
     size_t iSpecies = speciesIndex(ispName);
-    if (iSpecies == -1) {
+    if (iSpecies == npos) {
       return;
     }
     if (charge[iSpecies] <= 0) {
       throw CanteraError("HMWSoln::readXMLThetaCation", "cation1 charge problem");
     }
     size_t jSpecies = speciesIndex(jspName);
-    if (jSpecies == -1) {
+    if (jSpecies == npos) {
       return;
     }
     if (charge[jSpecies] <= 0) {
@@ -467,7 +467,7 @@ namespace Cantera {
      * an error to not find the species
      */
     size_t kSpecies = speciesIndex(kName);
-    if (kSpecies == -1) {
+    if (kSpecies == npos) {
       return;
     }
     if (charge[kSpecies] <= 0) {
@@ -475,7 +475,7 @@ namespace Cantera {
 			 "cation charge problem");
     }
     size_t iSpecies = speciesIndex(iName);
-    if (iSpecies == -1) {
+    if (iSpecies == npos) {
       return;
     }
     if (charge[iSpecies] >= 0) {
@@ -483,7 +483,7 @@ namespace Cantera {
 			 "anion1 charge problem");
     }
     size_t jSpecies = speciesIndex(jName);
-    if (jSpecies == -1) {
+    if (jSpecies == npos) {
       return;
     }
     if (charge[jSpecies] >= 0) {
@@ -613,14 +613,14 @@ namespace Cantera {
      * an error to not find the species
      */
     size_t kSpecies = speciesIndex(kName);
-    if (kSpecies == -1) {
+    if (kSpecies == npos) {
       return;
     }
     if (charge[kSpecies] >= 0) {
       throw CanteraError("HMWSoln::readXMLPsiCommonAnion", "anion charge problem");
     }
     size_t iSpecies = speciesIndex(iName);
-    if (iSpecies == -1) {
+    if (iSpecies == npos) {
       return;
     }
     if (charge[iSpecies] <= 0) {
@@ -628,7 +628,7 @@ namespace Cantera {
 			 "cation1 charge problem");
     }
     size_t jSpecies = speciesIndex(jName);
-    if (jSpecies == -1) {
+    if (jSpecies == npos) {
       return;
     }
     if (charge[jSpecies] <= 0) {
@@ -759,7 +759,7 @@ namespace Cantera {
      * an error to not find the species
      */
     size_t iSpecies = speciesIndex(iName);
-    if (iSpecies == -1) {
+    if (iSpecies == npos) {
       return;
     }
     if (charge[iSpecies] != 0) {
@@ -767,7 +767,7 @@ namespace Cantera {
 			 "neutral charge problem");
     }
     size_t jSpecies = speciesIndex(jName);
-    if (jSpecies == -1) {
+    if (jSpecies == npos) {
       return;
     }
 	
@@ -842,7 +842,7 @@ namespace Cantera {
      * an error to not find the species
      */
     size_t iSpecies = speciesIndex(iName);
-    if (iSpecies == -1) {
+    if (iSpecies == npos) {
       return;
     }
     if (charge[iSpecies] != 0) {
@@ -928,7 +928,7 @@ namespace Cantera {
      * an error to not find the species
      */
     size_t iSpecies = speciesIndex(iName);
-    if (iSpecies == -1) {
+    if (iSpecies == npos) {
       return;
     }
     if (charge[iSpecies] != 0.0) {
@@ -936,7 +936,7 @@ namespace Cantera {
     }
  
     size_t jSpecies = speciesIndex(jName);
-    if (jSpecies == -1) {
+    if (jSpecies == npos) {
       return;
     }
     if (charge[jSpecies] <= 0.0) {
@@ -944,7 +944,7 @@ namespace Cantera {
     }
 
     size_t kSpecies = speciesIndex(kName);
-    if (kSpecies == -1) {
+    if (kSpecies == npos) {
       return;
     }
     if (charge[kSpecies] >= 0.0) {
@@ -1307,7 +1307,7 @@ namespace Cantera {
 	break;
       }
     }
-    if (m_indexSolvent == -1) {
+    if (m_indexSolvent == npos) {
       std::cout << "HMWSoln::initThermo: Solvent Name not found" 
 		<< std::endl;
       throw CanteraError("HMWSoln::initThermoXML",
@@ -1503,7 +1503,7 @@ namespace Cantera {
 	    break;
 	  }
 	}
-	if (jmap != -1) {
+	if (jmap != npos) {
 	  const XML_Node& sp = *xspecies[jmap];
 	  getOptionalFloat(sp, "stoichIsMods",  m_speciesCharge_Stoich[k]);
 	  // if (sp.hasChild("stoichIsMods")) {
@@ -1525,7 +1525,7 @@ namespace Cantera {
 	  map<string,string>::const_iterator _b = msIs.begin();
 	  for (; _b != msIs.end(); ++_b) {
 	    size_t kk = speciesIndex(_b->first);
-	    if (kk != -1) {
+	    if (kk != npos) {
 	      double val = fpValue(_b->second);
 	      m_speciesCharge_Stoich[kk] = val;
 	    }
@@ -1625,7 +1625,7 @@ namespace Cantera {
 	map<string,string>::const_iterator _b = msEST.begin();
 	for (; _b != msEST.end(); ++_b) {
 	  size_t kk = speciesIndex(_b->first);
-	  if (kk != -1) {
+	  if (kk != npos) {
 	    string est = _b->second;
 	    if ((m_electrolyteSpeciesType[kk] = interp_est(est))  == -1) {
 	      throw CanteraError("HMWSoln::initThermoXML",

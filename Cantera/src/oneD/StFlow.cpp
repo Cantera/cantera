@@ -328,10 +328,10 @@ namespace Cantera {
         // if evaluating a Jacobian, and the global point is outside
         // the domain of influence for this domain, then skip
         // evaluating the residual
-        if (jg != -1 && (jg + 1 < firstPoint() || jg > lastPoint() + 1)) return;
+        if (jg != npos && (jg + 1 < firstPoint() || jg > lastPoint() + 1)) return;
 
         // if evaluating a Jacobian, compute the steady-state residual
-        if (jg != -1) rdt = 0.0;
+        if (jg != npos) rdt = 0.0;
 
         // start of local part of global arrays
         doublereal* x = xg + loc();
@@ -341,7 +341,7 @@ namespace Cantera {
         size_t jmin, jmax, jpt;
         jpt = jg - firstPoint();
 
-        if (jg == -1) {      // evaluate all points
+        if (jg == npos) {      // evaluate all points
             jmin = 0;
             jmax = m_points - 1;
         }
@@ -632,10 +632,10 @@ namespace Cantera {
         // if evaluating a Jacobian, and the global point is outside
         // the domain of influence for this domain, then skip
         // evaluating the residual
-        if (jg != -1 && (jg + 1 < firstPoint() || jg > lastPoint() + 1)) return;
+        if (jg != npos && (jg + 1 < firstPoint() || jg > lastPoint() + 1)) return;
 
         // if evaluating a Jacobian, compute the steady-state residual
-        if (jg != -1) rdt = 0.0;
+        if (jg != npos) rdt = 0.0;
 
         // start of local part of global arrays
         doublereal* x = xg + loc();
@@ -645,7 +645,7 @@ namespace Cantera {
         size_t jmin, jmax, jpt;
         jpt = jg - firstPoint();
 
-        if (jg == -1) {      // evaluate all points
+        if (jg == npos) {      // evaluate all points
             jmin = 0;
             jmax = m_points - 1;
         }
@@ -1051,7 +1051,7 @@ namespace Cantera {
             getFloatArray(fa,x,false);
             if (nm == "u") {
                 writelog("axial velocity   ");
-                if ((int) x.size() == np) {
+                if (x.size() == np) {
                     for (j = 0; j < np; j++) {
                         soln[index(0,j)] = x[j];
                     }
@@ -1065,7 +1065,7 @@ namespace Cantera {
             }
             else if (nm == "V") {
                 writelog("radial velocity   ");
-                if ((int) x.size() == np) {
+                if (x.size() == np) {
                     for (j = 0; j < np; j++)
                         soln[index(1,j)] = x[j];
                 }

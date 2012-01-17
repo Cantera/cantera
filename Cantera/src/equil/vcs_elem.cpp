@@ -127,7 +127,7 @@ namespace VCSnonideal {
   /*****************************************************************************/
   /*****************************************************************************/
 
-  void VCS_SOLVE::vcs_elabPhase(int iphase, double * const elemAbundPhase)
+  void VCS_SOLVE::vcs_elabPhase(size_t iphase, double * const elemAbundPhase)
    
     /*************************************************************************
      *
