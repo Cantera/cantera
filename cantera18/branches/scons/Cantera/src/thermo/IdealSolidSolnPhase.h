@@ -1021,7 +1021,7 @@ namespace Cantera {
      * m_mm = Number of distinct elements defined in species in this
      *        phase 
      */
-    int m_mm;
+    size_t m_mm;
 
     /**
      * Maximum temperature that this phase can accurately describe

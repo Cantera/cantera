@@ -284,7 +284,7 @@ namespace Cantera {
    *
    */
 #ifdef USE_DGG_CODE
-  int Elements::elementIndex(std::string name) const{
+  size_t Elements::elementIndex(std::string name) const{
     map<string, int>::const_iterator it;
     it = m_definedElements.find(name);
     if (it != m_definedElements.end()) {
@@ -293,8 +293,8 @@ namespace Cantera {
     return -1;
   }
 #else
-  int Elements::elementIndex(std::string name) const {
-    for (int i = 0; i < m_mm; i++) {
+  size_t Elements::elementIndex(std::string name) const {
+    for (size_t i = 0; i < m_mm; i++) {
       if (m_elementNames[i] == name) return i;
     }
     return -1;
@@ -307,14 +307,14 @@ namespace Cantera {
    * index. If m < 0 or m >= nElements() an exception is thrown.
    */
   string Elements::elementName(size_t m) const {
-    if (m < 0 || m >= nElements()) {
+    if (m >= nElements()) {
       throw ElementRangeError("Elements::elementName", m, nElements());
     }
     return m_elementNames[m];
   }
 
 
-  doublereal Elements::entropyElement298(int m) const {
+  doublereal Elements::entropyElement298(size_t m) const {
     AssertThrowMsg(m_entropy298[m] != ENTROPY298_UNKNOWN,
 		   "Elements::entropy298",
 		   "Entropy at 298 K of element is unknown");

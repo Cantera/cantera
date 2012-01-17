@@ -168,9 +168,9 @@ namespace Cantera {
 		      vector_fp& eMolesCalc, vector_fp& n_i_calc,
 		      double pressureConst);
 
-    int m_mm;
-    int m_kk;
-    int m_skip;
+    size_t m_mm;
+    size_t m_kk;
+    size_t m_skip;
     
     /**
      * This is equal to the rank of the stoichiometric coefficient
@@ -215,7 +215,7 @@ namespace Cantera {
      * Index of the element id corresponding to the electric charge of each
      * species. Equal to -1 if there is no such element id.
      */
-    int m_eloc;
+    size_t m_eloc;
 
     vector_fp m_startSoln;
 

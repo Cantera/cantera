@@ -1127,10 +1127,8 @@ namespace ctml {
     string val;
     vector<string> v;
     getStringArray(node, v);
-    int icol, irow;
-    int n = static_cast<int>(v.size());
     string::size_type icolon;
-    for (int i = 0; i < n; i++) {
+    for (size_t i = 0; i < v.size(); i++) {
       icolon = v[i].find(":");
       if (icolon == string::npos) {
 	throw CanteraError("getMatrixValues","Missing two colons ("
@@ -1145,9 +1143,10 @@ namespace ctml {
       }
       key2 = rmm.substr(0,icolon);
       val = rmm.substr(icolon+1, rmm.size());
-      icol = -1;
-      irow = -1;
-      for (int j = 0; j < szKey1; j++) {
+
+      size_t icol = -1;
+      size_t irow = -1;
+      for (size_t j = 0; j < szKey1; j++) {
 	if (key1 == keyStringRow[j]) {
 	  irow = j;
 	  break;
@@ -1157,7 +1156,7 @@ namespace ctml {
 	throw CanteraError("getMatrixValues","Row not matched by string: "
 			   + key1);		
       }
-      for (int j = 0; j < szKey2; j++) {
+      for (size_t j = 0; j < szKey2; j++) {
 	if (key2 == keyStringCol[j]) {
 	  icol = j;
 	  break;

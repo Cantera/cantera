@@ -1214,8 +1214,8 @@ namespace Cantera {
     throw CanteraError("LookupGe", "element " + s + " not found");
     return -1.0;
 #else
-    int iE = m_tp->elementIndex(elemName);
-    if (iE < 0) {
+    size_t iE = m_tp->elementIndex(elemName);
+    if (iE == -1) {
       throw CanteraError("PDSS_HKFT::LookupGe", "element " + elemName + " not found");
     }
     doublereal geValue = m_tp->entropyElement298(iE);
@@ -1232,13 +1232,13 @@ namespace Cantera {
     /*
      * Ok let's get the element compositions and conversion factors.
      */
-    int ne = m_tp->nElements();
+    size_t ne = m_tp->nElements();
     doublereal na;
     doublereal ge;
     string ename;
 
     doublereal totalSum = 0.0;
-    for (int m = 0; m < ne; m++) {
+    for (size_t m = 0; m < ne; m++) {
       na = m_tp->nAtoms(m_spindex, m);
       if (na > 0.0) {
 	ename = m_tp->elementName(m);

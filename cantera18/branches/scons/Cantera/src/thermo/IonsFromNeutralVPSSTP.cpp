@@ -1175,7 +1175,7 @@ namespace Cantera {
   //   been identified.
   void  IonsFromNeutralVPSSTP::initLengths() {
     m_kk = nSpecies();
-    numNeutralMoleculeSpecies_ =  neutralMoleculePhase_->nSpecies();
+    numNeutralMoleculeSpecies_ = neutralMoleculePhase_->nSpecies();
     moleFractions_.resize(m_kk);
     fm_neutralMolec_ions_.resize(numNeutralMoleculeSpecies_ * m_kk);
     fm_invert_ionForNeutral.resize(m_kk);
@@ -1233,7 +1233,7 @@ namespace Cantera {
    *             with the correct id. 
    */
   void IonsFromNeutralVPSSTP::initThermoXML(XML_Node& phaseNode, std::string id) {
-    int k;
+    size_t k;
     /*
      *   variables that need to be populated
      *
@@ -1284,12 +1284,12 @@ namespace Cantera {
     }
 
 
-    int nElementsN =  neutralMoleculePhase_->nElements();
+    size_t nElementsN =  neutralMoleculePhase_->nElements();
     const std::vector<std::string>&  elnamesVN = neutralMoleculePhase_->elementNames();
     std::vector<double> elemVectorN(nElementsN);
     std::vector<double> elemVectorN_orig(nElementsN);
 
-    int nElementsI =  nElements();
+    size_t nElementsI =  nElements();
     const std::vector<std::string>&  elnamesVI = elementNames();
     std::vector<double> elemVectorI(nElementsI);
 
@@ -1444,7 +1444,6 @@ namespace Cantera {
   void IonsFromNeutralVPSSTP::getdlnActCoeff(const doublereal dT, const doublereal * const dX, doublereal *dlnActCoeff) const {
     int k, icat, jNeut;
     doublereal fmij;
-    int numNeutMolSpec;
     /*
      * Get the activity coefficients of the neutral molecules
      */
@@ -1456,7 +1455,7 @@ namespace Cantera {
       return;
     }
 
-    numNeutMolSpec = geThermo->nSpecies();
+    size_t numNeutMolSpec = geThermo->nSpecies();
     vector_fp dlnActCoeff_NeutralMolecule(numNeutMolSpec);
     vector_fp dX_NeutralMolecule(numNeutMolSpec);
 

@@ -47,7 +47,7 @@ namespace VCSnonideal {
       int kspec = Vphase->spGlobalIndexVCS(k);
       int irxn = kspec - m_numComponents;
       if (irxn >= 0) {
-	int iPopPossible = true;
+	bool iPopPossible = true;
 	for (int j = 0; j < m_numComponents; ++j) {
 	  if (m_elType[j] == VCS_ELEM_TYPE_ABSPOS) {
 	    double stoicC = m_stoichCoeffRxnMatrix[irxn][j];
@@ -62,7 +62,7 @@ namespace VCSnonideal {
 	    }
 	  }
 	}
-	if (iPopPossible == true) {
+	if (iPopPossible) {
 	  return true;
 	}
       }

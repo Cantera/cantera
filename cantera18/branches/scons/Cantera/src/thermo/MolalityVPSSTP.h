@@ -843,7 +843,7 @@ namespace Cantera {
      *  must be named "Cl-". It must consist of exactly one Cl and one E 
      *  atom. 
      */
-    virtual int findCLMIndex() const;
+    virtual size_t findCLMIndex() const;
 
     //! Initialize lengths of local variables after all species have
     //! been identified.

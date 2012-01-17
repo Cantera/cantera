@@ -457,9 +457,9 @@ namespace Cantera {
     ThermoPhase *neutralMoleculePhase_;
 
   public:
-    int numMult_;
+    size_t numMult_;
 
-    std::vector<int> idNeutralMoleculeVec;
+    std::vector<size_t> idNeutralMoleculeVec;
 
     std::vector<double> factorVec;
     

@@ -112,7 +112,7 @@ namespace Cantera {
      *   mole fractions of all species are desired.
      *   @param k species index
      */
-    doublereal moleFraction(const int k) const;
+    doublereal moleFraction(const size_t k) const;
 
     
     //! Set the mole fractions to the specified values, and then 
@@ -162,7 +162,7 @@ namespace Cantera {
      * 
      * @param k    species index
      */
-    doublereal massFraction(const int k) const;
+    doublereal massFraction(const size_t k) const;
 
     /**
      * Set the mass fractions to the specified values, and then 
@@ -205,7 +205,7 @@ namespace Cantera {
      *
      * @param  k Index of species
      */
-    doublereal concentration(const int k) const;
+    doublereal concentration(const size_t k) const;
     
     //! Set the concentrations to the specified values within the
     //! phase. 

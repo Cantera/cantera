@@ -158,7 +158,7 @@ namespace Cantera {
      *
      * Controlling update boolean = m_viscwt_ok
      */
-    virtual void getSpeciesViscosities(doublereal* visc)
+    virtual void getSpeciesViscosities(doublereal* const visc)
     { updateViscosity_T(); copy(m_visc.begin(), m_visc.end(), visc); }
 
     virtual void getThermalDiffCoeffs(doublereal* const dt);
@@ -314,7 +314,7 @@ namespace Cantera {
      *
      * @param k Species number to obtain the properties about.
      */
-    struct LiquidTransportData getLiquidTransportData(int k);
+    class LiquidTransportData getLiquidTransportData(int k);
 
 
     //! Solve the stefan_maxell equations for the diffusive fluxes.

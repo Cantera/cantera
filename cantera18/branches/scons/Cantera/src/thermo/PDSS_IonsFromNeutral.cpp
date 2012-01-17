@@ -171,7 +171,7 @@ namespace Cantera {
     factorVec.resize(numMult_);
     tmpNM.resize(neutralMoleculePhase_->nSpecies());
 
-    for (int i = 0; i < numMult_; i++) {
+    for (size_t i = 0; i < numMult_; i++) {
       idNeutralMoleculeVec[i] = neutralMoleculePhase_->speciesIndex(key[i]);
       factorVec[i] =  fpValueCheck(val[i]);
     }

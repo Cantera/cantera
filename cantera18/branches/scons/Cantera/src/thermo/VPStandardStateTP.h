@@ -602,10 +602,10 @@ protected:
      */
     VPSSMgr *provideVPSSMgr();
 
-    void createInstallPDSS(int k,  const XML_Node& s, const XML_Node * phaseNode_ptr);
+    void createInstallPDSS(size_t k,  const XML_Node& s, const XML_Node * phaseNode_ptr);
 
-    PDSS* providePDSS(int k);
-    const PDSS* providePDSS(int k) const;
+    PDSS* providePDSS(size_t k);
+    const PDSS* providePDSS(size_t k) const;
 
   private:
     //!  @internal Initialize the internal lengths in this object.

@@ -508,7 +508,7 @@ namespace Cantera {
     }
     for (index_t ip = 0; ip < m_np; ip++) {
       phase_t* p = m_phase[ip];
-      int nspPhase = p->nSpecies();
+      size_t nspPhase = p->nSpecies();
       doublereal phasemoles = m_moles[ip];
       for (ik = 0; ik < nspPhase; ik++) {
 	kGlobal = loc + ik;

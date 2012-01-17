@@ -856,14 +856,14 @@ namespace Cantera {
      *  Each Margules excess Gibbs free energy term involves two species, A and B.
      *  This vector identifies species A.
      */
-    vector_int m_pSpecies_A_ij;
+    std::vector<size_t> m_pSpecies_A_ij;
 
     //! vector of species indices representing species B in the interaction
     /*!
      *  Each Margules excess Gibbs free energy term involves two species, A and B.
      *  This vector identifies species B.
      */
-    vector_int m_pSpecies_B_ij;
+    std::vector<size_t> m_pSpecies_B_ij;
 
     //! form of the Margules interaction expression
     /*!

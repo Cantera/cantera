@@ -762,7 +762,7 @@ namespace Cantera {
   protected:
 
     //! Number of elements
-    int m_mm;
+    size_t m_mm;
 
     //! Minimum temperature for valid species standard state thermo props
     /*!

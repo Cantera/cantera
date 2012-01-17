@@ -406,9 +406,9 @@ namespace Cantera {
 
 
   void 
-  VPStandardStateTP::createInstallPDSS(int k,  const XML_Node& s,
+  VPStandardStateTP::createInstallPDSS(size_t k,  const XML_Node& s,
 				       const XML_Node * phaseNode_ptr) {
-    if ((int) m_PDSS_storage.size() < k+1) {
+    if (m_PDSS_storage.size() < k+1) {
       m_PDSS_storage.resize(k+1,0);
     }
     if (m_PDSS_storage[k] != 0) {
@@ -418,12 +418,12 @@ namespace Cantera {
   }
 
   PDSS *
-  VPStandardStateTP::providePDSS(int k) {
+  VPStandardStateTP::providePDSS(size_t k) {
     return m_PDSS_storage[k];
   }
 
   const PDSS *
-  VPStandardStateTP::providePDSS(int k) const {
+  VPStandardStateTP::providePDSS(size_t k) const {
     return m_PDSS_storage[k];
   }
 

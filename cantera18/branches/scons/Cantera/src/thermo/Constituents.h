@@ -39,9 +39,9 @@ namespace Cantera {
      *              minimum permissible species index value is assumed to be 0
      *
      */
-    SpeciesRangeError(std::string func, int k, int kmax) :
-      CanteraError(func, "Species index " + int2str(k) + 
-		   " outside valid range of 0 to " + int2str(kmax-1)) {}
+    SpeciesRangeError(std::string func, size_t k, size_t kmax) :
+      CanteraError(func, "Species index " + int2str(int(k)) +
+		   " outside valid range of 0 to " + int2str(int(kmax)-1)) {}
   };
 
   /******************************************************************/
@@ -114,20 +114,20 @@ namespace Cantera {
     /// If 'name' is not
     /// the name of an element in the set, then the value -1 is
     /// returned.
-    int elementIndex(std::string name) const;
+    size_t elementIndex(std::string name) const;
 
 
     /// Atomic weight of element m.
     /*!
      * @param m  Element index
      */
-    doublereal atomicWeight(int m) const;
+    doublereal atomicWeight(size_t m) const;
 
     /// Entropy of the element in its standard state at 298 K and 1 bar
     /*!
      * @param m  Element index
      */
-    doublereal entropyElement298(int m) const;
+    doublereal entropyElement298(size_t m) const;
 
     /// Atomic number of element m.
     /*!
@@ -142,7 +142,7 @@ namespace Cantera {
     const vector_fp& atomicWeights() const;
 
     /// Number of elements.
-    int nElements() const;
+    size_t nElements() const;
        
     // @}
 
@@ -221,7 +221,7 @@ namespace Cantera {
      * @return
      *      Returns the molecular weight of species \c k.
      */
-    doublereal molecularWeight(int k) const;
+    doublereal molecularWeight(size_t k) const;
 
     //! Return the Molar mass of species \c k
     /*!
@@ -231,7 +231,7 @@ namespace Cantera {
      * @return
      *      Return the molar mass of species k kg/kmol.
      */
-    doublereal molarMass(int k) const {
+    doublereal molarMass(size_t k) const {
       return molecularWeight(k);
     }
 
@@ -282,7 +282,7 @@ namespace Cantera {
      * @return     Returns the index of the species. If the name is not found
      *             the value of -1 is returned.
      */
-    int speciesIndex(std::string name) const;
+    size_t speciesIndex(std::string name) const;
 
     //! Name of the species with index k
     /*!
@@ -299,7 +299,7 @@ namespace Cantera {
      * @return 
      *      Returns the size of the species. Units are meters.
      */
-    doublereal size(int k) const { return m_speciesSize[k]; }
+    doublereal size(size_t k) const { return m_speciesSize[k]; }
 
     /**
      * Prohibit addition of more species, and prepare for
@@ -323,7 +323,7 @@ namespace Cantera {
      * @param k    species index
      * @param m    element index
      */
-    doublereal nAtoms(int k, int m) const;
+    doublereal nAtoms(size_t k, size_t m) const;
 
     //! Get a vector containing the atomic composition  of species k
     /*!
@@ -331,7 +331,7 @@ namespace Cantera {
      * @param atomArray  vector containing the atomic number in the species.
      *                   Length: m_mm
      */
-    void getAtoms(int k, double *atomArray) const;
+    void getAtoms(size_t k, double *atomArray) const;
     
   protected:
     

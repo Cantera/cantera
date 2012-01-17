@@ -199,11 +199,10 @@ namespace Cantera {
     if (tmax > 0.0) m_tmax = tmax;
     m_p0 = refPressure();
 
-    int leng = m_kk;
-    m_h0_RT.resize(leng);
-    m_g0_RT.resize(leng);
-    m_cp0_R.resize(leng);
-    m_s0_R.resize(leng);
+    m_h0_RT.resize(m_kk);
+    m_g0_RT.resize(m_kk);
+    m_cp0_R.resize(m_kk);
+    m_s0_R.resize(m_kk);
     setMolarDensity(m_molar_density);
   }
 

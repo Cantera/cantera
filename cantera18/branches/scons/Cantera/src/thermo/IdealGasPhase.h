@@ -877,7 +877,7 @@ namespace Cantera {
     /*!
      * This member is defined here, from a call to the Elements ojbect, for speed.
      */
-    int m_mm;
+    size_t m_mm;
 
     //! Minimum temperature for valid species standard state thermo props
     /*!
