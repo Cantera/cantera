@@ -339,8 +339,8 @@ namespace Cantera {
 			       + "::" + jspName,
 			       "wrong number of params found");
 	  }
-	  for (i = 0; i < nParamsFound; i++) {
-	    m_Theta_ij_coeff(i, counter) = vParams[i];
+	  for (size_t j = 0; j < nParamsFound; j++) {
+	    m_Theta_ij_coeff(j, counter) = vParams[j];
 	  }
 	  m_Theta_ij[counter] = vParams[0];
 	}
@@ -426,8 +426,8 @@ namespace Cantera {
 			       + "::" + jspName,
 			       "wrong number of params found");
 	  }
-	  for (i = 0; i < nParamsFound; i++) {
-	    m_Theta_ij_coeff(i, counter) = vParams[i];
+	  for (size_t j = 0; j < nParamsFound; j++) {
+	    m_Theta_ij_coeff(j, counter) = vParams[j];
 	  }
 	  m_Theta_ij[counter] = vParams[0];
 	}
@@ -540,8 +540,8 @@ namespace Cantera {
 			       + kName + "::" + iName + "::" + jName,
 			       "wrong number of params found");
 	  }
-	  for (i = 0; i < nParamsFound; i++) {
-	    m_Psi_ijk_coeff(i, n) = vParams[i];
+	  for (size_t j = 0; j < nParamsFound; j++) {
+	    m_Psi_ijk_coeff(j, n) = vParams[j];
 	  }
 	  m_Psi_ijk[n] = vParams[0];
 	}
@@ -549,32 +549,32 @@ namespace Cantera {
 
 	// fill in the duplicate entries
 	n = iSpecies * m_kk *m_kk + kSpecies * m_kk + jSpecies ;
-	for (i = 0; i < nParamsFound; i++) {
-	  m_Psi_ijk_coeff(i, n) = vParams[i];
+	for (size_t j = 0; j < nParamsFound; j++) {
+	  m_Psi_ijk_coeff(j, n) = vParams[j];
 	}
 	m_Psi_ijk[n] = vParams[0];
 
 	n = jSpecies * m_kk *m_kk + iSpecies * m_kk + kSpecies ;
-	for (i = 0; i < nParamsFound; i++) {
-	  m_Psi_ijk_coeff(i, n) = vParams[i];
+	for (size_t j = 0; j < nParamsFound; j++) {
+	  m_Psi_ijk_coeff(j, n) = vParams[j];
 	}
 	m_Psi_ijk[n] = vParams[0];
 
 	n = jSpecies * m_kk *m_kk + kSpecies * m_kk + iSpecies ;
-	for (i = 0; i < nParamsFound; i++) {
-	  m_Psi_ijk_coeff(i, n) = vParams[i];
+	for (size_t j = 0; j < nParamsFound; j++) {
+	  m_Psi_ijk_coeff(j, n) = vParams[j];
 	}
 	m_Psi_ijk[n] = vParams[0];
 
 	n = kSpecies * m_kk *m_kk + jSpecies * m_kk + iSpecies ;
-	for (i = 0; i < nParamsFound; i++) {
-	  m_Psi_ijk_coeff(i, n) = vParams[i];
+	for (size_t j = 0; j < nParamsFound; j++) {
+	  m_Psi_ijk_coeff(j, n) = vParams[j];
 	}
 	m_Psi_ijk[n] = vParams[0];
 
 	n = kSpecies * m_kk *m_kk + iSpecies * m_kk + jSpecies ;
-	for (i = 0; i < nParamsFound; i++) {
-	  m_Psi_ijk_coeff(i, n) = vParams[i];
+	for (size_t j = 0; j < nParamsFound; j++) {
+	  m_Psi_ijk_coeff(j, n) = vParams[j];
 	}
 	m_Psi_ijk[n] = vParams[0];
       }
@@ -686,8 +686,8 @@ namespace Cantera {
 			       + kName + "::" + iName + "::" + jName,
 			       "wrong number of params found");
 	  }
-	  for (i = 0; i < nParamsFound; i++) {
-	    m_Psi_ijk_coeff(i, n) = vParams[i];
+	  for (size_t j = 0; j < nParamsFound; j++) {
+	    m_Psi_ijk_coeff(j, n) = vParams[j];
 	  }
 	  m_Psi_ijk[n] = vParams[0];
 	}
@@ -695,32 +695,32 @@ namespace Cantera {
 
 	// fill in the duplicate entries
 	n = iSpecies * m_kk *m_kk + kSpecies * m_kk + jSpecies ;
-	for (i = 0; i < nParamsFound; i++) {
-	  m_Psi_ijk_coeff(i, n) = vParams[i];
+	for (size_t j = 0; j < nParamsFound; j++) {
+	  m_Psi_ijk_coeff(j, n) = vParams[j];
 	}
 	m_Psi_ijk[n] = vParams[0];
 
 	n = jSpecies * m_kk *m_kk + iSpecies * m_kk + kSpecies ;
-	for (i = 0; i < nParamsFound; i++) {
-	  m_Psi_ijk_coeff(i, n) = vParams[i];
+	for (size_t j = 0; j < nParamsFound; j++) {
+	  m_Psi_ijk_coeff(j, n) = vParams[j];
 	}
 	m_Psi_ijk[n] = vParams[0];
 
 	n = jSpecies * m_kk *m_kk + kSpecies * m_kk + iSpecies ;
-	for (i = 0; i < nParamsFound; i++) {
-	  m_Psi_ijk_coeff(i, n) = vParams[i];
+	for (size_t j = 0; j < nParamsFound; j++) {
+	  m_Psi_ijk_coeff(j, n) = vParams[j];
 	}
 	m_Psi_ijk[n] = vParams[0];
 
 	n = kSpecies * m_kk *m_kk + jSpecies * m_kk + iSpecies ;
-	for (i = 0; i < nParamsFound; i++) {
-	  m_Psi_ijk_coeff(i, n) = vParams[i];
+	for (size_t j = 0; j < nParamsFound; j++) {
+	  m_Psi_ijk_coeff(j, n) = vParams[j];
 	}
 	m_Psi_ijk[n] = vParams[0];
 
 	n = kSpecies * m_kk *m_kk + iSpecies * m_kk + jSpecies ;
-	for (i = 0; i < nParamsFound; i++) {
-	  m_Psi_ijk_coeff(i, n) = vParams[i];
+	for (size_t j = 0; j < nParamsFound; j++) {
+	  m_Psi_ijk_coeff(j, n) = vParams[j];
 	}
 	m_Psi_ijk[n] = vParams[0];
 
@@ -808,8 +808,8 @@ namespace Cantera {
 			       + "::" + jName,
 			       "wrong number of params found");
 	  }
-	  for (i = 0; i < nParamsFound; i++) {
-	    m_Lambda_nj_coeff(i,nCount) = vParams[i];
+	  for (size_t j = 0; j < nParamsFound; j++) {
+	    m_Lambda_nj_coeff(j,nCount) = vParams[j];
 	  }
 	  m_Lambda_nj(iSpecies, jSpecies) = vParams[0];
 	}
@@ -884,8 +884,8 @@ namespace Cantera {
 	    throw CanteraError("HMWSoln::readXMLMunnnNeutral::Munnn for " + iName,
 			       "wrong number of params found");
 	  }
-	  for (i = 0; i < nParamsFound; i++) {
-	    m_Mu_nnn_coeff(i, iSpecies) = vParams[i];
+	  for (size_t j = 0; j < nParamsFound; j++) {
+	    m_Mu_nnn_coeff(j, iSpecies) = vParams[j];
 	  }
 	  m_Mu_nnn[iSpecies] = vParams[0];
 	}
@@ -987,8 +987,8 @@ namespace Cantera {
 			       + iName + "::" + jName + "::" + kName,
 			       "wrong number of params found");
 	  }
-	  for (i = 0; i < nParamsFound; i++) {
-	    m_Psi_ijk_coeff(i, n) = vParams[i];
+	  for (size_t j = 0; j < nParamsFound; j++) {
+	    m_Psi_ijk_coeff(j, n) = vParams[j];
 	  }
 	  m_Psi_ijk[n] = vParams[0];
 	}
