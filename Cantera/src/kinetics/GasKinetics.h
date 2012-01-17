@@ -360,8 +360,8 @@ namespace Cantera {
 
         std::vector<size_t> m_fwdOrder;
 
-        int m_nirrev;
-        int m_nrev;
+        size_t m_nirrev;
+        size_t m_nrev;
 
         std::map<size_t, std::vector<grouplist_t> > m_rgroups;
         std::map<size_t, std::vector<grouplist_t> > m_pgroups;
