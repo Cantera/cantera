@@ -416,8 +416,7 @@ namespace Cantera {
     getTransportData(transport_database, log,  
 		     tr.thermo->speciesNames(), tr);
 
-    int i, j;
-    for (i = 0; i < nsp; i++) tr.poly[i].resize(nsp);
+    for (size_t i = 0; i < nsp; i++) tr.poly[i].resize(nsp);
 
     doublereal ts1, ts2, tstar_min = 1.e8, tstar_max = 0.0;
     doublereal f_eps, f_sigma;
@@ -425,9 +424,9 @@ namespace Cantera {
     DenseMatrix& diam = tr.diam;
     DenseMatrix& epsilon = tr.epsilon;
 
-    for (i = 0; i < nsp; i++) 
+    for (size_t i = 0; i < nsp; i++)
       {
-	for (j = i; j < nsp; j++) 
+	for (size_t j = i; j < nsp; j++)
 	  {
 	    // the reduced mass
 	    tr.reducedMass(i,j) = 
@@ -715,7 +714,7 @@ namespace Cantera {
     std::map<std::string, GasTransportData> datatable;
     doublereal welldepth, diam, dipole, polar, rot;
 
-    int nsp = static_cast<int>(xspecies.size());
+    size_t nsp = xspecies.size();
         
     // read all entries in database into 'datatable' and check for 
     // errors. Note that this procedure validates all entries, not 
@@ -727,8 +726,7 @@ namespace Cantera {
     gindx["linear"] = 101;
     gindx["nonlinear"] = 102;
     int linenum = 0;
-    int i;
-    for (i = 0; i < nsp; i++) {
+    for (size_t i = 0; i < nsp; i++) {
       const XML_Node& sp = *xspecies[i];
       name = sp["name"];
      // std::cout << "Processing node for " << name << std::endl;
@@ -777,7 +775,7 @@ namespace Cantera {
       }
     }
 
-    for (i = 0; i < tr.nsp_; i++) {
+    for (size_t i = 0; i < tr.nsp_; i++) {
 
       GasTransportData& trdat = datatable[names[i]];
             
@@ -843,7 +841,7 @@ namespace Cantera {
     doublereal A_thcond, n_thcond, Tact_thcond;
     doublereal A_spdiff, n_spdiff, Tact_spdiff;
 
-    int nsp = static_cast<int>(xspecies.size());
+    size_t nsp = xspecies.size();
     std::cout << "Size of xspecies " << nsp << std::endl;
   
     // read all entries in database into 'datatable' and check for 
@@ -851,8 +849,7 @@ namespace Cantera {
     // only those for the species listed in 'names'.
 
     int linenum = 0;
-    int i;
-    for (i = 0; i < nsp; i++) {
+    for (size_t i = 0; i < nsp; i++) {
       const XML_Node& sp = *xspecies[i];
       name = sp["name"];
       vector_fp vCoeff;
@@ -1038,7 +1035,7 @@ namespace Cantera {
     }
 
     trParam.LTData.clear();
-    for (i = 0; i < trParam.nsp_; i++) {
+    for (size_t i = 0; i < trParam.nsp_; i++) {
 
       LiquidTransportData& trdat = datatable[names[i]];
             
@@ -1115,7 +1112,7 @@ namespace Cantera {
   void TransportFactory::fitProperties(GasTransportParams& tr, 
 				       ostream& logfile) {
     doublereal tstar;
-    int k, j, n, ndeg = 0;
+    int ndeg = 0;
 #ifdef DEBUG_MODE
     char s[100];
 #endif
@@ -1133,7 +1130,7 @@ namespace Cantera {
     vector_fp w(np), w2(np);
         
     // generate array of log(t) values
-    for (n = 0; n < np; n++) {
+    for (size_t n = 0; n < np; n++) {
       t = tr.tmin + dt*n;
       tlog[n] = log(t);
     }
@@ -1174,9 +1171,9 @@ namespace Cantera {
       c1, cv_rot, cv_int, f_rot, f_trans, om11;
     doublereal diffcoeff;
 
-    for (k = 0; k < tr.nsp_; k++) 
+    for (size_t k = 0; k < tr.nsp_; k++)
       {
-	for (n = 0; n < np; n++) {
+	for (size_t n = 0; n < np; n++) {
 	  t = tr.tmin + dt*n;
 
 	  tr.thermo->setTemperature(t);
@@ -1249,7 +1246,7 @@ namespace Cantera {
                 DATA_PTR(w), degree, ndeg, 0.0, DATA_PTR(c2));
 
 	// evaluate max fit errors for viscosity
-	for (n = 0; n < np; n++) {
+	for (size_t n = 0; n < np; n++) {
 	  if (mode == CK_Mode) {
 	    val = exp(spvisc[n]);
 	    fit = exp(poly3(tlog[n], DATA_PTR(c))); 
@@ -1266,7 +1263,7 @@ namespace Cantera {
 	}
 
 	// evaluate max fit errors for conductivity
-	for (n = 0; n < np; n++) {
+	for (size_t n = 0; n < np; n++) {
 	  if (mode == CK_Mode) {
 	    val = exp(spcond[n]);
 	    fit = exp(poly3(tlog[n], DATA_PTR(c2))); 
@@ -1311,7 +1308,7 @@ namespace Cantera {
 	tr.xml->XML_comment(logfile,s);
       }
       if (tr.log_level >= 2) 
-	for (k = 0; k < tr.nsp_; k++) {
+	for (size_t k = 0; k < tr.nsp_; k++) {
 	  tr.xml->XML_writeVector(logfile, "    ", tr.thermo->speciesName(k), 
 				  degree+1, DATA_PTR(tr.condcoeffs[k]));
 	}            
@@ -1339,12 +1336,12 @@ namespace Cantera {
     mxerr = 0.0, mxrelerr = 0.0;
     vector_fp diff(np + 1);
     doublereal eps, sigma;
-    for (k = 0; k < tr.nsp_; k++) 
+    for (size_t k = 0; k < tr.nsp_; k++)
       {            
-	for (j = k; j < tr.nsp_; j++) {
+	for (size_t j = k; j < tr.nsp_; j++) {
 
 	  ipoly = tr.poly[k][j];
-	  for (n = 0; n < np; n++) {
+	  for (size_t n = 0; n < np; n++) {
 
 	    t = tr.tmin + dt*n;
                     
@@ -1379,7 +1376,7 @@ namespace Cantera {
 		  DATA_PTR(w), degree, ndeg, 0.0, DATA_PTR(c));
 
 	  doublereal pre;
-	  for (n = 0; n < np; n++) {
+	  for (size_t n = 0; n < np; n++) {
 	    if (mode == CK_Mode) {
 	      val = exp(diff[n]);
 	      fit = exp(poly3(tlog[n], DATA_PTR(c))); 

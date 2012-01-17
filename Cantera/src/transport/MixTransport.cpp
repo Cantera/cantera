@@ -221,7 +221,7 @@ namespace Cantera {
    * \vec{j}_k = -n M_k D_k \nabla X_k.
    * \f]
    */
-  void MixTransport::getSpeciesFluxes(int ndim, 
+  void MixTransport::getSpeciesFluxes(size_t ndim,
 				      const doublereal* grad_T, int ldx, const doublereal* grad_X, 
 				      int ldf, doublereal* fluxes) {
     update_T();

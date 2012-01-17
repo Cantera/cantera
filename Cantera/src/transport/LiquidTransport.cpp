@@ -170,7 +170,7 @@ namespace Cantera {
 
     //save logarithm of pre-exponential for easier computation
     m_visc_logA.resize(m_nsp);
-    for ( int i = 0; i < m_nsp; i++ )
+    for (size_t i = 0; i < m_nsp; i++)
       m_visc_logA[i] = log( m_visc_A[i] );
 
     m_thermCond_A      = tr.thermCond_A ; 
@@ -261,8 +261,8 @@ namespace Cantera {
 
       // log_visc_mix = sum_i (X_i log_visc_i) + sum_i sum_j X_i X_j G_ij
       double interaction = dot_product(m_logViscSpecies, m_molefracs);
-      for ( int i = 0; i < m_nsp; i++ ) 
-	for ( int j = 0; j < i; j++ ) 
+      for (size_t i = 0; i < m_nsp; i++) 
+	for (size_t j = 0; j < i; j++ )
 	  interaction += m_molefracs[i] * m_molefracs[j] 
 	    * ( m_visc_Sij(i,j) + m_visc_Eij(i,j) / m_temp );
       m_viscmix = exp( interaction );
@@ -285,8 +285,6 @@ namespace Cantera {
 
 
   void LiquidTransport::getBinaryDiffCoeffs(size_t ld, doublereal* d) {
-    int i,j;
-
     update_temp();
 
     // if necessary, evaluate the binary diffusion coefficents
@@ -295,8 +293,8 @@ namespace Cantera {
     doublereal pres = m_thermo->pressure();
 
     doublereal rp = 1.0/pres;
-    for (i = 0; i < m_nsp; i++) 
-      for (j = 0; j < m_nsp; j++) {
+    for (size_t i = 0; i < m_nsp; i++)
+      for (size_t j = 0; j < m_nsp; j++) {
 	d[ld*j + i] = rp * m_bdiff(i,j);
       }
   }
@@ -318,10 +316,9 @@ namespace Cantera {
    *               dimensioned at least as large as the number of species.
    */
   void LiquidTransport::getMobilities(doublereal* const mobil) {
-    int k;
     getMixDiffCoeffs(DATA_PTR(m_spwork));
     doublereal c1 = ElectronCharge / (Boltzmann * m_temp);
-    for (k = 0; k < m_nsp; k++) {
+    for (size_t k = 0; k < m_nsp; k++) {
       mobil[k] = c1 * m_spwork[k];
     }
   } 
@@ -428,7 +425,7 @@ namespace Cantera {
    *      \vec{j}_k = -n M_k D_k \nabla X_k.
    * \f]
    */
-  void LiquidTransport::getSpeciesFluxes(int ndim, 
+  void LiquidTransport::getSpeciesFluxes(size_t ndim,
 					 const doublereal* grad_T, 
 					 int ldx, const doublereal* grad_X, 
 					 int ldf, doublereal* fluxes) {
@@ -447,30 +444,26 @@ namespace Cantera {
    *      \vec{j}_k = -n M_k D_k \nabla X_k.
    * \f]
    */
-  void LiquidTransport::getSpeciesFluxesExt(int ldf, doublereal* fluxes) {
-    int n, k;
-
+  void LiquidTransport::getSpeciesFluxesExt(size_t ldf, doublereal* fluxes) {
     update_temp();
     update_conc();
 
-
     getMixDiffCoeffs(DATA_PTR(m_spwork));
-
 
     const array_fp& mw = m_thermo->molecularWeights();
     const doublereal* y  = m_thermo->massFractions();
     doublereal rhon = m_thermo->molarDensity();
     // Unroll wrt ndim
     vector_fp sum(m_nDim,0.0);
-    for (n = 0; n < m_nDim; n++) {
-      for (k = 0; k < m_nsp; k++) {
+    for (size_t n = 0; n < m_nDim; n++) {
+      for (size_t k = 0; k < m_nsp; k++) {
 	fluxes[n*ldf + k] = -rhon * mw[k] * m_spwork[k] * m_Grad_X[n*m_nsp + k];
 	sum[n] += fluxes[n*ldf + k];
       }
     }
     // add correction flux to enforce sum to zero
-    for (n = 0; n < m_nDim; n++) {
-      for (k = 0; k < m_nsp; k++) {
+    for (size_t n = 0; n < m_nDim; n++) {
+      for (size_t k = 0; k < m_nsp; k++) {
 	fluxes[n*ldf + k] -= y[k]*sum[n];
       }
     }
@@ -494,7 +487,6 @@ namespace Cantera {
       updateDiff_temp();
     }
  
-    int k, j;
     doublereal mmw = m_thermo->meanMolecularWeight();
     doublereal sumxw_tran = 0.0;
     doublereal sum2;
@@ -502,12 +494,12 @@ namespace Cantera {
     if (m_nsp == 1) {
       d[0] = m_bdiff(0,0);
     } else {
-      for (k = 0; k < m_nsp; k++) {
+      for (size_t k = 0; k < m_nsp; k++) {
 	sumxw_tran += m_molefracs_tran[k] * m_mw[k];
       }
-      for (k = 0; k < m_nsp; k++) {
+      for (size_t k = 0; k < m_nsp; k++) {
 	sum2 = 0.0;
-	for (j = 0; j < m_nsp; j++) {
+	for (size_t j = 0; j < m_nsp; j++) {
 	  if (j != k) {
 	    sum2 += m_molefracs_tran[j] / m_bdiff(j,k);
 	  }
@@ -597,7 +589,7 @@ namespace Cantera {
       m_thermo->getConcentrations(DATA_PTR(m_concentrations));
       concTot_ = 0.0;
       concTot_tran_ = 0.0;
-      for (int k = 0; k < m_nsp; k++) {
+      for (size_t k = 0; k < m_nsp; k++) {
 	m_molefracs[k] = fmaxx(0.0, m_molefracs[k]);
 	m_molefracs_tran[k] = fmaxx(MIN_X, m_molefracs[k]);
 	concTot_tran_ += m_molefracs_tran[k];
@@ -631,25 +623,22 @@ namespace Cantera {
    *
    */
   void LiquidTransport::update_Grad_lnAC() {
-    int k;
-    
-
-    for (int a = 0; a < m_nDim; a++) {
+    for (size_t a = 0; a < m_nDim; a++) {
       // We form the directional derivative
       double * ma_Grad_X = &m_Grad_X[a*m_nsp];
       double sum = 0.0;
-      for (k = 0; k < m_nsp; k++) {
+      for (size_t k = 0; k < m_nsp; k++) {
         sum += ma_Grad_X[k] * ma_Grad_X[k];
       }
       if (sum == 0.0) {
-	for (k = 0; k < m_nsp; k++) {
+	for (size_t k = 0; k < m_nsp; k++) {
 	  m_Grad_lnAC[m_nsp * a + k] = 0.0;
 	}
 	continue;
       }
       double mag = 1.0E-7 / sum;
     
-	for (k = 0; k < m_nsp; k++) {
+	for (size_t k = 0; k < m_nsp; k++) {
 	  Xdelta_[k] = m_molefracs[k] + mag * ma_Grad_X[k];
 	  if (Xdelta_[k] > 1.0) {
 	    Xdelta_[k] = 1.0;
@@ -660,11 +649,11 @@ namespace Cantera {
 	}
       m_thermo->setMoleFractions(DATA_PTR(Xdelta_));
       m_thermo->getActivityCoefficients(DATA_PTR(lnActCoeffMolarDelta_));
-      for (k = 0; k < m_nsp; k++) {
+      for (size_t k = 0; k < m_nsp; k++) {
 	lnActCoeffMolarDelta_[k] = log(lnActCoeffMolarDelta_[k]);
       }
 
-      for (k = 0; k < m_nsp; k++) {
+      for (size_t k = 0; k < m_nsp; k++) {
 	m_Grad_lnAC[m_nsp * a + k] =
 	  sum * (lnActCoeffMolarDelta_[k] - log(actCoeffMolar_[k])) / mag;
       }
@@ -751,9 +740,7 @@ namespace Cantera {
    * The flag m_visc_ok is set to true.
    */
   void LiquidTransport::updateViscosity_temp() {
-    int k;
-
-    for (k = 0; k < m_nsp; k++) {
+    for (size_t k = 0; k < m_nsp; k++) {
       m_logViscSpecies[k] = m_visc_logA[k] + m_visc_n[k] * m_logt 
 					    + m_visc_Tact[k] / m_temp ;
       m_viscSpecies[k] = exp( m_logViscSpecies[k] );
@@ -773,13 +760,11 @@ namespace Cantera {
    *
    */
   void LiquidTransport::stefan_maxwell_solve() {
-    int i, j, a;
     doublereal tmp;
     size_t VIM = m_nDim;
     m_B.resize(m_nsp, VIM);
     //! grab a local copy of the molecular weights
     const vector_fp& M =  m_thermo->molecularWeights();
-    
  
     /*
      * Update the concentrations in the mixture.
@@ -788,7 +773,6 @@ namespace Cantera {
 
     double T = m_thermo->temperature();
 
- 
     m_thermo->getStandardVolumes(DATA_PTR(volume_specPM_));
     m_thermo->getActivityCoefficients(DATA_PTR(actCoeffMolar_));
 
@@ -817,9 +801,9 @@ namespace Cantera {
      *  consideratins involving species concentrations going to zero.
      *
      */
-    for (i = 0; i < m_nsp; i++) {
+    for (size_t i = 0; i < m_nsp; i++) {
       double xi_denom = m_molefracs_tran[i];
-      for (a = 0; a < VIM; a++) {
+      for (size_t a = 0; a < VIM; a++) {
 	m_ck_Grad_mu[a*m_nsp + i] =
 	  m_chargeSpecies[i] * concTot_ * Faraday * m_Grad_V[a]
 	  + concTot_ * (volume_specPM_[i] - M[i]/dens_) * m_Grad_P[a]
@@ -833,8 +817,8 @@ namespace Cantera {
       double mwSolvent = m_thermo->molecularWeight(iSolvent);
       double mnaught = mwSolvent/ 1000.;
       double lnmnaught = log(mnaught);
-      for (i = 1; i < m_nsp; i++) {
-	for (a = 0; a < VIM; a++) {
+      for (size_t i = 1; i < m_nsp; i++) {
+	for (size_t a = 0; a < VIM; a++) {
 	  m_ck_Grad_mu[a*m_nsp + i] -=
 	    m_concentrations[i] * GasConstant * m_Grad_T[a] * lnmnaught;
 	}
@@ -848,13 +832,13 @@ namespace Cantera {
     switch (VIM) {
     case 1:  /* 1-D approximation */
       m_B(0,0) = 0.0;
-      for (j = 0; j < m_nsp; j++) {
+      for (size_t j = 0; j < m_nsp; j++) {
 	m_A(0,j) = M[j] * m_concentrations[j];
       }
-      for (i = 1; i < m_nsp; i++){
+      for (size_t i = 1; i < m_nsp; i++){
 	m_B(i,0) = m_ck_Grad_mu[i] / (GasConstant * T);
 	m_A(i,i) = 0.0;
-	for (j = 0; j < m_nsp; j++){
+	for (size_t j = 0; j < m_nsp; j++){
 	  if (j != i) {
 	    tmp = m_concentrations[j] / m_DiffCoeff_StefMax(i,j);
 	    m_A(i,i) +=   tmp;
@@ -870,14 +854,14 @@ namespace Cantera {
     case 2:  /* 2-D approximation */
       m_B(0,0) = 0.0;
       m_B(0,1) = 0.0;
-      for (j = 0; j < m_nsp; j++) {
+      for (size_t j = 0; j < m_nsp; j++) {
 	m_A(0,j) = M[j] * m_concentrations[j];
       }
-      for (i = 1; i < m_nsp; i++){
+      for (size_t i = 1; i < m_nsp; i++){
 	m_B(i,0) =  m_ck_Grad_mu[i]         / (GasConstant * T);
 	m_B(i,1) =  m_ck_Grad_mu[m_nsp + i] / (GasConstant * T);
 	m_A(i,i) = 0.0;
-	for (j = 0; j < m_nsp; j++) {
+	for (size_t j = 0; j < m_nsp; j++) {
 	  if (j != i) {
 	    tmp =  m_concentrations[j] / m_DiffCoeff_StefMax(i,j);
 	    m_A(i,i) +=   tmp;
@@ -896,15 +880,15 @@ namespace Cantera {
       m_B(0,0) = 0.0;
       m_B(0,1) = 0.0;
       m_B(0,2) = 0.0;
-      for (j = 0; j < m_nsp; j++) {
+      for (size_t j = 0; j < m_nsp; j++) {
 	m_A(0,j) = M[j] * m_concentrations[j];
       }
-      for (i = 1; i < m_nsp; i++){
+      for (size_t i = 1; i < m_nsp; i++){
 	m_B(i,0) = m_ck_Grad_mu[i]           / (GasConstant * T);
 	m_B(i,1) = m_ck_Grad_mu[m_nsp + i]   / (GasConstant * T);
 	m_B(i,2) = m_ck_Grad_mu[2*m_nsp + i] / (GasConstant * T);
 	m_A(i,i) = 0.0;
-	for (j = 0; j < m_nsp; j++) {
+	for (size_t j = 0; j < m_nsp; j++) {
 	  if (j != i) {
 	    tmp =  m_concentrations[j] / m_DiffCoeff_StefMax(i,j);
 	    m_A(i,i) +=   tmp;
@@ -923,8 +907,8 @@ namespace Cantera {
       break;
     }
 
-    for (a = 0; a < VIM; a++) {
-      for (j = 0; j < m_nsp; j++) {
+    for (size_t a = 0; a < VIM; a++) {
+      for (size_t j = 0; j < m_nsp; j++) {
 	m_flux(j,a) =  M[j] * m_concentrations[j] * m_B(j,a);
       }
     }

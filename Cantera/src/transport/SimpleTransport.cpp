@@ -139,7 +139,6 @@ namespace Cantera {
    *  This is where we dimension everything.
    */
   bool SimpleTransport::initLiquid(LiquidTransportParams& tr) {
-    int k;
     // constant substance attributes
     m_thermo = tr.thermo;
     m_nsp   = m_thermo->nSpecies();
@@ -207,7 +206,7 @@ namespace Cantera {
 			 "Viscosity Model for species " + spName0 + " is not handled by this object");
     }
 
-    for (k = 0; k < m_nsp; k++) {
+    for (size_t k = 0; k < m_nsp; k++) {
       spName = m_thermo->speciesName(k);
       Cantera::LiquidTransportData &ltd = tr.LTData[k];
       LiquidTR_Model vm =  ltd.model_viscosity;
@@ -235,7 +234,7 @@ namespace Cantera {
 			 "Conductivity model is not the same as the viscosity model for species " + spName0);
     }
 
-    for (k = 0; k < m_nsp; k++) {
+    for (size_t k = 0; k < m_nsp; k++) {
       spName = m_thermo->speciesName(k);
       Cantera::LiquidTransportData &ltd = tr.LTData[k];
       LiquidTR_Model cm =  ltd.model_thermalCond;
@@ -272,7 +271,7 @@ namespace Cantera {
       }
     }
 
-    for (k = 0; k < m_nsp; k++) {
+    for (size_t k = 0; k < m_nsp; k++) {
       spName = m_thermo->speciesName(k);
       Cantera::LiquidTransportData &ltd = tr.LTData[k];
       LiquidTR_Model dm = ltd.model_speciesDiffusivity;
@@ -309,7 +308,7 @@ namespace Cantera {
     m_concentrations.resize(m_nsp);
 
     m_chargeSpecies.resize(m_nsp);
-    for (k = 0; k < m_nsp; k++) {
+    for (size_t k = 0; k < m_nsp; k++) {
       m_chargeSpecies[k] = m_thermo->charge(k);
     }
     m_spwork.resize(m_nsp);
@@ -370,7 +369,7 @@ namespace Cantera {
       m_viscmix = m_viscSpecies[0];
     } else if (compositionDepType_ == 1) {
       m_viscmix = 0.0;
-      for (int k = 0; k < m_nsp; k++) {
+      for (size_t k = 0; k < m_nsp; k++) {
 	m_viscmix += m_viscSpecies[k] * m_molefracs[k];
       }
     }
@@ -387,7 +386,6 @@ namespace Cantera {
   }
   //================================================================================================
   void SimpleTransport::getBinaryDiffCoeffs(size_t ld, doublereal* d) {
-    int i, j;
     double bdiff;
     update_T();
 
@@ -395,8 +393,8 @@ namespace Cantera {
     // from the polynomial fits
     if (!m_diff_temp_ok) updateDiff_T();
  
-    for (i = 0; i < m_nsp; i++) {
-      for (j = 0; j < m_nsp; j++) {
+    for (size_t i = 0; i < m_nsp; i++) {
+      for (size_t j = 0; j < m_nsp; j++) {
         bdiff = 0.5 * (m_diffSpecies[i] + m_diffSpecies[j]);
 	d[i*m_nsp+j] = bdiff;
       }
@@ -420,10 +418,9 @@ namespace Cantera {
    *               dimensioned at least as large as the number of species.
    */
   void SimpleTransport::getMobilities(doublereal* const mobil) {
-    int k;
     getMixDiffCoeffs(DATA_PTR(m_spwork));
     doublereal c1 = ElectronCharge / (Boltzmann * m_temp);
-    for (k = 0; k < m_nsp; k++) {
+    for (size_t k = 0; k < m_nsp; k++) {
       mobil[k] = c1 * m_spwork[k];
     }
   } 
@@ -447,10 +444,9 @@ namespace Cantera {
    *               dimensioned at least as large as the number of species.
    */
    void  SimpleTransport::getFluidMobilities(doublereal* const mobil_f) {
-    int k;
     getMixDiffCoeffs(DATA_PTR(m_spwork));
     doublereal c1 = 1.0 / (GasConstant * m_temp);
-    for (k = 0; k < m_nsp; k++) {
+    for (size_t k = 0; k < m_nsp; k++) {
       mobil_f[k] = c1 * m_spwork[k];
     }
   }
@@ -537,7 +533,7 @@ namespace Cantera {
    *      \vec{j}_k = -n M_k D_k \nabla X_k.
    * \f]
    */
-  void SimpleTransport::getSpeciesFluxes(int ndim, 
+  void SimpleTransport::getSpeciesFluxes(size_t ndim,
 					 const doublereal* grad_T, 
 					 int ldx, const doublereal* grad_X, 
 					 int ldf, doublereal* fluxes) {
@@ -573,8 +569,7 @@ namespace Cantera {
    *                 or greater than the number of species.
    *  @param fluxes  Vector of calculated fluxes
    */
-  void SimpleTransport::getSpeciesFluxesExt(int ldf, doublereal* fluxes) {
-    int n, k;
+  void SimpleTransport::getSpeciesFluxesExt(size_t ldf, doublereal* fluxes) {
     AssertThrow(ldf >= m_nsp ,"SimpleTransport::getSpeciesFluxesExt: Stride must be greater than m_nsp");
     update_T();
     update_C();
@@ -590,16 +585,16 @@ namespace Cantera {
 
     if (doMigration_) {
       double FRT =  ElectronCharge / (Boltzmann * m_temp);
-      for (n = 0; n < m_nDim; n++) {
-	for (k = 0; k < m_nsp; k++) {
+      for (size_t n = 0; n < m_nDim; n++) {
+	for (size_t k = 0; k < m_nsp; k++) {
 	  fluxes[n*ldf + k] = -conc * mw[k] * m_spwork[k] *
 	    ( m_Grad_X[n*m_nsp + k] + FRT * m_molefracs[k] * m_chargeSpecies[k] * m_Grad_V[n]);
 	  sum[n] += fluxes[n*ldf + k];
 	}
       }
     } else {
-      for (n = 0; n < m_nDim; n++) {
-	for (k = 0; k < m_nsp; k++) {
+      for (size_t n = 0; n < m_nDim; n++) {
+	for (size_t k = 0; k < m_nsp; k++) {
 	  fluxes[n*ldf + k] = -conc * mw[k] * m_spwork[k] * m_Grad_X[n*m_nsp + k];
 	  sum[n] += fluxes[n*ldf + k];
 	}
@@ -607,8 +602,8 @@ namespace Cantera {
     }
 
     // add correction flux to enforce sum to zero
-    for (n = 0; n < m_nDim; n++) {
-      for (k = 0; k < m_nsp; k++) {
+    for (size_t n = 0; n < m_nDim; n++) {
+      for (size_t k = 0; k < m_nsp; k++) {
 	fluxes[n*ldf + k] -= y[k]*sum[n];
       }
     }
@@ -625,7 +620,7 @@ namespace Cantera {
     if (!m_diff_temp_ok) {
       updateDiff_T();
     }  
-    for (int k = 0; k < m_nsp; k++) {
+    for (size_t k = 0; k < m_nsp; k++) {
       d[k] = m_diffSpecies[k];
     }
   }
@@ -658,7 +653,7 @@ namespace Cantera {
       m_thermo->getMoleFractions(DATA_PTR(m_molefracs));
       m_thermo->getConcentrations(DATA_PTR(m_concentrations));
       concTot_ = 0.0;
-      for (int k = 0; k < m_nsp; k++) {
+      for (size_t k = 0; k < m_nsp; k++) {
 	m_molefracs[k] = fmaxx(0.0, m_molefracs[k]);
 	concTot_ += m_concentrations[k];
       }
@@ -684,14 +679,13 @@ namespace Cantera {
    * thermal conductivity. 
    */
   void SimpleTransport::updateCond_T() {
-    int k;
     if (tempDepType_ == 0) {
-      for (k = 0; k < m_nsp; k++) {
+      for (size_t k = 0; k < m_nsp; k++) {
 	Coeff_T_ &coeff = m_coeffLambda_Ns[k];
 	m_condSpecies[k] = coeff[0];
       }
     } else if (tempDepType_ == 1) {
-      for (k = 0; k < m_nsp; k++) {
+      for (size_t k = 0; k < m_nsp; k++) {
 	Coeff_T_ &coeff = m_coeffLambda_Ns[k];
 	m_condSpecies[k] = coeff[0] * pow(m_temp,coeff[1]) * exp(-coeff[2]/m_temp);
       }
@@ -704,23 +698,22 @@ namespace Cantera {
    * Update the species diffusion coefficients.
    */
   void SimpleTransport::updateDiff_T() {
-    int k;
     if (useHydroRadius_) {
       double visc = viscosity();
       double RT = GasConstant * m_temp;
-      for (k = 0; k < m_nsp; k++) {
+      for (size_t k = 0; k < m_nsp; k++) {
         Coeff_T_ &coeff = m_coeffHydroRadius_Ns[k];
 	double rad = coeff[0];
 	m_diffSpecies[k] = RT / (6.0 * Pi * visc * rad);
       }
     } else {
       if (tempDepType_ == 0) {
-	for (k = 0; k < m_nsp; k++) {
+	for (size_t k = 0; k < m_nsp; k++) {
 	  Coeff_T_ &coeff = m_coeffDiff_Ns[k];
 	  m_diffSpecies[k] = coeff[0];
 	}
       } else if (tempDepType_ == 1) {
-	for (k = 0; k < m_nsp; k++) {
+	for (size_t k = 0; k < m_nsp; k++) {
 	  Coeff_T_ &coeff = m_coeffDiff_Ns[k];
 	  m_diffSpecies[k] = coeff[0] * pow(m_temp,coeff[1]) * exp(-coeff[2]/m_temp);
 	}
@@ -745,14 +738,13 @@ namespace Cantera {
    * The flag m_visc_ok is set to true.
    */
   void SimpleTransport::updateViscosity_T() {
-    int k;
     if (tempDepType_ == 0) {
-      for (k = 0; k < m_nsp; k++) {
+      for (size_t k = 0; k < m_nsp; k++) {
 	Coeff_T_ &coeff = m_coeffVisc_Ns[k];
 	m_viscSpecies[k] = coeff[0];
       }
     } else if (tempDepType_ == 1) {
-      for (k = 0; k < m_nsp; k++) {
+      for (size_t k = 0; k < m_nsp; k++) {
 	Coeff_T_ &coeff = m_coeffVisc_Ns[k];
 	m_viscSpecies[k] = coeff[0] * pow(m_temp,coeff[1]) * exp(-coeff[2]/m_temp);
       }

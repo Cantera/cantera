@@ -120,7 +120,7 @@ namespace Cantera {
      *             Flat vector with the m_nsp in the inner loop.
      *             length = ldx * ndim
      */
-    virtual void getSpeciesFluxes(int ndim,
+    virtual void getSpeciesFluxes(size_t ndim,
 				  const doublereal* grad_T, 
 				  int ldx, 
 				  const doublereal* grad_X,

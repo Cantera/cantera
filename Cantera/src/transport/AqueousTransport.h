@@ -279,7 +279,7 @@ namespace Cantera {
      *
      *
      */
-     virtual void getSpeciesFluxes(int ndim, 
+     virtual void getSpeciesFluxes(size_t ndim,
 				  const doublereal* grad_T, 
 				  int ldx, const doublereal* grad_X, 
 				  int ldf, doublereal* fluxes);
@@ -292,7 +292,7 @@ namespace Cantera {
      *
      *
      */
-    virtual void getSpeciesFluxesExt(int ldf, doublereal* fluxes);
+    virtual void getSpeciesFluxesExt(size_t ldf, doublereal* fluxes);
 
 
     //! Initialize the transport object
@@ -638,7 +638,7 @@ namespace Cantera {
     /*!
      * Either 1, 2, or 3
      */
-    int m_nDim;
+    size_t m_nDim;
   };
 }
 #endif
