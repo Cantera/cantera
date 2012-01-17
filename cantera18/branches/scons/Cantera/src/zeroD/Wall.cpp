@@ -120,8 +120,8 @@ namespace CanteraZeroD {
             m_surf[1]->setCoverages(DATA_PTR(m_rightcov));
     }
 
-    void Wall::addSensitivityReaction(int leftright, int rxn) {
-        if (rxn < 0 || rxn >= m_chem[leftright]->nReactions()) 
+    void Wall::addSensitivityReaction(int leftright, size_t rxn) {
+        if (rxn >= m_chem[leftright]->nReactions())
             throw CanteraError("Wall::addSensitivityReaction",
                 "Reaction number out of range ("+int2str(rxn)+")");
         if (leftright == 0) {

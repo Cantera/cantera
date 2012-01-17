@@ -288,11 +288,10 @@ namespace CanteraZeroD {
 
             // outlets 
 
-            int n;
             doublereal mdot_out;
             for (i = 0; i < m_nOutlets; i++) {
                 mdot_out = m_outlet[i]->massFlowRate(time);
-                for (n = 0; n < m_nsp; n++) {
+                for (size_t n = 0; n < m_nsp; n++) {
                     ydot[2+n] -= mdot_out * mf[n];
                 }
                 if (m_energy) {
@@ -333,13 +332,13 @@ namespace CanteraZeroD {
         }
     }
 
-    void Reactor::addSensitivityReaction(int rxn) {
+    void Reactor::addSensitivityReaction(size_t rxn) {
         m_pnum.push_back(rxn);
         m_pname.push_back(name()+": "+m_kin->reactionString(rxn));
         m_mult_save.push_back(1.0);
-        if (rxn < 0 || rxn >= m_kin->nReactions()) 
+        if (rxn >= m_kin->nReactions())
             throw CanteraError("Reactor::addSensitivityReaction",
-                "Reaction number out of range ("+int2str(rxn)+")");
+                "Reaction number out of range ("+int2str(int(rxn))+")");
     }
 
 

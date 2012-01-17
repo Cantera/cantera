@@ -103,7 +103,7 @@ namespace CanteraZeroD {
         virtual void updateState(doublereal* y);
 
         virtual size_t nSensParams();
-        virtual void addSensitivityReaction(int rxn);
+        virtual void addSensitivityReaction(size_t rxn);
 
         virtual std::string sensParamID(int p) { return m_pname[p]; }
 

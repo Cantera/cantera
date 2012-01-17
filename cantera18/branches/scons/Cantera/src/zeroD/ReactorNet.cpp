@@ -28,7 +28,7 @@ namespace CanteraZeroD {
   }
 
   ReactorNet::~ReactorNet() {
-    for (int n = 0; n < m_nr; n++) {
+    for (size_t n = 0; n < m_nr; n++) {
       if (m_iown[n]) {
 	delete m_r[n];
       }
@@ -204,7 +204,6 @@ namespace CanteraZeroD {
         
   void ReactorNet::evalJacobian(doublereal t, doublereal* y, 
 				doublereal* ydot, doublereal* p, Array2D* j) {
-    int n, m;
     doublereal ysave, dy;
     Array2D& jac = *j;
 
@@ -213,7 +212,7 @@ namespace CanteraZeroD {
     try {
       //evaluate the unperturbed ydot
       eval(t, y, ydot, p);
-      for (n = 0; n < m_nv; n++) {
+      for (size_t n = 0; n < m_nv; n++) {
              
 	// perturb x(n)
 	ysave = y[n];
@@ -225,7 +224,7 @@ namespace CanteraZeroD {
 	eval(t, y, DATA_PTR(m_ydot), p);
 
 	// compute nth column of Jacobian
-	for (m = 0; m < m_nv; m++) {
+	for (size_t m = 0; m < m_nv; m++) {
 	  jac(m,n) = (m_ydot[m] - ydot[m])/dy;
 	}
 	y[n] = ysave;

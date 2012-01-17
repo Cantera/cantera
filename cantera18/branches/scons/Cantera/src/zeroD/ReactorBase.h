@@ -156,7 +156,7 @@ namespace CanteraZeroD {
         std::vector<FlowDevice*> m_inlet, m_outlet;
         std::vector<Wall*> m_wall;
         vector_int m_lr;
-        int m_nwalls;
+        size_t m_nwalls;
         std::string m_name;
         double m_rho0;
 
