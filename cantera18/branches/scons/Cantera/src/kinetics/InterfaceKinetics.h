@@ -563,7 +563,7 @@ namespace Cantera {
      * vector containing the reaction numbers of irreversible
      * reactions.
      */
-    std::vector<int> m_irrev;
+    std::vector<size_t> m_irrev;
 
     //! Stoichiometric manager for the reaction mechanism
     /*!
@@ -575,10 +575,10 @@ namespace Cantera {
     ReactionStoichMgr m_rxnstoich;
 
     //! Number of irreversible reactions in the mechanism
-    int m_nirrev;
+    size_t m_nirrev;
 
     //! Number of reversible reactions in the mechanism
-    int m_nrev;
+    size_t m_nrev;
 
   	
     //!  m_rrxn is a vector of maps, containing the reactant

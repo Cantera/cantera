@@ -591,7 +591,7 @@ namespace Cantera {
 
     //! Maximum number of species in any single kinetics operator
     //! -> also maxed wrt the total # of solution species
-    int m_maxTotSpecies;
+    size_t m_maxTotSpecies;
     
     //! Temporary vector with length equal to max m_maxTotSpecies
     vector_fp m_netProductionRatesSave;

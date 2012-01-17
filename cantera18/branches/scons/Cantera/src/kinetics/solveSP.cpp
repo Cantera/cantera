@@ -129,8 +129,8 @@ namespace Cantera {
         }
     
         m_maxTotSpecies = 0;
-        for (int n = 0; n < m_numSurfPhases; n++) {
-            int tsp =  m_objects[n]->nTotalSpecies();
+        for (size_t n = 0; n < m_numSurfPhases; n++) {
+	    size_t tsp =  m_objects[n]->nTotalSpecies();
             m_maxTotSpecies = MAX(m_maxTotSpecies, tsp);
         }
         m_maxTotSpecies = MAX(m_maxTotSpecies, m_neq);

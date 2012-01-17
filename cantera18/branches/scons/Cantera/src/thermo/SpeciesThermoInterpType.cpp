@@ -46,7 +46,7 @@ namespace Cantera {
   {
   }
 
-  STITbyPDSS::STITbyPDSS(int k, VPSSMgr *vpssmgr_ptr, PDSS *PDSS_ptr) :
+  STITbyPDSS::STITbyPDSS(size_t k, VPSSMgr *vpssmgr_ptr, PDSS *PDSS_ptr) :
     m_vpssmgr_ptr(vpssmgr_ptr),
     m_PDSS_ptr(PDSS_ptr),
     m_speciesIndex(k)
@@ -101,7 +101,7 @@ namespace Cantera {
   }
 
   //! Returns an integer representing the species index
-  int  STITbyPDSS::speciesIndex() const {
+  size_t STITbyPDSS::speciesIndex() const {
     return m_speciesIndex;
   }
   
@@ -174,7 +174,7 @@ namespace Cantera {
    * @param coeffs    Vector of coefficients used to set the
    *                  parameters for the standard state.
    */
-  void  STITbyPDSS::reportParameters(int &index, int &type,
+  void  STITbyPDSS::reportParameters(size_t &index, int &type,
 				     doublereal &minTemp, doublereal &maxTemp,
 				     doublereal &refPressure,
 				     doublereal* const coeffs) const {

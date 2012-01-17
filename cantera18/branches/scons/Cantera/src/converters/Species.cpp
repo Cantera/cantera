@@ -33,8 +33,7 @@ namespace ckr {
   }
 
   void Species::delR() {
-    int iReg = region_coeffs.size();
-    for (int i = 0; i < iReg; i++) {
+    for (size_t i = 0; i < region_coeffs.size(); i++) {
       if (region_coeffs[i]) {
 	delete region_coeffs[i];
 	region_coeffs[i] = 0;
@@ -68,8 +67,7 @@ namespace ckr {
     lowCoeffs = s.lowCoeffs;
     highCoeffs = s.highCoeffs;
     delR();
-    int iReg = s.region_coeffs.size();
-    for (int i = 0; i < iReg; i++) {
+    for (size_t i = 0; i < s.region_coeffs.size(); i++) {
       region_coeffs.push_back(new vector_fp(*(s.region_coeffs[i])));
     }
     minTemps = s.minTemps;

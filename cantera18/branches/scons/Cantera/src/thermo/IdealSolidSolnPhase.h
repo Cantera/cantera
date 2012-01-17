@@ -475,7 +475,7 @@ namespace Cantera {
      * a change from the ThermoPhase base class, where it was
      * an optional parameter.
      */ 
-    virtual doublereal standardConcentration(int k) const;
+    virtual doublereal standardConcentration(size_t k) const;
 
     /**
      * The reference (ie standard) concentration \f$ C^0_k \f$ used to normalize
@@ -497,7 +497,7 @@ namespace Cantera {
      *          a change from the ThermoPhase base class, where it was
      *          an optional parameter.
      */ 
-    virtual doublereal logStandardConc(int k) const;
+    virtual doublereal logStandardConc(size_t k) const;
 
     /**
      * Returns the units of the standard and general concentrations

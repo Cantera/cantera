@@ -19,7 +19,7 @@ namespace Cantera {
   Phase::Phase() : 
     Constituents(),
     State(),
-    m_kk(-1), 
+    m_kk(0),
     m_ndim(3),
     m_index(-1), 
     m_xml(new XML_Node("phase")), 
@@ -37,7 +37,7 @@ namespace Cantera {
   Phase::Phase(const Phase &right) :
     Constituents(),
     State(),
-    m_kk(-1),
+    m_kk(0),
     m_ndim(3),
     m_index(-1), 
     m_xml(new XML_Node("phase")), 

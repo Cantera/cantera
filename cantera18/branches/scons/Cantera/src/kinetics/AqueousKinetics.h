@@ -336,7 +336,7 @@ namespace Cantera {
 
   protected:
 
-    int                                 m_kk, m_nfall;
+    size_t m_kk, m_nfall;
   
     Rate1<Arrhenius>                    m_rates;
 
@@ -346,7 +346,7 @@ namespace Cantera {
 
     ReactionStoichMgr*                   m_rxnstoich;
 
-    std::vector<int>                         m_fwdOrder;
+    std::vector<size_t> m_fwdOrder;
 
     int m_nirrev;
     int m_nrev;
@@ -378,7 +378,7 @@ namespace Cantera {
 
   private:
 
-    int reactionNumber(){ return m_ii;}
+    size_t reactionNumber(){ return m_ii;}
     std::vector<std::map<int, doublereal> > m_stoich;
 
     void addElementaryReaction(const ReactionData& r);
@@ -386,7 +386,7 @@ namespace Cantera {
 
     void installReagents(const ReactionData& r);
 
-    void installGroups(int irxn, const std::vector<grouplist_t>& r,
+    void installGroups(size_t irxn, const std::vector<grouplist_t>& r,
 		       const std::vector<grouplist_t>& p);
     void updateKc();
 

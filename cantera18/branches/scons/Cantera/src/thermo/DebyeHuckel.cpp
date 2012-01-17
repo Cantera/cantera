@@ -504,7 +504,7 @@ namespace Cantera {
    * based on the molality of species proportional to the
    * molality of the species.
    */
-  doublereal DebyeHuckel::standardConcentration(int k) const {
+  doublereal DebyeHuckel::standardConcentration(size_t k) const {
     double mvSolvent = m_speciesSize[m_indexSolvent];
     return 1.0 / mvSolvent;
   }
@@ -513,7 +513,7 @@ namespace Cantera {
    * Returns the natural logarithm of the standard 
    * concentration of the kth species
    */
-  doublereal DebyeHuckel::logStandardConc(int k) const {
+  doublereal DebyeHuckel::logStandardConc(size_t k) const {
     double c_solvent = standardConcentration(k);
     return log(c_solvent);
   }
@@ -1566,7 +1566,7 @@ namespace Cantera {
 	getMap(ESTNode, msEST);
 	map<std::string,std::string>::const_iterator _b = msEST.begin();
 	for (; _b != msEST.end(); ++_b) {
-	  int kk = speciesIndex(_b->first);
+	  size_t kk = speciesIndex(_b->first);
 	  std::string est = _b->second;
 	  if ((m_electrolyteSpeciesType[kk] = interp_est(est))  == -1) {
 	    throw CanteraError("DebyeHuckel:initThermoXML",

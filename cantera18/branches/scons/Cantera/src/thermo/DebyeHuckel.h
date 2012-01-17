@@ -924,13 +924,13 @@ namespace Cantera {
      *   Returns the standard Concentration in units of 
      *   m<SUP>3</SUP> kmol<SUP>-1</SUP>.
      */
-    virtual doublereal standardConcentration(int k=0) const;
+    virtual doublereal standardConcentration(size_t k=0) const;
 
     //! Natural logarithm of the standard concentration of the kth species.
     /*!
      * @param k    index of the species (defaults to zero)
      */
-    virtual doublereal logStandardConc(int k=0) const;
+    virtual doublereal logStandardConc(size_t k=0) const;
 
     //! Returns the units of the standard and generalized concentrations.
     /*!

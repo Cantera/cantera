@@ -43,7 +43,7 @@ namespace Cantera {
    *         7  = mu3 (J/kmol)
    *         ........
    */
-  Mu0Poly::Mu0Poly(int n, doublereal tlow, doublereal thigh, 
+  Mu0Poly::Mu0Poly(size_t n, doublereal tlow, doublereal thigh,
 		   doublereal pref,
 		   const doublereal* coeffs) :
     m_numIntervals(0),
@@ -153,7 +153,7 @@ namespace Cantera {
    *
    * 
    */
-  void Mu0Poly::reportParameters(int &n, int &type,
+  void Mu0Poly::reportParameters(size_t &n, int &type,
 				 doublereal &tlow, doublereal &thigh,
 				 doublereal &pref,
 				 doublereal* const coeffs) const {
@@ -182,7 +182,7 @@ namespace Cantera {
    * getting the information from an XML database.
    */
   void installMu0ThermoFromXML(std::string speciesName,
-			       SpeciesThermo& sp, int k, 
+			       SpeciesThermo& sp, size_t k,
 			       const XML_Node* Mu0Node_ptr) {
 
     doublereal tmin, tmax;

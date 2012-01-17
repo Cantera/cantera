@@ -743,8 +743,7 @@ namespace Cantera {
         _init(m_nsp+1); 
         m_fixed_cov.resize(m_nsp, 0.0);
         m_fixed_cov[0] = 1.0;
-        int nt = m_kin->nTotalSpecies();
-        m_work.resize(nt, 0.0);
+        m_work.resize(m_kin->nTotalSpecies(), 0.0);
 
        // set bounds 
         vector_fp lower(m_nv), upper(m_nv);

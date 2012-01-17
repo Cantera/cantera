@@ -75,7 +75,7 @@ namespace Cantera {
    * @param coeffs       Vector of coefficients used to set the
    *                     parameters for the standard state.
    */
-  Nasa9Poly1::Nasa9Poly1(int n, doublereal tlow, doublereal thigh, 
+  Nasa9Poly1::Nasa9Poly1(size_t n, doublereal tlow, doublereal thigh,
 			 doublereal pref,
 			 const doublereal* coeffs) :
     m_lowT      (tlow),
@@ -148,7 +148,7 @@ namespace Cantera {
   }
       
   // Returns an integer representing the species index
-  int Nasa9Poly1::speciesIndex() const { 
+  size_t Nasa9Poly1::speciesIndex() const {
     return m_index;
   }
 
@@ -258,7 +258,7 @@ namespace Cantera {
    * @param coeffs    Vector of coefficients used to set the
    *                  parameters for the standard state.
    */
-  void Nasa9Poly1::reportParameters(int &n, int &type,
+  void Nasa9Poly1::reportParameters(size_t &n, int &type,
 				    doublereal &tlow, doublereal &thigh,
 				    doublereal &pref,
 				    doublereal* const coeffs) const {

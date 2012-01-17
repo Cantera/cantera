@@ -350,7 +350,7 @@ namespace Cantera {
 				  m_orderVectorElements, formRxnMatrix);
 
     for (size_t m = 0; m < m_nComponents; m++) {
-      int k = m_orderVectorSpecies[m];
+      size_t k = m_orderVectorSpecies[m];
       m_component[m] = k;
       if (xMF_est[k] < 1.0E-8) {
 	xMF_est[k] = 1.0E-8;
@@ -359,8 +359,8 @@ namespace Cantera {
     s.setMoleFractions(DATA_PTR(xMF_est));
     s.getMoleFractions(DATA_PTR(xMF_est));
 
-    int nct = Cantera::ElemRearrange(m_nComponents, elMolesGoal, mp, 
-				     m_orderVectorSpecies, m_orderVectorElements);
+    size_t nct = Cantera::ElemRearrange(m_nComponents, elMolesGoal, mp,
+                                        m_orderVectorSpecies, m_orderVectorElements);
     if (nct != m_nComponents) {
       throw CanteraError("ChemEquil::estimateElementPotentials",
 			 "confused");
@@ -494,7 +494,6 @@ namespace Cantera {
   {
     doublereal xval, yval, tmp;
     int fail = 0;
-    int m, im;
 
     if (m_p1) delete m_p1;
     if (m_p2) delete m_p2;
@@ -581,8 +580,8 @@ namespace Cantera {
     xval = m_p1->value(s);
     yval = m_p2->value(s);
 
-    int mm = m_mm;
-    int nvar = mm + 1;        
+    size_t mm = m_mm;
+    size_t nvar = mm + 1;
     DenseMatrix jac(nvar, nvar);       // jacobian
     vector_fp x(nvar, -102.0);         // solution vector
     vector_fp res_trial(nvar, 0.0);    // residual
@@ -594,8 +593,9 @@ namespace Cantera {
      * We choose the equation of the element with the highest element 
      * abundance.
      */
+    size_t m;
     tmp = -1.0;
-    for (im = 0; im < m_nComponents; im++) {
+    for (size_t im = 0; im < m_nComponents; im++) {
       m = m_orderVectorElements[im];
       if (elMolesGoal[m] > tmp ) {
     m_skip = m;
@@ -612,7 +612,7 @@ namespace Cantera {
     // changing the composition at this point only affects the
     // starting point, not the final solution.
     vector_fp xmm(m_kk, 0.0);
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       xmm[k] = s.moleFraction(k) + 1.0E-32;
     }
     s.setMoleFractions(DATA_PTR(xmm));
@@ -1115,15 +1115,14 @@ namespace Cantera {
     if (loglevel > 0) {
       beginLogGroup("ChemEquil::equilResidual");
     }
-    int n, m;
     doublereal xx, yy;
     doublereal temp = exp(x[m_mm]);
     setToEquilState(s, x, temp);
 
     // residuals are the total element moles
     vector_fp& elmFrac = m_elementmolefracs; 
-    for (n = 0; n < m_mm; n++) {
-      m = m_orderVectorElements[n];
+    for (size_t n = 0; n < m_mm; n++) {
+      size_t m = m_orderVectorElements[n];
       // drive element potential for absent elements to -1000
       if (elmFracGoal[m] < m_elemFracCutoff && m != m_eloc) {
 	resid[m] = x[m] + 1000.0;
@@ -1320,9 +1319,9 @@ namespace Cantera {
     s.saveState(state);
     double tmp, sum;
     bool modifiedMatrix = false;
-    int neq = m_mm+1;
+    size_t neq = m_mm+1;
     int retn = 1;
-    int m, n, k, info, im;
+    size_t m, n, k, im;
     DenseMatrix a1(neq, neq, 0.0);
     vector_fp b(neq, 0.0);
     vector_fp n_i(m_kk,0.0);
@@ -1484,7 +1483,7 @@ namespace Cantera {
       /*
        * Decide if we are to do a normal step or a modified step
        */
-      int iM = -1;
+      size_t iM = -1;
       for (m = 0; m < m_mm; m++) {
 	if (elMoles[m] > 0.001 * elMolesTotal) {
 	  if (eMolesCalc[m] > 1000. * elMoles[m]) {
@@ -1571,8 +1570,8 @@ namespace Cantera {
       }
 #endif
       for (m = 0; m < m_mm; m++) {
-	int kMSp = -1;
-	int kMSp2 = -1;
+	size_t kMSp = -1;
+	size_t kMSp2 = -1;
 	int nSpeciesWithElem  = 0;
 	for (k = 0; k < m_kk; k++) {
 	  if (n_i_calc[k] > nCutoff) {
@@ -1815,7 +1814,7 @@ namespace Cantera {
 #endif
 
       try {
-	info = solve(a1, DATA_PTR(resid));
+	int info = solve(a1, DATA_PTR(resid));
       }
       catch (CanteraError) {
 	addLogEntry("estimateEP_Brinkley:Jacobian is singular.");
@@ -1904,7 +1903,7 @@ namespace Cantera {
    *
    */
   void ChemEquil::adjustEloc(thermo_t &s, vector_fp & elMolesGoal) {
-    if (m_eloc < 0) return;
+    if (m_eloc == -1) return;
     if (fabs(elMolesGoal[m_eloc]) > 1.0E-20) return; 
     s.getMoleFractions(DATA_PTR(m_molefractions));
     int k;

@@ -9,12 +9,12 @@ namespace Cantera {
   // sort (x,y) pairs by x
 
   void heapsort(vector_fp& x, std::vector<size_t>& y) {
-    int n = x.size();
+    size_t n = x.size();
     if (n < 2) return;
     doublereal rra;
-    integer rrb;
-    int ll = n/2;
-    int iret = n-1;
+    size_t rrb;
+    size_t ll = n/2;
+    size_t iret = n-1;
     
     while (1 > 0) {
       if (ll > 0) {
@@ -35,8 +35,8 @@ namespace Cantera {
 	}
       }
       
-      int i = ll;
-      int j = ll + ll + 1;
+      size_t i = ll;
+      size_t j = ll + ll + 1;
       
       while (j <= iret) {
 	if (j < iret) {
@@ -59,12 +59,12 @@ namespace Cantera {
   }
 
   void heapsort(vector_fp& x, vector_fp& y) {
-    int n = x.size();
+    size_t n = x.size();
     if (n < 2) return;
     doublereal rra;
     doublereal rrb;
-    int ll = n/2;
-    int iret = n-1;
+    size_t ll = n/2;
+    size_t iret = n-1;
     
     while (1 > 0) {
       if (ll > 0) {
@@ -85,8 +85,8 @@ namespace Cantera {
 	}
       }
       
-      int i = ll;
-      int j = ll + ll + 1;
+      size_t i = ll;
+      size_t j = ll + ll + 1;
       
       while (j <= iret) {
 	if (j < iret) {

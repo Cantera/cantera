@@ -40,7 +40,7 @@ namespace Cantera {
 
         virtual ~MultiPhaseEquil() {}
 
-        int constituent(index_t m) { 
+        size_t constituent(index_t m) {
             if (m < m_nel) return m_order[m]; 
             else return -1;
         }

@@ -130,10 +130,9 @@ namespace Cantera {
    */
   void Kinetics::selectPhase(const doublereal* data, const thermo_t* phase,
 			     doublereal* phase_data) {
-    int n, nsp, np = nPhases();
-    for (n = 0; n < np; n++) {
+    for (size_t n = 0; n < nPhases(); n++) {
       if (phase == m_thermo[n]) {
-	nsp = phase->nSpecies();
+	size_t nsp = phase->nSpecies();
 	copy(data + m_start[n], 
 	     data + m_start[n] + nsp, phase_data);
 	return;
@@ -153,9 +152,8 @@ namespace Cantera {
    * the kinetics manager.  If k is out of bounds, the string
    * "<unknown>" is returned. 
    */
-  string Kinetics::kineticsSpeciesName(int k) const {
-    int np = m_start.size();
-    for (int n = np-1; n >= 0; n--) {
+  string Kinetics::kineticsSpeciesName(size_t k) const {
+    for (size_t n = m_start.size()-1; n >= 0; n--) {
       if (k >= m_start[n]) {
 	return thermo(n).speciesName(k - m_start[n]);
       }
@@ -179,15 +177,15 @@ namespace Cantera {
    *   the value -1 is returned.
    *   - If no match is found in any phase, the value -2 is returned.
    */
-  int Kinetics::kineticsSpeciesIndex(std::string nm, std::string ph) const {
-    int np = static_cast<int>(m_thermo.size());
-    int k;
+  size_t Kinetics::kineticsSpeciesIndex(std::string nm, std::string ph) const {
+    size_t np = m_thermo.size();
+    size_t k;
     string id;
-    for (int n = 0; n < np; n++) {
+    for (size_t n = 0; n < np; n++) {
       id = thermo(n).id();
       if (ph == id) {
 	k = thermo(n).speciesIndex(nm);
-	if (k < 0) return -1;
+	if (k == -1) return -1;
 	return k + m_start[n];
       }
       else if (ph == "<any>") {
@@ -209,12 +207,12 @@ namespace Cantera {
    * Will throw an error if the species string doesn't match.
    */
   thermo_t& Kinetics::speciesPhase(std::string nm) {
-    int np = static_cast<int>(m_thermo.size());
-    int k;
+    size_t np = m_thermo.size();
+    size_t k;
     string id;
-    for (int n = 0; n < np; n++) {
+    for (size_t n = 0; n < np; n++) {
       k = thermo(n).speciesIndex(nm);
-      if (k >= 0) return thermo(n);
+      if (k != -1) return thermo(n);
     }
     throw CanteraError("speciesPhase", "unknown species "+nm);
     return thermo(0);

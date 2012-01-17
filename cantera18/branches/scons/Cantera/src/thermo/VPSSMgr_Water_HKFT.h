@@ -358,7 +358,7 @@ namespace Cantera {
      * @param phaseNode_ptr Pointer to the XML Node corresponding
      *                      to the phase which owns the species
      */
-    virtual PDSS *createInstallPDSS(int k, const XML_Node& speciesNode,  
+    virtual PDSS *createInstallPDSS(size_t k, const XML_Node& speciesNode,
 				    const XML_Node * const phaseNode_ptr);
  
     //@}

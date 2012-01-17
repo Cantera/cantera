@@ -302,14 +302,14 @@ namespace Cantera {
      *   Returns the standard concentration. The units are by definition
      *   dependent on the ThermoPhase and kinetics manager representation.
      */
-    virtual doublereal standardConcentration(int k=0) const;
+    virtual doublereal standardConcentration(size_t k=0) const;
 
 
     //! Natural logarithm of the standard concentration of the kth species.
     /*!
      * @param k    index of the species (defaults to zero)
      */
-    virtual doublereal logStandardConc(int k=0) const; 
+    virtual doublereal logStandardConc(size_t k=0) const;
 
     //! Returns the units of the standard and generalized concentrations.
     /*!
@@ -459,7 +459,7 @@ namespace Cantera {
 
     //! Get the Salt Dissociation Coefficients
     //! Returns the vector of dissociation coefficients and vector of charges
-    virtual void getDissociationCoeffs(vector_fp& coeffs, vector_fp& charges, std::vector<int>& neutMolIndex);
+    virtual void getDissociationCoeffs(vector_fp& coeffs, vector_fp& charges, std::vector<size_t>& neutMolIndex);
 
     virtual void getNeutralMolecMoleFractions(vector_fp& fracs){fracs=NeutralMolecMoleFractions_;}
 
@@ -479,8 +479,8 @@ namespace Cantera {
      */
     virtual void getNeutralMoleculeMoleGrads(const doublereal * const x, doublereal *y) const;
 
-    virtual void getCationList(std::vector<int>& cation){cation=cationList_;}
-    virtual void getAnionList(std::vector<int>& anion){anion=anionList_;}
+    virtual void getCationList(std::vector<size_t>& cation){cation=cationList_;}
+    virtual void getAnionList(std::vector<size_t>& anion){anion=anionList_;}
     virtual void getSpeciesNames(std::vector<std::string>& names){names=m_speciesNames;}
 
 
@@ -827,20 +827,20 @@ namespace Cantera {
      *  then we need to do a formal inversion which takes a great
      *  deal of time and is not currently implemented.
      */
-    std::vector<int> fm_invert_ionForNeutral;
+    std::vector<size_t> fm_invert_ionForNeutral;
 
     //! Mole fractions using the Neutral Molecule Mole fraction basis
     mutable std::vector<doublereal> NeutralMolecMoleFractions_;
 
 
     //! List of the species in this ThermoPhase which are cation species
-    std::vector<int> cationList_;
+    std::vector<size_t> cationList_;
 
     //! Number of cation species
     int numCationSpecies_;
 
     //! List of the species in this ThermoPhase which are anion species
-    std::vector<int> anionList_;
+    std::vector<size_t> anionList_;
 
     //! Number of anion species
     int numAnionSpecies_;
@@ -850,7 +850,7 @@ namespace Cantera {
     /*!
      *  These have neutral charges.
      */ 
-    std::vector<int> passThroughList_;
+    std::vector<size_t> passThroughList_;
 
     //! Number of the species in this ThermoPhase which are passed
     //! through to the neutralMoleculePhase ThermoPhase

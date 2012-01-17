@@ -336,13 +336,13 @@ namespace Cantera {
      * @return 
      *   Returns The standard Concentration as 1.0
      */
-    virtual doublereal standardConcentration(int k=0) const;
+    virtual doublereal standardConcentration(size_t k=0) const;
 
     //! Natural logarithm of the standard concentration of the kth species.
     /*!
      * @param k    index of the species (defaults to zero)
      */
-    virtual doublereal logStandardConc(int k=0) const;
+    virtual doublereal logStandardConc(size_t k=0) const;
 
     //! Get the array of chemical potentials at unit activity for the species
     //! at their standard states at the current <I>T</I> and <I>P</I> of the solution.

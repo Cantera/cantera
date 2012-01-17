@@ -24,7 +24,7 @@ namespace Cantera {
    * Basic list of constructors and duplicators
    */
 
-  PDSS_IonsFromNeutral::PDSS_IonsFromNeutral(VPStandardStateTP *tp, int spindex) :
+  PDSS_IonsFromNeutral::PDSS_IonsFromNeutral(VPStandardStateTP *tp, size_t spindex) :
     PDSS(tp, spindex),
     neutralMoleculePhase_(0),
     numMult_(0),
@@ -34,7 +34,7 @@ namespace Cantera {
     m_pdssType = cPDSS_IONSFROMNEUTRAL;
   }
   //====================================================================================================================
-  PDSS_IonsFromNeutral::PDSS_IonsFromNeutral(VPStandardStateTP *tp, int spindex, 
+  PDSS_IonsFromNeutral::PDSS_IonsFromNeutral(VPStandardStateTP *tp, size_t spindex,
 					     std::string inputFile, std::string id) :
     PDSS(tp, spindex),
     neutralMoleculePhase_(0),
@@ -47,7 +47,7 @@ namespace Cantera {
   }
   //====================================================================================================================
 
-  PDSS_IonsFromNeutral::PDSS_IonsFromNeutral(VPStandardStateTP *tp, int spindex, const XML_Node& speciesNode,
+  PDSS_IonsFromNeutral::PDSS_IonsFromNeutral(VPStandardStateTP *tp, size_t spindex, const XML_Node& speciesNode,
 					     const XML_Node& phaseRoot, bool spInstalled) :
     PDSS(tp, spindex),
     neutralMoleculePhase_(0),
@@ -134,7 +134,7 @@ namespace Cantera {
    *            phase. If none is given, the first XML
    *            phase element will be used.
    */
-  void PDSS_IonsFromNeutral::constructPDSSXML(VPStandardStateTP *tp, int spindex, 
+  void PDSS_IonsFromNeutral::constructPDSSXML(VPStandardStateTP *tp, size_t spindex,
 					      const XML_Node& speciesNode,
 					      const XML_Node& phaseNode, std::string id) {
     const XML_Node *tn = speciesNode.findByName("thermo");
@@ -192,7 +192,7 @@ namespace Cantera {
   }
   //====================================================================================================================
  
-  void PDSS_IonsFromNeutral::constructPDSSFile(VPStandardStateTP *tp, int spindex,
+  void PDSS_IonsFromNeutral::constructPDSSFile(VPStandardStateTP *tp, size_t spindex,
 					       std::string inputFile, std::string id) {
 
     if (inputFile.size() == 0) {
@@ -256,8 +256,8 @@ namespace Cantera {
   PDSS_IonsFromNeutral::enthalpy_RT() const {
     neutralMoleculePhase_->getEnthalpy_RT(DATA_PTR(tmpNM));
     doublereal val = 0.0;
-    for (int i = 0; i < numMult_; i++) {
-      int jNeut =  idNeutralMoleculeVec[i];
+    for (size_t i = 0; i < numMult_; i++) {
+      size_t jNeut = idNeutralMoleculeVec[i];
       val += factorVec[i] * tmpNM[jNeut];
     }
     return val;
@@ -289,8 +289,8 @@ namespace Cantera {
   PDSS_IonsFromNeutral::entropy_R() const {
     neutralMoleculePhase_->getEntropy_R(DATA_PTR(tmpNM));
     doublereal val = 0.0;
-    for (int i = 0; i < numMult_; i++) {
-      int jNeut =  idNeutralMoleculeVec[i];
+    for (size_t i = 0; i < numMult_; i++) {
+      size_t jNeut =  idNeutralMoleculeVec[i];
       val += factorVec[i] * tmpNM[jNeut];
     }
     if (add2RTln2_) {
@@ -314,8 +314,8 @@ namespace Cantera {
   PDSS_IonsFromNeutral::gibbs_RT() const {
     neutralMoleculePhase_->getGibbs_RT(DATA_PTR(tmpNM));
     doublereal val = 0.0;
-    for (int i = 0; i < numMult_; i++) {
-      int jNeut =  idNeutralMoleculeVec[i];
+    for (size_t i = 0; i < numMult_; i++) {
+      size_t jNeut =  idNeutralMoleculeVec[i];
       val += factorVec[i] * tmpNM[jNeut];
     }
     if (add2RTln2_) {
@@ -338,8 +338,8 @@ namespace Cantera {
   PDSS_IonsFromNeutral::cp_R() const {
     neutralMoleculePhase_->getCp_R(DATA_PTR(tmpNM));
     doublereal val = 0.0;
-    for (int i = 0; i < numMult_; i++) {
-      int jNeut =  idNeutralMoleculeVec[i];
+    for (size_t i = 0; i < numMult_; i++) {
+      size_t jNeut =  idNeutralMoleculeVec[i];
       val += factorVec[i] * tmpNM[jNeut];
     }
     return val;
@@ -349,8 +349,8 @@ namespace Cantera {
   PDSS_IonsFromNeutral::molarVolume() const {
     neutralMoleculePhase_->getStandardVolumes(DATA_PTR(tmpNM));
     doublereal val = 0.0;
-    for (int i = 0; i < numMult_; i++) {
-      int jNeut =  idNeutralMoleculeVec[i];
+    for (size_t i = 0; i < numMult_; i++) {
+      size_t jNeut =  idNeutralMoleculeVec[i];
       val += factorVec[i] * tmpNM[jNeut];
     }
     return val;
@@ -377,8 +377,8 @@ namespace Cantera {
   PDSS_IonsFromNeutral::gibbs_RT_ref() const {
     neutralMoleculePhase_->getGibbs_RT_ref(DATA_PTR(tmpNM));
     doublereal val = 0.0;
-    for (int i = 0; i < numMult_; i++) {
-      int jNeut =  idNeutralMoleculeVec[i];
+    for (size_t i = 0; i < numMult_; i++) {
+      size_t jNeut =  idNeutralMoleculeVec[i];
       val += factorVec[i] * tmpNM[jNeut];
     }
     if (add2RTln2_) {
@@ -390,8 +390,8 @@ namespace Cantera {
   doublereal PDSS_IonsFromNeutral::enthalpy_RT_ref() const {
     neutralMoleculePhase_->getEnthalpy_RT_ref(DATA_PTR(tmpNM));
     doublereal val = 0.0;
-    for (int i = 0; i < numMult_; i++) {
-      int jNeut =  idNeutralMoleculeVec[i];
+    for (size_t i = 0; i < numMult_; i++) {
+      size_t jNeut =  idNeutralMoleculeVec[i];
       val += factorVec[i] * tmpNM[jNeut];
     }
     return val;
@@ -400,8 +400,8 @@ namespace Cantera {
   doublereal PDSS_IonsFromNeutral::entropy_R_ref() const {
     neutralMoleculePhase_->getEntropy_R_ref(DATA_PTR(tmpNM));
     doublereal val = 0.0;
-    for (int i = 0; i < numMult_; i++) {
-      int jNeut =  idNeutralMoleculeVec[i];
+    for (size_t i = 0; i < numMult_; i++) {
+      size_t jNeut =  idNeutralMoleculeVec[i];
       val += factorVec[i] * tmpNM[jNeut];
     }
     if (add2RTln2_) {
@@ -413,8 +413,8 @@ namespace Cantera {
   doublereal PDSS_IonsFromNeutral::cp_R_ref() const {
     neutralMoleculePhase_->getCp_R_ref(DATA_PTR(tmpNM));
     doublereal val = 0.0;
-    for (int i = 0; i < numMult_; i++) {
-      int jNeut =  idNeutralMoleculeVec[i];
+    for (size_t i = 0; i < numMult_; i++) {
+      size_t jNeut =  idNeutralMoleculeVec[i];
       val += factorVec[i] * tmpNM[jNeut];
     }
     return val;
@@ -423,8 +423,8 @@ namespace Cantera {
   doublereal PDSS_IonsFromNeutral::molarVolume_ref() const {
     neutralMoleculePhase_->getStandardVolumes_ref(DATA_PTR(tmpNM));
     doublereal val = 0.0;
-    for (int i = 0; i < numMult_; i++) {
-      int jNeut =  idNeutralMoleculeVec[i];
+    for (size_t i = 0; i < numMult_; i++) {
+      size_t jNeut =  idNeutralMoleculeVec[i];
       val += factorVec[i] * tmpNM[jNeut];
     }
     return val;

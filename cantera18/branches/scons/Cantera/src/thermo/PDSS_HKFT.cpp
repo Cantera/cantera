@@ -25,7 +25,7 @@ namespace Cantera {
   /*
    * Basic list of constructors and duplicators
    */
-  PDSS_HKFT::PDSS_HKFT(VPStandardStateTP *tp, int spindex) :
+  PDSS_HKFT::PDSS_HKFT(VPStandardStateTP *tp, size_t spindex) :
     PDSS(tp, spindex),
     m_waterSS(0),
     m_densWaterSS(-1.0),
@@ -55,7 +55,7 @@ namespace Cantera {
   }
 
 
-  PDSS_HKFT::PDSS_HKFT(VPStandardStateTP *tp, int spindex, std::string inputFile, std::string id) :
+  PDSS_HKFT::PDSS_HKFT(VPStandardStateTP *tp, size_t spindex, std::string inputFile, std::string id) :
     PDSS(tp, spindex),
     m_waterSS(0),
     m_densWaterSS(-1.0),
@@ -85,7 +85,7 @@ namespace Cantera {
     constructPDSSFile(tp, spindex, inputFile, id);
   }
 
-  PDSS_HKFT::PDSS_HKFT(VPStandardStateTP *tp, int spindex, const XML_Node& speciesNode,
+  PDSS_HKFT::PDSS_HKFT(VPStandardStateTP *tp, size_t spindex, const XML_Node& speciesNode,
                        const XML_Node& phaseRoot, bool spInstalled) :
     PDSS(tp, spindex),
     m_waterSS(0),
@@ -613,7 +613,7 @@ namespace Cantera {
     m_waterProps = new WaterProps(m_waterSS);
   }
 
-  void PDSS_HKFT::constructPDSSXML(VPStandardStateTP *tp, int spindex,
+  void PDSS_HKFT::constructPDSSXML(VPStandardStateTP *tp, size_t spindex,
 				   const XML_Node& speciesNode, 
 				   const XML_Node& phaseNode, bool spInstalled) {
     int hasDGO = 0;
@@ -772,7 +772,7 @@ namespace Cantera {
     
   }
 
-  void PDSS_HKFT::constructPDSSFile(VPStandardStateTP *tp, int spindex,
+  void PDSS_HKFT::constructPDSSFile(VPStandardStateTP *tp, size_t spindex,
 				    std::string inputFile, std::string id) {
 
     if (inputFile.size() == 0) {
@@ -1272,7 +1272,7 @@ namespace Cantera {
    * @param refPressure output - reference pressure (Pa).
    *
    */
-  void PDSS_HKFT::reportParams(int &kindex, int &type,
+  void PDSS_HKFT::reportParams(size_t &kindex, int &type,
 			    doublereal * const c,
 			    doublereal &minTemp,
 			    doublereal &maxTemp,

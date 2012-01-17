@@ -153,7 +153,7 @@ namespace Cantera {
   //}
 
   PDSS *
-  VPSSMgr_ConstVol::createInstallPDSS(int k, const XML_Node& speciesNode,  
+  VPSSMgr_ConstVol::createInstallPDSS(size_t k, const XML_Node& speciesNode,
 				      const XML_Node * const phaseNode_ptr) {
     //VPSSMgr::installSpecies(k, speciesNode, phaseNode_ptr);
     const XML_Node *ss = speciesNode.findByName("standardState");
@@ -167,7 +167,7 @@ namespace Cantera {
 			 "standardState model for species isn't "
 			 "constant_incompressible: " + speciesNode.name());
     }
-    if ((int) m_Vss.size() < k+1) {
+    if (m_Vss.size() < k+1) {
       m_Vss.resize(k+1, 0.0);
     }
     m_Vss[k] = getFloat(*ss, "molarVolume", "toSI");

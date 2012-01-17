@@ -60,35 +60,30 @@ namespace Cantera {
         virtual doublereal  pressure() const { return m_press; }
  
         virtual void getChemPotentials(doublereal* mu) const {
-            int n, nsp = nSpecies();
-            for (n = 0; n < nsp; n++) mu[n] = 0.0;
+            for (size_t n = 0; n < nSpecies(); n++) mu[n] = 0.0;
         }
 
         virtual void getEnthalpy_RT(doublereal* hrt) const {
-            int n, nsp = nSpecies();
-            for (n = 0; n < nsp; n++) hrt[n] = 0.0;
+            for (size_t n = 0; n < nSpecies(); n++) hrt[n] = 0.0;
         }
 
         virtual void getEntropy_R(doublereal* sr) const {
-            int n, nsp = nSpecies();
-            for (n = 0; n < nsp; n++) sr[n] = 0.0;
+            for (size_t n = 0; n < nSpecies(); n++) sr[n] = 0.0;
         }
 
         virtual void getStandardChemPotentials(doublereal* mu0) const {
-            int n, nsp = nSpecies();
-            for (n = 0; n < nsp; n++) mu0[n] = 0.0;
+            for (size_t n = 0; n < nSpecies(); n++) mu0[n] = 0.0;
         }
 
         virtual void getActivityConcentrations(doublereal* c) const {
-            int n, nsp = nSpecies();
-            for (n = 0; n < nsp; n++) c[n] = 1.0;
+            for (size_t n = 0; n < nSpecies(); n++) c[n] = 1.0;
         }
 
-         virtual doublereal standardConcentration(int k=0) const {
+         virtual doublereal standardConcentration(size_t k=0) const {
              return 1.0;
         }
 
-         virtual doublereal logStandardConc(int k=0) const {
+         virtual doublereal logStandardConc(size_t k=0) const {
              return 0.0;
         }
 

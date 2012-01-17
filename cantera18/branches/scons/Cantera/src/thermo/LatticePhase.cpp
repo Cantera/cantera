@@ -125,11 +125,11 @@ namespace Cantera {
     }
   }
 
-  doublereal LatticePhase::standardConcentration(int k) const {
+  doublereal LatticePhase::standardConcentration(size_t k) const {
     return 1.0;
   }
 
-  doublereal LatticePhase::logStandardConc(int k) const {
+  doublereal LatticePhase::logStandardConc(size_t k) const {
     return 0.0;
   }
 

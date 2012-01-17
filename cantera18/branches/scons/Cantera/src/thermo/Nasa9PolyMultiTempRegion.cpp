@@ -216,7 +216,7 @@ namespace Cantera {
 
      
   // Returns an integer representing the species index
-  int Nasa9PolyMultiTempRegion::speciesIndex() const { 
+  size_t Nasa9PolyMultiTempRegion::speciesIndex() const {
     return m_index;
   }
       
@@ -332,7 +332,7 @@ namespace Cantera {
    * @param coeffs    Vector of coefficients used to set the
    *                  parameters for the standard state.
    */
-  void Nasa9PolyMultiTempRegion::reportParameters(int &n, int &type,
+  void Nasa9PolyMultiTempRegion::reportParameters(size_t &n, int &type,
 				    doublereal &tlow, doublereal &thigh,
 				    doublereal &pref,
 				    doublereal* const coeffs) const {
@@ -344,7 +344,7 @@ namespace Cantera {
     double ctmp[12];
     coeffs[0] = double(m_numTempRegions);
     int index = 1;
-    int n_tmp = 0;;
+    size_t n_tmp = 0;;
     int type_tmp = 0;
     double pref_tmp = 0.0;
     for (size_t iReg = 0; iReg < m_numTempRegions; iReg++) {

@@ -487,7 +487,7 @@ namespace Cantera {
    * an optional parameter.
    */ 
   doublereal IdealSolidSolnPhase::
-  standardConcentration(int k) const {
+  standardConcentration(size_t k) const {
     switch (m_formGC) {
     case 0:
       return 1.0;
@@ -522,7 +522,7 @@ namespace Cantera {
    * an optional parameter.
    */ 
   doublereal IdealSolidSolnPhase::
-  logStandardConc(int k) const {
+  logStandardConc(size_t k) const {
     _updateThermo();
     double res;
     switch (m_formGC) {

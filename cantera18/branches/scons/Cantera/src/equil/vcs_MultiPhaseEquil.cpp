@@ -55,17 +55,13 @@ namespace VCSnonideal {
     m_printLvl(printLvl),
     m_vsolvePtr(0)
   {
-    // Debugging level
-  
-    int nsp = mix->nSpecies();
-    int nel = mix->nElements();
-    int nph = mix->nPhases();
-    
     /*
      * Create a VCS_PROB object that describes the equilibrium problem.
      * The constructor just mallocs the necessary objects and sizes them.
      */
-    m_vprob = new VCS_PROB(nsp, nel, nph);
+    m_vprob = new VCS_PROB(mix->nSpecies(),
+		           mix->nElements(),
+		           mix->nPhases());
     m_mix = mix;
     m_vprob->m_printLvl = m_printLvl;
     /*
@@ -574,11 +570,11 @@ namespace VCSnonideal {
    
     int maxit = maxsteps;;
     clockWC tickTock;
-    int nsp = m_mix->nSpecies();
-    int nel = m_mix->nElements();
-    int nph = m_mix->nPhases();
+
     if (m_vprob == 0) {
-      m_vprob = new VCS_PROB(nsp, nel, nph);
+      m_vprob = new VCS_PROB(m_mix->nSpecies(),
+		             m_mix->nElements(),
+		             m_mix->nPhases());
     }
     m_printLvl = printLvl;
     m_vprob->m_printLvl = printLvl;
@@ -652,12 +648,11 @@ namespace VCSnonideal {
     * states.
     */
    m_mix->uploadMoleFractionsFromPhases();
-   int kGlob = 0;
+   size_t kGlob = 0;
    for (int ip = 0; ip < m_vprob->NPhase; ip++) {
      double phaseMole = 0.0;
      Cantera::ThermoPhase &tref = m_mix->phase(ip);
-     int nspPhase = tref.nSpecies();
-     for (int k = 0; k < nspPhase; k++, kGlob++) {
+     for (size_t k = 0; k < tref.nSpecies(); k++, kGlob++) {
        phaseMole += m_vprob->w[kGlob];
      }
      //phaseMole *= 1.0E-3;
@@ -913,8 +908,8 @@ namespace VCSnonideal {
     /*
      * Calculate the total number of species and phases in the problem
      */
-    int totNumPhases = mphase->nPhases();
-    int totNumSpecies = mphase->nSpecies();
+    size_t totNumPhases = mphase->nPhases();
+    size_t totNumSpecies = mphase->nSpecies();
 
     // Problem type has yet to be worked out.
     vprob->prob_type = 0;
@@ -947,7 +942,7 @@ namespace VCSnonideal {
        */
       iSurPhase = -1;
       tPhase = &(mphase->phase(iphase));
-      int nelem = tPhase->nElements();
+      size_t nelem = tPhase->nElements();
     
       /*
        * Query Cantera for the equation of state type of the
@@ -960,7 +955,7 @@ namespace VCSnonideal {
       /*
        *    Find out the number of species in the phase
        */
-      int nSpPhase = tPhase->nSpecies();
+      size_t nSpPhase = tPhase->nSpecies();
       /*
        *    Find out the name of the phase
        */
@@ -1299,8 +1294,8 @@ namespace VCSnonideal {
    */
   int vcs_Cantera_update_vprob(Cantera::MultiPhase *mphase, 
 			       VCSnonideal::VCS_PROB *vprob) {
-    int totNumPhases = mphase->nPhases();
-    int kT = 0;
+    size_t totNumPhases = mphase->nPhases();
+    size_t kT = 0;
     std::vector<double> tmpMoles;
     // Problem type has yet to be worked out.
     vprob->prob_type = 0;
@@ -1312,7 +1307,7 @@ namespace VCSnonideal {
     vprob->Vol       = mphase->volume();
     Cantera::ThermoPhase *tPhase = 0;
 
-    for (int iphase = 0; iphase < totNumPhases; iphase++) {
+    for (size_t iphase = 0; iphase < totNumPhases; iphase++) {
       tPhase = &(mphase->phase(iphase));
       vcs_VolPhase *volPhase = vprob->VPhaseList[iphase];
       /*
@@ -1327,10 +1322,10 @@ namespace VCSnonideal {
       /*
        *    Loop through each species in the current phase
        */
-      int nSpPhase = tPhase->nSpecies();
+      size_t nSpPhase = tPhase->nSpecies();
       // volPhase->TMoles = 0.0;
       tmpMoles.resize(nSpPhase);
-      for (int k = 0; k < nSpPhase; k++) {
+      for (size_t k = 0; k < nSpPhase; k++) {
 	tmpMoles[k] = mphase->speciesMoles(kT);
 	vprob->w[kT] = mphase->speciesMoles(kT);
 	vprob->mf[kT] = mphase->moleFraction(kT);

@@ -480,20 +480,19 @@ namespace Cantera {
     int ReactionPathBuilder::findGroups(ostream& logfile, Kinetics& s) 
     {
         m_groups.resize(m_nr);
-	map<int, int> net;
 
-        for (int i = 0; i < m_nr; i++)             // loop over reactions 
+        for (size_t i = 0; i < m_nr; i++)             // loop over reactions
         {
             logfile << endl << "Reaction " << i+1 << ": " 
                     << s.reactionString(i);
 
-	    int nrnet = m_reac[i].size();
-	    int npnet = m_prod[i].size();
-            const vector_int& r = s.reactants(i);
-            const vector_int& p = s.products(i);
+            size_t nrnet = m_reac[i].size();
+            size_t npnet = m_prod[i].size();
+            const std::vector<size_t>& r = s.reactants(i);
+            const std::vector<size_t>& p = s.products(i);
 
-            int nr = s.reactants(i).size();
-            int np = s.products(i).size();
+            size_t nr = s.reactants(i).size();
+            size_t np = s.products(i).size();
  
             Group b0, b1, bb;
 
@@ -501,7 +500,6 @@ namespace Cantera {
 
             const vector<grouplist_t>& rgroups = s.reactantGroups(i);
             const vector<grouplist_t>& pgroups = s.productGroups(i);
-            
 
             if (m_determinate[i]) {
                 logfile << " ... OK." << endl;
@@ -509,27 +507,27 @@ namespace Cantera {
 
             else if (rgroups.size() > 0) {
                 logfile << " ... specified groups." << endl;
-                int nrg = static_cast<int>(rgroups.size());
-                int npg = static_cast<int>(pgroups.size());
-                int kr, kp, ngrpr, ngrpp;
+                size_t nrg = rgroups.size();
+                size_t npg = pgroups.size();
+                size_t kr, kp, ngrpr, ngrpp;
                 Group gr, gp;
 
                 if (nrg != nr || npg != np) return -1; 
                 
                 // loop over reactants 
-                for (int igr = 0; igr < nrg; igr++) {
+                for (size_t igr = 0; igr < nrg; igr++) {
                     kr = r[igr];
                     ngrpr = static_cast<int>(rgroups[igr].size());
 
                     // loop over products
-                    for (int igp = 0; igp < npg; igp++) {
+                    for (size_t igp = 0; igp < npg; igp++) {
                         kp = p[igp];
                         ngrpp = static_cast<int>(pgroups[igp].size());
 
                         // loop over pairs of reactant and product groups
-                        for (int kgr = 0; kgr < ngrpr; kgr++) {
+                        for (size_t kgr = 0; kgr < ngrpr; kgr++) {
                             gr = Group(rgroups[igr][kgr]);
-                            for (int kgp = 0; kgp < ngrpp; kgp++) {
+                            for (size_t kgp = 0; kgp < ngrpp; kgp++) {
                                 gp = Group(pgroups[igp][kgp]);
                                 if (gr == gp) {
                                     m_transfer[i][kr][kp] = gr;
@@ -543,12 +541,12 @@ namespace Cantera {
             else if (nrnet == 2 && npnet == 2) 
             {
                 // indices for the two reactants
-                int kr0 = m_reac[i][0];
-                int kr1 = m_reac[i][1];
+                size_t kr0 = m_reac[i][0];
+                size_t kr1 = m_reac[i][1];
 
                 // indices for the two products
-                int kp0 = m_prod[i][0];
-                int kp1 = m_prod[i][1];
+                size_t kp0 = m_prod[i][0];
+                size_t kp1 = m_prod[i][1];
 
                 // references to the Group objects representing the
                 // reactants 
@@ -652,14 +650,13 @@ namespace Cantera {
         string ename;
         m_enamemap.clear();
         m_nel = 0;
-        int i, np = kin.nPhases();
+        size_t np = kin.nPhases();
         ThermoPhase* p;
-        map<string, int> enamemap;
-        for (i = 0; i < np; i++) {
+        for (size_t i = 0; i < np; i++) {
             p = &kin.thermo(i);
             // iterate over the elements in this phase
-            int m, nel = p->nElements();
-            for (m = 0; m < nel; m++) {
+            size_t nel = p->nElements();
+            for (size_t m = 0; m < nel; m++) {
                 ename = p->elementName(m);
 
                 // if no entry is found for this element name, then
@@ -675,18 +672,17 @@ namespace Cantera {
         }
         m_atoms.resize(kin.nTotalSpecies(), m_nel, 0.0);
         string sym;
-        int k, ip, nsp, mlocal, kp, m;
         // iterate over the elements
-        for (m = 0; m < m_nel; m++) {
+        for (size_t m = 0; m < m_nel; m++) {
             sym = m_elementSymbols[m];
-            k = 0;
+            size_t k = 0;
             // iterate over the phases
-            for (ip = 0; ip < np; ip++) {
+            for (size_t ip = 0; ip < np; ip++) {
                 phase_t* p = &kin.thermo(ip);
-                nsp = p->nSpecies();
-                mlocal = p->elementIndex(sym);    
-                for (kp = 0; kp < nsp; kp++) {
-                    if (mlocal >= 0) {
+                size_t nsp = p->nSpecies();
+                size_t mlocal = p->elementIndex(sym);
+                for (size_t kp = 0; kp < nsp; kp++) {
+                    if (mlocal != -1) {
                         m_atoms(k, m) = p->nAtoms(kp, mlocal);
                     }
                     k++;
@@ -717,8 +713,8 @@ namespace Cantera {
         // all reactants / products, even ones appearing on both sides
         // of the reaction
         // mod 8/18/01 dgg
-        vector<vector_int > allProducts;
-        vector<vector_int > allReactants;
+        vector<vector<size_t> > allProducts;
+        vector<vector<size_t> > allReactants;
         for (i = 0; i < m_nr; i++) {
             allReactants.push_back(kin.reactants(i));
             allProducts.push_back(kin.products(i));
@@ -737,9 +733,9 @@ namespace Cantera {
         m_x.resize(m_ns);  // not currently used ?
         m_elatoms.resize(m_nel, m_nr);
         
-        int nr, np, n, k;
-        int nmol;
-        map<int, int> net;
+        size_t nr, np, n, k;
+        size_t nmol;
+        map<size_t, int> net;
 
         for (i = 0; i < m_nr; i++) {
 
@@ -751,21 +747,21 @@ namespace Cantera {
 	    net.clear();
             nr = allReactants[i].size();
             np = allProducts[i].size();
-	    for (int ir = 0; ir < nr; ir++) net[allReactants[i][ir]]--;
-	    for (int ip = 0; ip < np; ip++) net[allProducts[i][ip]]++;
+	    for (size_t ir = 0; ir < nr; ir++) net[allReactants[i][ir]]--;
+	    for (size_t ip = 0; ip < np; ip++) net[allProducts[i][ip]]++;
 
 	    for (k = 0; k < m_ns; k++) {
 	      if (net[k] < 0) {
                   nmol = -net[k];
-                  for (int jr = 0; jr < nmol; jr++) m_reac[i].push_back(k);
+                  for (size_t jr = 0; jr < nmol; jr++) m_reac[i].push_back(k);
 	      }
 	      else if (net[k] > 0) {
                   nmol = net[k];
-                  for (int jp = 0; jp < nmol; jp++) m_prod[i].push_back(k);
+                  for (size_t jp = 0; jp < nmol; jp++) m_prod[i].push_back(k);
 	      }
 	    }
 
- 	    int nrnet = m_reac[i].size();
+ 	    size_t nrnet = m_reac[i].size();
             // 	    int npnet = m_prod[i].size();
 
             // compute number of atoms of each element in each reaction,
@@ -775,7 +771,7 @@ namespace Cantera {
 
             for (n = 0; n < nrnet; n++) {
                 k = m_reac[i][n];
-                for (int m = 0; m < m_nel; m++) {
+                for (size_t m = 0; m < m_nel; m++) {
                     m_elatoms(m,i) += m_atoms(k,m); //ph.nAtoms(k,m);
                 }
             }            
@@ -784,8 +780,7 @@ namespace Cantera {
         // build species groups
         vector_int comp(m_nel);
         m_sgroup.resize(m_ns);
-        int j;
-        for (j = 0; j < m_ns; j++) {
+        for (size_t j = 0; j < m_ns; j++) {
             for (int m = 0; m < m_nel; m++) comp[m] = int(m_atoms(j,m)); //ph.nAtoms(j,m));
             m_sgroup[j] = Group(comp);
         }
@@ -807,11 +802,11 @@ namespace Cantera {
             for (m = 0; m < m_nel; m++) {
                 nar = 0;
                 nap = 0;
-                for (j = 0;  j < nr; j++) {
+                for (size_t j = 0;  j < nr; j++) {
                     //                    if (ph.nAtoms(m_reac[i][j],m) > 0) nar++;
                     if (m_atoms(m_reac[i][j],m) > 0) nar++;
                 }
-                for (j = 0;  j < np; j++) {
+                for (size_t j = 0;  j < np; j++) {
                     if (m_atoms(m_prod[i][j],m) > 0) nap++;
                 }
                 if (nar > 1 && nap > 1) {
@@ -824,13 +819,12 @@ namespace Cantera {
         return 1;
     }
 
-    string reactionLabel(int i, int kr, int nr, const vector_int& slist, 
-        const Kinetics& s) {
+    string reactionLabel(size_t i, size_t kr, size_t nr,
+        const std::vector<size_t>& slist, const Kinetics& s) {
         
         //int np = s.nPhases();
         string label = "";
-        int l;
-        for (l = 0; l < nr; l++) {
+        for (size_t l = 0; l < nr; l++) {
             if (l != kr) 
                 label += " + "+ s.kineticsSpeciesName(slist[l]);
         }
@@ -845,7 +839,6 @@ namespace Cantera {
     int ReactionPathBuilder::build(Kinetics& s, 
         string element, ostream& output, ReactionPathDiagram& r, bool quiet) 
     {    
-        int i, nr, np, kr, kp, kkr, kkp;
         doublereal f, ropf, ropr, fwd, rev;
         string fwdlabel, revlabel;
         map<int, int> warn;
@@ -854,13 +847,10 @@ namespace Cantera {
         bool fwd_incl, rev_incl, force_incl;
 
         //        const Kinetics::thermo_t& ph = s.thermo();
-        int m = m_enamemap[element]-1; //ph.elementIndex(element);
+        size_t m = m_enamemap[element]-1; //ph.elementIndex(element);
 
         r.element = element;
         if (m < 0) return -1;
-        
-        //int k;
-        int kk = s.nTotalSpecies();
 
         s.getFwdRatesOfProgress(DATA_PTR(m_ropf));
         s.getRevRatesOfProgress(DATA_PTR(m_ropr));
@@ -876,17 +866,15 @@ namespace Cantera {
         // species explicitly included or excluded
         vector<string>& in_nodes = r.included();
         vector<string>& out_nodes = r.excluded();
-        int nin = static_cast<int>(in_nodes.size());
-        int nout = static_cast<int>(out_nodes.size());
 
         vector_int status;
-	status.resize(kk,0);
-        for (int ni = 0; ni < nin; ni++) 
+	status.resize(s.nTotalSpecies(), 0);
+        for (size_t ni = 0; ni < in_nodes.size(); ni++)
             status[s.kineticsSpeciesIndex(in_nodes[ni])] = 1;
-        for (int ne = 0; ne < nout; ne++) 
+        for (size_t ne = 0; ne < out_nodes.size(); ne++)
             status[s.kineticsSpeciesIndex(out_nodes[ne])] = -1;
 
-        for (i = 0; i < m_nr; i++) 
+        for (size_t i = 0; i < m_nr; i++)
         {
             ropf = m_ropf[i];
             ropr = m_ropr[i];
@@ -894,21 +882,20 @@ namespace Cantera {
             // loop over reactions involving element m
             if (m_elatoms(m, i) > 0) 
             {
-                nr = m_reac[i].size();
-                np = m_prod[i].size();
+                size_t nr = m_reac[i].size();
+                size_t np = m_prod[i].size();
 
-                for (kr = 0; kr < nr; kr++) 
+                for (size_t kr = 0; kr < nr; kr++)
                 {
-                    kkr = m_reac[i][kr];
-                    int l;
+                    size_t kkr = m_reac[i][kr];
 
                     fwdlabel = reactionLabel(i, kr, nr, m_reac[i], s);
  
-                    for (kp = 0; kp < np; kp++) 
+                    for (size_t kp = 0; kp < np; kp++)
                     {
-                        kkp = m_prod[i][kp];
+                        size_t kkp = m_prod[i][kp];
                         revlabel = "";
-                        for (l = 0; l < np; l++) {
+                        for (size_t l = 0; l < np; l++) {
                             if (l != kp) 
                                 revlabel += " + "+ s.kineticsSpeciesName(m_prod[i][l]);
                         }
@@ -938,7 +925,7 @@ namespace Cantera {
                             if ( (m_atoms(kkp,m) < m_elatoms(m, i)) && 
                                 (m_atoms(kkr,m) < m_elatoms(m, i)) ) 
                             {
-                                map<int, map<int, Group> >& g = m_transfer[i];
+                                map<size_t, map<size_t, Group> >& g = m_transfer[i];
                                 if (g.empty()) {
                                     if (!warn[i]) {
                                         if (!quiet) {

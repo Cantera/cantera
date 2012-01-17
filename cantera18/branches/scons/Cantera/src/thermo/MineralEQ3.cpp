@@ -232,7 +232,7 @@ namespace Cantera {
    * by which the generalized concentration is normalized to produce 
    * the activity. 
    */ 
-  doublereal MineralEQ3::standardConcentration(int k) const {
+  doublereal MineralEQ3::standardConcentration(size_t k) const {
     return 1.0;
   }
 
@@ -240,7 +240,7 @@ namespace Cantera {
    * Returns the natural logarithm of the standard 
    * concentration of the kth species
    */
-  doublereal MineralEQ3::logStandardConc(int k) const {
+  doublereal MineralEQ3::logStandardConc(size_t k) const {
     return 0.0;
   }
 

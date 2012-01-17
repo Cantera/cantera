@@ -23,14 +23,14 @@ namespace Cantera {
      */
     void Group::validate() {
 
-        int n = m_comp.size();
+        size_t n = m_comp.size();
 
         // if already checked and not valid, return
         if (m_sign == -999) return;
 
         m_sign = 0;
         bool ok = true;
-        for (int m = 0; m < n; m++) 
+        for (size_t m = 0; m < n; m++)
         {
             if (m_comp[m] != 0) 
             {
@@ -50,8 +50,8 @@ namespace Cantera {
         s << "(";
         int nm;
         bool first = true;
-        int n = m_comp.size();
-        for (int m = 0; m < n; m++) {
+        size_t n = m_comp.size();
+        for (size_t m = 0; m < n; m++) {
             nm = m_comp[m];
             if (nm != 0) {
                 if (!first) s << "-";

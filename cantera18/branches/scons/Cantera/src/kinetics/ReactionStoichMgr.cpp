@@ -41,7 +41,8 @@ namespace Cantera {
 
 
   void ReactionStoichMgr::
-  add(int rxn, const vector_int& reactants, const vector_int& products,
+  add(int rxn, const std::vector<size_t>& reactants,
+      const std::vector<size_t>& products,
       bool reversible) {
 
     m_reactants->add(rxn, reactants);
@@ -56,15 +57,14 @@ namespace Cantera {
   void ReactionStoichMgr::
   add(int rxn, const ReactionData& r) {
 
-    vector_int rk;
+    std::vector<size_t> rk;
     doublereal frac;
     bool isfrac = false;
-    int n, ns, m, nr = r.reactants.size();
-    for (n = 0; n < nr; n++) {
-      ns = int(r.rstoich[n]);
+    for (size_t n = 0; n < r.reactants.size(); n++) {
+      size_t ns = size_t(r.rstoich[n]);
       frac = r.rstoich[n] - 1.0*int(r.rstoich[n]);
       if (frac != 0.0) isfrac = true;
-      for (m = 0; m < ns; m++) {
+      for (size_t m = 0; m < ns; m++) {
 	rk.push_back(r.reactants[n]);
       }
     }
@@ -84,14 +84,13 @@ namespace Cantera {
 #endif
     }
 
-    vector_int pk;
+    std::vector<size_t> pk;
     isfrac = false;
-    int np = r.products.size();
-    for (n = 0; n < np; n++) {
-      ns = int(r.pstoich[n]);
+    for (size_t n = 0; n < r.products.size(); n++) {
+      size_t ns = size_t(r.pstoich[n]);
       frac = r.pstoich[n] - 1.0*int(r.pstoich[n]);
       if (frac != 0.0) isfrac = true;
-      for (m = 0; m < ns; m++) {
+      for (size_t m = 0; m < ns; m++) {
 	pk.push_back(r.products[n]);
       }
     }
@@ -118,7 +117,7 @@ namespace Cantera {
   }
 
   void ReactionStoichMgr::
-  getCreationRates(int nsp, const doublereal* ropf, 
+  getCreationRates(size_t nsp, const doublereal* ropf,
 		   const doublereal* ropr, doublereal* c) {
     // zero out the output array
     fill(c, c + nsp, 0.0);
@@ -132,7 +131,7 @@ namespace Cantera {
   }
 
   void ReactionStoichMgr::
-  getDestructionRates(int nsp, const doublereal* ropf, 
+  getDestructionRates(size_t nsp, const doublereal* ropf,
 		      const doublereal* ropr, doublereal* d) {
     fill(d, d + nsp, 0.0);
     // the reverse direction destroys products in reversible reactions
@@ -142,7 +141,7 @@ namespace Cantera {
   }
 
   void ReactionStoichMgr::
-  getNetProductionRates(int nsp, const doublereal* ropnet, doublereal* w) {
+  getNetProductionRates(size_t nsp, const doublereal* ropnet, doublereal* w) {
     fill(w, w + nsp, 0.0);
     // products are created for positive net rate of progress
     m_revproducts->incrementSpecies(ropnet, w);
@@ -196,11 +195,11 @@ namespace Cantera {
   writeCreationRates(ostream& f) {
     f << "    void getCreationRates(const doublereal* rf, const doublereal* rb," << endl;
     f << "          doublereal* c) {" << endl;
-    map<int, string> out;
+    map<size_t, string> out;
     m_revproducts->writeIncrementSpecies("rf",out);
     m_irrevproducts->writeIncrementSpecies("rf",out);
     m_reactants->writeIncrementSpecies("rb",out);
-    map<int, string>::iterator b;
+    map<size_t, string>::iterator b;
     for (b = out.begin(); b != out.end(); ++b) {
       string rhs = wrapString(b->second);
       rhs[1] = '=';
@@ -213,10 +212,10 @@ namespace Cantera {
   writeDestructionRates(ostream& f) {
     f << "    void getDestructionRates(const doublereal* rf, const doublereal* rb," << endl;
     f << "          doublereal* d) {" << endl;
-    map<int, string> out;
+    map<size_t, string> out;
     m_revproducts->writeIncrementSpecies("rb",out);
     m_reactants->writeIncrementSpecies("rf",out);
-    map<int, string>::iterator b;
+    map<size_t, string>::iterator b;
     for (b = out.begin(); b != out.end(); ++b) {
       string rhs = wrapString(b->second);
       rhs[1] = '=';
@@ -228,11 +227,11 @@ namespace Cantera {
   void ReactionStoichMgr::
   writeNetProductionRates(ostream& f) {
     f << "    void getNetProductionRates(const doublereal* r, doublereal* w) {" << endl;
-    map<int, string> out;
+    map<size_t, string> out;
     m_revproducts->writeIncrementSpecies("r",out);
     m_irrevproducts->writeIncrementSpecies("r",out);
     m_reactants->writeDecrementSpecies("r",out);
-    map<int, string>::iterator b;
+    map<size_t, string>::iterator b;
     for (b = out.begin(); b != out.end(); ++b) {
       string rhs = wrapString(b->second);
       rhs[1] = '=';
@@ -244,9 +243,9 @@ namespace Cantera {
   void ReactionStoichMgr::
   writeMultiplyReactants(ostream& f) {
     f << "    void multiplyReactants(const doublereal* c, doublereal* r) {" << endl;
-    map<int, string> out;
+    map<size_t, string> out;
     m_reactants->writeMultiply("c",out);
-    map<int, string>::iterator b;
+    map<size_t, string>::iterator b;
     for (b = out.begin(); b != out.end(); ++b) {
       string rhs = b->second;
       f << "      r[" << b->first << "] *= " << rhs << ";" << endl;
@@ -257,9 +256,9 @@ namespace Cantera {
   void ReactionStoichMgr::
   writeMultiplyRevProducts(ostream& f) {
     f << "    void multiplyRevProducts(const doublereal* c, doublereal* r) {" << endl;
-    map<int, string> out;
+    map<size_t, string> out;
     m_revproducts->writeMultiply("c",out);
-    map<int, string>::iterator b;
+    map<size_t, string>::iterator b;
     for (b = out.begin(); b != out.end(); ++b) {
       string rhs = b->second;
       f << "      r[" << b->first << "] *= " << rhs << ";" << endl;

@@ -221,11 +221,11 @@ namespace Cantera {
     getConcentrations(c); 
   }
 
-  doublereal SurfPhase::standardConcentration(int k) const {
+  doublereal SurfPhase::standardConcentration(size_t k) const {
     return m_n0/size(k); 
   }
 
-  doublereal SurfPhase::logStandardConc(int k) const {
+  doublereal SurfPhase::logStandardConc(size_t k) const {
     return m_logn0 - m_logsize[k];
   }
 
@@ -292,9 +292,9 @@ namespace Cantera {
   }
 
   void SurfPhase::initThermo() {
-    if (m_kk <= 0) {
+    if (m_kk == 0) {
       throw CanteraError("SurfPhase::initThermo",
-			 "Number of species is less than or equal to zero");
+			 "Number of species is equal to zero");
     }
     m_h0.resize(m_kk);
     m_s0.resize(m_kk);
@@ -306,7 +306,7 @@ namespace Cantera {
     cov[0] = 1.0;
     setCoverages(DATA_PTR(cov));
     m_logsize.resize(m_kk);
-    for (int k = 0; k < m_kk; k++) 
+    for (size_t k = 0; k < m_kk; k++)
       m_logsize[k] = log(size(k));
   }
 
@@ -384,17 +384,16 @@ namespace Cantera {
 
   void SurfPhase::
   setCoveragesByName(std::string cov) {
-    int kk = nSpecies();
-    int k;
+    size_t kk = nSpecies();
     compositionMap cc;
-    for (k = 0; k < kk; k++) { 
+    for (size_t k = 0; k < kk; k++) {
       cc[speciesName(k)] = -1.0;
     }
     parseCompString(cov, cc);
     doublereal c;
     vector_fp cv(kk, 0.0);
     bool ifound = false;
-    for (k = 0; k < kk; k++) { 
+    for (size_t k = 0; k < kk; k++) {
       c = cc[speciesName(k)];
       if (c > 0.0) {
 	ifound = true;

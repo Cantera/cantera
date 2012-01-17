@@ -233,7 +233,7 @@ namespace VCSnonideal {
      */
     for (int iph = 0; iph < m_numPhases; iph++) {
       volPhase = m_VolPhaseList[iph];
-      for (int e = 0; e < volPhase->nElemConstraints(); e++) {
+      for (size_t e = 0; e < volPhase->nElemConstraints(); e++) {
 	if (volPhase->elemGlobalIndex(e) == ipos) {
 	  volPhase->setElemGlobalIndex(e, jpos);
 	}

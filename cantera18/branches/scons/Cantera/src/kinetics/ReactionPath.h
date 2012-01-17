@@ -250,23 +250,23 @@ namespace Cantera {
     protected:
         void findElements(Kinetics& kin);
 
-        int m_nr;
-        int m_ns;
-        int m_nel;
+        size_t m_nr;
+        size_t m_ns;
+        size_t m_nel;
         vector_fp m_ropf;
         vector_fp m_ropr;
         array_fp m_x;
-        std::vector<vector_int> m_reac;
-        std::vector<vector_int> m_prod;
+        std::vector<std::vector<size_t> > m_reac;
+        std::vector<std::vector<size_t> > m_prod;
         DenseMatrix m_elatoms;
         std::vector<std::vector<int> > m_groups;
         std::vector<Group> m_sgroup;
         std::vector<std::string> m_elementSymbols;
         //        std::map<int, int> m_warn;
-        std::map<int, std::map<int, std::map<int, Group> > >  m_transfer;
+        std::map<size_t, std::map<size_t, std::map<size_t, Group> > >  m_transfer;
         std::vector<bool> m_determinate;
         Array2D m_atoms;
-        std::map<std::string,int> m_enamemap;
+        std::map<std::string, size_t> m_enamemap;
     };
 
 }

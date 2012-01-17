@@ -224,7 +224,7 @@ namespace Cantera {
    * Returns the standard concentration \f$ C^0_k \f$, which is used to normalize
    * the generalized concentration.
    */
-  doublereal IdealSolnGasVPSS::standardConcentration(int k) const {
+  doublereal IdealSolnGasVPSS::standardConcentration(size_t k) const {
     if (m_idealGas) {
       double p = pressure();
       return p/(GasConstant * temperature());
@@ -247,7 +247,7 @@ namespace Cantera {
    * Returns the natural logarithm of the standard
    * concentration of the kth species
    */
-  doublereal IdealSolnGasVPSS::logStandardConc(int k) const {
+  doublereal IdealSolnGasVPSS::logStandardConc(size_t k) const {
     double c = standardConcentration(k);
     double lc = std::log(c);
     return lc;

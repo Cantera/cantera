@@ -192,8 +192,7 @@ namespace ckr {
     string s;
     vector<string> toks;
     string defaultDate="";
-    int nreg = 2;
-    int i;
+    size_t nreg = 2;
 
     int nsp = static_cast<int>(names.size());
 
@@ -210,10 +209,10 @@ namespace ckr {
       if (optionFlag == NoThermoDatabase || optionFlag == HasTempRange) {
 	getCKLine(s, comment);
 	getTokens(s, static_cast<int>(s.size()), toks);
-	nreg = toks.size();
+	size_t nreg = toks.size();
 	if (nreg >= 1) {
 	  temp.resize(nreg+1);
-	  for (i = 0; i <= nreg; i++) {
+	  for (size_t i = 0; i <= nreg; i++) {
 	    temp[i] = de_atof(toks[i]);
 	  }
 	  defaultDate = toks[nreg+1];
@@ -224,7 +223,7 @@ namespace ckr {
 	  log.precision(2);
 	  log << endl << " Default # of temperature regions: " << nreg << endl;
 	  log << "          ";
-	  for (i = 0; i <= nreg; i++) {
+	  for (size_t i = 0; i <= nreg; i++) {
 	    log << temp[i] << "  ";
 	  }
 	  log << endl;
@@ -324,7 +323,7 @@ namespace ckr {
     // Name of the species
     string nameid;
     vector<string> toks;
-    int nToks = 0;
+    size_t nToks = 0;
 
     // Loop forward until we get to the next nonempty line.
     do {
@@ -343,7 +342,7 @@ namespace ckr {
 
     //------------- line 1 ---------------------------
     //  Everything after the first 18 spaces is a comment.
-    int nt = s.size();
+    size_t nt = s.size();
     sp.m_commentsRef = s.substr(18, nt-18);
 
     // Parse the species name

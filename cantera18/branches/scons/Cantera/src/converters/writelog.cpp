@@ -83,14 +83,12 @@ namespace ckr {
 
     /// print the rate coefficient parameters
     bool writeRateCoeff(const RateCoeff& k, std::ostream& log) {
-
         log.precision(10);
         log.width(0);
         log.flags(ios::uppercase);
-        int n;
 
         bool ok = true;
-        int nb;
+        size_t nb;
 
         switch (k.type) {
 
@@ -109,7 +107,7 @@ namespace ckr {
             log <<" A, n, E = (" << k.A << ", " << k.n 
                 << ", " << k.E << ") *** JAN *** " << endl;
             nb = k.b.size();
-            for (n = 0; n < nb; n++) {
+            for (size_t n = 0; n < nb; n++) {
                 log << "   b" << n+1 << ": " << k.b[n] << endl;
             }
             if (nb != 9) log 
@@ -121,7 +119,7 @@ namespace ckr {
             log <<" A, n, E = (" << k.A << ", " << k.n 
                 << ", " << k.E << ") *** FIT1 *** " << endl;
             nb = k.b.size();
-            for (n = 0; n < nb; n++) {
+            for (size_t n = 0; n < nb; n++) {
                 log << "   b" << n+1 << ": " << k.b[n] << endl;
             }
             if (nb != 9) log 

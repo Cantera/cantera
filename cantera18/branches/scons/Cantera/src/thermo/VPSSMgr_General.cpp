@@ -162,7 +162,7 @@ namespace Cantera {
   }
 
   PDSS*  
-  VPSSMgr_General::returnPDSS_ptr(int k, const XML_Node& speciesNode,
+  VPSSMgr_General::returnPDSS_ptr(size_t k, const XML_Node& speciesNode,
 				  const XML_Node * const phaseNode_ptr, bool &doST) {
     PDSS *kPDSS = 0;
     doST = true;
@@ -227,12 +227,12 @@ namespace Cantera {
   }
 
   PDSS *
-  VPSSMgr_General::createInstallPDSS(int k, const XML_Node& speciesNode,  
+  VPSSMgr_General::createInstallPDSS(size_t k, const XML_Node& speciesNode,
 				     const XML_Node * const phaseNode_ptr) {
     bool doST;
     PDSS *kPDSS = returnPDSS_ptr(k, speciesNode, phaseNode_ptr, doST);
     // VPSSMgr::installSTSpecies(k, speciesNode, phaseNode_ptr);
-    if ((int) m_PDSS_ptrs.size() < k+1) {
+    if (m_PDSS_ptrs.size() < k+1) {
       m_PDSS_ptrs.resize(k+1, 0);
     }
     m_PDSS_ptrs[k] = kPDSS;

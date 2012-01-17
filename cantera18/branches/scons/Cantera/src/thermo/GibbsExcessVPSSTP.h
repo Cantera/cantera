@@ -235,7 +235,7 @@ namespace Cantera {
      *
      * @param k species index. Defaults to zero.
      */
-    virtual doublereal standardConcentration(int k=0) const;
+    virtual doublereal standardConcentration(size_t k=0) const;
 
     /**
      * Returns the natural logarithm of the standard 
@@ -243,7 +243,7 @@ namespace Cantera {
      *
      * @param k  species index
      */
-    virtual doublereal logStandardConc(int k=0) const;
+    virtual doublereal logStandardConc(size_t k=0) const;
 
     /**
      * Returns the units of the standard and generalized

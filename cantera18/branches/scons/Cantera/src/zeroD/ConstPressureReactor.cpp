@@ -68,8 +68,8 @@ namespace CanteraZeroD {
         m_pressure = m_thermo->pressure();
         m_intEnergy = m_thermo->intEnergy_mass();
 
-        int m, nt = 0, maxnt = 0;
-        for (m = 0; m < m_nwalls; m++) {
+        size_t nt = 0, maxnt = 0;
+        for (size_t m = 0; m < m_nwalls; m++) {
             if (m_wall[m]->kinetics(m_lr[m])) {
                 nt = m_wall[m]->kinetics(m_lr[m])->nTotalSpecies();
                 if (nt > maxnt) maxnt = nt;

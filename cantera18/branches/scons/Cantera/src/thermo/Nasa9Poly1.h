@@ -84,7 +84,7 @@ namespace Cantera {
      * @param coeffs       Vector of coefficients used to set the
      *                     parameters for the standard state.
      */
-    Nasa9Poly1(int n, doublereal tlow, doublereal thigh, doublereal pref,
+    Nasa9Poly1(size_t n, doublereal tlow, doublereal thigh, doublereal pref,
 	       const doublereal* coeffs);
 
     //! copy constructor
@@ -121,7 +121,7 @@ namespace Cantera {
     virtual int reportType() const;
 
     //! Returns an integer representing the species index
-    virtual int speciesIndex() const;
+    virtual size_t speciesIndex() const;
 
     //! Update the properties for this species, given a temperature polynomial
     /*!
@@ -200,7 +200,7 @@ namespace Cantera {
      *      coeffs[2] is max temperature
      *      coeffs[3+i] from i =0,9 are the coefficients themselves
      */
-    virtual void reportParameters(int &n, int &type,
+    virtual void reportParameters(size_t &n, int &type,
 				  doublereal &tlow, doublereal &thigh,
 				  doublereal &pref,
 				  doublereal* const coeffs) const;
@@ -220,7 +220,7 @@ namespace Cantera {
     //! standard-state pressure
     doublereal m_Pref;     
     //! species index
-    int m_index;  
+    size_t m_index;
     //! array of polynomial coefficients       
     array_fp m_coeff;
   };

@@ -84,7 +84,6 @@ namespace Cantera {
    */
   void checkRxnElementBalance(Kinetics& kin, 
 			      const ReactionData &rdata, doublereal errorTolerance) {
-    int index, klocal, n, kp, kr, m, nel;
     doublereal kstoich;
 
     map<string, double> bal, balr, balp;
@@ -92,17 +91,16 @@ namespace Cantera {
     balp.clear();
     balr.clear();
     //cout << "checking " << rdata.equation << endl;
-    int np = rdata.products.size();
+    size_t np = rdata.products.size();
 
     // iterate over the products
-    for (index = 0; index < np; index++) {
-      kp = rdata.products[index];     // index of the product in 'kin'
-      n = kin.speciesPhaseIndex(kp);  // phase this product belongs to
-      klocal = kp - kin.kineticsSpeciesIndex(0,n); // index within this phase
+    for (size_t index = 0; index < np; index++) {
+      size_t kp = rdata.products[index];     // index of the product in 'kin'
+      size_t n = kin.speciesPhaseIndex(kp);  // phase this product belongs to
+      size_t klocal = kp - kin.kineticsSpeciesIndex(0,n); // index within this phase
       kstoich = rdata.pstoich[index]; // product stoichiometric coeff
       const ThermoPhase& ph = kin.speciesPhase(kp); 
-      nel = ph.nElements();
-      for (m = 0; m < nel; m++) {
+      for (size_t m = 0; m < ph.nElements(); m++) {
 	bal[ph.elementName(m)] += kstoich*ph.nAtoms(klocal,m);
 	balp[ph.elementName(m)] += kstoich*ph.nAtoms(klocal,m);
         //cout << "product species " << ph.speciesName(klocal) << " has " << ph.nAtoms(klocal,m)
@@ -110,15 +108,14 @@ namespace Cantera {
       }
     }
     int nr = rdata.reactants.size();
-    for (index = 0; index < nr; index++) {
-      kr = rdata.reactants[index];
-      n = kin.speciesPhaseIndex(kr);
+    for (size_t index = 0; index < nr; index++) {
+      size_t kr = rdata.reactants[index];
+      size_t n = kin.speciesPhaseIndex(kr);
       //klocal = kr - kin.start(n);
-      klocal = kr - kin.kineticsSpeciesIndex(0,n);
+      size_t klocal = kr - kin.kineticsSpeciesIndex(0,n);
       kstoich = rdata.rstoich[index];
       const ThermoPhase& ph = kin.speciesPhase(kr);
-      nel = ph.nElements();
-      for (m = 0; m < nel; m++) {
+      for (size_t m = 0; m < ph.nElements(); m++) {
 	bal[ph.elementName(m)] -= kstoich*ph.nAtoms(klocal,m);
 	balr[ph.elementName(m)] += kstoich*ph.nAtoms(klocal,m);
         //cout << "reactant species " << ph.speciesName(klocal) << " has " << ph.nAtoms(klocal,m) 
@@ -179,9 +176,8 @@ namespace Cantera {
    *         and continue.
    */
   bool getReagents(const XML_Node& rxn, kinetics_t& kin, int rp,
-		   std::string default_phase, 
-		   vector_int& spnum, vector_fp& stoich, vector_fp& order,
-		   int rule) {
+		   std::string default_phase, std::vector<size_t>& spnum,
+		   vector_fp& stoich, vector_fp& order, int rule) {
 
     string rptype;
 
@@ -203,16 +199,13 @@ namespace Cantera {
     vector<string> key, val;
     getPairs(rg, key, val);
 
-    int ns = static_cast<int>(key.size());
-
     /*
      * Loop over each of the pairs and process them
      */
-    int isp;
     doublereal ord, stch;
     string ph, sp;
-    map<string, int> speciesMap;
-    for (int n = 0; n < ns; n++) {
+    map<string, size_t> speciesMap;
+    for (size_t n = 0; n < key.size(); n++) {
       sp = key[n]; // sp is the string name for species
       ph = "";
       /*
@@ -220,8 +213,8 @@ namespace Cantera {
        * member function kineticsSpeciesIndex(). We will search
        * for the species in all phases defined in the kinetics operator. 
        */
-      isp = kin.kineticsSpeciesIndex(sp,"<any>");
-      if (isp < 0) {
+      size_t isp = kin.kineticsSpeciesIndex(sp,"<any>");
+      if (isp == -2) {
 	if (rule == 1) 
 	  return false;
 	else {
@@ -257,13 +250,11 @@ namespace Cantera {
     if (rp == 1 && rxn.hasChild("order")) {
       vector<XML_Node*> ord;
       rxn.getChildren("order",ord);
-      int norder = static_cast<int>(ord.size());
-      int loc;
       doublereal forder;
-      for (int nn = 0; nn < norder; nn++) {
+      for (size_t nn = 0; nn < ord.size(); nn++) {
 	const XML_Node& oo = *ord[nn];
 	string sp = oo["species"];
-	loc = speciesMap[sp];
+	size_t loc = speciesMap[sp];
 	if (loc == 0) 
 	  throw CanteraError("getReagents",
 			     "reaction order specified for non-reactantt: "
@@ -322,9 +313,9 @@ namespace Cantera {
    */
   static void getStick(const XML_Node& node, Kinetics& kin,
 		       ReactionData& r, doublereal& A, doublereal& b, doublereal& E) {
-    int nr = r.reactants.size();
-    int k, klocal, not_surf = 0;
-    int np = 0;
+    size_t nr = r.reactants.size();
+    size_t k, klocal, not_surf = 0;
+    size_t np = 0;
     doublereal f = 1.0;
     doublereal order;
     /*
@@ -336,9 +327,9 @@ namespace Cantera {
      */
     string spname = node["species"];
     ThermoPhase& th = kin.speciesPhase(spname);
-    int isp = th.speciesIndex(spname);
-    int ispKinetics = kin.kineticsSpeciesIndex(spname);
-    int ispPhaseIndex = kin.speciesPhaseIndex(ispKinetics);
+    size_t isp = th.speciesIndex(spname);
+    size_t ispKinetics = kin.kineticsSpeciesIndex(spname);
+    size_t ispPhaseIndex = kin.speciesPhaseIndex(ispKinetics);
   
     doublereal ispMW = th.molecularWeights()[isp];
     doublereal sc;
@@ -398,7 +389,7 @@ namespace Cantera {
 				    thermo_t& surfphase, ReactionData& rdata) {
     vector<XML_Node*> cov;
     node.getChildren("coverage", cov);
-    int k, nc = static_cast<int>(cov.size());
+    size_t k, nc = cov.size();
     doublereal e;
     string spname;
     if (nc > 0) {

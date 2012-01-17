@@ -410,7 +410,7 @@ namespace Cantera {
 #endif
   }
 
-  void VPSSMgr::installSTSpecies(int k,  const XML_Node& s, 
+  void VPSSMgr::installSTSpecies(size_t k,  const XML_Node& s,
 				 const XML_Node *phaseNode_ptr) {
     
     SpeciesThermoFactory*  f = SpeciesThermoFactory::factory();
@@ -420,7 +420,7 @@ namespace Cantera {
     }
   }
 
-  PDSS * VPSSMgr::createInstallPDSS(int k, const XML_Node& s,  
+  PDSS * VPSSMgr::createInstallPDSS(size_t k, const XML_Node& s,
 				    const XML_Node *phaseNode_ptr) {
     err("VPSSMgr::createInstallPDSS");
     return (PDSS *) 0;
@@ -428,24 +428,24 @@ namespace Cantera {
   
 
  /*****************************************************************/
-  doublereal VPSSMgr::minTemp(int k) const {
-    if (k >= 0) {
+  doublereal VPSSMgr::minTemp(size_t k) const {
+    if (k != -1) {
       const PDSS *kPDSS = m_vptp_ptr->providePDSS(k);
       return kPDSS->minTemp();
     }
     return m_minTemp;
   }
 
- doublereal VPSSMgr::maxTemp(int k) const {
-    if (k >= 0) {
+ doublereal VPSSMgr::maxTemp(size_t k) const {
+    if (k != -1) {
       const PDSS *kPDSS = m_vptp_ptr->providePDSS(k);
       return kPDSS->maxTemp();
     }
     return m_maxTemp;
   }
 
-  doublereal VPSSMgr::refPressure(int k) const {
-    if (k >= 0) {
+  doublereal VPSSMgr::refPressure(size_t k) const {
+    if (k != -1) {
       const PDSS *kPDSS = m_vptp_ptr->providePDSS(k);
       return kPDSS->refPressure();
     }

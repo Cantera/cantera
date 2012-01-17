@@ -947,7 +947,7 @@ namespace Cantera {
    * all species concentrations have units of kmol/m3.
    *
    */
-  doublereal HMWSoln::standardConcentration(int k) const {
+  doublereal HMWSoln::standardConcentration(size_t k) const {
     getStandardVolumes(DATA_PTR(m_tmpV));
     double mvSolvent = m_tmpV[m_indexSolvent];
     if (k > 0) {
@@ -960,7 +960,7 @@ namespace Cantera {
    * Returns the natural logarithm of the standard 
    * concentration of the kth species
    */
-  doublereal HMWSoln::logStandardConc(int k) const {
+  doublereal HMWSoln::logStandardConc(size_t k) const {
     double c_solvent = standardConcentration(k);
     return log(c_solvent);
   }

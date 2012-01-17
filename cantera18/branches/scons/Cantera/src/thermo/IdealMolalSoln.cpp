@@ -421,7 +421,7 @@ namespace Cantera {
    * optional parameter indicating the species.
    *
    */
-  doublereal IdealMolalSoln::standardConcentration(int k) const {
+  doublereal IdealMolalSoln::standardConcentration(size_t k) const {
     double c0 = 1.0, mvSolvent;
     switch (m_formGC) {
     case 0:
@@ -441,7 +441,7 @@ namespace Cantera {
    * Returns the natural logarithm of the standard 
    * concentration of the kth species
    */
-  doublereal IdealMolalSoln::logStandardConc(int k) const {
+  doublereal IdealMolalSoln::logStandardConc(size_t k) const {
     double c0 = standardConcentration(k);
     return log(c0);
   }

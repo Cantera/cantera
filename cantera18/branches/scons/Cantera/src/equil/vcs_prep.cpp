@@ -130,8 +130,8 @@ namespace VCSnonideal {
       vcs_VolPhase *vPhase =  m_VolPhaseList[pID];
       vcs_SpeciesProperties *spProp = vPhase->speciesProperty(spPhIndex);
       double sz = 0.0;
-      int eSize =  spProp->FormulaMatrixCol.size();
-      for (int e = 0; e < eSize; e++) {
+      size_t eSize = spProp->FormulaMatrixCol.size();
+      for (size_t e = 0; e < eSize; e++) {
 	sz += fabs(spProp->FormulaMatrixCol[e]);
       }
       if (sz > 0.0) {

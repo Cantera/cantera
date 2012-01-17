@@ -156,7 +156,7 @@ namespace VCSnonideal {
 
 
       m_elementNames.resize(b.m_numElemConstraints);
-      for (int e = 0; e < b.m_numElemConstraints; e++) {
+      for (size_t e = 0; e < b.m_numElemConstraints; e++) {
 	m_elementNames[e] = b.m_elementNames[e];
       }
  
@@ -164,7 +164,7 @@ namespace VCSnonideal {
       m_elementType = b.m_elementType;
   
       m_formulaMatrix.resize(m_numElemConstraints, m_numSpecies, 0.0);
-      for (int e = 0; e < m_numElemConstraints; e++) {
+      for (size_t e = 0; e < m_numElemConstraints; e++) {
 	for (int k = 0; k < m_numSpecies; k++) {
 	  m_formulaMatrix[e][k] = b.m_formulaMatrix[e][k];
 	}
@@ -241,8 +241,8 @@ namespace VCSnonideal {
   }
   /***************************************************************************/
 
-  void vcs_VolPhase::resize(const int phaseNum, const int nspecies, 
-			    const int numElem, const char * const phaseName,
+  void vcs_VolPhase::resize(const size_t phaseNum, const size_t nspecies,
+			    const size_t numElem, const char * const phaseName,
 			    const double molesInert) {
 #ifdef DEBUG_MODE
     if (nspecies <= 0) {
@@ -301,7 +301,7 @@ namespace VCSnonideal {
       }
     }
     ListSpeciesPtr.resize(nspecies, 0);
-    for (int i = 0; i < nspecies; i++) {
+    for (size_t i = 0; i < nspecies; i++) {
       ListSpeciesPtr[i] = new vcs_SpeciesProperties(phaseNum, i, this);
     }
 
@@ -335,7 +335,7 @@ namespace VCSnonideal {
   }
   /***************************************************************************/
 
-  void vcs_VolPhase::elemResize(const int numElemConstraints) {
+  void vcs_VolPhase::elemResize(const size_t numElemConstraints) {
 
     m_elementNames.resize(numElemConstraints);
 
@@ -376,7 +376,7 @@ namespace VCSnonideal {
    *   return one activity coefficient. Have to recalculate them all to get
    *   one.
    */
-  double vcs_VolPhase::AC_calc_one(int kspec) const {
+  double vcs_VolPhase::AC_calc_one(size_t kspec) const {
     if (! m_UpToDate_AC) {
       _updateActCoeff();
     }
@@ -647,7 +647,7 @@ namespace VCSnonideal {
      * Update the electric potential if it is a solution variable
      * in the equation system
      */
-    if (m_phiVarIndex >= 0) {
+    if (m_phiVarIndex != -1) {
       kglob = IndSpecies[m_phiVarIndex];
       if (m_numSpecies == 1) {
 	Xmol[m_phiVarIndex] = 1.0;
@@ -1095,8 +1095,8 @@ namespace VCSnonideal {
       setState_TP(Temp, Pres);
       p_VCS_UnitsFormat = VCS_UNITS_MKS;
       m_phi = TP_ptr->electricPotential();
-      int nsp = TP_ptr->nSpecies();
-      int nelem = TP_ptr->nElements();
+      size_t nsp = TP_ptr->nSpecies();
+      size_t nelem = TP_ptr->nElements();
       if (nsp !=  m_numSpecies) {
 	if (m_numSpecies != 0) {
 	  plogf("Warning Nsp != NVolSpeces: %d %d \n", nsp, m_numSpecies);
@@ -1279,13 +1279,13 @@ namespace VCSnonideal {
   }
   /***************************************************************************/
 
-  int vcs_VolPhase::phiVarIndex() const {
+  size_t vcs_VolPhase::phiVarIndex() const {
     return m_phiVarIndex;
   }
   /***************************************************************************/
 
 
-  void vcs_VolPhase::setPhiVarIndex(int phiVarIndex) {
+  void vcs_VolPhase::setPhiVarIndex(size_t phiVarIndex) {
     m_phiVarIndex = phiVarIndex;
     m_speciesUnknownType[m_phiVarIndex] = VCS_SPECIES_TYPE_INTERFACIALVOLTAGE;
     if (m_singleSpecies) {
@@ -1302,7 +1302,7 @@ namespace VCSnonideal {
    *
    * @param kindex kth species index.
    */
-  vcs_SpeciesProperties * vcs_VolPhase::speciesProperty(const int kindex) {
+  vcs_SpeciesProperties * vcs_VolPhase::speciesProperty(const size_t kindex) {
     return  ListSpeciesPtr[kindex];
   }
   /***************************************************************************/
@@ -1362,7 +1362,7 @@ namespace VCSnonideal {
    * @return Returns the VCS_SOLVE species index of the that species
    *         This changes as rearrangements are carried out. 
    */
-  int vcs_VolPhase::spGlobalIndexVCS(const int spIndex) const {
+  size_t vcs_VolPhase::spGlobalIndexVCS(const size_t spIndex) const {
     return IndSpecies[spIndex];
   }
   /**********************************************************************/
@@ -1375,8 +1375,8 @@ namespace VCSnonideal {
    * @return Returns the VCS_SOLVE species index of the that species
    *         This changes as rearrangements are carried out. 
    */
-  void vcs_VolPhase::setSpGlobalIndexVCS(const int spIndex, 
-					 const int spGlobalIndex) {
+  void vcs_VolPhase::setSpGlobalIndexVCS(const size_t spIndex,
+					 const size_t spGlobalIndex) {
     IndSpecies[spIndex] = spGlobalIndex;
   }
   /**********************************************************************/
@@ -1426,7 +1426,7 @@ namespace VCSnonideal {
   /**********************************************************************/
 
   // Returns the global index of the local element index for the phase
-  void vcs_VolPhase::setElemGlobalIndex(const int eLocal, const int eGlobal) {
+  void vcs_VolPhase::setElemGlobalIndex(const size_t eLocal, const size_t eGlobal) {
     DebugAssertThrowVCS(eLocal >= 0, "vcs_VolPhase::setElemGlobalIndex");
     DebugAssertThrowVCS(eLocal < m_numElemConstraints,
 			"vcs_VolPhase::setElemGlobalIndex");
@@ -1434,12 +1434,12 @@ namespace VCSnonideal {
   }
   /**********************************************************************/
   
-  int vcs_VolPhase::nElemConstraints() const {
+  size_t vcs_VolPhase::nElemConstraints() const {
     return m_numElemConstraints;
   }
   /**********************************************************************/
  
-  std::string vcs_VolPhase::elementName(const int e) const {
+  std::string vcs_VolPhase::elementName(const size_t e) const {
     return m_elementNames[e];
   }
   /**********************************************************************/
@@ -1449,8 +1449,7 @@ namespace VCSnonideal {
    *  or not.
    */
   static bool hasChargedSpecies(const Cantera::ThermoPhase * const tPhase) {
-    int nSpPhase = tPhase->nSpecies();
-    for (int k = 0; k < nSpPhase; k++) {
+    for (size_t k = 0; k < tPhase->nSpecies(); k++) {
       if (tPhase->charge(k) != 0.0) {
 	return true;
       }
@@ -1477,15 +1476,15 @@ namespace VCSnonideal {
   }
 
   int vcs_VolPhase::transferElementsFM(const Cantera::ThermoPhase * const tPhase) {
-    int e, k, eT;
+    size_t e, k, eT;
     std::string ename; 
-    int eFound = -2;
+    size_t eFound = -2;
     /*
      *
      */
-    int nebase = tPhase->nElements();
-    int ne  = nebase;
-    int ns = tPhase->nSpecies();
+    size_t nebase = tPhase->nElements();
+    size_t ne = nebase;
+    size_t ns = tPhase->nSpecies();
 
     /*
      * Decide whether we need an extra element constraint for charge
@@ -1503,7 +1502,7 @@ namespace VCSnonideal {
     elemResize(ne);
 
 
-    if (ChargeNeutralityElement >= 0) {
+    if (ChargeNeutralityElement != -1) {
       m_elementType[ChargeNeutralityElement] = VCS_ELEM_TYPE_CHARGENEUTRALITY;
     }
 
@@ -1611,7 +1610,7 @@ namespace VCSnonideal {
   /*
    * @param e Element index.
    */
-  int vcs_VolPhase::elementType(const int e) const {
+  int vcs_VolPhase::elementType(const size_t e) const {
     return m_elementType[e];
   }
   /***************************************************************************/
@@ -1621,7 +1620,7 @@ namespace VCSnonideal {
    * @param e Element index
    * @param eType  type of the element.
    */
-  void vcs_VolPhase::setElementType(const int e, const int eType) {
+  void vcs_VolPhase::setElementType(const size_t e, const int eType) {
     m_elementType[e] = eType;
   }
   /***************************************************************************/
@@ -1632,12 +1631,12 @@ namespace VCSnonideal {
   }
   /***************************************************************************/
 
-  int vcs_VolPhase::speciesUnknownType(const int k) const {
+  int vcs_VolPhase::speciesUnknownType(const size_t k) const {
     return m_speciesUnknownType[k];
   }
   /***************************************************************************/
 
-  int vcs_VolPhase::elementActive(const int e) const {
+  int vcs_VolPhase::elementActive(const size_t e) const {
     return m_elementActive[e];
   }
   /***************************************************************************/

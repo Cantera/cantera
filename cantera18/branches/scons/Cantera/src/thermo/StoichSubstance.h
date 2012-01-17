@@ -176,13 +176,13 @@ namespace Cantera {
      * by which the generalized concentration is normalized to produce 
      * the activity. 
      */ 
-    virtual doublereal standardConcentration(int k=0) const;
+    virtual doublereal standardConcentration(size_t k=0) const;
 
     /**
      * Returns the natural logarithm of the standard 
      * concentration of the kth species
      */
-    virtual doublereal logStandardConc(int k=0) const;
+    virtual doublereal logStandardConc(size_t k=0) const;
 
     /**
      * Get the array of chemical potentials at unit activity 

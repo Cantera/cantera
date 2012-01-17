@@ -176,7 +176,7 @@ namespace Cantera {
      * This is equal to the rank of the stoichiometric coefficient
      * matrix when it is computed. It's initialized to m_mm.
      */
-    int m_nComponents;
+    size_t m_nComponents;
 
     PropertyCalculator<thermo_t> *m_p1, *m_p2;
 
@@ -237,8 +237,8 @@ namespace Cantera {
     bool m_doResPerturb;
 
 
-    vector_int m_orderVectorElements;
-    vector_int m_orderVectorSpecies;
+    std::vector<size_t> m_orderVectorElements;
+    std::vector<size_t> m_orderVectorSpecies;
 
 
   };

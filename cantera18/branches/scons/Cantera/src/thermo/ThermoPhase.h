@@ -767,7 +767,7 @@ namespace Cantera {
      * @param k index of the species. Default is -1, which will return the max of the min value
      *          over all species.
      */
-    doublereal minTemp(int k = -1) const {
+    doublereal minTemp(size_t k = -1) const {
       return m_spthermo->minTemp(k);
     }
         
@@ -836,7 +836,7 @@ namespace Cantera {
      * @param k index of the species. Default is -1, which will return the min of the max value
      *          over all species.
      */
-    doublereal maxTemp(int k = -1) const {
+    doublereal maxTemp(size_t k = -1) const {
       return m_spthermo->maxTemp(k);
     }
       
@@ -1121,7 +1121,7 @@ namespace Cantera {
      *   Returns the standard concentration. The units are by definition
      *   dependent on the ThermoPhase and kinetics manager representation.
      */
-    virtual doublereal standardConcentration(int k=0) const {
+    virtual doublereal standardConcentration(size_t k=0) const {
       err("standardConcentration");
       return -1.0;
     }  
@@ -1130,7 +1130,7 @@ namespace Cantera {
     /*!
      * @param k    index of the species (defaults to zero)
      */
-    virtual doublereal logStandardConc(int k=0) const;
+    virtual doublereal logStandardConc(size_t k=0) const;
          
     //! Returns the units of the standard and generalized concentrations.
     /*!
@@ -1895,7 +1895,7 @@ namespace Cantera {
      * @param data   Pointer to the XML_Node data containing
      *               information about the species in the phase.
      */
-    void saveSpeciesData(const int k, const XML_Node* const data);
+    void saveSpeciesData(const size_t k, const XML_Node* const data);
       
     //!  Return a pointer to the vector of XML nodes containing the species
     //!  data for this phase.

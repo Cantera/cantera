@@ -200,7 +200,7 @@ namespace Cantera {
      *  @return Returns a pointer to the a newly malloced PDSS object
      *          containing the parameterization
      */
-    virtual PDSS* createInstallPDSS(int k, const XML_Node& speciesNode,  
+    virtual PDSS* createInstallPDSS(size_t k, const XML_Node& speciesNode,
 				    const XML_Node * const phaseNode_ptr);
     //@}
 

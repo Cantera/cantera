@@ -37,7 +37,7 @@ namespace Cantera {
       m_A(0.0) {}
 
     /// Constructor with Arrhenius parameters specified with an array.
-    Arrhenius(int csize, const doublereal* c) :
+    Arrhenius(size_t csize, const doublereal* c) :
       m_b (c[1]),
       m_E (c[2]),
       m_A (c[0])

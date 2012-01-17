@@ -110,7 +110,7 @@ namespace VCSnonideal {
 #endif
 
   double vcs_l2norm(const std::vector<double> vec) {
-     int len = vec.size();
+     size_t len = vec.size();
      if (len == 0) {
        return 0.0;
      }
@@ -483,7 +483,7 @@ namespace VCSnonideal {
 
   /************************************************************************ **/
 
-  void vcs_print_stringTrunc(const char *str, int space, int alignment) 
+  void vcs_print_stringTrunc(const char *str, size_t space, int alignment)
 
     /***********************************************************************
      *  vcs_print_stringTrunc():
@@ -499,8 +499,8 @@ namespace VCSnonideal {
      *           2 left aligned
      ***********************************************************************/
   {
-    int i, ls=0, rs=0;
-    int len = strlen(str);
+    size_t i, ls=0, rs=0;
+    size_t len = strlen(str);
     if ((len) >= space) {
       for (i = 0; i < space; i++) {
 	plogf("%c", str[i]);

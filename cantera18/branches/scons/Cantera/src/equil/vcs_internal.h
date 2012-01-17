@@ -494,7 +494,7 @@ namespace VCSnonideal {
    *                     -  1 right aligned
    *                     -  2 left aligned
    */
-  void vcs_print_stringTrunc(const char *str, int space, int alignment);
+  void vcs_print_stringTrunc(const char *str, size_t space, int alignment);
 
   //! Simple routine to check whether two doubles are equal up to
   //! roundoff error

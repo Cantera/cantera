@@ -229,7 +229,7 @@ namespace Cantera {
   }
 
   PDSS *
-  VPSSMgr_Water_HKFT::createInstallPDSS(int k, const XML_Node& speciesNode,  
+  VPSSMgr_Water_HKFT::createInstallPDSS(size_t k, const XML_Node& speciesNode,
 					const XML_Node * const phaseNode_ptr) {
     PDSS *kPDSS = 0;
 

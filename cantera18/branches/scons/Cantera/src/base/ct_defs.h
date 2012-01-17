@@ -213,7 +213,7 @@ namespace Cantera {
   /*!
    * A group of species is a subset of the species in a phase.
    */
-    typedef vector_int         group_t;
+    typedef std::vector<size_t> group_t;
   //! typedef for a vector of groups of species.
   /*!
    * A grouplist of species is a vector of groups.

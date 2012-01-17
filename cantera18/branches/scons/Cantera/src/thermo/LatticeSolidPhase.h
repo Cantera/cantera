@@ -112,8 +112,8 @@ namespace Cantera {
 
     virtual void getChemPotentials(doublereal* mu) const;
     virtual void getStandardChemPotentials(doublereal* mu0) const;
-    virtual doublereal standardConcentration(int k=0) const;
-    virtual doublereal logStandardConc(int k=0) const;
+    virtual doublereal standardConcentration(size_t k=0) const;
+    virtual doublereal logStandardConc(size_t k=0) const;
 
     virtual void initThermo();
 
@@ -140,8 +140,8 @@ namespace Cantera {
 
   protected:
         
-    int m_mm;
-    int m_kk;
+    size_t m_mm;
+    size_t m_kk;
     mutable doublereal        m_tlast;
     doublereal                m_press;
     doublereal                m_molar_density;
