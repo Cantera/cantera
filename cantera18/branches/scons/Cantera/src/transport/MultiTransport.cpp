@@ -161,8 +161,7 @@ namespace Cantera {
         m_eps        = tr.eps;
 	m_alpha      = tr.alpha;
 	m_dipoleDiag.resize(m_nsp);
-        int i;
-        for (i = 0; i < m_nsp; i++) {
+        for (size_t i = 0; i < m_nsp; i++) {
 	  m_dipoleDiag[i] = tr.dipole(i,i);
 	}
 
@@ -178,9 +177,8 @@ namespace Cantera {
         m_phi.resize(m_nsp, m_nsp, 0.0);
         m_wratjk.resize(m_nsp, m_nsp, 0.0);
         m_wratkj1.resize(m_nsp, m_nsp, 0.0);
-        int j, k;
-        for (j = 0; j < m_nsp; j++) 
-            for (k = j; k < m_nsp; k++) {
+        for (size_t j = 0; j < m_nsp; j++)
+            for (size_t k = j; k < m_nsp; k++) {
                 m_wratjk(j,k) = sqrt(m_mw[j]/m_mw[k]);
                 m_wratjk(k,j) = sqrt(m_wratjk(j,k));
                 m_wratkj1(j,k) = sqrt(1.0 + m_mw[k]/m_mw[j]);
@@ -231,8 +229,8 @@ namespace Cantera {
         // precompute and store log(epsilon_ij/k_B)
         m_log_eps_k.resize(m_nsp, m_nsp);
         //        int j;
-        for (i = 0; i < m_nsp; i++) {
-            for (j = i; j < m_nsp; j++) {
+        for (size_t i = 0; i < m_nsp; i++) {
+            for (size_t j = i; j < m_nsp; j++) {
                 m_log_eps_k(i,j) = log(tr.epsilon(i,j)/Boltzmann);
                 m_log_eps_k(j,i) = m_log_eps_k(i,j);
             }
@@ -244,8 +242,7 @@ namespace Cantera {
         const doublereal sq298 = sqrt(298.0);
         const doublereal kb298 = Boltzmann * 298.0;
         m_sqrt_eps_k.resize(m_nsp);
-        //int k;
-        for (k = 0; k < m_nsp; k++) {
+        for (size_t k = 0; k < m_nsp; k++) {
             m_sqrt_eps_k[k] = sqrt(tr.eps[k]/Boltzmann); 
             m_frot_298[k] = Frot( tr.eps[k]/kb298, 
                 m_sqrt_eps_k[k]/sq298);
@@ -273,7 +270,6 @@ namespace Cantera {
 
     doublereal MultiTransport::viscosity() {
         doublereal vismix = 0.0, denom;
-        int k, j;
 
         // update m_visc if necessary
         updateViscosity_T();
@@ -281,9 +277,9 @@ namespace Cantera {
         // update the mole fractions
         updateTransport_C();
 
-        for (k = 0; k < m_nsp; k++) {
+        for (size_t k = 0; k < m_nsp; k++) {
             denom = 0.0;
-            for (j = 0; j < m_nsp; j++) {
+            for (size_t j = 0; j < m_nsp; j++) {
                 denom += m_phi(k,j) * m_molefracs[j];
             }
             vismix += m_molefracs[k] * m_visc[k]/denom;
@@ -296,16 +292,14 @@ namespace Cantera {
     /******************* binary diffusion coefficients **************/
 
     void MultiTransport::getBinaryDiffCoeffs(size_t ld, doublereal* d) {
-        int i,j;
-
         // if necessary, evaluate the binary diffusion coefficents
         // from the polynomial fits
         updateDiff_T();
 
         doublereal p = pressure_ig();
         doublereal rp = 1.0/p;    
-        for (i = 0; i < m_nsp; i++) 
-            for (j = 0; j < m_nsp; j++) {
+        for (size_t i = 0; i < m_nsp; i++)
+            for (size_t j = 0; j < m_nsp; j++) {
                 d[ld*j + i] = rp * m_bdiff(i,j);
             }
     }
@@ -318,11 +312,9 @@ namespace Cantera {
      * @internal
      */
     doublereal MultiTransport::thermalConductivity() {
-        
         solveLMatrixEquation();
         doublereal sum = 0.0;
-        int k;
-        for (k = 0; k  < 2*m_nsp; k++) {
+        for (size_t k = 0; k  < 2*m_nsp; k++) {
             sum += m_b[k + m_nsp] * m_a[k + m_nsp];
         }
         return -4.0*sum;
@@ -335,11 +327,9 @@ namespace Cantera {
      * @internal
      */
     void MultiTransport::getThermalDiffCoeffs(doublereal* const dt) {
-
         solveLMatrixEquation();
         const doublereal c = 1.6/GasConstant;
-        int k;
-        for (k = 0; k < m_nsp; k++) {
+        for (size_t k = 0; k < m_nsp; k++) {
             dt[k] = c * m_mw[k] * m_molefracs[k] * m_a[k];
         }
     }
@@ -360,8 +350,7 @@ namespace Cantera {
         // the right-hand-side vector m_b. The first block of m_b was
         // set to zero when it was created, and is not modified so
         // doesn't need to be reset to zero.
-        int k;
-        for (k = 0; k < m_nsp; k++) {
+        for (size_t k = 0; k < m_nsp; k++) {
             m_b[k] = 0.0;
             m_b[k + m_nsp] = m_molefracs[k];
             m_b[k + 2*m_nsp] = m_molefracs[k];
@@ -383,7 +372,7 @@ namespace Cantera {
         // But if CHEMKIN_COMPATIBILITY_MODE is defined, then all
         // monatomic species are excluded.
 
-        for (k = 0; k < m_nsp; k++) {
+        for (size_t k = 0; k < m_nsp; k++) {
             if (!hasInternalModes(k)) m_b[2*m_nsp + k] = 0.0;
         }
 
@@ -433,7 +422,7 @@ namespace Cantera {
     /**
      * 
      */
-    void MultiTransport::getSpeciesFluxes(int ndim, 
+    void MultiTransport::getSpeciesFluxes(size_t ndim,
         const doublereal* grad_T, int ldx, const doublereal* grad_X, 
         int ldf, doublereal* fluxes) {
 
@@ -441,13 +430,12 @@ namespace Cantera {
         updateDiff_T();
 
         doublereal sum;
-        int i, j;
 
         // If any component of grad_T is non-zero, then get the
         // thermal diffusion coefficients
 
         bool addThermalDiffusion = false;
-        for (i = 0; i < ndim; i++) {
+        for (size_t i = 0; i < ndim; i++) {
             if (grad_T[i] != 0.0) addThermalDiffusion = true;
         }
         if (addThermalDiffusion) getThermalDiffCoeffs(DATA_PTR(m_spwork));
@@ -455,9 +443,9 @@ namespace Cantera {
         const doublereal* y = m_thermo->massFractions();
         doublereal rho = m_thermo->density();
 
-        for (i = 0; i < m_nsp; i++) {
+        for (size_t i = 0; i < m_nsp; i++) {
             sum = 0.0;
-            for (j = 0; j < m_nsp; j++) {
+            for (size_t j = 0; j < m_nsp; j++) {
                 m_aa(i,j) = m_molefracs[j]*m_molefracs[i]/m_bdiff(i,j);
                 sum += m_aa(i,j);
             }
@@ -467,9 +455,9 @@ namespace Cantera {
         // enforce the condition \sum Y_k V_k = 0. This is done by replacing 
         // the flux equation with the largest gradx component in the first 
         // coordinate direction with the flux balance condition.
-        int jmax = 0;
+        size_t jmax = 0;
         doublereal gradmax = -1.0;
-        for (j = 0; j < m_nsp; j++) {
+        for (size_t j = 0; j < m_nsp; j++) {
             if (fabs(grad_X[j]) > gradmax) {
                 gradmax = fabs(grad_X[j]);
                 jmax = j;
@@ -479,12 +467,11 @@ namespace Cantera {
         // set the matrix elements in this row to the mass fractions,
         // and set the entry in gradx to zero
 
-        for (j = 0; j < m_nsp; j++) {
+        for (size_t j = 0; j < m_nsp; j++) {
             m_aa(jmax,j) = y[j];
         }
         vector_fp gsave(ndim), grx(ldx*m_nsp);
-        int n;
-        for (n = 0; n < ldx*ndim; n++) {
+        for (size_t n = 0; n < ldx*ndim; n++) {
             grx[n] = grad_X[n];
         }
         //for (n = 0; n < ndim; n++) {
@@ -495,7 +482,7 @@ namespace Cantera {
 
         // copy grad_X to fluxes
         const doublereal* gx;
-        for (n = 0; n < ndim; n++) {
+        for (size_t n = 0; n < ndim; n++) {
             gx = grad_X + ldx*n;
             copy(gx, gx + m_nsp, fluxes + ldf*n);
             fluxes[jmax + n*ldf] = 0.0;
@@ -522,15 +509,15 @@ namespace Cantera {
                 "Error in DGETRS");
 
         
-        int offset;
+        size_t offset;
         doublereal pp = pressure_ig();
 
         // multiply diffusion velocities by rho * V to create
         // mass fluxes, and restore the gradx elements that were
         // modified        
-        for (n = 0; n < ndim; n++) {
+        for (size_t n = 0; n < ndim; n++) {
             offset = n*ldf;
-            for (i = 0; i < m_nsp; i++) {
+            for (size_t i = 0; i < m_nsp; i++) {
                 fluxes[i + offset] *= rho * y[i] / pp;
             }
             //grad_X[jmax + n*ldx] = gsave[n];
@@ -538,10 +525,10 @@ namespace Cantera {
 
         // thermal diffusion
         if (addThermalDiffusion) {
-            for (n = 0; n < ndim; n++) {
+            for (size_t n = 0; n < ndim; n++) {
                 offset = n*ldf;
                 doublereal grad_logt = grad_T[n]/m_temp;
-                for (i = 0; i < m_nsp; i++) 
+                for (size_t i = 0; i < m_nsp; i++)
                     fluxes[i + offset] -= m_spwork[i]*grad_logt;
             }
         }
@@ -576,12 +563,8 @@ namespace Cantera {
         m_thermo->setState_TPX(t, p, x3);
         m_thermo->getMoleFractions(DATA_PTR(m_molefracs));
 
-
         // update the binary diffusion coefficients if necessary
         updateDiff_T();
-
-        doublereal sum;
-        int i, j;
 
         // If there is a temperature gadient, then get the
         // thermal diffusion coefficients
@@ -595,9 +578,9 @@ namespace Cantera {
         const doublereal* y = m_thermo->massFractions();
         doublereal rho = m_thermo->density();
 
-        for (i = 0; i < m_nsp; i++) {
-            sum = 0.0;
-            for (j = 0; j < m_nsp; j++) {
+        for (size_t i = 0; i < m_nsp; i++) {
+            doublereal sum = 0.0;
+            for (size_t j = 0; j < m_nsp; j++) {
                 m_aa(i,j) = m_molefracs[j]*m_molefracs[i]/m_bdiff(i,j);
                 sum += m_aa(i,j);
             }
@@ -607,9 +590,9 @@ namespace Cantera {
         // enforce the condition \sum Y_k V_k = 0. This is done by
         // replacing the flux equation with the largest gradx
         // component with the flux balance condition.
-        int jmax = 0;
+        size_t jmax = 0;
         doublereal gradmax = -1.0;
-        for (j = 0; j < m_nsp; j++) {
+        for (size_t j = 0; j < m_nsp; j++) {
             if (fabs(x2[j] - x1[j]) > gradmax) {
                 gradmax = fabs(x1[j] - x2[j]);
                 jmax = j;
@@ -619,7 +602,7 @@ namespace Cantera {
         // set the matrix elements in this row to the mass fractions,
         // and set the entry in gradx to zero
 
-        for (j = 0; j < m_nsp; j++) {
+        for (size_t j = 0; j < m_nsp; j++) {
             m_aa(jmax,j) = y[j];
             fluxes[j] = x2[j] - x1[j];
         }
@@ -648,14 +631,14 @@ namespace Cantera {
 
         // multiply diffusion velocities by rho * Y_k to create 
         // mass fluxes, and divide by pressure
-        for (i = 0; i < m_nsp; i++) {
+        for (size_t i = 0; i < m_nsp; i++) {
             fluxes[i] *= rho * y[i] / pp;
         }
 
         // thermal diffusion
         if (addThermalDiffusion) {
             doublereal grad_logt = (t2 - t1)/m_temp;
-            for (i = 0; i < m_nsp; i++) {
+            for (size_t i = 0; i < m_nsp; i++) {
                 fluxes[i] -= m_spwork[i]*grad_logt;
             }
         }
@@ -665,15 +648,12 @@ namespace Cantera {
         const doublereal* state2, doublereal delta, 
         doublereal* fluxes) {
         getMassFluxes(state1, state2, delta, fluxes);
-        size_t k, nsp = m_thermo->nSpecies();
-        for (k = 0; k < nsp; k++) {
+        for (size_t k = 0; k < m_thermo->nSpecies(); k++) {
             fluxes[k] /= m_mw[k];
         }
     }
 
     void MultiTransport::getMultiDiffCoeffs(const size_t ld, doublereal* const d) {
-        int i,j;
-
         doublereal p = pressure_ig();
 
         // update the mole fractions
@@ -699,8 +679,8 @@ namespace Cantera {
                                * m_thermo->meanMolecularWeight()/(25.0 * p);
         doublereal c;
 
-        for (i = 0; i < m_nsp; i++) {
-            for (j = 0; j < m_nsp; j++) {            
+        for (size_t i = 0; i < m_nsp; i++) {
+            for (size_t j = 0; j < m_nsp; j++) {
                 c = prefactor/m_mw[j];
                 d[ld*j + i] = c*m_molefracs[i]*
                               (m_Lmatrix(i,j) - m_Lmatrix(i,i));
@@ -710,24 +690,22 @@ namespace Cantera {
 
 
     void MultiTransport::getMixDiffCoeffs(doublereal* const d) {
-
         // update the mole fractions
         updateTransport_C();
 
         // update the binary diffusion coefficients if necessary
         updateDiff_T();
 
-        int k, j;
         doublereal mmw = m_thermo->meanMolecularWeight();
         doublereal sumxw = 0.0, sum2;
         doublereal p = pressure_ig();
 	if (m_nsp == 1) {
 	  d[0] = m_bdiff(0,0) / p;
 	} else {
-	  for (k = 0; k < m_nsp; k++) sumxw += m_molefracs[k] * m_mw[k];
-	  for (k = 0; k < m_nsp; k++) {
+	  for (size_t k = 0; k < m_nsp; k++) sumxw += m_molefracs[k] * m_mw[k];
+	  for (size_t k = 0; k < m_nsp; k++) {
             sum2 = 0.0;
-            for (j = 0; j < m_nsp; j++) {
+            for (size_t j = 0; j < m_nsp; j++) {
 	      if (j != k) {
 		sum2 += m_molefracs[j] / m_bdiff(j,k);
 	      }
@@ -803,8 +781,7 @@ namespace Cantera {
 
         // add an offset to avoid a pure species condition
         // (check - this may be unnecessary)
-        int k;
-        for (k = 0; k < m_nsp; k++) {
+        for (size_t k = 0; k < m_nsp; k++) {
             m_molefracs[k] = fmaxx(MIN_X, m_molefracs[k]);
         }
     }
@@ -829,15 +806,13 @@ namespace Cantera {
     }
 
     void MultiTransport::_update_diff_T() {
-
         updateTransport_T();
 
         // evaluate binary diffusion coefficients at unit pressure
-        int i,j;
-        int ic = 0;
+        size_t ic = 0;
         if (m_mode == CK_Mode) {
-            for (i = 0; i < m_nsp; i++) {
-                for (j = i; j < m_nsp; j++) {
+            for (size_t i = 0; i < m_nsp; i++) {
+                for (size_t j = i; j < m_nsp; j++) {
                     m_bdiff(i,j) = exp(dot4(m_polytempvec, m_diffcoeffs[ic]));
                     m_bdiff(j,i) = m_bdiff(i,j);
                     ic++;
@@ -845,8 +820,8 @@ namespace Cantera {
             }
         }
         else {
-            for (i = 0; i < m_nsp; i++) {
-                for (j = i; j < m_nsp; j++) {
+            for (size_t i = 0; i < m_nsp; i++) {
+                for (size_t j = i; j < m_nsp; j++) {
                     m_bdiff(i,j) = m_temp * m_sqrt_t*dot5(m_polytempvec, 
                         m_diffcoeffs[ic]);
                     m_bdiff(j,i) = m_bdiff(i,j);
@@ -874,18 +849,16 @@ namespace Cantera {
 
 
     void MultiTransport::_update_species_visc_T() {
-
         updateTransport_T();
 
-        int k;
         if (m_mode == CK_Mode) {
-            for (k = 0; k < m_nsp; k++) {
+            for (size_t k = 0; k < m_nsp; k++) {
                 m_visc[k] = exp(dot4(m_polytempvec, m_visccoeffs[k]));
                m_sqvisc[k] = sqrt(m_visc[k]);
             }
         }
         else {
-            for (k = 0; k < m_nsp; k++) {
+            for (size_t k = 0; k < m_nsp; k++) {
                 //m_visc[k] = m_sqrt_t*dot5(m_polytempvec, m_visccoeffs[k]);
                 // the polynomial fit is done for sqrt(visc/sqrt(T))
                 m_sqvisc[k] = m_t14*dot5(m_polytempvec, m_visccoeffs[k]);
@@ -910,9 +883,8 @@ namespace Cantera {
         updateSpeciesViscosities_T();
 
         // see Eq. (9-5.15) of Reid, Prausnitz, and Poling
-        int j, k;
-        for (j = 0; j < m_nsp; j++) {
-            for (k = j; k < m_nsp; k++) {
+        for (size_t j = 0; j < m_nsp; j++) {
+            for (size_t k = j; k < m_nsp; k++) {
                 vratiokj = m_visc[k]/m_visc[j];
                 wratiojk = m_mw[j]/m_mw[k];
                 //rootwjk = sqrt(wratiojk);
@@ -946,7 +918,6 @@ namespace Cantera {
     }
 
     void MultiTransport::_update_thermal_T() {
-
         // we need species viscosities and binary diffusion
         // coefficients
         updateSpeciesViscosities_T();
@@ -955,9 +926,8 @@ namespace Cantera {
         // evaluate polynomial fits for A*, B*, C*
         doublereal z;
         int ipoly;
-        int i, j;
-        for (i = 0; i < m_nsp; i++) {
-            for (j = i; j < m_nsp; j++) {
+        for (size_t i = 0; i < m_nsp; i++) {
+            for (size_t j = i; j < m_nsp; j++) {
                 z = m_logt - m_log_eps_k(i,j);
                 ipoly = m_poly[i][j];
                 if (m_mode == CK_Mode) {
@@ -983,9 +953,8 @@ namespace Cantera {
         // evaluate the temperature-dependent rotational relaxation
         // rate
 
-        int k;
         doublereal tr, sqtr;
-        for (k = 0; k < m_nsp; k++) {
+        for (size_t k = 0; k < m_nsp; k++) {
             tr = m_eps[k]/ m_kbt;
             sqtr = m_sqrt_eps_k[k] / m_sqrt_t;
             m_rotrelax[k] = fmaxx(1.0,m_zrot[k]) * m_frot_298[k]/Frot(tr, sqtr);
@@ -993,14 +962,14 @@ namespace Cantera {
 
         doublereal d;
         doublereal c = 1.2*GasConstant*m_temp;
-        for (k = 0; k < m_nsp; k++) {
+        for (size_t k = 0; k < m_nsp; k++) {
             d = c * m_visc[k] * m_astar(k,k)/m_mw[k];
             m_bdiff(k,k) = d;
         }
 
         // internal heat capacities
         const array_fp& cp = ((IdealGasPhase*)m_thermo)->cp_R_ref();
-        for (k = 0; k < m_nsp; k++) m_cinternal[k] = cp[k] - 2.5;
+        for (size_t k = 0; k < m_nsp; k++) m_cinternal[k] = cp[k] - 2.5;
     }
 
     /**

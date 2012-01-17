@@ -82,9 +82,8 @@ namespace Cantera {
 
     m_wratjk.resize(m_nsp, m_nsp, 0.0);
     m_wratkj1.resize(m_nsp, m_nsp, 0.0);
-    int j, k;
-    for (j = 0; j < m_nsp; j++) 
-      for (k = j; k < m_nsp; k++) {
+    for (size_t j = 0; j < m_nsp; j++)
+      for (size_t k = j; k < m_nsp; k++) {
 	m_wratjk(j,k) = sqrt(m_mw[j]/m_mw[k]);
 	m_wratjk(k,j) = sqrt(m_wratjk(j,k));
 	m_wratkj1(j,k) = sqrt(1.0 + m_mw[k]/m_mw[j]);
@@ -155,7 +154,7 @@ namespace Cantera {
     multiply(m_phi, DATA_PTR(m_molefracs), DATA_PTR(m_spwork));
 
     m_viscmix = 0.0;
-    for (int k = 0; k < m_nsp; k++) {
+    for (size_t k = 0; k < m_nsp; k++) {
       m_viscmix += m_molefracs[k] * m_visc[k]/m_spwork[k]; //denom;
     }
     return m_viscmix;
@@ -167,8 +166,6 @@ namespace Cantera {
 
   //================================================================================================
   void AqueousTransport::getBinaryDiffCoeffs(const size_t ld, doublereal* const d) {
-    int i,j;
-
     update_T();
 
     // if necessary, evaluate the binary diffusion coefficents
@@ -177,8 +174,8 @@ namespace Cantera {
     doublereal pres = m_thermo->pressure();
 
     doublereal rp = 1.0/pres;
-    for (i = 0; i < m_nsp; i++) 
-      for (j = 0; j < m_nsp; j++) {
+    for (size_t i = 0; i < m_nsp; i++)
+      for (size_t j = 0; j < m_nsp; j++) {
 	d[ld*j + i] = rp * m_bdiff(i,j);
       }
   }
@@ -285,7 +282,7 @@ namespace Cantera {
    *      \vec{j}_k = -n M_k D_k \nabla X_k.
    * \f]
    */
-  void AqueousTransport::getSpeciesFluxes(int ndim, 
+  void AqueousTransport::getSpeciesFluxes(size_t ndim,
 					 const doublereal* grad_T, 
 					 int ldx, const doublereal* grad_X, 
 					 int ldf, doublereal* fluxes) {
@@ -304,7 +301,7 @@ namespace Cantera {
    *      \vec{j}_k = -n M_k D_k \nabla X_k.
    * \f]
    */
-  void AqueousTransport::getSpeciesFluxesExt(int ldf, doublereal* fluxes) {
+  void AqueousTransport::getSpeciesFluxesExt(size_t ldf, doublereal* fluxes) {
     update_T();
     update_C();
 

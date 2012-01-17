@@ -37,17 +37,16 @@ namespace Cantera {
 
         doublereal prefactor = 16.0*m_temp/25.0;
         doublereal sum;
-        int i, j, k;
-        for (i = 0; i < m_nsp; i++) 
+        for (size_t i = 0; i < m_nsp; i++)
         {
             //  subtract-off the k=i term to account for the first delta
             //  function in Eq. (12.121)
 
             sum = -x[i]/m_bdiff(i,i);
-            for (k = 0; k < m_nsp; k++) sum += x[k]/m_bdiff(i,k);
+            for (size_t k = 0; k < m_nsp; k++) sum += x[k]/m_bdiff(i,k);
 
             sum /= m_mw[i];
-            for (j = 0; j != m_nsp; ++j) {
+            for (size_t j = 0; j != m_nsp; ++j) {
                 m_Lmatrix(i,j) = prefactor * x[j]
                                   * ( m_mw[j] * sum + x[i]/m_bdiff(i,j) );                
             }
@@ -65,13 +64,12 @@ namespace Cantera {
         doublereal prefactor = 1.6*m_temp;
 
         doublereal sum, wj, xj;
-        int i, j;
-        for (j = 0; j < m_nsp; j++) {
+        for (size_t j = 0; j < m_nsp; j++) {
             //constant = prefactor * x[j];
             xj = x[j];
             wj = m_mw[j];
             sum = 0.0;
-            for (i = 0; i < m_nsp; i++) {
+            for (size_t i = 0; i < m_nsp; i++) {
                 m_Lmatrix(i,j + m_nsp) = - prefactor * x[i] * xj * m_mw[i] * 
                              (1.2 * m_cstar(j,i) - 1.0) /
                              ( (wj + m_mw[i]) * m_bdiff(j,i) );
@@ -89,9 +87,8 @@ namespace Cantera {
     ////////////////////////////////////////////////////////////////////////
 
      void MultiTransport::eval_L1000() {
-        int i, j;
-        for (j = 0; j < m_nsp; j++)
-            for (i = 0; i < m_nsp; i++) 
+        for (size_t j = 0; j < m_nsp; j++)
+            for (size_t i = 0; i < m_nsp; i++)
                 m_Lmatrix(i+m_nsp,j) = m_Lmatrix(j,i+m_nsp); 
     }
 
@@ -103,12 +100,11 @@ namespace Cantera {
         const doublereal fiveover3pi = 5.0/(3.0*Pi);
         doublereal prefactor = (16.0*m_temp)/25.0;
 
-        int i, j;
         doublereal constant1, wjsq, constant2, constant3, constant4, 
             fourmj, threemjsq, sum, sumwij;;
         doublereal term1, term2;
 
-        for (j = 0; j < m_nsp; j++) {
+        for (size_t j = 0; j < m_nsp; j++) {
 
             // get constant terms that depend on just species "j"
 
@@ -120,7 +116,7 @@ namespace Cantera {
             fourmj    =   4.0*m_mw[j];
             threemjsq =   3.0*m_mw[j]*m_mw[j];
             sum =         0.0;
-            for (i = 0; i < m_nsp; i++) {
+            for (size_t i = 0; i < m_nsp; i++) {
 
                 sumwij = m_mw[i] + m_mw[j];
                 term1 = m_bdiff(i,j) * sumwij*sumwij;

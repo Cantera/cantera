@@ -91,13 +91,12 @@ namespace Cantera {
 
     void DustyGasTransport::updateBinaryDiffCoeffs() {
         if (m_bulk_ok) return;
-        int n,m;
 
         // get the gaseous binary diffusion coefficients
         m_gastran->getBinaryDiffCoeffs(m_nsp, m_d.ptrColumn(0));
         doublereal por2tort = m_porosity / m_tortuosity;
-        for (n = 0; n < m_nsp; n++) 
-            for (m = 0; m < m_nsp; m++) 
+        for (size_t n = 0; n < m_nsp; n++)
+            for (size_t m = 0; m < m_nsp; m++)
                 m_d(n,m) *= por2tort;
         m_bulk_ok = true;
     }
@@ -106,7 +105,7 @@ namespace Cantera {
         if (m_knudsen_ok) return;
         doublereal K_g = m_pore_radius * m_porosity / m_tortuosity;
         const doublereal TwoThirds = 2.0/3.0;
-        for (int k = 0; k < m_nsp; k++) {
+        for (size_t k = 0; k < m_nsp; k++) {
             m_dk[k] = TwoThirds * K_g * sqrt((8.0 * GasConstant * m_temp)/
                 (Pi * m_mw[k]));
         }
@@ -117,16 +116,15 @@ namespace Cantera {
     void DustyGasTransport::eval_H_matrix() {
         updateBinaryDiffCoeffs();
         updateKnudsenDiffCoeffs();
-        int k,l,j;
         doublereal sum;
-        for (k = 0; k < m_nsp; k++) {
+        for (size_t k = 0; k < m_nsp; k++) {
 
             // evaluate off-diagonal terms
-            for (l = 0; l < m_nsp; l++) m_multidiff(k,l) = -m_x[k]/m_d(k,l);
+            for (size_t l = 0; l < m_nsp; l++) m_multidiff(k,l) = -m_x[k]/m_d(k,l);
 
             // evaluate diagonal term
             sum = 0.0;
-            for (j = 0; j < m_nsp; j++) if (j != k) sum += m_x[j]/m_d(k,j);
+            for (size_t j = 0; j < m_nsp; j++) if (j != k) sum += m_x[j]/m_d(k,j);
             m_multidiff(k,k) = 1.0/m_dk[k] + sum;
         }
     }
@@ -160,7 +158,6 @@ namespace Cantera {
 
     void DustyGasTransport::getMolarFluxes(const doublereal* state1,
         const doublereal* state2, double delta, double* fluxes) {
-        int k;
         doublereal conc1, conc2;
         doublereal* cbar = DATA_PTR(m_spwork);
         doublereal* gradc = DATA_PTR(m_spwork2);
@@ -171,7 +168,7 @@ namespace Cantera {
         const doublereal* y1 = state1 + 2;
         const doublereal* y2 = state2 + 2;
         doublereal c1sum = 0.0, c2sum = 0.0;
-        for (k = 0; k < m_nsp; k++) {
+        for (size_t k = 0; k < m_nsp; k++) {
             conc1 = rho1*y1[k]/m_mw[k];
             conc2 = rho2*y2[k]/m_mw[k];
             cbar[k] = 0.5*(conc1 + conc2);
@@ -230,10 +227,9 @@ namespace Cantera {
     }
 
     void DustyGasTransport::getMultiDiffCoeffs(const size_t ld, doublereal* const d) {
-        int i,j;
         updateMultiDiffCoeffs();
-        for (i = 0; i < m_nsp; i++) {
-            for (j = 0; j < m_nsp; j++) {            
+        for (size_t i = 0; i < m_nsp; i++) {
+            for (size_t j = 0; j < m_nsp; j++) {
                 d[ld*j + i] = m_multidiff(i,j);
             }
         }
@@ -257,8 +253,7 @@ namespace Cantera {
 
         // add an offset to avoid a pure species condition
         // (check - this may be unnecessary)
-        int k;
-        for (k = 0; k < m_nsp; k++) {
+        for (size_t k = 0; k < m_nsp; k++) {
             m_x[k] = fmaxx(MIN_X, m_x[k]);
         }
     }
