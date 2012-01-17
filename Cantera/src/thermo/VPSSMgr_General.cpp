@@ -64,7 +64,7 @@ namespace Cantera {
      *  performed here is consistent with the assignment operator's general functionality.
      */
     m_PDSS_ptrs.resize(m_kk);
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
        m_PDSS_ptrs[k] = m_vptp_ptr->providePDSS(k);
     }
     return *this;
@@ -92,7 +92,7 @@ namespace Cantera {
      *  and storred in the owning VPStandardStateTP class.
      */
     m_PDSS_ptrs.resize(m_kk);
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       m_PDSS_ptrs[k] = m_vptp_ptr->providePDSS(k);
     }
   }
@@ -100,7 +100,7 @@ namespace Cantera {
   void VPSSMgr_General::_updateRefStateThermo() const
   {
     if (m_useTmpRefStateStorage) {
-      for (int k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	PDSS *kPDSS = m_PDSS_ptrs[k];
 	kPDSS->setState_TP(m_tlast, m_plast);
 	m_h0_RT[k] = kPDSS->enthalpy_RT_ref();
@@ -114,7 +114,7 @@ namespace Cantera {
 
   void VPSSMgr_General::_updateStandardStateThermo()
   {
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       PDSS *kPDSS = m_PDSS_ptrs[k];
       kPDSS->setState_TP(m_tlast, m_plast);
       m_hss_RT[k] = kPDSS->enthalpy_RT();
@@ -146,7 +146,7 @@ namespace Cantera {
       std::copy(m_g0_RT.begin(), m_g0_RT.end(), g);  
       scale(g, g+m_kk, g, _rt);
     } else {
-      for (int k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	PDSS *kPDSS = m_PDSS_ptrs[k];
 	kPDSS->setState_TP(m_tlast, m_plast);
 	double h0_RT = kPDSS->enthalpy_RT_ref();

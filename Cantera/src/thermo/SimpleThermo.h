@@ -445,7 +445,7 @@ namespace Cantera {
     /*!
      * This is less than or equal to the number of species in the phase.
      */
-    int                        m_nspData;
+    size_t m_nspData;
 
   };
 

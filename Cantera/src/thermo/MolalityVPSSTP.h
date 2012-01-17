@@ -289,7 +289,7 @@ namespace Cantera {
      *
      * @param k the solvent index number
      */
-    void setSolvent(int k);
+    void setSolvent(size_t k);
 
     /**
      * Sets the minimum mole fraction in the molality formulation.

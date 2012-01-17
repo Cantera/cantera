@@ -36,7 +36,7 @@ namespace Cantera {
 
   ThermoPhase::~ThermoPhase() 
   {
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       if (m_speciesData[k]) {
         delete m_speciesData[k];
         m_speciesData[k] = 0;
@@ -84,7 +84,7 @@ namespace Cantera {
     /*
      * We need to destruct first
      */
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       if (m_speciesData[k]) {
         delete m_speciesData[k];
         m_speciesData[k] = 0;
@@ -109,7 +109,7 @@ namespace Cantera {
      * Do a deep copy of species Data, because we own this
      */
     m_speciesData.resize(m_kk); 
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       m_speciesData[k] = new XML_Node(*(right.m_speciesData[k]));
     }
       
@@ -884,14 +884,14 @@ namespace Cantera {
   void ThermoPhase::setReferenceComposition(const doublereal *const x) {
     xMol_Ref.resize(m_kk);
     if (x) {
-      for (int k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
         xMol_Ref[k] = x[k];
       }
     } else {
       getMoleFractions(DATA_PTR(xMol_Ref));
     }
     double sum = -1.0;
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       sum += xMol_Ref[k];
     }
     if (fabs(sum) > 1.0E-11) {
@@ -902,7 +902,7 @@ namespace Cantera {
   }
 
   void ThermoPhase::getReferenceComposition( doublereal *const x) const {
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       x[k] = xMol_Ref[k];
     }
   }
@@ -1008,7 +1008,7 @@ namespace Cantera {
   bool ThermoPhase::getElementPotentials(doublereal* lambda) const {
     doublereal rt = GasConstant* temperature();
     if (m_hasElementPotentials) {
-      for (int m = 0; m < nElements(); m++) {
+      for (size_t m = 0; m < nElements(); m++) {
 	lambda[m] =  m_lambdaRRT[m] * rt;
       }
     }
@@ -1231,7 +1231,7 @@ namespace Cantera {
       catch (CanteraError) {;}
 
       csvFile << endl << setw(tabS) << "Species,";
-      for ( int i = 0; i < (int)pNames.size(); i++ ){
+      for (size_t i = 0; i < pNames.size(); i++) {
 	csvFile << setw(tabM) << pNames[i] << ",";
       }
       csvFile << endl;
@@ -1240,15 +1240,15 @@ namespace Cantera {
       csvFile << setw(tabS+(tabM+1)*pNames.size()) << "-\n";
       csvFile.fill(' ');
       */
-      for (int k = 0; k < kk; k++) {
+      for (size_t k = 0; k < kk; k++) {
 	csvFile << setw(tabS) << speciesName(k) + ",";
 	if (x[k] > SmallNumber) {
-	  for (int i = 0; i < (int)pNames.size(); i++) {
+	  for (size_t i = 0; i < pNames.size(); i++) {
 	    csvFile << setw(tabM) << data[i][k] << ",";
 	  }
 	  csvFile << endl;
 	} else {
-	  for (int i = 0; i < (int)pNames.size(); i++) {
+	  for (size_t i = 0; i < pNames.size(); i++) {
 	    csvFile << setw(tabM) << 0 << ",";
 	  }
 	  csvFile << endl;

@@ -167,9 +167,8 @@ namespace ctml {
 		       const int* const vals, const std::string units, const std::string type,
 		       const doublereal minval, const doublereal maxval) {
     std::string fmt = "%8d";
-    int i;
     std::string v = "";
-    for (i = 0; i < n; i++) {
+    for (size_t i = 0; i < n; i++) {
       v += int2str(vals[i],fmt);
       if (i == n-1) v += "\n"; 
       else if (i > 0 && (i+1) % 3 == 0) v += ",\n";

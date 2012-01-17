@@ -158,7 +158,7 @@ namespace Cantera {
     getPartialMolarVolumes(vbar);
    
     doublereal vtotal = 0.0;
-    for (int i = 0; i < m_kk; i++) {
+    for (size_t i = 0; i < m_kk; i++) {
       vtotal += vbar[i] * moleFractions_[i];
     }
     doublereal dd = meanMolecularWeight() / vtotal;
@@ -204,7 +204,7 @@ namespace Cantera {
   void GibbsExcessVPSSTP::getActivities(doublereal* ac) const {
     getActivityCoefficients(ac);
     getMoleFractions(DATA_PTR(moleFractions_));
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       ac[k] *= moleFractions_[k];
     }
   }
@@ -213,7 +213,7 @@ namespace Cantera {
   void GibbsExcessVPSSTP::getElectrochemPotentials(doublereal* mu) const {
     getChemPotentials(mu);
     double ve = Faraday * electricPotential();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       mu[k] += ve*charge(k);
     }
   }

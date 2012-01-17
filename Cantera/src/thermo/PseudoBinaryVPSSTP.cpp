@@ -157,13 +157,13 @@ namespace Cantera {
   void PseudoBinaryVPSSTP::getElectrochemPotentials(doublereal* mu) const {
     getChemPotentials(mu);
     double ve = Faraday * electricPotential();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       mu[k] += ve*charge(k);
     }
   }
   
   void PseudoBinaryVPSSTP::calcPseudoBinaryMoleFractions() const {
-    int k;
+    size_t k;
     doublereal sumCat; 
     doublereal sumAnion;
     doublereal sum = 0.0;

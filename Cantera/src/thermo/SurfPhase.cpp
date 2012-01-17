@@ -166,7 +166,7 @@ namespace Cantera {
   void SurfPhase::getPartialMolarEnthalpies(doublereal* hbar) const {
     getEnthalpy_RT(hbar);
     doublereal rt = GasConstant * temperature();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       hbar[k] *= rt;
     }
   }
@@ -179,7 +179,7 @@ namespace Cantera {
    */
   void SurfPhase::getPartialMolarEntropies(doublereal* sbar) const {
     getEntropy_R(sbar);
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       sbar[k] *= GasConstant;
     }
   }
@@ -192,7 +192,7 @@ namespace Cantera {
    */
   void SurfPhase::getPartialMolarCp(doublereal* cpbar) const {
     getCp_R(cpbar);
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       cpbar[k] *= GasConstant;
     }
   }
@@ -209,9 +209,8 @@ namespace Cantera {
   void SurfPhase::getChemPotentials(doublereal* mu) const {
     _updateThermo();
     copy(m_mu0.begin(), m_mu0.end(), mu);
-    int k;
     getActivityConcentrations(DATA_PTR(m_work));
-    for (k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       mu[k] += GasConstant * temperature() * 
 	(log(m_work[k]) - logStandardConc(k));
     } 
@@ -270,7 +269,7 @@ namespace Cantera {
 
   void SurfPhase::getStandardVolumes(doublereal* vol) const {
     _updateThermo();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       vol[k] = 1.0/standardConcentration(k);
     }
   }
@@ -341,18 +340,17 @@ namespace Cantera {
   void SurfPhase::
   setCoverages(const doublereal* theta) {
     double sum = 0.0;
-    int k;
-    for (k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       sum += theta[k];
     }
     if (sum <= 0.0) {
-      for (k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	cout << "theta(" << k << ") = " << theta[k] << endl;
       }
       throw CanteraError("SurfPhase::setCoverages",
 			 "Sum of Coverage fractions is zero or negative");
     }
-    for (k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       m_work[k] = m_n0*theta[k]/(sum*size(k));
     }
     /*
@@ -364,7 +362,7 @@ namespace Cantera {
 
   void SurfPhase::
   setCoveragesNoNorm(const doublereal* theta) {
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       m_work[k] = m_n0*theta[k]/(size(k));
     }
     /*
@@ -377,7 +375,7 @@ namespace Cantera {
   void SurfPhase::
   getCoverages(doublereal* theta) const {
     getConcentrations(theta);
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       theta[k] *= size(k)/m_n0; 
     }
   }
@@ -416,8 +414,7 @@ namespace Cantera {
 			 DATA_PTR(m_s0));
       m_tlast = tnow;
       doublereal rt = GasConstant * tnow;
-      int k;
-      for (k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	m_h0[k] *= rt;
 	m_s0[k] *= GasConstant;
 	m_cp0[k] *= GasConstant;

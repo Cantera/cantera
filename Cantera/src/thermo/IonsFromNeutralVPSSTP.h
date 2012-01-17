@@ -854,7 +854,7 @@ namespace Cantera {
 
     //! Number of the species in this ThermoPhase which are passed
     //! through to the neutralMoleculePhase ThermoPhase
-    int numPassThroughSpecies_;
+    size_t numPassThroughSpecies_;
 
   public:
     //! This is a pointer to the neutral Molecule Phase

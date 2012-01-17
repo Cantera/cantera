@@ -155,8 +155,8 @@ namespace Cantera {
    *  of the solvent and the m_Mnaught parameter.
    *  @param k index of the solvent.
    */
-  void MolalityVPSSTP::setSolvent(int k) {
-    if (k < 0 || k >= m_kk) {
+  void MolalityVPSSTP::setSolvent(size_t k) {
+    if (k >= m_kk) {
       throw CanteraError("MolalityVPSSTP::setSolute ", 
 			 "bad value");
     }
@@ -217,7 +217,7 @@ namespace Cantera {
       xmolSolvent = m_xmolSolventMIN;
     }
     double denomInv = 1.0/ (m_Mnaught * xmolSolvent);
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       m_molalities[k] *= denomInv;
     }
   }
@@ -239,7 +239,7 @@ namespace Cantera {
    */
   void MolalityVPSSTP::getMolalities(doublereal * const molal) const {
     calcMolalities();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       molal[k] = m_molalities[k];
     }
   }
@@ -262,20 +262,20 @@ namespace Cantera {
   void MolalityVPSSTP::setMolalities(const doublereal * const molal) {
 	
     double Lsum = 1.0 / m_Mnaught;
-    for (int k = 1; k < m_kk; k++) {
+    for (size_t k = 1; k < m_kk; k++) {
       m_molalities[k] = molal[k];
       Lsum += molal[k];
     }
     double tmp = 1.0 / Lsum;
     m_molalities[m_indexSolvent] = tmp / m_Mnaught;
     double sum = m_molalities[m_indexSolvent];
-    for (int k = 1; k < m_kk; k++) {
+    for (size_t k = 1; k < m_kk; k++) {
       m_molalities[k] = tmp * molal[k];
       sum += m_molalities[k];
     }
     if (sum != 1.0) {
       tmp = 1.0 / sum;
-      for (int k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	m_molalities[k] *= tmp;
       }
     }
@@ -462,7 +462,7 @@ namespace Cantera {
     if (xmolSolvent < m_xmolSolventMIN) {
       xmolSolvent = m_xmolSolventMIN;
     }
-    for (int k = 1; k < m_kk; k++) {
+    for (size_t k = 1; k < m_kk; k++) {
       ac[k] /= xmolSolvent;
     }
   }
@@ -508,7 +508,7 @@ namespace Cantera {
      * Then, we calculate the sum of the solvent molalities
      */
     double sum = 0;
-    for (int k = 1; k < m_kk; k++) {
+    for (size_t k = 1; k < m_kk; k++) {
       sum += fmaxx(m_molalities[k], 0.0);
     }
     double oc = 1.0;
@@ -523,7 +523,7 @@ namespace Cantera {
   void MolalityVPSSTP::getElectrochemPotentials(doublereal* mu) const {
     getChemPotentials(mu);
     double ve = Faraday * electricPotential();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       mu[k] += ve*charge(k);
     }
   }

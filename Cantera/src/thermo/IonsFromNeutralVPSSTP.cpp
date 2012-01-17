@@ -425,7 +425,7 @@ namespace Cantera {
     /*
      * take the exp of the internally storred coefficients.
      */
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       ac[k] = exp(lnActCoeff_Scaled_[k]);      
     }
   }
@@ -532,7 +532,7 @@ namespace Cantera {
      */
     double T = temperature();
     double RT = GasConstant * T;
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       hbar[k] *= RT;
     }
     /*
@@ -542,7 +542,7 @@ namespace Cantera {
     s_update_lnActCoeff();
     s_update_dlnActCoeffdT();
     double RTT = RT * T;
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       hbar[k] -= RTT * dlnActCoeffdT_Scaled_[k];
     }
   }
@@ -575,14 +575,14 @@ namespace Cantera {
     s_update_lnActCoeff();
     s_update_dlnActCoeffdT();
 
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       xx = fmaxx(moleFractions_[k], xxSmall);
       sbar[k] += - lnActCoeff_Scaled_[k] -log(xx) - T * dlnActCoeffdT_Scaled_[k];
     }  
     /*
      * dimensionalize it.
      */
-   for (int k = 0; k < m_kk; k++) {
+   for (size_t k = 0; k < m_kk; k++) {
       sbar[k] *= GasConstant;
     }
   }
@@ -611,7 +611,7 @@ namespace Cantera {
     s_update_lnActCoeff();
     s_update_dlnActCoeff_dlnX();
 
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       dlnActCoeffdlnX[k] = dlnActCoeffdlnX_Scaled_[k];
     }
   }  
@@ -639,7 +639,7 @@ namespace Cantera {
     s_update_lnActCoeff();
     s_update_dlnActCoeff_dlnN();
 
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       dlnActCoeffdlnN[k] = dlnActCoeffdlnN_Scaled_[k];
     }
   }
@@ -686,7 +686,6 @@ namespace Cantera {
    *  @param mf Dump the mole fractions into this vector.
    */
   void IonsFromNeutralVPSSTP::calcIonMoleFractions(doublereal * const mf) const {
-    int k;
     doublereal fmij;
     /*
      * Download the neutral mole fraction vector into the
@@ -700,8 +699,8 @@ namespace Cantera {
     /*
      *  Use the formula matrix to calculate the relative mole numbers.
      */
-    for (int jNeut = 0; jNeut <  numNeutralMoleculeSpecies_; jNeut++) {
-      for (k = 0; k < m_kk; k++) {
+    for (size_t jNeut = 0; jNeut <  numNeutralMoleculeSpecies_; jNeut++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	fmij =  fm_neutralMolec_ions_[k + jNeut * m_kk];
 	mf[k] += fmij * NeutralMolecMoleFractions_[jNeut];
       }
@@ -711,10 +710,10 @@ namespace Cantera {
      * Normalize the new mole fractions
      */
     doublereal sum = 0.0;
-     for (k = 0; k < m_kk; k++) {
+     for (size_t k = 0; k < m_kk; k++) {
        sum += mf[k];
      }
-     for (k = 0; k < m_kk; k++) {
+     for (size_t k = 0; k < m_kk; k++) {
        mf[k] /= sum; 
      }
 

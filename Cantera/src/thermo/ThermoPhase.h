@@ -1241,7 +1241,7 @@ namespace Cantera {
     void getElectrochemPotentials(doublereal* mu) const {
       getChemPotentials(mu);
       double ve = Faraday * electricPotential();
-      for (int k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	mu[k] += ve*charge(k);
       }
     }

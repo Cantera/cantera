@@ -401,7 +401,7 @@ namespace Cantera {
   void WaterSSTP::getGibbs_ref(doublereal *g) const {
     getGibbs_RT_ref(g);
     doublereal rt = _RT();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       g[k] *= rt;
     }
   }

@@ -1259,7 +1259,6 @@ namespace Cantera {
    */
   void HMWSoln::
   initThermoXML(XML_Node& phaseNode, std::string id) {
-    int k;
     string stemp;
     /*
      * Find the Thermo XML node 
@@ -1296,7 +1295,7 @@ namespace Cantera {
     /*
      * Reconcile the solvent name and index.
      */
-    for (k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       string sname = speciesName(k);
       if (solventName == sname) {
 	setSolvent(k);
@@ -1331,7 +1330,7 @@ namespace Cantera {
 		     &phaseNode.root());
     const vector<string>&sss = speciesNames();
 
-    for (k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       XML_Node* s =  speciesDB->findByAttr("name", sss[k]);
       if (!s) {
 	throw CanteraError("HMWSoln::initThermoXML",
@@ -1415,7 +1414,7 @@ namespace Cantera {
      * The default is that stoich charge is the same as the
      * regular charge.
      */
-    for (k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       m_speciesCharge_Stoich[k] = m_speciesCharge[k];
     }
 
@@ -1477,7 +1476,7 @@ namespace Cantera {
 	if (irNode.hasAttrib("default")) {
 	  string ads = irNode.attrib("default");
 	  double ad = fpValue(ads);
-	  for (int k = 0; k < m_kk; k++) {
+	  for (size_t k = 0; k < m_kk; k++) {
 	    m_Aionic[k] = ad * Afactor;
 	  }
 	}
@@ -1493,7 +1492,7 @@ namespace Cantera {
    
       string kname, jname;
       size_t jj = xspecies.size();
-      for (k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	size_t jmap = -1;
 	kname = speciesName(k);
 	for (size_t j = 0; j < jj; j++) {
@@ -1580,7 +1579,7 @@ namespace Cantera {
      *   First fill in default values. Everthing is either
      *   a charge species, a nonpolar neutral, or the solvent.
      */
-    for (k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       if (fabs(m_speciesCharge[k]) > 0.0001) {
 	m_electrolyteSpeciesType[k] = cEST_chargedSpecies;
 	if (fabs(m_speciesCharge_Stoich[k] - m_speciesCharge[k])
@@ -1602,7 +1601,7 @@ namespace Cantera {
     std::vector<const XML_Node *> xspecies = speciesData();
     const XML_Node *spPtr = 0;
     string kname;
-    for (k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       kname = speciesName(k);
       spPtr = xspecies[k];
       if (!spPtr) {
