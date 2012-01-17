@@ -45,7 +45,7 @@ namespace Cantera {
 	m_kk(b.m_kk) 
     {
       m_sp.resize(m_kk, 0);
-      for (int k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	SpeciesThermoInterpType *bk = b.m_sp[k];
 	if (bk) {
 	  m_sp[k] = bk->duplMyselfAsSpeciesThermoInterpType();
@@ -59,7 +59,7 @@ namespace Cantera {
 	  m_tlow_max = b.m_tlow_max;
 	  m_thigh_min = b.m_thigh_min;
 	
-	  for (int k = 0; k < m_kk; k++) {
+	  for (size_t k = 0; k < m_kk; k++) {
 	    SpeciesThermoInterpType *sp = m_sp[k];
 	    if (sp) {
 	      delete sp;
@@ -68,7 +68,7 @@ namespace Cantera {
 	  }
 	  m_kk = b.m_kk;
 	  m_sp.resize(m_kk, 0);
-	  for (int k = 0; k < m_kk; k++) {
+	  for (size_t k = 0; k < m_kk; k++) {
 	    SpeciesThermoInterpType *bk = b.m_sp[k];
 	    if (bk) {
 	      m_sp[k] = bk->duplMyselfAsSpeciesThermoInterpType();
@@ -79,7 +79,7 @@ namespace Cantera {
     }
 
     GeneralSpeciesThermo::~GeneralSpeciesThermo() {
-	for (int k = 0; k < m_kk; k++) {
+	for (size_t k = 0; k < m_kk; k++) {
 	  SpeciesThermoInterpType *sp = m_sp[k];
 	  if (sp) {
 	    delete sp;

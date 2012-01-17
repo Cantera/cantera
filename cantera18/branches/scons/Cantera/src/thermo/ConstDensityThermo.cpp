@@ -95,7 +95,7 @@ namespace Cantera {
     }
 
     void ConstDensityThermo::getActivityCoefficients(doublereal* ac) const {
-        for (int k = 0; k < m_kk; k++) {
+        for (size_t k = 0; k < m_kk; k++) {
  	  ac[k] = 1.0;
 	}
     }
@@ -114,7 +114,7 @@ namespace Cantera {
         doublereal xx;
         doublereal rt = temperature() * GasConstant;
         const array_fp& g_RT = gibbs_RT();
-        for (int k = 0; k < m_kk; k++) {
+        for (size_t k = 0; k < m_kk; k++) {
             xx = fmaxx(SmallNumber, moleFraction(k));
             mu[k] = rt*(g_RT[k] + log(xx)) + vdp;
         }
@@ -154,8 +154,7 @@ namespace Cantera {
             m_spthermo->update(tnow, &m_cp0_R[0], &m_h0_RT[0], 
                 &m_s0_R[0]);
             m_tlast = tnow;
-            int k;
-            for (k = 0; k < m_kk; k++) {
+            for (size_t k = 0; k < m_kk; k++) {
                 m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
             }
             m_tlast = tnow;

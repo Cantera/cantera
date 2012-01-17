@@ -541,7 +541,7 @@ namespace Cantera {
       csvFile << setw(tabS+(tabM+1)*pNames.size()) << "-\n";
       csvFile.fill(' ');
       */
-      for (int k = 0; k < kk; k++) {
+      for (size_t k = 0; k < kk; k++) {
 	csvFile << setw(tabS) << speciesName(k) + ",";
 	if (x[k] > SmallNumber) {
 	  for ( int i = 0; i < (int)pNames.size(); i++ ){

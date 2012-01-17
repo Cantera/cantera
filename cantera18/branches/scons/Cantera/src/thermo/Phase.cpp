@@ -301,7 +301,7 @@ namespace Cantera {
   void Phase::getMoleFractionsByName(compositionMap& x) const {
     x.clear();
     size_t kk = nSpecies();
-    for (int k = 0; k < kk; k++) {
+    for (size_t k = 0; k < kk; k++) {
       x[speciesName(k)] = State::moleFraction(k);
     }
   }

@@ -211,7 +211,7 @@ namespace Cantera {
      * approximation. Number of points is one more than the
      * number of intervals.
      */
-    int m_numIntervals;
+    size_t m_numIntervals;
 
     /**
      * Value of the enthalpy at T = 298.15.

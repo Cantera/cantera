@@ -640,7 +640,7 @@ namespace Cantera {
     double hbar = mean_X(DATA_PTR(m_tmpV));
     getEnthalpy_RT(DATA_PTR(m_gamma_tmp));
     double RT = GasConstant * temperature();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       m_gamma_tmp[k] *= RT;
     }
     double h0bar = mean_X(DATA_PTR(m_gamma_tmp));
@@ -657,7 +657,7 @@ namespace Cantera {
     double xcation = 0.0;
     int kanion = -1;
     const double *charge =  DATA_PTR(m_speciesCharge);
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       if (charge[k] > 0.0) {
 	if (m_tmpV[k] > xanion) {
 	  xanion = m_tmpV[k];
@@ -769,7 +769,7 @@ namespace Cantera {
     double *x = &m_tmpV[0];
     getMoleFractions(x);
     doublereal vtotal = 0.0;
-    for (int i = 0; i < m_kk; i++) {
+    for (size_t i = 0; i < m_kk; i++) {
       vtotal += vbar[i] * x[i];
     }
     doublereal dd = meanMolecularWeight() / vtotal;
@@ -919,7 +919,7 @@ namespace Cantera {
     c[0] *= cs_solvent;
     if (m_kk > 1) {
       double cs_solute = standardConcentration(1);
-      for (int k = 1; k < m_kk; k++) {
+      for (size_t k = 1; k < m_kk; k++) {
 	c[k] *= cs_solute;
       }
     }
@@ -1015,7 +1015,7 @@ namespace Cantera {
     /*
      * Now calculate the array of activities.
      */
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       if (k != m_indexSolvent) {
 	ac[k] = m_molalities[k] * exp(m_lnActCoeffMolal_Scaled[k]);
       }
@@ -1046,7 +1046,7 @@ namespace Cantera {
     A_Debye_TP(-1.0, -1.0);
     s_update_lnMolalityActCoeff();
     std::copy(m_lnActCoeffMolal_Unscaled.begin(), m_lnActCoeffMolal_Unscaled.end(), acMolality);
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       acMolality[k] = exp(acMolality[k]);
     }
   }
@@ -1089,7 +1089,7 @@ namespace Cantera {
      */
     doublereal RT = GasConstant * temperature();
     double xmolSolvent = moleFraction(m_indexSolvent);
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       if (m_indexSolvent != k) {
 	xx = MAX(m_molalities[k], xxSmall);
 	mu[k] += RT * (log(xx) + m_lnActCoeffMolal_Scaled[k]);
@@ -1130,7 +1130,7 @@ namespace Cantera {
      */
     double T = temperature();
     double RT = GasConstant * T;
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       hbar[k] *= RT;
     }
     /*
@@ -1140,7 +1140,7 @@ namespace Cantera {
     s_update_lnMolalityActCoeff();
     s_update_dlnMolalityActCoeff_dT();
     double RTT = RT * T;
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       hbar[k] -= RTT * m_dlnActCoeffMolaldT_Scaled[k];
     }
   }
@@ -1176,7 +1176,6 @@ namespace Cantera {
    */
   void HMWSoln::
   getPartialMolarEntropies(doublereal* sbar) const {
-    int k;
     /*
      * Get the standard state entropies at the temperature
      * and pressure of the solution.
@@ -1186,7 +1185,7 @@ namespace Cantera {
      * Dimensionalize the entropies
      */
     doublereal R = GasConstant;
-    for (k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       sbar[k] *= R;
     }
     /*
@@ -1199,7 +1198,7 @@ namespace Cantera {
      * term out front of the log activity term
      */
     doublereal mm;
-    for (k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       if (k != m_indexSolvent) {
 	mm = fmaxx(SmallNumber, m_molalities[k]);
 	sbar[k] -= R * (log(mm) + m_lnActCoeffMolal_Scaled[k]);
@@ -1215,7 +1214,7 @@ namespace Cantera {
      */
     s_update_dlnMolalityActCoeff_dT();
     double RT = R * temperature();
-    for (k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       sbar[k] -= RT * m_dlnActCoeffMolaldT_Scaled[k];
     }
   }
@@ -1250,7 +1249,7 @@ namespace Cantera {
     s_update_dlnMolalityActCoeff_dP();
     double T = temperature();
     double RT = GasConstant * T;
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       vbar[k] += RT * m_dlnActCoeffMolaldP_Scaled[k];
     }
   }
@@ -1280,7 +1279,7 @@ namespace Cantera {
      */
     getCp_R(cpbar);
 	
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       cpbar[k] *= GasConstant;
     }
     /*
@@ -1293,7 +1292,7 @@ namespace Cantera {
     double T = temperature();
     double RT = GasConstant * T;
     double RTT = RT * T;
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       cpbar[k] -= (2.0 * RT * m_dlnActCoeffMolaldT_Scaled[k] +
 		   RTT * m_d2lnActCoeffMolaldT2_Scaled[k]);
     }
@@ -1804,7 +1803,7 @@ namespace Cantera {
      * Pitzer formulation.
      */
     m_IionicMolalityStoich = 0.0;
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       double z_k = m_speciesCharge[k];
       double zs_k1 =  m_speciesCharge_Stoich[k];
       if (z_k == zs_k1) {
@@ -1838,7 +1837,7 @@ namespace Cantera {
     double lnActCoeffMolal0 = - log(xx) + (xx - 1.0)/xx;
     double lnxs = log(xx);
 
-    for (int k = 1; k < m_kk; k++) {
+    for (size_t k = 1; k < m_kk; k++) {
       CROP_speciesCropped_[k] = 0;
       m_lnActCoeffMolal_Unscaled[k] += IMS_lnActCoeffMolal_[k];
       if (m_lnActCoeffMolal_Unscaled[k] > (CROP_ln_gamma_k_max- 2.5 *lnxs)) {
@@ -1878,12 +1877,11 @@ namespace Cantera {
    * Calculate cropped molalities
    */
   void HMWSoln::calcMolalitiesCropped() const {
-    int i, j, k;
     doublereal Imax = 0.0, Itmp;
     doublereal Iac_max;
     m_molalitiesAreCropped = false;
 
-    for (k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       m_molalitiesCropped[k] = m_molalities[k];
       double charge = m_speciesCharge[k];
       Itmp = m_molalities[k] * charge * charge;
@@ -1906,13 +1904,13 @@ namespace Cantera {
 
       m_molalitiesAreCropped = true;
 
-      for (i = 1; i < (m_kk - 1); i++) {
+      for (size_t i = 1; i < (m_kk - 1); i++) {
 	double charge_i = m_speciesCharge[i];
 	double abs_charge_i = fabs(charge_i);
 	if (charge_i == 0.0) {
 	  continue;
 	}
-	for (j = (i+1); j < m_kk; j++) {
+	for (size_t j = (i+1); j < m_kk; j++) {
 	  double charge_j = m_speciesCharge[j];
 	  double abs_charge_j = fabs(charge_j);
 	  /*
@@ -1960,7 +1958,7 @@ namespace Cantera {
 	double anion_contrib_max = -1.0;
 	int cation_contrib_max_i = -1;
 	double cation_contrib_max = -1.0;
-	for (i = 0; i < m_kk; i++) {
+	for (size_t i = 0; i < m_kk; i++) {
 	  double charge_i = m_speciesCharge[i];
 	  if (charge_i < 0.0) {
 	    double anion_contrib =  - m_molalitiesCropped[i] * charge_i;
@@ -2017,7 +2015,7 @@ namespace Cantera {
       double  p =  xmolSolvent + MC_epCut_ + exp(- xmolSolvent/ MC_cpCut_) * poly;
       double denomInv = 1.0/ (m_Mnaught * p);
 
-      for (k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	m_molalitiesCropped[k] = molF[k] * denomInv ; 
       }
 
@@ -2025,13 +2023,13 @@ namespace Cantera {
       // Reduce the molalities to enforce this. Note, this algorithm preserves
       // the charge neutrality of the solution after cropping.
       Itmp = 0.0;
-      for (k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	double charge = m_speciesCharge[k];
 	Itmp += m_molalitiesCropped[k] * charge * charge;
       }
       if (Itmp > m_maxIionicStrength) {
 	double ratio = Itmp / m_maxIionicStrength;
-	for (k = 0; k < m_kk; k++) {
+	for (size_t k = 0; k < m_kk; k++) {
 	  double charge = m_speciesCharge[k];
 	  if (charge != 0.0) {
 	    m_molalitiesCropped[k] *= ratio;
@@ -2320,7 +2318,7 @@ namespace Cantera {
 
     for (i = 1; i < m_kk; i++) {
       for (j = 1; j < m_kk; j++) {
-	for (int k = 1; k < m_kk; k++) {
+	for (size_t k = 1; k < m_kk; k++) {
 	  n = i * m_kk *m_kk + j * m_kk + k ;
 	  const double *Psi_coeff = m_Psi_ijk_coeff.ptrColumn(n);
 	  switch (m_formPitzerTemp) {
@@ -3427,7 +3425,7 @@ namespace Cantera {
     //double xx = MAX(m_xmolSolventMIN, xmolSolvent);
     //    double lnxs = log(xx);
 
-    for (int k = 1; k < m_kk; k++) {
+    for (size_t k = 1; k < m_kk; k++) {
       if (CROP_speciesCropped_[k] == 2) {
 	m_dlnActCoeffMolaldT_Unscaled[k] = 0.0;
       }
@@ -4294,7 +4292,7 @@ namespace Cantera {
     //double xx = MAX(m_xmolSolventMIN, xmolSolvent);
     //double lnxs = log(xx);
 
-    for (int k = 1; k < m_kk; k++) {
+    for (size_t k = 1; k < m_kk; k++) {
       if (CROP_speciesCropped_[k] == 2) {
 	m_d2lnActCoeffMolaldT2_Unscaled[k] = 0.0;
       }
@@ -6174,7 +6172,6 @@ namespace Cantera {
    *    gamma_o_molar = gamma_o_molal
    */
   void  HMWSoln::s_updateIMS_lnMolalityActCoeff() const {
-    int k;
     double tmp;
     /*
      * Calculate the molalities. Currently, the molalities
@@ -6186,21 +6183,21 @@ namespace Cantera {
     double xmolSolvent = moleFraction(m_indexSolvent);
     double xx = MAX(m_xmolSolventMIN, xmolSolvent);
     if (IMS_typeCutoff_ == 0) {
-      for (k = 1; k < m_kk; k++) {
+      for (size_t k = 1; k < m_kk; k++) {
         IMS_lnActCoeffMolal_[k]= 0.0;
       }
       IMS_lnActCoeffMolal_[m_indexSolvent] = - log(xx) + (xx - 1.0)/xx;
       return;
     } else if (IMS_typeCutoff_ == 1) {
       if (xmolSolvent > 3.0 * IMS_X_o_cutoff_/2.0 ) {
-        for (k = 1; k < m_kk; k++) {
+        for (size_t k = 1; k < m_kk; k++) {
           IMS_lnActCoeffMolal_[k]= 0.0;
         }
         IMS_lnActCoeffMolal_[m_indexSolvent] = - log(xx) + (xx - 1.0)/xx;
         return;
       } else if (xmolSolvent < IMS_X_o_cutoff_/2.0) {
         tmp = log(xx * IMS_gamma_k_min_);
-        for (k = 1; k < m_kk; k++) {
+        for (size_t k = 1; k < m_kk; k++) {
           IMS_lnActCoeffMolal_[k]= tmp;
         }
         IMS_lnActCoeffMolal_[m_indexSolvent] = log(IMS_gamma_o_min_);
@@ -6239,7 +6236,7 @@ namespace Cantera {
         double lngammao =-log(g) - tmp * (1.0-xmolSolvent);
 
         tmp = log(xmolSolvent) + lngammak;
-        for (k = 1; k < m_kk; k++) {
+        for (size_t k = 1; k < m_kk; k++) {
           IMS_lnActCoeffMolal_[k]= tmp;
         }
 	IMS_lnActCoeffMolal_[m_indexSolvent] = lngammao;
@@ -6248,7 +6245,7 @@ namespace Cantera {
     // Exponentials - trial 2
     else if (IMS_typeCutoff_ == 2) {
       if (xmolSolvent > IMS_X_o_cutoff_) {
-        for (k = 1; k < m_kk; k++) {
+        for (size_t k = 1; k < m_kk; k++) {
           IMS_lnActCoeffMolal_[k]= 0.0;
         }
         IMS_lnActCoeffMolal_[m_indexSolvent] = - log(xx) + (xx - 1.0)/xx;
@@ -6275,7 +6272,7 @@ namespace Cantera {
         double lngammao =-log(g) - tmp * (1.0-xmolSolvent);
 
         tmp = log(xx) + lngammak;
-        for (k = 1; k < m_kk; k++) {
+        for (size_t k = 1; k < m_kk; k++) {
           IMS_lnActCoeffMolal_[k]= tmp;
         }
         IMS_lnActCoeffMolal_[m_indexSolvent] = lngammao;
@@ -6423,7 +6420,7 @@ namespace Cantera {
     doublereal d2lnGammaClM_dT2_s2 = s_NBS_CLM_d2lnMolalityActCoeff_dT2();
     doublereal d2lnGammaCLM_dT2_s1 = m_d2lnActCoeffMolaldT2_Unscaled[m_indexCLM];
     doublereal afac = -1.0 *(d2lnGammaClM_dT2_s2 - d2lnGammaCLM_dT2_s1);
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       m_d2lnActCoeffMolaldT2_Scaled[k] = m_d2lnActCoeffMolaldT2_Unscaled[k] + m_speciesCharge[k] * afac;
     }
   }

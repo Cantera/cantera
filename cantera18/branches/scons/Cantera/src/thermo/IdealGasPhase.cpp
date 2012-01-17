@@ -175,7 +175,7 @@ namespace Cantera {
    * Get the array of non-dimensional activity coefficients 
    */
   void IdealGasPhase::getActivityCoefficients(doublereal *ac) const {
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       ac[k] = 1.0;
     }
   }
@@ -189,7 +189,7 @@ namespace Cantera {
     scale(gibbsrt.begin(), gibbsrt.end(), muStar, _RT());
     double tmp = log (pressure() /m_spthermo->refPressure());
     tmp *=  GasConstant * temperature();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       muStar[k] += tmp;  // add RT*ln(P/P_0)
     }
   }
@@ -202,7 +202,7 @@ namespace Cantera {
     doublereal xx;
     doublereal rt = temperature() * GasConstant;
     //const array_fp& g_RT = gibbs_RT_ref();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       xx = fmaxx(SmallNumber, moleFraction(k));
       mu[k] += rt*(log(xx));
     }
@@ -227,7 +227,7 @@ namespace Cantera {
     doublereal r = GasConstant;
     scale(_s.begin(), _s.end(), sbar, r);
     doublereal logp = log(pressure()/m_spthermo->refPressure());
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       doublereal xx = fmaxx(SmallNumber, moleFraction(k));
       sbar[k] += r * (- logp - log(xx));
     }
@@ -240,7 +240,7 @@ namespace Cantera {
   void IdealGasPhase::getPartialMolarIntEnergies(doublereal* ubar) const {
     const array_fp& _h = enthalpy_RT_ref();
     doublereal rt = GasConstant * temperature();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       ubar[k] =  rt * (_h[k] - 1.0);
     }
   }
@@ -259,7 +259,7 @@ namespace Cantera {
    */
   void IdealGasPhase::getPartialMolarVolumes(doublereal* vbar) const {
     double vol = 1.0 / molarDensity();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       vbar[k] = vol;
     }
   }
@@ -285,7 +285,7 @@ namespace Cantera {
     const array_fp& _s = entropy_R_ref();
     copy(_s.begin(), _s.end(), sr);
     double tmp = log (pressure() /m_spthermo->refPressure());
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       sr[k] -= tmp;
     }
   }
@@ -298,7 +298,7 @@ namespace Cantera {
     const array_fp& gibbsrt = gibbs_RT_ref();
     copy(gibbsrt.begin(), gibbsrt.end(), grt);
     double tmp = log (pressure() /m_spthermo->refPressure());
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       grt[k] += tmp;
     }
   }
@@ -313,7 +313,7 @@ namespace Cantera {
     scale(gibbsrt.begin(), gibbsrt.end(), gpure, _RT());
     double tmp = log (pressure() /m_spthermo->refPressure());
     tmp *= _RT();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       gpure[k] += tmp;
     }
   }
@@ -325,7 +325,7 @@ namespace Cantera {
    */
   void IdealGasPhase::getIntEnergy_RT(doublereal *urt) const {
     const array_fp& _h = enthalpy_RT_ref();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       urt[k] = _h[k] - 1.0;
     }
   }
@@ -350,7 +350,7 @@ namespace Cantera {
    */
   void IdealGasPhase::getStandardVolumes(doublereal *vol) const {
     double tmp = 1.0 / molarDensity();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       vol[k] = tmp;
     }
   }
@@ -405,7 +405,7 @@ namespace Cantera {
    */
   void IdealGasPhase::getIntEnergy_RT_ref(doublereal *urt) const {
     const array_fp& _h = enthalpy_RT_ref();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       urt[k] = _h[k] - 1.0;
     }
   }
@@ -422,7 +422,7 @@ namespace Cantera {
 
   void IdealGasPhase::getStandardVolumes_ref(doublereal *vol) const {
     doublereal tmp = _RT() / m_p0;
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       vol[k] = tmp;
     }
   }
@@ -468,7 +468,7 @@ namespace Cantera {
      * by the elemental potential method.
      */
     doublereal pres = 0.0;
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       tmp = -grt[k] + mu_RT[k];
       if (tmp < -600.) {
 	m_pp[k] = 0.0;
@@ -508,8 +508,7 @@ namespace Cantera {
             m_tlast = tnow;
 
             // update the species Gibbs functions
-            int k;
-            for (k = 0; k < m_kk; k++) {
+            for (size_t k = 0; k < m_kk; k++) {
                 m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
             }
             m_logc0 = log(m_p0/(GasConstant * tnow));

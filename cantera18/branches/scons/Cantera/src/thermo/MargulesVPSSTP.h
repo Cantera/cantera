@@ -747,7 +747,7 @@ namespace Cantera {
     /*!
      *  @param num Number of binary Margules interaction terms
      */
-    void resizeNumInteractions(const int num);
+    void resizeNumInteractions(const size_t num);
 
 
     //! Initialize lengths of local variables after all species have
@@ -801,7 +801,7 @@ namespace Cantera {
 
 
     //! number of binary interaction expressions
-    int numBinaryInteractions_;
+    size_t numBinaryInteractions_;
 
     //! Enthalpy term for the binary mole fraction interaction of the
     //! excess gibbs free energy expression

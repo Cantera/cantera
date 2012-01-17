@@ -198,21 +198,20 @@ namespace Cantera {
     if (m_idealGas) {
       getConcentrations(c);
     } else {
-      int k;
       const vector_fp& vss = m_VPSS_ptr->standardVolumes();
       switch (m_formGC) {
       case 0:
-	for (k = 0; k < m_kk; k++) {
+	for (size_t k = 0; k < m_kk; k++) {
 	  c[k] = moleFraction(k);
 	}
 	break;
       case 1:
-	for (k = 0; k < m_kk; k++) {
+	for (size_t k = 0; k < m_kk; k++) {
 	  c[k] = moleFraction(k) / vss[k];
 	}
 	break;
       case 2:
-	for (k = 0; k < m_kk; k++) {
+	for (size_t k = 0; k < m_kk; k++) {
 	  c[k] = moleFraction(k) / vss[0];
 	}
 	break;
@@ -302,7 +301,7 @@ namespace Cantera {
    * Get the array of non-dimensional activity coefficients
    */
   void IdealSolnGasVPSS::getActivityCoefficients(doublereal *ac) const {
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       ac[k] = 1.0;
     }
   }
@@ -323,7 +322,7 @@ namespace Cantera {
   void IdealSolnGasVPSS::getChemPotentials_RT(doublereal* muRT) const{
     getChemPotentials(muRT);
     doublereal invRT = 1.0 / _RT();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       muRT[k] *= invRT;
     }
   }
@@ -332,7 +331,7 @@ namespace Cantera {
     getStandardChemPotentials(mu);
     doublereal xx;
     doublereal rt = temperature() * GasConstant;
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       xx = fmaxx(SmallNumber, moleFraction(k));
       mu[k] += rt*(log(xx));
     }
@@ -349,7 +348,7 @@ namespace Cantera {
     getEntropy_R(sbar);
     doublereal r = GasConstant;
     scale(sbar, sbar+m_kk, sbar, r);
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       doublereal xx = fmaxx(SmallNumber, moleFraction(k));
       sbar[k] += r * ( - log(xx));
     }
@@ -404,7 +403,7 @@ namespace Cantera {
      */
     doublereal pres = 0.0;
     double m_p0 = m_VPSS_ptr->refPressure();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       tmp = -grt[k] + mu_RT[k];
       if (tmp < -600.) {
         m_pp[k] = 0.0;

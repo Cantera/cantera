@@ -244,7 +244,7 @@ namespace Cantera {
     /******************************************************************/
 
     //!   Number of elements.
-    int                            m_mm;
+    size_t m_mm;
 
     /* m_elementsFrozen: */
     /**   boolean indicating completion of object

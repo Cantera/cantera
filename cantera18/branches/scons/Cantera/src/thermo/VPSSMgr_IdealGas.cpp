@@ -59,7 +59,7 @@ namespace Cantera {
 
   void VPSSMgr_IdealGas::getIntEnergy_RT(doublereal* urt) const {
     getEnthalpy_RT(urt);
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       urt[k] -= 1.0;
     }
   }
@@ -74,7 +74,7 @@ namespace Cantera {
     doublereal pp = log(m_plast / m_p0);
     doublereal v = temperature() *GasConstant /m_plast;
 
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       m_hss_RT[k]  = m_h0_RT[k];
       m_cpss_R[k] = m_cp0_R[k];
       m_sss_R[k]    = m_s0_R[k] - pp;

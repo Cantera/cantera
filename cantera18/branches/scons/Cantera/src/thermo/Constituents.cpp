@@ -307,7 +307,7 @@ namespace Cantera {
 	  m_speciesComp.resize(m_kk*m_mm, 0.0);
 	  for (size_t k = 0; k < m_kk; k++) {
 	    size_t m_old = m_mm - 1;
-	    for (int m = 0; m < m_old; m++) {
+	    for (size_t m = 0; m < m_old; m++) {
 	      m_speciesComp[k * m_mm + m] =  old[k * (m_old) + m];
 	    }
 	    m_speciesComp[k * (m_mm) + (m_mm-1)] = 0.0; 

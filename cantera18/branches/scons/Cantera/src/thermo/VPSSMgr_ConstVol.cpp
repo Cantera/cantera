@@ -67,7 +67,7 @@ namespace Cantera {
 
     doublereal del_pRT = (m_plast - m_p0) / (GasConstant * m_tlast);
  
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       m_hss_RT[k]  = m_h0_RT[k] + del_pRT * m_Vss[k];
       m_cpss_R[k]  = m_cp0_R[k];
       m_sss_R[k]   = m_s0_R[k];
@@ -127,7 +127,7 @@ namespace Cantera {
 					 &phaseNode.root());
     const vector<string>&sss = m_vptp_ptr->speciesNames();
 
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       const XML_Node* s =  speciesDB->findByAttr("name", sss[k]);
       if (!s) {
 	throw CanteraError("VPSSMgr_ConstVol::initThermoXML",

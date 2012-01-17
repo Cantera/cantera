@@ -84,7 +84,7 @@ namespace Cantera {
             doublereal refPressure) {
             m_be = c[1];
             m_nFreqs = int(c[0]);
-            for (int n = 0; n < m_nFreqs; n++) {
+            for (size_t n = 0; n < m_nFreqs; n++) {
                 m_freq[n] = c[n+2];
             }
             m_index = index;
@@ -179,7 +179,7 @@ namespace Cantera {
         //! species index
         int m_index;         
         //
-        int m_nFreqs;
+        size_t m_nFreqs;
         //! array of vib frequencies
         array_fp m_freq;
         //
@@ -189,8 +189,7 @@ namespace Cantera {
         doublereal _energy_RT(double T) const {
             doublereal x, hnu_kt, hnu, sum = 0.0;
             doublereal kt = T*Boltzmann;
-            int i;
-            for (i = 0; i < m_nFreqs; i++) {
+            for (size_t i = 0; i < m_nFreqs; i++) {
                 hnu = Planck * m_freq[i];
                 hnu_kt = hnu/kt;
                 x = exp(-hnu_kt);
@@ -202,8 +201,7 @@ namespace Cantera {
         doublereal _free_energy_RT(double T) const {
             doublereal x, hnu_kt, sum = 0.0;
             doublereal kt = T*Boltzmann;
-            int i;
-            for (i = 0; i < m_nFreqs; i++) {
+            for (size_t i = 0; i < m_nFreqs; i++) {
                 hnu_kt = Planck * m_freq[i] / kt;
                 x = exp(-hnu_kt);
                 sum += log(1.0 - x);

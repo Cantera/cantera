@@ -451,18 +451,18 @@ namespace Cantera {
     const double mmw = meanMolecularWeight();
     switch (m_formGC) {
     case 0:
-      for (int k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	c[k] = dtmp[k] * mmw;
       }
       break;
     case 1:
-      for (int k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	c[k] = dtmp[k] * mmw / m_speciesMolarVolume[k];
       }
       break;
     case 2:
       double atmp = mmw / m_speciesMolarVolume[m_kk-1];
-      for (int k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	c[k] = dtmp[k] * atmp;
       }
       break;
@@ -593,7 +593,7 @@ namespace Cantera {
    */
   void IdealSolidSolnPhase::
   getActivityCoefficients(doublereal *ac) const {
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       ac[k] = 1.0;
     } 
   }
@@ -620,7 +620,7 @@ namespace Cantera {
     doublereal xx;
     doublereal RT = temperature() * GasConstant;
     const array_fp& g_RT = gibbs_RT_ref();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       xx = fmaxx(SmallNumber, moleFraction(k));
       mu[k] = RT * (g_RT[k] + log(xx))
 	+ delta_p * m_speciesMolarVolume[k];
@@ -650,7 +650,7 @@ namespace Cantera {
     doublereal delta_pdRT = (m_Pcurrent - m_Pref) / RT;
     doublereal xx;
     const array_fp& g_RT = gibbs_RT_ref();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       xx = fmaxx(SmallNumber, moleFraction(k));
       mu[k] = (g_RT[k] + log(xx))
 	+ delta_pdRT * m_speciesMolarVolume[k];
@@ -705,7 +705,7 @@ namespace Cantera {
     const array_fp& _s = entropy_R_ref();
     doublereal r = GasConstant;
     doublereal xx;
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       xx = fmaxx(SmallNumber, moleFraction(k));
       sbar[k] = r * (_s[k] - log(xx));
     }
@@ -722,7 +722,7 @@ namespace Cantera {
   void IdealSolidSolnPhase::
   getPartialMolarCp(doublereal* cpbar) const {
     getCp_R(cpbar);
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       cpbar[k] *= GasConstant;
     }
   }
@@ -768,7 +768,7 @@ namespace Cantera {
     doublereal RT = _RT();
     const doublereal * const gk = DATA_PTR(gibbsrt);
     doublereal delta_p = (m_Pcurrent - m_Pref);
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       gpure[k] = RT * gk[k] + delta_p * m_speciesMolarVolume[k];
     }
   }
@@ -794,7 +794,7 @@ namespace Cantera {
     doublereal RT = _RT();
     const doublereal * const gk = DATA_PTR(gibbsrt);
     doublereal delta_prt = (m_Pcurrent - m_Pref)/ RT;
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       grt[k] = gk[k] + delta_prt * m_speciesMolarVolume[k];
     }
   }
@@ -819,7 +819,7 @@ namespace Cantera {
     const array_fp& _h = enthalpy_RT_ref();
     doublereal delta_prt = ((m_Pcurrent - m_Pref) / 
 			    (GasConstant * temperature()));
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       hrt[k] = _h[k] + delta_prt * m_speciesMolarVolume[k];
     }
   }
@@ -856,7 +856,7 @@ namespace Cantera {
   void IdealSolidSolnPhase::getIntEnergy_RT(doublereal *urt) const {
     const array_fp& _h = enthalpy_RT_ref();
     doublereal prefrt = m_Pref / (GasConstant * temperature());
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       urt[k] = _h[k] - prefrt * m_speciesMolarVolume[k];
     }
   }
@@ -947,7 +947,7 @@ namespace Cantera {
   void IdealSolidSolnPhase::getIntEnergy_RT_ref(doublereal *urt) const {
     const array_fp& _h = enthalpy_RT_ref();
     doublereal prefrt = m_Pref / (GasConstant * temperature());
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       urt[k] = _h[k] - prefrt * m_speciesMolarVolume[k];
     }
   }
@@ -1241,7 +1241,7 @@ namespace Cantera {
 					 &phaseNode.root());
     const vector<string>&sss = speciesNames();
 
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       XML_Node* s =  speciesDB->findByAttr("name", sss[k]);
       XML_Node *ss = s->findByName("standardState");
       m_speciesMolarVolume[k] = getFloat(*ss, "molarVolume", "toSI");
@@ -1305,9 +1305,9 @@ namespace Cantera {
     // set the pressure and composition to be consistent with
     // the temperature, 
     doublereal pres = 0.0;
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       m_pp[k] = -grt[k];
-      for (int m = 0; m < m_mm; m++) {
+      for (size_t m = 0; m < m_mm; m++) {
 	m_pp[k] += nAtoms(k,m)*lambda_RT[m];
       }
       m_pp[k] = m_Pref * exp(m_pp[k]);
@@ -1366,9 +1366,8 @@ namespace Cantera {
 			 DATA_PTR(m_s0_R));
       m_tlast = tnow;
       doublereal rrt = 1.0 / (GasConstant * tnow);
-      int k;
       doublereal deltaE;
-      for (k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	deltaE = rrt * m_pe[k];
 	m_h0_RT[k] += deltaE;
 	m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];

@@ -359,7 +359,7 @@ namespace Cantera {
     /*
      * take the exp of the internally storred coefficients.
      */
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       ac[k] = exp(lnActCoeff_Scaled_[k]); 
     }
   }
@@ -373,7 +373,7 @@ namespace Cantera {
   void MargulesVPSSTP::getElectrochemPotentials(doublereal* mu) const {
     getChemPotentials(mu);
     double ve = Faraday * electricPotential();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       mu[k] += ve*charge(k);
     }
   }
@@ -396,7 +396,7 @@ namespace Cantera {
      *
      */
     doublereal RT = GasConstant * temperature();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       xx = fmaxx(moleFractions_[k], xxSmall);
       mu[k] += RT * (log(xx) + lnActCoeff_Scaled_[k]);      
     }
@@ -427,7 +427,7 @@ namespace Cantera {
      */
     double T = temperature();
     double RT = GasConstant * T;
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       hbar[k] *= RT;
     }
     /*
@@ -437,7 +437,7 @@ namespace Cantera {
     s_update_lnActCoeff();
     s_update_dlnActCoeff_dT();
     double RTT = RT * T;
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       hbar[k] -= RTT * dlnActCoeffdT_Scaled_[k];
     }
   }
@@ -470,14 +470,14 @@ namespace Cantera {
     s_update_lnActCoeff();
     s_update_dlnActCoeff_dT();
 
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       xx = fmaxx(moleFractions_[k], xxSmall);
       sbar[k] += - lnActCoeff_Scaled_[k] -log(xx) - T * dlnActCoeffdT_Scaled_[k];
     }  
     /*
      * dimensionalize it.
      */
-   for (int k = 0; k < m_kk; k++) {
+   for (size_t k = 0; k < m_kk; k++) {
       sbar[k] *= GasConstant;
     }
   }
@@ -498,7 +498,7 @@ namespace Cantera {
    */
   void MargulesVPSSTP::getPartialMolarVolumes(doublereal* vbar) const {
 
-    size_t iA, iB, iK, delAK, delBK;
+    size_t iA, iB, delAK, delBK;
     double XA, XB, XK, g0 , g1;
     double T = temperature();
 
@@ -510,7 +510,7 @@ namespace Cantera {
     //cout << "iA = " << speciesName(m_pSpecies_A_ij[0]) << endl;   
     //cout << "iB = " << speciesName(m_pSpecies_B_ij[0]) << endl;   
     
-    for ( iK = 0; iK < m_kk; iK++ ){
+    for (size_t iK = 0; iK < m_kk; iK++) {
       delAK = 0;
       delBK = 0;
       XK = moleFractions_[iK];  
@@ -782,7 +782,7 @@ namespace Cantera {
 
   void MargulesVPSSTP::getdlnActCoeffdT(doublereal *dlnActCoeffdT) const {
     s_update_dlnActCoeff_dT();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       dlnActCoeffdT[k] = dlnActCoeffdT_Scaled_[k];
     }
   }
@@ -922,19 +922,19 @@ namespace Cantera {
 
   void MargulesVPSSTP::getdlnActCoeffdlnN(doublereal *dlnActCoeffdlnN) const {
     s_update_dlnActCoeff_dlnN();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       dlnActCoeffdlnN[k] = dlnActCoeffdlnN_Scaled_[k];
     }
   }
   void MargulesVPSSTP::getdlnActCoeffdlnX(doublereal *dlnActCoeffdlnX) const {
     s_update_dlnActCoeff_dlnX();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       dlnActCoeffdlnX[k] = dlnActCoeffdlnX_Scaled_[k];
     }
   }
 
 
-  void MargulesVPSSTP::resizeNumInteractions(const int num) {
+  void MargulesVPSSTP::resizeNumInteractions(const size_t num) {
     numBinaryInteractions_ = num;
     m_HE_b_ij.resize(num, 0.0);
     m_HE_c_ij.resize(num, 0.0);
