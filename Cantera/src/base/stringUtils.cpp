@@ -9,9 +9,6 @@
 #include "ct_defs.h"
 
 #ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#pragma warning(disable:4996)
 #define SNPRINTF _snprintf
 #else
 #define SNPRINTF snprintf

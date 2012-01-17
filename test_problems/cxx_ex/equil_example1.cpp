@@ -5,12 +5,6 @@
 //
 /////////////////////////////////////////////////////////////
 
-// turn off warnings under Windows
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
 #include <cantera/Cantera.h>
 #include "example_utils.h"
 #include <cantera/equilibrium.h>

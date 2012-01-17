@@ -11,11 +11,6 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-// turn off warnings under Windows
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
 
 #include "VPSSMgr_IdealGas.h"
 #include "utilities.h"
@@ -35,7 +30,6 @@ namespace Cantera {
     m_useTmpRefStateStorage = true;
     m_useTmpStandardStateStorage = true;
   }
-
 
   VPSSMgr_IdealGas::~VPSSMgr_IdealGas() 
   {

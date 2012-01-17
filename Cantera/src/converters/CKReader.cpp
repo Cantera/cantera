@@ -5,12 +5,6 @@
 
 // Copyright 2001  California Institute of Technology
 
-
-// disable warning about long names in Windows
-#ifdef WIN32
-#pragma warning(disable:4786)
-#endif
-
 #include <fstream>
 #include <string>
 using namespace std;

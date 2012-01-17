@@ -1,10 +1,3 @@
-// turn off warnings under Windows
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
-
 #include <map>
 #include <algorithm>
 #include "Domain1D.h"

@@ -2,11 +2,6 @@
  *  @file newton_utils.cpp
  */
 
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
 #include "ct_defs.h"
 #include "Domain1D.h"
 

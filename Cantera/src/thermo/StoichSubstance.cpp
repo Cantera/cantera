@@ -1,5 +1,4 @@
 /**
- *
  *  @file StoichSubstance.cpp
  *  This file contains the class definitions for the StoichSubstance
  *  ThermoPhase class.
@@ -7,18 +6,12 @@
 
 //  Copyright 2001 California Institute of Technology
 
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
 #include "ct_defs.h"
 #include "mix_defs.h"
 #include "StoichSubstance.h"
 #include "SpeciesThermo.h"
 
 namespace Cantera {
-
 
   // Default empty constructor
   StoichSubstance::StoichSubstance() :

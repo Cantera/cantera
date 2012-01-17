@@ -7,30 +7,18 @@
 
 // Copyright 2001  California Institute of Technology
 
-
 #ifndef CT_MULTITRAN_H
 #define CT_MULTITRAN_H
-
 
 // Define this for better agreement with Chemkin TRANLIB results, even
 // if the results are less correct.
 //#undef CHEMKIN_COMPATIBILITY_MODE
 
-
-// turn off warnings under Windows
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
-
 // Cantera includes
 #include "TransportBase.h"
 #include "DenseMatrix.h"
 
-
 namespace Cantera {
-
 
   //! Transport solve options
   enum TRANSOLVE_TYPE {

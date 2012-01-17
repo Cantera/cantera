@@ -7,11 +7,6 @@
 #ifndef CT_FLOWREACTOR_H
 #define CT_FLOWREACTOR_H
 
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
 #include "Reactor.h"
 
 namespace CanteraZeroD {

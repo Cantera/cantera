@@ -10,12 +10,6 @@
  *  See file License.txt for licensing information
  */
 
-// turn off warnings under Windows
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
 #include "ThermoPhase.h"
 #include "DustyGasTransport.h"
 
@@ -27,12 +21,9 @@ using namespace std;
  */
 #define MIN_X 1.e-20
 
-
 namespace Cantera {
 
-
     //////////////////// class DustyGasTransport methods //////////////
-
 
     DustyGasTransport::DustyGasTransport(thermo_t* thermo) 
         : Transport(thermo),

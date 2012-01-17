@@ -10,17 +10,10 @@
 
 #ifndef CT_INTEGRATOR_H
 #define CT_INTEGRATOR_H
-
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
 #include "FuncEval.h"
 
 #include "ct_defs.h"
 #include "global.h"
-
 
 namespace Cantera {
 

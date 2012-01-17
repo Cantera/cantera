@@ -20,10 +20,6 @@
 
 #include "clockWC.h"
 
-#ifdef WIN32
-#pragma warning(disable:4996)
-#endif
-
 using namespace std;
 
 namespace VCSnonideal {

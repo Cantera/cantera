@@ -8,12 +8,6 @@
 #ifndef CT_TRANFACTORY_H
 #define CT_TRANFACTORY_H
 
-// turn off warnings under Windows
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
 // STL includes
 #include <vector>
 #include <string>

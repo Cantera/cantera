@@ -6,12 +6,6 @@
  *   Cantera objects are stored and referenced by integers - no
  *   pointers are passed to or from the calling application.
  */
-// turn off warnings under Windows
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
 // Cantera includes
 #include "kernel/equil.h"
 #include "kernel/KineticsFactory.h"

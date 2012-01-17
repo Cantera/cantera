@@ -5,12 +5,6 @@
  *
  */
 
-// turn off warnings about long names under Windows
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
 #include "cantera/kernel/config.h"
 
 #include "Python.h"

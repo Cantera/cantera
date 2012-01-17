@@ -5,13 +5,6 @@
 
 // Copyright 2002  California Institute of Technology
 
-
-// turn off warnings under Windows
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
 #include "InterfaceKinetics.h"
 #include "EdgeKinetics.h"
 #include "SurfPhase.h"

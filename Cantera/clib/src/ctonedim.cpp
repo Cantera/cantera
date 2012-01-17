@@ -1,13 +1,6 @@
 /**
  * @file ctonedim.cpp
  */
-// turn off warnings under Windows
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#pragma warning(disable:4800)
-#endif
-
 #define CANTERA_USE_INTERNAL
 #include "ctonedim.h"
 

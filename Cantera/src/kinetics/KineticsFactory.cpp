@@ -3,11 +3,6 @@
  */
 // Copyright 2001  California Institute of Technology
 
-
-#ifdef WIN32
-#pragma warning(disable:4786)
-#endif
-
 #include "KineticsFactory.h"
 
 #include "GasKinetics.h"

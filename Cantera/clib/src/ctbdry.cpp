@@ -4,13 +4,6 @@
 #define CANTERA_USE_INTERNAL
 #include "ctbdry.h"
 
-
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
-
 // Cantera includes
 #include "kernel/OneDim.h"
 #include "kernel/Inlet1D.h"
