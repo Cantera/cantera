@@ -58,9 +58,7 @@ namespace mdp {
   /****************************************************************************/
   /****************************************************************************/
 
-  static void mdp_alloc_eh(const char * const rname, const int bytes) 
-    throw(std::bad_alloc, std::exception)
-   
+  static void mdp_alloc_eh(const char * const rname, const int bytes)
     /*************************************************************************
      *
      * mdp_alloc_eh:

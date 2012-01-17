@@ -40,7 +40,7 @@ namespace mdp {
    *  @param tmp number to be checked
    */
 #ifdef WIN32
-  void checkFinite(const double tmp) throw(std::range_error) {
+  void checkFinite(const double tmp) {
     if (_finite(tmp)) {
       if(_isnan(tmp)) {
 	    printf("ERROR: we have encountered a nan!\n");
@@ -54,7 +54,7 @@ namespace mdp {
     }
   }
 #else
-  void checkFinite(const double tmp) throw(std::range_error) {
+  void checkFinite(const double tmp) {
     if (! finite(tmp)) {
       if(isnan(tmp)) {
 	printf("ERROR: we have encountered a nan!\n");
@@ -91,7 +91,7 @@ namespace mdp {
    * @param tmp     Number to be checked
    * @param trigger bounds on the number. Defaults to 1.0E20
    */
-  void checkMagnitude(const double tmp, const double trigger) throw(std::range_error) {
+  void checkMagnitude(const double tmp, const double trigger) {
     checkFinite(tmp); 
     if (fabs(tmp) >= trigger) {
       char sbuf[64];
@@ -109,7 +109,7 @@ namespace mdp {
    *  @param tmp number to be checked
    */
 #ifdef WIN32
-void checkZeroFinite(const double tmp) throw(std::range_error) {
+void checkZeroFinite(const double tmp) {
     if ((tmp == 0.0) || (! _finite(tmp))) {
       if (tmp == 0.0) {
 	    printf("ERROR: we have encountered a zero!\n");
@@ -127,7 +127,7 @@ void checkZeroFinite(const double tmp) throw(std::range_error) {
     }
   }
 #else
-  void checkZeroFinite(const double tmp) throw(std::range_error) {
+  void checkZeroFinite(const double tmp) {
     if ((tmp == 0.0) || (! finite(tmp))) {
       if (tmp == 0.0) {
 	printf("ERROR: we have encountered a zero!\n");
