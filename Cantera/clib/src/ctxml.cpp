@@ -254,18 +254,17 @@ extern "C" {
             bool conv = false;
             if (iconvert > 0) conv = true;
             getFloatArray(node, v, conv);
-            int nv = v.size();
+            size_t nv = v.size();
 
             // array not big enough
             if (n < nv) {
                 throw CanteraError("ctml_getFloatArray",
-                    "array must be dimensioned at least "+int2str(nv));
+                    "array must be dimensioned at least "+int2str(int(nv)));
             }
             
             for (int i = 0; i < nv; i++) {
                 data[i] = v[i];
             }
-            n = nv;
         }
         catch (CanteraError) { return -1; }
         return 0;

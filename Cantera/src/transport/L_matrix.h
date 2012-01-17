@@ -21,7 +21,7 @@ namespace Cantera {
 
     const doublereal Min_C_Internal = 0.001;
 
-     bool MultiTransport::hasInternalModes(int j) {
+     bool MultiTransport::hasInternalModes(size_t j) {
 #ifdef CHEMKIN_COMPATIBILITY_MODE
         return (m_crot[j] > Min_C_Internal);
 #else
@@ -147,9 +147,9 @@ namespace Cantera {
      void MultiTransport::eval_L1001(const doublereal* x) {
 
         doublereal prefactor = 32.00*m_temp/(5.00*Pi);
-        int i,j;
+        size_t i,j;
         doublereal constant, sum;
-        int n2 = 2*m_nsp;
+        size_t n2 = 2*m_nsp;
         int npoly = 0;
         for (j = 0; j < m_nsp; j++) {
             //        collect terms that depend only on "j"
@@ -174,8 +174,8 @@ namespace Cantera {
     ////////////////////////////////////////////////////////////////////////
 
      void MultiTransport::eval_L0001() {
-        int i, j;
-        int n2 = 2*m_nsp;
+        size_t i, j;
+        size_t n2 = 2*m_nsp;
         for (j = 0; j < m_nsp; j++)
             for (i = 0; i < m_nsp; i++) 
                 m_Lmatrix(i,j+n2) = 0.0;
@@ -184,8 +184,8 @@ namespace Cantera {
     ////////////////////////////////////////////////////////////////////////
 
      void MultiTransport::eval_L0100() {
-        int i, j;
-        int n2 = 2*m_nsp;
+        size_t i, j;
+        size_t n2 = 2*m_nsp;
         for (j = 0; j < m_nsp; j++)
             for (i = 0; i < m_nsp; i++) 
                 m_Lmatrix(i+n2,j) = 0.0;  //  see Eq. (12.123)
@@ -194,8 +194,8 @@ namespace Cantera {
     ////////////////////////////////////////////////////////////////////////
 
      void MultiTransport::eval_L0110() {
-        int i, j;
-        int n2 = 2*m_nsp;
+        size_t i, j;
+        size_t n2 = 2*m_nsp;
         for (j = 0; j < m_nsp; j++)
             for (i = 0; i < m_nsp; i++) 
                 m_Lmatrix(i+n2,j+m_nsp) = m_Lmatrix(j+m_nsp,i+n2);  //  see Eq. (12.123)
@@ -210,8 +210,8 @@ namespace Cantera {
         const doublereal eightoverpi = 8.0 / Pi;
 
         doublereal prefactor = 4.00*m_temp;
-        int n2 = 2*m_nsp;
-        int i,k;
+        size_t n2 = 2*m_nsp;
+        size_t i,k;
         doublereal constant1, constant2, diff_int, sum;
         for (i = 0; i < m_nsp; i++) {
             if (hasInternalModes(i)) {

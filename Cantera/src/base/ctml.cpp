@@ -163,7 +163,7 @@ namespace ctml {
    *       and codify that. unitsString shouldn't be here, since it's an int.
    *       typeString should be codified as to its usage.
    */
-  void addIntegerArray(Cantera::XML_Node& node, const std::string &title, const int n,
+  void addIntegerArray(Cantera::XML_Node& node, const std::string &title, const size_t n,
 		       const int* const vals, const std::string units, const std::string type,
 		       const doublereal minval, const doublereal maxval) {
     std::string fmt = "%8d";
@@ -178,7 +178,7 @@ namespace ctml {
     XML_Node& f = node.addChild("intArray",v);
     f.addAttribute("title",title);
     if (type != "") f.addAttribute("type",type);        
-    f.addAttribute("size",n);
+    f.addAttribute("size", double(n));
     if (units != "") f.addAttribute("units",units);
     if (minval != Undef) f.addAttribute("min",minval);
     if (maxval != Undef) f.addAttribute("max",maxval);
@@ -295,12 +295,12 @@ namespace ctml {
    *       and codify that. unitsString shouldn't be here, since it's an int.
    *       typeString should be codified as to its usage.
    */
-  void addFloatArray(Cantera::XML_Node& node, const std::string &title, const int n, 
+  void addFloatArray(Cantera::XML_Node& node, const std::string &title, const size_t n,
 		     const doublereal* const vals, const std::string units, 
                      const std::string type,
 		     const doublereal minval, const doublereal maxval) {
     std::string fmt = "%17.9E";
-    int i;
+    size_t i;
     std::string v = "";
     for (i = 0; i < n; i++) {
       v += fp2str(vals[i],fmt);
@@ -311,7 +311,7 @@ namespace ctml {
     XML_Node& f = node.addChild("floatArray",v);
     f.addAttribute("title",title);
     if (type != "") f.addAttribute("type",type);        
-    f.addAttribute("size",n);
+    f.addAttribute("size", double(n));
     if (units != "") f.addAttribute("units",units);
     if (minval != Undef) f.addAttribute("min",minval);
     if (maxval != Undef) f.addAttribute("max",maxval);

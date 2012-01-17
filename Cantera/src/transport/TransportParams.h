@@ -20,7 +20,7 @@ namespace Cantera {
 
         TransportParams() : thermo(0), xml(0) {}
         virtual ~TransportParams();
-        int nsp_;
+        size_t nsp_;
 
         //        phase_t* mix;
         thermo_t* thermo;

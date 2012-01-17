@@ -395,7 +395,8 @@ namespace VCSnonideal {
   int VCS_SOLVE::vcs_rxn_adj_cg() {  
     size_t irxn, j;
     size_t k = 0;
-    size_t kspec, soldel = 0;
+    size_t kspec;
+    int soldel = 0;
     double s, xx, dss;
     double *dnPhase_irxn;
 #ifdef DEBUG_MODE

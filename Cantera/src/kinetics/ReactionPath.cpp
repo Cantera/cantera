@@ -167,7 +167,7 @@ namespace Cantera {
         }
     }
 
-    void ReactionPathDiagram::findMajorPaths(doublereal athreshold, int lda, 
+    void ReactionPathDiagram::findMajorPaths(doublereal athreshold, size_t lda,
         doublereal* a) {
         size_t nn = nNodes();
         size_t n, m, k1, k2;

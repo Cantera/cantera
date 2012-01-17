@@ -60,8 +60,8 @@ py_mix_nElements(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "i:mix_nElements", &i)) 
         return NULL;
         
-    _val = mix_nElements(i); 
-    if (int(_val) < -900) return reportCanteraError();
+    _val = int(mix_nElements(i));
+    if (_val < -900) return reportCanteraError();
     return Py_BuildValue("i",_val);
 }
 
@@ -74,8 +74,8 @@ py_mix_elementIndex(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "is:mix_elementIndex", &i, &name)) 
         return NULL;
         
-    _val = mix_elementIndex(i,name); 
-    if (int(_val) < -900) return reportCanteraError();
+    _val = int(mix_elementIndex(i,name));
+    if (_val < -900) return reportCanteraError();
     return Py_BuildValue("i",_val);
 }
 
@@ -87,15 +87,15 @@ py_mix_nSpecies(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "i:mix_nSpecies", &i)) 
         return NULL;
         
-    _val = mix_nSpecies(i); 
-    if (int(_val) < -900) return reportCanteraError();
+    _val = int(mix_nSpecies(i));
+    if (_val < -900) return reportCanteraError();
     return Py_BuildValue("i",_val);
 } 
 
 static PyObject *
 py_mix_speciesIndex(PyObject *self, PyObject *args)
 {
-    int _val;
+    size_t _val;
     int i, k, p;
     if (!PyArg_ParseTuple(args, "iii:mix_speciesIndex", &i, &k, &p)) 
         return NULL;
@@ -307,7 +307,7 @@ py_mix_setMoles(PyObject *self, PyObject *args)
 
     PyArrayObject* n_array = (PyArrayObject*)n;
     double* n_data = (double*)n_array->data;
-    int n_len = n_array->dimensions[0];
+    size_t n_len = n_array->dimensions[0];
 
     _val = mix_setMoles(i,n_len,n_data); 
     if (int(_val) < -900) return reportCanteraError();
@@ -387,7 +387,7 @@ py_mix_getChemPotentials(PyObject *self, PyObject *args)
 
     PyArrayObject* mu_array = (PyArrayObject*)mu;
     double* mu_data = (double*)mu_array->data;
-    int mu_len = mu_array->dimensions[0];
+    size_t mu_len = mu_array->dimensions[0];
 
     _val = mix_getChemPotentials(i, mu_len, mu_data); 
     if (int(_val) < 0) return reportCanteraError();

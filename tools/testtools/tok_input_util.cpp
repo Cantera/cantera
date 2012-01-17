@@ -1529,15 +1529,15 @@ void strip_item_from_token(int iword, TOKEN *tok)
 #ifdef WIN32
   __w64 int ioffset = tok->tok_ptr[iword] - tok->tok_str;
 #else
-  int ioffset = tok->tok_ptr[iword] - tok->tok_str;
+  size_t ioffset = tok->tok_ptr[iword] - tok->tok_str;
 #endif
   size_t ilength = strlen(tok->tok_ptr[iword]);
 #ifdef WIN32
   __w64 int i = ioffset;
   __w64 int j = ioffset + ilength;
 #else
-  int i = ioffset;
-  int j = ioffset + ilength;
+  size_t i = ioffset;
+  size_t j = ioffset + ilength;
 #endif
   if (j <= (int) strlen(tok->orig_str)) {
     while(tok->orig_str[j] != '\0') {

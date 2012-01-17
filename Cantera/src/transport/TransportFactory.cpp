@@ -388,7 +388,7 @@ namespace Cantera {
     // constant mixture attributes
     tr.thermo = thermo;
     tr.nsp_ = tr.thermo->nSpecies();
-    int nsp = tr.nsp_;
+    size_t nsp = tr.nsp_;
 
     tr.tmin = thermo->minTemp();
     tr.tmax = thermo->maxTemp();
@@ -518,7 +518,7 @@ namespace Cantera {
     // constant mixture attributes
     trParam.thermo = thermo;
     trParam.nsp_ = trParam.thermo->nSpecies();
-    int nsp = trParam.nsp_;
+    size_t nsp = trParam.nsp_;
 
     trParam.tmin = thermo->minTemp();
     trParam.tmax = thermo->maxTemp();
@@ -628,9 +628,9 @@ namespace Cantera {
 
     vector_fp::iterator dptr;
     doublereal dstar;
-    int nsp = tr.nsp_;
+    size_t nsp = tr.nsp_;
     int mode = tr.mode_;
-    int i, j;
+    size_t i, j;
 
     // Chemkin fits to sixth order polynomials
     int degree = (mode == CK_Mode ? 6 : COLL_INT_POLY_DEGREE);

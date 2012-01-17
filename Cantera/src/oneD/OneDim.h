@@ -47,18 +47,18 @@ namespace Cantera {
         int solve(doublereal* x0, doublereal* x1, int loglevel);
 
         /// Number of domains.
-        int nDomains() const { return m_nd; }
+        size_t nDomains() const { return m_nd; }
 
         /// Return a reference to domain i.
-        Domain1D& domain(int i) const { return *m_dom[i]; }
+        Domain1D& domain(size_t i) const { return *m_dom[i]; }
 
         int domainIndex(std::string name);
 
         /// The index of the start of domain i in the solution vector.
-        int start(int i) const { return m_dom[i]->loc(); }
+        size_t start(size_t i) const { return m_dom[i]->loc(); }
 
         /// Total solution vector length;
-        int size() const { return m_size; }
+        size_t size() const { return m_size; }
 
         /// Pointer to left-most domain (first added).
         Domain1D* left() { return m_dom[0]; }
@@ -67,22 +67,22 @@ namespace Cantera {
         Domain1D* right() { return m_dom.back(); }
 
         /// Number of solution components at global point jg.
-        int nVars(int jg) { return m_nvars[jg]; }
+        size_t nVars(size_t jg) { return m_nvars[jg]; }
 
         /**
          * Location in the solution vector of the first component of
          *  global point jg.
          */
-        int loc(int jg) { return m_loc[jg]; }
+        size_t loc(size_t jg) { return m_loc[jg]; }
 
         /// Jacobian bandwidth.
-        int bandwidth() const { return m_bw; }
+        size_t bandwidth() const { return m_bw; }
 
         /// Initialize.
         void init();
 
         /// Total number of points.
-        int points() { return m_pts; }
+        size_t points() { return m_pts; }
 
         /**
          * Steady-state max norm of the residual evaluated using solution x.
@@ -121,7 +121,7 @@ namespace Cantera {
          *                  the default value is used.
          * @param count   Set to zero to omit this call from the statistics
          */ 
-        void eval(int j, double* x, double* r, doublereal rdt=-1.0, 
+        void eval(size_t j, double* x, double* r, doublereal rdt=-1.0,
             int count = 1);
 
         /// Pointer to the domain global point i belongs to.
@@ -167,17 +167,17 @@ namespace Cantera {
         MultiNewton* m_newt;      // Newton iterator
         doublereal m_rdt;         // reciprocal of time step
         bool m_jac_ok;            // if true, Jacobian is current
-        int m_nd;                 // number of domains
-        int m_bw;                 // Jacobian bandwidth
-        int m_size;               // solution vector size
+        size_t m_nd;                 // number of domains
+        size_t m_bw;                 // Jacobian bandwidth
+        size_t m_size;               // solution vector size
         
         std::vector<Domain1D*> m_dom, m_connect, m_bulk;
 
         bool m_init;
-        vector_int m_nvars;
-        vector_int m_loc;
+        std::vector<size_t> m_nvars;
+        std::vector<size_t> m_loc;
         vector_int m_mask;
-        int m_pts;
+        size_t m_pts;
         doublereal m_solve_time;
 
         // options
@@ -188,7 +188,7 @@ namespace Cantera {
         // statistics
         int m_nevals;
         doublereal m_evaltime;
-        vector_int m_gridpts;
+        std::vector<size_t> m_gridpts;
         vector_int m_jacEvals;
         vector_fp m_jacElapsed;
         vector_int m_funcEvals;

@@ -125,7 +125,7 @@ AxiStagnBVP::AxiStagnBVP(igthermo_t* ph, int nsp, int points) :
     /**
      * Change the grid size. Called after grid refinement.
      */
-    void AxiStagnBVP::resize(int ncomponents, int points) {
+    void AxiStagnBVP::resize(size_t ncomponents, size_t points) {
         Domain1D::resize(ncomponents, points);
         m_rho.resize(m_points, 0.0);
         m_wtm.resize(m_points, 0.0);

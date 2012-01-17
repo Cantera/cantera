@@ -72,7 +72,7 @@ namespace Cantera {
     return m_ready; 
   }
   
-  int Transport::index() const {
+  size_t Transport::index() const {
     return m_index; 
   }
 
@@ -80,7 +80,7 @@ namespace Cantera {
    * Set an integer index number. This is for internal use of
    * Cantera, and may be removed in the future.
    */
-  void Transport::setIndex(int i) {
+  void Transport::setIndex(size_t i) {
     m_index = i; 
   }
 

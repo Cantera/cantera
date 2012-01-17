@@ -172,7 +172,7 @@ extern "C" {
         return 0;
     }
 
-    int DLL_EXPORT reactor_nSensParams(int i) {
+    size_t DLL_EXPORT reactor_nSensParams(int i) {
         reactor_t* r = _reactor(i);
         if (r->type() >= ReactorType) 
             return ((Reactor*)r)->nSensParams();

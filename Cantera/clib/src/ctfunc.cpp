@@ -17,7 +17,7 @@ typedef Func1 func_t;
 // Assign storage to the Cabinet<Func1> static member
 template<> Cabinet<func_t>*       Cabinet<func_t>::__storage = 0;
 
-inline func_t* _func(int i) {
+inline func_t* _func(size_t i) {
     return Cabinet<func_t>::cabinet()->item(i);
 }
  
@@ -25,9 +25,9 @@ extern "C" {
 
     // functions
 
-    int DLL_EXPORT func_new(int type, int n, int lenp, double* params) {
+    int DLL_EXPORT func_new(int type, int n, size_t lenp, double* params) {
         func_t* r=0;
-        int m = lenp;
+        size_t m = lenp;
         try {
             if (type == SinFuncType) {
                 r = new Sin1(params[0]);
@@ -140,12 +140,12 @@ extern "C" {
         return Cabinet<func_t>::cabinet()->add(r);
     }
 
-    int DLL_EXPORT func_write(int i, int lennm, const char* arg, char* nm) {
+    int DLL_EXPORT func_write(int i, size_t lennm, const char* arg, char* nm) {
         try {
             string a = string(arg);
             string w = _func(i)->write(a);
-            int ws = w.size();
-            int lout = (lennm > ws ? ws : lennm);
+            size_t ws = w.size();
+            size_t lout = (lennm > ws ? ws : lennm);
 			std::copy(w.c_str(), w.c_str() + lout, nm);
             nm[lout] = '\0';
             return 0;

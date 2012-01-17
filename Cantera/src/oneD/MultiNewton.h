@@ -24,7 +24,7 @@ namespace Cantera {
         MultiNewton(int sz);
         virtual ~MultiNewton();
 
-        int size() { return m_n; }
+        size_t size() { return m_n; }
 
         /// Compute undamped step
         void step(doublereal* x, doublereal* step, 
@@ -48,7 +48,7 @@ namespace Cantera {
         void setOptions(int maxJacAge = 5) {m_maxAge = maxJacAge;}
 
         /// Change the problem size.
-        void resize(int points);
+        void resize(size_t points);
 
 
     protected:
@@ -57,7 +57,7 @@ namespace Cantera {
         void releaseWorkArray(doublereal* work);
         std::vector<doublereal*> m_workarrays;
         int m_maxAge;
-        int m_nv, m_np, m_n;
+        size_t m_nv, m_np, m_n;
         doublereal m_elapsed;
 
     private:

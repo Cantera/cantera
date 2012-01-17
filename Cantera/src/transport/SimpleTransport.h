@@ -432,7 +432,7 @@ namespace Cantera {
   private:
 
     //! Number of species in the mixture
-    int m_nsp;
+    size_t m_nsp;
 
     //! Temperature dependence type
     /*!

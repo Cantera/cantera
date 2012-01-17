@@ -79,7 +79,7 @@ py_elementindex(PyObject *self, PyObject *args) {
     int ph;
     char* nm;
     if (!PyArg_ParseTuple(args, "is:py_elementindex", &ph, &nm)) return NULL;
-    int k = phase_elementIndex(ph,nm);
+    size_t k = phase_elementIndex(ph,nm);
     return Py_BuildValue("i",k);
 }
 
@@ -88,7 +88,7 @@ py_speciesindex(PyObject *self, PyObject *args) {
     int ph;
     char* nm;
     if (!PyArg_ParseTuple(args, "is:py_speciesindex", &ph, &nm)) return NULL;
-    int k = phase_speciesIndex(ph,nm);
+    size_t k = phase_speciesIndex(ph,nm);
     return Py_BuildValue("i",k);
 }
 
@@ -127,13 +127,14 @@ phase_getarray(PyObject *self, PyObject *args)
     double* xd = 0;
     if (job > 10) {
 
-        int nsp = phase_nSpecies(ph);
+        size_t nsp = phase_nSpecies(ph);
 #ifdef HAS_NUMPY
         npy_intp nnn = nsp;
         x = (PyArrayObject*)PyArray_SimpleNew(1,  &nnn, PyArray_DOUBLE);
         Py_INCREF(x);
 #else
-        x = (PyArrayObject*)PyArray_FromDims(1, &nsp, PyArray_DOUBLE);
+	int nnn = int(nsp);
+        x = (PyArrayObject*)PyArray_FromDims(1, &nnn, PyArray_DOUBLE);
 #endif
         xd = (double*)x->data;
         switch (job) {
@@ -152,12 +153,13 @@ phase_getarray(PyObject *self, PyObject *args)
     }
     else {
 
-        int nel = phase_nElements(ph);
+        size_t nel = phase_nElements(ph);
 #ifdef HAS_NUMPY
         npy_intp nnn = nel;
         x = (PyArrayObject*)PyArray_SimpleNew(1, &nnn, PyArray_DOUBLE);
 #else
-        x = (PyArrayObject*)PyArray_FromDims(1, &nel, PyArray_DOUBLE);
+	int nnn = int(nel);
+        x = (PyArrayObject*)PyArray_FromDims(1, &nnn, PyArray_DOUBLE);
 #endif
         xd = (double*)x->data;
         switch (job) {
@@ -260,7 +262,7 @@ phase_setarray(PyObject *self, PyObject *args)
     PyArrayObject* a = (PyArrayObject*)
       PyArray_ContiguousFromObject(seq, PyArray_DOUBLE, 1, 1);
     double* xd = (double*)a->data;
-    int len = a->dimensions[0];
+    size_t len = a->dimensions[0];
     switch (job) {
     case 1:
         iok = phase_setMoleFractions(ph, len, xd, norm); 

@@ -228,7 +228,7 @@ py_rdiag_findMajor(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "idO:rdiag_findMajor", &n, &thresh, &a))
         return NULL;
     PyArrayObject* aa = (PyArrayObject*)a;
-    int lda = aa->dimensions[0];
+    size_t lda = aa->dimensions[0];
     double* x = (double*)aa->data;
     int iok = rdiag_findMajor(n, thresh, lda, x);
     if (iok < 0) return reportError(iok);

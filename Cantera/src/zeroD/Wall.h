@@ -124,7 +124,7 @@ namespace CanteraZeroD {
         void syncCoverages(int leftright);
 
 
-        int nSensParams(int lr) const { 
+        size_t nSensParams(int lr) const {
             if (lr == 0) 
                 return m_pleft.size();
             else
@@ -150,7 +150,7 @@ namespace CanteraZeroD {
         ReactorBase* m_right;
         Cantera::Kinetics * m_chem[2];
         Cantera::SurfPhase* m_surf[2];
-        int m_nsp[2];
+        size_t m_nsp[2];
         doublereal m_area, m_k, m_rrth;
         doublereal m_emiss;
         Cantera::Func1 *m_vf;

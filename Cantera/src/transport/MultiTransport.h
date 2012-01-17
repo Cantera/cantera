@@ -288,7 +288,7 @@ namespace Cantera {
     void eval_L1001(const doublereal* x);
     void eval_L0110();
     void eval_L0101(const doublereal* x);
-    bool hasInternalModes(int j);
+    bool hasInternalModes(size_t j);
 
     doublereal pressure_ig() {
       return m_thermo->molarDensity() * GasConstant * m_thermo->temperature();

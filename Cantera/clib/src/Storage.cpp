@@ -19,11 +19,11 @@ Storage::Storage() {
 
 Storage::~Storage() { clear(); }
 
-int Storage::addThermo(thermo_t* th) {
+size_t Storage::addThermo(thermo_t* th) {
     if (th->index() != -1)
         return th->index();
     __thtable.push_back(th);
-    int n = static_cast<int>(__thtable.size()) - 1;
+    size_t n = __thtable.size() - 1;
     th->setIndex(n);
     //string id = th->id();
     //if (__thmap.count(id) == 0) {
@@ -37,24 +37,24 @@ int Storage::addThermo(thermo_t* th) {
     return n;
 }
 
-int Storage::nThermo() { 
-	return static_cast<int>(__thtable.size()); 
+size_t Storage::nThermo() {
+	return __thtable.size();
 }
 
-int Storage::addKinetics(Kinetics* kin) {
+size_t Storage::addKinetics(Kinetics* kin) {
     if (kin->index() != -1)
         return kin->index();
     __ktable.push_back(kin);
-    int n = static_cast<int>(__ktable.size()) - 1;
+    size_t n = __ktable.size() - 1;
     kin->setIndex(n);
     return n;
 }
 
-int Storage::addTransport(Transport* tr) {
+size_t Storage::addTransport(Transport* tr) {
     if (tr->index() != -1)
         return tr->index();
     __trtable.push_back(tr);
-    int n = static_cast<int>(__trtable.size()) - 1;
+    size_t n = __trtable.size() - 1;
     tr->setIndex(n);
     return n;
 }
@@ -73,22 +73,22 @@ int Storage::addTransport(Transport* tr) {
 // }
 
 int Storage::clear() {
-    int i, n;
-    n = static_cast<int>(__thtable.size());
+    size_t i, n;
+    n = __thtable.size();
     for (i = 1; i < n; i++) {
         if (__thtable[i] != __thtable[0]) {
             delete __thtable[i];
             __thtable[i] = __thtable[0];
         }
     }
-    n = static_cast<int>(__ktable.size());
+    n = __ktable.size();
     for (i = 1; i < n; i++) {
         if (__ktable[i] != __ktable[0]) {
             delete __ktable[i];
             __ktable[i] = __ktable[0];
         }
     }
-    n = static_cast<int>(__trtable.size());
+    n = __trtable.size();
     for (i = 1; i < n; i++) {
         if (__trtable[i] != __trtable[0]) {
             delete __trtable[i];

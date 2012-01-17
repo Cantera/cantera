@@ -36,14 +36,14 @@ namespace Cantera {
 
     CVodeInt();
     virtual ~CVodeInt();
-    virtual void setTolerances(double reltol, int n, double* abstol);
+    virtual void setTolerances(double reltol, size_t n, double* abstol);
     virtual void setTolerances(double reltol, double abstol);
     virtual void setProblemType(int probtype);
     virtual void initialize(double t0, FuncEval& func);
     virtual void reinitialize(double t0, FuncEval& func);
     virtual void integrate(double tout);
     virtual doublereal step(double tout);
-    virtual double& solution(int k);
+    virtual double& solution(size_t k);
     virtual double* solution();
     virtual int nEquations() const { return m_neq;}
     virtual int nEvals() const;

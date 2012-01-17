@@ -23,7 +23,7 @@ namespace Cantera {
 
 
     void Bdry1D::
-    _init(int n) {
+    _init(size_t n) {
         if (m_index < 0) {
             throw CanteraError("Bdry1D", 
                 "install in container before calling init.");
@@ -55,7 +55,7 @@ namespace Cantera {
         
         // if this is not the last domain, see what is connected on
         // the right
-        if (m_index < container().nDomains() - 1) {
+        if (m_index + 1 < container().nDomains()) {
             Domain1D& r = container().domain(m_index+1);
             if (r.domainType() == cFlowType) {
                 m_flow_right = (StFlow*)&r;
@@ -156,10 +156,10 @@ namespace Cantera {
 
 
     void Inlet1D::
-    eval(int jg, doublereal* xg, doublereal* rg, 
+    eval(size_t jg, doublereal* xg, doublereal* rg,
         integer* diagg, doublereal rdt) {
         int k;
-        if (jg >= 0 && (jg < firstPoint() - 2 || jg > lastPoint() + 2)) return;
+        if (jg != -1 && (jg + 2 < firstPoint() || jg > lastPoint() + 2)) return;
 
         // start of local part of global arrays
         doublereal* x = xg + loc();
@@ -218,7 +218,7 @@ namespace Cantera {
 
         // right inlet.
         else {
-            int boffset = m_flow->nComponents();
+            size_t boffset = m_flow->nComponents();
             xb = x - boffset;
             rb = r - boffset;
             rb[1] -= m_V0;
@@ -239,7 +239,7 @@ namespace Cantera {
         inlt.addAttribute("id",id());
         inlt.addAttribute("points",1);
         inlt.addAttribute("type","inlet");
-        inlt.addAttribute("components",nComponents());
+        inlt.addAttribute("components", double(nComponents()));
         for (int k = 0; k < nComponents(); k++) {
             ctml::addFloat(inlt, componentName(k), s[k], "", "",lowerBound(k), upperBound(k));
         }
@@ -284,9 +284,9 @@ namespace Cantera {
     }
 
     void Empty1D::
-    eval(int jg, doublereal* xg, doublereal* rg, 
+    eval(size_t jg, doublereal* xg, doublereal* rg,
         integer* diagg, doublereal rdt) {
-        if (jg >= 0 && (jg < firstPoint() - 2 || jg > lastPoint() + 2)) return;
+        if (jg != -1 && (jg + 2 < firstPoint() || jg > lastPoint() + 2)) return;
 
         // start of local part of global arrays
         doublereal* x = xg + loc();
@@ -304,7 +304,7 @@ namespace Cantera {
         symm.addAttribute("id",id());
         symm.addAttribute("points",1);
         symm.addAttribute("type","empty");
-        symm.addAttribute("components",nComponents());
+        symm.addAttribute("components", double(nComponents()));
     }
 
     void Empty1D::
@@ -342,9 +342,9 @@ namespace Cantera {
     }
 
     void Symm1D::
-    eval(int jg, doublereal* xg, doublereal* rg, 
+    eval(size_t jg, doublereal* xg, doublereal* rg,
         integer* diagg, doublereal rdt) {
-        if (jg >= 0 && (jg < firstPoint() - 2 || jg > lastPoint() + 2)) return;
+        if (jg != -1 && (jg + 2< firstPoint() || jg > lastPoint() + 2)) return;
 
         // start of local part of global arrays
         doublereal* x = xg + loc();
@@ -355,7 +355,7 @@ namespace Cantera {
 
         r[0] = x[0];
         diag[0] = 0;
-        int nc;
+        size_t nc;
 
         if (m_flow_right) {
             nc = m_flow_right->nComponents();
@@ -387,7 +387,7 @@ namespace Cantera {
         symm.addAttribute("id",id());
         symm.addAttribute("points",1);
         symm.addAttribute("type","symmetry");
-        symm.addAttribute("components",nComponents());
+        symm.addAttribute("components", double(nComponents()));
     }
 
     void Symm1D::
@@ -428,9 +428,9 @@ namespace Cantera {
 
 
     void Outlet1D::
-    eval(int jg, doublereal* xg, doublereal* rg, 
+    eval(size_t jg, doublereal* xg, doublereal* rg,
         integer* diagg, doublereal rdt) {
-        if (jg >= 0 && (jg < firstPoint() - 2 || jg > lastPoint() + 2)) return;
+        if (jg != -1 && (jg + 2 < firstPoint() || jg > lastPoint() + 2)) return;
 
         // start of local part of global arrays
         doublereal* x = xg + loc();
@@ -441,7 +441,7 @@ namespace Cantera {
 
         r[0] = x[0];
         diag[0] = 0;
-        int nc, k;
+        size_t nc, k;
 
         if (m_flow_right) {
             nc = m_flow_right->nComponents();
@@ -485,7 +485,7 @@ namespace Cantera {
         outlt.addAttribute("id",id());
         outlt.addAttribute("points",1);
         outlt.addAttribute("type","outlet");
-        outlt.addAttribute("components",nComponents());
+        outlt.addAttribute("components", double(nComponents()));
     }
 
     void Outlet1D::
@@ -563,10 +563,10 @@ namespace Cantera {
 
 
     void OutletRes1D::
-    eval(int jg, doublereal* xg, doublereal* rg, 
+    eval(size_t jg, doublereal* xg, doublereal* rg,
         integer* diagg, doublereal rdt) {
 
-        if (jg >= 0 && (jg < firstPoint() - 2 || jg > lastPoint() + 2)) return;
+        if (jg != -1 && (jg + 2 < firstPoint() || jg > lastPoint() + 2)) return;
 
         // start of local part of global arrays
         doublereal* x = xg + loc();
@@ -578,7 +578,7 @@ namespace Cantera {
         // drive dummy component to zero
         r[0] = x[0];
         diag[0] = 0;
-        int nc, k;
+        size_t nc, k;
 
         if (m_flow_right) {
             nc = m_flow_right->nComponents();
@@ -625,7 +625,7 @@ namespace Cantera {
         outlt.addAttribute("id",id());
         outlt.addAttribute("points",1);
         outlt.addAttribute("type","outletres");
-        outlt.addAttribute("components",nComponents());
+        outlt.addAttribute("components", double(nComponents()));
     }
 
     void OutletRes1D::
@@ -668,9 +668,9 @@ namespace Cantera {
 
 
     void Surf1D::
-    eval(int jg, doublereal* xg, doublereal* rg, 
+    eval(size_t jg, doublereal* xg, doublereal* rg,
         integer* diagg, doublereal rdt) {
-        if (jg >= 0 && (jg < firstPoint() - 2 || jg > lastPoint() + 2)) return;
+        if (jg != -1 && (jg + 2 < firstPoint() || jg > lastPoint() + 2)) return;
 
         // start of local part of global arrays
         doublereal* x = xg + loc();
@@ -680,7 +680,7 @@ namespace Cantera {
 
         r[0] = x[0] - m_temp;
         diag[0] = 0;
-        int nc;
+        size_t nc;
 
         if (m_flow_right) {
             rb = r + 1;
@@ -704,7 +704,7 @@ namespace Cantera {
         inlt.addAttribute("id",id());
         inlt.addAttribute("points",1);
         inlt.addAttribute("type","surface");
-        inlt.addAttribute("components",nComponents());
+        inlt.addAttribute("components", double(nComponents()));
         for (int k = 0; k < nComponents(); k++) {
             ctml::addFloat(inlt, componentName(k), s[k], "", "",0.0, 1.0);
         }
@@ -766,9 +766,9 @@ namespace Cantera {
 
 
     void ReactingSurf1D::
-    eval(int jg, doublereal* xg, doublereal* rg, 
+    eval(size_t jg, doublereal* xg, doublereal* rg,
         integer* diagg, doublereal rdt) {
-        if (jg >= 0 && (jg < firstPoint() - 2 || jg > lastPoint() + 2)) return;
+        if (jg != -1 && (jg + 2 < firstPoint() || jg > lastPoint() + 2)) return;
 
         // start of local part of global arrays
         doublereal* x = xg + loc();
@@ -793,8 +793,8 @@ namespace Cantera {
 
         // set the left gas state to the adjacent point
 
-        int leftloc = 0, rightloc = 0;
-        int pnt = 0;
+        size_t leftloc = 0, rightloc = 0;
+        size_t pnt = 0;
 
         if (m_flow_left) {
             leftloc = m_flow_left->loc();
@@ -813,7 +813,7 @@ namespace Cantera {
         //scale(m_work.begin(), m_work.end(), m_work.begin(), m_mult[0]);
         
         //        bool enabled = true;
-        int ioffset = m_kin->kineticsSpeciesIndex(0, m_surfindex);
+        size_t ioffset = m_kin->kineticsSpeciesIndex(0, m_surfindex);
 
         if (m_enabled) {
             doublereal maxx = -1.0;
@@ -842,7 +842,7 @@ namespace Cantera {
             xb = x + 1;
             rb[2] = xb[2] - x[0];            // specified T
         }
-        int nc;
+        size_t nc;
         if (m_flow_left) {
             nc = m_flow_left->nComponents();
             const doublereal* mwleft = DATA_PTR(m_phase_left->molecularWeights());
@@ -863,7 +863,7 @@ namespace Cantera {
         inlt.addAttribute("id",id());
         inlt.addAttribute("points",1);
         inlt.addAttribute("type","surface");
-        inlt.addAttribute("components",nComponents());
+        inlt.addAttribute("components", double(nComponents()));
         for (int k = 0; k < nComponents(); k++) {
             ctml::addFloat(inlt, componentName(k), s[k], "", "",0.0, 1.0);
         }

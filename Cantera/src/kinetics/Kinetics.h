@@ -893,7 +893,7 @@ namespace Cantera {
     /*!
      *  @param index   input index 
      */
-    void setIndex(int index) { m_index = index; }
+    void setIndex(size_t index) { m_index = index; }
 
 
   protected:

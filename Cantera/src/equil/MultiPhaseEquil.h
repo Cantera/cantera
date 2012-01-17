@@ -73,7 +73,7 @@ namespace Cantera {
             finish();
         }
 
-        index_t componentIndex(index_t n) { return m_species[m_order[n]]; }
+        size_t componentIndex(index_t n) { return m_species[m_order[n]]; }
 
       void reportCSV(const std::string &reportFile);
 

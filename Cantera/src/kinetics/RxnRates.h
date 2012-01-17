@@ -288,7 +288,7 @@ namespace Cantera {
   protected:
     doublereal m_logA, m_b, m_E, m_A;
     doublereal m_acov, m_ecov, m_mcov;
-    vector_int m_sp, m_msp;
+    std::vector<size_t> m_sp, m_msp;
     vector_fp m_ac, m_ec, m_mc;
     size_t m_ncov, m_nmcov;
   };

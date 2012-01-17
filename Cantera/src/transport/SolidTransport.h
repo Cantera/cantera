@@ -45,7 +45,7 @@ virtual ~SolidTransport() {}
 
     private:
 
-        int m_nmobile;    // number of mobile species
+        size_t m_nmobile;    // number of mobile species
         vector_fp m_Adiff;
         vector_fp m_Ndiff;
         vector_fp m_Ediff;

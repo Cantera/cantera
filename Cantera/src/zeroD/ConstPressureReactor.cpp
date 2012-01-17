@@ -46,7 +46,7 @@ namespace CanteraZeroD {
 
         // set the remaining components to the surface species
         // coverages on the walls
-        int loc = m_nsp + 2;
+        size_t loc = m_nsp + 2;
         SurfPhase* surf;
         for (int m = 0; m < m_nwalls; m++) {
             surf = m_wall[m]->surface(m_lr[m]);
@@ -104,7 +104,7 @@ namespace CanteraZeroD {
         }            
         m_vol = mass / m_thermo->density();
 
-        int loc = m_nsp + 2;
+        size_t loc = m_nsp + 2;
         SurfPhase* surf;
         for (int m = 0; m < m_nwalls; m++) {
             surf = m_wall[m]->surface(m_lr[m]);
@@ -127,24 +127,24 @@ namespace CanteraZeroD {
     void ConstPressureReactor::evalEqs(doublereal time, doublereal* y, 
         doublereal* ydot, doublereal* params) 
     {
-        int i, k, nk;
+        size_t nk;
         m_time = time;
         m_thermo->restoreState(m_state);
 
         Kinetics* kin;
-        int m, n, npar, ploc;
+        size_t npar, ploc;
         double mult;
 
         // process sensitivity parameters
         if (params) {
             
             npar = m_pnum.size();
-            for (n = 0; n < npar; n++) {
+            for (size_t n = 0; n < npar; n++) {
                 mult = m_kin->multiplier(m_pnum[n]);
                 m_kin->setMultiplier(m_pnum[n], mult*params[n]);
             }
             ploc = npar;
-            for (m = 0; m < m_nwalls; m++) {
+            for (size_t m = 0; m < m_nwalls; m++) {
                 if (m_nsens_wall[m] > 0) {
                     m_wall[m]->setSensitivityParameters(m_lr[m], params + ploc);
                     ploc += m_nsens_wall[m];
@@ -159,9 +159,9 @@ namespace CanteraZeroD {
         doublereal rs0, sum, wallarea;
 
         SurfPhase* surf;
-        int lr, ns, loc = m_nsp+2, surfloc;
+        size_t lr, ns, loc = m_nsp+2, surfloc;
         fill(m_sdot.begin(), m_sdot.end(), 0.0);
-        for (i = 0; i < m_nwalls; i++) {
+        for (size_t i = 0; i < m_nwalls; i++) {
             lr = 1 - 2*m_lr[i];
             m_Q += lr*m_wall[i]->Q(time);
             kin = m_wall[i]->kinetics(m_lr[i]);
@@ -175,7 +175,7 @@ namespace CanteraZeroD {
                 kin->getNetProductionRates(DATA_PTR(m_work));
                 ns = kin->surfacePhaseIndex();
                 surfloc = kin->kineticsSpeciesIndex(0,ns);
-                for (k = 1; k < nk; k++) {
+                for (size_t k = 1; k < nk; k++) {
                     ydot[loc + k] = m_work[surfloc+k]*rs0*surf->size(k);
                     sum -= ydot[loc + k];
                 }
@@ -183,7 +183,7 @@ namespace CanteraZeroD {
                 loc += nk;
 
                 wallarea = m_wall[i]->area();
-                for (k = 0; k < m_nsp; k++) {
+                for (size_t k = 0; k < m_nsp; k++) {
                     m_sdot[k] += m_work[k]*wallarea;
                 }
             }
@@ -204,7 +204,7 @@ namespace CanteraZeroD {
         else {
             fill(ydot + 2, ydot + 2 + m_nsp, 0.0);
         }
-        for (n = 0; n < m_nsp; n++) {
+        for (size_t n = 0; n < m_nsp; n++) {
             ydot[n+2] *= m_vol;     //           moles/s/m^3 -> moles/s
             ydot[n+2] += m_sdot[n]; 
             ydot[n+2] *= mw[n];
@@ -233,11 +233,10 @@ namespace CanteraZeroD {
 
             // outlets 
 
-            int n;
             doublereal mdot_out;
-            for (i = 0; i < m_nOutlets; i++) {
+            for (size_t i = 0; i < m_nOutlets; i++) {
                 mdot_out = m_outlet[i]->massFlowRate(time);
-                for (n = 0; n < m_nsp; n++) {
+                for (size_t n = 0; n < m_nsp; n++) {
                     ydot[2+n] -= mdot_out * mf[n];
                 }
                 if (m_energy) {
@@ -249,9 +248,9 @@ namespace CanteraZeroD {
             // inlets
 
             doublereal mdot_in;
-            for (i = 0; i < m_nInlets; i++) {
+            for (size_t i = 0; i < m_nInlets; i++) {
                 mdot_in = m_inlet[i]->massFlowRate(time);
-                for (n = 0; n < m_nsp; n++) {
+                for (size_t n = 0; n < m_nsp; n++) {
                     ydot[2+n] += m_inlet[i]->outletSpeciesMassFlowRate(n);
                 }
                 if (m_energy) {
@@ -263,12 +262,12 @@ namespace CanteraZeroD {
         // reset sensitivity parameters
         if (params) {
             npar = m_pnum.size();
-            for (n = 0; n < npar; n++) {
+            for (size_t n = 0; n < npar; n++) {
                 mult = m_kin->multiplier(m_pnum[n]);
                 m_kin->setMultiplier(m_pnum[n], mult/params[n]);
             }
             ploc = npar;
-            for (m = 0; m < m_nwalls; m++) {
+            for (size_t m = 0; m < m_nwalls; m++) {
                 if (m_nsens_wall[m] > 0) {
                     m_wall[m]->resetSensitivityParameters(m_lr[m]);
                     ploc += m_nsens_wall[m];
@@ -277,22 +276,22 @@ namespace CanteraZeroD {
         }
     }
 
-    int ConstPressureReactor::componentIndex(string nm) const {
+    size_t ConstPressureReactor::componentIndex(string nm) const {
         if (nm == "H") return 0;
         if (nm == "V") return 1;
         // check for a gas species name
-        int k = m_thermo->speciesIndex(nm);
-        if (k >= 0) return k + 2;
+        size_t k = m_thermo->speciesIndex(nm);
+        if (k != -1) return k + 2;
 
         // check for a wall species
-        int walloffset = 0, kp = 0;
+        size_t walloffset = 0, kp = 0;
         thermo_t* th;
-        for (int m = 0; m < m_nwalls; m++) {
+        for (size_t m = 0; m < m_nwalls; m++) {
             if (m_wall[m]->kinetics(m_lr[m])) {
                 kp = m_wall[m]->kinetics(m_lr[m])->reactionPhaseIndex();
                 th = &m_wall[m]->kinetics(m_lr[m])->thermo(kp);
                 k = th->speciesIndex(nm);
-                if (k >= 0) {
+                if (k != -1) {
                     return k + 2 + m_nsp + walloffset;
                 }
                 else {

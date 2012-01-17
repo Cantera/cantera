@@ -47,7 +47,7 @@ py_domain_index(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "i:domain_index", &i)) 
         return NULL;
         
-    _val = domain_index(i); 
+    _val = int(domain_index(i));
     if (int(_val) == -1) return reportCanteraError();
     return Py_BuildValue("i",_val);
 }
@@ -61,7 +61,7 @@ py_domain_nComponents(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "i:domain_nComponents", &i)) 
         return NULL;
         
-    _val = domain_nComponents(i); 
+    _val = int(domain_nComponents(i));
     if (int(_val) == -1) return reportCanteraError();
     return Py_BuildValue("i",_val);
 }
@@ -75,7 +75,7 @@ py_domain_nPoints(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "i:domain_nPoints", &i)) 
         return NULL;
         
-    _val = domain_nPoints(i); 
+    _val = int(domain_nPoints(i));
     if (int(_val) == -1) return reportCanteraError();
     return Py_BuildValue("i",_val);
 }
@@ -111,7 +111,7 @@ py_domain_componentIndex(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "is:domain_componentIndex", &i, &name)) 
         return NULL;
         
-    _val = domain_componentIndex(i,name); 
+    _val = int(domain_componentIndex(i,name));
     if (int(_val) == -1) return reportCanteraError();
     return Py_BuildValue("i",_val);
 }
@@ -224,7 +224,7 @@ py_domain_setupGrid(PyObject *self, PyObject *args)
     PyArrayObject* grid_array = (PyArrayObject*)
       PyArray_ContiguousFromObject(grid, PyArray_DOUBLE, 1, 1);
     double* grid_data = (double*)(grid_array->data);
-    int grid_len = grid_array->dimensions[0];
+    size_t grid_len = grid_array->dimensions[0];
 
     _val = domain_setupGrid(i,grid_len,grid_data); 
     Py_DECREF(grid_array);
@@ -542,7 +542,7 @@ py_stflow_setFixedTempProfile(PyObject *self, PyObject *args)
     PyArrayObject* pos_array = (PyArrayObject*)
       PyArray_ContiguousFromObject(pos, PyArray_DOUBLE, 1, 1);
     double* pos_data = (double*)(pos_array->data);
-    int pos_len = pos_array->dimensions[0];
+    size_t pos_len = pos_array->dimensions[0];
 
 
     PyArrayObject* temp_array = (PyArrayObject*)
@@ -550,7 +550,7 @@ py_stflow_setFixedTempProfile(PyObject *self, PyObject *args)
 
 
     double* temp_data = (double*)(temp_array->data);
-    int temp_len = temp_array->dimensions[0];
+    size_t temp_len = temp_array->dimensions[0];
 
     _val = stflow_setFixedTempProfile(i,pos_len,pos_data,temp_len,temp_data); 
     Py_DECREF(pos_array);
@@ -616,7 +616,7 @@ py_sim1D_new(PyObject *self, PyObject *args)
       PyArray_ContiguousFromObject(domains, PyArray_DOUBLE, 1, 1);
     void * nTMPv = (void *) (domains_array->data);
     double * dd_data = (double *) nTMPv; 
-    int domains_len = domains_array->dimensions[0];
+    size_t domains_len = domains_array->dimensions[0];
 
     int * domains_data = (int *) malloc(sizeof(int) * domains_len);
     for (int i = 0; i <  domains_len; i++) {
@@ -680,13 +680,13 @@ py_sim1D_setProfile(PyObject *self, PyObject *args)
     PyArrayObject* pos_array = (PyArrayObject*)
       PyArray_ContiguousFromObject(pos, PyArray_DOUBLE, 1, 1);
     double* pos_data = (double*)(pos_array->data);
-    int pos_len = pos_array->dimensions[0];
+    size_t pos_len = pos_array->dimensions[0];
 
 
     PyArrayObject* v_array = (PyArrayObject*)
       PyArray_ContiguousFromObject(v, PyArray_DOUBLE, 1, 1);
     double* v_data = (double*)(v_array->data);
-    int v_len = v_array->dimensions[0];
+    size_t v_len = v_array->dimensions[0];
 
     _val = sim1D_setProfile(i,dom,comp,pos_len,pos_data,v_len,v_data);
     Py_DECREF(pos_array);
@@ -749,10 +749,10 @@ py_sim1D_setTimeStep(PyObject *self, PyObject *args)
 
   void * nTMPv = (void *) (nsteps_array->data);
   double * nsteps_data = (double *) nTMPv; 
-  int nsteps_len = nsteps_array->dimensions[0];
+  size_t nsteps_len = nsteps_array->dimensions[0];
 
   int * nsteps_datai = (int *) malloc(sizeof(int) * nsteps_len);
-  for (int i = 0; i <  nsteps_len; i++) {
+  for (size_t i = 0; i <  nsteps_len; i++) {
     nsteps_datai[i] = (int) nsteps_data[i];
   }
   _val = sim1D_setTimeStep(i, stepsize, nsteps_len, nsteps_datai);

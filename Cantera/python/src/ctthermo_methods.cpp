@@ -6,7 +6,7 @@ ct_newThermoFromXML(PyObject *self, PyObject *args)
     //char* id;
     if (!PyArg_ParseTuple(args, "i:ct_newThermoFromXML", &mxml)) 
         return NULL;
-    int n = newThermoFromXML(mxml);
+    int n = int(newThermoFromXML(mxml));
     if (n < 0) return reportCanteraError();
     return Py_BuildValue("i",n);
 }
@@ -187,9 +187,9 @@ thermo_getarray(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "ii:thermo_getarray", &th, &job)) 
         return NULL;
 
-    int nsp = th_nSpecies(th);
-    int nel = phase_nElements(th);
-    int xlen = (job == 21 ? nel : nsp);
+    size_t nsp = th_nSpecies(th);
+    size_t nel = phase_nElements(th);
+    size_t xlen = (job == 21 ? nel : nsp);
 
     // array attributes
     int iok = -22;
@@ -200,8 +200,9 @@ thermo_getarray(PyObject *self, PyObject *args)
         (PyArrayObject*)PyArray_SimpleNew(1, &nnn, PyArray_DOUBLE);
     Py_INCREF(x);
 #else
+    int nnn = int(xlen);
     PyArrayObject* x = 
-        (PyArrayObject*)PyArray_FromDims(1, &xlen, PyArray_DOUBLE);
+        (PyArrayObject*)PyArray_FromDims(1, &nnn, PyArray_DOUBLE);
 #endif
     double* xd = (double*)x->data;
     switch (job) {

@@ -117,15 +117,15 @@ namespace Cantera {
     delete[] m_iopt;
   }
     
-  double& CVodeInt::solution(int k){ return N_VIth(nv(m_y),k); }
+  double& CVodeInt::solution(size_t k){ return N_VIth(nv(m_y), int(k)); }
   double* CVodeInt::solution(){ return N_VDATA(nv(m_y)); }
 
-  void CVodeInt::setTolerances(double reltol, int n, double* abstol) {
+  void CVodeInt::setTolerances(double reltol, size_t n, double* abstol) {
     m_itol = 1;
-    m_nabs = n;
-    if (n != m_neq) {
+    m_nabs = int(n);
+    if (m_nabs != m_neq) {
       if (m_abstol) N_VFree(nv(m_abstol));
-      m_abstol = reinterpret_cast<void*>(N_VNew(n, 0));
+      m_abstol = reinterpret_cast<void*>(N_VNew(m_nabs, 0));
     }
     for (int i=0; i<n; i++) {
       N_VIth(nv(m_abstol), i) = abstol[i];

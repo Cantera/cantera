@@ -159,11 +159,11 @@ public:
     /** 
      * Return a pointer to object n.
      */
-    M* item(int n) {
-        if (n >= 0 && n < int(__table.size()))
+    M* item(size_t n) {
+        if (n < __table.size())
             return __table[n];
         else {
-            throw Cantera::CanteraError("item","index out of range"+Cantera::int2str(n));
+            throw Cantera::CanteraError("item","index out of range"+Cantera::int2str(int(n)));
             //return __table[0];
         }
     }

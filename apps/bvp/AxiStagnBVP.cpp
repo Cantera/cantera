@@ -105,7 +105,7 @@ void StFlow::setGasAtMidpoint(const doublereal* x,int j) {
 // Specify the residual. This is where the ODE system and boundary 
 // conditions are specified. The solver will attempt to find a solution
 // x so that this function returns 0 for all n and j.
-doublereal AxiStagnFlow::residual(doublereal* x, int n, int j) {
+doublereal AxiStagnFlow::residual(doublereal* x, size_t n, size_t j) {
     
     // if n = 0, return the residual for the continuity equation
     if (n == 0) {

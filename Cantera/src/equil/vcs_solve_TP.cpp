@@ -99,7 +99,7 @@ namespace VCSnonideal {
     size_t iph;
     double dx, xx, par;
     size_t dofast, ll = 0, it1 = 0;
-    int lec, npb, iti, lnospec;
+    size_t lec, npb, iti, lnospec;
     int rangeErrorFound = 0;
     bool giveUpOnElemAbund = false;
     int finalElemAbundAttempts = 0;
@@ -415,7 +415,7 @@ namespace VCSnonideal {
        * for the major species (do minor species in the future too)  
        */
 
-      soldel = vcs_RxnStepSizes();
+      soldel = int(vcs_RxnStepSizes());
  
       if (soldel == 2) {
 	goto L_COMPONENT_CALC;

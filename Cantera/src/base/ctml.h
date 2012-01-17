@@ -210,7 +210,7 @@ namespace ctml {
    *       typeString should be codified as to its usage.
    */
   void addIntegerArray(Cantera::XML_Node& node, const std::string &titleString, 
-		       const int n, const int* const values, 
+		       const size_t n, const int* const values,
 		       const std::string unitsString="", const std::string typeString="",
 		       const doublereal minval=Cantera::Undef, 
 		       const doublereal maxval=Cantera::Undef);
@@ -268,7 +268,7 @@ namespace ctml {
    *       typeString should be codified as to its usage.
    */
   void addFloatArray(Cantera::XML_Node& node,  const std::string &titleString, 
-		     const int n,  const doublereal* const values, 
+		     const size_t n,  const doublereal* const values,
 		     const std::string unitsString="", const std::string typeString="",
 		     const doublereal minval = Cantera::Undef,
 		     const doublereal maxval = Cantera::Undef);
