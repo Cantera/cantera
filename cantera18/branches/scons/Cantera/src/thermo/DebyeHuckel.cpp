@@ -1152,7 +1152,7 @@ namespace Cantera {
 	break;
       }
     }
-    if (m_indexSolvent == -1) {
+    if (m_indexSolvent == npos) {
       cout << "DebyeHuckel::initThermoXML: Solvent Name not found" 
 	   << endl;
       throw CanteraError("DebyeHuckel::initThermoXML",
@@ -1484,7 +1484,7 @@ namespace Cantera {
 	    break;
 	  }
 	}
-	if (jmap != -1) {
+	if (jmap != npos) {
 	  const XML_Node& sp = *xspecies[jmap];
 	  if (sp.hasChild("stoichIsMods")) {
 	    double val = getFloat(sp, "stoichIsMods");

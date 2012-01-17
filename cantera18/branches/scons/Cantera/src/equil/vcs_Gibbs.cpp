@@ -64,7 +64,7 @@ namespace VCSnonideal {
    * @param w        Species mole number vector
    * @param fe       vector of partial molar free energies of the species.
    */
-  double VCS_SOLVE::vcs_GibbsPhase(int iphase, const double * const w,
+  double VCS_SOLVE::vcs_GibbsPhase(size_t iphase, const double * const w,
 				   const double * const fe) {
 	double g = 0.0;
     double phaseMols = 0.0;

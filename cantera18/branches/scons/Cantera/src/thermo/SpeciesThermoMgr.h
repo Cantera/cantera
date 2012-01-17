@@ -715,7 +715,7 @@ namespace Cantera {
   template<class SPM>
   doublereal 
   SpeciesThermo1<SPM>::minTemp(size_t k) const {
-    if (k == -1)
+    if (k == npos)
       return _minTemp(m_thermo.begin(), m_thermo.end());
     else
       return m_thermo[k].minTemp();
@@ -724,7 +724,7 @@ namespace Cantera {
   template<class SPM>
   doublereal 
   SpeciesThermo1<SPM>::maxTemp(size_t k) const {
-    if (k == -1)
+    if (k == npos)
       return _maxTemp(m_thermo.begin(), m_thermo.end());
     else
       return m_thermo[k].maxTemp();

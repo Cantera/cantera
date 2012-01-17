@@ -1012,7 +1012,7 @@ public:
   void vcs_elab();
 
   int vcs_elabcheck(int ibound);
-  void vcs_elabPhase(int iphase, double * const elemAbundPhase);
+  void vcs_elabPhase(size_t iphase, double * const elemAbundPhase);
   int vcs_elcorr(double aa[], double x[]);
 
   
@@ -1054,7 +1054,7 @@ public:
    * @param fe       vector of partial molar free energies of all of the
    *                 species
    */
-  double vcs_GibbsPhase(int iphase, const double * const w,
+  double vcs_GibbsPhase(size_t iphase, const double * const w,
 			const double * const fe);
 
   //! Transfer the results of the equilibrium calculation back to VCS_PROB

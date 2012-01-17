@@ -286,7 +286,7 @@ namespace Cantera {
     const vector_fp &aw = m_Elements->atomicWeights();
     if (charge != 0.0) {
       size_t eindex = m_Elements->elementIndex("E");
-      if (eindex != -1) {
+      if (eindex != npos) {
 	doublereal ecomp = compNew[eindex];
 	if (fabs (charge + ecomp) > 0.001) {
 	  if (ecomp != 0.0) {

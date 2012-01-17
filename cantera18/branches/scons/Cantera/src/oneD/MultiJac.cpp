@@ -73,7 +73,7 @@ namespace Cantera {
 
                 // compute nth column of Jacobian
                 for (i = j - 1; i <= j+1; i++) {
-                    if (i != -1 && i < m_points) {
+                    if (i != npos && i < m_points) {
                         mv = m_resid->nVars(i);
                         iloc = m_resid->loc(i);
                         for (m = 0; m < mv; m++) {

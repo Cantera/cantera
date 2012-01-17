@@ -225,6 +225,8 @@ namespace Cantera {
   //! typedef for a pointer to temporary work storage which is treated as constant
     typedef const doublereal* const_workPtr;
 
+  //! index returned by functions to indicate "no position"
+  const size_t npos = -1;
 
 }  // namespace
 

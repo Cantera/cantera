@@ -173,9 +173,7 @@ namespace Cantera {
    *  return
    *   - If a match is found, the position in the species list
    *   is returned. 
-   *   - If a specific phase is specified and no match is found,
-   *   the value -1 is returned.
-   *   - If no match is found in any phase, the value -2 is returned.
+   *   - If no match is found, the value -1 (npos) is returned.
    */
   size_t Kinetics::kineticsSpeciesIndex(std::string nm, std::string ph) const {
     size_t np = m_thermo.size();
@@ -185,7 +183,7 @@ namespace Cantera {
       id = thermo(n).id();
       if (ph == id) {
 	k = thermo(n).speciesIndex(nm);
-	if (k == -1) return -1;
+	if (k == npos) return npos;
 	return k + m_start[n];
       }
       else if (ph == "<any>") {
@@ -194,10 +192,10 @@ namespace Cantera {
 	 * ThermoPhase object to find a match.
 	 */
 	k = thermo(n).speciesIndex(nm);
-	if (k != -1) return k + m_start[n];
+	if (k != npos) return k + m_start[n];
       }                    
     }
-    return -2;
+    return npos;
   }
 
   /**
@@ -212,7 +210,7 @@ namespace Cantera {
     string id;
     for (size_t n = 0; n < np; n++) {
       k = thermo(n).speciesIndex(nm);
-      if (k != -1) return thermo(n);
+      if (k != npos) return thermo(n);
     }
     throw CanteraError("speciesPhase", "unknown species "+nm);
     return thermo(0);
@@ -226,7 +224,7 @@ namespace Cantera {
    * species.
    */
   size_t Kinetics::speciesPhaseIndex(size_t k) {
-    for (size_t n = m_start.size()-1; n != -1; n--) {
+    for (size_t n = m_start.size()-1; n != npos; n--) {
       if (k >= m_start[n]) {
 	return n;
       }

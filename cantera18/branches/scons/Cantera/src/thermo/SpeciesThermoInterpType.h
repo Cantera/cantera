@@ -347,7 +347,7 @@ namespace Cantera {
      *  @param PDSS_ptr     Pointer to the PDSS object that handles calls for this object
      *
      */
-    void initAllPtrs(int speciesIndex, VPSSMgr *vpssmgr_ptr, PDSS *PDSS_ptr);
+    void initAllPtrs(size_t speciesIndex, VPSSMgr *vpssmgr_ptr, PDSS *PDSS_ptr);
 
     //! Returns the minimum temperature that the thermo
     //! parameterization is valid

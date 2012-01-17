@@ -855,7 +855,7 @@ namespace Cantera {
     /*!
      * Currently the index of the solvent is hard-coded to the value 0
      */
-    int        m_indexSolvent;
+    size_t m_indexSolvent;
 
     //! Scaling to be used for output of single-ion species activity
     //! coefficients.

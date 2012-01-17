@@ -376,7 +376,7 @@ namespace VCSnonideal {
 	  foundPos = e;
 	}
       }
-      if (foundPos == -1) {
+      if (foundPos == npos) {
 	int elType = volPhase->elementType(eVP);
 	int elactive = volPhase->elementActive(eVP);
 	e = addElement(enVP.c_str(), elType, elactive);

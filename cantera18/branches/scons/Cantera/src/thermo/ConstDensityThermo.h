@@ -285,8 +285,7 @@ namespace Cantera {
     //!  of the solution and the reference pressure for the species.
     const array_fp& expGibbs_RT() const {
       _updateThermo();
-      int k;
-      for (k = 0; k != m_kk; k++) m_expg0_RT[k] = std::exp(m_g0_RT[k]);
+      for (size_t k = 0; k != m_kk; k++) m_expg0_RT[k] = std::exp(m_g0_RT[k]);
       return m_expg0_RT;
     }
 

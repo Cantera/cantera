@@ -107,8 +107,8 @@ namespace VCSnonideal {
     bool justDeletedMultiPhase = false;
     size_t usedZeroedSpecies; /* return flag from basopt indicating that
 			      one of the components had a zero concentration */
-    size_t doPhaseDeleteIph = -1;
-    size_t doPhaseDeleteKspec = -1;
+    size_t doPhaseDeleteIph = npos;
+    size_t doPhaseDeleteKspec = npos;
     vcs_VolPhase *Vphase;
     double     *sc_irxn = NULL;  /* Stoichiometric coefficients for cur rxn  */
     double *dnPhase_irxn;
@@ -395,10 +395,10 @@ namespace VCSnonideal {
      *
      */
     soldel = -1;
-    if (iphasePop != -1) {
+    if (iphasePop != npos) {
       soldel = vcs_popPhaseRxnStepSizes(iphasePop);
       if (soldel == 3) {
-	iphasePop = -1;
+	iphasePop = npos;
 #ifdef DEBUG_MODE
 	if (m_debug_print_lvl >= 2) {
 	  plogf("   --- vcs_popPhaseRxnStepSizes() was called but stoich "
@@ -407,7 +407,7 @@ namespace VCSnonideal {
 #endif
       }
     }
-    if (iphasePop == -1) {
+    if (iphasePop == npos) {
       /*
        * Figure out the new reaction step sizes
        * for the major species (do minor species in the future too)  
@@ -429,8 +429,8 @@ namespace VCSnonideal {
     }
 #endif
     lec = FALSE;
-    doPhaseDeleteIph = -1;
-    doPhaseDeleteKspec = -1;
+    doPhaseDeleteIph = npos;
+    doPhaseDeleteKspec = npos;
     /*
      *    Zero out the net change in moles of multispecies phases 
      */
@@ -486,7 +486,7 @@ namespace VCSnonideal {
 #ifdef DEBUG_MODE
       ANOTE[0] = '\0';	 
 #endif
-      if (iphasePop != -1) {
+      if (iphasePop != npos) {
 	if (iph == iphasePop) {
 	  dx =  m_deltaMolNumSpecies[kspec];
 	  m_molNumSpecies_new[kspec] = m_molNumSpecies_old[kspec] +  m_deltaMolNumSpecies[kspec];
@@ -865,7 +865,7 @@ namespace VCSnonideal {
 	   */
 	  if ((dx != 0.0) && 
 	      (m_molNumSpecies_old[kspec] > 0.0) && 
-	      (doPhaseDeleteIph == -1) && 
+	      (doPhaseDeleteIph == npos) &&
 	      (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE)) {
 	    double dx_old = dx;
 
@@ -935,7 +935,7 @@ namespace VCSnonideal {
       }
     L_MAIN_LOOP_END_NO_PRINT: ;
 #endif
-      if (doPhaseDeleteIph != -1) {
+      if (doPhaseDeleteIph != npos) {
 	if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
 	  plogf("   --- "); 
 	  plogf("%-12.12s Main Loop Special Case deleting phase with species: ",
@@ -1335,7 +1335,7 @@ namespace VCSnonideal {
       for (i = 0; i < m_numRxnRdc; ++i) {
 	l = m_indexRxnToSpecies[i];
 	if (m_speciesUnknownType[l] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-	  for (j = m_numComponents - 1; j != -1; j--) {
+	  for (j = m_numComponents - 1; j != npos; j--) {
 	    bool doSwap = false;
 	    if (m_SSPhase[j]) {
 	      doSwap = (m_molNumSpecies_old[l] * m_spSize[l]) > 
@@ -3198,7 +3198,7 @@ namespace VCSnonideal {
 	      }
 	    }
 	  }
-	  if (kfound == -1) {
+	  if (kfound == npos) {
 	    double gmin = 0.0;
 	    kfound = k;
 	    for (kspec = ncTrial; kspec < m_numSpeciesTot; kspec++) {

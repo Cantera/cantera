@@ -1215,7 +1215,7 @@ namespace Cantera {
     return -1.0;
 #else
     size_t iE = m_tp->elementIndex(elemName);
-    if (iE == -1) {
+    if (iE == npos) {
       throw CanteraError("PDSS_HKFT::LookupGe", "element " + elemName + " not found");
     }
     doublereal geValue = m_tp->entropyElement298(iE);

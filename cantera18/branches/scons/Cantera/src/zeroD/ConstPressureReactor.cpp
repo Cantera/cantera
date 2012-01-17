@@ -281,7 +281,7 @@ namespace CanteraZeroD {
         if (nm == "V") return 1;
         // check for a gas species name
         size_t k = m_thermo->speciesIndex(nm);
-        if (k != -1) return k + 2;
+        if (k != npos) return k + 2;
 
         // check for a wall species
         size_t walloffset = 0, kp = 0;
@@ -291,7 +291,7 @@ namespace CanteraZeroD {
                 kp = m_wall[m]->kinetics(m_lr[m])->reactionPhaseIndex();
                 th = &m_wall[m]->kinetics(m_lr[m])->thermo(kp);
                 k = th->speciesIndex(nm);
-                if (k != -1) {
+                if (k != npos) {
                     return k + 2 + m_nsp + walloffset;
                 }
                 else {

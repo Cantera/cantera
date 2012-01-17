@@ -1023,7 +1023,7 @@ namespace Cantera {
 	break;
       }
     }
-    if (m_indexSolvent == -1) {
+    if (m_indexSolvent == npos) {
       std::cout << "IdealMolalSoln::initThermo: Solvent Name not found" 
 	   << std::endl;
       throw CanteraError("IdealMolalSoln::initThermo",

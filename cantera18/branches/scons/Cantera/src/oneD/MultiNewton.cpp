@@ -45,7 +45,7 @@ namespace Cantera {
     "-----------------------------------------------------------------";
 
     const doublereal DampFactor = sqrt(2.0);
-    const int NDAMP = 7;
+    const size_t NDAMP = 7;
 
 
 
@@ -124,7 +124,7 @@ namespace Cantera {
 	    iok--;
 	    size_t nd = r.nDomains();
 	    size_t n;
-	    for (n = nd-1; n != -1; n--)
+	    for (n = nd-1; n != npos; n--)
                 if (iok >= r.start(n)) { break; }
 	    Domain1D& dom = r.domain(n);
 	    size_t offset = iok - r.start(n);

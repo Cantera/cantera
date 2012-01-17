@@ -286,7 +286,7 @@ namespace Cantera {
 			   "standardState model for species isn't "
 			   "constant_incompressible: " + speciesNode.name());
       }
-      if ((int) m_Vss.size() < k+1) {
+      if (m_Vss.size() < k+1) {
 	m_Vss.resize(k+1, 0.0);
       }
       m_Vss[k] = getFloat(*ss, "molarVolume", "toSI");

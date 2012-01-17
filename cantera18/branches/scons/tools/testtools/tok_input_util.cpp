@@ -1539,7 +1539,7 @@ void strip_item_from_token(int iword, TOKEN *tok)
   size_t i = ioffset;
   size_t j = ioffset + ilength;
 #endif
-  if (j <= (int) strlen(tok->orig_str)) {
+  if (j <= strlen(tok->orig_str)) {
     while(tok->orig_str[j] != '\0') {
       tok->orig_str[i] = tok->orig_str[j];
       i++;

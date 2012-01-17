@@ -192,8 +192,8 @@ namespace Cantera {
             needJacUpdate();
         }
 
-        void fixTemperature(int j=-1) {
-            if (j < 0)
+        void fixTemperature(size_t j=npos) {
+            if (j == npos)
                 for (size_t i = 0; i < m_points; i++) {
                     m_do_energy[i] = false;
                 }
@@ -207,8 +207,8 @@ namespace Cantera {
         bool doSpecies(size_t k) { return m_do_species[k]; }
         bool doEnergy(size_t j) { return m_do_energy[j]; }
 
-        void solveSpecies(int k=-1) {
-            if (k == -1) {
+        void solveSpecies(size_t k=npos) {
+            if (k == npos) {
                 for (size_t i = 0; i < m_nsp; i++)
                     m_do_species[i] = true;
             }
@@ -216,8 +216,8 @@ namespace Cantera {
             needJacUpdate();
         }
 
-        void fixSpecies(int k=-1) {
-            if (k == -1) {
+        void fixSpecies(size_t k=npos) {
+            if (k == npos) {
                 for (size_t i = 0; i < m_nsp; i++)
                     m_do_species[i] = false;
             }

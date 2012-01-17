@@ -318,7 +318,7 @@ namespace Cantera {
 
       for (size_t i = 0; i < m_nrev; i++) {
 	size_t irxn = m_revindex[i];
-	if (irxn == -1 || irxn >= nReactions()) {
+	if (irxn == npos || irxn >= nReactions()) {
 	  throw CanteraError("InterfaceKinetics",
 			     "illegal value: irxn = "+int2str(int(irxn)));
 	}
@@ -1129,8 +1129,8 @@ namespace Cantera {
     Kinetics::finalize();
     m_rwork.resize(nReactions());
     size_t ks = reactionPhaseIndex();
-    if (ks == -1) throw CanteraError("InterfaceKinetics::finalize",
-				     "no surface phase is present.");
+    if (ks == npos) throw CanteraError("InterfaceKinetics::finalize",
+				       "no surface phase is present.");
     m_surf = (SurfPhase*)&thermo(ks);
     if (m_surf->nDim() != 2) 
       throw CanteraError("InterfaceKinetics::finalize",
@@ -1231,8 +1231,8 @@ namespace Cantera {
   void EdgeKinetics::finalize() {
     m_rwork.resize(nReactions());
     size_t ks = reactionPhaseIndex();
-    if (ks == -1) throw CanteraError("EdgeKinetics::finalize",
-				     "no edge phase is present.");
+    if (ks == npos) throw CanteraError("EdgeKinetics::finalize",
+				       "no edge phase is present.");
     m_surf = (SurfPhase*)&thermo(ks);
     if (m_surf->nDim() != 1) 
       throw CanteraError("EdgeKinetics::finalize",

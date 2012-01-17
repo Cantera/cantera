@@ -291,7 +291,7 @@ namespace VCSnonideal {
 
     IndSpecies.resize(nspecies, -1);
 
-    if ((int) ListSpeciesPtr.size() >= m_numSpecies) {
+    if (ListSpeciesPtr.size() >= m_numSpecies) {
       for (size_t i = 0; i < m_numSpecies; i++) {
 	if (ListSpeciesPtr[i]) {
 	  delete ListSpeciesPtr[i]; 
@@ -646,7 +646,7 @@ namespace VCSnonideal {
      * Update the electric potential if it is a solution variable
      * in the equation system
      */
-    if (m_phiVarIndex != -1) {
+    if (m_phiVarIndex != npos) {
       kglob = IndSpecies[m_phiVarIndex];
       if (m_numSpecies == 1) {
 	Xmol[m_phiVarIndex] = 1.0;
@@ -1468,7 +1468,7 @@ namespace VCSnonideal {
   size_t vcs_VolPhase::transferElementsFM(const Cantera::ThermoPhase * const tPhase) {
     size_t e, k, eT;
     std::string ename; 
-    size_t eFound = -2;
+    size_t eFound = npos;
     /*
      *
      */
@@ -1492,7 +1492,7 @@ namespace VCSnonideal {
     elemResize(ne);
 
 
-    if (ChargeNeutralityElement != -1) {
+    if (ChargeNeutralityElement != npos) {
       m_elementType[ChargeNeutralityElement] = VCS_ELEM_TYPE_CHARGENEUTRALITY;
     }
 
@@ -1524,7 +1524,7 @@ namespace VCSnonideal {
 	  }
 	}
       }
-      if (eFound == -2) {
+      if (eFound == npos) {
 	eFound = ne;
 	m_elementType[ne] = VCS_ELEM_TYPE_ELECTRONCHARGE;
 	m_elementActive[ne] = 0;
@@ -1568,7 +1568,7 @@ namespace VCSnonideal {
 	fm[e][k] = tPhase->nAtoms(k, eT);
 	e++;
       }
-      if (eFound != -2) {
+      if (eFound != npos) {
 	fm[eFound][k] = - tPhase->charge(k);
       }
     }

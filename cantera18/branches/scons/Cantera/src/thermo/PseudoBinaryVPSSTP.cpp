@@ -179,7 +179,7 @@ namespace Cantera {
       for (k = 0; k < m_kk; k++) {
 	moleFractionsTmp_[k] = moleFractions_[k];
       }
-      for (k = 0; k < (int) cationList_.size(); k++) {
+      for (k = 0; k < cationList_.size(); k++) {
 	sumCat += moleFractions_[cationList_[k]];
       }
       sumAnion =  moleFractions_[anionList_[k]];

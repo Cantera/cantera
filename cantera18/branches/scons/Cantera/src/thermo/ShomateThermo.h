@@ -188,7 +188,7 @@ namespace Cantera {
       if (tlow > m_tlow_max)    m_tlow_max = tlow;
       if (thigh < m_thigh_min)  m_thigh_min = thigh;
 
-      if ((int) m_tlow.size() < index + 1) {
+      if (m_tlow.size() < index + 1) {
 	m_tlow.resize(index + 1,  tlow);
 	m_thigh.resize(index + 1, thigh);
       }
@@ -311,8 +311,8 @@ namespace Cantera {
      *
      * @param k    Species index
      */ 
-    virtual doublereal minTemp(size_t k=-1) const {
-      if (k == -1)
+    virtual doublereal minTemp(size_t k=npos) const {
+      if (k == npos)
 	return m_tlow_max;
       else
 	return m_tlow[k];
@@ -328,8 +328,8 @@ namespace Cantera {
      *
      * @param k  species index
      */
-    virtual doublereal maxTemp(size_t k=-1) const {
-      if (k == -1)
+    virtual doublereal maxTemp(size_t k=npos) const {
+      if (k == npos)
 	return m_thigh_min;
       else
 	return m_thigh[k];
@@ -348,7 +348,7 @@ namespace Cantera {
      *
      * @param k species index
      */
-    virtual doublereal refPressure(size_t k=-1) const {
+    virtual doublereal refPressure(size_t k=npos) const {
       return m_p0;
     }
 

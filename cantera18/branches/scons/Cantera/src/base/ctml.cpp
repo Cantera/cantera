@@ -1149,7 +1149,7 @@ namespace ctml {
 	  break;
 	}
       }
-      if (irow == -1) {
+      if (irow == npos) {
 	throw CanteraError("getMatrixValues","Row not matched by string: "
 			   + key1);		
       }
@@ -1159,7 +1159,7 @@ namespace ctml {
 	  break;
 	}
       }
-      if (icol == -1) {
+      if (icol == npos) {
 	throw CanteraError("getMatrixValues","Col not matched by string: "
 			   + key2);	
       }

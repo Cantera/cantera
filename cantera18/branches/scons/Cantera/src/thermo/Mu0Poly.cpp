@@ -198,7 +198,7 @@ namespace Cantera {
       h298 = getFloat(Mu0Node, "H298", "actEnergy");
     }
 
-    int numPoints = 1;
+    size_t numPoints = 1;
     if (Mu0Node.hasChild("numPoints")) {
       numPoints = getInteger(Mu0Node, "numPoints");
     }
@@ -248,7 +248,7 @@ namespace Cantera {
      * Fix up dimensionless Mu0 values if input
      */
     if (dimensionlessMu0Values) {
-      for (int i = 0; i < numPoints; i++) {
+      for (size_t i = 0; i < numPoints; i++) {
 	cValues[i] *= cTemperatures[i] / 273.15;
       }
     }
@@ -258,7 +258,7 @@ namespace Cantera {
      
     c[0] = numPoints;
     c[1] = h298;
-    for (int i = 0; i < numPoints; i++) {
+    for (size_t i = 0; i < numPoints; i++) {
       c[2+i*2]   = cTemperatures[i];
       c[2+i*2+1] = cValues[i];
     }
@@ -365,7 +365,7 @@ namespace Cantera {
       mu2 = m_mu0_R_int[iT298];
       m_h0_R_int[iT298] = m_H298;
       m_s0_R_int[iT298] = - (mu2 - m_h0_R_int[iT298]) / T2;
-      for (i = iT298 - 1; i != -1; i--) {
+      for (i = iT298 - 1; i != npos; i--) {
 	T1      = m_t0_int[i];
 	mu1     = m_mu0_R_int[i];
 	T2      = m_t0_int[i+1];

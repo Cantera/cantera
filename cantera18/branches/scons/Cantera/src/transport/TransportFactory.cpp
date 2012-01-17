@@ -1116,7 +1116,7 @@ namespace Cantera {
     char s[100];
 #endif
     // number of points to use in generating fit data
-    const int np = 50;
+    const size_t np = 50;
 
     int mode = tr.mode_;
     int degree = (mode == CK_Mode ? 3 : 4);

@@ -309,7 +309,7 @@ namespace Cantera {
    * value applies only to the species with that index.
    */
   doublereal GeneralSpeciesThermo::minTemp(size_t k) const {
-    if (k == -1)
+    if (k == npos)
       return m_tlow_max;
     else {
       SpeciesThermoInterpType *sp = m_sp[k];
@@ -321,7 +321,7 @@ namespace Cantera {
   }
 
   doublereal GeneralSpeciesThermo::maxTemp(size_t k) const {
-    if (k == -1) {
+    if (k == npos) {
       return m_thigh_min;
     } else {
       SpeciesThermoInterpType *sp = m_sp[k];
@@ -333,7 +333,7 @@ namespace Cantera {
   }
 
   doublereal GeneralSpeciesThermo::refPressure(size_t k) const {
-    if (k == -1) {
+    if (k == npos) {
       return m_p0;
     } else {
       SpeciesThermoInterpType *sp = m_sp[k];

@@ -107,7 +107,7 @@ namespace CanteraZeroD {
     }
     
     size_t Reactor::nSensParams() {
-        if (m_nsens == -1) {
+        if (m_nsens == npos) {
             // determine the number of sensitivity parameters
             size_t m, ns;
             m_nsens = m_pnum.size();
@@ -347,7 +347,7 @@ namespace CanteraZeroD {
         if (nm == "V") return 1;
         // check for a gas species name
         size_t k = m_thermo->speciesIndex(nm);
-        if (k != -1) return k + 2;
+        if (k != npos) return k + 2;
 
         // check for a wall species
         size_t walloffset = 0, kp = 0;

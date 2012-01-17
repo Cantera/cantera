@@ -370,7 +370,7 @@ namespace Cantera {
         m_rxnstoich->multiplyRevProducts(&m_conc[0], &ropr[0]); 
         //m_revProductStoich.multiply(m_conc.begin(), ropr.begin());
 
-        for (int j = 0; j != m_ii; ++j) {
+        for (size_t j = 0; j != m_ii; ++j) {
             ropnet[j] = ropf[j] - ropr[j];
         }
 

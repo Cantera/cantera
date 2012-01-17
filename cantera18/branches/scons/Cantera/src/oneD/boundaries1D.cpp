@@ -158,7 +158,7 @@ namespace Cantera {
     void Inlet1D::
     eval(size_t jg, doublereal* xg, doublereal* rg,
         integer* diagg, doublereal rdt) {
-        if (jg != -1 && (jg + 2 < firstPoint() || jg > lastPoint() + 2)) return;
+        if (jg != npos && (jg + 2 < firstPoint() || jg > lastPoint() + 2)) return;
 
         // start of local part of global arrays
         doublereal* x = xg + loc();
@@ -285,7 +285,7 @@ namespace Cantera {
     void Empty1D::
     eval(size_t jg, doublereal* xg, doublereal* rg,
         integer* diagg, doublereal rdt) {
-        if (jg != -1 && (jg + 2 < firstPoint() || jg > lastPoint() + 2)) return;
+        if (jg != npos && (jg + 2 < firstPoint() || jg > lastPoint() + 2)) return;
 
         // start of local part of global arrays
         doublereal* x = xg + loc();
@@ -343,7 +343,7 @@ namespace Cantera {
     void Symm1D::
     eval(size_t jg, doublereal* xg, doublereal* rg,
         integer* diagg, doublereal rdt) {
-        if (jg != -1 && (jg + 2< firstPoint() || jg > lastPoint() + 2)) return;
+        if (jg != npos && (jg + 2< firstPoint() || jg > lastPoint() + 2)) return;
 
         // start of local part of global arrays
         doublereal* x = xg + loc();
@@ -429,7 +429,7 @@ namespace Cantera {
     void Outlet1D::
     eval(size_t jg, doublereal* xg, doublereal* rg,
         integer* diagg, doublereal rdt) {
-        if (jg != -1 && (jg + 2 < firstPoint() || jg > lastPoint() + 2)) return;
+        if (jg != npos && (jg + 2 < firstPoint() || jg > lastPoint() + 2)) return;
 
         // start of local part of global arrays
         doublereal* x = xg + loc();
@@ -565,7 +565,7 @@ namespace Cantera {
     eval(size_t jg, doublereal* xg, doublereal* rg,
         integer* diagg, doublereal rdt) {
 
-        if (jg != -1 && (jg + 2 < firstPoint() || jg > lastPoint() + 2)) return;
+        if (jg != npos && (jg + 2 < firstPoint() || jg > lastPoint() + 2)) return;
 
         // start of local part of global arrays
         doublereal* x = xg + loc();
@@ -669,7 +669,7 @@ namespace Cantera {
     void Surf1D::
     eval(size_t jg, doublereal* xg, doublereal* rg,
         integer* diagg, doublereal rdt) {
-        if (jg != -1 && (jg + 2 < firstPoint() || jg > lastPoint() + 2)) return;
+        if (jg != npos && (jg + 2 < firstPoint() || jg > lastPoint() + 2)) return;
 
         // start of local part of global arrays
         doublereal* x = xg + loc();
@@ -766,7 +766,7 @@ namespace Cantera {
     void ReactingSurf1D::
     eval(size_t jg, doublereal* xg, doublereal* rg,
         integer* diagg, doublereal rdt) {
-        if (jg != -1 && (jg + 2 < firstPoint() || jg > lastPoint() + 2)) return;
+        if (jg != npos && (jg + 2 < firstPoint() || jg > lastPoint() + 2)) return;
 
         // start of local part of global arrays
         doublereal* x = xg + loc();

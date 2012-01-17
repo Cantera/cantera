@@ -700,7 +700,7 @@ namespace Cantera {
       }
     }
     // We have failed if we can't find the Cl element index
-    if (eCl == -1) {
+    if (eCl == npos) {
       return -1;
     }
     for (size_t e = 0; e < ne; e++) {
@@ -711,8 +711,8 @@ namespace Cantera {
       }
     }
     // We have failed if we can't find the E element index
-    if (eE == -1) {
-      return -1;
+    if (eE == npos) {
+      return npos;
     }
     for (size_t k = 1; k < m_kk; k++) {
       doublereal nCl = nAtoms(k, eCl);
@@ -816,7 +816,7 @@ namespace Cantera {
       getActivities(&actMolal[0]);
  
       size_t iHp = speciesIndex("H+");
-      if (iHp != -1) {
+      if (iHp != npos) {
 	double pH = -log(actMolal[iHp]) / log(10.0);
 	sprintf(p, "                pH    %12.4g  \n", pH);
 	s += p;
@@ -964,7 +964,7 @@ namespace Cantera {
 	pNames.push_back("Molal Activity");
 	data.push_back(temp);
 	size_t iHp = speciesIndex("H+");
-	if (iHp != -1) {
+	if (iHp != npos) {
 	  double pH = -log(temp[iHp]) / log(10.0);
 	  csvFile << setw(tabL) << "pH = " << setw(tabS) << pH << endl;
 	}
