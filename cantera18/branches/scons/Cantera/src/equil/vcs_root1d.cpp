@@ -129,7 +129,7 @@ static void print_funcEval(FILE *fp, double xval, double fval, int its)
    FILE *fp = 0;
 #endif
    double x1, x2, xnew, f1, f2, fnew, slope;
-   int its = 0;
+   size_t its = 0;
    int posStraddle = 0;
    int retn = VCS_SUCCESS;
    int foundPosF = FALSE;

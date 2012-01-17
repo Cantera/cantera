@@ -17,9 +17,9 @@ namespace VCSnonideal {
    *   back into the global structure
    */
   void VCS_SOLVE::vcs_elab() {
-    for (int j = 0; j < m_numElemConstraints; ++j) {
+    for (size_t j = 0; j < m_numElemConstraints; ++j) {
       m_elemAbundances[j] = 0.0;
-      for (int i = 0; i < m_numSpeciesTot; ++i) {
+      for (size_t i = 0; i < m_numSpeciesTot; ++i) {
 	if (m_speciesUnknownType[i] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	  m_elemAbundances[j] += m_formulaMatrix[j][i] * m_molNumSpecies_old[i];
 	}
@@ -87,7 +87,7 @@ namespace VCSnonideal {
 	     */
 	    numNonZero = 0;
 	    multisign = false;
-	    for (int kspec = 0; kspec < m_numSpeciesTot; kspec++) {
+	    for (size_t kspec = 0; kspec < m_numSpeciesTot; kspec++) {
 	      eval = m_formulaMatrix[i][kspec];
 	      if (eval < 0.0) {
 		multisign = true;
@@ -139,10 +139,9 @@ namespace VCSnonideal {
      *  in m_molNumSpecies_old[].
      *************************************************************************/
   {
-    int i, j;
-    for (j = 0; j < m_numElemConstraints; ++j) {
+    for (size_t j = 0; j < m_numElemConstraints; ++j) {
       elemAbundPhase[j] = 0.0;
-      for (i = 0; i < m_numSpeciesTot; ++i) {
+      for (size_t i = 0; i < m_numSpeciesTot; ++i) {
 	if (m_speciesUnknownType[i] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	  if (m_phaseID[i] == iphase) {
 	    elemAbundPhase[j] += m_formulaMatrix[j][i] * m_molNumSpecies_old[i];
@@ -199,7 +198,7 @@ namespace VCSnonideal {
      *  
      *************************************************************************/
   {
-    int i, j, retn = 0, goodSpec, its;
+    int retn = 0, goodSpec, its;
     double xx, par, saveDir, dir;
 
 #ifdef DEBUG_MODE
@@ -233,7 +232,7 @@ namespace VCSnonideal {
     int numNonZero = 0;
     bool changed = false;
     bool multisign = false;
-    for (i = 0; i < m_numElemConstraints; ++i) {
+    for (size_t i = 0; i < m_numElemConstraints; ++i) {
       numNonZero = 0;
       multisign = false;
       for (size_t kspec = 0; kspec < m_numSpeciesTot; kspec++) {
@@ -298,7 +297,7 @@ namespace VCSnonideal {
      *  the number of components.
      */
     changed = false;
-    for (i = 0; i < m_numElemConstraints; ++i) {
+    for (size_t i = 0; i < m_numElemConstraints; ++i) {
       int elType = m_elType[i];
       if (elType == VCS_ELEM_TYPE_ABSPOS) {
 	for (size_t kspec = 0; kspec < m_numSpeciesTot; kspec++) {
@@ -350,15 +349,15 @@ namespace VCSnonideal {
      * of length nc, not ne, as there may be degenerate rows when
      * nc .ne. ne.
      */
-    for (i = 0; i < m_numComponents; ++i) {
+    for (size_t i = 0; i < m_numComponents; ++i) {
       x[i] = m_elemAbundances[i] - m_elemAbundancesGoal[i];
       if (fabs(x[i]) > 1.0E-13) retn = 1;
-      for (j = 0; j < m_numComponents; ++j) {
+      for (size_t j = 0; j < m_numComponents; ++j) {
 	aa[j + i*m_numElemConstraints] = m_formulaMatrix[j][i];
       }
     }
-    i = vcsUtil_mlequ(aa, m_numElemConstraints, m_numComponents, x, 1);
-    if (i == 1) {
+    int err = vcsUtil_mlequ(aa, m_numElemConstraints, m_numComponents, x, 1);
+    if (err == 1) {
       plogf("vcs_elcorr ERROR: mlequ returned error condition\n");
       return VCS_FAILED_CONVERGENCE;
     }
@@ -366,7 +365,7 @@ namespace VCSnonideal {
      * Now apply the new direction without creating negative species.
      */
     par = 0.5;
-    for (i = 0; i < m_numComponents; ++i) {
+    for (size_t i = 0; i < m_numComponents; ++i) {
       if (m_molNumSpecies_old[i] > 0.0) {
 	xx = -x[i] / m_molNumSpecies_old[i];
 	if (par < xx) par = xx;
@@ -379,7 +378,7 @@ namespace VCSnonideal {
     if (par < 1.0 && par > 0.0) {
       retn = 2;
       par *= 0.9999;
-      for (i = 0; i < m_numComponents; ++i) {
+      for (size_t i = 0; i < m_numComponents; ++i) {
 	double tmp = m_molNumSpecies_old[i] + par * x[i];
 	if (tmp > 0.0) {
 	  m_molNumSpecies_old[i] = tmp;
@@ -392,7 +391,7 @@ namespace VCSnonideal {
 	}
       }
     } else {
-      for (i = 0; i < m_numComponents; ++i) {
+      for (size_t i = 0; i < m_numComponents; ++i) {
 	double tmp = m_molNumSpecies_old[i] + x[i];
 	if (tmp > 0.0) {
 	  m_molNumSpecies_old[i] = tmp;
@@ -429,7 +428,7 @@ namespace VCSnonideal {
 	}
 	saveDir = 0.0;
 	goodSpec = TRUE;
-	for (i = 0; i < m_numComponents; ++i) {
+	for (size_t i = 0; i < m_numComponents; ++i) {
 	  dir = m_formulaMatrix[i][kspec] *  (m_elemAbundancesGoal[i] - m_elemAbundances[i]);
 	  if (fabs(dir) > 1.0E-10) {
 	    if (dir > 0.0) {
@@ -454,7 +453,7 @@ namespace VCSnonideal {
 	if (goodSpec) {
 	  its = 0;
 	  xx = 0.0;
-	  for (i = 0; i < m_numComponents; ++i) {
+	  for (size_t i = 0; i < m_numComponents; ++i) {
 	    if (m_formulaMatrix[i][kspec] != 0.0) {
 	      xx += (m_elemAbundancesGoal[i] - m_elemAbundances[i]) / m_formulaMatrix[i][kspec];
 	      its++;
@@ -482,7 +481,7 @@ namespace VCSnonideal {
       goto L_CLEANUP;
     }
   
-    for (i = 0; i < m_numElemConstraints; ++i) {
+    for (size_t i = 0; i < m_numElemConstraints; ++i) {
       if (m_elType[i] == VCS_ELEM_TYPE_CHARGENEUTRALITY ||
 	  (m_elType[i] == VCS_ELEM_TYPE_ABSPOS && m_elemAbundancesGoal[i] == 0.0)) { 
 	for (size_t kspec = 0; kspec < m_numSpeciesRdc; kspec++) {
@@ -519,7 +518,7 @@ namespace VCSnonideal {
      *  in the species concentrations to match the desired
      *  electron charge exactly.
      */
-    for (i = 0; i < m_numElemConstraints; ++i) {
+    for (size_t i = 0; i < m_numElemConstraints; ++i) {
       double dev = m_elemAbundancesGoal[i] - m_elemAbundances[i];
       if (m_elType[i] == VCS_ELEM_TYPE_ELECTRONCHARGE && (fabs(dev) > 1.0E-300)) {
 	bool useZeroed = true;

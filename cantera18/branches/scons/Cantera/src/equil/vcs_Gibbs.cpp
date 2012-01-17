@@ -35,7 +35,7 @@ namespace VCSnonideal {
   {
     double g = 0.0;
   
-	for (int iph = 0; iph < m_numPhases; iph++) {
+	for (size_t iph = 0; iph < m_numPhases; iph++) {
 		vcs_VolPhase *Vphase = m_VolPhaseList[iph];
 		if ((TPhInertMoles[iph] > 0.0) && (tPhMoles[iph] > 0.0)) {
 			g += TPhInertMoles[iph] *
@@ -46,7 +46,7 @@ namespace VCSnonideal {
 		}
 	}
 
-	for (int kspec = 0; kspec < m_numSpeciesRdc; ++kspec) {
+	for (size_t kspec = 0; kspec < m_numSpeciesRdc; ++kspec) {
 		if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 			g += molesSp[kspec] * chemPot[kspec];
 		}
@@ -68,7 +68,7 @@ namespace VCSnonideal {
 				   const double * const fe) {
 	double g = 0.0;
     double phaseMols = 0.0;
-    for (int kspec = 0; kspec < m_numSpeciesRdc; ++kspec) {
+    for (size_t kspec = 0; kspec < m_numSpeciesRdc; ++kspec) {
       if (m_phaseID[kspec] == iphase) {
 	    if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	      g += w[kspec] * fe[kspec];

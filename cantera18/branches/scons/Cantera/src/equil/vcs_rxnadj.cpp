@@ -665,7 +665,7 @@ namespace VCSnonideal {
     /*
      * Loop over all of the phases in the problem
      */
-    for (int iphase = 0; iphase < m_numPhases; iphase++) {
+    for (size_t iphase = 0; iphase < m_numPhases; iphase++) {
       vcs_VolPhase *Vphase = m_VolPhaseList[iphase];
       /*
        * We don't need to call single species phases;

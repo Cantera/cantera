@@ -321,7 +321,7 @@ namespace VCSnonideal {
    *  @param m  number of rhs's
    */
   int vcsUtil_mlequ(double *c, size_t idem, size_t n, double *b, size_t m) {
-    int i, j, k, l;
+    size_t k;
     double R;
     if (n > idem || n <= 0) {
       plogf("vcsUtil_mlequ ERROR: badly dimensioned matrix: %d %d\n", n, idem);
@@ -334,7 +334,7 @@ namespace VCSnonideal {
      *       will be on the diagonal. We can therfore just invert the
      *       diagonal at the end of the program to solve the equation system.
      */
-    for (i = 0; i < n; ++i) {
+    for (size_t i = 0; i < n; ++i) {
       if (c[i + i * idem] == 0.0) {
 	/*
 	 *   Do a simple form of row pivoting to find a non-zero pivot
@@ -345,16 +345,16 @@ namespace VCSnonideal {
 	plogf("vcsUtil_mlequ ERROR: Encountered a zero column: %d\n", i);
 	return 1;
       FOUND_PIVOT: ;
-	for (j = 0; j < n; ++j) c[i + j * idem] += c[k + j * idem];
-	for (j = 0; j < m; ++j) b[i + j * idem] += b[k + j * idem];
+	for (size_t j = 0; j < n; ++j) c[i + j * idem] += c[k + j * idem];
+	for (size_t j = 0; j < m; ++j) b[i + j * idem] += b[k + j * idem];
       }
       
-      for (l = 0; l < n; ++l) {
+      for (size_t l = 0; l < n; ++l) {
 	if (l != i && c[l + i * idem] != 0.0) {
 	  R = c[l + i * idem] / c[i + i * idem];
 	  c[l + i * idem] = 0.0;
-	  for (j = i+1; j < n; ++j) c[l + j * idem] -= c[i + j * idem] * R;
-	  for (j = 0; j < m; ++j)   b[l + j * idem] -= b[i + j * idem] * R;
+	  for (size_t j = i+1; j < n; ++j) c[l + j * idem] -= c[i + j * idem] * R;
+	  for (size_t j = 0; j < m; ++j)   b[l + j * idem] -= b[i + j * idem] * R;
 	}
       }
     }
@@ -362,8 +362,8 @@ namespace VCSnonideal {
      *  The negative in the last expression is due to the form of B upon
      *  input
      */
-    for (i = 0; i < n; ++i) {
-      for (j = 0; j < m; ++j) {
+    for (size_t i = 0; i < n; ++i) {
+      for (size_t j = 0; j < m; ++j) {
 	b[i + j * idem] = -b[i + j * idem] / c[i + i*idem];
       }
     }
