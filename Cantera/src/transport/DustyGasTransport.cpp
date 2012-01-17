@@ -229,7 +229,7 @@ namespace Cantera {
         }
     }
 
-    void DustyGasTransport::getMultiDiffCoeffs(const int ld, doublereal* const d) {
+    void DustyGasTransport::getMultiDiffCoeffs(const size_t ld, doublereal* const d) {
         int i,j;
         updateMultiDiffCoeffs();
         for (i = 0; i < m_nsp; i++) {

@@ -74,7 +74,7 @@ public:
    *  @param nphase0       Number of phases defined within the problem.
    *
    */
-  void vcs_initSizes(const int nspecies0, const int nelements, const int nphase0);
+  void vcs_initSizes(const size_t nspecies0, const size_t nelements, const size_t nphase0);
 
   //! Solve an equilibrium problem
   /*!
@@ -143,7 +143,7 @@ public:
    */
   int vcs_solve_TP(int print_lvl, int printDetails, int maxit);
 
-  void vcs_reinsert_deleted(int kspec);
+  void vcs_reinsert_deleted(size_t kspec);
 
   //!  Choose the optimum species basis for the calculations
   /*!
@@ -216,7 +216,7 @@ public:
    *                there is a problem.
    */
   int vcs_basopt(const int doJustComponents, double aw[], double sa[], double sm[], 
-		 double ss[], double test, int * const usedZeroedSpecies);
+		 double ss[], double test, size_t* const usedZeroedSpecies);
 
   //!  Choose a species to test for the next component
   /*!
@@ -229,7 +229,7 @@ public:
    *                   molNum[].
    *    @param n       Length of molNum[]
    */ 
-  int vcs_basisOptMax(const double *const molNum, const int j, const int n);
+  size_t vcs_basisOptMax(const double *const molNum, const size_t j, const size_t n);
 
   //! Evaluate the species category for the indicated species
   /*!
@@ -239,7 +239,7 @@ public:
    *
    * @return Returns the calculated species type
    */
-  int vcs_species_type(const int kspec) const;
+  int vcs_species_type(const size_t kspec) const;
 
   bool vcs_evaluate_speciesType();
 
@@ -340,7 +340,7 @@ public:
    *              (VCS species order)
    * 
    */
-  void vcs_chemPotPhase(const int stateCalc, const int iph, const double *const molNum, 
+  void vcs_chemPotPhase(const int stateCalc, const size_t iph, const double *const molNum,
 			double * const ac, double * const mu_i,
 			const bool do_deleted = false);
 
@@ -486,7 +486,7 @@ public:
    *              the same T and P as the solution.
    *     tg     : Total Number of moles in the phase.
    */
-  void vcs_dfe(const int stateCalc, const int ll, const int lbot, const int ltop);
+  void vcs_dfe(const int stateCalc, const int ll, const size_t lbot, const size_t ltop);
 
   //!  This routine uploads the state of the system into all of the 
   //!  vcs_VolumePhase objects in the current problem.
@@ -527,7 +527,7 @@ public:
    *                   in this routine. The species is a noncomponent 
    *            -  2 : Same as one but, the zeroed species is a component. 
    */
-  int vcs_popPhaseRxnStepSizes(const int iphasePop);
+  int vcs_popPhaseRxnStepSizes(const size_t iphasePop);
 
   //! Calculates formation reaction step sizes.
   /*!
@@ -549,7 +549,7 @@ public:
    *                   in this routine. The species is a noncomponent 
    *            -  2 : Same as one but, the zeroed species is a component. 
    */
-  int vcs_RxnStepSizes();
+  size_t vcs_RxnStepSizes();
 
   //!  Calculates the total number of moles of species in all phases.
   /*!
@@ -615,7 +615,7 @@ public:
    *    NOTE: this is currently not used used anywhere. 
    *          It may be in the future?
    */
-  void vcs_deltag_Phase(const int iphase, const bool doDeleted, 
+  void vcs_deltag_Phase(const size_t iphase, const bool doDeleted,
 			const int stateCalc, const bool alterZeroedPhases = true);
 
   //!  Swaps the indecises for all of the global data for two species, k1
@@ -633,7 +633,7 @@ public:
    *
    *  @param k2        Second species index
    */
-  void vcs_switch_pos(const int ifunc, const int k1, const int k2);
+  void vcs_switch_pos(const int ifunc, const size_t k1, const size_t k2);
 
 
   //!     Birth guess returns the number of moles of a species 
@@ -853,7 +853,7 @@ public:
    *  @param ipos  first global element index
    *  @param jpos  second global element index
    */
-  void vcs_switch_elem_pos(int ipos, int jpos);
+  void vcs_switch_elem_pos(size_t ipos, size_t jpos);
 
   //!  Calculates reaction adjustments using a full Hessian approximation
   /*!
@@ -893,7 +893,7 @@ public:
    *
    *  NOTE: currently this routine is not used
    */
-  double vcs_Hessian_diag_adj(int irxn, double hessianDiag_Ideal);
+  double vcs_Hessian_diag_adj(size_t irxn, double hessianDiag_Ideal);
 
   //! Calculates the diagonal contribution to the Hessian due to 
   //!  the dependence of the activity coefficients on the mole numbers.
@@ -902,7 +902,7 @@ public:
    *
    *  NOTE: currently this routine is not used
    */
-  double vcs_Hessian_actCoeff_diag(int irxn);
+  double vcs_Hessian_actCoeff_diag(size_t irxn);
 
   void vcs_CalcLnActCoeffJac(const double * const moleSpeciesVCS);
 
@@ -919,10 +919,10 @@ public:
    *                  line search
    *
    */
-  double vcs_line_search(const int irxn, const double dx_orig, 
+  double vcs_line_search(const size_t irxn, const double dx_orig,
 			 char * const ANOTE);
 #else
-  double vcs_line_search(const int irxn, const double dx_orig);
+  double vcs_line_search(const size_t irxn, const double dx_orig);
 #endif
 
 
@@ -1101,7 +1101,7 @@ private:
    *      1: succeeded
    *      0: failed.
    */
-  int vcs_zero_species(const int kspec);
+  int vcs_zero_species(const size_t kspec);
 
   //! Change a single species from active to inactive status
   /*!
@@ -1117,7 +1117,7 @@ private:
    *     noncomponent species is equal to zero. A recheck of deleted species 
    *     is carried out in the main code.
    */
-  int vcs_delete_species(const int kspec);
+  int vcs_delete_species(const size_t kspec);
 
   //! This routine handles the bookkeepking involved with the
   //!  deletion of multiphase phases from the problem. 
@@ -1135,7 +1135,7 @@ private:
    *
    * @return Returns whether the operation was successful or not
    */
-  bool vcs_delete_multiphase(const int iph);
+  bool vcs_delete_multiphase(const size_t iph);
 
   //!  Change the concentration of a species by delta moles. 
   /*!
@@ -1149,7 +1149,7 @@ private:
    *      1: succeeded without change of dx
    *      0: Had to adjust dx, perhaps to zero, in order to do the delta.
    */
-  int delta_species(const int kspec, double * const delta_ptr);
+  int delta_species(const size_t kspec, double * const delta_ptr);
 
   //!  Provide an estimate for the deleted species in phases that
   //!  are not zeroed out
@@ -1161,7 +1161,7 @@ private:
    *  This routine is called at the end of the calculation, just before
    *  returning to the user.
    */
-  int vcs_add_all_deleted();
+  size_t vcs_add_all_deleted();
 
   //! Recheck deleted species in multispecies phases.
   /*!
@@ -1267,7 +1267,7 @@ private:
    *
    *     @param dx          The change in mole number
    */
-  double vcs_minor_alt_calc(int kspec, int irxn, int *do_delete
+  double vcs_minor_alt_calc(size_t kspec, size_t irxn, int *do_delete
 #ifdef DEBUG_MODE
 			    , char *ANOTE  
 #endif
@@ -1294,7 +1294,7 @@ private:
    *  where the slope is equal to zero.
    *
    */
-  int vcs_globStepDamp();
+  bool vcs_globStepDamp();
 
   //! Switch rows and columns of a sqare matrix
   /*!
@@ -1309,7 +1309,7 @@ private:
    *  @param k2          second row/column value to be switched
    */
   void vcs_switch2D(double * const * const Jac,
-                    const int k1, const int k2) const;
+                    const size_t k1, const size_t k2) const;
 
   //! Calculate the norm of a deltaGibbs free energy vector
   /*!
@@ -1374,7 +1374,7 @@ private:
    * @return Returns the dimensionless deltaG of the reaction
    */
   double deltaG_Recalc_Rxn(const int stateCalc, 
-			   const int irxn, const double *const molNum,
+			   const size_t irxn, const double *const molNum,
 			   double * const ac, double * const mu_i);
 
   //! Delete memory that isn't just resizeable STL containers
@@ -1403,7 +1403,7 @@ private:
 
   void vcs_setFlagsVolPhases(const bool upToDate, const int stateCalc);
 
-  void vcs_setFlagsVolPhase(const int iph, const bool upToDate, const int stateCalc);
+  void vcs_setFlagsVolPhase(const size_t iph, const bool upToDate, const int stateCalc);
 
   //! Update all underlying vcs_VolPhase objects
   /*!
@@ -1418,46 +1418,46 @@ private:
 
 public:
   //! value of the number of species  used to malloc data structures
-  int NSPECIES0;
+  size_t NSPECIES0;
 
   //! value of the number of phases  used to malloc data structures
-  int NPHASE0;
+  size_t NPHASE0;
   
   //!  Total number of species in the problems
-  int m_numSpeciesTot;
+  size_t m_numSpeciesTot;
 
   //! Number of element constraints in the problem
   /*! 
    * This is typically equal to the number of elements in the problem
    */
-  int m_numElemConstraints;
+  size_t m_numElemConstraints;
 
   //! Number of components calculated for the problem
-  int m_numComponents;
+  size_t m_numComponents;
 
   //! Total number of non-component species in  the problem
-  int m_numRxnTot;
+  size_t m_numRxnTot;
 
   //! Current number of species in the problems
   /*!
    * Species can be deleted if they aren't
    * stable under the current conditions
    */
-  int m_numSpeciesRdc;
+  size_t m_numSpeciesRdc;
 
   //! Current number of non-component species in the  problem 
   /*!
    * Species can be deleted if they aren't
    * stable under the current conditions
    */
-  int m_numRxnRdc;
+  size_t m_numRxnRdc;
 
   //!  Number of active species which are currently either treated as
   //!  minor species
-  int m_numRxnMinorZeroed; 
+  size_t m_numRxnMinorZeroed;
 
   //! Number of Phases in the problem
-  int m_numPhases;
+  size_t m_numPhases;
 
   //! Formula matrix for the problem
   /*!
@@ -1716,7 +1716,7 @@ public:
    *           kspec = current order in the vcs_solve object
    *           k     = original order in the vcs_prob object and in the MultiPhase object
    */
-  std::vector<int> m_speciesMapIndex;
+  std::vector<size_t> m_speciesMapIndex;
 
   //! Index that keeps track of the index of the species within the local
   //! phase
@@ -1730,7 +1730,7 @@ public:
    *
    *  Length = number of species
    */
-  std::vector<int> m_speciesLocalPhaseIndex;
+  std::vector<size_t> m_speciesLocalPhaseIndex;
 
   //! Index vector that keeps track of the rearrangement of the elements 
   /*!
@@ -1744,7 +1744,7 @@ public:
    *           eNum  = current order in the vcs_solve object
    *           e     = original order in the vcs_prob object and in the MultiPhase object
    */
-  std::vector<int> m_elementMapIndex;
+  std::vector<size_t> m_elementMapIndex;
 
   //!  Mapping between the species index for noncomponent species and the
   //!  full species  index.
@@ -1760,7 +1760,7 @@ public:
    *              noncomponent species in the mechanism.
    *    kspec = ir[irxn]
    */
-  std::vector<int> m_indexRxnToSpecies;
+  std::vector<size_t> m_indexRxnToSpecies;
 
   //! Major -Minor status vector for the species in the problem
   /*!
@@ -1822,7 +1822,7 @@ public:
   std::vector<int> m_speciesStatus;
 
   //!  Mapping from the species number to the phase number 
-  std::vector<int> m_phaseID;
+  std::vector<size_t> m_phaseID;
 
   //!  Boolean indicating whether a species belongs to a single-species phase
   std::vector<int> m_SSPhase;
@@ -2039,7 +2039,7 @@ public:
 
 #ifdef ALTLINPROG
 #else
-int linprogmax(double *, double *, double *, double *, int, int, int);
+int linprogmax(double *, double *, double *, double *, size_t, size_t, size_t);
 #endif
 
 }

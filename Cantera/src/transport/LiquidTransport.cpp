@@ -284,7 +284,7 @@ namespace Cantera {
   /******************* binary diffusion coefficients **************/
 
 
-  void LiquidTransport::getBinaryDiffCoeffs(int ld, doublereal* d) {
+  void LiquidTransport::getBinaryDiffCoeffs(size_t ld, doublereal* d) {
     int i,j;
 
     update_temp();

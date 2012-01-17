@@ -109,11 +109,11 @@ namespace VCSnonideal {
    * We need to manually free all of the arrays.
    */
   VCS_PROB::~VCS_PROB() {
-    for (int i = 0; i < nspecies; i++) {
+    for (size_t i = 0; i < nspecies; i++) {
       delete SpeciesThermo[i];
       SpeciesThermo[i] = 0;
     }
-    for (int iph = 0; iph < NPhase; iph++) {
+    for (size_t iph = 0; iph < NPhase; iph++) {
       delete VPhaseList[iph];
       VPhaseList[iph] = 0;
     }
@@ -128,7 +128,7 @@ namespace VCSnonideal {
    *  @param force    If true, this will dimension the size to be equal to nPhase
    *                  even if nPhase is less than the current value of NPHASE0
    */
-  void VCS_PROB::resizePhase(int nPhase, int force) {
+  void VCS_PROB::resizePhase(size_t nPhase, int force) {
     if (force || nPhase > NPHASE0) {
       NPHASE0 = nPhase;
     }
@@ -143,7 +143,7 @@ namespace VCSnonideal {
    *  @param force    If true, this will dimension the size to be equal to nsp
    *                  even if nsp is less than the current value of NSPECIES0
    */
-  void VCS_PROB::resizeSpecies(int nsp, int force) {
+  void VCS_PROB::resizeSpecies(size_t nsp, int force) {
     if (force || nsp > NSPECIES0) {
       m_gibbsSpecies.resize(nsp, 0.0);
       w.resize(nsp, 0.0);
@@ -174,7 +174,7 @@ namespace VCSnonideal {
    *  @param force    If true, this will dimension the size to be equal to nel
    *                  even if nel is less than the current value of NEL0
    */
-  void VCS_PROB::resizeElements(int nel, int force) {
+  void VCS_PROB::resizeElements(size_t nel, int force) {
     if (force || nel > NE0) {
       gai.resize(nel, 0.0);
       FormulaMatrix.resize(nel, NSPECIES0, 0.0);
@@ -317,8 +317,8 @@ namespace VCSnonideal {
       for (iphase = 0; iphase < NPhase; iphase++) {
 	Vphase = VPhaseList[iphase];
 	Vphase->setState_TP(T, PresPA);
-	for (int kindex = 0; kindex < Vphase->nSpecies(); kindex++) {
-	  int kglob = Vphase->spGlobalIndexVCS(kindex);
+	for (size_t kindex = 0; kindex < Vphase->nSpecies(); kindex++) {
+	  size_t kglob = Vphase->spGlobalIndexVCS(kindex);
 	  plogf("%16s ", SpName[kglob].c_str());
 	  if (kindex == 0) {
 	    plogf("%16s", Vphase->PhaseName.c_str());
@@ -355,8 +355,8 @@ namespace VCSnonideal {
    *                  addition to the global element list
    */
   void VCS_PROB::addPhaseElements(vcs_VolPhase *volPhase) {
-    int e, eVP;
-    int foundPos = -1;
+    size_t e, eVP;
+    size_t foundPos = -1;
     size_t neVP = volPhase->nElemConstraints();
     std::string en;
     std::string enVP;
@@ -402,12 +402,12 @@ namespace VCSnonideal {
    *
    *  @return returns the index number of the new element
    */
-  int VCS_PROB::addElement(const char *elNameNew, int elType, int elactive) {
+  size_t VCS_PROB::addElement(const char *elNameNew, int elType, int elactive) {
     if (!elNameNew) {
       plogf("error: element must have a name\n");
       exit(EXIT_FAILURE);
     }
-    int nel = ne + 1;
+    size_t nel = ne + 1;
     resizeElements(nel, 1);
     ne = nel;
     ElName[ne-1] = elNameNew;
@@ -429,7 +429,7 @@ namespace VCSnonideal {
    *  @param kT       global Species number within this object
    *
    */
-  int VCS_PROB::addOnePhaseSpecies(vcs_VolPhase *volPhase, int k, int kT) {
+  size_t VCS_PROB::addOnePhaseSpecies(vcs_VolPhase *volPhase, size_t k, size_t kT) {
     size_t e, eVP;
     if (kT > nspecies) {
       /*
@@ -457,12 +457,11 @@ namespace VCSnonideal {
   }
 
   void VCS_PROB::reportCSV(const std::string &reportFile) {
-    int k;
-    int istart;
+    size_t k;
+    size_t istart;
   
     double vol = 0.0;
     string sName;
-    int nphase = NPhase;
 
     FILE * FP = fopen(reportFile.c_str(), "w");
     if (!FP) {
@@ -480,12 +479,12 @@ namespace VCSnonideal {
 
 
     vol = 0.0;
-    int iK = 0;
-    for (int iphase = 0; iphase < nphase; iphase++) {
+    size_t iK = 0;
+    for (size_t iphase = 0; iphase < NPhase; iphase++) {
       istart = iK;
       vcs_VolPhase *volP = VPhaseList[iphase];
       //const Cantera::ThermoPhase *tptr = volP->ptrThermoPhase();
-      int nSpeciesPhase = volP->nSpecies();
+      size_t nSpeciesPhase = volP->nSpecies();
       volPM.resize(nSpeciesPhase, 0.0);
       volP->sendToVCS_VolPM(VCS_DATA_PTR(volPM));
   
@@ -508,13 +507,13 @@ namespace VCSnonideal {
     fprintf(FP,"Number VCS iterations = %d\n", m_Iterations);
 
     iK = 0;
-    for (int iphase = 0; iphase < nphase; iphase++) {
-      istart =    iK;
+    for (size_t iphase = 0; iphase < NPhase; iphase++) {
+      istart = iK;
   
       vcs_VolPhase *volP = VPhaseList[iphase];
       const Cantera::ThermoPhase *tp = volP->ptrThermoPhase();
       string phaseName = volP->PhaseName;
-      int nSpeciesPhase = volP->nSpecies();
+      size_t nSpeciesPhase = volP->nSpecies();
       volP->sendToVCS_VolPM(VCS_DATA_PTR(volPM));
       double TMolesPhase = volP->totalMoles();
       //AssertTrace(TMolesPhase == m_mix->phaseMoles(iphase));

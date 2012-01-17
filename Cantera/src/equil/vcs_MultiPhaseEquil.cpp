@@ -698,7 +698,7 @@ namespace VCSnonideal {
        } else {
        plogf("  %15.3e   %15.3e  ", m_vprob->w[i], m_vprob->mf[i]);
        if (m_vprob->w[i] <= 0.0) {
-	 int iph = m_vprob->PhaseID[i];
+	 size_t iph = m_vprob->PhaseID[i];
 	 vcs_VolPhase *VPhase = m_vprob->VPhaseList[iph];
 	 if (VPhase->nSpecies() > 1) {
 	   plogf("     -1.000e+300\n");
@@ -737,7 +737,7 @@ namespace VCSnonideal {
   
     double vol = 0.0;
     string sName;
-    int nphase = m_vprob->NPhase;
+    size_t nphase = m_vprob->NPhase;
 
     FILE * FP = fopen(reportFile.c_str(), "w");
     if (!FP) {
@@ -759,7 +759,7 @@ namespace VCSnonideal {
 
 
     vol = 0.0;
-    for (int iphase = 0; iphase < nphase; iphase++) {
+    for (size_t iphase = 0; iphase < nphase; iphase++) {
       istart =    m_mix->speciesIndex(0, iphase);
       Cantera::ThermoPhase &tref = m_mix->phase(iphase);
       nSpecies = tref.nSpecies();
@@ -784,7 +784,7 @@ namespace VCSnonideal {
     fprintf(FP,"Number Basis optimizations = %d\n", m_vprob->m_NumBasisOptimizations);
     fprintf(FP,"Number VCS iterations = %d\n", m_vprob->m_Iterations);
 
-    for (int iphase = 0; iphase < nphase; iphase++) {
+    for (size_t iphase = 0; iphase < nphase; iphase++) {
       istart =    m_mix->speciesIndex(0, iphase);
       Cantera::ThermoPhase &tref = m_mix->phase(iphase);
       Cantera::ThermoPhase *tp = &tref;
@@ -902,7 +902,6 @@ namespace VCSnonideal {
    */
   int  vcs_Cantera_to_vprob(Cantera::MultiPhase *mphase,
 			    VCSnonideal::VCS_PROB *vprob) {
-    int k;
     VCS_SPECIES_THERMO *ts_ptr = 0;
 
     /*
@@ -935,7 +934,7 @@ namespace VCSnonideal {
      * Loop over the phases, transfering pertinent information
      */
     int kT = 0;
-    for (int iphase = 0; iphase < totNumPhases; iphase++) {
+    for (size_t iphase = 0; iphase < totNumPhases; iphase++) {
 
       /*
        * Get the thermophase object - assume volume phase
@@ -1057,7 +1056,7 @@ namespace VCSnonideal {
       /*
        *    Loop through each species in the current phase
        */ 
-      for (k = 0; k < nSpPhase; k++) {
+      for (size_t k = 0; k < nSpPhase; k++) {
 	/*
 	 * Obtain the molecular weight of the species from the
 	 * ThermoPhase object
@@ -1201,8 +1200,8 @@ namespace VCSnonideal {
        * estimate of the total number of moles is zero.
        */
       if (tMoles > 0.0) {
-	for (k = 0; k < nSpPhase; k++) {
-	  int kTa = VolPhase->spGlobalIndexVCS(k);
+	for (size_t k = 0; k < nSpPhase; k++) {
+	  size_t kTa = VolPhase->spGlobalIndexVCS(k);
 	  vprob->mf[kTa] = vprob->w[kTa] / tMoles;
 	}
       } else {
@@ -1210,8 +1209,8 @@ namespace VCSnonideal {
 	 * Perhaps, we could do a more sophisticated treatment below.
 	 * But, will start with this.
 	 */
-	for (k = 0; k < nSpPhase; k++) {
-	  int kTa = VolPhase->spGlobalIndexVCS(k);
+	for (size_t k = 0; k < nSpPhase; k++) {
+	  size_t kTa = VolPhase->spGlobalIndexVCS(k);
 	  vprob->mf[kTa]= 1.0 / (double) nSpPhase;
 	}
       }
@@ -1222,7 +1221,7 @@ namespace VCSnonideal {
        * at the specified temperature.
        */
       double R = vcsUtil_gasConstant(vprob->m_VCS_UnitsFormat);
-      for (k = 0; k < nSpPhase; k++) {
+      for (size_t k = 0; k < nSpPhase; k++) {
 	vcs_SpeciesProperties *sProp = VolPhase->speciesProperty(k);
 	ts_ptr = sProp->SpeciesThermo;
 	ts_ptr->SS0_feSave = VolPhase->G0_calc_one(k)/ R;
@@ -1252,7 +1251,7 @@ namespace VCSnonideal {
       plogf("            species     phaseID        phaseName   ");
       plogf(" Initial_Estimated_kMols\n");
       for (int i = 0; i < vprob->nspecies; i++) {
-	int iphase = vprob->PhaseID[i];
+	size_t iphase = vprob->PhaseID[i];
 
 	vcs_VolPhase *VolPhase = vprob->VPhaseList[iphase];
 	plogf("%16s      %5d   %16s", vprob->SpName[i].c_str(), iphase,
@@ -1338,8 +1337,8 @@ namespace VCSnonideal {
 	kT++;
       }
       if (volPhase->phiVarIndex() >= 0) {
-	int kphi = volPhase->phiVarIndex();
-	int kglob = volPhase->spGlobalIndexVCS(kphi);
+	size_t kphi = volPhase->phiVarIndex();
+	size_t kglob = volPhase->spGlobalIndexVCS(kphi);
 	vprob->w[kglob] = tPhase->electricPotential();
       }
       volPhase->setMolesFromVCS(VCS_STATECALC_OLD, VCS_DATA_PTR(vprob->w));
@@ -1373,8 +1372,8 @@ namespace VCSnonideal {
       plogf("             Phase IDs of species\n");
       plogf("            species     phaseID        phaseName   ");
       plogf(" Initial_Estimated_kMols\n");
-      for (int i = 0; i < vprob->nspecies; i++) {
-	int iphase = vprob->PhaseID[i];
+      for (size_t i = 0; i < vprob->nspecies; i++) {
+	size_t iphase = vprob->PhaseID[i];
 
 	vcs_VolPhase *VolPhase = vprob->VPhaseList[iphase];
 	plogf("%16s      %5d   %16s", vprob->SpName[i].c_str(), iphase,
@@ -1390,7 +1389,7 @@ namespace VCSnonideal {
       plogf("  PhaseName    PhaseNum SingSpec GasPhase EqnState NumSpec");
       plogf("  TMolesInert       Tmoles(kmol)\n");
    
-      for (int iphase = 0; iphase < vprob->NPhase; iphase++) {
+      for (size_t iphase = 0; iphase < vprob->NPhase; iphase++) {
 	vcs_VolPhase *VolPhase = vprob->VPhaseList[iphase];
 	std::string sEOS = string16_EOSType(VolPhase->m_eqnState);
 	plogf("%16s %5d %5d %8d %16s %8d %16e ", VolPhase->PhaseName.c_str(),
@@ -1412,35 +1411,35 @@ namespace VCSnonideal {
 
   // This routine hasn't been checked yet
   void vcs_MultiPhaseEquil::getStoichVector(index_t rxn, Cantera::vector_fp& nu) {
-    int nsp = m_vsolvePtr->m_numSpeciesTot;
+    size_t nsp = m_vsolvePtr->m_numSpeciesTot;
     nu.resize(nsp, 0.0);
-    for (int i = 0; i < nsp; i++) {
+    for (size_t i = 0; i < nsp; i++) {
       nu[i] = 0.0;
     }
-    int nc = numComponents();
+    size_t nc = numComponents();
     // scMatrix [nrxn][ncomp]
     const DoubleStarStar &scMatrix = m_vsolvePtr->m_stoichCoeffRxnMatrix;
-    const  std::vector<int> indSpecies = m_vsolvePtr->m_speciesMapIndex;
-    if ((int) rxn > nsp - nc) return;
-    int j = indSpecies[rxn + nc];
+    const std::vector<size_t>& indSpecies = m_vsolvePtr->m_speciesMapIndex;
+    if (rxn > nsp - nc) return;
+    size_t j = indSpecies[rxn + nc];
     nu[j] = 1.0;
-    for (int kc = 0; kc < nc; kc++) {
+    for (size_t kc = 0; kc < nc; kc++) {
       j = indSpecies[kc];
       nu[j] = scMatrix[rxn][kc];
     }
     
   }
   
-  int vcs_MultiPhaseEquil::numComponents() const {
-    int nc = -1;
+  size_t vcs_MultiPhaseEquil::numComponents() const {
+    size_t nc = -1;
     if (m_vsolvePtr) {
       nc =  m_vsolvePtr->m_numComponents;
     }
     return nc;
   }
 
-  int vcs_MultiPhaseEquil::numElemConstraints() const {
-    int nec = -1;
+  size_t vcs_MultiPhaseEquil::numElemConstraints() const {
+    size_t nec = -1;
     if (m_vsolvePtr) {
       nec =  m_vsolvePtr->m_numElemConstraints;
     }
@@ -1448,8 +1447,8 @@ namespace VCSnonideal {
   }
  
 
-  int vcs_MultiPhaseEquil::component(int m) const {
-    int nc = numComponents();
+  size_t vcs_MultiPhaseEquil::component(size_t m) const {
+    size_t nc = numComponents();
     if (m < nc) return m_vsolvePtr->m_speciesMapIndex[m]; 
     else return -1;
   }

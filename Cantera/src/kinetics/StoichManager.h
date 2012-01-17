@@ -226,7 +226,7 @@ namespace Cantera {
     C2(size_t rxn = 0, size_t ic0 = 0, size_t ic1 = 0)
       : m_rxn (rxn), m_ic0 (ic0), m_ic1 (ic1) {}
 
-    int data(std::vector<size_t>& ic) {
+    size_t data(std::vector<size_t>& ic) {
       ic.resize(2);
       ic[0] = m_ic0;
       ic[1] = m_ic1;
@@ -304,7 +304,7 @@ namespace Cantera {
     C3(size_t rxn = 0, size_t ic0 = 0, size_t ic1 = 0, size_t ic2 = 0)
       : m_rxn (rxn), m_ic0 (ic0), m_ic1 (ic1), m_ic2 (ic2) {}
 
-    int data(std::vector<size_t>& ic) {
+    size_t data(std::vector<size_t>& ic) {
       ic.resize(3);
       ic[0] = m_ic0;
       ic[1] = m_ic1;

@@ -140,7 +140,7 @@ namespace Cantera {
     // overloaded methods of class FuncEval
 
     //! Return the number of equations
-    virtual int neq() { return m_nv; }
+    virtual size_t neq() { return m_nv; }
 
     //! Evaluate the value of ydot[k] at the current conditions
     /*!
@@ -248,9 +248,8 @@ namespace Cantera {
 
     //! index of the surface phase in each InterfaceKinetics object
     std::vector<size_t> m_surfindex;
-
     
-    vector_int m_specStartIndex;
+    std::vector<size_t> m_specStartIndex;
 
     //! Total number of surface phases.
     /*!
@@ -267,7 +266,7 @@ namespace Cantera {
     size_t m_nv;
 
     size_t m_numBulkPhases;
-    vector_int  m_nspBulkPhases;
+    std::vector<size_t> m_nspBulkPhases;
     size_t  m_numTotalBulkSpecies;
     size_t m_numTotalSpecies;
 

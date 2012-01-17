@@ -294,7 +294,7 @@ namespace VCSnonideal {
      *           number of components, which can be obtained from the
      *           numComponents() command.
      */
-    int component(int m) const ; 
+    size_t component(size_t m) const ;
 
     //! Get the stoichiometric reaction coefficients for a single
     //! reaction index
@@ -546,14 +546,14 @@ namespace VCSnonideal {
      *  @return returns the number of components. If an equilibrium
      *          problem hasn't been solved yet, it returns -1.
      */
-    int numComponents() const;
+    size_t numComponents() const;
 
     //! Reports the number of element contraints in the equilibration problem
     /*!
      *  @return returns the number of element constraints. If an equilibrium
      *          problem hasn't been solved yet, it returns -1.
      */
-    int numElemConstraints() const;
+    size_t numElemConstraints() const;
 
     // Friend functions
 

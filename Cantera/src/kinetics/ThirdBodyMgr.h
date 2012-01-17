@@ -24,10 +24,10 @@ namespace Cantera {
 
         ThirdBodyMgr<_E>() : m_n(0) {}
 
-        void install( int rxnNumber, const std::map<int, doublereal>& enhanced,
+        void install(size_t rxnNumber, const std::map<size_t, doublereal>& enhanced,
             doublereal dflt=1.0) {
             m_n++;
-            m_reaction_index.push_back( rxnNumber );
+            m_reaction_index.push_back(rxnNumber);
             m_concm.push_back( _E(static_cast<int>(enhanced.size()),
 			                      enhanced, dflt ) );
         }
@@ -54,7 +54,7 @@ namespace Cantera {
     protected:
         
         int m_n;
-        vector_int      m_reaction_index;
+        std::vector<size_t> m_reaction_index;
         std::vector<_E>      m_concm;
     };
     

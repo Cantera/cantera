@@ -24,12 +24,12 @@ namespace VCSnonideal {
   
   //  Calculate the status of single species phases.
   void VCS_SOLVE::vcs_SSPhase() {
-    int kspec, iph;
+    size_t iph;
     vcs_VolPhase *Vphase;
 
     std::vector<int> numPhSpecies(m_numPhases, 0);
 
-    for (kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
+    for (size_t kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
       numPhSpecies[m_phaseID[kspec]]++;
     }   
     /*
@@ -56,7 +56,7 @@ namespace VCSnonideal {
      *       SSPhase = Boolean indicating whether a species is in a 
      *                 single species phase or not.
      */
-    for (kspec = 0; kspec < m_numSpeciesTot; kspec++) {
+    for (size_t kspec = 0; kspec < m_numSpeciesTot; kspec++) {
       iph = m_phaseID[kspec];
       Vphase = m_VolPhaseList[iph];
       if (Vphase->m_singleSpecies)  m_SSPhase[kspec] = TRUE;
@@ -99,7 +99,8 @@ namespace VCSnonideal {
    *
    */
   int VCS_SOLVE::vcs_prep_oneTime(int printLvl) {
-    int kspec, i, conv, retn = VCS_SUCCESS; 
+    size_t kspec, i, conv;
+    int retn = VCS_SUCCESS;
     double pres, test;
     double *aw, *sa, *sm, *ss;
     bool modifiedSoln = false;
@@ -125,8 +126,8 @@ namespace VCSnonideal {
     }
   
     for (kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
-      int pID = m_phaseID[kspec];
-      int spPhIndex = m_speciesLocalPhaseIndex[kspec];
+      size_t pID = m_phaseID[kspec];
+      size_t spPhIndex = m_speciesLocalPhaseIndex[kspec];
       vcs_VolPhase *vPhase =  m_VolPhaseList[pID];
       vcs_SpeciesProperties *spProp = vPhase->speciesProperty(spPhIndex);
       double sz = 0.0;

@@ -48,7 +48,7 @@ namespace Cantera {
         /** 
          * Number of equations. 
          */
-        virtual int neq()=0;
+        virtual size_t neq()=0;
 
         /// Number of parameters.
         virtual int nparams() { return 0; }

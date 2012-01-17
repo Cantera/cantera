@@ -81,7 +81,6 @@ namespace Cantera {
    * Update the equilibrium constants in molar units.
    */
   void AqueousKinetics::updateKc() {
-    int i, irxn;
     vector_fp& m_rkc = m_kdata->m_rkcn;
     doublereal rt = GasConstant*   m_kdata->m_temp;
         
@@ -97,12 +96,12 @@ namespace Cantera {
  
     //doublereal logStandConc = m_kdata->m_logStandConc;
     doublereal rrt = 1.0/(GasConstant * thermo().temperature());
-    for (i = 0; i < m_nrev; i++) {
-      irxn = m_revindex[i];
+    for (size_t i = 0; i < m_nrev; i++) {
+      size_t irxn = m_revindex[i];
       m_rkc[irxn] = exp(m_rkc[irxn]*rrt);
     }
 
-    for(i = 0; i != m_nirrev; ++i) {
+    for(size_t i = 0; i != m_nirrev; ++i) {
       m_rkc[ m_irrev[i] ] = 0.0;
     }
   }
@@ -420,7 +419,7 @@ namespace Cantera {
 
 
   void AqueousKinetics::addElementaryReaction(const ReactionData& r) {
-    int iloc;
+    size_t iloc;
 
     // install rate coeff calculator
     iloc = m_rates.install( reactionNumber(),
@@ -447,7 +446,7 @@ namespace Cantera {
     doublereal nsFlt;
     doublereal reactantGlobalOrder = 0.0;
     doublereal productGlobalOrder  = 0.0;
-    int rnum = reactionNumber();
+    size_t rnum = reactionNumber();
 
     std::vector<size_t> rk;
     size_t nr = r.reactants.size();
@@ -508,7 +507,7 @@ namespace Cantera {
 				      const vector<grouplist_t>& r, 
 				      const vector<grouplist_t>& p) {
     if (!r.empty()) {
-      writelog("installing groups for reaction "+int2str(reactionNumber()));
+      writelog("installing groups for reaction "+int2str(int(reactionNumber())));
       m_rgroups[reactionNumber()] = r;
       m_pgroups[reactionNumber()] = p;
     }

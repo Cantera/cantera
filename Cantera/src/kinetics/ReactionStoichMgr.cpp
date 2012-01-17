@@ -41,7 +41,7 @@ namespace Cantera {
 
 
   void ReactionStoichMgr::
-  add(int rxn, const std::vector<size_t>& reactants,
+  add(size_t rxn, const std::vector<size_t>& reactants,
       const std::vector<size_t>& products,
       bool reversible) {
 
@@ -55,7 +55,7 @@ namespace Cantera {
 
 
   void ReactionStoichMgr::
-  add(int rxn, const ReactionData& r) {
+  add(size_t rxn, const ReactionData& r) {
 
     std::vector<size_t> rk;
     doublereal frac;
@@ -151,7 +151,7 @@ namespace Cantera {
   }
 
   void ReactionStoichMgr::
-  getReactionDelta(int nr, const doublereal* g, doublereal* dg) {
+  getReactionDelta(size_t nr, const doublereal* g, doublereal* dg) {
     fill(dg, dg + nr, 0.0);
     // products add 
     m_revproducts->incrementReactions(g, dg);
@@ -161,7 +161,7 @@ namespace Cantera {
   }
 
   void ReactionStoichMgr::
-  getRevReactionDelta(int nr, const doublereal* g, doublereal* dg) {
+  getRevReactionDelta(size_t nr, const doublereal* g, doublereal* dg) {
     fill(dg, dg + nr, 0.0);
     m_revproducts->incrementReactions(g, dg);
     m_reactants->decrementReactions(g, dg);

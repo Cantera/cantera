@@ -264,7 +264,7 @@ namespace VCSnonideal {
      *  @param force    If true, this will dimension the size to be equal to nPhase
      *                  even if nPhase is less than the current value of NPHASE0
      */
-    void resizePhase(int nPhase, int force);
+    void resizePhase(size_t nPhase, int force);
 
     //!    Resizes all of the species lists within the structure
     /*!
@@ -275,7 +275,7 @@ namespace VCSnonideal {
      *  @param force    If true, this will dimension the size to be equal to nsp
      *                  even if nsp is less than the current value of NSPECIES0
      */
-    void resizeSpecies(int nsp, int force);
+    void resizeSpecies(size_t nsp, int force);
 
     //!    Resizes all of the element lists within the structure
     /*!
@@ -286,7 +286,7 @@ namespace VCSnonideal {
      *  @param force    If true, this will dimension the size to be equal to nel
      *                  even if nel is less than the current value of NEL0
      */
-    void resizeElements(int nel, int force);
+    void resizeElements(size_t nel, int force);
 
 
     //! Calculate the element abundance vector
@@ -338,7 +338,7 @@ namespace VCSnonideal {
      *
      *  @return returns the index number of the new element
      */
-    int addElement(const char *elNameNew, int elType, int elactive);
+    size_t addElement(const char *elNameNew, int elType, int elactive);
 
 
     //! This routines adds entries for the formula matrix for one species
@@ -354,7 +354,7 @@ namespace VCSnonideal {
      *  @param kT       global Species number within this object
      *
      */
-    int addOnePhaseSpecies(vcs_VolPhase *volPhase, int k, int kT);
+    size_t addOnePhaseSpecies(vcs_VolPhase *volPhase, size_t k, size_t kT);
 
     void reportCSV(const std::string &reportFile);
 

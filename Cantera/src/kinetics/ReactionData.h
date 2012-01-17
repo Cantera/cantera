@@ -46,7 +46,7 @@ namespace Cantera {
     vector_fp pstoich;
     std::vector<grouplist_t> rgroups;
     std::vector<grouplist_t> pgroups;
-    std::map<int, doublereal> thirdBodyEfficiencies;
+    std::map<size_t, doublereal> thirdBodyEfficiencies;
 
     //! True if the current reaction is reversible. False otherwise
     bool reversible;

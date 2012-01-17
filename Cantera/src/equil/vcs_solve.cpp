@@ -75,8 +75,8 @@ namespace VCSnonideal {
    *  @param nphase0       Number of phases defined within the problem.
    *
    */
-  void VCS_SOLVE::vcs_initSizes(const int nspecies0, const int nelements, 
-				const int nphase0) {
+  void VCS_SOLVE::vcs_initSizes(const size_t nspecies0, const size_t nelements,
+				const size_t nphase0) {
 
     if (NSPECIES0 != 0) {
       if ((nspecies0 != NSPECIES0) || (nelements != m_numElemConstraints) || (nphase0 != NPHASE0)){
@@ -253,8 +253,8 @@ namespace VCSnonideal {
    * This gets called by the destructor or by InitSizes().
    */
   void VCS_SOLVE::vcs_delete_memory() {
-    int j;
-    int nspecies = m_numSpeciesTot;
+    size_t j;
+    size_t nspecies = m_numSpeciesTot;
    
     for (j = 0; j < m_numPhases; j++) {
       delete m_VolPhaseList[j];
@@ -313,8 +313,8 @@ namespace VCSnonideal {
    *       zero : success
    */
   int VCS_SOLVE::vcs(VCS_PROB *vprob, int ifunc, int ipr, int ip1, int maxit) {
-    int retn = 0;
-    int iconv = 0, nspecies0, nelements0, nphase0;
+    int retn = 0, iconv = 0;
+    size_t nspecies0, nelements0, nphase0;
     Cantera::clockWC tickTock;
     
     int  iprintTime = MAX(ipr, ip1);
@@ -456,7 +456,7 @@ namespace VCSnonideal {
    */
   int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB *pub) {
     int i, j,  kspec;
-    int iph;
+    size_t iph;
     vcs_VolPhase *Vphase = 0;
     const char *ser =
       "vcs_pub_to_priv ERROR :ill defined interface -> bailout:\n\t";
@@ -465,17 +465,17 @@ namespace VCSnonideal {
      *  First Check to see whether we have room for the current problem
      *  size
      */
-    int nspecies  = pub->nspecies;
+    size_t nspecies  = pub->nspecies;
     if (NSPECIES0 < nspecies) {
       plogf("%sPrivate Data is dimensioned too small\n", ser);
       return VCS_PUB_BAD;
     }
-    int nph = pub->NPhase;
+    size_t nph = pub->NPhase;
     if (NPHASE0 < nph) {
       plogf("%sPrivate Data is dimensioned too small\n", ser);
       return VCS_PUB_BAD;
     }
-    int nelements = pub->ne;
+    size_t nelements = pub->ne;
     if (m_numElemConstraints < nelements) {
       plogf("%sPrivate Data is dimensioned too small\n", ser);
       return VCS_PUB_BAD;
@@ -652,7 +652,7 @@ namespace VCSnonideal {
      *             -> Check for bad values at the same time.
      */
     if (pub->PhaseID.size() != 0) {
-      std::vector<int> numPhSp(nph, 0);
+      std::vector<size_t> numPhSp(nph, 0);
       for (kspec = 0; kspec < nspecies; kspec++) {
 	iph = pub->PhaseID[kspec];
 	if (iph < 0 || iph >= nph) {
@@ -743,9 +743,9 @@ namespace VCSnonideal {
        * data space.
        */
       Vphase = m_VolPhaseList[iph];
-      for (int k = 0; k < Vphase->nSpecies(); k++) {
+      for (size_t k = 0; k < Vphase->nSpecies(); k++) {
 	vcs_SpeciesProperties *sProp = Vphase->speciesProperty(k);
-	int kT = Vphase->spGlobalIndexVCS(k);
+	size_t kT = Vphase->spGlobalIndexVCS(k);
 	sProp->SpeciesThermo = m_speciesThermoList[kT];
       }
     }
@@ -766,10 +766,10 @@ namespace VCSnonideal {
 	 * So SpecLnMnaught[iSolvent] = 0.0, and the
 	 * loop below starts at 1, not 0.
 	 */
-	int iSolvent = Vphase->spGlobalIndexVCS(0);
+	size_t iSolvent = Vphase->spGlobalIndexVCS(0);
 	double mnaught = m_wtSpecies[iSolvent] / 1000.;
-	for (int k = 1; k < Vphase->nSpecies(); k++) {
-	  int kspec = Vphase->spGlobalIndexVCS(k);
+	for (size_t k = 1; k < Vphase->nSpecies(); k++) {
+	  size_t kspec = Vphase->spGlobalIndexVCS(k);
 	  m_actConventionSpecies[kspec] = Vphase->p_activityConvention;
 	  m_lnMnaughtSpecies[kspec] = log(mnaught);
 	}
@@ -811,7 +811,7 @@ namespace VCSnonideal {
    *              initialize the current equilibrium problem
    */
   int VCS_SOLVE::vcs_prob_specify(const VCS_PROB *pub) {
-    int kspec, k, i, j, iph;
+    size_t kspec, k, i, j, iph;
     string yo("vcs_prob_specify ERROR: ");
     int retn = VCS_SUCCESS;
     bool status_change = false;
@@ -941,22 +941,20 @@ namespace VCSnonideal {
    *              equilibrium calculation transfered to it. 
    */
   int VCS_SOLVE::vcs_prob_update(VCS_PROB *pub) {
-    int i, j, l;
-    int k1 = 0;
+    size_t k1 = 0;
 
     vcs_tmoles();
     m_totalVol = vcs_VolTotal(m_temperature, m_pressurePA, 
 			      VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(m_PMVolumeSpecies));
 
-    for (i = 0; i < m_numSpeciesTot; ++i) {
+    for (size_t i = 0; i < m_numSpeciesTot; ++i) {
       /*
        *         Find the index of I in the index vector, m_speciesIndexVector[]. 
        *         Call it K1 and continue. 
        */
-      for (j = 0; j < m_numSpeciesTot; ++j) {
-	l = m_speciesMapIndex[j];
+      for (size_t j = 0; j < m_numSpeciesTot; ++j) {
 	k1 = j;
-	if (l == i) break;
+	if (m_speciesMapIndex[j] == i) break;
       }
       /*
        * - Switch the species data back from K1 into I
@@ -975,7 +973,7 @@ namespace VCSnonideal {
     pub->T    = m_temperature;
     pub->PresPA = m_pressurePA;
     pub->Vol  = m_totalVol;
-    int kT = 0;
+    size_t kT = 0;
     for (int iph = 0; iph < pub->NPhase; iph++) {
       vcs_VolPhase *pubPhase = pub->VPhaseList[iph];
       vcs_VolPhase *vPhase = m_VolPhaseList[iph];
@@ -987,7 +985,7 @@ namespace VCSnonideal {
 				      VCS_DATA_PTR(vPhase->moleFractions()),
 				      VCS_STATECALC_TMP);
       const std::vector<double> & mfVector = pubPhase->moleFractions();
-      for (int k = 0; k < pubPhase->nSpecies(); k++) {
+      for (size_t k = 0; k < pubPhase->nSpecies(); k++) {
 	kT = pubPhase->spGlobalIndexVCS(k);
 	pub->mf[kT] = mfVector[k];
 	if (pubPhase->phiVarIndex() == k) {

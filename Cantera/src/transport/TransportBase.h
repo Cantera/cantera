@@ -344,7 +344,7 @@ namespace Cantera {
      *  @param d   Diffusion coefficient matrix (must be at least m_k * m_k 
      *             in length.
      */ 
-    virtual void getBinaryDiffCoeffs(const int ld, doublereal* const d) 
+    virtual void getBinaryDiffCoeffs(const size_t ld, doublereal* const d)
     { err("getBinaryDiffCoeffs"); }
 
 
@@ -354,7 +354,7 @@ namespace Cantera {
      * model, then this method returns the array of multicomponent
      * diffusion coefficients. Otherwise it throws an exception.
      */
-    virtual void getMultiDiffCoeffs(const int ld, doublereal* const d) 
+    virtual void getMultiDiffCoeffs(const size_t ld, doublereal* const d)
     { err("getMultiDiffCoeffs"); }
 
 

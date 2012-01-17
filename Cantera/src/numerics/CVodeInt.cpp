@@ -178,7 +178,7 @@ namespace Cantera {
 
   void CVodeInt::initialize(double t0, FuncEval& func) 
   {
-    m_neq = func.neq();
+    m_neq = int(func.neq());
     m_t0  = t0;
 
     if (m_y) {

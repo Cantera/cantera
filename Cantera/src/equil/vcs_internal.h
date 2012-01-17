@@ -152,7 +152,7 @@ namespace VCSnonideal {
    *            (each column is a new rhs)
    *  @param m  number of rhs's
    */
-  int  vcsUtil_mlequ(double *c, int idem, int n, double *b, int m);
+  int  vcsUtil_mlequ(double *c, size_t idem, size_t n, double *b, size_t m);
 
   //! Swap values in vector of doubles
   /*!
@@ -162,7 +162,7 @@ namespace VCSnonideal {
    * @param i1 first index
    * @param i2 second index
    */
-  void vcsUtil_dsw(double x[], int i1, int i2);
+  void vcsUtil_dsw(double x[], size_t i1, size_t i2);
 
   //! Swap values in an integer array
   /*!
@@ -172,7 +172,8 @@ namespace VCSnonideal {
    * @param i1 first index
    * @param i2 second index
    */
-  void   vcsUtil_isw(int x[], int i1, int i2);
+  void vcsUtil_isw(int x[], size_t i1, size_t i2);
+  void vcsUtil_ssw(size_t x[], size_t i1, size_t i2);
 
   //! Swap values in a std vector string
   /*!
@@ -183,7 +184,7 @@ namespace VCSnonideal {
    * @param i2 second index
    */
   void vcsUtil_stsw(std::vector<std::string> & vecStrings, 
-		    int i1, int i2); 
+                    size_t i1, size_t i2);
 
   //! Definition of the function pointer for the root finder
   /*!
@@ -305,7 +306,7 @@ namespace VCSnonideal {
      }   @endverbatim
    *
    */
-  int vcsUtil_root1d(double xmin, double xmax, int itmax, VCS_FUNC_PTR func,
+  int vcsUtil_root1d(double xmin, double xmax, size_t itmax, VCS_FUNC_PTR func,
 		     void *fptrPassthrough, 
 		     double FuncTargVal, int varID, double *xbest,
 		     int printLvl = 0);
@@ -328,7 +329,7 @@ namespace VCSnonideal {
    * @param vec_to vector of doubles
    * @param length length of the vector to zero.
    */
-  inline void vcs_dzero(double * const vec_to, const int length) {
+  inline void vcs_dzero(double * const vec_to, const size_t length) {
     (void) memset((void *) vec_to, 0, length * sizeof(double));
   }
 
@@ -337,7 +338,7 @@ namespace VCSnonideal {
    * @param vec_to vector of ints
    * @param length length of the vector to zero.
    */
-  inline void vcs_izero(int * const vec_to, const int length) {
+  inline void vcs_izero(int * const vec_to, const size_t length) {
     (void) memset((void *) vec_to, 0, length * sizeof(int));
   }
 
@@ -349,7 +350,7 @@ namespace VCSnonideal {
    * @param length    Number of doubles to copy.
    */
   inline void vcs_dcopy(double * const vec_to, 
-                        const double * const vec_from, const int length) {
+                        const double * const vec_from, const size_t length) {
     (void) memcpy((void *) vec_to, (const void *) vec_from, 
 		  (length) * sizeof(double));
   }
@@ -363,7 +364,7 @@ namespace VCSnonideal {
    * @param length    Number of int to copy.
    */
   inline void vcs_icopy(int * const vec_to, 
-                        const int * const vec_from, const int length) {
+                        const int * const vec_from, const size_t length) {
     (void) memcpy((void *) vec_to, (const void *) vec_from, 
 		  (length) * sizeof(int));
   }
@@ -373,7 +374,7 @@ namespace VCSnonideal {
    * @param vec_to vector of doubles
    * @param length length of the vector to zero.
    */
-  inline void vcs_vdzero(std::vector<double> &vec_to, const int length) {
+  inline void vcs_vdzero(std::vector<double> &vec_to, const size_t length) {
     (void) memset((void *)VCS_DATA_PTR(vec_to), 0, (length) * sizeof(double));
   }
   
@@ -382,7 +383,7 @@ namespace VCSnonideal {
    * @param vec_to vector of ints
    * @param length length of the vector to zero.
    */
-  inline void vcs_vizero(std::vector<int> &vec_to, const int length) {
+  inline void vcs_vizero(std::vector<int> &vec_to, const size_t length) {
     (void) memset((void *)VCS_DATA_PTR(vec_to), 0, (length) * sizeof(int));
   }
 
@@ -398,7 +399,7 @@ namespace VCSnonideal {
    * @param length  Number of doubles to copy.
    */
   inline void vcs_vdcopy(std::vector<double> & vec_to, 
-			 const std::vector<double> & vec_from, int length) {
+			 const std::vector<double> & vec_from, size_t length) {
     (void) memcpy((void *)&(vec_to[0]), (const void *) &(vec_from[0]), 
 		  (length) * sizeof(double));
   }
@@ -449,7 +450,7 @@ namespace VCSnonideal {
    * @return  Return index of the greatest value on X(i) searched
    *             j <= i < n
    */
-  int vcs_optMax(const double *x, const double *xSize, int j, int n);
+  size_t vcs_optMax(const double *x, const double *xSize, size_t j, size_t n);
 
   //! Returns the maximum integer in a list
   /*!

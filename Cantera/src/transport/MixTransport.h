@@ -57,7 +57,7 @@ namespace Cantera {
     //! returns the mixture thermal conductivity
     virtual doublereal thermalConductivity();
 
-    virtual void getBinaryDiffCoeffs(const int ld, doublereal* const d);
+    virtual void getBinaryDiffCoeffs(const size_t ld, doublereal* const d);
 
     
     //! Mixture-averaged diffusion coefficients [m^2/s]. 
@@ -133,7 +133,7 @@ namespace Cantera {
     }
 
     // mixture attributes
-    int m_nsp;
+    size_t m_nsp;
     doublereal m_tmin, m_tmax;
     vector_fp  m_mw;
 

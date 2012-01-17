@@ -58,8 +58,7 @@ namespace VCSnonideal {
    *
    */
   int VCS_SOLVE::vcs_elabcheck(int ibound) {
-    int i; 
-    int top = m_numComponents;
+    size_t top = m_numComponents;
     double eval, scale;
     int numNonZero;
     bool multisign = false;
@@ -69,7 +68,7 @@ namespace VCSnonideal {
     /*
      * Require 12 digits of accuracy on non-zero constraints.
      */
-    for (i = 0; i < top; ++i) {
+    for (size_t i = 0; i < top; ++i) {
       if (m_elementActive[i]) {
 	if (fabs(m_elemAbundances[i] - m_elemAbundancesGoal[i]) > (fabs(m_elemAbundancesGoal[i]) * 1.0e-12)) {
 	  /*
@@ -200,7 +199,7 @@ namespace VCSnonideal {
      *  
      *************************************************************************/
   {
-    int i, j, retn = 0, kspec, goodSpec, its; 
+    int i, j, retn = 0, goodSpec, its;
     double xx, par, saveDir, dir;
 
 #ifdef DEBUG_MODE
@@ -237,7 +236,7 @@ namespace VCSnonideal {
     for (i = 0; i < m_numElemConstraints; ++i) {
       numNonZero = 0;
       multisign = false;
-      for (kspec = 0; kspec < m_numSpeciesTot; kspec++) {
+      for (size_t kspec = 0; kspec < m_numSpeciesTot; kspec++) {
 	if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	  double eval = m_formulaMatrix[i][kspec];
 	  if (eval < 0.0) {
@@ -250,7 +249,7 @@ namespace VCSnonideal {
       }
       if (!multisign) {
 	if (numNonZero < 2) {
-	  for (kspec = 0; kspec < m_numSpeciesTot; kspec++) {
+	  for (size_t kspec = 0; kspec < m_numSpeciesTot; kspec++) {
 	    if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	      double eval = m_formulaMatrix[i][kspec];
 	      if (eval > 0.0) {
@@ -261,8 +260,8 @@ namespace VCSnonideal {
 	  }
 	} else {
 	  int numCompNonZero = 0;
-	  int compID = -1;
-	  for (kspec = 0; kspec < m_numComponents; kspec++) {
+	  size_t compID = -1;
+	  for (size_t kspec = 0; kspec < m_numComponents; kspec++) {
 	    if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	      double eval = m_formulaMatrix[i][kspec];
 	      if (eval > 0.0) {
@@ -273,7 +272,7 @@ namespace VCSnonideal {
 	  }
 	  if (numCompNonZero == 1) {
 	    double diff = m_elemAbundancesGoal[i];
-	    for (kspec = m_numComponents; kspec < m_numSpeciesTot; kspec++) {
+	    for (size_t kspec = m_numComponents; kspec < m_numSpeciesTot; kspec++) {
 	      if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 		double eval = m_formulaMatrix[i][kspec];
 		diff -= eval * m_molNumSpecies_old[kspec];
@@ -302,7 +301,7 @@ namespace VCSnonideal {
     for (i = 0; i < m_numElemConstraints; ++i) {
       int elType = m_elType[i];
       if (elType == VCS_ELEM_TYPE_ABSPOS) {
-	for (kspec = 0; kspec < m_numSpeciesTot; kspec++) {
+	for (size_t kspec = 0; kspec < m_numSpeciesTot; kspec++) {
 	  if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	    double atomComp = m_formulaMatrix[i][kspec];
 	    if (atomComp > 0.0) {
@@ -424,7 +423,7 @@ namespace VCSnonideal {
        *       First find a species whose adjustment is a win-win
        *       situation.
        */
-      for (kspec = 0; kspec < m_numSpeciesTot; kspec++) {
+      for (size_t kspec = 0; kspec < m_numSpeciesTot; kspec++) {
 	if (m_speciesUnknownType[kspec] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	  continue;
 	}
@@ -486,7 +485,7 @@ namespace VCSnonideal {
     for (i = 0; i < m_numElemConstraints; ++i) {
       if (m_elType[i] == VCS_ELEM_TYPE_CHARGENEUTRALITY ||
 	  (m_elType[i] == VCS_ELEM_TYPE_ABSPOS && m_elemAbundancesGoal[i] == 0.0)) { 
-	for (kspec = 0; kspec < m_numSpeciesRdc; kspec++) {
+	for (size_t kspec = 0; kspec < m_numSpeciesRdc; kspec++) {
 	  if (m_elemAbundances[i] > 0.0) {
 	    if (m_formulaMatrix[i][kspec] < 0.0) {
 	      m_molNumSpecies_old[kspec] -= m_elemAbundances[i] / m_formulaMatrix[i][kspec] ;
@@ -524,7 +523,7 @@ namespace VCSnonideal {
       double dev = m_elemAbundancesGoal[i] - m_elemAbundances[i];
       if (m_elType[i] == VCS_ELEM_TYPE_ELECTRONCHARGE && (fabs(dev) > 1.0E-300)) {
 	bool useZeroed = true;
-	for (kspec = 0; kspec < m_numSpeciesRdc; kspec++) {
+	for (size_t kspec = 0; kspec < m_numSpeciesRdc; kspec++) {
 	  if (dev < 0.0) {
 	    if (m_formulaMatrix[i][kspec] < 0.0) {
 	      if (m_molNumSpecies_old[kspec] > 0.0) {
@@ -539,7 +538,7 @@ namespace VCSnonideal {
 	    }
 	  }
 	}
-	for (kspec = 0; kspec < m_numSpeciesRdc; kspec++) {
+	for (size_t kspec = 0; kspec < m_numSpeciesRdc; kspec++) {
 	  if (m_molNumSpecies_old[kspec] > 0.0 || useZeroed) {
 	    if (dev < 0.0) {
 	      if (m_formulaMatrix[i][kspec] < 0.0) {

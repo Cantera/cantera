@@ -225,14 +225,13 @@ namespace Cantera {
    * manager) and returns the index of the phase owning the 
    * species.
    */
-  int Kinetics::speciesPhaseIndex(int k) {
-    int np = m_start.size();
-    for (int n = np-1; n >= 0; n--) {
+  size_t Kinetics::speciesPhaseIndex(size_t k) {
+    for (size_t n = m_start.size()-1; n != -1; n--) {
       if (k >= m_start[n]) {
 	return n;
       }
     }
-    throw CanteraError("speciesPhaseIndex", "illegal species index: "+int2str(k));
+    throw CanteraError("speciesPhaseIndex", "illegal species index: "+int2str(int(k)));
     return -1;
   }
 
@@ -291,9 +290,8 @@ namespace Cantera {
 
   void Kinetics::finalize() {
     m_nTotalSpecies = 0;
-    int np = nPhases();
-    for (int n = 0; n < np; n++) {
-      int nsp = m_thermo[n]->nSpecies();
+    for (size_t n = 0; n < nPhases(); n++) {
+      size_t nsp = m_thermo[n]->nSpecies();
       m_nTotalSpecies += nsp;
     }
   }

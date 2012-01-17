@@ -24,8 +24,8 @@ namespace VCSnonideal {
    *  This destroys the data based on reaction ordering.
    */
   int VCS_SOLVE::vcs_rearrange() {
-    int i, l, j;
-    int k1 = 0;
+    size_t i, l, j;
+    size_t k1 = 0;
  
     /* - Loop over all of the species */
     for (i = 0; i < m_numSpeciesTot; ++i) {

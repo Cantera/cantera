@@ -37,13 +37,13 @@ namespace VCSnonideal {
    */
   void VCS_SOLVE::vcs_inest(double * const aw, double * const sa, double * const sm, 
 		            double * const ss, double test) {
-    int conv, k,  lt, ikl, kspec, iph, irxn;
+    size_t conv, lt, ikl, kspec, iph, irxn;
     double s;
     double s1 = 0.0;
     double xl, par;
     int finished;
-    int     nspecies   = m_numSpeciesTot;
-    int     nrxn       = m_numRxnTot;
+    size_t nspecies = m_numSpeciesTot;
+    size_t nrxn = m_numRxnTot;
     vcs_VolPhase *Vphase = 0;
  
     // double *molNum   = VCS_DATA_PTR(m_molNumSpecies_old);
@@ -241,7 +241,7 @@ namespace VCSnonideal {
 	m_deltaMolNumSpecies[kspec] = 0.5 * (m_tPhaseMoles_new[iph] + TMolesMultiphase) 
 	  * exp(-m_deltaGRxn_new[irxn]);
 	 
-	for (k = 0; k < m_numComponents; ++k) {
+	for (size_t k = 0; k < m_numComponents; ++k) {
 	  m_deltaMolNumSpecies[k] += m_stoichCoeffRxnMatrix[irxn][k] * m_deltaMolNumSpecies[kspec];
 	}
 	
@@ -322,14 +322,14 @@ namespace VCSnonideal {
 	finished = TRUE; continue;
       }
       if (s < 0.0) {
-	if (ikl <= 0) {
+	if (ikl == 0) {
 	  finished = TRUE; continue;
 	}
       }
       /* ***************************************** */
       /* *** TRY HALF STEP SIZE ****************** */
       /* ***************************************** */
-      if (ikl <= 0) {
+      if (ikl == 0) {
 	s1 = s;
 	par *= 0.5;
 	ikl = 1;
