@@ -20,8 +20,13 @@ extern "C" {
 extern "C" {
 #endif
 extern int getpid(void); 
-#ifndef WIN32
-extern int isatty(int); 
+#ifdef _MSC_VER
+#define ISATTY _isatty
+#define FILENO _fileno
+#else
+extern int isatty(int);
+#define ISATTY isatty
+#define FILENO fileno
 #endif
 extern int pause(void);
 #endif
@@ -66,7 +71,7 @@ s_paus(char *s, ftnlen n)
 	if(n > 0)
 		fprintf(stderr, " %.*s", (int)n, s);
 	fprintf(stderr, " statement executed\n");
-	if( isatty(fileno(stdin)) )
+	if( ISATTY(FILENO(stdin)) )
 		s_1paus(stdin);
 	else {
 #ifdef MSDOS

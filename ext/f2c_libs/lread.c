@@ -75,7 +75,7 @@ un_getc(int x, FILE *f__cf)
 #ifdef KR_headers
  extern int ungetc();
 #else
-#ifndef WIN32
+#ifndef _MSC_VER
 extern int ungetc(int, FILE*);	/* for systems with a buggy stdio.h */
 #endif
 #endif
