@@ -127,7 +127,7 @@ namespace Cantera {
       if (m_abstol) N_VFree(nv(m_abstol));
       m_abstol = reinterpret_cast<void*>(N_VNew(m_nabs, 0));
     }
-    for (int i=0; i<n; i++) {
+    for (int i=0; i<m_nabs; i++) {
       N_VIth(nv(m_abstol), i) = abstol[i];
     }
     m_reltol = reltol; 

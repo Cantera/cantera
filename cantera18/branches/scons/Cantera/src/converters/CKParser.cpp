@@ -648,7 +648,7 @@ next:
 		log << endl << " Default # of temperature regions: " 
 		    << nreg << endl;
 		log << "          ";
-		for (int i = 0; i <= nreg; i++) {
+		for (size_t i = 0; i <= nreg; i++) {
 		  log << temp[i] << "  ";
 		}
 		log << endl;

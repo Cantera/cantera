@@ -619,7 +619,7 @@ py_sim1D_new(PyObject *self, PyObject *args)
     size_t domains_len = domains_array->dimensions[0];
 
     int * domains_data = (int *) malloc(sizeof(int) * domains_len);
-    for (int i = 0; i <  domains_len; i++) {
+    for (size_t i = 0; i <  domains_len; i++) {
       domains_data[i] = (int) dd_data[i];
     }
  
