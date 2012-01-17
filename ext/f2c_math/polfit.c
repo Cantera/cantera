@@ -174,7 +174,7 @@
 	k3 = 0;
 	k4 = 0;
 	k5 = 0;
-	etst = 1.0E-13;
+	etst = 1.0E-13f;
 	xm = 1.0;
 
     /* Function Body */
@@ -230,7 +230,7 @@ L16:
 	temd1 += (doublereal) x[i__] * (doublereal) w[i__] * temd2 * temd2;
 /* L18: */
     }
-    a[jp1] = temd1 / (doublereal) w11;
+    a[jp1] = (real) (temd1 / w11);
 
 /* EVALUATE ORTHOGONAL POLYNOMIAL AT DATA POINTS */
 
@@ -263,7 +263,7 @@ L16:
 	temd1 += temd2;
     }
     temd1 /= (doublereal) w11;
-    a[k2pj + 1] = temd1;
+    a[k2pj + 1] = (real) temd1;
 
 /* UPDATE POLYNOMIAL EVALUATIONS AT EACH OF THE DATA POINTS, AND */
 /* ACCUMULATE SUM OF SQUARES OF ERRORS.  THE POLYNOMIAL EVALUATIONS ARE */
@@ -278,8 +278,8 @@ L16:
 	k5pi = k5 + i__;
 	temd2 = (doublereal) r__[i__] + (doublereal) a[k5pi] + temd1 * (
 		doublereal) a[k4pi];
-	r__[i__] = temd2;
-	a[k5pi] = temd2 - (doublereal) r__[i__];
+	r__[i__] = (real) temd2;
+	a[k5pi] = (real) (temd2 - r__[i__]);
 /* L21: */
 /* Computing 2nd power */
 	r__1 = y[i__] - r__[i__] - a[k5pi];
@@ -397,7 +397,7 @@ L33:
 /* L35: */
     }
 L36:
-    *eps = sqrt(sig / xm);
+    *eps = (real) sqrt(sig / xm);
 L37:
     return 0;
 } /* polfit_ */

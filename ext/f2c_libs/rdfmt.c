@@ -64,8 +64,8 @@ rd_Z(Uint *n, int w, ftnlen len)
 	if (bad)
 		return errno = 115;
 	w = (int)len;
-	w1 = s - s0;
-	w2 = w1+1 >> 1;
+	w1 = (int) (s - s0);
+	w2 = (w1+1) >> 1;
 	t = (char *)n;
 	if (*(char *)&one) {
 		/* little endian */
@@ -87,7 +87,7 @@ rd_Z(Uint *n, int w, ftnlen len)
 		t += i;
 		}
 	do {
-		*t = hex[*s0 & 0xff]-1 << 4 | hex[s0[1] & 0xff]-1;
+		*t = (hex[*s0 & 0xff]-1) << 4 | hex[s0[1] & 0xff]-1;
 		t += i;
 		s0 += 2;
 		}
@@ -383,7 +383,7 @@ done:
 		}
 zero:
 	if (len == sizeof(real))
-		p->pf = x;
+		p->pf = (real) x;
 	else
 		p->pd = x;
 	return(0);
