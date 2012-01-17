@@ -158,7 +158,6 @@ namespace Cantera {
     void Inlet1D::
     eval(size_t jg, doublereal* xg, doublereal* rg,
         integer* diagg, doublereal rdt) {
-        int k;
         if (jg != -1 && (jg + 2 < firstPoint() || jg > lastPoint() + 2)) return;
 
         // start of local part of global arrays
@@ -203,7 +202,7 @@ namespace Cantera {
             rb[3] += x[0];        
 
             // add the convective term to the species residual equations
-            for (k = 1; k < m_nsp; k++) {
+            for (size_t k = 1; k < m_nsp; k++) {
                 rb[4+k] += x[0]*m_yin[k];
             }
 
@@ -224,7 +223,7 @@ namespace Cantera {
             rb[1] -= m_V0;
             rb[2] -= x[1]; // T
             rb[0] += x[0]; // u
-            for (k = 1; k < m_nsp; k++) {
+            for (size_t k = 1; k < m_nsp; k++) {
                 rb[4+k] += x[0]*(m_yin[k]);
             }
         }                
@@ -240,7 +239,7 @@ namespace Cantera {
         inlt.addAttribute("points",1);
         inlt.addAttribute("type","inlet");
         inlt.addAttribute("components", double(nComponents()));
-        for (int k = 0; k < nComponents(); k++) {
+        for (size_t k = 0; k < nComponents(); k++) {
             ctml::addFloat(inlt, componentName(k), s[k], "", "",lowerBound(k), upperBound(k));
         }
     }
@@ -705,7 +704,7 @@ namespace Cantera {
         inlt.addAttribute("points",1);
         inlt.addAttribute("type","surface");
         inlt.addAttribute("components", double(nComponents()));
-        for (int k = 0; k < nComponents(); k++) {
+        for (size_t k = 0; k < nComponents(); k++) {
             ctml::addFloat(inlt, componentName(k), s[k], "", "",0.0, 1.0);
         }
     }
@@ -729,7 +728,7 @@ namespace Cantera {
 
 
 
-    string ReactingSurf1D::componentName(int n) const { 
+    string ReactingSurf1D::componentName(size_t n) const {
         if (n == 0) return "temperature";
         else if (n < m_nsp + 1) 
             return m_sphase->speciesName(n-1);
@@ -749,14 +748,13 @@ namespace Cantera {
         vector_fp lower(m_nv), upper(m_nv);
         lower[0] = 200.0;
         upper[0] = 1.e5;
-        int n;
-        for (n = 0; n < m_nsp; n++) {
+        for (size_t n = 0; n < m_nsp; n++) {
             lower[n+1] = -1.0e-5;
             upper[n+1] = 2.0;
         }
         setBounds(m_nv, DATA_PTR(lower), m_nv, DATA_PTR(upper));
         vector_fp rtol(m_nv), atol(m_nv);
-        for (n = 0; n < m_nv; n++) {
+        for (size_t n = 0; n < m_nv; n++) {
             rtol[n] = 1.0e-5;
             atol[n] = 1.0e-9;
         }
@@ -781,8 +779,7 @@ namespace Cantera {
 
         // set the coverages
         doublereal sum = 0.0;
-        int k;
-        for (k = 0; k < m_nsp; k++) {
+        for (size_t k = 0; k < m_nsp; k++) {
             m_work[k] = x[k+1];
             sum += x[k+1];
         }
@@ -817,8 +814,8 @@ namespace Cantera {
 
         if (m_enabled) {
             doublereal maxx = -1.0;
-            int imx = -1;
-            for (k = 0; k < m_nsp; k++) {
+            size_t imx = -1;
+            for (size_t k = 0; k < m_nsp; k++) {
                 r[k+1] = m_work[k + ioffset] * m_sphase->size(k) * rs0;
                 r[k+1] -= rdt*(x[k+1] - prevSoln(k+1,0));
                 diag[k+1] = 1;
@@ -831,7 +828,7 @@ namespace Cantera {
             diag[1] = 0;
         }
         else {
-            for (k = 0; k < m_nsp; k++) {
+            for (size_t k = 0; k < m_nsp; k++) {
                 r[k+1] = x[k+1] - m_fixed_cov[k];
                 diag[k+1] = 0;
             }
@@ -849,7 +846,7 @@ namespace Cantera {
             rb =r - nc;
             xb = x - nc;
             rb[2] = xb[2] - x[0];            // specified T
-            for (int nl = 1; nl < m_left_nsp; nl++) {
+            for (size_t nl = 1; nl < m_left_nsp; nl++) {
                 rb[4+nl] += m_work[nl]*mwleft[nl];
             }
         }
@@ -864,7 +861,7 @@ namespace Cantera {
         inlt.addAttribute("points",1);
         inlt.addAttribute("type","surface");
         inlt.addAttribute("components", double(nComponents()));
-        for (int k = 0; k < nComponents(); k++) {
+        for (size_t k = 0; k < nComponents(); k++) {
             ctml::addFloat(inlt, componentName(k), s[k], "", "",0.0, 1.0);
         }
     }

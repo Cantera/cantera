@@ -54,7 +54,7 @@ namespace Cantera {
 
 
     int OneDim::domainIndex(string name) {
-        for (int n = 0; n < m_nd; n++) {
+        for (size_t n = 0; n < m_nd; n++) {
             if (domain(n).id() == name) return n;
         }
         throw CanteraError("OneDim::domainIndex","no domain named >>"+name+"<<");
@@ -226,7 +226,7 @@ namespace Cantera {
      * 8/26/02 changed '<' to '<='  DGG
      *
      */
-    Domain1D* OneDim::pointDomain(int i) {
+    Domain1D* OneDim::pointDomain(size_t i) {
         Domain1D* d = right();
         while (d) {
             if (d->loc() <= i) return d;
@@ -274,7 +274,7 @@ namespace Cantera {
     doublereal OneDim::ssnorm(doublereal* x, doublereal* r) {
         eval(-1, x, r, 0.0, 0);
         doublereal ss = 0.0;
-        for (int i = 0; i < m_size; i++) { 
+        for (size_t i = 0; i < m_size; i++) { 
             ss = fmaxx(fabs(r[i]),ss);
         }
         return ss;

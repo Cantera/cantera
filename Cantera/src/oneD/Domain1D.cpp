@@ -40,7 +40,7 @@ namespace Cantera {
 
     void Domain1D::
     setTolerances(doublereal rtol, doublereal atol,int ts) {
-        for (int n = 0; n < m_nv; n++){
+        for (size_t n = 0; n < m_nv; n++){
             if(ts >= 0) {
                 m_rtol_ss[n] = rtol;
                 m_atol_ss[n] = atol;
@@ -54,7 +54,7 @@ namespace Cantera {
 
     void Domain1D::
     setTolerancesTS(doublereal rtol, doublereal atol) {
-        for (int n = 0; n < m_nv; n++){
+        for (size_t n = 0; n < m_nv; n++){
             m_rtol_ts[n] = rtol;
             m_atol_ts[n] = atol;
         }
@@ -62,7 +62,7 @@ namespace Cantera {
 
     void Domain1D::
     setTolerancesSS(doublereal rtol, doublereal atol) {
-        for (int n = 0; n < m_nv; n++){
+        for (size_t n = 0; n < m_nv; n++){
             m_rtol_ss[n] = rtol;
             m_atol_ss[n] = atol;
         }

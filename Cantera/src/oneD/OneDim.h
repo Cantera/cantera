@@ -125,7 +125,7 @@ namespace Cantera {
             int count = 1);
 
         /// Pointer to the domain global point i belongs to.
-        Domain1D* pointDomain(int i);
+        Domain1D* pointDomain(size_t i);
 
         void resize();
 

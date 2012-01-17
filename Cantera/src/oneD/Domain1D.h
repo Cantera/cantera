@@ -422,10 +422,9 @@ namespace Cantera {
 
 
         void setProfile(std::string name, doublereal* values, doublereal* soln) {
-            int n, j;
-            for (n = 0; n < m_nv; n++) {
+            for (size_t n = 0; n < m_nv; n++) {
                 if (name == componentName(n)) {
-                    for (j = 0; j < m_points; j++) {
+                    for (size_t j = 0; j < m_points; j++) {
                         soln[index(n, j) + m_iloc] = values[j];
                     }
                     return;

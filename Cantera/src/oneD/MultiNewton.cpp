@@ -101,7 +101,7 @@ namespace Cantera {
      */ 
     void MultiNewton::step(doublereal* x, doublereal* step, 
         OneDim& r, MultiJac& jac, int loglevel) {
-        int iok;
+        size_t iok;
         size_t sz = r.size();
         r.eval(-1, x, step);
 #undef DEBUG_STEP
@@ -120,7 +120,7 @@ namespace Cantera {
         iok = jac.solve(sz, step, step);
 
         // if iok is non-zero, then solve failed
-        if (iok > 0) {
+        if (iok != 0) {
 	    iok--;
 	    size_t nd = r.nDomains();
 	    size_t n;
@@ -136,7 +136,7 @@ namespace Cantera {
                 +dom.componentName(comp)+" at point "
                 +int2str(int(pt))+"\n(Matrix row "+int2str(iok)+") \nsee file bandmatrix.csv\n");
         }
-        else if (iok < 0)   
+        else if (int(iok) < 0)
 	    throw CanteraError("MultiNewton::step",
                 "iok = "+int2str(int(iok)));
 
@@ -221,15 +221,15 @@ namespace Cantera {
         // damping coefficient starts at 1.0
         doublereal damp = 1.0;
 
-        int j, m;
         doublereal ff;
 
+	size_t m;
         for (m = 0; m < NDAMP; m++) {
 
             ff = fbound*damp;
 
             // step the solution by the damped step size
-            for (j = 0; j < m_n; j++) x1[j] = ff*step0[j] + x0[j];
+            for (size_t j = 0; j < m_n; j++) x1[j] = ff*step0[j] + x0[j];
 
             // compute the next undamped step that would result if x1
             // is accepted
