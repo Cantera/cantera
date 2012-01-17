@@ -6,14 +6,8 @@
  */
 // Copyright 2001  California Institute of Technology
 
-
 #ifndef CT_IMPSURFCHEM_H
 #define CT_IMPSURFCHEM_H
-
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
 
 #include "FuncEval.h"
 #include "Integrator.h"

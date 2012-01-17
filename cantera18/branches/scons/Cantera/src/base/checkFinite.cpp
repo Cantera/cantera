@@ -29,10 +29,7 @@
 
 #ifdef WIN32
 #include <float.h>
-#pragma warning(disable:4290)
-#pragma warning(disable:4996)
 #endif
-
 
 using namespace std;
 

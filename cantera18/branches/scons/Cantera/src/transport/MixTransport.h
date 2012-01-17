@@ -4,16 +4,8 @@
  */
 // Copyright 2001  California Institute of Technology
 
-
 #ifndef CT_MIXTRAN_H
 #define CT_MIXTRAN_H
-
-
-// turn off warnings under Windows
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
 
 // STL includes
 #include <vector>

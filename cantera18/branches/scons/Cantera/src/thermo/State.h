@@ -16,12 +16,7 @@
 #include "ct_defs.h"
 #include "utilities.h"
 
-#ifdef WIN32
-#pragma warning(disable:4996)
-#endif
-
 namespace Cantera {
-
     
   //! Manages the independent variables of temperature, mass density,
   //! and species mass/mole fraction that define the thermodynamic

@@ -6,19 +6,12 @@
  
 // Copyright 2001  California Institute of Technology
 
-
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
 #include "FlowReactor.h"
 
 using namespace Cantera;
 using namespace std;
 
 namespace CanteraZeroD {
-
 
     FlowReactor::FlowReactor() : Reactor(), m_fctr(1.0e10), 
                                  m_speed0(0.0) {}

@@ -11,11 +11,6 @@
  */
 // Copyright 2002  California Institute of Technology
 
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
 #include "importKinetics.h"
 #include "mix_defs.h"
 #include <time.h>

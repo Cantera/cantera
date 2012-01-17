@@ -6,11 +6,6 @@
 #ifndef CT_REACTORBASE_H
 #define CT_REACTORBASE_H
 
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
 #include "ThermoPhase.h"
 
 using namespace Cantera;

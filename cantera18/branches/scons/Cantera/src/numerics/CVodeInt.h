@@ -3,14 +3,8 @@
  */
 // Copyright 2001  California Institute of Technology
 
-
 #ifndef CT_CVODEINT_H
 #define CT_CVODEINT_H
-
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
 
 #include "Integrator.h"
 #include "FuncEval.h"

@@ -4,11 +4,6 @@
 
 // Copyright 2001  California Institute of Technology
 
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
 #include "ReactorBase.h"
 #include "FlowDevice.h"
 #include "Wall.h"

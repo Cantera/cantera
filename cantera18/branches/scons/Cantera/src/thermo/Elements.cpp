@@ -8,11 +8,6 @@
  */
 //  Copyright 2003  California Institute of Technology
 
-
-#ifdef WIN32
-#pragma warning(disable:4786)
-#endif
-
 #include "Elements.h"
 #include "xml.h"
 #include "ctml.h"

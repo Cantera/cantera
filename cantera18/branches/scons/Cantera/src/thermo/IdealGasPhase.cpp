@@ -1,15 +1,9 @@
 /**
- *
  *  @file IdealGasPhase.cpp
  *   ThermoPhase object for the ideal gas equation of
  * state - workhorse for %Cantera (see \ref thermoprops 
  * and class \link Cantera::IdealGasPhase IdealGasPhase\endlink).
- *
  */
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
 
 #include "ct_defs.h"
 #include "mix_defs.h"

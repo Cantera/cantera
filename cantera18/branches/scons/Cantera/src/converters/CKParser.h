@@ -5,13 +5,8 @@
 
 // Copyright 2001  California Institute of Technology
 
-
 #ifndef CKR_CKPARSER_H
 #define CKR_CKPARSER_H
-
-#ifdef WIN32
-#pragma warning(disable:4786)
-#endif
 
 #include <fstream>
 #include <string>

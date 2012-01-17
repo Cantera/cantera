@@ -8,10 +8,6 @@
 #ifndef CKR_UTILS_H
 #define CKR_UTILS_H
 
-#ifdef WIN32
-#pragma warning(disable:4786)
-#endif
-
 #include <math.h>
 #include <string>
 #include <map>

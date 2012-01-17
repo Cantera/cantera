@@ -5,13 +5,6 @@
  */
 // Copyright 2001-2005  California Institute of Technology
 
-// turn off warnings under Windows
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#pragma warning(disable:4996)
-#endif
-
 #include "ct_defs.h"
 #include "ctexceptions.h"
 #include "ctml.h"

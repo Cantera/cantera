@@ -46,9 +46,6 @@ using namespace std;
 #  define TRUE  1
 #  define FALSE 0
 #endif
-#ifdef WIN32
-#pragma warning(disable:4996)
-#endif
 #ifndef MAX
 #  define MAX(x,y)    (( (x) > (y) ) ? (x) : (y))
 #endif

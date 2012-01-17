@@ -14,10 +14,6 @@
 #ifndef MDP_ALLO_H
 #define MDP_ALLO_H
 
-#ifdef WIN32
-#pragma warning(disable:4290)
-#endif
-
 #include <stdexcept>
 
 /*

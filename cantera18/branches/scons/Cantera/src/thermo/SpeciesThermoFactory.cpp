@@ -6,11 +6,6 @@
  */
 // Copyright 2001  California Institute of Technology
 
-#ifdef WIN32
-#pragma warning(disable:4786)
-#endif
-
-
 #include "SpeciesThermoFactory.h"
 using namespace std;
 
@@ -39,7 +34,6 @@ using namespace std;
 
 using namespace ctml;
 
-
 namespace Cantera {
 
   SpeciesThermoFactory* SpeciesThermoFactory::s_factory = 0;
@@ -47,9 +41,7 @@ namespace Cantera {
 #if defined(THREAD_SAFE_CANTERA)
   boost::mutex SpeciesThermoFactory::species_thermo_mutex ;
 #endif
- 
 
-  
   //! Examine the types of species thermo parameterizations,
   //! and return a flag indicating the type of reference state thermo manager
   //! that will be needed in order to evaluate them all.

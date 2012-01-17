@@ -4,14 +4,8 @@
  */
 // Copyright 2001-2004  California Institute of Technology
 
-
 #ifndef CT_WALL_H
 #define CT_WALL_H
-
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
 
 #include "ct_defs.h"
 #include "ctexceptions.h"

@@ -6,18 +6,12 @@
 #ifndef CT_REACTORNET_H
 #define CT_REACTORNET_H
 
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
 #include "Reactor.h"
 #include "FuncEval.h"
 #include "Integrator.h"
 #include "Array.h"
 
 namespace CanteraZeroD {
-
 
   class ReactorNet : public Cantera::FuncEval {
 

@@ -25,12 +25,6 @@
 
  */
 
-// turn off warnings under Windows
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
 // add any other Cantera header files you need here
 #include <cantera/Cantera.h>
 #include <cantera/IdealGasMix.h>

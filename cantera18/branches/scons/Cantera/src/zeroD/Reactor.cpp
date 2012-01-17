@@ -6,12 +6,6 @@
  
 // Copyright 2001  California Institute of Technology
 
-
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
 #include "Reactor.h"
 //#include "../CVode.h"
 #include "FlowDevice.h"

@@ -1,9 +1,5 @@
 #include "time.h"
 
-#ifdef WIN32
-#pragma warning(disable:4244)
-#endif
-
 #ifdef MSDOS
 #undef USE_CLOCK
 #define USE_CLOCK

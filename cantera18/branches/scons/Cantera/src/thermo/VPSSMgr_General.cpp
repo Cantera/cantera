@@ -11,11 +11,6 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-// turn off warnings under Windows
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
 
 #include "VPSSMgr_General.h"
 #include "PDSS.h"
@@ -33,7 +28,6 @@ using namespace std;
 
 namespace Cantera {
 
-
   VPSSMgr_General::VPSSMgr_General(VPStandardStateTP *vp_ptr,
 				   SpeciesThermo *spth) :
     VPSSMgr(vp_ptr, spth)
@@ -44,7 +38,6 @@ namespace Cantera {
     m_useTmpStandardStateStorage = true;
     m_useTmpRefStateStorage = true;
   }
-
 
   VPSSMgr_General::~VPSSMgr_General() 
   {

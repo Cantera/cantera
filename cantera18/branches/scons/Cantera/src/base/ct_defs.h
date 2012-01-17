@@ -34,7 +34,6 @@ namespace Cantera {
 
 #ifdef WIN32
 #define TYPENAME_KEYWORD
-#pragma warning(disable:4267)
 #else
 //! create a define for the typename command
 #define TYPENAME_KEYWORD typename

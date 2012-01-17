@@ -6,12 +6,6 @@
 
 // Copyright 2001  California Institute of Technology
 
-
-// turn off warnings about truncating long names under Windows
-#ifdef WIN32
-#pragma warning(disable:4786)
-#endif
-
 #include <math.h>
 #include "thermoFunctions.h"
 #include <iostream>

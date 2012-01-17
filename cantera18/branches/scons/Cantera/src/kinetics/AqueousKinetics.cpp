@@ -10,10 +10,6 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
 
 #include "AqueousKinetics.h"
 #include "ReactionData.h"

@@ -7,13 +7,7 @@
 #ifndef CT_PID_H
 #define CT_PID_H
 
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
 namespace CanteraZeroD {
-
 
     class PID_Controller {
 

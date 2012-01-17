@@ -9,11 +9,6 @@
  *      logs
  *      HTML_logs
  */
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#pragma warning(disable:4996)
-#endif
 
 // RFB:TODO May need OS specifc include to use varargs.h instead
 #include <stdarg.h>

@@ -3,11 +3,6 @@
  */
 // Copyright 2006  California Institute of Technology
 
-
-#ifdef WIN32
-#pragma warning(disable:4786)
-#endif
-
 #include "ReactorFactory.h"
 
 #include "Reservoir.h"

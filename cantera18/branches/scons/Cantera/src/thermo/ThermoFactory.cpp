@@ -6,11 +6,6 @@
  */
 // Copyright 2001  California Institute of Technology
 
-
-#ifdef WIN32
-#pragma warning(disable:4786)
-#endif
-
 #include "ThermoFactory.h"
 
 #include "speciesThermoTypes.h"
