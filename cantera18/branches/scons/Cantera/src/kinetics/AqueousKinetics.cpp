@@ -111,7 +111,6 @@ namespace Cantera {
    * reversible or not.
    */
   void AqueousKinetics::getEquilibriumConstants(doublereal* kc) {
-    int i;
     _update_rates_T();
     vector_fp& rkc = m_kdata->m_rkcn;
   
@@ -127,7 +126,7 @@ namespace Cantera {
     m_rxnstoich->getReactionDelta(m_ii, &m_grt[0], &rkc[0]);
  
     doublereal rrt = 1.0/(GasConstant * thermo().temperature());
-    for (i = 0; i < m_ii; i++) {
+    for (size_t i = 0; i < m_ii; i++) {
       kc[i] = exp(-rkc[i]*rrt);
     }
 
@@ -254,7 +253,7 @@ namespace Cantera {
      */
     thermo().getEnthalpy_RT(&m_grt[0]);
     doublereal RT = thermo().temperature() * GasConstant;
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       m_grt[k] *= RT;
     }
     /*
@@ -283,7 +282,7 @@ namespace Cantera {
      */
     thermo().getEntropy_R(&m_grt[0]);
     doublereal R = GasConstant;
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       m_grt[k] *= R;
     }
     /*
@@ -362,7 +361,7 @@ namespace Cantera {
     // multiply by perturbation factor
     multiply_each(ropf.begin(), ropf.end(), m_perturb.begin());
        
-    for (int i = 0; i < m_ii; i++) {
+    for (size_t i = 0; i < m_ii; i++) {
       kfwd[i] = ropf[i];
     }
   }
@@ -390,7 +389,7 @@ namespace Cantera {
     if (doIrreversible) {
       doublereal *tmpKc = &m_kdata->m_ropnet[0];
       getEquilibriumConstants(tmpKc);
-      for (int i = 0; i < m_ii; i++) {
+      for (size_t i = 0; i < m_ii; i++) {
 	krev[i] /=  tmpKc[i];
       }
     } else {
@@ -398,7 +397,7 @@ namespace Cantera {
        * m_rkc[] is zero for irreversibly reactions
        */
       const vector_fp& m_rkc = m_kdata->m_rkcn;
-      for (int i = 0; i < m_ii; i++) {
+      for (size_t i = 0; i < m_ii; i++) {
 	krev[i] *= m_rkc[i];
       }
     }

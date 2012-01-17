@@ -212,8 +212,7 @@ namespace Cantera {
         if (ifunc == SFLUX_JACOBIAN) {
             EXTRA_ACCURACY *= 0.001;
         }
-        int k, irow;
-        int  jcol, info = 0;
+        int info = 0;
         int label_t=-1; /* Species IDs for time control */
         int label_d; /* Species IDs for damping control */
         int        label_t_old=-1;
@@ -263,7 +262,7 @@ namespace Cantera {
             SurfPhase *sf_ptr =  m_ptrsSurfPhase[n];
             sf_ptr->getConcentrations(DATA_PTR(m_numEqn1));
             size_t nsp = m_nSpeciesSurfPhase[n];
-            for (k = 0; k <nsp; k++) {
+            for (size_t k = 0; k <nsp; k++) {
                 m_CSolnSP[loc] = m_numEqn1[k];
                 loc++;
             }
@@ -409,7 +408,7 @@ namespace Cantera {
                     printf("solveSurfSS: Zero pivot, assuming converged: %g (%d)\n",
                         resid_norm, info);
                 }
-                for (jcol = 0; jcol < m_neq; jcol++) m_resid[jcol] = 0.0;
+                for (size_t jcol = 0; jcol < m_neq; jcol++) m_resid[jcol] = 0.0;
 
                 /* print out some helpful info */
                 if (m_ioflag > 1) {
@@ -418,7 +417,7 @@ namespace Cantera {
                         iter,t_real, 1.0/inv_t);
                     printf("solveSurfProb: init guess, current concentration,"
                         "and prod rate:\n");
-                    for (jcol = 0; jcol < m_neq; jcol++) {
+                    for (size_t jcol = 0; jcol < m_neq; jcol++) {
                         printf("\t%d  %g %g %g\n", jcol, m_CSolnSPInit[jcol], m_CSolnSP[jcol], 
                             m_netProductionRatesSave[m_kinSpecIndex[jcol]]);
                     }
@@ -453,8 +452,8 @@ namespace Cantera {
              *    Update the solution vector and real time
              *    Crop the concentrations to zero.
              */
-            for (irow = 0; irow < m_neq; irow++) m_CSolnSP[irow] -= damp * m_resid[irow];
-            for (irow = 0; irow < m_neq; irow++) {
+            for (size_t irow = 0; irow < m_neq; irow++) m_CSolnSP[irow] -= damp * m_resid[irow];
+            for (size_t irow = 0; irow < m_neq; irow++) {
                 m_CSolnSP[irow] = MAX(0.0, m_CSolnSP[irow]);
             }
             updateState( DATA_PTR(m_CSolnSP));
@@ -1135,7 +1134,7 @@ namespace Cantera {
             printf("\n================================ INITIAL GUESS "
                 "========================================\n");
             int kindexSP = 0;
-            for (int isp = 0; isp < m_numSurfPhases; isp++) {
+            for (size_t isp = 0; isp < m_numSurfPhases; isp++) {
                 InterfaceKinetics *m_kin = m_objects[isp];
                 int surfIndex = m_kin->surfacePhaseIndex();
                 int nPhases = m_kin->nPhases();
@@ -1243,7 +1242,7 @@ namespace Cantera {
             printf("\t---------------------------------------------------------"
                 "-----------------------------\n");
             int kindexSP = 0;
-            for (int isp = 0; isp < m_numSurfPhases; isp++) {
+            for (size_t isp = 0; isp < m_numSurfPhases; isp++) {
                 int nsp = m_nSpeciesSurfPhase[isp];
                 InterfaceKinetics *m_kin = m_objects[isp];
                 //int surfPhaseIndex = m_kinObjPhaseIDSurfPhase[isp];
@@ -1332,7 +1331,7 @@ namespace Cantera {
             printf("---------------------------------------------------------------"
                 "---------------------------------------------\n");
             int kindexSP = 0;
-            for (int isp = 0; isp < m_numSurfPhases; isp++) {
+            for (size_t isp = 0; isp < m_numSurfPhases; isp++) {
                 int nsp = m_nSpeciesSurfPhase[isp];
                 InterfaceKinetics *m_kin = m_objects[isp];
                 //int surfPhaseIndex = m_kinObjPhaseIDSurfPhase[isp];
@@ -1361,7 +1360,7 @@ namespace Cantera {
                 "---------------------------------------------\n");
             doublereal *XMolKinSpecies = DATA_PTR(m_numEqn2);
             kindexSP = 0;
-            for (int isp = 0; isp < m_numSurfPhases; isp++) {
+            for (size_t isp = 0; isp < m_numSurfPhases; isp++) {
                 InterfaceKinetics *m_kin = m_objects[isp];
                 int surfIndex = m_kin->surfacePhaseIndex();
                 int nPhases = m_kin->nPhases();

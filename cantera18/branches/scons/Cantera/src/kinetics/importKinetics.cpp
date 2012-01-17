@@ -334,7 +334,7 @@ namespace Cantera {
     doublereal sc;
 
     // loop over the reactants
-    for (int n = 0; n < nr; n++) {
+    for (size_t n = 0; n < nr; n++) {
       k = r.reactants[n];
       order = r.rorder[n];    // stoich coeff
 
@@ -392,7 +392,7 @@ namespace Cantera {
     doublereal e;
     string spname;
     if (nc > 0) {
-      for (int n = 0; n < nc; n++) {
+      for (size_t n = 0; n < nc; n++) {
 	const XML_Node& cnode = *cov[n];
 	spname = cnode["species"];
 	k = surfphase.speciesIndex(spname);
@@ -690,9 +690,7 @@ namespace Cantera {
     if (r.hasChild("equation")) {
       eqn = r("equation");
     }
-    int eqlen = static_cast<int>(eqn.size());
-    int nn;
-    for (nn = 0; nn < eqlen; nn++) {
+    for (size_t nn = 0; nn < eqn.size(); nn++) {
       if (eqn[nn] == '[') eqn[nn] = '<';
       if (eqn[nn] == ']') eqn[nn] = '>';
     }
@@ -832,13 +830,13 @@ namespace Cantera {
 
       map<int, doublereal> rxnstoich;
       rxnstoich.clear();
-      for (nn = 0; nn < rdata.reactants.size(); nn++) {
+      for (size_t nn = 0; nn < rdata.reactants.size(); nn++) {
 	rxnstoich[-1 - int(rdata.reactants[nn])] -= rdata.rstoich[nn];
       }
-      for (nn = 0; nn < rdata.products.size(); nn++) {
+      for (size_t nn = 0; nn < rdata.products.size(); nn++) {
 	rxnstoich[int(rdata.products[nn])+1] += rdata.pstoich[nn];
       }
-      for (nn = 0; nn < m_rdata.size(); nn++) {
+      for (size_t nn = 0; nn < m_rdata.size(); nn++) {
 	if ((rdata.reactants.size() == m_nr[nn])
 	    && (rdata.reactionType == m_typ[nn])) {
 	  c = isDuplicateReaction(rxnstoich, m_rdata[nn]);

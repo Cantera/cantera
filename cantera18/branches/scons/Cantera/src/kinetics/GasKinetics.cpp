@@ -121,7 +121,6 @@ namespace Cantera {
      * reversible or not.
      */
     void GasKinetics::getEquilibriumConstants(doublereal* kc) {
-        int i;
         _update_rates_T();
         vector_fp& rkc = m_kdata->m_rkcn;
         //thermo().getGibbs_RT(m_grt.begin());
@@ -133,7 +132,7 @@ namespace Cantera {
  
         doublereal logStandConc = m_kdata->m_logStandConc;
         doublereal rrt = 1.0/(GasConstant * thermo().temperature());
-        for (i = 0; i < m_ii; i++) {
+        for (size_t i = 0; i < m_ii; i++) {
             kc[i] = exp(-rkc[i]*rrt + m_dn[i]*logStandConc);
         }
 
@@ -260,7 +259,7 @@ namespace Cantera {
 	 */
 	thermo().getEnthalpy_RT(&m_grt[0]);
 	doublereal RT = thermo().temperature() * GasConstant;
-	for (int k = 0; k < m_kk; k++) {
+	for (size_t k = 0; k < m_kk; k++) {
 	  m_grt[k] *= RT;
 	}
 	/*
@@ -289,7 +288,7 @@ namespace Cantera {
 	 */
 	thermo().getEntropy_R(&m_grt[0]);
 	doublereal R = GasConstant;
-	for (int k = 0; k < m_kk; k++) {
+	for (size_t k = 0; k < m_kk; k++) {
 	  m_grt[k] *= R;
 	}
 	/*
@@ -300,8 +299,6 @@ namespace Cantera {
     }
 
     void GasKinetics::processFalloffReactions() {
-
-        int i;
         const vector_fp& fc = m_kdata->concm_falloff_values;
         const array_fp& m_rf_low = m_kdata->m_rfn_low;
         const array_fp& m_rf_high = m_kdata->m_rfn_high;
@@ -311,7 +308,7 @@ namespace Cantera {
 
         array_fp& ropf = m_kdata->m_ropf;
 
-        for (i = 0; i < m_nfall; i++) {
+        for (size_t i = 0; i < m_nfall; i++) {
             pr[i] = fc[i] * m_rf_low[i] / m_rf_high[i];
         }
 
@@ -319,7 +316,7 @@ namespace Cantera {
             (m_kdata->falloff_work.empty()) ? 0 : &m_kdata->falloff_work[0];
         m_falloffn.pr_to_falloff(&pr[0], falloff_work);
         
-        for (i = 0; i < m_nfall; i++) {
+        for (size_t i = 0; i < m_nfall; i++) {
             pr[i] *= m_rf_high[i]; 
         }
 
@@ -414,7 +411,7 @@ namespace Cantera {
         // multiply by perturbation factor
         multiply_each(ropf.begin(), ropf.end(), m_perturb.begin());
        
-	for (int i = 0; i < m_ii; i++) {
+	for (size_t i = 0; i < m_ii; i++) {
 	  kfwd[i] = ropf[i];
 	}
     }
@@ -442,7 +439,7 @@ namespace Cantera {
 	if (doIrreversible) {
 	  doublereal *tmpKc = &m_kdata->m_ropnet[0];
 	  getEquilibriumConstants(tmpKc);
-	  for (int i = 0; i < m_ii; i++) {
+	  for (size_t i = 0; i < m_ii; i++) {
 	    krev[i] /=  tmpKc[i];
 	  }
 	} else {
@@ -450,7 +447,7 @@ namespace Cantera {
 	   * m_rkc[] is zero for irreversibly reactions
 	   */
 	  const vector_fp& m_rkc = m_kdata->m_rkcn;
-	  for (int i = 0; i < m_ii; i++) {
+	  for (size_t i = 0; i < m_ii; i++) {
               krev[i] *= m_rkc[i];
 	  }
 	}

@@ -701,7 +701,6 @@ namespace Cantera {
         m_ns = kin.nTotalSpecies(); //ph.nSpecies();
         m_nr = kin.nReactions();
 
-        int m, i;
         //for (m = 0; m < m_nel; m++) {
         //    m_elementSymbols.push_back(ph.elementName(m));
         //}
@@ -711,7 +710,7 @@ namespace Cantera {
         // mod 8/18/01 dgg
         vector<vector<size_t> > allProducts;
         vector<vector<size_t> > allReactants;
-        for (i = 0; i < m_nr; i++) {
+        for (size_t i = 0; i < m_nr; i++) {
             allReactants.push_back(kin.reactants(i));
             allProducts.push_back(kin.products(i));
         }
@@ -733,7 +732,7 @@ namespace Cantera {
         size_t nmol;
         map<size_t, int> net;
 
-        for (i = 0; i < m_nr; i++) {
+        for (size_t i = 0; i < m_nr; i++) {
 
             // construct the lists of reactant and product indices, not 
             // including molecules that appear on both sides. 
@@ -791,11 +790,11 @@ namespace Cantera {
         // that element among the products.
  
         int nar, nap;
-        for (i = 0; i < m_nr; i++) {
+        for (size_t i = 0; i < m_nr; i++) {
             nr = m_reac[i].size();
             np = m_prod[i].size();
             m_determinate[i] = true;
-            for (m = 0; m < m_nel; m++) {
+            for (size_t m = 0; m < m_nel; m++) {
                 nar = 0;
                 nap = 0;
                 for (size_t j = 0;  j < nr; j++) {

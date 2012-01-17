@@ -64,7 +64,7 @@ namespace Cantera {
     if (m_integrator) {
       delete m_integrator; 
     }
-    for (int i = 0; i < m_ii; i++) {
+    for (size_t i = 0; i < m_ii; i++) {
       delete m_rxnPhaseIsReactant[i];
       delete  m_rxnPhaseIsProduct[i];
     }
@@ -116,13 +116,12 @@ namespace Cantera {
    */
   InterfaceKinetics& InterfaceKinetics::
   operator=(const InterfaceKinetics &right) {
-    int i;
     /*
      * Check for self assignment.
      */
     if (this == &right) return *this;
 
-    for (i = 0; i < m_ii; i++) {
+    for (size_t i = 0; i < m_ii; i++) {
       delete (m_rxnPhaseIsReactant[i]);
       delete (m_rxnPhaseIsProduct[i]);
     }
@@ -168,10 +167,10 @@ namespace Cantera {
     m_rxnPhaseIsReactant.resize(m_ii, 0);
     m_rxnPhaseIsProduct.resize(m_ii, 0);
     size_t np = nPhases();
-    for (i = 0; i < m_ii; i++) {
+    for (size_t i = 0; i < m_ii; i++) {
       m_rxnPhaseIsReactant[i] = new bool[np];
       m_rxnPhaseIsProduct[i] = new bool[np];
-      for (int p = 0; p < np; p++) {
+      for (size_t p = 0; p < np; p++) {
 	m_rxnPhaseIsReactant[i][p] = right.m_rxnPhaseIsReactant[i][p];
 	m_rxnPhaseIsProduct[i][p] = right.m_rxnPhaseIsProduct[i][p];  
       }
@@ -588,7 +587,7 @@ namespace Cantera {
     if (doIrreversible) {
       doublereal *tmpKc = DATA_PTR(m_kdata->m_ropnet);
       getEquilibriumConstants(tmpKc);
-      for (int i = 0; i < m_ii; i++) {
+      for (size_t i = 0; i < m_ii; i++) {
 	krev[i] /=  tmpKc[i];
       }
     }
@@ -647,7 +646,7 @@ namespace Cantera {
     // do global reactions
     //m_globalReactantStoich.power(m_conc.begin(), ropf.begin());
 
-    for (int j = 0; j != m_ii; ++j) {
+    for (size_t j = 0; j != m_ii; ++j) {
       ropnet[j] = ropf[j] - ropr[j];
     }  
 
@@ -658,15 +657,15 @@ namespace Cantera {
      *  phases that are stoichiometric phases containing one species with a unity activity
      */
     if (m_phaseExistsCheck) {
-      for (int j = 0; j != m_ii; ++j) {
+      for (size_t j = 0; j != m_ii; ++j) {
 	if ((ropr[j] >  ropf[j]) && (ropr[j] > 0.0)) {
-	  for (int p = 0; p < nPhases(); p++) {
+	  for (size_t p = 0; p < nPhases(); p++) {
 	    if (m_rxnPhaseIsProduct[j][p]) {
 	      if (! m_phaseExists[p]) {
 		ropnet[j] = 0.0;
 		ropr[j] = ropf[j];
 		if (ropf[j] > 0.0) {
-		  for (int rp = 0; rp < nPhases(); rp++) {
+		  for (size_t rp = 0; rp < nPhases(); rp++) {
 		    if (m_rxnPhaseIsReactant[j][rp]) {
 		      if (! m_phaseExists[rp]) {
 			ropnet[j] = 0.0;
@@ -679,13 +678,13 @@ namespace Cantera {
 	    }
 	  }
 	} else if ((ropf[j] > ropr[j]) && (ropf[j] > 0.0)) {
-	  for (int p = 0; p < nPhases(); p++) {
+	  for (size_t p = 0; p < nPhases(); p++) {
 	    if (m_rxnPhaseIsReactant[j][p]) {
 	      if (! m_phaseExists[p]) {
 		ropnet[j] = 0.0;
 		ropf[j] = ropr[j];     
 		if (ropf[j] > 0.0) {
-		  for (int rp = 0; rp < nPhases(); rp++) {
+		  for (size_t rp = 0; rp < nPhases(); rp++) {
 		    if (m_rxnPhaseIsProduct[j][rp]) {
 		      if (! m_phaseExists[rp]) {
 			ropnet[j] = 0.0;
@@ -912,7 +911,7 @@ namespace Cantera {
     m_rxnPhaseIsReactant[i] = new bool[np];
     m_rxnPhaseIsProduct[i] = new bool[np];
 
-    for (int p = 0; p < np; p++) {
+    for (size_t p = 0; p < np; p++) {
       m_rxnPhaseIsReactant[i][p] = false;
       m_rxnPhaseIsProduct[i][p] = false;
     }

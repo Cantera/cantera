@@ -270,7 +270,7 @@ namespace Cantera {
      * are below zero.
      */
     bool rset = false;
-    for (int k = 0; k < m_nv; k++) {
+    for (size_t k = 0; k < m_nv; k++) {
       if (m_concSpecies[k] < 0.0) {
 	rset = true;
 	m_concSpecies[k] = 0.0;
