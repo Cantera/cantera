@@ -28,11 +28,11 @@ inline ThermoPhase* _th(int n) {
     return Storage::__storage->__thtable[n];
 }
 
-static bool checkSpecies(int i, int k) {
+static bool checkSpecies(int i, size_t k) {
     try {
-        if (k < 0 || k >= _mix(i)->nSpecies()) 
+        if (k >= _mix(i)->nSpecies())
             throw CanteraError("checkSpecies",
-                "illegal species index ("+int2str(k)+") ");
+                "illegal species index ("+int2str(int(k))+") ");
         return true;
     }
     catch (CanteraError) {
@@ -40,11 +40,11 @@ static bool checkSpecies(int i, int k) {
     }
 }
 
-static bool checkElement(int i, int m) {
+static bool checkElement(int i, size_t m) {
     try {
-        if (m < 0 || m >= _mix(i)->nElements()) 
+        if (m >= _mix(i)->nElements())
             throw CanteraError("checkElement",
-                "illegal element index ("+int2str(m)+") ");
+                "illegal element index ("+int2str(int(m))+") ");
         return true;
     }
     catch (CanteraError) {
@@ -254,7 +254,7 @@ extern "C" {
     }
 
     int DLL_EXPORT mix_getValidChemPotentials(int i, double bad_mu, 
-        int standard, int lenmu, double* mu) {
+        int standard, size_t lenmu, double* mu) {
         bool st = (standard == 1);
         try {
             if (lenmu < _mix(i)->nSpecies()) 

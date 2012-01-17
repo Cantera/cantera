@@ -37,8 +37,8 @@ extern "C" {
     EEXXTT int DLL_CPREFIX phase_setMassFractionsByName(int n, char* y);
     EEXXTT int DLL_CPREFIX phase_getAtomicWeights(int n, size_t lenm, double* atw);
     EEXXTT int DLL_CPREFIX phase_getMolecularWeights(int n, size_t lenm, double* mw);
-    EEXXTT int DLL_CPREFIX phase_getElementName(int n, size_t k, int lennm, char* nm);
-    EEXXTT int DLL_CPREFIX phase_getSpeciesName(int n, size_t m, int lennm, char* nm);
+    EEXXTT int DLL_CPREFIX phase_getElementName(int n, size_t k, size_t lennm, char* nm);
+    EEXXTT int DLL_CPREFIX phase_getSpeciesName(int n, size_t m, size_t lennm, char* nm);
     EEXXTT int DLL_CPREFIX phase_getName(int n, size_t lennm, char* nm);
     EEXXTT int DLL_CPREFIX phase_setName(int n, const char* nm);
     EEXXTT size_t DLL_CPREFIX phase_elementIndex(int n, char* nm);

@@ -7,7 +7,7 @@
 #include "clib_defs.h"
 
 extern "C" {
-    EEXXTT int DLL_CPREFIX func_new(int type, int n, size_t lenp, double* p);
+    EEXXTT int DLL_CPREFIX func_new(int type, size_t n, size_t lenp, double* p);
     EEXXTT int DLL_CPREFIX func_del(int i);
     EEXXTT int DLL_CPREFIX func_copy(int i);
     EEXXTT int DLL_CPREFIX func_assign(int i, int j);

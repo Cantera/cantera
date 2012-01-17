@@ -25,7 +25,7 @@ extern "C" {
 
     // functions
 
-    int DLL_EXPORT func_new(int type, int n, size_t lenp, double* params) {
+    int DLL_EXPORT func_new(int type, size_t n, size_t lenp, double* params) {
         func_t* r=0;
         size_t m = lenp;
         try {

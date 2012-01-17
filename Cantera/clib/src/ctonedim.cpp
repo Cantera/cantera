@@ -375,9 +375,8 @@ extern "C" {
     int DLL_EXPORT stflow_setFixedTempProfile(int i, size_t n, double* pos,
                                               size_t m, double* temp) {
         try {
-            int j;
             vector_fp vpos(n), vtemp(n);
-            for (j = 0; j < n; j++) {
+            for (size_t j = 0; j < n; j++) {
                 vpos[j] = pos[j]; 
                 vtemp[j] = temp[j];
             }
@@ -457,7 +456,7 @@ extern "C" {
                                     size_t np, double* pos, size_t nv, double* v) {
         try {
             vector_fp vv, pv;
-            for (int n = 0; n < np; n++) {
+            for (size_t n = 0; n < np; n++) {
                 vv.push_back(v[n]);
                 pv.push_back(pos[n]);
             }
