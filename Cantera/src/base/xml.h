@@ -470,7 +470,7 @@ namespace Cantera {
     /*!
      *
      */
-    int nChildren() const;
+    size_t nChildren() const;
 
     //!    Require that the current xml node have an attribute named
     //!    by the first argument, a, and that this attribute have the
@@ -746,7 +746,7 @@ namespace Cantera {
     std::vector<XML_Node*> m_children;
 
     //! Number of children of this node
-    int m_nchildren;
+    size_t m_nchildren;
 
     //! True if the current node is a comment node
     bool m_iscomment;

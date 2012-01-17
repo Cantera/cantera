@@ -514,7 +514,7 @@ namespace Cantera {
    */
   XML_Node& XML_Node::addChild(XML_Node& node) {
     m_children.push_back(&node);
-    m_nchildren = static_cast<int>(m_children.size());
+    m_nchildren = m_children.size();
     m_childindex[node.name()] = m_children.back();
     node.setRoot(root());
     node.setParent(this);
@@ -533,7 +533,7 @@ namespace Cantera {
   XML_Node& XML_Node::addChild(const std::string &sname) { 
     XML_Node *xxx = new XML_Node(sname, this);
     m_children.push_back(xxx);
-    m_nchildren = static_cast<int>(m_children.size());
+    m_nchildren = m_children.size();
     m_childindex[sname] = m_children.back();
     xxx->setRoot(root());
     xxx->setParent(this);
@@ -589,7 +589,7 @@ namespace Cantera {
     vector<XML_Node*>::iterator i;
     i = find(m_children.begin(), m_children.end(), node);
     m_children.erase(i);
-    m_nchildren = static_cast<int>(m_children.size());
+    m_nchildren = m_children.size();
     m_childindex.erase(node->name());
   }
 
@@ -824,7 +824,7 @@ namespace Cantera {
   /*
    *
    */
-  int XML_Node::nChildren() const { 
+  size_t XML_Node::nChildren() const {
     return m_nchildren;
   }
  
@@ -873,13 +873,12 @@ namespace Cantera {
     XML_Node *scResult = 0;
     XML_Node *sc;
     std::string idattrib = id();
-    int n;
     if (name() == nameTarget) {
       if (idTarget == "" || idTarget == idattrib) {
 	return const_cast<XML_Node*>(this);
       }
     }
-    for (n = 0; n < m_nchildren; n++) {
+    for (size_t n = 0; n < m_nchildren; n++) {
       sc = m_children[n];
       if (sc->name() == nameTarget) {
 	if (idTarget == "") return sc;
@@ -887,7 +886,7 @@ namespace Cantera {
 	if (idTarget == idattrib) return sc;
       }
     }
-    for (n = 0; n < m_nchildren; n++) {
+    for (size_t n = 0; n < m_nchildren; n++) {
       sc = m_children[n];
       scResult = sc->findNameID(nameTarget, idTarget);
       if (scResult) return scResult;
@@ -1094,7 +1093,7 @@ namespace Cantera {
       }
     }
     const vector<XML_Node*> &vsc = node_dest->children();
-    for (int n = 0; n < m_nchildren; n++) {
+    for (size_t n = 0; n < m_nchildren; n++) {
       sc = m_children[n];
       ndc = node_dest->nChildren();
       dc = 0;
@@ -1147,7 +1146,7 @@ namespace Cantera {
     }
     const vector<XML_Node*> &vsc = node_dest->children();
 
-    for (int n = 0; n < m_nchildren; n++) {
+    for (size_t n = 0; n < m_nchildren; n++) {
       sc = m_children[n];
       ndc = node_dest->nChildren();
       (void) node_dest->addChild(sc->name());
@@ -1159,7 +1158,7 @@ namespace Cantera {
   // Set the lock for this node
   void XML_Node::lock() {
     m_locked = true;
-    for (int i = 0; i < m_nchildren; i++) {
+    for (size_t i = 0; i < m_nchildren; i++) {
       m_children[i]->lock();
     }
   }
@@ -1167,7 +1166,7 @@ namespace Cantera {
   // Unset the lock for this node
   void XML_Node::unlock() {
     m_locked = false;
-    for (int i = 0; i < m_nchildren; i++) {
+    for (size_t i = 0; i < m_nchildren; i++) {
       m_children[i]->unlock();
     }
   }
@@ -1336,8 +1335,7 @@ namespace Cantera {
 	  }
 	}
       }
-      int i;
-      for (i = 0; i < m_nchildren; i++) {
+      for (size_t i = 0; i < m_nchildren; i++) {
 	s << endl;
 	m_children[i]->write_int(s,level + 2);
       }
@@ -1358,7 +1356,7 @@ namespace Cantera {
    */
   void XML_Node::write(std::ostream& s, const int level) const {
     if (m_name == "--" && m_root == this) {
-      for (int i = 0; i < m_nchildren; i++) {
+      for (size_t i = 0; i < m_nchildren; i++) {
 	m_children[i]->write_int(s,level);
 	s << endl;
       }
@@ -1391,8 +1389,7 @@ namespace Cantera {
     }
 
     const vector<XML_Node*> &vsc = root->children();
-    int n;
-    for (n = 0; n < root->nChildren(); n++) {
+    for (size_t n = 0; n < root->nChildren(); n++) {
       sc = vsc[n];
       if (sc->name() == "phase") {
 	if (idtarget == "") return sc;
@@ -1400,7 +1397,7 @@ namespace Cantera {
 	if (idtarget == idattrib) return sc;
       }
     }
-    for (n = 0; n < root->nChildren(); n++) {
+    for (size_t n = 0; n < root->nChildren(); n++) {
       sc = vsc[n];
       if  (sc->name() != "phase") {
 	scResult = findXMLPhase(sc, idtarget);
