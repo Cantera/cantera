@@ -202,7 +202,7 @@ integer f_open(olist *a)
 			opnerr(a->oerr,errno,"open")
 		fclose(tf);
 #else
-		if (access(buf,0))
+		if (ACCESS(buf,0))
 			opnerr(a->oerr,errno,"open")
 #endif
 		break;
@@ -232,7 +232,7 @@ integer f_open(olist *a)
 			opnerr(a->oerr,128,"open")
 			}
 #else
-		if (!access(buf,0))
+		if (!ACCESS(buf,0))
 			opnerr(a->oerr,128,"open")
 #endif
 		/* no break */
