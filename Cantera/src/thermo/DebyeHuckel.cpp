@@ -543,7 +543,7 @@ namespace Cantera {
   void DebyeHuckel::getUnitsStandardConc(double *uA, int k, int sizeUA) const {
     for (int i = 0; i < sizeUA; i++) {
       if (i == 0) uA[0] = 1.0;
-      if (i == 1) uA[1] = -nDim();
+      if (i == 1) uA[1] = -int(nDim());
       if (i == 2) uA[2] = 0.0;
       if (i == 3) uA[3] = 0.0;
       if (i == 4) uA[4] = 0.0;
@@ -1432,15 +1432,9 @@ namespace Cantera {
 	   */
 	  map<std::string,std::string>::const_iterator _b = m.begin();
 	  for (; _b != m.end(); ++_b) {
-	    int kk = speciesIndex(_b->first);
-	    if (kk < 0) {
-	      //throw CanteraError(
-	      //   "DebyeHuckel::initThermoXML error",
-	      //   "no species match was found"
-	      //   );
-	    } else {
-	      m_Aionic[kk] = fpValue(_b->second) * Afactor;
-	    }
+	    size_t kk = speciesIndex(_b->first);
+	    m_Aionic[kk] = fpValue(_b->second) * Afactor;
+
 	  }
 	}
       }
@@ -1482,9 +1476,9 @@ namespace Cantera {
       std::string kname, jname;
       size_t jj = xspecies.size();
       for (k = 0; k < m_kk; k++) {
-	int jmap = -1;
+	size_t jmap = -1;
 	kname = speciesName(k);
-	for (int j = 0; j < jj; j++) {
+	for (size_t j = 0; j < jj; j++) {
 	  const XML_Node& sp = *xspecies[j];
 	  jname = sp["name"];
 	  if (jname == kname) {
@@ -1492,7 +1486,7 @@ namespace Cantera {
 	    break;
 	  }
 	}
-	if (jmap > -1) {
+	if (jmap != -1) {
 	  const XML_Node& sp = *xspecies[jmap];
 	  if (sp.hasChild("stoichIsMods")) {
 	    double val = getFloat(sp, "stoichIsMods");
@@ -1512,16 +1506,9 @@ namespace Cantera {
 	  getMap(sIsNode, msIs);
 	  map<std::string,std::string>::const_iterator _b = msIs.begin();
 	  for (; _b != msIs.end(); ++_b) {
-	    int kk = speciesIndex(_b->first);
-	    if (kk < 0) {
-	      //throw CanteraError(
-	      //   "DebyeHuckel::initThermoXML error",
-	      //   "no species match was found"
-	      //   );
-	    } else {
-	      double val = fpValue(_b->second);
-	      m_speciesCharge_Stoich[kk] = val;
-	    }
+	    size_t kk = speciesIndex(_b->first);
+	    double val = fpValue(_b->second);
+	    m_speciesCharge_Stoich[kk] = val;
 	  }
 	}
       }
@@ -1580,13 +1567,10 @@ namespace Cantera {
 	map<std::string,std::string>::const_iterator _b = msEST.begin();
 	for (; _b != msEST.end(); ++_b) {
 	  int kk = speciesIndex(_b->first);
-	  if (kk < 0) {
-	  } else {
-	    std::string est = _b->second;
-	    if ((m_electrolyteSpeciesType[kk] = interp_est(est))  == -1) {
-	      throw CanteraError("DebyeHuckel:initThermoXML",
-				 "Bad electrolyte type: " + est);
-	    }
+	  std::string est = _b->second;
+	  if ((m_electrolyteSpeciesType[kk] = interp_est(est))  == -1) {
+	    throw CanteraError("DebyeHuckel:initThermoXML",
+			       "Bad electrolyte type: " + est);
 	  }
 	}
       }
@@ -1822,22 +1806,21 @@ namespace Cantera {
      * Obtain the limits of the temperature from the species
      * thermo handler's limits.
      */
-    int leng = m_kk;
     m_electrolyteSpeciesType.resize(m_kk, cEST_polarNeutral);
-    m_speciesSize.resize(leng);
-    m_Aionic.resize(leng, 0.0);
-    m_lnActCoeffMolal.resize(leng, 0.0);
-    m_dlnActCoeffMolaldT.resize(leng, 0.0);
-    m_d2lnActCoeffMolaldT2.resize(leng, 0.0);
-    m_dlnActCoeffMolaldP.resize(leng, 0.0);
-    m_B_Dot.resize(leng, 0.0);
-    m_expg0_RT.resize(leng, 0.0);
-    m_pe.resize(leng, 0.0);
-    m_pp.resize(leng, 0.0);
-    m_tmpV.resize(leng, 0.0);
+    m_speciesSize.resize(m_kk);
+    m_Aionic.resize(m_kk, 0.0);
+    m_lnActCoeffMolal.resize(m_kk, 0.0);
+    m_dlnActCoeffMolaldT.resize(m_kk, 0.0);
+    m_d2lnActCoeffMolaldT2.resize(m_kk, 0.0);
+    m_dlnActCoeffMolaldP.resize(m_kk, 0.0);
+    m_B_Dot.resize(m_kk, 0.0);
+    m_expg0_RT.resize(m_kk, 0.0);
+    m_pe.resize(m_kk, 0.0);
+    m_pp.resize(m_kk, 0.0);
+    m_tmpV.resize(m_kk, 0.0);
     if (m_formDH == DHFORM_BETAIJ ||
 	m_formDH == DHFORM_PITZER_BETAIJ) {
-      m_Beta_ij.resize(leng, leng, 0.0);
+      m_Beta_ij.resize(m_kk, m_kk, 0.0);
     }
   }
 

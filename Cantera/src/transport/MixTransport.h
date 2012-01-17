@@ -45,7 +45,7 @@ namespace Cantera {
      */
     virtual doublereal viscosity();
 
-    virtual void getSpeciesViscosities(doublereal* visc)
+    virtual void getSpeciesViscosities(doublereal* const visc)
     { update_T();  updateViscosity_T(); copy(m_visc.begin(), m_visc.end(), visc); }
 
     //! Return the thermal diffusion coefficients

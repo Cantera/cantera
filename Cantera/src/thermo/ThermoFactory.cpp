@@ -291,10 +291,10 @@ namespace Cantera {
     // used to check that each species is declared only once
     std::map<std::string, bool> declared;
     
-    int nSpecies = 0;
+    size_t nSpecies = 0;
     bool skip;
 
-    for (int jsp = 0; jsp < spArray_dbases.size(); jsp++) {
+    for (size_t jsp = 0; jsp < spArray_dbases.size(); jsp++) {
       const XML_Node& speciesArray = *spArray_names[jsp]; 
       
       // Get the top XML for the database
@@ -303,7 +303,7 @@ namespace Cantera {
       // Get the array of species name strings and the count them
       std::vector<std::string> spnames;
       getStringArray(speciesArray, spnames);
-      int nsp = static_cast<int>(spnames.size());
+      size_t nsp = spnames.size();
 
       // if 'all' is specified as the one and only species in the
       // spArray_names field, then add all species 
@@ -311,9 +311,9 @@ namespace Cantera {
       if (nsp == 1 && spnames[0] == "all") {
 	std::vector<XML_Node *> allsp;
 	db->getChildren("species", allsp);
-	nsp = static_cast<int>(allsp.size());
+	nsp = allsp.size();
 	spnames.resize(nsp);
-	for (int nn = 0; nn < nsp; nn++) {
+	for (size_t nn = 0; nn < nsp; nn++) {
 	  string stemp = (*allsp[nn])["name"];
 	  bool skip = false;
 	  if (declared[stemp]) {
@@ -339,9 +339,9 @@ namespace Cantera {
       else if (nsp == 1 && spnames[0] == "unique") {
 	std::vector<XML_Node *> allsp;
 	db->getChildren("species", allsp);
-	nsp = static_cast<int>(allsp.size());
+	nsp = allsp.size();
 	spnames.resize(nsp);
-	for (int nn = 0; nn < nsp; nn++) {
+	for (size_t nn = 0; nn < nsp; nn++) {
 	  string stemp = (*allsp[nn])["name"];
 	  bool skip = false;
 	  if (declared[stemp]) {
@@ -359,7 +359,7 @@ namespace Cantera {
 	  }
 	}
       } else {
-	for (int k = 0; k < nsp; k++) {
+	for (size_t k = 0; k < nsp; k++) {
 	  string stemp = spnames[k];
 	  skip = false;
 	  if (declared[stemp]) {
@@ -592,8 +592,8 @@ namespace Cantera {
       th->setSpeciesThermo(spth);
     }
 
-    int k = 0;
-    for (int i = 0; i < spDataNodeList.size(); i++) {
+    size_t k = 0;
+    for (size_t i = 0; i < spDataNodeList.size(); i++) {
       XML_Node *s = spDataNodeList[i];
       AssertTrace(s != 0);
       bool ok = installSpecies(k, *s, *th, spth, spRuleList[i], 
@@ -756,7 +756,7 @@ namespace Cantera {
     }
     vector<XML_Node*> xspecies;
     phaseSpeciesData->getChildren("species", xspecies);
-    for (int j = 0; j < xspecies.size(); j++) {
+    for (size_t j = 0; j < xspecies.size(); j++) {
       const XML_Node& sp = *xspecies[j];
       jname = sp["name"];
       if (jname == kname) {

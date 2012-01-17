@@ -124,11 +124,11 @@ namespace Cantera {
     m_name = nm; 
   }
 
-  int Phase::index() const { 
+  size_t Phase::index() const {
     return m_index;
   }
 
-  void Phase::setIndex(int m) { 
+  void Phase::setIndex(size_t m) {
     m_index = m;
   }
 
@@ -159,10 +159,10 @@ namespace Cantera {
   }
 
   void Phase::setMoleFractionsByName(compositionMap& xMap) {
-    int kk = nSpecies();
+    size_t kk = nSpecies();
     doublereal x;
     vector_fp mf(kk, 0.0);
-    for (int k = 0; k < kk; k++) {
+    for (size_t k = 0; k < kk; k++) {
       x = xMap[speciesName(k)];
       if (x > 0.0) mf[k] = x;
     }
@@ -170,9 +170,9 @@ namespace Cantera {
   }
 
   void Phase::setMoleFractionsByName(const std::string& x) {
+    size_t kk = nSpecies();
     compositionMap xx;
-    int kk = nSpecies();
-    for (int k = 0; k < kk; k++) { 
+    for (size_t k = 0; k < kk; k++) {
       xx[speciesName(k)] = -1.0;
     }
     parseCompString(x, xx);
@@ -186,10 +186,10 @@ namespace Cantera {
   }
 
   void Phase::setMassFractionsByName(compositionMap& yMap) {
-    int kk = nSpecies();
+    size_t kk = nSpecies();
     doublereal y;
     vector_fp mf(kk, 0.0);
-    for (int k = 0; k < kk; k++) { 
+    for (size_t k = 0; k < kk; k++) {
       y = yMap[speciesName(k)];
       if (y > 0.0) mf[k] = y;
     }
@@ -197,9 +197,9 @@ namespace Cantera {
   }
 
   void Phase::setMassFractionsByName(const std::string& y) {
+    size_t kk = nSpecies();
     compositionMap yy;
-    int kk = nSpecies();
-    for (int k = 0; k < kk; k++) { 
+    for (size_t k = 0; k < kk; k++) {
       yy[speciesName(k)] = -1.0;
     }
     parseCompString(y, yy);
@@ -300,37 +300,36 @@ namespace Cantera {
    */
   void Phase::getMoleFractionsByName(compositionMap& x) const {
     x.clear();
-    int kk = nSpecies();
+    size_t kk = nSpecies();
     for (int k = 0; k < kk; k++) {
       x[speciesName(k)] = State::moleFraction(k);
     }
   }
 
-  doublereal Phase::moleFraction(int k) const {
+  doublereal Phase::moleFraction(size_t k) const {
     return State::moleFraction(k);
   }
 
   doublereal Phase::moleFraction(std::string name) const {
-    int iloc = speciesIndex(name);
-    if (iloc >= 0) return State::moleFraction(iloc);
+    size_t iloc = speciesIndex(name);
+    if (iloc != -1) return State::moleFraction(iloc);
     else return 0.0;
   }
 
-  doublereal Phase::massFraction(int k) const {
+  doublereal Phase::massFraction(size_t k) const {
     return State::massFraction(k);
   }
 
   doublereal Phase::massFraction(std::string name) const {
-    int iloc = speciesIndex(name);
-    if (iloc >= 0) return massFractions()[iloc];
+    size_t iloc = speciesIndex(name);
+    if (iloc != -1) return massFractions()[iloc];
     else return 0.0;
   }
 
   doublereal Phase::chargeDensity() const {
-    int k;
-    int nsp = nSpecies();
+    size_t kk = nSpecies();
     doublereal cdens = 0.0;
-    for (k = 0; k < nsp; k++) 
+    for (size_t k = 0; k < kk; k++)
       cdens += charge(k)*State::moleFraction(k);
     cdens *= Faraday;
     return cdens;
@@ -343,14 +342,12 @@ namespace Cantera {
   void Phase::freezeSpecies() {
     Constituents::freezeSpecies();
     init(Constituents::molecularWeights());
-    int kk = nSpecies();
-    int nv = kk + 2;
+    size_t kk = nSpecies();
+    size_t nv = kk + 2;
     m_data.resize(nv,0.0);
     m_data[0] = 300.0;
     m_data[1] = 0.001;
     m_data[2] = 1.0;
-
-    //setState_TRY(300.0, density(), &m_data[2]);
 
     m_kk = nSpecies();
   } 

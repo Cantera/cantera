@@ -477,7 +477,7 @@ namespace Cantera {
     } else {
       for (int i = 0; i < sizeUA; i++) {
         if (i == 0) uA[0] = 1.0;
-        if (i == 1) uA[1] = -nDim();
+        if (i == 1) uA[1] = -int(nDim());
         if (i == 2) uA[2] = 0.0;
         if (i == 3) uA[3] = 0.0;
         if (i == 4) uA[4] = 0.0;
@@ -1254,13 +1254,12 @@ namespace Cantera {
      * Obtain the limits of the temperature from the species
      * thermo handler's limits.
      */
-    int leng = m_kk;
-    m_expg0_RT.resize(leng);
-    m_pe.resize(leng, 0.0);
-    m_pp.resize(leng);
-    m_speciesMolarVolume.resize(leng);
-    m_tmpV.resize(leng);
-    IMS_lnActCoeffMolal_.resize(leng);
+    m_expg0_RT.resize(m_kk);
+    m_pe.resize(m_kk, 0.0);
+    m_pp.resize(m_kk);
+    m_speciesMolarVolume.resize(m_kk);
+    m_tmpV.resize(m_kk);
+    IMS_lnActCoeffMolal_.resize(m_kk);
   }
 
 

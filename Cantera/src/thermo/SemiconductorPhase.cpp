@@ -66,7 +66,6 @@ namespace Cantera {
 
     // private
     void SemiconductorPhase::initLengths() {
-        int ns = nSpecies();
-        m_work.resize(ns);
+        m_work.resize(nSpecies());
     }
 }

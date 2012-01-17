@@ -578,7 +578,7 @@ namespace Cantera {
     } else {
       for (int i = 0; i < sizeUA; i++) {
 	if (i == 0) uA[0] = 1.0;
-	if (i == 1) uA[1] = -nDim();
+	if (i == 1) uA[1] = -int(nDim());
 	if (i == 2) uA[2] = 0.0;
 	if (i == 3) uA[3] = 0.0;
 	if (i == 4) uA[4] = 0.0;
@@ -1279,15 +1279,14 @@ namespace Cantera {
      */
     m_Pref = refPressure();
 
-    int leng = m_kk;
-    m_h0_RT.resize(leng);
-    m_g0_RT.resize(leng);
-    m_expg0_RT.resize(leng);
-    m_cp0_R.resize(leng);
-    m_s0_R.resize(leng);
-    m_pe.resize(leng, 0.0);
-    m_pp.resize(leng);
-    m_speciesMolarVolume.resize(leng);
+    m_h0_RT.resize(m_kk);
+    m_g0_RT.resize(m_kk);
+    m_expg0_RT.resize(m_kk);
+    m_cp0_R.resize(m_kk);
+    m_s0_R.resize(m_kk);
+    m_pe.resize(m_kk, 0.0);
+    m_pp.resize(m_kk);
+    m_speciesMolarVolume.resize(m_kk);
   }
 
   /*

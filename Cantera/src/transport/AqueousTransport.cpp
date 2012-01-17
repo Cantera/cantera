@@ -587,10 +587,10 @@ namespace Cantera {
    * This function returns a Transport data object for a given species.
    *
    */
-  struct LiquidTransportData AqueousTransport::
+  LiquidTransportData AqueousTransport::
     getLiquidTransportData(int kSpecies) 
   {
-    struct LiquidTransportData td;
+    LiquidTransportData td;
     td.speciesName = m_thermo->speciesName(kSpecies);
 
     /* NEEDS WORK

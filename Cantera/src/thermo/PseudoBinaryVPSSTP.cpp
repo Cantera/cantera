@@ -306,7 +306,7 @@ namespace Cantera {
       sprintf(p, "         potential    %12.6g  V\n", phi);
       s += p;
 
-      int kk = nSpecies();
+      size_t kk = nSpecies();
       array_fp x(kk);
       array_fp molal(kk);
       array_fp mu(kk);

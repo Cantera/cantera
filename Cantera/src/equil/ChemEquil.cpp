@@ -317,7 +317,6 @@ namespace Cantera {
   int ChemEquil::estimateElementPotentials(thermo_t& s, vector_fp& lambda_RT,
 					   vector_fp& elMolesGoal, int loglevel) 
   {
-    int m, n;
     if (loglevel > 0)
       beginLogGroup("estimateElementPotentials");
     //for (k = 0; k < m_kk; k++) {
@@ -333,7 +332,7 @@ namespace Cantera {
     vector_fp xMF_est(m_kk, 0.0);
 
     s.getMoleFractions(DATA_PTR(xMF_est));
-    for (n = 0; n < s.nSpecies(); n++) {
+    for (size_t n = 0; n < s.nSpecies(); n++) {
       if (xMF_est[n] < 1.0E-20) {
 	xMF_est[n] = 1.0E-20;
       }
@@ -350,7 +349,7 @@ namespace Cantera {
 				  mp, m_orderVectorSpecies,
 				  m_orderVectorElements, formRxnMatrix);
 
-    for (m = 0; m < m_nComponents; m++) {
+    for (size_t m = 0; m < m_nComponents; m++) {
       int k = m_orderVectorSpecies[m];
       m_component[m] = k;
       if (xMF_est[k] < 1.0E-8) {
@@ -377,7 +376,7 @@ namespace Cantera {
 #ifdef DEBUG_MODE
     if (ChemEquil_print_lvl > 0) {
       PrintCtrl pc(std::cout, -28, PrintCtrl::CT_OFF_GLOBALOBEY);
-      for (m = 0; m < m_nComponents; m++) {
+      for (size_t m = 0; m < m_nComponents; m++) {
 	int isp = m_component[m];
 	string nnn = s.speciesName(isp);
 	writelogf("isp = %d, %s\n", isp, nnn.c_str());
@@ -387,7 +386,7 @@ namespace Cantera {
       writelogf("Pressure = %g\n", pres); 
       writelogf("Temperature = %g\n", temp); 
       writelog("  id       Name     MF     mu/RT \n");
-      for (n = 0; n < s.nSpecies(); n++) {
+      for (size_t n = 0; n < s.nSpecies(); n++) {
 	string nnn = s.speciesName(n);
 	double mf = pc.cropAbs10(xMF_est[n], -28);
 	writelogf("%10d %15s %10.5g %10.5g\n",
@@ -396,8 +395,8 @@ namespace Cantera {
     }
 #endif
     DenseMatrix aa(m_nComponents, m_nComponents, 0.0);
-    for (m = 0; m < m_nComponents; m++) {
-      for (n = 0; n < m_nComponents; n++) {
+    for (size_t m = 0; m < m_nComponents; m++) {
+      for (size_t n = 0; n < m_nComponents; n++) {
 	aa(m,n) = nAtoms(m_component[m], m_orderVectorElements[n]);
       }
       b[m] = mu_RT[m_component[m]];
@@ -412,15 +411,15 @@ namespace Cantera {
 	addLogEntry("failed to estimate initial element potentials.");
       info = -2; 
     }
-    for (m = 0; m < m_nComponents; m++) {
+    for (size_t m = 0; m < m_nComponents; m++) {
       lambda_RT[m_orderVectorElements[m]] = b[m];
     }
-    for (m = m_nComponents; m < m_mm;  m++) {
+    for (size_t m = m_nComponents; m < m_mm;  m++) {
       lambda_RT[m_orderVectorElements[m]] = 0.0;
     }
     if (info == 0) {
       if (loglevel > 0) {
-	for (m = 0; m < m_mm; m++) {
+	for (size_t m = 0; m < m_mm; m++) {
 	  addLogEntry(s.elementName(m),lambda_RT[m]);
 	}
       }
@@ -429,11 +428,11 @@ namespace Cantera {
 #ifdef DEBUG_MODE
     if (ChemEquil_print_lvl > 0) {
       writelog(" id      CompSpecies      ChemPot       EstChemPot       Diff\n");
-      for (m = 0; m < m_nComponents; m++) {
+      for (size_t m = 0; m < m_nComponents; m++) {
 	int isp = m_component[m];
 	double tmp = 0.0;
 	string sname = s.speciesName(isp);
-	for (n = 0; n < m_mm; n++) {
+	for (size_t n = 0; n < m_mm; n++) {
 	  tmp += nAtoms(isp, n) * lambda_RT[n];
 	}
 	writelogf("%3d %16s  %10.5g   %10.5g   %10.5g\n",
@@ -441,7 +440,7 @@ namespace Cantera {
       }
 
       writelog(" id    ElName  Lambda_RT\n");
-      for (m = 0; m < m_mm; m++) {
+      for (size_t m = 0; m < m_mm; m++) {
 	string ename = s.elementName(m);
 	writelogf(" %3d  %6s  %10.5g\n", m, ename.c_str(), lambda_RT[m]);
       }

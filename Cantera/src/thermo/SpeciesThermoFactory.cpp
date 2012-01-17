@@ -444,8 +444,8 @@ namespace Cantera {
     throw CanteraError("LookupGe", "element " + s + " not found");
     return -1.0;
 #else
-    int iE = th_ptr->elementIndex(elemName);
-    if (iE < 0) {
+    size_t iE = th_ptr->elementIndex(elemName);
+    if (iE == -1) {
       throw CanteraError("PDSS_HKFT::LookupGe", "element " + elemName + " not found");
     }
     doublereal geValue = th_ptr->entropyElement298(iE);
@@ -462,13 +462,13 @@ namespace Cantera {
     /*
      * Ok let's get the element compositions and conversion factors.
      */
-    int ne = th_ptr->nElements();
+    size_t ne = th_ptr->nElements();
     doublereal na;
     doublereal ge;
     string ename;
 
     doublereal totalSum = 0.0;
-    for (int m = 0; m < ne; m++) {
+    for (size_t m = 0; m < ne; m++) {
       na = th_ptr->nAtoms(k, m);
       if (na > 0.0) {
 	ename = th_ptr->elementName(m);
@@ -651,7 +651,7 @@ namespace Cantera {
     std::vector<Nasa9Poly1 *> regionPtrs;
     doublereal tmin, tmax, pref = OneAtm;
     // Loop over all of the possible temperature regions
-    for (int i = 0; i < tp.size(); i++) {
+    for (size_t i = 0; i < tp.size(); i++) {
       fptr = tp[i];
       if (fptr) {
 	if (fptr->name() == "NASA9") {

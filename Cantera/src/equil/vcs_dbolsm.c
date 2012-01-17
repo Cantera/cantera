@@ -662,8 +662,8 @@ static integer c__4 = 4;
 	    if (bu[j] < bl[j]) {
 		nerr = 35;
 		nchar = 71;
-		rdum2 = bl[j];
-		rdum = bu[j];
+		rdum2 = (real) bl[j];
+		rdum = (real) bu[j];
 		xerrwv_("DBOLSM(). FOR J=(I1) THE LOWER BOUND=(R1) IS .GT. T"
 			"HE UPPER BOUND=(R2).", &nchar, &nerr, &level, &c__1, &
 			j, &idum, &c__2, &rdum2, &rdum, (ftnlen)71);
@@ -1431,8 +1431,8 @@ L590:
 		nerr = 25;
 		nlevel = 0;
 		nchar = 88;
-		rdum2 = tolind;
-		rdum = d1mach_(&c__4);
+		rdum2 = (real) tolind;
+		rdum = (real) d1mach_(&c__4);
 		xerrwv_("DBOLSM(). THE TOLERANCE FOR RANK DETERMINATION=(R1)"
 			" IS LESS THAN MACHINE PRECISION=(R2).", &nchar, &nerr,
 			 &nlevel, &c__0, &idum, &idum, &c__2, &rdum2, &rdum, (
@@ -1460,7 +1460,7 @@ L590:
 	    tolsze = x[*ncols + ioff];
 	    if (tolsze <= zero) {
 		nerr = 27;
-		rdum2 = tolsze;
+		rdum2 = (real) tolsze;
 		xerrwv_("DBOLSM(). THE RECIPROCAL OF THE BLOW-UP FACTOR FOR "
 			"REJECTING VARIABLES MUST BE POSITIVE. NOW=(R1).", &
 			nchar, &nerr, &level, &c__0, &idum, &idum, &c__1, &
@@ -1508,7 +1508,7 @@ L590:
 		nerr = 30;
 		nlevel = 0;
 		nchar = 104;
-		rdum2 = fac;
+		rdum2 = (real) fac;
 		xerrwv_("DBOLSM(). THE FACTOR (NCOLS/MROWS) WHERE PRE-TRIANG"
 			"ULARIZING IS PERFORMED MUST BE NONNEGATIVE. NOW=(R1)."
 			, &nchar, &nerr, &nlevel, &c__0, &idum, &idum, &c__1, 
@@ -1534,7 +1534,7 @@ L590:
 	    nerr = 38;
 	    nlevel = 0;
 	    nchar = 116;
-	    rdum2 = wt;
+	    rdum2 = (real) wt;
 	    xerrwv_("DBOLSM(). THE ROW SEPARATOR TO APPLY WEIGHTING (I1) MUS"
 		    "T LIE BETWEEN 0 AND MROWS (I2). WEIGHT (R1) MUST BE POSI"
 		    "TIVE.", &nchar, &nerr, &nlevel, &c__2, &mval, minput, &

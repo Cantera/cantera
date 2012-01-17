@@ -782,13 +782,13 @@ namespace Cantera {
      *  This is equal to the number of species in the 
      *  neutralMoleculePhase_ ThermoPhase.
      */
-    int numNeutralMoleculeSpecies_;
+    size_t numNeutralMoleculeSpecies_;
 
     //! Index of special species
-    int indexSpecialSpecies_;
+    size_t indexSpecialSpecies_;
 
     //! Index of special species
-    int indexSecondSpecialSpecies_;
+    size_t indexSecondSpecialSpecies_;
     
     //! Formula Matrix for composition of neutral molecules
     //! in terms of the molecules in this ThermoPhase

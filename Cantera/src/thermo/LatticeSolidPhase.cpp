@@ -75,8 +75,7 @@ namespace Cantera {
   enthalpy_mole() const {
     _updateThermo();
     doublereal ndens, sum = 0.0;
-    int n;
-    for (n = 0; n < m_nlattice; n++) {
+    for (size_t n = 0; n < m_nlattice; n++) {
       ndens = m_lattice[n]->molarDensity();
       sum += ndens * m_lattice[n]->enthalpy_mole();
     }
@@ -86,8 +85,7 @@ namespace Cantera {
     doublereal LatticeSolidPhase::intEnergy_mole() const {
         _updateThermo();
         doublereal ndens, sum = 0.0;
-        int n;
-        for (n = 0; n < m_nlattice; n++) {
+        for (size_t n = 0; n < m_nlattice; n++) {
             ndens = m_lattice[n]->molarDensity();
             sum += ndens * m_lattice[n]->intEnergy_mole();
         }
@@ -97,8 +95,7 @@ namespace Cantera {
     doublereal LatticeSolidPhase::entropy_mole() const {
         _updateThermo();
         doublereal ndens, sum = 0.0;
-        int n;
-        for (n = 0; n < m_nlattice; n++) {
+        for (size_t n = 0; n < m_nlattice; n++) {
             ndens = m_lattice[n]->molarDensity();
             sum += ndens * m_lattice[n]->entropy_mole();
         }
@@ -108,8 +105,7 @@ namespace Cantera {
     doublereal LatticeSolidPhase::gibbs_mole() const {
         _updateThermo();
         doublereal ndens, sum = 0.0;
-        int n;
-        for (n = 0; n < m_nlattice; n++) {
+        for (size_t n = 0; n < m_nlattice; n++) {
             ndens = m_lattice[n]->molarDensity(); 
             sum += ndens * m_lattice[n]->gibbs_mole();
         }
@@ -119,8 +115,7 @@ namespace Cantera {
     doublereal LatticeSolidPhase::cp_mole() const {
         _updateThermo();
         doublereal ndens, sum = 0.0;
-        int n;
-        for (n = 0; n < m_nlattice; n++) {
+        for (size_t n = 0; n < m_nlattice; n++) {
             ndens = m_lattice[n]->molarDensity(); 
             sum += ndens * m_lattice[n]->cp_mole();
         }
@@ -129,16 +124,15 @@ namespace Cantera {
 
     void LatticeSolidPhase::getActivityConcentrations(doublereal* c) const {
         _updateThermo();
-        int n;
-        int strt = 0;
-        for (n = 0; n < m_nlattice; n++) {
+        size_t strt = 0;
+        for (size_t n = 0; n < m_nlattice; n++) {
             m_lattice[n]->getMoleFractions(c+strt);
             strt += m_lattice[n]->nSpecies();
         }
     }
 
     void LatticeSolidPhase::getActivityCoefficients(doublereal* ac) const {
-        for (int k = 0; k < m_kk; k++) {
+        for (size_t k = 0; k < m_kk; k++) {
 	  ac[k] = 1.0;
 	}
     }
@@ -153,10 +147,9 @@ namespace Cantera {
 
     void LatticeSolidPhase::getChemPotentials(doublereal* mu) const {
         _updateThermo();
-        int n;
-        int strt = 0;
+        size_t strt = 0;
         double dratio;
-        for (n = 0; n < m_nlattice; n++) {
+        for (size_t n = 0; n < m_nlattice; n++) {
             dratio = m_lattice[n]->molarDensity()/molarDensity();
             m_lattice[n]->getChemPotentials(mu+strt);
             scale(mu + strt, mu + strt + m_lattice[n]->nSpecies(), mu + strt, dratio);
@@ -166,10 +159,9 @@ namespace Cantera {
 
     void LatticeSolidPhase::getStandardChemPotentials(doublereal* mu0) const {
         _updateThermo();
-        int n;
-        int strt = 0;
+        size_t strt = 0;
         double dratio;
-        for (n = 0; n < m_nlattice; n++) {
+        for (size_t n = 0; n < m_nlattice; n++) {
             dratio = m_lattice[n]->molarDensity()/molarDensity();
             m_lattice[n]->getStandardChemPotentials(mu0+strt);
             scale(mu0 + strt, mu0 + strt + m_lattice[n]->nSpecies(), mu0 + strt, dratio);
@@ -181,13 +173,13 @@ namespace Cantera {
         m_kk = nSpecies();
         m_mm = nElements();
         m_x.resize(m_kk);
-        int n, nsp, k, loc = 0;
+        size_t nsp, loc = 0;
         doublereal ndens;
         m_molar_density = 0.0;
-        for (n = 0; n < m_nlattice; n++) {
+        for (size_t n = 0; n < m_nlattice; n++) {
             nsp = m_lattice[n]->nSpecies();
             ndens = m_lattice[n]->molarDensity();
-            for (k = 0; k < nsp; k++) {
+            for (size_t k = 0; k < nsp; k++) {
                 m_x[loc] = ndens * m_lattice[n]->moleFraction(k);
                 loc++;
             }
@@ -234,10 +226,9 @@ namespace Cantera {
         //        +fp2str(m_molar_density)+" to "+fp2str(molarDensity()));
         //}
         if (m_tlast != tnow) {
-            int n;
             getMoleFractions(DATA_PTR(m_x));
-            int strt = 0;
-            for (n = 0; n < m_nlattice; n++) {
+            size_t strt = 0;
+            for (size_t n = 0; n < m_nlattice; n++) {
                 m_lattice[n]->setTemperature(tnow);
                 m_lattice[n]->setMoleFractions(DATA_PTR(m_x) + strt);
                 m_lattice[n]->setPressure(m_press);
@@ -247,15 +238,14 @@ namespace Cantera {
         }
     }
 
-    void LatticeSolidPhase::setLatticeMoleFractions(int nn, 
-        string x) {
+    void LatticeSolidPhase::setLatticeMoleFractions(int nn, string x) {
         m_lattice[nn]->setMoleFractionsByName(x);
-        int n, k, loc=0, nsp;
+        size_t loc=0, nsp;
         doublereal ndens;
-        for (n = 0; n < m_nlattice; n++) {
+        for (size_t n = 0; n < m_nlattice; n++) {
             nsp = m_lattice[n]->nSpecies();
             ndens = m_lattice[n]->molarDensity();
-            for (k = 0; k < nsp; k++) {
+            for (size_t k = 0; k < nsp; k++) {
                 m_x[loc] = ndens * m_lattice[n]->moleFraction(k);
                 loc++;
             }
