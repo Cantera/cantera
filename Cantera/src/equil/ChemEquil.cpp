@@ -124,20 +124,20 @@ namespace Cantera {
     m_muSS_RT.resize(m_kk);
     m_component.resize(m_mm,-2);
     m_orderVectorElements.resize(m_mm);
-    int m, k;
-    for (m = 0; m < m_mm; m++) {
+
+    for (size_t m = 0; m < m_mm; m++) {
       m_orderVectorElements[m] = m;
     }
     m_orderVectorSpecies.resize(m_kk);
-    for (k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       m_orderVectorSpecies[k] = k;
     }
 
     // set up elemental composition matrix
-    int mneg = -1;
+    size_t mneg = -1;
     doublereal na, ewt;
-    for (m = 0; m < m_mm; m++) {
-      for (k = 0; k < m_kk; k++) {
+    for (size_t m = 0; m < m_mm; m++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	na = s.nAtoms(k,m);
 
 	// handle the case of negative atom numbers (used to
@@ -148,7 +148,7 @@ namespace Cantera {
 	  // if negative atom numbers have already been specified
 	  // for some element other than this one, throw
 	  // an exception
-	  if (mneg >= 0 && mneg != m) 
+	  if (mneg != -1 && mneg != m)
 	    throw CanteraError("ChemEquil::initialize",
 			       "negative atom numbers allowed for only one element"); 
 	  mneg = m;
@@ -169,8 +169,8 @@ namespace Cantera {
     m_eloc = mneg;
 
     // set up the elemental composition matrix
-    for (k = 0; k < m_kk; k++) {
-      for (m = 0; m < m_mm; m++) {
+    for (size_t k = 0; k < m_kk; k++) {
+      for (size_t m = 0; m < m_mm; m++) {
 	m_comp[k*m_mm + m] = s.nAtoms(k,m);
       }
     }
@@ -191,8 +191,8 @@ namespace Cantera {
   {
     // Construct the chemical potentials by summing element potentials
     fill(m_mu_RT.begin(), m_mu_RT.end(), 0.0);
-    for (int k = 0; k < m_kk; k++)
-      for (int m = 0; m < m_mm; m++) 
+    for (size_t k = 0; k < m_kk; k++)
+      for (size_t m = 0; m < m_mm; m++) 
 	m_mu_RT[k] += lambda_RT[m]*nAtoms(k,m);
 
     // Set the temperature
@@ -219,10 +219,9 @@ namespace Cantera {
 
     // compute the elemental mole fractions
     double sum = 0.0;
-    int m, k;
-    for (m = 0; m < m_mm; m++) {
+    for (size_t m = 0; m < m_mm; m++) {
       m_elementmolefracs[m] = 0.0;
-      for (k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	m_elementmolefracs[m] += nAtoms(k,m) * m_molefractions[k];
 	if (m_molefractions[k] < 0.0) {
 	  throw CanteraError("update",
@@ -235,7 +234,7 @@ namespace Cantera {
     // Store the sum for later use
     m_elementTotalSum = sum;
     // normalize the element mole fractions
-    for (m = 0; m < m_mm; m++) m_elementmolefracs[m] /= sum;
+    for (size_t m = 0; m < m_mm; m++) m_elementmolefracs[m] /= sum;
   }
 
   /// Estimate the initial mole numbers. This version borrows from the
@@ -258,10 +257,10 @@ namespace Cantera {
       if (m_nComponents > m_kk) {
         m_nComponents = m_kk;
       }
-      for (int m = 0; m < m_nComponents; m++) {
+      for (size_t m = 0; m < m_nComponents; m++) {
 	m_component[m] = e->componentIndex(m);
       }
-      for (int k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	if (s.moleFraction(k) > 0.0) {
 	  if (loglevel > 0)
             addLogEntry(s.speciesName(k),
@@ -281,14 +280,14 @@ namespace Cantera {
 	writelog("setInitialMoles:   Estimated Mole Fractions\n");
 	writelogf("  Temperature = %g\n", s.temperature()); 
 	writelogf("  Pressure = %g\n", s.pressure()); 
-	for (int k = 0; k < m_kk; k++) {
+	for (size_t k = 0; k < m_kk; k++) {
 	  string nnn = s.speciesName(k);
 	  double mf = s.moleFraction(k);
 	  mf = pc.cropAbs10(mf, -28);
 	  writelogf("         %-12s % -10.5g\n", nnn.c_str(), mf); 
 	}
 	writelog("      Element_Name   ElementGoal  ElementMF\n");
-	for (int m = 0; m < m_mm; m++) {
+	for (size_t m = 0; m < m_mm; m++) {
 	  string nnn = s.elementName(m);
 	  writelogf("      %-12s % -10.5g% -10.5g\n",
 		    nnn.c_str(), elMoleGoal[m], m_elementmolefracs[m]); 
@@ -1238,7 +1237,6 @@ namespace Cantera {
 			       const vector_fp & Xmol_i_calc, 
 			       vector_fp& eMolesCalc, vector_fp& n_i_calc,
 			       double pressureConst) {
-    int k, m;
     double n_t_calc = 0.0;
     double tmp;
     /*
@@ -1250,9 +1248,9 @@ namespace Cantera {
     s.setPressure(pressureConst);
     s.getActivityCoefficients(DATA_PTR(actCoeff));
  
-    for (k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       tmp = - (m_muSS_RT[k] + log(actCoeff[k]));
-      for (m = 0; m < m_mm; m++) {
+      for (size_t m = 0; m < m_mm; m++) {
 	tmp += nAtoms(k,m) * x[m];
       }
       if (tmp > 100.) tmp = 100.;
@@ -1263,9 +1261,9 @@ namespace Cantera {
       }
       n_t_calc += n_i_calc[k];
     }
-    for (m = 0; m < m_mm; m++) {
+    for (size_t m = 0; m < m_mm; m++) {
       eMolesCalc[m] = 0.0;
-      for (k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	eMolesCalc[m] += nAtoms(k,m) * n_i_calc[k];
       }
     }
@@ -1767,8 +1765,8 @@ namespace Cantera {
        */
       modifiedMatrix = false;
       for (m = 0; m < m_mm; m++) {
-	int sameAsRow = -1;
-	for (int im = 0; im < m; im++) {
+	size_t sameAsRow = -1;
+	for (size_t im = 0; im < m; im++) {
 	  bool theSame = true;
 	  for (n = 0; n < m_mm; n++) {
 	    if (fabs(a1(m,n) - a1(im,n)) > 1.0E-7) {
@@ -1780,7 +1778,7 @@ namespace Cantera {
 	    sameAsRow = im;
 	  }
 	}
-	if (sameAsRow >= 0 || lumpSum[m]) {
+	if (sameAsRow != -1 || lumpSum[m]) {
 #ifdef DEBUG_MODE
 	  if (ChemEquil_print_lvl > 0) {
 	    if (lumpSum[m]) {
@@ -1906,7 +1904,7 @@ namespace Cantera {
     if (m_eloc == -1) return;
     if (fabs(elMolesGoal[m_eloc]) > 1.0E-20) return; 
     s.getMoleFractions(DATA_PTR(m_molefractions));
-    int k;
+    size_t k;
 
 #ifdef DEBUG_MODE
     int maxPosEloc = -1;
