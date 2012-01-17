@@ -15,8 +15,8 @@ void c_log(complex *r, complex *z)
 #endif
 {
 	double zi, zr;
-	r->i = atan2(zi = z->i, zr = z->r);
-	r->r = log( f__cabs(zr, zi) );
+	r->i = (real) atan2(zi = z->i, zr = z->r);
+	r->r = (real) log( f__cabs(zr, zi) );
 	}
 #ifdef __cplusplus
 }

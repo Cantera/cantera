@@ -286,7 +286,7 @@ fk_open(int seq, int fmt, ftnint n)
 	a.oerr=1;
 	a.ounit=n;
 	a.ofnm=nbuf;
-	a.ofnmlen=strlen(nbuf);
+	a.ofnmlen= (ftnlen) strlen(nbuf);
 	a.osta=NULL;
 	a.oacc= (char*)(seq==SEQ?"s":"d");
 	a.ofm = (char*)(fmt==FMT?"f":"u");

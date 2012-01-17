@@ -44,7 +44,7 @@ dtime_(float *tarray)
 	static double t0;
 	double t = clock();
 	tarray[1] = 0;
-	tarray[0] = (t - t0) / CLOCKS_PER_SECOND;
+	tarray[0] = (float) ((t - t0) / CLOCKS_PER_SECOND);
 	t0 = t;
 	return tarray[0];
 #else

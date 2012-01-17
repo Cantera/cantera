@@ -187,7 +187,7 @@ static integer c__11 = 11;
     d__ = 0.;
     e = 0.;
 
-    i__1 = *n - 1 << 1;
+    i__1 = (*n - 1) << 1;
     for (k = 1; k <= i__1; k += 2) {
 	if (z__[k] < 0.) {
 	    *info = -(k + 200);
@@ -266,8 +266,8 @@ static integer c__11 = 11;
 /*     Reverse the qd-array, if warranted. */
 
     if (z__[(i0 << 2) - 3] * 1.5 < z__[(n0 << 2) - 3]) {
-	ipn4 = i0 + n0 << 2;
-	i__1 = i0 + n0 - 1 << 1;
+	ipn4 = (i0 + n0) << 2;
+	i__1 = (i0 + n0 - 1) << 1;
 	for (i4 = i0 << 2; i4 <= i__1; i4 += 4) {
 	    temp = z__[i4 - 3];
 	    z__[i4 - 3] = z__[ipn4 - i4 - 3];
@@ -287,7 +287,7 @@ static integer c__11 = 11;
 
 	d__ = z__[(n0 << 2) + pp - 3];
 	i__1 = (i0 << 2) + pp;
-	for (i4 = (n0 - 1 << 2) + pp; i4 >= i__1; i4 += -4) {
+	for (i4 = ((n0 - 1) << 2) + pp; i4 >= i__1; i4 += -4) {
 	    if (z__[i4 - 1] <= tol2 * d__) {
 		z__[i4 - 1] = 0.;
 		d__ = z__[i4 - 3];
@@ -301,7 +301,7 @@ static integer c__11 = 11;
 
 	emin = z__[(i0 << 2) + pp + 1];
 	d__ = z__[(i0 << 2) + pp - 3];
-	i__1 = (n0 - 1 << 2) + pp;
+	i__1 = ((n0 - 1) << 2) + pp;
 	for (i4 = (i0 << 2) + pp; i4 <= i__1; i4 += 4) {
 	    z__[i4 - (pp << 1) - 2] = d__ + z__[i4 - 1];
 	    if (z__[i4 - 1] <= tol2 * d__) {
@@ -345,7 +345,7 @@ static integer c__11 = 11;
 
     iter = 2;
     nfail = 0;
-    ndiv = n0 - i0 << 1;
+    ndiv = (n0 - i0) << 1;
 
     i__1 = *n + 1;
     for (iwhila = 1; iwhila <= i__1; ++iwhila) {
@@ -442,7 +442,7 @@ L100:
 		    qmax = z__[(i0 << 2) - 3];
 		    emin = z__[(i0 << 2) - 1];
 		    oldemn = z__[i0 * 4];
-		    i__3 = n0 - 3 << 2;
+		    i__3 = (n0 - 3) << 2;
 		    for (i4 = i0 << 2; i4 <= i__3; i4 += 4) {
 			if (z__[i4] <= tol2 * z__[i4 - 3] || z__[i4 - 1] <= 
 				tol2 * sigma) {

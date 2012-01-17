@@ -87,11 +87,11 @@
     }
     ndo = max(*nder,0);
     ndo = min(ndo,*l);
-    maxord = a[1] + .5f;
+    maxord = (integer) (a[1] + .5f);
     k1 = maxord + 1;
     k2 = k1 + maxord;
     k3 = k2 + maxord + 2;
-    nord = a[k3] + .5f;
+    nord = (integer) (a[k3] + .5f);
     if (*l > nord) {
 	goto L11;
     }

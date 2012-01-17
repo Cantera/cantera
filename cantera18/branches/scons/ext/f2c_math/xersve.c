@@ -143,8 +143,8 @@ static integer c__1 = 1;
 	    for (i__ = 1; i__ <= i__2; ++i__) {
 		io___9.ciunit = iunit;
 		s_wsfe(&io___9);
-		do_fio(&c__1, libtab + (i__ - 1 << 3), (ftnlen)8);
-		do_fio(&c__1, subtab + (i__ - 1 << 3), (ftnlen)8);
+		do_fio(&c__1, libtab + ((i__ - 1) << 3), (ftnlen)8);
+		do_fio(&c__1, subtab + ((i__ - 1) << 3), (ftnlen)8);
 		do_fio(&c__1, mestab + (i__ - 1) * 20, (ftnlen)20);
 		do_fio(&c__1, (char *)&nertab[i__ - 1], (ftnlen)sizeof(
 			integer));
@@ -187,8 +187,8 @@ static integer c__1 = 1;
 	s_copy(mes, messg, (ftnlen)20, messg_len);
 	i__1 = nmsg;
 	for (i__ = 1; i__ <= i__1; ++i__) {
-	    if (s_cmp(lib, libtab + (i__ - 1 << 3), (ftnlen)8, (ftnlen)8) == 
-		    0 && s_cmp(sub, subtab + (i__ - 1 << 3), (ftnlen)8, (
+	    if (s_cmp(lib, libtab + ((i__ - 1) << 3), (ftnlen)8, (ftnlen)8) ==
+		    0 && s_cmp(sub, subtab + ((i__ - 1) << 3), (ftnlen)8, (
 		    ftnlen)8) == 0 && s_cmp(mes, mestab + (i__ - 1) * 20, (
 		    ftnlen)20, (ftnlen)20) == 0 && *nerr == nertab[i__ - 1] &&
 		     *level == levtab[i__ - 1]) {
@@ -204,8 +204,8 @@ static integer c__1 = 1;
 /*           Empty slot found for new message. */
 
 	    ++nmsg;
-	    s_copy(libtab + (i__ - 1 << 3), lib, (ftnlen)8, (ftnlen)8);
-	    s_copy(subtab + (i__ - 1 << 3), sub, (ftnlen)8, (ftnlen)8);
+	    s_copy(libtab + ((i__ - 1) << 3), lib, (ftnlen)8, (ftnlen)8);
+	    s_copy(subtab + ((i__ - 1) << 3), sub, (ftnlen)8, (ftnlen)8);
 	    s_copy(mestab + (i__ - 1) * 20, mes, (ftnlen)20, (ftnlen)20);
 	    nertab[i__ - 1] = *nerr;
 	    levtab[i__ - 1] = *level;
