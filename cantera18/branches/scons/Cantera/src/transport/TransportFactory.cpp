@@ -135,7 +135,7 @@ namespace Cantera {
 
     doublereal w1, w2, wsum, sig1, sig2, sig12, sigratio, sigratio2,
       sigratio3, tstar1, tstar2, tstar12,
-      om22_1, om22_2, om22_12, om11_12, astar_12, bstar_12, cstar_12,
+      om22_1, om22_2, om11_12, astar_12, bstar_12, cstar_12,
       cnst, wmwp, sqw12, p1, p2, p12, q1, q2, q12;
 
     w1 = tr.mw[k];
@@ -157,7 +157,6 @@ namespace Cantera {
 
     om22_1 = m_integrals->omega22(tstar1, tr.delta(k,k));
     om22_2 = m_integrals->omega22(tstar2, tr.delta(j,j));
-    om22_12 = m_integrals->omega22(tstar12, tr.delta(k,j));
     om11_12 = m_integrals->omega11(tstar12, tr.delta(k,j));
     astar_12 = m_integrals->astar(tstar12, tr.delta(k,j));
     bstar_12 = m_integrals->bstar(tstar12, tr.delta(k,j));
@@ -1147,7 +1146,6 @@ namespace Cantera {
 			  "*** polynomial coefficients not printed (log_level < 2) ***");
     }
 #endif
-    int ipoly;
     doublereal sqrt_T, visc, err, relerr, 
       mxerr = 0.0, mxrelerr = 0.0, mxerr_cond = 0.0, mxrelerr_cond = 0.0;
 
@@ -1339,8 +1337,6 @@ namespace Cantera {
     for (size_t k = 0; k < tr.nsp_; k++)
       {            
 	for (size_t j = k; j < tr.nsp_; j++) {
-
-	  ipoly = tr.poly[k][j];
 	  for (size_t n = 0; n < np; n++) {
 
 	    t = tr.tmin + dt*n;

@@ -23,6 +23,12 @@
 // This just compiles in the code.
 %(DEBUG_MODE)s
 
+#ifdef DEBUG_MODE
+#define DEBUG_MODE_ENABLED 1
+#else
+#define DEBUG_MODE_ENABLED 0
+#endif
+
 //------------------------ Fortran settings -------------------//
 
 // define types doublereal, integer, and ftnlen to match the 

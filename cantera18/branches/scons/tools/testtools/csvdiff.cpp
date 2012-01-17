@@ -253,7 +253,6 @@ static void get_sizes(FILE *fp, int &nTitleLines, int &nColTitleLines,
   int nScanLinesMAX = 100;
   int nScanLines = nScanLinesMAX;
   int retn, i, j;
-  int nLines = 0;
   int maxCommas = 0;
   TOKEN fieldToken;
   char *scanLine = mdp_alloc_char_1(MAX_INPUT_STR_LN+1, '\0');
@@ -392,7 +391,6 @@ static void get_sizes(FILE *fp, int &nTitleLines, int &nColTitleLines,
     for (i = nColTitleLines + nTitleLines; ; i++) {
       retn = read_line(fp, scanLine, 0);
       if (retn == -1) {
-	nLines = i+1;
 	nDataRows = i - nColTitleLines - nTitleLines + 1;
 	break;
       }
@@ -634,7 +632,6 @@ int main(int argc, char *argv[])
   int    *ColIsFloat1 = NULL, *ColIsFloat2 = NULL;
   double *curVarValues1 = NULL, *curVarValues2 = NULL;
   char ** curStringValues1 = NULL, **curStringValues2 = NULL;
-  int    mixed_var = 0;
   int    i, j, ndiff, jmax, i1, i2, k, found;
   double max_diff, rel_diff;
   int    testPassed = RT_PASSED;
@@ -828,11 +825,9 @@ int main(int argc, char *argv[])
    *  Get the number of column variables in each file
    */
 
-  mixed_var = FALSE;
   if (nCol1 != nCol2) {
     printf("Number of column variables differ:, %d %d\n", 
                  nCol1, nCol2);
-    mixed_var = TRUE;
     testPassed = RT_FAILED_OTHER;
   } else if (Debug_Flag) {
     printf("Number of column variables in both files = %d\n",
@@ -863,7 +858,6 @@ int main(int argc, char *argv[])
 	compColList[nColcomparisons][1] = j;
 	nColcomparisons++;
 	found = TRUE;
-	if (i != j) mixed_var = 1;
 	break;
       }
     }

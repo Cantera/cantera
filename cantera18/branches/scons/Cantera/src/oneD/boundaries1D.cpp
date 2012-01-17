@@ -814,14 +814,12 @@ namespace Cantera {
 
         if (m_enabled) {
             doublereal maxx = -1.0;
-            size_t imx = -1;
             for (size_t k = 0; k < m_nsp; k++) {
                 r[k+1] = m_work[k + ioffset] * m_sphase->size(k) * rs0;
                 r[k+1] -= rdt*(x[k+1] - prevSoln(k+1,0));
                 diag[k+1] = 1;
                 if (x[k+1] > maxx) {
                     maxx = x[k+1];
-                    imx = k+1;
                 }
             }
             r[1] = 1.0 - sum;

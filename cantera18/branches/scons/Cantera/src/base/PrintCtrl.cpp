@@ -147,8 +147,6 @@ namespace Cantera {
     if (Ndec < -301 || Ndec > 301) {
       return d;
     }
-    double sgn = 1.0;
-    if (d < 0.0) sgn = -1.0;
     double dfabs = fabs(d);
     double  pdec = pow(10.0, (double) Ndec);
     if (dfabs < pdec) {

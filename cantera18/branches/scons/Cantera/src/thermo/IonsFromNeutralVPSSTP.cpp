@@ -735,8 +735,6 @@ namespace Cantera {
    */
   void IonsFromNeutralVPSSTP::calcNeutralMoleculeMoleFractions() const {
     size_t icat, jNeut;
-    doublereal sumCat; 
-    doublereal sumAnion;
     doublereal fmij;
     doublereal sum = 0.0;
 
@@ -760,16 +758,12 @@ namespace Cantera {
     switch (ionSolnType_) {
 
     case cIonSolnType_PASSTHROUGH:
-
       for (size_t k = 0; k < m_kk; k++) {
 	NeutralMolecMoleFractions_[k] = moleFractions_[k];
       }
       break;
 
     case cIonSolnType_SINGLEANION:
-
-      sumCat = 0.0;
-      sumAnion = 0.0;
       for (size_t k = 0; k < numNeutralMoleculeSpecies_; k++) {
 	NeutralMolecMoleFractions_[k] = 0.0;
       }
@@ -863,8 +857,6 @@ namespace Cantera {
    */
   void IonsFromNeutralVPSSTP::getNeutralMoleculeMoleGrads(const doublereal * const dx, doublereal *dy) const {
     size_t icat, jNeut;
-    doublereal sumCat; 
-    doublereal sumAnion;
     doublereal fmij;
     vector_fp y;
     y.resize(numNeutralMoleculeSpecies_,0.0);
@@ -883,17 +875,12 @@ namespace Cantera {
     switch (ionSolnType_) {
 
     case cIonSolnType_PASSTHROUGH:
-
       for (size_t k = 0; k < m_kk; k++) {
 	dy[k] = dx[k];
       }
       break;
 
     case cIonSolnType_SINGLEANION:
-
-      sumCat = 0.0;
-      sumAnion = 0.0;
-
       for (size_t k = 0; k < (int) cationList_.size(); k++) {
 	//! Get the id for the next cation
         icat = cationList_[k];

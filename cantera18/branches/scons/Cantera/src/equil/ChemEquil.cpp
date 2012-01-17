@@ -1494,13 +1494,11 @@ namespace Cantera {
 	  }
 	}
       }
-#ifdef DEBUG_MODE
-      if (ChemEquil_print_lvl > 0) {
+      if (DEBUG_MODE_ENABLED && ChemEquil_print_lvl > 0) {
 	if (!normalStep) {
-	  writelogf(" NOTE: iter(%d) Doing an abnormal step due to row %d\n", iter, iM); 
+	  writelogf(" NOTE: iter(%d) Doing an abnormal step due to row %d\n", iter, iM);
 	}
       }
-#endif 
       if (!normalStep) {
 	beta = 1.0;
 	resid[m_mm] = 0.0;
@@ -1798,21 +1796,19 @@ namespace Cantera {
 	}
       }
 
-#ifdef DEBUG_MODE
-      if (ChemEquil_print_lvl > 0 && modifiedMatrix) {
+      if (DEBUG_MODE_ENABLED && ChemEquil_print_lvl > 0 && modifiedMatrix) {
 	writelog("Row Summed, MODIFIED Matrix:\n");
 	for (m = 0; m <= m_mm; m++) {
 	  writelog("       [");
 	  for (n = 0; n <= m_mm; n++) {
-	    writelogf(" %10.5g", a1(m,n)); 
+	    writelogf(" %10.5g", a1(m,n));
 	  }
 	  writelogf("]  =   %10.5g\n", resid[m]);
 	}
       }
-#endif
 
       try {
-	int info = solve(a1, DATA_PTR(resid));
+	solve(a1, DATA_PTR(resid));
       }
       catch (CanteraError) {
 	addLogEntry("estimateEP_Brinkley:Jacobian is singular.");
