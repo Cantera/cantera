@@ -342,7 +342,7 @@ namespace Cantera {
     thigh = m_highT;
     pref = m_Pref;
     double ctmp[12];
-    coeffs[0] = m_numTempRegions;
+    coeffs[0] = double(m_numTempRegions);
     int index = 1;
     int n_tmp = 0;;
     int type_tmp = 0;

@@ -133,7 +133,7 @@ namespace Cantera {
     thermo_t*  m_phase;
  
     /// number of atoms of element m in species k.
-    doublereal nAtoms(int k, int m) const { return m_comp[k*m_mm + m]; }
+    doublereal nAtoms(size_t k, size_t m) const { return m_comp[k*m_mm + m]; }
 
     void initialize(thermo_t& s);
 
@@ -227,7 +227,7 @@ namespace Cantera {
      * pressure of the solution (the star standard state).
      */
     vector_fp m_muSS_RT;
-    vector_int m_component;
+    std::vector<size_t> m_component;
 
     /*
      * element fractional cutoff, below which the element will be

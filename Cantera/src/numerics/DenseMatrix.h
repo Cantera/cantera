@@ -28,7 +28,7 @@ namespace Cantera {
          * Constructor. Create an \c n by \c m matrix, and initialize
          * all elements to \c v.
          */
-        DenseMatrix(int n, int m, doublereal v = 0.0) : Array2D(n,m,v) {
+        DenseMatrix(size_t n, size_t m, doublereal v = 0.0) : Array2D(n,m,v) {
             m_ipiv.resize( max(n, m) );
         }
 
@@ -40,7 +40,7 @@ namespace Cantera {
         /// assignment.
         DenseMatrix& operator=(const DenseMatrix& y);
 
-        void resize(int n, int m, doublereal v = 0.0);
+        void resize(size_t n, size_t m, doublereal v = 0.0);
 
         /// Destructor. Does nothing.
         virtual ~DenseMatrix(){}
@@ -90,7 +90,7 @@ namespace Cantera {
     /**
      * invert A. A is overwritten with A^-1.
      */
-     int invert(DenseMatrix& A, int nn=-1);
+     int invert(DenseMatrix& A, size_t nn=-1);
 
 }
 

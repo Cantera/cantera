@@ -1063,15 +1063,13 @@ namespace Cantera {
               double oldf, vector_fp& grad, vector_fp& step, vector_fp& x,
               double& f, vector_fp& elmols, double xval, double yval )
   {
-    int nvar = x.size();
-    int m;
     double damp;
     
     /*
      * Carry out a delta damping approach on the dimensionless element potentials.
      */
     damp = 1.0;
-    for (m = 0; m < m_mm; m++) {
+    for (size_t m = 0; m < m_mm; m++) {
       if (m == m_eloc) {
 	if (step[m] > 1.25) {
 	  damp = MIN(damp, 1.25 /step[m]);
@@ -1092,7 +1090,7 @@ namespace Cantera {
     /*
      * Update the solution unknown
      */
-    for (m = 0; m < nvar; m++) {
+    for (size_t m = 0; m < x.size(); m++) {
       x[m] = oldx[m] + damp * step[m];
     }
 #ifdef DEBUG_MODE
@@ -1193,12 +1191,12 @@ namespace Cantera {
   {
     if (loglevel > 0) 
       beginLogGroup("equilJacobian");
-    int len = x.size();
     vector_fp& r0 = m_jwork1;
     vector_fp& r1 = m_jwork2;
+    size_t len = x.size();
     r0.resize(len);
     r1.resize(len);
-    int n, m;
+    size_t n, m;
     doublereal rdx, dx, xsave, dx2;
     doublereal atol = 1.e-10;
     
@@ -1220,7 +1218,7 @@ namespace Cantera {
         
       // compute nth column of Jacobian
         
-      for (m = 0; m < len; m++) {
+      for (m = 0; m < x.size(); m++) {
     jac(m, n) = (r1[m] - r0[m])*rdx;
       }        
       x[n] = xsave;

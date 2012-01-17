@@ -130,9 +130,9 @@ void cblas_dscal(const int N, const double alpha, double *X, const int incX);
 
 namespace Cantera {
 
-    inline void ct_dgemv(ctlapack::storage_t storage, 
-        ctlapack::transpose_t trans, 
-        int m, int n, doublereal alpha, const doublereal* a, int lda, 
+    inline void ct_dgemv(ctlapack::storage_t storage,
+        ctlapack::transpose_t trans,
+        int m, int n, doublereal alpha, const doublereal* a, int lda,
         const doublereal* x, int incX, doublereal beta, 
         doublereal* y, int incY) 
     {

@@ -268,10 +268,9 @@ namespace Cantera {
         XML_Node& la = eosdata.child("LatticeArray");
         vector<XML_Node*> lattices;
         la.getChildren("phase",lattices);
-        int n;
-        int nl = lattices.size();
+        size_t nl = lattices.size();
         m_nlattice = nl;
-        for (n = 0; n < nl; n++) {
+        for (size_t n = 0; n < nl; n++) {
             XML_Node& i = *lattices[n];
             m_lattice.push_back((LatticePhase*)newPhase(i));
         }

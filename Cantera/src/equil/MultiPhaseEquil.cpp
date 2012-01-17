@@ -373,9 +373,8 @@ namespace Cantera {
     ///  to be components in declaration order, beginning with the
     ///  first phase added.
     ///
-    void MultiPhaseEquil::getComponents(const vector_int& order) {
+    void MultiPhaseEquil::getComponents(const std::vector<size_t>& order) {
         index_t m, k, j;
-        int n;
 
         // if the input species array has the wrong size, ignore it
         // and consider the species for components in declaration order.
@@ -428,7 +427,7 @@ namespace Cantera {
 
                 // Now exchange the column with zero pivot with the 
                 // column for this major species
-                for (n = 0; n < int(nRows); n++) {
+                for (size_t n = 0; n < nRows; n++) {
                     tmp = m_A(n,m);
                     m_A(n, m) = m_A(n, kmax);
                     m_A(n, kmax) = tmp;
@@ -449,7 +448,7 @@ namespace Cantera {
 
             // For all rows below the diagonal, subtract A(n,m)/A(m,m)
             // * (row m) from row n, so that A(n,m) = 0.
-            for (n = int(m+1); n < int(m_nel); n++) {
+            for (size_t n = m+1; n < m_nel; n++) {
                 fctr = m_A(n,m)/m_A(m,m);
                 for (k = 0; k < m_nsp; k++) {
                     m_A(n,k) -= m_A(m,k)*fctr;
@@ -461,7 +460,7 @@ namespace Cantera {
         // The left m_nel columns of A are now upper-diagonal.  Now
         // reduce the m_nel columns to diagonal form by back-solving
         for (m = nRows-1; m > 0; m--) {
-            for (n = m-1; n>= 0; n--) {
+            for (size_t n = m-1; n>= 0; n--) {
                 if (m_A(n,m) != 0.0) {
                     fctr = m_A(n,m);
                     for (k = m; k < m_nsp; k++) {
@@ -472,8 +471,8 @@ namespace Cantera {
         }
 
         // create stoichometric coefficient matrix. 
-        for (n = 0; n < int(m_nsp); n++) {
-            if (n < int(m_nel)) 
+        for (size_t n = 0; n < m_nsp; n++) {
+            if (n < m_nel)
                 for (k = 0; k < m_nsp - m_nel; k++) 
                     m_N(n, k) = -m_A(n, k + m_nel);
             else {
@@ -879,13 +878,13 @@ namespace Cantera {
     *
     */
   void MultiPhaseEquil::reportCSV(const std::string &reportFile) {
-    int k;
-    int istart;
-    int nSpecies;
+    size_t k;
+    size_t istart;
+    size_t nSpecies;
 
     double vol = 0.0;
     string sName;
-    int nphase = m_np;
+    size_t nphase = m_np;
 
     FILE * FP = fopen(reportFile.c_str(), "w");
     if (!FP) {
@@ -906,7 +905,7 @@ namespace Cantera {
 
 
     vol = 0.0;
-    for (int iphase = 0; iphase < nphase; iphase++) {
+    for (size_t iphase = 0; iphase < nphase; iphase++) {
       istart =    m_mix->speciesIndex(0, iphase);
       ThermoPhase &tref = m_mix->phase(iphase);
       nSpecies = tref.nSpecies();
@@ -931,7 +930,7 @@ namespace Cantera {
     //    fprintf(FP,"Number Basis optimizations = %d\n", m_vprob->m_NumBasisOptimizations);
     // fprintf(FP,"Number VCS iterations = %d\n", m_vprob->m_Iterations);
 
-    for (int iphase = 0; iphase < nphase; iphase++) {
+    for (size_t iphase = 0; iphase < nphase; iphase++) {
       istart =    m_mix->speciesIndex(0, iphase);
     
       ThermoPhase &tref = m_mix->phase(iphase);

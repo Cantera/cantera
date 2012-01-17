@@ -369,7 +369,7 @@ namespace Cantera {
     /**
      * m_kk is the number of species in the phase
      */
-    int m_kk;
+    size_t m_kk;
 
     //! Set the molecular weight of a single species to a given value
     /*!

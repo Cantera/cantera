@@ -114,28 +114,28 @@ namespace Cantera {
     void addPhase(phase_t* p, doublereal moles);
 
     /// Number of elements.
-    int nElements() const { return int(m_nel); }
+    size_t nElements() const { return m_nel; }
 
     //! Returns the string name of the global element \a m.
     /*!
      *  @param m index of the global element
      */
-    std::string elementName(int m) const;
+    std::string elementName(size_t m) const;
 
     //! Returns the index of the element with name \a name.
     /*!
      * @param name   String name of the global element
      */
-    int elementIndex(std::string name) const;
+    size_t elementIndex(std::string name) const;
 
     //! Number of species, summed over all phases.
-    int nSpecies() const { return int(m_nsp); }
+    size_t nSpecies() const { return m_nsp; }
 
     //! Name of species with global index \a kGlob
     /*!
      * @param kGlob   global species index
      */
-    std::string speciesName(const int kGlob) const;
+    std::string speciesName(const size_t kGlob) const;
 
     //! Returns the Number of atoms of global element \a mGlob in
     //! global species \a kGlob.
@@ -144,7 +144,7 @@ namespace Cantera {
      * @param mGlob   global element index
      * @return        returns the number of atoms.
      */
-    doublereal nAtoms(const int kGlob, const int mGlob) const;
+    doublereal nAtoms(const size_t kGlob, const size_t mGlob) const;
 
     /// Returns the global Species mole fractions.
     /*!
@@ -221,7 +221,7 @@ namespace Cantera {
      * @param k local index of the species within the phase
      * @param p index of the phase
      */
-    int speciesIndex(index_t k, index_t p) const {
+    size_t speciesIndex(index_t k, index_t p) const {
       return m_spstart[p] + k;
     }
 
@@ -596,7 +596,7 @@ namespace Cantera {
      *  m_spphase[kGlobal] = iPhase
      *  Length = number of global species
      */
-    vector_int m_spphase;
+    std::vector<size_t> m_spphase;
 
     //! Vector of ints containing of first species index in the global list of species
     //! for each phase
@@ -604,7 +604,7 @@ namespace Cantera {
      *  kfirst = m_spstart[ip], kfirst is the index of the first species in the ip'th
      *                          phase.
      */
-    vector_int m_spstart;
+    std::vector<size_t> m_spstart;
 
     //! String names of the global elements
     /*!
@@ -629,7 +629,7 @@ namespace Cantera {
     /*!
      * -> used in the construction. However, wonder if it needs to be global.
      */
-    std::map<std::string, int> m_enamemap;
+    std::map<std::string, size_t> m_enamemap;
 
     /**
      *   Number of phases in the MultiPhase object
@@ -658,7 +658,7 @@ namespace Cantera {
     /*!
      * If there is none, then this is equal to -1
      */
-    int m_eloc;
+    size_t m_eloc;
 
     //! Vector of bools indicating whether temperatures are ok for phases.
     /*!

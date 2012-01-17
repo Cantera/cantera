@@ -110,8 +110,8 @@ namespace Cantera {
 
     // Set to upper case and scientific notation
     m_cout.setf(ios_base::scientific | ios_base::uppercase);
-    int wold = m_cout.width(wMin); 
-    int pold = m_cout.precision(p);
+    int wold = (int) m_cout.width(wMin);
+    int pold = (int) m_cout.precision(p);
 
     m_cout << d;
     // Return the precision to the previous value;

@@ -245,7 +245,7 @@ namespace Cantera {
      * @param state    output vector. Must be of length  nSpecies() + 2 or
      *                 greater.
      */
-    void saveState(int lenstate, doublereal* state) const;
+    void saveState(size_t lenstate, doublereal* state) const;
       
     //!Restore a state saved on a previous call to saveState.
     /*!
@@ -258,7 +258,7 @@ namespace Cantera {
      *  @param lenstate   Length of the state vector
      *  @param state      Vector of state conditions.
      */
-    void restoreState(int lenstate, const doublereal* state);
+    void restoreState(size_t lenstate, const doublereal* state);
 
     /**
      * Set the species mole fractions by name. 

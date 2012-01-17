@@ -1480,7 +1480,7 @@ namespace Cantera {
        */
       std::vector<const XML_Node *> xspecies= speciesData(); 
       std::string kname, jname;
-      int jj = xspecies.size();
+      size_t jj = xspecies.size();
       for (k = 0; k < m_kk; k++) {
 	int jmap = -1;
 	kname = speciesName(k);

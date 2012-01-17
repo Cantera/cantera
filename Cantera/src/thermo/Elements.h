@@ -103,7 +103,7 @@ namespace Cantera {
     /*!
      *  @param m element index
      */
-    int atomicNumber(int m) const { return m_atomicNumbers[m]; }
+    int atomicNumber(size_t m) const { return m_atomicNumbers[m]; }
 
     //! Entropy at 298.15 K and 1 bar of stable state
     //! of the element
@@ -141,7 +141,7 @@ namespace Cantera {
     /*!
      * @param m Element index. If m < 0 or m >= nElements() an exception is thrown.
      */
-    std::string elementName(int m) const;
+    std::string elementName(size_t m) const;
       
     //!   Returns a string vector containing the element names  
     /*!

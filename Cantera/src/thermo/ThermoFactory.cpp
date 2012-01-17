@@ -291,11 +291,10 @@ namespace Cantera {
     // used to check that each species is declared only once
     std::map<std::string, bool> declared;
     
-    int nspa = spArray_dbases.size();
     int nSpecies = 0;
     bool skip;
 
-    for (int jsp = 0; jsp < nspa; jsp++) {
+    for (int jsp = 0; jsp < spArray_dbases.size(); jsp++) {
       const XML_Node& speciesArray = *spArray_names[jsp]; 
       
       // Get the top XML for the database
@@ -593,11 +592,8 @@ namespace Cantera {
       th->setSpeciesThermo(spth);
     }
 
-
     int k = 0;
-
-    int nsp = spDataNodeList.size();
-    for (int i = 0; i < nsp; i++) {
+    for (int i = 0; i < spDataNodeList.size(); i++) {
       XML_Node *s = spDataNodeList[i];
       AssertTrace(s != 0);
       bool ok = installSpecies(k, *s, *th, spth, spRuleList[i], 
@@ -760,8 +756,7 @@ namespace Cantera {
     }
     vector<XML_Node*> xspecies;
     phaseSpeciesData->getChildren("species", xspecies);
-    int jj = xspecies.size();
-    for (int j = 0; j < jj; j++) {
+    for (int j = 0; j < xspecies.size(); j++) {
       const XML_Node& sp = *xspecies[j];
       jname = sp["name"];
       if (jname == kname) {

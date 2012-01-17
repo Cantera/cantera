@@ -645,14 +645,13 @@ namespace Cantera {
 					const std::vector<XML_Node*>& tp)
   { 				
     const XML_Node * fptr = tp[0];
-    int nRegTmp = tp.size();
     int nRegions = 0;
     vector_fp cPoly;
     Nasa9Poly1 *np_ptr = 0; 
     std::vector<Nasa9Poly1 *> regionPtrs;
     doublereal tmin, tmax, pref = OneAtm;
     // Loop over all of the possible temperature regions
-    for (int i = 0; i < nRegTmp; i++) {
+    for (int i = 0; i < tp.size(); i++) {
       fptr = tp[i];
       if (fptr) {
 	if (fptr->name() == "NASA9") {

@@ -239,7 +239,6 @@ namespace Cantera {
     m_dens = molarDensity*meanMolecularWeight();
   }
 
-
   void State::init(const array_fp& mw) {
     m_kk = mw.size();
     m_molwts.resize(m_kk);

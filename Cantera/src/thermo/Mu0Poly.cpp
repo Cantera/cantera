@@ -221,7 +221,7 @@ namespace Cantera {
     if (uuu == "Dimensionless") {
       dimensionlessMu0Values = true;
     }
-    int ns = cValues.size();
+    size_t ns = cValues.size();
     if (ns != numPoints) {
       throw CanteraError("installMu0ThermoFromXML",
 			 "numPoints inconsistent while processing "
