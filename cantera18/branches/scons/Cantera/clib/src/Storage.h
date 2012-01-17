@@ -36,15 +36,15 @@ public:
     }
 
 
-    int addThermo(Cantera::ThermoPhase* th);
-    int addKinetics(Cantera::Kinetics* kin);
-    int addTransport(Cantera::Transport* tr);
+    size_t addThermo(Cantera::ThermoPhase* th);
+    size_t addKinetics(Cantera::Kinetics* kin);
+    size_t addTransport(Cantera::Transport* tr);
     //    int addNewTransport(int model, char* dbase, int th, int loglevel);
     int clear();
     void deleteKinetics(int n);
     void deleteThermo(int n);
     void deleteTransport(int n);
-    int nThermo();
+    size_t nThermo();
     static Storage* __storage;
 };
 
@@ -56,7 +56,7 @@ inline Cantera::Kinetics* kin(int n) {
     return Storage::__storage->__ktable[n];
 }
 
-inline Cantera::ThermoPhase* th(int n) {
+inline Cantera::ThermoPhase* th(size_t n) {
     return Storage::__storage->__thtable[n];
 }
 

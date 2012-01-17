@@ -125,13 +125,13 @@ namespace Cantera {
      * Returns an integer index number. This is for internal use
      * of Cantera, and may be removed in the future.
      */
-    int index() const ;
+    size_t index() const ;
 
     /**
      * Set an integer index number. This is for internal use of
      * Cantera, and may be removed in the future.
      */
-    void setIndex(int i);
+    void setIndex(size_t i);
 
     //! Set the number of dimensions to be expected in flux expressions
     /*!
@@ -428,8 +428,8 @@ namespace Cantera {
 
     thermo_t*  m_thermo;  ///< pointer to the object representing the phase 
     bool      m_ready;    ///< true if finalize has been called
-    size_t    m_nmin;     ///< number of species
-    int       m_index;
+    size_t m_nmin;     ///< number of species
+    size_t m_index;
 
     //! Number of dimensions used in flux expresions
     int       m_nDim;

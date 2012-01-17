@@ -197,7 +197,7 @@ namespace Cantera {
         std::vector<std::string>& excluded() { return m_exclude; }
         std::vector<size_t> species();
         vector_int reactions();
-        void findMajorPaths(doublereal threshold, int lda, doublereal* a);
+        void findMajorPaths(doublereal threshold, size_t lda, doublereal* a);
         void setFont(std::string font) {
             m_font = font;
         }

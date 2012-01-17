@@ -102,13 +102,13 @@ namespace CanteraZeroD {
          */
         virtual void updateState(doublereal* y);
 
-        virtual int nSensParams();
+        virtual size_t nSensParams();
         virtual void addSensitivityReaction(int rxn);
 
         virtual std::string sensParamID(int p) { return m_pname[p]; }
 
         //        virtual std::string component(int k) const;
-        virtual int componentIndex(std::string nm) const;
+        virtual size_t componentIndex(std::string nm) const;
 
     protected:
         
@@ -123,12 +123,12 @@ namespace CanteraZeroD {
         vector_fp m_sdot;            // surface production rates
         bool m_chem;
         bool m_energy;
-        int m_nv;
+        size_t m_nv;
 
-        int m_nsens;
+        size_t m_nsens;
         vector_int m_pnum;
         std::vector<std::string> m_pname;
-        vector_int m_nsens_wall;
+        std::vector<size_t> m_nsens_wall;
         vector_fp m_mult_save;
 
     private:

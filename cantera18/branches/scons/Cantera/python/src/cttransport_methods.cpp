@@ -10,7 +10,7 @@ py_transport_new(PyObject *self, PyObject *args) {
     if (!PyArg_ParseTuple(args, "sii:transport_new", &model, 
             &ph, &loglevel)) 
         return NULL;
-    int n = newTransport(model, ph, loglevel);
+    int n = int(newTransport(model, ph, loglevel));
     if (n < 0) return reportError(n);
     return Py_BuildValue("i",n);
 }

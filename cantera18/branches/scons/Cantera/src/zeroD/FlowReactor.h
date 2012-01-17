@@ -59,7 +59,7 @@ namespace CanteraZeroD {
 
         double speed() const { return m_speed; }
         double distance() const { return m_dist; }
-        virtual int componentIndex(std::string nm) const;
+        virtual size_t componentIndex(std::string nm) const;
 
     protected:
         

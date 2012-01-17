@@ -14,10 +14,10 @@ extern "C" {
   EEXXTT int DLL_CPREFIX mix_assign(int i, int j);
   EEXXTT int DLL_CPREFIX mix_addPhase(int i, int j, double moles);
   EEXXTT int DLL_CPREFIX mix_init(int i);
-  EEXXTT int DLL_CPREFIX mix_nElements(int i);
-  EEXXTT int DLL_CPREFIX mix_elementIndex(int i, char* name);
+  EEXXTT size_t DLL_CPREFIX mix_nElements(int i);
+  EEXXTT size_t DLL_CPREFIX mix_elementIndex(int i, char* name);
   EEXXTT size_t DLL_CPREFIX mix_speciesIndex(int i, int k, int p);
-  EEXXTT int DLL_CPREFIX mix_nSpecies(int i);
+  EEXXTT size_t DLL_CPREFIX mix_nSpecies(int i);
   EEXXTT int DLL_CPREFIX mix_setTemperature(int i, double t);
   EEXXTT double DLL_CPREFIX mix_temperature(int i);
   EEXXTT double DLL_CPREFIX mix_minTemp(int i);
@@ -27,10 +27,10 @@ extern "C" {
   EEXXTT int DLL_CPREFIX mix_setPressure(int i, double p);
   EEXXTT double DLL_CPREFIX mix_pressure(int i);
   EEXXTT double DLL_CPREFIX mix_nAtoms(int i, int k, int m);
-  EEXXTT double DLL_CPREFIX mix_nPhases(int i);
+  EEXXTT size_t DLL_CPREFIX mix_nPhases(int i);
   EEXXTT double DLL_CPREFIX mix_phaseMoles(int i, int n);
   EEXXTT int DLL_CPREFIX mix_setPhaseMoles(int i, int n, double v);
-  EEXXTT int DLL_CPREFIX mix_setMoles(int i, int nlen, double* n);
+  EEXXTT int DLL_CPREFIX mix_setMoles(int i, size_t nlen, double* n);
   EEXXTT int DLL_CPREFIX mix_setMolesByName(int i, char* n);
   EEXXTT double DLL_CPREFIX mix_speciesMoles(int i, int k);
   EEXXTT double DLL_CPREFIX mix_elementMoles(int i, int m);
@@ -40,7 +40,7 @@ extern "C" {
 					int printLvl, int solver,
 					double rtol, int maxsteps,
 					int maxiter, int loglevel);
-  EEXXTT int DLL_CPREFIX mix_getChemPotentials(int i, int lenmu, double* mu);
+  EEXXTT int DLL_CPREFIX mix_getChemPotentials(int i, size_t lenmu, double* mu);
   EEXXTT int DLL_CPREFIX mix_getValidChemPotentials(int i, double bad_mu, 
 					    int standard, int lenmu, double* mu);
 
@@ -50,7 +50,7 @@ extern "C" {
   EEXXTT double DLL_CPREFIX mix_cp(int i);
   EEXXTT double DLL_CPREFIX mix_volume(int i);
 
-  EEXXTT int DLL_CPREFIX mix_speciesPhaseIndex(int i, int k);
+  EEXXTT size_t DLL_CPREFIX mix_speciesPhaseIndex(int i, int k);
   EEXXTT double DLL_CPREFIX mix_moleFraction(int i, int k);
 
 }

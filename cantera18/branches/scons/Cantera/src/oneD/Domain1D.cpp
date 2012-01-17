@@ -10,12 +10,12 @@ using namespace std;
 namespace Cantera {
 
     void Domain1D::
-    setTolerances(int nr, const doublereal* rtol, 
-        int na, const doublereal* atol, int ts) {
+    setTolerances(size_t nr, const doublereal* rtol,
+	size_t na, const doublereal* atol, int ts) {
         if (nr < m_nv || na < m_nv)
             throw CanteraError("Domain1D::setTolerances",
                 "wrong array size for solution error tolerances. "
-                "Size should be at least "+int2str(m_nv));
+                "Size should be at least "+int2str(int(m_nv)));
         if (ts >= 0) {
             copy(rtol, rtol + m_nv, m_rtol_ss.begin());
             copy(atol, atol + m_nv, m_atol_ss.begin());
@@ -27,7 +27,7 @@ namespace Cantera {
     }
 
     void Domain1D::
-    setTolerances(int n, doublereal rtol, doublereal atol, int ts) {
+    setTolerances(size_t n, doublereal rtol, doublereal atol, int ts) {
         if (ts >= 0) {
             m_rtol_ss[n] = rtol;
             m_atol_ss[n] = atol;
@@ -69,28 +69,28 @@ namespace Cantera {
     }
     
     void Domain1D::
-    eval(int jg, doublereal* xg, doublereal* rg, 
+    eval(size_t jg, doublereal* xg, doublereal* rg,
         integer* mask, doublereal rdt) {
 
-        if (jg >=0 && (jg < firstPoint() - 1 || jg > lastPoint() + 1)) return;
+        if (jg != -1 && (jg + 1 < firstPoint() || jg > lastPoint() + 1)) return;
 
         // if evaluating a Jacobian, compute the steady-state residual
-        if (jg >= 0) rdt = 0.0;
+        if (jg != -1) rdt = 0.0;
 
         // start of local part of global arrays
         doublereal* x = xg + loc();
         doublereal* rsd = rg + loc();
         integer* diag = mask + loc();
         
-        int jmin, jmax, jpt,  j, i;
+        size_t jmin, jmax, jpt,  j, i;
         jpt = jg - firstPoint();
         
-        if (jg < 0) {      // evaluate all points
+        if (jg == -1) {      // evaluate all points
             jmin = 0;
             jmax = m_points - 1;
         }
         else {            // evaluate points for Jacobian
-            jmin = std::max(jpt-1, 0);
+            jmin = std::max<size_t>(jpt-1, 0);
             jmax = std::min(jpt+1,m_points-1);
         }
 
@@ -113,11 +113,10 @@ namespace Cantera {
     
 
     // called to set up initial grid, and after grid refinement
-    void Domain1D::setupGrid(int n, const doublereal* z) {
+    void Domain1D::setupGrid(size_t n, const doublereal* z) {
         if (n > 1) {
             resize(m_nv, n);
-            int j;
-            for (j = 0; j < m_points; j++) m_z[j] = z[j];
+            for (size_t j = 0; j < m_points; j++) m_z[j] = z[j];
         }
     }
     
@@ -132,8 +131,8 @@ namespace Cantera {
      * Print the solution.
      */
     void Domain1D::showSolution(const doublereal* x) {
-        int nn = m_nv/5;
-        int i, j, n;
+        size_t nn = m_nv/5;
+        size_t i, j, n;
         //char* buf = new char[100];
         char buf[100];
         doublereal v;
@@ -157,7 +156,7 @@ namespace Cantera {
             }
             writelog("\n");
         }
-        int nrem = m_nv - 5*nn;
+        size_t nrem = m_nv - 5*nn;
         drawline();
         sprintf(buf, "\n        z   ");
         writelog(buf);
@@ -181,14 +180,14 @@ namespace Cantera {
     
     // initial solution
     void Domain1D::_getInitialSoln(doublereal* x) {
-        for (int j = 0; j < m_points; j++) {
-            for (int n = 0; n < m_nv; n++) {
+        for (size_t j = 0; j < m_points; j++) {
+            for (size_t n = 0; n < m_nv; n++) {
                 x[index(n,j)] = initialValue(n,j);
             }
         }
     }
 
-    doublereal Domain1D::initialValue(int n, int j) { 
+    doublereal Domain1D::initialValue(size_t n, size_t j) {
         throw CanteraError("Domain1D::initialValue",
                            "base class method called!");
         return 0.0;

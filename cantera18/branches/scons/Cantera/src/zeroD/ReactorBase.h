@@ -74,15 +74,15 @@ namespace CanteraZeroD {
 
         void addInlet(FlowDevice& inlet);
         void addOutlet(FlowDevice& outlet);
-        FlowDevice& inlet(int n = 0);
-        FlowDevice& outlet(int n = 0);
+        FlowDevice& inlet(size_t n = 0);
+        FlowDevice& outlet(size_t n = 0);
 
-        int nInlets() { return m_inlet.size(); }
-        int nOutlets() { return m_outlet.size(); }
-        int nWalls() { return m_wall.size(); }
+        size_t nInlets() { return m_inlet.size(); }
+        size_t nOutlets() { return m_outlet.size(); }
+        size_t nWalls() { return m_wall.size(); }
 
         void addWall(Wall& w, int lr);
-        Wall& wall(int n);
+        Wall& wall(size_t n);
 
         /**
          * Initialize the reactor. Must be called after specifying the
@@ -131,7 +131,7 @@ namespace CanteraZeroD {
         doublereal pressure() const { return m_pressure; }
         doublereal mass() const { return m_vol * density(); }
         const doublereal* massFractions() const { return DATA_PTR(m_state) + 2; }
-        doublereal massFraction(int k) const { return m_state[k+2]; }
+        doublereal massFraction(size_t k) const { return m_state[k+2]; }
 
         //@}
 
@@ -142,12 +142,12 @@ namespace CanteraZeroD {
 
     protected:
  
-        int m_nsp;
+        size_t m_nsp;
         thermo_t*  m_thermo;
         doublereal m_time;
         doublereal m_vol, m_vol0;
         bool m_init;
-        int m_nInlets, m_nOutlets;
+        size_t m_nInlets, m_nOutlets;
         bool m_open;
         doublereal m_enthalpy;
         doublereal m_intEnergy;

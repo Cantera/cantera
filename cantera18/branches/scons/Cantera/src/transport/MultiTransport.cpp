@@ -555,7 +555,7 @@ namespace Cantera {
         double* x1 = DATA_PTR(m_spwork1);
         double* x2 = DATA_PTR(m_spwork2);
         double* x3 = DATA_PTR(m_spwork3);
-        int n, nsp = m_thermo->nSpecies();
+        size_t n, nsp = m_thermo->nSpecies();
         m_thermo->restoreState(nsp+2, state1);
         double p1 = m_thermo->pressure();
         double t1 = state1[0];
@@ -627,8 +627,8 @@ namespace Cantera {
 
         // use LAPACK to solve the equations
         int info=0;
-        int nr = m_aa.nRows();
-        int nc = m_aa.nColumns();
+        size_t nr = m_aa.nRows();
+        size_t nc = m_aa.nColumns();
 
         ct_dgetrf(nr, nc, m_aa.ptrColumn(0), nr, &m_aa.ipiv()[0], info);
         if (info == 0) { 
@@ -665,7 +665,7 @@ namespace Cantera {
         const doublereal* state2, doublereal delta, 
         doublereal* fluxes) {
         getMassFluxes(state1, state2, delta, fluxes);
-        int k, nsp = m_thermo->nSpecies();
+        size_t k, nsp = m_thermo->nSpecies();
         for (k = 0; k < nsp; k++) {
             fluxes[k] /= m_mw[k];
         }

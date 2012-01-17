@@ -32,7 +32,7 @@ namespace Cantera {
      * @param ku number of superdiagonals
      * @param v initial value (default = 0.0)
      */
-    BandMatrix::BandMatrix(int n, int kl, int ku, doublereal v)  
+    BandMatrix::BandMatrix(size_t n, size_t kl, size_t ku, doublereal v)
         : m_factored(false), m_n(n), m_kl(kl), m_ku(ku) {
         data.resize(n*(2*kl + ku + 1));
         ludata.resize(n*(2*kl + ku + 1));
@@ -64,7 +64,7 @@ namespace Cantera {
         return *this;
     }
 
-    void BandMatrix::resize(int n, int kl, int ku, doublereal v) {
+    void BandMatrix::resize(size_t n, size_t kl, size_t ku, doublereal v) {
         m_n = n;
         m_kl = kl;
         m_ku = ku;
@@ -81,8 +81,8 @@ namespace Cantera {
      * Multiply A*b and write result to \c prod.
      */
     void BandMatrix::mult(const double* b, double* prod) const {
-        int nr = rows();
-        int m, j;
+        size_t nr = rows();
+        size_t m, j;
         double sum = 0.0;
         for (m = 0; m < nr; m++) {
             sum = 0.0;
@@ -99,8 +99,8 @@ namespace Cantera {
      * Multiply b*A and write result to \c prod.
      */
     void BandMatrix::leftMult(const double* b, double* prod) const {
-        int nc = columns();
-        int n, i;
+        size_t nc = columns();
+        size_t n, i;
         double sum = 0.0;
         for (n = 0; n < nc; n++) {
             sum = 0.0;
@@ -138,12 +138,12 @@ namespace Cantera {
 
 
 
-    int BandMatrix::solve(int n, const doublereal* b, doublereal* x) {
+    int BandMatrix::solve(size_t n, const doublereal* b, doublereal* x) {
         copy(b, b+n, x);
         return solve(n, x);
     }
 
-    int BandMatrix::solve(int n, doublereal* b) {
+    int BandMatrix::solve(size_t n, doublereal* b) {
         int info = 0;
         if (!m_factored) info = factor();
 	if (info == 0)
@@ -161,9 +161,9 @@ namespace Cantera {
     }
 
     ostream& operator<<(ostream& s, const BandMatrix& m) {
-        int nr = m.rows();
-        int nc = m.columns();
-        int i,j;
+        size_t nr = m.rows();
+        size_t nc = m.columns();
+        size_t i,j;
         for (i = 0; i < nr; i++) {
             for (j = 0; j < nc; j++) {
                 s << m(i,j) << ", ";

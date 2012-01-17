@@ -73,15 +73,15 @@ namespace Cantera {
 
     protected:
 
-        void _init(int n);
+        void _init(size_t n);
 
         StFlow *m_flow_left, *m_flow_right;
-        int m_ilr, m_left_nv, m_right_nv;
-        int m_left_loc, m_right_loc;
-        int m_left_points;
-        int m_nv, m_left_nsp, m_right_nsp;
-        int m_sp_left, m_sp_right;
-        int m_start_left, m_start_right;
+        size_t m_ilr, m_left_nv, m_right_nv;
+        size_t m_left_loc, m_right_loc;
+        size_t m_left_points;
+        size_t m_nv, m_left_nsp, m_right_nsp;
+        size_t m_sp_left, m_sp_right;
+        size_t m_start_left, m_start_right;
         ThermoPhase *m_phase_left, *m_phase_right;
         doublereal m_temp, m_mdot;
 
@@ -154,7 +154,7 @@ namespace Cantera {
         virtual doublereal massFraction(int k) {return m_yin[k];}
         virtual std::string componentName(int n) const;
         virtual void init();
-        virtual void eval(int jg, doublereal* xg, doublereal* rg,
+        virtual void eval(size_t jg, doublereal* xg, doublereal* rg,
             integer* diagg, doublereal rdt);
         virtual void save(XML_Node& o, doublereal* soln);
         virtual void restore(const XML_Node& dom, doublereal* soln);
@@ -163,7 +163,7 @@ namespace Cantera {
 
         int m_ilr;
         doublereal m_V0;
-        int m_nsp;
+        size_t m_nsp;
         vector_fp m_yin;
         std::string m_xstr;
         StFlow *m_flow;
@@ -187,7 +187,7 @@ namespace Cantera {
 
         virtual void init();
 
-        virtual void eval(int jg, doublereal* xg, doublereal* rg,
+        virtual void eval(size_t jg, doublereal* xg, doublereal* rg,
             integer* diagg, doublereal rdt);
 
         virtual void save(XML_Node& o, doublereal* soln);
@@ -218,7 +218,7 @@ namespace Cantera {
 
         virtual void init();
 
-        virtual void eval(int jg, doublereal* xg, doublereal* rg,
+        virtual void eval(size_t jg, doublereal* xg, doublereal* rg,
             integer* diagg, doublereal rdt);
 
         virtual void save(XML_Node& o, doublereal* soln);
@@ -250,7 +250,7 @@ namespace Cantera {
 
         virtual void init();
 
-        virtual void eval(int jg, doublereal* xg, doublereal* rg,
+        virtual void eval(size_t jg, doublereal* xg, doublereal* rg,
             integer* diagg, doublereal rdt);
 
         virtual void save(XML_Node& o, doublereal* soln);
@@ -298,14 +298,14 @@ namespace Cantera {
         virtual doublereal massFraction(int k) {return m_yres[k];}
         virtual std::string componentName(int n) const;
         virtual void init();
-        virtual void eval(int jg, doublereal* xg, doublereal* rg,
+        virtual void eval(size_t jg, doublereal* xg, doublereal* rg,
             integer* diagg, doublereal rdt);
         virtual void save(XML_Node& o, doublereal* soln);
         virtual void restore(const XML_Node& dom, doublereal* soln);
 
     protected:
 
-        int m_nsp;
+        size_t m_nsp;
         vector_fp m_yres;
         std::string m_xstr;
         StFlow *m_flow;
@@ -331,7 +331,7 @@ namespace Cantera {
 
         virtual void init();
 
-        virtual void eval(int jg, doublereal* xg, doublereal* rg,
+        virtual void eval(size_t jg, doublereal* xg, doublereal* rg,
             integer* diagg, doublereal rdt);
 
         virtual void save(XML_Node& o, doublereal* soln);
@@ -391,7 +391,7 @@ namespace Cantera {
 
         virtual void init();
 
-        virtual void eval(int jg, doublereal* xg, doublereal* rg,
+        virtual void eval(size_t jg, doublereal* xg, doublereal* rg,
             integer* diagg, doublereal rdt);
 
         virtual void save(XML_Node& o, doublereal* soln);
@@ -424,7 +424,7 @@ namespace Cantera {
 
         InterfaceKinetics* m_kin;
         SurfPhase* m_sphase;
-        int m_surfindex, m_nsp;
+        size_t m_surfindex, m_nsp;
         bool m_enabled;
         vector_fp m_work;
         vector_fp m_fixed_cov;

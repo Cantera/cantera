@@ -55,7 +55,7 @@ namespace Cantera {
         clock_t t0 = clock();
         bfill(0.0);
 
-        int n, m, ipt=0, i, j, nv, mv, iloc;
+        size_t n, m, ipt=0, i, j, nv, mv, iloc;
         doublereal rdx, dx, xsave;
 
         for (j = 0; j < m_points; j++) {
@@ -74,7 +74,7 @@ namespace Cantera {
 
                 // compute nth column of Jacobian
                 for (i = j - 1; i <= j+1; i++) {
-                    if (i >= 0 && i < m_points) {
+                    if (i != -1 && i < m_points) {
                         mv = m_resid->nVars(i);
                         iloc = m_resid->loc(i);
                         for (m = 0; m < mv; m++) {

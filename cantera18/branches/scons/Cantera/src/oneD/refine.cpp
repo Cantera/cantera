@@ -9,7 +9,7 @@ using namespace std;
 namespace Cantera {
 
     template<class M>
-    bool has_key(const M& m, int j) {
+    bool has_key(const M& m, size_t j) {
         if (m.find(j) != m.end()) return true;
         return false;
     }
@@ -40,11 +40,11 @@ namespace Cantera {
     }
             
 
-    int Refiner::analyze(int n, const doublereal* z, 
+    int Refiner::analyze(size_t n, const doublereal* z,
         const doublereal* x) {
 
         if (n >= m_npmax) {
-            writelog("max number of grid points reached ("+int2str(m_npmax)+".\n");
+            writelog("max number of grid points reached ("+int2str(int(m_npmax))+".\n");
             return -2;
         }
 
@@ -70,14 +70,14 @@ namespace Cantera {
         /**
          * find locations where cell size ratio is too large.
          */
-        int j;
+        size_t j;
         vector_fp dz(n-1, 0.0);
         string name;
         doublereal vmin, vmax, smin, smax, aa, ss;
         doublereal dmax, r;
         vector_fp v(n), s(n-1);
 
-        for (int i = 0; i < m_nv; i++) {
+        for (size_t i = 0; i < m_nv; i++) {
             if (m_active[i]) {
                 name = m_domain->componentName(i);
                 //writelog("refine: examining "+name+"\n");
@@ -173,23 +173,21 @@ namespace Cantera {
             dz[j] = z[j+1] - z[j];
             if (dz[j] > m_ratio*dz[j-1]) {
                 m_loc[j] = 1;
-                m_c["point "+int2str(j)] = 1;
+                m_c["point "+int2str(int(j))] = 1;
             }
             if (dz[j] < dz[j-1]/m_ratio) {
                 m_loc[j-1] = 1;
-                m_c["point "+int2str(j-1)] = 1;                
+                m_c["point "+int2str(int(j)-1)] = 1;
             }
             //if (m_loc.size() + n > m_npmax) goto done;
         }
 
-        
-
         //done:
         //m_did_analysis = true;
-        return static_cast<int>(m_loc.size());
+        return int(m_loc.size());
     }
 
-    double Refiner::value(const double* x, int i, int j) {
+    double Refiner::value(const double* x, size_t i, size_t j) {
         return x[m_domain->index(i,j)];
     }
 
@@ -200,9 +198,9 @@ namespace Cantera {
             writelog(string("Refining grid in ") + 
                 m_domain->id()+".\n"
                 +"    New points inserted after grid points ");
-            map<int, int>::const_iterator b = m_loc.begin();
+            map<size_t, int>::const_iterator b = m_loc.begin();
             for (; b != m_loc.end(); ++b) {
-                writelog(int2str(b->first)+" ");
+                writelog(int2str(int(b->first))+" ");
             }
             writelog("\n");
             writelog("    to resolve ");
@@ -232,7 +230,7 @@ namespace Cantera {
         }
 
         int jn = 0;
-        if (m_loc.size() == 0) {
+        if (m_loc.empty()) {
             copy(z, z + n,  zn);
             return 0;
         }

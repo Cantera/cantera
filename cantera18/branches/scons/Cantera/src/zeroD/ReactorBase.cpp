@@ -64,7 +64,7 @@ namespace CanteraZeroD {
         m_nwalls++;
     }
 
-    Wall& ReactorBase::wall(int n) {
+    Wall& ReactorBase::wall(size_t n) {
         return *m_wall[n];
     }
 
@@ -76,7 +76,7 @@ namespace CanteraZeroD {
         return mass()/mout;
     }
 
-    FlowDevice& ReactorBase::inlet(int n)  { return *m_inlet[n]; }
-    FlowDevice& ReactorBase::outlet(int n) { return *m_outlet[n]; }
+    FlowDevice& ReactorBase::inlet(size_t n)  { return *m_inlet[n]; }
+    FlowDevice& ReactorBase::outlet(size_t n) { return *m_outlet[n]; }
 
 }

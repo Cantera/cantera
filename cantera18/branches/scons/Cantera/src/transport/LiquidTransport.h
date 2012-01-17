@@ -729,7 +729,7 @@ namespace Cantera {
     /*!
      * Either 1, 2, or 3
      */
-    int m_nDim;
+    size_t m_nDim;
 
   private:
     

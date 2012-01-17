@@ -40,7 +40,7 @@ namespace CanteraZeroD {
   }
 
   void ReactorNet::initialize(doublereal t0) {
-    int n, nv;
+    size_t n, nv;
     char buf[100];
     m_nv = 0;
     m_reactors.clear();
@@ -79,7 +79,7 @@ namespace CanteraZeroD {
 
     m_connect.resize(m_nr*m_nr,0);
     m_ydot.resize(m_nv,0.0);
-    int i, j, nin, nout, nw;
+    size_t i, j, nin, nout, nw;
     ReactorBase *r, *rj;
     for (i = 0; i < m_nr; i++) {
       r = m_reactors[i];
@@ -180,9 +180,9 @@ namespace CanteraZeroD {
         
   void ReactorNet::eval(doublereal t, doublereal* y, 
 			doublereal* ydot, doublereal* p) {
-    int n;
-    int start = 0;
-    int pstart = 0;
+    size_t n;
+    size_t start = 0;
+    size_t pstart = 0;
     // use a try... catch block, since exceptions are not passed
     // through CVODE, since it is C code
     try {
@@ -238,9 +238,8 @@ namespace CanteraZeroD {
   }
 
   void ReactorNet::updateState(doublereal* y) {
-    int n;
-    int start = 0;
-    for (n = 0; n < m_nreactors; n++) {
+    size_t start = 0;
+    for (size_t n = 0; n < m_nreactors; n++) {
       m_reactors[n]->updateState(y + start);
       start += m_size[n];
     }
@@ -248,20 +247,18 @@ namespace CanteraZeroD {
 
   void ReactorNet::getInitialConditions(doublereal t0, 
 					size_t leny, doublereal* y) {
-    int n;
-    int start = 0;
-    for (n = 0; n < m_nreactors; n++) {
+    size_t start = 0;
+    for (size_t n = 0; n < m_nreactors; n++) {
       m_reactors[n]->getInitialConditions(t0, m_size[n], y + start);
       start += m_size[n];
     }
   }
 
-  int ReactorNet::globalComponentIndex(string species, int reactor) {
-    int start = 0;
-    int n;
+  size_t ReactorNet::globalComponentIndex(string species, size_t reactor) {
+    size_t start = 0;
+    size_t n;
     for (n = 0; n < reactor; n++) start += m_size[n];
     return start + m_reactors[n]->componentIndex(species);
   }
 
 }
-

@@ -98,15 +98,15 @@ extern "C" {
         return 0;
     }
 
-    int DLL_EXPORT mix_nElements(int i) {
+    size_t DLL_EXPORT mix_nElements(int i) {
         return _mix(i)->nElements();
      }
 
-    int DLL_EXPORT mix_elementIndex(int i, char* name) {
+    size_t DLL_EXPORT mix_elementIndex(int i, char* name) {
         return _mix(i)->elementIndex(string(name));
     }
 
-    int DLL_EXPORT mix_nSpecies(int i) {
+    size_t DLL_EXPORT mix_nSpecies(int i) {
         return _mix(i)->nSpecies();
     }
 
@@ -122,7 +122,7 @@ extern "C" {
             return DERR;
     }
 
-    double DLL_EXPORT mix_nPhases(int i) {
+    size_t DLL_EXPORT mix_nPhases(int i) {
         return _mix(i)->nPhases();
     }
 
@@ -138,7 +138,7 @@ extern "C" {
         return 0;
     }
 
-    int DLL_EXPORT mix_setMoles(int i, int nlen, double* n) {
+    int DLL_EXPORT mix_setMoles(int i, size_t nlen, double* n) {
         try {
             if (nlen < _mix(i)->nSpecies()) 
                 throw CanteraError("setMoles","array size too small.");
@@ -241,7 +241,7 @@ extern "C" {
     }
   }
 
-    int DLL_EXPORT mix_getChemPotentials(int i, int lenmu, double* mu) {
+    int DLL_EXPORT mix_getChemPotentials(int i, size_t lenmu, double* mu) {
         try {
             if (lenmu < _mix(i)->nSpecies()) 
                 throw CanteraError("getChemPotentials","array too small");
@@ -288,7 +288,7 @@ extern "C" {
         return _mix(i)->volume();
     }
 
-    int DLL_EXPORT mix_speciesPhaseIndex(int i, int k) {
+    size_t DLL_EXPORT mix_speciesPhaseIndex(int i, int k) {
         return _mix(i)->speciesPhaseIndex(k);
     }
 

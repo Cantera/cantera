@@ -2013,7 +2013,7 @@ namespace Cantera {
      * location of a phase object in a list, and is used by the
      * interface library (clib) routines for this purpose.
      */
-    int index() const { return m_index; }
+    size_t index() const { return m_index; }
 
 
     /**
@@ -2026,7 +2026,7 @@ namespace Cantera {
      *
      * @param m  Input the index number.
      */ 
-    void setIndex(int m) { m_index = m; }
+    void setIndex(size_t m) { m_index = m; }
     
 
     //! Set the equation of state parameters
@@ -2141,7 +2141,7 @@ namespace Cantera {
      * lead to unpredictable results if used in conjunction with
      * the interface library.
      */
-    int m_index;
+    size_t m_index;
 
     //! Storred value of the electric potential for this phase
     /*!

@@ -40,10 +40,10 @@ namespace CanteraZeroD {
     void Wall::setKinetics(Kinetics* left, Kinetics* right) {
         m_chem[0] = left; 
         m_chem[1] = right;
-        int ileft = 0, iright = 0;
+        size_t ileft = 0, iright = 0;
         if (left) {
             ileft = left->surfacePhaseIndex();
-            if (ileft >= 0) {
+            if (ileft != -1) {
                 m_surf[0] = (SurfPhase*)&left->thermo(ileft);
                 m_nsp[0] = m_surf[0]->nSpecies();
                 m_leftcov.resize(m_nsp[0]);
@@ -52,14 +52,14 @@ namespace CanteraZeroD {
         }
         if (right) {
             iright = right->surfacePhaseIndex();
-            if (iright >= 0) {
+            if (iright != -1) {
                 m_surf[1] = (SurfPhase*)&right->thermo(iright);
                 m_nsp[1] = m_surf[1]->nSpecies();
                 m_rightcov.resize(m_nsp[1]);
                 m_surf[1]->getCoverages(DATA_PTR(m_rightcov));
             }
         }
-        if (ileft < 0 || iright < 0) {
+        if (ileft == -1 || iright == -1) {
             throw CanteraError("Wall::setKinetics",
                 "specified surface kinetics manager does not "
                 "represent a surface reaction mechanism.");
@@ -138,7 +138,7 @@ namespace CanteraZeroD {
 
     void Wall::setSensitivityParameters(int lr, double* params) {
         // process sensitivity parameters
-        int n, npar;
+        size_t n, npar;
         if (lr == 0) {
             npar = m_pleft.size();
             for (n = 0; n < npar; n++) {
@@ -158,7 +158,7 @@ namespace CanteraZeroD {
     }
 
     void Wall::resetSensitivityParameters(int lr) {
-        int n, npar;
+        size_t n, npar;
         if (lr == 0) {
             npar = m_pleft.size();
             for (n = 0; n < npar; n++) {

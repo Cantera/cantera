@@ -17,11 +17,11 @@ extern "C" {
     EEXXTT int DLL_CPREFIX domain_clear();
     EEXXTT int DLL_CPREFIX domain_del(int i);
     EEXXTT int DLL_CPREFIX domain_type(int i);
-    EEXXTT int DLL_CPREFIX domain_index(int i);
-    EEXXTT int DLL_CPREFIX domain_nComponents(int i);
-    EEXXTT int DLL_CPREFIX domain_nPoints(int i);
+    EEXXTT size_t DLL_CPREFIX domain_index(int i);
+    EEXXTT size_t DLL_CPREFIX domain_nComponents(int i);
+    EEXXTT size_t DLL_CPREFIX domain_nPoints(int i);
     EEXXTT int DLL_CPREFIX domain_componentName(int i, int n, int sz, char* nameout);
-    EEXXTT int DLL_CPREFIX domain_componentIndex(int i, char* name);
+    EEXXTT size_t DLL_CPREFIX domain_componentIndex(int i, char* name);
     EEXXTT int DLL_CPREFIX domain_setBounds(int i, int n, double lower, 
         double upper);
     EEXXTT double DLL_EXPORT domain_lowerBound(int i, int n);
@@ -30,7 +30,7 @@ extern "C" {
         double atol, int itime);
     EEXXTT double DLL_CPREFIX domain_rtol(int i, int n);
     EEXXTT double DLL_CPREFIX domain_atol(int i, int n);
-    EEXXTT int DLL_CPREFIX domain_setupGrid(int i, int npts, double* grid);
+    EEXXTT int DLL_CPREFIX domain_setupGrid(int i, size_t npts, double* grid);
     EEXXTT int DLL_CPREFIX domain_setID(int i, char* id);
     EEXXTT int DLL_CPREFIX domain_setDesc(int i, char* desc);
     EEXXTT double DLL_CPREFIX domain_grid(int i, int n);
@@ -58,20 +58,20 @@ extern "C" {
     EEXXTT int DLL_CPREFIX stflow_setTransport(int i, int itr, int iSoret);
     EEXXTT int DLL_CPREFIX stflow_enableSoret(int i, int iSoret);
     EEXXTT int DLL_CPREFIX stflow_setPressure(int i, double p);
-    EEXXTT int DLL_CPREFIX stflow_setFixedTempProfile(int i, int n, double* pos, 
-        int m, double* temp);
+    EEXXTT int DLL_CPREFIX stflow_setFixedTempProfile(int i, size_t n, double* pos,
+                                                      size_t m, double* temp);
     EEXXTT  int DLL_CPREFIX stflow_solveSpeciesEqs(int i, int flag);
     EEXXTT int DLL_CPREFIX stflow_solveEnergyEqn(int i, int flag);
 
     EEXXTT int DLL_CPREFIX sim1D_clear();
-    EEXXTT int DLL_CPREFIX sim1D_new(int nd, int* domains);
+    EEXXTT int DLL_CPREFIX sim1D_new(size_t nd, int* domains);
     EEXXTT int DLL_CPREFIX sim1D_del(int i);
     EEXXTT int DLL_CPREFIX sim1D_setValue(int i, int dom, int comp, int localPoint, double value);
     EEXXTT int DLL_CPREFIX sim1D_setProfile(int i, int dom, int comp, 
-        int np, double* pos, int nv, double* v);
+                                            size_t np, double* pos, size_t nv, double* v);
     EEXXTT int DLL_CPREFIX sim1D_setFlatProfile(int i, int dom, int comp, double v);
     EEXXTT int DLL_CPREFIX sim1D_showSolution(int i, char* fname);
-    EEXXTT int DLL_CPREFIX sim1D_setTimeStep(int i, double stepsize, int ns, integer* nsteps);
+    EEXXTT int DLL_CPREFIX sim1D_setTimeStep(int i, double stepsize, size_t ns, integer* nsteps);
     EEXXTT int DLL_CPREFIX sim1D_getInitialSoln(int i);
     EEXXTT int DLL_CPREFIX sim1D_solve(int i, int loglevel, int refine_grid);
     EEXXTT int DLL_CPREFIX sim1D_refine(int i, int loglevel);
@@ -92,7 +92,7 @@ extern "C" {
     EEXXTT int DLL_CPREFIX sim1D_setFixedTemperature(int i, double temp);
     EEXXTT int DLL_CPREFIX sim1D_evalSSJacobian(int i);
     EEXXTT double DLL_CPREFIX sim1D_jacobian(int i, int m, int n);
-    EEXXTT int DLL_CPREFIX sim1D_size(int i);
+    EEXXTT size_t DLL_CPREFIX sim1D_size(int i);
 }
 
 

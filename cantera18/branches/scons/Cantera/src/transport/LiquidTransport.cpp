@@ -348,26 +348,26 @@ namespace Cantera {
   void  LiquidTransport::getFluidMobilities(doublereal* const mobil_f) {
     getMixDiffCoeffs(DATA_PTR(m_spwork));
     doublereal c1 = 1.0 / (GasConstant * m_temp);
-    for (int k = 0; k < m_nsp; k++) {
+    for (size_t k = 0; k < m_nsp; k++) {
       mobil_f[k] = c1 * m_spwork[k];
     }
   } 
   //================================================================================================
   void LiquidTransport::set_Grad_V(const doublereal* const grad_V) {
-    for (int a = 0; a < m_nDim; a++) {
+    for (size_t a = 0; a < m_nDim; a++) {
       m_Grad_V[a] = grad_V[a];
     }
   }
   //================================================================================================
   void LiquidTransport::set_Grad_T(const doublereal* const grad_T) {
-    for (int a = 0; a < m_nDim; a++) {
+    for (size_t a = 0; a < m_nDim; a++) {
       m_Grad_T[a] = grad_T[a];
     }
   }
   //================================================================================================
   void LiquidTransport::set_Grad_X(const doublereal* const grad_X) {
-    int itop = m_nDim * m_nsp;
-    for (int i = 0; i < itop; i++) {
+    size_t itop = m_nDim * m_nsp;
+    for (size_t i = 0; i < itop; i++) {
       m_Grad_X[i] = grad_X[i];
     }
     update_Grad_lnAC();
@@ -392,7 +392,7 @@ namespace Cantera {
     } 
     if (!m_cond_mix_ok) {
       doublereal sum1 = 0.0, sum2 = 0.0;
-      for (int k = 0; k < m_nsp; k++) {
+      for (size_t k = 0; k < m_nsp; k++) {
 	sum1 += m_molefracs[k] * m_condSpecies[k];
 	sum2 += m_molefracs[k] / m_condSpecies[k];
       }
@@ -413,7 +413,7 @@ namespace Cantera {
    * zeros.
    */
   void LiquidTransport::getThermalDiffCoeffs(doublereal* const dt) {
-    for (int k = 0; k < m_nsp; k++) {
+    for (size_t k = 0; k < m_nsp; k++) {
       dt[k] = 0.0;
     }
   }
@@ -775,7 +775,7 @@ namespace Cantera {
   void LiquidTransport::stefan_maxwell_solve() {
     int i, j, a;
     doublereal tmp;
-    int VIM = m_nDim;
+    size_t VIM = m_nDim;
     m_B.resize(m_nsp, VIM);
     //! grab a local copy of the molecular weights
     const vector_fp& M =  m_thermo->molecularWeights();

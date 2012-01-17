@@ -74,7 +74,7 @@ namespace CanteraZeroD {
         virtual void updateMassFlowRate(doublereal time) {}
 
         // mass flow rate of outlet species k
-        doublereal outletSpeciesMassFlowRate(int k);
+        doublereal outletSpeciesMassFlowRate(size_t k);
 
         // specific enthalpy
         doublereal enthalpy_mass();
@@ -162,10 +162,10 @@ namespace CanteraZeroD {
 
     private:
 
-        int m_nspin, m_nspout;
+        size_t m_nspin, m_nspout;
         ReactorBase* m_in;
         ReactorBase* m_out;
-        vector_int m_in2out, m_out2in;
+        std::vector<size_t> m_in2out, m_out2in;
 
         void warn(std::string meth) {
             writelog(std::string("Warning: method ") + meth + " of base class "

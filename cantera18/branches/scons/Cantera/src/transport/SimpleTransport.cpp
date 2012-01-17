@@ -457,21 +457,21 @@ namespace Cantera {
   //================================================================================================
   void SimpleTransport::set_Grad_V(const doublereal* const grad_V) {
     doMigration_ = false;
-    for (int a = 0; a < m_nDim; a++) {
+    for (size_t a = 0; a < m_nDim; a++) {
       m_Grad_V[a] = grad_V[a];
       if (fabs(grad_V[a]) > 1.0E-13) doMigration_ = true;
     }
   }
   //================================================================================================
   void SimpleTransport::set_Grad_T(const doublereal* const grad_T) {
-    for (int a = 0; a < m_nDim; a++) {
+    for (size_t a = 0; a < m_nDim; a++) {
       m_Grad_T[a] = grad_T[a];
     }
   }
   //================================================================================================
   void SimpleTransport::set_Grad_X(const doublereal* const grad_X) {
-    int itop = m_nDim * m_nsp;
-    for (int i = 0; i < itop; i++) {
+    size_t itop = m_nDim * m_nsp;
+    for (size_t i = 0; i < itop; i++) {
       m_Grad_X[i] = grad_X[i];
     }
   }
@@ -505,7 +505,7 @@ namespace Cantera {
 	m_lambda = m_condSpecies[0];
       } else if (compositionDepType_ == 1) {
 	m_lambda = 0.0;
-	for (int k = 0; k < m_nsp; k++) {
+	for (size_t k = 0; k < m_nsp; k++) {
 	  m_lambda += m_condSpecies[k] * m_molefracs[k];
 	}
       }
@@ -522,7 +522,7 @@ namespace Cantera {
    * zeros.
    */
   void SimpleTransport::getThermalDiffCoeffs(doublereal* const dt) {
-    for (int k = 0; k < m_nsp; k++) {
+    for (size_t k = 0; k < m_nsp; k++) {
       dt[k] = 0.0;
     }
   }

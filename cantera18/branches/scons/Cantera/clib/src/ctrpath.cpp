@@ -138,7 +138,7 @@ extern "C" {
     }
 
     int DLL_EXPORT rdiag_findMajor(int i, double threshold, 
-        int lda, double* a) {
+        size_t lda, double* a) {
         _diag(i)->findMajorPaths(threshold, lda, a);
         return 0;
     }
