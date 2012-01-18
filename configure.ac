@@ -5,7 +5,7 @@ AC_PREREQ(2.61)
 AC_INIT([cantera], [1.8.0], [nick@ices.utexas.edu])
 AC_CONFIG_HEADER(config.h)
 AC_CONFIG_AUX_DIR([build-aux])
-AX_ENABLE_BUILDDIR
+#AX_ENABLE_BUILDDIR
 AM_INIT_AUTOMAKE(-Wall -Werror)
 
 # snarf and provide versioning numbers
@@ -69,6 +69,8 @@ AC_OUTPUT(Makefile examples/Makefile                                       \
 		   Cantera/Makefile                                        \
                    Cantera/user/Makefile                                   \
                    Cantera/src/Makefile                                    \
+                   Cantera/cxx/Makefile                                    \
+                   Cantera/cxx/src/Makefile                                \
                    Cantera/src/base/Makefile                               \
                    Cantera/src/converters/Makefile                         \
 		   Cantera/src/kinetics/Makefile                           \

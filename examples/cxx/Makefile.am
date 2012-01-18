@@ -8,8 +8,7 @@ cc_sources = examples.cpp kinetics_example1.cpp kinetics_example2.cpp \
 LINK                 = -lkinetics -ltransport -lthermo -lctnumerics
 LINK                += -lctbase -ltpx -lctmath -lconverters 
 LINK                += -luser -lcvode -lstdc++ -lctlapack 
-LINK                += -lctblas
-# -lctf2c -lctcxx -luser -lstdc++
+LINK                += -lctblas -lctf2c -lctcxx
 
 LIBS                 = -L$(top_builddir)/build/lib/ $(LINK)
 
