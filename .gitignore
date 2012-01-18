@@ -25,3 +25,5 @@ config.log
 .pydevproject
 .settings
 Cantera/matlab/build_cantera.m
+*.gcda
+*.gcno
