@@ -6,8 +6,8 @@ cc_sources = Reactor.cpp ReactorBase.cpp FlowDevice.cpp Wall.cpp \
              ReactorNet.cpp FlowReactor.cpp ConstPressureReactor.cpp \
              ReactorFactory.cpp
 
-INCLUDES                = -I../base -I../thermo -I../kinetics -I../numerics -I../../../
-AM_CXXFLAGS             = $(INCLUDES)
+AM_CPPFLAGS             = -I../base -I../thermo -I../kinetics -I../numerics -I../../../
+AM_CXXFLAGS             = $(AM_CPPFLAGS)
 
 lib_LTLIBRARIES         = $(top_builddir)/build/lib/libzeroD.la
 library_includedir      = $(includedir)

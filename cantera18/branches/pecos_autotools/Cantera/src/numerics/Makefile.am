@@ -8,8 +8,8 @@ cc_sources = DenseMatrix.cpp funcs.cpp Func1.cpp ODE_integrators.cpp \
 	     BandMatrix.cpp DAE_solvers.cpp sort.cpp                 \
 	     SquareMatrix.cpp ResidJacEval.cpp NonlinearSolver.cpp
 
-INCLUDES                = -I../base -I../../../
-AM_CXXFLAGS             = $(INCLUDES)
+AM_CPPFLAGS             = -I../base -I../../../
+AM_CXXFLAGS             = $(AM_CPPFLAGS)
 
 lib_LTLIBRARIES         = $(top_builddir)/build/lib/libctnumerics.la
 library_includedir      = $(includedir)

@@ -5,8 +5,8 @@ h_sources  = Inlet1D.h MultiJac.h Sim1D.h StFlow.h \
 	     Surf1D.h  Domain1D.h MultiNewton.h OneDim.h \
 	     Resid1D.h Solid1D.h  efine.h
 
-INCLUDES                = -I../base -I../thermo -I../kinetics -I../transport -I../numerics -I../../../
-AM_CXXFLAGS             = $(INCLUDES) -fPIC
+AM_CPPFLAGS             = -I../base -I../thermo -I../kinetics -I../transport -I../numerics -I../../../
+AM_CXXFLAGS             = $(AM_CPPFLAGS) -fPIC
 
 lib_LTLIBRARIES         = $(top_builddir)/build/lib/liboneD.la
 library_includedir      = $(includedir)

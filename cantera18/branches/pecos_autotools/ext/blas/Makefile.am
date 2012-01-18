@@ -6,9 +6,9 @@ fc_sources              = dasum.f dcabs1.f ddot.f dgemm.f dger.f drot.f drotm.f 
                           dspr.f dsymm.f dsyr2.f dsyr.f dtbmv.f dtpmv.f dtrmm.f \
                           dtrsm.f dzasum.f icamax.f isamax.f lsame.f
 
-INCLUDES                = 
-AM_CXXFLAGS             = $(INCLUDES)
-AM_FCFLAGS              = $(INCLUDES)
+AM_CPPFLAGS             = 
+AM_CXXFLAGS             = $(AM_CPPFLAGS)
+AM_FCFLAGS              = $(AM_CPPFLAGS)
 
 lib_LTLIBRARIES         = $(top_builddir)/build/lib/libctblas.la
 library_includedir      = $(top_builddir)/build/include

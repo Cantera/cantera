@@ -4,8 +4,8 @@ h_sources               = Methane.h Nitrogen.h Oxygen.h Water.h Hydrogen.h Redli
 cc_sources              = Methane.cpp Nitrogen.cpp Oxygen.cpp Water.cpp Hydrogen.cpp RedlichKwong.cpp \
 		          CarbonDioxide.cpp Heptane.cpp lk.cpp Sub.cpp utils.cpp HFC134a.cpp
 
-INCLUDES                = 
-AM_CXXFLAGS             = $(INCLUDES)
+AM_CPPFLAGS             = 
+AM_CXXFLAGS             = $(AM_CPPFLAGS)
 
 lib_LTLIBRARIES         = $(top_builddir)/build/lib/libtpx.la
 library_includedir      = $(top_builddir)/build/include

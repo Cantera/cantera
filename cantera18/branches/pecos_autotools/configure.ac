@@ -3,11 +3,10 @@
 
 AC_PREREQ(2.61)
 AC_INIT([cantera], [1.8.0], [nick@ices.utexas.edu])
-AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_HEADER(config.h)
 AC_CONFIG_AUX_DIR([build-aux])
 AX_ENABLE_BUILDDIR
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE(-Wall -Werror)
 
 # snarf and provide versioning numbers
 AX_SPLIT_VERSION

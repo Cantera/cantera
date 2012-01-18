@@ -6,9 +6,9 @@ fc_sources              = ddaspk.f dgbfa.f dgbsl.f            \
 			  polfit.f pvalue.f xercnt.f xerhlt.f \
 			  xermsg.f xerprn.f xersve.f xgetua.f 
 
-INCLUDES                = 
-AM_CXXFLAGS             = $(INCLUDES)
-AM_FCFLAGS              = $(INCLUDES)
+AM_CPPFLAGS             = 
+AM_CXXFLAGS             = $(AM_CPPFLAGS)
+AM_FCFLAGS              = $(AM_CPPFLAGS)
 
 lib_LTLIBRARIES         = $(top_builddir)/build/lib/libctmath.la
 library_includedir      = $(top_builddir)/build/include

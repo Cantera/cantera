@@ -4,9 +4,9 @@ h_sources  = ChemEquil.h MultiPhase.h MultiPhaseEquil.h equil.h \
 cc_sources = BasisOptimize.cpp ChemEquil.cpp MultiPhase.cpp \
              MultiPhaseEquil.cpp equilibrate.cpp
 
-INCLUDES    = -I../base -I../thermo -I../numerics -I../../../ 
-INCLUDES   += -I../../../ext/f2c_libs/
-AM_CXXFLAGS = $(INCLUDES)
+AM_CPPFLAGS    = -I../base -I../thermo -I../numerics -I../../../ 
+AM_CPPFLAGS   += -I../../../ext/f2c_libs/
+AM_CXXFLAGS = $(AM_CPPFLAGS)
 
 lib_LTLIBRARIES         = $(top_builddir)/build/lib/libequil.la
 library_includedir      = $(includedir)

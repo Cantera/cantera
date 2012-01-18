@@ -1,7 +1,7 @@
 cc_sources              = user.cpp
 
-INCLUDES                = -I$(top_builddir)/build/include/ -I$(top_builddir)/build/include/cantera
-AM_CXXFLAGS             = $(INCLUDES)
+AM_CPPFLAGS             = -I$(top_builddir)/build/include/ -I$(top_builddir)/build/include/cantera
+AM_CXXFLAGS             = $(AM_CPPFLAGS)
 
 lib_LTLIBRARIES         = $(top_builddir)/build/lib/libuser.la
 library_includedir      = $(top_builddir)/build/include
