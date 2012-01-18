@@ -3,8 +3,8 @@ h_sources  = DiatomicMolecule.h LineBroadener.h Nuclei.h \
 
 cc_sources = LineBroadener.cpp rotor.cpp spectralUtilities.cpp
 
-INCLUDES                = -I../base -I../../../
-AM_CXXFLAGS             = $(INCLUDES)
+AM_CPPFLAGS             = -I../base -I../../../
+AM_CXXFLAGS             = $(AM_CPPFLAGS)
 
 lib_LTLIBRARIES         = $(top_builddir)/build/lib/libctspectra.la
 library_includedir      = $(includedir)

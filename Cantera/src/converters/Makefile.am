@@ -6,8 +6,8 @@ cc_sources = atomicWeightDB.cpp ck2ctml.cpp CKReader.cpp filter.cpp  \
 	     Reaction.cpp thermoFunctions.cpp ck2ct.cpp CKParser.cpp \
 	     ckr_utils.cpp NASA9Parser.cpp Species.cpp writelog.cpp
 
-INCLUDES                = -I../base -I../../../
-AM_CXXFLAGS             = $(INCLUDES)
+AM_CPPFLAGS             = -I../base -I../../../
+AM_CXXFLAGS             = $(AM_CPPFLAGS)
 
 lib_LTLIBRARIES         = $(top_builddir)/build/lib/libconverters.la
 library_includedir      = $(includedir)

@@ -10,8 +10,8 @@ cc_sources = AqueousTransport.cpp LiquidTransport.cpp MMCollisionInt.cpp \
              DustyGasTransport.cpp  MixTransport.cpp MultiTransport.cpp  \
 	     SolidTransport.cpp   TransportFactory.cpp 
 
-INCLUDES                = -I../base -I../thermo -I../numerics -I../../../
-AM_CXXFLAGS             = $(INCLUDES)
+AM_CPPFLAGS             = -I../base -I../thermo -I../numerics -I../../../
+AM_CXXFLAGS             = $(AM_CPPFLAGS)
 
 lib_LTLIBRARIES         = $(top_builddir)/build/lib/libtransport.la
 library_includedir      = $(includedir)

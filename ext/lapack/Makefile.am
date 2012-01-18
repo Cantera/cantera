@@ -10,9 +10,9 @@ fc_sources = dbdsqr.f dgbtrf.f dgbtf2.f dgbtrs.f dgbsv.f  \
              dormbr.f dorml2.f dormlq.f dormqr.f drscl.f  \
              ilaenv.f 
 
-INCLUDES                = 
-AM_CXXFLAGS             = $(INCLUDES)
-AM_FCFLAGS              = $(INCLUDES)
+AM_CPPFLAGS             = 
+AM_CXXFLAGS             = $(AM_CPPFLAGS)
+AM_FCFLAGS              = $(AM_CPPFLAGS)
 
 lib_LTLIBRARIES         = $(top_builddir)/build/lib/libctlapack.la
 library_includedir      = $(top_builddir)/build/include

@@ -13,8 +13,8 @@ LINK                += -lctblas
 
 LIBS                 = -L$(top_builddir)/build/lib/ $(LINK)
 
-INCLUDES             = -I../base -I$(top_builddir)/build/include/ -I$(top_builddir)/build/include/cantera
-AM_CXXFLAGS          = $(INCLUDES)
+AM_CPPFLAGS          = -I../base -I$(top_builddir)/build/include/ -I$(top_builddir)/build/include/cantera
+AM_CXXFLAGS          = $(AM_CPPFLAGS)
 
 bin_PROGRAMS         = cxx_examples
 library_includedir   = $(includedir)

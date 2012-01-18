@@ -24,8 +24,8 @@ cc_sources = State.cpp Elements.cpp Constituents.cpp Phase.cpp             \
              VPSSMgr_IdealGas.cpp VPSSMgr_ConstVol.cpp PDSS_ConstVol.cpp   \
 	     PDSS_IdealGas.cpp PDSS_SSVol.cpp 
 
-INCLUDES                = -I../base -I../../../
-AM_CXXFLAGS             = $(INCLUDES)
+AM_CPPFLAGS             = -I../base -I../../../
+AM_CXXFLAGS             = $(AM_CPPFLAGS)
 
 lib_LTLIBRARIES         = $(top_builddir)/build/lib/libthermo.la
 library_includedir      = $(includedir)

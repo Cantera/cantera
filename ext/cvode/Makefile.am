@@ -7,9 +7,9 @@ h_sources                = band.h cvband.h cvbandpre.h cvdense.h cvdiag.h  \
                            llnltyps.h nvector.h spgmr.h
 
 
-INCLUDES                = 
-AM_CXXFLAGS             = $(INCLUDES)
-AM_FCFLAGS              = $(INCLUDES)
+AM_CPPFLAGS             = 
+AM_CXXFLAGS             = $(AM_CPPFLAGS)
+AM_FCFLAGS              = $(AM_CPPFLAGS)
 
 lib_LTLIBRARIES         = $(top_builddir)/build/lib/libcvode.la
 library_includedir      = $(top_builddir)/build/include

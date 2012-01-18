@@ -36,9 +36,9 @@ cc_sources              = abort_.c c_log.c d_atn2.c dfe.c d_prod.c \
 
 h_sources               = f2c.h fio.h fmt.h fp.h lio.h rawio.h sysdep1.h
 
-INCLUDES                = 
-AM_CXXFLAGS             = $(INCLUDES)
-AM_FCFLAGS              = $(INCLUDES)
+AM_CPPFLAGS             = 
+AM_CXXFLAGS             = $(AM_CPPFLAGS)
+AM_FCFLAGS              = $(AM_CPPFLAGS)
 
 lib_LTLIBRARIES         = $(top_builddir)/build/lib/libctf2c.la
 library_includedir      = $(top_builddir)/build/include
