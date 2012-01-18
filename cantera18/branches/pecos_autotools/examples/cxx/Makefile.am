@@ -10,13 +10,13 @@ LINK                += -lctbase -ltpx -lctmath -lconverters
 LINK                += -luser -lcvode -lstdc++ -lctlapack 
 LINK                += -lctblas -lctf2c -lctcxx
 
-LIBS                 = -L$(top_builddir)/build/lib/ $(LINK)
-
-AM_CPPFLAGS          = -I../base -I$(top_builddir)/build/include/ -I$(top_builddir)/build/include/cantera
+#LIBS                 = -L$(top_builddir)/build/lib/ $(LINK)
+LIBS                 = -L/workspace/src/cantera/pecos_autotools/build/lib/ $(LINK)
+AM_CPPFLAGS          = -I. -I/workspace/src/cantera/pecos_autotools/build/include/
 AM_CXXFLAGS          = $(AM_CPPFLAGS)
 
 bin_PROGRAMS         = cxx_examples
-library_includedir   = $(includedir)
+library_includedir   = $(includedir) -I/workspace/src/cantera/pecos_autotools/build/include/
 
 #-----------------------
 # Cantera cxx examples
