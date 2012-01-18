@@ -5,12 +5,12 @@ cc_sources              = abort_.c c_log.c d_atn2.c dfe.c d_prod.c \
                           uninit.c z_abs.c arithchk.c close.c      \
                           d_cnjg.c d_imag.c d_sign.c ef1asc_.c     \
                           f77_aloc.c h_abs.c hl_lt.c i_dnnt.c      \
-                          i_sign.c lwrite.c pow_qq.c r_asin.c      \
+                          i_sign.c lwrite.c r_asin.c      \
                           rewind.c rsfe.c r_tanh.c s_paus.c util.c \
                           z_cos.c backspac.c c_sin.c d_cos.c       \
                           d_int.c d_sin.c ef1cmc_.c f77vers.c      \
                           h_dim.c h_mod.c i_indx.c lbitbits.c      \
-                          main.c pow_ri.c r_atan.c r_exp.c r_sign.c\
+                          pow_ri.c r_atan.c r_exp.c r_sign.c\
                           s_cat.c s_rnge.c wref.c z_div.c c_abs.c  \
 	                  c_sqrt.c d_cosh.c d_lg10.c d_sinh.c      \
                           endfile.c fmt.c h_dnnt.c h_nint.c iio.c  \
@@ -21,13 +21,13 @@ cc_sources              = abort_.c c_log.c d_atn2.c dfe.c d_prod.c \
                           h_sign.c i_len.c l_ge.c pow_ci.c pow_zz.c\
                           r_cnjg.c r_int.c r_sinh.c s_copy.c sue.c \
                           wsfe.c z_log.c c_cos.c d_acos.c derf_.c  \
-                          d_mod.c d_tan.c erfc_.c ftell64_.c       \
+                          d_mod.c d_tan.c erfc_.c                  \
                           h_len.c i77vers.c ilnw.c l_gt.c pow_dd.c \
-                          qbitbits.c r_cos.c r_lg10.c rsli.c sfe.c \
+                          r_cos.c r_lg10.c rsli.c sfe.c \
                           system_.c wsle.c z_sin.c c_div.c d_asin.c\
                           derfc_.c d_nint.c d_tanh.c err.c ftell_.c\
                           hl_ge.c i_abs.c i_mod.c l_le.c pow_di.c  \
-                          qbitshft.c r_cosh.c r_log.c rsne.c       \
+                          r_cosh.c r_log.c rsne.c       \
                           sig_die.c typesize.c wsne.c z_sqrt.c     \
                           c_exp.c d_atan.c d_exp.c dolio.c dtime_.c\
                           etime_.c getarg_.c hl_gt.c iargc_.c      \
