@@ -6,7 +6,6 @@
 #ifdef WITH_ELECTROLYTES
 #include "MolalityVPSSTP.h"
 #endif
-#include "sort.h"
 #include "global.h"
 
 #include <math.h>
@@ -799,35 +798,27 @@ namespace Cantera {
     }
 
     void MultiPhaseEquil::computeN() {
-        index_t m, k;
+	// Sort the list of species by mole fraction (decreasing order)
+	std::vector<std::pair<double, size_t> > moleFractions(m_nsp);
+	for (size_t k = 0; k < m_nsp; k++) {
+	    // use -Xk to generate reversed sort order
+	    moleFractions[k].first = - m_mix->speciesMoles(m_species[k]);
+	    moleFractions[k].second = k;
+	}
+	std::sort(moleFractions.begin(), moleFractions.end());
+	for (size_t k = 0; k < m_nsp; k++) {
+	    m_sortindex[k] = moleFractions[k].second;
+	}
 
-        // get the species moles
-
-        // sort mole fractions
-        doublereal molesum = 0.0;
-        for (k = 0; k < m_nsp; k++) {
-            m_work[k] = m_mix->speciesMoles(m_species[k]);
-            m_sortindex[k] = k;
-            molesum += m_work[k];
-        }
-        heapsort(m_work, m_sortindex);
-
-        // reverse order in sort index
-        index_t itmp;
-        for (k = 0; k < m_nsp/2; k++) {
-            itmp = m_sortindex[m_nsp-k-1];
-            m_sortindex[m_nsp-k-1] = m_sortindex[k];
-            m_sortindex[k] = itmp;
-        }
-        index_t ik, ij;
         bool ok;
-        for (m = 0; m < m_nel; m++) {
-            for (ik = 0; ik < m_nsp; ik++) {
+        for (size_t m = 0; m < m_nel; m++) {
+            size_t k;
+            for (size_t ik = 0; ik < m_nsp; ik++) {
                 k = m_sortindex[ik];
                 if (m_mix->nAtoms(m_species[k],m_element[m]) != 0) break;
             }
             ok = false;
-            for (ij = 0; ij < m_nel; ij++) {
+            for (size_t ij = 0; ij < m_nel; ij++) {
                 if (k == m_order[ij]) ok = true;
             }
             if (!ok || m_force) {

@@ -13,7 +13,6 @@
 
 #include "ct_defs.h"
 #include "global.h"
-#include "sort.h"
 #include "PropertyCalculator.h"
 #include "ctexceptions.h"
 #include "vec_functions.h"
