@@ -34,7 +34,7 @@ cc_sources              = abort_.c c_log.c d_atn2.c dfe.c d_prod.c \
                           i_nint.c l_lt.c pow_hh.c r_abs.c rdfmt.c \
                           r_mod.c r_sqrt.c signal_.c uio.c xwsne.c
 
-h_sources               = f2c.h fio.h fmt.h fp.h lio.h rawio.h
+h_sources               = f2c.h fio.h fmt.h fp.h lio.h rawio.h sysdep1.h
 
 INCLUDES                = 
 AM_CXXFLAGS             = $(INCLUDES)
