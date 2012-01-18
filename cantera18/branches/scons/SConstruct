@@ -223,6 +223,11 @@ opts.AddVariables(
         """Enable extra printing code to aid in debugging.""",
         False),
     BoolVariable(
+        'coverage',
+        """Enable collection of code coverage information with gcov.
+           Available only when compiling with gcc.""",
+        False),
+    BoolVariable(
         'with_lattice_solid',
         """Include thermodynamic model for lattice solids in the
            Cantera kernel.""",
@@ -708,6 +713,16 @@ if env['optimize']:
 else:
     env['CCFLAGS'] = listify(env['cc_flags']) + listify(env['debug_flags'])
     env['LINKFLAGS'] += listify(defaults.debugLinkFlags)
+
+if env['coverage']:
+    if  env['CC'] == 'gcc':
+        env.Append(CCFLAGS=['-fprofile-arcs', '-ftest-coverage'])
+        env.Append(LINKFLAGS=['-fprofile-arcs', '-ftest-coverage'])
+#        ipdb()
+
+    else:
+        print 'Error: coverage testing is only available with GCC'
+        exit(0)
 
 # **************************************
 # *** Set options needed in config.h ***
