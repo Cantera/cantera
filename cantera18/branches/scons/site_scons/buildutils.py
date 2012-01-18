@@ -401,3 +401,15 @@ def removeDirectory(name):
     if os.path.exists(name):
         print 'Removing directory "%s"' % name
         shutil.rmtree(name)
+
+def ipdb():
+    """
+    Break execution and drop into an IPython debug shell at the point
+    where this function is called.
+    """
+    from IPython.core.debugger import Pdb
+    from IPython.core import ipapi
+
+    ip = ipapi.get()
+    def_colors = ip.colors
+    Pdb(def_colors).set_trace(sys._getframe().f_back)
