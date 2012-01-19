@@ -220,9 +220,6 @@ namespace VCSnonideal {
 	  
 	    m_deltaMolNumSpecies[kspec] = -m_deltaGRxn_new[irxn] / s; 
 	    // New section to do damping of the m_deltaMolNumSpecies[] 
-	    /*
-	     * 
-	     */
 	    for (j = 0; j < m_numComponents; ++j) {
 	      double stoicC = m_stoichCoeffRxnMatrix[irxn][j];
 	      if (stoicC != 0.0) {

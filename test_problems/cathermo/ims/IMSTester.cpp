@@ -13,7 +13,6 @@
 //  Read a mechanism and a thermodynamics file for the 
 //  class IdealMolalSoln in order to test that it's
 //  working correctly
-//
 
 #include <iostream>
 #include <string>

@@ -392,9 +392,6 @@ namespace Cantera {
      * Update the activity coefficients
      */
     s_update_lnActCoeff();
-    /*
-     *
-     */
     doublereal RT = GasConstant * temperature();
     for (size_t k = 0; k < m_kk; k++) {
       xx = fmaxx(moleFractions_[k], xxSmall);

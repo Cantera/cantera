@@ -1,10 +1,3 @@
-/* ======================================================================= */
-
-
-
-/* ======================================================================= */
-
-
 #include "Cantera.h"
 #include "kernel/HMWSoln.h"
 
@@ -72,9 +65,6 @@ int main(int argc, char **argv)
      
      int nsp = HMW->nSpecies();
     
-     /*
-      *
-      */
      double a1 = HMW->AionicRadius(1);
      printf("a1 = %g\n", a1);
      double a2 = HMW->AionicRadius(2);

@@ -179,10 +179,6 @@ namespace Cantera {
     }
   }
 
-  /*
-   *
-   */
-
   void StoichSubstance::getChemPotentials_RT(doublereal* mu) const {
     mu[0] = gibbs_mole() / (GasConstant * temperature());
   }
@@ -206,10 +202,6 @@ namespace Cantera {
   void StoichSubstance::getPartialMolarVolumes(doublereal* vbar) const {
     vbar[0] = 1.0 / molarDensity();
   }
-
-  /*
-   *
-   */
 
   void StoichSubstance::getEnthalpy_RT(doublereal* hrt) const {
     hrt[0] = enthalpy_mole() / (GasConstant * temperature());
@@ -235,10 +227,6 @@ namespace Cantera {
     vol[0] = 1.0 / molarDensity();
   }
 
-  /*
-   *
-   */
-
   void StoichSubstance::getEnthalpy_RT_ref(doublereal *hrt) const {
     _updateThermo();
     hrt[0] = m_h0_RT[0];
@@ -263,10 +251,6 @@ namespace Cantera {
     _updateThermo();
     cprt[0] = m_cp0_R[0];
   }
-
-  /*
-   *
-   */
 
   void StoichSubstance::setParameters(int n, double * const c) {
     double rho = c[0];

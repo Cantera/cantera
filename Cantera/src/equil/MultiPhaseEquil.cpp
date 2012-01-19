@@ -863,9 +863,6 @@ namespace Cantera {
   }
 
 #include <cstdio>
-   /*
-    *
-    */
   void MultiPhaseEquil::reportCSV(const std::string &reportFile) {
     size_t k;
     size_t istart;

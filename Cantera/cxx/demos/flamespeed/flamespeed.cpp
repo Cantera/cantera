@@ -202,7 +202,6 @@ int flamespeed(int np, void* p) {
         cout << "Flame speed with multicomponent transport + Soret: " <<
             flame.value(flowdomain,flow.componentIndex("u"),0) << " m/s" << endl;
 
-        //
         int np=flow.nPoints();
         vector<doublereal> zvec,Tvec,COvec,CO2vec,Uvec;
 

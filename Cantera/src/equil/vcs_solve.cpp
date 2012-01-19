@@ -238,9 +238,6 @@ namespace VCSnonideal {
   /****************************************************************************/
 
   // Destructor
-  /*
-   *
-   */
   VCS_SOLVE::~VCS_SOLVE()
   {
     vcs_delete_memory();

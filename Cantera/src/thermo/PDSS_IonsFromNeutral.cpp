@@ -163,9 +163,6 @@ namespace Cantera {
     std::vector<std::string> key;
     std::vector<std::string> val;
 
-    /*
-     * 
-     */
     numMult_ = ctml::getPairs(*nsm,  key, val);
     idNeutralMoleculeVec.resize(numMult_);
     factorVec.resize(numMult_);

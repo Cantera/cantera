@@ -221,9 +221,6 @@ namespace Cantera {
      * time scale - time over which to integrate equations
      */
     doublereal time_scale = timeScaleOverride;
-    /*
-     *
-     */
     if (!m_surfSolver) {
       m_surfSolver = new solveSP(this, bulkFunc);
       /*

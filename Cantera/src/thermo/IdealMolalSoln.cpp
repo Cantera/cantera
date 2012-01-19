@@ -603,9 +603,6 @@ namespace Cantera {
      * get the solvent mole fraction
      */
     double xmolSolvent = moleFraction(m_indexSolvent);
-    /*
-     *   
-     */
     doublereal RT = GasConstant * temperature();
 
     if (IMS_typeCutoff_ == 0 || xmolSolvent > 3.* IMS_X_o_cutoff_/2.0) {

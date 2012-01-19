@@ -1027,7 +1027,6 @@ protected:
         // file is not found. But I (dgg) don't think it makes much sense,
         // so it is replaced by:
         path = findInputFile(file);
-        // 
 #ifdef WIN32
         // RFB: For Windows make the path POSIX compliant so code looking for directory 
         // separators is simpler.  Just look for '/' not both '/' and '\\'

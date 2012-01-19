@@ -631,9 +631,6 @@ namespace Cantera {
      * This also updates the internal molality array.
      */
     s_update_lnMolalityActCoeff();
-    /*
-     *   
-     */
     doublereal RT = GasConstant * temperature();
     double xmolSolvent = moleFraction(m_indexSolvent);
     for (size_t k = 0; k < m_kk; k++) {
