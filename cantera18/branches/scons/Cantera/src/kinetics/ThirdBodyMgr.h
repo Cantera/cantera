@@ -33,7 +33,7 @@ namespace Cantera {
         }
         
         void update(const vector_fp& conc, doublereal ctot, workPtr work) {
-            TYPENAME_KEYWORD std::vector<_E>::const_iterator b = m_concm.begin();
+           typename std::vector<_E>::const_iterator b = m_concm.begin();
             //doublereal* v = m_values.begin();
             for (; b != m_concm.end(); ++b, ++work) 
                 *work = b->update(conc, ctot);

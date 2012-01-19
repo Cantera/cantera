@@ -46,7 +46,7 @@ namespace Cantera {
   template<class T>   
   inline void divide_each(T& x, const T& y) {
     std::transform(x.begin(), x.end(), y.begin(), 
-		   x.begin(), std::divides<TYPENAME_KEYWORD T::value_type>());
+		   x.begin(), std::divides<typename T::value_type>());
   }
     
   //! Multiply each element of x by the corresponding element of y.
@@ -62,7 +62,7 @@ namespace Cantera {
   template<class T>
   inline void multiply_each(T& x, const T& y) {
     std::transform(x.begin(), x.end(), y.begin(), 
-		   x.begin(), std::multiplies<TYPENAME_KEYWORD T::value_type>());
+		   x.begin(), std::multiplies<typename T::value_type>());
   }
 
   //! Multiply each element of x by scale_factor.
