@@ -9,13 +9,6 @@
 //                    refering to branch number within svn
 %(CANTERA_VERSION)s
 
-// Integer for major number of Cantera
-#define CANTERA_VERSION_MAJORNUMBER  18
-// Flag indicating it's part of major version 18
-#define CANTERA_VERSION_18       1
-//  Flag indicating it's a development version
-#define CANTERA_VERSION_18_XXX   1
-
 //------------------------ Development flags ------------------//
 //
 // Compile in additional debug printing where available.
@@ -82,10 +75,6 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 // windows, with gcc being used as the compiler.
 %(CYGWIN)s
 
-// Identify whether the operating system is windows based, with
-// microsoft vc++ being used as the compiler
-%(WINMSVC)s
-
 // Identify whether the operating system is solaris 
 // with a native compiler 
 %(SOLARIS)s
@@ -108,11 +97,6 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 %(NEEDS_GENERIC_TEMPL_STATIC_DECL)s
 
 //--------------------- Python ------------------------------------
-// This path to the python executable is created during
-// Cantera's setup. It identifies the python executable 
-// used to run Python to process .cti files. Note that this is only
-// used if environment variable PYTHON_CMD is not set.
-%(PYTHON_EXE)s
 
 // If this is defined, the Cantera Python interface will use the
 // Numeric package
