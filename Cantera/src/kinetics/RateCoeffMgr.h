@@ -78,8 +78,8 @@ namespace Cantera {
          * the call to update_C.
          */
         void update_C(const doublereal* c) {
-            TYPENAME_KEYWORD std::vector<R>::iterator b = m_rates.begin();
-            TYPENAME_KEYWORD std::vector<R>::iterator e = m_rates.end();
+            typename std::vector<R>::iterator b = m_rates.begin();
+            typename std::vector<R>::iterator e = m_rates.end();
             int i = 0;
             for (; b != e; ++b, ++i) {
                 b->update_C(c);
@@ -95,8 +95,8 @@ namespace Cantera {
          * preloaded with the constant rate coefficients.
          */
         void update(doublereal T, doublereal logT, doublereal* values) {
-            TYPENAME_KEYWORD std::vector<R>::const_iterator b = m_rates.begin();
-            TYPENAME_KEYWORD std::vector<R>::const_iterator e = m_rates.end();
+            typename std::vector<R>::const_iterator b = m_rates.begin();
+            typename std::vector<R>::const_iterator e = m_rates.end();
             doublereal recipT = 1.0/T;
             int i = 0;
             for (; b != e; ++b, ++i) {

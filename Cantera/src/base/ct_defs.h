@@ -31,14 +31,6 @@
  */
 namespace Cantera {
 
-
-#ifdef WIN32
-#define TYPENAME_KEYWORD
-#else
-//! create a define for the typename command
-#define TYPENAME_KEYWORD typename
-#endif
-
 #undef CHEMKIN_COMPATIBILITY_MODE
 
 //! Creates a pointer to the start of the raw data for a ctvector

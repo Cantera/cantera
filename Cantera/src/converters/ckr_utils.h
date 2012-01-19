@@ -15,13 +15,6 @@
 
 using namespace std;
 
-#ifdef WIN32
-#define TYPENAME_KEYWORD
-#else
-#define TYPENAME_KEYWORD typename
-#endif
-
-
 namespace ckr {
 
 /** 
@@ -33,7 +26,7 @@ namespace ckr {
 template<class K, class V>
 void getMapKeys(const map<K,V>& mp, vector<K>& keys) {
     keys.clear();
-    TYPENAME_KEYWORD map<K,V>::const_iterator i = mp.begin();
+    typename map<K,V>::const_iterator i = mp.begin();
     for (; i != mp.end(); ++i) keys.push_back(i->first);
 }
 
@@ -47,7 +40,7 @@ void getMapKeys(const map<K,V>& mp, vector<K>& keys) {
 template<class K, class V>
 void getMapValues(const map<K,V>& mp, vector<V>& values) {
     values.clear();
-    TYPENAME_KEYWORD map<K,V>::const_iterator i = mp.begin();
+    typename map<K,V>::const_iterator i = mp.begin();
     for (; i != mp.end(); ++i) values.push_back(i->second);
 }
 
