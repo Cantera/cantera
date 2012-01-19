@@ -39,6 +39,9 @@ class Test(object):
         localenv.Alias('test-%s' % self.testName, run)
         testNames.append(self.testName)
 
+        # reset: just delete the ".passed" file so that this test will be re-run
+        localenv.Alias('test-reset', self.reset(localenv))
+
     def run(self, env, *args):
         source = list(args)
         if not source:
@@ -55,6 +58,13 @@ class Test(object):
                                   test_csv_tolerance=self.tolerance,
                                   test_ignoreLines=self.ignoreLines)
         return test
+
+    def reset(self, env, **kwargs):
+        f = pjoin(os.getcwd(), self.subdir, self.passedFile)
+        if os.path.exists(f):
+            uniqueName = 'reset-%s' % self.testName
+            target = env.Command(uniqueName, [], [Delete(f)])
+            return target
 
     def clean(self, env, **kwargs):
         # Name used for the output file
