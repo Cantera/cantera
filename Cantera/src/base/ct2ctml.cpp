@@ -19,7 +19,7 @@
 
 // These defines are needed for the windows Sleep() function
 // - comment them out if you don't want the Sleep function.
-//#ifdef WIN32
+//#ifdef _WIN32
 //#include "Windows.h"
 //#include "Winbase.h"
 //#endif
@@ -114,7 +114,7 @@ namespace ctml {
       << "write()\n";
     f.close();
     string logfile = tmpDir()+"/ct2ctml.log";
-#ifdef WIN32
+#ifdef _WIN32
     string cmd = pypath() + " " + "\"" + path + "\"" + "> " + logfile + " 2>&1";
 #else
     string cmd = "sleep " + sleep() + "; " + "\"" + pypath() + "\"" + 
@@ -156,7 +156,7 @@ namespace ctml {
      *        It probably has to do with NFS syncing problems.
      *        3/3/06
      */
-#ifndef WIN32
+#ifndef _WIN32
     string sss = sleep();
     if (debug > 0) {
       writelog("sleeping for " + sss + " secs+\n");
@@ -209,7 +209,7 @@ namespace ctml {
     // if the conversion succeeded and DEBUG_PATHS is not defined,
     // then clean up by deleting the temporary Python file.
 #ifndef DEBUG_PATHS
-    //#ifdef WIN32
+    //#ifdef _WIN32
     //cmd = "cmd /C rm " + path;
     if (debug == 0)
       remove(path.c_str());

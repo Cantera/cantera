@@ -1526,13 +1526,13 @@ void strip_item_from_token(int iword, TOKEN *tok)
 {
   if (!tok) return;
   if (iword < 0 || iword > tok->ntokes) return;
-#ifdef WIN32
+#ifdef _MSC_VER
   __w64 int ioffset = tok->tok_ptr[iword] - tok->tok_str;
 #else
   size_t ioffset = tok->tok_ptr[iword] - tok->tok_str;
 #endif
   size_t ilength = strlen(tok->tok_ptr[iword]);
-#ifdef WIN32
+#ifdef _MSC_VER
   __w64 int i = ioffset;
   __w64 int j = ioffset + ilength;
 #else

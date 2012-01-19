@@ -108,12 +108,14 @@ extern void f_init(void);
 extern int (*f__donewrec)(void), t_putc(int), x_wSL(void);
 extern void b_char(char*,char*,ftnlen), g_char(char*,ftnlen,char*);
 extern int c_sfe(cilist*), z_rnew(void);
+#ifndef _WIN32
+extern int isatty(int);
+#endif
 #ifdef _MSC_VER
 #define ISATTY _isatty
 #define FILENO _fileno
 #define ACCESS _access
 #else
-extern int isatty(int);
 #define ISATTY isatty
 #define FILENO fileno
 #define ACCESS access

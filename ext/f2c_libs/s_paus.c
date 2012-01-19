@@ -19,12 +19,14 @@ extern "C" {
 #ifdef __cplusplus
 extern "C" {
 #endif
-extern int getpid(void); 
+extern int getpid(void);
+#ifndef _WIN32
+extern int isatty(int);
+#endif
 #ifdef _MSC_VER
 #define ISATTY _isatty
 #define FILENO _fileno
 #else
-extern int isatty(int);
 #define ISATTY isatty
 #define FILENO fileno
 #endif

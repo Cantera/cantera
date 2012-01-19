@@ -26,11 +26,14 @@
 #include <fstream>
 #include <memory>
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <algorithm>
 #include <functional>
 #include <new>
 #include <windows.h>
+#endif
+
+#ifdef _MSC_VER
 #pragma comment(lib, "advapi32")
 #endif
 
@@ -757,7 +760,7 @@ namespace Cantera {
      * @param msg  c++ string to be written to the screen
      * @ingroup textlogs
      */
-#ifdef WIN32
+#ifdef _WIN32
     long int readStringRegistryKey(const std::string& keyName, const std::string& valueName,
                                    std::string& value, const std::string& defaultValue);
 #endif
@@ -1027,7 +1030,7 @@ protected:
         // file is not found. But I (dgg) don't think it makes much sense,
         // so it is replaced by:
         path = findInputFile(file);
-#ifdef WIN32
+#ifdef _WIN32
         // RFB: For Windows make the path POSIX compliant so code looking for directory 
         // separators is simpler.  Just look for '/' not both '/' and '\\'
         replace_if( path.begin(), path.end(), bind2nd( equal_to<char>(), '\\'), '/' ) ; 
@@ -1145,7 +1148,7 @@ protected:
     }
   }
 
-#ifdef WIN32
+#ifdef _WIN32
   long int Application::readStringRegistryKey(const std::string& keyName, const std::string& valueName,
                                               std::string& value, const std::string& defaultValue) {
 
@@ -1359,7 +1362,7 @@ protected:
         dirs.push_back(".");
 
 
-#ifdef WIN32
+#ifdef _WIN32
         // Under Windows, the Cantera setup utility records the installation
         // directory in the registry. Data files are stored in the 'data' and
         // 'templates' subdirectories of the main installation directory.
@@ -1618,7 +1621,7 @@ protected:
        
     va_start( args, fmt ) ;
        
-#if defined(WIN32) && defined(MSC_VER)
+#ifdef _MSC_VER
     _vsnprintf( sbuf, BUFSIZE, fmt, args ) ; 
 #else
     vsprintf( sbuf, fmt, args ) ;

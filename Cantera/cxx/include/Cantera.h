@@ -8,11 +8,6 @@
 #ifndef CANTERA_H_INCL
 #define CANTERA_H_INCL
 
-// definitions
-#ifndef CANTERA_APP
-#define CANTERA_APP
-#endif
-
 namespace Cantera_CXX{ }
 
 using namespace Cantera_CXX;

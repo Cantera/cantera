@@ -27,7 +27,7 @@
 #include <sunmath.h>
 #endif
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <float.h>
 #endif
 
@@ -39,7 +39,7 @@ namespace mdp {
   /*
    *  @param tmp number to be checked
    */
-#ifdef WIN32
+#ifdef _WIN32
   void checkFinite(const double tmp) {
     if (_finite(tmp)) {
       if(_isnan(tmp)) {
@@ -108,7 +108,7 @@ namespace mdp {
    *
    *  @param tmp number to be checked
    */
-#ifdef WIN32
+#ifdef _WIN32
 void checkZeroFinite(const double tmp) {
     if ((tmp == 0.0) || (! _finite(tmp))) {
       if (tmp == 0.0) {

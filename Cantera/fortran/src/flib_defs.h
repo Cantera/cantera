@@ -2,7 +2,7 @@
 #define FCTC_DEFS_H
 
 // Build as a DLL under Windows
-#ifdef WIN32
+#ifdef _WIN32
 #define DLL_IMPORT __declspec(dllimport)
 #define DLL_EXPORT __declspec(dllexport)
 #else

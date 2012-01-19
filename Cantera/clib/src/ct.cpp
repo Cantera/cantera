@@ -28,7 +28,7 @@
 using namespace std;
 using namespace Cantera;
 
-#ifdef WIN32
+#ifdef _WIN32
 #include "windows.h"
 #endif
 
@@ -97,7 +97,7 @@ namespace Cantera {
  */
 extern "C" {
 
-#ifdef WIN32
+#ifdef _WIN32
 #ifndef NO_DLL_BUILD
 	 /*
 	 *  The microsoft docs says we may need this in some
