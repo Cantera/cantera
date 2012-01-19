@@ -1892,9 +1892,6 @@ namespace Cantera {
   }
 
 
-  /*
-   *
-   */
   void ChemEquil::adjustEloc(thermo_t &s, vector_fp & elMolesGoal) {
     if (m_eloc == npos) return;
     if (fabs(elMolesGoal[m_eloc]) > 1.0E-20) return; 

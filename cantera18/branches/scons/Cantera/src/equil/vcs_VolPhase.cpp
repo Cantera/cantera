@@ -385,8 +385,6 @@ namespace VCSnonideal {
 
   // Gibbs free energy calculation at a temperature for the reference state
   // of each species
-  /*
-   */
   void vcs_VolPhase::_updateG0() const {
     if (m_useCanteraCalls) {
       TP_ptr->getGibbs_ref(VCS_DATA_PTR(SS0ChemicalPotential));
@@ -513,10 +511,6 @@ namespace VCSnonideal {
   /***************************************************************************/
 
   // Set the moles and/or mole fractions within the phase
-  /*
-   *
-   *
-   */
   void vcs_VolPhase::setMoleFractionsState(const double totalMoles,
 					   const double * const moleFractions,
 					   const int vcsStateStatus) {
@@ -1207,9 +1201,6 @@ namespace VCSnonideal {
   /***************************************************************************/
 
   // Sets the mole flag within the object to be current
-  /*
-   * 
-   */
   void vcs_VolPhase::setMolesCurrent(int stateCalc) {
     m_UpToDate = true;
     m_vcsStateStatus = stateCalc;
@@ -1469,9 +1460,6 @@ namespace VCSnonideal {
     size_t e, k, eT;
     std::string ename; 
     size_t eFound = npos;
-    /*
-     *
-     */
     size_t nebase = tPhase->nElements();
     size_t ne = nebase;
     size_t ns = tPhase->nSpecies();

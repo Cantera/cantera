@@ -821,9 +821,6 @@ namespace Cantera {
   }
 
   // return the number of children
-  /*
-   *
-   */
   size_t XML_Node::nChildren() const {
     return m_nchildren;
   }

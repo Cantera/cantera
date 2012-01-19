@@ -237,7 +237,6 @@ namespace VCSnonideal {
     }
 #endif
    // Section for a single-species phase
-   //
    if (Vphase->m_singleSpecies) {
      s = 0.0;
      double *dnPhase_irxn = m_deltaMolNumPhase[irxn];
@@ -404,8 +403,6 @@ namespace VCSnonideal {
     return 0;
   }
   
-
-  //
 
   double VCS_SOLVE::vcs_phaseStabilityTest(const int iph) {
 

@@ -391,9 +391,6 @@ namespace VCSnonideal {
      * We first determine if a phase pops into existence.
      */
     iphasePop = vcs_popPhaseID();
-    /*
-     *
-     */
     soldel = -1;
     if (iphasePop != npos) {
       soldel = vcs_popPhaseRxnStepSizes(iphasePop);
@@ -1720,9 +1717,6 @@ namespace VCSnonideal {
       vcs_setFlagsVolPhases(false, VCS_STATECALC_OLD);
       vcs_dfe(VCS_STATECALC_OLD, 0, 0, m_numSpeciesRdc);
       vcs_deltag(0, false, VCS_STATECALC_OLD);
-      /*
-       * 
-       */
       if (!ncBefore) {
 	if (ncAfter) {
 	  /*
