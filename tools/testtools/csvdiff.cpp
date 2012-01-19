@@ -26,7 +26,7 @@
 #include <float.h>
 #include <limits.h>
 #include "kernel/config.h"
-#ifndef WINMSVC
+#ifndef _MSC_VER
 #include <unistd.h>
 #else
 #include <string>
@@ -70,7 +70,7 @@ int Max_Input_Str_Ln = MAX_INPUT_STR_LN;
 /*****************************************************************************/
 /*****************************************************************************/
 
-#ifdef WINMSVC
+#ifdef _MSC_VER
 /*
  * Windows doesn't have getopt(). This is an incomplete version that
  * does enough to handle required functionality.
