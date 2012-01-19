@@ -8,7 +8,7 @@
 //@{
 #include "ct_defs.h"
 
-#ifdef WIN32
+#ifdef _MSC_VER
 #define SNPRINTF _snprintf
 #else
 #define SNPRINTF snprintf

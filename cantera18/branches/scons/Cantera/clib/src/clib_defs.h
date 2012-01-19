@@ -6,7 +6,7 @@
 
 #include "kernel/ct_defs.h"
 
-#ifdef WIN32
+#ifdef _WIN32
 //   Either build as a DLL under Windows or  not. 
 //   the decision relies upon whether the NO_DLL_BUILD define is 
 //   set or not.
@@ -17,7 +17,6 @@
 #define DLL_IMPORT __declspec(dllimport)
 #define DLL_EXPORT __declspec(dllexport)
 #endif
-
 #else
 //   On other platforms, we turn off the DLL macros.
 #define DLL_EXPORT

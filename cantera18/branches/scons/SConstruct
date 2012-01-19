@@ -549,14 +549,11 @@ elif env['F90'] == 'ifort':
 env['FORTRANMODDIR'] = '${TARGET.dir}'
 
 if env['CC'] == 'cl':
-    env['WIN32'] = True
     # embed manifest file
     env['LINKCOM'] = [env['LINKCOM'],
                       'if exist ${TARGET}.manifest mt.exe -nologo -manifest ${TARGET}.manifest -outputresource:$TARGET;1']
     env['SHLINKCOM'] = [env['SHLINKCOM'],
                         'if exist ${TARGET}.manifest mt.exe -nologo -manifest ${TARGET}.manifest -outputresource:$TARGET;2']
-else:
-    env['WIN32'] = False
 
 if env['boost_inc_dir']:
     env.Append(CPPPATH=env['boost_inc_dir'])
@@ -739,7 +736,6 @@ def cdefine(definevar, configvar, comp=True, value=1):
         configh[definevar] = None
 
 cdefine('DEBUG_MODE', 'debug')
-cdefine('WIN32', 'WIN32')
 
 # Need to test all of these to see what platform.system() returns
 configh['SOLARIS'] = 1 if env['OS'] == 'Solaris' else None

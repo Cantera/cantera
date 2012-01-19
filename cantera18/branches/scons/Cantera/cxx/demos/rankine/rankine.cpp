@@ -74,13 +74,6 @@ int openRankine(int np, void* p) {
     double efficiency = work/heat_in;
 
     cout << "efficiency = " << efficiency << endl;
-#ifdef WIN32
-#ifndef CXX_DEMO
-    cout << "press any key to end" << endl;
-    char ch;
-    cin >> ch;
-#endif
-#endif
     return 0;
 }
 

@@ -86,10 +86,6 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 // microsoft vc++ being used as the compiler
 %(WINMSVC)s
 
-// Despite the name, this variable is expected to be defined
-// on both 32 and 64 bit Windows
-%(WIN32)s
-
 // Identify whether the operating system is solaris 
 // with a native compiler 
 %(SOLARIS)s
