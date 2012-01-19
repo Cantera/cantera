@@ -115,7 +115,7 @@ namespace Cantera {
   template<class T>
   inline void add_each(T& x, const T& y) {
     std::transform(x.begin(), x.end(), y.begin(), 
-		   x.begin(), std::plus<TYPENAME_KEYWORD T::value_type>());
+		   x.begin(), std::plus<typename T::value_type>());
   }
 
 
