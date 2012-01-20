@@ -57,7 +57,7 @@ namespace VCSnonideal {
    *            0 : Checks constraints up to the number of components.
    *
    */
-  int VCS_SOLVE::vcs_elabcheck(int ibound) {
+  bool VCS_SOLVE::vcs_elabcheck(int ibound) {
     size_t top = m_numComponents;
     double eval, scale;
     int numNonZero;
@@ -99,11 +99,11 @@ namespace VCSnonideal {
 	    }
 	    if (multisign) {
 	      if (fabs(m_elemAbundances[i] - m_elemAbundancesGoal[i]) > 1e-11 * scale) {
-		return FALSE;
+		return false;
 	      }
 	    } else {
 	      if (fabs(m_elemAbundances[i] - m_elemAbundancesGoal[i]) > VCS_DELETE_MINORSPECIES_CUTOFF) {
-		return FALSE;
+		return false;
 	      }
 	    }
 	  } else {
@@ -112,15 +112,15 @@ namespace VCSnonideal {
 	     * even for rediculously small numbers.
 	     */
 	    if (m_elType[i] == VCS_ELEM_TYPE_ABSPOS) {
-	      return FALSE;
+	      return false;
 	    } else {
-	      return FALSE;
+	      return false;
 	    }
 	  }
 	}
       }
     }
-    return TRUE;
+    return true;
   } /* vcs_elabcheck() *********************************************************/
 
   /*****************************************************************************/
@@ -198,7 +198,8 @@ namespace VCSnonideal {
      *  
      *************************************************************************/
   {
-    int retn = 0, goodSpec, its;
+    int retn = 0, its;
+    bool goodSpec;
     double xx, par, saveDir, dir;
 
 #ifdef DEBUG_MODE
@@ -427,25 +428,25 @@ namespace VCSnonideal {
 	  continue;
 	}
 	saveDir = 0.0;
-	goodSpec = TRUE;
+	goodSpec = true;
 	for (size_t i = 0; i < m_numComponents; ++i) {
 	  dir = m_formulaMatrix[i][kspec] *  (m_elemAbundancesGoal[i] - m_elemAbundances[i]);
 	  if (fabs(dir) > 1.0E-10) {
 	    if (dir > 0.0) {
 	      if (saveDir < 0.0) {
-		goodSpec = FALSE;
+		goodSpec = false;
 		break;
 	      }
 	    } else {
 	      if (saveDir > 0.0) {
-		goodSpec = FALSE;
+		goodSpec = false;
 		break;
 	      }		   
 	    }
 	    saveDir = dir;
 	  } else {
 	    if (m_formulaMatrix[i][kspec] != 0.) {
-	      goodSpec = FALSE;
+	      goodSpec = false;
 	      break;
 	    }
 	  }

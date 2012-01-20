@@ -217,8 +217,8 @@ public:
    * @return        Returns VCS_SUCCESS if everything went ok. Returns something else if
    *                there is a problem.
    */
-  int vcs_basopt(const int doJustComponents, double aw[], double sa[], double sm[], 
-		 double ss[], double test, size_t* const usedZeroedSpecies);
+  int vcs_basopt(const bool doJustComponents, double aw[], double sa[], double sm[],
+		 double ss[], double test, bool* const usedZeroedSpecies);
 
   //!  Choose a species to test for the next component
   /*!
@@ -635,7 +635,7 @@ public:
    *
    *  @param k2        Second species index
    */
-  void vcs_switch_pos(const int ifunc, const size_t k1, const size_t k2);
+  void vcs_switch_pos(const bool ifunc, const size_t k1, const size_t k2);
 
 
   //!     Birth guess returns the number of moles of a species 
@@ -1011,7 +1011,7 @@ public:
    */
   void vcs_elab();
 
-  int vcs_elabcheck(int ibound);
+  bool vcs_elabcheck(int ibound);
   void vcs_elabPhase(size_t iphase, double * const elemAbundPhase);
   int vcs_elcorr(double aa[], double x[]);
 
@@ -1269,7 +1269,7 @@ private:
    *
    *     @param dx          The change in mole number
    */
-  double vcs_minor_alt_calc(size_t kspec, size_t irxn, int *do_delete
+  double vcs_minor_alt_calc(size_t kspec, size_t irxn, bool *do_delete
 #ifdef DEBUG_MODE
 			    , char *ANOTE  
 #endif
@@ -1827,7 +1827,7 @@ public:
   std::vector<size_t> m_phaseID;
 
   //!  Boolean indicating whether a species belongs to a single-species phase
-  std::vector<int> m_SSPhase;
+  std::vector<bool> m_SSPhase;
 
 
   //! Species string name for the kth species

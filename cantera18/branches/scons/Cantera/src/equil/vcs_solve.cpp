@@ -906,7 +906,7 @@ namespace VCSnonideal {
       vPhase->setTotalMolesInert(pub_phase_ptr->totalMolesInert());
       if (TPhInertMoles[iph] > 0.0) {
 	vPhase->setExistence(2);
-	vPhase->m_singleSpecies = FALSE;
+	vPhase->m_singleSpecies = false;
       }
 
       /*

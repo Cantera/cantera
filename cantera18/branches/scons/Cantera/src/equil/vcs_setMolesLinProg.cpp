@@ -90,7 +90,7 @@ int VCS_SOLVE::vcs_setMolesLinProg() {
   int retn;
   int iter = 0;
   bool abundancesOK = true;
-  size_t usedZeroedSpecies;
+  bool usedZeroedSpecies;
 
   std::vector<double> sm(m_numElemConstraints*m_numElemConstraints, 0.0);
   std::vector<double> ss(m_numElemConstraints, 0.0);
@@ -133,7 +133,7 @@ int VCS_SOLVE::vcs_setMolesLinProg() {
      *  coefficient matrix, based on the current composition, m_molNumSpecies_old[]
      *  We also calculate sc[][], the reaction matrix.
      */
-    retn = vcs_basopt(FALSE, VCS_DATA_PTR(aw), VCS_DATA_PTR(sa),
+    retn = vcs_basopt(false, VCS_DATA_PTR(aw), VCS_DATA_PTR(sa),
 			  VCS_DATA_PTR(sm), VCS_DATA_PTR(ss), 
 			  test, &usedZeroedSpecies);
     if (retn != VCS_SUCCESS) return retn;

@@ -59,8 +59,8 @@ namespace VCSnonideal {
     for (size_t kspec = 0; kspec < m_numSpeciesTot; kspec++) {
       iph = m_phaseID[kspec];
       Vphase = m_VolPhaseList[iph];
-      if (Vphase->m_singleSpecies)  m_SSPhase[kspec] = TRUE;
-      else                        m_SSPhase[kspec] = FALSE;
+      if (Vphase->m_singleSpecies)  m_SSPhase[kspec] = true;
+      else                        m_SSPhase[kspec] = false;
     }
   }
   /*****************************************************************************/
@@ -99,11 +99,12 @@ namespace VCSnonideal {
    *
    */
   int VCS_SOLVE::vcs_prep_oneTime(int printLvl) {
-    size_t kspec, i, conv;
+    size_t kspec, i;
     int retn = VCS_SUCCESS;
     double pres, test;
     double *aw, *sa, *sm, *ss;
     bool modifiedSoln = false;
+    bool conv;
 
     m_debug_print_lvl = printLvl;
 
@@ -199,7 +200,7 @@ namespace VCSnonideal {
     sa = aw + m_numSpeciesTot;
     sm = sa + m_numElemConstraints;
     ss = sm + (m_numElemConstraints)*(m_numElemConstraints);
-    retn = vcs_basopt(TRUE, aw, sa, sm, ss, test, &conv);
+    retn = vcs_basopt(true, aw, sa, sm, ss, test, &conv);
     if (retn != VCS_SUCCESS) {
       plogf("vcs_prep_oneTime:");
       plogf(" Determination of number of components failed: %d\n",

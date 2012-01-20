@@ -43,7 +43,7 @@ namespace VCSnonideal {
        *     -> because we loop over all species, reaction data
        *        are now permanently hosed.
        */
-      vcs_switch_pos(FALSE, i, k1);
+      vcs_switch_pos(false, i, k1);
     }
     return 0;
   }

@@ -37,11 +37,11 @@ namespace VCSnonideal {
    */
   void VCS_SOLVE::vcs_inest(double * const aw, double * const sa, double * const sm, 
 		            double * const ss, double test) {
-    size_t conv, lt, ikl, kspec, iph, irxn;
+    size_t lt, ikl, kspec, iph, irxn;
     double s;
     double s1 = 0.0;
     double xl, par;
-    int finished;
+    bool finished, conv;
     size_t nspecies = m_numSpeciesTot;
     size_t nrxn = m_numRxnTot;
  
@@ -147,7 +147,7 @@ namespace VCSnonideal {
      *      Now find the optimized basis that spans the stoichiometric
      *      coefficient matrix
      */
-    (void) vcs_basopt(FALSE, aw, sa, sm, ss, test, &conv);
+    (void) vcs_basopt(false, aw, sa, sm, ss, test, &conv);
 
     /* ***************************************************************** */
     /* **** CALCULATE TOTAL MOLES,                    ****************** */
@@ -286,7 +286,7 @@ namespace VCSnonideal {
     /* ******************************************** */
     /* **** CALCULATE NEW MOLE NUMBERS ************ */
     /* ******************************************** */
-    finished = FALSE;
+    finished = false;
     do {
       for (kspec = 0; kspec < m_numComponents; ++kspec) {
 	if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
@@ -317,11 +317,11 @@ namespace VCSnonideal {
 	s += m_deltaMolNumSpecies[kspec] * m_feSpecies_old[kspec];
       }
       if (s == 0.0) {
-	finished = TRUE; continue;
+	finished = true; continue;
       }
       if (s < 0.0) {
 	if (ikl == 0) {
-	  finished = TRUE; continue;
+	  finished = true; continue;
 	}
       }
       /* ***************************************** */
@@ -454,7 +454,7 @@ namespace VCSnonideal {
      *       Note: We won't do this unless we have to since it involves inverting
      *             a matrix.
      */
-    int rangeCheck  = vcs_elabcheck(1);
+    bool rangeCheck = vcs_elabcheck(1);
     if (!vcs_elabcheck(0)) {
       if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
 	plogf("%sInitial guess failed element abundances\n", pprefix);  
