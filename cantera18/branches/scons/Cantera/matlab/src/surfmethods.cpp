@@ -18,11 +18,11 @@ void surfmethods( int nlhs, mxArray *plhs[],
     int nrhs, const mxArray *prhs[] ) {
     double vv;
     int job = getInt(prhs[2]); 
-    int n, m, iok;
+    int iok;
     double* ptr;
     char* str;
-    int surf, nsp;
-    surf = getInt(prhs[1]);    
+    size_t nsp, n, m;
+    int surf = getInt(prhs[1]);
 
     // set parameters
     if (job < 100) {
@@ -81,16 +81,16 @@ void surfmethods( int nlhs, mxArray *plhs[],
         default:
             ;
         }
-        plhs[0] = mxCreateNumericMatrix(nsp,1,
+        plhs[0] = mxCreateNumericMatrix((mwSize) nsp,1,
             mxDOUBLE_CLASS,mxREAL);
         double *h = mxGetPr(plhs[0]);
         if (iok >= 0) {
-            for (int i = 0; i < nsp; i++) h[i] = x[i];
+            for (size_t i = 0; i < nsp; i++) h[i] = x[i];
             delete x;
             return;
         }
         else {
-            for (int i = 0; i < nsp; i++) h[i] = -999.99;
+            for (size_t i = 0; i < nsp; i++) h[i] = -999.99;
             delete x;
             reportError();
             return;

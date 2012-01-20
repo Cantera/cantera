@@ -17,9 +17,9 @@ void funcmethods( int nlhs, mxArray *plhs[],
         int n = getInt(prhs[3]);
         if (type < 20) {
             ptr = mxGetPr(prhs[4]);
-            int msize = mxGetM(prhs[4]);
-            int nsize = mxGetN(prhs[4]);
-            int lenp = msize*nsize;
+            size_t msize = mxGetM(prhs[4]);
+            size_t nsize = mxGetN(prhs[4]);
+            size_t lenp = msize*nsize;
             nn = func_new(type, n, lenp, ptr);
         }
         else if (type < 45) {

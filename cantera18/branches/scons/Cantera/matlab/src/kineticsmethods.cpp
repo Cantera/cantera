@@ -24,7 +24,7 @@ void kineticsmethods( int nlhs, mxArray *plhs[],
         int in2 = getInt(prhs[5]);
         int in3 = getInt(prhs[6]);
         int in4 = getInt(prhs[7]);
-        vv = newKineticsFromXML(root, iph, in1, in2, in3, in4);
+        vv = (double) newKineticsFromXML(root, iph, in1, in2, in3, in4);
         plhs[0] = mxCreateNumericMatrix(1,1,mxDOUBLE_CLASS,mxREAL);
         double *h = mxGetPr(plhs[0]);
         *h = vv;
@@ -48,15 +48,15 @@ void kineticsmethods( int nlhs, mxArray *plhs[],
             switch (job) {
             
             case 1:
-                vv = kin_nReactions(kin); break;
+                vv = (double) kin_nReactions(kin); break;
             case 2:
                 vv = kin_multiplier(kin, irxn-1); break;
             case 3:
-                vv = kin_nSpecies(kin); break;
+                vv = (double) kin_nSpecies(kin); break;
             case 4:
                 vv = kin_isReversible(kin,irxn-1); break;
             case 5:
-                vv = kin_reactantStoichCoeff(kin, isp - 1, irxn-1); 
+                vv = kin_reactantStoichCoeff(kin, isp - 1, irxn-1);
                 break;
             case 6:
                 vv = kin_productStoichCoeff(kin, isp - 1, irxn-1); 
@@ -72,7 +72,7 @@ void kineticsmethods( int nlhs, mxArray *plhs[],
         else if (job < 20) {
 
             // get reaction array attributes
-            int nr = kin_nReactions(kin);
+            mwSize nr = (mwSize) kin_nReactions(kin);
             plhs[0] = mxCreateNumericMatrix(nr,1,mxDOUBLE_CLASS,mxREAL);
             double *h = mxGetPr(plhs[0]);
             int ok = -10;
@@ -92,7 +92,7 @@ void kineticsmethods( int nlhs, mxArray *plhs[],
                 mexErrMsgTxt("error computing rates of progress");
         }
         else if (job < 30) {
-            int nsp  = kin_nSpecies(kin);
+            mwSize nsp = (mwSize) kin_nSpecies(kin);
             plhs[0] = mxCreateNumericMatrix(nsp,1,mxDOUBLE_CLASS,mxREAL);
             double *h = mxGetPr(plhs[0]);
             int ok = -10;

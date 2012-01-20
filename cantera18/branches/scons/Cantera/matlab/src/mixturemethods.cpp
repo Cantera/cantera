@@ -83,24 +83,24 @@ using namespace std;
         else if (job < 40) {
             switch (job) {
             case 19:
-                r = mix_nPhases(i);
+                r = (double) mix_nPhases(i);
                 break;
             case 21:
-                r = mix_nElements(i);
+                r = (double) mix_nElements(i);
                 break;
             case 22:
                 checkNArgs(4, nrhs);
                 nm = getString(prhs[3]);
-                r = mix_elementIndex(i, nm)+1;
+                r = (double) mix_elementIndex(i, nm)+1;
                 break;
             case 23:
                 checkNArgs(5, nrhs);
                 m = getInt(prhs[3]);
                 n = getInt(prhs[4]);
-                r = mix_speciesIndex(i, m-1, n-1)+1;
+                r = (double) mix_speciesIndex(i, m-1, n-1)+1;
                 break;
             case 24:
-                r = mix_nSpecies(i);
+                r = (double) mix_nSpecies(i);
                 break;
             case 25:
                 r = mix_temperature(i);
@@ -145,7 +145,7 @@ using namespace std;
         else if (job < 60) {
 
             int iok = 0;
-            int nsp = mix_nSpecies(i);
+            mwSize nsp = (mwSize) mix_nSpecies(i);
             double* x = new double[nsp];
             switch (job) {
             case 41:

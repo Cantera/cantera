@@ -17,7 +17,7 @@ void onedimmethods( int nlhs, mxArray *plhs[],
     int nrhs, const mxArray *prhs[] ) {
     double vv;
     int job = getInt(prhs[2]); 
-    int n, m;
+    size_t n, m;
     double *dom_ids, *h;
     int indx;
     char *nm;
@@ -27,7 +27,8 @@ void onedimmethods( int nlhs, mxArray *plhs[],
 
     int idom, icomp, localPoint;
     if (job < 10) {
-        int ph, kin, tr, itype, nd, sz, k, *ptrs;
+        int ph, kin, tr, itype, *ptrs;
+        size_t sz, nd;
 
         switch (job) {
 
@@ -80,16 +81,13 @@ void onedimmethods( int nlhs, mxArray *plhs[],
             dom_ids = mxGetPr(prhs[4]);
             m = mxGetM(prhs[4]);
             n = mxGetN(prhs[4]);
-            if (m == 1) 
-                sz = n;
-            else 
-                sz = m;
+            sz = (m == 1) ? n : m;
             if (sz != nd)
                 mexErrMsgTxt("wrong size for domain array");
 
             ptrs = new int[sz];
             //writelog("allocated ptrs\n");
-            for (k = 0; k < sz; k++) {
+            for (size_t k = 0; k < sz; k++) {
               //  writelog("k = ...\n");
                 ptrs[k] = int(dom_ids[k]);
             }
@@ -131,17 +129,17 @@ void onedimmethods( int nlhs, mxArray *plhs[],
             vv = domain_del(dom); break;
         case 11:
             checkNArgs(3, nrhs);
-            vv = domain_nComponents(dom); break;
+            vv = (double) domain_nComponents(dom); break;
         case 12:
             checkNArgs(3, nrhs);
             vv = domain_type(dom); break;
         case 13:
             checkNArgs(3, nrhs);
-            vv = domain_index(dom); 
+            vv = (double) domain_index(dom);
             if (vv >= 0.0) vv += 1.0; break;
         case 14:
             checkNArgs(3, nrhs);
-            vv = domain_nPoints(dom); break;
+            vv = (double) domain_nPoints(dom); break;
         case 15:
             checkNArgs(3, nrhs);
             vv = bdry_temperature(dom); break;
@@ -155,7 +153,7 @@ void onedimmethods( int nlhs, mxArray *plhs[],
         case 18:
             checkNArgs(4, nrhs);
             nm = getString(prhs[3]);
-            vv = domain_componentIndex(dom, nm) ; 
+            vv = (double) domain_componentIndex(dom, nm) ;
             if (vv >= 0.0) vv += 1.0; break;
         case 19:
             checkNArgs(4, nrhs);
@@ -213,12 +211,12 @@ void onedimmethods( int nlhs, mxArray *plhs[],
     // set parameters
 
     else {
-
         int iok = -1;
         double lower, upper, rtol, atol, *grid, *pos, *values, 
             mdot, t, p, val, *temp, ratio, slope, curve, tstep, *dts, 
             rdt, prune;
-        int npts, np, nv, comp, localPoint, idom,
+        size_t npts, np, nv;
+        int comp, localPoint, idom,
             loglevel, refine_grid, n, flag, itime, ns, *nsteps, icount,
             onoff, ss_age, ts_age;
         char *xstr, *fname, *id, *desc, *name;
@@ -273,9 +271,9 @@ void onedimmethods( int nlhs, mxArray *plhs[],
             checkNArgs(5, nrhs);
             pos = mxGetPr(prhs[3]);
             temp = mxGetPr(prhs[4]);
-            n = mxGetM(prhs[3])*mxGetN(prhs[3]);
-            m = mxGetM(prhs[4])*mxGetN(prhs[4]);
-            iok = stflow_setFixedTempProfile(dom, n, pos, m, temp);
+            np = mxGetM(prhs[3])*mxGetN(prhs[3]);
+            nv = mxGetM(prhs[4])*mxGetN(prhs[4]);
+            iok = stflow_setFixedTempProfile(dom, np, pos, nv, temp);
             break;
         case 65:
             checkNArgs(4, nrhs);

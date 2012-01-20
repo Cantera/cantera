@@ -21,9 +21,9 @@ inline double getDouble(A* mxhndl) {
 inline char* getString(const mxArray* p) {
     char* input_buf = 0;
     int status;
-    int m = mxGetM(p);
-    int n = mxGetN(p);
-    int buflen = m*n + 1;
+    size_t m = mxGetM(p);
+    size_t n = mxGetN(p);
+    mwSize buflen = (mwSize) (m*n + 1);
     string msg;
 
     if (m == 1) {
