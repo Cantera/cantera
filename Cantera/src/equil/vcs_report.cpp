@@ -41,8 +41,8 @@ namespace VCSnonideal {
    *     The "old" solution vector is printed out.
    ***************************************************************************/
   int VCS_SOLVE::vcs_report(int iconv) {
-    bool printActualMoles = true;
-    size_t i, j, l, k, inertYes = FALSE, kspec;
+    bool printActualMoles = true, inertYes = false;
+    size_t i, j, l, k, kspec;
     size_t nspecies = m_numSpeciesTot;
     double  g;
 
@@ -154,7 +154,7 @@ namespace VCSnonideal {
     }
     for (i = 0; i < m_numPhases; i++) {
       if (TPhInertMoles[i] > 0.0) {
-	inertYes = TRUE;
+	inertYes = true;
 	if (i == 0) {
 	  plogf(" Inert Gas Species        ");
 	} else {

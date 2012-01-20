@@ -203,13 +203,13 @@ namespace Cantera {
     if (m_itol) {
       m_cvode_mem = CVodeMalloc(m_neq, cvode_rhs, m_t0, nv(m_y), m_method, 
 				m_iter, m_itol, &m_reltol,
-				nv(m_abstol), m_data, NULL, TRUE, m_iopt, 
+				nv(m_abstol), m_data, NULL, 1, m_iopt,
 				DATA_PTR(m_ropt), NULL);
     }
     else {
       m_cvode_mem = CVodeMalloc(m_neq, cvode_rhs, m_t0, nv(m_y), m_method, 
 				m_iter, m_itol, &m_reltol,
-				&m_abstols, m_data, NULL, TRUE, m_iopt, 
+				&m_abstols, m_data, NULL, 1, m_iopt,
 				DATA_PTR(m_ropt), NULL);
     }
 
@@ -252,13 +252,13 @@ namespace Cantera {
     if (m_itol) {
       result = CVReInit(m_cvode_mem, cvode_rhs, m_t0, nv(m_y), m_method, 
 			m_iter, m_itol, &m_reltol,
-			nv(m_abstol), m_data, NULL, TRUE, m_iopt, 
+			nv(m_abstol), m_data, NULL, 1, m_iopt,
 			DATA_PTR(m_ropt), NULL);
     }
     else {
       result = CVReInit(m_cvode_mem, cvode_rhs, m_t0, nv(m_y), m_method, 
 			m_iter, m_itol, &m_reltol,
-			&m_abstols, m_data, NULL, TRUE, m_iopt, 
+			&m_abstols, m_data, NULL, 1, m_iopt,
 			DATA_PTR(m_ropt), NULL);
     }
 

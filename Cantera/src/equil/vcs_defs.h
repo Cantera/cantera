@@ -17,13 +17,6 @@ namespace VCSnonideal {
    * COMMON DEFINITIONS -> Protect them against redefinitions
    */
   //@{
-#ifndef TRUE
-# define TRUE 1
-#endif
-   
-#ifndef FALSE
-# define FALSE 0
-#endif
 
 #ifndef MAX
 # define MAX(x,y) (( (x) > (y) ) ? (x) : (y))
