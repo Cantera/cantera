@@ -652,7 +652,7 @@ namespace Cantera {
     double T = temperature();
     double RT = GasConstant*T;
 
-    fvo_zero_dbl_1(lnActCoeff_Scaled_, m_kk);
+    lnActCoeff_Scaled_.assign(m_kk, 0.0);
     
     for ( iK = 0; iK < m_kk; iK++ ){
       for (size_t i = 0; i <  numBinaryInteractions_; i++) {
@@ -719,7 +719,7 @@ namespace Cantera {
     double T = temperature();
     double RTT = GasConstant*T*T;
 
-    fvo_zero_dbl_1(dlnActCoeffdT_Scaled_, m_kk);
+    dlnActCoeffdT_Scaled_.assign(m_kk, 0.0);
     
     for ( iK = 0; iK < m_kk; iK++ ){
       for (size_t i = 0; i <  numBinaryInteractions_; i++) {
@@ -833,7 +833,7 @@ namespace Cantera {
     double T = temperature();
     double RT = GasConstant*T;
 
-    fvo_zero_dbl_1(dlnActCoeffdlnN_Scaled_, m_kk);
+    dlnActCoeffdlnN_Scaled_.assign(m_kk, 0.0);
     
     for ( iK = 0; iK < m_kk; iK++ ){
 
@@ -867,7 +867,7 @@ namespace Cantera {
     doublereal XA, XB, g0 , g1;
     doublereal T = temperature();
 
-    fvo_zero_dbl_1(dlnActCoeffdlnX_Scaled_, m_kk);
+    dlnActCoeffdlnX_Scaled_.assign(m_kk, 0.0);
 
     doublereal RT = GasConstant * T;
 

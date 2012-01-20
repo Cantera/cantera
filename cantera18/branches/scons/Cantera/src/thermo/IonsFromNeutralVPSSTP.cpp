@@ -694,7 +694,9 @@ namespace Cantera {
     neutralMoleculePhase_->getMoleFractions(DATA_PTR(NeutralMolecMoleFractions_)); 
   
     // Zero the mole fractions
-    fbo_zero_dbl_1(mf, m_kk);
+    for (size_t k = 0; k < m_kk; k++) {
+      mf[k] = 0.0;
+    }
   
     /*
      *  Use the formula matrix to calculate the relative mole numbers.
@@ -1291,7 +1293,7 @@ namespace Cantera {
 	 elemVectorN[m] = neutralMoleculePhase_->nAtoms(jNeut, m);
       }
       elemVectorN_orig = elemVectorN;
-      fvo_zero_dbl_1(fm_tmp, m_kk);
+      fm_tmp.assign(m_kk, 0.0);
 
       for (size_t m = 0; m < nElementsI; m++) {
 	 elemVectorI[m] = nAtoms(indexSpecialSpecies_, m);
@@ -1505,7 +1507,7 @@ namespace Cantera {
      */
     GibbsExcessVPSSTP *geThermo = dynamic_cast<GibbsExcessVPSSTP *>(neutralMoleculePhase_);
     if (!geThermo) {
-      fvo_zero_dbl_1(dlnActCoeffdT_Scaled_, m_kk);
+      dlnActCoeffdT_Scaled_.assign(m_kk, 0.0);
       return;
     }
 
@@ -1563,7 +1565,7 @@ namespace Cantera {
      */
     GibbsExcessVPSSTP *geThermo = dynamic_cast<GibbsExcessVPSSTP *>(neutralMoleculePhase_);
     if (!geThermo) {
-      fvo_zero_dbl_1(dlnActCoeffdlnX_Scaled_, m_kk);
+      dlnActCoeffdlnX_Scaled_.assign(m_kk, 0);
       return;
     }
 
@@ -1621,7 +1623,7 @@ namespace Cantera {
      */
     GibbsExcessVPSSTP *geThermo = dynamic_cast<GibbsExcessVPSSTP *>(neutralMoleculePhase_);
     if (!geThermo) {
-      fvo_zero_dbl_1(dlnActCoeffdlnN_Scaled_, m_kk);
+      dlnActCoeffdlnN_Scaled_.assign(m_kk, 0.0);
       return;
     }
 

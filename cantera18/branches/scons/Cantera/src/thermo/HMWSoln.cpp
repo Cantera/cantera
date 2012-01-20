@@ -3409,7 +3409,7 @@ namespace Cantera {
     /*
      *  Zero the unscaled 2nd derivatives
      */
-    fbo_zero_dbl_1(DATA_PTR(m_dlnActCoeffMolaldT_Unscaled), m_kk);
+    m_dlnActCoeffMolaldT_Unscaled.assign(m_kk, 0.0);
     /*
      *  Do the actual calculation of the unscaled temperature derivatives
      */
@@ -4274,7 +4274,7 @@ namespace Cantera {
     /*
      *  Zero the unscaled 2nd derivatives
      */
-    fbo_zero_dbl_1(DATA_PTR(m_d2lnActCoeffMolaldT2_Unscaled), m_kk);
+    m_d2lnActCoeffMolaldT2_Unscaled.assign(m_kk, 0.0);
     /*
      * Calculate the unscaled 2nd derivatives
      */
@@ -5164,9 +5164,7 @@ namespace Cantera {
    *   scale. It's derivative is too.
    */
   void HMWSoln::s_update_dlnMolalityActCoeff_dP() const {
- 
-    fbo_zero_dbl_1(DATA_PTR(m_dlnActCoeffMolaldP_Unscaled), m_kk);
-  
+    m_dlnActCoeffMolaldP_Unscaled.assign(m_kk, 0.0);
     s_updatePitzer_dlnMolalityActCoeff_dP();
 
 
@@ -6364,7 +6362,7 @@ namespace Cantera {
    */
   void HMWSoln::s_updateScaling_pHScaling() const {
     if (m_pHScalingType == PHSCALE_PITZER) {
-      fvo_copy_dbl_1(m_lnActCoeffMolal_Scaled, m_lnActCoeffMolal_Unscaled, m_kk);
+      m_lnActCoeffMolal_Scaled = m_lnActCoeffMolal_Unscaled;
       return;
     }
     AssertTrace(m_pHScalingType == PHSCALE_NBS);
@@ -6384,7 +6382,7 @@ namespace Cantera {
    */
   void HMWSoln::s_updateScaling_pHScaling_dT() const {
     if (m_pHScalingType == PHSCALE_PITZER) {
-      fvo_copy_dbl_1(m_dlnActCoeffMolaldT_Scaled, m_dlnActCoeffMolaldT_Unscaled, m_kk);
+      m_dlnActCoeffMolaldT_Scaled = m_dlnActCoeffMolaldT_Unscaled;
       return;
     }
     AssertTrace(m_pHScalingType == PHSCALE_NBS);
@@ -6404,7 +6402,7 @@ namespace Cantera {
    */
   void HMWSoln::s_updateScaling_pHScaling_dT2() const {
     if (m_pHScalingType == PHSCALE_PITZER) {
-      fvo_copy_dbl_1(m_d2lnActCoeffMolaldT2_Scaled, m_d2lnActCoeffMolaldT2_Unscaled, m_kk);
+      m_d2lnActCoeffMolaldT2_Scaled = m_d2lnActCoeffMolaldT2_Unscaled;
       return;
     }
     AssertTrace(m_pHScalingType == PHSCALE_NBS);
@@ -6423,7 +6421,7 @@ namespace Cantera {
    */
   void HMWSoln::s_updateScaling_pHScaling_dP() const {
     if (m_pHScalingType == PHSCALE_PITZER) {
-      fvo_copy_dbl_1(m_dlnActCoeffMolaldP_Scaled, m_dlnActCoeffMolaldP_Unscaled, m_kk);
+      m_dlnActCoeffMolaldP_Scaled = m_dlnActCoeffMolaldP_Unscaled;
       return;
     }
     AssertTrace(m_pHScalingType == PHSCALE_NBS);
