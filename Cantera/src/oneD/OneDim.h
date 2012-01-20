@@ -52,7 +52,7 @@ namespace Cantera {
         /// Return a reference to domain i.
         Domain1D& domain(size_t i) const { return *m_dom[i]; }
 
-        int domainIndex(std::string name);
+        size_t domainIndex(std::string name);
 
         /// The index of the start of domain i in the solution vector.
         size_t start(size_t i) const { return m_dom[i]->loc(); }

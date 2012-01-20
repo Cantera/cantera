@@ -134,7 +134,8 @@ namespace Cantera {
                 "Jacobian is singular for domain "+
                 dom.id() + ", component "
                 +dom.componentName(comp)+" at point "
-                +int2str(int(pt))+"\n(Matrix row "+int2str(iok)+") \nsee file bandmatrix.csv\n");
+                +int2str(int(pt))+"\n(Matrix row "
+                +int2str(int(iok))+") \nsee file bandmatrix.csv\n");
         }
         else if (int(iok) < 0)
 	    throw CanteraError("MultiNewton::step",

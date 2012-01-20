@@ -129,8 +129,8 @@ namespace Cantera {
    *
    * @note This method is not used currently.
    */
-  void TransportFactory::getBinDiffCorrection(doublereal t, 
-					      const GasTransportParams& tr, int k, int j, doublereal xk, doublereal xj, 
+  void TransportFactory::getBinDiffCorrection(doublereal t, const GasTransportParams& tr,
+					      size_t k, size_t j, doublereal xk, doublereal xj,
 					      doublereal& fkj, doublereal& fjk) {
 
     doublereal w1, w2, wsum, sig1, sig2, sig12, sigratio, sigratio2,
@@ -200,7 +200,7 @@ namespace Cantera {
    * of polar-nonpolar pairs. For more information about this
    * correction, see Dixon-Lewis, Proc. Royal Society (1968).
    */
-  void TransportFactory::makePolarCorrections(int i, int j, 
+  void TransportFactory::makePolarCorrections(size_t i, size_t j,
 					      const GasTransportParams& tr, doublereal& f_eps, doublereal& f_sigma) {
 
     // no correction if both are nonpolar, or both are polar
@@ -211,8 +211,8 @@ namespace Cantera {
     // corrections to the effective diameter and well depth 
     // if one is polar and one is non-polar
 
-    int kp = (tr.polar[i] ? i : j);     // the polar one
-    int knp = (i == kp ? j : i);        // the nonpolar one
+    size_t kp = (tr.polar[i] ? i : j);     // the polar one
+    size_t knp = (i == kp ? j : i);        // the nonpolar one
 
     doublereal d3np, d3p, alpha_star, mu_p_star, xi;
     d3np = pow(tr.sigma[knp],3);

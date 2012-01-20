@@ -303,7 +303,7 @@ namespace Cantera {
     void setMoleFSolventMin(doublereal xmolSolventMIN);
 
     //! Returns the solvent index.
-    int solventIndex() const;
+    size_t solventIndex() const;
 
     /**
      * Returns the minimum mole fraction in the molality 

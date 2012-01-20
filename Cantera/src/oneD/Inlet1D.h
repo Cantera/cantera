@@ -57,7 +57,7 @@ namespace Cantera {
         virtual void setMoleFractions(doublereal* xin){err("setMoleFractions");}
 
         /// Mass fraction of species k.
-        virtual doublereal massFraction(int k) {err("massFraction"); return 0.0;}
+        virtual doublereal massFraction(size_t k) {err("massFraction"); return 0.0;}
 
         /// Set the total mass flow rate.
         virtual void setMdot(doublereal mdot){m_mdot = mdot;}
@@ -151,8 +151,8 @@ namespace Cantera {
 
         virtual void setMoleFractions(std::string xin);
         virtual void setMoleFractions(doublereal* xin);
-        virtual doublereal massFraction(int k) {return m_yin[k];}
-        virtual std::string componentName(int n) const;
+        virtual doublereal massFraction(size_t k) {return m_yin[k];}
+        virtual std::string componentName(size_t n) const;
         virtual void init();
         virtual void eval(size_t jg, doublereal* xg, doublereal* rg,
             integer* diagg, doublereal rdt);
@@ -182,7 +182,7 @@ namespace Cantera {
         }
         virtual ~Empty1D(){}
 
-        virtual std::string componentName(int n) const;
+        virtual std::string componentName(size_t n) const;
         virtual void showSolution(const doublereal* x) {}
 
         virtual void init();
@@ -214,7 +214,7 @@ namespace Cantera {
         }
         virtual ~Symm1D(){}
 
-        virtual std::string componentName(int n) const;
+        virtual std::string componentName(size_t n) const;
 
         virtual void init();
 
@@ -246,7 +246,7 @@ namespace Cantera {
         }
         virtual ~Outlet1D(){}
 
-        virtual std::string componentName(int n) const;
+        virtual std::string componentName(size_t n) const;
 
         virtual void init();
 
@@ -295,8 +295,8 @@ namespace Cantera {
 
         virtual void setMoleFractions(std::string xin);
         virtual void setMoleFractions(doublereal* xin);
-        virtual doublereal massFraction(int k) {return m_yres[k];}
-        virtual std::string componentName(int n) const;
+        virtual doublereal massFraction(size_t k) {return m_yres[k];}
+        virtual std::string componentName(size_t n) const;
         virtual void init();
         virtual void eval(size_t jg, doublereal* xg, doublereal* rg,
             integer* diagg, doublereal rdt);
@@ -327,7 +327,7 @@ namespace Cantera {
         }
         virtual ~Surf1D(){}
 
-        virtual std::string componentName(int n) const;
+        virtual std::string componentName(size_t n) const;
 
         virtual void init();
 

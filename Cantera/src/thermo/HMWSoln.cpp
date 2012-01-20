@@ -653,9 +653,9 @@ namespace Cantera {
     double L = relative_enthalpy();
     getMoleFractions(DATA_PTR(m_tmpV));
     double xanion = 0.0;
-    int kcation = -1;
+    size_t kcation = npos;
     double xcation = 0.0;
-    int kanion = -1;
+    size_t kanion = npos;
     const double *charge =  DATA_PTR(m_speciesCharge);
     for (size_t k = 0; k < m_kk; k++) {
       if (charge[k] > 0.0) {
@@ -670,7 +670,7 @@ namespace Cantera {
 	}
       }
     }
-    if (kcation < 0 || kanion < 0) {
+    if (kcation == npos || kanion == npos) {
       return L;
     }
     double xuse = xcation;
@@ -1949,9 +1949,9 @@ namespace Cantera {
       for (int times = 0; times< 10; times++) {
 	double anion_charge = 0.0;
 	double cation_charge = 0.0;
-	int anion_contrib_max_i = -1;
+	size_t anion_contrib_max_i = npos;
 	double anion_contrib_max = -1.0;
-	int cation_contrib_max_i = -1;
+	size_t cation_contrib_max_i = npos;
 	double cation_contrib_max = -1.0;
 	for (size_t i = 0; i < m_kk; i++) {
 	  double charge_i = m_speciesCharge[i];

@@ -195,13 +195,13 @@ namespace Cantera {
 
 
     /// Second-order correction to the binary diffusion coefficients
-    void getBinDiffCorrection(doublereal t, 
-			      const GasTransportParams& tr, int k, int j,
+    void getBinDiffCorrection(doublereal t, const GasTransportParams& tr,
+			      size_t k, size_t j,
 			      doublereal xk, doublereal xj, 
 			      doublereal& fkj, doublereal& fjk);
 
     /// Corrections for polar-nonpolar binary diffusion coefficients
-    void makePolarCorrections(int i, int j, 
+    void makePolarCorrections(size_t i, size_t j,
 			      const GasTransportParams& tr, doublereal& f_eps, 
 			      doublereal& f_sigma);
 

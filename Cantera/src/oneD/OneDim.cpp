@@ -53,12 +53,12 @@ namespace Cantera {
     }
 
 
-    int OneDim::domainIndex(string name) {
+    size_t OneDim::domainIndex(string name) {
         for (size_t n = 0; n < m_nd; n++) {
             if (domain(n).id() == name) return n;
         }
         throw CanteraError("OneDim::domainIndex","no domain named >>"+name+"<<");
-        return -1;
+        return npos;
     }
 
 

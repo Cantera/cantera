@@ -970,7 +970,7 @@ namespace Cantera {
         case 2: return "T";
         case 3: return "lambda";
         default:
-            if (n >= (int) c_offset_Y && n < (int) (c_offset_Y + m_nsp)) {
+            if (n >= c_offset_Y && n < (c_offset_Y + m_nsp)) {
                     return m_thermo->speciesName(n - c_offset_Y);
             }
             else 

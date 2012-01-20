@@ -204,7 +204,7 @@ extern "C" {
     int DLL_EXPORT xml_nChildren(int i) {
         try {
             XML_Node& node = *_xml(i);
-            return node.nChildren();
+            return (int) node.nChildren();
         }
         catch (CanteraError) { return -1; }
     }

@@ -102,7 +102,7 @@ namespace Cantera {
     }
  
     string Inlet1D::
-    componentName(int n) const { 
+    componentName(size_t n) const {
         switch (n) {
         case 0: 
           return "mdot";
@@ -259,7 +259,7 @@ namespace Cantera {
     //      Empty1D
     //--------------------------------------------------
 
-    string Empty1D::componentName(int n) const { 
+    string Empty1D::componentName(size_t n) const {
         switch (n) {
         case 0: 
           return "dummy";
@@ -317,7 +317,7 @@ namespace Cantera {
     //      Symm1D
     //--------------------------------------------------
 
-    string Symm1D::componentName(int n) const { 
+    string Symm1D::componentName(size_t n) const {
         switch (n) {
         case 0: 
           return "dummy"; 
@@ -399,7 +399,7 @@ namespace Cantera {
     //      Outlet1D
     //--------------------------------------------------
 
-    string Outlet1D::componentName(int n) const { 
+    string Outlet1D::componentName(size_t n) const {
         switch (n) {
         case 0: 
           return "outlet dummy"; 
@@ -519,7 +519,7 @@ namespace Cantera {
         }
     }
  
-    string OutletRes1D::componentName(int n) const { 
+    string OutletRes1D::componentName(size_t n) const {
         switch (n) {
         case 0:
            return "dummy";
@@ -641,7 +641,7 @@ namespace Cantera {
 
 
 
-    string Surf1D::componentName(int n) const { 
+    string Surf1D::componentName(size_t n) const {
         switch (n) {
         case 0:
           return "temperature";

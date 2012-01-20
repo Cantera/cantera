@@ -256,7 +256,7 @@ namespace Cantera {
 
     vector_fp c(2 + 2 * numPoints);
      
-    c[0] = numPoints;
+    c[0] = static_cast<double>(numPoints);
     c[1] = h298;
     for (size_t i = 0; i < numPoints; i++) {
       c[2+i*2]   = cTemperatures[i];

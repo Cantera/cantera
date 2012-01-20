@@ -805,7 +805,7 @@ namespace Cantera {
   /*
    *  @param n  Number of the child to return
    */
-  XML_Node& XML_Node::child(const int n) const {
+  XML_Node& XML_Node::child(const size_t n) const {
     return *m_children[n]; 
   }
 
@@ -919,8 +919,7 @@ namespace Cantera {
     }
     if (depth > 0) {
       XML_Node* r = 0;
-      int n = nChildren();
-      for (int i = 0; i < n; i++) {
+      for (size_t i = 0; i < nChildren(); i++) {
 	r = m_children[i]->findID(id, depth-1);
 	if (r != 0) return r;
       }
@@ -951,8 +950,7 @@ namespace Cantera {
       }
     }
     XML_Node* r = 0;
-    int n = nChildren();
-    for (int i = 0; i < n; i++) {
+    for (size_t i = 0; i < nChildren(); i++) {
       r = m_children[i]->findByAttr(attr, val);
       if (r != 0) return r;
     }
@@ -975,8 +973,7 @@ namespace Cantera {
       return this;
     }
     XML_Node* r = 0;
-    int n = nChildren();
-    for (int i = 0; i < n; i++) {
+    for (size_t i = 0; i < nChildren(); i++) {
       r = m_children[i]->findByName(nm);
       if (r != 0) return r;
     }
@@ -999,8 +996,7 @@ namespace Cantera {
       return const_cast<XML_Node*>(this);
     }
     const XML_Node* r = 0;
-    int n = nChildren();
-    for (int i = 0; i < n; i++) {
+    for (size_t i = 0; i < nChildren(); i++) {
       r = m_children[i]->findByName(nm);
       if (r != 0) return r;
     }
@@ -1080,7 +1076,6 @@ namespace Cantera {
    */
   void XML_Node::copyUnion(XML_Node * const node_dest) const {
     XML_Node *sc, *dc;
-    int ndc, idc;
     node_dest->addValue(m_value);
     if (m_name == "") return;
     map<string,string>::const_iterator b = m_attribs.begin();
@@ -1092,10 +1087,10 @@ namespace Cantera {
     const vector<XML_Node*> &vsc = node_dest->children();
     for (size_t n = 0; n < m_nchildren; n++) {
       sc = m_children[n];
-      ndc = node_dest->nChildren();
+      size_t ndc = node_dest->nChildren();
       dc = 0;
       if (! sc->m_iscomment) {
-	for (idc = 0; idc < ndc; idc++) {
+	for (size_t idc = 0; idc < ndc; idc++) {
 	  XML_Node *dcc = vsc[idc];
 	  if (dcc->name() == sc->name()) {
 	    if (sc->hasAttrib("id")) {
@@ -1133,7 +1128,6 @@ namespace Cantera {
    */
   void XML_Node::copy(XML_Node * const node_dest) const {
     XML_Node *sc, *dc;
-    int ndc;
     node_dest->addValue(m_value);
     node_dest->setName(m_name);
     if (m_name == "") return;
@@ -1145,7 +1139,7 @@ namespace Cantera {
 
     for (size_t n = 0; n < m_nchildren; n++) {
       sc = m_children[n];
-      ndc = node_dest->nChildren();
+      size_t ndc = node_dest->nChildren();
       (void) node_dest->addChild(sc->name());
       dc = vsc[ndc];
       sc->copy(dc);
@@ -1178,8 +1172,7 @@ namespace Cantera {
    */
   void XML_Node::getChildren(const std::string &nm, 
 			     std::vector<XML_Node*>& children) const {
-    int i, n = nChildren();
-    for (i = 0; i < n; i++) {
+    for (size_t i = 0; i < nChildren(); i++) {
       if (child(i).name() == nm) {
 	children.push_back(&child(i));
       } 

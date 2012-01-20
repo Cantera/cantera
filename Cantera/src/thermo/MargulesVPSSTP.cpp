@@ -613,8 +613,7 @@ namespace Cantera {
 	throw CanteraError(subname.c_str(),
 			   "Unknown activity coefficient model: " + mStringa);
       }
-      int n = acNodePtr->nChildren();
-      for (int i = 0; i < n; i++) {
+      for (size_t i = 0; i < acNodePtr->nChildren(); i++) {
 	XML_Node &xmlACChild = acNodePtr->child(i);
 	stemp = xmlACChild.name();
 	string nodeName = lowercase(stemp);
@@ -988,12 +987,11 @@ namespace Cantera {
     }
 
     resizeNumInteractions(numBinaryInteractions_ + 1);
-    int iSpot = numBinaryInteractions_ - 1;
+    size_t iSpot = numBinaryInteractions_ - 1;
     m_pSpecies_A_ij[iSpot] = iSpecies;
     m_pSpecies_B_ij[iSpot] = jSpecies;
   
-    int num = xmLBinarySpecies.nChildren();
-    for (int iChild = 0; iChild < num; iChild++) {
+    for (size_t iChild = 0; iChild < xmLBinarySpecies.nChildren(); iChild++) {
       XML_Node &xmlChild = xmLBinarySpecies.child(iChild);
       stemp = xmlChild.name();
       string nodeName = lowercase(stemp);

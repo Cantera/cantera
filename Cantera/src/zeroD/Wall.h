@@ -157,7 +157,7 @@ namespace CanteraZeroD {
         Cantera::Func1 *m_qf;
         Cantera::vector_fp m_leftcov, m_rightcov;
 
-        Cantera::vector_int m_pleft, m_pright;
+        std::vector<size_t> m_pleft, m_pright;
         Cantera::vector_fp m_leftmult_save, m_rightmult_save;
         std::vector<std::string> m_pname_left, m_pname_right;
 

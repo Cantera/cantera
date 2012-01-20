@@ -517,11 +517,9 @@ namespace Cantera {
 			 "Unknown type: " + type);
     }
 
-    int nc = kf.nChildren();
     nodeset_t& kf_children = kf.children();
     vector_fp clow(3,0.0), chigh(3,0.0);
-    //        int nr = nReacMolecules(rdata);
-    for (int m = 0; m < nc; m++) {
+    for (size_t m = 0; m < kf.nChildren(); m++) {
       const node_t& c = *kf_children[m];
       string nm = c.name();
       int highlow=0;
@@ -845,7 +843,7 @@ namespace Cantera {
 	      || (c < 0.0 && m_rev[nn])) {
 	    if ((!dup || !m_dup[nn])) {
 	      string msg = string("Undeclared duplicate reactions detected: \n")
-		+"Reaction "+int2str(nn+1)+": "+m_eqn[nn]
+		+"Reaction "+int2str(int(nn)+1)+": "+m_eqn[nn]
 		+"\nReaction "+int2str(i+1)+": "+eqn+"\n";
 	      throw CanteraError("installReaction", msg);
 	    }
