@@ -62,7 +62,7 @@ namespace Cantera {
             knew = newmech.speciesIndex(nm); 
 
             // copy this species from the old to the new solution vectors
-            if (knew >= 0) {
+            if (knew != npos) {
                 for (j = 0; j < points; j++) {
                     newSoln[nv_new*j + 4 + knew] = oldSoln[nv_old*j + 4 + k];
                 }
@@ -364,7 +364,7 @@ namespace Cantera {
 
         // update thermodynamic properties only if a Jacobian is not
         // being evaluated
-        if (jpt < 0) { //if (jpt < 0 || (m_transport_option == c_Multi_Transport)) {
+        if (jpt == npos) { //if (jpt < 0 || (m_transport_option == c_Multi_Transport)) {
             updateThermo(x, j0, j1);
 
             // update transport properties only if a Jacobian is not being
@@ -668,7 +668,7 @@ namespace Cantera {
 
         // update thermodynamic properties only if a Jacobian is not
         // being evaluated
-        if (jpt < 0) {
+        if (jpt == npos) {
             updateThermo(x, j0, j1);
             updateTransport(x, j0, j1);
         }
@@ -1097,7 +1097,7 @@ namespace Cantera {
                 }
                 else goto error;
             }
-            else if (m_thermo->speciesIndex(nm) >= 0) {
+            else if (m_thermo->speciesIndex(nm) != npos) {
                 writelog(nm+"   ");
                 if (x.size() == np) {
                     k = m_thermo->speciesIndex(nm);

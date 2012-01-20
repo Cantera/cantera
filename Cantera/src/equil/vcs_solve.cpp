@@ -318,7 +318,7 @@ namespace VCSnonideal {
       iprintTime = m_timing_print_lvl ;
     }
     
-    if (ifunc < 0 || ifunc > 2) {
+    if (ifunc > 2) {
       plogf("vcs: Unrecognized value of ifunc, %d: bailing!\n",
 	    ifunc);
       return VCS_PUB_BAD;
@@ -649,7 +649,7 @@ namespace VCSnonideal {
       std::vector<size_t> numPhSp(nph, 0);
       for (size_t kspec = 0; kspec < nspecies; kspec++) {
 	size_t iph = pub->PhaseID[kspec];
-	if (iph < 0 || iph >= nph) {
+	if (iph >= nph) {
 	  plogf("%sSpecies to Phase Mapping, PhaseID, has a bad value\n",
 		ser);
 	  plogf("\tPhaseID[%d] = %d\n", kspec, iph);

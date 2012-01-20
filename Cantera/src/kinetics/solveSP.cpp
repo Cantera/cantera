@@ -77,7 +77,7 @@ namespace Cantera {
         for (size_t n = 0; n < numPossibleSurfPhases; n++) {
             InterfaceKinetics *m_kin = m_objects[n];
             size_t surfPhaseIndex = m_kin->surfacePhaseIndex();
-            if (surfPhaseIndex >= 0) {
+            if (surfPhaseIndex != npos) {
                 m_numSurfPhases++;
                 m_indexKinObjSurfPhase.push_back(n);
                 m_kinObjPhaseIDSurfPhase.push_back(surfPhaseIndex);

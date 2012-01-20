@@ -1043,7 +1043,7 @@ AxiStagnBVP::AxiStagnBVP(igthermo_t* ph, int nsp, int points) :
                 }
                 else goto error;
             }
-            else if (m_thermo->speciesIndex(nm) >= 0) {
+            else if (m_thermo->speciesIndex(nm) != npos) {
                 writelog(nm+"   ");
                 if ((int) x.size() == np) {
                     k = m_thermo->speciesIndex(nm);

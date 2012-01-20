@@ -357,7 +357,7 @@ namespace CanteraZeroD {
                 kp = m_wall[m]->kinetics(m_lr[m])->reactionPhaseIndex();
                 th = &m_wall[m]->kinetics(m_lr[m])->thermo(kp);
                 k = th->speciesIndex(nm);
-                if (k >= 0) {
+                if (k != npos) {
                     return k + 2 + m_nsp + walloffset;
                 }
                 else {

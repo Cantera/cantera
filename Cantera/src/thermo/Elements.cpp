@@ -318,7 +318,7 @@ namespace Cantera {
     AssertThrowMsg(m_entropy298[m] != ENTROPY298_UNKNOWN,
 		   "Elements::entropy298",
 		   "Entropy at 298 K of element is unknown");
-    AssertTrace(m >= 0 && m < m_mm);
+    AssertTrace(m < m_mm);
     return (m_entropy298[m]);
   }
   

@@ -440,7 +440,7 @@ namespace VCSnonideal {
     for (eVP = 0; eVP < volPhase->nElemConstraints(); eVP++) {
       e = volPhase->elemGlobalIndex(eVP);
 #ifdef DEBUG_MODE
-      if (e < 0) {
+      if (e == npos) {
 	exit(EXIT_FAILURE);
       }
 #endif

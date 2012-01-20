@@ -87,7 +87,7 @@ namespace Cantera {
         for (m = 0; m < nr; m++) {
             sum = 0.0;
             for (j = m - m_kl; j <= m + m_ku; j++) {
-                if (j >= 0 && j < m_n)
+                if (j < m_n)
                     sum += _value(m,j)*b[j];
             }
             prod[m] = sum;
@@ -105,7 +105,7 @@ namespace Cantera {
         for (n = 0; n < nc; n++) {
             sum = 0.0;
             for (i = n - m_ku; i <= n + m_kl; i++) {
-                if (i >= 0 && i < m_n)
+                if (i < m_n)
                     sum += _value(i,n)*b[i];
             }
             prod[n] = sum;

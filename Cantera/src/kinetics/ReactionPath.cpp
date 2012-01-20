@@ -845,7 +845,7 @@ namespace Cantera {
         size_t m = m_enamemap[element]-1; //ph.elementIndex(element);
 
         r.element = element;
-        if (m < 0) return -1;
+        if (m == npos) return -1;
 
         s.getFwdRatesOfProgress(DATA_PTR(m_ropf));
         s.getRevRatesOfProgress(DATA_PTR(m_ropr));
