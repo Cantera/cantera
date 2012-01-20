@@ -166,63 +166,6 @@ namespace Cantera {
     return maxval;
   }
 
-  //! Copy a vector of doubles in an efficient, fast manner.
-  /*!
-   *  No checking is done other that to check that len is greater than 0
-   *
-   *  @param copyTo  Vector to receive the copy
-   *  @param copyFrom Vector from which the copy is coming
-   *  @param len  Length of the copy
-   */
-  inline void fbo_copy_dbl_1(doublereal * const copyTo, const doublereal * const copyFrom, 
-			     const size_t len) {
-    if (len > 0) {
-      (void) memcpy((void *)copyTo, (const void *)copyFrom, len * sizeof(doublereal));
-    }
-  }
-
-  //! Copy a vector<doubles> in an efficient, fast manner.
-  /*!
-   *  No checking is done other that to check that len is greater than 0
-   *
-   *  @param copyTo  Vector to receive the copy
-   *  @param copyFrom Vector from which the copy is coming
-   *  @param len  Length of the copy
-   */
-  inline void fvo_copy_dbl_1(std::vector<doublereal> &copyTo, const std::vector<doublereal> &copyFrom, 
-			     const size_t len) {
-    if (len > 0) {
-      (void) memcpy((void *)(&copyTo[0]), (const void *)(&copyFrom[0]), len * sizeof(doublereal));
-    }
-  }
-
-  //! Zero a double vector in an efficient, fast manner.
-  /*!
-   *  No checking is done other that to check that len is greater than 0
-   *
-   *  @param v    Vector to be zeroed
-   *  @param len  Length of the copy
-   */
-  inline void fbo_zero_dbl_1(doublereal * const v, const size_t len) {
-    if (len > 0) {
-      (void) memset((void *)v, 0, len * sizeof(doublereal));
-    }
-  }
-
-  //! Zero a vector<doubles> in an efficient, fast manner.
-  /*!
-   *  No checking is done other that to check that len is greater than 0
-   *
-   *  @param v    Vector to be zeroed
-   *  @param len  Length of the copy
-   */
-  inline void fvo_zero_dbl_1(std::vector<doublereal> &v, const size_t len) {
-    if (len > 0) {
-      (void) memset((void *)(&v[0]), 0, len * sizeof(doublereal));
-    }
-  }
-
-
 }
 
 #endif
