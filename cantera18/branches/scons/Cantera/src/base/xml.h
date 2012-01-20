@@ -456,7 +456,7 @@ namespace Cantera {
     /*!
      *  @param n  Number of the child to return
      */
-    XML_Node& child(const int n) const ;
+    XML_Node& child(const size_t n) const ;
 
     //! Return an unchangeable reference to the vector of children of the current node
     /*!

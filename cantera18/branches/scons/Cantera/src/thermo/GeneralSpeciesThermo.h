@@ -229,7 +229,7 @@ namespace Cantera {
      *
      * @return pointer to the SpeciesThermoInterpType object.
      */
-    SpeciesThermoInterpType * provideSTIT(int k);
+    SpeciesThermoInterpType * provideSTIT(size_t k);
 
   protected:
 

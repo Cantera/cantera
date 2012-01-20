@@ -123,7 +123,7 @@ namespace CanteraZeroD {
     void Wall::addSensitivityReaction(int leftright, size_t rxn) {
         if (rxn >= m_chem[leftright]->nReactions())
             throw CanteraError("Wall::addSensitivityReaction",
-                "Reaction number out of range ("+int2str(rxn)+")");
+                "Reaction number out of range ("+int2str(int(rxn))+")");
         if (leftright == 0) {
             m_pleft.push_back(rxn);
             m_leftmult_save.push_back(1.0);

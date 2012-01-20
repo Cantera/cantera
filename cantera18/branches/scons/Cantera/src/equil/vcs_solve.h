@@ -509,7 +509,7 @@ public:
    * @return Returns true if the phase can come into existence
    *         and false otherwise.
    */
-  bool vcs_popPhasePossible(const int iphasePop) const;
+  bool vcs_popPhasePossible(const size_t iphasePop) const;
 
   //! Decision as to whether a phase pops back into existence
   /*!
@@ -670,7 +670,7 @@ public:
    *
    * @param iph Phase id of the deleted phase
    */
-  double vcs_phaseStabilityTest(const int iph);
+  double vcs_phaseStabilityTest(const size_t iph);
 
   //! Solve an equilibrium problem at a particular fixed temperature 
   //! and pressure

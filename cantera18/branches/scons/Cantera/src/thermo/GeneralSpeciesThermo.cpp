@@ -345,7 +345,7 @@ namespace Cantera {
   }
     
 
-  SpeciesThermoInterpType * GeneralSpeciesThermo::provideSTIT(int k) {
+  SpeciesThermoInterpType * GeneralSpeciesThermo::provideSTIT(size_t k) {
     return (m_sp[k]);
   }
 

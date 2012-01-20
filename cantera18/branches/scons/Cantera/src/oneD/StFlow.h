@@ -28,11 +28,11 @@ namespace Cantera {
     //------------------------------------------
 
     // Offsets of solution components in the solution array.
-    const unsigned int c_offset_U = 0;    // axial velocity
-    const unsigned int c_offset_V = 1;    // strain rate
-    const unsigned int c_offset_T = 2;    // temperature
-    const unsigned int c_offset_L = 3;    // (1/r)dP/dr
-    const unsigned int c_offset_Y = 4;    // mass fractions
+    const size_t c_offset_U = 0;    // axial velocity
+    const size_t c_offset_V = 1;    // strain rate
+    const size_t c_offset_T = 2;    // temperature
+    const size_t c_offset_L = 3;    // (1/r)dP/dr
+    const size_t c_offset_Y = 4;    // mass fractions
 
     // Transport option flags
     const int c_Mixav_Transport = 0;

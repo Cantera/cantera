@@ -101,8 +101,7 @@ namespace Cantera {
 	
     size_t n = iSpecies * m_kk + jSpecies;
     int counter = m_CounterIJ[n];
-    int num = BinSalt.nChildren();
-    for (int iChild = 0; iChild < num; iChild++) {
+    for (size_t iChild = 0; iChild < BinSalt.nChildren(); iChild++) {
       XML_Node &xmlChild = BinSalt.child(iChild);
       stemp = xmlChild.name();
       string nodeName = lowercase(stemp);
@@ -305,8 +304,7 @@ namespace Cantera {
 	
     size_t n = iSpecies * m_kk + jSpecies;
     int counter = m_CounterIJ[n];
-    int num = BinSalt.nChildren();
-    for (int i = 0; i < num; i++) {
+    for (size_t i = 0; i < BinSalt.nChildren(); i++) {
       XML_Node &xmlChild = BinSalt.child(i);
       stemp = xmlChild.name();
       string nodeName = lowercase(stemp);
@@ -392,8 +390,7 @@ namespace Cantera {
 	
     size_t n = iSpecies * m_kk + jSpecies;
     int counter = m_CounterIJ[n];
-    int num = BinSalt.nChildren();
-    for (int i = 0; i < num; i++) {
+    for (size_t i = 0; i < BinSalt.nChildren(); i++) {
       XML_Node &xmlChild = BinSalt.child(i);
       stemp = xmlChild.name();
       string nodeName = lowercase(stemp);
@@ -493,8 +490,7 @@ namespace Cantera {
     
     size_t n = iSpecies * m_kk + jSpecies;
     int counter = m_CounterIJ[n];
-    int num = BinSalt.nChildren();
-    for (int i = 0; i < num; i++) {
+    for (size_t i = 0; i < BinSalt.nChildren(); i++) {
       XML_Node &xmlChild = BinSalt.child(i);
       stemp = xmlChild.name();
       string nodeName = lowercase(stemp);
@@ -638,8 +634,7 @@ namespace Cantera {
 	
     size_t n = iSpecies * m_kk + jSpecies;
     int counter = m_CounterIJ[n];
-    int num = BinSalt.nChildren();
-    for (int i = 0; i < num; i++) {
+    for (size_t i = 0; i < BinSalt.nChildren(); i++) {
       XML_Node &xmlChild = BinSalt.child(i);
       stemp = xmlChild.name();
       string nodeName = lowercase(stemp);
@@ -771,8 +766,7 @@ namespace Cantera {
       return;
     }
 	
-    int num = BinSalt.nChildren();
-    for (int i = 0; i < num; i++) {
+    for (size_t i = 0; i < BinSalt.nChildren(); i++) {
       XML_Node &xmlChild = BinSalt.child(i);
       stemp = xmlChild.name();
       string nodeName = lowercase(stemp);
@@ -850,9 +844,7 @@ namespace Cantera {
 			 "neutral charge problem");
     }
  
-	
-    int num = BinSalt.nChildren();
-    for (int i = 0; i < num; i++) {
+    for (int i = 0; i < BinSalt.nChildren(); i++) {
       XML_Node &xmlChild = BinSalt.child(i);
       stemp = xmlChild.name();
       string nodeName = lowercase(stemp);
@@ -951,8 +943,7 @@ namespace Cantera {
       throw CanteraError("HMWSoln::readXMLZetaCation", "anion1 charge problem");
     }
  
-    int num = BinSalt.nChildren();
-    for (int i = 0; i < num; i++) {
+    for (size_t i = 0; i < BinSalt.nChildren(); i++) {
       XML_Node &xmlChild = BinSalt.child(i);
       stemp = xmlChild.name();
       string nodeName = lowercase(stemp);
@@ -1539,8 +1530,7 @@ namespace Cantera {
        * parameters
        */
       if (acNodePtr) {
-	int n = acNodePtr->nChildren();
-	for (int i = 0; i < n; i++) {
+	for (size_t i = 0; i < acNodePtr->nChildren(); i++) {
 	  XML_Node &xmlACChild = acNodePtr->child(i);
 	  stemp = xmlACChild.name();
 	  string nodeName = lowercase(stemp);

@@ -2,6 +2,7 @@
  * @file ctonedim.cpp
  */
 #define CANTERA_USE_INTERNAL
+
 #include "ctonedim.h"
 
 // Cantera includes
@@ -560,7 +561,7 @@ extern "C" {
 
     int DLL_EXPORT sim1D_domainIndex(int i, char* name) {
         try {
-            return _sim1D(i)->domainIndex(string(name));
+            return (int) _sim1D(i)->domainIndex(string(name));
         }
         catch (CanteraError) { return -1; }
     }

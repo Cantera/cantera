@@ -26,7 +26,7 @@ namespace VCSnonideal {
    * @return Returns true if the phase can come into existence
    *         and false otherwise.
    */
-  bool VCS_SOLVE::vcs_popPhasePossible(const int iphasePop) const {
+  bool VCS_SOLVE::vcs_popPhasePossible(const size_t iphasePop) const {
     
     vcs_VolPhase *Vphase = m_VolPhaseList[iphasePop];
 
@@ -404,7 +404,7 @@ namespace VCSnonideal {
   }
   
 
-  double VCS_SOLVE::vcs_phaseStabilityTest(const int iph) {
+  double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph) {
 
     /*
      * We will use the _new state calc here

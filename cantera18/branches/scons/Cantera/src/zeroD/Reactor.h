@@ -126,7 +126,7 @@ namespace CanteraZeroD {
         size_t m_nv;
 
         size_t m_nsens;
-        vector_int m_pnum;
+        std::vector<size_t> m_pnum;
         std::vector<std::string> m_pname;
         std::vector<size_t> m_nsens_wall;
         vector_fp m_mult_save;

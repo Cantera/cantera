@@ -850,14 +850,14 @@ namespace Cantera {
     /*!
      * @param i index of the reaction
      */
-    doublereal multiplier(int i) const {return m_perturb[i];}
+    doublereal multiplier(size_t i) const {return m_perturb[i];}
 
     /// Set the multiplier for reaction i to f.
     /*!
      *  @param i  index of the reaction
      *  @param f  value of the multiplier.
      */
-    void setMultiplier(int i, doublereal f) {m_perturb[i] = f;}
+    void setMultiplier(size_t i, doublereal f) {m_perturb[i] = f;}
         
     //@}
 

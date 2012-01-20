@@ -170,7 +170,7 @@ namespace Cantera {
   /*
    * return the solvent id index number.
    */
-  int MolalityVPSSTP::solventIndex() const {
+  size_t MolalityVPSSTP::solventIndex() const {
     return m_indexSolvent;
   }
 
