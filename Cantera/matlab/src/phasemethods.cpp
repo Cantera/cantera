@@ -9,14 +9,15 @@
         int nrhs, const mxArray *prhs[] )
     {
         double vv;
-        int iok=0, k, m;
+        int iok=0, k;
         int ph  = getInt(prhs[1]);
         int job = getInt(prhs[2]);
             
         bool ok = true;
         char* input_buf;
         double* ptr = 0;
-        int n, nsp, mjob, show_thermo;
+        size_t nsp, n, m;
+        int mjob, show_thermo;
 
         // methods to set attributes
         if (job < 0) {
@@ -75,12 +76,13 @@
 
             // set attributes from a string
             else {
-                int buflen, status;
+                int status;
+                mwSize buflen;
                 char* input_buf;
                 if (mxIsChar(prhs[3]) == 1) {
                     if(mxGetM(prhs[3]) != 1)
                         mexErrMsgTxt("Input must be a row vector.");
-                    buflen = (mxGetM(prhs[3]) * mxGetN(prhs[3])) + 1;
+                    buflen = (mwSize) (mxGetM(prhs[3]) * mxGetN(prhs[3])) + 1;
                     input_buf = (char*)mxCalloc(buflen, sizeof(char));
                     status = mxGetString(prhs[3], input_buf, buflen);
                     if (status != 0) 
@@ -111,7 +113,7 @@
 
             switch (job) {
             case 0:
-                vv = newThermoFromXML(ph); break;
+                vv = (double) newThermoFromXML(ph); break;
                 // floating-point attributes
             case 1:
                 vv = phase_temperature(ph); break; 
@@ -124,16 +126,16 @@
             case 8:
                 vv = 1.0/phase_density(ph); break;            
             case 10:
-                vv = phase_nElements(ph); break;
+                vv = (double) phase_nElements(ph); break;
             case 11:
-                vv = phase_nSpecies(ph); break;
+                vv = (double) phase_nSpecies(ph); break;
             case 12:
                 input_buf = getString(prhs[3]);
-                vv = phase_speciesIndex(ph, input_buf) + 1;
+                vv = (double) phase_speciesIndex(ph, input_buf) + 1;
                 break;
             case 13:
                 input_buf = getString(prhs[3]);
-                vv = phase_elementIndex(ph, input_buf) + 1;
+                vv = (double) phase_elementIndex(ph, input_buf) + 1;
                 break;
             case 14:
                 k = getInt(prhs[3]);
@@ -159,7 +161,7 @@
         else if (job < 30) {
 
             iok = 0;
-            int nsp = phase_nSpecies(ph);
+            size_t nsp = phase_nSpecies(ph);
             double* x = new double[nsp];
             switch (job) {
             case 20:
@@ -174,16 +176,16 @@
             default:
                 ;
             }
-            plhs[0] = mxCreateNumericMatrix(nsp,1,
+            plhs[0] = mxCreateNumericMatrix((mwSize) nsp,1,
                 mxDOUBLE_CLASS,mxREAL);
             double *h = mxGetPr(plhs[0]);
             if (iok >= 0) {
-                for (int i = 0; i < nsp; i++) h[i] = x[i];
+                for (size_t i = 0; i < nsp; i++) h[i] = x[i];
                 delete x;
                 return;
             }
             else {
-                for (int i = 0; i < nsp; i++) h[i] = -999.99;
+                for (size_t i = 0; i < nsp; i++) h[i] = -999.99;
                 delete x;
                 mexErrMsgTxt("unknown attribute");
                 return;
@@ -193,7 +195,7 @@
         else if (job < 40) {
 
             iok = 0;
-            int nel = phase_nElements(ph);
+            size_t nel = phase_nElements(ph);
             double* x = new double[nel];
             switch (job) {
             case 30:
@@ -202,16 +204,16 @@
             default:
                 ;
             }
-            plhs[0] = mxCreateNumericMatrix(nel,1,
+            plhs[0] = mxCreateNumericMatrix((mwSize) nel,1,
                 mxDOUBLE_CLASS,mxREAL);
             double *h = mxGetPr(plhs[0]);
             if (iok >= 0) {
-                for (int i = 0; i < nel; i++) h[i] = x[i];
+                for (size_t i = 0; i < nel; i++) h[i] = x[i];
                 delete x;
                 return;
             }
             else {
-                for (int i = 0; i < nel; i++) h[i] = -999.99;
+                for (size_t i = 0; i < nel; i++) h[i] = -999.99;
                 delete x;
                 mexErrMsgTxt("unknown attribute");
                 return;

@@ -17,8 +17,8 @@ static void thermoset( int nlhs, mxArray *plhs[],
     double* ptr = 0;
     if (mxIsDouble(prhs[3]) == 1) 
         ptr = mxGetPr(prhs[3]);
-    int m = mxGetM(prhs[3]);
-    int n = mxGetN(prhs[3]);
+    size_t m = mxGetM(prhs[3]);
+    size_t n = mxGetN(prhs[3]);
 
     bool ok = true;
 
@@ -93,7 +93,7 @@ static void thermoget( int nlhs, mxArray *plhs[],
             bool ok = true;
             switch (job) {
             case 0:
-                vv = newThermoFromXML(n); break;
+                vv = (double) newThermoFromXML(n); break;
             case 2:
                 vv = th_enthalpy_mole(n); break;
             case 3:
@@ -160,7 +160,7 @@ static void thermoget( int nlhs, mxArray *plhs[],
         else if (job < 50) {
 
             int iok = 0;
-            int nsp = th_nSpecies(n);
+            size_t nsp = th_nSpecies(n);
             double* x = new double[nsp];
             switch (job) {
             case 32:
@@ -178,16 +178,16 @@ static void thermoget( int nlhs, mxArray *plhs[],
             default:
                 ;
             }
-            plhs[0] = mxCreateNumericMatrix(nsp,1,
+            plhs[0] = mxCreateNumericMatrix((mwSize) nsp,1,
                 mxDOUBLE_CLASS,mxREAL);
             double *h = mxGetPr(plhs[0]);
             if (iok >= 0) {
-                for (int i = 0; i < nsp; i++) h[i] = x[i];
+                for (size_t i = 0; i < nsp; i++) h[i] = x[i];
                 delete x;
                 return;
             }
             else {
-                for (int i = 0; i < nsp; i++) h[i] = -999.99;
+                for (size_t i = 0; i < nsp; i++) h[i] = -999.99;
                 delete x;
                 mexErrMsgTxt("unknown attribute");
                 return;
