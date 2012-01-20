@@ -42,7 +42,7 @@ namespace Cantera {
       InterfaceKinetics *kinPtr = k[n];
       m_vecKinPtrs.push_back(kinPtr);
       ns = k[n]->surfacePhaseIndex();
-      if (ns < 0) 
+      if (ns == npos)
 	throw CanteraError("ImplicitSurfChem",
 			   "kinetics manager contains no surface phase");
       m_surfindex.push_back(ns);

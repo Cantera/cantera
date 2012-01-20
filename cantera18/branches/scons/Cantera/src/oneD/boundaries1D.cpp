@@ -24,7 +24,7 @@ namespace Cantera {
 
     void Bdry1D::
     _init(size_t n) {
-        if (m_index < 0) {
+        if (m_index == npos) {
             throw CanteraError("Bdry1D", 
                 "install in container before calling init.");
         }

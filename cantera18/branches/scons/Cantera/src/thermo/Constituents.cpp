@@ -417,7 +417,7 @@ namespace Cantera {
    *      Name of the species with index k
    */
   string Constituents::speciesName(size_t k) const {
-    if (k < 0 || k >= nSpecies()) 
+    if (k >= nSpecies())
       throw SpeciesRangeError("Constituents::speciesName",
 			      k, nSpecies());
     return m_speciesNames[k];

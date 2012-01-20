@@ -2062,7 +2062,7 @@ namespace VCSnonideal {
     double tmp;
     double delta = *delta_ptr;
 #ifdef DEBUG_MODE
-    if (irxn < 0) {
+    if (kspec < m_numComponents) {
 	plogf("  --- delete_species() ERROR: called for a component %d", kspec);
 	plogendl();
 	exit(EXIT_FAILURE);
@@ -3173,7 +3173,7 @@ namespace VCSnonideal {
 		}
 		if ((maxConcPossKspec >= maxConcPoss) || (maxConcPossKspec > 1.0E-5)) {
 		  if (nonZeroesKspec <= minNonZeroes) {
-		    if (kfound < 0 || nonZeroesKspec < minNonZeroes) {
+		    if (kfound == npos || nonZeroesKspec < minNonZeroes) {
 		      kfound = kspec;
 		    } else {
 		      // ok we are sitting pretty equal here decide on the raw ss Gibbs energy
@@ -5073,8 +5073,8 @@ namespace VCSnonideal {
     VCS_SPECIES_THERMO *st_tmp;
     if (k1 == k2) return;
 #ifdef DEBUG_MODE
-    if (k1 < 0 || k1 > (m_numSpeciesTot - 1) ||
-	k2 < 0 || k2 > (m_numSpeciesTot - 1)    ) {
+    if (k1 > (m_numSpeciesTot - 1) ||
+	k2 > (m_numSpeciesTot - 1)    ) {
       plogf("vcs_switch_pos: ifunc = 0: inappropriate args: %d %d\n",
 	    k1, k2);
     }
@@ -5143,8 +5143,8 @@ namespace VCSnonideal {
       i1 = k1 - m_numComponents;
       i2 = k2 - m_numComponents;
 #ifdef DEBUG_MODE
-      if (i1 < 0 || i1 > (m_numRxnTot - 1) ||
-	  i2 < 0 || i2 > (m_numRxnTot - 1)    ) {
+      if (i1 > (m_numRxnTot - 1) ||
+	  i2 > (m_numRxnTot - 1)    ) {
 	plogf("switch_pos: ifunc = 1: inappropriate noncomp values: %d %d\n",
 	      i1 , i2);
       }

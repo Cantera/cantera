@@ -680,7 +680,7 @@ namespace Cantera {
     // otherwise, throw an exception
     map<string,string>::const_iterator _b = comp.begin();
     for (; _b != comp.end(); ++_b) {
-      if (th.elementIndex(_b->first) < 0) {
+      if (th.elementIndex(_b->first) == npos) {
 	if (rule == 0) {
 	  throw CanteraError("installSpecies", 
 			     "Species " + s["name"] + 

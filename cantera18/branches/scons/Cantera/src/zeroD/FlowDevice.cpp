@@ -46,9 +46,9 @@ namespace CanteraZeroD {
      * species is not present in the upstream mixture.
      */
     doublereal FlowDevice::outletSpeciesMassFlowRate(size_t k) {
-        if (k < 0 || k >= m_nspout) return 0.0;
+        if (k >= m_nspout) return 0.0;
         size_t ki = m_out2in[k];
-        if (ki < 0) return 0.0;
+        if (ki == npos) return 0.0;
         return m_mdot * m_in->massFraction(ki);
     }
 

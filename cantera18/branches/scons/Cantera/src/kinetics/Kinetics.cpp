@@ -153,7 +153,7 @@ namespace Cantera {
    * "<unknown>" is returned. 
    */
   string Kinetics::kineticsSpeciesName(size_t k) const {
-    for (size_t n = m_start.size()-1; n >= 0; n--) {
+    for (size_t n = m_start.size()-1; n != npos; n--) {
       if (k >= m_start[n]) {
 	return thermo(n).speciesName(k - m_start[n]);
       }

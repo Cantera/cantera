@@ -772,7 +772,7 @@ namespace Cantera {
 	//! Get the id for the next cation
         icat = cationList_[k];
 	jNeut = fm_invert_ionForNeutral[icat];
-	if (jNeut >= 0) {
+	if (jNeut != npos) {
 	  fmij =  fm_neutralMolec_ions_[icat + jNeut * m_kk];
 	  AssertTrace(fmij != 0.0);
 	  NeutralMolecMoleFractions_[jNeut] += moleFractions_[icat] / fmij;
@@ -885,7 +885,7 @@ namespace Cantera {
 	//! Get the id for the next cation
         icat = cationList_[k];
 	jNeut = fm_invert_ionForNeutral[icat];
-	if (jNeut >= 0) {
+	if (jNeut != npos) {
 	  fmij =  fm_neutralMolec_ions_[icat + jNeut * m_kk];
 	  AssertTrace(fmij != 0.0);
 	  dy[jNeut] += dx[icat] / fmij;

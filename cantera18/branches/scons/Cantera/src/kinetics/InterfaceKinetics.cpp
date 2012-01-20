@@ -1212,7 +1212,7 @@ namespace Cantera {
   //================================================================================================
 
   void InterfaceKinetics::setPhaseExistence(const size_t iphase, const bool exists) {
-    if (iphase < 0 || iphase >= m_thermo.size()) {
+    if (iphase >= m_thermo.size()) {
       throw CanteraError("InterfaceKinetics:setPhaseExistence", "out of bounds");
     }
     if (exists) {

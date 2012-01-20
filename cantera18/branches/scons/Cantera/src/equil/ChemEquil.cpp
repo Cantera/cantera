@@ -999,7 +999,7 @@ namespace Cantera {
 	  addLogEntry("element "+ s.elementName(m), fp2str(x[m]));
       }
 
-      if (m_eloc >= 0) {
+      if (m_eloc != npos) {
 	adjustEloc(s, elMolesGoal);
       }
       /*
@@ -1780,7 +1780,7 @@ namespace Cantera {
 	  if (ChemEquil_print_lvl > 0) {
 	    if (lumpSum[m]) {
 	      writelogf("Lump summing row %d, due to rank deficiency analysis\n", m);
-	    } else if (sameAsRow >= 0) {
+	    } else if (sameAsRow != npos) {
 	      writelogf("Identified that rows %d and %d are the same\n", m, sameAsRow);
 	    }
 	  }
