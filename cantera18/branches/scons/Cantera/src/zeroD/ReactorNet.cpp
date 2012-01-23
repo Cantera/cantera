@@ -5,7 +5,7 @@
 
 using namespace std;
 
-namespace CanteraZeroD {
+namespace Cantera {
 
   ReactorNet::ReactorNet() : Cantera::FuncEval(), m_nr(0), m_nreactors(0),
 			     m_integ(0), m_time(0.0), m_init(false), 

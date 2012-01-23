@@ -31,7 +31,6 @@
 #include <string>
 #include <vector>
 
-using namespace Cantera;
 using namespace std;
 
 namespace Cantera {

@@ -117,7 +117,7 @@ int rxnpath_example1(int job) {
 
         // create a container object to run the simulation
         // and add the reactor to it
-        CanteraZeroD::ReactorNet& sim = *(new ReactorNet ());
+        ReactorNet& sim = *(new ReactorNet());
         sim.addReactor(&r);
 
         // create a reaction path diagram builder

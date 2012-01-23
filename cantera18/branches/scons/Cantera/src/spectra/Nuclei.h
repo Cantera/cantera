@@ -7,7 +7,7 @@
 
 #include "ct_defs.h"
  
-namespace CanteraSpectra {
+namespace Cantera {
 
     /**
      * Represents atomic nuclei. These classes only provide minimal
@@ -90,6 +90,6 @@ namespace CanteraSpectra {
     }
 
 
-} // CanteraSpectra
+} // Cantera
 
 #endif

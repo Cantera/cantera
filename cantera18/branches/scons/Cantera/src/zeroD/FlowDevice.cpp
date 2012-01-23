@@ -5,7 +5,7 @@
 
 using namespace std;
 
-namespace CanteraZeroD {
+namespace Cantera {
 
     bool FlowDevice::install(ReactorBase& in, ReactorBase& out) {
         if (m_in || m_out) return false;

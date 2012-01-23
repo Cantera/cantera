@@ -13,10 +13,9 @@
 #include "InterfaceKinetics.h"
 #include "SurfPhase.h"
 
-using namespace Cantera;
 using namespace std;
 
-namespace CanteraZeroD {
+namespace Cantera {
 
     doublereal quadInterp(doublereal x0, doublereal* x, doublereal* y);
 

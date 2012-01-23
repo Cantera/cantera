@@ -11,7 +11,7 @@
 #include <cantera/zerodim.h>
 #include <cantera/IdealGasMix.h>
 
-using namespace CanteraZeroD;
+using namespace Cantera;
 
 void runexample() {
 

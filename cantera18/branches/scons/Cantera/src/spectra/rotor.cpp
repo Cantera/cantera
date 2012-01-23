@@ -7,7 +7,7 @@
 
 using namespace std;
 
-namespace CanteraSpectra {
+namespace Cantera {
 
     /**
      * Constructor.

@@ -7,7 +7,7 @@
 #ifndef CT_PID_H
 #define CT_PID_H
 
-namespace CanteraZeroD {
+namespace Cantera {
 
     class PID_Controller {
 

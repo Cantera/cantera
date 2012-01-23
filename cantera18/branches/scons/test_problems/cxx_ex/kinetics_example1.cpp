@@ -11,7 +11,6 @@
 #include <cantera/IdealGasMix.h>
 #include "example_utils.h"
 using namespace Cantera;
-using namespace CanteraZeroD;
 using namespace std;
 
 // Kinetics example. This is written as a function so that one 
@@ -73,7 +72,7 @@ int kinetics_example1(int job) {
 
         // create a container object to run the simulation
         // and add the reactor to it
-		CanteraZeroD::ReactorNet *sim_ptr = new CanteraZeroD::ReactorNet();
+        ReactorNet* sim_ptr = new ReactorNet();
         sim_ptr->addReactor(&r);
 
         double tm;
