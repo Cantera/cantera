@@ -4,7 +4,7 @@ Import('env', 'buildTargets', 'installTargets')
 localenv = env.Clone()
 
 programs = [('cti2ctml', ['src/cti2ctml.cpp'], ['ctbase']),
-            ('ck2cti', ['src/ck2cti.cpp'], ['converters','ctbase','tpx','ctcxx']),
+            ('ck2cti', ['src/ck2cti.cpp'], ['converters','ctbase','tpx']),
             ('csvdiff', mglob(localenv, 'testtools', 'cpp'), [])]
 
 for name, src, libs in programs:

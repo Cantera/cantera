@@ -1,7 +1,6 @@
 /**
  * @file Interface.h
- *   Declaration and Definition for the class Interface, part of 
- *   Cantera's Cantera_CXX namespace.
+ *   Declaration and Definition for the class Interface.
  */
 #ifndef CXX_INTERFACE
 #define CXX_INTERFACE
@@ -14,22 +13,19 @@
 // #include "kernel/InterfaceKinetics.h"
 // #include "kernel/importKinetics.h"
 
-/**
- * This namespace is used for the Cantera C++ user interface.
- */
-namespace Cantera_CXX {
+namespace Cantera {
 
     /**
      * An interface between multiple bulk phases. This class is
      * defined mostly for convenience. It inherits both from
-     * Cantera::SurfPhase and Cantera::InterfaceKinetics. It therefore
+     * SurfPhase and InterfaceKinetics. It therefore
      * represents a surface phase, and also acts as the kinetics
      * manager to manage reaction occurring on the surface, possibly
      * involving species from other phases.
      */
     class Interface : 
-        public Cantera::SurfPhase,
-        public Cantera::InterfaceKinetics
+        public SurfPhase,
+        public InterfaceKinetics
     {
     public:
 
@@ -43,18 +39,18 @@ namespace Cantera_CXX {
          * reactions on this interface.
          */
         Interface(std::string infile, std::string id, 
-            std::vector<Cantera::ThermoPhase*> phases) 
+            std::vector<ThermoPhase*> phases)
             : m_ok(false), m_r(0) {
-            m_r = Cantera::get_XML_File(infile); 
+            m_r = get_XML_File(infile);
             if (id == "-") id = "";
             
-            Cantera::XML_Node* x = Cantera::get_XML_Node("#"+id, m_r);
+            XML_Node* x = get_XML_Node("#"+id, m_r);
             if (!x)                 
-                throw Cantera::CanteraError("Interface","error in get_XML_Node");
+                throw CanteraError("Interface","error in get_XML_Node");
 
-            Cantera::importPhase(*x, this);
+            importPhase(*x, this);
             phases.push_back(this);
-            Cantera::importKinetics(*x, phases, this);
+            importKinetics(*x, phases, this);
             m_ok = true;
         }
 
@@ -66,7 +62,7 @@ namespace Cantera_CXX {
 
     protected:
         bool m_ok;
-        Cantera::XML_Node* m_r;
+        XML_Node* m_r;
 
     private:
     };
@@ -77,7 +73,7 @@ namespace Cantera_CXX {
      * instance.
      */
     inline Interface* importInterface(std::string infile, std::string id, 
-        std::vector<Cantera::ThermoPhase*> phases) {
+        std::vector<ThermoPhase*> phases) {
         return new Interface(infile, id, phases);
     }
 

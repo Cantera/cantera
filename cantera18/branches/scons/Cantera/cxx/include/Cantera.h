@@ -8,10 +8,6 @@
 #ifndef CANTERA_H_INCL
 #define CANTERA_H_INCL
 
-namespace Cantera_CXX{ }
-
-using namespace Cantera_CXX;
-
 #include "kernel/ct_defs.h"
 
 // some useful functions

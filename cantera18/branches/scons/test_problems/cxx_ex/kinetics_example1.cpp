@@ -11,7 +11,6 @@
 #include <cantera/IdealGasMix.h>
 #include "example_utils.h"
 using namespace Cantera;
-using namespace Cantera_CXX;
 using namespace CanteraZeroD;
 using namespace std;
 

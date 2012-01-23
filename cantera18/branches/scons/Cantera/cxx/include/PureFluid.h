@@ -35,7 +35,7 @@ namespace Cantera {
         bool operator!() { return !m_ok;}
         bool ready() const { return m_ok; }
         friend std::ostream& operator<<(std::ostream& s, PureFluid& mix) {
-            std::string r = Cantera::report(mix, true);
+            std::string r = mix.report(true);
             s << r;
             return s;
         }
