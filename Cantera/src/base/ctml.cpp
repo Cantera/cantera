@@ -125,8 +125,13 @@ namespace ctml {
    */
   void addInteger(Cantera::XML_Node& node, const std::string &title, const int val, 
 		  const std::string units, const std::string type) {
-    XML_Node& f = node.addChild("integer",val);
-    f.addAttribute("title",title);
+#ifdef CTML_VERSION_1_4
+    XML_Node& f = node.addChild("integer", val);
+    f.addAttribute("title", title);
+#else
+    XML_Node& f = node.addChild(title, val); 
+#endif
+    f.addAttribute("vtype", "integer");
     if (type != "") f.addAttribute("type",type);
     if (units != "") f.addAttribute("units",units);
   } 
@@ -195,10 +200,17 @@ namespace ctml {
       else if (i > 0 && (i+1) % 3 == 0) v += ",\n";
       else v += ", ";
     }
-    XML_Node& f = node.addChild("intArray",v);
+#ifdef CTML_VERSION_1_4
+    XML_Node& f = node.addChild("intArray",v);   
     f.addAttribute("title",title);
+#else
+    XML_Node& f = node.addChild(title, v);
+#endif
     if (type != "") f.addAttribute("type",type);        
     f.addAttribute("size",n);
+#ifndef CTML_VERSION_1_4
+    f.addAttribute("vtype", "intArray");
+#endif
     if (units != "") f.addAttribute("units",units);
     if (minval != Undef) f.addAttribute("min",minval);
     if (maxval != Undef) f.addAttribute("max",maxval);
@@ -252,13 +264,14 @@ namespace ctml {
                 const doublereal maxval) {
     string fmt = "%17.9E";
 #ifdef CTML_VERSION_1_4
-    XML_Node& f = node.addChild("float",val,fmt);
-    f.addAttribute("title",title);
+    XML_Node& f = node.addChild("float", val, fmt);
+    f.addAttribute("title", title);
 #else
-    XML_Node& f = node.addChild(title,val,fmt); 
+    XML_Node& f = node.addChild(title, val, fmt); 
 #endif
     if (type != "") f.addAttribute("type",type);
     if (units != "") f.addAttribute("units",units);
+    f.addAttribute("vtype", "float");
     if (minval != Undef) f.addAttribute("min",minval);
     if (maxval != Undef) f.addAttribute("max",maxval);
   }
@@ -300,7 +313,7 @@ namespace ctml {
    *   @param unitsString   String name of the Units attribute. This is an optional 
    *                        parameter. The default is to
    *                        have an empty string.
-   *   @param typeString    String type. This is an optional parameter. The default
+   *   @param type          String type. This is an optional parameter. The default
    *                        is to have an empty string.
    *   @param minval        Minimum allowed value of the int. This is an optional
    *                        parameter. The default is the
@@ -335,6 +348,87 @@ namespace ctml {
     if (units != "") f.addAttribute("units",units);
     if (minval != Undef) f.addAttribute("min",minval);
     if (maxval != Undef) f.addAttribute("max",maxval);
+  }
+  //====================================================================================================================
+  //  This function adds a child node with the name given by the first parameter with a value
+  //  consisting of a comma separated list of floats
+  /*
+   *   This function will add a child node to the current XML node, with the
+   *   name given in the list. It will have a title attribute, and the body
+   *   of the XML node will be filled out with a comma separated list of
+   *   integers
+   *
+   *  Example:
+   *
+   * Code snipet:
+   *       @verbatum
+     const XML_Node &node;
+     std::string titleString = "additionalTemperatures";
+     int  n = 3;
+     int Tcases[3] = [273.15, 298.15, 373.15];
+     std::string typeString = "optional";
+     std::string units = "Kelvin";
+     addNamedFloatArray(node, titleString, n, &cases[0], typeString, units);
+     @endverbatum
+   *
+   *  Creates the following the snippet in the XML file:
+   *  @verbatum
+     <parentNode>
+       <additionalTemperatures type="optional" vtype="floatArray" size = "3" units="Kelvin">
+          273.15, 298.15, 373.15
+       <\additionalTemperatures>
+     <\parentNode>
+   @endverbatum
+   *
+   *   @param node          reference to the XML_Node object of the parent XML element
+   *   @param name          Name of the XML node
+   *   @param n             Length of the doubles vector.
+   *   @param values        Pointer to a vector of doubles
+   *   @param unitsString   String name of the Units attribute. This is an optional 
+   *                        parameter. The default is to
+   *                        have an empty string.
+   *   @param type          String type. This is an optional parameter. The default
+   *                        is to have an empty string.
+   *   @param minval        Minimum allowed value of the int. This is an optional
+   *                        parameter. The default is the
+   *                        special double, Cantera::Undef, which means to ignore the
+   *                        entry.
+   *   @param maxval        Maximum allowed value of the int. This is an optional
+   *                        parameter. The default is the
+   *                        special double, Cantera::Undef, which means to ignore the
+   *                        entry.
+   *
+   * @todo I don't think this is used. Figure out what is used for writing integers,
+   *       and codify that. unitsString shouldn't be here, since it's an int.
+   *       typeString should be codified as to its usage.
+   */
+  void addNamedFloatArray(Cantera::XML_Node& node, const std::string &name, const int n, 
+			  const doublereal* const vals, const std::string units, 
+			  const std::string type, const doublereal minval, 
+			  const doublereal maxval) {
+    std::string fmt = "%17.9E";
+    int i;
+    std::string v = "";
+    for (i = 0; i < n; i++) {
+      v += fp2str(vals[i],fmt);
+      if (i == n-1) v += "\n"; 
+      else if (i > 0 && (i+1) % 3 == 0) v += ",\n";
+      else v += ", ";
+    }
+    XML_Node& f = node.addChild(name, v);
+    if (type != "") {
+      f.addAttribute("type",type);
+    } 
+    /*
+     *  Add vtype, which indicates the type of the value. Here we specify it as a list of floats separated
+     *  by commas, with a length given by size attribute.
+     */
+    f.addAttribute("vtype", "floatArray");
+   
+    f.addAttribute("size", n);
+    if (units != "") f.addAttribute("units", units);
+    if (minval != Undef) f.addAttribute("min", minval);
+    if (maxval != Undef) f.addAttribute("max", maxval);
   }
   //====================================================================================================================
   //  This function adds a child node with the name string with a string value
@@ -1112,6 +1206,96 @@ namespace ctml {
       v[n] *= funit;
     }
     return v.size();
+  }
+  //====================================================================================================================
+  int  getNamedFloatArray(const Cantera::XML_Node& parentNode, const std::string & nodeName, std::vector<doublereal> & v, 
+			  const bool convert, const std::string unitsString) {
+    std::string::size_type icom;
+    std::string numstr;
+    doublereal dtmp;
+    std::string nn = parentNode.name();
+    v.clear();
+    const Cantera::XML_Node *readNode = parentNode.findByName(nodeName);
+    if (!readNode) {
+      return 0;
+    }
+   
+    doublereal vmin = Undef;
+    doublereal vmax = Undef;
+    doublereal funit = 1.0;
+    /*
+     * Get the attributes field, units, from the XML node
+     */
+    std::string units = (*readNode)["units"];
+    if (units != "" && convert) {
+      if (unitsString == "actEnergy" && units != "") {
+	funit = actEnergyToSI(units);
+      } else if (unitsString != "" && units != "") {
+	funit = toSI(units);
+      }
+    }
+
+    if ((*readNode)["min"] != "") 
+      vmin = atofCheck((*readNode)["min"].c_str());
+    if ((*readNode)["max"] != "") 
+      vmax = atofCheck((*readNode)["max"].c_str());
+
+    int expectedSize = 0;
+    nn = (*readNode)["size"];
+    expectedSize = atoi(nn.c_str());
+
+    nn = (*readNode)["vtype"];
+    if (nn != "floatArray") {
+      throw CanteraError("getNamedFloatArray",
+			 "node named " + nodeName + "didn't have correct vtype");
+    }
+
+    doublereal vv;
+    std::string val = readNode->value();
+    while (1 > 0) {
+      icom = val.find(',');
+      if (icom != string::npos) {
+	numstr = val.substr(0,icom);
+	val = val.substr(icom+1,val.size());
+	dtmp = atofCheck(numstr.c_str());
+	v.push_back(dtmp);
+      }
+      else {
+	/*
+	 * This little bit of code is to allow for the
+	 * possibility of a comma being the last 
+	 * item in the value text. This was allowed in
+	 * previous versions of Cantera, even though it
+	 * would appear to be odd. So, we keep the
+	 * possibilty in for backwards compatibility.
+	 */
+	int nlen = strlen(val.c_str());
+	if (nlen > 0) {
+	  dtmp = atofCheck(val.c_str());
+	  v.push_back(dtmp);
+	}
+	break;
+      }
+      vv = v.back();
+      if (vmin != Undef && vv < vmin - Tiny) {
+	writelog("\nWarning: value "+fp2str(vv)+
+		 " is below lower limit of " +fp2str(vmin)+".\n");
+      }
+      if (vmax != Undef && vv > vmax + Tiny) {
+	writelog("\nWarning: value "+fp2str(vv)+
+		 " is above upper limit of " +fp2str(vmin)+".\n");
+      }
+    }
+    int nv = v.size();
+    for (int n = 0; n < nv; n++) {
+      v[n] *= funit;
+    }
+    if (nv != expectedSize) {
+      throw CanteraError("getNamedFloatArray",
+			 "node named " + nodeName + "didn't have correct number of floats"
+			 + int2str(expectedSize) + " vs " + int2str(nv));
+    }
+    return nv;
   }
   //====================================================================================================================
   // This routine is used to interpret the value portions of XML
