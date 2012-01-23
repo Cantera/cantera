@@ -8,7 +8,6 @@
 #include <cantera/Cantera.h>
 #include <cantera/onedim.h>
 using namespace Cantera;
-using namespace std;
 
 /// Namespace for the boundary value problem package.
 namespace BVP {

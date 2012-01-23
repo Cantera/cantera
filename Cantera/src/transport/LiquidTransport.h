@@ -15,8 +15,6 @@
 #include <numeric>
 #include <algorithm>
 
-using namespace std;
-
 // Cantera includes
 #include "TransportBase.h"
 #include "DenseMatrix.h"
@@ -422,7 +420,7 @@ namespace Cantera {
      * binary diffusivities. An overall pressure dependence is then
      * added.
      */
-    vector<vector_fp>            m_diffcoeffs;
+    std::vector<vector_fp> m_diffcoeffs;
 
     //! Internal value of the gradient of the mole fraction vector
     /*!

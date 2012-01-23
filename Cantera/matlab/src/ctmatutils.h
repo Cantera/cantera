@@ -2,7 +2,6 @@ const double Undef = -999.123;
 //const double DERR = -999.999;
 
 #include <string>
-using namespace std;
 
 void reportError();
 

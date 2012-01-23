@@ -13,6 +13,8 @@
 #include <cantera/IdealGasMix.h>
 
 using namespace Cantera;
+using std::cout;
+using std::endl;
 
 template<class G, class V>
 void makeTransportDataLabels(const G& gas, V& names) {
@@ -26,9 +28,9 @@ void makeTransportDataLabels(const G& gas, V& names) {
 }
 
 template<class G, class A>
-void plotTransportSoln(string fname, string fmt, string title, const G& gas, 
-    const A& soln) {
-    vector<string> names;
+void plotTransportSoln(std::string fname, std::string fmt, std::string title,
+                       const G& gas, const A& soln) {
+    std::vector<std::string> names;
     makeTransportDataLabels(gas, names);
     writePlotFile(fname, fmt, title, names, soln);
 }
@@ -77,8 +79,8 @@ int transport_example2(int job) {
         }
 
         // make a Tecplot data file and an Excel spreadsheet
-        string plotTitle = "transport example 2: "
-                           "multicomponent transport properties";
+        std::string plotTitle = "transport example 2: "
+                                "multicomponent transport properties";
         plotTransportSoln("tr2.dat", "TEC", plotTitle, gas, output);
         plotTransportSoln("tr2.csv", "XL", plotTitle, gas, output);
 

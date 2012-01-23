@@ -24,12 +24,12 @@ int kinetics_example2(int job) {
 
     try {
 
-        cout << "Ignition simulation using class GRI30." << endl;
+        std::cout << "Ignition simulation using class GRI30." << std::endl;
 
         if (job >= 1) {
-            cout << "Constant-pressure ignition of a "
-                 << "hydrogen/oxygen/nitrogen"
-                " mixture \nbeginning at T = 1001 K and P = 1 atm." << endl;
+            std::cout <<
+                "Constant-pressure ignition of a hydrogen/oxygen/nitrogen"
+                " mixture \nbeginning at T = 1001 K and P = 1 atm." << std::endl;
         }
         if (job < 2) return 0;
 
@@ -83,24 +83,24 @@ int kinetics_example2(int job) {
         }
 
         // make a Tecplot data file and an Excel spreadsheet
-        string plotTitle = "kinetics example 2: constant-pressure ignition";
+        std::string plotTitle = "kinetics example 2: constant-pressure ignition";
         plotSoln("kin2.dat", "TEC", plotTitle, gas, soln);
         plotSoln("kin2.csv", "XL", plotTitle, gas, soln);
 
 
         // print final temperature
-        cout << " Tfinal = " << r.temperature() << endl;
-        cout << "Output files:" << endl
-             << "  kin2.csv    (Excel CSV file)" << endl
-             << "  kin2.dat    (Tecplot data file)" << endl;
+        std::cout << " Tfinal = " << r.temperature() << std::endl;
+        std::cout << "Output files:" << std::endl
+		  << "  kin2.csv    (Excel CSV file)" << std::endl
+		  << "  kin2.dat    (Tecplot data file)" << std::endl;
 
         return 0;
     }
 
     // handle exceptions thrown by Cantera
     catch (CanteraError) {
-        showErrors(cout);
-        cout << " terminating... " << endl;
+        showErrors(std::cout);
+        std::cout << " terminating... " << std::endl;
         appdelete();
         return -1;
     }

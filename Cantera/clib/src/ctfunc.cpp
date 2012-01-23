@@ -142,8 +142,8 @@ extern "C" {
 
     int DLL_EXPORT func_write(int i, size_t lennm, const char* arg, char* nm) {
         try {
-            string a = string(arg);
-            string w = _func(i)->write(a);
+            std::string a = std::string(arg);
+            std::string w = _func(i)->write(a);
             size_t ws = w.size();
             size_t lout = (lennm > ws ? ws : lennm);
 			std::copy(w.c_str(), w.c_str() + lout, nm);

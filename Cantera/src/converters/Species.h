@@ -55,19 +55,18 @@ namespace ckr {
     int thermoFormatType;
 
     //! Species Name
-    string name; 
-    string id;                   //!<   ID tag from 'date' field in input
-    string phase;                //!<   Phase string. Usually "G", "L", or "S".
+    std::string name;
+    std::string id;              //!<   ID tag from 'date' field in input
+    std::string phase;           //!<   Phase string. Usually "G", "L", or "S".
     double tlow;                 //!<   Min temperature for thermo data fit
     double tmid;                 //!<   Mid temperature for thermo data fit
     double thigh;                //!<   Max temperature for thermo data fit
 
-
     /// list of Constituent objects defining elemental composition
-    vector<Constituent> elements;
+    std::vector<Constituent> elements;
 
     /// map from element symbols to atom numbers
-    mutable map<string, double> comp;
+    mutable std::map<std::string, double> comp;
 
     /// polynomial coefficients for the lower temperature range
     vector_fp lowCoeffs;
@@ -88,7 +87,7 @@ namespace ckr {
     /// position in the list of species in the input file
     int index;
 
-    string m_commentsRef;
+    std::string m_commentsRef;
 
   private:
     //! Delete private data
@@ -96,10 +95,10 @@ namespace ckr {
   };
 
   //! Shorthand for a list of Species
-  typedef vector<Species> speciesList;
+  typedef std::vector<Species> speciesList;
 
   //! A map from species names to Species objects
-  typedef map<string, Species> speciesTable;
+  typedef std::map<std::string, Species> speciesTable;
 }
 
 #endif

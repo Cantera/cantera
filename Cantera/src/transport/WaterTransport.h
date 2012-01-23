@@ -15,8 +15,6 @@
 #include <numeric>
 #include <algorithm>
 
-using namespace std;
-
 // Cantera includes
 #include "TransportBase.h"
 #include "DenseMatrix.h"

@@ -12,6 +12,8 @@
 #include "example_utils.h"
 
 using namespace Cantera;
+using std::cout;
+using std::endl;
 
 // Kinetics example. This is written as a function so that one 
 // driver program can run multiple examples.
@@ -29,7 +31,7 @@ int kinetics_example3(int job) {
     try {
 
         cout << "Ignition simulation using class IdealGasMix "
-             << "with file gri30.cti." 
+             << "with file gri30.cti."
              << endl;
 
         if (job >= 1) {
@@ -88,7 +90,7 @@ int kinetics_example3(int job) {
         }
 
         // make a Tecplot data file and an Excel spreadsheet
-        string plotTitle = "kinetics example 3: constant-pressure ignition";
+        std::string plotTitle = "kinetics example 3: constant-pressure ignition";
         plotSoln("kin3.dat", "TEC", plotTitle, gas, soln);
         plotSoln("kin3.csv", "XL", plotTitle, gas, soln);
 

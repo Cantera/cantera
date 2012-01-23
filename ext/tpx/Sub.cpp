@@ -7,6 +7,8 @@
 #include <fstream>
 #include <stdio.h>
 
+using std::string;
+
 namespace tpx {
 
     static string fp2str(double x, string fmt="%g") {

@@ -13,11 +13,13 @@
 #include <cantera/IdealGasMix.h>
 
 // #include <iostream>
-// using namespace std;
+
 using namespace Cantera;
+using std::cout;
+using std::endl;
 
 void writeRxnPathDiagram(double time, ReactionPathBuilder& b, 
-    IdealGasMix& gas, ostream& logfile, ostream& outfile) { 
+    IdealGasMix& gas, std::ostream& logfile, std::ostream& outfile) {
 
     // create a new empty diagram
     ReactionPathDiagram d;
@@ -122,8 +124,8 @@ int rxnpath_example1(int job) {
 
         // create a reaction path diagram builder
         ReactionPathBuilder b;
-        ofstream rplog("rp1.log");   // log file
-        ofstream rplot("rp1.dot");   // output file
+        std::ofstream rplog("rp1.log");   // log file
+        std::ofstream rplot("rp1.dot");   // output file
         b.init(rplog, gas);         // initialize
 
         // main loop

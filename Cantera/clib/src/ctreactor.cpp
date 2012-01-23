@@ -177,7 +177,7 @@ extern "C" {
         if (r->type() >= ReactorType) 
             return ((Reactor*)r)->nSensParams();
         else {
-            cout << "type problem..." << r->type() << endl;
+            std::cout << "type problem..." << r->type() << std::endl;
             return 0;
         }
     }
