@@ -3,9 +3,4 @@
 
 #include "Nuclei.h"
 
-namespace CanteraSpectra {
-    
-}
-
-
 #endif

@@ -5,14 +5,10 @@
 #include "InterfaceKinetics.h"
 #include "SurfPhase.h"
 
-using Cantera::Func1;
-using Cantera::Kinetics;
-
 using namespace std;
 
-namespace CanteraZeroD {
+namespace Cantera {
 
-        
     Wall::Wall() : m_left(0), m_right(0),  
                    m_area(0.0), m_k(0.0), m_rrth(0.0), m_emiss(0.0), 
                    m_vf(0), m_qf(0) {

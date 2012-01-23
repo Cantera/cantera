@@ -14,7 +14,7 @@
 //#include "PID_Controller.h"
 #include "Func1.h"
 
-namespace CanteraZeroD {
+namespace Cantera {
     /**
      * A class for mass flow controllers. The mass flow rate is constant,
      * independent of any other parameters.

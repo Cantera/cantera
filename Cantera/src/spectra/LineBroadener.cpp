@@ -10,7 +10,7 @@ using boost::math::erf;
 
 using namespace std;
 
-namespace CanteraSpectra {
+namespace Cantera {
 
     Lorentzian::Lorentzian(doublereal gamma) {
         m_hwhm = gamma;

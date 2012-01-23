@@ -7,8 +7,7 @@
 #include "ct_defs.h"
 #include "ctexceptions.h"
 
-using namespace Cantera;
-namespace CanteraSpectra {
+namespace Cantera {
 
     /**
      * Base class for classes implementing line shapes of

@@ -8,10 +8,9 @@
 
 #include "FlowReactor.h"
 
-using namespace Cantera;
 using namespace std;
 
-namespace CanteraZeroD {
+namespace Cantera {
 
     FlowReactor::FlowReactor() : Reactor(), m_fctr(1.0e10), 
                                  m_speed0(0.0) {}

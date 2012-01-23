@@ -10,7 +10,7 @@
 #include "ReactorBase.h"
 #include "Kinetics.h"
 
-namespace CanteraZeroD {
+namespace Cantera {
 
     /**
      * Class Reactor is a general-purpose class for stirred

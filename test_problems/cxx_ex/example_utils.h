@@ -6,8 +6,6 @@
 
 using namespace Cantera;
 using namespace std;
-namespace CanteraZeroD{}
-using namespace CanteraZeroD;
 
 // Save the temperature, density, pressure, and mole fractions at one
 // time

@@ -11,7 +11,7 @@
 #include "Integrator.h"
 #include "Array.h"
 
-namespace CanteraZeroD {
+namespace Cantera {
 
   class ReactorNet : public Cantera::FuncEval {
 

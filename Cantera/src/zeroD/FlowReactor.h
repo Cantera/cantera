@@ -9,7 +9,7 @@
 
 #include "Reactor.h"
 
-namespace CanteraZeroD {
+namespace Cantera {
 
     /**
      * Adiabatic, reversible flow in a constant-area duct.

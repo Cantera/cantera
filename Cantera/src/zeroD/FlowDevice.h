@@ -13,13 +13,7 @@
 
 namespace Cantera {
     class Func1;
-}
-using namespace Cantera;
-
-namespace CanteraZeroD {
-
     class ReactorBase;  // forward reference
-
 
     const int MFC_Type = 1;
     const int PressureController_Type = 2;

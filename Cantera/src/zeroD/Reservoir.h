@@ -9,7 +9,7 @@
 #include <iostream>
 #include "ReactorBase.h"
 
-namespace CanteraZeroD {
+namespace Cantera {
 
     class Reservoir : public ReactorBase {
 

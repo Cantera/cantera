@@ -9,7 +9,7 @@
 
 #include "Reactor.h"
 
-namespace CanteraZeroD {
+namespace Cantera {
 
     /**
      * Class ConstPressureReactor is a class for constant-pressure 

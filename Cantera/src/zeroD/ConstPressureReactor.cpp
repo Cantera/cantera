@@ -12,10 +12,9 @@
 #include "InterfaceKinetics.h"
 #include "SurfPhase.h"
 
-using namespace Cantera;
 using namespace std;
 
-namespace CanteraZeroD {
+namespace Cantera {
 
     ConstPressureReactor::ConstPressureReactor() : Reactor() {}
 

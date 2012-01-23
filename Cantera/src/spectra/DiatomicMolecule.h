@@ -3,7 +3,7 @@
 
 #include "Nuclei.h"
 
-namespace CanteraSpectra {
+namespace Cantera {
 
     class DiatomicMolecule {
     public:

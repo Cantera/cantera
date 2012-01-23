@@ -12,16 +12,12 @@
 #include "Func1.h"
 
 namespace Cantera {
-    class Kinetics;
-    class Func1;
-    class SurfPhase;
-}
-//using namespace Cantera;
-
-namespace CanteraZeroD {
 
     // forward references
     class ReactorBase;
+    class Kinetics;
+    class Func1;
+    class SurfPhase;
 
     class Wall {
 

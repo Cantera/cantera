@@ -14,8 +14,7 @@
 #include <boost/thread/mutex.hpp>
 #endif
 
-namespace CanteraZeroD {
-
+namespace Cantera {
 
     class ReactorFactory : FactoryBase {
 

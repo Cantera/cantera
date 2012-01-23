@@ -11,7 +11,7 @@
 #include "ConstPressureReactor.h"
 
 using namespace std;
-namespace CanteraZeroD {
+namespace Cantera {
 
     ReactorFactory* ReactorFactory::s_factory = 0;
    #ifdef THREAD_SAFE_CANTERA

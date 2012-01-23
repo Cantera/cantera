@@ -9,7 +9,7 @@
 #include "Wall.h"
 
 using namespace std;
-namespace CanteraZeroD {
+namespace Cantera {
 
     ReactorBase::ReactorBase(string name) : m_nsp(0), 
                                  m_thermo(0), 

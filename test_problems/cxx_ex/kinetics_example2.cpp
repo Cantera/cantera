@@ -62,8 +62,8 @@ int kinetics_example2(int job) {
 
         // create a container object to run the simulation
         // and add the reactor to it
-		CanteraZeroD::ReactorNet * sim_ptr = new ReactorNet ();
-         CanteraZeroD::ReactorNet &sim = *sim_ptr;
+        ReactorNet* sim_ptr = new ReactorNet();
+        ReactorNet& sim = *sim_ptr;
         sim.addReactor(&r);
 
         double tm;
