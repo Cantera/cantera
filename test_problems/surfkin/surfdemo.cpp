@@ -9,9 +9,7 @@
 #include "Interface.h"
 
 using namespace Cantera;
-using namespace Cantera_CXX;
 using namespace std;
-using namespace Cantera_CXX;
 
 int main() {
 

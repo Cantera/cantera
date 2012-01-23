@@ -4,16 +4,6 @@ Import('env', 'buildTargets', 'installTargets', 'demoTargets')
 
 localenv = env.Clone()
 
-### C++ Interface Library ###
-
-lib = localenv.Library(pjoin('../../lib', 'ctcxx'),
-                       source=mglob(localenv, 'src', 'cpp'))
-inst = localenv.Install('$inst_libdir', lib)
-
-buildTargets.extend(lib)
-installTargets.extend(inst)
-
-
 ### Demos ###
 
 # (subdir, program name, [source extensions])

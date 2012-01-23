@@ -27,7 +27,6 @@ using namespace std;
 #include "kernel/TransportFactory.h"
 
 using namespace Cantera;
-using namespace Cantera_CXX;
 
 void printDbl(double val) {
   if (fabs(val) < 5.0E-17) {

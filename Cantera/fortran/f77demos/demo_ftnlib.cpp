@@ -30,7 +30,6 @@
 #include <cantera/IdealGasMix.h>
 
 using namespace Cantera;
-using namespace Cantera_CXX;
 
 // store a pointer to an IdealGasMix object
 static IdealGasMix* _gas = 0;
