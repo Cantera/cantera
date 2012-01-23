@@ -12,7 +12,6 @@
 #include <string>
 #include <vector>
 #include <iostream>
-//using namespace std;
 
 #include "Species.h"
 #include "Reaction.h"
@@ -20,7 +19,7 @@
 //#include "Cantera.h"
 
 namespace ckr {
-    std::string newTask(string msg);
+    std::string newTask(std::string msg);
     bool writeFalloff(int type, const vector_fp& c, std::ostream& log);
     bool writeRateCoeff(const RateCoeff& k, std::ostream& log);
     void printReactionEquation(std::ostream& f, const Reaction& r);

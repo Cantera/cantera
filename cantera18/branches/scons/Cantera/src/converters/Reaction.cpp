@@ -59,10 +59,10 @@ namespace ckr {
         return *this;
     }
 
-    void Reaction::write(ostream& s) const {
+    void Reaction::write(std::ostream& s) const {
         int nl = static_cast<int>(lines.size());
         for (int nn = 0; nn < nl; nn++) {
-            s << lines[nn] << endl;
+            s << lines[nn] << std::endl;
         }
 //         int nr = reactants.size();
 //         int np = products.size();
@@ -126,8 +126,8 @@ bool Reaction::operator==(const Reaction& r) const {
     if (int(r.reactants.size()) != nr || 
         int(r.products.size()) != np || r.thirdBody != thirdBody) return false;
         
-    string nm;
-    map<string, double> coeffs;
+    std::string nm;
+    std::map<std::string, double> coeffs;
     for (int ir = 0; ir < nr; ir++) {
         coeffs[reactants[ir].name] = -reactants[ir].number;
     }
@@ -145,7 +145,7 @@ bool Reaction::operator==(const Reaction& r) const {
         coeffs[nm] /= products[jp].number;
     }
     int nc = static_cast<int>(coeffs.size());
-    vector<double> ratios;
+    std::vector<double> ratios;
     getMapValues(coeffs, ratios);
     
     if (!isReversible && ratios[0] < 0.0) return false;

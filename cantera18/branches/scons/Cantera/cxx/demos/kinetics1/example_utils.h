@@ -5,7 +5,6 @@
 #include <cantera/kernel/plots.h>
 
 using namespace Cantera;
-using namespace std;
 
 // Save the temperature, density, pressure, and mole fractions at one
 // time

@@ -13,12 +13,10 @@
 #include <vector>
 //#include "Cantera.h"
 
-using namespace std;
-
 namespace ckr {
 
-    typedef vector_int        group_t;
-    typedef vector<group_t>   grouplist_t; 
+    typedef vector_int group_t;
+    typedef std::vector<group_t> grouplist_t;
 
 
 /**
@@ -29,7 +27,7 @@ class RxnSpecies {
 public:
     RxnSpecies() :
       number(0) {}
-    string         name;        //!< The name of the object.
+    std::string    name;        //!< The name of the object.
     double         number;      //!< The number of units (molecules, etc.).
     grouplist_t    groups;
 };

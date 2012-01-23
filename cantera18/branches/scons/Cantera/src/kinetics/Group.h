@@ -9,7 +9,6 @@
 
 #include "ct_defs.h"
 
-//using namespace std;
 namespace Cantera {
 
     /**

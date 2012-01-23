@@ -1,6 +1,8 @@
 #include "subs.h"
 #include "utils.h"
 
+using std::string;
+
 namespace tpx {
 
     static string lowercase(string s) {

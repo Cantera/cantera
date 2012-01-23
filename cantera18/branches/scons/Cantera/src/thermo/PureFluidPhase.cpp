@@ -16,6 +16,10 @@
 #include <cstdlib>
 #include <iomanip>
 
+using std::string;
+using std::endl;
+using std::setw;
+
 namespace Cantera {
 
   // Base Constructor
@@ -470,8 +474,8 @@ namespace Cantera {
       std::vector<double> ubar(kk, 0.0);
       std::vector<double> cpbar(kk, 0.0);
       std::vector<double> vbar(kk, 0.0);
-      vector<std::string> pNames;
-      vector<double*> data;
+      std::vector<std::string> pNames;
+      std::vector<double*> data;
 
       getMoleFractions(DATA_PTR(x));
       pNames.push_back("X");

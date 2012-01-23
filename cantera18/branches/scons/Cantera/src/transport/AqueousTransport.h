@@ -8,8 +8,6 @@
 #ifndef CT_AQUEOUSTRAN_H
 #define CT_AQUEOUSTRAN_H
 
-using namespace std;
-
 // Cantera includes
 #include "TransportBase.h"
 #include "DenseMatrix.h"
@@ -342,21 +340,21 @@ namespace Cantera {
     vector_fp  m_mw;
 
     // polynomial fits
-    vector<vector<int> >         m_poly;
+    std::vector<std::vector<int> > m_poly;
 
     //! Polynomial coefficients of the viscosity
     /*!
      * These express the temperature dependendence of the pures
      * species viscosities.
      */
-    vector<vector_fp>            m_visccoeffs;
+    std::vector<vector_fp> m_visccoeffs;
 
     //! Polynomial coefficients of the conductivities
     /*!
      * These express the temperature dependendence of the pures
      * species conductivities
      */
-    vector<vector_fp>            m_condcoeffs;
+    std::vector<vector_fp> m_condcoeffs;
 
     //! Polynomial coefficients of the binary diffusion coefficients
     /*!
@@ -364,7 +362,7 @@ namespace Cantera {
      * binary diffusivities. An overall pressure dependence is then
      * added.
      */
-    vector<vector_fp>            m_diffcoeffs;
+    std::vector<vector_fp> m_diffcoeffs;
  
 
     //! Internal value of the gradient of the mole fraction vector

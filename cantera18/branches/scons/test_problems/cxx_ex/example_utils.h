@@ -5,7 +5,6 @@
 #include <cantera/kernel/plots.h>
 
 using namespace Cantera;
-using namespace std;
 
 // Save the temperature, density, pressure, and mole fractions at one
 // time
@@ -45,8 +44,9 @@ void makeDataLabels(const G& gas, V& names) {
 }
 
 template<class G, class A>
-void plotSoln(string fname, string fmt, string title, const G& gas, const A& soln) {
-    vector<string> names;
+void plotSoln(std::string fname, std::string fmt, std::string title,
+              const G& gas, const A& soln) {
+    std::vector<std::string> names;
     makeDataLabels(gas, names);
     writePlotFile(fname, fmt, title, names, soln);
 }

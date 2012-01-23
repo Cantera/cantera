@@ -9,7 +9,6 @@
 #include "cantera/kernel/logger.h"
 
 #include <iostream>
-//using namespace std;
 
 static std::string ss = "disp(' ";
 

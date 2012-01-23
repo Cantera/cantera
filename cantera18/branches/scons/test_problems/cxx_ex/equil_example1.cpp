@@ -27,9 +27,9 @@ void makeEquilDataLabels(const G& gas, V& names) {
 }
 
 template<class G, class A>
-void plotEquilSoln(string fname, string fmt, string title, const G& gas, 
-    const A& soln) {
-    vector<string> names;
+void plotEquilSoln(std::string fname, std::string fmt, std::string title,
+                   const G& gas, const A& soln) {
+    std::vector<std::string> names;
     makeEquilDataLabels(gas, names);
     writePlotFile(fname, fmt, title, names, soln);
 }
@@ -46,10 +46,10 @@ void plotEquilSoln(string fname, string fmt, string title, const G& gas,
 
 int equil_example1(int job) {
 
-    cout << "Chemical equilibrium." << endl;
+    std::cout << "Chemical equilibrium." << std::endl;
     if (job > 0) {
-        cout << "Equilibrium composition and pressure for a "
-             << "range of temperatures at constant density." << endl;
+        std::cout << "Equilibrium composition and pressure for a "
+                  << "range of temperatures at constant density." << std::endl;
     }
     if (job <= 1) return 0; 
 
@@ -82,14 +82,14 @@ int equil_example1(int job) {
     }
 
     // make a Tecplot data file and an Excel spreadsheet
-    string plotTitle = "equilibrium example 1: "
-                       "chemical equilibrium";
+    std::string plotTitle = "equilibrium example 1: "
+                            "chemical equilibrium";
     plotEquilSoln("eq1.dat", "TEC", plotTitle, gas, output);
     plotEquilSoln("eq1.csv", "XL", plotTitle, gas, output);
 
-    cout << "Output files:" << endl
-         << "  eq1.csv    (Excel CSV file)" << endl
-         << "  eq1.dat    (Tecplot data file)" << endl;
+    std::cout << "Output files:" << std::endl
+              << "  eq1.csv    (Excel CSV file)" << std::endl
+              << "  eq1.dat    (Tecplot data file)" << std::endl;
 
     return 0;
 

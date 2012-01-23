@@ -12,8 +12,6 @@
 #include <string>
 #include <vector>
 
-using namespace std;
-
 namespace ckr {
 
 /**
@@ -41,7 +39,7 @@ public:
 
 
     /// Construct a new empty Element object
-    Element(const string& nm, double wt) : 
+    Element(const std::string& nm, double wt) :
         name(nm), 
         atomicWeight(wt), 
         valid(0),
@@ -54,12 +52,12 @@ public:
     /// Destructor
     ~Element() {}
 
-    string name;                 //!<  Element name
+    std::string name;            //!<  Element name
     double atomicWeight;         //!<  Atomic weight in amu
     int valid;                   //!<  flag returned by validation routines
     int index;                   //!<  index number
     bool weightFromDB;           //!<  true if atomic weight is not specified
-    string comment;              //!<  comment in input file
+    std::string comment;         //!<  comment in input file
 
 
     /**
@@ -72,11 +70,11 @@ public:
     bool operator!=(const Element& e) const {
         return !(*this == e);
     }
-    friend ostream& operator<<(ostream& s, const Element& e) {
+    friend std::ostream& operator<<(std::ostream& s, const Element& e) {
         s << e.name;
         if (!e.weightFromDB) s << "/" << e.atomicWeight << "/";
         if (e.comment != "") 
-            s << " !" << e.comment << endl;
+            s << " !" << e.comment << std::endl;
         else
             s << " ";
         return s;
@@ -84,7 +82,7 @@ public:
 };
 
 /// a list (vector) of Elements
-typedef vector<Element>      elementList;
+typedef std::vector<Element> elementList;
 
 }
 

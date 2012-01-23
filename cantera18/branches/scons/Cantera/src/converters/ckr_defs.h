@@ -14,7 +14,6 @@
 #include <string>
 #include <iostream>
 #include <vector>
-//using namespace std;
 
 //#include "../ctvector.h"
 
