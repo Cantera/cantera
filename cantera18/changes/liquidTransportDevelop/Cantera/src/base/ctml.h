@@ -282,6 +282,15 @@ namespace ctml {
 		     const doublereal minval = Cantera::Undef,
 		     const doublereal maxval = Cantera::Undef);
 
+  void addNamedFloatArray(Cantera::XML_Node& parentNode, const std::string &name, const int n, 
+			  const doublereal* const vals, const std::string units = "", 
+			  const std::string type = "",
+			  const doublereal minval = Cantera::Undef,
+			  const doublereal maxval = Cantera::Undef);
+
+
+   
+
   //!  This function adds a child node with the name string with a string value
   //!  to the current node
   /*! 

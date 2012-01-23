@@ -539,7 +539,7 @@ namespace Cantera {
   XML_Node& XML_Node::mergeAsChild(XML_Node& node) {
     m_children.push_back(&node);
     m_nchildren = static_cast<int>(m_children.size());
-    m_childindex[node.name()] = m_children.back();
+    m_childindex.insert(pair<const std::string, XML_Node *>(node.name(),  m_children.back()));
     node.setRoot(root());
     node.setParent(this);
     return *m_children.back();
@@ -559,7 +559,7 @@ namespace Cantera {
     XML_Node *xx = new XML_Node(node);
     m_children.push_back(xx);
     m_nchildren = static_cast<int>(m_children.size());
-    m_childindex[xx->name()] = m_children.back();
+    m_childindex.insert( pair<const std::string, XML_Node *>(xx->name(), xx));
     xx->setRoot(root());
     xx->setParent(this);
     return *m_children.back();
@@ -578,7 +578,7 @@ namespace Cantera {
     XML_Node *xxx = new XML_Node(sname, this);
     m_children.push_back(xxx);
     m_nchildren = static_cast<int>(m_children.size());
-    m_childindex[sname] = m_children.back();
+    m_childindex.insert(pair<const std::string, XML_Node *>(sname, xxx));
     xxx->setRoot(root());
     xxx->setParent(this);
     return *m_children.back();
@@ -1098,15 +1098,17 @@ namespace Cantera {
    *
    *  @return         Returns the pointer to the XML node that fits the criteria
    */
-  XML_Node* XML_Node::findByName(const std::string& nm) {
+  XML_Node* XML_Node::findByName(const std::string& nm, int depth) {
     if (name() == nm) {
       return this;
     }
-    XML_Node* r = 0;
-    int n = nChildren();
-    for (int i = 0; i < n; i++) {
-      r = m_children[i]->findByName(nm);
-      if (r != 0) return r;
+    if (depth > 0) {
+      XML_Node* r = 0;
+      int n = nChildren();
+      for (int i = 0; i < n; i++) {
+	r = m_children[i]->findByName(nm);
+	if (r != 0) return r;
+      }
     }
     return 0;
   }
@@ -1122,15 +1124,17 @@ namespace Cantera {
    *
    *  @return         Returns the pointer to the XML node that fits the criteria
    */
-  const XML_Node* XML_Node::findByName(const std::string& nm) const {
+  const XML_Node* XML_Node::findByName(const std::string& nm, int depth) const {
     if (name() == nm) {
       return const_cast<XML_Node*>(this);
     }
-    const XML_Node* r = 0;
-    int n = nChildren();
-    for (int i = 0; i < n; i++) {
-      r = m_children[i]->findByName(nm);
-      if (r != 0) return r;
+    if (depth > 0) {
+      const XML_Node* r = 0;
+      int n = nChildren();
+      for (int i = 0; i < n; i++) {
+	r = m_children[i]->findByName(nm);
+	if (r != 0) return r;
+      }
     }
     return 0;
   }

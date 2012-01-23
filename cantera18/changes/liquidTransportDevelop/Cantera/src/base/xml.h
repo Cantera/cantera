@@ -156,6 +156,10 @@ namespace Cantera {
   class XML_Node {
   public:
 
+    //! Value_type for the lookup multimap m_childindex. This is a convenience definition
+    //! for manipulating the multimap
+    typedef std::pair<const std::string, XML_Node *> CIPair;
+
     //! Default constructor for XML_Node, representing a tree structure
     /*!
      *  Constructor for an XML_Node, which is a node in a tree-like structure
@@ -621,10 +625,12 @@ namespace Cantera {
      * This is the const version of the routine.
      *
      *  @param nm       Name of the XML node
+     *  @param depth    Depth of the search. A value of 1 means that only the
+     *                  immediate children are searched.
      *
      *  @return         Returns the pointer to the XML node that fits the criteria
      */
-    const XML_Node* findByName(const std::string& nm) const;
+    const XML_Node* findByName(const std::string& nm, int depth = 100000) const;
 
     //! This routine carries out a recursive search for an XML node based
     //! on the name of the node.
@@ -634,10 +640,12 @@ namespace Cantera {
      * This is the non-const version of the routine.
      *
      *  @param nm       Name of the XML node
+     *  @param depth    Depth of the search. A value of 1 means that only the
+     *                  immediate children are searched.
      *
      *  @return         Returns the pointer to the XML node that fits the criteria
      */
-    XML_Node* findByName(const std::string& nm);
+    XML_Node* findByName(const std::string& nm, int depth = 100000);
 
     //! Get a vector of pointers to XML_Node containing all of the children
     //! of the current node which matches the input name
@@ -649,9 +657,11 @@ namespace Cantera {
      */
     void getChildren(const std::string &name, std::vector<XML_Node*>& children) const;
 
-    //! Return a changeable reference to a child of the current node, 
-    //! named by the argument
+    //! Return a changeable reference to a child of the current node,  named by the argument
     /*!
+     *  Note the underlying data allows for more than one XML element with the same name.
+     *  This routine returns the first child with the given name.
+     *
      *  @param loc  Name of the child to return
      */
     XML_Node& child(const std::string &loc) const;
@@ -782,9 +792,10 @@ namespace Cantera {
     /*!
      * m_childindex[node.name()] = XML_Node *pointer
      *
-     *  This object helps to speed up searches
+     *  This object helps to speed up searches.
+     *  The value_type for this multimap is CIPair.
      */
-    std::map<std::string, XML_Node*> m_childindex;
+    std::multimap<std::string, XML_Node*> m_childindex;
 
     //! Storage of attributes for a node
     /*!
