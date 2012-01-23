@@ -18,7 +18,4 @@
 
 typedef integer status_t;
 
-namespace Cantera {}
-using namespace Cantera;
-
 #endif

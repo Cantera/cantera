@@ -123,8 +123,8 @@ int main() {
         eqs.writeCSV();
         return 0;
     }
-    catch (CanteraError) {
-        showErrors(cerr);
+    catch (Cantera::CanteraError) {
+        Cantera::showErrors(std::cerr);
         return -1;
     }
 }

@@ -20,6 +20,8 @@
 
 #include "flib_defs.h"
 
+using namespace Cantera;
+
 // Assert that there is storage 
 // for the templated classes' static member
 // (needed to compile on solaris)
