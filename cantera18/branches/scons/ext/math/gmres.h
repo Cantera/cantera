@@ -33,7 +33,6 @@ gmres( int m, int N, const Matrix &A, const doublereal *b, doublereal *x, double
 
 #include "cblas.h"
 #include "../../Cantera/src/ctlapack.h"
-using namespace Cantera;
 
 template< class Matrix >
 inline int
