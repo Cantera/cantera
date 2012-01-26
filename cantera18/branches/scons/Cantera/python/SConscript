@@ -17,7 +17,7 @@ if localenv['OS'] == 'Windows':
 
 for var in ('VS80COMNTOOLS', 'VS90COMNTOOLS', 'VS100COMNTOOLS'):
     if var in os.environ:
-        localenv[var] = os.environ[var]
+        localenv['ENV'][var] = os.environ[var]
 
 make_setup = localenv.SubstFile('setup.py', 'setup.py.in')
 
