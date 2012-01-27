@@ -690,6 +690,7 @@ else:
 # variables should always be used by the Install(...) targets
 if env['stage_dir']:
     instRoot = pjoin(os.getcwd(), env['stage_dir'], stripDrive(env['prefix']).strip('/\\'))
+    env['python_prefix'] = pjoin(os.getcwd(), env['stage_dir'], stripDrive(env['python_prefix']).strip('/\\'))
 else:
     instRoot = env['prefix']
 
