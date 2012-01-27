@@ -168,15 +168,58 @@ def compareFiles(env, file1, file2):
 
 def compareTextFiles(env, file1, file2):
     """
-    Compare the contents of two text files, ignoring trailing
-    whitespace and any lines starting with strings specified in the
-    variable env['test_ignoreLines'].
+    Compare the contents of two text files while:
+       - ignoring trailing whitespace
+       - ignoring any lines starting with strings specified in the
+         variable env['test_ignoreLines'].
+       - comparing floating point numbers only up to the printed precision
     """
     text1 = [line.rstrip() for line in open(file1).readlines()
              if not line.startswith(tuple(env['test_ignoreLines']))]
     text2 = [line.rstrip() for line in open(file2).readlines()
              if not line.startswith(tuple(env['test_ignoreLines']))]
 
+    # Try to compare the files without testing the floating point numbers
+    diff = list(difflib.unified_diff(text1, text2))
+    if not diff:
+        return 0
+
+    # Replace nearly-equal floating point numbers with exactly equivalent
+    # representations to avoid confusing difflib
+    reFloat = re.compile(r'(\s*)([+-]{0,1}\d+\.\d+[eE]{0,1}[+-]{0,1}\d*)')
+    for i in range(min(len(text1), len(text2))):
+        line1 = text1[i]
+        line2 = text2[i]
+        if line1 == line2:
+            continue
+
+        # group(1) is the left space padding
+        # group(2) is the number
+        floats1 = [(m.group(1),m.group(2))
+                   for m in list(reFloat.finditer(line1))]
+        floats2 = [(m.group(1),m.group(2))
+                   for m in list(reFloat.finditer(line2))]
+
+        # If the lines don't contain the same number of numbers,
+        # we're not going to pass the diff comparison no matter what
+        if len(floats1) != len(floats2):
+            continue
+
+        for j in range(len(floats1)):
+            if floats1[j] == floats2[j]:
+                # String representations match, so replacement is unnecessary
+                continue
+
+            delta = max(getPrecision(floats1[j][1]), getPrecision(floats2[j][1]))
+            num1 = float(floats1[j][1])
+            num2 = float(floats2[j][1])
+            if num1 - 1.1*delta < num2 < num1 + 1.1*delta:
+                # update the string with a matching string
+                line2 = line2.replace(''.join(floats2[j]),
+                                      ''.join(floats1[j]))
+                text2[i] = line2
+
+    # Try the comparison again
     diff = list(difflib.unified_diff(text1, text2))
     if diff:
         'Found differences between %s and %s:' % (file1, file2)
@@ -186,6 +229,21 @@ def compareTextFiles(env, file1, file2):
         return 1
 
     return 0
+
+
+def getPrecision(x):
+    """
+    Return the number corresponding to the least significant digit of
+    the number represented by the string 'x'.
+    """
+    x = x.lower()
+    if x.find('e') != -1:
+        precision = x.find('.') - x.find('e') + 1
+        precision += int(x[x.find('e')+1:])
+    else:
+        precision =  x.find('.') - len(x) + 1
+
+    return 10**precision
 
 
 def compareCsvFiles(env, file1, file2):
