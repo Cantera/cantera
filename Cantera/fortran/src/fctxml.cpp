@@ -13,6 +13,8 @@
 
 using namespace ctml;
 using namespace std;
+using Cantera::XML_Node;
+using Cantera::CanteraError;
 
 #include "clib/Cabinet.h"
 
@@ -24,7 +26,7 @@ inline XML_Node* _xml(const integer* i) {
 }
 
 static void handleError() {
-    error(lastErrorMessage());
+    Cantera::error(Cantera::lastErrorMessage());
 }
 
 std::string f2string(const char* s, ftnlen n);
@@ -42,7 +44,7 @@ extern "C" {
 
     status_t DLL_EXPORT fxml_get_xml_file_(const char* file, ftnlen filelen) {
         try {
-            XML_Node* x = get_XML_File(f2string(file, filelen));
+            XML_Node* x = Cantera::get_XML_File(f2string(file, filelen));
             int ix = Cabinet<XML_Node>::cabinet(false)->add(x);
             return ix;
         }
@@ -55,7 +57,7 @@ extern "C" {
     status_t DLL_EXPORT fxml_clear_() {
         try {
             Cabinet<XML_Node>::cabinet(false)->clear();
-            close_XML_File("all");
+            Cantera::close_XML_File("all");
             return 0;
         }
         catch (CanteraError) { handleError(); return -1;}
@@ -242,7 +244,7 @@ extern "C" {
         doublereal* data, const integer* iconvert) {
         try {
             XML_Node& node = *_xml(i);
-            vector_fp v;
+            Cantera::vector_fp v;
             bool conv = false;
             if (*iconvert > 0) conv = true;
             getFloatArray(node, v, conv);
@@ -251,7 +253,7 @@ extern "C" {
             // array not big enough
             if (*n < nv) {
                 throw CanteraError("ctml_getfloatarray",
-                    "array must be dimensioned at least "+int2str(nv));
+                    "array must be dimensioned at least "+Cantera::int2str(nv));
             }
             
             for (int i = 0; i < nv; i++) {
