@@ -12,14 +12,14 @@ using namespace std;
 
 
 // cvode includes
-#include "../../../ext/cvode/include/llnltyps.h"
-#include "../../../ext/cvode/include/llnlmath.h"
-#include "../../../ext/cvode/include/cvode.h"
-#include "../../../ext/cvode/include/cvdense.h"
-#include "../../../ext/cvode/include/cvdiag.h"
-#include "../../../ext/cvode/include/cvspgmr.h"
-#include "../../../ext/cvode/include/nvector.h"
-#include "../../../ext/cvode/include/cvode.h"
+#include "../../../ext/cvode/llnltyps.h"
+#include "../../../ext/cvode/llnlmath.h"
+#include "../../../ext/cvode/cvode.h"
+#include "../../../ext/cvode/cvdense.h"
+#include "../../../ext/cvode/cvdiag.h"
+#include "../../../ext/cvode/cvspgmr.h"
+#include "../../../ext/cvode/nvector.h"
+#include "../../../ext/cvode/cvode.h"
 
 inline static N_Vector nv(void* x) {
   return reinterpret_cast<N_Vector>(x);

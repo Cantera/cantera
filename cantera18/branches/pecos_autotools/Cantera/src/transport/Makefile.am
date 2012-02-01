@@ -3,12 +3,12 @@ h_sources  = AqueousTransport.h LiquidTransportData.h L_matrix.h  \
              DustyGasTransport.h LiquidTransport.h MixTransport.h \
 	     SimpleTransport.h  TransportFactory.h FtnTransport.h \
 	     LiquidTransportParams.h  MMCollisionInt.h  	  \
-             SolidTransport.h   TransportParams.h
+             SolidTransport.h TransportParams.h WaterSSTP.h
 
 cc_sources = AqueousTransport.cpp LiquidTransport.cpp MMCollisionInt.cpp \
              SimpleTransport.cpp  TransportBase.cpp WaterTransport.cpp   \
              DustyGasTransport.cpp  MixTransport.cpp MultiTransport.cpp  \
-	     SolidTransport.cpp   TransportFactory.cpp 
+	     SolidTransport.cpp TransportFactory.cpp
 
 AM_CPPFLAGS             = -I../base -I../thermo -I../numerics -I../../../
 AM_CXXFLAGS             = $(AM_CPPFLAGS)

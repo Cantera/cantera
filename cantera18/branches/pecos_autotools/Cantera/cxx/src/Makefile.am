@@ -1,5 +1,6 @@
-cc_sources              = cxxutils.cpp  importPhase.cpp
-AM_CPPFLAGS             = -I../../src/thermo -I../../src/base
+cc_sources              = importPhase.cpp
+
+AM_CPPFLAGS             = -I/workspace/src/cantera/pecos_autotools/build/include/cantera
 AM_CXXFLAGS             = $(AM_CPPFLAGS)
 
 lib_LTLIBRARIES         = $(top_builddir)/build/lib/libctcxx.la
