@@ -1,1 +1,1 @@
-SUBDIRS = DH_graph_1
+SUBDIRS = DH_graph_1 DH_graph_acommon

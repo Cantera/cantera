@@ -58,10 +58,12 @@ DX_INIT_DOXYGEN(cantera, doxygen/cantera.dox, docs)
 
 #                   examples/Makefile                                       \
 #		   examples/cxx/Makefile                                   \
+
 AC_OUTPUT(Makefile                                                         \
                    test_problems/Makefile                                  \
                    test_problems/cathermo/Makefile                         \
                    test_problems/cathermo/DH_graph_1/Makefile              \
+                   test_problems/cathermo/DH_graph_acommon/Makefile        \
 		   doxygen/Makefile                                        \
 		   ext/Makefile                                            \
 		   ext/tpx/Makefile                                        \

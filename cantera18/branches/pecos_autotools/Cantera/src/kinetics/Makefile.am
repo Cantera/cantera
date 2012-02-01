@@ -12,7 +12,6 @@ cc_sources = importKinetics.cpp GRI_30_Kinetics.cpp KineticsFactory.cpp  \
 	     ReactionPath.cpp InterfaceKinetics.cpp ImplicitSurfChem.cpp \
              Group.cpp
 
-#AM_CPPFLAGS             = -I../base -I../thermo -I../../../
 AM_CPPFLAGS             = -I$(top_builddir)/build/include/ -I$(top_builddir)/build/include/cantera -I$(top_builddir)/build/include/cantera/kernel
 AM_CXXFLAGS             = $(AM_CPPFLAGS)
 

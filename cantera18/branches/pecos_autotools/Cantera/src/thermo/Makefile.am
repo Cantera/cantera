@@ -15,7 +15,12 @@ h_sources  = State.h Elements.h Constituents.h Phase.h mix_defs.h  \
 	     VPStandardStateTP.h PDSS_Water.h PDSS.h WaterProps.h  \
 	     WaterPropsIAPWSphi.h VPSSMgr_Water_HKFT.h PDSS_HKFT.h \
              PDSS_IonsFromNeutral.h IonsFromNeutralVPSSTP.h        \
-             GibbsExcessVPSSTP.h
+             GibbsExcessVPSSTP.h LatticePhase.h IdealMolalSoln.h   \
+	     PDSS.h HMWSoln.h WaterSSTP.h MetalSHEelectrons.h      \
+	     VPSSMgr_Water_ConstVol.h VPSSMgr_Water_HKFT.h         \
+	     IdealSolidSolnPhase.h StoichSubstanceSSTP.h           \
+             SingleSpeciesTP.h MineralEQ3.h PseudoBinaryVPSSTP.h   \
+             MargulesVPSSTP.cpp
 
 cc_sources = State.cpp Elements.cpp Constituents.cpp Phase.cpp             \
              ThermoPhase.cpp IdealGasPhase.cpp ConstDensityThermo.cpp      \
@@ -30,46 +35,12 @@ cc_sources = State.cpp Elements.cpp Constituents.cpp Phase.cpp             \
 	     WaterProps.cpp WaterPropsIAPWS.cpp	WaterPropsIAPWSphi.cpp     \
              VPSSMgr_Water_HKFT.cpp VPSSMgr_Water_ConstVol.cpp             \
              PDSS_IonsFromNeutral.cpp IonsFromNeutralVPSSTP.cpp            \
-             GibbsExcessVPSSTP.cpp  
-
-# semiconductorphase
-# stoich substance
-# pure fluid phase
-# lattice solide phase
-# lattice phase
-#
-# g++ -c VPStandardStateTP.cpp -O3 -Wall     -fPIC  -I../base 
-# g++ -c IdealMolalSoln.cpp -O3 -Wall     -fPIC  -I../base 
-# g++ -c WaterPropsIAPWSphi.cpp -O3 -Wall     -fPIC  -I../base 
-# g++ -c WaterPropsIAPWS.cpp -O3 -Wall     -fPIC  -I../base 
-# g++ -c WaterProps.cpp -O3 -Wall     -fPIC  -I../base 
-# g++ -c PDSS.cpp -O3 -Wall     -fPIC  -I../base 
-# g++ -c PDSS_Water.cpp -O3 -Wall     -fPIC  -I../base 
-# g++ -c PDSS_HKFT.cpp -O3 -Wall     -fPIC  -I../base 
-# g++ -c HMWSoln.cpp -O3 -Wall     -fPIC  -I../base 
-# g++ -c HMWSoln_input.cpp -O3 -Wall     -fPIC  -I../base 
-# g++ -c DebyeHuckel.cpp -O3 -Wall     -fPIC  -I../base 
-# g++ -c WaterSSTP.cpp -O3 -Wall     -fPIC  -I../base 
-# g++ -c MetalSHEelectrons.cpp -O3 -Wall     -fPIC  -I../base 
-# g++ -c VPSSMgr_Water_ConstVol.cpp -O3 -Wall     -fPIC  -I../base 
-# g++ -c VPSSMgr_Water_HKFT.cpp -O3 -Wall     -fPIC  -I../base 
-# g++ -c IdealSolidSolnPhase.cpp -O3 -Wall     -fPIC  -I../base 
-# g++ -c StoichSubstanceSSTP.cpp -O3 -Wall     -fPIC  -I../base 
-# g++ -c SingleSpeciesTP.cpp -O3 -Wall     -fPIC  -I../base 
-# g++ -c MineralEQ3.cpp -O3 -Wall     -fPIC  -I../base 
-# g++ -c GibbsExcessVPSSTP.cpp -O3 -Wall     -fPIC  -I../base 
-# g++ -c PseudoBinaryVPSSTP.cpp -O3 -Wall     -fPIC  -I../base 
-# g++ -c MargulesVPSSTP.cpp -O3 -Wall     -fPIC  -I../base 
-# g++ -c IonsFromNeutralVPSSTP.cpp -O3 -Wall     -fPIC  -I../base 
-# g++ -c PDSS_IonsFromNeutral.cpp -O3 -Wall     -fPIC  -I../base 
-
-
-
-	     PDSS_Water.cpp PDSS_HKFT.cpp     \
-	     DebyeHuckel.cpp PDSS.cpp     \
-	     WaterProps.cpp WaterPropsIAPWS.cpp	WaterPropsIAPWSphi.cpp     \
-             VPSSMgr_Water_HKFT.cpp VPSSMgr_Water_ConstVol.cpp             \
-             PDSS_IonsFromNeutral.cpp
+             GibbsExcessVPSSTP.cpp LatticePhase.cpp IdealMolalSoln.cpp     \
+	     HMWSoln.cpp HMWSoln_input.cpp WaterSSTP.cpp                   \
+             MetalSHEelectrons.cpp VPSSMgr_Water_ConstVol.cpp              \
+             VPSSMgr_Water_HKFT.cpp IdealSolidSolnPhase.cpp                \
+             StoichSubstanceSSTP.cpp SingleSpeciesTP.cpp MineralEQ3.cpp    \
+             PseudoBinaryVPSSTP.cpp MargulesVPSSTP.cpp     
 
 AM_CPPFLAGS             = -I../base -I../../../
 AM_CXXFLAGS             = $(AM_CPPFLAGS)
