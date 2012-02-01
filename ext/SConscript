@@ -34,8 +34,15 @@ def prep_sundials(env):
 
     return localenv
 
+def prep_gtest(env):
+    localenv = env.Clone()
+    localenv.Append(CPPPATH=[Dir('#ext/gtest'),
+                             Dir('#ext/gtest/include')])
+    return localenv
+
 # (subdir, library name, (file extensions), prepfunction)
-libs = [('tpx','tpx',['cpp'],prep_default)]
+libs = [('tpx','tpx',['cpp'],prep_default),
+        ('gtest/src','gtest',['^gtest-all.cc', '^gtest_main.cc'], prep_gtest)]
 
 if env['build_with_f2c']:
     libs.append(('f2c_math', 'ctmath', ['cpp','c'], prep_f2c))
