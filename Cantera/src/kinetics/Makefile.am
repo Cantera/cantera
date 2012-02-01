@@ -3,12 +3,14 @@ h_sources  = importKinetics.h GRI_30_Kinetics.h KineticsFactory.h      \
              FalloffFactory.h  ReactionStoichMgr.h reaction_defs.h     \
              FalloffMgr.h ThirdBodyMgr.h RateCoeffMgr.h ReactionData.h \
              RxnRates.h Enhanced3BConc.h StoichManager.h solveSP.h     \
-             AqueousKinetics.h InterfaceKinetics.h ImplicitSurfChem.h
+             AqueousKinetics.h InterfaceKinetics.h ImplicitSurfChem.h  \
+             Group.h
 
-cc_sources = importKinetics.cpp GRI_30_Kinetics.cpp KineticsFactory.cpp \
-             GasKinetics.cpp AqueousKinetics.cpp FalloffFactory.cpp     \
-	     ReactionStoichMgr.cpp Kinetics.cpp solveSP.cpp             \
-	     ReactionPath.cpp InterfaceKinetics.cpp ImplicitSurfChem.cpp
+cc_sources = importKinetics.cpp GRI_30_Kinetics.cpp KineticsFactory.cpp  \
+             GasKinetics.cpp AqueousKinetics.cpp FalloffFactory.cpp      \
+	     ReactionStoichMgr.cpp Kinetics.cpp solveSP.cpp              \
+	     ReactionPath.cpp InterfaceKinetics.cpp ImplicitSurfChem.cpp \
+             Group.cpp
 
 #AM_CPPFLAGS             = -I../base -I../thermo -I../../../
 AM_CPPFLAGS             = -I$(top_builddir)/build/include/ -I$(top_builddir)/build/include/cantera -I$(top_builddir)/build/include/cantera/kernel
