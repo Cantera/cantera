@@ -962,3 +962,8 @@ if 'msi' in COMMAND_LINE_TARGETS:
 ### Tests ###
 if any(target.startswith('test') for target in COMMAND_LINE_TARGETS):
     SConscript('test_problems/SConscript')
+
+# Tests written using the gtest framework
+if any(target.startswith('newtest') for target in COMMAND_LINE_TARGETS):
+    VariantDir('build/test', 'test', duplicate=0)
+    SConscript('build/test/SConscript')

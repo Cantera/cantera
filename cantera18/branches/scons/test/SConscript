@@ -1,0 +1,28 @@
+from buildutils import *
+import subprocess
+
+Import('env','buildTargets','installTargets')
+localenv = env.Clone()
+
+localenv.Append(CPPPATH='#ext/gtest/include',
+                LIBPATH='#build/lib',
+                LIBS=['gtest'] + localenv['cantera_libs'])
+
+def gtestRunner(target, source, env):
+    program = source[0]
+    code = subprocess.call([program.abspath])
+    if not code:
+        open(target[0].path, 'w').write(time.asctime()+'\n')
+    return 0
+
+def addTest(subdir, progName):
+    program = localenv.Program(pjoin(subdir, progName),
+                               pjoin(subdir, '%s.cpp' % progName))
+    passedFile = File(pjoin(str(program[0].dir), '%s.passed' % program[0].name))
+    run_program = localenv.Command(passedFile, program, gtestRunner)
+    Alias('newtest', run_program)
+    if os.path.exists(passedFile.abspath):
+        Alias('newtest-reset', localenv.Command('reset-%s%s' % (subdir, progName),
+                                                [], [Delete(passedFile.abspath)]))
+
+addTest('thermo', 'nasapoly')
