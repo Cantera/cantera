@@ -24,6 +24,8 @@
 using namespace std;
 using namespace Cantera;
 
+typedef double doublereal;
+
 class fileLog: public Logger {
 public:
     fileLog(string fName) {

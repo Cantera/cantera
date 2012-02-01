@@ -19,6 +19,8 @@
 
 #include "config.h"
 
+typedef double doublereal;
+
 /*!
  * the WaterPropsIAPSWSphi class support low level calls for
  * the real description of water.
