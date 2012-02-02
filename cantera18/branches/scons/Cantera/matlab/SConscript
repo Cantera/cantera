@@ -9,8 +9,8 @@ class MatlabBuilder(object):
     def __call__(self, target, source, env):
         filenames = [os.path.split(node.path)[1] for node in source]
         sourcestr = ' '.join(pjoin('..','src',name) for name in filenames)
-        includes = ' '.join('-I%s' % Dir(s).abspath for s in env['CPPPATH'])
-        libdir = ' '.join('-L%s' % Dir(s).abspath for s in env['LIBPATH'])
+        includes = ' '.join('-I%s' % quoted(Dir(s).abspath) for s in env['CPPPATH'])
+        libdir = ' '.join('-L%s' % quoted(Dir(s).abspath) for s in env['LIBPATH'])
         libs = ' '.join('-l'+s for s in self.libs)
         extraFlag = '-cxx' if os.name == 'posix' else ''
         debugFlag = '-g' if not env['optimize'] else ''
