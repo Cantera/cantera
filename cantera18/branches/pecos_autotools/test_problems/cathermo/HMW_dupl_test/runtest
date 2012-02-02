@@ -39,6 +39,6 @@ else
   echo "unsuccessful diff comparison on $prog test"
   echo "FAILED" > csvCode.txt
   temp_success="0"
-  return 1
+  return 0
 fi
 

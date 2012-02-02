@@ -67,6 +67,24 @@ AC_OUTPUT(Makefile                                                         \
                    test_problems/cathermo/DH_graph_bdotak/Makefile         \
                    test_problems/cathermo/DH_graph_NM/Makefile             \
                    test_problems/cathermo/DH_graph_Pitzer/Makefile         \
+                   test_problems/cathermo/HMW_dupl_test/Makefile           \
+                   test_problems/cathermo/HMW_graph_CpvT/Makefile          \
+                   test_problems/cathermo/HMW_graph_HvT/Makefile           \
+                   test_problems/cathermo/HMW_graph_GvI/Makefile           \
+                   test_problems/cathermo/HMW_graph_GvT/Makefile           \
+                   test_problems/cathermo/HMW_graph_VvT/Makefile           \
+                   test_problems/cathermo/HMW_test_1/Makefile              \
+                   test_problems/cathermo/HMW_test_3/Makefile              \
+                   test_problems/cathermo/ims/Makefile                     \
+                   test_problems/cathermo/issp/Makefile                    \
+                   test_problems/cathermo/stoichSubSSTP/Makefile           \
+                   test_problems/cathermo/testIAPWS/Makefile               \
+                   test_problems/cathermo/testIAPWSPres/Makefile           \
+                   test_problems/cathermo/testIAPWSTripP/Makefile          \
+                   test_problems/cathermo/testWaterPDSS/Makefile           \
+                   test_problems/cathermo/testWaterTP/Makefile             \
+                   test_problems/cathermo/VPissp/Makefile                  \
+                   test_problems/cathermo/wtWater/Makefile                 \
 		   doxygen/Makefile                                        \
 		   ext/Makefile                                            \
 		   ext/tpx/Makefile                                        \
