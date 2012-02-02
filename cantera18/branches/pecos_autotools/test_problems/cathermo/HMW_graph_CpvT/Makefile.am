@@ -1,4 +1,4 @@
-cc_sources = DH_graph_1.cpp
+cc_sources = HMW_graph_CpvT.cpp sortAlgorithms.cpp
 
 INC                  = -I. -I$(top_builddir)/build/include/ -I$(top_builddir)/build/include/cantera -I$(top_builddir)/build/include/cantera/kernel
 AM_CPPFLAGS          = $(INC)
@@ -10,15 +10,14 @@ LINK                += -lctlapack -lctblas -lctf2c -lm -lstdc++
 AM_LDFLAGS           = -L/workspace/src/cantera/pecos_autotools/build/lib/ 
 LIBS                 =  $(LINK)
 
-bin_PROGRAMS         = DH_graph_1
+bin_PROGRAMS         = HMW_graph_CpvT
 library_includedir   = $(INC)
 
 #-----------------------
 # Cantera DH graph test
 #-----------------------
 
-DH_graph_1_SOURCES = $(cc_sources)
-
+HMW_graph_CpvT_SOURCES = $(cc_sources)
 
 TESTS_ENVIRONMENT = 
 TESTS             = runtest
