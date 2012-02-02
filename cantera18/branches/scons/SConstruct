@@ -823,6 +823,10 @@ for header in mglob(env, 'Cantera/clib/src', 'h'):
     inst = env.Install(pjoin('$inst_incdir','clib'), header)
     installTargets.extend(inst)
 
+inst = env.Install(pjoin('$inst_incdir', 'kernel'), config_h)
+installTargets.extend(inst)
+
+
 ### List of libraries needed to link to Cantera ###
 linkLibs = ['oneD','zeroD','equil','kinetics','transport',
             'thermo','ctnumerics','ctmath','tpx',
