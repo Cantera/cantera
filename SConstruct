@@ -44,21 +44,46 @@ if 'clean' in COMMAND_LINE_TARGETS:
     print 'Done removing output files.'
     sys.exit(0)
 
+# ******************************************************
+# *** Set system-dependent defaults for some options ***
+# ******************************************************
+
+opts = Variables('cantera.conf')
+
 if os.name == 'nt':
     # On Windows, use the same version of Visual Studio that was used
-    # to compile Python, and target the same architecture.
+    # to compile Python, and target the same architecture, unless
+    # the user specified another option
     pycomp = platform.python_compiler()
     if pycomp.startswith('MSC v.1400'):
-        extraEnvArgs['MSVC_VERSION'] = '8.0' # Visual Studio 2005
+        msvc_version = '8.0' # Visual Studio 2005
     elif pycomp.startswith('MSC v.1500'):
-        extraEnvArgs['MSVC_VERSION'] = '9.0' # Visual Studio 2008
+        msvc_version = '9.0' # Visual Studio 2008
     elif pycomp.startswith('MSC v.1600'):
-        extraEnvArgs['MSVC_VERSION'] = '10.0' # Visual Studio 2010
+        msvc_version = '10.0' # Visual Studio 2010
+    else:
+        msvc_version = None
 
     if '64 bit' in pycomp:
-        extraEnvArgs['TARGET_ARCH'] = 'amd64'
+        target_arch = 'amd64'
     else:
-        extraEnvArgs['TARGET_ARCH'] = 'x86'
+        target_arch = 'x86'
+
+    opts.AddVariables(('msvc_version',
+                       """Version of Visual Studio to use. The default
+                          is the same version that was used to compile
+                          the installed version of Python.""",
+                       msvc_version),
+                      ('target_arch',
+                       """Target architecture. The default is the same
+                          architecture as the installed version of Python""",
+                      target_arch))
+
+    pickCompilerEnv = Environment()
+    opts.Update(pickCompilerEnv)
+    if msvc_version:
+        extraEnvArgs['MSVC_VERSION'] = pickCompilerEnv['msvc_version']
+    extraEnvArgs['TARGET_ARCH'] = pickCompilerEnv['target_arch']
 
 env = Environment(tools=['default', 'textfile', 'subst', 'recursiveInstall', 'wix'],
                   ENV={'PATH': os.environ['PATH']},
@@ -70,11 +95,8 @@ if os.name == 'nt' and 'TMP' in os.environ:
 
 add_RegressionTest(env)
 
-# ******************************************************
-# *** Set system-dependent defaults for some options ***
-# ******************************************************
-
 class defaults: pass
+
 if os.name == 'posix':
     defaults.prefix = '/usr/local'
     defaults.boostIncDir = '/usr/include'
@@ -89,7 +111,6 @@ else:
     print "Error: Unrecognized operating system '%s'" % os.name
     sys.exit(1)
 
-opts = Variables('cantera.conf')
 opts.AddVariables(
     ('CXX',
      'The C++ compiler to use.',
@@ -143,7 +164,6 @@ if 'install' in COMMAND_LINE_TARGETS:
 else:
     installPathTest = PathVariable.PathAccept
 
-opts = Variables('cantera.conf')
 opts.AddVariables(
     PathVariable(
         'prefix',
@@ -385,13 +405,6 @@ opts.AddVariables(
         'lapack_ftn_trailing_underscore', '', True),
     BoolVariable(
         'lapack_ftn_string_len_at_end', '', True),
-    ('CXX',
-     'The C++ compiler to use.',
-     env['CXX']),
-    ('CC',
-     """The C compiler to use. This is only used to compile CVODE and
-        the Python extension module.""",
-     env['CC']),
     ('cxx_flags',
      'Compiler flags passed to the C++ compiler only.',
      defaults.cxxFlags),
@@ -565,6 +578,12 @@ if env['use_sundials'] in ('y','default'):
         env.Append(LIBPATH=[env['sundials_libdir']])
 
 conf = Configure(env)
+
+# First, a sanity check:
+if not conf.CheckCXXHeader('cmath', '<>'):
+    print 'ERROR: The C++ compiler is not correctly configured.'
+    sys.exit(0)
+
 
 env['HAS_SSTREAM'] = conf.CheckCXXHeader('sstream', '<>')
 env['HAS_TIMES_H'] = conf.CheckCHeader('sys/times.h', '""')
