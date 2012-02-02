@@ -32,9 +32,11 @@ diff DH_NaCl_Pitzer.csv DH_NaCl_Pitzer_blessed.csv > output.txt
 zres=$?
 if test "$zres" = "0"  -a "$retnStat" = "0"; then
   echo "successful diff comparison on $prog Pitzer test"
+  return 0
 else
   echo "unsuccessful diff comparison on $prog Pitzer test"
   echo "FAILED" > csvCode.txt
   temp_success="0"
+  return 1
 fi
 

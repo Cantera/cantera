@@ -46,6 +46,8 @@ fi
 ##########################################################################
 if test $temp_success = "0" ; then
   echo "PASSED" > csvCode.txt
+  return 0
 else
   echo "FAILED" > csvCode.txt
+  return 1
 fi
