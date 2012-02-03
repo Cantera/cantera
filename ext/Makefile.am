@@ -1,2 +1,2 @@
-SUBDIRS                 = tpx math cvode lapack blas f2c_libs
+SUBDIRS =  f2c_lapack tpx math cvode blas f2c_libs
 
