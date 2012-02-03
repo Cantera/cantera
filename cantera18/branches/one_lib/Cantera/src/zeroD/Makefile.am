@@ -6,7 +6,7 @@ cc_sources = Reactor.cpp ReactorBase.cpp FlowDevice.cpp Wall.cpp \
              ReactorNet.cpp FlowReactor.cpp ConstPressureReactor.cpp \
              ReactorFactory.cpp
 
-AM_CPPFLAGS             = -I../base -I../thermo -I../kinetics -I../numerics -I../../../
+AM_CPPFLAGS             = -I../base -I../thermo -I../kinetics -I../numerics
 AM_CXXFLAGS             = $(AM_CPPFLAGS)
 
 lib_LTLIBRARIES         = $(top_builddir)/build/lib/libzeroD.la
@@ -18,3 +18,8 @@ library_includedir      = $(includedir)
 
 __top_builddir__build_lib_libzeroD_la_LDFLAGS      = $(all_libraries) -release $(GENERIC_RELEASE)
 __top_builddir__build_lib_libzeroD_la_SOURCES      = $(cc_sources) $(h_sources)
+
+# header file accumulation
+all:
+	@echo copying headers $<
+	cp $(h_sources) $(top_builddir)/build/include/

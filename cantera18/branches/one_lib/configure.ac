@@ -87,13 +87,13 @@ AC_OUTPUT(Makefile                                                         \
                    test_problems/cathermo/VPissp/Makefile                  \
                    test_problems/cathermo/wtWater/Makefile                 \
 		   doxygen/Makefile                                        \
-		   ext/Makefile                                            \
-		   ext/tpx/Makefile                                        \
-		   ext/cvode/Makefile                                      \
-		   ext/f2c_blas/Makefile                                   \
-   		   ext/f2c_lapack/Makefile                                 \
-                   ext/f2c_libs/Makefile                                   \
-		   ext/f2c_math/Makefile                                   \
+		   Cantera/ext/Makefile                                    \
+		   Cantera/ext/tpx/Makefile                                \
+		   Cantera/ext/cvode/Makefile                              \
+		   Cantera/ext/f2c_blas/Makefile                           \
+   		   Cantera/ext/f2c_lapack/Makefile                         \
+                   Cantera/ext/f2c_libs/Makefile                           \
+		   Cantera/ext/f2c_math/Makefile                           \
 		   Cantera/Makefile                                        \
                    Cantera/user/Makefile                                   \
                    Cantera/src/Makefile                                    \

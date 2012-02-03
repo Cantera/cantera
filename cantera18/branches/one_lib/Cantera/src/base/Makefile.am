@@ -2,7 +2,7 @@ h_sources               = utilities.h ct_defs.h ctexceptions.h logger.h  \
                           ctml.h plots.h stringUtils.h xml.h             \
 			  Array.h vec_functions.h global.h XML_Writer.h  \
                           FactoryBase.h clockWC.h PrintCtrl.h            \
-	 		  LogPrintCtrl.h  mdp_allo.h config.h   
+	 		  LogPrintCtrl.h mdp_allo.h config.h   
 
 cc_sources              = ct2ctml.cpp ctml.cpp misc.cpp plots.cpp     \
 			  stringUtils.cpp xml.cpp clockWC.cpp         \
@@ -25,5 +25,11 @@ otherinclude_HEADERS    = $(h_sources)
 
 __top_builddir__build_lib_libctbase_la_LDFLAGS      = $(all_libraries) -release $(GENERIC_RELEASE)
 __top_builddir__build_lib_libctbase_la_SOURCES      = $(cc_sources) $(h_sources)
+
+
+# header file accumulation
+all:
+	@echo copying headers $<
+	cp *.h $(top_builddir)/build/include/
 
 CLEANFILES = *.o
