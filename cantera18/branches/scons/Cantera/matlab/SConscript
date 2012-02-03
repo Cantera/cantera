@@ -60,6 +60,7 @@ target = localenv.Command(mexFile,
                           'build_cantera.m',
                           build_cmd % localenv)
 buildTargets.extend(target)
+localenv.Depends(target, env['clib_header_targets'])
 
 ### Install the Matlab toolbox ###
 inst = localenv.RecursiveInstall('$inst_matlab_dir', 'cantera')

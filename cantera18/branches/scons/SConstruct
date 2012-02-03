@@ -835,12 +835,14 @@ for header in mglob(env, 'Cantera/cxx/include', 'h'):
     inst = env.Install('$inst_incdir', header)
     installTargets.extend(inst)
 
+env['clib_header_targets'] = []
 for header in mglob(env, 'Cantera/clib/src', 'h'):
     hcopy = env.Command('build/include/cantera/clib/%s' % header.name, header,
                         Copy('$TARGET', '$SOURCE'))
     buildTargets.append(header)
     inst = env.Install(pjoin('$inst_incdir','clib'), header)
     installTargets.extend(inst)
+    env['clib_header_targets'].append(hcopy)
 
 inst = env.Install(pjoin('$inst_incdir', 'kernel'), config_h)
 installTargets.extend(inst)
