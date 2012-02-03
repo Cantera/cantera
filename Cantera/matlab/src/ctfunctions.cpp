@@ -1,13 +1,20 @@
 /**
  *   @file ctfunctions.cpp
  */
+#include <string.h>
+#include <iostream>
+
+// Workaround for VS2010 and Matlab 2010a
+#if (_MSC_VER >= 1600) && defined(_CHAR16T)
+#define CHAR16_T char16_t
+#endif
 #include "mex.h"
+
 #include <cantera/clib/ct.h>
 #include <cantera/clib/ctonedim.h>
 #include <cantera/clib/ctxml.h>
 #include "ctmatutils.h"
-#include <string.h>
-#include <iostream>
+
 using namespace std;
 
 void reportError() {
