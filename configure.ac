@@ -89,11 +89,11 @@ AC_OUTPUT(Makefile                                                         \
 		   doxygen/Makefile                                        \
 		   ext/Makefile                                            \
 		   ext/tpx/Makefile                                        \
-		   ext/math/Makefile                                       \
-		   ext/blas/Makefile                                       \
 		   ext/cvode/Makefile                                      \
+		   ext/f2c_blas/Makefile                                   \
    		   ext/f2c_lapack/Makefile                                 \
                    ext/f2c_libs/Makefile                                   \
+		   ext/f2c_math/Makefile                                   \
 		   Cantera/Makefile                                        \
                    Cantera/user/Makefile                                   \
                    Cantera/src/Makefile                                    \

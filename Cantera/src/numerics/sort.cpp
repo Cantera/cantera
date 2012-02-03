@@ -9,6 +9,7 @@
 #endif
 
 #include "sort.h"
+#include "ctlapack.h"
 
 namespace Cantera {
 

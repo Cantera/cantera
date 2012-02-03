@@ -7,7 +7,7 @@ AM_CXXFLAGS          = $(AM_CPPFLAGS)
 LINK                 = -lctcxx -luser -loneD -lzeroD -lequil -lkinetics -ltransport -lthermo 
 LINK                += -lctnumerics -lctmath -ltpx -lctspectra -lconverters -lctbase -lcvode 
 LINK                += -lctlapack -lctblas -lctf2c -lm -lstdc++
-AM_LDFLAGS           = -L/workspace/src/cantera/pecos_autotools/build/lib/ 
+AM_LDFLAGS           = -L$(top_builddir)/build/lib/ 
 LIBS                 =  $(LINK)
 
 bin_PROGRAMS         = DH_graph_1
