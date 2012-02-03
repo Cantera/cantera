@@ -2,15 +2,15 @@ cc_sources              = abort_.c c_log.c d_atn2.c dfe.c d_prod.c \
                           due.c exit_.c getenv_.c hl_le.c i_dim.c  \
                           inquire.c lread.c pow_ii.c r_acos.c      \
                           r_dim.c r_nint.c r_tan.c signbit.c       \
-                          uninit.c z_abs.c arithchk.c close.c      \
+                          uninit.c z_abs.c close.c                 \
                           d_cnjg.c d_imag.c d_sign.c ef1asc_.c     \
                           f77_aloc.c h_abs.c hl_lt.c i_dnnt.c      \
-                          i_sign.c lwrite.c r_asin.c      \
+                          i_sign.c lwrite.c r_asin.c               \
                           rewind.c rsfe.c r_tanh.c s_paus.c util.c \
                           z_cos.c backspac.c c_sin.c d_cos.c       \
                           d_int.c d_sin.c ef1cmc_.c f77vers.c      \
                           h_dim.c h_mod.c i_indx.c lbitbits.c      \
-                          pow_ri.c r_atan.c r_exp.c r_sign.c\
+                          pow_ri.c r_atan.c r_exp.c r_sign.c       \
                           s_cat.c s_rnge.c wref.c z_div.c c_abs.c  \
 	                  c_sqrt.c d_cosh.c d_lg10.c d_sinh.c      \
                           endfile.c fmt.c h_dnnt.c h_nint.c iio.c  \
@@ -32,7 +32,8 @@ cc_sources              = abort_.c c_log.c d_atn2.c dfe.c d_prod.c \
                           c_exp.c d_atan.c d_exp.c dolio.c dtime_.c\
                           etime_.c getarg_.c hl_gt.c iargc_.c      \
                           i_nint.c l_lt.c pow_hh.c r_abs.c rdfmt.c \
-                          r_mod.c r_sqrt.c signal_.c uio.c xwsne.c
+                          r_mod.c r_sqrt.c signal_.c uio.c xwsne.c 
+# arithchk.c 
 
 h_sources               = f2c.h fio.h fmt.h fp.h lio.h rawio.h sysdep1.h
 
