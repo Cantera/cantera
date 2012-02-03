@@ -1,6 +1,5 @@
-h_sources  = ArrayViewer.h DenseMatrix.h \
-             funcs.h ctlapack.h Func1.h FuncEval.h \
-             polyfit.h\
+h_sources  = ArrayViewer.h DenseMatrix.h funcs.h ctlapack.h Func1.h \
+             FuncEval.h polyfit.h \
              BandMatrix.h Integrator.h DAE_Solver.h ResidEval.h sort.h \
              SquareMatrix.h ResidJacEval.h NonlinearSolver.h CVodeInt.h
 
@@ -9,7 +8,7 @@ cc_sources = DenseMatrix.cpp funcs.cpp Func1.cpp ODE_integrators.cpp \
 	     SquareMatrix.cpp ResidJacEval.cpp NonlinearSolver.cpp   \
 	     CVodeInt.cpp
 
-AM_CPPFLAGS             = -I../base -I../../../
+AM_CPPFLAGS             = -I../../../ -I$(top_builddir)/build/include/cantera
 AM_CXXFLAGS             = $(AM_CPPFLAGS)
 
 lib_LTLIBRARIES         = $(top_builddir)/build/lib/libctnumerics.la

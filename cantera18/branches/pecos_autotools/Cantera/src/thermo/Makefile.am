@@ -17,10 +17,9 @@ h_sources  = State.h Elements.h Constituents.h Phase.h mix_defs.h  \
              PDSS_IonsFromNeutral.h IonsFromNeutralVPSSTP.h        \
              GibbsExcessVPSSTP.h LatticePhase.h IdealMolalSoln.h   \
 	     PDSS.h HMWSoln.h WaterSSTP.h MetalSHEelectrons.h      \
-	     VPSSMgr_Water_ConstVol.h VPSSMgr_Water_HKFT.h         \
 	     IdealSolidSolnPhase.h StoichSubstanceSSTP.h           \
              SingleSpeciesTP.h MineralEQ3.h PseudoBinaryVPSSTP.h   \
-             MargulesVPSSTP.cpp StoichSubstance.h
+             MargulesVPSSTP.h StoichSubstance.h
 
 cc_sources = State.cpp Elements.cpp Constituents.cpp Phase.cpp             \
              ThermoPhase.cpp IdealGasPhase.cpp ConstDensityThermo.cpp      \
@@ -37,9 +36,9 @@ cc_sources = State.cpp Elements.cpp Constituents.cpp Phase.cpp             \
              PDSS_IonsFromNeutral.cpp IonsFromNeutralVPSSTP.cpp            \
              GibbsExcessVPSSTP.cpp LatticePhase.cpp IdealMolalSoln.cpp     \
 	     HMWSoln.cpp HMWSoln_input.cpp WaterSSTP.cpp                   \
-             MetalSHEelectrons.cpp VPSSMgr_Water_ConstVol.cpp              \
-             VPSSMgr_Water_HKFT.cpp IdealSolidSolnPhase.cpp                \
-             StoichSubstanceSSTP.cpp SingleSpeciesTP.cpp MineralEQ3.cpp    \
+             MetalSHEelectrons.cpp                                         \
+             IdealSolidSolnPhase.cpp                                       \
+             SingleSpeciesTP.cpp MineralEQ3.cpp                            \
              PseudoBinaryVPSSTP.cpp MargulesVPSSTP.cpp                     \
 	     StoichSubstanceSSTP.cpp 
 

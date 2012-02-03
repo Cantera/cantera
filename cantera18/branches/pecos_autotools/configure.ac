@@ -61,6 +61,7 @@ DX_INIT_DOXYGEN(cantera, doxygen/cantera.dox, docs)
 
 AC_OUTPUT(Makefile                                                         \
                    test_problems/Makefile                                  \
+                   test_problems/ChemEquil_gri_matrix/Makefile             \
                    test_problems/cathermo/Makefile                         \
                    test_problems/cathermo/DH_graph_1/Makefile              \
                    test_problems/cathermo/DH_graph_acommon/Makefile        \
@@ -91,8 +92,8 @@ AC_OUTPUT(Makefile                                                         \
 		   ext/math/Makefile                                       \
 		   ext/blas/Makefile                                       \
 		   ext/cvode/Makefile                                      \
-		   ext/lapack/Makefile                                     \
-		   ext/f2c_libs/Makefile                                   \
+   		   ext/f2c_lapack/Makefile                                 \
+                   ext/f2c_libs/Makefile                                   \
 		   Cantera/Makefile                                        \
                    Cantera/user/Makefile                                   \
                    Cantera/src/Makefile                                    \
@@ -109,3 +110,7 @@ AC_OUTPUT(Makefile                                                         \
 
 # FINAL SUMMARY
 AX_SUMMARIZE_CONFIG 
+
+#  ext/lapack/Makefile                                     \
+
+

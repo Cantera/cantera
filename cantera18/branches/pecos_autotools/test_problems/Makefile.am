@@ -5,7 +5,7 @@
              ChemEquil_ionizedGas ChemEquil_red1 CpJump           \
 	     mixGasTransport multiGasTransport printUtilUnitTest 
 
-SUBDIRS    = cathermo
+SUBDIRS    = cathermo ChemEquil_gri_matrix
 #
 # would be good to add:
 #
