@@ -681,7 +681,8 @@ if env['blas_lapack_libs'] == '':
     env['BUILD_BLAS_LAPACK'] = True
     env['blas_lapack_libs'] = ['ctlapack', 'ctblas']
 else:
-    ens['blas_lapack_libs'] = ','.split(env['blas_lapack_libs'])
+    env['blas_lapack_libs'] = env['blas_lapack_libs'].split(',')
+    env['BUILD_BLAS_LAPACK'] = False
 
 # Directories where things will be after actually being installed
 # These variables are the ones that are used to populate header files,
