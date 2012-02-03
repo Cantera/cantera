@@ -42,7 +42,7 @@ cc_sources = State.cpp Elements.cpp Constituents.cpp Phase.cpp             \
              PseudoBinaryVPSSTP.cpp MargulesVPSSTP.cpp                     \
 	     StoichSubstanceSSTP.cpp 
 
-AM_CPPFLAGS             = -I../base -I../../../
+AM_CPPFLAGS             = -I../base
 AM_CXXFLAGS             = $(AM_CPPFLAGS)
 
 lib_LTLIBRARIES         = $(top_builddir)/build/lib/libthermo.la
@@ -54,3 +54,9 @@ library_includedir      = $(includedir)
 
 __top_builddir__build_lib_libthermo_la_LDFLAGS      = $(all_libraries) -release $(GENERIC_RELEASE)
 __top_builddir__build_lib_libthermo_la_SOURCES      = $(cc_sources) $(h_sources)
+
+
+# header file accumulation
+all:
+	@echo copying headers $<
+	cp $(h_sources) $(top_builddir)/build/include/

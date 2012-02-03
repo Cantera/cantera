@@ -4,8 +4,8 @@
 
 #include <string>
 
-#include "kernel/ThermoPhase.h"
-#include "kernel/ThermoFactory.h"
+#include "ThermoPhase.h"
+#include "ThermoFactory.h"
 
 namespace Cantera {}
 

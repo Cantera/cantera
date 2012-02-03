@@ -10,7 +10,7 @@ cc_sources = AqueousTransport.cpp LiquidTransport.cpp MMCollisionInt.cpp \
              DustyGasTransport.cpp  MixTransport.cpp MultiTransport.cpp  \
 	     SolidTransport.cpp TransportFactory.cpp
 
-AM_CPPFLAGS             = -I../base -I../thermo -I../numerics -I../../../
+AM_CPPFLAGS             = -I../base -I../thermo -I../numerics
 AM_CXXFLAGS             = $(AM_CPPFLAGS)
 
 lib_LTLIBRARIES         = $(top_builddir)/build/lib/libtransport.la
@@ -22,3 +22,9 @@ library_includedir      = $(includedir)
 
 __top_builddir__build_lib_libtransport_la_LDFLAGS      = $(all_libraries) -release $(GENERIC_RELEASE)
 __top_builddir__build_lib_libtransport_la_SOURCES      = $(cc_sources) $(h_sources)
+
+
+# header file accumulation
+all:
+	@echo copying headers $<
+	cp *.h $(top_builddir)/build/include/
