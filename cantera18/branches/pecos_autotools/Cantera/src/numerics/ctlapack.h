@@ -19,6 +19,10 @@
 
 #include "ct_defs.h"
 
+typedef double doublereal;
+typedef int     integer; 
+typedef int     ftnlen;
+
 //#include <vecLib/cblas.h>
 
 // map BLAS names to names with or without a trailing underscore.

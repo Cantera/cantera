@@ -22,6 +22,7 @@
 
 using namespace std;
 
+#include "ctlapack.h"
 #include "ct_defs.h"
 #include "ctexceptions.h"
 #include "stringUtils.h"
