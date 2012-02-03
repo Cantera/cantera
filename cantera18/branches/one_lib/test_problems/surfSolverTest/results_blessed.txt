@@ -1,0 +1,148 @@
+Gas Temperature = 1.4e+03
+Gas Pressure    = 1.01e+05
+Gas Phase:  gas   (0)
+                       Name           Conc              MoleF       SrcRate 
+                                    (kmol/m^3)                   (kmol/m^2/s) 
+   0                        H          8.7e-05        0.00999      -2.366e-03
+   1                       N2          0.00774          0.889       0.000e+00
+   2                      CH3                0              0       0.000e+00
+   3                      CH4          8.7e-05        0.00999       0.000e+00
+   4                     C2H2          8.7e-05        0.00999      -1.008e-04
+   5                       H2         0.000348           0.04       1.283e-03
+   6                       OH          8.7e-07       9.99e-05      -7.542e-05
+   7                      H2O         0.000348           0.04       3.880e-05
+   8                       CO                0              0       3.843e-05
+   9                       O2          8.7e-06       0.000999      -9.061e-07
+Sum of gas mole fractions= 1
+
+Bulk Phase:  soot   (10)
+Bulk Temperature = 1.4e+03
+Bulk Pressure    = 1.01e+05
+                       Name           Conc              MoleF       SrcRate 
+                                    (kmol/m^3)                   (kmol/m^2/s) 
+   0                   CB-CB3              293              1       1.631e-04
+Bulk Weight Growth Rate = 0.00196 kg/m^2/s
+Bulk Growth Rate = 5.57e-07 m/s
+Bulk Growth Rate = 2e+03 microns / hour
+Density of bulk phase = 3.52e+03 kg / m^3 
+                      = 3.52 gm / cm^3 
+Sum of bulk mole fractions= 1
+
+Surface Phase:  soot_interface (11)
+Surface Temperature = 1.4e+03
+Surface Pressure    = 1.01e+05
+                       Name         Coverage         SrcRate 
+   0                  Csoot-*           0.0185        0.000e+00
+   1                  Csoot-H            0.982        0.000e+00
+Sum of coverages = 1
+Gas Temperature = 1.4e+03
+Gas Pressure    = 1.01e+05
+Gas Phase:  gas   (0)
+                       Name           Conc              MoleF       SrcRate 
+                                    (kmol/m^3)                   (kmol/m^2/s) 
+   0                        H         0.000113          0.013      -3.122e-03
+   1                       N2          0.00771          0.886       0.000e+00
+   2                      CH3                0              0       0.000e+00
+   3                      CH4          8.7e-05        0.00999       0.000e+00
+   4                     C2H2          8.7e-05        0.00999      -1.015e-04
+   5                       H2         0.000348           0.04       1.661e-03
+   6                       OH          8.7e-07       9.99e-05      -7.541e-05
+   7                      H2O         0.000348           0.04       3.879e-05
+   8                       CO                0              0       3.844e-05
+   9                       O2          8.7e-06       0.000999      -9.129e-07
+Sum of gas mole fractions= 1
+
+Bulk Phase:  soot   (10)
+Bulk Temperature = 1.4e+03
+Bulk Pressure    = 1.01e+05
+                       Name           Conc              MoleF       SrcRate 
+                                    (kmol/m^3)                   (kmol/m^2/s) 
+   0                   CB-CB3              293              1       1.646e-04
+Bulk Weight Growth Rate = 0.00198 kg/m^2/s
+Bulk Growth Rate = 5.62e-07 m/s
+Bulk Growth Rate = 2.02e+03 microns / hour
+Density of bulk phase = 3.52e+03 kg / m^3 
+                      = 3.52 gm / cm^3 
+Sum of bulk mole fractions= 1
+
+Surface Phase:  soot_interface (11)
+Surface Temperature = 1.4e+03
+Surface Pressure    = 1.01e+05
+                       Name         Coverage         SrcRate 
+   0                  Csoot-*           0.0186        0.000e+00
+   1                  Csoot-H            0.981        0.000e+00
+Sum of coverages = 1
+Gas Temperature = 1.5e+03
+Gas Pressure    = 1.01e+05
+Gas Phase:  gas   (0)
+                       Name           Conc              MoleF       SrcRate 
+                                    (kmol/m^3)                   (kmol/m^2/s) 
+   0                        H         0.000106          0.013      -3.833e-03
+   1                       N2          0.00722          0.886       0.000e+00
+   2                      CH3                0              0       0.000e+00
+   3                      CH4         8.14e-05        0.00999       0.000e+00
+   4                     C2H2         8.14e-05        0.00999      -1.499e-04
+   5                       H2         0.000326           0.04       2.065e-03
+   6                       OH         8.14e-07       9.99e-05      -7.369e-05
+   7                      H2O         0.000326           0.04       3.846e-05
+   8                       CO                0              0       3.788e-05
+   9                       O2         8.14e-06       0.000999      -1.324e-06
+Sum of gas mole fractions= 1
+
+Bulk Phase:  soot   (10)
+Bulk Temperature = 1.5e+03
+Bulk Pressure    = 1.01e+05
+                       Name           Conc              MoleF       SrcRate 
+                                    (kmol/m^3)                   (kmol/m^2/s) 
+   0                   CB-CB3              293              1       2.620e-04
+Bulk Weight Growth Rate = 0.00315 kg/m^2/s
+Bulk Growth Rate = 8.94e-07 m/s
+Bulk Growth Rate = 3.22e+03 microns / hour
+Density of bulk phase = 3.52e+03 kg / m^3 
+                      = 3.52 gm / cm^3 
+Sum of bulk mole fractions= 1
+
+Surface Phase:  soot_interface (11)
+Surface Temperature = 1.5e+03
+Surface Pressure    = 1.01e+05
+                       Name         Coverage         SrcRate 
+   0                  Csoot-*           0.0243        0.000e+00
+   1                  Csoot-H            0.976        0.000e+00
+Sum of coverages = 1
+Gas Temperature = 1.5e+03
+Gas Pressure    = 1.01e+05
+Gas Phase:  gas   (0)
+                       Name           Conc              MoleF       SrcRate 
+                                    (kmol/m^3)                   (kmol/m^2/s) 
+   0                        H         0.000106          0.013      -3.833e-03
+   1                       N2          0.00722          0.886       0.000e+00
+   2                      CH3                0              0       0.000e+00
+   3                      CH4         8.14e-05        0.00999       0.000e+00
+   4                     C2H2         8.14e-05        0.00999      -1.499e-04
+   5                       H2         0.000326           0.04       2.065e-03
+   6                       OH         8.14e-07       9.99e-05      -7.369e-05
+   7                      H2O         0.000326           0.04       3.846e-05
+   8                       CO                0              0       3.788e-05
+   9                       O2         8.14e-06       0.000999      -1.324e-06
+Sum of gas mole fractions= 1
+
+Bulk Phase:  soot   (10)
+Bulk Temperature = 1.5e+03
+Bulk Pressure    = 1.01e+05
+                       Name           Conc              MoleF       SrcRate 
+                                    (kmol/m^3)                   (kmol/m^2/s) 
+   0                   CB-CB3              293              1       2.620e-04
+Bulk Weight Growth Rate = 0.00315 kg/m^2/s
+Bulk Growth Rate = 8.94e-07 m/s
+Bulk Growth Rate = 3.22e+03 microns / hour
+Density of bulk phase = 3.52e+03 kg / m^3 
+                      = 3.52 gm / cm^3 
+Sum of bulk mole fractions= 1
+
+Surface Phase:  soot_interface (11)
+Surface Temperature = 1.5e+03
+Surface Pressure    = 1.01e+05
+                       Name         Coverage         SrcRate 
+   0                  Csoot-*           0.0243        0.000e+00
+   1                  Csoot-H            0.976        0.000e+00
+Sum of coverages = 1

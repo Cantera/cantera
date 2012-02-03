@@ -1,0 +1,53 @@
+#/bin/sh
+
+LIBDIR = @buildlib@
+INCDIR = @ctroot@/build/include/cantera
+BINDIR = @ctroot@/bin
+BBINDIR = @buildbin@
+build_ck = @BUILD_CK@
+
+PURIFY=@PURIFY@
+
+LCXX_FLAGS = -L$(LIBDIR)  @LOCAL_LIB_DIRS@ @CXXFLAGS@
+LOCAL_LIBS = -lcantera -lckreader @math_libs@ @LAPACK_LIBRARY@ @BLAS_LIBRARY@ -lctcxx
+
+LCXX_END_LIBS = @LCXX_END_LIBS@
+
+OBJS = mdp_allo.o csvdiff.o tok_input_util.o
+DEPENDS = $(OBJS:.o=.d)
+
+CXX_FLAGS=@CXXFLAGS@
+CONFIGDEFS=@DEFS@
+
+# Optimization is turned off (-O0) because a strange interal compiler
+# error results when using g++ 3.0 on Mac OS X. Optimization should
+# not be needed here anyway.
+
+.cpp.o:
+	$(PURIFY) @CXX@ -c $< -I$(INCDIR) @CXXFLAGS@ -O0
+
+all: $(BINDIR)/csvdiff $(BBINDIR)/csvdiff
+
+$(BINDIR)/csvdiff: mdp_allo.o csvdiff.o tok_input_util.o
+	$(PURIFY) @CXX@ -o $(BINDIR)/csvdiff  mdp_allo.o csvdiff.o tok_input_util.o \
+	 $(LCXX_FLAGS) $(LCXX_END_LIBS) 
+
+$(BBINDIR)/csvdiff: $(BINDIR)/csvdiff
+	cp -f $(BINDIR)/csvdiff $(BBINDIR)
+
+clean:
+	$(RM) *.o *.*~ csvdiff $(BINDIR)/csvdiff $(BBINDIR)/csvdiff
+
+%.d:
+	@CXX_DEPENDS@ -MM -I$(INCDIR) $(CXX_FLAGS) $*.cpp > $*.d
+
+depends: $(DEPENDS)
+	cat *.d &> .depends
+	$(RM) $(DEPENDS)
+
+TAGS: 
+	etags *.h *.cpp
+
+ifeq ($(wildcard .depends), .depends)
+include .depends
+endif

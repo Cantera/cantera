@@ -1,0 +1,61 @@
+#!/bin/sh
+#
+#
+temp_success="1"
+/bin/rm  -f output_0.txt  flamespeed.csv  diff_csv.txt diff_out_0.txt
+
+##########################################################################
+
+prog=flamespeed
+if test ! -x $prog ; then
+   echo $prog ' does not exist'
+   exit -1
+fi
+#################################################################
+#
+CANTERA_DATA=${CANTERA_DATA:=../../../data/inputs}; export CANTERA_DATA
+CANTERA_BIN=${CANTERA_BIN:=../../../bin}
+
+#################################################################
+
+$prog  > output_0.txt < phi_input.txt
+retnStat=$?
+if [ $retnStat != "0" ]
+then
+  temp_success="0"
+  echo "$prog returned with bad status, $retnStat, check output"
+fi
+
+diff -w output_0_blessed.txt output_0.txt > diff_out_0.txt
+retnStat_0=$?
+
+${CANTERA_BIN}/csvdiff -a 1.0E-50 flamespeed_blessed_0.csv flamespeed.csv  > diff_csv.txt
+retnStat_csv_0=$?
+
+retnTotal=1
+if test $retnStat_0 = "0" 
+then
+  retnTotal=0
+fi
+
+retnCSVTotal=1
+if test $retnStat_csv_0 = "1" 
+then
+  retnCSVTotal=0
+fi
+
+if test $retnCSVTotal = "0"
+then
+  echo "Successful test comparison on "`pwd`
+    if test $retnTotal = "1"
+    then
+       echo "  But text files show differences see diff_out_0.txt"
+    fi
+else
+  echo "Unsuccessful test comparison on "`pwd` " test"
+  if test $retnTotal != "0"
+  then
+     echo "      files are different - see diff_test*.txt"
+  fi
+fi
+

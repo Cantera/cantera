@@ -1,0 +1,23 @@
+#!/bin/sh
+
+############################################################################
+#
+#  Makefile to compile and link a C++ application to 
+#  Cantera.
+#
+PROG_NAME=rankine
+EXE_EXT=.exe
+
+# Program Name
+PROGRAM = $(PROG_NAME)$(EXE_EXT)
+
+
+# Do the test -> For the windows vc++ environment, we have to skip checking on
+#                whether the program is uptodate, because we don't utilize make
+#                in that environment to build programs.
+test:
+	./runtest
+
+clean:
+	$(RM) $(OBJS) *.o $(PROGRAM) $(DEPENDS) .depends
+

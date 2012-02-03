@@ -1,0 +1,10 @@
+ck2ctml
+ctsetup
+cxx_examples
+validate
+csvdiff
+*.ilk
+*.pdb
+cti2ctml
+install_tsc
+tscompare

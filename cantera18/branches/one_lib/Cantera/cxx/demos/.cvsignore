@@ -1,0 +1,14 @@
+Makefile
+kin1.dat
+kin1.csv
+gri30.xml
+*.log
+.cttmp.py
+kinetics1
+SunWS_cache
+demos
+*.d
+.depends
+liquidvapor.xml
+CMakeFiles
+cmake_install.cmake

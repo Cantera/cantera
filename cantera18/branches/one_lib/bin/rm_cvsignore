@@ -1,0 +1,40 @@
+#!/bin/sh
+#
+#  rm_cvsignore:
+#
+#   This script will delete all files listed in .cvsignore
+# except the file Makefile
+#
+###################################################################
+#
+delete_file()
+#
+#  This routine will delete a file
+#
+{
+dferrorStatus=0
+for aaa in $*
+do
+  if [ $aaa != "Makefile" -a $aaa != "runtest" ]
+  then
+    if [ -f $aaa ]
+    then
+      /bin/rm -f $aaa
+    fi
+  fi
+done
+return $dferrorStatus
+}
+#
+###################################################################
+#
+ignore_list=`cat .cvsignore`
+for item in $ignore_list
+do
+  delete_file $item
+done
+#
+#
+####################################################################
+#
+
