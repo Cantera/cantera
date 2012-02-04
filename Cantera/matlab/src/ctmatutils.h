@@ -1,3 +1,6 @@
+#ifndef CT_MATUTILS_H
+#define CT_MATUTILS_H
+
 const double Undef = -999.123;
 //const double DERR = -999.999;
 
@@ -40,5 +43,4 @@ inline char* getString(const mxArray* p) {
     return input_buf;
 }
 
-
-
+#endif
