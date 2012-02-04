@@ -6,6 +6,14 @@ const double Undef = -999.123;
 
 #include <string>
 
+// Workaround for VS2010 and Matlab 2010a.
+// mex.h must be included after <string> or another include from
+// the standard library which includes <yvals.h>.
+#if (_MSC_VER >= 1600) && defined(_CHAR16T)
+#define CHAR16_T char16_t
+#endif
+#include "mex.h"
+
 void reportError();
 
 void checkNArgs(const int n, const int nrhs);

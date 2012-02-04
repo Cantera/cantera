@@ -11,12 +11,6 @@
 
 #include <string>
 
-// Workaround for VS2010 and Matlab 2010a
-#if (_MSC_VER >= 1600) && defined(_CHAR16T)
-#define CHAR16_T char16_t
-#endif
-#include "mex.h"
-
 #include <cantera/clib/ct.h>
 #include "ctmatutils.h"
 #include "mllogger.h"
