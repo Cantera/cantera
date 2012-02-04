@@ -31,6 +31,14 @@ AC_SUBST([PACKAGE_URL])
 AC_DEFINE([LAPACK_FTN_TRAILING_UNDERSCORE],1,[Define to add underscore after fortran functions])
 LAPACK_FTN_TRAILING_UNDERSCORE=1
 
+
+AC_CHECK_TYPES([uint8_t, uint16_t, uint32_t, int32_t, uint64_t, int64_t])
+AH_BOTTOM([
+typedef  double       doublereal;   // Fortran double precision                                                                                                                                           
+typedef  int          integer;      // Fortran integer                                                                                                                                                    
+typedef  int          ftnlen;       // Fortran hidden string length type     
+])
+
 # ------------------------------
 # Checks for required programs
 # ------------------------------
