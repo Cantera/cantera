@@ -36,7 +36,6 @@ typedef int     ftnlen;
 #define _DGBSV_   dgbsv
 #define _DGBTRF_  dgbtrf
 #define _DGBTRS_  dgbtrs
-
 #define _DSCAL_   dscal
 
 #else
