@@ -15,10 +15,9 @@
 #include "DebyeHuckel.h"
 #else
 #include "Cantera.h"
-#include "kernel/logger.h"
-#include "kernel/DebyeHuckel.h"
+#include "logger.h"
+#include "DebyeHuckel.h"
 #endif
-
 #include <cstdio>
 
 using namespace std;

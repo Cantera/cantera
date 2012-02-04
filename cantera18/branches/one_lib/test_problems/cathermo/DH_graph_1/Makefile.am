@@ -1,6 +1,6 @@
 cc_sources = DH_graph_1.cpp
 
-INC                  = -I. -I$(top_builddir)/build/include/ -I$(top_builddir)/build/include/cantera -I$(top_builddir)/build/include/cantera/kernel
+INC                  = -I. -I$(top_builddir)/build/include/
 AM_CPPFLAGS          = $(INC)
 AM_CXXFLAGS          = $(AM_CPPFLAGS)
 
