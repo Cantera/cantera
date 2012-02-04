@@ -19,7 +19,7 @@ h_sources  = State.h Elements.h Constituents.h Phase.h mix_defs.h  \
 	     PDSS.h HMWSoln.h WaterSSTP.h MetalSHEelectrons.h      \
 	     IdealSolidSolnPhase.h StoichSubstanceSSTP.h           \
              SingleSpeciesTP.h MineralEQ3.h PseudoBinaryVPSSTP.h   \
-             MargulesVPSSTP.h StoichSubstance.h
+             MargulesVPSSTP.h StoichSubstance.h electrolytes.h
 
 cc_sources = State.cpp Elements.cpp Constituents.cpp Phase.cpp             \
              ThermoPhase.cpp IdealGasPhase.cpp ConstDensityThermo.cpp      \

@@ -23,28 +23,28 @@ namespace Cantera_CXX{ }
 
 using namespace Cantera_CXX;
 
-#include "kernel/ct_defs.h"
+#include "ct_defs.h"
 
 // some useful functions
-#include "kernel/global.h"
+#include "global.h"
 
 // the CanteraError exception class
-#include "kernel/ctexceptions.h"
+#include "ctexceptions.h"
 
 //
 //#include "kernel/importCTML.h"
 
 // The Cantera logger class
-#include "kernel/logger.h"
+#include "logger.h"
 
 // Include the timer
-#include "kernel/clockWC.h"
+#include "clockWC.h"
 
 // Include routines for reading and writing XML files
-#include "kernel/xml.h"
+#include "xml.h"
 
 // Include string utility routines
-#include "kernel/stringUtils.h"
+#include "stringUtils.h"
 
 #endif
 

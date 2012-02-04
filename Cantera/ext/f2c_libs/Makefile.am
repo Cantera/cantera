@@ -49,13 +49,15 @@ library_include_HEADERS = $(h_sources)
 # Cantera Converters C/C++ library
 #-----------------------
 
-__top_builddir__build_lib_libctf2c_la_LDFLAGS      = $(all_libraries) -release $(GENERIC_RELEASE)
-__top_builddir__build_lib_libctf2c_la_SOURCES      = $(cc_sources) $(h_sources)
-
-CLEANFILES = *.o
-
 # header file accumulation
 all:
 	@echo copying headers $<
 	cp sysdep1.h0 sysdep1.h
+	cp signal1.h0 signal1.h
 	cp $(h_sources) $(top_builddir)/build/include/
+
+
+__top_builddir__build_lib_libctf2c_la_LDFLAGS      = $(all_libraries) -release $(GENERIC_RELEASE)
+__top_builddir__build_lib_libctf2c_la_SOURCES      = $(cc_sources) $(h_sources)
+
+CLEANFILES = *.o
