@@ -8,7 +8,7 @@ cc_sources = DenseMatrix.cpp funcs.cpp Func1.cpp ODE_integrators.cpp \
 	     SquareMatrix.cpp ResidJacEval.cpp NonlinearSolver.cpp   \
 	     CVodeInt.cpp
 
-AM_CPPFLAGS             = -I$(top_builddir)/build/include/ -I$(top_builddir)/Cantera/ext/cvode
+AM_CPPFLAGS             = -I$(top_builddir)/build/include/ -I$(top_builddir)/Cantera/ext/cvode -I$(top_builddir)
 AM_CXXFLAGS             = $(AM_CPPFLAGS)
 
 lib_LTLIBRARIES         = $(top_builddir)/build/lib/libctnumerics.la
