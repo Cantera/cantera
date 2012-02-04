@@ -4,8 +4,7 @@
 #ifndef MLLOGGER_H
 #define MLLOGGER_H
 
-#include "mex.h"
-#include <string>
+#include "ctmatutils.h"
 #include "cantera/kernel/logger.h"
 
 #include <iostream>
