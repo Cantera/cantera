@@ -9,7 +9,7 @@ cc_sources              = ct2ctml.cpp ctml.cpp misc.cpp plots.cpp     \
 	                  PrintCtrl.cpp LogPrintCtrl.cpp mdp_allo.cpp \
 			  checkFinite.cpp	
 
-AM_CPPFLAGS             = 
+AM_CPPFLAGS             = -I$(top_builddir)
 AM_CXXFLAGS             = $(AM_CPPFLAGS)
 
 lib_LTLIBRARIES         = $(top_builddir)/build/lib/libctbase.la
