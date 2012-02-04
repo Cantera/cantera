@@ -23,3 +23,8 @@ __top_builddir__build_lib_libcvode_la_LDFLAGS      = $(all_libraries) -release $
 __top_builddir__build_lib_libcvode_la_SOURCES      = $(fc_sources) $(cc_sources)
 
 CLEANFILES = *.o
+
+# header file accumulation
+all:
+	@echo copying headers $<
+	cp *.h $(top_builddir)/build/include/
