@@ -30,6 +30,9 @@
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
 
+/* Define to add underscore after fortran functions */
+#undef LAPACK_FTN_TRAILING_UNDERSCORE
+
 /* Define to the sub-directory in which libtool stores uninstalled libraries.
    */
 #undef LT_OBJDIR
