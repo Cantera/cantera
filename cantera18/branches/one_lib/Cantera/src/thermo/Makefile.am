@@ -19,7 +19,8 @@ h_sources  = State.h Elements.h Constituents.h Phase.h mix_defs.h  \
 	     PDSS.h HMWSoln.h WaterSSTP.h MetalSHEelectrons.h      \
 	     IdealSolidSolnPhase.h StoichSubstanceSSTP.h           \
              SingleSpeciesTP.h MineralEQ3.h PseudoBinaryVPSSTP.h   \
-             MargulesVPSSTP.h StoichSubstance.h electrolytes.h
+             MargulesVPSSTP.h StoichSubstance.h electrolytes.h     \
+             PureFluidPhase.h	
 
 cc_sources = State.cpp Elements.cpp Constituents.cpp Phase.cpp             \
              ThermoPhase.cpp IdealGasPhase.cpp ConstDensityThermo.cpp      \
@@ -40,7 +41,7 @@ cc_sources = State.cpp Elements.cpp Constituents.cpp Phase.cpp             \
              IdealSolidSolnPhase.cpp                                       \
              SingleSpeciesTP.cpp MineralEQ3.cpp                            \
              PseudoBinaryVPSSTP.cpp MargulesVPSSTP.cpp                     \
-	     StoichSubstanceSSTP.cpp 
+	     StoichSubstanceSSTP.cpp PureFluidPhase.cpp
 
 AM_CPPFLAGS             = -I../base
 AM_CXXFLAGS             = $(AM_CPPFLAGS)
