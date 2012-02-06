@@ -2,12 +2,11 @@ cc_sources              = band.c cvband.c cvbandpre.c cvdense.c cvdiag.c   \
                           cvode.c cvspgmr.c dense.c iterativ.c llnlmath.c  \
 	                  nvector.c spgmr.c
 
-h_sources                = band.h cvband.h cvbandpre.h cvdense.h cvdiag.h  \
+h_sources               = band.h cvband.h cvbandpre.h cvdense.h cvdiag.h  \
                            cvode.h cvspgmr.h dense.h iterativ.h llnlmath.h \
                            llnltyps.h nvector.h spgmr.h
 
-
-AM_CPPFLAGS             = 
+AM_CPPFLAGS             = -I.
 AM_CXXFLAGS             = $(AM_CPPFLAGS)
 AM_FCFLAGS              = $(AM_CPPFLAGS)
 
@@ -27,4 +26,4 @@ CLEANFILES = *.o
 # header file accumulation
 all:
 	@echo copying headers $<
-	cp *.h $(top_builddir)/build/include/
+	cp -u *.h $(top_builddir)/build/include/

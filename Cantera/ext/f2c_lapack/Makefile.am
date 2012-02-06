@@ -29,4 +29,4 @@ CLEANFILES = *.o
 # header file accumulation
 all:
 	@echo copying headers $<
-	cp *.h $(top_builddir)/build/include/
+	cp -u *.h $(top_builddir)/build/include/
