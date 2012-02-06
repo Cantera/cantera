@@ -1,6 +1,6 @@
 cc_sources = mixGasTransport.cpp
 
-INC                  = -I. -I$(top_builddir)/build/include/
+INC                  = -I. -I$(top_builddir)/build/include/ -g
 AM_CPPFLAGS          = $(INC)
 AM_CXXFLAGS          = $(AM_CPPFLAGS)
 
