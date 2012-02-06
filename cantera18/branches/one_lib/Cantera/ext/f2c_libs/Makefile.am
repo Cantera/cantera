@@ -27,13 +27,14 @@ cc_sources              = abort_.c c_log.c d_atn2.c dfe.c d_prod.c \
                           system_.c wsle.c z_sin.c c_div.c d_asin.c\
                           derfc_.c d_nint.c d_tanh.c err.c ftell_.c\
                           hl_ge.c i_abs.c i_mod.c l_le.c pow_di.c  \
-                          r_cosh.c r_log.c rsne.c       \
+                          r_cosh.c r_log.c rsne.c                  \
                           sig_die.c typesize.c wsne.c z_sqrt.c     \
                           c_exp.c d_atan.c d_exp.c dolio.c dtime_.c\
-                          etime_.c getarg_.c hl_gt.c iargc_.c      \
+                          etime_.c hl_gt.c                         \
                           i_nint.c l_lt.c pow_hh.c r_abs.c rdfmt.c \
                           r_mod.c r_sqrt.c signal_.c uio.c xwsne.c 
-# arithchk.c 
+
+# arithchk.c getarg_.c iargc_.c 
 
 h_sources               = f2c.h fio.h fmt.h fp.h lio.h rawio.h sysdep1.h
 
