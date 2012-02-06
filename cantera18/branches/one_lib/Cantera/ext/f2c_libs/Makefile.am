@@ -53,8 +53,8 @@ library_include_HEADERS = $(h_sources)
 # header file accumulation
 all:
 	@echo copying headers $<
-	cp sysdep1.h0 sysdep1.h
-	cp signal1.h0 signal1.h
+	cp -u sysdep1.h0 sysdep1.h
+	cp -u signal1.h0 signal1.h
 	cp $(h_sources) $(top_builddir)/build/include/
 
 
