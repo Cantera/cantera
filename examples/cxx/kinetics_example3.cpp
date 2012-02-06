@@ -16,9 +16,9 @@
 #pragma warning(disable:4503)
 #endif
 
-#include <cantera/Cantera.h>
-#include <cantera/zerodim.h>
-#include <cantera/IdealGasMix.h>
+#include <Cantera.h>
+#include <zerodim.h>
+#include <IdealGasMix.h>
 #include <time.h>
 #include "example_utils.h"
 

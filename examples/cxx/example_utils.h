@@ -1,8 +1,8 @@
 #ifndef CT_EXAMPLE_UTILS_H
 #define CT_EXAMPLE_UTILS_H
 
-#include <kernel/Array.h>
-#include <kernel/plots.h>
+#include <Array.h>
+#include <plots.h>
 
 using namespace Cantera;
 using namespace std;

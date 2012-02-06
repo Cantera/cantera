@@ -6,10 +6,10 @@
 
 #include <string>
 
-#include "kernel/IdealGasPhase.h"
-#include "kernel/GRI_30_Kinetics.h"
-#include "kernel/importKinetics.h"
-#include "kernel/stringUtils.h"
+#include "IdealGasPhase.h"
+#include "GRI_30_Kinetics.h"
+#include "importKinetics.h"
+#include "stringUtils.h"
 
 namespace Cantera_CXX {
 
