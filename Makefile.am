@@ -10,3 +10,4 @@ DIST_SUBDIRS = Cantera examples
 
 # generated documentation will be included in distributed archive
 EXTRA_DIST= bootstrap $(DX_CONFIG)
+
