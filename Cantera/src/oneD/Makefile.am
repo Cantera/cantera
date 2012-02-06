@@ -22,4 +22,4 @@ __top_builddir__build_lib_liboneD_la_SOURCES      = $(cc_sources) $(h_sources)
 # header file accumulation
 all:
 	@echo copying headers $<
-	cp $(h_sources) $(top_builddir)/build/include/
+	cp -u $(h_sources) $(top_builddir)/build/include/
