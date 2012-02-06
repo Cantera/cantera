@@ -94,6 +94,7 @@ AC_OUTPUT(Makefile                                                         \
                    test_problems/Makefile                                  \
                    test_problems/mixGasTransport/Makefile                  \
                    test_problems/ChemEquil_gri_matrix/Makefile             \
+                   test_problems/ChemEquil_gri_pairs/Makefile              \
                    test_problems/cathermo/Makefile                         \
                    test_problems/cathermo/DH_graph_1/Makefile              \
                    test_problems/cathermo/DH_graph_acommon/Makefile        \
