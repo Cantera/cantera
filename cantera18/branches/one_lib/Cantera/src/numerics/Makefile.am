@@ -1,7 +1,7 @@
 h_sources  = ArrayViewer.h DenseMatrix.h funcs.h ctlapack.h Func1.h \
              FuncEval.h polyfit.h BandMatrix.h Integrator.h         \
              DAE_Solver.h ResidEval.h sort.h SquareMatrix.h         \
-	     ResidJacEval.h NonlinearSolver.h CVodeInt.h          
+	     ResidJacEval.h NonlinearSolver.h
 
 cc_sources = DenseMatrix.cpp funcs.cpp Func1.cpp ODE_integrators.cpp \
 	     BandMatrix.cpp DAE_solvers.cpp sort.cpp CVodeInt.cpp    \
