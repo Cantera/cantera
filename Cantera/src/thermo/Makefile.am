@@ -12,7 +12,7 @@ h_sources  = State.h Elements.h Constituents.h Phase.h mix_defs.h  \
              VPSSMgr.h  VPSSMgrFactory.h  VPSSMgr_General.h        \
              VPSSMgr_IdealGas.h VPSSMgr_ConstVol.h PDSS_ConstVol.h \
 	     PDSS_IdealGas.h PDSS_SSVol.h DebyeHuckel.h            \
-	     VPStandardStateTP.h PDSS_Water.h PDSS.h WaterProps.h  \
+	     VPStandardStateTP.h PDSS_Water.h WaterProps.h         \
 	     WaterPropsIAPWSphi.h VPSSMgr_Water_HKFT.h PDSS_HKFT.h \
              PDSS_IonsFromNeutral.h IonsFromNeutralVPSSTP.h        \
              GibbsExcessVPSSTP.h LatticePhase.h IdealMolalSoln.h   \
@@ -59,4 +59,4 @@ __top_builddir__build_lib_libthermo_la_SOURCES      = $(cc_sources) $(h_sources)
 # header file accumulation
 all:
 	@echo copying headers $<
-	cp $(h_sources) $(top_builddir)/build/include/
+	cp *.h $(top_builddir)/build/include/
