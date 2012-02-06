@@ -1,4 +1,5 @@
 cc_sources = \
+daux.c   \
 mach.cpp \
 ddaspk.c \
 dgbefa.c \
