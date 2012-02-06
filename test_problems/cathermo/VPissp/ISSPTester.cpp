@@ -25,8 +25,8 @@
 
 
 #include "Cantera.h"
-#include "kernel/IdealSolidSolnPhase.h"
-#include "kernel/IdealSolnGasVPSS.h"
+#include "IdealSolidSolnPhase.h"
+#include "IdealSolnGasVPSS.h"
 
 #include <cstdio>
 
