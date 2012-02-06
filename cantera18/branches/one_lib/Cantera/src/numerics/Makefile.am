@@ -24,4 +24,4 @@ __top_builddir__build_lib_libctnumerics_la_SOURCES      = $(cc_sources) $(h_sour
 # header file accumulation
 all:
 	@echo copying headers $<
-	cp *.h $(top_builddir)/build/include/
+	cp -u *.h $(top_builddir)/build/include/

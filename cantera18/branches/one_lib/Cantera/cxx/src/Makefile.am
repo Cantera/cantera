@@ -17,6 +17,6 @@ __top_builddir__build_lib_libctcxx_la_SOURCES      = $(cc_sources) $(h_sources)
 # header file accumulation
 all:
 	@echo copying headers $<
-	cp ../include/*.h $(top_builddir)/build/include/
+	cp -u ../include/*.h $(top_builddir)/build/include/
 
 CLEANFILES = *.o

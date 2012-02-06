@@ -59,4 +59,4 @@ __top_builddir__build_lib_libthermo_la_SOURCES      = $(cc_sources) $(h_sources)
 # header file accumulation
 all:
 	@echo copying headers $<
-	cp *.h $(top_builddir)/build/include/
+	cp -u *.h $(top_builddir)/build/include/
