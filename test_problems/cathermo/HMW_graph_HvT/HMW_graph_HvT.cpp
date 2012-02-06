@@ -11,7 +11,7 @@
 
 #include "Cantera.h"
 #include "thermo.h"
-#include "kernel/HMWSoln.h"
+#include "HMWSoln.h"
 #include "TemperatureTable.h"
 
 #include <cstdio>

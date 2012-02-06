@@ -19,9 +19,9 @@
 #include "ThermoPhase.h"
 
 #include "Cantera.h"
-#include "kernel/logger.h"
+#include "logger.h"
 #include "thermo.h"
-#include "kernel/HMWSoln.h"
+#include "HMWSoln.h"
 #endif
 
 #include "TemperatureTable.h"

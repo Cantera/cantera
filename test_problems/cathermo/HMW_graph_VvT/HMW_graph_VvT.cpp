@@ -19,7 +19,7 @@
 #include "Cantera.h"
 //#include "vcs_Cantera_input.h"
 //#include "vcs_Cantera_convert.h"
-#include "kernel/logger.h"
+#include "logger.h"
 #include "thermo.h"
 #include "TemperatureTable.h"
 #include "HMWSoln.h"
