@@ -28,7 +28,7 @@
 #include "IdealMolalSoln.h"
 #else
 #include "Cantera.h"
-#include "kernel/IdealMolalSoln.h"
+#include "IdealMolalSoln.h"
 #endif
 
 #include <cstdio>
