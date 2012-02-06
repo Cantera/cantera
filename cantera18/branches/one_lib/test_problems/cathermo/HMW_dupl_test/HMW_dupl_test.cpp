@@ -18,7 +18,7 @@
 #include "importCTML.h"
 #else
 #include "Cantera.h"
-#include "kernel/logger.h"
+#include "logger.h"
 #include "thermo.h"
 #include "TemperatureTable.h"
 #include "HMWSoln.h"

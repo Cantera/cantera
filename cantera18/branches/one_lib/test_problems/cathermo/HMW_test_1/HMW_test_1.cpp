@@ -7,7 +7,7 @@
 
 
 #include "Cantera.h"
-#include "kernel/HMWSoln.h"
+#include "HMWSoln.h"
 
 #include <cstdio>
 

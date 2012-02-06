@@ -11,10 +11,8 @@
 
 
 #include "Cantera.h"
-
-#include "kernel/logger.h"
+#include "logger.h"
 #include "HMWSoln.h"
-
 #include <cstdio>
 
 using namespace std;
