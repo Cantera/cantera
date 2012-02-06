@@ -32,12 +32,32 @@ AC_DEFINE([LAPACK_FTN_TRAILING_UNDERSCORE],1,[Define to add underscore after for
 LAPACK_FTN_TRAILING_UNDERSCORE=1
 AC_DEFINE([FTN_TRAILING_UNDERSCORE],1,[Define to add underscore after fortran functions])
 FTN_TRAILING_UNDERSCORE=1
+AC_DEFINE([LAPACK_NAMES_LOWERCASE],1,[Define to lapack functions lowercase])
+LAPACK_NAMES_LOWERCASE 1
+AC_DEFINE([LAPACK_FTN_STRING_LEN_AT_END],1,[Define to add string to end of lapack functions])
+LAPACK_FTN_STRING_LEN_AT_END=1
 
 AC_CHECK_TYPES([uint8_t, uint16_t, uint32_t, int32_t, uint64_t, int64_t])
 AH_BOTTOM([
-typedef  double       doublereal;   // Fortran double precision                                                                                                                                           
-typedef  int          integer;      // Fortran integer                                                                                                                                                    
-typedef  int          ftnlen;       // Fortran hidden string length type     
+typedef  double       doublereal;   // Fortran double precision
+typedef  int          integer;      // Fortran integer
+typedef  int          ftnlen;       // Fortran hidden string length type
+
+#define STRING_LEN_AT_END
+#define STORE_MOLE_FRACTIONS
+
+#define INCL_PURE_FLUIDS 1
+#define WITH_PURE_FLUIDS 1
+
+#define WITH_LATTICE_SOLID 1
+#define WITH_METAL 1
+#define WITH_STOICH_SUBSTANCE 1
+#define WITH_IDEAL_SOLUTIONS 1
+#define WITH_ELECTROLYTES 1
+#define HAS_SSTREAM 1
+
+#define CANTERA_DATA "/usr/local/cantera/data"
+
 ])
 
 # ------------------------------
@@ -72,6 +92,7 @@ DX_INIT_DOXYGEN(cantera, doxygen/cantera.dox, docs)
 
 AC_OUTPUT(Makefile                                                         \
                    test_problems/Makefile                                  \
+                   test_problems/mixGasTransport/Makefile                  \
                    test_problems/ChemEquil_gri_matrix/Makefile             \
                    test_problems/cathermo/Makefile                         \
                    test_problems/cathermo/DH_graph_1/Makefile              \

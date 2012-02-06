@@ -51,8 +51,14 @@
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
 
+/* Define to add string to end of lapack functions */
+#undef LAPACK_FTN_STRING_LEN_AT_END
+
 /* Define to add underscore after fortran functions */
 #undef LAPACK_FTN_TRAILING_UNDERSCORE
+
+/* Define to lapack functions lowercase */
+#undef LAPACK_NAMES_LOWERCASE
 
 /* Define to the sub-directory in which libtool stores uninstalled libraries.
    */
@@ -86,7 +92,23 @@
 #undef VERSION
 
 
-typedef  double       doublereal;   // Fortran double precision                                                                                                                                           
-typedef  int          integer;      // Fortran integer                                                                                                                                                    
-typedef  int          ftnlen;       // Fortran hidden string length type     
+typedef  double       doublereal;   // Fortran double precision
+typedef  int          integer;      // Fortran integer
+typedef  int          ftnlen;       // Fortran hidden string length type
+
+#define STRING_LEN_AT_END
+#define STORE_MOLE_FRACTIONS
+
+#define INCL_PURE_FLUIDS 1
+#define WITH_PURE_FLUIDS 1
+
+#define WITH_LATTICE_SOLID 1
+#define WITH_METAL 1
+#define WITH_STOICH_SUBSTANCE 1
+#define WITH_IDEAL_SOLUTIONS 1
+#define WITH_ELECTROLYTES 1
+#define HAS_SSTREAM 1
+
+#define CANTERA_DATA "/usr/local/cantera/data"
+
 
