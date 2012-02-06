@@ -4,7 +4,7 @@ h_sources  = importKinetics.h GRI_30_Kinetics.h KineticsFactory.h      \
              FalloffMgr.h ThirdBodyMgr.h RateCoeffMgr.h ReactionData.h \
              RxnRates.h Enhanced3BConc.h StoichManager.h solveSP.h     \
              AqueousKinetics.h InterfaceKinetics.h ImplicitSurfChem.h  \
-             Group.h
+             Group.h ReactionPath.h
 
 cc_sources = importKinetics.cpp GRI_30_Kinetics.cpp KineticsFactory.cpp  \
              GasKinetics.cpp AqueousKinetics.cpp FalloffFactory.cpp      \

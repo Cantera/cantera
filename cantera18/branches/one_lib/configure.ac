@@ -69,8 +69,6 @@ DX_INIT_DOXYGEN(cantera, doxygen/cantera.dox, docs)
 
 # Generate Output Files
 
-#                   examples/Makefile                                       \
-#		   examples/cxx/Makefile                                   \
 
 AC_OUTPUT(Makefile                                                         \
                    test_problems/Makefile                                  \
@@ -119,11 +117,10 @@ AC_OUTPUT(Makefile                                                         \
                    Cantera/src/thermo/Makefile                             \
 		   Cantera/src/transport/Makefile                          \
                    Cantera/src/spectra/Makefile Cantera/src/zeroD/Makefile \
-                   Cantera/src/equil/Makefile)
+                   Cantera/src/equil/Makefile                              \
+                   examples/Makefile                                       \
+		   examples/cxx/Makefile)                                   
 
 # FINAL SUMMARY
 AX_SUMMARIZE_CONFIG 
-
-#  ext/lapack/Makefile                                     \
-
 
