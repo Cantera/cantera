@@ -2,7 +2,7 @@ h_sources               = utilities.h ct_defs.h ctexceptions.h logger.h  \
                           ctml.h plots.h stringUtils.h xml.h             \
 			  Array.h vec_functions.h global.h XML_Writer.h  \
                           FactoryBase.h clockWC.h PrintCtrl.h            \
-	 		  LogPrintCtrl.h mdp_allo.h config.h   
+	 		  LogPrintCtrl.h mdp_allo.h
 
 cc_sources              = ct2ctml.cpp ctml.cpp misc.cpp plots.cpp     \
 			  stringUtils.cpp xml.cpp clockWC.cpp         \

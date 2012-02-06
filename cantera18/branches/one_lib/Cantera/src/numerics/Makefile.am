@@ -1,12 +1,11 @@
 h_sources  = ArrayViewer.h DenseMatrix.h funcs.h ctlapack.h Func1.h \
-             FuncEval.h polyfit.h \
-             BandMatrix.h Integrator.h DAE_Solver.h ResidEval.h sort.h \
-             SquareMatrix.h ResidJacEval.h NonlinearSolver.h CVodeInt.h
+             FuncEval.h polyfit.h BandMatrix.h Integrator.h         \
+             DAE_Solver.h ResidEval.h sort.h SquareMatrix.h         \
+	     ResidJacEval.h NonlinearSolver.h CVodeInt.h          
 
 cc_sources = DenseMatrix.cpp funcs.cpp Func1.cpp ODE_integrators.cpp \
-	     BandMatrix.cpp DAE_solvers.cpp sort.cpp                 \
-	     SquareMatrix.cpp ResidJacEval.cpp NonlinearSolver.cpp   \
-	     CVodeInt.cpp
+	     BandMatrix.cpp DAE_solvers.cpp sort.cpp CVodeInt.cpp    \
+	     SquareMatrix.cpp ResidJacEval.cpp NonlinearSolver.cpp 
 
 AM_CPPFLAGS             = -I$(top_builddir)/build/include/ -I$(top_builddir)/Cantera/ext/cvode -I$(top_builddir)
 AM_CXXFLAGS             = $(AM_CPPFLAGS)
