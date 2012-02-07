@@ -24,7 +24,7 @@ using namespace std;
 #include "transport.h"
 #include "IdealGasMix.h"
 
-#include "kernel/TransportFactory.h"
+#include "TransportFactory.h"
 
 using namespace Cantera;
 using namespace Cantera_CXX;
