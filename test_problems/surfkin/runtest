@@ -19,15 +19,16 @@ then
   echo "surfdemo returned with bad status, $retnStat, check output"
 fi
 
-
 diff -w output.txt output_blessed.txt > diff_test.out
 retnStat=$?
 if [ $retnStat = "0" ]
 then
   echo "successful diff comparison on surfkin test"
+  return 0
 else
   echo "unsuccessful diff comparison on surfkin test"
   echo "FAILED" > csvCode.txt
   temp_success="0"
+  return 1
 fi
 
