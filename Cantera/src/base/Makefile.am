@@ -30,6 +30,7 @@ __top_builddir__build_lib_libctbase_la_SOURCES      = $(cc_sources) $(h_sources)
 # header file accumulation -- only copy if file updated!
 all:
 	@echo copying headers $<
+	mkdir $(top_builddir)/build/include/
 	cp -u *.h $(top_builddir)/build/include/
 
 CLEANFILES = *.o

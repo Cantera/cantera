@@ -1,4 +1,4 @@
 # $Id: $
 
 # will need to add python and matlab 
-SUBDIRS                 = src user cxx ext
+SUBDIRS                 =  ext src user cxx
