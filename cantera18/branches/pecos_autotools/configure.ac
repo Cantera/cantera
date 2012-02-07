@@ -100,6 +100,7 @@ AC_OUTPUT(Makefile                                                         \
                    test_problems/diamondSurf/Makefile                      \
                    test_problems/diamondSurf_dupl/Makefile                 \
                    test_problems/fracCoeff/Makefile                        \
+                   test_problems/multiGasTransport/Makefile                \
                    test_problems/cathermo/Makefile                         \
                    test_problems/cathermo/DH_graph_1/Makefile              \
                    test_problems/cathermo/DH_graph_acommon/Makefile        \
