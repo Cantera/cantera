@@ -2,6 +2,7 @@
 2011-11-10 15:09 nick
 
 	* major overhaul of build system to use GNU autotools
+	* make check now supports nearly all tests
 
 2008-01-07 15:02  hkmoffa
 

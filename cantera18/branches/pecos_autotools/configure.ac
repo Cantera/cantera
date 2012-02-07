@@ -104,6 +104,7 @@ AC_OUTPUT(Makefile                                                         \
                    test_problems/negATest/Makefile                         \
                    test_problems/NASA9poly_test/Makefile                   \
                    test_problems/printUtilUnitTest/Makefile                \
+                   test_problems/pureFluidTest/Makefile                    \
                    test_problems/cathermo/Makefile                         \
                    test_problems/cathermo/DH_graph_1/Makefile              \
                    test_problems/cathermo/DH_graph_acommon/Makefile        \
