@@ -88,8 +88,6 @@ DX_PS_FEATURE(OFF)
 DX_INIT_DOXYGEN(cantera, doxygen/cantera.dox, docs) 
 
 # Generate Output Files
-
-
 AC_OUTPUT(Makefile                                                         \
                    test_problems/Makefile                                  \
                    test_problems/mixGasTransport/Makefile                  \
@@ -97,6 +95,7 @@ AC_OUTPUT(Makefile                                                         \
                    test_problems/ChemEquil_gri_pairs/Makefile              \
                    test_problems/ChemEquil_ionizedGas/Makefile             \
                    test_problems/ChemEquil_red1/Makefile                   \
+                   test_problems/CpJump/Makefile                           \
                    test_problems/cathermo/Makefile                         \
                    test_problems/cathermo/DH_graph_1/Makefile              \
                    test_problems/cathermo/DH_graph_acommon/Makefile        \
@@ -146,6 +145,9 @@ AC_OUTPUT(Makefile                                                         \
                    Cantera/src/equil/Makefile                              \
                    examples/Makefile                                       \
 		   examples/cxx/Makefile)                                   
+
+#                   test_problems/ck2cti/Makefile                         
+
 
 # FINAL SUMMARY
 AX_SUMMARIZE_CONFIG 
