@@ -5,9 +5,9 @@
  *
  */
 
-#include "cantera/Cantera.h"
-#include "cantera/IdealGasMix.h"
-#include "cantera/equilibrium.h"
+#include "Cantera.h"
+#include "IdealGasMix.h"
+#include "equilibrium.h"
 
 using namespace std;
 using namespace Cantera;
