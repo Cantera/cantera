@@ -26,9 +26,11 @@ retnStat=$?
 if [ $retnStat = "0" ]
 then
   echo "successful diff comparison on $testName test"
+  return 0
 else
   echo "unsuccessful diff comparison on $testName test"
   echo "FAILED" > csvCode.txt
   temp_success="1"
+  return 1
 fi
 #

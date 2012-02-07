@@ -30,6 +30,7 @@ retnStat=$?
 if [ $retnStat = "0" ]
 then
   echo "Successful diff comparison on ck2cti test (nasa9_reader/sample.inp)"
+  return 0
 else
   echo "########################################################"
   echo "Unsuccessful diff comparison on ck2cti test (nasa9_reader/sample.inp)"
@@ -38,4 +39,5 @@ else
   echo "       test_problems/nasa9_reader/sampleb.cti"
   echo "       test_problems/nasa9_reader/sample_blessed.cti"
   echo "########################################################"
+  return 1
 fi

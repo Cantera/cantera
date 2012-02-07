@@ -101,6 +101,7 @@ AC_OUTPUT(Makefile                                                         \
                    test_problems/diamondSurf_dupl/Makefile                 \
                    test_problems/fracCoeff/Makefile                        \
                    test_problems/multiGasTransport/Makefile                \
+                   test_problems/negATest/Makefile                         \
                    test_problems/NASA9poly_test/Makefile                   \
                    test_problems/cathermo/Makefile                         \
                    test_problems/cathermo/DH_graph_1/Makefile              \
@@ -152,7 +153,9 @@ AC_OUTPUT(Makefile                                                         \
                    examples/Makefile                                       \
 		   examples/cxx/Makefile)                                   
 
+# skipped tests
 #                   test_problems/ck2cti/Makefile                         
+#                   test_problems/nasa9_reader/Makefile                     
 
 
 # FINAL SUMMARY
