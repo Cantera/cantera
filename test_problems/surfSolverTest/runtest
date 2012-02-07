@@ -31,19 +31,22 @@ then
   if [ $retnStat_txt != "0" ]
   then
      echo "   But, text output files have differences. See diff_out.txt"
+     return 1
   fi
 else
   echo "Unsuccessful test comparison on "`pwd` " test"
   if test $retnStat_csv != "0"
   then
      echo "      results files are different - see diff_csv.txt"
+     return 1
   fi
   if test $retnStat_txt != "0"
   then
      echo "      And, text output files have differences. See diff_out.txt"
+     return 1
   fi
 fi
 
-
+return 0
 
 
