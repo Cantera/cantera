@@ -11,9 +11,9 @@
 #include "Cantera.h"
 #include "IdealGasMix.h"
 #include "equilibrium.h"
-#include "kernel/IdealSolnGasVPSS.h"
-#include "kernel/ThermoFactory.h"
-#include "kernel/PrintCtrl.h"
+#include "IdealSolnGasVPSS.h"
+#include "ThermoFactory.h"
+#include "PrintCtrl.h"
 
 using namespace std;
 using namespace Cantera;
