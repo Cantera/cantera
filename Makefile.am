@@ -1,7 +1,7 @@
 include $(top_srcdir)/doxygen/aminclude.am
 
 # Build in these directories:
-SUBDIRS  = Cantera test_problems
+SUBDIRS  = Cantera tools test_problems
 SUBDIRS += doxygen examples 
 
 # Distribute these directories:
