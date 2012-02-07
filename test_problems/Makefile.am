@@ -1,21 +1,28 @@
 
-#SUBDIRS    = cxx_ex surfkin fracCoeff silane_equil VPsilance_test \
-	     negATest diamondSurf diamondSurf_dupl surfSolverTest \
+#SUBDIRS    = surfkin fracCoeff silane_equil VPsilance_test \
+	     negATest diamondSurf_dupl surfSolverTest \
              ChemEquil_gri_matrix ChemEquil_gri_pairs             \
-             ChemEquil_ionizedGas ChemEquil_red1 CpJump           \
 	     mixGasTransport multiGasTransport printUtilUnitTest 
 
-SUBDIRS    = cathermo ChemEquil_gri_matrix
+SUBDIRS  = cathermo mixGasTransport ChemEquil_gri_matrix ChemEquil_gri_pairs
+SUBDIRS += ChemEquil_ionizedGas ChemEquil_red1 CpJump cxx_ex diamondSurf 
+
+
 #
 # would be good to add:
 #
 # pureFluidTest
 # rankine_democxx
 # min_python
-# ck2cti_test
+# 
 # nasa9_reader
 # cathermo
 # VCSnonideal
+
+
+# skipped:
+# ck2cti_test
+
 
 EXTRA_DIST =
 

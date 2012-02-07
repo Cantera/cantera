@@ -722,6 +722,36 @@ namespace Cantera {
     }
   }
 
+
+  /**
+   *
+   * calc_ydot
+   *
+   * unlinked routine
+   * 
+   */
+
+  void NonlinearSolver::calc_ydot(int a, double* b, double* c)
+  {
+    std::cout<< "Warning:: calling calc_ydot in nonlinear problem!" << std::endl;
+    exit(1);
+  }
+  
+  /**
+   *
+   * beuler_jac
+   *
+   * unlinked routine
+   * 
+   */
+
+  void NonlinearSolver::beuler_jac(SquareMatrix & a,double * b,double c, double d, 
+				   double * e, double *f, int g)
+  {
+    std::cout<< "Warning:: calling beuler_jac in nonlinear problem!" << std::endl;
+    exit(1);
+  }
+  
   /**
    *
    * solve_nonlinear_problem():

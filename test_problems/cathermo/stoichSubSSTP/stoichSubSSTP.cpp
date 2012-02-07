@@ -18,7 +18,7 @@
 #else
 #include "Cantera.h"
 #include "thermo.h"
-#include "kernel/StoichSubstanceSSTP.h"
+#include "StoichSubstanceSSTP.h"
 #endif
 
 #include "TemperatureTable.h"

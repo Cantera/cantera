@@ -1,7 +1,16 @@
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
+/* Define to add underscore after fortran functions */
+#undef FTN_TRAILING_UNDERSCORE
+
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
+
+/* Define to 1 if the system has the type `int32_t'. */
+#undef HAVE_INT32_T
+
+/* Define to 1 if the system has the type `int64_t'. */
+#undef HAVE_INT64_T
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
@@ -27,8 +36,29 @@
 /* Define to 1 if you have the <sys/types.h> header file. */
 #undef HAVE_SYS_TYPES_H
 
+/* Define to 1 if the system has the type `uint16_t'. */
+#undef HAVE_UINT16_T
+
+/* Define to 1 if the system has the type `uint32_t'. */
+#undef HAVE_UINT32_T
+
+/* Define to 1 if the system has the type `uint64_t'. */
+#undef HAVE_UINT64_T
+
+/* Define to 1 if the system has the type `uint8_t'. */
+#undef HAVE_UINT8_T
+
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
+
+/* Define to add string to end of lapack functions */
+#undef LAPACK_FTN_STRING_LEN_AT_END
+
+/* Define to add underscore after fortran functions */
+#undef LAPACK_FTN_TRAILING_UNDERSCORE
+
+/* Define to lapack functions lowercase */
+#undef LAPACK_NAMES_LOWERCASE
 
 /* Define to the sub-directory in which libtool stores uninstalled libraries.
    */
@@ -60,3 +90,25 @@
 
 /* Version number of package */
 #undef VERSION
+
+
+typedef  double       doublereal;   // Fortran double precision
+typedef  int          integer;      // Fortran integer
+typedef  int          ftnlen;       // Fortran hidden string length type
+
+#define STRING_LEN_AT_END
+#define STORE_MOLE_FRACTIONS
+
+#define INCL_PURE_FLUIDS 1
+#define WITH_PURE_FLUIDS 1
+
+#define WITH_LATTICE_SOLID 1
+#define WITH_METAL 1
+#define WITH_STOICH_SUBSTANCE 1
+#define WITH_IDEAL_SOLUTIONS 1
+#define WITH_ELECTROLYTES 1
+#define HAS_SSTREAM 1
+
+#define CANTERA_DATA "/usr/local/cantera/data"
+
+

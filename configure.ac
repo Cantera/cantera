@@ -27,6 +27,39 @@ AC_SUBST([PACKAGE_DESCRIPTION])
 PACKAGE_URL="http://code.google.com/p/cantera/"
 AC_SUBST([PACKAGE_URL])
 
+# add trailing underscore(s)
+AC_DEFINE([LAPACK_FTN_TRAILING_UNDERSCORE],1,[Define to add underscore after fortran functions])
+LAPACK_FTN_TRAILING_UNDERSCORE=1
+AC_DEFINE([FTN_TRAILING_UNDERSCORE],1,[Define to add underscore after fortran functions])
+FTN_TRAILING_UNDERSCORE=1
+AC_DEFINE([LAPACK_NAMES_LOWERCASE],1,[Define to lapack functions lowercase])
+LAPACK_NAMES_LOWERCASE 1
+AC_DEFINE([LAPACK_FTN_STRING_LEN_AT_END],1,[Define to add string to end of lapack functions])
+LAPACK_FTN_STRING_LEN_AT_END=1
+
+AC_CHECK_TYPES([uint8_t, uint16_t, uint32_t, int32_t, uint64_t, int64_t])
+AH_BOTTOM([
+typedef  double       doublereal;   // Fortran double precision
+typedef  int          integer;      // Fortran integer
+typedef  int          ftnlen;       // Fortran hidden string length type
+
+#define STRING_LEN_AT_END
+#define STORE_MOLE_FRACTIONS
+
+#define INCL_PURE_FLUIDS 1
+#define WITH_PURE_FLUIDS 1
+
+#define WITH_LATTICE_SOLID 1
+#define WITH_METAL 1
+#define WITH_STOICH_SUBSTANCE 1
+#define WITH_IDEAL_SOLUTIONS 1
+#define WITH_ELECTROLYTES 1
+#define HAS_SSTREAM 1
+
+#define CANTERA_DATA "/usr/local/cantera/data"
+
+])
+
 # ------------------------------
 # Checks for required programs
 # ------------------------------
@@ -55,13 +88,16 @@ DX_PS_FEATURE(OFF)
 DX_INIT_DOXYGEN(cantera, doxygen/cantera.dox, docs) 
 
 # Generate Output Files
-
-#                   examples/Makefile                                       \
-#		   examples/cxx/Makefile                                   \
-
 AC_OUTPUT(Makefile                                                         \
                    test_problems/Makefile                                  \
+                   test_problems/mixGasTransport/Makefile                  \
                    test_problems/ChemEquil_gri_matrix/Makefile             \
+                   test_problems/ChemEquil_gri_pairs/Makefile              \
+                   test_problems/ChemEquil_ionizedGas/Makefile             \
+                   test_problems/ChemEquil_red1/Makefile                   \
+                   test_problems/CpJump/Makefile                           \
+                   test_problems/cxx_ex/Makefile                           \
+                   test_problems/diamondSurf/Makefile                      \
                    test_problems/cathermo/Makefile                         \
                    test_problems/cathermo/DH_graph_1/Makefile              \
                    test_problems/cathermo/DH_graph_acommon/Makefile        \
@@ -87,13 +123,15 @@ AC_OUTPUT(Makefile                                                         \
                    test_problems/cathermo/VPissp/Makefile                  \
                    test_problems/cathermo/wtWater/Makefile                 \
 		   doxygen/Makefile                                        \
-		   ext/Makefile                                            \
-		   ext/tpx/Makefile                                        \
-		   ext/cvode/Makefile                                      \
-		   ext/f2c_blas/Makefile                                   \
-   		   ext/f2c_lapack/Makefile                                 \
-                   ext/f2c_libs/Makefile                                   \
-		   ext/f2c_math/Makefile                                   \
+		   tools/Makefile                                          \
+		   tools/testtools/Makefile                                \
+		   Cantera/ext/Makefile                                    \
+		   Cantera/ext/tpx/Makefile                                \
+		   Cantera/ext/cvode/Makefile                              \
+		   Cantera/ext/f2c_blas/Makefile                           \
+   		   Cantera/ext/f2c_lapack/Makefile                         \
+                   Cantera/ext/f2c_libs/Makefile                           \
+		   Cantera/ext/f2c_math/Makefile                           \
 		   Cantera/Makefile                                        \
                    Cantera/user/Makefile                                   \
                    Cantera/src/Makefile                                    \
@@ -106,11 +144,13 @@ AC_OUTPUT(Makefile                                                         \
                    Cantera/src/thermo/Makefile                             \
 		   Cantera/src/transport/Makefile                          \
                    Cantera/src/spectra/Makefile Cantera/src/zeroD/Makefile \
-                   Cantera/src/equil/Makefile)
+                   Cantera/src/equil/Makefile                              \
+                   examples/Makefile                                       \
+		   examples/cxx/Makefile)                                   
+
+#                   test_problems/ck2cti/Makefile                         
+
 
 # FINAL SUMMARY
 AX_SUMMARIZE_CONFIG 
-
-#  ext/lapack/Makefile                                     \
-
 

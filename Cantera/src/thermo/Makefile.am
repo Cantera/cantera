@@ -12,14 +12,15 @@ h_sources  = State.h Elements.h Constituents.h Phase.h mix_defs.h  \
              VPSSMgr.h  VPSSMgrFactory.h  VPSSMgr_General.h        \
              VPSSMgr_IdealGas.h VPSSMgr_ConstVol.h PDSS_ConstVol.h \
 	     PDSS_IdealGas.h PDSS_SSVol.h DebyeHuckel.h            \
-	     VPStandardStateTP.h PDSS_Water.h PDSS.h WaterProps.h  \
+	     VPStandardStateTP.h PDSS_Water.h WaterProps.h         \
 	     WaterPropsIAPWSphi.h VPSSMgr_Water_HKFT.h PDSS_HKFT.h \
              PDSS_IonsFromNeutral.h IonsFromNeutralVPSSTP.h        \
              GibbsExcessVPSSTP.h LatticePhase.h IdealMolalSoln.h   \
 	     PDSS.h HMWSoln.h WaterSSTP.h MetalSHEelectrons.h      \
 	     IdealSolidSolnPhase.h StoichSubstanceSSTP.h           \
              SingleSpeciesTP.h MineralEQ3.h PseudoBinaryVPSSTP.h   \
-             MargulesVPSSTP.h StoichSubstance.h
+             MargulesVPSSTP.h StoichSubstance.h electrolytes.h     \
+             PureFluidPhase.h LatticeSolidPhase.h	
 
 cc_sources = State.cpp Elements.cpp Constituents.cpp Phase.cpp             \
              ThermoPhase.cpp IdealGasPhase.cpp ConstDensityThermo.cpp      \
@@ -37,12 +38,12 @@ cc_sources = State.cpp Elements.cpp Constituents.cpp Phase.cpp             \
              GibbsExcessVPSSTP.cpp LatticePhase.cpp IdealMolalSoln.cpp     \
 	     HMWSoln.cpp HMWSoln_input.cpp WaterSSTP.cpp                   \
              MetalSHEelectrons.cpp                                         \
-             IdealSolidSolnPhase.cpp                                       \
+             IdealSolidSolnPhase.cpp LatticeSolidPhase.cpp                 \
              SingleSpeciesTP.cpp MineralEQ3.cpp                            \
              PseudoBinaryVPSSTP.cpp MargulesVPSSTP.cpp                     \
-	     StoichSubstanceSSTP.cpp 
+	     StoichSubstanceSSTP.cpp PureFluidPhase.cpp StoichSubstance.cpp 
 
-AM_CPPFLAGS             = -I../base -I../../../
+AM_CPPFLAGS             = -I../base
 AM_CXXFLAGS             = $(AM_CPPFLAGS)
 
 lib_LTLIBRARIES         = $(top_builddir)/build/lib/libthermo.la
@@ -54,3 +55,9 @@ library_includedir      = $(includedir)
 
 __top_builddir__build_lib_libthermo_la_LDFLAGS      = $(all_libraries) -release $(GENERIC_RELEASE)
 __top_builddir__build_lib_libthermo_la_SOURCES      = $(cc_sources) $(h_sources)
+
+
+# header file accumulation
+all:
+	@echo copying headers $<
+	cp -u *.h $(top_builddir)/build/include/

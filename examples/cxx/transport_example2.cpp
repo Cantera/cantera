@@ -16,12 +16,12 @@
 #pragma warning(disable:4503)
 #endif
 
-#include <cantera/Cantera.h>
-#include <cantera/transport.h>
+#include <Cantera.h>
+#include <transport.h>
 #include <time.h>
 #include "example_utils.h"
-#include <cantera/equilibrium.h>
-#include <cantera/IdealGasMix.h>
+#include <equilibrium.h>
+#include <IdealGasMix.h>
 
 using namespace Cantera;
 using namespace Cantera_CXX;

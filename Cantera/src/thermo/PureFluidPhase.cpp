@@ -13,8 +13,8 @@
 
 #ifdef WITH_PURE_FLUIDS
 
-#include "../../../ext/tpx/Sub.h"
-#include "../../../ext/tpx/utils.h"
+#include "../../ext/tpx/Sub.h"
+#include "../../ext/tpx/utils.h"
 
 #include <cstdlib>
 #include <iomanip>

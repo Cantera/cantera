@@ -28,7 +28,7 @@
 #include "IdealSolidSolnPhase.h"
 #else
 #include "Cantera.h"
-#include "kernel/IdealSolidSolnPhase.h"
+#include "IdealSolidSolnPhase.h"
 #endif
 
 #include <cstdio>

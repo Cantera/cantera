@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////
 //
-//  reaction path diagrams
+//  reactiona diagrams
 //
 //  $Author: hkmoffa $
 //  $Revision: 1.9 $
@@ -16,12 +16,12 @@
 #pragma warning(disable:4503)
 #endif
 
-#include <cantera/Cantera.h>
-#include <cantera/zerodim.h>
+#include <Cantera.h>
+#include <zerodim.h>
 #include <time.h>
 #include "example_utils.h"
-#include <cantera/reactionpaths.h>
-#include <cantera/IdealGasMix.h>
+#include <reactionpaths.h>
+#include <IdealGasMix.h>
 
 // #include <iostream>
 // using namespace std;

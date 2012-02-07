@@ -9,9 +9,9 @@
 #ifndef CT_THERMO_INCL
 #define CT_THERMO_INCL
 
-#include "kernel/ThermoFactory.h"
+#include "ThermoFactory.h"
 #include "importPhase.h"
-#include "kernel/SurfPhase.h"
-#include "kernel/EdgePhase.h"
+#include "SurfPhase.h"
+#include "EdgePhase.h"
 
 #endif
