@@ -109,6 +109,7 @@ AC_OUTPUT(Makefile                                                         \
                    test_problems/spectroscopy/Makefile                     \
                    test_problems/surfkin/Makefile                          \
                    test_problems/surfSolverTest/Makefile                   \
+                   test_problems/VPsilane_test/Makefile                    \
                    test_problems/cathermo/Makefile                         \
                    test_problems/cathermo/DH_graph_1/Makefile              \
                    test_problems/cathermo/DH_graph_acommon/Makefile        \
