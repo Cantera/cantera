@@ -9,13 +9,13 @@
 
 #include "Cantera.h"
 #include "equilibrium.h"
-#include "kernel/vcs_MultiPhaseEquil.h"
-#include "kernel/vcs_internal.h"
+#include "vcs_MultiPhaseEquil.h"
+#include "vcs_internal.h"
 
-#include "kernel/ThermoFactory.h"
-#include "kernel/IdealGasPhase.h"
-#include "kernel/HMWSoln.h"
-#include "kernel/StoichSubstanceSSTP.h"
+#include "ThermoFactory.h"
+#include "IdealGasPhase.h"
+#include "HMWSoln.h"
+#include "StoichSubstanceSSTP.h"
 
 using namespace Cantera;
 using namespace std;
