@@ -6,10 +6,10 @@
 
 #include "thermo.h"
 
-#include "kernel/Kinetics.h"
-#include "kernel/InterfaceKinetics.h"
-#include "kernel/GasKinetics.h"
-#include "kernel/KineticsFactory.h"
-#include "kernel/importKinetics.h"
+#include "Kinetics.h"
+#include "InterfaceKinetics.h"
+#include "GasKinetics.h"
+#include "KineticsFactory.h"
+#include "importKinetics.h"
 
 #endif
