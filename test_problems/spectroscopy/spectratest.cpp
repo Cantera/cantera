@@ -1,7 +1,16 @@
+/**
+ *  @file spectratest.cpp
+ *
+ *  $Author:  $
+ *  $Date: 2007/05/04 15:18:45 $
+ *  $Revision: 1.3 $
+ *
+ * nick adding more useful on 2/7/12
+ */
 
 #include "Cantera.h"
 #include "spectra.h"
-#include "kernel/Nuclei.h"
+#include "Nuclei.h"
 #include <iostream>
 using namespace std;
 using namespace CanteraSpectra;
@@ -13,6 +22,11 @@ int main() {
     if (*a == *b) {
         cout << "a and b and indistinguishable" << endl;
     }
+    else
+      {
+	cout << "\nwhy are a and b not indistinguishable?\n";
+	return 1;
+      }
 
     // test line broading classes
     double gam = 2.0e0; 
@@ -32,10 +46,42 @@ int main() {
         sumg += gaus->profile(nu)*dnu;
         sum += voig->profile(nu)*dnu;
         sumlor += lor->profile(nu)*dnu;
-        cout << nu << ", " << (*lor)(nu) << ", " << (*gaus)(nu) 
-             << ", " << (*voig)(nu) << endl;
+        //cout << nu << ", " << (*lor)(nu) << ", " << (*gaus)(nu) 
+        //     << ", " << (*voig)(nu) << endl;
     }
+
+    /* old output
     cout << "Voigt area = " << sum << endl;
     cout << "Gaussian area = " << sumg << endl;
     cout << "Lorentzian area = " << sumlor << endl;
+    */
+
+    // 'blessed' output:
+    // Voigt area = 0.99363
+    // Gaussian area = 1
+    // Lorentzian area = 0.993634
+
+    // guessing a sane tolerance
+    double TOL = .0001;
+
+    if(abs(sum-.99363) > TOL)
+      {
+	cout << "\nVOIGT AREA REGRESSION TEST FAILURE\n";
+	return 1;
+      }
+
+    if(abs(sumg-1.0) > TOL)
+      {
+	cout << "\nGAUSSIAN AREA REGRESSION TEST FAILURE\n";
+	return 1;
+      }
+    if(abs(sumlor-.993634) > TOL)
+      {
+	cout << "\nLORENTZIAN AREA REGRESSION TEST FAILURE\n";
+	return 1;
+      }
+
+      // steady as she goes
+      return 0;
+    
 }
