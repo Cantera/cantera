@@ -97,6 +97,7 @@ AC_OUTPUT(Makefile                                                         \
                    test_problems/ChemEquil_red1/Makefile                   \
                    test_problems/CpJump/Makefile                           \
                    test_problems/cxx_ex/Makefile                           \
+                   test_problems/diamondSurf/Makefile                      \
                    test_problems/cathermo/Makefile                         \
                    test_problems/cathermo/DH_graph_1/Makefile              \
                    test_problems/cathermo/DH_graph_acommon/Makefile        \
