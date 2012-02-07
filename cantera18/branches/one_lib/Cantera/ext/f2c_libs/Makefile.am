@@ -36,7 +36,7 @@ cc_sources              = abort_.c c_log.c d_atn2.c dfe.c d_prod.c \
 
 # arithchk.c getarg_.c iargc_.c 
 
-h_sources               = f2c.h fio.h fmt.h fp.h lio.h rawio.h sysdep1.h
+h_sources               = f2c.h sysdep1.h fio.h fmt.h fp.h lio.h rawio.h
 
 AM_CPPFLAGS             = -I.
 AM_CXXFLAGS             = $(AM_CPPFLAGS)
@@ -56,7 +56,6 @@ all:
 	cp -u sysdep1.h0 sysdep1.h
 	cp -u signal1.h0 signal1.h
 	cp $(h_sources) $(top_builddir)/build/include/
-
 
 __top_builddir__build_lib_libctf2c_la_LDFLAGS      = $(all_libraries) -release $(GENERIC_RELEASE)
 __top_builddir__build_lib_libctf2c_la_SOURCES      = $(cc_sources) $(h_sources)
