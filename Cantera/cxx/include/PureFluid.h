@@ -6,9 +6,9 @@
 
 #include <string>
 
-#include "kernel/PureFluidPhase.h"
+#include "PureFluidPhase.h"
 #include "kinetics.h"
-#include "kernel/stringUtils.h"
+#include "stringUtils.h"
 
 namespace Cantera {
 
