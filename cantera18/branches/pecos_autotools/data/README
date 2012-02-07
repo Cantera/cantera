@@ -1,5 +1,0 @@
-
- This directory contains subdirectories with data files of various types.
- By default, Cantera looks for files in the 'inputs', 'thermo', and
- 'transport' directories. These defaults can be modified by editing
- Cantera/src/misc.cpp.
