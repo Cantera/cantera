@@ -1,4 +1,4 @@
-cc_sources = fracCoef.cpp
+cc_sources = fracCoeff.cpp
 
 INC                  = -I. -I$(top_builddir)/build/include/
 AM_CPPFLAGS          = $(INC)
@@ -10,14 +10,14 @@ LINK                += -lctlapack -lctblas -lctf2c -lctcxx -lm  -lctf2c -lstdc++
 AM_LDFLAGS           = -L$(top_builddir)/build/lib/ 
 LIBS                 =  $(LINK)
 
-bin_PROGRAMS         = fracCoef
+bin_PROGRAMS         = fracCoeff
 library_includedir   = $(INC)
 
 #-----------------------
-# Cantera DH graph test
+# Cantera fraccoeff tests
 #-----------------------
 
-fracCoef_SOURCES = $(cc_sources)
+fracCoeff_SOURCES = $(cc_sources)
 
 TESTS_ENVIRONMENT = 
 TESTS             = runtest
