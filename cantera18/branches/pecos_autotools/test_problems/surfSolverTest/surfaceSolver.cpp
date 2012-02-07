@@ -38,8 +38,8 @@ static void printUsage()
 #include "Interface.h"
 
 #include "kinetics.h"
-#include "kernel/ImplicitSurfChem.h"
-#include "kernel/solveSP.h"
+#include "ImplicitSurfChem.h"
+#include "solveSP.h"
 
 using namespace Cantera;
 

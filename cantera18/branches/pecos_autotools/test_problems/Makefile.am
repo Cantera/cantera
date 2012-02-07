@@ -1,15 +1,13 @@
 
-#SUBDIRS    = VPsilance_test \
-	     diamondSurf_dupl surfSolverTest
+#SUBDIRS    = VPsilance_test VCSnonideal
 
 SUBDIRS  = cathermo mixGasTransport ChemEquil_gri_matrix ChemEquil_gri_pairs
 SUBDIRS += ChemEquil_ionizedGas ChemEquil_red1 CpJump cxx_ex diamondSurf 
 SUBDIRS += diamondSurf_dupl fracCoeff multiGasTransport NASA9poly_test
 SUBDIRS += negATest printUtilUnitTest pureFluidTest silane_equil 
-SUBDIRS += spectroscopy surfkin
+SUBDIRS += spectroscopy surfkin surfSolverTest
 
-
-# skipped:
+# skipped (uses ck2cti or python):
 # ck2cti_test
 # nasa9_reader (uses ck2cti)
 # python
