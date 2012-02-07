@@ -7,8 +7,8 @@
 #include <sstream>
 
 #include "Cantera.h"
-#include "kernel/PrintCtrl.h"
-#include "kernel/LogPrintCtrl.h"
+#include "PrintCtrl.h"
+#include "LogPrintCtrl.h"
 
 using namespace Cantera;
 using namespace std;
