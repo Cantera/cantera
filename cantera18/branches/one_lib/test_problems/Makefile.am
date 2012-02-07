@@ -2,11 +2,11 @@
 #SUBDIRS    = cxx_ex surfkin fracCoeff silane_equil VPsilance_test \
 	     negATest diamondSurf diamondSurf_dupl surfSolverTest \
              ChemEquil_gri_matrix ChemEquil_gri_pairs             \
-             ChemEquil_red1 CpJump           \
+             CpJump           \
 	     mixGasTransport multiGasTransport printUtilUnitTest 
 
 SUBDIRS  = cathermo mixGasTransport ChemEquil_gri_matrix ChemEquil_gri_pairs
-SUBDIRS += ChemEquil_ionizedGas
+SUBDIRS += ChemEquil_ionizedGas ChemEquil_red1 
 #
 # would be good to add:
 #
