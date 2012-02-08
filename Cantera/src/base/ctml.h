@@ -33,6 +33,10 @@ namespace ctml {
    */
   const std::string CTML_Version = "1.4.1";
 
+  extern std::string FP_Format;
+
+  extern std::string INT_Format;
+
   //!  This function adds a child node with the name, "bool", with a value
   //!  consisting of a single bool
   /*!

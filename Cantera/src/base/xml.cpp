@@ -1437,7 +1437,7 @@ namespace Cantera {
 	  bool doSpace = true;
 	  bool doNewLine = false;
 	  int ll = static_cast<int>(m_value.size()) - 1;
-	  if (ll > 15) {
+	  if (ll > 25) {
 	    doNewLine = true;
 	  }
 	  if (m_name == "floatArray") {
