@@ -667,6 +667,35 @@ namespace Cantera {
      */
     void setRtol(const doublereal rtol);
 
+    //! Set the relative and absolute tolerances for the Residual norm comparisons, if used
+    /*!
+     *   Residual norms are used to calculate convergence within the nonlinear solver, since
+     *   these are the norms that are associated with convergence proofs, especially for ill-conditioned systems.
+     *   Usually the residual weights for each row are calculated by the program such that they
+     *   correlate with the convergence requirements on the solution variables input by the user using
+     *   the routines setAtol() and setRtol().
+     *   The residual weights are essentially calculated from the value
+     *
+     *        residWeightNorm[i]  = m_ScaleSolnNormToResNorm  * sum_j ( fabs(A_i,j) ewt(j))
+     *
+     *    The factor,  m_ScaleSolnNormToResNorm, is computed periodically to ensure that the solution norms
+     *    and the residual norms are converging at the same time and thus accounts for some-illconditioning issues
+     *    but not all.
+     *    
+     *   The user specified tolerance for the residual is given by the following quantity
+     *
+     *   residWeightNorm[i] = residAtol[i] +  residRtol * m_rowWtScales[i] / neq 
+     *
+     *     @param residNormHandling  Parameter that sets the default handling of the residual norms
+     *                      0   The residual weighting vector is calculated to make sure that the solution
+     *                          norms are roughly 1 when the residual norm is roughly 1.
+     *                          This is the default if this routine is not called.
+     *                      1   Use the user residual norm specified by the parameters in this routine
+     *                      2   Use the minimum value of the residual weights calculcated by method 1 and 2.
+     *                          This is the default if this routine is called and this parameter isn't specified.
+     */
+    void setResidualTols(double residRtol, double * residATol, int residNormHandling = 2);
+
     //! Set the value of the maximum # of newton iterations
     /*!
      *  @param maxNewtIts   Maximum number of newton iterations
@@ -878,6 +907,8 @@ namespace Cantera {
      */
     void setSolverScheme(int doDogLeg, int doAffineSolve);
 
+
+
     /*
      * -----------------------------------------------------------------------------------------------------------------
      *              MEMBER DATA
@@ -1081,6 +1112,20 @@ namespace Cantera {
      * This is used to evaluating the weighting factor
      */
     std::vector<doublereal> atolk_;
+
+    //! absolute tolerance in the unscaled solution unknowns
+    std::vector<doublereal> userResidAtol_;
+
+    //! absolute tolerance in the unscaled solution unknowns
+    doublereal userResidRtol_;
+
+    //! Check the residual tolerances explictly against user input
+    /*!
+     *   0 Don't calculate residual weights from residual tolerance inputs
+     *   1 Calculate residual weights from residual tolerance inputs only
+     *   2 Calculate residual weights from a minimum of the solution error weights process and the direct residual tolerance inputs
+     */
+    int checkUserResidualTols_;
 
     //! Determines the level of printing for each time step.
     /*!
