@@ -146,6 +146,9 @@ namespace Cantera {
     atolBase_(1.0E-10),
     m_ydot_nm1(0),
     atolk_(0),
+    userResidAtol_(0),
+    userResidRtol_(1.0E-3),
+    checkUserResidualTols_(0),
     m_print_flag(0),
     m_ScaleSolnNormToResNorm(0.001),
     jacCopyPtr_(0),
@@ -267,6 +270,9 @@ namespace Cantera {
     atolBase_(1.0E-10),
     m_ydot_nm1(0),
     atolk_(0),
+    userResidAtol_(0),
+    userResidRtol_(1.0E-3),
+    checkUserResidualTols_(0),
     m_print_flag(0),
     m_ScaleSolnNormToResNorm(0.001),
     jacCopyPtr_(0),
@@ -368,6 +374,9 @@ namespace Cantera {
     rtol_                      = right.rtol_;
     atolBase_                  = right.atolBase_;
     atolk_                     = right.atolk_;
+    userResidAtol_             = right.userResidAtol_;
+    userResidRtol_             = right.userResidRtol_;
+    checkUserResidualTols_     = right.checkUserResidualTols_;
     m_print_flag               = right.m_print_flag;
     m_ScaleSolnNormToResNorm   = right.m_ScaleSolnNormToResNorm;
 
@@ -736,7 +745,7 @@ namespace Cantera {
     int irow, jcol;
     int ku, kl;
     int ivec[2];
-    int n = jac.nRowsAndStruct(ivec);
+    jac.nRowsAndStruct(ivec);
     double *colP_j;
 
     /*
@@ -882,15 +891,25 @@ namespace Cantera {
   { 
     if (! jacCopyPtr_->factored()) { 
    
-
-      doublereal sum = 0.0;
-      for (int irow = 0; irow < neq_; irow++) {
-	m_residWts[irow] = m_rowWtScales[irow] / neq_;
-	sum += m_residWts[irow];
-      }
-      sum /= neq_;
-      for (int irow = 0; irow < neq_; irow++) {
-	m_residWts[irow] = (m_residWts[irow] + atolBase_ * atolBase_ * sum);
+      if (checkUserResidualTols_ != 1) {
+	doublereal sum = 0.0;
+	for (int irow = 0; irow < neq_; irow++) {
+	  m_residWts[irow] = m_rowWtScales[irow] / neq_;
+	  sum += m_residWts[irow];
+	}
+	sum /= neq_;
+	for (int irow = 0; irow < neq_; irow++) {
+	  m_residWts[irow] = (m_residWts[irow] + atolBase_ * atolBase_ * sum);
+	}
+	if (checkUserResidualTols_ == 2) {
+	  for (int irow = 0; irow < neq_; irow++) {
+	    m_residWts[irow] = MIN(m_residWts[irow], userResidAtol_[irow] + userResidRtol_ * m_rowWtScales[irow] / neq_);
+	  }
+	}
+      } else {
+	for (int irow = 0; irow < neq_; irow++) {
+	  m_residWts[irow] = userResidAtol_[irow] + userResidRtol_ * m_rowWtScales[irow] / neq_;
+	}
       }
       
       
@@ -919,6 +938,7 @@ namespace Cantera {
       if (m_ScaleSolnNormToResNorm < 1.0E-8) {
 	m_ScaleSolnNormToResNorm = 1.0E-8;
       }
+  
       // Recalculate the residual weights now that we know the value of m_ScaleSolnNormToResNorm 
       computeResidWts();
     } else {
@@ -2232,7 +2252,7 @@ namespace Cantera {
    *  @param alpha    Relative length along the dog length that you are on.
    *  @param deltaX   Vector to be filled up
    */
-  void  NonlinearSolver::fillDogLegStep(int leg, doublereal alpha, std::vector<doublereal>  & deltaX) const {
+  void NonlinearSolver::fillDogLegStep(int leg, doublereal alpha, std::vector<doublereal>  & deltaX) const {
     if (leg == 0) {
       for (int i = 0; i < neq_; i++) {
 	deltaX[i] = alpha * deltaX_CP_[i];
@@ -2343,7 +2363,8 @@ namespace Cantera {
    *  Maximum decrease in variable in any one newton iteration:
    *   factor of 5
    */
-  doublereal NonlinearSolver::boundStep(const doublereal * const y, const doublereal * const step0) {
+  doublereal NonlinearSolver::boundStep(const doublereal * const y, const doublereal * const step0)
+  {
     int i, i_lower = -1;
     doublereal fbound = 1.0, f_bounds = 1.0;
     doublereal ff, y_new;
@@ -2611,7 +2632,8 @@ namespace Cantera {
       }
       if (stepNorm_2 < 1.0) {
 	if (m_print_flag >= 4 ) {
-	  printf("\t  dampStep(): current trial step accepted and soln converged retnTrial = %d, its = %d, damp = %g\n", 0, m+1, ff);
+	  printf("\t  dampStep(): current trial step accepted and soln converged retnTrial ="
+		 "%d, its = %d, damp = %g\n", 0, m+1, ff);
 	}
 	return 0;
       }
@@ -2715,7 +2737,8 @@ namespace Cantera {
        * OK, we have the step0. Now, ask the question whether it satisfies the acceptance criteria
        * as a good step. The overall outcome is returned in the variable info.
        */
-      info = decideStep(time_curr, dogLegID_, dogLegAlpha_, y_n_curr, ydot_n_curr, step_1, y_n_1, ydot_n_1, trustDeltaOld);
+      info = decideStep(time_curr, dogLegID_, dogLegAlpha_, y_n_curr, ydot_n_curr, step_1, 
+			y_n_1, ydot_n_1, trustDeltaOld);
       m_normResid_Bound = m_normResid_1;
 
       /*
@@ -2825,9 +2848,11 @@ namespace Cantera {
    *       -2  Current value of the solution vector caused a residual error in its evaluation. 
    *           Step is a failure, and the step size must be reduced in order to proceed further.
    */
-  int NonlinearSolver::decideStep(const doublereal time_curr, int leg, doublereal alpha, const doublereal * const y_n_curr, 
+  int NonlinearSolver::decideStep(const doublereal time_curr, int leg, doublereal alpha,
+				  const doublereal * const y_n_curr, 
 				  const doublereal * const ydot_n_curr, const std::vector<doublereal> & step_1,
-				  const doublereal * const y_n_1, const doublereal * const ydot_n_1, doublereal trustDeltaOld) 
+				  const doublereal * const y_n_1, const doublereal * const ydot_n_1, 
+				  doublereal trustDeltaOld) 
   {
     int retn = 2;
     bool goodStep = false;
@@ -2889,11 +2914,13 @@ namespace Cantera {
       m_normResid_1 =  m_normResidTrial;
       retn = 0;
       if (m_print_flag >= 4) {
-	printf("\t\t   decideStep: Norm Residual(leg=%1d, alpha=%10.2E) = %11.4E passes\n", dogLegID_, dogLegAlpha_, m_normResidTrial);
+	printf("\t\t   decideStep: Norm Residual(leg=%1d, alpha=%10.2E) = %11.4E passes\n",
+	       dogLegID_, dogLegAlpha_, m_normResidTrial);
       }
     } else {
       if (m_print_flag >= 4) {
-	printf("\t\t   decideStep: Norm Residual(leg=%1d, alpha=%10.2E) = %11.4E failes\n", dogLegID_, dogLegAlpha_, m_normResidTrial);
+	printf("\t\t   decideStep: Norm Residual(leg=%1d, alpha=%10.2E) = %11.4E failes\n", 
+	       dogLegID_, dogLegAlpha_, m_normResidTrial);
       }
       trustDelta_ *= 0.33;
       CurrentTrustFactor_ *= 0.33;
@@ -3994,14 +4021,26 @@ namespace Cantera {
   NonlinearSolver::computeResidWts()
   {
     ResidWtsReevaluated_ = true;
-    doublereal sum = 0.0;  
-    for (int i = 0; i < neq_; i++) {
-      m_residWts[i] = m_rowWtScales[i] / neq_;
-      sum += m_residWts[i];
-    }
-    sum /= neq_;
-    for (int i = 0; i < neq_; i++) {
-      m_residWts[i] = m_ScaleSolnNormToResNorm * (m_residWts[i] + atolBase_ * atolBase_ * sum);
+    if (checkUserResidualTols_ == 1) {
+      for (int i = 0; i < neq_; i++) {
+	m_residWts[i] = userResidAtol_[i] + userResidRtol_ * m_rowWtScales[i] / neq_;
+      }
+    } else {
+      doublereal sum = 0.0;  
+      for (int i = 0; i < neq_; i++) {
+	m_residWts[i] = m_rowWtScales[i] / neq_;
+	sum += m_residWts[i];
+      }
+      sum /= neq_;
+      for (int i = 0; i < neq_; i++) {
+	m_residWts[i] = m_ScaleSolnNormToResNorm * (m_residWts[i] + atolBase_ * atolBase_ * sum);
+      }
+      if (checkUserResidualTols_ == 2) {
+	for (int i = 0; i < neq_; i++) {
+	  double uR = userResidAtol_[i] + userResidRtol_ * m_rowWtScales[i] / neq_;
+	  m_residWts[i] = MIN(m_residWts[i], uR);
+	}
+      }
     }
   }
   //=====================================================================================================================
@@ -4093,13 +4132,47 @@ namespace Cantera {
   //=====================================================================================================================
   // Set the relative tolerances for the solution variables
   /*
-   *   Set the relative tolerances used in the calculation
+   *   Set the relative tolerances used in the calculation for the solution variables.
    *
    *  @param rtol  single double
    */
   void NonlinearSolver::setRtol(const doublereal rtol)
   {
     rtol_ = rtol;
+  }
+  //=====================================================================================================================
+  // Set the relative and absolute tolerances for the Residual norm comparisons, if used
+  /*
+   * 
+   *   residWeightNorm[i] = residAtol[i] +  residRtol * m_rowWtScales[i] / neq 
+   *
+   *     @param residNormHandling  Parameter that sets the default handling of the residual norms
+   *                      0   The residual weighting vector is calculated to make sure that the solution
+   *                          norms are roughly 1 when the residual norm is roughly 1.
+   *                          This is the default if this routine is not called.
+   *                      1   Use the user residual norm specified by the parameters in this routine
+   *                      2   Use the minimum value of the residual weights calculcated by method 1 and 2.
+   *                          This is the default if this routine is called and this parameter isn't specified.
+   */
+  void  NonlinearSolver::setResidualTols(double residRtol, double * residATol, int residNormHandling)
+  {
+    if (residNormHandling < 0 ||  residNormHandling > 2) {
+      throw CanteraError("NonlinearSolver::setResidualTols()", 
+			 "Unknown int for residNormHandling");
+    }
+    checkUserResidualTols_ = residNormHandling;
+    userResidRtol_ = residRtol;
+    if (residATol) {
+      userResidAtol_.resize(neq_);
+      for (int i = 0; i < neq_; i++) {
+	userResidAtol_[i] = residATol[i];
+      }
+    } else {
+      if (residNormHandling ==1  ||  residNormHandling == 2) {
+	throw CanteraError("NonlinearSolver::setResidualTols()", 
+			   "Must set residATol vector");
+      }
+    }
   }
   //=====================================================================================================================
   void NonlinearSolver::setPrintLvl(int printLvl) 
