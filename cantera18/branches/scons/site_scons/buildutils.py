@@ -10,6 +10,8 @@ import time
 import types
 import shutil
 
+import SCons.Errors
+
 class DefineDict(object):
     """
     A dictionary-like object which generates appropriate preprocessor
@@ -84,6 +86,10 @@ Up-to-date tests skipped: %(skipped)s
             passed=len(self.passed),
             failed=len(self.failed),
             skipped=len(self.tests))
+
+        if self.failed:
+            raise SCons.Errors.BuildError(self, 'One or more tests failed.')
+
 
 testResults = TestResults()
 
