@@ -37,6 +37,9 @@ using namespace Cantera;
 
 namespace ctml {
 
+   std::string FP_Format = "%23.15E";
+   std::string INT_Format = "%8d";
+
   //====================================================================================================================
   //! Convert a floating point value from a string to a double
   /*!
@@ -191,11 +194,10 @@ namespace ctml {
   void addIntegerArray(Cantera::XML_Node& node, const std::string &title, const int n,
 		       const int* const vals, const std::string units, const std::string type,
 		       const doublereal minval, const doublereal maxval) {
-    std::string fmt = "%8d";
     int i;
     std::string v = "";
     for (i = 0; i < n; i++) {
-      v += int2str(vals[i],fmt);
+      v += int2str(vals[i],INT_Format);
       if (i == n-1) v += "\n"; 
       else if (i > 0 && (i+1) % 3 == 0) v += ",\n";
       else v += ", ";
@@ -262,12 +264,11 @@ namespace ctml {
 		const doublereal val, const std::string units, 
 		const std::string type, const doublereal minval, 
                 const doublereal maxval) {
-    string fmt = "%17.9E";
 #ifdef CTML_VERSION_1_4
-    XML_Node& f = node.addChild("float", val, fmt);
+    XML_Node& f = node.addChild("float", val, ctml::FP_Format);
     f.addAttribute("title", title);
 #else
-    XML_Node& f = node.addChild(title, val, fmt); 
+    XML_Node& f = node.addChild(title, val, ctml::FP_Format); 
 #endif
     if (type != "") f.addAttribute("type",type);
     if (units != "") f.addAttribute("units",units);
@@ -332,11 +333,10 @@ namespace ctml {
 		     const doublereal* const vals, const std::string units, 
                      const std::string type,
 		     const doublereal minval, const doublereal maxval) {
-    std::string fmt = "%17.9E";
     int i;
     std::string v = "";
     for (i = 0; i < n; i++) {
-      v += fp2str(vals[i],fmt);
+      v += fp2str(vals[i],FP_Format);
       if (i == n-1) v += "\n"; 
       else if (i > 0 && (i+1) % 3 == 0) v += ",\n";
       else v += ", ";
@@ -406,11 +406,10 @@ namespace ctml {
 			  const doublereal* const vals, const std::string units, 
 			  const std::string type, const doublereal minval, 
 			  const doublereal maxval) {
-    std::string fmt = "%17.9E";
     int i;
     std::string v = "";
     for (i = 0; i < n; i++) {
-      v += fp2str(vals[i],fmt);
+      v += fp2str(vals[i],FP_Format);
       if (i == n-1) v += "\n"; 
       else if (i > 0 && (i+1) % 3 == 0) v += ",\n";
       else v += ", ";
