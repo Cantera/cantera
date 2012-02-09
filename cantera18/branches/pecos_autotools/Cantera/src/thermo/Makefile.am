@@ -56,6 +56,8 @@ library_includedir      = $(includedir)
 __top_builddir__build_lib_libthermo_la_LDFLAGS      = $(all_libraries) -release $(GENERIC_RELEASE)
 __top_builddir__build_lib_libthermo_la_SOURCES      = $(cc_sources) $(h_sources)
 
+__top_builddir__build_lib_libthermo_include_HEADERS = $(h_sources)
+__top_builddir__build_lib_libthermo_includedir = $(prefix)/include
 
 # header file accumulation
 all:

@@ -21,6 +21,9 @@ library_include_HEADERS = $(h_sources)
 __top_builddir__build_lib_libcvode_la_LDFLAGS      = $(all_libraries) -release $(GENERIC_RELEASE)
 __top_builddir__build_lib_libcvode_la_SOURCES      = $(fc_sources) $(cc_sources)
 
+__top_builddir__build_lib_libcvode_include_HEADERS = $(h_sources)
+__top_builddir__build_lib_libcvode_includedir = $(prefix)/include
+
 CLEANFILES = *.o
 
 # header file accumulation

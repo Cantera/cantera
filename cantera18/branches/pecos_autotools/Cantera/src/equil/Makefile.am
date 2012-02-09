@@ -45,7 +45,11 @@ library_includedir      = $(includedir)
 __top_builddir__build_lib_libequil_la_LDFLAGS      = $(all_libraries) -release $(GENERIC_RELEASE)
 __top_builddir__build_lib_libequil_la_SOURCES      = $(cc_sources) $(h_sources)
 
-# header file accumulation
+__top_builddir__build_lib_libequil_include_HEADERS = $(h_sources)
+__top_builddir__build_lib_libequil_includedir = $(prefix)/include
+
+
+# header file accumulation before install
 all:
 	@echo copying headers $<
 	cp -u *.h $(top_builddir)/build/include/
