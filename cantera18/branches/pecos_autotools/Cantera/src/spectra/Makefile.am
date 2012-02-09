@@ -20,4 +20,4 @@ __top_builddir__build_lib_libctspectra_la_SOURCES      = $(cc_sources) $(h_sourc
 # header file accumulation
 all:
 	@echo copying headers $<
-	cp -u $(h_sources) $(top_builddir)/build/include/
+	cp -p $(h_sources) $(top_builddir)/build/include/
