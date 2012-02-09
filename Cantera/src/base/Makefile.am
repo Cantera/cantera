@@ -26,9 +26,8 @@ otherinclude_HEADERS    = $(h_sources)
 __top_builddir__build_lib_libctbase_la_LDFLAGS      = $(all_libraries) -release $(GENERIC_RELEASE)
 __top_builddir__build_lib_libctbase_la_SOURCES      = $(cc_sources) $(h_sources)
 
-__top_builddir__build_lib_libctbase_include      = $(h_sources)
-__top_builddir__build_lib_libctbase_includedir   = $(prefix)/include
-
+__top_builddir__build_lib_libctbase_include_HEADERS = $(h_sources)
+__top_builddir__build_lib_libctbase_includedir = $(prefix)/include
 
 # header file accumulation -- only copy if file updated!
 all:

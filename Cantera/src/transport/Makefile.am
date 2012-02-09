@@ -3,7 +3,8 @@ h_sources  = AqueousTransport.h LiquidTransportData.h L_matrix.h  \
              DustyGasTransport.h LiquidTransport.h MixTransport.h \
 	     SimpleTransport.h  TransportFactory.h FtnTransport.h \
 	     LiquidTransportParams.h  MMCollisionInt.h  	  \
-             SolidTransport.h TransportParams.h WaterSSTP.h
+             SolidTransport.h TransportParams.h
+# WaterSSTP.h
 
 cc_sources = AqueousTransport.cpp LiquidTransport.cpp MMCollisionInt.cpp \
              SimpleTransport.cpp  TransportBase.cpp WaterTransport.cpp   \
@@ -22,6 +23,9 @@ library_includedir      = $(includedir)
 
 __top_builddir__build_lib_libtransport_la_LDFLAGS      = $(all_libraries) -release $(GENERIC_RELEASE)
 __top_builddir__build_lib_libtransport_la_SOURCES      = $(cc_sources) $(h_sources)
+
+__top_builddir__build_lib_libtransport_include_HEADERS = $(h_sources)
+__top_builddir__build_lib_libtransport_includedir = $(prefix)/include
 
 
 # header file accumulation

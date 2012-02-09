@@ -24,6 +24,10 @@ library_include_HEADERS = $(h_sources)
 __top_builddir__build_lib_libctlapack_la_LDFLAGS      = $(all_libraries) -release $(GENERIC_RELEASE)
 __top_builddir__build_lib_libctlapack_la_SOURCES      = $(cc_sources) $(h_sources)
 
+__top_builddir__build_lib_libctlapack_include_HEADERS = $(h_sources)
+__top_builddir__build_lib_libctlapack_includedir = $(prefix)/include
+
+
 CLEANFILES = *.o
 
 # header file accumulation
