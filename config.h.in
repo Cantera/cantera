@@ -57,7 +57,7 @@
 /* Define to add underscore after fortran functions */
 #undef LAPACK_FTN_TRAILING_UNDERSCORE
 
-/* Define to lapack functions lowercase */
+/* Define to make lapack functions lowercase */
 #undef LAPACK_NAMES_LOWERCASE
 
 /* Define to the sub-directory in which libtool stores uninstalled libraries.
