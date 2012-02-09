@@ -9,12 +9,21 @@
 //                    refering to branch number within svn
 #undef CANTERA_VERSION
 
+//---------------------------- Version Flags ------------------//
+//
+// Cantera version -> this will be a double-quoted string value
+//                    refering to branch number within svn
+#undef CANTERA_VERSION
+//
 // Integer for major number of Cantera
 #define CANTERA_VERSION_MAJORNUMBER  18
 // Flag indicating it's part of major version 18
 #define CANTERA_VERSION_18       1
 //  Flag indicating it's a development version
 #define CANTERA_VERSION_18_XXX   1
+//  Flag indictaing that its part of 1.8_LiquidTransportDevelop branch
+#define CANTERA_VERSION_18_LTD   1
+//
 
 //------------------------ Development flags ------------------//
 //
@@ -74,9 +83,6 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 // data file search path.
 #undef DARWIN
 #undef HAS_SSTREAM
-
-// Cantera version
-#undef CANTERA_VERSION
 
 // Identify whether the operating system is cygwin's overlay of
 // windows, with gcc being used as the compiler.
@@ -177,11 +183,18 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 //    models for electrolyte solutions.
 #undef WITH_ELECTROLYTES
 
+//    Enable Real Gasses
+#undef WITH_REAL_GASSES
+
 #undef WITH_PRIME
 
 //    Enable the VCS NonIdeal equilibrium solver. This is
 //    accessed by specifying the solver=2 option
 #undef WITH_VCSNONIDEAL
+
+//    Enable intermediate zeroed phases to be included in the 
+//    interfacial kinetics operator
+#undef KINETICS_WITH_INTERMEDIATE_ZEROED_PHASES
 
 //-------------- Optional Cantera Capabilities ----------------------
 

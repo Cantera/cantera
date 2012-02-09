@@ -434,7 +434,7 @@ namespace Cantera {
                          "no thermo XML node");
     }
     XML_Node &tnode = phaseNode.child("thermo");
-    double dens = getFloatDefaultUnits(tnode, "density", "kg/m3");
+    double dens = ctml::getFloatDefaultUnits(tnode, "density", "kg/m3");
     setDensity(dens);
     SingleSpeciesTP::initThermoXML(phaseNode, id);
   }
@@ -482,7 +482,7 @@ namespace Cantera {
       throw CanteraError("StoichSubstanceSSTP::setParametersFromXML",
 			 "thermo model attribute must be StoichSubstance");
     }
-    doublereal rho = getFloat(eosdata, "density", "toSI");
+    doublereal rho = ctml::getFloat(eosdata, "density", "toSI");
     setDensity(rho);
   }
 

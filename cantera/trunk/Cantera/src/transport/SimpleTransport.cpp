@@ -3,8 +3,8 @@
  *  Simple mostly constant transport properties
  */
 /* 
- * $Revision: 1.10 $
- * $Date: 2009/03/24 20:44:30 $
+ * $Revision$
+ * $Date$
  */
 
 #include "ThermoPhase.h"
@@ -25,6 +25,12 @@ using namespace std;
  */
 #define MIN_X 1.e-14
 
+
+#ifndef SAFE_DELETE
+//! \cond
+#define SAFE_DELETE(x)  if (x) { delete (x); x = 0; }
+//! \endcond
+#endif
 
 namespace Cantera {
   //================================================================================================
@@ -83,7 +89,7 @@ namespace Cantera {
   }
   //================================================================================================
   SimpleTransport& SimpleTransport::operator=(const SimpleTransport& right) {
-    if (&right != this) {
+    if (&right == this) {
       return *this; 
     }
     Transport::operator=(right);
@@ -97,10 +103,34 @@ namespace Cantera {
     m_tmax                                = right.m_tmax;
     m_mw                                  = right.m_mw;
 
-    m_coeffVisc_Ns                        = right.m_coeffVisc_Ns;
-    m_coeffLambda_Ns                      = right.m_coeffLambda_Ns; 
-    m_coeffDiff_Ns                        = right.m_coeffDiff_Ns;
- 
+    m_coeffVisc_Ns = right.m_coeffVisc_Ns;
+    for (size_t k = 0; k <right.m_coeffVisc_Ns.size() ; k++) {
+      if (right.m_coeffVisc_Ns[k]) {
+	m_coeffVisc_Ns[k] = (right.m_coeffVisc_Ns[k])->duplMyselfAsLTPspecies();
+      }
+    }
+
+    m_coeffLambda_Ns = right.m_coeffLambda_Ns;
+    for (size_t k = 0; k < right.m_coeffLambda_Ns.size(); k++) {
+      if (right.m_coeffLambda_Ns[k]) {
+	m_coeffLambda_Ns[k] = (right.m_coeffLambda_Ns[k])->duplMyselfAsLTPspecies();
+      }
+    }
+
+    m_coeffDiff_Ns = right.m_coeffDiff_Ns;
+    for (size_t k = 0; k < right.m_coeffDiff_Ns.size(); k++) {
+      if (right.m_coeffDiff_Ns[k]) {
+	m_coeffDiff_Ns[k] = (right.m_coeffDiff_Ns[k])->duplMyselfAsLTPspecies();
+      }
+    }
+
+    m_coeffHydroRadius_Ns = right.m_coeffHydroRadius_Ns;
+    for (size_t k = 0; k < right.m_coeffHydroRadius_Ns.size(); k++) {
+      if (right.m_coeffHydroRadius_Ns[k]) {
+	m_coeffHydroRadius_Ns[k] = (right.m_coeffHydroRadius_Ns[k])->duplMyselfAsLTPspecies();
+      }
+    }
+
     m_Grad_X                              = right.m_Grad_X;
     m_Grad_T                              = right.m_Grad_T;
     m_Grad_P                              = right.m_Grad_P;
@@ -132,11 +162,25 @@ namespace Cantera {
 
     return *this; 
   }
-
   //================================================================================================
   Transport *SimpleTransport::duplMyselfAsTransport() const {
     SimpleTransport* tr = new SimpleTransport(*this);
     return (dynamic_cast<Transport *>(tr));
+  }
+  //================================================================================================
+  SimpleTransport::~SimpleTransport() {
+    for (size_t k = 0; k < m_coeffVisc_Ns.size() ; k++) {
+      SAFE_DELETE(m_coeffVisc_Ns[k]);
+    }
+    for (size_t k = 0; k < m_coeffLambda_Ns.size(); k++) {
+      SAFE_DELETE(m_coeffLambda_Ns[k]);
+    }
+    for (size_t k = 0; k < m_coeffDiff_Ns.size(); k++) {
+      SAFE_DELETE(m_coeffDiff_Ns[k]);
+    }
+    for (size_t k = 0; k < m_coeffHydroRadius_Ns.size(); k++) {
+      SAFE_DELETE(m_coeffHydroRadius_Ns[k]);
+    }
   }
   //================================================================================================
   // Initialize the object
@@ -166,8 +210,8 @@ namespace Cantera {
 	 * <compositionDependence model="Mixture_Averaged"/>
 	 */
 	std::string modelName = "";
-	if (getOptionalModel(transportNode, "compositionDependence",
-			      modelName)) {
+	if (ctml::getOptionalModel(transportNode, "compositionDependence",
+	                           modelName)) {
 	  modelName = lowercase(modelName);
           if (modelName == "solvent_only") {
 	    compositionDepType_ = 0;
@@ -196,10 +240,11 @@ namespace Cantera {
     m_coeffVisc_Ns.clear(); 
     m_coeffVisc_Ns.resize(m_nsp);
 
-    Cantera::LiquidTransportData &ltd0 = tr.LTData[0];
+    //Cantera::LiquidTransportData &ltd0 = tr.LTData[0];
+    std::string spName = m_thermo->speciesName(0);
+    /*
     LiquidTR_Model vm0 =  ltd0.model_viscosity;
     std::string spName0 = m_thermo->speciesName(0);
-    std::string spName = m_thermo->speciesName(0);
     if (vm0 == LTR_MODEL_CONSTANT) {
       tempDepType_ = 0;
     } else if (vm0 == LTR_MODEL_ARRHENIUS) {
@@ -211,12 +256,14 @@ namespace Cantera {
       throw CanteraError("SimpleTransport::initLiquid",
 			 "Viscosity Model for species " + spName0 + " is not handled by this object");
     }
+    */
 
     for (k = 0; k < m_nsp; k++) {
       spName = m_thermo->speciesName(k);
       Cantera::LiquidTransportData &ltd = tr.LTData[k];
-      LiquidTR_Model vm =  ltd.model_viscosity;
-      vector_fp &kentry = m_coeffVisc_Ns[k];
+      //LiquidTR_Model vm =  ltd.model_viscosity;
+      //vector_fp &kentry = m_coeffVisc_Ns[k];
+      /*
       if (vm != vm0) {
 	if (compositionDepType_ != 0) {
 	  throw CanteraError(" SimpleTransport::initLiquid",
@@ -225,7 +272,9 @@ namespace Cantera {
 	   kentry = m_coeffVisc_Ns[0];
 	}
       }
-      kentry = ltd.viscCoeffs;
+      */
+      m_coeffVisc_Ns[k] = ltd.viscosity;
+      ltd.viscosity = 0;
     }
 
     /*
@@ -234,17 +283,18 @@ namespace Cantera {
     m_condSpecies.resize(m_nsp);
     m_coeffLambda_Ns.clear(); 
     m_coeffLambda_Ns.resize(m_nsp);
-    LiquidTR_Model cm0 =  ltd0.model_thermalCond;
-    if (cm0 != vm0) {
-      throw CanteraError("SimpleTransport::initLiquid",
-			 "Conductivity model is not the same as the viscosity model for species " + spName0);
-    }
+    //LiquidTR_Model cm0 =  ltd0.model_thermalCond;
+    //if (cm0 != vm0) {
+    //  throw CanteraError("SimpleTransport::initLiquid",
+    //			 "Conductivity model is not the same as the viscosity model for species " + spName0);
+    //    }
 
     for (k = 0; k < m_nsp; k++) {
       spName = m_thermo->speciesName(k);
       Cantera::LiquidTransportData &ltd = tr.LTData[k];
-      LiquidTR_Model cm =  ltd.model_thermalCond;
-      vector_fp &kentry = m_coeffLambda_Ns[k];
+      //LiquidTR_Model cm =  ltd.model_thermalCond;
+      //vector_fp &kentry = m_coeffLambda_Ns[k];
+      /*
       if (cm != cm0) {
 	if (compositionDepType_ != 0) {
 	  throw CanteraError(" SimpleTransport::initLiquid",
@@ -253,7 +303,9 @@ namespace Cantera {
 	  kentry = m_coeffLambda_Ns[0];
 	}
       }
-      kentry = ltd.thermalCondCoeffs;
+      */
+      m_coeffLambda_Ns[k] = ltd.thermalCond;
+      ltd.thermalCond = 0;
     }
 
     /*
@@ -264,7 +316,8 @@ namespace Cantera {
     m_diffSpecies.resize(m_nsp);
     m_coeffDiff_Ns.clear(); 
     m_coeffDiff_Ns.resize(m_nsp);
-    LiquidTR_Model dm0 =  ltd0.model_speciesDiffusivity;
+    //LiquidTR_Model dm0 =  ltd0.model_speciesDiffusivity;
+    /*
     if (dm0 != vm0) {
       if (dm0 == LTR_MODEL_NOTSET) {
 	LiquidTR_Model rm0 =  ltd0.model_hydroradius;
@@ -276,10 +329,12 @@ namespace Cantera {
 	}
       }
     }
+    */
 
     for (k = 0; k < m_nsp; k++) {
       spName = m_thermo->speciesName(k);
       Cantera::LiquidTransportData &ltd = tr.LTData[k];
+      /*
       LiquidTR_Model dm = ltd.model_speciesDiffusivity;
       if (dm == LTR_MODEL_NOTSET) {
 	LiquidTR_Model rm =  ltd.model_hydroradius;
@@ -296,17 +351,31 @@ namespace Cantera {
 			     "hydroradius model is not constant for species " + spName0);
 	}
 	vector_fp &kentry = m_coeffHydroRadius_Ns[k];
-	kentry.push_back(ltd.hydroradius);
+	kentry = ltd.hydroradius;
       } else {
 	if (dm != dm0) {
 	  throw CanteraError(" SimpleTransport::initLiquid",
 			     "different diffusivity models for species " + spName + " and " + spName0 );
 	}
 	vector_fp &kentry = m_coeffDiff_Ns[k];
-	kentry = ltd.speciesDiffusivityCoeffs;
+	kentry = ltd.speciesDiffusivity;
+      }
+      */
+
+      m_coeffDiff_Ns[k] = ltd.speciesDiffusivity;
+      ltd.speciesDiffusivity = 0;
+      
+      if (!(m_coeffDiff_Ns[k])) {
+	if (ltd.hydroRadius) {
+	  m_coeffHydroRadius_Ns[k] = (ltd.hydroRadius)->duplMyselfAsLTPspecies();
+	}
+	if (!(m_coeffHydroRadius_Ns[k])) {
+	  throw CanteraError("SimpleTransport::initLiquid",
+			     "Neither diffusivity nor hydroradius is set for species " + spName);
+	}
       }
     }
-
+    
     
    
 
@@ -324,8 +393,6 @@ namespace Cantera {
     m_Grad_T.resize(m_nDim, 0.0);
     m_Grad_P.resize(m_nDim, 0.0);
     m_Grad_V.resize(m_nDim, 0.0);
-
-
 
     // set all flags to false
     m_visc_mix_ok   = false;
@@ -531,21 +598,137 @@ namespace Cantera {
       dt[k] = 0.0;
     }
   }
-//================================================================================================
-  /**
-   * @param ndim The number of spatial dimensions (1, 2, or 3).
-   * @param grad_T The temperature gradient (ignored in this model).
-   * @param ldx  Leading dimension of the grad_X array.
-   * The diffusive mass flux of species \e k is computed from
+
+  //====================================================================================================================
+  //! Get the species diffusive velocities wrt to the averaged velocity, 
+  //! given the gradients in mole fraction and temperature
+  /*!
+   * The average velocity can be computed on a mole-weighted 
+   * or mass-weighted basis, or the diffusion velocities may 
+   * be specified as relative to a specific species (i.e. a 
+   * solvent) all according to the velocityBasis input parameter.
    *
-   * \f[
-   *      \vec{j}_k = -n M_k D_k \nabla X_k.
-   * \f]
+   *  Units for the returned velocities are m s-1.
+   * 
+   *  @param ndim Number of dimensions in the flux expressions
+   *  @param grad_T Gradient of the temperature
+   *                 (length = ndim)
+   * @param ldx  Leading dimension of the grad_X array 
+   *              (usually equal to m_nsp but not always)
+   * @param grad_X Gradients of the mole fraction
+   *             Flat vector with the m_nsp in the inner loop.
+   *             length = ldx * ndim
+   * @param ldf  Leading dimension of the fluxes array 
+   *              (usually equal to m_nsp but not always)
+   * @param Vdiff  Output of the diffusive velocities.
+   *             Flat vector with the m_nsp in the inner loop.
+   *             length = ldx * ndim
    */
-  void SimpleTransport::getSpeciesFluxes(int ndim, 
-					 const doublereal* grad_T, 
-					 int ldx, const doublereal* grad_X, 
-					 int ldf, doublereal* fluxes) {
+  void SimpleTransport::getSpeciesVdiff(int ndim,
+					const doublereal* grad_T,
+					int ldx,
+					const doublereal* grad_X,
+					int ldf,
+					doublereal* Vdiff) {
+    set_Grad_T(grad_T);
+    set_Grad_X(grad_X);
+    const doublereal* y  = m_thermo->massFractions();
+    const doublereal rho = m_thermo->density();
+
+    getSpeciesFluxesExt(m_nsp, DATA_PTR(Vdiff));
+
+    for (int n = 0; n < m_nDim; n++) {
+      for (int k = 0; k < m_nsp; k++) {
+	if (y[k] > 1.0E-200) {
+	  Vdiff[n * m_nsp + k] *=  1.0 / (rho * y[k]);
+	} else {
+	  Vdiff[n * m_nsp + k] = 0.0;
+	}
+      }
+    }
+  }
+  //================================================================================================
+  // Get the species diffusive velocities wrt to the averaged velocity, 
+  // given the gradients in mole fraction, temperature and electrostatic potential.
+  /*
+   * The average velocity can be computed on a mole-weighted 
+   * or mass-weighted basis, or the diffusion velocities may 
+   * be specified as relative to a specific species (i.e. a 
+   * solvent) all according to the velocityBasis input parameter.
+   *
+   *  Units for the returned velocities are m s-1.
+   * 
+   *  @param ndim       Number of dimensions in the flux expressions
+   *  @param grad_T     Gradient of the temperature
+   *                       (length = ndim)
+   * @param ldx         Leading dimension of the grad_X array 
+   *                       (usually equal to m_nsp but not always)
+   * @param grad_X      Gradients of the mole fraction
+   *                    Flat vector with the m_nsp in the inner loop.
+   *                       length = ldx * ndim
+   * @param ldf         Leading dimension of the fluxes array 
+   *                        (usually equal to m_nsp but not always)
+   * @param grad_Phi   Gradients of the electrostatic potential
+   *                        (length = ndim)
+   * @param Vdiff      Output of the species diffusion velocities
+   *                   Flat vector with the m_nsp in the inner loop.
+   *                     length = ldx * ndim
+   */
+  void SimpleTransport::getSpeciesVdiffES(int ndim, const doublereal* grad_T,
+					  int ldx,  const doublereal* grad_X,
+					  int ldf,  const doublereal* grad_Phi,
+					  doublereal* Vdiff) {
+    set_Grad_T(grad_T);
+    set_Grad_X(grad_X);
+    set_Grad_V(grad_Phi);
+    const doublereal* y  = m_thermo->massFractions();
+    const doublereal rho = m_thermo->density();
+
+    getSpeciesFluxesExt(m_nsp, DATA_PTR(Vdiff));
+
+    for (int n = 0; n < m_nDim; n++) {
+      for (int k = 0; k < m_nsp; k++) {
+	if (y[k] > 1.0E-200) {
+	  Vdiff[n * m_nsp + k] *=  1.0 / (rho * y[k]);
+	} else {
+	  Vdiff[n * m_nsp + k] = 0.0;
+	}
+      }
+    }
+  }
+  //================================================================================================
+  //   Get the species diffusive mass fluxes wrt to the specified solution averaged velocity, 
+  //   given the gradients in mole fraction and temperature
+  /*
+   *  units = kg/m2/s
+   *
+   *  The diffusive mass flux of species \e k is computed from the following
+   *  formula
+   *  
+   *  Usually the specified solution average velocity is the mass averaged velocity.
+   *  This is changed in some subclasses, however.
+   * 
+   *    \f[
+   *         j_k = - \rho M_k D_k \nabla X_k - Y_k V_c
+   *    \f]
+   *
+   *    where V_c is the correction velocity
+   *
+   *    \f[
+   *         V_c =  - \sum_j {\rho M_j D_j \nabla X_j}
+   *    \f]
+   *
+   *
+   * @param ndim     The number of spatial dimensions (1, 2, or 3).
+   * @param grad_T   The temperature gradient (ignored in this model).
+   * @param ldx      Leading dimension of the grad_X array.
+   * @param grad_X   Gradient of the mole fractions(length nsp * num dimensions);
+   * @param ldf      Leading dimension of the fluxes array.         
+   * @param fluxes   Output fluxes of species. 
+   */
+  void SimpleTransport::getSpeciesFluxes(int ndim,  const doublereal * const grad_T, 
+					 int ldx, const doublereal * const grad_X, 
+					 int ldf, doublereal * const fluxes) {
     set_Grad_T(grad_T);
     set_Grad_X(grad_X);
     getSpeciesFluxesExt(ldf, fluxes);
@@ -588,34 +771,73 @@ namespace Cantera {
 
     const array_fp& mw = m_thermo->molecularWeights();
     const doublereal* y  = m_thermo->massFractions();
-    doublereal conc = m_thermo->molarDensity();
+ 
+    doublereal concTotal = m_thermo->molarDensity();
+ 
     // Unroll wrt ndim
     
-    vector_fp sum(m_nDim, 0.0);
-
+    
     if (doMigration_) {
       double FRT =  ElectronCharge / (Boltzmann * m_temp);
       for (n = 0; n < m_nDim; n++) {
+	rhoVc[n] = 0.0;
 	for (k = 0; k < m_nsp; k++) {
-	  fluxes[n*ldf + k] = -conc * mw[k] * m_spwork[k] *
+	  fluxes[n*ldf + k] = - concTotal * mw[k] * m_spwork[k] *
 	    ( m_Grad_X[n*m_nsp + k] + FRT * m_molefracs[k] * m_chargeSpecies[k] * m_Grad_V[n]);
-	  sum[n] += fluxes[n*ldf + k];
+	  rhoVc[n] += fluxes[n*ldf + k];
 	}
       }
     } else {
       for (n = 0; n < m_nDim; n++) {
+	rhoVc[n] = 0.0;
 	for (k = 0; k < m_nsp; k++) {
-	  fluxes[n*ldf + k] = -conc * mw[k] * m_spwork[k] * m_Grad_X[n*m_nsp + k];
-	  sum[n] += fluxes[n*ldf + k];
+	  fluxes[n*ldf + k] = - concTotal * mw[k] * m_spwork[k] * m_Grad_X[n*m_nsp + k];
+	  rhoVc[n] += fluxes[n*ldf + k];
 	}
       }
     }
 
-    // add correction flux to enforce sum to zero
-    for (n = 0; n < m_nDim; n++) {
-      for (k = 0; k < m_nsp; k++) {
-	fluxes[n*ldf + k] -= y[k]*sum[n];
+    if (m_velocityBasis == VB_MASSAVG) {
+      for (n = 0; n < m_nDim; n++) {
+	rhoVc[n] = 0.0;
+	for (k = 0; k < m_nsp; k++) {
+	  rhoVc[n] += fluxes[n*ldf + k];
+	}
       }
+      for (n = 0; n < m_nDim; n++) {
+	for (k = 0; k < m_nsp; k++) {
+	  fluxes[n*ldf + k] -= y[k] * rhoVc[n];
+	}
+      }
+    } else if (m_velocityBasis == VB_MOLEAVG) {
+      for (n = 0; n < m_nDim; n++) {
+	rhoVc[n] = 0.0;
+	for (k = 0; k < m_nsp; k++) {
+	  rhoVc[n] += fluxes[n*ldf + k] / mw[k];
+	}
+      }
+      for (n = 0; n < m_nDim; n++) {
+	for (k = 0; k < m_nsp; k++) {
+	  fluxes[n*ldf + k] -= m_molefracs[k] * rhoVc[n] * mw[k];
+	}
+      }
+    } else if (m_velocityBasis >= 0) {
+      for (n = 0; n < m_nDim; n++) {
+	rhoVc[n] = - fluxes[n*ldf + m_velocityBasis] / mw[m_velocityBasis];
+	for (k = 0; k < m_nsp; k++) {
+	  rhoVc[n] += fluxes[n*ldf + k] / mw[k];
+	}
+      }
+      for (n = 0; n < m_nDim; n++) {
+	for (k = 0; k < m_nsp; k++) {
+	  fluxes[n*ldf + k] -= m_molefracs[k] * rhoVc[n] * mw[k];
+	}
+	fluxes[n*ldf + m_velocityBasis] = 0.0;
+      }
+
+    } else {
+      throw CanteraError("SimpleTransport::getSpeciesFluxesExt()",
+			 "unknown velocity basis");
     }
   }
   //================================================================================================
@@ -689,16 +911,11 @@ namespace Cantera {
    * thermal conductivity. 
    */
   void SimpleTransport::updateCond_T() {
-    int k;
-    if (tempDepType_ == 0) {
-      for (k = 0; k < m_nsp; k++) {
-	Coeff_T_ &coeff = m_coeffLambda_Ns[k];
-	m_condSpecies[k] = coeff[0];
-      }
-    } else if (tempDepType_ == 1) {
-      for (k = 0; k < m_nsp; k++) {
-	Coeff_T_ &coeff = m_coeffLambda_Ns[k];
-	m_condSpecies[k] = coeff[0] * pow(m_temp,coeff[1]) * exp(-coeff[2]/m_temp);
+    if (compositionDepType_ == 0) {
+      m_condSpecies[0] = m_coeffLambda_Ns[0]->getSpeciesTransProp();
+    } else {
+      for (int k = 0; k < m_nsp; k++) {
+	m_condSpecies[k] = m_coeffLambda_Ns[k]->getSpeciesTransProp();
       }
     }
     m_cond_temp_ok = true;
@@ -714,24 +931,14 @@ namespace Cantera {
       double visc = viscosity();
       double RT = GasConstant * m_temp;
       for (k = 0; k < m_nsp; k++) {
-        Coeff_T_ &coeff = m_coeffHydroRadius_Ns[k];
-	double rad = coeff[0];
+	double rad = m_coeffHydroRadius_Ns[k]->getSpeciesTransProp() ;
 	m_diffSpecies[k] = RT / (6.0 * Pi * visc * rad);
       }
     } else {
-      if (tempDepType_ == 0) {
-	for (k = 0; k < m_nsp; k++) {
-	  Coeff_T_ &coeff = m_coeffDiff_Ns[k];
-	  m_diffSpecies[k] = coeff[0];
-	}
-      } else if (tempDepType_ == 1) {
-	for (k = 0; k < m_nsp; k++) {
-	  Coeff_T_ &coeff = m_coeffDiff_Ns[k];
-	  m_diffSpecies[k] = coeff[0] * pow(m_temp,coeff[1]) * exp(-coeff[2]/m_temp);
-	}
+      for (k = 0; k < m_nsp; k++) {
+	m_diffSpecies[k] = m_coeffDiff_Ns[k]->getSpeciesTransProp();
       }
     }
-
     m_diff_temp_ok = true;
     m_diff_mix_ok = false;
   }
@@ -750,16 +957,11 @@ namespace Cantera {
    * The flag m_visc_ok is set to true.
    */
   void SimpleTransport::updateViscosity_T() {
-    int k;
-    if (tempDepType_ == 0) {
-      for (k = 0; k < m_nsp; k++) {
-	Coeff_T_ &coeff = m_coeffVisc_Ns[k];
-	m_viscSpecies[k] = coeff[0];
-      }
-    } else if (tempDepType_ == 1) {
-      for (k = 0; k < m_nsp; k++) {
-	Coeff_T_ &coeff = m_coeffVisc_Ns[k];
-	m_viscSpecies[k] = coeff[0] * pow(m_temp,coeff[1]) * exp(-coeff[2]/m_temp);
+    if (compositionDepType_ == 0) {
+      m_viscSpecies[0] = m_coeffVisc_Ns[0]->getSpeciesTransProp();
+    } else {
+      for (int k = 0; k < m_nsp; k++) {
+	m_viscSpecies[k] = m_coeffVisc_Ns[k]->getSpeciesTransProp();
       }
     }
     m_visc_temp_ok = true;
@@ -793,7 +995,7 @@ namespace Cantera {
     return true;
   }
   //================================================================================================
-  /**
+  /*
    * Throw an exception if this method is invoked. 
    * This probably indicates something is not yet implemented.
    */
@@ -805,7 +1007,7 @@ namespace Cantera {
       
     return 0.0;
   }
-  //================================================================================================
+  //===================================================================================================================
 
 }
-//================================================================================================
+//======================================================================================================================

@@ -101,7 +101,7 @@ namespace CanteraZeroD {
     void setVerbose(bool v = true) { m_verbose = v; }
 
     /// Return a reference to the integrator.
-    Integrator& integrator() { return *m_integ; }
+    Cantera::Integrator& integrator() { return *m_integ; }
 
     void updateState(doublereal* y);
 
@@ -115,7 +115,7 @@ namespace CanteraZeroD {
     }
 
     void evalJacobian(doublereal t, doublereal* y, 
-		      doublereal* ydot, doublereal* p, Array2D* j);
+		      doublereal* ydot, doublereal* p, Cantera::Array2D* j);
 
     //-----------------------------------------------------
 
@@ -144,20 +144,20 @@ namespace CanteraZeroD {
     std::vector<Reactor*> m_reactors;
     int m_nr;
     int m_nreactors;
-    Integrator* m_integ;
+    Cantera::Integrator* m_integ;
     doublereal m_time;
     bool m_init;
     int m_nv;
-    vector_int m_size;
-    vector_fp m_atol;
+    Cantera::vector_int m_size;
+    Cantera::vector_fp m_atol;
     doublereal m_rtol, m_rtolsens;
     doublereal m_atols, m_atolsens;
     doublereal m_maxstep;
     bool m_verbose;
     int m_ntotpar;
-    vector_int m_nparams;
-    vector_int m_connect;
-    vector_fp m_ydot;
+    Cantera::vector_int m_nparams;
+    Cantera::vector_int m_connect;
+    Cantera::vector_fp m_ydot;
 
     std::vector<bool> m_iown;
 

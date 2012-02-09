@@ -122,20 +122,16 @@ namespace Cantera {
      *   @param k species index
      */
     doublereal moleFraction(const int k) const;
-
     
     //! Set the mole fractions to the specified values, and then 
     //! normalize them so that they sum to 1.0.
     /*!
      * @param x Array of unnormalized mole fraction values (input). 
      *          Must have a length greater than or equal to the number of
-     *          species.
-     *
-     * @param x  Input vector of mole fractions. There is no restriction
-     *           on the sum of the mole fraction vector. Internally,
-     *           the State object will normalize this vector before
-     *           storring its contents.
-     *           Length is m_kk.
+     *          species, m_kk. There is no restriction
+     *          on the sum of the mole fraction vector. Internally,
+     *          the State object will normalize this vector before
+     *          storring its contents.
      */
     virtual void setMoleFractions(const doublereal* const x);
 
@@ -151,36 +147,28 @@ namespace Cantera {
      */
     virtual void setMoleFractions_NoNorm(const doublereal* const x);
 
-    /**
-     * Get the species mass fractions.  
-     * @param y On return, y
-     * contains the mass fractions. Array \a y must have a length
-     * greater than or equal to the number of species.
-     *
-     * @param y  Output vector of mass fractions.
-     *           Length is m_kk. 
+    //! Get the species mass fractions.  
+    /*!
+     * @param y On return, y contains the mass fractions. Array \a y must have a length
+     *          greater than or equal to the number of species.
      */
     void getMassFractions(doublereal* const y) const;
 
     //! Mass fraction of species k. 
     /*!
-     *  If k is outside the valid
-     *  range, an exception will be thrown. Note that it is
-     *  somewhat more efficent to call getMassFractions if the
-     *   mass fractions of all species are desired.
+     *  If k is outside the valid range, an exception will be thrown. Note that it is
+     *  somewhat more efficent to call getMassFractions if the mass fractions of all species are desired.
      * 
      * @param k    species index
      */
     doublereal massFraction(const int k) const;
 
-    /**
-     * Set the mass fractions to the specified values, and then 
-     * normalize them so that they sum to 1.0.
-     * @param y Array of unnormalized mass fraction values (input). 
-     * Must have a length greater than or equal to the number of
-     * species.
-     *
-     * @param y  Input vector of mass fractions. There is no restriction
+    //! Set the mass fractions to the specified values, and then 
+    //! normalize them so that they sum to 1.0.
+    /*!
+     * @param y  Array of unnormalized mass fraction values (input). 
+     *           Must have a length greater than or equal to the number of species.
+     *           Input vector of mass fractions. There is no restriction
      *           on the sum of the mass fraction vector. Internally,
      *           the State object will normalize this vector before
      *           storring its contents.
@@ -188,12 +176,11 @@ namespace Cantera {
      */
     virtual void setMassFractions(const doublereal* const y);
 
-    /**
-     * Set the mass fractions to the specified values without
-     * normalizing. This is useful when the normalization
+    //! Set the mass fractions to the specified values without normalizing.
+    /*!
+     * This is useful when the normalization
      * condition is being handled by some other means, for example
-     * by a constraint equation as part of a larger set of
-     * equations.
+     * by a constraint equation as part of a larger set of equations.
      *
      * @param y  Input vector of mass fractions.
      *           Length is m_kk.
@@ -305,20 +292,32 @@ namespace Cantera {
     /// mass density. 
     //@{
 
-    /// Temperature (K).
+    //! Temperature (K).
+    /*!
+     * @return  Returns the temperature of the phase
+     */
     doublereal temperature() const { 
       return m_temp;
     }
 
-    /// Density (kg/m^3).
+    //! Density (kg/m^3).
+    /*!
+     * @return  Returns the density of the phase
+     */
     virtual doublereal density() const { 
       return m_dens;
     }
 
-    /// Molar density (kmol/m^3).
+    //! Molar density (kmol/m^3).
+    /*!
+     * @return  Returns the molar density of the phase
+     */
     doublereal molarDensity() const;
 
-    /// Molar density (kmol/m^3).
+    //! Molar volume (m^3/kmol).
+    /*!
+     * @return  Returns the molar volume of the phase
+     */
     doublereal molarVolume() const;
 
     //! Set the internally storred density (kg/m^3) of the phase

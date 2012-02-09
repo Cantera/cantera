@@ -15,7 +15,7 @@
 
 #include "ct_defs.h"
 #include "MultiPhase.h"
-
+#include "vcs_defs.h"
 
 namespace Cantera {
 
@@ -81,7 +81,7 @@ namespace Cantera {
   int vcs_equilibrate(thermo_t& s, const char* XY,
 		      int estimateEquil = 0, int printLvl = 0,
 		      int solver = -1, doublereal rtol = 1.0e-9, 
-		      int maxsteps = 5000,
+		      int maxsteps = VCS_MAXSTEPS,
 		      int maxiter = 100, int loglevel = -99);
 
 
@@ -142,7 +142,7 @@ namespace Cantera {
   int vcs_equilibrate(MultiPhase& s, const char* XY, 
 		      int estimateEquil = 0, int printLvl = 0,
 		      int solver = 2,
-		      doublereal rtol = 1.0e-9, int maxsteps = 5000, 
+		      doublereal rtol = 1.0e-9, int maxsteps = VCS_MAXSTEPS, 
 		      int maxiter = 100, int loglevel = -99);
 
   //!  Set a multi-phase chemical solution to chemical equilibrium.
@@ -154,7 +154,7 @@ namespace Cantera {
    *  themselves. Two other thermodynamic quantities, determined by the
    *  XY string,  are held constant during the equilibration.
    *
-   *  @param s The object to set to an equilibrium state
+   *  @param s The MultiPhase object to be set to an equilibrium state
    *
    *  @param ixy An integer specifying the two properties to be held
    *             constant.
@@ -202,8 +202,32 @@ namespace Cantera {
   int vcs_equilibrate_1(MultiPhase& s, int ixy, 
 			int estimateEquil = 0, int printLvl = 0,
 			int solver = 2,
-			doublereal rtol = 1.0e-9, int maxsteps = 5000, 
+			doublereal rtol = 1.0e-9, int maxsteps = VCS_MAXSTEPS, 
 			int maxiter = 100, int loglevel = -99);
+
+  //! Determine the phase stability of a single phase given the current conditions
+  //! in a MultiPhase object
+  /*!
+   * 
+   *  @param s         The MultiPhase object to be set to an equilibrium state
+   *  @param iphase    Phase index within the multiphase object to be 
+   *                   tested for stability.
+   *  @param funcStab  Function value that tests equilibrium. > 0 indicates stable
+   *                   < 0 indicates unstable
+   *
+   *  @param printLvl   Determines the amount of printing that
+   *                  gets sent to stdout from the vcs package
+   *                  (Note, you may have to compile with debug
+   *                   flags to get some printing).
+   *
+   *  @param loglevel Controls amount of diagnostic output. loglevel
+   *                  = 0 suppresses diagnostics, and increasingly-verbose
+   *                  messages are written as loglevel increases. The 
+   *                  messages are written to a file in HTML format for viewing 
+   *                  in a web browser. @see HTML_logs
+   */
+  int vcs_determine_PhaseStability(MultiPhase& s, int iphase, 
+				   double &funcStab, int printLvl, int loglevel);
 
 }
 
@@ -355,7 +379,7 @@ namespace VCSnonideal {
      */
     int equilibrate(int XY,  int estimateEquil = 0,
 		    int printLvl= 0, doublereal err = 1.0e-6, 
-		    int maxsteps = 5000, int loglevel=-99);
+		    int maxsteps = VCS_MAXSTEPS, int loglevel=-99);
 
     //! Equilibrate the solution using the current element abundances
     //! storred in the MultiPhase object using constant T and P
@@ -385,7 +409,7 @@ namespace VCSnonideal {
      */
     int equilibrate_TP(int estimateEquil = 0,
 		       int printLvl= 0, doublereal err = 1.0e-6, 
-		       int maxsteps = 5000, int loglevel=-99);
+		       int maxsteps = VCS_MAXSTEPS, int loglevel=-99);
 
     //! Equilibrate the solution using the current element abundances
     //! storred in the MultiPhase object using either constant H and P
@@ -439,7 +463,7 @@ namespace VCSnonideal {
     int equilibrate_HP(doublereal Htarget, int XY, double Tlow, double Thigh,
 		       int estimateEquil = 0,
 		       int printLvl = 0, doublereal err = 1.0E-6, 
-		       int maxsteps = 5000, int loglevel=-99);
+		       int maxsteps = VCS_MAXSTEPS, int loglevel=-99);
 
     //! Equilibrate the solution using the current element abundances
     //! storred in the MultiPhase object using constant S and P.
@@ -490,7 +514,7 @@ namespace VCSnonideal {
     int equilibrate_SP(doublereal Starget, double Tlow, double Thigh,
 		       int estimateEquil = 0,
 		       int printLvl = 0, doublereal err = 1.0E-6, 
-		       int maxsteps = 5000, int loglevel=-99);
+		       int maxsteps = VCS_MAXSTEPS, int loglevel=-99);
 
 
     //! Equilibrate the solution using the current element abundances
@@ -532,13 +556,28 @@ namespace VCSnonideal {
      *
      *  @param maxsteps max steps allowed.
      *
-     *  @param loglevel Determines the amount of printing to the HTML
+     *  @param logLevel Determines the amount of printing to the HTML
      *                  output file.
      */
     int equilibrate_TV(int XY, doublereal xtarget,
 		       int  estimateEquil = 0,
 		       int printLvl = 0, doublereal err = 1.0E-6, 
-		       int maxsteps = 5000, int loglevel = -99);
+		       int maxsteps = VCS_MAXSTEPS, int logLevel = -99);
+
+    //! Determine the phase stability of a phase at the current conditions
+    /*!
+     * Equilibration of the solution is not done before the determination is made.
+     *
+     *  @param iph       Phase number to determine the equilibrium. If the phase
+     *                   has a non-zero mole number....
+     *  @param funcStab  Value of the phase pop function
+     *  @param printLvl  Determines the amount of printing that
+     *                   gets sent to stdout from the vcs package
+     *                   (Note, you may have to compile with debug
+     *                    flags to get some printing).
+     *  @param logLevel Determines the amount of printing to the HTML output file.
+     */
+    int determine_PhaseStability(int iph, double &funcStab,  int printLvl= 0, int logLevel = -99);
 
     //! Report the equilibrium answer in a comma separated table format
     /*!
@@ -562,6 +601,8 @@ namespace VCSnonideal {
      *          problem hasn't been solved yet, it returns -1.
      */
     int numElemConstraints() const;
+
+
 
     // Friend functions
 
@@ -638,13 +679,21 @@ namespace VCSnonideal {
     //! Pointer to the object that does all of the equilibration work.
     /*!
      * VCS_SOLVE will have different ordering for species and element constraints
-     * than this object or the VCS_PROB object.
-     * This object owns the pointer.
+     * than this object or the VCS_PROB object. This object owns the pointer.
      */
     VCSnonideal::VCS_SOLVE *m_vsolvePtr;
+
   };
 
+  //! Global hook for turning on and off time printing.
+  /*!
+   * Default is to allow printing. But, you can assign this to zero
+   * globally to turn off all time printing.
+   * This is helpful for test suite purposes where you are interested
+   * in differences in text files.
+   */
+  extern int vcs_timing_print_lvl;
+
 }
-
-
 #endif
+

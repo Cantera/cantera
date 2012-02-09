@@ -32,11 +32,17 @@ namespace Cantera {
   Kinetics::Kinetics() :
     m_ii(0), 
     m_nTotalSpecies(0),
+    m_perturb(0),
+    m_reactants(0),
+    m_products(0), 
     m_thermo(0),
+    m_start(0), 
+    m_phaseindex(),
     m_index(-1), 
     m_surfphase(-1),
     m_rxnphase(-1), 
-    m_mindim(4)
+    m_mindim(4),
+    m_dummygroups(0)
   {
   }
 
@@ -51,16 +57,22 @@ namespace Cantera {
   Kinetics::Kinetics(const Kinetics &right) :
     m_ii(0),
     m_nTotalSpecies(0),
+    m_perturb(0),
+    m_reactants(0),
+    m_products(0),
     m_thermo(0),
+    m_start(0), 
+    m_phaseindex(),
     m_index(-1), 
     m_surfphase(-1),
     m_rxnphase(-1), 
-    m_mindim(4)
+    m_mindim(4),
+    m_dummygroups(0)
   {
     /*
      * Call the assignment operator
      */
-    *this = operator=(right);
+    *this = right;
   }
   
   // Assignment operator
@@ -96,7 +108,7 @@ namespace Cantera {
     return *this;
   }
 
-
+  //====================================================================================================================
   // Duplication routine for objects which inherit from
   // Kinetics
   /*
@@ -107,22 +119,48 @@ namespace Cantera {
    *  These routines are basically wrappers around the derived copy
    *  constructor.
    */
-  Kinetics *Kinetics::duplMyselfAsKinetics() const {
-    Kinetics* tp = new Kinetics(*this);
-    return tp;
+  Kinetics *Kinetics::duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVector) const {
+    Kinetics* ko = new Kinetics(*this);
+
+    ko->assignShallowPointers(tpVector);
+    return ko;
   }
-
-
-
+  //====================================================================================================================
   int Kinetics::ID() const {
     return 0;
   }
-
+  //====================================================================================================================
   int Kinetics::type() const {
     return 0;
   }
+  //====================================================================================================================
+  void Kinetics::assignShallowPointers(const std::vector<thermo_t*> & tpVector) {
+    size_t ns = tpVector.size();
+    if (ns != m_thermo.size()) {
+      throw CanteraError(" Kinetics::assignShallowPointers",
+			 " Number of ThermoPhase objects arent't the same");
+    }
+    for (size_t i = 0; i < ns; i++) {
+      ThermoPhase *ntp = tpVector[i];
+      ThermoPhase *otp = m_thermo[i];
+      if (ntp->id() != otp->id()) {
+	throw CanteraError(" Kinetics::assignShallowPointers",
+			   " id() of the ThermoPhase objects isn't the same");
+      }
+      if (ntp->eosType() != otp->eosType()) {
+	throw CanteraError(" Kinetics::assignShallowPointers",
+			   " eosType() of the ThermoPhase objects isn't the same");
+      }
+      if (ntp->nSpecies() != otp->nSpecies()) {
+	throw CanteraError(" Kinetics::assignShallowPointers",
+			   " Number of ThermoPhase objects isn't the same");
+      }
+      m_thermo[i] = tpVector[i];
+    }
 
 
+  }
+  //====================================================================================================================
   /**
    * Takes as input an array of properties for all species in the
    * mechanism and copies those values beloning to a particular
@@ -285,17 +323,13 @@ namespace Cantera {
     if (type() == cEdgeKinetics) ptype = cEdge;
     else if (type() == cInterfaceKinetics) ptype = cSurf;
     if (thermo.eosType() == ptype) {
-      //   if (m_surfphase >= 0) {
-      //    throw CanteraError("Kinetics::addPhase",
-      //        "cannot add more than one surface phase");
-      // }
       m_surfphase = nPhases();
       m_rxnphase = nPhases();
     }
     m_thermo.push_back(&thermo);
     m_phaseindex[m_thermo.back()->id()] = nPhases();
   }
-
+  
   void Kinetics::finalize() {
     m_nTotalSpecies = 0;
     int np = nPhases();
@@ -305,10 +339,9 @@ namespace Cantera {
     }
   }
 
-  
-  //! Private function of the class Kinetics, indicating that a function
-  //!  inherited from the base class hasn't had a definition assigned to it
-  /*!
+  // Private function of the class Kinetics, indicating that a function
+  //  inherited from the base class hasn't had a definition assigned to it
+  /*
    * @param m String message
    */
   void Kinetics::err(std::string m) const {

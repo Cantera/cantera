@@ -33,7 +33,15 @@ namespace Cantera {
    *
    */
   GibbsExcessVPSSTP::GibbsExcessVPSSTP() :
-    VPStandardStateTP()
+    VPStandardStateTP(),
+    moleFractions_(0),
+    lnActCoeff_Scaled_(0),
+    dlnActCoeffdT_Scaled_(0),
+    d2lnActCoeffdT2_Scaled_(0), 
+    dlnActCoeffdlnN_diag_(0),
+    dlnActCoeffdlnX_diag_(0),
+    dlnActCoeffdlnN_(0,0),
+    m_pp(0)
   {
   }
 
@@ -44,7 +52,15 @@ namespace Cantera {
    *  has a working copy constructor
    */
   GibbsExcessVPSSTP::GibbsExcessVPSSTP(const GibbsExcessVPSSTP &b) :
-    VPStandardStateTP()
+    VPStandardStateTP(),
+    moleFractions_(0),
+    lnActCoeff_Scaled_(0),
+    dlnActCoeffdT_Scaled_(0),
+    d2lnActCoeffdT2_Scaled_(0), 
+    dlnActCoeffdlnN_diag_(0),
+    dlnActCoeffdlnX_diag_(0),
+    dlnActCoeffdlnN_(0,0),  
+    m_pp(0)
   {
     GibbsExcessVPSSTP::operator=(b);
   }
@@ -66,8 +82,10 @@ namespace Cantera {
     moleFractions_       = b.moleFractions_;
     lnActCoeff_Scaled_   = b.lnActCoeff_Scaled_;
     dlnActCoeffdT_Scaled_   = b.dlnActCoeffdT_Scaled_;
-    dlnActCoeffdlnX_Scaled_ = b.dlnActCoeffdlnX_Scaled_;
-    dlnActCoeffdlnN_Scaled_ = b.dlnActCoeffdlnN_Scaled_;
+    d2lnActCoeffdT2_Scaled_   = b.d2lnActCoeffdT2_Scaled_;
+    dlnActCoeffdlnX_diag_ = b.dlnActCoeffdlnX_diag_;
+    dlnActCoeffdlnN_diag_ = b.dlnActCoeffdlnN_diag_;
+    dlnActCoeffdlnN_  = b.dlnActCoeffdlnN_;
     m_pp                 = b.m_pp;
 
     return *this;
@@ -195,16 +213,17 @@ namespace Cantera {
   /*
    * - Activities, Standard States, Activity Concentrations -----------
    */
+  void GibbsExcessVPSSTP::getActivityConcentrations(doublereal* c) const {
+    getActivities(c);
+  }
 
 
   doublereal GibbsExcessVPSSTP::standardConcentration(int k) const {
-    err("standardConcentration");
-    return -1.0;
+    return 1.0;
   }
 
   doublereal GibbsExcessVPSSTP::logStandardConc(int k) const {
-    err("logStandardConc");
-    return -1.0;
+    return 0.0;
   }
 
   void GibbsExcessVPSSTP::getActivities(doublereal* ac) const {
@@ -215,7 +234,29 @@ namespace Cantera {
     }
   }
 
+  //====================================================================================================================
+  //  Get the array of non-dimensional molar-based activity coefficients at
+  //  the current solution temperature, pressure, and solution concentration.
+  /* 
+   * @param ac Output vector of activity coefficients. Length: m_kk.
+   */
+  void GibbsExcessVPSSTP::getActivityCoefficients(doublereal * const ac) const {
+     
+    getLnActivityCoefficients(ac);
 
+    // Protect against roundoff when taking exponentials
+    for (int k = 0; k < m_kk; k++) {
+      if (ac[k] > 700.) {
+	ac[k] = exp(700.);
+      } else if (ac[k] < -700.) {
+	ac[k] = exp(-700);
+      } else {
+	ac[k] = exp(ac[k]);
+      }
+    }
+  }
+  //====================================================================================================================
+    
   void GibbsExcessVPSSTP::getElectrochemPotentials(doublereal* mu) const {
     getChemPotentials(mu);
     double ve = Faraday * electricPotential();
@@ -288,8 +329,8 @@ namespace Cantera {
    */
   void GibbsExcessVPSSTP::getUnitsStandardConc(double *uA, int k, int sizeUA) const {
     for (int i = 0; i < sizeUA; i++) {
-      if (i == 0) uA[0] = 1.0;
-      if (i == 1) uA[1] = -nDim();
+      if (i == 0) uA[0] = 0.0;
+      if (i == 1) uA[1] = 0.0;
       if (i == 2) uA[2] = 0.0;
       if (i == 3) uA[3] = 0.0;
       if (i == 4) uA[4] = 0.0;
@@ -314,6 +355,7 @@ namespace Cantera {
   void GibbsExcessVPSSTP::initThermo() {
     initLengths();
     VPStandardStateTP::initThermo();
+    getMoleFractions(DATA_PTR(moleFractions_));
   }
 
 
@@ -324,8 +366,10 @@ namespace Cantera {
     moleFractions_.resize(m_kk);
     lnActCoeff_Scaled_.resize(m_kk);
     dlnActCoeffdT_Scaled_.resize(m_kk);
-    dlnActCoeffdlnX_Scaled_.resize(m_kk);
-    dlnActCoeffdlnN_Scaled_.resize(m_kk);
+    d2lnActCoeffdT2_Scaled_.resize(m_kk);
+    dlnActCoeffdlnX_diag_.resize(m_kk);
+    dlnActCoeffdlnN_diag_.resize(m_kk);
+    dlnActCoeffdlnN_.resize(m_kk, m_kk);
     m_pp.resize(m_kk);
   }
   

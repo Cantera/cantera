@@ -293,7 +293,7 @@ namespace Cantera {
 
   void StoichSubstance::setParametersFromXML(const XML_Node& eosdata) {
     eosdata._require("model","StoichSubstance");
-    doublereal rho = getFloat(eosdata, "density", "toSI");
+    doublereal rho = ctml::getFloat(eosdata, "density", "toSI");
     setDensity(rho);
   }
 

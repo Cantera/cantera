@@ -30,17 +30,21 @@ PURIFY=@PURIFY@
 
 PIC_FLAG=@PIC@
 
+#LOCAL_DEFS=-DDEBUG_DOGLEG
+
 CXX_FLAGS = @CXXFLAGS@ $(LOCAL_DEFS) $(CXX_OPT) $(PIC_FLAG) $(DEBUG_FLAG)
 
 NUMERICS_OBJ   = DenseMatrix.o funcs.o Func1.o \
                  ODE_integrators.o  BandMatrix.o DAE_solvers.o \
-                 funcs.o sort.o SquareMatrix.o ResidJacEval.o NonlinearSolver.o
+                 funcs.o sort.o SquareMatrix.o ResidJacEval.o NonlinearSolver.o \
+                 solveProb.o BEulerInt.o RootFind.o IDA_Solver.o GeneralMatrix.o
 
 NUMERICS_H     = ArrayViewer.h   DenseMatrix.h \
                  funcs.h ctlapack.h Func1.h FuncEval.h \
                  polyfit.h\
                  BandMatrix.h Integrator.h DAE_Solver.h ResidEval.h sort.h \
-                 SquareMatrix.h ResidJacEval.h NonlinearSolver.h
+                 SquareMatrix.h ResidJacEval.h NonlinearSolver.h \
+                 solveProb.h BEulerInt.h RootFind.h IDA_Solver.h GeneralMatrix.h
 
 ifeq ($(use_sundials), 1)
   ODEPACKAGE_H        = CVodesIntegrator.h 

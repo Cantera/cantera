@@ -36,12 +36,15 @@ CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT) $(PIC_FLAG) $(DEBUG_FLAG)
 # Base Transport Object Files
 TRAN_OBJ    = TransportFactory.o MultiTransport.o MixTransport.o MMCollisionInt.o \
               SolidTransport.o DustyGasTransport.o TransportBase.o WaterTransport.o \
-              SimpleTransport.o
+              SimpleTransport.o LiquidTransportData.o LiquidTransportParams.o LiquidTranInteraction.o \
+              TransportParams.o \
+	      TortuosityBase.o  TortuosityBruggeman.o TortuosityPercolation.o  TortuosityMaxwell.o   
 
 TRAN_H  =  TransportFactory.h MultiTransport.h MixTransport.h \
            MMCollisionInt.h  SolidTransport.h DustyGasTransport.h \
            TransportBase.h L_matrix.h TransportParams.h WaterTransport.h \
-           SimpleTransport.h LiquidTransportData.h
+           SimpleTransport.h LiquidTranInteraction.h Tortuosity.h \
+	   TortuosityBase.h  TortuosityBruggeman.h  TortuosityPercolation.h   TortuosityMaxwell.h 	
 
 ifeq ($(do_electro),1)
 do_issp = 1
@@ -50,8 +53,8 @@ ELECTRO_H  =  AqueousTransport.h
 endif
 
 ifeq ($(do_issp),1)
-ISSP_OBJ = LiquidTransport.o 
-ISSP_H   = LiquidTransport.h LiquidTransportParams.h
+ISSP_OBJ = LiquidTransport.o LiquidTransportData.o LTPspecies.o
+ISSP_H   = LiquidTransport.h LiquidTransportParams.h LiquidTransportData.h LTPspecies.h
 endif
 
 
@@ -69,11 +72,16 @@ all:  $(LIB) .depends
 	@(for lh in $(CATRAN_H) ; do \
 	  $(INSTALL_TSC) "$${lh}" $(INCDIR) ; \
 	done)
-%.d: Makefile %.o
+
+.cpp.d: 
 	@CXX_DEPENDS@ $(CXX_FLAGS) $(CXX_INCLUDES) $*.cpp > $*.d
 
 .cpp.o:
 	$(PURIFY) @CXX@ -c $< $(CXX_FLAGS) $(CXX_INCLUDES)
+
+$(DEPENDS): Makefile
+
+$(CATRAN_OBJ): Makefile
 
 $(LIB): $(CATRAN_OBJ) $(CATRAN_H)
 	@ARCHIVE@ $(LIB) $(CATRAN_OBJ) > /dev/null

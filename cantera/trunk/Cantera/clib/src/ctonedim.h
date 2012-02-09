@@ -84,7 +84,7 @@ extern "C" {
     EEXXTT int DLL_CPREFIX sim1D_save(int i, char* fname, char* id, 
         char* desc);
     EEXXTT int DLL_CPREFIX sim1D_restore(int i, char* fname, char* id);
-    EEXXTT int DLL_CPREFIX sim1D_writeStats(int i);
+    EEXXTT int DLL_CPREFIX sim1D_writeStats(int i, int printTime = 1);
     EEXXTT int DLL_CPREFIX sim1D_domainIndex(int i, char* name);
     EEXXTT double DLL_CPREFIX sim1D_value(int i, int idom, int icomp, int localPoint);
     EEXXTT double DLL_CPREFIX sim1D_workValue(int i, int idom, 

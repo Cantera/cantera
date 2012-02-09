@@ -19,6 +19,8 @@
 #include "ctexceptions.h"
 #include "utilities.h"
 
+#include <cstring>
+
 namespace Cantera { 
 
 
@@ -116,6 +118,16 @@ namespace Cantera {
       m_nrows = n;
       m_ncols = m;
       m_data.resize(n*m, v);
+    }
+
+    //! Copy the data from one array into another without doing any checking
+    /*!
+     *  This differs from the assignment operator as no resizing is done and memcpy() is used.
+     *  @param y Array to be copied
+     */ 
+    void copyData(const Array2D& y) {
+      size_t n = sizeof(doublereal) * m_nrows * m_ncols;
+      (void) memcpy(DATA_PTR(m_data), y.ptrColumn(0), n);
     }
 
     //! Append a column to the existing matrix using a std vector
@@ -223,6 +235,17 @@ namespace Cantera {
       for (; b != end(); ++b, ++xb, ++yb)  *b = a*(*xb) + *yb;
     }
 
+    //! Set all of the entries to zero
+    inline void zero() {
+      int nn = m_nrows * m_ncols;
+      if (nn > 0) {
+        /*
+         * Using memset is the fastest way to zero a contiguous
+         * section of memory.
+         */
+        (void) memset((void *) &m_data[0], 0, nn * sizeof(doublereal));
+      }
+    }
     
     //! Allows setting elements using the syntax A(i,j) = x.
     /*!

@@ -47,13 +47,16 @@ namespace Cantera {
   const int cMetalSHEelectrons = 9; // SHE electrode electrons
 
   const int cLatticeSolid = 20; // LatticeSolidPhase.h
-  const int cLattice = 21; 
+  const int cLattice = 21; //LatticePhase.h
 
   // pure fluids with liquid/vapor eqs of state
   const int cPureFluid = 10;
 
   /// An edge between two 2D surfaces    
   const int cEdge = 6;
+
+  //! Stoichiometric compound with a constant chemical potential
+  const int cFixedChemPot = 70;
 
   /// Constant partial molar volume solution IdealSolidSolnPhase.h
   const int cIdealSolidSolnPhase = 5009;
@@ -70,8 +73,18 @@ namespace Cantera {
   const int cIdealSolnGasVPSS = 500;
   const int cIdealSolnGasVPSS_iscv = 501;
 
+  //! Fugacity Models
+  const int cMixtureFugacityTP = 700;
+  const int cRedlichKwongMFTP = 701;
+
   const int cMargulesVPSSTP = 301;
 
+  const int cRedlichKisterVPSSTP = 303;
+
+  const int cMolarityIonicVPSSTP = 401;
+  const int cMixedSolventElectrolyte = 402;
+
+  const int cPhaseCombo_Interaction = 305;
 
   const int cIonsFromNeutral = 2000;
 

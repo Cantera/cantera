@@ -16,7 +16,6 @@
 #include <fstream>
 #include <string>
 #include <iostream>
-//using namespace std;
 
 #include "ckr_defs.h"
 #include "Element.h"
@@ -58,17 +57,17 @@ namespace ckr {
 
     bool readElementSection(elementList& elements);
     bool readSpeciesSection(speciesList& species);
-    bool readThermoSection(vector<string>& names, 
+    bool readThermoSection(std::vector<std::string>& names, 
 			   speciesTable& speciesData, vector_fp& temp, 
-			   int& optionFlag, ostream& log);
-    bool readReactionSection(const vector<string>& speciesNames, 
-			     vector<string>& elementNames, 
+			   int& optionFlag, std::ostream& log);
+    bool readReactionSection(const std::vector<std::string>& speciesNames, 
+			     std::vector<std::string>& elementNames, 
 			     reactionList& reactions, ReactionUnits& units);
     bool advanceToKeyword(const std::string& kw, const std::string& stop);
     bool verbose;
     bool debug;
 
-    bool readNASA9ThermoSection(std::vector<string>& names, 
+    bool readNASA9ThermoSection(std::vector<std::string>& names, 
 				speciesTable& species, vector_fp& temp, 
 				int& optionFlag, std::ostream& log);
 

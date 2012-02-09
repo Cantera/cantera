@@ -106,3 +106,7 @@ clean:
            $(RM) -rf SunWS_cache ; \
          fi )
 
+ifeq ($(wildcard .depends), .depends)
+include .depends
+endif
+

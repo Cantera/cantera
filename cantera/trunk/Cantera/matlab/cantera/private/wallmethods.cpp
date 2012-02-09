@@ -2,7 +2,7 @@
  *  @file wallmethods.cpp
  */
 /*
- *   $Id: wallmethods.cpp,v 1.5 2009/07/11 16:43:13 hkmoffa Exp $
+ *   $Id$
  */
 #include "mex.h"
 #include "../../../clib/src/ctreactor.h"

@@ -4,8 +4,8 @@
  */
 
 /*
- * $Revision: 1.9 $
- * $Date: 2009/07/23 17:03:04 $
+ * $Revision$
+ * $Date$
  */
 
 // Copyright 2001  California Institute of Technology
@@ -19,6 +19,7 @@
 
 using namespace ctml;
 using namespace std;
+using namespace Cantera;
 
 #include "../../clib/src/Cabinet.h"
 

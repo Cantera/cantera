@@ -264,95 +264,12 @@ namespace Cantera {
      * @{
      */
 
-    //! This method returns an array of generalized concentrations
-    /*!
-     * \f$ C^a_k\f$ are defined such that \f$ a_k = C^a_k /
-     * C^0_k, \f$ where \f$ C^0_k \f$ is a standard concentration
-     * defined below and \f$ a_k \f$ are activities used in the
-     * thermodynamic functions.  These activity (or generalized)
-     * concentrations are used
-     * by kinetics manager classes to compute the forward and
-     * reverse rates of elementary reactions. Note that they may
-     * or may not have units of concentration --- they might be
-     * partial pressures, mole fractions, or surface coverages,
-     * for example.
-     *
-     * @param c Output array of generalized concentrations. The
-     *           units depend upon the implementation of the
-     *           reaction rate expressions within the phase.
-     */
-    virtual void getActivityConcentrations(doublereal* c) const;
-  
-    //! Return the standard concentration for the kth species
-    /*!
-     * The standard concentration \f$ C^0_k \f$ used to normalize
-     * the activity (i.e., generalized) concentration. In many cases, this quantity
-     * will be the same for all species in a phase - for example,
-     * for an ideal gas \f$ C^0_k = P/\hat R T \f$. For this
-     * reason, this method returns a single value, instead of an
-     * array.  However, for phases in which the standard
-     * concentration is species-specific (e.g. surface species of
-     * different sizes), this method may be called with an
-     * optional parameter indicating the species.
-     *
-     *  Here we define the standard concentration as being equal to 1.0.
-     *  Therefore, the kinetics operators will be dealing in unitless
-     *  activities for all kinetics expressions involving the molten
-     *  salts. This assignment is subject to further assessment.
-     *
-     * @param k Optional parameter indicating the species. The default
-     *          is to assume this refers to species 0.
-     * @return 
-     *   Returns the standard concentration. The units are by definition
-     *   dependent on the ThermoPhase and kinetics manager representation.
-     */
-    virtual doublereal standardConcentration(int k=0) const;
-
-
-    //! Natural logarithm of the standard concentration of the kth species.
-    /*!
-     * @param k    index of the species (defaults to zero)
-     */
-    virtual doublereal logStandardConc(int k=0) const; 
-
-    //! Returns the units of the standard and generalized concentrations.
-    /*!
-     * Note they have the same units, as their
-     * ratio is defined to be equal to the activity of the kth
-     * species in the solution, which is unitless.
-     *
-     * This routine is used in print out applications where the
-     * units are needed. Usually, MKS units are assumed throughout
-     * the program and in the XML input files.
-     *
-     * The base %ThermoPhase class assigns the default quantities
-     * of (kmol/m3) for all species.
-     * Inherited classes are responsible for overriding the default 
-     * values if necessary.
-     *
-     * @param uA Output vector containing the units
-     *  uA[0] = kmol units - default  = 1
-     *  uA[1] = m    units - default  = -nDim(), the number of spatial
-     *                                dimensions in the Phase class.
-     *  uA[2] = kg   units - default  = 0;
-     *  uA[3] = Pa(pressure) units - default = 0;
-     *  uA[4] = Temperature units - default = 0;
-     *  uA[5] = time units - default = 0
-     * @param k species index. Defaults to 0.
-     * @param sizeUA output int containing the size of the vector.
-     *        Currently, this is equal to 6.
-     */
-    virtual void getUnitsStandardConc(double *uA, int k = 0,
-				      int sizeUA = 6) const;
-
-   
     //! Get the array of non-dimensional molar-based activity coefficients at
     //! the current solution temperature, pressure, and solution concentration.
     /*!
      * @param ac Output vector of activity coefficients. Length: m_kk.
      */
     virtual void getActivityCoefficients(doublereal* ac) const;
-
 
  
     //@}
@@ -384,6 +301,8 @@ namespace Cantera {
      * \bar h_k(T,P) = h^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}
      * \f]
      *
+     *  @param hbar  Output vector of species partial molar enthalpies.
+     *               Length: m_kk. Units: J/kmol
      */
     virtual void getPartialMolarEnthalpies(doublereal* hbar) const;
 
@@ -401,71 +320,101 @@ namespace Cantera {
      *                              - R \ln( \gamma_k X_k)
      *                              - R T \frac{d \ln(\gamma_k) }{dT}
      *  \f]
+     *
+     *
+     *  @param sbar  Output vector of species partial molar entropies.
+     *               Length: m_kk. Units: J/kmol/K
      */
     virtual void getPartialMolarEntropies(doublereal* sbar) const;
 
-    //! Get the array of change in the log activity coefficients w.r.t. change in state (change temp, change mole fractions)
+
+    //! Get the change in activity coefficients w.r.t. change in state (temp, mole fraction, etc.) along
+    //! a line in parameter space or along a line in physical space
     /*!
-     * This function is a virtual class, but it first appears in GibbsExcessVPSSTP
-     * class and derived classes from GibbsExcessVPSSTP.
      *
-     * This function is a virtual method.  For ideal mixtures 
-     * (unity activity coefficients), this can gradX/X.  
-     *
-     * @param dT    Input of temperature change
-     * @param dX    Input vector of changes in mole fraction. length = m_kk
-     * @param dlnActCoeff    Output vector of derivatives of the 
-     *                         log Activity Coefficients. length = m_kk
+     * @param dTds           Input of temperature change along the path
+     * @param dXds           Input vector of changes in mole fraction along the path. length = m_kk
+     *                       Along the path length it must be the case that the mole fractions sum to one.
+     * @param dlnActCoeffds  Output vector of the directional derivatives of the 
+     *                       log Activity Coefficients along the path. length = m_kk
      */
-     virtual void getdlnActCoeff(const doublereal dT, const doublereal * const dX, doublereal *dlnActCoeff) const;
+    virtual void getdlnActCoeffds(const doublereal dTds, const doublereal * const dXds,
+				  doublereal *dlnActCoeffds) const;
 
     //! Get the array of log concentration-like derivatives of the 
-    //! log activity coefficients
+    //! log activity coefficients - diagonal component
     /*!
      * This function is a virtual method.  For ideal mixtures 
      * (unity activity coefficients), this can return zero.  
      * Implementations should take the derivative of the 
      * logarithm of the activity coefficient with respect to the 
-     * logarithm of the concentration-like variable (i.e. mole fraction) 
-     * that represents the standard state.  
-     * This quantity is to be used in conjunction with derivatives of 
-     * that concentration-like variable when the derivative of the chemical 
-     * potential is taken.  
+     * logarithm of the mole fraction.
      *
      *  units = dimensionless
      *
-     * @param dlnActCoeffdlnX    Output vector of log(mole fraction)  
+     * @param dlnActCoeffdlnX_diag    Output vector of log(mole fraction)  
      *                 derivatives of the log Activity Coefficients.
      *                 length = m_kk
      */
-    virtual void getdlnActCoeffdlnX(doublereal *dlnActCoeffdlnX) const;
+    virtual void getdlnActCoeffdlnX_diag(doublereal *dlnActCoeffdlnX_diag) const;
 
     //! Get the array of log concentration-like derivatives of the 
-    //! log activity coefficients
+    //! log activity coefficients - diagonal components
     /*!
      * This function is a virtual method.  For ideal mixtures 
      * (unity activity coefficients), this can return zero.  
      * Implementations should take the derivative of the 
      * logarithm of the activity coefficient with respect to the 
-     * logarithm of the concentration-like variable (i.e. number of moles)
-     * that represents the standard state.  
-     * This quantity is to be used in conjunction with derivatives of 
-     * that concentration-like variable when the derivative of the chemical 
-     * potential is taken.  
+     * logarithm of the species mole numbe. This routine just does the diagonal entries.
      *
      *  units = dimensionless
      *
-     * @param dlnActCoeffdlnN    Output vector of log(mole fraction)  
+     * @param dlnActCoeffdlnN_diag    Output vector of diagonal components of the log(mole fraction)  
      *                 derivatives of the log Activity Coefficients.
      *                 length = m_kk
      */
-    virtual void getdlnActCoeffdlnN(doublereal *dlnActCoeffdlnN) const;
+    virtual void getdlnActCoeffdlnN_diag(doublereal *dlnActCoeffdlnN_diag) const;
+
+    //! Get the array of derivatives of the ln activity coefficients with respect to the ln species mole numbers
+    /*!
+     * Implementations should take the derivative of the logarithm of the activity coefficient with respect to a
+     * log of a species mole number (with all other species mole numbers held constant)
+     * 
+     *  units = 1 / kmol
+     *
+     *  dlnActCoeffdlnN[ ld * k  + m]  will contain the derivative of log act_coeff for the <I>m</I><SUP>th</SUP> 
+     *                                 species with respect to the number of moles of the <I>k</I><SUP>th</SUP> species.
+     *
+     * \f[
+     *        \frac{d \ln(\gamma_m) }{d \ln( n_k ) }\Bigg|_{n_i}
+     * \f]
+     *
+     * @param ld               Number of rows in the matrix
+     * @param dlnActCoeffdlnN    Output vector of derivatives of the 
+     *                         log Activity Coefficients. length = m_kk * m_kk        
+     */
+    virtual void getdlnActCoeffdlnN(const int ld, doublereal * const dlnActCoeffdlnN) ;
+
 
     //! Get the Salt Dissociation Coefficients
     //! Returns the vector of dissociation coefficients and vector of charges
-    virtual void getDissociationCoeffs(vector_fp& coeffs, vector_fp& charges, std::vector<int>& neutMolIndex);
+    /*!
+     *  @param fm_neutralMolec_ions Returns the formula matrix for the composition of neutral molecules
+     *                              in terms of the ions.
+     *  @param charges              Returns a vector containing the charges of all species in this phase
+     *  @param neutMolIndex         Returns the vector fm_invert_ionForNeutral
+     *                               This is the mapping between ion species and neutral molecule for quick invert.
+     */
+    void getDissociationCoeffs(vector_fp& fm_neutralMolec_ions, vector_fp& charges, std::vector<int>& neutMolIndex) const;
 
-    virtual void getNeutralMolecMoleFractions(vector_fp& fracs){fracs=NeutralMolecMoleFractions_;}
+
+    //! Return the current value of the neutral mole fraction vector
+    /*!
+     *   @param neutralMoleculeMoleFractions  Vector of neutral molecule mole fractions.
+     */
+    void getNeutralMolecMoleFractions(vector_fp& neutralMoleculeMoleFractions) const {
+      neutralMoleculeMoleFractions = NeutralMolecMoleFractions_;
+    }
 
     //! Calculate neutral molecule mole fractions
     /*!
@@ -480,14 +429,29 @@ namespace Cantera {
      *  in the charge neutrality is allowed. The cation number
      *  is followed, while the difference in charge neutrality
      *  is dumped into the anion mole number to fix the imbalance.
+     *
+     *  @param  dx  input vector of ion mole fraction gradients
+     *  @param  dy  output Vector of neutral molecule mole fraction gradients
      */
-    virtual void getNeutralMoleculeMoleGrads(const doublereal * const x, doublereal *y) const;
+    void getNeutralMoleculeMoleGrads(const doublereal * const dx, doublereal *const dy) const;
 
-    virtual void getCationList(std::vector<int>& cation){cation=cationList_;}
-    virtual void getAnionList(std::vector<int>& anion){anion=anionList_;}
-    virtual void getSpeciesNames(std::vector<std::string>& names){names=m_speciesNames;}
+    //! Get the list of cations in this object
+    /*!
+     *  @param cation  List of cations
+     */
+    void getCationList(std::vector<int>& cation) const {
+      cation=cationList_;
+    }
 
+    //! Get the list of anions in this object
+    /*!
+     *  @param anion  List of anions
+     */
+    void getAnionList(std::vector<int>& anion) const {
+      anion=anionList_;
+    }
 
+ 
     //@}
     /// @name  Properties of the Standard State of the Species in the Solution
     //@{
@@ -749,10 +713,19 @@ namespace Cantera {
      * derivative of the natural logarithm of the activity coefficients
      * wrt logarithm of the mole fractions.
      */
-    void s_update_dlnActCoeff_dlnX() const;
+    void s_update_dlnActCoeff_dlnX_diag() const;
 
     //! Update the derivative of the log of the activity coefficients
-    //!  wrt log(number of moles)
+    //!  wrt log(number of moles) - diagonal components
+    /*!
+     * This function will be called to update the internally storred
+     * derivative of the natural logarithm of the activity coefficients
+     * wrt logarithm of the number of moles of given species.
+     */
+    void s_update_dlnActCoeff_dlnN_diag() const;
+
+    //! Update the derivative of the log of the activity coefficients
+    //!  wrt log(number of moles) - diagonal components
     /*!
      * This function will be called to update the internally storred
      * derivative of the natural logarithm of the activity coefficients
@@ -876,28 +849,66 @@ namespace Cantera {
      *  as a shallow pointer.
      */
     bool IOwnNThermoPhase_;
-
-    //! ThermoPhase for the cation lattice
-    /*!
-     *  Currently this is unimplemented and may be deleted
-     */
-    // ThermoPhase *cationPhase_;
-
-    //! ThermoPhase for the anion lattice
-    /*!
-     *  Currently this is unimplemented and may be deleted
-     */
-    //ThermoPhase *anionPhase_;
    
     //! Temporary mole fraction vector
     mutable std::vector<doublereal> moleFractionsTmp_;
 
+    //! Storage vector for the neutral molecule chemical potentials
+    /*!
+     *  This vector is used as a temporary storage area when calculating the ion chemical
+     *  potentials.
+     * 
+     *  Units = Joules/kmol
+     *  Length =  numNeutralMoleculeSpecies_
+     */
     mutable std::vector<doublereal> muNeutralMolecule_;
-    mutable std::vector<doublereal> gammaNeutralMolecule_;
-    mutable std::vector<doublereal> dlnActCoeff_NeutralMolecule_;
+
+    //! Storage vector for the neutral molecule ln activity coefficients
+    /*!
+     *  This vector is used as a temporary storage area when calculating the ion chemical
+     *  potentials and activity coefficients
+     * 
+     *  Units = none
+     *  Length =  numNeutralMoleculeSpecies_
+     */
+    mutable std::vector<doublereal> lnActCoeff_NeutralMolecule_;
+
+    //! Storage vector for the neutral molecule d ln activity coefficients dT
+    /*!
+     *  This vector is used as a temporary storage area when calculating the ion derivatives
+
+     * 
+     *  Units =  1/Kelvin
+     *  Length =  numNeutralMoleculeSpecies_
+     */
     mutable std::vector<doublereal> dlnActCoeffdT_NeutralMolecule_;
-    mutable std::vector<doublereal> dlnActCoeffdlnX_NeutralMolecule_;
-    mutable std::vector<doublereal> dlnActCoeffdlnN_NeutralMolecule_;
+
+    //! Storage vector for the neutral molecule d ln activity coefficients dX - diagonal component
+    /*!
+     *  This vector is used as a temporary storage area when calculating the ion derivatives
+     * 
+     *  Units =  none
+     *  Length =  numNeutralMoleculeSpecies_
+     */
+    mutable std::vector<doublereal> dlnActCoeffdlnX_diag_NeutralMolecule_;
+
+    //! Storage vector for the neutral molecule d ln activity coefficients dlnN - diagonal component
+    /*!
+     *  This vector is used as a temporary storage area when calculating the ion derivatives
+     * 
+     *  Units =  none
+     *  Length =  numNeutralMoleculeSpecies_
+     */
+    mutable std::vector<doublereal> dlnActCoeffdlnN_diag_NeutralMolecule_;
+
+    //! Storage vector for the neutral molecule d ln activity coefficients dlnN 
+    /*!
+     *  This vector is used as a temporary storage area when calculating the ion derivatives
+     * 
+     *  Units =  none
+     *  Length =  numNeutralMoleculeSpecies_
+     */
+    mutable Array2D dlnActCoeffdlnN_NeutralMolecule_;
 
   };
 

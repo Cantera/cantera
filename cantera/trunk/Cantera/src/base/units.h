@@ -173,6 +173,7 @@ namespace Cantera {
         static boost::mutex units_mutex;
 #endif
 
+
          //! Units class constructor, containing the default mappings between
          //! strings and units.
         Unit() :
@@ -215,6 +216,7 @@ namespace Cantera {
             // temperature
             m_u["K"]        = 1.0;
             m_u["C"]        = 1.0;
+            m_u["Kelvin"]   = 1.0;
 
             // mass
 	    m_u["gm"]       = 1.0e-3;
@@ -231,6 +233,12 @@ namespace Cantera {
             m_u["min"]      = 60.0;
             m_u["hr"]       = 3600.0;
             m_u["ms"]       = 0.001;
+
+            // electric potential
+            m_u["volt"]     = 1.0;
+
+            // charge
+            m_u["coulomb"]  = 1.0;
 
             /*
             // frequency  - Took frequency out to reevaluate it. Inverse cm is probably the wrong default unit

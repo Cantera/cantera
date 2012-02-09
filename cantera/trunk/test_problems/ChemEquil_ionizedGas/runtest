@@ -35,7 +35,7 @@ then
   fi
 else
   echo "Unsuccessful test comparison on " $testName " test"
-  if test $retnStat_csv != "1"
+  if test $retnStat_csv != "0"
   then
      echo "      csv files are different - see diff_csv.txt"
   fi

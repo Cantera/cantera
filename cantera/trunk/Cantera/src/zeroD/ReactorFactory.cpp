@@ -64,7 +64,7 @@ namespace CanteraZeroD {
         case ConstPressureReactorType:
             return new ConstPressureReactor();
         default:
-            throw CanteraError("ReactorFactory::newReactor",
+            throw Cantera::CanteraError("ReactorFactory::newReactor",
                 "unknown reactor type!");
         }
         return 0;

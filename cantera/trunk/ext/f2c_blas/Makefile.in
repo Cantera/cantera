@@ -1,8 +1,8 @@
 #/bin/sh
 #/bin/sh
 #
-# $Revision: 1.10 $
-# $Date: 2009/01/12 19:34:14 $
+# $Revision$
+# $Date$
 #
 
 .SUFFIXES :

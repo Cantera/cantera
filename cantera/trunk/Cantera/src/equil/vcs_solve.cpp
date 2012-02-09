@@ -411,9 +411,7 @@ namespace VCSnonideal {
        *    a 2x2 Newton's method, using loops over vcs_TP() to
        *    calculate the residual and Jacobian)
        */
-    
       iconv = vcs_TP(ipr, ip1, maxit, vprob->T, vprob->PresPA);
-
 	     
       /*
        *        If requested to print anything out, go ahead and do so;
@@ -520,8 +518,17 @@ namespace VCSnonideal {
      * FormulaMatrix[] -> Copy the formula matrix over
      */
     for (i = 0; i < nspecies; i++) {
+      bool nonzero = false;
       for (j = 0; j < nelements; j++) {
+        if (pub->FormulaMatrix[j][i] != 0.0) {
+          nonzero = true;
+        }
 	m_formulaMatrix[j][i] = pub->FormulaMatrix[j][i];
+      }
+      if (!nonzero) {
+        plogf("vcs_prob_specifyFully:: species %d %s has a zero formula matrix!\n", i,
+	      pub->SpName[i].c_str());
+        return VCS_PUB_BAD;
       }
     }
   
@@ -575,17 +582,31 @@ namespace VCSnonideal {
     /*
      * Formulate the Goal Element Abundance Vector
      */
+    double sum;
     if (pub->gai.size() != 0) {
-      for (i = 0; i < nelements; i++) m_elemAbundancesGoal[i] = pub->gai[i];
+      for (i = 0; i < nelements; i++) {
+         m_elemAbundancesGoal[i] = pub->gai[i];
+         if (pub->m_elType[i] == VCS_ELEM_TYPE_LATTICERATIO) {
+           if (m_elemAbundancesGoal[i] < 1.0E-10) {
+             m_elemAbundancesGoal[i] = 0.0;
+           }
+         }
+      }
     } else {
       if (m_doEstimateEquil == 0) {
 	for (j = 0; j < nelements; j++) {
 	  m_elemAbundancesGoal[j] = 0.0;
 	  for (kspec = 0; kspec < nspecies; kspec++) {
 	    if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+              sum += m_molNumSpecies_old[kspec];
 	      m_elemAbundancesGoal[j] += m_formulaMatrix[j][kspec] * m_molNumSpecies_old[kspec];
 	    }
 	  }
+          if (pub->m_elType[j] == VCS_ELEM_TYPE_LATTICERATIO) {
+            if (m_elemAbundancesGoal[j] < 1.0E-10 * sum) {
+              m_elemAbundancesGoal[j] = 0.0;
+            } 
+          }
 	}
       } else {
 	plogf("%sElement Abundances, m_elemAbundancesGoal[], not specified\n", ser);
@@ -719,8 +740,10 @@ namespace VCSnonideal {
 		  m_elementName[i].c_str(), m_elemAbundancesGoal[i]);
 	    exit(EXIT_FAILURE);
 	  } else {
-	    plogf("Charge neutrality condition %s not zero, %g. Setting it zero\n",
-		  m_elementName[i].c_str(), m_elemAbundancesGoal[i]);
+            if (m_debug_print_lvl >= 2) {
+	      plogf("Charge neutrality condition %s not zero, %g. Setting it zero\n",
+	  	    m_elementName[i].c_str(), m_elemAbundancesGoal[i]);
+            }
 	    m_elemAbundancesGoal[i] = 0.0;
 	  }
 	  
@@ -869,9 +892,9 @@ namespace VCSnonideal {
       vcs_VolPhase *vPhase = m_VolPhaseList[iph];
       vcs_VolPhase *pub_phase_ptr = pub->VPhaseList[iph];
 
-      if  (vPhase->VP_ID != pub_phase_ptr->VP_ID) {
+      if  (vPhase->VP_ID_ != pub_phase_ptr->VP_ID_) {
 	plogf("%sPhase numbers have changed:%d %d\n", yo.c_str(),
-	      vPhase->VP_ID, pub_phase_ptr->VP_ID);
+	      vPhase->VP_ID_, pub_phase_ptr->VP_ID_);
 	retn = VCS_PUB_BAD;
       }
 
@@ -898,7 +921,7 @@ namespace VCSnonideal {
 	retn = VCS_PUB_BAD;
       }
 
-      if (vPhase->PhaseName == pub_phase_ptr->PhaseName) {
+      if (vPhase->PhaseName != pub_phase_ptr->PhaseName) {
 	plogf("%sPhaseName value have changed:%s %s\n", yo.c_str(),
 	      vPhase->PhaseName.c_str(),
 	      pub_phase_ptr->PhaseName.c_str());
@@ -968,7 +991,7 @@ namespace VCSnonideal {
 	pub->w[i] = m_molNumSpecies_old[k1];
       } else {
 	pub->w[i] = 0.0;
-	plogf("voltage species = %g\n", m_molNumSpecies_old[k1]);
+        // plogf("voltage species = %g\n", m_molNumSpecies_old[k1]);
       }
       //pub->mf[i] = m_molNumSpecies_new[k1];
       pub->m_gibbsSpecies[i] = m_feSpecies_old[k1];

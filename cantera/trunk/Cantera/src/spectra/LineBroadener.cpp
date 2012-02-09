@@ -3,6 +3,7 @@
 #include "LineBroadener.h"
 
 using namespace std;
+using namespace Cantera;
 
 namespace CanteraSpectra {
 
@@ -20,7 +21,7 @@ namespace CanteraSpectra {
      * Units: 1/wavenumber (or cm).
      */
     doublereal Lorentzian::profile(doublereal deltaFreq) {
-        return (1.0/Pi) *m_hwhm/(deltaFreq*deltaFreq + m_hwhm2);
+        return (1.0/Cantera::Pi) *m_hwhm/(deltaFreq*deltaFreq + m_hwhm2);
     }
 
     /**
@@ -47,7 +48,7 @@ namespace CanteraSpectra {
         //cout << "entered Gaussian::profile" << endl;
         //cout << "deltaFreq = " << deltaFreq << endl;
         //cout << "m_sigma = " << m_sigma << endl;
-        return 1.0/(m_sigma*SqrtTwo*SqrtPi) * 
+        return 1.0/(m_sigma * Cantera::SqrtTwo *Cantera::SqrtPi) * 
             exp(-deltaFreq*deltaFreq/(2.0*m_sigma2));
     }
         

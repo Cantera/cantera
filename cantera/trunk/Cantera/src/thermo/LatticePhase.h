@@ -1,7 +1,6 @@
 /**
  *  @file LatticePhase.h
- *  Header for a simple thermodynamics model of a bulk phase
- *  derived from ThermoPhase,
+ *  Header for a simple thermodynamics model of a bulk phase derived from ThermoPhase,
  *  assuming a lattice of solid atoms
  *  (see \ref thermoprops and class \link Cantera::LatticePhase LatticePhase\endlink).
  *
@@ -255,7 +254,7 @@ namespace Cantera {
    * @ingroup thermoprops
    *
    */
-  class LatticePhase : public ThermoPhase  {
+  class LatticePhase : public ThermoPhase {
 
   public:
 
@@ -274,6 +273,20 @@ namespace Cantera {
      */
     LatticePhase& operator=(const LatticePhase& right);
 
+    //! Full constructor for a lattice phase
+    /*!
+     * @param inputFile String name of the input file
+     * @param id        string id of the phase name
+     */
+    LatticePhase(std::string inputFile, std::string id = "");
+
+    //! Full constructor for a water phase
+    /*!
+     * @param phaseRef  XML node referencing the lattice phase.
+     * @param id        string id of the phase name
+     */
+    LatticePhase(XML_Node& phaseRef, std::string id = "");
+
     //! Destructor
     virtual ~LatticePhase();
 
@@ -287,9 +300,33 @@ namespace Cantera {
      */
     ThermoPhase *duplMyselfAsThermoPhase() const;
 
+    //! Import and initialize a %LatticePhase phase specification from an XML tree into the current object.
+    /*!
+     * @param phaseNode  XML file containing the description of the phase
+     *
+     * @param idTarget   Optional parameter identifying the name of the
+     *                   phase. If none is given, the first XML  phase element is used.
+     */
+    void constructPhaseXML(XML_Node& phaseNode, std::string idTarget);
+
+    //! Initialization of a %LatticePhase phase using an xml file
+    /*!
+     *
+     * This routine is a precursor to constructPhaseXML(XML_Node*)
+     * routine, which does most of the work.
+     *
+     * @param inputFile XML file containing the description of the phase
+     *
+     * @param id        Optional parameter identifying the name of the
+     *                  phase. If none is given, the first XML
+     *                  phase element will be used.
+     */
+    void constructPhaseFile(std::string inputFile, std::string id);
 
     //! Equation of state flag. Returns the value cLattice
-    virtual int eosType() const { return cLattice; }
+    virtual int eosType() const {
+      return cLattice;
+    }
 
     /**
      * @name Molar Thermodynamic Properties of the Solution ------------------------
@@ -416,7 +453,7 @@ namespace Cantera {
      * independent value of the pressure.
      */
     virtual doublereal pressure() const {
-      return m_press;
+      return m_Pcurrent;
     }
 
     //! Set the internally storred pressure (Pa) at constant
@@ -428,7 +465,67 @@ namespace Cantera {
      * @param p   Input Pressure (Pa)
      */
     virtual void setPressure(doublereal p);
-   
+     
+    //! Calculate the density of the mixture using the partial 
+    //! molar volumes and mole fractions as input
+    /*!
+     * The formula for this is
+     *
+     * \f[ 
+     *      \rho = \frac{\sum_k{X_k W_k}}{\sum_k{X_k V_k}} 
+     * \f]
+     *
+     * where \f$X_k\f$ are the mole fractions, \f$W_k\f$ are
+     * the molecular weights, and \f$V_k\f$ are the pure species
+     * molar volumes.
+     *
+     * Note, the basis behind this formula is that in an ideal
+     * solution the partial molar volumes are equal to the pure
+     * species molar volumes. We have additionally specified
+     * in this class that the pure species molar volumes are
+     * independent of temperature and pressure.
+     *
+     * NOTE: This is a non-virtual function, which is not a 
+     *       member of the ThermoPhase base class. 
+     */
+    doublereal calcDensity();
+
+    //! Set the mole fractions
+    /*!
+     * @param x  Input vector of mole fractions.
+     *           Length: m_kk.
+     */
+    virtual void setMoleFractions(const doublereal * const x);
+
+    //! Set the mole fractions, but don't normalize them to one.
+    /*!
+     * @param x  Input vector of mole fractions.
+     *           Length: m_kk.
+     */
+    virtual void setMoleFractions_NoNorm(const doublereal * const x); 
+
+    //! Set the mass fractions, and normalize them to one.
+    /*!
+     * @param y  Input vector of mass fractions.
+     *           Length: m_kk.
+     */
+    virtual void setMassFractions(const doublereal * const y);
+
+    //! Set the mass fractions, but don't normalize them to one
+    /*!
+     * @param y  Input vector of mass fractions.
+     *           Length: m_kk.
+     */
+    virtual void setMassFractions_NoNorm(const doublereal * const y);
+
+    //! Set the concentration, 
+    /*!
+     * @param c  Input vector of concentrations.
+     *           Length: m_kk.
+     */
+    virtual void setConcentrations(const doublereal * const c);
+    
+
     //@}
     /// @name Activities, Standard States,  and Activity Concentrations
     /**
@@ -510,6 +607,71 @@ namespace Cantera {
      */
     virtual void getChemPotentials(doublereal* mu) const;
 
+
+    //@}
+    /// @name  Partial Molar Properties of the Solution -----------------------------
+    //@{
+
+
+    /**
+     * Returns an array of partial molar enthalpies for the species
+     * in the mixture.
+     * Units (J/kmol)
+     * For this phase, the partial molar enthalpies are equal to the
+     * pure species enthalpies
+     *  \f[
+     * \bar h_k(T,P) = \hat h^{ref}_k(T) + (P - P_{ref}) \hat V^0_k
+     * \f]
+     * The reference-state pure-species enthalpies, \f$ \hat h^{ref}_k(T) \f$,
+     * at the reference pressure,\f$ P_{ref} \f$,
+     * are computed by the species thermodynamic 
+     * property manager. They are polynomial functions of temperature.
+     * @see SpeciesThermo
+     *
+     * @param hbar Output vector containing partial molar enthalpies.
+     *             Length: m_kk.
+     */
+    virtual void getPartialMolarEnthalpies(doublereal* hbar) const;
+
+    /**
+     * Returns an array of partial molar entropies of the species in the
+     * solution. Units: J/kmol/K.
+     * For this phase, the partial molar entropies are equal to the
+     * pure species entropies plus the ideal solution contribution.
+     *  \f[
+     * \bar s_k(T,P) =  \hat s^0_k(T) - R log(X_k)
+     * \f]
+     * The reference-state pure-species entropies,\f$ \hat s^{ref}_k(T) \f$,
+     * at the reference pressure, \f$ P_{ref} \f$,  are computed by the 
+     * species thermodynamic 
+     * property manager. They are polynomial functions of temperature.
+     * @see SpeciesThermo
+     *
+     * @param sbar Output vector containing partial molar entropies.
+     *             Length: m_kk.
+     */
+    virtual void getPartialMolarEntropies(doublereal* sbar) const;
+
+    /**
+     * Returns an array of partial molar Heat Capacities at constant
+     * pressure of the species in the
+     * solution. Units: J/kmol/K.
+     * For this phase, the partial molar heat capacities are equal
+     * to the standard state heat capacities.
+     *
+     * @param cpbar  Output vector of partial heat capacities. Length: m_kk.
+     */
+    virtual void getPartialMolarCp(doublereal* cpbar) const;
+
+    //! Return an array of partial molar volumes for the
+    //! species in the mixture. Units: m^3/kmol.
+    /*!
+     *  @param vbar   Output vector of speciar partial molar volumes.
+     *                Length = m_kk. units are m^3/kmol.
+     */
+    virtual void getPartialMolarVolumes(doublereal* vbar) const;
+
+
     //! Get the array of chemical potentials at unit activity for the
     //! species standard states at the current <I>T</I> and <I>P</I> of the solution.
     /*!
@@ -531,14 +693,7 @@ namespace Cantera {
      */
     virtual void getPureGibbs(doublereal* gpure) const;
 
-    //! Return an array of partial molar volumes for the
-    //! species in the mixture. Units: m^3/kmol.
-    /*!
-     *  @param vbar   Output vector of speciar partial molar volumes.
-     *                Length = m_kk. units are m^3/kmol.
-     */
-    virtual void getPartialMolarVolumes(doublereal* vbar) const;
-
+  
     //@}
     /// @name  Properties of the Standard State of the Species in the Solution
     //@{
@@ -656,40 +811,47 @@ namespace Cantera {
      *               Enthalpies of the species.
      *               Length: m_kk
      */
-    const array_fp& enthalpy_RT_ref() const {
-      _updateThermo();
-      return m_h0_RT;
-    }
+    const array_fp& enthalpy_RT_ref() const;
   
     //! Returns a reference to the dimensionless reference state Gibbs free energy vector.
     /*!
      * This function is part of the layer that checks/recalculates the reference
      * state thermo functions.
      */
-    const array_fp& gibbs_RT_ref() const {
-      _updateThermo();
-      return m_g0_RT;
-    }
+    const array_fp& gibbs_RT_ref() const;
+
+    //!  Returns the vector of nondimensional
+    //!  Gibbs Free Energies of the reference state at the current temperature
+    //!  of the solution and the reference pressure for the species.
+    /*!
+     * @param grt     Output vector containing the nondimensional reference state 
+     *                Gibbs Free energies.  Length: m_kk.
+     */
+    virtual void getGibbs_RT_ref(doublereal *grt) const;
+
+    //!  Returns the vector of the gibbs function of the reference state at the current temperature
+    //!  of the solution and the reference pressure for the species.
+    /*!
+     *  units = J/kmol
+     *
+     * @param g       Output vector containing the  reference state 
+     *                Gibbs Free energies.  Length: m_kk. Units: J/kmol.
+     */
+    virtual void getGibbs_ref(doublereal *g) const;
 
     //! Returns a reference to the dimensionless reference state Entropy vector.
     /*!
      * This function is part of the layer that checks/recalculates the reference
      * state thermo functions.
      */
-    const array_fp& entropy_R_ref() const {
-      _updateThermo();
-      return m_s0_R;
-    }
+    const array_fp& entropy_R_ref() const;
 
     //! Returns a reference to the dimensionless reference state Heat Capacity vector.
     /*!
      * This function is part of the layer that checks/recalculates the reference
      * state thermo functions.
      */
-    const array_fp& cp_R_ref() const {
-      _updateThermo();
-      return m_cp0_R;
-    }
+    const array_fp& cp_R_ref() const;
 
     //@}
     /// @name  Utilities for Initialization of the Object
@@ -710,6 +872,33 @@ namespace Cantera {
      * @see importCTML.cpp
      */
     virtual void initThermo();
+
+    
+    //! Import and initialize a ThermoPhase object using an XML tree.
+    /*!
+     *   Here we read extra information about the XML description
+     *   of a phase. Regular information about elements and species
+     *   and their reference state thermodynamic information
+     *   have already been read at this point.
+     *   For example, we do not need to call this function for
+     *   ideal gas equations of state.
+     *   This function is called from importPhase()
+     *   after the elements and the
+     *   species are initialized with default ideal solution
+     *   level data.
+     *
+     * @param phaseNode This object must be the phase node of a
+     *             complete XML tree
+     *             description of the phase, including all of the
+     *             species data. In other words while "phase" must
+     *             point to an XML phase object, it must have
+     *             sibling nodes "speciesData" that describe
+     *             the species in the phase.
+     * @param id   ID of the phase. If nonnull, a check is done
+     *             to see if phaseNode is pointing to the phase
+     *             with the correct id.
+     */
+    virtual void initThermoXML(XML_Node& phaseNode, std::string id);
 
     //! Set the equation of state parameters from the argument list
     /*!
@@ -767,6 +956,7 @@ namespace Cantera {
 
   protected:
 
+
     //! Number of elements
     int m_mm;
 
@@ -785,38 +975,56 @@ namespace Cantera {
     doublereal m_tmax;
 
     //! Reference state pressure
-    doublereal m_p0;
+    doublereal m_Pref;
+
+
+    //! The current pressure
+    /*!
+     * Since the density isn't a function of pressure, but only of the
+     * mole fractions, we need to independently specify the pressure.
+     * The density variable which is inherited as part of the State class,
+     * m_dens, is always kept current whenever T, P, or X[] change. 
+     */
+    doublereal m_Pcurrent;
 
     //! Current value of the temperature (Kelvin)
-    mutable doublereal     m_tlast;
+    mutable doublereal m_tlast;
 
     //! Reference state enthalpies / RT
-    mutable array_fp      m_h0_RT;
+    mutable array_fp m_h0_RT;
 
     //! Temporary storage for the reference state heat capacities
-    mutable array_fp      m_cp0_R;
+    mutable array_fp m_cp0_R;
 
     //! Temporary storage for the reference state gibbs energies
-    mutable array_fp      m_g0_RT;
+    mutable array_fp m_g0_RT;
 
-    //! Temporary storage for the reference state entropies
-    mutable array_fp      m_s0_R;
+    //! Temporary storage for the reference state entropies at the current temperature
+    mutable array_fp m_s0_R;
 
-    //! Current value of the pressure (Pa)
-    doublereal            m_press;
 
     //! String name for the species which represents a vacency
     //! in the lattice
     /*!
      *  This string is currently unused
      */
-    std::string                m_vacancy;
+    std::string m_vacancy;
 
-    //! Molar density of the lattice solid
+    //! Vector of molar volumes for each species in the solution
+    /**
+     * Species molar volumes \f$ m^3 kmol^-1 \f$
+     */
+    array_fp   m_speciesMolarVolume;
+
+    //! Site Density of the lattice solid
     /*!
+     *  Currently, this is imposed as a function of T, P or composition
+     *
      *  units are kmol m-3
      */
-    doublereal            m_molar_density;
+    doublereal m_site_density;
+
+    // doublereal m_molar_lattice_volume;
 
   private:
 

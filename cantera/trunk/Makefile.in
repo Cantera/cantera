@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: Makefile.in,v 1.96 2009/03/25 01:11:48 hkmoffa Exp $
+# $Id$
 #
 export_dir = $(HOME)/sfdist
 version = @ctversion@
@@ -81,6 +81,7 @@ kernel-install:
 	( for ilib in @buildlib@/*.a ; do  \
 	  @INSTALL@ -c -m 644 $${ilib} @ct_libdir@ ; \
           done )
+	@INSTALL@ -d @ct_libdir@/apps
 ifeq ($(do_ranlib),1)
 	@RANLIB@ @ct_libdir@/*.a
 endif
@@ -116,7 +117,7 @@ hdr-install:
 	@INSTALL@ -d @ct_incdir@
 	cp -r -f build/include/cantera @ct_incroot@
 	@(if test -f @ct_incroot@/cantera/Cantera_bt.mak ; then rm -f @ct_incroot@/cantera/Cantera_bt.mak ; fi )
-
+	@INSTALL@ -d @ct_incroot@/apps
 
 f90-modules-install:
 ifeq ($(build_f90),1)
@@ -192,8 +193,14 @@ endif
 finish-install:
 	@INSTALL@ -d @ct_docdir@
 	@INSTALL@ -d @ct_bindir@
+	@INSTALL@ -d @ct_dir@/apps
+	@INSTALL@ -d @ct_dir@/apps/include
+	@INSTALL@ -d @ct_dir@/apps/bin
+	@INSTALL@ -d @ct_dir@/apps/lib
+	-( cd @ct_dir@/apps ; -$(RMDIRTREE) lib/* include/* bin/* )
 	-( cd bin ;   @INSTALL@ -c exp3to2.sh "@ct_bindir@" )
 	-( cd bin ;   @INSTALL@ -c csvdiff    "@ct_bindir@" )
+	-( cd bin ;   @INSTALL@ -c install_tsc "@ct_bindir@" )
 ifeq ($(os_is_win),0)
 #          Commands to be executed for non-win systems
 	cp -f License.rtf "@ct_bindir@"
@@ -242,6 +249,7 @@ uninstall:
 	-$(RMDIRTREE) @ct_demodir@
 	-$(RMDIRTREE) @ct_docdir@
 	-$(RMDIRTREE) @ct_tutdir@
+	-$(RMDIRTREE) @ct_dir@/apps
 	-$(RMDIRTREE) @prefix@/matlab/toolbox/cantera
 	cd tools; @MAKE@ uninstall
 
@@ -249,20 +257,18 @@ clean:
 	-$(RMDIRTREE) *.*~ @buildlib@/*.* build/include/cantera/config.h svn*~
 	-cd Cantera; @MAKE@ clean
 	-cd tools; @MAKE@ clean
+	-cd docs; @MAKE@ clean
 	-cd ext; @MAKE@ clean
 	-cd test_problems; @MAKE@ clean
 	-$(RM) mt.mod
 
 docs:
-	cd tools/doxygen/Cantera; doxygen Cantera.cfg
+	cd docs; doxygen Cantera.cfg
 
 depends:
 	cd Cantera; @MAKE@ depends
 	cd tools; @MAKE@ depends
 	cd ext; @MAKE@ depends
-ifeq ($(build_particles),1)
-		cd Cantera/cads; @MAKE@ depends
-endif
 
 ChangeLog: CVS/Entries 
 	tools/bin/cvs2cl.pl --prune

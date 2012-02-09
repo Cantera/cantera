@@ -24,10 +24,8 @@
 using namespace std;
 
 namespace Cantera {
-  /**
-   * Basic list of constructors and duplicators
-   */
-
+ 
+  //====================================================================================================================
   PDSS_IonsFromNeutral::PDSS_IonsFromNeutral(VPStandardStateTP *tp, int spindex) :
     PDSS(tp, spindex),
     neutralMoleculePhase_(0),
@@ -128,15 +126,27 @@ namespace Cantera {
     neutralMoleculePhase_ = ionPhase->neutralMoleculePhase_;
   } 
   //====================================================================================================================
-  /**
-   * constructPDSSXML:
+  // Initialization of a PDSS object using an xml tree
+  /* 
+   * This routine is a driver for the initialization of the
+   * object.
+   * 
+   *   basic logic:
+   *       initThermo()                 (cascade)
+   *       getStuff from species Part of XML file
+   *       initThermoXML(phaseNode)      (cascade)
+   * 
+   * @param vptp_ptr   Pointer to the Variable pressure %ThermoPhase object
+   *                   This object must have already been malloced.
    *
-   * Initialization of a PDSS_IonsFromNeutral object using an
-   * xml file.
- 
-   * @param id  Optional parameter identifying the name of the
-   *            phase. If none is given, the first XML
-   *            phase element will be used.
+   * @param spindex    Species index within the phase
+   *
+   * @param phaseNode  Reference to the phase Information for the phase
+   *                   that owns this species.
+   *
+   * @param id         Optional parameter identifying the name of the
+   *                   phase. If none is given, the first XML
+   *                   phase element will be used.
    */
   void PDSS_IonsFromNeutral::constructPDSSXML(VPStandardStateTP *tp, int spindex, 
 					      const XML_Node& speciesNode,
@@ -195,7 +205,25 @@ namespace Cantera {
   
   }
   //====================================================================================================================
- 
+  // Initialization of a PDSS object using an
+  // input XML file.
+  /*
+   *
+   * This routine is a precursor to constructPDSSXML(XML_Node*)
+   * routine, which does most of the work.
+   *
+   * @param vptp_ptr    Pointer to the Variable pressure %ThermoPhase object
+   *                    This object must have already been malloced.
+   *
+   * @param spindex     Species index within the phase
+   *
+   * @param inputFile   XML file containing the description of the
+   *                    phase
+   *
+   * @param id          Optional parameter identifying the name of the
+   *                    phase. If none is given, the first XML
+   *                    phase element will be used.
+   */
   void PDSS_IonsFromNeutral::constructPDSSFile(VPStandardStateTP *tp, int spindex,
 					       std::string inputFile, std::string id) {
 
@@ -233,11 +261,11 @@ namespace Cantera {
     constructPDSSXML(tp, spindex, *s, *fxml_phase, id);
     delete fxml;
   }
-
+  //=======================================================================================================
   void PDSS_IonsFromNeutral::initThermoXML(const XML_Node& phaseNode, std::string &id) {
     PDSS::initThermoXML(phaseNode, id);
   }
-
+  //=======================================================================================================
   void PDSS_IonsFromNeutral::initThermo() {
     PDSS::initThermo();
     SpeciesThermo &sp = m_tp->speciesThermo();
@@ -245,8 +273,8 @@ namespace Cantera {
     m_minTemp = m_spthermo->minTemp(m_spindex);
     m_maxTemp = m_spthermo->maxTemp(m_spindex); 
   }
-
-  /**
+  //=======================================================================================================
+  /*
    * Return the molar enthalpy in units of J kmol-1
    */
   doublereal 
@@ -255,7 +283,7 @@ namespace Cantera {
     doublereal RT = GasConstant * m_temp;
     return (val * RT);
   }
-
+  //=======================================================================================================
   doublereal 
   PDSS_IonsFromNeutral::enthalpy_RT() const {
     neutralMoleculePhase_->getEnthalpy_RT(DATA_PTR(tmpNM));
@@ -266,9 +294,8 @@ namespace Cantera {
     }
     return val;
   }
-
-
-  /**
+  //=======================================================================================================
+  /*
    * Calculate the internal energy in mks units of
    * J kmol-1 
    */
@@ -278,8 +305,8 @@ namespace Cantera {
     doublereal RT = GasConstant * m_temp;
     return (val * RT);
   }
-
-  /**
+  //=======================================================================================================
+  /*
    * Calculate the entropy in mks units of 
    * J kmol-1 K-1
    */
@@ -288,7 +315,7 @@ namespace Cantera {
     doublereal val = entropy_R();
     return (val * GasConstant);
   }
-
+  //=======================================================================================================
   doublereal
   PDSS_IonsFromNeutral::entropy_R() const {
     neutralMoleculePhase_->getEntropy_R(DATA_PTR(tmpNM));
@@ -302,8 +329,8 @@ namespace Cantera {
     }
     return val;
   }
-
-  /**
+  //=======================================================================================================
+  /*
    * Calculate the Gibbs free energy in mks units of
    * J kmol-1 K-1.
    */
@@ -313,7 +340,7 @@ namespace Cantera {
     doublereal RT = GasConstant * m_temp;
     return (val * RT);
   }
-
+  //=======================================================================================================
   doublereal
   PDSS_IonsFromNeutral::gibbs_RT() const {
     neutralMoleculePhase_->getGibbs_RT(DATA_PTR(tmpNM));
@@ -327,8 +354,8 @@ namespace Cantera {
     }
     return val;
   }
-
-  /**
+  //=======================================================================================================
+  /*
    * Calculate the constant pressure heat capacity
    * in mks units of J kmol-1 K-1
    */
@@ -337,7 +364,7 @@ namespace Cantera {
     doublereal val = cp_R();
     return (val * GasConstant);
   }
-
+  //=======================================================================================================
   doublereal 
   PDSS_IonsFromNeutral::cp_R() const {
     neutralMoleculePhase_->getCp_R(DATA_PTR(tmpNM));
@@ -348,7 +375,7 @@ namespace Cantera {
     }
     return val;
   }
-
+  //=======================================================================================================
   doublereal 
   PDSS_IonsFromNeutral::molarVolume() const {
     neutralMoleculePhase_->getStandardVolumes(DATA_PTR(tmpNM));
@@ -359,8 +386,7 @@ namespace Cantera {
     }
     return val;
   }
-
-
+  //=======================================================================================================
   doublereal 
   PDSS_IonsFromNeutral::density() const {
     return (m_pres * m_mw / (GasConstant * m_temp));
@@ -375,7 +401,7 @@ namespace Cantera {
     throw CanteraError("PDSS_IonsFromNeutral::cv_mole()", "unimplemented");
     return 0.0;
   }
-
+  //====================================================================================================================
 
   doublereal
   PDSS_IonsFromNeutral::gibbs_RT_ref() const {
@@ -390,7 +416,7 @@ namespace Cantera {
     }
     return val;
   }
-
+  //====================================================================================================================
   doublereal PDSS_IonsFromNeutral::enthalpy_RT_ref() const {
     neutralMoleculePhase_->getEnthalpy_RT_ref(DATA_PTR(tmpNM));
     doublereal val = 0.0;
@@ -400,7 +426,7 @@ namespace Cantera {
     }
     return val;
   }
-
+  //====================================================================================================================
   doublereal PDSS_IonsFromNeutral::entropy_R_ref() const {
     neutralMoleculePhase_->getEntropy_R_ref(DATA_PTR(tmpNM));
     doublereal val = 0.0;
@@ -413,7 +439,7 @@ namespace Cantera {
     }
     return val;
   }
-
+  //====================================================================================================================
   doublereal PDSS_IonsFromNeutral::cp_R_ref() const {
     neutralMoleculePhase_->getCp_R_ref(DATA_PTR(tmpNM));
     doublereal val = 0.0;
@@ -423,7 +449,7 @@ namespace Cantera {
     }
     return val;
   }
-
+  //====================================================================================================================
   doublereal PDSS_IonsFromNeutral::molarVolume_ref() const {
     neutralMoleculePhase_->getStandardVolumes_ref(DATA_PTR(tmpNM));
     doublereal val = 0.0;
@@ -433,7 +459,7 @@ namespace Cantera {
     }
     return val;
   }
-
+  //====================================================================================================================
   /*
    * Calculate the pressure (Pascals), given the temperature and density
    *  Temperature: kelvin
@@ -442,31 +468,31 @@ namespace Cantera {
   doublereal  PDSS_IonsFromNeutral::pressure() const {
     return m_pres;
   }
-  
+  //====================================================================================================================
   void PDSS_IonsFromNeutral::setPressure(doublereal p) {
     m_pres = p;
     neutralMoleculePhase_->setPressure(p);
   }
  
-
-  /// critical temperature 
+  //====================================================================================================================
+  // critical temperature 
   doublereal PDSS_IonsFromNeutral::critTemperature() const { 
     throw CanteraError("PDSS_IonsFromNeutral::critTemperature()", "unimplemented");
     return (0.0);
   }
-        
-  /// critical pressure
+  //====================================================================================================================    
+  // critical pressure
   doublereal PDSS_IonsFromNeutral::critPressure() const {
     throw CanteraError("PDSS_IonsFromNeutral::critPressure()", "unimplemented");
     return (0.0);
   }
-        
-  /// critical density
+  //==================================================================================================================== 
+  // critical density
   doublereal PDSS_IonsFromNeutral::critDensity() const {
     throw CanteraError("PDSS_IonsFromNeutral::critDensity()", "unimplemented");
     return (0.0);
   }
-        
+  //====================================================================================================================
 
   /*
    * Return the temperature 
@@ -478,29 +504,30 @@ namespace Cantera {
     m_temp = m_vpssmgr_ptr->temperature();
     return m_temp;
   }
- 
+  //====================================================================================================================
   void PDSS_IonsFromNeutral::setTemperature(doublereal temp) {
     m_temp = temp;
     neutralMoleculePhase_->setTemperature(temp);
   }
-
+  //====================================================================================================================
 
   void PDSS_IonsFromNeutral::setState_TP(doublereal temp, doublereal pres) {
     m_pres = pres;
     m_temp = temp;
     neutralMoleculePhase_->setState_TP(temp, pres);
   }
-
+  //====================================================================================================================
   void  PDSS_IonsFromNeutral::setState_TR(doublereal temp, doublereal rho) {
     neutralMoleculePhase_->setState_TR(temp, rho);
   }
-
-  /// saturation pressure
+  //====================================================================================================================
+  // saturation pressure
   doublereal PDSS_IonsFromNeutral::satPressure(doublereal t){
     throw CanteraError("PDSS_IonsFromNeutral::satPressure()", "unimplemented");
     /*NOTREACHED*/
     return (0.0);
   }
-   
+  //====================================================================================================================
 
 }
+//====================================================================================================================

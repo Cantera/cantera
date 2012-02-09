@@ -1,7 +1,7 @@
 #
-# $Revision: 1.36 $
-# $Author: hkmoffa $
-# $Date: 2009/03/25 01:03:05 $
+# $Revision$
+# $Author$
+# $Date$
 #
 #
 test_python=@BUILD_PYTHON@

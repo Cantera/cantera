@@ -40,7 +40,7 @@ THERMO_OBJ = State.o Elements.o Constituents.o Phase.o \
              ThermoFactory.o phasereport.o SpeciesThermoInterpType.o \
              VPSSMgr.o  VPSSMgrFactory.o  VPSSMgr_General.o IdealSolnGasVPSS.o \
              VPSSMgr_IdealGas.o VPSSMgr_ConstVol.o PDSS_ConstVol.o PDSS_IdealGas.o \
-             PDSS_SSVol.o @phase_object_files@
+             PDSS_SSVol.o MixtureFugacityTP.o RedlichKwongMFTP.o @phase_object_files@
 
 THERMO_H   = State.h Elements.h Constituents.h Phase.h mix_defs.h \
              ThermoPhase.h IdealGasPhase.h ConstDensityThermo.h \
@@ -54,7 +54,7 @@ THERMO_H   = State.h Elements.h Constituents.h Phase.h mix_defs.h \
              EdgePhase.h  \
              VPSSMgr.h  VPSSMgrFactory.h  VPSSMgr_General.h IdealSolnGasVPSS.h \
              VPSSMgr_IdealGas.h VPSSMgr_ConstVol.h PDSS_ConstVol.h PDSS_IdealGas.h \
-             PDSS_SSVol.h @phase_header_files@
+             PDSS_SSVol.h  MixtureFugacityTP.h RedlichKwongMFTP.h @phase_header_files@
 
 
 # Extended Cantera Thermodynamics Object Files
@@ -67,7 +67,7 @@ ELECTRO_OBJ = MolalityVPSSTP.o  VPStandardStateTP.o \
               PDSS.o PDSS_Water.o PDSS_HKFT.o  \
 	      HMWSoln.o HMWSoln_input.o DebyeHuckel.o \
               WaterSSTP.o MetalSHEelectrons.o \
-              VPSSMgr_Water_ConstVol.o VPSSMgr_Water_HKFT.o
+              VPSSMgr_Water_ConstVol.o VPSSMgr_Water_HKFT.o PhaseCombo_Interaction.o
 
 ELECTRO_H   = MolalityVPSSTP.h  VPStandardStateTP.h \
               IdealMolalSoln.h \
@@ -75,15 +75,17 @@ ELECTRO_H   = MolalityVPSSTP.h  VPStandardStateTP.h \
               PDSS.h PDSS_Water.h PDSS_HKFT.h \
               HMWSoln.h electrolytes.h   \
 	      DebyeHuckel.h WaterSSTP.h MetalSHEelectrons.h VPSSMgr_Water_HKFT.h \
-              VPSSMgr_Water_ConstVol.h
+              VPSSMgr_Water_ConstVol.h PhaseCombo_Interaction.h
 endif
 ifeq ($(do_issp),1)
 ISSP_OBJ = IdealSolidSolnPhase.o  StoichSubstanceSSTP.o SingleSpeciesTP.o MineralEQ3.o \
-           GibbsExcessVPSSTP.o PseudoBinaryVPSSTP.o MargulesVPSSTP.o \
-           IonsFromNeutralVPSSTP.o PDSS_IonsFromNeutral.o 
+           GibbsExcessVPSSTP.o MolarityIonicVPSSTP.o MargulesVPSSTP.o \
+           IonsFromNeutralVPSSTP.o PDSS_IonsFromNeutral.o FixedChemPotSSTP.o \
+           MixedSolventElectrolyte.o RedlichKisterVPSSTP.o
 ISSP_H   = IdealSolidSolnPhase.h  StoichSubstanceSSTP.h SingleSpeciesTP.h MineralEQ3.h \
-           GibbsExcessVPSSTP.h PseudoBinaryVPSSTP.h MargulesVPSSTP.h \
-           IonsFromNeutralVPSSTP.h  PDSS_IonsFromNeutral.h
+           GibbsExcessVPSSTP.h MolarityIonicVPSSTP.h MargulesVPSSTP.h \
+           IonsFromNeutralVPSSTP.h  PDSS_IonsFromNeutral.h FixedChemPotSSTP.h \
+           MixedSolventElectrolyte.h  RedlichKisterVPSSTP.h
 endif
 
 CATHERMO_OBJ = $(THERMO_OBJ) $(ELECTRO_OBJ) $(ISSP_OBJ) 
@@ -91,7 +93,7 @@ CATHERMO_OBJ = $(THERMO_OBJ) $(ELECTRO_OBJ) $(ISSP_OBJ)
 CATHERMO_H   = $(THERMO_H) $(ELECTRO_H) $(ISSP_H) 
 
 
-CXX_INCLUDES = -I../base @CXX_INCLUDES@
+CXX_INCLUDES = -I../base -I../numerics @CXX_INCLUDES@
 LIB = @buildlib@/libthermo.a
 
 DEPENDS = $(CATHERMO_OBJ:.o=.d)

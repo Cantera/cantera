@@ -15,13 +15,17 @@
 # 
 #
 #####################################################################
-# $Id: Cantera_bt.mak.in,v 1.2 2008/01/21 21:17:52 hkmoffa Exp $
+# $Id$
 #
 #
 # This variable determines whether we are making this example in the
 # build tree environment or in the install tree environment.
 #
 in_CanteraBuildTree = 0
+#
+CANTERA_VERSION=@ctversion@
+#
+CANTERA_VERSION=@ctversion@
 
 CANTERA_VERSION=@ctversion@
 
@@ -112,18 +116,17 @@ CANTERA_F2C_LIBS= -L$(CANTERA_LIBSDIR) -lctf2c
 else
 CANTERA_F2C_LIBS= @F2C_SYSTEMLIB@
 endif
-
-
+#
 #####################################################################
 #      COMBINATIONS OF INCLUDES AND LIBS
 ####################################################################
-
+#
 CANTERA_TOTAL_INCLUDES= $(CANTERA_CORE_INCLUDES) $(CANTERA_BOOST_INCLUDES) $(CANTERA_CVODE_INCLUDE)
 #
 # You can add this into the compilation environment to identify the version number
 #
 CANTERA_DEFINES = -DCANTERA_VERSION=@ctversion@
-
+#
 CANTERA_TOTAL_LIBS2 = @LOCAL_LIB_DIRS@ @LOCAL_LIBS@
 
 CANTERA_TOTAL_LIBS= $(CANTERA_CORE_LIBS) $(CANTERA_BOOST_LIBS) \

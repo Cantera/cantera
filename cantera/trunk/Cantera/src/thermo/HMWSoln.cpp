@@ -738,10 +738,13 @@ namespace Cantera {
 
   // Molar heat capacity at constant volume. Units: J/kmol/K. 
   doublereal HMWSoln::cv_mole() const {
-    //getPartialMolarCv(m_tmpV.begin());
-    //return mean_X(m_tmpV.begin());
-    err("not implemented");
-    return 0.0;
+    double kappa_t = isothermalCompressibility();
+    double beta = thermalExpansionCoeff();
+    double cp = cp_mole();
+    double tt = temperature();
+    double molarV = molarVolume();
+    double cv = cp - beta * beta * tt * molarV / kappa_t;
+    return cv;
   }
 
   //

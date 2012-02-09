@@ -14,4 +14,33 @@
 #include "kernel/SurfPhase.h"
 #include "kernel/EdgePhase.h"
 
+
+#ifdef WITH_IDEAL_SOLUTIONS
+
+#include "kernel/GibbsExcessVPSSTP.h"  
+#include "kernel/MargulesVPSSTP.h"
+
+#endif
+
+#ifdef WITH_ELECTROLYTES
+
+#include "electrolyteThermo.h"
+
+#endif
+
+
+#ifdef WITH_LATTICE_SOLID
+
+#include "kernel/LatticePhase.h"
+#include "kernel/LatticeSolidPhase.h"
+
+#endif
+
+#ifdef WITH_PURE_FLUIDS
+
+
+#endif
+
+
+
 #endif

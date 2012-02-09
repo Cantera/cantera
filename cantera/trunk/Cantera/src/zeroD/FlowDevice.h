@@ -23,7 +23,6 @@
 namespace Cantera {
     class Func1;
 }
-using namespace Cantera;
 
 namespace CanteraZeroD {
 
@@ -166,7 +165,7 @@ namespace CanteraZeroD {
 
         doublereal m_mdot;
         Cantera::Func1* m_func;
-        vector_fp m_coeffs;
+        Cantera::vector_fp m_coeffs;
         int m_type;
 
     private:
@@ -174,10 +173,10 @@ namespace CanteraZeroD {
         int m_nspin, m_nspout;
         ReactorBase* m_in;
         ReactorBase* m_out;
-        vector_int m_in2out, m_out2in;
+        Cantera::vector_int m_in2out, m_out2in;
 
         void warn(std::string meth) {
-            writelog(std::string("Warning: method ") + meth + " of base class "
+            Cantera::writelog(std::string("Warning: method ") + meth + " of base class "
                 + " FlowDevice called. Nothing done.\n");
         }
     };

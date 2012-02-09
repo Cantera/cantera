@@ -5,7 +5,6 @@
 #include <string>
 #include "cantera/kernel/logger.h"
 
-using namespace std;
 
 static std::string ss = "print \"\"\" ";
 
@@ -18,7 +17,7 @@ namespace Cantera {
         Py_Logger() {}
         virtual ~Py_Logger() {}
 
-        virtual void write(const string& s) {
+        virtual void write(const std::string& s) {
             char ch = s[0];
             int n = 0;
             while (ch != '\0') {
@@ -35,7 +34,7 @@ namespace Cantera {
         }
 
         virtual void error(const std::string& msg) {
-            string err = "raise \""+msg+"\"";
+            std::string err = "raise \""+msg+"\"";
             PyRun_SimpleString((char *)err.c_str());
         }
 

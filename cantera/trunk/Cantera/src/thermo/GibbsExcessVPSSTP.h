@@ -74,7 +74,27 @@ namespace Cantera {
    * fraction vector. That's one of its primary usages. In order to keep the mole fraction
    * vector constant, all of the setState functions are redesigned at this layer.
    *
-   *  <H3> SetState Strategy  </H3>
+   *
+   *  <H3>
+   *        Activity Concentrations: Relationship of %ThermoPhase to %Kinetics Expressions
+   * </H3>
+   *
+   *   As explained in a similar discussion in the ThermoPhase class, the actual units used
+   *   in kinetics expressions must be specified in the ThermoPhase class for the corresponding
+   *   species. These units vary with the field of study. %Cantera uses the concept of
+   *   activity concentrations to represent this. Activity concentrations are used directly
+   *   in the expressions for kinetics. Standard concentrations are used as the multiplicative
+   *   constant that takes the activity of a species and turns it into an activity concentration.
+   *   Standard concentrations must not depend on the concentration of the species in the phase.
+   *
+   *   Here we set a standard for the specification of the standard concentrations for this class
+   *   and all child classes underneath it. We specify here that the standard concentration is
+   *   equal to 1 for all species. Therefore, the activities appear directly in kinetics expressions
+   *   involving species in underlying %GibbsExcessVPSSTP phases.
+   *
+   *  <H3>
+   *       SetState Strategy
+   * </H3>
    *
    *  All setState functions that set the internal state of the ThermoPhase object are
    *  overloaded at this level, so that a current mole fraction vector is maintained within
@@ -223,7 +243,24 @@ namespace Cantera {
      * @{
      */
 
-  
+    //! This method returns an array of generalized concentrations
+    /*!
+     * \f$ C^a_k\f$ are defined such that \f$ a_k = C^a_k /
+     * C^0_k, \f$ where \f$ C^0_k \f$ is a standard concentration
+     * defined below and \f$ a_k \f$ are activities used in the
+     * thermodynamic functions.  These activity (or generalized)
+     * concentrations are used by kinetics manager classes to compute the forward and
+     * reverse rates of elementary reactions. Note that they may
+     * or may not have units of concentration --- they might be
+     * partial pressures, mole fractions, or surface coverages,
+     * for example.
+     *
+     * @param c Output array of generalized concentrations. The
+     *           units depend upon the implementation of the
+     *           reaction rate expressions within the phase.
+     */
+    virtual void getActivityConcentrations(doublereal* c) const;
+
  
 
     /**
@@ -236,6 +273,9 @@ namespace Cantera {
      * concentration is species-specific (e.g. surface species of
      * different sizes), this method may be called with an
      * optional parameter indicating the species.
+     *
+     * The standard concentration for defaulted to 1. In other words
+     * the activity concentration is assumed to be 1.
      *
      * @param k species index. Defaults to zero.
      */
@@ -289,6 +329,13 @@ namespace Cantera {
      */
     virtual void getActivities(doublereal* ac) const;
 
+    //! Get the array of non-dimensional molar-based ln activity coefficients at
+    //! the current solution temperature, pressure, and solution concentration.
+    /*!
+     * @param lnac Output vector of ln activity coefficients. Length: m_kk.
+     */
+    virtual void getActivityCoefficients(doublereal * const ac) const;
+
     
     //! Get the array of temperature derivatives of the log activity coefficients
     /*!
@@ -304,43 +351,27 @@ namespace Cantera {
       err("getdlnActCoeffdT");
     }
 
-    //! Get the array of change in the log activity coefficients w.r.t. change in state (change temp, change mole fractions)
+    //! Get the array of derivatives of the log activity coefficients with respect to the log of the species mole numbers
     /*!
-     * This function is a virtual class, but it first appears in GibbsExcessVPSSTP
-     * class and derived classes from GibbsExcessVPSSTP.
+     * Implementations should take the derivative of the logarithm of the activity coefficient with respect to a
+     * species log mole number (with all other species mole numbers held constant). The default treatment in the
+     * %ThermoPhase object is to set this vector to zero.
+     * 
+     *  units = 1 / kmol
      *
-     * This function is a virtual method.  For ideal mixtures 
-     * (unity activity coefficients), this can gradX/X.  
+     *  dlnActCoeffdlnN[ ld * k  + m]  will contain the derivative of log act_coeff for the <I>m</I><SUP>th</SUP> 
+     *                               species with respect to the number of moles of the <I>k</I><SUP>th</SUP> species.
      *
-     * @param dT    Input of temperature change
-     * @param dX    Input vector of changes in mole fraction. length = m_kk
-     * @param dlnActCoeff    Output vector of derivatives of the 
-     *                         log Activity Coefficients. length = m_kk
-     */
-    virtual void getdlnActCoeff(const doublereal dT, const doublereal * const dX, doublereal *dlnActCoeff) const {
-      err("getdlnActCoeff");
-    }
- 
-    //! Get the array of log concentration-like derivatives of the 
-    //! log activity coefficients
-    /*!
-     * This function is a virtual method.  For ideal mixtures 
-     * (unity activity coefficients), this can return zero.  
-     * Implementations should take the derivative of the 
-     * logarithm of the activity coefficient with respect to the 
-     * logarithm of the concentration-like variable (i.e. mole fraction,
-     * molality, etc.) that represents the standard state.  
-     * This quantity is to be used in conjunction with derivatives of 
-     * that concentration-like variable when the derivative of the chemical 
-     * potential is taken.  
+     * \f[
+     *        \frac{d \ln(\gamma_m) }{d \ln( n_k ) }\Bigg|_{n_i}
+     * \f]
      *
-     *  units = dimensionless
-     *
+     * @param ld               Number of rows in the matrix
      * @param dlnActCoeffdlnN    Output vector of derivatives of the 
-     *                         log Activity Coefficients. length = m_kk
+     *                           log Activity Coefficients. length = m_kk * m_kk        
      */
-    virtual void getdlnActCoeffdlnN(doublereal *dlnActCoeffdlnN) const {
-      err("getdlnActCoeffdlnN");
+    virtual void getdlnActCoeffdlnN(const int ld, doublereal * const dlnActCoeffdlnN)  {
+      err(" getdlnActCoeffdlnN: nonzero and nonimplemented");
     }
 
     //! Get the array of log concentration-like derivatives of the 
@@ -365,6 +396,7 @@ namespace Cantera {
       err("getdlnActCoeffdlnX");
     }
  
+
     //@}
     /// @name  Partial Molar Properties of the Solution 
     //@{
@@ -559,6 +591,8 @@ namespace Cantera {
 
   protected:
 
+    // HKM get rid of _Scaled_ prefix
+
     //! Storage for the current values of the mole fractions of the species
     /*!
      * This vector is kept up-to-date when the setState functions are called.
@@ -570,23 +604,35 @@ namespace Cantera {
     mutable std::vector<doublereal> moleFractions_;
 
     //! Storage for the current values of the activity coefficients of the
-    //! species, divided by RT
+    //! species
     mutable std::vector<doublereal> lnActCoeff_Scaled_;
 
     //! Storage for the current derivative values of the 
     //! gradients with respect to temperature of the 
-    //! log of theactivity coefficients of the species
+    //! log of the activity coefficients of the species
     mutable std::vector<doublereal> dlnActCoeffdT_Scaled_;
 
     //! Storage for the current derivative values of the 
-    //! gradients with respect to logarithm of the mole fraction of the 
-    //! log of theactivity coefficients of the species
-    mutable std::vector<doublereal> dlnActCoeffdlnN_Scaled_;
+    //! gradients with respect to temperature of the 
+    //! log of the activity coefficients of the species
+    mutable std::vector<doublereal> d2lnActCoeffdT2_Scaled_;
 
     //! Storage for the current derivative values of the 
     //! gradients with respect to logarithm of the mole fraction of the 
-    //! log of theactivity coefficients of the species
-    mutable std::vector<doublereal> dlnActCoeffdlnX_Scaled_;
+    //! log of the activity coefficients of the species  @deprecated
+    mutable std::vector<doublereal> dlnActCoeffdlnN_diag_;
+
+    //! Storage for the current derivative values of the 
+    //! gradients with respect to logarithm of the mole fraction of the 
+    //! log of theactivity coefficients of the species  @deprecated
+    mutable std::vector<doublereal> dlnActCoeffdlnX_diag_;
+
+    //! Storage for the current derivative values of the  gradients with respect to logarithm of the species mole number of the 
+    //! log of the activity coefficients of the species 
+    /*!
+     *  dlnActCoeffdlnN_(k, m)  is the derivative of ln(gamma_k) wrt ln mole number of species m
+     */
+    mutable Array2D dlnActCoeffdlnN_;
 
     //! Temporary storage space that is fair game
     mutable std::vector<doublereal> m_pp;

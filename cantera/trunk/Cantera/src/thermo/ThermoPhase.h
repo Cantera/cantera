@@ -37,9 +37,11 @@ namespace Cantera {
    */
   //@{
   //! Standard state uses the molar convention
-  const int    cSS_CONVENTION_TEMPERATURE = 0;
+  const int cSS_CONVENTION_TEMPERATURE = 0;
   //! Standard state uses the molality convention
-  const int    cSS_CONVENTION_VPSS = 1;
+  const int cSS_CONVENTION_VPSS = 1;
+  //! Standard state thermodynamics is obtained from slave %ThermoPhase objects
+  const int cSS_CONVENTION_SLAVE = 2;
   //@}
 
 
@@ -756,7 +758,7 @@ namespace Cantera {
      * Returns the reference pressure in Pa. This function is a wrapper
      * that calls the species thermo refPressure function.
      */
-    doublereal refPressure() const {
+    virtual doublereal refPressure() const {
       return m_spthermo->refPressure();
     }
 
@@ -773,7 +775,7 @@ namespace Cantera {
      * @param k index of the species. Default is -1, which will return the max of the min value
      *          over all species.
      */
-    doublereal minTemp(int k = -1) const {
+    virtual doublereal minTemp(int k = -1) const {
       return m_spthermo->minTemp(k);
     }
         
@@ -842,8 +844,19 @@ namespace Cantera {
      * @param k index of the species. Default is -1, which will return the min of the max value
      *          over all species.
      */
-    doublereal maxTemp(int k = -1) const {
+    virtual doublereal maxTemp(int k = -1) const {
       return m_spthermo->maxTemp(k);
+    }
+
+    //! Returns the chargeNeutralityNecessity boolean
+    /*!
+     * Some phases must have zero net charge in order for their thermodynamics functions to be valid.
+     * If this is so, then the value returned from this function is true.
+     * If this is not the case, then this is false. Now, ideal gases have this parameter set to false,
+     * while solution with  molality-based activity coefficients have this parameter set to true. 
+     */
+    bool chargeNeutralityNecessary() const {
+      return m_chargeNeutralityNecessary;
     }
       
     /**
@@ -859,7 +872,7 @@ namespace Cantera {
 
     /// Molar internal energy. Units: J/kmol. 
     virtual doublereal intEnergy_mole() const {
-      return err("intEnergy_mole");
+      return enthalpy_mole() - pressure()* molarVolume();
     }
 
     /// Molar entropy. Units: J/kmol/K. 
@@ -869,7 +882,7 @@ namespace Cantera {
 
     /// Molar Gibbs function. Units: J/kmol. 
     virtual doublereal gibbs_mole() const {
-      return err("gibbs_mole");
+      return enthalpy_mole() - temperature()*entropy_mole();
     }
 
     /// Molar heat capacity at constant pressure. Units: J/kmol/K. 
@@ -880,66 +893,6 @@ namespace Cantera {
     /// Molar heat capacity at constant volume. Units: J/kmol/K. 
     virtual doublereal cv_mole() const {
       return err("cv_mole");
-    }
-
-
-    //! Get the change in activity coefficients w.r.t. change in state 
-    //! (temp, mole fraction, etc.)
-    /*!
-     * This function is a virtual method.  For ideal mixtures 
-     * (unity activity coefficients), this can gradX/X.  
-     *
-     * @param dT    Input of temperature change
-     * @param dX    Input vector of changes in mole fraction. length = m_kk
-     * @param dlnActCoeff    Output vector of derivatives of the 
-     *                         log Activity Coefficients. length = m_kk
-     */
-    virtual void getdlnActCoeff(const doublereal dT, const doublereal * const dX, doublereal *dlnActCoeff) const {
-      err("getdlnActCoeff");
-    }
-
-    //! Get the array of log concentration-like derivatives of the 
-    //! log activity coefficients
-    /*!
-     * This function is a virtual method.  For ideal mixtures 
-     * (unity activity coefficients), this can return zero.  
-     * Implementations should take the derivative of the 
-     * logarithm of the activity coefficient with respect to the 
-     * logarithm of the concentration-like variable (i.e. mole fraction)
-     * that represents the standard state.  
-     * This quantity is to be used in conjunction with derivatives of 
-     * that concentration-like variable when the derivative of the chemical 
-     * potential is taken.  
-     *
-     *  units = dimensionless
-     *
-     * @param dlnActCoeffdlnX    Output vector of derivatives of the 
-     *                         log Activity Coefficients. length = m_kk
-     */
-    virtual void getdlnActCoeffdlnX(doublereal *dlnActCoeffdlnX) const {
-      err("getdlnActCoeffdlnX");
-    }
-
-    //! Get the array of log concentration-like derivatives of the 
-    //! log activity coefficients
-    /*!
-     * This function is a virtual method.  For ideal mixtures 
-     * (unity activity coefficients), this can return zero.  
-     * Implementations should take the derivative of the 
-     * logarithm of the activity coefficient with respect to the 
-     * logarithm of the concentration-like variable (i.e. moles)
-     * that represents the standard state.  
-     * This quantity is to be used in conjunction with derivatives of 
-     * that concentration-like variable when the derivative of the chemical 
-     * potential is taken.  
-     *
-     *  units = dimensionless
-     *
-     * @param dlnActCoeffdlnN    Output vector of derivatives of the 
-     *                         log Activity Coefficients. length = m_kk
-     */
-    virtual void getdlnActCoeffdlnN(doublereal *dlnActCoeffdlnN) const {
-      err("getdlnActCoeffdlnN");
     }
 
 
@@ -1085,6 +1038,10 @@ namespace Cantera {
      *
      *  -  Variable Pressure and Temperature -based activities
      *   cSS_CONVENTION_VPSS 1
+     *
+     *  -  Thermodynamics is set via slave ThermoPhase objects with
+     *     nothing being carried out at this %ThermoPhase object level
+     *   cSS_CONVENTION_SLAVE 2
      */
     virtual int standardStateConvention() const;
         
@@ -1196,7 +1153,12 @@ namespace Cantera {
 	}
     }
 
-    virtual void getLNActivityCoefficients(doublereal * const lnac) const;
+    //! Get the array of non-dimensional molar-based ln activity coefficients at
+    //! the current solution temperature, pressure, and solution concentration.
+    /*!
+     * @param lnac Output vector of ln activity coefficients. Length: m_kk.
+     */
+    virtual void getLnActivityCoefficients(doublereal * const lnac) const;
       
     //@}
     /// @name  Partial Molar Properties of the Solution
@@ -1302,7 +1264,31 @@ namespace Cantera {
     virtual void getPartialMolarVolumes(doublereal* vbar) const {
       err("getPartialMolarVolumes");
     }
-    
+
+    //! Return an array of derivatives of partial molar volumes wrt temperature for the
+    //! species in the mixture. Units: m^3/kmol.
+    /*!
+     *  The derivative is at constant pressure
+     *
+     *  @param d_vbar_dT   Output vector of derivatives of species partial molar volumes wrt T.
+     *                     Length = m_kk. units are m^3/kmol/K.
+     */
+    virtual void getdPartialMolarVolumes_dT(doublereal* d_vbar_dT) const {
+      err("getdPartialMolarVolumes_dT");
+    }
+
+    //! Return an array of derivatives of partial molar volumes wrt pressure  for the
+    //! species in the mixture. Units: m^3/kmol.
+    /*!
+     *  The derivative is at constant temperature
+     *
+     *  @param d_vbar_dP   Output vector of derivatives of species partial molar volumes wrt P.
+     *                     Length = m_kk. units are m^3/kmol/Pa.
+     */
+    virtual void getdPartialMolarVolumes_dP(doublereal* d_vbar_dP) const {
+      err("getdPartialMolarVolumes_dP");
+    }
+
     //@}
     /// @name Properties of the Standard State of the Species in the Solution 
     //@{
@@ -1395,11 +1381,36 @@ namespace Cantera {
       err("getStandardVolumes");
     }
 
+    //!  Get the derivative of the molar volumes of the species standard states wrt temperature at the current
+    //!  <I>T</I> and <I>P</I> of the solution.
+    /*!  
+     *  The derivative is at constant pressure
+     *   units = m^3 / kmol / K
+     *
+     * @param d_vol_dT Output vector containing derivatives of standard state volumes wrt T
+     *                 Length: m_kk.
+     */
+    virtual void getdStandardVolumes_dT(doublereal *d_vol_dT) const {
+      err("getdStandardVolumes_dT");
+    }
+
+    //!  Get the derivative molar volumes of the species standard states wrt pressure at the current
+    //!  <I>T</I> and <I>P</I> of the solution.
+    /*!
+     *  The derivative is at constant temperature.
+     * units = m^3 / kmol / Pa
+     *
+     * @param d_vol_dP  Output vector containing the derivative of standard state volumes wrt P.
+     *                  Length: m_kk.
+     */
+    virtual void getdStandardVolumes_dP(doublereal *d_vol_dP) const {
+      err("getdStandardVolumes_dP");
+    }
+
     //@}
     /// @name Thermodynamic Values for the Species Reference States 
     //@{
 
-      
     //!  Returns the vector of nondimensional
     //!  enthalpies of the reference state at the current temperature
     //!  of the solution and the reference pressure for the species.
@@ -1582,7 +1593,7 @@ namespace Cantera {
      * @param x    Vector of mole fractions.
      *             Length is equal to m_kk.
      */
-    void setState_TPX(doublereal t, doublereal p, const doublereal* x);
+    virtual void setState_TPX(doublereal t, doublereal p, const doublereal* x);
 
     //! Set the temperature (K), pressure (Pa), and mole fractions.  
     /*!
@@ -1921,19 +1932,17 @@ namespace Cantera {
      *
      *  @internal
      */
-    void setSpeciesThermo(SpeciesThermo* spthermo) 
-    { m_spthermo = spthermo; }
+    void setSpeciesThermo(SpeciesThermo* spthermo);
         
     //! Return a changeable reference to the calculation manager
     //! for species reference-state thermodynamic properties
     /*!
      *
-     *  @todo This method will fail if no species thermo
-     *        manager has been installed.
+     * @param k   Speices id. The default is -1, meaning return the default
      *
      * @internal
      */
-    SpeciesThermo& speciesThermo() { return *m_spthermo; }
+    virtual SpeciesThermo& speciesThermo(int k = -1);
 
     /**
      * @internal
@@ -2010,6 +2019,14 @@ namespace Cantera {
      */
     virtual void initThermo();
     
+    //! Add in species from Slave phases
+    /*!
+     *  This hook is used for  cSS_CONVENTION_SLAVE phases
+     *
+     *  @param phaseNode   XML Element for the phase
+     */
+    virtual void installSlavePhases(Cantera::XML_Node* phaseNode);
+
     // The following methods are used by the clib interface
     // library, and should not be used by application programs.
 
@@ -2086,24 +2103,98 @@ namespace Cantera {
      */
     virtual void setStateFromXML(const XML_Node& state);
 
-
-    //@}
-
-    //! Returns the chargeNeutralityNecessity boolean
-    /*!
-     * Some phases must have zero net charge in order for
-     * their thermodynamics functions to be valid.
-     * If this is so, then the value returned from this
-     * function is true.
-     * If this is not the case, then this is false.
-     * Now, ideal gases have this parameter set to false,
-     * while solution with  molality-based activity
-     * coefficients have this parameter set to true. 
+    /**
+     * @} 
+     * @name  Derivatives of Thermodynamic Variables needed for Applications
+     * @{
      */
-    bool chargeNeutralityNecessary() const {
-      return m_chargeNeutralityNecessary;
+
+    //! Get the change in activity coefficients wrt changes in state (temp, mole fraction, etc) along
+    //! a line in parameter space or along a line in physical space
+    /*!
+     *
+     * @param dTds           Input of temperature change along the path
+     * @param dXds           Input vector of changes in mole fraction along the path. length = m_kk
+     *                       Along the path length it must be the case that the mole fractions sum to one.
+     * @param dlnActCoeffds  Output vector of the directional derivatives of the 
+     *                       log Activity Coefficients along the path. length = m_kk
+     *                       units are 1/units(s). if s is a physical coordinate then the units are 1/m.
+     */
+    virtual void getdlnActCoeffds(const doublereal dTds, const doublereal * const dXds,
+				  doublereal *dlnActCoeffds) const {
+      err("getdlnActCoeffds");
     }
 
+    //! Get the array of ln mole fraction derivatives of the log activity coefficients - diagonal component only
+    /*!
+     * This function is a virtual method.  For ideal mixtures 
+     * (unity activity coefficients), this can return zero.  
+     * Implementations should take the derivative of the 
+     * logarithm of the activity coefficient with respect to the 
+     * logarithm of the mole fraction variable 
+     * that represents the standard state.  
+     * This quantity is to be used in conjunction with derivatives of 
+     * that mole fraction variable when the derivative of the chemical 
+     * potential is taken.  
+     *
+     *  units = dimensionless
+     *
+     * @param dlnActCoeffdlnX_diag    Output vector of derivatives of the 
+     *                                log Activity Coefficients wrt the mole fractions. length = m_kk
+     */
+    virtual void getdlnActCoeffdlnX_diag(doublereal *dlnActCoeffdlnX_diag) const {
+      err("getdlnActCoeffdlnX_diag");
+    }
+
+    //! Get the array of log species mole number derivatives of the log activity coefficients
+    /*!
+     *  This function is a virtual method. 
+     *  For ideal mixtures  (unity activity coefficients), this can return zero.  
+     *  Implementations should take the derivative of the 
+     *  logarithm of the activity coefficient with respect to the 
+     *  logarithm of the concentration-like variable (i.e. moles)
+     *  that represents the standard state.  
+     *  This quantity is to be used in conjunction with derivatives of 
+     *  that species mole number variable when the derivative of the chemical 
+     *  potential is taken.  
+     *
+     *  units = dimensionless
+     *
+     * @param dlnActCoeffdlnN_diag    Output vector of derivatives of the 
+     *                                log Activity Coefficients. length = m_kk
+     */
+    virtual void getdlnActCoeffdlnN_diag(doublereal *dlnActCoeffdlnN_diag) const {
+      err("getdlnActCoeffdlnN_diag");
+    }
+
+    //! Get the array of derivatives of the log activity coefficients with respect to the log of the species mole numbers
+    /*!
+     * Implementations should take the derivative of the logarithm of the activity coefficient with respect to a
+     * species log mole number (with all other species mole numbers held constant). The default treatment in the
+     * %ThermoPhase object is to set this vector to zero.
+     * 
+     *  units = 1 / kmol
+     *
+     *  dlnActCoeffdlnN[ ld * k  + m]  will contain the derivative of log act_coeff for the <I>m</I><SUP>th</SUP> 
+     *                               species with respect to the number of moles of the <I>k</I><SUP>th</SUP> species.
+     *
+     * \f[
+     *        \frac{d \ln(\gamma_m) }{d \ln( n_k ) }\Bigg|_{n_i}
+     * \f]
+     *
+     * @param ld               Number of rows in the matrix
+     * @param dlnActCoeffdlnN    Output vector of derivatives of the 
+     *                           log Activity Coefficients. length = m_kk * m_kk        
+     */
+    virtual void getdlnActCoeffdlnN(const int ld, doublereal * const dlnActCoeffdlnN);
+
+    virtual void getdlnActCoeffdlnN_numderiv(const int ld, doublereal * const dlnActCoeffdlnN);
+
+    /**
+     * @} 
+     * @name Printing
+     * @{
+     */
 
     //! returns a summary of the state of the phase as a string
     /*!
@@ -2118,7 +2209,9 @@ namespace Cantera {
      *                    the phase
      */
     virtual void reportCSV(std::ofstream& csvFile) const;
-            
+
+    //@}
+
   protected:
 
     //! Pointer to the calculation manager for species

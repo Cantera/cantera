@@ -17,7 +17,6 @@
 #include <map>
 #include <vector>
 
-using namespace std;
 
 #ifdef WIN32
 #define TYPENAME_KEYWORD
@@ -35,9 +34,9 @@ namespace ckr {
  */
 
 template<class K, class V>
-void getMapKeys(const map<K,V>& mp, vector<K>& keys) {
+void getMapKeys(const std::map<K,V>& mp, std::vector<K>& keys) {
     keys.clear();
-    TYPENAME_KEYWORD map<K,V>::const_iterator i = mp.begin();
+    TYPENAME_KEYWORD std::map<K,V>::const_iterator i = mp.begin();
     for (; i != mp.end(); ++i) keys.push_back(i->first);
 }
 
@@ -49,9 +48,9 @@ void getMapKeys(const map<K,V>& mp, vector<K>& keys) {
  */
 
 template<class K, class V>
-void getMapValues(const map<K,V>& mp, vector<V>& values) {
+void getMapValues(const std::map<K,V>& mp, std::vector<V>& values) {
     values.clear();
-    TYPENAME_KEYWORD map<K,V>::const_iterator i = mp.begin();
+    TYPENAME_KEYWORD std::map<K,V>::const_iterator i = mp.begin();
     for (; i != mp.end(); ++i) values.push_back(i->second);
 }
 
@@ -120,10 +119,10 @@ inline bool valid(L& list) {
 
 
 /// Remove all white space from string s.
-void removeWhiteSpace(string& s);
+void removeWhiteSpace(std::string& s);
 
-void getTokens(string& begin, 
-    int n, vector<string>& toks, char delim=' ');
+void getTokens(std::string& begin, 
+    int n, std::vector<std::string>& toks, char delim=' ');
 
 
 /**
@@ -137,12 +136,12 @@ void getTokens(string& begin,
  * 
  */
 
-bool match(const string& s1, const string& s2);
+bool match(const std::string& s1, const std::string& s2);
 
 /**  
  * Check whether string 'word' begins with a Chemkin keyword.
  */
-inline bool isKeyword(string word) 
+inline bool isKeyword(std::string word) 
 {
     return (match(word, "ELEM") ||
 	    match(word, "SPEC") ||
@@ -152,8 +151,8 @@ inline bool isKeyword(string word)
 }
 
 
-bool extractSlashData(string& s, string& name, string& data);
-string capitalize(const string& word);
+bool extractSlashData(std::string& s, std::string& name, std::string& data);
+std::string capitalize(const std::string& word);
 
 }
 

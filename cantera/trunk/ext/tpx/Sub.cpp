@@ -7,6 +7,8 @@
 #include <fstream>
 #include <stdio.h>
 
+using namespace std;
+
 namespace tpx {
 
     static string fp2str(double x, string fmt="%g") {
@@ -398,6 +400,12 @@ namespace tpx {
             if (sat >= Pcrit()) return 0;
             psat = sat;
             T = Tsat(psat);
+	    if (T == Undef) {
+	      Err = 0;
+	      T = Tsave;
+	      Rho = Rhosave;
+	      return 0;
+	    }
 	}
 	else {
             throw TPX_Error("Substance::Lever","general error");

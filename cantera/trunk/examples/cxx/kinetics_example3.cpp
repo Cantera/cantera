@@ -2,9 +2,9 @@
 //
 //  zero-dimensional kinetics example program
 //
-//  $Author: hkmoffa $
-//  $Revision: 1.5 $
-//  $Date: 2009/07/11 17:25:05 $
+//  $Author$
+//  $Revision$
+//  $Date$
 //
 //  copyright California Institute of Technology 2006
 //
@@ -24,6 +24,8 @@
 
 using namespace Cantera;
 using namespace Cantera_CXX;
+using namespace std;
+using namespace CanteraZeroD;
 
 // Kinetics example. This is written as a function so that one 
 // driver program can run multiple examples.

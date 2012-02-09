@@ -15,16 +15,16 @@
 # 
 #
 #####################################################################
-# $Id: Cantera.mak.in,v 1.5 2009/01/09 23:26:41 hkmoffa Exp $
+# $Id$
 #
 #
 # This variable determines whether we are making this example in the
 # build tree environment or in the install tree environment.
 #
 in_CanteraBuildTree = 0
-
+#
 CANTERA_VERSION=@ctversion@
-
+#
 ###############################################################################
 #        CANTERA CORE 
 ###############################################################################
@@ -88,9 +88,13 @@ CANTERA_SUNDIALS_LIB_DIR=@sundials_lib_dir@
 ifeq ($(CANTERA_use_sundials), 1)
 CANTERA_CVODE_LIBS=-L$(CANTERA_SUNDIALS_LIB_DIR) @CVODE_LIBS@
 CANTERA_CVODE_LIBS_DEP=@sundials_lib_dep@
+CANTERA_SUNDIALS_LIBS=-L$(CANTERA_SUNDIALS_LIB_DIR) @sundials_lib@
+CANTERA_SUNDIALS_LIBS_DEP=@sundials_lib_dep@
 else
 CANTERA_CVODE_LIBS= -L$(CANTERA_LIBSDIR) -lcvode
 CANTERA_CVODE_LIBS_DEP=$(CANTERA_LIBSDIR)/libcvode.a
+CANTERA_SUNDIALS_LIBS=-L$(CANTERA_LIBSDIR) -lcvode
+CANTERA_SUNDIALS_LIBS_DEP=-L$(CANTERA_LIBSDIR)/libcvode.a
 endif
 #
 #######################################################################
@@ -133,13 +137,12 @@ CANTERA_DEFINES = -DCANTERA_VERSION=@ctversion@
 CANTERA_TOTAL_LIBS2 =  -L$(CANTERA_LIBSDIR)  @LOCAL_LIBS@
 #
 CANTERA_TOTAL_LIBS= $(CANTERA_CORE_LIBS) $(CANTERA_BOOST_LIBS) \
-                    $(CANTERA_CVODE_LIBS) $(CANTERA_BLAS_LAPACK_LIBS) \
+                    $(CANTERA_SUNDIALS_LIBS) $(CANTERA_BLAS_LAPACK_LIBS) \
                     $(CANTERA_F2C_LIBS)
 #
 CANTERA_TOTAL_LIBS_DEP= $(CANTERA_CORE_LIBS_DEP) \
-                        $(CANTERA_CVODE_LIBS_DEP) \
+                        $(CANTERA_SUNDIALS_LIBS_DEP) \
                         $(CANTERA_BLAS_LAPACK_LIBS_DEP)
-#
 #
 # Dependency Line
 #

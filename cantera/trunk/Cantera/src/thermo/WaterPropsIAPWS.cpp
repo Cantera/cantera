@@ -33,13 +33,13 @@ const doublereal Rho_c = 322.;
 //! Molecular Weight of water that is consistent with the paper (kg kmol-1)
 static const doublereal M_water = 18.015268; 
 
+//! Gas constant that is quoted in the paper
 /*
  * Note, this is the Rgas value quoted in the paper. For consistency
  * we have to use that value and not the updated value
  *
  * The Ratio of R/M = 0.46151805 kJ kg-1 K-1 , which is Eqn. (6.3) in the paper.
  */
-//static const doublereal Rgas = 8.314472E3;   // Joules kmol-1 K-1
 static const doublereal Rgas = 8.314371E3;   // Joules kmol-1 K-1
 //@{
 #ifndef MAX

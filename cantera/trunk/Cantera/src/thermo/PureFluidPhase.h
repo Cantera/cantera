@@ -34,7 +34,7 @@
 #include "mix_defs.h"
 
 namespace tpx {
-    class Substance;
+  class Substance;
 }
 
 namespace Cantera {
@@ -107,7 +107,7 @@ namespace Cantera {
     /// Molar Gibbs function. Units: J/kmol. 
     virtual doublereal gibbs_mole() const;
 
-      /// Molar heat capacity at constant pressure. Units: J/kmol/K. 
+    /// Molar heat capacity at constant pressure. Units: J/kmol/K. 
     virtual doublereal cp_mole() const;
 
     /// Molar heat capacity at constant volume. Units: J/kmol/K. 
@@ -142,6 +142,145 @@ namespace Cantera {
       mu[0] = gibbs_mole();
     }
 
+
+
+    //!  Get the species electrochemical potentials. 
+    /*!
+     *  These are partial molar quantities.  This method adds a term \f$ F z_k
+     *  \phi_p \f$ to each chemical potential.  
+     *  The electrochemical potential of species k in a phase p, \f$ \zeta_k \f$,
+     *  is related to the chemical potential via
+     *  the following equation, 
+     *
+     *       \f[
+     *            \zeta_{k}(T,P) = \mu_{k}(T,P) + F z_k \phi_p 
+     *       \f]
+     *
+     * @param mu  Output vector of species electrochemical
+     *            potentials. Length: m_kk. Units: J/kmol
+     */
+    void getElectrochemPotentials(doublereal* mu) const {
+      getChemPotentials(mu);
+      double ve = Faraday * electricPotential();
+      for (int k = 0; k < m_kk; k++) {
+	mu[k] += ve*charge(k);
+      }
+    }
+    
+    //! Returns an array of partial molar enthalpies for the species
+    //! in the mixture. Units (J/kmol)
+    /*!
+     * @param hbar    Output vector of species partial molar enthalpies.
+     *                Length: m_kk. units are J/kmol.
+     */
+    virtual void getPartialMolarEnthalpies(doublereal* hbar) const;
+    
+      
+    //! Returns an array of partial molar entropies of the species in the
+    //! solution. Units: J/kmol/K.
+    /*!
+     * @param sbar    Output vector of species partial molar entropies.
+     *                Length = m_kk. units are J/kmol/K.
+     */
+    virtual void getPartialMolarEntropies(doublereal* sbar) const;
+
+    //! Return an array of partial molar internal energies for the 
+    //! species in the mixture.  Units: J/kmol.
+    /*!
+     * @param ubar    Output vector of speciar partial molar internal energies.
+     *                Length = m_kk. units are J/kmol.
+     */
+    virtual void getPartialMolarIntEnergies(doublereal* ubar) const;
+    
+    //! Return an array of partial molar heat capacities for the
+    //! species in the mixture.  Units: J/kmol/K
+    /*!
+     * @param cpbar   Output vector of species partial molar heat 
+     *                capacities at constant pressure.
+     *                Length = m_kk. units are J/kmol/K.
+     */
+    virtual void getPartialMolarCp(doublereal* cpbar) const;
+        
+    //! Return an array of partial molar volumes for the
+    //! species in the mixture. Units: m^3/kmol.
+    /*!
+     *  @param vbar   Output vector of speciar partial molar volumes.
+     *                Length = m_kk. units are m^3/kmol.
+     */
+    virtual void getPartialMolarVolumes(doublereal* vbar) const;
+
+    //! This method returns the convention used in specification
+    //! of the standard state, of which there are currently two,
+    //! temperature based, and variable pressure based.
+    /*!
+     * Currently, there are two standard state conventions:
+     *  - Temperature-based activities
+     *   cSS_CONVENTION_TEMPERATURE 0
+     *      - default
+     *
+     *  -  Variable Pressure and Temperature -based activities
+     *   cSS_CONVENTION_VPSS 1
+     *
+     *  -  Thermodynamics is set via slave ThermoPhase objects with
+     *     nothing being carried out at this %ThermoPhase object level
+     *   cSS_CONVENTION_SLAVE 2
+     */
+    virtual int standardStateConvention() const;
+      
+    //! This method returns an array of generalized concentrations
+    /*!
+     * \f$ C^a_k\f$ are defined such that \f$ a_k = C^a_k /
+     * C^0_k, \f$ where \f$ C^0_k \f$ is a standard concentration
+     * defined below and \f$ a_k \f$ are activities used in the
+     * thermodynamic functions.  These activity (or generalized)
+     * concentrations are used
+     * by kinetics manager classes to compute the forward and
+     * reverse rates of elementary reactions. Note that they may
+     * or may not have units of concentration --- they might be
+     * partial pressures, mole fractions, or surface coverages,
+     * for example.
+     *
+     * @param c Output array of generalized concentrations. The 
+     *           units depend upon the implementation of the
+     *           reaction rate expressions within the phase.
+     */
+    virtual void getActivityConcentrations(doublereal* c) const;
+
+    //! Return the standard concentration for the kth species
+    /*!
+     * The standard concentration \f$ C^0_k \f$ used to normalize
+     * the activity (i.e., generalized) concentration. In many cases, this quantity
+     * will be the same for all species in a phase - for example,
+     * for an ideal gas \f$ C^0_k = P/\hat R T \f$. For this
+     * reason, this method returns a single value, instead of an
+     * array.  However, for phases in which the standard
+     * concentration is species-specific (e.g. surface species of
+     * different sizes), this method may be called with an
+     * optional parameter indicating the species.
+     *
+     * @param k Optional parameter indicating the species. The default
+     *          is to assume this refers to species 0.
+     * @return 
+     *   Returns the standard concentration. The units are by definition
+     *   dependent on the ThermoPhase and kinetics manager representation.
+     */
+    virtual doublereal standardConcentration(int k=0) const;
+
+    //! Get the array of non-dimensional activities at
+    //! the current solution temperature, pressure, and solution concentration.
+    /*!
+     * Note, for molality based formulations, this returns the 
+     * molality based activities.
+     *
+     * We resolve this function at this level by calling
+     * on the activityConcentration function. However, 
+     * derived classes may want to override this default
+     * implementation.
+     *
+     * @param a   Output vector of activities. Length: m_kk.
+     */
+    virtual void getActivities(doublereal* a) const;
+
     //! Returns  the isothermal compressibility. Units: 1/Pa.
     /*!
      * The isothermal compressibility is defined as
@@ -163,20 +302,106 @@ namespace Cantera {
     //! Returns a reference to the substance object
     tpx::Substance& TPX_Substance();
 
-    /// critical temperature 
-    virtual doublereal critTemperature() const;
- 
-    /// critical pressure
-    virtual doublereal critPressure() const;
-        
-    /// critical density
-    virtual doublereal critDensity() const;
-        
-    /// saturation temperature
+    //@}
+    /// @name Properties of the Standard State of the Species in the Solution 
     /*!
-     * @param p  Pressure (Pa)
+     *  The standard state of the pure fluid is defined as the real properties
+     *  of the pure fluid at the most stable state of the fluid at the current 
+     *  temperature and pressure of the solution. With this definition, the
+     *  activity of the fluid is always then defined to be equal to one.
      */
-    virtual doublereal satTemperature(doublereal p) const;
+    //@{
+
+    //! Get the array of chemical potentials at unit activity for the species
+    //! at their standard states at the current <I>T</I> and <I>P</I> of the solution.
+    /*!
+     * These are the standard state chemical potentials \f$ \mu^0_k(T,P)
+     * \f$. The values are evaluated at the current
+     * temperature and pressure of the solution
+     *
+     * @param mu      Output vector of chemical potentials. 
+     *                Length: m_kk.
+     */
+    virtual void getStandardChemPotentials(doublereal* mu) const;
+
+    //! Get the nondimensional Enthalpy functions for the species
+    //! at their standard states at the current <I>T</I> and <I>P</I> of the solution.
+    /*!
+     * @param hrt      Output vector of  nondimensional standard state enthalpies.
+     *                 Length: m_kk.
+     */
+    virtual void getEnthalpy_RT(doublereal* hrt) const;
+
+    //! Get the array of nondimensional Entropy functions for the
+    //! standard state species at the current <I>T</I> and <I>P</I> of the solution.
+    /*!
+     * @param sr   Output vector of  nondimensional standard state entropies.
+     *             Length: m_kk.
+     */
+    virtual void getEntropy_R(doublereal* sr) const;
+
+    //! Get the nondimensional Gibbs functions for the species
+    //! in their standard states at the current <I>T</I> and <I>P</I> of the solution.
+    /*!
+     * @param grt  Output vector of nondimensional standard state gibbs free energies
+     *             Length: m_kk.
+     */
+    virtual void getGibbs_RT(doublereal* grt) const;
+
+    //@}
+
+    /// @name Thermodynamic Values for the Species Reference States 
+    /*!
+     *    The species reference state for pure fluids is defined as an ideal gas at the
+     *    reference pressure and current temperature of the fluid.
+     */
+    //@{
+
+    //!  Returns the vector of nondimensional enthalpies of the reference state at the current temperature
+    //!  of the solution and the reference pressure for the species.
+    /*!
+     *  This base function will throw a Cantera exception unless
+     *  it is overwritten in a derived class.
+     *
+     * @param hrt     Output vector containing the nondimensional reference state enthalpies
+     *                Length: m_kk.
+     */
+    virtual void getEnthalpy_RT_ref(doublereal *hrt) const;
+
+    //!  Returns the vector of nondimensional Gibbs Free Energies of the reference state at the current temperature
+    //!  of the solution and the reference pressure for the species.
+    /*!
+     * @param grt     Output vector containing the nondimensional reference state 
+     *                Gibbs Free energies.  Length: m_kk.
+     */
+    virtual void getGibbs_RT_ref(doublereal *grt) const;
+
+    //!  Returns the vector of the gibbs function of the reference state at the current temperature
+    //!  of the solution and the reference pressure for the species.
+    /*!
+     *  units = J/kmol
+     *
+     * @param g       Output vector containing the reference state 
+     *                Gibbs Free energies.  Length: m_kk. Units: J/kmol.
+     */
+    virtual void getGibbs_ref(doublereal *g) const;
+
+
+
+    //!  Returns the vector of nondimensional entropies of the reference state at the current temperature
+    //!  of the solution and the reference pressure for each species.
+    /*!
+     * @param er      Output vector containing the nondimensional reference state 
+     *                entropies.  Length: m_kk.
+     */
+    virtual void getEntropy_R_ref(doublereal *er) const;
+
+    /**
+     * @name Setting the State
+     *
+     * These methods set all or part of the thermodynamic state.
+     * @{
+     */
 
     //! Set the internally storred specific enthalpy (J/kg) and pressure (Pa) of the phase.
     /*!
@@ -227,8 +452,25 @@ namespace Cantera {
     virtual void setState_SP(doublereal s, doublereal p, 
 			     doublereal tol = 1.e-8);
 
+    //@}
 
+    //! @name Critical State Properties
+    /*!
+     *      Critical properties for the pure fluid
+     */
+    //@{
+
+    //! critical temperature 
+    virtual doublereal critTemperature() const;
+ 
+    //! critical pressure
+    virtual doublereal critPressure() const;
+        
+    //! critical density
+    virtual doublereal critDensity() const;
       
+    //@}
+
     //! @name Saturation properties.
     /*!
      * These methods are only implemented by subclasses that 
@@ -236,6 +478,13 @@ namespace Cantera {
      * moved out of ThermoPhase at a later date.
      */
     //@{
+
+        
+    //! saturation temperature
+    /*!
+     * @param p  Pressure (Pa)
+     */
+    virtual doublereal satTemperature(doublereal p) const;
 
     //! Return the saturation pressure given the temperatur
     /*!

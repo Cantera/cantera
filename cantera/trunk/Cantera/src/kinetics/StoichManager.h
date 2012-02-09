@@ -164,8 +164,26 @@ namespace Cantera {
 
   public:
 
-    C1( int rxn = 0, int ic0 = 0)
-      : m_rxn (rxn),  m_ic0 (ic0) {}
+    C1(int rxn = 0, int ic0 = 0) : 
+      m_rxn (rxn), 
+      m_ic0 (ic0) 
+    {
+    }
+
+    C1(const C1 &right) :
+      m_rxn (right.m_rxn), 
+      m_ic0 (right.m_ic0) 
+    {
+    }
+
+    C1& operator=(const C1 &right)
+    {
+      if (this != &right) {
+	m_rxn = right.m_rxn; 
+	m_ic0 = right.m_ic0; 
+      }
+      return *this;
+    }
 
     int data(std::vector<int>& ic) {
       ic.resize(1);
@@ -216,7 +234,9 @@ namespace Cantera {
     }
 
   private:
+    //! Reaction number
     int m_rxn; 
+    //! Species number
     int m_ic0;
   };
 
@@ -230,6 +250,23 @@ namespace Cantera {
   public:
     C2( int rxn = 0, int ic0 = 0, int ic1 = 0)
       : m_rxn (rxn), m_ic0 (ic0), m_ic1 (ic1) {}
+
+    C2(const C2 &right) :
+      m_rxn(right.m_rxn), 
+      m_ic0(right.m_ic0), 
+      m_ic1(right.m_ic1) 
+    {
+    }
+
+    C2& operator=(const C2 &right)
+    {
+      if (this != &right) {
+	m_rxn = right.m_rxn; 
+	m_ic0 = right.m_ic0; 
+	m_ic1 = right.m_ic1; 
+      }
+      return *this;
+    }
 
     int data(std::vector<int>& ic) {
       ic.resize(2);
@@ -296,7 +333,8 @@ namespace Cantera {
      * Species indecise -> index into the species vector for the
      * two species.
      */
-    int m_ic0, m_ic1;
+    int m_ic0;
+    int m_ic1;
   };
 
 
@@ -308,6 +346,25 @@ namespace Cantera {
   public:
     C3( int rxn = 0, int ic0 = 0, int ic1 = 0, int ic2 = 0)
       : m_rxn (rxn), m_ic0 (ic0), m_ic1 (ic1), m_ic2 (ic2) {}
+
+    C3(const C3 &right) :
+      m_rxn(right.m_rxn), 
+      m_ic0(right.m_ic0), 
+      m_ic1(right.m_ic1),
+      m_ic2(right.m_ic2) 
+    {
+    }
+
+    C3& operator=(const C3 &right)
+    {
+      if (this != &right) {
+	m_rxn = right.m_rxn; 
+	m_ic0 = right.m_ic0; 
+	m_ic1 = right.m_ic1; 
+	m_ic2 = right.m_ic2; 
+      }
+      return *this;
+    }
 
     int data(std::vector<int>& ic) {
       ic.resize(3);
@@ -367,7 +424,10 @@ namespace Cantera {
       out[m_ic2] += s;
     }
   private:
-    int m_rxn, m_ic0, m_ic1, m_ic2;
+    int m_rxn;
+    int m_ic0;
+    int m_ic1;
+    int m_ic2;
   };
 
 
@@ -378,11 +438,17 @@ namespace Cantera {
    */
   class C_AnyN {
   public:
-    C_AnyN() : m_rxn (-1) {}
 
-    C_AnyN( int rxn, const vector_int& ic, const vector_fp& order,
-            const vector_fp& stoich)
-      : m_rxn (rxn) {
+    C_AnyN() : 
+      m_n(0),
+      m_rxn(-1) 
+    {
+    }
+
+    C_AnyN(int rxn, const vector_int& ic, const vector_fp& order, const vector_fp& stoich) :
+      m_n(0),
+      m_rxn(rxn)
+    {
       m_n = ic.size();
       m_ic.resize(m_n);
       m_order.resize(m_n);
@@ -392,6 +458,27 @@ namespace Cantera {
 	m_order[n] = order[n];
 	m_stoich[n] = stoich[n];
       }
+    }
+
+    C_AnyN(const C_AnyN &right) :
+      m_n(right.m_n),
+      m_rxn(right.m_rxn), 
+      m_ic(right.m_ic),
+      m_order(right.m_order),
+      m_stoich(right.m_stoich)
+    {
+    }
+
+    C_AnyN& operator=(const C_AnyN &right)
+    {
+      if (this != &right) {	
+	m_n = right.m_n;
+	m_rxn = right.m_rxn; 
+	m_ic = right.m_ic;
+	m_order = right.m_order;
+	m_stoich = right.m_stoich;
+      }
+      return *this;
     }
 
     int data(std::vector<int>& ic) {
@@ -627,7 +714,34 @@ namespace Cantera {
      * DGG - the problem is that the number of reactions and species
      * are not known initially.
      */
-    StoichManagerN()  {}
+    StoichManagerN()  
+    {
+    }
+
+    StoichManagerN(const StoichManagerN &right) :
+      m_c1_list(right.m_c1_list),
+      m_c2_list(right.m_c2_list),
+      m_c3_list(right.m_c3_list),
+      m_cn_list(right.m_cn_list),
+      m_n(right.m_n),
+      m_loc(right.m_loc)
+    {
+
+
+    }  
+
+    StoichManagerN& operator=(const StoichManagerN &right)
+    {
+      if (this != &right) {
+	m_c1_list = right.m_c1_list;
+	m_c2_list = right.m_c2_list;
+	m_c3_list = right.m_c3_list;
+	m_cn_list = right.m_cn_list;
+	m_n = right.m_n;
+	m_loc = right.m_loc;
+      }
+      return *this;
+    }
 
     /**
      * Add a single reaction to the list of reactions that this
@@ -795,7 +909,31 @@ namespace Cantera {
   class StoichWriter {
   public:
 
-    StoichWriter()  {}
+    StoichWriter() 
+    {
+    }
+
+    StoichWriter(const StoichWriter &right) :
+      m_mult(right.m_mult),
+      m_ir(right.m_ir),
+      m_dr(right.m_dr),
+      m_is(right.m_is),
+      m_ds(right.m_ds)
+    {
+    }
+
+    StoichWriter& operator=(const StoichWriter &right)
+    {
+      if (this != &right) {
+	m_mult = right.m_mult;
+	m_ir = right.m_ir;
+	m_dr = right.m_dr;
+	m_is = right.m_is;
+	m_ds = right.m_ds;
+      }
+      return *this;
+    }
+
 
     void add(int rxn, const vector_int& k) {
       int n, nn = k.size();
@@ -841,7 +979,11 @@ namespace Cantera {
     std::string decrRxn(int rxn) { return m_dr[rxn]; }
 
   private:
-    std::map<int, std::string> m_mult, m_ir, m_dr, m_is, m_ds;
+    std::map<int, std::string> m_mult;
+    std::map<int, std::string> m_ir;
+    std::map<int, std::string>  m_dr;
+    std::map<int, std::string>  m_is;
+    std::map<int, std::string>  m_ds;
   };
 #endif
 

@@ -9,7 +9,6 @@
  * $Name:  $
  *====================================================================*/
 /*
- *
  *  csvdiff File1.csv File2.csv
  *
  *  Compares the variable values in two Excel formatted
@@ -24,9 +23,10 @@
  *   -h = prints this usage information
  *
  *  Shell Return Values
- *    1 = Comparison was successful
- *    0 = One or more nodal values failed the comparison
- *   -1 = Apples to oranges, the files can not even be compared against
+ *    0 = Comparison was successful
+ *    1 = One or more nodal values failed the comparison
+ *    2 = One or more of the header values failed the comparison
+ *    3 = Apples to oranges, the files can not even be compared against
  *        one another.
  */
 
@@ -616,9 +616,10 @@ static void print_usage() {
   printf("\t  -r rtol = Set relative tolerance parameter - default = 1.0E-3\n");
   printf("\t\n");
   printf("\t Shell Return Values:\n");
-  printf("\t   1 = Comparison was successful\n");
-  printf("\t   0 = One or more nodal values failed the comparison\n");
-  printf("\t  -1 = Apples to oranges, the files can not even be compared against\n");
+  printf("\t   0 = Comparison was successful\n");
+  printf("\t   1 = One or more nodal values failed the comparison\n");
+  printf("\t   2 = One or more header values failed the comparison\n");
+  printf("\t   3 = Apples to oranges, the files can not even be compared against\n");
   printf("\t       one another.\n");
   printf("\t\n");
 }

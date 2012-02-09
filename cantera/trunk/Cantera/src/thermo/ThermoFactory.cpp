@@ -28,11 +28,17 @@
 #ifdef WITH_IDEAL_SOLUTIONS
 #include "IdealSolidSolnPhase.h"
 #include "MargulesVPSSTP.h"
+#include "RedlichKisterVPSSTP.h"
 #include "IonsFromNeutralVPSSTP.h"
+#include "PhaseCombo_Interaction.h"
 #endif
 
 #ifdef WITH_PURE_FLUIDS
 #include "PureFluidPhase.h"
+#endif
+
+#ifdef WITH_REAL_GASSES
+#include "RedlichKwongMFTP.h"
 #endif
 
 #include "ConstDensityThermo.h"
@@ -51,7 +57,6 @@
 #ifdef WITH_STOICH_SUBSTANCE
 #ifdef USE_SSTP
 #include "StoichSubstanceSSTP.h"
-
 #else
 #include "StoichSubstance.h"
 #endif
@@ -60,6 +65,7 @@
 #ifdef WITH_STOICH_SUBSTANCE
 #include "MineralEQ3.h"
 #include "MetalSHEelectrons.h"
+#include "FixedChemPotSSTP.h"
 #endif
 
 //#include "importCTML.h"
@@ -73,6 +79,8 @@
 #include "HMWSoln.h"
 #include "DebyeHuckel.h"
 #include "IdealMolalSoln.h"
+#include "MolarityIonicVPSSTP.h"
+#include "MixedSolventElectrolyte.h"
 #endif
 
 #include "IdealSolnGasVPSS.h"
@@ -80,6 +88,7 @@
 #include <cstdlib>
 
 using namespace std;
+using namespace ctml;
 
 namespace Cantera {
 
@@ -87,24 +96,32 @@ namespace Cantera {
 #if defined(THREAD_SAFE_CANTERA)
     boost::mutex ThermoFactory::thermo_mutex;
 #endif
+    //! Define the number of %ThermoPhase types for use in this factory routine
+    /*!
+     *  @deprecated This entire structure could be replaced with a std::map
+     */
+    static int ntypes = 23;
 
-    static int ntypes = 18;
+    //! Define the string name of the %ThermoPhase types that are handled by this factory routine
     static string _types[] = {"IdealGas", "Incompressible", 
                               "Surface", "Edge", "Metal", "StoichSubstance",
                               "PureFluid", "LatticeSolid", "Lattice",
                               "HMW", "IdealSolidSolution", "DebyeHuckel", 
                               "IdealMolalSolution", "IdealGasVPSS",
-			      "MineralEQ3", "MetalSHEelectrons", "Margules",
-                              "IonsFromNeutralMolecule"
+			      "MineralEQ3", "MetalSHEelectrons", "Margules", "PhaseCombo_Interaction",
+                              "IonsFromNeutralMolecule", "FixedChemPot", "MolarityIonicVPSSTP",
+                              "MixedSolventElectrolyte", "Redlich-Kister"
     };
 
+    //! Define the integer id of the %ThermoPhase types that are handled by this factory routine
     static int _itypes[]   = {cIdealGas, cIncompressible, 
                               cSurf, cEdge, cMetal, cStoichSubstance,
                               cPureFluid, cLatticeSolid, cLattice,
                               cHMW, cIdealSolidSolnPhase, cDebyeHuckel,
                               cIdealMolalSoln, cVPSS_IdealGas,
 			      cMineralEQ3, cMetalSHEelectrons,
-			      cMargulesVPSSTP, cIonsFromNeutral
+			      cMargulesVPSSTP,  cPhaseCombo_Interaction, cIonsFromNeutral, cFixedChemPot,
+                              cMolarityIonicVPSSTP, cMixedSolventElectrolyte, cRedlichKisterVPSSTP
     };
 
   /*
@@ -146,6 +163,18 @@ namespace Cantera {
       th = new MargulesVPSSTP();
       break;
 
+    case cRedlichKisterVPSSTP:
+      th = new RedlichKisterVPSSTP();
+      break;
+
+    case cMolarityIonicVPSSTP:
+      th = new MolarityIonicVPSSTP();
+      break;
+
+    case cPhaseCombo_Interaction:
+      th = new PhaseCombo_Interaction();
+      break;
+
     case cIonsFromNeutral:
       th = new IonsFromNeutralVPSSTP();
       break;
@@ -164,6 +193,12 @@ namespace Cantera {
 #else
       th = new StoichSubstance;
 #endif
+      break;
+#endif
+
+#ifdef WITH_STOICH_SUBSTANCE
+    case cFixedChemPot:
+      th = new FixedChemPotSSTP;
       break;
 #endif
 
@@ -194,6 +229,13 @@ namespace Cantera {
       th = new PureFluidPhase;
       break;
 #endif
+
+#ifdef WITH_REAL_GASSES
+    case cRedlichKwongMFTP:
+      th = new RedlichKwongMFTP;
+      break;
+#endif
+
 #ifdef WITH_ELECTROLYTES
     case cHMW:
       th = new HMWSoln;
@@ -291,7 +333,21 @@ namespace Cantera {
       return (ThermoPhase *) 0;
   }
 
-
+  //====================================================================================================================
+  //!  Gather a vector of pointers to XML_Nodes for a phase
+  /*!
+   *
+   *   @param spDataNodeList         Output vector of pointer to XML_Nodes which contain the species XML_Nodes for the
+   *                                 species in the current phase.         
+   *   @param spNamesList            Output Vector of strings, which contain the names of the species in the phase
+   *   @param spRuleList             Output Vector of ints, which contain the value of sprule for each species in the phase
+   *   @param spArray_names          Vector of pointers to the XML_Nodes which contains the names of the 
+   *                                 species in the phase
+   *
+   *   @param spArray_dbases         Input vector of pointers to species data bases.
+   *                                 We search each data base for the required species names
+   *   @param  sprule                Input vector of sprule values
+   */
   static void formSpeciesXMLNodeList(std::vector<XML_Node *> &spDataNodeList,
 				     std::vector<std::string> &spNamesList,
 				     std::vector<int> &spRuleList,
@@ -312,7 +368,7 @@ namespace Cantera {
       // Get the top XML for the database
       const XML_Node *db = spArray_dbases[jsp];
 
-      // Get the array of species name strings and the count them
+      // Get the array of species name strings and then count them
       std::vector<std::string> spnames;
       getStringArray(speciesArray, spnames);
       int nsp = static_cast<int>(spnames.size());
@@ -402,7 +458,7 @@ namespace Cantera {
       }
     }
   }
-        
+  //====================================================================================================================
   /*
    * Import a phase specification.
    *   Here we read an XML description of the phase.
@@ -499,7 +555,9 @@ namespace Cantera {
     /***************************************************************
      * Add the elements.
      ***************************************************************/
-    th->addElementsFromXML(phase);
+    if (ssConvention != cSS_CONVENTION_SLAVE) {
+      th->addElementsFromXML(phase);
+    }
 
     /***************************************************************
      * Add the species. 
@@ -512,11 +570,13 @@ namespace Cantera {
     vector<XML_Node*> sparrays;
     phase.getChildren("speciesArray", sparrays);
     int jsp, nspa = static_cast<int>(sparrays.size());
-    if (nspa == 0) {
-      throw CanteraError("importPhase",
-			 "phase, " + th->id() + ", has zero \"speciesArray\" XML nodes.\n"
+    if (ssConvention != cSS_CONVENTION_SLAVE) {
+      if (nspa == 0) {
+        throw CanteraError("importPhase",
+  			 "phase, " + th->id() + ", has zero \"speciesArray\" XML nodes.\n"
 			 + " There must be at least one speciesArray nodes "
 			 "with one or more species");
+      }
     }
     vector<XML_Node*> dbases;
     vector_int sprule(nspa,0);
@@ -561,7 +621,7 @@ namespace Cantera {
       // file.            
       db = get_XML_Node(speciesArray["datasrc"], &phase.root());
       if (db == 0) {
-	throw CanteraError("importPhase",
+	throw CanteraError("importPhase()",
 			   " Can not find XML node for species database: " 
 			   + speciesArray["datasrc"]);
       }
@@ -582,7 +642,7 @@ namespace Cantera {
 
     // If the phase has a species thermo manager already installed,
     // delete it since we are adding new species.
-    delete &th->speciesThermo();
+    //delete &th->speciesThermo();
 
     // Decide whether the the phase has a variable pressure ss or not
     SpeciesThermo* spth = 0;
@@ -597,17 +657,29 @@ namespace Cantera {
       
       // install it in the phase object
       th->setSpeciesThermo(spth);
-    } else {
+    } else if (ssConvention == cSS_CONVENTION_SLAVE) {
+      /*
+       * No species thermo manager for this type
+       */
+    } else if (ssConvention == cSS_CONVENTION_VPSS) {
       vp_spth = newVPSSMgr(vpss_ptr, &phase, spDataNodeList);
       vpss_ptr->setVPSSMgr(vp_spth);
       spth = vp_spth->SpeciesThermoMgr();
       th->setSpeciesThermo(spth);
+    } else {
+      throw CanteraError("importPhase()", "unknown convention");
     }
 
 
     int k = 0;
 
     int nsp = spDataNodeList.size();
+    if (ssConvention == cSS_CONVENTION_SLAVE) {
+      if (nsp > 0) {
+	throw CanteraError("importPhase()", "For Slave standard states, number of species must be zero: " 
+			   + int2str(nsp));
+      }
+    }
     for (int i = 0; i < nsp; i++) {
       XML_Node *s = spDataNodeList[i];
       AssertTrace(s != 0);
@@ -619,6 +691,10 @@ namespace Cantera {
       }
     }
 
+    if (ssConvention == cSS_CONVENTION_SLAVE) {
+      th->installSlavePhases(&phase);
+    }
+
     // done adding species. 
     th->freezeSpecies();
 
@@ -627,7 +703,7 @@ namespace Cantera {
 
     // Perform any required subclass-specific initialization
     // that requires the XML phase object
-    string id = "";
+    std::string id = "";
     th->initThermoXML(phase, id);
 
     return true;
@@ -743,7 +819,6 @@ namespace Cantera {
       // the species thermo manager for phase th
       factory->installThermoForSpecies(k, s, &th, *spthermo_ptr, phaseNode_ptr);
     }
-    
     
     return true;
   }

@@ -327,10 +327,8 @@ namespace Cantera {
   
     if (solver == 2) {
       try {
-	VCSnonideal::vcs_MultiPhaseEquil *eqsolve =
-	  new VCSnonideal::vcs_MultiPhaseEquil(&s, printLvlSub);
-	int err = eqsolve->equilibrate(ixy, estimateEquil, printLvlSub,
-				       tol, maxsteps, loglevel);
+	VCSnonideal::vcs_MultiPhaseEquil *eqsolve =  new VCSnonideal::vcs_MultiPhaseEquil(&s, printLvlSub);
+	int err = eqsolve->equilibrate(ixy, estimateEquil, printLvlSub, tol, maxsteps, loglevel);
 	if (err != 0) {
 	  retn = -1;
 	  addLogEntry("vcs_equilibrate Error   - ", err);
@@ -386,4 +384,70 @@ namespace Cantera {
     }
     return retn;
   }
+
+  //====================================================================================================================
+  // Determine the phase stability of a single phase given the current conditions
+  // in a MultiPhase object
+  /*
+   * 
+   *  @param s         The MultiPhase object to be set to an equilibrium state
+   *  @param iphase    Phase index within the multiphase object to be 
+   *                   tested for stability.
+   *  @param funcStab  Function value that tests equilibrium. > 0 indicates stable
+   *                   < 0 indicates unstable
+   *
+   *  @param printLvl   Determines the amount of printing that
+   *                  gets sent to stdout from the vcs package
+   *                  (Note, you may have to compile with debug
+   *                   flags to get some printing).
+   *
+   *  @param loglevel Controls amount of diagnostic output. loglevel
+   *                  = 0 suppresses diagnostics, and increasingly-verbose
+   *                  messages are written as loglevel increases. The 
+   *                  messages are written to a file in HTML format for viewing 
+   *                  in a web browser. @see HTML_logs
+   */
+  int vcs_determine_PhaseStability(MultiPhase& s, int iphase, 
+				   double &funcStab, int printLvl, int loglevel)
+  { 
+    int iStab = 0;
+    static int counter = 0;
+    beginLogGroup("PhaseStability",loglevel);
+    addLogEntry("multiphase phase stability function");
+    beginLogGroup("arguments");
+    addLogEntry("iphase",iphase);
+    addLogEntry("loglevel",loglevel);
+    endLogGroup("arguments");
+  
+    int printLvlSub = MAX(0, printLvl-1);
+
+    s.init();
+    try {
+      VCSnonideal::vcs_MultiPhaseEquil *eqsolve = new VCSnonideal::vcs_MultiPhaseEquil(&s, printLvlSub);
+      iStab = eqsolve->determine_PhaseStability(iphase, funcStab, printLvlSub, loglevel);
+      if (iStab != 0) {
+	addLogEntry("Phase is stable  - ", iphase);
+      } else {
+	addLogEntry("Phase is not stable - ", iphase);
+      }
+      endLogGroup("PhaseStability");
+      // hard code a csv output file.
+      if (printLvl > 0) {
+	string reportFile = "vcs_phaseStability.csv";
+	if (counter > 0) {
+	  reportFile = "vcs_phaseStability_" + int2str(counter) + ".csv";
+	}
+	eqsolve->reportCSV(reportFile);
+	counter++;
+      }
+      delete eqsolve;
+    }
+    catch (CanteraError &e) {
+      addLogEntry("Failure.", lastErrorMessage());
+      endLogGroup("equilibrate");
+      throw e;
+    }
+    return iStab;
+  }
+  //====================================================================================================================
 }

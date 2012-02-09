@@ -23,7 +23,7 @@
 #ifndef CT_MARGULESVPSSTP_H
 #define CT_MARGULESVPSSTP_H
 
-#include "PseudoBinaryVPSSTP.h"
+#include "GibbsExcessVPSSTP.h"
 
 namespace Cantera {
 
@@ -78,8 +78,11 @@ namespace Cantera {
    * <H2> Specification of Solution Thermodynamic Properties </H2>
    * <HR>
    *
-   * The excess Gibbs free energy (expressed as an extrinsic thermodynamic
-   * variable) is given by the following formula:
+   * The molar excess Gibbs free energy is given by the following formula which is a sum over interactions <I>i</I>.
+   * Each of the interactions are binary interactions involving two of the species in the phase, denoted, <I>Ai</I>
+   * and <I>Bi</I>.
+   * This is the generalization of the Margules formulation for a phase
+   * that has more than 2 species. 
    *
    *      \f[
    *          G^E = \sum_i \left(  H_{Ei} - T S_{Ei} \right)
@@ -100,42 +103,56 @@ namespace Cantera {
    *            a_k = \gamma_k  X_k
    *       \f]
    *
-   * where \f$ X_k \f$ is the mole fraction of species <I>k</I>.
+   *      where 
+   *
+   *      \f[
+   *           R T \ln( \gamma_k )= \frac{d(n G^E)}{d(n_k)}\Bigg|_{n_i}
+   *      \f]
+   *
+   * Taking the derivatives results in the following expression
+   *
+   *      \f[ 
+   *           R T \ln( \gamma_k )= \sum_i \left( \left( \delta_{Ai,k} X_{Bi} + \delta_{Bi,k} X_{Ai}  - X_{Ai} X_{Bi} \right)
+   *            \left( g^E_{o,i} +  g^E_{1,i} X_{Bi} \right) +
+   *            \left( \delta_{Bi,k} - X_{Bi} \right)      X_{Ai} X_{Bi}  g^E_{1,i} \right)
+   *      \f]
+   * where
+   *        \f$  g^E_{o,i} =  h_{o,i} - T s_{o,i} \f$ and \f$ g^E_{1,i} =  h_{1,i} - T s_{1,i} \f$
+   * and where \f$ X_k \f$ is the mole fraction of species <I>k</I>.
+   *
+   * This object inherits from the class VPStandardStateTP. Therefore, the specification and
+   * calculation of all standard state and reference state values are handled at that level. Various functional
+   * forms for the standard state are permissible.
    * The chemical potential for species <I>k</I> is equal to
    *
    *       \f[
-   *            \mu_k(T,P) = \mu^o_k(T, P) + R T \log(\gamma_k X_k)
-   *       \f]
-   *
-   * In terms of the reference state, the above can be rewritten
-   *
-   *
-   *       \f[
-   *            \mu_k(T,P) = \mu^{ref}_k(T, P) + R T \log(\frac{P X_k}{P_{ref}})
+   *            \mu_k(T,P) = \mu^o_k(T, P) + R T \ln(\gamma_k X_k)
    *       \f]
    *
    * The partial molar entropy for species <I>k</I> is given by the following relation,
    *
    *       \f[
-   *            \tilde{s}_k(T,P) = s^o_k(T,P) - R \log(X_k) = s^{ref}_k(T) - R \log(\frac{P X_k}{P_{ref}})
+   *             \tilde{s}_k(T,P) =  s^o_k(T,P)  - R \ln( \gamma_k X_k )
+   *                    - R T \frac{d \ln(\gamma_k) }{dT}
    *       \f]
    *
-   * The partial molar enthalpy for species <I>k</I> is
+   * The partial molar enthalpy for species <I>k</I> is given by
    *
    *       \f[
-   *            \tilde{h}_k(T,P) = h^o_k(T,P) = h^{ref}_k(T)
+   *            \tilde{h}_k(T,P) = h^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}
    *       \f]
    *
-   * The partial molar Internal Energy for species <I>k</I> is
+   * The partial molar volume for  species <I>k</I> is
    *
    *       \f[
-   *            \tilde{u}_k(T,P) = u^o_k(T,P) = u^{ref}_k(T)
+   *              \tilde V_k(T,P)  = V^o_k(T,P)  + R T \frac{d \ln(\gamma_k) }{dP}
    *       \f]
    *
    * The partial molar Heat Capacity for species <I>k</I> is
    *
    *       \f[
-   *            \tilde{Cp}_k(T,P) = Cp^o_k(T,P) = Cp^{ref}_k(T)
+   *            \tilde{C}_{p,k}(T,P) = C^o_{p,k}(T,P)   - 2 R T \frac{d \ln( \gamma_k )}{dT}
+   *                    - R T^2 \frac{d^2 \ln(\gamma_k) }{{dT}^2}
    *       \f]
    *
    * <HR>
@@ -476,41 +493,14 @@ namespace Cantera {
      * @{
      */
 
-  
- 
 
-    /**
-     * The standard concentration \f$ C^0_k \f$ used to normalize
-     * the generalized concentration. In many cases, this quantity
-     * will be the same for all species in a phase - for example,
-     * for an ideal gas \f$ C^0_k = P/\hat R T \f$. For this
-     * reason, this method returns a single value, instead of an
-     * array.  However, for phases in which the standard
-     * concentration is species-specific (e.g. surface species of
-     * different sizes), this method may be called with an
-     * optional parameter indicating the species.
-     *
-     * @param k species index. Defaults to zero.
-     */
-    virtual doublereal standardConcentration(int k=0) const;
-
-    /**
-     * Returns the natural logarithm of the standard 
-     * concentration of the kth species
-     *
-     * @param k  species index
-     */
-    virtual doublereal logStandardConc(int k=0) const;
-
-    //! Get the array of non-dimensional molar-based activity coefficients at
+    //! Get the array of non-dimensional molar-based ln activity coefficients at
     //! the current solution temperature, pressure, and solution concentration.
     /*!
-     * @param ac Output vector of activity coefficients. Length: m_kk.
+     * @param ac Output vector of ln activity coefficients. Length: m_kk.
      */
-    virtual void getActivityCoefficients(doublereal* ac) const;
+    virtual void getLnActivityCoefficients(doublereal* lnac) const;
 
-
-   
  
     //@}
     /// @name  Partial Molar Properties of the Solution 
@@ -527,7 +517,18 @@ namespace Cantera {
      */
     virtual void getChemPotentials(doublereal* mu) const;
 
-  
+      /// Molar enthalpy. Units: J/kmol. 
+    virtual doublereal enthalpy_mole() const;
+
+      /// Molar entropy. Units: J/kmol. 
+    virtual doublereal entropy_mole() const;
+
+    /// Molar heat capacity at constant pressure. Units: J/kmol/K. 
+    virtual doublereal cp_mole() const;
+
+    /// Molar heat capacity at constant volume. Units: J/kmol/K. 
+    virtual doublereal cv_mole() const;
+
     //! Returns an array of partial molar enthalpies for the species
     //! in the mixture.
     /*!
@@ -566,6 +567,28 @@ namespace Cantera {
      */
     virtual void getPartialMolarEntropies(doublereal* sbar) const;
 
+    //! Returns an array of partial molar entropies for the species
+    //! in the mixture.
+    /*!
+     * Units (J/kmol)
+     *
+     * For this phase, the partial molar enthalpies are equal to the
+     * standard state enthalpies modified by the derivative of the
+     * activity coefficent wrt temperature
+     *
+     *  \f[
+     *   ???????????????
+     *   \bar s_k(T,P) = s^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}
+     *                              - R \ln( \gamma_k X_k)
+     *                              - R T \frac{d \ln(\gamma_k) }{dT}
+     *   ???????????????
+     *  \f]
+     *
+     * @param cpbar  Vector of returned partial molar heat capacities
+     *              (length m_kk, units = J/kmol/K)
+     */
+    virtual void getPartialMolarCp(doublereal* cpbar) const;
+
     
     //! Return an array of partial molar volumes for the
     //! species in the mixture. Units: m^3/kmol.
@@ -592,19 +615,18 @@ namespace Cantera {
      */
     void getElectrochemPotentials(doublereal* mu) const;
 
- 
-    //! Get the array of change in the log activity coefficients with change in state (change temp, change mole fractions)
+    //! Get the array of temperature second derivatives of the log activity coefficients
     /*!
      * This function is a virtual class, but it first appears in GibbsExcessVPSSTP
      * class and derived classes from GibbsExcessVPSSTP.
      *
      *  units = 1/Kelvin
      *
-     * @param dlnActCoeff    Output vector of temperature derivatives of the 
+     * @param d2lnActCoeffdT2  Output vector of temperature 2nd derivatives of the 
      *                         log Activity Coefficients. length = m_kk
      *
      */
-    virtual void getdlnActCoeff(const doublereal dT, const doublereal * const dX, doublereal *dlnActCoeffdT) const;
+    virtual void getd2lnActCoeffdT2(doublereal *d2lnActCoeffdT2) const;
 
     //! Get the array of temperature derivatives of the log activity coefficients
     /*!
@@ -619,28 +641,6 @@ namespace Cantera {
      */
     virtual void getdlnActCoeffdT(doublereal *dlnActCoeffdT) const;
 
- 
-    //! Get the array of log concentration-like derivatives of the 
-    //! log activity coefficients
-    /*!
-     * This function is a virtual method.  For ideal mixtures 
-     * (unity activity coefficients), this can return zero.  
-     * Implementations should take the derivative of the 
-     * logarithm of the activity coefficient with respect to the 
-     * logarithm of the concentration-like variable (i.e. mole fraction,
-     * molality, etc.) that represents the standard state.  
-     * This quantity is to be used in conjunction with derivatives of 
-     j that concentration-like variable when the derivative of the chemical 
-     * potential is taken.  
-     *
-     *  units = dimensionless
-     *
-     * @param dlnActCoeffdlnX    Output vector of log(mole fraction)  
-     *                 derivatives of the log Activity Coefficients.
-     *                 length = m_kk
-     */
-    virtual void getdlnActCoeffdlnX(doublereal *dlnActCoeffdlnX) const;
-    virtual void getdlnActCoeffdlnN(doublereal *dlnActCoeffdlnN) const;
 
  
     //@}
@@ -731,6 +731,81 @@ namespace Cantera {
      */
     void initThermoXML(XML_Node& phaseNode, std::string id);
 
+    /**
+     * @} 
+     * @name  Derivatives of Thermodynamic Variables needed for Applications
+     * @{
+     */
+
+    //! Get the change in activity coefficients w.r.t. change in state (temp, mole fraction, etc.) along
+    //! a line in parameter space or along a line in physical space
+    /*!
+     *
+     * @param dTds           Input of temperature change along the path
+     * @param dXds           Input vector of changes in mole fraction along the path. length = m_kk
+     *                       Along the path length it must be the case that the mole fractions sum to one.
+     * @param dlnActCoeffds  Output vector of the directional derivatives of the 
+     *                       log Activity Coefficients along the path. length = m_kk
+     *  units are 1/units(s). if s is a physical coordinate then the units are 1/m.
+     */
+    virtual void getdlnActCoeffds(const doublereal dTds, const doublereal * const dXds, doublereal *dlnActCoeffds) const;
+ 
+    //! Get the array of log concentration-like derivatives of the 
+    //! log activity coefficients - diagonal component
+    /*!
+     * This function is a virtual method.  For ideal mixtures 
+     * (unity activity coefficients), this can return zero.  
+     * Implementations should take the derivative of the 
+     * logarithm of the activity coefficient with respect to the 
+     * logarithm of the mole fraction.
+     *
+     *  units = dimensionless
+     *
+     * @param dlnActCoeffdlnX_diag    Output vector of the diagonal component of the log(mole fraction)  
+     *                 derivatives of the log Activity Coefficients.
+     *                 length = m_kk
+     */
+    virtual void getdlnActCoeffdlnX_diag(doublereal *dlnActCoeffdlnX_diag) const;
+
+    //! Get the array of  derivatives of the log activity coefficients wrt mole numbers - diagonal only
+    /*!
+     * This function is a virtual method.  For ideal mixtures 
+     * (unity activity coefficients), this can return zero.  
+     * Implementations should take the derivative of the 
+     * logarithm of the activity coefficient with respect to the 
+     * logarithm of the concentration-like variable (i.e. mole fraction,
+     * molality, etc.) that represents the standard state.  
+     *
+     *  units = dimensionless
+     *
+     * @param dlnActCoeffdlnN_diag    Output vector of the diagonal entries for the log(mole fraction)  
+     *                 derivatives of the log Activity Coefficients.
+     *                 length = m_kk
+     */
+    virtual void getdlnActCoeffdlnN_diag(doublereal *dlnActCoeffdlnN_diag) const;
+
+
+    //! Get the array of derivatives of the ln activity coefficients with respect to the ln species mole numbers
+    /*!
+     * Implementations should take the derivative of the logarithm of the activity coefficient with respect to a
+     * log of a species mole number (with all other species mole numbers held constant)
+     * 
+     *  units = 1 / kmol
+     *
+     *  dlnActCoeffdlnN[ ld * k  + m]  will contain the derivative of log act_coeff for the <I>m</I><SUP>th</SUP> 
+     *                                 species with respect to the number of moles of the <I>k</I><SUP>th</SUP> species.
+     *
+     * \f[
+     *        \frac{d \ln(\gamma_m) }{d \ln( n_k ) }\Bigg|_{n_i}
+     * \f]
+     *
+     * @param ld               Number of rows in the matrix
+     * @param dlnActCoeffdlnN    Output vector of derivatives of the 
+     *                         log Activity Coefficients. length = m_kk * m_kk        
+     */
+    virtual void getdlnActCoeffdlnN(const int ld, doublereal * const dlnActCoeffdlnN) ;
+
+   //@}
 
   private:
   
@@ -780,14 +855,22 @@ namespace Cantera {
      * derivative of the natural logarithm of the activity coefficients
      * wrt logarithm of the mole fractions.
      */
-    void s_update_dlnActCoeff_dlnX() const;
+    void s_update_dlnActCoeff_dlnX_diag() const;
 
     //! Update the derivative of the log of the activity coefficients
-    //!  wrt log(moles)
+    //!  wrt log(moles) - diagonal only
+    /*!
+     * This function will be called to update the internally storred diagonal entries for the
+     * derivative of the natural logarithm of the activity coefficients
+     * wrt logarithm of the moles.
+     */
+    void s_update_dlnActCoeff_dlnN_diag() const;
+
+    //! Update the derivative of the log of the activity coefficients  wrt log(moles_m)
     /*!
      * This function will be called to update the internally storred
      * derivative of the natural logarithm of the activity coefficients
-     * wrt logarithm of the moles.
+     * wrt logarithm of the mole number of species
      */
     void s_update_dlnActCoeff_dlnN() const;
 
@@ -854,6 +937,8 @@ namespace Cantera {
     //! Entropy term for the quaternary mole fraction interaction of the
     //! excess gibbs free energy expression
     mutable vector_fp m_VSE_d_ij;
+
+
     
     //! vector of species indices representing species A in the interaction
     /*!

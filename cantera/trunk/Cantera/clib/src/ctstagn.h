@@ -68,7 +68,7 @@ extern "C" {
     int DLL_IMPORT onedim_settransientmode(int i, double dt, double* x);
     int DLL_IMPORT onedim_setnewtonoptions(int i, int maxage);
     int DLL_IMPORT onedim_resize(int i);
-    int DLL_IMPORT onedim_writeStats(int i);
+    int DLL_IMPORT onedim_writeStats(int i, int printTime = 1);
     double DLL_IMPORT onedim_timestep(int i, int nsteps, double dt,
         double* x, double* xnew, int loglevel);
     int DLL_IMPORT onedim_save(int i, char* fname, char* id, char* desc, double* soln);

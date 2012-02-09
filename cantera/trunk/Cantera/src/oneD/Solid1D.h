@@ -197,7 +197,15 @@ namespace Cantera {
 
         virtual void showSolution(const doublereal* x);
 
-        virtual void save(XML_Node& o, doublereal* sol);
+    //! Save the current solution for this domain into an XML_Node
+    /*!
+     *
+     *  @param o    XML_Node to save the solution to.
+     *  @param sol  Current value of the solution vector.
+     *              The object will pick out which part of the solution
+     *              vector pertains to this object.
+     */
+        virtual void save(XML_Node& o, const doublereal * const sol);
 
         virtual void restore(XML_Node& dom, doublereal* soln);
 

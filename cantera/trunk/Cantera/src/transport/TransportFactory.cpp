@@ -6,6 +6,10 @@
  *
  *
  */
+/*
+ * $Revision$  
+ * $Date$
+ */
 
 // turn off warnings under Windows
 #ifdef WIN32
@@ -37,86 +41,63 @@
 #include "XML_Writer.h"
 #include "TransportParams.h"
 #include "LiquidTransportParams.h"
+#include "LiquidTranInteraction.h"
 #include "global.h"
 #include "IdealGasPhase.h"
 #include "ctml.h"
 
 #include <cstdio>
+#include <cstring>
 
 using namespace std;
 
-/**
- * polynomial degree used for fitting collision integrals
- * except in CK mode, where the degree is 6.
- */
+
+//! polynomial degree used for fitting collision integrals
+//! except in CK mode, where the degree is 6.
 #define COLL_INT_POLY_DEGREE 8
 
-
 namespace Cantera {
+  /////////////////////////// constants //////////////////////////
+  //@ \cond
+  const doublereal ThreeSixteenths = 3.0/16.0;
+  const doublereal TwoOverPi       = 2.0/Pi;
+  const doublereal FiveThirds      = 5.0/3.0;
+  //@ \endcond
+  
 
+ //====================================================================================================================
   TransportFactory* TransportFactory::s_factory = 0;
+
 #if defined(THREAD_SAFE_CANTERA)
+  // declaration of static storage for the mutex
   boost::mutex  TransportFactory::transport_mutex;
 #endif
 
     
   ////////////////////////// exceptions /////////////////////////
 
-  /** 
-   * Exception thrown if an error is encountered while reading the 
-   * transport database.
-   */
+  //====================================================================================================================
+  //! Exception thrown if an error is encountered while reading the transport database
   class TransportDBError : public CanteraError {
   public:
-    TransportDBError(int linenum, string msg) 
-      : CanteraError("getTransportData",
-		     "error reading transport data: " 
-		     + msg + "\n") {}
-  };
-
-
-  class NotImplemented : public CanteraError {
-  public:
-    NotImplemented(string method) : CanteraError("Transport",
-						 "\n\n\n**** Method "+method+" not implemented. ****\n"
-						 "(Did you forget to specify a transport model?)\n\n\n") {}
-  };
-
-
-  /////////////////////////// constants //////////////////////////
-
-  const doublereal ThreeSixteenths = 3.0/16.0;
-  const doublereal TwoOverPi       = 2.0/Pi;
-  const doublereal FiveThirds      = 5.0/3.0;
-
-
-  TransportParams::~TransportParams(){
-#ifdef DEBUG_MODE
-    delete xml;
-#endif
-  };
-
-
-  /**
-   * getArrhenius() parses the xml element called Arrhenius. 
-   * The Arrhenius expression is
-   * \f[        k =  A T^(b) exp (-E_a / RT). \f]
-   */
-  static void getArrhenius(const XML_Node& node, 
-			   doublereal& A, doublereal& b, doublereal& E) {
-    /* parse the children for the A, b, and E conponents.
+    //! Default constructor
+    /*!
+     *  @param linenum  inputs the line number
+     *  @param msg      String message to be sent to the user
      */
-    A = getFloat(node, "A", "toSI");
-    b = getFloat(node, "b");
-    E = getFloat(node, "E", "actEnergy");
-    E /= GasConstant;
-  }                
+    TransportDBError(int linenum, std::string msg) :
+      CanteraError("getTransportData", "error reading transport data: "  + msg + "\n") 
+    {
+    }
+  };
+  //====================================================================================================================
 
   //////////////////// class TransportFactory methods //////////////
 
-
-  /**
-   * Calculate second-order corrections to binary diffusion
+  //====================================================================================================================
+  // Second-order correction to the binary diffusion coefficients
+  /*
+   *    Calculate second-order corrections to binary diffusion
    * coefficient pair (dkj, djk). At first order, the binary
    * diffusion coefficients are independent of composition, and
    * d(k,j) = d(j,k). But at second order, there is a weak
@@ -126,17 +107,17 @@ namespace Cantera {
    * to produce the value correct to second order. The expressions
    * here are taken from Marerro and Mason,
    * J. Phys. Chem. Ref. Data, vol. 1, p. 3 (1972).
-   *
-   * @param t   Temperature (K)
-   * @param tr  Transport parameters
-   * @param k   index of first species
-   * @param j   index of second species
-   * @param xmk mole fraction of species k
-   * @param xmj mole fraction of species j
-   * @param fkj multiplier for d(k,j)
-   * @param fjk multiplier for d(j,k) 
-   *
-   * @note This method is not used currently.
+   * 
+   *  @param t   Temperature (K)
+   *   @param tr  Transport parameters
+   *   @param k   index of first species
+   *  @param j   index of second species
+   *  @param xmk mole fraction of species k
+   *  @param xmj mole fraction of species j
+   *  @param fkj multiplier for d(k,j)
+   *  @param fjk multiplier for d(j,k) 
+   *  
+   *  @note This method is not used currently.
    */
   void TransportFactory::getBinDiffCorrection(doublereal t, 
 					      const GasTransportParams& tr, int k, int j, doublereal xk, doublereal xj, 
@@ -202,13 +183,19 @@ namespace Cantera {
       (p2*xk*xk + p1*xj*xj + p12*xk*xj)/
       (q2*xk*xk + q1*xj*xj + q12*xk*xj);
   }
-
-
-  /** 
+  //=============================================================================================================================
+  // Corrections for polar-nonpolar binary diffusion coefficients
+  /*
    * Calculate corrections to the well depth parameter and the
-   * diamter for use in computing the binary diffusion coefficient
+   * diameter for use in computing the binary diffusion coefficient
    * of polar-nonpolar pairs. For more information about this
    * correction, see Dixon-Lewis, Proc. Royal Society (1968).
+   *
+   *  @param i          Species one - this is a bimolecular correction routine
+   *  @param j          species two - this is a bimolecular correction routine
+   *  @param tr         Database of species properties read in from the input xml file.
+   *  @param f_eps      Multiplicative correction factor to be applied to epsilon(i,j)
+   *  @param f_sigma    Multiplicative correction factor to be applied to diam(i,j)
    */
   void TransportFactory::makePolarCorrections(int i, int j, 
 					      const GasTransportParams& tr, doublereal& f_eps, doublereal& f_sigma) {
@@ -234,18 +221,17 @@ namespace Cantera {
     f_sigma = pow(xi, -1.0/6.0);
     f_eps = xi*xi;
   }
-
-  /**
-   * TransportFactory(): default constructor
-   *     
-   *   The default constructor for this class sets up 
-   *   m_models[], a mapping between the string name
-   *   for a transport model and the integer name.
-   */
+  //=============================================================================================================================
+  /*
+    TransportFactory(): default constructor
+    
+    The default constructor for this class sets up 
+    m_models[], a mapping between the string name
+    for a transport model and the integer name.
+  */
   TransportFactory::TransportFactory() :
     m_verbose(false),
     m_integrals(0)
-    
   {
     m_models["Mix"] = cMixtureAveraged;
     m_models["Multi"] = cMulticomponent;
@@ -260,17 +246,41 @@ namespace Cantera {
     m_models["None"] = None;
     //m_models["Radiative"] = cRadiative;
 
+    m_tranPropMap["viscostiy"] = TP_VISCOSITY;
+    m_tranPropMap["ionConductivity"] = TP_IONCONDUCTIVITY;
+    m_tranPropMap["mobilityRatio"] = TP_MOBILITYRATIO;
+    m_tranPropMap["selfDiffusion"] = TP_SELFDIFFUSION;
+    m_tranPropMap["thermalConductivity"] = TP_THERMALCOND;
+    m_tranPropMap["speciesDiffusivity"] = TP_DIFFUSIVITY;
+    m_tranPropMap["hydrodynamicRadius"] = TP_HYDRORADIUS;
+    m_tranPropMap["electricalConductivity"] = TP_ELECTCOND;
+
+    m_LTRmodelMap[""] = LTP_TD_CONSTANT;
+    m_LTRmodelMap["constant"] = LTP_TD_CONSTANT;
+    m_LTRmodelMap["arrhenius"] = LTP_TD_ARRHENIUS;
+    m_LTRmodelMap["coeffs"] = LTP_TD_POLY;
+    m_LTRmodelMap["exptemp"] = LTP_TD_EXPT;
+
+    m_LTImodelMap[""] = LTI_MODEL_NOTSET;
+    m_LTImodelMap["none"] = LTI_MODEL_NONE;
+    m_LTImodelMap["solvent"] = LTI_MODEL_SOLVENT;
+    m_LTImodelMap["moleFractions"] = LTI_MODEL_MOLEFRACS;
+    m_LTImodelMap["massFractions"] = LTI_MODEL_MASSFRACS;
+    m_LTImodelMap["logMoleFractions"] = LTI_MODEL_LOG_MOLEFRACS;
+    m_LTImodelMap["pairwiseInteraction"] = LTI_MODEL_PAIRWISE_INTERACTION;
+    m_LTImodelMap["stefanMaxwell_PPN"] = LTI_MODEL_STEFANMAXWELL_PPN;
+    m_LTImodelMap["moleFractionsExpT"] = LTI_MODEL_MOLEFRACS_EXPT;
   }
 
-  /**
-   * Destructor 
-   *
-   * We do not delete statically created single instance of this
-   * class here, because it would create an infinite loop if
-   * destructor is called for that single instance.  However, we do
-   * have a pointer to m_integrals that does need to be
-   * explicitly deleted.
-   */
+  /*
+    Destructor 
+    
+    We do not delete statically created single instance of this
+    class here, because it would create an infinite loop if
+    destructor is called for that single instance.  However, we do
+    have a pointer to m_integrals that does need to be
+    explicitly deleted.
+  */
   TransportFactory::~TransportFactory() {
     if (m_integrals) {
       delete m_integrals;
@@ -278,9 +288,7 @@ namespace Cantera {
     }
   }
     
-  /**
-   * This static function deletes the statically allocated instance.
-   */
+  // This static function deletes the statically allocated instance.
   void TransportFactory::deleteFactory() {
 #if defined(THREAD_SAFE_CANTERA)
     boost::mutex::scoped_lock   lock(transport_mutex) ;
@@ -291,10 +299,100 @@ namespace Cantera {
     }
   }
 
-  /**
-   *  make one of several transport models, and return a base class
-   *  pointer to it.
-   */
+  /*
+    make one of several transport models, and return a base class
+    pointer to it.  This method operates at the level of a 
+    single transport property as a function of temperature 
+    and possibly composition.
+  */
+  LTPspecies* TransportFactory::newLTP(const XML_Node &trNode, std::string &name, 
+				       TransportPropertyType tp_ind, thermo_t* thermo)
+  {
+    LTPspecies* ltps = 0;
+    std::string model = lowercase(trNode["model"]);
+    switch (m_LTRmodelMap[model]) {
+    case LTP_TD_CONSTANT:
+      ltps = new LTPspecies_Const(trNode, name, tp_ind, thermo);
+      break;
+    case LTP_TD_ARRHENIUS:
+      ltps = new LTPspecies_Arrhenius(trNode, name, tp_ind, thermo);
+      break;
+    case LTP_TD_POLY:
+      ltps = new LTPspecies_Poly(trNode, name, tp_ind, thermo);
+      break;
+    case LTP_TD_EXPT:
+      ltps = new LTPspecies_ExpT(trNode, name, tp_ind, thermo);
+      break;
+    default:
+      throw CanteraError("newLTP","unknown transport model: " + model);
+      ltps = new LTPspecies(&trNode, name, tp_ind, thermo);
+    }
+    return ltps;
+  }
+
+  /*
+    make one of several transport models, and return a base class
+    pointer to it.  This method operates at the level of a 
+    single mixture transport property.  Individual species 
+    transport properties are addressed by the LTPspecies 
+    returned by newLTP
+  */
+  LiquidTranInteraction* TransportFactory::newLTI(const XML_Node &trNode, 
+						  TransportPropertyType tp_ind, 
+						  LiquidTransportParams& trParam) {
+    LiquidTranInteraction* lti = 0;
+
+    thermo_t* thermo = trParam.thermo;
+
+    std::string model = trNode["model"];
+    switch (m_LTImodelMap[model] ) {
+    case LTI_MODEL_SOLVENT:
+      lti = new LTI_Solvent(tp_ind);			     
+      lti->init(trNode, thermo );
+      break;
+    case LTI_MODEL_MOLEFRACS:
+      lti = new LTI_MoleFracs(tp_ind );
+      lti->init(trNode, thermo );
+      break;
+    case LTI_MODEL_MASSFRACS:
+      lti = new LTI_MassFracs(tp_ind );
+      lti->init(trNode, thermo );
+      break;
+    case LTI_MODEL_LOG_MOLEFRACS:
+      lti = new LTI_Log_MoleFracs(tp_ind );
+      lti->init(trNode, thermo );
+      break;
+    case LTI_MODEL_PAIRWISE_INTERACTION:
+      lti = new LTI_Pairwise_Interaction(tp_ind );
+      lti->init(trNode, thermo );
+      lti->setParameters(trParam );
+      break;
+    case LTI_MODEL_STEFANMAXWELL_PPN:
+      lti = new LTI_StefanMaxwell_PPN(tp_ind );
+      lti->init(trNode, thermo );
+      lti->setParameters(trParam );
+      break;
+    case LTI_MODEL_STOKES_EINSTEIN:
+      lti = new LTI_StokesEinstein(tp_ind );
+      lti->init(trNode, thermo );
+      lti->setParameters(trParam );
+      break;
+    case LTI_MODEL_MOLEFRACS_EXPT:
+      lti = new LTI_MoleFracs_ExpT(tp_ind );
+      lti->init(trNode, thermo );
+      break;
+    default:
+      //      throw CanteraError("newLTI","unknown transport model: " + model );
+      lti = new LiquidTranInteraction(tp_ind );
+      lti->init(trNode, thermo );
+    }
+    return lti;
+  }
+
+  /*
+    make one of several transport models, and return a base class
+    pointer to it.
+  */
   Transport* TransportFactory::newTransport(std::string transportModel,
 					    thermo_t* phase, int log_level) {
 
@@ -362,10 +460,10 @@ namespace Cantera {
     return tr;
   }
  
-  /**
-   *  make one of several transport models, and return a base class
-   *  pointer to it.
-   */
+  /*
+    make one of several transport models, and return a base class
+    pointer to it.
+  */
   Transport* TransportFactory::newTransport(thermo_t* phase, int log_level) {
     XML_Node &phaseNode=phase->xml();
     /*
@@ -376,7 +474,7 @@ namespace Cantera {
                          "no transport XML node");
     }
     XML_Node& transportNode = phaseNode.child("transport");
-    string transportModel = transportNode.attrib("model");
+    std::string transportModel = transportNode.attrib("model");
     if (transportModel == "") {
       throw CanteraError("TransportFactory::newTransport",
                          "transport XML node doesn't have a model string");
@@ -384,14 +482,23 @@ namespace Cantera {
     return newTransport(transportModel, phase,log_level);
   }
 
-
-  /** 
-   * Prepare to build a new kinetic-theory-based transport manager
-   * for low-density gases. Uses polynomial fits to Monchick & Mason
-   * collision integrals.
+  //====================================================================================================================
+  // Prepare to build a new kinetic-theory-based transport manager for low-density gases
+  /*
+   *  This class fills up the GastransportParams structure for the current phase
+   *
+   *  Uses polynomial fits to Monchick & Mason collision integrals. store then in tr
+   *
+   *  @param flog                 Reference to the ostream for writing log info
+   *  @param transport_database   Reference to a vector of pointers containing the
+   *                              transport database for each species
+   *  @param thermo               Pointer to the %ThermoPhase object
+   *  @param mode                 Mode -> Either it's CK_Mode, chemkin compatibility mode, or it is not
+   *                              We usually run with chemkin compatibility mode turned off.
+   *  @param log_level            log level
+   *  @param tr                   GasTransportParams structure to be filled up with information
    */
-  void TransportFactory::setupMM(std::ostream &flog, 
-				 const std::vector<const XML_Node*> &transport_database, 
+  void TransportFactory::setupMM(std::ostream &flog, const std::vector<const XML_Node*> &transport_database, 
 				 thermo_t* thermo, int mode, int log_level, GasTransportParams& tr) {
         
     // constant mixture attributes
@@ -404,8 +511,7 @@ namespace Cantera {
     tr.mw.resize(nsp);
     tr.log_level = log_level;
 
-    copy(tr.thermo->molecularWeights().begin(), 
-	 tr.thermo->molecularWeights().end(), tr.mw.begin());
+    copy(tr.thermo->molecularWeights().begin(), tr.thermo->molecularWeights().end(), tr.mw.begin());
 
     tr.mode_ = mode;
     tr.epsilon.resize(nsp, nsp, 0.0);
@@ -422,8 +528,7 @@ namespace Cantera {
     tr.eps.resize(nsp);
 
     XML_Node root, log;
-    getTransportData(transport_database, log,  
-		     tr.thermo->speciesNames(), tr);
+    getTransportData(transport_database, log, tr.thermo->speciesNames(), tr);
 
     int i, j;
     for (i = 0; i < nsp; i++) tr.poly[i].resize(nsp);
@@ -434,47 +539,44 @@ namespace Cantera {
     DenseMatrix& diam = tr.diam;
     DenseMatrix& epsilon = tr.epsilon;
 
-    for (i = 0; i < nsp; i++) 
-      {
-	for (j = i; j < nsp; j++) 
-	  {
-	    // the reduced mass
-	    tr.reducedMass(i,j) = 
-	      tr.mw[i] * tr.mw[j] / (Avogadro * (tr.mw[i] + tr.mw[j]));
+    for (i = 0; i < nsp; i++) {
+      for (j = i; j < nsp; j++) {
+	// the reduced mass
+	tr.reducedMass(i,j) =  tr.mw[i] * tr.mw[j] / (Avogadro * (tr.mw[i] + tr.mw[j]));
 
-	    // hard-sphere diameter for (i,j) collisions
-	    diam(i,j) = 0.5*(tr.sigma[i] + tr.sigma[j]);
+	// hard-sphere diameter for (i,j) collisions
+	diam(i,j) = 0.5*(tr.sigma[i] + tr.sigma[j]);
 
-	    // the effective well depth for (i,j) collisions
-	    epsilon(i,j) = sqrt(tr.eps[i]*tr.eps[j]);
+	// the effective well depth for (i,j) collisions
+	epsilon(i,j) = sqrt(tr.eps[i]*tr.eps[j]);
 
-	    //  The polynomial fits of collision integrals vs. T* 
-	    //  will be done for the T* from tstar_min to tstar_max
-	    ts1 = Boltzmann * tr.tmin/epsilon(i,j);
-	    ts2 = Boltzmann * tr.tmax/epsilon(i,j);
-	    if (ts1 < tstar_min) tstar_min = ts1;
-	    if (ts2 > tstar_max) tstar_max = ts2;
+	//  The polynomial fits of collision integrals vs. T* 
+	//  will be done for the T* from tstar_min to tstar_max
+	ts1 = Boltzmann * tr.tmin/epsilon(i,j);
+	ts2 = Boltzmann * tr.tmax/epsilon(i,j);
+	if (ts1 < tstar_min) tstar_min = ts1;
+	if (ts2 > tstar_max) tstar_max = ts2;
 
-	    // the effective dipole moment for (i,j) collisions
-	    tr.dipole(i,j) = sqrt(tr.dipole(i,i)*tr.dipole(j,j));
+	// the effective dipole moment for (i,j) collisions
+	tr.dipole(i,j) = sqrt(tr.dipole(i,i)*tr.dipole(j,j));
 
-	    // reduced dipole moment delta* (nondimensional)
-	    doublereal d = diam(i,j);
-	    tr.delta(i,j) =  0.5 * tr.dipole(i,j)*tr.dipole(i,j) 
-	      / (epsilon(i,j) * d * d * d);
+	// reduced dipole moment delta* (nondimensional)
+	doublereal d = diam(i,j);
+	tr.delta(i,j) =  0.5 * tr.dipole(i,j)*tr.dipole(i,j) 
+	  / (epsilon(i,j) * d * d * d);
 
-	    makePolarCorrections(i, j, tr, f_eps, f_sigma);
-	    tr.diam(i,j) *= f_sigma;
-	    epsilon(i,j) *= f_eps;
+	makePolarCorrections(i, j, tr, f_eps, f_sigma);
+	tr.diam(i,j) *= f_sigma;
+	epsilon(i,j) *= f_eps;
 
-	    // properties are symmetric 
-	    tr.reducedMass(j,i) = tr.reducedMass(i,j);
-	    diam(j,i) = diam(i,j);
-	    epsilon(j,i) = epsilon(i,j);
-	    tr.dipole(j,i)  = tr.dipole(i,j);
-	    tr.delta(j,i)   = tr.delta(i,j);
-	  }
+	// properties are symmetric 
+	tr.reducedMass(j,i) = tr.reducedMass(i,j);
+	diam(j,i) = diam(i,j);
+	epsilon(j,i) = epsilon(i,j);
+	tr.dipole(j,i)  = tr.dipole(i,j);
+	tr.delta(j,i)   = tr.delta(i,j);
       }
+    }
 
     // Chemkin fits the entire T* range in the Monchick and Mason tables,
     // so modify tstar_min and tstar_max if in Chemkin compatibility mode
@@ -514,16 +616,21 @@ namespace Cantera {
 #endif
   }
 
-
-
-  /** 
-   * Prepare to build a new transport manager for liquids assuming that 
-   * viscosity transport data is provided in Arhennius form.
+  //====================================================================================================================
+  // Prepare to build a new transport manager for liquids assuming that 
+  // viscosity transport data is provided in Arhennius form.
+  /*
+   *  @param flog                 Reference to the ostream for writing log info
+   *  @param thermo               Pointer to the %ThermoPhase object
+   *  @param log_level            log level
+   *  @param trParam              LiquidTransportParams structure to be filled up with information
    */
-  void TransportFactory::setupLiquidTransport(std::ostream &flog, 
-					      const std::vector<const XML_Node*> &transport_database, 
-					      thermo_t* thermo, int log_level, LiquidTransportParams& trParam) {
+  void TransportFactory::setupLiquidTransport(std::ostream &flog, thermo_t* thermo, int log_level, 
+					      LiquidTransportParams& trParam) {
         
+    const std::vector<const XML_Node*> & species_database = thermo->speciesData();
+    const XML_Node* phase_database = &thermo->xml();
+
     // constant mixture attributes
     trParam.thermo = thermo;
     trParam.nsp_ = trParam.thermo->nSpecies();
@@ -539,25 +646,44 @@ namespace Cantera {
 	 trParam.thermo->molecularWeights().end(), trParam.mw.begin());
 
     // Resize all other vectors in trParam
-    trParam.visc_A.resize(nsp, 0.0);
-    trParam.visc_n.resize(nsp, 0.0);
-    trParam.visc_Tact.resize(nsp, 0.0); 
-    trParam.thermCond_A.resize(nsp, 0.0);
-    trParam.thermCond_n.resize(nsp, 0.0);
-    trParam.thermCond_Tact.resize(nsp, 0.0);
-    trParam.visc_Eij.resize(nsp, nsp, 0.0);
-    trParam.visc_Sij.resize(nsp, nsp, 0.0);
-    trParam.hydroRadius.resize(nsp, 0.0);
-    trParam.A_k_cond.resize(nsp, 0.0);
-    trParam.B_k_cond.resize(nsp, 0.0);
     trParam.LTData.resize(nsp);
 
+    // Need to identify a method to obtain interaction matrices.
+    // This will fill LiquidTransportParams members visc_Eij, visc_Sij
+    // trParam.visc_Eij.resize(nsp,nsp);
+    // trParam.visc_Sij.resize(nsp,nsp);
+    trParam.thermalCond_Aij.resize(nsp,nsp);
+    trParam.diff_Dij.resize(nsp,nsp);
+    trParam.radius_Aij.resize(nsp,nsp);
+
     XML_Node root, log;
-    getLiquidTransportData(transport_database, log,  
-			   trParam.thermo->speciesNames(), trParam);   
+    // Note that getLiquidSpeciesTransportData just populates the pure species transport data.  
+    getLiquidSpeciesTransportData(species_database, log, trParam.thermo->speciesNames(), trParam);   
+
+    // getLiquidInteractionsTransportData() populates the 
+    // species-species  interaction models parameters 
+    // like visc_Eij
+    if (phase_database->hasChild("transport")) {
+      XML_Node& transportNode = phase_database->child("transport");
+      getLiquidInteractionsTransportData(transportNode, log, trParam.thermo->speciesNames(), trParam);   
+    }
   }
-
-
+  //====================================================================================================================
+  // Initialize an existing transport manager
+  /*
+   *  This routine sets up an existing gas-phase transport manager.
+   *  It calculates the collision integrals and calls the initGas() function to 
+   *  populate the species-dependent data structure.
+   *
+   *  @param tr       Pointer to the Transport manager
+   *  @param thermo   Pointer to the ThermoPhase object
+   *  @param mode     Chemkin compatible mode or not. This alters the specification of the
+   *                  collision integrals. defaults to no.
+   *  @param log_level Defaults to zero, no logging
+   *
+   *                     In DEBUG_MODE, this routine will create the file transport_log.xml
+   *                     and write informative information to it.
+   */
   void TransportFactory::initTransport(Transport* tran, 
 				       thermo_t* thermo, int mode, int log_level) { 
 
@@ -565,6 +691,9 @@ namespace Cantera {
         
     GasTransportParams trParam;
 #ifdef DEBUG_MODE
+    if (log_level == 0) {
+      m_verbose = 0;
+    }
     ofstream flog("transport_log.xml");
     trParam.xml = new XML_Writer(flog);
     if (m_verbose) {
@@ -587,17 +716,15 @@ namespace Cantera {
 #endif
     return;
   }
+  //====================================================================================================================
 
-
-  /** Similar to initTransport except uses LiquidTransportParams
-   * class and calls setupLiquidTransport().
-   */
+  /* Similar to initTransport except uses LiquidTransportParams
+     class and calls setupLiquidTransport().
+  */
   void  TransportFactory::initLiquidTransport(Transport* tran, 
 					      thermo_t* thermo, 
 					      int log_level) { 
 
-    const std::vector<const XML_Node*> & transport_database = thermo->speciesData();
-        
     LiquidTransportParams trParam;
 #ifdef DEBUG_MODE
     ofstream flog("transport_log.xml");
@@ -609,7 +736,7 @@ namespace Cantera {
     // create the object, but don't associate it with a file
     std::ostream &flog(std::cout);
 #endif
-    setupLiquidTransport(flog, transport_database, thermo, log_level, trParam);
+    setupLiquidTransport(flog, thermo, log_level, trParam);
     // do model-specific initialization
     tran->initLiquid(trParam);
 #ifdef DEBUG_MODE
@@ -622,18 +749,14 @@ namespace Cantera {
     return;
 
   }
-
-
-
-  /********************************************************
-   *
-   *      Collision Integral Fits
-   *
-   ********************************************************/
-
-
-  void TransportFactory::fitCollisionIntegrals(ostream& logfile, 
-					       GasTransportParams& tr) {
+  //====================================================================================================================
+  // Generate polynomial fits to collision integrals
+  /*
+   *     @param logfile  Reference to an ostream that will contain log information when in
+   *                     DEBUG_MODE
+   *     @param tr       Reference to the GasTransportParams object that will contain the results.
+   */
+  void TransportFactory::fitCollisionIntegrals(ostream& logfile, GasTransportParams& tr) {
 
     vector_fp::iterator dptr;
     doublereal dstar;
@@ -652,54 +775,52 @@ namespace Cantera {
 	tr.xml->XML_comment(logfile, "*** polynomial coefficients not printed (log_level < 3) ***");
     }
 #endif
-    for (i = 0; i < nsp; i++) 
-      {
-	for (j = i; j < nsp; j++) 
-	  {
-	    // Chemkin fits only delta* = 0
-	    if (mode != CK_Mode) 
-	      dstar = tr.delta(i,j);
-	    else 
-	      dstar = 0.0;
+    for (i = 0; i < nsp; i++) {
+      for (j = i; j < nsp; j++)  {
+	// Chemkin fits only delta* = 0
+	if (mode != CK_Mode) {
+	  dstar = tr.delta(i,j);
+	} else {
+	  dstar = 0.0;
+	}
 
-	    // if a fit has already been generated for 
-	    // delta* = tr.delta(i,j), then use it. Otherwise,
-	    // make a new fit, and add tr.delta(i,j) to the list
-	    // of delta* values for which fits have been done.
+	// if a fit has already been generated for 
+	// delta* = tr.delta(i,j), then use it. Otherwise,
+	// make a new fit, and add tr.delta(i,j) to the list
+	// of delta* values for which fits have been done.
  
-	    // 'find' returns a pointer to end() if not found
-	    if (dptr = find(tr.fitlist.begin(), tr.fitlist.end(), 
-			    dstar), dptr == tr.fitlist.end()) 
-	      { 
-		vector_fp ca(degree+1), cb(degree+1), cc(degree+1);
-		vector_fp co22(degree+1);
-		m_integrals->fit(logfile, degree, dstar,  
-				 DATA_PTR(ca), DATA_PTR(cb), DATA_PTR(cc));
-		m_integrals->fit_omega22(logfile, degree, dstar,
-					 DATA_PTR(co22));
-		tr.omega22_poly.push_back(co22);
-		tr.astar_poly.push_back(ca);
-		tr.bstar_poly.push_back(cb);
-		tr.cstar_poly.push_back(cc);
-		tr.poly[i][j] = static_cast<int>(tr.astar_poly.size()) - 1;
-		tr.fitlist.push_back(dstar);
-	      }
+	// 'find' returns a pointer to end() if not found
+	dptr = find(tr.fitlist.begin(), tr.fitlist.end(), dstar);
+	if (dptr == tr.fitlist.end()) { 
+	  vector_fp ca(degree+1), cb(degree+1), cc(degree+1);
+	  vector_fp co22(degree+1);
+	  m_integrals->fit(logfile, degree, dstar,  
+			   DATA_PTR(ca), DATA_PTR(cb), DATA_PTR(cc));
+	  m_integrals->fit_omega22(logfile, degree, dstar,
+				   DATA_PTR(co22));
+	  tr.omega22_poly.push_back(co22);
+	  tr.astar_poly.push_back(ca);
+	  tr.bstar_poly.push_back(cb);
+	  tr.cstar_poly.push_back(cc);
+	  tr.poly[i][j] = static_cast<int>(tr.astar_poly.size()) - 1;
+	  tr.fitlist.push_back(dstar);
+	}
 
-	    // delta* found in fitlist, so just point to this
-	    // polynomial
-	    else {
-	      tr.poly[i][j] = static_cast<int>((dptr - tr.fitlist.begin()));
-	    }
-	    tr.poly[j][i] = tr.poly[i][j];
-	  } 
-      }
+	// delta* found in fitlist, so just point to this
+	// polynomial
+	else {
+	  tr.poly[i][j] = static_cast<int>((dptr - tr.fitlist.begin()));
+	}
+	tr.poly[j][i] = tr.poly[i][j];
+      } 
+    }
 #ifdef DEBUG_MODE
     if (m_verbose) {
       tr.xml->XML_close(logfile, "tstar_fits");
     }
 #endif
   }
-
+  //====================================================================================================================
 
 
 
@@ -709,17 +830,17 @@ namespace Cantera {
    *
    *********************************************************/
 
-  /** 
-   * Read transport property data from a file for a list of species.
-   * Given the name of a file containing transport property
-   * parameters and a list of species names, this method returns an
-   * instance of TransportParams containing the transport data for
-   * these species read from the file.
-   */
+  /*
+    Read transport property data from a file for a list of species.
+    Given the name of a file containing transport property
+    parameters and a list of species names, this method returns an
+    instance of TransportParams containing the transport data for
+    these species read from the file.
+  */
   void TransportFactory::getTransportData(const std::vector<const XML_Node*> &xspecies,  
 					  XML_Node& log, const std::vector<std::string> &names, GasTransportParams& tr)
   {
-    string name;
+    std::string name;
     int geom;
     std::map<std::string, GasTransportData> datatable;
     doublereal welldepth, diam, dipole, polar, rot;
@@ -730,8 +851,8 @@ namespace Cantera {
     // errors. Note that this procedure validates all entries, not 
     // only those for the species listed in 'names'.
 
-    string val, type;
-    map<string, int> gindx;
+    std::string val, type;
+    map<std::string, int> gindx;
     gindx["atom"] = 100;
     gindx["linear"] = 101;
     gindx["nonlinear"] = 102;
@@ -740,21 +861,21 @@ namespace Cantera {
     for (i = 0; i < nsp; i++) {
       const XML_Node& sp = *xspecies[i];
       name = sp["name"];
-     // std::cout << "Processing node for " << name << std::endl;
+      // std::cout << "Processing node for " << name << std::endl;
 
       // put in a try block so that species with no 'transport'
       // child are skipped, instead of throwing an exception.
       try {
 	XML_Node& tr = sp.child("transport");
-	getString(tr, "geometry", val, type);
+	ctml::getString(tr, "geometry", val, type);
 	geom = gindx[val] - 100;
-	map<string, doublereal> fv;
+	map<std::string, doublereal> fv;
 
-	welldepth = getFloat(tr, "LJ_welldepth");
-	diam = getFloat(tr, "LJ_diameter");
-	dipole = getFloat(tr, "dipoleMoment");
-	polar = getFloat(tr, "polarizability");
-	rot = getFloat(tr, "rotRelax");
+	welldepth = ctml::getFloat(tr, "LJ_welldepth");
+	diam = ctml::getFloat(tr, "LJ_diameter");
+	dipole = ctml::getFloat(tr, "dipoleMoment");
+	polar = ctml::getFloat(tr, "polarizability");
+	rot = ctml::getFloat(tr, "rotRelax");
 
 	GasTransportData data;
 	data.speciesName = name;
@@ -780,13 +901,13 @@ namespace Cantera {
 				    "negative rotation relaxation number");
 
 	datatable[name] = data;
-      }
-      catch(CanteraError) {
+      } catch(CanteraError) {
 	;
       }
     }
 
     for (i = 0; i < tr.nsp_; i++) {
+
 
       GasTransportData& trdat = datatable[names[i]];
             
@@ -831,44 +952,41 @@ namespace Cantera {
     }
   }
 
-  /** 
-   * Read transport property data from a file for a list of species.
-   * Given the name of a file containing transport property
-   * parameters and a list of species names, this method returns an
-   * instance of TransportParams containing the transport data for
-   * these species read from the file.
-   */
-  void TransportFactory::getLiquidTransportData( const std::vector<const XML_Node*> &xspecies,  
-						 XML_Node& log, 
-						 const std::vector<std::string> &names, 
-						 LiquidTransportParams& trParam)
+  /*
+    Read transport property data from a file for a list of species.
+    Given the name of a file containing transport property
+    parameters and a list of species names, this method returns an
+    instance of TransportParams containing the transport data for
+    these species read from the file.
+  */
+  void TransportFactory::getLiquidSpeciesTransportData(const std::vector<const XML_Node*> &xspecies,  
+						       XML_Node& log, 
+						       const std::vector<std::string> &names, 
+						       LiquidTransportParams& trParam)
   {
     std::string name;
     /*
-     *  Create a map of species names versus liquid transport data parameters
-     */
+      Create a map of species names versus liquid transport data parameters
+    */
     std::map<std::string, LiquidTransportData> datatable;
-    doublereal A_visc, n_visc, Tact_visc, hydrodynamic_radius;
-    doublereal A_thcond, n_thcond, Tact_thcond;
-    doublereal A_spdiff, n_spdiff, Tact_spdiff;
+    std::map<std::string, LiquidTransportData>::iterator it;
 
-    int nsp = static_cast<int>(xspecies.size());
-    std::cout << "Size of xspecies " << nsp << std::endl;
+    // Store the number of species in the phase
+    int nsp = trParam.nsp_;
+
+    // Store the number of off-diagonal symmetric interactions between species in the phase
+    int nBinInt = nsp*(nsp-1)/2;
   
     // read all entries in database into 'datatable' and check for 
     // errors. Note that this procedure validates all entries, not 
     // only those for the species listed in 'names'.
-
-    int linenum = 0;
-    int i;
-    for (i = 0; i < nsp; i++) {
+    for (int i = 0; i < nsp; i++) {
       const XML_Node& sp = *xspecies[i];
       name = sp["name"];
       vector_fp vCoeff;
-     // std::cout << "Processing node for " << name << std::endl;
 
-      // put in a try block so that species with no 'transport'
-      // child are skipped, instead of throwing an exception.
+      // Species with no 'transport' child are skipped. However, if that species is in the list,
+      // it will throw an exception below.
       try {
         if (sp.hasChild("transport")) {
 	  XML_Node& trNode = sp.child("transport");
@@ -877,221 +995,229 @@ namespace Cantera {
 	  // and then insertion into LiquidTransportData objects below.	
 	  LiquidTransportData data;
 	  data.speciesName = name;
+	  data.mobilityRatio.resize(nsp*nsp,0);
+	  data.selfDiffusion.resize(nsp,0);
+	  ThermoPhase *temp_thermo = trParam.thermo;
 
-	  /*
-	   *         hydrodynamic radius
-	   *
-	   *  format:
-	   *    <hydrodynamic_radius model="Constant"> 3.0  </hydrodynamic_radius>
-	   *    <hydrodynamic_radius> 3.0 </hydrodynamic_radius>
-	   */
-	  if (trNode.hasChild("hydrodynamic_radius")) {
-	    XML_Node& hnode = trNode.child("hydrodynamic_radius");
-	    std::string model = lowercase(hnode["model"]);
-	    if (model == "" || model == "constant") {
-	      hydrodynamic_radius = hnode.fp_value();
-	      if (hydrodynamic_radius > 0.0) data.hydroradius = hydrodynamic_radius;
-	      else throw TransportDBError(linenum,
-					  "negative or zero hydrodynamic radius");
-	      data.model_hydroradius = LTR_MODEL_CONSTANT;
-	    } else {
-	      throw CanteraError(" TransportFactory::getLiquidTransportData", 
-				 "Unknown model for   hydrodynamic_radius:" + model);
+	  int num = trNode.nChildren();
+	  for (int iChild = 0; iChild < num; iChild++) {
+	    XML_Node &xmlChild = trNode.child(iChild);
+	    std::string nodeName = xmlChild.name();
+	    
+	    switch (m_tranPropMap[nodeName]) {
+	    case TP_VISCOSITY:
+	      data.viscosity = newLTP(xmlChild, name,  m_tranPropMap[nodeName], temp_thermo);
+	      break;
+	    case TP_IONCONDUCTIVITY:
+	      data.ionConductivity = newLTP(xmlChild,  name,   m_tranPropMap[nodeName], temp_thermo);
+	      break;
+	    case TP_MOBILITYRATIO:
+	      {
+		for (int iSpec = 0; iSpec< nBinInt; iSpec++){
+		  XML_Node &propSpecNode = xmlChild.child(iSpec);
+		  std::string specName = propSpecNode.name();
+		  size_t loc = specName.find(":");
+		  std::string firstSpec = specName.substr(0,loc);
+		  std::string secondSpec = specName.substr(loc+1);
+		  int index = temp_thermo->speciesIndex(firstSpec.c_str())+nsp*temp_thermo->speciesIndex(secondSpec.c_str());
+		  data.mobilityRatio[index] = newLTP(propSpecNode, name, m_tranPropMap[nodeName], temp_thermo);
+		};
+	      };
+	      break;
+	    case TP_SELFDIFFUSION:
+	      {
+		for (int iSpec = 0; iSpec< nsp; iSpec++){
+		  XML_Node &propSpecNode = xmlChild.child(iSpec);
+		  std::string specName = propSpecNode.name();
+		  int index = temp_thermo->speciesIndex(specName.c_str());
+		  data.selfDiffusion[index] = newLTP(propSpecNode,  name,  m_tranPropMap[nodeName], temp_thermo);
+		};
+	      };
+	      break;
+	    case TP_THERMALCOND:
+	      data.thermalCond = newLTP(xmlChild, 
+					name, 
+					m_tranPropMap[nodeName],
+					temp_thermo);
+	      break;
+	    case TP_DIFFUSIVITY:
+	      data.speciesDiffusivity = newLTP(xmlChild, 
+					       name, 
+					       m_tranPropMap[nodeName],
+					       temp_thermo);
+	      break;
+	    case TP_HYDRORADIUS:
+	      data.hydroRadius = newLTP(xmlChild, 
+					name, 
+					m_tranPropMap[nodeName],
+					temp_thermo);
+	      break;
+	    case TP_ELECTCOND:
+	      data.electCond = newLTP(xmlChild, 
+				      name, 
+				      m_tranPropMap[nodeName],
+				      temp_thermo);
+
+	      break;
+	    default:
+	      throw CanteraError("getLiquidSpeciesTransportData","unknown transport property: " + nodeName);
 	    }
-	  }
 
-	  /*
-	   *          viscosity
-	   *
-	   *  format:
-	   *    <viscosity model="Constant"> 3.0  </viscosity>
-	   *    <viscosity> 3.0 </viscosity>
-	   *    <viscosity model="Arrhenius">
-	   *       <A units="Pa S">      1.0 </A>
-	   *       <b>                   2.0 </b>
-	   *       <E units="kcal/gmol"> 3.0 </E>
-	   *    </viscosity>
-	   *
-	   *    <viscosity model="Coeff">
-	   *       <float_array>  0.0. 1.0, 2.0, 3.0, 4.0 </float_array> 
-	   *    </viscosity>
-	   *
-	   */
-	  if (trNode.hasChild("viscosity")) {
-	    XML_Node& vnode = trNode.child("viscosity");
-	    std::string model = lowercase(vnode["model"]);
-	    if (model == "" || model == "constant") {
-	      A_visc = ctml::getFloatCurrent(vnode, "toSI");
-	      if (A_visc > 0.0) (data.viscCoeffs).push_back(A_visc); 
-	      else throw TransportDBError(linenum,
-					  "negative or zero viscosity");
-	      data.model_viscosity = LTR_MODEL_CONSTANT;
-	    } else if (model == "arrhenius") {
-	      getArrhenius(vnode, A_visc, n_visc, Tact_visc);
-	      if (A_visc <= 0.0) {
-		throw TransportDBError(linenum, "negative or zero viscosity");
-	      }
-	      (data.viscCoeffs).push_back(A_visc);
-	      (data.viscCoeffs).push_back(n_visc);
-	      (data.viscCoeffs).push_back(Tact_visc);
-	      data.model_viscosity = LTR_MODEL_ARRHENIUS;
-	    } else if (model == "coeff") {
-	      getFloatArray(vnode, vCoeff, true);
-	      data.viscCoeffs = vCoeff;
-	      vCoeff.clear();
-	      data.model_viscosity = LTR_MODEL_COEFF;
-	    } else {
-	      throw CanteraError(" TransportFactory::getLiquidTransportData", 
-				 "Unknown model for viscosity:" + vnode["model"]);
-	    }
 	  }
-
-	  /*
-	   *       thermalConductivity
-	   *
-	   *  format:
-	   *    <thermalConductivity model="Constant"> 3.0  </thermalConductivity>
-	   *    <thermalConductivity> 3.0 </thermalConductivity>
-	   *    <thermalConductivity model="Arrhenius">
-	   *       <A units="Pa S">      1.0 </A>
-	   *       <b>                   2.0 </b>
-	   *       <E units="kcal/gmol"> 3.0 </E>
-	   *    </thermalConductivity>
-	   *
-	   *    <thermalConductivity model="Coeff">
-	   *       <float_array>  0.0. 1.0, 2.0, 3.0, 4.0 </float_array> 
-	   *    </thermalConductivity>
-	   *
-	   */
-	  if (trNode.hasChild("thermalConductivity")) {
-	    XML_Node& tnode = trNode.child("thermalConductivity");
-	    std::string model = lowercase(tnode["model"]);
-	    if (model == "" || model == "constant") {
-	      A_thcond = ctml::getFloatCurrent(tnode, "toSI");
-	      if (A_thcond > 0.0) (data.thermalCondCoeffs).push_back(A_thcond); 
-	      else throw TransportDBError(linenum,
-					  "negative or zero thermalConductivity");
-	      data.model_thermalCond = LTR_MODEL_CONSTANT;
-	    } else if (model == "arrhenius") {
-	      getArrhenius(tnode, A_thcond, n_thcond, Tact_thcond);
-	      if (A_thcond <= 0.0) {
-		throw TransportDBError(linenum, "negative or zero thermalConductivity");
-	      }
-	      (data.thermalCondCoeffs).push_back(A_thcond);
-	      (data.thermalCondCoeffs).push_back(n_thcond);
-	      (data.thermalCondCoeffs).push_back(Tact_thcond);
-	      data.model_thermalCond = LTR_MODEL_ARRHENIUS;
-	    } else if (model == "coeff") {
-	      getFloatArray(tnode, vCoeff, true);
-	      data.thermalCondCoeffs = vCoeff;
-	      vCoeff.clear();
-	      data.model_thermalCond = LTR_MODEL_COEFF;
-	    } else {
-	      throw CanteraError(" TransportFactory::getLiquidTransportData", 
-				 "Unknown model for thermalConductivity:" + tnode["model"]);
-	    }
-	  }
-
-
-	  /*
-	   *       speciesDiffusivity
-	   *
-	   *  format:
-	   *    <speciesDiffusivity model="Constant"> 3.0  </speciesDiffusivity>
-	   *    <speciesDiffusivity> 3.0 </speciesDiffusivity>
-	   *    <speciesDiffusivity model="Arrhenius">
-	   *       <A units="Pa S">      1.0 </A>
-	   *       <b>                   2.0 </b>
-	   *       <E units="kcal/gmol"> 3.0 </E>
-	   *    </speciesDiffusivity>
-	   *
-	   *    <speciesDiffusivity model="Coeff">
-	   *       <float_array>  0.0. 1.0, 2.0, 3.0, 4.0 </float_array> 
-	   *    </speciesDiffusivity>
-	   *
-	   */
-	  if (trNode.hasChild("speciesDiffusivity")) {
-	    XML_Node& dnode = trNode.child("speciesDiffusivity");
-	    std::string model = lowercase(dnode["model"]);
-	    if (model == "" || model == "constant") {
-	      A_spdiff = ctml::getFloatCurrent(dnode, "toSI");
-	      if (A_spdiff > 0.0) (data.speciesDiffusivityCoeffs).push_back(A_spdiff); 
-	      else throw TransportDBError(linenum,
-					  "negative or zero speciesDiffusivity");
-	      data.model_speciesDiffusivity = LTR_MODEL_CONSTANT;
-	    } else if (model == "arrhenius") {
-	      getArrhenius(dnode, A_spdiff, n_spdiff, Tact_spdiff);
-	      if (A_spdiff <= 0.0) {
-		throw TransportDBError(linenum, "negative or zero speciesDiffusivity");
-	      }
-	      (data.speciesDiffusivityCoeffs).push_back(A_spdiff);
-	      (data.speciesDiffusivityCoeffs).push_back(n_spdiff);
-	      (data.speciesDiffusivityCoeffs).push_back(Tact_spdiff);
-	      data.model_speciesDiffusivity = LTR_MODEL_ARRHENIUS;
-	    } else if (model == "coeff") {
-	      getFloatArray(dnode, vCoeff, true);
-	      data.speciesDiffusivityCoeffs = vCoeff;
-	      data.model_speciesDiffusivity = LTR_MODEL_COEFF;
-	    } else {
-	      throw CanteraError(" TransportFactory::getLiquidTransportData", 
-				 "Unknown model for speciesDiffusivity:" + dnode["model"]);
-	    }
-	  }
-	
-	  datatable[name] = data;
+	  datatable.insert(pair<std::string, LiquidTransportData>(name,data));
 	}
       }
-      catch(CanteraError) {
-	;
+      catch (CanteraError yy) {
+	throw yy;
       }
     }
 
     trParam.LTData.clear();
-    for (i = 0; i < trParam.nsp_; i++) {
-
-      LiquidTransportData& trdat = datatable[names[i]];
-            
-      // 'datatable' returns a default TransportData object if
-      // the species name is not one in the transport database.
-      // This can be detected by examining 'geometry'.
-      if (trdat.viscCoeffs[0] < 0) {
-	throw TransportDBError(0,"no transport data found for species " 
-			       + names[i]);
-      }
-
-      // parameters should be converted to SI units before storing            
-      if (trdat.viscCoeffs.size() > 0) {
-	trParam.visc_A[i]    = trdat.viscCoeffs[0] ;
-      }
-      if (trdat.viscCoeffs.size() > 2) {
-	trParam.visc_n[i]    = trdat.viscCoeffs[1] ;
-	trParam.visc_Tact[i] = trdat.viscCoeffs[2] ;
-      }
-      
-      if (trdat.thermalCondCoeffs.size() > 0) {
-	trParam.thermCond_A[i]    = trdat.thermalCondCoeffs[0] ;
-      }
-      if (trdat.thermalCondCoeffs.size() > 2) {
-	trParam.thermCond_n[i]    = trdat.thermalCondCoeffs[1] ;
-	trParam.thermCond_Tact[i] = trdat.thermalCondCoeffs[2] ;
-      }
-      
-      // Angstroms -> meters
-      trParam.hydroRadius[i]    = 1.e-10 * trdat.hydroradius;
-
+    for (int i = 0; i < trParam.nsp_; i++) {
       /*
-       *  this is a much more general way to handle the transfer
-       *   -> calling the default copy constructor for  LiquidTransportData
-       */
+	Check to see that we have a LiquidTransportData object for all of the
+	species in the phase. If not, throw an error.
+      */
+      it = datatable.find(names[i]);
+      if (it == datatable.end()) {
+	throw TransportDBError(0,"No transport data found for species "  + names[i]);
+      }
+      LiquidTransportData& trdat = it->second;
+   
+      /*
+        Now, transfer these objects into LTData in the correct phase index order by
+        calling the default copy constructor for LiquidTransportData.
+      */
       trParam.LTData.push_back(trdat);
     }
-
-    // Need to identify a method to obtain interaction matrices.
-    // This will fill LiquidTransportParams members visc_Eij, visc_Sij
-    trParam.visc_Eij.resize(trParam.nsp_,trParam.nsp_);
-    //cout << "No support for species viscosity interactions in TransportFactory.cpp" << endl;
   }
 
+
+  /*
+    Read transport property data from a file for interactions 
+    between species in a liquid.
+    Given the name of a file containing transport property
+    parameters and a list of species names, this method returns an
+    instance of TransportParams containing the transport data for
+    these species read from the file.
+  */
+  void TransportFactory::getLiquidInteractionsTransportData(const XML_Node &transportNode,  
+						       XML_Node& log, 
+						       const std::vector<std::string> &names, 
+						       LiquidTransportParams& trParam)
+  { 
+    try {
+      
+      int nsp = trParam.nsp_;
+      int nBinInt = nsp*(nsp-1)/2;
+      
+      int num = transportNode.nChildren();
+      for (int iChild = 0; iChild < num; iChild++) {
+	//tranTypeNode is a type of transport property like viscosity
+	XML_Node &tranTypeNode = transportNode.child(iChild);
+	std::string nodeName = tranTypeNode.name();
+
+	trParam.mobilityRatio.resize(nsp*nsp,0);
+	trParam.selfDiffusion.resize(nsp,0);
+	ThermoPhase *temp_thermo = trParam.thermo;
+
+	if (tranTypeNode.hasChild("compositionDependence")) {
+	  //compDepNode contains the interaction model
+	  XML_Node &compDepNode = tranTypeNode.child("compositionDependence");
+	  switch (m_tranPropMap[nodeName]) {
+	    break;
+	  case TP_VISCOSITY:
+	    trParam.viscosity = newLTI(compDepNode, m_tranPropMap[nodeName], trParam);
+	    break;
+      	  case TP_IONCONDUCTIVITY:
+	    trParam.ionConductivity = newLTI(compDepNode, 
+					      m_tranPropMap[nodeName],
+					      trParam);
+	    break;
+      	  case TP_MOBILITYRATIO:
+	    {
+	      for (int iSpec = 0; iSpec< nBinInt; iSpec++){
+		XML_Node &propSpecNode = compDepNode.child(iSpec);
+		string specName = propSpecNode.name();
+		size_t loc = specName.find(":");
+		string firstSpec = specName.substr(0,loc);
+		string secondSpec = specName.substr(loc+1);
+		int index = temp_thermo->speciesIndex(firstSpec.c_str())+nsp*temp_thermo->speciesIndex(secondSpec.c_str());
+		trParam.mobilityRatio[index] = newLTI(propSpecNode, 
+						       m_tranPropMap[nodeName],
+						       trParam);
+	      };
+	    };
+	    break;
+	  case TP_SELFDIFFUSION:
+	    {
+	      for (int iSpec = 0; iSpec< nsp; iSpec++){
+		XML_Node &propSpecNode = compDepNode.child(iSpec);
+		string specName = propSpecNode.name();
+		int index = temp_thermo->speciesIndex(specName.c_str());
+		trParam.selfDiffusion[index] = newLTI(propSpecNode, 
+						     m_tranPropMap[nodeName],
+						       trParam);
+	      };
+	    };
+	    break;
+	  case TP_THERMALCOND:
+	    trParam.thermalCond = newLTI(compDepNode, 
+					  m_tranPropMap[nodeName],
+					  trParam);
+	    break;
+	  case TP_DIFFUSIVITY:
+	    trParam.speciesDiffusivity = newLTI(compDepNode, 
+						 m_tranPropMap[nodeName],
+						 trParam);
+	    break;
+	  case TP_HYDRORADIUS:
+	    trParam.hydroRadius = newLTI(compDepNode, 
+					 m_tranPropMap[nodeName],
+					 trParam);
+	    break;
+	  case TP_ELECTCOND:
+	    trParam.electCond = newLTI(compDepNode, 
+					m_tranPropMap[nodeName],
+					trParam);
+	    break;
+	  default:
+	    throw CanteraError("getLiquidInteractionsTransportData","unknown transport property: " + nodeName);
+	    
+	  }
+	}
+	/* Allow a switch between mass-averaged, mole-averaged 
+	 * and solvent specified reference velocities.  
+	 * XML code within the transportProperty node 
+	 * (i.e. within <viscosity>) should read as follows
+	 * <velocityBasis basis="mass"> <!-- mass averaged -->
+	 * <velocityBasis basis="mole"> <!-- mole averaged -->
+	 * <velocityBasis basis="H2O">  <!-- H2O solvent -->
+	 */
+	if (tranTypeNode.hasChild("velocityBasis")) {
+	  std::string velocityBasis = 
+	    tranTypeNode.child("velocityBasis").attrib("basis");
+	  if (velocityBasis == "mass") 
+	    trParam.velocityBasis_ = VB_MASSAVG;
+	  else if (velocityBasis == "mole") 
+	    trParam.velocityBasis_ = VB_MOLEAVG;
+	  else if (trParam.thermo->speciesIndex(velocityBasis) > 0) 
+	    trParam.velocityBasis_ = trParam.thermo->speciesIndex(velocityBasis) ;
+	  else {
+	    int linenum = __LINE__;
+	    throw TransportDBError(linenum, "Unknown attribute \"" + velocityBasis + "\" for <velocityBasis> node. ");
+	  }
+	}
+      }
+    }
+    catch (CanteraError) {
+        showErrors(std::cout);
+    }
+    //catch(CanteraError) {
+    //  ;
+    //}
+    return;
+  }
 
   /*********************************************************
    *
@@ -1100,29 +1226,33 @@ namespace Cantera {
    *********************************************************/
 
 
-
-  /*****************   fitProperties  ***************/
-
-  /**
-   * Generate polynomial fits for the pure-species viscosities and
-   * for the binary diffusion coefficients. If
-   * CK_mode, then the fits are of the
-   * form \f[
-   * \log(\eta(i)) = \sum_{n = 0}^3 a_n(i) (\log T)^n
-   * \f]
-   * and \f[
-   * \log(D(i,j)) = \sum_{n = 0}^3 a_n(i,j) (\log T)^n
-   * \f]
-   * Otherwise the fits are of the form
-   * \f[
-   * \eta(i)/sqrt(k_BT) = \sum_{n = 0}^4 a_n(i) (\log T)^n
-   * \f]
-   * and \f[
-   * D(i,j)/sqrt(k_BT)) = \sum_{n = 0}^4 a_n(i,j) (\log T)^n
-   * \f]
+  //====================================================================================================================
+  // Generate polynomial fits to the viscosity, conductivity, and
+  // the binary diffusion coefficients 
+  /*
+   * If CK_mode, then the fits are of the form 
+   *     \f[
+   *          \log(\eta(i)) = \sum_{n = 0}^3 a_n(i) (\log T)^n
+   *     \f]
+   *  and
+   *     \f[
+   *          \log(D(i,j)) = \sum_{n = 0}^3 a_n(i,j) (\log T)^n
+   *     \f]
+   *  Otherwise the fits are of the form
+   *     \f[
+   *          \eta(i)/sqrt(k_BT) = \sum_{n = 0}^4 a_n(i) (\log T)^n
+   *     \f]
+   *  and
+   *     \f[
+   *          D(i,j)/sqrt(k_BT)) = \sum_{n = 0}^4 a_n(i,j) (\log T)^n
+   *     \f]
+   *
+   *  @param tr       Reference to the GasTransportParams object that will contain the results.
+   *  @param logfile  Reference to an ostream that will contain log information when in
+   *                  DEBUG_MODE
    */
-  void TransportFactory::fitProperties(GasTransportParams& tr, 
-				       ostream& logfile) {
+  void TransportFactory::fitProperties(GasTransportParams& tr, std::ostream& logfile) {
+
     doublereal tstar;
     int k, j, n, ndeg = 0;
 #ifdef DEBUG_MODE
@@ -1199,7 +1329,7 @@ namespace Cantera {
 	  // self-diffusion coefficient, without polar
 	  // corrections
 	  diffcoeff = ThreeSixteenths * 
-	    sqrt( 2.0 * Pi/tr.reducedMass(k,k) ) *
+	    sqrt(2.0 * Pi/tr.reducedMass(k,k)) *
 	    pow((Boltzmann * t), 1.5)/ 
 	    (Pi * tr.sigma[k] * tr.sigma[k] * om11);
 
@@ -1348,71 +1478,69 @@ namespace Cantera {
     mxerr = 0.0, mxrelerr = 0.0;
     vector_fp diff(np + 1);
     doublereal eps, sigma;
-    for (k = 0; k < tr.nsp_; k++) 
-      {            
-	for (j = k; j < tr.nsp_; j++) {
+    for (k = 0; k < tr.nsp_; k++)  {            
+      for (j = k; j < tr.nsp_; j++) {
 
-	  ipoly = tr.poly[k][j];
-	  for (n = 0; n < np; n++) {
+	ipoly = tr.poly[k][j];
+	for (n = 0; n < np; n++) {
 
-	    t = tr.tmin + dt*n;
+	  t = tr.tmin + dt*n;
                     
-	    eps = tr.epsilon(j,k);
-	    tstar = Boltzmann * t/eps;
-	    sigma = tr.diam(j,k);
-	    om11 = m_integrals->omega11(tstar, tr.delta(j,k));
+	  eps = tr.epsilon(j,k);
+	  tstar = Boltzmann * t/eps;
+	  sigma = tr.diam(j,k);
+	  om11 = m_integrals->omega11(tstar, tr.delta(j,k));
 
-	    diffcoeff = ThreeSixteenths * 
-	      sqrt( 2.0 * Pi/tr.reducedMass(k,j) ) *
-	      pow((Boltzmann * t), 1.5)/ 
-	      (Pi * sigma * sigma * om11);
-
-
-	    // 2nd order correction
-	    // NOTE: THIS CORRECTION IS NOT APPLIED
-	    doublereal fkj, fjk;
-	    getBinDiffCorrection(t, tr, k, j, 1.0, 1.0, fkj, fjk);
-	    //diffcoeff *= fkj;
+	  diffcoeff = ThreeSixteenths * 
+	    sqrt(2.0 * Pi/tr.reducedMass(k,j)) *
+	    pow((Boltzmann * t), 1.5)/ 
+	    (Pi * sigma * sigma * om11);
 
 
-	    if (mode == CK_Mode) {
-	      diff[n] = log(diffcoeff);
-	      w[n] = -1.0;
-	    }
-	    else {
-	      diff[n] = diffcoeff/pow(t, 1.5);
-	      w[n] = 1.0/(diff[n]*diff[n]);
-	    }
+	  // 2nd order correction
+	  // NOTE: THIS CORRECTION IS NOT APPLIED
+	  doublereal fkj, fjk;
+	  getBinDiffCorrection(t, tr, k, j, 1.0, 1.0, fkj, fjk);
+	  //diffcoeff *= fkj;
+
+
+	  if (mode == CK_Mode) {
+	    diff[n] = log(diffcoeff);
+	    w[n] = -1.0;
 	  }
-	  polyfit(np, DATA_PTR(tlog), DATA_PTR(diff), 
-		  DATA_PTR(w), degree, ndeg, 0.0, DATA_PTR(c));
-
-	  doublereal pre;
-	  for (n = 0; n < np; n++) {
-	    if (mode == CK_Mode) {
-	      val = exp(diff[n]);
-	      fit = exp(poly3(tlog[n], DATA_PTR(c))); 
-	    }
-	    else {
-	      t = exp(tlog[n]);
-	      pre = pow(t, 1.5);
-	      val = pre * diff[n];
-	      fit = pre * poly4(tlog[n], DATA_PTR(c));
-	    }
-	    err = fit - val;
-	    relerr = err/val;
-	    if (fabs(err) > mxerr) mxerr = fabs(err);
-	    if (fabs(relerr) > mxrelerr) mxrelerr = fabs(relerr);               
+	  else {
+	    diff[n] = diffcoeff/pow(t, 1.5);
+	    w[n] = 1.0/(diff[n]*diff[n]);
 	  }
-	  tr.diffcoeffs.push_back(c);
-#ifdef DEBUG_MODE
-	  if (tr.log_level >= 2 && m_verbose) {
-	    tr.xml->XML_writeVector(logfile, "    ", tr.thermo->speciesName(k)
-				    + "__"+tr.thermo->speciesName(j), c.size(), DATA_PTR(c));
-	  }
-#endif
 	}
+	polyfit(np, DATA_PTR(tlog), DATA_PTR(diff), 
+		DATA_PTR(w), degree, ndeg, 0.0, DATA_PTR(c));
+
+	doublereal pre;
+	for (n = 0; n < np; n++) {
+	  if (mode == CK_Mode) {
+	    val = exp(diff[n]);
+	    fit = exp(poly3(tlog[n], DATA_PTR(c))); 
+	  } else {
+	    t = exp(tlog[n]);
+	    pre = pow(t, 1.5);
+	    val = pre * diff[n];
+	    fit = pre * poly4(tlog[n], DATA_PTR(c));
+	  }
+	  err = fit - val;
+	  relerr = err/val;
+	  if (fabs(err) > mxerr) mxerr = fabs(err);
+	  if (fabs(relerr) > mxrelerr) mxrelerr = fabs(relerr);               
+	}
+	tr.diffcoeffs.push_back(c);
+#ifdef DEBUG_MODE
+	if (tr.log_level >= 2 && m_verbose) {
+	  tr.xml->XML_writeVector(logfile, "    ", tr.thermo->speciesName(k)
+				  + "__"+tr.thermo->speciesName(j), c.size(), DATA_PTR(c));
+	}
+#endif
       }
+    }
 #ifdef DEBUG_MODE
     if (m_verbose) {
       sprintf(s,"Maximum binary diffusion coefficient absolute error:"
@@ -1425,5 +1553,53 @@ namespace Cantera {
     }
 #endif
   }
+  //====================================================================================================================
+  //  Create a new transport manager instance.
+  /*
+   *  @param transportModel  String identifying the transport model to be instantiated, defaults to the empty string
+   *  @param thermo          ThermoPhase object associated with the phase, defaults to null pointer
+   *  @param loglevel        int containing the Loglevel, defaults to zero
+   *  @param f               ptr to the TransportFactory object if it's been malloced.
+   *
+   * @ingroup transportProps
+   */
+  Transport* newTransportMgr(std::string transportModel, thermo_t* thermo, int loglevel, TransportFactory* f)
+  {
+    if (f == 0) {
+      f = TransportFactory::factory();
+    }
+    Transport* ptr = f->newTransport(transportModel, thermo, loglevel);
+    /*
+     * Note: We delete the static s_factory instance here, instead of in
+     *       appdelete() in misc.cpp, to avoid linking problems involving
+     *       the need for multiple cantera and transport library statements
+     *       for applications that don't have transport in them.
+     */
+    return ptr;
+  }
+  //==================================================================================================================== 
+  //  Create a new transport manager instance.
+  /*
+   *  @param thermo          ThermoPhase object associated with the phase, defaults to null pointer
+   *  @param loglevel        int containing the Loglevel, defaults to zero
+   *  @param f               ptr to the TransportFactory object if it's been malloced.
+   *
+   * @ingroup transportProps
+   */
+  Transport* newDefaultTransportMgr(thermo_t* thermo, int loglevel, TransportFactory* f) 
+  {
+    if (f == 0) {
+      f = TransportFactory::factory();
+    }
+    Transport* ptr = f->newTransport(thermo, loglevel);
+    /*
+     * Note: We delete the static s_factory instance here, instead of in
+     *       appdelete() in misc.cpp, to avoid linking problems involving
+     *       the need for multiple cantera and transport library statements
+     *       for applications that don't have transport in them.
+     */
+    return ptr;
+  }
+  //====================================================================================================================
 }
 

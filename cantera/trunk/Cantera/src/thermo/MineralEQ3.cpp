@@ -493,7 +493,7 @@ namespace Cantera {
 	Aunits = aV.attrib("units");
 	Afactor = toSI(Aunits); 
       }
-      volVal = getFloat(*aStandardState, "V0_Pr_Tr");
+      volVal = ctml::getFloat(*aStandardState, "V0_Pr_Tr");
       m_V0_pr_tr= volVal;
       volVal *= Afactor;
       m_speciesSize[0] = volVal;
@@ -509,13 +509,13 @@ namespace Cantera {
    
 
     m_deltaG_formation_pr_tr =
-      getFloatDefaultUnits(MinEQ3node, "DG0_f_Pr_Tr", "cal/gmol", "actEnergy");
+      ctml::getFloatDefaultUnits(MinEQ3node, "DG0_f_Pr_Tr", "cal/gmol", "actEnergy");
     m_deltaH_formation_pr_tr =
-      getFloatDefaultUnits(MinEQ3node, "DH0_f_Pr_Tr", "cal/gmol", "actEnergy");
-    m_Entrop_pr_tr = getFloatDefaultUnits(MinEQ3node, "S0_Pr_Tr", "cal/gmol/K");
-    m_a = getFloatDefaultUnits(MinEQ3node, "a", "cal/gmol/K");
-    m_b = getFloatDefaultUnits(MinEQ3node, "b", "cal/gmol/K2");
-    m_c = getFloatDefaultUnits(MinEQ3node, "c", "cal-K/gmol");
+      ctml::getFloatDefaultUnits(MinEQ3node, "DH0_f_Pr_Tr", "cal/gmol", "actEnergy");
+    m_Entrop_pr_tr = ctml::getFloatDefaultUnits(MinEQ3node, "S0_Pr_Tr", "cal/gmol/K");
+    m_a = ctml::getFloatDefaultUnits(MinEQ3node, "a", "cal/gmol/K");
+    m_b = ctml::getFloatDefaultUnits(MinEQ3node, "b", "cal/gmol/K2");
+    m_c = ctml::getFloatDefaultUnits(MinEQ3node, "c", "cal-K/gmol");
 
   
     convertDGFormation();

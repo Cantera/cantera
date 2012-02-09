@@ -346,7 +346,7 @@ namespace Cantera {
    * This member function is resolved here. A single species phase obtains its
    * thermo from the standard state function.
    *
-   *  @param cpbar On return, Contains the molar volume of the single species
+   *  @param vbar On return, Contains the molar volume of the single species
    *              and the phase. Units are m^3 / kmol. Length = 1
    */
   void SingleSpeciesTP::getPartialMolarVolumes(doublereal* vbar) const {
@@ -514,7 +514,11 @@ namespace Cantera {
   void SingleSpeciesTP::setState_UV(doublereal u, doublereal v, 
 				    doublereal tol) {
     doublereal dt;
-    setDensity(1.0/v);
+    if (v == 0.0) {
+      setDensity(1.0E100);
+    } else {
+      setDensity(1.0/v);
+    }
     for (int n = 0; n < 50; n++) {
       dt = (u - intEnergy_mass())/cv_mass();
       if (dt > 100.0) dt = 100.0;
@@ -548,7 +552,11 @@ namespace Cantera {
   void SingleSpeciesTP::setState_SV(doublereal s, doublereal v, 
 				    doublereal tol) {
     doublereal dt;
-    setDensity(1.0/v);
+    if (v == 0.0) {
+      setDensity(1.0E100);
+    } else {
+      setDensity(1.0/v);
+    }
     for (int n = 0; n < 50; n++) {
       dt = (s - entropy_mass())*temperature()/cv_mass();
       if (dt > 100.0) dt = 100.0;

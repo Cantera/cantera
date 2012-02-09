@@ -21,7 +21,8 @@ using namespace std;
 
 namespace Cantera {
 
-  /// Constructor.
+  //====================================================================================================================
+  // Constructor.
   MultiPhase::MultiPhase() :
     m_np(0),
     m_temp(0.0),
@@ -33,8 +34,67 @@ namespace Cantera {
     m_Tmin(1.0),
     m_Tmax(100000.0)
   {
+  }  
+  //====================================================================================================================
+  // Copy Constructor
+  /*
+   * @param right Object to be copied
+   */
+  MultiPhase::MultiPhase(const MultiPhase &right) :
+    m_np(0),
+    m_temp(0.0),
+    m_press(0.0), 
+    m_nel(0),
+    m_nsp(0),
+    m_init(false),
+    m_eloc(-1), 
+    m_Tmin(1.0),
+    m_Tmax(100000.0)
+  {
+    operator=(right);
   }
-
+  //====================================================================================================================
+  // Destructor.
+  /*
+   *  Does nothing. Class MultiPhase does not take
+   *  "ownership" (i.e. responsibility for destroying) the
+   *   phase objects.
+   */
+  MultiPhase::~MultiPhase()
+  {
+  }
+  //====================================================================================================================
+  // Assignment operator
+  /*
+   * @param right Object to be copied
+   */
+  MultiPhase& MultiPhase::operator=(const MultiPhase& right)
+  {
+    if (&right != this) {
+      m_moles = right.m_moles;
+      // shallow copy of phase pointers
+      m_phase = right.m_phase;
+      m_atoms = right.m_atoms;
+      m_moleFractions = right.m_moleFractions;
+      m_spphase = right.m_spphase;
+      m_spstart = right.m_spstart;
+      m_enames = right.m_enames;
+      m_enamemap = right.m_enamemap;
+      m_np = right.m_np;
+      m_temp = right.m_temp;
+      m_press = right.m_press;
+      m_nel = right.m_nel;
+      m_nsp = right.m_nsp;
+      m_init = right.m_init;
+      m_eloc = right.m_eloc;
+      m_temp_OK = right.m_temp_OK;
+      m_Tmin = right.m_Tmin;
+      m_Tmax = right.m_Tmax;
+      m_elemAbundances = right.m_elemAbundances;
+    }
+    return *this;
+  }
+  //====================================================================================================================
   void MultiPhase::
   addPhases(MultiPhase& mix) {
     index_t n;
@@ -42,7 +102,7 @@ namespace Cantera {
       addPhase(mix.m_phase[n], mix.m_moles[n]);
     }
   }
-
+  //====================================================================================================================
   void MultiPhase::
   addPhases(phase_list& phases, const vector_fp& phaseMoles) {
     index_t np = phases.size();
@@ -52,7 +112,7 @@ namespace Cantera {
     }
     init();
   }
-
+  //====================================================================================================================
   void MultiPhase::
   addPhase(phase_t* p, doublereal moles) {
     if (m_init) {
@@ -121,8 +181,7 @@ namespace Cantera {
       if (t < m_Tmax) m_Tmax = t;
     }
   }
-
-
+  //====================================================================================================================
   // Process phases and build atomic composition array. This method
   // must be called after all phases are added, before doing
   // anything else with the mixture. After init() has been called,
@@ -183,9 +242,10 @@ namespace Cantera {
     
     updateMoleFractions();
 
+    updatePhases();
   }
 
-
+  //====================================================================================================================
   // Return a reference to phase n. The state of phase n is
   // also updated to match the state stored locally in the 
   // mixture object.
@@ -196,15 +256,17 @@ namespace Cantera {
     m_phase[n]->setPressure(m_press);
     return *m_phase[n];
   }
-
+  //====================================================================================================================
   /// Moles of species \c k.
   doublereal MultiPhase::speciesMoles(index_t k) const {
     index_t ip = m_spphase[k];
     return m_moles[ip]*m_moleFractions[k];
   }
-
-  /// Total moles of element m, summed over all
-  /// phases
+  //====================================================================================================================
+  //  Total moles of global element \a m, summed over all phases.
+  /*
+   * @param m   Index of the global element
+   */
   doublereal MultiPhase::elementMoles(index_t m) const {
     doublereal sum = 0.0, phasesum;
     index_t i, k = 0, ik, nsp;
@@ -219,8 +281,8 @@ namespace Cantera {
     }
     return sum;
   }
-
-  /// Total charge, summed over all phases
+  //====================================================================================================================
+  //  Total charge, summed over all phases
   doublereal MultiPhase::charge() const {
     doublereal sum = 0.0;
     index_t i;
@@ -229,8 +291,11 @@ namespace Cantera {
     }
     return sum;
   }
-
+  //====================================================================================================================
   int MultiPhase::speciesIndex(std::string speciesName, std::string phaseName) {
+    if (!m_init) {
+      init();
+    }
     int p = phaseIndex(phaseName);
     if (p < 0) {
       throw CanteraError("MultiPhase::speciesIndex", "phase not found: " + phaseName);
@@ -241,7 +306,7 @@ namespace Cantera {
     }
     return m_spstart[p] + k;
   }
-
+  //====================================================================================================================
   /// Net charge of one phase (Coulombs). The net charge is computed as
   /// \f[ Q_p = N_p \sum_k F z_k X_k \f]
   /// where the sum runs only over species in phase \a p.
@@ -255,7 +320,7 @@ namespace Cantera {
     }
     return Faraday*phasesum*m_moles[p];
   }
-
+  //====================================================================================================================
 
   /// Get the chemical potentials of all species in all phases. 
   void MultiPhase::getChemPotentials(doublereal* mu) const {
@@ -266,7 +331,7 @@ namespace Cantera {
       loc += m_phase[i]->nSpecies();
     }
   }
-
+  //====================================================================================================================
   // Get chemical potentials of species with valid thermo
   // data. This method is designed for use in computing chemical
   // equilibrium by Gibbs minimization. For solution phases (more
@@ -312,7 +377,7 @@ namespace Cantera {
       loc += m_phase[i]->nSpecies();
     }
   }
-
+  //====================================================================================================================
   /// True if species \a k belongs to a solution phase.
   bool MultiPhase::solutionSpecies(index_t k) const {
     if (m_phase[m_spphase[k]]->nSpecies() > 1)
@@ -320,47 +385,59 @@ namespace Cantera {
     else
       return false;
   }
-
+  //====================================================================================================================
   /// The Gibbs free energy of the mixture (J).
   doublereal MultiPhase::gibbs() const {
     index_t i;
     doublereal sum = 0.0;
     updatePhases();
-    for (i = 0; i < m_np; i++) 
-      sum += m_phase[i]->gibbs_mole() * m_moles[i];
+    for (i = 0; i < m_np; i++) {
+      if (m_moles[i] > 0.0) {
+	sum += m_phase[i]->gibbs_mole() * m_moles[i];
+      }
+    }
     return sum;
   }
-
+  //====================================================================================================================
   /// The enthalpy of the mixture (J).
   doublereal MultiPhase::enthalpy() const {
     index_t i;
     doublereal sum = 0.0;
     updatePhases();
-    for (i = 0; i < m_np; i++) 
-      sum += m_phase[i]->enthalpy_mole() * m_moles[i];
+    for (i = 0; i < m_np; i++) {
+      if (m_moles[i] > 0.0) {
+	sum += m_phase[i]->enthalpy_mole() * m_moles[i];
+      }
+    }
     return sum;
   }
-
+  //====================================================================================================================
   /// The internal energy of the mixture (J).
   doublereal MultiPhase::IntEnergy() const {
     index_t i;
     doublereal sum = 0.0;
     updatePhases();
-    for (i = 0; i < m_np; i++) 
-      sum += m_phase[i]->intEnergy_mole() * m_moles[i];
+    for (i = 0; i < m_np; i++) {
+      if (m_moles[i] > 0.0) {
+	sum += m_phase[i]->intEnergy_mole() * m_moles[i];
+      }
+    }
     return sum;
   }
-
+  //====================================================================================================================
   /// The entropy of the mixture (J/K).
   doublereal MultiPhase::entropy() const {
     index_t i;
     doublereal sum = 0.0;
     updatePhases();
-    for (i = 0; i < m_np; i++) 
-      sum += m_phase[i]->entropy_mole() * m_moles[i];
+    for (i = 0; i < m_np; i++) {
+      if (m_moles[i] > 0.0) {
+	sum += m_phase[i]->entropy_mole() * m_moles[i];
+      }
+    }
     return sum;
   }
-
+  //====================================================================================================================
   /// The specific heat at constant pressure and composition (J/K).
   /// Note that this does not account for changes in composition of
   /// the mixture with temperature.
@@ -368,16 +445,22 @@ namespace Cantera {
     index_t i;
     doublereal sum = 0.0;
     updatePhases();
-    for (i = 0; i < m_np; i++) 
-      sum += m_phase[i]->cp_mole() * m_moles[i];
+    for (i = 0; i < m_np; i++) {
+      if (m_moles[i] > 0.0) {
+	sum += m_phase[i]->cp_mole() * m_moles[i];
+      }
+    }
     return sum;
   }
 
-
+  //====================================================================================================================
 
   /// Set the mole fractions of phase \a n to the values in 
   /// array \a x.  
   void MultiPhase::setPhaseMoleFractions(const index_t n, const doublereal* const x) {
+    if (!m_init) {
+      init();
+    }
     phase_t* p = m_phase[n];
     p->setState_TPX(m_temp, m_press, x);
     int nsp = p->nSpecies();
@@ -386,7 +469,7 @@ namespace Cantera {
       m_moleFractions[istart+k] = x[k];
     }
   }
-
+  //====================================================================================================================
   // Set the species moles using a map. The map \a xMap maps
   // species name strings to mole numbers. Mole numbers that are
   // less than or equal to zero will be set to zero.
@@ -400,7 +483,7 @@ namespace Cantera {
     }
     setMoles(DATA_PTR(moles));
   }
-
+  //====================================================================================================================
   // Set the species moles using a string. Unspecified species are
   // set to zero.
   void MultiPhase::setMolesByName(const std::string& x) {
@@ -419,7 +502,7 @@ namespace Cantera {
     parseCompString(x, xx);
     setMolesByName(xx); 
   }
- 
+  //====================================================================================================================
   // Get the mole numbers of all species in the multiphase
   // object
   void MultiPhase::getMoles(doublereal * molNum) const {
@@ -438,7 +521,7 @@ namespace Cantera {
       }
     }
   }
-
+  //====================================================================================================================
   /// Set the species moles to the values in array \a n. The state
   /// of each phase object is also updated to have the specified
   /// composition and the mixture temperature and pressure.
@@ -470,7 +553,7 @@ namespace Cantera {
       loc += nsp;
     }
   }
-
+  //====================================================================================================================
   void MultiPhase::addSpeciesMoles(const int indexS, const doublereal addedMoles) {
     vector_fp tmpMoles(m_nsp, 0.0);
     getMoles(DATA_PTR(tmpMoles));
@@ -480,21 +563,21 @@ namespace Cantera {
     }
     setMoles(DATA_PTR(tmpMoles));
   }
-  
+  //====================================================================================================================
   void MultiPhase::setState_TP(const doublereal T, const doublereal Pres) {
     if (!m_init) init();
     m_temp  = T;
     m_press = Pres;
     updatePhases();
   }
-
+  //====================================================================================================================
   void MultiPhase::setState_TPMoles(const doublereal T, const doublereal Pres,
 				    const doublereal *n) {
     m_temp  = T;
     m_press = Pres;
     setMoles(n);       
   }
-
+  //====================================================================================================================
   void MultiPhase::getElemAbundances(doublereal *elemAbundances) const {
     index_t eGlobal;
     calcElemAbundances();
@@ -502,7 +585,7 @@ namespace Cantera {
       elemAbundances[eGlobal] = m_elemAbundances[eGlobal];
     }
   }
-
+  //====================================================================================================================
   // Internal routine to calculate the element abundance vector
   void MultiPhase::calcElemAbundances() const {
     index_t loc = 0;
@@ -526,17 +609,18 @@ namespace Cantera {
       loc += nspPhase;
     }
   }
-
+  //====================================================================================================================
   /// The total mixture volume [m^3].
   doublereal MultiPhase::volume() const {
     int i;
     doublereal sum = 0;
     for (i = 0; i < int(m_np); i++) {
-      sum += m_moles[i]/m_phase[i]->molarDensity();
+      double vol = 1.0/m_phase[i]->molarDensity();
+      sum += m_moles[i] * vol;
     }
     return sum;
   }
-
+  //====================================================================================================================
   doublereal MultiPhase::equilibrate(int XY, doublereal err, 
 				     int maxsteps, int maxiter, int loglevel) {
     doublereal error;
@@ -850,18 +934,18 @@ namespace Cantera {
     }
   }
 #endif
-
+  //====================================================================================================================
   void MultiPhase::setTemperature(const doublereal T) {
     if (!m_init) init();
     m_temp = T;
     updatePhases();
   }
-
+  //====================================================================================================================
   // Name of element \a m.
   std::string MultiPhase::elementName(int m) const {
     return m_enames[m];
   }
-
+  //====================================================================================================================
   // Index of element with name \a name.
   int MultiPhase::elementIndex(std::string name) const {
     for (size_t e = 0; e < m_nel; e++) {
@@ -871,25 +955,25 @@ namespace Cantera {
     }
     return -1;
   }
-  
+   //====================================================================================================================
   // Name of species with global index \a k.
   std::string MultiPhase::speciesName(const int k) const {
     return m_snames[k]; 
   }
-
+ //====================================================================================================================
   doublereal MultiPhase::nAtoms(const int kGlob, const int mGlob) const {
     return m_atoms(mGlob, kGlob);
   }
-
+ //====================================================================================================================
   void MultiPhase::getMoleFractions(doublereal* const x) const {
     std::copy(m_moleFractions.begin(), m_moleFractions.end(), x);
   }
-
+ //====================================================================================================================
   std::string MultiPhase::phaseName(const index_t iph) const {
     const phase_t *tptr = m_phase[iph];
     return tptr->id();
   }
-
+ //====================================================================================================================
   int MultiPhase::phaseIndex(const std::string &pName) const {
     std::string tmp;
     for (int iph = 0; iph < (int) m_np; iph++) {
@@ -901,32 +985,33 @@ namespace Cantera {
     }
     return -1;
   }
-
+ //====================================================================================================================
   doublereal MultiPhase::phaseMoles(const index_t n) const {
     return m_moles[n];
   }
-
+ //====================================================================================================================
   void MultiPhase::setPhaseMoles(const index_t n, const doublereal moles) {
     m_moles[n] = moles;
   }
-
+ //====================================================================================================================
   int MultiPhase::speciesPhaseIndex(const index_t kGlob) const {
     return m_spphase[kGlob];
   }
-
+ //====================================================================================================================
   doublereal MultiPhase::moleFraction(const index_t kGlob) const{
     return m_moleFractions[kGlob];
   }
-
+ //====================================================================================================================
 
   bool MultiPhase::tempOK(const index_t p) const {
     return m_temp_OK[p];
   }
-
+  //====================================================================================================================
   /// Update the locally-stored species mole fractions. 
   void MultiPhase::updateMoleFractions() {
     uploadMoleFractionsFromPhases();
   }
+  //====================================================================================================================
   /// Update the locally-stored species mole fractions. 
   void MultiPhase::uploadMoleFractionsFromPhases() {
     index_t ip, loc = 0;
@@ -937,7 +1022,7 @@ namespace Cantera {
     }
     calcElemAbundances();
   }
-
+ //====================================================================================================================
   //-------------------------------------------------------------
   //
   // protected methods
@@ -964,6 +1049,6 @@ namespace Cantera {
       }
     }
   }            
-
+  //====================================================================================================================
 }
 

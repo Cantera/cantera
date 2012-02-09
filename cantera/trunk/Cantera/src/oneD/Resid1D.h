@@ -223,7 +223,19 @@ namespace Cantera {
         }
 
         virtual void setJac(MultiJac* jac){}
-        virtual void save(XML_Node& o, doublereal* sol) {
+
+   //! Save the current solution for this domain into an XML_Node
+    /*!
+     *  Base class version of the general domain1D save function. This
+     *  base class version will throw an error condition. Inherited classes
+     *  will know how to save the solution vector.
+     *
+     *  @param o    XML_Node to save the solution to.
+     *  @param sol  Current value of the solution vector.
+     *              The object will pick out which part of the solution
+     *              vector pertains to this object.
+     */
+        virtual void save(XML_Node& o, const doublereal * const sol) {
             throw CanteraError("Resid1D::save","base class method called");
         }
 

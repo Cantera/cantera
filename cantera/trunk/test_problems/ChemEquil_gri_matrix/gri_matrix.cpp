@@ -1,7 +1,7 @@
 /*
- *  $Author: hkmoffa $
- *  $Date: 2008/02/16 21:41:06 $
- *  $Revision: 1.5 $
+ *  $Author$
+ *  $Date$
+ *  $Revision$
  *
  *  Copyright 2002 California Institute of Technology
  *

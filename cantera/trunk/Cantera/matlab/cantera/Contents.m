@@ -33,7 +33,7 @@
 %   ctclear     - Clear all objects from memory.
 %
 %   Copyright 2002 California Institute of Technology
-%   $Revision: 1.1.1.1 $  $Date: 2003/04/14 17:57:49 $
+%   $Revision$  $Date$
 
 
 

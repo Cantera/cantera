@@ -46,7 +46,7 @@ export BUILD_F90_INTERFACE
 USE_NUMPY='y'
 export USE_NUMPY
 
-NUMPY_INC_DIR="/home/hkmoffa/arch/mac/lib/python2.5/site-packages/numpy/core/include" 
+NUMPY_INC_DIR="${HOME}/arch/mac/lib/python2.5/site-packages/numpy/core/include" 
 export NUMPY_INC_DIR
 
 #GRAPHVIZDIR=${HOME}'/arch/linux/bin'
@@ -100,7 +100,7 @@ export MAKE
 
 USE_SUNDIALS='n'
 export USE_SUNDIALS
-SUNDIALS_HOME='/home/hkmoffa/arch/linux64/sundials'
+SUNDIALS_HOME="${HOME}/arch/linux64/sundials"
 export SUNDIALS_HOME
 
 ./preconfig

@@ -615,9 +615,14 @@ class Stack:
         """
         return _cantera.sim1D_restore(self._hndl, file, id)
 
-    def showStats(self):
-        """Show the statistics for the last solution."""
-        return _cantera.sim1D_writeStats(self._hndl)
+    def showStats(self, printTime = 1):
+        """Show the statistics for the last solution.
+           If invoked with no arguments or with a non-zero argument, the
+           timing statistics will be printed. If invoked with a zero argument,
+           the timing will not be printed.
+           Default: print timing enabled.
+        """
+        return _cantera.sim1D_writeStats(self._hndl, _onoff[printTime])
 
     def domainIndex(self, name):
         """Integer index of the domain with name 'name'"""
