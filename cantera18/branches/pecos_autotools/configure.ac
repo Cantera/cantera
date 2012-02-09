@@ -32,8 +32,8 @@ AC_DEFINE([LAPACK_FTN_TRAILING_UNDERSCORE],1,[Define to add underscore after for
 LAPACK_FTN_TRAILING_UNDERSCORE=1
 AC_DEFINE([FTN_TRAILING_UNDERSCORE],1,[Define to add underscore after fortran functions])
 FTN_TRAILING_UNDERSCORE=1
-AC_DEFINE([LAPACK_NAMES_LOWERCASE],1,[Define to lapack functions lowercase])
-LAPACK_NAMES_LOWERCASE 1
+AC_DEFINE([LAPACK_NAMES_LOWERCASE],1,[Define to make lapack functions lowercase])
+LAPACK_NAMES_LOWERCASE=1
 AC_DEFINE([LAPACK_FTN_STRING_LEN_AT_END],1,[Define to add string to end of lapack functions])
 LAPACK_FTN_STRING_LEN_AT_END=1
 
