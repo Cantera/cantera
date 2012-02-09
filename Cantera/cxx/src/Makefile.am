@@ -23,6 +23,6 @@ __top_builddir__build_lib_libctcxx_includedir = $(prefix)/include
 # header file accumulation
 all:
 	@echo copying headers $<
-	cp -u ../include/*.h $(top_builddir)/build/include/
+	cp -p ../include/*.h $(top_builddir)/build/include/
 
 CLEANFILES = *.o
