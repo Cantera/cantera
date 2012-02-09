@@ -32,6 +32,6 @@ __top_builddir__build_lib_libctbase_includedir = $(prefix)/include
 # header file accumulation -- only copy if file updated!
 all:
 	@echo copying headers $<
-	cp -u *.h $(top_builddir)/build/include/
+	cp -p *.h $(top_builddir)/build/include/
 
 CLEANFILES = *.o

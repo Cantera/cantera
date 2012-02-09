@@ -26,4 +26,4 @@ __top_builddir__build_lib_libconverters_includedir = $(prefix)/include
 # header file accumulation
 all:
 	@echo copying headers $<
-	cp -u $(h_sources) $(top_builddir)/build/include/
+	cp -p $(h_sources) $(top_builddir)/build/include/
