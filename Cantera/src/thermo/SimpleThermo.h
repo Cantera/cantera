@@ -13,6 +13,7 @@
 #define CT_SIMPLETHERMO_H
 
 #include "SpeciesThermoMgr.h"
+#include "speciesThermoTypes.h"
 
 namespace Cantera {
 
@@ -150,10 +151,9 @@ namespace Cantera {
      *
      * @see ConstCpPoly
      */
-    virtual void install(string name, int index, int type, 
-			 const doublereal* c,
+    virtual void install(std::string name, int index, int type, const doublereal* c,
 			 doublereal minTemp, doublereal maxTemp, doublereal refPressure) {
-      //writelog("installing const_cp for species "+name+"\n");
+
       m_logt0.push_back(log(c[0]));
       m_t0.push_back(c[0]);
       m_h0_R.push_back(c[1]/GasConstant);
@@ -178,12 +178,13 @@ namespace Cantera {
       if (m_p0 < 0.0) {
 	m_p0 = refPressure;
       } else if (fabs(m_p0 - refPressure) > 0.1) {
-	string logmsg =  " WARNING SimpleThermo: New Species, " + name +  
+	std::string logmsg =  " WARNING SimpleThermo: New Species, " + name +  
 	  ", has a different reference pressure, "
 	  + fp2str(refPressure) + ", than existing reference pressure, " 	+ fp2str(m_p0) + "\n";
 	writelog(logmsg);
-	logmsg = "                  This may become a fatal error in the future \n";
+	logmsg = "                  This is now a fatal error\n";
 	writelog(logmsg);
+        throw CanteraError("install()", "Species have different reference pressures");
       }
       m_p0 = refPressure;
     }
@@ -382,7 +383,7 @@ namespace Cantera {
      * This index keeps track of it.
      *      indexData = m_loc[kspec]
      */
-    mutable map<int, int>              m_loc;
+    mutable std::map<int, int>              m_loc;
 
     //! Map between the vector index where the coefficients are kept and the species index
     /*!

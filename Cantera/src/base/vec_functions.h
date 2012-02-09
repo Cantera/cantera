@@ -181,7 +181,7 @@ namespace Cantera {
   inline void fbo_copy_dbl_1(doublereal * const copyTo, const doublereal * const copyFrom, 
 			     const int len) {
     if (len > 0) {
-      (void) memcpy((void *)copyTo, (const void *)copyFrom, len * sizeof(doublereal));
+      (void) std::memcpy((void *)copyTo, (const void *)copyFrom, len * sizeof(doublereal));
     }
   }
 
@@ -196,7 +196,7 @@ namespace Cantera {
   inline void fvo_copy_dbl_1(std::vector<doublereal> &copyTo, const std::vector<doublereal> &copyFrom, 
 			     const int len) {
     if (len > 0) {
-      (void) memcpy((void *)(&copyTo[0]), (const void *)(&copyFrom[0]), len * sizeof(doublereal));
+      (void) std::memcpy((void *)(&copyTo[0]), (const void *)(&copyFrom[0]), len * sizeof(doublereal));
     }
   }
 
@@ -209,7 +209,7 @@ namespace Cantera {
    */
   inline void fbo_zero_dbl_1(doublereal * const v, const int len) {
     if (len > 0) {
-      (void) memset((void *)v, 0, len * sizeof(doublereal));
+      (void) std::memset((void *)v, 0, len * sizeof(doublereal));
     }
   }
 
@@ -222,7 +222,7 @@ namespace Cantera {
    */
   inline void fvo_zero_dbl_1(std::vector<doublereal> &v, const int len) {
     if (len > 0) {
-      (void) memset((void *)(&v[0]), 0, len * sizeof(doublereal));
+      (void) std::memset((void *)(&v[0]), 0, len * sizeof(doublereal));
     }
   }
 

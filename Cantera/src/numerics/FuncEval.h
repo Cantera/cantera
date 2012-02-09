@@ -55,7 +55,7 @@ namespace Cantera {
          */
         virtual int neq()=0;
 
-        /// Number of parameters.
+        //! Number of parameters.
         virtual int nparams() { return 0; }
 
     protected:

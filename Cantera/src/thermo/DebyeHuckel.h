@@ -1255,13 +1255,6 @@ namespace Cantera {
      *  -------------- Utilities -------------------------------
      */
 
- 
-    /**
-     * Return a reference to the species thermodynamic property
-     * manager.  @todo This method will fail if no species thermo
-     * manager has been installed.
-     */
-    SpeciesThermo& speciesThermo() { return *m_spthermo; }
 
     //! Initialize the object's internal lengths after species are set
     /**

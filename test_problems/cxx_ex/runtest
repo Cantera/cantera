@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: runtest,v 1.8 2006/08/14 19:32:55 hkmoffa Exp $
+# $Id$
 #
 temp_success="1"
 /bin/rm  -f eq1.csv  tr1.csv tr2.csv  kin1.csv  kin2.csv \

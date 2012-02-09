@@ -429,8 +429,8 @@ extern "C" {
         return 0;
     }
 
-    int DLL_EXPORT onedim_writeStats(int i) {
-        _onedim(i)->writeStats();
+    int DLL_EXPORT onedim_writeStats(int i, int printTime) {
+        _onedim(i)->writeStats(printTime);
         return 0;
     }
 

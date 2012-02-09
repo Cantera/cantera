@@ -38,7 +38,8 @@ namespace Cantera {
     m_ready(false),
     m_nmin(0),
     m_index(-1),
-    m_nDim(ndim)
+    m_nDim(ndim),
+    m_velocityBasis(VB_MASSAVG)
   {
   }
 
@@ -49,6 +50,7 @@ namespace Cantera {
     m_nmin          = right.m_nmin;
     m_index         = right.m_index;
     m_nDim          = right.m_nDim;
+    m_velocityBasis = right.m_velocityBasis;
   }
 
 
@@ -61,6 +63,7 @@ namespace Cantera {
     m_nmin          = right.m_nmin;
     m_index         = right.m_index;
     m_nDim          = right.m_nDim;
+    m_velocityBasis = right.m_velocityBasis;
     return *this;
   }
 
@@ -81,17 +84,15 @@ namespace Cantera {
     return m_index; 
   }
 
-  /*
-   * Set an integer index number. This is for internal use of
+  /* Set an integer index number. This is for internal use of
    * Cantera, and may be removed in the future.
    */
   void Transport::setIndex(int i) {
     m_index = i; 
   }
 
-  //! Set the number of dimensions to be expected in flux expressions
-  /*!
-   * Internal memory will be set with this value
+  // Set the number of dimensions to be expected in flux expressions
+  /* Internal memory will be set with this value
    */
   void Transport::setNDim(const int ndim) {
     m_nDim = ndim;
@@ -100,8 +101,7 @@ namespace Cantera {
 
 
 
-  /*
-   * Set transport model parameters. This method may be
+  /* Set transport model parameters. This method may be
    * overloaded in subclasses to set model-specific parameters.
    */
   void Transport::setParameters(const int type, const int k, 
@@ -142,4 +142,11 @@ namespace Cantera {
 			 "finalize has already been called.");
   }
 
+  //====================================================================================================================
+  void Transport::getSpeciesFluxes(int ndim, const doublereal * const grad_T, 
+				   int ldx, const doublereal * const grad_X,
+				   int ldf, doublereal * const fluxes) { 
+    err("getSpeciesFluxes"); 
+  }
+  //====================================================================================================================
 }

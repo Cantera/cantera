@@ -1,15 +1,11 @@
 /**
- *  @file TransportFactory.h
- *  Header file defining class TransportFactory
- *     (see \link Cantera::TransportFactory TransportFactory\endlink)
+ *  @file LiquidTransportData.h
+ *  Header file defining class LiquidTransportData
  */
 /*
- *  $Author: hkmoffa $
- *  $Date: 2008/12/24 18:19:01 $
- *  $Revision: 1.14 $
- *
- *
- *
+ *  $Author$
+ *  $Date$
+ *  $Revision$
  */
 
 #ifndef CT_LIQUIDTRANSPORTDATA_H
@@ -19,62 +15,100 @@
 // STL includes
 #include <vector>
 #include <string>
-#include <iostream>
-#include <new>
-
-
 
 // Cantera includes
 #include "ct_defs.h"
 #include "TransportBase.h"
 #include "FactoryBase.h"
-
+#include "LTPspecies.h"
 
 namespace Cantera {
 
-  enum LiquidTR_Model {
-    LTR_MODEL_NOTSET=-1,
-    LTR_MODEL_CONSTANT, 
-    LTR_MODEL_ARRHENIUS,
-    LTR_MODEL_COEFF
-  };
-
+  //! Class LiquidTransportData holds transport parameters for a 
+  //! specific liquid-phase species.  
+  /*!
+   * A LiquidTransportData object is created for each species.
+   * 
+   * This class is mainly used to collect transport properties 
+   * from the parse phase in the TranportFactory and transfer 
+   * them to the Transport class.  Transport properties are 
+   * expressed by subclasses of LTPspecies.
+   * One may need to be careful about deleting pointers to LTPspecies 
+   * objects created in the TransportFactory.
+   * 
+   *  All of the pointers in this class are shallow pointers. Therefore, this 
+   *  is a passthrough class, which keeps track of pointer ownership by zeroing
+   *  pointers as we go. Yes, Yes, yes, this is not good.
+   */ 
   class LiquidTransportData {
 
   public:
 
-    LiquidTransportData() : 
-      speciesName("-"), 
-      model_hydroradius(LTR_MODEL_NOTSET),
-      hydroradius(-1.0),
-      model_viscosity(LTR_MODEL_NOTSET),
-      model_thermalCond(LTR_MODEL_NOTSET),
-      model_speciesDiffusivity(LTR_MODEL_NOTSET)
-    {
-    }
+    //! Default constructor
+    LiquidTransportData();
 
-    std::string speciesName;
+    //! Copy constructor
+    LiquidTransportData(const LiquidTransportData &right);
+
+    //! Assignment operator
+    LiquidTransportData& operator=(const LiquidTransportData& right );
+
+    //! Destructor
+    ~LiquidTransportData();
+
+    //! A LiquidTransportData object is instantiated for each species.  
+    //! This is the species name for which this object is instantiated.
+    std::string speciesName;   
+    
+    //! Model type for the hydroradius
+    /*!
+     *  shallow pointer that should be zero during destructor
+     */
+    LTPspecies* hydroRadius;
+
+    //! Model type for the viscosity
+    /*!
+     *  shallow pointer that should be zero during destructor
+     */
+    LTPspecies* viscosity;
+
+    //! Model type for the ionic conductivity
+    /*!
+     *  shallow pointer that should be zero during destructor
+     */
+    LTPspecies* ionConductivity;
+
+    //! Model type for the mobility ratio
+    /*!
+     *  shallow pointers that should be zero during destructor
+     */
+    std::vector<LTPspecies*> mobilityRatio;
+
+    //! Model type for the self diffusion coefficients
+    /*!
+     *  shallow pointers that should be zero during destructor
+     */
+    std::vector<LTPspecies*> selfDiffusion;
+
+    //! Model type for the thermal conductivity
+    /*!
+     *  shallow pointer that should be zero during destructor
+     */
+    LTPspecies* thermalCond;
    
-    //! Model type for the hydroradius
-    LiquidTR_Model model_hydroradius;
-
-    //! Actual value of the hydroradius
-    doublereal  hydroradius;
-
-    //! Model type for the hydroradius
-    LiquidTR_Model model_viscosity;
-    vector_fp   viscCoeffs; 
-
-    //! Model type for the hydroradius
-    LiquidTR_Model model_thermalCond;
+    //! Model type for the electrical conductivity
+    /*!
+     *  shallow pointer that should be zero during destructor
+     */
+    LTPspecies* electCond;
    
-    vector_fp   thermalCondCoeffs;
-
-    //! Model type for the hydroradius
-    LiquidTR_Model model_speciesDiffusivity;
-   
-    vector_fp   speciesDiffusivityCoeffs;
+    //! Model type for the speciesDiffusivity
+    /*!
+     *  shallow pointer that should be zero during destructor
+     */
+    LTPspecies* speciesDiffusivity;
   };
 
 }
 #endif
+

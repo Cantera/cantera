@@ -2,6 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 define([AC_CACHE_LOAD], )dnl
 define([AC_CACHE_SAVE], )dnl
 AC_INIT(Cantera,1.7.0)
+
 AC_CONFIG_HEADER(config.h)
 # AC_CONFIG_AUX_DIR(.)
 # AC_CONFIG_SRCDIR(./License.txt)
@@ -79,6 +80,50 @@ fi
 AC_SUBST(BITCOMPILE)
 AC_SUBST(BITHARDWARE)
 AC_SUBST(BITCHANGE)
+#
+#-----------------------------------------------------------------------
+#     C++ and C Compilation  - INITIAL SECTION
+#-----------------------------------------------------------------------
+#
+# CFLAGS: flags that get attached to the C compiler
+#             statement. AFLAGS are base flags that
+#             get added to compilers and loaders.
+# FFLAGS: flags that get attached to the Fortran compiler
+#             statement. AFLAGS are base flags that
+#             get added to compilers and loaders.
+#
+# CXXFLAGS: Flags that get attached to the CXX compiler 
+#             statement. AFLAGS are base flags that
+#             get added to compilers and loaders. 
+#
+if test -z "$AFLAGS" ; then
+  AFLAGS=" "
+fi
+if test -z "$CXXFLAGS" ; then
+    CXXFLAGS="$AFLAGS"
+else
+    CXXFLAGS="$CXXFLAGS"" ""$AFLAGS"
+fi
+if test -z "$CFLAGS" ; then
+  CFLAGS="$AFLAGS"
+else
+  CFLAGS="$CFLAGS"" ""$AFLAGS"
+fi
+if test -z "$FFLAGS" ; then
+  FFLAGS="$AFLAGS"
+else
+  FFLAGS="$FFLAGS"" ""$AFLAGS"
+fi
+export CXXFLAGS
+export AFLAGS
+export CFLAGS
+export FFLAGS
+#
+# Note these should not be within if blocks
+#
+AC_PROG_CXX()
+AC_PROG_CC()
+
 
 
 SHARED_CTLIB=0
@@ -306,12 +351,15 @@ AC_SUBST(CXX_DEPENDS)
 
 #----------------------------------------
 
-########################################################
+#########################################################
 #  User Code
 #########################################################
 USERDIR=""
 INCL_USER_CODE=0
-if test -n "$USER_SRC_DIR"; then USERDIR=$USER_SRC_DIR; INCL_USER_CODE=1; fi
+if test -n "$USER_SRC_DIR"; then 
+  USERDIR=$USER_SRC_DIR
+  INCL_USER_CODE=1
+fi
 AC_SUBST(USERDIR)
 AC_SUBST(INCL_USER_CODE)
 
@@ -323,11 +371,11 @@ CVODE_LIBS='-lcvode'
 IDA_LIBS=''
 
 if test "x$SUNDIALS_HOME" = "x"; then
-SUNDIALS_LIB_DIR=/usr/local/lib
-SUNDIALS_INC_DIR=/usr/local/include
+  SUNDIALS_LIB_DIR=/usr/local/lib
+  SUNDIALS_INC_DIR=/usr/local/include
 else
-SUNDIALS_LIB_DIR="$SUNDIALS_HOME/lib"
-SUNDIALS_INC_DIR="$SUNDIALS_HOME/include"
+  SUNDIALS_LIB_DIR="$SUNDIALS_HOME/lib"
+  SUNDIALS_INC_DIR="$SUNDIALS_HOME/include"
 fi
 
 if test "$USE_SUNDIALS" = "default"; then
@@ -336,8 +384,7 @@ if test "$USE_SUNDIALS" = "default"; then
 #     SUNDIALS_LIB_DIR had a space in it, despite use of double quotes everywhere
 #ldsave="$LDFLAGS"
 #LDFLAGS='-L'"$SUNDIALS_LIB_DIR"' '"$ldsave"
-AC_CHECK_LIB(sundials_cvodes, CVodeCreate, [use_sundials=1], [use_sundials=0],\
-[-lsundials_cvodes -lsundials_nvecserial -lm])
+AC_CHECK_LIB(sundials_cvodes, CVodeCreate, [use_sundials=1], [use_sundials=0], [-lsundials_cvodes -lsundials_nvecserial -lm] )
 
 if test ${use_sundials} = 0 ; then
   tmpFile="$SUNDIALS_LIB_DIR/libsundials_cvodes.a"
@@ -347,7 +394,7 @@ if test ${use_sundials} = 0 ; then
 fi
 
 if test ${use_sundials} = 1 ; then
-   echo SUNDIALS: succeeded in finding a sundials installation
+   echo "SUNDIALS: succeeded in finding a sundials installation"
 else
   echo SUNDIALS: failed at finding a sundials installation
 fi
@@ -355,8 +402,9 @@ fi
 fi
 
 if test "x$USE_SUNDIALS" = "xy"; then
-use_sundials=1
+  use_sundials=1
 fi
+echo "Out of Block"
 sundials_lib_dir=
 sundials_lib=
 sundials_lib_dep=
@@ -483,6 +531,13 @@ if test "$WITH_PURE_FLUIDS" = "y"; then
   objs=$objs' PureFluidPhase.o'
 fi
 AC_SUBST(COMPILE_PURE_FLUIDS)
+
+if test "$WITH_REAL_GASSES" = "y"; then
+  AC_DEFINE(WITH_REAL_GASSES)
+  hdrs=$hdrs' RedlichKwongMFTP.h'
+  objs=$objs' RedlichKwongMFTP.o'
+fi
+
 
 if test "$WITH_LATTICE_SOLID" = "y"; then
   AC_DEFINE(WITH_LATTICE_SOLID)
@@ -613,6 +668,14 @@ if test "$WITH_H298MODIFY_CAPABILITY" = "y"; then
   COMPILE_H298MODIFY_CAPABILITY=1
 fi
 AC_SUBST(COMPILE_H298MODIFY_CAPABILITY)
+
+
+COMPILE_INTERMEDIATE_ZEROED_KINETICS=0
+if test "$KINETICS_WITH_INTERMEDIATE_ZEROED_KINETICS" = "y"; then
+  AC_DEFINE(KINETICS_WITH_INTERMEDIATE_ZEROED_KINETICS)
+  COMPILE_INTERMEDIATE_ZEROED_KINETICS=1
+fi
+AC_SUBST(COMPILE_INTERMEDIATE_ZEROED_KINETICS)
 
 
 if test "$WITH_HTML_LOG_FILES" = "y"; then
@@ -838,7 +901,7 @@ if test -n "$NEED_F2C" ; then
   build_f2c_lib=1
 else
   case $ac_sys_system in
-    Linux)    F2C_SYSTEMLIB="-lg2c"
+    Linux)    F2C_SYSTEMLIB=""
   esac
 fi
 AC_SUBST(build_f2c_lib)
@@ -978,7 +1041,7 @@ then
   RAW_LIBS_DEP=$RAW_LIBS_DEP' 'libctf2c.a
 else
   case $ac_sys_system in
-    Linux)    LOCAL_LIBS=$LOCAL_LIBS' '-lg2c;;
+    Linux)    LOCAL_LIBS=$LOCAL_LIBS;;
   esac
 fi
 #    Darwin*)  LOCAL_LIBS=$LOCAL_LIBS' '-lg2c;;
@@ -1365,55 +1428,8 @@ esac
 #  precompile_headers still relevant?
 #
 precompile_headers=no
-#
-# CFLAGS: flags that get attached to the C compiler
-#             statement. AFLAGS are base flags that
-#             get added to compilers and loaders.
-# FFLAGS: flags that get attached to the Fortran compiler
-#             statement. AFLAGS are base flags that
-#             get added to compilers and loaders.
-#
-# CXXFLAGS: Flags that get attached to the CXX compiler 
-#             statement. AFLAGS are base flags that
-#             get added to compilers and loaders. 
-#
-if test -z "$AFLAGS" ; then
-  AFLAGS=" "
-fi
-if test -z "$CXXFLAGS" ; then
-    CXXFLAGS="$AFLAGS"
-else
-    CXXFLAGS="$CXXFLAGS"" ""$AFLAGS"
-fi
-if test -z "$CFLAGS" ; then
-  CFLAGS="$AFLAGS"
-else
-  CFLAGS="$CFLAGS"" ""$AFLAGS"
-fi
-if test -z "$FFLAGS" ; then
-  FFLAGS="$AFLAGS"
-else
-  FFLAGS="$FFLAGS"" ""$AFLAGS"
-fi
-
-if test "x$OS_IS_WIN" = "x1"; then
-  #CXX=cl.exe
-  #CC=cl.exe
-  #export CXX
-  AC_PROG_CXX()
-  AC_PROG_CC()
-else
-
-#
-# Determines the CXX compiler to use
-#
-export CXX
-AC_PROG_CXX()
-AC_PROG_CC()
-
-
+if test "x$OS_IS_WIN" != "x1"; then
 AC_MSG_CHECKING(for ability to precompile headers)
-
 if test -n "$GCC"; then
  msg=`rm -f *h.gch; $CXX testpch.h &> /dev/null`
  if test -f testpch.h.gch; then 
@@ -1461,12 +1477,6 @@ if test "$BUILD_WITH_F2C"="n"; then
 fi
 
 AC_SUBST(LCXX_FLAGS)
-
-#
-# Ending Libs for compiling static applications and 
-# dynamically loaded libraries
-#  (sunpro solaris needs a few for dynamic linking)
-#
 #
 # Check to see if we have a -lm line
 #
@@ -1477,7 +1487,11 @@ AC_CHECK_LIB(m, printf, [add_stm=1], [add_stm=0], [ ])
 #
 AC_CHECK_LIB(stdc++, printf, [add_stdc=1], [add_stdc=0], [])
 
-
+#
+# Ending Libs for compiling static applications and 
+# dynamically loaded libraries
+#  (sunpro solaris needs a few for dynamic linking)
+#
 if test -n "$NEED_F2C" ; then 
    LCXX_END_LIBS="-lctf2c ""$LCXX_END_LIBS"
 fi
@@ -1498,7 +1512,6 @@ if test $add_stdc = 1 ; then
   LCXX_END_LIBS="$LCXX_END_LIBS"" -lstdc++ "
   echo 'LCXX_END_LIBS = ' $LCXX_END_LIBS
 fi
-
 
 AC_SUBST(LCXX_END_LIBS)
 
@@ -1535,7 +1548,11 @@ AC_SUBST(HAVE_STRIPSYMBOLS)
 #                        Fortran
 #---------------------------------------------------------------------------
 
-#if test x"$build_with_f2c" = "x0"; then
+#
+# This macro sets the substitution variable, @F77@ and @G77@
+#
+echo " this is $F77"
+echo "this is a test"
 AC_PROG_F77()
 
 # if G77 is defined, then add a flag to turn off adding a second underscore
@@ -1547,9 +1564,10 @@ else
     FFLAGS=$FFLAGS' -fno-second-underscore'
   fi
 fi
-
-dnl Checks for libraries.
+F77LDRCLIBS=
 AC_F77_LIBRARY_LDFLAGS()
+
+echo " Macro returned with FLIBS defined as " $FLIBS
 
 override_f77_libs=0;
 
@@ -1677,7 +1695,6 @@ AC_OBJEXT
 AC_EXEEXT
 
 AC_SUBST(precompile_headers)
-AC_SUBST(FLIBS)
 AC_SUBST(OS_IS_DARWIN)
 AC_SUBST(OS_IS_WIN)
 AC_SUBST(OS_IS_CYGWIN)
@@ -1908,9 +1925,9 @@ AC_OUTPUT(Makefile \
           ext/f2c_math/Makefile \
 	  examples/Makefile \
           examples/cxx/Makefile \
+	  docs/Makefile \
 	  tools/Makefile \
-          tools/doc/Cantera.cfg \
-          tools/doc/Makefile \
+          docs/Cantera.cfg \
           tools/src/Makefile \
           tools/src/sample.mak \
           tools/src/finish_install.py \

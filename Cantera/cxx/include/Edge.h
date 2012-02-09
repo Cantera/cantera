@@ -7,7 +7,6 @@
 #include "kernel/EdgeKinetics.h"
 #include "kernel/importKinetics.h"
 
-using namespace Cantera;
 namespace Cantera_CXX {
 
     class Edge : 

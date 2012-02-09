@@ -1,9 +1,9 @@
 #/bin/sh
 #
 # $Source: /cvsroot/cantera/cantera/ext/f2c_lapack/Makefile.in,v $
-# $Author: hkmoffa $
-# $Revision: 1.9 $
-# $Date: 2009/01/12 19:34:14 $
+# $Author$
+# $Revision$
+# $Date$
 #
 
 .SUFFIXES :
@@ -64,9 +64,11 @@ dgetri.o \
 dgetrs.o \
 dlabad.o \
 dlabrd.o \
+dlacon.o \
 dlacpy.o \
 dlamch.o \
 dlange.o \
+dlantr.o \
 dlapy2.o \
 dlarf.o \
 dlarfb.o \
@@ -87,6 +89,7 @@ dlasrt.o \
 dlassq.o \
 dlasv2.o \
 dlaswp.o \
+dlatrs.o \
 dorg2r.o \
 dorgbr.o \
 dorgl2.o \
@@ -97,9 +100,20 @@ dormbr.o \
 dorml2.o \
 dormlq.o \
 dormqr.o \
+dpotf2.o \
+dpotrf.o \
+dpotrs.o \
 drscl.o \
+dtrcon.o \
 dtrtri.o \
 dtrti2.o \
+dtrtrs.o \
+dgecon.o \
+dgeequ.o \
+dgerfs.o \
+dgbcon.o \
+dgbequ.o \
+dlatbs.o \
 ieeeck.o \
 ilaenv.o 
 

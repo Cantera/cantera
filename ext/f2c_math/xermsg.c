@@ -364,7 +364,7 @@ static logical c_true = TRUE_;
 
 /*       THEN WHETHER THE PROGRAM WILL CONTINUE. */
 
-	if (mkntrl == 2 && *level >= 1 || mkntrl == 1 && *level == 2) {
+	if ((mkntrl == 2 && *level >= 1) || (mkntrl == 1 && *level == 2)) {
 	    i__1 = ltemp;
 	    s_copy(temp + i__1, " PROG ABORTED,", ltemp + 14 - i__1, (ftnlen)
 		    14);
@@ -437,7 +437,7 @@ L20:
 /*       CONTROL FLAG IS SET FOR RECOVERY, THEN RETURN. */
 
 L30:
-    if (*level <= 0 || *level == 1 && mkntrl <= 1) {
+    if ((*level <= 0) || (*level == 1 && mkntrl <= 1)) {
 	return 0;
     }
 

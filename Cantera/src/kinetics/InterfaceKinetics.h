@@ -44,17 +44,17 @@ namespace Cantera {
    */
   class InterfaceKineticsData {
   public:
-    InterfaceKineticsData() :
-      m_logp0(0.0),
-      m_logc0(0.0),
-      m_ROP_ok(false),
-      m_temp(0.0), 
-      m_logtemp(0.0)
-    {}
- 
+    InterfaceKineticsData();
+
+    InterfaceKineticsData(const InterfaceKineticsData &right);
+
+    InterfaceKineticsData &operator=(const InterfaceKineticsData &right);
+
     //! Virtual destructor
-    virtual ~InterfaceKineticsData() {
-    }
+    /*!
+     * todo - why is this virtual
+     */
+    virtual ~InterfaceKineticsData();
 
     doublereal m_logp0;
     doublereal m_logc0;
@@ -73,12 +73,38 @@ namespace Cantera {
   };
 
 
-  ///
-  ///  A kinetics manager for heterogeneous reaction mechanisms. The
-  ///  reactions are assumed to occur at a 2D interface between two
-  ///  3D phases.
-  ///
-  ///  @ingroup chemkinetics
+ 
+  //!  A kinetics manager for heterogeneous reaction mechanisms. The
+  //!  reactions are assumed to occur at a 2D interface between two 3D phases.
+  /*!
+   *
+   *    There are some important additions to the behavior of the kinetics class due to the
+   *    presence of multiple phases and a heterogeneous interface.  If a reactant phase
+   *    doesn't exists, i.e., has a mole number of zero, a heterogeneous reaction can not
+   *    proceed from reactants to products. Note it could perhaps proceed from products to 
+   *    reactants if all of the product phases exist. 
+   *
+   *    In order to make the determination of whether a phase exists or not actually involves
+   *    the specification of additional information to the kinetics object., which heretofore
+   *    has only had access to intrinsic field information about the phases (i.e., temperature
+   *    pressure, and mole fraction).
+   *  
+   *    The extrinsic specification of whether a phase exists or not  must be specified on top of the
+   *    intrinsic calculation of the reaction rate.  This routine carries a set of
+   *    booleans indicating whether a phase in the heterogeneous mechanism exists or not.
+   *   
+   *    Additionally, the routine carries a set of booleans around indicating whether a product
+   *    phase is stable or not. If a phase is not thermodynamically stable, it may be the case that
+   *    a particular reaction in a heterogeneous mechanism will create a product species in the
+   *    unstable phase. However, other reactions in the mechanism will destruct that species.
+   *    This may cause oscillations in the formation of the unstable phase from time step to time
+   *    step within a ODE solver, in practice. In order to avoid this situation, a set of 
+   *    booleans is tracked which sets the stability of a phase. If a phase is deemed to be unstable,
+   *    then species in that phase will not be allowed to be birthed by the kinetics operator.
+   *    Nonexistent phases are deemed to be unstable by default, but this can be changed.
+   *
+   *  @ingroup chemkinetics
+   */
   class InterfaceKinetics : public Kinetics {
 
   public:
@@ -116,17 +142,19 @@ namespace Cantera {
     InterfaceKinetics& operator=(const InterfaceKinetics &right);
 
 
-    //! Duplication routine for objects which inherit from
-    //! Kinetics
+
+    //! Duplication routine for objects which inherit from Kinetics
     /*!
-     *  This virtual routine can be used to duplicate %InterfaceKinetics objects
+     *  This virtual routine can be used to duplicate %Kinetics objects
      *  inherited from %Kinetics even if the application only has
      *  a pointer to %Kinetics to work with.
      *
-     *  These routines are basically wrappers around the derived copy
-     *  constructor.
+     *  These routines are basically wrappers around the derived copy  constructor.
+     *
+     * @param  tpVector Vector of shallow pointers to ThermoPhase objects. this is the
+     *                  m_thermo vector within this object
      */
-    virtual Kinetics *duplMyselfAsKinetics() const;
+    virtual Kinetics *duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVector) const;
 
     //! Return the ID of the kinetics object
     virtual int ID() const;
@@ -188,8 +216,28 @@ namespace Cantera {
 
     void getExchangeCurrentQuantities();
 
+    //! Return the vector of values for the reaction gibbs free energy change. 
+    /*!
+     * These values depend upon the concentration of the solution.
+     *
+     *  units = J kmol-1
+     *
+     * @param deltaG  Output vector of  deltaG's for reactions
+     *                Length: m_ii.
+     */
+    virtual void getDeltaGibbs(doublereal* deltaG);
 
-    virtual void getDeltaGibbs( doublereal* deltaG);
+    //! Return the vector of values for the reaction electrochemical free energy change. 
+    /*!
+     * These values depend upon the concentration of the solution and
+     * the voltage of the phases
+     *
+     *  units = J kmol-1
+     *
+     * @param deltaM  Output vector of  deltaM's for reactions
+     *                Length: m_ii.
+     */
+    virtual void getDeltaElectrochemPotentials(doublereal* deltaM);
 
     /**
      * Return the vector of values for the reactions change in
@@ -199,7 +247,7 @@ namespace Cantera {
      *
      *  units = J kmol-1
      */
-    virtual void getDeltaEnthalpy( doublereal* deltaH);
+    virtual void getDeltaEnthalpy(doublereal* deltaH);
       
     //! Return the vector of values for the change in
     //! entropy due to each reaction
@@ -325,6 +373,13 @@ namespace Cantera {
       return m_index[i].first;
     }
 
+    //! Get the vector of activity concentrations used in the kinetics object
+    /*!
+     *  @param conc  (output) Vector of activity concentrations. Length is 
+     *               equal to the number of species in the kinetics object
+     */
+    virtual void getActivityConcentrations(doublereal * const conc);
+
     //! Return the charge transfer rxn Beta parameter for the ith reaction
     /*!
      *  Returns the beta parameter for a charge transfer reaction. This 
@@ -437,7 +492,16 @@ namespace Cantera {
      */
     void _update_rates_T();
 
+    //! Update properties that depend on the electric potential
+    /*!
+     *  This is called to update all of the properties that depend on potential 
+     */
     void _update_rates_phi();
+
+    //! Update properties that depend on the species mole fractions and/or concentration
+    /*!
+     *  This is called to update all of the properties that depend on concentration 
+     */
     void _update_rates_C();
       
     //! Advance the surface coverages in time
@@ -528,13 +592,52 @@ namespace Cantera {
     /*!
      *    Tell the kinetics object whether a phase in the object exists.
      *    This is actually an extrinsic specification that must be carried out on top of the
-     *    intrinsic calculation of the reaction rate
+     *    intrinsic calculation of the reaction rate.
+     *    The routine will also flip the IsStable boolean within the kinetics object as well.
      *
      *  @param iphase  Index of the phase. This is the order within the internal thermo vector object
      *  @param exists  Boolean indicating whether the phase exists or not
      */
-    void setPhaseExistence(const int iphase, const bool exists);
+    void setPhaseExistence(const int iphase, const int exists);
+
+    //! Set the stability of a phase in the reaction object
+    /*!
+     *    Tell the kinetics object whether a phase in the object is stable. Species in an unstable phase
+     *    will not be allowed to have a positive rate of formation from this kinetics object.
+     *    This is actually an extrinsic specification that must be carried out on top of the
+     *    intrinsic calculation of the reaction rate.
+     *
+     *    While conceptually not needed since kinetics is consistent with thermo when taken as a whole, 
+     *    in practice it has found to be very useful to turn off the creation of phases which shouldn't
+     *    be forming. Typically thais can reduce the oscillations in phase formation and destruction
+     *    which are observed.
+     *
+     *  @param iphase  Index of the phase. This is the order within the internal thermo vector object
+     *  @param exists  Boolean indicating whether the phase exists or not
+     */
+    void setPhaseStability(const int iphase, const int isStable);
  
+    //! Gets the phase existence int for the ith phase
+    /*!
+     * @param iphase  Phase Id 
+     *
+     * @return Returns the int specifying whether the kinetics object thinks the phase exists
+     *         or not. If it exists, then species in that phase can be a reactant in reactions.
+     */
+    int phaseExistence(const int iphase) const;
+
+    //! Gets the phase stability int for the ith phase
+    /*!
+     * @param iphase  Phase Id 
+     *
+     * @return Returns the int specifying whether the kinetics object thinks the phase is stable
+     *         with nonzero mole numbers. 
+     *         If it stable, then the kinetics object will allow for rates of production of
+     *         of species in that phase that are positive.
+     */
+    int phaseStability(const int iphase) const;
+
+
   protected:
      
     //! Temporary work vector of length m_kk
@@ -680,6 +783,7 @@ namespace Cantera {
     //! Vector of raw activation energies for the reactions
     /*!
      * units are in Kelvin
+     * Length is number of reactions.
      */
     vector_fp m_E;
 
@@ -731,7 +835,7 @@ namespace Cantera {
     //! Boolean flag indicating whether any reaction in the mechanism
     //! has a beta electrochemical parameter.
     /*!
-     *  If this is true, the the Butler-Volmer correction is applied
+     *  If this is true, the Butler-Volmer correction is applied
      *  to the forward reaction rate for those reactions.
      *
      *    fac = exp ( - beta * (delta_phi))
@@ -764,10 +868,64 @@ namespace Cantera {
      *    length = number of phases in the object
      *    By default all phases exist.
      */
-    std::vector<bool> m_phaseExists;
+    std::vector<int> m_phaseExists;
 
+    //!  Vector of int indicating whether phases are stable or not
+    /*!
+     *    Vector of booleans indicating whether a phase is stable or not
+     *    under the current conditions.
+     *    We use this to set the ROP's so that unphysical things don't happen
+     *
+     *    length = number of phases in the object
+     *    By default all phases are stable
+     */
+    std::vector<int> m_phaseIsStable;
+
+    //!  Vector of vector of booleans indicating whether a phase participates in a
+    //!  reaction as a reactant
+    /*!
+     *      m_rxnPhaseIsReactant[j][p] indicates whether a species in phase p
+     *               participates in reaction j as a reactant.
+     */
     std::vector<bool *> m_rxnPhaseIsReactant;
+
+    //!  Vector of vector of booleans indicating whether a phase participates in a
+    //!  reaction as a product
+    /*!
+     *      m_rxnPhaseIsReactant[j][p] indicates whether a species in phase p
+     *               participates in reaction j as a product.
+     */
     std::vector<bool *> m_rxnPhaseIsProduct;
+
+#ifdef KINETICS_WITH_INTERMEDIATE_ZEROED_PHASES
+    //!   Vector of ints indicating whether zeroed phase is an intermediate for
+    //!   the formation of another phase
+    /*!
+     *    If a phase is zeroed out but it is an intermediate, then the phase
+     *    can be formed whether it is stable or not, but the destruction rate of
+     *    species in that phase can't exceed the formation rate for species in that
+     *    phase.
+     *
+     *    length = number of phases in the object
+     *    By default all phases are not intermediates 
+     */
+    std::vector<int> m_phaseIsIntermediate;
+    int m_numIntermediatePhases;
+
+    //!  Reaction rate reduction factor for intermediates 
+    /*!
+     *  Individual reaction rates are reduced to accommodate the requirements of intermediate
+     *  zero phases.
+     *
+     *    length = number of reactions in the object
+     *    By default all phases are not intermediates 
+     */
+    std::vector<doublereal> m_rxnRateFactorPhaseIntermediates;
+
+    //! Work vector having length number of species
+    std::vector<doublereal> m_speciesTmpP;
+    std::vector<doublereal> m_speciesTmpD;
+#endif
 
     int m_ioFlag;
   private:

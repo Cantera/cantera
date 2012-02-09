@@ -53,11 +53,20 @@ using namespace std;
 
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/mutex.hpp>
-static boost::mutex  dir_mutex;  // For input directory access
-static boost::mutex  msg_mutex;  // For access to string messages
-static boost::mutex  app_mutex;  // Application state including creating singleton
-//static boost::mutex  log_mutex;  // Logger pointer
-static boost::mutex  xml_mutex;  // XML file storage
+//! Mutex for input directory access
+static boost::mutex  dir_mutex;  
+
+//! Mutex for access to string messages
+static boost::mutex  msg_mutex; 
+
+//! Mutex for creating singeltons within the application object
+static boost::mutex  app_mutex;  
+
+// Mutex for controlling access to the log file
+//static boost::mutex  log_mutex;
+
+//! Mutex for controlling access to XML file storage
+static boost::mutex  xml_mutex; 
 
 //! Macro for locking input directory access
 #define DIR_LOCK() boost::mutex::scoped_lock   d_lock(dir_mutex)
@@ -1515,6 +1524,15 @@ protected:
     CanteraError::CanteraError(std::string proc, std::string msg) {
         app()->addError(proc, msg);
     }
+
+    CanteraError::CanteraError()
+    {
+    }
+
+    CanteraError::~CanteraError() throw()
+    {
+    }
+
     
     ArraySizeError::ArraySizeError(std::string proc, int sz, int reqd) :
         CanteraError(proc, "Array size ("+int2str(sz)+
@@ -1888,9 +1906,13 @@ protected:
 
 #endif // WITH_HTML_LOGS
 
-
-  /// split a string at a '#' sign. Used to separate a file name
-  /// from an id string.
+  //===============================================================================================================
+  //! split a string at a '#' sign. Used to separate a file name from an id string.
+  /*!
+   *   @param    src     Original string to be split up. This is unchanged.
+   *   @param    file    Output string representing the first part of the string, which is the filename.
+   *   @param    id      Output string representing the last part of the string, which is the id.
+   */
   static void split_at_pound(const std::string& src, std::string& file, std::string& id) { 
     string::size_type ipound = src.find('#');
     if (ipound != string::npos) {
@@ -1902,6 +1924,7 @@ protected:
       file = src;
     }
   }
+  //===============================================================================================================
   /*
    * This routine will locate an XML node in either the input
    * XML tree or in another input file specified by the file

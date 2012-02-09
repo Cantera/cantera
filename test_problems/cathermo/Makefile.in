@@ -1,7 +1,7 @@
 #
-# $Revision: 1.18 $
-# $Author: hkmoffa $
-# $Date: 2008/08/23 01:16:43 $
+# $Revision$
+# $Author$
+# $Date$
 #
 #
 test_issp=@COMPILE_IDEAL_SOLUTIONS@

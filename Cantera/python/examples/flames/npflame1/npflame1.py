@@ -118,7 +118,7 @@ fcsv.close()
 print 'solution saved to npflame1.csv'
 
 f.showSolution()
-f.showStats()
+f.showStats(0)
 
 
 

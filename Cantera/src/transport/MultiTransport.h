@@ -1,5 +1,4 @@
 /**
- *
  *  @file MultiTransport.h
  *  Interface for class MultiTransport
  *
@@ -31,7 +30,7 @@
 
 namespace Cantera {
 
-
+  //====================================================================================================================
   //! Transport solve options
   enum TRANSOLVE_TYPE {
     //!  Solve the dense matrix via a gmres iteration
@@ -39,14 +38,12 @@ namespace Cantera {
     //!  Solve the dense matrix via an LU gauss elimination
     TRANSOLVE_LU
   };
-
+  //====================================================================================================================
   class GasTransportParams;
-
-  /////////////////////////////////////////////////////////////
-
-  /**
-   * Class L_Matrix is used to represent the "L" matrix.  This class
-   * is used instead of DenseMatrix so that a version of mult can be
+  //====================================================================================================================
+  //!   Class L_Matrix is used to represent the "L" matrix. 
+  /*!
+   *  This class is used instead of DenseMatrix so that a version of mult can be
    * used that knows about the structure of the L matrix,
    * specifically that the upper-right and lower-left blocks are
    * zero.
@@ -54,34 +51,54 @@ namespace Cantera {
    */
   class L_Matrix : public DenseMatrix {
   public:
+
+    //! default constructor
     L_Matrix() {}
+
+    //! destructor
     virtual ~L_Matrix(){}
 
-    /**
+    //! Conduct a multiply with the Dense matrix
+    /*!
      * This method is used by GMRES to multiply the L matrix by a
      * vector b.  The L matrix has a 3x3 block structure, where each
      * block is a K x K matrix.  The elements of the upper-right and
      * lower-left blocks are all zero.  This method is defined so
      * that the multiplication only involves the seven non-zero
      * blocks.
+     *
+     *   @param b
+     *   @param prod
      */
     virtual void mult(const doublereal* b, doublereal* prod) const;
   };
 
 
-
-  /**
-   * Class MultiTransport implements multicomponent transport
-   * properties for ideal gas mixtures. The implementation generally
+  //====================================================================================================================
+  //! Class MultiTransport implements multicomponent transport
+  //! properties for ideal gas mixtures.
+  /*!
+   *
+   *  The implementation generally
    * follows the procedure outlined in Kee, Coltrin, and Glarborg,
    * "Theoretical and Practical Aspects of Chemically Reacting Flow
-   * Modeling," Wiley Interscience.  @ingroup transportProps
+   * Modeling," Wiley Interscience. 
+   *
+   * @ingroup transportProps
    */
   class MultiTransport : public Transport {
 
+  protected:
+
+    //! default constructor
+    /*!
+     *   @param thermo  Optional parameter for the pointer to the ThermoPhase object
+     */
+    MultiTransport(thermo_t* thermo=0);
+
   public:
 
-
+    //! Destructor
     virtual ~MultiTransport();
 
     // overloaded base class methods
@@ -97,7 +114,18 @@ namespace Cantera {
     virtual void getSpeciesViscosities(doublereal* const visc)
     { updateViscosity_T(); std::copy(m_visc.begin(), m_visc.end(), visc); }
 
+  
+    //! Return the thermal diffusion coefficients (kg/m/s)
+    /*!
+     *  Eqn. (12.126) displays how they are calculated. The reference work is from
+     *  Dixon-Lewis.
+     *
+     *  Eqns. (12.168) shows how they are used in an expression for the species flux.
+     *
+     * @param dt  Vector of thermal diffusion coefficients. Units = kg/m/s
+     */
     virtual void getThermalDiffCoeffs(doublereal* const dt);
+
     virtual doublereal thermalConductivity();
 
     virtual void getBinaryDiffCoeffs(const int ld, doublereal* const d);
@@ -112,57 +140,88 @@ namespace Cantera {
      */
     virtual void getMixDiffCoeffs(doublereal* const d);
 
-    //! Get the species diffusive mass fluxes wrt to 
-    //! the mass averaged velocity, 
+    //! Get the species diffusive mass fluxes wrt to  the mass averaged velocity, 
     //! given the gradients in mole fraction and temperature
     /*!
      *  Units for the returned fluxes are kg m-2 s-1.
      * 
-     *  @param ndim Number of dimensions in the flux expressions
-     *  @param grad_T Gradient of the temperature
-     *                 (length = ndim)
-     * @param ldx  Leading dimension of the grad_X array 
-     *              (usually equal to m_nsp but not always)
-     * @param grad_X Gradients of the mole fraction
-     *             Flat vector with the m_nsp in the inner loop.
-     *             length = ldx * ndim
-     * @param ldf  Leading dimension of the fluxes array 
-     *              (usually equal to m_nsp but not always)
-     * @param fluxes  Output of the diffusive mass fluxes
-     *             Flat vector with the m_nsp in the inner loop.
-     *             length = ldx * ndim
+     *  @param ndim     Number of dimensions in the flux expressions
+     *  @param grad_T   Gradient of the temperature
+     *                   (length = ndim)
+     * @param ldx       Leading dimension of the grad_X array 
+     *                   (usually equal to m_nsp but not always)
+     * @param grad_X    Gradients of the mole fraction
+     *                  Flat vector with the m_nsp in the inner loop.
+     *                   length = ldx * ndim
+     * @param ldf       Leading dimension of the fluxes array 
+     *                   (usually equal to m_nsp but not always)
+     * @param fluxes    Output of the diffusive mass fluxes
+     *                  Flat vector with the m_nsp in the inner loop.
+     *                   length = ldx * ndim
      */
-    virtual void getSpeciesFluxes(int ndim,
-				  const doublereal* grad_T, 
-				  int ldx, 
-				  const doublereal* grad_X,
-				  int ldf,
-				  doublereal* fluxes);
+    virtual void getSpeciesFluxes(int ndim, const doublereal * const grad_T, 
+				  int ldx,  const doublereal * const grad_X,
+				  int ldf, doublereal * const fluxes);
 
-    virtual void getMolarFluxes(const doublereal* state1,
-				const doublereal* state2, doublereal delta,
-				doublereal* fluxes);
+    //! Get the molar diffusional fluxes [kmol/m^2/s] of the species, given the thermodynamic
+    //! state at two nearby points. 
+    /*!
+     * The molar diffusional fluxes are calculated with reference to the mass averaged 
+     * velocity. This is a one-dimensional vector
+     *
+     * @param state1 Array of temperature, density, and mass
+     *               fractions for state 1.
+     * @param state2 Array of temperature, density, and mass
+     *               fractions for state 2.  
+     * @param delta  Distance from state 1 to state 2 (m).
+     * @param fluxes Output molar fluxes of the species.
+     *               (length = m_nsp)
+     */ 
+    virtual void getMolarFluxes(const doublereal* const state1,
+				const doublereal* const state2, 
+                                const doublereal delta,
+				doublereal* const fluxes);
 
+    //! Get the mass diffusional fluxes [kg/m^2/s] of the species, given the thermodynamic
+    //! state at two nearby points. 
+    /*!
+     * The specific diffusional fluxes are calculated with reference to the mass averaged 
+     * velocity. This is a one-dimensional vector
+     *
+     * @param state1 Array of temperature, density, and mass
+     *               fractions for state 1.
+     * @param state2 Array of temperature, density, and mass
+     *               fractions for state 2.  
+     * @param delta  Distance from state 1 to state 2 (m).
+     * @param fluxes Output mass fluxes of the species.
+     *               (length = m_nsp)
+     */ 
     virtual void getMassFluxes(const doublereal* state1,
 			       const doublereal* state2, doublereal delta,
 			       doublereal* fluxes);
 
-    virtual void setSolutionMethod(TRANSOLVE_TYPE method) {
-      if (method == TRANSOLVE_GMRES) m_gmres = true;
-      else m_gmres = false;
-    }
+    //! Set the solution method for inverting the L matrix
+    /*!
+     *      @param method enum TRANSOLVE_TYPE Either use direct or TRANSOLVE_GMRES
+     */
+    virtual void setSolutionMethod(TRANSOLVE_TYPE method);
 
-    virtual void setOptions_GMRES(int m, doublereal eps) {
-      if (m > 0) m_mgmres = m;
-      if (eps > 0.0) m_eps_gmres = eps;
-    }
-
-    void save(std::string outfile);
+    //! Set the options for the GMRES solution
+    /*!
+     *      @param m    set the mgmres param
+     *      @param eps  Set the eps parameter
+     */
+    virtual void setOptions_GMRES(int m, doublereal eps);
 
     /**
      * @internal
      */
-    virtual bool initGas( GasTransportParams& tr );
+
+    //! Initialize the transport operator with parameters from GasTransportParams object
+    /*!
+     *  @param tr  input GasTransportParams object
+     */
+    virtual bool initGas(GasTransportParams& tr);
 
 
     /**
@@ -194,35 +253,25 @@ namespace Cantera {
 
     friend class TransportFactory;
 
-    /**
-     * Return a structure containing all of the pertinent parameters
-     * about a species that was used to construct the Transport
-     * properties in this object.
-     *
-     * @param k Species number to obtain the properties from.
+    
+    //! Return a structure containing all of the pertinent parameters
+    //! about a species that was used to construct the Transport properties in this object
+    /*!
+     * @param k        Species index
      */
-    struct GasTransportData getGasTransportData(int);
-
-
-  protected:
-    /// default constructor
-    MultiTransport(thermo_t* thermo=0);
+    struct GasTransportData getGasTransportData(int k);
 
   private:
 
-    //         int m_update_transport_T;
-    //         int m_update_transport_C;
-    //         int m_update_spvisc_T;
-    //         int m_update_visc_T;
-    //         int m_update_diff_T;
-    //         int m_update_thermal_T;
+    doublereal m_diff_tlast;
+    doublereal m_spvisc_tlast;
+    doublereal m_visc_tlast;
+    doublereal m_thermal_tlast;
 
-    doublereal m_diff_tlast, m_spvisc_tlast, m_visc_tlast,
-      m_thermal_tlast;
-
-    // mixture attributes
+    //! Number of species in the phase
     int m_nsp;
-    doublereal m_tmin, m_tmax;
+    doublereal m_tmin;
+    doublereal m_tmax;
     vector_fp  m_mw;
 
     // polynomial fits
@@ -239,13 +288,21 @@ namespace Cantera {
 
 
     std::vector<std::vector<int> > m_poly;
-    std::vector<vector_fp >   m_astar_poly;
-    std::vector<vector_fp >   m_bstar_poly;
-    std::vector<vector_fp >   m_cstar_poly;
-    std::vector<vector_fp >   m_om22_poly;
+    std::vector<vector_fp>   m_astar_poly;
+    std::vector<vector_fp>   m_bstar_poly;
+    std::vector<vector_fp>   m_cstar_poly;
+    std::vector<vector_fp>   m_om22_poly;
+
+    //! Dense matrix for astar
     DenseMatrix          m_astar;
+
+    //! Dense matrix for bstar
     DenseMatrix          m_bstar;
+
+    //! Dense matrix for cstar
     DenseMatrix          m_cstar;
+
+    //! Dense matrix for omega22
     DenseMatrix          m_om22;
 
     DenseMatrix m_phi;            // viscosity weighting functions
@@ -283,6 +340,8 @@ namespace Cantera {
     vector_fp  m_spwork, m_spwork1, m_spwork2, m_spwork3;
 
     void correctBinDiffCoeffs();
+
+    //! Boolean indicating viscosity is up to date
     bool m_visc_ok;
     bool m_spvisc_ok;
     bool m_diff_ok;
@@ -291,9 +350,25 @@ namespace Cantera {
     bool m_lmatrix_soln_ok;
     int m_mode;
 
-    void eval_L0000(const doublereal* x);
-    void eval_L0010(const doublereal* x);
+    //! Evalulate the L0000 matrices
+    /*!
+     *  Evaluate the upper-left block of the L matrix. 
+     *  @param x vector of species mole fractions
+     */
+    void eval_L0000(const doublereal* const x);
+
+    //! Evalulate the L0010 matrices
+    /*!
+     *  @param x vector of species mole fractions
+     */
+    void eval_L0010(const doublereal* const x);
+
+    //! Evalulate the L1000 matrices
+    /*!
+     * 
+     */
     void eval_L1000();
+
     void eval_L0100();
     void eval_L0001();
     void eval_L1010(const doublereal* x);

@@ -16,7 +16,7 @@
 #
 #
 
-#  $Id: ctml_writer.py,v 1.25 2007/12/30 04:19:38 dggoodwin Exp $
+#  $Id$
 
 import string
 

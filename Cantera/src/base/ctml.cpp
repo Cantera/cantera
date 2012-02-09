@@ -37,10 +37,20 @@ using namespace Cantera;
 
 namespace ctml {
 
+   std::string FP_Format = "%23.15E";
+   std::string INT_Format = "%8d";
+
+  //====================================================================================================================
+  //! Convert a floating point value from a string to a double
+  /*!
+   *   @param val String value input
+   *
+   *   @return Returns a double
+   */
   static doublereal fpValue(std::string val) {
     return atof(stripws(val).c_str());
   }
-
+  //====================================================================================================================
   //  This function adds a child node with the name, "bool", with a value
   //  consisting of a single bool
   /*
@@ -79,7 +89,7 @@ namespace ctml {
     XML_Node& f = node.addChild("bool", v);
     f.addAttribute("title", title);
   }
-
+  //====================================================================================================================
   //  This function adds a child node with the name, "integer", with a value
   //  consisting of a single integer
   /*
@@ -118,12 +128,17 @@ namespace ctml {
    */
   void addInteger(Cantera::XML_Node& node, const std::string &title, const int val, 
 		  const std::string units, const std::string type) {
-    XML_Node& f = node.addChild("integer",val);
-    f.addAttribute("title",title);
+#ifdef CTML_VERSION_1_4
+    XML_Node& f = node.addChild("integer", val);
+    f.addAttribute("title", title);
+#else
+    XML_Node& f = node.addChild(title, val); 
+#endif
+    f.addAttribute("vtype", "integer");
     if (type != "") f.addAttribute("type",type);
     if (units != "") f.addAttribute("units",units);
   } 
-
+  //====================================================================================================================
   //  This function adds a child node with the name, "intArray", with a value
   //  consisting of a comma separated list of integers
   /*
@@ -179,24 +194,30 @@ namespace ctml {
   void addIntegerArray(Cantera::XML_Node& node, const std::string &title, const int n,
 		       const int* const vals, const std::string units, const std::string type,
 		       const doublereal minval, const doublereal maxval) {
-    std::string fmt = "%8d";
     int i;
     std::string v = "";
     for (i = 0; i < n; i++) {
-      v += int2str(vals[i],fmt);
+      v += int2str(vals[i],INT_Format);
       if (i == n-1) v += "\n"; 
       else if (i > 0 && (i+1) % 3 == 0) v += ",\n";
       else v += ", ";
     }
-    XML_Node& f = node.addChild("intArray",v);
+#ifdef CTML_VERSION_1_4
+    XML_Node& f = node.addChild("intArray",v);   
     f.addAttribute("title",title);
+#else
+    XML_Node& f = node.addChild(title, v);
+#endif
     if (type != "") f.addAttribute("type",type);        
     f.addAttribute("size",n);
+#ifndef CTML_VERSION_1_4
+    f.addAttribute("vtype", "intArray");
+#endif
     if (units != "") f.addAttribute("units",units);
     if (minval != Undef) f.addAttribute("min",minval);
     if (maxval != Undef) f.addAttribute("max",maxval);
   }
-
+  //====================================================================================================================
   //  This function adds a child node with the name, "float", with a value
   //  consisting of a single floating point number
   /*
@@ -243,19 +264,19 @@ namespace ctml {
 		const doublereal val, const std::string units, 
 		const std::string type, const doublereal minval, 
                 const doublereal maxval) {
-    string fmt = "%17.9E";
 #ifdef CTML_VERSION_1_4
-    XML_Node& f = node.addChild("float",val,fmt);
-    f.addAttribute("title",title);
+    XML_Node& f = node.addChild("float", val, ctml::FP_Format);
+    f.addAttribute("title", title);
 #else
-    XML_Node& f = node.addChild(title,val,fmt); 
+    XML_Node& f = node.addChild(title, val, ctml::FP_Format); 
 #endif
     if (type != "") f.addAttribute("type",type);
     if (units != "") f.addAttribute("units",units);
+    f.addAttribute("vtype", "float");
     if (minval != Undef) f.addAttribute("min",minval);
     if (maxval != Undef) f.addAttribute("max",maxval);
   }
-
+  //====================================================================================================================
   //  This function adds a child node with the name, "floatArray", with a value
   //  consisting of a comma separated list of floats
   /*
@@ -293,7 +314,7 @@ namespace ctml {
    *   @param unitsString   String name of the Units attribute. This is an optional 
    *                        parameter. The default is to
    *                        have an empty string.
-   *   @param typeString    String type. This is an optional parameter. The default
+   *   @param type          String type. This is an optional parameter. The default
    *                        is to have an empty string.
    *   @param minval        Minimum allowed value of the int. This is an optional
    *                        parameter. The default is the
@@ -312,11 +333,10 @@ namespace ctml {
 		     const doublereal* const vals, const std::string units, 
                      const std::string type,
 		     const doublereal minval, const doublereal maxval) {
-    std::string fmt = "%17.9E";
     int i;
     std::string v = "";
     for (i = 0; i < n; i++) {
-      v += fp2str(vals[i],fmt);
+      v += fp2str(vals[i],FP_Format);
       if (i == n-1) v += "\n"; 
       else if (i > 0 && (i+1) % 3 == 0) v += ",\n";
       else v += ", ";
@@ -329,7 +349,87 @@ namespace ctml {
     if (minval != Undef) f.addAttribute("min",minval);
     if (maxval != Undef) f.addAttribute("max",maxval);
   }
-
+  //====================================================================================================================
+  //  This function adds a child node with the name given by the first parameter with a value
+  //  consisting of a comma separated list of floats
+  /*
+   *   This function will add a child node to the current XML node, with the
+   *   name given in the list. It will have a title attribute, and the body
+   *   of the XML node will be filled out with a comma separated list of
+   *   integers
+   *
+   *  Example:
+   *
+   * Code snipet:
+   *       @verbatum
+     const XML_Node &node;
+     std::string titleString = "additionalTemperatures";
+     int  n = 3;
+     int Tcases[3] = [273.15, 298.15, 373.15];
+     std::string typeString = "optional";
+     std::string units = "Kelvin";
+     addNamedFloatArray(node, titleString, n, &cases[0], typeString, units);
+     @endverbatum
+   *
+   *  Creates the following the snippet in the XML file:
+   *  @verbatum
+     <parentNode>
+       <additionalTemperatures type="optional" vtype="floatArray" size = "3" units="Kelvin">
+          273.15, 298.15, 373.15
+       <\additionalTemperatures>
+     <\parentNode>
+   @endverbatum
+   *
+   *   @param node          reference to the XML_Node object of the parent XML element
+   *   @param name          Name of the XML node
+   *   @param n             Length of the doubles vector.
+   *   @param values        Pointer to a vector of doubles
+   *   @param unitsString   String name of the Units attribute. This is an optional 
+   *                        parameter. The default is to
+   *                        have an empty string.
+   *   @param type          String type. This is an optional parameter. The default
+   *                        is to have an empty string.
+   *   @param minval        Minimum allowed value of the int. This is an optional
+   *                        parameter. The default is the
+   *                        special double, Cantera::Undef, which means to ignore the
+   *                        entry.
+   *   @param maxval        Maximum allowed value of the int. This is an optional
+   *                        parameter. The default is the
+   *                        special double, Cantera::Undef, which means to ignore the
+   *                        entry.
+   *
+   * @todo I don't think this is used. Figure out what is used for writing integers,
+   *       and codify that. unitsString shouldn't be here, since it's an int.
+   *       typeString should be codified as to its usage.
+   */
+  void addNamedFloatArray(Cantera::XML_Node& node, const std::string &name, const int n, 
+			  const doublereal* const vals, const std::string units, 
+			  const std::string type, const doublereal minval, 
+			  const doublereal maxval) {
+    int i;
+    std::string v = "";
+    for (i = 0; i < n; i++) {
+      v += fp2str(vals[i],FP_Format);
+      if (i == n-1) v += "\n"; 
+      else if (i > 0 && (i+1) % 3 == 0) v += ",\n";
+      else v += ", ";
+    }
+    XML_Node& f = node.addChild(name, v);
+    if (type != "") {
+      f.addAttribute("type",type);
+    } 
+    /*
+     *  Add vtype, which indicates the type of the value. Here we specify it as a list of floats separated
+     *  by commas, with a length given by size attribute.
+     */
+    f.addAttribute("vtype", "floatArray");
+   
+    f.addAttribute("size", n);
+    if (units != "") f.addAttribute("units", units);
+    if (minval != Undef) f.addAttribute("min", minval);
+    if (maxval != Undef) f.addAttribute("max", maxval);
+  }
+  //====================================================================================================================
   //  This function adds a child node with the name string with a string value
   //  to the current node
   /* 
@@ -376,7 +476,7 @@ namespace ctml {
     }
     return 0;
   }
-
+  //====================================================================================================================
   //  This function reads a child node with the name string and returns
   //  its xml value as the return string
   /*
@@ -409,7 +509,7 @@ namespace ctml {
     if (!parent.hasChild(nameString)) return "";
     return parent(nameString);
   }
-
+  //====================================================================================================================
   //  This function reads a child node with the name, "string", with a specific
   //  title attribute named "titleString"
   /* 
@@ -433,10 +533,11 @@ namespace ctml {
    <\string>
    @endverbatum
    *
-   *   @param node          reference to the XML_Node object of the parent XML element
+   *   @param node          Reference to the XML_Node object of the parent XML element
    *   @param titleString   String name of the title attribute of the child node
    *   @param valueString   Value string that is found in the child node. output variable
-   *   @param typeString    String type. This is an optional output variable
+   *   @param typeString    String type. This is an optional output variable. It is filled
+   *                        with the attribute "type" of the XML entry.
    */
   void getString(const Cantera::XML_Node& node, const std::string &titleString, std::string& valueString, 
 		 std::string& typeString) {
@@ -451,7 +552,70 @@ namespace ctml {
       }
   }
 
-
+  //====================================================================================================================
+  //  This function attempts to read a named child node and returns with the contents in the value string.
+  //  title attribute named "titleString"
+  /* 
+   *   This function will read a child node to the current XML node, with the
+   *   name "string". It must have a title attribute, named titleString, and the body
+   *   of the XML node will be read into the valueString output argument.
+   *
+   *   If the child node is not found then the empty string is returned.
+   *
+   *  Example:  
+   *
+   * Code snipet:
+   *       @verbatum
+     const XML_Node &node;
+     std::string valueString;
+     std::string typeString;
+     std::string nameString = "timeIncrement";
+     getString(XML_Node& node, nameString, valueString, valueString, typeString);
+   @endverbatum
+   *
+   *  Reads the following the snippet in the XML file:
+   *
+   *  *  @verbatum
+   <nameString type="typeString">
+     valueString
+   <\nameString>
+   @endverbatum
+   *
+   *  or alternatively as a retrofit and special case, it also reads the following case
+   *
+   *  @verbatum
+   <string title="nameString" type="typeString">
+     valueString
+   <\string>
+   @endverbatum
+   *
+   *   @param node          Reference to the XML_Node object of the parent XML element
+   *   @param nameString    Name of the XML Node                               input  variable
+   *   @param valueString   Value string that is found in the child node.      output variable
+   *   @param typeString    String type. This is an optional output variable. It is filled
+   *                        with the attribute "type" of the XML entry.         output variable
+   */
+  void getNamedStringValue(const Cantera::XML_Node& node, const std::string &nameString, std::string& valueString, 
+			   std::string& typeString)
+  {
+    valueString = "";
+    typeString = "";
+    if (node.hasChild(nameString)) {
+      XML_Node &xc = node.child(nameString);
+      valueString = xc.value();
+      typeString = xc["type"];
+    } else {
+      XML_Node* s = getByTitle(node, nameString);
+      if (s) {
+	if (s->name() == "string") {
+	  valueString = (*s).value();
+	  typeString = (*s)["type"];
+	  return;
+	}
+      }
+    }
+  }
+  //====================================================================================================================
   //  Get a vector of integer values from a child element. 
   /* 
    *  Returns a std::map containing a keyed values for child XML_Nodes
@@ -512,7 +676,7 @@ namespace ctml {
     }
   }
 
-
+  //====================================================================================================================
   //  Get a vector of floating-point values from a child element. 
   /* 
    *  Returns a std::map containing a keyed values for child XML_Nodes
@@ -554,7 +718,7 @@ namespace ctml {
    *   @param v        Output map of the results.
    *   @param convert  Turn on conversion to SI units
    */
-  void getFloats(const Cantera::XML_Node& node, std::map<std::string, double>& v,
+  void getFloats(const Cantera::XML_Node& node, std::map<std::string, doublereal > & v,
 		 const bool convert) {
     std::vector<XML_Node*> f;
     node.getChildren("float",f);
@@ -590,7 +754,7 @@ namespace ctml {
     }
   }
 
-
+  //====================================================================================================================
   //  Get a floating-point value from a child element. 
   /* 
    *  Returns a double value for the child named 'name' of element 'parent'. If
@@ -624,8 +788,7 @@ namespace ctml {
    *                 and "" , for no conversion. The default value is ""
    *                 which implies that no conversion is allowed.
    */
-  doublereal getFloat(const Cantera::XML_Node& parent,
-		      const std::string &name,
+  doublereal getFloat(const Cantera::XML_Node& parent, const std::string &name,
 		      const std::string type) {
     if (!parent.hasChild(name)) 
       throw CanteraError("getFloat (called from XML Node \"" +
@@ -635,7 +798,39 @@ namespace ctml {
     return getFloatCurrent(node, type);
   }
 
-
+  //====================================================================================================================
+  //  Get a floating-point value from the current XML element
+  /* 
+   *  Returns a doublereal value from the current element. If
+   *  'type' is supplied and matches a known unit type, unit
+   *  conversion to SI will be done if the child element has an attribute  'units'.
+   *
+   *  Note, it's an error for the child element not to exist.
+   *
+   *  Example:  
+   *
+   * Code snipet:
+   *       @verbatim
+   const XML_Node &State_XMLNode;
+   doublereal pres = OneAtm;
+   if (state_XMLNode.hasChild("pressure")) {
+     XML_Node *pres_XMLNode = State_XMLNode.getChild("pressure");
+     pres = getFloatCurrent(pres_XMLNode, "toSI");
+   }
+   @endverbatim
+   *
+   *  Rreads the corresponding XML file:
+   *  @verbatim
+   <state>
+     <pressure units="Pa"> 101325.0 </pressure>
+   <\state>
+   @endverbatim
+   *
+   *   @param currXML reference to the current XML_Node object
+   *   @param type   String type. Currently known types are "toSI" and "actEnergy",
+   *                 and "" , for no conversion. The default value is "",
+   *                 which implies that no conversion is allowed.
+   */
   doublereal getFloatCurrent(const Cantera::XML_Node& node,
                              const std::string type) {
     doublereal x, x0, x1, fctr = 1.0;
@@ -691,7 +886,7 @@ namespace ctml {
     return fctr*x;
   }
 
-  
+  //====================================================================================================================
   bool getOptionalFloat(const Cantera::XML_Node& parent,
 			const std::string &name,
 			doublereal &fltRtn,
@@ -702,7 +897,7 @@ namespace ctml {
     }
     return false;
   }
-
+  //====================================================================================================================
   //  Get an optional floating-point value from a child element. 
   /* 
    *  Returns a doublereal value for the child named 'name' of element 'parent'. If
@@ -765,7 +960,37 @@ namespace ctml {
     val /= fctr;
     return val;
   }
-
+  //====================================================================================================================
+  //  Get an optional model name from a named child node.
+  /* 
+   *  Returns the model name attribute for the child named 'nodeName' of element 'parent'.
+   *  Note, it's optional for the child node to exist
+   *
+   *  Example:  
+   *
+   * Code snipet:
+   *       @verbatim
+   std::string modelName = "";
+   bool exists = getOptionalModel(transportNode, "compositionDependence",
+			          modelName);
+   @endverbatim
+   *
+   *  Reads the corresponding XML file:
+   *
+   *  @verbatim
+    <transport>
+      <compositionDependence model="Solvent_Only"/>
+    </transport>
+   @endverbatim
+   *
+   *   On return modelName is set to "Solvent_Only".
+   *
+   *   @param parent     Reference to the XML_Node object of the parent XML element
+   *   @param nodeName   Name of the XML child element
+   *   @param modelName  On return this contains the contents of the model attribute
+   *
+   *   @return True if the nodeName XML node exists. False otherwise.
+   */
   bool getOptionalModel(const Cantera::XML_Node& parent, const std::string nodeName,
                         std::string &modelName) {
    if (parent.hasChild(nodeName)) {
@@ -775,7 +1000,7 @@ namespace ctml {
    }
    return false;
   }
-
+  //====================================================================================================================
   //  Get an integer value from a child element. 
   /* 
    *  Returns an integer value for the child named 'name' of element 'parent'.
@@ -796,7 +1021,7 @@ namespace ctml {
    *  reads the corresponding XML file:
    *  @verbatum
    <state>
-   <numProcs> 10 <numProcs/>
+   <numProcs> 10 <\numProcs>
    <\state>
    @endverbatum
    *
@@ -833,7 +1058,7 @@ namespace ctml {
     }
     return x;
   }
-
+  //====================================================================================================================
   //  This function reads the current node or a  child node of the current node
   //  with the default name, "floatArray", with a value field
   //  consisting of a comma separated list of floats
@@ -890,11 +1115,13 @@ namespace ctml {
    *                        The default value for the node name is floatArray
    *
    *   @return              Returns the number of floats read
+   *
+   *  @note change the v to a std::vector to eliminate a doxygen error. No idea why doxygen needs this.
    */
-  int  getFloatArray(const Cantera::XML_Node& node, Cantera::vector_fp& v, 
+  int  getFloatArray(const Cantera::XML_Node& node, std::vector<doublereal> & v, 
                      const bool convert, const std::string unitsString,
                      const std::string nodeName) {
-    string::size_type icom;
+    std::string::size_type icom;
     string numstr;
     doublereal dtmp;
     string nn = node.name();
@@ -908,6 +1135,11 @@ namespace ctml {
 			 + nodeName + "but accessed " + node.name());
       } else {
         readNode = ll[0];
+	ll.clear();
+	readNode->getChildren("floatArray", ll);
+	if (ll.size() > 0) {
+	  readNode = ll[0];
+	}
       }
     }
 
@@ -974,7 +1206,97 @@ namespace ctml {
     }
     return v.size();
   }
+  //====================================================================================================================
+  int  getNamedFloatArray(const Cantera::XML_Node& parentNode, const std::string & nodeName, std::vector<doublereal> & v, 
+			  const bool convert, const std::string unitsString) {
+    std::string::size_type icom;
+    std::string numstr;
+    doublereal dtmp;
+    std::string nn = parentNode.name();
+    v.clear();
+    const Cantera::XML_Node *readNode = parentNode.findByName(nodeName);
+    if (!readNode) {
+      return 0;
+    }
+   
+    doublereal vmin = Undef;
+    doublereal vmax = Undef;
+    doublereal funit = 1.0;
+    /*
+     * Get the attributes field, units, from the XML node
+     */
+    std::string units = (*readNode)["units"];
+    if (units != "" && convert) {
+      if (unitsString == "actEnergy" && units != "") {
+	funit = actEnergyToSI(units);
+      } else if (unitsString != "" && units != "") {
+	funit = toSI(units);
+      }
+    }
 
+    if ((*readNode)["min"] != "") 
+      vmin = atofCheck((*readNode)["min"].c_str());
+    if ((*readNode)["max"] != "") 
+      vmax = atofCheck((*readNode)["max"].c_str());
+
+    int expectedSize = 0;
+    nn = (*readNode)["size"];
+    expectedSize = atoi(nn.c_str());
+
+    nn = (*readNode)["vtype"];
+    if (nn != "floatArray") {
+      throw CanteraError("getNamedFloatArray",
+			 "node named " + nodeName + "didn't have correct vtype");
+    }
+
+    doublereal vv;
+    std::string val = readNode->value();
+    while (1 > 0) {
+      icom = val.find(',');
+      if (icom != string::npos) {
+	numstr = val.substr(0,icom);
+	val = val.substr(icom+1,val.size());
+	dtmp = atofCheck(numstr.c_str());
+	v.push_back(dtmp);
+      }
+      else {
+	/*
+	 * This little bit of code is to allow for the
+	 * possibility of a comma being the last 
+	 * item in the value text. This was allowed in
+	 * previous versions of Cantera, even though it
+	 * would appear to be odd. So, we keep the
+	 * possibilty in for backwards compatibility.
+	 */
+	int nlen = strlen(val.c_str());
+	if (nlen > 0) {
+	  dtmp = atofCheck(val.c_str());
+	  v.push_back(dtmp);
+	}
+	break;
+      }
+      vv = v.back();
+      if (vmin != Undef && vv < vmin - Tiny) {
+	writelog("\nWarning: value "+fp2str(vv)+
+		 " is below lower limit of " +fp2str(vmin)+".\n");
+      }
+      if (vmax != Undef && vv > vmax + Tiny) {
+	writelog("\nWarning: value "+fp2str(vv)+
+		 " is above upper limit of " +fp2str(vmin)+".\n");
+      }
+    }
+    int nv = v.size();
+    for (int n = 0; n < nv; n++) {
+      v[n] *= funit;
+    }
+    if (nv != expectedSize) {
+      throw CanteraError("getNamedFloatArray",
+			 "node named " + nodeName + "didn't have correct number of floats"
+			 + int2str(expectedSize) + " vs " + int2str(nv));
+    }
+    return nv;
+  }
+  //====================================================================================================================
   // This routine is used to interpret the value portions of XML
   // elements that contain colon separated pairs.
   /*
@@ -1012,7 +1334,7 @@ namespace ctml {
       m[key] = val;
     }
   }
-
+  //====================================================================================================================
   // This function interprets the value portion of an XML element
   // as a series of "Pairs" separated by white space.
   /*
@@ -1062,7 +1384,7 @@ namespace ctml {
     }
     return n;
   }
-
+ //====================================================================================================================
   // This function interprets the value portion of an XML element
   // as a series of "Matrix ids and entries" separated by white space.
   /*
@@ -1193,7 +1515,7 @@ namespace ctml {
       }
     }
   }
-
+  //====================================================================================================================
   // This function interprets the value portion of an XML element
   // as a string. It then separates the string up into tokens
   // according to the location of white space.
@@ -1207,7 +1529,7 @@ namespace ctml {
     std::string val = node.value();
     tokenizeString(val, v);
   }
-
+  //====================================================================================================================
   //  This function reads a child node with the default name, "floatArray", with a value
   //  consisting of a comma separated list of floats
   /*
@@ -1221,26 +1543,27 @@ namespace ctml {
    *   separating each field.
    *      If the node array has an units attribute field, then
    *   the units are used to convert the floats, iff convert is true.
+   *      This function is a wrapper around the function getFloatArray().
    *
    *  Example:  
    *
    * Code snipet:
-   *       @verbatum
+   *       @verbatim
      const XML_Node &State_XMLNode;
      vector_fp v;
      bool convert = true;
      unitsString = "";
      nodeName="floatArray";
      getFloatArray(State_XMLNode, v, convert, unitsString, nodeName);
-   @endverbatum
+   @endverbatim
    *
    *  reads the corresponding XML file:
    *
-   *  @verbatum
+   *  @verbatim
    <state>
      <floatArray  units="m3">   32.4, 1, 100. <\floatArray>
    <\state>
-   @endverbatum
+   @endverbatim
    *
    *  Will produce the vector
    *
@@ -1250,19 +1573,15 @@ namespace ctml {
    *
    *
    *   @param  node         XML parent node of the floatArray
-   *   @param  v            Output vector of floats containing the floatArray information.
-   *   @param  convert      Conversion to SI is carried out if this boolean is
-   *                        True. The default is true.
-   *   @param  typeString   String name of the type attribute. This is an optional 
-   *                        parameter. The default is to have an empty string.
-   *                        The only string that is recognized is actEnergy. 
-   *                        Anything else has no effect. This affects what
-   *                        units converter is used.
-   *   @param  nodeName     XML Name of the XML node to read. 
-   *                        The default value for the node name is floatArray
+   *   @param  typeString   Returns the type attribute of the current node.
+   *   @param  xmin         Returns the minimum value attribute of the
+   *                        current node.
+   *   @param  xmax         Returns the maximum value attribute of the
+   *                        current node.
+   *   @param  coeffs       Output vector of floats containing the floatArray information.
    */
   void getFunction(const Cantera::XML_Node& node, std::string& type, doublereal& xmin,
-		   doublereal& xmax, Cantera::vector_fp& coeffs) {
+		   doublereal& xmax, std::vector<doublereal> & coeffs) {
     const XML_Node& c = node.child("floatArray");
     coeffs.clear();
     getFloatArray(c,coeffs);
@@ -1272,4 +1591,5 @@ namespace ctml {
     if (node["max"] != "") xmax = fpValue(node["max"]);
     type = node["type"];
   }
+  //====================================================================================================================
 }

@@ -4,6 +4,7 @@
 #include "Wall.h"
 
 using namespace std;
+using namespace Cantera;
 
 namespace CanteraZeroD {
 

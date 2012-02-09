@@ -21,6 +21,7 @@
 #endif
 
 #include "ThermoPhase.h"
+#include "mdp_allo.h"
 #include <iomanip>
 
 //@{
@@ -30,6 +31,7 @@
 //@}
 
 using namespace std;
+using namespace ctml;
 
 namespace Cantera {
 
@@ -59,7 +61,8 @@ namespace Cantera {
     m_spthermo = 0;
   }
 
-  /**
+  //====================================================================================================================
+  /*
    * Copy Constructor for the ThermoPhase object. 
    *
    * Currently, this is implemented, but not tested. If called it will
@@ -80,7 +83,7 @@ namespace Cantera {
      */
     *this = operator=(right);
   }
-  
+  //====================================================================================================================
   /*
    * operator=()
    *
@@ -134,7 +137,7 @@ namespace Cantera {
     m_ssConvention = right.m_ssConvention;
     return *this;
   }
-
+  //====================================================================================================================
   /*
    * Duplication routine for objects which inherit from 
    * ThermoPhase.
@@ -150,45 +153,42 @@ namespace Cantera {
     ThermoPhase* tp = new ThermoPhase(*this);
     return tp;
   }
-
+  //====================================================================================================================
   int ThermoPhase::activityConvention() const {
     return cAC_CONVENTION_MOLAR;
   }
-
+  //=================================================================================================================
   int ThermoPhase::standardStateConvention() const {
     return m_ssConvention;
   }
-
+  //=================================================================================================================
   doublereal ThermoPhase::logStandardConc(int k) const {
     return log(standardConcentration(k));
   }
-
+  //=================================================================================================================
   void ThermoPhase::getActivities(doublereal* a) const {
     getActivityConcentrations(a);
     int nsp = nSpecies();
     int k;
     for (k = 0; k < nsp; k++) a[k] /= standardConcentration(k);
   }
-
-  void ThermoPhase::getLNActivityCoefficients(doublereal *const lnac) const {
+  //=================================================================================================================
+  void ThermoPhase::getLnActivityCoefficients(doublereal *const lnac) const {
     getActivityCoefficients(lnac);
     for (int k = 0; k < m_kk; k++) {
        lnac[k] = std::log(lnac[k]);
     }
   }
-
-  void ThermoPhase::setState_TPX(doublereal t, doublereal p, 
-				 const doublereal* x) {
+  //=================================================================================================================
+  void ThermoPhase::setState_TPX(doublereal t, doublereal p, const doublereal* x) {
     setMoleFractions(x); setTemperature(t); setPressure(p);
   }
-
-  void ThermoPhase::setState_TPX(doublereal t, doublereal p, 
-				 compositionMap& x) {
+  //=================================================================================================================
+  void ThermoPhase::setState_TPX(doublereal t, doublereal p, compositionMap& x) {
     setMoleFractionsByName(x); setTemperature(t); setPressure(p);
   }
-
-  void ThermoPhase::setState_TPX(doublereal t, doublereal p, 
-				 const std::string& x) {
+  //=================================================================================================================
+  void ThermoPhase::setState_TPX(doublereal t, doublereal p, const std::string& x) {
     compositionMap xx;
     int kk = nSpecies();
     for (int k = 0; k < kk; k++) xx[speciesName(k)] = -1.0;
@@ -201,17 +201,17 @@ namespace Cantera {
     }
     setMoleFractionsByName(xx); setTemperature(t); setPressure(p);
   }        
-
+  //=================================================================================================================
   void ThermoPhase::setState_TPY(doublereal t, doublereal p, 
 				 const doublereal* y) {
     setMassFractions(y); setTemperature(t); setPressure(p);
   }
-
+  //=================================================================================================================
   void ThermoPhase::setState_TPY(doublereal t, doublereal p, 
 				 compositionMap& y) {
     setMassFractionsByName(y); setTemperature(t); setPressure(p);
   }
-        
+  //=================================================================================================================
   void ThermoPhase::setState_TPY(doublereal t, doublereal p, 
 				 const std::string& y) {
     compositionMap yy;
@@ -226,28 +226,34 @@ namespace Cantera {
     }
     setMassFractionsByName(yy); setTemperature(t); setPressure(p);
   }
+  //=================================================================================================================
 
   void ThermoPhase::setState_TP(doublereal t, doublereal p) {
     setTemperature(t); setPressure(p);
   }
+  //=================================================================================================================
 
   void ThermoPhase::setState_PX(doublereal p, doublereal* x) {
     setMoleFractions(x); setPressure(p);
   }
+  //=================================================================================================================
 
   void ThermoPhase::setState_PY(doublereal p, doublereal* y) {
     setMassFractions(y); setPressure(p);
   }
+  //=================================================================================================================
 
   void ThermoPhase::setState_HP(doublereal Htarget, doublereal p, 
 				doublereal dTtol) {
     setState_HPorUV(Htarget, p, dTtol, false);
   }
+  //=================================================================================================================
 
   void ThermoPhase::setState_UV(doublereal u, doublereal v, 
 				doublereal dTtol) {
     setState_HPorUV(u, v, dTtol, true);
   }
+  //=================================================================================================================
 
   // Do the convergence work
   /*
@@ -512,16 +518,19 @@ namespace Cantera {
       throw CanteraError("setState_HPorUV (HP)", ErrString);
     }
   }
+  //=================================================================================================================
 
   void ThermoPhase::setState_SP(doublereal Starget, doublereal p, 
 				doublereal dTtol) {
     setState_SPorSV(Starget, p, dTtol, false);
   }
+  //=================================================================================================================
 
   void ThermoPhase::setState_SV(doublereal Starget, doublereal v, 
 				doublereal dTtol) {
     setState_SPorSV(Starget, v, dTtol, true);
   }
+  //=================================================================================================================
 
   // Do the convergence work for fixed entropy situations
   /*
@@ -771,6 +780,7 @@ namespace Cantera {
       throw CanteraError("setState_SPorSV (SP)", ErrString);
     }
   }
+  //=================================================================================================================
 
   doublereal ThermoPhase::err(std::string msg) const {
     throw CanteraError("ThermoPhase","Base class method "
@@ -814,8 +824,47 @@ namespace Cantera {
       if (i == 4) uA[4] = 0.0;
       if (i == 5) uA[5] = 0.0;
     }
+  } 
+  //=================================================================================================================
+  //  Install a species thermodynamic property manager. 
+  /*
+   * The species thermodynamic property manager
+   * computes properties of the pure species for use in
+   * constructing solution properties. It is meant for internal
+   * use, and some classes derived from ThermoPhase may not use
+   * any species thermodynamic property manager. This method is
+   * called by function importPhase() in importCTML.cpp.
+   *
+   * @param spthermo input pointer to the species thermodynamic property
+   *                 manager.
+   *
+   *  @internal
+   */
+  void ThermoPhase::setSpeciesThermo(SpeciesThermo* spthermo) {
+    if (m_spthermo) {
+      if (m_spthermo != spthermo) {
+	delete m_spthermo;
+      }
+    }
+    m_spthermo = spthermo;
   }
-
+  //=================================================================================================================
+  // Return a changeable reference to the calculation manager
+  // for species reference-state thermodynamic properties
+  /*
+   *
+   * @param k   Speices id. The default is -1, meaning return the default
+   *
+   * @internal
+   */
+  SpeciesThermo& ThermoPhase::speciesThermo(int k) {
+    if (!m_spthermo) {
+      throw CanteraError("ThermoPhase::speciesThermo()",
+			 "species reference state thermo manager was not set");
+    }
+    return *m_spthermo;
+  }
+  //=================================================================================================================
   /*
    * initThermoFile():
    *
@@ -860,6 +909,7 @@ namespace Cantera {
     initThermoXML(*fxml_phase, id);
     delete fxml;
   }
+  //=================================================================================================================
 
   /*
    *   Import and initialize a ThermoPhase object
@@ -941,16 +991,20 @@ namespace Cantera {
     }
     xMol_Ref.resize(m_kk, 0.0);
   }
+  //====================================================================================================================
+  void ThermoPhase::installSlavePhases(Cantera::XML_Node* phaseNode) {
 
+  }
+ //====================================================================================================================
   void ThermoPhase::saveSpeciesData(const int k, const XML_Node* const data) {
     if ((int) m_speciesData.size() < (k + 1)) {
       m_speciesData.resize(k+1, 0);
     }
     m_speciesData[k] = new XML_Node(*data);
   }
-
-  //! Return a pointer to the XML tree containing the species
-  /// data for this phase.
+  //====================================================================================================================
+  // Return a pointer to the XML tree containing the species
+  // data for this phase.
   const std::vector<const XML_Node *> & ThermoPhase::speciesData() const { 
     if ((int) m_speciesData.size() != m_kk) {
       throw CanteraError("ThermoPhase::speciesData",
@@ -958,7 +1012,7 @@ namespace Cantera {
     }
     return m_speciesData;
   }
-
+  //====================================================================================================================
   /*
    * Set the thermodynamic state.
    */
@@ -984,7 +1038,7 @@ namespace Cantera {
       setDensity(rho);
     }
   }
-
+  //====================================================================================================================
   /*
    * Called by function 'equilibrate' in ChemEquil.h to transfer
    * the element potentials to this object after every successful
@@ -1026,7 +1080,109 @@ namespace Cantera {
     }
     return (m_hasElementPotentials);
   }
+  //====================================================================================================================
+  // Get the array of derivatives of the log activity coefficients with respect to the species mole numbers
+  /*
+   * Implementations should take the derivative of the logarithm of the activity coefficient with respect to a
+   * species mole number (with all other species mole numbers held constant)
+   * 
+   *  units = 1 / kmol
+   *
+   *  dlnActCoeffdN[ ld * k  + m]  will contain the derivative of log act_coeff for the <I>m</I><SUP>th</SUP> 
+   *                               species with respect to the number of moles of the <I>k</I><SUP>th</SUP> species.
+   *
+   * \f[
+   *        \frac{d \ln(\gamma_m) }{d n_k }\Bigg|_{n_i}
+   * \f]
+   *
+   * @param ld               Number of rows in the matrix
+   * @param dlnActCoeffdN    Output vector of derivatives of the 
+   *                         log Activity Coefficients. length = m_kk * m_kk        
+   */
+  void ThermoPhase::getdlnActCoeffdlnN(const int ld, doublereal * const dlnActCoeffdlnN)  {
+   
+      
+      for (int m = 0; m < m_kk; m++) {
+	for (int k = 0; k < m_kk; k++) {
+	  dlnActCoeffdlnN[ld * k + m] = 0.0;
+	}
+      }
+      return;
+  }
+  //====================================================================================================================
+  void ThermoPhase::getdlnActCoeffdlnN_numderiv(const int ld, doublereal * const dlnActCoeffdlnN) {
+  
+    int k, j;
+    double deltaMoles_j = 0.0;
+    double pres = pressure();
+    
+    /*
+     * Evaluate the current base activity coefficients if necessary
+     */
+    std::vector<double> ActCoeff_Base(m_kk);
+    getActivityCoefficients(DATA_PTR(ActCoeff_Base));
+    std::vector<double> Xmol_Base(m_kk);
+    getMoleFractions(DATA_PTR(Xmol_Base));
 
+    // Make copies of ActCoeff and Xmol_ for use in taking differences
+    std::vector<double> ActCoeff(m_kk);
+    std::vector<double> Xmol(m_kk);
+    double v_totalMoles = 1.0;
+    double TMoles_base = v_totalMoles;
+
+    /*
+     *  Loop over the columns species to be deltad
+     */
+    for (j = 0; j < m_kk; j++) {
+      /*
+       * Calculate a value for the delta moles of species j
+       * -> NOte Xmol_[] and Tmoles are always positive or zero
+       *    quantities.
+       * -> experience has shown that you always need to make the deltas greater than needed to 
+       *    change the other mole fractions in order to capture some effects. 
+       */
+      double moles_j_base = v_totalMoles * Xmol_Base[j];
+      deltaMoles_j = 1.0E-7 * moles_j_base + v_totalMoles * 1.0E-13 + 1.0E-150;
+      /*
+       * Now, update the total moles in the phase and all of the
+       * mole fractions based on this.
+       */
+      v_totalMoles = TMoles_base + deltaMoles_j;
+      for (k = 0; k < m_kk; k++) {
+        Xmol[k] = Xmol_Base[k] * TMoles_base / v_totalMoles;
+      }
+      Xmol[j] = (moles_j_base + deltaMoles_j) / v_totalMoles;
+
+      /*
+       * Go get new values for the activity coefficients.
+       * -> Note this calls setState_PX();
+       */
+      setState_PX(pres, DATA_PTR(Xmol));
+      getActivityCoefficients(DATA_PTR(ActCoeff));
+
+      /*
+       * Calculate the column of the matrix
+       */
+      double * const lnActCoeffCol = dlnActCoeffdlnN + ld * j;
+      for (k = 0; k < m_kk; k++) {
+        lnActCoeffCol[k] = (2*moles_j_base + deltaMoles_j) *(ActCoeff[k] - ActCoeff_Base[k]) /
+          ((ActCoeff[k] + ActCoeff_Base[k]) * deltaMoles_j);
+      }
+      /*
+       * Revert to the base case Xmol_, v_totalMoles
+       */
+      v_totalMoles = TMoles_base;
+      mdp::mdp_copy_dbl_1(DATA_PTR(Xmol), DATA_PTR(Xmol_Base), m_kk);
+    }
+    /*
+     * Go get base values for the activity coefficients.
+     * -> Note this calls setState_TPX() again;
+     * -> Just wanted to make sure that cantera is in sync
+     *    with VolPhase after this call.
+     */
+    setState_PX(pres, DATA_PTR(Xmol_Base));
+  }
+  //====================================================================================================================
   /*
    * Format a summary of the mixture state for output.
    */           
@@ -1135,7 +1291,7 @@ namespace Cantera {
     }
     return s;
   }
-
+//====================================================================================================================
   /*
    * Format a summary of the mixture state for output.
    */           

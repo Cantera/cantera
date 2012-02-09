@@ -4,5 +4,6 @@
 #include "kernel/DenseMatrix.h"
 #include "kernel/BandMatrix.h"
 #include "kernel/SquareMatrix.h"
+#include "kernel/NonlinearSolver.h"
 
 #endif

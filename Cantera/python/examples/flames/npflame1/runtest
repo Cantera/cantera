@@ -2,7 +2,7 @@
 #
 #
 temp_success="1"
-/bin/rm  -f output_0.txt  npflame1.csv  diff_csv.txt diff_out_0.txt
+/bin/rm  -f output_0.txt  npflame1.csv  diff_csv.txt diff_out_0.txt npflame1.xml
 
 ##########################################################################
 prog=npflame1.py
@@ -40,7 +40,7 @@ then
 fi
 
 retnCSVTotal=1
-if test $retnStat_csv_0 = "1" 
+if test $retnStat_csv_0 = "0" 
 then
   retnCSVTotal=0
 fi
@@ -57,7 +57,7 @@ else
   echo "     see diff_csv.txt "
   if test $retnTotal != "0"
   then
-     echo "      ASCII files are different too - see diff_test*.txt"
+     echo "      ASCII files are different too - see diff_out_0.txt"
   fi
 fi
 

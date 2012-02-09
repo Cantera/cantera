@@ -341,22 +341,13 @@ namespace Cantera {
    */
 
 
-  doublereal MargulesVPSSTP::standardConcentration(int k) const {
-    err("standardConcentration");
-    return -1.0;
-  }
-
-  doublereal MargulesVPSSTP::logStandardConc(int k) const {
-    err("logStandardConc");
-    return -1.0;
-  }
-
-  // Get the array of non-dimensional molar-based activity coefficients at
+  //====================================================================================================================
+  // Get the array of non-dimensional molar-based ln activity coefficients at
   // the current solution temperature, pressure, and solution concentration.
   /*
-   * @param ac Output vector of activity coefficients. Length: m_kk.
+   * @param lnac Output vector of ln activity coefficients. Length: m_kk.
    */
-  void MargulesVPSSTP::getActivityCoefficients(doublereal* ac) const {
+  void MargulesVPSSTP::getLnActivityCoefficients(doublereal* lnac) const {
     /*
      * Update the activity coefficients
      */
@@ -366,10 +357,10 @@ namespace Cantera {
      * take the exp of the internally storred coefficients.
      */
     for (int k = 0; k < m_kk; k++) {
-      ac[k] = exp(lnActCoeff_Scaled_[k]); 
+      lnac[k] = lnActCoeff_Scaled_[k]; 
     }
   }
-
+  //====================================================================================================================
   /*
    * ------------ Partial Molar Properties of the Solution ------------
    */
@@ -408,6 +399,43 @@ namespace Cantera {
     }
   }
 
+      /// Molar enthalpy. Units: J/kmol. 
+    doublereal MargulesVPSSTP::enthalpy_mole() const {
+      int kk = nSpecies();
+      double hbar[kk], h = 0;
+      getPartialMolarEnthalpies(hbar);
+      for (int i = 0; i < kk; i++){
+	h += moleFractions_[i]*hbar[i];
+      }
+      return h;
+    }
+
+      /// Molar entropy. Units: J/kmol. 
+    doublereal MargulesVPSSTP::entropy_mole() const {
+      int kk = nSpecies();
+      double sbar[kk], s = 0;
+      getPartialMolarEntropies(sbar);
+      for (int i = 0; i < kk; i++){
+	s += moleFractions_[i]*sbar[i];
+      }
+      return s;
+    }
+
+    /// Molar heat capacity at constant pressure. Units: J/kmol/K. 
+    doublereal MargulesVPSSTP::cp_mole() const {
+      int kk = nSpecies();
+      double cpbar[kk], cp = 0;
+      getPartialMolarCp(cpbar);
+      for (int i = 0; i < kk; i++){
+	cp += moleFractions_[i]*cpbar[i];
+      }
+      return cp;
+    }
+
+    /// Molar heat capacity at constant volume. Units: J/kmol/K. 
+    doublereal MargulesVPSSTP::cv_mole() const {
+      return cp_mole() - GasConstant;
+    }
  
   // Returns an array of partial molar enthalpies for the species
   // in the mixture.
@@ -445,6 +473,44 @@ namespace Cantera {
     double RTT = RT * T;
     for (int k = 0; k < m_kk; k++) {
       hbar[k] -= RTT * dlnActCoeffdT_Scaled_[k];
+    }
+  }
+
+  // Returns an array of partial molar heat capacities for the species
+  // in the mixture.
+  /*
+   * Units (J/kmol)
+   *
+   * For this phase, the partial molar enthalpies are equal to the
+   * standard state enthalpies modified by the derivative of the
+   * activity coefficent wrt temperature
+   *
+   *  \f[
+   * ??????????? \bar s_k(T,P) = s^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}
+   * \f]
+   *
+   */
+  void MargulesVPSSTP::getPartialMolarCp(doublereal* cpbar) const {
+    /*
+     * Get the nondimensional standard state entropies
+     */
+    getCp_R(cpbar);
+    double T = temperature();
+    /*
+     * Update the activity coefficients, This also update the
+     * internally storred molalities.
+     */
+    s_update_lnActCoeff();
+    s_update_dlnActCoeff_dT();
+
+    for (int k = 0; k < m_kk; k++) {
+      cpbar[k] -= 2 * T * dlnActCoeffdT_Scaled_[k] + T * T * d2lnActCoeffdT2_Scaled_[k];
+    }  
+    /*
+     * dimensionalize it.
+     */
+   for (int k = 0; k < m_kk; k++) {
+      cpbar[k] *= GasConstant;
     }
   }
 
@@ -512,9 +578,7 @@ namespace Cantera {
      * Get the standard state values in m^3 kmol-1
      */
     getStandardVolumes(vbar);
-    //cout << "species name(0) = " << speciesName(0) << endl;
-    //cout << "iA = " << speciesName(m_pSpecies_A_ij[0]) << endl;   
-    //cout << "iB = " << speciesName(m_pSpecies_B_ij[0]) << endl;   
+ 
     
     for ( iK = 0; iK < m_kk; iK++ ){
       delAK = 0;
@@ -569,7 +633,7 @@ namespace Cantera {
   //   been identified.
   void  MargulesVPSSTP::initLengths() {
     m_kk = nSpecies();
- 
+    dlnActCoeffdlnN_.resize(m_kk, m_kk);
   }
 
   /*
@@ -617,7 +681,7 @@ namespace Cantera {
     if (thermoNode.hasChild("activityCoefficients")) {
       XML_Node& acNode = thermoNode.child("activityCoefficients");
       acNodePtr = &acNode;
-      string mStringa = thermoNode.attrib("model");
+      string mStringa = acNode.attrib("model");
       string mString = lowercase(mStringa);
       if (mString != "margules") {
 	throw CanteraError(subname.c_str(),
@@ -647,7 +711,7 @@ namespace Cantera {
 
 
   }
-
+  //===================================================================================================================
  
   // Update the activity coefficients
   /*
@@ -661,64 +725,25 @@ namespace Cantera {
     double XA, XB, XK, g0 , g1;
     double T = temperature();
     double RT = GasConstant*T;
-
     fvo_zero_dbl_1(lnActCoeff_Scaled_, m_kk);
-    
-    for ( iK = 0; iK < m_kk; iK++ ){
-
+    for (iK = 0; iK < m_kk; iK++) {
       XK = moleFractions_[iK];  
-
       for (int i = 0; i <  numBinaryInteractions_; i++) {
-    
 	iA =  m_pSpecies_A_ij[i];    
 	iB =  m_pSpecies_B_ij[i];
-
 	delAK = 0;
 	delBK = 0;
-
-	if (iA==iK) delAK = 1;
+	if      (iA==iK) delAK = 1;
 	else if (iB==iK) delBK = 1;
-	
 	XA = moleFractions_[iA];
 	XB = moleFractions_[iB];
-	
 	g0 = (m_HE_b_ij[i] - T * m_SE_b_ij[i]) / RT;
 	g1 = (m_HE_c_ij[i] - T * m_SE_c_ij[i]) / RT;
-	
-	lnActCoeff_Scaled_[iK] += (delAK*XB+XA*delBK-XA*XB)*(g0+g1*XB)+XA*XB*(delBK-XB)*g1;
-	//lnActCoeff_Scaled_[iK] += XA*XB*(g0+g1*XB)+((delAK-XA)*XB+XA*(delBK-XB))*(g0+g1*XB)+XA*XB*(delBK-XB)*g1;
+	lnActCoeff_Scaled_[iK] += (delAK * XB + XA * delBK - XA * XB) * (g0 + g1 * XB) + XA * XB * (delBK - XB) * g1;
       }
     }
   }
-
-
-  /*
-  // Not Right???
-  void MargulesVPSSTP::s_update_lnActCoeff() const {
-
-    int iA, iB;
-    double XA, XB, g0 , g1;
-    double T = temperature();
-
-    fvo_zero_dbl_1(lnActCoeff_Scaled_, m_kk);
-
-    double RT = GasConstant * temperature();
-    for (int i = 0; i <  numBinaryInteractions_; i++) {
-      iA =  m_pSpecies_A_ij[i];    
-      iB =  m_pSpecies_B_ij[i];
-
-      XA = moleFractions_[iA];
-      XB = moleFractions_[iB];
-      
-      g0 = (m_HE_b_ij[i] - T * m_SE_b_ij[i]) / RT ;
-      g1 = (m_HE_c_ij[i] - T * m_SE_c_ij[i]) / RT;
-      
-      lnActCoeff_Scaled_[iA] += XB * XB * (g0 + g1 * (XB - XA));
-      lnActCoeff_Scaled_[iB] += XA * XA * g0 +  XA * XB * g1 * (2 * XA);
-    }
-  }
-  */
-
+  //===================================================================================================================
   // Update the derivative of the log of the activity coefficients wrt T
   /*
    * This function will be called to update the internally storred
@@ -728,79 +753,60 @@ namespace Cantera {
    */
   void MargulesVPSSTP::s_update_dlnActCoeff_dT() const {
     int iA, iB, iK, delAK, delBK;
-    double XA, XB, XK, g0 , g1;
-    double T = temperature();
-    double RTT = GasConstant*T*T;
-
+    doublereal XA, XB, g0, g1;
+    doublereal T = temperature();
+    doublereal RTT = GasConstant*T*T;
     fvo_zero_dbl_1(dlnActCoeffdT_Scaled_, m_kk);
-    
-    for ( iK = 0; iK < m_kk; iK++ ){
-
-      XK = moleFractions_[iK];  
-
+    fvo_zero_dbl_1(d2lnActCoeffdT2_Scaled_, m_kk);
+    for (iK = 0; iK < m_kk; iK++) {
       for (int i = 0; i <  numBinaryInteractions_; i++) {
-    
 	iA =  m_pSpecies_A_ij[i];    
 	iB =  m_pSpecies_B_ij[i];
-	
 	delAK = 0;
 	delBK = 0;
-
-	if (iA==iK) delAK = 1;
+	if      (iA==iK) delAK = 1;
 	else if (iB==iK) delBK = 1;
-	
 	XA = moleFractions_[iA];
 	XB = moleFractions_[iB];
-	
 	g0 = -m_HE_b_ij[i] / RTT;
 	g1 = -m_HE_c_ij[i] / RTT;
-	
-	dlnActCoeffdT_Scaled_[iK] += (delAK*XB+XA*delBK-XA*XB)*(g0+g1*XB)+XA*XB*(delBK-XB)*g1;
+	double temp = (delAK * XB + XA * delBK - XA * XB) * (g0 + g1 * XB) + XA * XB * (delBK - XB) * g1;
+	dlnActCoeffdT_Scaled_[iK] += temp;
+	d2lnActCoeffdT2_Scaled_[iK] -= 2.0 * temp / T;
       }
     }
   }
-
-  /* Not Right???
-  void MargulesVPSSTP::s_update_dlnActCoeff_dT() const {}
-
-    int iA, iB;
-    doublereal XA, XB, h0 , h1;
-    doublereal T = temperature();
-
-    fvo_zero_dbl_1(dlnActCoeffdT_Scaled_, m_kk);
-
-    doublereal RTT = GasConstant * T * T;
-    for (int i = 0; i <  numBinaryInteractions_; i++) {
-      iA =  m_pSpecies_A_ij[i];    
-      iB =  m_pSpecies_B_ij[i];
-
-      XA = moleFractions_[iA];
-      XB = moleFractions_[iB];
-      
-      h0 = m_HE_b_ij[i];
-      h1 = m_HE_c_ij[i];
-      
-      dlnActCoeffdT_Scaled_[iA] += -(XB * XB * (h0 + h1 * (XB - XA))) / RTT;
-      dlnActCoeffdT_Scaled_[iB] += -(XA * XA * h0 +  XA * XB * h1 * (2 * XA))/RTT;
-    }
-  }
-  */
-
+  //====================================================================================================================
   void MargulesVPSSTP::getdlnActCoeffdT(doublereal *dlnActCoeffdT) const {
     s_update_dlnActCoeff_dT();
     for (int k = 0; k < m_kk; k++) {
       dlnActCoeffdT[k] = dlnActCoeffdT_Scaled_[k];
     }
   }
+  //====================================================================================================================
+  void MargulesVPSSTP::getd2lnActCoeffdT2(doublereal *d2lnActCoeffdT2) const {
+    s_update_dlnActCoeff_dT();
+    for (int k = 0; k < m_kk; k++) {
+      d2lnActCoeffdT2[k] = d2lnActCoeffdT2_Scaled_[k];
+    }
+  }
+  //====================================================================================================================
 
-  // calculate the change of the log of the activity coefficients wrt change in state: dT, dX
+  // Get the change in activity coefficients w.r.t. change in state (temp, mole fraction, etc.) along
+  // a line in parameter space or along a line in physical space
   /*
-   * This function will be called to calculate gradient of the 
-   * logarithm of the activity coefficients based on gradients in temperature and mole fraction.
    *
-   *   he = X_A X_B(B + C X_B)
+   * @param dTds           Input of temperature change along the path
+   * @param dXds           Input vector of changes in mole fraction along the path. length = m_kk
+   *                       Along the path length it must be the case that the mole fractions sum to one.
+   * @param dlnActCoeffds  Output vector of the directional derivatives of the 
+   *                       log Activity Coefficients along the path. length = m_kk
+   *  units are 1/units(s). if s is a physical coordinate then the units are 1/m.
    */
-  void MargulesVPSSTP::getdlnActCoeff(const doublereal dT, const doublereal * const dX, doublereal* dlnActCoeff) const {
+  void  MargulesVPSSTP::getdlnActCoeffds(const doublereal dTds, const doublereal * const dXds,
+					 doublereal *dlnActCoeffds) const {
+  
+
     int iA, iB, iK, delAK, delBK;
     double XA, XB, XK, g0 , g1, dXA, dXB;
     double T = temperature();
@@ -812,7 +818,7 @@ namespace Cantera {
     for ( iK = 0; iK < m_kk; iK++ ){
 
       XK = moleFractions_[iK];  
-      dlnActCoeff[iK] = 0.0;
+      dlnActCoeffds[iK] = 0.0;
 
       for (int i = 0; i <  numBinaryInteractions_; i++) {
     
@@ -828,18 +834,19 @@ namespace Cantera {
 	XA = moleFractions_[iA];
 	XB = moleFractions_[iB];
 
-	dXA = dX[iA];
-	dXB = dX[iB];
+	dXA = dXds[iA];
+	dXB = dXds[iB];
 	
 	g0 = (m_HE_b_ij[i] - T * m_SE_b_ij[i]) / RT;
 	g1 = (m_HE_c_ij[i] - T * m_SE_c_ij[i]) / RT;
 	
-	dlnActCoeff[iK] += ((delBK-XB)*dXA + (delAK-XA)*dXB)*(g0+2*g1*XB) + (delBK-XB)*2*g1*XA*dXB + dlnActCoeffdT_Scaled_[iK]*dT;
+	dlnActCoeffds[iK] += ((delBK-XB)*dXA + (delAK-XA)*dXB)*(g0+2*g1*XB) + (delBK-XB)*2*g1*XA*dXB 
+	  + dlnActCoeffdT_Scaled_[iK]*dTds;
       }
     }
   }
-
-  // Update the derivative of the log of the activity coefficients wrt ln(X)
+  //====================================================================================================================
+  // Update the derivative of the log of the activity coefficients wrt dlnN
   /*
    * This function will be called to update the internally stored gradients of the 
    * logarithm of the activity coefficients.  These are used in the determination 
@@ -847,13 +854,13 @@ namespace Cantera {
    *
    *   he = X_A X_B(B + C X_B)
    */
-  void MargulesVPSSTP::s_update_dlnActCoeff_dlnN() const {
+  void MargulesVPSSTP::s_update_dlnActCoeff_dlnN_diag() const {
     int iA, iB, iK, delAK, delBK;
     double XA, XB, XK, g0 , g1;
     double T = temperature();
     double RT = GasConstant*T;
 
-    fvo_zero_dbl_1(dlnActCoeffdlnN_Scaled_, m_kk);
+    fvo_zero_dbl_1(dlnActCoeffdlnN_diag_, m_kk);
     
     for ( iK = 0; iK < m_kk; iK++ ){
 
@@ -876,19 +883,105 @@ namespace Cantera {
 	g0 = (m_HE_b_ij[i] - T * m_SE_b_ij[i]) / RT;
 	g1 = (m_HE_c_ij[i] - T * m_SE_c_ij[i]) / RT;
 	
-	dlnActCoeffdlnN_Scaled_[iK] += 2*(delBK-XB) * (g0*(delAK-XA) + g1*(2*(delAK-XA)*XB + XA*(delBK-XB)));
+	dlnActCoeffdlnN_diag_[iK] += 2*(delBK-XB)*(g0*(delAK-XA)+g1*(2*(delAK-XA)*XB+XA*(delBK-XB)));
+
+// 	double gfac = g0 + g1 * XB;
+// 	double gggg = (delBK - XB) * g1;
+	
+
+// 	dlnActCoeffdlnN_diag_[iK] += gfac * delAK * ( - XB + delBK);
+	
+// 	dlnActCoeffdlnN_diag_[iK] += gfac * delBK * ( - XA + delAK);
+	
+// 	dlnActCoeffdlnN_diag_[iK] += gfac * (2.0 * XA * XB - delAK * XB - XA * delBK);
+	
+// 	dlnActCoeffdlnN_diag_[iK] += (delAK * XB + XA * delBK - XA * XB) * g1 * (-XB + delBK);
+	
+// 	dlnActCoeffdlnN_diag_[iK] += gggg * ( - 2.0 * XA * XB + delAK * XB + XA * delBK);
+	
+// 	dlnActCoeffdlnN_diag_[iK] += - g1 * XA * XB * (- XB + delBK);
       }
-      dlnActCoeffdlnN_Scaled_[iK] = XK*dlnActCoeffdlnN_Scaled_[iK]-XK;
+      dlnActCoeffdlnN_diag_[iK] = XK*dlnActCoeffdlnN_diag_[iK];//-XK;
     }
   }
 
-  void MargulesVPSSTP::s_update_dlnActCoeff_dlnX() const {
+  //====================================================================================================================
+  // Update the derivative of the log of the activity coefficients wrt dlnN
+  /*
+   * This function will be called to update the internally stored gradients of the 
+   * logarithm of the activity coefficients.  These are used in the determination 
+   * of the diffusion coefficients.
+   *
+   */
+  void MargulesVPSSTP::s_update_dlnActCoeff_dlnN() const {
+    int iA, iB;
+    doublereal delAK, delBK;
+    double XA, XB, g0 , g1, XK,XM;
+    double T = temperature();
+    double RT = GasConstant*T;
+ 
+    doublereal delAM, delBM;
+
+    dlnActCoeffdlnN_.zero();
+    
+    /*
+     *  Loop over the activity coefficient gamma_k
+     */
+    for (int iK = 0; iK < m_kk; iK++) {
+      XK = moleFractions_[iK];
+      for (int iM = 0; iM < m_kk; iM++) {
+	XM = moleFractions_[iM];
+	for (int i = 0; i <  numBinaryInteractions_; i++) {
+    
+	  iA =  m_pSpecies_A_ij[i];    
+	  iB =  m_pSpecies_B_ij[i];
+
+	  delAK = 0.0;
+	  delBK = 0.0;
+	  delAM = 0.0;
+	  delBM = 0.0;
+	  if      (iA==iK) delAK = 1.0;
+	  else if (iB==iK) delBK = 1.0;
+	  if      (iA==iM) delAM = 1.0;
+	  else if (iB==iM) delBM = 1.0;
+	
+	  XA = moleFractions_[iA];
+	  XB = moleFractions_[iB];
+	
+	  g0 = (m_HE_b_ij[i] - T * m_SE_b_ij[i]) / RT;
+	  g1 = (m_HE_c_ij[i] - T * m_SE_c_ij[i]) / RT;
+
+	  dlnActCoeffdlnN_(iK,iM) += g0*((delAM-XA)*(delBK-XB)+(delAK-XA)*(delBM-XB));
+	  dlnActCoeffdlnN_(iK,iM) += 2*g1*((delAM-XA)*(delBK-XB)*XB+(delAK-XA)*(delBM-XB)*XB+(delBM-XB)*(delBK-XB)*XA);
+
+// 	  double gfac = g0 + g1 * XB;
+// 	  double gggg = (delBK - XB) * g1;
+
+
+// 	  dlnActCoeffdlnN_(iK, iM) += gfac * delAK * ( - XB + delBM);
+
+// 	  dlnActCoeffdlnN_(iK, iM) += gfac * delBK * ( - XA + delAM);
+	  
+// 	  dlnActCoeffdlnN_(iK, iM) += gfac * (2.0 * XA * XB - delAM * XB - XA * delBM);
+	
+// 	  dlnActCoeffdlnN_(iK, iM) += (delAK * XB + XA * delBK - XA * XB) * g1 * (-XB + delBM);
+
+// 	  dlnActCoeffdlnN_(iK, iM) += gggg * ( - 2.0 * XA * XB + delAM * XB + XA * delBM);
+
+// 	  dlnActCoeffdlnN_(iK, iM) += - g1 * XA * XB * (- XB + delBM);
+	}
+	dlnActCoeffdlnN_(iK,iM) = XM*dlnActCoeffdlnN_(iK,iM);
+      }
+    }
+  }
+  //====================================================================================================================
+  void MargulesVPSSTP::s_update_dlnActCoeff_dlnX_diag() const {
 
     int iA, iB;
     doublereal XA, XB, g0 , g1;
     doublereal T = temperature();
 
-    fvo_zero_dbl_1(dlnActCoeffdlnX_Scaled_, m_kk);
+    fvo_zero_dbl_1(dlnActCoeffdlnX_diag_, m_kk);
 
     doublereal RT = GasConstant * T;
     
@@ -904,45 +997,36 @@ namespace Cantera {
       g0 = (m_HE_b_ij[i] - T * m_SE_b_ij[i]) / RT;
       g1 = (m_HE_c_ij[i] - T * m_SE_c_ij[i]) / RT;
       
-      dlnActCoeffdlnX_Scaled_[iA] += XA*XB*(2*g1*-2*g0-6*g1*XB);
-      dlnActCoeffdlnX_Scaled_[iB] += XA*XB*(2*g1*-2*g0-6*g1*XB);
+      dlnActCoeffdlnX_diag_[iA] += XA*XB*(2*g1*-2*g0-6*g1*XB);
+      dlnActCoeffdlnX_diag_[iB] += XA*XB*(2*g1*-2*g0-6*g1*XB);
     }
-    
-    /*
-    // Wrong!!!
-    for (int i = 0; i <  numBinaryInteractions_; i++) {
-      iA =  m_pSpecies_A_ij[i];    
-      iB =  m_pSpecies_B_ij[i];
-
-      XA = moleFractions_[iA];
-      XB = moleFractions_[iB];
-      
-      g0 = (m_HE_b_ij[i] - T * m_SE_b_ij[i]) / RT ;
-      g1 = (m_HE_c_ij[i] - T * m_SE_c_ij[i]) / RT;
-      
-      dlnActCoeffdlnX_Scaled_[iA] += XA * ( ( - 2.0 + 2.0 * XA ) * g0
-					    + ( - 4.0 + 10.0 * XA - 6.0 * XA*XA ) * g1 ) ;
-      dlnActCoeffdlnX_Scaled_[iB] += XB * ( ( - 2.0 + 2.0 * XB ) * g0
-					    + (   2.0 -  8.0 * XB + 6.0 * XB*XB ) * g1 ) ;
-    }
-    */
   }
   
-
-  void MargulesVPSSTP::getdlnActCoeffdlnN(doublereal *dlnActCoeffdlnN) const {
+  //====================================================================================================================
+  void MargulesVPSSTP::getdlnActCoeffdlnN_diag(doublereal *dlnActCoeffdlnN_diag) const {
+    s_update_dlnActCoeff_dlnN_diag();
+    for (int k = 0; k < m_kk; k++) {
+      dlnActCoeffdlnN_diag[k] = dlnActCoeffdlnN_diag_[k];
+    }
+  }
+  //====================================================================================================================
+  void MargulesVPSSTP::getdlnActCoeffdlnX_diag(doublereal *dlnActCoeffdlnX_diag) const {
+    s_update_dlnActCoeff_dlnX_diag();
+    for (int k = 0; k < m_kk; k++) {
+      dlnActCoeffdlnX_diag[k] = dlnActCoeffdlnX_diag_[k];
+    }
+  }
+  //====================================================================================================================
+  void MargulesVPSSTP::getdlnActCoeffdlnN(const int ld, doublereal *dlnActCoeffdlnN) {
     s_update_dlnActCoeff_dlnN();
+    double *data =  & dlnActCoeffdlnN_(0,0);
     for (int k = 0; k < m_kk; k++) {
-      dlnActCoeffdlnN[k] = dlnActCoeffdlnN_Scaled_[k];
+      for (int m = 0; m < m_kk; m++) {
+	dlnActCoeffdlnN[ld * k + m] = data[m_kk * k + m];
+      }
     }
   }
-  void MargulesVPSSTP::getdlnActCoeffdlnX(doublereal *dlnActCoeffdlnX) const {
-    s_update_dlnActCoeff_dlnX();
-    for (int k = 0; k < m_kk; k++) {
-      dlnActCoeffdlnX[k] = dlnActCoeffdlnX_Scaled_[k];
-    }
-  }
-
-
+ //====================================================================================================================
   void MargulesVPSSTP::resizeNumInteractions(const int num) {
     numBinaryInteractions_ = num;
     m_HE_b_ij.resize(num, 0.0);
@@ -962,7 +1046,7 @@ namespace Cantera {
     m_pSpecies_B_ij.resize(num, -1);
 
   }
-
+  //====================================================================================================================
 
   /*
    * Process an XML node called "binaryNeutralSpeciesParameters"
@@ -1027,13 +1111,13 @@ namespace Cantera {
         /*
          * Get the string containing all of the values
          */
-        getFloatArray(xmlChild, vParams, true, "toSI", "excessEnthalpy");
+        ctml::getFloatArray(xmlChild, vParams, true, "toSI", "excessEnthalpy");
         nParamsFound = vParams.size();
        
 	if (nParamsFound != 2) {
 	  throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies::excessEnthalpy for " + ispName
 			     + "::" + jspName,
-			     "wrong number of params found");
+			     "wrong number of params found. Need 2");
 	}
 	m_HE_b_ij[iSpot] = vParams[0];
 	m_HE_c_ij[iSpot] = vParams[1];
@@ -1043,13 +1127,13 @@ namespace Cantera {
         /*
          * Get the string containing all of the values
          */
-        getFloatArray(xmlChild, vParams, true, "toSI", "excessEntropy");
+        ctml::getFloatArray(xmlChild, vParams, true, "toSI", "excessEntropy");
         nParamsFound = vParams.size();
        
 	if (nParamsFound != 2) {
 	  throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies::excessEntropy for " + ispName
 			     + "::" + jspName,
-			     "wrong number of params found");
+			     "wrong number of params found. Need 2");
 	}
 	m_SE_b_ij[iSpot] = vParams[0];
 	m_SE_c_ij[iSpot] = vParams[1];
@@ -1059,13 +1143,13 @@ namespace Cantera {
         /*
          * Get the string containing all of the values
          */
-        getFloatArray(xmlChild, vParams, true, "toSI", "excessVolume_Enthalpy");
+        ctml::getFloatArray(xmlChild, vParams, true, "toSI", "excessVolume_Enthalpy");
         nParamsFound = vParams.size();
        
 	if (nParamsFound != 2) {
 	  throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies::excessVolume_Enthalpy for " + ispName
 			     + "::" + jspName,
-			     "wrong number of params found");
+			     "wrong number of params found. Need 2");
 	}
 	m_VHE_b_ij[iSpot] = vParams[0];
 	m_VHE_c_ij[iSpot] = vParams[1];
@@ -1075,13 +1159,13 @@ namespace Cantera {
         /*
          * Get the string containing all of the values
          */
-        getFloatArray(xmlChild, vParams, true, "toSI", "excessVolume_Entropy");
+        ctml::getFloatArray(xmlChild, vParams, true, "toSI", "excessVolume_Entropy");
         nParamsFound = vParams.size();
        
 	if (nParamsFound != 2) {
 	  throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies::excessVolume_Entropy for " + ispName
 			     + "::" + jspName,
-			     "wrong number of params found");
+			     "wrong number of params found. Need 2");
 	}
 	m_VSE_b_ij[iSpot] = vParams[0];
 	m_VSE_c_ij[iSpot] = vParams[1];

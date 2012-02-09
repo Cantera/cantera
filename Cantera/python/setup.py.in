@@ -11,10 +11,11 @@ libs = []
 platform = sys.platform
 
 flibs = []
-if @build_with_f2c@ <> 1:
-    flibstr = '@FLIBS@'
-    f1 = flibstr.replace('-l', ' ')
-    flibs = f1.split()
+# HKM -> not clear we need FLIBS here
+#if @build_with_f2c@ == 1:
+#    flibstr = '@FLIBS@'
+#    f1 = flibstr.replace('-l', ' ')
+#    flibs = f1.split()
 
 linkargs = '@LCXX_FLAGS@'
 

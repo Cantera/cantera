@@ -23,6 +23,8 @@
 #include "EdgePhase.h"
 #include "ThermoFactory.h"
 
+using namespace ctml;
+
 using namespace std;
 
     ///////////////////////////////////////////////////////////
@@ -209,6 +211,8 @@ namespace Cantera {
     }
   }
 
+  // HKM 9/1/11  The partial molar volumes returned here are really partial molar areas.
+  //             Partial molar volumes for this phase should actually be equal to zero.
   void SurfPhase::getPartialMolarVolumes(doublereal* vbar) const {
     getStandardVolumes(vbar);
   }

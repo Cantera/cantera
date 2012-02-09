@@ -419,15 +419,19 @@ namespace VCSnonideal {
     //! object.
     const std::vector<double> & moleFractions() const;
 
-    //! Sets the fractionCreationDelta's within the phase object
-    /*!
-     * @param F_k Pointer to a vector of F_k's
-     */
-    void setFractionCreationDeltas( const double * const F_k);
+    double moleFraction(int klocal) const;
 
-    //! Return a const reference to the fractionCreationDeltas storred in the
-    //! object.
-    const std::vector<double> & fractionCreationDeltas() const;
+    //! Sets the creationMoleNum's within the phase object
+    /*!
+     * @param F_k Pointer to a vector of n_k's
+     */
+    void setCreationMoleNumbers(const double * const n_k, const std::vector<int> &creationGlobalRxnNumbers);
+
+    //! Return a const reference to the creationMoleNumbers storred in the object.
+    /*!
+     * @return  Returns a const reference to the vector of creationMoleNumbers
+     */
+    const std::vector<double> & creationMoleNumbers(std::vector<int> &creationGlobalRxnNumbers) const;
 
     //! Returns whether the phase is an ideal solution phase
     bool isIdealSoln() const;
@@ -673,7 +677,7 @@ namespace VCSnonideal {
      *  miscibility gap, these numbers will stay the
      * same after the split.                          
      */
-    int VP_ID;
+    int VP_ID_;
 
     //! ID of the surface or volume domain in which the
     //!  this phase exists
@@ -871,15 +875,28 @@ namespace VCSnonideal {
 
     //! Vector of the current mole fractions for species 
     //! in the phase
-    std::vector<double> Xmol;
+    std::vector<double> Xmol_;
 
-    //! Vector of current fractionalCreationDeltas
+    //! Vector of current creationMoleNumbers_
     /*!
-     *  These are the actual unknowns in the problem
+     *  These are the actual unknowns in the phase stability problem
      */
-    std::vector<double> fractionCreationDelta_;
+    std::vector<double> creationMoleNumbers_;
 
-  
+    //! Vector of creation global reaction numbers for the phase stability problem
+    /*!
+     *  The phase stability problem requires a global reaction number for each
+     *  species in the phase. Usually this is the krxn = kglob - M for species
+     *  in the phase that are not components. For component species, the
+     *  choice of the reaction is one which maximimes the chance that the phase
+     *  pops into (or remains in) existence.
+     *   The index here is the local phase species index.
+     *   the value of the variable is the global vcs reaction number. Note,
+     *   that the global reaction number will go out of order when the species positions
+     *   are swapped. So, this number has to be recalculated.
+     */
+    std::vector<int> creationGlobalRxnNumbers_;
+ 
     //! If the potential is a solution variable in VCS, it acts as a species.
     //!  This is the species index in the phase for the potential
     int m_phiVarIndex;
@@ -998,13 +1015,12 @@ namespace VCSnonideal {
     mutable bool m_UpToDate_G0;
 
     //! Current value of the temperature for this object, and underlying objects
-    double Temp;
+    double Temp_;
 
     //! Current value of the pressure for this object, and underlying objects
-    double Pres;
+    double Pres_;
 
-    //! Reference pressure for the phase
-    double RefPres;
+  
 
   };
 

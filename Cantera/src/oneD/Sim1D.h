@@ -23,13 +23,14 @@ namespace Cantera {
 
     public: 
 
-        /**
-         * Default constructor. This constructor is provided to make
-         * the class default-constructible, but is not meant to be
-         * used in most applications.  Use the next constructor
-         * instead.
-         */
-        Sim1D();
+        
+      //! Default constructor.
+      /*!
+       *  This constructor is provided to make
+       *  the class default-constructible, but is not meant to be
+       *  used in most applications.  Use the next constructor
+       */
+      Sim1D();
 
 
         /**

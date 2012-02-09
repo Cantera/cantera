@@ -24,7 +24,45 @@
 using namespace std;
 
 namespace Cantera {
-
+  //====================================================================================================================
+  InterfaceKineticsData::InterfaceKineticsData() :
+    m_logp0(0.0),
+    m_logc0(0.0),
+    m_ROP_ok(false),
+    m_temp(0.0), 
+    m_logtemp(0.0)
+  {
+  }
+  //====================================================================================================================
+ InterfaceKineticsData:: InterfaceKineticsData(const InterfaceKineticsData &right) :
+   m_logp0(0.0),
+    m_logc0(0.0),
+    m_ROP_ok(false),
+    m_temp(0.0), 
+    m_logtemp(0.0)
+  {
+    *this = right;
+  }
+  //====================================================================================================================
+  InterfaceKineticsData::~InterfaceKineticsData() 
+  {
+  }
+  //====================================================================================================================
+  InterfaceKineticsData & InterfaceKineticsData::operator=(const InterfaceKineticsData &right)
+  {
+    if (this == &right) return *this;
+    m_logp0 = right.m_logp0;
+    m_logc0 = right.m_logc0;
+    m_ropf = right.m_ropf;
+    m_ropr = right.m_ropr;
+    m_ropnet = right.m_ropnet;
+    m_ROP_ok = right.m_ROP_ok;
+    m_temp = right.m_temp;
+    m_logtemp = right.m_logtemp;
+    m_rfn = right.m_rfn;
+    m_rkcn = right.m_rkcn;
+    return *this;
+  }
   //====================================================================================================================
   /*
    * Construct an empty InterfaceKinetics reaction mechanism.
@@ -54,6 +92,7 @@ namespace Cantera {
     m_has_exchange_current_density_formulation(false),
     m_phaseExistsCheck(false),
     m_phaseExists(0),
+    m_phaseIsStable(0),
     m_rxnPhaseIsReactant(0),
     m_rxnPhaseIsProduct(0),
     m_ioFlag(0)
@@ -72,8 +111,8 @@ namespace Cantera {
       delete m_integrator; 
     }
     for (int i = 0; i < m_ii; i++) {
-      delete m_rxnPhaseIsReactant[i];
-      delete  m_rxnPhaseIsProduct[i];
+      delete [] m_rxnPhaseIsReactant[i];
+      delete [] m_rxnPhaseIsProduct[i];
     }
   }
   //====================================================================================================================
@@ -102,6 +141,7 @@ namespace Cantera {
     m_has_exchange_current_density_formulation(false),
     m_phaseExistsCheck(false),
     m_phaseExists(0),
+    m_phaseIsStable(0),
     m_rxnPhaseIsReactant(0),
     m_rxnPhaseIsProduct(0),
     m_ioFlag(0)
@@ -130,14 +170,13 @@ namespace Cantera {
     if (this == &right) return *this;
 
     for (i = 0; i < m_ii; i++) {
-      delete (m_rxnPhaseIsReactant[i]);
-      delete (m_rxnPhaseIsProduct[i]);
+      delete [] m_rxnPhaseIsReactant[i];
+      delete [] m_rxnPhaseIsProduct[i];
     }
 
     Kinetics::operator=(right);
 
-    
-
+    m_grt                  = right.m_grt;
     m_kk                   = right.m_kk;
     m_revindex             = right.m_revindex;
     m_rates                = right.m_rates;
@@ -150,7 +189,8 @@ namespace Cantera {
     m_rrxn                 = right.m_rrxn;
     m_prxn                 = right.m_prxn;
     m_rxneqn               = right.m_rxneqn;
-    *m_kdata               = *right.m_kdata;  // needs to be developed
+    *m_kdata               = *right.m_kdata; 
+    m_conc                 = right.m_conc;
     m_mu0                  = right.m_mu0;
     m_phi                  = right.m_phi;
     m_pot                  = right.m_pot;
@@ -170,7 +210,7 @@ namespace Cantera {
     m_has_exchange_current_density_formulation = right.m_has_exchange_current_density_formulation;
     m_phaseExistsCheck     = right.m_phaseExistsCheck;
     m_phaseExists          = right.m_phaseExists;
-
+    m_phaseIsStable        = right.m_phaseIsStable;
 
     m_rxnPhaseIsReactant.resize(m_ii, 0);
     m_rxnPhaseIsProduct.resize(m_ii, 0);
@@ -184,8 +224,6 @@ namespace Cantera {
       }
     }
 
-    m_rxnPhaseIsProduct    = right.m_rxnPhaseIsProduct;
-    
     m_ioFlag               = right.m_ioFlag;
 
     return *this;
@@ -200,17 +238,6 @@ namespace Cantera {
     return cInterfaceKinetics; 
   }
   //====================================================================================================================
-  // Set the electric potential in the nth phase
-  /*
-   * @param n phase Index in this kinetics object.
-   * @param V Electric potential (volts)
-   */
-  void InterfaceKinetics::setElectricPotential(int n, doublereal V) {
-    thermo(n).setElectricPotential(V);
-    m_redo_rates = true;
-  }
-
-  //====================================================================================================================
   // Duplication routine for objects which inherit from Kinetics
   /*
    *  This virtual routine can be used to duplicate %Kinetics objects
@@ -219,10 +246,24 @@ namespace Cantera {
    *
    *  These routines are basically wrappers around the derived copy
    *  constructor.
+   *
+   * @param  tpVector Vector of shallow pointers to ThermoPhase objects. this is the
+   *                  m_thermo vector within this object
    */
-  Kinetics *InterfaceKinetics::duplMyselfAsKinetics() const {
-    InterfaceKinetics* tp = new InterfaceKinetics(*this);
-    return dynamic_cast<Kinetics *>(tp);
+  Kinetics *InterfaceKinetics::duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVector) const {
+    InterfaceKinetics* iK = new InterfaceKinetics(*this);
+    iK->assignShallowPointers(tpVector);
+    return dynamic_cast<Kinetics *>(iK);
+  }
+  //====================================================================================================================
+  // Set the electric potential in the nth phase
+  /*
+   * @param n phase Index in this kinetics object.
+   * @param V Electric potential (volts)
+   */
+  void InterfaceKinetics::setElectricPotential(int n, doublereal V) {
+    thermo(n).setElectricPotential(V);
+    m_redo_rates = true;
   }
   //====================================================================================================================
   // Update properties that depend on temperature
@@ -295,6 +336,17 @@ namespace Cantera {
       thermo(n).getActivityConcentrations(DATA_PTR(m_conc) + m_start[n]);
     }
     m_kdata->m_ROP_ok = false;
+  }
+
+
+  // Get the vector of activity concentrations used in the kinetics object
+  /*
+   *  @param conc  (output) Vector of activity concentrations. Length is 
+   *               equal to the number of species in the kinetics object
+   */
+  void InterfaceKinetics::getActivityConcentrations(doublereal * const conc) {
+    _update_rates_C();
+    copy(m_conc.begin(), m_conc.end(), conc);
   }
 
 
@@ -704,6 +756,12 @@ namespace Cantera {
 		}
 	      }
 	    }
+	    if (m_rxnPhaseIsReactant[j][p]) {
+	      if (! m_phaseIsStable[p]) {
+		ropnet[j] = 0.0;
+		ropr[j] = ropf[j];
+	      }
+	    }
 	  }
 	} else if ((ropf[j] > ropr[j]) && (ropf[j] > 0.0)) {
 	  for (int p = 0; p < nPhases(); p++) {
@@ -723,6 +781,12 @@ namespace Cantera {
 		}
 	      }
 	    }
+	    if (m_rxnPhaseIsProduct[j][p]) {
+	      if (! m_phaseIsStable[p]) {
+		ropnet[j] = 0.0;
+		ropf[j] = ropr[j];
+	      }
+	    }
 	  }
 	}
       }
@@ -731,8 +795,38 @@ namespace Cantera {
     m_kdata->m_ROP_ok = true;
   }
 
+#ifdef KINETICS_WITH_INTERMEDIATE_ZEROED_PHASES
+  //=================================================================================================
+  InterfaceKinetics::adjustRatesForIntermediatePhases() {
+    doublereal sFac = 1.0;
 
-  /**
+    array_fp& ropf = m_kdata->m_ropf;
+    array_fp& ropr = m_kdata->m_ropr;
+    array_fp& ropnet = m_kdata->m_ropnet;
+
+    getCreatingRates(DATA_PTR(m_speciestmpP));
+    getDestructionRates(DATA_PTR(m_speciestmpD));
+ 
+    for (iphase = 0; iphase < nphases; iphase++) {
+      if (m_intermediatePhases(iphase)) {
+	for (isp = 0; isp < nspecies; isp++) {
+	  if (m_speciesTmpD[ispI] > m_speciesTmpP[I]) {
+	    sFac = m_speciesTmpD[ispI]/ m_speciesTmpP[I];
+	  }
+	  // Loop over reactions that are reactants for the species in the phase
+	  // reducing their rates.
+
+
+	}
+      }
+
+    }
+
+  }
+#endif
+  //=================================================================================================
+  //=================================================================================================
+  /*
    *
    * getDeltaGibbs():
    *
@@ -763,8 +857,35 @@ namespace Cantera {
      */
     m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_grt), deltaG);
   }
-    
-  /**
+  //=================================================================================================
+  // Return the vector of values for the reaction electrochemical free energy change. 
+  /*
+   * These values depend upon the concentration of the solution and
+   * the voltage of the phases
+   *
+   *  units = J kmol-1
+   *
+   * @param deltaM  Output vector of  deltaM's for reactions
+   *                Length: m_ii.
+   */
+  void InterfaceKinetics::getDeltaElectrochemPotentials(doublereal* deltaM) {
+    /*
+     * Get the chemical potentials of the species in the 
+     * ideal gas solution.
+     */
+    int np = nPhases();
+    int n;
+    for (n = 0; n < np; n++) {
+      thermo(n).getElectrochemPotentials(DATA_PTR(m_grt) + m_start[n]);
+    }
+    /*
+     * Use the stoichiometric manager to find deltaG for each
+     * reaction.
+     */
+    m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_grt), deltaM);
+  }
+  //=================================================================================================
+  /*
    *
    * getDeltaEnthalpy():
    * 
@@ -935,11 +1056,27 @@ namespace Cantera {
    */
   void InterfaceKinetics::addReaction(const ReactionData& r) {
 
+    /*
+     * Install the rate coefficient for the current reaction
+     * in the appropriate data structure.
+     */
     addElementaryReaction(r);
-
-    // operations common to all reaction types
+    /*
+     * Add the reactants and products for  m_ropnet;the current reaction
+     * to the various stoichiometric coefficient arrays.
+     */
     installReagents(r);
+    /* 
+     * Save the reaction and product groups, which are
+     * part of the ReactionData class, in this class.
+     * They aren't used for anything but reaction path
+     * analysis.
+     */
     //installGroups(reactionNumber(), r.rgroups, r.pgroups);
+    /*
+     * Increase the internal number of reactions, m_ii, by one.
+     * increase the size of m_perturb by one as well.
+     */
     incrementRxnCount();
     m_rxneqn.push_back(r.equation);
 
@@ -1137,6 +1274,7 @@ namespace Cantera {
   void InterfaceKinetics::addPhase(thermo_t &thermo) {
     Kinetics::addPhase(thermo);
     m_phaseExists.push_back(true);
+    m_phaseIsStable.push_back(true);
   }
   //================================================================================================
   /**
@@ -1195,7 +1333,7 @@ namespace Cantera {
 
     m_finalized = true;
   }
-
+ //================================================================================================
   doublereal InterfaceKinetics::electrochem_beta(int irxn) const{
     int n = m_ctrxn.size();
     for (int i = 0; i < n; i++) {
@@ -1206,7 +1344,7 @@ namespace Cantera {
     return 0.0;
   }
 
-
+ //================================================================================================
   bool InterfaceKinetics::ready() const {
     return (m_finalized);
   }
@@ -1241,8 +1379,7 @@ namespace Cantera {
    * reduce the computational cost of repeated calls.
    */
   void InterfaceKinetics::
-  solvePseudoSteadyStateProblem(int ifuncOverride,
-				doublereal timeScaleOverride) {
+  solvePseudoSteadyStateProblem(int ifuncOverride, doublereal timeScaleOverride) {
     // create our own solver object
     if (m_integrator == 0) {
       vector<InterfaceKinetics*> k;
@@ -1258,7 +1395,7 @@ namespace Cantera {
   }
   //================================================================================================
 
-  void InterfaceKinetics::setPhaseExistence(const int iphase, const bool exists) {
+  void InterfaceKinetics::setPhaseExistence(const int iphase, const int exists) {
     if (iphase < 0 || iphase >= (int) m_thermo.size()) {
       throw CanteraError("InterfaceKinetics:setPhaseExistence", "out of bounds");
     }
@@ -1267,13 +1404,58 @@ namespace Cantera {
 	m_phaseExistsCheck--;
 	m_phaseExists[iphase] = true;
       }
+      m_phaseIsStable[iphase] = true;
     } else {
       if (m_phaseExists[iphase]) {
 	m_phaseExistsCheck++;
 	m_phaseExists[iphase] = false;
       }
+      m_phaseIsStable[iphase] = false;
     }
   }
+  //================================================================================================
+  // Gets the phase existence int for the ith phase
+  /*
+   * @param iphase  Phase Id 
+   *
+   * @return Returns the int specifying whether the kinetics object thinks the phase exists
+   *         or not. If it exists, then species in that phase can be a reactant in reactions.
+   */
+  int InterfaceKinetics::phaseExistence(const int iphase) const {
+    if (iphase < 0 || iphase >= (int) m_thermo.size()) {
+      throw CanteraError("InterfaceKinetics:phaseExistence()", "out of bounds");
+    }
+    return m_phaseExists[iphase];
+  }
+  //================================================================================================
+  // Gets the phase stability int for the ith phase
+  /*
+   * @param iphase  Phase Id 
+   *
+   * @return Returns the int specifying whether the kinetics object thinks the phase is stable
+   *         with nonzero mole numbers. 
+   *         If it stable, then the kinetics object will allow for rates of production of
+   *         of species in that phase that are positive.
+   */
+  int InterfaceKinetics::phaseStability(const int iphase) const {
+    if (iphase < 0 || iphase >= (int) m_thermo.size()) {
+      throw CanteraError("InterfaceKinetics:phaseStability()", "out of bounds");
+    }
+    return m_phaseIsStable[iphase];
+  }
+ //================================================================================================
+
+  void InterfaceKinetics::setPhaseStability(const int iphase, const int isStable) {
+    if (iphase < 0 || iphase >= (int) m_thermo.size()) {
+      throw CanteraError("InterfaceKinetics:setPhaseStability", "out of bounds");
+    }
+    if (isStable) {
+      m_phaseIsStable[iphase] = true;
+    } else {
+      m_phaseIsStable[iphase] = false;
+    }
+  }
+
   //================================================================================================
   void EdgeKinetics::finalize() {
     m_rwork.resize(nReactions());

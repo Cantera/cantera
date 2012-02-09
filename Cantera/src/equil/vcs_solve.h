@@ -1,12 +1,13 @@
 /**
  * @file vcs_solve.h
- *    Header file for the internal object that holds the problem
+ *    Header file for the internal object that holds the vcs equilibrium problem
+ *    (see Class \link Cantera::VCS_SOLVE VCS_SOLVE\endlink and \ref equilfunctions ).
  */
 /*
  * $Id$
  */
 /*
- * Copywrite (2005) Sandia Corporation. Under the terms of 
+ *_ Copywrite (2005) Sandia Corporation. Under the terms of 
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -146,6 +147,9 @@ public:
    */
   int vcs_solve_TP(int print_lvl, int printDetails, int maxit);
 
+
+  int vcs_PS(VCS_PROB *vprob, int iph, int printLvl, double &feStable);
+
   void vcs_reinsert_deleted(int kspec);
 
   //!  Choose the optimum species basis for the calculations
@@ -200,7 +204,7 @@ public:
    *      m_stoichCoeffRxnMatrix[irxn][jcomp]
    *                 Stoichiometric coefficient matrix for the reaction mechanism 
    *                 expressed in Reduced Canonical Form.
-   *                 j refers to the component number, and irxn 
+   *                 jcomp refers to the component number, and irxn 
    *                 refers to the irxn_th non-component species.
    *
    *      m_deltaMolNumPhase[irxn]
@@ -491,16 +495,22 @@ public:
    */
   void vcs_dfe(const int stateCalc, const int ll, const int lbot, const int ltop);
 
+  //! Print out a table of chemical potentials
+  /*!
+   *    @param vcsState Determines where to get the mole numbers from.
+   *                -  VCS_STATECALC_OLD -> from m_molNumSpecies_old
+   *                -  VCS_STATECALC_NEW -> from m_molNumSpecies_new
+   */
+  void vcs_printSpeciesChemPot(const int stateCalc) const;
+
   //!  This routine uploads the state of the system into all of the 
   //!  vcs_VolumePhase objects in the current problem.
   /*!
    *  @param vcsState Determines where to get the mole numbers from.
    *                -  VCS_STATECALC_OLD -> from m_molNumSpecies_old
    *                -  VCS_STATECALC_NEW -> from m_molNumSpecies_new
-   *
    */
   void vcs_updateVP(const int stateCalc);
-
 
   //! Utility function that evaluates whether a phase can be popped
   //! into existence
@@ -512,12 +522,30 @@ public:
    */
   bool vcs_popPhasePossible(const int iphasePop) const;
 
+
+  //! Determine the list of problems that need to be checked to see if there are any phases pops
+  /*!
+   *  This routine evaluates and fills in the following quantities
+   *              phasePopProblemLists_
+   *
+   *  @return    Returns the number of problems that must be checked.
+   */
+  int vcs_phasePopDeterminePossibleList();
+
+
+
+
+
+
   //! Decision as to whether a phase pops back into existence
   /*!
+   * @param  phasePopPhaseIDs Vector containing the phase ids of the phases
+   *         that will be popped this step.
+   *
    * @return returns the phase id of the phase that pops back into 
    *         existence. Returns -1 if there are no phases
    */
-  int vcs_popPhaseID();
+  int vcs_popPhaseID(std::vector<int> &phasePopPhaseIDs);
 
   //! Calculates the deltas of the reactions due to phases popping
   //! into existence
@@ -531,6 +559,7 @@ public:
    *            -  2 : Same as one but, the zeroed species is a component. 
    */
   int vcs_popPhaseRxnStepSizes(const int iphasePop);
+
 
   //! Calculates formation reaction step sizes.
   /*!
@@ -546,13 +575,13 @@ public:
    * Special branching occurs sometimes. This causes the component basis 
    * to be reevaluated 
    *
-   * @return  Returns an int representing the status of the step
-   *            -  0 : normal return
-   *            -  1 : A single species phase species has been zeroed out
-   *                   in this routine. The species is a noncomponent 
-   *            -  2 : Same as one but, the zeroed species is a component. 
+   * @param forceComponentRecalc  integer flagging whether a component recalculation needs 
+   *                              to be carried out.
+   * @param kSpecial              species number of phase being zeroed.
+   *
+   * @return  Returns an int representing which phase may need to be zeroed
    */
-  int vcs_RxnStepSizes();
+  int vcs_RxnStepSizes(int & forceComponentCalc, int & kSpecial);
 
   //!  Calculates the total number of moles of species in all phases.
   /*!
@@ -598,6 +627,8 @@ public:
    */
   void vcs_deltag(const int l, const bool doDeleted, const int vcsState,
 		  const bool alterZeroedPhases = true);
+
+  void vcs_printDeltaG(const int stateCalc);
 
   //!   Calculate deltag of formation for all species in a single phase.
   /*!
@@ -663,7 +694,8 @@ public:
    *              have.
    */
   double vcs_birthGuess(const int kspec);
-
+ 
+  int vcs_solve_phaseStability(const int iphase, int ifunc, double &funcval, int print_lvl);
 
   //! Main program to test whether a deleted phase should be brought
   //! back into existence
@@ -1234,16 +1266,16 @@ private:
    *    the mole numbers of the component species. Therefore the following 
    *    approximation is valid for a small component of an ideal phase:
    *
-   *       0 = m_deltaGrxn_old(I) + log(molNum_new(I)/molNum_old(I))
+   *       0 = m_deltaGRxn_old(I) + log(molNum_new(I)/molNum_old(I))
    * 
-   *       m_deltaGrxn_old contains the contribution from
+   *       m_deltaGRxn_old contains the contribution from
    *
    *        m_feSpecies_old(I) =
    *              m_SSfeSpecies(I) +
    *              log(ActCoeff[i] * molNum_old(I) / m_tPhaseMoles_old(iph)) 
    *    Thus,
    * 
-   *        molNum_new(I)= molNum_old(I) * EXP(-m_deltaGrxn_old(I))
+   *        molNum_new(I)= molNum_old(I) * EXP(-m_deltaGRxn_old(I))
    * 
    *    Most of this section is mainly restricting the update to reasonable 
    *    values.
@@ -1438,7 +1470,7 @@ public:
   //! Number of components calculated for the problem
   int m_numComponents;
 
-  //! Total number of non-component species in  the problem
+  //! Total number of non-component species in the problem
   int m_numRxnTot;
 
   //! Current number of species in the problems
@@ -1448,7 +1480,7 @@ public:
    */
   int m_numSpeciesRdc;
 
-  //! Current number of non-component species in the  problem 
+  //! Current number of non-component species in the problem 
   /*!
    * Species can be deleted if they aren't
    * stable under the current conditions
@@ -1470,20 +1502,19 @@ public:
    */
   DoubleStarStar m_formulaMatrix;
 
-  //! Stoichiometric coefficient matrix for the reaction mechanism 
-  //! expressed in Reduced Canonical Form.
+  //! Stoichiometric coefficient matrix for the reaction mechanism expressed in Reduced Canonical Form.
   /*!
    *   This is the stoichiometric coefficient matrix for the 
-   *   reaction which forms species K from the component species. A
-   *   stoichiometric coefficient of one is assumed for the 
-   *   species K in this mechanism. 
+   *   reaction which forms species kspec from the component species. A
+   *   stoichiometric coefficient of one is assumed for the species kspec in this mechanism. 
    *
-   *              NOTE: kspec = Irxn + m_numComponents
+   *              NOTE: kspec = irxn + m_numComponents
    *
-   *   sc[irxn][j] :
-   *     j refers to the component number, and irxn 
-   *     refers to the irxn_th non-component species.
-   *  
+   *   m_stoichCoeffRxnMatrix[irxn][j] :
+   *     j refers to the component number, and irxn refers to the irxn_th non-component species.
+   *     The stoichiometric coefficents multilpled by the Formula coefficients of the
+   *     component species add up to the negative value of the number of elements in
+   *     the species kspec.
    *
    *   length = [nspecies0][nelements0]
    */
@@ -1596,8 +1627,10 @@ public:
   //!  Last deltag[irxn] from the previous step 
   std::vector<double> m_deltaGRxn_old;
 
-  //! Last deltag[irxn] from the previous step with additions for
-  //! possible births of zeroed phases.
+  //! Last deltag[irxn] from the previous step with additions for possible births of zeroed phases for component species
+  /*!
+   *    
+   */
   std::vector<double> m_deltaGRxn_Deficient;
 
   //! Temporary vector of Rxn DeltaG's
@@ -1662,10 +1695,10 @@ public:
   std::vector<double> m_tPhaseMoles_new;
 
   //! Temporary vector of length NPhase 
-  std::vector<double> m_TmpPhase;
+  mutable std::vector<double> m_TmpPhase;
 
   //! Temporary vector of length NPhase 
-  std::vector<double> m_TmpPhase2;
+  mutable std::vector<double> m_TmpPhase2;
 
   //! Change in the total moles in each phase
   /*!
@@ -1958,6 +1991,8 @@ public:
    */
   std::vector<double> m_chargeSpecies;
 
+  std::vector<std::vector<int> > phasePopProblemLists_;
+
   //! Vector of pointers to thermostructures which identify the model
   //! and parameters for evaluating the  thermodynamic functions for that 
   //! particular species.
@@ -2037,6 +2072,8 @@ public:
    *                           3:  Pa
    */
   int m_VCS_UnitsFormat;
+
+  friend class vcs_phaseStabilitySolve;
 
 }; 
 

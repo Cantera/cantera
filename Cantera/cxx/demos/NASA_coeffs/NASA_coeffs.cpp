@@ -12,6 +12,7 @@
 
 using namespace std; 
 using namespace Cantera;
+using namespace Cantera_CXX;
 
 
 // The program is put into a function so that error handling code can

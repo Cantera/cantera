@@ -18,7 +18,7 @@
 #include "ctexceptions.h"
 
 namespace Cantera {
-
+    
   //! Arrhenius reaction rate type depends only on temperature
   /**
    * A reaction rate coefficient of the following form.
@@ -29,20 +29,21 @@ namespace Cantera {
    *
    */
   class Arrhenius {
-
   public:
         
-    /// return the rate coefficient type.
-    static int type(){ return ARRHENIUS_REACTION_RATECOEFF_TYPE ; }
+    //! return the rate coefficient type.
+    static int type() {
+      return ARRHENIUS_REACTION_RATECOEFF_TYPE;
+    }
 
-    /// Default constructor.
+    //! Default constructor.
     Arrhenius() : 
       m_logA(-1.0E300), 
       m_b (0.0),
       m_E (0.0),
       m_A(0.0) {}
 
-    /// Constructor with Arrhenius parameters specified with an array.
+    //! Constructor with Arrhenius parameters specified with an array.
     Arrhenius(int csize, const doublereal* c) :
       m_b (c[1]),
       m_E (c[2]),
@@ -126,7 +127,10 @@ namespace Cantera {
   class ArrheniusSum {
 
   public:
-    static int type(){ return ARRHENIUS_SUM_REACTION_RATECOEFF_TYPE; }        
+
+    static int type() {
+      return ARRHENIUS_SUM_REACTION_RATECOEFF_TYPE; 
+    }
     ArrheniusSum() : m_nterms(0) {}
 
     void addArrheniusTerm(doublereal A, doublereal b, doublereal E) {
@@ -193,7 +197,10 @@ namespace Cantera {
   class SurfaceArrhenius {
         
   public:
-    static int type(){ return ARRHENIUS_REACTION_RATECOEFF_TYPE ; }        
+    static int type() {
+      return ARRHENIUS_REACTION_RATECOEFF_TYPE; 
+    }
+        
     SurfaceArrhenius() : 
       m_logA(-1.0E300),
       m_b (0.0),
@@ -353,12 +360,11 @@ namespace Cantera {
    *
    */
   class ExchangeCurrent {
-
   public:
-        
+
     //! return the rate coefficient type.
     static int type() {
-      return EXCHANGE_CURRENT_REACTION_RATECOEFF_TYPE  ;
+      return EXCHANGE_CURRENT_REACTION_RATECOEFF_TYPE;
     }
 
     //! Default constructor.
@@ -429,7 +435,6 @@ namespace Cantera {
     doublereal updateRC(doublereal logT, doublereal recipT) const {
       return m_A * exp(m_b*logT - m_E*recipT);
     }
-
         
     void writeUpdateRHS(std::ostream& s) const {
       s << " exp(" << m_logA;

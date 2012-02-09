@@ -228,6 +228,10 @@ WITH_IDEAL_SOLUTIONS=${WITH_IDEAL_SOLUTIONS:="y"}
 # models for electrolyte solutions
 WITH_ELECTROLYTES=${WITH_ELECTROLYTES:="y"}
 
+# Enable Real Gas Equations of State
+# This supports the multicomponent Redlich-Kwong equation of state.
+WITH_REAL_GASSES=${WITH_REAL_GASSES:="y"}
+
 # Enable generating phase models from PrIMe models. For more
 # information about PrIME, see http://www.primekinetics.org
 # WARNING: Support for PrIMe is experimental!
@@ -237,6 +241,11 @@ WITH_PRIME=${WITH_PRIME:="n"}
 # via the C++ layer. To do this, modify the variable below
 # to have a value of "y"
 WITH_H298MODIFY_CAPABILITY=${WITH_H298MODIFY_CAPABILITY:="n"}
+
+# Capability in the planning and implementation stage
+# Phases may be intermediates but actually have zero mole numbers
+# in the InterfacialKinetics object
+KINETICS_WITH_INTERMEDIATE_ZEROED_PHASES=${KINETICS_WITH_INTERMEDIATE_ZEROED_PHASES:="n"}
 
 ######################################################################
 # if set to 'y', the ck2cti program that converts Chemkin input files
@@ -502,8 +511,7 @@ RPFONT=${RPFONT:="Helvetica"}
 #    This field gets written into config.h  and is also an autoconf variable.
 #
 # 
-CANTERA_VERSION=${CANTERA_VERSION:="1.8.x"}
-
+CANTERA_VERSION=${CANTERA_VERSION:="1.8_liquidTransportDevelop"} 
 
 #-----------------------------------------------------------------------
 #------------------- don't change anything below!! ---------------------
@@ -584,7 +592,8 @@ export WITH_ADSORBATE
 export WITH_SPECTRA
 export WITH_STOICH_SUBSTANCE
 export WITH_PURE_FLUIDS
-export WITH_IDEAL_SOLUTIONS
+export WITH_IDEAL_SOLUTION
+export WITH_REAL_GASSES
 export WITH_ELECTROLYTES
 export WITH_PRIME
 export WITH_H298MODIFY_CAPABILITY

@@ -11,6 +11,8 @@
 #include <math.h>
 #include <string.h>
 
+using namespace std;
+
 namespace tpx {
 
 /* 
@@ -26,7 +28,8 @@ static const double Gamma=5.0E-6;    // [??]
 static const double u0=3.217405E5;    // [] internal energy at To
 static const double s0=2.1396056E3;    // [] entropy at To
 static const double Tp=250;            // [K] ??
-static const double Pc=7.38350E6;    // [Pa] critical pressure
+//static const double Pc=7.38350E6;    // [Pa] critical pressure
+static const double Pc=7.3817589E6;   // Adjusted to fit the actual functional form
 static const double M=44.01;        // [kg/kmol] molar density
 
 /*
@@ -311,7 +314,7 @@ double CarbonDioxide::Psat(){
 
     double log, sum=0,P;
     if ((T < Tmn) || (T > Tc)) {
-        cout << " error in Psat " << TempError << endl;
+        std::cout << " error in Psat " << TempError << endl;
         set_Err(TempError); // Error("CarbonDioxide::Psat",TempError,T);
     }
     for (int i=1;i<=8;i++)

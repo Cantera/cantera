@@ -7,7 +7,7 @@
  *   pointers are passed to or from the calling application.
  */
 /*
- * $Id: fct.cpp,v 1.14 2009/07/23 16:56:48 hkmoffa Exp $
+ * $Id$
  */
 
 // turn off warnings under Windows
@@ -30,6 +30,9 @@
 
 #include "flib_defs.h"
 
+using namespace Cantera;
+using namespace std;
+
 // Assert that there is storage 
 // for the templated classes' static member
 // (needed to compile on solaris)
@@ -39,7 +42,7 @@ inline XML_Node* _xml(const integer* n) {
     return Cabinet<XML_Node>::cabinet()->item(*n);
 }
 
-inline ThermoPhase* _fph(const integer* n) {
+inline Cantera::ThermoPhase* _fph(const integer* n) {
     return th(*n);
 }
 

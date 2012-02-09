@@ -9,6 +9,7 @@ using Cantera::Func1;
 using Cantera::Kinetics;
 
 using namespace std;
+using namespace Cantera;
 
 namespace CanteraZeroD {
 

@@ -246,8 +246,8 @@ namespace Cantera {
     }
 
     void Inlet1D::
-    save(XML_Node& o, doublereal* soln) {
-        doublereal* s = soln + loc();
+    save(XML_Node& o, const doublereal* const soln) {
+        const doublereal* s = soln + loc();
         XML_Node& inlt = o.addChild("domain");
         inlt.addAttribute("id",id());
         inlt.addAttribute("points",1);
@@ -262,8 +262,8 @@ namespace Cantera {
     restore(const XML_Node& dom, doublereal* soln) {
         //map<string, double> x;
         //getFloats(dom, x);
-        soln[0] = getFloat(dom, "mdot", "massflowrate"); // x["mdot"];
-        soln[1] = getFloat(dom, "temperature", "temperature"); // x["temperature"];
+        soln[0] = ctml::getFloat(dom, "mdot", "massflowrate"); // x["mdot"];
+        soln[1] = ctml::getFloat(dom, "temperature", "temperature"); // x["temperature"];
         resize(2,1);
     }
 
@@ -312,7 +312,7 @@ namespace Cantera {
     }
 
     void Empty1D::
-    save(XML_Node& o, doublereal* soln) {
+    save(XML_Node& o, const doublereal * const soln) {
         XML_Node& symm = o.addChild("domain");
         symm.addAttribute("id",id());
         symm.addAttribute("points",1);
@@ -395,7 +395,7 @@ namespace Cantera {
 
 
     void Symm1D::
-    save(XML_Node& o, doublereal* soln) {
+    save(XML_Node& o, const doublereal * const soln) {
         XML_Node& symm = o.addChild("domain");
         symm.addAttribute("id",id());
         symm.addAttribute("points",1);
@@ -493,7 +493,7 @@ namespace Cantera {
 
 
     void Outlet1D::
-    save(XML_Node& o, doublereal* soln) {
+    save(XML_Node& o, const doublereal * const soln) {
         XML_Node& outlt = o.addChild("domain");
         outlt.addAttribute("id",id());
         outlt.addAttribute("points",1);
@@ -633,7 +633,7 @@ namespace Cantera {
 
 
     void OutletRes1D::
-    save(XML_Node& o, doublereal* soln) {
+    save(XML_Node& o, const doublereal * const soln) {
         XML_Node& outlt = o.addChild("domain");
         outlt.addAttribute("id",id());
         outlt.addAttribute("points",1);
@@ -710,8 +710,8 @@ namespace Cantera {
     }
 
     void Surf1D::
-    save(XML_Node& o, doublereal* soln) {
-        doublereal* s = soln + loc();
+    save(XML_Node& o, const doublereal * const soln) {
+        const doublereal* s = soln + loc();
         //XML_Node& inlt = o.addChild("inlet");
         XML_Node& inlt = o.addChild("domain");
         inlt.addAttribute("id",id());
@@ -726,7 +726,7 @@ namespace Cantera {
     void Surf1D::
     restore(const XML_Node& dom, doublereal* soln) {
         map<string, double> x;
-        getFloats(dom, x);
+        ctml::getFloats(dom, x);
         soln[0] = x["temperature"];
         resize(1,1);
     }
@@ -870,8 +870,8 @@ namespace Cantera {
     }
 
     void ReactingSurf1D::
-    save(XML_Node& o, doublereal* soln) {
-        doublereal* s = soln + loc();
+    save(XML_Node& o, const doublereal * const soln) {
+        const doublereal* s = soln + loc();
         //XML_Node& inlt = o.addChild("inlet");
         XML_Node& inlt = o.addChild("domain");
         inlt.addAttribute("id",id());
@@ -886,7 +886,7 @@ namespace Cantera {
     void ReactingSurf1D::
     restore(const XML_Node& dom, doublereal* soln) {
         map<string, double> x;
-        getFloats(dom, x);
+        ctml::getFloats(dom, x);
         soln[0] = x["temperature"];
         resize(1,1);
     }

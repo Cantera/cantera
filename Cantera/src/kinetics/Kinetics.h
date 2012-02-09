@@ -169,18 +169,35 @@ namespace Cantera {
     Kinetics& operator=(const Kinetics &right);
 
 
-    //! Duplication routine for objects which inherit from
-    //! Kinetics
+    //! Duplication routine for objects which inherit from Kinetics
     /*!
      *  This virtual routine can be used to duplicate %Kinetics objects
      *  inherited from %Kinetics even if the application only has
      *  a pointer to %Kinetics to work with.
      *
-     *  These routines are basically wrappers around the derived copy
-     *  constructor.
+     *  These routines are basically wrappers around the derived copy  constructor.
+     *
+     * @param  tpVector Vector of shallow pointers to ThermoPhase objects. this is the
+     *                  m_thermo vector within this object
      */
-    virtual Kinetics *duplMyselfAsKinetics() const;
+    virtual Kinetics *duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVector) const;
 
+    //! Reassign the shallow pointers within the %FKinetics object
+    /*!
+     *  This type or routine is absolute necessary because the Kinetics object doesn't
+     *  own the ThermoPhase objects. After a duplication, we need to point to different
+     *  ThermoPhase objects.
+     *
+     *  We check that the ThermoPhase objects are alligned in the same order and have
+     *  the following identical properties to the ones that they are replacing.
+     *   id()
+     *   eosType()
+     *   nSpecies()
+     *
+     *  @param tpVector Vector of shallow pointers to ThermoPhase objects. this is the
+     *         m_thermo vector within this object
+     */
+    virtual void assignShallowPointers(const std::vector<thermo_t*> & tpVector);
     
     //! Identifies the subclass of the Kinetics manager type.
     /*!
@@ -492,18 +509,31 @@ namespace Cantera {
       err("getReactionDelta");
     }
 
-    /**
-     * Return the vector of values for the reaction gibbs free
-     * energy change.  These values depend upon the concentration
-     * of the solution.
+    //! Return the vector of values for the reaction gibbs free energy change. 
+    /*!
+     * These values depend upon the concentration of the solution.
      *
      *  units = J kmol-1
      *
      * @param deltaG  Output vector of  deltaG's for reactions
      *                Length: m_ii.
      */
-    virtual void getDeltaGibbs( doublereal* deltaG) {
+    virtual void getDeltaGibbs(doublereal* deltaG) {
       err("getDeltaGibbs");
+    }
+
+    //! Return the vector of values for the reaction electrochemical free energy change. 
+    /*!
+     * These values depend upon the concentration of the solution and
+     * the voltage of the phases
+     *
+     *  units = J kmol-1
+     *
+     * @param deltaM  Output vector of  deltaM's for reactions
+     *                Length: m_ii.
+     */
+    virtual void getDeltaElectrochemPotentials(doublereal* deltaM) {
+      err("getDeltaElectrochemPotentials");
     }
 
     /**
@@ -516,7 +546,7 @@ namespace Cantera {
      * @param deltaH  Output vector of deltaH's for reactions
      *                Length: m_ii.
      */
-    virtual void getDeltaEnthalpy( doublereal* deltaH) {
+    virtual void getDeltaEnthalpy(doublereal* deltaH) {
       err("getDeltaEnthalpy");
     }
 
@@ -530,7 +560,7 @@ namespace Cantera {
      * @param deltaS  Output vector of deltaS's for reactions
      *                Length: m_ii.
      */
-    virtual void getDeltaEntropy( doublereal* deltaS) {
+    virtual void getDeltaEntropy(doublereal* deltaS) {
       err("getDeltaEntropy");
     }
 
@@ -544,7 +574,7 @@ namespace Cantera {
      * @param deltaG  Output vector of ss deltaG's for reactions
      *                Length: m_ii.
      */
-    virtual void getDeltaSSGibbs( doublereal* deltaG) {
+    virtual void getDeltaSSGibbs(doublereal* deltaG) {
       err("getDeltaSSGibbs");
     }
 
@@ -558,7 +588,7 @@ namespace Cantera {
      * @param deltaH  Output vector of ss deltaH's for reactions
      *                Length: m_ii.
      */
-    virtual void getDeltaSSEnthalpy( doublereal* deltaH) {
+    virtual void getDeltaSSEnthalpy(doublereal* deltaH) {
       err("getDeltaSSEnthalpy");
     }
 
@@ -572,7 +602,7 @@ namespace Cantera {
      * @param deltaS  Output vector of ss deltaS's for reactions
      *                Length: m_ii.
      */
-    virtual void getDeltaSSEntropy( doublereal* deltaS) {
+    virtual void getDeltaSSEntropy(doublereal* deltaS) {
       err("getDeltaSSEntropy");
     }
 
@@ -654,8 +684,10 @@ namespace Cantera {
       return -1.0;
     }
 
-    /**
-     * reactant Order of species k in reaction i.  
+    //! Reactant order of species k in reaction i.  
+    /*!
+     * This is the nominal order of the activity concentration in
+     * determining the forward rate of progress of the reaction
      *
      * @param k   kinetic species index
      * @param i   reaction index
@@ -663,6 +695,30 @@ namespace Cantera {
     virtual doublereal reactantOrder(int k, int i) const {
       err("reactantOrder");
       return -1.0;
+    }
+
+    //! product Order of species k in reaction i.  
+    /*!
+     * This is the nominal order of the activity concentration of species k in
+     * determining the reverse rate of progress of the reaction i
+     *
+     * For irreversible reactions, this will all be zero.
+     *
+     * @param k   kinetic species index
+     * @param i   reaction index
+     */
+    virtual doublereal productOrder(int k, int i) const {
+      err("productOrder");
+      return -1.0;
+    }
+
+    //! Get the vector of activity concentrations used in the kinetics object
+    /*!
+     *  @param conc  (output) Vector of activity concentrations. Length is 
+     *               equal to the number of species in the kinetics object
+     */
+    virtual void getActivityConcentrations(doublereal * const conc) {
+      err("getActivityConcentrations");
     }
 
     /**
@@ -849,13 +905,13 @@ namespace Cantera {
      */
     //@{
       
-    /// The current value of the multiplier for reaction i.
+    //! The current value of the multiplier for reaction i.
     /*!
      * @param i index of the reaction
      */
     doublereal multiplier(int i) const {return m_perturb[i];}
 
-    /// Set the multiplier for reaction i to f.
+    //! Set the multiplier for reaction i to f.
     /*!
      *  @param i  index of the reaction
      *  @param f  value of the multiplier.
@@ -939,8 +995,7 @@ namespace Cantera {
      */
     std::vector<vector_int> m_products;
 
-    //! m_thermo is a vector of pointers to ThermoPhase
-    //! objects. 
+    //! m_thermo is a vector of pointers to ThermoPhase objects that are involved with this kinetics operator
     /*!
      * For homogeneous kinetics applications, this vector
      * will only have one entry. For interfacial reactions, this
@@ -973,21 +1028,27 @@ namespace Cantera {
      * -1.
      */
     std::map<std::string, int> m_phaseindex;
+
     //! Index of the Kinetics Manager
     int m_index;
 
-    /**
-     * Index in the list of phases of the one surface phase. 
-     */
+    
+    //! Index in the list of phases of the one surface phase. 
+    /*!
+     *
+     */ 
     int m_surfphase;
 
-    /**
-     * Index in the list of phases of the one phase where the reactions
-     * occur.
+   
+    //! Phase Index where reactions are assumed to be taking place
+    /*!
+     *  We calculate this by assuming that the phase with the lowest dimensionality is the phase where reactions
+     *  are taking place
+     * @deprecated
      */
     int m_rxnphase;
 
-    /// number of spatial dimensions of lowest-dimensional phase.
+    //! number of spatial dimensions of lowest-dimensional phase.
     int m_mindim;
 
   private:
@@ -995,9 +1056,11 @@ namespace Cantera {
     //! Vector of group lists
     std::vector<grouplist_t> m_dummygroups;
 
-    //! Function for unhandled situations
+ 
+    //! Private function of the class Kinetics, indicating that a function
+    //!  inherited from the base class hasn't had a definition assigned to it
     /*!
-     *  @param m  String error message
+     * @param m String message
      */
     void err(std::string m) const;
 

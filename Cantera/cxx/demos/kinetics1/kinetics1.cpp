@@ -2,9 +2,9 @@
 //
 //  zero-dimensional kinetics example program
 //
-//  $Author: hkmoffa $
-//  $Revision: 1.2 $
-//  $Date: 2009/05/13 21:52:29 $
+//  $Author$
+//  $Revision$
+//  $Date$
 //
 //  copyright California Institute of Technology 2002
 //
@@ -24,6 +24,10 @@
 #include <time.h>
 #include "example_utils.h"
 
+using namespace std;
+using namespace Cantera;
+using namespace CanteraZeroD;
+using namespace Cantera_CXX;
 
 int kinetics1(int np, void* p) {
 

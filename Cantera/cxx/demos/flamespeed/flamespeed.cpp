@@ -17,6 +17,7 @@
 
 using namespace Cantera;
 using namespace Cantera_CXX;
+using namespace std;
 
 int flamespeed(int np, void* p) {
     try {

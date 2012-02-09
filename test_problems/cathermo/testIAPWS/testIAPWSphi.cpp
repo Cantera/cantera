@@ -1,5 +1,5 @@
 /*
- * $Id: testIAPWSphi.cpp,v 1.2 2008/12/17 17:31:13 hkmoffa Exp $
+ * $Id$
  */
 #include "WaterPropsIAPWSphi.h"
 #include <new>

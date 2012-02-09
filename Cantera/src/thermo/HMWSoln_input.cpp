@@ -24,6 +24,7 @@
 #include <cstdlib>
 
 using namespace std;
+using namespace ctml;
 
 namespace Cantera {
 
@@ -1656,15 +1657,88 @@ namespace Cantera {
 
     MolalityVPSSTP::initThermoXML(phaseNode, id);
     /*
-     * Lastly set the state
+     * Lastly calculate the charge balance and then add stuff until the charges compensate
      */
+
+    vector_fp mf(m_kk, 0.0);
+    getMoleFractions(DATA_PTR(mf));
+    bool notDone = true;
+
+    do {
+      double sum = 0.0;
+      int kMaxC = -1;
+      double MaxC = 0.0;
+      for (int k = 0; k < m_kk; k++) {
+	sum += mf[k] * m_speciesCharge[k];
+	if (fabs(mf[k] * m_speciesCharge[k]) > MaxC) {
+	  kMaxC = k;
+	}
+      }
+      int kHp = speciesIndex("H+");
+      int kOHm = speciesIndex("OH-");
+  
+ 
+      if (fabs(sum) > 1.0E-30) {
+	if (kHp >= 0) {
+	  if (mf[kHp] > sum * 1.1) {
+	    mf[kHp] -= sum;
+	    mf[0]   += sum;
+	    notDone = false;
+	  } else {
+	    if (sum > 0.0) {
+	      mf[kHp] *= 0.5;
+	      mf[0]   += mf[kHp];
+	      sum     -=  mf[kHp];
+	    } 
+	  }
+	}
+	if (notDone) {
+	  if (kOHm >= 0) {
+	    if (mf[kOHm] > -sum * 1.1) {
+	      mf[kOHm] += sum;
+	      mf[0]    -= sum;
+	      notDone = false;
+	    } else {
+	      if (sum < 0.0) {
+		mf[kOHm] *= 0.5;
+		mf[0]    += mf[kOHm];
+		sum      += mf[kOHm];
+	      } 
+	    }
+	  }
+	  if (notDone) {
+	    if (kMaxC >= 0) {
+	      if (mf[kMaxC] > (1.1 * sum / m_speciesCharge[kMaxC])) {
+		mf[kMaxC] -= sum / m_speciesCharge[kMaxC];
+		mf[0] += sum / m_speciesCharge[kMaxC];
+	      } else {
+		mf[kMaxC] *= 0.5;
+		mf[0] += mf[kMaxC];
+		notDone = true;
+	      }
+	    }
+	  }
+	}
+	setMoleFractions(DATA_PTR(mf));
+      } else {
+	notDone = false;
+      }
+    } while (notDone);
+   
+ 
+
+
+    
+
+    
+
     //    if (phaseNode.hasChild("state")) {
     // XML_Node& stateNode = phaseNode.child("state");
     // setStateFromXML(stateNode);
     //}
 
   }
-
+  //====================================================================================================================
   // Precalculate the IMS Cutoff parameters for typeCutoff = 2
   void  HMWSoln::calcIMSCutoffParams_() {
     IMS_afCut_ = 1.0 / (std::exp(1.0) *  IMS_gamma_k_min_);

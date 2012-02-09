@@ -28,7 +28,6 @@ namespace Cantera {
     class Func1;
     class SurfPhase;
 }
-//using namespace Cantera;
 
 namespace CanteraZeroD {
 

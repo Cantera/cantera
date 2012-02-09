@@ -4,6 +4,7 @@
 #include "Func1.h"
 
 using namespace std;
+using namespace Cantera;
 
 namespace CanteraZeroD {
 

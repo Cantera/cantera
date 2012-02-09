@@ -2,9 +2,9 @@
 //
 //  zero-dimensional kinetics example program
 //
-//  $Author: hkmoffa $
-//  $Revision: 1.8 $
-//  $Date: 2009/07/11 17:25:05 $
+//  $Author$
+//  $Revision$
+//  $Date$
 //
 //  copyright California Institute of Technology 2002
 //
@@ -24,6 +24,8 @@
 
 using namespace Cantera;
 using namespace Cantera_CXX;
+using namespace CanteraZeroD;
+using namespace std;
 /**
  * Same as kinetics_example1, except that it uses class GRI30 instead
  * of class IdealGasMix.

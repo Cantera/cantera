@@ -25,11 +25,11 @@ Cantera_Install_Dir='/cygdrive/c/cygwin_env/arch/cygwin/cantera-1.8.0'
 #   if you don't want to link sundials in
 #
 # Sundials_Home=''
-Sundials_Home='/cygdrive/c/cygwin_env/arch/cygwin/sundials-2.3.0_dbg'
+Sundials_Home='/cygdrive/c/cygwin_env/arch/cygwin/sundials-2.4.0_dbg'
 #
 #   Specify the Sundials version number (either 2.2, 2.3, or 2.4)
-Sundials_Version='2.3'
-# Sundials_Version=2.4'
+# Sundials_Version='2.3'
+Sundials_Version=2.4'
 # -----------------------------------------------------------------------------
 #
 CANTERA_CONFIG_PREFIX=$Cantera_Install_Dir

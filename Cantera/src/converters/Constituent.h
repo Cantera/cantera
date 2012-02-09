@@ -11,7 +11,6 @@
 
 #include <string>
 #include <vector>
-using namespace std;
 
 namespace ckr {
 
@@ -22,7 +21,7 @@ namespace ckr {
  */
 class Constituent {
 public:
-    string         name;        //!< The name of the object.
+    std::string    name;        //!< The name of the object.
     double         number;      //!< The number of units (molecules, etc.).
 };
 

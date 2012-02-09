@@ -78,7 +78,8 @@ namespace VCSnonideal {
 
   /*!
    * @name  Sizes of Phases and Cutoff Mole Numbers
-   *
+   *     
+   *      All size parameters are listed here
    * @{
    */
 
@@ -103,14 +104,27 @@ namespace VCSnonideal {
   //! Cutoff relative moles below  which a phase is deleted 
   //! from  the equilibrium problem.
 #ifndef VCS_DELETE_PHASE_CUTOFF
-#define VCS_DELETE_PHASE_CUTOFF     1.0e-12
+#define VCS_DELETE_PHASE_CUTOFF     1.0e-13
 #endif
+
+  //! Relative mole number of species in a phase that is created
+  //! We want this to be comfortably larger than the VCS_DELETE_PHASE_CUTOFF value
+  //! so that the phase can have a chance to survive.
+#ifndef VCS_POP_PHASE_MOLENUM
+#define VCS_POP_PHASE_MOLENUM      1.0e-11
+#endif
+
 
   //! Cutoff moles below which a phase or species which
   //! comprises the bulk of an element's total concentration
   //! is deleted.
 #ifndef VCS_DELETE_ELEMENTABS_CUTOFF
 #define VCS_DELETE_ELEMENTABS_CUTOFF     1.0e-280
+#endif
+
+  //! Maximum steps in the inner loop
+#ifndef VCS_MAXSTEPS   
+#define VCS_MAXSTEPS 50000
 #endif
 
   //@}
@@ -132,7 +146,16 @@ namespace VCSnonideal {
    * These defines are valid values for spStatus()
    */
   //@{
-  //! Species is a component
+
+  //! Species is a component which can never be nonzero because of a
+  //! stoichiometric constraint
+  /*!
+   *  An example of this would be a species that contains Ni. But,
+   *  the amount of Ni elements is exactly zero.
+   */
+#define VCS_SPECIES_COMPONENT_STOICHZERO  3
+
+  //! Species is a component which can be nonzero
 #define VCS_SPECIES_COMPONENT      2
 
   //! Species is a major species
@@ -209,10 +232,11 @@ namespace VCSnonideal {
   //! Species lies in a multicomponent phase that is active,
   //! but species concentration is zero due to stoich constraint
   /*!
-   *  The species lies in a multicomponent phase which
-   *  currently does exist.  Its concentration is currently
-   *  identically zero, though the phase exists. This is
-   *  a permament condition due to stoich constraints
+   *  The species lies in a multicomponent phase which currently does exist.  Its concentration is currently
+   *  identically zero, though the phase exists. This is a permament condition due to stoich constraints.
+   *
+   *  An example of this would be a species that contains Ni. But,
+   *  the amount of Ni elements in the current problem statement is exactly zero.
    */
 #define VCS_SPECIES_STOICHZERO  -8
 
@@ -290,6 +314,11 @@ namespace VCSnonideal {
    *   constraint to one category.
    *   @{
    */
+
+
+  //! An element constraint that is current turned off
+#define VCS_ELEM_TYPE_TURNEDOFF       -1
+
   //! Normal element constraint consisting of positive coefficients for the
   //! formula matrix.
   /*!
@@ -311,11 +340,37 @@ namespace VCSnonideal {
    */
 #define VCS_ELEM_TYPE_CHARGENEUTRALITY 2
 
+  //! Constraint associated with maintaing a fixed lattice stoichiometry int eh
+  //! solids
+  /*!
+   * The constraint may have positive or negative values. The lattice 0 species will
+   * have negative values while higher lattices will have positive values
+   */
+#define VCS_ELEM_TYPE_LATTICERATIO 3
+
+  //! Constraint associated with maintaining frozen kinetic equilibria in
+  //! some functional groups within molecules
+  /*!
+   *  We seek here to say that some functional groups or ionic states should be
+   *  treated as if they are separate elements given the time scale of the problem.
+   *  This will be abs positive constraint. We have not implemented any examples yet.
+   *  A requirement will be that we must be able to add and subtract these contraints.
+   */
+#define VCS_ELEM_TYPE_KINETICFROZEN 4
+
+  //! Constraint associated with the maintenance of a surface phase
+  /*!
+   *  We don't have any examples of this yet either. However, surfaces only exist
+   *  because they are interfaces between bulk layers. If we want to treat surfaces 
+   *  within thermodynamic systems we must come up with a way to constrain their total
+   *  number. 
+   */
+#define VCS_ELEM_TYPE_SURFACECONSTRAINT 5
   //! Other constraint equations
   /*!
    * currently there are none
    */
-#define VCS_ELEM_TYPE_OTHERCONSTRAINT  3
+#define VCS_ELEM_TYPE_OTHERCONSTRAINT  6
   //@}
   
   /*!

@@ -11,6 +11,7 @@
 #include "rotor.h"
 
 using namespace std;
+using namespace Cantera;
 
 namespace CanteraSpectra {
 

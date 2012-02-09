@@ -118,6 +118,9 @@ namespace Cantera {
     return m_Elements->atomicNumber(m);
   }
 
+  int Constituents::elementType(int m) const{
+    return m_Elements->elementType(m);
+  }
 
   /*
    * Add an element to the set.
@@ -155,9 +158,9 @@ namespace Cantera {
    */
   void Constituents::
   addUniqueElement(const std::string& symbol, doublereal weight,
-		   int atomicNumber, doublereal entropy298)
+		   int atomicNumber, doublereal entropy298, int elem_type)
   {
-    m_Elements->addUniqueElement(symbol, weight, atomicNumber, entropy298);
+    m_Elements->addUniqueElement(symbol, weight, atomicNumber, entropy298, elem_type);
   }
 
   void Constituents::
@@ -291,10 +294,10 @@ namespace Cantera {
     m_speciesNames.push_back(name);
     m_speciesCharge.push_back(charge);
     m_speciesSize.push_back(size);
-    int m_mm = m_Elements->nElements();
+    int ne = m_Elements->nElements();
     // Create a changeable copy of the element composition. We now change the charge potentially
-    vector_fp compNew(m_mm);
-    for (int m = 0; m < m_mm; m++) {
+    vector_fp compNew(ne);
+    for (int m = 0; m < ne; m++) {
       compNew[m] = comp[m];
     }
     double wt = 0.0;
@@ -313,30 +316,17 @@ namespace Cantera {
 	  }
 	}
       } else {
-	m_Elements->m_elementsFrozen = false;
-	addUniqueElement("E", 0.000545, 0, 0.0);
-	m_Elements->m_elementsFrozen = true;
-	m_mm = m_Elements->nElements();
-	if (m_kk > 0) {
-	  vector_fp old(m_speciesComp);
-	  m_speciesComp.resize(m_kk*m_mm, 0.0);
-	  for (int k = 0; k < m_kk; k++) {
-	    int m_old = m_mm - 1;
-	    for (int m = 0; m < m_old; m++) {
-	      m_speciesComp[k * m_mm + m] =  old[k * (m_old) + m];
-	    }
-	    m_speciesComp[k * (m_mm) + (m_mm-1)] = 0.0; 
-	  }
-	}
+	addUniqueElementAfterFreeze("E", 0.000545, 0, 0.0, CT_ELEM_TYPE_ELECTRONCHARGE);
+        ne = m_Elements->nElements();
 	eindex = m_Elements->elementIndex("E");
-	compNew.resize(m_mm);
-	compNew[m_mm-1] = - charge;
+	compNew.resize(ne);
+	compNew[ne - 1] = - charge;
 	//comp[eindex] = -charge;
 	// throw CanteraError("Constituents::addSpecies",
 	//                 "Element List doesn't include E, yet this species has charge:" + name);
       }
     }
-    for (int m = 0; m < m_mm; m++) {
+    for (int m = 0; m < ne; m++) {
       m_speciesComp.push_back(compNew[m]);
       wt += compNew[m] * aw[m];
     }
@@ -470,6 +460,8 @@ namespace Cantera {
     return m_speciesComp[m_mm * k + m];
   }
 
+
+  //====================================================================================================================
   /*
    *
    * getAtoms()
@@ -485,6 +477,39 @@ namespace Cantera {
     }
   }
   
+
+  
+  //====================================================================================================================
+  int Constituents::addUniqueElementAfterFreeze(const std::string& symbol, doublereal weight, int atomicNumber, 
+						doublereal entropy298, int elem_type)
+  {
+    int ii = elementIndex(symbol);
+    if (ii != -1) {
+      return ii;
+    }
+    // Check to see that the element isn't really in the list
+    m_Elements->m_elementsFrozen = false;
+    addUniqueElement(symbol, weight, atomicNumber, entropy298, elem_type);
+    m_Elements->m_elementsFrozen = true;
+    int m_mm = m_Elements->nElements();
+    ii = elementIndex(symbol);
+    if (ii != m_mm-1) {
+      throw CanteraError("Constituents::addElementAfterFreeze()", "confused");
+    }
+    if (m_kk > 0) {
+      vector_fp old(m_speciesComp);
+      m_speciesComp.resize(m_kk*m_mm, 0.0);
+      for (int k = 0; k < m_kk; k++) {
+	int m_old = m_mm - 1;
+	for (int m = 0; m < m_old; m++) {
+	  m_speciesComp[k * m_mm + m] =  old[k * (m_old) + m];
+	}
+	m_speciesComp[k * (m_mm) + (m_mm-1)] = 0.0; 
+      }
+    }
+    return ii;
+  }
+  //====================================================================================================================
   /*
    * This copy constructor just calls the assignment operator
    * for this class.

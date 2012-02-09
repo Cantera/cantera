@@ -2,9 +2,9 @@
 //
 //  chemical equilibrium
 //
-//  $Author: hkmoffa $
-//  $Revision: 1.15 $
-//  $Date: 2008/02/16 21:33:37 $
+//  $Author$
+//  $Revision$
+//  $Date$
 //
 //  copyright California Institute of Technology 2002
 //
@@ -25,6 +25,8 @@
 
 using namespace Cantera;
 using namespace Cantera_CXX;
+using namespace CanteraZeroD;
+using namespace std;
 //-------------------------------------------------------------------
 
 // utility functions for plotting

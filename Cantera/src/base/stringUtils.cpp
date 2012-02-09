@@ -35,7 +35,7 @@
 
 namespace Cantera {
 
-
+  //================================================================================================ 
   // Convert a double into a c++ string
   /*
    *  This routine doesn't assume a formatting. You
@@ -62,7 +62,7 @@ namespace Cantera {
     } 
     return std::string(" ");
   }
-
+  //================================================================================================ 
   /*
    * Convert an integer number to a std::string using sprintf.
    */
@@ -75,7 +75,7 @@ namespace Cantera {
     }
     return std::string(" ");
   }
-
+ //================================================================================================ 
   //  Convert an int to a string 
   /*
    *  @param n          int to be converted
@@ -89,14 +89,14 @@ namespace Cantera {
     }
     return std::string(" ");
   }
-
+  //================================================================================================ 
   std::string lowercase(const std::string &s) {
     int n = static_cast<int>(s.size());
     std::string lc(s);
     for (int i = 0; i < n; i++) lc[i] = tolower(s[i]);
     return lc;
   }
-
+  //================================================================================================
   //! Return the position of the first printable
   //! character in the string
   /*!
@@ -113,7 +113,7 @@ namespace Cantera {
     }
     return i;
   }
-
+  //================================================================================================ 
   //! Return the position of the last printable
   //! character in the string
   /*!
@@ -129,7 +129,7 @@ namespace Cantera {
       if (s[i] != ' ' && isprint(s[i])) break;
     return i;
   }
-
+  //================================================================================================ 
   // Strip the leading and trailing white space
   // from a string
   /*
@@ -145,7 +145,7 @@ namespace Cantera {
     int ilast = lastChar(s);
     return s.substr(ifirst, ilast - ifirst + 1); 
   }
-
+  //================================================================================================ 
   // Strip non-printing characters wherever they are
   /*
    *   @param s        Input string
@@ -163,8 +163,7 @@ namespace Cantera {
     }
     return ss;
   }
-
-            
+  //================================================================================================ 
   // Parse a composition string into a map consisting of individual key:composition
   // pairs.
   /*
@@ -218,7 +217,7 @@ namespace Cantera {
     }
     while (s != "");
   }
-            
+  //================================================================================================         
   //   Parse a composition string into individual key:composition
   //   pairs
   /*
@@ -249,7 +248,7 @@ namespace Cantera {
     }
     while (s != "");
   }
-
+  //================================================================================================
   int fillArrayFromString(const std::string& str,
 			  doublereal* const a, const char delim) {
     std::string::size_type iloc;
@@ -271,7 +270,7 @@ namespace Cantera {
     }
     return count;
   }
-
+  //================================================================================================
   // Get the file name without the path or extension
   /*
    *   @param fullPath   Input file name consisting
@@ -296,20 +295,19 @@ namespace Cantera {
     }       
     return file;
   }
-
-  
+  //================================================================================================
   int intValue(std::string val) {
     return std::atoi(stripws(val).c_str());
   }
-
+  //================================================================================================
   doublereal fpValue(std::string val) {
     return std::atof(stripws(val).c_str());
   }
-
+  //================================================================================================
   doublereal fpValueCheck(std::string val) {
     return atofCheck(stripws(val).c_str());
   }
-
+  //================================================================================================
   //  Generate a logfile name based on an input file name
   /*
    *   It tries to find the basename. Then, it appends a .log
@@ -324,7 +322,7 @@ namespace Cantera {
     logfile += ".log";
     return logfile;
   }
-
+  //================================================================================================
   //    Line wrap a string via a copy operation
   /*
    *   @param s   Input string to be line wrapped
@@ -346,8 +344,46 @@ namespace Cantera {
     }
     return r;
   }
-
-
+  //================================================================================================
+  // Parse a name string, separating out the phase name from the species name
+  /*
+   *   Name strings must not contain these internal characters "; \n \t " 
+   *   Only one colon is allowed, the one separating the phase name from the
+   *   species name. Therefore, names may not include a colon.
+   *
+   *   @param nameStr   (input) Name string containing the phase name and the species
+   *                            name separated by a colon. The phase name is optional.
+   *                             example:   "silane:SiH4"
+   *   @param phaseName (output) Name of the phase, if specified. If not specified,
+   *                             a blank string is returned.
+   *   @return          (output) Species name is returned. If nameStr is blank
+   *                             an empty string is returned.
+   */
+  std::string parseSpeciesName(const std::string& nameStr, std::string &phaseName) {
+    std::string s = stripws(nameStr);
+    std::string::size_type ibegin, iend, icolon;
+    phaseName = "";
+    ibegin = s.find_first_not_of(" ;\n\t");
+    if (ibegin != std::string::npos) {
+      s = s.substr(ibegin,s.size());
+      icolon = s.find(':');
+      iend = s.find_first_of(" ;\n\t");
+      if (icolon != std::string::npos) {
+	phaseName = s.substr(0, icolon);
+	s = s.substr(icolon+1, s.size());
+	icolon =  s.find(':');
+	if (icolon != std::string::npos) {
+	  throw CanteraError("parseSpeciesName()", "two colons in name: " + nameStr);
+	}
+      }
+      if (iend != std::string::npos) {
+	throw CanteraError("parseSpeciesName()", 
+			   "Species name has \" ;/\n/\t\" in the middle of it: " + nameStr);
+      }
+    }
+    return s;
+  }
+  //================================================================================================
   // Routine strips off white space from a c character string
   /*
    *     This routine strips off blanks and tabs (only leading and trailing
@@ -396,7 +432,7 @@ namespace Cantera {
     str[j] = '\0';
     return (j);
   }
-
+  //================================================================================================
   // Translate a char string into a single double
   /*
    * atofCheck is a wrapper around the C stdlib routine atof().
@@ -472,7 +508,7 @@ namespace Cantera {
     free(eptr);
     return rval;
   }
-
+  //================================================================================================
   // Interpret one or two token string as a single double
   /*
    *   This is similar to atof(). However, the second token
@@ -502,7 +538,15 @@ namespace Cantera {
     doublereal val = atofCheck(v[0].c_str());
     return (val * fp);
   }
-
+  //================================================================================================
+  //!  Find the first white space in a string
+  /*!
+   *   Returns the location of the first white space character in a string
+   *
+   *   @param   val    Input string to be parsed
+   *   @return  In a size_type variable, return the location of the first white space character.
+   *             Return npos if none is found
+   */
   static std::string::size_type findFirstWS(const std::string& val) {
     std::string::size_type ibegin = std::string::npos;
     int j = 0;
@@ -518,7 +562,15 @@ namespace Cantera {
     }
     return ibegin;  
   }
-
+  //================================================================================================
+  //!  Find the first non-white space in a string
+  /*!
+   *   Returns the location of the first non-white space character in a string
+   *
+   *   @param   val    Input string to be parsed
+   *   @return  In a size_type variable, return the location of the first nonwhite space character.
+   *             Return npos if none is found
+   */
   static std::string::size_type findFirstNotOfWS(const std::string& val) {
     std::string::size_type ibegin = std::string::npos;
     int j = 0;
@@ -534,7 +586,7 @@ namespace Cantera {
     }
     return ibegin;  
   }
-
+  //================================================================================================
   // This function  separates a string up into tokens
   // according to the location of white space.
   /*
@@ -566,6 +618,6 @@ namespace Cantera {
       }
     }
   }
-
+  //================================================================================================
 
 }

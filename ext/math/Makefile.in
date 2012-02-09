@@ -1,8 +1,8 @@
 #
 # $Source: /cvsroot/cantera/cantera/ext/math/Makefile.in,v $
-# $Author: hkmoffa $
-# $Revision: 1.13 $
-# $Date: 2008/12/30 21:58:10 $
+# $Author$
+# $Revision$
+# $Date$
 #
 
 .SUFFIXES :

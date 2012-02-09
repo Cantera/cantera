@@ -2,7 +2,7 @@
  * @file mixturemethods.cpp
  */
 /*
- *    $Id: mixturemethods.cpp,v 1.3 2009/07/11 16:43:12 hkmoffa Exp $
+ *    $Id$
  */
 #include "mex.h"
 #include "../../../clib/src/ctmultiphase.h"

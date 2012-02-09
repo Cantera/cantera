@@ -85,13 +85,25 @@ namespace Cantera {
      */
     MultiPhase();
 
+    //! Copy Constructor
+    /*!
+     * @param right Object to be copied
+     */
+    MultiPhase(const MultiPhase &right);
+
     //! Destructor.
     /*!
      *  Does nothing. Class MultiPhase does not take
      *  "ownership" (i.e. responsibility for destroying) the
      *   phase objects.
      */
-    virtual ~MultiPhase() {}
+    virtual ~MultiPhase();
+
+    //! Assignment operator
+    /*!
+     * @param right Object to be copied
+     */
+    MultiPhase& operator=(const MultiPhase& right);
 
     //! Add a vector of phases to the mixture
     /*!
@@ -111,7 +123,7 @@ namespace Cantera {
 
     //! Add a phase to the mixture.
     /*!
-     *  This function must be called befure the init() function is called,
+     *  This function must be called before the init() function is called,
      *  which serves to freeze the MultiPhase.
      *
      *  @param p pointer to the phase object
@@ -258,7 +270,7 @@ namespace Cantera {
     /// conditions for which they are stable.
     doublereal maxTemp() const { return m_Tmax; }
 
-    /// Total charge (Coulombs).
+    //! Total charge summed over all phases (Coulombs).
     doublereal charge() const;
 
     /// Charge (Coulombs) of phase with index \a p.
@@ -267,7 +279,7 @@ namespace Cantera {
      */
     doublereal phaseCharge(index_t p) const;
 
-    /// Total moles of global element \a m, summed over all phases.
+    //! Total moles of global element \a m, summed over all phases.
     /*!
      * @param m   Index of the global element
      */
@@ -549,8 +561,6 @@ namespace Cantera {
      */
     void uploadMoleFractionsFromPhases();
 
-  private:
-
     //! Set the states of the phase objects to the locally-stored
     //! state within this MultiPhase object.
     /*!
@@ -567,6 +577,7 @@ namespace Cantera {
      */
     void updatePhases() const;
 
+  private:
     //! Calculate the element abundance vector
     void calcElemAbundances() const;
 

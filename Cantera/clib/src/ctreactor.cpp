@@ -27,6 +27,8 @@
 #include "Storage.h"
 
 using namespace CanteraZeroD;
+using namespace Cantera;
+using namespace std;
 
 typedef ReactorBase reactor_t;
 typedef ReactorNet  reactornet_t;

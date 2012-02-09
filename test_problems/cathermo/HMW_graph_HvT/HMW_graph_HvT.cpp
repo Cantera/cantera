@@ -4,9 +4,9 @@
  */
 
 /*
- *  $Author: hkmoffa $
- *  $Date: 2008/12/17 17:31:12 $
- *  $Revision: 1.6 $
+ *  $Author$
+ *  $Date$
+ *  $Revision$
  */
 
 #include "Cantera.h"

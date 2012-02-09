@@ -5,6 +5,17 @@
 #ifndef CT_CONFIG_H
 #define CT_CONFIG_H
 
+// Cantera version -> this will be a double-quoted string value
+//                    refering to branch number within svn
+#define CANTERA_VERSION "1.8_liquidTransportDevelop"
+// Integer for major number of Cantera
+#define CANTERA_VERSION_MAJORNUMBER  18
+// Flag indicating it's part of major version 18
+#define CANTERA_VERSION_18       1
+//  Flag indicating it's a development version
+#define CANTERA_VERSION_18_XXX   1
+//  Flag indictaing that its part of 1.8_LiquidTransportDevelop branch
+#define CANTERA_VERSION_18_LTD   1
 
 //---------------------------- Version Flags ------------------//
 // Cantera version -> this will be a double-quoted string value

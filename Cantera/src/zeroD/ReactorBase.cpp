@@ -19,6 +19,8 @@
 #include "Wall.h"
 
 using namespace std;
+using namespace Cantera;
+
 namespace CanteraZeroD {
 
     ReactorBase::ReactorBase(string name) : m_nsp(0), 

@@ -2,9 +2,9 @@
 //
 //  reaction path diagrams
 //
-//  $Author: hkmoffa $
-//  $Revision: 1.9 $
-//  $Date: 2009/07/11 17:25:05 $
+//  $Author$
+//  $Revision$
+//  $Date$
 //
 //  copyright California Institute of Technology 2002
 //
@@ -24,9 +24,10 @@
 #include <cantera/IdealGasMix.h>
 
 // #include <iostream>
-// using namespace std;
+using namespace std;
 using namespace Cantera;
 using namespace Cantera_CXX;
+using namespace CanteraZeroD;
 
 void writeRxnPathDiagram(double time, ReactionPathBuilder& b, 
     IdealGasMix& gas, ostream& logfile, ostream& outfile) { 

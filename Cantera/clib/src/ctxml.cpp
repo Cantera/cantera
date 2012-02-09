@@ -24,6 +24,7 @@
 
 using namespace std;
 using namespace Cantera;
+using namespace ctml;
 
 
 // Assign storage for the static member of the Templated Cabinet class

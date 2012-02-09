@@ -155,7 +155,7 @@ namespace Cantera {
      *                    parameterization. 
      * @see speciesThermoTypes.h 
      */
-    virtual void install(string name, int index, int type, 
+    virtual void install(std::string name, int index, int type, 
 			 const doublereal* c, 
 			 doublereal minTemp, doublereal maxTemp,
 			 doublereal refPressure) { 
@@ -164,7 +164,7 @@ namespace Cantera {
       int imid = int(c[0]);       // midpoint temp converted to integer
       int igrp = m_index[imid];   // has this value been seen before?
       if (igrp == 0) {            // if not, prepare new group
-	vector<NasaPoly1> v;
+	std::vector<NasaPoly1> v;
 	m_high.push_back(v);
 	m_low.push_back(v);
 	m_tmid.push_back(c[0]);
@@ -209,11 +209,12 @@ namespace Cantera {
       if (m_p0 < 0.0) {
 	m_p0 = refPressure;
       } else if (fabs(m_p0 - refPressure) > 0.1) {
-	string logmsg =  " WARNING NasaThermo: New Species, " + name +  ", has a different reference pressure, "
+	std::string logmsg =  " ERROR NasaThermo: New Species, " + name +  ", has a different reference pressure, "
 	  + fp2str(refPressure) + ", than existing reference pressure, " 	+ fp2str(m_p0) + "\n";
 	writelog(logmsg);
-	logmsg = "                  This may become a fatal error in the future \n";
+	logmsg = "                  This is now a fatal error\n";
 	writelog(logmsg);
+        throw CanteraError("install()", "species have different reference pressures");
       }
       m_p0 = refPressure;
     }
@@ -253,14 +254,14 @@ namespace Cantera {
  
       int grp = m_group_map[k];
       int pos = m_posInGroup_map[k];
-      const vector<NasaPoly1> &mlg = m_low[grp-1];
+      const std::vector<NasaPoly1> &mlg = m_low[grp-1];
       const NasaPoly1 *nlow = &(mlg[pos]);
 
       doublereal tmid = nlow->maxTemp();
       if (t < tmid) {
 	nlow->updateProperties(&m_t[0], cp_R, h_RT, s_R);
       } else {
-	const vector<NasaPoly1> &mhg = m_high[grp-1];
+	const std::vector<NasaPoly1> &mhg = m_high[grp-1];
 	const NasaPoly1 *nhigh = &(mhg[pos]);
 	nhigh->updateProperties(&m_t[0], cp_R, h_RT, s_R);
       }
@@ -294,7 +295,7 @@ namespace Cantera {
       m_t[5] = log(t);
 
       // iterate over the groups
-      vector<NasaPoly1>::const_iterator _begin, _end;
+      std::vector<NasaPoly1>::const_iterator _begin, _end;
       for (i = 0; i != m_ngroups; i++) {
 	if (t > m_tmid[i]) {
 	  _begin  = m_high[i].begin();
@@ -391,8 +392,8 @@ namespace Cantera {
       if (type == NASA) {
 	int grp = m_group_map[index];
 	int pos = m_posInGroup_map[index];
-	const vector<NasaPoly1> &mlg = m_low[grp-1];
-	const vector<NasaPoly1> &mhg = m_high[grp-1];
+	const std::vector<NasaPoly1> &mlg = m_low[grp-1];
+	const std::vector<NasaPoly1> &mhg = m_high[grp-1];
 	const NasaPoly1 *lowPoly  = &(mlg[pos]);
 	const NasaPoly1 *highPoly = &(mhg[pos]);
 	int itype = NASA;
@@ -439,8 +440,8 @@ namespace Cantera {
       if (type == NASA) {
 	int grp = m_group_map[index];
 	int pos = m_posInGroup_map[index];
-	vector<NasaPoly1> &mlg = m_low[grp-1];
-	vector<NasaPoly1> &mhg = m_high[grp-1];
+	std::vector<NasaPoly1> &mlg = m_low[grp-1];
+	std::vector<NasaPoly1> &mhg = m_high[grp-1];
 	NasaPoly1 *lowPoly  = &(mlg[pos]);
 	NasaPoly1 *highPoly = &(mhg[pos]);
 	doublereal tmid = lowPoly->maxTemp();
@@ -460,14 +461,14 @@ namespace Cantera {
 
       int grp = m_group_map[k];
       int pos = m_posInGroup_map[k];
-      const vector<NasaPoly1> &mlg = m_low[grp-1];
+      const std::vector<NasaPoly1> &mlg = m_low[grp-1];
       const NasaPoly1 *nlow = &(mlg[pos]);
       doublereal tmid = nlow->maxTemp();
       double h;
       if (298.15 <= tmid) {
 	h = nlow->reportHf298(0);
       } else {
-	const vector<NasaPoly1> &mhg = m_high[grp-1];
+	const std::vector<NasaPoly1> &mhg = m_high[grp-1];
 	const NasaPoly1 *nhigh = &(mhg[pos]);
 	h = nhigh->reportHf298(0);
       }
@@ -477,9 +478,9 @@ namespace Cantera {
     virtual void modifyOneHf298(const int k, const doublereal Hf298New) {
       int grp = m_group_map[k];
       int pos = m_posInGroup_map[k];
-      vector<NasaPoly1> &mlg = m_low[grp-1];
+      std::vector<NasaPoly1> &mlg = m_low[grp-1];
       NasaPoly1 *nlow = &(mlg[pos]);
-      vector<NasaPoly1> &mhg = m_high[grp-1];
+      std::vector<NasaPoly1> &mhg = m_high[grp-1];
       NasaPoly1 *nhigh = &(mhg[pos]);
       doublereal tmid = nlow->maxTemp();
 
@@ -508,7 +509,7 @@ namespace Cantera {
      * The second vector is equal to the number of species
      * in that particular group.
      */
-    vector<vector<NasaPoly1> >         m_high;
+    std::vector<std::vector<NasaPoly1> > m_high;
  
     //! Vector of vector of NasaPoly1's for the low temp region.
     /*!
@@ -517,13 +518,13 @@ namespace Cantera {
      * The second vector is equal to the number of species
      * in that particular group.
      */
-    vector<vector<NasaPoly1> >         m_low;
+    std::vector<std::vector<NasaPoly1> > m_low;
 
     //! Map between the midpoint temperature, as an int, to the group number
     /*!
      * Length is equal to the number of groups. Only used in the setup.
      */
-    map<int, int>                      m_index;
+    std::map<int, int>                 m_index;
 
     //! Vector of log temperature limits
     /*!
@@ -567,17 +568,17 @@ namespace Cantera {
      * for that species are stored. group indecises start at 1,
      * so a decrement is always performed to access vectors.
      */
-    mutable map<int, int>              m_group_map;
+    mutable std::map<int, int>         m_group_map;
 
     /*!
      * This map takes as its index, the species index in the phase.
      * It returns the position index within the group, where the 
      * temperature polynomials for that species are storred.
      */
-    mutable map<int, int>              m_posInGroup_map;
+    mutable std::map<int, int>         m_posInGroup_map;
 
     //! Species name as a function of the species index
-    mutable map<int, string>           m_name;
+    mutable std::map<int, std::string> m_name;
 
   private:
 
