@@ -1,0 +1,66 @@
+#/bin/sh
+###############################################################
+#  $Author: hkmoffa $
+#  $Date: 2008/01/01 19:19:50 $
+#  $Revision: 1.7 $
+#
+#  Copyright 2002 California Institute of Technology
+#
+###############################################################
+
+###############################################################
+# list your object files here
+# This is probably the only thing you need to change in this file.
+
+OBJS    = user.o
+
+###############################################################
+
+.SUFFIXES :
+.SUFFIXES : .cpp .d .o
+
+OBJDIR = .
+PIC_FLAG=@PIC@
+CXX_FLAGS = @CXXFLAGS@ $(CXX_OPT) $(PIC_FLAG)
+
+
+CXX_INCLUDES = -I../src/base
+
+LIB = @buildlib@/libuser.a
+
+DEPENDS = $(OBJS:.o=.d)
+
+%.d: Makefile %.o
+	@CXX_DEPENDS@ $(CXX_INCLUDES) $*.cpp > $*.d
+
+.cpp.o:
+	@CXX@ -c $< $(CXX_FLAGS) $(CXX_INCLUDES)
+
+.f.o:
+	@F77@ -c $< $(F77_FLAGS) 
+
+all lib: $(LIB)
+
+$(LIB): $(OBJS)
+	@ARCHIVE@ $(LIB) $(OBJS) > /dev/null
+
+clean:
+	$(RM) *.o *~ $(LIB)
+
+depends:
+	@MAKE@ .depends
+
+.depends: $(DEPENDS)
+	cat *.d > .depends
+
+$(OBJS): Makefile
+
+install:
+
+TAGS: 
+	etags *.h *.cpp
+
+ifeq ($(wildcard .depends), .depends)
+include .depends
+endif
+

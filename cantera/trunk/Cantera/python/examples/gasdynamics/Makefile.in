@@ -1,0 +1,43 @@
+#!/bin/sh
+
+INST_DIR=@ct_demodir@/python/gasdynamics
+
+PY_DEMOS = isentropic soundSpeed
+
+
+all:
+	@(for py in $(PY_DEMOS) ; do \
+	   (cd $${py} ; @MAKE@ ) \
+	done)
+
+run:
+	@(for py in $(PY_DEMOS) ; do \
+	    echo "running $${py}..."; \
+	   (cd $${py} ; @MAKE@ run ) \
+	done)
+
+test:
+	@(for py in $(PY_DEMOS) ; do \
+	    echo "testing $${py}..."; \
+	   (cd $${py} ; @MAKE@ test ) \
+	done)
+
+install:
+	@INSTALL@ -d  $(INST_DIR)
+	@INSTALL@ -c -m ug+rw,o+r Makefile $(INST_DIR)
+	@(for py in $(PY_DEMOS) ; do \
+	    echo "install $${py}..."; \
+	   (cd $${py} ; @MAKE@ install ) \
+	done)
+
+
+clean:
+	@(for py in $(PY_DEMOS) ; do \
+	    echo "cleaning $${py}..."; \
+	   (cd $${py} ; @MAKE@ clean ) \
+	done)
+
+
+
+# end of file
+

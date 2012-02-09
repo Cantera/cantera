@@ -1,0 +1,9 @@
+#!/bin/sh
+if test $# = 0; then
+echo 'usage: erase <file>'
+else
+file=$1
+erased_dir=$HOME/erased
+mv -f $file erased_dir
+cvs remove $file
+fi

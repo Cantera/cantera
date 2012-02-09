@@ -1,0 +1,22 @@
+############################################################################
+#
+#  Makefile to run vc++ test programs under cygwin
+#  on the pc
+#
+#############################################################################
+
+all:
+
+test:
+	cd combustor;       make -s test
+	cd kinetics1;       make -s test
+	cd NASA_coeffs;     make -s test
+	cd flamespeed;      make -s test
+
+clean:
+	cd combustor;       make clean
+	cd kinetics1;       make clean
+	cd NASA_coeffs;     make clean
+	cd flamespeed;      make clean
+
+

@@ -1,0 +1,40 @@
+# these two phases represent pure, condensed phases of water. They are
+# modeled as being incompressible. Note that the liquid water phase
+# defined here is very different from the phase "water" in
+# liquidvapor.cti, which uses an accurate liquid/vapor equation of
+# state. That one, however, cannot be used as a part of a multi-phase
+# mixture, while this one can.
+
+stoichiometric_solid(name = "ice",
+                     elements = "H O",
+                     species = "H2O(S)",
+                     density = (0.917, 'g/cm3'),
+                     initial_state = state(temperature = 300.0,
+                                           pressure = OneAtm)
+                     )
+
+stoichiometric_liquid(name = "liquid_water",
+                     elements = "H O",
+                     species = "H2O(L)",
+                     density = (1.0, 'g/cm3'),
+                     initial_state = state(temperature = 300.0,
+                                           pressure = OneAtm)
+                     )
+
+species(name = "H2O(S)",
+    atoms = " H:2  O:1 ",
+    thermo = (
+       NASA( [  200.00,  273.15], [  5.296779700E+00,  -6.757492470E-02, 
+                5.169421090E-04,  -1.438533600E-06,   1.525647940E-09,
+               -3.622665570E+04,  -1.792204280E+01] )
+             )
+       )
+
+species(name = "H2O(L)",
+    atoms = " H:2  O:1 ",
+    thermo = (
+       NASA( [  273.15,  600.00], [  7.255750050E+01,  -6.624454020E-01, 
+                2.561987460E-03,  -4.365919230E-06,   2.781789810E-09,
+               -4.188654990E+04,  -2.882801370E+02] )
+             )
+       )

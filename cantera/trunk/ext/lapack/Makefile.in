@@ -1,0 +1,93 @@
+# $License$
+# $Id: Makefile.in,v 1.10 2008/12/30 21:58:10 hkmoffa Exp $
+#
+#/bin/sh
+
+.SUFFIXES :
+.SUFFIXES : .f .o
+
+LAPACKLIB = @buildlib@/libctlapack.a
+
+do_ranlib = @DO_RANLIB@
+
+PURIFY=@PURIFY@
+
+PIC_FLAG=@PIC@
+
+F_FLAGS = @FFLAGS@ $(PIC_FLAG)
+
+OBJS = \
+dbdsqr.o \
+dgbtrf.o \
+dgbtf2.o \
+dgbtrs.o \
+dgbsv.o \
+dgebd2.o \
+dgebrd.o \
+dgelq2.o \
+dgelqf.o \
+dgelss.o \
+dgeqr2.o \
+dgeqrf.o \
+dgetf2.o \
+dgetrf.o \
+dgetri.o \
+dgetrs.o \
+dlabad.o \
+dlabrd.o \
+dlacpy.o \
+dlamch.o \
+dlange.o \
+dlapy2.o \
+dlarf.o \
+dlarfb.o \
+dlarfg.o \
+dlarft.o \
+dlartg.o \
+dlas2.o \
+dlascl.o \
+dlaset.o \
+dlasq1.o \
+dlasq2.o \
+dlasq3.o \
+dlasq4.o \
+dlasr.o \
+dlasrt.o \
+dlassq.o \
+dlasv2.o \
+dlaswp.o \
+dorg2r.o \
+dorgbr.o \
+dorgl2.o \
+dorglq.o \
+dorgqr.o \
+dorm2r.o \
+dormbr.o \
+dorml2.o \
+dormlq.o \
+dormqr.o \
+drscl.o \
+ilaenv.o 
+
+#SRCS = $(OBJS:.o=.cpp)
+
+all: $(LAPACKLIB)
+
+$(LAPACKLIB):  $(OBJS)
+	@ARCHIVE@ $(LAPACKLIB) $(OBJS) > /dev/null
+ifeq ($(do_ranlib),1)
+	@RANLIB@ $(LAPACKLIB)
+endif
+
+#
+# Right now g77 is not a known compiler to PURIFY. Why,
+# I don't know. Taking the instrumentation out for now
+#
+%.o : %.f
+	 @F77@ -c $<  $(F77_INCLUDES) $(F_FLAGS) 
+
+$(OBJS): Makefile
+
+clean:
+	$(RM) $(OBJS) $(LAPACKLIB)
+depends:
