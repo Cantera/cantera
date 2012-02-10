@@ -2,8 +2,6 @@
 using namespace Cantera;
 using namespace std;
 
-//#include "ctexceptions.h"
-
 #define NUM_EXAMPLES 6
 
 int kinetics_example1(int job);
