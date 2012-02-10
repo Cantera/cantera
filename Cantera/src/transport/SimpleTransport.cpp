@@ -818,8 +818,8 @@ namespace Cantera {
 	  rhoVc[n] += fluxes[n*ldf + k] / mw[k];
 	}
       }
-      for (n = 0; n < m_nDim; n++) {
-	for (k = 0; k < m_nsp; k++) {
+      for (size_t n = 0; n < m_nDim; n++) {
+	for (size_t k = 0; k < m_nsp; k++) {
 	  fluxes[n*ldf + k] -= m_molefracs[k] * rhoVc[n] * mw[k];
 	}
 	fluxes[n*ldf + m_velocityBasis] = 0.0;

@@ -274,6 +274,12 @@ namespace VCSnonideal {
     x[i2] = t;
   }
 
+  void vcsUtil_ssw(size_t x[], size_t i1, size_t i2) {
+    size_t t = x[i1];
+    x[i1] = x[i2];
+    x[i2] = t;
+  }
+
   //====================================================================================================================
 #ifdef DEBUG_HKM
   static void mlequ_matrixDump(double *c, int idem, int n) {
@@ -446,7 +452,7 @@ namespace VCSnonideal {
    *            (each column is a new rhs)
    *  @param m  number of rhs's
    */
-  int vcsUtil_mlequ(double *c, int idem, int n, double *b, int m) {
+  int vcsUtil_mlequ(double *c, size_t idem, size_t n, double *b, size_t m) {
 #ifdef DEBUG_HKM
     // mlequ_matrixDump(c, idem, n);
 #endif

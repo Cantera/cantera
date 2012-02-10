@@ -51,7 +51,7 @@ namespace Cantera {
         virtual size_t neq()=0;
 
         //! Number of parameters.
-        virtual int nparams() { return 0; }
+        virtual size_t nparams() { return 0; }
 
     protected:
 

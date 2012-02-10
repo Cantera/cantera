@@ -286,7 +286,7 @@ namespace Cantera {
     return sum;
   }
   //====================================================================================================================
-  int MultiPhase::speciesIndex(std::string speciesName, std::string phaseName) {
+  size_t MultiPhase::speciesIndex(std::string speciesName, std::string phaseName) {
     if (!m_init) {
       init();
     }

@@ -1462,8 +1462,6 @@ namespace Cantera {
     doublereal eps, sigma;
     for (size_t k = 0; k < tr.nsp_; k++)  {            
       for (size_t j = k; j < tr.nsp_; j++) {
-
-	ipoly = tr.poly[k][j];
 	for (size_t n = 0; n < np; n++) {
 
 	  t = tr.tmin + dt*n;

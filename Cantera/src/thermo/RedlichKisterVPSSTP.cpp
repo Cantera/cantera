@@ -687,7 +687,7 @@ namespace Cantera {
     doublereal T = temperature();
     doublereal RT = GasConstant * T;
   
-    fvo_zero_dbl_1(lnActCoeff_Scaled_, m_kk);
+    lnActCoeff_Scaled_.assign(m_kk, 0.0);
 
     /*
      *  Scaling:  I moved the division of RT higher so that we are always dealing with G/RT dimensionless terms 
@@ -764,8 +764,8 @@ namespace Cantera {
     doublereal XA, XB;
     //   doublereal T = temperature();
   
-    fvo_zero_dbl_1(dlnActCoeffdT_Scaled_, m_kk);
-    fvo_zero_dbl_1(d2lnActCoeffdT2_Scaled_, m_kk);
+    dlnActCoeffdT_Scaled_.assign(m_kk, 0.0);
+    d2lnActCoeffdT2_Scaled_.assign(m_kk, 0.0);
  
     for (int i = 0; i <  numBinaryInteractions_; i++) {
       iA =  m_pSpecies_A_ij[i];    
@@ -1056,7 +1056,7 @@ namespace Cantera {
     doublereal RT = GasConstant * T;
     double Volts = 0.0;
   
-    fvo_zero_dbl_1(lnActCoeff_Scaled_, m_kk);
+    lnActCoeff_Scaled_.assign(m_kk, 0.0);
  
     for (int i = 0; i <  numBinaryInteractions_; i++) {
       iA =  m_pSpecies_A_ij[i];    

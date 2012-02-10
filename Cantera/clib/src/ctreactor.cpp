@@ -16,7 +16,6 @@
 #include "Cabinet.h"
 #include "Storage.h"
 
-using namespace CanteraZeroD;
 using namespace Cantera;
 using namespace std;
 

@@ -584,10 +584,12 @@ namespace VCSnonideal {
       }
     } else {
       if (m_doEstimateEquil == 0) {
+	double sum;
 	for (size_t j = 0; j < nelements; j++) {
 	  m_elemAbundancesGoal[j] = 0.0;
 	  for (size_t kspec = 0; kspec < nspecies; kspec++) {
 	    if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+	      sum += m_molNumSpecies_old[kspec];
 	      m_elemAbundancesGoal[j] += m_formulaMatrix[j][kspec] * m_molNumSpecies_old[kspec];
 	    }
 	  }

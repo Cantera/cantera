@@ -721,7 +721,7 @@ namespace Cantera {
     double XA, XB, XK, g0 , g1;
     double T = temperature();
     double RT = GasConstant*T;
-    fvo_zero_dbl_1(lnActCoeff_Scaled_, m_kk);
+    lnActCoeff_Scaled_.assign(m_kk, 0.0);
     for (iK = 0; iK < m_kk; iK++) {
       XK = moleFractions_[iK];  
       for (int i = 0; i <  numBinaryInteractions_; i++) {
@@ -752,8 +752,8 @@ namespace Cantera {
     doublereal XA, XB, g0, g1;
     doublereal T = temperature();
     doublereal RTT = GasConstant*T*T;
-    fvo_zero_dbl_1(dlnActCoeffdT_Scaled_, m_kk);
-    fvo_zero_dbl_1(d2lnActCoeffdT2_Scaled_, m_kk);
+    dlnActCoeffdT_Scaled_.assign(m_kk, 0.0);
+    d2lnActCoeffdT2_Scaled_.assign(m_kk, 0.0);
     for (iK = 0; iK < m_kk; iK++) {
       for (int i = 0; i <  numBinaryInteractions_; i++) {
 	iA =  m_pSpecies_A_ij[i];    
@@ -856,7 +856,7 @@ namespace Cantera {
     double T = temperature();
     double RT = GasConstant*T;
 
-    fvo_zero_dbl_1(dlnActCoeffdlnN_diag_, m_kk);
+    dlnActCoeffdlnN_diag_.assign(m_kk, 0);
     
     for ( iK = 0; iK < m_kk; iK++ ){
 
@@ -977,7 +977,7 @@ namespace Cantera {
     doublereal XA, XB, g0 , g1;
     doublereal T = temperature();
 
-    fvo_zero_dbl_1(dlnActCoeffdlnX_diag_, m_kk);
+    dlnActCoeffdlnX_diag_.assign(m_kk, 0);
 
     doublereal RT = GasConstant * T;
     

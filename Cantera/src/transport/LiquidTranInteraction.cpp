@@ -676,15 +676,15 @@ namespace Cantera {
     m_thermo->getMoleFractions(molefracs );
     vector_fp neut_molefracs;
     ions_thermo->getNeutralMolecMoleFractions(neut_molefracs);
-    vector<int> cation;
-    vector<int> anion;
+    vector<size_t> cation;
+    vector<size_t> anion;
     ions_thermo->getCationList(cation);
     ions_thermo->getAnionList(anion);
 
     // Reaction Coeffs and Charges
     std::vector<double> viS(6);
     std::vector<double> charges(3);
-    std::vector<int> neutMolIndex(3);
+    std::vector<size_t> neutMolIndex(3);
     ions_thermo->getDissociationCoeffs(viS,charges,neutMolIndex);
 
     if ((int)anion.size() != 1) {

@@ -130,7 +130,7 @@ namespace Cantera {
      *            d[ld*j+i] is the D_ij diffusion coefficient (the diffusion
      *            coefficient for species i due to species j).
      */
-    virtual void getMultiDiffCoeffs(const int ld, doublereal* const d);
+    virtual void getMultiDiffCoeffs(const size_t ld, doublereal* const d);
         
     //! Get the molar fluxes [kmol/m^2/s], given the thermodynamic state at two nearby points. 
     /*!

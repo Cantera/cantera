@@ -31,7 +31,7 @@ namespace Cantera {
     ludata.clear(); 
   }
   //====================================================================================================================
-  BandMatrix::BandMatrix(size_t n, size_ kl, size_t ku, doublereal v)   :
+  BandMatrix::BandMatrix(size_t n, size_t kl, size_t ku, doublereal v)   :
     GeneralMatrix(1),
     m_factored(false), 
     m_n(n),

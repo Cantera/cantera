@@ -48,7 +48,7 @@ static size_t amax(double *x, size_t j, size_t n);
  *  @param       jr              first position
  *  @param       kspec           second species
  */
-static void switch_pos(vector_int &orderVector, size_t jr, size_t kspec);
+static void switch_pos(std::vector<size_t> &orderVector, size_t jr, size_t kspec);
 
 
  //!  Invert an nxn matrix and solve m rhs's

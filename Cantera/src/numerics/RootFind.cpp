@@ -14,6 +14,11 @@
 #include "ct_defs.h"
 #include "RootFind.h"
 
+// turn on debugging for now
+#ifndef DEBUG_MODE
+#define DEBUG_MODE
+#endif
+
 #include "global.h"
 #ifdef DEBUG_MODE
 #include "mdp_allo.h"
@@ -53,11 +58,6 @@ namespace Cantera {
 #endif
 #ifndef SWAP
 #define SWAP(x1, x2, tmp) ((tmp) = (x2), (x2) = (x1), (x1) = (tmp))
-#endif
-
-// turn on debugging for now
-#ifndef DEBUG_MODE
-#define DEBUG_MODE
 #endif
 
   /*****************************************************************************/

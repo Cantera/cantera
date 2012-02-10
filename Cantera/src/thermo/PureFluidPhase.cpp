@@ -659,61 +659,61 @@ namespace Cantera {
       std::vector<double> cpbar(kk, 0.0);
       std::vector<double> vbar(kk, 0.0);
       std::vector<std::string> pNames;
-      std::vector<double*> data;
+      std::vector<std::vector<double> > data;
 
-      getMoleFractions(x);
+      getMoleFractions(&x[0]);
       pNames.push_back("X");
       data.push_back(x);
       try{
-	getMassFractions(y);
+	getMassFractions(&y[0]);
 	pNames.push_back("Y");
 	data.push_back(y);
       }
       catch (CanteraError) {;}
       try{
-	getChemPotentials(mu);
+	getChemPotentials(&mu[0]);
 	pNames.push_back("Chem. Pot (J/kmol)");
 	data.push_back(mu);
       }
       catch (CanteraError) {;}
       try{
-	getActivities(a);
+	getActivities(&a[0]);
 	pNames.push_back("Activity");
 	data.push_back(a);
       }
       catch (CanteraError) {;}
       try{
-	getActivityCoefficients(ac);
+	getActivityCoefficients(&ac[0]);
 	pNames.push_back("Act. Coeff.");
 	data.push_back(ac);
       }
       catch (CanteraError) {;}
       try{
-	getPartialMolarEnthalpies(hbar);
+	getPartialMolarEnthalpies(&hbar[0]);
 	pNames.push_back("Part. Mol Enthalpy (J/kmol)");
 	data.push_back(hbar);
       }
       catch (CanteraError) {;}
       try{
-	getPartialMolarEntropies(sbar);
+	getPartialMolarEntropies(&sbar[0]);
 	pNames.push_back("Part. Mol. Entropy (J/K/kmol)");
 	data.push_back(sbar);
       }
       catch (CanteraError) {;}
       try{
-	getPartialMolarIntEnergies(ubar);
+	getPartialMolarIntEnergies(&ubar[0]);
 	pNames.push_back("Part. Mol. Energy (J/kmol)");
 	data.push_back(ubar);
       }
       catch (CanteraError) {;}
       try{
-	getPartialMolarCp(cpbar);
+	getPartialMolarCp(&cpbar[0]);
 	pNames.push_back("Part. Mol. Cp (J/K/kmol");
 	data.push_back(cpbar);
       }
       catch (CanteraError) {;}
       try{
-	getPartialMolarVolumes(vbar);
+	getPartialMolarVolumes(&vbar[0]);
 	pNames.push_back("Part. Mol. Cv (J/K/kmol)");
 	data.push_back(vbar);
       }

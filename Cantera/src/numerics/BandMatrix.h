@@ -148,7 +148,7 @@ namespace Cantera {
      * 
      *   @return   Returns the value of the matrix entry
      */
-    doublereal _value(size_t i, size_t j) const;
+    doublereal _value(int i, int j) const;
 
     //! Returns the number of rows
     virtual size_t nRows() const;

@@ -490,7 +490,7 @@ public:
    *              the same T and P as the solution.
    *     tg     : Total Number of moles in the phase.
    */
-  void vcs_dfe(const int stateCalc, const int ll, const size_t lbot, const int ltop);
+  void vcs_dfe(const int stateCalc, const int ll, const size_t lbot, const size_t ltop);
 
   //! Print out a table of chemical potentials
   /*!
@@ -577,7 +577,7 @@ public:
    *
    * @return  Returns an int representing which phase may need to be zeroed
    */
-  int vcs_RxnStepSizes(int & forceComponentCalc, int & kSpecial);
+  int vcs_RxnStepSizes(int & forceComponentCalc, size_t & kSpecial);
 
   //!  Calculates the total number of moles of species in all phases.
   /*!

@@ -501,7 +501,7 @@ namespace Cantera {
      *             Flat vector with the m_nsp in the inner loop.
      *             length = ldx * ndim
      */
-    virtual void getSpeciesVdiff(int ndim, 
+    virtual void getSpeciesVdiff(size_t ndim,
 				 const doublereal* grad_T, 
 				 int ldx, 
 				 const doublereal* grad_X,
@@ -534,7 +534,7 @@ namespace Cantera {
      *                   Flat vector with the m_nsp in the inner loop.
      *                     length = ldx * ndim
      */
-    virtual void getSpeciesVdiffES(int ndim,  const doublereal* grad_T, 
+    virtual void getSpeciesVdiffES(size_t ndim,  const doublereal* grad_T,
 				   int ldx,  const doublereal* grad_X,
 				   int ldf,  const doublereal* grad_Phi,
 				   doublereal* Vdiff) ;
@@ -658,7 +658,7 @@ namespace Cantera {
      *             Flat vector with the m_nsp in the inner loop.
      *             length = ldx * ndim
      */
-    virtual void getSpeciesVdiffExt(int ldf, doublereal* Vdiff);
+    virtual void getSpeciesVdiffExt(size_t ldf, doublereal* Vdiff);
 
     //!  Return the species diffusive fluxes relative to 
     //!  the averaged velocity.  
@@ -675,7 +675,7 @@ namespace Cantera {
      *             Flat vector with the m_nsp in the inner loop.
      *             length = ldx * ndim
      */
-    virtual void getSpeciesFluxesExt(int ldf, doublereal* fluxes);
+    virtual void getSpeciesFluxesExt(size_t ldf, doublereal* fluxes);
 
   protected:
     //! Returns true if temperature has changed, 

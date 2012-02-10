@@ -502,7 +502,7 @@ namespace VCSnonideal {
     return Xmol_;
   }
 
-  double vcs_VolPhase::moleFraction(int k) const {
+  double vcs_VolPhase::moleFraction(size_t k) const {
     return Xmol_[k];
   }
   /***************************************************************************/
