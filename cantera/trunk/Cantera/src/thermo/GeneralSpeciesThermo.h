@@ -16,21 +16,23 @@
 #include "speciesThermoTypes.h"
 
 
-namespace Cantera {
+namespace Cantera
+{
 
-  //! A species thermodynamic property manager for a phase.
-  /*!
-   * This is a general manager that can handle a wide variety
-   * of species thermodynamic polynomials for individual species.
-   * It is slow, however, because it recomputes the functions of
-   * temperature needed for each species. What it does is to create
-   * a vector of SpeciesThermoInterpType objects.
-   *
-   * @ingroup mgrsrefcalc
-   */
-  class GeneralSpeciesThermo : public SpeciesThermo {
-    
-  public:
+//! A species thermodynamic property manager for a phase.
+/*!
+ * This is a general manager that can handle a wide variety
+ * of species thermodynamic polynomials for individual species.
+ * It is slow, however, because it recomputes the functions of
+ * temperature needed for each species. What it does is to create
+ * a vector of SpeciesThermoInterpType objects.
+ *
+ * @ingroup mgrsrefcalc
+ */
+class GeneralSpeciesThermo : public SpeciesThermo
+{
+
+public:
 
     //! Constructor
     GeneralSpeciesThermo();
@@ -39,22 +41,22 @@ namespace Cantera {
     /*!
      * @param b   Object to be copied
      */
-    GeneralSpeciesThermo(const GeneralSpeciesThermo &b);
+    GeneralSpeciesThermo(const GeneralSpeciesThermo& b);
 
     //! Assignment operator
     /*!
      * @param b   Object to be copied
      */
-    GeneralSpeciesThermo & operator=(const GeneralSpeciesThermo &b);
+    GeneralSpeciesThermo& operator=(const GeneralSpeciesThermo& b);
 
     //! Destructor
     virtual ~GeneralSpeciesThermo();
 
     //! Duplicator
-    virtual SpeciesThermo *duplMyselfAsSpeciesThermo() const ;
+    virtual SpeciesThermo* duplMyselfAsSpeciesThermo() const ;
 
     //! Install a new species thermodynamic property
-    //! parameterization for one species.  
+    //! parameterization for one species.
     /*!
      * Install a SpeciesThermoInterpType object for the species, index.
      * This routine contains an internal list of  SpeciesThermoInterpType
@@ -62,12 +64,12 @@ namespace Cantera {
      * to create the object.
      *
      * @param name      Name of the species
-     * @param index     The 'update' method will update the property 
-     *                  values for this species 
-     *                  at position i index in the property arrays.  
+     * @param index     The 'update' method will update the property
+     *                  values for this species
+     *                  at position i index in the property arrays.
      * @param type      int flag specifying the type of parameterization to be
-     *                 installed. 
-     * @param c        vector of coefficients for the parameterization. 
+     *                 installed.
+     * @param c        vector of coefficients for the parameterization.
      *                 This vector is simply passed through to the
      *                 parameterization constructor. It's length depends upon
      *                 the parameterization.
@@ -75,17 +77,17 @@ namespace Cantera {
      *                 is valid.
      * @param maxTemp  maximum temperature for which this parameterization
      *                 is valid.
-     * @param refPressure standard-state pressure for this 
-     *                    parameterization. 
-     * @see speciesThermoTypes.h 
+     * @param refPressure standard-state pressure for this
+     *                    parameterization.
+     * @see speciesThermoTypes.h
      *
      * @todo Create a factory method for SpeciesThermoInterpType.
      *       That's basically what we are doing here.
      */
     virtual void install(std::string name, size_t index, int type,
-			 const doublereal* c, 
-			 doublereal minTemp, doublereal maxTemp,
-			 doublereal refPressure);
+                         const doublereal* c,
+                         doublereal minTemp, doublereal maxTemp,
+                         doublereal refPressure);
 
     //! Install a new species thermodynamic property
     //! parameterization for one species.
@@ -93,7 +95,7 @@ namespace Cantera {
      * @param stit_ptr Pointer to the SpeciesThermoInterpType object
      *          This will set up the thermo for one species
      */
-    virtual void install_STIT(SpeciesThermoInterpType *stit_ptr);
+    virtual void install_STIT(SpeciesThermoInterpType* stit_ptr);
 
     //! Install a PDSS object to handle the reference state thermodynamics
     //! calculation
@@ -104,7 +106,7 @@ namespace Cantera {
      * @param vpssmgr_ptr Pointer to the variable pressure standard state
      *                    manager that handles the PDSS object.
      */
-    void installPDSShandler(size_t k, PDSS *PDSS_ptr, VPSSMgr *vpssmgr_ptr);
+    void installPDSShandler(size_t k, PDSS* PDSS_ptr, VPSSMgr* vpssmgr_ptr);
 
     //! Like update(), but only updates the single species k.
     /*!
@@ -118,8 +120,8 @@ namespace Cantera {
      *                (length m_kk).
      */
     virtual void update_one(size_t k, doublereal T, doublereal* cp_R,
-			    doublereal* h_RT,
-			    doublereal* s_R) const;
+                            doublereal* h_RT,
+                            doublereal* s_R) const;
 
     //! Compute the reference-state properties for all species.
     /*!
@@ -135,10 +137,10 @@ namespace Cantera {
      *                (length m_kk).
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
-     */	
-    virtual void update(doublereal T, doublereal* cp_R, 
-			doublereal* h_RT, doublereal* s_R) const;
-                
+     */
+    virtual void update(doublereal T, doublereal* cp_R,
+                        doublereal* h_RT, doublereal* s_R) const;
+
     //! Minimum temperature.
     /*!
      * If no argument is supplied, this
@@ -148,7 +150,7 @@ namespace Cantera {
      * temperature for species k in the phase.
      *
      * @param k    Species index
-     */ 
+     */
     virtual doublereal minTemp(size_t k=-1) const;
 
     //! Maximum temperature.
@@ -186,7 +188,7 @@ namespace Cantera {
      */
     virtual int reportType(size_t index) const;
 
-    //! This utility function reports back the type of 
+    //! This utility function reports back the type of
     //! parameterization and all of the parameters for the species, index.
     /*!
      * @param index     Species index
@@ -197,11 +199,11 @@ namespace Cantera {
      * @param maxTemp   output - Maximum temperature
      * @param refPressure output - reference pressure (Pa).
      */
-    virtual void reportParams(size_t index, int &type,
-			      doublereal * const c, 
-			      doublereal &minTemp, 
-			      doublereal &maxTemp,
-			      doublereal &refPressure) const;
+    virtual void reportParams(size_t index, int& type,
+                              doublereal* const c,
+                              doublereal& minTemp,
+                              doublereal& maxTemp,
+                              doublereal& refPressure) const;
 
     //! Modify parameters for the standard state
     /*!
@@ -209,7 +211,7 @@ namespace Cantera {
      * @param c     Vector of coefficients used to set the
      *              parameters for the standard state.
      */
-    virtual void modifyParams(size_t index, doublereal *c);
+    virtual void modifyParams(size_t index, doublereal* c);
 
 #ifdef H298MODIFY_CAPABILITY
 
@@ -219,22 +221,22 @@ namespace Cantera {
 
 #endif
 
-  private:
+private:
     //! Provide the SpeciesthermoInterpType object
     /*!
      *  provide access to the SpeciesThermoInterpType object.
-     *  This 
+     *  This
      *
      *  @param k  integer parameter
      *
      * @return pointer to the SpeciesThermoInterpType object.
      */
-    SpeciesThermoInterpType * provideSTIT(size_t k);
+    SpeciesThermoInterpType* provideSTIT(size_t k);
 
-  protected:
+protected:
 
     /**
-     * This is the main unknown in the object. It is 
+     * This is the main unknown in the object. It is
      * a list of pointers to type SpeciesThermoInterpType.
      * Note, this object owns the objects, so they are deleted
      * in the destructor of this object.
@@ -243,7 +245,7 @@ namespace Cantera {
      * species. These cases must be handled by the calling
      * routine.
      */
-    std::vector<SpeciesThermoInterpType *> m_sp;
+    std::vector<SpeciesThermoInterpType*> m_sp;
 
     //! Maximum value of the lowest temperature
     doublereal                         m_tlow_max;
@@ -255,7 +257,7 @@ namespace Cantera {
     doublereal                         m_p0;
 
     /**
-     * Internal variable indicating the length of the 
+     * Internal variable indicating the length of the
      * number of species in the phase.
      */
     size_t m_kk;
@@ -264,9 +266,9 @@ namespace Cantera {
     //! Make the class VPSSMgr a friend because we need to access
     //! the function provideSTIT()
     friend class VPSSMgr;
-  
 
-  };
+
+};
 
 }
 

@@ -7,8 +7,8 @@
 #include "kernel/ct_defs.h"
 
 #ifdef _WIN32
-//   Either build as a DLL under Windows or  not. 
-//   the decision relies upon whether the NO_DLL_BUILD define is 
+//   Either build as a DLL under Windows or  not.
+//   the decision relies upon whether the NO_DLL_BUILD define is
 //   set or not.
 #ifdef NO_DLL_BUILD
 #define DLL_EXPORT
@@ -28,7 +28,7 @@
 #define EEXXTT extern
 #else
 #define DLL_CPREFIX DLL_IMPORT
-#define EEXXTT  
+#define EEXXTT
 #endif
 
 // Values returned for error conditions

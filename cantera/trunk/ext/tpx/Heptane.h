@@ -6,7 +6,7 @@
 
 
 /* FILE: Heptane.h
- * DESCRIPTION: 
+ * DESCRIPTION:
  *  representation of substance Heptane
  *  values and functions are from
  *  "Thermodynamic Properties in SI" bu W.C. Reynolds
@@ -14,24 +14,26 @@
  * AUTHOR: jrh@stanford.edu: GCEP, Stanford University
  *
  */
-namespace tpx {
+namespace tpx
+{
 
-class Heptane : public Substance{
+class Heptane : public Substance
+{
 public:
-    Heptane(){
-      m_name = "Heptane";
-      m_formula = "C7H16";
+    Heptane() {
+        m_name = "Heptane";
+        m_formula = "C7H16";
     }
-        virtual ~Heptane() {}
+    virtual ~Heptane() {}
 
     double MolWt();
     double Tcrit();
-        double Pcrit();
+    double Pcrit();
     double Vcrit();
     double Tmin();
     double Tmax();
-    char * name();
-    char * formula();
+    char* name();
+    char* formula();
 
     double Pp();
     double up();
@@ -43,8 +45,8 @@ private:
     double C(int jm, double, double, double, double);
     double Cprime(int i,  double, double, double);
     double I(int i,  double, double);
-    double H(int i, double egrho);    
-    };
+    double H(int i, double egrho);
+};
 
 }
 

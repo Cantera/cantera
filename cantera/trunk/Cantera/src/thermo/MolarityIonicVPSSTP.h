@@ -2,7 +2,7 @@
  *  @file MolarityIonicVPSSTP.h
  *   Header for intermediate ThermoPhase object for phases which
  *   employ gibbs excess free energy based formulations
- *  (see \ref thermoprops 
+ *  (see \ref thermoprops
  * and class \link Cantera::MolarityIonicVPSSTP MolarityIonicVPSSTP\endlink).
  *
  * Header file for a derived class of ThermoPhase that handles
@@ -12,7 +12,7 @@
  * ions, but they are treated on the molarity scale.
  */
 /*
- * Copywrite (2006) Sandia Corporation. Under the terms of 
+ * Copywrite (2006) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -25,47 +25,49 @@
 
 #include "GibbsExcessVPSSTP.h"
 
-namespace Cantera {
+namespace Cantera
+{
 
-  /**
-   * @ingroup thermoprops
-   */
+/**
+ * @ingroup thermoprops
+ */
 
-  /*!
-   *  MolarityIonicVPSSTP is a derived class of ThermoPhase
-   *  GibbsExcessVPSSTP that handles
-   *  variable pressure standard state methods for calculating
-   *  thermodynamic properties that are further based on
-   *  expressing the Excess Gibbs free energy as a function of
-   *  the mole fractions (or pseudo mole fractions) of the consitituents.
-   *  This category is the workhorse for describing ionic systems which are not on the molality scale.
-   *
-   *  This class adds additional functions onto the %ThermoPhase interface
-   *  that handles the calculation of the excess Gibbs free energy. The %ThermoPhase
-   *  class includes a member function, ThermoPhase::activityConvention() 
-   *  that indicates which convention the activities are based on. The
-   *  default is to assume activities are based on the molar convention.
-   *  That default is used here. 
-   *
-   *  All of the Excess Gibbs free energy formulations in this area employ
-   *  symmetrical formulations. 
-   *
-   *  This layer will massage the mole fraction vector to implement
-   *  cation and anion based mole numbers in an optional manner, such that
-   *  it is expected that there exists a charge balance at all times.
-   *  One of the ions must be a "special ion" in the sense that its' thermodynamic
-   *  functions are set to zero, and the thermo functions of all other
-   *  ions are based on a valuation relative to that special ion.
-   *
-   */
-  class MolarityIonicVPSSTP : public GibbsExcessVPSSTP  {
+/*!
+ *  MolarityIonicVPSSTP is a derived class of ThermoPhase
+ *  GibbsExcessVPSSTP that handles
+ *  variable pressure standard state methods for calculating
+ *  thermodynamic properties that are further based on
+ *  expressing the Excess Gibbs free energy as a function of
+ *  the mole fractions (or pseudo mole fractions) of the consitituents.
+ *  This category is the workhorse for describing ionic systems which are not on the molality scale.
+ *
+ *  This class adds additional functions onto the %ThermoPhase interface
+ *  that handles the calculation of the excess Gibbs free energy. The %ThermoPhase
+ *  class includes a member function, ThermoPhase::activityConvention()
+ *  that indicates which convention the activities are based on. The
+ *  default is to assume activities are based on the molar convention.
+ *  That default is used here.
+ *
+ *  All of the Excess Gibbs free energy formulations in this area employ
+ *  symmetrical formulations.
+ *
+ *  This layer will massage the mole fraction vector to implement
+ *  cation and anion based mole numbers in an optional manner, such that
+ *  it is expected that there exists a charge balance at all times.
+ *  One of the ions must be a "special ion" in the sense that its' thermodynamic
+ *  functions are set to zero, and the thermo functions of all other
+ *  ions are based on a valuation relative to that special ion.
+ *
+ */
+class MolarityIonicVPSSTP : public GibbsExcessVPSSTP
+{
 
-  public:
-        
-    /// Constructors 
+public:
+
+    /// Constructors
     /*!
      * This doesn't do much more than initialize constants with
-     * default values for water at 25C. Water molecular weight 
+     * default values for water at 25C. Water molecular weight
      * comes from the default elements.xml file. It actually
      * differs slightly from the IAPWS95 value of 18.015268. However,
      * density conservation and therefore element conservation
@@ -105,16 +107,16 @@ namespace Cantera {
      *
      * @param b class to be copied
      */
-    MolarityIonicVPSSTP(const  MolarityIonicVPSSTP&b);
+    MolarityIonicVPSSTP(const  MolarityIonicVPSSTP& b);
 
     /// Assignment operator
     /*!
      *
      * @param b class to be copied.
      */
-    MolarityIonicVPSSTP& operator=(const MolarityIonicVPSSTP&b);
+    MolarityIonicVPSSTP& operator=(const MolarityIonicVPSSTP& b);
 
-    /// Destructor. 
+    /// Destructor.
     virtual ~MolarityIonicVPSSTP();
 
     //! Duplication routine for objects which inherit from  ThermoPhase.
@@ -123,15 +125,15 @@ namespace Cantera {
      *  inherited from ThermoPhase even if the application only has
      *  a pointer to ThermoPhase to work with.
      */
-    virtual ThermoPhase *duplMyselfAsThermoPhase() const;
-    
+    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
+
     /**
-     *   
-     * @name  Utilities  
+     *
+     * @name  Utilities
      * @{
      */
 
-   
+
     //! Equation of state type flag.
     /*!
      * The ThermoPhase base class returns
@@ -142,9 +144,9 @@ namespace Cantera {
      */
     virtual int eosType() const;
 
-     //! Initialization of a phase using an xml file
+    //! Initialization of a phase using an xml file
     /*!
-     * This routine is a precursor to 
+     * This routine is a precursor to
      * routine, which does most of the work.
      *
      * @param inputFile XML file containing the description of the
@@ -156,7 +158,7 @@ namespace Cantera {
      */
     void constructPhaseFile(std::string inputFile, std::string id);
 
-    //!   Import and initialize a phase 
+    //!   Import and initialize a phase
     //!   specification in an XML tree into the current object.
     /*!
      *   Here we read an XML description of the phase.
@@ -166,7 +168,7 @@ namespace Cantera {
      *   reference state thermodynamic polynomials. We then freeze
      *   the state of the species.
      *
-     *   Then, we read the species molar volumes from the xml 
+     *   Then, we read the species molar volumes from the xml
      *   tree to finish the initialization.
      *
      * @param phaseNode This object must be the phase node of a
@@ -179,13 +181,13 @@ namespace Cantera {
      *
      * @param id   ID of the phase. If nonnull, a check is done
      *             to see if phaseNode is pointing to the phase
-     *             with the correct id. 
+     *             with the correct id.
      */
     void constructPhaseXML(XML_Node& phaseNode, std::string id);
 
     /**
-     * @} 
-     * @name  Molar Thermodynamic Properties 
+     * @}
+     * @name  Molar Thermodynamic Properties
      * @{
      */
 
@@ -197,7 +199,7 @@ namespace Cantera {
      */
 
 
- 
+
 
     /**
      * @}
@@ -206,9 +208,9 @@ namespace Cantera {
      */
 
     /**
-     * @} 
+     * @}
      * @name Potential Energy
-     * 
+     *
      * Species may have an additional potential energy due to the
      * presence of external gravitation or electric fields. These
      * methods allow specifying a potential energy for individual
@@ -234,9 +236,9 @@ namespace Cantera {
      * @param lnac Output vector of ln activity coefficients. Length: m_kk.
      */
     virtual void getLnActivityCoefficients(doublereal* ac) const;
- 
+
     //@}
-    /// @name  Partial Molar Properties of the Solution 
+    /// @name  Partial Molar Properties of the Solution
     //@{
 
     //! Get the species chemical potentials. Units: J/kmol.
@@ -251,9 +253,9 @@ namespace Cantera {
     virtual void getChemPotentials(doublereal* mu) const;
 
     /**
-     * Get the species electrochemical potentials. 
+     * Get the species electrochemical potentials.
      * These are partial molar quantities.
-     * This method adds a term \f$ Fz_k \phi_k \f$ to the 
+     * This method adds a term \f$ Fz_k \phi_k \f$ to the
      * to each chemical potential.
      *
      * Units: J/kmol
@@ -322,7 +324,7 @@ namespace Cantera {
      *              (length m_kk, units = J/kmol/K)
      */
     virtual void getPartialMolarCp(doublereal* cpbar) const;
- 
+
     //! Return an array of partial molar volumes for the
     //! species in the mixture. Units: m^3/kmol.
     /*!
@@ -335,12 +337,12 @@ namespace Cantera {
      */
     virtual void getPartialMolarVolumes(doublereal* vbar) const;
 
-    
+
     //@}
     /// @name  Properties of the Standard State of the Species in the Solution
     //@{
 
-     
+
 
     //@}
     /// @name Thermodynamic Values for the Species Reference States
@@ -384,16 +386,16 @@ namespace Cantera {
      * @{
      */
 
-   
+
 
     //@}
 
 
 
     /// The following methods are used in the process of constructing
-    /// the phase and setting its parameters from a specification in an 
+    /// the phase and setting its parameters from a specification in an
     /// input file. They are not normally used in application programs.
-    /// To see how they are used, see files importCTML.cpp and 
+    /// To see how they are used, see files importCTML.cpp and
     /// ThermoFactory.cpp.
 
 
@@ -425,11 +427,11 @@ namespace Cantera {
      *             the species in the phase.
      * @param id   ID of the phase. If nonnull, a check is done
      *             to see if phaseNode is pointing to the phase
-     *             with the correct id. 
+     *             with the correct id.
      */
     void initThermoXML(XML_Node& phaseNode, std::string id);
 
- 
+
     //! returns a summary of the state of the phase as a string
     /*!
      * @param show_thermo If true, extra information is printed out
@@ -438,13 +440,13 @@ namespace Cantera {
     virtual std::string report(bool show_thermo = true) const;
 
 
-  private:
-  
+private:
+
 
     //! Initialize lengths of local variables after all species have been identified.
     void initLengths();
 
-   //! Process an XML node called "binaryNeutralSpeciesParameters"
+    //! Process an XML node called "binaryNeutralSpeciesParameters"
     /*!
      * This node contains all of the parameters necessary to describe
      * the Redlich-Kister model for a particular binary interaction.
@@ -454,8 +456,8 @@ namespace Cantera {
      * @param xmlBinarySpecies  Reference to the XML_Node named "binaryNeutralSpeciesParameters"
      *                          containing the binary interaction
      */
-    void readXMLBinarySpecies(XML_Node &xmlBinarySpecies);
-            
+    void readXMLBinarySpecies(XML_Node& xmlBinarySpecies);
+
 
     //! Update the activity coefficients
     /*!
@@ -484,7 +486,7 @@ namespace Cantera {
     void s_update_dlnActCoeff_dX_() const;
 
 
-  private:
+private:
     //! Error function
     /*!
      *  Print an error string and exit
@@ -493,7 +495,7 @@ namespace Cantera {
      */
     doublereal err(std::string msg) const;
 
-  protected:
+protected:
 
     // Pseudobinary type
     /*!
@@ -509,7 +511,7 @@ namespace Cantera {
 
     //! index of special species
     int indexSpecialSpecies_;
-    
+
     mutable std::vector<doublereal> PBMoleFractions_;
 
     //! Vector of cation indecises in the mixture
@@ -528,10 +530,10 @@ namespace Cantera {
 
     mutable std::vector<doublereal> moleFractionsTmp_;
 
-  private:
+private:
 
-  
-  };
+
+};
 
 #define  PBTYPE_PASSTHROUGH        0
 #define  PBTYPE_SINGLEANION        1
@@ -541,7 +543,7 @@ namespace Cantera {
 
 
 }
-        
+
 #endif
 
 

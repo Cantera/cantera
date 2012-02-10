@@ -21,12 +21,14 @@
 #include "TransportBase.h"
 #include "DenseMatrix.h"
 
-namespace Cantera {
-  //! Class SolidTransport implements transport properties for solids.
-  class SolidTransport : public Transport {
+namespace Cantera
+{
+//! Class SolidTransport implements transport properties for solids.
+class SolidTransport : public Transport
+{
 
-  public:
-    
+public:
+
     //! Default constructor
     SolidTransport();
 
@@ -34,7 +36,7 @@ namespace Cantera {
     /*!
      *  @param right  Object to be copied
      */
-    SolidTransport(const SolidTransport &right);
+    SolidTransport(const SolidTransport& right);
 
     //! Destructor
     virtual ~SolidTransport();
@@ -58,15 +60,17 @@ namespace Cantera {
      *  These routines are basically wrappers around the derived copy
      *  constructor.
      */
-    virtual Transport *duplMyselfAsTransport() const;
+    virtual Transport* duplMyselfAsTransport() const;
 
 
-    virtual int model() const { return cSolidTransport; }
+    virtual int model() const {
+        return cSolidTransport;
+    }
 
     virtual doublereal thermalConductivity();
     virtual void getMixDiffCoeffs(doublereal* const d);
 
-    //!  Compute the electrical mobilities of the species from the diffusion coefficients, 
+    //!  Compute the electrical mobilities of the species from the diffusion coefficients,
     //!  using the Einstein relation.
     /*!
      *   Frequently, but not always, the mobility is calculated from the
@@ -91,15 +95,15 @@ namespace Cantera {
      * The electrical conductivity (Siemens/m).
      */
     virtual doublereal electricalConductivity();
-  
 
-  private:
+
+private:
 
     //! number of mobile species
     /*!
-     *   This is equal to the 
+     *   This is equal to the
      */
-    size_t m_nmobile;  
+    size_t m_nmobile;
 
     //! Coefficient for the diffusivity of species within a solid
     /*!
@@ -145,7 +149,7 @@ namespace Cantera {
 
     //! extra fp array of length nSpecies()
     vector_fp m_work;
-  };
+};
 }
 #endif
 

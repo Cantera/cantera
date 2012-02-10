@@ -13,24 +13,26 @@
 #include "ThermoPhase.h"
 #include "SurfPhase.h"
 
-namespace Cantera {
+namespace Cantera
+{
 
-  //! A thermodynamic %Phase representing a one dimensional edge between two surfaces
-  /*!
-   * This thermodynamic function is largely a wrapper around the SurfPhase
-   * thermodynamic object.
-   *
-   * All of the equations and formulations carry through from SurfPhase to this
-   * EdgePhase object.
-   * It should be noted however, that dimensional object with length dimensions,
-   * have their dimensions reduced by one.
-   *
-   * @ingroup thermoprops
-   */
-  class EdgePhase : public SurfPhase  {
-    
-  public:
-    
+//! A thermodynamic %Phase representing a one dimensional edge between two surfaces
+/*!
+ * This thermodynamic function is largely a wrapper around the SurfPhase
+ * thermodynamic object.
+ *
+ * All of the equations and formulations carry through from SurfPhase to this
+ * EdgePhase object.
+ * It should be noted however, that dimensional object with length dimensions,
+ * have their dimensions reduced by one.
+ *
+ * @ingroup thermoprops
+ */
+class EdgePhase : public SurfPhase
+{
+
+public:
+
     //! Constructor
     /*!
      * @param n0  Surface site density (kmol m-1).
@@ -41,22 +43,24 @@ namespace Cantera {
     /*!
      * @param right Object to be copied
      */
-    EdgePhase(const EdgePhase & right);
+    EdgePhase(const EdgePhase& right);
 
     //! Assignment Operator
     /*!
      * @param right Object to be copied
      */
-    EdgePhase& operator=(const EdgePhase & right);
+    EdgePhase& operator=(const EdgePhase& right);
 
     //! Destructor
     virtual ~EdgePhase() {}
 
     //! Duplicator from a ThermoPhase object
-    ThermoPhase *duplMyselfAsThermoPhase() const;
-    
+    ThermoPhase* duplMyselfAsThermoPhase() const;
+
     //! returns the equation of state type
-    virtual int eosType() const { return cEdge; }
+    virtual int eosType() const {
+        return cEdge;
+    }
 
 
     //! Set the Equation-of-State parameters by reading an XML Node Input
@@ -81,9 +85,9 @@ namespace Cantera {
      * @endcode
      */
     virtual void setParametersFromXML(const XML_Node& thermoData);
-  };
+};
 }
-        
+
 #endif
 
 

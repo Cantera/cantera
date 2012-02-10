@@ -1,6 +1,6 @@
 /**
  * @file Constituents.h
- *  Header file  Class \link Cantera::Constituents Constitutents\endlink which 
+ *  Header file  Class \link Cantera::Constituents Constitutents\endlink which
  *  manages a set of elements and species (see \ref phases).
  */
 //  Copyright 2001  California Institute of Technology
@@ -18,19 +18,21 @@
 #include "xml.h"
 #include "Elements.h"
 
-namespace Cantera {
+namespace Cantera
+{
 
-  class Elements;
+class Elements;
 
-  /************** DEFINITIONS OF ERRORS *****************************/
+/************** DEFINITIONS OF ERRORS *****************************/
 
-  //! Specific fatal error indicating that the index of a species is out of range.
-  /*!
-   *
-   *  @ingroup errorhandling
-   */
-  class SpeciesRangeError : public CanteraError {
-  public:
+//! Specific fatal error indicating that the index of a species is out of range.
+/*!
+ *
+ *  @ingroup errorhandling
+ */
+class SpeciesRangeError : public CanteraError
+{
+public:
     //! Constructor
     /*!
      *  @param func Function where the error occurred.
@@ -40,28 +42,29 @@ namespace Cantera {
      *
      */
     SpeciesRangeError(std::string func, size_t k, size_t kmax) :
-      CanteraError(func, "Species index " + int2str(int(k)) +
-		   " outside valid range of 0 to " + int2str(int(kmax)-1)) {}
-  };
+        CanteraError(func, "Species index " + int2str(int(k)) +
+                     " outside valid range of 0 to " + int2str(int(kmax)-1)) {}
+};
 
-  /******************************************************************/
+/******************************************************************/
 
 
-  //! Class %Constituents manages a set of elements and  species.
-  /*!
-   * Class %Constituents is designed to provide information
-   * about the elements and species in a phase - names, index
-   * numbers (location in arrays), atomic or molecular weights,
-   * etc. No computations are performed by the methods of this
-   * class. The set of elements must include all those that compose
-   * the species, but may include additional elements. The species
-   * all must belong to the same phase.
-   *
-   * @ingroup phases
-   */
-  class Constituents {
+//! Class %Constituents manages a set of elements and  species.
+/*!
+ * Class %Constituents is designed to provide information
+ * about the elements and species in a phase - names, index
+ * numbers (location in arrays), atomic or molecular weights,
+ * etc. No computations are performed by the methods of this
+ * class. The set of elements must include all those that compose
+ * the species, but may include additional elements. The species
+ * all must belong to the same phase.
+ *
+ * @ingroup phases
+ */
+class Constituents
+{
 
-  public:
+public:
 
     //! Constructor.
     /*!
@@ -77,8 +80,8 @@ namespace Cantera {
      *   static global element list is required.
      */
     Constituents(Elements* ptr_Elements = 0);
-       
-    /// Destructor. 
+
+    /// Destructor.
     ~Constituents();
 
     ///  This copy constructor just calls the assignment operator
@@ -96,10 +99,10 @@ namespace Cantera {
 
     /// @name Element Information
     // @{
-        
+
     /// Name of the element with index m.
     ///   This is a passthrough routine to the Element object.
-    ///   \param m  Element index. 
+    ///   \param m  Element index.
     ///   \exception If m < 0 or m >= nElements(), the
     ///          exception, ElementRangeError, is thrown.
     std::string elementName(size_t m) const;
@@ -107,8 +110,8 @@ namespace Cantera {
     /// Index of element named 'name'.
     /// The index is an integer
     /// assigned to each element in the order it was added,
-    /// beginning with 0 for the first element. 
-    /// @param name  name of the element 
+    /// beginning with 0 for the first element.
+    /// @param name  name of the element
     ///
     /// If 'name' is not
     /// the name of an element in the set, then the value -1 is
@@ -144,7 +147,7 @@ namespace Cantera {
 
     /// Number of elements.
     size_t nElements() const;
-       
+
     // @}
 
 
@@ -152,20 +155,20 @@ namespace Cantera {
     /// @name Adding Elements and Species
     /// These methods are used to add new elements or species.
     /// These are not usually called by user programs.
-    /// 
-    /// Since species are checked to insure that they are only 
+    ///
+    /// Since species are checked to insure that they are only
     /// composed of declared elements, it is necessary to first
-    /// add all elements before adding any species. 
+    /// add all elements before adding any species.
 
     //@{
 
-    //! Add an element. 
+    //! Add an element.
     /*!
      *  @param symbol Atomic symbol std::string.
      *  @param weight Atomic mass in amu.
      */
     void addElement(const std::string& symbol, doublereal weight);
-      
+
     //! Add an element from an XML specification.
     /*!
      * @param e Reference to the XML_Node where the element is described.
@@ -182,15 +185,15 @@ namespace Cantera {
      * @param atomicNumber Atomic number of the element (unitless)
      * @param entropy298 Entropy of the element at 298 K and 1 bar
      *                   in its most stable form. The default is
-     *                   the value ENTROPY298_UNKNOWN, which is 
+     *                   the value ENTROPY298_UNKNOWN, which is
      *                   interpreted as an unknown, and if used
      *                   will cause Cantera to throw an error.
      * @param elem_type Specifies the type of the element constraint equation. This defaults
      *                   to CT_ELEM_TYPE_ABSPOS, i.e., an element.
      */
     void addUniqueElement(const std::string& symbol, doublereal weight,
-			  int atomicNumber = 0,
-			  doublereal entropy298 = ENTROPY298_UNKNOWN, int elem_type = CT_ELEM_TYPE_ABSPOS);
+                          int atomicNumber = 0,
+                          doublereal entropy298 = ENTROPY298_UNKNOWN, int elem_type = CT_ELEM_TYPE_ABSPOS);
 
     //! Adde an element, checking for uniqueness
     /*!
@@ -206,7 +209,7 @@ namespace Cantera {
      * @param phase Reference to the top  XML_Node of a phase
      */
     void addElementsFromXML(const XML_Node& phase);
-   
+
     /// Prohibit addition of more elements, and prepare to add species.
     void freezeElements();
 
@@ -223,19 +226,21 @@ namespace Cantera {
      * @param atomicNumber Atomic number of the element (unitless)
      * @param entropy298 Entropy of the element at 298 K and 1 bar
      *                   in its most stable form. The default is
-     *                   the value ENTROPY298_UNKNOWN, which is 
+     *                   the value ENTROPY298_UNKNOWN, which is
      *                   interpreted as an unknown, and if used
      *                   will cause Cantera to throw an error.
      * @param elem_type Specifies the type of the element constraint equation. This defaults
      *                   to CT_ELEM_TYPE_ABSPOS, i.e., an element.
      */
-    int addUniqueElementAfterFreeze(const std::string& symbol, doublereal weight, int atomicNumber, 
-				    doublereal entropy298 = ENTROPY298_UNKNOWN, int elem_type = CT_ELEM_TYPE_ABSPOS);
+    int addUniqueElementAfterFreeze(const std::string& symbol, doublereal weight, int atomicNumber,
+                                    doublereal entropy298 = ENTROPY298_UNKNOWN, int elem_type = CT_ELEM_TYPE_ABSPOS);
 
     //@}
-      
+
     /// Returns the number of species in the phase
-    size_t nSpecies() const { return m_kk; }
+    size_t nSpecies() const {
+        return m_kk;
+    }
 
     //! Molecular weight of species \c k.
     /*!
@@ -254,7 +259,7 @@ namespace Cantera {
      *      Return the molar mass of species k kg/kmol.
      */
     doublereal molarMass(size_t k) const {
-      return molecularWeight(k);
+        return molecularWeight(k);
     }
 
     /**
@@ -262,7 +267,7 @@ namespace Cantera {
      * of the species
      */
     const vector_fp& molecularWeights() const;
-       
+
     /*!
      *   Electrical charge of one species k molecule, divided by
      *   the magnitude of the electron charge ( \f$ e = 1.602
@@ -279,7 +284,7 @@ namespace Cantera {
      */
     //@{
     void addSpecies(const std::string& name, const doublereal* comp,
-		    doublereal charge = 0.0, doublereal size = 1.0);
+                    doublereal charge = 0.0, doublereal size = 1.0);
 
     //! Add a species to the phase, checking for uniqueness of the name
     /*!
@@ -293,9 +298,9 @@ namespace Cantera {
      * @param size    Size of the species (meters). Defaults to 1 meter.
      */
     void addUniqueSpecies(const std::string& name, const doublereal* comp,
-			  doublereal charge = 0.0, 
-			  doublereal size = 1.0);
-      
+                          doublereal charge = 0.0,
+                          doublereal size = 1.0);
+
     //! Returns the index of a species named 'name' within the Constituents object
     /*!
      * The first species in the phase will have an index 0, and the last one in the
@@ -312,17 +317,19 @@ namespace Cantera {
      * @param k index of the species
      */
     std::string speciesName(size_t k) const;
-       
+
     /// Return a const referernce to the vector of species names
     const std::vector<std::string>& speciesNames() const;
-      
+
     //!  This routine returns the size of species k
     /*!
-     * @param k index of the species 
-     * @return 
+     * @param k index of the species
+     * @return
      *      Returns the size of the species. Units are meters.
      */
-    doublereal size(size_t k) const { return m_speciesSize[k]; }
+    doublereal size(size_t k) const {
+        return m_speciesSize[k];
+    }
 
     /**
      * Prohibit addition of more species, and prepare for
@@ -331,7 +338,9 @@ namespace Cantera {
     void freezeSpecies();
 
     /// True if freezeSpecies has been called.
-    bool speciesFrozen() { return m_speciesFrozen; }
+    bool speciesFrozen() {
+        return m_speciesFrozen;
+    }
 
     /// Remove all elements and species
     void clear();
@@ -354,10 +363,10 @@ namespace Cantera {
      * @param atomArray  vector containing the atomic number in the species.
      *                   Length: m_mm
      */
-    void getAtoms(size_t k, double *atomArray) const;
-    
-  protected:
-    
+    void getAtoms(size_t k, double* atomArray) const;
+
+protected:
+
     //! Number of species in the phase.
     size_t m_kk;
     //! Vector of molecular weights of the species
@@ -379,7 +388,7 @@ namespace Cantera {
      * phase. Normally, this will be the default Element object
      * common to all phases.
      */
-    Elements *                     m_Elements;
+    Elements*                      m_Elements;
 
     //! Vector of the species names
     std::vector<std::string>                 m_speciesNames;
@@ -408,11 +417,11 @@ namespace Cantera {
      */
     vector_fp                      m_speciesSize;
 
-  private:
+private:
 
-  };  
-    
-    
+};
+
+
 }  // namespace
 
 #endif

@@ -2,7 +2,7 @@
  *  @file IonsFromNeutralVPSSTP.h
  *   Header for intermediate ThermoPhase object for phases which
  *   consist of ions whose thermodynamics is calculated from neutral molecule thermodynamics.
- *  (see \ref thermoprops 
+ *  (see \ref thermoprops
  * and class \link Cantera::IonsFromNeutralVPSSTP IonsFromNeutralVPSSTP\endlink).
  *
  * Header file for a derived class of %ThermoPhase that handles
@@ -12,7 +12,7 @@
  * calculating liquid electrolyte thermodynamics.
  */
 /*
- * Copywrite (2006) Sandia Corporation. Under the terms of 
+ * Copywrite (2006) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -21,60 +21,62 @@
 
 #include "GibbsExcessVPSSTP.h"
 
-namespace Cantera {
+namespace Cantera
+{
 
-  //! enums for molten salt ion solution types
-  /*!
-   *  Types identify how complicated the solution is. If there
-   *  is just mixing on one of the sublattices but not the other,
-   *  then the math is considerably simpler.
-   */
-  enum IonSolnType_enumType {
+//! enums for molten salt ion solution types
+/*!
+ *  Types identify how complicated the solution is. If there
+ *  is just mixing on one of the sublattices but not the other,
+ *  then the math is considerably simpler.
+ */
+enum IonSolnType_enumType {
     cIonSolnType_PASSTHROUGH = 2000 ,
     cIonSolnType_SINGLEANION ,
     cIonSolnType_SINGLECATION ,
     cIonSolnType_MULTICATIONANION
-  };
+};
 
-  /*!
-   * The IonsFromNeutralVPSSTP is a derived class of ThermoPhase
-   * that handles the specification of the chemical potentials for
-   * ionic species, given a specification of the chemical potentials
-   * for the same phase expressed in terms of combinations of the
-   * ionic species that represent neutral molecules. It's expected
-   * that the neutral molecules will be represented in terms of 
-   * an excess gibbs free energy approximation that is a derivative
-   * of the GbbsExcessVPSSTP object. All of the e Excess Gibbs free
-   *  energy formulations in this area employ
-   *  symmetrical formulations. 
-   *
-   *  This class is used for molten salts.
-   *
-   *  This object actually employs 4 different mole fraction types.
-   *  
-   *  1) There is a mole fraction associated the the cations and
-   *     anions and neutrals from this ThermoPhase object. This
-   *     is the normal mole fraction vector for this object.
-   *     Note, however, it isn't the appropriate mole fraction
-   *     vector to use even for obtaining the correct ideal 
-   *     free energies of mixing. 
-   *  2) There is a mole fraction vector associated with the
-   *     neutral molecule ThermoPhase object. 
-   *  3) There is a mole fraction vector associated with the
-   *     cation lattice. 
-   *  4) There is a mole fraction vector associated with the
-   *     anion lattice
-   *
-   *  This object can translate between any of the four mole
-   *  fraction representations.
-   *
-   *
-   */
-  class IonsFromNeutralVPSSTP : public GibbsExcessVPSSTP  {
+/*!
+ * The IonsFromNeutralVPSSTP is a derived class of ThermoPhase
+ * that handles the specification of the chemical potentials for
+ * ionic species, given a specification of the chemical potentials
+ * for the same phase expressed in terms of combinations of the
+ * ionic species that represent neutral molecules. It's expected
+ * that the neutral molecules will be represented in terms of
+ * an excess gibbs free energy approximation that is a derivative
+ * of the GbbsExcessVPSSTP object. All of the e Excess Gibbs free
+ *  energy formulations in this area employ
+ *  symmetrical formulations.
+ *
+ *  This class is used for molten salts.
+ *
+ *  This object actually employs 4 different mole fraction types.
+ *
+ *  1) There is a mole fraction associated the the cations and
+ *     anions and neutrals from this ThermoPhase object. This
+ *     is the normal mole fraction vector for this object.
+ *     Note, however, it isn't the appropriate mole fraction
+ *     vector to use even for obtaining the correct ideal
+ *     free energies of mixing.
+ *  2) There is a mole fraction vector associated with the
+ *     neutral molecule ThermoPhase object.
+ *  3) There is a mole fraction vector associated with the
+ *     cation lattice.
+ *  4) There is a mole fraction vector associated with the
+ *     anion lattice
+ *
+ *  This object can translate between any of the four mole
+ *  fraction representations.
+ *
+ *
+ */
+class IonsFromNeutralVPSSTP : public GibbsExcessVPSSTP
+{
 
-  public:
-        
-    /// Constructors 
+public:
+
+    /// Constructors
     /*!
      * Default constructor
      */
@@ -105,9 +107,9 @@ namespace Cantera {
      *                       If this parameter is zero, then a slave
      *                       neutral phase object is created and used.
      */
-    IonsFromNeutralVPSSTP(std::string inputFile, std::string id = "", 
-			    ThermoPhase *neutralPhase = 0);
-  
+    IonsFromNeutralVPSSTP(std::string inputFile, std::string id = "",
+                          ThermoPhase* neutralPhase = 0);
+
     //! Construct and initialize an IonsFromNeutralVPSSTP object
     //! directly from an XML database
     /*!
@@ -125,8 +127,8 @@ namespace Cantera {
      *                       If this parameter is zero, then a slave
      *                       neutral phase object is created and used.
      */
-    IonsFromNeutralVPSSTP(XML_Node& phaseRoot,  std::string id = "", 
-			  ThermoPhase *neutralPhase = 0);
+    IonsFromNeutralVPSSTP(XML_Node& phaseRoot,  std::string id = "",
+                          ThermoPhase* neutralPhase = 0);
 
 
     //! Copy constructor
@@ -136,16 +138,16 @@ namespace Cantera {
      *
      * @param b class to be copied
      */
-    IonsFromNeutralVPSSTP(const IonsFromNeutralVPSSTP &b);
+    IonsFromNeutralVPSSTP(const IonsFromNeutralVPSSTP& b);
 
     /// Assignment operator
     /*!
      *
      * @param b class to be copied.
      */
-    IonsFromNeutralVPSSTP & operator=(const IonsFromNeutralVPSSTP &b);
+    IonsFromNeutralVPSSTP& operator=(const IonsFromNeutralVPSSTP& b);
 
-    /// Destructor. 
+    /// Destructor.
     virtual ~IonsFromNeutralVPSSTP();
 
     //! Duplication routine for objects which inherit from ThermoPhase.
@@ -154,15 +156,15 @@ namespace Cantera {
      *  inherited from ThermoPhase even if the application only has
      *  a pointer to ThermoPhase to work with.
      */
-    virtual ThermoPhase *duplMyselfAsThermoPhase() const;
-    
+    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
+
     /**
-     *   
-     * @name  Utilities  
+     *
+     * @name  Utilities
      * @{
      */
 
-   
+
     //! Equation of state type flag.
     /*!
      * The ThermoPhase base class returns
@@ -173,14 +175,14 @@ namespace Cantera {
      */
     virtual int eosType() const;
 
-   
+
 
     /**
-     * @} 
-     * @name  Molar Thermodynamic Properties 
+     * @}
+     * @name  Molar Thermodynamic Properties
      * @{
      */
-    
+
     //! Return the Molar enthalpy. Units: J/kmol.
     /*!
      * This is calculated from the partial molar enthalpies of the species
@@ -188,7 +190,7 @@ namespace Cantera {
     virtual doublereal enthalpy_mole() const;
 
     /**
-     * Molar internal energy. J/kmol. 
+     * Molar internal energy. J/kmol.
      *  *
      * This is calculated from the soln enthalpy and then
      * subtracting pV.
@@ -197,8 +199,8 @@ namespace Cantera {
 
     /**
      * Molar entropy. Units: J/kmol/K.
-     * 
-     * 
+     *
+     *
      */
     virtual doublereal entropy_mole() const;
 
@@ -210,7 +212,7 @@ namespace Cantera {
 
     /**
      * Molar heat capacity at constant pressure. Units: J/kmol/K.
-     * For an ideal gas mixture, 
+     * For an ideal gas mixture,
      *
      */
     virtual doublereal cp_mole() const;
@@ -224,12 +226,12 @@ namespace Cantera {
 
     /**
      * @}
-     * @name Utilities 
+     * @name Utilities
      * @{
      */
 
 
- 
+
 
     /**
      * @}
@@ -238,9 +240,9 @@ namespace Cantera {
      */
 
     /**
-     * @} 
+     * @}
      * @name Potential Energy
-     * 
+     *
      * Species may have an additional potential energy due to the
      * presence of external gravitation or electric fields. These
      * methods allow specifying a potential energy for individual
@@ -267,9 +269,9 @@ namespace Cantera {
      */
     virtual void getActivityCoefficients(doublereal* ac) const;
 
- 
+
     //@}
-    /// @name  Partial Molar Properties of the Solution 
+    /// @name  Partial Molar Properties of the Solution
     //@{
 
     //! Get the species chemical potentials. Units: J/kmol.
@@ -283,7 +285,7 @@ namespace Cantera {
      */
     virtual void getChemPotentials(doublereal* mu) const;
 
-    
+
     //! Returns an array of partial molar enthalpies for the species
     //! in the mixture.
     /*!
@@ -331,54 +333,54 @@ namespace Cantera {
      * @param dTds           Input of temperature change along the path
      * @param dXds           Input vector of changes in mole fraction along the path. length = m_kk
      *                       Along the path length it must be the case that the mole fractions sum to one.
-     * @param dlnActCoeffds  Output vector of the directional derivatives of the 
+     * @param dlnActCoeffds  Output vector of the directional derivatives of the
      *                       log Activity Coefficients along the path. length = m_kk
      */
-    virtual void getdlnActCoeffds(const doublereal dTds, const doublereal * const dXds,
-				  doublereal *dlnActCoeffds) const;
+    virtual void getdlnActCoeffds(const doublereal dTds, const doublereal* const dXds,
+                                  doublereal* dlnActCoeffds) const;
 
-    //! Get the array of log concentration-like derivatives of the 
+    //! Get the array of log concentration-like derivatives of the
     //! log activity coefficients - diagonal component
     /*!
-     * This function is a virtual method.  For ideal mixtures 
-     * (unity activity coefficients), this can return zero.  
-     * Implementations should take the derivative of the 
-     * logarithm of the activity coefficient with respect to the 
+     * This function is a virtual method.  For ideal mixtures
+     * (unity activity coefficients), this can return zero.
+     * Implementations should take the derivative of the
+     * logarithm of the activity coefficient with respect to the
      * logarithm of the mole fraction.
      *
      *  units = dimensionless
      *
-     * @param dlnActCoeffdlnX_diag    Output vector of log(mole fraction)  
+     * @param dlnActCoeffdlnX_diag    Output vector of log(mole fraction)
      *                 derivatives of the log Activity Coefficients.
      *                 length = m_kk
      */
-    virtual void getdlnActCoeffdlnX_diag(doublereal *dlnActCoeffdlnX_diag) const;
+    virtual void getdlnActCoeffdlnX_diag(doublereal* dlnActCoeffdlnX_diag) const;
 
-    //! Get the array of log concentration-like derivatives of the 
+    //! Get the array of log concentration-like derivatives of the
     //! log activity coefficients - diagonal components
     /*!
-     * This function is a virtual method.  For ideal mixtures 
-     * (unity activity coefficients), this can return zero.  
-     * Implementations should take the derivative of the 
-     * logarithm of the activity coefficient with respect to the 
+     * This function is a virtual method.  For ideal mixtures
+     * (unity activity coefficients), this can return zero.
+     * Implementations should take the derivative of the
+     * logarithm of the activity coefficient with respect to the
      * logarithm of the species mole numbe. This routine just does the diagonal entries.
      *
      *  units = dimensionless
      *
-     * @param dlnActCoeffdlnN_diag    Output vector of diagonal components of the log(mole fraction)  
+     * @param dlnActCoeffdlnN_diag    Output vector of diagonal components of the log(mole fraction)
      *                 derivatives of the log Activity Coefficients.
      *                 length = m_kk
      */
-    virtual void getdlnActCoeffdlnN_diag(doublereal *dlnActCoeffdlnN_diag) const;
+    virtual void getdlnActCoeffdlnN_diag(doublereal* dlnActCoeffdlnN_diag) const;
 
     //! Get the array of derivatives of the ln activity coefficients with respect to the ln species mole numbers
     /*!
      * Implementations should take the derivative of the logarithm of the activity coefficient with respect to a
      * log of a species mole number (with all other species mole numbers held constant)
-     * 
+     *
      *  units = 1 / kmol
      *
-     *  dlnActCoeffdlnN[ ld * k  + m]  will contain the derivative of log act_coeff for the <I>m</I><SUP>th</SUP> 
+     *  dlnActCoeffdlnN[ ld * k  + m]  will contain the derivative of log act_coeff for the <I>m</I><SUP>th</SUP>
      *                                 species with respect to the number of moles of the <I>k</I><SUP>th</SUP> species.
      *
      * \f[
@@ -386,10 +388,10 @@ namespace Cantera {
      * \f]
      *
      * @param ld               Number of rows in the matrix
-     * @param dlnActCoeffdlnN    Output vector of derivatives of the 
-     *                         log Activity Coefficients. length = m_kk * m_kk        
+     * @param dlnActCoeffdlnN    Output vector of derivatives of the
+     *                         log Activity Coefficients. length = m_kk * m_kk
      */
-    virtual void getdlnActCoeffdlnN(const int ld, doublereal * const dlnActCoeffdlnN) ;
+    virtual void getdlnActCoeffdlnN(const int ld, doublereal* const dlnActCoeffdlnN) ;
 
 
     //! Get the Salt Dissociation Coefficients
@@ -409,7 +411,7 @@ namespace Cantera {
      *   @param neutralMoleculeMoleFractions  Vector of neutral molecule mole fractions.
      */
     void getNeutralMolecMoleFractions(vector_fp& neutralMoleculeMoleFractions) const {
-      neutralMoleculeMoleFractions = NeutralMolecMoleFractions_;
+        neutralMoleculeMoleFractions = NeutralMolecMoleFractions_;
     }
 
     //! Calculate neutral molecule mole fractions
@@ -419,7 +421,7 @@ namespace Cantera {
      *  i.e., the mole fractions from this ThermoPhase.
      *  Note, this routine basically assumes that there
      *  is charge neutrality. If there isn't, then it wouldn't
-     *  make much sense. 
+     *  make much sense.
      *
      *  for the case of  cIonSolnType_SINGLEANION, some slough
      *  in the charge neutrality is allowed. The cation number
@@ -429,14 +431,14 @@ namespace Cantera {
      *  @param  dx  input vector of ion mole fraction gradients
      *  @param  dy  output Vector of neutral molecule mole fraction gradients
      */
-    void getNeutralMoleculeMoleGrads(const doublereal * const dx, doublereal *const dy) const;
+    void getNeutralMoleculeMoleGrads(const doublereal* const dx, doublereal* const dy) const;
 
     //! Get the list of cations in this object
     /*!
      *  @param cation  List of cations
      */
     void getCationList(std::vector<size_t>& cation) const {
-      cation=cationList_;
+        cation=cationList_;
     }
 
     //! Get the list of anions in this object
@@ -444,15 +446,15 @@ namespace Cantera {
      *  @param anion  List of anions
      */
     void getAnionList(std::vector<size_t>& anion) const {
-      anion=anionList_;
+        anion=anionList_;
     }
 
- 
+
     //@}
     /// @name  Properties of the Standard State of the Species in the Solution
     //@{
 
-     
+
 
     //@}
     /// @name Thermodynamic Values for the Species Reference States
@@ -493,12 +495,12 @@ namespace Cantera {
     virtual void setState_TP(doublereal t, doublereal p);
 
 
-    //! Calculate ion mole fractions from neutral molecule 
+    //! Calculate ion mole fractions from neutral molecule
     //! mole fractions.
     /*!
      *  @param mf Dump the mole fractions into this vector.
      */
-    virtual void calcIonMoleFractions(doublereal *const mf) const;
+    virtual void calcIonMoleFractions(doublereal* const mf) const;
 
     //! Calculate neutral molecule mole fractions
     /*!
@@ -507,7 +509,7 @@ namespace Cantera {
      *  i.e., the mole fractions from this ThermoPhase.
      *  Note, this routine basically assumes that there
      *  is charge neutrality. If there isn't, then it wouldn't
-     *  make much sense. 
+     *  make much sense.
      *
      *  for the case of  cIonSolnType_SINGLEANION, some slough
      *  in the charge neutrality is allowed. The cation number
@@ -516,16 +518,16 @@ namespace Cantera {
      */
     virtual void calcNeutralMoleculeMoleFractions() const;
 
-   /**
-     * Set the mass fractions to the specified values, and then
-     * normalize them so that they sum to 1.0.
-     * @param y Array of unnormalized mass fraction values (input).
-     * Must have a length greater than or equal to the number of
-     * species.
-     *
-     * @param y  Input vector of mass fractions.
-     *           Length is m_kk.
-     */
+    /**
+      * Set the mass fractions to the specified values, and then
+      * normalize them so that they sum to 1.0.
+      * @param y Array of unnormalized mass fraction values (input).
+      * Must have a length greater than or equal to the number of
+      * species.
+      *
+      * @param y  Input vector of mass fractions.
+      *           Length is m_kk.
+      */
     virtual void setMassFractions(const doublereal* const y);
 
     /**
@@ -586,16 +588,16 @@ namespace Cantera {
      * @{
      */
 
-   
+
 
     //@}
 
 
 
     /// The following methods are used in the process of constructing
-    /// the phase and setting its parameters from a specification in an 
+    /// the phase and setting its parameters from a specification in an
     /// input file. They are not normally used in application programs.
-    /// To see how they are used, see files importCTML.cpp and 
+    /// To see how they are used, see files importCTML.cpp and
     /// ThermoFactory.cpp.
 
     //! Initialization of an IonsFromNeutralVPSSTP phase using an xml file
@@ -668,18 +670,18 @@ namespace Cantera {
      *             the species in the phase.
      * @param id   ID of the phase. If nonnull, a check is done
      *             to see if phaseNode is pointing to the phase
-     *             with the correct id. 
+     *             with the correct id.
      */
     void initThermoXML(XML_Node& phaseNode, std::string id);
 
 
-  private:
-  
+private:
+
 
     //! Initialize lengths of local variables after all species have
     //! been identified.
     void initLengths();
-            
+
     //! Update the activity coefficients
     /*!
      * This function will be called to update the internally storred
@@ -730,7 +732,7 @@ namespace Cantera {
     void s_update_dlnActCoeff_dlnN() const;
 
 
-  private:
+private:
     //! Error function
     /*!
      *  Print an error string and exit
@@ -739,20 +741,20 @@ namespace Cantera {
      */
     doublereal err(std::string msg) const;
 
-  protected:
+protected:
 
     //! Ion solution type
     /*!
      *  There is either mixing on the anion, cation, or both lattices.
      *  There is also a passthrough option
-     * 
+     *
      *  Defaults to cIonSolnType_SINGLEANION, so that LiKCl can be hardwired
      */
     IonSolnType_enumType ionSolnType_;
 
     //! Number of neutral molecule species
     /*!
-     *  This is equal to the number of species in the 
+     *  This is equal to the number of species in the
      *  neutralMoleculePhase_ ThermoPhase.
      */
     size_t numNeutralMoleculeSpecies_;
@@ -762,7 +764,7 @@ namespace Cantera {
 
     //! Index of special species
     size_t indexSecondSpecialSpecies_;
-    
+
     //! Formula Matrix for composition of neutral molecules
     //! in terms of the molecules in this ThermoPhase
     /*!
@@ -776,19 +778,19 @@ namespace Cantera {
     //! Mapping between ion species and neutral molecule for quick invert.
     /*!
      *
-     * fm_invert_ionForNeutral returns vector of int. Each element represents 
-     * an ionic species and stores the value of the corresponding neutral 
+     * fm_invert_ionForNeutral returns vector of int. Each element represents
+     * an ionic species and stores the value of the corresponding neutral
      * molecule
      *
      *  For the case of fm_invert_simple_ = true, we assume that there
      *  is a quick way to invert the formula matrix so that we can
      *  quickly calculate the neutral molecule mole fraction
-     *  given the ion mole fraction vector. 
+     *  given the ion mole fraction vector.
      *
      *  We assume that for a selected set of ion species, that that
      *  ion is only in the neutral molecule, jNeut.
      *
-     *     therefore,    
+     *     therefore,
      *
      *      NeutralMolecMoleFractions_[jNeut] += moleFractions_[i_ion] / fmij;
      *
@@ -822,22 +824,22 @@ namespace Cantera {
     //! through to the neutralMoleculePhase ThermoPhase.
     /*!
      *  These have neutral charges.
-     */ 
+     */
     std::vector<size_t> passThroughList_;
 
     //! Number of the species in this ThermoPhase which are passed
     //! through to the neutralMoleculePhase ThermoPhase
     size_t numPassThroughSpecies_;
 
-  public:
+public:
     //! This is a pointer to the neutral Molecule Phase
     /*!
      *  If the variable, IOwnNThermoPhase_ is true, then we own
      *  the pointer. If not, then this is considered a shallow pointer.
      */
-    ThermoPhase *neutralMoleculePhase_;
+    ThermoPhase* neutralMoleculePhase_;
 
-  private:
+private:
 
     //! If true then we own the underlying neutral Molecule Phase
     /*!
@@ -845,7 +847,7 @@ namespace Cantera {
      *  as a shallow pointer.
      */
     bool IOwnNThermoPhase_;
-   
+
     //! Temporary mole fraction vector
     mutable std::vector<doublereal> moleFractionsTmp_;
 
@@ -853,7 +855,7 @@ namespace Cantera {
     /*!
      *  This vector is used as a temporary storage area when calculating the ion chemical
      *  potentials.
-     * 
+     *
      *  Units = Joules/kmol
      *  Length =  numNeutralMoleculeSpecies_
      */
@@ -863,7 +865,7 @@ namespace Cantera {
     /*!
      *  This vector is used as a temporary storage area when calculating the ion chemical
      *  potentials and activity coefficients
-     * 
+     *
      *  Units = none
      *  Length =  numNeutralMoleculeSpecies_
      */
@@ -873,7 +875,7 @@ namespace Cantera {
     /*!
      *  This vector is used as a temporary storage area when calculating the ion derivatives
 
-     * 
+     *
      *  Units =  1/Kelvin
      *  Length =  numNeutralMoleculeSpecies_
      */
@@ -882,7 +884,7 @@ namespace Cantera {
     //! Storage vector for the neutral molecule d ln activity coefficients dX - diagonal component
     /*!
      *  This vector is used as a temporary storage area when calculating the ion derivatives
-     * 
+     *
      *  Units =  none
      *  Length =  numNeutralMoleculeSpecies_
      */
@@ -891,27 +893,27 @@ namespace Cantera {
     //! Storage vector for the neutral molecule d ln activity coefficients dlnN - diagonal component
     /*!
      *  This vector is used as a temporary storage area when calculating the ion derivatives
-     * 
+     *
      *  Units =  none
      *  Length =  numNeutralMoleculeSpecies_
      */
     mutable std::vector<doublereal> dlnActCoeffdlnN_diag_NeutralMolecule_;
 
-    //! Storage vector for the neutral molecule d ln activity coefficients dlnN 
+    //! Storage vector for the neutral molecule d ln activity coefficients dlnN
     /*!
      *  This vector is used as a temporary storage area when calculating the ion derivatives
-     * 
+     *
      *  Units =  none
      *  Length =  numNeutralMoleculeSpecies_
      */
     mutable Array2D dlnActCoeffdlnN_NeutralMolecule_;
 
-  };
+};
 
 
 
 
 
 }
-        
+
 #endif

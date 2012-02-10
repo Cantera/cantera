@@ -21,19 +21,21 @@
 
 #include "MultiPhaseEquil.h"
 
-namespace Cantera {
+namespace Cantera
+{
 
-  int _equilflag(const char* xy);
+int _equilflag(const char* xy);
 
-  /**
-   *  Chemical equilibrium options. Used internally by class ChemEquil.
-   */
-  class EquilOpt {
-  public:
-    EquilOpt() : relTolerance(1.e-8), absElemTol(1.0E-70),maxIterations(1000), 
-		 iterations(0), 
-		 maxStepSize(10.0), propertyPair(TP), contin(false) {}
-        
+/**
+ *  Chemical equilibrium options. Used internally by class ChemEquil.
+ */
+class EquilOpt
+{
+public:
+    EquilOpt() : relTolerance(1.e-8), absElemTol(1.0E-70),maxIterations(1000),
+        iterations(0),
+        maxStepSize(10.0), propertyPair(TP), contin(false) {}
+
     doublereal relTolerance;      ///< Relative tolerance
     doublereal absElemTol;        ///< Abs Tol in element number
     int maxIterations;            ///< Maximum number of iterations
@@ -43,57 +45,58 @@ namespace Cantera {
      * Maximum step size. Largest change in any element potential or
      * in log(T) allowed in one Newton step. Default: 10.0
      */
-    doublereal maxStepSize;       
+    doublereal maxStepSize;
 
-    /** 
+    /**
      * Property pair flag. Determines which two thermodynamic properties
      * are fixed.
      */
     int propertyPair;
 
-    /** 
+    /**
      * Continuation flag. Set true if the calculation should be
      * initialized from the last calculation. Otherwise, the
      * calculation will be started from scratch and the initial
      * composition and element potentials estimated.
      */
     bool contin;
-  };
+};
 
-  template<class M>
-  class PropertyCalculator;
+template<class M>
+class PropertyCalculator;
 
-  /**
-   * @defgroup equil Chemical Equilibrium
-   * 
-   */
+/**
+ * @defgroup equil Chemical Equilibrium
+ *
+ */
 
-  /**
-   *  Class ChemEquil implements a chemical equilibrium solver for
-   *  single-phase solutions. It is a "non-stoichiometric" solver in
-   *  the terminology of Smith and Missen, meaning that every
-   *  intermediate state is a valid chemical equilibrium state, but
-   *  does not necessarily satisfy the element constraints. In
-   *  contrast, the solver implemented in class MultiPhaseEquil uses
-   *  a "stoichiometric" algorithm, in which each intermediate state
-   *  satisfies the element constraints but is not a state of
-   *  chemical equilibrium. Non-stoichiometric methods are faster
-   *  when they converge, but stoichiometric ones tend to be more
-   *  robust and can be used also for problems with multiple
-   *  condensed phases.  As expected, the ChemEquil solver is faster
-   *  than MultiPhaseEquil for many single-phase equilibrium
-   *  problems (particularly if there are only a few elements but
-   *  vvery many species), but can be less stable. Problem
-   *  situations include low temperatures where only a few species
-   *  have non-zero mole fractions, precisely stoichiometric
-   *  compositions (e.g. 2 H2 + O2). In general, if speed is
-   *  important, this solver should be tried first, and if it fails
-   *  then use MultiPhaseEquil.
-   * @ingroup equil
-   */
-  class ChemEquil {
+/**
+ *  Class ChemEquil implements a chemical equilibrium solver for
+ *  single-phase solutions. It is a "non-stoichiometric" solver in
+ *  the terminology of Smith and Missen, meaning that every
+ *  intermediate state is a valid chemical equilibrium state, but
+ *  does not necessarily satisfy the element constraints. In
+ *  contrast, the solver implemented in class MultiPhaseEquil uses
+ *  a "stoichiometric" algorithm, in which each intermediate state
+ *  satisfies the element constraints but is not a state of
+ *  chemical equilibrium. Non-stoichiometric methods are faster
+ *  when they converge, but stoichiometric ones tend to be more
+ *  robust and can be used also for problems with multiple
+ *  condensed phases.  As expected, the ChemEquil solver is faster
+ *  than MultiPhaseEquil for many single-phase equilibrium
+ *  problems (particularly if there are only a few elements but
+ *  vvery many species), but can be less stable. Problem
+ *  situations include low temperatures where only a few species
+ *  have non-zero mole fractions, precisely stoichiometric
+ *  compositions (e.g. 2 H2 + O2). In general, if speed is
+ *  important, this solver should be tried first, and if it fails
+ *  then use MultiPhaseEquil.
+ * @ingroup equil
+ */
+class ChemEquil
+{
 
-  public:
+public:
     //! Default Constructor
     ChemEquil();
 
@@ -108,70 +111,74 @@ namespace Cantera {
     virtual ~ChemEquil();
 
     int equilibrate(thermo_t& s, const char* XY,
-        bool useThermoPhaseElementPotentials = false, int loglevel = 0);
+                    bool useThermoPhaseElementPotentials = false, int loglevel = 0);
     int equilibrate(thermo_t& s, const char* XY, vector_fp& elMoles,
-        bool useThermoPhaseElementPotentials = false, int loglevel = 0);
-    const vector_fp& elementPotentials() const { return m_lambda; }
+                    bool useThermoPhaseElementPotentials = false, int loglevel = 0);
+    const vector_fp& elementPotentials() const {
+        return m_lambda;
+    }
 
     /**
-     * Options controlling how the calculation is carried out. 
+     * Options controlling how the calculation is carried out.
      * @see EquilOptions
      */
     EquilOpt options;
 
 
-  protected:
+protected:
 
     //! Pointer to the %ThermoPhase object used to initialize this object.
 
     /*!
      *  This %ThermoPhase object must be compatible with the %ThermoPhase
      *  objects input from the equilibrate function. Currently, this
-     *  means that the 2 %ThermoPhases have to have consist of the same 
+     *  means that the 2 %ThermoPhases have to have consist of the same
      *  species and elements.
      */
     thermo_t*  m_phase;
- 
+
     /// number of atoms of element m in species k.
-    doublereal nAtoms(size_t k, size_t m) const { return m_comp[k*m_mm + m]; }
+    doublereal nAtoms(size_t k, size_t m) const {
+        return m_comp[k*m_mm + m];
+    }
 
     void initialize(thermo_t& s);
 
-    void setToEquilState(thermo_t& s, 
-			 const vector_fp& x, doublereal t);
+    void setToEquilState(thermo_t& s,
+                         const vector_fp& x, doublereal t);
 
-      int setInitialMoles(thermo_t& s, vector_fp& elMoleGoal, int loglevel = 0);
+    int setInitialMoles(thermo_t& s, vector_fp& elMoleGoal, int loglevel = 0);
 
     int estimateElementPotentials(thermo_t& s,  vector_fp& lambda,
-        vector_fp& elMolesGoal, int loglevel = 0);
-        
-    int estimateEP_Brinkley(thermo_t&s, vector_fp& lambda, vector_fp& elMoles);
+                                  vector_fp& elMolesGoal, int loglevel = 0);
 
-    int dampStep(thermo_t& s, vector_fp& oldx, 
-		 double oldf, vector_fp& grad, vector_fp& step, vector_fp& x, 
-		 double& f, vector_fp& elmols, double xval, double yval );
+    int estimateEP_Brinkley(thermo_t& s, vector_fp& lambda, vector_fp& elMoles);
 
-    void equilResidual(thermo_t& s, const vector_fp& x, 
-		       const vector_fp& elmtotal, vector_fp& resid, 
-        double xval, double yval, int loglevel = 0);
+    int dampStep(thermo_t& s, vector_fp& oldx,
+                 double oldf, vector_fp& grad, vector_fp& step, vector_fp& x,
+                 double& f, vector_fp& elmols, double xval, double yval);
 
-    void equilJacobian(thermo_t& s, vector_fp& x,  
-		       const vector_fp& elmols, DenseMatrix& jac, 
-        double xval, double yval, int loglevel = 0);
+    void equilResidual(thermo_t& s, const vector_fp& x,
+                       const vector_fp& elmtotal, vector_fp& resid,
+                       double xval, double yval, int loglevel = 0);
 
-    void adjustEloc(thermo_t& s, vector_fp & elMolesGoal);
+    void equilJacobian(thermo_t& s, vector_fp& x,
+                       const vector_fp& elmols, DenseMatrix& jac,
+                       double xval, double yval, int loglevel = 0);
+
+    void adjustEloc(thermo_t& s, vector_fp& elMolesGoal);
 
     void update(const thermo_t& s);
 
-    double calcEmoles(thermo_t& s, vector_fp& x, 
-		      const double & n_t, const vector_fp & Xmol_i_calc,
-		      vector_fp& eMolesCalc, vector_fp& n_i_calc,
-		      double pressureConst);
+    double calcEmoles(thermo_t& s, vector_fp& x,
+                      const double& n_t, const vector_fp& Xmol_i_calc,
+                      vector_fp& eMolesCalc, vector_fp& n_i_calc,
+                      double pressureConst);
 
     size_t m_mm;
     size_t m_kk;
     size_t m_skip;
-    
+
     /**
      * This is equal to the rank of the stoichiometric coefficient
      * matrix when it is computed. It's initialized to m_mm.
@@ -231,7 +238,7 @@ namespace Cantera {
 
     /*
      * element fractional cutoff, below which the element will be
-     * zeroed. 
+     * zeroed.
      */
     double m_elemFracCutoff;
     bool m_doResPerturb;
@@ -241,9 +248,9 @@ namespace Cantera {
     std::vector<size_t> m_orderVectorSpecies;
 
 
-  };
+};
 
-  extern int ChemEquil_print_lvl;
+extern int ChemEquil_print_lvl;
 
 }
 

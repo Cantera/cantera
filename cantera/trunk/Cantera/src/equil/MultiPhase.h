@@ -1,6 +1,6 @@
 /**
  * @file MultiPhase.h
- * Headers for the \link Cantera::MultiPhase MultiPhase\endlink 
+ * Headers for the \link Cantera::MultiPhase MultiPhase\endlink
  * object that is used to set up multiphase equilibrium problems (see \ref equilfunctions).
  */
 //  Copyright 2004  California Institute of Technology
@@ -13,52 +13,54 @@
 #include "DenseMatrix.h"
 #include "ThermoPhase.h"
 
-namespace Cantera {
+namespace Cantera
+{
 
-  //! A class for multiphase mixtures. The mixture can contain any
-  //! number of phases of any type. 
-  /*!
-   *   This object is the basic tool used by Cantera for use in
-   *   Multiphase equilibrium calculations. 
-   *
-   *   It is a container for a set of phases. Each phase has a 
-   *   given number of kmoles. Therefore, MultiPhase may be considered
-   *   an "extrinsic" thermodynamic object, in contrast to the ThermoPhase
-   *   object, which is an "intrinsic" thermodynamic object.
-   *
-   *   MultiPhase may be considered to be "upstream" of the ThermoPhase
-   *   objects in the sense that setting a property within MultiPhase,
-   *   such as temperature, pressure, or species mole number,
-   *   affects the underlying ThermoPhase object, but not the 
-   *   other way around. 
-   *
-   *    All phases have the same
-   *    temperature and pressure, and a specified number of moles for
-   *    each phase.
-   *    The phases do not need to have the same elements. For example,
-   *    a mixture might consist of a gaseous phase with elements (H,
-   *    C, O, N), a solid carbon phase containing only element C,
-   *    etc. A master element set will be constructed for the mixture
-   *    that is the intersection of the elements of each phase.
-   *
-   *   Below, reference is made to global species and global elements.
-   *   These refer to the collective species and elements encompassing
-   *   all of the phases tracked by the object. 
-   *
-   *   The global element list kept by this object is an
-   *   intersection of the element lists of all the phases that
-   *   comprise the MultiPhase.
-   *
-   *   The global species list kept by this object is a
-   *   concatenated list of all of the species in all the phases that
-   *   comprise the MultiPhase. The ordering of species is contiguous
-   *   with respect to the phase id.
-   *
-   *  @ingroup equilfunctions
-   */
-  class MultiPhase {
+//! A class for multiphase mixtures. The mixture can contain any
+//! number of phases of any type.
+/*!
+ *   This object is the basic tool used by Cantera for use in
+ *   Multiphase equilibrium calculations.
+ *
+ *   It is a container for a set of phases. Each phase has a
+ *   given number of kmoles. Therefore, MultiPhase may be considered
+ *   an "extrinsic" thermodynamic object, in contrast to the ThermoPhase
+ *   object, which is an "intrinsic" thermodynamic object.
+ *
+ *   MultiPhase may be considered to be "upstream" of the ThermoPhase
+ *   objects in the sense that setting a property within MultiPhase,
+ *   such as temperature, pressure, or species mole number,
+ *   affects the underlying ThermoPhase object, but not the
+ *   other way around.
+ *
+ *    All phases have the same
+ *    temperature and pressure, and a specified number of moles for
+ *    each phase.
+ *    The phases do not need to have the same elements. For example,
+ *    a mixture might consist of a gaseous phase with elements (H,
+ *    C, O, N), a solid carbon phase containing only element C,
+ *    etc. A master element set will be constructed for the mixture
+ *    that is the intersection of the elements of each phase.
+ *
+ *   Below, reference is made to global species and global elements.
+ *   These refer to the collective species and elements encompassing
+ *   all of the phases tracked by the object.
+ *
+ *   The global element list kept by this object is an
+ *   intersection of the element lists of all the phases that
+ *   comprise the MultiPhase.
+ *
+ *   The global species list kept by this object is a
+ *   concatenated list of all of the species in all the phases that
+ *   comprise the MultiPhase. The ordering of species is contiguous
+ *   with respect to the phase id.
+ *
+ *  @ingroup equilfunctions
+ */
+class MultiPhase
+{
 
-  public:
+public:
 
     //! Shorthand for an index variable that can't be negative
     typedef size_t       index_t;
@@ -83,7 +85,7 @@ namespace Cantera {
     /*!
      * @param right Object to be copied
      */
-    MultiPhase(const MultiPhase &right);
+    MultiPhase(const MultiPhase& right);
 
     //! Destructor.
     /*!
@@ -126,7 +128,9 @@ namespace Cantera {
     void addPhase(phase_t* p, doublereal moles);
 
     /// Number of elements.
-    size_t nElements() const { return m_nel; }
+    size_t nElements() const {
+        return m_nel;
+    }
 
     //! Returns the string name of the global element \a m.
     /*!
@@ -141,7 +145,9 @@ namespace Cantera {
     size_t elementIndex(std::string name) const;
 
     //! Number of species, summed over all phases.
-    size_t nSpecies() const { return m_nsp; }
+    size_t nSpecies() const {
+        return m_nsp;
+    }
 
     //! Name of species with global index \a kGlob
     /*!
@@ -169,7 +175,7 @@ namespace Cantera {
      */
     void getMoleFractions(doublereal* const x) const;
 
-    //! Process phases and build atomic composition array. 
+    //! Process phases and build atomic composition array.
     /*!This method
      *  must be called after all phases are added, before doing
      *  anything else with the mixture. After init() has been called,
@@ -190,7 +196,7 @@ namespace Cantera {
      * @return returns the index. A value of -1 means
      *         the phase isn't in the object.
      */
-    int phaseIndex(const std::string &pName) const;
+    int phaseIndex(const std::string& pName) const;
 
     //! Return the number of moles in phase n.
     /*!
@@ -234,7 +240,7 @@ namespace Cantera {
      * @param p index of the phase
      */
     size_t speciesIndex(index_t k, index_t p) const {
-      return m_spstart[p] + k;
+        return m_spstart[p] + k;
     }
 
     //! Return the global index of the species belonging to phase name \c phaseName
@@ -256,13 +262,17 @@ namespace Cantera {
     /// valid thermo data. Stoichiometric phases are not
     /// considered, since they may have thermo data only valid for
     /// conditions for which they are stable.
-    doublereal minTemp() const { return m_Tmin; }
+    doublereal minTemp() const {
+        return m_Tmin;
+    }
 
     /// Maximum temperature for which all solution phases have
     /// valid thermo data. Stoichiometric phases are not
     /// considered, since they may have thermo data only valid for
     /// conditions for which they are stable.
-    doublereal maxTemp() const { return m_Tmax; }
+    doublereal maxTemp() const {
+        return m_Tmax;
+    }
 
     //! Total charge summed over all phases (Coulombs).
     doublereal charge() const;
@@ -326,7 +336,7 @@ namespace Cantera {
      *   range for which their thermo data are valid.
      *
      * @param not_mu Value of the chemical potential to set
-     *               species in phases, for which the thermo data 
+     *               species in phases, for which the thermo data
      *               is not valid
      *
      * @param mu    Vector of chemical potentials
@@ -338,10 +348,12 @@ namespace Cantera {
      *                  potentials.
      */
     void getValidChemPotentials(doublereal not_mu, doublereal* mu,
-				bool standard = false) const;
+                                bool standard = false) const;
 
     //! Temperature [K].
-    doublereal temperature() const { return m_temp; }
+    doublereal temperature() const {
+        return m_temp;
+    }
 
     //! Set the mixture to a state of chemical equilibrium.
     /*!
@@ -357,7 +369,7 @@ namespace Cantera {
      *                    file in HTML format.
      */
     doublereal equilibrate(int XY, doublereal err = 1.0e-9,
-			   int maxsteps = 1000, int maxiter = 200, int loglevel = -99);
+                           int maxsteps = 1000, int maxiter = 200, int loglevel = -99);
 
 
     /// Set the temperature [K].
@@ -381,16 +393,16 @@ namespace Cantera {
      *   @param Moles  Vector of mole numbers of all the species in all the phases
      *                 (kmol)
      */
-    void setState_TPMoles(const doublereal T, const doublereal Pres, const doublereal *Moles);
+    void setState_TPMoles(const doublereal T, const doublereal Pres, const doublereal* Moles);
 
     /// Pressure [Pa].
     doublereal pressure() const {
-      return m_press;
+        return m_press;
     }
 
     /// Volume [m^3].
     /*!
-     * Returns the cummulative sum of the volumes of all the 
+     * Returns the cummulative sum of the volumes of all the
      * phases in the %MultiPhase.
      */
     doublereal volume() const;
@@ -400,8 +412,8 @@ namespace Cantera {
      * @param P Set the pressure in the %MultiPhase object (Pa)
      */
     void setPressure(doublereal P) {
-      m_press = P;
-      updatePhases();
+        m_press = P;
+        updatePhases();
     }
 
     /// Enthalpy [J].
@@ -421,7 +433,7 @@ namespace Cantera {
 
     /// Number of phases.
     index_t nPhases() const {
-      return m_np;
+        return m_np;
     }
 
     //! Return true is species \a kGlob is a species in a
@@ -459,7 +471,7 @@ namespace Cantera {
 
     //! Set the number numbers of species in the MultiPhase
     /*!
-     *  @param xMap   CompositionMap of the species with 
+     *  @param xMap   CompositionMap of the species with
      *                nonzero mole numbers
      *                units = kmol.
      */
@@ -476,7 +488,7 @@ namespace Cantera {
      */
     void setMolesByName(const std::string& x);
 
-  
+
     //! Return a vector of global species mole numbers
     /*!
      *  Returns a vector of the number of moles of each species
@@ -486,7 +498,7 @@ namespace Cantera {
      *               containing the global mole numbers
      *               (kmol).
      */
-    void getMoles(doublereal * molNum) const;
+    void getMoles(doublereal* molNum) const;
 
     //! Sets all of the global species mole numbers
     /*!
@@ -514,7 +526,7 @@ namespace Cantera {
      * Index is the global element index
      * units is in kmol.
      */
-    void getElemAbundances(doublereal * elemAbundances) const;
+    void getElemAbundances(doublereal* elemAbundances) const;
 
     //! Return true if the phase \a p has valid thermo data for
     //! the current temperature.
@@ -532,7 +544,7 @@ namespace Cantera {
      *  @deprecated  'update' is confusing within this context.
      *               Switching to the terminology 'uploadFrom'
      *               and 'downloadTo'. uploadFrom means to
-     *               query the underlying ThermoPhase objects and 
+     *               query the underlying ThermoPhase objects and
      *               fill in the resulting information within
      *               this object. downloadTo means to take information
      *               from this object and put it into the underlying
@@ -571,7 +583,7 @@ namespace Cantera {
      */
     void updatePhases() const;
 
-  private:
+private:
     //! Calculate the element abundance vector
     void calcElemAbundances() const;
 
@@ -698,144 +710,144 @@ namespace Cantera {
      *      species in all phases.
      */
     mutable vector_fp m_elemAbundances;
-  };
+};
 
-  //! Function to output a MultiPhase description to a stream
-  /*!
-   *  Writes out a description of the contents of each phase of the 
-   *  MultiPhase using the report function.
-   *
-   *  @param s ostream
-   *  @param x  Reference to a MultiPhase
-   *  @return returns a reference to the ostream
-   */
-  inline std::ostream& operator<<(std::ostream& s, Cantera::MultiPhase& x) {
+//! Function to output a MultiPhase description to a stream
+/*!
+ *  Writes out a description of the contents of each phase of the
+ *  MultiPhase using the report function.
+ *
+ *  @param s ostream
+ *  @param x  Reference to a MultiPhase
+ *  @return returns a reference to the ostream
+ */
+inline std::ostream& operator<<(std::ostream& s, Cantera::MultiPhase& x)
+{
     size_t ip;
     for (ip = 0; ip < x.nPhases(); ip++) {
-      if (x.phase(ip).name() != "") {
-	s << "*************** " << x.phase(ip).name() << " *****************" << std::endl;
-      }
-      else {
-	s << "*************** Phase " << ip << " *****************" << std::endl;
-      }
-      s << "Moles: " << x.phaseMoles(ip) << std::endl;
+        if (x.phase(ip).name() != "") {
+            s << "*************** " << x.phase(ip).name() << " *****************" << std::endl;
+        } else {
+            s << "*************** Phase " << ip << " *****************" << std::endl;
+        }
+        s << "Moles: " << x.phaseMoles(ip) << std::endl;
 
-      s << report(x.phase(ip)) << std::endl;
+        s << report(x.phase(ip)) << std::endl;
     }
     return s;
-  }
+}
 
-  //!  Choose the optimum basis of species for the equilibrium calculations.
-  /*!
-   * This is done by 
-   * choosing the species with the largest mole fraction 
-   * not currently a linear combination of the previous components. 
-   * Then, calculate the stoichiometric coefficient matrix for that 
-   * basis. 
-   *
-   * Calculates the identity of the component species in the mechanism. 
-   * Rearranges the solution data to put the component data at the 
-   * front of the species list. 
-   *
-   * Then, calculates SC(J,I) the formation reactions for all noncomponent 
-   * species in the mechanism. 
-   *
-   * Input 
-   * --------- 
-   * @param mphase   Pointer to the multiphase object. Contains the 
-   *                 species mole fractions, which are used to pick the
-   *                 current optimal species component basis.
-   * @param orderVectorElements
-   *                 Order vector for the elements. The element rows
-   *                 in the formula matrix are
-   *                 rearranged according to this vector.
-   * @param orderVectorSpecies
-   *                 Order vector for the species. The species are
-   *                 rearranged according to this formula. The first
-   *                 nCompoments of this vector contain the calculated
-   *                 species components on exit.
-   * @param doFormRxn  If true, the routine calculates the formation
-   *                 reaction matrix based on the calculated 
-   *                 component species. If false, this step is skipped.
-   * 
-   * Output 
-   * --------- 
-   *  @param usedZeroedSpecies = If true, then a species with a zero concentration
-   *                     was used as a component. The problem may be
-   *                     converged.
-   * @param formRxnMatrix 
-   *
-   * @return      Returns the number of components.
-   *
-   *  @ingroup equilfunctions
-   */
-  size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
-                       MultiPhase* mphase, std::vector<size_t>& orderVectorSpecies,
-                       std::vector<size_t>& orderVectorElements,
-                       vector_fp& formRxnMatrix);
+//!  Choose the optimum basis of species for the equilibrium calculations.
+/*!
+ * This is done by
+ * choosing the species with the largest mole fraction
+ * not currently a linear combination of the previous components.
+ * Then, calculate the stoichiometric coefficient matrix for that
+ * basis.
+ *
+ * Calculates the identity of the component species in the mechanism.
+ * Rearranges the solution data to put the component data at the
+ * front of the species list.
+ *
+ * Then, calculates SC(J,I) the formation reactions for all noncomponent
+ * species in the mechanism.
+ *
+ * Input
+ * ---------
+ * @param mphase   Pointer to the multiphase object. Contains the
+ *                 species mole fractions, which are used to pick the
+ *                 current optimal species component basis.
+ * @param orderVectorElements
+ *                 Order vector for the elements. The element rows
+ *                 in the formula matrix are
+ *                 rearranged according to this vector.
+ * @param orderVectorSpecies
+ *                 Order vector for the species. The species are
+ *                 rearranged according to this formula. The first
+ *                 nCompoments of this vector contain the calculated
+ *                 species components on exit.
+ * @param doFormRxn  If true, the routine calculates the formation
+ *                 reaction matrix based on the calculated
+ *                 component species. If false, this step is skipped.
+ *
+ * Output
+ * ---------
+ *  @param usedZeroedSpecies = If true, then a species with a zero concentration
+ *                     was used as a component. The problem may be
+ *                     converged.
+ * @param formRxnMatrix
+ *
+ * @return      Returns the number of components.
+ *
+ *  @ingroup equilfunctions
+ */
+size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
+                     MultiPhase* mphase, std::vector<size_t>& orderVectorSpecies,
+                     std::vector<size_t>& orderVectorElements,
+                     vector_fp& formRxnMatrix);
 
-  //!   This subroutine handles the potential rearrangement of the constraint
-  //!   equations represented by the Formula Matrix. 
-  /*!
-   *    Rearrangement is only
-   *    necessary when the number of components is less than the number of
-   *    elements. For this case, some constraints can never be satisfied 
-   *    exactly, because the range space represented by the Formula
-   *    Matrix of the components can't span the extra space. These 
-   *    constraints, which are out of the range space of the component
-   *    Formula matrix entries, are migrated to the back of the Formula
-   *    matrix.
-   *
-   *    A prototypical example is an extra element column in 
-   *    FormulaMatrix[], 
-   *    which is identically zero. For example, let's say that argon is
-   *    has an element column in FormulaMatrix[], but no species in the 
-   *    mechanism
-   *    actually contains argon. Then, nc < ne. Unless the entry for
-   *    desired element abundance vector for Ar is zero, then this
-   *    element abundance constraint can never be satisfied. The 
-   *    constraint vector is not in the range space of the formula
-   *    matrix.
-   *    Also, without perturbation
-   *    of FormulaMatrix[], BasisOptimize[] would produce a zero pivot 
-   *    because the matrix
-   *    would be singular (unless the argon element column was already the
-   *    last column of  FormulaMatrix[]. 
-   *       This routine borrows heavily from BasisOptimize algorithm. It 
-   *    finds nc constraints which span the range space of the Component
-   *    Formula matrix, and assigns them as the first nc components in the
-   *    formular matrix. This guarrantees that BasisOptimize has a
-   *    nonsingular matrix to invert.
-   *  input 
-   *    @param nComponents  Number of components calculated previously.
-   *
-   *    @param elementAbundances  Current value of the element abundances
-   *
-   *    @param mphase  Input pointer to a MultiPhase object
-   *
-   *    @param orderVectorSpecies input vector containing the ordering
-   *                of the global species in mphase. This is used
-   *                to extract the component basis of the mphase object.
-   *
-   *  output
-   *     @param orderVectorElements Ouput vector containing the order
-   *                      of the elements that is necessary for 
-   *                      calculation of the formula matrix. 
-   *
-   *  @ingroup equilfunctions
-   */
-  size_t ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
-                       MultiPhase* mphase,
-                       std::vector<size_t>& orderVectorSpecies,
-                       std::vector<size_t>& orderVectorElements);
+//!   This subroutine handles the potential rearrangement of the constraint
+//!   equations represented by the Formula Matrix.
+/*!
+ *    Rearrangement is only
+ *    necessary when the number of components is less than the number of
+ *    elements. For this case, some constraints can never be satisfied
+ *    exactly, because the range space represented by the Formula
+ *    Matrix of the components can't span the extra space. These
+ *    constraints, which are out of the range space of the component
+ *    Formula matrix entries, are migrated to the back of the Formula
+ *    matrix.
+ *
+ *    A prototypical example is an extra element column in
+ *    FormulaMatrix[],
+ *    which is identically zero. For example, let's say that argon is
+ *    has an element column in FormulaMatrix[], but no species in the
+ *    mechanism
+ *    actually contains argon. Then, nc < ne. Unless the entry for
+ *    desired element abundance vector for Ar is zero, then this
+ *    element abundance constraint can never be satisfied. The
+ *    constraint vector is not in the range space of the formula
+ *    matrix.
+ *    Also, without perturbation
+ *    of FormulaMatrix[], BasisOptimize[] would produce a zero pivot
+ *    because the matrix
+ *    would be singular (unless the argon element column was already the
+ *    last column of  FormulaMatrix[].
+ *       This routine borrows heavily from BasisOptimize algorithm. It
+ *    finds nc constraints which span the range space of the Component
+ *    Formula matrix, and assigns them as the first nc components in the
+ *    formular matrix. This guarrantees that BasisOptimize has a
+ *    nonsingular matrix to invert.
+ *  input
+ *    @param nComponents  Number of components calculated previously.
+ *
+ *    @param elementAbundances  Current value of the element abundances
+ *
+ *    @param mphase  Input pointer to a MultiPhase object
+ *
+ *    @param orderVectorSpecies input vector containing the ordering
+ *                of the global species in mphase. This is used
+ *                to extract the component basis of the mphase object.
+ *
+ *  output
+ *     @param orderVectorElements Ouput vector containing the order
+ *                      of the elements that is necessary for
+ *                      calculation of the formula matrix.
+ *
+ *  @ingroup equilfunctions
+ */
+size_t ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
+                     MultiPhase* mphase,
+                     std::vector<size_t>& orderVectorSpecies,
+                     std::vector<size_t>& orderVectorElements);
 
 #ifdef DEBUG_MODE
-  //! External int that is used to turn on debug printing for the
-  //! BasisOptimze program.
-  /*!
-   *   Set this to 1 if you want debug printing from BasisOptimize.
-   */
-  extern int BasisOptimize_print_lvl;
+//! External int that is used to turn on debug printing for the
+//! BasisOptimze program.
+/*!
+ *   Set this to 1 if you want debug printing from BasisOptimize.
+ */
+extern int BasisOptimize_print_lvl;
 #endif
 }
 

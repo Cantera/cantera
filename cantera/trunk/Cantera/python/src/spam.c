@@ -8,6 +8,6 @@
 PyMODINIT_FUNC
 init_spam(void)
 {
-  Py_InitModule3("_spam", NULL,
-           "Spam, spam, spam, eggs, and spam.");
+    Py_InitModule3("_spam", NULL,
+                   "Spam, spam, spam, eggs, and spam.");
 }

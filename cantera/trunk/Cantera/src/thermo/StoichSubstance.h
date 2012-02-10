@@ -13,19 +13,21 @@
 #include "ThermoPhase.h"
 #include "SpeciesThermo.h"
 
-namespace Cantera {
+namespace Cantera
+{
 
-  /**
-   * @ingroup thermoprops
-   *
-   * Class StoichSubstance represents a stoichiometric (fixed composition) 
-   * incompressible substance.
-   * \nosubgrouping
-   *
-   */
-  class StoichSubstance : public ThermoPhase {
+/**
+ * @ingroup thermoprops
+ *
+ * Class StoichSubstance represents a stoichiometric (fixed composition)
+ * incompressible substance.
+ * \nosubgrouping
+ *
+ */
+class StoichSubstance : public ThermoPhase
+{
 
-  public:
+public:
 
     //! Default empty constructor
     StoichSubstance();
@@ -39,7 +41,7 @@ namespace Cantera {
      *
      * @param right Object to be copied.
      */
-    StoichSubstance(const StoichSubstance &right);
+    StoichSubstance(const StoichSubstance& right);
 
     //! Asignment operator
     /*!
@@ -49,7 +51,7 @@ namespace Cantera {
      *
      * @param right Object to be copied.
      */
-    StoichSubstance& operator=(const StoichSubstance &right);
+    StoichSubstance& operator=(const StoichSubstance& right);
 
     //! Destructor
     virtual ~StoichSubstance();
@@ -62,11 +64,11 @@ namespace Cantera {
      *
      * @return returns a pointer to a %ThermoPhase
      */
-    ThermoPhase *duplMyselfAsThermoPhase() const;
+    ThermoPhase* duplMyselfAsThermoPhase() const;
 
     /**
-     *   
-     * @name  Utilities  
+     *
+     * @name  Utilities
      * @{
      */
 
@@ -74,7 +76,9 @@ namespace Cantera {
      * Equation of state flag. Returns the value cStoichSubstance,
      * defined in mix_defs.h.
      */
-    virtual int eosType() const { return cStoichSubstance; }
+    virtual int eosType() const {
+        return cStoichSubstance;
+    }
 
 
     /**
@@ -136,21 +140,21 @@ namespace Cantera {
      * @{
      */
 
-        
+
     //! Report the Pressure. Units: Pa.
     /*!
      * For an incompressible substance, the density is independent
      * of pressure. This method simply returns the storred
      * pressure value.
-     */ 
+     */
     virtual doublereal pressure() const;
-      
+
 
     //! Set the pressure at constant temperature. Units: Pa.
     /*!
-     * For an incompressible substance, the density is 
-     * independent of pressure. Therefore, this method only 
-     * stores the specified pressure value. It does not 
+     * For an incompressible substance, the density is
+     * independent of pressure. Therefore, this method only
+     * stores the specified pressure value. It does not
      * modify the density.
      *
      * @param p Pressure (units - Pa)
@@ -172,23 +176,23 @@ namespace Cantera {
     virtual void getActivityConcentrations(doublereal* c) const;
 
     /**
-     * The standard concentration. This is defined as the concentration 
-     * by which the generalized concentration is normalized to produce 
-     * the activity. 
-     */ 
+     * The standard concentration. This is defined as the concentration
+     * by which the generalized concentration is normalized to produce
+     * the activity.
+     */
     virtual doublereal standardConcentration(size_t k=0) const;
 
     /**
-     * Returns the natural logarithm of the standard 
+     * Returns the natural logarithm of the standard
      * concentration of the kth species
      */
     virtual doublereal logStandardConc(size_t k=0) const;
 
     /**
-     * Get the array of chemical potentials at unit activity 
+     * Get the array of chemical potentials at unit activity
      * \f$ \mu^0_k \f$.
      *
-     * For a stoichiometric substance, there is no activity term in 
+     * For a stoichiometric substance, there is no activity term in
      * the chemical potential expression, and therefore the
      * standard chemical potential and the chemical potential
      * are both equal to the molar Gibbs function.
@@ -212,8 +216,8 @@ namespace Cantera {
      *  uA[4] = Temperature units - default = 0;
      *  uA[5] = time units - default = 0
      */
-    virtual void getUnitsStandardConc(double *uA, int k = 0,
-				      int sizeUA = 6) const;
+    virtual void getUnitsStandardConc(double* uA, int k = 0,
+                                      int sizeUA = 6) const;
 
 
     //@}
@@ -221,14 +225,14 @@ namespace Cantera {
     //@{
 
 
-    /** 
-     * Get the array of non-dimensional chemical potentials 
+    /**
+     * Get the array of non-dimensional chemical potentials
      * \f$ \mu_k / \hat R T \f$.
      */
     virtual void getChemPotentials_RT(doublereal* mu) const;
 
     /**
-     * For a stoichiometric substance, there is only one species. 
+     * For a stoichiometric substance, there is only one species.
      * This method returns the molar gibbs function in the
      * first element of array \c mu.
      */
@@ -236,7 +240,7 @@ namespace Cantera {
 
     /**
      * Get the species electrochemical potentials. Units: J/kmol.
-     * This method adds a term \f$ Fz_k \phi_k \f$ to the 
+     * This method adds a term \f$ Fz_k \phi_k \f$ to the
      * to each chemical potential.
      */
     void getElectrochemPotentials(doublereal* mu) const;
@@ -259,14 +263,14 @@ namespace Cantera {
      * in the solution. Units: m^3 kmol-1.
      */
     virtual void getPartialMolarVolumes(doublereal* vbar) const;
-  
+
 
     //@}
     /// @name  Properties of the Standard State of the Species in the Solution -----
     //@{
     /**
      * Get the nondimensional Enthalpy functions for the species
-     * at their standard states at the current 
+     * at their standard states at the current
      * <I>T</I> and <I>P</I> of the solution.
      */
     virtual void getEnthalpy_RT(doublereal* hrt) const;
@@ -296,8 +300,8 @@ namespace Cantera {
 
     /**
      * Get the nondimensional Heat Capacities at constant
-     * pressure for the standard state of the species 
-     * at the current T and P. 
+     * pressure for the standard state of the species
+     * at the current T and P.
      */
     virtual void getCp_R(doublereal* cpr) const;
 
@@ -305,7 +309,7 @@ namespace Cantera {
      * Get the standard volumes for the standard state of the species
      * at the current T and P
      */
-    virtual void getStandardVolumes(doublereal*vol) const;
+    virtual void getStandardVolumes(doublereal* vol) const;
 
     //@}
     /// @name Thermodynamic Values for the Species Reference States --------------------
@@ -314,19 +318,19 @@ namespace Cantera {
     /**
      *  Returns the vector of nondimensional
      *  enthalpies of the reference state at the current temperature
-     *  of the solution and the reference pressure for the species. 
+     *  of the solution and the reference pressure for the species.
      *
      *  This function fills in its one entry in hrt[] by calling
-     *  the underlying species thermo function for the 
+     *  the underlying species thermo function for the
      *  dimensionless enthalpy.
      */
-    virtual void getEnthalpy_RT_ref(doublereal *hrt) const;
+    virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
 
 #ifdef H298MODIFY_CAPABILITY
-  
+
     virtual void modifyOneHf298SS(const int k, const doublereal Hf298New) {
-      m_spthermo->modifyOneHf298(k, Hf298New);
-      m_tlast += 0.0001234;
+        m_spthermo->modifyOneHf298(k, Hf298New);
+        m_tlast += 0.0001234;
     }
 #endif
     /**
@@ -335,24 +339,24 @@ namespace Cantera {
      *  of the solution and the reference pressure for the species.
      *
      *  This function fills in its one entry in hrt[] by calling
-     *  the underlying species thermo function for the 
+     *  the underlying species thermo function for the
      *  dimensionless gibbs free energy, calculated from the
      *  dimensionless enthalpy and entropy.
      */
-    virtual void getGibbs_RT_ref(doublereal *grt) const;
+    virtual void getGibbs_RT_ref(doublereal* grt) const;
 
     /**
-     *  Returns the vector of the 
+     *  Returns the vector of the
      *  gibbs function of the reference state at the current temperature
      *  of the solution and the reference pressure for the species.
      *  units = J/kmol
      *
      *  This function fills in its one entry in g[] by calling
-     *  the underlying species thermo functions for the 
+     *  the underlying species thermo functions for the
      *  gibbs free energy, calculated from enthalpy and the
      *  entropy, and the multiplying by RT.
      */
-    virtual void  getGibbs_ref(doublereal *g) const;
+    virtual void  getGibbs_ref(doublereal* g) const;
 
     /**
      *  Returns the vector of nondimensional
@@ -360,10 +364,10 @@ namespace Cantera {
      *  of the solution and the reference pressure for the species.
      *
      *  This function fills in its one entry in hrt[] by calling
-     *  the underlying species thermo function for the 
+     *  the underlying species thermo function for the
      *  dimensionless entropy.
      */
-    virtual void getEntropy_R_ref(doublereal *er) const;
+    virtual void getEntropy_R_ref(doublereal* er) const;
 
     //!  Returns the vector of nondimensional
     //!  constant pressure heat capacities of the reference state
@@ -374,17 +378,17 @@ namespace Cantera {
      *               heat capacities at constant pressure for the species.
      *               Length: m_kk
      */
-    virtual void getCp_R_ref(doublereal *cprt) const;
+    virtual void getCp_R_ref(doublereal* cprt) const;
 
     virtual void initThermo();
 
-    virtual void setParameters(int n, double * const c);
+    virtual void setParameters(int n, double* const c);
 
-    virtual void getParameters(int &n, double * const c) const;
+    virtual void getParameters(int& n, double* const c) const;
 
     virtual void setParametersFromXML(const XML_Node& eosdata);
 
-  protected:
+protected:
 
     size_t m_kk;
     doublereal m_tmin;
@@ -397,13 +401,13 @@ namespace Cantera {
     mutable array_fp      m_cp0_R;
     mutable array_fp      m_s0_R;
 
-  private:
+private:
 
     void _updateThermo() const;
-  };
-    
+};
+
 }
-        
+
 #endif
 
 

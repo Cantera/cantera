@@ -27,7 +27,8 @@ using namespace Cantera;
 // The program is put into a function so that error handling code can
 // be conveniently put around the whole thing. See main() below.
 
-void demoprog() {
+void demoprog()
+{
 
     printf("\n\n**** C++ Test Program ****\n\n");
 
@@ -49,7 +50,7 @@ void demoprog() {
         "Molar cp:       %14.5g J/kmol-K\n",
         gas.temperature(), gas.pressure(), gas.density(),
         gas.enthalpy_mole(), gas.entropy_mole(), gas.cp_mole());
-        
+
     // set the gas to the equilibrium state with the same specific
     // enthalpy and pressure
     equilibrate(gas,"HP");
@@ -67,7 +68,7 @@ void demoprog() {
 
 
     //   Reaction information
- 
+
     int irxns = gas.nReactions();
     double* qf = new double[irxns];
     double* qr = new double[irxns];
@@ -82,18 +83,18 @@ void demoprog() {
 
     printf("\n\n");
     for (int i = 0; i < irxns; i++) {
-        printf("%30s %14.5g %14.5g %14.5g  kmol/m3/s\n", 
-            gas.reactionString(i).c_str(), qf[i], qr[i], q[i]);
+        printf("%30s %14.5g %14.5g %14.5g  kmol/m3/s\n",
+               gas.reactionString(i).c_str(), qf[i], qr[i], q[i]);
     }
 
 
     // transport properties
 
-    // create a transport manager for the gas that computes 
+    // create a transport manager for the gas that computes
     // mixture-averaged properties
     Transport* tr = newTransportMgr("Mix", &gas, 1);
 
-    // print the viscosity, thermal conductivity, and diffusion 
+    // print the viscosity, thermal conductivity, and diffusion
     // coefficients
     printf("\n\nViscosity:            %14.5g Pa-s\n", tr->viscosity());
     printf("Thermal conductivity: %14.5g W/m/K\n", tr->thermalConductivity());
@@ -114,15 +115,15 @@ void demoprog() {
     delete diff;
     delete tr;
 }
-     
 
- 
-int main() {
+
+
+int main()
+{
 
     try {
         demoprog();
-    }
-    catch (CanteraError) {
+    } catch (CanteraError) {
         showErrors(cout);
     }
 }

@@ -7,51 +7,59 @@
 #include "kinetics.h"
 #include "kernel/stringUtils.h"
 
-namespace Cantera {
+namespace Cantera
+{
 
 
-    class PureFluid : public PureFluidPhase
-    {
-    public:
+class PureFluid : public PureFluidPhase
+{
+public:
 
-        PureFluid() : m_ok(false), m_r(0) {}
+    PureFluid() : m_ok(false), m_r(0) {}
 
-        PureFluid(std::string infile, std::string id="") : m_ok(false), m_r(0) {
-            
-        m_r = get_XML_File(infile); 
-        if (id == "-") id = "";
+    PureFluid(std::string infile, std::string id="") : m_ok(false), m_r(0) {
+
+        m_r = get_XML_File(infile);
+        if (id == "-") {
+            id = "";
+        }
         m_ok = buildSolutionFromXML(*m_r, id, "phase", this, 0);
         if (!m_ok) throw CanteraError("PureFluid",
-            "buildSolutionFromXML returned false");
-        }
+                                          "buildSolutionFromXML returned false");
+    }
 
 
-        PureFluid(XML_Node& root, std::string id) : m_ok(false), m_r(0) {
-            m_ok = buildSolutionFromXML(root, id, "phase", this, 0);
-        }
-        
-        virtual ~PureFluid() {}
+    PureFluid(XML_Node& root, std::string id) : m_ok(false), m_r(0) {
+        m_ok = buildSolutionFromXML(root, id, "phase", this, 0);
+    }
 
-        bool operator!() { return !m_ok;}
-        bool ready() const { return m_ok; }
-        friend std::ostream& operator<<(std::ostream& s, PureFluid& mix) {
-            std::string r = mix.report(true);
-            s << r;
-            return s;
-        }
+    virtual ~PureFluid() {}
 
-    protected:
-        bool m_ok;
-        XML_Node* m_r;
+    bool operator!() {
+        return !m_ok;
+    }
+    bool ready() const {
+        return m_ok;
+    }
+    friend std::ostream& operator<<(std::ostream& s, PureFluid& mix) {
+        std::string r = mix.report(true);
+        s << r;
+        return s;
+    }
 
-    private:
-    };
+protected:
+    bool m_ok;
+    XML_Node* m_r;
 
-    class Water : public PureFluid {
-    public:
-        Water() : PureFluid(std::string("liquidvapor.cti"),std::string("water")) {}
-        virtual ~Water() {}
-    };
+private:
+};
+
+class Water : public PureFluid
+{
+public:
+    Water() : PureFluid(std::string("liquidvapor.cti"),std::string("water")) {}
+    virtual ~Water() {}
+};
 
 }
 

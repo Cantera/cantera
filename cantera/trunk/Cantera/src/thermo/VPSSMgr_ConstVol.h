@@ -2,11 +2,11 @@
  *  @file VPSSMgr_ConstVol.h
  *  Declarations for a derived class for the calculation of multiple-species thermodynamic
  *  property managers for variable temperature and pressure standard
- *  states assuming constant volume (see class 
+ *  states assuming constant volume (see class
  *  \link Cantera::VPSSMgr_ConstVol VPSSMgr_ConstVol \endlink).
  */
 /*
- * Copywrite (2005) Sandia Corporation. Under the terms of 
+ * Copywrite (2005) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -17,22 +17,24 @@
 #include "ct_defs.h"
 #include "VPSSMgr.h"
 
-namespace Cantera {
+namespace Cantera
+{
 
-  class SpeciesThermoInterpType;
-  class PDSS;
+class SpeciesThermoInterpType;
+class PDSS;
 
-  //! Constant Molar Volume e VPSS species thermo manager class
-  /*!
-   *  The calculation of multiple-species thermodynamic
-   *  property managers for variable temperature and pressure standard
-   *  states assuming a constant partial molar volume assumption.
-   *
-   *  @ingroup mgrpdssthermocalc
-   */
-  class VPSSMgr_ConstVol : public VPSSMgr {
-    
-  public:
+//! Constant Molar Volume e VPSS species thermo manager class
+/*!
+ *  The calculation of multiple-species thermodynamic
+ *  property managers for variable temperature and pressure standard
+ *  states assuming a constant partial molar volume assumption.
+ *
+ *  @ingroup mgrpdssthermocalc
+ */
+class VPSSMgr_ConstVol : public VPSSMgr
+{
+
+public:
 
     //! Constructor
     /*!
@@ -43,7 +45,7 @@ namespace Cantera {
      *                phase. It's a requirement that this be already
      *                malloced.
      */
-    VPSSMgr_ConstVol(VPStandardStateTP *vp_ptr, SpeciesThermo *spth);
+    VPSSMgr_ConstVol(VPStandardStateTP* vp_ptr, SpeciesThermo* spth);
 
     //! Destructor
     virtual ~VPSSMgr_ConstVol();
@@ -53,29 +55,29 @@ namespace Cantera {
      * @param right    Reference to %VPSSMgr_ConstVol object to be copied into the
      *                 current one.
      */
-    VPSSMgr_ConstVol(const VPSSMgr_ConstVol &right);
-	
+    VPSSMgr_ConstVol(const VPSSMgr_ConstVol& right);
+
     //! Assignment operator for the %VPSSMgr_ConstVol object
     /*!
      *  This is NOT a virtual function.
      *
      * @param right    Reference to %VPSSMgr_ConstVol object to be copied into the
-     *                 current one. 
+     *                 current one.
      */
-    VPSSMgr_ConstVol& operator=(const VPSSMgr_ConstVol &right);
-   
+    VPSSMgr_ConstVol& operator=(const VPSSMgr_ConstVol& right);
+
     //! Duplicator routine for the VPSSMgr base class
     /*!
      *  This virtual routine can be used to duplicate %VPSSMgr objects
      *  inherited from %VPSSMgr even if the application only has
      *  a pointer to %VPSSMgr to work with.
      */
-    virtual VPSSMgr *duplMyselfAsVPSSMgr() const;
+    virtual VPSSMgr* duplMyselfAsVPSSMgr() const;
 
     /*!
-     * @name  Properties of the Standard State of the Species in the Solution 
+     * @name  Properties of the Standard State of the Species in the Solution
      *
-     *  Within VPStandardStateTP, these properties are calculated via a common routine, 
+     *  Within VPStandardStateTP, these properties are calculated via a common routine,
      *  _updateStandardStateThermo(),
      *  which must be overloaded in inherited objects.
      *  The values are cached within this object, and are not recalculated unless
@@ -83,7 +85,7 @@ namespace Cantera {
      */
     //@{
 
-  protected:
+protected:
 
     //! Updates the standard state thermodynamic functions at the current
     //! T and P of the solution.
@@ -106,12 +108,12 @@ namespace Cantera {
      *  If m_useTmpStandardStateStorage is not true, this function may be
      *  required to be called every time information is requested from
      *  this object.
-     */                    
+     */
     virtual void _updateStandardStateThermo();
 
     //@}
 
-    /// @name Thermodynamic Values for the Species Reference States 
+    /// @name Thermodynamic Values for the Species Reference States
     /*!
      *  There are also temporary
      *  variables for holding the species reference-state values of Cp, H, S, and V at the
@@ -131,8 +133,8 @@ namespace Cantera {
      *            of the reference state of the species
      *            length = m_kk, units = dimensionless.
      */
-    virtual void getGibbs_RT_ref(doublereal *grt) const ;
-       
+    virtual void getGibbs_RT_ref(doublereal* grt) const ;
+
 
     //!  Get the molar volumes of the species reference states at the current
     //!  <I>T</I> and <I>P_ref</I> of the solution.
@@ -142,19 +144,19 @@ namespace Cantera {
      * @param vol     Output vector containing the standard state volumes.
      *                Length: m_kk.
      */
-    virtual void getStandardVolumes_ref(doublereal *vol) const ;
+    virtual void getStandardVolumes_ref(doublereal* vol) const ;
 
     //@}
-  
-    //! @name Initialization Methods - For Internal use 
+
+    //! @name Initialization Methods - For Internal use
     /*!
      * The following methods are used in the process of constructing
-     * the phase and setting its parameters from a specification in an 
-     * input file. They are not normally seen by application programs 
+     * the phase and setting its parameters from a specification in an
+     * input file. They are not normally seen by application programs
      */
     //@{
 
-   public:
+public:
     //! Initialize the VPSSMgr object
     /*!
      * This method is provided to allow
@@ -172,8 +174,8 @@ namespace Cantera {
     /*!
      *  This task is done last, after createInstallPDSS() and after
      *  initThermo().
-     * 
-     *  @param phaseNode   Reference to the phase node in the XML tree 
+     *
+     *  @param phaseNode   Reference to the phase node in the XML tree
      *  @param id          string name of the phase
      */
     virtual void initThermoXML(XML_Node& phaseNode, std::string id);
@@ -188,20 +190,20 @@ namespace Cantera {
      *      containing VPStandardStateTP phase.
      *  -   It grabs the molar volume property and installs its value within
      *      this object.
-     *  -   It also creates a PDSS object, which basically contains a 
+     *  -   It also creates a PDSS object, which basically contains a
      *      duplication of some of this information and returns a pointer to
      *      the new object.
      *  .
      *
      *  @param k Species index within the phase
      *  @param speciesNode Reference to the species node in the XML tree
-     *  @param phaseNode_ptr Pointer to the phase node in the XML tree 
-     * 
+     *  @param phaseNode_ptr Pointer to the phase node in the XML tree
+     *
      *  @return Returns a pointer to the a newly malloced PDSS object
      *          containing the parameterization
      */
     virtual PDSS* createInstallPDSS(size_t k, const XML_Node& speciesNode,
-				    const XML_Node * const phaseNode_ptr);
+                                    const XML_Node* const phaseNode_ptr);
     //@}
 
     //! This utility function reports the type of parameterization
@@ -220,8 +222,8 @@ namespace Cantera {
      */
     virtual VPSSMgr_enumType reportVPSSMgrType() const ;
 
-  };
-  //@}
+};
+//@}
 }
 
 #endif

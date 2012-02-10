@@ -3,7 +3,7 @@
  *  Header for the Interface class for the vcs thermo equilibrium solver package,
  */
 /*
- * Copywrite (2005) Sandia Corporation. Under the terms of 
+ * Copywrite (2005) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -17,37 +17,39 @@
 #include <vector>
 #include <string>
 
-namespace VCSnonideal {
+namespace VCSnonideal
+{
 
-  class vcs_VolPhase;
-  class VCS_SPECIES_THERMO;
+class vcs_VolPhase;
+class VCS_SPECIES_THERMO;
 
-  //! Interface class for the vcs thermo equilibrium solver package,
-  //! which generally describes the problem to be solved.
-  /*!
-   *  HKM add:
-   *    HaveEstimate -> 0 no estimate, or estimate that doesn' satisfy elem
-   *                      abundances
-   *                    1 have an estimate that satisfies elem_abund.
-   *                    2 Have an estimate that minimizes a subproblem
-   *                      and satisfies elem abund.
-   *    solnFound    -> True, soln to current problem found and included here
-   *                    False, soln has not been found.
-   */
-  class VCS_PROB {
-  public:
+//! Interface class for the vcs thermo equilibrium solver package,
+//! which generally describes the problem to be solved.
+/*!
+ *  HKM add:
+ *    HaveEstimate -> 0 no estimate, or estimate that doesn' satisfy elem
+ *                      abundances
+ *                    1 have an estimate that satisfies elem_abund.
+ *                    2 Have an estimate that minimizes a subproblem
+ *                      and satisfies elem abund.
+ *    solnFound    -> True, soln to current problem found and included here
+ *                    False, soln has not been found.
+ */
+class VCS_PROB
+{
+public:
 
-    //! Problem type. I.e., the identity of what is held constant. 
+    //! Problem type. I.e., the identity of what is held constant.
     /*!
-     *  Currently, T and P are held constant, and this input 
-     *  is ignored 
+     *  Currently, T and P are held constant, and this input
+     *  is ignored
      */
     int prob_type;
 
     //! Total number of species in the problems
     size_t nspecies;
 
-    //! Species number used to malloc data structures 
+    //! Species number used to malloc data structures
     size_t NSPECIES0;
 
     //! Number of element contraints in the equilibrium problem
@@ -59,7 +61,7 @@ namespace VCSnonideal {
 
     //! Number of phases in the problem
     size_t NPhase;
-  
+
     //! Number of phases used to malloc data structures
     size_t NPHASE0;
 
@@ -74,12 +76,12 @@ namespace VCSnonideal {
     //!  Total number of moles of the kth species.
     /*!
      *  This is both an input and an output variable.
-     *  On input, this is an estimate of the mole numbers. 
+     *  On input, this is an estimate of the mole numbers.
      *  The actual element abundance vector contains the problem specification.
      *
      *  On output, this contains the solution for the total number of moles
      *  of the kth species.
-     *          
+     *
      *  units = m_VCS_UnitsFormat
      */
     std::vector<double> w;
@@ -94,16 +96,16 @@ namespace VCSnonideal {
 
     //!  Element abundances for jth element
     /*!
-     *  This is input from the input file and is considered a constant from 
-     *  thereon within the vcs_solve_TP().    
+     *  This is input from the input file and is considered a constant from
+     *  thereon within the vcs_solve_TP().
      *              units = m_VCS_UnitsFormat
      */
     std::vector<double> gai;
 
     //!  Formula Matrix for the problem
     /*!
-     *   FormulaMatrix[j][kspec] = Number of elements, j, in the kspec 
-     *                             species       
+     *   FormulaMatrix[j][kspec] = Number of elements, j, in the kspec
+     *                             species
      */
     DoubleStarStar FormulaMatrix;
 
@@ -121,7 +123,7 @@ namespace VCSnonideal {
      *   set to zero in this initial treatment.
      *   Later we may have non-zero interfacial currents.
      */
-    std::vector<int> SpeciesUnknownType; 
+    std::vector<int> SpeciesUnknownType;
 
     //! Temperature (Kelvin)
     /*!
@@ -132,7 +134,7 @@ namespace VCSnonideal {
     //! Pressure
     /*!
      * units given by m_VCS_UnitsFormat
-     * -> are now PA 
+     * -> are now PA
      */
     double PresPA;
 
@@ -151,7 +153,7 @@ namespace VCSnonideal {
      */
     std::vector<double> VolPM;
 
-    //! Units for the chemical potential data, pressure data, volume, 
+    //! Units for the chemical potential data, pressure data, volume,
     //! and species amounts
     /*!
      *  All internally storred quantities will have these units. Also, printed
@@ -174,7 +176,7 @@ namespace VCSnonideal {
     /*!
      *  iest       = Initial estimate: 0 user estimate
      *                                 1 user estimate if satisifies elements
-     *                                -1 machine estimate 
+     *                                -1 machine estimate
      */
     int iest;
 
@@ -205,7 +207,7 @@ namespace VCSnonideal {
 
     //! Molecular weight of species
     /*!
-     * WtSpecies[k] = molecular weight of species   in gm/mol  
+     * WtSpecies[k] = molecular weight of species   in gm/mol
      */
     std::vector<double> WtSpecies;
 
@@ -213,16 +215,16 @@ namespace VCSnonideal {
     std::vector<double> Charge;
 
     //! Array of phase structures
-    std::vector<vcs_VolPhase *> VPhaseList; 
+    std::vector<vcs_VolPhase*> VPhaseList;
 
     // String containing the title of the run
     std::string Title;
- 
+
     //!  Vector of pointers to thermo  structures which identify the model
-    //!  and parameters for evaluating the thermodynamic 
+    //!  and parameters for evaluating the thermodynamic
     //!  functions for that  particular species
-    std::vector<VCS_SPECIES_THERMO *> SpeciesThermo;
- 
+    std::vector<VCS_SPECIES_THERMO*> SpeciesThermo;
+
     //! Number of iterations
     /*!
      * This is an output variable
@@ -318,27 +320,27 @@ namespace VCSnonideal {
      *  in the vcs_VolPhase object's ElGlobalIndex field.
      *
      * @param volPhase  Object containing the phase to be added.
-     *                  The elements in this phase are parsed for 
+     *                  The elements in this phase are parsed for
      *                  addition to the global element list
      */
-    void addPhaseElements(vcs_VolPhase *volPhase);
+    void addPhaseElements(vcs_VolPhase* volPhase);
 
 
     //!  This routine resizes the number of elements in the VCS_PROB object by
     //!  adding a new element to the end of the element list
     /*!
-     *   The element name is added. Formula vector entries ang element 
+     *   The element name is added. Formula vector entries ang element
      *   abundances for the new element are set to zero.
      *
      *   Returns the index number of the new element.
      *
-     *  @param elNameNew New name of the element 
+     *  @param elNameNew New name of the element
      *  @param elType    Type of the element
      *  @param elactive  boolean indicating whether the element is active
      *
      *  @return returns the index number of the new element
      */
-    size_t addElement(const char *elNameNew, int elType, int elactive);
+    size_t addElement(const char* elNameNew, int elType, int elactive);
 
 
     //! This routines adds entries for the formula matrix for one species
@@ -348,22 +350,22 @@ namespace VCSnonideal {
      *
      *   This object also fills in the index filed, IndSpecies, within
      *   the volPhase object.
-     *  
+     *
      *  @param volPhase object containing the species
      *  @param k        Species number within the volPhase k
      *  @param kT       global Species number within this object
      *
      */
-    size_t addOnePhaseSpecies(vcs_VolPhase *volPhase, size_t k, size_t kT);
+    size_t addOnePhaseSpecies(vcs_VolPhase* volPhase, size_t k, size_t kT);
 
-    void reportCSV(const std::string &reportFile);
+    void reportCSV(const std::string& reportFile);
 
     //! Set the debug level
     /*!
      *  @param vcs_debug_print_lvl input debug level
      */
     void setDebugPrintLvl(int vcs_debug_print_lvl);
-  }; 
+};
 
 }
 

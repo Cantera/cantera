@@ -16,7 +16,7 @@
 
 #ifdef WITH_IDEAL_SOLUTIONS
 
-#include "kernel/GibbsExcessVPSSTP.h"  
+#include "kernel/GibbsExcessVPSSTP.h"
 #include "kernel/MargulesVPSSTP.h"
 
 #endif

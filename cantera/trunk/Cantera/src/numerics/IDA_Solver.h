@@ -39,22 +39,25 @@
 #define REAL_WORKSPACE_SIZE 0
 #endif
 
-namespace Cantera {
+namespace Cantera
+{
 
-  /**
-   * Exception thrown when a IDA error is encountered.
-   */
-  class IDA_Err : public CanteraError {
-  public:
-    IDA_Err(std::string msg) : CanteraError("IDA_Solver", msg){}
-  };
+/**
+ * Exception thrown when a IDA error is encountered.
+ */
+class IDA_Err : public CanteraError
+{
+public:
+    IDA_Err(std::string msg) : CanteraError("IDA_Solver", msg) {}
+};
 
 
-  class ResidData; // forward reference
+class ResidData; // forward reference
 
-  class IDA_Solver : public DAE_Solver {
-  public:
-      
+class IDA_Solver : public DAE_Solver
+{
+public:
+
     //! Constructor.
     /*!
      * Default settings: dense jacobian, no user-supplied Jacobian function, Newton iteration.
@@ -65,14 +68,14 @@ namespace Cantera {
 
     virtual ~IDA_Solver();
 
-    /** 
+    /**
      * Set error tolerances. This version specifies a scalar
      * relative tolerance, and a vector absolute tolerance.
      */
-    virtual void setTolerances(doublereal reltol, 
-			       doublereal* abstol);
+    virtual void setTolerances(doublereal reltol,
+                               doublereal* abstol);
 
-    /** 
+    /**
      * Set error tolerances. This version specifies a scalar
      * relative tolerance, and a scalar absolute tolerance.
      */
@@ -80,7 +83,7 @@ namespace Cantera {
 
     virtual void setLinearSolverType(int solverType);
 
-    //! Set up the problem to use a dense linear direct solver 
+    //! Set up the problem to use a dense linear direct solver
     virtual void setDenseLinearSolver();
 
     //! Set up the problem to use a band solver
@@ -101,12 +104,12 @@ namespace Cantera {
     //! Sset the initial step size
     /*!
      *  @param h0  initial step size value
-     */  
+     */
     virtual void setInitialStepSize(doublereal h0);
 
     //! Set the stop time
     /*!
-     *  @param tstop the independent variable value past  which the solution is not to proceed. 
+     *  @param tstop the independent variable value past  which the solution is not to proceed.
      */
     virtual void setStopTime(doublereal tstop);
 
@@ -157,8 +160,8 @@ namespace Cantera {
      * of all variables, this method computes the initial y
      * values.
      */
-    virtual void correctInitial_Y_given_Yp(doublereal* y, doublereal* yp, 
-					   doublereal tout);
+    virtual void correctInitial_Y_given_Yp(doublereal* y, doublereal* yp,
+                                           doublereal tout);
 
     //! Calculate consistent value of the algebraic constraints and derivatives at the start of the problem
     /*!
@@ -169,80 +172,80 @@ namespace Cantera {
      * derivatives of all differential variables.
      */
     virtual void correctInitial_YaYp_given_Yd(doublereal* y, doublereal* yp, doublereal tout);
-      
+
     //! Step the system to a final value of the time
     /*!
      *  @param tout  Final value of the time
      *
      *  @return  Returns the IDASolve() return flag
      *
-     *   The return values for IDASolve are described below.            
-     *   (The numerical return values are defined above in this file.)  
-     *    All unsuccessful returns give a negative return value.         
-     *                                                                
+     *   The return values for IDASolve are described below.
+     *   (The numerical return values are defined above in this file.)
+     *    All unsuccessful returns give a negative return value.
+     *
      * IDA_SUCCESS
-     *   IDASolve succeeded and no roots were found.                       
+     *   IDASolve succeeded and no roots were found.
      *
      * IDA_ROOT_RETURN:  IDASolve succeeded, and found one or more roots.
      *   If nrtfn > 1, call IDAGetRootInfo to see which g_i were found
      *   to have a root at (*tret).
      *
-     * IDA_TSTOP_RETURN: 
-     *   IDASolve returns computed results for the independent variable 
-     *   value tstop. That is, tstop was reached.                            
-     *                                                                
-     * IDA_MEM_NULL: 
-     *   The IDA_mem argument was NULL.            
-     *                                                                
-     * IDA_ILL_INPUT: 
-     *   One of the inputs to IDASolve is illegal. This includes the 
-     *   situation when a component of the error weight vectors 
+     * IDA_TSTOP_RETURN:
+     *   IDASolve returns computed results for the independent variable
+     *   value tstop. That is, tstop was reached.
+     *
+     * IDA_MEM_NULL:
+     *   The IDA_mem argument was NULL.
+     *
+     * IDA_ILL_INPUT:
+     *   One of the inputs to IDASolve is illegal. This includes the
+     *   situation when a component of the error weight vectors
      *   becomes < 0 during internal stepping.  It also includes the
      *   situation where a root of one of the root functions was found
-     *   both at t0 and very near t0.  The ILL_INPUT flag          
+     *   both at t0 and very near t0.  The ILL_INPUT flag
      *   will also be returned if the linear solver function IDA---
-     *   (called by the user after calling IDACreate) failed to set one 
-     *   of the linear solver-related fields in ida_mem or if the linear 
-     *   solver's init routine failed. In any case, the user should see 
-     *   the printed error message for more details.                
-     *                                                                
-     *                                                                
-     * IDA_TOO_MUCH_WORK: 
-     *   The solver took mxstep internal steps but could not reach tout. 
-     *   The default value for mxstep is MXSTEP_DEFAULT = 500.                
-     *                                                                
-     * IDA_TOO_MUCH_ACC: 
-     *   The solver could not satisfy the accuracy demanded by the user 
-     *   for some internal step.   
-     *                                                                
+     *   (called by the user after calling IDACreate) failed to set one
+     *   of the linear solver-related fields in ida_mem or if the linear
+     *   solver's init routine failed. In any case, the user should see
+     *   the printed error message for more details.
+     *
+     *
+     * IDA_TOO_MUCH_WORK:
+     *   The solver took mxstep internal steps but could not reach tout.
+     *   The default value for mxstep is MXSTEP_DEFAULT = 500.
+     *
+     * IDA_TOO_MUCH_ACC:
+     *   The solver could not satisfy the accuracy demanded by the user
+     *   for some internal step.
+     *
      * IDA_ERR_FAIL:
-     *   Error test failures occurred too many times (=MXETF = 10) during 
-     *   one internal step.  
-     *                                                                
-     * IDA_CONV_FAIL: 
-     *   Convergence test failures occurred too many times (= MXNCF = 10) 
-     *   during one internal step.                                          
-     *                                                                
-     * IDA_LSETUP_FAIL: 
-     *   The linear solver's setup routine failed  
-     *   in an unrecoverable manner.                    
-     *                                                                
-     * IDA_LSOLVE_FAIL: 
-     *   The linear solver's solve routine failed  
-     *   in an unrecoverable manner.                    
-     *                                                                
+     *   Error test failures occurred too many times (=MXETF = 10) during
+     *   one internal step.
+     *
+     * IDA_CONV_FAIL:
+     *   Convergence test failures occurred too many times (= MXNCF = 10)
+     *   during one internal step.
+     *
+     * IDA_LSETUP_FAIL:
+     *   The linear solver's setup routine failed
+     *   in an unrecoverable manner.
+     *
+     * IDA_LSOLVE_FAIL:
+     *   The linear solver's solve routine failed
+     *   in an unrecoverable manner.
+     *
      * IDA_CONSTR_FAIL:
-     *    The inequality constraints were violated, 
-     *    and the solver was unable to recover.         
-     *                                                                
-     * IDA_REP_RES_ERR: 
-     *    The user's residual function repeatedly returned a recoverable 
-     *    error flag, but the solver was unable to recover.                 
-     *                                                                
+     *    The inequality constraints were violated,
+     *    and the solver was unable to recover.
+     *
+     * IDA_REP_RES_ERR:
+     *    The user's residual function repeatedly returned a recoverable
+     *    error flag, but the solver was unable to recover.
+     *
      * IDA_RES_FAIL:
-     *    The user's residual function returned a nonrecoverable error 
+     *    The user's residual function returned a nonrecoverable error
      *    flag.
-     *                              
+     *
      */
     virtual int solve(doublereal tout);
 
@@ -252,7 +255,7 @@ namespace Cantera {
 
     //! the current value of solution component k.
     /*!
-     *  @param k  index of the solution 
+     *  @param k  index of the solution
      */
     virtual doublereal solution(int k) const;
 
@@ -263,11 +266,11 @@ namespace Cantera {
 
     virtual const doublereal* derivativeVector() const;
 
-    void *IDAMemory() {
-      return m_ida_mem;
+    void* IDAMemory() {
+        return m_ida_mem;
     }
 
-  protected:
+protected:
 
     //! Pointer to the IDA memory for the problem
     void* m_ida_mem;
@@ -276,13 +279,13 @@ namespace Cantera {
     doublereal m_t0;
 
     //!  Current value of the solution vector
-    void *m_y;
+    void* m_y;
 
     //! Current value of the derivative of the solution vector
-    void *m_ydot;
-    void *m_id; 
-    void *m_constraints;
-    void *m_abstol;
+    void* m_ydot;
+    void* m_id;
+    void* m_constraints;
+    void* m_abstol;
     int m_type;
 
 
@@ -310,7 +313,7 @@ namespace Cantera {
     //! Form of the jacobian
     /*!
      *  0 numerical jacobian created by ida
-     *  1 analytical jacobian. Must have populated the evalJacobianDP() 
+     *  1 analytical jacobian. Must have populated the evalJacobianDP()
      *    function in the ResidJacEval class.
      *  2 numerical jacobian formed by the ResidJacEval class (unimplemented)
      */
@@ -319,7 +322,7 @@ namespace Cantera {
     //! maximum time
     doublereal m_tstop;
 
-    //! Value of the previous, previous time 
+    //! Value of the previous, previous time
     doublereal m_told_old;
 
     //! Value of the previous time
@@ -348,8 +351,8 @@ namespace Cantera {
 
     ResidData* m_fdata;
     int m_mupper;
-    int m_mlower;        
-  };
+    int m_mlower;
+};
 
 }
 

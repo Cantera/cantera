@@ -17,30 +17,32 @@
 
 #include "PrintCtrl.h"
 
-namespace Cantera {
+namespace Cantera
+{
 
-  //! This class provides some printing and cropping utilities 
-  //! for writing to the logfile.
-  /*!
-   *  This class writes its output to Cantera's logfile 
-   *  utility. It's a wrapper around PrintCtrl object. 
-   *  First, we direct PrintCtrl to write to a string
-   *  and then we redirect the string to the logfile utility.
-   *  This is a first cut, and it's pretty much a kluge.
-   *  The logfile utility, however, demands a string, and this
-   *  is what I came up with.
-   *
-   * @ingroup globalUtilFuncs
-   *
-   */
-  class LogPrintCtrl {
-  public:
+//! This class provides some printing and cropping utilities
+//! for writing to the logfile.
+/*!
+ *  This class writes its output to Cantera's logfile
+ *  utility. It's a wrapper around PrintCtrl object.
+ *  First, we direct PrintCtrl to write to a string
+ *  and then we redirect the string to the logfile utility.
+ *  This is a first cut, and it's pretty much a kluge.
+ *  The logfile utility, however, demands a string, and this
+ *  is what I came up with.
+ *
+ * @ingroup globalUtilFuncs
+ *
+ */
+class LogPrintCtrl
+{
+public:
 
     //! Constructor
     /*!
      * This also serves to initialize the ticks within the object
      *
-     * @param Ndec value of Ndec. Defaults to -1000, i.e., 
+     * @param Ndec value of Ndec. Defaults to -1000, i.e.,
      *             no decade cropping
      */
     LogPrintCtrl(int Ndec = -1000);
@@ -58,16 +60,16 @@ namespace Cantera {
      *
      *  @param d  double to be printed
      *  @param sigDigits Number of significant digits
-     *          (-1 = default, means to use the default 
+     *          (-1 = default, means to use the default
      *           number for the object, which is initially
      *           set to 13.
      *  @param wMin Minimum number of spaces to print out
      *  @param wMax Maximum number of spaces to print out
      */
-    void pr_de(const double d, int sigDigits = -1, 
-	       const int wMin = -1, const int wMax = -1);
+    void pr_de(const double d, int sigDigits = -1,
+               const int wMin = -1, const int wMax = -1);
 
-    //! Print a double using scientific notation cropping 
+    //! Print a double using scientific notation cropping
     //! decade values
     /*!
      * Prints a double using scientific notation in a
@@ -79,14 +81,14 @@ namespace Cantera {
      *
      *  @param d  double to be printed
      *  @param sigDigits Number of significant digits
-     *          (-1 = default, means to use the default 
+     *          (-1 = default, means to use the default
      *           number for the object, which is initially
      *           set to 13.
      *  @param wMin Minimum number of spaces to print out
      *  @param wMax Maximum number of spaces to print out
      */
-    void pr_de_c10(const double d, int sigDigits = -1, 
-		   const int wMin = -1, const int wMax = -1);
+    void pr_de_c10(const double d, int sigDigits = -1,
+                   const int wMin = -1, const int wMax = -1);
 
     //! Crop a double at a certain number of significant digits
     /*!
@@ -116,7 +118,7 @@ namespace Cantera {
      *    d = 1.1305E-15;
      *    nDecades = -16;
      *   This routine will return 1.1E-15
-     *   
+     *
      *    d = 8.0E-17
      *    nDecades = -16
      *   This routine will return 0.0
@@ -131,7 +133,7 @@ namespace Cantera {
      */
     int setNdec(int nDecades);
 
- 
+
     //! Set the default significant digits to output
     /*!
      * @param sigDigits new value of the sig digits
@@ -139,7 +141,7 @@ namespace Cantera {
      * @return returns the old value of Ndec
      */
     int setSigDigits(int sigDigits);
-    
+
     //! Set the default minimum width
     /*!
      * @param wMin Default minimum width
@@ -155,23 +157,23 @@ namespace Cantera {
      * @return returns the old default
      */
     int setWmax(int wMax);
-    
 
-  private:
 
-    //! local stringstream class for temp output 
+private:
+
+    //! local stringstream class for temp output
     std::ostringstream m_os;
 
     //! Pointer to the ostream where this class actually
     //! prints its information
-    std::ostream *m_ffss;
+    std::ostream* m_ffss;
 
     //! Pointer to the PrintCtrl class
-    PrintCtrl *m_pc;
+    PrintCtrl* m_pc;
 
 
 
-  };
+};
 }
 
 #endif

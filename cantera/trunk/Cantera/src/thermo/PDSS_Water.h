@@ -1,6 +1,6 @@
 /**
  *  @file PDSS_Water.h
- * Implementation of a pressure dependent standard state 
+ * Implementation of a pressure dependent standard state
  * virtual function for a Pure Water Phase
  * (see \ref pdssthermo and class \link Cantera::PDSS_Water PDSS_Water\endlink).
  */
@@ -19,44 +19,46 @@
 
 
 
-namespace Cantera {
-  class WaterPropsIAPWS;
-  class WaterProps;
+namespace Cantera
+{
+class WaterPropsIAPWS;
+class WaterProps;
 
-  //!  Class for the liquid water pressure dependent 
-  //!  standard state
-  /*!
-   *
-   * Notes:
-   *   Base state for thermodynamic properties:
-   * 
-   *   The thermodynamic base state for water is set to the NIST basis here
-   *   by specifying constants EW_Offset and SW_Offset. These offsets are
-   *   specified so that the following properties hold:
-   *
-   *   Delta_Hfo_gas(298.15) = -241.826 kJ/gmol
-   *   So_gas(298.15, 1bar)  = 188.835 J/gmolK
-   *
-   *           (http://webbook.nist.gov)
-   *
-   *   The "o" here refers to a hypothetical ideal gas state. The way
-   *   we achieve this in practice is to evaluate at a very low pressure
-   *   and then use the theoretical ideal gas results to scale up to
-   *   higher pressures:
-   *
-   *   Ho(1bar) = H(P0)
-   *
-   *   So(1bar) = S(P0) + RT ln(1bar/P0)
-   *
-   *   The offsets used in the steam tables are different than NIST's. 
-   *   They assume u_liq(TP) = 0.0, s_liq(TP) = 0.0, where TP is the
-   *   triple point conditions.
-   *
-   * @ingroup pdssthermo
-   */
-  class PDSS_Water : public PDSS {
+//!  Class for the liquid water pressure dependent
+//!  standard state
+/*!
+ *
+ * Notes:
+ *   Base state for thermodynamic properties:
+ *
+ *   The thermodynamic base state for water is set to the NIST basis here
+ *   by specifying constants EW_Offset and SW_Offset. These offsets are
+ *   specified so that the following properties hold:
+ *
+ *   Delta_Hfo_gas(298.15) = -241.826 kJ/gmol
+ *   So_gas(298.15, 1bar)  = 188.835 J/gmolK
+ *
+ *           (http://webbook.nist.gov)
+ *
+ *   The "o" here refers to a hypothetical ideal gas state. The way
+ *   we achieve this in practice is to evaluate at a very low pressure
+ *   and then use the theoretical ideal gas results to scale up to
+ *   higher pressures:
+ *
+ *   Ho(1bar) = H(P0)
+ *
+ *   So(1bar) = S(P0) + RT ln(1bar/P0)
+ *
+ *   The offsets used in the steam tables are different than NIST's.
+ *   They assume u_liq(TP) = 0.0, s_liq(TP) = 0.0, where TP is the
+ *   triple point conditions.
+ *
+ * @ingroup pdssthermo
+ */
+class PDSS_Water : public PDSS
+{
 
-  public:
+public:
 
     /**
      * @name  Constructors
@@ -67,7 +69,7 @@ namespace Cantera {
     /*!
      *  eliminate?
      */
-    PDSS_Water(); 
+    PDSS_Water();
 
     //! Constructor that initializes the object by examining the XML entries
     //! from the ThermoPhase object
@@ -77,13 +79,13 @@ namespace Cantera {
      *  @param tp        Pointer to the ThermoPhase object pertaining to the phase
      *  @param spindex   Species index of the species in the phase
      */
-    PDSS_Water(VPStandardStateTP *tp, int spindex);
+    PDSS_Water(VPStandardStateTP* tp, int spindex);
 
     //! Copy Constructor
     /*!
      * @param b object to be copied
      */
-    PDSS_Water(const PDSS_Water &b);
+    PDSS_Water(const PDSS_Water& b);
 
     //! Assignment operator
     /*!
@@ -103,8 +105,8 @@ namespace Cantera {
      *                   is the empty string, in which case the first phase in the
      *                   file is used.
      */
-    PDSS_Water(VPStandardStateTP *tp, int spindex,
-	      std::string inputFile, std::string id = "");
+    PDSS_Water(VPStandardStateTP* tp, int spindex,
+               std::string inputFile, std::string id = "");
 
     //! Constructor that initializes the object by examining the input file
     //! of the variable pressure ThermoPhase object
@@ -117,12 +119,12 @@ namespace Cantera {
      *  @param phaseRef  Reference to the XML tree containing the phase information.
      *  @param spInstalled Is the species already installed.
      */
-    PDSS_Water(VPStandardStateTP *tp, int spindex, const XML_Node& speciesNode, 
-	      const XML_Node& phaseRef, bool spInstalled);
+    PDSS_Water(VPStandardStateTP* tp, int spindex, const XML_Node& speciesNode,
+               const XML_Node& phaseRef, bool spInstalled);
 
     //! Destructor
     virtual ~PDSS_Water();
-        
+
     //! Duplication routine for objects which inherit from %PDSS
     /*!
      *  This virtual routine can be used to duplicate %PDSS  objects
@@ -131,14 +133,14 @@ namespace Cantera {
      *
      * @return returns a pointer to the base %PDSS object type
      */
-    virtual PDSS *duplMyselfAsPDSS() const;
+    virtual PDSS* duplMyselfAsPDSS() const;
 
     /**
      * @}
-     * @name  Utilities  
+     * @name  Utilities
      * @{
      */
-    
+
     /**
      * @}
      * @name  Molar Thermodynamic Properties of the Species Standard State
@@ -200,7 +202,7 @@ namespace Cantera {
      */
     virtual doublereal cv_mole() const;
 
-   //! Return the molar volume at standard state
+    //! Return the molar volume at standard state
     /*!
      * Returns the species standard state molar volume at the
      * current temperature and pressure
@@ -221,9 +223,9 @@ namespace Cantera {
     virtual doublereal density() const;
 
     /**
-     * @} 
+     * @}
      * @name Properties of the Reference State of the Species
-     *       in the Solution 
+     *       in the Solution
      * @{
      */
 
@@ -282,14 +284,15 @@ namespace Cantera {
      * @return returns the reference state molar volume divided by R
      *             units are m**3 kmol-1.
      */
-    virtual doublereal molarVolume_ref() const;\
+    virtual doublereal molarVolume_ref() const;
+    \
 
     /**
      * @}
-     *  @name Mechanical Equation of State Properties 
+     *  @name Mechanical Equation of State Properties
      * @{
      */
- 
+
 
     //! Report the current pressure used in the object
     /*!
@@ -320,7 +323,7 @@ namespace Cantera {
     //! Set the temperature and density in the object
     /*!
      *  @param temp   Temperature (Kelvin)
-     *  @param rho    Density (kg/m3) 
+     *  @param rho    Density (kg/m3)
      */
     virtual void setState_TR(doublereal temp, doublereal rho);
 
@@ -342,7 +345,7 @@ namespace Cantera {
      * \f]
      */
     virtual doublereal thermalExpansionCoeff() const;
-      
+
     //! Return the derivative of the volumetric thermal expansion coefficient. Units: 1/K2.
     /*!
      * The thermal expansion coefficient is defined as
@@ -371,15 +374,15 @@ namespace Cantera {
      * @{
      */
 
-    //! critical temperature 
+    //! critical temperature
     virtual doublereal critTemperature() const;
- 
+
     //! critical pressure
     virtual doublereal critPressure() const;
-        
+
     //! critical density
     virtual doublereal critDensity() const;
-   
+
     //! Return the saturation pressure at a given temperature
     /*!
      *  @param t  Temperature (Kelvin)
@@ -387,21 +390,21 @@ namespace Cantera {
     virtual doublereal satPressure(doublereal t);
 
     //! Get a pointer to a changeable WaterPropsIAPWS object
-    WaterPropsIAPWS *getWater() {
-      return m_sub;
+    WaterPropsIAPWS* getWater() {
+        return m_sub;
     }
 
     //! Get a pointer to a changeable WaterPropsIAPWS object
-    WaterProps *getWaterProps() {
-      return m_waterProps;
+    WaterProps* getWaterProps() {
+        return m_waterProps;
     }
 
     /**
-     * @} 
+     * @}
      * @name Initialization of the Object
      * @{
      */
-    
+
     //! Internal routine that initializes the underlying water model
     /*!
      *  This routine is not virtual
@@ -426,19 +429,19 @@ namespace Cantera {
      *                    phase. If none is given, the first XML
      *                    phase element will be used.
      */
-    void constructPDSSFile(VPStandardStateTP *vptp_ptr, int spindex,
-			   std::string inputFile, std::string id);
+    void constructPDSSFile(VPStandardStateTP* vptp_ptr, int spindex,
+                           std::string inputFile, std::string id);
 
     //!Initialization of a PDSS object using an xml tree
     /*!
      * This routine is a driver for the initialization of the
      * object.
-     * 
+     *
      *   basic logic:
      *       initThermo()                 (cascade)
      *       getStuff from species Part of XML file
      *       initThermoXML(phaseNode)      (cascade)
-     * 
+     *
      * @param vptp_ptr   Pointer to the Variable pressure %ThermoPhase object
      *                   This object must have already been malloced.
      *
@@ -451,8 +454,8 @@ namespace Cantera {
      *                   phase. If none is given, the first XML
      *                   phase element will be used.
      */
-    void constructPDSSXML(VPStandardStateTP *vptp_ptr, int spindex,
-       			  const XML_Node& phaseNode, std::string id);
+    void constructPDSSXML(VPStandardStateTP* vptp_ptr, int spindex,
+                          const XML_Node& phaseNode, std::string id);
 
     //! Initialization routine for all of the shallow pointers
     /*!
@@ -483,17 +486,17 @@ namespace Cantera {
 
     //@}
 
-  protected:
-  
+protected:
 
-  private:
+
+private:
 
     //! Pointer to the WaterPropsIAPWS object, which does the actual calculations
     //! for the real equation of state
     /*!
      * This object owns m_sub
      */
-    mutable WaterPropsIAPWS *m_sub;
+    mutable WaterPropsIAPWS* m_sub;
 
     //! Pointer to the WaterProps object
     /*!
@@ -503,7 +506,7 @@ namespace Cantera {
      * This object owns m_waterProps, and the WaterPropsIAPWS object used by
      * WaterProps is m_sub, which is defined above.
      */
-    WaterProps *m_waterProps;
+    WaterProps* m_waterProps;
 
     //! State of the system - density
     /*!
@@ -512,13 +515,13 @@ namespace Cantera {
      */
     doublereal m_dens;
 
-    //! state of the fluid 
+    //! state of the fluid
     /*!
      *    0  WATER_GAS       0
      *    1  WATER_LIQUID    1
      *    2  WATER_SUPERCRIT 2
      *    3  WATER_UNSTABLELIQUID  3
-     *    4  WATER_UNSTABLEGAS  
+     *    4  WATER_UNSTABLEGAS
      */
     int m_iState;
 
@@ -539,15 +542,15 @@ namespace Cantera {
     //! Verbose flag - used?
     bool m_verbose;
 
-  public:
+public:
     /**
-     *  Since this phase represents a liquid phase, it's an error to 
+     *  Since this phase represents a liquid phase, it's an error to
      *  return a gas-phase answer. However, if the below is true, then
      *  a gas-phase answer is allowed. This is used to check the thermodynamic
      *  consistency with ideal-gas thermo functions for example.
      */
     bool m_allowGasPhase;
-  };
+};
 
 }
 

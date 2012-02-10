@@ -20,16 +20,18 @@
 //@{
 #define XML_INDENT 4
 //@}
-namespace Cantera {
+namespace Cantera
+{
 
 
-  //!  Class XML_Reader reads an XML file into an XML_Node object.
-  /*!
-   *
-   *   Class XML_Reader is designed for internal use.
-   */
-  class XML_Reader {
-  public:
+//!  Class XML_Reader reads an XML file into an XML_Node object.
+/*!
+ *
+ *   Class XML_Reader is designed for internal use.
+ */
+class XML_Reader
+{
+public:
 
     //! Sole Constructor for the XML_Reader class
     /*!
@@ -56,7 +58,7 @@ namespace Cantera {
      * @param aline  Input line to be stripped
      *
      * @return Returns a string stripped of leading and trailing white
-     *         space. 
+     *         space.
      *
      * @todo why is this a class method?
      */
@@ -72,14 +74,14 @@ namespace Cantera {
      *  @todo why is this a class method?
      */
     std::string inquotes(const std::string& aline) const;
-    
+
     //!  Searches a string for the first occurrence of a valid
     //!  quoted string.
     /*!
      *  Quotes can start with either a single
      *  quote or a double quote, but must also end with the same
      *  type. Quotes may be commented out by preceding with a
-     *  backslash character, '\\'. 
+     *  backslash character, '\\'.
      *
      *  @param aline     This is the input string to be searched
      *  @param rstring   Return value of the string that is found.
@@ -88,7 +90,7 @@ namespace Cantera {
      *  @return          Returns the integer position just after
      *                   the quoted string.
      */
-    int findQuotedString(const std::string& aline, std::string &rstring) const;
+    int findQuotedString(const std::string& aline, std::string& rstring) const;
 
     //! parseTag parses XML tags, i.e., the XML elements that are
     //! inbetween angle brackets.
@@ -96,12 +98,12 @@ namespace Cantera {
      *    @param tag                  Tag to be parsed - input
      *
      *    @param name                 Output string containing name
-     *                                of the XML  
+     *                                of the XML
      *    @param attribs              map of attribute name and
      *                                attribute value - output
-     */ 
-    void parseTag(std::string tag, std::string& name, 
-		  std::map<std::string, std::string>& attribs) const;
+     */
+    void parseTag(std::string tag, std::string& name,
+                  std::map<std::string, std::string>& attribs) const;
 
     //! Reads an XML tag into a string
     /*!
@@ -111,7 +113,7 @@ namespace Cantera {
      *                           attribute value - output
      *
      *    @return                Output string containing name
-     *                           of the XML  
+     *                           of the XML
      */
     std::string readTag(std::map<std::string, std::string>& attribs);
 
@@ -121,37 +123,38 @@ namespace Cantera {
      */
     std::string readValue();
 
-  protected:
+protected:
 
     //! Input stream containing the XML file
     std::istream& m_s;
 
-  public:
+public:
 
     //! Line count
     int m_line;
-  };
+};
 
 
-  //////////////////////////  XML_Node  /////////////////////////////////
+//////////////////////////  XML_Node  /////////////////////////////////
 
-  //! Class XML_Node is a tree-based representation of the contents of an XML file
-  /*!
-   *   Class XML_Node is a tree-based representation of the contents of an XML file.
-   *
-   *  There are routines for adding to the tree.
-   *
-   *  There are routines for querying and searching the tree.
-   *
-   *  Additionally, there are routines for writing the tree out to an output file.
-   *
-   */
-  class XML_Node {
-  public:
+//! Class XML_Node is a tree-based representation of the contents of an XML file
+/*!
+ *   Class XML_Node is a tree-based representation of the contents of an XML file.
+ *
+ *  There are routines for adding to the tree.
+ *
+ *  There are routines for querying and searching the tree.
+ *
+ *  Additionally, there are routines for writing the tree out to an output file.
+ *
+ */
+class XML_Node
+{
+public:
 
     //! Value_type for the lookup multimap m_childindex. This is a convenience definition
     //! for manipulating the multimap
-    typedef std::pair<const std::string, XML_Node *> CIPair;
+    typedef std::pair<const std::string, XML_Node*> CIPair;
 
     //! Default constructor for XML_Node, representing a tree structure
     /*!
@@ -161,7 +164,7 @@ namespace Cantera {
      *  @param cnm  Name of the node.
      *              The default name of the node is "--"
      */
-    XML_Node(const char * cnm = 0);
+    XML_Node(const char* cnm = 0);
 
 
     //! Default constructor for XML_Node, representing a tree structure
@@ -175,19 +178,19 @@ namespace Cantera {
      *  @param parent   Pointer to the parent for this node in the tree.
      *                  A value of 0 indicates this is the top of the tree.
      */
-    XML_Node(const std::string nm, XML_Node * const parent);
-   
+    XML_Node(const std::string nm, XML_Node* const parent);
+
     //! Copy constructor
     /*!
      * @param right   Object to be copied
      */
-    XML_Node(const XML_Node &right);
+    XML_Node(const XML_Node& right);
 
     //! Assignment operator for XML trees
     /*!
      *  @param right    XML tree to copy
      */
-    XML_Node& operator=(const XML_Node &right);
+    XML_Node& operator=(const XML_Node& right);
 
     //! Destructor for the object
     virtual ~XML_Node();
@@ -198,7 +201,7 @@ namespace Cantera {
      *
      *  @param comment    Content of the comment
      */
-    void addComment(const std::string &comment);
+    void addComment(const std::string& comment);
 
     //! Merge an existing node as a child node to the current node
     /*!
@@ -224,7 +227,7 @@ namespace Cantera {
      */
     XML_Node& addChild(const XML_Node& node);
 
-   
+
     //! Add a child node to the current node with a specified name
     /*!
      * This will add an XML_Node as a child to the current node.
@@ -234,7 +237,7 @@ namespace Cantera {
      *
      *  @return         Returns a reference to the added node
      */
-    XML_Node& addChild(const std::string &sname);
+    XML_Node& addChild(const std::string& sname);
 
     //! Add a child node to the current node with a specified name
     /*!
@@ -245,7 +248,7 @@ namespace Cantera {
      *
      *  @return         Returns a reference to the added node
      */
-    XML_Node& addChild(const char * cstring);
+    XML_Node& addChild(const char* cstring);
 
     //!    Add a child node to the current xml node, and at the
     //!    same time add a value to the child
@@ -257,7 +260,7 @@ namespace Cantera {
      *   @param   value      Value of the XML_Node - string
      *   @return  Returns a reference to the created child XML_Node object
      */
-    XML_Node& addChild(const std::string &name, const std::string &value);
+    XML_Node& addChild(const std::string& name, const std::string& value);
 
     //!    Add a child node to the current xml node, and at the
     //!    same time add a formatted value to the child
@@ -274,8 +277,8 @@ namespace Cantera {
      *
      *   @return  Returns a reference to the created child XML_Node object
      */
-    XML_Node& addChild(const std::string &name, const doublereal value, 
-		       const std::string fmt="%g");
+    XML_Node& addChild(const std::string& name, const doublereal value,
+                       const std::string fmt="%g");
 
     //! Remove a child from this node's list of children
     /*!
@@ -284,7 +287,7 @@ namespace Cantera {
      * @param  node  Pointer to the node to be removed. Note, this node
      *               isn't modified in any way.
      */
-    void removeChild(const XML_Node * const node);
+    void removeChild(const XML_Node* const node);
 
     //! Modify the value for the current node
     /*!
@@ -292,7 +295,7 @@ namespace Cantera {
      *
      * @param val  string Value that the node will be assigned
      */
-    void addValue(const std::string &val);
+    void addValue(const std::string& val);
 
     //! Modify the value for the current node
     /*!
@@ -322,9 +325,9 @@ namespace Cantera {
      *  @param cname  Name of the child node to the current
      *                node, for which you want the value
      */
-    std::string value(const std::string &cname) const;
+    std::string value(const std::string& cname) const;
 
-    //!  The Overloaded parenthesis operator with one augment 
+    //!  The Overloaded parenthesis operator with one augment
     //!  returns the value of an XML child node as a string
     /*!
      *  @param cname  Name of the child node to the current
@@ -334,14 +337,14 @@ namespace Cantera {
 
     //! Return the value of an XML node as a single double
     /*!
-     *  This accesses the value string, and then tries to 
+     *  This accesses the value string, and then tries to
      *  interpret it as a single double value.
      */
     doublereal fp_value() const;
 
     //! Return the value of an XML node as a single int
     /*!
-     *  This accesses the value string, and then tries to 
+     *  This accesses the value string, and then tries to
      *  interpret it as a single int value.
      */
     integer int_value() const;
@@ -354,7 +357,7 @@ namespace Cantera {
      * @param attrib  String name for the attribute to be assigned
      * @param value   String value that the attribute will have
      */
-    void addAttribute(const std::string & attrib, const std::string & value);
+    void addAttribute(const std::string& attrib, const std::string& value);
 
     //! Add or modify an attribute to the double, value
     /*!
@@ -364,31 +367,31 @@ namespace Cantera {
      * @param attrib  String name for the attribute to be assigned
      * @param value   double Value that the node will be assigned
      * @param fmt     Format of the printf string conversion of the double.
-     *                Default is "%g". 
+     *                Default is "%g".
      */
-    void addAttribute(const std::string & attrib, const doublereal value, 
-		      const std::string fmt="%g");
-	
+    void addAttribute(const std::string& attrib, const doublereal value,
+                      const std::string fmt="%g");
+
     //! The operator[] is overloaded to provide a lookup capability
     //!  on attributes for the current XML element.
     /*!
      * For example
-     *     xmlNode["id"] 
+     *     xmlNode["id"]
      * will return the value of the attribute "id" for the current
      * XML element. It will return the blank std::string if there isn't
      * an attribute with that name.
      *
      * @param attr  attribute string to look up
-     * 
+     *
      * @return  Returns a string representing the value of the attribute
      *          within the XML node. If there is no attribute
      *          with the given name, it returns the null string.
      */
-    std::string operator[](const std::string & attr) const;
+    std::string operator[](const std::string& attr) const;
 
     //! Function returns the value of an attribute
     /*!
-     * This function searches the attibutes vector for the parameter 
+     * This function searches the attibutes vector for the parameter
      * std::string attribute. If a match is found, the attribute value
      * is returned as a string. If no match is found, the empty string
      * is returned.
@@ -399,16 +402,16 @@ namespace Cantera {
      *                  is returned as a string. If no match is found, the empty string
      *                  is returned.
      */
-    std::string attrib(const std::string & attr) const;
+    std::string attrib(const std::string& attr) const;
 
     //! Clear the current node and everything under it
     /*!
-     *  The value, attributes and children are all zeroed. The name and the 
+     *  The value, attributes and children are all zeroed. The name and the
      *  parent information is kept.
      */
     void clear();
 
-  private:
+private:
 
     //! Returns a changeable value of the attributes map for the current node
     /*!
@@ -417,7 +420,7 @@ namespace Cantera {
      */
     std::map<std::string,std::string>& attribs();
 
-  public:
+public:
 
     //! Returns an unchangeable value of the attributs map for the current node
     /*!
@@ -426,18 +429,18 @@ namespace Cantera {
      */
     const std::map<std::string,std::string>& attribsConst() const;
 
-    //! Set the line number 
+    //! Set the line number
     /*!
      *  @param n   the member data m_linenum is set to n
      */
     void setLineNumber(const int n);
 
-    //! Return the line number 
+    //! Return the line number
     /*!
      *  @return  returns the member data m_linenum
      */
     int lineNumber() const;
- 
+
     //! Returns a pointer to the parent node of the current node
     XML_Node* parent() const;
 
@@ -447,7 +450,7 @@ namespace Cantera {
      *
      * @return  Returns the pointer p
      */
-    XML_Node* setParent(XML_Node * const p);
+    XML_Node* setParent(XML_Node* const p);
 
     //! Tests whether the current node has a child node with a particular name
     /*!
@@ -469,14 +472,16 @@ namespace Cantera {
     /*!
      * The name is the XML node is the XML node name
      */
-    std::string name() const { return m_name; }
+    std::string name() const {
+        return m_name;
+    }
 
     //! Sets the name of the XML node
     /*!
      * @param name The name of the XML node
      */
-    void setName(std::string name) { 
-      m_name = name;
+    void setName(std::string name) {
+        m_name = name;
     }
 
     //! Return the id attribute, if present
@@ -502,14 +507,14 @@ namespace Cantera {
 
     //! Return the number of children
     /*!
-     * @param discardComments If true comments are discarded when adding up the number of children. 
+     * @param discardComments If true comments are discarded when adding up the number of children.
      *                        Defaults to false.
      */
     int nChildren(bool discardComments = false) const;
 
     //!  Boolean function indicating whether a comment
     bool isComment() const;
-    
+
     //!    Require that the current xml node have an attribute named
     //!    by the first argument, a, and that this attribute have the
     //!    the string value listed in the second argument, v.
@@ -519,14 +524,14 @@ namespace Cantera {
      *
      *  If the condition is not true, an exception is thrown
      */
-    void _require(const std::string &a, const std::string &v) const;
+    void _require(const std::string& a, const std::string& v) const;
 
     //! This routine carries out a recursive search for an XML node based
     //! on both the xml element name and the attribute ID.
     /*!
      * If exact matches are found for both fields, the pointer
      * to the matching XML Node is returned.
-     * 
+     *
      * The ID attribute may be defaulted by setting it to "".
      * In this case the pointer to the first xml element matching the name
      * only is returned.
@@ -541,8 +546,8 @@ namespace Cantera {
      * This algorithm does a lateral search of first generation children
      * first before diving deeper into each tree branch.
      */
-    XML_Node* findNameID(const std::string &nameTarget, 
-			 const std::string &idTarget) const;
+    XML_Node* findNameID(const std::string& nameTarget,
+                         const std::string& idTarget) const;
 
     //! This routine carries out a search for an XML node based
     //! on both the xml element name and the attribute ID and an integer index.
@@ -550,7 +555,7 @@ namespace Cantera {
      * If exact matches are found for all fields, the pointer
      * to the matching XML Node is returned. The search is only carried out on
      * the current element and the child elements of the current element.
-     * 
+     *
      * The "id" attribute may be defaulted by setting it to "".
      * In this case the pointer to the first xml element matching the name
      * only is returned.
@@ -564,15 +569,15 @@ namespace Cantera {
      *  @return   Returns the pointer to the XML node that fits the criteria
      *
      */
-    XML_Node* findNameIDIndex(const std::string &nameTarget, 
-			      const std::string &idTarget, const int index) const;
+    XML_Node* findNameIDIndex(const std::string& nameTarget,
+                              const std::string& idTarget, const int index) const;
 
     //! This routine carries out a recursive search for an XML node based
-    //! on the xml element attribute, "id" 
+    //! on the xml element attribute, "id"
     /*!
      * If exact match is found, the pointer
      * to the matching XML Node is returned. If not, 0 is returned.
-     * 
+     *
      * The ID attribute may be defaulted by setting it to "".
      * In this case the pointer to the first xml element matching the name
      * only is returned.
@@ -596,7 +601,7 @@ namespace Cantera {
      * If exact match is found with respect to the attribute name and
      * value of the attribute, the pointer
      * to the matching XML Node is returned. If not, 0 is returned.
-     * 
+     *
      *
      *  @param attr     Attribute of the XML Node that the routine
      *                  looks for
@@ -608,7 +613,7 @@ namespace Cantera {
      *
      */
     XML_Node* findByAttr(const std::string& attr, const std::string& val,
-			 int depth = 100000) const;
+                         int depth = 100000) const;
 
     //! This routine carries out a recursive search for an XML node based
     //! on the name of the node.
@@ -648,7 +653,7 @@ namespace Cantera {
      * @param children  output vector of pointers to XML_Node children
      *                  with the matching name
      */
-    void getChildren(const std::string &name, std::vector<XML_Node*>& children) const;
+    void getChildren(const std::string& name, std::vector<XML_Node*>& children) const;
 
     //! Return a changeable reference to a child of the current node,  named by the argument
     /*!
@@ -657,7 +662,7 @@ namespace Cantera {
      *
      *  @param loc  Name of the child to return
      */
-    XML_Node& child(const std::string &loc) const;
+    XML_Node& child(const std::string& loc) const;
 
     //! Write the header to the xml file to the specified ostream
     /*!
@@ -665,10 +670,10 @@ namespace Cantera {
      */
     void writeHeader(std::ostream& s);
 
-  
-    //! Write an XML subtree to an output stream. 
+
+    //! Write an XML subtree to an output stream.
     /*!
-     * This is a 
+     * This is a
      * wrapper around the static routine write_int(). All this
      * does is add an endl on to the output stream. write_int() is
      * fine, but the last endl wasn't being written.
@@ -678,7 +683,7 @@ namespace Cantera {
      * to denote the top of the tree.
      *
      *  @param s       ostream to write to
-     *  @param level   Indentation level to work from  
+     *  @param level   Indentation level to work from
      *  @param numRecursivesAllowed Number of recursive calls allowed
      */
     void write(std::ostream& s, const int level = 0, int numRecursivesAllowed = 60000) const;
@@ -699,7 +704,7 @@ namespace Cantera {
     //! Main routine to create an tree-like representation of an XML file
     /*!
      *   Given an input stream, this routine will read matched XML tags
-     *   representing the ctml file until an EOF is read from the file. 
+     *   representing the ctml file until an EOF is read from the file.
      *   This routine is called by the root XML_Node object.
      *
      * @param f   Input stream containing the ascii input file
@@ -718,10 +723,10 @@ namespace Cantera {
      *  @param node_dest  This is the XML node to receive the information
      *
      */
-    void copyUnion(XML_Node * const node_dest) const;
+    void copyUnion(XML_Node* const node_dest) const;
 
     //! Copy all of the information in the current XML_Node tree
-    //! into the destination XML_Node tree, doing a complete copy 
+    //! into the destination XML_Node tree, doing a complete copy
     //! as we go.
     /*!
      *  Note this is a const function because the current XML_Node and
@@ -729,7 +734,7 @@ namespace Cantera {
      *
      *  @param node_dest  This is the XML node to receive the information
      */
-    void copy(XML_Node * const node_dest) const;
+    void copy(XML_Node* const node_dest) const;
 
     //! Set the lock for this node and all of its children
     void lock();
@@ -737,10 +742,10 @@ namespace Cantera {
     //! Unset the lock for this node and all of its children
     void unlock();
 
-  private:
+private:
 
-    
-    //! Write an XML subtree to an output stream. 
+
+    //! Write an XML subtree to an output stream.
     /*!
      * This is the main recursive routine. It doesn't put a final endl
      * on. This is fixed up in the public method. A method to only write out a limited
@@ -753,9 +758,9 @@ namespace Cantera {
      */
     void write_int(std::ostream& s, int level = 0, int numRecursivesAllowed = 60000) const;
 
-  protected:
+protected:
 
-    //! XML node name of the node. 
+    //! XML node name of the node.
     /*!
      *  For example, if we were in the XML_Node where
      *  @verbatim
@@ -780,7 +785,7 @@ namespace Cantera {
      */
     std::string m_value;
 
-    //! Map containing an index between the node name and the 
+    //! Map containing an index between the node name and the
     //! pointer to the node
     /*!
      * m_childindex[node.name()] = XML_Node *pointer
@@ -829,19 +834,19 @@ namespace Cantera {
      *  Currently, unimplemented functionality
      */
     int m_linenum;
-  };
+};
 
-  //! Search an XML_Node tree for a named phase XML_Node
-  /*!
-   *  Search for a phase Node matching a name.
-   *
-   *  @param root         Starting XML_Node* pointer  for the search
-   *  @param phaseName    Name of the phase to search for
-   *
-   *  @return Returns the XML_Node pointer if the phase is found.
-   *          If the phase is not found, it returns 0
-   */
-  XML_Node * findXMLPhase(XML_Node* root, const std::string &phaseName);
+//! Search an XML_Node tree for a named phase XML_Node
+/*!
+ *  Search for a phase Node matching a name.
+ *
+ *  @param root         Starting XML_Node* pointer  for the search
+ *  @param phaseName    Name of the phase to search for
+ *
+ *  @return Returns the XML_Node pointer if the phase is found.
+ *          If the phase is not found, it returns 0
+ */
+XML_Node* findXMLPhase(XML_Node* root, const std::string& phaseName);
 
 }
 

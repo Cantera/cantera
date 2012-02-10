@@ -1,6 +1,6 @@
 /**
  *  @file speciesThermoTypes.h
- *       Contains const definitions for types of species 
+ *       Contains const definitions for types of species
  *       reference-state thermodynamics managers (see \ref spthermo)
  */
 // Copyright 2001  California Institute of Technology
@@ -34,11 +34,11 @@
 
 //! Constant Cp thermo.
 //! This is implemented in ConstCpPoly in constCpPoly.h for one species.
-//! If the whole phase is constcp, SimpleThermo in SimpleThermo.h 
+//! If the whole phase is constcp, SimpleThermo in SimpleThermo.h
 //! implements this for the whole phase.
 #define SIMPLE 32
 
-//! piecewise interpolation of mu0. 
+//! piecewise interpolation of mu0.
 //! This is implemented in Mu0Poly in Mu0Poly.h
 #define MU0_INTERP 64
 
@@ -59,7 +59,7 @@
 //! This is implemented in the class Nasa9PolyMultiTempRegion in Nasa9Poly1MultiTempRegion
 #define NASA9MULTITEMP  513
 
-//! Surface Adsorbate Model for a species on a surface. 
+//! Surface Adsorbate Model for a species on a surface.
 //! This is implemented in the class Adsorbate.
 #define ADSORBATE 1024
 
@@ -73,10 +73,11 @@
 #include "stringUtils.h"
 #include "global.h"
 
-namespace Cantera {
+namespace Cantera
+{
 
-  //! Error for unknown thermo parameterization
-  struct UnknownThermoParam {
+//! Error for unknown thermo parameterization
+struct UnknownThermoParam {
     //! Constructor
     /*!
      * @param thermotype  Integer specifying the thermo parameterization
@@ -84,19 +85,19 @@ namespace Cantera {
      * @todo Is this used?
      */
     UnknownThermoParam(int thermotype) {
-      writelog(std::string("\n ### ERROR ### \n") + 
-	       "Unknown species thermo parameterization ("
-	       + int2str(thermotype) + ")\n\n");
+        writelog(std::string("\n ### ERROR ### \n") +
+                 "Unknown species thermo parameterization ("
+                 + int2str(thermotype) + ")\n\n");
     }
-  };
+};
 
 
-  //! holds parameterization-dependent index information
-  /*!
-   * These are all integers.
-   * @todo Is this used?
-   */
-  struct ThermoIndexData {
+//! holds parameterization-dependent index information
+/*!
+ * These are all integers.
+ * @todo Is this used?
+ */
+struct ThermoIndexData {
     //! param
     int param;
     //! number of coefficients
@@ -107,10 +108,10 @@ namespace Cantera {
     int Tmax_coeff;
     //! reference pressure coefficient
     int Pref_coeff;
-  };
+};
 
 }
 
 #endif
 
-                
+

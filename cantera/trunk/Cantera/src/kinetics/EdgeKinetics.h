@@ -12,72 +12,75 @@
 
 #include "InterfaceKinetics.h"
 
-namespace Cantera {
+namespace Cantera
+{
+
+/**
+ * Heterogeneous reactions at one-dimensional interfaces between
+ * multiple adjacent two-dimensional surfaces.
+ */
+class EdgeKinetics : public InterfaceKinetics
+{
+
+public:
 
     /**
-     * Heterogeneous reactions at one-dimensional interfaces between
-     * multiple adjacent two-dimensional surfaces. 
+    * Constructor
+     *
      */
-    class EdgeKinetics : public InterfaceKinetics {
+    EdgeKinetics() : InterfaceKinetics() {}
 
-    public:
+    /// Destructor.
+    virtual ~EdgeKinetics() {}
 
-        /**
-	 * Constructor
-	 *
-	 */
-        EdgeKinetics() : InterfaceKinetics() {}
+    EdgeKinetics(const EdgeKinetics& right) :
+        InterfaceKinetics(right) {
+        *this=right;
+    }
 
-        /// Destructor.
-        virtual ~EdgeKinetics() {}
-
-        EdgeKinetics(const EdgeKinetics &right) :
-          InterfaceKinetics(right)
-        {
-          *this=right;
-        }
-
-        EdgeKinetics & operator=(const EdgeKinetics &right)
-        {
-          if (this != &right) {
+    EdgeKinetics& operator=(const EdgeKinetics& right) {
+        if (this != &right) {
             InterfaceKinetics::operator=(right);
-          }
-          return *this;
         }
+        return *this;
+    }
 
-        //! Duplication routine for objects which inherit from Kinetics
-        /*!
-         *  This virtual routine can be used to duplicate %Kinetics objects
-         *  inherited from %Kinetics even if the application only has
-         *  a pointer to %Kinetics to work with.
-         *
-         *  These routines are basically wrappers around the derived copy  constructor.
-         *
-         * @param  tpVector Vector of shallow pointers to ThermoPhase objects. this is the
-         *                  m_thermo vector within this object
-         */
-        virtual Kinetics *duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVector) const
-        {
-          EdgeKinetics* iK = new EdgeKinetics(*this);
-          iK->assignShallowPointers(tpVector);
-          return dynamic_cast<Kinetics *>(iK);
-        }
+    //! Duplication routine for objects which inherit from Kinetics
+    /*!
+     *  This virtual routine can be used to duplicate %Kinetics objects
+     *  inherited from %Kinetics even if the application only has
+     *  a pointer to %Kinetics to work with.
+     *
+     *  These routines are basically wrappers around the derived copy  constructor.
+     *
+     * @param  tpVector Vector of shallow pointers to ThermoPhase objects. this is the
+     *                  m_thermo vector within this object
+     */
+    virtual Kinetics* duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVector) const {
+        EdgeKinetics* iK = new EdgeKinetics(*this);
+        iK->assignShallowPointers(tpVector);
+        return dynamic_cast<Kinetics*>(iK);
+    }
 
-	/**
-	 * Identifies the subclass of the Kinetics manager type.
-	 * These are listed in mix_defs.h.
-	 */
-        virtual int ID() const { return cEdgeKinetics; }
+    /**
+     * Identifies the subclass of the Kinetics manager type.
+     * These are listed in mix_defs.h.
+     */
+    virtual int ID() const {
+        return cEdgeKinetics;
+    }
 
-	/**
-	 * Identifies the subclass of the Kinetics manager type.
-	 * These are listed in mix_defs.h.
-	 */
-        virtual int type() const { return cEdgeKinetics; }
+    /**
+     * Identifies the subclass of the Kinetics manager type.
+     * These are listed in mix_defs.h.
+     */
+    virtual int type() const {
+        return cEdgeKinetics;
+    }
 
-        // defined in InterfaceKinetics.cpp
-        virtual void finalize();
-    };
+    // defined in InterfaceKinetics.cpp
+    virtual void finalize();
+};
 }
 
 #endif

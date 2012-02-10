@@ -19,93 +19,96 @@
 #include <string>
 #include <vector>
 
-namespace ckr {
+namespace ckr
+{
 
-    class Group {
-    public:
-        
-        /// Construct a new empty Group object
-        Group() : name("<empty>"), index(-1) {}
+class Group
+{
+public:
 
-        Group(const std::string& nm) : name(nm), index(-1) {}
-        
-        /// Destructor
-        ~Group() {}
-        
-       std::string name;                 //!<  name
-        int index;                   //!<  index number
-        std::map<std::string, double> comp;    //!<  elemental composition
+    /// Construct a new empty Group object
+    Group() : name("<empty>"), index(-1) {}
 
-        bool operator==(const Group& g) const {
-            return (name == g.name);
-        }
-        bool operator!=(const Group& g) const {
-            return !(*this == g);
-        }
-    };
+    Group(const std::string& nm) : name(nm), index(-1) {}
 
-    /// a list (vector) of Groups
-    typedef std::vector<Group>      groupList;
+    /// Destructor
+    ~Group() {}
 
+    std::string name;                 //!<  name
+    int index;                   //!<  index number
+    std::map<std::string, double> comp;    //!<  elemental composition
+
+    bool operator==(const Group& g) const {
+        return (name == g.name);
+    }
+    bool operator!=(const Group& g) const {
+        return !(*this == g);
+    }
+};
+
+/// a list (vector) of Groups
+typedef std::vector<Group>      groupList;
+
+
+/**
+ *  Chemkin file reader class. Class CKReader parses and validates a file
+ *  containing a description of a chemical reaction mechanism in Chemkin
+ *  format. See the Examples section for examples of how CKReader is
+ *  used in user programs.
+ */
+
+class CKReader
+{
+public:
 
     /**
-     *  Chemkin file reader class. Class CKReader parses and validates a file 
-     *  containing a description of a chemical reaction mechanism in Chemkin 
-     *  format. See the Examples section for examples of how CKReader is 
-     *  used in user programs.
+     * Constructor. Construct a new CKReader instance. By default,
+     * validation is enabled, as well as verbose output to the log file.
      */
+    CKReader() : verbose(true), validate(true), debug(false) {}
 
-    class CKReader {
-    public:
+    /// Destructor. Does nothing.
+    ~CKReader() {}
 
-        /**
-         * Constructor. Construct a new CKReader instance. By default,
-         * validation is enabled, as well as verbose output to the log file.
-         */ 
-        CKReader() : verbose(true), validate(true), debug(false) {}
+    elementList   elements;     ///<  a list of Element objects
+    speciesList   species;      ///<  a list of Species objects
+    reactionList  reactions;    ///<  a list of Reaction objects
+    groupList     groups;       ///<  a list of Groups
+    speciesTable  speciesData;  ///<  a map from species names to Species objects
+    ReactionUnits units;        ///<  reaction units
 
-        /// Destructor. Does nothing.
-        ~CKReader() {}
+    /**
+     * Read and optionally validate a Chemkin input file.
+     * @param inputFile  path to the input file.
+     * @param thermoDatabase  path to the species thermodynamic property database.
+     * If no database is required, enter a null string.
+     * @param logFile file to write logging and error messages to.
+     * @return true if no errors encountered, false otherwise.
+     */
+    bool read(const std::string& inputFile,
+              const std::string& thermoDatabase, const std::string& logFile);
 
-        elementList   elements;     ///<  a list of Element objects
-        speciesList   species;      ///<  a list of Species objects
-        reactionList  reactions;    ///<  a list of Reaction objects
-        groupList     groups;       ///<  a list of Groups
-        speciesTable  speciesData;  ///<  a map from species names to Species objects
-        ReactionUnits units;        ///<  reaction units
+    void write(string outputFile);  ///< not implemented.
 
-        /**
-         * Read and optionally validate a Chemkin input file.
-         * @param inputFile  path to the input file.
-         * @param thermoDatabase  path to the species thermodynamic property database. 
-         * If no database is required, enter a null string.
-         * @param logFile file to write logging and error messages to.
-         * @return true if no errors encountered, false otherwise.
-         */
-        bool read(const std::string& inputFile,
-            const std::string& thermoDatabase, const std::string& logFile);
+    bool verbose;         ///<  print detailed messages to log file
+    bool validate;        ///<  validate elements, species, and reaction
+    bool debug;           ///<  enable debugging output
 
-        void write(string outputFile);  ///< not implemented.
+private:
 
-        bool verbose;         ///<  print detailed messages to log file
-        bool validate;        ///<  validate elements, species, and reaction
-        bool debug;           ///<  enable debugging output
-
-    private:
-
-        //    void validateElements(ostream& log);
-        bool validateSpecies(ostream& log);    ///< validate the species.
-        bool validateReactions(ostream& log);  ///< validate the reactions.
-        bool writeReactions(ostream& log);
-    };
+    //    void validateElements(ostream& log);
+    bool validateSpecies(ostream& log);    ///< validate the species.
+    bool validateReactions(ostream& log);  ///< validate the reactions.
+    bool writeReactions(ostream& log);
+};
 
 
-    bool checkBalance(ostream& f, speciesTable& speciesData, reactionList& r, 
-        vector<int>& unbalanced, double tolerance=1.0e-3);
-    bool checkThermo(ostream& f, speciesList& species, double tol);
+bool checkBalance(ostream& f, speciesTable& speciesData, reactionList& r,
+                  vector<int>& unbalanced, double tolerance=1.0e-3);
+bool checkThermo(ostream& f, speciesList& species, double tol);
 
-    bool filter(const string& infile, const string& database,
-        const string& outfile, const vector<int>& species, const vector<int>& reactions);
+bool filter(const string& infile, const string& database,
+            const string& outfile, const vector<int>& species, const vector<int>& reactions);
 
 }
 

@@ -35,7 +35,10 @@ using namespace Cantera;
 static IdealGasMix* _gas = 0;
 
 // provides access to the pointers for functions in other libraries
-IdealGasMix* _gasptr() { return _gas; }
+IdealGasMix* _gasptr()
+{
+    return _gas;
+}
 
 // comment these out to produce a smaller executable if not needed
 #define WITH_EQUIL
@@ -51,11 +54,15 @@ IdealGasMix* _gasptr() { return _gas; }
 
 // store a pointer to a transport manager
 static Transport* _trans = 0;
-Transport* _transptr() { return _trans; }
+Transport* _transptr()
+{
+    return _trans;
+}
 #endif
 
-// error handler 
-void handleError() {
+// error handler
+void handleError()
+{
     showErrors(cout);
     exit(-1);
 }
@@ -77,184 +84,227 @@ extern "C" {
      * you have a file in Chemkin-compatible format, use utility
      * program ck2cti first to convert it into Cantera format.)
      */
-    void newidealgasmix_(char* file, char* id, char* transport, 
-        ftnlen lenfile, ftnlen lenid, ftnlen lentr) {
+    void newidealgasmix_(char* file, char* id, char* transport,
+                         ftnlen lenfile, ftnlen lenid, ftnlen lentr)
+    {
         string trmodel = "";
         try {
             string fin = string(file, lenfile);
             string fth = string(id, lenid);
             trmodel = string(transport, lentr);
-            if (_gas) delete _gas;
+            if (_gas) {
+                delete _gas;
+            }
             _gas = new IdealGasMix(fin, fth);
-        }
-        catch (CanteraError) {
+        } catch (CanteraError) {
             handleError();
         }
 #ifdef WITH_TRANSPORT
         try {
-            if (_trans) delete _trans;
+            if (_trans) {
+                delete _trans;
+            }
             _trans = newTransportMgr(trmodel,_gas,1);
-        }
-        catch (CanteraError) { 
+        } catch (CanteraError) {
             _trans =  newTransportMgr("",_gas,1);
         }
 #endif
     }
 
-    ///   integer function nElements() 
-    integer nelements_() { return _gas->nElements(); }
+    ///   integer function nElements()
+    integer nelements_()
+    {
+        return _gas->nElements();
+    }
 
     /// integer function nSpecies()
-    integer nspecies_() { return _gas->nSpecies(); }
+    integer nspecies_()
+    {
+        return _gas->nSpecies();
+    }
 
     /// integer function nReactions()
-    integer nreactions_() { return _gas->nReactions(); }
+    integer nreactions_()
+    {
+        return _gas->nReactions();
+    }
 
-    void getspeciesname_(integer* k, char* name, ftnlen n) {
+    void getspeciesname_(integer* k, char* name, ftnlen n)
+    {
         int ik = *k - 1;
         fill(name, name + n, ' ');
         string spnm = _gas->speciesName(ik);
         int ns = spnm.size();
         unsigned int nmx = (ns > n ? n : ns);
         copy(spnm.begin(), spnm.begin()+nmx, name);
-    }    
+    }
 
     //-------------- setting the state ----------------------------
 
     /// subroutine setState_TPX(T, P, X)
-    void setstate_tpx_(doublereal* T, doublereal* P, doublereal* X) {
+    void setstate_tpx_(doublereal* T, doublereal* P, doublereal* X)
+    {
         try {
             _gas->setState_TPX(*T, *P, X);
+        } catch (CanteraError) {
+            handleError();
         }
-        catch (CanteraError) { handleError(); }
-    } 
+    }
 
     /// subroutine setState_TPX_String(T, P, X)
-    void setstate_tpx_string_(doublereal* T, doublereal* P, 
-        char* X, ftnlen lenx) {
+    void setstate_tpx_string_(doublereal* T, doublereal* P,
+                              char* X, ftnlen lenx)
+    {
         try {
             _gas->setState_TPX(*T, *P, string(X, lenx));
+        } catch (CanteraError) {
+            handleError();
         }
-        catch (CanteraError) { handleError(); }
-    } 
+    }
 
-    void setstate_try_(doublereal* T, doublereal* rho, doublereal* Y) {
+    void setstate_try_(doublereal* T, doublereal* rho, doublereal* Y)
+    {
         try {
             _gas->setState_TRY(*T, *rho, Y);
+        } catch (CanteraError) {
+            handleError();
         }
-        catch (CanteraError) { handleError(); }
-    } 
+    }
 
-    void setstate_tpy_(doublereal* T, doublereal* p, doublereal* Y) {
+    void setstate_tpy_(doublereal* T, doublereal* p, doublereal* Y)
+    {
         try {
             _gas->setState_TPY(*T, *p, Y);
+        } catch (CanteraError) {
+            handleError();
         }
-        catch (CanteraError) { handleError(); }
-    } 
+    }
 
-    void setstate_sp_(doublereal* s, doublereal* p) {
+    void setstate_sp_(doublereal* s, doublereal* p)
+    {
         try {
             _gas->setState_SP(*s, *p);
+        } catch (CanteraError) {
+            handleError();
         }
-        catch (CanteraError) { handleError(); }
-    } 
+    }
 
     //-------------- thermodynamic properties ----------------------
 
     /// Temperature (K)
-    doublereal temperature_() { 
+    doublereal temperature_()
+    {
         return _gas->temperature();
     }
 
     /// Pressure (Pa)
-    doublereal pressure_() { 
+    doublereal pressure_()
+    {
         return _gas->pressure();
     }
-    
+
     /// Density (kg/m^3)
-    doublereal density_() { 
+    doublereal density_()
+    {
         return _gas->density();
     }
 
     /// Mean molar mass (kg/kmol).
-    doublereal meanmolarmass_() { 
+    doublereal meanmolarmass_()
+    {
         return _gas->meanMolecularWeight();
     }
 
-    /// Molar enthalpy (J/kmol) 
-    doublereal enthalpy_mole_() { 
+    /// Molar enthalpy (J/kmol)
+    doublereal enthalpy_mole_()
+    {
         return _gas->enthalpy_mole();
     }
 
     /// Molar internal energy (J/kmol)
-    doublereal intenergy_mole_() { 
+    doublereal intenergy_mole_()
+    {
         return _gas->intEnergy_mole();
     }
-    
+
     /// Molar entropy (J/kmol-K)
-    doublereal entropy_mole_() { 
+    doublereal entropy_mole_()
+    {
         return _gas->entropy_mole();
     }
 
     /// Molar heat capacity at constant P (J/kmol-K)
-    doublereal cp_mole_() { 
+    doublereal cp_mole_()
+    {
         return _gas->cp_mole();
     }
 
     /// Molar Gibbs function (J/kmol)
-    doublereal gibbs_mole_() { 
+    doublereal gibbs_mole_()
+    {
         return _gas->gibbs_mole();
     }
 
-    doublereal enthalpy_mass_() { 
+    doublereal enthalpy_mass_()
+    {
         return _gas->enthalpy_mass();
     }
 
-    doublereal intenergy_mass_() { 
+    doublereal intenergy_mass_()
+    {
         return _gas->intEnergy_mass();
     }
-    
-    doublereal entropy_mass_() { 
+
+    doublereal entropy_mass_()
+    {
         return _gas->entropy_mass();
     }
 
-    doublereal cp_mass_() { 
+    doublereal cp_mass_()
+    {
         return _gas->cp_mass();
     }
 
-    doublereal cv_mass_() { 
+    doublereal cv_mass_()
+    {
         return _gas->cv_mass();
     }
 
-    doublereal gibbs_mass_() { 
+    doublereal gibbs_mass_()
+    {
         return _gas->gibbs_mass();
     }
-    
-    void gotmolefractions_(doublereal* x) {
+
+    void gotmolefractions_(doublereal* x)
+    {
         _gas->getMoleFractions(x);
     }
 
-    void gotmassfractions_(doublereal* y) {
+    void gotmassfractions_(doublereal* y)
+    {
         _gas->getMassFractions(y);
     }
 
 #ifdef WITH_EQUIL
-    void equilibrate_(char* opt, ftnlen lenopt) {
+    void equilibrate_(char* opt, ftnlen lenopt)
+    {
         try {
             if (lenopt != 2) {
                 throw CanteraError("equilibrate",
-                    "two-character string required.");
+                                   "two-character string required.");
             }
             string optstr = string(opt, 2);
             equilibrate(*_gas, optstr.c_str());
+        } catch (CanteraError) {
+            handleError();
         }
-        catch (CanteraError) { handleError(); }
     }
 #endif
 
     //---------------- kinetics -------------------------
 
-    void getreactioneqn_(integer* i, char* eqn, ftnlen n) {
+    void getreactioneqn_(integer* i, char* eqn, ftnlen n)
+    {
         int irxn = *i - 1;
         fill(eqn, eqn + n, ' ');
         string e = _gas->reactionString(irxn);
@@ -262,60 +312,76 @@ extern "C" {
         unsigned int nmx = (ns > n ? n : ns);
         copy(e.begin(), e.begin()+nmx, eqn);
     }
-        
-    void getnetproductionrates_(doublereal* wdot) {
+
+    void getnetproductionrates_(doublereal* wdot)
+    {
         _gas->getNetProductionRates(wdot);
     }
 
-    void getcreationrates_(doublereal* cdot) {
+    void getcreationrates_(doublereal* cdot)
+    {
         _gas->getCreationRates(cdot);
     }
 
-    void getdestructionrates_(doublereal* ddot) {
+    void getdestructionrates_(doublereal* ddot)
+    {
         _gas->getDestructionRates(ddot);
     }
 
-    void getnetratesofprogress_(doublereal* q) {
+    void getnetratesofprogress_(doublereal* q)
+    {
         _gas->getNetRatesOfProgress(q);
     }
 
-    void getfwdratesofprogress_(doublereal* q) {
+    void getfwdratesofprogress_(doublereal* q)
+    {
         _gas->getFwdRatesOfProgress(q);
     }
 
-    void getrevratesofprogress_(doublereal* q) {
+    void getrevratesofprogress_(doublereal* q)
+    {
         _gas->getRevRatesOfProgress(q);
     }
 
     //-------------------- transport properties --------------------
 
 #ifdef WITH_TRANSPORT
-    double viscosity_() {
+    double viscosity_()
+    {
         try {
             return _trans->viscosity();
+        } catch (CanteraError) {
+            handleError();
+            return 0.0;
         }
-        catch (CanteraError) { handleError(); return 0.0; }        
     }
 
-    double thermalconductivity_() {
+    double thermalconductivity_()
+    {
         try {
             return _trans->thermalConductivity();
+        } catch (CanteraError) {
+            handleError();
+            return 0.0;
         }
-        catch (CanteraError) { handleError(); return 0.0; }
     }
 
-    void getmixdiffcoeffs_(double* diff) {
+    void getmixdiffcoeffs_(double* diff)
+    {
         try {
             _trans->getMixDiffCoeffs(diff);
+        } catch (CanteraError) {
+            handleError();
         }
-        catch (CanteraError) { handleError();}
     }
 
-    void getthermaldiffcoeffs_(double* dt) {
+    void getthermaldiffcoeffs_(double* dt)
+    {
         try {
             _trans->getThermalDiffCoeffs(dt);
+        } catch (CanteraError) {
+            handleError();
         }
-        catch (CanteraError) { handleError();}
     }
 #endif
 
@@ -324,22 +390,21 @@ extern "C" {
 /*
  *  HKM 7/22/09:
  *    I'm skeptical that you need this for any system.
- *    Definately creates an error (dupl main()) for the solaris 
+ *    Definately creates an error (dupl main()) for the solaris
  *    system
  */
 #ifdef NEED_ALT_MAIN
 /**
- * This C++ main program simply calls the Fortran main program. 
+ * This C++ main program simply calls the Fortran main program.
  */
-int main() {
+int main()
+{
     try {
         return MAIN__();
-    }
-    catch (CanteraError) {
+    } catch (CanteraError) {
         showErrors(cerr);
         exit(-1);
-    }
-    catch (...) {
+    } catch (...) {
         cout << "An exception was trapped. Program terminating." << endl;
         exit(-1);
     }

@@ -16,26 +16,31 @@ using std::cout;
 using std::endl;
 
 template<class G, class V>
-void makeTransportDataLabels(const G& gas, V& names) {
+void makeTransportDataLabels(const G& gas, V& names)
+{
     int nsp = gas.nSpecies();
     names.resize(nsp + 3);
     names[0]  = "Temperature (K)";
     names[1]  = "Viscosity ()";
     names[2]  = "Thermal Conductivity (W/m-K)";
     int k;
-    for (k = 0; k < nsp; k++) names[3+k] = gas.speciesName(k);
+    for (k = 0; k < nsp; k++) {
+        names[3+k] = gas.speciesName(k);
+    }
 }
 
 template<class G, class A>
 void plotTransportSoln(std::string fname, std::string fmt, std::string title,
-                       const G& gas, const A& soln) {
+                       const G& gas, const A& soln)
+{
     std::vector<std::string> names;
     makeTransportDataLabels(gas, names);
     writePlotFile(fname, fmt, title, names, soln);
 }
 
 
-int transport_example1(int job) {
+int transport_example1(int job)
+{
 
     try {
 
@@ -45,7 +50,9 @@ int transport_example1(int job) {
                  << "diffusion coefficients at 2 atm for a "
                  << "range of temperatures" << endl;
         }
-        if (job <= 1) return 0;
+        if (job <= 1) {
+            return 0;
+        }
 
         // create a gas mixture, and set its state
 
@@ -57,7 +64,7 @@ int transport_example1(int job) {
         // create a transport manager that implements
         // mixture-averaged transport properties
 
-	Transport* tr = newTransportMgr("Mix", &gas);
+        Transport* tr = newTransportMgr("Mix", &gas);
 
         int nsp = gas.nSpecies();
 

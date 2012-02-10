@@ -15,85 +15,97 @@
 #include "refine.h"
 
 
-namespace Cantera {
+namespace Cantera
+{
 
-  // domain types
-  const int cFlowType         = 50;
-  const int cConnectorType    = 100;
-  const int cSurfType         = 102;
-  const int cInletType        = 104;
-  const int cSymmType         = 105;
-  const int cOutletType       = 106;
-  const int cEmptyType        = 107;
-  const int cOutletResType    = 108;
-  const int cPorousType       = 109;
+// domain types
+const int cFlowType         = 50;
+const int cConnectorType    = 100;
+const int cSurfType         = 102;
+const int cInletType        = 104;
+const int cSymmType         = 105;
+const int cOutletType       = 106;
+const int cEmptyType        = 107;
+const int cOutletResType    = 108;
+const int cPorousType       = 109;
 
-  class MultiJac;
-  class OneDim;
+class MultiJac;
+class OneDim;
 
 
-  /**
-   * Base class for one-dimensional domains.
-   */
-  class Domain1D {
-  public:
+/**
+ * Base class for one-dimensional domains.
+ */
+class Domain1D
+{
+public:
 
     /**
      * Constructor.
      * @param nv      Number of variables at each grid point.
      * @param points  Number of grid points.
      */
-        Domain1D(size_t nv=1, size_t points=1,
-	     doublereal time = 0.0) :
-      m_rdt(0.0),
-      m_time(time),
-      m_container(0),
-      m_index(-1),
-      m_type(0),
-      m_iloc(0),
-      m_jstart(0),
-      m_left(0),
-      m_right(0),
-      m_id(""), m_desc(""),
-      m_refiner(0), m_bw(-1) {
-      resize(nv, points);
+    Domain1D(size_t nv=1, size_t points=1,
+             doublereal time = 0.0) :
+        m_rdt(0.0),
+        m_time(time),
+        m_container(0),
+        m_index(-1),
+        m_type(0),
+        m_iloc(0),
+        m_jstart(0),
+        m_left(0),
+        m_right(0),
+        m_id(""), m_desc(""),
+        m_refiner(0), m_bw(-1) {
+        resize(nv, points);
     }
 
     /// Destructor. Does nothing
-    virtual ~Domain1D(){ delete m_refiner; }
+    virtual ~Domain1D() {
+        delete m_refiner;
+    }
 
     /// Domain type flag.
-    const int domainType() { return m_type; }
+    const int domainType() {
+        return m_type;
+    }
 
     /**
      * The left-to-right location of this domain.
      */
-        const size_t domainIndex() { return m_index; }
+    const size_t domainIndex() {
+        return m_index;
+    }
 
     /**
      * True if the domain is a connector domain.
      */
-    bool isConnector() { return (m_type >= cConnectorType); }
+    bool isConnector() {
+        return (m_type >= cConnectorType);
+    }
 
     /**
      * The container holding this domain.
      */
-    const OneDim& container() const { return *m_container; }
+    const OneDim& container() const {
+        return *m_container;
+    }
 
     /**
      * Specify the container object for this domain, and the
      * position of this domain in the list.
      */
-        void setContainer(OneDim* c, size_t index){
-      m_container = c;
-      m_index = index;
+    void setContainer(OneDim* c, size_t index) {
+        m_container = c;
+        m_index = index;
     }
 
     /*
-     * Set the Jacobian bandwidth. See the discussion of method bandwidth. 
+     * Set the Jacobian bandwidth. See the discussion of method bandwidth.
      */
     void setBandwidth(int bw = -1) {
-      m_bw = bw;
+        m_bw = bw;
     }
 
     /**
@@ -113,16 +125,18 @@ namespace Cantera {
      * method setBandwidth to specify the bandwidth before passing
      * this domain to the Sim1D or OneDim constructor.
      */
-        size_t bandwidth() { return m_bw; }
+    size_t bandwidth() {
+        return m_bw;
+    }
 
     /**
      * Initialize. This method is called by OneDim::init() for
      * each domain once at the beginning of a simulation. Base
      * class method does nothing, but may be overloaded.
      */
-    virtual void init(){  }
+    virtual void init() {  }
 
-    virtual void setInitialState(doublereal* xlocal = 0){}
+    virtual void setInitialState(doublereal* xlocal = 0) {}
     virtual void setState(int point, const doublereal* state, doublereal* x) {}
 
     /**
@@ -130,86 +144,99 @@ namespace Cantera {
      * This method is virtual so that subclasses can perform other
      * actions required to resize the domain.
      */
-        virtual void resize(size_t nv, size_t np) {
-      // if the number of components is being changed, then a
-      // new grid refiner is required.
-      if (nv != m_nv || !m_refiner) {
-	m_nv = nv;
-	delete m_refiner;
-	m_refiner = new Refiner(*this);
-      }
-      m_nv = nv;
-      m_td.resize(m_nv, 1);
-      m_name.resize(m_nv,"");
-      m_max.resize(m_nv, 0.0);
-      m_min.resize(m_nv, 0.0);
-      m_rtol_ss.resize(m_nv, 1.0e-8);
-      m_atol_ss.resize(m_nv, 1.0e-15);
-      m_rtol_ts.resize(m_nv, 1.0e-8);
-      m_atol_ts.resize(m_nv, 1.0e-15);
-      m_points = np;
-      m_z.resize(np, 0.0);
-      m_slast.resize(m_nv * m_points, 0.0);
-      locate();
+    virtual void resize(size_t nv, size_t np) {
+        // if the number of components is being changed, then a
+        // new grid refiner is required.
+        if (nv != m_nv || !m_refiner) {
+            m_nv = nv;
+            delete m_refiner;
+            m_refiner = new Refiner(*this);
+        }
+        m_nv = nv;
+        m_td.resize(m_nv, 1);
+        m_name.resize(m_nv,"");
+        m_max.resize(m_nv, 0.0);
+        m_min.resize(m_nv, 0.0);
+        m_rtol_ss.resize(m_nv, 1.0e-8);
+        m_atol_ss.resize(m_nv, 1.0e-15);
+        m_rtol_ts.resize(m_nv, 1.0e-8);
+        m_atol_ts.resize(m_nv, 1.0e-15);
+        m_points = np;
+        m_z.resize(np, 0.0);
+        m_slast.resize(m_nv * m_points, 0.0);
+        locate();
     }
 
     /// Return a reference to the grid refiner.
-    Refiner& refiner() { return *m_refiner; }
+    Refiner& refiner() {
+        return *m_refiner;
+    }
 
     /// Number of components at each grid point.
-        size_t nComponents() const { return m_nv; }
+    size_t nComponents() const {
+        return m_nv;
+    }
 
     /// Number of grid points in this domain.
-        size_t nPoints() const { return m_points; }
+    size_t nPoints() const {
+        return m_points;
+    }
 
     /// Name of the nth component. May be overloaded.
-        virtual std::string componentName(size_t n) const {
-      if (m_name[n] != "") return m_name[n];
-            else return "component " + int2str(int(n));
+    virtual std::string componentName(size_t n) const {
+        if (m_name[n] != "") {
+            return m_name[n];
+        } else {
+            return "component " + int2str(int(n));
+        }
     }
 
-        void setComponentName(size_t n, std::string name) {
-      m_name[n] = name;
+    void setComponentName(size_t n, std::string name) {
+        m_name[n] = name;
     }
 
-        void setComponentType(size_t n, int ctype) {
-      if (ctype == 0) setAlgebraic(n);
+    void setComponentType(size_t n, int ctype) {
+        if (ctype == 0) {
+            setAlgebraic(n);
+        }
     }
 
     /// index of component with name \a name.
-        size_t componentIndex(std::string name) const {
-          size_t nc = nComponents();
-            for (size_t n = 0; n < nc; n++) {
-	if (name == componentName(n)) return n;
-      }
-      throw CanteraError("Domain1D::componentIndex",
-			 "no component named "+name);
+    size_t componentIndex(std::string name) const {
+        size_t nc = nComponents();
+        for (size_t n = 0; n < nc; n++) {
+            if (name == componentName(n)) {
+                return n;
+            }
+        }
+        throw CanteraError("Domain1D::componentIndex",
+                           "no component named "+name);
     }
 
     /**
      * Set the lower and upper bounds for each solution component.
      */
-        void setBounds(size_t nl, const doublereal* lower,
-            size_t nu, const doublereal* upper) {
-      if (nl < m_nv || nu < m_nv)
-	throw CanteraError("Domain1D::setBounds",
-			   "wrong array size for solution bounds. "
-                    "Size should be at least "+int2str(int(m_nv)));
-      std::copy(upper, upper + m_nv, m_max.begin());
-      std::copy(lower, lower + m_nv, m_min.begin());
+    void setBounds(size_t nl, const doublereal* lower,
+                   size_t nu, const doublereal* upper) {
+        if (nl < m_nv || nu < m_nv)
+            throw CanteraError("Domain1D::setBounds",
+                               "wrong array size for solution bounds. "
+                               "Size should be at least "+int2str(int(m_nv)));
+        std::copy(upper, upper + m_nv, m_max.begin());
+        std::copy(lower, lower + m_nv, m_min.begin());
     }
 
-        void setBounds(size_t n, doublereal lower, doublereal upper) {
-      m_min[n] = lower;
-      m_max[n] = upper;
+    void setBounds(size_t n, doublereal lower, doublereal upper) {
+        m_min[n] = lower;
+        m_max[n] = upper;
     }
 
     /// set the error tolerances for all solution components.
-        void setTolerances(size_t nr, const doublereal* rtol,
-            size_t na, const doublereal* atol, int ts = 0);
+    void setTolerances(size_t nr, const doublereal* rtol,
+                       size_t na, const doublereal* atol, int ts = 0);
 
     /// set the error tolerances for solution component \a n.
-        void setTolerances(size_t n, doublereal rtol, doublereal atol, int ts = 0);
+    void setTolerances(size_t n, doublereal rtol, doublereal atol, int ts = 0);
 
     //added by Karl Meredith
     /// set scalar error tolerances. All solution components will
@@ -223,16 +250,24 @@ namespace Cantera {
     void setTolerancesSS(doublereal rtol, doublereal atol);
 
     /// Relative tolerance of the nth component.
-        doublereal rtol(size_t n) { return (m_rdt == 0.0 ? m_rtol_ss[n] : m_rtol_ts[n]); }
+    doublereal rtol(size_t n) {
+        return (m_rdt == 0.0 ? m_rtol_ss[n] : m_rtol_ts[n]);
+    }
 
     /// Absolute tolerance of the nth component.
-        doublereal atol(size_t n) { return (m_rdt == 0.0 ? m_atol_ss[n] : m_atol_ts[n]); }
+    doublereal atol(size_t n) {
+        return (m_rdt == 0.0 ? m_atol_ss[n] : m_atol_ts[n]);
+    }
 
     /// Upper bound on the nth component.
-        doublereal upperBound(size_t n) const { return m_max[n]; }
+    doublereal upperBound(size_t n) const {
+        return m_max[n];
+    }
 
     /// Lower bound on the nth component
-        doublereal lowerBound(size_t n) const { return m_min[n]; }
+    doublereal lowerBound(size_t n) const {
+        return m_min[n];
+    }
 
 
     /**
@@ -241,21 +276,27 @@ namespace Cantera {
      * x0.
      */
     void initTimeInteg(doublereal dt, const doublereal* x0) {
-      std::copy(x0 + loc(), x0 + loc() + size(), m_slast.begin());
-      m_rdt = 1.0/dt;
+        std::copy(x0 + loc(), x0 + loc() + size(), m_slast.begin());
+        m_rdt = 1.0/dt;
     }
 
     /**
      * Prepare to solve the steady-state problem.
      * Set the internally-stored reciprocal of the time step to 0,0
      */
-    void setSteadyMode() { m_rdt = 0.0; }
+    void setSteadyMode() {
+        m_rdt = 0.0;
+    }
 
     /// True if in steady-state mode
-    bool steady() { return (m_rdt == 0.0); }
+    bool steady() {
+        return (m_rdt == 0.0);
+    }
 
     /// True if not in steady-state mode
-    bool transient() { return (m_rdt != 0.0); }
+    bool transient() {
+        return (m_rdt != 0.0);
+    }
 
     /**
      * Set this if something has changed in the governing
@@ -270,7 +311,7 @@ namespace Cantera {
      * transient mode. Used only to print diagnostic output.
      */
     void evalss(doublereal* x, doublereal* r, integer* mask) {
-      eval(-1,x,r,mask,0.0);
+        eval(-1,x,r,mask,0.0);
     }
 
     //! Evaluate the residual function at point j. If j < 0,
@@ -279,30 +320,40 @@ namespace Cantera {
      *   @param j   Grid point j
      *   @param x   Soln vector. This is the input.
      *   @param r   residual this is the output.
-     */ 
-        virtual void eval(size_t j, doublereal* x, doublereal* r,
-		      integer* mask, doublereal rdt=0.0);
+     */
+    virtual void eval(size_t j, doublereal* x, doublereal* r,
+                      integer* mask, doublereal rdt=0.0);
 
-        virtual doublereal residual(doublereal* x, size_t n, size_t j) {
-      throw CanteraError("Domain1D::residual","residual function must be overloaded in derived class "+id());
+    virtual doublereal residual(doublereal* x, size_t n, size_t j) {
+        throw CanteraError("Domain1D::residual","residual function must be overloaded in derived class "+id());
     }
 
-        int timeDerivativeFlag(size_t n) { return m_td[n];}
-        void setAlgebraic(size_t n) { m_td[n] = 0; }
+    int timeDerivativeFlag(size_t n) {
+        return m_td[n];
+    }
+    void setAlgebraic(size_t n) {
+        m_td[n] = 0;
+    }
 
     /**
      * Does nothing.
      */
     virtual void update(doublereal* x) {}
 
-    doublereal time() const { return m_time;}
-    void incrementTime(doublereal dt) { m_time += dt; }
-        size_t index(size_t n, size_t j) const { return m_nv*j + n; }
-        doublereal value(const doublereal* x, size_t n, size_t j) const {
-      return x[index(n,j)];
+    doublereal time() const {
+        return m_time;
+    }
+    void incrementTime(doublereal dt) {
+        m_time += dt;
+    }
+    size_t index(size_t n, size_t j) const {
+        return m_nv*j + n;
+    }
+    doublereal value(const doublereal* x, size_t n, size_t j) const {
+        return x[index(n,j)];
     }
 
-    virtual void setJac(MultiJac* jac){}
+    virtual void setJac(MultiJac* jac) {}
 
     //! Save the current solution for this domain into an XML_Node
     /*!
@@ -315,11 +366,13 @@ namespace Cantera {
      *              The object will pick out which part of the solution
      *              vector pertains to this object.
      */
-    virtual void save(XML_Node& o, const doublereal * const sol) {
-      throw CanteraError("Domain1D::save","base class method called");
+    virtual void save(XML_Node& o, const doublereal* const sol) {
+        throw CanteraError("Domain1D::save","base class method called");
     }
 
-        size_t size() const { return m_nv*m_points; }
+    size_t size() const {
+        return m_nv*m_points;
+    }
 
     /**
      * Find the index of the first grid point in this domain, and
@@ -327,41 +380,48 @@ namespace Cantera {
      */
     void locate() {
 
-      if (m_left) {
-	// there is a domain on the left, so the first grid point
-	// in this domain is one more than the last one on the left
-	m_jstart = m_left->lastPoint() + 1;
+        if (m_left) {
+            // there is a domain on the left, so the first grid point
+            // in this domain is one more than the last one on the left
+            m_jstart = m_left->lastPoint() + 1;
 
-	// the starting location in the solution vector
-	m_iloc = m_left->loc() + m_left->size();
-      }
-      else {
-	// this is the left-most domain
-	m_jstart = 0;
-	m_iloc = 0;
-      }
-      // if there is a domain to the right of this one, then
-      // repeat this for it
-      if (m_right) m_right->locate();
+            // the starting location in the solution vector
+            m_iloc = m_left->loc() + m_left->size();
+        } else {
+            // this is the left-most domain
+            m_jstart = 0;
+            m_iloc = 0;
+        }
+        // if there is a domain to the right of this one, then
+        // repeat this for it
+        if (m_right) {
+            m_right->locate();
+        }
     }
 
     /**
      * Location of the start of the local solution vector in the global
      * solution vector,
      */
-        virtual size_t loc(size_t j = 0) const { return m_iloc; }
+    virtual size_t loc(size_t j = 0) const {
+        return m_iloc;
+    }
 
     /**
      * The index of the first (i.e., left-most) grid point
      * belonging to this domain.
      */
-        size_t firstPoint() const { return m_jstart; }
+    size_t firstPoint() const {
+        return m_jstart;
+    }
 
     /**
      * The index of the last (i.e., right-most) grid point
      * belonging to this domain.
      */
-        size_t lastPoint() const { return m_jstart + m_points - 1; }
+    size_t lastPoint() const {
+        return m_jstart + m_points - 1;
+    }
 
     /**
      * Set the left neighbor to domain 'left.' Method 'locate' is
@@ -369,92 +429,115 @@ namespace Cantera {
      * all those to its right.
      */
     void linkLeft(Domain1D* left) {
-      m_left = left;
-      locate();
+        m_left = left;
+        locate();
     }
 
     /**
      * Set the right neighbor to domain 'right.'
      */
-    void linkRight(Domain1D* right) { m_right = right; }
+    void linkRight(Domain1D* right) {
+        m_right = right;
+    }
 
     /**
      * Append domain 'right' to this one, and update all links.
      */
     void append(Domain1D* right) {
-      linkRight(right);
-      right->linkLeft(this);
+        linkRight(right);
+        right->linkLeft(this);
     }
 
     /**
      * Return a pointer to the left neighbor.
      */
-    Domain1D* left() const { return m_left; }
+    Domain1D* left() const {
+        return m_left;
+    }
 
     /**
      * Return a pointer to the right neighbor.
      */
-    Domain1D* right() const { return m_right; }
+    Domain1D* right() const {
+        return m_right;
+    }
 
     /**
      * Value of component n at point j in the previous solution.
      */
-        double prevSoln(size_t n, size_t j) const {
-      return m_slast[m_nv*j + n];
+    double prevSoln(size_t n, size_t j) const {
+        return m_slast[m_nv*j + n];
     }
 
     /**
      * Specify an identifying tag for this domain.
      */
-    void setID(const std::string& s) {m_id = s;}
+    void setID(const std::string& s) {
+        m_id = s;
+    }
 
     std::string id() const {
-      if (m_id != "") 
-        return m_id;
-      else 
-          return std::string("domain ") + int2str(int(m_index));
+        if (m_id != "") {
+            return m_id;
+        } else {
+            return std::string("domain ") + int2str(int(m_index));
+        }
     }
 
     /**
      * Specify descriptive text for this domain.
      */
-    void setDesc(const std::string& s) {m_desc = s;}
-    const std::string& desc() { return m_desc; }
+    void setDesc(const std::string& s) {
+        m_desc = s;
+    }
+    const std::string& desc() {
+        return m_desc;
+    }
 
-    virtual void getTransientMask(integer* mask){}
+    virtual void getTransientMask(integer* mask) {}
 
     virtual void showSolution_s(std::ostream& s, const doublereal* x) {}
     virtual void showSolution(const doublereal* x);
 
     virtual void restore(const XML_Node& dom, doublereal* soln) {}
 
-        doublereal z(size_t jlocal) const {
-      return m_z[jlocal];
+    doublereal z(size_t jlocal) const {
+        return m_z[jlocal];
     }
-    doublereal zmin() const { return m_z[0]; }
-    doublereal zmax() const { return m_z[m_points - 1]; }
+    doublereal zmin() const {
+        return m_z[0];
+    }
+    doublereal zmax() const {
+        return m_z[m_points - 1];
+    }
 
 
     void setProfile(std::string name, doublereal* values, doublereal* soln) {
-            for (size_t n = 0; n < m_nv; n++) {
-	if (name == componentName(n)) {
-                    for (size_t j = 0; j < m_points; j++) {
-	    soln[index(n, j) + m_iloc] = values[j];
-	  }
-	  return;
-	}
-      }
-      throw CanteraError("Domain1D::setProfile",
-			 "unknown component: "+name);
+        for (size_t n = 0; n < m_nv; n++) {
+            if (name == componentName(n)) {
+                for (size_t j = 0; j < m_points; j++) {
+                    soln[index(n, j) + m_iloc] = values[j];
+                }
+                return;
+            }
+        }
+        throw CanteraError("Domain1D::setProfile",
+                           "unknown component: "+name);
     }
 
-    vector_fp& grid() { return m_z; }
-    const vector_fp& grid() const { return m_z; }
-        doublereal grid(size_t point) { return m_z[point]; }
+    vector_fp& grid() {
+        return m_z;
+    }
+    const vector_fp& grid() const {
+        return m_z;
+    }
+    doublereal grid(size_t point) {
+        return m_z[point];
+    }
 
-        virtual void setupGrid(size_t n, const doublereal* z);
+    virtual void setupGrid(size_t n, const doublereal* z);
 
-        void setGrid(size_t n, const doublereal* z);
+    void setGrid(size_t n, const doublereal* z);
 
     /**
      * Writes some or all initial solution values into the global
@@ -469,7 +552,7 @@ namespace Cantera {
     /**
      * Initial value of solution component \a n at grid point \a j.
      */
-        virtual doublereal initialValue(size_t n, size_t j);
+    virtual doublereal initialValue(size_t n, size_t j);
 
     /**
      * In some cases, a domain may need to set parameters that
@@ -489,11 +572,11 @@ namespace Cantera {
 
     bool m_adiabatic;
 
-  protected:
+protected:
 
     doublereal m_rdt;
-        size_t m_nv;
-        size_t m_points;
+    size_t m_nv;
+    size_t m_points;
     vector_fp m_slast;
     doublereal m_time;
     vector_fp m_max;
@@ -502,21 +585,21 @@ namespace Cantera {
     vector_fp m_atol_ss, m_atol_ts;
     vector_fp m_z;
     OneDim* m_container;
-        size_t m_index;
+    size_t m_index;
     int m_type;
 
     //! Starting location within the solution vector for unknowns
     //! that correspond to this domain
     /*!
-     * Remember there may be multiple domains associated with 
+     * Remember there may be multiple domains associated with
      * this problem
      */
-        size_t m_iloc;
+    size_t m_iloc;
 
-        size_t m_jstart;
+    size_t m_jstart;
 
-    Domain1D *m_left, *m_right;
- 
+    Domain1D* m_left, *m_right;
+
     //! Identity tag for the domain
     std::string m_id;
     std::string m_desc;
@@ -525,9 +608,9 @@ namespace Cantera {
     std::vector<std::string> m_name;
     int m_bw;
 
-  private:
+private:
 
-  };
+};
 }
 
 #endif

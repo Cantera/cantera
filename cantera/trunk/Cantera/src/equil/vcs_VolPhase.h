@@ -1,9 +1,9 @@
 /**
- * @file vcs_VolPhase.h  
+ * @file vcs_VolPhase.h
  *   Header for the object representing each phase within vcs
  */
 /*
- * Copywrite (2005) Sandia Corporation. Under the terms of 
+ * Copywrite (2005) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -20,35 +20,37 @@
  * Forward references
  */
 // Forward reference for ThermoPhase object within the Cantera namespace
-namespace Cantera {
-  class ThermoPhase;
+namespace Cantera
+{
+class ThermoPhase;
 }
 
-namespace VCSnonideal {
-  /*
-   *     Models for the species activity coefficients
-   *
-   */
+namespace VCSnonideal
+{
+/*
+ *     Models for the species activity coefficients
+ *
+ */
 #define VCS_AC_CONSTANT       0
-  //#define VCS_AC_DEBYE_HUCKEL   23
-  //#define VCS_AC_REGULAR_SOLN   25
-  //#define VCS_AC_MARGULES       300
+//#define VCS_AC_DEBYE_HUCKEL   23
+//#define VCS_AC_REGULAR_SOLN   25
+//#define VCS_AC_MARGULES       300
 #define VCS_AC_UNK_CANTERA    -1
 #define VCS_AC_UNK            -2
-  /*
-   *
-   *    Models for the standard state volume of each species
-   */
+/*
+ *
+ *    Models for the standard state volume of each species
+ */
 #define VCS_SSVOL_IDEALGAS    0
 #define VCS_SSVOL_CONSTANT    1
 
-  /*
-   *            DEFINITIONS FOR THE vcs_VolPhase structure
-   *
-   *
-   *   Equation of State Types
-   *        - Permissible values for the EqnState variable in CPC_PHASE structure
-   */
+/*
+ *            DEFINITIONS FOR THE vcs_VolPhase structure
+ *
+ *
+ *   Equation of State Types
+ *        - Permissible values for the EqnState variable in CPC_PHASE structure
+ */
 #define VCS_EOS_CONSTANT      0
 #define VCS_EOS_IDEAL_GAS     1
 #define VCS_EOS_STOICH_SUB    5
@@ -59,62 +61,63 @@ namespace VCSnonideal {
 #define VCS_EOS_UNK_CANTERA   -1
 
 
-  struct VCS_SPECIES;
-  class vcs_SpeciesProperties;
-  class VCS_SOLVE;
+struct VCS_SPECIES;
+class vcs_SpeciesProperties;
+class VCS_SOLVE;
 
 
-  //!  Phase information and Phase calculations for vcs.
-  /*!
-   *  Each phase in a vcs calculation has a vcs_VolPhase object associated
-   *  with it. This object helps to coordinate property evaluations for
-   *  species within the phase. Usually these evaluations must be carried
-   *  out on a per phase basis. However, vcs frequently needs per species
-   *  quantitites. Therefore, we need an interface layer between vcs
-   *  and Cantera's ThermoPhase. 
-   *
-   *  The species stay in the same ordering within this structure.
-   *  The vcs algorithm will change the ordering of species in 
-   *  the global species list. However, the indexing of species in this
-   *  list stays the same. This structure contains structures that
-   *  point to the species belonging to this phase in the global
-   *  vcs species list.
-   *
-   * This object is considered not to own the underlying Cantera ThermoPhase
-   * object for the phase.
-   *
-   * This object contains an idea of the temperature and pressure.
-   * It checks to see if if the temperature and pressure has changed before calling
-   * underlying property evalulation routines.
-   *
-   * The object contains values for the electric potential of a phase.
-   * It coordinates the evalulation of properties wrt when the electric
-   * potential of a phase has changed.
-   *
-   * The object knows about the mole fractions of the phase. It controls
-   * the values of mole fractions, and coordinates the property evalulation
-   * wrt to changes in the mole fractions. It also will keep track of the
-   * likely values of mole fractions in multicomponent phases even when
-   * the phase doesn't actually exist within the thermo program.
-   *
-   * The object knows about the total moles of a phase. It checkes to 
-   * see if the phase currently exists or not, and modifies its behavior
-   * accordingly.
-   * 
-   *
-   * Activity coefficients and volume calculations are lagged. They are only
-   * called when they are needed (and when the state has changed so that they
-   * need to be recalculated).
-   */
-  class vcs_VolPhase {
-  public:
+//!  Phase information and Phase calculations for vcs.
+/*!
+ *  Each phase in a vcs calculation has a vcs_VolPhase object associated
+ *  with it. This object helps to coordinate property evaluations for
+ *  species within the phase. Usually these evaluations must be carried
+ *  out on a per phase basis. However, vcs frequently needs per species
+ *  quantitites. Therefore, we need an interface layer between vcs
+ *  and Cantera's ThermoPhase.
+ *
+ *  The species stay in the same ordering within this structure.
+ *  The vcs algorithm will change the ordering of species in
+ *  the global species list. However, the indexing of species in this
+ *  list stays the same. This structure contains structures that
+ *  point to the species belonging to this phase in the global
+ *  vcs species list.
+ *
+ * This object is considered not to own the underlying Cantera ThermoPhase
+ * object for the phase.
+ *
+ * This object contains an idea of the temperature and pressure.
+ * It checks to see if if the temperature and pressure has changed before calling
+ * underlying property evalulation routines.
+ *
+ * The object contains values for the electric potential of a phase.
+ * It coordinates the evalulation of properties wrt when the electric
+ * potential of a phase has changed.
+ *
+ * The object knows about the mole fractions of the phase. It controls
+ * the values of mole fractions, and coordinates the property evalulation
+ * wrt to changes in the mole fractions. It also will keep track of the
+ * likely values of mole fractions in multicomponent phases even when
+ * the phase doesn't actually exist within the thermo program.
+ *
+ * The object knows about the total moles of a phase. It checkes to
+ * see if the phase currently exists or not, and modifies its behavior
+ * accordingly.
+ *
+ *
+ * Activity coefficients and volume calculations are lagged. They are only
+ * called when they are needed (and when the state has changed so that they
+ * need to be recalculated).
+ */
+class vcs_VolPhase
+{
+public:
 
     /*************************************************************************
      *              FUNCTIONS                                                *
      ************************************************************************/
 
     //! Base constructor for the class
-    vcs_VolPhase(VCS_SOLVE * owningSolverObject = 0);
+    vcs_VolPhase(VCS_SOLVE* owningSolverObject = 0);
 
     //! Copy constructor
     /*!
@@ -131,7 +134,7 @@ namespace VCSnonideal {
     //! Destructor
     ~vcs_VolPhase();
 
-  
+
     //! The resize() function fills in all of the initial information if it
     //! is not given in the constructor.
     /*!
@@ -141,8 +144,8 @@ namespace VCSnonideal {
      *  @param molesInert  kmoles of inert in the phase (defaults to zero)
      */
     void resize(const size_t phaseNum, const size_t numSpecies,
-		const size_t numElem, const char * const phaseName,
-		const double molesInert = 0.0);
+                const size_t numElem, const char* const phaseName,
+                const double molesInert = 0.0);
 
     void elemResize(const size_t numElemConstraints);
 
@@ -164,9 +167,9 @@ namespace VCSnonideal {
      *  @param moleFracVec      Vector of input mole fractions
      *  @param vcsStateStatus   Status flag for this update
      */
-    void setMoleFractionsState(const double molNum, const double * const moleFracVec, 
-			       const int vcsStateStatus);
-  
+    void setMoleFractionsState(const double molNum, const double* const moleFracVec,
+                               const int vcsStateStatus);
+
     //! Set the moles within the phase
     /*!
      *  This function takes as input the mole numbers in vcs format, and
@@ -174,46 +177,46 @@ namespace VCSnonideal {
      *  a gather routine.
      *
      *  @param molesSpeciesVCS  Array of mole numbers. Note, the indecises
-     *            for species in 
+     *            for species in
      *            this array may not be contiguous. IndSpecies[] is needed
      *            to gather the species into the local contiguous vector
-     *            format. 
+     *            format.
      */
-    void setMolesFromVCS(const int stateCalc, 
-			 const double * molesSpeciesVCS = 0);
+    void setMolesFromVCS(const int stateCalc,
+                         const double* molesSpeciesVCS = 0);
 
     //! Set the moles within the phase
     /*!
      *  This function takes as input the mole numbers in vcs format, and
      *  then updates this object with their values. This is essentially
      *  a gather routine.
-     *  Additionally it checks to see that the total moles value in 
+     *  Additionally it checks to see that the total moles value in
      *  TPhMoles[iplace] is equal to the internally computed value.
      *  If this isn't the case, an error exit is carried out.
      *
-     *  
+     *
      *  @param molesSpeciesVCS  array of mole numbers. Note, the indecises
-     *            for species in 
+     *            for species in
      *            this array may not be contiguous. IndSpecies[] is needed
      *            to gather the species into the local contiguous vector
-     *            format. 
+     *            format.
      *  @param TPhMoles   VCS's array containing the number of moles
      *                    in each phase.
      *  @param iphase     index of the current phase.
      *
      */
     void setMolesFromVCSCheck(const int stateCalc,
-			      const double * molesSpeciesVCS,
-			      const double * const TPhMoles);
+                              const double* molesSpeciesVCS,
+                              const double* const TPhMoles);
 
     //! Update the moles within the phase, if necessary
     /*!
-     *  This function takes as input the stateCalc value, which 
+     *  This function takes as input the stateCalc value, which
      *  determines where within VCS_SOLVE to fetch the mole numbers.
      *  It then updates this object with their values. This is essentially
      *  a gather routine.
      *
-     *  @param stateCalc    State calc value either VCS_STATECALC_OLD 
+     *  @param stateCalc    State calc value either VCS_STATECALC_OLD
      *                      or  VCS_STATECALC_NEW. With any other value
      *                      nothing is done.
      *
@@ -225,12 +228,12 @@ namespace VCSnonideal {
      *  This routine will calculate the activity coefficients for the
      *  current phase, and fill in the corresponding entries in the
      *  VCS activity coefficients vector.
-     *  
+     *
      * @param AC  vector of activity coefficients for all of the species
      *            in all of the phases in a VCS problem. Only the
      *            entries for the current phase are filled in.
      */
-    void sendToVCS_ActCoeff(const int stateCalc, double * const AC);
+    void sendToVCS_ActCoeff(const int stateCalc, double* const AC);
 
     //! set the electric potential of the phase
     /*!
@@ -290,24 +293,24 @@ namespace VCSnonideal {
      *  This routine will calculate the partial molar volumes for the
      *  current phase (if needed), and fill in the corresponding entries in the
      *  VCS partial molar volumes vector.
-     *  
+     *
      * @param VolPM  vector of partial molar volumes for all of the species
      *            in all of the phases in a VCS problem. Only the
      *            entries for the current phase are filled in.
      */
-    double sendToVCS_VolPM(double * const VolPM) const;
+    double sendToVCS_VolPM(double* const VolPM) const;
 
     //! Fill in the partial molar volume vector for VCS
     /*!
      *  This routine will calculate the partial molar volumes for the
      *  current phase (if needed), and fill in the corresponding entries in the
      *  VCS partial molar volumes vector.
-     *  
+     *
      * @param VolPM  vector of partial molar volumes for all of the species
      *            in all of the phases in a VCS problem. Only the
      *            entries for the current phase are filled in.
      */
-    void sendToVCS_GStar(double * const gstar) const;
+    void sendToVCS_GStar(double* const gstar) const;
 
     //! Sets the temperature and pressure in this object and
     //! underlying objects
@@ -341,11 +344,11 @@ namespace VCSnonideal {
      *  @param LnAcJac_VCS jacobian parameter
      *   The Jacobians are actually d( lnActCoeff) / d (MolNumber);
      *   dLnActCoeffdMolNumber[j][k]
-     * 
+     *
      *      j = id of the species mole number
      *      k = id of the species activity coefficient
      */
-    void sendToVCS_LnActCoeffJac(double * const * const LnACJac_VCS);
+    void sendToVCS_LnActCoeffJac(double* const* const LnACJac_VCS);
 
     //! Set the pointer for Cantera's ThermoPhase parameter
     /*!
@@ -355,16 +358,16 @@ namespace VCSnonideal {
      * @param tp_ptr Pointer to the ThermoPhase object corresponding
      *               to this phase.
      */
-    void setPtrThermoPhase(Cantera::ThermoPhase *tp_ptr);
+    void setPtrThermoPhase(Cantera::ThermoPhase* tp_ptr);
 
     //! Return a const ThermoPhase pointer corresponding to this phase
     /*!
      *  @return pointer to the ThermoPhase.
      */
-    const Cantera::ThermoPhase *ptrThermoPhase() const;
+    const Cantera::ThermoPhase* ptrThermoPhase() const;
 
     //! Return the total moles in the phase
-    /*! 
+    /*!
      *
      *  Units -> depends on VCS_UnitsFormat variable
      *             Cantera -> J/kmol
@@ -397,20 +400,20 @@ namespace VCSnonideal {
 
     //! Sets the mole flag within the object to be current
     /*!
-     *  
+     *
      */
     void setMolesCurrent(int vcsStateStatus);
 
-  private:
+private:
     //! Set the mole fractions from a conventional mole fraction vector
     /*!
      *
      * @param xmol Value of the mole fractions for the species
-     *             in the phase. These are contiguous. 
+     *             in the phase. These are contiguous.
      */
-    void setMoleFractions(const double * const xmol);
+    void setMoleFractions(const double* const xmol);
 
-  public:
+public:
 
     //! Return a const reference to the mole fractions storred in the
     //! object.
@@ -422,7 +425,7 @@ namespace VCSnonideal {
     /*!
      * @param F_k Pointer to a vector of n_k's
      */
-    void setCreationMoleNumbers(const double * const n_k, const std::vector<int> &creationGlobalRxnNumbers);
+    void setCreationMoleNumbers(const double* const n_k, const std::vector<int> &creationGlobalRxnNumbers);
 
     //! Return a const reference to the creationMoleNumbers storred in the object.
     /*!
@@ -436,7 +439,7 @@ namespace VCSnonideal {
     //! Returns whether the object is using cantera calls.
     bool usingCanteraCalls() const;
 
-    //! Return the index of the species that represents the 
+    //! Return the index of the species that represents the
     //! the voltage of the phase
     size_t phiVarIndex() const;
 
@@ -448,24 +451,24 @@ namespace VCSnonideal {
      *
      * @param kindex kth species index.
      */
-    vcs_SpeciesProperties * speciesProperty(const size_t kindex);
+    vcs_SpeciesProperties* speciesProperty(const size_t kindex);
 
     //! int indicating whether the phase exists or not
     /*!
      *  returns the m_existence int for the phase
      *
-     *   -  VCS_PHASE_EXIST_ZEROEDPHASE = -6: Set to not exist by fiat from a 
+     *   -  VCS_PHASE_EXIST_ZEROEDPHASE = -6: Set to not exist by fiat from a
      *                                        higher level.
      *                                      This is used in phase stability boundary calculations
      *   -  VCS_PHASE_EXIST_NO = 0:   Doesn't exist currently
-     *   -  VCS_PHASE_EXIST_MINORCONC = 1:  Exists, but the concentration is 
+     *   -  VCS_PHASE_EXIST_MINORCONC = 1:  Exists, but the concentration is
      *          so low that an alternate
      *          method is used to calculate the total phase concentrations.
      *   -  VCS_PHASE_EXIST_YES = 2 : Does exist currently
      *   -  VCS_PHASE_EXIST_ALWAYS = 3: Always exists because it contains
      *          inerts which can't exist in any other phase. Or,
      *          the phase exists always because it consists of a single
-     *          species, which is identified with the voltage, i.e., 
+     *          species, which is identified with the voltage, i.e.,
      *          its an electron metal phase.
      */
     int exists() const;
@@ -487,7 +490,7 @@ namespace VCSnonideal {
      *                 in the phase)
      *
      * @return Returns the VCS_SOLVE species index of the species.
-     *         This changes as rearrangements are carried out. 
+     *         This changes as rearrangements are carried out.
      */
     size_t spGlobalIndexVCS(const size_t spIndex) const;
 
@@ -498,7 +501,7 @@ namespace VCSnonideal {
      *                 in the phase)
      *
      * @return Returns the VCS_SOLVE species index of the that species
-     *         This changes as rearrangements are carried out. 
+     *         This changes as rearrangements are carried out.
      */
     void setSpGlobalIndexVCS(const size_t spIndex, const size_t spGlobalIndex);
 
@@ -556,7 +559,7 @@ namespace VCSnonideal {
      *
      * @param tPhase Pointer to the thermophase object
      */
-    size_t transferElementsFM(const Cantera::ThermoPhase * const tPhase);
+    size_t transferElementsFM(const Cantera::ThermoPhase* const tPhase);
 
     //! Get a constant form of the Species Formula Matrix
     /*!
@@ -564,17 +567,17 @@ namespace VCSnonideal {
      *
      *   fm[e][f] is the formula matrix entry for element e for species k
      */
-    double const * const * const getFormulaMatrix() const;
+    double const* const* const getFormulaMatrix() const;
 
     //! Returns the type of the species unknown
     /*!
      * @param k species index
      *
-     * returns the SpeciesUnknownType[k] = type of species 
+     * returns the SpeciesUnknownType[k] = type of species
      *            Normal -> VCS_SPECIES_TYPE_MOLUNK
      *                 ( unknown is the mole number in the phase)
      *            metal electron -> VCS_SPECIES_INTERFACIALVOLTAGE
-     *                 ( unknown is the interfacial voltage (volts) 
+     *                 ( unknown is the interfacial voltage (volts)
      */
     int speciesUnknownType(const size_t k) const;
 
@@ -585,7 +588,7 @@ namespace VCSnonideal {
     //! Return the number of species in the phase
     size_t nSpecies() const;
 
-  private:
+private:
 
     //! Evaluate the activity coefficients at the current conditions
     /*!
@@ -607,7 +610,7 @@ namespace VCSnonideal {
     //! Gibbs free energy calculation at a temperature for the reference state
     //! of each species
     /*!
-     * 
+     *
      */
     void _updateG0() const;
 
@@ -654,25 +657,25 @@ namespace VCSnonideal {
      */
     void _updateMoleFractionDependencies();
 
-  
+
     /*************************************************************************
      *         MEMBER  DATA                                                  *
      ************************************************************************/
 
-  private:
+private:
     //! Backtrack value of VCS_SOLVE *
     /*!
      *  Note the default for this is 0. That's a valid value too, since
      *  VCS_PROB also uses vcs_VolPhase objects.
      */
-    VCS_SOLVE *m_owningSolverObject;
+    VCS_SOLVE* m_owningSolverObject;
 
-  public:
-    //! Original ID of the phase in the problem. 
+public:
+    //! Original ID of the phase in the problem.
     /*!
      * If a non-ideal phase splits into two due to a
      *  miscibility gap, these numbers will stay the
-     * same after the split.                          
+     * same after the split.
      */
     int VP_ID_;
 
@@ -683,7 +686,7 @@ namespace VCSnonideal {
      * into a thermodynamics program. This unknown is currently not
      * being used.
      */
-    int Domain_ID; 
+    int Domain_ID;
 
     //! If true, this phase consists of a single species
     bool m_singleSpecies;
@@ -693,7 +696,7 @@ namespace VCSnonideal {
      * A RTlog(p/1atm) term is added onto the chemical potential for inert
      * species if this is true.
      */
-    bool m_gasPhase;        
+    bool m_gasPhase;
 
     //! Type of the equation of state
     /*!
@@ -701,11 +704,11 @@ namespace VCSnonideal {
      */
     int m_eqnState;
 
-    //!  This is the element number for the charge neutrality 
+    //!  This is the element number for the charge neutrality
     //!  condition of the phase
     /*!
-     *  If it has one.  If it does not have a charge neutrality 
-     * constraint, then this value is equal to -1    
+     *  If it has one.  If it does not have a charge neutrality
+     * constraint, then this value is equal to -1
      */
     size_t ChargeNeutralityElement;
 
@@ -744,7 +747,7 @@ namespace VCSnonideal {
      */
     int p_activityConvention;
 
-  private:
+private:
     //! Number of element constraints within the problem
     /*!
      *  This is usually equal to the number of elements.
@@ -769,7 +772,7 @@ namespace VCSnonideal {
      *             1  VCS_ELEM_TPYE_ELECTRONCHARGE element dof that corresponds
      *                                        to the charge DOF.
      *             2  VCS_ELEM_TYPE_OTHERCONSTRAINT Other constraint which may
-     *                              mean that a species has neg 0 or pos value 
+     *                              mean that a species has neg 0 or pos value
      *                              of that constraint (other than charge)
      */
     std::vector<int> m_elementType;
@@ -779,33 +782,33 @@ namespace VCSnonideal {
      *  FormulaMatrix[j][kspec]
      *            = Formula Matrix for the species
      *              Number of elements, j,
-     *              in the kspec  species  
+     *              in the kspec  species
      */
     DoubleStarStar m_formulaMatrix;
 
     //! Type of the species unknown
     /*!
-     *  SpeciesUnknownType[k] = type of species 
+     *  SpeciesUnknownType[k] = type of species
      *            Normal -> VCS_SPECIES_TYPE_MOLUNK
      *                 ( unknown is the mole number in the phase)
      *            metal electron -> VCS_SPECIES_INTERFACIALVOLTAGE
-     *                 ( unknown is the interfacial voltage (volts) 
+     *                 ( unknown is the interfacial voltage (volts)
      */
     std::vector<int> m_speciesUnknownType;
 
     //!  Index of the element number in the global list of elements
-    //!  storred in VCS_PROB or VCS_SOLVE       
+    //!  storred in VCS_PROB or VCS_SOLVE
     std::vector<size_t> m_elemGlobalIndex;
 
-    //! Number of species in the phase       
+    //! Number of species in the phase
     size_t m_numSpecies;
 
-  public:
+public:
     //! String name for the phase
     std::string PhaseName;
 
-  private:
-    //!  Total moles of inert in the phase 
+private:
+    //!  Total moles of inert in the phase
     double m_totalMolesInert;
 
     //! Boolean indicating whether the phase is an ideal solution
@@ -815,18 +818,18 @@ namespace VCSnonideal {
 
     //! Current state of existence:
     /*!
-     *     VCS_PHASE_EXIST_ZEROEDPHASE = -6: Set to not exist by fiat from a 
+     *     VCS_PHASE_EXIST_ZEROEDPHASE = -6: Set to not exist by fiat from a
      *          higher level.
      *          This is used in phase stability boundary calculations
      *     VCS_PHASE_EXIST_NO = 0:   Doesn't exist currently
-     *     VCS_PHASE_EXIST_MINORCONC = 1:  Exists, but the concentration is 
+     *     VCS_PHASE_EXIST_MINORCONC = 1:  Exists, but the concentration is
      *          so low that an alternate
      *          method is used to calculate the total phase concentrations.
      *     VCS_PHASE_EXIST_YES = 2 : Does exist currently
      *     VCS_PHASE_EXIST_ALWAYS = 3: Always exists because it contains
      *          inerts which can't exist in any other phase. Or,
      *          the phase exists always because it consists of a single
-     *          species, which is identified with the voltage, i.e., 
+     *          species, which is identified with the voltage, i.e.,
      *          its an electron metal phase.
      */
     int m_existence;
@@ -843,9 +846,9 @@ namespace VCSnonideal {
 
     //! Index into the species vectors
     /*!
-     *  Maps the phase species number into the global species number. 
-     *  Note, as part of the vcs algorithm, the order of the species 
-     *  vector is changed during the algorithm      
+     *  Maps the phase species number into the global species number.
+     *  Note, as part of the vcs algorithm, the order of the species
+     *  vector is changed during the algorithm
      */
     std::vector<size_t> IndSpecies;
 
@@ -853,24 +856,24 @@ namespace VCSnonideal {
     /*!
      * The index into this vector is the species index within the phase.
      */
-    std::vector<vcs_SpeciesProperties *> ListSpeciesPtr;
+    std::vector<vcs_SpeciesProperties*> ListSpeciesPtr;
 
     //!  If this is true, then calculations are actually performed within
     //!  Cantera
     bool m_useCanteraCalls;
     /**
      *  If we are using Cantera, this is the
-     *	pointer to the ThermoPhase object. If not, this is null. 
+     *	pointer to the ThermoPhase object. If not, this is null.
      */
-    Cantera::ThermoPhase *TP_ptr;
- 
-    //!  Total mols in the phase 
+    Cantera::ThermoPhase* TP_ptr;
+
+    //!  Total mols in the phase
     /*!
      *      units are kmol
      */
     double v_totalMoles;
 
-    //! Vector of the current mole fractions for species 
+    //! Vector of the current mole fractions for species
     //! in the phase
     std::vector<double> Xmol_;
 
@@ -893,19 +896,19 @@ namespace VCSnonideal {
      *   are swapped. So, this number has to be recalculated.
      */
     std::vector<int> creationGlobalRxnNumbers_;
- 
+
     //! If the potential is a solution variable in VCS, it acts as a species.
     //!  This is the species index in the phase for the potential
     size_t m_phiVarIndex;
- 
-    //! Total Volume of the phase 
+
+    //! Total Volume of the phase
     /*!
      *  units are m**3
      */
     mutable double m_totalVol;
 
     //! Vector of calculated SS0 chemical potentials for the
-    //! current Temperature. 
+    //! current Temperature.
     /*!
      * Note, This is the chemical potential derived strictly from the polynomial
      * in temperature. Pressure effects have to be added in to
@@ -955,9 +958,9 @@ namespace VCSnonideal {
      */
     mutable DoubleStarStar dLnActCoeffdMolNumber;
 
-    //! Status 
+    //! Status
     /*!
-     *  valid values are 
+     *  valid values are
      *       VCS_STATECALC_OLD
      *       VCS_STATECALC_NEW
      *       VCS_STATECALC_TMP
@@ -1017,17 +1020,17 @@ namespace VCSnonideal {
     //! Current value of the pressure for this object, and underlying objects
     double Pres_;
 
-  
 
-  };
 
-  //! Return a string representing the equation of state
-  /*!
-   *  @param EOSType : integer value of the equation of state
-   *
-   * @return returns a string representing the EOS
-   */
-  std::string string16_EOSType(int EOSType);
+};
+
+//! Return a string representing the equation of state
+/*!
+ *  @param EOSType : integer value of the equation of state
+ *
+ * @return returns a string representing the EOS
+ */
+std::string string16_EOSType(int EOSType);
 
 }
 

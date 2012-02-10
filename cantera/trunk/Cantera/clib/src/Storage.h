@@ -16,7 +16,8 @@
  * Class to hold pointers to Cantera objects. Only one instance of
  * this class is needed.
  */
-class Storage {
+class Storage
+{
 public:
     Storage();
     virtual ~Storage();
@@ -48,23 +49,28 @@ public:
     static Storage* __storage;
 };
 
-inline Cantera::ThermoPhase* ph(int n) {
+inline Cantera::ThermoPhase* ph(int n)
+{
     return Storage::__storage->__thtable[n];
 }
 
-inline Cantera::Kinetics* kin(int n) {
+inline Cantera::Kinetics* kin(int n)
+{
     return Storage::__storage->__ktable[n];
 }
 
-inline Cantera::ThermoPhase* th(size_t n) {
+inline Cantera::ThermoPhase* th(size_t n)
+{
     return Storage::__storage->__thtable[n];
 }
 
-inline int thermo_index(std::string id) {
+inline int thermo_index(std::string id)
+{
     return Storage::__storage->__thmap[id];
 }
 
-inline Cantera::Transport* trans(int n) {
+inline Cantera::Transport* trans(int n)
+{
     return Storage::__storage->__trtable[n];
 }
 

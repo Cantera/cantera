@@ -22,196 +22,198 @@
 #include "TransportParams.h"
 #include "LiquidTransportParams.h"
 
-namespace Cantera {
+namespace Cantera
+{
 
-  class LiquidTransportParams;
+class LiquidTransportParams;
 
-    
-  //! Class SimpleTransport implements mixture-averaged transport
-  //! properties for liquid phases.
-  /*!
-   *  The model is based on that
-   *  described by Newman, Electrochemical Systems
-   *
-   *  The velocity of species i may be described by the
-   *  following equation p. 297 (12.1)
-   *
-   *   \f[
-   *     c_i \nabla \mu_i = R T \sum_j \frac{c_i c_j}{c_T D_{ij}}
-   *         (\mathbf{v}_j - \mathbf{v}_i)
-   *   \f]
-   *
-   * This as written is degenerate by 1 dof.
-   *
-   * To fix this we must add in the definition of the mass averaged
-   * velocity of the solution. We will call the simple bold-faced 
-   *  \f$\mathbf{v} \f$
-   * symbol the mass-averaged velocity. Then, the relation
-   * between \f$\mathbf{v}\f$ and the individual species velocities is
-   * \f$\mathbf{v}_i\f$
-   *
-   *  \f[
-   *      \rho_i \mathbf{v}_i =  \rho_i \mathbf{v} + \mathbf{j}_i
-   *  \f]
-   *   where \f$\mathbf{j}_i\f$ are the diffusional fluxes of species i
-   *   with respect to the mass averaged velocity and
-   *
-   *  \f[
-   *       \sum_i \mathbf{j}_i = 0
-   *  \f]
-   * 
-   *  and
-   *
-   *  \f[
-   *     \sum_i \rho_i \mathbf{v}_i =  \rho \mathbf{v} 
-   *  \f]
-   * 
-   * Using these definitions, we can write
-   *
-   *  \f[
-   *      \mathbf{v}_i =  \mathbf{v} + \frac{\mathbf{j}_i}{\rho_i}
-   *  \f]
-   *
-   *
-   *  \f[
-   *     c_i \nabla \mu_i = R T \sum_j \frac{c_i c_j}{c_T D_{ij}}
-   *         (\frac{\mathbf{j}_j}{\rho_j} - \frac{\mathbf{j}_i}{\rho_i})
-   *         =  R T \sum_j \frac{1}{D_{ij}}
-   *         (\frac{x_i \mathbf{j}_j}{M_j} - \frac{x_j \mathbf{j}_i}{M_i})
-   *  \f]
-   *
-   * The equations that we actually solve are
-   *
-   *  \f[
-   *     c_i \nabla \mu_i =
-   *         =  R T \sum_j \frac{1}{D_{ij}}
-   *         (\frac{x_i \mathbf{j}_j}{M_j} - \frac{x_j \mathbf{j}_i}{M_i})
-   *  \f]
-   *  and we replace the 0th equation with the following:
-   *
-   *  \f[
-   *       \sum_i \mathbf{j}_i = 0
-   *  \f]
-   *
-   *  When there are charged species, we replace the rhs with the
-   *  gradient of the electrochemical potential to obtain the
-   *  modified equation
-   *  
-   *  \f[
-   *     c_i \nabla \mu_i + c_i F z_i \nabla \Phi 
-   *         =  R T \sum_j \frac{1}{D_{ij}}
-   *         (\frac{x_i \mathbf{j}_j}{M_j} - \frac{x_j \mathbf{j}_i}{M_i})
-   *  \f]
-   *
-   * With this formulation we may solve for the diffusion velocities,
-   * without having to worry about what the mass averaged velocity
-   * is.
-   *
-   *  <H2> Viscosity Calculation  </H2>
-   * 
-   *  The viscosity calculation may be broken down into two parts.
-   *  In the first part, the viscosity of the pure species are calculated
-   *  In the second part, a mixing rule is applied. There are two mixing rules.
-   *  Solvent-only and mixture-averaged.
-   *
-   *  For the solvent-only mixing rule, we use the pure species viscosity calculated for
-   *  the solvent as the viscosity of the entire mixture. For the mixture averaged rule
-   *  we do a mole fraction based average of the pure species viscosities:
-   * 
-   *  Solvent-only:
-   *    \f[
-   *         \mu = \mu_0
-   *    \f]
-   *  Mixture-average:
-   *    \f[
-   *         \mu = \sum_k {\mu_k X_k}
-   *    \f]
-   *   
-   *
-   *  <H2> Calculate of the Binary Diffusion Coefficients </H2>
-   * 
-   *  The binary diffusion coefficients are obtained from the pure species diffusion coefficients
-   *  using an additive process
-   *
-   *    \f[
-   *        D_{i,j} = \frac{1}{2} \left( D^0_i(T) +  D^0_j(T) \right)
-   *    \f]
-   *
-   *
-   * 
-   *
-   *  <H2> Electrical Mobilities </H2>
-   * 
-   *   The mobility \f$  \mu^e_k \f$  is calculated from the diffusion coefficient using the Einstein relation.
-   *
-   *     \f[
-   *          \mu^e_k = \frac{F D_k}{R T}
-   *     \f]
-   *
-   *   The diffusion coefficients,  \f$  D_k \f$ , is calculated from a call to the mixture diffusion
-   *   coefficient routine.
-   *
-   *  <H2> Species Diffusive Fluxes </H2>
-   * 
-   *  The diffusive mass flux of species \e k is computed from the following
-   *  formula
-   *  
-   *  Usually the specified solution average velocity is the mass averaged velocity.
-   *  This is changed in some subclasses, however.
-   * 
-   *    \f[
-   *         j_k = - c^T M_k D_k \nabla X_k - \rho Y_k V_c
-   *    \f]
-   *
-   *    where V_c is the correction velocity
-   *
-   *    \f[
-   *         \rho V_c =  - \sum_j {c^T M_j D_j \nabla X_j}
-   *    \f]
-   *
-   *  In the above equation, \f$ D_k \f$ is the mixture diffusivity for species k calculated for the current
-   *  conditions, which may depend on T, P, and X_k. \f$ C^T \f$ is the total concentration of the phase.
-   *
-   *  When this is electrical migration, the formulas above are enhanced to
-   *  
-   *    \f[
-   *         j_k = - C^T M_k D_k \nabla X_k  + F C^T M_k \frac{D_k}{ R T } X_k z_k   \nabla V   - \rho Y_k V_c
-   *    \f]
-   *
-   *   where V_c is the correction velocity
-   *
-   *    \f[
-   *         \rho V_c =  - \sum_j {c^T M_j D_j \nabla X_j} + \sum_j  F C^T M_j \frac{D_j}{ R T } X_j z_j  \nabla V 
-   *    \f]
-   *
-   *
-   *  <H2> Species Diffusional Velocities </H2>
-   *
-   *  Species diffusional velocities are calculated from the species diffusional fluxes, within this object,
-   *  using the following formula for the diffusional velocity of the kth species, \f$  V_k^d \f$
-   *
-   *     \f[
-   *         j_k = \rho Y_k V_k^d
-   *     \f]
-   *
-   *  
-   *         TODO
-   *   This object has to be made compatible with different types of reference velocities. Right now, elements
-   *   of the formulas are only compatible with the mass-averaged velocity.
-   *  
-   *  @ingroup tranprops
-   *
-   */
-  class SimpleTransport : public Transport {
-  public:
- 
-    //! Default constructor.  
+
+//! Class SimpleTransport implements mixture-averaged transport
+//! properties for liquid phases.
+/*!
+ *  The model is based on that
+ *  described by Newman, Electrochemical Systems
+ *
+ *  The velocity of species i may be described by the
+ *  following equation p. 297 (12.1)
+ *
+ *   \f[
+ *     c_i \nabla \mu_i = R T \sum_j \frac{c_i c_j}{c_T D_{ij}}
+ *         (\mathbf{v}_j - \mathbf{v}_i)
+ *   \f]
+ *
+ * This as written is degenerate by 1 dof.
+ *
+ * To fix this we must add in the definition of the mass averaged
+ * velocity of the solution. We will call the simple bold-faced
+ *  \f$\mathbf{v} \f$
+ * symbol the mass-averaged velocity. Then, the relation
+ * between \f$\mathbf{v}\f$ and the individual species velocities is
+ * \f$\mathbf{v}_i\f$
+ *
+ *  \f[
+ *      \rho_i \mathbf{v}_i =  \rho_i \mathbf{v} + \mathbf{j}_i
+ *  \f]
+ *   where \f$\mathbf{j}_i\f$ are the diffusional fluxes of species i
+ *   with respect to the mass averaged velocity and
+ *
+ *  \f[
+ *       \sum_i \mathbf{j}_i = 0
+ *  \f]
+ *
+ *  and
+ *
+ *  \f[
+ *     \sum_i \rho_i \mathbf{v}_i =  \rho \mathbf{v}
+ *  \f]
+ *
+ * Using these definitions, we can write
+ *
+ *  \f[
+ *      \mathbf{v}_i =  \mathbf{v} + \frac{\mathbf{j}_i}{\rho_i}
+ *  \f]
+ *
+ *
+ *  \f[
+ *     c_i \nabla \mu_i = R T \sum_j \frac{c_i c_j}{c_T D_{ij}}
+ *         (\frac{\mathbf{j}_j}{\rho_j} - \frac{\mathbf{j}_i}{\rho_i})
+ *         =  R T \sum_j \frac{1}{D_{ij}}
+ *         (\frac{x_i \mathbf{j}_j}{M_j} - \frac{x_j \mathbf{j}_i}{M_i})
+ *  \f]
+ *
+ * The equations that we actually solve are
+ *
+ *  \f[
+ *     c_i \nabla \mu_i =
+ *         =  R T \sum_j \frac{1}{D_{ij}}
+ *         (\frac{x_i \mathbf{j}_j}{M_j} - \frac{x_j \mathbf{j}_i}{M_i})
+ *  \f]
+ *  and we replace the 0th equation with the following:
+ *
+ *  \f[
+ *       \sum_i \mathbf{j}_i = 0
+ *  \f]
+ *
+ *  When there are charged species, we replace the rhs with the
+ *  gradient of the electrochemical potential to obtain the
+ *  modified equation
+ *
+ *  \f[
+ *     c_i \nabla \mu_i + c_i F z_i \nabla \Phi
+ *         =  R T \sum_j \frac{1}{D_{ij}}
+ *         (\frac{x_i \mathbf{j}_j}{M_j} - \frac{x_j \mathbf{j}_i}{M_i})
+ *  \f]
+ *
+ * With this formulation we may solve for the diffusion velocities,
+ * without having to worry about what the mass averaged velocity
+ * is.
+ *
+ *  <H2> Viscosity Calculation  </H2>
+ *
+ *  The viscosity calculation may be broken down into two parts.
+ *  In the first part, the viscosity of the pure species are calculated
+ *  In the second part, a mixing rule is applied. There are two mixing rules.
+ *  Solvent-only and mixture-averaged.
+ *
+ *  For the solvent-only mixing rule, we use the pure species viscosity calculated for
+ *  the solvent as the viscosity of the entire mixture. For the mixture averaged rule
+ *  we do a mole fraction based average of the pure species viscosities:
+ *
+ *  Solvent-only:
+ *    \f[
+ *         \mu = \mu_0
+ *    \f]
+ *  Mixture-average:
+ *    \f[
+ *         \mu = \sum_k {\mu_k X_k}
+ *    \f]
+ *
+ *
+ *  <H2> Calculate of the Binary Diffusion Coefficients </H2>
+ *
+ *  The binary diffusion coefficients are obtained from the pure species diffusion coefficients
+ *  using an additive process
+ *
+ *    \f[
+ *        D_{i,j} = \frac{1}{2} \left( D^0_i(T) +  D^0_j(T) \right)
+ *    \f]
+ *
+ *
+ *
+ *
+ *  <H2> Electrical Mobilities </H2>
+ *
+ *   The mobility \f$  \mu^e_k \f$  is calculated from the diffusion coefficient using the Einstein relation.
+ *
+ *     \f[
+ *          \mu^e_k = \frac{F D_k}{R T}
+ *     \f]
+ *
+ *   The diffusion coefficients,  \f$  D_k \f$ , is calculated from a call to the mixture diffusion
+ *   coefficient routine.
+ *
+ *  <H2> Species Diffusive Fluxes </H2>
+ *
+ *  The diffusive mass flux of species \e k is computed from the following
+ *  formula
+ *
+ *  Usually the specified solution average velocity is the mass averaged velocity.
+ *  This is changed in some subclasses, however.
+ *
+ *    \f[
+ *         j_k = - c^T M_k D_k \nabla X_k - \rho Y_k V_c
+ *    \f]
+ *
+ *    where V_c is the correction velocity
+ *
+ *    \f[
+ *         \rho V_c =  - \sum_j {c^T M_j D_j \nabla X_j}
+ *    \f]
+ *
+ *  In the above equation, \f$ D_k \f$ is the mixture diffusivity for species k calculated for the current
+ *  conditions, which may depend on T, P, and X_k. \f$ C^T \f$ is the total concentration of the phase.
+ *
+ *  When this is electrical migration, the formulas above are enhanced to
+ *
+ *    \f[
+ *         j_k = - C^T M_k D_k \nabla X_k  + F C^T M_k \frac{D_k}{ R T } X_k z_k   \nabla V   - \rho Y_k V_c
+ *    \f]
+ *
+ *   where V_c is the correction velocity
+ *
+ *    \f[
+ *         \rho V_c =  - \sum_j {c^T M_j D_j \nabla X_j} + \sum_j  F C^T M_j \frac{D_j}{ R T } X_j z_j  \nabla V
+ *    \f]
+ *
+ *
+ *  <H2> Species Diffusional Velocities </H2>
+ *
+ *  Species diffusional velocities are calculated from the species diffusional fluxes, within this object,
+ *  using the following formula for the diffusional velocity of the kth species, \f$  V_k^d \f$
+ *
+ *     \f[
+ *         j_k = \rho Y_k V_k^d
+ *     \f]
+ *
+ *
+ *         TODO
+ *   This object has to be made compatible with different types of reference velocities. Right now, elements
+ *   of the formulas are only compatible with the mass-averaged velocity.
+ *
+ *  @ingroup tranprops
+ *
+ */
+class SimpleTransport : public Transport
+{
+public:
+
+    //! Default constructor.
     /*!
      * This requires call to initLiquid(LiquidTransportParams& tr)
      * after filling LiquidTransportParams to complete instantiation.
-     * The filling of LiquidTransportParams is currently carried out 
+     * The filling of LiquidTransportParams is currently carried out
      * in the TransportFactory class, but might be moved at some point.
-     * 
+     *
      * @param thermo  ThermoPhase object holding species information.
      * @param ndim    Number of spatial dimensions.
      */
@@ -221,17 +223,17 @@ namespace Cantera {
     /*!
      * @param right  %LiquidTransport to be copied
      */
-    SimpleTransport(const SimpleTransport &right);
+    SimpleTransport(const SimpleTransport& right);
 
     //! Assignment operator
     /*!
      *  This is NOT a virtual function.
      *
-     * @param right    Reference to %LiquidTransport object to be copied 
+     * @param right    Reference to %LiquidTransport object to be copied
      *                 into the current one.
      */
     SimpleTransport& operator=(const  SimpleTransport& right);
-    
+
     //! Duplication routine for objects which inherit from
     //! %Transport
     /*!
@@ -242,7 +244,7 @@ namespace Cantera {
      *  These routines are basically wrappers around the derived copy
      *  constructor.
      */
-    virtual Transport *duplMyselfAsTransport() const;
+    virtual Transport* duplMyselfAsTransport() const;
 
 
     //! virtual destructor
@@ -260,7 +262,7 @@ namespace Cantera {
 
     //! Return the model id for this transport parameterization
     virtual int model() const {
-      return cSimpleTransport; 
+        return cSimpleTransport;
     }
 
 
@@ -268,7 +270,7 @@ namespace Cantera {
     /*!
      * The viscosity is computed using the general mixture rules
      * specified in the variable compositionDepType_.
-     * 
+     *
      * Solvent-only:
      *    \f[
      *         \mu = \mu_0
@@ -277,18 +279,18 @@ namespace Cantera {
      *    \f[
      *         \mu = \sum_k {\mu_k X_k}
      *    \f]
-     *  
+     *
      * Here \f$ \mu_k \f$ is the viscosity of pure species \e k.
      *
      * units are Pa s  or kg/m/s
      *
      * @see updateViscosity_T();
-     */ 
+     */
     virtual doublereal viscosity();
 
     //! Returns the pure species viscosities
     /*!
-     *  The pure species viscosities are to be given in an Arrhenius 
+     *  The pure species viscosities are to be given in an Arrhenius
      *  form in accordance with activated-jump-process dominated transport.
      *
      * units are Pa s  or kg/m/s
@@ -300,8 +302,8 @@ namespace Cantera {
 
     //! Returns the binary diffusion coefficients
     /*!
-     *   @param ld 
-     *   @param d   
+     *   @param ld
+     *   @param d
      */
     virtual void getBinaryDiffCoeffs(const size_t ld, doublereal* const d);
 
@@ -330,7 +332,7 @@ namespace Cantera {
      *  Controlling update boolean = m_condmix_ok
      *
      *  Units are in W/m/K  or equivalently kg m / s3 / K
-     * 
+     *
      * Solvent-only:
      *    \f[
      *         \lambda = \lambda_0
@@ -340,11 +342,11 @@ namespace Cantera {
      *    \f[
      *         \lambda = \sum_k {\lambda_k X_k}
      *    \f]
-     *  
+     *
      * Here \f$ \lambda_k \f$ is the thermal conductivity of pure species \e k.
      *
      * @see updateCond_T();
-     */ 
+     */
 
     virtual doublereal thermalConductivity();
 
@@ -356,7 +358,7 @@ namespace Cantera {
      *   Frequently, but not always, the mobility is calculated from the
      *   diffusion coefficient using the Einstein relation
      *
-     *     \f[ 
+     *     \f[
      *          \mu^e_k = \frac{F D_k}{R T}
      *     \f]
      *
@@ -375,7 +377,7 @@ namespace Cantera {
      *   Frequently, but not always, the mobility is calculated from the
      *   diffusion coefficient using the Einstein relation
      *
-     *     \f[ 
+     *     \f[
      *          \mu^f_k = \frac{D_k}{R T}
      *     \f]
      *
@@ -391,40 +393,40 @@ namespace Cantera {
      *
      * @param grad_V Gradient of the voltage (length num dimensions);
      */
-    virtual void set_Grad_V(const doublereal * const grad_V);
+    virtual void set_Grad_V(const doublereal* const grad_V);
 
     //! Specify the value of the gradient of the temperature
     /*!
      * @param grad_T Gradient of the temperature (length num dimensions);
      */
-    virtual void set_Grad_T(const doublereal * const grad_T);
+    virtual void set_Grad_T(const doublereal* const grad_T);
 
     //! Specify the value of the gradient of the MoleFractions
     /*!
      *
      * @param grad_X Gradient of the mole fractions(length nsp * num dimensions);
      */
-    virtual void set_Grad_X(const doublereal * const grad_X);
+    virtual void set_Grad_X(const doublereal* const grad_X);
 
-    //! Get the species diffusive velocities wrt to the averaged velocity, 
+    //! Get the species diffusive velocities wrt to the averaged velocity,
     //! given the gradients in mole fraction and temperature
     /*!
-     * The average velocity can be computed on a mole-weighted 
-     * or mass-weighted basis, or the diffusion velocities may 
-     * be specified as relative to a specific species (i.e. a 
+     * The average velocity can be computed on a mole-weighted
+     * or mass-weighted basis, or the diffusion velocities may
+     * be specified as relative to a specific species (i.e. a
      * solvent) all according to the velocityBasis input parameter.
      *
      *  Units for the returned velocities are m s-1.
-     * 
+     *
      *  @param ndim Number of dimensions in the flux expressions
      *  @param grad_T Gradient of the temperature
      *                 (length = ndim)
-     * @param ldx  Leading dimension of the grad_X array 
+     * @param ldx  Leading dimension of the grad_X array
      *              (usually equal to m_nsp but not always)
      * @param grad_X Gradients of the mole fraction
      *             Flat vector with the m_nsp in the inner loop.
      *             length = ldx * ndim
-     * @param ldf  Leading dimension of the fluxes array 
+     * @param ldf  Leading dimension of the fluxes array
      *              (usually equal to m_nsp but not always)
      * @param Vdiff  Output of the diffusive velocities.
      *             Flat vector with the m_nsp in the inner loop.
@@ -437,25 +439,25 @@ namespace Cantera {
                                  int ldf,
                                  doublereal* Vdiff);
 
-    //! Get the species diffusive velocities wrt to the averaged velocity, 
+    //! Get the species diffusive velocities wrt to the averaged velocity,
     //! given the gradients in mole fraction, temperature and electrostatic potential.
     /*!
-     * The average velocity can be computed on a mole-weighted 
-     * or mass-weighted basis, or the diffusion velocities may 
-     * be specified as relative to a specific species (i.e. a 
+     * The average velocity can be computed on a mole-weighted
+     * or mass-weighted basis, or the diffusion velocities may
+     * be specified as relative to a specific species (i.e. a
      * solvent) all according to the velocityBasis input parameter.
      *
      *  Units for the returned velocities are m s-1.
-     * 
+     *
      *  @param ndim       Number of dimensions in the flux expressions
      *  @param grad_T     Gradient of the temperature
      *                       (length = ndim)
-     * @param ldx         Leading dimension of the grad_X array 
+     * @param ldx         Leading dimension of the grad_X array
      *                       (usually equal to m_nsp but not always)
      * @param grad_X      Gradients of the mole fraction
      *                    Flat vector with the m_nsp in the inner loop.
      *                       length = ldx * ndim
-     * @param ldf         Leading dimension of the fluxes array 
+     * @param ldf         Leading dimension of the fluxes array
      *                        (usually equal to m_nsp but not always)
      * @param grad_Phi   Gradients of the electrostatic potential
      *                        (length = ndim)
@@ -469,17 +471,17 @@ namespace Cantera {
                                    doublereal* Vdiff);
 
 
-    //! Get the species diffusive mass fluxes wrt to the specified solution averaged velocity, 
+    //! Get the species diffusive mass fluxes wrt to the specified solution averaged velocity,
     //! given the gradients in mole fraction and temperature
     /*!
      *  units = kg/m2/s
      *
      *  The diffusive mass flux of species \e k is computed from the following
      *  formula
-     *  
+     *
      *  Usually the specified solution average velocity is the mass averaged velocity.
      *  This is changed in some subclasses, however.
-     * 
+     *
      *    \f[
      *         j_k = - \rho M_k D_k \nabla X_k - Y_k V_c
      *    \f]
@@ -495,12 +497,12 @@ namespace Cantera {
      * @param grad_T   The temperature gradient (ignored in this model).
      * @param ldx      Leading dimension of the grad_X array.
      * @param grad_X   Gradient of the mole fractions(length nsp * num dimensions);
-     * @param ldf      Leading dimension of the fluxes array.         
-     * @param fluxes   Output fluxes of species. 
+     * @param ldf      Leading dimension of the fluxes array.
+     * @param fluxes   Output fluxes of species.
      */
-    virtual void getSpeciesFluxes(size_t ndim, const doublereal * const grad_T, 
-				  int ldx, const doublereal * const grad_X, 
-				  int ldf, doublereal * const fluxes);
+    virtual void getSpeciesFluxes(size_t ndim, const doublereal* const grad_T,
+                                  int ldx, const doublereal* const grad_X,
+                                  int ldf, doublereal* const fluxes);
 
     //!  Return the species diffusive mass fluxes wrt to
     //!  the mass averaged velocity,
@@ -510,9 +512,9 @@ namespace Cantera {
      *
      * Internally, gradients in the in mole fraction, temperature
      * and electrostatic potential contribute to the diffusive flux
-     *  
      *
-     * The diffusive mass flux of species \e k is computed from the following 
+     *
+     * The diffusive mass flux of species \e k is computed from the following
      * formula
      *
      *    \f[
@@ -531,7 +533,7 @@ namespace Cantera {
      */
     virtual void getSpeciesFluxesExt(size_t ldf, doublereal* fluxes);
 
-  protected:
+protected:
 
     //! Handles the effects of changes in the Temperature, internally
     //! within the object.
@@ -558,19 +560,19 @@ namespace Cantera {
      *   part of all of the interfaces.
      *
      *   @internal
-     */ 
+     */
     virtual bool update_C();
 
     //!  Update the temperature-dependent viscosity terms.
-    //!  Updates the array of pure species viscosities, and the 
+    //!  Updates the array of pure species viscosities, and the
     //!  weighting functions in the viscosity mixture rule.
     /*!
      * The flag m_visc_temp_ok is set to true.
      */
     void updateViscosity_T();
 
-    //! Update the temperature-dependent parts of the mixture-averaged 
-    //! thermal conductivity.     
+    //! Update the temperature-dependent parts of the mixture-averaged
+    //! thermal conductivity.
     void updateCond_T();
 
     //! Update the concentration parts of the viscosities
@@ -582,7 +584,7 @@ namespace Cantera {
      * @internal
      */
     void updateViscosities_C();
- 
+
     //! Update the binary diffusion coefficients wrt T.
     /*!
      *   These are evaluated
@@ -591,7 +593,7 @@ namespace Cantera {
     void updateDiff_T();
 
 
-  private:
+private:
 
     //! Number of species in the mixture
     size_t m_nsp;
@@ -617,11 +619,11 @@ namespace Cantera {
      *   composition dependencies
      *       mixture viscosity
      *       mixture thermal conductivity
-     *       
+     *
      *
      *   Types of composition dependencies
      *    0 - Solvent values (i.e., species 0) contributes only
-     *    1 - linear combination of mole fractions; 
+     *    1 - linear combination of mole fractions;
      */
     int compositionDepType_;
 
@@ -652,22 +654,22 @@ namespace Cantera {
     vector_fp  m_mw;
 
     //! Pure species viscosities in Arrhenius temperature-dependent form.
-    std::vector<LTPspecies *>  m_coeffVisc_Ns; 
-  
+    std::vector<LTPspecies*>  m_coeffVisc_Ns;
+
     //! Pure species thermal conductivities in Arrhenius temperature-dependent form.
     /*!
      *
      */
-    std::vector<LTPspecies *>  m_coeffLambda_Ns; 
-  
+    std::vector<LTPspecies*>  m_coeffLambda_Ns;
+
 
     //! Pure species viscosities in Arrhenius temperature-dependent form.
-    std::vector<LTPspecies *>  m_coeffDiff_Ns; 
+    std::vector<LTPspecies*>  m_coeffDiff_Ns;
 
-    
+
     //! Hydrodynamic radius in LTPspecies form
-    std::vector<LTPspecies *>  m_coeffHydroRadius_Ns; 
-  
+    std::vector<LTPspecies*>  m_coeffHydroRadius_Ns;
+
 
     //! Internal value of the gradient of the mole fraction vector
     /*!
@@ -681,16 +683,16 @@ namespace Cantera {
      *  k is the species index
      *  n is the dimensional index (x, y, or z). It has a length
      *    equal to m_nDim
-     *  
+     *
      *    m_Grad_X[n*m_nsp + k]
      */
     vector_fp m_Grad_X;
 
     //! Internal value of the gradient of the Temperature vector
     /*!
-     *  Generally, if a transport property needs this 
+     *  Generally, if a transport property needs this
      *  in its evaluation it will look to this place
-     *  to get it. 
+     *  to get it.
      *
      *  No internal property is precalculated based on gradients.
      *  Gradients are assumed to be freshly updated before
@@ -700,9 +702,9 @@ namespace Cantera {
 
     //! Internal value of the gradient of the Pressure vector
     /*!
-     *  Generally, if a transport property needs this 
+     *  Generally, if a transport property needs this
      *  in its evaluation it will look to this place
-     *  to get it. 
+     *  to get it.
      *
      *  No internal property is precalculated based on gradients.
      *  Gradients are assumed to be freshly updated before
@@ -712,9 +714,9 @@ namespace Cantera {
 
     //! Internal value of the gradient of the Electric Voltage
     /*!
-     *  Generally, if a transport property needs this 
+     *  Generally, if a transport property needs this
      *  in its evaluation it will look to this place
-     *  to get it. 
+     *  to get it.
      *
      *  No internal property is precalculated based on gradients.
      *  Gradients are assumed to be freshly updated before
@@ -725,7 +727,7 @@ namespace Cantera {
 
     // property values
 
-  
+
 
     //! Vector of Species Diffusivities
     /*!
@@ -738,7 +740,7 @@ namespace Cantera {
 
     //! Species viscosities
     /*!
-     *   Viscosity of the species 
+     *   Viscosity of the species
      *   Length = number of species
      *
      *   Depends on the temperature. We have set the pressure dependence
@@ -803,7 +805,7 @@ namespace Cantera {
      *  Contains the charge of each species (length m_nsp)
      */
     vector_fp m_chargeSpecies;
-  
+
     //! Current Temperature -> locally storred
     /*!
      * This is used to test whether new temperature computations
@@ -815,7 +817,7 @@ namespace Cantera {
     //! Current value of the pressure
     doublereal m_press;
 
- 
+
     //! Saved value of the mixture thermal conductivity
     doublereal m_lambda;
 
@@ -832,7 +834,7 @@ namespace Cantera {
 
 
 
-  private:    
+private:
     //! Boolean indicating that the top-level mixture viscosity is current
     /*!
      *  This is turned false for every change in T, P, or C.
@@ -841,7 +843,7 @@ namespace Cantera {
 
     //! Boolean indicating that weight factors wrt viscosity is current
     bool m_visc_temp_ok;
- 
+
     //! Boolean indicating that mixture diffusion coeffs are current
     bool m_diff_mix_ok;
 
@@ -856,7 +858,7 @@ namespace Cantera {
     bool m_cond_mix_ok;
 
 
-    //! Number of dimensions 
+    //! Number of dimensions
     /*!
      * Either 1, 2, or 3
      */
@@ -865,9 +867,9 @@ namespace Cantera {
     //! Temporary variable that stores the rho Vc value
     double rhoVc[3];
 
-  private:
-    
-    //! Throw an exception if this method is invoked. 
+private:
+
+    //! Throw an exception if this method is invoked.
     /*!
      * This probably indicates something is not yet implemented.
      *
@@ -875,7 +877,7 @@ namespace Cantera {
      */
     doublereal err(std::string msg) const;
 
-  };
+};
 }
 #endif
 

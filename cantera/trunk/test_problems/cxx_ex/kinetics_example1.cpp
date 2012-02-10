@@ -13,7 +13,7 @@
 using namespace Cantera;
 using namespace std;
 
-// Kinetics example. This is written as a function so that one 
+// Kinetics example. This is written as a function so that one
 // driver program can run multiple examples.
 // The action taken depends on input parameter job:
 //     job = 0:   print a one-line description of the example.
@@ -24,20 +24,23 @@ using namespace std;
 // Note: although this simulation can be done in C++, as shown here,
 // it is much easier in Python or Matlab!
 
-int kinetics_example1(int job) {
+int kinetics_example1(int job)
+{
 
     try {
 
         cout << "Ignition simulation using class IdealGasMix "
-             << "with file gri30.cti." 
+             << "with file gri30.cti."
              << endl;
 
         if (job >= 1) {
             cout << "Constant-pressure ignition of a "
                  << "hydrogen/oxygen/nitrogen"
-                " mixture \nbeginning at T = 1001 K and P = 1 atm." << endl;
+                 " mixture \nbeginning at T = 1001 K and P = 1 atm." << endl;
         }
-        if (job < 2) return 0;
+        if (job < 2) {
+            return 0;
+        }
 
         // create an ideal gas mixture that corresponds to GRI-Mech
         // 3.0
@@ -65,7 +68,7 @@ int kinetics_example1(int job) {
         w.install(r,env);
 
         // set the "Vdot coefficient" to a large value, in order to
-        // approach the constant-pressure limit; see the documentation 
+        // approach the constant-pressure limit; see the documentation
         // for class Reactor
         w.setExpansionRateCoeff(1.e9);
         w.setArea(1.0);
@@ -102,7 +105,7 @@ int kinetics_example1(int job) {
              << "  kin1.csv    (Excel CSV file)" << endl
              << "  kin1.dat    (Tecplot data file)" << endl;
 
-	delete gg;
+        delete gg;
         return 0;
     }
 

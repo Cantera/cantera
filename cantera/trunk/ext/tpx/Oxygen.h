@@ -3,38 +3,40 @@
 
 #include "Sub.h"
 
-namespace tpx {
+namespace tpx
+{
 
-class oxygen : public Substance{
+class oxygen : public Substance
+{
 public:
-	oxygen(){
-         m_name="oxygen";
-         m_formula="O2";
-        }
-        virtual ~oxygen() {}
+    oxygen() {
+        m_name="oxygen";
+        m_formula="O2";
+    }
+    virtual ~oxygen() {}
 
-	double MolWt();
-	double Tcrit();
+    double MolWt();
+    double Tcrit();
     double Pcrit();
-	double Vcrit();
-	double Tmin();
-	double Tmax();
-	char * name();
-	char * formula();
+    double Vcrit();
+    double Tmin();
+    double Tmax();
+    char* name();
+    char* formula();
 
-	double Pp();
-	double up();
-	double sp();
-	double Psat();
+    double Pp();
+    double up();
+    double sp();
+    double Psat();
 
 private:
-	double ldens();
-	double C(int i, double rt, double rt2);
-	double Cprime(int i, double rt, double rt2, double rt3);
-	double I(int i, double egrho);
-	double H(int i, double egrho);
-	double W(int i, double egrho);
-    };
+    double ldens();
+    double C(int i, double rt, double rt2);
+    double Cprime(int i, double rt, double rt2, double rt3);
+    double I(int i, double egrho);
+    double H(int i, double egrho);
+    double W(int i, double egrho);
+};
 
 }
 #endif // ! OXYGEN_H

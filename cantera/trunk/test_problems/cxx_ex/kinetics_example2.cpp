@@ -20,7 +20,8 @@ using namespace Cantera;
 // Note: although this simulation can be done in C++, as shown here,
 // it is much easier in Python or Matlab!
 
-int kinetics_example2(int job) {
+int kinetics_example2(int job)
+{
 
     try {
 
@@ -28,10 +29,12 @@ int kinetics_example2(int job) {
 
         if (job >= 1) {
             std::cout <<
-                "Constant-pressure ignition of a hydrogen/oxygen/nitrogen"
-                " mixture \nbeginning at T = 1001 K and P = 1 atm." << std::endl;
+                      "Constant-pressure ignition of a hydrogen/oxygen/nitrogen"
+                      " mixture \nbeginning at T = 1001 K and P = 1 atm." << std::endl;
         }
-        if (job < 2) return 0;
+        if (job < 2) {
+            return 0;
+        }
 
         // create a GRI30 object
         GRI30 gas;
@@ -55,7 +58,7 @@ int kinetics_example2(int job) {
         w.install(r,env);
 
         // set the "Vdot coefficient" to a large value, in order to
-        // approach the constant-pressure limit; see the documentation 
+        // approach the constant-pressure limit; see the documentation
         // for class Reactor
         w.setExpansionRateCoeff(1.e9);
         w.setArea(1.0);
@@ -91,8 +94,8 @@ int kinetics_example2(int job) {
         // print final temperature
         std::cout << " Tfinal = " << r.temperature() << std::endl;
         std::cout << "Output files:" << std::endl
-		  << "  kin2.csv    (Excel CSV file)" << std::endl
-		  << "  kin2.dat    (Tecplot data file)" << std::endl;
+                  << "  kin2.csv    (Excel CSV file)" << std::endl
+                  << "  kin2.dat    (Tecplot data file)" << std::endl;
 
         return 0;
     }

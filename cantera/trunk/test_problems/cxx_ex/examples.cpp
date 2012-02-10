@@ -13,21 +13,24 @@ int equil_example1(int job);
 int rxnpath_example1(int job);
 
 typedef int (*exfun)(int n);
- 
-int run_example(int n, exfun f, int job = 2) {
+
+int run_example(int n, exfun f, int job = 2)
+{
     cout << "\n\n\n\n>>>>>  example " << n+1 << "\n\nDescription:  " << endl;
     int i = f(job);
     return i;
 }
-   
-// array of example functions   
+
+// array of example functions
 exfun fex[] = {kinetics_example1, kinetics_example2, kinetics_example3,
-               equil_example1, 
-               transport_example1, transport_example2}; //, rxnpath_example1};
- 
+               equil_example1,
+               transport_example1, transport_example2
+              }; //, rxnpath_example1};
+
 
 // main program
-int main(int argc, char** argv) {
+int main(int argc, char** argv)
+{
 #ifdef _MSC_VER
     _set_output_format(_TWO_DIGIT_EXPONENT);
 #endif
@@ -41,8 +44,8 @@ int main(int argc, char** argv) {
         string v1 = string(argv[1]);
         if (v1 == "-h") {
             cout << "\nusage: examples <n> \n\nwhere <n> "
-                "is the example number to run." << endl;
-            cout << "if <n> is omitted, all examples are run." 
+                 "is the example number to run." << endl;
+            cout << "if <n> is omitted, all examples are run."
                  << endl << endl;
             cout << "Examples: " << endl;
             for (int i = 0; i < NUM_EXAMPLES; i++) {
@@ -51,9 +54,9 @@ int main(int argc, char** argv) {
                 cout << endl;
             }
             exit(0);
-        }
-        else
+        } else {
             example_num = atoi(argv[1]);
+        }
     }
     try {
 
@@ -63,13 +66,12 @@ int main(int argc, char** argv) {
             for (j = 0; j < NUM_EXAMPLES; j++) {
                 i = run_example(j, fex[j], 2);
             }
-        }
-        else if (example_num > 0 && example_num <= NUM_EXAMPLES)
+        } else if (example_num > 0 && example_num <= NUM_EXAMPLES) {
             i = run_example(example_num-1, fex[example_num-1], 2);
+        }
 
         return 0;
-    }
-    catch (CanteraError) {
+    } catch (CanteraError) {
         showErrors(cerr);
         cerr << "program terminating." << endl;
         return -1;

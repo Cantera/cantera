@@ -13,16 +13,20 @@
 #include <map>
 #include <vector>
 
-namespace ckr {
+namespace ckr
+{
 
-/** 
+/**
  *  Fill vector 'keys' with the keys of map 'mp'
  */
 template<class K, class V>
-void getMapKeys(const std::map<K,V>& mp, std::vector<K>& keys) {
+void getMapKeys(const std::map<K,V>& mp, std::vector<K>& keys)
+{
     keys.clear();
     typename std::map<K,V>::const_iterator i = mp.begin();
-    for (; i != mp.end(); ++i) keys.push_back(i->first);
+    for (; i != mp.end(); ++i) {
+        keys.push_back(i->first);
+    }
 }
 
 
@@ -30,10 +34,13 @@ void getMapKeys(const std::map<K,V>& mp, std::vector<K>& keys) {
  *  Fill vector 'values' with the values of map 'mp'
  */
 template<class K, class V>
-void getMapValues(const std::map<K,V>& mp, std::vector<V>& values) {
+void getMapValues(const std::map<K,V>& mp, std::vector<V>& values)
+{
     values.clear();
     typename std::map<K,V>::const_iterator i = mp.begin();
-    for (; i != mp.end(); ++i) values.push_back(i->second);
+    for (; i != mp.end(); ++i) {
+        values.push_back(i->second);
+    }
 }
 
 
@@ -47,7 +54,10 @@ void getMapValues(const std::map<K,V>& mp, std::vector<V>& values) {
  */
 
 template<class T, class S>
-inline T max(T a, S b) { return (a < b ? b : a); }
+inline T max(T a, S b)
+{
+    return (a < b ? b : a);
+}
 
 
 
@@ -61,7 +71,10 @@ inline T max(T a, S b) { return (a < b ? b : a); }
  */
 
 template<class T, class S>
-inline T min(T a, S b) { return (a < b ? a : b); }
+inline T min(T a, S b)
+{
+    return (a < b ? a : b);
+}
 
 
 /**
@@ -69,7 +82,8 @@ inline T min(T a, S b) { return (a < b ? a : b); }
  *  the right as necessary to make the length n.
  */
 template<class S>
-inline S pad(const S& s, size_t n) {
+inline S pad(const S& s, size_t n)
+{
     S output;
     output.resize(max(n,s.size()),' ');
     copy(s.begin(), s.end(), output.begin());
@@ -78,13 +92,16 @@ inline S pad(const S& s, size_t n) {
 
 /// Absolute value.
 template<class T>
-inline T absval(T x) {
-    if (x < 0) return -x;
+inline T absval(T x)
+{
+    if (x < 0) {
+        return -x;
+    }
     return x;
 }
 
 /**
- * 
+ *
  * Iterate through a list of objects that have a numeric member named
  * 'valid', and return false if for any object this attribute is not
  * greater than 0.  Otherwise return true.
@@ -92,9 +109,12 @@ inline T absval(T x) {
  */
 
 template<class L>
-inline bool valid(L& list) {
+inline bool valid(L& list)
+{
     size_t i;
-    for (i=0; i < list.size(); i++) if (list[i].valid <= 0) return false;
+    for (i=0; i < list.size(); i++) if (list[i].valid <= 0) {
+            return false;
+        }
     return true;
 }
 
@@ -103,7 +123,7 @@ inline bool valid(L& list) {
 void removeWhiteSpace(std::string& s);
 
 void getTokens(std::string& begin,
-    int n, std::vector<std::string>& toks, char delim=' ');
+               int n, std::vector<std::string>& toks, char delim=' ');
 
 
 /**
@@ -117,16 +137,16 @@ void getTokens(std::string& begin,
  */
 bool match(const std::string& s1, const std::string& s2);
 
-/**  
+/**
  * Check whether string 'word' begins with a Chemkin keyword.
  */
 inline bool isKeyword(std::string word)
 {
     return (match(word, "ELEM") ||
-	    match(word, "SPEC") ||
-	    match(word, "THERM") ||
-	    match(word, "REAC") ||
-	    match(word, "END"));
+            match(word, "SPEC") ||
+            match(word, "THERM") ||
+            match(word, "REAC") ||
+            match(word, "END"));
 }
 
 

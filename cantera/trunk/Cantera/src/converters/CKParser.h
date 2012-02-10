@@ -17,58 +17,61 @@
 #include "Species.h"
 #include "Reaction.h"
 
-namespace ckr {
+namespace ckr
+{
 
 
-  // typedefs
+// typedefs
 
-  /// readability constants
-  //@{ 
-  const int NoThermoDatabase = 10;
-  const int HasTempRange = 11;
-  //@}
+/// readability constants
+//@{
+const int NoThermoDatabase = 10;
+const int HasTempRange = 11;
+//@}
 
 
-  /// Exception class for syntax errors.
-  class CK_SyntaxError : public CK_Exception {
-  public:
+/// Exception class for syntax errors.
+class CK_SyntaxError : public CK_Exception
+{
+public:
     CK_SyntaxError(std::ostream& f, const std::string& s, int linenum = -1);
     std::ostream& m_out;
-  };
+};
 
-  /**
-   * Chemkin mechanism file parser. For internal use by class CKReader.
-   */
-  class CKParser {
-        
-  public:
-        
+/**
+ * Chemkin mechanism file parser. For internal use by class CKReader.
+ */
+class CKParser
+{
+
+public:
+
     CKParser(std::string ckfile, std::ostream* log);
-    CKParser(std::istream* infile, const std::string& fname, 
-	     std::ostream* log);
-    
+    CKParser(std::istream* infile, const std::string& fname,
+             std::ostream* log);
+
     /// Destructor.
-    ~CKParser(){}
+    ~CKParser() {}
 
     bool readElementSection(elementList& elements);
     bool readSpeciesSection(speciesList& species);
     bool readThermoSection(std::vector<std::string>& names,
-			   speciesTable& speciesData, vector_fp& temp,
-			   int& optionFlag, std::ostream& log);
+                           speciesTable& speciesData, vector_fp& temp,
+                           int& optionFlag, std::ostream& log);
     bool readReactionSection(const std::vector<std::string>& speciesNames,
                              std::vector<std::string>& elementNames,
-			     reactionList& reactions, ReactionUnits& units);
+                             reactionList& reactions, ReactionUnits& units);
     bool advanceToKeyword(const std::string& kw, const std::string& stop);
     bool verbose;
     bool debug;
 
     bool readNASA9ThermoSection(std::vector<std::string>& names,
-				speciesTable& species, vector_fp& temp, 
-				int& optionFlag, std::ostream& log);
+                                speciesTable& species, vector_fp& temp,
+                                int& optionFlag, std::ostream& log);
 
     void readNASA9ThermoRecord(Species& sp);
 
-  private:
+private:
 
     //! Local value of the line number being read
     /*!
@@ -78,7 +81,7 @@ namespace ckr {
 
     std::string m_buf;
     std::string m_comment;
-      
+
     //! This is the input file that is read
     /*!
      *  It's an istream
@@ -94,7 +97,7 @@ namespace ckr {
 
     //! Boolean indicating new NASA input file format
     /*!
-     *  If this is true, a completely different input file parser is 
+     *  If this is true, a completely different input file parser is
      *  used.
      */
     bool m_nasa9fmt;
@@ -102,11 +105,11 @@ namespace ckr {
     char m_last_eol;
     void readThermoRecord(Species& sp);
 
-    //!    Get a line from the input file, and return it in string s. 
+    //!    Get a line from the input file, and return it in string s.
     /*!
      *  If the line contains a comment character (!), then return only the
      *  portion preceding it.  Non-printing characters are replaced by
-     *  spaces.  
+     *  spaces.
      *
      *  The input file is m_ckfile, an istream.
      *
@@ -115,13 +118,13 @@ namespace ckr {
      *  @param comment  On return, comment contains the text following the
      *                  comment character on the line, if any.
      */
-    void getCKLine(std::string& s, std::string& comment);    
-     
+    void getCKLine(std::string& s, std::string& comment);
+
     void putCKLine(std::string& s, std::string& comment);
     void missingAuxData(const std::string& kw);
 
     void checkSpeciesName(std::string spname);
-  };
+};
 }
 
 

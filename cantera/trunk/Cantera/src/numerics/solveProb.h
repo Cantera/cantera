@@ -24,7 +24,7 @@
 #include "Array.h"
 #include "ResidEval.h"
 
-//! Solution Methods 
+//! Solution Methods
 /*!
  * Flag to specify the solution method
  *
@@ -61,119 +61,121 @@ const int SOLVEPROB_TRANSIENT  = 4;
 
 
 
-namespace Cantera {
+namespace Cantera
+{
 
 
-  //! Method to solve a pseudo steady state of a nonlinear problem
-  /*!
-   *   The following class handles the solution of a nonlinear problem.
-   *
-   *      Res_ss(C) =   - Res(C) = 0
-   *   
-   *   Optionally a pseudo transient algorithm may be used to relax the residual if 
-   *   it is available.
-   *
-   *      Res_td(C) =  dC/dt  - Res(C) = 0;
-   *         
-   *    Res_ss(C) is the steady state residual to be solved. Res_td(C) is the 
-   *    time dependent residual which leads to the steady state residual.
-   *
-   *
-   *  Solution Method
-   *
-   *  This routine is typically used within a residual calculation in a large code.
-   *  It's typically invoked millions of times for large calculations, and it must
-   *  work every time. Therefore, requirements demand that it be robust but also
-   *  efficient.
-   * 
-   *  The solution methodology is largely determined by the <TT>ifunc<\TT> parameter,
-   *  that is input to the solution object. This parameter may have the following
-   *  4 values:
-   *
-   *
-   *  1: SOLVEPROB_INITIALIZE   = This assumes that the initial guess supplied to the
-   *                          routine is far from the correct one. Substantial
-   *                          work plus transient time-stepping is to be expected
-   *                          to find a solution.
-   *
-   *  2:  SOLVEPROB_RESIDUAL    = Need to solve the nonlinear problem in order to
-   *                          calculate quantities for a residual calculation
-   *                          (Can expect a moderate change in the solution
-   *                           vector -> try to solve the system by direct methods
-   *                           with no damping first -> then, try time-stepping
-   *                           if the first method fails)
-   *                          A "time_scale" supplied here is used in the
-   *                          algorithm to determine when to shut off
-   *                          time-stepping.
-   *
-   *  3:  SOLVEPROB_JACOBIAN    = Calculation of the surface problem is due to the
-   *                          need for a numerical jacobian for the gas-problem.
-   *                          The solution is expected to be very close to the
-   *                          initial guess, and extra accuracy is needed because
-   *                          solution variables have been delta'd from
-   *                          nominal values to create jacobian entries.
-   *
-   *  4: SOLVEPROB_TRANSIENT   = The transient calculation is performed here for an
-   *                          amount of time specified by "time_scale".  It is
-   *                          not garraunted to be time-accurate - just stable
-   *                          and fairly fast. The solution after del_t time is
-   *                          returned, whether it's converged to a steady
-   *                          state or not. This is a poor man's time stepping
-   *                          algorithm.
-   *
-   * Psuedo time stepping algorithm:
-   *  The time step is determined from sdot[],  so that the time step
-   *   doesn't ever change the value of a variable by more than 100%.
-   *
-   *  This algorithm does use a damped Newton's method to relax the equations.
-   *  Damping is based on a "delta damping" technique. The solution unknowns
-   *  are not allowed to vary too much between iterations.
-   *
-   *
-   *   EXTRA_ACCURACY:A constant that is the ratio of the required update norm in
-   *    this Newton iteration compared to that in the nonlinear solver.
-   *     A value of 0.1 is used so surface species are safely  overconverged.
-   *
-   *  Functions called:
-   *----------------------------------------------------------------------------
-   *
-   * ct_dgetrf    -- First half of LAPACK direct solve of a full Matrix
-   *
-   * ct_dgetrs    -- Second half of LAPACK direct solve of a full matrix. Returns
-   *                 solution vector in the right-hand-side vector, resid.
-   *
-   *----------------------------------------------------------------------------
-   *
-   *  @ingroup solverGroup
-   */
-  class solveProb {
+//! Method to solve a pseudo steady state of a nonlinear problem
+/*!
+ *   The following class handles the solution of a nonlinear problem.
+ *
+ *      Res_ss(C) =   - Res(C) = 0
+ *
+ *   Optionally a pseudo transient algorithm may be used to relax the residual if
+ *   it is available.
+ *
+ *      Res_td(C) =  dC/dt  - Res(C) = 0;
+ *
+ *    Res_ss(C) is the steady state residual to be solved. Res_td(C) is the
+ *    time dependent residual which leads to the steady state residual.
+ *
+ *
+ *  Solution Method
+ *
+ *  This routine is typically used within a residual calculation in a large code.
+ *  It's typically invoked millions of times for large calculations, and it must
+ *  work every time. Therefore, requirements demand that it be robust but also
+ *  efficient.
+ *
+ *  The solution methodology is largely determined by the <TT>ifunc<\TT> parameter,
+ *  that is input to the solution object. This parameter may have the following
+ *  4 values:
+ *
+ *
+ *  1: SOLVEPROB_INITIALIZE   = This assumes that the initial guess supplied to the
+ *                          routine is far from the correct one. Substantial
+ *                          work plus transient time-stepping is to be expected
+ *                          to find a solution.
+ *
+ *  2:  SOLVEPROB_RESIDUAL    = Need to solve the nonlinear problem in order to
+ *                          calculate quantities for a residual calculation
+ *                          (Can expect a moderate change in the solution
+ *                           vector -> try to solve the system by direct methods
+ *                           with no damping first -> then, try time-stepping
+ *                           if the first method fails)
+ *                          A "time_scale" supplied here is used in the
+ *                          algorithm to determine when to shut off
+ *                          time-stepping.
+ *
+ *  3:  SOLVEPROB_JACOBIAN    = Calculation of the surface problem is due to the
+ *                          need for a numerical jacobian for the gas-problem.
+ *                          The solution is expected to be very close to the
+ *                          initial guess, and extra accuracy is needed because
+ *                          solution variables have been delta'd from
+ *                          nominal values to create jacobian entries.
+ *
+ *  4: SOLVEPROB_TRANSIENT   = The transient calculation is performed here for an
+ *                          amount of time specified by "time_scale".  It is
+ *                          not garraunted to be time-accurate - just stable
+ *                          and fairly fast. The solution after del_t time is
+ *                          returned, whether it's converged to a steady
+ *                          state or not. This is a poor man's time stepping
+ *                          algorithm.
+ *
+ * Psuedo time stepping algorithm:
+ *  The time step is determined from sdot[],  so that the time step
+ *   doesn't ever change the value of a variable by more than 100%.
+ *
+ *  This algorithm does use a damped Newton's method to relax the equations.
+ *  Damping is based on a "delta damping" technique. The solution unknowns
+ *  are not allowed to vary too much between iterations.
+ *
+ *
+ *   EXTRA_ACCURACY:A constant that is the ratio of the required update norm in
+ *    this Newton iteration compared to that in the nonlinear solver.
+ *     A value of 0.1 is used so surface species are safely  overconverged.
+ *
+ *  Functions called:
+ *----------------------------------------------------------------------------
+ *
+ * ct_dgetrf    -- First half of LAPACK direct solve of a full Matrix
+ *
+ * ct_dgetrs    -- Second half of LAPACK direct solve of a full matrix. Returns
+ *                 solution vector in the right-hand-side vector, resid.
+ *
+ *----------------------------------------------------------------------------
+ *
+ *  @ingroup solverGroup
+ */
+class solveProb
+{
 
-  public:
+public:
 
     //! Constructor for the object
     /*!
      *  @param surfChemPtr  Pointer to the ImplicitSurfChem object that
      *                      defines the surface problem to be solved.
      *
-     *  @param bulkFunc     Integer representing how the bulk phases 
+     *  @param bulkFunc     Integer representing how the bulk phases
      *                      should be handled. Currently, only the
      *                      default value of BULK_ETCH is supported.
-     */ 
+     */
     solveProb(ResidEval* resid);
-   
+
     //! Destructor. Deletes the integrator.
     ~solveProb();
 
-  private:
+private:
 
     //! Unimplemented private copy constructor
-    solveProb(const solveProb &right);
+    solveProb(const solveProb& right);
 
     //! Unimplemented private assignment operator
-    solveProb& operator=(const solveProb &right);
+    solveProb& operator=(const solveProb& right);
 
-  public:
-  
+public:
+
     //! Main routine that actually calculates the pseudo steady state
     //! of the surface problem
     /*!
@@ -186,7 +188,7 @@ namespace Cantera {
      *
      * @param time_scale  Time over which to integrate the surface equations,
      *                    where applicable
-     * 
+     *
      * @param reltol      Relative tolerance to use
      *
      * @return  Returns 1 if the surface problem is successfully solved.
@@ -200,7 +202,7 @@ namespace Cantera {
     /*!
      *  @param Report the solution vector for the nonlinear problem
      */
-    virtual void reportState(doublereal * const CSoln) const;
+    virtual void reportState(doublereal* const CSoln) const;
 
     //! Set the bottom and top bounds on the solution vector
     /*!
@@ -215,27 +217,27 @@ namespace Cantera {
     void setAtol(const doublereal atol[]);
     void setAtolConst(const doublereal atolconst);
 
-  private:
+private:
 
     //! Printing routine that gets called at the start of every
     //! invocation
     virtual void print_header(int ioflag, int ifunc, doublereal time_scale,
-			      doublereal reltol, 
-			      doublereal netProdRate[]);
+                              doublereal reltol,
+                              doublereal netProdRate[]);
 
 #ifdef DEBUG_SOLVEPROB
 
-    virtual void printResJac(int ioflag, int neq, const Array2D &Jac,
-			     doublereal resid[], doublereal wtResid[], doublereal norm);
+    virtual void printResJac(int ioflag, int neq, const Array2D& Jac,
+                             doublereal resid[], doublereal wtResid[], doublereal norm);
 #endif
 
     //! Printing routine that gets called after every iteration
     virtual void printIteration(int ioflag, doublereal damp, int label_d, int label_t,
-				doublereal inv_t, doublereal t_real, int iter,
-				doublereal update_norm, doublereal resid_norm,
-				doublereal netProdRate[], doublereal CSolnSP[],
-				doublereal resid[], 
-				doublereal wtSpecies[], int dim, bool do_time);
+                                doublereal inv_t, doublereal t_real, int iter,
+                                doublereal update_norm, doublereal resid_norm,
+                                doublereal netProdRate[], doublereal CSolnSP[],
+                                doublereal resid[],
+                                doublereal wtSpecies[], int dim, bool do_time);
 
 
     //! Print a summary of the solution
@@ -243,13 +245,13 @@ namespace Cantera {
      *
      */
     virtual void printFinal(int ioflag, doublereal damp, int label_d, int label_t,
-			    doublereal inv_t, doublereal t_real, int iter,
-			    doublereal update_norm, doublereal resid_norm,
-			    doublereal netProdRateKinSpecies[], const doublereal CSolnSP[],
-			    const doublereal resid[],  
-			    const doublereal wtSpecies[], const doublereal wtRes[],
-			    int dim, bool do_time);
-    
+                            doublereal inv_t, doublereal t_real, int iter,
+                            doublereal update_norm, doublereal resid_norm,
+                            doublereal netProdRateKinSpecies[], const doublereal CSolnSP[],
+                            const doublereal resid[],
+                            const doublereal wtSpecies[], const doublereal wtRes[],
+                            int dim, bool do_time);
+
     //! Calculate a conservative delta T to use in a pseudo-steady state
     //! algorithm
     /*!
@@ -263,9 +265,9 @@ namespace Cantera {
      *
      *     Maximum time step set to time_scale.
      *
-     *    @param netProdRateSolnSP  Output variable. Net production rate 
+     *    @param netProdRateSolnSP  Output variable. Net production rate
      *             of all of the species in the solution vector.
-     *    @param XMolSolnSP output variable. 
+     *    @param XMolSolnSP output variable.
      *            Mole fraction of all of the species in the  solution vector
      *    @param label Output variable. Pointer to the value of the
      *                 species index (kindexSP) that is controlling
@@ -282,19 +284,19 @@ namespace Cantera {
      *    @return  Returns the 1. /  delta T to be used on the next step
      */
     virtual doublereal calc_t(doublereal netProdRateSolnSP[], doublereal Csoln[],
-			      int *label, int *label_old,
-			      doublereal *label_factor, int ioflag);
+                              int* label, int* label_old,
+                              doublereal* label_factor, int ioflag);
 
     //! Calculate the solution and residual weights
     /*!
      *   @param wtSpecies Weights to use for the soln unknowns. These
      *                    are in concentration units
      *  @param wtResid    Weights to sue for the residual unknowns.
-     * 
+     *
      *  @param CSolnSP    Solution vector for the surface problem
      */
     virtual void calcWeights(doublereal wtSpecies[], doublereal wtResid[],
-			     const doublereal CSolnSP[]);
+                             const doublereal CSolnSP[]);
 
 #ifdef DEBUG_SOLVEPROB
     //! Utility routine to print a header for high lvls of debugging
@@ -308,41 +310,41 @@ namespace Cantera {
      *                 place
      */
     virtual void printIterationHeader(int ioflag, doublereal damp,
-				      doublereal inv_t, doublereal t_real, int iter,
-				      bool do_time);
+                                      doublereal inv_t, doublereal t_real, int iter,
+                                      bool do_time);
 #endif
-   
+
     //! Main Function evalulation
     /*!
      *
-     *  @param resid output Vector of residuals, length = m_neq     
+     *  @param resid output Vector of residuals, length = m_neq
      *  @param CSolnSP  Vector of species concentrations, unknowns in the
      *                  problem, length = m_neq
      *  @param CSolnSPOld Old Vector of species concentrations, unknowns in the
      *                  problem, length = m_neq
      *  @param do_time Calculate a time dependent residual
-     *  @param deltaT  Delta time for time dependent problem. 
+     *  @param deltaT  Delta time for time dependent problem.
      */
-    virtual void  fun_eval(doublereal* const resid, const doublereal * const CSolnSP, 
-			   const doublereal * const CSolnOldSP,  const bool do_time, const doublereal deltaT);
+    virtual void  fun_eval(doublereal* const resid, const doublereal* const CSolnSP,
+                           const doublereal* const CSolnOldSP,  const bool do_time, const doublereal deltaT);
 
-    //! Main routine that calculates the current residual and Jacobian 
+    //! Main routine that calculates the current residual and Jacobian
     /*!
      *  @param JacCol  Vector of pointers to the tops of columns of the
      *                 Jacobian to be evalulated.
-     *  @param resid   output Vector of residuals, length = m_neq     
+     *  @param resid   output Vector of residuals, length = m_neq
      *  @param CSolnSP  Vector of species concentrations, unknowns in the
      *                  problem, length = m_neq. These are tweaked in order
      *                  to derive the columns of the jacobian.
      *  @param CSolnSPOld Old Vector of species concentrations, unknowns in the
      *                  problem, length = m_neq
      *  @param do_time Calculate a time dependent residual
-     *  @param deltaT  Delta time for time dependent problem. 
+     *  @param deltaT  Delta time for time dependent problem.
      */
-    virtual void resjac_eval(std::vector<doublereal *>& JacCol, doublereal * resid, 
-			     doublereal *CSolnSP, 
-			     const doublereal *CSolnSPOld,  const bool do_time, 
-			     const doublereal deltaT);
+    virtual void resjac_eval(std::vector<doublereal*>& JacCol, doublereal* resid,
+                             doublereal* CSolnSP,
+                             const doublereal* CSolnSPOld,  const bool do_time,
+                             const doublereal deltaT);
 
     //!  This function calculates a damping factor for the Newton iteration update
     //!  vector, dxneg, to insure that all solution components stay within perscribed bounds
@@ -362,10 +364,10 @@ namespace Cantera {
      *  @param dim     Size of the solution vector
      *  @param label   return int, stating which solution component caused the most damping.
      */
-    virtual doublereal calc_damping(doublereal x[], doublereal dxneg[], int dim, int *label);
+    virtual doublereal calc_damping(doublereal x[], doublereal dxneg[], int dim, int* label);
 
     //! residual function pointer to be solved.
-    ResidEval *m_residFunc;
+    ResidEval* m_residFunc;
 
     //! Total number of equations to solve in the implicit problem.
     /*!
@@ -375,16 +377,16 @@ namespace Cantera {
 
     //! m_atol is the absolute tolerance in real units.
     vector_fp m_atol;
-    
+
     //! m_rtol is the relative error tolerance.
     doublereal m_rtol;
-  
+
     //! maximum value of the time step
     /*!
      * units = seconds
      */
-    doublereal m_maxstep;        
-    
+    doublereal m_maxstep;
+
     //! Temporary vector with length MAX(1, m_neq)
     vector_fp m_netProductionRatesSave;
 
@@ -452,7 +454,7 @@ namespace Cantera {
      *   The "dim" by "dim" computed Jacobian matrix for the
      *   local Newton's method.
      */
-    std::vector<doublereal *> m_JacCol;
+    std::vector<doublereal*> m_JacCol;
 
     //! Jacobian
     /*!
@@ -474,8 +476,8 @@ namespace Cantera {
     vector_fp m_botBounds;
 
 
-  public:
+public:
     int m_ioflag;
-  };
+};
 }
 #endif

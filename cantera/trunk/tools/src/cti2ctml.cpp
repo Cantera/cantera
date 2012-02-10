@@ -7,9 +7,9 @@
  *  $Id$
  */
 
-//  Example 
+//  Example
 //
-//  Read a mechanism and a thermodynamics file for the 
+//  Read a mechanism and a thermodynamics file for the
 //  class IdealSolidSolnPhase in order to test that it's
 //  working correctly
 //
@@ -42,48 +42,47 @@ static void printUsage()
 /*****************************************************************/
 
 
-int main(int argc, char** argv) {
-  std::string infile;  
+int main(int argc, char** argv)
+{
+    std::string infile;
     // look for command-line options
     if (argc > 1) {
-      std::string tok;
-      for (int j = 1; j < argc; j++) {
-	tok = string(argv[j]);
-	if (tok[0] == '-') {
-	  int nopt = static_cast<int>(tok.size());
-	  for (int n = 1; n < nopt; n++) {
-	    if (tok[n] == 'h') {
-	      printUsage();
-	      exit(0);
-	    } else {
-	      printUsage();
-	      exit(1);
-	    }
-	  }
-	} else if (infile == "") {
-	  infile = tok;
-	}
-	else {
-	  printUsage();
-	  exit(1);
-	}
-      }
+        std::string tok;
+        for (int j = 1; j < argc; j++) {
+            tok = string(argv[j]);
+            if (tok[0] == '-') {
+                int nopt = static_cast<int>(tok.size());
+                for (int n = 1; n < nopt; n++) {
+                    if (tok[n] == 'h') {
+                        printUsage();
+                        exit(0);
+                    } else {
+                        printUsage();
+                        exit(1);
+                    }
+                }
+            } else if (infile == "") {
+                infile = tok;
+            } else {
+                printUsage();
+                exit(1);
+            }
+        }
     }
     if (infile == "") {
-	  printUsage();
-	  exit(1);      
+        printUsage();
+        exit(1);
     }
- 
+
     try {
-      XML_Node *xc = new XML_Node();
-      std::string path = findInputFile(infile);
-      ctml::get_CTML_Tree(xc, path, 0); 
-      //XML_Node *xd = new XML_Node();
-      //xc->copy(xd);
-      
-    }
-    catch (CanteraError) {
-      showErrors(cout);
+        XML_Node* xc = new XML_Node();
+        std::string path = findInputFile(infile);
+        ctml::get_CTML_Tree(xc, path, 0);
+        //XML_Node *xd = new XML_Node();
+        //xc->copy(xd);
+
+    } catch (CanteraError) {
+        showErrors(cout);
     }
 
     return 0;

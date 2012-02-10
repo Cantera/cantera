@@ -1,7 +1,7 @@
 /**
  *  @file NasaPoly2.h
  *  Header for a single-species standard state object derived
- *  from \link Cantera::SpeciesThermoInterpType SpeciesThermoInterpType\endlink  based 
+ *  from \link Cantera::SpeciesThermoInterpType SpeciesThermoInterpType\endlink  based
  *  on the NASA temperature polynomial form applied to two temperature regions
  *  (see \ref spthermo and class \link Cantera::NasaPoly2 NasaPoly2\endlink).
  *
@@ -15,52 +15,54 @@
 
 #include "SpeciesThermoInterpType.h"
 
-namespace Cantera {
+namespace Cantera
+{
 
-  /**
-   *
-   * 
-   * The NASA polynomial parameterization for two temperature ranges.
-   * This parameterization expresses the heat capacity as a
-   * fourth-order polynomial. Note that this is the form used in the
-   * 1971 NASA equilibrium program and by the Chemkin software
-   * package, but differs from the form used in the more recent NASA
-   * equilibrium program.
-   *
-   * Seven coefficients \f$(a_0,\dots,a_6)\f$ are used to represent
-   * \f$ c_p^0(T)\f$, \f$ h^0(T)\f$, and \f$ s^0(T) \f$ as 
-   * polynomials in \f$ T \f$ :  
-   * \f[
-   * \frac{c_p(T)}{R} = a_0 + a_1 T + a_2 T^2 + a_3 T^3 + a_4 T^4
-   * \f]
-   * \f[
-   * \frac{h^0(T)}{RT} = a_0 + \frac{a_1}{2} T + \frac{a_2}{3} T^2 
-   * + \frac{a_3}{4} T^3 + \frac{a_4}{5} T^4  + \frac{a_5}{T}.
-   * \f]
-   * \f[
-   * \frac{s^0(T)}{R} = a_0\ln T + a_1 T + \frac{a_2}{2} T^2 
-   + \frac{a_3}{3} T^3 + \frac{a_4}{4} T^4  + a_6.
-   * \f]
-   * 
-   * This class is designed specifically for use by the class 
-   * GeneralSpeciesThermo.
-   *
-   * @ingroup spthermo
-   */
-  class NasaPoly2 : public SpeciesThermoInterpType {
+/**
+ *
+ *
+ * The NASA polynomial parameterization for two temperature ranges.
+ * This parameterization expresses the heat capacity as a
+ * fourth-order polynomial. Note that this is the form used in the
+ * 1971 NASA equilibrium program and by the Chemkin software
+ * package, but differs from the form used in the more recent NASA
+ * equilibrium program.
+ *
+ * Seven coefficients \f$(a_0,\dots,a_6)\f$ are used to represent
+ * \f$ c_p^0(T)\f$, \f$ h^0(T)\f$, and \f$ s^0(T) \f$ as
+ * polynomials in \f$ T \f$ :
+ * \f[
+ * \frac{c_p(T)}{R} = a_0 + a_1 T + a_2 T^2 + a_3 T^3 + a_4 T^4
+ * \f]
+ * \f[
+ * \frac{h^0(T)}{RT} = a_0 + \frac{a_1}{2} T + \frac{a_2}{3} T^2
+ * + \frac{a_3}{4} T^3 + \frac{a_4}{5} T^4  + \frac{a_5}{T}.
+ * \f]
+ * \f[
+ * \frac{s^0(T)}{R} = a_0\ln T + a_1 T + \frac{a_2}{2} T^2
+ + \frac{a_3}{3} T^3 + \frac{a_4}{4} T^4  + a_6.
+ * \f]
+ *
+ * This class is designed specifically for use by the class
+ * GeneralSpeciesThermo.
+ *
+ * @ingroup spthermo
+ */
+class NasaPoly2 : public SpeciesThermoInterpType
+{
 
-  public:
+public:
 
     //! Empty constructor
-    NasaPoly2() 
-      : m_lowT(0.0),
-	m_midT(0.0), 
-	m_highT (0.0),
-	m_Pref(0.0),
-	mnp_low(0),
-	mnp_high(0), 
-	m_index(0),
-	m_coeff(array_fp(15)) {
+    NasaPoly2()
+        : m_lowT(0.0),
+          m_midT(0.0),
+          m_highT(0.0),
+          m_Pref(0.0),
+          mnp_low(0),
+          mnp_high(0),
+          m_index(0),
+          m_coeff(array_fp(15)) {
     }
 
     //! Full Constructor
@@ -73,21 +75,21 @@ namespace Cantera {
      *                  parameters for the standard state.
      */
     NasaPoly2(size_t n, doublereal tlow, doublereal thigh, doublereal pref,
-	      const doublereal* coeffs) :
-      m_lowT(tlow),
-      m_highT(thigh),
-      m_Pref(pref),
-      mnp_low(0),
-      mnp_high(0),
-      m_index(n),
-      m_coeff(array_fp(15)) {
+              const doublereal* coeffs) :
+        m_lowT(tlow),
+        m_highT(thigh),
+        m_Pref(pref),
+        mnp_low(0),
+        mnp_high(0),
+        m_index(n),
+        m_coeff(array_fp(15)) {
 
-      std::copy(coeffs, coeffs + 15, m_coeff.begin());
-      m_midT = coeffs[0];
-      mnp_low  = new NasaPoly1(m_index, m_lowT, m_midT,
-			       m_Pref, &m_coeff[1]);
-      mnp_high = new NasaPoly1(m_index, m_midT, m_highT,
-			       m_Pref, &m_coeff[8]);
+        std::copy(coeffs, coeffs + 15, m_coeff.begin());
+        m_midT = coeffs[0];
+        mnp_low  = new NasaPoly1(m_index, m_lowT, m_midT,
+                                 m_Pref, &m_coeff[1]);
+        mnp_high = new NasaPoly1(m_index, m_midT, m_highT,
+                                 m_Pref, &m_coeff[8]);
     }
 
     //! Copy Constructor
@@ -95,22 +97,22 @@ namespace Cantera {
      * @param b objecto to be copied.
      */
     NasaPoly2(const NasaPoly2& b) :
-      m_lowT(b.m_lowT),
-      m_midT(b.m_midT),
-      m_highT(b.m_highT),
-      m_Pref(b.m_Pref),
-      mnp_low(0),
-      mnp_high(0),
-      m_index(b.m_index),
-      m_coeff(array_fp(15)) {
+        m_lowT(b.m_lowT),
+        m_midT(b.m_midT),
+        m_highT(b.m_highT),
+        m_Pref(b.m_Pref),
+        mnp_low(0),
+        mnp_high(0),
+        m_index(b.m_index),
+        m_coeff(array_fp(15)) {
 
-      std::copy(b.m_coeff.begin(),
-		b.m_coeff.begin() + 15,
-		m_coeff.begin());
-      mnp_low  = new NasaPoly1(m_index, m_lowT, m_midT,
-			       m_Pref, &m_coeff[1]);
-      mnp_high = new NasaPoly1(m_index, m_midT, m_highT,
-			       m_Pref, &m_coeff[8]);
+        std::copy(b.m_coeff.begin(),
+                  b.m_coeff.begin() + 15,
+                  m_coeff.begin());
+        mnp_low  = new NasaPoly1(m_index, m_lowT, m_midT,
+                                 m_Pref, &m_coeff[1]);
+        mnp_high = new NasaPoly1(m_index, m_midT, m_highT,
+                                 m_Pref, &m_coeff[8]);
     }
 
     //! Assignment operator
@@ -118,55 +120,69 @@ namespace Cantera {
      * @param b objecto to be copied.
      */
     NasaPoly2& operator=(const NasaPoly2& b) {
-      if (&b != this) {
-	m_lowT   = b.m_lowT;
-	m_midT   = b.m_midT;
-	m_highT  = b.m_highT;
-	m_Pref   = b.m_Pref;
-	m_index  = b.m_index;
-	std::copy(b.m_coeff.begin(),
-		  b.m_coeff.begin() + 15,
-		  m_coeff.begin());
-	if (mnp_low) delete mnp_low;
-	if (mnp_high) delete mnp_high;
-	mnp_low  = new NasaPoly1(m_index, m_lowT, m_midT, 
-				 m_Pref, &m_coeff[1]);
-	mnp_high = new NasaPoly1(m_index, m_midT, m_highT, 
-				 m_Pref, &m_coeff[8]);
-      }
-      return *this;
+        if (&b != this) {
+            m_lowT   = b.m_lowT;
+            m_midT   = b.m_midT;
+            m_highT  = b.m_highT;
+            m_Pref   = b.m_Pref;
+            m_index  = b.m_index;
+            std::copy(b.m_coeff.begin(),
+                      b.m_coeff.begin() + 15,
+                      m_coeff.begin());
+            if (mnp_low) {
+                delete mnp_low;
+            }
+            if (mnp_high) {
+                delete mnp_high;
+            }
+            mnp_low  = new NasaPoly1(m_index, m_lowT, m_midT,
+                                     m_Pref, &m_coeff[1]);
+            mnp_high = new NasaPoly1(m_index, m_midT, m_highT,
+                                     m_Pref, &m_coeff[8]);
+        }
+        return *this;
     }
 
     //! destructor
-    virtual ~NasaPoly2(){
-      delete mnp_low;
-      delete mnp_high;
+    virtual ~NasaPoly2() {
+        delete mnp_low;
+        delete mnp_high;
     }
 
     //! duplicator
-    virtual SpeciesThermoInterpType *
+    virtual SpeciesThermoInterpType*
     duplMyselfAsSpeciesThermoInterpType() const {
-      NasaPoly2* np = new NasaPoly2(*this);
-      return (SpeciesThermoInterpType *) np;
+        NasaPoly2* np = new NasaPoly2(*this);
+        return (SpeciesThermoInterpType*) np;
     }
 
     //! Returns the minimum temperature that the thermo
     //! parameterization is valid
-    doublereal minTemp() const     { return m_lowT;}
+    doublereal minTemp() const     {
+        return m_lowT;
+    }
 
     //! Returns the maximum temperature that the thermo
     //! parameterization is valid
-    doublereal maxTemp() const     { return m_highT;}
+    doublereal maxTemp() const     {
+        return m_highT;
+    }
 
     //! Returns the reference pressure (Pa)
-    doublereal refPressure() const { return m_Pref; }
+    doublereal refPressure() const {
+        return m_Pref;
+    }
 
     //! Returns an integer representing the type of parameterization
-    virtual int reportType() const { return NASA2; }
+    virtual int reportType() const {
+        return NASA2;
+    }
 
     //! Returns an integer representing the species index
-    virtual size_t speciesIndex() const { return m_index; }
-  
+    virtual size_t speciesIndex() const {
+        return m_index;
+    }
+
 
     //! Update the properties for this species, given a temperature polynomial
     /*!
@@ -191,15 +207,15 @@ namespace Cantera {
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
      */
-    void updateProperties(const doublereal* tt, 
-			  doublereal* cp_R, doublereal* h_RT, doublereal* s_R) const {
-          
-      double T = tt[0];
-      if (T <= m_midT) {
-	mnp_low->updateProperties(tt, cp_R, h_RT, s_R);
-      } else {
-	mnp_high->updateProperties(tt, cp_R, h_RT, s_R);
-      }
+    void updateProperties(const doublereal* tt,
+                          doublereal* cp_R, doublereal* h_RT, doublereal* s_R) const {
+
+        double T = tt[0];
+        if (T <= m_midT) {
+            mnp_low->updateProperties(tt, cp_R, h_RT, s_R);
+        } else {
+            mnp_high->updateProperties(tt, cp_R, h_RT, s_R);
+        }
     }
 
     //! Compute the reference-state property of one species
@@ -218,19 +234,19 @@ namespace Cantera {
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
      */
-    void updatePropertiesTemp(const doublereal temp, 
-			      doublereal* cp_R,
-			      doublereal* h_RT, 
-			      doublereal* s_R) const {
-      if (temp <= m_midT) {
-	mnp_low->updatePropertiesTemp(temp, cp_R, h_RT, s_R);
-      } else {
-	mnp_high->updatePropertiesTemp(temp, cp_R, h_RT, s_R);
-      }
+    void updatePropertiesTemp(const doublereal temp,
+                              doublereal* cp_R,
+                              doublereal* h_RT,
+                              doublereal* s_R) const {
+        if (temp <= m_midT) {
+            mnp_low->updatePropertiesTemp(temp, cp_R, h_RT, s_R);
+        } else {
+            mnp_high->updatePropertiesTemp(temp, cp_R, h_RT, s_R);
+        }
     }
 
-    //!This utility function reports back the type of 
-    //! parameterization and all of the parameters for the 
+    //!This utility function reports back the type of
+    //! parameterization and all of the parameters for the
     //! species, index.
     /*!
      * All parameters are output variables
@@ -243,69 +259,71 @@ namespace Cantera {
      * @param coeffs    Vector of coefficients used to set the
      *                  parameters for the standard state.
      */
-    void reportParameters(size_t &n, int &type,
-			  doublereal &tlow, doublereal &thigh,
-			  doublereal &pref,
-			  doublereal* const coeffs) const {
-      n = m_index;
-      type = NASA2;
-      tlow = m_lowT;
-      thigh = m_highT;
-      pref = m_Pref;
-      for (int i = 0; i < 15; i++) {
-	coeffs[i] = m_coeff[i];
-      }
+    void reportParameters(size_t& n, int& type,
+                          doublereal& tlow, doublereal& thigh,
+                          doublereal& pref,
+                          doublereal* const coeffs) const {
+        n = m_index;
+        type = NASA2;
+        tlow = m_lowT;
+        thigh = m_highT;
+        pref = m_Pref;
+        for (int i = 0; i < 15; i++) {
+            coeffs[i] = m_coeff[i];
+        }
     }
 
 #ifdef H298MODIFY_CAPABILITY
 
     doublereal reportHf298(doublereal* const h298 = 0) const {
-      double h;
-      if (298.15 <= m_midT) {
-	h = mnp_low->reportHf298(0);
-      } else {
-	h = mnp_high->reportHf298(0);
-      }
-      if (h298) {
-	h298[m_index] = h;
-      }
-      return h;
+        double h;
+        if (298.15 <= m_midT) {
+            h = mnp_low->reportHf298(0);
+        } else {
+            h = mnp_high->reportHf298(0);
+        }
+        if (h298) {
+            h298[m_index] = h;
+        }
+        return h;
     }
 
     void modifyOneHf298(const int k, const doublereal Hf298New) {
-      if (k != m_index) return;
- 
-      doublereal h298now = reportHf298(0);
-      doublereal delH = Hf298New - h298now;
-      double h = mnp_low->reportHf298(0);
-      double hnew = h + delH;
-      mnp_low->modifyOneHf298(k, hnew);
-      h  = mnp_high->reportHf298(0);
-      hnew = h + delH;
-      mnp_high->modifyOneHf298(k, hnew);
+        if (k != m_index) {
+            return;
+        }
+
+        doublereal h298now = reportHf298(0);
+        doublereal delH = Hf298New - h298now;
+        double h = mnp_low->reportHf298(0);
+        double hnew = h + delH;
+        mnp_low->modifyOneHf298(k, hnew);
+        h  = mnp_high->reportHf298(0);
+        hnew = h + delH;
+        mnp_high->modifyOneHf298(k, hnew);
     }
 
 #endif
 
-  protected:
+protected:
     //!  lowest valid temperature
-    doublereal m_lowT;   
+    doublereal m_lowT;
     //! Midrange temperature
     doublereal m_midT;
     //! Highest valid temperatre
-    doublereal m_highT;  
+    doublereal m_highT;
     //! Reference state pressure
     doublereal m_Pref;
     //! pointer to the NasaPoly1 object for the low temperature region.
-    NasaPoly1 *mnp_low;
+    NasaPoly1* mnp_low;
     //! pointer to the NasaPoly1 object for the high temperature region.
-    NasaPoly1 *mnp_high;
+    NasaPoly1* mnp_high;
     //! species index
     size_t m_index;
     //! array of polynomial coefficients
-    array_fp m_coeff;    
+    array_fp m_coeff;
 
-  };
+};
 
 }
 #endif

@@ -21,77 +21,79 @@
 #include "TransportBase.h"
 #include "DenseMatrix.h"
 
-namespace Cantera {
+namespace Cantera
+{
 
 
-  class GasTransportParams;
+class GasTransportParams;
 
-  
-  //! Class MixTransport implements mixture-averaged transport properties for ideal gas mixtures.
-  /*!
-   *    The model is based on that described by Kee, Coltrin, and Glarborg, "Theoretical and
-   *    Practical Aspects of Chemically Reacting Flow Modeling."
-   *
-   *    
-   * The viscosity is computed using the Wilke mixture rule (kg /m /s)
-   *
-   *    \f[
-   *        \mu = \sum_k \frac{\mu_k X_k}{\sum_j \Phi_{k,j} X_j}.
-   *    \f]
-   *
-   *     Here \f$ \mu_k \f$ is the viscosity of pure species \e k, and
-   * 
-   *    \f[ 
-   *        \Phi_{k,j} = \frac{\left[1 
-   *                     + \sqrt{\left(\frac{\mu_k}{\mu_j}\sqrt{\frac{M_j}{M_k}}\right)}\right]^2}
-   *                     {\sqrt{8}\sqrt{1 + M_k/M_j}}
-   *    \f]
-   *
-   *
-   * The thermal conductivity is computed from the following mixture rule:
-   *   \f[
-   *          \lambda = 0.5 \left( \sum_k X_k \lambda_k  + \frac{1}{\sum_k X_k/\lambda_k} \right)
-   *   \f]
-   *
-   *  It's used to compute the flux of energy due to a thermal gradient
-   *
-   *   \f[
-   *          j_T =  - \lambda  \nabla T
-   *   \f]
-   *   
-   *  The flux of energy has units of energy (kg m2 /s2) per second per area.
-   *
-   *  The units of lambda are W / m K which is equivalent to kg m / s^3 K.
-   *
-   *
-   */
-  class MixTransport : public Transport {
 
-  protected:
+//! Class MixTransport implements mixture-averaged transport properties for ideal gas mixtures.
+/*!
+ *    The model is based on that described by Kee, Coltrin, and Glarborg, "Theoretical and
+ *    Practical Aspects of Chemically Reacting Flow Modeling."
+ *
+ *
+ * The viscosity is computed using the Wilke mixture rule (kg /m /s)
+ *
+ *    \f[
+ *        \mu = \sum_k \frac{\mu_k X_k}{\sum_j \Phi_{k,j} X_j}.
+ *    \f]
+ *
+ *     Here \f$ \mu_k \f$ is the viscosity of pure species \e k, and
+ *
+ *    \f[
+ *        \Phi_{k,j} = \frac{\left[1
+ *                     + \sqrt{\left(\frac{\mu_k}{\mu_j}\sqrt{\frac{M_j}{M_k}}\right)}\right]^2}
+ *                     {\sqrt{8}\sqrt{1 + M_k/M_j}}
+ *    \f]
+ *
+ *
+ * The thermal conductivity is computed from the following mixture rule:
+ *   \f[
+ *          \lambda = 0.5 \left( \sum_k X_k \lambda_k  + \frac{1}{\sum_k X_k/\lambda_k} \right)
+ *   \f]
+ *
+ *  It's used to compute the flux of energy due to a thermal gradient
+ *
+ *   \f[
+ *          j_T =  - \lambda  \nabla T
+ *   \f]
+ *
+ *  The flux of energy has units of energy (kg m2 /s2) per second per area.
+ *
+ *  The units of lambda are W / m K which is equivalent to kg m / s^3 K.
+ *
+ *
+ */
+class MixTransport : public Transport
+{
 
-    //! Default constructor.  
+protected:
+
+    //! Default constructor.
     /*!
      *
      */
     MixTransport();
 
-  public:
+public:
 
     //!Copy Constructor for the %MixTransport object.
     /*!
      * @param right  %LiquidTransport to be copied
      */
-    MixTransport(const MixTransport &right);
+    MixTransport(const MixTransport& right);
 
     //! Assignment operator
     /*!
      *  This is NOT a virtual function.
      *
-     * @param right    Reference to %LiquidTransport object to be copied 
+     * @param right    Reference to %LiquidTransport object to be copied
      *                 into the current one.
      */
     MixTransport& operator=(const  MixTransport& right);
-    
+
     //! Duplication routine for objects which inherit from
     //! %Transport
     /*!
@@ -102,7 +104,7 @@ namespace Cantera {
      *  These routines are basically wrappers around the derived copy
      *  constructor.
      */
-    virtual Transport *duplMyselfAsTransport() const;
+    virtual Transport* duplMyselfAsTransport() const;
 
 
     //! Destructor
@@ -113,7 +115,7 @@ namespace Cantera {
      * @return cMixtureAverage
      */
     virtual int model() const {
-      return cMixtureAveraged;
+        return cMixtureAveraged;
     }
 
     //! Viscosity of the mixture  (kg /m /s)
@@ -125,13 +127,13 @@ namespace Cantera {
      *    \f]
      *
      *     Here \f$ \mu_k \f$ is the viscosity of pure species \e k, and
-     * 
-     *    \f[ 
-     *        \Phi_{k,j} = \frac{\left[1 
+     *
+     *    \f[
+     *        \Phi_{k,j} = \frac{\left[1
      *                     + \sqrt{\left(\frac{\mu_k}{\mu_j}\sqrt{\frac{M_j}{M_k}}\right)}\right]^2}
      *                     {\sqrt{8}\sqrt{1 + M_k/M_j}}
      *    \f]
-     * 
+     *
      *  @return   Returns the viscosity of the mixture  ( units =  Pa s  = kg /m /s)
      *
      * @see updateViscosity_T();
@@ -142,8 +144,11 @@ namespace Cantera {
     /*!
      *   @param visc  Vector of species viscosities
      */
-    virtual void getSpeciesViscosities(doublereal* visc)
-    { update_T();  updateViscosity_T(); copy(m_visc.begin(), m_visc.end(), visc); }
+    virtual void getSpeciesViscosities(doublereal* visc) {
+        update_T();
+        updateViscosity_T();
+        copy(m_visc.begin(), m_visc.end(), visc);
+    }
 
     //! Return the thermal diffusion coefficients
     /*!
@@ -167,7 +172,7 @@ namespace Cantera {
      *   \f[
      *          j_T =  - \lambda  \nabla T
      *   \f]
-     *   
+     *
      *  The flux of energy has units of energy (kg m2 /s2) per second per area.
      *
      *  The units of lambda are W / m K which is equivalent to kg m / s^3 K.
@@ -187,19 +192,19 @@ namespace Cantera {
      * @param d    output vector of diffusion coefficients
      */
     virtual void getBinaryDiffCoeffs(const size_t ld, doublereal* const d);
-    
-    //! Returns the Mixture-averaged diffusion coefficients [m^2/s]. 
+
+    //! Returns the Mixture-averaged diffusion coefficients [m^2/s].
     /*!
      * Returns the mixture averaged diffusion coefficients for a gas, appropriate for calculating the
      * mass averged diffusive flux with respect to the mass averaged velocity using gradients of the
-     * mole fraction. 
+     * mole fraction.
      * Note, for the single species case or the pure fluid case the routine returns the self-diffusion coefficient.
      * This is need to avoid a Nan result in the formula below.
      *
      *  This is Eqn. 12.180 from "Chemicaly Reacting Flow"
      *
      *   \f[
-     *       D_{km}' = \frac{\left( \bar{M} - X_k M_k \right)}{ \bar{\qquad M \qquad } }  {\left( \sum_{j \ne k} \frac{X_j}{D_{kj}} \right) }^{-1} 
+     *       D_{km}' = \frac{\left( \bar{M} - X_k M_k \right)}{ \bar{\qquad M \qquad } }  {\left( \sum_{j \ne k} \frac{X_j}{D_{kj}} \right) }^{-1}
      *   \f]
      *
      *
@@ -216,7 +221,7 @@ namespace Cantera {
      *
      *   Here, the mobility is calculated from the diffusion coefficient using the Einstein relation
      *
-     *     \f[ 
+     *     \f[
      *          \mu^e_k = \frac{F D_k}{R T}
      *     \f]
      *
@@ -241,7 +246,7 @@ namespace Cantera {
      */
     virtual void update_C();
 
-    //! Get the species diffusive mass fluxes wrt to the mass averaged velocity, 
+    //! Get the species diffusive mass fluxes wrt to the mass averaged velocity,
     //! given the gradients in mole fraction and temperature
     /*!
      *  Units for the returned fluxes are kg m-2 s-1.
@@ -255,20 +260,20 @@ namespace Cantera {
      *  @param ndim      Number of dimensions in the flux expressions
      *  @param grad_T    Gradient of the temperature
      *                    (length = ndim)
-     *  @param ldx        Leading dimension of the grad_X array 
+     *  @param ldx        Leading dimension of the grad_X array
      *                   (usually equal to m_nsp but not always)
      *  @param grad_X     Gradients of the mole fraction
      *                    Flat vector with the m_nsp in the inner loop.
      *                    length = ldx * ndim
-     *  @param ldf        Leading dimension of the fluxes array 
+     *  @param ldf        Leading dimension of the fluxes array
      *                   (usually equal to m_nsp but not always)
      *  @param fluxes     Output of the diffusive mass fluxes
      *                    Flat vector with the m_nsp in the inner loop.
      *                       length = ldx * ndim
      */
     virtual void getSpeciesFluxes(size_t ndim,  const doublereal* grad_T,
-				  int ldx, const doublereal* grad_X, 
-				  int ldf, doublereal* fluxes);
+                                  int ldx, const doublereal* grad_X,
+                                  int ldf, doublereal* fluxes);
 
     //! Initialize the transport object
     /*!
@@ -278,11 +283,11 @@ namespace Cantera {
      * @param tr  Transport parameters for all of the species
      *            in the phase.
      */
-    virtual bool initGas( GasTransportParams& tr );
+    virtual bool initGas(GasTransportParams& tr);
 
     friend class TransportFactory;
 
-    
+
     //! Return a structure containing all of the pertinent parameters about a species that was
     //! used to construct the Transport properties in this object.
     /*!
@@ -292,14 +297,14 @@ namespace Cantera {
      */
     struct GasTransportData getGasTransportData(int kspec) const;
 
- 
 
-  private:
+
+private:
 
     //! Calculate the pressure from the ideal gas law
     doublereal pressure_ig() const {
-      return (m_thermo->molarDensity() * GasConstant *
-	      m_thermo->temperature());
+        return (m_thermo->molarDensity() * GasConstant *
+                m_thermo->temperature());
     }
 
     //! Update the temperature-dependent viscosity terms.
@@ -320,14 +325,14 @@ namespace Cantera {
 
     //! Update the temperature dependent parts of the species thermal conductivities
     /*!
-     * These are evaluated from the polynomial fits of the temperature and are assumed to be 
+     * These are evaluated from the polynomial fits of the temperature and are assumed to be
      * independent of pressure
      */
     void updateCond_T();
 
     //! Update the species viscosities
     /*!
-     * These are evaluated from the polynomial fits of the temperature and are assumed to be 
+     * These are evaluated from the polynomial fits of the temperature and are assumed to be
      * independent of pressure
      */
     void updateSpeciesViscosities();
@@ -338,9 +343,9 @@ namespace Cantera {
      */
     void updateDiff_T();
 
- 
+
     // --------- Member Data -------------
-  private:
+private:
 
     //! Number of species in the phase
     size_t m_nsp;
@@ -429,7 +434,7 @@ namespace Cantera {
     /*!
      *  size = m_nsp * n_nsp
      */
-    DenseMatrix m_phi; 
+    DenseMatrix m_phi;
 
     //! Holds square roots or molecular weight ratios
     /*!
@@ -444,9 +449,9 @@ namespace Cantera {
      */
     DenseMatrix m_wratkj1;
 
- 
- 
- 
+
+
+
 
     //! Current value of the temperature at which the properties in this object are calculated (Kelvin)
     doublereal m_temp;
@@ -526,7 +531,7 @@ namespace Cantera {
      */
     DenseMatrix m_diam;
 
-    //! The effective dipole moment for (i,j) collisions   
+    //! The effective dipole moment for (i,j) collisions
     /*!
      *  tr.dipoleMoment has units of Debye's. A Debye is 10-18 cm3/2 erg1/2
      *
@@ -571,6 +576,6 @@ namespace Cantera {
 
     //! Debug flag - turns on more printing
     bool m_debug;
-  };
+};
 }
 #endif

@@ -1,7 +1,7 @@
 /**
  *  @file SurfPhase.h
  *  Header for a simple thermodynamics model of a surface phase
- *  derived from ThermoPhase, 
+ *  derived from ThermoPhase,
  *  assuming an ideal solution model
  *  (see \ref thermoprops and class \link Cantera::SurfPhase SurfPhase\endlink).
  */
@@ -14,135 +14,137 @@
 #include "mix_defs.h"
 #include "ThermoPhase.h"
 
-namespace Cantera {
-    
-  //!  A simple thermoydnamics model for a surface phase, 
-  //!  assuming an ideal solution model.
-  /*!
-   * The surface consists of a grid of equivalent sites. 
-   * Surface species may be defined to
-   * occupy one or more sites. The surface species are assumed to be
-   * independent, and thus the species form an ideal solution.
-   *
-   * The density of surface sites is given by the variable \f$ n_0 \f$, 
-   * which has SI units of kmol m-2. 
-   *
-   * <b> Specification of Species Standard State Properties </b>
-   * 
-   *  It is assumed that the reference state thermodynamics may be
-   *  obtained by a pointer to a populated species thermodynamic property
-   *  manager class (see ThermoPhase::m_spthermo). How to relate pressure
-   *  changes to the reference state thermodynamics is resolved at this level.
-   *  
-   *  Pressure is defined as an independent variable in this phase. However, it has
-   *  no effect on any quantities, as the molar concentration is a constant.
-   *
-   * Therefore, The standard state internal energy for species  <I>k</I> is 
-   * equal to the enthalpy for species <I>k</I>.
-   *
-   *       \f[
-   *            u^o_k = h^o_k  
-   *       \f]
-   *  
-   *   Also, the standard state chemical potentials, entropy, and heat capacities
-   *   are independent of pressure. The standard state gibbs free energy is obtained
-   * from the enthalpy and entropy functions.
-   *   
-   * <b> Specification of Solution Thermodynamic Properties </b>
-   *
-   * The activity of species defined in the phase is given by
-   *       \f[
-   *            a_k = \theta_k      
-   *       \f]
-   *
-   * The chemical potential for species <I>k</I> is equal to 
-   *       \f[
-   *            \mu_k(T,P) = \mu^o_k(T) + R T \log(\theta_k)     
-   *       \f]
-   *
-   * Pressure is defined as an independent variable in this phase. However, it has
-   * no effect on any quantities, as the molar concentration is a constant.
-   *
-   * The internal energy for species k is equal to the enthalpy for species <I>k</I>
-   *       \f[
-   *            u_k = h_k  
-   *       \f]
-   *
-   * The entropy for the phase is given by the following relation, which is
-   * independent of the pressure:
-   *
-   *       \f[
-   *            s_k(T,P) = s^o_k(T) - R \log(\theta_k)     
-   *       \f]
-   *
-   * <b> Application within %Kinetics Managers </b>
-   *
-   * The activity concentration,\f$  C^a_k \f$, used by the kinetics manager, is equal to 
-   * the actual concentration, \f$ C^s_k \f$, and is given by the following
-   * expression.
-   *       \f[
-   *            C^a_k = C^s_k = \frac{\theta_k  n_0}{s_k}      
-   *       \f]
-   *
-   * The standard concentration for species <I>k</I> is: 
-   *        \f[
-   *            C^0_k = \frac{n_0}{s_k}      
-   *        \f]
-   *
-   * <b> Instantiation of the Class </b>
-   *
-   * The constructor for this phase is located in the default ThermoFactory
-   * for Cantera. A new SurfPhase may be created by the following code snippet:
-   *
-   * @code
-   *    XML_Node *xc = get_XML_File("diamond.xml"); 
-   *    XML_Node * const xs = xc->findNameID("phase", "diamond_100");
-   *    ThermoPhase *diamond100TP_tp = newPhase(*xs);
-   *    SurfPhase *diamond100TP = dynamic_cast <SurfPhase *>(diamond100TP_tp);
-   * @endcode
-   *
-   * or by the following constructor:
-   *
-   * @code
-   *    XML_Node *xc = get_XML_File("diamond.xml"); 
-   *    XML_Node * const xs = xc->findNameID("phase", "diamond_100");
-   *    SurfPhase *diamond100TP = new SurfPhase(*xs);
-   * @endcode
-   *
-   *   <b> XML Example </b>
-   *
-   *   An example of an XML Element named phase setting up a SurfPhase object named diamond_100
-   *   is given below.
-   *
-   *  @verbatim
-   * <phase dim="2" id="diamond_100">
-   *    <elementArray datasrc="elements.xml">H C</elementArray>
-   *    <speciesArray datasrc="#species_data">c6HH c6H* c6*H c6** c6HM c6HM* c6*M c6B </speciesArray>
-   *    <reactionArray datasrc="#reaction_data"/>
-   *    <state>
-   *       <temperature units="K">1200.0</temperature>
-   *       <coverages>c6H*:0.1, c6HH:0.9</coverages>
-   *    </state>
-   *    <thermo model="Surface">
-   *       <site_density units="mol/cm2">3e-09</site_density>
-   *    </thermo>
-   *    <kinetics model="Interface"/>
-   *    <transport model="None"/>
-   *    <phaseArray> 
-   *         gas_phase diamond_bulk 
-   *    </phaseArray>
-   * </phase>
-   *
-   *  @endverbatim
-   *
-   * The model attribute, "Surface", on the thermo element identifies the phase as being
-   * a SurfPhase object.
-   *
-   * @ingroup thermoprops
-   */
-  class SurfPhase : public ThermoPhase  {
-      
-  public:
+namespace Cantera
+{
+
+//!  A simple thermoydnamics model for a surface phase,
+//!  assuming an ideal solution model.
+/*!
+ * The surface consists of a grid of equivalent sites.
+ * Surface species may be defined to
+ * occupy one or more sites. The surface species are assumed to be
+ * independent, and thus the species form an ideal solution.
+ *
+ * The density of surface sites is given by the variable \f$ n_0 \f$,
+ * which has SI units of kmol m-2.
+ *
+ * <b> Specification of Species Standard State Properties </b>
+ *
+ *  It is assumed that the reference state thermodynamics may be
+ *  obtained by a pointer to a populated species thermodynamic property
+ *  manager class (see ThermoPhase::m_spthermo). How to relate pressure
+ *  changes to the reference state thermodynamics is resolved at this level.
+ *
+ *  Pressure is defined as an independent variable in this phase. However, it has
+ *  no effect on any quantities, as the molar concentration is a constant.
+ *
+ * Therefore, The standard state internal energy for species  <I>k</I> is
+ * equal to the enthalpy for species <I>k</I>.
+ *
+ *       \f[
+ *            u^o_k = h^o_k
+ *       \f]
+ *
+ *   Also, the standard state chemical potentials, entropy, and heat capacities
+ *   are independent of pressure. The standard state gibbs free energy is obtained
+ * from the enthalpy and entropy functions.
+ *
+ * <b> Specification of Solution Thermodynamic Properties </b>
+ *
+ * The activity of species defined in the phase is given by
+ *       \f[
+ *            a_k = \theta_k
+ *       \f]
+ *
+ * The chemical potential for species <I>k</I> is equal to
+ *       \f[
+ *            \mu_k(T,P) = \mu^o_k(T) + R T \log(\theta_k)
+ *       \f]
+ *
+ * Pressure is defined as an independent variable in this phase. However, it has
+ * no effect on any quantities, as the molar concentration is a constant.
+ *
+ * The internal energy for species k is equal to the enthalpy for species <I>k</I>
+ *       \f[
+ *            u_k = h_k
+ *       \f]
+ *
+ * The entropy for the phase is given by the following relation, which is
+ * independent of the pressure:
+ *
+ *       \f[
+ *            s_k(T,P) = s^o_k(T) - R \log(\theta_k)
+ *       \f]
+ *
+ * <b> Application within %Kinetics Managers </b>
+ *
+ * The activity concentration,\f$  C^a_k \f$, used by the kinetics manager, is equal to
+ * the actual concentration, \f$ C^s_k \f$, and is given by the following
+ * expression.
+ *       \f[
+ *            C^a_k = C^s_k = \frac{\theta_k  n_0}{s_k}
+ *       \f]
+ *
+ * The standard concentration for species <I>k</I> is:
+ *        \f[
+ *            C^0_k = \frac{n_0}{s_k}
+ *        \f]
+ *
+ * <b> Instantiation of the Class </b>
+ *
+ * The constructor for this phase is located in the default ThermoFactory
+ * for Cantera. A new SurfPhase may be created by the following code snippet:
+ *
+ * @code
+ *    XML_Node *xc = get_XML_File("diamond.xml");
+ *    XML_Node * const xs = xc->findNameID("phase", "diamond_100");
+ *    ThermoPhase *diamond100TP_tp = newPhase(*xs);
+ *    SurfPhase *diamond100TP = dynamic_cast <SurfPhase *>(diamond100TP_tp);
+ * @endcode
+ *
+ * or by the following constructor:
+ *
+ * @code
+ *    XML_Node *xc = get_XML_File("diamond.xml");
+ *    XML_Node * const xs = xc->findNameID("phase", "diamond_100");
+ *    SurfPhase *diamond100TP = new SurfPhase(*xs);
+ * @endcode
+ *
+ *   <b> XML Example </b>
+ *
+ *   An example of an XML Element named phase setting up a SurfPhase object named diamond_100
+ *   is given below.
+ *
+ *  @verbatim
+ * <phase dim="2" id="diamond_100">
+ *    <elementArray datasrc="elements.xml">H C</elementArray>
+ *    <speciesArray datasrc="#species_data">c6HH c6H* c6*H c6** c6HM c6HM* c6*M c6B </speciesArray>
+ *    <reactionArray datasrc="#reaction_data"/>
+ *    <state>
+ *       <temperature units="K">1200.0</temperature>
+ *       <coverages>c6H*:0.1, c6HH:0.9</coverages>
+ *    </state>
+ *    <thermo model="Surface">
+ *       <site_density units="mol/cm2">3e-09</site_density>
+ *    </thermo>
+ *    <kinetics model="Interface"/>
+ *    <transport model="None"/>
+ *    <phaseArray>
+ *         gas_phase diamond_bulk
+ *    </phaseArray>
+ * </phase>
+ *
+ *  @endverbatim
+ *
+ * The model attribute, "Surface", on the thermo element identifies the phase as being
+ * a SurfPhase object.
+ *
+ * @ingroup thermoprops
+ */
+class SurfPhase : public ThermoPhase
+{
+
+public:
 
     //! Constructor.
     /*!
@@ -151,7 +153,7 @@ namespace Cantera {
      */
     SurfPhase(doublereal n0 = 0.0);
 
-    //! Construct and initialize a SurfPhase ThermoPhase object 
+    //! Construct and initialize a SurfPhase ThermoPhase object
     //! directly from an asci input file
     /*!
      * @param infile name of the input file
@@ -160,13 +162,13 @@ namespace Cantera {
      */
     SurfPhase(std::string infile, std::string id);
 
-    //! Construct and initialize a SurfPhase ThermoPhase object 
+    //! Construct and initialize a SurfPhase ThermoPhase object
     //! directly from an XML database
     /*!
      *  @param xmlphase XML node pointing to a SurfPhase description
      */
     SurfPhase(XML_Node& xmlphase);
-    
+
     //! Copy Constructor
     /*!
      * Copy constructor for the object. Constructed
@@ -176,7 +178,7 @@ namespace Cantera {
      *
      * @param right Object to be copied.
      */
-    SurfPhase(const SurfPhase &right);
+    SurfPhase(const SurfPhase& right);
 
     //! Asignment operator
     /*!
@@ -186,7 +188,7 @@ namespace Cantera {
      *
      * @param right Object to be copied.
      */
-    SurfPhase& operator=(const SurfPhase &right);
+    SurfPhase& operator=(const SurfPhase& right);
 
     //! Destructor.
     virtual ~SurfPhase();
@@ -199,7 +201,7 @@ namespace Cantera {
      *
      * @return returns a pointer to a %ThermoPhase
      */
-    ThermoPhase *duplMyselfAsThermoPhase() const;
+    ThermoPhase* duplMyselfAsThermoPhase() const;
 
     //----- reimplimented methods of class ThermoPhase ------
 
@@ -207,7 +209,9 @@ namespace Cantera {
     /*!
      *  Redefine this to return cSurf, listed in mix_defs.h.
      */
-    virtual int eosType() const { return cSurf; }
+    virtual int eosType() const {
+        return cSurf;
+    }
 
     //! Return the Molar Enthalpy. Units: J/kmol.
     /*!
@@ -216,8 +220,8 @@ namespace Cantera {
      * \hat h(T,P) = \sum_k X_k \hat h^0_k(T),
      * \f]
      * and is a function only of temperature.
-     * The standard-state pure-species Enthalpies 
-     * \f$ \hat h^0_k(T) \f$ are computed by the species thermodynamic 
+     * The standard-state pure-species Enthalpies
+     * \f$ \hat h^0_k(T) \f$ are computed by the species thermodynamic
      * property manager.
      *
      * \see SpeciesThermo
@@ -234,11 +238,11 @@ namespace Cantera {
 
     //! Get the species chemical potentials. Units: J/kmol.
     /*!
-     * This function returns a vector of chemical potentials of the 
+     * This function returns a vector of chemical potentials of the
      * species in solution at the current temperature, pressure
      * and mole fraction of the solution.
      *
-     * @param mu  Output vector of species chemical 
+     * @param mu  Output vector of species chemical
      *            potentials. Length: m_kk. Units: J/kmol
      */
     virtual void getChemPotentials(doublereal* mu) const;
@@ -259,7 +263,7 @@ namespace Cantera {
      */
     virtual void getPartialMolarEntropies(doublereal* sbar) const;
 
- 
+
 
     //! Return an array of partial molar heat capacities for the
     //! species in the mixture.  Units: J/kmol/K
@@ -285,7 +289,7 @@ namespace Cantera {
      * \f$. The values are evaluated at the current
      * temperature and pressure of the solution
      *
-     * @param mu0  Output vector of chemical potentials. 
+     * @param mu0  Output vector of chemical potentials.
      *             Length: m_kk.
      */
     virtual void getStandardChemPotentials(doublereal* mu0) const;
@@ -296,10 +300,10 @@ namespace Cantera {
     /*!
      *  For this phase the activity concentrations,\f$ C^a_k \f$,  are defined to be
      *  equal to the actual concentrations, \f$ C^s_k \f$.
-     *  Activity concentrations are 
+     *  Activity concentrations are
      *
      *      \f[
-     *            C^a_k = C^s_k = \frac{\theta_k  n_0}{s_k}    
+     *            C^a_k = C^s_k = \frac{\theta_k  n_0}{s_k}
      *      \f]
      *
      *  where \f$ \theta_k \f$ is the surface site fraction for species k,
@@ -327,18 +331,18 @@ namespace Cantera {
      * specific
      *
      *        \f[
-     *            C^0_k = \frac{n_0}{s_k}      
+     *            C^0_k = \frac{n_0}{s_k}
      *        \f]
      *
      *  This definition implies that the activity is equal to \f$ \theta_k \f$.
      *
      * @param k Optional parameter indicating the species. The default
      *          is to assume this refers to species 0.
-     * @return 
+     * @return
      *   Returns the standard Concentration in units of m3 kmol-1.
      */
     virtual doublereal standardConcentration(size_t k = 0) const;
-  
+
     //! Return the log of the standard concentration for the kth species
     /*!
      * @param k species index (default 0)
@@ -379,7 +383,7 @@ namespace Cantera {
      */
     virtual void setParametersFromXML(const XML_Node& thermoData);
 
-   
+
     //! Initialize the SurfPhase object after all species have been set up
     /*!
      * @internal Initialize.
@@ -422,7 +426,9 @@ namespace Cantera {
     /*!
      * Site density kmol m-2
      */
-    doublereal siteDensity(){ return m_n0; }
+    doublereal siteDensity() {
+        return m_n0;
+    }
 
     //! Sets the potential energy of species k.
     /*!
@@ -439,7 +445,9 @@ namespace Cantera {
      *
      * @param k  Species index
      */
-    doublereal potentialEnergy(int k) {return m_pe[k];}
+    doublereal potentialEnergy(int k) {
+        return m_pe[k];
+    }
 
     //! Set the site density of the surface phase (kmol m-2)
     /*!
@@ -488,7 +496,7 @@ namespace Cantera {
      * @param vol     Output vector containing the standard state volumes.
      *                Length: m_kk.
      */
-    virtual void getStandardVolumes(doublereal *vol) const;
+    virtual void getStandardVolumes(doublereal* vol) const;
 
     //! Return the thermodynamic pressure (Pa).
     /*!
@@ -499,7 +507,7 @@ namespace Cantera {
      *  Y_K) \f$.
      */
     virtual doublereal pressure() const {
-      return m_press;
+        return m_press;
     }
 
     //! Set the internally storred pressure (Pa) at constant
@@ -516,17 +524,17 @@ namespace Cantera {
      *  @param p input Pressure (Pa)
      */
     virtual void setPressure(doublereal p) {
-      m_press = p;
+        m_press = p;
     }
 
     //!  Returns the vector of nondimensional
     //!  Gibbs Free Energies of the reference state at the current temperature
     //!  of the solution and the reference pressure for the species.
     /*!
-     * @param grt     Output vector containing the nondimensional reference state 
+     * @param grt     Output vector containing the nondimensional reference state
      *                Gibbs Free energies.  Length: m_kk.
      */
-    virtual void getGibbs_RT_ref(doublereal *grt) const;
+    virtual void getGibbs_RT_ref(doublereal* grt) const;
 
     //!  Returns the vector of nondimensional
     //!  enthalpies of the reference state at the current temperature
@@ -538,18 +546,18 @@ namespace Cantera {
     virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
 
 #ifdef H298MODIFY_CAPABILITY
-  
+
     //! Modify the value of the 298 K Heat of Formation of one species in the phase (J kmol-1)
     /*!
      *   The 298K heat of formation is defined as the enthalpy change to create the standard state
      *   of the species from its constituent elements in their standard states at 298 K and 1 bar.
      *
      *   @param  k           Species k
-     *   @param  Hf298New    Specify the new value of the Heat of Formation at 298K and 1 bar                      
+     *   @param  Hf298New    Specify the new value of the Heat of Formation at 298K and 1 bar
      */
     virtual void modifyOneHf298SS(const int k, const doublereal Hf298New) {
-      m_spthermo->modifyOneHf298(k, Hf298New);
-      m_tlast += 0.0001234;
+        m_spthermo->modifyOneHf298(k, Hf298New);
+        m_tlast += 0.0001234;
     }
 #endif
 
@@ -557,10 +565,10 @@ namespace Cantera {
     //!  entropies of the reference state at the current temperature
     //!  of the solution and the reference pressure for each species.
     /*!
-     * @param er      Output vector containing the nondimensional reference state 
+     * @param er      Output vector containing the nondimensional reference state
      *                entropies.  Length: m_kk.
      */
-    virtual void getEntropy_R_ref(doublereal *er) const;
+    virtual void getEntropy_R_ref(doublereal* er) const;
 
     //!  Returns the vector of nondimensional
     //!  constant pressure heat capacities of the reference state
@@ -571,12 +579,12 @@ namespace Cantera {
      *               heat capacities at constant pressure for the species.
      *               Length: m_kk
      */
-    virtual void getCp_R_ref(doublereal *cprt) const;
+    virtual void getCp_R_ref(doublereal* cprt) const;
 
 
     //------- new methods defined in this class ----------
-    
-    //! Set the surface site fractions to a specified state. 
+
+    //! Set the surface site fractions to a specified state.
     /*!
      * This routine converts to concentrations
      * in kmol/m2, using m_n0, the surface site density,
@@ -588,12 +596,12 @@ namespace Cantera {
      * @param theta    This is the surface site fraction
      *                 for the kth species in the surface phase.
      *                 This is a dimensionless quantity.
-     * 
+     *
      * This routine normalizes the theta's to 1, before application
      */
     void setCoverages(const doublereal* theta);
-    
-    //! Set the surface site fractions to a specified state. 
+
+    //! Set the surface site fractions to a specified state.
     /*!
      * This routine converts to concentrations
      * in kmol/m2, using m_n0, the surface site density,
@@ -608,7 +616,7 @@ namespace Cantera {
      */
     void setCoveragesNoNorm(const doublereal* theta);
 
-    
+
     //! Set the coverages from a string of colon-separated  name:value pairs.
     /*!
      *  @param cov  String containing colon-separated  name:value pairs
@@ -624,7 +632,7 @@ namespace Cantera {
      */
     void getCoverages(doublereal* theta) const;
 
-  protected:
+protected:
 
     //! Surface site density (kmol m-2)
     doublereal m_n0;
@@ -685,7 +693,7 @@ namespace Cantera {
      */
     mutable array_fp      m_logsize;
 
-  private:
+private:
 
     //! Update the species reference state thermodynamic functions
     /*!
@@ -698,9 +706,9 @@ namespace Cantera {
      */
     void _updateThermo(bool force=false) const;
 
-  };
+};
 }
-        
+
 #endif
 
 

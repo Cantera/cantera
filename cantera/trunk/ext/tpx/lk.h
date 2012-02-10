@@ -3,61 +3,62 @@
 
 #include "Sub.h"
 
-namespace tpx {
+namespace tpx
+{
 
-    class leekesler : public Substance{
+class leekesler : public Substance
+{
 
-    public:
+public:
 
-	leekesler(double tc = 1.0, double pc = 1.0, 
-            double wt = 1.0, int itype = 0)
-	{
-		Tcr = tc;
-		Pcr = pc;
-		Mw = wt;
-		Isr = itype;   // simple fluid or reference 
-                m_name = "Lee-Kesler";
-                m_formula = "---";
-	}
-	~leekesler() {}
+    leekesler(double tc = 1.0, double pc = 1.0,
+              double wt = 1.0, int itype = 0) {
+        Tcr = tc;
+        Pcr = pc;
+        Mw = wt;
+        Isr = itype;   // simple fluid or reference
+        m_name = "Lee-Kesler";
+        m_formula = "---";
+    }
+    ~leekesler() {}
 
-	double MolWt();
-	double Tcrit();
-        double Pcrit();
-	double Vcrit();
-	double Tmin();
-	double Tmax();
-	char * name();
-	char * formula();
-	
-	double Pp();
-	double up();
-	double sp();
-	double Psat();
-        double dPsatdT(); 
+    double MolWt();
+    double Tcrit();
+    double Pcrit();
+    double Vcrit();
+    double Tmin();
+    double Tmax();
+    char* name();
+    char* formula();
 
-        // compressibility 
-	double z();
+    double Pp();
+    double up();
+    double sp();
+    double Psat();
+    double dPsatdT();
 
-        // enthalpy departure
-	double hdep();
+    // compressibility
+    double z();
 
-        // entropy departure 
-	double sdep();
+    // enthalpy departure
+    double hdep();
 
-	double ldens();
+    // entropy departure
+    double sdep();
 
-    protected:
+    double ldens();
 
-	double Tcr, Pcr, Mw;
-	int Isr;
+protected:
 
-    private:
+    double Tcr, Pcr, Mw;
+    int Isr;
 
-	double W(int n, double egrho, double gamma);
-	double I();
-	double J();
-    };
+private:
+
+    double W(int n, double egrho, double gamma);
+    double I();
+    double J();
+};
 }
 
 #endif // ! TPX_LK_H

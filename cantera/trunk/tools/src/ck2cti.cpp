@@ -14,21 +14,21 @@
  *
  * @param input Chemkin-II reaction mechanism file to be converted. Required.
  *
- * @param thermo Thermodynamic property database. If the THERMO section of the 
+ * @param thermo Thermodynamic property database. If the THERMO section of the
  * input file is missing or does not have entries for one or more species,
- * this file will be searched for the required thermo data. This file may 
+ * this file will be searched for the required thermo data. This file may
  * be another reaction mechanism file containing a THERMO section, or
  * a Chemkin-II-compatible thermodynamic database file.
  *
  * @param transport Transport property database. If this file name is supplied,
- * transport property parameters will be taken from this file and 
- * included in the output Cantera-format file. If this parameter is omitted, 
+ * transport property parameters will be taken from this file and
+ * included in the output Cantera-format file. If this parameter is omitted,
  * no transport property parameters will be included in the output.
  *
- * @param id idtag. The ideal_gas entry in the Cantera-format output 
+ * @param id idtag. The ideal_gas entry in the Cantera-format output
  * has name \i idtag. If this parameter is omitted, it will be set to the
  * input file name without the extension. Since only one phase definition
- * is present in the ck2cti output, this parameter is not required.  
+ * is present in the ck2cti output, this parameter is not required.
  */
 #include <iostream>
 #include <string>
@@ -40,7 +40,8 @@ using namespace std;
 
 using namespace Cantera;
 
-int showHelp() {
+int showHelp()
+{
     cout << "\nck2cti: convert a CK-format reaction mechanism file to Cantera input format.\n"
          << "\n   D. G. Goodwin, Caltech \n"
          << "   Version 1.0, August 2003.\n\n"
@@ -56,22 +57,23 @@ int showHelp() {
     return 0;
 }
 
-string getp(int& i, int argc, char** args) {
+string getp(int& i, int argc, char** args)
+{
     string a="--";
     if (i < argc-1) {
         a = string(args[i+1]);
     }
     if (a[0] == '-') {
         a = "<missing>";
-    }
-    else {
+    } else {
         i += 1;
     }
     return a;
 }
 
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv)
+{
 #ifdef _MSC_VER
     _set_output_format(_TWO_DIGIT_EXPONENT);
 #endif
@@ -80,45 +82,40 @@ int main(int argc, char** argv) {
     bool debug = false;
     bool validate = false;
     int i=1;
-    if (argc == 1) return showHelp();
- 
+    if (argc == 1) {
+        return showHelp();
+    }
+
     while (i < argc) {
         string arg = string(argv[i]);
         if (arg == "-i") {
             infile = getp(i,argc,argv);
-        }
-        else if (arg == "-t") {
+        } else if (arg == "-t") {
             dbfile = getp(i,argc,argv);;
-        }
-        else if (arg == "-tr") {
+        } else if (arg == "-tr") {
             trfile = getp(i,argc,argv);
-        }
-        else if (arg == "-id") {
+        } else if (arg == "-id") {
             idtag = getp(i,argc,argv);
-        }
-        else if (arg == "-d") {
+        } else if (arg == "-d") {
             debug = true;
             cout << "### DEBUG MODE ###" << endl;
-        }
-        else if (arg == "-v") {
+        } else if (arg == "-v") {
             validate = true;
             cout << "### VALIDATION ENABLED ###" << endl;
-        }
-        else if (arg == "-h" || argc < 3) {
-            return showHelp(); 
-        }
-        else {
+        } else if (arg == "-h" || argc < 3) {
+            return showHelp();
+        } else {
             cout << "unknown option:" << arg << endl;
             exit(-1);
         }
         ++i;
     }
 
-    int ierr = pip::convert_ck(infile.c_str(), dbfile.c_str(), trfile.c_str(), 
-        idtag.c_str(), debug, validate);
+    int ierr = pip::convert_ck(infile.c_str(), dbfile.c_str(), trfile.c_str(),
+                               idtag.c_str(), debug, validate);
 
     if (ierr < 0) {
-		showErrors(std::cerr);
+        showErrors(std::cerr);
     }
     return ierr;
 }

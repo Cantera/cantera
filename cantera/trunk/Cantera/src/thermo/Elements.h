@@ -1,6 +1,6 @@
 /**
- *  @file Elements.h 
- *  Header file for class, Elements, which contains the elements that 
+ *  @file Elements.h
+ *  Header file for class, Elements, which contains the elements that
  *  make up species (see \ref phases and \link Cantera::Elements Elements\endlink).
  *
  *  This file contains the declarations for the elements class.
@@ -15,100 +15,102 @@
 #include "ct_defs.h"
 
 
-namespace Cantera {
+namespace Cantera
+{
 
-  class XML_Node;
-  class ElementRangeError;
+class XML_Node;
+class ElementRangeError;
 
- /*!
-   *  @name Types of Element Constraint Equations
-   * 
-   *   There may be several different types of element constraints handled
-   *   by the equilibrium program and by Cantera in other contexts.  
-   *   These defines are used to assign each constraint to one category.
-   *   @{
-   */
+/*!
+  *  @name Types of Element Constraint Equations
+  *
+  *   There may be several different types of element constraints handled
+  *   by the equilibrium program and by Cantera in other contexts.
+  *   These defines are used to assign each constraint to one category.
+  *   @{
+  */
 
-  //! An element constraint that is current turned off
+//! An element constraint that is current turned off
 #define CT_ELEM_TYPE_TURNEDOFF       -1
 
-  //! Normal element constraint consisting of positive coefficients for the
-  //! formula matrix.
-  /*!
-   * All species have positive coefficients within the formula matrix.
-   * With this constraint, we may employ various strategies to handle 
-   * small values of the element number successfully.
-   */
+//! Normal element constraint consisting of positive coefficients for the
+//! formula matrix.
+/*!
+ * All species have positive coefficients within the formula matrix.
+ * With this constraint, we may employ various strategies to handle
+ * small values of the element number successfully.
+ */
 #define CT_ELEM_TYPE_ABSPOS           0
 
-  //! This refers to conservation of electrons
-  /*!
-   * Electrons may have positive or negative values in the Formula matrix.
-   */
+//! This refers to conservation of electrons
+/*!
+ * Electrons may have positive or negative values in the Formula matrix.
+ */
 #define CT_ELEM_TYPE_ELECTRONCHARGE   1
 
-  //! This refers to a charge neutrality of a single phase
-  /*!
-   * Charge neutrality may have positive or negative values in the Formula matrix.
-   */
+//! This refers to a charge neutrality of a single phase
+/*!
+ * Charge neutrality may have positive or negative values in the Formula matrix.
+ */
 #define CT_ELEM_TYPE_CHARGENEUTRALITY 2
 
-  //! Constraint associated with maintaing a fixed lattice stoichiometry in a solid
-  /*!
-   * The constraint may have positive or negative values. The lattice 0 species will
-   * have negative values while higher lattices will have positive values
-   */
+//! Constraint associated with maintaing a fixed lattice stoichiometry in a solid
+/*!
+ * The constraint may have positive or negative values. The lattice 0 species will
+ * have negative values while higher lattices will have positive values
+ */
 #define CT_ELEM_TYPE_LATTICERATIO 3
 
-  //! Constraint associated with maintaining frozen kinetic equilibria in
-  //! some functional groups within molecules
-  /*!
-   *  We seek here to say that some functional groups or ionic states should be
-   *  treated as if they are separate elements given the time scale of the problem.
-   *  This will be abs positive constraint. We have not implemented any examples yet.
-   *  A requirement will be that we must be able to add and subtract these contraints.
-   */
+//! Constraint associated with maintaining frozen kinetic equilibria in
+//! some functional groups within molecules
+/*!
+ *  We seek here to say that some functional groups or ionic states should be
+ *  treated as if they are separate elements given the time scale of the problem.
+ *  This will be abs positive constraint. We have not implemented any examples yet.
+ *  A requirement will be that we must be able to add and subtract these contraints.
+ */
 #define CT_ELEM_TYPE_KINETICFROZEN 4
 
-  //! Constraint associated with the maintenance of a surface phase
-  /*!
-   *  We don't have any examples of this yet either. However, surfaces only exist
-   *  because they are interfaces between bulk layers. If we want to treat surfaces 
-   *  within thermodynamic systems we must come up with a way to constrain their total
-   *  number. 
-   */
+//! Constraint associated with the maintenance of a surface phase
+/*!
+ *  We don't have any examples of this yet either. However, surfaces only exist
+ *  because they are interfaces between bulk layers. If we want to treat surfaces
+ *  within thermodynamic systems we must come up with a way to constrain their total
+ *  number.
+ */
 #define CT_ELEM_TYPE_SURFACECONSTRAINT 5
 
-  //! Other constraint equations
-  /*!
-   * currently there are none
-   */
+//! Other constraint equations
+/*!
+ * currently there are none
+ */
 #define CT_ELEM_TYPE_OTHERCONSTRAINT  6
-  //@}
+//@}
 
 
-  //! Positive number indicating we don't know the gibbs free energy 
-  //! of the element in its most stable state at 298.15 K and 1 bar.
-  //#define GIBSSFE298_UNKNOWN 123456789.
+//! Positive number indicating we don't know the gibbs free energy
+//! of the element in its most stable state at 298.15 K and 1 bar.
+//#define GIBSSFE298_UNKNOWN 123456789.
 #define ENTROPY298_UNKNOWN -123456789.
 
-  //! Object containing the elements that make up species in a phase.
-  /*!
-   * Class %Elements manages the elements that are part of a
-   * chemistry specification.  This class may support calculations
-   * employing Multiple phases. In this case, a single Elements object may
-   * be shared by more than one Constituents class. Reactions between
-   * the phases may then be described using stoichiometry base on the
-   * same Elements class object.
-   * 
-   * The member functions return information about the elements described
-   * in a particular instantiation of the class.
-   * 
-   * @ingroup phases
-   */
-  class Elements {
+//! Object containing the elements that make up species in a phase.
+/*!
+ * Class %Elements manages the elements that are part of a
+ * chemistry specification.  This class may support calculations
+ * employing Multiple phases. In this case, a single Elements object may
+ * be shared by more than one Constituents class. Reactions between
+ * the phases may then be described using stoichiometry base on the
+ * same Elements class object.
+ *
+ * The member functions return information about the elements described
+ * in a particular instantiation of the class.
+ *
+ * @ingroup phases
+ */
+class Elements
+{
 
-  public:
+public:
 
     //! Default constructor for the elements class
     Elements();
@@ -129,7 +131,7 @@ namespace Cantera {
     //! Assigntment operator
     /*!
      *   This is the assignment operator for the Elements class.
-     *   Right now we pretty much do a straight uncomplicated 
+     *   Right now we pretty much do a straight uncomplicated
      *   assignment. However, subscribers are not mucked with, as they
      *   have to do with the address of the object to be subscribed to
      *
@@ -138,13 +140,13 @@ namespace Cantera {
     Elements& operator=(const Elements& right);
 
 
-    //!  Static function to look up an atomic weight 
+    //!  Static function to look up an atomic weight
     /*!
      *   This static function looks up the argument string in the
      *   database above and returns the associated molecular weight.
      *   The data are from the periodic table.
      *
-     *  Note: The idea behind this function is to provide a unified 
+     *  Note: The idea behind this function is to provide a unified
      *        source for the element atomic weights. This helps to
      *        ensure that mass is conserved.
      *
@@ -155,22 +157,26 @@ namespace Cantera {
      *    If a match for the string is not found, a value of -1.0 is
      *    returned.
      *
-     *  @exception CanteraError 
-     *    If a match is not found, a CanteraError is thrown as well  
+     *  @exception CanteraError
+     *    If a match is not found, a CanteraError is thrown as well
      */
-    static double LookupWtElements(const std::string &ename);
+    static double LookupWtElements(const std::string& ename);
 
     /// Atomic weight of element m.
     /*!
      *  @param m element index
      */
-    doublereal atomicWeight(size_t m) const { return m_atomicWeights[m]; }
+    doublereal atomicWeight(size_t m) const {
+        return m_atomicWeights[m];
+    }
 
     /// Atomic number of element m.
     /*!
      *  @param m element index
      */
-    int atomicNumber(size_t m) const { return m_atomicNumbers[m]; }
+    int atomicNumber(size_t m) const {
+        return m_atomicNumbers[m];
+    }
 
     //! Entropy at 298.15 K and 1 bar of stable state
     //! of the element
@@ -193,35 +199,39 @@ namespace Cantera {
      * CT_ELEM_TYPE_SURFACECONSTRAINT 5
      * CT_ELEM_TYPE_OTHERCONSTRAINT  6
      *
-     * The default is  CT_ELEM_TYPE_ABSPOS  
+     * The default is  CT_ELEM_TYPE_ABSPOS
      *
      *  @param m  Element index
-     * 
+     *
      *  @return Returns the element type
      */
     int elementType(int m) const;
 
     //! Change the element type of the mth constraint
-    /*! 
+    /*!
      *  Reassigns an element type
      *
      *  @param m  Element index
-     *  @param elem_type New elem type to be assigned 
-     * 
+     *  @param elem_type New elem type to be assigned
+     *
      *  @return Returns the old element type
      */
     int changeElementType(int m, int elem_type);
 
     /// vector of element atomic weights
-    const vector_fp& atomicWeights() const { return m_atomicWeights; }
+    const vector_fp& atomicWeights() const {
+        return m_atomicWeights;
+    }
 
-    /** 
+    /**
      * Inline function that returns the number of elements in the object.
-     * 
-     *  @return 
+     *
+     *  @return
      *    \c int: The number of elements in the object.
      */
-    size_t nElements() const { return m_mm; }
+    size_t nElements() const {
+        return m_mm;
+    }
 
     //! Function that returns the index of an element.
     /*!
@@ -234,21 +244,21 @@ namespace Cantera {
      * @param name String containing the index.
      */
     size_t elementIndex(std::string name) const;
-      
-    //! Name of the element with index \c m. 
+
+    //! Name of the element with index \c m.
     /*!
      * @param m Element index. If m < 0 or m >= nElements() an exception is thrown.
      */
     std::string elementName(size_t m) const;
-      
-    //!   Returns a string vector containing the element names  
+
+    //!   Returns a string vector containing the element names
     /*!
      * Returns a read-only reference to the vector of element names.
      * @return <tt> const vector<string>& </tt>: The vector contains
      *         the element names in their indexed order.
      */
     const std::vector<std::string>& elementNames() const {
-      return m_elementNames;
+        return m_elementNames;
     }
 
     //! Add an element to the current set of elements in the current object.
@@ -264,8 +274,8 @@ namespace Cantera {
      * @param weight Atomic weight of the element. If no argument
      *               is provided, a lookup is attempted.
      */
-    void addElement(const std::string& symbol, 
-		    doublereal weight = -12345.0);
+    void addElement(const std::string& symbol,
+                    doublereal weight = -12345.0);
 
     //! Add an element to the current set of elements in the current object.
     /*!
@@ -288,12 +298,12 @@ namespace Cantera {
      *                    The default is to specify an ENTROPY298_UNKNOWN value,
      *                    which will cause a throw error if its ever
      *                    needed.
-     *  @param elem_type  New elem type to be assigned. 
+     *  @param elem_type  New elem type to be assigned.
      *                    The default is a regular element, CT_ELEM_TYPE_ABSPOS
      */
-    void addUniqueElement(const std::string& symbol, 
-			  doublereal weight = -12345.0, int atomicNumber = 0,
-			  doublereal entropy298 = ENTROPY298_UNKNOWN, int elem_type = CT_ELEM_TYPE_ABSPOS);
+    void addUniqueElement(const std::string& symbol,
+                          doublereal weight = -12345.0, int atomicNumber = 0,
+                          doublereal entropy298 = ENTROPY298_UNKNOWN, int elem_type = CT_ELEM_TYPE_ABSPOS);
 
     //! Add an element to the current set of elements in the current object.
     /*!
@@ -302,16 +312,16 @@ namespace Cantera {
      *              is used as the atomic weight.
      */
     void addUniqueElement(const XML_Node& e);
-      
+
     //! Add multiple elements from a XML_Node phase description
     /*!
      *  @param phase XML_Node reference to a phase
      */
     void addElementsFromXML(const XML_Node& phase);
-      
+
     //! Prohibit addition of more elements, and prepare to add species.
     void freezeElements();
-    
+
     //! True if freezeElements has been called.
     bool elementsFrozen() const;
 
@@ -321,7 +331,7 @@ namespace Cantera {
     /// True if both elements and species have been frozen
     bool ready() const;
 
-     
+
     //! subscribe to this object
     /*!
      *  Increment by one the number of subscriptions to this object.
@@ -337,8 +347,8 @@ namespace Cantera {
     //! report the number of subscriptions
     int reportSubscriptions() const;
 
-  protected:
-    
+protected:
+
     /******************************************************************/
     /*      Description of DATA in the Object                         */
     /******************************************************************/
@@ -366,9 +376,9 @@ namespace Cantera {
      *
      */
     vector_int                      m_atomicNumbers;
-	
+
     /** Vector of strings containing the names of the elements
-     *        
+     *
      *  Note, a string search is the primary way to identify elements.
      */
     std::vector<std::string>                 m_elementNames;
@@ -393,16 +403,16 @@ namespace Cantera {
     int                            numSubscribers;
 
     /********* GLOBAL STATIC SECTION *************/
-  
-  public:
+
+public:
     /** Vector of pointers to Elements Objects
      *
      */
-    static std::vector<Elements *> Global_Elements_List;
+    static std::vector<Elements*> Global_Elements_List;
 
     friend class Constituents;
-  };  
-    
+};
+
 }  // namespace
 
 #endif

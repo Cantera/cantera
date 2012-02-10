@@ -6,7 +6,7 @@
 
 #include "clib_defs.h"
 
-extern "C" {  
+extern "C" {
 
     EEXXTT int DLL_CPREFIX reactor_new(int type);
     EEXXTT int DLL_CPREFIX reactor_del(int i);
@@ -58,24 +58,24 @@ extern "C" {
     EEXXTT int DLL_CPREFIX flowdev_setFunction(int i, int n);
     EEXXTT int DLL_CPREFIX flowdev_ready(int i);
 
-     EEXXTT int DLL_CPREFIX wall_new(int type);
-     EEXXTT int DLL_CPREFIX wall_del(int i);
-     EEXXTT int DLL_CPREFIX wall_copy(int i);
-     EEXXTT int DLL_CPREFIX wall_assign(int i, int j);
-     EEXXTT int DLL_CPREFIX wall_install(int i, int n, int m);
-     EEXXTT int DLL_CPREFIX wall_setkinetics(int i, int n, int m);
-     EEXXTT double DLL_CPREFIX wall_vdot(int i, double t);
-     EEXXTT double DLL_CPREFIX wall_Q(int i, double t);
-     EEXXTT double DLL_CPREFIX wall_area(int i);
-     EEXXTT int DLL_CPREFIX wall_setArea(int i, double v);
-     EEXXTT int DLL_CPREFIX wall_setThermalResistance(int i, double rth);
-     EEXXTT int DLL_CPREFIX wall_setHeatTransferCoeff(int i, double u);
-     EEXXTT int DLL_CPREFIX wall_setHeatFlux(int i, int n);
-     EEXXTT int DLL_CPREFIX wall_setExpansionRateCoeff(int i, double k);
-     EEXXTT int DLL_CPREFIX wall_setVelocity(int i, int n);
-     EEXXTT int DLL_CPREFIX wall_setEmissivity(int i, double epsilon);
-     EEXXTT int DLL_CPREFIX wall_ready(int i);
-     EEXXTT int DLL_CPREFIX wall_addSensitivityReaction(int i, int lr, int rxn);
+    EEXXTT int DLL_CPREFIX wall_new(int type);
+    EEXXTT int DLL_CPREFIX wall_del(int i);
+    EEXXTT int DLL_CPREFIX wall_copy(int i);
+    EEXXTT int DLL_CPREFIX wall_assign(int i, int j);
+    EEXXTT int DLL_CPREFIX wall_install(int i, int n, int m);
+    EEXXTT int DLL_CPREFIX wall_setkinetics(int i, int n, int m);
+    EEXXTT double DLL_CPREFIX wall_vdot(int i, double t);
+    EEXXTT double DLL_CPREFIX wall_Q(int i, double t);
+    EEXXTT double DLL_CPREFIX wall_area(int i);
+    EEXXTT int DLL_CPREFIX wall_setArea(int i, double v);
+    EEXXTT int DLL_CPREFIX wall_setThermalResistance(int i, double rth);
+    EEXXTT int DLL_CPREFIX wall_setHeatTransferCoeff(int i, double u);
+    EEXXTT int DLL_CPREFIX wall_setHeatFlux(int i, int n);
+    EEXXTT int DLL_CPREFIX wall_setExpansionRateCoeff(int i, double k);
+    EEXXTT int DLL_CPREFIX wall_setVelocity(int i, int n);
+    EEXXTT int DLL_CPREFIX wall_setEmissivity(int i, double epsilon);
+    EEXXTT int DLL_CPREFIX wall_ready(int i);
+    EEXXTT int DLL_CPREFIX wall_addSensitivityReaction(int i, int lr, int rxn);
 
 }
 

@@ -27,8 +27,8 @@
 
 #ifndef _C16_NAME_DEF
 #  define _C16_NAME_DEF
-   typedef char    C16_NAME[16]; /* Character array used for fortran names */
-   typedef char    C16_NAME_STR[17];
+typedef char    C16_NAME[16]; /* Character array used for fortran names */
+typedef char    C16_NAME_STR[17];
 #endif
 /*****************************************************************************/
 /*
@@ -46,42 +46,42 @@ extern int MDP_MP_myproc;
 
 /* function declarations for dynamic array allocation */
 
-extern double *mdp_array_alloc(int numdim, ...);
-extern void    mdp_safe_free(void **);
+extern double* mdp_array_alloc(int numdim, ...);
+extern void    mdp_safe_free(void**);
 
-extern int    *mdp_alloc_int_1(int, const int);
-extern void    mdp_safe_alloc_int_1(int **, int, const int);
-extern void    mdp_realloc_int_1(int **, int, int, 
-				 const int defval = MDP_INT_NOINIT);
-extern int   **mdp_alloc_int_2(int, int, const int);
+extern int*    mdp_alloc_int_1(int, const int);
+extern void    mdp_safe_alloc_int_1(int**, int, const int);
+extern void    mdp_realloc_int_1(int**, int, int,
+                                 const int defval = MDP_INT_NOINIT);
+extern int**   mdp_alloc_int_2(int, int, const int);
 
-extern double *mdp_alloc_dbl_1(int, const double);
-extern void    mdp_safe_alloc_dbl_1(double **, int, const double); 
-extern void    mdp_realloc_dbl_1(double **, int, int, const double);
-extern void    mdp_realloc_dbl_2(double ***, int, int, int, int,
-				 const double);
+extern double* mdp_alloc_dbl_1(int, const double);
+extern void    mdp_safe_alloc_dbl_1(double**, int, const double);
+extern void    mdp_realloc_dbl_1(double**, int, int, const double);
+extern void    mdp_realloc_dbl_2(double***, int, int, int, int,
+                                 const double);
 
-extern char   *mdp_alloc_char_1(int, const char);
-extern void    mdp_safe_alloc_char_1(char **, int, const char);    
-extern char  **mdp_alloc_VecFixedStrings(int, int);
-extern void    mdp_safe_alloc_VecFixedStrings(char ***, int, int);
-extern void    mdp_realloc_VecFixedStrings(char ***, int,  int, int);
+extern char*   mdp_alloc_char_1(int, const char);
+extern void    mdp_safe_alloc_char_1(char**, int, const char);
+extern char**  mdp_alloc_VecFixedStrings(int, int);
+extern void    mdp_safe_alloc_VecFixedStrings(char***, int, int);
+extern void    mdp_realloc_VecFixedStrings(char***, int,  int, int);
 
-extern double **mdp_alloc_dbl_2(int, int, const double);
-extern void    mdp_safe_alloc_dbl_2(double ***, int, int, 
-				    const double = MDP_DBL_NOINIT);
+extern double** mdp_alloc_dbl_2(int, int, const double);
+extern void    mdp_safe_alloc_dbl_2(double***, int, int,
+                                    const double = MDP_DBL_NOINIT);
 
-extern C16_NAME *mdp_alloc_C16_NAME_1(int, const int);
-extern void    mdp_safe_alloc_C16_NAME_1(C16_NAME **, int, const int);
+extern C16_NAME* mdp_alloc_C16_NAME_1(int, const int);
+extern void    mdp_safe_alloc_C16_NAME_1(C16_NAME**, int, const int);
 
-extern void  **mdp_alloc_ptr_1(int);
-extern void    mdp_safe_alloc_ptr_1(void ***, int);
-extern void    mdp_realloc_ptr_1(void ***, int, int);
-extern char   *mdp_copy_C16_NAME_to_string(const C16_NAME);
-extern char   *mdp_copy_string(const char *);
-extern void    mdp_safe_copy_string(char **, const char *);
+extern void**  mdp_alloc_ptr_1(int);
+extern void    mdp_safe_alloc_ptr_1(void***, int);
+extern void    mdp_realloc_ptr_1(void***, int, int);
+extern char*   mdp_copy_C16_NAME_to_string(const C16_NAME);
+extern char*   mdp_copy_string(const char*);
+extern void    mdp_safe_copy_string(char**, const char*);
 
-extern void ***mdp_alloc_ptr_2(int, int);
+extern void*** mdp_alloc_ptr_2(int, int);
 
 /*****************************************************************************/
 #endif

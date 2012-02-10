@@ -6,10 +6,11 @@
 
 using namespace Cantera;
 
-int flamespeed(int np, void* p) {
+int flamespeed(int np, void* p)
+{
     try {
         int i;
-        IdealGasMix gas("gri30.cti","gri30_mix");	
+        IdealGasMix gas("gri30.cti","gri30_mix");
 
         doublereal temp = 300.0; // K
         doublereal pressure = 1.0*OneAtm; //atm
@@ -22,7 +23,9 @@ int flamespeed(int np, void* p) {
         x.resize(nsp);
 
         double phi = 0.0;
-        if (np > 0) phi = *(double*)(p);
+        if (np > 0) {
+            phi = *(double*)(p);
+        }
         if (phi == 0.0) {
             cout << "Enter phi: ";
             cin >> phi;
@@ -32,26 +35,30 @@ int flamespeed(int np, void* p) {
         doublereal H_atoms=4.0;
         doublereal ax=C_atoms+H_atoms/4.0;
         doublereal fa_stoic=1.0/(4.76*ax);
-        for(int k=0;k<nsp;k++){
-            if(k==gas.speciesIndex("CH4")){		x[k]=1.0; }
-            else if(k==gas.speciesIndex("O2")){ x[k]=0.21/phi/fa_stoic; }
-            else if(k==gas.speciesIndex("N2")){ x[k]=0.79/phi/fa_stoic; }
-            else{ x[k]=0.0; }
+        for (int k=0; k<nsp; k++) {
+            if (k==gas.speciesIndex("CH4")) {
+                x[k]=1.0;
+            } else if (k==gas.speciesIndex("O2")) {
+                x[k]=0.21/phi/fa_stoic;
+            } else if (k==gas.speciesIndex("N2")) {
+                x[k]=0.79/phi/fa_stoic;
+            } else {
+                x[k]=0.0;
+            }
         }
 
         gas.setState_TPX(temp,pressure,DATA_PTR(x));
         doublereal rho_in=gas.density();
 
-        double *yin=new double[nsp];
+        double* yin=new double[nsp];
         gas.getMassFractions(yin);
 
         try {
             equilibrate(gas,"HP");
-        }
-        catch (CanteraError) {
+        } catch (CanteraError) {
             showErrors(cout);
         }
-        double *yout=new double[nsp];
+        double* yout=new double[nsp];
         gas.getMassFractions(yout);
         doublereal rho_out = gas.density();
         doublereal Tad=gas.temperature();
@@ -73,9 +80,9 @@ int flamespeed(int np, void* p) {
         // create an initial grid
         int nz=5;
         doublereal lz=0.02;
-        doublereal *z=new double[nz+1];
+        doublereal* z=new double[nz+1];
         doublereal dz=lz/((doublereal)(nz-1));
-        for(int iz=0;iz<nz;iz++){
+        for (int iz=0; iz<nz; iz++) {
             z[iz]=((doublereal)iz)*dz;
         }
         //add one node onto end of domain to help with zero gradient at outlet
@@ -84,7 +91,7 @@ int flamespeed(int np, void* p) {
 
         flow.setupGrid(nz, z);
 
-        // specify the objects to use to compute kinetic rates and 
+        // specify the objects to use to compute kinetic rates and
         // transport properties
 
         Transport* trmix = newTransportMgr("Mix", &gas);
@@ -127,22 +134,30 @@ int flamespeed(int np, void* p) {
         locs.resize(3);
         value.resize(3);
 
-        //ramp values from inlet to adiabatic flame conditions 
+        //ramp values from inlet to adiabatic flame conditions
         //  over 70% of domain and then level off at equilibrium
         double z1=0.7;
 
         double uout;
         uout=inlet.mdot()/rho_out;
         uin=inlet.mdot()/rho_in;
-        locs[0]=0.0; locs[1]=z1; locs[2]=1.0;
-        value[0]=uin; value[1]=uout; value[2]=uout;
+        locs[0]=0.0;
+        locs[1]=z1;
+        locs[2]=1.0;
+        value[0]=uin;
+        value[1]=uout;
+        value[2]=uout;
         flame.setInitialGuess("u",locs,value);
 
-        value[0]=temp; value[1]=Tad; value[2]=Tad;
+        value[0]=temp;
+        value[1]=Tad;
+        value[2]=Tad;
         flame.setInitialGuess("T",locs,value);
 
-        for(i=0;i<nsp;i++){
-            value[0]=yin[i]; value[1]=yout[i]; value[2]=yout[i];
+        for (i=0; i<nsp; i++) {
+            value[0]=yin[i];
+            value[1]=yout[i];
+            value[2]=yout[i];
             flame.setInitialGuess(gas.speciesName(i),locs,value);
         }
 
@@ -160,7 +175,7 @@ int flamespeed(int np, void* p) {
 
         flame.setRefineCriteria(flowdomain,ratio,slope,curve,prune);
 
-        int loglevel=1; 
+        int loglevel=1;
         bool refine_grid = true;
 
         /* Solve species*/
@@ -185,27 +200,27 @@ int flamespeed(int np, void* p) {
         flame.solve(loglevel,refine_grid);
         double flameSpeed_mix = flame.value(flowdomain,flow.componentIndex("u"),0);
         cout << "Flame speed with mixture-averaged transport: " <<
-            flame.value(flowdomain,flow.componentIndex("u"),0) << " m/s" << endl;
+             flame.value(flowdomain,flow.componentIndex("u"),0) << " m/s" << endl;
 
         // now switch to multicomponent transport
         flow.setTransport(*trmulti);
         flame.solve(loglevel, refine_grid);
-	double flameSpeed_multi = flame.value(flowdomain,flow.componentIndex("u"),0);
+        double flameSpeed_multi = flame.value(flowdomain,flow.componentIndex("u"),0);
         cout << "Flame speed with multicomponent transport: " <<
-            flame.value(flowdomain,flow.componentIndex("u"),0) << " m/s" << endl;
+             flame.value(flowdomain,flow.componentIndex("u"),0) << " m/s" << endl;
 
         // now enable Soret diffusion
         flow.enableSoret(true);
         flame.solve(loglevel, refine_grid);
-	double flameSpeed_full = flame.value(flowdomain,flow.componentIndex("u"),0);
+        double flameSpeed_full = flame.value(flowdomain,flow.componentIndex("u"),0);
         cout << "Flame speed with multicomponent transport + Soret: " <<
-            flame.value(flowdomain,flow.componentIndex("u"),0) << " m/s" << endl;
+             flame.value(flowdomain,flow.componentIndex("u"),0) << " m/s" << endl;
 
         int np=flow.nPoints();
         vector<doublereal> zvec,Tvec,COvec,CO2vec,Uvec;
 
         printf("\n%9s\t%8s\t%5s\t%7s\n","z (m)", "T (K)", "U (m/s)", "Y(CO)");
-        for(int n=0;n<np;n++){
+        for (int n=0; n<np; n++) {
             Tvec.push_back(flame.value(flowdomain,flow.componentIndex("T"),n));
             COvec.push_back(flame.value(flowdomain,flow.componentIndex("CO"),n));
             CO2vec.push_back(flame.value(flowdomain,flow.componentIndex("CO2"),n));
@@ -217,26 +232,25 @@ int flamespeed(int np, void* p) {
         cout << endl<<"Adiabatic flame temperature from equilibrium is: "<<Tad<<endl;
         cout << "Flame speed for phi="<<phi<<" is "<<Uvec[0]<<" m/s."<<endl;
 
-	string reportFile = "flamespeed.csv";
-	FILE * FP = fopen(reportFile.c_str(), "w");
-	if (!FP) {
-	  printf("Failure to open file\n");
-	  exit(-1);
-	}
-
-	fprintf(FP," Flame speed (mixture-averaged      ) = %11.3e m/s\n", flameSpeed_mix);
-	fprintf(FP," Flame speed (multicomponent        ) = %11.3e m/s\n", flameSpeed_multi);
-	fprintf(FP," Flame speed (multicomponent + Soret) = %11.3e m/s\n", flameSpeed_full);
-	fprintf(FP,"  Grid,   Temperature,   Uvec,   CO,    CO2\n");
-	for (int n = 0; n < np; n++) {
-	  fprintf(FP," %11.3e, %11.3e, %11.3e, %11.3e, %11.3e\n",
-		  flow.grid(n), Tvec[n], Uvec[n], COvec[n], CO2vec[n]);
+        string reportFile = "flamespeed.csv";
+        FILE* FP = fopen(reportFile.c_str(), "w");
+        if (!FP) {
+            printf("Failure to open file\n");
+            exit(-1);
         }
-	fclose(FP);
 
-        return 0;    
-    }
-    catch (CanteraError) {
+        fprintf(FP," Flame speed (mixture-averaged      ) = %11.3e m/s\n", flameSpeed_mix);
+        fprintf(FP," Flame speed (multicomponent        ) = %11.3e m/s\n", flameSpeed_multi);
+        fprintf(FP," Flame speed (multicomponent + Soret) = %11.3e m/s\n", flameSpeed_full);
+        fprintf(FP,"  Grid,   Temperature,   Uvec,   CO,    CO2\n");
+        for (int n = 0; n < np; n++) {
+            fprintf(FP," %11.3e, %11.3e, %11.3e, %11.3e, %11.3e\n",
+                    flow.grid(n), Tvec[n], Uvec[n], COvec[n], CO2vec[n]);
+        }
+        fclose(FP);
+
+        return 0;
+    } catch (CanteraError) {
         showErrors(cerr);
         cerr << "program terminating." << endl;
         return -1;
@@ -244,7 +258,8 @@ int flamespeed(int np, void* p) {
 }
 
 #ifndef CXX_DEMO
-int main() {
+int main()
+{
     return flamespeed(0, 0);
 }
 #endif

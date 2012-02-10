@@ -12,7 +12,7 @@
 #include "cantera/kernel/config.h"
 #endif
 
-extern "C" {  
+extern "C" {
 
     EEXXTT int DLL_CPREFIX xml_new(const char* name);
     EEXXTT int DLL_CPREFIX xml_get_XML_File(const char* file, int debug = 0);

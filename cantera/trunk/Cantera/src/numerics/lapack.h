@@ -1,5 +1,5 @@
 
-// Copyright 2001 California Institute of Technology.  
+// Copyright 2001 California Institute of Technology.
 // All rights reserved.
 
 #include "ct_defs.h"
@@ -24,19 +24,19 @@
 
 #endif
 
-extern "C" 
+extern "C"
 {
 
-  void dcopy_(const integer *n, const doublereal *dx, const integer *incx, doublereal *dy, const integer *incy); 
+    void dcopy_(const integer* n, const doublereal* dx, const integer* incx, doublereal* dy, const integer* incy);
 
-  doublereal ddot_(integer *n, doublereal *dx, integer *incx, doublereal *dy, integer *incy); 
+    doublereal ddot_(integer* n, doublereal* dx, integer* incx, doublereal* dy, integer* incy);
 
-  void daxpy_(integer* n, doublereal* a, doublereal* x, integer* incx, 
-	      doublereal* y, integer* incy);
+    void daxpy_(integer* n, doublereal* a, doublereal* x, integer* incx,
+                doublereal* y, integer* incy);
 
-  void dscal_(integer *n, doublereal *da, doublereal *dx, integer *incx);
+    void dscal_(integer* n, doublereal* da, doublereal* dx, integer* incx);
 
-  integer idamax_(integer* n, doublereal* a, integer* incx);  
+    integer idamax_(integer* n, doublereal* a, integer* incx);
 }
 
 

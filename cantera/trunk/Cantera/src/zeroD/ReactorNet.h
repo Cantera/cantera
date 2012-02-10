@@ -11,11 +11,13 @@
 #include "Integrator.h"
 #include "Array.h"
 
-namespace Cantera {
+namespace Cantera
+{
 
-  class ReactorNet : public Cantera::FuncEval {
+class ReactorNet : public Cantera::FuncEval
+{
 
-  public:
+public:
 
     //! Constructor
     ReactorNet();
@@ -34,43 +36,57 @@ namespace Cantera {
      * initial condition.
      */
     void setInitialTime(doublereal time) {
-      m_time = time;
-      m_init = false;
+        m_time = time;
+        m_init = false;
     }
 
     /// Set the maximum time step.
     void setMaxTimeStep(double maxstep) {
-      m_maxstep = maxstep;
-      m_init = false;
+        m_maxstep = maxstep;
+        m_init = false;
     }
-            
+
     void setTolerances(doublereal rtol, doublereal atol) {
-      if (rtol >= 0.0) m_rtol = rtol;
-      if (atol >= 0.0) m_atols = atol;
-      m_init = false;
+        if (rtol >= 0.0) {
+            m_rtol = rtol;
+        }
+        if (atol >= 0.0) {
+            m_atols = atol;
+        }
+        m_init = false;
     }
 
     void setSensitivityTolerances(doublereal rtol, doublereal atol) {
-      if (rtol >= 0.0) m_rtolsens = rtol;
-      if (atol >= 0.0) m_atolsens = atol;
-      m_init = false;
+        if (rtol >= 0.0) {
+            m_rtolsens = rtol;
+        }
+        if (atol >= 0.0) {
+            m_atolsens = atol;
+        }
+        m_init = false;
     }
 
     /// Current value of the simulation time.
-    doublereal time() { return m_time; }
+    doublereal time() {
+        return m_time;
+    }
 
     /// Relative tolerance.
-    doublereal rtol() { return m_rtol; }
-    doublereal atol() { return m_atols; }
-        
+    doublereal rtol() {
+        return m_rtol;
+    }
+    doublereal atol() {
+        return m_atols;
+    }
+
     /**
-     * Initialize the reactor network. 
+     * Initialize the reactor network.
      */
     void initialize(doublereal t0 = 0.0);
 
     /**
      * Advance the state of all reactors in time.
-     * @param time Time to advance to (s). 
+     * @param time Time to advance to (s).
      */
     void advance(doublereal time);
 
@@ -81,51 +97,61 @@ namespace Cantera {
     void addReactor(ReactorBase* r, bool iown = false);
 
     ReactorBase& reactor(int n) {
-      return *m_r[n];
+        return *m_r[n];
     }
 
-    bool verbose() const { return m_verbose; }
-    void setVerbose(bool v = true) { m_verbose = v; }
+    bool verbose() const {
+        return m_verbose;
+    }
+    void setVerbose(bool v = true) {
+        m_verbose = v;
+    }
 
     /// Return a reference to the integrator.
-    Integrator& integrator() { return *m_integ; }
+    Integrator& integrator() {
+        return *m_integ;
+    }
 
     void updateState(doublereal* y);
 
     double sensitivity(size_t k, size_t p) {
-      return m_integ->sensitivity(k, p)/m_integ->solution(k);
+        return m_integ->sensitivity(k, p)/m_integ->solution(k);
     }
 
     double sensitivity(std::string species, size_t p, int reactor=0) {
-      size_t k = globalComponentIndex(species, reactor);
-      return sensitivity(k, p);
+        size_t k = globalComponentIndex(species, reactor);
+        return sensitivity(k, p);
     }
 
-    void evalJacobian(doublereal t, doublereal* y, 
-		      doublereal* ydot, doublereal* p, Array2D* j);
+    void evalJacobian(doublereal t, doublereal* y,
+                      doublereal* ydot, doublereal* p, Array2D* j);
 
     //-----------------------------------------------------
 
     // overloaded methods of class FuncEval
-    virtual size_t neq() { return m_nv; }
-    virtual void eval(doublereal t, doublereal* y, 
-		      doublereal* ydot, doublereal* p);
-    virtual void getInitialConditions(doublereal t0, size_t leny, 
-				      doublereal* y);
-    virtual size_t nparams() { return m_ntotpar; }
+    virtual size_t neq() {
+        return m_nv;
+    }
+    virtual void eval(doublereal t, doublereal* y,
+                      doublereal* ydot, doublereal* p);
+    virtual void getInitialConditions(doublereal t0, size_t leny,
+                                      doublereal* y);
+    virtual size_t nparams() {
+        return m_ntotpar;
+    }
 
     size_t globalComponentIndex(std::string species, size_t reactor=0);
 
     void connect(size_t i, size_t j) {
-      m_connect[j*m_nr + i] = 1;
-      m_connect[i*m_nr + j] = 1;
+        m_connect[j*m_nr + i] = 1;
+        m_connect[i*m_nr + j] = 1;
     }
 
     bool connected(size_t i, size_t j) {
-      return (m_connect[m_nr*i + j] == 1);
+        return (m_connect[m_nr*i + j] == 1);
     }
 
-  protected:
+protected:
 
     std::vector<ReactorBase*> m_r;
     std::vector<Reactor*> m_reactors;
@@ -148,9 +174,9 @@ namespace Cantera {
 
     std::vector<bool> m_iown;
 
-  private:
+private:
 
-  };
+};
 }
 
 #endif

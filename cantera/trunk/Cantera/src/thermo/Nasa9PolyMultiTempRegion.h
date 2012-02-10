@@ -2,7 +2,7 @@
  *  @file Nasa9PolyMultiTempRegion.h
  *  Header for a single-species standard state object derived
  *  from \link Cantera::SpeciesThermoInterpType
- *  SpeciesThermoInterpType\endlink  based 
+ *  SpeciesThermoInterpType\endlink  based
  *  on the NASA 9 coefficient temperature polynomial form
  *   applied to multiple temperature regions
  *  (see \ref spthermo and class \link Cantera::Nasa9PolyMultiTempRegion Nasa9PolyMultiTempRegion\endlink).
@@ -19,73 +19,75 @@
 #include "global.h"
 #include "Nasa9Poly1.h"
 
-namespace Cantera {
- 
-  //! The NASA 9 polynomial parameterization for a single species
-  //! encompassing multiple temperature regions.
-  /*!
-   *  This parameterization expresses the heat capacity via a
-   *  7 coefficient polynomial.
-   *  Note that this is the form used in the
-   *  2002 NASA equilibrium program. A reference to the form is
-   *  provided below:
-   *
-   *  "NASA Glenn Coefficients for Calculating Thermodynamic
-   *  Properties of Individual Species,"
-   *  B. J. McBride, M. J. Zehe, S. Gordon
-   *  NASA/TP-2002-211556, Sept. 2002
-   *
-   * Nine coefficients \f$(a_0,\dots,a_6)\f$ are used to represent
-   * \f$ C_p^0(T)\f$, \f$ H^0(T)\f$, and \f$ S^0(T) \f$ as
-   * polynomials in \f$ T \f$ :
-   * \f[
-   * \frac{C_p^0(T)}{R} = a_0 T^{-2} + a_1 T^{-1} + a_2 + a_3 T
-   *                  + a_4 T^2 + a_5 T^3 + a_6 T^4
-   * \f]
-   *
-   * \f[
-   * \frac{H^0(T)}{RT} = - a_0 T^{-2} + a_1 \frac{\ln(T)}{T} + a_2
-   * + a_3 T + a_4 T^2  + a_5 T^3 + a_6 T^4 + \frac{a_7}{T}
-   * \f]
-   *
-   * \f[
-   * \frac{s^0(T)}{R} = - \frac{a_0}{2} T^{-2} - a_1 T^{-1} + a_2 \ln(T)
-   +    + a_3 T  \frac{a_4}{2} T^2 + \frac{a_5}{3} T^3  + \frac{a_6}{4} T^4 + a_8
-   * \f]
-   *
-   *  The standard state is assumed to be an ideal gas at the
-   *  standard pressure of 1 bar, for gases.
-   *  For condensed species, the standard state is the
-   *  pure crystalline or liquid substance at the standard
-   *  pressure of 1 atm.
-   *
-   * These NASA representations may have multiple temperature regions
-   * through the use of this %Nasa9PolyMultiTempRegion object, which uses
-   * multiple copies of the Nasa9Poly1 object to handle multiple temperature
-   * regions.
-   *
-   * @ingroup spthermo
-   */
-  class Nasa9PolyMultiTempRegion : public SpeciesThermoInterpType {
+namespace Cantera
+{
 
-  public:
+//! The NASA 9 polynomial parameterization for a single species
+//! encompassing multiple temperature regions.
+/*!
+ *  This parameterization expresses the heat capacity via a
+ *  7 coefficient polynomial.
+ *  Note that this is the form used in the
+ *  2002 NASA equilibrium program. A reference to the form is
+ *  provided below:
+ *
+ *  "NASA Glenn Coefficients for Calculating Thermodynamic
+ *  Properties of Individual Species,"
+ *  B. J. McBride, M. J. Zehe, S. Gordon
+ *  NASA/TP-2002-211556, Sept. 2002
+ *
+ * Nine coefficients \f$(a_0,\dots,a_6)\f$ are used to represent
+ * \f$ C_p^0(T)\f$, \f$ H^0(T)\f$, and \f$ S^0(T) \f$ as
+ * polynomials in \f$ T \f$ :
+ * \f[
+ * \frac{C_p^0(T)}{R} = a_0 T^{-2} + a_1 T^{-1} + a_2 + a_3 T
+ *                  + a_4 T^2 + a_5 T^3 + a_6 T^4
+ * \f]
+ *
+ * \f[
+ * \frac{H^0(T)}{RT} = - a_0 T^{-2} + a_1 \frac{\ln(T)}{T} + a_2
+ * + a_3 T + a_4 T^2  + a_5 T^3 + a_6 T^4 + \frac{a_7}{T}
+ * \f]
+ *
+ * \f[
+ * \frac{s^0(T)}{R} = - \frac{a_0}{2} T^{-2} - a_1 T^{-1} + a_2 \ln(T)
+ +    + a_3 T  \frac{a_4}{2} T^2 + \frac{a_5}{3} T^3  + \frac{a_6}{4} T^4 + a_8
+ * \f]
+ *
+ *  The standard state is assumed to be an ideal gas at the
+ *  standard pressure of 1 bar, for gases.
+ *  For condensed species, the standard state is the
+ *  pure crystalline or liquid substance at the standard
+ *  pressure of 1 atm.
+ *
+ * These NASA representations may have multiple temperature regions
+ * through the use of this %Nasa9PolyMultiTempRegion object, which uses
+ * multiple copies of the Nasa9Poly1 object to handle multiple temperature
+ * regions.
+ *
+ * @ingroup spthermo
+ */
+class Nasa9PolyMultiTempRegion : public SpeciesThermoInterpType
+{
+
+public:
 
     //! Empty constructor
     Nasa9PolyMultiTempRegion();
 
     //! Constructor used in templated instantiations
     /*!
-     * @param regionPts Vector of pointers to Nasa9Poly1 objects. These 
+     * @param regionPts Vector of pointers to Nasa9Poly1 objects. These
      *                  objects all refer to the temperature regions for the
      *                  same species. The vector must be in increasing
      *                  temperature region format.  Together they
      *                  represent the reference temperature parameterization
      *                  for a single species.
      *
-     *  Note, after the constructor, we will own the underlying 
-     *  Nasa9Poly1 objects and be responsible for owning them. 
+     *  Note, after the constructor, we will own the underlying
+     *  Nasa9Poly1 objects and be responsible for owning them.
      */
-    Nasa9PolyMultiTempRegion(std::vector<Cantera::Nasa9Poly1 *> &regionPts);
+    Nasa9PolyMultiTempRegion(std::vector<Cantera::Nasa9Poly1*> &regionPts);
 
     //! Copy constructor
     /*!
@@ -103,7 +105,7 @@ namespace Cantera {
     virtual ~Nasa9PolyMultiTempRegion();
 
     //! Duplicator
-    virtual SpeciesThermoInterpType *
+    virtual SpeciesThermoInterpType*
     duplMyselfAsSpeciesThermoInterpType() const;
 
     //! Returns the minimum temperature that the thermo
@@ -122,7 +124,7 @@ namespace Cantera {
 
     //! Returns an integer representing the species index
     virtual size_t speciesIndex() const;
- 
+
     //! Update the properties for this species, given a temperature polynomial
     /*!
      * This method is called with a pointer to an array containing the functions of
@@ -147,11 +149,11 @@ namespace Cantera {
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
      */
-    virtual void updateProperties(const doublereal* tt, 
-				  doublereal* cp_R, doublereal* h_RT, 
-				  doublereal* s_R) const;
+    virtual void updateProperties(const doublereal* tt,
+                                  doublereal* cp_R, doublereal* h_RT,
+                                  doublereal* s_R) const;
 
- 
+
     //! Compute the reference-state property of one species
     /*!
      * Given temperature T in K, this method updates the values of
@@ -177,12 +179,12 @@ namespace Cantera {
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
      */
-    virtual void updatePropertiesTemp(const doublereal temp, 
-				      doublereal* cp_R, doublereal* h_RT, 
-				      doublereal* s_R) const;
+    virtual void updatePropertiesTemp(const doublereal temp,
+                                      doublereal* cp_R, doublereal* h_RT,
+                                      doublereal* s_R) const;
 
-    //!This utility function reports back the type of 
-    //! parameterization and all of the parameters for the 
+    //!This utility function reports back the type of
+    //! parameterization and all of the parameters for the
     //! species, index.
     /*!
      * All parameters are output variables
@@ -202,10 +204,10 @@ namespace Cantera {
      *        coeffs[index+1] = maxTempZone
      *        coeffs[index+2+i] from i =0,9 are the coefficients themselves
      */
-    virtual void reportParameters(size_t &n, int &type,
-				  doublereal &tlow, doublereal &thigh,
-				  doublereal &pref,
-				  doublereal* const coeffs) const;
+    virtual void reportParameters(size_t& n, int& type,
+                                  doublereal& tlow, doublereal& thigh,
+                                  doublereal& pref,
+                                  doublereal* const coeffs) const;
 
     //! Modify parameters for the standard state
     /*!
@@ -214,18 +216,18 @@ namespace Cantera {
      */
     virtual void modifyParameters(doublereal* coeffs);
 
-  protected:
+protected:
     //! lowest valid temperature
-    doublereal m_lowT;    
+    doublereal m_lowT;
     //! highest valid temperature
-    doublereal m_highT;   
+    doublereal m_highT;
     //! standard-state pressure
-    doublereal m_Pref;     
+    doublereal m_Pref;
     //! species index
     size_t m_index;
     //! Number of temperature regions
     size_t m_numTempRegions;
-    
+
     //! Lower boundaries of each temperature regions
     vector_fp m_lowerTempBounds;
 
@@ -234,11 +236,11 @@ namespace Cantera {
      * This object will now own these pointers and delete
      * them when the current object is deleted.
      */
-    std::vector<Nasa9Poly1 *>m_regionPts;
+    std::vector<Nasa9Poly1*>m_regionPts;
 
     //! current region
     mutable int m_currRegion;
-  };
+};
 
 }
 #endif

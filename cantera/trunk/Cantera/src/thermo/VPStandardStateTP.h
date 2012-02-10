@@ -9,7 +9,7 @@
  *    methods for calculating liquid electrolyte thermodynamics.
  */
 /*
- * Copywrite (2005) Sandia Corporation. Under the terms of 
+ * Copywrite (2005) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -19,73 +19,75 @@
 #include "ThermoPhase.h"
 #include "VPSSMgr.h"
 
-namespace Cantera {
+namespace Cantera
+{
 
-  class XML_Node;
-  class PDSS;
+class XML_Node;
+class PDSS;
 
-  /**
-   * @ingroup thermoprops
-   *
-   *  This is a filter class for ThermoPhase that implements some prepatory
-   *  steps for efficiently handling
-   *  a variable pressure standard state for species.
-   *
-   *  Several concepts are introduced. The first concept is there are temporary
-   *  variables for holding the species standard state values 
-   *  of Cp, H, S, G, and V at the
-   *  last temperature and pressure called. These functions are not recalculated
-   *  if a new call is made using the previous temperature and pressure. Currently,
-   *  these variables and the calculation method are handled by the VPSSMgr class,
-   *  for which VPStandardStateTP owns a pointer to.
-   *
-   *  To support the above functionality, pressure and temperature variables,
-   *  m_Plast_ss and m_Tlast_ss, are kept which store the last pressure and temperature
-   *  used in the evaluation of standard state properties. 
-   *
-   *  This class is usually used for nearly incompressible phases. For those phases, it
-   *  makes sense to change the equation of state independent variable from
-   *  density to pressure. The variable m_Pcurrent contains the current value of the
-   *  pressure within the phase.
-   *
-   * @todo
-   *   Put some teeth into this level by overloading the setDensity() function. It should
-   *   now throw an exception. Instead, setPressure routines should calculate the
-   *   solution density and then call State:setDensity() directly.
-   *   
-   *  @nosubgrouping
-   */
-  class VPStandardStateTP : public ThermoPhase {
+/**
+ * @ingroup thermoprops
+ *
+ *  This is a filter class for ThermoPhase that implements some prepatory
+ *  steps for efficiently handling
+ *  a variable pressure standard state for species.
+ *
+ *  Several concepts are introduced. The first concept is there are temporary
+ *  variables for holding the species standard state values
+ *  of Cp, H, S, G, and V at the
+ *  last temperature and pressure called. These functions are not recalculated
+ *  if a new call is made using the previous temperature and pressure. Currently,
+ *  these variables and the calculation method are handled by the VPSSMgr class,
+ *  for which VPStandardStateTP owns a pointer to.
+ *
+ *  To support the above functionality, pressure and temperature variables,
+ *  m_Plast_ss and m_Tlast_ss, are kept which store the last pressure and temperature
+ *  used in the evaluation of standard state properties.
+ *
+ *  This class is usually used for nearly incompressible phases. For those phases, it
+ *  makes sense to change the equation of state independent variable from
+ *  density to pressure. The variable m_Pcurrent contains the current value of the
+ *  pressure within the phase.
+ *
+ * @todo
+ *   Put some teeth into this level by overloading the setDensity() function. It should
+ *   now throw an exception. Instead, setPressure routines should calculate the
+ *   solution density and then call State:setDensity() directly.
+ *
+ *  @nosubgrouping
+ */
+class VPStandardStateTP : public ThermoPhase
+{
 
-  public:
+public:
 
     /*!
-     *   
-     * @name Constructors and Duplicators for %VPStandardStateTP 
      *
-     */   
-    /// Constructor. 
+     * @name Constructors and Duplicators for %VPStandardStateTP
+     *
+     */
+    /// Constructor.
     VPStandardStateTP();
 
     //! Copy Constructor.
     /*!
      *  @param b   Object to be copied
      */
-    VPStandardStateTP(const VPStandardStateTP &b);
+    VPStandardStateTP(const VPStandardStateTP& b);
 
     //! Assignment operator
     /*!
      *  @param b   Object to be copied
      */
-    VPStandardStateTP& operator=(const VPStandardStateTP &b);
+    VPStandardStateTP& operator=(const VPStandardStateTP& b);
 
-    //! Destructor. 
+    //! Destructor.
     virtual ~VPStandardStateTP();
 
     /*
      * Duplication routine
      */
-    virtual ThermoPhase *duplMyselfAsThermoPhase() const;
+    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
 
     //@}
 
@@ -93,13 +95,15 @@ namespace Cantera {
      * @name  Utilities (VPStandardStateTP)
      */
     //@{
-    /** 
+    /**
      * Equation of state type flag. The base class returns
      * zero. Subclasses should define this to return a unique
      * non-zero value. Constants defined for this purpose are
      * listed in mix_defs.h.
      */
-    virtual int eosType() const { return 0; }
+    virtual int eosType() const {
+        return 0;
+    }
 
     //! This method returns the convention used in specification
     //! of the standard state, of which there are currently two,
@@ -115,34 +119,34 @@ namespace Cantera {
      */
     virtual int standardStateConvention() const;
 
-    //! Get the array of log concentration-like derivatives of the 
+    //! Get the array of log concentration-like derivatives of the
     //! log activity coefficients
     /*!
-     * This function is a virtual method.  For ideal mixtures 
-     * (unity activity coefficients), this can return zero.  
-     * Implementations should take the derivative of the 
-     * logarithm of the activity coefficient with respect to the 
+     * This function is a virtual method.  For ideal mixtures
+     * (unity activity coefficients), this can return zero.
+     * Implementations should take the derivative of the
+     * logarithm of the activity coefficient with respect to the
      * logarithm of the concentration-like variable (i.e. moles)
-     *  that represents the standard state.  
-     * This quantity is to be used in conjunction with derivatives of 
-     * that concentration-like variable when the derivative of the chemical 
-     * potential is taken.  
+     *  that represents the standard state.
+     * This quantity is to be used in conjunction with derivatives of
+     * that concentration-like variable when the derivative of the chemical
+     * potential is taken.
      *
      *  units = dimensionless
      *
-     * @param dlnActCoeffdlnN_diag    Output vector of derivatives of the 
+     * @param dlnActCoeffdlnN_diag    Output vector of derivatives of the
      *                         log Activity Coefficients. length = m_kk
      */
-    virtual void getdlnActCoeffdlnN_diag(doublereal *dlnActCoeffdlnN_diag) const {
-      err("getdlnActCoeffdlnN_diag");
+    virtual void getdlnActCoeffdlnN_diag(doublereal* dlnActCoeffdlnN_diag) const {
+        err("getdlnActCoeffdlnN_diag");
     }
 
- 
+
     //@}
-     /// @name  Partial Molar Properties of the Solution  (VPStandardStateTP)
+    /// @name  Partial Molar Properties of the Solution  (VPStandardStateTP)
     //@{
 
-    
+
     //! Get the array of non-dimensional species chemical potentials
     //! These are partial molar Gibbs free energies.
     /*!
@@ -157,21 +161,21 @@ namespace Cantera {
      *              Length: m_kk.
      */
     void getChemPotentials_RT(doublereal* mu) const;
-  
+
     //@}
 
     /*!
-     * @name  Properties of the Standard State of the Species in the Solution 
+     * @name  Properties of the Standard State of the Species in the Solution
      *                (VPStandardStateTP)
      *
-     *  Within VPStandardStateTP, these properties are calculated via a common routine, 
+     *  Within VPStandardStateTP, these properties are calculated via a common routine,
      *  _updateStandardStateThermo(),
      *  which must be overloaded in inherited objects.
      *  The values are cached within this object, and are not recalculated unless
      *  the temperature or pressure changes.
      */
     //@{
-    
+
     //!Get the array of chemical potentials at unit activity.
     /*!
      * These are the standard state chemical potentials \f$ \mu^0_k(T,P)
@@ -212,7 +216,7 @@ namespace Cantera {
      */
     virtual void getGibbs_RT(doublereal* grt) const;
 
-   
+
     //! Get the nondimensional Gibbs functions for the standard
     //! state of the species at the current T and P.
     /*!
@@ -238,24 +242,24 @@ namespace Cantera {
      * @param urt    Output vector of nondimensional standard state
      *               internal energies. length = m_kk.
      */
-    virtual void getIntEnergy_RT(doublereal *urt) const;
+    virtual void getIntEnergy_RT(doublereal* urt) const;
 
     /**
      * Get the nondimensional Heat Capacities at constant
-     * pressure for the standard state of the species 
-     * at the current T and P. 
+     * pressure for the standard state of the species
+     * at the current T and P.
      *
      * This is redefined here to call the internal function,  _updateStandardStateThermo(),
      * which calculates all standard state properties at the same time.
      *
-     * @param cpr    Output vector containing the 
+     * @param cpr    Output vector containing the
      *               the nondimensional Heat Capacities at constant
      *               pressure for the standard state of the species.
-     *               Length: m_kk. 
+     *               Length: m_kk.
      */
     virtual void getCp_R(doublereal* cpr) const;
 
-    
+
     //! Get the molar volumes of each species in their standard
     //! states at the current
     //! <I>T</I> and <I>P</I> of the solution.
@@ -268,9 +272,9 @@ namespace Cantera {
      * @param vol Output vector of species volumes. length = m_kk.
      *            units =  m^3 / kmol
      */
-    virtual void getStandardVolumes(doublereal *vol) const;
+    virtual void getStandardVolumes(doublereal* vol) const;
 
- 
+
     //! Set the temperature of the phase
     /*!
      *    Currently this passes down to setState_TP(). It does not
@@ -281,7 +285,7 @@ namespace Cantera {
      */
     virtual void setTemperature(const doublereal temp);
 
- 
+
     //! Set the internally storred pressure (Pa) at constant
     //! temperature and composition
     /*!
@@ -295,13 +299,13 @@ namespace Cantera {
 
 protected:
     /**
-     * Calculate the density of the mixture using the partial 
+     * Calculate the density of the mixture using the partial
      * molar volumes and mole fractions as input
      *
      * The formula for this is
      *
-     * \f[ 
-     * \rho = \frac{\sum_k{X_k W_k}}{\sum_k{X_k V_k}} 
+     * \f[
+     * \rho = \frac{\sum_k{X_k W_k}}{\sum_k{X_k V_k}}
      * \f]
      *
      * where \f$X_k\f$ are the mole fractions, \f$W_k\f$ are
@@ -314,12 +318,12 @@ protected:
      * in this class that the pure species molar volumes are
      * independent of temperature and pressure.
      *
-     * NOTE: This is a non-virtual function, which is not a 
-     *       member of the ThermoPhase base class. 
+     * NOTE: This is a non-virtual function, which is not a
+     *       member of the ThermoPhase base class.
      */
     virtual void calcDensity();
 
- public:
+public:
     //! Set the temperature and pressure at the same time
     /*!
      *  Note this function triggers a reevalulation of the standard
@@ -338,10 +342,10 @@ protected:
      * @return return the pressure in pascals.
      */
     doublereal pressure() const {
-      return m_Pcurrent;
+        return m_Pcurrent;
     }
 
-  protected:
+protected:
 
     //! Updates the standard state thermodynamic functions at the current T and P of the solution.
     /*!
@@ -364,10 +368,10 @@ protected:
      *  If m_useTmpStandardStateStorage is not true, this function may be
      *  required to be called by child classes to update internal member data..
      *
-     */                    
+     */
     virtual void _updateStandardStateThermo() const;
 
-  public:
+public:
 
     //! Updates the standard state thermodynamic functions at the current T and P of the solution.
     /*!
@@ -390,7 +394,7 @@ protected:
      *  If m_useTmpStandardStateStorage is not true, this function may be
      *  required to be called by child classes to update internal member data.
      *
-     */           
+     */
     virtual void updateStandardStateThermo() const;
 
     //@}
@@ -404,7 +408,7 @@ protected:
      */
     //@{
 
-    
+
     //!  Returns the vector of nondimensional
     //!  enthalpies of the reference state at the current temperature
     //!  of the solution and the reference pressure for the species.
@@ -413,7 +417,7 @@ protected:
      *            of the reference state of the species
      *            length = m_kk, units = dimensionless.
      */
-    virtual void getEnthalpy_RT_ref(doublereal *hrt) const;
+    virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
 
 #ifdef H298MODIFY_CAPABILITY
     //!  Modify the value of the 298 K Heat of Formation of the standard state of
@@ -428,7 +432,7 @@ protected:
      */
     void modifyOneHf298SS(const int k, const doublereal Hf298New);
 #endif
-    
+
     //!  Returns the vector of nondimensional
     //!  Gibbs free energies of the reference state at the current temperature
     //!  of the solution and the reference pressure for the species.
@@ -438,11 +442,11 @@ protected:
      *            of the reference state of the species
      *            length = m_kk, units = dimensionless.
      */
-    virtual void getGibbs_RT_ref(doublereal *grt) const;
+    virtual void getGibbs_RT_ref(doublereal* grt) const;
 
-  protected:
-    const vector_fp & Gibbs_RT_ref() const;
-  public:
+protected:
+    const vector_fp& Gibbs_RT_ref() const;
+public:
     /*!
      *  Returns the vector of the
      *  gibbs function of the reference state at the current temperature
@@ -453,8 +457,8 @@ protected:
      *            of the reference state of the species
      *            length = m_kk, units = J/kmol.
      */
-    virtual void getGibbs_ref(doublereal *g) const;
-      
+    virtual void getGibbs_ref(doublereal* g) const;
+
     /*!
      *  Returns the vector of nondimensional
      *  entropies of the reference state at the current temperature
@@ -464,8 +468,8 @@ protected:
      *            of the species in their reference states
      *            length: m_kk, units: dimensionless.
      */
-    virtual void getEntropy_R_ref(doublereal *er) const;
-                 
+    virtual void getEntropy_R_ref(doublereal* er) const;
+
     /*!
      *  Returns the vector of nondimensional
      *  constant pressure heat capacities of the reference state
@@ -476,7 +480,7 @@ protected:
      *             of the species in their reference states
      *             length: m_kk, units: dimensionless.
      */
-    virtual void getCp_R_ref(doublereal *cprt) const;
+    virtual void getCp_R_ref(doublereal* cprt) const;
 
     //!  Get the molar volumes of the species reference states at the current
     //!  <I>T</I> and <I>P_ref</I> of the solution.
@@ -486,23 +490,23 @@ protected:
      * @param vol     Output vector containing the standard state volumes.
      *                Length: m_kk.
      */
-    virtual void getStandardVolumes_ref(doublereal *vol) const;
+    virtual void getStandardVolumes_ref(doublereal* vol) const;
 
-  protected:
+protected:
 
-  
+
 
     //@}
 
-	
-  public:
- 
+
+public:
+
     //! @name Initialization Methods - For Internal use (VPStandardState)
     /*!
      * The following methods are used in the process of constructing
-     * the phase and setting its parameters from a specification in an 
+     * the phase and setting its parameters from a specification in an
      * input file. They are not normally used in application programs.
-     * To see how they are used, see files importCTML.cpp and 
+     * To see how they are used, see files importCTML.cpp and
      * ThermoFactory.cpp.
      */
     //@{
@@ -513,13 +517,13 @@ protected:
      * file importCTML.cpp when processing a phase definition in
      * an input file. It should be overloaded in subclasses to set
      * any parameters that are specific to that particular phase
-     * model. 
-     *   
+     * model.
+     *
      * @param eosdata An XML_Node object corresponding to
      *                the "thermo" entry for this phase in the input file.
      */
     virtual void setParametersFromXML(const XML_Node& eosdata) {}
-  
+
     //! @internal Initialize the object
     /*!
      * This method is provided to allow
@@ -563,7 +567,7 @@ protected:
      *             the species in the phase.
      * @param id   ID of the phase. If nonnull, a check is done
      *             to see if phaseNode is pointing to the phase
-     *             with the correct id. 
+     *             with the correct id.
      */
     virtual void initThermoXML(XML_Node& phaseNode, std::string id);
 
@@ -572,29 +576,29 @@ protected:
     /*!
      * @param vp_ptr Pointer to the manager
      */
-    void setVPSSMgr(VPSSMgr *vp_ptr);
+    void setVPSSMgr(VPSSMgr* vp_ptr);
 
     //! Return a pointer to the VPSSMgr for this phase
     /*!
      *  @return Returns a pointer to the VPSSMgr for this phase
      */
-    VPSSMgr *provideVPSSMgr();
+    VPSSMgr* provideVPSSMgr();
 
-    void createInstallPDSS(size_t k,  const XML_Node& s, const XML_Node * phaseNode_ptr);
+    void createInstallPDSS(size_t k,  const XML_Node& s, const XML_Node* phaseNode_ptr);
 
     PDSS* providePDSS(size_t k);
     const PDSS* providePDSS(size_t k) const;
 
-  private:
+private:
     //!  @internal Initialize the internal lengths in this object.
     /*!
      * Note this is not a virtual function.
      */
     void initLengths();
 
-   //@}
+    //@}
 
-  protected:
+protected:
 
     //! Current value of the pressure - state variable
     /*!
@@ -619,11 +623,11 @@ protected:
     doublereal m_P0;
 
     // -> suggest making this private!
-  protected:
+protected:
 
     //! Pointer to the VPSS manager that calculates all of the standard state
     //! info efficiently.
-    mutable VPSSMgr *m_VPSS_ptr;
+    mutable VPSSMgr* m_VPSS_ptr;
 
     //! Storage for the PDSS objects for the species
     /*!
@@ -631,10 +635,10 @@ protected:
      *  VPStandardStateTp owns each of the objects.
      *  Copy operations are deep.
      */
-    std::vector<PDSS *> m_PDSS_storage;
+    std::vector<PDSS*> m_PDSS_storage;
 
-      
-  private:
+
+private:
 
     //! VPStandardStateTP has its own err routine
     /*!
@@ -642,7 +646,7 @@ protected:
      */
     doublereal err(std::string msg) const;
 
-  };
+};
 }
-        
+
 #endif

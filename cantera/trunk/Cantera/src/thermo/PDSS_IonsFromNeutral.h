@@ -16,39 +16,41 @@
 #include "PDSS.h"
 
 
-namespace Cantera {
-  class XML_Node;
-  class VPStandardStateTP;
-  class ThermoPhase;
+namespace Cantera
+{
+class XML_Node;
+class VPStandardStateTP;
+class ThermoPhase;
 
-  
-  //! Derived class for pressure dependent standard states of an ideal gas species
-  /*!
-   * This class is for a single Ideal Gas species.
-   *
-   * @ingroup pdssthermo
-   */
-  class PDSS_IonsFromNeutral : public PDSS {
 
-  public:
+//! Derived class for pressure dependent standard states of an ideal gas species
+/*!
+ * This class is for a single Ideal Gas species.
+ *
+ * @ingroup pdssthermo
+ */
+class PDSS_IonsFromNeutral : public PDSS
+{
 
-   /**
-     * @name  Constructors
-     * @{
-     */
+public:
+
+    /**
+      * @name  Constructors
+      * @{
+      */
 
     //! Constructor
     /*!
      *  @param tp        Pointer to the ThermoPhase object pertaining to the phase
      *  @param spindex   Species index of the species in the phase
      */
-    PDSS_IonsFromNeutral(VPStandardStateTP *tp, size_t spindex);
+    PDSS_IonsFromNeutral(VPStandardStateTP* tp, size_t spindex);
 
     //! Constructor that initializes the object by examining the input file
     //! of the ThermoPhase object
     /*!
      *  This function calls the constructPDSSFile member function.
-     * 
+     *
      *  @param tp        Pointer to the ThermoPhase object pertaining to the phase
      *  @param spindex   Species index of the species in the phase
      *  @param inputFile String name of the input file
@@ -56,15 +58,15 @@ namespace Cantera {
      *                   is the empty string, in which case the first phase in the
      *                   file is used.
      */
-    PDSS_IonsFromNeutral(VPStandardStateTP *tp, size_t spindex,
-			 std::string inputFile, std::string id = "");
+    PDSS_IonsFromNeutral(VPStandardStateTP* tp, size_t spindex,
+                         std::string inputFile, std::string id = "");
 
-   
+
     //! Constructor that initializes the object by examining the input file
     //! of the ThermoPhase object
     /*!
      *  This function calls the constructPDSSXML member function.
-     * 
+     *
      *  @param vptp_ptr    Pointer to the ThermoPhase object pertaining to the phase
      *  @param spindex     Species index of the species in the phase
      *  @param speciesNode Reference to the species XML tree.
@@ -72,8 +74,8 @@ namespace Cantera {
      *  @param spInstalled Boolean indicating whether the species is installed yet
      *                     or not.
      */
-    PDSS_IonsFromNeutral(VPStandardStateTP *vptp_ptr, size_t spindex, const XML_Node& speciesNode,
-			 const XML_Node& phaseRef, bool spInstalled);
+    PDSS_IonsFromNeutral(VPStandardStateTP* vptp_ptr, size_t spindex, const XML_Node& speciesNode,
+                         const XML_Node& phaseRef, bool spInstalled);
 
     //! Copy Constructor
     /*!
@@ -91,12 +93,12 @@ namespace Cantera {
     virtual ~PDSS_IonsFromNeutral();
 
     //! Duplicator
-    virtual PDSS *duplMyselfAsPDSS() const;
+    virtual PDSS* duplMyselfAsPDSS() const;
 
     //! Initialize or Reinitialize all shallow pointers in the object
     /*!
      *  This command is called to reinitialize all shallow pointers in the
-     *  object. It's needed for the duplicator capability. 
+     *  object. It's needed for the duplicator capability.
      *  We need to have an inherited function here to set neutralMoleculePhase_ properly.
      *
      * @param vptp_ptr       Pointer to the Variable pressure %ThermoPhase object
@@ -109,17 +111,17 @@ namespace Cantera {
      *                       that will handle the calculation of the reference
      *                       state thermodynamic coefficients.
      */
-    virtual void initAllPtrs(VPStandardStateTP *vptp_ptr, VPSSMgr *vpssmgr_ptr, 
-			     SpeciesThermo* spthermo_ptr);
+    virtual void initAllPtrs(VPStandardStateTP* vptp_ptr, VPSSMgr* vpssmgr_ptr,
+                             SpeciesThermo* spthermo_ptr);
 
     /**
      * @}
-     * @name  Utilities  
+     * @name  Utilities
      * @{
      */
-  
+
     /**
-     * @} 
+     * @}
      * @name  Molar Thermodynamic Properties of the Species Standard State
      *        in the Solution
      * @{
@@ -187,13 +189,13 @@ namespace Cantera {
      *  \f[
      *    \frac{\mu^o_k}{RT} = \sum_{m}{ \alpha_{m , k} \frac{\mu^o_{m}}{RT}} + ( 1 - \delta_{k,sp}) 2.0 \ln{2.0}
      *  \f]
-     *  
-     *  <I>m</I> is the neutral molecule species index. \f$ \alpha_{m , k} \f$ is the stoiciometric 
+     *
+     *  <I>m</I> is the neutral molecule species index. \f$ \alpha_{m , k} \f$ is the stoiciometric
      *  coefficient for the neutral molecule,  <I>m</I>, that creates the thermodynamics for the ionic species  <I>k</I>.
      *  A factor  \f$ 2.0 \ln{2.0} \f$ is added to all ions except for the species ionic species, which in this
      *  case is the single anion species, with species index <I>sp</I>.
      *
-     * @return Returns the species standard state gibbs free energy divided by <I>RT</I> 
+     * @return Returns the species standard state gibbs free energy divided by <I>RT</I>
      */
     virtual doublereal gibbs_RT() const;
 
@@ -245,9 +247,9 @@ namespace Cantera {
     virtual doublereal density() const;
 
     /**
-     * @} 
+     * @}
      * @name Properties of the Reference State of the Species
-     *       in the Solution 
+     *       in the Solution
      * @{
      */
 
@@ -304,7 +306,7 @@ namespace Cantera {
 
     /**
      * @}
-     *  @name Mechanical Equation of State Properties 
+     *  @name Mechanical Equation of State Properties
      * @{
      */
 
@@ -343,28 +345,28 @@ namespace Cantera {
      * @param  rho      Density (Pascals)
      */
     virtual void setState_TR(doublereal temp, doublereal rho);
-    
+
     /**
      * @}
      *  @name  Miscellaneous properties of the standard state
      * @{
      */
 
-    /// critical temperature 
+    /// critical temperature
     virtual doublereal critTemperature() const;
- 
+
     /// critical pressure
     virtual doublereal critPressure() const;
-        
+
     /// critical density
     virtual doublereal critDensity() const;
-        
+
     /// saturation pressure
     /*!
      *  @param t  Temperature (Kelvin)
      */
     virtual doublereal satPressure(doublereal t);
-    
+
     /**
      * @}
      *  @name  Initialization of the Object
@@ -390,18 +392,18 @@ namespace Cantera {
      *                    phase. If none is given, the first XML
      *                    phase element will be used.
      */
-    void constructPDSSFile(VPStandardStateTP *vptp_ptr, size_t spindex,
-			   std::string inputFile, std::string id);
+    void constructPDSSFile(VPStandardStateTP* vptp_ptr, size_t spindex,
+                           std::string inputFile, std::string id);
 
     //!  Initialization of a PDSS object using an xml tree
     /*!
      * This routine is a driver for the initialization of the object.
-     * 
+     *
      *   basic logic:
      *       initThermo()                 (cascade)
      *       getStuff from species Part of XML file
      *       initThermoXML(phaseNode)      (cascade)
-     * 
+     *
      * @param vptp_ptr   Pointer to the Variable pressure %ThermoPhase object
      *                   This object must have already been malloced.
      *
@@ -417,9 +419,9 @@ namespace Cantera {
      *                   phase. If none is given, the first XML
      *                   phase element will be used.
      */
-    void constructPDSSXML(VPStandardStateTP *vptp_ptr, size_t spindex,
-			  const XML_Node& speciesNode,
-			  const XML_Node& phaseNode, std::string id);
+    void constructPDSSXML(VPStandardStateTP* vptp_ptr, size_t spindex,
+                          const XML_Node& speciesNode,
+                          const XML_Node& phaseNode, std::string id);
 
     //! Initialization routine for the PDSS object based on the phaseNode
     /*!
@@ -452,7 +454,7 @@ namespace Cantera {
 
 
 
-  protected:
+protected:
 
     //! Maximum temperature the standard states are good for
     doublereal m_tmin;
@@ -460,14 +462,14 @@ namespace Cantera {
     //! Minimum temperature the standard states are good for
     doublereal m_tmax;
 
- 
-    //! Pointer to the Neutral Molecule ThermoPhase object 
+
+    //! Pointer to the Neutral Molecule ThermoPhase object
     /*!
      *  This is a shallow pointer.
      */
-    ThermoPhase *neutralMoleculePhase_;
+    ThermoPhase* neutralMoleculePhase_;
 
-  public:
+public:
 
     //! Number of neutral molecule species that make up the stoichiometric vector for
     //! this species, in terms of calculating thermodynamic functions
@@ -479,7 +481,7 @@ namespace Cantera {
     //! Stoichiometric coefficient for this species using the Neutral Molecule Species
     //! in the vector idNeutralMoleculeVec
     std::vector<double> factorVec;
-    
+
     //! Add 2RTln2 to the entropy and Gibbs free energies for this species
     /*!
      *  This is true if this species is not the special species
@@ -488,10 +490,10 @@ namespace Cantera {
 
     //! Vector of length equal to the number of species in the neutral molecule phase
     mutable std::vector<double> tmpNM;
-    
+
     //! True if this species is the special species
     int specialSpecies_;
-  };
+};
 }
 
 #endif

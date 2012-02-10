@@ -5,9 +5,10 @@
 
 // The actual code is put into a function that
 // can be called from the main program.
-void simple_demo() {
+void simple_demo()
+{
 
-    // Create a new phase 
+    // Create a new phase
     ThermoPhase* gas = newPhase("h2o2.cti","ohmech");
 
     // Set its state by specifying T (500 K) P (2 atm) and the mole
@@ -25,13 +26,13 @@ void simple_demo() {
 
 // the main program just calls function simple_demo within
 // a 'try' block, and catches CanteraError exceptions that
-// might be thrown 
-int main() {
+// might be thrown
+int main()
+{
 
     try {
         simple_demo();
-    }
-    catch (CanteraError) {
+    } catch (CanteraError) {
         showErrors();
     }
 }

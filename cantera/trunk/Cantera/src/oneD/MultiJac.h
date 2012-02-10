@@ -13,83 +13,95 @@
 #include "OneDim.h"
 #include "time.h"
 
-namespace Cantera {
+namespace Cantera
+{
+
+/**
+ * Class MultiJac evaluates the Jacobian of a system of equations
+ * defined by a residual function supplied by an instance of class
+ * 'OneDim.' The residual function may consist of several linked
+ * 1D domains, with different variables in each domain.
+ */
+class MultiJac : public BandMatrix
+{
+
+public:
 
     /**
-     * Class MultiJac evaluates the Jacobian of a system of equations
-     * defined by a residual function supplied by an instance of class
-     * 'OneDim.' The residual function may consist of several linked
-     * 1D domains, with different variables in each domain.
+     * Constructor.
      */
-    class MultiJac : public BandMatrix {
+    MultiJac(OneDim& r);
 
-    public:
+    /// Destructor. Does nothing.
+    virtual ~MultiJac() {}
 
-        /** 
-         * Constructor.
-         */
-        MultiJac(OneDim& r);
+    /**
+     * Evaluate the Jacobian at x0. The unperturbed residual
+     * function is resid0, which must be supplied on input. The
+     * third parameter 'rdt' is the reciprocal of the time
+     * step. If zero, the steady-state Jacobian is evaluated.
+     */
+    void eval(doublereal* x0, doublereal* resid0, double rdt);
 
-        /// Destructor. Does nothing.
-        virtual ~MultiJac(){}
+    /**
+     * Elapsed CPU time spent computing the Jacobian.
+     */
+    doublereal elapsedTime() const {
+        return m_elapsed;
+    }
 
-        /**
-         * Evaluate the Jacobian at x0. The unperturbed residual
-         * function is resid0, which must be supplied on input. The
-         * third parameter 'rdt' is the reciprocal of the time
-         * step. If zero, the steady-state Jacobian is evaluated.
-         */
-        void eval(doublereal* x0, doublereal* resid0, double rdt);
+    /// Number of Jacobian evaluations.
+    int nEvals() const {
+        return m_nevals;
+    }
 
-        /**
-         * Elapsed CPU time spent computing the Jacobian.
-         */
-        doublereal elapsedTime() const {
-            return m_elapsed;
-        }
+    /**
+     * Number of times 'incrementAge' has been called since the
+     * last evaluation
+     */
+    int age() const {
+        return m_age;
+    }
 
-        /// Number of Jacobian evaluations.
-        int nEvals() const { return m_nevals; }
+    /**
+     * Increment the Jacobian age.
+     */
+    void incrementAge() {
+        m_age++;
+    }
 
-        /**
-         * Number of times 'incrementAge' has been called since the
-         * last evaluation
-         */
-        int age() const { return m_age; }
+    void updateTransient(doublereal rdt, integer* mask);
 
-        /**
-         * Increment the Jacobian age.
-         */
-        void incrementAge() { m_age++; }
+    /// Set the age.
+    void setAge(int age) {
+        m_age = age;
+    }
 
-        void updateTransient(doublereal rdt, integer* mask);
+    vector_int& transientMask() {
+        return m_mask;
+    }
 
-        /// Set the age.
-        void setAge(int age) { m_age = age; }
+    void incrementDiagonal(int j, doublereal d);
 
-        vector_int& transientMask() { return m_mask; }
+protected:
 
-        void incrementDiagonal(int j, doublereal d);
+    //!  Residual evaluator for this jacobian
+    /*!
+     *  This is a pointer to the residual evaluator. This
+     *  object isn't owned by this jacobian object.
+     */
+    OneDim* m_resid;
 
-    protected:
-
-        //!  Residual evaluator for this jacobian
-        /*!
-         *  This is a pointer to the residual evaluator. This
-         *  object isn't owned by this jacobian object.
-         */ 
-        OneDim* m_resid;
-
-        vector_fp    m_r1;
-        doublereal m_rtol, m_atol;
-        doublereal m_elapsed;
-        vector_fp m_ssdiag;
-        vector_int m_mask;
-        int m_nevals;
-        int m_age;
-        size_t m_size;
-        size_t m_points;
-    };
+    vector_fp    m_r1;
+    doublereal m_rtol, m_atol;
+    doublereal m_elapsed;
+    vector_fp m_ssdiag;
+    vector_int m_mask;
+    int m_nevals;
+    int m_age;
+    size_t m_size;
+    size_t m_points;
+};
 }
 
 #endif

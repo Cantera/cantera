@@ -1,7 +1,7 @@
 /**
  *  @file GeneralMatrix.h
  *   Declarations for the class GeneralMatrix which is a virtual base class for matrices handled by solvers
- *    (see class \ref numerics and \link Cantera::GeneralMatrix GeneralMatrix\endlink).  
+ *    (see class \ref numerics and \link Cantera::GeneralMatrix GeneralMatrix\endlink).
  */
 
 /*
@@ -20,13 +20,15 @@
 
 #include "ct_defs.h"
 
-namespace Cantera {
+namespace Cantera
+{
 
-  //! Generic matrix 
-  class GeneralMatrix {
+//! Generic matrix
+class GeneralMatrix
+{
 
 
-  public:
+public:
 
     //! Base Constructor
     /*!
@@ -38,10 +40,10 @@ namespace Cantera {
 
     //! Copy Constructor
     /*!
-     *  @param right Object to be copied 
+     *  @param right Object to be copied
      */
     GeneralMatrix(const GeneralMatrix& right);
-    
+
     //! Assignment operator
     /*!
      *  @param right  Object to be copied
@@ -57,7 +59,7 @@ namespace Cantera {
      *
      *  @return Returns a pointer to the malloced object
      */
-    virtual GeneralMatrix * duplMyselfAsGeneralMatrix() const = 0;
+    virtual GeneralMatrix* duplMyselfAsGeneralMatrix() const = 0;
 
     //! Zero the matrix elements
     virtual void zero() = 0;
@@ -65,17 +67,17 @@ namespace Cantera {
     //! Multiply A*b and write result to prod.
     /*!
      *  @param b    Vector to do the rh multiplcation
-     *  @param prod OUTPUT vector to receive the result 
+     *  @param prod OUTPUT vector to receive the result
      */
-    virtual void mult(const doublereal * const b, doublereal * const prod) const = 0;
+    virtual void mult(const doublereal* const b, doublereal* const prod) const = 0;
 
     //! Multiply b*A and write result to prod.
     /*!
      *  @param b    Vector to do the lh multiplcation
-     *  @param prod OUTPUT vector to receive the result 
+     *  @param prod OUTPUT vector to receive the result
      */
-    virtual void leftMult(const doublereal * const b, doublereal * const prod) const = 0;
-    
+    virtual void leftMult(const doublereal* const b, doublereal* const prod) const = 0;
+
     //! Factors the A matrix, overwriting A.
     /*
      *   We flip m_factored  boolean to indicate that the matrix is now A-1.
@@ -118,7 +120,7 @@ namespace Cantera {
 
     //! Return the factor algorithm used
     /*!
-     *   
+     *
      */
     virtual int factorAlgorithm() const = 0;
 
@@ -141,7 +143,7 @@ namespace Cantera {
      *
      * @return  returns the number of rows and columns in the matrix.
      */
-    virtual size_t nRowsAndStruct(int * const iStruct = 0) const = 0;
+    virtual size_t nRowsAndStruct(int* const iStruct = 0) const = 0;
 
     //! clear the factored flag
     virtual void clearFactorFlag() = 0;
@@ -150,7 +152,7 @@ namespace Cantera {
     /*!
      *  @param b  Vector for the rhs of the equation system
      */
-    virtual int solve(doublereal *b) = 0;
+    virtual int solve(doublereal* b) = 0;
 
     //! true if the current factorization is up to date with the matrix
     virtual bool factored() const = 0;
@@ -161,7 +163,7 @@ namespace Cantera {
      *
      *  @return  Returns a pointer to the top of the column
      */
-    virtual doublereal * ptrColumn(int j) = 0;
+    virtual doublereal* ptrColumn(int j) = 0;
 
     //! Index into the (i,j) element
     /*!
@@ -180,7 +182,7 @@ namespace Cantera {
      *
      *  Returns an unchangeable reference to the matrix entry
      */
-    virtual  doublereal operator() (int i, int j) const = 0;
+    virtual  doublereal operator()(int i, int j) const = 0;
 
     //! Copy the data from one array into another without doing any checking
     /*!
@@ -195,7 +197,7 @@ namespace Cantera {
      */
     virtual  vector_fp::iterator begin() = 0;
 
-    //! Return a const iterator pointing to the first element 
+    //! Return a const iterator pointing to the first element
     /*!
      *  We might drop this later
      */
@@ -207,9 +209,9 @@ namespace Cantera {
      *  However, the value of the matrix is open to being changed.
      *
      *   @return returns a vector of pointers to the top of the columns
-     *           of the matrices.  
+     *           of the matrices.
      */
-    virtual doublereal  * const * colPts() = 0;
+    virtual doublereal*   const* colPts() = 0;
 
     //! Check to see if we have any zero rows in the jacobian
     /*!
@@ -220,7 +222,7 @@ namespace Cantera {
      *
      * @return index of the row that is most nearly zero
      */
-    virtual int checkRows (doublereal & valueSmall) const = 0;
+    virtual int checkRows(doublereal& valueSmall) const = 0;
 
     //! Check to see if we have any zero columns in the jacobian
     /*!
@@ -231,7 +233,7 @@ namespace Cantera {
      *
      * @return index of the column that is most nearly zero
      */
-    virtual int checkColumns (doublereal & valueSmall) const = 0;
+    virtual int checkColumns(doublereal& valueSmall) const = 0;
 
     //! Matrix type
     /*!
@@ -240,6 +242,6 @@ namespace Cantera {
      */
     int matrixType_;
 
-  };
+};
 }
 #endif

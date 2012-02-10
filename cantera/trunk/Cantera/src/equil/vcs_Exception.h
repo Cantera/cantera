@@ -2,7 +2,7 @@
  * @file vcs_Exception.h
  */
 /*
- * Copywrite (2005) Sandia Corporation. Under the terms of 
+ * Copywrite (2005) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -11,12 +11,14 @@
 
 #include <string>
 
-namespace VCSnonideal {
+namespace VCSnonideal
+{
 
-class vcsError {
+class vcsError
+{
 public:
     vcsError(std::string proc, std::string msg, int errorCode=-1);
-    virtual ~vcsError(){}
+    virtual ~vcsError() {}
 protected:
     std::string m_proc;
     std::string m_msg;
@@ -26,12 +28,12 @@ protected:
 
 //!  Assertion must be true or an error is thrown
 /*!
- * Assertion must be true or else a vcsError is thrown. A diagnostic 
+ * Assertion must be true or else a vcsError is thrown. A diagnostic
  * string indicating where the error
  * occured is added to the thrown object.
  *
  * @param expr  Boolean expression that must be true
- * @param proc  Character string or std:string expression indicating the procedure 
+ * @param proc  Character string or std:string expression indicating the procedure
  *              where the assertion failed
  * @ingroup errorhandling
  */
@@ -40,7 +42,7 @@ protected:
 #ifdef DEBUG_HKM
 #define DebugAssertThrowVCS(expr, proc)  ((expr) ? (void) 0 : throw vcsError(proc, std::string("failed debugAssert: ") + #expr,-1))
 #else
-#define DebugAssertThrowVCS(expr, proc)  
+#define DebugAssertThrowVCS(expr, proc)
 #endif
 
 }

@@ -2,7 +2,7 @@
  * @file MMCollisionInt.h
  *  Monk and Monchick collision integrals
  */
-// Copyright 2001  California Institute of Technology 
+// Copyright 2001  California Institute of Technology
 
 #ifndef CT_MMCOLLISIONINT_H
 #define CT_MMCOLLISIONINT_H
@@ -10,17 +10,19 @@
 #include <vector>
 #include "ct_defs.h"
 
-namespace Cantera {
+namespace Cantera
+{
 
-  class XML_Writer;
+class XML_Writer;
 
 
-  //! Error handler class for collision integrals
-  /*!
-   * This class doesn't 
-   */
-  class MMCollisionIntError {
-  public:
+//! Error handler class for collision integrals
+/*!
+ * This class doesn't
+ */
+class MMCollisionIntError
+{
+public:
 
     //! Constructor
     /*!
@@ -28,27 +30,28 @@ namespace Cantera {
      *  @param  msg       error message
      */
     MMCollisionIntError(std::ostream& logfile, std::string msg) {
-      logfile << "#### ERROR ####" << std::endl;
-      logfile << "MMCollisionInt: " << msg << std::endl;
-      std::cerr << "Error in fitting collision integrals. "
-		<< "Execution terminated." << std::endl 
-		<< "See transport log file for more information." << std::endl; 
+        logfile << "#### ERROR ####" << std::endl;
+        logfile << "MMCollisionInt: " << msg << std::endl;
+        std::cerr << "Error in fitting collision integrals. "
+                  << "Execution terminated." << std::endl
+                  << "See transport log file for more information." << std::endl;
     }
-  };
+};
 
 
-  
-  //! Calculation of Collision integrals
-  /*!
-   * This class provides functions that
-   * interpolate the tabulated collision integrals in Monchick and
-   * Mason, "Transport Properties of Polar Gases," J. Chem. Phys. (1961)
-   *
-   * @ingroup transportgroup
-   */
-  class MMCollisionInt {
 
-  public:
+//! Calculation of Collision integrals
+/*!
+ * This class provides functions that
+ * interpolate the tabulated collision integrals in Monchick and
+ * Mason, "Transport Properties of Polar Gases," J. Chem. Phys. (1961)
+ *
+ * @ingroup transportgroup
+ */
+class MMCollisionInt
+{
+
+public:
 
     //! Default Constructor
     MMCollisionInt();
@@ -107,7 +110,7 @@ namespace Cantera {
      *  @param cstar
      */
     void fit(std::ostream& logfile, int degree, doublereal deltastar,
-	     doublereal* astar, doublereal* bstar, doublereal* cstar);
+             doublereal* astar, doublereal* bstar, doublereal* cstar);
 
     //! fit_omega22
     /*!
@@ -124,10 +127,10 @@ namespace Cantera {
      *  @param deltastar
      */
     doublereal omega11(double ts, double deltastar) {
-      return omega22(ts, deltastar)/astar(ts, deltastar); 
-    }    
+        return omega22(ts, deltastar)/astar(ts, deltastar);
+    }
 
-  private:
+private:
 
     //! Fit delta
     /*!
@@ -160,7 +163,7 @@ namespace Cantera {
     //! Table of omega22 values from MM
     static doublereal omega22_table[37*8];
 
-    //! tstar 
+    //! tstar
     /*!
      *   table of tstar values
      */
@@ -189,7 +192,7 @@ namespace Cantera {
 
     //! loglevel
     int m_loglevel;
-  };
+};
 }
 #endif
 

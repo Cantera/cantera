@@ -6,21 +6,20 @@
 using namespace std;
 using namespace Cantera;
 
-int main() {
+int main()
+{
 
     Nucleus* a = HydrogenNucleus();
     Nucleus* b = HydrogenNucleus();
     if (*a == *b) {
         cout << "a and b and indistinguishable" << endl;
+    } else {
+        cout << "\nwhy are a and b not indistinguishable?\n";
+        return 1;
     }
-    else
-      {
-	cout << "\nwhy are a and b not indistinguishable?\n";
-	return 1;
-      }
 
     // test line broading classes
-    double gam = 2.0e0; 
+    double gam = 2.0e0;
     double sigma = 5.0;
 
     LineBroadener* lor = new Lorentzian(gam);
@@ -37,7 +36,7 @@ int main() {
         sumg += gaus->profile(nu)*dnu;
         sum += voig->profile(nu)*dnu;
         sumlor += lor->profile(nu)*dnu;
-        //cout << nu << ", " << (*lor)(nu) << ", " << (*gaus)(nu) 
+        //cout << nu << ", " << (*lor)(nu) << ", " << (*gaus)(nu)
         //     << ", " << (*voig)(nu) << endl;
     }
 
@@ -55,24 +54,21 @@ int main() {
     // guessing a sane tolerance
     double TOL = .0001;
 
-    if(abs(sum-.99363) > TOL)
-      {
-	cout << "\nVOIGT AREA REGRESSION TEST FAILURE\n";
-	return 1;
-      }
+    if (abs(sum-.99363) > TOL) {
+        cout << "\nVOIGT AREA REGRESSION TEST FAILURE\n";
+        return 1;
+    }
 
-    if(abs(sumg-1.0) > TOL)
-      {
-	cout << "\nGAUSSIAN AREA REGRESSION TEST FAILURE\n";
-	return 1;
-      }
-    if(abs(sumlor-.993634) > TOL)
-      {
-	cout << "\nLORENTZIAN AREA REGRESSION TEST FAILURE\n";
-	return 1;
-      }
+    if (abs(sumg-1.0) > TOL) {
+        cout << "\nGAUSSIAN AREA REGRESSION TEST FAILURE\n";
+        return 1;
+    }
+    if (abs(sumlor-.993634) > TOL) {
+        cout << "\nLORENTZIAN AREA REGRESSION TEST FAILURE\n";
+        return 1;
+    }
 
-      // steady as she goes
-      return 0;
-    
+    // steady as she goes
+    return 0;
+
 }

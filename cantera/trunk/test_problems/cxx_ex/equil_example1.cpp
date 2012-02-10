@@ -17,18 +17,22 @@ using namespace Cantera;
 // utility functions for plotting
 
 template<class G, class V>
-void makeEquilDataLabels(const G& gas, V& names) {
+void makeEquilDataLabels(const G& gas, V& names)
+{
     int nsp = gas.nSpecies();
     names.resize(nsp + 2);
     names[0]  = "Temperature (K)";
     names[1]  = "Pressure (Pa)";
     int k;
-    for (k = 0; k < nsp; k++) names[2+k] = gas.speciesName(k);
+    for (k = 0; k < nsp; k++) {
+        names[2+k] = gas.speciesName(k);
+    }
 }
 
 template<class G, class A>
 void plotEquilSoln(std::string fname, std::string fmt, std::string title,
-                   const G& gas, const A& soln) {
+                   const G& gas, const A& soln)
+{
     std::vector<std::string> names;
     makeEquilDataLabels(gas, names);
     writePlotFile(fname, fmt, title, names, soln);
@@ -36,7 +40,7 @@ void plotEquilSoln(std::string fname, std::string fmt, std::string title,
 //-----------------------------------------------------------------
 
 
-// Equilibrium example. This is written as a function so that one 
+// Equilibrium example. This is written as a function so that one
 // driver program can run multiple examples.
 // The action taken depends on input parameter job:
 //     job = 0:   print a one-line description of the example.
@@ -44,14 +48,17 @@ void plotEquilSoln(std::string fname, std::string fmt, std::string title,
 //     job = 2:   print description, then run the example.
 
 
-int equil_example1(int job) {
+int equil_example1(int job)
+{
 
     std::cout << "Chemical equilibrium." << std::endl;
     if (job > 0) {
         std::cout << "Equilibrium composition and pressure for a "
                   << "range of temperatures at constant density." << std::endl;
     }
-    if (job <= 1) return 0; 
+    if (job <= 1) {
+        return 0;
+    }
 
     // create a gas mixture, and set its state
 
@@ -61,7 +68,7 @@ int equil_example1(int job) {
 
     int ntemps = 50;   // number of temperatures
     Array2D output(nsp+2, ntemps);
-        
+
     // main loop
     doublereal temp;
     doublereal thigh = gas.maxTemp();
@@ -70,7 +77,9 @@ int equil_example1(int job) {
     doublereal pres = 0.01*OneAtm;
     for (int i = 0; i < ntemps; i++) {
         temp = tlow + dt*i;
-        if (temp > gas.maxTemp()) break;
+        if (temp > gas.maxTemp()) {
+            break;
+        }
         gas.setState_TPX(temp, pres, "SIH4:0.01, H2:0.99");
 
         //        equilibrate(gas,"TP",1,1.0e-9,1000,100,15);

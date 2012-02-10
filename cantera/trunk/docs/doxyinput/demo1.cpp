@@ -4,13 +4,14 @@
 #include <cantera/equilibrium.h>    // chemical equilibrium
 #include <cantera/transport.h>      // transport properties
 
-void demoprog() {
+void demoprog()
+{
 
     // construct a gas mixture object from the specification in
     // fileh2o2.cti, which defines a reacting hydrogen/oxygen mixture.
     IdealGasMix gas("h2o2.cti","ohmech");
 
-    // set its state by specifying the temperature, pressure, 
+    // set its state by specifying the temperature, pressure,
     // and mole fractions
     double temp = 1200.0;
     double pres = OneAtm;
@@ -28,7 +29,7 @@ void demoprog() {
         "Molar cp:       %14.5g J/kmol-K\n",
         gas.temperature(), gas.pressure(), gas.density(),
         gas.enthalpy_mole(), gas.entropy_mole(), gas.cp_mole());
-        
+
     // set the gas to the equilibrium state with the same specific
     // enthalpy and pressure
     equilibrate(gas,"HP");
@@ -48,7 +49,7 @@ void demoprog() {
 
 
     //   Reaction information
- 
+
     int irxns = gas.nReactions();
     double* qf = new double[irxns];
     double* qr = new double[irxns];
@@ -64,8 +65,8 @@ void demoprog() {
 
     printf("\n\n");
     for (int i = 0; i < irxns; i++) {
-        printf("%30s %14.5g %14.5g %14.5g  kmol/m3/s\n", 
-            gas.reactionString(i).c_str(), qf[i], qr[i], q[i]);
+        printf("%30s %14.5g %14.5g %14.5g  kmol/m3/s\n",
+               gas.reactionString(i).c_str(), qf[i], qr[i], q[i]);
     }
 
 
@@ -92,15 +93,15 @@ void demoprog() {
     delete diff;
     delete tr;
 }
-     
 
- 
-int main() {
+
+
+int main()
+{
 
     try {
         demoprog();
-    }
-    catch (CanteraError) {
+    } catch (CanteraError) {
         showErrors(cout);
     }
 }

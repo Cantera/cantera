@@ -58,13 +58,16 @@
  */
 
 template<class M>
-class Cabinet {
+class Cabinet
+{
 public:
 
     /**
      * Destructor. Delete all objects in the list.
      */
-    virtual ~Cabinet() {clear();}
+    virtual ~Cabinet() {
+        clear();
+    }
 
     /**
      * Static function that returns a pointer to the one Cabinet<M>
@@ -79,8 +82,8 @@ public:
     }
 
 
-    /** 
-     * Add a new object. The index of the object is returned.  
+    /**
+     * Add a new object. The index of the object is returned.
      */
     int add(M* ptr) {
         //try {
@@ -92,7 +95,7 @@ public:
     }
 
 
-    /** 
+    /**
      * Make a new copy of an existing object.  The index of the new
      * object is returned.
      */
@@ -101,13 +104,15 @@ public:
             M* old = __table[i];
             __table.push_back(new M(*old));
             return static_cast<int>(__table.size()) - 1;
+        } catch (Cantera::CanteraError) {
+            return -1;
+        } catch (...) {
+            return -999;
         }
-        catch (Cantera::CanteraError) {return -1;}
-        catch (...) {return -999;}
     }
 
 
-    /** 
+    /**
      * Assign one object (index j) to another (index i).  This method
      * is not used currently, and may be removed from the class in the
      * future.
@@ -118,20 +123,26 @@ public:
             M* dest = __table[i];
             *dest = *src;
             return 0;
+        } catch (Cantera::CanteraError) {
+            return -1;
+        } catch (...) {
+            return -999;
         }
-        catch (Cantera::CanteraError) {return -1;}
-        catch (...) {return -999;}
     }
 
 
-    /** 
+    /**
      * Delete all objects but the first.
      */
     int clear() {
         int i, n;
         n = static_cast<int>(__table.size());
-        for (i = 1; i < n; i++) {del(i);}
-        if (_can_delete) delete __table[0];
+        for (i = 1; i < n; i++) {
+            del(i);
+        }
+        if (_can_delete) {
+            delete __table[0];
+        }
         __table.clear();
         add(new M);
         return 0;
@@ -144,39 +155,44 @@ public:
      * in the list.
      */
     void del(int n) {
-        if (n == 0) return;
-        if (__table[n] != __table[0]) {
-            if (_can_delete) delete __table[n];
-            __table[n] = __table[0]; 
+        if (n == 0) {
+            return;
         }
-        else {
-            throw Cantera::CanteraError("Cabinet<M>::del", 
-                "Attempt made to delete an already-deleted object.");
-        } 
+        if (__table[n] != __table[0]) {
+            if (_can_delete) {
+                delete __table[n];
+            }
+            __table[n] = __table[0];
+        } else {
+            throw Cantera::CanteraError("Cabinet<M>::del",
+                                        "Attempt made to delete an already-deleted object.");
+        }
     }
 
 
-    /** 
+    /**
      * Return a pointer to object n.
      */
     M* item(size_t n) {
-        if (n < __table.size())
+        if (n < __table.size()) {
             return __table[n];
-        else {
+        } else {
             throw Cantera::CanteraError("item","index out of range"+Cantera::int2str(int(n)));
             //return __table[0];
         }
     }
 
     /**
-     * Constructor. 
+     * Constructor.
      */
-    Cabinet(bool canDelete = true) : _can_delete(canDelete) { add(new M); }
+    Cabinet(bool canDelete = true) : _can_delete(canDelete) {
+        add(new M);
+    }
 
 private:
 
     /**
-     * Constructor. 
+     * Constructor.
      */
     //    Cabinet(bool canDelete = true) : _can_delete(canDelete) { add(new M); }
 

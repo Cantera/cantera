@@ -3,171 +3,228 @@
  *
  */
 static PyObject*
-kin_newFromXML(PyObject *self, PyObject *args) {
+kin_newFromXML(PyObject* self, PyObject* args)
+{
     int mxml, iphase, neighbor1, neighbor2, neighbor3, neighbor4;
-    if (!PyArg_ParseTuple(args, "iiiiii:newFromXML", &mxml, 
-            &iphase, &neighbor1, &neighbor2, &neighbor3, &neighbor4)) 
+    if (!PyArg_ParseTuple(args, "iiiiii:newFromXML", &mxml,
+                          &iphase, &neighbor1, &neighbor2, &neighbor3, &neighbor4)) {
         return NULL;
+    }
     int n = int(newKineticsFromXML(mxml, iphase, neighbor1, neighbor2,
-        neighbor3, neighbor4));
-    if (n < 0) return reportError(n);
+                                   neighbor3, neighbor4));
+    if (n < 0) {
+        return reportError(n);
+    }
     return Py_BuildValue("i",n);
 }
 
 static PyObject*
-kin_delete(PyObject *self, PyObject *args)
+kin_delete(PyObject* self, PyObject* args)
 {
     int kin;
-    if (!PyArg_ParseTuple(args, "i:kin_delete", &kin)) return NULL;    
+    if (!PyArg_ParseTuple(args, "i:kin_delete", &kin)) {
+        return NULL;
+    }
     delKinetics(kin);
     return Py_BuildValue("i",0);
 }
 
 static PyObject*
-kin_phase(PyObject *self, PyObject *args) {
+kin_phase(PyObject* self, PyObject* args)
+{
     int kin, n;
-    if (!PyArg_ParseTuple(args, "ii:kin_phase", &kin, &n)) return NULL;
-    return Py_BuildValue("i",kin_phase(kin, n));        
-}
-
-static PyObject*
-kin_nspecies(PyObject *self, PyObject *args) {
-    int kin;
-    if (!PyArg_ParseTuple(args, "i:kin_nspecies", &kin)) return NULL;
-    return Py_BuildValue("i",kin_nSpecies(kin));        
-}
-
-static PyObject*
-kin_rstoichcoeff(PyObject *self, PyObject *args) {
-    int kin, i, k;
-    if (!PyArg_ParseTuple(args, "iii:kin_rstoichcoeff", &kin, &k, &i)) 
+    if (!PyArg_ParseTuple(args, "ii:kin_phase", &kin, &n)) {
         return NULL;
-    return Py_BuildValue("d",kin_reactantStoichCoeff(kin, k, i));        
+    }
+    return Py_BuildValue("i",kin_phase(kin, n));
 }
 
 static PyObject*
-kin_pstoichcoeff(PyObject *self, PyObject *args) {
-    int kin, i, k;
-    if (!PyArg_ParseTuple(args, "iii:kin_pstoichcoeff", &kin, &k, &i)) 
+kin_nspecies(PyObject* self, PyObject* args)
+{
+    int kin;
+    if (!PyArg_ParseTuple(args, "i:kin_nspecies", &kin)) {
         return NULL;
-    return Py_BuildValue("d",kin_productStoichCoeff(kin, k, i));        
+    }
+    return Py_BuildValue("i",kin_nSpecies(kin));
 }
 
 static PyObject*
-kin_nrxns(PyObject *self, PyObject *args) {
+kin_rstoichcoeff(PyObject* self, PyObject* args)
+{
+    int kin, i, k;
+    if (!PyArg_ParseTuple(args, "iii:kin_rstoichcoeff", &kin, &k, &i)) {
+        return NULL;
+    }
+    return Py_BuildValue("d",kin_reactantStoichCoeff(kin, k, i));
+}
+
+static PyObject*
+kin_pstoichcoeff(PyObject* self, PyObject* args)
+{
+    int kin, i, k;
+    if (!PyArg_ParseTuple(args, "iii:kin_pstoichcoeff", &kin, &k, &i)) {
+        return NULL;
+    }
+    return Py_BuildValue("d",kin_productStoichCoeff(kin, k, i));
+}
+
+static PyObject*
+kin_nrxns(PyObject* self, PyObject* args)
+{
     int kin;
-    if (!PyArg_ParseTuple(args, "i:kin_nreactions", &kin)) return NULL;
-    return Py_BuildValue("i",kin_nReactions(kin));        
+    if (!PyArg_ParseTuple(args, "i:kin_nreactions", &kin)) {
+        return NULL;
+    }
+    return Py_BuildValue("i",kin_nReactions(kin));
 }
 
 static PyObject*
-kin_nPhases(PyObject *self, PyObject *args) {
+kin_nPhases(PyObject* self, PyObject* args)
+{
     int kin;
-    if (!PyArg_ParseTuple(args, "i:kin_nPhases", &kin)) return NULL;
-    return Py_BuildValue("i",kin_nPhases(kin));        
+    if (!PyArg_ParseTuple(args, "i:kin_nPhases", &kin)) {
+        return NULL;
+    }
+    return Py_BuildValue("i",kin_nPhases(kin));
 }
 
 static PyObject*
-kin_phaseIndex(PyObject *self, PyObject *args) {
+kin_phaseIndex(PyObject* self, PyObject* args)
+{
     int kin;
     char* ph;
-    if (!PyArg_ParseTuple(args, "is:kin_phaseIndex", &kin, &ph)) return NULL;
-    return Py_BuildValue("i",kin_phaseIndex(kin, ph));        
+    if (!PyArg_ParseTuple(args, "is:kin_phaseIndex", &kin, &ph)) {
+        return NULL;
+    }
+    return Py_BuildValue("i",kin_phaseIndex(kin, ph));
 }
 
 static PyObject*
-kin_reactionPhaseIndex(PyObject *self, PyObject *args) {
+kin_reactionPhaseIndex(PyObject* self, PyObject* args)
+{
     int kin;
-    if (!PyArg_ParseTuple(args, "i:kin_reactionPhaseIndex", &kin)) return NULL;
-    return Py_BuildValue("i",kin_reactionPhaseIndex(kin));        
+    if (!PyArg_ParseTuple(args, "i:kin_reactionPhaseIndex", &kin)) {
+        return NULL;
+    }
+    return Py_BuildValue("i",kin_reactionPhaseIndex(kin));
 }
 
 static PyObject*
-kin_isrev(PyObject *self, PyObject *args) {
+kin_isrev(PyObject* self, PyObject* args)
+{
     int kin, i;
-    if (!PyArg_ParseTuple(args, "ii:kin_isrev", &kin, &i)) return NULL;
-    return Py_BuildValue("i",kin_isReversible(kin,i));        
+    if (!PyArg_ParseTuple(args, "ii:kin_isrev", &kin, &i)) {
+        return NULL;
+    }
+    return Py_BuildValue("i",kin_isReversible(kin,i));
 }
 
 static PyObject*
-kin_rxntype(PyObject *self, PyObject *args) {
+kin_rxntype(PyObject* self, PyObject* args)
+{
     int kin, i;
-    if (!PyArg_ParseTuple(args, "ii:kin_rxntype", &kin, &i)) return NULL;
-    return Py_BuildValue("i",kin_reactionType(kin,i));        
+    if (!PyArg_ParseTuple(args, "ii:kin_rxntype", &kin, &i)) {
+        return NULL;
+    }
+    return Py_BuildValue("i",kin_reactionType(kin,i));
 }
 
 static PyObject*
-kin_multiplier(PyObject *self, PyObject *args) {
+kin_multiplier(PyObject* self, PyObject* args)
+{
     int kin, i;
-    if (!PyArg_ParseTuple(args, "ii:kin_multiplier", &kin, &i)) return NULL;
-    return Py_BuildValue("d",kin_multiplier(kin,i));        
+    if (!PyArg_ParseTuple(args, "ii:kin_multiplier", &kin, &i)) {
+        return NULL;
+    }
+    return Py_BuildValue("d",kin_multiplier(kin,i));
 }
 
 static PyObject*
-kin_setMultiplier(PyObject *self, PyObject *args) {
+kin_setMultiplier(PyObject* self, PyObject* args)
+{
     int kin, i;
     double v;
-    if (!PyArg_ParseTuple(args, "iid:kin_setMultiplier", &kin, &i, &v)) return NULL;
-    return Py_BuildValue("i",kin_setMultiplier(kin,i,v));        
-}
-
-
-static PyObject*
-kin_type(PyObject *self, PyObject *args) {
-    int kin;
-    if (!PyArg_ParseTuple(args, "i:kin_type", &kin)) return NULL;
-    return Py_BuildValue("i",kin_type(kin));        
-}
-
-static PyObject*
-kin_start(PyObject *self, PyObject *args) {
-    int kin, p;
-    if (!PyArg_ParseTuple(args, "ii:kin_start", &kin, &p)) return NULL;
-    return Py_BuildValue("i",kin_start(kin,p));        
-}
-
-static PyObject*
-kin_speciesIndex(PyObject *self, PyObject *args) {
-    int kin;
-    char *nm, *ph;
-    if (!PyArg_ParseTuple(args, "iss:kin_speciesIndex", &kin, &nm, &ph)) 
+    if (!PyArg_ParseTuple(args, "iid:kin_setMultiplier", &kin, &i, &v)) {
         return NULL;
-    return Py_BuildValue("i",kin_speciesIndex(kin,nm,ph));        
+    }
+    return Py_BuildValue("i",kin_setMultiplier(kin,i,v));
+}
+
+
+static PyObject*
+kin_type(PyObject* self, PyObject* args)
+{
+    int kin;
+    if (!PyArg_ParseTuple(args, "i:kin_type", &kin)) {
+        return NULL;
+    }
+    return Py_BuildValue("i",kin_type(kin));
 }
 
 static PyObject*
-kin_advanceCoverages(PyObject *self, PyObject *args) {
+kin_start(PyObject* self, PyObject* args)
+{
+    int kin, p;
+    if (!PyArg_ParseTuple(args, "ii:kin_start", &kin, &p)) {
+        return NULL;
+    }
+    return Py_BuildValue("i",kin_start(kin,p));
+}
+
+static PyObject*
+kin_speciesIndex(PyObject* self, PyObject* args)
+{
+    int kin;
+    char* nm, *ph;
+    if (!PyArg_ParseTuple(args, "iss:kin_speciesIndex", &kin, &nm, &ph)) {
+        return NULL;
+    }
+    return Py_BuildValue("i",kin_speciesIndex(kin,nm,ph));
+}
+
+static PyObject*
+kin_advanceCoverages(PyObject* self, PyObject* args)
+{
     int kin;
     double dt;
-    if (!PyArg_ParseTuple(args, "id:kin_advanceCoverages", &kin, &dt)) 
+    if (!PyArg_ParseTuple(args, "id:kin_advanceCoverages", &kin, &dt)) {
         return NULL;
+    }
     int iok = kin_advanceCoverages(kin, dt);
-    if (iok < 0) return reportCanteraError();
-    return Py_BuildValue("i",0);        
+    if (iok < 0) {
+        return reportCanteraError();
+    }
+    return Py_BuildValue("i",0);
 }
 
 static PyObject*
-kin_getarray(PyObject *self, PyObject *args)
+kin_getarray(PyObject* self, PyObject* args)
 {
     int kin;
     int job;
-    
-    if (!PyArg_ParseTuple(args, "ii:kin_getarray", &kin, &job)) 
+
+    if (!PyArg_ParseTuple(args, "ii:kin_getarray", &kin, &job)) {
         return NULL;
+    }
 
     // array attributes
     int iok = -22;
     size_t nrxns = kin_nReactions(kin);
     size_t nsp = kin_nSpecies(kin);
     size_t ix;
-    if (job < 45 || job >= 90) ix = nrxns; else ix = nsp;
- 
+    if (job < 45 || job >= 90) {
+        ix = nrxns;
+    } else {
+        ix = nsp;
+    }
+
 #ifdef HAS_NUMPY
     npy_intp nix = ix;
     PyArrayObject* x = (PyArrayObject*)PyArray_SimpleNew(1, &nix, PyArray_DOUBLE);
 #else
     int nix = int(ix);
-    PyArrayObject* x = 
+    PyArrayObject* x =
         (PyArrayObject*)PyArray_FromDims(1, &nix, PyArray_DOUBLE);
 #endif
     double* xd = (double*)x->data;
@@ -231,22 +288,23 @@ kin_getarray(PyObject *self, PyObject *args)
     }
     if (iok >= 0) {
         return PyArray_Return(x);
-    }
-    else 
+    } else {
         return reportError(iok);
+    }
 }
 
 
 
-// string attributes 
+// string attributes
 static PyObject*
-kin_getstring(PyObject *self, PyObject *args)
+kin_getstring(PyObject* self, PyObject* args)
 {
     int kin, job, i, iok = -3;
     int buflen;
     char* output_buf = 0;
-    if (!PyArg_ParseTuple(args, "iii:kin_getstring", &kin, &job, &i)) 
+    if (!PyArg_ParseTuple(args, "iii:kin_getstring", &kin, &job, &i)) {
         return NULL;
+    }
     switch (job) {
     case 1:
         buflen = 80;
@@ -262,10 +320,10 @@ kin_getstring(PyObject *self, PyObject *args)
         return str;
     }
     delete output_buf;
-    if (iok == -1) 
+    if (iok == -1) {
         return reportCanteraError();
-    else {
+    } else {
         PyErr_SetString(ErrorObject,"Unknown string attribute");
         return NULL;
-    }        
+    }
 }

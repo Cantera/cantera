@@ -20,86 +20,88 @@
 #include "TransportParams.h"
 #include "LiquidTransportParams.h"
 
-namespace Cantera {
+namespace Cantera
+{
 
-  // Forward references
-  class LiquidTransportParams;
+// Forward references
+class LiquidTransportParams;
 
-    
-  //! Class LiquidTransport implements models for transport
-  //! properties for liquid phases.  
-  /*!
-   *  Liquid Transport is set up with some flexibility in 
-   *  this class.  Transport properties like viscostiy
-   *  and thermal conductivity are allowed flexibility within
-   *  the constraints of the LiquidTransportProperty and 
-   *  LiquidTransportInteractions classes. For species 
-   *  diffusion, the LiquidTransport class focuses on 
-   *  the Stefan-Maxwell equation to determine the diffusion 
-   *  velocities.  Other options for liquid diffusion include 
-   *  solvent-dominated diffusion, and a class SolventTransport 
-   *  should be forthcoming.  
-   *
-   *  The class LiquidTransport has several roles.  
-   *  -# It brings together the individual species transport 
-   *     properties, expressed as subclasses of LTPspecies 
-   *     (Liquid Transport Properties of Species) through 
-   *     LiquidTransportData, with models for 
-   *     the composition dependence of liquid transport properties 
-   *     expressed as subclasses of LiquidTranInteraction 
-   *     (mixing rules) through LiquidTransportParams.  Calculating 
-   *     mixture properties generally consists of calling the 
-   *     getMixTansProp member of LiquidTranInteraction by passing 
-   *     a vector of LTPSpecies
-   *  -# It calculates the bulk velocity \f$ \vec{v} \f$ and  
-   *     individual species diffusion velocities, \f$ \vec{V_i} \f$ 
-   *     using the Stefan-Maxwell equations.  It is possible to set a 
-   *     flag to calculate relative to a mass-averaged bulk velocity, 
-   *     relative to a mole-averaged bulk velocity or relative to a 
-   *     single species velocity using the \<velocityBasis basis="mass"\>, 
-   *     \<velocityBasis basis="mass"\>, or \<velocityBasis basis="Cl-"\> 
-   *     keyword. Mass-averaged velocities are the default for which 
-   *     the diffusion velocities satisfy 
-   *     \f[
-   *        \sum_{i} Y_i \vec{V_i} = 0
-   *     \f] 
-   *     for mass fraction \f$ Y_i \f$.  For mole-averaged velocities
-   *     \f[
-   *        \sum_{i} X_i \vec{V_i} = 0
-   *     \f] 
-   *     for mole fraction \f$ X_i \f$. or 
-   *     \f[
-   *        \vec{V_i} = 0
-   *     \f] 
-   *     for reference species \f$ i \f$.
-   *  -# It provides access to a number of derived quantities
-   *     related to transport properties as described in the 
-   *     various methods below.
-   *     
-   *  
-   *  Within LiquidTransport, the state is presumed to be 
-   *  defined in terms of the  species mole fraction, 
-   *  temperature and pressure.  Charged species are expected 
-   *  and quantities like the electric current are computed
-   *  based on a combined electrochemcial potential.
-   *  
-   *
-   *  @ingroup tranprops
-   */
-  class LiquidTransport : public Transport {
-  public:
+
+//! Class LiquidTransport implements models for transport
+//! properties for liquid phases.
+/*!
+ *  Liquid Transport is set up with some flexibility in
+ *  this class.  Transport properties like viscostiy
+ *  and thermal conductivity are allowed flexibility within
+ *  the constraints of the LiquidTransportProperty and
+ *  LiquidTransportInteractions classes. For species
+ *  diffusion, the LiquidTransport class focuses on
+ *  the Stefan-Maxwell equation to determine the diffusion
+ *  velocities.  Other options for liquid diffusion include
+ *  solvent-dominated diffusion, and a class SolventTransport
+ *  should be forthcoming.
+ *
+ *  The class LiquidTransport has several roles.
+ *  -# It brings together the individual species transport
+ *     properties, expressed as subclasses of LTPspecies
+ *     (Liquid Transport Properties of Species) through
+ *     LiquidTransportData, with models for
+ *     the composition dependence of liquid transport properties
+ *     expressed as subclasses of LiquidTranInteraction
+ *     (mixing rules) through LiquidTransportParams.  Calculating
+ *     mixture properties generally consists of calling the
+ *     getMixTansProp member of LiquidTranInteraction by passing
+ *     a vector of LTPSpecies
+ *  -# It calculates the bulk velocity \f$ \vec{v} \f$ and
+ *     individual species diffusion velocities, \f$ \vec{V_i} \f$
+ *     using the Stefan-Maxwell equations.  It is possible to set a
+ *     flag to calculate relative to a mass-averaged bulk velocity,
+ *     relative to a mole-averaged bulk velocity or relative to a
+ *     single species velocity using the \<velocityBasis basis="mass"\>,
+ *     \<velocityBasis basis="mass"\>, or \<velocityBasis basis="Cl-"\>
+ *     keyword. Mass-averaged velocities are the default for which
+ *     the diffusion velocities satisfy
+ *     \f[
+ *        \sum_{i} Y_i \vec{V_i} = 0
+ *     \f]
+ *     for mass fraction \f$ Y_i \f$.  For mole-averaged velocities
+ *     \f[
+ *        \sum_{i} X_i \vec{V_i} = 0
+ *     \f]
+ *     for mole fraction \f$ X_i \f$. or
+ *     \f[
+ *        \vec{V_i} = 0
+ *     \f]
+ *     for reference species \f$ i \f$.
+ *  -# It provides access to a number of derived quantities
+ *     related to transport properties as described in the
+ *     various methods below.
+ *
+ *
+ *  Within LiquidTransport, the state is presumed to be
+ *  defined in terms of the  species mole fraction,
+ *  temperature and pressure.  Charged species are expected
+ *  and quantities like the electric current are computed
+ *  based on a combined electrochemcial potential.
+ *
+ *
+ *  @ingroup tranprops
+ */
+class LiquidTransport : public Transport
+{
+public:
 
     //! Typedef equating vector_fp with Coeff_T_
     typedef  vector_fp Coeff_T_;
- 
 
-    //! Default constructor.  
+
+    //! Default constructor.
     /*!
      * This requires call to initLiquid(LiquidTransportParams& tr)
      * after filling LiquidTransportParams to complete instantiation.
-     * The filling of LiquidTransportParams is currently carried out 
+     * The filling of LiquidTransportParams is currently carried out
      * in the TransportFactory class, but might be moved at some point.
-     * 
+     *
      * @param thermo  ThermoPhase object holding species information.
      * @param ndim    Number of spatial dimensions.
      */
@@ -109,17 +111,17 @@ namespace Cantera {
     /*!
      * @param right  %LiquidTransport to be copied
      */
-    LiquidTransport(const LiquidTransport &right);
+    LiquidTransport(const LiquidTransport& right);
 
     //! Assignment operator
     /*!
      *  This is NOT a virtual function.
      *
-     * @param right    Reference to %LiquidTransport object to be copied 
+     * @param right    Reference to %LiquidTransport object to be copied
      *                 into the current one.
      */
     LiquidTransport&  operator=(const  LiquidTransport& right);
-    
+
     //! Duplication routine for objects which inherit from
     //! %Transport
     /*!
@@ -130,7 +132,7 @@ namespace Cantera {
      *  These routines are basically wrappers around the derived copy
      *  constructor.
      */
-    virtual Transport *duplMyselfAsTransport() const;
+    virtual Transport* duplMyselfAsTransport() const;
 
 
     //! virtual destructor
@@ -140,9 +142,9 @@ namespace Cantera {
     /*!
      * Here we change all of the internal dimensions to be sufficient.
      * We get the object ready to do property evaluations.
-     * A lot of the input required to do property evaluations is 
-     * contained in the LiquidTransportParams class that is 
-     * filled in TransportFactory. 
+     * A lot of the input required to do property evaluations is
+     * contained in the LiquidTransportParams class that is
+     * filled in TransportFactory.
      *
      * @param tr  Transport parameters for all of the species
      *            in the phase.
@@ -154,23 +156,23 @@ namespace Cantera {
 
     //! Return the model id for this transport parameterization
     virtual int model() const {
-      return cLiquidTransport; 
+        return cLiquidTransport;
     }
 
 
     //! Returns the viscosity of the solution
     /*!
-     *  The viscosity calculation is handled by subclasses of 
-     *  LiquidTranInteraction as specified in the input file.  
-     *  These in turn employ subclasses of LTPspecies to 
+     *  The viscosity calculation is handled by subclasses of
+     *  LiquidTranInteraction as specified in the input file.
+     *  These in turn employ subclasses of LTPspecies to
      *  determine the individual species viscosities.
-     */ 
+     */
     virtual doublereal viscosity();
-    
+
     //! Returns the pure species viscosities for all species
     /*!
-     *  The pure species viscosities are evaluated using the 
-     *  appropriate subclasses of LTPspecies as specified in the 
+     *  The pure species viscosities are evaluated using the
+     *  appropriate subclasses of LTPspecies as specified in the
      *  input file.
      *
      * @param visc  array of length "number of species"
@@ -180,73 +182,73 @@ namespace Cantera {
 
     //! Returns the ionic conductivity of the solution
     /*!
-     *  The ionic conductivity calculation is handled by subclasses of 
-     *  LiquidTranInteraction as specified in the input file.  
-     *  These in turn employ subclasses of LTPspecies to 
+     *  The ionic conductivity calculation is handled by subclasses of
+     *  LiquidTranInteraction as specified in the input file.
+     *  These in turn employ subclasses of LTPspecies to
      *  determine the individual species ionic conductivities.
-     */ 
+     */
     virtual doublereal ionConductivity();
 
     //! Returns the pure species ionic conductivities for all species
     /*!
-     *  The pure species ionic conductivities are evaluated using the 
-     *  appropriate subclasses of LTPspecies as specified in the 
+     *  The pure species ionic conductivities are evaluated using the
+     *  appropriate subclasses of LTPspecies as specified in the
      *  input file.
      *
      * @param ionCond  Array of length "number of species" to hold returned ionic conductivities.
      */
     virtual void getSpeciesIonConductivity(doublereal* const ionCond);
 
-    //! Returns the pointer to the mobility ratios of the binary 
+    //! Returns the pointer to the mobility ratios of the binary
     //! combinations of the transported species for the solution
     //! Has size of the number of binary interactions = nsp*nsp
     /*!
-     *  The mobility ratio calculation is handled by subclasses of 
-     *  LiquidTranInteraction as specified in the input file.  
-     *  These in turn employ subclasses of LTPspecies to 
+     *  The mobility ratio calculation is handled by subclasses of
+     *  LiquidTranInteraction as specified in the input file.
+     *  These in turn employ subclasses of LTPspecies to
      *  determine the mobility ratios in the pure species.
      *
      *  @param   mobRat           Vector of mobility ratios
      */
     virtual void mobilityRatio(doublereal* mobRat);
 
-    //! Returns a double pointer to the mobility ratios of the 
+    //! Returns a double pointer to the mobility ratios of the
     //! transported species in each pure species phase.
     /*!
-     *  Has size of the number of binary interactions by the number 
+     *  Has size of the number of binary interactions by the number
      *  of species (nsp*nsp X nsp)
-     *  The pure species mobility ratios are evaluated using the 
-     *  appropriate subclasses of LTPspecies as specified in the 
+     *  The pure species mobility ratios are evaluated using the
+     *  appropriate subclasses of LTPspecies as specified in the
      *  input file.
      *
      * @param mobRat  array of length "number of species"
      *                to hold returned mobility ratios.
-     */ 
+     */
     virtual void getSpeciesMobilityRatio(doublereal** mobRat);
 
     //! Returns the self diffusion coefficients of the species in the phase.
     //! Has size of nsp(coeffs)
     /*!
-     *  The self diffusion coefficient is the diffusion coefficient of a tracer species 
-     *  at the current temperature and composition of the species. Therefore, 
+     *  The self diffusion coefficient is the diffusion coefficient of a tracer species
+     *  at the current temperature and composition of the species. Therefore,
      *  the dilute limit of transport is assumed for the tracer species.
      *  The effective formula may be calculated from the stefan-maxwell formulation by
      *  adding another row for the tracer species, assigning all D's to be equal
      *  to the respective species D's, and then taking the limit as the
      *  tracer species mole fraction goes to zero. The corresponding flux equation
-     *  for the tracer species k in units of kmol m-2 s-1 is. 
+     *  for the tracer species k in units of kmol m-2 s-1 is.
      *
      *  \f[
      *       J_k = - D^{sd}_k \frac{C_k}{R T}  \nabla \mu_k
      *  \f]
-     * 
+     *
      *  The derivative is taken at constant T and P.
      *
-     *  The self diffusion calculation is handled by subclasses of 
-     *  LiquidTranInteraction as specified in the input file. 
-     *  These in turn employ subclasses of LTPspecies to 
+     *  The self diffusion calculation is handled by subclasses of
+     *  LiquidTranInteraction as specified in the input file.
+     *  These in turn employ subclasses of LTPspecies to
      *  determine the individual species self diffusion coeffs.
-     * 
+     *
      *  @param selfDiff Vector of self-diffusion coefficients
      *                  Length = number of species in phase
      *                  units = m**2 s-1
@@ -256,8 +258,8 @@ namespace Cantera {
     //! Returns the self diffusion coefficients in the pure species phases.
     //! Has size of nsp(coeffs) x nsp(phases)
     /*!
-     *  The pure species molar volumes are evaluated using the 
-     *  appropriate subclasses of LTPspecies as specified in the 
+     *  The pure species molar volumes are evaluated using the
+     *  appropriate subclasses of LTPspecies as specified in the
      *  input file.
      *
      * @param selfDiff  array of length "number of species"
@@ -265,10 +267,10 @@ namespace Cantera {
      */
     virtual void getSpeciesSelfDiffusion(doublereal** selfDiff);
 
-    //! Returns the hydrodynamic radius for all species 
+    //! Returns the hydrodynamic radius for all species
     /*!
-     *  The species hydrodynamic radii are evaluated using the 
-     *  appropriate subclasses of LTPspecies as specified in the 
+     *  The species hydrodynamic radii are evaluated using the
+     *  appropriate subclasses of LTPspecies as specified in the
      *  input file.
      *
      * @param radius  array of length "number of species"
@@ -280,9 +282,9 @@ namespace Cantera {
     /*!
      *   The binary diffusion coefficients are specified in the input
      *   file through the LiquidTransportInteractions class.  These
-     *   are the binary interaction coefficients employed in the 
+     *   are the binary interaction coefficients employed in the
      *   Stefan-Maxwell equation.
-     *   
+     *
      *   @param ld  number of species in system
      *   @param d   vector of binary diffusion coefficients
      *          units = m2 s-1. length = ld*ld = (number of species)^2
@@ -291,33 +293,33 @@ namespace Cantera {
 
     //! Get the Mixture diffusion coefficients
     /*!
-     *  The mixture diffusion coefficients are not well defined 
-     *  in the context of LiquidTransport because the Stefan Maxwell 
-     *  equation is solved.  Here the mixture diffusion coefficients 
-     *  are defined according to Ficks law: 
+     *  The mixture diffusion coefficients are not well defined
+     *  in the context of LiquidTransport because the Stefan Maxwell
+     *  equation is solved.  Here the mixture diffusion coefficients
+     *  are defined according to Ficks law:
      *  \f[
-     *     X_i \vec{V_i} = -D_i \nabla X_i. 
+     *     X_i \vec{V_i} = -D_i \nabla X_i.
      *  \f]
-     *  Solving Ficks Law for \f$ D_i \f$ gives a mixture diffusion 
+     *  Solving Ficks Law for \f$ D_i \f$ gives a mixture diffusion
      *  coefficient
      *  \f[
-     *     D_i = - X_i \vec{V_i} / ( \nabla X_i ). 
+     *     D_i = - X_i \vec{V_i} / ( \nabla X_i ).
      *  \f]
-     *  If \f$ \nabla X_i = 0 \f$ this is undefined and the 
-     *  nonsensical value -1 is returned.  
-     *  
-     *  Note that this evaluation of \f$ \vec{V_i} \f$  requires 
-     *  a solve of the Stefan Maxwell equation making this  
-     *  determination of the mixture averaged diffusion coefficients 
-     *  a \e slow method for obtaining diffusion coefficients.  
-     * 
-     *  Also note that the Stefan Maxwell solve will be based upon 
+     *  If \f$ \nabla X_i = 0 \f$ this is undefined and the
+     *  nonsensical value -1 is returned.
+     *
+     *  Note that this evaluation of \f$ \vec{V_i} \f$  requires
+     *  a solve of the Stefan Maxwell equation making this
+     *  determination of the mixture averaged diffusion coefficients
+     *  a \e slow method for obtaining diffusion coefficients.
+     *
+     *  Also note that the Stefan Maxwell solve will be based upon
      *  the thermodynamic state (including gradients) most recently
      *  set.  Gradients can be set specifically using set_Grad_V,
-     *  set_Grad_X and set_Grad_T or through calls to 
-     *  getSpeciesFluxes, getSpeciesFluxesES, getSpeciesVdiff, 
+     *  set_Grad_X and set_Grad_T or through calls to
+     *  getSpeciesFluxes, getSpeciesFluxesES, getSpeciesVdiff,
      *  getSpeciesVdiffES, etc.
-     *  
+     *
      *  @param d vector of mixture diffusion coefficients
      *          units = m2 s-1. length = number of species
      */
@@ -334,36 +336,36 @@ namespace Cantera {
 
     //! Return the thermal conductivity of the solution
     /*!
-     *  The thermal conductivity calculation is handled by subclasses of 
-     *  LiquidTranInteraction as specified in the input file.  
-     *  These in turn employ subclasses of LTPspecies to 
+     *  The thermal conductivity calculation is handled by subclasses of
+     *  LiquidTranInteraction as specified in the input file.
+     *  These in turn employ subclasses of LTPspecies to
      *  determine the individual species thermal condictivities.
-     */ 
+     */
     virtual doublereal thermalConductivity();
 
     //! Get the Electrical mobilities (m^2/V/s).
     /*!
-     *  The electrical mobilities are not well defined 
-     *  in the context of LiquidTransport because the Stefan Maxwell 
-     *  equation is solved.  Here the electrical mobilities 
+     *  The electrical mobilities are not well defined
+     *  in the context of LiquidTransport because the Stefan Maxwell
+     *  equation is solved.  Here the electrical mobilities
      *  are calculated from the mixture-averaged
-     *  diffusion coefficients through a call to getMixDiffCoeffs() 
+     *  diffusion coefficients through a call to getMixDiffCoeffs()
      *  using the Einstein relation
      *
-     *     \f[ 
+     *     \f[
      *          \mu^e_k = \frac{F D_k}{R T}
      *     \f]
      *
      *  Note that this call to getMixDiffCoeffs() requires
-     *  a solve of the Stefan Maxwell equation making this  
-     *  determination of the mixture averaged diffusion coefficients 
-     *  a \e slow method for obtaining diffusion coefficients.  
-     * 
-     *  Also note that the Stefan Maxwell solve will be based upon 
+     *  a solve of the Stefan Maxwell equation making this
+     *  determination of the mixture averaged diffusion coefficients
+     *  a \e slow method for obtaining diffusion coefficients.
+     *
+     *  Also note that the Stefan Maxwell solve will be based upon
      *  the thermodynamic state (including gradients) most recently
      *  set.  Gradients can be set specifically using set_Grad_V,
-     *  set_Grad_X and set_Grad_T or through calls to 
-     *  getSpeciesFluxes, getSpeciesFluxesES, getSpeciesVdiff, 
+     *  set_Grad_X and set_Grad_T or through calls to
+     *  getSpeciesFluxes, getSpeciesFluxesES, getSpeciesVdiff,
      *  getSpeciesVdiffES, etc.
      *
      * @param mobil_e  Returns the electrical mobilities of
@@ -374,27 +376,27 @@ namespace Cantera {
 
     //! Get the fluid mobilities (s kmol/kg).
     /*!
-     *  The fluid mobilities are not well defined 
-     *  in the context of LiquidTransport because the Stefan Maxwell 
-     *  equation is solved.  Here the fluid mobilities 
+     *  The fluid mobilities are not well defined
+     *  in the context of LiquidTransport because the Stefan Maxwell
+     *  equation is solved.  Here the fluid mobilities
      *  are calculated from the mixture-averaged
-     *  diffusion coefficients through a call to getMixDiffCoeffs() 
+     *  diffusion coefficients through a call to getMixDiffCoeffs()
      *  using the Einstein relation
      *
-     *     \f[ 
+     *     \f[
      *          \mu^f_k = \frac{D_k}{R T}
      *     \f]
      *
      *  Note that this call to getMixDiffCoeffs() requires
-     *  a solve of the Stefan Maxwell equation making this  
-     *  determination of the mixture averaged diffusion coefficients 
-     *  a \e slow method for obtaining diffusion coefficients.  
-     * 
-     *  Also note that the Stefan Maxwell solve will be based upon 
+     *  a solve of the Stefan Maxwell equation making this
+     *  determination of the mixture averaged diffusion coefficients
+     *  a \e slow method for obtaining diffusion coefficients.
+     *
+     *  Also note that the Stefan Maxwell solve will be based upon
      *  the thermodynamic state (including gradients) most recently
      *  set.  Gradients can be set specifically using set_Grad_V,
-     *  set_Grad_X and set_Grad_T or through calls to 
-     *  getSpeciesFluxes, getSpeciesFluxesES, getSpeciesVdiff, 
+     *  set_Grad_X and set_Grad_T or through calls to
+     *  getSpeciesFluxes, getSpeciesFluxesES, getSpeciesVdiff,
      *  getSpeciesVdiffES, etc.
      *
      * @param mobil_f  Returns the fluid mobilities of
@@ -423,41 +425,41 @@ namespace Cantera {
      */
     virtual void set_Grad_X(const doublereal* const grad_X);
 
-    //! Compute the mixture electrical conductivity from 
+    //! Compute the mixture electrical conductivity from
     //! the Stefan-Maxwell equation.
     /*!
      *  To compute the mixture electrical conductance, the Stefan
-     *  Maxwell equation is solved for zero species gradients and 
-     *  for unit potential gradient, \f$ \nabla V \f$.  
-     *  The species fluxes are converted to current by summing over 
-     *  the charge-weighted fluxes according to 
+     *  Maxwell equation is solved for zero species gradients and
+     *  for unit potential gradient, \f$ \nabla V \f$.
+     *  The species fluxes are converted to current by summing over
+     *  the charge-weighted fluxes according to
      *  \f[
-     *      \vec{i} = \sum_{i} z_i F \rho \vec{V_i} / W_i 
+     *      \vec{i} = \sum_{i} z_i F \rho \vec{V_i} / W_i
      *  \f]
      *  where \f$ z_i \f$ is the charge on species i,
      *  \f$ F \f$ is Faradays constant,  \f$ \rho \f$  is the density,
      *  \f$ W_i \f$ is the molecular mass of species i.
-     *  The conductance, \f$ \kappa \f$ is obtained from 
+     *  The conductance, \f$ \kappa \f$ is obtained from
      *  \f[
      *      \kappa = \vec{i} / \nabla V.
      *  \f]
-     * 
+     *
      */
     virtual doublereal getElectricConduct();
 
     //! Compute the electric current density in A/m^2
     /*!
-     *  The electric current is computed first by computing the 
+     *  The electric current is computed first by computing the
      *  species diffusive fluxes using  the Stefan Maxwell solution
-     *  and then the current, \f$ \vec{i} \f$ by summing over 
-     *  the charge-weighted fluxes according to 
+     *  and then the current, \f$ \vec{i} \f$ by summing over
+     *  the charge-weighted fluxes according to
      *  \f[
-     *      \vec{i} = \sum_{i} z_i F \rho \vec{V_i} / W_i 
+     *      \vec{i} = \sum_{i} z_i F \rho \vec{V_i} / W_i
      *  \f]
      *  where \f$ z_i \f$ is the charge on species i,
      *  \f$ F \f$ is Faradays constant,  \f$ \rho \f$  is the density,
      *  \f$ W_i \f$ is the molecular mass of species \c i.
-     * 
+     *
      * @param ndim       The number of spatial dimensions (1, 2, or 3).
      * @param grad_T     The temperature gradient (ignored in this model).
      * @param ldx        Leading dimension of the grad_X array.
@@ -468,65 +470,65 @@ namespace Cantera {
      * @param grad_V     The electrostatic potential gradient.
      * @param current    The electric current in A/m^2.
      */
-    virtual void getElectricCurrent(int ndim, 
-				    const doublereal* grad_T, 
-				    int ldx, 
-				    const doublereal* grad_X, 
-				    int ldf, 
-				    const doublereal* grad_V, 
-				    doublereal* current);
+    virtual void getElectricCurrent(int ndim,
+                                    const doublereal* grad_T,
+                                    int ldx,
+                                    const doublereal* grad_X,
+                                    int ldf,
+                                    const doublereal* grad_V,
+                                    doublereal* current);
 
 
-    //! Get the species diffusive velocities wrt to the averaged velocity, 
+    //! Get the species diffusive velocities wrt to the averaged velocity,
     //! given the gradients in mole fraction and temperature
     /*!
-     * The average velocity can be computed on a mole-weighted 
-     * or mass-weighted basis, or the diffusion velocities may 
-     * be specified as relative to a specific species (i.e. a 
+     * The average velocity can be computed on a mole-weighted
+     * or mass-weighted basis, or the diffusion velocities may
+     * be specified as relative to a specific species (i.e. a
      * solvent) all according to the velocityBasis input parameter.
      *
      *  Units for the returned velocities are m s-1.
-     * 
+     *
      *  @param ndim Number of dimensions in the flux expressions
      *  @param grad_T Gradient of the temperature
      *                 (length = ndim)
-     * @param ldx  Leading dimension of the grad_X array 
+     * @param ldx  Leading dimension of the grad_X array
      *              (usually equal to m_nsp but not always)
      * @param grad_X Gradients of the mole fraction
      *             Flat vector with the m_nsp in the inner loop.
      *             length = ldx * ndim
-     * @param ldf  Leading dimension of the fluxes array 
+     * @param ldf  Leading dimension of the fluxes array
      *              (usually equal to m_nsp but not always)
      * @param Vdiff  Output of the diffusive velocities.
      *             Flat vector with the m_nsp in the inner loop.
      *             length = ldx * ndim
      */
     virtual void getSpeciesVdiff(size_t ndim,
-				 const doublereal* grad_T, 
-				 int ldx, 
-				 const doublereal* grad_X,
-				 int ldf, 
-				 doublereal* Vdiff);
+                                 const doublereal* grad_T,
+                                 int ldx,
+                                 const doublereal* grad_X,
+                                 int ldf,
+                                 doublereal* Vdiff);
 
-    //! Get the species diffusive velocities wrt to the averaged velocity, 
+    //! Get the species diffusive velocities wrt to the averaged velocity,
     //! given the gradients in mole fraction, temperature and electrostatic potential.
     /*!
-     * The average velocity can be computed on a mole-weighted 
-     * or mass-weighted basis, or the diffusion velocities may 
-     * be specified as relative to a specific species (i.e. a 
+     * The average velocity can be computed on a mole-weighted
+     * or mass-weighted basis, or the diffusion velocities may
+     * be specified as relative to a specific species (i.e. a
      * solvent) all according to the velocityBasis input parameter.
      *
      *  Units for the returned velocities are m s-1.
-     * 
+     *
      *  @param ndim       Number of dimensions in the flux expressions
      *  @param grad_T     Gradient of the temperature
      *                       (length = ndim)
-     * @param ldx         Leading dimension of the grad_X array 
+     * @param ldx         Leading dimension of the grad_X array
      *                       (usually equal to m_nsp but not always)
      * @param grad_X      Gradients of the mole fraction
      *                    Flat vector with the m_nsp in the inner loop.
      *                       length = ldx * ndim
-     * @param ldf         Leading dimension of the fluxes array 
+     * @param ldf         Leading dimension of the fluxes array
      *                        (usually equal to m_nsp but not always)
      * @param grad_Phi   Gradients of the electrostatic potential
      *                        (length = ndim)
@@ -535,44 +537,44 @@ namespace Cantera {
      *                     length = ldx * ndim
      */
     virtual void getSpeciesVdiffES(size_t ndim,  const doublereal* grad_T,
-				   int ldx,  const doublereal* grad_X,
-				   int ldf,  const doublereal* grad_Phi,
-				   doublereal* Vdiff) ;
+                                   int ldx,  const doublereal* grad_X,
+                                   int ldf,  const doublereal* grad_Phi,
+                                   doublereal* Vdiff) ;
 
 
     //!  Return the species diffusive mass fluxes wrt to
     //!  the averaged velocity in [kmol/m^2/s].
     /*!
      *
-     * The diffusive mass flux of species \e k [kmol/m^2/s] is computed 
+     * The diffusive mass flux of species \e k [kmol/m^2/s] is computed
      * using the Stefan-Maxwell equation
      *
      * \f[
-     *     X_i \nabla \mu_i  = RT \sum_i \frac{X_i X_j}{D_{ij}} 
+     *     X_i \nabla \mu_i  = RT \sum_i \frac{X_i X_j}{D_{ij}}
      *                           ( \vec{V}_j - \vec{V}_i )
      * \f]
      *
-     * to determine the diffusion velocity and 
+     * to determine the diffusion velocity and
      *
      * \f[
      *      \vec{N}_i = C_T X_i \vec{V}_i
      * \f]
      *
-     * to determine the diffusion flux.  Here \f$ C_T \f$ is the 
+     * to determine the diffusion flux.  Here \f$ C_T \f$ is the
      * total concentration of the mixture [kmol/m^3], \f$ D_{ij} \f$
      * are the Stefa-Maxwell interaction parameters in [m^2/s],
      * \f$ \vec{V}_{i} \f$ is the diffusion velocity of species \e i,
      * \f$ \mu_i \f$ is the electrochemical potential of species \e i.
      *
-     * Note that for this method, there is no argument for the 
-     * gradient of the electric potential (voltage).  Electric 
+     * Note that for this method, there is no argument for the
+     * gradient of the electric potential (voltage).  Electric
      * potential gradients can be set with set_Grad_V() or
      * method getSpeciesFluxesES() can be called.x
      *
-     * The diffusion velocity is relative to an average velocity 
-     * that can be computed on a mole-weighted 
-     * or mass-weighted basis, or the diffusion velocities may 
-     * be specified as relative to a specific species (i.e. a 
+     * The diffusion velocity is relative to an average velocity
+     * that can be computed on a mole-weighted
+     * or mass-weighted basis, or the diffusion velocities may
+     * be specified as relative to a specific species (i.e. a
      * solvent) all according to the \verbatim <velocityBasis> \endverbatim input parameter.
      *
      * @param ndim       The number of spatial dimensions (1, 2, or 3).
@@ -583,42 +585,42 @@ namespace Cantera {
      * @param grad_X     Gradients of the mole fraction
      *                   Flat vector with the m_nsp in the inner loop.
      *                   length = ldx * ndim
-     * @param ldf        Leading dimension of the fluxes array 
+     * @param ldf        Leading dimension of the fluxes array
      *                        (usually equal to m_nsp but not always)
      * @param fluxes     Output of the diffusive mass fluxes
      *                   Flat vector with the m_nsp in the inner loop.
      *                   length = ldx * ndim
      */
-    virtual void getSpeciesFluxes(int ndim,  const doublereal * const grad_T, 
-				  int ldx, const doublereal * const grad_X, 
-				  int ldf, doublereal * const fluxes);
+    virtual void getSpeciesFluxes(int ndim,  const doublereal* const grad_T,
+                                  int ldx, const doublereal* const grad_X,
+                                  int ldf, doublereal* const fluxes);
 
     //!  Return the species diffusive mass fluxes wrt to
     //!  the averaged velocity in [kmol/m^2/s].
     /*!
      *
-     * The diffusive mass flux of species \e k is computed 
+     * The diffusive mass flux of species \e k is computed
      * using the Stefan-Maxwell equation
      * \f[
-     *     X_i \nabla \mu_i 
-     *                     = RT \sum_i \frac{X_i X_j}{D_{ij}} 
+     *     X_i \nabla \mu_i
+     *                     = RT \sum_i \frac{X_i X_j}{D_{ij}}
      *                           ( \vec{V}_j - \vec{V}_i )
      * \f]
-     * to determine the diffusion velocity and 
+     * to determine the diffusion velocity and
      * \f[
      *      \vec{N}_i = C_T X_i \vec{V}_i
      * \f]
-     * to determine the diffusion flux.  Here \f$ C_T \f$ is the 
+     * to determine the diffusion flux.  Here \f$ C_T \f$ is the
      * total concentration of the mixture [kmol/m^3], \f$ D_{ij} \f$
      * are the Stefa-Maxwell interaction parameters in [m^2/s],
      * \f$ \vec{V}_{i} \f$ is the diffusion velocity of species \e i,
      * \f$ \mu_i \f$ is the electrochemical potential of species \e i.
      *
-     * The diffusion velocity is relative to an average velocity 
-     * that can be computed on a mole-weighted 
-     * or mass-weighted basis, or the diffusion velocities may 
-     * be specified as relative to a specific species (i.e. a 
-     * solvent) all according to the \verbatim <velocityBasis> 
+     * The diffusion velocity is relative to an average velocity
+     * that can be computed on a mole-weighted
+     * or mass-weighted basis, or the diffusion velocities may
+     * be specified as relative to a specific species (i.e. a
+     * solvent) all according to the \verbatim <velocityBasis>
      * \endverbatim input parameter.
 
      * @param ndim      The number of spatial dimensions (1, 2, or 3).
@@ -629,7 +631,7 @@ namespace Cantera {
      * @param grad_X    Gradients of the mole fraction
      *                  Flat vector with the m_nsp in the inner loop.
      *                     length = ldx * ndim
-     * @param ldf       Leading dimension of the fluxes array 
+     * @param ldf       Leading dimension of the fluxes array
      *                     (usually equal to m_nsp but not always)
      * @param grad_Phi  Gradients of the electrostatic potential
      *                     length = ndim
@@ -637,22 +639,22 @@ namespace Cantera {
      *                  Flat vector with the m_nsp in the inner loop.
      *                     length = ldx * ndim
      */
-    virtual void getSpeciesFluxesES(int ndim, 
-				    const doublereal* grad_T, 
-				    int ldx, 
-				    const doublereal* grad_X, 
-				    int ldf, 
-				    const doublereal* grad_Phi,
-				    doublereal* fluxes);
+    virtual void getSpeciesFluxesES(int ndim,
+                                    const doublereal* grad_T,
+                                    int ldx,
+                                    const doublereal* grad_X,
+                                    int ldf,
+                                    const doublereal* grad_Phi,
+                                    doublereal* fluxes);
 
-    //!  Return the species diffusive velocities relative to 
-    //!  the averaged velocity.  
+    //!  Return the species diffusive velocities relative to
+    //!  the averaged velocity.
     /*!
      * This method acts similarly to getSpeciesVdiffES() but
-     * requires all gradients to be preset using methods 
-     * set_Grad_X(), set_Grad_V(), set_Grad_T().  
+     * requires all gradients to be preset using methods
+     * set_Grad_X(), set_Grad_V(), set_Grad_T().
      * See the documentation of getSpeciesVdiffES() for details.
-     *      
+     *
      *  @param ldf  Leading dimension of the Vdiff array.
      *  @param Vdiff  Output of the diffusive velocities.
      *             Flat vector with the m_nsp in the inner loop.
@@ -660,14 +662,14 @@ namespace Cantera {
      */
     virtual void getSpeciesVdiffExt(size_t ldf, doublereal* Vdiff);
 
-    //!  Return the species diffusive fluxes relative to 
-    //!  the averaged velocity.  
+    //!  Return the species diffusive fluxes relative to
+    //!  the averaged velocity.
     /*!
      * This method acts similarly to getSpeciesFluxesES() but
-     * requires all gradients to be preset using methods 
-     * set_Grad_X(), set_Grad_V(), set_Grad_T().  
+     * requires all gradients to be preset using methods
+     * set_Grad_X(), set_Grad_V(), set_Grad_T().
      * See the documentation of getSpeciesFluxesES() for details.
-     *      
+     *
      *  units = kg/m2/s
      *
      *  @param ldf  Leading dimension of the Vdiff array.
@@ -677,8 +679,8 @@ namespace Cantera {
      */
     virtual void getSpeciesFluxesExt(size_t ldf, doublereal* fluxes);
 
-  protected:
-    //! Returns true if temperature has changed, 
+protected:
+    //! Returns true if temperature has changed,
     //! in which case flags are set to recompute transport properties.
     /*!
      *  This is called whenever a transport property is requested.
@@ -696,7 +698,7 @@ namespace Cantera {
      */
     virtual bool update_T();
 
-    //! Returns true if mixture composition has changed, 
+    //! Returns true if mixture composition has changed,
     //! in which case flags are set to recompute transport properties.
     /*!
      *   This is called for every interface call to check whether
@@ -710,32 +712,32 @@ namespace Cantera {
      *   @internal
      *
      * @return  Returns true if the mixture composition has changed, and false otherwise.
-     */ 
+     */
     virtual bool update_C();
 
-    
-    //!  Updates the internal value of the gradient of the  
-    //!  logarithm of the activity, which is 
-    //!  used in the gradient of the chemical potential. 
+
+    //!  Updates the internal value of the gradient of the
+    //!  logarithm of the activity, which is
+    //!  used in the gradient of the chemical potential.
     /*!
-     * Evaluate the gradients of the activity  
-     * as they alter the diffusion coefficient.  
+     * Evaluate the gradients of the activity
+     * as they alter the diffusion coefficient.
      *
-     *  The gradient of the chemical potential can be written in terms of 
+     *  The gradient of the chemical potential can be written in terms of
      *  gradient of the logarithm of the mole fraction times a correction
-     *  associated with the gradient of the activity coefficient relative to 
-     *  that of the mole fraction.  Specifically, the gradients of the 
-     *  logarithms of each are involved according to the formula 
-     *     
+     *  associated with the gradient of the activity coefficient relative to
+     *  that of the mole fraction.  Specifically, the gradients of the
+     *  logarithms of each are involved according to the formula
+     *
      *  \f[
-     *      \nabla \mu_k = RT \left[ \nabla ( \ln X_k ) + 
+     *      \nabla \mu_k = RT \left[ \nabla ( \ln X_k ) +
      *      \nabla ( \ln \gamma_k ) \right] = RT \left[
      *      \nabla ( \ln a_k ) \right]
      *  \f]
-     *  
+     *
      *  The gradient in the activity coefficient requires the use of thermophase
      *  getdlnActCoeff that calculates its change based on a chane in the state
-     *  (i.e. temperature and composition of each species) which was first 
+     *  (i.e. temperature and composition of each species) which was first
      *  implemented in MargulesVPSSTP.cpp (LiquidTransport.h doxygen)
      */
     virtual void update_Grad_lnAC();
@@ -743,28 +745,28 @@ namespace Cantera {
 
     //! Solve the stefan_maxell equations for the diffusive fluxes.
     /*!
-     * The diffusive mass flux of species \e k is computed 
+     * The diffusive mass flux of species \e k is computed
      * using the Stefan-Maxwell equation
      * \f[
-     *     X_i \nabla \mu_i 
-     *                     = RT \sum_i \frac{X_i X_j}{D_{ij}} 
+     *     X_i \nabla \mu_i
+     *                     = RT \sum_i \frac{X_i X_j}{D_{ij}}
      *                           ( \vec{V}_j - \vec{V}_i )
      * \f]
-     * to determine the diffusion velocity and 
+     * to determine the diffusion velocity and
      * \f[
      *      \vec{N}_i = C_T X_i \vec{V}_i
      * \f]
-     * to determine the diffusion flux.  Here \f$ C_T \f$ is the 
+     * to determine the diffusion flux.  Here \f$ C_T \f$ is the
      * total concentration of the mixture [kmol/m^3], \f$ D_{ij} \f$
      * are the Stefa-Maxwell interaction parameters in [m^2/s],
      * \f$ \vec{V}_{i} \f$ is the diffusion velocity of species \e i,
      * \f$ \mu_i \f$ is the electrochemical potential of species \e i.
      *
-     * The diffusion velocity is relative to an average velocity 
-     * that can be computed on a mole-weighted 
-     * or mass-weighted basis, or the diffusion velocities may 
-     * be specified as relative to a specific species (i.e. a 
-     * solvent) all according to the \verbatim <velocityBasis> 
+     * The diffusion velocity is relative to an average velocity
+     * that can be computed on a mole-weighted
+     * or mass-weighted basis, or the diffusion velocities may
+     * be specified as relative to a specific species (i.e. a
+     * solvent) all according to the \verbatim <velocityBasis>
      * \endverbatim input para
      *  The gradient in the activity coefficient requires the use of thermophase
      *  getdlnActCoeff that calculates its change based on a change in the state
@@ -772,8 +774,8 @@ namespace Cantera {
      *  First implemented in MargulesVPSSTP.cppmeter.
      *
      * One of the Stefan Maxwell equations is replaced by the appropriate
-     * definition of the mass-averaged velocity, the mole-averaged velocity 
-     * or the specification that velocities are relative to that 
+     * definition of the mass-averaged velocity, the mole-averaged velocity
+     * or the specification that velocities are relative to that
      * of one species.
      */
     void stefan_maxwell_solve();
@@ -782,7 +784,7 @@ namespace Cantera {
     /*!
      * The flag m_visc_ok is set to true.
      *
-     * Note that for viscosity, a positive activation energy 
+     * Note that for viscosity, a positive activation energy
      * corresponds to the typical case of a positive argument
      * to the exponential so that the Arrhenius expression is
      *
@@ -818,14 +820,14 @@ namespace Cantera {
      */
     void updateHydrodynamicRadius_T();
 
-    //! Update the temperature-dependent parts of the mixture-averaged 
-    //! thermal conductivity internally  
+    //! Update the temperature-dependent parts of the mixture-averaged
+    //! thermal conductivity internally
     void updateCond_T();
 
     //! Update the concentration parts of the viscosities
     /*!
      *  Internal routine is run whenever the update_boolean
-     *  m_visc_conc_ok is false. Currently there is no concentration 
+     *  m_visc_conc_ok is false. Currently there is no concentration
      *  dependence for the pure species viscosities.
      *
      * @internal
@@ -835,17 +837,17 @@ namespace Cantera {
     //! Update the concentration parts of the ionic conductivity
     /*!
      *  Internal routine is run whenever the update_boolean
-     *  m_ionCond_conc_ok is false. Currently there is no concentration 
+     *  m_ionCond_conc_ok is false. Currently there is no concentration
      *  dependence for the pure species ionic conductivity.
      *
      * @internal
      */
     void updateIonConductivity_C();
- 
+
     //! Update the concentration parts of the mobility ratio
     /*!
      *  Internal routine is run whenever the update_boolean
-     *  m_mobRat_conc_ok is false. Currently there is no concentration 
+     *  m_mobRat_conc_ok is false. Currently there is no concentration
      *  dependence for the pure species mobility ratio.
      *
      * @internal
@@ -855,7 +857,7 @@ namespace Cantera {
     //! Update the concentration parts of the self diffusion
     /*!
      *  Internal routine is run whenever the update_boolean
-     *  m_selfDiff_conc_ok is false. Currently there is no concentration 
+     *  m_selfDiff_conc_ok is false. Currently there is no concentration
      *  dependence for the pure species self diffusion.
      *
      * @internal
@@ -865,19 +867,19 @@ namespace Cantera {
     //! Update the concentration dependence of the hydrodynamic radius
     /*!
      *  Internal routine is run whenever the update_boolean
-     *  m_radi_conc_ok is false. Currently there is no concentration 
+     *  m_radi_conc_ok is false. Currently there is no concentration
      *  dependence for the hydrodynamic radius.
      *
      * @internal
      */
     void updateHydrodynamicRadius_C();
 
-    //! Update the binary Stefan-Maxwell diffusion coefficients 
+    //! Update the binary Stefan-Maxwell diffusion coefficients
     //! wrt T using calls to the appropriate LTPspecies subclass
     void updateDiff_T();
 
 
-  private:
+private:
 
     //! Number of species in the phase
     size_t m_nsp;
@@ -897,123 +899,123 @@ namespace Cantera {
      */
     vector_fp m_mw;
 
-    //! Viscosity for each species expressed as an appropriate subclass 
+    //! Viscosity for each species expressed as an appropriate subclass
     //! of LTPspecies
     /*!
      *  These subclasses of LTPspecies evaluate the species-specific
-     *  transport properties according to the parameters parsed in 
+     *  transport properties according to the parameters parsed in
      *  TransportFactory::getLiquidSpeciesTransportData().
      */
     std::vector<LTPspecies*> m_viscTempDep_Ns;
 
-    //! Viscosity of the mixture expressed as a subclass of 
+    //! Viscosity of the mixture expressed as a subclass of
     //! LiquidTranInteraction
     /*!
-     *  These subclasses of LiquidTranInteraction evaluate the 
-     *  mixture transport properties according to the parameters parsed in 
+     *  These subclasses of LiquidTranInteraction evaluate the
+     *  mixture transport properties according to the parameters parsed in
      *  TransportFactory::getLiquidInteractionsTransportData().
      */
-    LiquidTranInteraction *m_viscMixModel;
+    LiquidTranInteraction* m_viscMixModel;
 
-    //! Ionic conductivity for each species expressed as an appropriate subclass 
+    //! Ionic conductivity for each species expressed as an appropriate subclass
     //! of LTPspecies
     /*!
      *  These subclasses of LTPspecies evaluate the species-specific
-     *  transport properties according to the parameters parsed in 
+     *  transport properties according to the parameters parsed in
      *  TransportFactory::getLiquidSpeciesTransportData().
      */
     std::vector<LTPspecies*> m_ionCondTempDep_Ns;
 
-    //! Ionic Conductivity of the mixture expressed as a subclass of 
+    //! Ionic Conductivity of the mixture expressed as a subclass of
     //! LiquidTranInteraction
     /*!
-     *  These subclasses of LiquidTranInteraction evaluate the 
-     *  mixture transport properties according to the parameters parsed in 
+     *  These subclasses of LiquidTranInteraction evaluate the
+     *  mixture transport properties according to the parameters parsed in
      *  TransportFactory::getLiquidInteractionsTransportData().
      */
-    LiquidTranInteraction *m_ionCondMixModel;
+    LiquidTranInteraction* m_ionCondMixModel;
 
     //! Type def for LTPvector equating it with a vector of pointers to LTPspecies
     typedef std::vector<LTPspecies*> LTPvector;
 
-    //! Mobility ratio for the binary cominations of each species in each 
+    //! Mobility ratio for the binary cominations of each species in each
     //! pure phase expressed as an appropriate subclass of LTPspecies
     /*!
      *  These subclasses of LTPspecies evaluate the species-specific
-     *  transport properties according to the parameters parsed in 
+     *  transport properties according to the parameters parsed in
      *  TransportFactory::getLiquidSpeciesTransportData().
      */
     std::vector<LTPvector> m_mobRatTempDep_Ns;
 
-    //! Mobility ratio for each binary combination of mobile species in the mixture 
+    //! Mobility ratio for each binary combination of mobile species in the mixture
     //! expressed as a subclass of LiquidTranInteraction
     /*!
-     *  These subclasses of LiquidTranInteraction evaluate the 
-     *  mixture transport properties according to the parameters parsed in 
+     *  These subclasses of LiquidTranInteraction evaluate the
+     *  mixture transport properties according to the parameters parsed in
      *  TransportFactory::getLiquidInteractionsTransportData().
      */
     std::vector<LiquidTranInteraction*> m_mobRatMixModel;
 
-    //! Self Diffusion for each species in each pure species phase 
+    //! Self Diffusion for each species in each pure species phase
     //! expressed as an appropriate subclass of LTPspecies
     /*!
      *  These subclasses of LTPspecies evaluate the species-specific
-     *  transport properties according to the parameters parsed in 
+     *  transport properties according to the parameters parsed in
      *  TransportFactory::getLiquidSpeciesTransportData().
      */
     std::vector<LTPvector> m_selfDiffTempDep_Ns;
 
-    //! Self Diffusion for each species in the mixture expressed as a subclass of 
+    //! Self Diffusion for each species in the mixture expressed as a subclass of
     //! LiquidTranInteraction
     /*!
-     *  These subclasses of LiquidTranInteraction evaluate the 
-     *  mixture transport properties according to the parameters parsed in 
+     *  These subclasses of LiquidTranInteraction evaluate the
+     *  mixture transport properties according to the parameters parsed in
      *  TransportFactory::getLiquidInteractionsTransportData().
      */
     std::vector<LiquidTranInteraction*> m_selfDiffMixModel;
 
-    //! Thermal conductivity for each species expressed as an    
+    //! Thermal conductivity for each species expressed as an
     //! appropriate subclass of LTPspecies
     /*!
      *  These subclasses of LTPspecies evaluate the species-specific
-     *  transport properties according to the parameters parsed in 
+     *  transport properties according to the parameters parsed in
      *  TransportFactory::getLiquidSpeciesTransportData().
      */
     std::vector<LTPspecies*> m_lambdaTempDep_Ns;
 
-    //! Thermal conductivity of the mixture expressed as a subclass of 
+    //! Thermal conductivity of the mixture expressed as a subclass of
     //! LiquidTranInteraction
     /*!
-     *  These subclasses of LiquidTranInteraction evaluate the 
-     *  mixture transport properties according to the parameters parsed in 
+     *  These subclasses of LiquidTranInteraction evaluate the
+     *  mixture transport properties according to the parameters parsed in
      *  TransportFactory::getLiquidInteractionsTransportData().
      */
-    LiquidTranInteraction *m_lambdaMixModel;
- 
+    LiquidTranInteraction* m_lambdaMixModel;
+
     //! (NOT USED IN LiquidTransport.)
-    //! Diffusion coefficient model for each species expressed as an    
+    //! Diffusion coefficient model for each species expressed as an
     //! appropriate subclass of LTPspecies
     /*!
      *  These subclasses of LTPspecies evaluate the species-specific
-     *  transport properties according to the parameters parsed in 
+     *  transport properties according to the parameters parsed in
      *  TransportFactory::getLiquidSpeciesTransportData().
-     * 
+     *
      *  Since the LiquidTransport class uses the Stefan-Maxwell equation
-     * to describe species diffusivity, the species-specific 
-     * diffusivity is irrelevant.  
+     * to describe species diffusivity, the species-specific
+     * diffusivity is irrelevant.
      */
     std::vector<LTPspecies*> m_diffTempDep_Ns;
 
-    //! Species diffusivity of the mixture expressed as a subclass of 
-    //! LiquidTranInteraction.  This will return an array of 
-    //! Stefan-Maxwell interaction parameters for use in the 
+    //! Species diffusivity of the mixture expressed as a subclass of
+    //! LiquidTranInteraction.  This will return an array of
+    //! Stefan-Maxwell interaction parameters for use in the
     //! Stefan-Maxwell solution.
     /*!
-     *  These subclasses of LiquidTranInteraction evaluate the 
-     *  mixture transport properties according to the parameters parsed in 
+     *  These subclasses of LiquidTranInteraction evaluate the
+     *  mixture transport properties according to the parameters parsed in
      *  TransportFactory::getLiquidInteractionsTransportData().
      */
-    LiquidTranInteraction *m_diffMixModel;
+    LiquidTranInteraction* m_diffMixModel;
 
     //! Setfan-Maxwell diffusion coefficients
     DenseMatrix m_diff_Dij;
@@ -1022,26 +1024,26 @@ namespace Cantera {
     //!   Hydrodynamic radius for each species expressed as an  appropriate subclass of LTPspecies
     /*!
      *  These subclasses of LTPspecies evaluate the species-specific
-     *  transport properties according to the parameters parsed in 
+     *  transport properties according to the parameters parsed in
      *  TransportFactory::getLiquidSpeciesTransportData().
      *         length = nsp
      */
-    std::vector<LTPspecies *> m_radiusTempDep_Ns;
+    std::vector<LTPspecies*> m_radiusTempDep_Ns;
 
-    //! (Not used in LiquidTransport) 
-    //! Hydrodynamic radius of the mixture expressed as a subclass of 
+    //! (Not used in LiquidTransport)
+    //! Hydrodynamic radius of the mixture expressed as a subclass of
     //! LiquidTranInteraction
     /*!
-     *  These subclasses of LiquidTranInteraction evaluate the 
-     *  mixture transport properties according to the parameters parsed in 
+     *  These subclasses of LiquidTranInteraction evaluate the
+     *  mixture transport properties according to the parameters parsed in
      *  TransportFactory::getLiquidInteractionsTransportData().
      */
-    LiquidTranInteraction *m_radiusMixModel;
+    LiquidTranInteraction* m_radiusMixModel;
 
     //! Species hydrodynamic radius
     vector_fp  m_hydrodynamic_radius;
 
-    //! Hydrodynamic radius 
+    //! Hydrodynamic radius
 
 
     //! Internal value of the gradient of the mole fraction vector
@@ -1056,36 +1058,36 @@ namespace Cantera {
      *  k is the species index
      *  n is the dimensional index (x, y, or z). It has a length
      *    equal to m_nDim
-     *  
+     *
      *    m_Grad_X[n*m_nsp + k]
      */
     vector_fp m_Grad_X;
 
     //! Gradient of the logarithm of the activity
     /*!
-     *  This quantity appears in the gradient of the chemical potential.  
-     *  It replaces the gradient of the mole fraction, and in this way 
-     * serves to "modify" the diffusion coefficient.  
+     *  This quantity appears in the gradient of the chemical potential.
+     *  It replaces the gradient of the mole fraction, and in this way
+     * serves to "modify" the diffusion coefficient.
      *
      *  \f[
-     *      m\_Grad\_lnAC[k] = \nabla ( \ln X_k ) + 
+     *      m\_Grad\_lnAC[k] = \nabla ( \ln X_k ) +
      *      \nabla ( \ln \gamma_k )
      *  \f]
      *
      *  k is the species index
      *  n is the dimensional index (x, y, or z). It has a length
      *    equal to m_nDim
-     *  
+     *
      *    m_Grad_X[n*m_nsp + k]
-     *  
+     *
      */
     vector_fp m_Grad_lnAC;
 
     //! Internal value of the gradient of the Temperature vector
     /*!
-     *  Generally, if a transport property needs this 
+     *  Generally, if a transport property needs this
      *  in its evaluation it will look to this place
-     *  to get it. 
+     *  to get it.
      *
      *  No internal property is precalculated based on gradients.
      *  Gradients are assumed to be freshly updated before
@@ -1095,9 +1097,9 @@ namespace Cantera {
 
     //! Internal value of the gradient of the Pressure vector
     /*!
-     *  Generally, if a transport property needs this 
+     *  Generally, if a transport property needs this
      *  in its evaluation it will look to this place
-     *  to get it. 
+     *  to get it.
      *
      *  No internal property is precalculated based on gradients.
      *  Gradients are assumed to be freshly updated before
@@ -1107,9 +1109,9 @@ namespace Cantera {
 
     //! Internal value of the gradient of the Electric Voltage
     /*!
-     *  Generally, if a transport property needs this 
+     *  Generally, if a transport property needs this
      *  in its evaluation it will look to this place
-     *  to get it. 
+     *  to get it.
      *
      *  No internal property is precalculated based on gradients.
      *  Gradients are assumed to be freshly updated before
@@ -1122,7 +1124,7 @@ namespace Cantera {
      *  m_nsp is the number of species in the fluid
      *  k is the species index
      *  n is the dimensional index (x, y, or z)
-     *  
+     *
      *  \f[
      *     m\_Grad\_mu[n*m_nsp + k]
      *  \f]
@@ -1133,7 +1135,7 @@ namespace Cantera {
 
     //! Array of Binary Diffusivities
     /*!
-     *   These are evaluated according to the subclass of 
+     *   These are evaluated according to the subclass of
      *  LiquidTranInteraction stored in m_diffMixModel.
      *
      *  This has a size equal to nsp x nsp
@@ -1145,7 +1147,7 @@ namespace Cantera {
      */
     DenseMatrix  m_bdiff;
 
-    //! Internal value of the species viscosities 
+    //! Internal value of the species viscosities
     /*!
      *  Viscosity of the species evaluated using subclass of LTPspecies
      *  held in m_viscTempDep_Ns.
@@ -1156,7 +1158,7 @@ namespace Cantera {
      */
     vector_fp m_viscSpecies;
 
-    //! Internal value of the species ionic conductivities 
+    //! Internal value of the species ionic conductivities
     /*!
      *  Ionic conductivity of the species evaluated using subclass of LTPspecies
      *  held in m_ionCondTempDep_Ns.
@@ -1167,7 +1169,7 @@ namespace Cantera {
      */
     vector_fp m_ionCondSpecies;
 
-    //! Internal value of the species mobility ratios 
+    //! Internal value of the species mobility ratios
     /*!
      *  Mobility ratio of the species evaluated using subclass of LTPspecies
      *  held in m_mobRatTempDep_Ns.
@@ -1178,7 +1180,7 @@ namespace Cantera {
      */
     DenseMatrix m_mobRatSpecies;
 
-    //! Internal value of the species self diffusion coefficients 
+    //! Internal value of the species self diffusion coefficients
     /*!
      *  Self diffusion of the species evaluated using subclass of LTPspecies
      *  held in m_selfDiffTempDep_Ns.
@@ -1191,7 +1193,7 @@ namespace Cantera {
 
     //! Internal value of the species individual thermal conductivities
     /*!
-     *  Thermal conductivities of the species evaluated using subclass 
+     *  Thermal conductivities of the species evaluated using subclass
      *  of LTPspecies held in m_lambdaTempDep_Ns.
      *
      *   Length = number of species
@@ -1204,17 +1206,17 @@ namespace Cantera {
 
     //! Local copy of the mass fractions of the species in the phase
     /*!
-     *  The mass fraction vector comes from the ThermoPhase object. 
+     *  The mass fraction vector comes from the ThermoPhase object.
      *
      * length = m_nsp
      */
     vector_fp m_massfracs;
 
     //! Local copy of the mass fractions of the species in the phase
-    /** 
+    /**
      * This version of the mass fraction vector is adjusted to a
      * minimum lower bound of MIN_X for use in transport calculations.
-     */ 
+     */
     vector_fp m_massfracs_tran;
 
     //! Local copy of the mole fractions of the species in the phase
@@ -1299,7 +1301,7 @@ namespace Cantera {
     //! Current value of the pressure
     doublereal m_press;
 
-    //! Solution of the Stefan Maxwell equation in terms of flux 
+    //! Solution of the Stefan Maxwell equation in terms of flux
     /*!
      *  This is the mass flux of species k
      *  in units of kg m-3 s-1.
@@ -1336,7 +1338,7 @@ namespace Cantera {
 
 
 
-  private:    
+private:
     //! Boolean indicating that the top-level mixture viscosity is current
     /*!
      *  This is turned false for every change in T, P, or C.
@@ -1345,7 +1347,7 @@ namespace Cantera {
 
     //! Boolean indicating that weight factors wrt viscosity is current
     bool m_visc_temp_ok;
- 
+
     //! Flag to indicate that the pure species viscosities
     //! are current wrt the concentration
     bool m_visc_conc_ok;
@@ -1358,7 +1360,7 @@ namespace Cantera {
 
     //! Boolean indicating that weight factors wrt ionic conductivty is current
     bool m_ionCond_temp_ok;
- 
+
     //! Flag to indicate that the pure species ionic conductivities
     //! are current wrt the concentration
     bool m_ionCond_conc_ok;
@@ -1374,7 +1376,7 @@ namespace Cantera {
 
     //! Boolean indicating that weight factors wrt mobility ratio is current
     bool m_mobRat_temp_ok;
- 
+
     //! Flag to indicate that the pure species mobility ratios
     //! are current wrt the concentration
     bool m_mobRat_conc_ok;
@@ -1387,7 +1389,7 @@ namespace Cantera {
 
     //! Boolean indicating that weight factors wrt self diffusion is current
     bool m_selfDiff_temp_ok;
- 
+
     //! Flag to indicate that the pure species self diffusion
     //! are current wrt the concentration
     bool m_selfDiff_conc_ok;
@@ -1396,9 +1398,9 @@ namespace Cantera {
     bool m_radi_mix_ok;
 
     //! Boolean indicating that temperature dependence of
-    //! hydrodynamic radius is current 
+    //! hydrodynamic radius is current
     bool m_radi_temp_ok;
- 
+
     //! Flag to indicate that the hydrodynamic radius is current
     //! is current wrt the concentration
     bool m_radi_conc_ok;
@@ -1425,13 +1427,13 @@ namespace Cantera {
      */
     bool m_debug;
 
-    //! Number of dimensions 
+    //! Number of dimensions
     /*!
      * Either 1, 2, or 3
      */
     size_t m_nDim;
 
-    //! Throw an exception if this method is invoked. 
+    //! Throw an exception if this method is invoked.
     /*!
      * This probably indicates something is not yet implemented.
      *
@@ -1439,7 +1441,7 @@ namespace Cantera {
      */
     doublereal err(std::string msg) const;
 
-  };
+};
 }
 #endif
 

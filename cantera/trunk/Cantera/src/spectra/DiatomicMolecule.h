@@ -3,13 +3,15 @@
 
 #include "Nuclei.h"
 
-namespace Cantera {
+namespace Cantera
+{
 
-    class DiatomicMolecule {
-    public:
-        DiatomicMolecule(Nucleus n1, Nucleus n2, doublereal 
-        doublereal absorptionCrossSection(doublereal nu);
-    };
+class DiatomicMolecule
+{
+public:
+    DiatomicMolecule(Nucleus n1, Nucleus n2, doublereal
+                     doublereal absorptionCrossSection(doublereal nu);
+};
 }
 
 #endif

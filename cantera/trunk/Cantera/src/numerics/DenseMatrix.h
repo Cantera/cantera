@@ -14,69 +14,71 @@
 #include "ct_defs.h"
 #include "Array.h"
 
-namespace Cantera { 
-  /**
-   * @defgroup numerics  Numerical Utilities within Cantera
-   *
-   *  Cantera contains some capabilities for solving nonlinear equations and
-   *  integrating both ODE and DAE equation systems in time. This section describes these
-   *  capabilities.
-   *
-   */
+namespace Cantera
+{
+/**
+ * @defgroup numerics  Numerical Utilities within Cantera
+ *
+ *  Cantera contains some capabilities for solving nonlinear equations and
+ *  integrating both ODE and DAE equation systems in time. This section describes these
+ *  capabilities.
+ *
+ */
 
-  
-  //! Exception thrown when an LAPACK error is encountered associated with inverting or solving a matrix
-  /*!
-   *  A named error condition is used so that the calling code may differentiate this type of error
-   *  from other error conditions.
-   */
-  class CELapackError : public CanteraError {
-  public:
+
+//! Exception thrown when an LAPACK error is encountered associated with inverting or solving a matrix
+/*!
+ *  A named error condition is used so that the calling code may differentiate this type of error
+ *  from other error conditions.
+ */
+class CELapackError : public CanteraError
+{
+public:
 
     //! Constructor passes through to main Cantera error handler
     /*!
      *  @param routine  Name of calling routine
      *  @param msg      Informative message
      */
-    CELapackError(std::string routine, std::string msg) : 
-      CanteraError(routine + " LAPACK ERROR", msg)
-    {
+    CELapackError(std::string routine, std::string msg) :
+        CanteraError(routine + " LAPACK ERROR", msg) {
     }
 
-  };
- 
-  //!  A class for full (non-sparse) matrices with Fortran-compatible
-  //!  data storage, which adds matrix operations to class Array2D.
-  /*!
-   *  The dense matrix class adds matrix operations onto the Array2D class.
-   *  These matrix operations are carried out by the appropriate BLAS and LAPACK routines
-   *
-   *  Error handling from BLAS and LAPACK are handled via the following formulation.
-   *  Depending on a variable, a singular matrix or other terminal error condition from
-   *  LAPACK is handled by either throwing an exception of type, CELapackError, or by
-   *  returning the error code condition to the calling routine. 
-   *
-   *  The int variable,  m_useReturnErrorCode, determines which method is used.
-   *  The default value of zero means that an exception is thrown. A value of 1
-   *  means that a return code is used.
-   *
-   *  Reporting of these LAPACK error conditions is handled by the class variable
-   *  m_printLevel. The default is for no reporting. If m_printLevel is nonzero,
-   *  the error condition is reported to Cantera's log file.
-   *
-   *  @ingroup numerics
-   */
-  class DenseMatrix : public Array2D {
+};
 
-  public:
+//!  A class for full (non-sparse) matrices with Fortran-compatible
+//!  data storage, which adds matrix operations to class Array2D.
+/*!
+ *  The dense matrix class adds matrix operations onto the Array2D class.
+ *  These matrix operations are carried out by the appropriate BLAS and LAPACK routines
+ *
+ *  Error handling from BLAS and LAPACK are handled via the following formulation.
+ *  Depending on a variable, a singular matrix or other terminal error condition from
+ *  LAPACK is handled by either throwing an exception of type, CELapackError, or by
+ *  returning the error code condition to the calling routine.
+ *
+ *  The int variable,  m_useReturnErrorCode, determines which method is used.
+ *  The default value of zero means that an exception is thrown. A value of 1
+ *  means that a return code is used.
+ *
+ *  Reporting of these LAPACK error conditions is handled by the class variable
+ *  m_printLevel. The default is for no reporting. If m_printLevel is nonzero,
+ *  the error condition is reported to Cantera's log file.
+ *
+ *  @ingroup numerics
+ */
+class DenseMatrix : public Array2D
+{
+
+public:
 
     //! Default Constructor
     DenseMatrix();
- 
+
     //! Constructor.
     /*!
      *  Create an \c n by \c m matrix, and initialize all elements to \c v.
-     * 
+     *
      *  @param n  New number of rows
      *  @param m  New number of columns
      *  @param v  Default fill value. defaults to zero.
@@ -98,10 +100,10 @@ namespace Cantera {
     //! Destructor. Does nothing.
     virtual ~DenseMatrix();
 
-    //! Resize the matrix 
+    //! Resize the matrix
     /*!
      *  Resize the matrix to n rows by m cols.
-     *  
+     *
      *  @param n  New number of rows
      *  @param m  New number of columns
      *  @param v  Default fill value. defaults to zero.
@@ -114,9 +116,9 @@ namespace Cantera {
      *  However, the value of the matrix is open to being changed.
      *
      *   @return returns a vector of pointers to the top of the columns
-     *           of the matrices.  
+     *           of the matrices.
      */
-    virtual doublereal  * const * colPts();
+    virtual doublereal*   const* colPts();
 
     //! Return a const vector of const pointers to the columns
     /*!
@@ -124,13 +126,13 @@ namespace Cantera {
      *  therefore the member function is const.
      *
      *   @return returns a vector of pointers to the top of the columns
-     *           of the matrices.  
+     *           of the matrices.
      */
-    const doublereal * const * const_colPts() const;
+    const doublereal* const* const_colPts() const;
 
     //! Multiply A*b and write result to \c prod.
     /*!
-     * 
+     *
      *  @param    b     input      vector b with length N
      *  @param    prod  output     output vector prod length = M
      */
@@ -144,7 +146,7 @@ namespace Cantera {
      *   @param prod  Resulting vector. This is of length m, the number of columns
      *                in the matrix
      */
-    virtual void leftMult(const double * const b, double* const prod) const;
+    virtual void leftMult(const double* const b, double* const prod) const;
 
     //! Return a changeable value of the pivot vector
     /*!
@@ -156,17 +158,19 @@ namespace Cantera {
     /*!
      *  @return  Returns a reference to the pivot vector as a vector_int
      */
-    const vector_int& ipiv() const { return m_ipiv; }
+    const vector_int& ipiv() const {
+        return m_ipiv;
+    }
 
-  protected:
+protected:
 
     //! Vector of pivots. Length is equal to the max of m and n.
     vector_int     m_ipiv;
 
     //! Vector of column pointers
-    std::vector<doublereal *> m_colPts;
+    std::vector<doublereal*> m_colPts;
 
-  public:
+public:
 
     //! Error Handling Flag
     /*!
@@ -188,84 +192,84 @@ namespace Cantera {
 
     //  Listing of friend functions which are defined below
 
-    friend int solve(DenseMatrix& A, double* b); 
-    friend int solve(DenseMatrix& A, DenseMatrix& b); 
+    friend int solve(DenseMatrix& A, double* b);
+    friend int solve(DenseMatrix& A, DenseMatrix& b);
     friend int invert(DenseMatrix& A, int nn);
 #ifdef INCL_LEAST_SQUARES
     friend int leastSquares(DenseMatrix& A, double* b);
 #endif
 
-  };
+};
 
-  //==================================================================================================================
+//==================================================================================================================
 
-  
-  //! Solve Ax = b. Array b is overwritten on exit with x.
-  /*!
-   *   The solve class uses the LAPACK routine dgetrf to invert the m xy n matrix.
-   *
-   *   The factorization has the form
-   *     A = P * L * U
-   *  where P is a permutation matrix, L is lower triangular with unit
-   *  diagonal elements (lower trapezoidal if m > n), and U is upper
-   *  triangular (upper trapezoidal if m < n).
-   *
-   *  The system is then solved using the LAPACK routine dgetrs
-   *
-   *   @param A   Dense matrix to be factored
-   *   @param b   rhs to be solved.
-   */
-  int solve(DenseMatrix& A, double* b);
 
-  //!  Solve Ax = b for multiple right-hand-side vectors. 
-  /*!
-   *  @param A    Dense matrix to be factored
-   *  @param b   Dense matrix of rhs's. Each column is a rhs
-   */
-  int solve(DenseMatrix& A, DenseMatrix& b);
+//! Solve Ax = b. Array b is overwritten on exit with x.
+/*!
+ *   The solve class uses the LAPACK routine dgetrf to invert the m xy n matrix.
+ *
+ *   The factorization has the form
+ *     A = P * L * U
+ *  where P is a permutation matrix, L is lower triangular with unit
+ *  diagonal elements (lower trapezoidal if m > n), and U is upper
+ *  triangular (upper trapezoidal if m < n).
+ *
+ *  The system is then solved using the LAPACK routine dgetrs
+ *
+ *   @param A   Dense matrix to be factored
+ *   @param b   rhs to be solved.
+ */
+int solve(DenseMatrix& A, double* b);
+
+//!  Solve Ax = b for multiple right-hand-side vectors.
+/*!
+ *  @param A    Dense matrix to be factored
+ *  @param b   Dense matrix of rhs's. Each column is a rhs
+ */
+int solve(DenseMatrix& A, DenseMatrix& b);
 
 #ifdef INCL_LEAST_SQUARES
-  //! Solve Ax = b in the least squares sense
-  /*!
-   *  @param A   Matrix to be inverted in the least squares sense
-   *  @param b   Vector b to be solved for
-   *   @todo fix lwork
-   */
-  int leastSquares(DenseMatrix& A, double* b);
+//! Solve Ax = b in the least squares sense
+/*!
+ *  @param A   Matrix to be inverted in the least squares sense
+ *  @param b   Vector b to be solved for
+ *   @todo fix lwork
+ */
+int leastSquares(DenseMatrix& A, double* b);
 #endif
-  
-  //! Multiply \c A*b and return the result in \c prod. Uses BLAS routine DGEMV.
-  /*!
-   *  \f[
-   *          prod_i = sum^N_{j = 1}{A_{ij} b_j}
-   *  \f]
-   * 
-   *  @param    A     input      Dense Matrix A with M rows and N columns
-   *  @param    b     input      vector b with length N
-   *  @param    prod  output     output vector prod length = M
-   */ 
-  void multiply(const DenseMatrix& A, const double * const b, double * const prod);
 
-  //! Multiply \c A*b and add it to the result in \c prod. Uses BLAS routine DGEMV.
-  /*!
-   *  \f[
-   *          prod_i += sum^N_{j = 1}{A_{ij} b_j}
-   *  \f]
-   * 
-   *  @param    A     input      Dense Matrix A with M rows and N columns
-   *  @param    b     input      vector b with length N
-   *  @param    prod  output     output vector prod length = M
-   */ 
-  void increment(const DenseMatrix& A, const double * const b, double * const prod);
+//! Multiply \c A*b and return the result in \c prod. Uses BLAS routine DGEMV.
+/*!
+ *  \f[
+ *          prod_i = sum^N_{j = 1}{A_{ij} b_j}
+ *  \f]
+ *
+ *  @param    A     input      Dense Matrix A with M rows and N columns
+ *  @param    b     input      vector b with length N
+ *  @param    prod  output     output vector prod length = M
+ */
+void multiply(const DenseMatrix& A, const double* const b, double* const prod);
 
-  //! invert A. A is overwritten with A^-1.
-  /*!
-   *  @param A  Invert the matrix A and store it back in place
-   *
-   *  @param nn  Size of A. This defaults to -1, which means that the number
-   *                        of rows is used as the default size of n
-   */
-  int invert(DenseMatrix& A, int nn=-1);
+//! Multiply \c A*b and add it to the result in \c prod. Uses BLAS routine DGEMV.
+/*!
+ *  \f[
+ *          prod_i += sum^N_{j = 1}{A_{ij} b_j}
+ *  \f]
+ *
+ *  @param    A     input      Dense Matrix A with M rows and N columns
+ *  @param    b     input      vector b with length N
+ *  @param    prod  output     output vector prod length = M
+ */
+void increment(const DenseMatrix& A, const double* const b, double* const prod);
+
+//! invert A. A is overwritten with A^-1.
+/*!
+ *  @param A  Invert the matrix A and store it back in place
+ *
+ *  @param nn  Size of A. This defaults to -1, which means that the number
+ *                        of rows is used as the default size of n
+ */
+int invert(DenseMatrix& A, int nn=-1);
 
 }
 
