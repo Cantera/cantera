@@ -324,7 +324,7 @@ namespace Cantera {
    */
   //===========================================================================================================
   void IonsFromNeutralVPSSTP::getDissociationCoeffs(vector_fp& coeffs, 
-						    vector_fp& charges, std::vector<int>& neutMolIndex) const {
+						    vector_fp& charges, std::vector<size_t>& neutMolIndex) const {
     coeffs = fm_neutralMolec_ions_;
     charges = m_speciesCharge;
     neutMolIndex = fm_invert_ionForNeutral;
@@ -1519,7 +1519,7 @@ namespace Cantera {
      */
     GibbsExcessVPSSTP *geThermo = dynamic_cast<GibbsExcessVPSSTP *>(neutralMoleculePhase_);
     if (!geThermo) {
-      fvo_zero_dbl_1(dlnActCoeffdlnX_diag_, m_kk);
+      dlnActCoeffdlnX_diag_.assign(m_kk, 0.0);
       return;
     }
 
@@ -1577,7 +1577,7 @@ namespace Cantera {
      */
     GibbsExcessVPSSTP *geThermo = dynamic_cast<GibbsExcessVPSSTP *>(neutralMoleculePhase_);
     if (!geThermo) {
-      fvo_zero_dbl_1(dlnActCoeffdlnN_diag_, m_kk);
+      dlnActCoeffdlnN_diag_.assign(m_kk, 0.0);
       return;
     }
 

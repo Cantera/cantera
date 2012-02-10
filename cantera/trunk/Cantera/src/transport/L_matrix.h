@@ -133,7 +133,7 @@ namespace Cantera {
     doublereal constant, sum;
     size_t n2 = 2*m_nsp;
     int npoly = 0;
-    for (j = 0; j < m_nsp; j++) {
+    for (size_t j = 0; j < m_nsp; j++) {
       //        collect terms that depend only on "j"
       if (hasInternalModes(j)) {
 	constant = prefactor*m_mw[j]*x[j]*m_crot[j]/(m_cinternal[j]*m_rotrelax[j]);
@@ -209,7 +209,7 @@ namespace Cantera {
 	  - constant1*sum;
       }
       else {
-	for (k = 0; k < m_nsp; k++) {
+	for (size_t k = 0; k < m_nsp; k++) {
 	  m_Lmatrix(i+n2,i+n2) = 1.0;
         }
       }

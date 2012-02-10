@@ -106,6 +106,7 @@ namespace VCSnonideal {
     int finalElemAbundAttempts = 0;
     bool uptodate_minors = true;
     bool justDeletedMultiPhase = false;
+    bool MajorSpeciesHaveConverged;
     bool usedZeroedSpecies; /* return flag from basopt indicating that
 			      one of the components had a zero concentration */
     size_t doPhaseDeleteIph = npos;
@@ -224,7 +225,7 @@ namespace VCSnonideal {
 	  plogf("% -7.3g ", m_formulaMatrix[j][i]);
 	}
 	plogf("  %3d  ", m_phaseID[i]);
-	print_space(55-m_numElemConstraints*8);
+	print_space(std::max(55-int(m_numElemConstraints)*8, 0));
 	plogf("%12.5E  %12.5E", RT * m_SSfeSpecies[i], m_molNumSpecies_old[i]);
 	if (m_speciesUnknownType[i] == VCS_SPECIES_TYPE_MOLNUM) {
 	  plogf("       Mol_Num");
@@ -563,11 +564,13 @@ namespace VCSnonideal {
 	    /********************************************************************/
 	    /************************ VOLTAGE SPECIES ***************************/
 	    /********************************************************************/
+	    bool soldel_ret;
 #ifdef DEBUG_MODE	 
-	    dx = vcs_minor_alt_calc(kspec, irxn, &soldel, ANOTE); 
+	    dx = vcs_minor_alt_calc(kspec, irxn, &soldel_ret, ANOTE);
 #else
-	    dx = vcs_minor_alt_calc(kspec, irxn, &soldel);
+	    dx = vcs_minor_alt_calc(kspec, irxn, &soldel_ret);
 #endif
+	    soldel = soldel_ret;
 	    m_deltaMolNumSpecies[kspec] = dx;
 	  }
 	  else if (m_speciesStatus[kspec] < VCS_SPECIES_MINOR) {
@@ -705,11 +708,13 @@ namespace VCSnonideal {
 	     *    If soldel is true on return, then we branch to the section
 	     *    that deletes a species from the current set of active species.
 	     */
+	    bool soldel_ret;
 #ifdef DEBUG_MODE	 
-	    dx = vcs_minor_alt_calc(kspec, irxn, &soldel, ANOTE); 
+	    dx = vcs_minor_alt_calc(kspec, irxn, &soldel_ret, ANOTE);
 #else
-	    dx = vcs_minor_alt_calc(kspec, irxn, &soldel);
+	    dx = vcs_minor_alt_calc(kspec, irxn, &soldel_ret);
 #endif
+	    soldel = soldel_ret;
 	    m_deltaMolNumSpecies[kspec] = dx;
 	    m_molNumSpecies_new[kspec] = m_molNumSpecies_old[kspec] + dx;
 

@@ -592,7 +592,7 @@ namespace Cantera {
      *  @param iphase  Index of the phase. This is the order within the internal thermo vector object
      *  @param exists  Boolean indicating whether the phase exists or not
      */
-    void setPhaseExistence(const int iphase, const int exists);
+    void setPhaseExistence(const size_t iphase, const bool exists);
 
     //! Set the stability of a phase in the reaction object
     /*!

@@ -40,7 +40,7 @@ namespace VCSnonideal {
    *                   in this routine. The species is a noncomponent 
    *            -  2 : Same as one but, the zeroed species is a component. 
    */
-  int VCS_SOLVE::vcs_RxnStepSizes(int & forceComponentCalc, int &kSpecial) {
+  int VCS_SOLVE::vcs_RxnStepSizes(int & forceComponentCalc, size_t &kSpecial) {
     int  j, irxn, kspec,  iph;
     int iphDel = -1;
     double s, xx, dss;

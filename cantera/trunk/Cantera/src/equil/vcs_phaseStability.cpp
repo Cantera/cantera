@@ -61,7 +61,7 @@ namespace VCSnonideal {
       }
 #endif
       size_t irxn = kspec - m_numComponents;
-      if (kspec >= m_numCoimponents) {
+      if (kspec >= m_numComponents) {
 	bool iPopPossible = true;
 	for (size_t j = 0; j < m_numComponents; ++j) {
 	  if (m_elType[j] == VCS_ELEM_TYPE_ABSPOS) {

@@ -206,7 +206,7 @@ namespace VCSnonideal {
 					  int printLvl) {
     int retn = 0;
     double test = -1.0E-10;
-    int usedZeroedSpecies;
+    bool usedZeroedSpecies;
     std::vector<int> phasePopPhaseIDs(0);
     int iphasePop;
     int iStab = 0;
@@ -219,7 +219,7 @@ namespace VCSnonideal {
     std::vector<double> wx(m_numElemConstraints, 0.0);
    
 
-    retn = vcs_basopt(FALSE, VCS_DATA_PTR(aw), VCS_DATA_PTR(sa),
+    retn = vcs_basopt(false, VCS_DATA_PTR(aw), VCS_DATA_PTR(sa),
 		      VCS_DATA_PTR(sm), VCS_DATA_PTR(ss),
 		      test, &usedZeroedSpecies);
     vcs_evaluate_speciesType();

@@ -1661,7 +1661,7 @@ namespace Cantera {
       */
 
       condSum1 = 0;
-      for (i = 0; i < m_nsp; i++){
+      for (size_t i = 0; i < m_nsp; i++){
 	condSum1 -= Faraday*m_chargeSpecies[i]*m_B(i,0)*m_molefracs_tran[i]/vol;
       }
       

@@ -212,11 +212,11 @@ namespace Cantera {
   }
 
 
-  doublereal GibbsExcessVPSSTP::standardConcentration(int k) const {
+  doublereal GibbsExcessVPSSTP::standardConcentration(size_t k) const {
     return 1.0;
   }
 
-  doublereal GibbsExcessVPSSTP::logStandardConc(int k) const {
+  doublereal GibbsExcessVPSSTP::logStandardConc(size_t k) const {
     return 0.0;
   }
 
