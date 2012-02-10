@@ -15,54 +15,56 @@
 #include "SurfPhase.h"
 #include "solveSP.h"
 
-namespace Cantera {
+namespace Cantera
+{
 
-  class solveSP;
+class solveSP;
 
-    
-  //! Advances the surface coverages of the associated set of SurfacePhase
-  //! objects in time 
-  /*!
-   *  This function advances a set of SurfacePhase objects, each
-   *  associated with one InterfaceKinetics object, in time.
-   *  The following equation is used for each surface phase, <I>i</I>.
-   *
-   *   \f[ 
-   *        \dot \theta_k = \dot s_k (\sigma_k / s_0)
-   *   \f]
-   *
-   *  In this equation,
-   *    \f$ \theta_k \f$ is the site coverage for the kth species. 
-   *    \f$ \dot s_k \f$ is the source term for the kth species
-   *   \f$ \sigma_k \f$ is the number of surface sites covered by
-   *  each species k.
-   *   \f$ s_0 \f$ is the total site density of the interfacial phase.
-   *
-   *  Additionally, the 0'th equation in the set is discarded. Instead the
-   *  alternate equation is solved for
-   *
-   *   \f[ 
-   *        \sum_{k=0}^{N-1}  \dot \theta_k = 0
-   *   \f]
-   *
-   *  This last equation serves to ensure that sum of the \f$ \theta_k \f$
-   *  values stays constant.
-   *
-   *  The object uses the CVODE software to advance the surface equations.
-   *
-   *  The solution vector used by this object is as follows. 
-   *   For each surface phase with \f$ N_s \f$ surface sites, 
-   *   it consists of the surface coverages
-   *       \f$ \theta_k \f$ for \f$ k = 0, N_s - 1 \f$
-   *
-   * @ingroup  kineticsmgr
-   *
-   */
-  class ImplicitSurfChem : public FuncEval {
 
-  public:
+//! Advances the surface coverages of the associated set of SurfacePhase
+//! objects in time
+/*!
+ *  This function advances a set of SurfacePhase objects, each
+ *  associated with one InterfaceKinetics object, in time.
+ *  The following equation is used for each surface phase, <I>i</I>.
+ *
+ *   \f[
+ *        \dot \theta_k = \dot s_k (\sigma_k / s_0)
+ *   \f]
+ *
+ *  In this equation,
+ *    \f$ \theta_k \f$ is the site coverage for the kth species.
+ *    \f$ \dot s_k \f$ is the source term for the kth species
+ *   \f$ \sigma_k \f$ is the number of surface sites covered by
+ *  each species k.
+ *   \f$ s_0 \f$ is the total site density of the interfacial phase.
+ *
+ *  Additionally, the 0'th equation in the set is discarded. Instead the
+ *  alternate equation is solved for
+ *
+ *   \f[
+ *        \sum_{k=0}^{N-1}  \dot \theta_k = 0
+ *   \f]
+ *
+ *  This last equation serves to ensure that sum of the \f$ \theta_k \f$
+ *  values stays constant.
+ *
+ *  The object uses the CVODE software to advance the surface equations.
+ *
+ *  The solution vector used by this object is as follows.
+ *   For each surface phase with \f$ N_s \f$ surface sites,
+ *   it consists of the surface coverages
+ *       \f$ \theta_k \f$ for \f$ k = 0, N_s - 1 \f$
+ *
+ * @ingroup  kineticsmgr
+ *
+ */
+class ImplicitSurfChem : public FuncEval
+{
 
-       
+public:
+
+
     //! Constructor for multiple surfaces.
     /*!
      * @param k  Vector of pointers to InterfaceKinetics objects
@@ -79,7 +81,7 @@ namespace Cantera {
 
     /**
      * Overloads the virtual function
-     * declared in FuncEval. 
+     * declared in FuncEval.
      */
     virtual void initialize(doublereal t0 = 0.0);
 
@@ -94,8 +96,8 @@ namespace Cantera {
      */
     void integrate(doublereal t0, doublereal t1);
 
-     
-    //! Integrate from t0 to t1 without reinitializing the integrator. 
+
+    //! Integrate from t0 to t1 without reinitializing the integrator.
     /*!
      *  Use when the coverages have not changed from
      *  their values on return from the last call to integrate or
@@ -109,7 +111,7 @@ namespace Cantera {
 
     //! Solve for the pseudo steady-state of the surface problem
     /*!
-     * Solve for the steady state of the surface problem. 
+     * Solve for the steady state of the surface problem.
      * This is the same thing as the advanceCoverages() function,
      * but at infinite times.
      *
@@ -134,13 +136,15 @@ namespace Cantera {
      *             before the equation system is solved directly.
      */
     void solvePseudoSteadyStateProblem(int ifuncOverride = -1,
-				       doublereal timeScaleOverride = 1.0);
-      
+                                       doublereal timeScaleOverride = 1.0);
+
 
     // overloaded methods of class FuncEval
 
     //! Return the number of equations
-    virtual size_t neq() { return m_nv; }
+    virtual size_t neq() {
+        return m_nv;
+    }
 
     //! Evaluate the value of ydot[k] at the current conditions
     /*!
@@ -150,8 +154,8 @@ namespace Cantera {
      *                derivative of the surface coverages.
      *  @param p   Unused parameter pass-through parameter vector
      */
-    virtual void eval(doublereal t, doublereal* y, doublereal* ydot, 
-		      doublereal* p);
+    virtual void eval(doublereal t, doublereal* y, doublereal* ydot,
+                      doublereal* p);
 
     //! Set the initial conditions for the solution vector
     /*!
@@ -161,8 +165,8 @@ namespace Cantera {
      *            On output, this contains the initial value
      *           of the solution.
      */
-    virtual void getInitialConditions(doublereal t0, 
-				      size_t leny, doublereal* y);
+    virtual void getInitialConditions(doublereal t0,
+                                      size_t leny, doublereal* y);
 
     /*
      * Get the specifications for the problem from the values
@@ -177,9 +181,9 @@ namespace Cantera {
      *                  within the object, in the same order as the
      *                  unknown vector.
      */
-    void getConcSpecies(doublereal * const vecConcSpecies) const;
+    void getConcSpecies(doublereal* const vecConcSpecies) const;
 
-    //! Sets the concentrations within phases that are unknowns in 
+    //! Sets the concentrations within phases that are unknowns in
     //! the surface problem
     /*!
      * Fills the local concentration vector for all of the
@@ -191,7 +195,7 @@ namespace Cantera {
      *                  within the object, in the same order as the
      *                  unknown vector.
      */
-    void setConcSpecies(const doublereal * const vecConcSpecies);
+    void setConcSpecies(const doublereal* const vecConcSpecies);
 
     //! Sets the state variable in all thermodynamic phases (surface and
     //! surrounding bulk phases) to the input temperature and pressure
@@ -202,25 +206,25 @@ namespace Cantera {
     void setCommonState_TP(doublereal TKelvin, doublereal PresPa);
 
 
-    //! Returns a reference to the vector of pointers to the 
+    //! Returns a reference to the vector of pointers to the
     //! InterfaceKinetics objects
     /*!
-     * This should probably go away in the future, as it opens up the 
+     * This should probably go away in the future, as it opens up the
      * class.
      */
     std::vector<InterfaceKinetics*> & getObjects() {
-      return m_vecKinPtrs;
+        return m_vecKinPtrs;
     }
 
-    int checkMatch(std::vector<ThermoPhase *> m_vec, ThermoPhase *thPtr);
+    int checkMatch(std::vector<ThermoPhase*> m_vec, ThermoPhase* thPtr);
 
     void setIOFlag(int ioFlag) {
-      m_ioFlag = ioFlag;
+        m_ioFlag = ioFlag;
     }
 
-  protected:
-        
-   
+protected:
+
+
     //! Set the mixture to a state consistent with solution
     //! vector y.
     /*!
@@ -232,13 +236,13 @@ namespace Cantera {
      *          The lenth is equal to the sum of the number of surface
      *          sites in all the surface phases
      */
-    void updateState(doublereal *y);
+    void updateState(doublereal* y);
 
     //! vector of pointers to surface phases.
     std::vector<SurfPhase*> m_surf;
 
     //! Vector of pointers to bulk phases
-    std::vector<ThermoPhase *> m_bulkPhases;
+    std::vector<ThermoPhase*> m_bulkPhases;
 
     //! vector of pointers to InterfaceKinetics objects
     std::vector<InterfaceKinetics*> m_vecKinPtrs;
@@ -248,7 +252,7 @@ namespace Cantera {
 
     //! index of the surface phase in each InterfaceKinetics object
     std::vector<size_t> m_surfindex;
-    
+
     std::vector<size_t> m_specStartIndex;
 
     //! Total number of surface phases.
@@ -272,13 +276,13 @@ namespace Cantera {
 
     std::vector<vector_int> pLocVec;
     //! Pointer to the cvode integrator
-    Integrator* m_integ;    
+    Integrator* m_integ;
     doublereal m_atol, m_rtol;   // tolerances
     doublereal m_maxstep;        // max step size
     vector_fp m_work;
 
-    
- 
+
+
     /**
      * Temporary vector - length num species in the Kinetics object.
      *                    This is the sum of the number of species
@@ -296,13 +300,13 @@ namespace Cantera {
     int m_mediumSpeciesStart;
     /**
      * Index into the species vector of the kinetics manager,
-     * pointing to the first species from the condensed phase 
+     * pointing to the first species from the condensed phase
      * of the particles.
      */
     int m_bulkSpeciesStart;
     /**
      * Index into the species vector of the kinetics manager,
-     * pointing to the first species from the surface 
+     * pointing to the first species from the surface
      * of the particles
      */
     int m_surfSpeciesStart;
@@ -310,7 +314,7 @@ namespace Cantera {
      * Pointer to the helper method, Placid, which solves the
      * surface problem.
      */
-    solveSP *m_surfSolver;
+    solveSP* m_surfSolver;
 
     //! If true, a common temperature and pressure for all
     //! surface and bulk phases associated with the surface problem
@@ -322,12 +326,12 @@ namespace Cantera {
     //! Adding the members into the class is also a possibility.
     friend class solveSS;
 
-  private:
+private:
 
     //! Controls the amount of printing from this routine
     //! and underlying routines.
     int m_ioFlag;
-  };
+};
 }
 
 #endif

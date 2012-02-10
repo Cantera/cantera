@@ -20,15 +20,17 @@
 #include "DenseMatrix.h"
 #include "GeneralMatrix.h"
 
-namespace Cantera { 
+namespace Cantera
+{
 
-  /**
-   *  A class for full (non-sparse) matrices with Fortran-compatible
-   *  data storage. Adds matrix inversion operations to this class from DenseMatrix.
-   */
-  class SquareMatrix: public DenseMatrix, public GeneralMatrix {
+/**
+ *  A class for full (non-sparse) matrices with Fortran-compatible
+ *  data storage. Adds matrix inversion operations to this class from DenseMatrix.
+ */
+class SquareMatrix: public DenseMatrix, public GeneralMatrix
+{
 
-  public:
+public:
 
 
     //! Base Constructor.
@@ -48,10 +50,10 @@ namespace Cantera {
 
     //! Copy Constructor
     /*!
-     *  @param right Object to be copied 
+     *  @param right Object to be copied
      */
     SquareMatrix(const SquareMatrix& right);
-   
+
     //! Assignment operator
     /*!
      *  @param right  Object to be copied
@@ -66,7 +68,7 @@ namespace Cantera {
     /*!
      *  @param b  Vector for the rhs of the equation system
      */
-    int solve(doublereal *b);
+    int solve(doublereal* b);
 
     //! Resize the matrix
     /*!
@@ -84,16 +86,16 @@ namespace Cantera {
     //! Multiply A*b and write result to prod.
     /*!
      *  @param b    Vector to do the rh multiplcation
-     *  @param prod OUTPUT vector to receive the result 
+     *  @param prod OUTPUT vector to receive the result
      */
-    virtual void mult(const doublereal * const b, doublereal * const prod) const;
+    virtual void mult(const doublereal* const b, doublereal* const prod) const;
 
     //! Multiply b*A and write result to prod.
     /*!
      *  @param b    Vector to do the lh multiplcation
-     *  @param prod OUTPUT vector to receive the result 
+     *  @param prod OUTPUT vector to receive the result
      */
-    virtual void leftMult(const doublereal * const b, doublereal * const prod) const;
+    virtual void leftMult(const doublereal* const b, doublereal* const prod) const;
 
     /**
      * Factors the A matrix, overwriting A. We flip m_factored
@@ -134,9 +136,9 @@ namespace Cantera {
     /*!
      *  @param b  RHS to be solved.
      */
-    int solveQR(doublereal *b); 
+    int solveQR(doublereal* b);
 
-    
+
     //! clear the factored flag
     virtual void clearFactorFlag();
 
@@ -169,7 +171,7 @@ namespace Cantera {
      *
      *  @return  Returns a pointer to the top of the column
      */
-    virtual doublereal * ptrColumn(int j);
+    virtual doublereal* ptrColumn(int j);
 
     //! Index into the (i,j) element
     /*!
@@ -181,7 +183,7 @@ namespace Cantera {
      *  Returns a changeable reference to the matrix entry
      */
     virtual doublereal& operator()(int i, int j) {
-      return Array2D::operator()(i, j);
+        return Array2D::operator()(i, j);
     }
 
     //! Copy the data from one array into another without doing any checking
@@ -198,10 +200,10 @@ namespace Cantera {
      *
      *  Returns an unchangeable reference to the matrix entry
      */
-    virtual  doublereal operator() (int i, int j) const {
-      return Array2D::operator()(i, j);
+    virtual  doublereal operator()(int i, int j) const {
+        return Array2D::operator()(i, j);
     }
- 
+
     //! Return the number of rows in the matrix
     virtual size_t nRows() const;
 
@@ -214,10 +216,10 @@ namespace Cantera {
      *
      * @return  returns the number of rows and columns in the matrix.
      */
-    size_t nRowsAndStruct(int * const iStruct = 0) const; 
+    size_t nRowsAndStruct(int* const iStruct = 0) const;
 
     //! Duplicate this object
-    virtual GeneralMatrix * duplMyselfAsGeneralMatrix() const;
+    virtual GeneralMatrix* duplMyselfAsGeneralMatrix() const;
 
 
     //! Return an iterator pointing to the first element
@@ -225,7 +227,7 @@ namespace Cantera {
      */
     virtual  vector_fp::iterator begin();
 
- 
+
     //! Return a const iterator pointing to the first element
     virtual vector_fp::const_iterator begin() const;
 
@@ -236,9 +238,9 @@ namespace Cantera {
      *  However, the value of the matrix is open to being changed.
      *
      *   @return returns a vector of pointers to the top of the columns
-     *           of the matrices.  
+     *           of the matrices.
      */
-    virtual doublereal  * const * colPts();
+    virtual doublereal*   const* colPts();
 
     //! Check to see if we have any zero rows in the jacobian
     /*!
@@ -249,7 +251,7 @@ namespace Cantera {
      *
      * @return index of the row that is most nearly zero
      */
-    virtual int checkRows(doublereal & valueSmall) const;
+    virtual int checkRows(doublereal& valueSmall) const;
 
     //! Check to see if we have any zero columns in the jacobian
     /*!
@@ -260,14 +262,14 @@ namespace Cantera {
      *
      * @return index of the column that is most nearly zero
      */
-    virtual int checkColumns(doublereal & valueSmall) const;
+    virtual int checkColumns(doublereal& valueSmall) const;
 
-  protected:
-    
+protected:
+
     //!  the factor flag
     int m_factored;
 
-  public:
+public:
     //! Work vector for QR algorithm
     vector_fp tau;
 
@@ -276,13 +278,13 @@ namespace Cantera {
 
     //! Integer work vector for QR algorithms
     std::vector<int> iwork_;
-  protected:
+protected:
     //! 1-norm of the matrix. This is determined immediately before every factorization
     doublereal a1norm_;
-    
+
     //!  Use the QR algorithm to factor and invert the matrix
     int useQR_;
-  };
+};
 }
 
 #endif

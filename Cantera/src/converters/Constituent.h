@@ -12,14 +12,16 @@
 #include <string>
 #include <vector>
 
-namespace ckr {
+namespace ckr
+{
 
 /**
  * A class for components of a composite object. The only members are
  * a string identifying the component, and a double specifying the
  * amount.
  */
-class Constituent {
+class Constituent
+{
 public:
     std::string    name;        //!< The name of the object.
     double         number;      //!< The number of units (molecules, etc.).

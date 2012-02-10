@@ -5,11 +5,12 @@
 
 using namespace std;
 
-int main () {
+int main()
+{
 #ifdef _MSC_VER
     _set_output_format(_TWO_DIGIT_EXPONENT);
 #endif
-    WaterPropsIAPWSphi *phi = new WaterPropsIAPWSphi();
+    WaterPropsIAPWSphi* phi = new WaterPropsIAPWSphi();
 
     phi->check1();
     phi->check2();

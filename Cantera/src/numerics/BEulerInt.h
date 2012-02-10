@@ -43,33 +43,36 @@
 #define STEADY 0
 #define TRANSIENT 1
 
-namespace Cantera {
+namespace Cantera
+{
 
-  enum BEulerMethodType {
+enum BEulerMethodType {
     BEulerFixedStep,
     BEulerVarStep
-  };
-    
-  /**
-   * Exception class thrown when a BEuler error is encountered.
-   */
-  class BEulerErr : public CanteraError {
-  public:
+};
+
+/**
+ * Exception class thrown when a BEuler error is encountered.
+ */
+class BEulerErr : public CanteraError
+{
+public:
     BEulerErr(std::string msg);
-  };
+};
 
 
 #define BEULER_JAC_ANAL 2
 #define BEULER_JAC_NUM  1
 
-  /**
-   *  Wrapper class for 'beuler' integrator
-   *  We derive the class from the class Integrator
-   */
-  class BEulerInt : public Integrator {
+/**
+ *  Wrapper class for 'beuler' integrator
+ *  We derive the class from the class Integrator
+ */
+class BEulerInt : public Integrator
+{
 
-  public:
-    
+public:
+
     //! The default constructor doesn't take an argument.
     BEulerInt();
     //! Destructor
@@ -82,9 +85,15 @@ namespace Cantera {
     virtual double integrateRJE(double tout, double tinit = 0.0);
     virtual doublereal step(double tout);
     virtual void setSolnWeights();
-    virtual double& solution(int k){ return m_y_n[k]; }
-    double* solution(){ return m_y_n; }
-    int nEquations() const { return m_neq;}
+    virtual double& solution(int k) {
+        return m_y_n[k];
+    }
+    double* solution() {
+        return m_y_n;
+    }
+    int nEquations() const {
+        return m_neq;
+    }
     virtual int nEvals() const;
     virtual void setMethodBEMT(BEulerMethodType t);
     virtual void setIterator(IterType t);
@@ -92,40 +101,40 @@ namespace Cantera {
     virtual void setMaxNumTimeSteps(int);
     virtual void setNumInitialConstantDeltaTSteps(int);
 
-    void  print_solnDelta_norm_contrib(const double * const soln0, 
-				       const char * const s0,
-				       const double * const soln1,
-				       const char * const s1,
-				       const char * const title,
-				       const double * const y0,
-				       const double * const y1,
-				       double damp,
-				       int num_entries);
+    void  print_solnDelta_norm_contrib(const double* const soln0,
+                                       const char* const s0,
+                                       const double* const soln1,
+                                       const char* const s1,
+                                       const char* const title,
+                                       const double* const y0,
+                                       const double* const y1,
+                                       double damp,
+                                       int num_entries);
 
     virtual void setPrintSolnOptions(int printSolnStepInterval,
-				     int printSolnNumberToTout,
-				     int printSolnFirstSteps = 0,
-				     bool dumpJacobians = false);
+                                     int printSolnNumberToTout,
+                                     int printSolnFirstSteps = 0,
+                                     bool dumpJacobians = false);
     void setNonLinOptions(int min_newt_its = 0,
-			  bool matrixConditioning = false,
-			  bool colScaling = false,
-			  bool rowScaling = true);
+                          bool matrixConditioning = false,
+                          bool colScaling = false,
+                          bool rowScaling = true);
     virtual void setPrintFlag(int print_flag);
     virtual void setColumnScales();
     /**
      * calculate the solution error norm
      */
-    virtual double soln_error_norm(const double * const,
-				   bool printLargest = false);
+    virtual double soln_error_norm(const double* const,
+                                   bool printLargest = false);
     virtual void setInitialTimeStep(double delta_t);
 
-    void beuler_jac(GeneralMatrix &, double * const,
-		    double, double, double * const, double * const, int);
+    void beuler_jac(GeneralMatrix&, double* const,
+                    double, double, double* const, double* const, int);
 
 
-  protected:
-  
-    //!  Internal routine that sets up the fixed length storage based on 
+protected:
+
+    //!  Internal routine that sets up the fixed length storage based on
     //!  the size of the problem to solve.
     void internalMalloc();
     /**
@@ -137,7 +146,7 @@ namespace Cantera {
      * Internal function to calculate the time derivative at the
      * new step
      */
-    void calc_ydot(int, double *, double *);
+    void calc_ydot(int, double*, double*);
     /**
      * Internal function to calculate the time step truncation
      * error for a predictor corrector time step
@@ -145,16 +154,16 @@ namespace Cantera {
     double time_error_norm();
     /**
      * Internal function to calculate the time step for the
-     * next step based on the time-truncation error on the 
+     * next step based on the time-truncation error on the
      * current time step
      */
     double time_step_control(int m_order, double time_error_factor);
 
     //! Solve a nonlinear system
     /*!
-     *   
+     *
      * Find the solution to F(X, xprime) = 0 by damped Newton iteration.  On
-     * entry, y_comm[] contains an initial estimate of the solution and 
+     * entry, y_comm[] contains an initial estimate of the solution and
      * ydot_comm[] contains an estimate of the derivative.
      *   On  successful return, y_comm[] contains the converged solution
      * and ydot_comm[] contains the derivative
@@ -172,23 +181,23 @@ namespace Cantera {
      * @param num_backtracks number of backtracs
      * @param loglevel  Log level
      */
-    int solve_nonlinear_problem(double * const y_comm,
-				double * const ydot_comm, double CJ,
-				double time_curr, 
-				GeneralMatrix& jac,
-				int &num_newt_its,
-				int &num_linear_solves,
-				int &num_backtracks, 
-				int loglevel);
+    int solve_nonlinear_problem(double* const y_comm,
+                                double* const ydot_comm, double CJ,
+                                double time_curr,
+                                GeneralMatrix& jac,
+                                int& num_newt_its,
+                                int& num_linear_solves,
+                                int& num_backtracks,
+                                int loglevel);
 
     /**
      * Compute the undamped Newton step.  The residual function is
      * evaluated at x, but the Jacobian is not recomputed.
      */
-    void doNewtonSolve(double, double *, double*, double *, 
-		       GeneralMatrix&, int);
+    void doNewtonSolve(double, double*, double*, double*,
+                       GeneralMatrix&, int);
 
-    
+
     //!  Bound the Newton step while relaxing the solution
     /*!
      * Return the factor by which the undamped Newton step 'step0'
@@ -208,8 +217,8 @@ namespace Cantera {
      * Delta bounds: The idea behind these is that the Jacobian
      *               couldn't possibly be representative if the
      *               variable is changed by a lot. (true for
-     *               nonlinear systems, false for linear systems) 
-     *  Maximum increase in variable in any one newton iteration: 
+     *               nonlinear systems, false for linear systems)
+     *  Maximum increase in variable in any one newton iteration:
      *   factor of 2
      *  Maximum decrease in variable in any one newton iteration:
      *   factor of 5
@@ -221,24 +230,24 @@ namespace Cantera {
      *
      *   @return        Returns the damping coefficient
      */
-     double boundStep(const double * const y, const double * const step0, int loglevel);
-     
-     /*
-     * Damp step
-     */
-    int dampStep(double, const double*, const double*, 
-		 const double *, double*, double*,
-		 double*, double&, GeneralMatrix&, int&, bool, int&);
+    double boundStep(const double* const y, const double* const step0, int loglevel);
+
+    /*
+    * Damp step
+    */
+    int dampStep(double, const double*, const double*,
+                 const double*, double*, double*,
+                 double*, double&, GeneralMatrix&, int&, bool, int&);
 
     /*
      * Compute Residual Weights
      */
-    void computeResidWts(GeneralMatrix &jac);
+    void computeResidWts(GeneralMatrix& jac);
 
     /*
      * Filter a new step
      */
-    double filterNewStep(double, double *, double *);
+    double filterNewStep(double, double*, double*);
 
     /*
      * get the next time to print out
@@ -249,12 +258,12 @@ namespace Cantera {
     /*********************
      * METHOD FLAGS
      *********************/
-    
+
     //! IterType is used to specify how the nonlinear equations are
     //! to be relaxed at each time step.
     IterType m_iter;
     /**
-     * MethodType is used to specify how the time step is to be 
+     * MethodType is used to specify how the time step is to be
      * chosen. Currently, there are two choices, one is a fixed
      * step method while the other is based on a predictor-corrector
      * algorithm and a time-step truncation error tolerance.
@@ -283,7 +292,7 @@ namespace Cantera {
      */
     bool m_matrixConditioning;
     /**
-     *  If m_itol =1 then each component has an individual 
+     *  If m_itol =1 then each component has an individual
      *  value of atol. If m_itol = 0, the all atols are equal.
      */
     int m_itol;
@@ -300,12 +309,12 @@ namespace Cantera {
      *  Vector of absolute time truncation error tolerance
      *  when not uniform for all variables.
      */
-    double *m_abstol;
+    double* m_abstol;
     /**
-     * Error Weights. This is a surprisingly important quantity. 
+     * Error Weights. This is a surprisingly important quantity.
      */
-    double *m_ewt;
-    
+    double* m_ewt;
+
     //! Maximum step size
     double m_hmax;
     /**
@@ -326,7 +335,7 @@ namespace Cantera {
      */
     int m_max_time_step_attempts;
     /**
-     * Number of initial time steps to take where the 
+     * Number of initial time steps to take where the
      * time truncation error tolerances are not checked. Instead
      * the delta T is uniform
      */
@@ -338,7 +347,7 @@ namespace Cantera {
     int m_failure_counter;
     /**
      * Minimum Number of Newton Iterations per nonlinear step
-     * default = 0 
+     * default = 0
      */
     int m_min_newt_its;
     /************************
@@ -347,7 +356,7 @@ namespace Cantera {
     /**
      * Step Interval at which to print out the solution
      * default = 1;
-     * If set to zero, there is no printout 
+     * If set to zero, there is no printout
      */
     int m_printSolnStepInterval;
     /**
@@ -378,11 +387,11 @@ namespace Cantera {
      * Number of equations in the ode integrator
      */
     int m_neq;
-    double *m_y_n;
-    double *m_y_nm1;
-    double *m_y_pred_n;
-    double *m_ydot_n;
-    double *m_ydot_nm1;
+    double* m_y_n;
+    double* m_y_nm1;
+    double* m_y_pred_n;
+    double* m_ydot_n;
+    double* m_ydot_nm1;
     /************************
      * TIME VARIABLES
      ************************/
@@ -409,23 +418,23 @@ namespace Cantera {
      */
     double delta_t_max;
 
-	
-    double *m_resid;
-    double *m_residWts;
-    double *m_wksp;
-    ResidJacEval *m_func;
-    double *m_rowScales;
-    double *m_colScales;
- 
+
+    double* m_resid;
+    double* m_residWts;
+    double* m_wksp;
+    ResidJacEval* m_func;
+    double* m_rowScales;
+    double* m_colScales;
+
     /**
      * Pointer to the jacobian representing the
      * time dependent problem
      */
-    GeneralMatrix *tdjac_ptr;
+    GeneralMatrix* tdjac_ptr;
     /**
      * Determines the level of printing for each time
      * step.
-     *   0 -> absolutely nothing is printed for 
+     *   0 -> absolutely nothing is printed for
      *        a single time step.
      *   1 -> One line summary per time step
      *   2 -> short description, points of interest
@@ -440,7 +449,7 @@ namespace Cantera {
      */
     int m_nfe;
     /**
-     * Number of Jacobian Evaluations and 
+     * Number of Jacobian Evaluations and
      * factorization steps (they are the same)
      */
     int m_nJacEval;
@@ -464,7 +473,7 @@ namespace Cantera {
      *
      */
     int num_failures;
-  };
+};
 
 }    // namespace
 

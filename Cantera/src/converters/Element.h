@@ -14,10 +14,11 @@
 #include <ostream>
 
 
-namespace ckr {
+namespace ckr
+{
 
 /**
- *   A class for elements.  
+ *   A class for elements.
  *   Example usage:
  *   @code
  *   Element e;
@@ -26,29 +27,30 @@ namespace ckr {
  *   e.comment = "helium";
  *   @endcode
  */
-class Element {
+class Element
+{
 public:
 
     /// Construct a new empty Element object
-    Element() : 
-        name("<empty>"), 
-        atomicWeight(0.0), 
+    Element() :
+        name("<empty>"),
+        atomicWeight(0.0),
         valid(0),
         index(-1),
         weightFromDB(false),
-        comment("") 
-        {}
+        comment("")
+    {}
 
 
     /// Construct a new empty Element object
     Element(const std::string& nm, double wt) :
-        name(nm), 
-        atomicWeight(wt), 
+        name(nm),
+        atomicWeight(wt),
         valid(0),
         index(-1),
         weightFromDB(false),
-        comment("") 
-        {}
+        comment("")
+    {}
 
 
     /// Destructor
@@ -63,7 +65,7 @@ public:
 
 
     /**
-     * Compare two Element instances for equality based on name. 
+     * Compare two Element instances for equality based on name.
      * Primarily for internal use.
      */
     bool operator==(const Element& e) const {
@@ -74,11 +76,14 @@ public:
     }
     friend std::ostream& operator<<(std::ostream& s, const Element& e) {
         s << e.name;
-        if (!e.weightFromDB) s << "/" << e.atomicWeight << "/";
-        if (e.comment != "") 
+        if (!e.weightFromDB) {
+            s << "/" << e.atomicWeight << "/";
+        }
+        if (e.comment != "") {
             s << " !" << e.comment << std::endl;
-        else
+        } else {
             s << " ";
+        }
         return s;
     }
 };

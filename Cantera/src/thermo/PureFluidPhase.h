@@ -1,12 +1,12 @@
 /**
  *  @file PureFluidPhase.h
  *
- *   Header for a ThermoPhase class for a pure fluid phase consisting of 
- *   gas, liquid, mixed-gas-liquid and supercrit fluid (see \ref thermoprops 
+ *   Header for a ThermoPhase class for a pure fluid phase consisting of
+ *   gas, liquid, mixed-gas-liquid and supercrit fluid (see \ref thermoprops
  *   and class \link Cantera::PureFluidPhase PureFluidPhase\endlink).
  *
  * This class is only available if the WITH_PURE_FLUIDS optional compile
- * capability has been turned on in Cantera's makefile system. 
+ * capability has been turned on in Cantera's makefile system.
  * It inherits from ThermoPhase, but is built on top of the tpx package.
  */
 
@@ -17,47 +17,50 @@
 
 #include "ThermoPhase.h"
 /*
- * For doxygen to recognize the ifdef below, it seems necessary to 
+ * For doxygen to recognize the ifdef below, it seems necessary to
  * include a specific include reference.
  */
 /**
  * This object is only available if the WITH_PURE_FLUIDS optional compile
- * capability has been turned on in Cantera's makefile system.  
+ * capability has been turned on in Cantera's makefile system.
  */
 #ifdef WITH_PURE_FLUIDS
 
 #include "mix_defs.h"
 
-namespace tpx {
-  class Substance;
+namespace tpx
+{
+class Substance;
 }
 
-namespace Cantera {
+namespace Cantera
+{
 
-  //!   This phase object consists of a single component that can be a
-  //!   gas, a liquid, a mixed gas-liquid fluid, or a fluid beyond its
-  //!   critical point
-  /*!
-   *  The object inherits from ThermoPhase. However, its build on top
-   *  of the tpx package.
-   *
-   *
-   * <H2> Specification of Species Standard State Properties </H2>
-   *
-   *
-   * <H2> Application within %Kinetics Managers </H2>
-   *
-   *
-   * <H2> XML Example </H2>
-   *
-   *
-   * <H2> Instantiation of the Class </H2>
-   *
-   * @ingroup thermoprops
-   */
-  class PureFluidPhase  : public ThermoPhase {
+//!   This phase object consists of a single component that can be a
+//!   gas, a liquid, a mixed gas-liquid fluid, or a fluid beyond its
+//!   critical point
+/*!
+ *  The object inherits from ThermoPhase. However, its build on top
+ *  of the tpx package.
+ *
+ *
+ * <H2> Specification of Species Standard State Properties </H2>
+ *
+ *
+ * <H2> Application within %Kinetics Managers </H2>
+ *
+ *
+ * <H2> XML Example </H2>
+ *
+ *
+ * <H2> Instantiation of the Class </H2>
+ *
+ * @ingroup thermoprops
+ */
+class PureFluidPhase  : public ThermoPhase
+{
 
-  public:
+public:
 
     //! Empty Base Constructor
     PureFluidPhase();
@@ -66,7 +69,7 @@ namespace Cantera {
     /*!
      * @param right Object to be copied
      */
-    PureFluidPhase(const PureFluidPhase &right);
+    PureFluidPhase(const PureFluidPhase& right);
 
     //! Assignment operator
     /*!
@@ -85,27 +88,29 @@ namespace Cantera {
      *
      * @return It returns a ThermoPhase pointer.
      */
-    ThermoPhase *duplMyselfAsThermoPhase() const;
+    ThermoPhase* duplMyselfAsThermoPhase() const;
 
     //! Equation of state type
-    virtual int eosType() const { return cPureFluid; }
+    virtual int eosType() const {
+        return cPureFluid;
+    }
 
-    /// Molar enthalpy. Units: J/kmol. 
+    /// Molar enthalpy. Units: J/kmol.
     virtual doublereal enthalpy_mole() const;
 
-    /// Molar internal energy. Units: J/kmol. 
+    /// Molar internal energy. Units: J/kmol.
     virtual doublereal intEnergy_mole() const;
 
-    /// Molar entropy. Units: J/kmol/K. 
+    /// Molar entropy. Units: J/kmol/K.
     virtual doublereal entropy_mole() const;
 
-    /// Molar Gibbs function. Units: J/kmol. 
+    /// Molar Gibbs function. Units: J/kmol.
     virtual doublereal gibbs_mole() const;
 
-    /// Molar heat capacity at constant pressure. Units: J/kmol/K. 
+    /// Molar heat capacity at constant pressure. Units: J/kmol/K.
     virtual doublereal cp_mole() const;
 
-    /// Molar heat capacity at constant volume. Units: J/kmol/K. 
+    /// Molar heat capacity at constant volume. Units: J/kmol/K.
     virtual doublereal cv_mole() const;
 
     //! Return the thermodynamic pressure (Pa).
@@ -126,42 +131,42 @@ namespace Cantera {
 
     //! Get the species chemical potentials. Units: J/kmol.
     /*!
-     * This function returns a vector of chemical potentials of the 
+     * This function returns a vector of chemical potentials of the
      * species in solution at the current temperature, pressure
      * and mole fraction of the solution.
      *
-     * @param mu  Output vector of species chemical 
+     * @param mu  Output vector of species chemical
      *            potentials. Length: m_kk. Units: J/kmol
      */
     virtual void getChemPotentials(doublereal* mu) const {
-      mu[0] = gibbs_mole();
+        mu[0] = gibbs_mole();
     }
 
 
 
-    //!  Get the species electrochemical potentials. 
+    //!  Get the species electrochemical potentials.
     /*!
      *  These are partial molar quantities.  This method adds a term \f$ F z_k
-     *  \phi_p \f$ to each chemical potential.  
+     *  \phi_p \f$ to each chemical potential.
      *  The electrochemical potential of species k in a phase p, \f$ \zeta_k \f$,
      *  is related to the chemical potential via
-     *  the following equation, 
+     *  the following equation,
      *
      *       \f[
-     *            \zeta_{k}(T,P) = \mu_{k}(T,P) + F z_k \phi_p 
+     *            \zeta_{k}(T,P) = \mu_{k}(T,P) + F z_k \phi_p
      *       \f]
      *
      * @param mu  Output vector of species electrochemical
      *            potentials. Length: m_kk. Units: J/kmol
      */
     void getElectrochemPotentials(doublereal* mu) const {
-      getChemPotentials(mu);
-      double ve = Faraday * electricPotential();
-      for (int k = 0; k < m_kk; k++) {
-	mu[k] += ve*charge(k);
-      }
+        getChemPotentials(mu);
+        double ve = Faraday * electricPotential();
+        for (int k = 0; k < m_kk; k++) {
+            mu[k] += ve*charge(k);
+        }
     }
-    
+
     //! Returns an array of partial molar enthalpies for the species
     //! in the mixture. Units (J/kmol)
     /*!
@@ -169,8 +174,8 @@ namespace Cantera {
      *                Length: m_kk. units are J/kmol.
      */
     virtual void getPartialMolarEnthalpies(doublereal* hbar) const;
-    
-      
+
+
     //! Returns an array of partial molar entropies of the species in the
     //! solution. Units: J/kmol/K.
     /*!
@@ -179,23 +184,23 @@ namespace Cantera {
      */
     virtual void getPartialMolarEntropies(doublereal* sbar) const;
 
-    //! Return an array of partial molar internal energies for the 
+    //! Return an array of partial molar internal energies for the
     //! species in the mixture.  Units: J/kmol.
     /*!
      * @param ubar    Output vector of speciar partial molar internal energies.
      *                Length = m_kk. units are J/kmol.
      */
     virtual void getPartialMolarIntEnergies(doublereal* ubar) const;
-    
+
     //! Return an array of partial molar heat capacities for the
     //! species in the mixture.  Units: J/kmol/K
     /*!
-     * @param cpbar   Output vector of species partial molar heat 
+     * @param cpbar   Output vector of species partial molar heat
      *                capacities at constant pressure.
      *                Length = m_kk. units are J/kmol/K.
      */
     virtual void getPartialMolarCp(doublereal* cpbar) const;
-        
+
     //! Return an array of partial molar volumes for the
     //! species in the mixture. Units: m^3/kmol.
     /*!
@@ -221,7 +226,7 @@ namespace Cantera {
      *   cSS_CONVENTION_SLAVE 2
      */
     virtual int standardStateConvention() const;
-      
+
     //! This method returns an array of generalized concentrations
     /*!
      * \f$ C^a_k\f$ are defined such that \f$ a_k = C^a_k /
@@ -235,7 +240,7 @@ namespace Cantera {
      * partial pressures, mole fractions, or surface coverages,
      * for example.
      *
-     * @param c Output array of generalized concentrations. The 
+     * @param c Output array of generalized concentrations. The
      *           units depend upon the implementation of the
      *           reaction rate expressions within the phase.
      */
@@ -255,7 +260,7 @@ namespace Cantera {
      *
      * @param k Optional parameter indicating the species. The default
      *          is to assume this refers to species 0.
-     * @return 
+     * @return
      *   Returns the standard concentration. The units are by definition
      *   dependent on the ThermoPhase and kinetics manager representation.
      */
@@ -264,11 +269,11 @@ namespace Cantera {
     //! Get the array of non-dimensional activities at
     //! the current solution temperature, pressure, and solution concentration.
     /*!
-     * Note, for molality based formulations, this returns the 
+     * Note, for molality based formulations, this returns the
      * molality based activities.
      *
      * We resolve this function at this level by calling
-     * on the activityConcentration function. However, 
+     * on the activityConcentration function. However,
      * derived classes may want to override this default
      * implementation.
      *
@@ -284,9 +289,9 @@ namespace Cantera {
      * \f]
      */
     virtual doublereal isothermalCompressibility() const;
-    
+
     //! Return the volumetric thermal expansion coefficient. Units: 1/K.
-    /*!      
+    /*!
      * The thermal expansion coefficient is defined as
      * \f[
      * \beta = \frac{1}{v}\left(\frac{\partial v}{\partial T}\right)_P
@@ -298,10 +303,10 @@ namespace Cantera {
     tpx::Substance& TPX_Substance();
 
     //@}
-    /// @name Properties of the Standard State of the Species in the Solution 
+    /// @name Properties of the Standard State of the Species in the Solution
     /*!
      *  The standard state of the pure fluid is defined as the real properties
-     *  of the pure fluid at the most stable state of the fluid at the current 
+     *  of the pure fluid at the most stable state of the fluid at the current
      *  temperature and pressure of the solution. With this definition, the
      *  activity of the fluid is always then defined to be equal to one.
      */
@@ -314,7 +319,7 @@ namespace Cantera {
      * \f$. The values are evaluated at the current
      * temperature and pressure of the solution
      *
-     * @param mu      Output vector of chemical potentials. 
+     * @param mu      Output vector of chemical potentials.
      *                Length: m_kk.
      */
     virtual void getStandardChemPotentials(doublereal* mu) const;
@@ -345,7 +350,7 @@ namespace Cantera {
 
     //@}
 
-    /// @name Thermodynamic Values for the Species Reference States 
+    /// @name Thermodynamic Values for the Species Reference States
     /*!
      *    The species reference state for pure fluids is defined as an ideal gas at the
      *    reference pressure and current temperature of the fluid.
@@ -361,35 +366,35 @@ namespace Cantera {
      * @param hrt     Output vector containing the nondimensional reference state enthalpies
      *                Length: m_kk.
      */
-    virtual void getEnthalpy_RT_ref(doublereal *hrt) const;
+    virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
 
     //!  Returns the vector of nondimensional Gibbs Free Energies of the reference state at the current temperature
     //!  of the solution and the reference pressure for the species.
     /*!
-     * @param grt     Output vector containing the nondimensional reference state 
+     * @param grt     Output vector containing the nondimensional reference state
      *                Gibbs Free energies.  Length: m_kk.
      */
-    virtual void getGibbs_RT_ref(doublereal *grt) const;
+    virtual void getGibbs_RT_ref(doublereal* grt) const;
 
     //!  Returns the vector of the gibbs function of the reference state at the current temperature
     //!  of the solution and the reference pressure for the species.
     /*!
      *  units = J/kmol
      *
-     * @param g       Output vector containing the reference state 
+     * @param g       Output vector containing the reference state
      *                Gibbs Free energies.  Length: m_kk. Units: J/kmol.
      */
-    virtual void getGibbs_ref(doublereal *g) const;
+    virtual void getGibbs_ref(doublereal* g) const;
 
 
 
     //!  Returns the vector of nondimensional entropies of the reference state at the current temperature
     //!  of the solution and the reference pressure for each species.
     /*!
-     * @param er      Output vector containing the nondimensional reference state 
+     * @param er      Output vector containing the nondimensional reference state
      *                entropies.  Length: m_kk.
      */
-    virtual void getEntropy_R_ref(doublereal *er) const;
+    virtual void getEntropy_R_ref(doublereal* er) const;
 
     /**
      * @name Setting the State
@@ -405,8 +410,8 @@ namespace Cantera {
      * @param tol  Optional parameter setting the tolerance of the
      *             calculation.
      */
-    virtual void setState_HP(doublereal h, doublereal p, 
-			     doublereal tol = 1.e-8);
+    virtual void setState_HP(doublereal h, doublereal p,
+                             doublereal tol = 1.e-8);
 
     //! Set the specific internal energy (J/kg) and specific volume (m^3/kg).
     /*!
@@ -418,8 +423,8 @@ namespace Cantera {
      * @param tol  Optional parameter setting the tolerance of the
      *             calculation.
      */
-    virtual void setState_UV(doublereal u, doublereal v, 
-			     doublereal tol = 1.e-8);
+    virtual void setState_UV(doublereal u, doublereal v,
+                             doublereal tol = 1.e-8);
 
     //! Set the specific entropy (J/kg/K) and specific volume (m^3/kg).
     /*!
@@ -431,8 +436,8 @@ namespace Cantera {
      * @param tol  Optional parameter setting the tolerance of the
      *             calculation.
      */
-    virtual void setState_SV(doublereal s, doublereal v, 
-			     doublereal tol = 1.e-8);
+    virtual void setState_SV(doublereal s, doublereal v,
+                             doublereal tol = 1.e-8);
 
     //! Set the specific entropy (J/kg/K) and pressure (Pa).
     /*!
@@ -444,8 +449,8 @@ namespace Cantera {
      * @param tol  Optional parameter setting the tolerance of the
      *             calculation.
      */
-    virtual void setState_SP(doublereal s, doublereal p, 
-			     doublereal tol = 1.e-8);
+    virtual void setState_SP(doublereal s, doublereal p,
+                             doublereal tol = 1.e-8);
 
     //@}
 
@@ -455,26 +460,26 @@ namespace Cantera {
      */
     //@{
 
-    //! critical temperature 
+    //! critical temperature
     virtual doublereal critTemperature() const;
- 
+
     //! critical pressure
     virtual doublereal critPressure() const;
-        
+
     //! critical density
     virtual doublereal critDensity() const;
-      
+
     //@}
 
     //! @name Saturation properties.
     /*!
-     * These methods are only implemented by subclasses that 
+     * These methods are only implemented by subclasses that
      * implement full liquid-vapor equations of state. They may be
      * moved out of ThermoPhase at a later date.
      */
     //@{
 
-        
+
     //! saturation temperature
     /*!
      * @param p  Pressure (Pa)
@@ -533,7 +538,7 @@ namespace Cantera {
      * any parameters that are specific to that particular phase
      * model. Note, this method is called before the phase is
      * initialzed with elements and/or species.
-     *   
+     *
      * @param eosdata An XML_Node object corresponding to
      *                the "thermo" entry for this phase in the input file.
      */
@@ -547,7 +552,7 @@ namespace Cantera {
      */
     virtual std::string report(bool show_thermo = true) const;
 
-    //! returns a summary of the state of the phase to specified 
+    //! returns a summary of the state of the phase to specified
     //! comma separated files
     /*!
      * @param csvFile     ofstream file to print comma separated data for
@@ -555,7 +560,7 @@ namespace Cantera {
      */
     virtual void reportCSV(std::ofstream& csvFile) const;
 
-  protected:
+protected:
 
     //! Main call to the tpx level to set the state of the system
     /*!
@@ -577,7 +582,7 @@ namespace Cantera {
     //! Report errors in the TPX level
     void reportTPXError() const;
 
-  private:
+private:
 
     //! Pointer to the underlying tpx object Substance that does the work
     mutable tpx::Substance* m_sub;
@@ -593,7 +598,7 @@ namespace Cantera {
 
     //! flag to turn on some printing.
     bool m_verbose;
-  };
+};
 
 }
 

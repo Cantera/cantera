@@ -5,7 +5,7 @@
  *  Header file for class DAE_Solver
  */
 
-/*  
+/*
  *  $Date$
  *  $Revision$
  *
@@ -21,116 +21,136 @@
 #include "ResidJacEval.h"
 #include "global.h"
 
-namespace Cantera {
+namespace Cantera
+{
 
 #define DAE_DEVEL
 #ifdef DAE_DEVEL
 
-  class Jacobian {
-  public:
-    Jacobian(){}
-    virtual ~Jacobian(){}
-    virtual bool supplied() { return false; }
-    virtual bool isBanded() { return false; }
-    virtual int lowerBandWidth() { return 0; }
-    virtual int upperBandWidth() { return 0; }
-  };
-
-  class BandedJacobian : public Jacobian {
-  public:
-    BandedJacobian(int ml, int mu) {
-      m_ml = ml; m_mu = mu;
+class Jacobian
+{
+public:
+    Jacobian() {}
+    virtual ~Jacobian() {}
+    virtual bool supplied() {
+        return false;
     }
-    virtual bool supplied() { return false; }
-    virtual bool isBanded() { return true; }
-    virtual int lowerBandWidth() { return m_ml; }
-    virtual int upperBandWidth() { return m_mu; }
-  protected:
+    virtual bool isBanded() {
+        return false;
+    }
+    virtual int lowerBandWidth() {
+        return 0;
+    }
+    virtual int upperBandWidth() {
+        return 0;
+    }
+};
+
+class BandedJacobian : public Jacobian
+{
+public:
+    BandedJacobian(int ml, int mu) {
+        m_ml = ml;
+        m_mu = mu;
+    }
+    virtual bool supplied() {
+        return false;
+    }
+    virtual bool isBanded() {
+        return true;
+    }
+    virtual int lowerBandWidth() {
+        return m_ml;
+    }
+    virtual int upperBandWidth() {
+        return m_mu;
+    }
+protected:
     int m_ml, m_mu;
-  };
+};
 
-  const int cDirect = 0;
-  const int cKrylov = 1;
+const int cDirect = 0;
+const int cKrylov = 1;
 
 
 
-  /**
-   * Wrapper for DAE solvers
-   */
-  class DAE_Solver {
-  public:
+/**
+ * Wrapper for DAE solvers
+ */
+class DAE_Solver
+{
+public:
 
     DAE_Solver(ResidJacEval& f) :
-      m_resid(f),
-      m_neq(f.nEquations()),
-      m_time(0.0) 
-    {
+        m_resid(f),
+        m_neq(f.nEquations()),
+        m_time(0.0) {
     }
 
-    virtual ~DAE_Solver(){}
+    virtual ~DAE_Solver() {}
 
-    /** 
+    /**
      * Set error tolerances. This version specifies a scalar
      * relative tolerance, and a vector absolute tolerance.
      */
-    virtual void setTolerances(doublereal reltol, 
-			       doublereal* abstol) {
-      warn("setTolerances");
+    virtual void setTolerances(doublereal reltol,
+                               doublereal* abstol) {
+        warn("setTolerances");
     }
 
-    /** 
+    /**
      * Set error tolerances. This version specifies a scalar
      * relative tolerance, and a scalar absolute tolerance.
      */
     virtual void setTolerances(doublereal reltol, doublereal abstol) {
-      warn("setTolerances");
+        warn("setTolerances");
     }
 
-    /** 
+    /**
      * Specify a Jacobian evaluator. If this method is not called,
      * the Jacobian will be computed by finite difference.
      */
     void setJacobian(Jacobian& jac) {
-      warn("setJacobian");
+        warn("setJacobian");
     }
 
     virtual void setLinearSolverType(int solverType) {
-      warn("setLinearSolverType");
+        warn("setLinearSolverType");
     }
 
     virtual void setDenseLinearSolver() {
-      warn("setDenseLinearSolver");
+        warn("setDenseLinearSolver");
     }
 
     virtual void setBandedLinearSolver(int m_upper, int m_lower) {
-      warn("setBandedLinearSolver");
+        warn("setBandedLinearSolver");
     }
     virtual void setMaxStepSize(doublereal dtmax) {
-      warn("setMaxStepSize");
+        warn("setMaxStepSize");
     }
     virtual void setMaxOrder(int n) {
-      warn("setMaxOrder");
+        warn("setMaxOrder");
     }
     virtual void setMaxNumSteps(int n) {
-      warn("setMaxNumSteps");
+        warn("setMaxNumSteps");
     }
     virtual void setInitialStepSize(doublereal h0) {
-      warn("setInitialStepSize");
+        warn("setInitialStepSize");
     }
     virtual void setStopTime(doublereal tstop) {
-      warn("setStopTime");
+        warn("setStopTime");
     }
     virtual void setMaxErrTestFailures(int n) {
-      warn("setMaxErrTestFailures");
+        warn("setMaxErrTestFailures");
     }
     virtual void setMaxNonlinIterations(int n) {
-      warn("setMaxNonlinIterations");
+        warn("setMaxNonlinIterations");
     }
     virtual void setMaxNonlinConvFailures(int n) {
-      warn("setMaxNonlinConvFailures");
+        warn("setMaxNonlinConvFailures");
     }
     virtual void inclAlgebraicInErrorTest(bool yesno) {
-      warn("inclAlgebraicInErrorTest");
+        warn("inclAlgebraicInErrorTest");
     }
 
     /**
@@ -139,11 +159,11 @@ namespace Cantera {
      * of all variables, this method computes the initial y
      * values.
      */
-    virtual void correctInitial_Y_given_Yp(doublereal* y, doublereal* yp, 
-					   doublereal tout) {
-      warn("correctInitial_Y_given_Yp");
+    virtual void correctInitial_Y_given_Yp(doublereal* y, doublereal* yp,
+                                           doublereal tout) {
+        warn("correctInitial_Y_given_Yp");
     }
-      
+
     /**
      * This method may be called if the initial conditions do not
      * satisfy the residual equation F = 0. Given the initial
@@ -152,28 +172,29 @@ namespace Cantera {
      * derivatives of all differential variables.
      */
     virtual void correctInitial_YaYp_given_Yd(doublereal* y, doublereal* yp,
-					      doublereal tout)
-    {
-      warn("correctInitial_YaYp_given_Yd");
+            doublereal tout) {
+        warn("correctInitial_YaYp_given_Yd");
     }
 
     /**
      * Solve the system of equations up to time tout.
      */
     virtual int solve(doublereal tout) {
-      warn("solve"); return 0;
+        warn("solve");
+        return 0;
     }
 
     /**
      * Take one internal step.
      */
     virtual doublereal step(doublereal tout) {
-      warn("step"); return 0;
+        warn("step");
+        return 0;
     }
 
     /// Number of equations.
-    int nEquations() const { 
-      return m_resid.nEquations();
+    int nEquations() const {
+        return m_resid.nEquations();
     }
 
     /**
@@ -185,35 +206,40 @@ namespace Cantera {
      * Set a solver-specific input parameter.
      */
     virtual void setInputParameter(int flag, doublereal value) {
-      warn("setInputParameter");
+        warn("setInputParameter");
     }
 
     /**
      * Get the value of a solver-specific output parameter.
      */
     virtual doublereal getOutputParameter(int flag) const {
-      warn("getOutputParameter"); return 0.0;
+        warn("getOutputParameter");
+        return 0.0;
     }
 
     /// the current value of solution component k.
     virtual doublereal solution(int k) const {
-      warn("solution"); return 0.0;
+        warn("solution");
+        return 0.0;
     }
 
     virtual const doublereal* solutionVector() const {
-      warn("solutionVector"); return &m_dummy;
+        warn("solutionVector");
+        return &m_dummy;
     }
 
     /// the current value of the derivative of solution component k.
     virtual doublereal derivative(int k) const {
-      warn("derivative"); return 0.0;
+        warn("derivative");
+        return 0.0;
     }
 
     virtual const doublereal* derivativeVector() const {
-      warn("derivativeVector"); return &m_dummy;
+        warn("derivativeVector");
+        return &m_dummy;
     }
 
-  protected:
+protected:
 
     doublereal m_dummy;
 
@@ -223,25 +249,25 @@ namespace Cantera {
     integer    m_neq;
     doublereal m_time;
 
-        
-  private:
+
+private:
     void warn(std::string msg) const {
-      writelog(">>>> Warning: method "+msg+" of base class "
-	       +"DAE_Solver called. Nothing done.\n");
+        writelog(">>>> Warning: method "+msg+" of base class "
+                 +"DAE_Solver called. Nothing done.\n");
     }
-  };
+};
 
 
-  //! Factor method for choosing a DAE solver
-  /*!
-   *
-   *     @param itype  String identifying the type
-   *                   (IDA is the only option)
-   *     @param f      Residual function to be solved by the DAE algorithm
-   *
-   *     @return       Returns a point to the instantiated DAE_Solver object
-   */
-  DAE_Solver* newDAE_Solver(std::string itype, ResidJacEval& f);
+//! Factor method for choosing a DAE solver
+/*!
+ *
+ *     @param itype  String identifying the type
+ *                   (IDA is the only option)
+ *     @param f      Residual function to be solved by the DAE algorithm
+ *
+ *     @return       Returns a point to the instantiated DAE_Solver object
+ */
+DAE_Solver* newDAE_Solver(std::string itype, ResidJacEval& f);
 
 #endif
 

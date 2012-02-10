@@ -7,7 +7,7 @@
  * class \link Cantera::IdealSolnGasVPSS IdealSolnGasVPSS\endlink).
  */
 /*
- * Copywrite (2005) Sandia Corporation. Under the terms of 
+ * Copywrite (2005) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -17,57 +17,59 @@
 #include "VPStandardStateTP.h"
 #include "VPSSMgr.h"
 
-namespace Cantera {
+namespace Cantera
+{
 
-  class XML_Node;
-  class PDSS;
+class XML_Node;
+class PDSS;
 
- /*!
-   * @name CONSTANTS - Models for the Standard State of IdealSolnPhase's
-   */
-  //@{
-  const int cIdealSolnGasPhaseG = 6009;
-  const int cIdealSolnGasPhase0 = 6010;
-  const int cIdealSolnGasPhase1 = 6011;
-  const int cIdealSolnGasPhase2 = 6012;
+/*!
+  * @name CONSTANTS - Models for the Standard State of IdealSolnPhase's
+  */
+//@{
+const int cIdealSolnGasPhaseG = 6009;
+const int cIdealSolnGasPhase0 = 6010;
+const int cIdealSolnGasPhase1 = 6011;
+const int cIdealSolnGasPhase2 = 6012;
 
 
-  /**
-   * @ingroup thermoprops
-   *
-   *  This class can handle either an ideal solution or an ideal gas approximation
-   *  of a phase.
-   *
-   *   
-   *  @nosubgrouping
-   */
-  class IdealSolnGasVPSS : public VPStandardStateTP {
+/**
+ * @ingroup thermoprops
+ *
+ *  This class can handle either an ideal solution or an ideal gas approximation
+ *  of a phase.
+ *
+ *
+ *  @nosubgrouping
+ */
+class IdealSolnGasVPSS : public VPStandardStateTP
+{
 
-  public:
+public:
 
     /*!
-     *   
-     * @name Constructors and Duplicators for %IdealSolnGasVPSS 
      *
-     */   
-    /// Constructor. 
+     * @name Constructors and Duplicators for %IdealSolnGasVPSS
+     *
+     */
+    /// Constructor.
     IdealSolnGasVPSS();
 
     IdealSolnGasVPSS(std::string infile, std::string id="");
 
     /// Copy Constructor.
-    IdealSolnGasVPSS(const IdealSolnGasVPSS &);
+    IdealSolnGasVPSS(const IdealSolnGasVPSS&);
 
     /// Assignment operator
-    IdealSolnGasVPSS& operator=(const IdealSolnGasVPSS &);
+    IdealSolnGasVPSS& operator=(const IdealSolnGasVPSS&);
 
-    /// Destructor. 
+    /// Destructor.
     virtual ~IdealSolnGasVPSS();
 
     /*
      * Duplication routine
      */
-    virtual ThermoPhase *duplMyselfAsThermoPhase() const;
+    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
 
     //@}
 
@@ -75,7 +77,7 @@ namespace Cantera {
      * @name  Utilities (IdealSolnGasVPSS)
      */
     //@{
-    /** 
+    /**
      * Equation of state type flag. The base class returns
      * zero. Subclasses should define this to return a unique
      * non-zero value. Constants defined for this purpose are
@@ -84,23 +86,23 @@ namespace Cantera {
     virtual int eosType() const;
 
     //@}
- 
-    /// Molar enthalpy. Units: J/kmol. 
+
+    /// Molar enthalpy. Units: J/kmol.
     doublereal enthalpy_mole() const;
-  
-    /// Molar internal energy. Units: J/kmol. 
+
+    /// Molar internal energy. Units: J/kmol.
     doublereal intEnergy_mole() const;
 
-    /// Molar entropy. Units: J/kmol/K. 
+    /// Molar entropy. Units: J/kmol/K.
     doublereal entropy_mole() const;
 
-    /// Molar Gibbs function. Units: J/kmol. 
+    /// Molar Gibbs function. Units: J/kmol.
     doublereal gibbs_mole() const;
 
-    /// Molar heat capacity at constant pressure. Units: J/kmol/K. 
+    /// Molar heat capacity at constant pressure. Units: J/kmol/K.
     doublereal cp_mole() const;
 
-    /// Molar heat capacity at constant volume. Units: J/kmol/K. 
+    /// Molar heat capacity at constant volume. Units: J/kmol/K.
     doublereal cv_mole() const;
 
     /**
@@ -124,7 +126,7 @@ namespace Cantera {
      */
     virtual doublereal isothermalCompressibility() const;
 
-  protected:
+protected:
     /**
      * Calculate the density of the mixture using the partial
      * molar volumes and mole fractions as input
@@ -142,7 +144,7 @@ namespace Cantera {
      * Note, the basis behind this formula is that in an ideal
      * solution the partial molar volumes are equal to the
      * species standard state molar volumes.
-     * The species molar volumes may be functions 
+     * The species molar volumes may be functions
      * of temperature and pressure.
      *
      * NOTE: This is a non-virtual function, which is not a
@@ -150,7 +152,7 @@ namespace Cantera {
      */
     virtual void calcDensity();
 
-  public:
+public:
 
     //! This method returns an array of generalized concentrations
     /*!
@@ -165,7 +167,7 @@ namespace Cantera {
      * partial pressures, mole fractions, or surface coverages,
      * for example.
      *
-     * @param c Output array of generalized concentrations. The 
+     * @param c Output array of generalized concentrations. The
      *           units depend upon the implementation of the
      *           reaction rate expressions within the phase.
      */
@@ -194,7 +196,7 @@ namespace Cantera {
      */
     virtual doublereal logStandardConc(size_t k=0) const;
 
-   //! Returns the units of the standard and generalized concentrations.
+    //! Returns the units of the standard and generalized concentrations.
     /*!
      * Note they have the same units, as their
      * ratio is defined to be equal to the activity of the kth
@@ -206,7 +208,7 @@ namespace Cantera {
      *
      * The base %ThermoPhase class assigns the default quantities
      * of (kmol/m3) for all species.
-     * Inherited classes are responsible for overriding the default 
+     * Inherited classes are responsible for overriding the default
      * values if necessary.
      *
      * @param uA Output vector containing the units
@@ -221,9 +223,9 @@ namespace Cantera {
      * @param sizeUA output int containing the size of the vector.
      *        Currently, this is equal to 6.
      */
-    virtual void getUnitsStandardConc(double *uA, int k = 0,
-				      int sizeUA = 6) const;
-      
+    virtual void getUnitsStandardConc(double* uA, int k = 0,
+                                      int sizeUA = 6) const;
+
     //! Get the array of non-dimensional activity coefficients at
     //! the current solution temperature, pressure, and solution concentration.
     /*!
@@ -298,18 +300,18 @@ namespace Cantera {
      *                Length = m_kk. units are m^3/kmol.
      */
     virtual void getPartialMolarVolumes(doublereal* vbar) const;
-  
+
     //@}
 
     /*!
-     * @name  Properties of the Standard State of the Species in the Solution 
+     * @name  Properties of the Standard State of the Species in the Solution
      *
      *  Properties of the standard states are delegated to the VPSSMgr object.
      *  The values are cached within this object, and are not recalculated unless
      *  the temperature or pressure changes.
      */
     //@{
-    
+
     //@}
 
     /// @name Thermodynamic Values for the Species Reference States (IdealSolnGasVPSS)
@@ -322,34 +324,34 @@ namespace Cantera {
 
     //@}
 
-	
-  public:
- 
+
+public:
+
     //! @name Initialization Methods - For Internal use (VPStandardState)
     /*!
      * The following methods are used in the process of constructing
-     * the phase and setting its parameters from a specification in an 
+     * the phase and setting its parameters from a specification in an
      * input file. They are not normally used in application programs.
-     * To see how they are used, see files importCTML.cpp and 
+     * To see how they are used, see files importCTML.cpp and
      * ThermoFactory.cpp.
      */
     //@{
 
-    
+
     //! Set equation of state parameter values from XML
-    //! entries. 
+    //! entries.
     /*!
      *  This method is called by function importPhase in
      *  file importCTML.cpp when processing a phase definition in
      *  an input file. It should be overloaded in subclasses to set
      *  any parameters that are specific to that particular phase
-     *  model. 
-     *   
+     *  model.
+     *
      * @param thermoNode An XML_Node object corresponding to
      *                   the "thermo" entry for this phase in the input file.
      */
     virtual void setParametersFromXML(const XML_Node& thermoNode);
-  
+
     //! @internal Initialize the object
     /*!
      * This method is provided to allow
@@ -371,14 +373,14 @@ namespace Cantera {
     /*!
      * It sets the state such that the chemical potentials satisfy
      * \f[ \frac{\mu_k}{\hat R T} = \sum_m A_{k,m}
-     * \left(\frac{\lambda_m} {\hat R T}\right) \f] where 
+     * \left(\frac{\lambda_m} {\hat R T}\right) \f] where
      * \f$ \lambda_m \f$ is the element potential of element m. The
      * temperature is unchanged.  Any phase (ideal or not) that
      * implements this method can be equilibrated by ChemEquil.
      *
      * @param lambda_RT Input vector of dimensionless element potentials
      *                  The length is equal to nElements().
-     */ 
+     */
     void setToEquilState(const doublereal* lambda_RT);
 
     //!   Initialize a ThermoPhase object, potentially reading activity
@@ -406,11 +408,11 @@ namespace Cantera {
      *             the species in the phase.
      * @param id   ID of the phase. If nonnull, a check is done
      *             to see if phaseNode is pointing to the phase
-     *             with the correct id. 
+     *             with the correct id.
      */
     virtual void initThermoXML(XML_Node& phaseNode, std::string id);
 
-  private:
+private:
     //!  @internal Initialize the internal lengths in this object.
     /*!
      * Note this is not a virtual function and only handles
@@ -418,9 +420,9 @@ namespace Cantera {
      */
     void initLengths();
 
-   //@}
+    //@}
 
-  protected:
+protected:
 
     //! boolean indicating what ideal solution this is
     /*!
@@ -440,7 +442,7 @@ namespace Cantera {
     //! Temporary storage - length = m_kk.
     vector_fp m_pp;
 
-  };
+};
 }
-        
+
 #endif

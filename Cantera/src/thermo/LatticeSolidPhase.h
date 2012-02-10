@@ -25,95 +25,97 @@
 
 
 
-namespace Cantera {
+namespace Cantera
+{
 
-  //! A phase that is comprised of a fixed additive combination of other lattice phases
-  /*!
-   *  This is the main way %Cantera describes semiconductors and other solid phases.
-   *  This %ThermoPhase object calculates its properties as a sum over other %LatticePhase objects. Each of the %LatticePhase
-   *  objects is a %ThermoPhase object by itself.
-   *   
-   *  The results from this LatticeSolidPhase model reduces to the LatticePhase model when there is one
-   *  lattice phase and the molar densities of the sublattice and the molar density within the LatticeSolidPhase
-   *  have the same values.
-   *
-   *
-   *  The mole fraction vector is redefined witin the the LatticeSolidPhase object. Each of the mole
-   *  fractions sum to one on each of the sublattices.  The routine getMoleFraction() and setMoleFraction()
-   *  have been redefined to use this convention.
-   *
-   * <HR>
-   * <H2> Specification of Species Standard %State Properties </H2>
-   * <HR>
-   *
-   *   The standard state properties are calculated in the normal way for each of the sublattices. The normal way
-   *   here means that a thermodynamic polynomial in temperature is developed. Also, a constant volume approximation
-   *   for the pressure dependence is assumed.  All of these properties are on a Joules per kmol of sublattice
-   *   constituent basis.
-   *   
-   * <HR>
-   * <H2> Specification of Solution Thermodynamic Properties </H2>
-   * <HR>
+//! A phase that is comprised of a fixed additive combination of other lattice phases
+/*!
+ *  This is the main way %Cantera describes semiconductors and other solid phases.
+ *  This %ThermoPhase object calculates its properties as a sum over other %LatticePhase objects. Each of the %LatticePhase
+ *  objects is a %ThermoPhase object by itself.
+ *
+ *  The results from this LatticeSolidPhase model reduces to the LatticePhase model when there is one
+ *  lattice phase and the molar densities of the sublattice and the molar density within the LatticeSolidPhase
+ *  have the same values.
+ *
+ *
+ *  The mole fraction vector is redefined witin the the LatticeSolidPhase object. Each of the mole
+ *  fractions sum to one on each of the sublattices.  The routine getMoleFraction() and setMoleFraction()
+ *  have been redefined to use this convention.
+ *
+ * <HR>
+ * <H2> Specification of Species Standard %State Properties </H2>
+ * <HR>
+ *
+ *   The standard state properties are calculated in the normal way for each of the sublattices. The normal way
+ *   here means that a thermodynamic polynomial in temperature is developed. Also, a constant volume approximation
+ *   for the pressure dependence is assumed.  All of these properties are on a Joules per kmol of sublattice
+ *   constituent basis.
+ *
+ * <HR>
+ * <H2> Specification of Solution Thermodynamic Properties </H2>
+ * <HR>
 
-   *  The sum over the %LatticePhase objects is carried out by weighting each %LatticePhase object
-   *  value with the molar density (kmol m-3) of its %LatticePhase. Then the resulting quantity is divided by
-   *  the molar density of the total compound. The LatticeSolidPhase object therefore only contains a 
-   *  listing of the number of %LatticePhase object
-   *  that comprises the solid, and it contains a value for the molar density of the entire mixture.
-   *  This is the same thing as saying that
-   *
-   *  \f[
-   *         L_i = L^{solid}   \theta_i
-   *  \f]
-   *
-   *  \f$ L_i \f$ is the molar volume of the ith lattice. \f$ L^{solid} \f$ is the molar volume of the entire
-   *  solid. \f$  \theta_i \f$ is a fixed weighting factor for the ith lattice representing the lattice 
-   *  stoichiometric coefficient. For this object the  \f$  \theta_i \f$ values are fixed.
-   *
-   *
-   *  Let's take FeS2 as an example, which may be thought of as a combination of two lattices: Fe and S lattice.
-   *  The Fe sublattice has a molar density of 1 gmol cm-3. The S sublattice has a molar density of 2 gmol cm-3.
-   *  We then define the LatticeSolidPhase object as having a nominal composition of FeS2, and having a
-   *  molar density of 1 gmol cm-3.  All quantities pertaining to the FeS2 compound will be have weights
-   *  associated with the sublattices. The Fe sublattice will have a weight of 1.0 associated with it. The
-   *  S sublattice will have a weight of 2.0 associated with it. 
-   *
-   *  
-   * <HR>
-   * <H3> Specification of Solution Density Properties </H3>
-   * <HR>
-   *
-   *  Currently, molar density is not a constant within the object, even though the species molar volumes are a
-   *  constant.  The basic idea is that a swelling of one of the sublattices will result in a swelling of 
-   *  of all of the lattices. Therefore, the molar volumes of the individual lattices are not independent of
-   *  one another.
-   *
-   *   The molar volume of the Lattice solid is calculated from the following formula
-   * 
-   *  \f[
-   *         V = \sum_i{ \theta_i V_i^{lattice}}
-   *  \f]
-   *  
-   *  where \f$ V_i^{lattice} \f$ is the molar volume of the ith sublattice. This is calculated from the
-   *  following standard formula.
-   *
-   *   
-   *  \f[
-   *         V_i = \sum_k{ X_k V_k}
-   *  \f]
-   *
-   *  where k is a species in the ith sublattice.
-   *
-   *  The mole fraction vector is redefined witin the the LatticeSolidPhase object. Each of the mole
-   *  fractions sum to one on each of the sublattices.  The routine getMoleFraction() and setMoleFraction()
-   *  have been redefined to use this convention.
-   *
-   *  (This object is still under construction)
-   *      
-   */
-  class LatticeSolidPhase : public ThermoPhase {
+ *  The sum over the %LatticePhase objects is carried out by weighting each %LatticePhase object
+ *  value with the molar density (kmol m-3) of its %LatticePhase. Then the resulting quantity is divided by
+ *  the molar density of the total compound. The LatticeSolidPhase object therefore only contains a
+ *  listing of the number of %LatticePhase object
+ *  that comprises the solid, and it contains a value for the molar density of the entire mixture.
+ *  This is the same thing as saying that
+ *
+ *  \f[
+ *         L_i = L^{solid}   \theta_i
+ *  \f]
+ *
+ *  \f$ L_i \f$ is the molar volume of the ith lattice. \f$ L^{solid} \f$ is the molar volume of the entire
+ *  solid. \f$  \theta_i \f$ is a fixed weighting factor for the ith lattice representing the lattice
+ *  stoichiometric coefficient. For this object the  \f$  \theta_i \f$ values are fixed.
+ *
+ *
+ *  Let's take FeS2 as an example, which may be thought of as a combination of two lattices: Fe and S lattice.
+ *  The Fe sublattice has a molar density of 1 gmol cm-3. The S sublattice has a molar density of 2 gmol cm-3.
+ *  We then define the LatticeSolidPhase object as having a nominal composition of FeS2, and having a
+ *  molar density of 1 gmol cm-3.  All quantities pertaining to the FeS2 compound will be have weights
+ *  associated with the sublattices. The Fe sublattice will have a weight of 1.0 associated with it. The
+ *  S sublattice will have a weight of 2.0 associated with it.
+ *
+ *
+ * <HR>
+ * <H3> Specification of Solution Density Properties </H3>
+ * <HR>
+ *
+ *  Currently, molar density is not a constant within the object, even though the species molar volumes are a
+ *  constant.  The basic idea is that a swelling of one of the sublattices will result in a swelling of
+ *  of all of the lattices. Therefore, the molar volumes of the individual lattices are not independent of
+ *  one another.
+ *
+ *   The molar volume of the Lattice solid is calculated from the following formula
+ *
+ *  \f[
+ *         V = \sum_i{ \theta_i V_i^{lattice}}
+ *  \f]
+ *
+ *  where \f$ V_i^{lattice} \f$ is the molar volume of the ith sublattice. This is calculated from the
+ *  following standard formula.
+ *
+ *
+ *  \f[
+ *         V_i = \sum_k{ X_k V_k}
+ *  \f]
+ *
+ *  where k is a species in the ith sublattice.
+ *
+ *  The mole fraction vector is redefined witin the the LatticeSolidPhase object. Each of the mole
+ *  fractions sum to one on each of the sublattices.  The routine getMoleFraction() and setMoleFraction()
+ *  have been redefined to use this convention.
+ *
+ *  (This object is still under construction)
+ *
+ */
+class LatticeSolidPhase : public ThermoPhase
+{
 
-  public:
+public:
 
     //! Base empty constructor
     LatticeSolidPhase();
@@ -122,7 +124,7 @@ namespace Cantera {
     /*!
      * @param right Object to be copied
      */
-    LatticeSolidPhase(const LatticeSolidPhase &right);
+    LatticeSolidPhase(const LatticeSolidPhase& right);
 
     //! Assignment operator
     /*!
@@ -141,15 +143,17 @@ namespace Cantera {
      *
      * @return It returns a ThermoPhase pointer.
      */
-    ThermoPhase *duplMyselfAsThermoPhase() const;
+    ThermoPhase* duplMyselfAsThermoPhase() const;
 
     //! Equation of state type flag.
     /*!
      *  Redefine this to return cLatticeSolid, listed in mix_defs.h.
      */
-    virtual int eosType() const { return cLatticeSolid; }
+    virtual int eosType() const {
+        return cLatticeSolid;
+    }
 
-    //! Minimum temperature for which the thermodynamic data for the species 
+    //! Minimum temperature for which the thermodynamic data for the species
     //! or phase are valid.
     /*!
      * If no argument is supplied, the
@@ -163,8 +167,8 @@ namespace Cantera {
      */
     virtual doublereal minTemp(int k = -1) const;
 
-    //! Maximum temperature for which the thermodynamic data for the species 
-    //! are valid. 
+    //! Maximum temperature for which the thermodynamic data for the species
+    //! are valid.
     /*!
      * If no argument is supplied, the
      * value returned will be the highest temperature at which the
@@ -177,11 +181,11 @@ namespace Cantera {
      */
     virtual doublereal maxTemp(int k = -1) const;
 
- 
+
     //! Returns the reference pressure in Pa. This function is a wrapper
     //! that calls the species thermo refPressure function.
     virtual doublereal refPressure() const ;
-    
+
     //! This method returns the convention used in specification
     //! of the standard state, of which there are currently two,
     //! temperature based, and variable pressure based.
@@ -189,7 +193,7 @@ namespace Cantera {
      *  All of the thermo is determined by slave %ThermoPhase routines.
      */
     virtual int standardStateConvention() const {
-      return cSS_CONVENTION_SLAVE; 
+        return cSS_CONVENTION_SLAVE;
     }
 
     //! Return the Molar Enthalpy. Units: J/kmol.
@@ -201,13 +205,13 @@ namespace Cantera {
      *   \tilde h(T,P) = {\sum_n \theta_n  \tilde h_n(T,P) }
      * \f]
      *
-     * \f$ \tilde h_n(T,P) \f$ is the enthalpy of the n<SUP>th</SUP> lattice. 
+     * \f$ \tilde h_n(T,P) \f$ is the enthalpy of the n<SUP>th</SUP> lattice.
      *
      *  units J/kmol
      */
     virtual doublereal enthalpy_mole() const;
 
-  
+
     //! Return the Molar Internal Energy. Units: J/kmol.
     /*!
      * The molar enthalpy is determined by the following formula, where \f$ \theta_n \f$ is the
@@ -217,22 +221,22 @@ namespace Cantera {
      *   \tilde u(T,P) = {\sum_n \theta_n \tilde u_n(T,P) }
      * \f]
      *
-     * \f$ \tilde u_n(T,P) \f$ is the internal energy of the n<SUP>th</SUP> lattice. 
+     * \f$ \tilde u_n(T,P) \f$ is the internal energy of the n<SUP>th</SUP> lattice.
      *
      *  units J/kmol
      */
     virtual doublereal intEnergy_mole() const;
 
     //! Return the Molar Entropy. Units: J/kmol/K.
-    /*!  
+    /*!
      * The molar enthalpy is determined by the following formula, where \f$ \theta_n \f$ is the
      * lattice stoichiometric coefficient of the nth lattice
      *
      * \f[
-     *   \tilde s(T,P) = \sum_n \theta_n \tilde s_n(T,P) 
+     *   \tilde s(T,P) = \sum_n \theta_n \tilde s_n(T,P)
      * \f]
      *
-     * \f$ \tilde s_n(T,P) \f$ is the molar entropy of the n<SUP>th</SUP> lattice. 
+     * \f$ \tilde s_n(T,P) \f$ is the molar entropy of the n<SUP>th</SUP> lattice.
      *
      *  units J/kmol/K
      */
@@ -247,7 +251,7 @@ namespace Cantera {
      *   \tilde h(T,P) = {\sum_n \theta_n \tilde h_n(T,P) }
      * \f]
      *
-     * \f$ \tilde h_n(T,P) \f$ is the enthalpy of the n<SUP>th</SUP> lattice. 
+     * \f$ \tilde h_n(T,P) \f$ is the enthalpy of the n<SUP>th</SUP> lattice.
      *
      *  units J/kmol
      */
@@ -263,7 +267,7 @@ namespace Cantera {
      *   \tilde c_{p,n}(T,P) = \frac{\sum_n C_n \tilde c_{p,n}(T,P) }{C_T},
      * \f]
      *
-     * \f$ \tilde c_{p,n}(T,P) \f$ is the heat capacity of the n<SUP>th</SUP> lattice. 
+     * \f$ \tilde c_{p,n}(T,P) \f$ is the heat capacity of the n<SUP>th</SUP> lattice.
      *
      *  units J/kmol/K
      */
@@ -279,12 +283,12 @@ namespace Cantera {
      *   \tilde c_{v,n}(T,P) = \frac{\sum_n C_n \tilde c_{v,n}(T,P) }{C_T},
      * \f]
      *
-     * \f$ \tilde c_{v,n}(T,P) \f$ is the heat capacity of the n<SUP>th</SUP> lattice. 
+     * \f$ \tilde c_{v,n}(T,P) \f$ is the heat capacity of the n<SUP>th</SUP> lattice.
      *
      *  units J/kmol/K
      */
     virtual doublereal cv_mole() const {
-      return cp_mole();
+        return cp_mole();
     }
 
     //! Report the Pressure. Units: Pa.
@@ -292,7 +296,7 @@ namespace Cantera {
      *  This method simply returns the storred pressure value.
      */
     virtual doublereal pressure() const {
-      return m_press;
+        return m_press;
     }
 
     //! Set the pressure at constant temperature. Units: Pa.
@@ -306,7 +310,7 @@ namespace Cantera {
     /*!
      * The formula for this is
      *
-     * \f[ 
+     * \f[
      *      \rho = \sum_n{ \rho_n \theta_n }
      * \f]
      *
@@ -316,7 +320,7 @@ namespace Cantera {
      */
     doublereal calcDensity();
 
-    //! Set the mole fractions to the specified values, and then 
+    //! Set the mole fractions to the specified values, and then
     //! normalize them so that they sum to 1.0 for each of the subphases
     /*!
      *  On input, the mole fraction vector is assumed to sum to one for each of the sublattices. The sublattices
@@ -329,7 +333,7 @@ namespace Cantera {
      *           individually sum to one.
      *           Length is m_kk.
      */
-    virtual void setMoleFractions(const doublereal * const x);
+    virtual void setMoleFractions(const doublereal* const x);
 
     //! Get the species mole fraction vector.
     /*!
@@ -338,7 +342,7 @@ namespace Cantera {
      * @param x On return, x contains the mole fractions. Must have a
      *          length greater than or equal to the number of species.
      */
-    virtual void getMoleFractions(doublereal * const x) const;
+    virtual void getMoleFractions(doublereal* const x) const;
 
     //! The mole fraction of species k.
     /*!
@@ -349,34 +353,34 @@ namespace Cantera {
      *   @param k species index
      */
     doublereal moleFraction(const int k) const {
-      return err("not implemented");
+        return err("not implemented");
     }
-    
-    //! Get the species mass fractions.  
+
+    //! Get the species mass fractions.
     /*!
      * @param y On return, y contains the mass fractions. Array \a y must have a length
      *          greater than or equal to the number of species.
      */
     void getMassFractions(doublereal* const y) const {
-      err("not implemented");
-    } 
+        err("not implemented");
+    }
 
-    //! Mass fraction of species k. 
+    //! Mass fraction of species k.
     /*!
      *  If k is outside the valid range, an exception will be thrown. Note that it is
      *  somewhat more efficent to call getMassFractions if the mass fractions of all species are desired.
-     * 
+     *
      * @param k    species index
      */
     doublereal massFraction(const int k) const {
-      return err("not implemented");
+        return err("not implemented");
     }
 
- 
-    //! Set the mass fractions to the specified values, and then 
+
+    //! Set the mass fractions to the specified values, and then
     //! normalize them so that they sum to 1.0.
     /*!
-     * @param y  Array of unnormalized mass fraction values (input). 
+     * @param y  Array of unnormalized mass fraction values (input).
      *           Must have a length greater than or equal to the number of species.
      *           Input vector of mass fractions. There is no restriction
      *           on the sum of the mass fraction vector. Internally,
@@ -384,8 +388,8 @@ namespace Cantera {
      *           storring its contents.
      *           Length is m_kk.
      */
-    virtual void setMassFractions(const doublereal * const y) {
-      err("not implemented");
+    virtual void setMassFractions(const doublereal* const y) {
+        err("not implemented");
     }
 
 
@@ -399,19 +403,19 @@ namespace Cantera {
      *           Length is m_kk.
      */
     virtual void setMassFractions_NoNorm(const doublereal* const y) {
-      err("not implemented");
+        err("not implemented");
     }
 
     void getConcentrations(doublereal* const c) const {
-      err("not implemented");
+        err("not implemented");
     }
 
     doublereal concentration(int k) const {
-      return err("not implemented");
+        return err("not implemented");
     }
 
     virtual void setConcentrations(const doublereal* const conc) {
-      err("not implemented");
+        err("not implemented");
     }
 
     //! This method returns an array of generalized activity concentrations
@@ -427,7 +431,7 @@ namespace Cantera {
      * partial pressures, mole fractions, or surface coverages,
      * for example.
      *
-     * @param c Output array of generalized concentrations. The 
+     * @param c Output array of generalized concentrations. The
      *           units depend upon the implementation of the
      *           reaction rate expressions within the phase.
      */
@@ -442,19 +446,19 @@ namespace Cantera {
 
     //! Get the species chemical potentials. Units: J/kmol.
     /*!
-     * This function returns a vector of chemical potentials of the 
+     * This function returns a vector of chemical potentials of the
      * species in solution at the current temperature, pressure
      * and mole fraction of the solution.
      *
      *  This returns the underlying lattice chemical potentials, as the units are kmol-1 of
      *  the sublattice species.
      *
-     * @param mu  Output vector of species chemical 
+     * @param mu  Output vector of species chemical
      *            potentials. Length: m_kk. Units: J/kmol
      */
     virtual void getChemPotentials(doublereal* mu) const;
 
- 
+
     //! Returns an array of partial molar enthalpies for the species in the mixture.
     /*!
      * Units (J/kmol)
@@ -465,7 +469,7 @@ namespace Cantera {
      * \f]
      * The reference-state pure-species enthalpies, \f$ \hat h^{ref}_k(T) \f$,
      * at the reference pressure,\f$ P_{ref} \f$,
-     * are computed by the species thermodynamic 
+     * are computed by the species thermodynamic
      * property manager. They are polynomial functions of temperature.
      * @see SpeciesThermo
      *
@@ -483,8 +487,8 @@ namespace Cantera {
      * \bar s_k(T,P) =  \hat s^0_k(T) - R log(X_k)
      * \f]
      * The reference-state pure-species entropies,\f$ \hat s^{ref}_k(T) \f$,
-     * at the reference pressure, \f$ P_{ref} \f$,  are computed by the 
-     * species thermodynamic 
+     * at the reference pressure, \f$ P_{ref} \f$,  are computed by the
+     * species thermodynamic
      * property manager. They are polynomial functions of temperature.
      * @see SpeciesThermo
      *
@@ -526,11 +530,11 @@ namespace Cantera {
      *  This returns the underlying lattice standard chemical potentials, as the units are kmol-1 of
      *  the sublattice species.
      *
-     * @param mu0    Output vector of chemical potentials. 
+     * @param mu0    Output vector of chemical potentials.
      *                Length: m_kk. Units: J/kmol
      */
     virtual void getStandardChemPotentials(doublereal* mu0) const;
-    
+
     //! Return the standard concentration for the kth species
     /*!
      * The standard concentration \f$ C^0_k \f$ used to normalize
@@ -545,7 +549,7 @@ namespace Cantera {
      *
      * @param k Optional parameter indicating the species. The default
      *          is to assume this refers to species 0.
-     * @return 
+     * @return
      *   Returns the standard concentration. The units are by definition
      *   dependent on the ThermoPhase and kinetics manager representation.
      */
@@ -564,14 +568,14 @@ namespace Cantera {
     //!  temperature of the solution and the reference pressure for the species.
     /*!
      *  This function fills in its one entry in hrt[] by calling
-     *  the underlying species thermo function for the 
+     *  the underlying species thermo function for the
      *  dimensionless gibbs free energy, calculated from the
      *  dimensionless enthalpy and entropy.
      *
      *  @param grt  Vector of dimensionless Gibbs free energies of the reference state
      *              length = m_kk
      */
-    virtual void getGibbs_RT_ref(doublereal *grt) const;
+    virtual void getGibbs_RT_ref(doublereal* grt) const;
 
 
     //!  Returns the vector of the  gibbs function of the reference state at the current
@@ -586,7 +590,7 @@ namespace Cantera {
      *  @param g  Vector of Gibbs free energies of the reference state.
      *              length = m_kk
      */
-    virtual void  getGibbs_ref(doublereal *g) const;
+    virtual void  getGibbs_ref(doublereal* g) const;
 
 
     //! Initialize the ThermoPhase object after all species have been set up
@@ -629,7 +633,7 @@ namespace Cantera {
      * any parameters that are specific to that particular phase
      * model. Note, this method is called before the phase is
      * initialzed with elements and/or species.
-     *   
+     *
      * @param eosdata An XML_Node object corresponding to
      *                the "thermo" entry for this phase in the input file.
      */
@@ -640,7 +644,7 @@ namespace Cantera {
     /*!
      *
      *  @param n     Integer value of the lattice whose mole fractions are being set
-     *  @param x     string comtaining Name:value pairs that will specify the mole fractions 
+     *  @param x     string comtaining Name:value pairs that will specify the mole fractions
      *               of species on a particular lattice
      */
     void setLatticeMoleFractionsByName(int n, std::string x);
@@ -657,19 +661,19 @@ namespace Cantera {
     virtual SpeciesThermo& speciesThermo(int k = -1);
 
 #ifdef H298MODIFY_CAPABILITY
-  
+
     //! Modify the value of the 298 K Heat of Formation of one species in the phase (J kmol-1)
     /*!
      *   The 298K heat of formation is defined as the enthalpy change to create the standard state
      *   of the species from its constituent elements in their standard states at 298 K and 1 bar.
      *
      *   @param  k           Species k
-     *   @param  Hf298New    Specify the new value of the Heat of Formation at 298K and 1 bar                      
+     *   @param  Hf298New    Specify the new value of the Heat of Formation at 298K and 1 bar
      */
     virtual void modifyOneHf298SS(const int k, const doublereal Hf298New);
 #endif
 
-  private:
+private:
     //! error routine
     /*!
      *  @param msg Message
@@ -678,8 +682,8 @@ namespace Cantera {
      */
     doublereal err(std::string msg) const;
 
-  protected:
-    
+protected:
+
     //! Number of elements
     size_t m_mm;
 
@@ -696,7 +700,7 @@ namespace Cantera {
     size_t m_nlattice;
 
     //! Vector of sublattic ThermoPhase objects
-    std::vector<LatticePhase *> m_lattice;
+    std::vector<LatticePhase*> m_lattice;
 
     //! Vector of mole fractions
     /*!
@@ -715,13 +719,13 @@ namespace Cantera {
 
     std::vector<int> lkstart_;
 
-  private:
+private:
 
     //! Update the reference thermodynamic functions
     void _updateThermo() const;
-  };
+};
 }
-        
+
 #endif // #ifdef WITH_LATTICE_SOLID
 
 #endif

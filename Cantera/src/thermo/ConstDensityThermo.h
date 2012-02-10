@@ -1,6 +1,6 @@
 /**
  *  @file ConstDensityThermo.h
- * Header for a Thermo manager for incompressible ThermoPhases 
+ * Header for a Thermo manager for incompressible ThermoPhases
  * (see \ref thermoprops and \link Cantera::ConstDensityThermo ConstDensityThermo\endlink).
  */
 /*
@@ -16,38 +16,40 @@
 #include "SpeciesThermo.h"
 #include "utilities.h"
 
-namespace Cantera {
+namespace Cantera
+{
 
-  //!   Overloads the virtual methods of class ThermoPhase to implement the
-  //!   incompressible equation of state.
-  /**
-   *
-   *
-   * <b> Specification of Species Standard State Properties </b>
-   * 
-   *   
-   * <b> Specification of Solution Thermodynamic Properties </b>
-   *
-   *     The density is assumed to be constant, no matter what the concentration of the solution.
-   *
-   *
-   * <b> Application within %Kinetics Managers </b>
-   *
-   *
-   * <b> XML Example </b>
-   *
-   *   An example of an XML Element named phase setting up a SurfPhase object named diamond_100
-   *   is given below.
-   *
-   * @ingroup thermoprops
-   */
-  class ConstDensityThermo : public ThermoPhase  {
+//!   Overloads the virtual methods of class ThermoPhase to implement the
+//!   incompressible equation of state.
+/**
+ *
+ *
+ * <b> Specification of Species Standard State Properties </b>
+ *
+ *
+ * <b> Specification of Solution Thermodynamic Properties </b>
+ *
+ *     The density is assumed to be constant, no matter what the concentration of the solution.
+ *
+ *
+ * <b> Application within %Kinetics Managers </b>
+ *
+ *
+ * <b> XML Example </b>
+ *
+ *   An example of an XML Element named phase setting up a SurfPhase object named diamond_100
+ *   is given below.
+ *
+ * @ingroup thermoprops
+ */
+class ConstDensityThermo : public ThermoPhase
+{
 
-  public:
+public:
 
     //! Constructor.
     /*!
-     * 
+     *
      */
     ConstDensityThermo();
 
@@ -58,16 +60,16 @@ namespace Cantera {
     /*!
      * @param right Object to be copied
      */
-    ConstDensityThermo(const ConstDensityThermo &right);
+    ConstDensityThermo(const ConstDensityThermo& right);
 
     //! Assignment Operator
     /*!
      * @param right Object to be copied
      */
-    ConstDensityThermo& operator=(const ConstDensityThermo &right);
+    ConstDensityThermo& operator=(const ConstDensityThermo& right);
 
-   
-    //! Duplication routine for objects which inherit from 
+
+    //! Duplication routine for objects which inherit from
     //! %SpeciesThermo
     /*!
      *  This virtual routine can be used to duplicate %SpeciesThermo  objects
@@ -76,7 +78,7 @@ namespace Cantera {
      *  ->commented out because we first need to add copy constructors
      *   and assignment operators to all of the derived classes.
      */
-    virtual SpeciesThermo *duplMyselfAsSpeciesThermo() const;
+    virtual SpeciesThermo* duplMyselfAsSpeciesThermo() const;
 
     //! overloaded methods of class ThermoPhase
     virtual int eosType() const;
@@ -86,25 +88,25 @@ namespace Cantera {
      *
      */
 
-    /// Molar enthalpy. Units: J/kmol. 
+    /// Molar enthalpy. Units: J/kmol.
     virtual doublereal enthalpy_mole() const;
 
     /// Molar internal energy. Units: J/kmol.
     virtual doublereal intEnergy_mole() const;
 
 
-    /// Molar entropy. Units: J/kmol/K. 
+    /// Molar entropy. Units: J/kmol/K.
     virtual doublereal entropy_mole() const;
 
-    /// Molar Gibbs function. Units: J/kmol. 
+    /// Molar Gibbs function. Units: J/kmol.
     virtual doublereal gibbs_mole() const;
 
-    /// Molar heat capacity at constant pressure. Units: J/kmol/K. 
+    /// Molar heat capacity at constant pressure. Units: J/kmol/K.
     virtual doublereal cp_mole() const;
 
-    /// Molar heat capacity at constant volume. Units: J/kmol/K. 
+    /// Molar heat capacity at constant volume. Units: J/kmol/K.
     virtual doublereal cv_mole() const;
-       
+
     //! Return the thermodynamic pressure (Pa).
     /*!
      *  This method must be overloaded in derived classes. Since the
@@ -143,7 +145,7 @@ namespace Cantera {
      * partial pressures, mole fractions, or surface coverages,
      * for example.
      *
-     * @param c Output array of generalized concentrations. The 
+     * @param c Output array of generalized concentrations. The
      *           units depend upon the implementation of the
      *           reaction rate expressions within the phase.
      */
@@ -158,11 +160,11 @@ namespace Cantera {
 
     //! Get the species chemical potentials. Units: J/kmol.
     /*!
-     * This function returns a vector of chemical potentials of the 
+     * This function returns a vector of chemical potentials of the
      * species in solution at the current temperature, pressure
      * and mole fraction of the solution.
      *
-     * @param mu  Output vector of species chemical 
+     * @param mu  Output vector of species chemical
      *            potentials. Length: m_kk. Units: J/kmol
      */
     virtual void getChemPotentials(doublereal* mu) const;
@@ -174,7 +176,7 @@ namespace Cantera {
      * \f$. The values are evaluated at the current
      * temperature and pressure of the solution
      *
-     * @param mu0     Output vector of chemical potentials. 
+     * @param mu0     Output vector of chemical potentials.
      *                Length: m_kk.
      */
     virtual void getStandardChemPotentials(doublereal* mu0) const;
@@ -193,12 +195,12 @@ namespace Cantera {
      *
      * @param k Optional parameter indicating the species. The default
      *         is to assume this refers to species 0.
-     * @return 
+     * @return
      *   Returns the standard Concentration in units of m3 kmol-1.
      */
     virtual doublereal standardConcentration(size_t k=0) const;
 
-   //! Natural logarithm of the standard concentration of the kth species.
+    //! Natural logarithm of the standard concentration of the kth species.
     /*!
      * @param k    index of the species (defaults to zero)
      */
@@ -212,8 +214,8 @@ namespace Cantera {
      *               Length: m_kk.
      */
     virtual void getPureGibbs(doublereal* gpure) const {
-      const array_fp& gibbsrt = gibbs_RT();
-      scale(gibbsrt.begin(), gibbsrt.end(), gpure, _RT());
+        const array_fp& gibbsrt = gibbs_RT();
+        scale(gibbsrt.begin(), gibbsrt.end(), gpure, _RT());
     }
 
     //! Get the nondimensional Enthalpy functions for the species
@@ -223,8 +225,8 @@ namespace Cantera {
      *                 Length: m_kk.
      */
     void getEnthalpy_RT(doublereal* hrt) const {
-      const array_fp& _h = enthalpy_RT();
-      std::copy(_h.begin(), _h.end(), hrt);
+        const array_fp& _h = enthalpy_RT();
+        std::copy(_h.begin(), _h.end(), hrt);
     }
 
     //! Get the array of nondimensional Entropy functions for the
@@ -234,8 +236,8 @@ namespace Cantera {
      *             Length: m_kk.
      */
     void getEntropy_R(doublereal* sr) const {
-      const array_fp& _s = entropy_R();
-      std::copy(_s.begin(), _s.end(), sr);
+        const array_fp& _s = entropy_R();
+        std::copy(_s.begin(), _s.end(), sr);
     }
 
     //! Get the nondimensional Gibbs functions for the species
@@ -245,8 +247,8 @@ namespace Cantera {
      *             Length: m_kk.
      */
     virtual void getGibbs_RT(doublereal* grt) const {
-      const array_fp& gibbsrt = gibbs_RT();
-      std::copy(gibbsrt.begin(), gibbsrt.end(), grt);
+        const array_fp& gibbsrt = gibbs_RT();
+        std::copy(gibbsrt.begin(), gibbsrt.end(), grt);
     }
 
     //! Get the nondimensional Heat Capacities at constant
@@ -257,8 +259,8 @@ namespace Cantera {
      *              Length: m_kk.
      */
     void getCp_R(doublereal* cpr) const {
-      const array_fp& _cpr = cp_R();
-      std::copy(_cpr.begin(), _cpr.end(), cpr);
+        const array_fp& _cpr = cp_R();
+        std::copy(_cpr.begin(), _cpr.end(), cpr);
     }
 
 
@@ -268,33 +270,35 @@ namespace Cantera {
     //!  enthalpies of the reference state at the current temperature
     //!  of the solution and the reference pressure for the species.
     const array_fp& enthalpy_RT() const {
-      _updateThermo();
-      return m_h0_RT;
+        _updateThermo();
+        return m_h0_RT;
     }
 
     //!  Returns a reference to the vector of nondimensional
     //!  Gibbs Free Energies of the reference state at the current temperature
     //!  of the solution and the reference pressure for the species.
     const array_fp& gibbs_RT() const {
-      _updateThermo();
-      return m_g0_RT;
+        _updateThermo();
+        return m_g0_RT;
     }
 
     //!  Returns a reference to the vector of exponentials of the nondimensional
     //!  Gibbs Free Energies of the reference state at the current temperature
     //!  of the solution and the reference pressure for the species.
     const array_fp& expGibbs_RT() const {
-      _updateThermo();
-      for (size_t k = 0; k != m_kk; k++) m_expg0_RT[k] = std::exp(m_g0_RT[k]);
-      return m_expg0_RT;
+        _updateThermo();
+        for (size_t k = 0; k != m_kk; k++) {
+            m_expg0_RT[k] = std::exp(m_g0_RT[k]);
+        }
+        return m_expg0_RT;
     }
 
     //!  Returns a reference to the vector of nondimensional
     //!  entropies of the reference state at the current temperature
     //!  of the solution and the reference pressure for each species.
     const array_fp& entropy_R() const {
-      _updateThermo();
-      return m_s0_R;
+        _updateThermo();
+        return m_s0_R;
     }
 
     //!  Returns a reference to the vector of nondimensional
@@ -302,8 +306,8 @@ namespace Cantera {
     //!  at the current temperature of the solution
     //!  and reference pressure for each species.
     const array_fp& cp_R() const {
-      _updateThermo();
-      return m_cp0_R;
+        _updateThermo();
+        return m_cp0_R;
     }
 
     //! Set the potential energy of species k
@@ -312,7 +316,7 @@ namespace Cantera {
      * @param pe Potential energy (J kmol-1).
      */
     virtual void setPotentialEnergy(int k, doublereal pe) {
-      m_pe[k] = pe;
+        m_pe[k] = pe;
     }
 
     //! Returns the potential energy of species k
@@ -320,7 +324,7 @@ namespace Cantera {
      * @param k species index
      */
     virtual doublereal potentialEnergy(int k) const {
-      return m_pe[k];
+        return m_pe[k];
     }
 
     //! Initialize the ThermoPhase object after all species have been set up
@@ -346,41 +350,41 @@ namespace Cantera {
     /*!
      * It sets the state such that the chemical potentials satisfy
      * \f[ \frac{\mu_k}{\hat R T} = \sum_m A_{k,m}
-     * \left(\frac{\lambda_m} {\hat R T}\right) \f] where 
+     * \left(\frac{\lambda_m} {\hat R T}\right) \f] where
      * \f$ \lambda_m \f$ is the element potential of element m. The
      * temperature is unchanged.  Any phase (ideal or not) that
      * implements this method can be equilibrated by ChemEquil.
      *
      * @param lambda_RT Input vector of dimensionless element potentials
      *                  The length is equal to nElements().
-     */ 
+     */
     virtual void setToEquilState(const doublereal* lambda_RT);
 
-  
+
     //! Set the equation of state parameters
     /*!
      * @internal
-     *  The number and meaning of these depends on the subclass. 
+     *  The number and meaning of these depends on the subclass.
      *
      * @param n number of parameters
      * @param c array of \a n coefficients
      */
     virtual void setParameters(int n, doublereal* const c) {
-      setDensity(c[0]);
+        setDensity(c[0]);
     }
 
     //! Get the equation of state parameters in a vector
     /*!
      * @internal
-     * The number and meaning of these depends on the subclass. 
+     * The number and meaning of these depends on the subclass.
      *
      * @param n number of parameters
      * @param c array of \a n coefficients
      */
-    virtual void getParameters(int &n, doublereal * const c) const {
-      double d = density();
-      c[0] = d;
-      n = 1;
+    virtual void getParameters(int& n, doublereal* const c) const {
+        double d = density();
+        c[0] = d;
+        n = 1;
     }
 
     //! Set equation of state parameter values from XML entries.
@@ -392,13 +396,13 @@ namespace Cantera {
      * any parameters that are specific to that particular phase
      * model. Note, this method is called before the phase is
      * initialzed with elements and/or species.
-     *   
+     *
      * @param eosdata An XML_Node object corresponding to
      *                the "thermo" entry for this phase in the input file.
      */
     virtual void setParametersFromXML(const XML_Node& eosdata);
 
-  protected:
+protected:
 
     //! number of elements
     size_t m_mm;
@@ -420,12 +424,12 @@ namespace Cantera {
 
     //! Reference state pressure
     /*!
-     *  Value of the reference state pressure in Pascals. 
+     *  Value of the reference state pressure in Pascals.
      *  All species must have the same reference state pressure.
      */
     doublereal m_p0;
 
-    //! last value of the temperature processed by reference state 
+    //! last value of the temperature processed by reference state
     mutable doublereal     m_tlast;
 
     //! Temporary storage for dimensionless reference state enthalpies
@@ -458,11 +462,11 @@ namespace Cantera {
     //! Current pressure (Pa)
     doublereal m_press;
 
-  private:
+private:
 
     //! Function to update the reference state thermo functions
     void _updateThermo() const;
-  };
+};
 }
-        
+
 #endif

@@ -12,7 +12,8 @@
 
 #include "Species.h"
 
-namespace ckr {
+namespace ckr
+{
 
 double enthalpy(double t, const Species& s);
 double cp(double t, const Species& s);

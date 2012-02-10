@@ -6,7 +6,7 @@
  *    (see \ref pdssthermo and class \link Cantera::PDSS_HKFT PDSS_HKFT\endlink).
  */
 /*
- * Copywrite (2006) Sandia Corporation. Under the terms of 
+ * Copywrite (2006) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -17,73 +17,75 @@
 class WaterPropsIAPWS;
 #include "PDSS.h"
 
-namespace Cantera {
-  class XML_Node;
-  class VPStandardState;
-  class PDSS_Water;
-  class WaterProps;
+namespace Cantera
+{
+class XML_Node;
+class VPStandardState;
+class PDSS_Water;
+class WaterProps;
 
-  //! Class for pressure dependent standard states corresponding to 
-  //!  ionic solutes in electrolyte water.
-  /*!
-   *
-   * Virtual base class for calculation of the
-   * pressure dependent standard state for a single species
-   * 
-   * Class %PDSS is the base class
-   * for a family of classes that compute properties of a set of
-   * species in their standard states at a range of temperatures
-   * and pressures. The independent variables for this object
-   * are temperature and pressure.
-   * The class may mave a reference to a SpeciesThermo object
-   * which handles the calculation of the reference state temperature
-   * behavior of a subset of species.
-   *
-   * This class is analagous to the SpeciesThermoInterpType
-   * class, except that the standard state inherently incorporates
-   * the pressure dependence.
-   *
-   * The class operates on a setState temperature and pressure basis.
-   * It only recalculates the standard state when the setState functions
-   * for temperature and pressure are called
-   *
-   * @ingroup pdssthermo
-   */
-  class PDSS_HKFT : public PDSS {
+//! Class for pressure dependent standard states corresponding to
+//!  ionic solutes in electrolyte water.
+/*!
+ *
+ * Virtual base class for calculation of the
+ * pressure dependent standard state for a single species
+ *
+ * Class %PDSS is the base class
+ * for a family of classes that compute properties of a set of
+ * species in their standard states at a range of temperatures
+ * and pressures. The independent variables for this object
+ * are temperature and pressure.
+ * The class may mave a reference to a SpeciesThermo object
+ * which handles the calculation of the reference state temperature
+ * behavior of a subset of species.
+ *
+ * This class is analagous to the SpeciesThermoInterpType
+ * class, except that the standard state inherently incorporates
+ * the pressure dependence.
+ *
+ * The class operates on a setState temperature and pressure basis.
+ * It only recalculates the standard state when the setState functions
+ * for temperature and pressure are called
+ *
+ * @ingroup pdssthermo
+ */
+class PDSS_HKFT : public PDSS
+{
 
-  public:
-   /**
-     * @name  Constructors
-     * @{
-     */
+public:
+    /**
+      * @name  Constructors
+      * @{
+      */
 
-   //! Constructor that initializes the object by examining the XML entries
+    //! Constructor that initializes the object by examining the XML entries
     //! from the ThermoPhase object
     /*!
      *  This function calls the constructPDSS member function.
-     * 
+     *
      *  @param tp        Pointer to the ThermoPhase object pertaining to the phase
      *  @param spindex   Species index of the species in the phase
      */
-    PDSS_HKFT(VPStandardStateTP *tp, size_t spindex);
+    PDSS_HKFT(VPStandardStateTP* tp, size_t spindex);
 
     //! Copy Constructor
     /*!
      * @param b object to be copied
      */
-    PDSS_HKFT(const PDSS_HKFT &b);
+    PDSS_HKFT(const PDSS_HKFT& b);
 
     //! Assignment operator
     /*!
      * @param b Object to be copied
      */
-    PDSS_HKFT& operator=(const PDSS_HKFT&b);
+    PDSS_HKFT& operator=(const PDSS_HKFT& b);
 
     //! Constructor that initializes the object by examining the input file
     //! of the ThermoPhase object
     /*!
      *  This function calls the constructPDSSFile member function.
-     * 
+     *
      *  @param vptp_ptr  Pointer to the ThermoPhase object pertaining to the phase
      *  @param spindex   Species index of the species in the phase
      *  @param inputFile String name of the input file
@@ -91,14 +93,14 @@ namespace Cantera {
      *                   is the empty string, in which case the first phase in the
      *                   file is used.
      */
-    PDSS_HKFT(VPStandardStateTP *vptp_ptr, size_t spindex,
-	      std::string inputFile, std::string id = "");
+    PDSS_HKFT(VPStandardStateTP* vptp_ptr, size_t spindex,
+              std::string inputFile, std::string id = "");
 
     //! Constructor that initializes the object by examining the input file
     //! of the ThermoPhase object
     /*!
      *  This function calls the constructPDSSXML member function.
-     * 
+     *
      *  @param vptp_ptr    Pointer to the ThermoPhase object pertaining to the phase
      *  @param spindex     Species index of the species in the phase
      *  @param speciesNode Reference to the species XML tree.
@@ -106,30 +108,30 @@ namespace Cantera {
      *  @param spInstalled Boolean indicating whether the species is installed yet
      *                     or not.
      */
-    PDSS_HKFT(VPStandardStateTP *vptp_ptr, size_t spindex, const XML_Node& speciesNode,
-	      const XML_Node& phaseRef, bool spInstalled);
+    PDSS_HKFT(VPStandardStateTP* vptp_ptr, size_t spindex, const XML_Node& speciesNode,
+              const XML_Node& phaseRef, bool spInstalled);
 
     //! Destructor for the phase
     virtual ~PDSS_HKFT();
 
     //! Duplicator
-    virtual PDSS *duplMyselfAsPDSS() const;
-   
+    virtual PDSS* duplMyselfAsPDSS() const;
+
     /**
-     * @}   
-     * @name  Utilities  
+     * @}
+     * @name  Utilities
      * @{
      */
 
     /**
-     * @} 
+     * @}
      * @name  Molar Thermodynamic Properties of the Species Standard State
      *        in the Solution
      * @{
      */
-    
+
     /**
-     * @} 
+     * @}
      * @name  Molar Thermodynamic Properties of the Solution --------------
      * @{
      */
@@ -231,16 +233,16 @@ namespace Cantera {
     virtual doublereal density() const;
 
     /**
-     * @} 
+     * @}
      * @name Properties of the Reference State of the Species
-     *       in the Solution 
+     *       in the Solution
      * @{
      */
 
 
     //! Return the reference pressure for this phase.
     doublereal refPressure() const {
-      return m_p0;
+        return m_p0;
     }
 
     //! Return the molar gibbs free energy divided by RT at reference pressure
@@ -291,11 +293,11 @@ namespace Cantera {
 
     /**
      * @}
-     *  @name Mechanical Equation of State Properties 
+     *  @name Mechanical Equation of State Properties
      * @{
      */
 
-     //! Returns the pressure (Pa)
+    //! Returns the pressure (Pa)
     virtual doublereal pressure() const;
 
     //! Sets the pressure in the object
@@ -316,7 +318,7 @@ namespace Cantera {
 
     //! Return the current storred temperature
     doublereal temperature() const;
- 
+
     //! Set the internal temperature and pressure
     /*!
      * @param  temp     Temperature (Kelvin)
@@ -328,23 +330,23 @@ namespace Cantera {
      * @}
      *  @name  Miscellaneous properties of the standard state
      * @{
-     */ 
+     */
 
-    /// critical temperature 
+    /// critical temperature
     virtual doublereal critTemperature() const;
- 
+
     /// critical pressure
     virtual doublereal critPressure() const;
-        
+
     /// critical density
     virtual doublereal critDensity() const;
-     
+
     /**
      * @}
      *  @name  Initialization of the Object
      * @{
      */
-    
+
     //! Initialization routine for all of the shallow pointers
     /*!
      *  This is a cascading call, where each level should call the
@@ -377,19 +379,19 @@ namespace Cantera {
      *                    phase. If none is given, the first XML
      *                    phase element will be used.
      */
-    void constructPDSSFile(VPStandardStateTP *vptp_ptr, size_t spindex,
-			   std::string inputFile, std::string id);
+    void constructPDSSFile(VPStandardStateTP* vptp_ptr, size_t spindex,
+                           std::string inputFile, std::string id);
 
     //!  Initialization of a PDSS object using an xml tree
     /*!
      * This routine is a driver for the initialization of the
      * object.
-     * 
+     *
      *   basic logic:
      *       initThermo()                 (cascade)
      *       getStuff from species Part of XML file
      *       initThermoXML(phaseNode)      (cascade)
-     * 
+     *
      * @param vptp_ptr   Pointer to the Variable pressure %ThermoPhase object
      *                   This object must have already been malloced.
      *
@@ -400,12 +402,12 @@ namespace Cantera {
      * @param phaseNode  Reference to the phase Information for the phase
      *                   that owns this species.
      *
-     * @param spInstalled  Boolean indicating whether the species is 
+     * @param spInstalled  Boolean indicating whether the species is
      *                     already installed.
      */
-    void constructPDSSXML(VPStandardStateTP *vptp_ptr, size_t spindex,
-			  const XML_Node& speciesNode, 
-			  const XML_Node& phaseNode, bool spInstalled);
+    void constructPDSSXML(VPStandardStateTP* vptp_ptr, size_t spindex,
+                          const XML_Node& speciesNode,
+                          const XML_Node& phaseNode, bool spInstalled);
 
     //! Initialization routine for the PDSS object based on the phaseNode
     /*!
@@ -436,8 +438,8 @@ namespace Cantera {
      *                       that will handle the calculation of the reference
      *                       state thermodynamic coefficients.
      */
-    virtual void initAllPtrs(VPStandardStateTP *vptp_ptr, VPSSMgr *vpssmgr_ptr, 
-			     SpeciesThermo* spthermo_ptr);
+    virtual void initAllPtrs(VPStandardStateTP* vptp_ptr, VPSSMgr* vpssmgr_ptr,
+                             SpeciesThermo* spthermo_ptr);
 
     //! This utility function reports back the type of
     //! parameterization and all of the parameters for the
@@ -468,16 +470,16 @@ namespace Cantera {
      * @param refPressure output - reference pressure (Pa).
      *
      */
-    virtual void reportParams(size_t &kindex, int &type, doublereal * const c,
-                              doublereal &minTemp, doublereal &maxTemp,
-                              doublereal &refPressure) const;
+    virtual void reportParams(size_t& kindex, int& type, doublereal* const c,
+                              doublereal& minTemp, doublereal& maxTemp,
+                              doublereal& refPressure) const;
 
     //@}
 
- 
-  private:
 
-    //! Main routine that actually calculates the gibbs free energy difference 
+private:
+
+    //! Main routine that actually calculates the gibbs free energy difference
     //! between the reference state at Tr, Pr and T,P
     /*!
      *  This is eEqn. 59 in Johnson et al. (1992).
@@ -485,7 +487,7 @@ namespace Cantera {
      */
     doublereal deltaG() const;
 
-    //! Main routine that actually calculates the entropy difference 
+    //! Main routine that actually calculates the entropy difference
     //! between the reference state at Tr, Pr and T,P
     /*!
      *  This is Eqn. 61 in Johnson et al. (1992). Actually, there appears to
@@ -494,7 +496,7 @@ namespace Cantera {
     doublereal deltaS() const;
 
 #ifdef DEBUG_MODE
-    //! Routine that actually calculates the enthalpy difference 
+    //! Routine that actually calculates the enthalpy difference
     //! between the reference state at Tr, Pr and T,P
     /*!
      *  This is an extra routine that was added to check the arithmetic
@@ -533,7 +535,7 @@ namespace Cantera {
     //!  function g appearing in the formulation
     /*!
      * Function g appearing in the Johnson et al formulation
-     * 
+     *
      * @param temp      Temperature kelvin
      * @param pres      Pressure (pascal)
      * @param ifunc     parameters specifying the desired information
@@ -548,7 +550,7 @@ namespace Cantera {
     /*!
      * Function f appearing in the Johnson et al formulation of omega_j
      *   Eqn. 33 ref
-     * 
+     *
      * @param temp      Temperature kelvin
      * @param pres      Pressure (pascal)
      * @param ifunc     parameters specifying the desired information
@@ -561,7 +563,7 @@ namespace Cantera {
 
     //! Evaluate the Gstar value appearing in the HKFT formulation
     /*!
-     * 
+     *
      * @param temp      Temperature kelvin
      * @param pres      Pressure (pascal)
      * @param ifunc     parameters specifying the desired information
@@ -571,7 +573,7 @@ namespace Cantera {
      *                 - 3 derivative wrt pressure
      */
     doublereal gstar(const doublereal temp, const doublereal pres,
-		     const int ifunc = 0) const;
+                     const int ifunc = 0) const;
 
     //!  Function to look up Element Free Energies
     /*!
@@ -592,19 +594,19 @@ namespace Cantera {
 
     //! Translate a Gibbs free energy of formation value to a NIST-based Chemical potential
     /*!
-     *  Internally, this function is used to translate the input value, 
+     *  Internally, this function is used to translate the input value,
      *  m_deltaG_formation_tr_pr,
      *  to the internally storred value,  m_Mu0_tr_pr.
      */
     void convertDGFormation();
 
-  private:
+private:
     //!  Water standard state calculator
     /*!
      *  derived from the equation of state for water.
      *  This object doesn't own the object. Just a shallow pointer.
      */
-    PDSS_Water *m_waterSS;
+    PDSS_Water* m_waterSS;
 
     //! density of standard-state water
     /*!
@@ -613,7 +615,7 @@ namespace Cantera {
     mutable doublereal m_densWaterSS;
 
     //!  Pointer to the water property calculator
-    WaterProps *m_waterProps;
+    WaterProps* m_waterProps;
 
     //! Born coefficient for the current ion or species
     doublereal m_born_coeff_j;
@@ -668,7 +670,7 @@ namespace Cantera {
 
     //!  Input c1 coefficient (cal gmol-1 K-1)
     doublereal m_c1;
-    
+
     //!  Input c2 coefficient (cal K gmol-1)
     doublereal m_c2;
 
@@ -680,7 +682,7 @@ namespace Cantera {
 
     //! Z = -1 / relEpsilon at 298.15 and 1 bar
     doublereal m_Z_pr_tr;
- 
+
     //! Reference pressure is 1 atm in units of bar= 1.0132
     doublereal m_presR_bar;
 
@@ -690,7 +692,7 @@ namespace Cantera {
     //! Charge of the ion
     doublereal m_charge_j;
 
-  };
+};
 
 }
 

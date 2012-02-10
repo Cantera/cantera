@@ -1,8 +1,8 @@
 /**
  *  @file SpeciesThermoFactory.h
  *    Header for factory to build instances of classes that manage the
- *    standard-state thermodynamic properties of a set of species 
- *    (see \ref spthermo and class 
+ *    standard-state thermodynamic properties of a set of species
+ *    (see \ref spthermo and class
  *     \link Cantera::SpeciesThermoFactory SpeciesThermoFactory\endlink);
  */
 // Copyright 2001  California Institute of Technology
@@ -15,20 +15,22 @@
 #include "FactoryBase.h"
 
 
-namespace Cantera {
+namespace Cantera
+{
 
-  class XML_Node;
-  class VPStandardStateTP;
-  class VPSSMgr;
-  class ThermoPhase;
+class XML_Node;
+class VPStandardStateTP;
+class VPSSMgr;
+class ThermoPhase;
 
-  /**
-   * Throw a named error for an unknown or missing species thermo model. 
-   *
-   * @ingroup thermoprops
-   */
-  class UnknownSpeciesThermoModel: public CanteraError {
-  public:
+/**
+ * Throw a named error for an unknown or missing species thermo model.
+ *
+ * @ingroup thermoprops
+ */
+class UnknownSpeciesThermoModel: public CanteraError
+{
+public:
     //! constructor
     /*!
      * @param proc Function name error occurred.
@@ -36,44 +38,45 @@ namespace Cantera {
      * @param speciesThermoModel Unrecognized species thermo model name
      */
     UnknownSpeciesThermoModel(std::string proc, std::string spName,
-			      std::string speciesThermoModel) :
-      CanteraError(proc, "species " + spName + 
-		   ": Specified speciesThermoPhase model "   
-		   + speciesThermoModel + 
-		   " does not match any known type.") {}
+                              std::string speciesThermoModel) :
+        CanteraError(proc, "species " + spName +
+                     ": Specified speciesThermoPhase model "
+                     + speciesThermoModel +
+                     " does not match any known type.") {}
     //! destructor
     virtual ~UnknownSpeciesThermoModel() throw() {}
-  };
+};
 
-  //! Factory to build instances of classes that manage the
-  //! standard-state thermodynamic properties of a set of species.
-  /*!
-   *  This class is responsible for making the decision concerning
-   *  which derivative of SpeciesThermo object to use.
-   *  The SpeciesThermo object is used to calculate 
-   *  thermodynamic functions for the reference state.
-   *  It queries the database of species to understand what
-   *  the requirements are for the submodels for all of the
-   *  species in the phase. Then, it picks the SpeciesThermo
-   *  object to use, and passies it back to the calling routine.
-   *  It doesn't load any of the data into the derived
-   *  SpeciesThermo object. 
-   *
-   *  Making the choice of SpeciesThermo types is the only
-   *  thing this class does.
-   *
-   * This class is implemented as a singleton -- one in which
-   * only one instance is needed.  The recommended way to access
-   * the factory is to call this static method, which
-   * instantiates the class if it is the first call, but
-   * otherwise simply returns the pointer to the existing
-   * instance.
-   *
-   * @ingroup thermoprops
-   */
-  class SpeciesThermoFactory : public FactoryBase {
+//! Factory to build instances of classes that manage the
+//! standard-state thermodynamic properties of a set of species.
+/*!
+ *  This class is responsible for making the decision concerning
+ *  which derivative of SpeciesThermo object to use.
+ *  The SpeciesThermo object is used to calculate
+ *  thermodynamic functions for the reference state.
+ *  It queries the database of species to understand what
+ *  the requirements are for the submodels for all of the
+ *  species in the phase. Then, it picks the SpeciesThermo
+ *  object to use, and passies it back to the calling routine.
+ *  It doesn't load any of the data into the derived
+ *  SpeciesThermo object.
+ *
+ *  Making the choice of SpeciesThermo types is the only
+ *  thing this class does.
+ *
+ * This class is implemented as a singleton -- one in which
+ * only one instance is needed.  The recommended way to access
+ * the factory is to call this static method, which
+ * instantiates the class if it is the first call, but
+ * otherwise simply returns the pointer to the existing
+ * instance.
+ *
+ * @ingroup thermoprops
+ */
+class SpeciesThermoFactory : public FactoryBase
+{
 
-  public:
+public:
 
     //! Static method to return an instance of this class
     /*!
@@ -93,7 +96,7 @@ namespace Cantera {
      * memory leaks) then this method can be called to delete it.
      */
     void deleteFactory();
-	
+
     //! Destructor
     /**
      * Doesn't do anything. We do not delete statically
@@ -111,12 +114,12 @@ namespace Cantera {
      *  @return                 Returns the pointer to the newly malloced
      *                          species property manager for the reference
      *                          state
-     */ 
+     */
     SpeciesThermo* newSpeciesThermo(int type) const;
 
     //! Create a new species thermo property manager given a string
     /*!
-     * Create a new species thermo property manager, given a 
+     * Create a new species thermo property manager, given a
      * string.
      *
      *  @param stype            String name for the species thermo type
@@ -126,7 +129,7 @@ namespace Cantera {
      *                          species property manager for the reference
      *                          state
      */
-    SpeciesThermo* newSpeciesThermoManager(std::string &stype) const;
+    SpeciesThermo* newSpeciesThermoManager(std::string& stype) const;
 
     //! Create a new species property manager for the reference
     //! state for a group of species
@@ -134,14 +137,14 @@ namespace Cantera {
      * This routine will look through species nodes. It will discover what
      * each species needs for its species property managers. Then,
      * it will malloc and return the proper species property manager to use.
-     * 
+     *
      *   @param spDataNodeList  This vector contains a list
      *                          of species XML nodes that will be in the phase
      *
      *  @return                 Returns the pointer to the newly malloced
      *                          species property manager for the reference
      *                          state
-     */ 
+     */
     SpeciesThermo* newSpeciesThermo(std::vector<XML_Node*> & spDataNodeList) const;
 
     //! Create a new species property manager for the reference state
@@ -156,8 +159,8 @@ namespace Cantera {
      *
      *  @return                 Returns the pointer to the newly malloced
      *                          species property manager for the reference state
-     *  @todo is this used? 
-     */ 
+     *  @todo is this used?
+     */
     SpeciesThermo* newSpeciesThermoOpt(std::vector<XML_Node*> & spDataNodeList) const;
 
     //! Install a species thermodynamic property parameterization
@@ -173,13 +176,13 @@ namespace Cantera {
      *                      resides
      */
     void installThermoForSpecies(size_t k, const XML_Node& speciesNode,
-				 ThermoPhase *th_ptr, SpeciesThermo& spthermo,
-				 const XML_Node *phaseNode_ptr = 0) const;
+                                 ThermoPhase* th_ptr, SpeciesThermo& spthermo,
+                                 const XML_Node* phaseNode_ptr = 0) const;
 
     //! Install a species thermodynamic property parameterization
     //! for the standard state for one species into a species thermo manager, VPSSMgr
     /*!
-     * This is a wrapper around the createInstallVPSS() function in the 
+     * This is a wrapper around the createInstallVPSS() function in the
      * VPStandardStateTP object.
      *
      * This serves to install the species into vpss_ptr, create a PDSS file. We also
@@ -188,7 +191,7 @@ namespace Cantera {
      * @param k             species number
      * @param speciesNode   Reference to the XML node specifying the species standard
      *                      state information
-     * @param vp_ptr        variable pressure ThermoPhase object 
+     * @param vp_ptr        variable pressure ThermoPhase object
      * @param vpss_ptr      Pointer to the Manager for calculating variable pressure
      *                      substances.
      * @param spthermo_ptr  Species reference state thermo manager
@@ -197,12 +200,12 @@ namespace Cantera {
      *                      resides
      */
     void installVPThermoForSpecies(size_t k, const XML_Node& speciesNode,
-				   VPStandardStateTP *vp_ptr,
-				   VPSSMgr *vpss_ptr,
-				   SpeciesThermo *spthermo_ptr,
-				   const XML_Node *phaseNode_ptr) const;
+                                   VPStandardStateTP* vp_ptr,
+                                   VPSSMgr* vpss_ptr,
+                                   SpeciesThermo* spthermo_ptr,
+                                   const XML_Node* phaseNode_ptr) const;
 
-  private:
+private:
 
     //! Pointer to the sole instance of this class, which is static
     static SpeciesThermoFactory* s_factory;
@@ -214,69 +217,69 @@ namespace Cantera {
 
     //! Constructor. This is made private, so that only the static
     //! method factory() can instantiate the class.
-    SpeciesThermoFactory(){}
-  };
+    SpeciesThermoFactory() {}
+};
 
 
-  ////////////////////// Convenience functions ////////////////////
-  //
-  //  These functions allow using a different factory class that
-  //  derives from SpeciesThermoFactory.
-  //
-  //////////////////////////////////////////////////////////////////
+////////////////////// Convenience functions ////////////////////
+//
+//  These functions allow using a different factory class that
+//  derives from SpeciesThermoFactory.
+//
+//////////////////////////////////////////////////////////////////
 
 
-  //! Create a new species thermo manager instance, by specifying
-  //!the type and (optionally) a pointer to the factory to use to create it.
-  /*!
-   * This utility program  will look through species nodes. It will discover what
-   * each species needs for its species property managers. Then,
-   * it will malloc and return the proper species property manager to use.
-   *
-   *  These functions allow using a different factory class that
-   *  derives from SpeciesThermoFactory.
-   *
-   * @param type         Species thermo type.
-   * @param f            Pointer to a SpeciesThermoFactory. optional parameter. 
-   *                    Defautls to NULL.
-   */
-  SpeciesThermo* newSpeciesThermoMgr(int type, SpeciesThermoFactory* f=0);
+//! Create a new species thermo manager instance, by specifying
+//!the type and (optionally) a pointer to the factory to use to create it.
+/*!
+ * This utility program  will look through species nodes. It will discover what
+ * each species needs for its species property managers. Then,
+ * it will malloc and return the proper species property manager to use.
+ *
+ *  These functions allow using a different factory class that
+ *  derives from SpeciesThermoFactory.
+ *
+ * @param type         Species thermo type.
+ * @param f            Pointer to a SpeciesThermoFactory. optional parameter.
+ *                    Defautls to NULL.
+ */
+SpeciesThermo* newSpeciesThermoMgr(int type, SpeciesThermoFactory* f=0);
 
-  //! Create a new species thermo manager instance, by specifying
-  //!the type and (optionally) a pointer to the factory to use to create it.
-  /*!
-   * This utility program is a basic factory operation for spawning a
-   * new species reference-state thermo mananger
-   *
-   *  These functions allows for using a different factory class that
-   *  derives from SpeciesThermoFactory. However, no applications of this
-   *  have been done yet.
-   *
-   * @param stype       String specifying the species thermo type
-   * @param f           Pointer to a SpeciesThermoFactory. optional parameter. 
-   *                    Defautls to NULL.
-   */
-  SpeciesThermo* newSpeciesThermoMgr(std::string &stype, 
-				     SpeciesThermoFactory* f=0);
+//! Create a new species thermo manager instance, by specifying
+//!the type and (optionally) a pointer to the factory to use to create it.
+/*!
+ * This utility program is a basic factory operation for spawning a
+ * new species reference-state thermo mananger
+ *
+ *  These functions allows for using a different factory class that
+ *  derives from SpeciesThermoFactory. However, no applications of this
+ *  have been done yet.
+ *
+ * @param stype       String specifying the species thermo type
+ * @param f           Pointer to a SpeciesThermoFactory. optional parameter.
+ *                    Defautls to NULL.
+ */
+SpeciesThermo* newSpeciesThermoMgr(std::string& stype,
+                                   SpeciesThermoFactory* f=0);
 
-  //! Function to return SpeciesThermo manager
-  /*!
-   * This utility program  will look through species nodes. It will discover what
-   * each species needs for its species property managers. Then,
-   * it will malloc and return the proper species reference state manager to use.
-   *
-   *  These functions allow using a different factory class that
-   *  derives from SpeciesThermoFactory.
-   *
-   *  @param spDataNodeList This vector contains a list
-   *                        of species XML nodes that will be in the phase
-   *
-   * @param f            Pointer to a SpeciesThermoFactory. optional parameter. 
-   *                    Defautls to NULL.
-   * @param opt         Boolean defaults to false.
-   */
-  SpeciesThermo* newSpeciesThermoMgr(std::vector<XML_Node*> spDataNodeList, 
-				     SpeciesThermoFactory* f=0, bool opt=false);
+//! Function to return SpeciesThermo manager
+/*!
+ * This utility program  will look through species nodes. It will discover what
+ * each species needs for its species property managers. Then,
+ * it will malloc and return the proper species reference state manager to use.
+ *
+ *  These functions allow using a different factory class that
+ *  derives from SpeciesThermoFactory.
+ *
+ *  @param spDataNodeList This vector contains a list
+ *                        of species XML nodes that will be in the phase
+ *
+ * @param f            Pointer to a SpeciesThermoFactory. optional parameter.
+ *                    Defautls to NULL.
+ * @param opt         Boolean defaults to false.
+ */
+SpeciesThermo* newSpeciesThermoMgr(std::vector<XML_Node*> spDataNodeList,
+                                   SpeciesThermoFactory* f=0, bool opt=false);
 
 }
 

@@ -14,129 +14,131 @@
 #include "SingleSpeciesTP.h"
 
 
-namespace Cantera {
-    
-  class WaterPropsIAPWS;
-  class WaterProps;
-  //!  Class for single-component water. This is designed to cover just the
-  //!  liquid part of water.
-  /*!
-   *  The reference is W. Wagner, A. Prub, "The IAPWS Formulation 1995 for the Themodynamic
-   *  Properties of Ordinary Water Substance for General and Scientific Use,"
-   *  J. Phys. Chem. Ref. Dat, 31, 387, 2002.
-   *
-   * <HR>
-   * <H2> Specification of Species Standard %State Properties </H2>
-   * <HR>
-   *   
-   *   The offsets used in the steam tables are different than NIST's. 
-   *   They assume u_liq(TP) = 0.0, s_liq(TP) = 0.0, where TP is the
-   *   triple point conditions:
-   *
-   *      -  u(273.16, rho)    = 0.0
-   *      -  s(273.16, rho)    = 0.0 
-   *      -  psat(273.16)      = 611.655 Pascal
-   *      -  rho(273.16, psat) = 999.793 kg m-3
-   *
-   *   These "steam table" assumptions are used by the WaterPropsIAPWS class.
-   *   Therefore, offsets must be calculated to make the thermodynamic
-   *   properties calculated within this class to be consistent with
-   *   thermo properties within Cantera.
-   *
-   *   The thermodynamic base state for water is set to the NIST basis here
-   *   by specifying constants, #EW_Offset and #SW_Offset, one for energy
-   *   quantities and one for entropy quantities. The offsets are
-   *   specified so that the following properties hold:
-   *
-   *   - Delta_Hfo_idealgas(298.15) = -241.826 kJ/gmol
-   *   - So_idealgas(298.15, 1bar)  =  188.835  J/gmolK
-   *
-   *         ref ->  (http://webbook.nist.gov)
-   *
-   *   The "o" here refers to a hypothetical ideal gas state. The way
-   *   we achieve this in practice is to evaluate at a very low pressure
-   *   and then use the theoretical ideal gas results to scale up to
-   *   higher pressures:
-   *
-   *   Ho(1bar) = H(P0)
-   *
-   *   So(1bar) = S(P0) + RT ln(1bar/P0)
-   *
-   * <HR>
-   * <H2> %Application within %Kinetics Managers </H2>
-   * <HR>
-   *
-   *   This is unimplemented.
-   *
-   * <HR>
-   * <H2> Instantiation of the Class </H2>
-   * <HR>
-   *
-   * The constructor for this phase is NOT located in the default ThermoFactory
-   * for %Cantera. However, a new %WaterSSTP object may be created by 
-   * the following code snippets, combined with an XML file given in the
-   * XML example section.
-   *
-   * @code
-   *      WaterSSTP *w = new WaterSSTP("waterSSTPphase.xml","");
-   * @endcode
-   *
-   * or
-   *
-   * @code
-   *    char iFile[80], file_ID[80];
-   *    strcpy(iFile, "waterSSTPphase.xml");
-   *    sprintf(file_ID,"%s#water", iFile);
-   *    XML_Node *xm = get_XML_NameID("phase", file_ID, 0);
-   *    WaterSSTP *w = new WaterSSTP(*xm);
-   * @endcode
-   *
-   * or by the following call to importPhase():
-   *
-   * @code
-   *    char iFile[80], file_ID[80];
-   *    strcpy(iFile, "waterSSTPphase.xml");
-   *    sprintf(file_ID,"%s#water", iFile);
-   *    XML_Node *xm = get_XML_NameID("phase", file_ID, 0);
-   *    WaterSSTP water;
-   *    importPhase(*xm, &water);
-   * @endcode
-   *
-   * <HR>
-   * <H2> XML Example </H2>
-   * <HR>
-   *
-   *   An example of an XML Element named phase setting up a WaterSSTP object with
-   *   id "water"   is given below.
-   *
-   * @verbatim
-      <!-- phase water     -->
-      <phase dim="3" id="water">
-           <elementArray datasrc="elements.xml">O  H </elementArray>
-           <speciesArray datasrc="#species_data">H2O</speciesArray>
-           <state>
-             <temperature units="K">300.0</temperature>
-             <pressure units="Pa">101325.0</pressure>
-           </state>
-           <thermo model="PureLiquidWater"/>
-           <kinetics model="none"/>
-       </phase>
-   @endverbatim
-   * 
-   *  Note the model "PureLiquidWater" indicates the usage of the WaterSSTP object.
-   *  
-   * @ingroup thermoprops
-   *
-   */
-  class WaterSSTP : public SingleSpeciesTP {
+namespace Cantera
+{
 
-  public:
+class WaterPropsIAPWS;
+class WaterProps;
+//!  Class for single-component water. This is designed to cover just the
+//!  liquid part of water.
+/*!
+ *  The reference is W. Wagner, A. Prub, "The IAPWS Formulation 1995 for the Themodynamic
+ *  Properties of Ordinary Water Substance for General and Scientific Use,"
+ *  J. Phys. Chem. Ref. Dat, 31, 387, 2002.
+ *
+ * <HR>
+ * <H2> Specification of Species Standard %State Properties </H2>
+ * <HR>
+ *
+ *   The offsets used in the steam tables are different than NIST's.
+ *   They assume u_liq(TP) = 0.0, s_liq(TP) = 0.0, where TP is the
+ *   triple point conditions:
+ *
+ *      -  u(273.16, rho)    = 0.0
+ *      -  s(273.16, rho)    = 0.0
+ *      -  psat(273.16)      = 611.655 Pascal
+ *      -  rho(273.16, psat) = 999.793 kg m-3
+ *
+ *   These "steam table" assumptions are used by the WaterPropsIAPWS class.
+ *   Therefore, offsets must be calculated to make the thermodynamic
+ *   properties calculated within this class to be consistent with
+ *   thermo properties within Cantera.
+ *
+ *   The thermodynamic base state for water is set to the NIST basis here
+ *   by specifying constants, #EW_Offset and #SW_Offset, one for energy
+ *   quantities and one for entropy quantities. The offsets are
+ *   specified so that the following properties hold:
+ *
+ *   - Delta_Hfo_idealgas(298.15) = -241.826 kJ/gmol
+ *   - So_idealgas(298.15, 1bar)  =  188.835  J/gmolK
+ *
+ *         ref ->  (http://webbook.nist.gov)
+ *
+ *   The "o" here refers to a hypothetical ideal gas state. The way
+ *   we achieve this in practice is to evaluate at a very low pressure
+ *   and then use the theoretical ideal gas results to scale up to
+ *   higher pressures:
+ *
+ *   Ho(1bar) = H(P0)
+ *
+ *   So(1bar) = S(P0) + RT ln(1bar/P0)
+ *
+ * <HR>
+ * <H2> %Application within %Kinetics Managers </H2>
+ * <HR>
+ *
+ *   This is unimplemented.
+ *
+ * <HR>
+ * <H2> Instantiation of the Class </H2>
+ * <HR>
+ *
+ * The constructor for this phase is NOT located in the default ThermoFactory
+ * for %Cantera. However, a new %WaterSSTP object may be created by
+ * the following code snippets, combined with an XML file given in the
+ * XML example section.
+ *
+ * @code
+ *      WaterSSTP *w = new WaterSSTP("waterSSTPphase.xml","");
+ * @endcode
+ *
+ * or
+ *
+ * @code
+ *    char iFile[80], file_ID[80];
+ *    strcpy(iFile, "waterSSTPphase.xml");
+ *    sprintf(file_ID,"%s#water", iFile);
+ *    XML_Node *xm = get_XML_NameID("phase", file_ID, 0);
+ *    WaterSSTP *w = new WaterSSTP(*xm);
+ * @endcode
+ *
+ * or by the following call to importPhase():
+ *
+ * @code
+ *    char iFile[80], file_ID[80];
+ *    strcpy(iFile, "waterSSTPphase.xml");
+ *    sprintf(file_ID,"%s#water", iFile);
+ *    XML_Node *xm = get_XML_NameID("phase", file_ID, 0);
+ *    WaterSSTP water;
+ *    importPhase(*xm, &water);
+ * @endcode
+ *
+ * <HR>
+ * <H2> XML Example </H2>
+ * <HR>
+ *
+ *   An example of an XML Element named phase setting up a WaterSSTP object with
+ *   id "water"   is given below.
+ *
+ * @verbatim
+    <!-- phase water     -->
+    <phase dim="3" id="water">
+         <elementArray datasrc="elements.xml">O  H </elementArray>
+         <speciesArray datasrc="#species_data">H2O</speciesArray>
+         <state>
+           <temperature units="K">300.0</temperature>
+           <pressure units="Pa">101325.0</pressure>
+         </state>
+         <thermo model="PureLiquidWater"/>
+         <kinetics model="none"/>
+     </phase>
+ @endverbatim
+ *
+ *  Note the model "PureLiquidWater" indicates the usage of the WaterSSTP object.
+ *
+ * @ingroup thermoprops
+ *
+ */
+class WaterSSTP : public SingleSpeciesTP
+{
+
+public:
 
     //! Base constructor
-    WaterSSTP(); 
+    WaterSSTP();
 
     //! Copy constructor
-    WaterSSTP(const WaterSSTP &);
+    WaterSSTP(const WaterSSTP&);
 
     //! Assignment operator
     WaterSSTP& operator=(const WaterSSTP&);
@@ -155,21 +157,23 @@ namespace Cantera {
      */
     WaterSSTP(XML_Node& phaseRef, std::string id = "");
 
-    //! Destructor 
+    //! Destructor
     virtual ~WaterSSTP();
 
     //! Duplicator from a ThermoPhase object
-    ThermoPhase *duplMyselfAsThermoPhase() const;
-        
-    /**
-     *   
-     * @name  Utilities  
-     * @{
-     */
-    virtual int eosType() const { return -1; }
+    ThermoPhase* duplMyselfAsThermoPhase() const;
 
     /**
-     * @} 
+     *
+     * @name  Utilities
+     * @{
+     */
+    virtual int eosType() const {
+        return -1;
+    }
+
+    /**
+     * @}
      * @name  Molar Thermodynamic Properties of the Solution --------------
      * @{
      */
@@ -204,7 +208,7 @@ namespace Cantera {
      * \f]
      */
     virtual doublereal thermalExpansionCoeff() const;
- 
+
     //! Return the derivative of the volumetric thermal expansion coefficient. Units: 1/K2.
     /*!
      * The thermal expansion coefficient is defined as
@@ -213,9 +217,9 @@ namespace Cantera {
      * \f]
      */
     virtual doublereal dthermalExpansionCoeffdT() const;
-    
+
     /**
-     * @} 
+     * @}
      * @name Potential Energy
      * @{
      */
@@ -236,21 +240,21 @@ namespace Cantera {
     //          in the Solution --
     //@{
 
-    
+
     //!  Get the gibbs function for the species
     //!  standard states at the current T and P of the solution.
     /*!
-     * @param gss Vector of length m_kk, which on return 
-     *           will contain the 
-     *           standard state gibbs function for species <I>k</I>. 
+     * @param gss Vector of length m_kk, which on return
+     *           will contain the
+     *           standard state gibbs function for species <I>k</I>.
      */
     virtual void getStandardChemPotentials(doublereal* gss) const;
 
     //!Get the nondimensional gibbs function for the species
     //! standard states at the current T and P of the solution.
     /*!
-     * @param grt Vector of length m_kk, which on return 
-     *           will contain the nondimensional 
+     * @param grt Vector of length m_kk, which on return
+     *           will contain the nondimensional
      *           standard state gibbs function for species <I>k</I>
      */
     virtual void getGibbs_RT(doublereal* grt) const;
@@ -260,28 +264,28 @@ namespace Cantera {
     /*!
      *
      * @param hrt Vector of length m_kk, which on return
-     *            will contain the nondimensional 
+     *            will contain the nondimensional
      *            standard state enthalpy of species <I>k</I>
      */
     void getEnthalpy_RT(doublereal* hrt) const;
 
-    
+
     //! Get the nondimensional Entropies for the species
     //! standard states at the current T and P of the solution.
     /*!
-     * @param sr Vector of length m_kk, which on return 
-     *           will contain the nondimensional 
-     *           standard state entropy for species<I>k</I> 
+     * @param sr Vector of length m_kk, which on return
+     *           will contain the nondimensional
+     *           standard state entropy for species<I>k</I>
      */
     void getEntropy_R(doublereal* sr) const;
-    
+
     //!   Get the nondimensional heat capacity at constant pressure
     //!   function for the species standard states at the current T and P of the solution.
     /*!
      *
      * @param cpr Vector of length m_kk, which on return
-     *           will contain the nondimensional 
-     *           constant pressure heat capacity for species <I>k</I> 
+     *           will contain the nondimensional
+     *           constant pressure heat capacity for species <I>k</I>
      */
     virtual void getCp_R(doublereal* cpr) const;
 
@@ -293,7 +297,7 @@ namespace Cantera {
      * @param urt  Output vector of standard state nondimensional internal energies.
      *             Length: m_kk.
      */
-    virtual void getIntEnergy_RT(doublereal *urt) const;
+    virtual void getIntEnergy_RT(doublereal* urt) const;
 
     //@}
     //! @name Thermodynamic Values for the Species Reference State
@@ -312,17 +316,17 @@ namespace Cantera {
      * @param hrt     Output vector containing the nondimensional reference state enthalpies
      *                Length: m_kk.
      */
-    virtual void getEnthalpy_RT_ref(doublereal *hrt) const;
+    virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
 
-   /*!
-     *  Returns the vector of nondimensional
-     *  enthalpies of the reference state at the current temperature
-     *  of the solution and the reference pressure for the species.
-     *
-     * @param grt     Output vector containing the nondimensional reference state
-     *                Gibbs Free energies.  Length: m_kk.
-     */
-    virtual void getGibbs_RT_ref(doublereal *grt) const;
+    /*!
+      *  Returns the vector of nondimensional
+      *  enthalpies of the reference state at the current temperature
+      *  of the solution and the reference pressure for the species.
+      *
+      * @param grt     Output vector containing the nondimensional reference state
+      *                Gibbs Free energies.  Length: m_kk.
+      */
+    virtual void getGibbs_RT_ref(doublereal* grt) const;
 
 
     /*!
@@ -334,7 +338,7 @@ namespace Cantera {
      * @param g       Output vector containing the  reference state
      *                Gibbs Free energies.  Length: m_kk. Units: J/kmol.
      */
-    virtual void  getGibbs_ref(doublereal *g) const;
+    virtual void  getGibbs_ref(doublereal* g) const;
 
     /*!
      *  Returns the vector of nondimensional
@@ -344,7 +348,7 @@ namespace Cantera {
      * @param er      Output vector containing the nondimensional reference state
      *                entropies.  Length: m_kk.
        */
-    virtual void getEntropy_R_ref(doublereal *er) const;
+    virtual void getEntropy_R_ref(doublereal* er) const;
 
     /*!
      *  Returns the vector of nondimensional
@@ -356,7 +360,7 @@ namespace Cantera {
      *               heat capacities at constant pressure for the species.
      *               Length: m_kk
      */
-    virtual void getCp_R_ref(doublereal *cprt) const;
+    virtual void getCp_R_ref(doublereal* cprt) const;
 
     //!  Get the molar volumes of the species reference states at the current
     //!  <I>T</I> and <I>P_ref</I> of the solution.
@@ -366,28 +370,28 @@ namespace Cantera {
      * @param vol     Output vector containing the standard state volumes.
      *                Length: m_kk.
      */
-    virtual void getStandardVolumes_ref(doublereal *vol) const;
+    virtual void getStandardVolumes_ref(doublereal* vol) const;
 
-    /// critical temperature 
+    /// critical temperature
     virtual doublereal critTemperature() const;
- 
+
     /// critical pressure
     virtual doublereal critPressure() const;
-        
+
     /// critical density
     virtual doublereal critDensity() const;
-        
+
     /// saturation temperature
     //virtual doublereal satTemperature(doublereal p) const;
-        
-    
+
+
 
     /// saturation pressure
     /*!
      * @param t Temperature (kelvin)
      */
     virtual doublereal satPressure(doublereal t) const;
-    
+
     //! Return the fraction of vapor at the current conditions
     /*!
      * Below Tcrit, this routine will always return 0, by definition
@@ -413,8 +417,8 @@ namespace Cantera {
      * @param dens value of the density in kg m-3
      */
     virtual void setDensity(const doublereal dens);
-    
- 
+
+
     //! Initialization of a pure water phase using an
     //! xml file.
     /*!
@@ -429,7 +433,7 @@ namespace Cantera {
      */
     void constructPhaseFile(std::string inputFile, std::string id);
 
-   
+
     //! Initialization of a pure water phase using an  xml file.
     /*!
      * This calls importPhase() to do the work.
@@ -452,8 +456,8 @@ namespace Cantera {
      *   and their reference state thermodynamic information
      *   have already been read at this point.
      *   For example, we do not need to call this function for
-     *   ideal gas equations of state. This function is called from importPhase() 
-     *   after the elements and the species are initialized with 
+     *   ideal gas equations of state. This function is called from importPhase()
+     *   after the elements and the species are initialized with
      *   default ideal solution level data.
      *
      *   The default implementation in ThermoPhase calls the
@@ -471,7 +475,7 @@ namespace Cantera {
      *             the species in the phase.
      * @param id   ID of the phase. If nonnull, a check is done
      *             to see if phaseNode is pointing to the phase
-     *             with the correct id. 
+     *             with the correct id.
      */
     virtual void initThermoXML(XML_Node& phaseNode, std::string id);
 
@@ -503,24 +507,24 @@ namespace Cantera {
      * any parameters that are specific to that particular phase
      * model. Note, this method is called before the phase is
      * initialzed with elements and/or species.
-     *   
+     *
      * @param eosdata An XML_Node object corresponding to
      *                the "thermo" entry for this phase in the input file.
      */
     virtual void setParametersFromXML(const XML_Node& eosdata);
 
     //! Get a pointer to a changeable WaterPropsIAPWS object
-    WaterPropsIAPWS *getWater() {
-      return m_sub;
+    WaterPropsIAPWS* getWater() {
+        return m_sub;
     }
 
     //! Get a pointer to a changeable WaterPropsIAPWS object
-    WaterProps *getWaterProps() {
-      return m_waterProps;
+    WaterProps* getWaterProps() {
+        return m_waterProps;
     }
 
 
- protected:
+protected:
 
     /**
      * @internal
@@ -529,10 +533,10 @@ namespace Cantera {
      */
     void _updateThermo() const;
 
-  private:
+private:
     //! Pointer to the WaterPropsIAPWS that calculates the real properties
     //! of water.
-    mutable WaterPropsIAPWS *m_sub;
+    mutable WaterPropsIAPWS* m_sub;
 
     //! Pointer to the WaterProps object
     /*!
@@ -542,7 +546,7 @@ namespace Cantera {
      * This object owns m_waterProps, and the WaterPropsIAPWS object used by
      * WaterProps is m_sub, which is defined above.
      */
-    WaterProps *m_waterProps;
+    WaterProps* m_waterProps;
 
     //! Molecular weight of Water -> Cantera assumption
     doublereal m_mw;
@@ -565,13 +569,13 @@ namespace Cantera {
     bool m_ready;
 
     /**
-     *  Since this phase represents a liquid phase, it's an error to 
+     *  Since this phase represents a liquid phase, it's an error to
      *  return a gas-phase answer. However, if the below is true, then
      *  a gas-phase answer is allowed. This is used to check the thermodynamic
      *  consistency with ideal-gas thermo functions for example.
      */
     bool m_allowGasPhase;
-  };
+};
 
 }
 

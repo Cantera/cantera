@@ -17,13 +17,14 @@
 #include "Reaction.h"
 
 
-namespace ckr {
-    std::string newTask(std::string msg);
-    bool writeFalloff(int type, const vector_fp& c, std::ostream& log);
-    bool writeRateCoeff(const RateCoeff& k, std::ostream& log);
-    void printReactionEquation(std::ostream& f, const Reaction& r);
-    void writeSpeciesData(std::ostream& log, const Species& spec);
-    std::string reactionEquation(const Reaction& r);
+namespace ckr
+{
+std::string newTask(std::string msg);
+bool writeFalloff(int type, const vector_fp& c, std::ostream& log);
+bool writeRateCoeff(const RateCoeff& k, std::ostream& log);
+void printReactionEquation(std::ostream& f, const Reaction& r);
+void writeSpeciesData(std::ostream& log, const Species& spec);
+std::string reactionEquation(const Reaction& r);
 }
 
 #endif

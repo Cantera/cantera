@@ -7,22 +7,24 @@
 using namespace std;
 
 
-namespace Cantera {
-    void writelog(const std::string& s);
+namespace Cantera
+{
+void writelog(const std::string& s);
 }
 using namespace Cantera;
 
-void onedimmethods( int nlhs, mxArray *plhs[],
-    int nrhs, const mxArray *prhs[] ) {
+void onedimmethods(int nlhs, mxArray* plhs[],
+                   int nrhs, const mxArray* prhs[])
+{
     double vv;
-    int job = getInt(prhs[2]); 
+    int job = getInt(prhs[2]);
     size_t n, m;
-    double *dom_ids, *h;
+    double* dom_ids, *h;
     int indx;
-    char *nm;
+    char* nm;
 
     int dom;
-    dom = getInt(prhs[1]);    
+    dom = getInt(prhs[1]);
 
     int idom, icomp, localPoint;
     if (job < 10) {
@@ -72,22 +74,23 @@ void onedimmethods( int nlhs, mxArray *plhs[],
             reactingsurf_setkineticsmgr(indx, getInt(prhs[3]));
             break;
 
-        // construct a new Sim1D instance
+            // construct a new Sim1D instance
         case 8:
-	  //writelog("case 8\n");
+            //writelog("case 8\n");
             checkNArgs(5, nrhs);
             nd = getInt(prhs[3]);
             dom_ids = mxGetPr(prhs[4]);
             m = mxGetM(prhs[4]);
             n = mxGetN(prhs[4]);
             sz = (m == 1) ? n : m;
-            if (sz != nd)
+            if (sz != nd) {
                 mexErrMsgTxt("wrong size for domain array");
+            }
 
             ptrs = new int[sz];
             //writelog("allocated ptrs\n");
             for (size_t k = 0; k < sz; k++) {
-              //  writelog("k = ...\n");
+                //  writelog("k = ...\n");
                 ptrs[k] = int(dom_ids[k]);
             }
             //writelog("calling sim1D_new\n");
@@ -110,7 +113,9 @@ void onedimmethods( int nlhs, mxArray *plhs[],
         plhs[0] = mxCreateNumericMatrix(1,1,mxDOUBLE_CLASS,mxREAL);
         h = mxGetPr(plhs[0]);
         *h = double(indx);
-        if (indx < 0) reportError();
+        if (indx < 0) {
+            reportError();
+        }
         return;
     }
 
@@ -122,42 +127,56 @@ void onedimmethods( int nlhs, mxArray *plhs[],
         int k;
 
         switch (job) {
-            
+
         case 10:
             checkNArgs(3, nrhs);
-            vv = domain_del(dom); break;
+            vv = domain_del(dom);
+            break;
         case 11:
             checkNArgs(3, nrhs);
-            vv = (double) domain_nComponents(dom); break;
+            vv = (double) domain_nComponents(dom);
+            break;
         case 12:
             checkNArgs(3, nrhs);
-            vv = domain_type(dom); break;
+            vv = domain_type(dom);
+            break;
         case 13:
             checkNArgs(3, nrhs);
             vv = (double) domain_index(dom);
-            if (vv >= 0.0) vv += 1.0; break;
+            if (vv >= 0.0) {
+                vv += 1.0;
+            }
+            break;
         case 14:
             checkNArgs(3, nrhs);
-            vv = (double) domain_nPoints(dom); break;
+            vv = (double) domain_nPoints(dom);
+            break;
         case 15:
             checkNArgs(3, nrhs);
-            vv = bdry_temperature(dom); break;
+            vv = bdry_temperature(dom);
+            break;
         case 16:
             checkNArgs(4, nrhs);
             k = getInt(prhs[3]);
-            vv = bdry_massFraction(dom, k); break;
+            vv = bdry_massFraction(dom, k);
+            break;
         case 17:
             checkNArgs(3, nrhs);
-            vv = bdry_mdot(dom); break;
+            vv = bdry_mdot(dom);
+            break;
         case 18:
             checkNArgs(4, nrhs);
             nm = getString(prhs[3]);
             vv = (double) domain_componentIndex(dom, nm) ;
-            if (vv >= 0.0) vv += 1.0; break;
+            if (vv >= 0.0) {
+                vv += 1.0;
+            }
+            break;
         case 19:
             checkNArgs(4, nrhs);
             localPoint = getInt(prhs[3]) - 1;
-            vv = domain_grid(dom, localPoint); break;
+            vv = domain_grid(dom, localPoint);
+            break;
         case 30:
             checkNArgs(6, nrhs);
             idom = getInt(prhs[3]) - 1;
@@ -176,9 +195,11 @@ void onedimmethods( int nlhs, mxArray *plhs[],
             mexErrMsgTxt("unknown job");
         }
         plhs[0] = mxCreateNumericMatrix(1,1,mxDOUBLE_CLASS,mxREAL);
-        double *h = mxGetPr(plhs[0]);
+        double* h = mxGetPr(plhs[0]);
         *h = vv;
-        if ((job != 30) && (vv == -1.0)) reportError();
+        if ((job != 30) && (vv == -1.0)) {
+            reportError();
+        }
         return;
     }
 
@@ -199,8 +220,7 @@ void onedimmethods( int nlhs, mxArray *plhs[],
         if (iok >= 0) {
             plhs[0] = mxCreateString(output_buf);
             return;
-        }
-        else {
+        } else {
             mexErrMsgTxt("error or unknown method.");
             return;
         }
@@ -211,14 +231,14 @@ void onedimmethods( int nlhs, mxArray *plhs[],
 
     else {
         int iok = -1;
-        double lower, upper, rtol, atol, *grid, *pos, *values, 
-            mdot, t, p, val, *temp, ratio, slope, curve, tstep, *dts, 
-            rdt, prune;
+        double lower, upper, rtol, atol, *grid, *pos, *values,
+               mdot, t, p, val, *temp, ratio, slope, curve, tstep, *dts,
+               rdt, prune;
         size_t npts, np, nv;
         int comp, localPoint, idom,
             loglevel, refine_grid, n, flag, itime, ns, *nsteps, icount,
             onoff, ss_age, ts_age;
-        char *xstr, *fname, *id, *desc, *name;
+        char* xstr, *fname, *id, *desc, *name;
         switch (job) {
         case 51:
             checkNArgs(6, nrhs);
@@ -255,8 +275,8 @@ void onedimmethods( int nlhs, mxArray *plhs[],
             t = getDouble(prhs[3]);
             iok = bdry_setTemperature(dom, t);
             break;
-        case 62:        
-            checkNArgs(4, nrhs);    
+        case 62:
+            checkNArgs(4, nrhs);
             xstr = getString(prhs[3]);
             iok = bdry_setMoleFractions(dom, xstr);
             break;
@@ -333,8 +353,8 @@ void onedimmethods( int nlhs, mxArray *plhs[],
             slope = getDouble(prhs[5]);
             curve = getDouble(prhs[6]);
             prune = getDouble(prhs[7]);
-            iok = sim1D_setRefineCriteria(dom, idom, 
-                ratio, slope, curve, prune);
+            iok = sim1D_setRefineCriteria(dom, idom,
+                                          ratio, slope, curve, prune);
             break;
         case 107:
             iok = 0;
@@ -352,11 +372,13 @@ void onedimmethods( int nlhs, mxArray *plhs[],
             checkNArgs(4, nrhs);
             name = getString(prhs[3]);
             iok = sim1D_domainIndex(dom, name);
-            if (iok >= 0) iok++;
+            if (iok >= 0) {
+                iok++;
+            }
             break;
         case 110:
             checkNArgs(3, nrhs);
-            iok = sim1D_del(dom); 
+            iok = sim1D_del(dom);
             break;
         case 111:
             iok = 0;
@@ -380,7 +402,7 @@ void onedimmethods( int nlhs, mxArray *plhs[],
             checkNArgs(5, nrhs);
             rdt = getDouble(prhs[3]);
             icount = getInt(prhs[4]);
-            iok = sim1D_eval(dom, rdt, icount); 
+            iok = sim1D_eval(dom, rdt, icount);
             break;
         case 114:
             checkNArgs(5, nrhs);
@@ -403,9 +425,11 @@ void onedimmethods( int nlhs, mxArray *plhs[],
             mexPrintf(" job = %d ",job);
             mexErrMsgTxt("unknown parameter");
         }
-        if (iok < 0) reportError();
+        if (iok < 0) {
+            reportError();
+        }
         plhs[0] = mxCreateNumericMatrix(1,1,mxDOUBLE_CLASS,mxREAL);
-        double *h = mxGetPr(plhs[0]);
+        double* h = mxGetPr(plhs[0]);
         *h = double(iok);
         return;
     }

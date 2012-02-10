@@ -9,25 +9,31 @@
 #include <iostream>
 #include "ReactorBase.h"
 
-namespace Cantera {
+namespace Cantera
+{
 
-    class Reservoir : public ReactorBase {
+class Reservoir : public ReactorBase
+{
 
-    public:    
+public:
 
-        Reservoir() {}
-        virtual ~Reservoir() {}
-        virtual int type() const { return ReservoirType; }
-        virtual void initialize(doublereal t0 = 0.0) {}
-        virtual void advance(doublereal time) {m_time = time;}
+    Reservoir() {}
+    virtual ~Reservoir() {}
+    virtual int type() const {
+        return ReservoirType;
+    }
+    virtual void initialize(doublereal t0 = 0.0) {}
+    virtual void advance(doublereal time) {
+        m_time = time;
+    }
 
-        void insert(Cantera::ThermoPhase& contents) {
-                    setThermoMgr(contents);
-        }
+    void insert(Cantera::ThermoPhase& contents) {
+        setThermoMgr(contents);
+    }
 
-    private:
+private:
 
-    };
+};
 
 }
 

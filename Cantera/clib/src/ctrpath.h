@@ -6,7 +6,7 @@
 
 #include "clib_defs.h"
 
-extern "C" {  
+extern "C" {
 
     EEXXTT int DLL_CPREFIX rdiag_new();
     EEXXTT int DLL_CPREFIX rdiag_del(int i);
@@ -33,8 +33,8 @@ extern "C" {
     EEXXTT int DLL_CPREFIX rbuild_new();
     EEXXTT int DLL_CPREFIX rbuild_del(int i);
     EEXXTT int DLL_CPREFIX rbuild_init(int i, char* logfile, int k);
-    EEXXTT int DLL_CPREFIX rbuild_build(int i, int k, char* el, char* dotfile, 
-        int idiag, int iquiet);
+    EEXXTT int DLL_CPREFIX rbuild_build(int i, int k, char* el, char* dotfile,
+                                        int idiag, int iquiet);
 }
 
 #endif

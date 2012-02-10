@@ -3,12 +3,12 @@
  *       Contains const definitions for types of calculation managers
  *       that are responsible for calculating the species standard
  *       state thermodynamic managers and
- *       reference-state thermodynamics managers 
- *        (see 
+ *       reference-state thermodynamics managers
+ *        (see
  *        class \link Cantera::VPSSMgr VPSSMgr\endlink).
  */
 /*
- * Copywrite (2005) Sandia Corporation. Under the terms of 
+ * Copywrite (2005) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -36,13 +36,15 @@
 
 //! Variable pressure SS calculate for phases consisting of completing
 //! general representations
-#define VPSSMGR_GENERAL  22 
+#define VPSSMGR_GENERAL  22
 
-namespace Cantera {
+namespace Cantera
+{
 
-  //! Error for unknown thermo parameterization
-  class UnknownVPSSMgr : public CanteraError {
-  public:
+//! Error for unknown thermo parameterization
+class UnknownVPSSMgr : public CanteraError
+{
+public:
     //! Constructor
     /*!
      * @param func        String function id
@@ -51,15 +53,15 @@ namespace Cantera {
      * @todo is this used
      */
     UnknownVPSSMgr(std::string func, int thermotype) {
-      CanteraError(func, std::string("\n ### ERROR ### \n") +
-		   "Unknown species thermo parameterization ("
-		   + int2str(thermotype) + ")\n\n");
+        CanteraError(func, std::string("\n ### ERROR ### \n") +
+                     "Unknown species thermo parameterization ("
+                     + int2str(thermotype) + ")\n\n");
     }
-  };
+};
 
 
 }
 
 #endif
 
-                
+

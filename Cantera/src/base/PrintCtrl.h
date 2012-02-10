@@ -15,61 +15,63 @@
 
 #include <iostream>
 
-namespace Cantera {
+namespace Cantera
+{
 
-  //! This class provides some printing and cropping utilities 
-  /*!
-   *  The class is used to provide some formatting options for
-   *  printing out real numbers to files and to standard output.
-   *  Specifically, it can make sure that a max and min field
-   *  width is honored when conducting IO of numbers and strings.
-   *  Basically, its the spot to house all wrappers around 
-   *  commonly used printing facilities.
-   *
-   *  It can also handle cropping of numbers below a certain
-   *  decade level. This is useful for IO for testing purposes.
-   *  For example, if you don't care about anything below
-   *  1.0E-20, you can set up the IO so that it won't print out
-   *  any digits below 1.0E-20, even digits that are in numbers
-   *  greater than 1.0E-20. In other words the number
-   *
-   *  1.12345E-19
-   *
-   *  whould be cropped to the value
-   *
-   *  1.1000E-19
-   *
-   *  The class wraps aroud a single std::ostream class. It's
-   *  cropping functions are also available as a "double"
-   *  conversion utility.
-   *
-   *
-   * @ingroup globalUtilFuncs
-   *
-   */
-  class PrintCtrl {
-  public:
+//! This class provides some printing and cropping utilities
+/*!
+ *  The class is used to provide some formatting options for
+ *  printing out real numbers to files and to standard output.
+ *  Specifically, it can make sure that a max and min field
+ *  width is honored when conducting IO of numbers and strings.
+ *  Basically, its the spot to house all wrappers around
+ *  commonly used printing facilities.
+ *
+ *  It can also handle cropping of numbers below a certain
+ *  decade level. This is useful for IO for testing purposes.
+ *  For example, if you don't care about anything below
+ *  1.0E-20, you can set up the IO so that it won't print out
+ *  any digits below 1.0E-20, even digits that are in numbers
+ *  greater than 1.0E-20. In other words the number
+ *
+ *  1.12345E-19
+ *
+ *  whould be cropped to the value
+ *
+ *  1.1000E-19
+ *
+ *  The class wraps aroud a single std::ostream class. It's
+ *  cropping functions are also available as a "double"
+ *  conversion utility.
+ *
+ *
+ * @ingroup globalUtilFuncs
+ *
+ */
+class PrintCtrl
+{
+public:
 
     //! enum for cropping control
-    enum CROP_TYPE { 
-      //! Turn off cropping always
-      CT_OFF=0,
-      //! Turn off cropping, unless the global toggle is turned on
-      CT_OFF_GLOBALOBEY,
-      //! Turn on cropping unless the global toggle is turned off
-      CT_ON_GLOBALOBEY,
-      //! Turn on cropping always
-      CT_ON
+    enum CROP_TYPE {
+        //! Turn off cropping always
+        CT_OFF=0,
+        //! Turn off cropping, unless the global toggle is turned on
+        CT_OFF_GLOBALOBEY,
+        //! Turn on cropping unless the global toggle is turned off
+        CT_ON_GLOBALOBEY,
+        //! Turn on cropping always
+        CT_ON
     };
 
     //! enum for global cropping control
     enum CROP_TYPE_GLOBAL {
-      //! no preference for global cropping
-      GCT_NOPREF = 0,
-      //! global toggle for turning on cropping
-      GCT_CROP,
-      //! global toggle for turning off cropping
-      GCT_NOCROP
+        //! no preference for global cropping
+        GCT_NOPREF = 0,
+        //! global toggle for turning on cropping
+        GCT_CROP,
+        //! global toggle for turning off cropping
+        GCT_NOCROP
     };
 
     //! static enum for turning on and off cropping
@@ -84,12 +86,12 @@ namespace Cantera {
      *
      * @param coutProxy  This is a reference to the ostream
      *                   to use for all IO from ths object.
-     * @param Ndec value of Ndec. Defaults to -1000, i.e., 
+     * @param Ndec value of Ndec. Defaults to -1000, i.e.,
      *             no decade cropping
      * @param ctlocal    The default is to turn on cropping all the time.
      */
-    PrintCtrl(std::ostream &coutProxy = std::cout, int Ndec = -1000,
-	      CROP_TYPE ctlocal = CT_ON);
+    PrintCtrl(std::ostream& coutProxy = std::cout, int Ndec = -1000,
+              CROP_TYPE ctlocal = CT_ON);
 
     //! Print a double using scientific notation
     /*!
@@ -101,16 +103,16 @@ namespace Cantera {
      *
      *  @param d  double to be printed
      *  @param sigDigits Number of significant digits
-     *          (-1 = default, means to use the default 
+     *          (-1 = default, means to use the default
      *           number for the object, which is initially
      *           set to 13.
      *  @param wMin Minimum number of spaces to print out
      *  @param wMax Maximum number of spaces to print out
      */
-    void pr_de(const double d, int sigDigits = -1, 
-	       const int wMin = -1, const int wMax = -1);
+    void pr_de(const double d, int sigDigits = -1,
+               const int wMin = -1, const int wMax = -1);
 
-    //! Print a double using scientific notation cropping 
+    //! Print a double using scientific notation cropping
     //! decade values
     /*!
      * Prints a double using scientific notation in a
@@ -122,14 +124,14 @@ namespace Cantera {
      *
      *  @param d  double to be printed
      *  @param sigDigits Number of significant digits
-     *          (-1 = default, means to use the default 
+     *          (-1 = default, means to use the default
      *           number for the object, which is initially
      *           set to 13.
      *  @param wMin Minimum number of spaces to print out
      *  @param wMax Maximum number of spaces to print out
      */
-    void pr_de_c10(const double d, int sigDigits = -1, 
-		   const int wMin = -1, const int wMax = -1);
+    void pr_de_c10(const double d, int sigDigits = -1,
+                   const int wMin = -1, const int wMax = -1);
 
     //! Crop a double at a certain number of significant digits
     /*!
@@ -159,7 +161,7 @@ namespace Cantera {
      *    d = 1.1305E-15;
      *    nDecades = -16;
      *   This routine will return 1.1E-15
-     *   
+     *
      *    d = 8.0E-17
      *    nDecades = -16
      *   This routine will return 0.0
@@ -174,7 +176,7 @@ namespace Cantera {
      */
     int setNdec(int nDecades);
 
- 
+
     //! Set the default significant digits to output
     /*!
      * @param sigDigits new value of the sig digits
@@ -182,7 +184,7 @@ namespace Cantera {
      * @return returns the old value of Ndec
      */
     int setSigDigits(int sigDigits);
-    
+
     //! Set the default minimum width
     /*!
      * @param wMin Default minimum width
@@ -204,25 +206,25 @@ namespace Cantera {
      * @param ctlocal Local enum value for the cropping type
      */
     void setCropCntrl(CROP_TYPE  ctlocal);
-    
 
-  private:
+
+private:
 
     //! private function to figure out cropping logic
     /*!
      *  @return Returns the decision as to whether to crop or not
      */
     bool doCrop() const;
- 
+
     //! This is the ostream to send all output from the object
     /*!
      * It defaults to cout
      */
-    std::ostream &m_cout;
+    std::ostream& m_cout;
 
     //! Default decade level to use for decade cropping
     /*!
-     * This is initially set to -1000, which means that 
+     * This is initially set to -1000, which means that
      * no cropping will be carried out
      */
     int m_Ndec;
@@ -231,7 +233,7 @@ namespace Cantera {
     /*!
      * This actually is one less than the number of significant digits.
      *
-     * Initially set to 12 
+     * Initially set to 12
      */
     int m_precision;
 
@@ -249,7 +251,7 @@ namespace Cantera {
 
     //! Local Cropping Control
     CROP_TYPE m_cropCntrl;
-  };
+};
 }
 
 #endif

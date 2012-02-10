@@ -1,7 +1,7 @@
 /**
  * @file FixedChemPotSSTP.h
  * Header file for the FixedChemPotSSTP class, which represents a fixed-composition
- * incompressible substance with a constant chemical potential (see \ref thermoprops and 
+ * incompressible substance with a constant chemical potential (see \ref thermoprops and
  * class \link Cantera::FixedChemPotSSTP FixedChemPotSSTP\endlink)
  */
 
@@ -23,152 +23,154 @@
 #include "SingleSpeciesTP.h"
 #include "SpeciesThermo.h"
 
-namespace Cantera {
+namespace Cantera
+{
 
-  //!  Class %FixedChemPotSSTP represents a stoichiometric (fixed
-  //!   composition)  incompressible substance.
-  /*!
-   * This class internally changes the independent degree of freedom from
-   * density to pressure. This is necessary because the phase is
-   * incompressible. It uses a zero volume approximation.
-   *
-   *
-   * <b> Specification of Species Standard %State Properties </b>
-   *
-   *  This class inherits from SingleSpeciesTP.
-   *  It uses a single value for the chemical potential which is assumed to be constant
-   *  with respect to temperature and pressure.
-   *
-   *  The reference state thermodynamics is inherited from SingleSpeciesTP. However,
-   *  it's only used to set the initial chemical potential to the value
-   *  of the chemical potential at the starting conditions. Thereafter,
-   *  it is ignored.
-   * 
-   *  For a zero volume material, the internal energy and the enthalpy are
-   *  equal to the chemical potential. The entropy, the heat capacity, and the molar volume
-   *  are equal to zero.
-   *   
-   *
-   * <b> Specification of Solution Thermodynamic Properties </b>
-   *
-   *  All solution properties are obtained from the standard state
-   *  species functions, since there is only one species in the phase.
-   *
-   * <b> Application within %Kinetics Managers </b>
-   *
-   * The standard concentration is equal to 1.0. This means that the
-   * kinetics operator works on an (activities basis). Since this
-   * is a stoichiometric substance, this means that the concentration
-   * of this phase drops out of kinetics expressions. 
-   *
-   * An example of a reaction using this is a sticking coefficient
-   * reaction of a substance in an ideal gas phase on a surface with a bulk phase
-   * species in this phase. In this case, the rate of progress for this 
-   * reaction, \f$ R_s \f$, may be expressed via the following equation:
-   *   \f[
-   *    R_s = k_s C_{gas}
-   *   \f]
-   * where the units for \f$ R_s \f$ are kmol m-2 s-1. \f$ C_{gas} \f$ has units
-   * of kmol m-3. Therefore, the kinetic rate constant,  \f$ k_s \f$, has
-   * units of m s-1. Nowhere does the concentration of the bulk phase
-   * appear in the rate constant expression, since it's a stoichiometric
-   * phase, and the activity is always equal to 1.0.
-   *
-   * <b> Instanteation of the Class </b>
-   *
-   * This phase may be instanteated by calling the default ThermoFactory routine
-   * for %Cantera. This new %FixedChemPotSSTP object must then have a standalone xml file 
-   * description an example of which is given below.
-   *
-   *
-   *
-   * It may also be created by the following code snippets. The code
-   * includes the special member function setChemicalPotential( chempot), which
-   * sets the chemical potential to a specific value in J / kmol.
-   *
-   * @code
-   *    sprintf(file_ID,"%s#Li(Fixed)", iFile);
-   *    XML_Node *xm = get_XML_NameID("phase", file_ID, 0);
-   *    FixedChemPotSSTP *LiFixed = new FixedChemPotSSTP(*xm);
-        // Set the chemical potential to -2.3E7 J/kmol
-   *    LiFixed->setChemicalPotential(-2.3E7.)
-   * @endcode
-   *
-   * or by the following call to importPhase():
-   *
-   * @code
-   *    sprintf(file_ID,"%s#NaCl(S)", iFile);
-   *    XML_Node *xm = get_XML_NameID("phase", file_ID, 0);
-   *    FixedChemPotSSTP solid;
-   *    importPhase(*xm, &solid);
-   * @endcode
-   *
-   * The phase may also be created by a special constructor so that element 
-   * potentials may be set. The constructor takes the name of the element and
-   * the value of the element chemical potential. An example is given below.
-   *
-   * @code
-   *     FixedChemPotSSTP *LiFixed = new FixedChemPotSSTP("Li", -2.3E7); 
-   * @endcode
-   *
-   *   <b> XML Example </b>
-   *
-   * The phase model name for this is called FixedChemPot. It must be supplied
-   * as the model attribute of the thermo XML element entry.
-   *
-   * 
-   * @verbatim
-   <?xml version="1.0"?>
-   <ctml>
-   <validate reactions="yes" species="yes"/>
+//!  Class %FixedChemPotSSTP represents a stoichiometric (fixed
+//!   composition)  incompressible substance.
+/*!
+ * This class internally changes the independent degree of freedom from
+ * density to pressure. This is necessary because the phase is
+ * incompressible. It uses a zero volume approximation.
+ *
+ *
+ * <b> Specification of Species Standard %State Properties </b>
+ *
+ *  This class inherits from SingleSpeciesTP.
+ *  It uses a single value for the chemical potential which is assumed to be constant
+ *  with respect to temperature and pressure.
+ *
+ *  The reference state thermodynamics is inherited from SingleSpeciesTP. However,
+ *  it's only used to set the initial chemical potential to the value
+ *  of the chemical potential at the starting conditions. Thereafter,
+ *  it is ignored.
+ *
+ *  For a zero volume material, the internal energy and the enthalpy are
+ *  equal to the chemical potential. The entropy, the heat capacity, and the molar volume
+ *  are equal to zero.
+ *
+ *
+ * <b> Specification of Solution Thermodynamic Properties </b>
+ *
+ *  All solution properties are obtained from the standard state
+ *  species functions, since there is only one species in the phase.
+ *
+ * <b> Application within %Kinetics Managers </b>
+ *
+ * The standard concentration is equal to 1.0. This means that the
+ * kinetics operator works on an (activities basis). Since this
+ * is a stoichiometric substance, this means that the concentration
+ * of this phase drops out of kinetics expressions.
+ *
+ * An example of a reaction using this is a sticking coefficient
+ * reaction of a substance in an ideal gas phase on a surface with a bulk phase
+ * species in this phase. In this case, the rate of progress for this
+ * reaction, \f$ R_s \f$, may be expressed via the following equation:
+ *   \f[
+ *    R_s = k_s C_{gas}
+ *   \f]
+ * where the units for \f$ R_s \f$ are kmol m-2 s-1. \f$ C_{gas} \f$ has units
+ * of kmol m-3. Therefore, the kinetic rate constant,  \f$ k_s \f$, has
+ * units of m s-1. Nowhere does the concentration of the bulk phase
+ * appear in the rate constant expression, since it's a stoichiometric
+ * phase, and the activity is always equal to 1.0.
+ *
+ * <b> Instanteation of the Class </b>
+ *
+ * This phase may be instanteated by calling the default ThermoFactory routine
+ * for %Cantera. This new %FixedChemPotSSTP object must then have a standalone xml file
+ * description an example of which is given below.
+ *
+ *
+ *
+ * It may also be created by the following code snippets. The code
+ * includes the special member function setChemicalPotential( chempot), which
+ * sets the chemical potential to a specific value in J / kmol.
+ *
+ * @code
+ *    sprintf(file_ID,"%s#Li(Fixed)", iFile);
+ *    XML_Node *xm = get_XML_NameID("phase", file_ID, 0);
+ *    FixedChemPotSSTP *LiFixed = new FixedChemPotSSTP(*xm);
+      // Set the chemical potential to -2.3E7 J/kmol
+ *    LiFixed->setChemicalPotential(-2.3E7.)
+ * @endcode
+ *
+ * or by the following call to importPhase():
+ *
+ * @code
+ *    sprintf(file_ID,"%s#NaCl(S)", iFile);
+ *    XML_Node *xm = get_XML_NameID("phase", file_ID, 0);
+ *    FixedChemPotSSTP solid;
+ *    importPhase(*xm, &solid);
+ * @endcode
+ *
+ * The phase may also be created by a special constructor so that element
+ * potentials may be set. The constructor takes the name of the element and
+ * the value of the element chemical potential. An example is given below.
+ *
+ * @code
+ *     FixedChemPotSSTP *LiFixed = new FixedChemPotSSTP("Li", -2.3E7);
+ * @endcode
+ *
+ *   <b> XML Example </b>
+ *
+ * The phase model name for this is called FixedChemPot. It must be supplied
+ * as the model attribute of the thermo XML element entry.
+ *
+ *
+ * @verbatim
+ <?xml version="1.0"?>
+ <ctml>
+ <validate reactions="yes" species="yes"/>
 
-   <!-- phase NaCl(S)    -->
-   <phase dim="3" id="LiFixed">
-     <elementArray datasrc="elements.xml">
-       Li
-     </elementArray>
-     <speciesArray datasrc="#species_Li(Fixed)">
-       LiFixed
-     </speciesArray>
-     <thermo model="FixedChemPot">
-       <chemicalPotential units="J/kmol"> -2.3E7  </chemicalPotential>
-     </thermo>
-     <transport model="None"/>
-     <kinetics model="none"/>
-   </phase>
-    
-   <!-- species definitions     -->
-   <speciesData id="species_Li(Fixed)">
-     
-     <species name="LiFixed">
-       <atomArray> Li:1 </atomArray>
-       <thermo>
-         <Shomate Pref="1 bar" Tmax="1075.0" Tmin="250.0">
-           <floatArray size="7">
-             50.72389, 6.672267, -2.517167,
-             10.15934, -0.200675, -427.2115,
-            130.3973
-          </floatArray>
-        </Shomate>
-      </thermo>
-    </species>
-  </speciesData>  
-  </ctml>
-  @endverbatim
-  *
-  *  The model attribute, "FixedChemPot", on the thermo element 
-  *  identifies the phase as being a FixedChemPotSSTP object.
-  *
-  * @ingroup thermoprops
-  */
-  class FixedChemPotSSTP : public SingleSpeciesTP {
+ <!-- phase NaCl(S)    -->
+ <phase dim="3" id="LiFixed">
+   <elementArray datasrc="elements.xml">
+     Li
+   </elementArray>
+   <speciesArray datasrc="#species_Li(Fixed)">
+     LiFixed
+   </speciesArray>
+   <thermo model="FixedChemPot">
+     <chemicalPotential units="J/kmol"> -2.3E7  </chemicalPotential>
+   </thermo>
+   <transport model="None"/>
+   <kinetics model="none"/>
+ </phase>
 
-  public:
-    
+ <!-- species definitions     -->
+ <speciesData id="species_Li(Fixed)">
+
+   <species name="LiFixed">
+     <atomArray> Li:1 </atomArray>
+     <thermo>
+       <Shomate Pref="1 bar" Tmax="1075.0" Tmin="250.0">
+         <floatArray size="7">
+           50.72389, 6.672267, -2.517167,
+           10.15934, -0.200675, -427.2115,
+          130.3973
+        </floatArray>
+      </Shomate>
+    </thermo>
+  </species>
+</speciesData>
+</ctml>
+@endverbatim
+*
+*  The model attribute, "FixedChemPot", on the thermo element
+*  identifies the phase as being a FixedChemPotSSTP object.
+*
+* @ingroup thermoprops
+*/
+class FixedChemPotSSTP : public SingleSpeciesTP
+{
+
+public:
+
     //! Default constructor for the FixedChemPotSSTP class
     FixedChemPotSSTP();
 
-    //! Construct and initialize a FixedChemPotSSTP ThermoPhase object 
+    //! Construct and initialize a FixedChemPotSSTP ThermoPhase object
     //! directly from an asci input file
     /*!
      * @param infile name of the input file
@@ -177,11 +179,11 @@ namespace Cantera {
      */
     FixedChemPotSSTP(std::string infile, std::string id = "");
 
-    //! Construct and initialize a FixedChemPotSSTP ThermoPhase object 
+    //! Construct and initialize a FixedChemPotSSTP ThermoPhase object
     //! directly from an XML database
     /*!
      *  @param phaseRef XML node pointing to a FixedChemPotSSTP description
-     *  @param id       Id of the phase. 
+     *  @param id       Id of the phase.
      */
     FixedChemPotSSTP(XML_Node& phaseRef, std::string id = "");
 
@@ -189,7 +191,7 @@ namespace Cantera {
     /*!
      * @param right Object to be copied
      */
-    FixedChemPotSSTP(const FixedChemPotSSTP  &right);
+    FixedChemPotSSTP(const FixedChemPotSSTP&  right);
 
     //! Special constructor for the FixecChemPotSSTP class setting an element chemical
     //! potential directly
@@ -202,13 +204,13 @@ namespace Cantera {
      *  @param chemPot  Value of the chemical potential of that element (J/kmol)
      */
     FixedChemPotSSTP(std::string Ename, doublereal chemPot);
-    
+
     //! Assignment operator
     /*!
      * @param right Object to be copied
      */
-    FixedChemPotSSTP & operator=(const FixedChemPotSSTP & right);
-   
+    FixedChemPotSSTP& operator=(const FixedChemPotSSTP& right);
+
     //! Destructor for the routine (virtual)
     virtual ~FixedChemPotSSTP();
 
@@ -220,11 +222,11 @@ namespace Cantera {
      *
      * @return It returns a ThermoPhase pointer.
      */
-    ThermoPhase *duplMyselfAsThermoPhase() const;
-   
+    ThermoPhase* duplMyselfAsThermoPhase() const;
+
     /**
-     *   
-     * @name  Utilities  
+     *
+     * @name  Utilities
      * @{
      */
 
@@ -253,14 +255,14 @@ namespace Cantera {
      * For an incompressible substance, the density is independent
      * of pressure. This method simply returns the storred
      * pressure value.
-     */ 
+     */
     virtual doublereal pressure() const;
 
     //! Set the pressure at constant temperature. Units: Pa.
     /*!
-     * For an incompressible substance, the density is 
-     * independent of pressure. Therefore, this method only 
-     * stores the specified pressure value. It does not 
+     * For an incompressible substance, the density is
+     * independent of pressure. Therefore, this method only
+     * stores the specified pressure value. It does not
      * modify the density.
      *
      * @param p Pressure (units - Pa)
@@ -274,10 +276,10 @@ namespace Cantera {
      * \kappa_T = -\frac{1}{v}\left(\frac{\partial v}{\partial P}\right)_T
      * \f]
      */
-    virtual doublereal isothermalCompressibility() const; 
+    virtual doublereal isothermalCompressibility() const;
 
     //! Return the volumetric thermal expansion coefficient. Units: 1/K.
-    /*!      
+    /*!
      * The thermal expansion coefficient is defined as
      * \f[
      * \beta = \frac{1}{v}\left(\frac{\partial v}{\partial T}\right)_P
@@ -307,7 +309,7 @@ namespace Cantera {
      *  For a stoichiomeetric substance, there is
      *  only one species, and the generalized concentration is 1.0.
      *
-     * @param c Output array of generalized concentrations. The 
+     * @param c Output array of generalized concentrations. The
      *           units depend upon the implementation of the
      *           reaction rate expressions within the phase.
      */
@@ -316,14 +318,14 @@ namespace Cantera {
     //! Return the standard concentration for the kth species
     /*!
      * The standard concentration \f$ C^0_k \f$ used to normalize
-     * the activity (i.e., generalized) concentration. 
+     * the activity (i.e., generalized) concentration.
      * This phase assumes that the kinetics operator works on an
      * dimensionless basis. Thus, the standard concentration is
      * equal to 1.0.
      *
      * @param k Optional parameter indicating the species. The default
      *         is to assume this refers to species 0.
-     * @return 
+     * @return
      *   Returns The standard Concentration as 1.0
      */
     virtual doublereal standardConcentration(int k=0) const;
@@ -337,7 +339,7 @@ namespace Cantera {
     //! Get the array of chemical potentials at unit activity for the species
     //! at their standard states at the current <I>T</I> and <I>P</I> of the solution.
     /*!
-     * For a stoichiometric substance, there is no activity term in 
+     * For a stoichiometric substance, there is no activity term in
      * the chemical potential expression, and therefore the
      * standard chemical potential and the chemical potential
      * are both equal to the molar Gibbs function.
@@ -346,7 +348,7 @@ namespace Cantera {
      * \f$. The values are evaluated at the current
      * temperature and pressure of the solution
      *
-     * @param mu0     Output vector of chemical potentials. 
+     * @param mu0     Output vector of chemical potentials.
      *                Length: m_kk.
      */
     virtual void getStandardChemPotentials(doublereal* mu0) const;
@@ -363,7 +365,7 @@ namespace Cantera {
      *
      * The base %ThermoPhase class assigns thedefault quantities
      * of (kmol/m3) for all species.
-     * Inherited classes are responsible for overriding the default 
+     * Inherited classes are responsible for overriding the default
      * values if necessary.
      *
      * @param uA Output vector containing the units
@@ -378,8 +380,8 @@ namespace Cantera {
      * @param sizeUA output int containing the size of the vector.
      *        Currently, this is equal to 6.
      */
-    virtual void getUnitsStandardConc(doublereal *uA, int k = 0,
-				      int sizeUA = 6) const;
+    virtual void getUnitsStandardConc(doublereal* uA, int k = 0,
+                                      int sizeUA = 6) const;
 
     //@}
     /// @name  Partial Molar Properties of the Solution
@@ -400,7 +402,7 @@ namespace Cantera {
     void getPartialMolarVolumes(doublereal* vbar) const;
 
     //@}
-    /// @name  Properties of the Standard State of the Species in the Solution 
+    /// @name  Properties of the Standard State of the Species in the Solution
     //@{
 
     //! Get the nondimensional Enthalpy functions for the species
@@ -435,7 +437,7 @@ namespace Cantera {
      *              Length: m_kk.
      */
     virtual void getCp_R(doublereal* cpr) const;
-    
+
     //!  Returns the vector of nondimensional Internal Energies  of the standard
     //!  state species at the current <I>T</I> and <I>P</I> of the solution
     /*!
@@ -446,8 +448,8 @@ namespace Cantera {
      * term \f$ P_{ref} \hat v\f$ is subtracted from the specified reference molar
      * enthalpy to compute the standard state molar internal energy.
      *
-     * @param urt  output vector of nondimensional standard state 
-     *             internal energies of the species. Length: m_kk. 
+     * @param urt  output vector of nondimensional standard state
+     *             internal energies of the species. Length: m_kk.
      */
     virtual void getIntEnergy_RT(doublereal* urt) const;
 
@@ -475,7 +477,7 @@ namespace Cantera {
      *               internal energies of the species.
      *               Length: m_kk
      */
-    virtual void getIntEnergy_RT_ref(doublereal *urt) const;
+    virtual void getIntEnergy_RT_ref(doublereal* urt) const;
 
     //@}
     /// @name Thermodynamic Values for the Species Reference State
@@ -492,7 +494,7 @@ namespace Cantera {
      * @param hrt     Output vector containing the nondimensional reference state enthalpies
      *                Length: m_kk.
      */
-    virtual void getEnthalpy_RT_ref(doublereal *hrt) const;
+    virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
 
     /*!
      *  Returns the vector of nondimensional
@@ -502,10 +504,10 @@ namespace Cantera {
      *  This function is resolved in this class.  It is assumed that the m_spthermo species thermo
      *  pointer is populated and yields the reference state.
      *
-     * @param grt     Output vector containing the nondimensional reference state 
+     * @param grt     Output vector containing the nondimensional reference state
      *                Gibbs Free energies.  Length: m_kk.
      */
-    virtual void getGibbs_RT_ref(doublereal *grt) const;
+    virtual void getGibbs_RT_ref(doublereal* grt) const;
 
 
     /*!
@@ -517,10 +519,10 @@ namespace Cantera {
      *  This function is resolved in this class.  It is assumed that the m_spthermo species thermo
      *  pointer is populated and yields the reference state.
      *
-     * @param g       Output vector containing the  reference state 
+     * @param g       Output vector containing the  reference state
      *                Gibbs Free energies.  Length: m_kk. Units: J/kmol.
      */
-    virtual void  getGibbs_ref(doublereal *g) const;
+    virtual void  getGibbs_ref(doublereal* g) const;
 
     /*!
      *  Returns the vector of nondimensional
@@ -530,10 +532,10 @@ namespace Cantera {
      *  This function is resolved in this class.  It is assumed that the m_spthermo species thermo
      *  pointer is populated and yields the reference state.
      *
-     * @param er      Output vector containing the nondimensional reference state 
+     * @param er      Output vector containing the nondimensional reference state
      *                entropies.  Length: m_kk.
        */
-    virtual void getEntropy_R_ref(doublereal *er) const;
+    virtual void getEntropy_R_ref(doublereal* er) const;
 
     /*!
      *  Returns the vector of nondimensional
@@ -548,7 +550,7 @@ namespace Cantera {
      *               heat capacities at constant pressure for the species.
      *               Length: m_kk
      */
-    virtual void getCp_R_ref(doublereal *cprt) const;
+    virtual void getCp_R_ref(doublereal* cprt) const;
 
 
 
@@ -577,19 +579,19 @@ namespace Cantera {
      */
     virtual void initThermo();
 
-    
+
     virtual void initThermoXML(XML_Node& phaseNode, std::string id);
 
     //! Set the equation of state parameters
     /*!
      * @internal
-     *  The number and meaning of these depends on the subclass. 
+     *  The number and meaning of these depends on the subclass.
      *
      * @param n number of parameters
      * @param c array of \a n coefficients
      *        c[0] = density of phase [ kg/m3 ]
      */
-    virtual void setParameters(int n, doublereal * const c);
+    virtual void setParameters(int n, doublereal* const c);
 
     //! Get the equation of state parameters in a vector
     /*!
@@ -602,7 +604,7 @@ namespace Cantera {
      *       -  n = 1
      *       -  c[0] = density of phase [ kg/m3 ]
      */
-    virtual void getParameters(int &n, doublereal * const c) const;
+    virtual void getParameters(int& n, doublereal* const c) const;
 
     //! Set equation of state parameter values from XML entries.
     /*!
@@ -614,18 +616,18 @@ namespace Cantera {
      * initialzed with elements and/or species.
      *
      *  For this phase, the chemical potential is set
-     *   
+     *
      * @param eosdata An XML_Node object corresponding to
      *                the "thermo" entry for this phase in the input file.
      *
      * eosdata points to the thermo block, and looks like this:
-     * 
+     *
      *   @verbatim
          <phase id="stoichsolid" >
            <thermo model="FixedChemPot">
                <chemicalPotential units="J/kmol"> -2.7E7 </chemicalPotential>
            </thermo>
-	 </phase>    @endverbatim
+     </phase>    @endverbatim
      *
      */
     virtual void setParametersFromXML(const XML_Node& eosdata);
@@ -637,7 +639,7 @@ namespace Cantera {
      */
     void setChemicalPotential(doublereal chemPot);
 
-  protected:
+protected:
 
     //!  Value of the chemical potential of the bath species
     /*!
@@ -645,9 +647,9 @@ namespace Cantera {
      */
     doublereal chemPot_;
 
-  };
- 
+};
+
 
 }
-        
+
 #endif

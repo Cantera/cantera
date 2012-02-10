@@ -1,7 +1,8 @@
 
 #include "vcs_Exception.h"
 
-namespace VCSnonideal {
+namespace VCSnonideal
+{
 
 vcsError::vcsError(std::string proc, std::string msg, int errorCode) :
     m_proc(proc),

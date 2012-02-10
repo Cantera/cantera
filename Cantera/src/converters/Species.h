@@ -16,14 +16,16 @@
 //#include "Cantera.h"
 
 
-namespace ckr {
+namespace ckr
+{
 
-  /**
-   *   Holds species data read in from entries in the THERMO section of
-   *   a chemkin or nasa9 fortran formatted input file. 
-   */
-  class Species {
-  public:
+/**
+ *   Holds species data read in from entries in the THERMO section of
+ *   a chemkin or nasa9 fortran formatted input file.
+ */
+class Species
+{
+public:
 
     /// Construct an empty Species object
     Species();
@@ -37,7 +39,7 @@ namespace ckr {
     /// Assignment operator
     Species& operator=(const Species& s);
 
-    /// Test for equality based on name only. 
+    /// Test for equality based on name only.
     bool operator==(const Species& s) const;
 
     bool operator!=(const Species& s) const;
@@ -49,7 +51,7 @@ namespace ckr {
     /*!
      *  0 This is a 2 region NASA polynomial representation
      *
-     *  1 This is a multiple temperature region NASA9 polynomial 
+     *  1 This is a multiple temperature region NASA9 polynomial
      *    representation.
      */
     int thermoFormatType;
@@ -77,7 +79,7 @@ namespace ckr {
     //! Number of temperature regions
     int nTempRegions;
 
-    std::vector<vector_fp *> region_coeffs;
+    std::vector<vector_fp*> region_coeffs;
     vector_fp minTemps;
     vector_fp maxTemps;
 
@@ -89,16 +91,16 @@ namespace ckr {
 
     std::string m_commentsRef;
 
-  private:
+private:
     //! Delete private data
     void delR();
-  };
+};
 
-  //! Shorthand for a list of Species
-  typedef std::vector<Species> speciesList;
+//! Shorthand for a list of Species
+typedef std::vector<Species> speciesList;
 
-  //! A map from species names to Species objects
-  typedef std::map<std::string, Species> speciesTable;
+//! A map from species names to Species objects
+typedef std::map<std::string, Species> speciesTable;
 }
 
 #endif

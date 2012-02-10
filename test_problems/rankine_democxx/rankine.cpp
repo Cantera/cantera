@@ -17,7 +17,8 @@ map<string,double> x;
 vector<string> states;
 
 template<class F>
-void saveState(F& fluid, string name) {
+void saveState(F& fluid, string name)
+{
     h[name] = fluid.enthalpy_mass();
     s[name] = fluid.entropy_mass();
     T[name] = fluid.temperature();
@@ -26,18 +27,20 @@ void saveState(F& fluid, string name) {
     states.push_back(name);
 }
 
-void printStates() {
+void printStates()
+{
     string name;
     int n;
     int nStates = states.size();
     for (n = 0; n < nStates; n++) {
         name = states[n];
-        printf(" %5s %10.6g %10.6g  %12.6g %12.6g %5.2g \n", 
-            name.c_str(), T[name], P[name], h[name], s[name], x[name]);
+        printf(" %5s %10.6g %10.6g  %12.6g %12.6g %5.2g \n",
+               name.c_str(), T[name], P[name], h[name], s[name], x[name]);
     }
 }
 
-int openRankine(int np, void* p) {
+int openRankine(int np, void* p)
+{
 
     double etap = 0.6;     // pump isentropic efficiency
     double etat = 0.8;     // turbine isentropic efficiency
@@ -77,14 +80,14 @@ int openRankine(int np, void* p) {
     return 0;
 }
 
-int main() {
+int main()
+{
 #ifdef _MSC_VER
     _set_output_format(_TWO_DIGIT_EXPONENT);
 #endif
     try {
         return openRankine(0, 0);
-    }
-    catch (CanteraError) {
+    } catch (CanteraError) {
         showErrors(cout);
         return -1;
     }

@@ -10,7 +10,7 @@
 #include <string>
 #include <algorithm>
 
-using namespace std; 
+using namespace std;
 using namespace Cantera;
 using namespace Cantera_CXX;
 
@@ -18,7 +18,8 @@ using namespace Cantera_CXX;
 // The program is put into a function so that error handling code can
 // be conveniently put around the whole thing. See main() below.
 
-void demoprog() {
+void demoprog()
+{
 
     printf("\n\n**** Testing modifying NASA polynomial coefficients ****\n\n");
 
@@ -50,12 +51,18 @@ void demoprog() {
 
         // print the unmodified NASA coefficients
         printf("\n      ");
-        for (j = 1; j < 8; j++) printf("     A%d     ", j);
+        for (j = 1; j < 8; j++) {
+            printf("     A%d     ", j);
+        }
         printf("\n  low:");
-        for (j = 1; j < 8; j++) printf(" %10.4E ", c[j]);
+        for (j = 1; j < 8; j++) {
+            printf(" %10.4E ", c[j]);
+        }
 
         printf("\n high:");
-        for (j = 8; j < 15; j++) printf(" %10.4E ", c[j]);
+        for (j = 8; j < 15; j++) {
+            printf(" %10.4E ", c[j]);
+        }
         printf("\n      ");
 
         // modify coefficient A6 of the low-temperature polynomial
@@ -70,24 +77,30 @@ void demoprog() {
         // print the modified NASA coefficients
         printf("\n\n %s (modified):", gas.speciesName(n).c_str());
         printf("\n      ");
-        for (j = 1; j < 8; j++) printf("     A%d     ", j);
+        for (j = 1; j < 8; j++) {
+            printf("     A%d     ", j);
+        }
         printf("\n  low:");
-        for (j = 1; j < 8; j++) printf(" %10.4E ", c[j]);
+        for (j = 1; j < 8; j++) {
+            printf(" %10.4E ", c[j]);
+        }
 
         printf("\n high:");
-        for (j = 8; j < 15; j++) printf(" %10.4E ", c[j]);
+        for (j = 8; j < 15; j++) {
+            printf(" %10.4E ", c[j]);
+        }
         printf("\n      ");
     }
 }
-     
 
- 
-int main() {
+
+
+int main()
+{
 
     try {
         demoprog();
-    }
-    catch (CanteraError) {
+    } catch (CanteraError) {
         showErrors(cout);
     }
 }

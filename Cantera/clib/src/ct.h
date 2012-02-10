@@ -30,9 +30,9 @@ extern "C" {
     EEXXTT int DLL_CPREFIX phase_getMoleFractions(int n, size_t lenx, double* x);
     EEXXTT int DLL_CPREFIX phase_getMassFractions(int n, size_t leny, double* y);
     EEXXTT int DLL_CPREFIX phase_setMoleFractions(int n, size_t lenx,
-        double* x, int norm);
+            double* x, int norm);
     EEXXTT int DLL_CPREFIX phase_setMassFractions(int n, size_t leny,
-        double* y, int norm);
+            double* y, int norm);
     EEXXTT int DLL_CPREFIX phase_setMoleFractionsByName(int n, char* x);
     EEXXTT int DLL_CPREFIX phase_setMassFractionsByName(int n, char* y);
     EEXXTT int DLL_CPREFIX phase_getAtomicWeights(int n, size_t lenm, double* atw);
@@ -43,19 +43,19 @@ extern "C" {
     EEXXTT int DLL_CPREFIX phase_setName(int n, const char* nm);
     EEXXTT size_t DLL_CPREFIX phase_elementIndex(int n, char* nm);
     EEXXTT size_t DLL_CPREFIX phase_speciesIndex(int n, char* nm);
-    EEXXTT int DLL_CPREFIX phase_report(int nth, 
-        int ibuf, char* buf, int show_thermo);
+    EEXXTT int DLL_CPREFIX phase_report(int nth,
+                                        int ibuf, char* buf, int show_thermo);
     EEXXTT int DLL_EXPORT write_phase(int nth, int show_thermo);
 
     EEXXTT double DLL_CPREFIX phase_nAtoms(int n, size_t k, size_t m);
 
     EEXXTT int DLL_CPREFIX phase_addElement(int n, char* name, double weight);
     EEXXTT int DLL_CPREFIX phase_addSpecies(int n, char* name, int phase,
-        int ncomp, double* comp, int thermoType, int ncoeffs, 
-        double* coeffs, double minTemp, double maxTemp, double refPressure,
-        double charge, double weight);
+                                            int ncomp, double* comp, int thermoType, int ncoeffs,
+                                            double* coeffs, double minTemp, double maxTemp, double refPressure,
+                                            double charge, double weight);
 
-  //int DLL_CPREFIX newThermo(char* model);
+    //int DLL_CPREFIX newThermo(char* model);
     EEXXTT size_t DLL_CPREFIX newThermoFromXML(int mxml);
     EEXXTT int DLL_CPREFIX th_thermoIndex(char* id);
     EEXXTT int DLL_CPREFIX th_phase(int n);
@@ -92,8 +92,8 @@ extern "C" {
     EEXXTT int DLL_CPREFIX th_set_SV(int n, double* vals);
     EEXXTT int DLL_CPREFIX th_set_SP(int n, double* vals);
     EEXXTT int DLL_CPREFIX th_equil(int n, char* XY, int solver,
-        double rtol, int maxsteps, int maxiter, int loglevel);
-    
+                                    double rtol, int maxsteps, int maxiter, int loglevel);
+
     EEXXTT double DLL_CPREFIX th_critTemperature(int n);
     EEXXTT double DLL_CPREFIX th_critPressure(int n);
     EEXXTT double DLL_CPREFIX th_critDensity(int n);
@@ -104,10 +104,10 @@ extern "C" {
     EEXXTT int DLL_CPREFIX th_setState_Tsat(int n, double t, double x);
 
     EEXXTT size_t DLL_CPREFIX newKineticsFromXML(int mxml, int iphase,
-        int neighbor1=-1, int neighbor2=-1, int neighbor3=-1,
-        int neighbor4=-1);
-    EEXXTT int DLL_CPREFIX installRxnArrays(int pxml, int ikin, 
-        char* default_phase);
+            int neighbor1=-1, int neighbor2=-1, int neighbor3=-1,
+            int neighbor4=-1);
+    EEXXTT int DLL_CPREFIX installRxnArrays(int pxml, int ikin,
+                                            char* default_phase);
     EEXXTT size_t DLL_CPREFIX kin_nSpecies(int n);
     EEXXTT size_t DLL_CPREFIX kin_nReactions(int n);
     EEXXTT size_t DLL_CPREFIX kin_nPhases(int n);
@@ -141,7 +141,7 @@ extern "C" {
     EEXXTT size_t DLL_CPREFIX kin_phase(int n, size_t i);
 
     EEXXTT size_t DLL_CPREFIX newTransport(char* model,
-        int th, int loglevel);
+                                           int th, int loglevel);
     EEXXTT double DLL_CPREFIX trans_viscosity(int n);
     EEXXTT double DLL_CPREFIX trans_thermalConductivity(int n);
     EEXXTT int DLL_CPREFIX trans_getThermalDiffCoeffs(int n, int ldt, double* dt);
@@ -150,15 +150,15 @@ extern "C" {
     EEXXTT int DLL_CPREFIX trans_getMultiDiffCoeffs(int n, int ld, double* d);
     EEXXTT int DLL_CPREFIX trans_setParameters(int n, int type, int k, double* d);
     EEXXTT int DLL_CPREFIX trans_getMolarFluxes(int n, const double* state1,
-        const double* state2, double delta, double* fluxes);
+            const double* state2, double delta, double* fluxes);
     EEXXTT int DLL_CPREFIX trans_getMassFluxes(int n, const double* state1,
-        const double* state2, double delta, double* fluxes);
+            const double* state2, double delta, double* fluxes);
 
     EEXXTT int DLL_CPREFIX import_phase(int nth, int nxml, char* id);
-    EEXXTT int DLL_CPREFIX import_kinetics(int nxml, char* id, 
-        int nphases, int* ith, int nkin);
-    EEXXTT int DLL_CPREFIX import_from_file(int nth, int nkin, char* fname, char* db, 
-        char* id, int validate, double threshold);
+    EEXXTT int DLL_CPREFIX import_kinetics(int nxml, char* id,
+                                           int nphases, int* ith, int nkin);
+    EEXXTT int DLL_CPREFIX import_from_file(int nth, int nkin, char* fname, char* db,
+                                            char* id, int validate, double threshold);
     EEXXTT int DLL_CPREFIX getCanteraError(int buflen, char* buf);
     EEXXTT int DLL_CPREFIX showCanteraErrors();
     EEXXTT int DLL_CPREFIX write_HTML_log(char* file);
@@ -170,11 +170,11 @@ extern "C" {
     EEXXTT int DLL_CPREFIX delKinetics(int n);
     EEXXTT int DLL_CPREFIX delTransport(int n);
     EEXXTT int DLL_CPREFIX readlog(int n, char* buf);
-    EEXXTT int DLL_CPREFIX buildSolutionFromXML(char* src, int ixml, char* id, 
-        int ith, int ikin);
+    EEXXTT int DLL_CPREFIX buildSolutionFromXML(char* src, int ixml, char* id,
+            int ith, int ikin);
 
     EEXXTT int DLL_CPREFIX ck_to_cti(char* in_file, char* db_file,
-        char* tr_file, char* id_tag, int debug, int validate);
+                                     char* tr_file, char* id_tag, int debug, int validate);
     EEXXTT int DLL_CPREFIX writelogfile(char* logfile);
 }
 

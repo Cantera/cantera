@@ -1,14 +1,15 @@
 #include <cantera/Cantera.h>
 
-void demoprog() {
- // Calls Cantera
+void demoprog()
+{
+    // Calls Cantera
 }
 
-int main() {
+int main()
+{
     try {
         demoprog();
-    }
-    catch (CanteraError) {
+    } catch (CanteraError) {
         showErrors(cout);
     }
 }

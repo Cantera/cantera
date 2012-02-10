@@ -25,78 +25,80 @@
 #include <vector>
 
 
-namespace Cantera {
+namespace Cantera
+{
 
 
 
-    //! Composition dependence type for liquid mixture transport properties
-    /*!
-     *  Types of temperature dependencies:
-     *  -   0  - Mixture calculations with this property are not allowed
-     *  -   1  - Use solvent (species 0) properties
-     *  -   2  - Properties weighted linearly by mole fractions
-     *  -   3  - Properties weighted linearly by mass fractions
-     *  -   4  - Properties weighted logarithmically by mole fractions (interaction energy weighting)
-     *  -   5  - Interactions given pairwise between each possible species (i.e. D_ij)
-     * 
-     *   \verbatim
-     *    <transport model="Liquid">
-     *       <viscosity>
-     *          <compositionDependence model="logMoleFractions">
-     *             <interaction>
-     *                <speciesA> LiCl(L) </speciesA>
-     *                <speciesB> KCl(L)  </speciesB>
-     *                <Eij units="J/kmol"> -1.0 </Eij>
-     *                <Sij units="J/kmol/K"> 1.0E-1 </Sij>
-     *     -or-       <Sij>
-     *                  <floatArray units="J/kmol/K"> 1.0E-1, 0.001 0.01 </floatArray>
-     *                </Sij>
-     *     -same form for Hij,Aij,Bij-
-     *             </interaction>
-     *          </compositionDependence>          
-     *       </viscosity>
-     *       <speciesDiffusivity>
-     *          <compositionDependence model="pairwiseInteraction">
-     *             <interaction>
-     *                <speciesA> Li+ </speciesA>
-     *                <speciesB> K+  </speciesB>
-     *                <Dij units="m2/s"> 1.5 </Dij>
-     *             </interaction>
-     *             <interaction>
-     *                <speciesA> K+  </speciesA>
-     *                <speciesB> Cl- </speciesB>
-     *                <Dij units="m2/s"> 1.0 </Dij>
-     *             </interaction>
-     *             <interaction>
-     *                <speciesA> Li+  </speciesA>
-     *                <speciesB> Cl-  </speciesB>
-     *                <Dij units="m2/s"> 1.2 </Dij>
-     *             </interaction>
-     *          </compositionDependence>
-     *       </speciesDiffusivity>
-     *       <thermalConductivity>
-     *          <compositionDependence model="massFractions"/>
-     *       </thermalConductivity>
-     *       <hydrodynamicRadius>
-     *          <compositionDependence model="none"/>
-     *       </hydrodynamicRadius>
-     *    </transport>     
-     *   \endverbatim
-     *
-     */
+//! Composition dependence type for liquid mixture transport properties
+/*!
+ *  Types of temperature dependencies:
+ *  -   0  - Mixture calculations with this property are not allowed
+ *  -   1  - Use solvent (species 0) properties
+ *  -   2  - Properties weighted linearly by mole fractions
+ *  -   3  - Properties weighted linearly by mass fractions
+ *  -   4  - Properties weighted logarithmically by mole fractions (interaction energy weighting)
+ *  -   5  - Interactions given pairwise between each possible species (i.e. D_ij)
+ *
+ *   \verbatim
+ *    <transport model="Liquid">
+ *       <viscosity>
+ *          <compositionDependence model="logMoleFractions">
+ *             <interaction>
+ *                <speciesA> LiCl(L) </speciesA>
+ *                <speciesB> KCl(L)  </speciesB>
+ *                <Eij units="J/kmol"> -1.0 </Eij>
+ *                <Sij units="J/kmol/K"> 1.0E-1 </Sij>
+ *     -or-       <Sij>
+ *                  <floatArray units="J/kmol/K"> 1.0E-1, 0.001 0.01 </floatArray>
+ *                </Sij>
+ *     -same form for Hij,Aij,Bij-
+ *             </interaction>
+ *          </compositionDependence>
+ *       </viscosity>
+ *       <speciesDiffusivity>
+ *          <compositionDependence model="pairwiseInteraction">
+ *             <interaction>
+ *                <speciesA> Li+ </speciesA>
+ *                <speciesB> K+  </speciesB>
+ *                <Dij units="m2/s"> 1.5 </Dij>
+ *             </interaction>
+ *             <interaction>
+ *                <speciesA> K+  </speciesA>
+ *                <speciesB> Cl- </speciesB>
+ *                <Dij units="m2/s"> 1.0 </Dij>
+ *             </interaction>
+ *             <interaction>
+ *                <speciesA> Li+  </speciesA>
+ *                <speciesB> Cl-  </speciesB>
+ *                <Dij units="m2/s"> 1.2 </Dij>
+ *             </interaction>
+ *          </compositionDependence>
+ *       </speciesDiffusivity>
+ *       <thermalConductivity>
+ *          <compositionDependence model="massFractions"/>
+ *       </thermalConductivity>
+ *       <hydrodynamicRadius>
+ *          <compositionDependence model="none"/>
+ *       </hydrodynamicRadius>
+ *    </transport>
+ *   \endverbatim
+ *
+ */
 
 
 
- 
-  //! Class LiquidTransportParams holds transport model parameters 
-  //!  relevant to transport in mixtures. 
-  /*!
-   * This class is used by TransportFactory to initialize transport objects.
-   */
-  class LiquidTransportParams : public TransportParams {
-    
-  public:
-    
+
+//! Class LiquidTransportParams holds transport model parameters
+//!  relevant to transport in mixtures.
+/*!
+ * This class is used by TransportFactory to initialize transport objects.
+ */
+class LiquidTransportParams : public TransportParams
+{
+
+public:
+
     //! Constructor
     LiquidTransportParams();
 
@@ -107,14 +109,14 @@ namespace Cantera {
     /*!
      * @param right  Object to be copied
      */
-    LiquidTransportParams(const LiquidTransportParams &right);
+    LiquidTransportParams(const LiquidTransportParams& right);
 
     //! Assignment operator
     /*!
      * @param right  Object to be copied
      */
-    LiquidTransportParams & operator=(const LiquidTransportParams &right);
-    
+    LiquidTransportParams& operator=(const LiquidTransportParams& right);
+
     //! Species transport parameters
     std::vector<Cantera::LiquidTransportData> LTData;
 
@@ -124,30 +126,30 @@ namespace Cantera {
     //! Object that specifes the ionic Conductivity of the mixture
     LiquidTranInteraction* ionConductivity;
 
-    //! Vector of pointer to the LiquidTranInteraction object which handles the calculation of 
+    //! Vector of pointer to the LiquidTranInteraction object which handles the calculation of
     //! each species' mobility ratios for the phase
-    /*!      
-     *   mobRat(i,j) = mu_i / mu_j  
+    /*!
+     *   mobRat(i,j) = mu_i / mu_j
      *
      *    It is returned in fortran-ordering format. ie. it is returned as mobRat[k], where
      *
      *        k = j * nsp + i
      */
-    std::vector<LiquidTranInteraction *> mobilityRatio;
+    std::vector<LiquidTranInteraction*> mobilityRatio;
 
-    //! Vector of pointer to the LiquidTranInteraction object which handles the calculation of 
+    //! Vector of pointer to the LiquidTranInteraction object which handles the calculation of
     //! each species' self diffusion coefficient for the phase
-    std::vector<LiquidTranInteraction *> selfDiffusion;
+    std::vector<LiquidTranInteraction*> selfDiffusion;
 
-    //! Pointer to the  LiquidTranInteraction object which handles the calculation of the 
+    //! Pointer to the  LiquidTranInteraction object which handles the calculation of the
     //! mixture thermal conductivity for the phase
     LiquidTranInteraction* thermalCond;
 
-    //! Pointer to the  LiquidTranInteraction object which handles the calculation of the 
+    //! Pointer to the  LiquidTranInteraction object which handles the calculation of the
     //! species diffusivity for the phase
     LiquidTranInteraction* speciesDiffusivity;
 
-    //! Pointer to the  LiquidTranInteraction object which handles the calculation of the 
+    //! Pointer to the  LiquidTranInteraction object which handles the calculation of the
     //! electrical conductivity for the phase
     LiquidTranInteraction* electCond;
 
@@ -158,7 +160,7 @@ namespace Cantera {
      *         radius for the phase
      */
     LiquidTranInteraction* hydroRadius;
-    
+
     //! Model for species interaction effects for viscosity
     //! Takes enum LiquidTranMixingModel
     LiquidTranMixingModel model_viscosity;
@@ -166,7 +168,7 @@ namespace Cantera {
     //! Model for species interaction effects for ionic conductivity
     //! Takes enum LiquidTranMixingModel
     LiquidTranMixingModel model_ionConductivity;
-    
+
     //! Model for species interaction effects for mobility ratio
     //! Takes enum LiquidTranMixingModel
     std::vector<LiquidTranMixingModel*> model_mobilityRatio;
@@ -175,43 +177,43 @@ namespace Cantera {
     //! Takes enum LiquidTranMixingModel
     std::vector<LiquidTranMixingModel*> model_selfDiffusion;
 
-    //! Interaction associated with linear weighting of 
+    //! Interaction associated with linear weighting of
     //! thermal conductivity.
     /**
-     * This is used for either LTI_MODEL_MASSFRACS 
-     * or LTI_MODEL_MOLEFRACS.  
-     * The overall formula for the mixture viscosity is 
+     * This is used for either LTI_MODEL_MASSFRACS
+     * or LTI_MODEL_MOLEFRACS.
+     * The overall formula for the mixture viscosity is
      *
-     * \f[ \eta_{mix} = \sum_i X_i \eta_i 
+     * \f[ \eta_{mix} = \sum_i X_i \eta_i
      *  + \sum_i \sum_j X_i X_j A_{i,j} \f].
      */
-    DenseMatrix  thermalCond_Aij; 
-    
+    DenseMatrix  thermalCond_Aij;
+
     //! Model for species interaction effects for mass diffusivity
     //! Takes enum LiquidTranMixingModel
     LiquidTranMixingModel model_speciesDiffusivity;
-    
-    //! Interaction associated with linear weighting of 
+
+    //! Interaction associated with linear weighting of
     //! thermal conductivity.
     /**
      * This is used for either LTI_MODEL_PAIRWISE_INTERACTION or LTI_MODEL_STEFANMAXWELL_PPN.
-     * These provide species interaction coefficients associated with 
+     * These provide species interaction coefficients associated with
      * the Stefan-Maxwell formulation.
      */
-    DenseMatrix  diff_Dij; 
-    
+    DenseMatrix  diff_Dij;
+
     //! Model for species interaction effects for hydrodynamic radius
     //! Takes enum LiquidTranMixingModel
     LiquidTranMixingModel model_hydroradius;
-    
+
     //! Interaction associated with hydrodynamic radius.
     /**
-     * Not yet implemented 
+     * Not yet implemented
      */
-    DenseMatrix  radius_Aij; 
-  };
+    DenseMatrix  radius_Aij;
+};
 
- 
+
 
 
 }

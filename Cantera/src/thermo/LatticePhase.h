@@ -20,237 +20,239 @@
 #include "SpeciesThermo.h"
 #include "utilities.h"
 
-namespace Cantera {
+namespace Cantera
+{
 
-  //!  A simple thermoydnamics model for a bulk phase,
-  //!  assuming a lattice of solid atoms
-  /*!
-   *  The bulk consists of a matrix of equivalent sites whose molar density
-   *  does not vary with temperature or pressure. The thermodynamics
-   *  obeys the ideal solution laws. The phase and the pure species phases which
-   * comprise the standard states of the species are assumed to have
-   * zero volume expansivity and zero isothermal compressibility.
-   *
-   * The density of matrix sites is given by the variable \f$ C_o \f$,
-   * which has SI units of kmol m-3.
-   *
-   *
-   * <b> Specification of Species Standard %State Properties </b>
-   *
-   *  It is assumed that the reference state thermodynamics may be
-   *  obtained by a pointer to a populated species thermodynamic property
-   *  manager class (see ThermoPhase::m_spthermo). However, how to relate pressure
-   *  changes to the reference state thermodynamics is within this class.
-   *
-   *  Pressure is defined as an independent variable in this phase. However, it has
-   *  no effect on any quantities, as the molar concentration is a constant.
-   *
-   * The standard state enthalpy function is given by the following relation,
-   * which has a weak dependence on the system pressure, \f$P\f$.
-   *
-   *       \f[
-   *   \raggedright   h^o_k(T,P) =
-   *                  h^{ref}_k(T) +  \left( \frac{P - P_{ref}}{C_o} \right)
-   *       \f]
-   *
-   * For an incompressible substance, the molar internal energy is
-   * independent of pressure. Since the thermodynamic properties
-   * are specified by giving the standard-state enthalpy, the
-   * term \f$ \frac{P_{ref}}{C_o} \f$ is subtracted from the specified reference molar
-   * enthalpy to compute the standard state molar internal energy:
-   *
-   *       \f[
-   *            u^o_k(T,P) = h^{ref}_k(T) - \frac{P_{ref}}{C_o}
-   *       \f]
-   *
-   * The standard state heat capacity, internal energy, and entropy are independent
-   * of pressure. The standard state gibbs free energy is obtained
-   * from the enthalpy and entropy functions.
-   *
-   * The standard state molar volume is independent of temperature, pressure,
-   * and species identity:
-   *
-   *       \f[
-   *            V^o_k(T,P) = \frac{1.0}{C_o}
-   *       \f]
-   *
-   *
-   * <HR>
-   * <H2> Specification of Solution Thermodynamic Properties </H2>
-   * <HR>
-   *
-   * The activity of species \f$ k \f$ defined in the phase, \f$ a_k \f$, is
-   * given by the ideal solution law:
-   *
-   *       \f[
-   *            a_k = X_k ,
-   *       \f]
-   *
-   * where \f$ X_k \f$ is the mole fraction of species <I>k</I>.
-   * The chemical potential for species <I>k</I> is equal to
-   *
-   *       \f[
-   *            \mu_k(T,P) = \mu^o_k(T, P) + R T \log(X_k)
-   *       \f]
-   *
-   * The partial molar entropy for species <I>k</I> is given by the following relation,
-   *
-   *       \f[
-   *            \tilde{s}_k(T,P) = s^o_k(T,P) - R \log(X_k) = s^{ref}_k(T) - R \log(X_k)
-   *       \f]
-   * 
-   * The partial molar enthalpy for species <I>k</I> is
-   *
-   *       \f[
-   *            \tilde{h}_k(T,P) = h^o_k(T,P) = h^{ref}_k(T) + \left( \frac{P - P_{ref}}{C_o} \right)
-   *       \f]
-   *
-   * The partial molar Internal Energy for species <I>k</I> is
-   *
-   *       \f[
-   *            \tilde{u}_k(T,P) = u^o_k(T,P) = u^{ref}_k(T)
-   *       \f]
-   *
-   * The partial molar Heat Capacity for species <I>k</I> is
-   *
-   *       \f[
-   *            \tilde{Cp}_k(T,P) = Cp^o_k(T,P) = Cp^{ref}_k(T)
-   *       \f]
-   *
-   * The partial molar volume is independent of temperature, pressure,
-   * and species identity:
-   *
-   *       \f[
-   *            \tilde{V}_k(T,P) =  V^o_k(T,P) = \frac{1.0}{C_o}
-   *       \f]
-   *
-   *  It is assumed that the reference state thermodynamics may be
-   *  obtained by a pointer to a populated species thermodynamic property
-   *  manager class (see ThermoPhase::m_spthermo). How to relate pressure
-   *  changes to the reference state thermodynamics is resolved at this level.
-   *
-   *  Pressure is defined as an independent variable in this phase. However, it only
-   *  has a weak dependence on the enthalpy, and doesn't effect the molar
-   *  concentration.
-   *
-   * <HR>
-   * <H2> %Application within %Kinetics Managers </H2>
-   * <HR>
-   * 
-   *   \f$ C^a_k\f$ are defined such that \f$ C^a_k = a_k = X_k  \f$
-   *   \f$ C^s_k \f$, the standard concentration, is
-   *   defined to be equal to one. \f$ a_k \f$ are activities used in the
-   *   thermodynamic functions.  These activity (or generalized)
-   *   concentrations are used
-   *   by kinetics manager classes to compute the forward and
-   *   reverse rates of elementary reactions.
-   *   The activity concentration,\f$  C^a_k \f$, is given by the following expression.
-   *
-   *       \f[
-   *            C^a_k = C^s_k  X_k  =  X_k
-   *       \f]
-   *
-   * The standard concentration for species <I>k</I> is identically one
-   *
-   *        \f[
-   *            C^s_k =  C^s = 1.0
-   *        \f]
-   *
-   * For example, a bulk-phase binary gas reaction between species j and k, producing
-   * a new species l would have the
-   * following equation for its rate of progress variable, \f$ R^1 \f$, which has
-   * units of  kmol m-3 s-1.
-   *
-   *   \f[
-   *    R^1 = k^1 C_j^a C_k^a =  k^1  X_j X_k
-   *   \f]
-   *
-   *  The reverse rate constant can then be obtained from the law of microscopic reversibility
-   *  and the equilibrium expression for the system.
-   *
-   *   \f[
-   *         \frac{X_j X_k}{ X_l} = K_a^{o,1} = \exp(\frac{\mu^o_l - \mu^o_j - \mu^o_k}{R T} )
-   *   \f]
-   *
-   *  \f$  K_a^{o,1} \f$ is the dimensionless form of the equilibrium constant, associated with
-   *  the pressure dependent standard states \f$ \mu^o_l(T,P) \f$ and their associated activities,
-   *  \f$ a_l \f$, repeated here:
-   *
-   *       \f[
-   *            \mu_l(T,P) = \mu^o_l(T, P) + R T \log(a_l)
-   *       \f]
-   *
-   *   The concentration equilibrium constant, \f$ K_c \f$, may be obtained by changing over
-   *   to activity concentrations. When this is done:
-   *
-   *   \f[
-   *         \frac{C^a_j C^a_k}{ C^a_l} = C^o K_a^{o,1} = K_c^1 =
-   *             \exp(\frac{\mu^{o}_l - \mu^{o}_j - \mu^{o}_k}{R T} )
-   *   \f]
-   *
-   *
-   *    %Kinetics managers will calculate the concentration equilibrium constant, \f$ K_c \f$,
-   *    using the second and third part of the above expression as a definition for the concentration
-   *    equilibrium constant.
-   *
-   * <HR>
-   * <H2> Instantiation of the Class </H2>
-   * <HR>
-   *
-   *
-   * The constructor for this phase is located in the default ThermoFactory
-   * for %Cantera. A new %LatticePhase object may be created by the following code snippet:
-   *
-   * @code
-   *    XML_Node *xc = get_XML_File("O_lattice_SiO2.xml");
-   *    XML_Node * const xs = xc->findNameID("phase", "O_lattice_SiO2");
-   *    ThermoPhase *tp = newPhase(*xs);
-   *    LatticePhase *o_lattice = dynamic_cast <LatticPhase *>(tp);
-   * @endcode
-   *
-   * or by the following constructor:
-   *
-   * @code
-   *    XML_Node *xc = get_XML_File("O_lattice_SiO2.xml");
-   *    XML_Node * const xs = xc->findNameID("phase", "O_lattice_SiO2");
-   *    LatticePhase *o_lattice = new LatticePhase(*xs);
-   * @endcode
-   *
-   *  The XML file used in this example is listed in the next section
-   *
-   * <HR>
-   * <H2> XML Example </H2>
-   * <HR>
-   *
-   *   An example of an XML Element named phase setting up a LatticePhase object named "O_lattice_SiO2"
-   *   is given below.
-   *
-   * @verbatim
-     <!--     phase O_lattice_SiO2      -->
-     <phase dim="3" id="O_lattice_SiO2">
-        <elementArray datasrc="elements.xml"> Si  H  He </elementArray>
-        <speciesArray datasrc="#species_data">
-                O_O  Vac_O
-        </speciesArray>
-        <reactionArray datasrc="#reaction_data"/>
-        <thermo model="Lattice">
-	  <site_density> 73.159 </site_density>
-	  <vacancy_species>  Vac_O </vacancy_species> 
-	</thermo>
-        <kinetics model="BulkKinetics"/>
-        <transport model="None"/>
-      </phase>
-      @endverbatim
-   *
-   *   The model attribute "Lattice" of the thermo XML element identifies the phase as
-   *   being of the type handled by the LatticePhase object.
-   *
-   * @ingroup thermoprops
-   *
-   */
-  class LatticePhase : public ThermoPhase {
+//!  A simple thermoydnamics model for a bulk phase,
+//!  assuming a lattice of solid atoms
+/*!
+ *  The bulk consists of a matrix of equivalent sites whose molar density
+ *  does not vary with temperature or pressure. The thermodynamics
+ *  obeys the ideal solution laws. The phase and the pure species phases which
+ * comprise the standard states of the species are assumed to have
+ * zero volume expansivity and zero isothermal compressibility.
+ *
+ * The density of matrix sites is given by the variable \f$ C_o \f$,
+ * which has SI units of kmol m-3.
+ *
+ *
+ * <b> Specification of Species Standard %State Properties </b>
+ *
+ *  It is assumed that the reference state thermodynamics may be
+ *  obtained by a pointer to a populated species thermodynamic property
+ *  manager class (see ThermoPhase::m_spthermo). However, how to relate pressure
+ *  changes to the reference state thermodynamics is within this class.
+ *
+ *  Pressure is defined as an independent variable in this phase. However, it has
+ *  no effect on any quantities, as the molar concentration is a constant.
+ *
+ * The standard state enthalpy function is given by the following relation,
+ * which has a weak dependence on the system pressure, \f$P\f$.
+ *
+ *       \f[
+ *   \raggedright   h^o_k(T,P) =
+ *                  h^{ref}_k(T) +  \left( \frac{P - P_{ref}}{C_o} \right)
+ *       \f]
+ *
+ * For an incompressible substance, the molar internal energy is
+ * independent of pressure. Since the thermodynamic properties
+ * are specified by giving the standard-state enthalpy, the
+ * term \f$ \frac{P_{ref}}{C_o} \f$ is subtracted from the specified reference molar
+ * enthalpy to compute the standard state molar internal energy:
+ *
+ *       \f[
+ *            u^o_k(T,P) = h^{ref}_k(T) - \frac{P_{ref}}{C_o}
+ *       \f]
+ *
+ * The standard state heat capacity, internal energy, and entropy are independent
+ * of pressure. The standard state gibbs free energy is obtained
+ * from the enthalpy and entropy functions.
+ *
+ * The standard state molar volume is independent of temperature, pressure,
+ * and species identity:
+ *
+ *       \f[
+ *            V^o_k(T,P) = \frac{1.0}{C_o}
+ *       \f]
+ *
+ *
+ * <HR>
+ * <H2> Specification of Solution Thermodynamic Properties </H2>
+ * <HR>
+ *
+ * The activity of species \f$ k \f$ defined in the phase, \f$ a_k \f$, is
+ * given by the ideal solution law:
+ *
+ *       \f[
+ *            a_k = X_k ,
+ *       \f]
+ *
+ * where \f$ X_k \f$ is the mole fraction of species <I>k</I>.
+ * The chemical potential for species <I>k</I> is equal to
+ *
+ *       \f[
+ *            \mu_k(T,P) = \mu^o_k(T, P) + R T \log(X_k)
+ *       \f]
+ *
+ * The partial molar entropy for species <I>k</I> is given by the following relation,
+ *
+ *       \f[
+ *            \tilde{s}_k(T,P) = s^o_k(T,P) - R \log(X_k) = s^{ref}_k(T) - R \log(X_k)
+ *       \f]
+ *
+ * The partial molar enthalpy for species <I>k</I> is
+ *
+ *       \f[
+ *            \tilde{h}_k(T,P) = h^o_k(T,P) = h^{ref}_k(T) + \left( \frac{P - P_{ref}}{C_o} \right)
+ *       \f]
+ *
+ * The partial molar Internal Energy for species <I>k</I> is
+ *
+ *       \f[
+ *            \tilde{u}_k(T,P) = u^o_k(T,P) = u^{ref}_k(T)
+ *       \f]
+ *
+ * The partial molar Heat Capacity for species <I>k</I> is
+ *
+ *       \f[
+ *            \tilde{Cp}_k(T,P) = Cp^o_k(T,P) = Cp^{ref}_k(T)
+ *       \f]
+ *
+ * The partial molar volume is independent of temperature, pressure,
+ * and species identity:
+ *
+ *       \f[
+ *            \tilde{V}_k(T,P) =  V^o_k(T,P) = \frac{1.0}{C_o}
+ *       \f]
+ *
+ *  It is assumed that the reference state thermodynamics may be
+ *  obtained by a pointer to a populated species thermodynamic property
+ *  manager class (see ThermoPhase::m_spthermo). How to relate pressure
+ *  changes to the reference state thermodynamics is resolved at this level.
+ *
+ *  Pressure is defined as an independent variable in this phase. However, it only
+ *  has a weak dependence on the enthalpy, and doesn't effect the molar
+ *  concentration.
+ *
+ * <HR>
+ * <H2> %Application within %Kinetics Managers </H2>
+ * <HR>
+ *
+ *   \f$ C^a_k\f$ are defined such that \f$ C^a_k = a_k = X_k  \f$
+ *   \f$ C^s_k \f$, the standard concentration, is
+ *   defined to be equal to one. \f$ a_k \f$ are activities used in the
+ *   thermodynamic functions.  These activity (or generalized)
+ *   concentrations are used
+ *   by kinetics manager classes to compute the forward and
+ *   reverse rates of elementary reactions.
+ *   The activity concentration,\f$  C^a_k \f$, is given by the following expression.
+ *
+ *       \f[
+ *            C^a_k = C^s_k  X_k  =  X_k
+ *       \f]
+ *
+ * The standard concentration for species <I>k</I> is identically one
+ *
+ *        \f[
+ *            C^s_k =  C^s = 1.0
+ *        \f]
+ *
+ * For example, a bulk-phase binary gas reaction between species j and k, producing
+ * a new species l would have the
+ * following equation for its rate of progress variable, \f$ R^1 \f$, which has
+ * units of  kmol m-3 s-1.
+ *
+ *   \f[
+ *    R^1 = k^1 C_j^a C_k^a =  k^1  X_j X_k
+ *   \f]
+ *
+ *  The reverse rate constant can then be obtained from the law of microscopic reversibility
+ *  and the equilibrium expression for the system.
+ *
+ *   \f[
+ *         \frac{X_j X_k}{ X_l} = K_a^{o,1} = \exp(\frac{\mu^o_l - \mu^o_j - \mu^o_k}{R T} )
+ *   \f]
+ *
+ *  \f$  K_a^{o,1} \f$ is the dimensionless form of the equilibrium constant, associated with
+ *  the pressure dependent standard states \f$ \mu^o_l(T,P) \f$ and their associated activities,
+ *  \f$ a_l \f$, repeated here:
+ *
+ *       \f[
+ *            \mu_l(T,P) = \mu^o_l(T, P) + R T \log(a_l)
+ *       \f]
+ *
+ *   The concentration equilibrium constant, \f$ K_c \f$, may be obtained by changing over
+ *   to activity concentrations. When this is done:
+ *
+ *   \f[
+ *         \frac{C^a_j C^a_k}{ C^a_l} = C^o K_a^{o,1} = K_c^1 =
+ *             \exp(\frac{\mu^{o}_l - \mu^{o}_j - \mu^{o}_k}{R T} )
+ *   \f]
+ *
+ *
+ *    %Kinetics managers will calculate the concentration equilibrium constant, \f$ K_c \f$,
+ *    using the second and third part of the above expression as a definition for the concentration
+ *    equilibrium constant.
+ *
+ * <HR>
+ * <H2> Instantiation of the Class </H2>
+ * <HR>
+ *
+ *
+ * The constructor for this phase is located in the default ThermoFactory
+ * for %Cantera. A new %LatticePhase object may be created by the following code snippet:
+ *
+ * @code
+ *    XML_Node *xc = get_XML_File("O_lattice_SiO2.xml");
+ *    XML_Node * const xs = xc->findNameID("phase", "O_lattice_SiO2");
+ *    ThermoPhase *tp = newPhase(*xs);
+ *    LatticePhase *o_lattice = dynamic_cast <LatticPhase *>(tp);
+ * @endcode
+ *
+ * or by the following constructor:
+ *
+ * @code
+ *    XML_Node *xc = get_XML_File("O_lattice_SiO2.xml");
+ *    XML_Node * const xs = xc->findNameID("phase", "O_lattice_SiO2");
+ *    LatticePhase *o_lattice = new LatticePhase(*xs);
+ * @endcode
+ *
+ *  The XML file used in this example is listed in the next section
+ *
+ * <HR>
+ * <H2> XML Example </H2>
+ * <HR>
+ *
+ *   An example of an XML Element named phase setting up a LatticePhase object named "O_lattice_SiO2"
+ *   is given below.
+ *
+ * @verbatim
+   <!--     phase O_lattice_SiO2      -->
+   <phase dim="3" id="O_lattice_SiO2">
+      <elementArray datasrc="elements.xml"> Si  H  He </elementArray>
+      <speciesArray datasrc="#species_data">
+              O_O  Vac_O
+      </speciesArray>
+      <reactionArray datasrc="#reaction_data"/>
+      <thermo model="Lattice">
+  <site_density> 73.159 </site_density>
+  <vacancy_species>  Vac_O </vacancy_species>
+</thermo>
+      <kinetics model="BulkKinetics"/>
+      <transport model="None"/>
+    </phase>
+    @endverbatim
+ *
+ *   The model attribute "Lattice" of the thermo XML element identifies the phase as
+ *   being of the type handled by the LatticePhase object.
+ *
+ * @ingroup thermoprops
+ *
+ */
+class LatticePhase : public ThermoPhase
+{
 
-  public:
+public:
 
     //! Base Empty constructor
     LatticePhase();
@@ -259,7 +261,7 @@ namespace Cantera {
     /*!
      * @param right Object to be copied
      */
-    LatticePhase(const LatticePhase &right);
+    LatticePhase(const LatticePhase& right);
 
     //! Assignment operator
     /*!
@@ -292,7 +294,7 @@ namespace Cantera {
      *
      * @return It returns a ThermoPhase pointer.
      */
-    ThermoPhase *duplMyselfAsThermoPhase() const;
+    ThermoPhase* duplMyselfAsThermoPhase() const;
 
     //! Import and initialize a %LatticePhase phase specification from an XML tree into the current object.
     /*!
@@ -319,7 +321,7 @@ namespace Cantera {
 
     //! Equation of state flag. Returns the value cLattice
     virtual int eosType() const {
-      return cLattice;
+        return cLattice;
     }
 
     /**
@@ -413,7 +415,7 @@ namespace Cantera {
      * @see SpeciesThermo
      */
     virtual doublereal cp_mole() const;
-    
+
     //! Molar heat capacity at constant volume of the solution.
     //! Units: J/kmol/K.
     /*!
@@ -440,14 +442,14 @@ namespace Cantera {
      */
     //@{
 
-    
+
     //! Pressure. Units: Pa.
     /*!
      * For this incompressible system, we return the internally storred
      * independent value of the pressure.
      */
     virtual doublereal pressure() const {
-      return m_Pcurrent;
+        return m_Pcurrent;
     }
 
     //! Set the internally storred pressure (Pa) at constant
@@ -459,14 +461,14 @@ namespace Cantera {
      * @param p   Input Pressure (Pa)
      */
     virtual void setPressure(doublereal p);
-     
-    //! Calculate the density of the mixture using the partial 
+
+    //! Calculate the density of the mixture using the partial
     //! molar volumes and mole fractions as input
     /*!
      * The formula for this is
      *
-     * \f[ 
-     *      \rho = \frac{\sum_k{X_k W_k}}{\sum_k{X_k V_k}} 
+     * \f[
+     *      \rho = \frac{\sum_k{X_k W_k}}{\sum_k{X_k V_k}}
      * \f]
      *
      * where \f$X_k\f$ are the mole fractions, \f$W_k\f$ are
@@ -479,8 +481,8 @@ namespace Cantera {
      * in this class that the pure species molar volumes are
      * independent of temperature and pressure.
      *
-     * NOTE: This is a non-virtual function, which is not a 
-     *       member of the ThermoPhase base class. 
+     * NOTE: This is a non-virtual function, which is not a
+     *       member of the ThermoPhase base class.
      */
     doublereal calcDensity();
 
@@ -489,36 +491,36 @@ namespace Cantera {
      * @param x  Input vector of mole fractions.
      *           Length: m_kk.
      */
-    virtual void setMoleFractions(const doublereal * const x);
+    virtual void setMoleFractions(const doublereal* const x);
 
     //! Set the mole fractions, but don't normalize them to one.
     /*!
      * @param x  Input vector of mole fractions.
      *           Length: m_kk.
      */
-    virtual void setMoleFractions_NoNorm(const doublereal * const x); 
+    virtual void setMoleFractions_NoNorm(const doublereal* const x);
 
     //! Set the mass fractions, and normalize them to one.
     /*!
      * @param y  Input vector of mass fractions.
      *           Length: m_kk.
      */
-    virtual void setMassFractions(const doublereal * const y);
+    virtual void setMassFractions(const doublereal* const y);
 
     //! Set the mass fractions, but don't normalize them to one
     /*!
      * @param y  Input vector of mass fractions.
      *           Length: m_kk.
      */
-    virtual void setMassFractions_NoNorm(const doublereal * const y);
+    virtual void setMassFractions_NoNorm(const doublereal* const y);
 
-    //! Set the concentration, 
+    //! Set the concentration,
     /*!
      * @param c  Input vector of concentrations.
      *           Length: m_kk.
      */
-    virtual void setConcentrations(const doublereal * const c);
-    
+    virtual void setConcentrations(const doublereal* const c);
+
 
     //@}
     /// @name Activities, Standard States,  and Activity Concentrations
@@ -589,7 +591,7 @@ namespace Cantera {
     /// @name  Partial Molar Properties of the Solution
     ///
     //@{
- 
+
     //! Get the species chemical potentials. Units: J/kmol.
     /*!
      * This function returns a vector of chemical potentials of the
@@ -618,7 +620,7 @@ namespace Cantera {
      * \f]
      * The reference-state pure-species enthalpies, \f$ \hat h^{ref}_k(T) \f$,
      * at the reference pressure,\f$ P_{ref} \f$,
-     * are computed by the species thermodynamic 
+     * are computed by the species thermodynamic
      * property manager. They are polynomial functions of temperature.
      * @see SpeciesThermo
      *
@@ -636,8 +638,8 @@ namespace Cantera {
      * \bar s_k(T,P) =  \hat s^0_k(T) - R log(X_k)
      * \f]
      * The reference-state pure-species entropies,\f$ \hat s^{ref}_k(T) \f$,
-     * at the reference pressure, \f$ P_{ref} \f$,  are computed by the 
-     * species thermodynamic 
+     * at the reference pressure, \f$ P_{ref} \f$,  are computed by the
+     * species thermodynamic
      * property manager. They are polynomial functions of temperature.
      * @see SpeciesThermo
      *
@@ -687,7 +689,7 @@ namespace Cantera {
      */
     virtual void getPureGibbs(doublereal* gpure) const;
 
-  
+
     //@}
     /// @name  Properties of the Standard State of the Species in the Solution
     //@{
@@ -715,8 +717,8 @@ namespace Cantera {
     //! Get the array of nondimensional Entropy functions for the
     //! species standard states at the current <I>T</I> and <I>P</I> of the solution.
     /*!
-     *  The entropy of the standard state is defined as independent of 
-     *  pressure here.  
+     *  The entropy of the standard state is defined as independent of
+     *  pressure here.
      *
      *       \f[
      *            s^o_k(T,P) = s^{ref}_k(T)
@@ -775,25 +777,25 @@ namespace Cantera {
      * @param vol     Output vector containing the standard state volumes.
      *                Length: m_kk.
      */
-    virtual void getStandardVolumes(doublereal *vol) const;
+    virtual void getStandardVolumes(doublereal* vol) const;
 
     //@}
     /// @name Thermodynamic Values for the Species Reference States
     //@{
 
 #ifdef H298MODIFY_CAPABILITY
-  
+
     //! Modify the value of the 298 K Heat of Formation of one species in the phase (J kmol-1)
     /*!
      *   The 298K heat of formation is defined as the enthalpy change to create the standard state
      *   of the species from its constituent elements in their standard states at 298 K and 1 bar.
      *
      *   @param  k           Species k
-     *   @param  Hf298New    Specify the new value of the Heat of Formation at 298K and 1 bar                      
+     *   @param  Hf298New    Specify the new value of the Heat of Formation at 298K and 1 bar
      */
     virtual void modifyOneHf298SS(const int k, const doublereal Hf298New) {
-      m_spthermo->modifyOneHf298(k, Hf298New);
-      m_tlast += 0.0001234;
+        m_spthermo->modifyOneHf298(k, Hf298New);
+        m_tlast += 0.0001234;
     }
 #endif
 
@@ -806,7 +808,7 @@ namespace Cantera {
      *               Length: m_kk
      */
     const array_fp& enthalpy_RT_ref() const;
-  
+
     //! Returns a reference to the dimensionless reference state Gibbs free energy vector.
     /*!
      * This function is part of the layer that checks/recalculates the reference
@@ -818,20 +820,20 @@ namespace Cantera {
     //!  Gibbs Free Energies of the reference state at the current temperature
     //!  of the solution and the reference pressure for the species.
     /*!
-     * @param grt     Output vector containing the nondimensional reference state 
+     * @param grt     Output vector containing the nondimensional reference state
      *                Gibbs Free energies.  Length: m_kk.
      */
-    virtual void getGibbs_RT_ref(doublereal *grt) const;
+    virtual void getGibbs_RT_ref(doublereal* grt) const;
 
     //!  Returns the vector of the gibbs function of the reference state at the current temperature
     //!  of the solution and the reference pressure for the species.
     /*!
      *  units = J/kmol
      *
-     * @param g       Output vector containing the  reference state 
+     * @param g       Output vector containing the  reference state
      *                Gibbs Free energies.  Length: m_kk. Units: J/kmol.
      */
-    virtual void getGibbs_ref(doublereal *g) const;
+    virtual void getGibbs_ref(doublereal* g) const;
 
     //! Returns a reference to the dimensionless reference state Entropy vector.
     /*!
@@ -858,7 +860,7 @@ namespace Cantera {
      * This method performs any initialization required after all
      * species have been added. For example, it is used to
      * resize internal work arrays that must have an entry for
-     * each species. 
+     * each species.
      * This method is called from ThermoPhase::initThermoXML(),
      * which is called from importPhase(),
      * just prior to returning from the function, importPhase().
@@ -867,7 +869,7 @@ namespace Cantera {
      */
     virtual void initThermo();
 
-    
+
     //! Import and initialize a ThermoPhase object using an XML tree.
     /*!
      *   Here we read extra information about the XML description
@@ -916,7 +918,7 @@ namespace Cantera {
      *       -  n = 1
      *       -  c[0] = molar density of phase [ kmol/m^3 ]
      */
-    virtual void getParameters(int &n, doublereal * const c) const;
+    virtual void getParameters(int& n, doublereal* const c) const;
 
     //! Set equation of state parameter values from XML entries.
     /*!
@@ -939,7 +941,7 @@ namespace Cantera {
          <phase id="O_lattice_SiO2" >
            <thermo model="Lattice">
                <site_density units="kmol/m^3"> 73.159 </site_density>
-	       <vacancy_species> "O_vacancy"  </vacancy_species>
+           <vacancy_species> "O_vacancy"  </vacancy_species>
            </thermo>
          </phase>    @endverbatim
      *
@@ -948,7 +950,7 @@ namespace Cantera {
 
     //@}
 
-  protected:
+protected:
 
 
     //! Number of elements
@@ -960,7 +962,7 @@ namespace Cantera {
      * state thermo props defined.
      */
     doublereal m_tmin;
-   
+
     //! Maximum temperature for valid species standard state thermo props
     /*!
      * This is the maximum temperature at which all species have valid standard
@@ -977,7 +979,7 @@ namespace Cantera {
      * Since the density isn't a function of pressure, but only of the
      * mole fractions, we need to independently specify the pressure.
      * The density variable which is inherited as part of the State class,
-     * m_dens, is always kept current whenever T, P, or X[] change. 
+     * m_dens, is always kept current whenever T, P, or X[] change.
      */
     doublereal m_Pcurrent;
 
@@ -1020,7 +1022,7 @@ namespace Cantera {
 
     // doublereal m_molar_lattice_volume;
 
-  private:
+private:
 
     //! Update the species reference state thermodynamic functions
     /*!
@@ -1028,7 +1030,7 @@ namespace Cantera {
      * reevalulated if the temperature has changed.
      */
     void _updateThermo() const;
-  };
+};
 }
 
 #endif

@@ -19,33 +19,35 @@ void reportError();
 void checkNArgs(const int n, const int nrhs);
 
 template<class A>
-inline int getInt(A* mxhndl) {
+inline int getInt(A* mxhndl)
+{
     return int(mxGetScalar(mxhndl));
 }
 
 template<class A>
-inline double getDouble(A* mxhndl) {
+inline double getDouble(A* mxhndl)
+{
     return double(mxGetScalar(mxhndl));
 }
 
-inline char* getString(const mxArray* p) {
+inline char* getString(const mxArray* p)
+{
     char* input_buf = 0;
     int status;
     size_t m = mxGetM(p);
     size_t n = mxGetN(p);
-    mwSize buflen = (mwSize) (m*n + 1);
+    mwSize buflen = (mwSize)(m*n + 1);
     std::string msg;
 
     if (m == 1) {
         input_buf = (char*)mxCalloc(buflen, sizeof(char));
         status = mxGetString(p, input_buf, buflen);
-        if(status != 0) {
-            msg = std::string(input_buf) 
+        if (status != 0) {
+            msg = std::string(input_buf)
                   + "\nNot enough space. String is truncated.";
             mexWarnMsgTxt(msg.c_str());
         }
-    }
-    else {
+    } else {
         mexErrMsgTxt("string must be a row vector");
     }
     return input_buf;

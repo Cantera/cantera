@@ -22,141 +22,143 @@
 #include <vector>
 #include "ResidEval.h"
 
-namespace Cantera {
+namespace Cantera
+{
 
-  //@{
-  ///  @name  Constant which determines the return integer from the routine
- 
-  //!  This means that the root solver was a success
+//@{
+///  @name  Constant which determines the return integer from the routine
+
+//!  This means that the root solver was a success
 #define ROOTFIND_SUCCESS             0
-  //!  This return value means that the root finder resolved a solution in the x coordinate
-  //!  However, convergence in F was not achieved.
-  /*!
-   *   A common situation for this to happen is that f(x) is discontinuous about f(x) = f_0,
-   *   where we seek the x where the function is equal to f_0. f(x) spans the
-   *   f_0 while not being equal to f_0 anywhere.
-   */
+//!  This return value means that the root finder resolved a solution in the x coordinate
+//!  However, convergence in F was not achieved.
+/*!
+ *   A common situation for this to happen is that f(x) is discontinuous about f(x) = f_0,
+ *   where we seek the x where the function is equal to f_0. f(x) spans the
+ *   f_0 while not being equal to f_0 anywhere.
+ */
 #define ROOTFIND_SUCCESS_XCONVERGENCEONLY 1
-  //!  This means that the root solver failed to achieve convergence
+//!  This means that the root solver failed to achieve convergence
 #define ROOTFIND_FAILEDCONVERGENCE  -1
-  //!  This means that the input to the root solver was defective
+//!  This means that the input to the root solver was defective
 #define ROOTFIND_BADINPUT           -2
-  //!  This means that the rootfinder believes the solution is lower than xmin
+//!  This means that the rootfinder believes the solution is lower than xmin
 #define ROOTFIND_SOLNLOWERTHANXMIN  -3
-  //!  This means that the rootfinder believes the solution is higher than xmax
-  /*!
-   *
-   */
+//!  This means that the rootfinder believes the solution is higher than xmax
+/*!
+ *
+ */
 #define ROOTFIND_SOLNHIGHERTHANXMAX  -4
- //@}
+//@}
 
 
-  
 
-  //! Root finder for 1D problems
-  /*!
-   *
-   *   The root finder solves a single nonlinear equation described below.
-   *
-   *     \f[
-   *          f(x) = f_0
-   *     \f]
-   *
-   *   \f$ f(x) \f$ is assumed to be single valued as a function of x.\f$ f(x) \f$ is not assumed to be continuous nor is
-   *   its derivative assumed to be well formed.
-   * 
-   *   Root finders are significantly different in the sense that do not have to rely
-   *   solely on Newton's method to find the answer to the problem. Instead they use a method to bound
-   *   the solution between high and low values and then use a method to refine that bound.  The eventual
-   *   solution to the problem is presented as x_best and as a bound, delta_X, on the solution
-   *   component.  Because of this, they are far more stable for functions and Jacobians that have discontinuities
-   *   or noise associated with them. 
-   *
-   *   The algorithm is a convolution of a local Secant method with an approach of finding a straddle in x.
-   *   The Jacobian is never required.
-   *
-   *   There is a general breakdown of the algorithm into stages. The first stage seeks to find a straddle of the
-   *   function. The second stage seeks to reduce the bounds in x and f in order to satisfy the specification of the
-   *   stopping criteria. In the last stage the algorithm seeks to find the base value of x that satisfies the
-   *   original equation given what it current knows about the function.
-   *
-   *    Globalization strategy
-   *
-   *        Specifying the General Changes in x
-   *
-   *        Supplying Hints with General Function Behavior Flags
-   *
-   *        
-   *
-   *    Stopping Criteria
-   *
-   *        Specification of the Stopping Criteria
-   *
-   *
-   *    Additional constraints
-   *
-   *        Bounds Criteria For the Routine
-   *
-   *   Example
-   *
-   *  @code
-   *    // Define a residual. The definition of a residual involves a lot more work than is shown here.
-   *    ResidEval * ec;
-   *    // Instantiate the root finder with the residual to be solved, ec.
-   *    RootFind rf(&ec);
-   *    // Set the relative and absolute tolerancess for f and x.
-   *    rf.setTol(1.0E-5, 1.0E-10, 1.0E-5, 1.0E-11);
-   *    // Give a hint about the function's dependence on x. This is needed, for example, if the function has
-   *    // flat regions.
-   *    rf.setFuncIsGenerallyIncreasing(true);
-   *    rf.setDeltaX(0.01);
-   *    // Supply an initial guess for the solution
-   *    double xbest = phiM;
-   *    double oldP = printLvl_;
-   *    // Set the print level for the solver. Zero produces no output. Two produces a summary table of each iteration.
-   *    rf.setPrintLvl(2);
-   *    // Define a minimum and maximum for the independent variable.
-   *    double phimin = 1.3;
-   *    double phimax = 2.2;
-   *    // Define a maximum iteration number
-   *    int itmax = 100;
-   *    // Define the f_0 value, and on return will contain the actual value of f(x) obtained
-   *    double currentObtained;
-   *    // Call the solver
-   *    status = rf.solve(phimin, phimax, 100, currentObtained, &xbest);
-   *    if (status == 0) {
-   *      if (printLvl_ > 1) {
-   *        printf("Electrode::integrateConstantCurrent(): Volts (%g amps) = %g\n", currentObtained, xbest);
-   *      }
-   *    } else {
-   *      if (printLvl_) {
-   *         printf("Electrode::integrateConstantCurrent(): bad status = %d Volts (%g amps) = %g\n", 
-   *                status, currentObtained, xbest);
-   *      }
-   *    }
-   *  @endcode
-   *
-   *  @todo  Noise
-   *  @todo  General Search to be done when all else fails
-   *
-   */
-  class RootFind {
 
-  public:
+//! Root finder for 1D problems
+/*!
+ *
+ *   The root finder solves a single nonlinear equation described below.
+ *
+ *     \f[
+ *          f(x) = f_0
+ *     \f]
+ *
+ *   \f$ f(x) \f$ is assumed to be single valued as a function of x.\f$ f(x) \f$ is not assumed to be continuous nor is
+ *   its derivative assumed to be well formed.
+ *
+ *   Root finders are significantly different in the sense that do not have to rely
+ *   solely on Newton's method to find the answer to the problem. Instead they use a method to bound
+ *   the solution between high and low values and then use a method to refine that bound.  The eventual
+ *   solution to the problem is presented as x_best and as a bound, delta_X, on the solution
+ *   component.  Because of this, they are far more stable for functions and Jacobians that have discontinuities
+ *   or noise associated with them.
+ *
+ *   The algorithm is a convolution of a local Secant method with an approach of finding a straddle in x.
+ *   The Jacobian is never required.
+ *
+ *   There is a general breakdown of the algorithm into stages. The first stage seeks to find a straddle of the
+ *   function. The second stage seeks to reduce the bounds in x and f in order to satisfy the specification of the
+ *   stopping criteria. In the last stage the algorithm seeks to find the base value of x that satisfies the
+ *   original equation given what it current knows about the function.
+ *
+ *    Globalization strategy
+ *
+ *        Specifying the General Changes in x
+ *
+ *        Supplying Hints with General Function Behavior Flags
+ *
+ *
+ *
+ *    Stopping Criteria
+ *
+ *        Specification of the Stopping Criteria
+ *
+ *
+ *    Additional constraints
+ *
+ *        Bounds Criteria For the Routine
+ *
+ *   Example
+ *
+ *  @code
+ *    // Define a residual. The definition of a residual involves a lot more work than is shown here.
+ *    ResidEval * ec;
+ *    // Instantiate the root finder with the residual to be solved, ec.
+ *    RootFind rf(&ec);
+ *    // Set the relative and absolute tolerancess for f and x.
+ *    rf.setTol(1.0E-5, 1.0E-10, 1.0E-5, 1.0E-11);
+ *    // Give a hint about the function's dependence on x. This is needed, for example, if the function has
+ *    // flat regions.
+ *    rf.setFuncIsGenerallyIncreasing(true);
+ *    rf.setDeltaX(0.01);
+ *    // Supply an initial guess for the solution
+ *    double xbest = phiM;
+ *    double oldP = printLvl_;
+ *    // Set the print level for the solver. Zero produces no output. Two produces a summary table of each iteration.
+ *    rf.setPrintLvl(2);
+ *    // Define a minimum and maximum for the independent variable.
+ *    double phimin = 1.3;
+ *    double phimax = 2.2;
+ *    // Define a maximum iteration number
+ *    int itmax = 100;
+ *    // Define the f_0 value, and on return will contain the actual value of f(x) obtained
+ *    double currentObtained;
+ *    // Call the solver
+ *    status = rf.solve(phimin, phimax, 100, currentObtained, &xbest);
+ *    if (status == 0) {
+ *      if (printLvl_ > 1) {
+ *        printf("Electrode::integrateConstantCurrent(): Volts (%g amps) = %g\n", currentObtained, xbest);
+ *      }
+ *    } else {
+ *      if (printLvl_) {
+ *         printf("Electrode::integrateConstantCurrent(): bad status = %d Volts (%g amps) = %g\n",
+ *                status, currentObtained, xbest);
+ *      }
+ *    }
+ *  @endcode
+ *
+ *  @todo  Noise
+ *  @todo  General Search to be done when all else fails
+ *
+ */
+class RootFind
+{
+
+public:
 
     //! Constructor for the object
     /*!
      *
      * @param resid  Pointer to the residual function to be used to calculate f(x)
-     */ 
+     */
     RootFind(ResidEval* resid);
 
     //! Copy constructor
     /*!
      * @param r  object to be copied
      */
-    RootFind(const RootFind &r);
-   
+    RootFind(const RootFind& r);
+
     //! Destructor. Deletes the integrator.
     ~RootFind();
 
@@ -166,10 +168,10 @@ namespace Cantera {
      *
      * @return returns a reference to the current object
      */
-    RootFind & operator=(const RootFind &right); 
+    RootFind& operator=(const RootFind& right);
 
 
-  private:
+private:
     //! Calculate a deltaX from an input value of x
     /*!
      *  This routine ensure that the deltaX will be greater or equal to DeltaXNorm_
@@ -178,7 +180,7 @@ namespace Cantera {
      * @param x1  input value of x
      */
     doublereal delXNonzero(doublereal x1) const;
-  
+
     //! Calculate a deltaX from an input value of x
     /*!
      *  This routine ensure that the deltaX will be greater or equal to DeltaXNorm_
@@ -187,7 +189,7 @@ namespace Cantera {
      * @param x1  input value of x
      */
     doublereal delXMeaningful(doublereal x1) const;
- 
+
     //! Calcuated a controlled, nonzero delta between two numbers
     /*!
      *  The delta is designed to be greater than or equal to delXMeaningful(x) defined above
@@ -198,7 +200,7 @@ namespace Cantera {
      *  @param x1   second number
      */
     doublereal deltaXControlled(doublereal x2, doublereal x1) const;
-   
+
     //! Function to decide whether two real numbers are the same or not
     /*!
      *  A comparison is made between the two numbers to decide whether they
@@ -215,12 +217,12 @@ namespace Cantera {
      */
     bool theSame(doublereal x2, doublereal x1, doublereal factor = 1.0) const;
 
-  public:
+public:
 
     //!  Using a line search method, find the root of a 1D function
     /*!
      *  This routine solves the following equation.
-     * 
+     *
      *    \f[
      *       R(x) = f(x) - f_o = 0
      *    \f]
@@ -228,7 +230,7 @@ namespace Cantera {
      *    @param   xmin    Minimum value of x to be used.
      *    @param   xmax    Maximum value of x to be used
      *    @param   itmax   maximum number of iterations. Usually, it can be less than 50.
-     *    @param   funcTargetValue   
+     *    @param   funcTargetValue
      *                     Value of \f$ f_o \f$ in the equation.
      *                     On return, it contains the value of the function actually obtained.
      *    @param   xbest   Returns the x that satisfies the function
@@ -236,16 +238,16 @@ namespace Cantera {
      *                     An attempt to find the solution near xbest is made.
      *
      *   @return:
-     *    0  =  ROOTFIND_SUCCESS            Found function     
+     *    0  =  ROOTFIND_SUCCESS            Found function
      *   -1  =  ROOTFIND_FAILEDCONVERGENCE  Failed to find the answer
      *   -2  =  ROOTFIND_BADINPUT           Bad input was detected
      */
-    int solve(doublereal xmin, doublereal xmax, int itmax, doublereal &funcTargetValue, doublereal *xbest);
+    int solve(doublereal xmin, doublereal xmax, int itmax, doublereal& funcTargetValue, doublereal* xbest);
 
     //! Return the function value
-    /*! 
+    /*!
      * This routine evaluates the following equation.
-     * 
+     *
      *    \f[
      *       R(x) = f(x) - f_o = 0
      *    \f]
@@ -260,7 +262,7 @@ namespace Cantera {
     /*!
      *  These tolerance parameters are used on the function value and the independent value
      *  to determine convergence
-     *  
+     *
      * @param rtolf  Relative tolerance. The default is 10^-5
      * @param atolf  absolute tolerance. The default is 10^-11
      * @param rtolx  Relative tolerance. The default is 10^-5
@@ -272,7 +274,7 @@ namespace Cantera {
 
     //! Set the print level from the rootfinder
     /*!
-     * 
+     *
      *   0 -> absolutely nothing is printed for a single time step.
      *   1 -> One line summary per solve_nonlinear call
      *   2 -> short description, points of interest: Table of nonlinear solve - one line per iteration
@@ -293,9 +295,9 @@ namespace Cantera {
      *  In particular, if the algorithm is seeking a higher value of f, it will look
      *  in the positive x direction.
      *
-     *  This type of function is needed because this algorithm must deal with regions of f(x) where 
+     *  This type of function is needed because this algorithm must deal with regions of f(x) where
      *  f is not changing with x.
-     *  
+     *
      *  @param value   boolean value
      */
     void setFuncIsGenerallyIncreasing(bool value);
@@ -306,9 +308,9 @@ namespace Cantera {
      *  In particular, if the algorithm is seeking a higher value of f, it will look
      *  in the negative x direction.
      *
-     *  This type of function is needed because this algorithm must deal with regions of f(x) where 
+     *  This type of function is needed because this algorithm must deal with regions of f(x) where
      *  f is not changing with x.
-     *  
+     *
      *  @param value   boolean value
      */
     void setFuncIsGenerallyDecreasing(bool value);
@@ -319,7 +321,7 @@ namespace Cantera {
      *
      *  @param deltaXNorm
      */
-    void setDeltaX(doublereal deltaXNorm); 
+    void setDeltaX(doublereal deltaXNorm);
 
     //! Set the maximum value of deltaX
     /*!
@@ -327,15 +329,15 @@ namespace Cantera {
      *
      *  @param deltaX
      */
-    void setDeltaXMax(doublereal deltaX); 
+    void setDeltaXMax(doublereal deltaX);
 
     //! Print the iteration history table
     void printTable();
 
-  public:
+public:
 
     //!   Pointer to the residual function evaluator
-    ResidEval *m_residFunc;
+    ResidEval* m_residFunc;
 
     //!  Target value for the function.  We seek the value of f that is equal to this value
     doublereal m_funcTargetValue;
@@ -355,7 +357,7 @@ namespace Cantera {
     //!  Maximum number of step sizes
     doublereal m_maxstep;
 
-  protected:
+protected:
 
     //!  Print level
     /*!
@@ -367,12 +369,12 @@ namespace Cantera {
      */
     int printLvl;
 
-  public:
+public:
 
     //! Boolean to turn on the possibility of writing a log file.
     bool writeLogAllowed_;
 
-  protected:
+protected:
     //! Delta X norm. This is the nominal value of deltaX that will be used by the program
     doublereal DeltaXnorm_;
 
@@ -380,12 +382,12 @@ namespace Cantera {
     int specifiedDeltaXnorm_;
 
     //! Delta X Max. This is the maximum value of deltaX that will be used by the program
-    /*!  
-     *  Sometimes a large change in x causes problems. 
+    /*!
+     *  Sometimes a large change in x causes problems.
      */
     doublereal DeltaXMax_;
 
-   //!  Boolean indicating whether DeltaXMax_ has been specified by the user or not
+    //!  Boolean indicating whether DeltaXMax_ has been specified by the user or not
     int specifiedDeltaXMax_;
 
     //! Boolean indicating whether the function is an increasing with x
@@ -416,54 +418,53 @@ namespace Cantera {
 
     //! Structure containing the iteration history
     struct rfTable {
-      //@{
-      int its;
-      int TP_its;
-      double slope;
-      double xval;
-      double fval;
-      int foundPos;
-      int foundNeg;
-      double deltaXConverged;
-      double deltaFConverged;
-      double delX;
- 
-
-      std::string reasoning;
-
-      void clear() {
-	its = 0;
-	TP_its = 0;
-	slope = -1.0E300;
-	xval = -1.0E300;
-	fval = -1.0E300;
-	reasoning = "";
-      };
-
-      rfTable() :
-	its(-2),
-	TP_its(0),
-	slope(-1.0E300),
-	xval(-1.0E300),
-	fval(-1.0E300),
-	foundPos(0),
-	foundNeg(0),
-	deltaXConverged(-1.0E300),
-	deltaFConverged(-1.0E300),
-	delX(-1.0E300),
-	reasoning("")
-      {
-      };
+        //@{
+        int its;
+        int TP_its;
+        double slope;
+        double xval;
+        double fval;
+        int foundPos;
+        int foundNeg;
+        double deltaXConverged;
+        double deltaFConverged;
+        double delX;
 
 
-      //@}
+        std::string reasoning;
+
+        void clear() {
+            its = 0;
+            TP_its = 0;
+            slope = -1.0E300;
+            xval = -1.0E300;
+            fval = -1.0E300;
+            reasoning = "";
+        };
+
+        rfTable() :
+            its(-2),
+            TP_its(0),
+            slope(-1.0E300),
+            xval(-1.0E300),
+            fval(-1.0E300),
+            foundPos(0),
+            foundNeg(0),
+            deltaXConverged(-1.0E300),
+            deltaFConverged(-1.0E300),
+            delX(-1.0E300),
+            reasoning("") {
+        };
+
+
+        //@}
     };
-  
+
     //! Vector of iteration histories
     std::vector<struct rfTable> rfHistory_;
 
 
 
-  };
+};
 }
 #endif

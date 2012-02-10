@@ -10,50 +10,56 @@
 #include <iostream>
 #include <stdio.h>
 
-namespace ckr {
+namespace ckr
+{
 
-  // Construct an empty Species object
-  Species::Species() :
+// Construct an empty Species object
+Species::Species() :
     thermoFormatType(0),
-    name ("<empty>"), 
-    id ("<none>"), 
-    phase (""), 
-    tlow(0.0), 
-    tmid(0.0), 
-    thigh(0.0), 
+    name("<empty>"),
+    id("<none>"),
+    phase(""),
+    tlow(0.0),
+    tmid(0.0),
+    thigh(0.0),
     nTempRegions(2),
     valid(0),
     index(-1)
-  {
-  }
+{
+}
 
-  // Destructor
-  Species::~Species() {
+// Destructor
+Species::~Species()
+{
     delR();
-  }
+}
 
-  void Species::delR() {
+void Species::delR()
+{
     for (size_t i = 0; i < region_coeffs.size(); i++) {
-      if (region_coeffs[i]) {
-	delete region_coeffs[i];
-	region_coeffs[i] = 0;
-      }
+        if (region_coeffs[i]) {
+            delete region_coeffs[i];
+            region_coeffs[i] = 0;
+        }
     }
-  }
+}
 
-  //! Copy constructor
-  Species::Species(const Species& s)
-  {
+//! Copy constructor
+Species::Species(const Species& s)
+{
     /*
      * Use the assignment operator to do the brunt
      * of the work for the copy construtor.
      */
     *this = s;
-  }
+}
 
-  // Assignment operator
-  Species& Species::operator=(const Species& s) {
-    if (&s == this) return *this;
+// Assignment operator
+Species& Species::operator=(const Species& s)
+{
+    if (&s == this) {
+        return *this;
+    }
     thermoFormatType = s.thermoFormatType;
     name = s.name;
     id = s.id;
@@ -68,7 +74,7 @@ namespace ckr {
     highCoeffs = s.highCoeffs;
     delR();
     for (size_t i = 0; i < s.region_coeffs.size(); i++) {
-      region_coeffs.push_back(new vector_fp(*(s.region_coeffs[i])));
+        region_coeffs.push_back(new vector_fp(*(s.region_coeffs[i])));
     }
     minTemps = s.minTemps;
     maxTemps = s.maxTemps;
@@ -76,21 +82,24 @@ namespace ckr {
     valid = s.valid;
     index = s.index;
     return *this;
-  }
+}
 
-  // Test for equality based on name only. 
-  bool Species::operator==(const Species& s) const {
+// Test for equality based on name only.
+bool Species::operator==(const Species& s) const
+{
     return (s.name == name);
-  }
+}
 
-  bool Species::operator!=(const Species& s) const {
+bool Species::operator!=(const Species& s) const
+{
     return !(*this == s);
-  }
+}
 
-  // Used to sort lists of species by index number.
-  bool Species::operator<(const Species& s) const {
+// Used to sort lists of species by index number.
+bool Species::operator<(const Species& s) const
+{
     return (index < s.index);
-  }
+}
 
 
 

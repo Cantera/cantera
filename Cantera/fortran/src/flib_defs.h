@@ -19,6 +19,6 @@
 typedef integer status_t;
 
 namespace Cantera {}
-namespace std{}
+namespace std {}
 
 #endif

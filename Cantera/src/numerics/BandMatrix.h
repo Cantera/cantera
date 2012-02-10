@@ -1,8 +1,8 @@
 /**
  *  @file BandMatrix.h
- *   Declarations for the class BandMatrix 
+ *   Declarations for the class BandMatrix
  *   which is a child class of GeneralMatrix for banded matrices handled by solvers
- *    (see class \ref numerics and \link Cantera::BandMatrix BandMatrix\endlink).  
+ *    (see class \ref numerics and \link Cantera::BandMatrix BandMatrix\endlink).
  */
 
 // Copyright 2001  California Institute of Technology
@@ -17,26 +17,28 @@
 #include "ctexceptions.h"
 #include "GeneralMatrix.h"
 
-namespace Cantera {
+namespace Cantera
+{
 
-  //!  A class for banded matrices, involving matrix inversion processes.
-  //!  The class is based upon the LAPACK banded storage matrix format.
-  /*!
-   *  An important issue with this class is that it stores both the original data
-   *  and the LU factorization of the data.  This means that the banded matrix typically
-   *  will take up twice the room that it is expected to take.
-   *
-   *  QR factorizations of banded matrices are not included in the original LAPACK work.
-   *  Add-ons are available. However, they are not included here. Instead we just use the
-   *  stock LU decompositions.
-   *
-   *  This class is a derived class of the base class GeneralMatrix. However, withinin
-   *  the oneD directory, the class is used as is, without reference to the GeneralMatrix
-   *  base type.
-   */
-  class BandMatrix : public GeneralMatrix {
+//!  A class for banded matrices, involving matrix inversion processes.
+//!  The class is based upon the LAPACK banded storage matrix format.
+/*!
+ *  An important issue with this class is that it stores both the original data
+ *  and the LU factorization of the data.  This means that the banded matrix typically
+ *  will take up twice the room that it is expected to take.
+ *
+ *  QR factorizations of banded matrices are not included in the original LAPACK work.
+ *  Add-ons are available. However, they are not included here. Instead we just use the
+ *  stock LU decompositions.
+ *
+ *  This class is a derived class of the base class GeneralMatrix. However, withinin
+ *  the oneD directory, the class is used as is, without reference to the GeneralMatrix
+ *  base type.
+ */
+class BandMatrix : public GeneralMatrix
+{
 
-  public:
+public:
 
     //! Base Constructor
     /*!
@@ -104,7 +106,7 @@ namespace Cantera {
      *
      *  Returns an unchangeable reference to the matrix entry
      */
-    doublereal operator() (int i, int j) const;
+    doublereal operator()(int i, int j) const;
 
     //! Return a changeable reference to element (i,j).
     /*!
@@ -116,10 +118,10 @@ namespace Cantera {
      *
      *  @return Returns a reference to the value of the matrix entry
      */
-    doublereal& value( int i, int j);
+    doublereal& value(int i, int j);
 
 
-    //! Return the value of element (i,j). 
+    //! Return the value of element (i,j).
     /*!
      *   This method does not  alter the array.
      *  @param i  row
@@ -127,7 +129,7 @@ namespace Cantera {
      *
      *  @return Returns the value of the matrix entry
      */
-    doublereal value( int i, int j) const;
+    doublereal value(int i, int j) const;
 
     //! Returns the location in the internal 1D array corresponding to the (i,j) element in the banded array
     /*!
@@ -145,7 +147,7 @@ namespace Cantera {
      *
      *   @param i  row
      *   @param j  column
-     * 
+     *
      *   @return   Returns the value of the matrix entry
      */
     doublereal _value(int i, int j) const;
@@ -163,7 +165,7 @@ namespace Cantera {
      *
      * @return  returns the number of rows and columns in the matrix.
      */
-    virtual size_t nRowsAndStruct(int * const iStruct = 0) const;
+    virtual size_t nRowsAndStruct(int* const iStruct = 0) const;
 
     //! Number of columns
     int nColumns() const;
@@ -186,29 +188,29 @@ namespace Cantera {
     //! Multiply A*b and write result to prod.
     /*!
      *  @param b    Vector to do the rh multiplcation
-     *  @param prod OUTPUT vector to receive the result 
+     *  @param prod OUTPUT vector to receive the result
      */
-    virtual void mult(const doublereal * const b, doublereal * const prod) const;
+    virtual void mult(const doublereal* const b, doublereal* const prod) const;
 
     //! Multiply b*A and write result to prod.
     /*!
      *  @param b    Vector to do the lh multiplcation
-     *  @param prod OUTPUT vector to receive the result 
+     *  @param prod OUTPUT vector to receive the result
      */
-    virtual void leftMult(const doublereal * const b, doublereal * const prod) const;
+    virtual void leftMult(const doublereal* const b, doublereal* const prod) const;
 
     //! Perform an LU decomposition, the LAPACK routine DGBTRF is used.
     /*!
      *
      * The factorization is saved in ludata.
      *
-     * @return Return a success flag. 
+     * @return Return a success flag.
      *         0 indicates a success
      *         ~0  Some error occurred, see the LAPACK documentation
      */
     int factor();
 
- 
+
     //! Solve the matrix problem Ax = b
     /*!
      *  @param b  INPUT rhs of the problem
@@ -218,7 +220,7 @@ namespace Cantera {
      *          0 indicates a success
      *         ~0  Some error occurred, see the LAPACK documentation
      */
-    int solve(const doublereal * const b, doublereal * const x);
+    int solve(const doublereal* const b, doublereal* const x);
 
     //! Solve the matrix problem Ax = b
     /*!
@@ -229,7 +231,7 @@ namespace Cantera {
      *          0 indicates a success
      *         ~0  Some error occurred, see the LAPACK documentation
      */
-    int solve(doublereal * const b);
+    int solve(doublereal* const b);
 
 
     //! Returns an iterator for the start of the band storage data
@@ -308,7 +310,7 @@ namespace Cantera {
     virtual doublereal oneNorm() const;
 
     //! Duplicate this object as a GeneralMatrix pointer
-    virtual GeneralMatrix * duplMyselfAsGeneralMatrix() const;
+    virtual GeneralMatrix* duplMyselfAsGeneralMatrix() const;
 
     //! Report whether the current matrix has been factored.
     virtual bool factored() const;
@@ -335,7 +337,7 @@ namespace Cantera {
      *
      *  @return  Returns a pointer to the top of the column
      */
-    virtual doublereal * ptrColumn(int j);
+    virtual doublereal* ptrColumn(int j);
 
     //! Return a vector of const pointers to the columns
     /*!
@@ -343,9 +345,9 @@ namespace Cantera {
      *  However, the value of the matrix is open to being changed.
      *
      *   @return returns a vector of pointers to the top of the columns
-     *           of the matrices.  
+     *           of the matrices.
      */
-    virtual doublereal  * const * colPts();
+    virtual doublereal*   const* colPts();
 
     //! Copy the data from one array into another without doing any checking
     /*!
@@ -367,7 +369,7 @@ namespace Cantera {
      *
      * @return index of the row that is most nearly zero
      */
-    virtual int checkRows(doublereal & valueSmall) const;
+    virtual int checkRows(doublereal& valueSmall) const;
 
     //! Check to see if we have any zero columns in the jacobian
     /*!
@@ -378,9 +380,9 @@ namespace Cantera {
      *
      * @return index of the column that is most nearly zero
      */
-    virtual int checkColumns(doublereal & valueSmall) const;
+    virtual int checkColumns(doublereal& valueSmall) const;
 
-  protected:
+protected:
 
     //! Matrix data
     vector_fp data;
@@ -407,7 +409,7 @@ namespace Cantera {
     vector_int  m_ipiv;
 
     //! Vector of column pointers
-    std::vector<doublereal *> m_colPtrs;
+    std::vector<doublereal*> m_colPtrs;
 
     //! Extra work array needed - size = n
     vector_int iwork_;
@@ -415,7 +417,7 @@ namespace Cantera {
     //! Extra dp work array needed - size = 3n
     vector_fp work_;
 
-  private:
+private:
 
     //! Error function that gets called for unhandled cases
     /*!
@@ -424,16 +426,16 @@ namespace Cantera {
     void err(std::string msg) const;
 
 
-  };
+};
 
-  //! Utility routine to print out the matrix
-  /*!
-   *  @param s  ostream to print the matrix out to
-   *  @param m  Matrix to be printed
-   *
-   *  @return Returns a reference to the ostream
-   */
-  std::ostream& operator<<(std::ostream& s, const BandMatrix& m);
+//! Utility routine to print out the matrix
+/*!
+ *  @param s  ostream to print the matrix out to
+ *  @param m  Matrix to be printed
+ *
+ *  @return Returns a reference to the ostream
+ */
+std::ostream& operator<<(std::ostream& s, const BandMatrix& m);
 
 }
 

@@ -22,12 +22,12 @@ extern "C" {
     EEXXTT size_t DLL_CPREFIX domain_nPoints(int i);
     EEXXTT int DLL_CPREFIX domain_componentName(int i, int n, int sz, char* nameout);
     EEXXTT size_t DLL_CPREFIX domain_componentIndex(int i, char* name);
-    EEXXTT int DLL_CPREFIX domain_setBounds(int i, int n, double lower, 
-        double upper);
+    EEXXTT int DLL_CPREFIX domain_setBounds(int i, int n, double lower,
+                                            double upper);
     EEXXTT double DLL_EXPORT domain_lowerBound(int i, int n);
     EEXXTT double DLL_EXPORT domain_upperBound(int i, int n);
-    EEXXTT int DLL_CPREFIX domain_setTolerances(int i, int n, double rtol, 
-        double atol, int itime);
+    EEXXTT int DLL_CPREFIX domain_setTolerances(int i, int n, double rtol,
+            double atol, int itime);
     EEXXTT double DLL_CPREFIX domain_rtol(int i, int n);
     EEXXTT double DLL_CPREFIX domain_atol(int i, int n);
     EEXXTT int DLL_CPREFIX domain_setupGrid(int i, size_t npts, double* grid);
@@ -59,7 +59,7 @@ extern "C" {
     EEXXTT int DLL_CPREFIX stflow_enableSoret(int i, int iSoret);
     EEXXTT int DLL_CPREFIX stflow_setPressure(int i, double p);
     EEXXTT int DLL_CPREFIX stflow_setFixedTempProfile(int i, size_t n, double* pos,
-                                                      size_t m, double* temp);
+            size_t m, double* temp);
     EEXXTT  int DLL_CPREFIX stflow_solveSpeciesEqs(int i, int flag);
     EEXXTT int DLL_CPREFIX stflow_solveEnergyEqn(int i, int flag);
 
@@ -67,7 +67,7 @@ extern "C" {
     EEXXTT int DLL_CPREFIX sim1D_new(size_t nd, int* domains);
     EEXXTT int DLL_CPREFIX sim1D_del(int i);
     EEXXTT int DLL_CPREFIX sim1D_setValue(int i, int dom, int comp, int localPoint, double value);
-    EEXXTT int DLL_CPREFIX sim1D_setProfile(int i, int dom, int comp, 
+    EEXXTT int DLL_CPREFIX sim1D_setProfile(int i, int dom, int comp,
                                             size_t np, double* pos, size_t nv, double* v);
     EEXXTT int DLL_CPREFIX sim1D_setFlatProfile(int i, int dom, int comp, double v);
     EEXXTT int DLL_CPREFIX sim1D_showSolution(int i, char* fname);
@@ -76,15 +76,15 @@ extern "C" {
     EEXXTT int DLL_CPREFIX sim1D_solve(int i, int loglevel, int refine_grid);
     EEXXTT int DLL_CPREFIX sim1D_refine(int i, int loglevel);
     EEXXTT int DLL_CPREFIX sim1D_setRefineCriteria(int i, int dom, double ratio,
-        double slope, double curve, double prune);
-    EEXXTT int DLL_CPREFIX sim1D_save(int i, char* fname, char* id, 
-        char* desc);
+            double slope, double curve, double prune);
+    EEXXTT int DLL_CPREFIX sim1D_save(int i, char* fname, char* id,
+                                      char* desc);
     EEXXTT int DLL_CPREFIX sim1D_restore(int i, char* fname, char* id);
     EEXXTT int DLL_CPREFIX sim1D_writeStats(int i, int printTime = 1);
     EEXXTT int DLL_CPREFIX sim1D_domainIndex(int i, char* name);
     EEXXTT double DLL_CPREFIX sim1D_value(int i, int idom, int icomp, int localPoint);
-    EEXXTT double DLL_CPREFIX sim1D_workValue(int i, int idom, 
-        int icomp, int localPoint);
+    EEXXTT double DLL_CPREFIX sim1D_workValue(int i, int idom,
+            int icomp, int localPoint);
     EEXXTT int DLL_CPREFIX sim1D_eval(int i, double rdt, int count);
     EEXXTT int DLL_CPREFIX sim1D_setMaxJacAge(int i, int ss_age, int ts_age);
     EEXXTT int DLL_CPREFIX sim1D_timeStepFactor(int i, double tfactor);

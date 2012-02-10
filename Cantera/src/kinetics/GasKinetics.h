@@ -28,28 +28,30 @@
 
 void get_wdot(const doublereal* rop, doublereal* wdot);
 
-namespace Cantera {
+namespace Cantera
+{
 
-  // forward references
+// forward references
 
-  class Enhanced3BConc;
-  class ReactionData;
-  class GasKineticsData;
-  class Thermo;
+class Enhanced3BConc;
+class ReactionData;
+class GasKineticsData;
+class Thermo;
 
-  /**
-   * Holds mechanism-specific data.
-   */
-  class GasKineticsData {
-  public:
+/**
+ * Holds mechanism-specific data.
+ */
+class GasKineticsData
+{
+public:
 
     GasKineticsData();
 
-    GasKineticsData(const GasKineticsData &right);
+    GasKineticsData(const GasKineticsData& right);
 
     virtual ~GasKineticsData();
-    
-    GasKineticsData& operator=(const GasKineticsData &right);
+
+    GasKineticsData& operator=(const GasKineticsData& right);
 
     doublereal m_logp_ref;
     doublereal m_logc_ref;
@@ -67,18 +69,19 @@ namespace Cantera {
     array_fp concm_3b_values;
     array_fp concm_falloff_values;
     array_fp m_rkcn;
-  };
+};
 
 
-  /**
-   * Kinetics manager for elementary gas-phase chemistry. This
-   * kinetics manager implements standard mass-action reaction rate
-   * expressions for low-density gases.
-   * @ingroup kinetics
-   */
-  class GasKinetics : public Kinetics {
+/**
+ * Kinetics manager for elementary gas-phase chemistry. This
+ * kinetics manager implements standard mass-action reaction rate
+ * expressions for low-density gases.
+ * @ingroup kinetics
+ */
+class GasKinetics : public Kinetics
+{
 
-  public:
+public:
 
     /**
      * @name Constructors and General Information
@@ -91,7 +94,7 @@ namespace Cantera {
      */
     GasKinetics(thermo_t* thermo = 0);
 
-  
+
     //!Copy Constructor for the %GasKinetics object.
     /*!
      * Currently, this is not fully implemented. If called it will
@@ -99,11 +102,11 @@ namespace Cantera {
      *
      * @param right  object to be copied
      */
-    GasKinetics(const GasKinetics &right);
+    GasKinetics(const GasKinetics& right);
 
     //! Destructor.
     virtual ~GasKinetics();
-    
+
     //! Assignment operator
     /*!
      *  This is NOT a virtual function.
@@ -111,7 +114,7 @@ namespace Cantera {
      * @param right    Reference to %GasKinetics object to be copied into the
      *                 current one.
      */
-    GasKinetics& operator=(const GasKinetics &right);
+    GasKinetics& operator=(const GasKinetics& right);
 
     //! Duplication routine for objects which inherit from Kinetics
     /*!
@@ -124,29 +127,33 @@ namespace Cantera {
      * @param  tpVector Vector of shallow pointers to ThermoPhase objects. this is the
      *                  m_thermo vector within this object
      */
-    virtual Kinetics *duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVector) const;
-      
-    
+    virtual Kinetics* duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVector) const;
+
+
     //! Identifies the subclass of the Kinetics manager type.
     /*!
      * These are listed in mix_defs.h.
-     */      
-    virtual int ID() const { return cGasKinetics; } 
+     */
+    virtual int ID() const {
+        return cGasKinetics;
+    }
 
-    //!  Identifies the kinetics manager type.  
+    //!  Identifies the kinetics manager type.
     /*!
-     *   Each class derived from Kinetics should overload this method to 
+     *   Each class derived from Kinetics should overload this method to
      *   return a unique integer. Standard values are defined in file
      *   mix_defs.h.
      */
-    virtual int type() const { return cGasKinetics; }
-
-        virtual doublereal reactantStoichCoeff(size_t k, size_t i) const {
-      return m_rrxn[k][i];
+    virtual int type() const {
+        return cGasKinetics;
     }
 
-        virtual doublereal productStoichCoeff(size_t k, size_t i) const {
-      return m_prxn[k][i];
+    virtual doublereal reactantStoichCoeff(size_t k, size_t i) const {
+        return m_rrxn[k][i];
+    }
+
+    virtual doublereal productStoichCoeff(size_t k, size_t i) const {
+        return m_prxn[k][i];
     }
 
     //@}
@@ -161,8 +168,8 @@ namespace Cantera {
      * of reactions.
      */
     virtual void getFwdRatesOfProgress(doublereal* fwdROP) {
-      updateROP();
-      std::copy(m_kdata->m_ropf.begin(), m_kdata->m_ropf.end(), fwdROP);
+        updateROP();
+        std::copy(m_kdata->m_ropf.begin(), m_kdata->m_ropf.end(), fwdROP);
     }
 
     /**
@@ -172,8 +179,8 @@ namespace Cantera {
      * of reactions.
      */
     virtual void getRevRatesOfProgress(doublereal* revROP) {
-      updateROP();
-      std::copy(m_kdata->m_ropr.begin(), m_kdata->m_ropr.end(), revROP);
+        updateROP();
+        std::copy(m_kdata->m_ropr.begin(), m_kdata->m_ropr.end(), revROP);
     }
 
     /**
@@ -183,8 +190,8 @@ namespace Cantera {
      * reactions.
      */
     virtual void getNetRatesOfProgress(doublereal* netROP) {
-      updateROP();
-      std::copy(m_kdata->m_ropnet.begin(), m_kdata->m_ropnet.end(), netROP);
+        updateROP();
+        std::copy(m_kdata->m_ropnet.begin(), m_kdata->m_ropnet.end(), netROP);
     }
 
 
@@ -203,7 +210,7 @@ namespace Cantera {
      *
      *  units = J kmol-1
      */
-    virtual void getDeltaGibbs( doublereal* deltaG);
+    virtual void getDeltaGibbs(doublereal* deltaG);
 
     /**
      * Return the array of values for the reaction enthalpy change.
@@ -211,7 +218,7 @@ namespace Cantera {
      *
      *  units = J kmol-1
      */
-    virtual void getDeltaEnthalpy( doublereal* deltaH);
+    virtual void getDeltaEnthalpy(doublereal* deltaH);
 
     /**
      * Return the array of values for the reactions change in
@@ -226,7 +233,7 @@ namespace Cantera {
     /**
      * Return the array of values for the reaction
      * standard state Gibbs free energy change.
-     * These values do not depend on the species 
+     * These values do not depend on the species
      * concentrations.
      *
      *  units = J kmol-1
@@ -308,12 +315,12 @@ namespace Cantera {
      * their meaning are specific to the particular kinetics
      * manager.
      */
-	virtual int reactionType(size_t i) const {
-      return m_index[i].first;
+    virtual int reactionType(size_t i) const {
+        return m_index[i].first;
     }
 
-        virtual std::string reactionString(size_t i) const {
-      return m_rxneqn[i];
+    virtual std::string reactionString(size_t i) const {
+        return m_rxneqn[i];
     }
 
     /**
@@ -321,10 +328,13 @@ namespace Cantera {
      * isReversible(i) is false, then the reverse rate of progress
      * for reaction i is always zero.
      */
-        virtual bool isReversible(size_t i) {
-      if (std::find(m_revindex.begin(), m_revindex.end(), i)
-	  < m_revindex.end()) return true;
-      else return false;
+    virtual bool isReversible(size_t i) {
+        if (std::find(m_revindex.begin(), m_revindex.end(), i)
+                < m_revindex.end()) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -333,7 +343,7 @@ namespace Cantera {
      * length is the number of reactions. units depends
      * on many issues.
      */
-    virtual void getFwdRateConstants(doublereal *kfwd);
+    virtual void getFwdRateConstants(doublereal* kfwd);
 
     /**
      * Return the reverse rate constants.
@@ -343,8 +353,8 @@ namespace Cantera {
      * for irreversible reactions if the default for
      * doIrreversible is overridden.
      */
-    virtual void getRevRateConstants(doublereal *krev,
-				     bool doIrreversible = false);
+    virtual void getRevRateConstants(doublereal* krev,
+                                     bool doIrreversible = false);
 
     //@}
     /**
@@ -366,10 +376,12 @@ namespace Cantera {
     void updateROP();
 
 
-        const std::vector<grouplist_t>& reactantGroups(size_t i)
-    { return m_rgroups[i]; }
-        const std::vector<grouplist_t>& productGroups(size_t i)
-    { return m_pgroups[i]; }
+    const std::vector<grouplist_t>& reactantGroups(size_t i) {
+        return m_rgroups[i];
+    }
+    const std::vector<grouplist_t>& productGroups(size_t i) {
+        return m_pgroups[i];
+    }
 
 
     void _update_rates_T();
@@ -377,39 +389,39 @@ namespace Cantera {
 
     //@}
 
-  protected:
+protected:
 
-        size_t m_kk, m_nfall;
+    size_t m_kk, m_nfall;
 
-        std::vector<size_t> m_fallindx;
+    std::vector<size_t> m_fallindx;
 
     Rate1<Arrhenius>                    m_falloff_low_rates;
     Rate1<Arrhenius>                    m_falloff_high_rates;
     Rate1<Arrhenius>                    m_rates;
 
-        mutable std::map<size_t, std::pair<int, size_t> > m_index;
+    mutable std::map<size_t, std::pair<int, size_t> > m_index;
 
     FalloffMgr                          m_falloffn;
 
     ThirdBodyMgr<Enhanced3BConc>        m_3b_concm;
     ThirdBodyMgr<Enhanced3BConc>        m_falloff_concm;
 
-        std::vector<size_t> m_irrev;
+    std::vector<size_t> m_irrev;
 
     ReactionStoichMgr*                   m_rxnstoich;
 
-        std::vector<size_t> m_fwdOrder;
+    std::vector<size_t> m_fwdOrder;
 
-        size_t m_nirrev;
-        size_t m_nrev;
+    size_t m_nirrev;
+    size_t m_nrev;
 
-        std::map<size_t, std::vector<grouplist_t> > m_rgroups;
-        std::map<size_t, std::vector<grouplist_t> > m_pgroups;
+    std::map<size_t, std::vector<grouplist_t> > m_rgroups;
+    std::map<size_t, std::vector<grouplist_t> > m_pgroups;
 
     std::vector<int>                         m_rxntype;
 
-        mutable std::vector<std::map<size_t, doublereal> > m_rrxn;
-        mutable std::vector<std::map<size_t, doublereal> > m_prxn;
+    mutable std::vector<std::map<size_t, doublereal> > m_rrxn;
+    mutable std::vector<std::map<size_t, doublereal> > m_prxn;
 
     /**
      * Difference between the input global reactants order
@@ -418,7 +430,7 @@ namespace Cantera {
      * stoichiometries.
      */
     array_fp  m_dn;
-        std::vector<size_t> m_revindex;
+    std::vector<size_t> m_revindex;
 
     std::vector<std::string> m_rxneqn;
 
@@ -429,9 +441,11 @@ namespace Cantera {
     array_fp m_grt;
 
 
-  private:
+private:
 
-        size_t reactionNumber(){ return m_ii;}
+    size_t reactionNumber() {
+        return m_ii;
+    }
     std::vector<std::map<int, doublereal> > m_stoich;
 
     void addElementaryReaction(const ReactionData& r);
@@ -440,15 +454,15 @@ namespace Cantera {
 
     void installReagents(const ReactionData& r);
 
-        void installGroups(size_t irxn, const std::vector<grouplist_t>& r,
-		       const std::vector<grouplist_t>& p);
+    void installGroups(size_t irxn, const std::vector<grouplist_t>& r,
+                       const std::vector<grouplist_t>& p);
     void updateKc();
 
-        void registerReaction(size_t rxnNumber, int type, size_t loc) {
-            m_index[rxnNumber] = std::pair<int, size_t>(type, loc);
+    void registerReaction(size_t rxnNumber, int type, size_t loc) {
+        m_index[rxnNumber] = std::pair<int, size_t>(type, loc);
     }
     bool m_finalized;
-  };
+};
 }
 
 #endif

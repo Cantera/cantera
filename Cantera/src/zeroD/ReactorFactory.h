@@ -14,58 +14,63 @@
 #include <boost/thread/mutex.hpp>
 #endif
 
-namespace Cantera {
+namespace Cantera
+{
 
-    class ReactorFactory : Cantera::FactoryBase {
+class ReactorFactory : Cantera::FactoryBase
+{
 
-    public:
+public:
 
-        static ReactorFactory* factory() {
-            #if defined(THREAD_SAFE_CANTERA)
-               boost::mutex::scoped_lock   lock(reactor_mutex) ;
-            #endif
-            if (!s_factory) s_factory = new ReactorFactory;
-            return s_factory;
+    static ReactorFactory* factory() {
+#if defined(THREAD_SAFE_CANTERA)
+        boost::mutex::scoped_lock   lock(reactor_mutex) ;
+#endif
+        if (!s_factory) {
+            s_factory = new ReactorFactory;
         }
+        return s_factory;
+    }
 
-        virtual void deleteFactory() {
-       #if defined(THREAD_SAFE_CANTERA)
-         boost::mutex::scoped_lock   lock(reactor_mutex) ;
-       #endif
+    virtual void deleteFactory() {
+#if defined(THREAD_SAFE_CANTERA)
+        boost::mutex::scoped_lock   lock(reactor_mutex) ;
+#endif
         if (s_factory) {
-          delete s_factory;
-          s_factory = 0;
+            delete s_factory;
+            s_factory = 0;
         }
     }
 
     /**
-         * Destructor doesn't do anything. 
+         * Destructor doesn't do anything.
          */
-        virtual ~ReactorFactory() {}
+    virtual ~ReactorFactory() {}
 
-        /**
-         * Create a new reactor.
-         * @param n the type to be created.
-         */
-        virtual ReactorBase* newReactor(int n);
-        virtual ReactorBase* newReactor(std::string reactorType);
+    /**
+     * Create a new reactor.
+     * @param n the type to be created.
+     */
+    virtual ReactorBase* newReactor(int n);
+    virtual ReactorBase* newReactor(std::string reactorType);
 
-    private:
+private:
 
-        static ReactorFactory* s_factory;
-         #if defined(THREAD_SAFE_CANTERA)
-            static boost::mutex reactor_mutex ;
-         #endif
-        ReactorFactory(){}
-    };
+    static ReactorFactory* s_factory;
+#if defined(THREAD_SAFE_CANTERA)
+    static boost::mutex reactor_mutex ;
+#endif
+    ReactorFactory() {}
+};
 
-    inline ReactorBase* newReactor(std::string model,  
-        ReactorFactory* f=0) {
-        if (f == 0) {
-            f = ReactorFactory::factory();
-        }
-        return f->newReactor(model);
+inline ReactorBase* newReactor(std::string model,
+                               ReactorFactory* f=0)
+{
+    if (f == 0) {
+        f = ReactorFactory::factory();
     }
+    return f->newReactor(model);
+}
 
 }
 

@@ -35,14 +35,14 @@
 using namespace std;
 
 //  constants defined in the module
-static PyObject *ErrorObject;
+static PyObject* ErrorObject;
 
 // local includes
 #include "pyutils.h"
 
 #include "ctphase_methods.cpp"
 #include "ctthermo_methods.cpp"
-#include "ctkinetics_methods.cpp"  
+#include "ctkinetics_methods.cpp"
 #include "cttransport_methods.cpp"
 #include "ctxml_methods.cpp"
 #include "ctfuncs.cpp"
@@ -60,8 +60,9 @@ static PyObject *ErrorObject;
 #endif
 
 static PyObject*
-pyct_appdelete(PyObject *self, PyObject *args) {
-    return Py_BuildValue("i",ct_appdelete());        
+pyct_appdelete(PyObject* self, PyObject* args)
+{
+    return Py_BuildValue("i",ct_appdelete());
 }
 
 #include "methods.h"
@@ -73,20 +74,20 @@ extern "C" {
 
     DL_EXPORT(void) init_cantera(void)
     {
-        PyObject *m, *d;
+        PyObject* m, *d;
 
         /* Initialize the type of the new type object here; doing it here
          * is required for portability to Windows without requiring C++. */
- 
+
         /* Create the module and add the functions */
         m = Py_InitModule("_cantera", ct_methods);
         import_array();
         Cantera::Logger* pylog = new Cantera::Py_Logger;
         setLogWriter(pylog);
- 
+
         /* Add some symbolic constants to the module */
         d = PyModule_GetDict(m);
-        ErrorObject = PyErr_NewException((char *)"cantera.error", NULL, NULL);
+        ErrorObject = PyErr_NewException((char*)"cantera.error", NULL, NULL);
         PyDict_SetItemString(d, "error", ErrorObject);
 #ifdef HAS_NUMERIC
         PyDict_SetItemString(d, "nummod",PyString_FromString("Numeric"));

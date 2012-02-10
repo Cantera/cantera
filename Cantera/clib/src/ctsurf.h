@@ -35,17 +35,17 @@ extern "C" {
 
     EEXXTT int DLL_CPREFIX surfkin_new(int iph, int ith1, int ith2);
     EEXXTT int DLL_CPREFIX surfkin_del(int i);
-    EEXXTT int DLL_CPREFIX surfkin_addreaction(int i, int nr, int* r, 
-        int* rst, int* ro, int np, int* p, int* pst,  
-        int nrate, double* rateParams);
+    EEXXTT int DLL_CPREFIX surfkin_addreaction(int i, int nr, int* r,
+            int* rst, int* ro, int np, int* p, int* pst,
+            int nrate, double* rateParams);
     EEXXTT int DLL_CPREFIX surfkin_nreactions(int i);
     EEXXTT int DLL_CPREFIX surfkin_getratesofprogress(int i, double* rop);
     EEXXTT int DLL_CPREFIX surfkin_getnetproductionrates(int i, double* sdot);
     EEXXTT int DLL_CPREFIX surfkin_integrate(int i, double dt);
     EEXXTT int DLL_CPREFIX surfkin_save(int i, char* fname, char* id, char* comment);
 
-    EEXXTT int DLL_CPREFIX surface_settolerances(int i, int nr, 
-        double* rtol, int na, double* atol);
+    EEXXTT int DLL_CPREFIX surface_settolerances(int i, int nr,
+            double* rtol, int na, double* atol);
     EEXXTT int DLL_CPREFIX surface_fixspecies(int i, int k, double c=-1.0);
     EEXXTT int DLL_CPREFIX surface_solvespecies(int i, int k);
     EEXXTT int DLL_CPREFIX surface_setmultiplier(int i, int k, double f);

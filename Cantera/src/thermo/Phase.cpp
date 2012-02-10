@@ -14,56 +14,60 @@
 
 using namespace std;
 
-namespace Cantera {    
+namespace Cantera
+{
 
-  Phase::Phase() : 
+Phase::Phase() :
     Constituents(),
     State(),
     m_kk(0),
     m_ndim(3),
-    m_index(-1), 
-    m_xml(new XML_Node("phase")), 
+    m_index(-1),
+    m_xml(new XML_Node("phase")),
     m_id("<phase>"),
-    m_name("") 
-  {
-  }
+    m_name("")
+{
+}
 
-  /*
-   * Copy Constructor
-   *
-   * This function just does the default initialization, and
-   * then calls the assignment operator.
-   */
-  Phase::Phase(const Phase &right) :
+/*
+ * Copy Constructor
+ *
+ * This function just does the default initialization, and
+ * then calls the assignment operator.
+ */
+Phase::Phase(const Phase& right) :
     Constituents(),
     State(),
     m_kk(0),
     m_ndim(3),
-    m_index(-1), 
-    m_xml(new XML_Node("phase")), 
+    m_index(-1),
+    m_xml(new XML_Node("phase")),
     m_id("<phase>"),
-    m_name("") 
-  {
+    m_name("")
+{
     /*
      * Call the assignment operator.
      */
     *this = operator=(right);
-  }
-    
-  /*
-   * Assignment operator
-   *
-   * This operation is sort of complicated. We have to
-   * call the assignment operator for the Constituents and
-   * State operators that Phase inherits from. Then,
-   * we have to copy our own data, making sure to do a 
-   * deep copy on the XML_Node data owned by this object.
-   */
-  Phase &Phase::operator=(const Phase &right) {
+}
+
+/*
+ * Assignment operator
+ *
+ * This operation is sort of complicated. We have to
+ * call the assignment operator for the Constituents and
+ * State operators that Phase inherits from. Then,
+ * we have to copy our own data, making sure to do a
+ * deep copy on the XML_Node data owned by this object.
+ */
+Phase& Phase::operator=(const Phase& right)
+{
     /*
      * Check for self assignment.
      */
-    if (this == &right) return *this;
+    if (this == &right) {
+        return *this;
+    }
     /*
      * Now call the inherited-classes assignment operators.
      */
@@ -83,298 +87,364 @@ namespace Cantera {
      * in each object
      */
     if (m_xml) {
-      delete m_xml;
-      m_xml = 0;
+        delete m_xml;
+        m_xml = 0;
     }
     if (right.m_xml) {
-      m_xml   = new XML_Node();
-      (right.m_xml)->copy(m_xml);
+        m_xml   = new XML_Node();
+        (right.m_xml)->copy(m_xml);
     }
     m_id    = right.m_id;
     m_name  = right.m_name;
 
     return *this;
-  }
+}
 
-  // Destructor.
-  Phase::~Phase() { 
+// Destructor.
+Phase::~Phase()
+{
     if (m_xml) {
-      delete m_xml;
-      m_xml = 0;
+        delete m_xml;
+        m_xml = 0;
     }
-  }
+}
 
-  XML_Node& Phase::xml() { 
+XML_Node& Phase::xml()
+{
     return *m_xml;
-  }
+}
 
-  std::string Phase::id() const { 
-    return m_id; 
-  }
+std::string Phase::id() const
+{
+    return m_id;
+}
 
-  void Phase::setID(std::string id) {
+void Phase::setID(std::string id)
+{
     m_id = id;
-  } 
+}
 
-  std::string Phase::name() const {
-    return m_name; 
-  }
+std::string Phase::name() const
+{
+    return m_name;
+}
 
-  void Phase::setName(std::string nm) { 
-    m_name = nm; 
-  }
+void Phase::setName(std::string nm)
+{
+    m_name = nm;
+}
 
-  size_t Phase::index() const {
+size_t Phase::index() const
+{
     return m_index;
-  }
+}
 
-  void Phase::setIndex(size_t m) {
+void Phase::setIndex(size_t m)
+{
     m_index = m;
-  }
+}
 
-  // Returns the index of a species named 'name' within the Phase object
-  /*
-   * The first species in the phase will have an index 0, and the last one in the
-   * phase will have an index of nSpecies() - 1.
-   *
-   *
-   *  A species name may be referred to via three methods:
-   *
-   *    -   "speciesName"
-   *    -   "PhaseId:speciesName"
-   *    -   "phaseName:speciesName"
-   *    .   
-   *
-   *  The first two methods of naming may not yield a unique species within
-   *  complicated assemblies of Cantera Phases.
-   *
-   * @param nameStr String name of the species. It may also be the phase name
-   *                species name combination, separated by a colon.
-   * @return     Returns the index of the species. If the name is not found,
-   *             the value of -1 is returned.
-   */
-  int Phase::speciesIndex(std::string nameStr) const {
+// Returns the index of a species named 'name' within the Phase object
+/*
+ * The first species in the phase will have an index 0, and the last one in the
+ * phase will have an index of nSpecies() - 1.
+ *
+ *
+ *  A species name may be referred to via three methods:
+ *
+ *    -   "speciesName"
+ *    -   "PhaseId:speciesName"
+ *    -   "phaseName:speciesName"
+ *    .
+ *
+ *  The first two methods of naming may not yield a unique species within
+ *  complicated assemblies of Cantera Phases.
+ *
+ * @param nameStr String name of the species. It may also be the phase name
+ *                species name combination, separated by a colon.
+ * @return     Returns the index of the species. If the name is not found,
+ *             the value of -1 is returned.
+ */
+int Phase::speciesIndex(std::string nameStr) const
+{
     std::string pn;
     std::string sn = parseSpeciesName(nameStr, pn);
     if (pn == "" || pn == m_name || pn == m_id) {
-      return Constituents::speciesIndex(sn);
+        return Constituents::speciesIndex(sn);
     }
     return -1;
-  }
+}
 
-  std::string Phase::speciesSPName(int k) const {
+std::string Phase::speciesSPName(int k) const
+{
     std::string sn = Constituents::speciesName(k);
     return(m_name + ":" + sn);
-  }
+}
 
-  void Phase::saveState(vector_fp& state) const {
+void Phase::saveState(vector_fp& state) const
+{
     state.resize(nSpecies() + 2);
     saveState(state.size(),&(state[0]));
-  }
-  void Phase::saveState(size_t lenstate, doublereal* state) const {
+}
+void Phase::saveState(size_t lenstate, doublereal* state) const
+{
     state[0] = temperature();
     state[1] = density();
     getMassFractions(state + 2);
-  }
+}
 
-  void Phase::restoreState(const vector_fp& state) {
+void Phase::restoreState(const vector_fp& state)
+{
     restoreState(state.size(),&state[0]);
-  }
+}
 
-  void Phase::restoreState(size_t lenstate, const doublereal* state) {
+void Phase::restoreState(size_t lenstate, const doublereal* state)
+{
     if (lenstate >= nSpecies() + 2) {
-      setMassFractions_NoNorm(state + 2);
-      setTemperature(state[0]);
-      setDensity(state[1]);
+        setMassFractions_NoNorm(state + 2);
+        setTemperature(state[0]);
+        setDensity(state[1]);
+    } else {
+        throw ArraySizeError("Phase::restoreState",
+                             lenstate,nSpecies()+2);
     }
-    else {
-      throw ArraySizeError("Phase::restoreState",
-			   lenstate,nSpecies()+2);
-    }
-  }
+}
 
-  void Phase::setMoleFractionsByName(compositionMap& xMap) {
+void Phase::setMoleFractionsByName(compositionMap& xMap)
+{
     size_t kk = nSpecies();
     doublereal x;
     vector_fp mf(kk, 0.0);
     for (size_t k = 0; k < kk; k++) {
-      x = xMap[speciesName(k)];
-      if (x > 0.0) mf[k] = x;
+        x = xMap[speciesName(k)];
+        if (x > 0.0) {
+            mf[k] = x;
+        }
     }
     setMoleFractions(&mf[0]);
-  }
+}
 
-  void Phase::setMoleFractionsByName(const std::string& x) {
+void Phase::setMoleFractionsByName(const std::string& x)
+{
     size_t kk = nSpecies();
     compositionMap xx;
     for (size_t k = 0; k < kk; k++) {
-      xx[speciesName(k)] = -1.0;
+        xx[speciesName(k)] = -1.0;
     }
     parseCompString(x, xx);
     setMoleFractionsByName(xx);
     //int kk = nSpecies();
     //vector_fp mf(kk);
-    //for (int k = 0; k < kk; k++) { 
+    //for (int k = 0; k < kk; k++) {
     //    mf[k] = xx[speciesName(k)];
     //}
     //setMoleFractions(mf.begin());
-  }
+}
 
-  void Phase::setMassFractionsByName(compositionMap& yMap) {
+void Phase::setMassFractionsByName(compositionMap& yMap)
+{
     size_t kk = nSpecies();
     doublereal y;
     vector_fp mf(kk, 0.0);
     for (size_t k = 0; k < kk; k++) {
-      y = yMap[speciesName(k)];
-      if (y > 0.0) mf[k] = y;
+        y = yMap[speciesName(k)];
+        if (y > 0.0) {
+            mf[k] = y;
+        }
     }
     setMassFractions(&mf[0]);
-  }
+}
 
-  void Phase::setMassFractionsByName(const std::string& y) {
+void Phase::setMassFractionsByName(const std::string& y)
+{
     size_t kk = nSpecies();
     compositionMap yy;
     for (size_t k = 0; k < kk; k++) {
-      yy[speciesName(k)] = -1.0;
+        yy[speciesName(k)] = -1.0;
     }
     parseCompString(y, yy);
     setMassFractionsByName(yy);
-  }
+}
 
-  /** Set the temperature (K), density (kg/m^3), and mole fractions. */
-  void Phase::setState_TRX(doublereal t, doublereal dens, 
-			   const doublereal* x) {
-    setMoleFractions(x); setTemperature(t); setDensity(dens);
-  }
+/** Set the temperature (K), density (kg/m^3), and mole fractions. */
+void Phase::setState_TRX(doublereal t, doublereal dens,
+                         const doublereal* x)
+{
+    setMoleFractions(x);
+    setTemperature(t);
+    setDensity(dens);
+}
 
-  void Phase::setState_TNX(doublereal t, doublereal n, 
-			   const doublereal* x) {
-    setMoleFractions(x); setTemperature(t); setMolarDensity(n);
-  }
+void Phase::setState_TNX(doublereal t, doublereal n,
+                         const doublereal* x)
+{
+    setMoleFractions(x);
+    setTemperature(t);
+    setMolarDensity(n);
+}
 
-  /** Set the temperature (K), density (kg/m^3), and mole fractions. */
-  void Phase::setState_TRX(doublereal t, doublereal dens, 
-			   compositionMap& x) {
-    setMoleFractionsByName(x); setTemperature(t); setDensity(dens);
-  }
+/** Set the temperature (K), density (kg/m^3), and mole fractions. */
+void Phase::setState_TRX(doublereal t, doublereal dens,
+                         compositionMap& x)
+{
+    setMoleFractionsByName(x);
+    setTemperature(t);
+    setDensity(dens);
+}
 
-  /** Set the temperature (K), density (kg/m^3), and mass fractions. */
-  void Phase::setState_TRY(doublereal t, doublereal dens, 
-			   const doublereal* y) {
-    setMassFractions(y); setTemperature(t); setDensity(dens);
-  }        
+/** Set the temperature (K), density (kg/m^3), and mass fractions. */
+void Phase::setState_TRY(doublereal t, doublereal dens,
+                         const doublereal* y)
+{
+    setMassFractions(y);
+    setTemperature(t);
+    setDensity(dens);
+}
 
-  /** Set the temperature (K), density (kg/m^3), and mass fractions. */
-  void Phase::setState_TRY(doublereal t, doublereal dens, 
-			   compositionMap& y) {
-    setMassFractionsByName(y); setTemperature(t); setDensity(dens);
-  }
-    
-  /** Set the temperature (K) and density (kg/m^3) */
-  void Phase::setState_TR(doublereal t, doublereal rho) {
-    setTemperature(t); setDensity(rho);
-  }
-    
-  /** Set the temperature (K) and mole fractions.  */
-  void Phase::setState_TX(doublereal t, doublereal* x) {
-    setTemperature(t); setMoleFractions(x);
-  }
+/** Set the temperature (K), density (kg/m^3), and mass fractions. */
+void Phase::setState_TRY(doublereal t, doublereal dens,
+                         compositionMap& y)
+{
+    setMassFractionsByName(y);
+    setTemperature(t);
+    setDensity(dens);
+}
 
-  /** Set the temperature (K) and mass fractions.  */
-  void Phase::setState_TY(doublereal t, doublereal* y) {
-    setTemperature(t); setMassFractions(y);
-  }
+/** Set the temperature (K) and density (kg/m^3) */
+void Phase::setState_TR(doublereal t, doublereal rho)
+{
+    setTemperature(t);
+    setDensity(rho);
+}
 
-  /** Set the density (kg/m^3) and mole fractions.  */
-  void Phase::setState_RX(doublereal rho, doublereal* x) {
-    setMoleFractions(x); setDensity(rho);
-  }
+/** Set the temperature (K) and mole fractions.  */
+void Phase::setState_TX(doublereal t, doublereal* x)
+{
+    setTemperature(t);
+    setMoleFractions(x);
+}
 
-  /** Set the density (kg/m^3) and mass fractions.  */
-  void Phase::setState_RY(doublereal rho, doublereal* y) {
-    setMassFractions(y); setDensity(rho);
-  }
+/** Set the temperature (K) and mass fractions.  */
+void Phase::setState_TY(doublereal t, doublereal* y)
+{
+    setTemperature(t);
+    setMassFractions(y);
+}
 
-  /*
-   * Copy the vector of molecular weights into vector weights.
-   */
-  void Phase::getMolecularWeights(vector_fp& weights) const {
+/** Set the density (kg/m^3) and mole fractions.  */
+void Phase::setState_RX(doublereal rho, doublereal* x)
+{
+    setMoleFractions(x);
+    setDensity(rho);
+}
+
+/** Set the density (kg/m^3) and mass fractions.  */
+void Phase::setState_RY(doublereal rho, doublereal* y)
+{
+    setMassFractions(y);
+    setDensity(rho);
+}
+
+/*
+ * Copy the vector of molecular weights into vector weights.
+ */
+void Phase::getMolecularWeights(vector_fp& weights) const
+{
     const array_fp& mw = Constituents::molecularWeights();
-    if (weights.size() < mw.size()) weights.resize(mw.size());
+    if (weights.size() < mw.size()) {
+        weights.resize(mw.size());
+    }
     copy(mw.begin(), mw.end(), weights.begin());
-  }
+}
 
-  /*
-   * Copy the vector of molecular weights into array weights.
-   * @deprecated
-   */
-  void Phase::getMolecularWeights(int iwt, doublereal* weights) const {
+/*
+ * Copy the vector of molecular weights into array weights.
+ * @deprecated
+ */
+void Phase::getMolecularWeights(int iwt, doublereal* weights) const
+{
     const array_fp& mw = Constituents::molecularWeights();
     copy(mw.begin(), mw.end(), weights);
-  }
+}
 
-  /*
-   * Copy the vector of molecular weights into array weights.
-   */
-  void Phase::getMolecularWeights(doublereal* weights) const {
+/*
+ * Copy the vector of molecular weights into array weights.
+ */
+void Phase::getMolecularWeights(doublereal* weights) const
+{
     const array_fp& mw = Constituents::molecularWeights();
     copy(mw.begin(), mw.end(), weights);
-  }
+}
 
-  /**
-   * Return a const reference to the internal vector of
-   * molecular weights.
-   */
-  const array_fp& Phase::molecularWeights() const {
-    return Constituents::molecularWeights(); 
-  }
+/**
+ * Return a const reference to the internal vector of
+ * molecular weights.
+ */
+const array_fp& Phase::molecularWeights() const
+{
+    return Constituents::molecularWeights();
+}
 
 
-  /**
-   * Get the mole fractions by name. 
-   */
-  void Phase::getMoleFractionsByName(compositionMap& x) const {
+/**
+ * Get the mole fractions by name.
+ */
+void Phase::getMoleFractionsByName(compositionMap& x) const
+{
     x.clear();
     size_t kk = nSpecies();
     for (size_t k = 0; k < kk; k++) {
-      x[speciesName(k)] = State::moleFraction(k);
+        x[speciesName(k)] = State::moleFraction(k);
     }
-  }
+}
 
-  doublereal Phase::moleFraction(size_t k) const {
+doublereal Phase::moleFraction(size_t k) const
+{
     return State::moleFraction(k);
-  }
+}
 
-  doublereal Phase::moleFraction(std::string nameSpec) const {
+doublereal Phase::moleFraction(std::string nameSpec) const
+{
     size_t iloc = speciesIndex(nameSpec);
-    if (iloc != npos) return State::moleFraction(iloc);
-    else return 0.0;
-  }
+    if (iloc != npos) {
+        return State::moleFraction(iloc);
+    } else {
+        return 0.0;
+    }
+}
 
-  doublereal Phase::massFraction(size_t k) const {
+doublereal Phase::massFraction(size_t k) const
+{
     return State::massFraction(k);
-  }
+}
 
-  doublereal Phase::massFraction(std::string nameSpec) const {
+doublereal Phase::massFraction(std::string nameSpec) const
+{
     size_t iloc = speciesIndex(nameSpec);
-    if (iloc != npos) return massFractions()[iloc];
-    else return 0.0;
-  }
+    if (iloc != npos) {
+        return massFractions()[iloc];
+    } else {
+        return 0.0;
+    }
+}
 
-  doublereal Phase::chargeDensity() const {
+doublereal Phase::chargeDensity() const
+{
     size_t kk = nSpecies();
     doublereal cdens = 0.0;
-    for (size_t k = 0; k < kk; k++)
-      cdens += charge(k)*State::moleFraction(k);
+    for (size_t k = 0; k < kk; k++) {
+        cdens += charge(k)*State::moleFraction(k);
+    }
     cdens *= Faraday;
     return cdens;
-  }
+}
 
-  /** 
-   *  Finished adding species, prepare to use them for calculation
-   *  of mixture properties.
-   */
-  void Phase::freezeSpecies() {
+/**
+ *  Finished adding species, prepare to use them for calculation
+ *  of mixture properties.
+ */
+void Phase::freezeSpecies()
+{
     Constituents::freezeSpecies();
     init(Constituents::molecularWeights());
     size_t kk = nSpecies();
@@ -385,17 +455,18 @@ namespace Cantera {
     m_data[2] = 1.0;
 
     m_kk = nSpecies();
-  } 
+}
 
-  bool Phase::ready() const {
+bool Phase::ready() const
+{
     return (m_kk > 0 && Constituents::ready() && State::ready());
-  }
+}
 
-  //         int Phase::installUpdater_T(Updater* u) {
-  //             return m_T_updater.install(u);
-  //         }
+//         int Phase::installUpdater_T(Updater* u) {
+//             return m_T_updater.install(u);
+//         }
 
-  //         int Phase::installUpdater_C(Updater* u) {
-  //             return m_C_updater.install(u);
-  //         }
+//         int Phase::installUpdater_C(Updater* u) {
+//             return m_C_updater.install(u);
+//         }
 }

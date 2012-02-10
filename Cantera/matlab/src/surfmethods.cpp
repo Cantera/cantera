@@ -7,15 +7,17 @@
 
 using namespace std;
 
-namespace Cantera {
-    void writelog(const std::string& s);
+namespace Cantera
+{
+void writelog(const std::string& s);
 }
 using namespace Cantera;
 
-void surfmethods( int nlhs, mxArray *plhs[],
-    int nrhs, const mxArray *prhs[] ) {
+void surfmethods(int nlhs, mxArray* plhs[],
+                 int nrhs, const mxArray* prhs[])
+{
     double vv;
-    int job = getInt(prhs[2]); 
+    int job = getInt(prhs[2]);
     int iok;
     double* ptr;
     char* str;
@@ -41,8 +43,7 @@ void surfmethods( int nlhs, mxArray *plhs[],
             nsp = phase_nSpecies(surf);
             if ((m == nsp && n == 1) || (m == 1 && n == nsp)) {
                 iok = surf_setcoverages(surf, ptr);
-            }
-            else {
+            } else {
                 mexErrMsgTxt("wrong array size for coverages");
             }
             break;
@@ -56,9 +57,11 @@ void surfmethods( int nlhs, mxArray *plhs[],
         default:
             mexErrMsgTxt("unknown job");
         }
-        if (iok < 0) reportError();
+        if (iok < 0) {
+            reportError();
+        }
         plhs[0] = mxCreateNumericMatrix(1,1,mxDOUBLE_CLASS,mxREAL);
-        double *h = mxGetPr(plhs[0]);
+        double* h = mxGetPr(plhs[0]);
         *h = double(iok);
         return;
     }
@@ -80,21 +83,23 @@ void surfmethods( int nlhs, mxArray *plhs[],
             ;
         }
         plhs[0] = mxCreateNumericMatrix((mwSize) nsp,1,
-            mxDOUBLE_CLASS,mxREAL);
-        double *h = mxGetPr(plhs[0]);
+                                        mxDOUBLE_CLASS,mxREAL);
+        double* h = mxGetPr(plhs[0]);
         if (iok >= 0) {
-            for (size_t i = 0; i < nsp; i++) h[i] = x[i];
+            for (size_t i = 0; i < nsp; i++) {
+                h[i] = x[i];
+            }
             delete x;
             return;
-        }
-        else {
-            for (size_t i = 0; i < nsp; i++) h[i] = -999.99;
+        } else {
+            for (size_t i = 0; i < nsp; i++) {
+                h[i] = -999.99;
+            }
             delete x;
             reportError();
             return;
         }
-    }
-    else {
+    } else {
         mexErrMsgTxt("unknown job");
     }
 }

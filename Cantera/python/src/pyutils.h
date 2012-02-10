@@ -3,7 +3,8 @@
 
 #include "Python.h"
 
-static PyObject* reportCanteraError() {
+static PyObject* reportCanteraError()
+{
     char* buf = 0;
     int buflen = getCanteraError(0, buf) + 1;
     buf = new char[buflen+1];
@@ -14,9 +15,11 @@ static PyObject* reportCanteraError() {
     return NULL;
 }
 
-static PyObject* reportError(int n) {
-    if (n == -1) return reportCanteraError();
-    else if (n < 0) {
+static PyObject* reportError(int n)
+{
+    if (n == -1) {
+        return reportCanteraError();
+    } else if (n < 0) {
         PyErr_SetString(ErrorObject,"Exception occurred.");
     }
     return NULL;

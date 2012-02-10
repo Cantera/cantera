@@ -15,98 +15,100 @@
 
 
 #include "ct_defs.h"
-namespace Cantera {
-  class WaterPropsIAPWS;
-  class PDSS_Water;
- 
-  /**
-   * @defgroup relatedProps Electric Properties of Phases
-   *
-   *
-   * <H3>
-   *    Treatment of the %Phase Potential and the electrochemical potential of a species
-   * </H3>
-   *
-   *
-   *  The electrochemical potential of species <I>k</I> in a phase <I>p</I>, \f$ \zeta_k \f$,
-   *  is related to the chemical potential via
-   *  the following equation,
-   *
-   *       \f[
-   *            \zeta_{k}(T,P) = \mu_{k}(T,P) + z_k \phi_p
-   *       \f]
-   *
-   *   where  \f$ \nu_k \f$ is the charge of species <I>k</I>, and \f$ \phi_p \f$ is
-   *   the electric potential of phase <I>p</I>.
-   *
-   *  The potential  \f$ \phi_p \f$ is tracked and internally storred within
-   *  the base %ThermoPhase object. It constitutes a specification of the
-   *  internal state of the phase; it's the third state variable, the first
-   *  two being temperature and density (or, pressure, for incompressible
-   *  equations of state). It may be set with the function,
-   *  ThermoPhase::setElectricPotential(),
-   *  and may be queried with the function ThermoPhase::electricPotential().
-   *
-   *  Note, the overall electrochemical potential of a phase may not be
-   *  changed by the potential because many phases enforce charge
-   *  neutrality:
-   *
-   *       \f[
-   *            0 = \sum_k z_k X_k
-   *       \f]
-   *
-   *  Whether charge neutrality is necessary for a phase is also specified
-   *  within the ThermoPhase object, by the function call
-   *  ThermoPhase::chargeNeutralityNecessary(). Note, that it is not
-   *  necessary for the IdealGas phase, currently. However, it is
-   *  necessary for liquid phases such as Cantera::DebyeHuckel and
-   *  Cantera::HMWSoln for the proper specification of the chemical potentials.
-   *
-   *
-   *  This equation, when applied to the \f$ \zeta_k \f$ equation described
-   *  above, results in a zero net change in the effective Gibbs free
-   *  energy of the phase. However, specific charged species in the phase
-   *  may increase or decrease their electochemical potentials, which will
-   *  have an effect on interfacial reactions involving charged species,
-   *  when there is a potential drop between phases. This effect is used
-   *  within the Cantera::InterfaceKinetics and Cantera::EdgeKinetics kinetics
-   *  objects classes.
-   *
-   *
-   * <H3>
-   *   Electrothermochemical Properties of Phases of Matter.
-   * </H3>
-   *
-   * The following classes are used to compute the electrical and electrothermochemical properties of
-   * phases of matter. The main property currently is the dielectric
-   * constant, which is an important parameter for electolyte solutions.
-   * The class WaterProps calculate the dielectric constant of water as a function of
-   * temperature and pressure.
-   *
-   * WaterProps also calculate the constant A_debye used in the Debye Huckel
-   * and Pitzer activity coefficient calculations. 
-   *
-   * 
-   * @ingroup phases
-   */
-  //@{
+namespace Cantera
+{
+class WaterPropsIAPWS;
+class PDSS_Water;
+
+/**
+ * @defgroup relatedProps Electric Properties of Phases
+ *
+ *
+ * <H3>
+ *    Treatment of the %Phase Potential and the electrochemical potential of a species
+ * </H3>
+ *
+ *
+ *  The electrochemical potential of species <I>k</I> in a phase <I>p</I>, \f$ \zeta_k \f$,
+ *  is related to the chemical potential via
+ *  the following equation,
+ *
+ *       \f[
+ *            \zeta_{k}(T,P) = \mu_{k}(T,P) + z_k \phi_p
+ *       \f]
+ *
+ *   where  \f$ \nu_k \f$ is the charge of species <I>k</I>, and \f$ \phi_p \f$ is
+ *   the electric potential of phase <I>p</I>.
+ *
+ *  The potential  \f$ \phi_p \f$ is tracked and internally storred within
+ *  the base %ThermoPhase object. It constitutes a specification of the
+ *  internal state of the phase; it's the third state variable, the first
+ *  two being temperature and density (or, pressure, for incompressible
+ *  equations of state). It may be set with the function,
+ *  ThermoPhase::setElectricPotential(),
+ *  and may be queried with the function ThermoPhase::electricPotential().
+ *
+ *  Note, the overall electrochemical potential of a phase may not be
+ *  changed by the potential because many phases enforce charge
+ *  neutrality:
+ *
+ *       \f[
+ *            0 = \sum_k z_k X_k
+ *       \f]
+ *
+ *  Whether charge neutrality is necessary for a phase is also specified
+ *  within the ThermoPhase object, by the function call
+ *  ThermoPhase::chargeNeutralityNecessary(). Note, that it is not
+ *  necessary for the IdealGas phase, currently. However, it is
+ *  necessary for liquid phases such as Cantera::DebyeHuckel and
+ *  Cantera::HMWSoln for the proper specification of the chemical potentials.
+ *
+ *
+ *  This equation, when applied to the \f$ \zeta_k \f$ equation described
+ *  above, results in a zero net change in the effective Gibbs free
+ *  energy of the phase. However, specific charged species in the phase
+ *  may increase or decrease their electochemical potentials, which will
+ *  have an effect on interfacial reactions involving charged species,
+ *  when there is a potential drop between phases. This effect is used
+ *  within the Cantera::InterfaceKinetics and Cantera::EdgeKinetics kinetics
+ *  objects classes.
+ *
+ *
+ * <H3>
+ *   Electrothermochemical Properties of Phases of Matter.
+ * </H3>
+ *
+ * The following classes are used to compute the electrical and electrothermochemical properties of
+ * phases of matter. The main property currently is the dielectric
+ * constant, which is an important parameter for electolyte solutions.
+ * The class WaterProps calculate the dielectric constant of water as a function of
+ * temperature and pressure.
+ *
+ * WaterProps also calculate the constant A_debye used in the Debye Huckel
+ * and Pitzer activity coefficient calculations.
+ *
+ *
+ * @ingroup phases
+ */
+//@{
 
 
-  //! The WaterProps class is used to 
-  //! house several approximation routines for properties of water.
-  /*!
-   *  The class is also a wrapper around the WaterPropsIAPWS class
-   *  which provides the calculations for the equation of
-   *  state properties for water.
-   *
-   *  In particular, this class house routine for the calculation
-   *  of the dielectric constant of water
-   *
-   * Most if not all of the member functions are static.
-   */
-  class WaterProps {
+//! The WaterProps class is used to
+//! house several approximation routines for properties of water.
+/*!
+ *  The class is also a wrapper around the WaterPropsIAPWS class
+ *  which provides the calculations for the equation of
+ *  state properties for water.
+ *
+ *  In particular, this class house routine for the calculation
+ *  of the dielectric constant of water
+ *
+ * Most if not all of the member functions are static.
+ */
+class WaterProps
+{
 
-  public:
+public:
 
     //! Default constructor
     WaterProps();
@@ -115,19 +117,19 @@ namespace Cantera {
     /*!
      * @param wptr Pointer to WaterPropsIAPWS object
      */
-    WaterProps(WaterPropsIAPWS *wptr);
+    WaterProps(WaterPropsIAPWS* wptr);
 
     //! Constructor with pointer to Water PDSS object
     /*!
      * @param wptr Pointer to water standard state object
      */
-    WaterProps(PDSS_Water *wptr);
+    WaterProps(PDSS_Water* wptr);
 
     //! Copy Constructor
     /*!
      * @param b Object to be copied
      */
-    WaterProps(const WaterProps &b);
+    WaterProps(const WaterProps& b);
 
     //! destructor
     virtual ~WaterProps();
@@ -138,7 +140,7 @@ namespace Cantera {
      */
     WaterProps& operator=(const WaterProps& b);
 
-    
+
     //! Simple calculation of water density at atmospheric pressure.
     //! Valid up to boiling point.
     /*!
@@ -153,7 +155,7 @@ namespace Cantera {
      * @return value returned depends on ifunc value:
      * ifunc = 0 Returns the density in kg/m^3
      * ifunc = 1 returns the derivative of the density wrt T.
-     * ifunc = 2 returns the 2nd derivative of the density wrt T 
+     * ifunc = 2 returns the 2nd derivative of the density wrt T
      * ifunc = 3 returns the derivative of the density wrt P.
      *
      * Verification:
@@ -163,13 +165,13 @@ namespace Cantera {
      */
     static doublereal density_T(doublereal T, doublereal P, int ifunc);
 
-   
-    //!     Bradley-Pitzer equation for the dielectric constant 
+
+    //!     Bradley-Pitzer equation for the dielectric constant
     //!     of water as a function of temperature and pressure.
     /*!
      *  Returns the dimensionless relative dielectric constant
      *  and its derivatives.
-     * 
+     *
      *
      * Range of validity: 0 to 350C, 0 to 1 kbar pressure
      *
@@ -193,13 +195,13 @@ namespace Cantera {
      *   Numerical experiments indicate that this function agrees with
      *   the Archer and Wang data in the CRC p. 6-10 to all 4 significant
      *   digits shown (0 to 100C).
-     * 
+     *
      *   value at 25C and 1 atm, relEps = 78.38
-     * 
+     *
      */
     doublereal relEpsilon(doublereal T, doublereal P_pascal,  int ifunc = 0);
 
-    
+
     //! ADebye calculates the value of A_Debye as a function
     //! of temperature and pressure according to relations
     //! that take into account the temperature and pressure
@@ -210,7 +212,7 @@ namespace Cantera {
      *  It depends on temperature and pressure. And, therefore,
      *  most be recalculated whenever T or P changes.
      *  The units returned by this expression are sqrt(kg/gmol).
-     *     
+     *
      *
      *    \f[
      *      A_{Debye} = \frac{1}{8 \pi} \sqrt{\frac{2 N_{Avog} \rho_w}{1000}}
@@ -264,7 +266,7 @@ namespace Cantera {
      * @return returns the saturation pressure (pascal)
      */
     doublereal satPressure(doublereal T);
- 
+
 
     //! Returns the density of water
     /*!
@@ -313,7 +315,7 @@ namespace Cantera {
      *  for steam and for water, even near the critical point.
      *  Pressures above 500 MPa and temperature above 900 C are suspect.
      */
-    doublereal viscosityWater() const;  
+    doublereal viscosityWater() const;
 
     //! Returns the thermal conductivity of water at the current conditions
     //! (W/m/K)
@@ -336,19 +338,19 @@ namespace Cantera {
 
 
 
-  protected:
+protected:
 
     //! Pointer to the WaterPropsIAPWS object
     /*!
      *  this pointer points to the water object.
      */
-    WaterPropsIAPWS *m_waterIAPWS;
+    WaterPropsIAPWS* m_waterIAPWS;
 
     //! true if we own the WaterPropsIAPWS object
     bool m_own_sub;
-  };
+};
 
- //@}
+//@}
 }
 
 

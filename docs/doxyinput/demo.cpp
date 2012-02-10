@@ -4,7 +4,8 @@
 #include <cantera/equilibrium.h>    // chemical equilibrium
 #include <cantera/transport.h>      // transport properties
 
-void demoprog() {
+void demoprog()
+{
 
     IdealGasMix gas("h2o2.cti","ohmech");
     double temp = 1200.0;
@@ -23,7 +24,7 @@ void demoprog() {
         "Molar cp:       %14.5g J/kmol-K\n",
         gas.temperature(), gas.pressure(), gas.density(),
         gas.enthalpy_mole(), gas.entropy_mole(), gas.cp_mole());
-        
+
     // set the gas to the equilibrium state with the same specific
     // enthalpy and pressure
     equilibrate(gas,"HP");
@@ -41,7 +42,7 @@ void demoprog() {
 
 
     //   Reaction information
- 
+
     int irxns = gas.nReactions();
     double* qf = new double[irxns];
     double* qr = new double[irxns];
@@ -56,8 +57,8 @@ void demoprog() {
 
     printf("\n\n");
     for (int i = 0; i < irxns; i++) {
-        printf("%30s %14.5g %14.5g %14.5g  kmol/m3/s\n", 
-            gas.reactionString(i).c_str(), qf[i], qr[i], q[i]);
+        printf("%30s %14.5g %14.5g %14.5g  kmol/m3/s\n",
+               gas.reactionString(i).c_str(), qf[i], qr[i], q[i]);
     }
 
 
@@ -84,15 +85,15 @@ void demoprog() {
     delete diff;
     delete tr;
 }
-     
 
- 
-int main() {
+
+
+int main()
+{
 
     try {
         demoprog();
-    }
-    catch (CanteraError) {
+    } catch (CanteraError) {
         showErrors(cout);
     }
 }

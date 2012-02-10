@@ -1,7 +1,7 @@
 /**
  * @file StoichSubstanceSSTP.h
  * Header file for the StoichSubstanceSSTP class, which represents a fixed-composition
- * incompressible substance (see \ref thermoprops and 
+ * incompressible substance (see \ref thermoprops and
  * class \link Cantera::StoichSubstanceSSTP StoichSubstanceSSTP\endlink)
  */
 
@@ -17,154 +17,156 @@
 #include "SingleSpeciesTP.h"
 #include "SpeciesThermo.h"
 
-namespace Cantera {
+namespace Cantera
+{
 
-  //!  Class %StoichSubstanceSSTP represents a stoichiometric (fixed
-  //!   composition)  incompressible substance.
-  /*!
-   * This class internally changes the independent degree of freedom from
-   * density to pressure. This is necessary because the phase is
-   * incompressible. It uses a constant volume approximation.
-   *
-   *
-   * <b> Specification of Species Standard %State Properties </b>
-   *
-   *  This class inherits from SingleSpeciesTP.
-   *  It is assumed that the reference state thermodynamics may be
-   *  obtained by a pointer to a populated species thermodynamic property
-   *  manager class (see ThermoPhase::m_spthermo). How to relate pressure
-   *  changes to the reference state thermodynamics is resolved at this level.
-   *
-   *  For an incompressible,
-   * stoichiometric substance, the molar internal energy is
-   * independent of pressure. Since the thermodynamic properties
-   * are specified by giving the standard-state enthalpy, the
-   * term \f$ P_0 \hat v\f$ is subtracted from the specified molar
-   * enthalpy to compute the molar internal energy. The entropy is
-   * assumed to be independent of the pressure.
-   *
-   * The enthalpy function is given by the following relation.
-   *
-   *       \f[
-   *   \raggedright   h^o_k(T,P) =
-   *                  h^{ref}_k(T) + \tilde v \left( P - P_{ref} \right) 
-   *       \f]
-   *
-   * For an incompressible,
-   * stoichiometric substance, the molar internal energy is
-   * independent of pressure. Since the thermodynamic properties
-   * are specified by giving the standard-state enthalpy, the
-   * term \f$ P_{ref} \tilde v\f$ is subtracted from the specified reference molar
-   * enthalpy to compute the molar internal energy.
-   *
-   *       \f[
-   *            u^o_k(T,P) = h^{ref}_k(T) - P_{ref} \tilde v
-   *       \f]
-   *
-   * The standard state heat capacity and entropy are independent
-   * of pressure. The standard state gibbs free energy is obtained
-   * from the enthalpy and entropy functions.
-   *   
-   *
-   * <b> Specification of Solution Thermodynamic Properties </b>
-   *
-   *  All solution properties are obtained from the standard state
-   *  species functions, since there is only one species in the phase.
-   *
-   * <b> Application within %Kinetics Managers </b>
-   *
-   * The standard concentration is equal to 1.0. This means that the
-   * kinetics operator works on an (activities basis). Since this
-   * is a stoichiometric substance, this means that the concentration
-   * of this phase drops out of kinetics expressions. 
-   *
-   * An example of a reaction using this is a sticking coefficient
-   * reaction of a substance in an ideal gas phase on a surface with a bulk phase
-   * species in this phase. In this case, the rate of progress for this 
-   * reaction, \f$ R_s \f$, may be expressed via the following equation:
-   *   \f[
-   *    R_s = k_s C_{gas}
-   *   \f]
-   * where the units for \f$ R_s \f$ are kmol m-2 s-1. \f$ C_{gas} \f$ has units
-   * of kmol m-3. Therefore, the kinetic rate constant,  \f$ k_s \f$, has
-   * units of m s-1. Nowhere does the concentration of the bulk phase
-   * appear in the rate constant expression, since it's a stoichiometric
-   * phase and the activity is always equal to 1.0.
-   *
-   * <b> Instanteation of the Class </b>
-   *
-   * The constructor for this phase is NOT located in the default ThermoFactory
-   * for %Cantera. However, a new %StoichSubstanceSSTP may be created by 
-   * the following code snippets:
-   *
-   * @code
-   *    sprintf(file_ID,"%s#NaCl(S)", iFile);
-   *    XML_Node *xm = get_XML_NameID("phase", file_ID, 0);
-   *    StoichSubstanceSSTP *solid = new StoichSubstanceSSTP(*xm);
-   * @endcode
-   *
-   * or by the following call to importPhase():
-   *
-   * @code
-   *    sprintf(file_ID,"%s#NaCl(S)", iFile);
-   *    XML_Node *xm = get_XML_NameID("phase", file_ID, 0);
-   *    StoichSubstanceSSTP solid;
-   *    importPhase(*xm, &solid);
-   * @endcode
-   *
-   *   <b> XML Example </b>
-   *
-   * The phase model name for this is called StoichSubstance. It must be supplied
-   * as the model attribute of the thermo XML element entry.
-   * Within the phase XML block,
-   * the density of the phase must be specified. An example of an XML file
-   * this phase is given below. 
-   * 
-   * @verbatim
-     <!-- phase NaCl(S)    -->
-     <phase dim="3" id="NaCl(S)">
-        <elementArray datasrc="elements.xml">
-           Na Cl
-        </elementArray>
-        <speciesArray datasrc="#species_NaCl(S)"> NaCl(S) </speciesArray>
-        <thermo model="StoichSubstanceSSTP">
-           <density units="g/cm3">2.165</density>
+//!  Class %StoichSubstanceSSTP represents a stoichiometric (fixed
+//!   composition)  incompressible substance.
+/*!
+ * This class internally changes the independent degree of freedom from
+ * density to pressure. This is necessary because the phase is
+ * incompressible. It uses a constant volume approximation.
+ *
+ *
+ * <b> Specification of Species Standard %State Properties </b>
+ *
+ *  This class inherits from SingleSpeciesTP.
+ *  It is assumed that the reference state thermodynamics may be
+ *  obtained by a pointer to a populated species thermodynamic property
+ *  manager class (see ThermoPhase::m_spthermo). How to relate pressure
+ *  changes to the reference state thermodynamics is resolved at this level.
+ *
+ *  For an incompressible,
+ * stoichiometric substance, the molar internal energy is
+ * independent of pressure. Since the thermodynamic properties
+ * are specified by giving the standard-state enthalpy, the
+ * term \f$ P_0 \hat v\f$ is subtracted from the specified molar
+ * enthalpy to compute the molar internal energy. The entropy is
+ * assumed to be independent of the pressure.
+ *
+ * The enthalpy function is given by the following relation.
+ *
+ *       \f[
+ *   \raggedright   h^o_k(T,P) =
+ *                  h^{ref}_k(T) + \tilde v \left( P - P_{ref} \right)
+ *       \f]
+ *
+ * For an incompressible,
+ * stoichiometric substance, the molar internal energy is
+ * independent of pressure. Since the thermodynamic properties
+ * are specified by giving the standard-state enthalpy, the
+ * term \f$ P_{ref} \tilde v\f$ is subtracted from the specified reference molar
+ * enthalpy to compute the molar internal energy.
+ *
+ *       \f[
+ *            u^o_k(T,P) = h^{ref}_k(T) - P_{ref} \tilde v
+ *       \f]
+ *
+ * The standard state heat capacity and entropy are independent
+ * of pressure. The standard state gibbs free energy is obtained
+ * from the enthalpy and entropy functions.
+ *
+ *
+ * <b> Specification of Solution Thermodynamic Properties </b>
+ *
+ *  All solution properties are obtained from the standard state
+ *  species functions, since there is only one species in the phase.
+ *
+ * <b> Application within %Kinetics Managers </b>
+ *
+ * The standard concentration is equal to 1.0. This means that the
+ * kinetics operator works on an (activities basis). Since this
+ * is a stoichiometric substance, this means that the concentration
+ * of this phase drops out of kinetics expressions.
+ *
+ * An example of a reaction using this is a sticking coefficient
+ * reaction of a substance in an ideal gas phase on a surface with a bulk phase
+ * species in this phase. In this case, the rate of progress for this
+ * reaction, \f$ R_s \f$, may be expressed via the following equation:
+ *   \f[
+ *    R_s = k_s C_{gas}
+ *   \f]
+ * where the units for \f$ R_s \f$ are kmol m-2 s-1. \f$ C_{gas} \f$ has units
+ * of kmol m-3. Therefore, the kinetic rate constant,  \f$ k_s \f$, has
+ * units of m s-1. Nowhere does the concentration of the bulk phase
+ * appear in the rate constant expression, since it's a stoichiometric
+ * phase and the activity is always equal to 1.0.
+ *
+ * <b> Instanteation of the Class </b>
+ *
+ * The constructor for this phase is NOT located in the default ThermoFactory
+ * for %Cantera. However, a new %StoichSubstanceSSTP may be created by
+ * the following code snippets:
+ *
+ * @code
+ *    sprintf(file_ID,"%s#NaCl(S)", iFile);
+ *    XML_Node *xm = get_XML_NameID("phase", file_ID, 0);
+ *    StoichSubstanceSSTP *solid = new StoichSubstanceSSTP(*xm);
+ * @endcode
+ *
+ * or by the following call to importPhase():
+ *
+ * @code
+ *    sprintf(file_ID,"%s#NaCl(S)", iFile);
+ *    XML_Node *xm = get_XML_NameID("phase", file_ID, 0);
+ *    StoichSubstanceSSTP solid;
+ *    importPhase(*xm, &solid);
+ * @endcode
+ *
+ *   <b> XML Example </b>
+ *
+ * The phase model name for this is called StoichSubstance. It must be supplied
+ * as the model attribute of the thermo XML element entry.
+ * Within the phase XML block,
+ * the density of the phase must be specified. An example of an XML file
+ * this phase is given below.
+ *
+ * @verbatim
+   <!-- phase NaCl(S)    -->
+   <phase dim="3" id="NaCl(S)">
+      <elementArray datasrc="elements.xml">
+         Na Cl
+      </elementArray>
+      <speciesArray datasrc="#species_NaCl(S)"> NaCl(S) </speciesArray>
+      <thermo model="StoichSubstanceSSTP">
+         <density units="g/cm3">2.165</density>
+      </thermo>
+      <transport model="None"/>
+      <kinetics model="none"/>
+   </phase>
+
+   <!-- species definitions     -->
+   <speciesData id="species_NaCl(S)">
+     <!-- species NaCl(S)   -->
+     <species name="NaCl(S)">
+        <atomArray> Na:1 Cl:1 </atomArray>
+        <thermo>
+           <Shomate Pref="1 bar" Tmax="1075.0" Tmin="250.0">
+              <floatArray size="7">
+                  50.72389, 6.672267, -2.517167,
+                  10.15934, -0.200675, -427.2115,
+                  130.3973
+              </floatArray>
+           </Shomate>
         </thermo>
-        <transport model="None"/>
-        <kinetics model="none"/>
-     </phase>
-    
-     <!-- species definitions     -->
-     <speciesData id="species_NaCl(S)">
-       <!-- species NaCl(S)   -->
-       <species name="NaCl(S)">
-          <atomArray> Na:1 Cl:1 </atomArray>
-          <thermo>
-             <Shomate Pref="1 bar" Tmax="1075.0" Tmin="250.0">
-                <floatArray size="7">
-                    50.72389, 6.672267, -2.517167,
-                    10.15934, -0.200675, -427.2115,
-                    130.3973
-                </floatArray>
-             </Shomate>
-          </thermo>
-          <density units="g/cm3">2.165</density>
-        </species>
-     </speciesData>  @endverbatim
-   *
-   *  The model attribute, "StoichSubstanceSSTP", on the thermo element 
-   *  identifies the phase as being a StoichSubstanceSSTP object.
-   *
-   * @ingroup thermoprops
-   */
-  class StoichSubstanceSSTP : public SingleSpeciesTP {
+        <density units="g/cm3">2.165</density>
+      </species>
+   </speciesData>  @endverbatim
+ *
+ *  The model attribute, "StoichSubstanceSSTP", on the thermo element
+ *  identifies the phase as being a StoichSubstanceSSTP object.
+ *
+ * @ingroup thermoprops
+ */
+class StoichSubstanceSSTP : public SingleSpeciesTP
+{
 
-  public:
-    
+public:
+
     //! Default constructor for the StoichSubstanceSSTP class
     StoichSubstanceSSTP();
 
-    //! Construct and initialize a StoichSubstanceSSTP ThermoPhase object 
+    //! Construct and initialize a StoichSubstanceSSTP ThermoPhase object
     //! directly from an asci input file
     /*!
      * @param infile name of the input file
@@ -173,11 +175,11 @@ namespace Cantera {
      */
     StoichSubstanceSSTP(std::string infile, std::string id = "");
 
-    //! Construct and initialize a StoichSubstanceSSTP ThermoPhase object 
+    //! Construct and initialize a StoichSubstanceSSTP ThermoPhase object
     //! directly from an XML database
     /*!
      *  @param phaseRef XML node pointing to a StoichSubstanceSSTP description
-     *  @param id       Id of the phase. 
+     *  @param id       Id of the phase.
      */
     StoichSubstanceSSTP(XML_Node& phaseRef, std::string id = "");
 
@@ -185,14 +187,14 @@ namespace Cantera {
     /*!
      * @param right Object to be copied
      */
-    StoichSubstanceSSTP(const StoichSubstanceSSTP  &right);
-    
+    StoichSubstanceSSTP(const StoichSubstanceSSTP&  right);
+
     //! Assignment operator
     /*!
      * @param right Object to be copied
      */
-    StoichSubstanceSSTP & operator=(const StoichSubstanceSSTP & right);
-   
+    StoichSubstanceSSTP& operator=(const StoichSubstanceSSTP& right);
+
     //! Destructor for the routine (virtual)
     virtual ~StoichSubstanceSSTP();
 
@@ -204,11 +206,11 @@ namespace Cantera {
      *
      * @return It returns a ThermoPhase pointer.
      */
-    ThermoPhase *duplMyselfAsThermoPhase() const;
-   
+    ThermoPhase* duplMyselfAsThermoPhase() const;
+
     /**
-     *   
-     * @name  Utilities  
+     *
+     * @name  Utilities
      * @{
      */
 
@@ -237,14 +239,14 @@ namespace Cantera {
      * For an incompressible substance, the density is independent
      * of pressure. This method simply returns the storred
      * pressure value.
-     */ 
+     */
     virtual doublereal pressure() const;
 
     //! Set the pressure at constant temperature. Units: Pa.
     /*!
-     * For an incompressible substance, the density is 
-     * independent of pressure. Therefore, this method only 
-     * stores the specified pressure value. It does not 
+     * For an incompressible substance, the density is
+     * independent of pressure. Therefore, this method only
+     * stores the specified pressure value. It does not
      * modify the density.
      *
      * @param p Pressure (units - Pa)
@@ -258,10 +260,10 @@ namespace Cantera {
      * \kappa_T = -\frac{1}{v}\left(\frac{\partial v}{\partial P}\right)_T
      * \f]
      */
-    virtual doublereal isothermalCompressibility() const; 
+    virtual doublereal isothermalCompressibility() const;
 
     //! Return the volumetric thermal expansion coefficient. Units: 1/K.
-    /*!      
+    /*!
      * The thermal expansion coefficient is defined as
      * \f[
      * \beta = \frac{1}{v}\left(\frac{\partial v}{\partial T}\right)_P
@@ -291,7 +293,7 @@ namespace Cantera {
      *  For a stoichiomeetric substance, there is
      *  only one species, and the generalized concentration is 1.0.
      *
-     * @param c Output array of generalized concentrations. The 
+     * @param c Output array of generalized concentrations. The
      *           units depend upon the implementation of the
      *           reaction rate expressions within the phase.
      */
@@ -300,14 +302,14 @@ namespace Cantera {
     //! Return the standard concentration for the kth species
     /*!
      * The standard concentration \f$ C^0_k \f$ used to normalize
-     * the activity (i.e., generalized) concentration. 
+     * the activity (i.e., generalized) concentration.
      * This phase assumes that the kinetics operator works on an
      * dimensionless basis. Thus, the standard concentration is
      * equal to 1.0.
      *
      * @param k Optional parameter indicating the species. The default
      *         is to assume this refers to species 0.
-     * @return 
+     * @return
      *   Returns The standard Concentration as 1.0
      */
     virtual doublereal standardConcentration(size_t k=0) const;
@@ -321,7 +323,7 @@ namespace Cantera {
     //! Get the array of chemical potentials at unit activity for the species
     //! at their standard states at the current <I>T</I> and <I>P</I> of the solution.
     /*!
-     * For a stoichiometric substance, there is no activity term in 
+     * For a stoichiometric substance, there is no activity term in
      * the chemical potential expression, and therefore the
      * standard chemical potential and the chemical potential
      * are both equal to the molar Gibbs function.
@@ -330,7 +332,7 @@ namespace Cantera {
      * \f$. The values are evaluated at the current
      * temperature and pressure of the solution
      *
-     * @param mu0     Output vector of chemical potentials. 
+     * @param mu0     Output vector of chemical potentials.
      *                Length: m_kk.
      */
     virtual void getStandardChemPotentials(doublereal* mu0) const;
@@ -347,7 +349,7 @@ namespace Cantera {
      *
      * The base %ThermoPhase class assigns thedefault quantities
      * of (kmol/m3) for all species.
-     * Inherited classes are responsible for overriding the default 
+     * Inherited classes are responsible for overriding the default
      * values if necessary.
      *
      * @param uA Output vector containing the units
@@ -362,8 +364,8 @@ namespace Cantera {
      * @param sizeUA output int containing the size of the vector.
      *        Currently, this is equal to 6.
      */
-    virtual void getUnitsStandardConc(doublereal *uA, int k = 0,
-				      int sizeUA = 6) const;
+    virtual void getUnitsStandardConc(doublereal* uA, int k = 0,
+                                      int sizeUA = 6) const;
 
     //@}
     /// @name  Partial Molar Properties of the Solution
@@ -374,7 +376,7 @@ namespace Cantera {
 
 
     //@}
-    /// @name  Properties of the Standard State of the Species in the Solution 
+    /// @name  Properties of the Standard State of the Species in the Solution
     //@{
 
     //! Get the nondimensional Enthalpy functions for the species
@@ -409,7 +411,7 @@ namespace Cantera {
      *              Length: m_kk.
      */
     virtual void getCp_R(doublereal* cpr) const;
-    
+
     //!  Returns the vector of nondimensional Internal Energies  of the standard
     //!  state species at the current <I>T</I> and <I>P</I> of the solution
     /*!
@@ -420,8 +422,8 @@ namespace Cantera {
      * term \f$ P_{ref} \hat v\f$ is subtracted from the specified reference molar
      * enthalpy to compute the standard state molar internal energy.
      *
-     * @param urt  output vector of nondimensional standard state 
-     *             internal energies of the species. Length: m_kk. 
+     * @param urt  output vector of nondimensional standard state
+     *             internal energies of the species. Length: m_kk.
      */
     virtual void getIntEnergy_RT(doublereal* urt) const;
 
@@ -437,7 +439,7 @@ namespace Cantera {
      *               internal energies of the species.
      *               Length: m_kk
      */
-    virtual void getIntEnergy_RT_ref(doublereal *urt) const;
+    virtual void getIntEnergy_RT_ref(doublereal* urt) const;
 
     /*
      * ---- Critical State Properties
@@ -463,19 +465,19 @@ namespace Cantera {
      */
     virtual void initThermo();
 
-    
+
     virtual void initThermoXML(XML_Node& phaseNode, std::string id);
 
     //! Set the equation of state parameters
     /*!
      * @internal
-     *  The number and meaning of these depends on the subclass. 
+     *  The number and meaning of these depends on the subclass.
      *
      * @param n number of parameters
      * @param c array of \a n coefficients
      *        c[0] = density of phase [ kg/m3 ]
      */
-    virtual void setParameters(int n, doublereal * const c);
+    virtual void setParameters(int n, doublereal* const c);
 
     //! Get the equation of state parameters in a vector
     /*!
@@ -488,7 +490,7 @@ namespace Cantera {
      *       -  n = 1
      *       -  c[0] = density of phase [ kg/m3 ]
      */
-    virtual void getParameters(int &n, doublereal * const c) const;
+    virtual void getParameters(int& n, doublereal* const c) const;
 
     //! Set equation of state parameter values from XML entries.
     /*!
@@ -500,41 +502,42 @@ namespace Cantera {
      * initialzed with elements and/or species.
      *
      *  For this phase, the density of the phase is specified in this block.
-     *   
+     *
      * @param eosdata An XML_Node object corresponding to
      *                the "thermo" entry for this phase in the input file.
      *
      * eosdata points to the thermo block, and looks like this:
-     * 
+     *
      *   @verbatim
          <phase id="stoichsolid" >
            <thermo model="StoichSubstance">
                <density units="g/cm3">3.52</density>
            </thermo>
-	 </phase>    @endverbatim
+     </phase>    @endverbatim
      *
      */
     virtual void setParametersFromXML(const XML_Node& eosdata);
 
-  protected:
+protected:
 
-  };
-     
-  //!  Class %electrodeElectron represents an electron in a 
-  //!  metal using the Standard hydrogen reference electrode 
-  /*!
-   * 
-   *  The class is based on the electron have a chemical potential
-   *  equal to one-half of the entropy of the H2 gas at 1 bar.
-   *
-   */
-  class electrodeElectron : public StoichSubstanceSSTP  {
-  public:
+};
+
+//!  Class %electrodeElectron represents an electron in a
+//!  metal using the Standard hydrogen reference electrode
+/*!
+ *
+ *  The class is based on the electron have a chemical potential
+ *  equal to one-half of the entropy of the H2 gas at 1 bar.
+ *
+ */
+class electrodeElectron : public StoichSubstanceSSTP
+{
+public:
 
     //! Default constructor for the electrodeElectron class
     electrodeElectron();
 
-    //! Construct and initialize a electrodeElectron ThermoPhase object 
+    //! Construct and initialize a electrodeElectron ThermoPhase object
     //! directly from an asci input file
     /*!
      * @param infile name of the input file
@@ -543,11 +546,11 @@ namespace Cantera {
      */
     electrodeElectron(std::string infile, std::string id = "");
 
-    //! Construct and initialize a electrodeElectron ThermoPhase object 
+    //! Construct and initialize a electrodeElectron ThermoPhase object
     //! directly from an XML database
     /*!
      *  @param phaseRef XML node pointing to a electrodeElectron description
-     *  @param id       Id of the phase. 
+     *  @param id       Id of the phase.
      */
     electrodeElectron(XML_Node& phaseRef, std::string id = "");
 
@@ -555,24 +558,24 @@ namespace Cantera {
     /*!
      * @param right Object to be copied
      */
-    electrodeElectron(const electrodeElectron  &right);
-    
+    electrodeElectron(const electrodeElectron&  right);
+
     //! Assignment operator
     /*!
      * @param right Object to be copied
      */
-    electrodeElectron & operator=(const electrodeElectron & right);
-   
+    electrodeElectron& operator=(const electrodeElectron& right);
+
     //! Destructor for the routine (virtual)
     virtual ~electrodeElectron();
 
     void setParametersFromXML(const XML_Node& eosdata);
 
     virtual void initThermoXML(XML_Node& phaseNode, std::string id);
-   
-    void setParameters(int n, doublereal * const c);
-  };
+
+    void setParameters(int n, doublereal* const c);
+};
 
 }
-        
+
 #endif

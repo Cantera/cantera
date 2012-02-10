@@ -7,7 +7,7 @@
  * class \link Cantera::VPSSMgr_General VPSSMgr_General\endlink).
  */
 /*
- * Copywrite (2007) Sandia Corporation. Under the terms of 
+ * Copywrite (2007) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -18,29 +18,31 @@
 #include "ct_defs.h"
 #include "VPSSMgr.h"
 
-namespace Cantera {
+namespace Cantera
+{
 
-  class SpeciesThermoInterpType;
-  class VPStandardStateTP;
-  class SpeciesThermo;
-  class PDSS;
-  
+class SpeciesThermoInterpType;
+class VPStandardStateTP;
+class SpeciesThermo;
+class PDSS;
 
-  //!  Class that handles the calculation of standard state thermo properties for
-  //!  a set of species belonging to a single phase in a completely general
-  //!  but slow way.
-  /*!
-   *   This class manages the calculation of standard state thermo properties for
-   *   a set of species belonging to a single phase in a completely general
-   *   but slow way. 
-   *   The way this does this is to call the underlying PDSS routines one at a
-   *   time for every species.
-   *
-   * @ingroup mgrpdssthermocalc
-   */
-  class VPSSMgr_General : public VPSSMgr {
-    
-  public:
+
+//!  Class that handles the calculation of standard state thermo properties for
+//!  a set of species belonging to a single phase in a completely general
+//!  but slow way.
+/*!
+ *   This class manages the calculation of standard state thermo properties for
+ *   a set of species belonging to a single phase in a completely general
+ *   but slow way.
+ *   The way this does this is to call the underlying PDSS routines one at a
+ *   time for every species.
+ *
+ * @ingroup mgrpdssthermocalc
+ */
+class VPSSMgr_General : public VPSSMgr
+{
+
+public:
 
     //! Constructor
     /*!
@@ -51,50 +53,50 @@ namespace Cantera {
      *                phase. It's a requirement that this be already
      *                malloced.
      */
-    VPSSMgr_General(VPStandardStateTP *vp_ptr,
-		    SpeciesThermo *spth);
+    VPSSMgr_General(VPStandardStateTP* vp_ptr,
+                    SpeciesThermo* spth);
 
     //! Destructor
     virtual ~VPSSMgr_General();
 
-    //! Copy Constructor for the %SpeciesThermo object. 
+    //! Copy Constructor for the %SpeciesThermo object.
     /*!
      * @param right    Reference to %SpeciesThermo object to be copied into the
      *                 current one.
      */
-    VPSSMgr_General(const VPSSMgr_General &right);
-	
+    VPSSMgr_General(const VPSSMgr_General& right);
+
     //! Assignment operator for the %SpeciesThermo object
     /*!
      *  This is NOT a virtual function.
      *
      * @param right    Reference to %SpeciesThermo object to be copied into the
-     *                 current one. 
+     *                 current one.
      */
-    VPSSMgr_General& operator=(const VPSSMgr_General &right);
-   
-    //! Duplication routine for objects which inherit from 
+    VPSSMgr_General& operator=(const VPSSMgr_General& right);
+
+    //! Duplication routine for objects which inherit from
     //! %VPSSSpeciesThermo
     /*!
      *  This virtual routine can be used to duplicate %VPSSSpeciesThermo  objects
      *  inherited from %VPSSSpeciesThermo even if the application only has
      *  a pointer to %VPSSSpeciesThermo to work with.
      */
-    virtual VPSSMgr *duplMyselfAsVPSSMgr() const;
+    virtual VPSSMgr* duplMyselfAsVPSSMgr() const;
 
     /*!
-     * @name  Properties of the Standard State of the Species in the Solution 
+     * @name  Properties of the Standard State of the Species in the Solution
      *
-     *  Within VPStandardStateTP, these properties are calculated via a common routine, 
+     *  Within VPStandardStateTP, these properties are calculated via a common routine,
      *  _updateStandardStateThermo(),
      *  which must be overloaded in inherited objects.
      *  The values are cached within this object, and are not recalculated unless
      *  the temperature or pressure changes.
      */
     //@{
-    
-  
-  protected:
+
+
+protected:
 
     //! Internally updates the standard state thermodynamic functions at the current
     //! T and P of the solution.
@@ -120,18 +122,18 @@ namespace Cantera {
      *
      *  Underscore updates never check for the state of the system
      *  They just do the calculation.
-     */                    
+     */
     virtual void _updateStandardStateThermo();
 
-    //! Updates the reference state thermodynamic functions at the 
+    //! Updates the reference state thermodynamic functions at the
     //! current T of the solution and the reference pressure
     /*!
      *  Underscore updates never check for the state of the system
      *  They just do the calculation.
      */
-    virtual void _updateRefStateThermo () const;
+    virtual void _updateRefStateThermo() const;
 
-   //@}
+    //@}
     /// @name Thermodynamic Values for the Species Reference States (VPStandardStateTP)
     /*!
      *  There are also temporary
@@ -152,19 +154,19 @@ namespace Cantera {
      *            of the reference state of the species
      *            length = m_kk, units = J/kmol.
      */
-    virtual void getGibbs_ref(doublereal *g) const ;
+    virtual void getGibbs_ref(doublereal* g) const ;
 
     //! @name Initialization Methods - For Internal use (VPStandardState)
     /*!
      * The following methods are used in the process of constructing
-     * the phase and setting its parameters from a specification in an 
+     * the phase and setting its parameters from a specification in an
      * input file. They are not normally used in application programs.
-     * To see how they are used, see files importCTML.cpp and 
+     * To see how they are used, see files importCTML.cpp and
      * ThermoFactory.cpp.
      */
     //@{
 
- 
+
     //! @internal Initialize the object
     /*!
      * This method is provided to allow
@@ -197,7 +199,7 @@ namespace Cantera {
      */
     virtual void initThermoXML(XML_Node& phaseNode, std::string id);
 
-  private:
+private:
     //! Local factory routine for the creation of PDSS objects
     /*!
      *   This routine is specific to the VPSSMgr_General object.
@@ -219,10 +221,10 @@ namespace Cantera {
      *
      *   @return  Returns the pointer to a malloced PDSS object
      */
-    PDSS * returnPDSS_ptr(size_t k, const XML_Node& speciesNode,
-			  const XML_Node * const phaseNode_ptr, bool &doST);
+    PDSS* returnPDSS_ptr(size_t k, const XML_Node& speciesNode,
+                         const XML_Node* const phaseNode_ptr, bool& doST);
 
-  public:
+public:
 
     //! Factory routine for the creation of PDSS objects that are
     //! then internally registered with this VPSSMgr object
@@ -244,7 +246,7 @@ namespace Cantera {
      *   @return  Returns the pointer to the malloced PDSS object
      */
     virtual  PDSS* createInstallPDSS(size_t k, const XML_Node& speciesNode,
-				     const XML_Node * const phaseNode_ptr);
+                                     const XML_Node* const phaseNode_ptr);
 
     //! This utility function reports the type of parameterization
     //! used for the species with index number index.
@@ -267,21 +269,21 @@ namespace Cantera {
      * There are a bunch of internal shallow pointers that point to the owning
      * VPStandardStateTP and SpeciesThermo objects. This function reinitializes
      * them. This function is called like an onion.
-     * 
+     *
      *  @param vp_ptr   Pointer to the VPStandardStateTP standard state
      *  @param sp_ptr   Poitner to the SpeciesThermo standard state
      */
-    virtual void initAllPtrs(VPStandardStateTP *vp_ptr, SpeciesThermo *sp_ptr);
-  
-   private:
+    virtual void initAllPtrs(VPStandardStateTP* vp_ptr, SpeciesThermo* sp_ptr);
+
+private:
 
     //! Shallow pointers containing the PDSS objects for the species
     //! in this phase.
     /*!
      * This object doesn't own these pointers.
      */
-    std::vector<PDSS *> m_PDSS_ptrs;
-      
+    std::vector<PDSS*> m_PDSS_ptrs;
+
 
     //! VPStandardStateTP has its own err routine
     /*!
@@ -290,8 +292,8 @@ namespace Cantera {
     doublereal err(std::string msg) const;
 
 
-  };
-  //@}
+};
+//@}
 }
 
 #endif

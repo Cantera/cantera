@@ -1,7 +1,8 @@
 
 #include <cantera/Cantera.h>
 
-void thermo_demo(string file, string phase) {
+void thermo_demo(string file, string phase)
+{
     ThermoPhase* gas = newPhase(file, phase);
     gas->setState_TPX(1500.0, 2.0*OneAtm, "O2:1.0, H2:3.0, AR:1.0");
 
@@ -27,13 +28,13 @@ void thermo_demo(string file, string phase) {
         cout << gas->speciesName(n) << " " << mu[n] << endl;
     }
 }
- 
-int main() {
+
+int main()
+{
 
     try {
         thermo_demo("h2o2.cti","ohmech");
-    }
-    catch (CanteraError) {
+    } catch (CanteraError) {
         showErrors();
     }
 }

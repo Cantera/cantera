@@ -11,7 +11,8 @@
 
 using namespace std;
 
-void reportError() {
+void reportError()
+{
     write_HTML_log("error_log.html");
     int buflen = 0;
     char* output_buf = 0;
@@ -21,12 +22,12 @@ void reportError() {
     mexErrMsgTxt(output_buf);
 }
 
-void ctfunctions( int nlhs, mxArray *plhs[],
-    int nrhs, const mxArray *prhs[] )
+void ctfunctions(int nlhs, mxArray* plhs[],
+                 int nrhs, const mxArray* prhs[])
 {
     int job = getInt(prhs[1]);
     int iok, dbg, validate;
-    char *infile, *dbfile, *trfile, *idtag;
+    char* infile, *dbfile, *trfile, *idtag;
     int buflen;
     char* output_buf;
 
@@ -37,7 +38,7 @@ void ctfunctions( int nlhs, mxArray *plhs[],
         if (nrhs < 8) {
             mexErrMsgTxt("Wrong number of inputs.");
             return;
-        } 
+        }
         infile = getString(prhs[2]);
         dbfile = getString(prhs[3]);
         trfile = getString(prhs[4]);
@@ -45,7 +46,7 @@ void ctfunctions( int nlhs, mxArray *plhs[],
         dbg = getInt(prhs[6]);
         validate = getInt(prhs[7]);
         iok = ck_to_cti(infile, dbfile, trfile, idtag, dbg, validate);
-        break;  
+        break;
 
         // get Cantera error
     case 2:
@@ -74,7 +75,9 @@ void ctfunctions( int nlhs, mxArray *plhs[],
         mexErrMsgTxt("ctfunctions: unknown job");
     }
     plhs[0] = mxCreateNumericMatrix(1,1,mxDOUBLE_CLASS,mxREAL);
-    double *h = mxGetPr(plhs[0]);
+    double* h = mxGetPr(plhs[0]);
     *h = double(iok);
-    if (iok < 0) reportError();
+    if (iok < 0) {
+        reportError();
+    }
 }

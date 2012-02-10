@@ -10,25 +10,27 @@
 
 #include "reaction_defs.h"
 
-namespace Cantera {
+namespace Cantera
+{
 
-  class ReactionData {
-  public:
+class ReactionData
+{
+public:
     ReactionData() {
-      reactionType = ELEMENTARY_RXN;
-      number = 0;
-      rxn_number = 0;
-      reversible = true;
-      rateCoeffType = ARRHENIUS_REACTION_RATECOEFF_TYPE;
-      falloffType = NONE;
-      error = 0;
-      equation = "";
-      default_3b_eff = 1.0;
-      global = false;
-      isReversibleWithFrac = false;
-      beta = 0.0;
+        reactionType = ELEMENTARY_RXN;
+        number = 0;
+        rxn_number = 0;
+        reversible = true;
+        rateCoeffType = ARRHENIUS_REACTION_RATECOEFF_TYPE;
+        falloffType = NONE;
+        error = 0;
+        equation = "";
+        default_3b_eff = 1.0;
+        global = false;
+        isReversibleWithFrac = false;
+        beta = 0.0;
     }
-    virtual ~ReactionData(){}
+    virtual ~ReactionData() {}
 
     //! type of the reaction
     /*!
@@ -69,7 +71,7 @@ namespace Cantera {
     bool global;
     bool isReversibleWithFrac;
     doublereal beta;  // for electrochemical reactions
-  };
+};
 }
 
 #endif

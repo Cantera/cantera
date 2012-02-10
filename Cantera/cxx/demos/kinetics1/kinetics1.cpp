@@ -15,11 +15,12 @@
 #include "example_utils.h"
 
 
-int kinetics1(int np, void* p) {
+int kinetics1(int np, void* p)
+{
 
     cout << "Constant-pressure ignition of a "
          << "hydrogen/oxygen/nitrogen"
-        " mixture \nbeginning at T = 1001 K and P = 1 atm." << endl;
+         " mixture \nbeginning at T = 1001 K and P = 1 atm." << endl;
 
     // create an ideal gas mixture that corresponds to GRI-Mech
     // 3.0
@@ -94,9 +95,9 @@ int kinetics1(int np, void* p) {
     doublereal tmm = 1.0*(t1 - t0)/CLOCKS_PER_SEC;
     cout << " Tfinal = " << r.temperature() << endl;
     cout << " time = " << tmm << endl;
-    cout << " number of residual function evaluations = " 
+    cout << " number of residual function evaluations = "
          << sim.integrator().nEvals() << endl;
-    cout << " time per evaluation = " << tmm/sim.integrator().nEvals() 
+    cout << " time per evaluation = " << tmm/sim.integrator().nEvals()
          << endl << endl;
     cout << "Output files:" << endl
          << "  kin1.csv    (Excel CSV file)" << endl
@@ -108,7 +109,8 @@ int kinetics1(int np, void* p) {
 
 #ifndef CXX_DEMO
 
-int main() {
+int main()
+{
 
     try {
         int retn = kinetics1(0, 0);

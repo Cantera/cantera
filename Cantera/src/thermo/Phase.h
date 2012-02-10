@@ -17,162 +17,164 @@
 
 #include "ctml.h"
 
-namespace Cantera {
-    
-  
-  /** 
-   * @defgroup phases Models of Phases of Matter
-   *
-   *  These classes are used to represent the composition and state of a
-   *  single phase of matter. 
-   *   Together  these classes form the basis for describing the species and
-   *  element compositions of a phase as well as the stoichiometry
-   *  of each species, and for describing the current state of the
-   *  phase. They do not in themselves contain Thermodynamic equation of 
-   *  state information. However, they do comprise all of the necessary
-   *  background functionality to support thermodynamic calculations, and the
-   *  class ThermoPhase inherits from the class Phase (see \ref thermoprops).
-   * 
-   *  Class Elements manages the elements that are part of a
-   *  chemistry specification for a phase.  This class may support calculations
-   *  employing Multiple phases. In this case, a single Elements object may
-   *  be shared by more than one Constituents class. Reactions between
-   *  the phases may then be described using stoichiometry base on the
-   *  same Elements class object.
-   *
-   *  The member functions of class %Elements return information about
-   *  the elements described in a particular instantiation of the
-   *  class.
-   *
-   *  Class %Constituents is designed to provide information
-   *  about the elements and species in a phase - names, index
-   *  numbers (location in arrays), atomic or molecular weights,
-   *  etc. No computations are performed by the methods of this
-   *  class. The set of elements must include all those that compose
-   *  the species, but may include additional elements.
-   *  
-   *  %Constituents contains a pointer to the Elements object, and
-   *  it contains wrapper functions for all of the functionality
-   *  of the %Elements object, i.e., atomic weights, number and identity
-   *  of the elements. %Elements may be added to a phase by using
-   *  the function Constituents::addUniqueElement(). The %Elements 
-   *  object may be shared amongst different Phases.
-   *
-   *  %Constituents also contains utilities retrieving the index of
-   *  a species in the phase given its name, Constituents::speciesIndex().
-   *
-   *  Class State manages the independent variables of temperature,
-   *  mass density, and species mass/mole fraction that define the
-   *  thermodynamic state.
-   * 
-   *  Class %State stores just enough information about a
-   *  multicomponent solution to specify its intensive thermodynamic
-   *  state.  It stores values for the temperature, mass density, and
-   *  an array of species mass fractions. It also stores an array of
-   *  species molecular weights, which are used to convert between
-   *  mole and mass representations of the composition. These are the
-   *  \e only properties of the species that class %State knows about.
-   *
-   *  Class %State is not usually used directly in application
-   *  programs. Its primary use is as a base class for class
-   *  Phase. Class %State has no virtual methods, and none of its
-   *  methods are meant to be overloaded. However, this is one
-   *  exception.  If the phase is incompressible, then the density
-   *  must be replaced by the pressure as the independent variable. In
-   *  this case, functions such as State::setMassFractions() within
-   *  the class %State must actually now calculate the density (at
-   *  constant <I>T</I> and <I>P</I>) instead of leaving it alone as
-   *  befits an independent variable. Therefore, these types of
-   *  functions are virtual functions and need to be overloaded for
-   *  incompressible phases. Note, for nearly incompressible phases
-   *  (or phases which utilize standard states based on a <I>T</I> and
-   *  <I>P</I>) this change in independent variables may be
-   *  advantageous as well, and these functions in %State need to
-   *  overload as well so that the storred density within State
-   *  doesn't become out of date.
-   *
-   *  Class Phase derives from both clases
-   *  Constituents and State. In addition to the methods of those two
-   *  classes, it implements methods that allow referencing a species
-   *  by name. And, it contains a lot of utility functions that will
-   *  set the %State of the phase in its entirety, by first setting
-   *  the composition, then the temperature and then the density.
-   *  An example of this is the function,
-   *    Phase::setState_TRY(doublereal t, doublereal dens, const doublereal* y).
-   *
-   *  Class Phase contains method for saving and restoring the
-   *  full internal states of each phase. These are called Phase::saveState()
-   *  and Phase::restoreState(). These functions operate on a state
-   *  vector, which is in general of length (2 + nSpecies()). The first
-   *  two entries of the state vector is temperature and density.
-   *
-   */
+namespace Cantera
+{
 
 
-  //! Base class for phases of mater
-  /*!
-   * Base class for phases of matter. Class Phase derives from both
-   * Constituents and State. In addition to the methods of those two
-   * classes, it implements methods that allow referencing a species
-   * by name.
-   *
-   *  Class Phase derives from both clases
-   *  Constituents and State. In addition to the methods of those two
-   *  classes, it implements methods that allow referencing a species
-   *  by name. And, it contains a lot of utility functions that will
-   *  set the %State of the phase in its entirety, by first setting
-   *  the composition, then the temperature and then the density.
-   *  An example of this is the function,
-   *    Phase::setState_TRY(doublereal t, doublereal dens, const doublereal* y).
-   *
-   *  Class Phase contains method for saving and restoring the
-   *  full internal states of each phase. These are called Phase::saveState()
-   *  and Phase::restoreState(). These functions operate on a state
-   *  vector, which is in general of length (2 + nSpecies()). The first
-   *  two entries of the state vector is temperature and density.
-   *
-   *  The class Phase contains two strings that identify a phase.
-   *  The string id() is the value of the ID attribute of the XML phase node
-   *  that is used to initialize a phase when it is read it.
-   *  The id() field will stay that way even if the name is changed.
-   *  The name field is also set to the value of the ID attribute of 
-   *  the XML phase node.
-   *
-   *  However, the name field  may be changed to another value during the course of a calculation.
-   *  For example, if a phase is located in two places, but has the same 
-   *  constituitive input, the id's of the two phases will be the same,
-   *  but the names of the two phases may be different. 
-   *
-   *  The name of a phase can be the same as the id of that same phase.
-   *  Actually, this is the default and normal condition to have the name and
-   *  the id for each phase to be the same. However, it is expected that
-   *  it's an error to have two phases in a single problem with the same name.
-   *  or the same id (or the name from one phase being the same as the id
-   *  of another phase).
-   *  Thus, it is expected that there is a 1-1 correspondence between
-   *  names and unique phases within a Cantera problem. 
-   *
-   *  A species name may be referred to via three methods:
-   *
-   *    -   "speciesName"
-   *    -   "PhaseId:speciesName"
-   *    -   "phaseName:speciesName"
-   *    .   
-   *
-   *  The first two methods of naming may not yield a unique species within
-   *  complicated assemblies of Cantera Phases.
-   *
-   *
-   *  @todo
-   *   Make the concept of saving state vectors more general, so that
-   *   it can handle other cases where there are additional internal state
-   *   variables, such as the voltage, a potential energy, or a strain field.
-   *
-   * @ingroup phases
-   */
-  class Phase : public Constituents, public State {    
+/**
+ * @defgroup phases Models of Phases of Matter
+ *
+ *  These classes are used to represent the composition and state of a
+ *  single phase of matter.
+ *   Together  these classes form the basis for describing the species and
+ *  element compositions of a phase as well as the stoichiometry
+ *  of each species, and for describing the current state of the
+ *  phase. They do not in themselves contain Thermodynamic equation of
+ *  state information. However, they do comprise all of the necessary
+ *  background functionality to support thermodynamic calculations, and the
+ *  class ThermoPhase inherits from the class Phase (see \ref thermoprops).
+ *
+ *  Class Elements manages the elements that are part of a
+ *  chemistry specification for a phase.  This class may support calculations
+ *  employing Multiple phases. In this case, a single Elements object may
+ *  be shared by more than one Constituents class. Reactions between
+ *  the phases may then be described using stoichiometry base on the
+ *  same Elements class object.
+ *
+ *  The member functions of class %Elements return information about
+ *  the elements described in a particular instantiation of the
+ *  class.
+ *
+ *  Class %Constituents is designed to provide information
+ *  about the elements and species in a phase - names, index
+ *  numbers (location in arrays), atomic or molecular weights,
+ *  etc. No computations are performed by the methods of this
+ *  class. The set of elements must include all those that compose
+ *  the species, but may include additional elements.
+ *
+ *  %Constituents contains a pointer to the Elements object, and
+ *  it contains wrapper functions for all of the functionality
+ *  of the %Elements object, i.e., atomic weights, number and identity
+ *  of the elements. %Elements may be added to a phase by using
+ *  the function Constituents::addUniqueElement(). The %Elements
+ *  object may be shared amongst different Phases.
+ *
+ *  %Constituents also contains utilities retrieving the index of
+ *  a species in the phase given its name, Constituents::speciesIndex().
+ *
+ *  Class State manages the independent variables of temperature,
+ *  mass density, and species mass/mole fraction that define the
+ *  thermodynamic state.
+ *
+ *  Class %State stores just enough information about a
+ *  multicomponent solution to specify its intensive thermodynamic
+ *  state.  It stores values for the temperature, mass density, and
+ *  an array of species mass fractions. It also stores an array of
+ *  species molecular weights, which are used to convert between
+ *  mole and mass representations of the composition. These are the
+ *  \e only properties of the species that class %State knows about.
+ *
+ *  Class %State is not usually used directly in application
+ *  programs. Its primary use is as a base class for class
+ *  Phase. Class %State has no virtual methods, and none of its
+ *  methods are meant to be overloaded. However, this is one
+ *  exception.  If the phase is incompressible, then the density
+ *  must be replaced by the pressure as the independent variable. In
+ *  this case, functions such as State::setMassFractions() within
+ *  the class %State must actually now calculate the density (at
+ *  constant <I>T</I> and <I>P</I>) instead of leaving it alone as
+ *  befits an independent variable. Therefore, these types of
+ *  functions are virtual functions and need to be overloaded for
+ *  incompressible phases. Note, for nearly incompressible phases
+ *  (or phases which utilize standard states based on a <I>T</I> and
+ *  <I>P</I>) this change in independent variables may be
+ *  advantageous as well, and these functions in %State need to
+ *  overload as well so that the storred density within State
+ *  doesn't become out of date.
+ *
+ *  Class Phase derives from both clases
+ *  Constituents and State. In addition to the methods of those two
+ *  classes, it implements methods that allow referencing a species
+ *  by name. And, it contains a lot of utility functions that will
+ *  set the %State of the phase in its entirety, by first setting
+ *  the composition, then the temperature and then the density.
+ *  An example of this is the function,
+ *    Phase::setState_TRY(doublereal t, doublereal dens, const doublereal* y).
+ *
+ *  Class Phase contains method for saving and restoring the
+ *  full internal states of each phase. These are called Phase::saveState()
+ *  and Phase::restoreState(). These functions operate on a state
+ *  vector, which is in general of length (2 + nSpecies()). The first
+ *  two entries of the state vector is temperature and density.
+ *
+ */
 
-  public:
+
+//! Base class for phases of mater
+/*!
+ * Base class for phases of matter. Class Phase derives from both
+ * Constituents and State. In addition to the methods of those two
+ * classes, it implements methods that allow referencing a species
+ * by name.
+ *
+ *  Class Phase derives from both clases
+ *  Constituents and State. In addition to the methods of those two
+ *  classes, it implements methods that allow referencing a species
+ *  by name. And, it contains a lot of utility functions that will
+ *  set the %State of the phase in its entirety, by first setting
+ *  the composition, then the temperature and then the density.
+ *  An example of this is the function,
+ *    Phase::setState_TRY(doublereal t, doublereal dens, const doublereal* y).
+ *
+ *  Class Phase contains method for saving and restoring the
+ *  full internal states of each phase. These are called Phase::saveState()
+ *  and Phase::restoreState(). These functions operate on a state
+ *  vector, which is in general of length (2 + nSpecies()). The first
+ *  two entries of the state vector is temperature and density.
+ *
+ *  The class Phase contains two strings that identify a phase.
+ *  The string id() is the value of the ID attribute of the XML phase node
+ *  that is used to initialize a phase when it is read it.
+ *  The id() field will stay that way even if the name is changed.
+ *  The name field is also set to the value of the ID attribute of
+ *  the XML phase node.
+ *
+ *  However, the name field  may be changed to another value during the course of a calculation.
+ *  For example, if a phase is located in two places, but has the same
+ *  constituitive input, the id's of the two phases will be the same,
+ *  but the names of the two phases may be different.
+ *
+ *  The name of a phase can be the same as the id of that same phase.
+ *  Actually, this is the default and normal condition to have the name and
+ *  the id for each phase to be the same. However, it is expected that
+ *  it's an error to have two phases in a single problem with the same name.
+ *  or the same id (or the name from one phase being the same as the id
+ *  of another phase).
+ *  Thus, it is expected that there is a 1-1 correspondence between
+ *  names and unique phases within a Cantera problem.
+ *
+ *  A species name may be referred to via three methods:
+ *
+ *    -   "speciesName"
+ *    -   "PhaseId:speciesName"
+ *    -   "phaseName:speciesName"
+ *    .
+ *
+ *  The first two methods of naming may not yield a unique species within
+ *  complicated assemblies of Cantera Phases.
+ *
+ *
+ *  @todo
+ *   Make the concept of saving state vectors more general, so that
+ *   it can handle other cases where there are additional internal state
+ *   variables, such as the voltage, a potential energy, or a strain field.
+ *
+ * @ingroup phases
+ */
+class Phase : public Constituents, public State
+{
+
+public:
 
     /// Default constructor.
     Phase();
@@ -185,15 +187,15 @@ namespace Cantera {
      *
      * @param  right       Reference to the class to be used in the copy
      */
-    Phase(const Phase &right);
-      
+    Phase(const Phase& right);
+
     /**
      * Assignment operator
      *
      * @param  right      Reference to the class to be used in the copy
      */
-    Phase &operator=(const Phase &right);
-        
+    Phase& operator=(const Phase& right);
+
     //! Returns a reference to the XML_Node storred for the phase
     /*!
      *  The XML_Node for the phase contains all of the input data used
@@ -219,7 +221,7 @@ namespace Cantera {
      *
      * @param id String id of the phase
      */
-    void setID(std::string id); 
+    void setID(std::string id);
 
     //! Return the name of the phase
     /*!
@@ -247,14 +249,14 @@ namespace Cantera {
 
     //! Returns the index of the phase
     /*!
-     * The index is used in the Python and matlab interfaces to 
+     * The index is used in the Python and matlab interfaces to
      * index into a list of ThermoPhase objects
      */
     size_t index() const;
 
     //! Sets the index of the phase
     /*!
-     * The index is used in the Python and matlab interfaces to 
+     * The index is used in the Python and matlab interfaces to
      * index into a list of ThermoPhase objects
      *
      * @param m Integer index of the phase
@@ -271,7 +273,7 @@ namespace Cantera {
      *    -   "speciesName"
      *    -   "PhaseId:speciesName"
      *    -   "phaseName:speciesName"
-     *    .   
+     *    .
      *
      *  The first two methods of naming may not yield a unique species within
      *  complicated assemblies of Cantera phases. The last method is guarranteed
@@ -301,7 +303,7 @@ namespace Cantera {
      * @param state output vector. Will be resized to nSpecies() + 2 on return.
      */
     void saveState(vector_fp& state) const;
-       
+
     //! Write to array 'state' the current internal state.
     /*!
      * @param lenstate length of the state array. Must be >= nSpecies() + 2
@@ -309,7 +311,7 @@ namespace Cantera {
      *                 greater.
      */
     void saveState(size_t lenstate, doublereal* state) const;
-      
+
     //!Restore a state saved on a previous call to saveState.
     /*!
      * @param state State vector containing the previously saved state.
@@ -324,7 +326,7 @@ namespace Cantera {
     void restoreState(size_t lenstate, const doublereal* state);
 
     /**
-     * Set the species mole fractions by name. 
+     * Set the species mole fractions by name.
      * @param xMap map from species names to mole fraction values.
      * Species not listed by name in \c xMap are set to zero.
      */
@@ -341,14 +343,14 @@ namespace Cantera {
     void setMoleFractionsByName(const std::string& x);
 
     /**
-     * Set the species mass fractions by name. 
+     * Set the species mass fractions by name.
      * @param yMap map from species names to mass fraction values.
      * Species not listed by name in \c yMap are set to zero.
      */
     void setMassFractionsByName(compositionMap& yMap);
 
-    
-    //! Set the species mass fractions by name. 
+
+    //! Set the species mass fractions by name.
     /*!
      * Species not listed by name in \c x are set to zero.
      *
@@ -356,7 +358,7 @@ namespace Cantera {
      */
     void setMassFractionsByName(const std::string& x);
 
-    //! Set the internally storred temperature (K), density, and mole fractions.  
+    //! Set the internally storred temperature (K), density, and mole fractions.
     /*!
      * Note, the mole fractions are always set first, before the density
      *
@@ -368,7 +370,7 @@ namespace Cantera {
     void setState_TRX(doublereal t, doublereal dens, const doublereal* x);
 
 
-    //! Set the internally storred temperature (K), density, and mole fractions.  
+    //! Set the internally storred temperature (K), density, and mole fractions.
     /*!
      * Note, the mole fractions are always set first, before the density
      *
@@ -380,7 +382,7 @@ namespace Cantera {
      */
     void setState_TRX(doublereal t, doublereal dens, compositionMap& x);
 
-    //! Set the internally storred temperature (K), density, and mass fractions.  
+    //! Set the internally storred temperature (K), density, and mass fractions.
     /*!
      * Note, the mass fractions are always set first, before the density
      *
@@ -391,7 +393,7 @@ namespace Cantera {
      */
     void setState_TRY(doublereal t, doublereal dens, const doublereal* y);
 
-    //! Set the internally storred temperature (K), density, and mass fractions.  
+    //! Set the internally storred temperature (K), density, and mass fractions.
     /*!
      * Note, the mass fractions are always set first, before the density
      *
@@ -403,7 +405,7 @@ namespace Cantera {
      */
     void setState_TRY(doublereal t, doublereal dens, compositionMap& y);
 
-    //! Set the internally storred temperature (K), molar density (kmol/m^3), and mole fractions.  
+    //! Set the internally storred temperature (K), molar density (kmol/m^3), and mole fractions.
     /*!
      * Note, the mole fractions are always set first, before the molar density
      *
@@ -413,15 +415,15 @@ namespace Cantera {
      *              Length is equal to m_kk
      */
     void setState_TNX(doublereal t, doublereal n, const doublereal* x);
-    
+
     //! Set the internally storred temperature (K) and density (kg/m^3)
     /*!
      * @param t     Temperature in kelvin
      * @param rho   Density (kg/m^3)
      */
     void setState_TR(doublereal t, doublereal rho);
-      
-    //! Set the internally storred temperature (K) and mole fractions.  
+
+    //! Set the internally storred temperature (K) and mole fractions.
     /*!
      * @param t   Temperature in kelvin
      * @param x   vector of species mole fractions.
@@ -429,7 +431,7 @@ namespace Cantera {
      */
     void setState_TX(doublereal t, doublereal* x);
 
-    //! Set the internally storred temperature (K) and mass fractions.  
+    //! Set the internally storred temperature (K) and mass fractions.
     /*!
      * @param t   Temperature in kelvin
      * @param y   vector of species mass fractions.
@@ -437,7 +439,7 @@ namespace Cantera {
      */
     void setState_TY(doublereal t, doublereal* y);
 
-    //! Set the density (kg/m^3) and mole fractions. 
+    //! Set the density (kg/m^3) and mole fractions.
     /*!
      * @param rho  Density (kg/m^3)
      * @param x    vector of species mole fractions.
@@ -445,7 +447,7 @@ namespace Cantera {
      */
     void setState_RX(doublereal rho, doublereal* x);
 
-    //! Set the density (kg/m^3) and mass fractions.  
+    //! Set the density (kg/m^3) and mass fractions.
     /*!
      * @param rho  Density (kg/m^3)
      * @param y    vector of species mass fractions.
@@ -463,7 +465,7 @@ namespace Cantera {
     /**
      * Copy the vector of molecular weights into array weights.
      *
-     * @param iwt      Unused. 
+     * @param iwt      Unused.
      * @param weights  Output array of molecular weights (kg/kmol)
      *
      * @deprecated
@@ -484,7 +486,7 @@ namespace Cantera {
     const array_fp& molecularWeights() const;
 
     /**
-     * Get the mole fractions by name. 
+     * Get the mole fractions by name.
      *
      * @param x  Output composition map containing the
      *           species mole fractions.
@@ -498,7 +500,7 @@ namespace Cantera {
      * @return Mole fraction of the species
      */
     doublereal moleFraction(size_t k) const;
-        
+
     //! Return the mole fraction of a single species
     /*!
      * @param  name  String name of the species
@@ -529,7 +531,9 @@ namespace Cantera {
     doublereal chargeDensity() const;
 
     /// Returns the number of spatial dimensions (1, 2, or 3)
-    size_t nDim() const {return m_ndim;}
+    size_t nDim() const {
+        return m_ndim;
+    }
 
     //! Set the number of spatial dimensions (1, 2, or 3)
     /*!
@@ -538,18 +542,20 @@ namespace Cantera {
      *
      * @param ndim   Input number of dimensions.
      */
-    void setNDim(size_t ndim) {m_ndim = ndim;}
+    void setNDim(size_t ndim) {
+        m_ndim = ndim;
+    }
 
-    /** 
+    /**
      *  Finished adding species, prepare to use them for calculation
      *  of mixture properties.
      */
     virtual void freezeSpecies();
- 
+
     virtual bool ready() const;
 
 
-  protected:
+protected:
 
     /**
      * m_kk = Number of species in the phase.  @internal m_kk is a
@@ -568,11 +574,11 @@ namespace Cantera {
     size_t m_ndim;
     /**
      * m_index is the index of the phase
-     * 
+     *
      */
     size_t m_index;
 
-  private:
+private:
 
     //! This stores the initial state of the system
     /*!
@@ -596,19 +602,19 @@ namespace Cantera {
      * Initially, this is the value of the ID attribute of the XML phase node.
      *
      * It may be changed to another value during the course of a calculation.
-     * for example, if a phase is located in two places, but has the same 
+     * for example, if a phase is located in two places, but has the same
      * constituitive input, the id's of the two phases will be the same,
-     * but the names of the two phases may be different. 
+     * but the names of the two phases may be different.
      *
      * The name can be the same as the id, within a phase. However, besides
      * that case, it is expected that there is a 1-1 correspondence between
-     * names and unique phases within a Cantera problem. 
+     * names and unique phases within a Cantera problem.
      */
     std::string m_name;
-  };
+};
 
-  //! typedef for the base Phase class
-  typedef Phase phase_t;
+//! typedef for the base Phase class
+typedef Phase phase_t;
 }
 
 #endif

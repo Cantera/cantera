@@ -44,97 +44,101 @@ extern "C" {
     doublereal __TCON__(doublereal* t, doublereal* p, doublereal* x);
 
     void __TDIFF__(doublereal* t, doublereal* p, doublereal* x, doublereal* dt);
-    void __MULTIDIFF__(doublereal* t, doublereal* p, doublereal* x, 
-        integer* ld, doublereal* d);
+    void __MULTIDIFF__(doublereal* t, doublereal* p, doublereal* x,
+                       integer* ld, doublereal* d);
     void __MIXDIFF__(doublereal* t, doublereal* p, doublereal* x, doublereal* d);
     void __BINDIFF__(doublereal* t, doublereal* p, doublereal* x, integer* ld, doublereal* d);
     doublereal __SIGMA__(doublereal* t, doublereal* p, doublereal* x);
-    
+
     doublereal __GETMOBILITIES__(doublereal* t, doublereal* p,
-        doublereal* x, doublereal* mobil);    
-    
+                                 doublereal* x, doublereal* mobil);
+
 }
 
-namespace Cantera {
+namespace Cantera
+{
 
-    /**
-     * A class that calls external Fortran functions to evaluate 
-     * transport properties.
-     */
-    class FtnTransport : public Transport {
+/**
+ * A class that calls external Fortran functions to evaluate
+ * transport properties.
+ */
+class FtnTransport : public Transport
+{
 
-    public:
+public:
 
-        FtnTransport(int model, thermo_t* thermo) : Transport(thermo) {
-            m_model = model;
-            m_x.resize(m_thermo->nSpecies(), 0.0);
-            updateTPX();
-        }
+    FtnTransport(int model, thermo_t* thermo) : Transport(thermo) {
+        m_model = model;
+        m_x.resize(m_thermo->nSpecies(), 0.0);
+        updateTPX();
+    }
 
-        virtual int model() { return cFtnTransport + m_model; }
+    virtual int model() {
+        return cFtnTransport + m_model;
+    }
 
-        virtual doublereal viscosity() { 
-            updateTPX();
-            return __VISC__(&m_temp, &m_pres, m_x.begin()); 
-        }
+    virtual doublereal viscosity() {
+        updateTPX();
+        return __VISC__(&m_temp, &m_pres, m_x.begin());
+    }
 
-        virtual doublereal bulkViscosity() {
-            updateTPX();
-            return __BULKVISC__(&m_temp, &m_pres, m_x.begin());
-        }
+    virtual doublereal bulkViscosity() {
+        updateTPX();
+        return __BULKVISC__(&m_temp, &m_pres, m_x.begin());
+    }
 
-        virtual doublereal thermalConductivity() {
-            updateTPX();
-            return __TCON__(&m_temp, &m_pres, m_x.begin());
-        }
-        
-        virtual doublereal electricalConductivity() {
-            updateTPX();
-            return __SIGMA__(&m_temp, &m_pres, m_x.begin());
-        }
-        
-        virtual void getMobilities(doublereal* mobil) {
-            updateTPX();
-            __GETMOBILITIES__(&m_temp, &m_pres, m_x.begin(), mobil);
-        }
-        
+    virtual doublereal thermalConductivity() {
+        updateTPX();
+        return __TCON__(&m_temp, &m_pres, m_x.begin());
+    }
 
-        virtual void getThermalDiffCoeffs(doublereal* dt) {
-            updateTPX();
-            __TDIFF__(&m_temp, &m_pres, m_x.begin(), dt);
-        }
+    virtual doublereal electricalConductivity() {
+        updateTPX();
+        return __SIGMA__(&m_temp, &m_pres, m_x.begin());
+    }
 
-        virtual void getBinaryDiffCoeffs(int ld, doublereal* d) {
-            updateTPX();
-            integer ldd = ld;
-            __BINDIFF__(&m_temp, &m_pres, m_x.begin(), &ldd, d);
-        }
+    virtual void getMobilities(doublereal* mobil) {
+        updateTPX();
+        __GETMOBILITIES__(&m_temp, &m_pres, m_x.begin(), mobil);
+    }
 
-        virtual void getMultiDiffCoeffs(int ld, doublereal* d) {
-            updateTPX();
-            integer ldd = ld;
-            __MULTIDIFF__(&m_temp, &m_pres, m_x.begin(), &ldd, d);
-        }
 
-        virtual void getMixDiffCoeffs(doublereal* d) {
-            updateTPX();
-            __MIXDIFF__(&m_temp, &m_pres, m_x.begin(), d);
-        }            
-        
-        
-    private:
-        
-        void updateTPX() {
-            m_temp = m_thermo->temperature();
-            m_pres = m_thermo->pressure();
-            m_thermo->getMoleFractions(m_x.begin());
-        }
-        doublereal m_temp;
-        doublereal m_pres;
-        vector_fp  m_x;
-        int m_model;
+    virtual void getThermalDiffCoeffs(doublereal* dt) {
+        updateTPX();
+        __TDIFF__(&m_temp, &m_pres, m_x.begin(), dt);
+    }
 
-    };
+    virtual void getBinaryDiffCoeffs(int ld, doublereal* d) {
+        updateTPX();
+        integer ldd = ld;
+        __BINDIFF__(&m_temp, &m_pres, m_x.begin(), &ldd, d);
+    }
+
+    virtual void getMultiDiffCoeffs(int ld, doublereal* d) {
+        updateTPX();
+        integer ldd = ld;
+        __MULTIDIFF__(&m_temp, &m_pres, m_x.begin(), &ldd, d);
+    }
+
+    virtual void getMixDiffCoeffs(doublereal* d) {
+        updateTPX();
+        __MIXDIFF__(&m_temp, &m_pres, m_x.begin(), d);
+    }
+
+
+private:
+
+    void updateTPX() {
+        m_temp = m_thermo->temperature();
+        m_pres = m_thermo->pressure();
+        m_thermo->getMoleFractions(m_x.begin());
+    }
+    doublereal m_temp;
+    doublereal m_pres;
+    vector_fp  m_x;
+    int m_model;
+
+};
 
 }
 #endif

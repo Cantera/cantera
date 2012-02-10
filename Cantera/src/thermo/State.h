@@ -16,49 +16,51 @@
 #include "ct_defs.h"
 #include "utilities.h"
 
-namespace Cantera {
+namespace Cantera
+{
 
-  //! Manages the independent variables of temperature, mass density,
-  //! and species mass/mole fraction that define the thermodynamic
-  //! state.
-  /*!
-   * Class State stores just enough information about a
-   * multicomponent solution to specify its intensive thermodynamic
-   * state.  It stores values for the temperature, mass density, and
-   * an array of species mass fractions. It also stores an array of
-   * species molecular weights, which are used to convert between
-   * mole and mass representations of the composition. These are the
-   * \e only properties of the species that class State knows about.
-   * For efficiency in mass/mole conversion, the vector of mass
-   * fractions divided by molecular weight \f$ Y_k/M_k \f$ is also
-   * stored.
-   *
-   * Class State is not usually used directly in application
-   * programs. Its primary use is as a base class for class
-   * Phase. Class State has no virtual methods, and none of its
-   * methods are meant to be overloaded. However, this is one exception.
-   *  If the phase is incompressible, then the density must be replaced
-   *  by the pressure as the independent variable. In this case, functions
-   *  such as setMassFraction within the class %State must actually now
-   *  calculate the density (at constant T and P) instead of leaving
-   *  it alone as befits an independent variable. Threfore, these type
-   *  of functions are virtual functions and need to be overloaded 
-   *  for incompressible phases. Note, for almost incompressible phases
-   *  (or phases which utilize standard states based on a T and P) this
-   *  may be advantageous as well, and they need to overload these functions
-   *  too. 
-   *
-   * @ingroup phases
-   */
-  class State {
+//! Manages the independent variables of temperature, mass density,
+//! and species mass/mole fraction that define the thermodynamic
+//! state.
+/*!
+ * Class State stores just enough information about a
+ * multicomponent solution to specify its intensive thermodynamic
+ * state.  It stores values for the temperature, mass density, and
+ * an array of species mass fractions. It also stores an array of
+ * species molecular weights, which are used to convert between
+ * mole and mass representations of the composition. These are the
+ * \e only properties of the species that class State knows about.
+ * For efficiency in mass/mole conversion, the vector of mass
+ * fractions divided by molecular weight \f$ Y_k/M_k \f$ is also
+ * stored.
+ *
+ * Class State is not usually used directly in application
+ * programs. Its primary use is as a base class for class
+ * Phase. Class State has no virtual methods, and none of its
+ * methods are meant to be overloaded. However, this is one exception.
+ *  If the phase is incompressible, then the density must be replaced
+ *  by the pressure as the independent variable. In this case, functions
+ *  such as setMassFraction within the class %State must actually now
+ *  calculate the density (at constant T and P) instead of leaving
+ *  it alone as befits an independent variable. Threfore, these type
+ *  of functions are virtual functions and need to be overloaded
+ *  for incompressible phases. Note, for almost incompressible phases
+ *  (or phases which utilize standard states based on a T and P) this
+ *  may be advantageous as well, and they need to overload these functions
+ *  too.
+ *
+ * @ingroup phases
+ */
+class State
+{
 
-  public:
+public:
 
     /**
-     * Constructor. 
+     * Constructor.
      */
     State();
-            
+
     /**
      * Destructor. Since no memory is allocated by methods of this
      * class, the destructor does nothing.
@@ -84,18 +86,20 @@ namespace Cantera {
     ///
     /// The only thing class State knows about the species is their
     /// molecular weights.
-    //@{        
+    //@{
 
     /// Return a read-only reference to the array of molecular
     /// weights.
-    const array_fp& molecularWeights() const { return m_molwts; }
+    const array_fp& molecularWeights() const {
+        return m_molwts;
+    }
 
 
     //@}
     /// @name Composition
     //@{
 
-	
+
     //! Get the species mole fraction vector.
     /*!
      * @param x On return, x contains the mole fractions. Must have a
@@ -113,11 +117,11 @@ namespace Cantera {
      *   @param k species index
      */
     doublereal moleFraction(const size_t k) const;
-    
-    //! Set the mole fractions to the specified values, and then 
+
+    //! Set the mole fractions to the specified values, and then
     //! normalize them so that they sum to 1.0.
     /*!
-     * @param x Array of unnormalized mole fraction values (input). 
+     * @param x Array of unnormalized mole fraction values (input).
      *          Must have a length greater than or equal to the number of
      *          species, m_kk. There is no restriction
      *          on the sum of the mole fraction vector. Internally,
@@ -138,26 +142,26 @@ namespace Cantera {
      */
     virtual void setMoleFractions_NoNorm(const doublereal* const x);
 
-    //! Get the species mass fractions.  
+    //! Get the species mass fractions.
     /*!
      * @param y On return, y contains the mass fractions. Array \a y must have a length
      *          greater than or equal to the number of species.
      */
     void getMassFractions(doublereal* const y) const;
 
-    //! Mass fraction of species k. 
+    //! Mass fraction of species k.
     /*!
      *  If k is outside the valid range, an exception will be thrown. Note that it is
      *  somewhat more efficent to call getMassFractions if the mass fractions of all species are desired.
-     * 
+     *
      * @param k    species index
      */
     doublereal massFraction(const size_t k) const;
 
-    //! Set the mass fractions to the specified values, and then 
+    //! Set the mass fractions to the specified values, and then
     //! normalize them so that they sum to 1.0.
     /*!
-     * @param y  Array of unnormalized mass fraction values (input). 
+     * @param y  Array of unnormalized mass fraction values (input).
      *           Must have a length greater than or equal to the number of species.
      *           Input vector of mass fractions. There is no restriction
      *           on the sum of the mass fraction vector. Internally,
@@ -193,9 +197,9 @@ namespace Cantera {
      * @param  k Index of species
      */
     doublereal concentration(const size_t k) const;
-    
+
     //! Set the concentrations to the specified values within the
-    //! phase. 
+    //! phase.
     /*!
      * We set the concentrations here and therefore we set the
      * overall density of the phase. We hold the temperature constant
@@ -218,7 +222,7 @@ namespace Cantera {
      *  @return  returns a pointer to a vector of doubles of length m_kk.
      */
     const doublereal* massFractions() const {
-      return &m_y[0]; 
+        return &m_y[0];
     }
 
     /**
@@ -235,7 +239,7 @@ namespace Cantera {
     /**
      * Evaluate the mole-fraction-weighted mean of Q:
      * \f[ \sum_k X_k Q_k. \f]
-     * Array Q should contain pure-species molar property 
+     * Array Q should contain pure-species molar property
      * values.
      *
      * @param Q input vector of length m_kk that is to be averaged.
@@ -251,14 +255,14 @@ namespace Cantera {
      * @param Q  Array Q contains a vector of species property values in mass units.
      * @return
      *     Return value containing the  mass-fraction-weighted mean of Q.
-     */        
+     */
     doublereal mean_Y(const doublereal* const Q) const;
 
     /**
      * The mean molecular weight. Units: (kg/kmol)
      */
     doublereal meanMolecularWeight() const {
-      return m_mmw; 
+        return m_mmw;
     }
 
     //! Evaluate \f$ \sum_k X_k \log X_k \f$.
@@ -278,25 +282,25 @@ namespace Cantera {
 
     /// @name Thermodynamic Properties
     /// Class State only stores enough thermodynamic data to
-    /// specify the state. In addition to composition information, 
+    /// specify the state. In addition to composition information,
     /// it stores the temperature and
-    /// mass density. 
+    /// mass density.
     //@{
 
     //! Temperature (K).
     /*!
      * @return  Returns the temperature of the phase
      */
-    doublereal temperature() const { 
-      return m_temp;
+    doublereal temperature() const {
+        return m_temp;
     }
 
     //! Density (kg/m^3).
     /*!
      * @return  Returns the density of the phase
      */
-    virtual doublereal density() const { 
-      return m_dens;
+    virtual doublereal density() const {
+        return m_dens;
     }
 
     //! Molar density (kmol/m^3).
@@ -314,11 +318,11 @@ namespace Cantera {
     //! Set the internally storred density (kg/m^3) of the phase
     /*!
      * Note the density of a phase is an indepedent variable.
-     * 
+     *
      * @param density Input density (kg/m^3).
      */
     virtual void setDensity(const doublereal density) {
-      m_dens = density;
+        m_dens = density;
     }
 
     //! Set the internally storred molar density (kmol/m^3) of the phase.
@@ -334,7 +338,7 @@ namespace Cantera {
      * @param temp Temperature in kelvin
      */
     virtual void setTemperature(const doublereal temp) {
-      m_temp = temp;
+        m_temp = temp;
     }
     //@}
 
@@ -352,19 +356,19 @@ namespace Cantera {
     //! Return the state number
     int stateMFNumber() const;
 
-  protected:
+protected:
 
     /**
-     * @internal 
+     * @internal
      * Initialize. Make a local copy of the vector of
      * molecular weights, and resize the composition arrays to
      * the appropriate size. The only information an instance of
-     * State has about the species is their molecular weights. 
+     * State has about the species is their molecular weights.
      *
      * @param mw Vector of molecular weights of the species.
      */
     void init(const array_fp& mw); //, density_is_independent = true);
-      
+
     /**
      * m_kk is the number of species in the phase
      */
@@ -376,14 +380,14 @@ namespace Cantera {
      * @param mw      Molecular Weight (kg kmol-1)
      */
     void setMolecularWeight(const int k, const double mw) {
-      m_molwts[k] = mw;
-      m_rmolwts[k] = 1.0/mw;
+        m_molwts[k] = mw;
+        m_rmolwts[k] = 1.0/mw;
     }
 
-  private:
+private:
 
     /**
-     * Temperature. This is an independent variable 
+     * Temperature. This is an independent variable
      * units = Kelvin
      */
     doublereal m_temp;
@@ -402,7 +406,7 @@ namespace Cantera {
      * (kg kmol-1)
      */
     doublereal m_mmw;
-        
+
     /**
      *  m_ym[k] = mole fraction of species k divided by the
      *            mean molecular weight of mixture.
@@ -427,17 +431,18 @@ namespace Cantera {
 
     //! State Change variable
     /*!
-     * Whenever the mole fraction vector changes, this int is 
+     * Whenever the mole fraction vector changes, this int is
      * incremented.
      */
     int m_stateNum;
 
-  };
+};
 
-  //! Return the State Mole Fraction Number
-  inline int State::stateMFNumber() const {
+//! Return the State Mole Fraction Number
+inline int State::stateMFNumber() const
+{
     return m_stateNum;
-  }
+}
 
 }
 

@@ -18,8 +18,9 @@ using namespace Cantera;
 using std::cout;
 using std::endl;
 
-void writeRxnPathDiagram(double time, ReactionPathBuilder& b, 
-    IdealGasMix& gas, std::ostream& logfile, std::ostream& outfile) {
+void writeRxnPathDiagram(double time, ReactionPathBuilder& b,
+                         IdealGasMix& gas, std::ostream& logfile, std::ostream& outfile)
+{
 
     // create a new empty diagram
     ReactionPathDiagram d;
@@ -73,7 +74,8 @@ void writeRxnPathDiagram(double time, ReactionPathBuilder& b,
 }
 
 
-int rxnpath_example1(int job) {
+int rxnpath_example1(int job)
+{
 
     try {
 
@@ -82,9 +84,11 @@ int rxnpath_example1(int job) {
             cout << "Generate reaction path diagrams following nitrogen\n"
                  << "as a function of time for constant-pressure ignition of a\n"
                  << "hydrogen/oxygen/nitrogen"
-                " mixture \nbeginning at T = 1001 K and P = 1 atm." << endl;
+                 " mixture \nbeginning at T = 1001 K and P = 1 atm." << endl;
         }
-        if (job < 2) return 0;
+        if (job < 2) {
+            return 0;
+        }
 
         // create an ideal gas mixture that corresponds to GRI-Mech
         // 3.0
@@ -108,7 +112,7 @@ int rxnpath_example1(int job) {
         w.install(r,env);
 
         // set the "Vdot coefficient" to a large value, in order to
-        // approach the constant-pressure limit; see the documentation 
+        // approach the constant-pressure limit; see the documentation
         // for class Reactor
         w.setExpansionRateCoeff(1.e9);
         w.setArea(1.0);

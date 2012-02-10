@@ -8,24 +8,26 @@
 #include "CVodeInt.h"
 #endif
 
-namespace Cantera {
+namespace Cantera
+{
 
-    Integrator* newIntegrator(std::string itype) {
-        if (itype == "CVODE") {
+Integrator* newIntegrator(std::string itype)
+{
+    if (itype == "CVODE") {
 #ifdef HAS_SUNDIALS
-            return new CVodesIntegrator();
+        return new CVodesIntegrator();
 #else
-            return new CVodeInt();
+        return new CVodeInt();
 #endif
-        }
-        else {
-            throw CanteraError("newIntegrator",
-                "unknown ODE integrator: "+itype);
-        }
-        return 0;
+    } else {
+        throw CanteraError("newIntegrator",
+                           "unknown ODE integrator: "+itype);
     }
+    return 0;
+}
 
-    void deleteIntegrator(Integrator *cv) {
-        delete cv;
-    }
+void deleteIntegrator(Integrator* cv)
+{
+    delete cv;
+}
 }

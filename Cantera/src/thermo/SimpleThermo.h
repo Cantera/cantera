@@ -11,58 +11,60 @@
 #include "SpeciesThermoMgr.h"
 #include "speciesThermoTypes.h"
 
-namespace Cantera {
+namespace Cantera
+{
 
-  /*!
-   *  A constant-heat capacity species thermodynamic property manager class. 
-   *  This makes the
-   *  assumption that the heat capacity is a constant. Then, the following
-   *  relations are used to complete the specification of the thermodynamic
-   *  functions for each species in the phase.
-   *
-   * \f[
-   *   \frac{c_p(T)}{R} = Cp0\_R
-   * \f]
-   * \f[
-   *   \frac{h^0(T)}{RT} = \frac{1}{T} * (h0\_R + (T - T_0) * Cp0\_R)
-   * \f]
-   * \f[
-   *   \frac{s^0(T)}{R} =  (s0\_R + (log(T) - log(T_0)) * Cp0\_R)
-   * \f]
-   *
-   * This parameterization takes 4 input values. These are:
-   *       -   c[0] = \f$ T_0 \f$(Kelvin)
-   *       -   c[1] = \f$ H_k^o(T_0, p_{ref}) \f$ (J/kmol)
-   *       -   c[2] = \f$ S_k^o(T_0, p_{ref}) \f$    (J/kmol K)
-   *       -   c[3] = \f$ {Cp}_k^o(T_0, p_{ref}) \f$  (J(kmol K)
-   *
-   * All species must have the same reference pressure.
-   * The single-species standard-state property Manager ConstCpPoly has the same
-   * parameterization as the SimpleThermo class does.
-   *
-   * @see ConstCpPoly
-   *
-   * @ingroup mgrsrefcalc
-   */
-  class SimpleThermo : public SpeciesThermo {
-    
-  public:
+/*!
+ *  A constant-heat capacity species thermodynamic property manager class.
+ *  This makes the
+ *  assumption that the heat capacity is a constant. Then, the following
+ *  relations are used to complete the specification of the thermodynamic
+ *  functions for each species in the phase.
+ *
+ * \f[
+ *   \frac{c_p(T)}{R} = Cp0\_R
+ * \f]
+ * \f[
+ *   \frac{h^0(T)}{RT} = \frac{1}{T} * (h0\_R + (T - T_0) * Cp0\_R)
+ * \f]
+ * \f[
+ *   \frac{s^0(T)}{R} =  (s0\_R + (log(T) - log(T_0)) * Cp0\_R)
+ * \f]
+ *
+ * This parameterization takes 4 input values. These are:
+ *       -   c[0] = \f$ T_0 \f$(Kelvin)
+ *       -   c[1] = \f$ H_k^o(T_0, p_{ref}) \f$ (J/kmol)
+ *       -   c[2] = \f$ S_k^o(T_0, p_{ref}) \f$    (J/kmol K)
+ *       -   c[3] = \f$ {Cp}_k^o(T_0, p_{ref}) \f$  (J(kmol K)
+ *
+ * All species must have the same reference pressure.
+ * The single-species standard-state property Manager ConstCpPoly has the same
+ * parameterization as the SimpleThermo class does.
+ *
+ * @see ConstCpPoly
+ *
+ * @ingroup mgrsrefcalc
+ */
+class SimpleThermo : public SpeciesThermo
+{
+
+public:
 
     //! Initialized to the type of parameterization
     /*!A
-     * Note, this value is used in some template functions. For this object the 
+     * Note, this value is used in some template functions. For this object the
      * value is SIMPLE.
      */
     const int ID;
 
     //! Constructor
     SimpleThermo() :
-      ID(SIMPLE),
-      m_tlow_max(0.0), 
-      m_thigh_min(1.e30),
-      m_p0(-1.0),
-      m_nspData(0) {}
-            
+        ID(SIMPLE),
+        m_tlow_max(0.0),
+        m_thigh_min(1.e30),
+        m_p0(-1.0),
+        m_nspData(0) {}
+
     //! Destructor
     virtual ~SimpleThermo() {}
 
@@ -70,46 +72,48 @@ namespace Cantera {
     /*!
      * @param right Object to be copied
      */
-    SimpleThermo(const SimpleThermo &right) :
-      ID(SIMPLE),
-      m_tlow_max(0.0), 
-      m_thigh_min(1.e30),
-      m_p0(-1.0),
-      m_nspData(0) {
-      /*
-       * Call the assignment operator
-       */
-      *this = operator=(right);
+    SimpleThermo(const SimpleThermo& right) :
+        ID(SIMPLE),
+        m_tlow_max(0.0),
+        m_thigh_min(1.e30),
+        m_p0(-1.0),
+        m_nspData(0) {
+        /*
+         * Call the assignment operator
+         */
+        *this = operator=(right);
     }
 
     //! Assignment operator
     /*!
      * @param right Object to be copied
      */
-    SimpleThermo& operator=(const SimpleThermo &right) {
-      /*
-       * Check for self assignment.
-       */
-      if (this == &right) return *this;
-  
-      m_loc          = right.m_loc;
-      m_index        = right.m_index;
-      m_tlow_max     = right.m_tlow_max;
-      m_thigh_min    = right.m_thigh_min;
-      m_tlow         = right.m_tlow;
-      m_thigh        = right.m_thigh;
-      m_t0           = right.m_t0;
-      m_logt0        = right.m_logt0;
-      m_h0_R         = right.m_h0_R;
-      m_s0_R         = right.m_s0_R;
-      m_cp0_R        = right.m_cp0_R;
-      m_p0           = right.m_p0;
-      m_nspData      = right.m_nspData;
+    SimpleThermo& operator=(const SimpleThermo& right) {
+        /*
+         * Check for self assignment.
+         */
+        if (this == &right) {
+            return *this;
+        }
 
-      return *this;
+        m_loc          = right.m_loc;
+        m_index        = right.m_index;
+        m_tlow_max     = right.m_tlow_max;
+        m_thigh_min    = right.m_thigh_min;
+        m_tlow         = right.m_tlow;
+        m_thigh        = right.m_thigh;
+        m_t0           = right.m_t0;
+        m_logt0        = right.m_logt0;
+        m_h0_R         = right.m_h0_R;
+        m_s0_R         = right.m_s0_R;
+        m_cp0_R        = right.m_cp0_R;
+        m_p0           = right.m_p0;
+        m_nspData      = right.m_nspData;
+
+        return *this;
     }
 
-    //! Duplication routine for objects which inherit from 
+    //! Duplication routine for objects which inherit from
     //! %SpeciesThermo
     /*!
      *  This virtual routine can be used to duplicate %SpeciesThermo  objects
@@ -118,20 +122,20 @@ namespace Cantera {
      *  ->commented out because we first need to add copy constructors
      *   and assignment operators to all of the derived classes.
      */
-    virtual SpeciesThermo *duplMyselfAsSpeciesThermo() const {
-      SimpleThermo *nt = new SimpleThermo(*this);
-      return (SpeciesThermo *) nt;
+    virtual SpeciesThermo* duplMyselfAsSpeciesThermo() const {
+        SimpleThermo* nt = new SimpleThermo(*this);
+        return (SpeciesThermo*) nt;
     }
 
     //! Install a new species thermodynamic property
-    //! parameterization for one species.  
+    //! parameterization for one species.
     /*!
      *
      * @param name      String name of the species
      * @param index     Species index, k
      * @param type      int flag specifying the type of parameterization to be
-     *                 installed. 
-     * @param c        Vector of coefficients for the parameterization. 
+     *                 installed.
+     * @param c        Vector of coefficients for the parameterization.
      *                 There are 4 coefficients. The values (and units) are the following
      *       -   c[0] = \f$ T_0 \f$(Kelvin)
      *       -   c[1] = \f$ H_k^o(T_0, p_{ref}) \f$ (J/kmol)
@@ -142,47 +146,51 @@ namespace Cantera {
      *                 is valid.
      * @param maxTemp  maximum temperature for which this parameterization
      *                 is valid.
-     * @param refPressure standard-state pressure for this 
-     *                    parameterization. 
+     * @param refPressure standard-state pressure for this
+     *                    parameterization.
      *
      * @see ConstCpPoly
      */
     virtual void install(std::string name, size_t index, int type, const doublereal* c,
-			 doublereal minTemp, doublereal maxTemp, doublereal refPressure) {
+                         doublereal minTemp, doublereal maxTemp, doublereal refPressure) {
 
-      m_logt0.push_back(log(c[0]));
-      m_t0.push_back(c[0]);
-      m_h0_R.push_back(c[1]/GasConstant);
-      m_s0_R.push_back(c[2]/GasConstant);
-      m_cp0_R.push_back(c[3]/GasConstant);
-      m_index.push_back(index);
-      m_loc[index] = m_nspData;
-      m_nspData++;
-      doublereal tlow  = minTemp;
-      doublereal thigh = maxTemp;
-    
-      if (tlow > m_tlow_max)    m_tlow_max = tlow;
-      if (thigh < m_thigh_min)  m_thigh_min = thigh;
-     
-      if (m_tlow.size() < index + 1) {
-	m_tlow.resize(index + 1,  tlow);
-	m_thigh.resize(index + 1, thigh);
-      }
-      m_tlow[index] = tlow;
-      m_thigh[index] = thigh;
+        m_logt0.push_back(log(c[0]));
+        m_t0.push_back(c[0]);
+        m_h0_R.push_back(c[1]/GasConstant);
+        m_s0_R.push_back(c[2]/GasConstant);
+        m_cp0_R.push_back(c[3]/GasConstant);
+        m_index.push_back(index);
+        m_loc[index] = m_nspData;
+        m_nspData++;
+        doublereal tlow  = minTemp;
+        doublereal thigh = maxTemp;
 
-      if (m_p0 < 0.0) {
-	m_p0 = refPressure;
-      } else if (fabs(m_p0 - refPressure) > 0.1) {
-	std::string logmsg =  " WARNING SimpleThermo: New Species, " + name +  
-	  ", has a different reference pressure, "
-	  + fp2str(refPressure) + ", than existing reference pressure, " 	+ fp2str(m_p0) + "\n";
-	writelog(logmsg);
-	logmsg = "                  This is now a fatal error\n";
-	writelog(logmsg);
-        throw CanteraError("install()", "Species have different reference pressures");
-      }
-      m_p0 = refPressure;
+        if (tlow > m_tlow_max) {
+            m_tlow_max = tlow;
+        }
+        if (thigh < m_thigh_min) {
+            m_thigh_min = thigh;
+        }
+
+        if (m_tlow.size() < index + 1) {
+            m_tlow.resize(index + 1,  tlow);
+            m_thigh.resize(index + 1, thigh);
+        }
+        m_tlow[index] = tlow;
+        m_thigh[index] = thigh;
+
+        if (m_p0 < 0.0) {
+            m_p0 = refPressure;
+        } else if (fabs(m_p0 - refPressure) > 0.1) {
+            std::string logmsg =  " WARNING SimpleThermo: New Species, " + name +
+                                  ", has a different reference pressure, "
+                                  + fp2str(refPressure) + ", than existing reference pressure, " 	+ fp2str(m_p0) + "\n";
+            writelog(logmsg);
+            logmsg = "                  This is now a fatal error\n";
+            writelog(logmsg);
+            throw CanteraError("install()", "Species have different reference pressures");
+        }
+        m_p0 = refPressure;
     }
 
     //! Install a new species thermodynamic property
@@ -191,8 +199,8 @@ namespace Cantera {
      * @param stit_ptr Pointer to the SpeciesThermoInterpType object
      *          This will set up the thermo for one species
      */
-    virtual void install_STIT(SpeciesThermoInterpType *stit_ptr) {
-      throw CanteraError("install_STIT", "not implemented");
+    virtual void install_STIT(SpeciesThermoInterpType* stit_ptr) {
+        throw CanteraError("install_STIT", "not implemented");
     }
 
     //! Compute the reference-state properties for all species.
@@ -210,17 +218,17 @@ namespace Cantera {
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
      */
-    virtual void update(doublereal t, doublereal* cp_R, 
-			doublereal* h_RT, doublereal* s_R) const {
-      size_t k, ki;
-      doublereal logt = log(t);
-      doublereal rt = 1.0/t;
-      for (k = 0; k < m_nspData; k++) {
-	ki = m_index[k];
-	cp_R[ki] = m_cp0_R[k];
-	h_RT[ki] = rt*(m_h0_R[k] + (t - m_t0[k]) * m_cp0_R[k]);
-	s_R[ki] = m_s0_R[k] + m_cp0_R[k] * (logt - m_logt0[k]);
-      }
+    virtual void update(doublereal t, doublereal* cp_R,
+                        doublereal* h_RT, doublereal* s_R) const {
+        size_t k, ki;
+        doublereal logt = log(t);
+        doublereal rt = 1.0/t;
+        for (k = 0; k < m_nspData; k++) {
+            ki = m_index[k];
+            cp_R[ki] = m_cp0_R[k];
+            h_RT[ki] = rt*(m_h0_R[k] + (t - m_t0[k]) * m_cp0_R[k]);
+            s_R[ki] = m_s0_R[k] + m_cp0_R[k] * (logt - m_logt0[k]);
+        }
     }
 
     //! Like update(), but only updates the single species k.
@@ -235,13 +243,13 @@ namespace Cantera {
      *                (length m_kk).
      */
     virtual void update_one(size_t k, doublereal t, doublereal* cp_R,
-			    doublereal* h_RT, doublereal* s_R) const {
-      doublereal logt = log(t);
-      doublereal rt = 1.0/t;
-      size_t loc = m_loc[k];
-      cp_R[k] = m_cp0_R[loc];
-      h_RT[k] = rt*(m_h0_R[loc] + (t - m_t0[loc]) * m_cp0_R[loc]);
-      s_R[k] = m_s0_R[loc] + m_cp0_R[loc] * (logt - m_logt0[loc]);
+                            doublereal* h_RT, doublereal* s_R) const {
+        doublereal logt = log(t);
+        doublereal rt = 1.0/t;
+        size_t loc = m_loc[k];
+        cp_R[k] = m_cp0_R[loc];
+        h_RT[k] = rt*(m_h0_R[loc] + (t - m_t0[loc]) * m_cp0_R[loc]);
+        s_R[k] = m_s0_R[loc] + m_cp0_R[loc] * (logt - m_logt0[loc]);
     }
 
     //! Minimum temperature.
@@ -253,12 +261,13 @@ namespace Cantera {
      * temperature for species k in the phase.
      *
      * @param k    Species index
-     */ 
+     */
     virtual doublereal minTemp(size_t k=npos) const {
-      if (k == npos)
-	return m_tlow_max;
-      else
-	return m_tlow[m_loc[k]];
+        if (k == npos) {
+            return m_tlow_max;
+        } else {
+            return m_tlow[m_loc[k]];
+        }
     }
 
     //! Maximum temperature.
@@ -272,10 +281,11 @@ namespace Cantera {
      * @param k  Species Index
      */
     virtual doublereal maxTemp(size_t k=npos) const {
-      if (k == npos)
-	return m_thigh_min;
-      else
-	return m_thigh[m_loc[k]];
+        if (k == npos) {
+            return m_thigh_min;
+        } else {
+            return m_thigh[m_loc[k]];
+        }
     }
 
     //! The reference-state pressure for species k.
@@ -291,7 +301,9 @@ namespace Cantera {
      *
      * @param k Species Index
      */
-    virtual doublereal refPressure(size_t k=npos) const {return m_p0;}
+    virtual doublereal refPressure(size_t k=npos) const {
+        return m_p0;
+    }
 
     //! This utility function reports the type of parameterization
     //! used for the species with index number index.
@@ -299,11 +311,13 @@ namespace Cantera {
      *
      * @param index  Species index
      */
-    virtual int reportType(size_t index) const { return SIMPLE; }
+    virtual int reportType(size_t index) const {
+        return SIMPLE;
+    }
 
     /*!
-     * This utility function reports back the type of 
-     * parameterization and all of the parameters for the 
+     * This utility function reports back the type of
+     * parameterization and all of the parameters for the
      * species, index.
      *
      * @param index     Species index
@@ -316,22 +330,22 @@ namespace Cantera {
      * @param refPressure output - reference pressure (Pa).
      *
      */
-    virtual void reportParams(size_t index, int &type,
-			      doublereal * const c, 
-			      doublereal &minTemp, 
-			      doublereal &maxTemp, 
-			      doublereal &refPressure) const {
-      type = reportType(index);
-      size_t loc = m_loc[index];
-      if (type == SIMPLE) {
-	c[0] = m_t0[loc];
-	c[1] = m_h0_R[loc] * GasConstant;
-	c[2] = m_s0_R[loc] * GasConstant;
-	c[3] = m_cp0_R[loc] * GasConstant;
-	minTemp = m_tlow[loc];
-	maxTemp = m_thigh[loc];
-	refPressure = m_p0;
-      }
+    virtual void reportParams(size_t index, int& type,
+                              doublereal* const c,
+                              doublereal& minTemp,
+                              doublereal& maxTemp,
+                              doublereal& refPressure) const {
+        type = reportType(index);
+        size_t loc = m_loc[index];
+        if (type == SIMPLE) {
+            c[0] = m_t0[loc];
+            c[1] = m_h0_R[loc] * GasConstant;
+            c[2] = m_s0_R[loc] * GasConstant;
+            c[3] = m_cp0_R[loc] * GasConstant;
+            minTemp = m_tlow[loc];
+            maxTemp = m_thigh[loc];
+            refPressure = m_p0;
+        }
     }
 
     //! Modify parameters for the standard state
@@ -343,34 +357,34 @@ namespace Cantera {
      *              parameters for the standard state.
      *              Must be length >= 4.
      */
-    virtual void modifyParams(size_t index, doublereal *c) {
-      size_t loc = m_loc[index];
-      if (loc == npos) {
-	throw CanteraError("SimpleThermo::modifyParams",
-			   "modifying parameters for species which hasn't been set yet");
-      }
-      /*
-       * Change the data
-       */
-      m_t0[loc]    = c[0];
-      m_h0_R[loc]  = c[1] / GasConstant;
-      m_s0_R[loc]  = c[2] / GasConstant;
-      m_cp0_R[loc] = c[3] / GasConstant;
+    virtual void modifyParams(size_t index, doublereal* c) {
+        size_t loc = m_loc[index];
+        if (loc == npos) {
+            throw CanteraError("SimpleThermo::modifyParams",
+                               "modifying parameters for species which hasn't been set yet");
+        }
+        /*
+         * Change the data
+         */
+        m_t0[loc]    = c[0];
+        m_h0_R[loc]  = c[1] / GasConstant;
+        m_s0_R[loc]  = c[2] / GasConstant;
+        m_cp0_R[loc] = c[3] / GasConstant;
     }
 
 #ifdef H298MODIFY_CAPABILITY
- 
+
     virtual doublereal reportOneHf298(int k) const {
-      throw CanteraError("reportHF298", "unimplemented");
+        throw CanteraError("reportHF298", "unimplemented");
     }
 
     virtual void modifyOneHf298(const int k, const doublereal Hf298New) {
-      throw CanteraError("reportHF298", "unimplemented");
+        throw CanteraError("reportHF298", "unimplemented");
     }
 
-  
+
 #endif
-  protected:
+protected:
 
     //! Mapping between the species index and the vector index where the coefficients are kept
     /*!
@@ -388,7 +402,7 @@ namespace Cantera {
      */
     std::vector<size_t> m_index;
 
-    //! Maximum value of the low temperature limit 
+    //! Maximum value of the low temperature limit
     doublereal                 m_tlow_max;
 
     //! Minimum value of the high temperature limit
@@ -418,13 +432,13 @@ namespace Cantera {
      */
     vector_fp                  m_logt0;
 
-    //! Vector of base dimensionless Enthalpies 
+    //! Vector of base dimensionless Enthalpies
     /*!
      * Length is equal to the number of species data points
      */
     vector_fp                  m_h0_R;
 
-    //! Vector of base dimensionless Entropies 
+    //! Vector of base dimensionless Entropies
     /*!
      * Length is equal to the number of species data points
      */
@@ -442,13 +456,13 @@ namespace Cantera {
      */
     doublereal                 m_p0;
 
-    //! Number of species data points in the object. 
+    //! Number of species data points in the object.
     /*!
      * This is less than or equal to the number of species in the phase.
      */
     size_t m_nspData;
 
-  };
+};
 
 }
 

@@ -18,140 +18,134 @@ typedef Func1 func_t;
 // Assign storage to the Cabinet<Func1> static member
 template<> Cabinet<func_t>*       Cabinet<func_t>::__storage = 0;
 
-inline func_t* _func(size_t i) {
+inline func_t* _func(size_t i)
+{
     return Cabinet<func_t>::cabinet()->item(i);
 }
- 
+
 extern "C" {
 
     // functions
 
-    int DLL_EXPORT func_new(int type, size_t n, size_t lenp, double* params) {
+    int DLL_EXPORT func_new(int type, size_t n, size_t lenp, double* params)
+    {
         func_t* r=0;
         size_t m = lenp;
         try {
             if (type == SinFuncType) {
                 r = new Sin1(params[0]);
-            }
-            else if (type == CosFuncType) {
+            } else if (type == CosFuncType) {
                 r = new Cos1(params[0]);
-            }
-            else if (type == ExpFuncType) {
+            } else if (type == ExpFuncType) {
                 r = new Exp1(params[0]);
-            }
-            else if (type == PowFuncType) {
-                if (lenp < 1) 
-                    throw CanteraError("func_new", 
-                        "exponent for pow must be supplied");                
+            } else if (type == PowFuncType) {
+                if (lenp < 1)
+                    throw CanteraError("func_new",
+                                       "exponent for pow must be supplied");
                 r = new Pow1(params[0]);
-            }
-            else if (type == ConstFuncType) {
+            } else if (type == ConstFuncType) {
                 r = new Const1(params[0]);
-            }
-            else if (type == FourierFuncType) {
-                if (lenp < 2*n + 2) 
-                    throw CanteraError("func_new", 
-                        "not enough Fourier coefficients");
-                r = new Fourier1(n, params[n+1], params[0], params + 1, 
-                    params + n + 2);
-            }
-            else if (type == GaussianFuncType) {
-                if (lenp < 3) 
-                    throw CanteraError("func_new", 
-                        "not enough Gaussian coefficients");
+            } else if (type == FourierFuncType) {
+                if (lenp < 2*n + 2)
+                    throw CanteraError("func_new",
+                                       "not enough Fourier coefficients");
+                r = new Fourier1(n, params[n+1], params[0], params + 1,
+                                 params + n + 2);
+            } else if (type == GaussianFuncType) {
+                if (lenp < 3)
+                    throw CanteraError("func_new",
+                                       "not enough Gaussian coefficients");
                 r = new Gaussian(params[0], params[1], params[2]);
-            }
-            else if (type == PolyFuncType) {
-                if (lenp < n + 1) 
-                    throw CanteraError("func_new", 
-                        "not enough polynomial coefficients");
+            } else if (type == PolyFuncType) {
+                if (lenp < n + 1)
+                    throw CanteraError("func_new",
+                                       "not enough polynomial coefficients");
                 r = new Poly1(n, params);
-            }
-            else if (type == ArrheniusFuncType) {
-                if (lenp < 3*n) 
-                    throw CanteraError("func_new", 
-                        "not enough Arrhenius coefficients");
+            } else if (type == ArrheniusFuncType) {
+                if (lenp < 3*n)
+                    throw CanteraError("func_new",
+                                       "not enough Arrhenius coefficients");
                 r = new Arrhenius1(n, params);
-            }
-            else if (type == PeriodicFuncType) {
+            } else if (type == PeriodicFuncType) {
                 r = new Periodic1(*_func(n), params[0]);
-            }
-            else if (type == SumFuncType) {
+            } else if (type == SumFuncType) {
                 r = &newSumFunction(_func(n)->duplicate(),
-                    _func(m)->duplicate());
-            }
-            else if (type == DiffFuncType) {
-                r = &newDiffFunction(_func(n)->duplicate(), 
-                    _func(m)->duplicate());
-            }
-            else if (type == ProdFuncType) {
-                r = &newProdFunction(_func(n)->duplicate(), 
-                    _func(m)->duplicate());
-            }
-            else if (type == RatioFuncType) {
-                r = &newRatioFunction(_func(n)->duplicate(), 
-                    _func(m)->duplicate());
-            }
-            else if (type == CompositeFuncType) {
-                r = &newCompositeFunction(_func(n)->duplicate(), 
-                    _func(m)->duplicate());
-            }
-            else if (type == TimesConstantFuncType) {
+                                    _func(m)->duplicate());
+            } else if (type == DiffFuncType) {
+                r = &newDiffFunction(_func(n)->duplicate(),
+                                     _func(m)->duplicate());
+            } else if (type == ProdFuncType) {
+                r = &newProdFunction(_func(n)->duplicate(),
+                                     _func(m)->duplicate());
+            } else if (type == RatioFuncType) {
+                r = &newRatioFunction(_func(n)->duplicate(),
+                                      _func(m)->duplicate());
+            } else if (type == CompositeFuncType) {
+                r = &newCompositeFunction(_func(n)->duplicate(),
+                                          _func(m)->duplicate());
+            } else if (type == TimesConstantFuncType) {
                 r = &newTimesConstFunction(_func(n)->duplicate(), params[0]);
-            }
-            else if (type == PlusConstantFuncType) {
+            } else if (type == PlusConstantFuncType) {
                 r = &newPlusConstFunction(_func(n)->duplicate(), params[0]);
-            }
-            else {
+            } else {
                 throw CanteraError("func_new","unknown function type");
                 r = new Func1();
             }
             return Cabinet<func_t>::cabinet()->add(r);
+        } catch (CanteraError) {
+            return -1;
         }
-        catch (CanteraError) {return -1;}
     }
 
 
-    int DLL_EXPORT func_del(int i) {
+    int DLL_EXPORT func_del(int i)
+    {
         Cabinet<func_t>::cabinet()->del(i);
         return 0;
     }
 
-    int DLL_EXPORT func_copy(int i) {
+    int DLL_EXPORT func_copy(int i)
+    {
         return Cabinet<func_t>::cabinet()->newCopy(i);
     }
 
-    int DLL_EXPORT func_assign(int i, int j) {
+    int DLL_EXPORT func_assign(int i, int j)
+    {
         return Cabinet<func_t>::cabinet()->assign(i,j);
     }
 
-    double DLL_EXPORT func_value(int i, double t) {
+    double DLL_EXPORT func_value(int i, double t)
+    {
         return _func(i)->eval(t);
     }
 
-    int DLL_EXPORT func_derivative(int i) {
+    int DLL_EXPORT func_derivative(int i)
+    {
         func_t* r = 0;
         r = &_func(i)->derivative();
         return Cabinet<func_t>::cabinet()->add(r);
     }
 
-    int DLL_EXPORT func_duplicate(int i) {
+    int DLL_EXPORT func_duplicate(int i)
+    {
         func_t* r = 0;
         r = &_func(i)->duplicate();
         return Cabinet<func_t>::cabinet()->add(r);
     }
 
-    int DLL_EXPORT func_write(int i, size_t lennm, const char* arg, char* nm) {
+    int DLL_EXPORT func_write(int i, size_t lennm, const char* arg, char* nm)
+    {
         try {
             std::string a = std::string(arg);
             std::string w = _func(i)->write(a);
             size_t ws = w.size();
             size_t lout = (lennm > ws ? ws : lennm);
-			std::copy(w.c_str(), w.c_str() + lout, nm);
+            std::copy(w.c_str(), w.c_str() + lout, nm);
             nm[lout] = '\0';
             return 0;
+        } catch (CanteraError) {
+            return -1;
         }
-        catch (CanteraError) { return -1; }
     }
 
 }

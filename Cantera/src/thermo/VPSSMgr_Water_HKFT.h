@@ -1,13 +1,13 @@
 /**
  *  @file VPSSMgr_Water_HKFT.h
  * Declaration file for a derived class that handles the calculation
- * of standard state thermo properties for real water and 
+ * of standard state thermo properties for real water and
  *  a set of species which have the HKFT equation of state
  * (see \ref mgrpdssthermocalc and
  * class \link Cantera::VPSSMgr_Water_HKFT VPSSMgr_Water_HKFT\endlink).
  */
 /*
- * Copywrite (2006) Sandia Corporation. Under the terms of 
+ * Copywrite (2006) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -17,83 +17,85 @@
 
 #include "VPSSMgr.h"
 
-namespace Cantera {
+namespace Cantera
+{
 
-  class SpeciesThermoInterpType;
-  class VPStandardStateTP;
-  class SpeciesThermo;
-  class PDSS;
-  class PDSS_Water;
+class SpeciesThermoInterpType;
+class VPStandardStateTP;
+class SpeciesThermo;
+class PDSS;
+class PDSS_Water;
 
-  //! Virtual base class for the species thermo manager classes.
-  /*!
-   *  This class defines the interface which all subclasses must implement. 
-   *
-   * Class %VPSSSpeciesThermo is the base class
-   * for a family of classes that compute properties of a set of 
-   * species in their reference state at a range of temperatures.
-   * Note, the pressure dependence of the reference state is not
-   * handled by this particular species standard state model.
-   *
-   * @ingroup mgrpdssthermocalc
-   */
-  class VPSSMgr_Water_HKFT : public VPSSMgr {
-    
-  public:
+//! Virtual base class for the species thermo manager classes.
+/*!
+ *  This class defines the interface which all subclasses must implement.
+ *
+ * Class %VPSSSpeciesThermo is the base class
+ * for a family of classes that compute properties of a set of
+ * species in their reference state at a range of temperatures.
+ * Note, the pressure dependence of the reference state is not
+ * handled by this particular species standard state model.
+ *
+ * @ingroup mgrpdssthermocalc
+ */
+class VPSSMgr_Water_HKFT : public VPSSMgr
+{
 
-  
+public:
+
+
     //! Constructor
     /*!
      * @param vptp_ptr Pointer to the Variable pressure %ThermoPhase object
      *                 This object must have already been malloced.
-     *                 
+     *
      * @param spth     Pointer to the optional SpeciesThermo object
      *                 that will handle the calculation of the reference
      *                 state thermodynamic coefficients.
      */
-    VPSSMgr_Water_HKFT(VPStandardStateTP *vptp_ptr,
-			   SpeciesThermo *spth);
+    VPSSMgr_Water_HKFT(VPStandardStateTP* vptp_ptr,
+                       SpeciesThermo* spth);
 
     //! Destructor
     virtual ~VPSSMgr_Water_HKFT();
 
-    //! Copy Constructor for the %SpeciesThermo object. 
+    //! Copy Constructor for the %SpeciesThermo object.
     /*!
      * @param right    Reference to %SpeciesThermo object to be copied into the
      *                 current one.
      */
-    VPSSMgr_Water_HKFT(const VPSSMgr_Water_HKFT &right);
-	
+    VPSSMgr_Water_HKFT(const VPSSMgr_Water_HKFT& right);
+
     //! Assignment operator for the %SpeciesThermo object
     /*!
      *  This is NOT a virtual function.
      *
      * @param right    Reference to %SpeciesThermo object to be copied into the
-     *                 current one. 
+     *                 current one.
      */
-    VPSSMgr_Water_HKFT& operator=(const VPSSMgr_Water_HKFT &right);
-   
-    //! Duplication routine for objects which inherit from 
+    VPSSMgr_Water_HKFT& operator=(const VPSSMgr_Water_HKFT& right);
+
+    //! Duplication routine for objects which inherit from
     //! %VPSSSpeciesThermo
     /*!
      *  This virtual routine can be used to duplicate %VPSSSpeciesThermo  objects
      *  inherited from %VPSSSpeciesThermo even if the application only has
      *  a pointer to %VPSSSpeciesThermo to work with.
      */
-    virtual VPSSMgr *duplMyselfAsVPSSMgr() const;
+    virtual VPSSMgr* duplMyselfAsVPSSMgr() const;
 
     /*!
-     * @name  Properties of the Standard State of the Species in the Solution 
+     * @name  Properties of the Standard State of the Species in the Solution
      *
-     *  Within VPStandardStateTP, these properties are calculated via a common routine, 
+     *  Within VPStandardStateTP, these properties are calculated via a common routine,
      *  _updateStandardStateThermo(),
      *  which must be overloaded in inherited objects.
      *  The values are cached within this object, and are not recalculated unless
      *  the temperature or pressure changes.
      */
     //@{
-    
- 
+
+
     //@}
     /// @name Thermodynamic Values for the Species Reference States (VPStandardStateTP)
     /*!
@@ -114,8 +116,8 @@ namespace Cantera {
      *            of the reference state of the species
      *            length = m_kk, units = dimensionless.
      */
-    virtual void getEnthalpy_RT_ref(doublereal *hrt) const;
-     
+    virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
+
     /*!
      *  Returns the vector of nondimensional
      *  Gibbs free energies of the reference state at the current temperature
@@ -125,21 +127,21 @@ namespace Cantera {
      *            of the reference state of the species
      *            length = m_kk, units = dimensionless.
      */
-    virtual void getGibbs_RT_ref(doublereal *grt) const ;
+    virtual void getGibbs_RT_ref(doublereal* grt) const ;
 
-   /*!
-     *  Returns the vector of the
-     *  gibbs function of the reference state at the current temperature
-     *  of the solution and the reference pressure for the species.
-     *  units = J/kmol
-     *
-     * @param g   Output vector contain the Gibbs free energies
-     *            of the reference state of the species
-     *            length = m_kk, units = J/kmol.
-     */
-    virtual void getGibbs_ref(doublereal *g) const ;
-      
-  
+    /*!
+      *  Returns the vector of the
+      *  gibbs function of the reference state at the current temperature
+      *  of the solution and the reference pressure for the species.
+      *  units = J/kmol
+      *
+      * @param g   Output vector contain the Gibbs free energies
+      *            of the reference state of the species
+      *            length = m_kk, units = J/kmol.
+      */
+    virtual void getGibbs_ref(doublereal* g) const ;
+
+
     /*!
      *  Returns the vector of nondimensional
      *  entropies of the reference state at the current temperature
@@ -149,8 +151,8 @@ namespace Cantera {
      *            of the species in their reference states
      *            length: m_kk, units: dimensionless.
      */
-    virtual void getEntropy_R_ref(doublereal *er) const ;
-                 
+    virtual void getEntropy_R_ref(doublereal* er) const ;
+
     /*!
      *  Returns the vector of nondimensional
      *  constant pressure heat capacities of the reference state
@@ -161,7 +163,7 @@ namespace Cantera {
      *             of the species in their reference states
      *             length: m_kk, units: dimensionless.
      */
-    virtual void getCp_R_ref(doublereal *cpr) const ;
+    virtual void getCp_R_ref(doublereal* cpr) const ;
 
     //!  Get the molar volumes of the species reference states at the current
     //!  <I>T</I> and <I>P_ref</I> of the solution.
@@ -171,11 +173,11 @@ namespace Cantera {
      * @param vol     Output vector containing the standard state volumes.
      *                Length: m_kk.
      */
-    virtual void getStandardVolumes_ref(doublereal *vol) const ;
+    virtual void getStandardVolumes_ref(doublereal* vol) const ;
 
     //! Set the temperature (K) and pressure (Pa)
     /*!
-     *  This sets the temperature and pressure and triggers 
+     *  This sets the temperature and pressure and triggers
      *  calculation of underlying quantities
      *
      * @param T    Temperature (K)
@@ -216,7 +218,7 @@ namespace Cantera {
      */
     //@{
 
-    //! Updates the internal reference state thermodynamic vectors at the 
+    //! Updates the internal reference state thermodynamic vectors at the
     //! current T of the solution and the reference pressure.
     /*!
      *  This is called to make sure that the internal thermodynamic members
@@ -225,7 +227,7 @@ namespace Cantera {
      */
     virtual void updateRefStateThermo() const;
 
-  private:
+private:
 
     //! Updates the reference state thermodynamic functions at the current T
     //! and a calculated Pref that is safe.
@@ -244,11 +246,11 @@ namespace Cantera {
      *
      *  m_p0 is calculated within this routine given the value of the temperature.
      *  This is necessary because we are using a real equation of state for
-     *  water. 
+     *  water.
      *
      *  The state of the system is left at (m_tlast, m_plast) at the end
      *  of the routine.
-     */                    
+     */
     virtual void _updateRefStateThermo() const;
 
     //! Updates the standard state thermodynamic functions at the current T and P of the solution.
@@ -275,11 +277,11 @@ namespace Cantera {
      *
      *  Note, this will throw an error. It must be reimplemented in derived classes.
      *
-     */                    
+     */
     virtual void _updateStandardStateThermo();
 
 
-  public:
+public:
 
     //@}
     //! @name Utility Methods - Reports on various quantities
@@ -302,7 +304,7 @@ namespace Cantera {
     //! for the calculation of ss properties
     /*!
      *
-     * 
+     *
      */
     virtual VPSSMgr_enumType reportVPSSMgrType() const ;
 
@@ -310,9 +312,9 @@ namespace Cantera {
     //! @name Initialization Methods - For Internal use (VPStandardState)
     /*!
      * The following methods are used in the process of constructing
-     * the phase and setting its parameters from a specification in an 
+     * the phase and setting its parameters from a specification in an
      * input file. They are not normally used in application programs.
-     * To see how they are used, see files importCTML.cpp and 
+     * To see how they are used, see files importCTML.cpp and
      * ThermoFactory.cpp.
      */
     //@{
@@ -335,12 +337,12 @@ namespace Cantera {
 
     //! Finalize the thermo after all species have been entered
     /*!
-     *  This function is the LAST initialization routine to be 
+     *  This function is the LAST initialization routine to be
      *  called. It's called after createInstallPDSS() has been
      *  called for each species in the phase, and after initThermo()
      *  has been called.
      *  It's called via an inner-to-outer onion shell like manner.
-     *  
+     *
      *
      *  @param phaseNode   Reference to the phaseNode XML node.
      *  @param id          ID of the phase.
@@ -358,15 +360,15 @@ namespace Cantera {
      * @param phaseNode_ptr Pointer to the XML Node corresponding
      *                      to the phase which owns the species
      */
-    virtual PDSS *createInstallPDSS(size_t k, const XML_Node& speciesNode,
-				    const XML_Node * const phaseNode_ptr);
- 
+    virtual PDSS* createInstallPDSS(size_t k, const XML_Node& speciesNode,
+                                    const XML_Node* const phaseNode_ptr);
+
     //@}
 
-   private:
+private:
 
     //! Shallow pointer to the water object
-    PDSS_Water *m_waterSS;
+    PDSS_Water* m_waterSS;
 
     //! Last reference temperature calculated
     /*!
@@ -374,8 +376,8 @@ namespace Cantera {
      * standard state calculations.
      */
     mutable doublereal m_tlastRef;
-  };
-  //@}
+};
+//@}
 }
 
 #endif

@@ -6,7 +6,7 @@
  *
  */
 /*
- * Copywrite (2005) Sandia Corporation. Under the terms of 
+ * Copywrite (2005) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -22,14 +22,15 @@
 #include "VPSSMgr.h"
 #include "ResidEval.h"
 
-namespace Cantera {
+namespace Cantera
+{
 
-  class XML_Node;
-  class PDSS;
+class XML_Node;
+class PDSS;
 
 
-  //! Various states of the Fugacity object. In general there can be multiple liquid
-  //! objects for a single phase identified with each species.
+//! Various states of the Fugacity object. In general there can be multiple liquid
+//! objects for a single phase identified with each species.
 
 #define FLUID_UNSTABLE -4
 #define FLUID_UNDEFINED -3
@@ -48,72 +49,73 @@ namespace Cantera {
 
 
 
-  /**
-   * @ingroup thermoprops
-   *
-   *  This is a filter class for ThermoPhase that implements some prepatory
-   *  steps for efficiently handling mixture of gases that whose standard states
-   *  are defined as ideal gases, but which describe also non-ideal solutions.  
-   *  In addition a multicomponent liquid phase below the critical temperature of the
-   *  mixture is also allowed. The main subclass is currently a mixture Redlich-Kwong class.
-   *
-   *  Several concepts are introduced. The first concept is there are temporary
-   *  variables for holding the species standard state values 
-   *  of Cp, H, S, G, and V at the last temperature and pressure called. These functions are not recalculated
-   *  if a new call is made using the previous temperature and pressure.
-   *   
-   *  The other concept is that the current state of the mixture is tracked. 
-   *  The state variable is either GAS, LIQUID, or SUPERCRIT fluid.  Additionally,
-   *  the variable LiquidContent is used and may vary between 0 and 1.
-   *
-   *  To support the above functionality, pressure and temperature variables,
-   *  m_Plast_ss and m_Tlast_ss, are kept which store the last pressure and temperature
-   *  used in the evaluation of standard state properties.
-   *
-   *  Typically, only one liquid phase is allowed to be formed within these classes.
-   *  Additionally, there is an inherent contradiction between three phase models and
-   *  the ThermoPhase class. The ThermoPhase class is really only meant to represent a
-   *  single instanteation of a phase. The three phase models may be in equilibrium with
-   *  multiple phases of the fluid in equilibrium with each other. This has yet to be resolved.
-   *
-   *  This class is usually used for non-ideal gases.
-   *
-   *   
-   *  @nosubgrouping
-   */
-  class MixtureFugacityTP : public ThermoPhase {
+/**
+ * @ingroup thermoprops
+ *
+ *  This is a filter class for ThermoPhase that implements some prepatory
+ *  steps for efficiently handling mixture of gases that whose standard states
+ *  are defined as ideal gases, but which describe also non-ideal solutions.
+ *  In addition a multicomponent liquid phase below the critical temperature of the
+ *  mixture is also allowed. The main subclass is currently a mixture Redlich-Kwong class.
+ *
+ *  Several concepts are introduced. The first concept is there are temporary
+ *  variables for holding the species standard state values
+ *  of Cp, H, S, G, and V at the last temperature and pressure called. These functions are not recalculated
+ *  if a new call is made using the previous temperature and pressure.
+ *
+ *  The other concept is that the current state of the mixture is tracked.
+ *  The state variable is either GAS, LIQUID, or SUPERCRIT fluid.  Additionally,
+ *  the variable LiquidContent is used and may vary between 0 and 1.
+ *
+ *  To support the above functionality, pressure and temperature variables,
+ *  m_Plast_ss and m_Tlast_ss, are kept which store the last pressure and temperature
+ *  used in the evaluation of standard state properties.
+ *
+ *  Typically, only one liquid phase is allowed to be formed within these classes.
+ *  Additionally, there is an inherent contradiction between three phase models and
+ *  the ThermoPhase class. The ThermoPhase class is really only meant to represent a
+ *  single instanteation of a phase. The three phase models may be in equilibrium with
+ *  multiple phases of the fluid in equilibrium with each other. This has yet to be resolved.
+ *
+ *  This class is usually used for non-ideal gases.
+ *
+ *
+ *  @nosubgrouping
+ */
+class MixtureFugacityTP : public ThermoPhase
+{
 
-  public:
+public:
 
     /*!
-     *   
-     * @name Constructors and Duplicators for %MixtureFugacityTP 
      *
-     */   
-    //! Constructor. 
+     * @name Constructors and Duplicators for %MixtureFugacityTP
+     *
+     */
+    //! Constructor.
     MixtureFugacityTP();
 
     //! Copy Constructor.
     /*!
      *  @param b   Object to be copied
      */
-    MixtureFugacityTP(const MixtureFugacityTP &b);
+    MixtureFugacityTP(const MixtureFugacityTP& b);
 
     //! Assignment operator
     /*!
      *  @param b   Object to be copied
      */
-    MixtureFugacityTP& operator=(const MixtureFugacityTP &b);
+    MixtureFugacityTP& operator=(const MixtureFugacityTP& b);
 
-    //! Destructor. 
+    //! Destructor.
     virtual ~MixtureFugacityTP();
 
-   
-     //! Duplication routine
+
+    //! Duplication routine
     /*!
      *  @return  Returns a duplication
      */
-    virtual ThermoPhase *duplMyselfAsThermoPhase() const;
+    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
 
     //@}
 
@@ -121,13 +123,15 @@ namespace Cantera {
      * @name  Utilities (MixtureFugacityTP)
      */
     //@{
-    /** 
+    /**
      * Equation of state type flag. The base class returns
      * zero. Subclasses should define this to return a unique
      * non-zero value. Constants defined for this purpose are
      * listed in mix_defs.h.
      */
-    virtual int eosType() const { return 0; }
+    virtual int eosType() const {
+        return 0;
+    }
 
     //! This method returns the convention used in specification
     //! of the standard state, of which there are currently two,
@@ -145,7 +149,7 @@ namespace Cantera {
 
     //! Set the solution branch to force the ThermoPhase to exist on one branch or another
     /*!
-     *  @param solnBranch  Branch that the solution is restricted to. 
+     *  @param solnBranch  Branch that the solution is restricted to.
      *                     the value -1 means gas. The value -2 means unrestricted.
      *                     Values of zero or greater refer to species dominated condensed phases.
      */
@@ -153,7 +157,7 @@ namespace Cantera {
 
     //! Report the solution branch which the solution is restricted to
     /*!
-     *  @return            Branch that the solution is restricted to. 
+     *  @return            Branch that the solution is restricted to.
      *                     the value -1 means gas. The value -2 means unrestricted.
      *                     Values of zero or greater refer to species dominated condensed phases.
      */
@@ -161,7 +165,7 @@ namespace Cantera {
 
     //! Report the solution branch which the solution is actually on
     /*!
-     *  @return            Branch that the solution is restricted to. 
+     *  @return            Branch that the solution is restricted to.
      *                     the value -1 means gas. The value -2 means superfluid..
      *                     Values of zero or greater refer to species dominated condensed phases.
      */
@@ -169,34 +173,34 @@ namespace Cantera {
 
 
 
-    //! Get the array of log concentration-like derivatives of the 
+    //! Get the array of log concentration-like derivatives of the
     //! log activity coefficients
     /*!
-     * This function is a virtual method.  For ideal mixtures 
-     * (unity activity coefficients), this can return zero.  
-     * Implementations should take the derivative of the 
-     * logarithm of the activity coefficient with respect to the 
+     * This function is a virtual method.  For ideal mixtures
+     * (unity activity coefficients), this can return zero.
+     * Implementations should take the derivative of the
+     * logarithm of the activity coefficient with respect to the
      * logarithm of the concentration-like variable (i.e. moles)
-     *  that represents the standard state.  
-     * This quantity is to be used in conjunction with derivatives of 
-     * that concentration-like variable when the derivative of the chemical 
-     * potential is taken.  
+     *  that represents the standard state.
+     * This quantity is to be used in conjunction with derivatives of
+     * that concentration-like variable when the derivative of the chemical
+     * potential is taken.
      *
      *  units = dimensionless
      *
-     * @param dlnActCoeffdlnN_diag    Output vector of derivatives of the 
+     * @param dlnActCoeffdlnN_diag    Output vector of derivatives of the
      *                         log Activity Coefficients. length = m_kk
      */
-    virtual void getdlnActCoeffdlnN_diag(doublereal *dlnActCoeffdlnN_diag) const {
-      err("getdlnActCoeffdlnN_diag");
+    virtual void getdlnActCoeffdlnN_diag(doublereal* dlnActCoeffdlnN_diag) const {
+        err("getdlnActCoeffdlnN_diag");
     }
 
- 
+
     //@}
-     /// @name  Partial Molar Properties of the Solution  (MixtureFugacityTP)
+    /// @name  Partial Molar Properties of the Solution  (MixtureFugacityTP)
     //@{
 
-    
+
     //! Get the array of non-dimensional species chemical potentials
     //! These are partial molar Gibbs free energies.
     /*!
@@ -211,21 +215,21 @@ namespace Cantera {
      *              Length: m_kk.
      */
     void getChemPotentials_RT(doublereal* mu) const;
-  
+
     //@}
 
     /*!
-     * @name  Properties of the Standard State of the Species in the Solution 
+     * @name  Properties of the Standard State of the Species in the Solution
      *                (MixtureFugacityTP)
      *
-     *  Within MixtureFugacityTP, these properties are calculated via a common routine, 
+     *  Within MixtureFugacityTP, these properties are calculated via a common routine,
      *  _updateStandardStateThermo(),
      *  which must be overloaded in inherited objects.
      *  The values are cached within this object, and are not recalculated unless
      *  the temperature or pressure changes.
      */
     //@{
-    
+
     //!   Get the array of chemical potentials at unit activity.
     /*!
      * These are the standard state chemical potentials \f$ \mu^0_k(T,P)
@@ -240,19 +244,19 @@ namespace Cantera {
      */
     virtual void getStandardChemPotentials(doublereal* mu) const;
 
-     //! Get the nondimensional Enthalpy functions for the species
-     //! at their standard states at the current <I>T</I> and <I>P</I> of the solution.
-     /*!
-     * For all objects with the Mixture Fugacity approximation, we define the
-     * standard state as an ideal gas at the current temperature and pressure
-     * of the solution.
-     *
-     * @param hrt     Output vector of standard state enthalpies.
-     *                length = m_kk. units are unitless.
-     */
+    //! Get the nondimensional Enthalpy functions for the species
+    //! at their standard states at the current <I>T</I> and <I>P</I> of the solution.
+    /*!
+    * For all objects with the Mixture Fugacity approximation, we define the
+    * standard state as an ideal gas at the current temperature and pressure
+    * of the solution.
+    *
+    * @param hrt     Output vector of standard state enthalpies.
+    *                length = m_kk. units are unitless.
+    */
     virtual void getEnthalpy_RT(doublereal* hrt) const;
 
-   
+
     //! Get the array of nondimensional Enthalpy functions for the standard state species
     /*!
      * at the current <I>T</I> and <I>P</I> of the solution.
@@ -277,7 +281,7 @@ namespace Cantera {
      */
     virtual void getGibbs_RT(doublereal* grt) const;
 
-   
+
     //! Get the nondimensional Gibbs functions for the standard
     //! state of the species at the current T and P.
     /*!
@@ -308,23 +312,23 @@ namespace Cantera {
      * @param urt    Output vector of nondimensional standard state
      *               internal energies. length = m_kk.
      */
-    virtual void getIntEnergy_RT(doublereal *urt) const;
+    virtual void getIntEnergy_RT(doublereal* urt) const;
 
-    
+
     //! Get the nondimensional Heat Capacities at constant
     //! pressure for the standard state of the species  at the current T and P.
     /*!
      * For all objects with the Mixture Fugacity approximation, we define the
      * standard state as an ideal gas at the current temperature and pressure of the solution.
      *
-     * @param cpr    Output vector containing the 
+     * @param cpr    Output vector containing the
      *               the nondimensional Heat Capacities at constant
      *               pressure for the standard state of the species.
-     *               Length: m_kk. 
+     *               Length: m_kk.
      */
     virtual void getCp_R(doublereal* cpr) const;
 
-    
+
     //! Get the molar volumes of each species in their standard
     //! states at the current <I>T</I> and <I>P</I> of the solution.
     /*!
@@ -336,9 +340,9 @@ namespace Cantera {
      * @param vol Output vector of species volumes. length = m_kk.
      *            units =  m^3 / kmol
      */
-    virtual void getStandardVolumes(doublereal *vol) const;
+    virtual void getStandardVolumes(doublereal* vol) const;
 
- 
+
     //! Set the temperature of the phase
     /*!
      *    Currently this passes down to setState_TP(). It does not
@@ -349,7 +353,7 @@ namespace Cantera {
      */
     virtual void setTemperature(const doublereal temp);
 
- 
+
     //! Set the internally storred pressure (Pa) at constant
     //! temperature and composition
     /*!
@@ -361,17 +365,17 @@ namespace Cantera {
      */
     virtual void setPressure(doublereal p);
 
- 
+
 
 protected:
     /**
-     * Calculate the density of the mixture using the partial 
+     * Calculate the density of the mixture using the partial
      * molar volumes and mole fractions as input
      *
      * The formula for this is
      *
-     * \f[ 
-     * \rho = \frac{\sum_k{X_k W_k}}{\sum_k{X_k V_k}} 
+     * \f[
+     * \rho = \frac{\sum_k{X_k W_k}}{\sum_k{X_k V_k}}
      * \f]
      *
      * where \f$X_k\f$ are the mole fractions, \f$W_k\f$ are
@@ -384,12 +388,12 @@ protected:
      * in this class that the pure species molar volumes are
      * independent of temperature and pressure.
      *
-     * NOTE: This is a non-virtual function, which is not a 
-     *       member of the ThermoPhase base class. 
+     * NOTE: This is a non-virtual function, which is not a
+     *       member of the ThermoPhase base class.
      */
     virtual void calcDensity();
 
- public:
+public:
     //! Set the temperature and pressure at the same time
     /*!
      *  Note this function triggers a reevalulation of the standard
@@ -428,8 +432,8 @@ protected:
      */
     virtual void setMassFractions(const doublereal* const y);
 
-    
-    //!Set the mass fractions to the specified values without normalizing. 
+
+    //!Set the mass fractions to the specified values without normalizing.
     /*!
      * This is useful when the normalization
      * condition is being handled by some other means, for example
@@ -442,7 +446,7 @@ protected:
     virtual void setMassFractions_NoNorm(const doublereal* const y);
 
 
-    
+
     //! Set the mole fractions to the specified values, and then
     //! normalize them so that they sum to 1.0.
     /*!
@@ -451,8 +455,8 @@ protected:
      */
     virtual void setMoleFractions(const doublereal* const x);
 
-   
-    //! Set the mole fractions to the specified values without normalizing. 
+
+    //! Set the mole fractions to the specified values without normalizing.
     /*!
      * This is useful when the normalization
      * condition is being handled by some other means, for example
@@ -463,7 +467,7 @@ protected:
      */
     virtual void setMoleFractions_NoNorm(const doublereal* const x);
 
-    
+
     //! Set the concentrations to the specified values within the phase.
     /*!
      * @param c The input vector to this routine is in dimensional
@@ -475,11 +479,11 @@ protected:
      */
     virtual void setConcentrations(const doublereal* const c);
 
-  protected:
+protected:
     void setMoleFractions_NoState(const doublereal* const x);
 
 
-  public:
+public:
     //! Returns the current pressure of the phase
     /*!
      *  The pressure is an independent variable in this phase. Its current value
@@ -488,14 +492,14 @@ protected:
      * @return return the pressure in pascals.
      */
     doublereal pressure() const {
-      return m_Pcurrent;
+        return m_Pcurrent;
     }
 
 
 
 
 
-  protected:
+protected:
 
     //! Updates the reference state thermodynamic functions at the current T  of the solution.
     /*!
@@ -518,9 +522,9 @@ protected:
      *  If m_useTmpStandardStateStorage is not true, this function may be
      *  required to be called by child classes to update internal member data.
      *
-     */           
+     */
     virtual void _updateReferenceStateThermo() const;
-  public:
+public:
 
     //@}
     /// @name Thermodynamic Values for the Species Reference States (MixtureFugacityTP)
@@ -533,7 +537,7 @@ protected:
      */
     //@{
 
-    
+
     //!  Returns the vector of nondimensional
     //!  enthalpies of the reference state at the current temperature
     //!  of the solution and the reference pressure for the species.
@@ -542,7 +546,7 @@ protected:
      *            of the reference state of the species
      *            length = m_kk, units = dimensionless.
      */
-    virtual void getEnthalpy_RT_ref(doublereal *hrt) const;
+    virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
 
 #ifdef H298MODIFY_CAPABILITY
     //!  Modify the value of the 298 K Heat of Formation of the standard state of
@@ -557,7 +561,7 @@ protected:
      */
     void modifyOneHf298SS(const int k, const doublereal Hf298New);
 #endif
-    
+
     //!  Returns the vector of nondimensional
     //!  Gibbs free energies of the reference state at the current temperature
     //!  of the solution and the reference pressure for the species.
@@ -567,9 +571,9 @@ protected:
      *            of the reference state of the species
      *            length = m_kk, units = dimensionless.
      */
-    virtual void getGibbs_RT_ref(doublereal *grt) const;
+    virtual void getGibbs_RT_ref(doublereal* grt) const;
 
-  protected:
+protected:
     //!  Returns the vector of nondimensional
     //!  Gibbs free energies of the reference state at the current temperature
     //!  of the solution and the reference pressure for the species.
@@ -578,9 +582,9 @@ protected:
      *          of the reference state of the species
      *          length = m_kk, units = dimensionless.
      */
-    const vector_fp & gibbs_RT_ref() const;
+    const vector_fp& gibbs_RT_ref() const;
 
-  public:
+public:
     /*!
      *  Returns the vector of the
      *  gibbs function of the reference state at the current temperature
@@ -591,8 +595,8 @@ protected:
      *            of the reference state of the species
      *            length = m_kk, units = J/kmol.
      */
-    virtual void getGibbs_ref(doublereal *g) const;
-      
+    virtual void getGibbs_ref(doublereal* g) const;
+
     /*!
      *  Returns the vector of nondimensional
      *  entropies of the reference state at the current temperature
@@ -602,8 +606,8 @@ protected:
      *            of the species in their reference states
      *            length: m_kk, units: dimensionless.
      */
-    virtual void getEntropy_R_ref(doublereal *er) const;
-                 
+    virtual void getEntropy_R_ref(doublereal* er) const;
+
     /*!
      *  Returns the vector of nondimensional
      *  constant pressure heat capacities of the reference state
@@ -614,7 +618,7 @@ protected:
      *             of the species in their reference states
      *             length: m_kk, units: dimensionless.
      */
-    virtual void getCp_R_ref(doublereal *cprt) const;
+    virtual void getCp_R_ref(doublereal* cprt) const;
 
     //!  Get the molar volumes of the species reference states at the current
     //!  <I>T</I> and reference pressure of the solution.
@@ -624,28 +628,28 @@ protected:
      * @param vol     Output vector containing the standard state volumes.
      *                Length: m_kk.
      */
-    virtual void getStandardVolumes_ref(doublereal *vol) const;
+    virtual void getStandardVolumes_ref(doublereal* vol) const;
 
-  protected:
+protected:
 
-  
+
 
     //@}
 
-	
-  public:
- 
+
+public:
+
     //! @name Initialization Methods - For Internal use (VPStandardState)
     /*!
      * The following methods are used in the process of constructing
-     * the phase and setting its parameters from a specification in an 
+     * the phase and setting its parameters from a specification in an
      * input file. They are not normally used in application programs.
-     * To see how they are used, see files importCTML.cpp and 
+     * To see how they are used, see files importCTML.cpp and
      * ThermoFactory.cpp.
      */
     //@{
 
-  
+
     //! Set the initial state of the phase to the conditions  specified in the state XML element.
     /*!
      *
@@ -699,19 +703,19 @@ protected:
      *             the species in the phase.
      * @param id   ID of the phase. If nonnull, a check is done
      *             to see if phaseNode is pointing to the phase
-     *             with the correct id. 
+     *             with the correct id.
      */
     virtual void initThermoXML(XML_Node& phaseNode, std::string id);
 
 
-  private:
+private:
     //!  @internal Initialize the internal lengths in this object.
     /*!
      * Note this is not a virtual function.
      */
     void initLengths();
 
-  protected:
+protected:
     //  Special Functions for fugacity classes
 
 
@@ -753,7 +757,7 @@ protected:
      *  @return returns the estimated saturation pressure at the given temperature
      */
     virtual doublereal psatEst(doublereal TKelvin) const;
-  public:
+public:
     //! Estimate for the molar volume of the liquid
     /*!
      *   Note: this is only used as a starting guess for later routines that actually calculate an
@@ -768,9 +772,9 @@ protected:
      *  @return Returns the estimate of the liquid volume.  If the liquid can't be found, this
      *          routine returns -1.
      */
-    virtual doublereal liquidVolEst(doublereal TKelvin, doublereal &pres) const;
+    virtual doublereal liquidVolEst(doublereal TKelvin, doublereal& pres) const;
 
-  public:
+public:
     //!  Calculates the density given the temperature and the pressure and a guess at the density.
     /*!
      * Note, below T_c, this is a multivalued function. We do not cross the vapor dome in this.
@@ -785,9 +789,9 @@ protected:
      *    @param phaseRequested     int representing the phase whose density we are requesting. If we put
      *                     a gas or liquid phase here, we will attempt to find a volume in that
      *                     part of the volume space, only, in this routine. A value of FLUID_UNDEFINED
-     *                     means that we will accept anything. 
-     *                      
-     *   @param rhoguess   Guessed density of the fluid. A value of -1.0 indicates that there 
+     *                     means that we will accept anything.
+     *
+     *   @param rhoguess   Guessed density of the fluid. A value of -1.0 indicates that there
      *                     is no guessed density
      *
      *
@@ -796,8 +800,8 @@ protected:
      *            different phase, we return a -2.
      */
     virtual doublereal densityCalc(doublereal TKelvin, doublereal pressure, int phaseRequested,
-				   doublereal rhoguess);
- protected: 
+                                   doublereal rhoguess);
+protected:
     //! Utility routine in the calculation of the saturation pressure
     /*!
      *  Private routine
@@ -805,12 +809,12 @@ protected:
      * @param TKelvin        temperature (kelvin)
      * @param pres           pressure (Pascal)
      * @param densLiq        Output density of liquid
-     * @param densGas        output density of gas 
+     * @param densGas        output density of gas
      * @param delGRT         output delGRT
      */
-    int corr0(doublereal TKelvin, doublereal pre, doublereal &densLiq,
-	      doublereal &densGas, doublereal &liqGRT,  doublereal &gasGRT);
-  public:
+    int corr0(doublereal TKelvin, doublereal pre, doublereal& densLiq,
+              doublereal& densGas, doublereal& liqGRT,  doublereal& gasGRT);
+public:
     //! Returns the Phase State flag for the current state of the object
     /*!
      * @param checkState If true, this function does a complete check to see where
@@ -829,7 +833,7 @@ protected:
      * @return returns the density with units of kg m-3
      */
     virtual doublereal densSpinodalLiquid() const;
-    
+
 
     //! Return the value of the density at the gas spinodal point (on the gas side)
     //! for the current temperature.
@@ -837,11 +841,11 @@ protected:
      * @return returns the density with units of kg m-3
      */
     virtual doublereal densSpinodalGas() const;
-    
-    
 
- 
-  public:
+
+
+
+public:
     //! Calculate the saturation pressure at the current mixture content for the given temperature
     /*!
      *   @param TKelvin         (input) Temperature (Kelvin)
@@ -850,9 +854,9 @@ protected:
      *
      *   @return          Returns the saturation pressure at the given temperature
      */
-    doublereal calculatePsat(doublereal TKelvin, doublereal &molarVolGas,
-			     doublereal &molarVolLiquid);
-  protected:
+    doublereal calculatePsat(doublereal TKelvin, doublereal& molarVolGas,
+                             doublereal& molarVolLiquid);
+protected:
     //! Calculate the pressure given the temperature and the molar volume
     /*!
      *  Calculate the pressure given the temperature and the molar volume
@@ -874,31 +878,31 @@ protected:
      *
      * @param   presCalc  Returns the pressure.
      *
-     *  @return  Returns the derivative of the pressure wrt the molar volume  
+     *  @return  Returns the derivative of the pressure wrt the molar volume
      */
-    virtual doublereal dpdVCalc(doublereal TKelvin, doublereal molarVol, doublereal &presCalc) const;
+    virtual doublereal dpdVCalc(doublereal TKelvin, doublereal molarVol, doublereal& presCalc) const;
 
 
 
     virtual void updateMixingExpressions();
-  
+
 
     //@}
 
 
     class spinodalFunc : public Cantera::ResidEval
-    { 
+    {
     public:
 
-      spinodalFunc(MixtureFugacityTP *tp);
-      
-      virtual int evalSS(const doublereal t, const doublereal * const y, doublereal * const r);
+        spinodalFunc(MixtureFugacityTP* tp);
 
-      MixtureFugacityTP *m_tp;
+        virtual int evalSS(const doublereal t, const doublereal* const y, doublereal* const r);
+
+        MixtureFugacityTP* m_tp;
     };
 
 
-  protected:
+protected:
 
     //! Current value of the pressurees
     /*!
@@ -914,17 +918,17 @@ protected:
     /*!
      * This vector is kept up-to-date when some the setState functions are called.
      *
-     * The State object is allowed to com 
-     * 
+     * The State object is allowed to com
+     *
      * Therefore, it may be considered to be an independent variable.
      *
-   
+
      */
     std::vector<doublereal> moleFractions_;
 
     //! Current state of the fluid
     /*!
-     *  There are three possible states of the fluid 
+     *  There are three possible states of the fluid
      *     FLUID_GAS
      *     FLUID_LIQUID
      *     FLUID_SUPERCRIT
@@ -941,20 +945,20 @@ protected:
     //! Temporary storage for log of p/rt
     mutable doublereal    m_logc0;
 
-   //! Temporary storage for dimensionless reference state enthalpies
+    //! Temporary storage for dimensionless reference state enthalpies
     mutable array_fp      m_h0_RT;
 
-   //! Temporary storage for dimensionless reference state heat capacities
+    //! Temporary storage for dimensionless reference state heat capacities
     mutable array_fp      m_cp0_R;
 
-   //! Temporary storage for dimensionless reference state gibbs energies
+    //! Temporary storage for dimensionless reference state gibbs energies
     mutable array_fp      m_g0_RT;
 
     //! Temporary storage for dimensionless reference state entropies
     mutable array_fp      m_s0_R;
 
-    spinodalFunc *fdpdv_;
-  private:
+    spinodalFunc* fdpdv_;
+private:
 
     //! MixtureFugacityTP has its own err routine
     /*!
@@ -962,7 +966,7 @@ protected:
      */
     doublereal err(std::string msg) const;
 
-  };
+};
 }
-        
+
 #endif

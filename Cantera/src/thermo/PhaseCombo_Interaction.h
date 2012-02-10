@@ -2,11 +2,11 @@
  *  @file  PhaseCombo_Interaction.h
  *   Header for intermediate ThermoPhase object for phases which
  *   employ the Margules gibbs free energy formulation and eliminates the ideal mixing term.
- *  (see \ref thermoprops 
+ *  (see \ref thermoprops
  *    and class \link Cantera::PhaseCombo_Interaction PhaseCombo_Interaction\endlink).
  */
 /*
- * Copywrite (2011) Sandia Corporation. Under the terms of 
+ * Copywrite (2011) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -23,336 +23,338 @@
 
 #include "GibbsExcessVPSSTP.h"
 
-namespace Cantera {
+namespace Cantera
+{
 
-  /**
-   * @ingroup thermoprops
-   */
+/**
+ * @ingroup thermoprops
+ */
 
-  
 
-  //!  PhaseCombo_Interaction is a derived class of GibbsExcessVPSSTP that employs
-  //!  the Margules approximation for the excess gibbs free energy while eliminating
-  //!  the entropy of mixing term.
-  /*!
-   *  
-   *  %PhaseCombo_Interaction derives from class GibbsExcessVPSSTP which is derived from VPStandardStateTP,
-   *  and overloads the virtual methods defined there with ones that
-   *  use expressions appropriate for the Margules Excess gibbs free energy approximation.
-   *  The reader should refer to the MargulesVPSSTP class for information on that class.
-   *  This class in addition adds a term to the activity coefficient that eliminates the
-   *  ideal solution mixing term within the chemical potential. This is a very radical thing
-   *  to do, but it is supported by experimental evidence under some conditions.
-   *
-   *  The independent unknowns are pressure, temperature, and mass fraction.
-   *
-   *  Several concepts are introduced. The first concept is that there are temporary
-   *  variables for holding the species standard state values of Cp, H, S, G, and V at the
-   *  last temperature and pressure called. These functions are not recalculated
-   *  if a new call is made using the previous temperature and pressure. Currently,
-   *  these variables and the calculation method are handled by the VPSSMgr class,
-   *  for which VPStandardStateTP owns a pointer to.
-   *
-   *  To support the above functionality, pressure and temperature variables,
-   *  m_plast_ss and m_tlast_ss, are kept which store the last pressure and temperature
-   *  used in the evaluation of standard state properties.
-   *
-   *  This class is introduced to represent specific conditions observed in thermal batteries.
-   *  HOwever, it may be physically motivated to represent conditions where there may
-   *  be a mixture of componds that are not "mixed" at the molecular level. Therefore, there
-   *  is no mixing term. 
-   *
-   *  The lack of a mixing term has profound effects. First, the mole fraction of a species
-   *  can now be identically zero due to thermodynamic considerations. The phase behaves more
-   *  like a series of phases. That's why we named it PhaseCombo.
-   *
-   *
-   *
-   * <HR>
-   * <H2> Specification of Species Standard %State Properties </H2>
-   * <HR>
-   *
-   *  All species are defined to have standard states that depend upon both
-   *  the temperature and the pressure. The Margules approximation assumes
-   *  symmetric standard states, where all of the standard state assume
-   *  that the species are in pure component states at the temperatue
-   *  and pressure of the solution.  I don't think it prevents, however,
-   *  some species from being dilute in the solution.
-   *
-   *
-   * <HR>
-   * <H2> Specification of Solution Thermodynamic Properties </H2>
-   * <HR>
-   *
-   * The molar excess Gibbs free energy is given by the following formula which is a sum over interactions <I>i</I>.
-   * Each of the interactions are binary interactions involving two of the species in the phase, denoted, <I>Ai</I>
-   * and <I>Bi</I>.
-   * This is the generalization of the Margules formulation for a phase
-   * that has more than 2 species. The second term in the excess gibbs free energy is a negation of the
-   *  ideal solution's mixing term.
-   *
-   *      \f[
-   *          G^E = \sum_i \left(  H_{Ei} - T S_{Ei} \right) -  \sum_i \left( n_i  R T \ln{X_i} \right)
-   *      \f]
-   *      \f[
-   *         H^E_i = n X_{Ai} X_{Bi} \left( h_{o,i} +  h_{1,i} X_{Bi} \right)
-   *      \f]
-   *      \f[
-   *         S^E_i = n X_{Ai} X_{Bi} \left( s_{o,i} +  s_{1,i} X_{Bi} \right)
-   *      \f]
-   *      
-   *  where n is the total moles in the solution.
-   *
-   *  The activity of a species defined in the phase is given by an excess Gibbs free energy formulation.
-   *
-   *       \f[
-   *            a_k = \gamma_k  X_k
-   *       \f]
-   *
-   *      where 
-   *
-   *      \f[
-   *           R T \ln( \gamma_k )= \frac{d(n G^E)}{d(n_k)}\Bigg|_{n_i}
-   *      \f]
-   *
-   *  Taking the derivatives results in the following expression
-   *
-   *      \f[ 
-   *           R T \ln( \gamma_k )= \sum_i \left( \left( \delta_{Ai,k} X_{Bi} + \delta_{Bi,k} X_{Ai}  - X_{Ai} X_{Bi} \right)
-   *            \left( g^E_{o,i} +  g^E_{1,i} X_{Bi} \right) +
-   *            \left( \delta_{Bi,k} - X_{Bi} \right)      X_{Ai} X_{Bi}  g^E_{1,i} \right) - RT \ln{X_k}
-   *      \f]
-   *
-   *  where
-   *        \f$  g^E_{o,i} =  h_{o,i} - T s_{o,i} \f$ and \f$ g^E_{1,i} =  h_{1,i} - T s_{1,i} \f$
-   *  and where \f$ X_k \f$ is the mole fraction of species <I>k</I>.
-   *
-   *  This object inherits from the class VPStandardStateTP. Therefore, the specification and
-   *  calculation of all standard state and reference state values are handled at that level. Various functional
-   *  forms for the standard state are permissible.
-   *  The chemical potential for species <I>k</I> is equal to
-   *
-   *       \f[
-   *            \mu_k(T,P) = \mu^o_k(T, P) + R T \ln(\gamma_k X_k)
-   *       \f]
-   *
-   *  The partial molar entropy for species <I>k</I> is given by the following relation,
-   *
-   *       \f[
-   *             \tilde{s}_k(T,P) =  s^o_k(T,P)  - R \ln( \gamma_k X_k )
-   *                    - R T \frac{d \ln(\gamma_k) }{dT}
-   *       \f]
-   *
-   *  The partial molar enthalpy for species <I>k</I> is given by
-   *
-   *       \f[
-   *            \tilde{h}_k(T,P) = h^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}
-   *       \f]
-   *
-   *  The partial molar volume for  species <I>k</I> is
-   *
-   *       \f[
-   *              \tilde V_k(T,P)  = V^o_k(T,P)  + R T \frac{d \ln(\gamma_k) }{dP}
-   *       \f]
-   *
-   *  The partial molar Heat Capacity for species <I>k</I> is
-   *
-   *       \f[
-   *            \tilde{C}_{p,k}(T,P) = C^o_{p,k}(T,P)   - 2 R T \frac{d \ln( \gamma_k )}{dT}
-   *                    - R T^2 \frac{d^2 \ln(\gamma_k) }{{dT}^2}
-   *       \f]
-   *
-   *
-   * <HR>
-   * <H2> %Application within %Kinetics Managers </H2>
-   * <HR>
-   *
-   *   \f$ C^a_k\f$ are defined such that \f$ a_k = C^a_k /
-   *   C^s_k, \f$ where \f$ C^s_k \f$ is a standard concentration
-   *   defined below and \f$ a_k \f$ are activities used in the
-   *   thermodynamic functions.  These activity (or generalized) concentrations are used
-   *   by kinetics manager classes to compute the forward and reverse rates of elementary reactions.
-   *   The activity concentration,\f$  C^a_k \f$,is given by the following expression.
-   *
-   *       \f[
-   *            C^a_k = C^s_k  X_k  = \frac{P}{R T} X_k
-   *       \f]
-   *
-   * The standard concentration for species <I>k</I> is independent of <I>k</I> and equal to
-   *
-   *        \f[
-   *            C^s_k =  C^s = \frac{P}{R T}
-   *        \f]
-   *
-   * For example, a bulk-phase binary gas reaction between species j and k, producing
-   * a new gas species l would have the
-   * following equation for its rate of progress variable, \f$ R^1 \f$, which has
-   * units of kmol m-3 s-1.
-   *
-   *   \f[
-   *    R^1 = k^1 C_j^a C_k^a =  k^1 (C^s a_j) (C^s a_k)
-   *   \f]
-   *
-   *  where
-   *
-   *   \f[
-   *      C_j^a = C^s a_j \mbox{\quad and \quad} C_k^a = C^s a_k
-   *   \f]
-   *
-   *  \f$ C_j^a \f$ is the activity concentration of species j, and
-   *  \f$ C_k^a \f$ is the activity concentration of species k. \f$ C^s \f$
-   *  is the standard concentration. \f$ a_j \f$ is
-   *  the activity of species j which is equal to the mole fraction of j.
-   *
-   *  The reverse rate constant can then be obtained from the law of microscopic reversibility
-   *  and the equilibrium expression for the system.
-   *
-   *   \f[
-   *         \frac{a_j a_k}{ a_l} = K_a^{o,1} = \exp(\frac{\mu^o_l - \mu^o_j - \mu^o_k}{R T} )
-   *   \f]
-   *
-   *  \f$  K_a^{o,1} \f$ is the dimensionless form of the equilibrium constant, associated with
-   *  the pressure dependent standard states \f$ \mu^o_l(T,P) \f$ and their associated activities,
-   *  \f$ a_l \f$, repeated here:
-   *
-   *       \f[
-   *            \mu_l(T,P) = \mu^o_l(T, P) + R T \log(a_l)
-   *       \f]
-   *
-   *  We can switch over to expressing the equilibrium constant in terms of the reference
-   *  state chemical potentials
-   *
-   *   \f[
-   *       K_a^{o,1} = \exp(\frac{\mu^{ref}_l - \mu^{ref}_j - \mu^{ref}_k}{R T} ) * \frac{P_{ref}}{P}
-   *   \f]
-   *
-   *   The concentration equilibrium constant, \f$ K_c \f$, may be obtained by changing over
-   *   to activity concentrations. When this is done:
-   *
-   *   \f[
-   *         \frac{C^a_j C^a_k}{ C^a_l} = C^o K_a^{o,1} = K_c^1 =
-   *             \exp(\frac{\mu^{ref}_l - \mu^{ref}_j - \mu^{ref}_k}{R T} ) * \frac{P_{ref}}{RT}
-   *   \f]
-   *
-   *    %Kinetics managers will calculate the concentration equilibrium constant, \f$ K_c \f$,
-   *    using the second and third part of the above expression as a definition for the concentration
-   *    equilibrium constant.
-   *
-   *    For completeness, the pressure equilibrium constant may be obtained as well
-   *
-   *   \f[
-   *         \frac{P_j P_k}{ P_l P_{ref}} = K_p^1 = \exp(\frac{\mu^{ref}_l - \mu^{ref}_j - \mu^{ref}_k}{R T} )
-   *   \f]
-   *
-   *   \f$ K_p \f$ is the simplest form of the equilibrium constant for ideal gases. However, it isn't
-   *   necessarily the simplest form of the equilibrium constant for other types of phases; \f$ K_c \f$ is
-   *   used instead because it is completely general.
-   *
-   *   The reverse rate of progress may be written down as
-   *   \f[
-   *    R^{-1} = k^{-1} C_l^a =  k^{-1} (C^o a_l)
-   *   \f]
-   *
-   *  where we can use the concept of microscopic reversibility to
-   *  write the reverse rate constant in terms of the
-   *  forward reate constant and the concentration equilibrium
-   *   constant, \f$ K_c \f$.
-   *
-   *    \f[
-   *       k^{-1} =  k^1 K^1_c
-   *    \f]
-   *
-   *  \f$k^{-1} \f$ has units of s-1.
-   *
-   *
-   * <HR>
-   * <H2> Instantiation of the Class </H2>
-   * <HR>
-   *
-   *
-   * The constructor for this phase is located in the default ThermoFactory
-   * for %Cantera. A new %PhaseCombo_Interaction object may be created by the following code
-   * snippet:
-   *
-   * @code
-   *    XML_Node *xc = get_XML_File("LiFeS_X_combo.xml");
-   *    XML_Node * const xs = xc->findNameID("phase", "LiFeS_X");
-   *    ThermoPhase *l_tp = newPhase(*xs);
-   *    PhaseCombo_Interaction *LiFeS_X_solid = dynamic_cast <PhaseCombo_Interaction *>(l_tp);
-   * @endcode
-   *
-   * or by the following code
-   *
-   *  @code
-   *    std::string  id = "LiFeS_X";
-   *    Cantera::ThermoPhase *LiFeS_X_Phase = Cantera::newPhase("LiFeS_X_combo.xml", id);
-   *    PhaseCombo_Interaction *LiFeS_X_solid = dynamic_cast <PhaseCombo_Interaction *>(l_tp);
-   * @endcode
-   *
-   *
-   * or by the following constructor:
-   *
-   * @code
-   *    XML_Node *xc = get_XML_File("LiFeS_X_combo.xml");
-   *    XML_Node * const xs = xc->findNameID("phase", "LiFeS_X");
-   *    PhaseCombo_Interaction *LiFeS_X_solid = new PhaseCombo_Interaction(*xs);
-   * @endcode
-   *
-   *
-   * <HR>
-   * <H2> XML Example </H2>
-   * <HR>
-   *   An example of an XML Element named phase setting up a PhaseCombo_Interaction
-   *   object named LiFeS_X  is given below.
-   *
-   *
-   * @verbatim
- 
-    <phase dim="3" id="LiFeS_X">
-      <elementArray datasrc="elements.xml">
-         Li Fe S
-      </elementArray>
-      <speciesArray datasrc="#species_LiFeS">
-       LiTFe1S2(S)  Li2Fe1S2(S)
-      </speciesArray>
-      <thermo model="PhaseCombo_Interaction">
-      <activityCoefficients model="Margules" TempModel="constant">
-         <binaryNeutralSpeciesParameters speciesA="LiTFe1S2(S)" speciesB="Li2Fe1S2(S)">
-            <excessEnthalpy model="poly_Xb" terms="2" units="kJ/mol">
-                84.67069219, -269.1959421
-            </excessEnthalpy>
-            <excessEntropy  model="poly_Xb" terms="2" units="J/mol/K">
-                100.7511565, -361.4222659
-            </excessEntropy>
-            <excessVolume_Enthalpy model="poly_Xb" terms="2" units="ml/mol">
-                 0, 0
-            </excessVolume_Enthalpy>
-            <excessVolume_Entropy  model="poly_Xb" terms="2" units="ml/mol/K">
-                 0, 0
-            </excessVolume_Entropy>
-          </binaryNeutralSpeciesParameters>
-       </activityCoefficients>
-     </thermo>
-     <transport model="none"/>
-     <kinetics model="none"/>
-   </phase>
 
-   @endverbatim
-   *
-   *   The model attribute "PhaseCombo_Interaction" of the thermo XML element identifies the phase as
-   *   being of the type handled by the PhaseCombo_Interaction object.
-   *
-   *    @ingroup thermoprops
-   *
-  */
-  class PhaseCombo_Interaction : public GibbsExcessVPSSTP {
+//!  PhaseCombo_Interaction is a derived class of GibbsExcessVPSSTP that employs
+//!  the Margules approximation for the excess gibbs free energy while eliminating
+//!  the entropy of mixing term.
+/*!
+ *
+ *  %PhaseCombo_Interaction derives from class GibbsExcessVPSSTP which is derived from VPStandardStateTP,
+ *  and overloads the virtual methods defined there with ones that
+ *  use expressions appropriate for the Margules Excess gibbs free energy approximation.
+ *  The reader should refer to the MargulesVPSSTP class for information on that class.
+ *  This class in addition adds a term to the activity coefficient that eliminates the
+ *  ideal solution mixing term within the chemical potential. This is a very radical thing
+ *  to do, but it is supported by experimental evidence under some conditions.
+ *
+ *  The independent unknowns are pressure, temperature, and mass fraction.
+ *
+ *  Several concepts are introduced. The first concept is that there are temporary
+ *  variables for holding the species standard state values of Cp, H, S, G, and V at the
+ *  last temperature and pressure called. These functions are not recalculated
+ *  if a new call is made using the previous temperature and pressure. Currently,
+ *  these variables and the calculation method are handled by the VPSSMgr class,
+ *  for which VPStandardStateTP owns a pointer to.
+ *
+ *  To support the above functionality, pressure and temperature variables,
+ *  m_plast_ss and m_tlast_ss, are kept which store the last pressure and temperature
+ *  used in the evaluation of standard state properties.
+ *
+ *  This class is introduced to represent specific conditions observed in thermal batteries.
+ *  HOwever, it may be physically motivated to represent conditions where there may
+ *  be a mixture of componds that are not "mixed" at the molecular level. Therefore, there
+ *  is no mixing term.
+ *
+ *  The lack of a mixing term has profound effects. First, the mole fraction of a species
+ *  can now be identically zero due to thermodynamic considerations. The phase behaves more
+ *  like a series of phases. That's why we named it PhaseCombo.
+ *
+ *
+ *
+ * <HR>
+ * <H2> Specification of Species Standard %State Properties </H2>
+ * <HR>
+ *
+ *  All species are defined to have standard states that depend upon both
+ *  the temperature and the pressure. The Margules approximation assumes
+ *  symmetric standard states, where all of the standard state assume
+ *  that the species are in pure component states at the temperatue
+ *  and pressure of the solution.  I don't think it prevents, however,
+ *  some species from being dilute in the solution.
+ *
+ *
+ * <HR>
+ * <H2> Specification of Solution Thermodynamic Properties </H2>
+ * <HR>
+ *
+ * The molar excess Gibbs free energy is given by the following formula which is a sum over interactions <I>i</I>.
+ * Each of the interactions are binary interactions involving two of the species in the phase, denoted, <I>Ai</I>
+ * and <I>Bi</I>.
+ * This is the generalization of the Margules formulation for a phase
+ * that has more than 2 species. The second term in the excess gibbs free energy is a negation of the
+ *  ideal solution's mixing term.
+ *
+ *      \f[
+ *          G^E = \sum_i \left(  H_{Ei} - T S_{Ei} \right) -  \sum_i \left( n_i  R T \ln{X_i} \right)
+ *      \f]
+ *      \f[
+ *         H^E_i = n X_{Ai} X_{Bi} \left( h_{o,i} +  h_{1,i} X_{Bi} \right)
+ *      \f]
+ *      \f[
+ *         S^E_i = n X_{Ai} X_{Bi} \left( s_{o,i} +  s_{1,i} X_{Bi} \right)
+ *      \f]
+ *
+ *  where n is the total moles in the solution.
+ *
+ *  The activity of a species defined in the phase is given by an excess Gibbs free energy formulation.
+ *
+ *       \f[
+ *            a_k = \gamma_k  X_k
+ *       \f]
+ *
+ *      where
+ *
+ *      \f[
+ *           R T \ln( \gamma_k )= \frac{d(n G^E)}{d(n_k)}\Bigg|_{n_i}
+ *      \f]
+ *
+ *  Taking the derivatives results in the following expression
+ *
+ *      \f[
+ *           R T \ln( \gamma_k )= \sum_i \left( \left( \delta_{Ai,k} X_{Bi} + \delta_{Bi,k} X_{Ai}  - X_{Ai} X_{Bi} \right)
+ *            \left( g^E_{o,i} +  g^E_{1,i} X_{Bi} \right) +
+ *            \left( \delta_{Bi,k} - X_{Bi} \right)      X_{Ai} X_{Bi}  g^E_{1,i} \right) - RT \ln{X_k}
+ *      \f]
+ *
+ *  where
+ *        \f$  g^E_{o,i} =  h_{o,i} - T s_{o,i} \f$ and \f$ g^E_{1,i} =  h_{1,i} - T s_{1,i} \f$
+ *  and where \f$ X_k \f$ is the mole fraction of species <I>k</I>.
+ *
+ *  This object inherits from the class VPStandardStateTP. Therefore, the specification and
+ *  calculation of all standard state and reference state values are handled at that level. Various functional
+ *  forms for the standard state are permissible.
+ *  The chemical potential for species <I>k</I> is equal to
+ *
+ *       \f[
+ *            \mu_k(T,P) = \mu^o_k(T, P) + R T \ln(\gamma_k X_k)
+ *       \f]
+ *
+ *  The partial molar entropy for species <I>k</I> is given by the following relation,
+ *
+ *       \f[
+ *             \tilde{s}_k(T,P) =  s^o_k(T,P)  - R \ln( \gamma_k X_k )
+ *                    - R T \frac{d \ln(\gamma_k) }{dT}
+ *       \f]
+ *
+ *  The partial molar enthalpy for species <I>k</I> is given by
+ *
+ *       \f[
+ *            \tilde{h}_k(T,P) = h^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}
+ *       \f]
+ *
+ *  The partial molar volume for  species <I>k</I> is
+ *
+ *       \f[
+ *              \tilde V_k(T,P)  = V^o_k(T,P)  + R T \frac{d \ln(\gamma_k) }{dP}
+ *       \f]
+ *
+ *  The partial molar Heat Capacity for species <I>k</I> is
+ *
+ *       \f[
+ *            \tilde{C}_{p,k}(T,P) = C^o_{p,k}(T,P)   - 2 R T \frac{d \ln( \gamma_k )}{dT}
+ *                    - R T^2 \frac{d^2 \ln(\gamma_k) }{{dT}^2}
+ *       \f]
+ *
+ *
+ * <HR>
+ * <H2> %Application within %Kinetics Managers </H2>
+ * <HR>
+ *
+ *   \f$ C^a_k\f$ are defined such that \f$ a_k = C^a_k /
+ *   C^s_k, \f$ where \f$ C^s_k \f$ is a standard concentration
+ *   defined below and \f$ a_k \f$ are activities used in the
+ *   thermodynamic functions.  These activity (or generalized) concentrations are used
+ *   by kinetics manager classes to compute the forward and reverse rates of elementary reactions.
+ *   The activity concentration,\f$  C^a_k \f$,is given by the following expression.
+ *
+ *       \f[
+ *            C^a_k = C^s_k  X_k  = \frac{P}{R T} X_k
+ *       \f]
+ *
+ * The standard concentration for species <I>k</I> is independent of <I>k</I> and equal to
+ *
+ *        \f[
+ *            C^s_k =  C^s = \frac{P}{R T}
+ *        \f]
+ *
+ * For example, a bulk-phase binary gas reaction between species j and k, producing
+ * a new gas species l would have the
+ * following equation for its rate of progress variable, \f$ R^1 \f$, which has
+ * units of kmol m-3 s-1.
+ *
+ *   \f[
+ *    R^1 = k^1 C_j^a C_k^a =  k^1 (C^s a_j) (C^s a_k)
+ *   \f]
+ *
+ *  where
+ *
+ *   \f[
+ *      C_j^a = C^s a_j \mbox{\quad and \quad} C_k^a = C^s a_k
+ *   \f]
+ *
+ *  \f$ C_j^a \f$ is the activity concentration of species j, and
+ *  \f$ C_k^a \f$ is the activity concentration of species k. \f$ C^s \f$
+ *  is the standard concentration. \f$ a_j \f$ is
+ *  the activity of species j which is equal to the mole fraction of j.
+ *
+ *  The reverse rate constant can then be obtained from the law of microscopic reversibility
+ *  and the equilibrium expression for the system.
+ *
+ *   \f[
+ *         \frac{a_j a_k}{ a_l} = K_a^{o,1} = \exp(\frac{\mu^o_l - \mu^o_j - \mu^o_k}{R T} )
+ *   \f]
+ *
+ *  \f$  K_a^{o,1} \f$ is the dimensionless form of the equilibrium constant, associated with
+ *  the pressure dependent standard states \f$ \mu^o_l(T,P) \f$ and their associated activities,
+ *  \f$ a_l \f$, repeated here:
+ *
+ *       \f[
+ *            \mu_l(T,P) = \mu^o_l(T, P) + R T \log(a_l)
+ *       \f]
+ *
+ *  We can switch over to expressing the equilibrium constant in terms of the reference
+ *  state chemical potentials
+ *
+ *   \f[
+ *       K_a^{o,1} = \exp(\frac{\mu^{ref}_l - \mu^{ref}_j - \mu^{ref}_k}{R T} ) * \frac{P_{ref}}{P}
+ *   \f]
+ *
+ *   The concentration equilibrium constant, \f$ K_c \f$, may be obtained by changing over
+ *   to activity concentrations. When this is done:
+ *
+ *   \f[
+ *         \frac{C^a_j C^a_k}{ C^a_l} = C^o K_a^{o,1} = K_c^1 =
+ *             \exp(\frac{\mu^{ref}_l - \mu^{ref}_j - \mu^{ref}_k}{R T} ) * \frac{P_{ref}}{RT}
+ *   \f]
+ *
+ *    %Kinetics managers will calculate the concentration equilibrium constant, \f$ K_c \f$,
+ *    using the second and third part of the above expression as a definition for the concentration
+ *    equilibrium constant.
+ *
+ *    For completeness, the pressure equilibrium constant may be obtained as well
+ *
+ *   \f[
+ *         \frac{P_j P_k}{ P_l P_{ref}} = K_p^1 = \exp(\frac{\mu^{ref}_l - \mu^{ref}_j - \mu^{ref}_k}{R T} )
+ *   \f]
+ *
+ *   \f$ K_p \f$ is the simplest form of the equilibrium constant for ideal gases. However, it isn't
+ *   necessarily the simplest form of the equilibrium constant for other types of phases; \f$ K_c \f$ is
+ *   used instead because it is completely general.
+ *
+ *   The reverse rate of progress may be written down as
+ *   \f[
+ *    R^{-1} = k^{-1} C_l^a =  k^{-1} (C^o a_l)
+ *   \f]
+ *
+ *  where we can use the concept of microscopic reversibility to
+ *  write the reverse rate constant in terms of the
+ *  forward reate constant and the concentration equilibrium
+ *   constant, \f$ K_c \f$.
+ *
+ *    \f[
+ *       k^{-1} =  k^1 K^1_c
+ *    \f]
+ *
+ *  \f$k^{-1} \f$ has units of s-1.
+ *
+ *
+ * <HR>
+ * <H2> Instantiation of the Class </H2>
+ * <HR>
+ *
+ *
+ * The constructor for this phase is located in the default ThermoFactory
+ * for %Cantera. A new %PhaseCombo_Interaction object may be created by the following code
+ * snippet:
+ *
+ * @code
+ *    XML_Node *xc = get_XML_File("LiFeS_X_combo.xml");
+ *    XML_Node * const xs = xc->findNameID("phase", "LiFeS_X");
+ *    ThermoPhase *l_tp = newPhase(*xs);
+ *    PhaseCombo_Interaction *LiFeS_X_solid = dynamic_cast <PhaseCombo_Interaction *>(l_tp);
+ * @endcode
+ *
+ * or by the following code
+ *
+ *  @code
+ *    std::string  id = "LiFeS_X";
+ *    Cantera::ThermoPhase *LiFeS_X_Phase = Cantera::newPhase("LiFeS_X_combo.xml", id);
+ *    PhaseCombo_Interaction *LiFeS_X_solid = dynamic_cast <PhaseCombo_Interaction *>(l_tp);
+ * @endcode
+ *
+ *
+ * or by the following constructor:
+ *
+ * @code
+ *    XML_Node *xc = get_XML_File("LiFeS_X_combo.xml");
+ *    XML_Node * const xs = xc->findNameID("phase", "LiFeS_X");
+ *    PhaseCombo_Interaction *LiFeS_X_solid = new PhaseCombo_Interaction(*xs);
+ * @endcode
+ *
+ *
+ * <HR>
+ * <H2> XML Example </H2>
+ * <HR>
+ *   An example of an XML Element named phase setting up a PhaseCombo_Interaction
+ *   object named LiFeS_X  is given below.
+ *
+ *
+ * @verbatim
 
-  public:
-        
-    //! Constructor 
+  <phase dim="3" id="LiFeS_X">
+    <elementArray datasrc="elements.xml">
+       Li Fe S
+    </elementArray>
+    <speciesArray datasrc="#species_LiFeS">
+     LiTFe1S2(S)  Li2Fe1S2(S)
+    </speciesArray>
+    <thermo model="PhaseCombo_Interaction">
+    <activityCoefficients model="Margules" TempModel="constant">
+       <binaryNeutralSpeciesParameters speciesA="LiTFe1S2(S)" speciesB="Li2Fe1S2(S)">
+          <excessEnthalpy model="poly_Xb" terms="2" units="kJ/mol">
+              84.67069219, -269.1959421
+          </excessEnthalpy>
+          <excessEntropy  model="poly_Xb" terms="2" units="J/mol/K">
+              100.7511565, -361.4222659
+          </excessEntropy>
+          <excessVolume_Enthalpy model="poly_Xb" terms="2" units="ml/mol">
+               0, 0
+          </excessVolume_Enthalpy>
+          <excessVolume_Entropy  model="poly_Xb" terms="2" units="ml/mol/K">
+               0, 0
+          </excessVolume_Entropy>
+        </binaryNeutralSpeciesParameters>
+     </activityCoefficients>
+   </thermo>
+   <transport model="none"/>
+   <kinetics model="none"/>
+ </phase>
+
+ @endverbatim
+ *
+ *   The model attribute "PhaseCombo_Interaction" of the thermo XML element identifies the phase as
+ *   being of the type handled by the PhaseCombo_Interaction object.
+ *
+ *    @ingroup thermoprops
+ *
+*/
+class PhaseCombo_Interaction : public GibbsExcessVPSSTP
+{
+
+public:
+
+    //! Constructor
     /*!
      * This doesn't do much more than initialize constants with
-     * default values for water at 25C. Water molecular weight 
+     * default values for water at 25C. Water molecular weight
      * comes from the default elements.xml file. It actually
      * differs slightly from the IAPWS95 value of 18.015268. However,
      * density conservation and therefore element conservation
@@ -389,9 +391,9 @@ namespace Cantera {
 
     //! Special constructor for a hard-coded problem
     /*!
-     * 
+     *
      *  @param testProb Hard-coded value. Only the value of 1 is
-     *                  used. It's for 
+     *                  used. It's for
      *                  a LiKCl system
      *                  -> test to predict the eutectic and liquidus correctly.
      */
@@ -411,7 +413,7 @@ namespace Cantera {
      *
      * @param b class to be copied.
      */
-    PhaseCombo_Interaction& operator=(const PhaseCombo_Interaction &b);
+    PhaseCombo_Interaction& operator=(const PhaseCombo_Interaction& b);
 
     //! Destructor
     virtual ~PhaseCombo_Interaction();
@@ -422,15 +424,15 @@ namespace Cantera {
      *  inherited from ThermoPhase even if the application only has
      *  a pointer to ThermoPhase to work with.
      */
-    virtual ThermoPhase *duplMyselfAsThermoPhase() const;
-    
+    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
+
     /**
-     *   
-     * @name  Utilities  
+     *
+     * @name  Utilities
      * @{
      */
 
-   
+
     //! Equation of state type flag.
     /*!
      * The ThermoPhase base class returns
@@ -443,7 +445,7 @@ namespace Cantera {
 
     //! Initialization of a phase using an xml file
     /*!
-     * This routine is a precursor to 
+     * This routine is a precursor to
      * routine, which does most of the work.
      *
      * @param inputFile XML file containing the description of the
@@ -455,7 +457,7 @@ namespace Cantera {
      */
     void constructPhaseFile(std::string inputFile, std::string id);
 
-    //!   Import and initialize a phase 
+    //!   Import and initialize a phase
     //!   specification in an XML tree into the current object.
     /*!
      *   Here we read an XML description of the phase.
@@ -465,7 +467,7 @@ namespace Cantera {
      *   reference state thermodynamic polynomials. We then freeze
      *   the state of the species.
      *
-     *   Then, we read the species molar volumes from the xml 
+     *   Then, we read the species molar volumes from the xml
      *   tree to finish the initialization.
      *
      * @param phaseNode This object must be the phase node of a
@@ -478,13 +480,13 @@ namespace Cantera {
      *
      * @param id   ID of the phase. If nonnull, a check is done
      *             to see if phaseNode is pointing to the phase
-     *             with the correct id. 
+     *             with the correct id.
      */
     void constructPhaseXML(XML_Node& phaseNode, std::string id);
 
     /**
-     * @} 
-     * @name  Molar Thermodynamic Properties 
+     * @}
+     * @name  Molar Thermodynamic Properties
      * @{
      */
 
@@ -496,7 +498,7 @@ namespace Cantera {
      */
 
 
- 
+
 
     /**
      * @}
@@ -505,9 +507,9 @@ namespace Cantera {
      */
 
     /**
-     * @} 
+     * @}
      * @name Potential Energy
-     * 
+     *
      * Species may have an additional potential energy due to the
      * presence of external gravitation or electric fields. These
      * methods allow specifying a potential energy for individual
@@ -533,9 +535,9 @@ namespace Cantera {
      * @param ac Output vector of activity coefficients. Length: m_kk.
      */
     virtual void getActivityCoefficients(doublereal* ac) const;
- 
+
     //@}
-    /// @name  Partial Molar Properties of the Solution 
+    /// @name  Partial Molar Properties of the Solution
     //@{
 
     //! Get the species chemical potentials. Units: J/kmol.
@@ -549,16 +551,16 @@ namespace Cantera {
      */
     virtual void getChemPotentials(doublereal* mu) const;
 
-      /// Molar enthalpy. Units: J/kmol. 
+    /// Molar enthalpy. Units: J/kmol.
     virtual doublereal enthalpy_mole() const;
 
-      /// Molar entropy. Units: J/kmol. 
+    /// Molar entropy. Units: J/kmol.
     virtual doublereal entropy_mole() const;
 
-    /// Molar heat capacity at constant pressure. Units: J/kmol/K. 
+    /// Molar heat capacity at constant pressure. Units: J/kmol/K.
     virtual doublereal cp_mole() const;
 
-    /// Molar heat capacity at constant volume. Units: J/kmol/K. 
+    /// Molar heat capacity at constant volume. Units: J/kmol/K.
     virtual doublereal cv_mole() const;
 
     //! Returns an array of partial molar enthalpies for the species
@@ -621,7 +623,7 @@ namespace Cantera {
      */
     virtual void getPartialMolarCp(doublereal* cpbar) const;
 
-    
+
     //! Return an array of partial molar volumes for the
     //! species in the mixture. Units: m^3/kmol.
     /*!
@@ -637,7 +639,7 @@ namespace Cantera {
     //! Get the species electrochemical potentials.
     /*!
      * These are partial molar quantities.
-     * This method adds a term \f$ Fz_k \phi_k \f$ to the 
+     * This method adds a term \f$ Fz_k \phi_k \f$ to the
      * to each chemical potential.
      *
      * Units: J/kmol
@@ -654,11 +656,11 @@ namespace Cantera {
      *
      *  units = 1/Kelvin
      *
-     * @param d2lnActCoeffdT2  Output vector of temperature 2nd derivatives of the 
+     * @param d2lnActCoeffdT2  Output vector of temperature 2nd derivatives of the
      *                         log Activity Coefficients. length = m_kk
      *
      */
-    virtual void getd2lnActCoeffdT2(doublereal *d2lnActCoeffdT2) const;
+    virtual void getd2lnActCoeffdT2(doublereal* d2lnActCoeffdT2) const;
 
     //! Get the array of temperature derivatives of the log activity coefficients
     /*!
@@ -667,32 +669,32 @@ namespace Cantera {
      *
      *  units = 1/Kelvin
      *
-     * @param dlnActCoeffdT    Output vector of temperature derivatives of the 
+     * @param dlnActCoeffdT    Output vector of temperature derivatives of the
      *                         log Activity Coefficients. length = m_kk
      *
      */
-    virtual void getdlnActCoeffdT(doublereal *dlnActCoeffdT) const;
+    virtual void getdlnActCoeffdT(doublereal* dlnActCoeffdT) const;
 
 
- 
+
     //@}
     /// @name  Properties of the Standard State of the Species in the Solution
     //@{
 
-     
+
 
     //@}
     /// @name Thermodynamic Values for the Species Reference States
     //@{
 
 
-   
+
 
 
     /// The following methods are used in the process of constructing
-    /// the phase and setting its parameters from a specification in an 
+    /// the phase and setting its parameters from a specification in an
     /// input file. They are not normally used in application programs.
-    /// To see how they are used, see files importCTML.cpp and 
+    /// To see how they are used, see files importCTML.cpp and
     /// ThermoFactory.cpp.
 
 
@@ -724,12 +726,12 @@ namespace Cantera {
      *             the species in the phase.
      * @param id   ID of the phase. If nonnull, a check is done
      *             to see if phaseNode is pointing to the phase
-     *             with the correct id. 
+     *             with the correct id.
      */
     void initThermoXML(XML_Node& phaseNode, std::string id);
 
     /**
-     * @} 
+     * @}
      * @name  Derivatives of Thermodynamic Variables needed for Applications
      * @{
      */
@@ -741,55 +743,55 @@ namespace Cantera {
      * @param dTds           Input of temperature change along the path
      * @param dXds           Input vector of changes in mole fraction along the path. length = m_kk
      *                       Along the path length it must be the case that the mole fractions sum to one.
-     * @param dlnActCoeffds  Output vector of the directional derivatives of the 
+     * @param dlnActCoeffds  Output vector of the directional derivatives of the
      *                       log Activity Coefficients along the path. length = m_kk
      *  units are 1/units(s). if s is a physical coordinate then the units are 1/m.
      */
-    virtual void getdlnActCoeffds(const doublereal dTds, const doublereal * const dXds, doublereal *dlnActCoeffds) const;
- 
-    //! Get the array of log concentration-like derivatives of the 
+    virtual void getdlnActCoeffds(const doublereal dTds, const doublereal* const dXds, doublereal* dlnActCoeffds) const;
+
+    //! Get the array of log concentration-like derivatives of the
     //! log activity coefficients - diagonal component
     /*!
-     * This function is a virtual method.  For ideal mixtures 
-     * (unity activity coefficients), this can return zero.  
-     * Implementations should take the derivative of the 
-     * logarithm of the activity coefficient with respect to the 
+     * This function is a virtual method.  For ideal mixtures
+     * (unity activity coefficients), this can return zero.
+     * Implementations should take the derivative of the
+     * logarithm of the activity coefficient with respect to the
      * logarithm of the mole fraction.
      *
      *  units = dimensionless
      *
-     * @param dlnActCoeffdlnX_diag    Output vector of the diagonal component of the log(mole fraction)  
+     * @param dlnActCoeffdlnX_diag    Output vector of the diagonal component of the log(mole fraction)
      *                 derivatives of the log Activity Coefficients.
      *                 length = m_kk
      */
-    virtual void getdlnActCoeffdlnX_diag(doublereal *dlnActCoeffdlnX_diag) const;
+    virtual void getdlnActCoeffdlnX_diag(doublereal* dlnActCoeffdlnX_diag) const;
 
     //! Get the array of  derivatives of the log activity coefficients wrt mole numbers - diagonal only
     /*!
-     * This function is a virtual method.  For ideal mixtures 
-     * (unity activity coefficients), this can return zero.  
-     * Implementations should take the derivative of the 
-     * logarithm of the activity coefficient with respect to the 
+     * This function is a virtual method.  For ideal mixtures
+     * (unity activity coefficients), this can return zero.
+     * Implementations should take the derivative of the
+     * logarithm of the activity coefficient with respect to the
      * logarithm of the concentration-like variable (i.e. mole fraction,
-     * molality, etc.) that represents the standard state.  
+     * molality, etc.) that represents the standard state.
      *
      *  units = dimensionless
      *
-     * @param dlnActCoeffdlnN_diag    Output vector of the diagonal entries for the log(mole fraction)  
+     * @param dlnActCoeffdlnN_diag    Output vector of the diagonal entries for the log(mole fraction)
      *                 derivatives of the log Activity Coefficients.
      *                 length = m_kk
      */
-    virtual void getdlnActCoeffdlnN_diag(doublereal *dlnActCoeffdlnN_diag) const;
+    virtual void getdlnActCoeffdlnN_diag(doublereal* dlnActCoeffdlnN_diag) const;
 
 
     //! Get the array of derivatives of the log activity coefficients with respect to the ln species mole numbers
     /*!
      * Implementations should take the derivative of the logarithm of the activity coefficient with respect to a
      * log of a species mole number (with all other species mole numbers held constant)
-     * 
+     *
      *  units = 1 / kmol
      *
-     *  dlnActCoeffdlnN[ ld * k  + m]  will contain the derivative of log act_coeff for the <I>m</I><SUP>th</SUP> 
+     *  dlnActCoeffdlnN[ ld * k  + m]  will contain the derivative of log act_coeff for the <I>m</I><SUP>th</SUP>
      *                                 species with respect to the number of moles of the <I>k</I><SUP>th</SUP> species.
      *
      * \f[
@@ -797,15 +799,15 @@ namespace Cantera {
      * \f]
      *
      * @param ld               Number of rows in the matrix
-     * @param dlnActCoeffdlnN    Output vector of derivatives of the 
-     *                         log Activity Coefficients. length = m_kk * m_kk        
+     * @param dlnActCoeffdlnN    Output vector of derivatives of the
+     *                         log Activity Coefficients. length = m_kk * m_kk
      */
-    virtual void getdlnActCoeffdlnN(const int ld, doublereal * const dlnActCoeffdlnN);
+    virtual void getdlnActCoeffdlnN(const int ld, doublereal* const dlnActCoeffdlnN);
 
-   //@}
+    //@}
 
-  private:
-  
+private:
+
     //! Process an XML node called "binaryNeutralSpeciesParameters"
     /*!
      * This node contains all of the parameters necessary to describe
@@ -816,7 +818,7 @@ namespace Cantera {
      * @param xmlBinarySpecies  Reference to the XML_Node named "binaryNeutralSpeciesParameters"
      *                          containing the binary interaction
      */
-    void readXMLBinarySpecies(XML_Node &xmlBinarySpecies);
+    void readXMLBinarySpecies(XML_Node& xmlBinarySpecies);
 
     //! Resize internal arrays within the object that depend upon the number
     //! of binary Margules interaction terms
@@ -872,7 +874,7 @@ namespace Cantera {
     void s_update_dlnActCoeff_dlnN() const;
 
 
-  private:
+private:
     //! Error function
     /*!
      *  Print an error string and exit
@@ -881,7 +883,7 @@ namespace Cantera {
      */
     doublereal err(std::string msg) const;
 
-  protected:
+protected:
 
 
     //! number of binary interaction expressions
@@ -936,7 +938,7 @@ namespace Cantera {
     mutable vector_fp m_VSE_d_ij;
 
 
-    
+
     //! vector of species indices representing species A in the interaction
     /*!
      *  Each Margules excess Gibbs free energy term involves two species, A and B.
@@ -963,13 +965,13 @@ namespace Cantera {
      */
     int formTempModel_;
 
-  
-  };
+
+};
 
 
 
 }
-        
+
 #endif
 
 

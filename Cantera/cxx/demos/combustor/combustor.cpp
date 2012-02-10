@@ -13,7 +13,8 @@
 
 using namespace Cantera;
 
-void runexample() {
+void runexample()
+{
 
     // use reaction mechanism GRI-Mech 3.0
     IdealGasMix gas("gri30.cti", "gri30");
@@ -83,7 +84,7 @@ void runexample() {
     double FWHM = 0.2;
     double t0 = 1.0;
     Gaussian igniter_mdot(A, t0, FWHM);
-    
+
     MassFlowController m3;
     m3.install(igniter, combustor);
     m3.setFunction(&igniter_mdot);
@@ -122,7 +123,8 @@ void runexample() {
     f.close();
 }
 
-int main() {
+int main()
+{
 
     try {
         runexample();

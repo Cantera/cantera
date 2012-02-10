@@ -2,7 +2,7 @@
  *  @file GibbsExcessVPSSTP.h
  *   Header for intermediate ThermoPhase object for phases which
  *   employ gibbs excess free energy based formulations
- *  (see \ref thermoprops 
+ *  (see \ref thermoprops
  * and class \link Cantera::GibbsExcessVPSSTP GibbsExcessVPSSTP\endlink).
  *
  * Header file for a derived class of ThermoPhase that handles
@@ -12,7 +12,7 @@
  * calculating liquid electrolyte thermodynamics.
  */
 /*
- * Copywrite (2006) Sandia Corporation. Under the terms of 
+ * Copywrite (2006) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -21,91 +21,93 @@
 
 #include "VPStandardStateTP.h"
 
-namespace Cantera {
+namespace Cantera
+{
 
-  /**
-   * @ingroup thermoprops
-   */
+/**
+ * @ingroup thermoprops
+ */
 
-  /*!
-   * GibbsExcessVPSSTP is a derived class of ThermoPhase that handles
-   * variable pressure standard state methods for calculating
-   * thermodynamic properties that are further based on
-   * expressing the Excess Gibbs free energy as a function of
-   * the mole fractions (or pseudo mole fractions) of consitituents.
-   * This category is the workhorse for describing molten salts, 
-   * solid-phase mixtures of semiconductors, and mixtures of miscible
-   * and semi-miscible compounds.
-   *
-   * It includes 
-   *   . regular solutions
-   *   . Margueles expansions
-   *   . NTRL equation
-   *   . Wilson's equation
-   *   . UNIQUAC equation of state.
-   *
-   * This class adds additional functions onto the %ThermoPhase interface
-   * that handles the calculation of the excess Gibbs free energy. The %ThermoPhase
-   * class includes a member function, ThermoPhase::activityConvention() 
-   * that indicates which convention the activities are based on. The
-   * default is to assume activities are based on the molar convention.
-   * That default is used here. 
-   *
-   * All of the Excess Gibbs free energy formulations in this area employ
-   * symmetrical formulations. 
-   *
-   *
-   *  Chemical potentials
-   * of species k, \f$ \mu_o \f$, has the following general format:
-   *
-   * \f[
-   *    \mu_k = \mu^o_k(T,P) + R T ln( \gamma_k X_k ) 
-   * \f]
-   *
-   *
-   * where \f$ \gamma_k^{\triangle} \f$ is a molar based activity coefficient for species
-   * \f$k\f$.
-   * 
-   * GibbsExcessVPSSTP contains an internal vector with the current mole
-   * fraction vector. That's one of its primary usages. In order to keep the mole fraction
-   * vector constant, all of the setState functions are redesigned at this layer.
-   *
-   *
-   *  <H3>
-   *        Activity Concentrations: Relationship of %ThermoPhase to %Kinetics Expressions
-   * </H3>
-   *
-   *   As explained in a similar discussion in the ThermoPhase class, the actual units used
-   *   in kinetics expressions must be specified in the ThermoPhase class for the corresponding
-   *   species. These units vary with the field of study. %Cantera uses the concept of
-   *   activity concentrations to represent this. Activity concentrations are used directly
-   *   in the expressions for kinetics. Standard concentrations are used as the multiplicative
-   *   constant that takes the activity of a species and turns it into an activity concentration.
-   *   Standard concentrations must not depend on the concentration of the species in the phase.
-   *
-   *   Here we set a standard for the specification of the standard concentrations for this class
-   *   and all child classes underneath it. We specify here that the standard concentration is
-   *   equal to 1 for all species. Therefore, the activities appear directly in kinetics expressions
-   *   involving species in underlying %GibbsExcessVPSSTP phases.
-   *
-   *  <H3>
-   *       SetState Strategy
-   * </H3>
-   *
-   *  All setState functions that set the internal state of the ThermoPhase object are
-   *  overloaded at this level, so that a current mole fraction vector is maintained within
-   *  the object.
-   *
-   *
-   */
-  class GibbsExcessVPSSTP : public VPStandardStateTP  {
+/*!
+ * GibbsExcessVPSSTP is a derived class of ThermoPhase that handles
+ * variable pressure standard state methods for calculating
+ * thermodynamic properties that are further based on
+ * expressing the Excess Gibbs free energy as a function of
+ * the mole fractions (or pseudo mole fractions) of consitituents.
+ * This category is the workhorse for describing molten salts,
+ * solid-phase mixtures of semiconductors, and mixtures of miscible
+ * and semi-miscible compounds.
+ *
+ * It includes
+ *   . regular solutions
+ *   . Margueles expansions
+ *   . NTRL equation
+ *   . Wilson's equation
+ *   . UNIQUAC equation of state.
+ *
+ * This class adds additional functions onto the %ThermoPhase interface
+ * that handles the calculation of the excess Gibbs free energy. The %ThermoPhase
+ * class includes a member function, ThermoPhase::activityConvention()
+ * that indicates which convention the activities are based on. The
+ * default is to assume activities are based on the molar convention.
+ * That default is used here.
+ *
+ * All of the Excess Gibbs free energy formulations in this area employ
+ * symmetrical formulations.
+ *
+ *
+ *  Chemical potentials
+ * of species k, \f$ \mu_o \f$, has the following general format:
+ *
+ * \f[
+ *    \mu_k = \mu^o_k(T,P) + R T ln( \gamma_k X_k )
+ * \f]
+ *
+ *
+ * where \f$ \gamma_k^{\triangle} \f$ is a molar based activity coefficient for species
+ * \f$k\f$.
+ *
+ * GibbsExcessVPSSTP contains an internal vector with the current mole
+ * fraction vector. That's one of its primary usages. In order to keep the mole fraction
+ * vector constant, all of the setState functions are redesigned at this layer.
+ *
+ *
+ *  <H3>
+ *        Activity Concentrations: Relationship of %ThermoPhase to %Kinetics Expressions
+ * </H3>
+ *
+ *   As explained in a similar discussion in the ThermoPhase class, the actual units used
+ *   in kinetics expressions must be specified in the ThermoPhase class for the corresponding
+ *   species. These units vary with the field of study. %Cantera uses the concept of
+ *   activity concentrations to represent this. Activity concentrations are used directly
+ *   in the expressions for kinetics. Standard concentrations are used as the multiplicative
+ *   constant that takes the activity of a species and turns it into an activity concentration.
+ *   Standard concentrations must not depend on the concentration of the species in the phase.
+ *
+ *   Here we set a standard for the specification of the standard concentrations for this class
+ *   and all child classes underneath it. We specify here that the standard concentration is
+ *   equal to 1 for all species. Therefore, the activities appear directly in kinetics expressions
+ *   involving species in underlying %GibbsExcessVPSSTP phases.
+ *
+ *  <H3>
+ *       SetState Strategy
+ * </H3>
+ *
+ *  All setState functions that set the internal state of the ThermoPhase object are
+ *  overloaded at this level, so that a current mole fraction vector is maintained within
+ *  the object.
+ *
+ *
+ */
+class GibbsExcessVPSSTP : public VPStandardStateTP
+{
 
-  public:
-        
-    /// Constructors 
+public:
+
+    /// Constructors
     /*!
      * This doesn't do much more than initialize constants with
-     * default values for water at 25C. Water molecular weight 
+     * default values for water at 25C. Water molecular weight
      * comes from the default elements.xml file. It actually
      * differs slightly from the IAPWS95 value of 18.015268. However,
      * density conservation and therefore element conservation
@@ -120,16 +122,16 @@ namespace Cantera {
      *
      * @param b class to be copied
      */
-    GibbsExcessVPSSTP(const GibbsExcessVPSSTP &b);
+    GibbsExcessVPSSTP(const GibbsExcessVPSSTP& b);
 
     /// Assignment operator
     /*!
      *
      * @param b class to be copied.
      */
-    GibbsExcessVPSSTP& operator=(const GibbsExcessVPSSTP &b);
+    GibbsExcessVPSSTP& operator=(const GibbsExcessVPSSTP& b);
 
-    /// Destructor. 
+    /// Destructor.
     virtual ~GibbsExcessVPSSTP();
 
     //! Duplication routine for objects which inherit from  ThermoPhase.
@@ -138,15 +140,15 @@ namespace Cantera {
      *  inherited from ThermoPhase even if the application only has
      *  a pointer to ThermoPhase to work with.
      */
-    virtual ThermoPhase *duplMyselfAsThermoPhase() const;
-    
+    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
+
     /**
-     *   
-     * @name  Utilities  
+     *
+     * @name  Utilities
      * @{
      */
 
-   
+
     //! Equation of state type flag.
     /*!
      * The ThermoPhase base class returns
@@ -157,17 +159,17 @@ namespace Cantera {
      */
     virtual int eosType() const;
 
-   
+
 
     /**
-     * @} 
-     * @name  Molar Thermodynamic Properties 
+     * @}
+     * @name  Molar Thermodynamic Properties
      * @{
      */
 
 
-   
- 
+
+
 
     /**
      * @}
@@ -188,16 +190,16 @@ namespace Cantera {
      */
     virtual void setPressure(doublereal p);
 
-  protected:
+protected:
 
     /**
-     * Calculate the density of the mixture using the partial 
+     * Calculate the density of the mixture using the partial
      * molar volumes and mole fractions as input
      *
      * The formula for this is
      *
-     * \f[ 
-     * \rho = \frac{\sum_k{X_k W_k}}{\sum_k{X_k V_k}} 
+     * \f[
+     * \rho = \frac{\sum_k{X_k W_k}}{\sum_k{X_k V_k}}
      * \f]
      *
      * where \f$X_k\f$ are the mole fractions, \f$W_k\f$ are
@@ -210,16 +212,16 @@ namespace Cantera {
      * in this class that the pure species molar volumes are
      * independent of temperature and pressure.
      *
-     * NOTE: This is a non-virtual function, which is not a 
-     *       member of the ThermoPhase base class. 
+     * NOTE: This is a non-virtual function, which is not a
+     *       member of the ThermoPhase base class.
      */
     void calcDensity();
 
-  public:
+public:
     /**
-     * @} 
+     * @}
      * @name Potential Energy
-     * 
+     *
      * Species may have an additional potential energy due to the
      * presence of external gravitation or electric fields. These
      * methods allow specifying a potential energy for individual
@@ -257,7 +259,7 @@ namespace Cantera {
      */
     virtual void getActivityConcentrations(doublereal* c) const;
 
- 
+
 
     /**
      * The standard concentration \f$ C^0_k \f$ used to normalize
@@ -278,7 +280,7 @@ namespace Cantera {
     virtual doublereal standardConcentration(size_t k=0) const;
 
     /**
-     * Returns the natural logarithm of the standard 
+     * Returns the natural logarithm of the standard
      * concentration of the kth species
      *
      * @param k  species index
@@ -307,10 +309,10 @@ namespace Cantera {
      * @param sizeUA output int containing the size of the vector.
      *        Currently, this is equal to 6.
      */
-    virtual void getUnitsStandardConc(double *uA, int k = 0,
-				      int sizeUA = 6) const;
+    virtual void getUnitsStandardConc(double* uA, int k = 0,
+                                      int sizeUA = 6) const;
 
-    
+
     //! Get the array of non-dimensional activities (molality
     //! based for this class and classes that derive from it) at
     //! the current solution temperature, pressure, and solution concentration.
@@ -330,9 +332,9 @@ namespace Cantera {
     /*!
      * @param lnac Output vector of ln activity coefficients. Length: m_kk.
      */
-    virtual void getActivityCoefficients(doublereal * const ac) const;
+    virtual void getActivityCoefficients(doublereal* const ac) const;
 
-    
+
     //! Get the array of temperature derivatives of the log activity coefficients
     /*!
      * This function is a virtual class, but it first appears in GibbsExcessVPSSTP
@@ -340,11 +342,11 @@ namespace Cantera {
      *
      *  units = 1/Kelvin
      *
-     * @param dlnActCoeffdT    Output vector of temperature derivatives of the 
+     * @param dlnActCoeffdT    Output vector of temperature derivatives of the
      *                         log Activity Coefficients. length = m_kk
      */
-    virtual void getdlnActCoeffdT(doublereal *dlnActCoeffdT) const {
-      err("getdlnActCoeffdT");
+    virtual void getdlnActCoeffdT(doublereal* dlnActCoeffdT) const {
+        err("getdlnActCoeffdT");
     }
 
     //! Get the array of derivatives of the log activity coefficients with respect to the log of the species mole numbers
@@ -352,10 +354,10 @@ namespace Cantera {
      * Implementations should take the derivative of the logarithm of the activity coefficient with respect to a
      * species log mole number (with all other species mole numbers held constant). The default treatment in the
      * %ThermoPhase object is to set this vector to zero.
-     * 
+     *
      *  units = 1 / kmol
      *
-     *  dlnActCoeffdlnN[ ld * k  + m]  will contain the derivative of log act_coeff for the <I>m</I><SUP>th</SUP> 
+     *  dlnActCoeffdlnN[ ld * k  + m]  will contain the derivative of log act_coeff for the <I>m</I><SUP>th</SUP>
      *                               species with respect to the number of moles of the <I>k</I><SUP>th</SUP> species.
      *
      * \f[
@@ -363,45 +365,45 @@ namespace Cantera {
      * \f]
      *
      * @param ld               Number of rows in the matrix
-     * @param dlnActCoeffdlnN    Output vector of derivatives of the 
-     *                           log Activity Coefficients. length = m_kk * m_kk        
+     * @param dlnActCoeffdlnN    Output vector of derivatives of the
+     *                           log Activity Coefficients. length = m_kk * m_kk
      */
-    virtual void getdlnActCoeffdlnN(const int ld, doublereal * const dlnActCoeffdlnN)  {
-      err(" getdlnActCoeffdlnN: nonzero and nonimplemented");
+    virtual void getdlnActCoeffdlnN(const int ld, doublereal* const dlnActCoeffdlnN)  {
+        err(" getdlnActCoeffdlnN: nonzero and nonimplemented");
     }
 
-    //! Get the array of log concentration-like derivatives of the 
+    //! Get the array of log concentration-like derivatives of the
     //! log activity coefficients
     /*!
-     * This function is a virtual method.  For ideal mixtures 
-     * (unity activity coefficients), this can return zero.  
-     * Implementations should take the derivative of the 
-     * logarithm of the activity coefficient with respect to the 
+     * This function is a virtual method.  For ideal mixtures
+     * (unity activity coefficients), this can return zero.
+     * Implementations should take the derivative of the
+     * logarithm of the activity coefficient with respect to the
      * logarithm of the concentration-like variable (i.e. number of moles in
-     * in a unit volume. ) that represents the standard state.  
-     * This quantity is to be used in conjunction with derivatives of 
-     * that concentration-like variable when the derivative of the chemical 
-     * potential is taken.  
+     * in a unit volume. ) that represents the standard state.
+     * This quantity is to be used in conjunction with derivatives of
+     * that concentration-like variable when the derivative of the chemical
+     * potential is taken.
      *
      *  units = dimensionless
      *
-     * @param dlnActCoeffdlnX    Output vector of derivatives of the 
+     * @param dlnActCoeffdlnX    Output vector of derivatives of the
      *                         log Activity Coefficients. length = m_kk
      */
-    virtual void getdlnActCoeffdlnX(doublereal *dlnActCoeffdlnX) const {
-      err("getdlnActCoeffdlnX");
+    virtual void getdlnActCoeffdlnX(doublereal* dlnActCoeffdlnX) const {
+        err("getdlnActCoeffdlnX");
     }
- 
+
 
     //@}
-    /// @name  Partial Molar Properties of the Solution 
+    /// @name  Partial Molar Properties of the Solution
     //@{
 
 
     /**
-     * Get the species electrochemical potentials. 
+     * Get the species electrochemical potentials.
      * These are partial molar quantities.
-     * This method adds a term \f$ Fz_k \phi_k \f$ to the 
+     * This method adds a term \f$ Fz_k \phi_k \f$ to the
      * to each chemical potential.
      *
      * Units: J/kmol
@@ -427,7 +429,7 @@ namespace Cantera {
     /// @name  Properties of the Standard State of the Species in the Solution
     //@{
 
-     
+
 
     //@}
     /// @name Thermodynamic Values for the Species Reference States
@@ -541,9 +543,9 @@ namespace Cantera {
 
 
     /// The following methods are used in the process of constructing
-    /// the phase and setting its parameters from a specification in an 
+    /// the phase and setting its parameters from a specification in an
     /// input file. They are not normally used in application programs.
-    /// To see how they are used, see files importCTML.cpp and 
+    /// To see how they are used, see files importCTML.cpp and
     /// ThermoFactory.cpp.
 
 
@@ -561,14 +563,14 @@ namespace Cantera {
      * @see importCTML.cpp
      */
     virtual void initThermo();
- 
 
-  private:
-  
+
+private:
+
     //! Initialize lengths of local variables after all species have
     //! been identified.
     void initLengths();
-            
+
     //! Error function
     /*!
      *  Print an error string and exit
@@ -577,15 +579,15 @@ namespace Cantera {
      */
     doublereal err(std::string msg) const;
 
-  protected:
+protected:
 
     //! utility routine to check mole fraction sum
     /*!
      * @param x   vector of mole fractions.
      */
-    double checkMFSum(const doublereal * const x) const;
+    double checkMFSum(const doublereal* const x) const;
 
-  protected:
+protected:
 
     // HKM get rid of _Scaled_ prefix
 
@@ -603,28 +605,28 @@ namespace Cantera {
     //! species
     mutable std::vector<doublereal> lnActCoeff_Scaled_;
 
-    //! Storage for the current derivative values of the 
-    //! gradients with respect to temperature of the 
+    //! Storage for the current derivative values of the
+    //! gradients with respect to temperature of the
     //! log of the activity coefficients of the species
     mutable std::vector<doublereal> dlnActCoeffdT_Scaled_;
 
-    //! Storage for the current derivative values of the 
-    //! gradients with respect to temperature of the 
+    //! Storage for the current derivative values of the
+    //! gradients with respect to temperature of the
     //! log of the activity coefficients of the species
     mutable std::vector<doublereal> d2lnActCoeffdT2_Scaled_;
 
-    //! Storage for the current derivative values of the 
-    //! gradients with respect to logarithm of the mole fraction of the 
+    //! Storage for the current derivative values of the
+    //! gradients with respect to logarithm of the mole fraction of the
     //! log of the activity coefficients of the species  @deprecated
     mutable std::vector<doublereal> dlnActCoeffdlnN_diag_;
 
-    //! Storage for the current derivative values of the 
-    //! gradients with respect to logarithm of the mole fraction of the 
+    //! Storage for the current derivative values of the
+    //! gradients with respect to logarithm of the mole fraction of the
     //! log of theactivity coefficients of the species  @deprecated
     mutable std::vector<doublereal> dlnActCoeffdlnX_diag_;
 
-    //! Storage for the current derivative values of the  gradients with respect to logarithm of the species mole number of the 
-    //! log of the activity coefficients of the species 
+    //! Storage for the current derivative values of the  gradients with respect to logarithm of the species mole number of the
+    //! log of the activity coefficients of the species
     /*!
      *  dlnActCoeffdlnN_(k, m)  is the derivative of ln(gamma_k) wrt ln mole number of species m
      */
@@ -633,11 +635,11 @@ namespace Cantera {
     //! Temporary storage space that is fair game
     mutable std::vector<doublereal> m_pp;
 
-  };
+};
 
 
 }
-        
+
 #endif
 
 

@@ -2,12 +2,12 @@
  *  @file VPSSMgr_IdealGas.h
  * Declaration file for a derived class that handles the calculation
  * of standard state thermo properties for
- *  a set of species which have an Ideal Gas dependence 
+ *  a set of species which have an Ideal Gas dependence
  * (see \ref mgrpdssthermocalc and
  * class \link Cantera::VPSSMgr_IdealGas VPSSMgr_IdealGas\endlink).
  */
 /*
- * Copywrite (2005) Sandia Corporation. Under the terms of 
+ * Copywrite (2005) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -19,28 +19,30 @@
 #include "PDSS.h"
 #include "VPSSMgr.h"
 
-namespace Cantera {
+namespace Cantera
+{
 
-  class SpeciesThermoInterpType;
-  class VPStandardStateTP;
-  class SpeciesThermo;
-  
+class SpeciesThermoInterpType;
+class VPStandardStateTP;
+class SpeciesThermo;
 
-  //! Virtual base class for the species thermo manager classes.
-  /*!
-   *  This class defines the interface which all subclasses must implement. 
-   *
-   * Class %VPSSSpeciesThermo is the base class
-   * for a family of classes that compute properties of a set of 
-   * species in their reference state at a range of temperatures.
-   * Note, the pressure dependence of the reference state is not
-   * handled by this particular species standard state model.
-   *
-   * @ingroup mgrpdssthermocalc
-   */
-  class VPSSMgr_IdealGas : public VPSSMgr {
-    
-  public:
+
+//! Virtual base class for the species thermo manager classes.
+/*!
+ *  This class defines the interface which all subclasses must implement.
+ *
+ * Class %VPSSSpeciesThermo is the base class
+ * for a family of classes that compute properties of a set of
+ * species in their reference state at a range of temperatures.
+ * Note, the pressure dependence of the reference state is not
+ * handled by this particular species standard state model.
+ *
+ * @ingroup mgrpdssthermocalc
+ */
+class VPSSMgr_IdealGas : public VPSSMgr
+{
+
+public:
 
 
     //! Basic constructor that initializes the object
@@ -48,47 +50,47 @@ namespace Cantera {
      * @param vp_ptr Pointer to the owning ThermoPhase
      * @param spth   Species thermo pointer.
      */
-    VPSSMgr_IdealGas(VPStandardStateTP *vp_ptr, SpeciesThermo *spth);
+    VPSSMgr_IdealGas(VPStandardStateTP* vp_ptr, SpeciesThermo* spth);
 
     //! Destructor
     virtual ~VPSSMgr_IdealGas();
 
-    //! Copy Constructor for the %SpeciesThermo object. 
+    //! Copy Constructor for the %SpeciesThermo object.
     /*!
      * @param right    Reference to %SpeciesThermo object to be copied into the
      *                 current one.
      */
-    VPSSMgr_IdealGas(const VPSSMgr_IdealGas &right);
-	
+    VPSSMgr_IdealGas(const VPSSMgr_IdealGas& right);
+
     //! Assignment operator for the %SpeciesThermo object
     /*!
      *  This is NOT a virtual function.
      *
      * @param right    Reference to %SpeciesThermo object to be copied into the
-     *                 current one. 
+     *                 current one.
      */
-    VPSSMgr_IdealGas& operator=(const VPSSMgr_IdealGas &right);
-   
-    //! Duplication routine for objects which inherit from 
+    VPSSMgr_IdealGas& operator=(const VPSSMgr_IdealGas& right);
+
+    //! Duplication routine for objects which inherit from
     //! %VPSSSpeciesThermo
     /*!
      *  This virtual routine can be used to duplicate %VPSSSpeciesThermo  objects
      *  inherited from %VPSSSpeciesThermo even if the application only has
      *  a pointer to %VPSSSpeciesThermo to work with.
      */
-    virtual VPSSMgr *duplMyselfAsVPSSMgr() const;
+    virtual VPSSMgr* duplMyselfAsVPSSMgr() const;
 
     /*!
-     * @name  Properties of the Standard State of the Species in the Solution 
+     * @name  Properties of the Standard State of the Species in the Solution
      *
-     *  Within VPStandardStateTP, these properties are calculated via a common routine, 
+     *  Within VPStandardStateTP, these properties are calculated via a common routine,
      *  _updateStandardStateThermo(),
      *  which must be overloaded in inherited objects.
      *  The values are cached within this object, and are not recalculated unless
      *  the temperature or pressure changes.
      */
     //@{
-       
+
     /**
      *  Returns the vector of nondimensional
      *  internal Energies of the standard state at the current temperature
@@ -100,7 +102,7 @@ namespace Cantera {
      * @param urt    Output vector of nondimensional standard state
      *               internal energies. length = m_kk.
      */
-    virtual void getIntEnergy_RT(doublereal *urt) const;
+    virtual void getIntEnergy_RT(doublereal* urt) const;
 
     /**
      * Get the molar volumes of each species in their standard
@@ -114,11 +116,11 @@ namespace Cantera {
      * @param vol Output vector of species volumes. length = m_kk.
      *            units =  m^3 / kmol
      */
-    virtual void getStandardVolumes(doublereal *vol) const;
+    virtual void getStandardVolumes(doublereal* vol) const;
 
-  protected:
+protected:
 
-    //! Updates the standard state thermodynamic functions at the current 
+    //! Updates the standard state thermodynamic functions at the current
     //! T and P of the solution.
     /*!
      * @internal
@@ -139,10 +141,10 @@ namespace Cantera {
      *  If m_useTmpStandardStateStorage is not true, this function may be
      *  required to be called everytime this class is invoked.
      *
-     */                    
+     */
     virtual void _updateStandardStateThermo();
 
-  public:
+public:
 
     //@}
     /// @name Thermodynamic Values for the Species Reference States (VPStandardStateTP)
@@ -160,9 +162,9 @@ namespace Cantera {
     //! @name Initialization Methods - For Internal use (VPStandardState)
     /*!
      * The following methods are used in the process of constructing
-     * the phase and setting its parameters from a specification in an 
+     * the phase and setting its parameters from a specification in an
      * input file. They are not normally used in application programs.
-     * To see how they are used, see files importCTML.cpp and 
+     * To see how they are used, see files importCTML.cpp and
      * ThermoFactory.cpp.
      *
      */
@@ -198,9 +200,9 @@ namespace Cantera {
      *          containing the parameterization
      */
     virtual PDSS* createInstallPDSS(size_t k, const XML_Node& speciesNode,
-				    const XML_Node * const phaseNode_ptr);
-   
- 
+                                    const XML_Node* const phaseNode_ptr);
+
+
     //! This utility function reports the type of parameterization
     //! used for the species with index number index.
     /*!
@@ -217,8 +219,8 @@ namespace Cantera {
      */
     virtual VPSSMgr_enumType reportVPSSMgrType() const ;
 
-  };
-  //@}
+};
+//@}
 }
 
 #endif

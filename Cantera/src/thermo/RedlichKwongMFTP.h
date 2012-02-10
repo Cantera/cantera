@@ -7,7 +7,7 @@
  * class \link Cantera::RedlichKwongMFTP RedlichKwongMFTP\endlink).
  */
 /*
- * Copywrite (2005) Sandia Corporation. Under the terms of 
+ * Copywrite (2005) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -22,40 +22,42 @@
 
 #include "MixtureFugacityTP.h"
 
-namespace Cantera {
+namespace Cantera
+{
 
-  class XML_Node;
-  class PDSS;
+class XML_Node;
+class PDSS;
 
- /*!
-   * @name CONSTANTS - Models for the Standard State of IdealSolnPhase's
-   */
-  //@{
+/*!
+  * @name CONSTANTS - Models for the Standard State of IdealSolnPhase's
+  */
+//@{
 
 #ifdef WITH_REAL_GASSES
 
-  /**
-   * @ingroup thermoprops
-   *
-   *  This class can handle either an ideal solution or an ideal gas approximation
-   *  of a phase.
-   *
-   *   
-   *  @nosubgrouping
-   */
-  class RedlichKwongMFTP : public MixtureFugacityTP {
+/**
+ * @ingroup thermoprops
+ *
+ *  This class can handle either an ideal solution or an ideal gas approximation
+ *  of a phase.
+ *
+ *
+ *  @nosubgrouping
+ */
+class RedlichKwongMFTP : public MixtureFugacityTP
+{
 
-  public:
+public:
 
     /*!
-     *   
-     * @name Constructors and Duplicators for %RedlichKwongMFTP 
      *
-     */   
-    //! Base constructor. 
+     * @name Constructors and Duplicators for %RedlichKwongMFTP
+     *
+     */
+    //! Base constructor.
     RedlichKwongMFTP();
 
-    //! Construct and initialize a RedlichKwongMFTP ThermoPhase object 
+    //! Construct and initialize a RedlichKwongMFTP ThermoPhase object
     //! directly from an asci input file
     /*!
      * Working constructors
@@ -70,7 +72,7 @@ namespace Cantera {
      */
     RedlichKwongMFTP(std::string infile, std::string id="");
 
-    //! Construct and initialize a RedlichKwongMFTP ThermoPhase object 
+    //! Construct and initialize a RedlichKwongMFTP ThermoPhase object
     //! directly from an XML database
     /*!
      *  @param phaseRef XML phase node containing the description of the phase
@@ -80,7 +82,7 @@ namespace Cantera {
 
     //!  This is a special constructor, used to replicate test problems
     //!  during the initial verification of the object
-    /*!   
+    /*!
      *
      *  test problems:
      *    1:     Pure CO2 problem
@@ -95,24 +97,24 @@ namespace Cantera {
     /*!
      * Copy constructor for the object. Constructed object will be a clone of this object, but will
      * also own all of its data. This is a wrapper around the assignment operator
-     * 
+     *
      * @param right Object to be copied.
      */
-    RedlichKwongMFTP(const RedlichKwongMFTP &right);
+    RedlichKwongMFTP(const RedlichKwongMFTP& right);
 
     //! Asignment operator
     /*!
      * Assignment operator for the object. Constructed object will be a clone of this object, but will
      * also own all of its data.
-     * 
+     *
      * @param right Object to be copied.
      */
-    RedlichKwongMFTP& operator=(const RedlichKwongMFTP &right);
+    RedlichKwongMFTP& operator=(const RedlichKwongMFTP& right);
 
-    //! Destructor. 
+    //! Destructor.
     virtual ~RedlichKwongMFTP();
 
-  
+
     //! Duplicator from the ThermoPhase parent class
     /*!
      * Given a pointer to a ThermoPhase object, this function will
@@ -121,7 +123,7 @@ namespace Cantera {
      *
      * @return returns a pointer to a ThermoPhase
      */
-    virtual ThermoPhase *duplMyselfAsThermoPhase() const;
+    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
 
     //@}
 
@@ -129,7 +131,7 @@ namespace Cantera {
      * @name  Utilities (RedlichKwongMFTP)
      */
     //@{
-    /** 
+    /**
      * Equation of state type flag. The base class returns
      * zero. Subclasses should define this to return a unique
      * non-zero value. Constants defined for this purpose are
@@ -138,24 +140,24 @@ namespace Cantera {
     virtual int eosType() const;
 
     //@}
- 
-    /// Molar enthalpy. Units: J/kmol. 
-     virtual doublereal enthalpy_mole() const;
-  
-    /// Molar internal energy. Units: J/kmol. 
-     virtual doublereal intEnergy_mole() const;
 
-    /// Molar entropy. Units: J/kmol/K. 
-     virtual doublereal entropy_mole() const;
+    /// Molar enthalpy. Units: J/kmol.
+    virtual doublereal enthalpy_mole() const;
 
-    /// Molar Gibbs function. Units: J/kmol. 
-     virtual doublereal gibbs_mole() const;
+    /// Molar internal energy. Units: J/kmol.
+    virtual doublereal intEnergy_mole() const;
 
-    /// Molar heat capacity at constant pressure. Units: J/kmol/K. 
-     virtual doublereal cp_mole() const;
+    /// Molar entropy. Units: J/kmol/K.
+    virtual doublereal entropy_mole() const;
 
-    /// Molar heat capacity at constant volume. Units: J/kmol/K. 
-     virtual doublereal cv_mole() const;
+    /// Molar Gibbs function. Units: J/kmol.
+    virtual doublereal gibbs_mole() const;
+
+    /// Molar heat capacity at constant pressure. Units: J/kmol/K.
+    virtual doublereal cp_mole() const;
+
+    /// Molar heat capacity at constant volume. Units: J/kmol/K.
+    virtual doublereal cv_mole() const;
 
     /**
      * @}
@@ -183,9 +185,9 @@ namespace Cantera {
      * \kappa_T = -\frac{1}{v}\left(\frac{\partial v}{\partial P}\right)_T
      * \f]
      */
-  virtual doublereal isothermalCompressibility() const;
+    virtual doublereal isothermalCompressibility() const;
 
-   protected:
+protected:
     /**
      * Calculate the density of the mixture using the partial
      * molar volumes and mole fractions as input
@@ -203,7 +205,7 @@ namespace Cantera {
      * Note, the basis behind this formula is that in an ideal
      * solution the partial molar volumes are equal to the
      * species standard state molar volumes.
-     * The species molar volumes may be functions 
+     * The species molar volumes may be functions
      * of temperature and pressure.
      *
      * NOTE: This is a non-virtual function, which is not a
@@ -211,7 +213,7 @@ namespace Cantera {
      */
     virtual void calcDensity();
 
-   protected:
+protected:
     //! Set the temperature (K)
     /*!
      * Overwritten setTemperature(double) from State.h. This
@@ -232,7 +234,7 @@ namespace Cantera {
      */
     virtual void setMassFractions(const doublereal* const y);
 
-    //!Set the mass fractions to the specified values without normalizing. 
+    //!Set the mass fractions to the specified values without normalizing.
     /*!
      * This is useful when the normalization
      * condition is being handled by some other means, for example
@@ -252,7 +254,7 @@ namespace Cantera {
      */
     virtual void setMoleFractions(const doublereal* const x);
 
-    //! Set the mole fractions to the specified values without normalizing. 
+    //! Set the mole fractions to the specified values without normalizing.
     /*!
      * This is useful when the normalization
      * condition is being handled by some other means, for example
@@ -263,7 +265,7 @@ namespace Cantera {
      */
     virtual void setMoleFractions_NoNorm(const doublereal* const x);
 
-    
+
     //! Set the concentrations to the specified values within the phase.
     /*!
      * @param c The input vector to this routine is in dimensional
@@ -276,7 +278,7 @@ namespace Cantera {
     virtual void setConcentrations(const doublereal* const c);
 
 
-  public:
+public:
 
     //! This method returns an array of generalized concentrations
     /*!
@@ -291,7 +293,7 @@ namespace Cantera {
      * partial pressures, mole fractions, or surface coverages,
      * for example.
      *
-     * @param c Output array of generalized concentrations. The 
+     * @param c Output array of generalized concentrations. The
      *           units depend upon the implementation of the
      *           reaction rate expressions within the phase.
      */
@@ -318,9 +320,9 @@ namespace Cantera {
     /*!
      * @param k    index of the species. (defaults to zero)
      */
-  virtual doublereal logStandardConc(int k=0) const;
+    virtual doublereal logStandardConc(int k=0) const;
 
-   //! Returns the units of the standard and generalized concentrations.
+    //! Returns the units of the standard and generalized concentrations.
     /*!
      * Note they have the same units, as their
      * ratio is defined to be equal to the activity of the kth
@@ -332,7 +334,7 @@ namespace Cantera {
      *
      * The base %ThermoPhase class assigns the default quantities
      * of (kmol/m3) for all species.
-     * Inherited classes are responsible for overriding the default 
+     * Inherited classes are responsible for overriding the default
      * values if necessary.
      *
      * @param uA Output vector containing the units
@@ -347,8 +349,8 @@ namespace Cantera {
      * @param sizeUA output int containing the size of the vector.
      *        Currently, this is equal to 6.
      */
-    virtual void getUnitsStandardConc(double *uA, int k = 0, int sizeUA = 6) const;
-      
+    virtual void getUnitsStandardConc(double* uA, int k = 0, int sizeUA = 6) const;
+
     //! Get the array of non-dimensional activity coefficients at
     //! the current solution temperature, pressure, and solution concentration.
     /*!
@@ -425,18 +427,18 @@ namespace Cantera {
      *                Length = m_kk. units are m^3/kmol.
      */
     virtual void getPartialMolarVolumes(doublereal* vbar) const;
-  
+
     //@}
 
     /*!
-     * @name  Properties of the Standard State of the Species in the Solution 
+     * @name  Properties of the Standard State of the Species in the Solution
      *
      *  Properties of the standard states are delegated to the VPSSMgr object.
      *  The values are cached within this object, and are not recalculated unless
      *  the temperature or pressure changes.
      */
     //@{
-    
+
     //@}
 
     /// @name Thermodynamic Values for the Species Reference States (RedlichKwongMFTP)
@@ -450,14 +452,14 @@ namespace Cantera {
     //@}
 
 
-       
+
     //---------------------------------------------------------
     /// @name Critical State Properties.
-    /// These methods are only implemented by some subclasses, and may 
+    /// These methods are only implemented by some subclasses, and may
     /// be moved out of ThermoPhase at a later date.
-        
+
     //@{
-      
+
     /// Critical temperature (K).
     virtual doublereal critTemperature() const;
 
@@ -470,34 +472,34 @@ namespace Cantera {
 
 
 
-	
-  public:
- 
+
+public:
+
     //! @name Initialization Methods - For Internal use (VPStandardState)
     /*!
      * The following methods are used in the process of constructing
-     * the phase and setting its parameters from a specification in an 
+     * the phase and setting its parameters from a specification in an
      * input file. They are not normally used in application programs.
-     * To see how they are used, see files importCTML.cpp and 
+     * To see how they are used, see files importCTML.cpp and
      * ThermoFactory.cpp.
      */
     //@{
 
-    
+
     //! Set equation of state parameter values from XML
-    //! entries. 
+    //! entries.
     /*!
      *  This method is called by function importPhase in
      *  file importCTML.cpp when processing a phase definition in
      *  an input file. It should be overloaded in subclasses to set
      *  any parameters that are specific to that particular phase
-     *  model. 
-     *   
+     *  model.
+     *
      * @param thermoNode An XML_Node object corresponding to
      *                   the "thermo" entry for this phase in the input file.
      */
     virtual void setParametersFromXML(const XML_Node& thermoNode);
-  
+
     //! @internal Initialize the object
     /*!
      * This method is provided to allow
@@ -519,14 +521,14 @@ namespace Cantera {
     /*!
      * It sets the state such that the chemical potentials satisfy
      * \f[ \frac{\mu_k}{\hat R T} = \sum_m A_{k,m}
-     * \left(\frac{\lambda_m} {\hat R T}\right) \f] where 
+     * \left(\frac{\lambda_m} {\hat R T}\right) \f] where
      * \f$ \lambda_m \f$ is the element potential of element m. The
      * temperature is unchanged.  Any phase (ideal or not) that
      * implements this method can be equilibrated by ChemEquil.
      *
      * @param lambda_RT Input vector of dimensionless element potentials
      *                  The length is equal to nElements().
-     */ 
+     */
     void setToEquilState(const doublereal* lambda_RT);
 
     //!   Initialize a ThermoPhase object, potentially reading activity
@@ -554,16 +556,16 @@ namespace Cantera {
      *             the species in the phase.
      * @param id   ID of the phase. If nonnull, a check is done
      *             to see if phaseNode is pointing to the phase
-     *             with the correct id. 
+     *             with the correct id.
      */
-  virtual void initThermoXML(XML_Node& phaseNode, std::string id);
+    virtual void initThermoXML(XML_Node& phaseNode, std::string id);
 
-  private:
+private:
     //! Read the pure species RedlichKwong input parameters
     /*!
      *  @param pureFluidParam   XML_Node for the pure fluid parameters
      */
-    void readXMLPureFluid(XML_Node &PureFluidParam);
+    void readXMLPureFluid(XML_Node& PureFluidParam);
 
 
     //! Apply mixing rules for a coefficients
@@ -574,12 +576,12 @@ namespace Cantera {
     /*!
      *  @param pureFluidParam   XML_Node for the cross fluid parameters
      */
-    void readXMLCrossFluid(XML_Node &PureFluidParam);
+    void readXMLCrossFluid(XML_Node& PureFluidParam);
 
 
 
-   //==============================================================================
-  private:
+    //==============================================================================
+private:
     //!  @internal Initialize the internal lengths in this object.
     /*!
      * Note this is not a virtual function and only handles
@@ -590,7 +592,7 @@ namespace Cantera {
     //==============================================================================
     //         Special functions inherited from MixtureFugacityTP
 
-  protected:
+protected:
 
     //! Calculate the deviation terms for the total entropy of the mixture from the
     //! ideal gas mixture
@@ -599,7 +601,7 @@ namespace Cantera {
      *
      * @return  Returns the change in entropy in units of J kmol-1 K-1.
      */
-  virtual doublereal sresid() const;
+    virtual doublereal sresid() const;
 
     // Calculate the deviation terms for the total enthalpy of the mixture from the
     // ideal gas mixture
@@ -609,7 +611,7 @@ namespace Cantera {
      * @return  Returns the change in enthalpy in units of J kmol-1.
      */
     virtual doublereal hresid() const;
-  public:
+public:
     //! Estimate for the molar volume of the liquid
     /*!
      *   Note: this is only used as a starting guess for later routines that actually calculate an
@@ -623,9 +625,9 @@ namespace Cantera {
      *
      *  @return Returns the estimate of the liquid volume.
      */
-    virtual doublereal liquidVolEst(doublereal TKelvin, doublereal &pres) const;
+    virtual doublereal liquidVolEst(doublereal TKelvin, doublereal& pres) const;
 
-  public:
+public:
     //!  Calculates the density given the temperature and the pressure and a guess at the density.
     /*!
      * Note, below T_c, this is a multivalued function. We do not cross the vapor dome in this.
@@ -640,9 +642,9 @@ namespace Cantera {
      *    @param phase     int representing the phase whose density we are requesting. If we put
      *                     a gas or liquid phase here, we will attempt to find a volume in that
      *                     part of the volume space, only, in this routine. A value of FLUID_UNDEFINED
-     *                     means that we will accept anything. 
-     *                      
-     *   @param rhoguess   Guessed density of the fluid. A value of -1.0 indicates that there 
+     *                     means that we will accept anything.
+     *
+     *   @param rhoguess   Guessed density of the fluid. A value of -1.0 indicates that there
      *                     is no guessed density
      *
      *
@@ -652,14 +654,14 @@ namespace Cantera {
      */
     virtual doublereal densityCalc(doublereal TKelvin, doublereal pressure, int phase, doublereal rhoguess);
 
-  public:
+public:
     //! Return the value of the density at the liquid spinodal point (on the liquid side)
     //! for the current temperature.
     /*!
      * @return returns the density with units of kg m-3
      */
     virtual doublereal densSpinodalLiquid() const;
-    
+
 
     //! Return the value of the density at the gas spinodal point (on the gas side)
     //! for the current temperature.
@@ -667,7 +669,7 @@ namespace Cantera {
      * @return returns the density with units of kg m-3
      */
     virtual doublereal densSpinodalGas() const;
-    
+
 
 
     //! Calculate the pressure given the temperature and the molar volume
@@ -691,9 +693,9 @@ namespace Cantera {
      *
      * @param   presCalc  Returns the pressure.
      *
-     *  @return  Returns the derivative of the pressure wrt the molar volume  
+     *  @return  Returns the derivative of the pressure wrt the molar volume
      */
-    virtual doublereal dpdVCalc(doublereal TKelvin, doublereal molarVol, doublereal &presCalc) const;
+    virtual doublereal dpdVCalc(doublereal TKelvin, doublereal molarVol, doublereal& presCalc) const;
 
 
     //! Calculate dpdV and dpdT at the current conditions
@@ -701,8 +703,8 @@ namespace Cantera {
      *  These are storred internally.
      */
     void pressureDerivatives() const;
- 
-   
+
+
     virtual void updateMixingExpressions();
 
 
@@ -717,7 +719,7 @@ namespace Cantera {
     //!  Calculate the a and the b parameters given the temperature
     /*!
      *
-     *  This function doesn't change the internal state of the object, so it is a const 
+     *  This function doesn't change the internal state of the object, so it is a const
      *  function.  It does use the storred mole fractions in the object.
      *
      *  @param temp  Temperature (TKelvin)
@@ -725,25 +727,25 @@ namespace Cantera {
      *  @param aCalc (output)  Returns the a value
      *  @param bCalc (output)  Returns the b value.
      */
-    void calculateAB(doublereal temp, doublereal &aCalc, doublereal &bCalc) const;
+    void calculateAB(doublereal temp, doublereal& aCalc, doublereal& bCalc) const;
 
 
- //=========================================================================================
+    //=========================================================================================
     //         Special functions not inherited from MixtureFugacityTP
 
     doublereal da_dt() const;
-    
+
     void calcCriticalConditions(doublereal a, doublereal b, doublereal a0_coeff, doublereal aT_coeff,
-				doublereal &pc, doublereal &tc, doublereal &vc) const;
+                                doublereal& pc, doublereal& tc, doublereal& vc) const;
 
 
 
     int NicholsSolve(double TKelvin, double pres, doublereal a, doublereal b,
-		     doublereal Vroot[3]) const;
+                     doublereal Vroot[3]) const;
 
-   //@}
+    //@}
     //==============================================================================
-  protected:
+protected:
 
     //! boolean indicating whether standard mixing rules are applied
     /*!
@@ -759,7 +761,7 @@ namespace Cantera {
      */
     int m_formTempParam;
 
-   
+
     //! Value of b in the equation of state
     /*!
      *  m_b is a function of the temperature and the mole fraction.
@@ -772,12 +774,12 @@ namespace Cantera {
      */
     doublereal m_a_current;
 
-  
+
     vector_fp a_vec_Curr_;
     vector_fp b_vec_Curr_;
-    
+
     Array2D  a_coeff_vec;
-  
+
 
     vector_fp m_pc_Species;
     vector_fp m_tc_Species;
@@ -800,7 +802,7 @@ namespace Cantera {
     // Partial molar volumes of the species
     mutable vector_fp m_partialMolarVolumes;
 
-    
+
 
     //! The derivative of the pressure wrt the volume
     /*!
@@ -817,13 +819,13 @@ namespace Cantera {
     mutable doublereal dpdT_;
 
     //! Vector of derivatives of pressure wrt mole number
-    /*! 
+    /*!
      *  Calcualted at the current conditions
      *  Total volume, temperature and other mole number kept constant
      */
     mutable vector_fp dpdni_;
 
-  public:
+public:
     //! Omega constant for a -> value of a in terms of critical properties
     /*!
      *  this was calculated from a small nonlinear solve
@@ -837,8 +839,8 @@ namespace Cantera {
     static const doublereal omega_vc = 3.33333333333333E-01;
 
 
-  };
+};
 #endif
 }
-        
+
 #endif

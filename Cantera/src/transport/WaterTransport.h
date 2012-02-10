@@ -19,33 +19,35 @@
 #include "DenseMatrix.h"
 #include "LiquidTransportParams.h"
 
-namespace Cantera {
-  //! @{
-  const int LVISC_CONSTANT     = 0;
-  const int LVISC_WILKES       = 1;
-  const int LVISC_MIXTUREAVG   = 2;
+namespace Cantera
+{
+//! @{
+const int LVISC_CONSTANT     = 0;
+const int LVISC_WILKES       = 1;
+const int LVISC_MIXTUREAVG   = 2;
 
-  const int LDIFF_MIXDIFF_UNCORRECTED     = 0;
-  const int LDIFF_MIXDIFF_FLUXCORRECTED  = 1;
-  const int LDIFF_MULTICOMP_STEFANMAXWELL  = 2;
-  //! @}
+const int LDIFF_MIXDIFF_UNCORRECTED     = 0;
+const int LDIFF_MIXDIFF_FLUXCORRECTED  = 1;
+const int LDIFF_MULTICOMP_STEFANMAXWELL  = 2;
+//! @}
 
 
-  class TransportParams;
-  class WaterProps;
-  class PDSS_Water;
+class TransportParams;
+class WaterProps;
+class PDSS_Water;
 
-  //! Transport Parameters for pure water
-  /*!
-   *
-   */
-  class WaterTransport : public Transport {
-  public:
+//! Transport Parameters for pure water
+/*!
+ *
+ */
+class WaterTransport : public Transport
+{
+public:
 
     //! default constructor
     /*!
-     *  @param thermo   ThermoPhase object that represents the phase. 
-     *                  Defaults to zero 
+     *  @param thermo   ThermoPhase object that represents the phase.
+     *                  Defaults to zero
      *
      *  @param ndim     Number of dimensions of the flux expressions.
      *                  Defaults to a value of one.
@@ -56,7 +58,7 @@ namespace Cantera {
     /*!
      * @param right  ThermoPhase to be copied
      */
-    WaterTransport(const WaterTransport &right);
+    WaterTransport(const WaterTransport& right);
 
     //! Assignment operator
     /*!
@@ -66,7 +68,7 @@ namespace Cantera {
      *                 current one.
      */
     WaterTransport&  operator=(const  WaterTransport& right);
-    
+
     //! Duplication routine for objects which inherit from
     //! %Transport
     /*!
@@ -77,14 +79,14 @@ namespace Cantera {
      *  These routines are basically wrappers around the derived copy
      *  constructor.
      */
-    virtual Transport *duplMyselfAsTransport() const;
+    virtual Transport* duplMyselfAsTransport() const;
 
     //! virtual destructor
     virtual ~WaterTransport();
 
     //! Return the model id for this transport parameterization
     virtual int model() const {
-      return cWaterTransport; 
+        return cWaterTransport;
     }
 
     //! Returns the viscosity of water at the current conditions
@@ -105,7 +107,7 @@ namespace Cantera {
      */
     virtual doublereal viscosity();
 
-    
+
     //! The bulk viscosity in Pa-s.
     /*!
      *  The bulk viscosity is only
@@ -113,9 +115,8 @@ namespace Cantera {
      * overload this method to return zero, or do not implement
      * it, in which case an exception is thrown if called.
      */
-    virtual doublereal bulkViscosity()
-    { 
-      return 0.0;
+    virtual doublereal bulkViscosity() {
+        return 0.0;
     }
 
 
@@ -137,7 +138,7 @@ namespace Cantera {
     virtual doublereal thermalConductivity();
 
 
-  private:
+private:
 
     //! Routine to do some common initializations at the start of using
     //! this routine.
@@ -148,7 +149,7 @@ namespace Cantera {
     /*!
      * This object owns m_sub
      */
-    mutable WaterPropsIAPWS *m_sub;
+    mutable WaterPropsIAPWS* m_sub;
 
     //! Pointer to the WaterProps object
     /*!
@@ -158,16 +159,16 @@ namespace Cantera {
      * This object owns m_waterProps, and the WaterPropsIAPWS object used by
      * WaterProps is m_sub, which is defined above.
      */
-    WaterProps *m_waterProps;
+    WaterProps* m_waterProps;
 
 
     //! Pressure dependent standard state object for water
     /*!
      *  We assume that species 0 is water, with a PDSS_Water object.
      */
-    PDSS_Water *m_waterPDSS;
+    PDSS_Water* m_waterPDSS;
 
-  };
+};
 }
 #endif
 

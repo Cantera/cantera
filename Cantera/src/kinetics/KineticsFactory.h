@@ -15,89 +15,96 @@
 #include <boost/thread/mutex.hpp>
 #endif
 
-namespace Cantera {
+namespace Cantera
+{
 
 
-    class UnknownKineticsModel : public CanteraError {
-    public:
+class UnknownKineticsModel : public CanteraError
+{
+public:
     UnknownKineticsModel(std::string proc, std::string kineticsModel) :
-        CanteraError(proc, "Specified Kinetics model "   
-             + kineticsModel + 
-             " does not match any known type.") {}
+        CanteraError(proc, "Specified Kinetics model "
+                     + kineticsModel +
+                     " does not match any known type.") {}
     virtual ~UnknownKineticsModel() throw() {}
-    };
+};
 
 
-    /**
-     * Factory for kinetics managers.
-     */
-    class KineticsFactory : public FactoryBase {
+/**
+ * Factory for kinetics managers.
+ */
+class KineticsFactory : public FactoryBase
+{
 
-    public:
+public:
 
-        static KineticsFactory* factory() {
-            #if defined(THREAD_SAFE_CANTERA)
-               boost::mutex::scoped_lock   lock(kinetics_mutex) ;
-            #endif
-            if (!s_factory) s_factory = new KineticsFactory;
-            return s_factory;
+    static KineticsFactory* factory() {
+#if defined(THREAD_SAFE_CANTERA)
+        boost::mutex::scoped_lock   lock(kinetics_mutex) ;
+#endif
+        if (!s_factory) {
+            s_factory = new KineticsFactory;
         }
+        return s_factory;
+    }
 
-        virtual ~KineticsFactory() {
-            //delete s_factory;
-            //s_factory = 0;
+    virtual ~KineticsFactory() {
+        //delete s_factory;
+        //s_factory = 0;
+    }
+
+    virtual void deleteFactory() {
+#if defined(THREAD_SAFE_CANTERA)
+        boost::mutex::scoped_lock   lock(kinetics_mutex) ;
+#endif
+        if (s_factory) {
+            delete s_factory ;
+            s_factory = 0 ;
         }
-
-        virtual void deleteFactory() {
-             #if defined(THREAD_SAFE_CANTERA)
-               boost::mutex::scoped_lock   lock(kinetics_mutex) ;
-            #endif
-          if ( s_factory ) {
-               delete s_factory ;
-               s_factory = 0 ;
-           }
-        }
-
-        /**
-         * Create a new kinetics manager.
-         */ 
-        virtual Kinetics* newKinetics(XML_Node& phase,
-            std::vector<ThermoPhase*> th);
-
-        virtual Kinetics* newKinetics(std::string model);
-
-    private:
-
-        static KineticsFactory* s_factory;
-        KineticsFactory(){}
-      #if defined(THREAD_SAFE_CANTERA)
-        static boost::mutex kinetics_mutex ;
-      #endif
-    };
-
-
-    /**
-     *  Create a new kinetics manager.
-     */
-    inline Kinetics* newKineticsMgr(XML_Node& phase,  
-        std::vector<ThermoPhase*> th, KineticsFactory* f=0) {
-        if (f == 0) {
-            f = KineticsFactory::factory();
-        }
-        Kinetics* kin = f->newKinetics(phase, th);
-        return kin;
     }
 
     /**
-     *  Create a new kinetics manager.
+     * Create a new kinetics manager.
      */
-    inline Kinetics* newKineticsMgr(std::string model, KineticsFactory* f=0) {
-        if (f == 0) {
-            f = KineticsFactory::factory();
-        }
-        Kinetics* kin = f->newKinetics(model);
-        return kin;
+    virtual Kinetics* newKinetics(XML_Node& phase,
+                                  std::vector<ThermoPhase*> th);
+
+    virtual Kinetics* newKinetics(std::string model);
+
+private:
+
+    static KineticsFactory* s_factory;
+    KineticsFactory() {}
+#if defined(THREAD_SAFE_CANTERA)
+    static boost::mutex kinetics_mutex ;
+#endif
+};
+
+
+/**
+ *  Create a new kinetics manager.
+ */
+inline Kinetics* newKineticsMgr(XML_Node& phase,
+                                std::vector<ThermoPhase*> th, KineticsFactory* f=0)
+{
+    if (f == 0) {
+        f = KineticsFactory::factory();
     }
+    Kinetics* kin = f->newKinetics(phase, th);
+    return kin;
+}
+
+/**
+ *  Create a new kinetics manager.
+ */
+inline Kinetics* newKineticsMgr(std::string model, KineticsFactory* f=0)
+{
+    if (f == 0) {
+        f = KineticsFactory::factory();
+    }
+    Kinetics* kin = f->newKinetics(model);
+    return kin;
+}
 }
 
 #endif

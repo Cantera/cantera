@@ -13,40 +13,46 @@
 
 #include "GasKinetics.h"
 
-namespace Cantera {
+namespace Cantera
+{
 
-    const int cGRI_30_Kinetics = cGasKinetics + 1;
+const int cGRI_30_Kinetics = cGasKinetics + 1;
 
-    /**
-     *  Kinetics manager implementing reaction mechanism GRI-Mech 3.0
-     */    
-    class GRI_30_Kinetics : public GasKinetics {
+/**
+ *  Kinetics manager implementing reaction mechanism GRI-Mech 3.0
+ */
+class GRI_30_Kinetics : public GasKinetics
+{
 
-    public:
+public:
 
-        /// Default constructor.
-        GRI_30_Kinetics(thermo_t* th=0);
+    /// Default constructor.
+    GRI_30_Kinetics(thermo_t* th=0);
 
-        /// Destructor.
-        virtual ~GRI_30_Kinetics(){}
+    /// Destructor.
+    virtual ~GRI_30_Kinetics() {}
 
-        virtual int ID() const { return cGRI_30_Kinetics; }
-        virtual int type() const { return cGRI_30_Kinetics; }
+    virtual int ID() const {
+        return cGRI_30_Kinetics;
+    }
+    virtual int type() const {
+        return cGRI_30_Kinetics;
+    }
 
-        virtual void getNetProductionRates(doublereal* net) {
-            gri30_updateROP();
-            get_wdot(&m_kdata->m_ropnet[0], net);
-        }
+    virtual void getNetProductionRates(doublereal* net) {
+        gri30_updateROP();
+        get_wdot(&m_kdata->m_ropnet[0], net);
+    }
 
-    private:
-        void gri30_update_rates_T();
-        void gri30_updateROP();
-        void gri30_updateKc();
-        void get_wdot(const doublereal * rop, doublereal * wdot);
-        void update_kc(const doublereal * grt, doublereal  c0, doublereal * rkc);
-        void update_rates(doublereal t, doublereal  tlog, doublereal * rf);
-        void eval_ropnet(const doublereal * c, const doublereal * rf, const doublereal * rkc, doublereal * r);
-    };
+private:
+    void gri30_update_rates_T();
+    void gri30_updateROP();
+    void gri30_updateKc();
+    void get_wdot(const doublereal* rop, doublereal* wdot);
+    void update_kc(const doublereal* grt, doublereal  c0, doublereal* rkc);
+    void update_rates(doublereal t, doublereal  tlog, doublereal* rf);
+    void eval_ropnet(const doublereal* c, const doublereal* rf, const doublereal* rkc, doublereal* r);
+};
 }
 
 #endif

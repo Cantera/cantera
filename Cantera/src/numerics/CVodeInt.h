@@ -11,28 +11,31 @@
 #include "ctexceptions.h"
 #include "ct_defs.h"
 
-namespace Cantera {
+namespace Cantera
+{
 
-  /**
-   * Exception thrown when a CVODE error is encountered.
-   */
-  class CVodeErr : public CanteraError {
-  public:
-    CVodeErr(std::string msg) : CanteraError("CVodeInt", msg){}
-  };
+/**
+ * Exception thrown when a CVODE error is encountered.
+ */
+class CVodeErr : public CanteraError
+{
+public:
+    CVodeErr(std::string msg) : CanteraError("CVodeInt", msg) {}
+};
 
 
-  /**
-   *  Wrapper class for 'cvode' integrator from LLNL.
-   *  The unmodified cvode code is in directory ext/cvode.
-   *
-   * @see FuncEval.h. Classes that use CVodeInt:
-   * ImplicitChem, ImplicitSurfChem, Reactor
-   *
-   */
-  class CVodeInt : public Integrator {
+/**
+ *  Wrapper class for 'cvode' integrator from LLNL.
+ *  The unmodified cvode code is in directory ext/cvode.
+ *
+ * @see FuncEval.h. Classes that use CVodeInt:
+ * ImplicitChem, ImplicitSurfChem, Reactor
+ *
+ */
+class CVodeInt : public Integrator
+{
 
-  public:
+public:
 
     CVodeInt();
     virtual ~CVodeInt();
@@ -45,21 +48,25 @@ namespace Cantera {
     virtual doublereal step(double tout);
     virtual double& solution(size_t k);
     virtual double* solution();
-    virtual int nEquations() const { return m_neq;}
+    virtual int nEquations() const {
+        return m_neq;
+    }
     virtual int nEvals() const;
-    virtual void setMaxOrder(int n) { m_maxord = n; }
+    virtual void setMaxOrder(int n) {
+        m_maxord = n;
+    }
     virtual void setMethod(MethodType t);
     virtual void setIterator(IterType t);
     virtual void setMaxStepSize(double hmax);
     virtual void setMinStepSize(double hmin);
     virtual void setMaxSteps(int nmax);
 
-  private:
+private:
 
     int m_neq;
     void* m_cvode_mem;
     double m_t0;
-    void *m_y, *m_abstol;
+    void* m_y, *m_abstol;
     int m_type;
     int m_itol;
     int m_method;
@@ -74,7 +81,7 @@ namespace Cantera {
     vector_fp m_ropt;
     long int* m_iopt;
     void* m_data;
-  };
+};
 
 }    // namespace
 

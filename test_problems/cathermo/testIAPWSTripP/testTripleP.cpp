@@ -8,16 +8,17 @@
 using namespace std;
 using namespace Cantera;
 
-int main () {
+int main()
+{
 #ifdef _MSC_VER
     _set_output_format(_TWO_DIGIT_EXPONENT);
 #endif
     double dens, u, s, h, cv, cp, pres;
-    WaterPropsIAPWS *water = new WaterPropsIAPWS();
+    WaterPropsIAPWS* water = new WaterPropsIAPWS();
 
     double T;
 
-    /* 
+    /*
      * Print out the triple point conditions
      */
     T = 273.16;
@@ -29,16 +30,16 @@ int main () {
 
     u = water->intEnergy();
     if (fabs(u) < 5.0E-7) {
-      printf("intEng (liquid) = ~0.0 J/kmol (fabs(u) < 5.0E-7)\n");
+        printf("intEng (liquid) = ~0.0 J/kmol (fabs(u) < 5.0E-7)\n");
     } else {
-      printf("intEng (liquid) = %g J/kmol\n", u);
+        printf("intEng (liquid) = %g J/kmol\n", u);
     }
 
     s = water->entropy();
     if (fabs(s) < 5.0E-9) {
-      printf("S (liquid) = ~0.0 J/kmolK (fabs(s) < 5.0E-9)\n");
+        printf("S (liquid) = ~0.0 J/kmolK (fabs(s) < 5.0E-9)\n");
     } else {
-      printf("S (liquid) = %g J/kmolK\n", s);
+        printf("S (liquid) = %g J/kmolK\n", s);
     }
 
     h = water->enthalpy();
@@ -59,7 +60,7 @@ int main () {
     dens = water->density(T, pres, WATER_GAS);
     printf("dens (gas)    = %g kg m-3\n", dens);
 
-  
+
     u = water->intEnergy();
     printf("intEng (gas) = %g J/kmol\n", u);
 
@@ -83,9 +84,9 @@ int main () {
     printf("\n");
     double deltaG = g_liq - g_gas;
     if (fabs(deltaG) < 1.0E-5) {
-      printf("Delta g = ~0.0 J/kmol ( < 1.0E-5)\n");
+        printf("Delta g = ~0.0 J/kmol ( < 1.0E-5)\n");
     } else {
-      printf("Delta g = %g J/kmol\n", g_liq - g_gas);
+        printf("Delta g = %g J/kmol\n", g_liq - g_gas);
     }
     delete water;
     return 0;
