@@ -11,11 +11,12 @@
 #include "kernel/logger.h"
 #include "kernel/DebyeHuckel.h"
 #endif
-
 #include <cstdio>
 
 using namespace std;
 using namespace Cantera;
+
+typedef double doublereal;
 
 class fileLog: public Logger {
 public:

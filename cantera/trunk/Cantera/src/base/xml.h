@@ -13,7 +13,6 @@
 #include "ct_defs.h"
 #include "global.h"
 
-
 #include <string>
 #include <vector>
 #include <iostream>

@@ -15,6 +15,8 @@
 #include "WaterPropsIAPWSphi.h"
 #include "config.h"
 
+typedef double doublereal;
+
 namespace Cantera {
 /**
  *  @name Names for the phase regions
