@@ -6,7 +6,7 @@
 using namespace std;
 using namespace Cantera;
 
-namespace CanteraZeroD {
+namespace Cantera {
 
   ReactorNet::ReactorNet() : Cantera::FuncEval(), m_nr(0), m_nreactors(0),
 			     m_integ(0), m_time(0.0), m_init(false), 
@@ -29,7 +29,7 @@ namespace CanteraZeroD {
   }
 
   ReactorNet::~ReactorNet() {
-    for (int n = 0; n < m_nr; n++) {
+    for (size_t n = 0; n < m_nr; n++) {
       if (m_iown[n]) {
 	delete m_r[n];
       }
@@ -41,7 +41,7 @@ namespace CanteraZeroD {
   }
 
   void ReactorNet::initialize(doublereal t0) {
-    int n, nv;
+    size_t n, nv;
     char buf[100];
     m_nv = 0;
     m_reactors.clear();
@@ -80,7 +80,7 @@ namespace CanteraZeroD {
 
     m_connect.resize(m_nr*m_nr,0);
     m_ydot.resize(m_nv,0.0);
-    int i, j, nin, nout, nw;
+    size_t i, j, nin, nout, nw;
     ReactorBase *r, *rj;
     for (i = 0; i < m_nr; i++) {
       r = m_reactors[i];
@@ -181,9 +181,9 @@ namespace CanteraZeroD {
         
   void ReactorNet::eval(doublereal t, doublereal* y, 
 			doublereal* ydot, doublereal* p) {
-    int n;
-    int start = 0;
-    int pstart = 0;
+    size_t n;
+    size_t start = 0;
+    size_t pstart = 0;
     // use a try... catch block, since exceptions are not passed
     // through CVODE, since it is C code
     try {
@@ -205,7 +205,6 @@ namespace CanteraZeroD {
         
   void ReactorNet::evalJacobian(doublereal t, doublereal* y, 
 				doublereal* ydot, doublereal* p, Array2D* j) {
-    int n, m;
     doublereal ysave, dy;
     Array2D& jac = *j;
 
@@ -214,7 +213,7 @@ namespace CanteraZeroD {
     try {
       //evaluate the unperturbed ydot
       eval(t, y, ydot, p);
-      for (n = 0; n < m_nv; n++) {
+      for (size_t n = 0; n < m_nv; n++) {
              
 	// perturb x(n)
 	ysave = y[n];
@@ -226,7 +225,7 @@ namespace CanteraZeroD {
 	eval(t, y, DATA_PTR(m_ydot), p);
 
 	// compute nth column of Jacobian
-	for (m = 0; m < m_nv; m++) {
+	for (size_t m = 0; m < m_nv; m++) {
 	  jac(m,n) = (m_ydot[m] - ydot[m])/dy;
 	}
 	y[n] = ysave;
@@ -239,9 +238,8 @@ namespace CanteraZeroD {
   }
 
   void ReactorNet::updateState(doublereal* y) {
-    int n;
-    int start = 0;
-    for (n = 0; n < m_nreactors; n++) {
+    size_t start = 0;
+    for (size_t n = 0; n < m_nreactors; n++) {
       m_reactors[n]->updateState(y + start);
       start += m_size[n];
     }
@@ -249,20 +247,18 @@ namespace CanteraZeroD {
 
   void ReactorNet::getInitialConditions(doublereal t0, 
 					size_t leny, doublereal* y) {
-    int n;
-    int start = 0;
-    for (n = 0; n < m_nreactors; n++) {
+    size_t start = 0;
+    for (size_t n = 0; n < m_nreactors; n++) {
       m_reactors[n]->getInitialConditions(t0, m_size[n], y + start);
       start += m_size[n];
     }
   }
 
-  int ReactorNet::globalComponentIndex(string species, int reactor) {
-    int start = 0;
-    int n;
+  size_t ReactorNet::globalComponentIndex(string species, size_t reactor) {
+    size_t start = 0;
+    size_t n;
     for (n = 0; n < reactor; n++) start += m_size[n];
     return start + m_reactors[n]->componentIndex(species);
   }
 
 }
-

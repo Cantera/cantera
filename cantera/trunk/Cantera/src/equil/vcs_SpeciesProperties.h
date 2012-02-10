@@ -1,6 +1,4 @@
 
-/* $Id$ */
-
 #ifndef VCS_SPECIES_PROPERTIES_H
 #define VCS_SPECIES_PROPERTIES_H
 
@@ -15,10 +13,10 @@ class vcs_VolPhase;
 class vcs_SpeciesProperties {
 
 public:
-  int    IndexPhase;
-  int    IndexSpeciesPhase; 
+  size_t    IndexPhase;
+  size_t    IndexSpeciesPhase;
   vcs_VolPhase *OwningPhase;
-  int    NumElements;
+  size_t    NumElements;
 
   //! Name of the species
   std::string SpName;
@@ -50,7 +48,7 @@ public:
   /*
    * constructor and destructor
    */
-  vcs_SpeciesProperties(int indexPhase, int indexSpeciesPhase,
+  vcs_SpeciesProperties(size_t indexPhase, size_t indexSpeciesPhase,
 			vcs_VolPhase *owning);
   virtual ~vcs_SpeciesProperties();
 

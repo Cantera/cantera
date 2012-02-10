@@ -1,27 +1,15 @@
 /**
  *  @file ReactorBase.h
  */
-
-/*
- * $Author$
- * $Revision$
- * $Date$
- */
-
 // Copyright 2001  California Institute of Technology
 
 #ifndef CT_REACTORBASE_H
 #define CT_REACTORBASE_H
 
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
 #include "ThermoPhase.h"
 
 /// Namespace for classes implementing zero-dimensional reactor networks. 
-namespace CanteraZeroD {
+namespace Cantera {
 
 //    typedef Thermo   thermo_t;
 
@@ -80,19 +68,19 @@ namespace CanteraZeroD {
          * a pointer to this substance is stored, and as the integration
          * proceeds, the state of the substance is modified.
          */
-        void setThermoMgr(Cantera::thermo_t& thermo);
+        void setThermoMgr(thermo_t& thermo);
 
         void addInlet(FlowDevice& inlet);
         void addOutlet(FlowDevice& outlet);
-        FlowDevice& inlet(int n = 0);
-        FlowDevice& outlet(int n = 0);
+        FlowDevice& inlet(size_t n = 0);
+        FlowDevice& outlet(size_t n = 0);
 
-        int nInlets() { return m_inlet.size(); }
-        int nOutlets() { return m_outlet.size(); }
-        int nWalls() { return m_wall.size(); }
+        size_t nInlets() { return m_inlet.size(); }
+        size_t nOutlets() { return m_outlet.size(); }
+        size_t nWalls() { return m_wall.size(); }
 
         void addWall(Wall& w, int lr);
-        Wall& wall(int n);
+        Wall& wall(size_t n);
 
         /**
          * Initialize the reactor. Must be called after specifying the
@@ -116,9 +104,9 @@ namespace CanteraZeroD {
         void resetState();
 
         /// return a reference to the contents.
-        Cantera::thermo_t& contents() { return *m_thermo; }
+        thermo_t& contents() { return *m_thermo; }
 
-        const Cantera::thermo_t& contents() const { return *m_thermo; }
+        const thermo_t& contents() const { return *m_thermo; }
 
         doublereal residenceTime();
 
@@ -148,41 +136,41 @@ namespace CanteraZeroD {
         doublereal pressure() const { return m_pressure; }
         doublereal mass() const { return m_vol * density(); }
         const doublereal* massFractions() const { return DATA_PTR(m_state) + 2; }
-        doublereal massFraction(int k) const { return m_state[k+2]; }
+        doublereal massFraction(size_t k) const { return m_state[k+2]; }
 
         //@}
 
         int error(std::string msg) const {
-            Cantera::writelog("Error: "+msg);
+            writelog("Error: "+msg);
             return 1;
         }
 
     protected:
  
       //! Number of homogeneous species in the mixture
-      int m_nsp;
+      size_t m_nsp;
 
-        Cantera::thermo_t*  m_thermo;
+        thermo_t*  m_thermo;
         doublereal m_time;
         doublereal m_vol, m_vol0;
         bool m_init;
-        int m_nInlets, m_nOutlets;
+        size_t m_nInlets, m_nOutlets;
         bool m_open;
         doublereal m_enthalpy;
         doublereal m_intEnergy;
         doublereal m_pressure;
-        Cantera::vector_fp m_state;
+        vector_fp m_state;
         std::vector<FlowDevice*> m_inlet, m_outlet;
         std::vector<Wall*> m_wall;
-        Cantera::vector_int m_lr;
-        int m_nwalls;
+        vector_int m_lr;
+        size_t m_nwalls;
         std::string m_name;
         double m_rho0;
 
     private:
 
         void tilt(std::string method="") const { 
-        throw Cantera::CanteraError("ReactorBase::"+method,
+        throw CanteraError("ReactorBase::"+method,
             "ReactorBase method called!"); }
     };
 }

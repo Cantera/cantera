@@ -5,14 +5,6 @@
  *  on a piecewise constant mu0 interpolation
  *  (see \ref spthermo and class \link Cantera::Mu0Poly Mu0Poly\endlink).
  */
-
-/* $Author$
- * $Revision$
- * $Date$
- */
-
-
-
 #ifndef CT_MU0POLY_H
 #define CT_MU0POLY_H
 
@@ -109,7 +101,7 @@ namespace Cantera {
      *            - ........
      *            .
      */
-    Mu0Poly(int n, doublereal tlow, doublereal thigh, 
+    Mu0Poly(size_t n, doublereal tlow, doublereal thigh,
 	    doublereal pref, const doublereal* coeffs);
 
     //! Copy constructor
@@ -140,7 +132,7 @@ namespace Cantera {
     virtual int reportType() const { return MU0_INTERP; }
 
     //! Returns an integer representing the species index
-    virtual int speciesIndex() const { return m_index; }
+    virtual size_t speciesIndex() const { return m_index; }
   
     //! Update the properties for this species, given a temperature polynomial
     /*!
@@ -200,7 +192,7 @@ namespace Cantera {
      * @param coeffs    Vector of coefficients used to set the
      *                  parameters for the standard state.
      */
-    virtual void reportParameters(int &n, int &type,
+    virtual void reportParameters(size_t &n, int &type,
 			  doublereal &tlow, doublereal &thigh,
 			  doublereal &pref,
 			  doublereal* const coeffs) const;
@@ -219,7 +211,7 @@ namespace Cantera {
      * approximation. Number of points is one more than the
      * number of intervals.
      */
-    int m_numIntervals;
+    size_t m_numIntervals;
 
     /**
      * Value of the enthalpy at T = 298.15.
@@ -257,7 +249,7 @@ namespace Cantera {
     doublereal m_Pref;
 
     //! Species index
-    int m_index;
+    size_t m_index;
     
   private:
 
@@ -300,7 +292,7 @@ namespace Cantera {
    *  @ingroup spthermo 
    */
   void installMu0ThermoFromXML(std::string speciesName,
-			       SpeciesThermo& sp, int k, 
+			       SpeciesThermo& sp, size_t k,
 			       const XML_Node* Mu0Node_ptr);
 }
 

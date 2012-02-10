@@ -177,8 +177,8 @@ L50:
 
     if (*dmin__ <= 0. || *n0 < n0in) {
 	if (z__[(*i0 << 2) + *pp - 3] * 1.5 < z__[(*n0 << 2) + *pp - 3]) {
-	    ipn4 = *i0 + *n0 << 2;
-	    i__1 = *i0 + *n0 - 1 << 1;
+	    ipn4 = (*i0 + *n0) << 2;
+	    i__1 = (*i0 + *n0 - 1) << 1;
 	    for (j4 = *i0 << 2; j4 <= i__1; j4 += 4) {
 		temp = z__[j4 - 3];
 		z__[j4 - 3] = z__[ipn4 - j4 - 3];
@@ -247,12 +247,12 @@ L80:
 
 	    goto L100;
 
-	} else if (*dmin__ < 0. && dmin1 > 0. && z__[(*n0 - 1 << 2) - *pp] < 
+	} else if (*dmin__ < 0. && dmin1 > 0. && z__[((*n0 - 1) << 2) - *pp] <
 		tol * (*sigma + dn1) && abs(dn) < tol * *sigma) {
 
 /*           Convergence hidden by negative DN. */
 
-	    z__[(*n0 - 1 << 2) - *pp + 2] = 0.;
+	    z__[((*n0 - 1) << 2) - *pp + 2] = 0.;
 	    *dmin__ = 0.;
 	    goto L100;
 	} else if (*dmin__ < 0.) {

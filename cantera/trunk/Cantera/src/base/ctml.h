@@ -4,12 +4,6 @@
  * to store data. These functions read and write it. 
  * (see \ref inputfiles and importCTML, ck2ctml)
  */
-
-/* 
- * $Revision$
- * $Date$
- */
-
 // Copyright 2002  California Institute of Technology
 
 #ifndef CT_CTML_H
@@ -223,7 +217,7 @@ namespace ctml {
    *       typeString should be codified as to its usage.
    */
   void addIntegerArray(Cantera::XML_Node& node, const std::string &titleString, 
-		       const int n, const int* const values, 
+		       const size_t n, const int* const values,
 		       const std::string unitsString="", const std::string typeString="",
 		       const doublereal minval=Cantera::Undef, 
 		       const doublereal maxval=Cantera::Undef);
@@ -281,7 +275,7 @@ namespace ctml {
    *       typeString should be codified as to its usage.
    */
   void addFloatArray(Cantera::XML_Node& node,  const std::string &titleString, 
-		     const int n,  const doublereal* const values, 
+		     const size_t n,  const doublereal* const values,
 		     const std::string unitsString="", const std::string typeString="",
 		     const doublereal minval = Cantera::Undef,
 		     const doublereal maxval = Cantera::Undef);
@@ -383,7 +377,7 @@ namespace ctml {
    *                        The default value for the node name is floatArray
    *   @return              Returns the number of floats read into v.
    */
-  int getFloatArray(const Cantera::XML_Node& node, std::vector<doublereal> & v, 
+  size_t getFloatArray(const Cantera::XML_Node& node, std::vector<doublereal> & v, 
 		     const bool convert=true, const std::string unitsString="",
 		     const std::string nodeName = "floatArray");
 
@@ -602,7 +596,7 @@ namespace ctml {
    }
    @endverbatim
    *
-   *  Rreads the corresponding XML file:
+   *  Reads the corresponding XML file:
    *  @verbatim
    <state>
      <pressure units="Pa"> 101325.0 </pressure>
@@ -697,7 +691,7 @@ namespace ctml {
    *   @param v        Output map of the results.
    *   @param convert  Turn on conversion to SI units
    */
-  void getFloats(const Cantera::XML_Node& node, std::map<std::string, doublereal >& v,
+  void getFloats(const Cantera::XML_Node& node, std::map<std::string, double>& v,
 		 const bool convert=true);
 
   //!  Get an integer value from a child element.

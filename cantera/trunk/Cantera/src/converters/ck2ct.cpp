@@ -2,15 +2,6 @@
  * @file ck2ct.cpp
  *   Convert CK-format reaction mechanism files to Cantera input format.
  */
-/*
- * $Id$
- *
- */
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
 #include <iostream>
 #include <string>
 #include <ctype.h>
@@ -148,16 +139,16 @@ namespace pip {
 		       const std::vector<vector_fp *> &region_coeffs,
 		       const vector_fp &minTemps, const vector_fp &maxTemps) 
   {
-    int nReg = region_coeffs.size();
-    if ((int) minTemps.size() != nReg) {
+    size_t nReg = region_coeffs.size();
+    if (minTemps.size() != nReg) {
       throw CanteraError("addNASA9", "incompat");
     }
-    if ((int) maxTemps.size() != nReg) {
+    if (maxTemps.size() != nReg) {
       throw CanteraError("addNASA9", "incompat");
     }
 
     fprintf(f,"    thermo = (\n");
-    for (int i = 0; i < nReg; i++) {
+    for (size_t i = 0; i < nReg; i++) {
       double minT = minTemps[i];
       double maxT = maxTemps[i];
       const vector_fp &coeffs = *(region_coeffs[i]);
@@ -265,7 +256,6 @@ namespace pip {
         int nel = static_cast<int>(sp.elements.size());
         int m, num;
         string nm, str="";
-        doublereal charge = 0.0;
         for (m = 0; m < nel; m++) {
 	  /*
 	   * Copy the element name into the string, nm. Lower case the
@@ -285,10 +275,6 @@ namespace pip {
 	   */
 	  str += " "+nm+":"+int2str(num)+" ";
 
-          /* if the species contains the special element E (electron),
-           * then set the charge.
-           */
-          if (nm == "E") charge = -sp.elements[m].number;
         }
 
         fprintf(f,"    atoms = \"%s\",\n", str.c_str());
@@ -412,11 +398,10 @@ namespace pip {
         if (rxn.isDuplicate) {
             options.push_back("duplicate");
         }
-        int nopt = options.size();
+        size_t nopt = options.size();
         if (nopt > 0) {
             fprintf(f,  ",\n         options = [");
-            int n;
-            for (n = 0; n < nopt; n++) {
+            for (size_t n = 0; n < nopt; n++) {
                 fprintf(f,  "\"%s\"", options[n].c_str());
                 if (n < nopt-1) fprintf(f,  ", ");
             }

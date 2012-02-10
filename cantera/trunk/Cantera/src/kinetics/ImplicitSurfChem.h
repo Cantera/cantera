@@ -4,23 +4,10 @@
  *  (see \ref  kineticsmgr and class
  *  \link Cantera::ImplicitSurfChem ImplicitSurfChem\endlink).
  */
-
-/*
- * $Author$
- * $Revision$
- * $Date$
- */
-
 // Copyright 2001  California Institute of Technology
-
 
 #ifndef CT_IMPSURFCHEM_H
 #define CT_IMPSURFCHEM_H
-
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
 
 #include "FuncEval.h"
 #include "Integrator.h"
@@ -153,7 +140,7 @@ namespace Cantera {
     // overloaded methods of class FuncEval
 
     //! Return the number of equations
-    virtual int neq() { return m_nv; }
+    virtual size_t neq() { return m_nv; }
 
     //! Evaluate the value of ydot[k] at the current conditions
     /*!
@@ -257,13 +244,12 @@ namespace Cantera {
     std::vector<InterfaceKinetics*> m_vecKinPtrs;
 
     //! Vector of number of species in each Surface Phase
-    vector_int  m_nsp;
+    std::vector<size_t>  m_nsp;
 
     //! index of the surface phase in each InterfaceKinetics object
-    vector_int m_surfindex;
-
+    std::vector<size_t> m_surfindex;
     
-    vector_int m_specStartIndex;
+    std::vector<size_t> m_specStartIndex;
 
     //! Total number of surface phases.
     /*!
@@ -271,18 +257,18 @@ namespace Cantera {
      * as there is a 1-1 correspondence between InterfaceKinetics objects
      * and surface phases.
      */
-    int m_nsurf;
+    size_t m_nsurf;
 
     //! Total number of surface species in all surface phases
     /*!
      * This is the total number of unknowns in m_mode 0 problem
      */
-    int m_nv;
+    size_t m_nv;
 
-    int m_numBulkPhases;
-    vector_int  m_nspBulkPhases;
-    int  m_numTotalBulkSpecies;
-    int m_numTotalSpecies;
+    size_t m_numBulkPhases;
+    std::vector<size_t> m_nspBulkPhases;
+    size_t  m_numTotalBulkSpecies;
+    size_t m_numTotalSpecies;
 
     std::vector<vector_int> pLocVec;
     //! Pointer to the cvode integrator

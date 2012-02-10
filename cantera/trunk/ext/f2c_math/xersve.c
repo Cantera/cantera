@@ -187,7 +187,7 @@ static integer c__1 = 1;
 	s_copy(mes, messg, (ftnlen)20, messg_len);
 	i__1 = nmsg;
 	for (i__ = 1; i__ <= i__1; ++i__) {
-	    if (s_cmp(lib, libtab + ((i__ - 1) << 3), (ftnlen)8, (ftnlen)8) == 
+	    if (s_cmp(lib, libtab + ((i__ - 1) << 3), (ftnlen)8, (ftnlen)8) ==
 		    0 && s_cmp(sub, subtab + ((i__ - 1) << 3), (ftnlen)8, (
 		    ftnlen)8) == 0 && s_cmp(mes, mestab + (i__ - 1) * 20, (
 		    ftnlen)20, (ftnlen)20) == 0 && *nerr == nertab[i__ - 1] &&

@@ -1,27 +1,17 @@
 /**
  * @file ctreactor.cpp
  */
-/*
- *      $Id$
- */
-
-
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
 #define CANTERA_USE_INTERNAL
 #include "ctreactor.h"
 
 // Cantera includes
-#include "Reactor.h"
-#include "FlowReactor.h"
-#include "ConstPressureReactor.h"
-#include "ReactorNet.h"
-#include "Reservoir.h"
-#include "Wall.h"
-#include "flowControllers.h"
+#include "kernel/Reactor.h"
+#include "kernel/FlowReactor.h"
+#include "kernel/ConstPressureReactor.h"
+#include "kernel/ReactorNet.h"
+#include "kernel/Reservoir.h"
+#include "kernel/Wall.h"
+#include "kernel/flowControllers.h"
 
 #include "Cabinet.h"
 #include "Storage.h"
@@ -184,12 +174,12 @@ extern "C" {
         return 0;
     }
 
-    int DLL_EXPORT reactor_nSensParams(int i) {
+    size_t DLL_EXPORT reactor_nSensParams(int i) {
         reactor_t* r = _reactor(i);
         if (r->type() >= ReactorType) 
             return ((Reactor*)r)->nSensParams();
         else {
-            cout << "type problem..." << r->type() << endl;
+            std::cout << "type problem..." << r->type() << std::endl;
             return 0;
         }
     }

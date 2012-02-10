@@ -8,10 +8,6 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-/*
- * $Id$
- */
-
 #include "ct_defs.h"
 #include "xml.h"
 #include "ctml.h"
@@ -44,7 +40,7 @@ namespace Cantera {
 
 
 
-  PDSS_IdealGas::PDSS_IdealGas(VPStandardStateTP *tp, int spindex, const XML_Node& speciesNode,
+  PDSS_IdealGas::PDSS_IdealGas(VPStandardStateTP *tp, size_t spindex, const XML_Node& speciesNode,
 			       const XML_Node& phaseRoot, bool spInstalled) :
     PDSS(tp, spindex)
   {
@@ -108,14 +104,14 @@ namespace Cantera {
    *            phase. If none is given, the first XML
    *            phase element will be used.
    */
-  void PDSS_IdealGas::constructPDSSXML(VPStandardStateTP *tp, int spindex, 
+  void PDSS_IdealGas::constructPDSSXML(VPStandardStateTP *tp, size_t spindex,
 				      const XML_Node& phaseNode, std::string id) {
     //initThermo();
     //initThermoXML(phaseNode, id);
   }
 
  
-  void PDSS_IdealGas::constructPDSSFile(VPStandardStateTP *tp, int spindex,
+  void PDSS_IdealGas::constructPDSSFile(VPStandardStateTP *tp, size_t spindex,
 					std::string inputFile, std::string id) {
 
     if (inputFile.size() == 0) {

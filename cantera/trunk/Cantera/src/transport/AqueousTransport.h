@@ -2,11 +2,6 @@
  *  @file AqueousTransport.h
  *   Header file defining class AqueousTransport
  */
-/* 
- * $Revision$
- * $Date$
- */
-
 // Copyright 2001  California Institute of Technology
 
 
@@ -203,7 +198,7 @@ namespace Cantera {
      *   @param ld 
      *   @param d   
      */
-    virtual void getBinaryDiffCoeffs(const int ld, doublereal* const d);
+    virtual void getBinaryDiffCoeffs(const size_t ld, doublereal* const d);
 
     //! Get the Mixture diffusion coefficients
     /*!
@@ -317,7 +312,7 @@ namespace Cantera {
      *                    Flat vector with the m_nsp in the inner loop.
      *                        length = ldx * ndim
      */
-    virtual void getSpeciesFluxes(int ndim,  const doublereal * const grad_T, 
+    virtual void getSpeciesFluxes(size_t ndim,  const doublereal * const grad_T, 
 				  int ldx, const doublereal * const grad_X, 
 				  int ldf, doublereal * const fluxes);
     
@@ -348,7 +343,7 @@ namespace Cantera {
      *  @param fluxes  Output of the diffusive fluxes. Flat vector with the m_nsp in the inner loop.
      *                   length = ldx * ndim
      */
-    virtual void getSpeciesFluxesExt(int ldf, doublereal* const fluxes);
+    virtual void getSpeciesFluxesExt(size_t ldf, doublereal* const fluxes);
 
 
     //! Initialize the transport object
@@ -370,7 +365,7 @@ namespace Cantera {
      *
      * @param k Species number to obtain the properties about.
      */
-    struct LiquidTransportData getLiquidTransportData(int k);
+    class LiquidTransportData getLiquidTransportData(int k);
 
 
     //! Solve the stefan_maxell equations for the diffusive fluxes.
@@ -383,7 +378,7 @@ namespace Cantera {
 
 
     //! Number of species in the mixture
-    int m_nsp;
+    size_t m_nsp;
 
     //! Minimum temperature applicable to the transport property eval
     doublereal m_tmin;
@@ -689,7 +684,7 @@ namespace Cantera {
     /*!
      * Either 1, 2, or 3
      */
-    int m_nDim;
+    size_t m_nDim;
   };
 }
 #endif

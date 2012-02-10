@@ -1,25 +1,13 @@
 /**
  * @file ctbdry.cpp
  */
-/*
- *      $Id$
- */
-
-
 #define CANTERA_USE_INTERNAL
 #include "ctbdry.h"
 
-
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
-
 // Cantera includes
-#include "OneDim.h"
-#include "Inlet1D.h"
-#include "InterfaceKinetics.h"
+#include "kernel/OneDim.h"
+#include "kernel/Inlet1D.h"
+#include "kernel/InterfaceKinetics.h"
 #include "Cabinet.h"
 #include "Storage.h"
 
@@ -27,7 +15,7 @@
 using namespace std;
 using namespace Cantera;
 
-Cabinet<Bdry1D>*  Cabinet<Bdry1D>::__storage = 0;
+template<> Cabinet<Bdry1D>*  Cabinet<Bdry1D>::__storage = 0;
 
 inline Bdry1D* _bndry(int i) {
     return Cabinet<Bdry1D>::cabinet()->item(i);

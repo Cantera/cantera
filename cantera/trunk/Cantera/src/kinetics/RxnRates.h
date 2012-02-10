@@ -2,12 +2,6 @@
  *  @file RxnRates.h
  *
  */
-
-/* $Author$
- * $Revision$
- * $Date$
- */
-
 // Copyright 2001  California Institute of Technology
 
 
@@ -44,7 +38,7 @@ namespace Cantera {
       m_A(0.0) {}
 
     //! Constructor with Arrhenius parameters specified with an array.
-    Arrhenius(int csize, const doublereal* c) :
+    Arrhenius(size_t csize, const doublereal* c) :
       m_b (c[1]),
       m_E (c[2]),
       m_A (c[0])
@@ -214,7 +208,7 @@ namespace Cantera {
     {
     }
 
-    SurfaceArrhenius( int csize, const doublereal* c )  :
+    SurfaceArrhenius(size_t csize, const doublereal* c )  :
       m_b (c[1]), 
       m_E (c[2]), 
       m_A (c[0]),
@@ -230,14 +224,14 @@ namespace Cantera {
 	m_logA = log(c[0]);
       }
       if (csize >= 7) {
-	for (int n = 3; n < csize-3; n += 4) {
-	  addCoverageDependence(int(c[n]), 
+	for (size_t n = 3; n < csize-3; n += 4) {
+	  addCoverageDependence(size_t(c[n]),
 				c[n+1], c[n+2], c[n+3]);
 	}
       }
     }
 
-    void addCoverageDependence(int k, doublereal a, 
+    void addCoverageDependence(size_t k, doublereal a,
 			       doublereal m, doublereal e) {
       m_ncov++;
       m_sp.push_back(k);
@@ -254,14 +248,14 @@ namespace Cantera {
       m_acov = 0.0;
       m_ecov = 0.0;
       m_mcov = 0.0;
-      int n, k;
+      size_t k;
       doublereal th;
-      for (n = 0; n < m_ncov; n++) {
+      for (size_t n = 0; n < m_ncov; n++) {
 	k = m_sp[n];
 	m_acov += m_ac[n] * theta[k];
 	m_ecov += m_ec[n] * theta[k];
       }
-      for (n = 0; n < m_nmcov; n++) {
+      for (size_t n = 0; n < m_nmcov; n++) {
 	k = m_msp[n];
 	// changed n to k, dgg 1/22/04
 	th = fmaxx(theta[k], Tiny);
@@ -301,9 +295,9 @@ namespace Cantera {
   protected:
     doublereal m_logA, m_b, m_E, m_A;
     doublereal m_acov, m_ecov, m_mcov;
-    vector_int m_sp, m_msp;
+    std::vector<size_t> m_sp, m_msp;
     vector_fp m_ac, m_ec, m_mc;
-    int m_ncov, m_nmcov; 
+    size_t m_ncov, m_nmcov;
   };
 
 
@@ -375,7 +369,7 @@ namespace Cantera {
       m_A(0.0) {}
 
     //! Constructor with Arrhenius parameters specified with an array.
-    ExchangeCurrent(int csize, const doublereal* c) :
+    ExchangeCurrent(size_t csize, const doublereal* c) :
       m_b (c[1]),
       m_E (c[2]),
       m_A (c[0])

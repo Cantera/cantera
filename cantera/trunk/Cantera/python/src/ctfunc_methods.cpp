@@ -8,7 +8,7 @@ py_func_new(PyObject *self, PyObject *args)
         return NULL;
     PyArrayObject* coeffs = (PyArrayObject*)c;
     double* xd = (double*)coeffs->data;
-    int lenc = coeffs->dimensions[0];
+    size_t lenc = coeffs->dimensions[0];
     int nn = func_new(type, n, lenc, xd);
     if (nn < 0) return reportError(nn);
     return Py_BuildValue("i",nn);

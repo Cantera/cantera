@@ -3,13 +3,6 @@
  *
  *  Header file for class ArrayViewer
  */
-
-/*  $Author$
- *  $Revision$
- *  $Date$
- *
- */
-
 // Copyright 2001  California Institute of Technology
 
 
@@ -52,41 +45,41 @@ namespace Cantera {
         /** 
          *  Constructor. Create an \c m by \c n array viewer for array v.
          */
-        ArrayViewer(int m, int n, doublereal* v) 
+        ArrayViewer(size_t m, size_t n, doublereal* v)
             : m_nrows(m), m_ncols(n) {
             data = v;
         }
 
         /// resize the array viewer
-        void resize(int n, int m) {
+        void resize(size_t n, size_t m) {
             m_nrows = n;
             m_ncols = m;
         }
 
         /// set the nth row to array rw
-        void setRow(int n, doublereal* rw) {
-            for (int j = 0; j < m_ncols; j++) {
+        void setRow(size_t n, doublereal* rw) {
+            for (size_t j = 0; j < m_ncols; j++) {
                 data[m_nrows*j + n] = rw[j];
             }
         }
 
         /// get the nth row
-        void getRow(int n, doublereal* rw) {
-            for (int j = 0; j < m_ncols; j++) {
+        void getRow(size_t n, doublereal* rw) {
+            for (size_t j = 0; j < m_ncols; j++) {
                 rw[j] = data[m_nrows*j + n];
             }
         }
 
         /// set the values in column m to those in array col
-        void setColumn(int m, doublereal* col) {
-            for (int i = 0; i < m_nrows; i++) {
+        void setColumn(size_t m, doublereal* col) {
+            for (size_t i = 0; i < m_nrows; i++) {
                 data[m_nrows*m + i] = col[i];
             }
         }
 
         /// get the values in column m
-        void getColumn(int m, doublereal* col) {
-            for (int i = 0; i < m_nrows; i++) {
+        void getColumn(size_t m, doublereal* col) {
+            for (size_t i = 0; i < m_nrows; i++) {
                 col[i] = data[m_nrows*m + i];
             }
         }
@@ -94,14 +87,14 @@ namespace Cantera {
         /// Destructor. Does nothing.
         virtual ~ArrayViewer(){}
 
-        doublereal& operator()( int i, int j) {return value(i,j);}
-        doublereal operator() ( int i, int j) const {return value(i,j);}
+        doublereal& operator()(size_t i, size_t j) {return value(i,j);}
+        doublereal operator() (size_t i, size_t j) const {return value(i,j);}
 
         /// Return a reference to the (i,j) array element.
-        doublereal& value( int i, int j) {return data[m_nrows*j + i];}
+        doublereal& value(size_t i, size_t j) {return data[m_nrows*j + i];}
 
         /// Return the value of the (i,j) array element.
-        doublereal value( int i, int j) const {return data[m_nrows*j + i];}
+        doublereal value(size_t i, size_t j) const {return data[m_nrows*j + i];}
 
         /// Number of rows
         size_t nRows() const { return m_nrows; }
@@ -118,14 +111,14 @@ namespace Cantera {
 
     protected:
 
-        int m_nrows, m_ncols;
+        size_t m_nrows, m_ncols;
     };
 
     /// output the array
     inline std::ostream& operator<<(std::ostream& s, const ArrayViewer& m) {
-        int nr = static_cast<int>(m.nRows());
-        int nc = static_cast<int>(m.nColumns());
-        int i,j;
+        size_t nr = m.nRows();
+        size_t nc = m.nColumns();
+        size_t i,j;
         for (i = 0; i < nr; i++) {
             for (j = 0; j < nc; j++) {
                 s << m(i,j) << ", ";

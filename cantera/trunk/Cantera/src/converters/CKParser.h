@@ -5,13 +5,8 @@
 
 // Copyright 2001  California Institute of Technology
 
-
 #ifndef CKR_CKPARSER_H
 #define CKR_CKPARSER_H
-
-#ifdef WIN32
-#pragma warning(disable:4786)
-#endif
 
 #include <fstream>
 #include <string>
@@ -57,17 +52,17 @@ namespace ckr {
 
     bool readElementSection(elementList& elements);
     bool readSpeciesSection(speciesList& species);
-    bool readThermoSection(std::vector<std::string>& names, 
-			   speciesTable& speciesData, vector_fp& temp, 
+    bool readThermoSection(std::vector<std::string>& names,
+			   speciesTable& speciesData, vector_fp& temp,
 			   int& optionFlag, std::ostream& log);
-    bool readReactionSection(const std::vector<std::string>& speciesNames, 
-			     std::vector<std::string>& elementNames, 
+    bool readReactionSection(const std::vector<std::string>& speciesNames,
+                             std::vector<std::string>& elementNames,
 			     reactionList& reactions, ReactionUnits& units);
     bool advanceToKeyword(const std::string& kw, const std::string& stop);
     bool verbose;
     bool debug;
 
-    bool readNASA9ThermoSection(std::vector<std::string>& names, 
+    bool readNASA9ThermoSection(std::vector<std::string>& names,
 				speciesTable& species, vector_fp& temp, 
 				int& optionFlag, std::ostream& log);
 

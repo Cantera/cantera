@@ -1,33 +1,20 @@
 /**
  * @file ctsurf.cpp
  */
-/*
- *      $Id$
- */
-
-// turn off warnings under Windows
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
 // clib header information
 #define CANTERA_USE_INTERNAL
 #include "ctsurf.h"
 
-
 // Cantera includes
-#include "SurfPhase.h"
-#include "InterfaceKinetics.h"
-#include "ImplicitSurfChem.h"
+#include "kernel/SurfPhase.h"
+#include "kernel/InterfaceKinetics.h"
+#include "kernel/ImplicitSurfChem.h"
 
 #include "Cabinet.h"
 #include "Storage.h"
 
 using namespace std;
 using namespace Cantera;
-
-
 
 //Cabinet<Surf1D>*         Cabinet<Surf1D>::__storage = 0;
 

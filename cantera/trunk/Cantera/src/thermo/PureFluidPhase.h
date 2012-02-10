@@ -10,12 +10,7 @@
  * It inherits from ThermoPhase, but is built on top of the tpx package.
  */
 
-/*  $Author$
- *  $Date$
- *  $Revision$
- *
- *  Copyright 2003 California Institute of Technology
- */
+//  Copyright 2003 California Institute of Technology
 
 #ifndef CT_EOS_TPX_H
 #define CT_EOS_TPX_H

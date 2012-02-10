@@ -1,10 +1,6 @@
 /**
  * @file ctreactor.h
  */
-/*
- *      $Id$
- */
-
 #ifndef CTC_REACTOR_H
 #define CTC_REACTOR_H
 
@@ -32,7 +28,7 @@ extern "C" {
     EEXXTT double DLL_CPREFIX reactor_intEnergy_mass(int i);
     EEXXTT double DLL_CPREFIX reactor_pressure(int i);
     EEXXTT double DLL_CPREFIX reactor_massFraction(int i, int k);
-    EEXXTT int DLL_CPREFIX reactor_nSensParams(int i);
+    EEXXTT size_t DLL_CPREFIX reactor_nSensParams(int i);
     EEXXTT int DLL_CPREFIX reactor_addSensitivityReaction(int i, int rxn);
     EEXXTT int DLL_CPREFIX flowReactor_setMassFlowRate(int i, double mdot);
 

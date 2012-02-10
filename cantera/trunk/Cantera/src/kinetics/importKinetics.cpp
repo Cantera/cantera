@@ -9,18 +9,7 @@
  *     of these routines is to intialize the %Cantera objects with data
  *     from the ctml tree structures.
  */
-
-/* $Author$
- * $Revision$
- * $Date$
- */
-
 // Copyright 2002  California Institute of Technology
-
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
 
 #include "importKinetics.h"
 #include "mix_defs.h"
@@ -60,7 +49,7 @@ namespace Cantera {
     //! string vector of ints
     std::vector<int> m_dup;
     //! string vector of ints
-    std::vector<int>  m_nr;
+    std::vector<size_t>  m_nr;
     //! string vector of ints
     std::vector<int>  m_typ;
     //! vector of bools.
@@ -95,7 +84,6 @@ namespace Cantera {
    */
   void checkRxnElementBalance(Kinetics& kin, 
 			      const ReactionData &rdata, doublereal errorTolerance) {
-    int index, klocal, n, kp, kr, m, nel;
     doublereal kstoich;
 
     map<string, double> bal, balr, balp;
@@ -103,33 +91,30 @@ namespace Cantera {
     balp.clear();
     balr.clear();
     //cout << "checking " << rdata.equation << endl;
-    int np = rdata.products.size();
+    size_t np = rdata.products.size();
 
     // iterate over the products
-    for (index = 0; index < np; index++) {
-      kp = rdata.products[index];     // index of the product in 'kin'
-      n = kin.speciesPhaseIndex(kp);  // phase this product belongs to
-      klocal = kp - kin.kineticsSpeciesIndex(0,n); // index within this phase
+    for (size_t index = 0; index < np; index++) {
+      size_t kp = rdata.products[index];     // index of the product in 'kin'
+      size_t n = kin.speciesPhaseIndex(kp);  // phase this product belongs to
+      size_t klocal = kp - kin.kineticsSpeciesIndex(0,n); // index within this phase
       kstoich = rdata.pstoich[index]; // product stoichiometric coeff
       const ThermoPhase& ph = kin.speciesPhase(kp); 
-      nel = ph.nElements();
-      for (m = 0; m < nel; m++) {
+      for (size_t m = 0; m < ph.nElements(); m++) {
 	bal[ph.elementName(m)] += kstoich*ph.nAtoms(klocal,m);
 	balp[ph.elementName(m)] += kstoich*ph.nAtoms(klocal,m);
         //cout << "product species " << ph.speciesName(klocal) << " has " << ph.nAtoms(klocal,m)
 	//     << " atoms of " << ph.elementName(m) << " and kstoich = " << kstoich << endl;
       }
     }
-    int nr = rdata.reactants.size();
-    for (index = 0; index < nr; index++) {
-      kr = rdata.reactants[index];
-      n = kin.speciesPhaseIndex(kr);
+    for (size_t index = 0; index < rdata.reactants.size(); index++) {
+      size_t kr = rdata.reactants[index];
+      size_t n = kin.speciesPhaseIndex(kr);
       //klocal = kr - kin.start(n);
-      klocal = kr - kin.kineticsSpeciesIndex(0,n);
+      size_t klocal = kr - kin.kineticsSpeciesIndex(0,n);
       kstoich = rdata.rstoich[index];
       const ThermoPhase& ph = kin.speciesPhase(kr);
-      nel = ph.nElements();
-      for (m = 0; m < nel; m++) {
+      for (size_t m = 0; m < ph.nElements(); m++) {
 	bal[ph.elementName(m)] -= kstoich*ph.nAtoms(klocal,m);
 	balr[ph.elementName(m)] += kstoich*ph.nAtoms(klocal,m);
         //cout << "reactant species " << ph.speciesName(klocal) << " has " << ph.nAtoms(klocal,m) 
@@ -190,9 +175,8 @@ namespace Cantera {
    *         and continue.
    */
   bool getReagents(const XML_Node& rxn, kinetics_t& kin, int rp,
-		   std::string default_phase, 
-		   vector_int& spnum, vector_fp& stoich, vector_fp& order,
-		   int rule) {
+		   std::string default_phase, std::vector<size_t>& spnum,
+		   vector_fp& stoich, vector_fp& order, int rule) {
 
     string rptype;
 
@@ -214,16 +198,13 @@ namespace Cantera {
     vector<string> key, val;
     getPairs(rg, key, val);
 
-    int ns = static_cast<int>(key.size());
-
     /*
      * Loop over each of the pairs and process them
      */
-    int isp;
     doublereal ord, stch;
     string ph, sp;
-    map<string, int> speciesMap;
-    for (int n = 0; n < ns; n++) {
+    map<string, size_t> speciesMap;
+    for (size_t n = 0; n < key.size(); n++) {
       sp = key[n]; // sp is the string name for species
       ph = "";
       /*
@@ -231,8 +212,8 @@ namespace Cantera {
        * member function kineticsSpeciesIndex(). We will search
        * for the species in all phases defined in the kinetics operator. 
        */
-      isp = kin.kineticsSpeciesIndex(sp,"<any>");
-      if (isp < 0) {
+      size_t isp = kin.kineticsSpeciesIndex(sp,"<any>");
+      if (isp == npos) {
 	if (rule == 1) 
 	  return false;
 	else {
@@ -268,13 +249,11 @@ namespace Cantera {
     if (rp == 1 && rxn.hasChild("order")) {
       vector<XML_Node*> ord;
       rxn.getChildren("order",ord);
-      int norder = static_cast<int>(ord.size());
-      int loc;
       doublereal forder;
-      for (int nn = 0; nn < norder; nn++) {
+      for (size_t nn = 0; nn < ord.size(); nn++) {
 	const XML_Node& oo = *ord[nn];
 	string sp = oo["species"];
-	loc = speciesMap[sp];
+	size_t loc = speciesMap[sp];
 	if (loc == 0) 
 	  throw CanteraError("getReagents",
 			     "reaction order specified for non-reactantt: "
@@ -333,9 +312,9 @@ namespace Cantera {
    */
   static void getStick(const XML_Node& node, Kinetics& kin,
 		       ReactionData& r, doublereal& A, doublereal& b, doublereal& E) {
-    int nr = r.reactants.size();
-    int k, klocal, not_surf = 0;
-    int np = 0;
+    size_t nr = r.reactants.size();
+    size_t k, klocal, not_surf = 0;
+    size_t np = 0;
     doublereal f = 1.0;
     doublereal order;
     /*
@@ -347,15 +326,15 @@ namespace Cantera {
      */
     string spname = node["species"];
     ThermoPhase& th = kin.speciesPhase(spname);
-    int isp = th.speciesIndex(spname);
-    int ispKinetics = kin.kineticsSpeciesIndex(spname);
-    int ispPhaseIndex = kin.speciesPhaseIndex(ispKinetics);
+    size_t isp = th.speciesIndex(spname);
+    size_t ispKinetics = kin.kineticsSpeciesIndex(spname);
+    size_t ispPhaseIndex = kin.speciesPhaseIndex(ispKinetics);
   
     doublereal ispMW = th.molecularWeights()[isp];
     doublereal sc;
 
     // loop over the reactants
-    for (int n = 0; n < nr; n++) {
+    for (size_t n = 0; n < nr; n++) {
       k = r.reactants[n];
       order = r.rorder[n];    // stoich coeff
 
@@ -409,11 +388,11 @@ namespace Cantera {
 				    thermo_t& surfphase, ReactionData& rdata) {
     vector<XML_Node*> cov;
     node.getChildren("coverage", cov);
-    int k, nc = static_cast<int>(cov.size());
+    size_t k, nc = cov.size();
     doublereal e;
     string spname;
     if (nc > 0) {
-      for (int n = 0; n < nc; n++) {
+      for (size_t n = 0; n < nc; n++) {
 	const XML_Node& cnode = *cov[n];
 	spname = cnode["species"];
 	k = surfphase.speciesIndex(spname);
@@ -505,13 +484,11 @@ namespace Cantera {
 
     vector<string> key, val;
     getPairs(eff, key, val);
-    int ne = static_cast<int>(key.size());
     string nm;
     string phse = kin.thermo(0).id();
-    int n, k;
-    for (n = 0; n < ne; n++) { // ; bb != ee; ++bb) {
+    for (size_t n = 0; n < key.size(); n++) { // ; bb != ee; ++bb) {
       nm = key[n];// bb->first;
-      k = kin.kineticsSpeciesIndex(nm, phse);
+      size_t k = kin.kineticsSpeciesIndex(nm, phse);
       rdata.thirdBodyEfficiencies[k] = fpValue(val[n]); // bb->second;
     }
   }
@@ -540,11 +517,9 @@ namespace Cantera {
 			 "Unknown type: " + type);
     }
 
-    int nc = kf.nChildren();
     nodeset_t& kf_children = kf.children();
     vector_fp clow(3,0.0), chigh(3,0.0);
-    //        int nr = nReacMolecules(rdata);
-    for (int m = 0; m < nc; m++) {
+    for (size_t m = 0; m < kf.nChildren(); m++) {
       const node_t& c = *kf_children[m];
       string nm = c.name();
       int highlow=0;
@@ -713,9 +688,7 @@ namespace Cantera {
     if (r.hasChild("equation")) {
       eqn = r("equation");
     }
-    int eqlen = static_cast<int>(eqn.size());
-    int nn;
-    for (nn = 0; nn < eqlen; nn++) {
+    for (size_t nn = 0; nn < eqn.size(); nn++) {
       if (eqn[nn] == '[') eqn[nn] = '<';
       if (eqn[nn] == ']') eqn[nn] = '>';
     }
@@ -781,9 +754,8 @@ namespace Cantera {
      *  the bool isReversibleWithFrac to true.
      */
     if (rdata.reversible == true) {
-      int np = rdata.products.size();
-      for (int i = 0; i < np; i++) {
-	int k = rdata.products[i];
+      for (size_t i = 0; i < rdata.products.size(); i++) {
+	size_t k = rdata.products[i];
 	doublereal po = rdata.porder[i];
 	AssertTrace(po == rdata.pstoich[i]);
 	doublereal chk = po - 1.0 * int(po);
@@ -800,9 +772,8 @@ namespace Cantera {
           
 	}
       }
-      int nr = rdata.reactants.size();
-      for (int i = 0; i < nr; i++) {
-	int k = rdata.reactants[i];
+      for (size_t i = 0; i < rdata.reactants.size(); i++) {
+	size_t k = rdata.reactants[i];
 	doublereal ro = rdata.rorder[i];
 	AssertTrace(ro == rdata.rstoich[i]);
 	doublereal chk = ro - 1.0 * int(ro);
@@ -857,17 +828,14 @@ namespace Cantera {
 
       map<int, doublereal> rxnstoich;
       rxnstoich.clear();
-      int nr = rdata.reactants.size();
-      for (nn = 0; nn < nr; nn++) {
-	rxnstoich[-1 - rdata.reactants[nn]] -= rdata.rstoich[nn];
+      for (size_t nn = 0; nn < rdata.reactants.size(); nn++) {
+	rxnstoich[-1 - int(rdata.reactants[nn])] -= rdata.rstoich[nn];
       }
-      int np = rdata.products.size();
-      for (nn = 0; nn < np; nn++) {
-	rxnstoich[rdata.products[nn]+1] += rdata.pstoich[nn];
+      for (size_t nn = 0; nn < rdata.products.size(); nn++) {
+	rxnstoich[int(rdata.products[nn])+1] += rdata.pstoich[nn];
       }
-      int nrxns = static_cast<int>(m_rdata.size());
-      for (nn = 0; nn < nrxns; nn++) {
-	if ((int(rdata.reactants.size()) == m_nr[nn]) 
+      for (size_t nn = 0; nn < m_rdata.size(); nn++) {
+	if ((rdata.reactants.size() == m_nr[nn])
 	    && (rdata.reactionType == m_typ[nn])) {
 	  c = isDuplicateReaction(rxnstoich, m_rdata[nn]);
 	  if (c > 0.0 
@@ -875,7 +843,7 @@ namespace Cantera {
 	      || (c < 0.0 && m_rev[nn])) {
 	    if ((!dup || !m_dup[nn])) {
 	      string msg = string("Undeclared duplicate reactions detected: \n")
-		+"Reaction "+int2str(nn+1)+": "+m_eqn[nn]
+		+"Reaction "+int2str(int(nn)+1)+": "+m_eqn[nn]
 		+"\nReaction "+int2str(i+1)+": "+eqn+"\n";
 	      throw CanteraError("installReaction", msg);
 	    }
@@ -1135,7 +1103,7 @@ namespace Cantera {
 
 	  // if no phase with this id has been added to 
 	  //the kinetics manager yet, then add this one
-	  if (kin.phaseIndex(phase_id) < 0) {
+	  if (kin.phaseIndex(phase_id) == npos) {
 	    kin.addPhase(*th[m]);
 	  }
 	}

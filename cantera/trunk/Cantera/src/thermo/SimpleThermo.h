@@ -5,10 +5,6 @@
  *   \link Cantera::SpeciesThermo SpeciesThermo\endlink base class (see \ref spthermo and
  *   \link Cantera::SimpleThermo SimpleThermo\endlink).
  */
-/*
- * $Id$
- */
-
 #ifndef CT_SIMPLETHERMO_H
 #define CT_SIMPLETHERMO_H
 
@@ -151,7 +147,7 @@ namespace Cantera {
      *
      * @see ConstCpPoly
      */
-    virtual void install(std::string name, int index, int type, const doublereal* c,
+    virtual void install(std::string name, size_t index, size_t type, const doublereal* c,
 			 doublereal minTemp, doublereal maxTemp, doublereal refPressure) {
 
       m_logt0.push_back(log(c[0]));
@@ -168,7 +164,7 @@ namespace Cantera {
       if (tlow > m_tlow_max)    m_tlow_max = tlow;
       if (thigh < m_thigh_min)  m_thigh_min = thigh;
      
-      if ((int) m_tlow.size() < index + 1) {
+      if (m_tlow.size() < index + 1) {
 	m_tlow.resize(index + 1,  tlow);
 	m_thigh.resize(index + 1, thigh);
       }
@@ -216,7 +212,7 @@ namespace Cantera {
      */
     virtual void update(doublereal t, doublereal* cp_R, 
 			doublereal* h_RT, doublereal* s_R) const {
-      int k, ki;
+      size_t k, ki;
       doublereal logt = log(t);
       doublereal rt = 1.0/t;
       for (k = 0; k < m_nspData; k++) {
@@ -238,11 +234,11 @@ namespace Cantera {
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
      */
-    virtual void update_one(int k, doublereal t, doublereal* cp_R, 
+    virtual void update_one(size_t k, doublereal t, doublereal* cp_R,
 			    doublereal* h_RT, doublereal* s_R) const {
       doublereal logt = log(t);
       doublereal rt = 1.0/t;
-      int loc = m_loc[k];
+      size_t loc = m_loc[k];
       cp_R[k] = m_cp0_R[loc];
       h_RT[k] = rt*(m_h0_R[loc] + (t - m_t0[loc]) * m_cp0_R[loc]);
       s_R[k] = m_s0_R[loc] + m_cp0_R[loc] * (logt - m_logt0[loc]);
@@ -258,8 +254,8 @@ namespace Cantera {
      *
      * @param k    Species index
      */ 
-    virtual doublereal minTemp(int k=-1) const {
-      if (k < 0)
+    virtual doublereal minTemp(size_t k=npos) const {
+      if (k == npos)
 	return m_tlow_max;
       else
 	return m_tlow[m_loc[k]];
@@ -275,8 +271,8 @@ namespace Cantera {
      *
      * @param k  Species Index
      */
-    virtual doublereal maxTemp(int k=-1) const {
-      if (k < 0)
+    virtual doublereal maxTemp(size_t k=npos) const {
+      if (k == npos)
 	return m_thigh_min;
       else
 	return m_thigh[m_loc[k]];
@@ -295,7 +291,7 @@ namespace Cantera {
      *
      * @param k Species Index
      */
-    virtual doublereal refPressure(int k=-1) const {return m_p0;}
+    virtual doublereal refPressure(size_t k=npos) const {return m_p0;}
 
     //! This utility function reports the type of parameterization
     //! used for the species with index number index.
@@ -303,7 +299,7 @@ namespace Cantera {
      *
      * @param index  Species index
      */
-    virtual int reportType(int index) const { return SIMPLE; }
+    virtual int reportType(size_t index) const { return SIMPLE; }
 
     /*!
      * This utility function reports back the type of 
@@ -320,13 +316,13 @@ namespace Cantera {
      * @param refPressure output - reference pressure (Pa).
      *
      */
-    virtual void reportParams(int index, int &type, 
+    virtual void reportParams(size_t index, int &type,
 			      doublereal * const c, 
 			      doublereal &minTemp, 
 			      doublereal &maxTemp, 
 			      doublereal &refPressure) const {
       type = reportType(index);
-      int loc = m_loc[index];
+      size_t loc = m_loc[index];
       if (type == SIMPLE) {
 	c[0] = m_t0[loc];
 	c[1] = m_h0_R[loc] * GasConstant;
@@ -347,9 +343,9 @@ namespace Cantera {
      *              parameters for the standard state.
      *              Must be length >= 4.
      */
-    virtual void modifyParams(int index, doublereal *c) {
-      int loc = m_loc[index];
-      if (loc < 0) {
+    virtual void modifyParams(size_t index, doublereal *c) {
+      size_t loc = m_loc[index];
+      if (loc == npos) {
 	throw CanteraError("SimpleThermo::modifyParams",
 			   "modifying parameters for species which hasn't been set yet");
       }
@@ -383,14 +379,14 @@ namespace Cantera {
      * This index keeps track of it.
      *      indexData = m_loc[kspec]
      */
-    mutable std::map<int, int>              m_loc;
+    mutable std::map<size_t, size_t> m_loc;
 
     //! Map between the vector index where the coefficients are kept and the species index
     /*!
      * Length is equal to the number of dataPoints.
      * kspec = m_index[indexData]
      */
-    vector_int                 m_index;
+    std::vector<size_t> m_index;
 
     //! Maximum value of the low temperature limit 
     doublereal                 m_tlow_max;
@@ -450,7 +446,7 @@ namespace Cantera {
     /*!
      * This is less than or equal to the number of species in the phase.
      */
-    int                        m_nspData;
+    size_t m_nspData;
 
   };
 

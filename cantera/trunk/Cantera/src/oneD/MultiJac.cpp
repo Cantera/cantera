@@ -1,24 +1,12 @@
 /**
- *
  *  @file MultiJac.cpp
  *
  *  Implementation file for class MultiJac
  */
 
 /*
- *  $Author$
- *  $Date$
- *  $Revision$
- *
  *  Copyright 2002 California Institute of Technology
- *
  */
-
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
 
 #include "MultiJac.h"
 using namespace std;
@@ -46,8 +34,7 @@ namespace Cantera {
     }
 
     void MultiJac::updateTransient(doublereal rdt, integer* mask) {
-        int n;
-        for (n = 0; n < m_size; n++) {
+        for (size_t n = 0; n < m_size; n++) {
             value(n,n) = m_ssdiag[n] - mask[n]*rdt;
         }
     }
@@ -67,7 +54,7 @@ namespace Cantera {
         clock_t t0 = clock();
         bfill(0.0);
 
-        int n, m, ipt=0, i, j, nv, mv, iloc;
+        size_t n, m, ipt=0, i, j, nv, mv, iloc;
         doublereal rdx, dx, xsave;
 
         for (j = 0; j < m_points; j++) {
@@ -86,7 +73,7 @@ namespace Cantera {
 
                 // compute nth column of Jacobian
                 for (i = j - 1; i <= j+1; i++) {
-                    if (i >= 0 && i < m_points) {
+                    if (i != npos && i < m_points) {
                         mv = m_resid->nVars(i);
                         iloc = m_resid->loc(i);
                         for (m = 0; m < mv; m++) {

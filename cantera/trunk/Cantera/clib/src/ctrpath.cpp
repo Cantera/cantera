@@ -1,17 +1,13 @@
 /**
  * @file ctrpath.cpp
  */
-/*
- *      $Id$
- */
-
 #define CANTERA_USE_INTERNAL
 #include "ctrpath.h"
 
 
 // Cantera includes
 
-#include "ReactionPath.h"
+#include "kernel/ReactionPath.h"
 #include "Cabinet.h"
 #include "Storage.h"
 
@@ -142,7 +138,7 @@ extern "C" {
     }
 
     int DLL_EXPORT rdiag_findMajor(int i, double threshold, 
-        int lda, double* a) {
+        size_t lda, double* a) {
         _diag(i)->findMajorPaths(threshold, lda, a);
         return 0;
     }

@@ -14,8 +14,8 @@
 
 namespace ckr {
 
-    typedef vector_int             group_t;
-    typedef std::vector<group_t>   grouplist_t; 
+    typedef vector_int group_t;
+    typedef std::vector<group_t> grouplist_t;
 
 /**
  * A class for species in a reaction.

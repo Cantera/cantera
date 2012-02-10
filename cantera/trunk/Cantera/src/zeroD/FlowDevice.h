@@ -1,9 +1,5 @@
 /**
  *  @file FlowDevice.h
- *
- *  $Author$
- *  $Date$
- *  $Revision$
  */
 
 // Copyright 2001  California Institute of Technology
@@ -11,23 +7,13 @@
 #ifndef CT_FLOWDEVICE_H
 #define CT_FLOWDEVICE_H
 
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
 #include "ct_defs.h"
 #include "global.h"
 #include "stringUtils.h"
 
 namespace Cantera {
     class Func1;
-}
-
-namespace CanteraZeroD {
-
     class ReactorBase;  // forward reference
-
 
     const int MFC_Type = 1;
     const int PressureController_Type = 2;
@@ -82,7 +68,7 @@ namespace CanteraZeroD {
         virtual void updateMassFlowRate(doublereal time) {}
 
         // mass flow rate of outlet species k
-        doublereal outletSpeciesMassFlowRate(int k);
+        doublereal outletSpeciesMassFlowRate(size_t k);
 
         // specific enthalpy
         doublereal enthalpy_mass();
@@ -165,18 +151,18 @@ namespace CanteraZeroD {
 
         doublereal m_mdot;
         Cantera::Func1* m_func;
-        Cantera::vector_fp m_coeffs;
+        vector_fp m_coeffs;
         int m_type;
 
     private:
 
-        int m_nspin, m_nspout;
+        size_t m_nspin, m_nspout;
         ReactorBase* m_in;
         ReactorBase* m_out;
-        Cantera::vector_int m_in2out, m_out2in;
+        std::vector<size_t> m_in2out, m_out2in;
 
         void warn(std::string meth) {
-            Cantera::writelog(std::string("Warning: method ") + meth + " of base class "
+            writelog(std::string("Warning: method ") + meth + " of base class "
                 + " FlowDevice called. Nothing done.\n");
         }
     };

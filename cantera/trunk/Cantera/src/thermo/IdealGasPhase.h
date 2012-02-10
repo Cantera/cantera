@@ -3,17 +3,9 @@
  *   ThermoPhase object for the ideal gas equation of
  * state - workhorse for %Cantera (see \ref thermoprops 
  * and class \link Cantera::IdealGasPhase IdealGasPhase\endlink).
- * 
  */
 
-/*  $Author$
- *  $Date$
- *  $Revision$
- *
- *  Copyright 2001 California Institute of Technology
- *
- */
-
+//  Copyright 2001 California Institute of Technology
 
 #ifndef CT_IDEALGASPHASE_H
 #define CT_IDEALGASPHASE_H
@@ -556,14 +548,14 @@ namespace Cantera {
      * @return 
      *   Returns the standard Concentration in units of m3 kmol-1.
      */
-    virtual doublereal standardConcentration(int k=0) const;
+    virtual doublereal standardConcentration(size_t k=0) const;
 
     //! Returns the natural logarithm of the standard 
     //! concentration of the kth species
     /*!
      * @param k    index of the species. (defaults to zero)
      */
-    virtual doublereal logStandardConc(int k=0) const;
+    virtual doublereal logStandardConc(size_t k=0) const;
 
     //! Get the array of non-dimensional activity coefficients at
     //! the current solution temperature, pressure, and solution concentration. 
@@ -814,8 +806,7 @@ namespace Cantera {
      */
     const array_fp& expGibbs_RT_ref() const {
       _updateThermo();
-      int k;
-      for (k = 0; k != m_kk; k++) m_expg0_RT[k] = std::exp(m_g0_RT[k]);
+      for (size_t k = 0; k != m_kk; k++) m_expg0_RT[k] = std::exp(m_g0_RT[k]);
       return m_expg0_RT;
     }
 
@@ -885,7 +876,7 @@ namespace Cantera {
     /*!
      * This member is defined here, from a call to the Elements ojbect, for speed.
      */
-    int m_mm;
+    size_t m_mm;
 
     //! Minimum temperature for valid species standard state thermo props
     /*!

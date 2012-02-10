@@ -1,13 +1,3 @@
-/*
-******************************************************************************
-* $RCSfile: mdp_allo.cpp,v $
-* $Author$
-* $Date$
-* $Revision$
-* $Name:  $
-******************************************************************************
-*/
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -16,10 +6,6 @@
 #include <stdarg.h>
 
 #include "mdp_allo.h"
-
-#ifdef WIN32
-#pragma warning(disable:4996)
-#endif
 
 /*
  *  Allocate global storage for 2 debugging ints that are used in IO of
@@ -329,11 +315,7 @@ static double *smalloc(size_t n)
   FILE *file;
 #endif
   double *pntr; 
-  if (n < 0) {
-      Fprintf(stderr, "smalloc ERROR: Non-positive argument. (%d)\n", int(n));
-    return NULL;
-  }
-  else if (n == 0) pntr = NULL;
+  if (n == 0) pntr = NULL;
   else {
     n = ((n - 1) / 8);
     n = (n + 1) * 8;

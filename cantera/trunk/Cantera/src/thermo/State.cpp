@@ -6,13 +6,8 @@
  */
 
 /*
- *  
- *  $Date$
- *  $Revision$
- *
  *  Copyright 2003-2004 California Institute of Technology
  *  See file License.txt for licensing information
- *
  */
 
 #include "utilities.h"
@@ -88,8 +83,8 @@ namespace Cantera {
     return *this;
   }
 
-  doublereal State::moleFraction(const int k) const {
-    if (k >= 0 && k < m_kk) {
+  doublereal State::moleFraction(const size_t k) const {
+    if (k < m_kk) {
       return m_ym[k] * m_mmw;
     }
     else {
@@ -123,16 +118,16 @@ namespace Cantera {
     stateMFChangeCalc();
   }
 
-  doublereal State::massFraction(const int k) const {
-    if (k >= 0 && k < m_kk) {
+  doublereal State::massFraction(const size_t k) const {
+    if (k < m_kk) {
       return m_y[k];
     }
     throw CanteraError("State:massFraction", "illegal species index number");
     return 0.0;
   }
 
-  doublereal State::concentration(const int k) const {
-    if (k >= 0 && k < m_kk) {
+  doublereal State::concentration(const size_t k) const {
+    if (k < m_kk) {
       return m_y[k] * m_dens * m_rmolwts[k] ;
     }
     throw CanteraError("State:massFraction", "illegal species index number");
@@ -198,16 +193,15 @@ namespace Cantera {
   }
 
   void State::setConcentrations(const doublereal* const conc) {
-    int k;
     doublereal sum = 0.0, norm = 0.0;
-    for (k = 0; k != m_kk; ++k) {
+    for (size_t k = 0; k != m_kk; ++k) {
       sum += conc[k]*m_molwts[k];
       norm += conc[k];
     }
     m_mmw = sum/norm;
     setDensity(sum);
     doublereal rsum = 1.0/sum;
-    for (k = 0; k != m_kk; ++k) {
+    for (size_t k = 0; k != m_kk; ++k) {
       m_ym[k] = conc[k] * rsum;
       m_y[k] =  m_ym[k] * m_molwts[k];
     }
@@ -244,7 +238,6 @@ namespace Cantera {
     m_dens = molarDensity*meanMolecularWeight();
   }
 
-
   void State::init(const array_fp& mw) {
     m_kk = mw.size();
     m_molwts.resize(m_kk);
@@ -252,10 +245,11 @@ namespace Cantera {
     m_y.resize(m_kk, 0.0);
     m_ym.resize(m_kk, 0.0);
     copy(mw.begin(), mw.end(), m_molwts.begin());
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       if (m_molwts[k] < 0.0) {
 	throw CanteraError("State::init",
-			   "negative molecular weight for species number "+int2str(k));
+			   "negative molecular weight for species number "
+			   + int2str(int(k)));
       }
       /*
        * Some surface phases may define species representing

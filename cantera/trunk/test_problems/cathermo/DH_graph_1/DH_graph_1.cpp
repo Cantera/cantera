@@ -2,13 +2,6 @@
  *
  *  @file DH_graph_1
  */
-
-/*
- *  $Author$
- *  $Date$
- *  $Revision$
- */
-
 #ifdef SRCDIRTREE
 #include "ct_defs.h"
 #include "logger.h"

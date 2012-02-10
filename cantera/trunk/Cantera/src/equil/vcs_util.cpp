@@ -3,9 +3,6 @@
  *  Internal definitions for utility functions for the VCSnonideal package
  */
 /*
- * $Id$
- */
-/*
  * Copywrite (2005) Sandia Corporation. Under the terms of 
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
@@ -113,7 +110,7 @@ namespace VCSnonideal {
 #endif
 
   double vcs_l2norm(const std::vector<double> vec) {
-     int len = vec.size();
+     size_t len = vec.size();
      if (len == 0) {
        return 0.0;
      }
@@ -191,9 +188,9 @@ namespace VCSnonideal {
    * RETURN
    *    return index of the greatest value on X(*) searched 
    */
-  int vcs_optMax(const double *x, const double * xSize, int j, int n) {
-    int i;
-    int largest = j;
+  size_t vcs_optMax(const double *x, const double * xSize, size_t j, size_t n) {
+    size_t i;
+    size_t largest = j;
     double big = x[j];
     if (xSize) {
       assert(xSize[j] > 0.0);
@@ -243,7 +240,7 @@ namespace VCSnonideal {
    * @param i1 first index
    * @param i2 second index
    */
-  void vcsUtil_stsw(std::vector<std::string> & vstr, int i1, int i2) {
+  void vcsUtil_stsw(std::vector<std::string> & vstr, size_t i1, size_t i2) {
     std::string tmp(vstr[i2]);
     vstr[i2] = vstr[i1];
     vstr[i1] = tmp;
@@ -257,7 +254,7 @@ namespace VCSnonideal {
    * @param i1 first index
    * @param i2 second index
    */
-  void vcsUtil_dsw(double x[], int i1, int i2) {
+  void vcsUtil_dsw(double x[], size_t i1, size_t i2) {
     double t = x[i1];
     x[i1] = x[i2];
     x[i2] = t;
@@ -271,7 +268,7 @@ namespace VCSnonideal {
    * @param i1 first index
    * @param i2 second index
    */
-  void vcsUtil_isw(int x[], int i1, int i2) {
+  void vcsUtil_isw(int x[], size_t i1, size_t i2) {
     int t = x[i1];
     x[i1] = x[i2];
     x[i2] = t;
@@ -508,7 +505,7 @@ namespace VCSnonideal {
      *       will be on the diagonal. We can therfore just invert the
      *       diagonal at the end of the program to solve the equation system.
      */
-    for (i = 0; i < n; ++i) {
+    for (size_t i = 0; i < n; ++i) {
       if (c[i + i * idem] == 0.0) {
 	/*
 	 *   Do a simple form of row pivoting to find a non-zero pivot
@@ -525,16 +522,16 @@ namespace VCSnonideal {
 #endif
 	return 1;
       FOUND_PIVOT: ;
-	for (j = 0; j < n; ++j) c[i + j * idem] += c[k + j * idem];
-	for (j = 0; j < m; ++j) b[i + j * idem] += b[k + j * idem];
+	for (size_t j = 0; j < n; ++j) c[i + j * idem] += c[k + j * idem];
+	for (size_t j = 0; j < m; ++j) b[i + j * idem] += b[k + j * idem];
       }
       
-      for (l = 0; l < n; ++l) {
+      for (size_t l = 0; l < n; ++l) {
 	if (l != i && c[l + i * idem] != 0.0) {
 	  R = c[l + i * idem] / c[i + i * idem];
 	  c[l + i * idem] = 0.0;
-	  for (j = i+1; j < n; ++j) c[l + j * idem] -= c[i + j * idem] * R;
-	  for (j = 0; j < m; ++j)   b[l + j * idem] -= b[i + j * idem] * R;
+	  for (size_t j = i+1; j < n; ++j) c[l + j * idem] -= c[i + j * idem] * R;
+	  for (size_t j = 0; j < m; ++j)   b[l + j * idem] -= b[i + j * idem] * R;
 	}
       }
     }
@@ -542,8 +539,8 @@ namespace VCSnonideal {
      *  The negative in the last expression is due to the form of B upon
      *  input
      */
-    for (i = 0; i < n; ++i) {
-      for (j = 0; j < m; ++j) {
+    for (size_t i = 0; i < n; ++i) {
+      for (size_t j = 0; j < m; ++j) {
 	b[i + j * idem] = -b[i + j * idem] / c[i + i*idem];
       }
     }
@@ -806,7 +803,7 @@ namespace VCSnonideal {
 
   /************************************************************************ **/
 
-  void vcs_print_stringTrunc(const char *str, int space, int alignment) 
+  void vcs_print_stringTrunc(const char *str, size_t space, int alignment)
 
     /***********************************************************************
      *  vcs_print_stringTrunc():
@@ -822,8 +819,8 @@ namespace VCSnonideal {
      *           2 left aligned
      ***********************************************************************/
   {
-    int i, ls=0, rs=0;
-    int len = strlen(str);
+    size_t i, ls=0, rs=0;
+    size_t len = strlen(str);
     if ((len) >= space) {
       for (i = 0; i < space; i++) {
 	plogf("%c", str[i]);
@@ -870,5 +867,3 @@ namespace VCSnonideal {
   }
 
 }
-
-

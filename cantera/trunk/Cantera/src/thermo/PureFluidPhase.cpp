@@ -5,9 +5,6 @@
  *   and supercritical fluid (see \ref thermoprops 
  *   and class \link Cantera::PureFluidPhase PureFluidPhase\endlink).
  */
-/*
- *  $Id$
- */
 #include "xml.h"
 #include "PureFluidPhase.h"
 
@@ -19,7 +16,9 @@
 #include <cstdlib>
 #include <iomanip>
 
-using namespace std;
+using std::string;
+using std::endl;
+using std::setw;
 
 namespace Cantera {
 
@@ -564,7 +563,7 @@ namespace Cantera {
         }
       }
 
-      int kk = nSpecies();
+      size_t kk = nSpecies();
       array_fp x(kk);
       array_fp y(kk);
       array_fp mu(kk);
@@ -572,7 +571,6 @@ namespace Cantera {
       getMassFractions(&y[0]);
       getChemPotentials(&mu[0]);
       doublereal rt = GasConstant * temperature(); 
-      int k;
       //if (th.nSpecies() > 1) {
 
       if (show_thermo) {
@@ -582,7 +580,7 @@ namespace Cantera {
 	sprintf(p, "                     -------------     "
 		"------------     ------------\n");
 	s += p;
-	for (k = 0; k < kk; k++) {
+	for (size_t k = 0; k < kk; k++) {
 	  if (x[k] > SmallNumber) {
 	    sprintf(p, "%18s   %12.6g     %12.6g     %12.6g\n", 
 		    speciesName(k).c_str(), x[k], y[k], mu[k]/rt);
@@ -601,7 +599,7 @@ namespace Cantera {
 	sprintf(p, "                     -------------"
 		"     ------------\n");
 	s += p;
-	for (k = 0; k < kk; k++) {
+	for (size_t k = 0; k < kk; k++) {
 	  sprintf(p, "%18s   %12.6g     %12.6g\n", 
 		  speciesName(k).c_str(), x[k], y[k]);
 	  s += p;
@@ -649,19 +647,19 @@ namespace Cantera {
      
       csvFile.precision(8);
 
-      int kk = nSpecies();
-      double x[kk];
-      double y[kk];
-      double mu[kk];
-      double a[kk];
-      double ac[kk];
-      double hbar[kk];
-      double sbar[kk];
-      double ubar[kk];
-      double cpbar[kk];
-      double vbar[kk];
-      vector<std::string> pNames;
-      vector<double*> data;
+      size_t kk = nSpecies();
+      std::vector<double> x(kk, 0.0);
+      std::vector<double> y(kk, 0.0);
+      std::vector<double> mu(kk, 0.0);
+      std::vector<double> a(kk, 0.0);
+      std::vector<double> ac(kk, 0.0);
+      std::vector<double> hbar(kk, 0.0);
+      std::vector<double> sbar(kk, 0.0);
+      std::vector<double> ubar(kk, 0.0);
+      std::vector<double> cpbar(kk, 0.0);
+      std::vector<double> vbar(kk, 0.0);
+      std::vector<std::string> pNames;
+      std::vector<double*> data;
 
       getMoleFractions(x);
       pNames.push_back("X");
@@ -731,7 +729,7 @@ namespace Cantera {
 	csvFile << setw(tabS+(tabM+1)*pNames.size()) << "-\n";
 	csvFile.fill(' ');
       */
-      for (int k = 0; k < kk; k++) {
+      for (size_t k = 0; k < kk; k++) {
 	csvFile << setw(tabS) << speciesName(k) + ",";
 	if (x[k] > SmallNumber) {
 	  for ( int i = 0; i < (int)pNames.size(); i++ ){

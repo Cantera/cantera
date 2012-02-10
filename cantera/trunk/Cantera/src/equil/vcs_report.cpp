@@ -1,6 +1,3 @@
-/*  
- * $Id$
- */
 
 /*
  * Copywrite (2005) Sandia Corporation. Under the terms of 
@@ -27,8 +24,8 @@ namespace VCSnonideal {
     }
   }
 
-  static void print_line(std::string schar, int num) {
-    for (int j = 0; j < num; j++) plogf("%s", schar.c_str());
+  static void print_line(std::string schar, size_t num) {
+    for (size_t j = 0; j < num; j++) plogf("%s", schar.c_str());
     plogf("\n");
   }
 
@@ -44,15 +41,15 @@ namespace VCSnonideal {
    *     The "old" solution vector is printed out.
    ***************************************************************************/
   int VCS_SOLVE::vcs_report(int iconv) {
-    bool printActualMoles = true;
-    int i, j, l, k,  inertYes = FALSE, kspec;
-    int nspecies = m_numSpeciesTot;
+    bool printActualMoles = true, inertYes = false;
+    size_t i, j, l, k, kspec;
+    size_t nspecies = m_numSpeciesTot;
     double  g;
 
     char originalUnitsState = m_unitsState;
    
 
-    std::vector<int> sortindex(nspecies,0);
+    std::vector<size_t> sortindex(nspecies,0);
     std::vector<double> xy(nspecies,0.0);
 
     /* ************************************************************** */
@@ -72,7 +69,7 @@ namespace VCSnonideal {
       k = vcs_optMax(VCS_DATA_PTR(xy), 0, l, m_numSpeciesRdc);
       if (k != l) {
 	vcsUtil_dsw(VCS_DATA_PTR(xy), k, l);
-	vcsUtil_isw(VCS_DATA_PTR(sortindex), k, l);
+	vcsUtil_ssw(VCS_DATA_PTR(sortindex), k, l);
       }
     }  
    
@@ -157,7 +154,7 @@ namespace VCSnonideal {
     }
     for (i = 0; i < m_numPhases; i++) {
       if (TPhInertMoles[i] > 0.0) {
-	inertYes = TRUE;
+	inertYes = true;
 	if (i == 0) {
 	  plogf(" Inert Gas Species        ");
 	} else {
@@ -211,8 +208,8 @@ namespace VCSnonideal {
     }
     plogf(" | DG/RT Rxn |\n");
     print_line("-", m_numComponents*10 + 45);
-    for (int irxn = 0; irxn < m_numRxnTot; irxn++) {
-      int kspec = m_indexRxnToSpecies[irxn];
+    for (size_t irxn = 0; irxn < m_numRxnTot; irxn++) {
+      size_t kspec = m_indexRxnToSpecies[irxn];
       plogf(" %3d ", kspec);
       plogf("%-10.10s", m_speciesName[kspec].c_str());
       plogf("|%10.3g |", m_molNumSpecies_old[kspec]*molScale);
@@ -252,7 +249,7 @@ namespace VCSnonideal {
     }
     plogf(" |     Gibbs Total     |\n");
     print_line("-", m_numElemConstraints*10 + 58);
-    for (int iphase = 0; iphase < m_numPhases; iphase++) {
+    for (size_t iphase = 0; iphase < m_numPhases; iphase++) {
       plogf(" %3d ", iphase);
       vcs_VolPhase *VPhase = m_VolPhaseList[iphase];
       plogf("%-12.12s |",VPhase->PhaseName.c_str());
@@ -326,7 +323,7 @@ namespace VCSnonideal {
     print_line("-", 147);
     for (i = 0; i < nspecies; ++i) {
       l = sortindex[i];
-      int pid = m_phaseID[l];
+      size_t pid = m_phaseID[l];
       plogf(" %-12.12s", m_speciesName[l].c_str());
       plogf(" %14.7E ", m_molNumSpecies_old[l]*molScale);
       plogf("%14.7E  ", m_SSfeSpecies[l]);

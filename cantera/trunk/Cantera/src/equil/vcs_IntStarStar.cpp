@@ -3,13 +3,6 @@
  *
  *  Header file for class IntStarStar
  */
-
-/*
- *  $Author$
- *  $Revision$
- *  $Date$
- */
-
 #include "vcs_IntStarStar.h"
 
 namespace VCSnonideal {
@@ -27,14 +20,14 @@ IntStarStar::IntStarStar() :
  *  Constructor. Create an \c m by \c n array, and initialize
  *  all elements to \c v.
  */
-IntStarStar::IntStarStar(int m, int n, int v) :
+IntStarStar::IntStarStar(size_t m, size_t n, int v) :
   m_nrows(n),
   m_ncols(m) 
 {
   m_data.resize(n*m);
   std::fill(m_data.begin(), m_data.end(), v);
   m_colAddr.resize(m);
-  for (int jcol = 0; jcol < m_ncols; jcol++) {
+  for (size_t jcol = 0; jcol < m_ncols; jcol++) {
     m_colAddr[jcol] = &(m_data[jcol*m_nrows]);
   }
 }
@@ -46,7 +39,7 @@ IntStarStar::IntStarStar(const IntStarStar& y) {
     m_data.resize(m_nrows*m_ncols);
     m_data = y.m_data;
     m_colAddr.resize(m_ncols);
-    for (int jcol = 0; jcol < m_ncols; jcol++) {
+    for (size_t jcol = 0; jcol < m_ncols; jcol++) {
       m_colAddr[jcol] = &(m_data[jcol*m_nrows]);
     }
   }
@@ -59,7 +52,7 @@ IntStarStar& IntStarStar::operator=(const IntStarStar& y) {
   m_data.resize(m_nrows*m_ncols);
   m_data = y.m_data;
   m_colAddr.resize(m_ncols);
-  for (int jcol = 0; jcol < m_ncols; jcol++) {
+  for (size_t jcol = 0; jcol < m_ncols; jcol++) {
     m_colAddr[jcol] = &(m_data[jcol*m_nrows]);
   }
   return *this;
@@ -72,7 +65,7 @@ IntStarStar& IntStarStar::operator=(const IntStarStar& y) {
  * @param m  This is the number of columns in the new matrix
  * @param v  Default fill value -> defaults to zero.
  */
-void IntStarStar::resize(int m, int n, int v) {
+void IntStarStar::resize(size_t m, size_t n, int v) {
   std::vector<int> old_data;
   bool doCopy = false;
   if (m_nrows > 0 && m_ncols > 0) {
@@ -84,23 +77,23 @@ void IntStarStar::resize(int m, int n, int v) {
   m_data.resize(n*m, v);
   if (doCopy) {
     if (n >= m_nrows && m >= m_ncols) {
-      for (int jcol = 0; jcol < m_ncols; jcol++) {
-        for (int irow = 0; irow < m_nrows; irow++) {
+      for (size_t jcol = 0; jcol < m_ncols; jcol++) {
+        for (size_t irow = 0; irow < m_nrows; irow++) {
           m_data[jcol*m + irow] = old_data[jcol*m_ncols + irow];
         } 
-        for (int irow = m_nrows; irow < n; irow++) {
+        for (size_t irow = m_nrows; irow < n; irow++) {
           m_data[jcol*m + irow] = v;
         } 
       }
-      for (int jcol = m_ncols; jcol < m; jcol++) {
-        for (int irow = 0; irow < n; irow++) {
+      for (size_t jcol = m_ncols; jcol < m; jcol++) {
+        for (size_t irow = 0; irow < n; irow++) {
           m_data[jcol*m + irow] = v;
         }
       }
     } else {
       std::fill(m_data.begin(), m_data.end(), v);
-      for (int jcol = 0; jcol < m_ncols; jcol++) {
-        for (int irow = 0; irow < m_nrows; irow++) {
+      for (size_t jcol = 0; jcol < m_ncols; jcol++) {
+        for (size_t irow = 0; irow < m_nrows; irow++) {
           m_data[jcol*m + irow] = old_data[jcol*m_ncols + irow];
         } 
       }
@@ -109,16 +102,16 @@ void IntStarStar::resize(int m, int n, int v) {
   m_nrows = n;
   m_ncols = m;
   m_colAddr.resize(m_ncols);
-  for (int jcol = 0; jcol < m_ncols; jcol++) {
+  for (size_t jcol = 0; jcol < m_ncols; jcol++) {
     m_colAddr[jcol] = &(m_data[jcol*m_nrows]);
   }
 }
 
-int * const IntStarStar::operator[](int jcol) {
+int * const IntStarStar::operator[](size_t jcol) {
   return m_colAddr[jcol];
 }
 
-const int * const IntStarStar::operator[](int jcol) const {
+const int * const IntStarStar::operator[](size_t jcol) const {
   return (const int * const) m_colAddr[jcol];
 }
 
@@ -127,12 +120,12 @@ int * const * const IntStarStar::baseDataAddr() {
 }
 
 /// Number of rows
-int IntStarStar::nRows() const { 
+size_t IntStarStar::nRows() const {
   return m_nrows; 
 }
 
 /// Number of columns
-int IntStarStar::nColumns() const { 
+size_t IntStarStar::nColumns() const {
   return m_ncols;
 }
 

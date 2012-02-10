@@ -1,27 +1,15 @@
 /**
  * @file Reservoir.h
  */
-
-/*
- * $Author$
- * $Revision$
- * $Date$
- */
-
 // Copyright 2001  California Institute of Technology
 
 #ifndef CT_RESERVOIR_H
 #define CT_RESERVOIR_H
 
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
 #include <iostream>
 #include "ReactorBase.h"
 
-namespace CanteraZeroD {
+namespace Cantera {
 
     class Reservoir : public ReactorBase {
 

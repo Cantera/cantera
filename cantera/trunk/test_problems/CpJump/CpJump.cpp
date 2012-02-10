@@ -1,10 +1,5 @@
 /*
- *  $Author$
- *  $Date$
- *  $Revision$
- *
  *  Copyright 2002 California Institute of Technology
- *
  */
 
 #ifdef SRCDIRTREE
@@ -20,9 +15,11 @@
 
 using namespace std;
 using namespace Cantera;
-using namespace Cantera_CXX;
 
 int main(int argc, char **argv) {
+#ifdef _MSC_VER
+    _set_output_format(_TWO_DIGIT_EXPONENT);
+#endif
   try {
     IdealGasMix g("bad_air.xml", "air");
     double pres = 1.0E5;

@@ -2,13 +2,6 @@
  * @file StFlow.h
  *
  */
-
-/*
- * $Author$
- * $Revision$
- * $Date$
- */
-
 // Copyright 2001  California Institute of Technology
 
 #ifndef CT_STFLOW_H
@@ -35,11 +28,11 @@ namespace Cantera {
     //------------------------------------------
 
     // Offsets of solution components in the solution array.
-    const unsigned int c_offset_U = 0;    // axial velocity
-    const unsigned int c_offset_V = 1;    // strain rate
-    const unsigned int c_offset_T = 2;    // temperature
-    const unsigned int c_offset_L = 3;    // (1/r)dP/dr
-    const unsigned int c_offset_Y = 4;    // mass fractions
+    const size_t c_offset_U = 0;    // axial velocity
+    const size_t c_offset_V = 1;    // strain rate
+    const size_t c_offset_T = 2;    // temperature
+    const size_t c_offset_L = 3;    // (1/r)dP/dr
+    const size_t c_offset_Y = 4;    // mass fractions
 
     // Transport option flags
     const int c_Mixav_Transport = 0;
@@ -71,7 +64,7 @@ namespace Cantera {
         /// will be used to evaluate all thermodynamic, kinetic, and transport
         /// properties.
         /// @param nsp Number of species.
-        StFlow(igthermo_t* ph = 0, int nsp = 1, int points = 1);
+        StFlow(igthermo_t* ph = 0, size_t nsp = 1, size_t points = 1);
 
         /// Destructor.
         virtual ~StFlow(){}
@@ -81,7 +74,7 @@ namespace Cantera {
          */
         //@{
 
-        virtual void setupGrid(int n, const doublereal* z);
+        virtual void setupGrid(size_t n, const doublereal* z);
 
         thermo_t& phase() { return *m_thermo; }
         kinetics_t& kinetics() { return *m_kin; }
@@ -110,11 +103,10 @@ namespace Cantera {
 
 
         /// @todo remove? may be unused
-        virtual void setState(int point, const doublereal* state,
+        virtual void setState(size_t point, const doublereal* state,
                               doublereal *x) {
             setTemperature(point, state[2]);
-            int k;
-            for (k = 0; k < m_nsp; k++) {
+            for (size_t k = 0; k < m_nsp; k++) {
                 setMassFraction(point, k, state[4+k]);
             }
         }
@@ -123,10 +115,9 @@ namespace Cantera {
         /// Write the initial solution estimate into
         /// array x.
         virtual void _getInitialSoln(doublereal* x) {
-            int k, j;
-            for (j = 0; j < m_points; j++) {
+            for (size_t j = 0; j < m_points; j++) {
                 x[index(2,j)] = T_fixed(j);
-                for (k = 0; k < m_nsp; k++) {
+                for (size_t k = 0; k < m_nsp; k++) {
                     x[index(4+k,j)] = Y_fixed(k,j);
                 }
             }
@@ -149,7 +140,7 @@ namespace Cantera {
          * disable the energy equation so that the solution will be
          * held to this value.
          */
-        void setTemperature(int j, doublereal t) {
+        void setTemperature(size_t j, doublereal t) {
             m_fixedtemp[j] = t;
             m_do_energy[j] = false;
         }
@@ -160,24 +151,24 @@ namespace Cantera {
          * solution will be held to this value.
          * note: in practice, the species are hardly ever held fixed.
          */
-        void setMassFraction(int j, int k, doublereal y) {
+        void setMassFraction(size_t j, size_t k, doublereal y) {
             m_fixedy(k,j) = y;
             m_do_species[k] = true; // false;
         }
 
 
          /// The fixed temperature value at point j.
-        doublereal T_fixed(int j) const {return m_fixedtemp[j];}
+        doublereal T_fixed(size_t j) const {return m_fixedtemp[j];}
 
 
         /// The fixed mass fraction value of species k at point j.
-        doublereal Y_fixed(int k, int j) const {return m_fixedy(k,j);}
+        doublereal Y_fixed(size_t k, size_t j) const {return m_fixedy(k,j);}
 
 
-        virtual std::string componentName(int n) const;
+        virtual std::string componentName(size_t n) const;
 
         //added by Karl Meredith
-        int componentIndex(std::string name) const;
+        size_t componentIndex(std::string name) const;
 
 
         virtual void showSolution(const doublereal* x);
@@ -199,7 +190,7 @@ namespace Cantera {
 
         void solveEnergyEqn(int j=-1) {
             if (j < 0)
-                for (int i = 0; i < m_points; i++)
+                for (size_t i = 0; i < m_points; i++)
                     m_do_energy[i] = true;
             else
                 m_do_energy[j] = true;
@@ -209,9 +200,9 @@ namespace Cantera {
             needJacUpdate();
         }
 
-        void fixTemperature(int j=-1) {
-            if (j < 0)
-                for (int i = 0; i < m_points; i++) {
+        void fixTemperature(size_t j=npos) {
+            if (j == npos)
+                for (size_t i = 0; i < m_points; i++) {
                     m_do_energy[i] = false;
                 }
             else m_do_energy[j] = false;
@@ -221,21 +212,21 @@ namespace Cantera {
             needJacUpdate();
         }
 
-        bool doSpecies(int k) { return m_do_species[k]; }
-        bool doEnergy(int j) { return m_do_energy[j]; }
+        bool doSpecies(size_t k) { return m_do_species[k]; }
+        bool doEnergy(size_t j) { return m_do_energy[j]; }
 
-        void solveSpecies(int k=-1) {
-            if (k == -1) {
-                for (int i = 0; i < m_nsp; i++)
+        void solveSpecies(size_t k=npos) {
+            if (k == npos) {
+                for (size_t i = 0; i < m_nsp; i++)
                     m_do_species[i] = true;
             }
             else m_do_species[k] = true;
             needJacUpdate();
         }
 
-        void fixSpecies(int k=-1) {
-            if (k == -1) {
-                for (int i = 0; i < m_nsp; i++)
+        void fixSpecies(size_t k=npos) {
+            if (k == npos) {
+                for (size_t i = 0; i < m_nsp; i++)
                     m_do_species[i] = false;
             }
             else m_do_species[k] = false;
@@ -244,20 +235,20 @@ namespace Cantera {
 
         void integrateChem(doublereal* x,doublereal dt);
 
-        void resize(int components, int points);
+        void resize(size_t components, size_t points);
 
         virtual void setFixedPoint(int j0, doublereal t0){}
 
 
         void setJac(MultiJac* jac);
-        void setGas(const doublereal* x,int j);
-        void setGasAtMidpoint(const doublereal* x,int j);
+        void setGas(const doublereal* x, size_t j);
+        void setGasAtMidpoint(const doublereal* x, size_t j);
 
         //Karl Meredith
         //        doublereal density_unprotected(int j) const {
         //    return m_rho[j];
         // }
-        doublereal density(int j) const {
+        doublereal density(size_t j) const {
             return m_rho[j];
         }
 
@@ -266,23 +257,23 @@ namespace Cantera {
 
     protected:
 
-        doublereal component(const doublereal* x, int i, int j) const {
+        doublereal component(const doublereal* x, size_t i, size_t j) const {
             doublereal xx = x[index(i,j)];
             return xx;
         }
 
-        doublereal conc(const doublereal* x,int k,int j) const {
+        doublereal conc(const doublereal* x, size_t k,size_t j) const {
             return Y(x,k,j)*density(j)/m_wt[k];
         }
 
-        doublereal cbar(const doublereal* x,int k, int j) const {
+        doublereal cbar(const doublereal* x, size_t k, size_t j) const {
             return std::sqrt(8.0*GasConstant * T(x,j) / (Pi * m_wt[k]));
         }
 
-        doublereal wdot(int k, int j) const {return m_wdot(k,j);}
+        doublereal wdot(size_t k, size_t j) const {return m_wdot(k,j);}
 
         /// write the net production rates at point j into array m_wdot
-        void getWdot(doublereal* x,int j) {
+        void getWdot(doublereal* x, size_t j) {
             setGas(x,j);
             m_kin->getNetProductionRates(&m_wdot(0,j));
         }
@@ -291,9 +282,8 @@ namespace Cantera {
          * update the thermodynamic properties from point
          * j0 to point j1 (inclusive), based on solution x.
          */
-        void updateThermo(const doublereal* x, int j0, int j1) {
-            int j;
-            for (j = j0; j <= j1; j++) {
+        void updateThermo(const doublereal* x, size_t j0, size_t j1) {
+            for (size_t j = j0; j <= j1; j++) {
                 setGas(x,j);
                 m_rho[j] = m_thermo->density();
                 m_wtm[j] = m_thermo->meanMolecularWeight();
@@ -306,7 +296,7 @@ namespace Cantera {
         // central-differenced derivatives
         //--------------------------------
 
-        doublereal cdif2(const doublereal* x, int n, int j,
+        doublereal cdif2(const doublereal* x, size_t n, size_t j,
             const doublereal* f) const {
             doublereal c1 = (f[j] + f[j-1])*(x[index(n,j)] - x[index(n,j-1)]);
             doublereal c2 = (f[j+1] + f[j])*(x[index(n,j+1)] - x[index(n,j)]);
@@ -319,44 +309,44 @@ namespace Cantera {
         //--------------------------------
 
 
-        doublereal T(const doublereal* x,int j) const {
+        doublereal T(const doublereal* x, size_t j) const {
             return x[index(c_offset_T, j)];
         }
-        doublereal& T(doublereal* x,int j) {return x[index(c_offset_T, j)];}
-        doublereal T_prev(int j) const {return prevSoln(c_offset_T, j);}
+        doublereal& T(doublereal* x, size_t j) {return x[index(c_offset_T, j)];}
+        doublereal T_prev(size_t j) const {return prevSoln(c_offset_T, j);}
 
-        doublereal rho_u(const doublereal* x,int j) const {
+        doublereal rho_u(const doublereal* x, size_t j) const {
             return m_rho[j]*x[index(c_offset_U, j)];}
 
-        doublereal u(const doublereal* x,int j) const {
+        doublereal u(const doublereal* x, size_t j) const {
             return x[index(c_offset_U, j)];}
 
-        doublereal V(const doublereal* x,int j) const {
+        doublereal V(const doublereal* x, size_t j) const {
             return x[index(c_offset_V, j)];}
-        doublereal V_prev(int j) const {
+        doublereal V_prev(size_t j) const {
             return prevSoln(c_offset_V, j);}
 
-        doublereal lambda(const doublereal* x,int j) const {
+        doublereal lambda(const doublereal* x, size_t j) const {
             return x[index(c_offset_L, j)];
         }
 
-        doublereal Y(const doublereal* x,int k, int j) const {
+        doublereal Y(const doublereal* x, size_t k, size_t j) const {
             return x[index(c_offset_Y + k, j)];
         }
 
-        doublereal& Y(doublereal* x,int k, int j) {
+        doublereal& Y(doublereal* x, size_t k, size_t j) {
             return x[index(c_offset_Y + k, j)];
         }
 
-        doublereal Y_prev(int k, int j) const {
+        doublereal Y_prev(size_t k, size_t j) const {
             return prevSoln(c_offset_Y + k, j);
         }
 
-        doublereal X(const doublereal* x,int k, int j) const {
+        doublereal X(const doublereal* x, size_t k, size_t j) const {
             return m_wtm[j]*Y(x,k,j)/m_wt[k];
         }
 
-        doublereal flux(int k, int j) const {
+        doublereal flux(size_t k, size_t j) const {
             return m_flux(k, j);
         }
 
@@ -364,38 +354,38 @@ namespace Cantera {
         // convective spatial derivatives. These use upwind
         // differencing, assuming u(z) is negative
 
-        doublereal dVdz(const doublereal* x,int j) const {
-            int jloc = (u(x,j) > 0.0 ? j : j + 1);
+        doublereal dVdz(const doublereal* x, size_t j) const {
+            size_t jloc = (u(x,j) > 0.0 ? j : j + 1);
             return (V(x,jloc) - V(x,jloc-1))/m_dz[jloc-1];
         }
 
-        doublereal dYdz(const doublereal* x,int k, int j) const {
-            int jloc = (u(x,j) > 0.0 ? j : j + 1);
+        doublereal dYdz(const doublereal* x, size_t k, size_t j) const {
+            size_t jloc = (u(x,j) > 0.0 ? j : j + 1);
             return (Y(x,k,jloc) - Y(x,k,jloc-1))/m_dz[jloc-1];
         }
 
-        doublereal dTdz(const doublereal* x,int j) const {
-            int jloc = (u(x,j) > 0.0 ? j : j + 1);
+        doublereal dTdz(const doublereal* x, size_t j) const {
+            size_t jloc = (u(x,j) > 0.0 ? j : j + 1);
             return (T(x,jloc) - T(x,jloc-1))/m_dz[jloc-1];
         }
 
-        doublereal shear(const doublereal* x,int j) const {
+        doublereal shear(const doublereal* x, size_t j) const {
             doublereal c1 = m_visc[j-1]*(V(x,j) - V(x,j-1));
             doublereal c2 = m_visc[j]*(V(x,j+1) - V(x,j));
             return 2.0*(c2/(z(j+1) - z(j)) - c1/(z(j) - z(j-1)))/(z(j+1) - z(j-1));
         }
 
-        doublereal divHeatFlux(const doublereal* x, int j) const {
+        doublereal divHeatFlux(const doublereal* x, size_t j) const {
             doublereal c1 = m_tcon[j-1]*(T(x,j) - T(x,j-1));
             doublereal c2 = m_tcon[j]*(T(x,j+1) - T(x,j));
             return -2.0*(c2/(z(j+1) - z(j)) - c1/(z(j) - z(j-1)))/(z(j+1) - z(j-1));
         }
 
-        int mindex(int k, int j, int m) {
+        size_t mindex(size_t k, size_t j, size_t m) {
             return m*m_nsp*m_nsp + m_nsp*j + k;
         }
 
-        void updateDiffFluxes(const doublereal* x, int j0, int j1);
+        void updateDiffFluxes(const doublereal* x, size_t j0, size_t j1);
 
 
         //---------------------------------------------------------
@@ -441,7 +431,7 @@ namespace Cantera {
         Array2D m_wdot;
         vector_fp m_surfdot;
 
-        int m_nsp;
+        size_t m_nsp;
 
         igthermo_t*     m_thermo;
         kinetics_t*     m_kin;
@@ -469,7 +459,7 @@ namespace Cantera {
 
         doublereal m_efctr;
         bool m_dovisc;
-        void updateTransport(doublereal* x,int j0, int j1);
+        void updateTransport(doublereal* x, size_t j0, size_t j1);
 
     private:
         vector_fp m_ybar;
@@ -482,10 +472,10 @@ namespace Cantera {
      */
     class AxiStagnFlow : public StFlow {
     public:
-        AxiStagnFlow(igthermo_t* ph = 0, int nsp = 1, int points = 1) :
+        AxiStagnFlow(igthermo_t* ph = 0, size_t nsp = 1, size_t points = 1) :
             StFlow(ph, nsp, points) { m_dovisc = true; }
         virtual ~AxiStagnFlow() {}
-        virtual void eval(int j, doublereal* x, doublereal* r,
+        virtual void eval(size_t j, doublereal* x, doublereal* r,
             integer* mask, doublereal rdt);
         virtual std::string flowType() { return "Axisymmetric Stagnation"; }
     };
@@ -495,13 +485,13 @@ namespace Cantera {
      */
     class FreeFlame : public StFlow {
     public:
-        FreeFlame(igthermo_t* ph = 0, int nsp = 1, int points = 1) :
+        FreeFlame(igthermo_t* ph = 0, size_t nsp = 1, size_t points = 1) :
             StFlow(ph, nsp, points) { 
             m_dovisc = false;
             setID("flame");
         }
         virtual ~FreeFlame() {}
-        virtual void eval(int j, doublereal* x, doublereal* r,
+        virtual void eval(size_t j, doublereal* x, doublereal* r,
             integer* mask, doublereal rdt);
         virtual std::string flowType() { return "Free Flame"; }
         virtual bool fixed_mdot() { return false; }

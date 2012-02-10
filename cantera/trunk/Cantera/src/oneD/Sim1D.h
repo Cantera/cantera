@@ -5,10 +5,6 @@
 #ifndef CT_SIM1D_H
 #define CT_SIM1D_H
 
-#ifdef WIN32
-#pragma warning(disable:4996)
-#endif
-
 #include "OneDim.h"
 #include "funcs.h"
 
@@ -58,19 +54,19 @@ namespace Cantera {
         void setInitialGuess(std::string component, vector_fp& locs, vector_fp& vals);
 
         /// Set one entry in the solution vector.
-        void setValue(int dom, int comp, int localPoint,  doublereal value);
+        void setValue(size_t dom, size_t comp, size_t localPoint,  doublereal value);
 
         /// Get one entry in the solution vector.
-        doublereal value(int dom, int comp, int localPoint) const;
+        doublereal value(size_t dom, size_t comp, size_t localPoint) const;
 
-        doublereal workValue(int dom, int comp, int localPoint) const;
+        doublereal workValue(size_t dom, size_t comp, size_t localPoint) const;
 
         /// Specify a profile for one component of one domain.
-        void setProfile(int dom, int comp, const vector_fp& pos, 
+        void setProfile(size_t dom, size_t comp, const vector_fp& pos,
             const vector_fp& values);
 
         /// Set component 'comp' of domain 'dom' to value 'v' at all points.
-        void setFlatProfile(int dom, int comp, doublereal v);
+        void setFlatProfile(size_t dom, size_t comp, doublereal v);
 
         //@}
 
@@ -82,7 +78,7 @@ namespace Cantera {
 
         const doublereal* solution() { return DATA_PTR(m_x); }
 
-        void setTimeStep(doublereal stepsize, int n, integer* tsteps);
+        void setTimeStep(doublereal stepsize, size_t n, integer* tsteps);
 
         //void setMaxTimeStep(doublereal tmax) { m_maxtimestep = tmax; }
 

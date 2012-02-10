@@ -549,8 +549,8 @@ static integer c__2 = 2;
 		if (bl[j] > bu[j]) {
 		    nerr = 5;
 		    nchar = 57;
-		    rdum2 = bl[j];
-		    rdum = bu[j];
+		    rdum2 = (real) bl[j];
+		    rdum = (real) bu[j];
 		    xerrwv_("DBOLS(). FOR J=(I1), BOUND BL(J)=(R1) IS .GT. B"
 			    "U(J)=(R2).", &nchar, &nerr, &level, &c__1, &j, &
 			    idum, &c__2, &rdum2, &rdum, (ftnlen)57);
@@ -691,7 +691,7 @@ L30:
 		    if (rw[j] <= zero) {
 			nerr = 9;
 			nchar = 85;
-			rdum2 = rw[j];
+			rdum2 = (real) rw[j];
 			xerrwv_("DBOLS(). EACH PROVIDED COL. SCALE FACTOR MU"
 				"ST BE POSITIVE. COMPONENT (I1) NOW = (R1).", &
 				nchar, &nerr, &level, &c__1, &j, &idum, &c__1,

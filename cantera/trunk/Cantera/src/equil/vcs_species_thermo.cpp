@@ -3,9 +3,6 @@
  *   Implementation for the VCS_SPECIES_THERMO object.
  */
 /*
- * $Id$
- */
-/*
  * Copywrite (2005) Sandia Corporation. Under the terms of 
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
@@ -30,8 +27,8 @@ using namespace std;
 namespace VCSnonideal {
 
 
-VCS_SPECIES_THERMO::VCS_SPECIES_THERMO(int indexPhase, 
-				       int indexSpeciesPhase) :
+VCS_SPECIES_THERMO::VCS_SPECIES_THERMO(size_t indexPhase,
+                                       size_t indexSpeciesPhase) :
     
   IndexPhase(indexPhase),
   IndexSpeciesPhase(indexSpeciesPhase),
@@ -171,7 +168,7 @@ VCS_SPECIES_THERMO* VCS_SPECIES_THERMO::duplMyselfAsVCS_SPECIES_THERMO() {
  * Output
  *    return value = standard state free energy in units of Kelvin.
  */
-double VCS_SPECIES_THERMO::GStar_R_calc(int kglob, double TKelvin, 
+double VCS_SPECIES_THERMO::GStar_R_calc(size_t kglob, double TKelvin,
 					double pres)
 {
   char yo[] = "VCS_SPECIES_THERMO::GStar_R_calc ";
@@ -180,7 +177,7 @@ double VCS_SPECIES_THERMO::GStar_R_calc(int kglob, double TKelvin,
   T = TKelvin;
   if (UseCanteraCalls) {
     AssertThrowVCS(m_VCS_UnitsFormat == VCS_UNITS_MKS, "Possible inconsistency");
-    int kspec = IndexSpeciesPhase;
+    size_t kspec = IndexSpeciesPhase;
     OwningPhase->setState_TP(TKelvin, pres);
     fe = OwningPhase->GStar_calc_one(kspec);
     double R = vcsUtil_gasConstant(m_VCS_UnitsFormat);
@@ -215,7 +212,7 @@ double VCS_SPECIES_THERMO::GStar_R_calc(int kglob, double TKelvin,
  *                   (VCS_UNITS_MKS)  
  */
 double VCS_SPECIES_THERMO::
-VolStar_calc(int kglob, double TKelvin, double presPA)
+VolStar_calc(size_t kglob, double TKelvin, double presPA)
 {
   char yo[] = "VCS_SPECIES_THERMO::VStar_calc ";
   double vol, T;
@@ -223,7 +220,7 @@ VolStar_calc(int kglob, double TKelvin, double presPA)
   T = TKelvin;
   if (UseCanteraCalls) {
     AssertThrowVCS(m_VCS_UnitsFormat == VCS_UNITS_MKS, "Possible inconsistency");
-    int kspec = IndexSpeciesPhase;
+    size_t kspec = IndexSpeciesPhase;
     OwningPhase->setState_TP(TKelvin, presPA);
     vol = OwningPhase->VolStar_calc_one(kspec);
   } else {
@@ -257,7 +254,7 @@ VolStar_calc(int kglob, double TKelvin, double presPA)
  * Output
  *    return value = naught state free energy in Kelvin.
  */
-double VCS_SPECIES_THERMO::G0_R_calc(int kglob, double TKelvin)
+double VCS_SPECIES_THERMO::G0_R_calc(size_t kglob, double TKelvin)
 {
 #ifdef DEBUG_MODE
   char yo[] = "VS_SPECIES_THERMO::G0_R_calc ";
@@ -273,7 +270,7 @@ double VCS_SPECIES_THERMO::G0_R_calc(int kglob, double TKelvin)
   }
   if (UseCanteraCalls) {
     AssertThrowVCS(m_VCS_UnitsFormat == VCS_UNITS_MKS, "Possible inconsistency");
-    int kspec = IndexSpeciesPhase;
+    size_t kspec = IndexSpeciesPhase;
     OwningPhase->setState_T(TKelvin);
     fe = OwningPhase->G0_calc_one(kspec);
     double R = vcsUtil_gasConstant(m_VCS_UnitsFormat);
@@ -319,7 +316,7 @@ double VCS_SPECIES_THERMO::G0_R_calc(int kglob, double TKelvin)
  * Output
  *    return value = activity coefficient for species kspec
  */
-double VCS_SPECIES_THERMO::eval_ac(int kglob)
+double VCS_SPECIES_THERMO::eval_ac(size_t kglob)
 {
 #ifdef DEBUG_MODE
   char yo[] = "VCS_SPECIES_THERMO::eval_ac ";
@@ -332,7 +329,7 @@ double VCS_SPECIES_THERMO::eval_ac(int kglob)
    *  activity coefficients for all species in the phase are reevaluated.
    */
   if (UseCanteraCalls) {
-    int kspec = IndexSpeciesPhase;
+    size_t kspec = IndexSpeciesPhase;
     ac = OwningPhase->AC_calc_one(kspec);
   } else {
     switch (Activity_Coeff_Model) {

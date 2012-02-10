@@ -6,13 +6,6 @@
  *
  *  Because it is general, it is slow.
  */
-
-/*
- * $Author$
- * $Revision$
- * $Date$
- */
-
 #ifndef CT_GENERALSPECIESTHERMO_H
 #define CT_GENERALSPECIESTHERMO_H
 #include <string>
@@ -89,7 +82,7 @@ namespace Cantera {
      * @todo Create a factory method for SpeciesThermoInterpType.
      *       That's basically what we are doing here.
      */
-    virtual void install(std::string name, int index, int type, 
+    virtual void install(std::string name, size_t index, int type,
 			 const doublereal* c, 
 			 doublereal minTemp, doublereal maxTemp,
 			 doublereal refPressure);
@@ -111,7 +104,7 @@ namespace Cantera {
      * @param vpssmgr_ptr Pointer to the variable pressure standard state
      *                    manager that handles the PDSS object.
      */
-    void installPDSShandler(int k, PDSS *PDSS_ptr, VPSSMgr *vpssmgr_ptr);
+    void installPDSShandler(size_t k, PDSS *PDSS_ptr, VPSSMgr *vpssmgr_ptr);
 
     //! Like update(), but only updates the single species k.
     /*!
@@ -124,7 +117,7 @@ namespace Cantera {
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
      */
-    virtual void update_one(int k, doublereal T, doublereal* cp_R, 
+    virtual void update_one(size_t k, doublereal T, doublereal* cp_R,
 			    doublereal* h_RT,
 			    doublereal* s_R) const;
 
@@ -156,7 +149,7 @@ namespace Cantera {
      *
      * @param k    Species index
      */ 
-    virtual doublereal minTemp(int k=-1) const;
+    virtual doublereal minTemp(size_t k=-1) const;
 
     //! Maximum temperature.
     /*!
@@ -168,7 +161,7 @@ namespace Cantera {
      *
      * @param k  Species Index
      */
-    virtual doublereal maxTemp(int k=-1) const;
+    virtual doublereal maxTemp(size_t k=-1) const;
 
     //! The reference-state pressure for species k.
     /*!
@@ -183,7 +176,7 @@ namespace Cantera {
      *
      * @param k Species Index
      */
-    virtual doublereal refPressure(int k = -1) const;
+    virtual doublereal refPressure(size_t k = -1) const;
 
     //! This utility function reports the type of parameterization
     //! used for the species with index number index.
@@ -191,7 +184,7 @@ namespace Cantera {
      *
      * @param index  Species index
      */
-    virtual int reportType(int index) const;
+    virtual int reportType(size_t index) const;
 
     //! This utility function reports back the type of 
     //! parameterization and all of the parameters for the species, index.
@@ -204,7 +197,7 @@ namespace Cantera {
      * @param maxTemp   output - Maximum temperature
      * @param refPressure output - reference pressure (Pa).
      */
-    virtual void reportParams(int index, int &type, 
+    virtual void reportParams(size_t index, int &type,
 			      doublereal * const c, 
 			      doublereal &minTemp, 
 			      doublereal &maxTemp,
@@ -216,7 +209,7 @@ namespace Cantera {
      * @param c     Vector of coefficients used to set the
      *              parameters for the standard state.
      */
-    virtual void modifyParams(int index, doublereal *c);
+    virtual void modifyParams(size_t index, doublereal *c);
 
 #ifdef H298MODIFY_CAPABILITY
 
@@ -236,7 +229,7 @@ namespace Cantera {
      *
      * @return pointer to the SpeciesThermoInterpType object.
      */
-    SpeciesThermoInterpType * provideSTIT(int k);
+    SpeciesThermoInterpType * provideSTIT(size_t k);
 
   protected:
 
@@ -265,7 +258,7 @@ namespace Cantera {
      * Internal variable indicating the length of the 
      * number of species in the phase.
      */
-    int m_kk;
+    size_t m_kk;
 
 
     //! Make the class VPSSMgr a friend because we need to access

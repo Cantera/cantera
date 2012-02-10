@@ -4,13 +4,6 @@
  */
 
 // Copyright 2001  California Institute of Technology
-//
-// $Id$
-
-// turn off warnings about truncating long names under Windows
-#ifdef WIN32
-#pragma warning(disable:4786)
-#endif
 
 #include <numeric>
 #include <algorithm>
@@ -179,11 +172,11 @@ namespace ckr {
         removeWhiteSpace(s);
         // break string into substrings at the '+' characters separating
         // species symbols
-        int i, nn;
+
         bool inplus = true;
         vector<int> pluses;
         vector<string> sp;
-        for (i = n-1; i >= 0; i--) {
+        for (int i = n-1; i >= 0; i--) {
             if (!inplus && s[i] == '+') {
                 pluses.push_back(i);
                 inplus = true;
@@ -193,9 +186,9 @@ namespace ckr {
             }
         }
         pluses.push_back(-1);
-        int np = pluses.size();
-        int loc, nxt;
-        for (nn = 0; nn < np; nn++) {
+        size_t np = pluses.size();
+        size_t loc, nxt;
+        for (size_t nn = 0; nn < np; nn++) {
             loc = pluses.back();
             pluses.pop_back();
             if (nn == np-1) nxt = s.size();
@@ -203,11 +196,10 @@ namespace ckr {
             sp.push_back(s.substr(loc+1,nxt-loc-1));
         }
 
-        int ns = sp.size();
         string r, num;
-        int sz, j, strt=0;
+        size_t sz, j, strt=0;
         RxnSpecies ss;
-        for (nn = 0; nn < ns; nn++) {
+        for (size_t nn = 0; nn < sp.size(); nn++) {
             r = sp[nn];
             sz = r.size();
             for (j = 0; j < sz; j++) {
@@ -639,10 +631,10 @@ next:
 	      //   t1  t2 t3 t4 date
 	      // when there are 3 temperature regions
 	      //
-	      int nreg = toks.size() - 2;
+	      size_t nreg = toks.size() - 2;
 	      if (nreg >= 1) {
 		temp.resize(nreg+1);
-		for (int i = 0; i <= nreg; i++) {
+		for (size_t i = 0; i <= nreg; i++) {
 		  temp[i] = de_atof(toks[i]);
 		}
 		string defaultDate = toks[nreg+1];
@@ -655,7 +647,7 @@ next:
 		log << endl << " Default # of temperature regions: " 
 		    << nreg << endl;
 		log << "          ";
-		for (int i = 0; i <= nreg; i++) {
+		for (size_t i = 0; i <= nreg; i++) {
 		  log << temp[i] << "  ";
 		}
 		log << endl;
@@ -990,7 +982,6 @@ next:
 
             // rxn line
 	    //string::size_type eqloc;
-	    int eqloc;
             string sleft, sright;
             bool auxDataLine, metaDataLine;
 
@@ -1000,14 +991,14 @@ next:
             // increment the number of reactions, and start processing the
             // new reaction.
 
-            eqloc = s.find_first_of("=");
+            size_t eqloc = s.find_first_of("=");
             metaDataLine = false;
             auxDataLine = false;
 
             // look for a metadata line
             if (s[0] == '%') {
 	      metaDataLine = true;
-	      if (eqloc > 0 && eqloc < int(s.size())) {
+	      if (eqloc > 0 && eqloc < s.size()) {
 		int ierr, ierp;
 		vector<grouplist_t> rg, pg;
 		s[eqloc] = ' ';
@@ -1046,7 +1037,7 @@ next:
 	      }   
             }
 
-            else if (eqloc >= 0 && eqloc < int(s.size())) {
+            else if (eqloc != string::npos && eqloc < s.size()) {
                 if (nRxns > 0) {
                     rxn.number = nRxns;
                     reactions.push_back(rxn);
@@ -1070,17 +1061,17 @@ next:
                 // irreversible, and separate it into strings for 
                 // each side.
 	
-                if (eqloc = int(s.find("<=>")), eqloc >= 0) {
+                if (eqloc = s.find("<=>"), eqloc != string::npos) {
                     rxn.isReversible = true;
                     sleft = s.substr(0, eqloc);
                     sright = s.substr(eqloc+3,1000);
                 }
-                else if (eqloc = int(s.find("=>")), eqloc >= 0) {
+                else if (eqloc = s.find("=>"), eqloc != string::npos) {
                     rxn.isReversible = false;
                     sleft = s.substr(0, eqloc);
                     sright = s.substr(eqloc+2,1000);
                 }
-                else if (eqloc = int(s.find("=")), eqloc >= 0) {
+                else if (eqloc = s.find("="), eqloc != string::npos) {
                     rxn.isReversible = true;
                     sleft = s.substr(0, eqloc);
                     sright = s.substr(eqloc+1,1000);

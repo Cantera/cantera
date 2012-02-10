@@ -2,14 +2,9 @@
  *  @file ReactionPath.h
  *
  *  Classes for reaction path analysis.
- *
- * $Author$
- * $Revision$
- * $Date$
  */
 
 // Copyright 2001  California Institute of Technology
-
 
 #ifndef CT_RXNPATH_H
 #define CT_RXNPATH_H
@@ -45,7 +40,7 @@ namespace Cantera {
         virtual ~SpeciesNode() {}
 
         // public attributes
-        int         number;           ///<  Species number
+        size_t number;           ///<  Species number
         std::string      name;             ///<  Label on graph
         doublereal  value;            ///<  May be used to set node appearance
         bool        visible;          ///<  Visible on graph;
@@ -89,7 +84,7 @@ namespace Cantera {
 
     public:
  
-        typedef std::map<int, doublereal> rxn_path_map;
+        typedef std::map<size_t, doublereal> rxn_path_map;
 
         /**
          *  Constructor. Construct a one-way path from 
@@ -100,7 +95,7 @@ namespace Cantera {
         /// Destructor
         virtual ~Path() {}
 
-        void addReaction(int rxnNumber, doublereal value, std::string label = "");
+        void addReaction(size_t rxnNumber, doublereal value, std::string label = "");
 
         /// Upstream node.
         const SpeciesNode* begin() const { return m_a; }
@@ -156,51 +151,53 @@ namespace Cantera {
         doublereal maxFlow() { return m_flxmax; }
 
         /// The net flow from node \c k1 to node \c k2
-        doublereal netFlow(int k1, int k2) { 
+        doublereal netFlow(size_t k1, size_t k2) {
             return flow(k1, k2) - flow(k2, k1);
         }
 
         /// The one-way flow from node \c k1 to node \c k2
-        doublereal flow(int k1, int k2) {
+        doublereal flow(size_t k1, size_t k2) {
             return (m_paths[k1][k2] ? m_paths[k1][k2]->flow() : 0.0);
         }
 
         /// True if a node for species k exists
-        bool hasNode(int k) {
+        bool hasNode(size_t k) {
             return (m_nodes[k] != 0);
         }
 
         void writeData(std::ostream& s);
         void exportToDot(std::ostream& s);
         void add(ReactionPathDiagram& d);
-        SpeciesNode* node(int k) { return m_nodes[k]; }
-        Path* path(int k1, int k2) { return m_paths[k1][k2]; }
-        Path* path(int n) { return m_pathlist[n]; }
-        int nPaths() { return static_cast<int>(m_pathlist.size()); }
-        int nNodes() { return static_cast<int>(m_nodes.size()); }
+        SpeciesNode* node(size_t k) { return m_nodes[k]; }
+        Path* path(size_t k1, size_t k2) { return m_paths[k1][k2]; }
+        Path* path(size_t n) { return m_pathlist[n]; }
+        size_t nPaths() { return m_pathlist.size(); }
+        size_t nNodes() { return m_nodes.size(); }
 
-        void addNode(int k, std::string nm, doublereal x = 0.0);
+        void addNode(size_t k, std::string nm, doublereal x = 0.0);
 
-        void displayOnly(int k=-1) { m_local = k; }
+        void displayOnly(size_t k=-1) { m_local = k; }
 
-        void linkNodes(int k1, int k2, int rxn, doublereal value,
+        void linkNodes(size_t k1, size_t k2, size_t rxn, doublereal value,
             std::string legend = "");
 
         void include(std::string aaname) { m_include.push_back(aaname); }
         void exclude(std::string aaname) { m_exclude.push_back(aaname); }
         void include(std::vector<std::string>& names) { 
-            int n = static_cast<int>(names.size());
-            for (int i = 0; i < n; i++) m_include.push_back(names[i]);
+            for (size_t i = 0; i < names.size(); i++) {
+              m_include.push_back(names[i]);
+            }
         }
         void exclude(std::vector<std::string>& names) { 
-            int n = static_cast<int>(names.size());
-            for (int i = 0; i < n; i++) m_exclude.push_back(names[i]);
+            for (size_t i = 0; i < names.size(); i++) {
+              m_exclude.push_back(names[i]);
+            }
         }
         std::vector<std::string>& included() { return m_include; }
         std::vector<std::string>& excluded() { return m_exclude; }
-        vector_int species();
+        std::vector<size_t> species();
         vector_int reactions();
-        void findMajorPaths(doublereal threshold, int lda, doublereal* a);
+        void findMajorPaths(doublereal threshold, size_t lda, doublereal* a);
         void setFont(std::string font) {
             m_font = font;
         }
@@ -225,14 +222,14 @@ namespace Cantera {
     protected:
 
         doublereal                    m_flxmax;
-        std::map<int, std::map<int, Path*> >    m_paths;
-        std::map<int, SpeciesNode*>        m_nodes;
+        std::map<size_t, std::map<size_t, Path*> > m_paths;
+        std::map<size_t, SpeciesNode*> m_nodes;
         std::vector<Path*>                 m_pathlist;
         std::vector<std::string>                m_include;
         std::vector<std::string>                m_exclude;
-        vector_int                   m_speciesNumber;
-        std::map<int, int>                 m_rxns;
-        int                           m_local;
+        std::vector<size_t> m_speciesNumber;
+        std::map<size_t, int>                 m_rxns;
+        size_t m_local;
     };
 
 
@@ -255,23 +252,23 @@ namespace Cantera {
     protected:
         void findElements(Kinetics& kin);
 
-        int m_nr;
-        int m_ns;
-        int m_nel;
+        size_t m_nr;
+        size_t m_ns;
+        size_t m_nel;
         vector_fp m_ropf;
         vector_fp m_ropr;
         array_fp m_x;
-        std::vector<vector_int> m_reac;
-        std::vector<vector_int> m_prod;
+        std::vector<std::vector<size_t> > m_reac;
+        std::vector<std::vector<size_t> > m_prod;
         DenseMatrix m_elatoms;
         std::vector<std::vector<int> > m_groups;
         std::vector<Group> m_sgroup;
         std::vector<std::string> m_elementSymbols;
         //        std::map<int, int> m_warn;
-        std::map<int, std::map<int, std::map<int, Group> > >  m_transfer;
+        std::map<size_t, std::map<size_t, std::map<size_t, Group> > >  m_transfer;
         std::vector<bool> m_determinate;
         Array2D m_atoms;
-        std::map<std::string,int> m_enamemap;
+        std::map<std::string, size_t> m_enamemap;
     };
 
 }

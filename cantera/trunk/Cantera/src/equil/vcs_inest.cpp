@@ -2,11 +2,6 @@
  * @file vcs_inest.cpp
  *   Implementation methods for obtaining a good initial guess
  */
-/*  $Author$
- *  $Date$
- *  $Revision$
- */
-
 /*
  * Copywrite (2005) Sandia Corporation. Under the terms of 
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
@@ -42,14 +37,13 @@ namespace VCSnonideal {
    */
   void VCS_SOLVE::vcs_inest(double * const aw, double * const sa, double * const sm, 
 		            double * const ss, double test) {
-    int conv, k,  lt, ikl, kspec, iph, irxn;
+    size_t lt, ikl, kspec, iph, irxn;
     double s;
     double s1 = 0.0;
     double xl, par;
-    int finished;
-    int     nspecies   = m_numSpeciesTot;
-    int     nrxn       = m_numRxnTot;
-    vcs_VolPhase *Vphase = 0;
+    bool finished, conv;
+    size_t nspecies = m_numSpeciesTot;
+    size_t nrxn = m_numRxnTot;
  
     // double *molNum   = VCS_DATA_PTR(m_molNumSpecies_old);
     double TMolesMultiphase;
@@ -112,7 +106,7 @@ namespace VCSnonideal {
       plogendl();
       plogf("%s     Element           Goal         Actual\n", pprefix);
       int jj = 0;
-      for (int j = 0; j < m_numElemConstraints; j++) {
+      for (size_t j = 0; j < m_numElemConstraints; j++) {
 	if (m_elementActive[j]) {
 	  double tmp = 0.0;
 	  for (kspec = 0; kspec < nspecies; ++kspec) {
@@ -135,7 +129,6 @@ namespace VCSnonideal {
     vcs_dzero(VCS_DATA_PTR(m_deltaMolNumSpecies), nspecies);
     for (kspec = 0; kspec < nspecies; ++kspec) {
       iph = m_phaseID[kspec];
-      Vphase = m_VolPhaseList[iph];
       if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	if (m_molNumSpecies_old[kspec] <= 0.0) {
 	  /*
@@ -154,7 +147,7 @@ namespace VCSnonideal {
      *      Now find the optimized basis that spans the stoichiometric
      *      coefficient matrix
      */
-    (void) vcs_basopt(FALSE, aw, sa, sm, ss, test, &conv);
+    (void) vcs_basopt(false, aw, sa, sm, ss, test, &conv);
 
     /* ***************************************************************** */
     /* **** CALCULATE TOTAL MOLES,                    ****************** */
@@ -246,7 +239,7 @@ namespace VCSnonideal {
 	m_deltaMolNumSpecies[kspec] = 0.5 * (m_tPhaseMoles_new[iph] + TMolesMultiphase) 
 	  * exp(-m_deltaGRxn_new[irxn]);
 	 
-	for (k = 0; k < m_numComponents; ++k) {
+	for (size_t k = 0; k < m_numComponents; ++k) {
 	  m_deltaMolNumSpecies[k] += m_stoichCoeffRxnMatrix[irxn][k] * m_deltaMolNumSpecies[kspec];
 	}
 	
@@ -293,7 +286,7 @@ namespace VCSnonideal {
     /* ******************************************** */
     /* **** CALCULATE NEW MOLE NUMBERS ************ */
     /* ******************************************** */
-    finished = FALSE;
+    finished = false;
     do {
       for (kspec = 0; kspec < m_numComponents; ++kspec) {
 	if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
@@ -324,17 +317,17 @@ namespace VCSnonideal {
 	s += m_deltaMolNumSpecies[kspec] * m_feSpecies_old[kspec];
       }
       if (s == 0.0) {
-	finished = TRUE; continue;
+	finished = true; continue;
       }
       if (s < 0.0) {
-	if (ikl <= 0) {
-	  finished = TRUE; continue;
+	if (ikl == 0) {
+	  finished = true; continue;
 	}
       }
       /* ***************************************** */
       /* *** TRY HALF STEP SIZE ****************** */
       /* ***************************************** */
-      if (ikl <= 0) {
+      if (ikl == 0) {
 	s1 = s;
 	par *= 0.5;
 	ikl = 1;
@@ -461,15 +454,13 @@ namespace VCSnonideal {
      *       Note: We won't do this unless we have to since it involves inverting
      *             a matrix.
      */
-    int rangeCheck  = vcs_elabcheck(1);
+    bool rangeCheck = vcs_elabcheck(1);
     if (!vcs_elabcheck(0)) {
-#ifdef DEBUG_MODE
-      if (m_debug_print_lvl >= 2) {
+      if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
 	plogf("%sInitial guess failed element abundances\n", pprefix);  
 	plogf("%sCall vcs_elcorr to attempt fix", pprefix);
         plogendl();
       }
-#endif
       vcs_elcorr(VCS_DATA_PTR(sm), VCS_DATA_PTR(aw));
       rangeCheck  = vcs_elabcheck(1);
       if (!vcs_elabcheck(0)) {
@@ -480,8 +471,7 @@ namespace VCSnonideal {
         plogendl();
 	retn = -1;
       } else {
-#ifdef DEBUG_MODE
-	if (m_debug_print_lvl >= 2) {
+	if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
 	  if (rangeCheck) {
 	    plogf("%sInitial guess now satisfies element abundances", pprefix);
             plogendl();
@@ -493,12 +483,10 @@ namespace VCSnonideal {
             plogendl();
 	  }
 	}
-#endif 
       }
     }
     else {
-#ifdef DEBUG_MODE
-      if (m_debug_print_lvl >= 2) {
+      if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
 	if (rangeCheck) {
 	  plogf("%sInitial guess satisfies element abundances", pprefix);
           plogendl();
@@ -510,7 +498,6 @@ namespace VCSnonideal {
           plogendl();
 	}
       }
-#endif
     } 
       
 #ifdef DEBUG_MODE

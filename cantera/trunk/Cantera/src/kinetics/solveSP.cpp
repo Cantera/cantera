@@ -2,9 +2,6 @@
  * @file: solveSP.cpp Implicit surface site concentration solver
  */
 /*
- * $Id$
- */
-/*
  * Copywrite 2004 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government
  * retains certain rights in this software.
@@ -30,8 +27,8 @@ namespace Cantera {
      *       STATIC ROUTINES DEFINED IN THIS FILE
      ***************************************************************************/
 
-    static doublereal calc_damping(doublereal *x, doublereal *dx, int dim, int *);
-    static doublereal calcWeightedNorm(const doublereal [], const doublereal dx[], int);
+    static doublereal calc_damping(doublereal *x, doublereal *dx, size_t dim, int *);
+    static doublereal calcWeightedNorm(const doublereal [], const doublereal dx[], size_t);
 
     /***************************************************************************
      *                    LAPACK PROTOTYPES
@@ -76,11 +73,11 @@ namespace Cantera {
     {
  
         m_numSurfPhases = 0;
-        int numPossibleSurfPhases = m_objects.size();
-        for (int n = 0; n < numPossibleSurfPhases; n++) {
+        size_t numPossibleSurfPhases = m_objects.size();
+        for (size_t n = 0; n < numPossibleSurfPhases; n++) {
             InterfaceKinetics *m_kin = m_objects[n];
-            int surfPhaseIndex = m_kin->surfacePhaseIndex();
-            if (surfPhaseIndex >= 0) {
+            size_t surfPhaseIndex = m_kin->surfacePhaseIndex();
+            if (surfPhaseIndex != npos) {
                 m_numSurfPhases++;
                 m_indexKinObjSurfPhase.push_back(n);
                 m_kinObjPhaseIDSurfPhase.push_back(surfPhaseIndex);
@@ -97,7 +94,7 @@ namespace Cantera {
             }
 
             m_ptrsSurfPhase.push_back(sp);
-            int nsp = sp->nSpecies();
+            size_t nsp = sp->nSpecies();
             m_nSpeciesSurfPhase.push_back(nsp);
             m_numTotSurfSpecies += nsp;
 
@@ -132,8 +129,8 @@ namespace Cantera {
         }
     
         m_maxTotSpecies = 0;
-        for (int n = 0; n < m_numSurfPhases; n++) {
-            int tsp =  m_objects[n]->nTotalSpecies();
+        for (size_t n = 0; n < m_numSurfPhases; n++) {
+	    size_t tsp =  m_objects[n]->nTotalSpecies();
             m_maxTotSpecies = MAX(m_maxTotSpecies, tsp);
         }
         m_maxTotSpecies = MAX(m_maxTotSpecies, m_neq);
@@ -151,14 +148,14 @@ namespace Cantera {
         m_kinObjIndex.resize(m_numTotSurfSpecies + m_numTotBulkSpeciesSS, 0);
         m_eqnIndexStartSolnPhase.resize(m_numSurfPhases + m_numBulkPhasesSS, 0);
   
-        int kindexSP = 0;
-        int isp, k, nsp, kstart;
+        size_t kindexSP = 0;
+        size_t isp, k, nsp, kstart;
         for (isp = 0; isp < m_numSurfPhases; isp++) {
-            int iKinObject = m_indexKinObjSurfPhase[isp];
+            size_t iKinObject = m_indexKinObjSurfPhase[isp];
             InterfaceKinetics *m_kin = m_objects[iKinObject];
-            int surfPhaseIndex = m_kinObjPhaseIDSurfPhase[isp];
+            size_t surfPhaseIndex = m_kinObjPhaseIDSurfPhase[isp];
             kstart = m_kin->kineticsSpeciesIndex(0, surfPhaseIndex);
-            nsp =  m_nSpeciesSurfPhase[isp];
+            nsp = m_nSpeciesSurfPhase[isp];
             m_eqnIndexStartSolnPhase[isp] = kindexSP;
             for (k = 0; k < nsp; k++, kindexSP++) {
                 m_kinSpecIndex[kindexSP] = kstart + k;
@@ -181,7 +178,7 @@ namespace Cantera {
         }
 
         // Dimension solution vector
-        int dim1 = MAX(1, m_neq);
+        size_t dim1 = MAX(1, m_neq);
         m_CSolnSP.resize(dim1, 0.0);
         m_CSolnSPInit.resize(dim1, 0.0);
         m_CSolnSPOld.resize(dim1, 0.0);
@@ -192,7 +189,7 @@ namespace Cantera {
     
         m_Jac.resize(dim1, dim1, 0.0);
         m_JacCol.resize(dim1, 0);
-        for (int k = 0; k < dim1; k++) {
+        for (size_t k = 0; k < dim1; k++) {
             m_JacCol[k] = m_Jac.ptrColumn(k);
         }
     }
@@ -215,8 +212,7 @@ namespace Cantera {
         if (ifunc == SFLUX_JACOBIAN) {
             EXTRA_ACCURACY *= 0.001;
         }
-        int k, irow;
-        int  jcol, info = 0;
+        int info = 0;
         int label_t=-1; /* Species IDs for time control */
         int label_d; /* Species IDs for damping control */
         int        label_t_old=-1;
@@ -261,12 +257,12 @@ namespace Cantera {
          *    Store the initial guess for the surface problem in the soln vector,
          *  CSoln, and in an separate vector CSolnInit.
          */
-        int loc = 0;
-        for (int n = 0; n < m_numSurfPhases; n++) {
+        size_t loc = 0;
+        for (size_t n = 0; n < m_numSurfPhases; n++) {
             SurfPhase *sf_ptr =  m_ptrsSurfPhase[n];
             sf_ptr->getConcentrations(DATA_PTR(m_numEqn1));
-            int nsp = m_nSpeciesSurfPhase[n];
-            for (k = 0; k <nsp; k++) {
+            size_t nsp = m_nSpeciesSurfPhase[n];
+            for (size_t k = 0; k <nsp; k++) {
                 m_CSolnSP[loc] = m_numEqn1[k];
                 loc++;
             }
@@ -412,7 +408,7 @@ namespace Cantera {
                     printf("solveSurfSS: Zero pivot, assuming converged: %g (%d)\n",
                         resid_norm, info);
                 }
-                for (jcol = 0; jcol < m_neq; jcol++) m_resid[jcol] = 0.0;
+                for (size_t jcol = 0; jcol < m_neq; jcol++) m_resid[jcol] = 0.0;
 
                 /* print out some helpful info */
                 if (m_ioflag > 1) {
@@ -421,7 +417,7 @@ namespace Cantera {
                         iter,t_real, 1.0/inv_t);
                     printf("solveSurfProb: init guess, current concentration,"
                         "and prod rate:\n");
-                    for (jcol = 0; jcol < m_neq; jcol++) {
+                    for (size_t jcol = 0; jcol < m_neq; jcol++) {
                         printf("\t%d  %g %g %g\n", jcol, m_CSolnSPInit[jcol], m_CSolnSP[jcol], 
                             m_netProductionRatesSave[m_kinSpecIndex[jcol]]);
                     }
@@ -456,8 +452,8 @@ namespace Cantera {
              *    Update the solution vector and real time
              *    Crop the concentrations to zero.
              */
-            for (irow = 0; irow < m_neq; irow++) m_CSolnSP[irow] -= damp * m_resid[irow];
-            for (irow = 0; irow < m_neq; irow++) {
+            for (size_t irow = 0; irow < m_neq; irow++) m_CSolnSP[irow] -= damp * m_resid[irow];
+            for (size_t irow = 0; irow < m_neq; irow++) {
                 m_CSolnSP[irow] = MAX(0.0, m_CSolnSP[irow]);
             }
             updateState( DATA_PTR(m_CSolnSP));
@@ -549,8 +545,8 @@ namespace Cantera {
      * Update the surface states of the surface phases.
      */
     void solveSP::updateState(const doublereal *CSolnSP) {
-        int loc = 0;
-        for (int n = 0; n < m_numSurfPhases; n++) {
+        size_t loc = 0;
+        for (size_t n = 0; n < m_numSurfPhases; n++) {
             m_ptrsSurfPhase[n]->setConcentrations(CSolnSP + loc);
             loc += m_nSpeciesSurfPhase[n];
         }
@@ -566,8 +562,8 @@ namespace Cantera {
      * Update the mole fractions for phases which are part of the equation set
      */
     void solveSP::updateMFSolnSP(doublereal *XMolSolnSP) {
-        for (int isp = 0; isp < m_numSurfPhases; isp++) {
-            int keqnStart = m_eqnIndexStartSolnPhase[isp];
+        for (size_t isp = 0; isp < m_numSurfPhases; isp++) {
+          size_t keqnStart = m_eqnIndexStartSolnPhase[isp];
             m_ptrsSurfPhase[isp]->getMoleFractions(XMolSolnSP + keqnStart);
         }
         //if (m_bulkFunc == BULK_DEPOSITION) {
@@ -584,9 +580,9 @@ namespace Cantera {
      */
     void solveSP::updateMFKinSpecies(doublereal *XMolKinSpecies, int isp) {
         InterfaceKinetics *m_kin = m_objects[isp];
-        int nph = m_kin->nPhases();
-        for (int iph = 0; iph < nph; iph++) {
-            int ksi = m_kin->kineticsSpeciesIndex(0, iph);
+        size_t nph = m_kin->nPhases();
+        for (size_t iph = 0; iph < nph; iph++) {
+            size_t ksi = m_kin->kineticsSpeciesIndex(0, iph);
             ThermoPhase &thref = m_kin->thermo(iph);
             thref.getMoleFractions(XMolKinSpecies + ksi);
         }
@@ -597,13 +593,13 @@ namespace Cantera {
      * surface phase.
      */
     void solveSP::evalSurfLarge(const doublereal *CSolnSP) {
-        int kindexSP = 0;
-        for (int isp = 0; isp < m_numSurfPhases; isp++) {
-            int nsp = m_nSpeciesSurfPhase[isp];
+        size_t kindexSP = 0;
+        for (size_t isp = 0; isp < m_numSurfPhases; isp++) {
+            size_t nsp = m_nSpeciesSurfPhase[isp];
             doublereal Clarge = CSolnSP[kindexSP];
             m_spSurfLarge[isp] = 0;
             kindexSP++;
-            for (int k = 1; k < nsp; k++, kindexSP++) {
+            for (size_t k = 1; k < nsp; k++, kindexSP++) {
                 if (CSolnSP[kindexSP] > Clarge) {
                     Clarge = CSolnSP[kindexSP];
                     m_spSurfLarge[isp] = k;
@@ -626,7 +622,7 @@ namespace Cantera {
         const doublereal *CSolnOld,  const bool do_time,
         const doublereal deltaT)
     {
-        int isp, nsp, kstart, k, kindexSP, kins, kspecial;
+        size_t isp, nsp, kstart, k, kindexSP, kins, kspecial;
         doublereal lenScale = 1.0E-9;
         doublereal sd = 0.0;
         doublereal grRate;
@@ -649,7 +645,7 @@ namespace Cantera {
                 for (isp = 0; isp < m_numSurfPhases; isp++) {
                     nsp = m_nSpeciesSurfPhase[isp];
                     InterfaceKinetics *kinPtr = m_objects[isp];
-                    int surfIndex = kinPtr->surfacePhaseIndex();
+                    size_t surfIndex = kinPtr->surfacePhaseIndex();
                     kstart = kinPtr->kineticsSpeciesIndex(0, surfIndex);
                     kins = kindexSP;
                     kinPtr->getNetProductionRates(DATA_PTR(m_netProductionRatesSave));
@@ -671,7 +667,7 @@ namespace Cantera {
                 for (isp = 0; isp < m_numSurfPhases; isp++) {
                     nsp = m_nSpeciesSurfPhase[isp];
                     InterfaceKinetics *kinPtr = m_objects[isp];
-                    int surfIndex = kinPtr->surfacePhaseIndex();
+                    size_t surfIndex = kinPtr->surfacePhaseIndex();
                     kstart = kinPtr->kineticsSpeciesIndex(0, surfIndex);
                     kins = kindexSP;
                     kinPtr->getNetProductionRates(DATA_PTR(m_netProductionRatesSave));
@@ -694,7 +690,7 @@ namespace Cantera {
                     //ThermoPhase *THptr = m_bulkPhasePtrs[isp];
                     //THptr->getMoleFractions(XBlk);
                     nsp = m_nSpeciesSurfPhase[isp];
-                    int surfPhaseIndex = m_indexKinObjSurfPhase[isp];
+                    size_t surfPhaseIndex = m_indexKinObjSurfPhase[isp];
                     InterfaceKinetics *m_kin = m_objects[isp];
                     grRate = 0.0;
                     kstart = m_kin->kineticsSpeciesIndex(0, surfPhaseIndex);
@@ -748,7 +744,7 @@ namespace Cantera {
         const doublereal CSolnOld[], const bool do_time, 
         const doublereal deltaT)
     {
-        int kColIndex = 0, nsp, jsp, i, kCol;
+        size_t kColIndex = 0, nsp, jsp, i, kCol;
         doublereal dc, cSave, sd;
         doublereal *col_j;
         /*
@@ -798,7 +794,7 @@ namespace Cantera {
 
 #define APPROACH 0.80
 
-    static doublereal calc_damping(doublereal x[], doublereal dxneg[], int dim, int *label)
+    static doublereal calc_damping(doublereal x[], doublereal dxneg[], size_t dim, int *label)
 
         /* This function calculates a damping factor for the Newton iteration update
          * vector, dxneg, to insure that all site and bulk fractions, x, remain
@@ -812,13 +808,12 @@ namespace Cantera {
          */
 
     {
-        int       i;
         doublereal    damp = 1.0, xnew, xtop, xbot;
         static doublereal damp_old = 1.0;
 
         *label = -1;
 
-        for (i = 0; i < dim; i++) {
+        for (size_t i = 0; i < dim; i++) {
 
             /*
              * Calculate the new suggested new value of x[i]
@@ -836,14 +831,14 @@ namespace Cantera {
             xbot = fabs(x[i]*0.1) - 1.0e-16;
             if (xnew > xtop )  {
                 damp = - APPROACH * (1.0 - x[i]) / dxneg[i];
-                *label = i;
+                *label = int(i);
             }
             else if (xnew < xbot) {
                 damp = APPROACH * x[i] / dxneg[i];
-                *label = i;
+                *label = int(i);
             } else  if (xnew > 3.0*MAX(x[i], 1.0E-10)) {
                 damp = - 2.0 * MAX(x[i], 1.0E-10) / dxneg[i];
-                *label = i;
+                *label = int(i);
             }
         }
 
@@ -873,11 +868,11 @@ namespace Cantera {
      *    This function calculates the norm  of an update, dx[], 
      *    based on the weighted values of x.
      */
-    static doublereal calcWeightedNorm(const doublereal wtX[], const doublereal dx[], int dim) {
+    static doublereal calcWeightedNorm(const doublereal wtX[], const doublereal dx[], size_t dim) {
         doublereal norm = 0.0;
         doublereal tmp;
         if (dim == 0) return 0.0;
-        for (int i = 0; i < dim; i++) {
+        for (size_t i = 0; i < dim; i++) {
             tmp = dx[i] / wtX[i];
             norm += tmp * tmp;
         }
@@ -893,7 +888,7 @@ namespace Cantera {
         const Array2D &Jac, const doublereal CSoln[],
         const doublereal abstol, const doublereal reltol)
     {
-        int k, jcol, kindex, isp, nsp;
+        size_t k, jcol, kindex, isp, nsp;
         doublereal sd;
         /*
          * First calculate the weighting factor for the concentrations of
@@ -945,13 +940,11 @@ namespace Cantera {
     calc_t(doublereal netProdRateSolnSP[], doublereal XMolSolnSP[],
         int *label, int *label_old, doublereal *label_factor, int ioflag)
     {
-        int  k, isp, nsp, kstart;
+        size_t k, isp, nsp, kstart;
         doublereal   inv_timeScale = 1.0E-10;
         doublereal sden, tmp;
-        int kindexSP = 0;
+        size_t kindexSP = 0;
         *label = 0;
-        int ispSpecial = 0;
-        int kspSpecial = 0;
         updateMFSolnSP(XMolSolnSP);
         for (isp = 0; isp < m_numSurfPhases; isp++) {
             nsp = m_nSpeciesSurfPhase[isp];
@@ -961,7 +954,7 @@ namespace Cantera {
       
             // Calcuate the start of the species index for surfaces within
             // the InterfaceKinetics object
-            int surfIndex = m_kin->surfacePhaseIndex();
+            size_t surfIndex = m_kin->surfacePhaseIndex();
             kstart = m_kin->kineticsSpeciesIndex(0, surfIndex);
             ThermoPhase& THref = m_kin->thermo(surfIndex);
  
@@ -969,7 +962,7 @@ namespace Cantera {
 
             sden = THref.molarDensity();
             for (k = 0; k < nsp; k++, kindexSP++) {
-                int kspindex = kstart + k;
+              size_t kspindex = kstart + k;
                 netProdRateSolnSP[kindexSP] = m_numEqn1[kspindex];
                 if (XMolSolnSP[kindexSP] <= 1.0E-10) {
                     tmp = 1.0E-10;
@@ -981,9 +974,7 @@ namespace Cantera {
                 if (netProdRateSolnSP[kindexSP]> 0.0) tmp /= 100.;
                 if (tmp > inv_timeScale) {
                     inv_timeScale = tmp;
-                    *label = kindexSP;
-                    ispSpecial = isp;
-                    kspSpecial = k;
+                    *label = int(kindexSP);
                 }
             }
         }
@@ -1005,7 +996,7 @@ namespace Cantera {
                 printf("Delta_t increase due to repeated controlling species = %e\n",
                     *label_factor);
             }
-            int kkin = m_kinSpecIndex[*label];
+            size_t kkin = m_kinSpecIndex[*label];
             InterfaceKinetics *m_kin = m_objects[ispSpecial];
             string sn = m_kin->kineticsSpeciesName(kkin);
             printf("calc_t: spec=%d(%s)  sf=%e  pr=%e  dt=%e\n",
@@ -1139,7 +1130,7 @@ namespace Cantera {
             printf("\n================================ INITIAL GUESS "
                 "========================================\n");
             int kindexSP = 0;
-            for (int isp = 0; isp < m_numSurfPhases; isp++) {
+            for (size_t isp = 0; isp < m_numSurfPhases; isp++) {
                 InterfaceKinetics *m_kin = m_objects[isp];
                 int surfIndex = m_kin->surfacePhaseIndex();
                 int nPhases = m_kin->nPhases();
@@ -1196,13 +1187,13 @@ namespace Cantera {
 
     void solveSP::printIteration(int ioflag, doublereal damp, int label_d,
         int label_t,
-        doublereal inv_t, doublereal t_real, int iter,
+        doublereal inv_t, doublereal t_real, size_t iter,
         doublereal update_norm, doublereal resid_norm,
         doublereal netProdRate[], doublereal CSolnSP[],
         doublereal resid[], doublereal XMolSolnSP[],
-        doublereal wtSpecies[], int dim, bool do_time)
+        doublereal wtSpecies[], size_t dim, bool do_time)
     {
-        int i, k;
+        size_t i, k;
         string nm;
         if (ioflag == 1) {
 
@@ -1218,7 +1209,7 @@ namespace Cantera {
             printf("%9.4e %9.4e", update_norm, resid_norm);
             if (do_time) {
                 k = m_kinSpecIndex[label_t];
-                int isp = m_kinObjIndex[label_t];
+                size_t isp = m_kinObjIndex[label_t];
                 InterfaceKinetics *m_kin = m_objects[isp];
                 nm = m_kin->kineticsSpeciesName(k);
                 printf(" %-16s", nm.c_str());
@@ -1227,7 +1218,7 @@ namespace Cantera {
             }
             if (label_d >= 0) {
                 k = m_kinSpecIndex[label_d];
-                int isp = m_kinObjIndex[label_d];
+                size_t isp = m_kinObjIndex[label_d];
                 InterfaceKinetics *m_kin = m_objects[isp];
                 nm = m_kin->kineticsSpeciesName(k);
                 printf(" %-16s", nm.c_str());
@@ -1247,7 +1238,7 @@ namespace Cantera {
             printf("\t---------------------------------------------------------"
                 "-----------------------------\n");
             int kindexSP = 0;
-            for (int isp = 0; isp < m_numSurfPhases; isp++) {
+            for (size_t isp = 0; isp < m_numSurfPhases; isp++) {
                 int nsp = m_nSpeciesSurfPhase[isp];
                 InterfaceKinetics *m_kin = m_objects[isp];
                 //int surfPhaseIndex = m_kinObjPhaseIDSurfPhase[isp];
@@ -1279,15 +1270,15 @@ namespace Cantera {
 
 
     void solveSP::printFinal(int ioflag, doublereal damp, int label_d, int label_t,
-        doublereal inv_t, doublereal t_real, int iter,
+        doublereal inv_t, doublereal t_real, size_t iter,
         doublereal update_norm, doublereal resid_norm,
         doublereal netProdRateKinSpecies[], const doublereal CSolnSP[],
         const doublereal resid[], doublereal XMolSolnSP[],
         const doublereal wtSpecies[], const doublereal wtRes[],
-        int dim, bool do_time,
+        size_t dim, bool do_time,
         doublereal TKelvin, doublereal PGas)
     {
-        int i, k;
+        size_t i, k;
         string nm;
         if (ioflag == 1) {
 
@@ -1303,7 +1294,7 @@ namespace Cantera {
             printf("%9.4e %9.4e", update_norm, resid_norm);
             if (do_time) {
                 k = m_kinSpecIndex[label_t];
-                int isp = m_kinObjIndex[label_t];
+                size_t isp = m_kinObjIndex[label_t];
                 InterfaceKinetics *m_kin = m_objects[isp];
                 nm = m_kin->kineticsSpeciesName(k);
                 printf(" %-16s", nm.c_str());
@@ -1312,7 +1303,7 @@ namespace Cantera {
             }
             if (label_d >= 0) {
                 k = m_kinSpecIndex[label_d];
-                int isp = m_kinObjIndex[label_d];
+                size_t isp = m_kinObjIndex[label_d];
                 InterfaceKinetics *m_kin = m_objects[isp];
                 nm = m_kin->kineticsSpeciesName(k);
                 printf(" %-16s", nm.c_str());
@@ -1336,7 +1327,7 @@ namespace Cantera {
             printf("---------------------------------------------------------------"
                 "---------------------------------------------\n");
             int kindexSP = 0;
-            for (int isp = 0; isp < m_numSurfPhases; isp++) {
+            for (size_t isp = 0; isp < m_numSurfPhases; isp++) {
                 int nsp = m_nSpeciesSurfPhase[isp];
                 InterfaceKinetics *m_kin = m_objects[isp];
                 //int surfPhaseIndex = m_kinObjPhaseIDSurfPhase[isp];
@@ -1365,7 +1356,7 @@ namespace Cantera {
                 "---------------------------------------------\n");
             doublereal *XMolKinSpecies = DATA_PTR(m_numEqn2);
             kindexSP = 0;
-            for (int isp = 0; isp < m_numSurfPhases; isp++) {
+            for (size_t isp = 0; isp < m_numSurfPhases; isp++) {
                 InterfaceKinetics *m_kin = m_objects[isp];
                 int surfIndex = m_kin->surfacePhaseIndex();
                 int nPhases = m_kin->nPhases();

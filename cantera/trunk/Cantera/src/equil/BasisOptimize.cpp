@@ -3,11 +3,6 @@
  *     Functions which calculation optimized basis of the 
  *     stoichiometric coefficient matrix (see /ref equil functions)
  */
-
-/*
- * $Id$
- */
-
 #include "ct_defs.h"
 #include "global.h"
 #include "ThermoPhase.h"
@@ -45,7 +40,7 @@ static void print_stringTrunc(const char *str, int space, int alignment);
   *
   *    @return             index of the greatest value on X(*) searched
   */
-static int amax(double *x, int j, int n);
+static size_t amax(double *x, size_t j, size_t n);
 
 //! Switch the position in the vector
 /*!
@@ -53,7 +48,7 @@ static int amax(double *x, int j, int n);
  *  @param       jr              first position
  *  @param       kspec           second species
  */
-static void switch_pos(vector_int &orderVector, int jr, int kspec);
+static void switch_pos(vector_int &orderVector, size_t jr, size_t kspec);
 
 
  //!  Invert an nxn matrix and solve m rhs's
@@ -84,7 +79,7 @@ static void switch_pos(vector_int &orderVector, int jr, int kspec);
   *
   *      The solution is returned in the matrix b.
   */
-static int mlequ(double *c, int idem, int n, double *b, int m);
+static int mlequ(double *c, size_t idem, size_t n, double *b, size_t m);
 
 //@{
 #ifndef MIN
@@ -137,30 +132,30 @@ static int mlequ(double *c, int idem, int n, double *b, int m);
  *
  *
  */
-int Cantera::BasisOptimize(int *usedZeroedSpecies, bool doFormRxn,
-               MultiPhase *mphase, vector_int & orderVectorSpecies,
-               vector_int & orderVectorElements, 
-               vector_fp & formRxnMatrix) {
+size_t Cantera::BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
+                              MultiPhase* mphase, std::vector<size_t>& orderVectorSpecies,
+                              std::vector<size_t>& orderVectorElements,
+                              vector_fp& formRxnMatrix) {
 
-  int  j, jj, k=0, kk, l, i, jl, ml;
+  size_t  j, jj, k=0, kk, l, i, jl, ml;
   bool lindep;
   std::string ename;
   std::string sname;
   /*
    * Get the total number of elements defined in the multiphase object
    */
-  int ne = mphase->nElements();
+  size_t ne = mphase->nElements();
   /*
    * Get the total number of species in the multiphase object
    */
-  int nspecies = mphase->nSpecies();
+  size_t nspecies = mphase->nSpecies();
   doublereal tmp;
   doublereal const USEDBEFORE = -1;
  
   /*
    * Perhaps, initialize the element ordering
    */
-  if ((int) orderVectorElements.size() < ne) {
+  if (orderVectorElements.size() < ne) {
     orderVectorElements.resize(ne);
     for (j = 0; j < ne; j++) {
       orderVectorElements[j] = j;
@@ -170,7 +165,7 @@ int Cantera::BasisOptimize(int *usedZeroedSpecies, bool doFormRxn,
   /*
    * Perhaps, initialize the species ordering
    */
-  if ((int) orderVectorSpecies.size() != nspecies) {
+  if (orderVectorSpecies.size() != nspecies) {
     orderVectorSpecies.resize(nspecies);
     for (k = 0; k < nspecies; k++) {
       orderVectorSpecies[k] = k;
@@ -220,8 +215,8 @@ int Cantera::BasisOptimize(int *usedZeroedSpecies, bool doFormRxn,
    *     It's equal to the minimum of the number of elements and the
    *     number of total species.
    */
-  int nComponents = MIN(ne, nspecies);
-  int nNonComponents = nspecies - nComponents;
+  size_t nComponents = MIN(ne, nspecies);
+  size_t nNonComponents = nspecies - nComponents;
   /*
    * Set this return variable to false
    */
@@ -239,7 +234,7 @@ int Cantera::BasisOptimize(int *usedZeroedSpecies, bool doFormRxn,
   vector_fp sm(ne*ne, 0.0);
   vector_fp ss(ne, 0.0);
   vector_fp sa(ne, 0.0);
-  if ((int) formRxnMatrix.size() < nspecies*ne) {
+  if (formRxnMatrix.size() < nspecies*ne) {
     formRxnMatrix.resize(nspecies*ne, 0.0);
   }
 
@@ -251,7 +246,7 @@ int Cantera::BasisOptimize(int *usedZeroedSpecies, bool doFormRxn,
 #endif
   
 
-  int jr = -1;
+  size_t jr = -1;
   /*
    *   Top of a loop of some sort based on the index JR. JR is the 
    *   current number of component species found. 
@@ -429,8 +424,8 @@ int Cantera::BasisOptimize(int *usedZeroedSpecies, bool doFormRxn,
    *     Use Gauss-Jordon block elimination to calculate
    *     the reaction matrix 
    */
-  j = mlequ(DATA_PTR(sm), ne, nComponents, DATA_PTR(formRxnMatrix), nNonComponents);
-  if (j == 1) {
+  int ierr = mlequ(DATA_PTR(sm), ne, nComponents, DATA_PTR(formRxnMatrix), nNonComponents);
+  if (ierr == 1) {
     writelog("ERROR: mlequ returned an error condition\n");
     throw CanteraError("basopt", "mlequ returned an error condition");
   }
@@ -529,16 +524,15 @@ static void print_stringTrunc(const char *str, int space, int alignment)
  * Finds the location of the maximum component in a double vector
  * INPUT
  *    x(*) - Vector to search
- *    j <= i < n     : i is the range of indecises to search in X(*)
+ *    j <= i < n     : i is the range of indices to search in X(*)
  *
  * RETURN
  *    return index of the greatest value on X(*) searched
  */
-static int amax(double *x, int j, int n) {
-  int i;
-  int largest = j;
+static size_t amax(double *x, size_t j, size_t n) {
+  size_t largest = j;
   double big = x[j];
-  for (i = j + 1; i < n; ++i) {
+  for (size_t i = j + 1; i < n; ++i) {
     if (x[i] > big) {
       largest = i;
       big = x[i];
@@ -548,8 +542,8 @@ static int amax(double *x, int j, int n) {
 }
 
 
- static void switch_pos(vector_int &orderVector, int jr, int kspec) {
-   int kcurr = orderVector[jr];
+ static void switch_pos(std::vector<size_t>& orderVector, size_t jr, size_t kspec) {
+   size_t kcurr = orderVector[jr];
    orderVector[jr] = orderVector[kspec];
    orderVector[kspec] = kcurr;
  }
@@ -582,8 +576,8 @@ static int amax(double *x, int j, int n) {
   *
   *      The solution is returned in the matrix b.
   */
- static int mlequ(double *c, int idem, int n, double *b, int m) {
-   int i, j, k, l;
+ static int mlequ(double *c, size_t idem, size_t n, double *b, size_t m) {
+   size_t i, j, k, l;
    double R;
 
    /*
@@ -665,20 +659,20 @@ static int amax(double *x, int j, int n) {
  *    formular matrix. This guarrantees that BasisOptimize has a
  *    nonsingular matrix to invert.
  */
-int Cantera::ElemRearrange(int nComponents, const vector_fp & elementAbundances,
-               MultiPhase *mphase, 
-               vector_int & orderVectorSpecies,
-               vector_int & orderVectorElements) {
- 
-  int  j, k, l, i, jl, ml, jr, ielem, jj, kk=0;
+size_t Cantera::ElemRearrange(size_t nComponents, const vector_fp & elementAbundances,
+                              MultiPhase *mphase,
+                              std::vector<size_t>& orderVectorSpecies,
+                              std::vector<size_t>& orderVectorElements) {
+
+  size_t j, k, l, i, jl, ml, jr, ielem, jj, kk=0;
  
   bool lindep = false;
-  int nelements = mphase->nElements();
+  size_t nelements = mphase->nElements();
   std::string ename;
   /*
    * Get the total number of species in the multiphase object
    */
-  int nspecies = mphase->nSpecies();
+  size_t nspecies = mphase->nSpecies();
 
   double test = -1.0E10;
 #ifdef DEBUG_MODE
@@ -693,7 +687,7 @@ int Cantera::ElemRearrange(int nComponents, const vector_fp & elementAbundances,
   /*
    * Perhaps, initialize the element ordering
    */
-  if ((int) orderVectorElements.size() < nelements) {
+  if (orderVectorElements.size() < nelements) {
     orderVectorElements.resize(nelements);
     for (j = 0; j < nelements; j++) {
       orderVectorElements[j] = j;
@@ -705,7 +699,7 @@ int Cantera::ElemRearrange(int nComponents, const vector_fp & elementAbundances,
    * dangerous, as this ordering is assumed to yield the
    * component species for the problem
    */
-  if ((int) orderVectorSpecies.size() != nspecies) {
+  if (orderVectorSpecies.size() != nspecies) {
     orderVectorSpecies.resize(nspecies);
     for (k = 0; k < nspecies; k++) {
       orderVectorSpecies[k] = k;
@@ -719,7 +713,7 @@ int Cantera::ElemRearrange(int nComponents, const vector_fp & elementAbundances,
    * end of the element ordering.
    */
   vector_fp eAbund(nelements,0.0);
-  if ((int) elementAbundances.size() != nelements) {
+  if (elementAbundances.size() != nelements) {
     for (j = 0; j < nelements; j++) {
       eAbund[j] = 0.0;
       for (k = 0; k < nspecies; k++) {

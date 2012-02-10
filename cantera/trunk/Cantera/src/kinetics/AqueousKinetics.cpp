@@ -10,17 +10,6 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-/*
- *  $Date$
- *  $Revision$
- */
-
-
-
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
 
 #include "AqueousKinetics.h"
 #include "ReactionData.h"
@@ -193,14 +182,12 @@ namespace Cantera {
    * Update the equilibrium constants in molar units.
    */
   void AqueousKinetics::updateKc() {
-    int i, irxn;
     vector_fp& m_rkc = m_kdata->m_rkcn;
     doublereal rt = GasConstant*   m_kdata->m_temp;
         
     thermo().getStandardChemPotentials(&m_grt[0]);
     fill(m_rkc.begin(), m_rkc.end(), 0.0);
-    int nsp = thermo().nSpecies();
-    for (int k = 0; k < nsp; k++) {
+    for (size_t k = 0; k < thermo().nSpecies(); k++) {
       doublereal logStandConc_k = thermo().logStandardConc(k);
       m_grt[k] -= rt * logStandConc_k;
     }
@@ -210,12 +197,12 @@ namespace Cantera {
  
     //doublereal logStandConc = m_kdata->m_logStandConc;
     doublereal rrt = 1.0/(GasConstant * thermo().temperature());
-    for (i = 0; i < m_nrev; i++) {
-      irxn = m_revindex[i];
+    for (size_t i = 0; i < m_nrev; i++) {
+      size_t irxn = m_revindex[i];
       m_rkc[irxn] = exp(m_rkc[irxn]*rrt);
     }
 
-    for(i = 0; i != m_nirrev; ++i) {
+    for(size_t i = 0; i != m_nirrev; ++i) {
       m_rkc[ m_irrev[i] ] = 0.0;
     }
   }
@@ -225,15 +212,13 @@ namespace Cantera {
    * reversible or not.
    */
   void AqueousKinetics::getEquilibriumConstants(doublereal* kc) {
-    int i;
     _update_rates_T();
     vector_fp& rkc = m_kdata->m_rkcn;
   
     thermo().getStandardChemPotentials(&m_grt[0]);
     fill(rkc.begin(), rkc.end(), 0.0);
     doublereal rt = GasConstant * m_kdata->m_temp;
-    int nsp = thermo().nSpecies();
-    for (int k = 0; k < nsp; k++) {
+    for (size_t k = 0; k < thermo().nSpecies(); k++) {
       doublereal logStandConc_k = thermo().logStandardConc(k);
       m_grt[k] -= rt * logStandConc_k;
     }
@@ -242,7 +227,7 @@ namespace Cantera {
     m_rxnstoich->getReactionDelta(m_ii, &m_grt[0], &rkc[0]);
  
     doublereal rrt = 1.0/(GasConstant * thermo().temperature());
-    for (i = 0; i < m_ii; i++) {
+    for (size_t i = 0; i < m_ii; i++) {
       kc[i] = exp(-rkc[i]*rrt);
     }
 
@@ -369,7 +354,7 @@ namespace Cantera {
      */
     thermo().getEnthalpy_RT(&m_grt[0]);
     doublereal RT = thermo().temperature() * GasConstant;
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       m_grt[k] *= RT;
     }
     /*
@@ -398,7 +383,7 @@ namespace Cantera {
      */
     thermo().getEntropy_R(&m_grt[0]);
     doublereal R = GasConstant;
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       m_grt[k] *= R;
     }
     /*
@@ -447,7 +432,7 @@ namespace Cantera {
     m_rxnstoich->multiplyRevProducts(&m_conc[0], &ropr[0]); 
     //m_revProductStoich.multiply(m_conc.begin(), ropr.begin());
 
-    for (int j = 0; j != m_ii; ++j) {
+    for (size_t j = 0; j != m_ii; ++j) {
       ropnet[j] = ropf[j] - ropr[j];
     }
 
@@ -477,7 +462,7 @@ namespace Cantera {
     // multiply by perturbation factor
     multiply_each(ropf.begin(), ropf.end(), m_perturb.begin());
        
-    for (int i = 0; i < m_ii; i++) {
+    for (size_t i = 0; i < m_ii; i++) {
       kfwd[i] = ropf[i];
     }
   }
@@ -505,7 +490,7 @@ namespace Cantera {
     if (doIrreversible) {
       doublereal *tmpKc = &m_kdata->m_ropnet[0];
       getEquilibriumConstants(tmpKc);
-      for (int i = 0; i < m_ii; i++) {
+      for (size_t i = 0; i < m_ii; i++) {
 	krev[i] /=  tmpKc[i];
       }
     } else {
@@ -513,7 +498,7 @@ namespace Cantera {
        * m_rkc[] is zero for irreversibly reactions
        */
       const vector_fp& m_rkc = m_kdata->m_rkcn;
-      for (int i = 0; i < m_ii; i++) {
+      for (size_t i = 0; i < m_ii; i++) {
 	krev[i] *= m_rkc[i];
       }
     }
@@ -534,7 +519,7 @@ namespace Cantera {
 
 
   void AqueousKinetics::addElementaryReaction(const ReactionData& r) {
-    int iloc;
+    size_t iloc;
 
     // install rate coeff calculator
     iloc = m_rates.install( reactionNumber(),
@@ -557,18 +542,18 @@ namespace Cantera {
     m_kdata->m_ropf.push_back(0.0);     // extend by one for new rxn
     m_kdata->m_ropr.push_back(0.0);
     m_kdata->m_ropnet.push_back(0.0);
-    int n, ns, m;
+    size_t n, ns, m;
     doublereal nsFlt;
     doublereal reactantGlobalOrder = 0.0;
     doublereal productGlobalOrder  = 0.0;
-    int rnum = reactionNumber();
+    size_t rnum = reactionNumber();
 
-    vector_int rk;
-    int nr = r.reactants.size();
+    std::vector<size_t> rk;
+    size_t nr = r.reactants.size();
     for (n = 0; n < nr; n++) {
       nsFlt = r.rstoich[n];
       reactantGlobalOrder += nsFlt;
-      ns = (int) nsFlt;
+      ns = (size_t) nsFlt;
       if ((doublereal) ns != nsFlt) {
 	if (ns < 1) {
 	  ns = 1;
@@ -582,12 +567,12 @@ namespace Cantera {
     }
     m_reactants.push_back(rk);
 
-    vector_int pk;
-    int np = r.products.size();
+    std::vector<size_t> pk;
+    size_t np = r.products.size();
     for (n = 0; n < np; n++) {
       nsFlt = r.pstoich[n];
       productGlobalOrder += nsFlt;
-      ns = (int) nsFlt;
+      ns = (size_t) nsFlt;
       if ((double) ns != nsFlt) {
 	if (ns < 1) {
 	  ns = 1;
@@ -618,11 +603,11 @@ namespace Cantera {
   }
 
 
-  void AqueousKinetics::installGroups(int irxn, 
+  void AqueousKinetics::installGroups(size_t irxn,
 				      const vector<grouplist_t>& r, 
 				      const vector<grouplist_t>& p) {
     if (!r.empty()) {
-      writelog("installing groups for reaction "+int2str(reactionNumber()));
+      writelog("installing groups for reaction "+int2str(int(reactionNumber())));
       m_rgroups[reactionNumber()] = r;
       m_pgroups[reactionNumber()] = p;
     }

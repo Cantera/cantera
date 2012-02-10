@@ -4,12 +4,7 @@
  * (see \ref thermoprops and \link Cantera::ConstDensityThermo ConstDensityThermo\endlink).
  */
 /*
- *  $Author$
- *  $Date$
- *  $Revision$
- *
  *  Copyright 2002 California Institute of Technology
- *
  */
 
 #ifndef CT_CONSTRHOTHERMO_H
@@ -201,13 +196,13 @@ namespace Cantera {
      * @return 
      *   Returns the standard Concentration in units of m3 kmol-1.
      */
-    virtual doublereal standardConcentration(int k=0) const;
+    virtual doublereal standardConcentration(size_t k=0) const;
 
    //! Natural logarithm of the standard concentration of the kth species.
     /*!
      * @param k    index of the species (defaults to zero)
      */
-    virtual doublereal logStandardConc(int k=0) const;
+    virtual doublereal logStandardConc(size_t k=0) const;
 
     //! Get the Gibbs functions for the standard
     //! state of the species at the current <I>T</I> and <I>P</I> of the solution
@@ -290,8 +285,7 @@ namespace Cantera {
     //!  of the solution and the reference pressure for the species.
     const array_fp& expGibbs_RT() const {
       _updateThermo();
-      int k;
-      for (k = 0; k != m_kk; k++) m_expg0_RT[k] = std::exp(m_g0_RT[k]);
+      for (size_t k = 0; k != m_kk; k++) m_expg0_RT[k] = std::exp(m_g0_RT[k]);
       return m_expg0_RT;
     }
 
@@ -407,7 +401,7 @@ namespace Cantera {
   protected:
 
     //! number of elements
-    int m_mm;
+    size_t m_mm;
 
 
     //! Minimum temperature for valid species standard state thermo props

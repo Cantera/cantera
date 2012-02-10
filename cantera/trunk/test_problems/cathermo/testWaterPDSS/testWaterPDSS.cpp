@@ -1,14 +1,11 @@
-/*
- * $Id$
- */
-#include "ct_defs.h"
-#include "ctexceptions.h"
-#include "global.h"
-#include "xml.h"
-#include "ctml.h"
-#include "PDSS_Water.h"
-#include "ThermoPhase.h"
-#include "VPStandardStateTP.h"
+#include "kernel/ct_defs.h"
+#include "kernel/ctexceptions.h"
+#include "kernel/global.h"
+#include "kernel/xml.h"
+#include "kernel/ctml.h"
+#include "kernel/PDSS_Water.h"
+#include "kernel/ThermoPhase.h"
+#include "kernel/VPStandardStateTP.h"
 #include <new>
 
 #include <cstdio>
@@ -25,7 +22,9 @@ double tvalue(double val, double atol = 1.0E-9) {
 }
 
 int main () {
-
+#ifdef _MSC_VER
+    _set_output_format(_TWO_DIGIT_EXPONENT);
+#endif
     double pres;
     try {
       Cantera::VPStandardStateTP *nnn = 0;

@@ -1,0 +1,65 @@
+from buildutils import *
+
+Import('env', 'buildTargets', 'installTargets')
+localenv = env.Clone()
+
+programs = [('cti2ctml', ['src/cti2ctml.cpp'], ['ctbase']),
+            ('ck2cti', ['src/ck2cti.cpp'], ['converters','ctbase','tpx']),
+            ('csvdiff', mglob(localenv, 'testtools', 'cpp'), [])]
+
+for name, src, libs in programs:
+    prog = localenv.Program(target=pjoin('..', 'bin', name),
+                            source=src,
+                            LIBS=libs)
+    inst = localenv.Install('$inst_bindir', prog)
+    buildTargets.extend(prog)
+    installTargets.extend(inst)
+
+# Copy application templates
+installTargets.extend(
+    localenv.Install(pjoin('$inst_templdir','cxx'),
+                     mglob(localenv, pjoin('templates','cxx'), '*')) +
+    localenv.Install(pjoin('$inst_templdir','f90'),
+                     mglob(localenv, pjoin('templates','f90'), '*')) +
+    localenv.Install(pjoin('$inst_templdir','f77'),
+                     mglob(localenv, pjoin('templates','f77'), '*')))
+
+# Copy man pages
+if env['INSTALL_MANPAGES']:
+    inst = localenv.Install('$inst_mandir', mglob(localenv, 'man', '*'))
+    installTargets.extend(inst)
+
+### Generate customized scripts ###
+
+# 'setup_cantera'
+v = sys.version_info
+localenv['python_module_loc'] = pjoin(localenv['prefix'], 'lib', 'python%i.%i' % v[:2], 'site-packages')
+target = localenv.SubstFile('setup_cantera', 'setup_cantera.in')
+buildTargets.extend(target)
+inst = localenv.Install('$inst_bindir','setup_cantera')
+installTargets.append(inst)
+
+# 'mixmaster'
+if env['python_package'] == 'full':
+    target = localenv.SubstFile('mixmaster', 'mixmaster.in')
+    buildTargets.extend(target)
+    inst = localenv.Install('$inst_bindir', 'mixmaster')
+    localenv.AddPostAction(inst, Chmod('$TARGET', 0755))
+    installTargets.extend(inst)
+
+# 'ctnew'
+target = localenv.SubstFile('ctnew', 'ctnew.in')
+buildTargets.extend(target)
+inst = localenv.Install('$inst_bindir', 'ctnew')
+localenv.AddPostAction(inst, Chmod('$TARGET', 0755))
+installTargets.extend(inst)
+
+# 'ctpath.m', 'cantera_demos.m'
+if env['matlab_toolbox'] == 'y':
+    target = localenv.SubstFile('ctpath.m', 'ctpath.m.in')
+    buildTargets.extend(target)
+    inst = localenv.Install('$inst_matlab_dir', target)
+    installTargets.extend(inst)
+
+    inst = localenv.Install('$inst_matlab_dir', 'cantera_demos.m')
+    installTargets.extend(inst)

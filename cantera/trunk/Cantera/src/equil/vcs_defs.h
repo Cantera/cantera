@@ -3,10 +3,6 @@
  *    Defines and definitions within the vcs package
  */
 /*
- * $Id$
- */
-
-/*
  * Copywrite (2005) Sandia Corporation. Under the terms of 
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
@@ -21,13 +17,6 @@ namespace VCSnonideal {
    * COMMON DEFINITIONS -> Protect them against redefinitions
    */
   //@{
-#ifndef TRUE
-# define TRUE 1
-#endif
-   
-#ifndef FALSE
-# define FALSE 0
-#endif
 
 #ifndef MAX
 # define MAX(x,y) (( (x) > (y) ) ? (x) : (y))

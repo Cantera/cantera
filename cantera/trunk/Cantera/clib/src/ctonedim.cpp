@@ -1,29 +1,16 @@
 /**
  * @file ctonedim.cpp
  */
-/*
- *      $Id$
- */
-
-// turn off warnings under Windows
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#pragma warning(disable:4800)
-#endif
-
 #define CANTERA_USE_INTERNAL
+
 #include "ctonedim.h"
 
-
 // Cantera includes
-#include "config.h"
-#include "Sim1D.h"
-#include "StFlow.h"
-#include "Inlet1D.h"
-#include "DenseMatrix.h"
-
-
+#include "kernel/config.h"
+#include "kernel/Sim1D.h"
+#include "kernel/StFlow.h"
+#include "kernel/Inlet1D.h"
+#include "kernel/DenseMatrix.h"
 
 // local includes
 #include "Cabinet.h"
@@ -97,15 +84,15 @@ extern "C" {
         return _domain(i)->domainType();
     }
 
-    int DLL_EXPORT domain_index(int i) {
+    size_t DLL_EXPORT domain_index(int i) {
         return _domain(i)->domainIndex();
     }
 
-    int DLL_EXPORT domain_nComponents(int i) {
+    size_t DLL_EXPORT domain_nComponents(int i) {
         return _domain(i)->nComponents();
     }
 
-    int DLL_EXPORT domain_nPoints(int i) {
+    size_t DLL_EXPORT domain_nPoints(int i) {
         return _domain(i)->nPoints();
     }
 
@@ -121,9 +108,9 @@ extern "C" {
         catch (CanteraError) { return -1; }
     }
 
-    int DLL_EXPORT domain_componentIndex(int i, char* name) {
+    size_t DLL_EXPORT domain_componentIndex(int i, char* name) {
         try {
-            int n = _domain(i)->componentIndex(string(name));
+          size_t n = _domain(i)->componentIndex(string(name));
             return n;
         }
         catch (CanteraError) { return -1; }
@@ -181,7 +168,7 @@ extern "C" {
         catch (CanteraError) { return DERR; }
     }
 
-    int DLL_EXPORT domain_setupGrid(int i, int npts, double* grid) {
+    int DLL_EXPORT domain_setupGrid(int i, size_t npts, double* grid) {
         try {
             _domain(i)->setupGrid(npts, grid);
             return 0;
@@ -316,7 +303,7 @@ extern "C" {
     int DLL_EXPORT reactingsurf_enableCoverageEqs(int i, int onoff) {
         try {
             ReactingSurf1D* srf = (ReactingSurf1D*)_bdry(i);
-            srf->enableCoverageEquations(bool(onoff));
+            srf->enableCoverageEquations(onoff != 0);
             return 0;
         }
 
@@ -386,12 +373,11 @@ extern "C" {
         catch (CanteraError) { return -1; }
     }
 
-    int DLL_EXPORT stflow_setFixedTempProfile(int i, int n, double* pos, 
-        int m, double* temp) {
+    int DLL_EXPORT stflow_setFixedTempProfile(int i, size_t n, double* pos,
+                                              size_t m, double* temp) {
         try {
-            int j;
             vector_fp vpos(n), vtemp(n);
-            for (j = 0; j < n; j++) {
+            for (size_t j = 0; j < n; j++) {
                 vpos[j] = pos[j]; 
                 vtemp[j] = temp[j];
             }
@@ -428,11 +414,11 @@ extern "C" {
 
     //------------------- Sim1D --------------------------------------
 
-    int DLL_EXPORT sim1D_new(int nd, int* domains) {
+    int DLL_EXPORT sim1D_new(size_t nd, int* domains) {
         vector<Domain1D*> d;
         try {
 	  //  cout << "nd = " << nd << endl;
-            for (int n = 0; n < nd; n++) {
+            for (size_t n = 0; n < nd; n++) {
 	      //writelog("n = "+int2str(n)+"\n");
 	      //writelog("dom = "+int2str(domains[n])+"\n");
                 d.push_back(_domain(domains[n]));
@@ -468,10 +454,10 @@ extern "C" {
     }
 
     int DLL_EXPORT sim1D_setProfile(int i, int dom, int comp, 
-        int np, double* pos, int nv, double* v) {
+                                    size_t np, double* pos, size_t nv, double* v) {
         try {
             vector_fp vv, pv;
-            for (int n = 0; n < np; n++) {
+            for (size_t n = 0; n < np; n++) {
                 vv.push_back(v[n]);
                 pv.push_back(pos[n]);
             }
@@ -501,7 +487,7 @@ extern "C" {
         return 0;
     }
 
-    int DLL_EXPORT sim1D_setTimeStep(int i, double stepsize, int ns, integer* nsteps) {
+    int DLL_EXPORT sim1D_setTimeStep(int i, double stepsize, size_t ns, integer* nsteps) {
         try {
             _sim1D(i)->setTimeStep(stepsize, ns, nsteps);
             return 0;
@@ -576,7 +562,7 @@ extern "C" {
 
     int DLL_EXPORT sim1D_domainIndex(int i, char* name) {
         try {
-            return _sim1D(i)->domainIndex(string(name));
+            return (int) _sim1D(i)->domainIndex(string(name));
         }
         catch (CanteraError) { return -1; }
     }
@@ -653,7 +639,7 @@ extern "C" {
         catch (CanteraError) { return DERR; }
     }
 
-    int DLL_EXPORT sim1D_size(int i) {
+    size_t DLL_EXPORT sim1D_size(int i) {
         try {
             return _sim1D(i)->size();
         }

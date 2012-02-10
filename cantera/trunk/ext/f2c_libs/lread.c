@@ -75,7 +75,7 @@ un_getc(int x, FILE *f__cf)
 #ifdef KR_headers
  extern int ungetc();
 #else
-#ifndef WIN32
+#ifndef _WIN32
 extern int ungetc(int, FILE*);	/* for systems with a buggy stdio.h */
 #endif
 #endif
@@ -181,7 +181,7 @@ retry:
 			GETC(ch);
 			}
 		}
-	havenum += sp - sp1;
+	havenum += (int) (sp - sp1);
 	se = 0;
 	if (issign(ch))
 		goto signonly;
@@ -751,15 +751,15 @@ l_read(ftnint *number, char *ptr, ftnlen len, ftnint type)
 			break;
 #endif
 		case TYREAL:
-			Ptr->flreal=f__lx;
+			Ptr->flreal= (real) f__lx;
 			break;
 		case TYDREAL:
 			Ptr->fldouble=f__lx;
 			break;
 		case TYCOMPLEX:
 			xx=(real *)ptr;
-			*xx++ = f__lx;
-			*xx = f__ly;
+			*xx++ = (real) f__lx;
+			*xx = (real) f__ly;
 			break;
 		case TYDCOMPLEX:
 			yy=(doublereal *)ptr;

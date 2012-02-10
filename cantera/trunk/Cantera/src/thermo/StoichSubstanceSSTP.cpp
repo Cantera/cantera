@@ -12,11 +12,6 @@
  *
  * Copyright 2001 California Institute of Technology
  */
-
-/*
- * $Id$ 
- */
-
 #include "ct_defs.h"
 #include "mix_defs.h"
 #include "StoichSubstanceSSTP.h"
@@ -223,7 +218,7 @@ namespace Cantera {
    * by which the generalized concentration is normalized to produce 
    * the activity. 
    */ 
-  doublereal StoichSubstanceSSTP::standardConcentration(int k) const {
+  doublereal StoichSubstanceSSTP::standardConcentration(size_t k) const {
     return 1.0;
   }
 
@@ -231,7 +226,7 @@ namespace Cantera {
    * Returns the natural logarithm of the standard 
    * concentration of the kth species
    */
-  doublereal StoichSubstanceSSTP::logStandardConc(int k) const {
+  doublereal StoichSubstanceSSTP::logStandardConc(size_t k) const {
     return 0.0;
   }
 

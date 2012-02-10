@@ -6,19 +6,11 @@
  
 // Copyright 2001  California Institute of Technology
 
-
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
 #include "FlowReactor.h"
 
-using namespace Cantera;
 using namespace std;
 
-namespace CanteraZeroD {
-
+namespace Cantera {
 
     FlowReactor::FlowReactor() : Reactor(), m_fctr(1.0e10), 
                                  m_speed0(0.0) {}
@@ -89,7 +81,7 @@ namespace CanteraZeroD {
         m_thermo->restoreState(m_state);
 
         double mult;
-        int n, npar;
+        size_t n, npar;
 
         // process sensitivity parameters
         if (params) {
@@ -134,12 +126,12 @@ namespace CanteraZeroD {
     }
 
 
-    int FlowReactor::componentIndex(string nm) const {
+    size_t FlowReactor::componentIndex(string nm) const {
         if (nm == "X") return 0;
         if (nm == "U") return 1;
         // check for a gas species name
-        int k = m_thermo->speciesIndex(nm);
-        if (k >= 0) return k + 2;
+        size_t k = m_thermo->speciesIndex(nm);
+        if (k != npos) return k + 2;
         else return -1;
     }
 

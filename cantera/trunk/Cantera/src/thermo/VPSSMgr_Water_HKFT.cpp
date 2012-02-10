@@ -14,17 +14,6 @@
  * U.S. Government retains certain rights in this software.
  */
 
-/*
- *  $Date$
- *  $Revision$
- */
-
-// turn off warnings under Windows
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
 #include "VPSSMgr_Water_HKFT.h"
 #include "PDSS_Water.h"
 #include "PDSS_HKFT.h"
@@ -93,7 +82,7 @@ namespace Cantera {
   VPSSMgr_Water_HKFT::getGibbs_ref(doublereal *g) const{
     getGibbs_RT_ref(g);
     doublereal RT = GasConstant * m_tlast;
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       g[k] *= RT;
     }
   }
@@ -158,7 +147,7 @@ namespace Cantera {
     m_g0_RT[0] = (m_hss_RT[0] - m_sss_R[0]);
     m_V0[0]    = (m_waterSS->density()) / m_vptp_ptr->molecularWeight(0);
     PDSS_HKFT *ps;
-    for (int k = 1; k < m_kk; k++) {
+    for (size_t k = 1; k < m_kk; k++) {
       ps = (PDSS_HKFT *) m_vptp_ptr->providePDSS(k);
       ps->setState_TP(m_tlast, m_p0);
       m_cp0_R[k]  = ps->cp_R();
@@ -175,7 +164,7 @@ namespace Cantera {
 
     }
     m_waterSS->setState_TP(m_tlast, m_plast);
-    for (int k = 1; k < m_kk; k++) {
+    for (size_t k = 1; k < m_kk; k++) {
       ps = (PDSS_HKFT *) m_vptp_ptr->providePDSS(k);
       ps->setState_TP(m_tlast, m_plast);
     }
@@ -191,7 +180,7 @@ namespace Cantera {
     m_gss_RT[0] = (m_hss_RT[0] - m_sss_R[0]);
     m_Vss[0]    = (m_vptp_ptr->molecularWeight(0)) / (m_waterSS->density());
 
-    for (int k = 1; k < m_kk; k++) {
+    for (size_t k = 1; k < m_kk; k++) {
       PDSS_HKFT *ps = (PDSS_HKFT *) m_vptp_ptr->providePDSS(k);
       ps->setState_TP(m_tlast, m_plast);
       m_cpss_R[k]  = ps->cp_R();
@@ -219,7 +208,7 @@ namespace Cantera {
     m_waterSS->setState_TP(300., OneAtm);
     m_Vss[0] =  (m_waterSS->density())      / m_vptp_ptr->molecularWeight(0);
 
-    for (int k = 1; k < m_kk; k++) {
+    for (size_t k = 1; k < m_kk; k++) {
       const XML_Node* s =  speciesDB->findByAttr("name", sss[k]);
       if (!s) {
 	throw CanteraError("VPSSMgr_Water_HKFT::initThermoXML",
@@ -240,7 +229,7 @@ namespace Cantera {
   }
 
   PDSS *
-  VPSSMgr_Water_HKFT::createInstallPDSS(int k, const XML_Node& speciesNode,  
+  VPSSMgr_Water_HKFT::createInstallPDSS(size_t k, const XML_Node& speciesNode,
 					const XML_Node * const phaseNode_ptr) {
     PDSS *kPDSS = 0;
 

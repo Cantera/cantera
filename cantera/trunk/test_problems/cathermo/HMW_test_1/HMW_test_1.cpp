@@ -1,11 +1,3 @@
-/* ======================================================================= */
-/* $RCSfile: HMW_test_1.cpp,v $ */
-/* $Author$ */
-/* $Date$ */
-/* $Revision$ */
-/* ======================================================================= */
-
-
 #include "Cantera.h"
 #include "kernel/HMWSoln.h"
 
@@ -49,7 +41,9 @@ void pAtable(HMWSoln *HMW) {
 
 int main(int argc, char **argv)
 {
-
+#ifdef _MSC_VER
+    _set_output_format(_TWO_DIGIT_EXPONENT);
+#endif
    int retn = 0;
 
    try {
@@ -71,9 +65,6 @@ int main(int argc, char **argv)
      
      int nsp = HMW->nSpecies();
     
-     /*
-      *
-      */
      double a1 = HMW->AionicRadius(1);
      printf("a1 = %g\n", a1);
      double a2 = HMW->AionicRadius(2);

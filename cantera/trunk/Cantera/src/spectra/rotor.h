@@ -18,7 +18,7 @@
 /**
  * Namespace for spectroscopic functions and classes. 
  */
-namespace CanteraSpectra {
+namespace Cantera {
 
     /**
      * Class Rotor represents a non-rigid quantum-mechanical rotor.

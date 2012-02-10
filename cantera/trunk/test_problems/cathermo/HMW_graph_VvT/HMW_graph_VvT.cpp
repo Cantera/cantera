@@ -1,13 +1,6 @@
 /**
  *  @file HMW_graph_VvT
  */
-
-/*
- *  $Author$
- *  $Date$
- *  $Revision$
- */
-
 #ifdef SRCDIRTREE
 #include "ct_defs.h"
 #include "logger.h"
@@ -22,7 +15,7 @@
 #include "kernel/logger.h"
 #include "thermo.h"
 #include "TemperatureTable.h"
-#include "HMWSoln.h"
+#include "kernel/HMWSoln.h"
 
 #endif
 

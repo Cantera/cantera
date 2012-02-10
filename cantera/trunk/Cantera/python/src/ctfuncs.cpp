@@ -47,7 +47,7 @@ ct_addDirectory(PyObject *self, PyObject *args)
     char* dir;
     if (!PyArg_ParseTuple(args, "s:addDirectory", &dir)) 
         return NULL;
-    int n = strlen(dir);
+    size_t n = strlen(dir);
     addCanteraDirectory(n, dir);
     return Py_BuildValue("i",0);
 }

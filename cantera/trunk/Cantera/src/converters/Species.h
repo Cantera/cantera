@@ -2,9 +2,6 @@
  *  @file Species.h
  *
  */
-/*
- * $Id$
- */
 // Copyright 2001  California Institute of Technology
 
 
@@ -58,13 +55,12 @@ namespace ckr {
     int thermoFormatType;
 
     //! Species Name
-    std::string name; 
-    std::string id;                   //!<   ID tag from 'date' field in input
-    std::string phase;                //!<   Phase string. Usually "G", "L", or "S".
+    std::string name;
+    std::string id;              //!<   ID tag from 'date' field in input
+    std::string phase;           //!<   Phase string. Usually "G", "L", or "S".
     double tlow;                 //!<   Min temperature for thermo data fit
     double tmid;                 //!<   Mid temperature for thermo data fit
     double thigh;                //!<   Max temperature for thermo data fit
-
 
     /// list of Constituent objects defining elemental composition
     std::vector<Constituent> elements;

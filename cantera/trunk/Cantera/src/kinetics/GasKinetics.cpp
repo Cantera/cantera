@@ -7,13 +7,6 @@
 
 // Copyright 2001  California Institute of Technology
 
-
-// turn off warnings under Windows
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
 #include "GasKinetics.h"
 
 #include "ReactionData.h"
@@ -192,12 +185,17 @@ namespace Cantera {
   _update_rates_T() {
     doublereal T = thermo().temperature();
     m_kdata->m_logStandConc = log(thermo().standardConcentration()); 
-    //if (fabs(T - m_kdata->m_temp) > 0.0) { 
     doublereal logT = log(T);
+        if (!m_kdata->m_rfn.empty()) {
     m_rates.update(T, logT, &m_kdata->m_rfn[0]);
+        }
+        if (!m_kdata->m_rfn_low.empty()) {
     m_falloff_low_rates.update(T, logT, &m_kdata->m_rfn_low[0]); 
     m_falloff_high_rates.update(T, logT, &m_kdata->m_rfn_high[0]);
+        }
+        if (!m_kdata->falloff_work.empty()) {
     m_falloffn.updateTemp(T, &m_kdata->falloff_work[0]);
+        }
     m_kdata->m_temp = T;
     updateKc();
     m_kdata->m_ROP_ok = false;
@@ -213,9 +211,13 @@ namespace Cantera {
   _update_rates_C() {
     thermo().getActivityConcentrations(&m_conc[0]);
     doublereal ctot = thermo().molarDensity();
+        if (!m_kdata->concm_3b_values.empty()) {
     m_3b_concm.update(m_conc, ctot, &m_kdata->concm_3b_values[0]);
+        }
+        if (!m_kdata->concm_falloff_values.empty()) {
     m_falloff_concm.update(m_conc, ctot, 
 			   &m_kdata->concm_falloff_values[0]);
+        }
     m_kdata->m_ROP_ok = false;
   }
   //====================================================================================================================
@@ -223,7 +225,6 @@ namespace Cantera {
    * Update the equilibrium constants in molar units.
    */
   void GasKinetics::updateKc() {
-    int i, irxn;
     vector_fp& m_rkc = m_kdata->m_rkcn;
         
     thermo().getStandardChemPotentials(&m_grt[0]);
@@ -234,12 +235,12 @@ namespace Cantera {
  
     doublereal logStandConc = m_kdata->m_logStandConc;
     doublereal rrt = 1.0/(GasConstant * thermo().temperature());
-    for (i = 0; i < m_nrev; i++) {
-      irxn = m_revindex[i];
+        for (size_t i = 0; i < m_nrev; i++) {
+          size_t irxn = m_revindex[i];
       m_rkc[irxn] = exp(m_rkc[irxn]*rrt - m_dn[irxn]*logStandConc);
     }
 
-    for(i = 0; i != m_nirrev; ++i) {
+        for(size_t i = 0; i != m_nirrev; ++i) {
       m_rkc[ m_irrev[i] ] = 0.0;
     }
   }
@@ -249,7 +250,6 @@ namespace Cantera {
    * reversible or not.
    */
   void GasKinetics::getEquilibriumConstants(doublereal* kc) {
-    int i;
     _update_rates_T();
     vector_fp& rkc = m_kdata->m_rkcn;
     //thermo().getGibbs_RT(m_grt.begin());
@@ -261,7 +261,7 @@ namespace Cantera {
  
     doublereal logStandConc = m_kdata->m_logStandConc;
     doublereal rrt = 1.0/(GasConstant * thermo().temperature());
-    for (i = 0; i < m_ii; i++) {
+        for (size_t i = 0; i < m_ii; i++) {
       kc[i] = exp(-rkc[i]*rrt + m_dn[i]*logStandConc);
     }
 
@@ -388,7 +388,7 @@ namespace Cantera {
      */
     thermo().getEnthalpy_RT(&m_grt[0]);
     doublereal RT = thermo().temperature() * GasConstant;
-    for (int k = 0; k < m_kk; k++) {
+	for (size_t k = 0; k < m_kk; k++) {
       m_grt[k] *= RT;
     }
     /*
@@ -417,7 +417,7 @@ namespace Cantera {
      */
     thermo().getEntropy_R(&m_grt[0]);
     doublereal R = GasConstant;
-    for (int k = 0; k < m_kk; k++) {
+	for (size_t k = 0; k < m_kk; k++) {
       m_grt[k] *= R;
     }
     /*
@@ -476,8 +476,6 @@ namespace Cantera {
   }
   //====================================================================================================================
   void GasKinetics::processFalloffReactions() {
-
-    int i;
     const vector_fp& fc = m_kdata->concm_falloff_values;
     const array_fp& m_rf_low = m_kdata->m_rfn_low;
     const array_fp& m_rf_high = m_kdata->m_rfn_high;
@@ -487,13 +485,15 @@ namespace Cantera {
 
     array_fp& ropf = m_kdata->m_ropf;
 
-    for (i = 0; i < m_nfall; i++) {
+        for (size_t i = 0; i < m_nfall; i++) {
       pr[i] = fc[i] * m_rf_low[i] / m_rf_high[i];
     }
 
-    m_falloffn.pr_to_falloff( &pr[0], &m_kdata->falloff_work[0] );
+        double* falloff_work =
+            (m_kdata->falloff_work.empty()) ? 0 : &m_kdata->falloff_work[0];
+        m_falloffn.pr_to_falloff(&pr[0], falloff_work);
         
-    for (i = 0; i < m_nfall; i++) {
+        for (size_t i = 0; i < m_nfall; i++) {
       pr[i] *= m_rf_high[i]; 
     }
 
@@ -519,9 +519,13 @@ namespace Cantera {
     copy(rf.begin(), rf.end(), ropf.begin());
 
     // multiply ropf by enhanced 3b conc for all 3b rxns
+        if (!m_kdata->concm_3b_values.empty()) {
     m_3b_concm.multiply( &ropf[0], &m_kdata->concm_3b_values[0] );
+        }
 
+        if (m_nfall) {
     processFalloffReactions();
+        }
 
     // multiply by perturbation factor
     multiply_each(ropf.begin(), ropf.end(), m_perturb.begin());
@@ -543,7 +547,7 @@ namespace Cantera {
     m_rxnstoich->multiplyRevProducts(&m_conc[0], &ropr[0]); 
     //m_revProductStoich.multiply(m_conc.begin(), ropr.begin());
 
-    for (int j = 0; j != m_ii; ++j) {
+        for (size_t j = 0; j != m_ii; ++j) {
       ropnet[j] = ropf[j] - ropr[j];
     }
 
@@ -569,18 +573,22 @@ namespace Cantera {
     copy(rf.begin(), rf.end(), ropf.begin());
 
     // multiply ropf by enhanced 3b conc for all 3b rxns
+        if (!m_kdata->concm_3b_values.empty()) {
     m_3b_concm.multiply(&ropf[0], &m_kdata->concm_3b_values[0] );
+        }
 
     /*
      * This routine is hardcoded to replace some of the values
      * of the ropf vector.
      */
+        if (m_nfall) {
     processFalloffReactions();
+        }
 
     // multiply by perturbation factor
     multiply_each(ropf.begin(), ropf.end(), m_perturb.begin());
        
-    for (int i = 0; i < m_ii; i++) {
+	for (size_t i = 0; i < m_ii; i++) {
       kfwd[i] = ropf[i];
     }
   }
@@ -608,7 +616,7 @@ namespace Cantera {
     if (doIrreversible) {
       doublereal *tmpKc = &m_kdata->m_ropnet[0];
       getEquilibriumConstants(tmpKc);
-      for (int i = 0; i < m_ii; i++) {
+	  for (size_t i = 0; i < m_ii; i++) {
 	krev[i] /=  tmpKc[i];
       }
     } else {
@@ -616,7 +624,7 @@ namespace Cantera {
        * m_rkc[] is zero for irreversibly reactions
        */
       const vector_fp& m_rkc = m_kdata->m_rkcn;
-      for (int i = 0; i < m_ii; i++) {
+	  for (size_t i = 0; i < m_ii; i++) {
 	krev[i] *= m_rkc[i];
       }
     }
@@ -642,7 +650,7 @@ namespace Cantera {
 
     // install high and low rate coeff calculators
 
-    int iloc = m_falloff_high_rates.install(m_nfall,
+        size_t iloc = m_falloff_high_rates.install(m_nfall,
 					    r.rateCoeffType,
 					    r.rateCoeffParameters.size(),
 					    &r.rateCoeffParameters[0] );     
@@ -685,7 +693,7 @@ namespace Cantera {
 
   void GasKinetics::
   addElementaryReaction(const ReactionData& r) {
-    int iloc;
+        size_t iloc;
 
     // install rate coeff calculator
     iloc = m_rates.install( reactionNumber(),
@@ -703,8 +711,7 @@ namespace Cantera {
   //====================================================================================================================
   void GasKinetics::
   addThreeBodyReaction(const ReactionData& r) {
-            
-    int iloc;
+        size_t iloc;
     // install rate coeff calculator
     iloc = m_rates.install( reactionNumber(),
 			    r.rateCoeffType, r.rateCoeffParameters.size(),
@@ -727,18 +734,18 @@ namespace Cantera {
     m_kdata->m_ropf.push_back(0.0);     // extend by one for new rxn
     m_kdata->m_ropr.push_back(0.0);
     m_kdata->m_ropnet.push_back(0.0);
-    int n, ns, m;
+        size_t n, ns, m;
     doublereal nsFlt;
     doublereal reactantGlobalOrder = 0.0;
     doublereal productGlobalOrder  = 0.0;
-    int rnum = reactionNumber();
+	size_t rnum = reactionNumber();
 
-    vector_int rk;
-    int nr = r.reactants.size();
+        std::vector<size_t> rk;
+        size_t nr = r.reactants.size();
     for (n = 0; n < nr; n++) {
       nsFlt = r.rstoich[n];
       reactantGlobalOrder += nsFlt;
-      ns = (int) nsFlt;
+	    ns = (size_t) nsFlt;
       if ((doublereal) ns != nsFlt) {
 	if (ns < 1) {
 	  ns = 1;
@@ -752,12 +759,12 @@ namespace Cantera {
     }
     m_reactants.push_back(rk);
 
-    vector_int pk;
-    int np = r.products.size();
+        std::vector<size_t> pk;
+        size_t np = r.products.size();
     for (n = 0; n < np; n++) {
       nsFlt = r.pstoich[n];
       productGlobalOrder += nsFlt;
-      ns = (int) nsFlt;
+            ns = (size_t) nsFlt;
       if ((double) ns != nsFlt) {
 	if (ns < 1) {
 	  ns = 1;
@@ -788,10 +795,11 @@ namespace Cantera {
   }
   //====================================================================================================================
 
-  void GasKinetics::installGroups(int irxn, 
+
+    void GasKinetics::installGroups(size_t irxn,
 				  const vector<grouplist_t>& r, const vector<grouplist_t>& p) {
     if (!r.empty()) {
-      writelog("installing groups for reaction "+int2str(reactionNumber()));
+            writelog("installing groups for reaction "+int2str(int(reactionNumber())));
       m_rgroups[reactionNumber()] = r;
       m_pgroups[reactionNumber()] = p;
     }

@@ -2,13 +2,6 @@
  *
  *  @file HMW_graph_1.cpp
  */
-
-/*
- *  $Author$
- *  $Date$
- *  $Revision$
- */
-
 #include "Cantera.h"
 #include "thermo.h"
 #include "kernel/HMWSoln.h"
@@ -248,11 +241,6 @@ int main(int argc, char **argv)
       //double Lfunc = HMW->relative_enthalpy() * 1.0E-6;
       molarEnth = HMW->enthalpy_mole() * 1.0E-6;
 
-
-  
-      /*
-       *
-       */
       double Delta_Hs = (Xmol[0]  * H_H2O +
 			 Xmol[i1] * H_Naplus +
 			 Xmol[i2] * H_Clminus 

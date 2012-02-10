@@ -6,13 +6,7 @@
  *  (see \ref thermoprops and class \link Cantera::SurfPhase SurfPhase\endlink).
  */
 
-/* 
- *  $Date$
- *  $Revision$
- *
- *  Copyright 2002 California Institute of Technology
- *
- */
+//  Copyright 2002 California Institute of Technology
 
 #ifndef CT_SURFPHASE_H
 #define CT_SURFPHASE_H
@@ -343,13 +337,13 @@ namespace Cantera {
      * @return 
      *   Returns the standard Concentration in units of m3 kmol-1.
      */
-    virtual doublereal standardConcentration(int k = 0) const;
+    virtual doublereal standardConcentration(size_t k = 0) const;
   
     //! Return the log of the standard concentration for the kth species
     /*!
      * @param k species index (default 0)
      */
-    virtual doublereal logStandardConc(int k=0) const;
+    virtual doublereal logStandardConc(size_t k=0) const;
 
     //! Set the equation of state parameters from the argument list
     /*!

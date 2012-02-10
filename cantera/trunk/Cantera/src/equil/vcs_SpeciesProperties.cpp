@@ -1,10 +1,6 @@
 /**
  * @file vcs_SpeciesProperties.cpp
  */
-/*
- * $Id $
- */
-
 #include "vcs_defs.h"
 #include "vcs_SpeciesProperties.h"
 #include "vcs_VolPhase.h"
@@ -23,8 +19,8 @@ namespace VCSnonideal {
  *
  * constructor():
  */
-vcs_SpeciesProperties::vcs_SpeciesProperties(int indexPhase, 
-					     int indexSpeciesPhase,
+vcs_SpeciesProperties::vcs_SpeciesProperties(size_t indexPhase,
+					     size_t indexSpeciesPhase,
 					     vcs_VolPhase *owning) :
   IndexPhase(indexPhase),
   IndexSpeciesPhase(indexSpeciesPhase),

@@ -8,10 +8,6 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-/*
- * $Id$
- */
-
 #include "xml.h"
 #include "WaterSSTP.h"
 #include "WaterPropsIAPWS.h"
@@ -216,14 +212,14 @@ namespace Cantera {
      * atomic weights used in the Element class and calculate
      * a consistent H2O molecular weight based on that.
      */
-    int nH = elementIndex("H");
-    if (nH < 0) {
+    size_t nH = elementIndex("H");
+    if (nH == npos) {
       throw CanteraError("WaterSSTP::initThermo",
 			 "H not an element");
     }
     double mw_H = atomicWeight(nH);
-    int nO = elementIndex("O");
-    if (nO < 0) {
+    size_t nO = elementIndex("O");
+    if (nO == npos) {
       throw CanteraError("WaterSSTP::initThermo",
 			 "O not an element");
     }
@@ -405,7 +401,7 @@ namespace Cantera {
   void WaterSSTP::getGibbs_ref(doublereal *g) const {
     getGibbs_RT_ref(g);
     doublereal rt = _RT();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       g[k] *= rt;
     }
   }

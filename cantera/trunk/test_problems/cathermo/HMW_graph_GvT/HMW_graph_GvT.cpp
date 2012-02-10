@@ -2,13 +2,6 @@
  *
  *  @file HMW_graph_1.cpp
  */
-
-/*
- *  $Author$
- *  $Date$
- *  $Revision$
- */
-
 #ifdef SRCDIRTREE
 #include "ct_defs.h"
 #include "logger.h"
@@ -16,9 +9,8 @@
 #include "HMWSoln.h"
 #include "importCTML.h"
 #else
-#include "ThermoPhase.h"
-
 #include "Cantera.h"
+#include "kernel/ThermoPhase.h"
 #include "kernel/logger.h"
 #include "thermo.h"
 #include "kernel/HMWSoln.h"

@@ -2,11 +2,6 @@
  *  @file LiquidTransport.h
  *   Header file defining class LiquidTransport
  */
-/*
- * $Revision$
- * $Date$
- */
-
 #ifndef CT_LIQUIDTRAN_H
 #define CT_LIQUIDTRAN_H
 
@@ -292,7 +287,7 @@ namespace Cantera {
      *   @param d   vector of binary diffusion coefficients
      *          units = m2 s-1. length = ld*ld = (number of species)^2
      */
-    virtual void getBinaryDiffCoeffs(const int ld, doublereal* const d);
+    virtual void getBinaryDiffCoeffs(const size_t ld, doublereal* const d);
 
     //! Get the Mixture diffusion coefficients
     /*!
@@ -885,10 +880,10 @@ namespace Cantera {
   private:
 
     //! Number of species in the phase
-    int m_nsp;
+    size_t m_nsp;
 
     //! Number of species squared
-    int m_nsp2;
+    size_t m_nsp2;
 
     //! Minimum temperature applicable to the transport property eval
     doublereal m_tmin;
@@ -1434,7 +1429,7 @@ namespace Cantera {
     /*!
      * Either 1, 2, or 3
      */
-    int m_nDim;
+    size_t m_nDim;
 
     //! Throw an exception if this method is invoked. 
     /*!

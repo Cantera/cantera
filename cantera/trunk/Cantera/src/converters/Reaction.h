@@ -18,7 +18,6 @@
 #include "ckr_utils.h"
 #include "RxnSpecies.h"
 
-
 namespace ckr {
 
 
@@ -245,25 +244,17 @@ namespace ckr {
 
         // methods
 
-        double stoichCoefficient(const std::string& s) const;        
+        double stoichCoefficient(const std::string& s) const;
         bool operator==(const Reaction& r) const;
         void write(std::ostream& s) const;
 
     };
 
     /// a list of Reaction objects
-    typedef std::vector<Reaction>     reactionList;
+    typedef std::vector<Reaction> reactionList;
 
     Reaction forwardReaction(const Reaction& rxn);
     Reaction reverseReaction(const Reaction& rxn);
 }
 
-
-
-
 #endif
-
-
-
-
-

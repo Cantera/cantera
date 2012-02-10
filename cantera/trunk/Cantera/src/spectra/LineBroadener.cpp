@@ -1,11 +1,17 @@
 #include "ct_defs.h"
 #include <math.h>
+
+#ifdef USE_BOOST_MATH
+#include <boost/math/special_functions/erf.hpp>
+using boost::math::erf;
+#endif
+
 #include "LineBroadener.h"
 
 using namespace std;
 using namespace Cantera;
 
-namespace CanteraSpectra {
+namespace Cantera {
 
     Lorentzian::Lorentzian(doublereal gamma) {
         m_hwhm = gamma;

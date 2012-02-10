@@ -39,7 +39,6 @@ using namespace std;
 #include "kernel/TransportFactory.h"
 
 using namespace Cantera;
-using namespace Cantera_CXX;
 
 void printDbl(double val) {
   if (fabs(val) < 5.0E-17) {
@@ -50,6 +49,9 @@ void printDbl(double val) {
 }
 
 int main(int argc, char** argv) {
+#ifdef _MSC_VER
+    _set_output_format(_TWO_DIGIT_EXPONENT);
+#endif
   int k;
   string infile = "diamond.xml";
  

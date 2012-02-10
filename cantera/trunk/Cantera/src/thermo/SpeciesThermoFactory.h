@@ -5,12 +5,6 @@
  *    (see \ref spthermo and class 
  *     \link Cantera::SpeciesThermoFactory SpeciesThermoFactory\endlink);
  */
-
-/*
- * $Revision$
- * $Date$
- */
-
 // Copyright 2001  California Institute of Technology
 
 #ifndef SPECIESTHERMO_FACTORY_H
@@ -178,7 +172,7 @@ namespace Cantera {
      *                      information for the phase in which the species
      *                      resides
      */
-    void installThermoForSpecies(int k, const XML_Node& speciesNode, 
+    void installThermoForSpecies(size_t k, const XML_Node& speciesNode,
 				 ThermoPhase *th_ptr, SpeciesThermo& spthermo,
 				 const XML_Node *phaseNode_ptr = 0) const;
 
@@ -202,7 +196,7 @@ namespace Cantera {
      *                      information for the phase in which the species
      *                      resides
      */
-    void installVPThermoForSpecies(int k, const XML_Node& speciesNode, 
+    void installVPThermoForSpecies(size_t k, const XML_Node& speciesNode,
 				   VPStandardStateTP *vp_ptr,
 				   VPSSMgr *vpss_ptr,
 				   SpeciesThermo *spthermo_ptr,

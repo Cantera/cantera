@@ -4,12 +4,6 @@
  *  that implement gas-phase kinetics (GasKinetics, GRI_30_Kinetics)
  *  (see \ref falloffGroup and class \link Cantera::Falloff Falloff\endlink).
  */
-
-/*
- *  $Date$
- *  $Revision$
- */
-
 // Copyright 2001  California Institute of Technology
 
 #ifndef CT_NEWFALLOFF_H

@@ -1,32 +1,20 @@
 /**
  *  @file MultiTransport.h
  *  Interface for class MultiTransport
- *
  */
 
 // Copyright 2001  California Institute of Technology
 
-
 #ifndef CT_MULTITRAN_H
 #define CT_MULTITRAN_H
-
 
 // Define this for better agreement with Chemkin TRANLIB results, even
 // if the results are less correct.
 //#undef CHEMKIN_COMPATIBILITY_MODE
 
-
-// turn off warnings under Windows
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
-
 // Cantera includes
 #include "TransportBase.h"
 #include "DenseMatrix.h"
-
 
 namespace Cantera {
 
@@ -128,8 +116,8 @@ namespace Cantera {
 
     virtual doublereal thermalConductivity();
 
-    virtual void getBinaryDiffCoeffs(const int ld, doublereal* const d);
-    virtual void getMultiDiffCoeffs(const int ld, doublereal* const d);
+    virtual void getBinaryDiffCoeffs(const size_t ld, doublereal* const d);
+    virtual void getMultiDiffCoeffs(const size_t ld, doublereal* const d);
 
     //! Although this class implements a multicomponent diffusion
     //! model, it is convenient to be able to compute
@@ -159,7 +147,7 @@ namespace Cantera {
      *                  Flat vector with the m_nsp in the inner loop.
      *                   length = ldx * ndim
      */
-    virtual void getSpeciesFluxes(int ndim, const doublereal * const grad_T, 
+    virtual void getSpeciesFluxes(size_t ndim, const doublereal * const grad_T, 
 				  int ldx,  const doublereal * const grad_X,
 				  int ldf, doublereal * const fluxes);
 
@@ -269,7 +257,7 @@ namespace Cantera {
     doublereal m_thermal_tlast;
 
     //! Number of species in the phase
-    int m_nsp;
+    size_t m_nsp;
     doublereal m_tmin;
     doublereal m_tmax;
     vector_fp  m_mw;
@@ -375,7 +363,7 @@ namespace Cantera {
     void eval_L1001(const doublereal* x);
     void eval_L0110();
     void eval_L0101(const doublereal* x);
-    bool hasInternalModes(int j);
+    bool hasInternalModes(size_t j);
 
     doublereal pressure_ig() {
       return m_thermo->molarDensity() * GasConstant * m_thermo->temperature();

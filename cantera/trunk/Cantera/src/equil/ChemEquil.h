@@ -2,13 +2,9 @@
  *  @file ChemEquil.h
  *
  *  Chemical equilibrium.
- *
- *  $Author$
- *  $Date$
- *  $Revision$
- *
+ */
+/*
  *  Copyright 2001 California Institute of Technology
- *
  */
 
 
@@ -137,7 +133,7 @@ namespace Cantera {
     thermo_t*  m_phase;
  
     /// number of atoms of element m in species k.
-    doublereal nAtoms(int k, int m) const { return m_comp[k*m_mm + m]; }
+    doublereal nAtoms(size_t k, size_t m) const { return m_comp[k*m_mm + m]; }
 
     void initialize(thermo_t& s);
 
@@ -172,15 +168,15 @@ namespace Cantera {
 		      vector_fp& eMolesCalc, vector_fp& n_i_calc,
 		      double pressureConst);
 
-    int m_mm;
-    int m_kk;
-    int m_skip;
+    size_t m_mm;
+    size_t m_kk;
+    size_t m_skip;
     
     /**
      * This is equal to the rank of the stoichiometric coefficient
      * matrix when it is computed. It's initialized to m_mm.
      */
-    int m_nComponents;
+    size_t m_nComponents;
 
     PropertyCalculator<thermo_t> *m_p1, *m_p2;
 
@@ -219,7 +215,7 @@ namespace Cantera {
      * Index of the element id corresponding to the electric charge of each
      * species. Equal to -1 if there is no such element id.
      */
-    int m_eloc;
+    size_t m_eloc;
 
     vector_fp m_startSoln;
 
@@ -231,7 +227,7 @@ namespace Cantera {
      * pressure of the solution (the star standard state).
      */
     vector_fp m_muSS_RT;
-    vector_int m_component;
+    std::vector<size_t> m_component;
 
     /*
      * element fractional cutoff, below which the element will be
@@ -241,8 +237,8 @@ namespace Cantera {
     bool m_doResPerturb;
 
 
-    vector_int m_orderVectorElements;
-    vector_int m_orderVectorSpecies;
+    std::vector<size_t> m_orderVectorElements;
+    std::vector<size_t> m_orderVectorSpecies;
 
 
   };

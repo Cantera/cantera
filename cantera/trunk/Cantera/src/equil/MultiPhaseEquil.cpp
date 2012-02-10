@@ -1,16 +1,11 @@
 /**
  * @file MultiPhaseEquil.cpp
  */
-/*
- * $Id$
- */
-
 #include "MultiPhaseEquil.h"
 #include "MultiPhase.h"
 #ifdef WITH_ELECTROLYTES
 #include "MolalityVPSSTP.h"
 #endif
-#include "sort.h"
 #include "global.h"
 
 #include <math.h>
@@ -185,8 +180,10 @@ namespace Cantera {
         // Take a very small step in composition space, so that no
         // species has precisely zero moles.
         vector_fp dxi(m_nsp - m_nel, 1.0e-20);
-        multiply(m_N, DATA_PTR(dxi), DATA_PTR(m_work));
-        unsort(m_work);
+        if (!dxi.empty()) {
+          multiply(m_N, DATA_PTR(dxi), DATA_PTR(m_work));
+          unsort(m_work);
+        }
 
         for (k = 0; k < m_nsp; k++) {
             m_moles[k] += m_work[k];
@@ -375,9 +372,8 @@ namespace Cantera {
     ///  to be components in declaration order, beginning with the
     ///  first phase added.
     ///
-    void MultiPhaseEquil::getComponents(const vector_int& order) {
+    void MultiPhaseEquil::getComponents(const std::vector<size_t>& order) {
         index_t m, k, j;
-        int n;
 
         // if the input species array has the wrong size, ignore it
         // and consider the species for components in declaration order.
@@ -430,7 +426,7 @@ namespace Cantera {
 
                 // Now exchange the column with zero pivot with the 
                 // column for this major species
-                for (n = 0; n < int(nRows); n++) {
+                for (size_t n = 0; n < nRows; n++) {
                     tmp = m_A(n,m);
                     m_A(n, m) = m_A(n, kmax);
                     m_A(n, kmax) = tmp;
@@ -451,7 +447,7 @@ namespace Cantera {
 
             // For all rows below the diagonal, subtract A(n,m)/A(m,m)
             // * (row m) from row n, so that A(n,m) = 0.
-            for (n = int(m+1); n < int(m_nel); n++) {
+            for (size_t n = m+1; n < m_nel; n++) {
                 fctr = m_A(n,m)/m_A(m,m);
                 for (k = 0; k < m_nsp; k++) {
                     m_A(n,k) -= m_A(m,k)*fctr;
@@ -463,7 +459,7 @@ namespace Cantera {
         // The left m_nel columns of A are now upper-diagonal.  Now
         // reduce the m_nel columns to diagonal form by back-solving
         for (m = nRows-1; m > 0; m--) {
-            for (n = m-1; n>= 0; n--) {
+            for (size_t n = m-1; n != npos; n--) {
                 if (m_A(n,m) != 0.0) {
                     fctr = m_A(n,m);
                     for (k = m; k < m_nsp; k++) {
@@ -474,8 +470,8 @@ namespace Cantera {
         }
 
         // create stoichometric coefficient matrix. 
-        for (n = 0; n < int(m_nsp); n++) {
-            if (n < int(m_nel)) 
+        for (size_t n = 0; n < m_nsp; n++) {
+            if (n < m_nel)
                 for (k = 0; k < m_nsp - m_nel; k++) 
                     m_N(n, k) = -m_A(n, k + m_nel);
             else {
@@ -773,7 +769,7 @@ namespace Cantera {
                         psum = 0.0;
                         for (k = 0; k < m_nsp; k++) {
                             kc = m_species[k];
-                            if (m_mix->speciesPhaseIndex(kc) == (int) ip) {
+                            if (m_mix->speciesPhaseIndex(kc) == ip) {
                                 // bug fixed 7/12/06 DGG
                                 stoich = nu[k]; // nu[kc];
                                 psum += stoich * stoich;
@@ -802,36 +798,28 @@ namespace Cantera {
     }
 
     void MultiPhaseEquil::computeN() {
-        index_t m, k;
+	// Sort the list of species by mole fraction (decreasing order)
+	std::vector<std::pair<double, size_t> > moleFractions(m_nsp);
+	for (size_t k = 0; k < m_nsp; k++) {
+	    // use -Xk to generate reversed sort order
+	    moleFractions[k].first = - m_mix->speciesMoles(m_species[k]);
+	    moleFractions[k].second = k;
+	}
+	std::sort(moleFractions.begin(), moleFractions.end());
+	for (size_t k = 0; k < m_nsp; k++) {
+	    m_sortindex[k] = moleFractions[k].second;
+	}
 
-        // get the species moles
-
-        // sort mole fractions
-        doublereal molesum = 0.0;
-        for (k = 0; k < m_nsp; k++) {
-            m_work[k] = m_mix->speciesMoles(m_species[k]);
-            m_sortindex[k] = k;
-            molesum += m_work[k];
-        }
-        heapsort(m_work, m_sortindex);
-
-        // reverse order in sort index
-        index_t itmp;
-        for (k = 0; k < m_nsp/2; k++) {
-            itmp = m_sortindex[m_nsp-k-1];
-            m_sortindex[m_nsp-k-1] = m_sortindex[k];
-            m_sortindex[k] = itmp;
-        }
-        index_t ik, ij;
         bool ok;
-        for (m = 0; m < m_nel; m++) {
-            for (ik = 0; ik < m_nsp; ik++) {
+        for (size_t m = 0; m < m_nel; m++) {
+            size_t k;
+            for (size_t ik = 0; ik < m_nsp; ik++) {
                 k = m_sortindex[ik];
                 if (m_mix->nAtoms(m_species[k],m_element[m]) != 0) break;
             }
             ok = false;
-            for (ij = 0; ij < m_nel; ij++) {
-                if (int(k) == m_order[ij]) ok = true;
+            for (size_t ij = 0; ij < m_nel; ij++) {
+                if (k == m_order[ij]) ok = true;
             }
             if (!ok || m_force) {
                 getComponents(m_sortindex);
@@ -842,13 +830,11 @@ namespace Cantera {
     }
 
     doublereal MultiPhaseEquil::error() {
-        index_t j, ik, k;
         doublereal err, maxerr = 0.0;
 
         // examine every reaction
-        for (j = 0; j < m_nsp - m_nel; j++) {
-            ik = j + m_nel;
-            k = m_order[ik];
+        for (size_t j = 0; j < m_nsp - m_nel; j++) {
+            size_t ik = j + m_nel;
 
             // don't require formation reactions for solution species
             // present in trace amounts to be equilibrated
@@ -877,17 +863,14 @@ namespace Cantera {
   }
 
 #include <cstdio>
-   /*
-    *
-    */
   void MultiPhaseEquil::reportCSV(const std::string &reportFile) {
-    int k;
-    int istart;
-    int nSpecies;
+    size_t k;
+    size_t istart;
+    size_t nSpecies;
 
     double vol = 0.0;
     string sName;
-    int nphase = m_np;
+    size_t nphase = m_np;
 
     FILE * FP = fopen(reportFile.c_str(), "w");
     if (!FP) {
@@ -908,7 +891,7 @@ namespace Cantera {
 
 
     vol = 0.0;
-    for (int iphase = 0; iphase < nphase; iphase++) {
+    for (size_t iphase = 0; iphase < nphase; iphase++) {
       istart =    m_mix->speciesIndex(0, iphase);
       ThermoPhase &tref = m_mix->phase(iphase);
       nSpecies = tref.nSpecies();
@@ -933,7 +916,7 @@ namespace Cantera {
     //    fprintf(FP,"Number Basis optimizations = %d\n", m_vprob->m_NumBasisOptimizations);
     // fprintf(FP,"Number VCS iterations = %d\n", m_vprob->m_Iterations);
 
-    for (int iphase = 0; iphase < nphase; iphase++) {
+    for (size_t iphase = 0; iphase < nphase; iphase++) {
       istart =    m_mix->speciesIndex(0, iphase);
     
       ThermoPhase &tref = m_mix->phase(iphase);

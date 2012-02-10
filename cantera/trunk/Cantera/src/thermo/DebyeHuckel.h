@@ -13,11 +13,6 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-
-/*
- * $Id$
- */
-
 #ifndef CT_DEBYEHUCKEL_H
 #define CT_DEBYEHUCKEL_H
 
@@ -723,9 +718,6 @@ namespace Cantera {
     virtual doublereal gibbs_mole() const;
 
     /// Molar heat capacity at constant pressure. Units: J/kmol/K. 
-    /*
-     *     
-     */
     virtual doublereal cp_mole() const;
 
     //! Molar heat capacity at constant volume. Units: J/kmol/K.
@@ -929,13 +921,13 @@ namespace Cantera {
      *   Returns the standard Concentration in units of 
      *   m<SUP>3</SUP> kmol<SUP>-1</SUP>.
      */
-    virtual doublereal standardConcentration(int k=0) const;
+    virtual doublereal standardConcentration(size_t k=0) const;
 
     //! Natural logarithm of the standard concentration of the kth species.
     /*!
      * @param k    index of the species (defaults to zero)
      */
-    virtual doublereal logStandardConc(int k=0) const;
+    virtual doublereal logStandardConc(size_t k=0) const;
 
     //! Returns the units of the standard and generalized concentrations.
     /*!

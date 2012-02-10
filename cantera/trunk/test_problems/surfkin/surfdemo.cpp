@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  *  Sample program that solves an implicit problem for surface
  *  site fractions.
  */
@@ -11,9 +9,7 @@
 #include "Interface.h"
 
 using namespace Cantera;
-using namespace Cantera_CXX;
 using namespace std;
-using namespace Cantera_CXX;
 
 int main() {
 

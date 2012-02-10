@@ -4,20 +4,7 @@
  *  (see \ref  kineticsmgr and class
  *  \link Cantera::ImplicitSurfChem ImplicitSurfChem\endlink).
  */
-
-/*
- * $Author$
- * $Revision$
- * $Date$
- */
-
 // Copyright 2001  California Institute of Technology
-
-
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
 
 #include "ImplicitSurfChem.h"
 #include "Integrator.h"
@@ -46,16 +33,16 @@ namespace Cantera {
     m_commonTempPressForPhases(true),
     m_ioFlag(0)
   {
-    m_nsurf = static_cast<int>(k.size());
-    int ns, nsp;
-    int nt, ntmax = 0;
-    int kinSpIndex = 0;
+    m_nsurf = k.size();
+    size_t ns, nsp;
+    size_t nt, ntmax = 0;
+    size_t kinSpIndex = 0;
     // Loop over the number of surface kinetics objects
-    for (int n = 0; n < m_nsurf; n++) {
+    for (size_t n = 0; n < m_nsurf; n++) {
       InterfaceKinetics *kinPtr = k[n];
       m_vecKinPtrs.push_back(kinPtr);
       ns = k[n]->surfacePhaseIndex();
-      if (ns < 0) 
+      if (ns == npos)
 	throw CanteraError("ImplicitSurfChem",
 			   "kinetics manager contains no surface phase");
       m_surfindex.push_back(ns);
@@ -68,13 +55,13 @@ namespace Cantera {
       m_specStartIndex.push_back(kinSpIndex);
       kinSpIndex += nsp;
 
-      int nPhases = kinPtr->nPhases();
+      size_t nPhases = kinPtr->nPhases();
       vector_int pLocTmp(nPhases);
-      int imatch = -1;
-      for (int ip = 0; ip < nPhases; ip++) {
+      size_t imatch = -1;
+      for (size_t ip = 0; ip < nPhases; ip++) {
 	if (ip != ns) {
 	  ThermoPhase *thPtr = & kinPtr->thermo(ip);
-	  if ((imatch = checkMatch(m_bulkPhases, thPtr)) < 0) {
+	  if ((imatch = checkMatch(m_bulkPhases, thPtr)) == -1) {
 	    m_bulkPhases.push_back(thPtr);
 	    m_numBulkPhases++;
 	    nsp = thPtr->nSpecies();
@@ -82,9 +69,9 @@ namespace Cantera {
 	    m_numTotalBulkSpecies += nsp;
 	    imatch = m_bulkPhases.size() - 1;
 	  } 
-	  pLocTmp[ip] = imatch;
+	  pLocTmp[ip] = int(imatch);
 	} else {
-	  pLocTmp[ip] = -n;
+	  pLocTmp[ip] = -int(n);
 	}
       }
       pLocVec.push_back(pLocTmp);
@@ -135,8 +122,8 @@ namespace Cantera {
   void ImplicitSurfChem::getInitialConditions(doublereal t0, size_t lenc, 
 					      doublereal * c) 
   {
-    int loc = 0;
-    for (int n = 0; n < m_nsurf; n++) {
+    size_t loc = 0;
+    for (size_t n = 0; n < m_nsurf; n++) {
       m_surf[n]->getCoverages(c + loc);
       loc += m_nsp[n];
     }
@@ -181,8 +168,8 @@ namespace Cantera {
   }
 
   void ImplicitSurfChem::updateState(doublereal* c) {
-    int loc = 0;
-    for (int n = 0; n < m_nsurf; n++) {
+    size_t loc = 0;
+    for (size_t n = 0; n < m_nsurf; n++) {
       m_surf[n]->setCoverages(c + loc);
       loc += m_nsp[n];
     }
@@ -194,17 +181,16 @@ namespace Cantera {
   void ImplicitSurfChem::eval(doublereal time, doublereal* y, 
 			      doublereal* ydot, doublereal* p) 
   {
-    int n;
     updateState(y);   // synchronize the surface state(s) with y
     doublereal rs0, sum;
-    int loc, k, kstart;
-    for (n = 0; n < m_nsurf; n++) {
+    size_t loc, kstart;
+    for (size_t n = 0; n < m_nsurf; n++) {
       rs0 = 1.0/m_surf[n]->siteDensity();
       m_vecKinPtrs[n]->getNetProductionRates(DATA_PTR(m_work));
       kstart = m_vecKinPtrs[n]->kineticsSpeciesIndex(0,m_surfindex[n]);
       sum = 0.0;
       loc = 0;
-      for (k = 1; k < m_nsp[n]; k++) {
+      for (size_t k = 1; k < m_nsp[n]; k++) {
 	ydot[k + loc] = m_work[kstart + k] * rs0 * m_surf[n]->size(k);
 	sum -= ydot[k];
       }
@@ -235,9 +221,6 @@ namespace Cantera {
      * time scale - time over which to integrate equations
      */
     doublereal time_scale = timeScaleOverride;
-    /*
-     *
-     */
     if (!m_surfSolver) {
       m_surfSolver = new solveSP(this, bulkFunc);
       /*
@@ -284,7 +267,7 @@ namespace Cantera {
      * are below zero.
      */
     bool rset = false;
-    for (int k = 0; k < m_nv; k++) {
+    for (size_t k = 0; k < m_nv; k++) {
       if (m_concSpecies[k] < 0.0) {
 	rset = true;
 	m_concSpecies[k] = 0.0;
@@ -329,18 +312,17 @@ namespace Cantera {
    * m_concSpecies[]
    */
   void ImplicitSurfChem::getConcSpecies(doublereal * const vecConcSpecies) const {
-    int kstart;
-    for (int ip = 0; ip < m_nsurf; ip++) {
+    size_t kstart;
+    for (size_t ip = 0; ip < m_nsurf; ip++) {
       ThermoPhase * TP_ptr = m_surf[ip];
       kstart = m_specStartIndex[ip];
       TP_ptr->getConcentrations(vecConcSpecies + kstart);
     }
     kstart = m_nv;
-    for (int ip = 0; ip <  m_numBulkPhases; ip++) {
+    for (size_t ip = 0; ip <  m_numBulkPhases; ip++) {
       ThermoPhase * TP_ptr = m_bulkPhases[ip];
-      int nsp = TP_ptr->nSpecies();
       TP_ptr->getConcentrations(vecConcSpecies + kstart);
-      kstart += nsp;
+      kstart += TP_ptr->nSpecies();
     }
   }
 
@@ -354,18 +336,17 @@ namespace Cantera {
    * m_concSpecies[]
    */
   void ImplicitSurfChem::setConcSpecies(const doublereal * const vecConcSpecies) {
-    int kstart;
-    for (int ip = 0; ip < m_nsurf; ip++) {
+    size_t kstart;
+    for (size_t ip = 0; ip < m_nsurf; ip++) {
       ThermoPhase * TP_ptr = m_surf[ip];
       kstart = m_specStartIndex[ip];
       TP_ptr->setConcentrations(vecConcSpecies + kstart);
     }
     kstart = m_nv;
-    for (int ip = 0; ip <  m_numBulkPhases; ip++) {
+    for (size_t ip = 0; ip <  m_numBulkPhases; ip++) {
       ThermoPhase * TP_ptr = m_bulkPhases[ip];
-      int nsp = TP_ptr->nSpecies();
       TP_ptr->setConcentrations(vecConcSpecies + kstart);
-      kstart += nsp;
+      kstart += TP_ptr->nSpecies();
     }
   }
 
@@ -380,12 +361,11 @@ namespace Cantera {
    */
   void ImplicitSurfChem::
   setCommonState_TP(doublereal TKelvin, doublereal PresPa) {
-    int nphases = m_nsurf;
-    for (int ip = 0; ip < nphases; ip++) {
+    for (size_t ip = 0; ip < m_nsurf; ip++) {
       ThermoPhase *TP_ptr = m_surf[ip];
       TP_ptr->setState_TP(TKelvin, PresPa);
     }
-    for (int ip = 0; ip < m_numBulkPhases; ip++) {
+    for (size_t ip = 0; ip < m_numBulkPhases; ip++) {
       ThermoPhase *TP_ptr = m_bulkPhases[ip];
       TP_ptr->setState_TP(TKelvin, PresPa);
     }

@@ -7,17 +7,8 @@
  *  (see \ref thermoprops and class \link Cantera::LatticePhase LatticePhase\endlink).
  *
  */
-/*
- * $Id$
- */
-
 #include "config.h"
 #ifdef WITH_LATTICE_SOLID
-
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
 
 #include "ct_defs.h"
 #include "mix_defs.h"
@@ -26,9 +17,6 @@
 #include "ThermoFactory.h"
 
 #include <cmath>
-#include <string>
-
-using namespace std;
 
 namespace Cantera {
 
@@ -278,16 +266,16 @@ namespace Cantera {
   }
   //====================================================================================================================
   void LatticePhase::getActivityCoefficients(doublereal* ac) const {
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       ac[k] = 1.0;
     }
   }
   //====================================================================================================================
-  doublereal LatticePhase::standardConcentration(int k) const {
+  doublereal LatticePhase::standardConcentration(size_t k) const {
     return 1.0;
   }
   //====================================================================================================================
-  doublereal LatticePhase::logStandardConc(int k) const {
+  doublereal LatticePhase::logStandardConc(size_t k) const {
     return 0.0;
   }
   //====================================================================================================================
@@ -296,7 +284,7 @@ namespace Cantera {
     doublereal xx;
     doublereal RT = temperature() * GasConstant;
     const array_fp& g_RT = gibbs_RT_ref();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       xx = fmaxx(SmallNumber, moleFraction(k));
       mu[k] = RT * (g_RT[k] + log(xx))
 	+ delta_p * m_speciesMolarVolume[k];
@@ -348,7 +336,7 @@ namespace Cantera {
   void LatticePhase::getEnthalpy_RT(doublereal* hrt) const {
     const array_fp& _h = enthalpy_RT_ref();
     doublereal delta_prt = ((m_Pcurrent - m_Pref) / (GasConstant * temperature()));
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       hrt[k] = _h[k] + delta_prt * m_speciesMolarVolume[k];
     }
   }
@@ -455,7 +443,7 @@ namespace Cantera {
     if (tmax > 0.0) m_tmax = tmax;
     m_Pref = refPressure();
 
-    int leng = m_kk;
+    size_t leng = m_kk;
     m_h0_RT.resize(leng);
     m_g0_RT.resize(leng);
     m_cp0_R.resize(leng);
@@ -521,7 +509,7 @@ namespace Cantera {
     if (m_tlast != tnow) {
       m_spthermo->update(tnow, &m_cp0_R[0], &m_h0_RT[0], &m_s0_R[0]);
       m_tlast = tnow;
-      for (int k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
       }
       m_tlast = tnow;

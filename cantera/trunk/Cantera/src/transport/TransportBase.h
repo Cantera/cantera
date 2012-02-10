@@ -7,12 +7,6 @@
  *
  *   Provides class Transport.
  */
-
-/*
- * $Revision$
- * $Date$
- */
-
 // Copyright 2001-2003  California Institute of Technology
 
 
@@ -260,7 +254,7 @@ namespace Cantera {
      *
      *  @deprecated
      */
-    int index() const ;
+    size_t index() const ;
 
     //! Set an integer index number.
     /*!
@@ -271,7 +265,7 @@ namespace Cantera {
      *
      *  @deprecated
      */
-    void setIndex(int i);
+    void setIndex(size_t i);
 
     //! Set the number of dimensions to be expected in flux expressions
     /*!
@@ -563,7 +557,7 @@ namespace Cantera {
      *             Flat vector with the m_nsp in the inner loop.
      *             length = ldx * ndim
      */
-    virtual void getSpeciesFluxesES(int ndim, 
+    virtual void getSpeciesFluxesES(size_t ndim, 
 				    const doublereal* grad_T, 
 				    int ldx, 
 				    const doublereal* grad_X,
@@ -708,7 +702,7 @@ namespace Cantera {
      *  @param d   Diffusion coefficient matrix (must be at least m_k * m_k 
      *             in length.
      */ 
-    virtual void getBinaryDiffCoeffs(const int ld, doublereal* const d) { 
+    virtual void getBinaryDiffCoeffs(const size_t ld, doublereal* const d) { 
       err("getBinaryDiffCoeffs"); 
     }
 
@@ -724,7 +718,7 @@ namespace Cantera {
      *            d[ld*j+i] is the D_ij diffusion coefficient (the diffusion
      *            coefficient for species i due to species j).
      */
-    virtual void getMultiDiffCoeffs(const int ld, doublereal* const d) 
+    virtual void getMultiDiffCoeffs(const size_t ld, doublereal* const d)
     { err("getMultiDiffCoeffs"); }
 
 
@@ -863,7 +857,7 @@ namespace Cantera {
     /*!
      *  @deprecated
      */
-    int       m_index;
+    size_t       m_index;
 
     //! Number of dimensions used in flux expresions
     int       m_nDim;

@@ -5,15 +5,6 @@
  *  assuming an ideal solution model based on a lattice of solid atoms
  *  (see \ref thermoprops and class \link Cantera::LatticeSolidPhase LatticeSolidPhase\endlink).
  */
-/*
- * $Id$
- */
-
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
 
 #include "ct_defs.h"
 #ifdef WITH_LATTICE_SOLID
@@ -185,8 +176,7 @@ namespace Cantera {
   enthalpy_mole() const {
     _updateThermo();
     doublereal sum = 0.0;
-    int n;
-    for (n = 0; n < m_nlattice; n++) {
+    for (size_t n = 0; n < m_nlattice; n++) {
       sum += theta_[n] * m_lattice[n]->enthalpy_mole();
     }
     return sum;
@@ -195,8 +185,7 @@ namespace Cantera {
   doublereal LatticeSolidPhase::intEnergy_mole() const {
     _updateThermo();
     doublereal sum = 0.0;
-    int n;
-    for (n = 0; n < m_nlattice; n++) {
+    for (size_t n = 0; n < m_nlattice; n++) {
       sum += theta_[n] * m_lattice[n]->intEnergy_mole();
     }
     return sum;
@@ -205,8 +194,7 @@ namespace Cantera {
   doublereal LatticeSolidPhase::entropy_mole() const {
     _updateThermo();
     doublereal sum = 0.0;
-    int n;
-    for (n = 0; n < m_nlattice; n++) {
+    for (size_t n = 0; n < m_nlattice; n++) {
       sum += theta_[n] * m_lattice[n]->entropy_mole();
     }
     return sum;
@@ -215,7 +203,7 @@ namespace Cantera {
   doublereal LatticeSolidPhase::gibbs_mole() const {
     _updateThermo();
     doublereal  sum = 0.0;
-    for (int n = 0; n < m_nlattice; n++) {
+    for (size_t n = 0; n < m_nlattice; n++) {
       sum += theta_[n] * m_lattice[n]->gibbs_mole();
     }
     return sum;
@@ -224,7 +212,7 @@ namespace Cantera {
   doublereal LatticeSolidPhase::cp_mole() const {
     _updateThermo();
     doublereal sum = 0.0;
-    for (int n = 0; n < m_nlattice; n++) {
+    for (size_t n = 0; n < m_nlattice; n++) {
       sum += theta_[n] * m_lattice[n]->cp_mole();
     }
     return sum;
@@ -232,24 +220,24 @@ namespace Cantera {
   //====================================================================================================================
   void LatticeSolidPhase::getActivityConcentrations(doublereal* c) const {
     _updateThermo();
-    int strt = 0;
-    for (int n = 0; n < m_nlattice; n++) {
+    size_t strt = 0;
+    for (size_t n = 0; n < m_nlattice; n++) {
       m_lattice[n]->getMoleFractions(c+strt);
       strt += m_lattice[n]->nSpecies();
     }
   }
   //====================================================================================================================
   void LatticeSolidPhase::getActivityCoefficients(doublereal* ac) const {
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       ac[k] = 1.0;
     }
   }
   //====================================================================================================================
-  doublereal LatticeSolidPhase::standardConcentration(int k) const {
+  doublereal LatticeSolidPhase::standardConcentration(size_t k) const {
     return 1.0;
   }
   //====================================================================================================================
-  doublereal LatticeSolidPhase::logStandardConc(int k) const {
+  doublereal LatticeSolidPhase::logStandardConc(size_t k) const {
     return 0.0;
   }
 
@@ -366,9 +354,9 @@ namespace Cantera {
    */
   void LatticeSolidPhase::getChemPotentials(doublereal* mu) const {
     _updateThermo();
-    int strt = 0;
-    for (int n = 0; n < m_nlattice; n++) {
-      int nlsp =  m_lattice[n]->nSpecies();
+    size_t strt = 0;
+    for (size_t n = 0; n < m_nlattice; n++) {
+      size_t nlsp =  m_lattice[n]->nSpecies();
       m_lattice[n]->getChemPotentials(mu+strt);
       strt += nlsp;
     }
@@ -429,8 +417,8 @@ namespace Cantera {
    */
   void LatticeSolidPhase::getStandardChemPotentials(doublereal* mu0) const {
     _updateThermo();
-    int strt = 0;
-    for (int n = 0; n < m_nlattice; n++) {
+    size_t strt = 0;
+    for (size_t n = 0; n < m_nlattice; n++) {
       m_lattice[n]->getStandardChemPotentials(mu0+strt);
       strt += m_lattice[n]->nSpecies();
     }
@@ -554,12 +542,12 @@ namespace Cantera {
     m_kk = nSpecies();
     m_mm = nElements();
     initLengths();
-    int nsp, k, loc = 0;
-    for (int n = 0; n < m_nlattice; n++) {
+    size_t nsp, loc = 0;
+    for (size_t n = 0; n < m_nlattice; n++) {
       nsp = m_lattice[n]->nSpecies();
       lkstart_[n] = loc;
       nspLattice_[n] = nsp;
-      for (k = 0; k < nsp; k++) {
+      for (size_t k = 0; k < nsp; k++) {
 	m_x[loc] =m_lattice[n]->moleFraction(k) / (double) m_nlattice;
 	loc++;
       }
@@ -588,10 +576,9 @@ namespace Cantera {
     //        +fp2str(m_molar_density)+" to "+fp2str(molarDensity()));
     //}
     if (m_tlast != tnow) {
-      int n;
       getMoleFractions(DATA_PTR(m_x));
-      int strt = 0;
-      for (n = 0; n < m_nlattice; n++) {
+      size_t strt = 0;
+      for (size_t n = 0; n < m_nlattice; n++) {
 	m_lattice[n]->setTemperature(tnow);
 	m_lattice[n]->setMoleFractions(DATA_PTR(m_x) + strt);
 	m_lattice[n]->setPressure(m_press);
@@ -603,12 +590,12 @@ namespace Cantera {
   //====================================================================================================================
   void LatticeSolidPhase::setLatticeMoleFractionsByName(int nn, std::string x) {
     m_lattice[nn]->setMoleFractionsByName(x);
-    int n, k, loc=0, nsp;
+    int loc=0, nsp;
     doublereal ndens;
-    for (n = 0; n < m_nlattice; n++) {
+    for (size_t n = 0; n < m_nlattice; n++) {
       nsp = m_lattice[n]->nSpecies();
       ndens = m_lattice[n]->molarDensity();
-      for (k = 0; k < nsp; k++) {
+      for (size_t k = 0; k < nsp; k++) {
 	m_x[loc] = ndens * m_lattice[n]->moleFraction(k);
 	loc++;
       }
@@ -629,10 +616,9 @@ namespace Cantera {
     XML_Node& la = eosdata.child("LatticeArray");
     std::vector<XML_Node*> lattices;
     la.getChildren("phase",lattices);
-    int n;
-    int nl = lattices.size();
+    size_t nl = lattices.size();
     m_nlattice = nl;
-    for (n = 0; n < nl; n++) {
+    for (size_t n = 0; n < nl; n++) {
       XML_Node& i = *lattices[n];
       m_lattice.push_back((LatticePhase*)newPhase(i));
     }

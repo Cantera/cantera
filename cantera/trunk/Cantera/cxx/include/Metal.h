@@ -6,17 +6,17 @@
 #include "kernel/MetalPhase.h"
 #include "kernel/importKinetics.h"
 
-namespace Cantera_CXX {
+namespace Cantera {
 
-    class Metal : public Cantera::MetalPhase
+    class Metal : public MetalPhase
     {
     public:
         Metal(std::string infile, std::string id="") : m_ok(false), m_r(0) {
             
-            m_r = Cantera::get_XML_File(infile); 
+            m_r = get_XML_File(infile);
             if (id == "-") id = "";
-            m_ok = Cantera::buildSolutionFromXML(*m_r, id, "phase", this, 0);
-            if (!m_ok) throw Cantera::CanteraError("Metal",
+            m_ok = buildSolutionFromXML(*m_r, id, "phase", this, 0);
+            if (!m_ok) throw CanteraError("Metal",
                 "buildSolutionFromXML returned false");
         }
         
@@ -27,7 +27,7 @@ namespace Cantera_CXX {
 
     protected:
         bool m_ok;
-        Cantera::XML_Node* m_r;
+        XML_Node* m_r;
 
     private:
     };

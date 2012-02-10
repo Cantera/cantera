@@ -1,6 +1,5 @@
 /**
  * @file ck2cti.cpp
- * $Id$
  *
  * Program to convert Chemkin-II-format reaction mechanism files to
  * Cantera input format. The resulting Cantera input file contains a
@@ -31,18 +30,13 @@
  * input file name without the extension. Since only one phase definition
  * is present in the ck2cti output, this parameter is not required.  
  */
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
 #include <iostream>
 #include <string>
 using namespace std;
 
-#include "ct_defs.h"
-#include "global.h"
-#include "ck2ct.h"
+#include "kernel/ct_defs.h"
+#include "kernel/global.h"
+#include "kernel/ck2ct.h"
 
 using namespace Cantera;
 
@@ -78,6 +72,9 @@ string getp(int& i, int argc, char** args) {
 
 
 int main(int argc, char** argv) {
+#ifdef _MSC_VER
+    _set_output_format(_TWO_DIGIT_EXPONENT);
+#endif
     string infile="chem.inp", dbfile="", trfile="", logfile;
     string idtag = "gas";
     bool debug = false;

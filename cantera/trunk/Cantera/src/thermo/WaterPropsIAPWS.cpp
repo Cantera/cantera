@@ -9,10 +9,6 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-/*
- * $Id$
- */
-
 #include "WaterPropsIAPWS.h"
 #include "ctexceptions.h"
 #include "stringUtils.h"
@@ -532,7 +528,6 @@ doublereal WaterPropsIAPWS::psat(doublereal temperature, int waterState) {
     return P_c;
   }
   doublereal p = psat_est(temperature);
-  bool conv = false;
   for (int i = 0; i < 30; i++) {
     if (method == 1) {
       corr(temperature, p, densLiq, densGas, delGRT);
@@ -545,11 +540,9 @@ doublereal WaterPropsIAPWS::psat(doublereal temperature, int waterState) {
     p += dp;
       
     if ((method == 1) && delGRT < 1.0E-8) {
-      conv = true;
       break;
     } else {
       if (fabs(dp/p) < 1.0E-9) {
-	conv = true;
 	break;
       }
     }

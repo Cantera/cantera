@@ -6,11 +6,6 @@
  *
  *      Kinetics managers calculate rates of progress of species due to homogeneous or heterogeneous kinetics.
  */
-/*
- *  $Date$
- *  $Revision$
- */
-
 // Copyright 2001-2004  California Institute of Technology            
 
 
@@ -173,10 +168,9 @@ namespace Cantera {
    */
   void Kinetics::selectPhase(const doublereal* data, const thermo_t* phase,
 			     doublereal* phase_data) {
-    int n, nsp, np = nPhases();
-    for (n = 0; n < np; n++) {
+    for (size_t n = 0; n < nPhases(); n++) {
       if (phase == m_thermo[n]) {
-	nsp = phase->nSpecies();
+	size_t nsp = phase->nSpecies();
 	copy(data + m_start[n], 
 	     data + m_start[n] + nsp, phase_data);
 	return;
@@ -196,9 +190,8 @@ namespace Cantera {
    * the kinetics manager.  If k is out of bounds, the string
    * "<unknown>" is returned. 
    */
-  string Kinetics::kineticsSpeciesName(int k) const {
-    int np = m_start.size();
-    for (int n = np-1; n >= 0; n--) {
+  string Kinetics::kineticsSpeciesName(size_t k) const {
+    for (size_t n = m_start.size()-1; n != npos; n--) {
       if (k >= m_start[n]) {
 	return thermo(n).speciesName(k - m_start[n]);
       }
@@ -218,19 +211,17 @@ namespace Cantera {
    *  return
    *   - If a match is found, the position in the species list
    *   is returned. 
-   *   - If a specific phase is specified and no match is found,
-   *   the value -1 is returned.
-   *   - If no match is found in any phase, the value -2 is returned.
+   *   - If no match is found, the value -1 (npos) is returned.
    */
-  int Kinetics::kineticsSpeciesIndex(std::string nm, std::string ph) const {
-    int np = static_cast<int>(m_thermo.size());
-    int k;
+  size_t Kinetics::kineticsSpeciesIndex(std::string nm, std::string ph) const {
+    size_t np = m_thermo.size();
+    size_t k;
     string id;
-    for (int n = 0; n < np; n++) {
+    for (size_t n = 0; n < np; n++) {
       id = thermo(n).id();
       if (ph == id) {
 	k = thermo(n).speciesIndex(nm);
-	if (k < 0) return -1;
+	if (k == npos) return npos;
 	return k + m_start[n];
       }
       else if (ph == "<any>") {
@@ -239,10 +230,10 @@ namespace Cantera {
 	 * ThermoPhase object to find a match.
 	 */
 	k = thermo(n).speciesIndex(nm);
-	if (k >= 0) return k + m_start[n];
+	if (k != npos) return k + m_start[n];
       }                    
     }
-    return -2;
+    return npos;
   }
 
   /**
@@ -252,12 +243,12 @@ namespace Cantera {
    * Will throw an error if the species string doesn't match.
    */
   thermo_t& Kinetics::speciesPhase(std::string nm) {
-    int np = static_cast<int>(m_thermo.size());
-    int k;
+    size_t np = m_thermo.size();
+    size_t k;
     string id;
-    for (int n = 0; n < np; n++) {
+    for (size_t n = 0; n < np; n++) {
       k = thermo(n).speciesIndex(nm);
-      if (k >= 0) return thermo(n);
+      if (k != npos) return thermo(n);
     }
     throw CanteraError("speciesPhase", "unknown species "+nm);
     return thermo(0);
@@ -270,14 +261,13 @@ namespace Cantera {
    * manager) and returns the index of the phase owning the 
    * species.
    */
-  int Kinetics::speciesPhaseIndex(int k) {
-    int np = m_start.size();
-    for (int n = np-1; n >= 0; n--) {
+  size_t Kinetics::speciesPhaseIndex(size_t k) {
+    for (size_t n = m_start.size()-1; n != npos; n--) {
       if (k >= m_start[n]) {
 	return n;
       }
     }
-    throw CanteraError("speciesPhaseIndex", "illegal species index: "+int2str(k));
+    throw CanteraError("speciesPhaseIndex", "illegal species index: "+int2str(int(k)));
     return -1;
   }
 
@@ -332,9 +322,8 @@ namespace Cantera {
   
   void Kinetics::finalize() {
     m_nTotalSpecies = 0;
-    int np = nPhases();
-    for (int n = 0; n < np; n++) {
-      int nsp = m_thermo[n]->nSpecies();
+    for (size_t n = 0; n < nPhases(); n++) {
+      size_t nsp = m_thermo[n]->nSpecies();
       m_nTotalSpecies += nsp;
     }
   }

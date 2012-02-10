@@ -1,9 +1,5 @@
 /**
  *  @file Reactor.h
- *
- * $Author$
- * $Revision$
- * $Date$
  */
 
 // Copyright 2001  California Institute of Technology
@@ -11,16 +7,10 @@
 #ifndef CT_REACTOR_H
 #define CT_REACTOR_H
 
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
 #include "ReactorBase.h"
 #include "Kinetics.h"
 
-
-namespace CanteraZeroD {
+namespace Cantera {
 
     /**
      * Class Reactor is a general-purpose class for stirred
@@ -80,7 +70,7 @@ namespace CanteraZeroD {
             setKineticsMgr(contents);
         }
 
-        void setKineticsMgr(Cantera::Kinetics& kin) {
+        void setKineticsMgr(Kinetics& kin) {
             m_kin = &kin;
             if (m_kin->nReactions() == 0) disableChemistry();
         }
@@ -95,7 +85,7 @@ namespace CanteraZeroD {
         } 
 
         // overloaded methods of class FuncEval
-        virtual int neq() { return m_nv; }
+        virtual size_t neq() { return m_nv; }
 
         virtual void getInitialConditions(doublereal t0, size_t leny, 
             doublereal* y);
@@ -110,35 +100,35 @@ namespace CanteraZeroD {
          */
         virtual void updateState(doublereal* y);
 
-        virtual int nSensParams();
-        virtual void addSensitivityReaction(int rxn);
+        virtual size_t nSensParams();
+        virtual void addSensitivityReaction(size_t rxn);
 
         virtual std::string sensParamID(int p) { return m_pname[p]; }
 
         //        virtual std::string component(int k) const;
-        virtual int componentIndex(std::string nm) const;
+        virtual size_t componentIndex(std::string nm) const;
 
     protected:
       //! Pointer to the homogeneous Kinetics object that handles the reactions
-      Cantera::Kinetics*   m_kin;
+      Kinetics*   m_kin;
 
       //! Tolerance on the temperature
       doublereal m_temp_atol;
       doublereal m_maxstep;        // max step size
       doublereal m_vdot, m_Q;
-      Cantera::vector_fp m_atol;
+        vector_fp m_atol;
       doublereal m_rtol;
-      Cantera::vector_fp m_work;
-      Cantera::vector_fp m_sdot;            // surface production rates
+        vector_fp m_work;
+        vector_fp m_sdot;            // surface production rates
       bool m_chem;
       bool m_energy;
-      int m_nv;
+        size_t m_nv;
       
-      int m_nsens;
-      Cantera::vector_int m_pnum;
+        size_t m_nsens;
+        std::vector<size_t> m_pnum;
       std::vector<std::string> m_pname;
-      Cantera::vector_int m_nsens_wall;
-      Cantera::vector_fp m_mult_save;
+        std::vector<size_t> m_nsens_wall;
+        vector_fp m_mult_save;
       
     private:
     };

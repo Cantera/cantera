@@ -7,7 +7,7 @@
 #include <fstream>
 #include <stdio.h>
 
-using namespace std;
+using std::string;
 
 namespace tpx {
 

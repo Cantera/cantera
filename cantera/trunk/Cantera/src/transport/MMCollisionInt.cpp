@@ -1,19 +1,7 @@
 /**
  *  @file MMCollisionInt.cpp
  */
-
-/*
- * $Author$
- * $Revision$
- * $Date$
- */
-
 // Copyright 2001  California Institute of Technology */
-
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
 
 #include "MMCollisionInt.h"
 #include "utilities.h"
@@ -494,14 +482,12 @@ namespace Cantera {
     w[0]= -1.0;
     rmserr = polyfit(n, logT, DATA_PTR(values), 
 		     DATA_PTR(w), degree, ndeg, 0.0, o22);
-#ifdef DEBUG_MODE
-    if (m_loglevel > 0 && rmserr > 0.01) {
+        if (DEBUG_MODE_ENABLED && m_loglevel > 0 && rmserr > 0.01) {
       char p[100];
       sprintf(p, "Warning: RMS error = %12.6g in omega_22 fit"
 	      "with delta* = %12.6g\n", rmserr, deltastar);
       m_xml->XML_comment(logfile, p);
     }
-#endif
   }
   //====================================================================================================================
 
@@ -539,8 +525,7 @@ namespace Cantera {
     w[0]= -1.0;
     rmserr = polyfit(n, logT, DATA_PTR(values), 
 		     DATA_PTR(w), degree, ndeg, 0.0, c);
-#ifdef DEBUG_MODE
-    if (m_loglevel > 2) {
+        if (DEBUG_MODE_ENABLED && m_loglevel > 2) {
       char p[100];
       sprintf(p, " dstar=\"%12.6g\"", deltastar); 
       m_xml->XML_open(logfile, "tstar_fit", p);
@@ -565,7 +550,6 @@ namespace Cantera {
       }
       m_xml->XML_close(logfile, "tstar_fit");
     }
-#endif
   }
   //====================================================================================================================
 } // namespace

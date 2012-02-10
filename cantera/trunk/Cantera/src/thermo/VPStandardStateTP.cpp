@@ -10,17 +10,6 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-/*
- *  $Author$
- *  $Date$
- *  $Revision$
- */
-
-// turn off warnings under Windows
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
 
 #include "VPStandardStateTP.h"
 #include "VPSSMgr.h"
@@ -94,7 +83,7 @@ namespace Cantera {
 	}
       }
       m_PDSS_storage.resize(m_kk);
-      for (int k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	PDSS *ptmp = b.m_PDSS_storage[k];
 	m_PDSS_storage[k] = ptmp->duplMyselfAsPDSS();
       }
@@ -120,7 +109,7 @@ namespace Cantera {
        *  back to this ThermoPhase's properties. This function also sets m_VPSS_ptr
        *  so it occurs after m_VPSS_ptr is set.
        */
-      for (int k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	PDSS *ptmp = m_PDSS_storage[k];
 	ptmp->initAllPtrs(this, m_VPSS_ptr, m_spthermo);
       }
@@ -198,7 +187,7 @@ namespace Cantera {
   void VPStandardStateTP::getChemPotentials_RT(doublereal* muRT) const{
     getChemPotentials(muRT);
     doublereal invRT = 1.0 / _RT();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       muRT[k] *= invRT;
     }
   }
@@ -209,7 +198,7 @@ namespace Cantera {
   void VPStandardStateTP::getStandardChemPotentials(doublereal* g) const {
     getGibbs_RT(g);
     doublereal RT = _RT();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       g[k] *= RT;
     }
   } 
@@ -351,7 +340,7 @@ namespace Cantera {
     initLengths();
     ThermoPhase::initThermo();
     m_VPSS_ptr->initThermo();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       PDSS *kPDSS = m_PDSS_storage[k];
       if (kPDSS) {
 	kPDSS->initThermo();
@@ -417,9 +406,9 @@ namespace Cantera {
 
 
   void 
-  VPStandardStateTP::createInstallPDSS(int k,  const XML_Node& s,
+  VPStandardStateTP::createInstallPDSS(size_t k,  const XML_Node& s,
 				       const XML_Node * phaseNode_ptr) {
-    if ((int) m_PDSS_storage.size() < k+1) {
+    if (m_PDSS_storage.size() < k+1) {
       m_PDSS_storage.resize(k+1,0);
     }
     if (m_PDSS_storage[k] != 0) {
@@ -429,12 +418,12 @@ namespace Cantera {
   }
 
   PDSS *
-  VPStandardStateTP::providePDSS(int k) {
+  VPStandardStateTP::providePDSS(size_t k) {
     return m_PDSS_storage[k];
   }
 
   const PDSS *
-  VPStandardStateTP::providePDSS(int k) const {
+  VPStandardStateTP::providePDSS(size_t k) const {
     return m_PDSS_storage[k];
   }
 
@@ -459,7 +448,7 @@ namespace Cantera {
     VPStandardStateTP::initLengths();
    
     //m_VPSS_ptr->initThermo();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       PDSS *kPDSS = m_PDSS_storage[k];
       AssertTrace(kPDSS != 0);
       if (kPDSS) {

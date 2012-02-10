@@ -5,43 +5,31 @@
  *
  */
 
-// turn off warnings about long names under Windows
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
-#include "cantera/config.h"
+#include "cantera/kernel/config.h"
 
 #include "Python.h"
 
 #ifdef HAS_NUMERIC
 #include "Numeric/arrayobject.h"
-#else
-#ifdef HAS_NUMARRAY
-#include "numarray/arrayobject.h"
-#else
-#ifdef HAS_NUMPY
-#include "numpy/arrayobject.h"
-#else
-// Create a compilation error to cause the program to bomb
-#include "Numeric/arrayobject.h"
-#include "numarray/arrayobject.h"
-#include "numpy/libnumarray.h"
-#include "numpy/arrayobject.h"
-#endif
-#endif
 #endif
 
-#include "ct.h"
-#include "ctxml.h"
-#include "ctsurf.h"
-#include "ctbdry.h"
-#include "ctrpath.h"
-#include "ctreactor.h" 
-#include "ctfunc.h"
-#include "ctonedim.h"
-#include "ctmultiphase.h"
+#ifdef HAS_NUMARRAY
+#include "numarray/arrayobject.h"
+#endif
+
+#ifdef HAS_NUMPY
+#include "numpy/arrayobject.h"
+#endif
+
+#include "clib/ct.h"
+#include "clib/ctxml.h"
+#include "clib/ctsurf.h"
+#include "clib/ctbdry.h"
+#include "clib/ctrpath.h"
+#include "clib/ctreactor.h"
+#include "clib/ctfunc.h"
+#include "clib/ctonedim.h"
+#include "clib/ctmultiphase.h"
 
 #include <iostream>
 using namespace std;

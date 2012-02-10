@@ -2,37 +2,22 @@
  *  @file Wall.h
  *  Header file for class Wall.
  */
-
-/*  $Author$
- *  $Date$
- *  $Revision$
- */
-
 // Copyright 2001-2004  California Institute of Technology
-
 
 #ifndef CT_WALL_H
 #define CT_WALL_H
-
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
 
 #include "ct_defs.h"
 #include "ctexceptions.h"
 #include "Func1.h"
 
 namespace Cantera {
-    class Kinetics;
-    class Func1;
-    class SurfPhase;
-}
-
-namespace CanteraZeroD {
 
     // forward references
     class ReactorBase;
+    class Kinetics;
+    class Func1;
+    class SurfPhase;
 
     class Wall {
 
@@ -135,14 +120,14 @@ namespace CanteraZeroD {
         void syncCoverages(int leftright);
 
 
-        int nSensParams(int lr) const { 
+        size_t nSensParams(int lr) const {
             if (lr == 0) 
                 return m_pleft.size();
             else
                 return m_pright.size();
         }
-        void addSensitivityReaction(int leftright, int rxn);
-        std::string sensitivityParamID(int leftright, int p) { 
+        void addSensitivityReaction(int leftright, size_t rxn);
+        std::string sensitivityParamID(int leftright, size_t p) {
             if (leftright == 0)
                 return m_pname_left[p]; 
             else 
@@ -161,14 +146,14 @@ namespace CanteraZeroD {
         ReactorBase* m_right;
         Cantera::Kinetics * m_chem[2];
         Cantera::SurfPhase* m_surf[2];
-        int m_nsp[2];
+        size_t m_nsp[2];
         doublereal m_area, m_k, m_rrth;
         doublereal m_emiss;
         Cantera::Func1 *m_vf;
         Cantera::Func1 *m_qf;
         Cantera::vector_fp m_leftcov, m_rightcov;
 
-        Cantera::vector_int m_pleft, m_pright;
+        std::vector<size_t> m_pleft, m_pright;
         Cantera::vector_fp m_leftmult_save, m_rightmult_save;
         std::vector<std::string> m_pname_left, m_pname_right;
 

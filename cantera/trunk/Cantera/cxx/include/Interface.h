@@ -1,13 +1,7 @@
 /**
  * @file Interface.h
- *   Declaration and Definition for the class Interface, part of 
- *   Cantera's Cantera_CXX namespace.
+ *   Declaration and Definition for the class Interface.
  */
-
-/*
- * $Id$
- */
-
 #ifndef CXX_INTERFACE
 #define CXX_INTERFACE
 
@@ -16,13 +10,8 @@
 #include "thermo.h"
 #include "kinetics.h"
 
+namespace Cantera {
 
-/**
- * This namespace is used for the Cantera C++ user interface.
- */
-namespace Cantera_CXX {
-
-  
   //! An interface between multiple bulk phases.
   /*!
    * This class isdefined mostly for convenience. It inherits both from
@@ -32,12 +21,10 @@ namespace Cantera_CXX {
    * involving species from other phases.
    */
   class Interface : 
-    public Cantera::SurfPhase,
-    public Cantera::InterfaceKinetics
+        public SurfPhase,
+        public InterfaceKinetics
   {
   public:
-
-    
     //! Constructor.
     /*!
      *   Construct an Interface instance from a specification in an input file.

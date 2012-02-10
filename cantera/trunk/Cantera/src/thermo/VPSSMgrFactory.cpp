@@ -6,21 +6,12 @@
  *    \link Cantera::VPSSMgrFactory VPSSMgrFactory\endlink);
  */
 /*
- * $Id$
- */
-
-/*
  * Copywrite (2005) Sandia Corporation. Under the terms of 
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-#ifdef WIN32
-#pragma warning(disable:4786)
-#endif
-
 
 #include "SpeciesThermo.h"
-
 
 #include "VPSSMgr.h"
 #include "VPSSMgrFactory.h"
@@ -48,7 +39,6 @@
 
 using namespace ctml;
 using namespace std;
-
 
 namespace Cantera {
 
@@ -287,15 +277,6 @@ namespace Cantera {
       VPSSMgr_enumType type = VPSSMgr_StringConversion(vpssManager);
       vpss = newVPSSMgr(type, vp_ptr);
       return vpss;
-    }
-
- 
-    // If it comes back as general, then there may be some unknown 
-    // parameterizations to the SpeciesThermo factory routine.
-    bool haveSomeUnknowns = true;
-    GeneralSpeciesThermo *ttmp = dynamic_cast<GeneralSpeciesThermo *>(spth);
-    if (ttmp == 0) {
-      haveSomeUnknowns = false;
     }
  
     // Handle special cases based on the VPStandardState types

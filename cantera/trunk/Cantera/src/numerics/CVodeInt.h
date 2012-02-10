@@ -1,22 +1,10 @@
 /**
  *  @file CVodeInt.h
  */
-
-/* $Author$
- * $Date$
- * $Revision$
- */
-
 // Copyright 2001  California Institute of Technology
-
 
 #ifndef CT_CVODEINT_H
 #define CT_CVODEINT_H
-
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
 
 #include "Integrator.h"
 #include "FuncEval.h"
@@ -48,14 +36,14 @@ namespace Cantera {
 
     CVodeInt();
     virtual ~CVodeInt();
-    virtual void setTolerances(double reltol, int n, double* abstol);
+    virtual void setTolerances(double reltol, size_t n, double* abstol);
     virtual void setTolerances(double reltol, double abstol);
     virtual void setProblemType(int probtype);
     virtual void initialize(double t0, FuncEval& func);
     virtual void reinitialize(double t0, FuncEval& func);
     virtual void integrate(double tout);
     virtual doublereal step(double tout);
-    virtual double& solution(int k);
+    virtual double& solution(size_t k);
     virtual double* solution();
     virtual int nEquations() const { return m_neq;}
     virtual int nEvals() const;

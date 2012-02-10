@@ -10,10 +10,6 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-/*
- *  $Id$
- */
-
 #ifndef CT_PDSS_SSVOL_H
 #define CT_PDSS_SSVOL_H
 
@@ -178,7 +174,7 @@ namespace Cantera {
      *  @param tp        Pointer to the ThermoPhase object pertaining to the phase
      *  @param spindex   Species index of the species in the phase
      */
-    PDSS_SSVol(VPStandardStateTP *tp, int spindex);
+    PDSS_SSVol(VPStandardStateTP *tp, size_t spindex);
 
 
     //! Constructor that initializes the object by examining the input file
@@ -193,7 +189,7 @@ namespace Cantera {
      *                   is the empty string, in which case the first phase in the
      *                   file is used.
      */
-    PDSS_SSVol(VPStandardStateTP *tp, int spindex,
+    PDSS_SSVol(VPStandardStateTP *tp, size_t spindex,
 		 std::string inputFile, std::string id = "");
 
     //! Constructor that initializes the object by examining the input file
@@ -208,7 +204,7 @@ namespace Cantera {
      *  @param spInstalled Boolean indicating whether the species is installed yet
      *                     or not.
      */
-    PDSS_SSVol(VPStandardStateTP *vptp_ptr, int spindex, const XML_Node& speciesNode, 
+    PDSS_SSVol(VPStandardStateTP *vptp_ptr, size_t spindex, const XML_Node& speciesNode,
 		  const XML_Node& phaseRef, bool spInstalled);
 
     //! Copy Constructur
@@ -509,7 +505,7 @@ namespace Cantera {
      *                    phase. If none is given, the first XML
      *                    phase element will be used.
      */
-    void constructPDSSFile(VPStandardStateTP *vptp_ptr, int spindex, 
+    void constructPDSSFile(VPStandardStateTP *vptp_ptr, size_t spindex,
 			   std::string inputFile, std::string id);
 
     //!  Initialization of a PDSS object using an xml tree
@@ -535,7 +531,7 @@ namespace Cantera {
      * @param spInstalled  Boolean indicating whether the species is 
      *                     already installed.
      */
-    void constructPDSSXML(VPStandardStateTP *vptp_ptr, int spindex, 
+    void constructPDSSXML(VPStandardStateTP *vptp_ptr, size_t spindex,
 			  const XML_Node& speciesNode,
 			  const XML_Node& phaseNode, bool spInstalled);
 

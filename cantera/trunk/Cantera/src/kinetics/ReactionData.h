@@ -2,12 +2,6 @@
  *  @file ReactionData.h
  *
  */
-/*
- * $Author$
- * $Revision$
- * $Date$
- */
-
 // Copyright 2001  California Institute of Technology
 
 
@@ -44,15 +38,15 @@ namespace Cantera {
 
     int number;
     int rxn_number;
-    vector_int reactants;
-    vector_int products;
+    std::vector<size_t> reactants;
+    std::vector<size_t> products;
     vector_fp rorder;
     vector_fp porder;
     vector_fp rstoich;
     vector_fp pstoich;
     std::vector<grouplist_t> rgroups;
     std::vector<grouplist_t> pgroups;
-    std::map<int, doublereal> thirdBodyEfficiencies;
+    std::map<size_t, doublereal> thirdBodyEfficiencies;
 
     //! True if the current reaction is reversible. False otherwise
     bool reversible;

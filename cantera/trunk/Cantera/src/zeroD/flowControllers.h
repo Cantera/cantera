@@ -2,31 +2,19 @@
  *  @file flowControllers.h
  *
  *  Some flow devices derived from class FlowDevice.
- *
- * $Author$
- * $Revision$
- * $Date$
  */
 
 // Copyright 2001  California Institute of Technology
 
-
 #ifndef CT_FLOWCONTR_H
 #define CT_FLOWCONTR_H
-
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
 
 #include "FlowDevice.h"
 #include "ReactorBase.h"
 //#include "PID_Controller.h"
 #include "Func1.h"
 
-namespace CanteraZeroD {
-
-
+namespace Cantera {
     /**
      * A class for mass flow controllers. The mass flow rate is constant,
      * independent of any other parameters.

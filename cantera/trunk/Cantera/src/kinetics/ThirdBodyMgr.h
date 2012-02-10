@@ -1,9 +1,5 @@
 /**
  *  @file ThirdBodyMgr.h
- *
- * $Author$
- * $Revision$
- * $Date$
  */
 
 // Copyright 2001  California Institute of Technology
@@ -28,16 +24,16 @@ namespace Cantera {
 
         ThirdBodyMgr<_E>() : m_n(0) {}
 
-        void install( int rxnNumber, const std::map<int, doublereal>& enhanced,
+        void install(size_t rxnNumber, const std::map<size_t, doublereal>& enhanced,
             doublereal dflt=1.0) {
             m_n++;
-            m_reaction_index.push_back( rxnNumber );
+            m_reaction_index.push_back(rxnNumber);
             m_concm.push_back( _E(static_cast<int>(enhanced.size()),
 			                      enhanced, dflt ) );
         }
         
         void update(const vector_fp& conc, doublereal ctot, workPtr work) {
-            TYPENAME_KEYWORD std::vector<_E>::const_iterator b = m_concm.begin();
+           typename std::vector<_E>::const_iterator b = m_concm.begin();
             //doublereal* v = m_values.begin();
             for (; b != m_concm.end(); ++b, ++work) 
                 *work = b->update(conc, ctot);
@@ -58,7 +54,7 @@ namespace Cantera {
     protected:
         
         int m_n;
-        vector_int      m_reaction_index;
+        std::vector<size_t> m_reaction_index;
         std::vector<_E>      m_concm;
     };
     

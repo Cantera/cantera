@@ -1,9 +1,5 @@
 /**
  *  @file Reactor.h
- *
- * $Author$
- * $Revision$
- * $Date$
  */
 
 // Copyright 2001  California Institute of Technology
@@ -11,14 +7,9 @@
 #ifndef CT_CONSTP_REACTOR_H
 #define CT_CONSTP_REACTOR_H
 
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
 #include "Reactor.h"
 
-namespace CanteraZeroD {
+namespace Cantera {
 
     /**
      * Class ConstPressureReactor is a class for constant-pressure 
@@ -60,7 +51,7 @@ namespace CanteraZeroD {
 
         virtual void updateState(doublereal* y);
 
-        virtual int componentIndex(std::string nm) const;
+        virtual size_t componentIndex(std::string nm) const;
 
     protected:
         

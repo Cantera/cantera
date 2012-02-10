@@ -2,11 +2,6 @@
  *  @file WaterTransport.h
  *   Header file defining class LiquidTransport
  */
-/*
- * $Revision$
- * $Date$
- */
-
 #ifndef CT_WATERTRAN_H
 #define CT_WATERTRAN_H
 
@@ -18,7 +13,6 @@
 #include <map>
 #include <numeric>
 #include <algorithm>
-
 
 // Cantera includes
 #include "TransportBase.h"

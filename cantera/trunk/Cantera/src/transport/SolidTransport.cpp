@@ -4,19 +4,7 @@
  *   of ions within solid phases
  *  (see \ref tranprops and \link Cantera::SolidTransport SolidTransport \endlink).
  */
-/* $Author$
- * $Revision$
- * $Date$
- */
-
-// Copyright 2008 California Institute of Technology
-
-
-// turn off warnings under Windows
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
+// copyright 2008 California Institute of Technology
 
 #include "ThermoPhase.h"
 #include "SolidTransport.h"
@@ -121,12 +109,10 @@ namespace Cantera {
    * using the Einstein relation.
    */
   void SolidTransport::getMobilities(doublereal* const mobil) {
-    int k;
     getMixDiffCoeffs(mobil);
     doublereal t = m_thermo->temperature();
-    int nsp = m_thermo->nSpecies();
     doublereal c1 = ElectronCharge / (Boltzmann * t);
-    for (k = 0; k < nsp; k++) {
+    for (size_t k = 0; k < m_thermo->nSpecies(); k++) {
       mobil[k] *= c1;
     }
   } 
@@ -155,10 +141,9 @@ namespace Cantera {
    */
   void SolidTransport::getMixDiffCoeffs(doublereal* const d) {
     doublereal temp = m_thermo->temperature();
-    int nsp = m_thermo->nSpecies();
-    int k;
-    for (k = 0; k < nsp; k++) d[k] = 0.0;
-    for (k = 0; k < m_nmobile; k++) {
+    size_t nsp = m_thermo->nSpecies();
+    for (size_t k = 0; k < nsp; k++) d[k] = 0.0;
+    for (size_t k = 0; k < m_nmobile; k++) {
       d[m_sp[k]] = 
 	m_Adiff[k] * pow(temp, m_Ndiff[k]) * exp(-m_Ediff[k]/temp);
     }

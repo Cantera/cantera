@@ -1,7 +1,4 @@
-/*
- * $Id$
- */
-#include "WaterPropsIAPWSphi.h"
+#include "kernel/WaterPropsIAPWSphi.h"
 #include <new>
 
 #include <cstdio>
@@ -9,7 +6,9 @@
 using namespace std;
 
 int main () {
-
+#ifdef _MSC_VER
+    _set_output_format(_TWO_DIGIT_EXPONENT);
+#endif
     WaterPropsIAPWSphi *phi = new WaterPropsIAPWSphi();
 
     phi->check1();

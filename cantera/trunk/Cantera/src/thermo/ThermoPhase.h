@@ -6,13 +6,7 @@
  * ThermoPhase\endlink).
  */
 
-/*
- *  $Date$
- *  $Revision$
- *
- *  Copyright 2002 California Institute of Technology
- *
- */
+//  Copyright 2002 California Institute of Technology
 
 #ifndef CT_THERMOPHASE_H
 #define CT_THERMOPHASE_H
@@ -775,7 +769,7 @@ namespace Cantera {
      * @param k index of the species. Default is -1, which will return the max of the min value
      *          over all species.
      */
-    virtual doublereal minTemp(int k = -1) const {
+    virtual doublereal minTemp(size_t k = npos) const {
       return m_spthermo->minTemp(k);
     }
         
@@ -844,7 +838,7 @@ namespace Cantera {
      * @param k index of the species. Default is -1, which will return the min of the max value
      *          over all species.
      */
-    virtual doublereal maxTemp(int k = -1) const {
+    virtual doublereal maxTemp(size_t k = npos) const {
       return m_spthermo->maxTemp(k);
     }
 
@@ -1084,7 +1078,7 @@ namespace Cantera {
      *   Returns the standard concentration. The units are by definition
      *   dependent on the ThermoPhase and kinetics manager representation.
      */
-    virtual doublereal standardConcentration(int k=0) const {
+    virtual doublereal standardConcentration(size_t k=0) const {
       err("standardConcentration");
       return -1.0;
     }  
@@ -1093,7 +1087,7 @@ namespace Cantera {
     /*!
      * @param k    index of the species (defaults to zero)
      */
-    virtual doublereal logStandardConc(int k=0) const;
+    virtual doublereal logStandardConc(size_t k=0) const;
          
     //! Returns the units of the standard and generalized concentrations.
     /*!
@@ -1209,7 +1203,7 @@ namespace Cantera {
     void getElectrochemPotentials(doublereal* mu) const {
       getChemPotentials(mu);
       double ve = Faraday * electricPotential();
-      for (int k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	mu[k] += ve*charge(k);
       }
     }
@@ -1912,7 +1906,7 @@ namespace Cantera {
      * @param data   Pointer to the XML_Node data containing
      *               information about the species in the phase.
      */
-    void saveSpeciesData(const int k, const XML_Node* const data);
+    void saveSpeciesData(const size_t k, const XML_Node* const data);
       
     //!  Return a pointer to the vector of XML nodes containing the species
     //!  data for this phase.
@@ -2036,7 +2030,7 @@ namespace Cantera {
      * location of a phase object in a list, and is used by the
      * interface library (clib) routines for this purpose.
      */
-    int index() const { return m_index; }
+    size_t index() const { return m_index; }
 
 
     /**
@@ -2049,7 +2043,7 @@ namespace Cantera {
      *
      * @param m  Input the index number.
      */ 
-    void setIndex(int m) { m_index = m; }
+    void setIndex(size_t m) { m_index = m; }
     
 
     //! Set the equation of state parameters
@@ -2240,7 +2234,7 @@ namespace Cantera {
      * lead to unpredictable results if used in conjunction with
      * the interface library.
      */
-    int m_index;
+    size_t m_index;
 
     //! Storred value of the electric potential for this phase
     /*!

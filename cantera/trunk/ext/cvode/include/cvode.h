@@ -16,10 +16,7 @@ extern "C" {
 #ifndef _cvode_h
 #define _cvode_h
 
-#ifdef WIN32
 #include <stdlib.h>
-#endif
-
 #include <stdio.h>
 #include "llnltyps.h"
 #include "nvector.h"

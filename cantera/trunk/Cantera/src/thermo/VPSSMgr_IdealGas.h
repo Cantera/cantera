@@ -7,12 +7,6 @@
  * class \link Cantera::VPSSMgr_IdealGas VPSSMgr_IdealGas\endlink).
  */
 /*
- * $Author$
- * $Revision$
- * $Date$
- */
-
-/*
  * Copywrite (2005) Sandia Corporation. Under the terms of 
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
@@ -203,7 +197,7 @@ namespace Cantera {
      *  @return Returns a pointer to the a newly malloced PDSS object
      *          containing the parameterization
      */
-    virtual PDSS* createInstallPDSS(int k, const XML_Node& speciesNode,  
+    virtual PDSS* createInstallPDSS(size_t k, const XML_Node& speciesNode,
 				    const XML_Node * const phaseNode_ptr);
    
  

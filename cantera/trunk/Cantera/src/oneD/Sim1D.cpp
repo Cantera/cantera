@@ -1,9 +1,3 @@
-// turn off warnings under Windows
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
 /**
  * @file Sim1D.cpp
  */
@@ -39,7 +33,7 @@ namespace Cantera {
 
     m_x.resize(size(), 0.0);
     m_xnew.resize(size(), 0.0);
-    for (int n = 0; n < m_nd; n++) {
+    for (size_t n = 0; n < m_nd; n++) {
       domain(n)._getInitialSoln(DATA_PTR(m_x) + start(n));
       domain(n).m_adiabatic=false;
     }
@@ -58,10 +52,10 @@ namespace Cantera {
   // added by Karl Meredith
   void Sim1D::setInitialGuess(string component, vector_fp& locs, vector_fp& vals){
         
-    for (int dom=0;dom<m_nd;dom++){
+    for (size_t dom=0; dom<m_nd; dom++) {
       Domain1D& d = domain(dom);
-      int ncomp=d.nComponents();
-      for (int comp=0;comp<ncomp;comp++){
+      size_t ncomp = d.nComponents();
+      for (size_t comp=0; comp<ncomp; comp++) {
 	if(d.componentName(comp)==component){
 	  setProfile(dom,comp,locs,vals);
 	}
@@ -78,9 +72,9 @@ namespace Cantera {
    * the leftmost grid point in the domain.
    * @param value the value.
    */
-  void Sim1D::setValue(int dom, int comp, int localPoint,  doublereal value) {
+  void Sim1D::setValue(size_t dom, size_t comp, size_t localPoint,  doublereal value) {
     size_t iloc = domain(dom).loc() + domain(dom).index(comp, localPoint);
-    m_x[static_cast<int>(iloc)] = value;
+    m_x[iloc] = value;
   }
 
 
@@ -90,7 +84,7 @@ namespace Cantera {
    * @param localPoint grid point within the domain, beginning with 0 for
    * the leftmost grid point in the domain.
    */
-  doublereal Sim1D::value(int dom, int comp, int localPoint) const {
+  doublereal Sim1D::value(size_t dom, size_t comp, size_t localPoint) const {
     size_t iloc = domain(dom).loc() + domain(dom).index(comp, localPoint);
 #ifdef DEBUG_MODE
     int j = static_cast<int>(iloc);
@@ -99,15 +93,15 @@ namespace Cantera {
     }
     if (j >= (int) m_x.size()) {
       throw CanteraError("Sim1D::value", "exceeded top of bounds: " + int2str(j) +
-			 " >= " + int2str(m_x.size()));
+			 " >= " + int2str(int(m_x.size())));
     }
 #endif
-    return m_x[static_cast<int>(iloc)];
+    return m_x[iloc];
   }
 
-  doublereal Sim1D::workValue(int dom, int comp, int localPoint) const {
+  doublereal Sim1D::workValue(size_t dom, size_t comp, size_t localPoint) const {
     size_t iloc = domain(dom).loc() + domain(dom).index(comp, localPoint);
-    return m_xnew[static_cast<int>(iloc)];
+    return m_xnew[iloc];
   }
 
 
@@ -125,16 +119,14 @@ namespace Cantera {
    * linearly interpolated based on the (pos, values)
    * specification.
    */
-  void Sim1D::setProfile(int dom, int comp, 
+  void Sim1D::setProfile(size_t dom, size_t comp,
 			 const vector_fp& pos, const vector_fp& values) {
 
     Domain1D& d = domain(dom);
-    int np = d.nPoints();
-    int n;
     doublereal z0 = d.zmin();
     doublereal z1 = d.zmax();
     doublereal zpt, frac, v;
-    for (n = 0; n < np; n++) {
+    for (size_t n = 0; n < d.nPoints(); n++) {
       zpt = d.z(n);
       frac = (zpt - z0)/(z1 - z0);
       v = linearInterp(frac, pos, values);
@@ -167,7 +159,7 @@ namespace Cantera {
     }
 
     vector<XML_Node*> xd;
-    int sz = 0, np, nv, m;
+    size_t sz = 0, np, m;
     for (m = 0; m < m_nd; m++) {
       XML_Node* d = f->findID(domain(m).id());
       if (!d) {
@@ -179,7 +171,6 @@ namespace Cantera {
 	const XML_Node& node = *d;
 	xd.push_back(d);
 	np = intValue(node["points"]);
-	nv = intValue(node["components"]);
 	sz += np*domain(m).nComponents();
       }
     } 
@@ -195,22 +186,22 @@ namespace Cantera {
   }
 
 
-  void Sim1D::setFlatProfile(int dom, int comp, doublereal v) {
-    int np = domain(dom).nPoints();
-    int n;
+  void Sim1D::setFlatProfile(size_t dom, size_t comp, doublereal v) {
+    size_t np = domain(dom).nPoints();
+    size_t n;
     for (n = 0; n < np; n++) { setValue(dom, comp, n, v); }
   }
 
 
   void Sim1D::showSolution(ostream& s) {
-    for (int n = 0; n < m_nd; n++) {
+    for (size_t n = 0; n < m_nd; n++) {
       if (domain(n).domainType() != cEmptyType)
 	domain(n).showSolution_s(s, DATA_PTR(m_x) + start(n));
     }
   }
 
   void Sim1D::showSolution() {
-    for (int n = 0; n < m_nd; n++) {
+    for (size_t n = 0; n < m_nd; n++) {
       if (domain(n).domainType() != cEmptyType) {
 	writelog("\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> "+domain(n).id()
 		 +" <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n\n");
@@ -220,22 +211,22 @@ namespace Cantera {
   }
 
   void Sim1D::getInitialSoln() {
-    for (int n = 0; n < m_nd; n++) {
+    for (size_t n = 0; n < m_nd; n++) {
       domain(n)._getInitialSoln(DATA_PTR(m_x) + start(n));
     }
   }
 
   void Sim1D::finalize() {
-    for (int n = 0; n < m_nd; n++) {
+    for (size_t n = 0; n < m_nd; n++) {
       domain(n)._finalize(DATA_PTR(m_x) + start(n));
     }
   }
 
 
-  void Sim1D::setTimeStep(doublereal stepsize, int n, integer* tsteps) {
+  void Sim1D::setTimeStep(doublereal stepsize, size_t n, integer* tsteps) {
     m_tstep = stepsize;
     m_steps.resize(n);
-    for (int i = 0; i < n; i++) m_steps[i] = tsteps[i];
+    for (size_t i = 0; i < n; i++) m_steps[i] = tsteps[i];
   }
 
 
@@ -279,9 +270,9 @@ namespace Cantera {
 	  if (loglevel > 0) {
 	    writelog("    success.\n\n");
 	    writelog("Problem solved on [");
-	    for (int mm = 1; mm < nDomains(); mm+=2) {
-	      writelog(int2str(domain(mm).nPoints()));
-	      if (mm < nDomains() - 2) writelog(", ");
+	    for (size_t mm = 1; mm < nDomains(); mm+=2) {
+	      writelog(int2str(int(domain(mm).nPoints())));
+	      if (mm + 2 < nDomains()) writelog(", ");
 	    }
 	    writelog("]");
 	    writelog(" point grid(s).\n\n");
@@ -341,14 +332,12 @@ namespace Cantera {
    * Refine the grid in all domains.
    */
   int Sim1D::refine(int loglevel) {
-    int np = 0;
+    int ianalyze, np = 0;
     vector_fp znew, xnew;
     doublereal xmid, zmid;
-    int strt, n, m, i, ianalyze;
-    vector_int dsize;
+    std::vector<size_t> dsize;
 
-    for (n = 0; n < m_nd; n++) {
-      strt = znew.size();
+    for (size_t n = 0; n < m_nd; n++) {
       Domain1D& d = domain(n);
       Refiner& r = d.refiner();
 
@@ -360,19 +349,19 @@ namespace Cantera {
       if (loglevel > 0) { r.show(); }
 
       np += r.nNewPoints();
-      int comp = d.nComponents();
+      size_t comp = d.nComponents();
 
       // loop over points in the current grid
-      int npnow = d.nPoints();
-      int nstart = znew.size();
-      for (m = 0; m < npnow; m++) {
+      size_t npnow = d.nPoints();
+      size_t nstart = znew.size();
+      for (size_t m = 0; m < npnow; m++) {
 
 	if (r.keepPoint(m)) {
 	  // add the current grid point to the new grid
 	  znew.push_back(d.grid(m));
                     
 	  // do the same for the solution at this point
-	  for (i = 0; i < comp; i++) {
+	  for (size_t i = 0; i < comp; i++) {
 	    xnew.push_back(value(n, i, m));
 	  }
 
@@ -380,7 +369,7 @@ namespace Cantera {
 	  // interval to the right of point m, and if so, add
 	  // entries to znew and xnew for this new point
 
-	  if (r.newPointNeeded(m) && m < npnow - 1) {
+	  if (r.newPointNeeded(m) && m + 1 < npnow) {
 
 	    // add new point at midpoint
 	    zmid = 0.5*(d.grid(m) + d.grid(m+1));
@@ -390,7 +379,7 @@ namespace Cantera {
 
 	    // for each component, linearly interpolate
 	    // the solution to this point
-	    for (i = 0; i < comp; i++) {
+	    for (size_t i = 0; i < comp; i++) {
 	      xmid = 0.5*(value(n, i, m) + value(n, i, m+1));
 	      xnew.push_back(xmid);
 	    }
@@ -409,8 +398,8 @@ namespace Cantera {
     // themselves have not yet been modified.  Now update each
     // domain with the new grid.
 
-    int gridstart = 0, gridsize;
-    for (n = 0; n < m_nd; n++) {
+    size_t gridstart = 0, gridsize;
+    for (size_t n = 0; n < m_nd; n++) {
       Domain1D& d = domain(n);
       //            Refiner& r = d.refiner();
       gridsize = dsize[n]; // d.nPoints() + r.nNewPoints();
@@ -443,21 +432,20 @@ namespace Cantera {
     doublereal xmid;
     doublereal zfixed,interp_factor;
     doublereal z1 = 0.0, z2 = 0.0, t1,t2;
-    int strt, n, m, i;
-    int m1 = 0,m2 = 0;
-    vector_int dsize;
+    size_t n, m, i;
+    size_t m1 = 0;
+    std::vector<size_t> dsize;
 
 
     for (n = 0; n < m_nd; n++) {
       bool addnewpt=false;
-      strt = znew.size();
       Domain1D& d = domain(n);
             
-      int comp = d.nComponents();
+      size_t comp = d.nComponents();
             
       // loop over points in the current grid to determine where new point is needed.
-      int npnow = d.nPoints();
-      int nstart = znew.size();
+      size_t npnow = d.nPoints();
+      size_t nstart = znew.size();
       for (m = 0; m < npnow-1; m++) {
 	//cout << "T["<<m<<"]="<<value(n,2,m)<<endl;
 	if (value(n,2,m) == t) {
@@ -473,7 +461,6 @@ namespace Cantera {
 	  cout << "T in between "<<value(n,2,m)<<" and "<<value(n,2,m+1)<<endl;
 	  z1 = d.grid(m);
 	  m1 = m;
-	  m2 = m+1;
 	  z2 = d.grid(m+1);
 	  t1 = value(n,2,m);
 	  t2 = value(n,2,m+1);
@@ -521,7 +508,7 @@ namespace Cantera {
     // themselves have not yet been modified.  Now update each
     // domain with the new grid.
         
-    int gridstart = 0, gridsize;
+    size_t gridstart = 0, gridsize;
     for (n = 0; n < m_nd; n++) {
       Domain1D& d = domain(n);
       //            Refiner& r = d.refiner();
@@ -546,8 +533,7 @@ namespace Cantera {
 
   //added by Karl Meredith
   void Sim1D::setAdiabaticFlame(void){
-    int n;
-    for (n = 0; n < m_nd; n++) {
+    for (size_t n = 0; n < m_nd; n++) {
       Domain1D& d = domain(n);
       d.m_adiabatic=true;
     }
@@ -565,7 +551,7 @@ namespace Cantera {
       r.setCriteria(ratio, slope, curve, prune);
     }
     else {
-      for (int n = 0; n < m_nd; n++) {
+      for (size_t n = 0; n < m_nd; n++) {
 	Refiner& r = domain(n).refiner();
 	r.setCriteria(ratio, slope, curve, prune);
       }                    
@@ -578,7 +564,7 @@ namespace Cantera {
       r.setMaxPoints(npoints);
     }
     else {
-      for (int n = 0; n < m_nd; n++) {
+      for (size_t n = 0; n < m_nd; n++) {
 	Refiner& r = domain(n).refiner();
 	r.setMaxPoints(npoints);
       }                    

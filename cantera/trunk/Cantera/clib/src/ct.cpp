@@ -8,35 +8,27 @@
  *   pointers are passed to or from the calling application.
  */
 
-/* $Id$  */
-
-// turn off warnings under Windows
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
 #define CANTERA_USE_INTERNAL
 #include "ct.h"
 
 // Cantera includes
-#include "equil.h" 
-#include "KineticsFactory.h"
-#include "TransportFactory.h"
-#include "ctml.h"
-#include "importKinetics.h"
-#include "ThermoFactory.h"
-#include "ck2ct.h"
+#include "kernel/equil.h"
+#include "kernel/KineticsFactory.h"
+#include "kernel/TransportFactory.h"
+#include "kernel/ctml.h"
+#include "kernel/importKinetics.h"
+#include "kernel/ThermoFactory.h"
+#include "kernel/ck2ct.h"
 #include "Storage.h"
 #include "Cabinet.h"
-#include "InterfaceKinetics.h"
-#include "PureFluidPhase.h"
+#include "kernel/InterfaceKinetics.h"
+#include "kernel/PureFluidPhase.h"
 
 
 using namespace std;
 using namespace Cantera;
 
-#ifdef WIN32
+#ifdef _WIN32
 #include "windows.h"
 #endif
 
@@ -92,7 +84,7 @@ static double pfprop(int n, int i, double v=0.0, double x=0.0) {
 #endif
 
 
-inline int nThermo() {
+inline size_t nThermo() {
     return Storage::storage()->nThermo();
 }
 
@@ -105,7 +97,7 @@ namespace Cantera {
  */
 extern "C" {
 
-#ifdef WIN32
+#ifdef _WIN32
 #ifndef NO_DLL_BUILD
 	 /*
 	 *  The microsoft docs says we may need this in some
@@ -138,11 +130,11 @@ extern "C" {
 
     //--------------- Phase ---------------------//
 
-    int DLL_EXPORT phase_nElements(int n) {
+    size_t DLL_EXPORT phase_nElements(int n) {
         return ph(n)->nElements();
     }
 
-    int DLL_EXPORT phase_nSpecies(int n) {
+    size_t DLL_EXPORT phase_nSpecies(int n) {
         return ph(n)->nSpecies();
     }
 
@@ -182,17 +174,17 @@ extern "C" {
         return ph(n)->meanMolecularWeight();
     }
 
-    int DLL_EXPORT phase_elementIndex(int n, char* nm) {
+    size_t DLL_EXPORT phase_elementIndex(int n, char* nm) {
         string elnm = string(nm);
         return ph(n)->elementIndex(elnm);
     }
 
-    int DLL_EXPORT phase_speciesIndex(int n, char* nm) {
+    size_t DLL_EXPORT phase_speciesIndex(int n, char* nm) {
         string spnm = string(nm);
         return ph(n)->speciesIndex(spnm);
     }
 
-    int DLL_EXPORT phase_getMoleFractions(int n, int lenx, double* x) {
+    int DLL_EXPORT phase_getMoleFractions(int n, size_t lenx, double* x) {
         ThermoPhase* p = ph(n);
         if (lenx >= p->nSpecies()) {
             p->getMoleFractions(x);
@@ -202,12 +194,12 @@ extern "C" {
             return -1;
     }
 
-    doublereal DLL_EXPORT phase_moleFraction(int n, int k) {
+    doublereal DLL_EXPORT phase_moleFraction(int n, size_t k) {
         ThermoPhase* p = ph(n);
         return p->moleFraction(k);
     }
 
-    int DLL_EXPORT phase_getMassFractions(int n, int leny, double* y) {
+    int DLL_EXPORT phase_getMassFractions(int n, size_t leny, double* y) {
         ThermoPhase* p = ph(n);
         if (leny >= p->nSpecies()) {
             p->getMassFractions(y);
@@ -217,12 +209,12 @@ extern "C" {
             return -1;
     } 
 
-    doublereal DLL_EXPORT phase_massFraction(int n, int k) {
+    doublereal DLL_EXPORT phase_massFraction(int n, size_t k) {
         ThermoPhase* p = ph(n);
         return p->massFraction(k);
     }
 
-    int DLL_EXPORT phase_setMoleFractions(int n, int lenx, double* x, int norm) {
+    int DLL_EXPORT phase_setMoleFractions(int n, size_t lenx, double* x, int norm) {
         ThermoPhase* p = ph(n);
         if (lenx >= p->nSpecies()) {
             if (norm) p->setMoleFractions(x);
@@ -237,8 +229,8 @@ extern "C" {
         try {
             ThermoPhase* p = ph(n);
             compositionMap xx;
-            int nsp = p->nSpecies();
-            for (int n = 0; n < nsp; n++) {
+            size_t nsp = p->nSpecies();
+            for (size_t n = 0; n < nsp; n++) {
                 xx[p->speciesName(n)] = -1;
             }
             parseCompString(string(x), xx);
@@ -249,7 +241,7 @@ extern "C" {
         //catch (...) {return ERR;}
     }
 
-    int DLL_EXPORT phase_setMassFractions(int n, int leny, 
+    int DLL_EXPORT phase_setMassFractions(int n, size_t leny,
         double* y, int norm) {
         ThermoPhase* p = ph(n);
         if (leny >= p->nSpecies()) {
@@ -265,8 +257,8 @@ extern "C" {
         try {
             ThermoPhase* p = ph(n);
             compositionMap yy;
-            int nsp = p->nSpecies();
-            for (int n = 0; n < nsp; n++) {
+            size_t nsp = p->nSpecies();
+            for (size_t n = 0; n < nsp; n++) {
                 yy[p->speciesName(n)] = -1;
             }
             parseCompString(string(y), yy);
@@ -277,7 +269,7 @@ extern "C" {
     }
 
     int DLL_EXPORT phase_getAtomicWeights(int n, 
-        int lenm, double* atw) {
+        size_t lenm, double* atw) {
         ThermoPhase* p = ph(n);
         if (lenm >= p->nElements()) {
             const vector_fp& wt = p->atomicWeights();
@@ -289,7 +281,7 @@ extern "C" {
     }
 
     int DLL_EXPORT phase_getMolecularWeights(int n, 
-        int lenm, double* mw) {
+        size_t lenm, double* mw) {
         ThermoPhase* p = ph(n);
         if (lenm >= p->nSpecies()) {
             const vector_fp& wt = p->molecularWeights();
@@ -300,9 +292,9 @@ extern "C" {
             return -10;
     }
 
-    int DLL_EXPORT phase_getName(int n, int lennm, char* nm) {
+    int DLL_EXPORT phase_getName(int n, size_t lennm, char* nm) {
         string name = ph(n)->name();
-        int lout = (int) min(lennm, (int) name.size());
+        size_t lout = min(lennm, name.size());
         copy(name.c_str(), name.c_str() + lout, nm);
         nm[lout] = '\0';
         return 0;
@@ -314,10 +306,10 @@ extern "C" {
         return 0;
     }
 
-    int DLL_EXPORT phase_getSpeciesName(int n, int k, int lennm, char* nm) {
+    int DLL_EXPORT phase_getSpeciesName(int n, size_t k, size_t lennm, char* nm) {
         try {
             string spnm = ph(n)->speciesName(k);
-            int lout = min(lennm, (int) spnm.size());
+            size_t lout = min(lennm, spnm.size());
             copy(spnm.c_str(), spnm.c_str() + lout, nm);
             nm[lout] = '\0';
             return 0;
@@ -326,10 +318,10 @@ extern "C" {
         //catch (...) {return ERR;}
     }
 
-    int DLL_EXPORT phase_getElementName(int n, int m, int lennm, char* nm) {
+    int DLL_EXPORT phase_getElementName(int n, size_t m, size_t lennm, char* nm) {
         try {
             string elnm = ph(n)->elementName(m);
-            int lout = min(lennm, (int) elnm.size());
+            size_t lout = min(lennm, elnm.size());
             copy(elnm.c_str(), elnm.c_str() + lout, nm);
             nm[lout] = '\0';
             return 0;
@@ -338,7 +330,7 @@ extern "C" {
     }
 
 
-    doublereal DLL_EXPORT phase_nAtoms(int n, int k, int m) {
+    doublereal DLL_EXPORT phase_nAtoms(int n, size_t k, size_t m) {
         try {
             return ph(n)->nAtoms(k,m);
         }
@@ -392,7 +384,7 @@ extern "C" {
 //         catch (CanteraError) { return -1; }
 //     }
 
-    int DLL_EXPORT newThermoFromXML(int mxml) {
+    size_t DLL_EXPORT newThermoFromXML(int mxml) {
         try {
             XML_Node* x = _xml(mxml);
             thermo_t* th = newPhase(*x);
@@ -405,7 +397,7 @@ extern "C" {
     //    return th(n)->phase().index();
     // }
 
-    int DLL_EXPORT th_nSpecies(int n) {
+    size_t DLL_EXPORT th_nSpecies(size_t n) {
         return th(n)->nSpecies();
     }
 
@@ -483,9 +475,9 @@ extern "C" {
         catch (CanteraError) {return DERR;}
     }
 
-    int DLL_EXPORT th_chemPotentials(int n, int lenm, double* murt) {
+    int DLL_EXPORT th_chemPotentials(int n, size_t lenm, double* murt) {
         thermo_t* thrm = th(n);
-        int nsp = thrm->nSpecies();
+        size_t nsp = thrm->nSpecies();
         if (lenm >= nsp) {
             thrm->getChemPotentials(murt);
             return 0;
@@ -494,9 +486,9 @@ extern "C" {
             return -10;
     }
 
-    int DLL_EXPORT th_elementPotentials(int n, int lenm, double* lambda) {
+    int DLL_EXPORT th_elementPotentials(int n, size_t lenm, double* lambda) {
         thermo_t* thrm = th(n);
-        int nel = thrm->nElements();
+        size_t nel = thrm->nElements();
         if (lenm >= nel) {
             equilibrate(*thrm, "TP", 0);
             thrm->getElementPotentials(lambda);
@@ -584,10 +576,10 @@ extern "C" {
     }
 
 
-    int DLL_EXPORT th_getEnthalpies_RT(int n, int lenm, double* h_rt) {
+    int DLL_EXPORT th_getEnthalpies_RT(int n, size_t lenm, double* h_rt) {
         try {
             thermo_t* thrm = th(n);
-            int nsp = thrm->nSpecies();
+            size_t nsp = thrm->nSpecies();
             if (lenm >= nsp) {
                 thrm->getEnthalpy_RT_ref(h_rt);
                 return 0;
@@ -598,10 +590,10 @@ extern "C" {
         catch (CanteraError) {return -1;}
     }
 
-    int DLL_EXPORT th_getEntropies_R(int n, int lenm, double* s_r) {
+    int DLL_EXPORT th_getEntropies_R(int n, size_t lenm, double* s_r) {
         try {
             thermo_t* thrm = th(n);
-            int nsp = thrm->nSpecies();
+            size_t nsp = thrm->nSpecies();
             if (lenm >= nsp) {
                 thrm->getEntropy_R_ref(s_r);
                 return 0;
@@ -612,10 +604,10 @@ extern "C" {
         catch (CanteraError) {return -1;}
     }
 
-    int DLL_EXPORT th_getCp_R(int n, int lenm, double* cp_r) {
+    int DLL_EXPORT th_getCp_R(int n, size_t lenm, double* cp_r) {
         try {
             thermo_t* thrm = th(n);
-            int nsp = thrm->nSpecies();
+            size_t nsp = thrm->nSpecies();
             if (lenm >= nsp) {
                 thrm->getCp_R_ref(cp_r);
                 return 0;
@@ -718,7 +710,7 @@ extern "C" {
     
     //-------------- Kinetics ------------------//
 
-    int DLL_EXPORT newKineticsFromXML(int mxml, int iphase, 
+    size_t DLL_EXPORT newKineticsFromXML(int mxml, int iphase,
         int neighbor1, int neighbor2, int neighbor3, 
         int neighbor4) {
         try {
@@ -763,33 +755,33 @@ extern "C" {
         return kin(n)->type();
     }
 
-    int DLL_EXPORT kin_start(int n, int p) {
+    size_t DLL_EXPORT kin_start(int n, int p) {
         return kin(n)->kineticsSpeciesIndex(0,p);
     }
 
-    int DLL_EXPORT kin_speciesIndex(int n, const char* nm, const char* ph) {
+    size_t DLL_EXPORT kin_speciesIndex(int n, const char* nm, const char* ph) {
         return kin(n)->kineticsSpeciesIndex(string(nm), string(ph));
     }
 
     //---------------------------------------
 
-    int DLL_EXPORT kin_nSpecies(int n) {
+    size_t DLL_EXPORT kin_nSpecies(int n) {
         return kin(n)->nTotalSpecies();
     }
 
-    int DLL_EXPORT kin_nReactions(int n) {
+    size_t DLL_EXPORT kin_nReactions(int n) {
         return kin(n)->nReactions();
     }
 
-    int DLL_EXPORT kin_nPhases(int n) {
+    size_t DLL_EXPORT kin_nPhases(int n) {
         return kin(n)->nPhases();
     }
 
-    int DLL_EXPORT kin_phaseIndex(int n, char* ph) {
+    size_t DLL_EXPORT kin_phaseIndex(int n, char* ph) {
         return kin(n)->phaseIndex(string(ph));
     }
 
-    int DLL_EXPORT kin_reactionPhaseIndex(int n) {
+    size_t DLL_EXPORT kin_reactionPhaseIndex(int n) {
         return kin(n)->reactionPhaseIndex();
     }
 
@@ -805,7 +797,7 @@ extern "C" {
         return kin(n)->reactionType(i);
     }
 
-    int DLL_EXPORT kin_getFwdRatesOfProgress(int n, int len, double* fwdROP) {
+    int DLL_EXPORT kin_getFwdRatesOfProgress(int n, size_t len, double* fwdROP) {
         Kinetics* k = kin(n);
         try {
             if (len >= k->nReactions()) {
@@ -818,7 +810,7 @@ extern "C" {
         catch (CanteraError) {return -1;}
     }
 
-    int DLL_EXPORT kin_getRevRatesOfProgress(int n, int len, double* revROP) {
+    int DLL_EXPORT kin_getRevRatesOfProgress(int n, size_t len, double* revROP) {
         Kinetics* k = kin(n);
         try {
             if (len >= k->nReactions()) {
@@ -835,7 +827,7 @@ extern "C" {
         return (int)kin(n)->isReversible(i);
     }
 
-    int DLL_EXPORT kin_getNetRatesOfProgress(int n, int len, double* netROP) {
+    int DLL_EXPORT kin_getNetRatesOfProgress(int n, size_t len, double* netROP) {
         try {
             Kinetics* k = kin(n);
             if (len >= k->nReactions()) {
@@ -848,7 +840,7 @@ extern "C" {
         catch (CanteraError) {return -1;}
     }
 
-    int DLL_EXPORT kin_getFwdRateConstants(int n, int len, double* kfwd) {
+    int DLL_EXPORT kin_getFwdRateConstants(int n, size_t len, double* kfwd) {
         try {
             Kinetics* k = kin(n);
             if (len >= k->nReactions()) {
@@ -861,7 +853,7 @@ extern "C" {
         catch (CanteraError) {return -1;}
     }
 
-    int DLL_EXPORT kin_getRevRateConstants(int n, int doIrreversible, int len, double* krev) {
+    int DLL_EXPORT kin_getRevRateConstants(int n, int doIrreversible, size_t len, double* krev) {
         try {
             Kinetics* k = kin(n);
             bool doirrev = false;
@@ -877,7 +869,7 @@ extern "C" {
     }
 
 
-    int DLL_EXPORT kin_getActivationEnergies(int n, int len, double* E) {
+    int DLL_EXPORT kin_getActivationEnergies(int n, size_t len, double* E) {
         try {
             Kinetics* k = kin(n);
             if (len >= k->nReactions()) {
@@ -891,7 +883,7 @@ extern "C" {
     }
 
 
-    int DLL_EXPORT kin_getDelta(int n, int job, int len, double* delta) {
+    int DLL_EXPORT kin_getDelta(int n, int job, size_t len, double* delta) {
         try {
             Kinetics* k = kin(n);
             if (len < k->nReactions()) return ERR;
@@ -917,7 +909,7 @@ extern "C" {
     }
 
 
-    int DLL_EXPORT kin_getDeltaEntropy(int n, int len, double* deltaS) {
+    int DLL_EXPORT kin_getDeltaEntropy(int n, size_t len, double* deltaS) {
         try {
             Kinetics* k = kin(n);
             if (len >= k->nReactions()) {
@@ -931,7 +923,7 @@ extern "C" {
     }
 
 
-    int DLL_EXPORT kin_getCreationRates(int n, int len, double* cdot) {
+    int DLL_EXPORT kin_getCreationRates(int n, size_t len, double* cdot) {
         try {
             Kinetics* k = kin(n);
             if (len >= k->nTotalSpecies()) {
@@ -944,7 +936,7 @@ extern "C" {
         catch (CanteraError) {return -1;}
     }
 
-    int DLL_EXPORT kin_getDestructionRates(int n, int len, double* ddot) {
+    int DLL_EXPORT kin_getDestructionRates(int n, size_t len, double* ddot) {
         try {
             Kinetics* k = kin(n);
             if (len >= k->nTotalSpecies()) {
@@ -958,7 +950,7 @@ extern "C" {
         //catch (...) {return ERR;}
     }
 
-    int DLL_EXPORT kin_getNetProductionRates(int n, int len, double* wdot) {
+    int DLL_EXPORT kin_getNetProductionRates(int n, size_t len, double* wdot) {
         try {
             Kinetics* k = kin(n);
             if (len >= k->nTotalSpecies()) {            
@@ -971,12 +963,12 @@ extern "C" {
         catch (CanteraError) {return -1;}
     }
 
-    int DLL_EXPORT kin_getSourceTerms(int n, int len, double* ydot) {
+    int DLL_EXPORT kin_getSourceTerms(int n, size_t len, double* ydot) {
         try {
             Kinetics* k = kin(n);
             ThermoPhase* p = &k->thermo();
             const vector_fp& mw = p->molecularWeights();
-            int nsp = static_cast<int>(mw.size());
+            size_t nsp = mw.size();
             double rrho = 1.0/p->density();
             if (len >= nsp) {            
                 k->getNetProductionRates(ydot);
@@ -994,12 +986,11 @@ extern "C" {
         return kin(n)->multiplier(i);
     }
 
-    int DLL_EXPORT kin_phase(int n, int i) {
+    size_t DLL_EXPORT kin_phase(int n, size_t i) {
         return kin(n)->thermo(i).index();
-        //        return thermo_index(kin(n)->thermo(i).id());
     }
 
-    int DLL_EXPORT kin_getEquilibriumConstants(int n, int len, double* kc) {
+    int DLL_EXPORT kin_getEquilibriumConstants(int n, size_t len, double* kc) {
         try {
             Kinetics* k = kin(n);
             if (len >= k->nReactions()) {
@@ -1052,7 +1043,7 @@ extern "C" {
 
     //------------------- Transport ---------------------------
 
-    int DLL_EXPORT newTransport(char* model,  
+    size_t DLL_EXPORT newTransport(char* model,
         int ith, int loglevel) {
         string mstr = string(model);
         thermo_t* t = th(ith);
@@ -1194,7 +1185,7 @@ extern "C" {
         return 0; 
     }
 
-    int DLL_EXPORT addCanteraDirectory(int buflen, char* buf) {
+    int DLL_EXPORT addCanteraDirectory(size_t buflen, char* buf) {
         addDirectory(string(buf));
         return 0;
     }

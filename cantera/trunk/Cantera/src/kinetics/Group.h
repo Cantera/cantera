@@ -1,11 +1,6 @@
 /**
  *  @file Group.h
- *
- * $Author$
- * $Revision$
- * $Date$
  */
-
 
 // Copyright 2001  California Institute of Technology
 
@@ -23,9 +18,16 @@ namespace Cantera {
     class Group {
     public:
         Group() : m_sign(-999) { }
-        Group(int n) : m_sign(0) { m_comp.resize(n,0);}
-        Group(const vector_int& elnumbers) :
+        Group(size_t n) : m_sign(0) { m_comp.resize(n,0);}
+        Group(const std::vector<int>& elnumbers) :
             m_comp(elnumbers), m_sign(0) {
+                validate();
+            }
+        Group(const std::vector<size_t>& elnumbers) :
+            m_comp(elnumbers.size()), m_sign(0) {
+		for (size_t i = 0; i < elnumbers.size(); i++) {
+		    m_comp[i] = int(elnumbers[i]);
+		}
                 validate();
             }
         Group(const Group& g) :
@@ -44,28 +46,24 @@ namespace Cantera {
          */
         void operator-=(const Group& other) {
             verifyInputs(*this, other);
-            int n = m_comp.size();
-            for (int m = 0; m < n; m++)
+            for (size_t m = 0; m < m_comp.size(); m++)
                 m_comp[m] -= other.m_comp[m];
             validate();
         }
         void operator+=(const Group& other) {
             verifyInputs(*this, other);
-            int n = m_comp.size();
-            for (int m = 0; m < n; m++)
+            for (size_t m = 0; m < m_comp.size(); m++)
                 m_comp[m] += other.m_comp[m];
             validate();
         }
         void operator*=(int a) {
-            int n = m_comp.size();
-            for (int m = 0; m < n; m++)
+            for (size_t m = 0; m < m_comp.size(); m++)
                 m_comp[m] *= a;
             validate();
         }
         bool operator==(const Group& other) const {
             verifyInputs(*this, other);
-            int n = m_comp.size();
-            for (int m = 0; m < n; m++) {
+            for (size_t m = 0; m < m_comp.size(); m++) {
                 if (m_comp[m] != other.m_comp[m]) return false;
             }
             return true;
@@ -100,17 +98,18 @@ namespace Cantera {
         bool valid() const { return (m_sign != -999); }
         bool operator!() const { return (m_sign == -999); }
         int sign() const { return m_sign; }
-        int size() const { return m_comp.size(); }
+        size_t size() const { return m_comp.size(); }
 
         /// Number of atoms in the group (>= 0)
         int nAtoms() const {
-            int n = m_comp.size();
             int sum = 0;
-            for (int m = 0; m < n; m++) sum += std::abs(m_comp[m]);
+            for (size_t m = 0; m < m_comp.size(); m++) {
+              sum += std::abs(m_comp[m]);
+            }
             return sum;
         }
         /// Number of atoms of element m (positive or negative)
-        int nAtoms(int m) const {
+        int nAtoms(size_t m) const {
             if (m_comp.empty()) return 0;
             return m_comp[m];
         }
@@ -121,7 +120,7 @@ namespace Cantera {
                                         const Group& g);
 
     private:
-        vector_int m_comp;
+        std::vector<int> m_comp;
         int m_sign;
     };
 

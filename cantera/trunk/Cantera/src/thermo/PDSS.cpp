@@ -9,10 +9,6 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-/*
- * $Id$
- */
-
 #include "ct_defs.h"
 #include "xml.h"
 #include "ctml.h"
@@ -52,7 +48,7 @@ namespace Cantera {
   {
   }
 
-  PDSS::PDSS(VPStandardStateTP *tp, int spindex) :
+  PDSS::PDSS(VPStandardStateTP *tp, size_t spindex) :
     m_pdssType(cPDSS_UNDEF),
     m_temp(-1.0),
     m_pres(-1.0),
@@ -203,6 +199,7 @@ namespace Cantera {
   void PDSS::initThermo() {
     AssertThrow(m_tp != 0, "PDSS::initThermo()");
     m_vpssmgr_ptr = m_tp->provideVPSSMgr();
+    m_vpssmgr_ptr->initThermo();
     initPtrs();
     m_mw = m_tp->molecularWeight(m_spindex);
   }
@@ -216,6 +213,7 @@ namespace Cantera {
   } 
 
   void PDSS::initPtrs() {
+    AssertThrow(m_vpssmgr_ptr->mPDSS_h0_RT.size() != 0, "PDSS::initPtrs()");
     m_h0_RT_ptr  = &(m_vpssmgr_ptr->mPDSS_h0_RT[0]);
     m_cp0_R_ptr  = &(m_vpssmgr_ptr->mPDSS_cp0_R[0]);
     m_s0_R_ptr   = &(m_vpssmgr_ptr->mPDSS_s0_R[0]);
@@ -487,7 +485,7 @@ namespace Cantera {
   }
 
 
-  void PDSS::reportParams(int &kindex, int &type,
+  void PDSS::reportParams(size_t &kindex, int &type,
 			  doublereal * const c,
 			  doublereal &minTemp,
 			  doublereal &maxTemp,

@@ -2,32 +2,18 @@
  *  @file Integrator.h
  */
 
-/*  $Author$
- *  $Date$
- *  $Revision$
- *
- */
-
 /**
  * @defgroup odeGroup ODE Integrators
  */
 
 // Copyright 2001  California Institute of Technology
 
-
 #ifndef CT_INTEGRATOR_H
 #define CT_INTEGRATOR_H
-
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
 #include "FuncEval.h"
 
 #include "ct_defs.h"
 #include "global.h"
-
 
 namespace Cantera {
 
@@ -85,7 +71,7 @@ namespace Cantera {
      * @param number of equations
      * @param abstol array of N absolute tolerance values
      */ 
-    virtual void setTolerances(doublereal reltol, int n, 
+    virtual void setTolerances(doublereal reltol, size_t n,
 			       doublereal* abstol) { 
       warn("setTolerances"); 
     }
@@ -142,7 +128,7 @@ namespace Cantera {
     { warn("step"); return 0.0; }
 
     /** The current value of the solution of equation k. */
-    virtual doublereal& solution(int k)
+    virtual doublereal& solution(size_t k)
     { warn("solution"); return m_dummy; }
 
     /** The current value of the solution of the system of equations. */
@@ -186,7 +172,7 @@ namespace Cantera {
     virtual int nSensParams() 
     { warn("nSensParams()"); return 0; }
 
-    virtual double sensitivity(int k, int p) { 
+    virtual double sensitivity(size_t k, size_t p) {
       warn("sensitivity"); return 0.0;
     }
         

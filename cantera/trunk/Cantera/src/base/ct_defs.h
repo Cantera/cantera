@@ -8,12 +8,6 @@
  * All physical constants are stored here.
  * The module physConstants is defined here.
  */
-
-/*
- * $Revision$
- * $Date$
- */
-
 // Copyright 2001  California Institute of Technology
 
 
@@ -36,15 +30,6 @@
  * Namespace for the Cantera kernel.
  */
 namespace Cantera {
-
-
-#ifdef WIN32
-#define TYPENAME_KEYWORD
-#pragma warning(disable:4267)
-#else
-//! create a define for the typename command
-#define TYPENAME_KEYWORD typename
-#endif
 
 #undef CHEMKIN_COMPATIBILITY_MODE
 
@@ -220,7 +205,7 @@ namespace Cantera {
   /*!
    * A group of species is a subset of the species in a phase.
    */
-    typedef vector_int         group_t;
+    typedef std::vector<size_t> group_t;
   //! typedef for a vector of groups of species.
   /*!
    * A grouplist of species is a vector of groups.
@@ -232,6 +217,8 @@ namespace Cantera {
   //! typedef for a pointer to temporary work storage which is treated as constant
     typedef const doublereal* const_workPtr;
 
+  //! index returned by functions to indicate "no position"
+  const size_t npos = -1;
 
 }  // namespace
 

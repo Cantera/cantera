@@ -10,7 +10,6 @@
 #define CT_THERMO_INCL
 
 #include "kernel/ThermoFactory.h"
-#include "importPhase.h"
 #include "kernel/SurfPhase.h"
 #include "kernel/EdgePhase.h"
 

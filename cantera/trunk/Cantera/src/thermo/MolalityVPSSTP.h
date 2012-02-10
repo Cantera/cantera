@@ -16,10 +16,6 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-/*
- *  $Id$
- */
-
 #ifndef CT_MOLALITYVPSSTP_H
 #define CT_MOLALITYVPSSTP_H
 
@@ -293,7 +289,7 @@ namespace Cantera {
      *
      * @param k the solvent index number
      */
-    void setSolvent(int k);
+    void setSolvent(size_t k);
 
     /**
      * Sets the minimum mole fraction in the molality formulation.
@@ -307,7 +303,7 @@ namespace Cantera {
     void setMoleFSolventMin(doublereal xmolSolventMIN);
 
     //! Returns the solvent index.
-    int solventIndex() const;
+    size_t solventIndex() const;
 
     /**
      * Returns the minimum mole fraction in the molality 
@@ -481,7 +477,7 @@ namespace Cantera {
      *
      * @param k species index. Defaults to zero.
      */
-    virtual doublereal standardConcentration(int k=0) const;
+    virtual doublereal standardConcentration(size_t k=0) const;
 
     /**
      * Returns the natural logarithm of the standard 
@@ -489,7 +485,7 @@ namespace Cantera {
      *
      * @param k  species index
      */
-    virtual doublereal logStandardConc(int k=0) const;
+    virtual doublereal logStandardConc(size_t k=0) const;
 
     /**
      * Returns the units of the standard and generalized
@@ -870,7 +866,7 @@ namespace Cantera {
      *  must be named "Cl-". It must consist of exactly one Cl and one E 
      *  atom. 
      */
-    virtual int findCLMIndex() const;
+    virtual size_t findCLMIndex() const;
 
     //! Initialize lengths of local variables after all species have
     //! been identified.
@@ -882,7 +878,7 @@ namespace Cantera {
     /*!
      * Currently the index of the solvent is hard-coded to the value 0
      */
-    int        m_indexSolvent;
+    size_t m_indexSolvent;
 
     //! Scaling to be used for output of single-ion species activity
     //! coefficients.
@@ -900,7 +896,7 @@ namespace Cantera {
      *   law. This is the indentity of the Cl- species for the PHSCALE_NBS
      *   scaling
      */
-    int        m_indexCLM;
+    size_t m_indexCLM;
 
     //! Molecular weight of the Solvent
     doublereal m_weightSolvent;

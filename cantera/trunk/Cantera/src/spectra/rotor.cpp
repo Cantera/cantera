@@ -2,18 +2,13 @@
  * @file rotor.cpp
  *  
 */
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
 #include "ct_defs.h"
 #include "rotor.h"
 
 using namespace std;
 using namespace Cantera;
 
-namespace CanteraSpectra {
+namespace Cantera {
 
     /**
      * Constructor.

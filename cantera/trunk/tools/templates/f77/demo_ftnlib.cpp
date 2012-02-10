@@ -25,19 +25,11 @@
 
  */
 
-// turn off warnings under Windows
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
 // add any other Cantera header files you need here
 #include <cantera/Cantera.h>
 #include <cantera/IdealGasMix.h>
 
 using namespace Cantera;
-using namespace Cantera_CXX;
-using namespace std;
 
 // store a pointer to an IdealGasMix object
 static IdealGasMix* _gas = 0;

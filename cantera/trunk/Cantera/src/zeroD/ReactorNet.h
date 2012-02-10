@@ -1,30 +1,17 @@
 /**
  *  @file ReactorNet.h
  */
-
-/*
- * $Author$
- * $Revision$
- * $Date$
- */
-
 // Copyright 2004  California Institute of Technology
 
 #ifndef CT_REACTORNET_H
 #define CT_REACTORNET_H
-
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
 
 #include "Reactor.h"
 #include "FuncEval.h"
 #include "Integrator.h"
 #include "Array.h"
 
-namespace CanteraZeroD {
-
+namespace Cantera {
 
   class ReactorNet : public Cantera::FuncEval {
 
@@ -101,40 +88,40 @@ namespace CanteraZeroD {
     void setVerbose(bool v = true) { m_verbose = v; }
 
     /// Return a reference to the integrator.
-    Cantera::Integrator& integrator() { return *m_integ; }
+    Integrator& integrator() { return *m_integ; }
 
     void updateState(doublereal* y);
 
-    double sensitivity(int k, int p) {
+    double sensitivity(size_t k, size_t p) {
       return m_integ->sensitivity(k, p)/m_integ->solution(k);
     }
 
-    double sensitivity(std::string species, int p, int reactor=0) {
-      int k = globalComponentIndex(species, reactor);
+    double sensitivity(std::string species, size_t p, int reactor=0) {
+      size_t k = globalComponentIndex(species, reactor);
       return sensitivity(k, p);
     }
 
     void evalJacobian(doublereal t, doublereal* y, 
-		      doublereal* ydot, doublereal* p, Cantera::Array2D* j);
+		      doublereal* ydot, doublereal* p, Array2D* j);
 
     //-----------------------------------------------------
 
     // overloaded methods of class FuncEval
-    virtual int neq() { return m_nv; }
+    virtual size_t neq() { return m_nv; }
     virtual void eval(doublereal t, doublereal* y, 
 		      doublereal* ydot, doublereal* p);
     virtual void getInitialConditions(doublereal t0, size_t leny, 
 				      doublereal* y);
-    virtual int nparams() { return m_ntotpar; }
+    virtual size_t nparams() { return m_ntotpar; }
 
-    int globalComponentIndex(std::string species, int reactor=0);
+    size_t globalComponentIndex(std::string species, size_t reactor=0);
 
-    void connect(int i, int j) {
+    void connect(size_t i, size_t j) {
       m_connect[j*m_nr + i] = 1;
       m_connect[i*m_nr + j] = 1;
     }
 
-    bool connected(int i, int j) {
+    bool connected(size_t i, size_t j) {
       return (m_connect[m_nr*i + j] == 1);
     }
 
@@ -142,22 +129,22 @@ namespace CanteraZeroD {
 
     std::vector<ReactorBase*> m_r;
     std::vector<Reactor*> m_reactors;
-    int m_nr;
-    int m_nreactors;
-    Cantera::Integrator* m_integ;
+    size_t m_nr;
+    size_t m_nreactors;
+    Integrator* m_integ;
     doublereal m_time;
     bool m_init;
-    int m_nv;
-    Cantera::vector_int m_size;
-    Cantera::vector_fp m_atol;
+    size_t m_nv;
+    std::vector<size_t> m_size;
+    vector_fp m_atol;
     doublereal m_rtol, m_rtolsens;
     doublereal m_atols, m_atolsens;
     doublereal m_maxstep;
     bool m_verbose;
-    int m_ntotpar;
-    Cantera::vector_int m_nparams;
-    Cantera::vector_int m_connect;
-    Cantera::vector_fp m_ydot;
+    size_t m_ntotpar;
+    std::vector<size_t> m_nparams;
+    vector_int m_connect;
+    vector_fp m_ydot;
 
     std::vector<bool> m_iown;
 

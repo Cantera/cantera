@@ -1,6 +1,3 @@
-/*
- * $Id$
- */
 #ifndef CXX_GRI30H
 #define CXX_GRI30H
 
@@ -11,8 +8,7 @@
 #include "kernel/importKinetics.h"
 #include "kernel/stringUtils.h"
 
-
-namespace Cantera_CXX {
+namespace Cantera {
 
     /**
      * This class is a convenience class for use in C++ programs that
@@ -24,15 +20,15 @@ namespace Cantera_CXX {
      * methods like "getNetReactionRates."
      */
     class GRI30 : 
-        public Cantera::IdealGasPhase, 
-        public Cantera::GRI_30_Kinetics
+        public IdealGasPhase,
+        public GRI_30_Kinetics
     {
     public:
         GRI30() : m_ok(false), m_r(0) {
-            m_r = Cantera::get_XML_File("gri30.xml");
-            m_ok = Cantera::buildSolutionFromXML(*m_r, "gri30", 
+            m_r = get_XML_File("gri30.xml");
+            m_ok = buildSolutionFromXML(*m_r, "gri30",
                 "phase", this, this);
-            if (!m_ok) throw Cantera::CanteraError("GRI30",
+            if (!m_ok) throw CanteraError("GRI30",
                 "buildSolutionFromXML returned false");
         }
 
@@ -41,7 +37,7 @@ namespace Cantera_CXX {
         bool operator!() { return !m_ok;}
         bool ready() const { return m_ok; }
         friend std::ostream& operator<<(std::ostream& s, GRI30& mix) {
-            std::string r = Cantera::report(mix, true);
+            std::string r = mix.report(true);
             s << r;
             return s;
         }

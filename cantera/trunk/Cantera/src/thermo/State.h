@@ -6,12 +6,8 @@
  */
 
 /*
- *  $Date$
- *  $Revision$
- *
  *  Copyright 2001-2003 California Institute of Technology
  *  See file License.txt for licensing information
- *
  */
 
 #ifndef CT_STATE2_H
@@ -20,13 +16,8 @@
 #include "ct_defs.h"
 #include "utilities.h"
 
-#ifdef WIN32
-#pragma warning(disable:4996)
-#endif
-
 namespace Cantera {
 
-    
   //! Manages the independent variables of temperature, mass density,
   //! and species mass/mole fraction that define the thermodynamic
   //! state.
@@ -121,7 +112,7 @@ namespace Cantera {
      *   mole fractions of all species are desired.
      *   @param k species index
      */
-    doublereal moleFraction(const int k) const;
+    doublereal moleFraction(const size_t k) const;
     
     //! Set the mole fractions to the specified values, and then 
     //! normalize them so that they sum to 1.0.
@@ -161,7 +152,7 @@ namespace Cantera {
      * 
      * @param k    species index
      */
-    doublereal massFraction(const int k) const;
+    doublereal massFraction(const size_t k) const;
 
     //! Set the mass fractions to the specified values, and then 
     //! normalize them so that they sum to 1.0.
@@ -201,7 +192,7 @@ namespace Cantera {
      *
      * @param  k Index of species
      */
-    doublereal concentration(const int k) const;
+    doublereal concentration(const size_t k) const;
     
     //! Set the concentrations to the specified values within the
     //! phase. 
@@ -377,7 +368,7 @@ namespace Cantera {
     /**
      * m_kk is the number of species in the phase
      */
-    int m_kk;
+    size_t m_kk;
 
     //! Set the molecular weight of a single species to a given value
     /*!
