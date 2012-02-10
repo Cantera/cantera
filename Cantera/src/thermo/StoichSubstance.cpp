@@ -1,21 +1,10 @@
 /**
- *
  *  @file StoichSubstance.cpp
  *  This file contains the class definitions for the StoichSubstance
  *  ThermoPhase class.
  */
-/*
- *  $Date$
- *  $Revision$
- *
- *  Copyright 2001 California Institute of Technology
- *
- */
 
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
+//  Copyright 2001 California Institute of Technology
 
 #include "ct_defs.h"
 #include "mix_defs.h"
@@ -23,7 +12,6 @@
 #include "SpeciesThermo.h"
 
 namespace Cantera {
-
 
   // Default empty constructor
   StoichSubstance::StoichSubstance() :
@@ -137,10 +125,9 @@ namespace Cantera {
     if (tmax > 0.0) m_tmax = tmax;
     m_p0 = refPressure();
 
-    int leng = m_kk;
-    m_h0_RT.resize(leng);
-    m_cp0_R.resize(leng);
-    m_s0_R.resize(leng);
+    m_h0_RT.resize(m_kk);
+    m_cp0_R.resize(m_kk);
+    m_s0_R.resize(m_kk);
 
     // Put the object on a valid temperature point.
     double tnow = 300.;
@@ -173,11 +160,11 @@ namespace Cantera {
     c[0] = 1.0;
   }
 
-  doublereal StoichSubstance::standardConcentration(int k) const {
+  doublereal StoichSubstance::standardConcentration(size_t k) const {
     return 1.0;
   }
 
-  doublereal StoichSubstance::logStandardConc(int k) const {
+  doublereal StoichSubstance::logStandardConc(size_t k) const {
     return 0.0;
   }
 
@@ -191,10 +178,6 @@ namespace Cantera {
       uA[i] = 0.0;
     }
   }
-
-  /*
-   *
-   */
 
   void StoichSubstance::getChemPotentials_RT(doublereal* mu) const {
     mu[0] = gibbs_mole() / (GasConstant * temperature());
@@ -220,10 +203,6 @@ namespace Cantera {
     vbar[0] = 1.0 / molarDensity();
   }
 
-  /*
-   *
-   */
-
   void StoichSubstance::getEnthalpy_RT(doublereal* hrt) const {
     hrt[0] = enthalpy_mole() / (GasConstant * temperature());
   }
@@ -247,10 +226,6 @@ namespace Cantera {
   void StoichSubstance::getStandardVolumes(doublereal*vol) const {
     vol[0] = 1.0 / molarDensity();
   }
-
-  /*
-   *
-   */
 
   void StoichSubstance::getEnthalpy_RT_ref(doublereal *hrt) const {
     _updateThermo();
@@ -276,10 +251,6 @@ namespace Cantera {
     _updateThermo();
     cprt[0] = m_cp0_R[0];
   }
-
-  /*
-   *
-   */
 
   void StoichSubstance::setParameters(int n, double * const c) {
     double rho = c[0];

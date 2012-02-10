@@ -32,7 +32,7 @@ integer f_inqu(inlist *a)
 	{	byfile=1;
 		g_char(a->infile,a->infilen,buf);
 #ifdef NON_UNIX_STDIO
-		x = access(buf,0) ? -1 : 0;
+		x = ACCESS(buf,0) ? -1 : 0;
 		for(i=0,p=NULL;i<MXUNIT;i++)
 			if(f__units[i].ufd != NULL
 			 && f__units[i].ufnm != NULL
@@ -74,7 +74,7 @@ integer f_inqu(inlist *a)
 		if(byfile) *a->inopen=(p!=NULL);
 		else *a->inopen=(p!=NULL && p->ufd!=NULL);
         }
-	if(a->innum!=NULL) *a->innum= p-f__units;
+	if(a->innum!=NULL) *a->innum= (ftnint) (p-f__units);
 	if(a->innamed!=NULL) {
 		if(byfile || (p!=NULL && p->ufnm!=NULL))
 			*a->innamed=1;

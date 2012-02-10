@@ -1,23 +1,12 @@
 /**
- *
  *  @file MultiNewton.cpp
  *
  *  Damped Newton solver for 1D multi-domain problems
  */
 
 /*
- *  $Author$
- *  $Date$
- *  $Revision$
- *
  *  Copyright 2001 California Institute of Technology
- *
  */
-
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
 
 #include <vector>
 using namespace std;
@@ -56,7 +45,7 @@ namespace Cantera {
     "-----------------------------------------------------------------";
 
     const doublereal DampFactor = sqrt(2.0);
-    const int NDAMP = 7;
+    const size_t NDAMP = 7;
 
 
 
@@ -72,9 +61,7 @@ namespace Cantera {
     }
 
     MultiNewton::~MultiNewton() {
-        int n = static_cast<int>(m_workarrays.size());
-        int i;
-        for (i = 0; i < n; i++) {
+        for (size_t i = 0; i < m_workarrays.size(); i++) {
             delete[] m_workarrays[i];
         }
     }
@@ -82,11 +69,9 @@ namespace Cantera {
     /**
      * Prepare for a new solution vector length.
      */
-    void MultiNewton::resize(int sz) {
+    void MultiNewton::resize(size_t sz) {
         m_n = sz;
-        int n = static_cast<int>(m_workarrays.size());
-        int i;
-        for (i = 0; i < n; i++) {
+        for (size_t i = 0; i < m_workarrays.size(); i++) {
             delete[] m_workarrays[i];
         }
         m_workarrays.clear();
@@ -99,9 +84,8 @@ namespace Cantera {
     doublereal MultiNewton::norm2(const doublereal* x, 
         const doublereal* step, OneDim& r) const {
         doublereal f, sum = 0.0;//, fmx = 0.0;
-        int n;
-        int nd = r.nDomains(); 
-        for (n = 0; n < nd; n++) {
+        size_t nd = r.nDomains();
+        for (size_t n = 0; n < nd; n++) {
             f = norm_square(x + r.start(n), step + r.start(n),
                 r.domain(n));
             sum += f;
@@ -117,18 +101,18 @@ namespace Cantera {
      */ 
     void MultiNewton::step(doublereal* x, doublereal* step, 
         OneDim& r, MultiJac& jac, int loglevel) {
-        int n, iok;
-        int sz = r.size();
+        size_t iok;
+        size_t sz = r.size();
         r.eval(-1, x, step);
 #undef DEBUG_STEP
 #ifdef DEBUG_STEP
         vector_fp ssave(sz, 0.0);
-        for (n = 0; n < sz; n++) {
+        for (size_t n = 0; n < sz; n++) {
             step[n] = -step[n];
             ssave[n] = step[n];
         }
 #else
-        for (n = 0; n < sz; n++) {
+        for (size_t n = 0; n < sz; n++) {
             step[n] = -step[n];
         }
 #endif
@@ -136,30 +120,32 @@ namespace Cantera {
         iok = jac.solve(step, step);
 
         // if iok is non-zero, then solve failed
-        if (iok > 0) {
+        if (iok != 0) {
 	    iok--;
-	    int nd = r.nDomains();
-	    for (n = nd-1; n >= 0; n--) 
+	    size_t nd = r.nDomains();
+	    size_t n;
+	    for (n = nd-1; n != npos; n--)
                 if (iok >= r.start(n)) { break; }
 	    Domain1D& dom = r.domain(n);
-	    int offset = iok - r.start(n);
-	    int pt = offset/dom.nComponents();
-	    int comp = offset - pt*dom.nComponents();
+	    size_t offset = iok - r.start(n);
+	    size_t pt = offset/dom.nComponents();
+	    size_t comp = offset - pt*dom.nComponents();
 	    throw CanteraError("MultiNewton::step",
                 "Jacobian is singular for domain "+
                 dom.id() + ", component "
                 +dom.componentName(comp)+" at point "
-                +int2str(pt)+"\n(Matrix row "+int2str(iok)+") \nsee file bandmatrix.csv\n");
+                +int2str(int(pt))+"\n(Matrix row "
+                +int2str(int(iok))+") \nsee file bandmatrix.csv\n");
         }
-        else if (iok < 0)   
+        else if (int(iok) < 0)
 	    throw CanteraError("MultiNewton::step",
-                "iok = "+int2str(iok));
+                "iok = "+int2str(int(iok)));
 
 #ifdef DEBUG_STEP
         bool ok = false;
         Domain1D* d;
         if (!ok) {
-            for (n = 0; n < sz; n++) {
+            for (size_t n = 0; n < sz; n++) {
                 d = r.pointDomain(n);
                 int nvd = d->nComponents();
                 int pt = (n - d->loc())/nvd;
@@ -179,11 +165,8 @@ namespace Cantera {
      */
     doublereal MultiNewton::boundStep(const doublereal* x0, 
         const doublereal* step0, const OneDim& r, int loglevel) {
-
-        int i;
         doublereal fbound = 1.0;
-        int nd = r.nDomains();
-        for (i = 0; i < nd; i++) {
+        for (size_t i = 0; i < r.nDomains(); i++) {
             fbound = fminn(fbound, 
                 bound_step(x0 + r.start(i), step0 + r.start(i),
                 r.domain(i), loglevel));
@@ -239,15 +222,15 @@ namespace Cantera {
         // damping coefficient starts at 1.0
         doublereal damp = 1.0;
 
-        int j, m;
         doublereal ff;
 
+	size_t m;
         for (m = 0; m < NDAMP; m++) {
 
             ff = fbound*damp;
 
             // step the solution by the damped step size
-            for (j = 0; j < m_n; j++) x1[j] = ff*step0[j] + x0[j];
+            for (size_t j = 0; j < m_n; j++) x1[j] = ff*step0[j] + x0[j];
 
             // compute the next undamped step that would result if x1
             // is accepted

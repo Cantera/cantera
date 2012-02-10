@@ -51,7 +51,7 @@ integer isamax_(integer *n, real *sx, integer *incx)
 /*        code for increment not equal to 1 */
 
     ix = 1;
-    smax = dabs(sx[1]);
+    smax = (real) dabs(sx[1]);
     ix += *incx;
     i__1 = *n;
     for (i__ = 2; i__ <= i__1; ++i__) {
@@ -59,7 +59,7 @@ integer isamax_(integer *n, real *sx, integer *incx)
 	    goto L5;
 	}
 	ret_val = i__;
-	smax = (r__1 = sx[ix], dabs(r__1));
+	smax = (real) (r__1 = sx[ix], dabs(r__1));
 L5:
 	ix += *incx;
 /* L10: */
@@ -69,14 +69,14 @@ L5:
 /*        code for increment equal to 1 */
 
 L20:
-    smax = dabs(sx[1]);
+    smax = (real) dabs(sx[1]);
     i__1 = *n;
     for (i__ = 2; i__ <= i__1; ++i__) {
 	if ((r__1 = sx[i__], dabs(r__1)) <= smax) {
 	    goto L30;
 	}
 	ret_val = i__;
-	smax = (r__1 = sx[i__], dabs(r__1));
+	smax = (real) (r__1 = sx[i__], dabs(r__1));
 L30:
 	;
     }

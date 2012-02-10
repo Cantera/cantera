@@ -1,11 +1,5 @@
-
 /*
- *  $Author$
- *  $Date$
- *  $Revision$
- *
  *  Copyright 2002 California Institute of Technology
- *
  */
 
 #ifdef SRCDIRTREE
@@ -21,9 +15,11 @@
 
 using namespace std;
 using namespace Cantera;
-using namespace Cantera_CXX;
 
 int main(int argc, char **argv) {
+#ifdef _MSC_VER
+    _set_output_format(_TWO_DIGIT_EXPONENT);
+#endif
   try {
     IdealGasMix g("silane.xml", "silane");
     g.setState_TPX(1500.0, 100.0, "SIH4:0.01, H2:0.99");

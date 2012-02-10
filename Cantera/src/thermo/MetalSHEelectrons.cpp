@@ -12,11 +12,6 @@
  * U.S. Government retains certain rights in this software.
  *
  */
-
-/*
- * $Id: MetalSHEelectrons.cpp 279 2009-12-05 19:08:43Z hkmoffa $ 
- */
-
 #include "ct_defs.h"
 
 #include "MetalSHEelectrons.h"
@@ -246,7 +241,7 @@ namespace Cantera {
    * by which the generalized concentration is normalized to produce 
    * the activity. 
    */ 
-  doublereal MetalSHEelectrons::standardConcentration(int k) const {
+  doublereal MetalSHEelectrons::standardConcentration(size_t k) const {
     return 1.0;
   }
   //====================================================================================================================
@@ -254,7 +249,7 @@ namespace Cantera {
    * Returns the natural logarithm of the standard 
    * concentration of the kth species
    */
-  doublereal MetalSHEelectrons::logStandardConc(int k) const {
+  doublereal MetalSHEelectrons::logStandardConc(size_t k) const {
     return 0.0;
   }
   //====================================================================================================================

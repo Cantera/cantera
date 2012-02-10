@@ -5,23 +5,10 @@
  *  (see \ref tranprops and \link Cantera::SolidTransport SolidTransport \endlink).
  */
 
-/* 
- * $Revision$
- * $Date$
- */
-
 // Copyright 2003  California Institute of Technology
-
 
 #ifndef CT_SOLIDTRAN_H
 #define CT_SOLIDTRAN_H
-
-
-// turn off warnings under Windows
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
 
 // STL includes
 #include <vector>
@@ -30,21 +17,12 @@
 #include <numeric>
 #include <algorithm>
 
-
 // Cantera includes
 #include "TransportBase.h"
 #include "DenseMatrix.h"
 
 namespace Cantera {
-
-
-  
   //! Class SolidTransport implements transport properties for solids.
-  /*!
-   *
-   *
-   *
-   */
   class SolidTransport : public Transport {
 
   public:
@@ -121,7 +99,7 @@ namespace Cantera {
     /*!
      *   This is equal to the 
      */
-    int m_nmobile;  
+    size_t m_nmobile;  
 
     //! Coefficient for the diffusivity of species within a solid
     /*!

@@ -14,17 +14,6 @@
  * U.S. Government retains certain rights in this software.
  */
 
-/*
- *  $Date$
- *  $Revision$
- */
-
-// turn off warnings under Windows
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
 #include "VPSSMgr_Water_ConstVol.h"
 #include "PDSS_Water.h"
 #include "PDSS_ConstVol.h"
@@ -117,7 +106,7 @@ namespace Cantera {
   VPSSMgr_Water_ConstVol::getGibbs_ref(doublereal *g) const{
     doublereal RT = GasConstant * m_tlast;
     getGibbs_RT_ref(g);
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       g[k] *= RT;
     }
   }
@@ -167,7 +156,7 @@ namespace Cantera {
   void VPSSMgr_Water_ConstVol::_updateRefStateThermo() const {
     m_p0 = m_waterSS->pref_safe(m_tlast);
     m_spthermo->update(m_tlast, &m_cp0_R[0], &m_h0_RT[0], &m_s0_R[0]);
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
       PDSS *kPDSS = m_vptp_ptr->providePDSS(k);
       kPDSS->setTemperature(m_tlast);
@@ -189,7 +178,7 @@ namespace Cantera {
     doublereal RT = GasConstant * m_tlast;
     doublereal del_pRT = (m_plast - OneAtm) / (RT);
  
-    for (int k = 1; k < m_kk; k++) {
+    for (size_t k = 1; k < m_kk; k++) {
       m_hss_RT[k]  = m_h0_RT[k] + del_pRT * m_Vss[k];
       m_cpss_R[k]  = m_cp0_R[k];
       m_sss_R[k]   = m_s0_R[k];
@@ -230,7 +219,7 @@ namespace Cantera {
     m_waterSS->setState_TP(300., OneAtm);
     m_Vss[0] =  (m_waterSS->density())      / m_vptp_ptr->molecularWeight(0);
 
-    for (int k = 1; k < m_kk; k++) {
+    for (size_t k = 1; k < m_kk; k++) {
       const XML_Node* s =  speciesDB->findByAttr("name", sss[k]);
       if (!s) {
 	throw CanteraError("VPSSMgr_Water_ConstVol::initThermoXML",
@@ -254,7 +243,7 @@ namespace Cantera {
   }
 
   PDSS*
-  VPSSMgr_Water_ConstVol::createInstallPDSS(int k, const XML_Node& speciesNode,  
+  VPSSMgr_Water_ConstVol::createInstallPDSS(size_t k, const XML_Node& speciesNode,
 					    const XML_Node * const phaseNode_ptr) {
     
     PDSS *kPDSS = 0;
@@ -297,7 +286,7 @@ namespace Cantera {
 			   "standardState model for species isn't "
 			   "constant_incompressible: " + speciesNode.name());
       }
-      if ((int) m_Vss.size() < k+1) {
+      if (m_Vss.size() < k+1) {
 	m_Vss.resize(k+1, 0.0);
       }
       m_Vss[k] = ctml::getFloat(*ss, "molarVolume", "toSI");

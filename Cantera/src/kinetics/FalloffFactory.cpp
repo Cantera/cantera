@@ -1,19 +1,7 @@
 /**
  *  @file FalloffFactory.cpp
  */
-
-/*  $Author$
- *  $Date$
- *  $Revision$
- */
-
 // Copyright 2001  California Institute of Technology
-
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
 
 #include "FalloffFactory.h"
 #include "ctexceptions.h"

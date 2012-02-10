@@ -4,12 +4,6 @@
  *  processing of the transport object
  *  (see \ref tranprops and \link Cantera::TransportParams TransportParams \endlink).
  */
-/*
- * Latest Checkin:
- *  $Date$
- *  $Revision$
- */
-
 #ifndef CT_TRANSPORTPARAMS_H
 #define CT_TRANSPORTPARAMS_H
 
@@ -54,7 +48,7 @@ namespace Cantera {
     virtual ~TransportParams();
 
     //! Local storage of the number of species
-    int nsp_;
+    size_t nsp_;
 
     //!  Pointer to the ThermoPhase object
     thermo_t* thermo;

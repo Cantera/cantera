@@ -2,11 +2,6 @@
  *  @file LiquidTransport.cpp
  *  Mixture-averaged transport properties for ideal gas mixtures.
  */
-/* 
- * $Revision$
- * $Date$
- */
-
 #include "ThermoPhase.h"
 #include "LiquidTransport.h"
 
@@ -576,8 +571,8 @@ namespace Cantera {
     if (!m_mobRat_temp_ok) {
       updateMobilityRatio_T();
     }
-    for (int k = 0; k < m_nsp2; k++) {
-      for (int j = 0; j < m_nsp; j++) {
+    for (size_t k = 0; k < m_nsp2; k++) {
+      for (size_t j = 0; j < m_nsp; j++) {
 	mobRat[k][j] = m_mobRatSpecies(k,j); 
       }
    }
@@ -712,9 +707,7 @@ namespace Cantera {
    *   @param d   vector of binary diffusion coefficients
    *          units = m2 s-1. length = ld*ld = (number of species)^2
    */
-  void LiquidTransport::getBinaryDiffCoeffs(int ld, doublereal* d) {
-    int i,j;
-
+  void LiquidTransport::getBinaryDiffCoeffs(size_t ld, doublereal* d) {
     if ( ld != m_nsp ) 
       throw CanteraError("LiquidTransport::getBinaryDiffCoeffs",
 			 "First argument does not correspond to number of species in model.\nDiff Coeff matrix may be misdimensioned");
@@ -724,8 +717,8 @@ namespace Cantera {
     // from the polynomial fits
     if (!m_diff_temp_ok) updateDiff_T();
 
-    for (i = 0; i < m_nsp; i++) {
-      for (j = 0; j < m_nsp; j++){
+    for (size_t i = 0; i < m_nsp; i++) {
+      for (size_t j = 0; j < m_nsp; j++){
 	//if (!( ( m_bdiff(i,j) > 0.0 ) |  ( m_bdiff(i,j) < 0.0 ))){
 	//  throw CanteraError("LiquidTransport::getBinaryDiffCoeffs ",
 	//		     "m_bdiff has zero entry in non-diagonal.");}
@@ -765,10 +758,9 @@ namespace Cantera {
    *               dimensioned at least as large as the number of species.
    */
   void LiquidTransport::getMobilities(doublereal* const mobil) {
-    int k;
     getMixDiffCoeffs(DATA_PTR(m_spwork));
     doublereal c1 = ElectronCharge / (Boltzmann * m_temp);
-    for (k = 0; k < m_nsp; k++) {
+    for (size_t k = 0; k < m_nsp; k++) {
       mobil[k] = c1 * m_spwork[k];
     }
   } 
@@ -805,7 +797,7 @@ namespace Cantera {
   void  LiquidTransport::getFluidMobilities(doublereal* const mobil_f) {
     getMixDiffCoeffs(DATA_PTR(m_spwork));
     doublereal c1 = 1.0 / (GasConstant * m_temp);
-    for (int k = 0; k < m_nsp; k++) {
+    for (size_t k = 0; k < m_nsp; k++) {
       mobil_f[k] = c1 * m_spwork[k];
     }
   } 
@@ -826,7 +818,7 @@ namespace Cantera {
    * @param grad_V Gradient of the voltage (length num dimensions);
    */
   void LiquidTransport::set_Grad_V(const doublereal* const grad_V) {
-    for (int a = 0; a < m_nDim; a++) {
+    for (size_t a = 0; a < m_nDim; a++) {
       m_Grad_V[a] = grad_V[a];
     }
   }
@@ -837,8 +829,8 @@ namespace Cantera {
    * @param grad_X Gradient of the mole fractions(length nsp * num dimensions);
    */
   void LiquidTransport::set_Grad_X(const doublereal* const grad_X) {
-    int itop = m_nDim * m_nsp;
-    for (int i = 0; i < itop; i++) {
+    size_t itop = m_nDim * m_nsp;
+    for (size_t i = 0; i < itop; i++) {
       m_Grad_X[i] = grad_X[i];
     }
   }
@@ -969,7 +961,7 @@ namespace Cantera {
    *             Flat vector with the m_nsp in the inner loop.
    *             length = ldx * ndim
    */
-  void LiquidTransport::getSpeciesVdiff(int ndim, 
+  void LiquidTransport::getSpeciesVdiff(size_t ndim, 
 					const doublereal* grad_T, 
 					int ldx, const doublereal* grad_X, 
 					int ldf, doublereal* Vdiff) {
@@ -988,7 +980,7 @@ namespace Cantera {
    *      \vec{j}_k = -n M_k D_k \nabla X_k.
    * \f]
    */
-  void LiquidTransport::getSpeciesVdiffES(int ndim, 
+  void LiquidTransport::getSpeciesVdiffES(size_t ndim, 
 					  const doublereal* grad_T, 
 					  int ldx, 
 					  const doublereal* grad_X, 
@@ -1129,13 +1121,11 @@ namespace Cantera {
    *             Flat vector with the m_nsp in the inner loop.
    *             length = ldx * ndim
    */
-  void LiquidTransport::getSpeciesVdiffExt(int ldf, doublereal* Vdiff) {
-    int n, k;
-
+  void LiquidTransport::getSpeciesVdiffExt(size_t ldf, doublereal* Vdiff) {
     stefan_maxwell_solve();
 
-    for (n = 0; n < m_nDim; n++) {
-      for (k = 0; k < m_nsp; k++) {
+    for (size_t n = 0; n < m_nDim; n++) {
+      for (size_t k = 0; k < m_nsp; k++) {
 	Vdiff[n*ldf + k] = m_Vdiff(k,n);
       }
     }
@@ -1156,13 +1146,11 @@ namespace Cantera {
    *             Flat vector with the m_nsp in the inner loop.
    *             length = ldx * ndim
    */
-  void LiquidTransport::getSpeciesFluxesExt(int ldf, doublereal* fluxes) {
-    int n, k;
-
+  void LiquidTransport::getSpeciesFluxesExt(size_t ldf, doublereal* fluxes) {
     stefan_maxwell_solve();
 
-    for (n = 0; n < m_nDim; n++) {
-      for (k = 0; k < m_nsp; k++) {
+    for (size_t n = 0; n < m_nDim; n++) {
+      for (size_t k = 0; k < m_nsp; k++) {
 	fluxes[n*ldf + k] = m_flux(k,n);
       }
     }
@@ -1301,7 +1289,7 @@ namespace Cantera {
       m_thermo->getConcentrations(DATA_PTR(m_concentrations));
       concTot_ = 0.0;
       concTot_tran_ = 0.0;
-      for (int k = 0; k < m_nsp; k++) {
+      for (size_t k = 0; k < m_nsp; k++) {
 	m_molefracs[k] = fmaxx(0.0, m_molefracs[k]);
 	m_molefracs_tran[k] = fmaxx(MIN_X, m_molefracs[k]);
 	m_massfracs_tran[k] = fmaxx(MIN_X, m_massfracs[k]);
@@ -1549,7 +1537,6 @@ namespace Cantera {
    * of one species.
    */
   void LiquidTransport::stefan_maxwell_solve() {
-    int i, j, a;
     doublereal tmp;
     m_B.resize(m_nsp, m_nDim, 0.0);
     m_A.resize(m_nsp, m_nsp, 0.0);
@@ -1598,8 +1585,8 @@ namespace Cantera {
      *  consideratins involving species concentrations going to zero.
      *
      */
-    for (i = 0; i < m_nsp; i++) {
-      for (a = 0; a < m_nDim; a++) {
+    for (size_t i = 0; i < m_nsp; i++) {
+      for (size_t a = 0; a < m_nDim; a++) {
 	m_Grad_mu[a*m_nsp + i] =
 	  m_chargeSpecies[i] *  Faraday * m_Grad_V[a]
 	  //+  (m_volume_spec[i] - M[i]/dens_) * m_Grad_P[a]
@@ -1612,8 +1599,8 @@ namespace Cantera {
       double mwSolvent = m_thermo->molecularWeight(iSolvent);
       double mnaught = mwSolvent/ 1000.;
       double lnmnaught = log(mnaught);
-      for (i = 1; i < m_nsp; i++) {
-	for (a = 0; a < m_nDim; a++) {
+      for (size_t i = 1; i < m_nsp; i++) {
+	for (size_t a = 0; a < m_nDim; a++) {
 	  m_Grad_mu[a*m_nsp + i] -=
 	    m_molefracs[i] * GasConstant * m_Grad_T[a] * lnmnaught;
 	}
@@ -1631,7 +1618,7 @@ namespace Cantera {
 
       m_B(0,0) = 0.0;
       //equation for the reference velocity 
-      for (j = 0; j < m_nsp; j++) {
+      for (size_t j = 0; j < m_nsp; j++) {
 	if ( m_velocityBasis == VB_MOLEAVG )
 	  m_A(0,j) = m_molefracs_tran[j];
 	else if ( m_velocityBasis == VB_MASSAVG )
@@ -1645,10 +1632,10 @@ namespace Cantera {
 	  throw CanteraError("LiquidTransport::stefan_maxwell_solve",
 			       "Unknown reference velocity provided.");
       }
-      for (i = 1; i < m_nsp; i++){
+      for (size_t i = 1; i < m_nsp; i++){
 	m_B(i,0) = m_Grad_mu[i] / (GasConstant * T);
 	m_A(i,i) = 0.0;
-	for (j = 0; j < m_nsp; j++){
+	for (size_t j = 0; j < m_nsp; j++){
 	  if (j != i) {
 	    //if ( !( m_bdiff(i,j) > 0.0 ) )
 	    //throw CanteraError("LiquidTransport::stefan_maxwell_solve",
@@ -1691,7 +1678,7 @@ namespace Cantera {
       m_B(0,0) = 0.0;
       m_B(0,1) = 0.0;
       //equation for the reference velocity 
-      for (j = 0; j < m_nsp; j++) {
+      for (size_t j = 0; j < m_nsp; j++) {
 	if ( m_velocityBasis == VB_MOLEAVG )
 	  m_A(0,j) = m_molefracs_tran[j];
 	else if ( m_velocityBasis == VB_MASSAVG )
@@ -1705,11 +1692,11 @@ namespace Cantera {
 	  throw CanteraError("LiquidTransport::stefan_maxwell_solve",
 			       "Unknown reference velocity provided.");
       }
-      for (i = 1; i < m_nsp; i++){
+      for (size_t i = 1; i < m_nsp; i++){
 	m_B(i,0) =  m_Grad_mu[i]         / (GasConstant * T);
 	m_B(i,1) =  m_Grad_mu[m_nsp + i] / (GasConstant * T);
 	m_A(i,i) = 0.0;
-	for (j = 0; j < m_nsp; j++) {
+	for (size_t j = 0; j < m_nsp; j++) {
 	  if (j != i) {
 	    //if ( !( m_bdiff(i,j) > 0.0 ) )
 	    //throw CanteraError("LiquidTransport::stefan_maxwell_solve",
@@ -1732,7 +1719,7 @@ namespace Cantera {
       m_B(0,1) = 0.0;
       m_B(0,2) = 0.0;
       //equation for the reference velocity 
-      for (j = 0; j < m_nsp; j++) {
+      for (size_t j = 0; j < m_nsp; j++) {
 	if ( m_velocityBasis == VB_MOLEAVG )
 	  m_A(0,j) = m_molefracs_tran[j];
 	else if ( m_velocityBasis == VB_MASSAVG )
@@ -1746,12 +1733,12 @@ namespace Cantera {
 	  throw CanteraError("LiquidTransport::stefan_maxwell_solve",
 			       "Unknown reference velocity provided.");
       }
-      for (i = 1; i < m_nsp; i++){
+      for (size_t i = 1; i < m_nsp; i++){
 	m_B(i,0) = m_Grad_mu[i]           / (GasConstant * T);
 	m_B(i,1) = m_Grad_mu[m_nsp + i]   / (GasConstant * T);
 	m_B(i,2) = m_Grad_mu[2*m_nsp + i] / (GasConstant * T);
 	m_A(i,i) = 0.0;
-	for (j = 0; j < m_nsp; j++) {
+	for (size_t j = 0; j < m_nsp; j++) {
 	  if (j != i) {
 	    //if ( !( m_bdiff(i,j) > 0.0 ) )
 	    //throw CanteraError("LiquidTransport::stefan_maxwell_solve",
@@ -1773,8 +1760,8 @@ namespace Cantera {
       break;
     }
 
-    for (a = 0; a < m_nDim; a++) {
-      for (j = 0; j < m_nsp; j++) {
+    for (size_t a = 0; a < m_nDim; a++) {
+      for (size_t j = 0; j < m_nsp; j++) {
 	m_Vdiff(j,a) = m_B(j,a);
 	m_flux(j,a) = concTot_ * M[j] * m_molefracs_tran[j] * m_B(j,a);
       }

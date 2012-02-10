@@ -8,10 +8,6 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-/*
- * $Id$
- */
-
 #include "ct_defs.h"
 #include "xml.h"
 #include "ctml.h"
@@ -27,7 +23,7 @@ namespace Cantera {
    * Basic list of constructors and duplicators
    */
 
-  PDSS_SSVol::PDSS_SSVol(VPStandardStateTP *tp, int spindex) :
+  PDSS_SSVol::PDSS_SSVol(VPStandardStateTP *tp, size_t spindex) :
     PDSS(tp, spindex), 
     volumeModel_(cSSVOLUME_CONSTANT),
     m_constMolarVolume(-1.0)
@@ -40,7 +36,7 @@ namespace Cantera {
 
 
   PDSS_SSVol::PDSS_SSVol(VPStandardStateTP *tp,
-                         int spindex, std::string inputFile, std::string id) :
+                         size_t spindex, std::string inputFile, std::string id) :
     PDSS(tp, spindex),
     volumeModel_(cSSVOLUME_CONSTANT),
     m_constMolarVolume(-1.0)
@@ -50,7 +46,7 @@ namespace Cantera {
     constructPDSSFile(tp, spindex, inputFile, id);
   }
 
-  PDSS_SSVol::PDSS_SSVol(VPStandardStateTP *tp, int spindex,
+  PDSS_SSVol::PDSS_SSVol(VPStandardStateTP *tp, size_t spindex,
 			 const XML_Node& speciesNode, 
 			 const XML_Node& phaseRoot, 
 			 bool spInstalled) :
@@ -112,7 +108,7 @@ namespace Cantera {
    *            phase. If none is given, the first XML
    *            phase element will be used.
    */
-  void PDSS_SSVol::constructPDSSXML(VPStandardStateTP *tp, int spindex,
+  void PDSS_SSVol::constructPDSSXML(VPStandardStateTP *tp, size_t spindex,
 				       const XML_Node& speciesNode, 
 				       const XML_Node& phaseNode, bool spInstalled) {
     PDSS::initThermo();
@@ -134,14 +130,14 @@ namespace Cantera {
       m_constMolarVolume = ctml::getFloat(*ss, "molarVolume", "toSI");
     } else if (model == "temperature_polynomial") {
       volumeModel_ = cSSVOLUME_TPOLY;
-      int num = ctml::getFloatArray(*ss, TCoeff_, true, "toSI", "volumeTemperaturePolynomial");
+      size_t num = ctml::getFloatArray(*ss, TCoeff_, true, "toSI", "volumeTemperaturePolynomial");
       if (num != 4) {
 	throw CanteraError("PDSS_SSVol::constructPDSSXML",
 			   " Didn't get 4 density polynomial numbers for species " + speciesNode.name());
       }
     } else if (model == "density_temperature_polynomial") {
       volumeModel_ = cSSVOLUME_DENSITY_TPOLY;
-      int num = ctml::getFloatArray(*ss, TCoeff_, true, "toSI", "densityTemperaturePolynomial");
+      size_t num = ctml::getFloatArray(*ss, TCoeff_, true, "toSI", "densityTemperaturePolynomial");
       if (num != 4) {
 	throw CanteraError("PDSS_SSVol::constructPDSSXML",
 			   " Didn't get 4 density polynomial numbers for species " + speciesNode.name());
@@ -171,7 +167,7 @@ namespace Cantera {
    *            phase. If none is given, the first XML
    *            phase element will be used.
    */
-  void PDSS_SSVol::constructPDSSFile(VPStandardStateTP *tp, int spindex,
+  void PDSS_SSVol::constructPDSSFile(VPStandardStateTP *tp, size_t spindex,
 					std::string inputFile, std::string id) {
 
     if (inputFile.size() == 0) {

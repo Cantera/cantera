@@ -2,11 +2,6 @@
  *  @file newton_utils.cpp
  */
 
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
 #include "ct_defs.h"
 #include "Domain1D.h"
 
@@ -16,9 +11,9 @@ namespace Cantera {
 
     class Indx {
     public:
-        Indx(int nv, int np) : m_nv(nv), m_np(np) {}
-        int m_nv, m_np;
-        int operator()(int m, int j) { return j*m_nv + m; }
+        Indx(size_t nv, size_t np) : m_nv(nv), m_np(np) {}
+        size_t m_nv, m_np;
+        size_t operator()(size_t m, size_t j) { return j*m_nv + m; }
     };
 
         
@@ -31,11 +26,11 @@ namespace Cantera {
         Domain1D& r, int loglevel) {
 
         char buf[100];
-        int np = r.nPoints();
-        int nv = r.nComponents();
+        size_t np = r.nPoints();
+        size_t nv = r.nComponents();
         Indx index(nv, np);
         doublereal above, below, val, newval;
-        int m, j;
+        size_t m, j;
         doublereal fbound = 1.0;
         bool wroteTitle = false;
         for (m = 0; m < nv; m++) {
@@ -109,12 +104,10 @@ namespace Cantera {
     doublereal norm_square(const doublereal* x, 
         const doublereal* step, Domain1D& r) {
         doublereal f, ewt, esum, sum = 0.0;
-        int n, j;
+        size_t n, j;
         doublereal f2max = 0.0;
-        int nmax = 0;
-        int jmax = 0;
-        int nv = r.nComponents();
-        int np = r.nPoints();
+        size_t nv = r.nComponents();
+        size_t np = r.nPoints();
 
         for (n = 0; n < nv; n++) {
             esum = 0.0;
@@ -124,17 +117,10 @@ namespace Cantera {
                 f = step[nv*j + n]/ewt;
                 sum += f*f;
                 if (f*f > f2max) {
-                    jmax = j;
-                    nmax = n;
                     f2max = f*f;
                 }
             }
         }
-#undef DEBUG_NORM
-#ifdef DEBUG_NORM
-        cout << "max step in domain " << r.id() << ": " << f2max << endl << 
-            " for component " << r.componentName(nmax) << "  at point " << jmax << endl;
-#endif
         return sum;
     }
 }

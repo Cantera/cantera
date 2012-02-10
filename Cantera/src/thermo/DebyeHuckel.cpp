@@ -12,9 +12,6 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-/*
- * $Id$
- */
 //! Max function
 #ifndef MAX
 #define MAX(x,y)    (( (x) > (y) ) ? (x) : (y))
@@ -374,7 +371,7 @@ namespace Cantera {
     double *x = &m_tmpV[0];
     getMoleFractions(x);
     doublereal vtotal = 0.0;
-    for (int i = 0; i < m_kk; i++) {
+    for (size_t i = 0; i < m_kk; i++) {
       vtotal += vbar[i] * x[i];
     }
     doublereal dd = meanMolecularWeight() / vtotal;
@@ -486,7 +483,7 @@ namespace Cantera {
   void DebyeHuckel::getActivityConcentrations(doublereal* c) const {
     double c_solvent = standardConcentration();
     getActivities(c);
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       c[k] *= c_solvent;
     }
   }
@@ -508,7 +505,7 @@ namespace Cantera {
    * based on the molality of species proportional to the
    * molality of the species.
    */
-  doublereal DebyeHuckel::standardConcentration(int k) const {
+  doublereal DebyeHuckel::standardConcentration(size_t k) const {
     double mvSolvent = m_speciesSize[m_indexSolvent];
     return 1.0 / mvSolvent;
   }
@@ -517,7 +514,7 @@ namespace Cantera {
    * Returns the natural logarithm of the standard 
    * concentration of the kth species
    */
-  doublereal DebyeHuckel::logStandardConc(int k) const {
+  doublereal DebyeHuckel::logStandardConc(size_t k) const {
     double c_solvent = standardConcentration(k);
     return log(c_solvent);
   }
@@ -547,7 +544,7 @@ namespace Cantera {
   void DebyeHuckel::getUnitsStandardConc(double *uA, int k, int sizeUA) const {
     for (int i = 0; i < sizeUA; i++) {
       if (i == 0) uA[0] = 1.0;
-      if (i == 1) uA[1] = -nDim();
+      if (i == 1) uA[1] = -int(nDim());
       if (i == 2) uA[2] = 0.0;
       if (i == 3) uA[3] = 0.0;
       if (i == 4) uA[4] = 0.0;
@@ -570,7 +567,7 @@ namespace Cantera {
      *   This requires an update due to mole fractions
      */
     s_update_lnMolalityActCoeff();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       if (k != m_indexSolvent) {
 	ac[k] = m_molalities[k] * exp(m_lnActCoeffMolal[k]);
       }
@@ -597,7 +594,7 @@ namespace Cantera {
     A_Debye_TP(-1.0, -1.0);
     s_update_lnMolalityActCoeff();
     copy(m_lnActCoeffMolal.begin(), m_lnActCoeffMolal.end(), acMolality);
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       acMolality[k] = exp(acMolality[k]);
     }
   }
@@ -635,12 +632,9 @@ namespace Cantera {
      * This also updates the internal molality array.
      */
     s_update_lnMolalityActCoeff();
-    /*
-     *   
-     */
     doublereal RT = GasConstant * temperature();
     double xmolSolvent = moleFraction(m_indexSolvent);
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       if (m_indexSolvent != k) {
 	xx = MAX(m_molalities[k], xxSmall);
 	mu[k] += RT * (log(xx) + m_lnActCoeffMolal[k]);
@@ -674,7 +668,7 @@ namespace Cantera {
      */
     double T = temperature();
     double RT = GasConstant * T;
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       hbar[k] *= RT;
     }
     /*
@@ -691,7 +685,7 @@ namespace Cantera {
       s_update_lnMolalityActCoeff();
       s_update_dlnMolalityActCoeff_dT();
       double RTT = GasConstant * T * T;
-      for (int k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	hbar[k] -= RTT * m_dlnActCoeffMolaldT[k];
       }
     }
@@ -728,7 +722,6 @@ namespace Cantera {
    */
   void DebyeHuckel::
   getPartialMolarEntropies(doublereal* sbar) const {
-    int k;
     /*
      * Get the standard state entropies at the temperature
      * and pressure of the solution.
@@ -738,7 +731,7 @@ namespace Cantera {
      * Dimensionalize the entropies
      */
     doublereal R = GasConstant;
-    for (k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       sbar[k] *= R;
     }
     /*
@@ -751,7 +744,7 @@ namespace Cantera {
      * term out front of the log activity term
      */
     doublereal mm;
-    for (k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       if (k != m_indexSolvent) {
 	mm = fmaxx(SmallNumber, m_molalities[k]);
 	sbar[k] -= R * (log(mm) + m_lnActCoeffMolal[k]);
@@ -769,7 +762,7 @@ namespace Cantera {
     if (dAdT != 0.0) {
       s_update_dlnMolalityActCoeff_dT();
       double RT = R * temperature();
-      for (k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	sbar[k] -= RT * m_dlnActCoeffMolaldT[k];
       }
     }
@@ -803,7 +796,7 @@ namespace Cantera {
     s_update_dlnMolalityActCoeff_dP();  
     double T = temperature();
     double RT = GasConstant * T;
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       vbar[k] += RT * m_dlnActCoeffMolaldP[k];
     }
   }
@@ -824,7 +817,7 @@ namespace Cantera {
      */
     getCp_R(cpbar);
 	
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       cpbar[k] *= GasConstant;
     }
 	
@@ -845,7 +838,7 @@ namespace Cantera {
       double T = temperature();
       double RT = GasConstant * T;
       double RTT = RT * T;
-      for (int k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	cpbar[k] -= (2.0 * RT * m_dlnActCoeffMolaldT[k] +
 		     RTT * m_d2lnActCoeffMolaldT2[k]);
       }
@@ -1092,7 +1085,6 @@ namespace Cantera {
    */
   void DebyeHuckel::
   initThermoXML(XML_Node& phaseNode, std::string id) {
-    int k;
     std::string stemp;
     /*
      * Find the Thermo XML node 
@@ -1149,14 +1141,14 @@ namespace Cantera {
       }
       solventName = nameSolventa[0];
     }
-    for (k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       std::string sname = speciesName(k);
       if (solventName == sname) {
 	m_indexSolvent = k;
 	break;
       }
     }
-    if (m_indexSolvent == -1) {
+    if (m_indexSolvent == npos) {
       cout << "DebyeHuckel::initThermoXML: Solvent Name not found" 
 	   << endl;
       throw CanteraError("DebyeHuckel::initThermoXML",
@@ -1217,7 +1209,7 @@ namespace Cantera {
 		     &phaseNode.root());
     const vector<string>&sss = speciesNames();
 
-    for (k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       XML_Node* s =  speciesDB->findByAttr("name", sss[k]);
       if (!s) {
 	throw CanteraError("DebyeHuckel::initThermoXML",
@@ -1354,7 +1346,7 @@ namespace Cantera {
 	/*
 	 * Set B_dot parameters for charged species
 	 */
-	for (int k = 0; k < m_kk; k++) {
+	for (size_t k = 0; k < m_kk; k++) {
 	  double z_k = charge(k);
 	  if (fabs (z_k) > 0.0001) {
 	    m_B_Dot[k] = bdot_common;
@@ -1400,7 +1392,7 @@ namespace Cantera {
 	if (irNode.hasAttrib("default")) {
 	  std::string ads = irNode.attrib("default");
 	  double ad = fpValue(ads);
-	  for (int k = 0; k < m_kk; k++) {
+	  for (size_t k = 0; k < m_kk; k++) {
 	    m_Aionic[k] = ad * Afactor;
 	  }
 	}
@@ -1434,15 +1426,9 @@ namespace Cantera {
 	   */
 	  map<std::string,std::string>::const_iterator _b = m.begin();
 	  for (; _b != m.end(); ++_b) {
-	    int kk = speciesIndex(_b->first);
-	    if (kk < 0) {
-	      //throw CanteraError(
-	      //   "DebyeHuckel::initThermoXML error",
-	      //   "no species match was found"
-	      //   );
-	    } else {
-	      m_Aionic[kk] = fpValue(_b->second) * Afactor;
-	    }
+	    size_t kk = speciesIndex(_b->first);
+	    m_Aionic[kk] = fpValue(_b->second) * Afactor;
+
 	  }
 	}
       }
@@ -1472,7 +1458,7 @@ namespace Cantera {
        * regular charge.
        */
       m_speciesCharge_Stoich.resize(m_kk, 0.0);
-      for (k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	m_speciesCharge_Stoich[k] = m_speciesCharge[k];
       }
       /*
@@ -1482,11 +1468,11 @@ namespace Cantera {
        */
       std::vector<const XML_Node *> xspecies= speciesData(); 
       std::string kname, jname;
-      int jj = xspecies.size();
-      for (k = 0; k < m_kk; k++) {
-	int jmap = -1;
+      size_t jj = xspecies.size();
+      for (size_t k = 0; k < m_kk; k++) {
+	size_t jmap = -1;
 	kname = speciesName(k);
-	for (int j = 0; j < jj; j++) {
+	for (size_t j = 0; j < jj; j++) {
 	  const XML_Node& sp = *xspecies[j];
 	  jname = sp["name"];
 	  if (jname == kname) {
@@ -1494,7 +1480,7 @@ namespace Cantera {
 	    break;
 	  }
 	}
-	if (jmap > -1) {
+	if (jmap != npos) {
 	  const XML_Node& sp = *xspecies[jmap];
 	  if (sp.hasChild("stoichIsMods")) {
 	    double val = getFloat(sp, "stoichIsMods");
@@ -1514,16 +1500,9 @@ namespace Cantera {
 	  getMap(sIsNode, msIs);
 	  map<std::string,std::string>::const_iterator _b = msIs.begin();
 	  for (; _b != msIs.end(); ++_b) {
-	    int kk = speciesIndex(_b->first);
-	    if (kk < 0) {
-	      //throw CanteraError(
-	      //   "DebyeHuckel::initThermoXML error",
-	      //   "no species match was found"
-	      //   );
-	    } else {
-	      double val = fpValue(_b->second);
-	      m_speciesCharge_Stoich[kk] = val;
-	    }
+	    size_t kk = speciesIndex(_b->first);
+	    double val = fpValue(_b->second);
+	    m_speciesCharge_Stoich[kk] = val;
 	  }
 	}
       }
@@ -1536,7 +1515,7 @@ namespace Cantera {
      *   First fill in default values. Everthing is either
      *   a charge species, a nonpolar neutral, or the solvent.
      */
-    for (k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       if (fabs(m_speciesCharge[k]) > 0.0001) {
 	m_electrolyteSpeciesType[k] = cEST_chargedSpecies;
 	if (fabs(m_speciesCharge_Stoich[k] - m_speciesCharge[k])
@@ -1558,7 +1537,7 @@ namespace Cantera {
     std::vector<const XML_Node *> xspecies= speciesData(); 
     const XML_Node *spPtr = 0;
     std::string kname;
-    for (k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       kname = speciesName(k);
       spPtr = xspecies[k];
       if (!spPtr) {
@@ -1581,14 +1560,11 @@ namespace Cantera {
 	getMap(ESTNode, msEST);
 	map<std::string,std::string>::const_iterator _b = msEST.begin();
 	for (; _b != msEST.end(); ++_b) {
-	  int kk = speciesIndex(_b->first);
-	  if (kk < 0) {
-	  } else {
-	    std::string est = _b->second;
-	    if ((m_electrolyteSpeciesType[kk] = interp_est(est))  == -1) {
-	      throw CanteraError("DebyeHuckel:initThermoXML",
-				 "Bad electrolyte type: " + est);
-	    }
+	  size_t kk = speciesIndex(_b->first);
+	  std::string est = _b->second;
+	  if ((m_electrolyteSpeciesType[kk] = interp_est(est))  == -1) {
+	    throw CanteraError("DebyeHuckel:initThermoXML",
+			       "Bad electrolyte type: " + est);
 	  }
 	}
       }
@@ -1824,22 +1800,21 @@ namespace Cantera {
      * Obtain the limits of the temperature from the species
      * thermo handler's limits.
      */
-    int leng = m_kk;
     m_electrolyteSpeciesType.resize(m_kk, cEST_polarNeutral);
-    m_speciesSize.resize(leng);
-    m_Aionic.resize(leng, 0.0);
-    m_lnActCoeffMolal.resize(leng, 0.0);
-    m_dlnActCoeffMolaldT.resize(leng, 0.0);
-    m_d2lnActCoeffMolaldT2.resize(leng, 0.0);
-    m_dlnActCoeffMolaldP.resize(leng, 0.0);
-    m_B_Dot.resize(leng, 0.0);
-    m_expg0_RT.resize(leng, 0.0);
-    m_pe.resize(leng, 0.0);
-    m_pp.resize(leng, 0.0);
-    m_tmpV.resize(leng, 0.0);
+    m_speciesSize.resize(m_kk);
+    m_Aionic.resize(m_kk, 0.0);
+    m_lnActCoeffMolal.resize(m_kk, 0.0);
+    m_dlnActCoeffMolaldT.resize(m_kk, 0.0);
+    m_d2lnActCoeffMolaldT2.resize(m_kk, 0.0);
+    m_dlnActCoeffMolaldP.resize(m_kk, 0.0);
+    m_B_Dot.resize(m_kk, 0.0);
+    m_expg0_RT.resize(m_kk, 0.0);
+    m_pe.resize(m_kk, 0.0);
+    m_pp.resize(m_kk, 0.0);
+    m_tmpV.resize(m_kk, 0.0);
     if (m_formDH == DHFORM_BETAIJ ||
 	m_formDH == DHFORM_PITZER_BETAIJ) {
-      m_Beta_ij.resize(leng, leng, 0.0);
+      m_Beta_ij.resize(m_kk, m_kk, 0.0);
     }
   }
 
@@ -1903,7 +1878,7 @@ namespace Cantera {
     calcMolalities();
     double oc = _osmoticCoeffHelgesonFixedForm();
     double sum = 0.0;
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       if (k != m_indexSolvent) {
 	sum += MAX(m_molalities[k], 0.0);
       }
@@ -1942,7 +1917,7 @@ namespace Cantera {
      * are ignorred in calculating the ionic strength. 
      */
     m_IionicMolality = 0.0;
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       z_k = m_speciesCharge[k];
       m_IionicMolality += m_molalities[k] * z_k * z_k;
     }
@@ -1956,7 +1931,7 @@ namespace Cantera {
      * Calculate the stoichiometric ionic charge
      */
     m_IionicMolalityStoich = 0.0;
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       z_k = m_speciesCharge[k];
       zs_k1 =  m_speciesCharge_Stoich[k];
       if (z_k == zs_k1) {
@@ -2002,7 +1977,7 @@ namespace Cantera {
     double y, yp1, sigma;
     switch (m_formDH) {
     case DHFORM_DILUTE_LIMIT:
-      for (int k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	z_k = m_speciesCharge[k];
 	m_lnActCoeffMolal[k] = - z_k * z_k * numTmp;
       }
@@ -2014,7 +1989,7 @@ namespace Cantera {
 
     case DHFORM_BDOT_AK:
       ac_nonPolar = _nonpolarActCoeff(m_IionicMolality);
-      for (int k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	est = m_electrolyteSpeciesType[k];
 	if (est == cEST_nonpolarNeutral) {
 	  m_lnActCoeffMolal[k] = log(ac_nonPolar);
@@ -2031,7 +2006,7 @@ namespace Cantera {
 	* sqrt(m_IionicMolality);
       tmp = 0.0;
       if (denomTmp > 0.0) {
-	for (int k = 0; k < m_kk; k++) {
+	for (size_t k = 0; k < m_kk; k++) {
 	  if (k != m_indexSolvent || m_Aionic[k] != 0.0) {
 	    y = denomTmp * m_Aionic[k];
 	    yp1 = y + 1.0;
@@ -2043,7 +2018,7 @@ namespace Cantera {
       }
       lnActivitySolvent += coeff * tmp;
       tmp = 0.0;
-      for (int k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	z_k = m_speciesCharge[k];
 	if ((k != m_indexSolvent) && (z_k != 0.0)) {
 	  tmp +=  m_B_Dot[k] * m_molalities[k];
@@ -2063,7 +2038,7 @@ namespace Cantera {
 
     case DHFORM_BDOT_ACOMMON:
       denomTmp *= m_Aionic[0];
-      for (int k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	z_k = m_speciesCharge[k];
 	m_lnActCoeffMolal[k] = 
 	  - z_k * z_k * numTmp / (1.0 + denomTmp)
@@ -2081,7 +2056,7 @@ namespace Cantera {
 	2.0 /3.0 * m_A_Debye * m_Mnaught * 
 	m_IionicMolality * sqrt(m_IionicMolality) * sigma;
       tmp = 0.0;
-      for (int k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	z_k = m_speciesCharge[k];
 	if ((k != m_indexSolvent) && (z_k != 0.0)) {
 	  tmp +=  m_B_Dot[k] * m_molalities[k];
@@ -2098,12 +2073,12 @@ namespace Cantera {
       lnActivitySolvent =  
 	(xmolSolvent - 1.0)/xmolSolvent;
 	 
-      for (int k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	if (k != m_indexSolvent) {
 	  z_k = m_speciesCharge[k];
 	  m_lnActCoeffMolal[k] = 
 	    - z_k * z_k * numTmp / (1.0 + denomTmp);
-	  for (int j = 0; j < m_kk; j++) {
+	  for (size_t j = 0; j < m_kk; j++) {
 	    double beta =   m_Beta_ij.value(k, j);
 #ifdef DEBUG_HKM_NOT
 	    if (beta != 0.0) {
@@ -2127,8 +2102,8 @@ namespace Cantera {
 	2.0 /3.0 * m_A_Debye * m_Mnaught * 
 	m_IionicMolality * sqrt(m_IionicMolality) * sigma;
       tmp = 0.0;
-      for (int k = 0; k < m_kk; k++) {
-	for (int j = 0; j < m_kk; j++) {
+      for (size_t k = 0; k < m_kk; k++) {
+	for (size_t j = 0; j < m_kk; j++) {
 	  tmp +=
 	    m_Beta_ij.value(k, j) * m_molalities[k] * m_molalities[j];
 	}
@@ -2141,7 +2116,7 @@ namespace Cantera {
       denomTmp *= m_Aionic[0];
       numTmp = m_A_Debye * sqrt(m_IionicMolality);
       tmpLn = log(1.0 + denomTmp);
-      for (int k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	if (k != m_indexSolvent) {
 	  z_k = m_speciesCharge[k];
 	  m_lnActCoeffMolal[k] = 
@@ -2149,7 +2124,7 @@ namespace Cantera {
 	  m_lnActCoeffMolal[k] +=
 	    - 2.0 * z_k * z_k * m_A_Debye * tmpLn / 
 	    (3.0 * m_B_Debye * m_Aionic[0]);
-	  for (int j = 0; j < m_kk; j++) {
+	  for (size_t j = 0; j < m_kk; j++) {
 	    m_lnActCoeffMolal[k] += 2.0 * m_molalities[j] * 
 	      m_Beta_ij.value(k, j);
 	  }
@@ -2161,8 +2136,8 @@ namespace Cantera {
 	2.0 /3.0 * m_A_Debye * m_Mnaught * 
 	m_IionicMolality * sqrt(m_IionicMolality) * sigma;
       tmp = 0.0;
-      for (int k = 0; k < m_kk; k++) {
-	for (int j = 0; j < m_kk; j++) {
+      for (size_t k = 0; k < m_kk; k++) {
+	for (size_t j = 0; j < m_kk; j++) {
 	  tmp +=
 	    m_Beta_ij.value(k, j) * m_molalities[k] * m_molalities[j];
 	}
@@ -2199,11 +2174,10 @@ namespace Cantera {
    */
   void DebyeHuckel::s_update_dlnMolalityActCoeff_dT() const {
     double z_k, coeff, tmp, y, yp1, sigma, tmpLn;
-    int k;
     // First we store dAdT explicitly here
     double dAdT =  dA_DebyedT_TP();
     if (dAdT == 0.0) {
-      for (k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	m_dlnActCoeffMolaldT[k] = 0.0;
       }
       return;
@@ -2223,7 +2197,7 @@ namespace Cantera {
 
     switch (m_formDH) {
     case DHFORM_DILUTE_LIMIT:
-      for (int k = 1; k < m_kk; k++) {
+      for (size_t k = 1; k < m_kk; k++) {
 	m_dlnActCoeffMolaldT[k] = 
 	  m_lnActCoeffMolal[k] * dAdT / m_A_Debye;
       }
@@ -2233,7 +2207,7 @@ namespace Cantera {
       break;
 
     case DHFORM_BDOT_AK:
-      for (int k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	z_k = m_speciesCharge[k];
 	m_dlnActCoeffMolaldT[k] =
 	  - z_k * z_k * numdAdTTmp / (1.0 + denomTmp * m_Aionic[k]);
@@ -2244,7 +2218,7 @@ namespace Cantera {
       coeff = 2.0 / 3.0 * dAdT * m_Mnaught * sqrtI;
       tmp = 0.0;
       if (denomTmp > 0.0) {
-	for (int k = 0; k < m_kk; k++) {
+	for (size_t k = 0; k < m_kk; k++) {
 	  y = denomTmp * m_Aionic[k];
 	  yp1 = y + 1.0;
 	  sigma = 3.0 / (y * y * y) * (yp1 - 1.0/yp1 - 2.0*log(yp1)); 
@@ -2257,7 +2231,7 @@ namespace Cantera {
 
     case DHFORM_BDOT_ACOMMON:
       denomTmp *= m_Aionic[0];
-      for (int k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	z_k = m_speciesCharge[k];
 	m_dlnActCoeffMolaldT[k] = 
 	  - z_k * z_k * numdAdTTmp / (1.0 + denomTmp);
@@ -2276,7 +2250,7 @@ namespace Cantera {
 
     case DHFORM_BETAIJ:
       denomTmp *= m_Aionic[0];
-      for (int k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	if (k != m_indexSolvent) {
 	  z_k = m_speciesCharge[k];
 	  m_dlnActCoeffMolaldT[k] = 
@@ -2298,7 +2272,7 @@ namespace Cantera {
     case DHFORM_PITZER_BETAIJ:
       denomTmp *= m_Aionic[0];
       tmpLn = log(1.0 + denomTmp);
-      for (int k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	if (k != m_indexSolvent) {
 	  z_k = m_speciesCharge[k];
 	  m_dlnActCoeffMolaldT[k] = 
@@ -2339,11 +2313,10 @@ namespace Cantera {
    */
   void DebyeHuckel::s_update_d2lnMolalityActCoeff_dT2() const {
     double z_k, coeff, tmp, y, yp1, sigma, tmpLn;
-    int k;
     double dAdT =  dA_DebyedT_TP();
     double d2AdT2 = d2A_DebyedT2_TP();
     if (d2AdT2 == 0.0 && dAdT == 0.0) {
-      for (k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	m_d2lnActCoeffMolaldT2[k] = 0.0;
       }
       return;
@@ -2363,14 +2336,14 @@ namespace Cantera {
 
     switch (m_formDH) {
     case DHFORM_DILUTE_LIMIT:
-      for (int k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	m_d2lnActCoeffMolaldT2[k] =
 	  m_lnActCoeffMolal[k] * d2AdT2 / m_A_Debye;
       }
       break;
 
     case DHFORM_BDOT_AK:
-      for (int k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	z_k = m_speciesCharge[k];
 	m_d2lnActCoeffMolaldT2[k] =
 	  - z_k * z_k * numd2AdT2Tmp / (1.0 + denomTmp * m_Aionic[k]);
@@ -2381,7 +2354,7 @@ namespace Cantera {
       coeff = 2.0 / 3.0 * d2AdT2 * m_Mnaught * sqrtI;
       tmp = 0.0;
       if (denomTmp > 0.0) {
-	for (int k = 0; k < m_kk; k++) {
+	for (size_t k = 0; k < m_kk; k++) {
 	  y = denomTmp * m_Aionic[k];
 	  yp1 = y + 1.0;
 	  sigma = 3.0 / (y * y * y) * (yp1 - 1.0/yp1 - 2.0*log(yp1)); 
@@ -2394,7 +2367,7 @@ namespace Cantera {
 
     case DHFORM_BDOT_ACOMMON:
       denomTmp *= m_Aionic[0];
-      for (int k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	z_k = m_speciesCharge[k];
 	m_d2lnActCoeffMolaldT2[k] = 
 	  - z_k * z_k * numd2AdT2Tmp / (1.0 + denomTmp);
@@ -2413,7 +2386,7 @@ namespace Cantera {
 
     case DHFORM_BETAIJ:
       denomTmp *= m_Aionic[0];
-      for (int k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	if (k != m_indexSolvent) {
 	  z_k = m_speciesCharge[k];
 	  m_d2lnActCoeffMolaldT2[k] = 
@@ -2435,7 +2408,7 @@ namespace Cantera {
     case DHFORM_PITZER_BETAIJ:
       denomTmp *= m_Aionic[0];
       tmpLn = log(1.0 + denomTmp);
-      for (int k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	if (k != m_indexSolvent) {
 	  z_k = m_speciesCharge[k];
 	  m_d2lnActCoeffMolaldT2[k] = 
@@ -2474,10 +2447,10 @@ namespace Cantera {
    */
   void DebyeHuckel::s_update_dlnMolalityActCoeff_dP() const {
     double z_k, coeff, tmp, y, yp1, sigma, tmpLn;
-    int k, est;
+    int est;
     double dAdP =  dA_DebyedP_TP();
     if (dAdP == 0.0) {
-      for (k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	m_dlnActCoeffMolaldP[k] = 0.0;
       }
       return;
@@ -2496,14 +2469,14 @@ namespace Cantera {
 
     switch (m_formDH) {
     case DHFORM_DILUTE_LIMIT:
-      for (int k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	m_dlnActCoeffMolaldP[k] = 
 	  m_lnActCoeffMolal[k] * dAdP / m_A_Debye;
       }
       break;
 
     case DHFORM_BDOT_AK:
-      for (int k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	est = m_electrolyteSpeciesType[k];
 	if (est == cEST_nonpolarNeutral) {
 	  m_lnActCoeffMolal[k] = 0.0;
@@ -2519,7 +2492,7 @@ namespace Cantera {
       coeff = 2.0 / 3.0 * dAdP * m_Mnaught * sqrtI;
       tmp = 0.0;
       if (denomTmp > 0.0) {
-	for (int k = 0; k < m_kk; k++) {
+	for (size_t k = 0; k < m_kk; k++) {
 	  y = denomTmp * m_Aionic[k];
 	  yp1 = y + 1.0;
 	  sigma = 3.0 / (y * y * y) * (yp1 - 1.0/yp1 - 2.0*log(yp1)); 
@@ -2532,7 +2505,7 @@ namespace Cantera {
 
     case DHFORM_BDOT_ACOMMON:
       denomTmp *= m_Aionic[0];
-      for (int k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	z_k = m_speciesCharge[k];
 	m_dlnActCoeffMolaldP[k] = 
 	  - z_k * z_k * numdAdPTmp / (1.0 + denomTmp);
@@ -2551,7 +2524,7 @@ namespace Cantera {
 
     case DHFORM_BETAIJ:
       denomTmp *= m_Aionic[0];
-      for (int k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	if (k != m_indexSolvent) {
 	  z_k = m_speciesCharge[k];
 	  m_dlnActCoeffMolaldP[k] = 
@@ -2573,7 +2546,7 @@ namespace Cantera {
     case DHFORM_PITZER_BETAIJ:
       denomTmp *= m_Aionic[0];
       tmpLn = log(1.0 + denomTmp);
-      for (int k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	if (k != m_indexSolvent) {
 	  z_k = m_speciesCharge[k];
 	  m_dlnActCoeffMolaldP[k] = 

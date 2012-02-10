@@ -5,7 +5,6 @@
 #include <string>
 #include "cantera/kernel/logger.h"
 
-
 static std::string ss = "print \"\"\" ";
 
 namespace Cantera {

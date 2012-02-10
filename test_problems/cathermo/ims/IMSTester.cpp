@@ -1,7 +1,5 @@
 /**
  *  @file IMSTester.cpp
- *
- *  $Id$
  */
 /*
  * Copywrite 2005 Sandia Corporation. Under the terms of Contract
@@ -15,9 +13,6 @@
 //  Read a mechanism and a thermodynamics file for the 
 //  class IdealMolalSoln in order to test that it's
 //  working correctly
-//
-
-
 
 #include <iostream>
 #include <string>
@@ -51,6 +46,9 @@ static void printUsage()
 using namespace Cantera;
 
 int main(int argc, char** argv) {
+#ifdef _MSC_VER
+    _set_output_format(_TWO_DIGIT_EXPONENT);
+#endif
   string infile;  
   // look for command-line options
   if (argc > 1) {

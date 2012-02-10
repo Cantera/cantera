@@ -1,19 +1,14 @@
 /**
  * @file ctmultiphase.cpp
  */
-/*
- *      $Id$
- */
-
-
 #define CANTERA_USE_INTERNAL
 #include "ctmultiphase.h"
 
 // Cantera includes
-#include "equil.h"
-#include "MultiPhase.h"
-#include "MultiPhaseEquil.h"
-#include "vcs_MultiPhaseEquil.h"
+#include "kernel/equil.h"
+#include "kernel/MultiPhase.h"
+#include "kernel/MultiPhaseEquil.h"
+#include "kernel/vcs_MultiPhaseEquil.h"
 
 #include "Cabinet.h"
 #include "Storage.h"
@@ -33,11 +28,11 @@ inline ThermoPhase* _th(int n) {
     return Storage::__storage->__thtable[n];
 }
 
-static bool checkSpecies(int i, int k) {
+static bool checkSpecies(int i, size_t k) {
     try {
-        if (k < 0 || k >= _mix(i)->nSpecies()) 
+        if (k >= _mix(i)->nSpecies())
             throw CanteraError("checkSpecies",
-                "illegal species index ("+int2str(k)+") ");
+                "illegal species index ("+int2str(int(k))+") ");
         return true;
     }
     catch (CanteraError) {
@@ -45,11 +40,11 @@ static bool checkSpecies(int i, int k) {
     }
 }
 
-static bool checkElement(int i, int m) {
+static bool checkElement(int i, size_t m) {
     try {
-        if (m < 0 || m >= _mix(i)->nElements()) 
+        if (m >= _mix(i)->nElements())
             throw CanteraError("checkElement",
-                "illegal element index ("+int2str(m)+") ");
+                "illegal element index ("+int2str(int(m))+") ");
         return true;
     }
     catch (CanteraError) {
@@ -103,19 +98,19 @@ extern "C" {
         return 0;
     }
 
-    int DLL_EXPORT mix_nElements(int i) {
+    size_t DLL_EXPORT mix_nElements(int i) {
         return _mix(i)->nElements();
      }
 
-    int DLL_EXPORT mix_elementIndex(int i, char* name) {
+    size_t DLL_EXPORT mix_elementIndex(int i, char* name) {
         return _mix(i)->elementIndex(string(name));
     }
 
-    int DLL_EXPORT mix_nSpecies(int i) {
+    size_t DLL_EXPORT mix_nSpecies(int i) {
         return _mix(i)->nSpecies();
     }
 
-    int DLL_EXPORT mix_speciesIndex(int i, int k, int p) {
+    size_t DLL_EXPORT mix_speciesIndex(int i, int k, int p) {
         return _mix(i)->speciesIndex(k, p);
     }
 
@@ -127,7 +122,7 @@ extern "C" {
             return DERR;
     }
 
-    double DLL_EXPORT mix_nPhases(int i) {
+    size_t DLL_EXPORT mix_nPhases(int i) {
         return _mix(i)->nPhases();
     }
 
@@ -143,7 +138,7 @@ extern "C" {
         return 0;
     }
 
-    int DLL_EXPORT mix_setMoles(int i, int nlen, double* n) {
+    int DLL_EXPORT mix_setMoles(int i, size_t nlen, double* n) {
         try {
             if (nlen < _mix(i)->nSpecies()) 
                 throw CanteraError("setMoles","array size too small.");
@@ -246,7 +241,7 @@ extern "C" {
     }
   }
 
-    int DLL_EXPORT mix_getChemPotentials(int i, int lenmu, double* mu) {
+    int DLL_EXPORT mix_getChemPotentials(int i, size_t lenmu, double* mu) {
         try {
             if (lenmu < _mix(i)->nSpecies()) 
                 throw CanteraError("getChemPotentials","array too small");
@@ -259,7 +254,7 @@ extern "C" {
     }
 
     int DLL_EXPORT mix_getValidChemPotentials(int i, double bad_mu, 
-        int standard, int lenmu, double* mu) {
+        int standard, size_t lenmu, double* mu) {
         bool st = (standard == 1);
         try {
             if (lenmu < _mix(i)->nSpecies()) 
@@ -293,7 +288,7 @@ extern "C" {
         return _mix(i)->volume();
     }
 
-    int DLL_EXPORT mix_speciesPhaseIndex(int i, int k) {
+    size_t DLL_EXPORT mix_speciesPhaseIndex(int i, int k) {
         return _mix(i)->speciesPhaseIndex(k);
     }
 

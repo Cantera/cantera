@@ -8,52 +8,33 @@
 #ifndef CKR_UTILS_H
 #define CKR_UTILS_H
 
-#ifdef WIN32
-#pragma warning(disable:4786)
-#endif
-
 #include <math.h>
 #include <string>
 #include <map>
 #include <vector>
 
-
-#ifdef WIN32
-#define TYPENAME_KEYWORD
-#else
-#define TYPENAME_KEYWORD typename
-#endif
-
-
 namespace ckr {
 
 /** 
- *
  *  Fill vector 'keys' with the keys of map 'mp'
- *
  */
-
 template<class K, class V>
 void getMapKeys(const std::map<K,V>& mp, std::vector<K>& keys) {
     keys.clear();
-    TYPENAME_KEYWORD std::map<K,V>::const_iterator i = mp.begin();
+    typename std::map<K,V>::const_iterator i = mp.begin();
     for (; i != mp.end(); ++i) keys.push_back(i->first);
 }
 
 
 /**
- *
  *  Fill vector 'values' with the values of map 'mp'
- *
  */
-
 template<class K, class V>
 void getMapValues(const std::map<K,V>& mp, std::vector<V>& values) {
     values.clear();
-    TYPENAME_KEYWORD std::map<K,V>::const_iterator i = mp.begin();
+    typename std::map<K,V>::const_iterator i = mp.begin();
     for (; i != mp.end(); ++i) values.push_back(i->second);
 }
-
 
 
 /**
@@ -121,7 +102,7 @@ inline bool valid(L& list) {
 /// Remove all white space from string s.
 void removeWhiteSpace(std::string& s);
 
-void getTokens(std::string& begin, 
+void getTokens(std::string& begin,
     int n, std::vector<std::string>& toks, char delim=' ');
 
 
@@ -133,15 +114,13 @@ void getTokens(std::string& begin,
  *  in string s2 matches any character at that position.
  *
  *  Example: if s1 = "elements", then match(s1, "ELEM") would return true.
- * 
  */
-
 bool match(const std::string& s1, const std::string& s2);
 
 /**  
  * Check whether string 'word' begins with a Chemkin keyword.
  */
-inline bool isKeyword(std::string word) 
+inline bool isKeyword(std::string word)
 {
     return (match(word, "ELEM") ||
 	    match(word, "SPEC") ||

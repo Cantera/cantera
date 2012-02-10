@@ -57,12 +57,13 @@ py_surf_getcoverages(PyObject *self, PyObject *args)
     PyArrayObject* cov;
     if (!PyArg_ParseTuple(args, "i:surf_getcoverages", &n)) 
         return NULL;
-    int nsp = th_nSpecies(n);
+    size_t nsp = th_nSpecies(n);
 #ifdef HAS_NUMPY
     npy_intp nnsp = nsp;
     cov = (PyArrayObject*)PyArray_SimpleNew(1, &nnsp, PyArray_DOUBLE);
 #else
-    cov = (PyArrayObject*)PyArray_FromDims(1, &nsp, PyArray_DOUBLE);
+    int nnsp = int(nsp);
+    cov = (PyArrayObject*)PyArray_FromDims(1, &nnsp, PyArray_DOUBLE);
 #endif
     double* x = (double*)((PyArrayObject*)cov)->data;
     int iok = surf_getcoverages(n, x);
@@ -77,12 +78,13 @@ py_surf_getconcentrations(PyObject *self, PyObject *args)
     PyArrayObject* c;
     if (!PyArg_ParseTuple(args, "i:surf_getconcentrations", &n)) 
         return NULL;
-    int nsp = th_nSpecies(n);
+    size_t nsp = th_nSpecies(n);
 #ifdef HAS_NUMPY
     npy_intp nnsp = nsp;
     c = (PyArrayObject*)PyArray_SimpleNew(1, &nnsp, PyArray_DOUBLE);
 #else
-    c = (PyArrayObject*)PyArray_FromDims(1, &nsp, PyArray_DOUBLE);
+    int nnsp = int(nsp);
+    c = (PyArrayObject*)PyArray_FromDims(1, &nnsp, PyArray_DOUBLE);
 #endif
     double* x = (double*)((PyArrayObject*)c)->data;
     int iok = surf_getconcentrations(n, x);

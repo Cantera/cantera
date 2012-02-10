@@ -1,10 +1,6 @@
 #include "time.h"
 
-#ifdef WIN32
-#pragma warning(disable:4244)
-#endif
-
-#ifdef MSDOS
+#if defined(MSDOS) || defined (__MINGW32__)
 #undef USE_CLOCK
 #define USE_CLOCK
 #endif
@@ -47,7 +43,8 @@ etime_(float *tarray)
 #endif
 	double t = clock();
 	tarray[1] = 0;
-	return tarray[0] = t / CLOCKS_PER_SECOND;
+	tarray[0] = (float) (t / CLOCKS_PER_SECOND);
+	return tarray[0];
 #else
 	struct tms t;
 

@@ -4,14 +4,7 @@
  * ThermoPhase class.
  */
 
-/*  
- *  $Date$
- *  $Revision$
- *
- *  Copyright 2001 California Institute of Technology
- *
- */
-
+//  Copyright 2001 California Institute of Technology
 
 #ifndef CT_STOICHSUBSTANCE_H
 #define CT_STOICHSUBSTANCE_H
@@ -183,13 +176,13 @@ namespace Cantera {
      * by which the generalized concentration is normalized to produce 
      * the activity. 
      */ 
-    virtual doublereal standardConcentration(int k=0) const;
+    virtual doublereal standardConcentration(size_t k=0) const;
 
     /**
      * Returns the natural logarithm of the standard 
      * concentration of the kth species
      */
-    virtual doublereal logStandardConc(int k=0) const;
+    virtual doublereal logStandardConc(size_t k=0) const;
 
     /**
      * Get the array of chemical potentials at unit activity 
@@ -393,7 +386,7 @@ namespace Cantera {
 
   protected:
 
-    int m_kk;
+    size_t m_kk;
     doublereal m_tmin;
     doublereal m_tmax;
     doublereal m_press;

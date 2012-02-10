@@ -3,23 +3,12 @@
  *    Headers for the MixTransport object, which models transport properties
  *    in ideal gas solutions using a mixture averaged approximation
  *    (see \ref tranprops and \link Cantera::MixTransport MixTransport \endlink) .
- *
  */
-/* $Author$
- * $Revision$
- * $Date$
- */
-// Copyright 2001  California Institute of Technology
 
+// Copyright 2001  California Institute of Technology
 
 #ifndef CT_MIXTRAN_H
 #define CT_MIXTRAN_H
-
-// turn off warnings under Windows
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
 
 // STL includes
 #include <vector>
@@ -197,7 +186,7 @@ namespace Cantera {
      * @param ld   offset of rows in the storage
      * @param d    output vector of diffusion coefficients
      */
-    virtual void getBinaryDiffCoeffs(const int ld, doublereal* const d);
+    virtual void getBinaryDiffCoeffs(const size_t ld, doublereal* const d);
     
     //! Returns the Mixture-averaged diffusion coefficients [m^2/s]. 
     /*!
@@ -277,7 +266,7 @@ namespace Cantera {
      *                    Flat vector with the m_nsp in the inner loop.
      *                       length = ldx * ndim
      */
-    virtual void getSpeciesFluxes(int ndim,  const doublereal* grad_T,
+    virtual void getSpeciesFluxes(size_t ndim,  const doublereal* grad_T,
 				  int ldx, const doublereal* grad_X, 
 				  int ldf, doublereal* fluxes);
 
@@ -354,7 +343,7 @@ namespace Cantera {
   private:
 
     //! Number of species in the phase
-    int m_nsp;
+    size_t m_nsp;
 
     //! Minimum value of the temperature that this transport parameterization is valid
     doublereal m_tmin;

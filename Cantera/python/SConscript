@@ -1,0 +1,77 @@
+from buildutils import *
+import distutils.sysconfig
+
+Import('env', 'buildTargets', 'installTargets')
+
+localenv = env.Clone()
+
+gcv = distutils.sysconfig.get_config_var
+
+localenv.Append(CPPPATH=[gcv('INCLUDEPY'), env['python_array_include']],
+                SHLINKFLAGS=gcv('LDFLAGS'),
+                CPPFLAGS=((gcv('BASECFLAGS') or '').split() +
+                          (gcv('OPT') or '').split()))
+
+if localenv['OS'] == 'Windows':
+    localenv.Append(LIBPATH=pjoin(gcv('prefix'), 'libs'))
+
+for var in ('VS80COMNTOOLS', 'VS90COMNTOOLS', 'VS100COMNTOOLS'):
+    if var in os.environ:
+        localenv['ENV'][var] = os.environ[var]
+
+make_setup = localenv.SubstFile('setup.py', 'setup.py.in')
+
+if localenv['python_package'] == 'full':
+    libs = ['clib']
+    if localenv['OS'] != 'Windows':
+        libs.extend(env['cantera_libs'])
+
+    pymodule = localenv.SharedLibrary('Cantera/_cantera', ['src/pycantera.cpp'],
+                                      LIBS=libs,
+                                      SHLIBPREFIX='',
+                                      SHLIBSUFFIX=gcv('SO'))
+    buildTargets.extend(pymodule)
+    localenv.Depends(pymodule, make_setup)
+    if localenv['OS'] == 'Windows':
+        for file in localenv['clib_shared']:
+            dest = pjoin('Cantera', 'python', 'Cantera', file.name)
+            localenv.AddPreAction(pymodule,Copy(dest, file))
+
+elif localenv['python_package'] == 'minimal':
+    pymodule = make_setup
+
+moddir = pjoin('Cantera', 'python')
+localenv.AddPostAction(make_setup,
+                       'cd %s && $python_cmd setup.py build' % moddir)
+
+# Install the Python module
+if localenv['python_prefix']:
+    # A specific location for the Cantera python module has been specified
+    extra = '--prefix="%s"' % localenv['python_prefix']
+else:
+    # Install Python module in the default location
+    extra = ''
+
+if localenv['PYTHON_INSTALLER'] == 'direct':
+    inst = localenv.Command('dummy', pymodule,
+                            'cd %s && $python_cmd setup.py install %s' % (moddir,extra))
+    installTargets.extend(inst)
+elif localenv['PYTHON_INSTALLER'] == 'binary':
+    if 'MSSdk' in os.environ:
+        localenv['ENV']['DISTUTILS_USE_SDK'] = '1'
+        localenv['ENV']['MSSdk'] = os.environ['MSSdk']
+    inst = localenv.Command('dummy', pymodule,
+                            'cd %s && $python_cmd setup.py bdist_msi --dist-dir=../..' % moddir)
+    installTargets.extend(inst)
+
+if localenv['python_package'] == 'full':
+    # Copy tutorials
+    inst = localenv.Install('$inst_tutdir', mglob(localenv, 'tutorial', 'py'))
+    installTargets.extend(inst)
+
+    # Copy examples
+    exampleFiles = sum([localenv.Glob(pjoin('examples', '*', '*', name))
+                        for name in ['runtest', 'cleanup', '*.txt', '*.py', '*.csv']], [])
+    for f in exampleFiles:
+        subdir1, subdir2 = psplit(f.path)[3:5]
+        installTargets.extend(localenv.Install(pjoin('$inst_demodir','python',subdir1,subdir2), f))

@@ -1,9 +1,5 @@
 /**
  *  @file FlowReactor.h
- *
- * $Author$
- * $Revision$
- * $Date$
  */
 
 // Copyright 2001  California Institute of Technology
@@ -11,14 +7,9 @@
 #ifndef CT_FLOWREACTOR_H
 #define CT_FLOWREACTOR_H
 
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
 #include "Reactor.h"
 
-namespace CanteraZeroD {
+namespace Cantera {
 
     /**
      * Adiabatic, reversible flow in a constant-area duct.
@@ -46,7 +37,7 @@ namespace CanteraZeroD {
 
 
         //-----------------------------------------------------
-        virtual int neq() { return m_nv; }
+        virtual size_t neq() { return m_nv; }
 
         virtual void initialize(doublereal t0 = 0.0);
 	virtual void evalEqs(doublereal t, doublereal* y, 
@@ -68,7 +59,7 @@ namespace CanteraZeroD {
 
         double speed() const { return m_speed; }
         double distance() const { return m_dist; }
-        virtual int componentIndex(std::string nm) const;
+        virtual size_t componentIndex(std::string nm) const;
 
     protected:
         

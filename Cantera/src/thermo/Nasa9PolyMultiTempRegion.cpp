@@ -10,11 +10,6 @@
  *
  *  This parameterization has one NASA temperature region.
  */
-
-/* $Author$
- * $Revision$
- * $Date$
- */
 // Copyright 2007  Sandia National Laboratories
 
 #include "global.h"
@@ -112,7 +107,7 @@ namespace Cantera {
     m_highT = m_regionPts[m_numTempRegions-1]->maxTemp();
     m_Pref = m_regionPts[0]->refPressure();
     m_index = m_regionPts[0]->speciesIndex();
-    for (int i = 0; i < m_numTempRegions; i++) {
+    for (size_t i = 0; i < m_numTempRegions; i++) {
       m_lowerTempBounds[i] = m_regionPts[i]->minTemp();
       if (m_regionPts[i]->speciesIndex() != m_index) {
 	throw CanteraError("Nasa9PolyMultiTempRegion::Nasa9PolyMultiTempRegion",
@@ -150,7 +145,7 @@ namespace Cantera {
     m_currRegion(b.m_currRegion)
   {
     m_regionPts.resize(m_numTempRegions);
-    for (int i = 0; i < m_numTempRegions; i++) {
+    for (size_t i = 0; i < m_numTempRegions; i++) {
       Nasa9Poly1 * dptr = b.m_regionPts[i];
       m_regionPts[i] = new Nasa9Poly1(*dptr);
     }
@@ -163,7 +158,7 @@ namespace Cantera {
   Nasa9PolyMultiTempRegion& 
   Nasa9PolyMultiTempRegion::operator=(const Nasa9PolyMultiTempRegion& b) {
     if (&b != this) {
-      for (int i = 0; i < m_numTempRegions; i++) {
+      for (size_t i = 0; i < m_numTempRegions; i++) {
 	delete m_regionPts[i];
 	m_regionPts[i] = 0;
       }
@@ -175,7 +170,7 @@ namespace Cantera {
       m_lowerTempBounds = b.m_lowerTempBounds;
       m_currRegion = b.m_currRegion;
       m_regionPts.resize(m_numTempRegions);
-      for (int i = 0; i < m_numTempRegions; i++) {
+      for (size_t i = 0; i < m_numTempRegions; i++) {
 	m_regionPts[i] = new Nasa9Poly1(*(b.m_regionPts[i]));
       }
     }
@@ -184,7 +179,7 @@ namespace Cantera {
 
   // Destructor
   Nasa9PolyMultiTempRegion::~Nasa9PolyMultiTempRegion() {
-    for (int i = 0; i < m_numTempRegions; i++) {
+    for (size_t i = 0; i < m_numTempRegions; i++) {
       delete m_regionPts[i];
       m_regionPts[i] = 0;
     }
@@ -221,7 +216,7 @@ namespace Cantera {
 
      
   // Returns an integer representing the species index
-  int Nasa9PolyMultiTempRegion::speciesIndex() const { 
+  size_t Nasa9PolyMultiTempRegion::speciesIndex() const {
     return m_index;
   }
       
@@ -313,7 +308,7 @@ namespace Cantera {
     tPoly[6]  = std::log(temp);
     // Now find the region
     m_currRegion = 0;
-    for (int i = 1; i < m_numTempRegions; i++) {
+    for (size_t i = 1; i < m_numTempRegions; i++) {
       if (temp < m_lowerTempBounds[i]) {
 	break;
       }
@@ -337,7 +332,7 @@ namespace Cantera {
    * @param coeffs    Vector of coefficients used to set the
    *                  parameters for the standard state.
    */
-  void Nasa9PolyMultiTempRegion::reportParameters(int &n, int &type,
+  void Nasa9PolyMultiTempRegion::reportParameters(size_t &n, int &type,
 				    doublereal &tlow, doublereal &thigh,
 				    doublereal &pref,
 				    doublereal* const coeffs) const {
@@ -347,12 +342,12 @@ namespace Cantera {
     thigh = m_highT;
     pref = m_Pref;
     double ctmp[12];
-    coeffs[0] = m_numTempRegions;
+    coeffs[0] = double(m_numTempRegions);
     int index = 1;
-    int n_tmp = 0;;
+    size_t n_tmp = 0;;
     int type_tmp = 0;
     double pref_tmp = 0.0;
-    for (int iReg = 0; iReg < m_numTempRegions; iReg++) {
+    for (size_t iReg = 0; iReg < m_numTempRegions; iReg++) {
       m_regionPts[iReg]->reportParameters(n_tmp, type_tmp,
 					  coeffs[index], coeffs[index+1],
 					  pref_tmp, ctmp);
@@ -371,12 +366,10 @@ namespace Cantera {
    */
   void Nasa9PolyMultiTempRegion::modifyParameters(doublereal* coeffs) {
     int index = 3;
-    for (int iReg = 0; iReg < m_numTempRegions; iReg++) {
+    for (size_t iReg = 0; iReg < m_numTempRegions; iReg++) {
       m_regionPts[iReg]->modifyParameters(coeffs + index);
       index += 11;
     }   
   }
 
-
 }
-

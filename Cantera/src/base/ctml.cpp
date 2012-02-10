@@ -3,20 +3,7 @@
  * Definitions for functions to read and write CTML.
  *
  */
-
-/*
- * $Revision$
- * $Date$
- */
-
 // Copyright 2002  California Institute of Technology
-
-
-// turn off warnings under Windows
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
 
 #include "ctml.h"
 
@@ -191,12 +178,11 @@ namespace ctml {
    *       and codify that. unitsString shouldn't be here, since it's an int.
    *       typeString should be codified as to its usage.
    */
-  void addIntegerArray(Cantera::XML_Node& node, const std::string &title, const int n,
+  void addIntegerArray(Cantera::XML_Node& node, const std::string &title, const size_t n,
 		       const int* const vals, const std::string units, const std::string type,
 		       const doublereal minval, const doublereal maxval) {
-    int i;
     std::string v = "";
-    for (i = 0; i < n; i++) {
+    for (size_t i = 0; i < n; i++) {
       v += int2str(vals[i],INT_Format);
       if (i == n-1) v += "\n"; 
       else if (i > 0 && (i+1) % 3 == 0) v += ",\n";
@@ -329,11 +315,11 @@ namespace ctml {
    *       and codify that. unitsString shouldn't be here, since it's an int.
    *       typeString should be codified as to its usage.
    */
-  void addFloatArray(Cantera::XML_Node& node, const std::string &title, const int n, 
+  void addFloatArray(Cantera::XML_Node& node, const std::string &title, const size_t n,
 		     const doublereal* const vals, const std::string units, 
                      const std::string type,
 		     const doublereal minval, const doublereal maxval) {
-    int i;
+    size_t i;
     std::string v = "";
     for (i = 0; i < n; i++) {
       v += fp2str(vals[i],FP_Format);
@@ -344,7 +330,7 @@ namespace ctml {
     XML_Node& f = node.addChild("floatArray",v);
     f.addAttribute("title",title);
     if (type != "") f.addAttribute("type",type);        
-    f.addAttribute("size",n);
+    f.addAttribute("size", double(n));
     if (units != "") f.addAttribute("units",units);
     if (minval != Undef) f.addAttribute("min",minval);
     if (maxval != Undef) f.addAttribute("max",maxval);
@@ -660,7 +646,7 @@ namespace ctml {
     std::vector<XML_Node*> f;
     node.getChildren("integer",f);
     int n = static_cast<int>(f.size());
-    integer x, x0, x1;
+    integer x;
     std::string typ, title, vmin, vmax;
     for (int i = 0; i < n; i++) {
       const XML_Node& fi = *(f[i]);
@@ -669,9 +655,7 @@ namespace ctml {
       vmin = fi["min"];
       vmax = fi["max"];
       if (vmin != "")
-	x0 = atoi(vmin.c_str());
       if (fi["max"] != "")
-	x1 = atoi(vmax.c_str());
       v[title] = x;
     }
   }
@@ -718,7 +702,7 @@ namespace ctml {
    *   @param v        Output map of the results.
    *   @param convert  Turn on conversion to SI units
    */
-  void getFloats(const Cantera::XML_Node& node, std::map<std::string, doublereal > & v,
+  void getFloats(const Cantera::XML_Node& node, std::map<std::string, double>& v,
 		 const bool convert) {
     std::vector<XML_Node*> f;
     node.getChildren("float",f);
@@ -788,7 +772,8 @@ namespace ctml {
    *                 and "" , for no conversion. The default value is ""
    *                 which implies that no conversion is allowed.
    */
-  doublereal getFloat(const Cantera::XML_Node& parent, const std::string &name,
+  doublereal getFloat(const Cantera::XML_Node& parent,
+		      const std::string &name,
 		      const std::string type) {
     if (!parent.hasChild(name)) 
       throw CanteraError("getFloat (called from XML Node \"" +
@@ -1118,7 +1103,7 @@ namespace ctml {
    *
    *  @note change the v to a std::vector to eliminate a doxygen error. No idea why doxygen needs this.
    */
-  int  getFloatArray(const Cantera::XML_Node& node, std::vector<doublereal> & v, 
+  size_t getFloatArray(const Cantera::XML_Node& node, std::vector<doublereal> & v, 
                      const bool convert, const std::string unitsString,
                      const std::string nodeName) {
     std::string::size_type icom;
@@ -1183,8 +1168,7 @@ namespace ctml {
 	 * would appear to be odd. So, we keep the
 	 * possibilty in for backwards compatibility.
 	 */
-	int nlen = strlen(val.c_str());
-	if (nlen > 0) {
+	if (!val.empty()) {
 	  dtmp = atofCheck(val.c_str());
 	  v.push_back(dtmp);
 	}
@@ -1200,8 +1184,7 @@ namespace ctml {
 		 " is above upper limit of " +fp2str(vmin)+".\n");
       }
     }
-    int nv = v.size();
-    for (int n = 0; n < nv; n++) {
+    for (size_t n = 0; n < v.size(); n++) {
       v[n] *= funit;
     }
     return v.size();
@@ -1429,10 +1412,10 @@ namespace ctml {
 		       const std::vector<std::string>& keyStringCol,
 		       Cantera::Array2D &retnValues, const bool convert,
 		       const bool matrixSymmetric) {
-    int szKey1 = keyStringRow.size();
-    int szKey2 = keyStringCol.size();
-    int nrow   = retnValues.nRows();
-    int ncol   = retnValues.nColumns();
+    size_t szKey1 = keyStringRow.size();
+    size_t szKey2 = keyStringCol.size();
+    size_t nrow   = retnValues.nRows();
+    size_t ncol   = retnValues.nColumns();
     if (szKey1 > nrow) {
       throw CanteraError("getMatrixValues", 
 			 "size of key1 greater than numrows");
@@ -1464,10 +1447,8 @@ namespace ctml {
     string val;
     vector<string> v;
     getStringArray(node, v);
-    int icol, irow;
-    int n = static_cast<int>(v.size());
     string::size_type icolon;
-    for (int i = 0; i < n; i++) {
+    for (size_t i = 0; i < v.size(); i++) {
       icolon = v[i].find(":");
       if (icolon == string::npos) {
 	throw CanteraError("getMatrixValues","Missing two colons ("
@@ -1482,25 +1463,26 @@ namespace ctml {
       }
       key2 = rmm.substr(0,icolon);
       val = rmm.substr(icolon+1, rmm.size());
-      icol = -1;
-      irow = -1;
-      for (int j = 0; j < szKey1; j++) {
+
+      size_t icol = -1;
+      size_t irow = -1;
+      for (size_t j = 0; j < szKey1; j++) {
 	if (key1 == keyStringRow[j]) {
 	  irow = j;
 	  break;
 	}
       }
-      if (irow == -1) {
+      if (irow == npos) {
 	throw CanteraError("getMatrixValues","Row not matched by string: "
 			   + key1);		
       }
-      for (int j = 0; j < szKey2; j++) {
+      for (size_t j = 0; j < szKey2; j++) {
 	if (key2 == keyStringCol[j]) {
 	  icol = j;
 	  break;
 	}
       }
-      if (icol == -1) {
+      if (icol == npos) {
 	throw CanteraError("getMatrixValues","Col not matched by string: "
 			   + key2);	
       }

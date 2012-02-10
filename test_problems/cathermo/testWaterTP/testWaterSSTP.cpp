@@ -1,10 +1,6 @@
-/*
- * $Id$
- */
-
 #include "Cantera.h"
 #include "thermo.h"
-#include "WaterSSTP.h"
+#include "kernel/WaterSSTP.h"
 
 #include <cstdio>
 #include <cmath>
@@ -21,10 +17,10 @@ double tvalue(double val, double atol = 1.0E-9) {
   return rval;
 }
 
-
-
 int main () {
-
+#ifdef _MSC_VER
+    _set_output_format(_TWO_DIGIT_EXPONENT);
+#endif
   double pres;
   try {
     WaterSSTP *w = new WaterSSTP("waterTPphase.xml","");

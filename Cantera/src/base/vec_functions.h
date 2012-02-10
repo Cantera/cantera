@@ -3,11 +3,7 @@
  *  Templates for operations on vector-like objects. 
  */
 /*
- *  $Date$
- *  $Revision$
- *
  *  Copyright 2001 California Institute of Technology
- *
  */
 
 #ifndef CT_VEC_FUNCTIONS_H
@@ -50,7 +46,7 @@ namespace Cantera {
   template<class T>   
   inline void divide_each(T& x, const T& y) {
     std::transform(x.begin(), x.end(), y.begin(), 
-		   x.begin(), std::divides<TYPENAME_KEYWORD T::value_type>());
+		   x.begin(), std::divides<typename T::value_type>());
   }
     
   //! Multiply each element of x by the corresponding element of y.
@@ -66,7 +62,7 @@ namespace Cantera {
   template<class T>
   inline void multiply_each(T& x, const T& y) {
     std::transform(x.begin(), x.end(), y.begin(), 
-		   x.begin(), std::multiplies<TYPENAME_KEYWORD T::value_type>());
+		   x.begin(), std::multiplies<typename T::value_type>());
   }
 
   //! Multiply each element of x by scale_factor.
@@ -119,7 +115,7 @@ namespace Cantera {
   template<class T>
   inline void add_each(T& x, const T& y) {
     std::transform(x.begin(), x.end(), y.begin(), 
-		   x.begin(), std::plus<TYPENAME_KEYWORD T::value_type>());
+		   x.begin(), std::plus<typename T::value_type>());
   }
 
 
@@ -169,63 +165,6 @@ namespace Cantera {
     }
     return maxval;
   }
-
-  //! Copy a vector of doubles in an efficient, fast manner.
-  /*!
-   *  No checking is done other that to check that len is greater than 0
-   *
-   *  @param copyTo  Vector to receive the copy
-   *  @param copyFrom Vector from which the copy is coming
-   *  @param len  Length of the copy
-   */
-  inline void fbo_copy_dbl_1(doublereal * const copyTo, const doublereal * const copyFrom, 
-			     const int len) {
-    if (len > 0) {
-      (void) std::memcpy((void *)copyTo, (const void *)copyFrom, len * sizeof(doublereal));
-    }
-  }
-
-  //! Copy a vector<doubles> in an efficient, fast manner.
-  /*!
-   *  No checking is done other that to check that len is greater than 0
-   *
-   *  @param copyTo  Vector to receive the copy
-   *  @param copyFrom Vector from which the copy is coming
-   *  @param len  Length of the copy
-   */
-  inline void fvo_copy_dbl_1(std::vector<doublereal> &copyTo, const std::vector<doublereal> &copyFrom, 
-			     const int len) {
-    if (len > 0) {
-      (void) std::memcpy((void *)(&copyTo[0]), (const void *)(&copyFrom[0]), len * sizeof(doublereal));
-    }
-  }
-
-  //! Zero a double vector in an efficient, fast manner.
-  /*!
-   *  No checking is done other that to check that len is greater than 0
-   *
-   *  @param v    Vector to be zeroed
-   *  @param len  Length of the copy
-   */
-  inline void fbo_zero_dbl_1(doublereal * const v, const int len) {
-    if (len > 0) {
-      (void) std::memset((void *)v, 0, len * sizeof(doublereal));
-    }
-  }
-
-  //! Zero a vector<doubles> in an efficient, fast manner.
-  /*!
-   *  No checking is done other that to check that len is greater than 0
-   *
-   *  @param v    Vector to be zeroed
-   *  @param len  Length of the copy
-   */
-  inline void fvo_zero_dbl_1(std::vector<doublereal> &v, const int len) {
-    if (len > 0) {
-      (void) std::memset((void *)(&v[0]), 0, len * sizeof(doublereal));
-    }
-  }
-
 
 }
 

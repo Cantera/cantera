@@ -11,8 +11,6 @@
 #include <math.h>
 #include <string.h>
 
-using namespace std;
-
 namespace tpx {
 
 /* 
@@ -314,7 +312,7 @@ double CarbonDioxide::Psat(){
 
     double log, sum=0,P;
     if ((T < Tmn) || (T > Tc)) {
-        std::cout << " error in Psat " << TempError << endl;
+        std::cout << " error in Psat " << TempError << std::endl;
         set_Err(TempError); // Error("CarbonDioxide::Psat",TempError,T);
     }
     for (int i=1;i<=8;i++)
@@ -335,7 +333,7 @@ double CarbonDioxide::Psat(){
 double CarbonDioxide::ldens() {    
     double xx=1-(T/Tc), sum=0;
     if ((T < Tmn) || (T > Tc)) {        
-        cout << " error in ldens " << TempError << endl;
+        std::cout << " error in ldens " << TempError << std::endl;
         set_Err(TempError);
     }
     for(int i=1;i<=6;i++)

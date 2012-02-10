@@ -1,13 +1,3 @@
-/*====================================================================
- * ------------------------
- * | CVS File Information | 
- * ------------------------
- * $RCSfile: csvdiff.cpp,v $
- * $Author$
- * $Date$
- * $Revision$
- * $Name:  $
- *====================================================================*/
 /*
  *  csvdiff File1.csv File2.csv
  *
@@ -36,8 +26,8 @@
 #include <math.h>
 #include <float.h>
 #include <limits.h>
-#include "../../config.h"
-#ifndef WINMSVC
+#include "kernel/config.h"
+#ifndef _MSC_VER
 #include <unistd.h>
 #else
 #include <string>
@@ -53,13 +43,6 @@ using namespace std;
 #include "mdp_allo.h"
 #include "tok_input_util.h"
 
-#ifndef TRUE
-#  define TRUE  1
-#  define FALSE 0
-#endif
-#ifdef WIN32
-#pragma warning(disable:4996)
-#endif
 #ifndef MAX
 #  define MAX(x,y)    (( (x) > (y) ) ? (x) : (y))
 #endif
@@ -67,7 +50,7 @@ using namespace std;
 #  define MIN(x,y)    (( (x) < (y) ) ? (x) : (y))
 #endif
 
-int Debug_Flag = TRUE;
+int Debug_Flag = true;
 double grtol = 1.0E-3;
 double gatol = 1.0E-9;
 
@@ -84,7 +67,7 @@ int Max_Input_Str_Ln = MAX_INPUT_STR_LN;
 /*****************************************************************************/
 /*****************************************************************************/
 
-#ifdef WINMSVC
+#ifdef _MSC_VER
 /*
  * Windows doesn't have getopt(). This is an incomplete version that
  * does enough to handle required functionality.
@@ -267,7 +250,6 @@ static void get_sizes(FILE *fp, int &nTitleLines, int &nColTitleLines,
   int nScanLinesMAX = 100;
   int nScanLines = nScanLinesMAX;
   int retn, i, j;
-  int nLines = 0;
   int maxCommas = 0;
   TOKEN fieldToken;
   char *scanLine = mdp_alloc_char_1(MAX_INPUT_STR_LN+1, '\0');
@@ -337,7 +319,7 @@ static void get_sizes(FILE *fp, int &nTitleLines, int &nColTitleLines,
 	if (fieldToken.ntokes != 1) {
 	  break;
 	}
-	int rerr = FALSE;
+	bool rerr = false;
 	(void) tok_to_double(&fieldToken, DBL_MAX,
 			     -DBL_MAX, 0.0, &rerr);
 	if (!rerr) {
@@ -372,20 +354,20 @@ static void get_sizes(FILE *fp, int &nTitleLines, int &nColTitleLines,
     }
 
     if (doingLineType == LT_COLTITLE) {
-      int goodDataLine = TRUE;
-      int rerr = FALSE;
+      bool goodDataLine = true;
+      bool rerr = false;
       for (j = 0; j < ncolsFound; j++) {
 	char *fieldStr = strlets[j];
 	fillTokStruct(&fieldToken, fieldStr);
 	if (fieldToken.ntokes != 1) {
-	  goodDataLine = FALSE;
+	  goodDataLine = false;
 	  break;
 	}
 	if ((ColIsFloat[j]) == 1) {
 	  (void) tok_to_double(&fieldToken, DBL_MAX,
 			       -DBL_MAX, 0.0, &rerr);
 	  if (rerr) {
-	    goodDataLine = FALSE;
+	    goodDataLine = false;
 	    break;
 	  }
 	}
@@ -406,7 +388,6 @@ static void get_sizes(FILE *fp, int &nTitleLines, int &nColTitleLines,
     for (i = nColTitleLines + nTitleLines; ; i++) {
       retn = read_line(fp, scanLine, 0);
       if (retn == -1) {
-	nLines = i+1;
 	nDataRows = i - nColTitleLines - nTitleLines + 1;
 	break;
       }
@@ -419,20 +400,20 @@ static void get_sizes(FILE *fp, int &nTitleLines, int &nColTitleLines,
 	if (scanLine[ccount-1] == ',') scanLine[ccount-1] = '\0';
       }
       int ncolsFound = breakStrCommas(scanLine, strlets, nCol);   
-      int goodDataLine = TRUE;
-      int rerr = FALSE;
+      bool goodDataLine = true;
+      bool rerr = false;
       for (j = 0; j < ncolsFound; j++) {
 	char *fieldStr = strlets[j];
 	fillTokStruct(&fieldToken, fieldStr);
 	if (fieldToken.ntokes != 1) {
-	  goodDataLine = FALSE;
+	  goodDataLine = false;
 	  break;
 	}
 	if (ColIsFloat[j] == 1) {
 	  (void) tok_to_double(&fieldToken, DBL_MAX,
 			       -DBL_MAX, 0.0, &rerr);
 	  if (rerr) {
-	    goodDataLine = FALSE;
+	    goodDataLine = false;
 	    break;
 	  }
 	}
@@ -567,21 +548,21 @@ read_values(FILE *fp, double **NVValues, char ***NSValues, int nCol, int nDataRo
       if (scanLine[ccount-1] == ',') scanLine[ccount-1] = '\0';
     }
     int ncolsFound = breakStrCommas(scanLine, strlets, nCol);   
-    int goodDataLine = TRUE;
-    int rerr = FALSE;
+    bool goodDataLine = true;
+    bool rerr = false;
     for (j = 0; j < ncolsFound; j++) {
       char *fieldStr = strlets[j];
       NSValues[j][i] = mdp_copy_string(strlets[j]);
       fillTokStruct(&fieldToken, fieldStr);
       if (fieldToken.ntokes != 1) {
-	goodDataLine = FALSE;
+	goodDataLine = false;
 	break;
       }
       if (ColIsFloat[j]) {
 	value = tok_to_double(&fieldToken, DBL_MAX,
 			      -DBL_MAX, 0.0, &rerr);
 	if (rerr) {
-	  goodDataLine = FALSE;
+	  goodDataLine = false;
 	  break;
 	}
 	NVValues[j][i] = value;
@@ -649,8 +630,8 @@ int main(int argc, char *argv[])
   int    *ColIsFloat1 = NULL, *ColIsFloat2 = NULL;
   double *curVarValues1 = NULL, *curVarValues2 = NULL;
   char ** curStringValues1 = NULL, **curStringValues2 = NULL;
-  int    mixed_var = 0;
-  int    i, j, ndiff, jmax, i1, i2, k, found;
+  int    i, j, ndiff, jmax, i1, i2, k;
+  bool found;
   double max_diff, rel_diff;
   int    testPassed = RT_PASSED;
   double atol_j, atol_arg = 0.0, rtol_arg = 0.0;
@@ -843,11 +824,9 @@ int main(int argc, char *argv[])
    *  Get the number of column variables in each file
    */
 
-  mixed_var = FALSE;
   if (nCol1 != nCol2) {
     printf("Number of column variables differ:, %d %d\n", 
                  nCol1, nCol2);
-    mixed_var = TRUE;
     testPassed = RT_FAILED_OTHER;
   } else if (Debug_Flag) {
     printf("Number of column variables in both files = %d\n",
@@ -871,14 +850,13 @@ int main(int argc, char *argv[])
   compColList = mdp_alloc_int_2(nColMAX, 2, -1);
   nColcomparisons = 0;
   for (i = 0; i < nCol1; i++) {
-    found = FALSE;
+    found = false;
     for (j = 0; j < nCol2; j++) {
       if (!strcmp(ColNames1[i], ColNames2[j])) {
 	compColList[nColcomparisons][0] = i;
 	compColList[nColcomparisons][1] = j;
 	nColcomparisons++;
-	found = TRUE;
-	if (i != j) mixed_var = 1;
+	found = true;
 	break;
       }
     }
@@ -889,9 +867,9 @@ int main(int argc, char *argv[])
     }
   }
   for (j = 0; j < nCol2; j++) {
-    found = FALSE;
+    found = false;
     for (i = 0; i <  nColcomparisons; i++) {
-       if (compColList[i][1] == j) found = TRUE;
+       if (compColList[i][1] == j) found = true;
     }
     if (! found) {
       printf("csvdiff WARNING Variable %s (%d) in second file "

@@ -13,12 +13,6 @@
 
 #ifndef CT_NASA9POLYMULTITEMPREGION_H
 #define CT_NASA9POLYMULTITEMPREGION_H
-
-/* $Author$
- * $Revision$
- * $Date$
- */
-
 // Copyright 2007  Sandia National Laboratories
 
 
@@ -127,7 +121,7 @@ namespace Cantera {
     virtual int reportType() const;
 
     //! Returns an integer representing the species index
-    virtual int speciesIndex() const;
+    virtual size_t speciesIndex() const;
  
     //! Update the properties for this species, given a temperature polynomial
     /*!
@@ -208,7 +202,7 @@ namespace Cantera {
      *        coeffs[index+1] = maxTempZone
      *        coeffs[index+2+i] from i =0,9 are the coefficients themselves
      */
-    virtual void reportParameters(int &n, int &type,
+    virtual void reportParameters(size_t &n, int &type,
 				  doublereal &tlow, doublereal &thigh,
 				  doublereal &pref,
 				  doublereal* const coeffs) const;
@@ -228,9 +222,9 @@ namespace Cantera {
     //! standard-state pressure
     doublereal m_Pref;     
     //! species index
-    int m_index;  
+    size_t m_index;
     //! Number of temperature regions
-    int m_numTempRegions;
+    size_t m_numTempRegions;
     
     //! Lower boundaries of each temperature regions
     vector_fp m_lowerTempBounds;

@@ -11,17 +11,6 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-/*
- *  $Author$
- *  $Date$
- *  $Revision$
- */
-
-// turn off warnings under Windows
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
 
 #include "VPSSMgr_ConstVol.h"
 #include "xml.h"
@@ -78,7 +67,7 @@ namespace Cantera {
 
     doublereal del_pRT = (m_plast - m_p0) / (GasConstant * m_tlast);
  
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       m_hss_RT[k]  = m_h0_RT[k] + del_pRT * m_Vss[k];
       m_cpss_R[k]  = m_cp0_R[k];
       m_sss_R[k]   = m_s0_R[k];
@@ -138,7 +127,7 @@ namespace Cantera {
 					 &phaseNode.root());
     const vector<string>&sss = m_vptp_ptr->speciesNames();
 
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       const XML_Node* s =  speciesDB->findByAttr("name", sss[k]);
       if (!s) {
 	throw CanteraError("VPSSMgr_ConstVol::initThermoXML",
@@ -164,7 +153,7 @@ namespace Cantera {
   //}
 
   PDSS *
-  VPSSMgr_ConstVol::createInstallPDSS(int k, const XML_Node& speciesNode,  
+  VPSSMgr_ConstVol::createInstallPDSS(size_t k, const XML_Node& speciesNode,
 				      const XML_Node * const phaseNode_ptr) {
     //VPSSMgr::installSpecies(k, speciesNode, phaseNode_ptr);
     const XML_Node *ss = speciesNode.findByName("standardState");
@@ -178,7 +167,7 @@ namespace Cantera {
 			 "standardState model for species isn't "
 			 "constant_incompressible: " + speciesNode.name());
     }
-    if ((int) m_Vss.size() < k+1) {
+    if (m_Vss.size() < k+1) {
       m_Vss.resize(k+1, 0.0);
     }
     m_Vss[k] = ctml::getFloat(*ss, "molarVolume", "toSI");

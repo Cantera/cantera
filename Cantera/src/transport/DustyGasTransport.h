@@ -3,11 +3,6 @@
  *    Headers for the DustyGasTransport object, which models transport properties
  *    in porous media using the dusty gas approximation
  *    (see \ref tranprops and \link Cantera::DustyGasTransport DustyGasTransport \endlink) .
- *
- */
-/*
- * $Revision$
- * $Date$
  */
 
 // Copyright 2003  California Institute of Technology
@@ -288,7 +283,7 @@ namespace Cantera {
 
 
     //! Number of species in the gas phase
-    int m_nsp;
+    size_t m_nsp;
  
     //! Local copy of the species molecular weights
     /*!

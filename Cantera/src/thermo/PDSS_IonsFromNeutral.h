@@ -10,10 +10,6 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-/*
- *  $Id$
- */
-
 #ifndef CT_PDSS_IONSFROMNEUTRAL_H
 #define CT_PDSS_IONSFROMNEUTRAL_H
 
@@ -46,7 +42,7 @@ namespace Cantera {
      *  @param tp        Pointer to the ThermoPhase object pertaining to the phase
      *  @param spindex   Species index of the species in the phase
      */
-    PDSS_IonsFromNeutral(VPStandardStateTP *tp, int spindex);
+    PDSS_IonsFromNeutral(VPStandardStateTP *tp, size_t spindex);
 
     //! Constructor that initializes the object by examining the input file
     //! of the ThermoPhase object
@@ -60,7 +56,7 @@ namespace Cantera {
      *                   is the empty string, in which case the first phase in the
      *                   file is used.
      */
-    PDSS_IonsFromNeutral(VPStandardStateTP *tp, int spindex,
+    PDSS_IonsFromNeutral(VPStandardStateTP *tp, size_t spindex,
 			 std::string inputFile, std::string id = "");
 
    
@@ -76,7 +72,7 @@ namespace Cantera {
      *  @param spInstalled Boolean indicating whether the species is installed yet
      *                     or not.
      */
-    PDSS_IonsFromNeutral(VPStandardStateTP *vptp_ptr, int spindex, const XML_Node& speciesNode, 
+    PDSS_IonsFromNeutral(VPStandardStateTP *vptp_ptr, size_t spindex, const XML_Node& speciesNode,
 			 const XML_Node& phaseRef, bool spInstalled);
 
     //! Copy Constructor
@@ -394,7 +390,7 @@ namespace Cantera {
      *                    phase. If none is given, the first XML
      *                    phase element will be used.
      */
-    void constructPDSSFile(VPStandardStateTP *vptp_ptr, int spindex, 
+    void constructPDSSFile(VPStandardStateTP *vptp_ptr, size_t spindex,
 			   std::string inputFile, std::string id);
 
     //!  Initialization of a PDSS object using an xml tree
@@ -421,7 +417,7 @@ namespace Cantera {
      *                   phase. If none is given, the first XML
      *                   phase element will be used.
      */
-    void constructPDSSXML(VPStandardStateTP *vptp_ptr, int spindex, 
+    void constructPDSSXML(VPStandardStateTP *vptp_ptr, size_t spindex,
 			  const XML_Node& speciesNode,
 			  const XML_Node& phaseNode, std::string id);
 
@@ -475,10 +471,10 @@ namespace Cantera {
 
     //! Number of neutral molecule species that make up the stoichiometric vector for
     //! this species, in terms of calculating thermodynamic functions
-    int numMult_;
+    size_t numMult_;
 
     //! Vector of species indecises in the neutral molecule ThermoPhase
-    std::vector<int> idNeutralMoleculeVec;
+    std::vector<size_t> idNeutralMoleculeVec;
 
     //! Stoichiometric coefficient for this species using the Neutral Molecule Species
     //! in the vector idNeutralMoleculeVec

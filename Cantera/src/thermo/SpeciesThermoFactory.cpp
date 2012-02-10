@@ -4,17 +4,7 @@
  *    standard-state thermodynamic properties of a set of species 
  *    (see \ref spthermo and class \link Cantera::SpeciesThermoFactory SpeciesThermoFactory\endlink);
  */
-/* 
- * $Revision$
- * $Date$
- */
-
 // Copyright 2001  California Institute of Technology
-
-#ifdef WIN32
-#pragma warning(disable:4786)
-#endif
-
 
 #include "SpeciesThermoFactory.h"
 using namespace std;
@@ -44,7 +34,6 @@ using namespace std;
 
 using namespace ctml;
 
-
 namespace Cantera {
 
   SpeciesThermoFactory* SpeciesThermoFactory::s_factory = 0;
@@ -53,7 +42,6 @@ namespace Cantera {
   boost::mutex SpeciesThermoFactory::species_thermo_mutex ;
 #endif
  
-  
   //! Examine the types of species thermo parameterizations,
   //! and return a flag indicating the type of reference state thermo manager
   //! that will be needed in order to evaluate them all.
@@ -308,7 +296,7 @@ namespace Cantera {
    *  @param f1ptr              Ptr to the first XML_Node for the first NASA polynomial
    */
   static void installNasaThermoFromXML(std::string speciesName,
-				       SpeciesThermo& sp, int k, 
+				       SpeciesThermo& sp, size_t k,
 				       const XML_Node* f0ptr, const XML_Node* f1ptr) {
     doublereal tmin0, tmax0, tmin1, tmax1, tmin, tmid, tmax;
 
@@ -474,8 +462,8 @@ namespace Cantera {
     throw CanteraError("LookupGe", "element " + s + " not found");
     return -1.0;
 #else
-    int iE = th_ptr->elementIndex(elemName);
-    if (iE < 0) {
+    size_t iE = th_ptr->elementIndex(elemName);
+    if (iE == npos) {
       throw CanteraError("PDSS_HKFT::LookupGe", "element " + elemName + " not found");
     }
     doublereal geValue = th_ptr->entropyElement298(iE);
@@ -495,17 +483,17 @@ namespace Cantera {
    *  @param   k               species index
    *  @param   th_ptr          Pointer to the ThermoPhase
    */
- static doublereal convertDGFormation(int k, ThermoPhase *th_ptr) {
+ static doublereal convertDGFormation(size_t k, ThermoPhase *th_ptr) {
     /*
      * Ok let's get the element compositions and conversion factors.
      */
-    int ne = th_ptr->nElements();
+    size_t ne = th_ptr->nElements();
     doublereal na;
     doublereal ge;
     string ename;
 
     doublereal totalSum = 0.0;
-    for (int m = 0; m < ne; m++) {
+    for (size_t m = 0; m < ne; m++) {
       na = th_ptr->nAtoms(k, m);
       if (na > 0.0) {
 	ename = th_ptr->elementName(m);
@@ -529,7 +517,7 @@ namespace Cantera {
    */
   static void installMinEQ3asShomateThermoFromXML(std::string speciesName, 
 						  ThermoPhase *th_ptr,
-						  SpeciesThermo& sp, int k, 
+						  SpeciesThermo& sp, size_t k,
 						  const XML_Node* MinEQ3node) {
 
     array_fp coef(15), c0(7, 0.0);
@@ -613,7 +601,7 @@ namespace Cantera {
    *  @param f0ptr              Ptr to the first XML_Node for the first NASA polynomial
    *  @param f1ptr              Ptr to the first XML_Node for the first NASA polynomial
    */
-  static void installShomateThermoFromXML(std::string speciesName, SpeciesThermo& sp, int k, 
+  static void installShomateThermoFromXML(std::string speciesName, SpeciesThermo& sp, size_t k, 
 					  const XML_Node* f0ptr, const XML_Node* f1ptr) {
     doublereal tmin0, tmax0, tmin1, tmax1, tmin, tmid, tmax;
     const XML_Node& f0 = *f0ptr;
@@ -679,7 +667,7 @@ namespace Cantera {
    *  @param f                  XML_Node for the SimpleThermo block
    */
   static void installSimpleThermoFromXML(std::string speciesName, 
-					 SpeciesThermo& sp, int k, 
+					 SpeciesThermo& sp, size_t k,
 					 const XML_Node& f) {
     doublereal tmin, tmax;
     tmin = fpValue(f["Tmin"]);
@@ -706,18 +694,17 @@ namespace Cantera {
    *  @param tp                 Vector of XML Nodes that make up the parameterization
    */
   static void installNasa9ThermoFromXML(std::string speciesName,
-					SpeciesThermo& sp, int k, 
+					SpeciesThermo& sp, size_t k,
 					const std::vector<XML_Node*>& tp)
   { 				
     const XML_Node * fptr = tp[0];
-    int nRegTmp = tp.size();
     int nRegions = 0;
     vector_fp cPoly;
     Nasa9Poly1 *np_ptr = 0; 
     std::vector<Nasa9Poly1 *> regionPtrs;
     doublereal tmin, tmax, pref = OneAtm;
     // Loop over all of the possible temperature regions
-    for (int i = 0; i < nRegTmp; i++) {
+    for (size_t i = 0; i < tp.size(); i++) {
       fptr = tp[i];
       if (fptr) {
 	if (fptr->name() == "NASA9") {
@@ -811,10 +798,10 @@ namespace Cantera {
    *                      information for the phase in which the species
    *                      resides
    */
-  void SpeciesThermoFactory::
-  installThermoForSpecies(int k, const XML_Node& speciesNode, ThermoPhase *th_ptr,
-			  SpeciesThermo& spthermo,
-			  const XML_Node *phaseNode_ptr) const {
+  void SpeciesThermoFactory::installThermoForSpecies
+  (size_t k, const XML_Node& speciesNode, ThermoPhase *th_ptr,
+   SpeciesThermo& spthermo, const XML_Node *phaseNode_ptr) const
+  {
     /*
      * Check to see that the species block has a thermo block
      * before processing. Throw an error if not there.
@@ -925,7 +912,7 @@ namespace Cantera {
    *                      resides
    */
   void SpeciesThermoFactory::
-  installVPThermoForSpecies(int k, const XML_Node& speciesNode, 
+  installVPThermoForSpecies(size_t k, const XML_Node& speciesNode,
 			    VPStandardStateTP *vp_ptr,
 			    VPSSMgr *vpssmgr_ptr,
 			    SpeciesThermo *spthermo_ptr,

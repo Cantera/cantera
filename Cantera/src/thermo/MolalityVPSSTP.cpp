@@ -16,13 +16,6 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-/*
- *  $Author$
- *  $Date$
- *  $Revision$
- */
-
-
 #include "MolalityVPSSTP.h"
 #include <iomanip>
 using namespace std;
@@ -162,8 +155,8 @@ namespace Cantera {
    *  of the solvent and the m_Mnaught parameter.
    *  @param k index of the solvent.
    */
-  void MolalityVPSSTP::setSolvent(int k) {
-    if (k < 0 || k >= m_kk) {
+  void MolalityVPSSTP::setSolvent(size_t k) {
+    if (k >= m_kk) {
       throw CanteraError("MolalityVPSSTP::setSolute ", 
 			 "bad value");
     }
@@ -177,7 +170,7 @@ namespace Cantera {
   /*
    * return the solvent id index number.
    */
-  int MolalityVPSSTP::solventIndex() const {
+  size_t MolalityVPSSTP::solventIndex() const {
     return m_indexSolvent;
   }
 
@@ -224,7 +217,7 @@ namespace Cantera {
       xmolSolvent = m_xmolSolventMIN;
     }
     double denomInv = 1.0/ (m_Mnaught * xmolSolvent);
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       m_molalities[k] *= denomInv;
     }
   }
@@ -246,7 +239,7 @@ namespace Cantera {
    */
   void MolalityVPSSTP::getMolalities(doublereal * const molal) const {
     calcMolalities();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       molal[k] = m_molalities[k];
     }
   }
@@ -269,20 +262,20 @@ namespace Cantera {
   void MolalityVPSSTP::setMolalities(const doublereal * const molal) {
 	
     double Lsum = 1.0 / m_Mnaught;
-    for (int k = 1; k < m_kk; k++) {
+    for (size_t k = 1; k < m_kk; k++) {
       m_molalities[k] = molal[k];
       Lsum += molal[k];
     }
     double tmp = 1.0 / Lsum;
     m_molalities[m_indexSolvent] = tmp / m_Mnaught;
     double sum = m_molalities[m_indexSolvent];
-    for (int k = 1; k < m_kk; k++) {
+    for (size_t k = 1; k < m_kk; k++) {
       m_molalities[k] = tmp * molal[k];
       sum += m_molalities[k];
     }
     if (sum != 1.0) {
       tmp = 1.0 / sum;
-      for (int k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	m_molalities[k] *= tmp;
       }
     }
@@ -304,7 +297,7 @@ namespace Cantera {
    *         preserved.
    */
   void MolalityVPSSTP::setMolalitiesByName(compositionMap& mMap) {
-    int kk = nSpecies();
+    size_t kk = nSpecies();
     doublereal x;
     /*
      * Get a vector of mole fractions
@@ -314,7 +307,7 @@ namespace Cantera {
     double xmolS = mf[m_indexSolvent];
     double xmolSmin = max(xmolS, m_xmolSolventMIN);
     compositionMap::iterator p;
-    for (int k = 0; k < kk; k++) {
+    for (size_t k = 0; k < kk; k++) {
       p = mMap.find(speciesName(k));
       if (p != mMap.end()) {
 	x = mMap[speciesName(k)];
@@ -326,12 +319,12 @@ namespace Cantera {
     /*
      * check charge neutrality
      */
-    int largePos = -1;
+    size_t largePos = -1;
     double cPos = 0.0;
-    int largeNeg = -1;
+    size_t largeNeg = -1;
     double cNeg = 0.0;
     double sum = 0.0;
-    for (int k = 0; k < kk; k++) {
+    for (size_t k = 0; k < kk; k++) {
       double ch = charge(k);
       if (mf[k] > 0.0) {
 	if (ch > 0.0) {
@@ -368,11 +361,11 @@ namespace Cantera {
             
     }
     sum = 0.0;
-    for (int k = 0; k < kk; k++) {
+    for (size_t k = 0; k < kk; k++) {
       sum += mf[k];
     }
     sum = 1.0/sum;
-    for (int k = 0; k < kk; k++) {
+    for (size_t k = 0; k < kk; k++) {
       mf[k] *= sum;
     }
     setMoleFractions(DATA_PTR(mf));
@@ -391,8 +384,7 @@ namespace Cantera {
    */
   void MolalityVPSSTP::setMolalitiesByName(const std::string& x) {
     compositionMap xx;
-    int kk = nSpecies();
-    for (int k = 0; k < kk; k++) {
+    for (size_t k = 0; k < nSpecies(); k++) {
       xx[speciesName(k)] = -1.0;
     }
     parseCompString(x, xx);
@@ -436,12 +428,12 @@ namespace Cantera {
       err("getActivityConcentrations");
   }
 
-  doublereal MolalityVPSSTP::standardConcentration(int k) const {
+  doublereal MolalityVPSSTP::standardConcentration(size_t k) const {
     err("standardConcentration");
     return -1.0;
   }
 
-  doublereal MolalityVPSSTP::logStandardConc(int k) const {
+  doublereal MolalityVPSSTP::logStandardConc(size_t k) const {
     err("logStandardConc");
     return -1.0;
   }
@@ -470,7 +462,7 @@ namespace Cantera {
     if (xmolSolvent < m_xmolSolventMIN) {
       xmolSolvent = m_xmolSolventMIN;
     }
-    for (int k = 1; k < m_kk; k++) {
+    for (size_t k = 1; k < m_kk; k++) {
       ac[k] /= xmolSolvent;
     }
   }
@@ -516,7 +508,7 @@ namespace Cantera {
      * Then, we calculate the sum of the solvent molalities
      */
     double sum = 0;
-    for (int k = 1; k < m_kk; k++) {
+    for (size_t k = 1; k < m_kk; k++) {
       sum += fmaxx(m_molalities[k], 0.0);
     }
     double oc = 1.0;
@@ -531,7 +523,7 @@ namespace Cantera {
   void MolalityVPSSTP::getElectrochemPotentials(doublereal* mu) const {
     getChemPotentials(mu);
     double ve = Faraday * electricPotential();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       mu[k] += ve*charge(k);
     }
   }
@@ -572,7 +564,7 @@ namespace Cantera {
   void MolalityVPSSTP::getUnitsStandardConc(double *uA, int k, int sizeUA) const {
     for (int i = 0; i < sizeUA; i++) {
       if (i == 0) uA[0] = 1.0;
-      if (i == 1) uA[1] = -nDim();
+      if (i == 1) uA[1] = -int(nDim());
       if (i == 2) uA[2] = 0.0;
       if (i == 3) uA[3] = 0.0;
       if (i == 4) uA[4] = 0.0;
@@ -694,13 +686,13 @@ namespace Cantera {
    *  must be named "Cl-". It must consist of exactly one Cl and one E 
    *  atom. 
    */
-  int MolalityVPSSTP::findCLMIndex() const {
-    int indexCLM = -1;
-    int eCl = -1;
-    int eE = -1;
-    int ne= nElements();
+  size_t MolalityVPSSTP::findCLMIndex() const {
+    size_t indexCLM = -1;
+    size_t eCl = -1;
+    size_t eE = -1;
+    size_t ne = nElements();
     string sn;
-    for (int e = 0; e < ne; e++) {
+    for (size_t e = 0; e < ne; e++) {
       sn = elementName(e);
       if (sn == "Cl" || sn == "CL") {
 	eCl = e;
@@ -708,10 +700,10 @@ namespace Cantera {
       }
     }
     // We have failed if we can't find the Cl element index
-    if (eCl == -1) {
+    if (eCl == npos) {
       return -1;
     }
-    for (int e = 0; e < ne; e++) {
+    for (size_t e = 0; e < ne; e++) {
       sn = elementName(e);
       if (sn == "E" || sn == "e") {
 	eE = e;
@@ -719,10 +711,10 @@ namespace Cantera {
       }
     }
     // We have failed if we can't find the E element index
-    if (eE == -1) {
-      return -1;
+    if (eE == npos) {
+      return npos;
     }
-    for (int k = 1; k < m_kk; k++) {
+    for (size_t k = 1; k < m_kk; k++) {
       doublereal nCl = nAtoms(k, eCl);
       if (nCl != 1.0) {
 	continue;
@@ -731,7 +723,7 @@ namespace Cantera {
       if (nE != 1.0) {
 	continue;
       }
-      for (int e = 0; e < ne; e++) {
+      for (size_t e = 0; e < ne; e++) {
 	if (e != eE && e != eCl) {
 	  doublereal nA = nAtoms(k, e);
 	  if (nA != 0.0) {
@@ -809,7 +801,7 @@ namespace Cantera {
       sprintf(p, "         potential    %12.6g  V\n", phi);
       s += p;
 
-      int kk = nSpecies();
+      size_t kk = nSpecies();
       array_fp x(kk);
       array_fp molal(kk);
       array_fp mu(kk);
@@ -823,8 +815,8 @@ namespace Cantera {
       getMolalityActivityCoefficients(&acMolal[0]);
       getActivities(&actMolal[0]);
  
-      int iHp = speciesIndex("H+");
-      if (iHp >= 0) {
+      size_t iHp = speciesIndex("H+");
+      if (iHp != npos) {
 	double pH = -log(actMolal[iHp]) / log(10.0);
 	sprintf(p, "                pH    %12.4g  \n", pH);
 	s += p;
@@ -862,11 +854,6 @@ namespace Cantera {
 	  s += p;
         }
       }
-
-   
-      //doublereal rt = GasConstant * temperature(); 
-      int k;
-
    
       sprintf(p, " \n");
       s += p;
@@ -880,7 +867,7 @@ namespace Cantera {
 	sprintf(p, "                     -------------  "
 		"  ------------     ------------  ------------    ------------\n");
 	s += p;
-	for (k = 0; k < kk; k++) {
+	for (size_t k = 0; k < kk; k++) {
 	  if (x[k] > SmallNumber) {
 	    sprintf(p, "%18s  %12.6g     %12.6g     %12.6g   %12.6g   %12.6g\n", 
 		    speciesName(k).c_str(), x[k], molal[k], mu[k], muss[k], acMolal[k]);
@@ -899,7 +886,7 @@ namespace Cantera {
 	sprintf(p, "                     -------------"
 		"     ------------\n");
 	s += p;
-	for (k = 0; k < kk; k++) {
+	for (size_t k = 0; k < kk; k++) {
 	  sprintf(p, "%18s   %12.6g     %12.6g\n", 
 		  speciesName(k).c_str(), x[k], molal[k]);
 	  s += p;
@@ -941,92 +928,81 @@ namespace Cantera {
      
       csvFile.precision(8);
 
-      int kk = nSpecies();
-      double x[kk];
-      double molal[kk];
-      double mu[kk];
-      double muss[kk];
-      double aMolal[kk];
-      double acMolal[kk];
-      double hbar[kk];
-      double sbar[kk];
-      double ubar[kk];
-      double cpbar[kk];
-      double vbar[kk];
       vector<std::string> pNames;
-      vector<double*> data;
+      vector<vector_fp> data;
+      vector_fp temp(nSpecies());
 
-      getMoleFractions(x);
+      getMoleFractions(&temp[0]);
       pNames.push_back("X");
-      data.push_back(x);
+      data.push_back(temp);
       try{
-	getMolalities(molal);
+	getMolalities(&temp[0]);
 	pNames.push_back("Molal");
-	data.push_back(molal);
+	data.push_back(temp);
       }
       catch (CanteraError) {;}
       try{
-	getChemPotentials(mu);
+	getChemPotentials(&temp[0]);
 	pNames.push_back("Chem. Pot. (J/kmol)");
-	data.push_back(mu);
+	data.push_back(temp);
       }
       catch (CanteraError) {;}
       try{
-	getStandardChemPotentials(muss);
+	getStandardChemPotentials(&temp[0]);
 	pNames.push_back("Chem. Pot. SS (J/kmol)");
-	data.push_back(muss);
+	data.push_back(temp);
       }
       catch (CanteraError) {;}
       try{
-	getMolalityActivityCoefficients(acMolal);
+	getMolalityActivityCoefficients(&temp[0]);
 	pNames.push_back("Molal Act. Coeff.");
-	data.push_back(acMolal);
+	data.push_back(temp);
       }
       catch (CanteraError) {;}
       try{
-	getActivities(aMolal);
+	getActivities(&temp[0]);
 	pNames.push_back("Molal Activity");
-	data.push_back(aMolal);
-	int iHp = speciesIndex("H+");
-	if (iHp >= 0) {
-	  double pH = -log(aMolal[iHp]) / log(10.0);
+	data.push_back(temp);
+	size_t iHp = speciesIndex("H+");
+	if (iHp != npos) {
+	  double pH = -log(temp[iHp]) / log(10.0);
 	  csvFile << setw(tabL) << "pH = " << setw(tabS) << pH << endl;
 	}
       }
       catch (CanteraError) {;}
       try{
-	getPartialMolarEnthalpies(hbar);
+	getPartialMolarEnthalpies(&temp[0]);
 	pNames.push_back("Part. Mol Enthalpy (J/kmol)");
-	data.push_back(hbar);
+	data.push_back(temp);
       }
       catch (CanteraError) {;}
       try{
-	getPartialMolarEntropies(sbar);
+	getPartialMolarEntropies(&temp[0]);
 	pNames.push_back("Part. Mol. Entropy (J/K/kmol)");
-	data.push_back(sbar);
+	data.push_back(temp);
       }
       catch (CanteraError) {;}
       try{
-	getPartialMolarIntEnergies(ubar);
+	getPartialMolarIntEnergies(&temp[0]);
 	pNames.push_back("Part. Mol. Energy (J/kmol)");
-	data.push_back(ubar);
+	data.push_back(temp);
       }
       catch (CanteraError) {;}
       try{
-	getPartialMolarCp(cpbar);
+	getPartialMolarCp(&temp[0]);
 	pNames.push_back("Part. Mol. Cp (J/K/kmol");
-	data.push_back(cpbar);
+	data.push_back(temp);
       }
       catch (CanteraError) {;}
       try{
-	getPartialMolarVolumes(vbar);
+	getPartialMolarVolumes(&temp[0]);
 	pNames.push_back("Part. Mol. Cv (J/K/kmol)");
-	data.push_back(vbar);
+	data.push_back(temp);
       }
       catch (CanteraError) {;}
 
       csvFile << endl << setw(tabS) << "Species,";
-      for ( int i = 0; i < (int)pNames.size(); i++ ){
+      for (size_t i = 0; i < pNames.size(); i++) {
 	csvFile << setw(tabM) << pNames[i] << ",";
       }
       csvFile << endl;
@@ -1035,16 +1011,16 @@ namespace Cantera {
       csvFile << setw(tabS+(tabM+1)*pNames.size()) << "-\n";
       csvFile.fill(' ');
       */
-      for (int k = 0; k < kk; k++) {
+      for (size_t k = 0; k < nSpecies(); k++) {
 	csvFile << setw(tabS) << speciesName(k) + ",";
-	if (x[k] > SmallNumber) {
-	  for ( int i = 0; i < (int)pNames.size(); i++ ){
+	if (data[0][k] > SmallNumber) {
+	  for (size_t i = 0; i < pNames.size(); i++) {
 	    csvFile << setw(tabM) << data[i][k] << ",";
 	  }
 	  csvFile << endl;
 	}
 	else{
-	  for ( int i = 0; i < (int)pNames.size(); i++ ){
+	  for (size_t i = 0; i < pNames.size(); i++) {
 	    csvFile << setw(tabM) << 0 << ",";
 	  }
 	  csvFile << endl;

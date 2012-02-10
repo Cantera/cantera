@@ -4,13 +4,7 @@
  *       between two surfaces (see \ref thermoprops and \link Cantera::EdgePhase EdgePhase\endlink).
  */
 
-/*  $Author$
- *  $Date$
- *  $Revision$
- *
- *  Copyright 2002 California Institute of Technology
- *
- */
+//  Copyright 2002 California Institute of Technology
 
 #ifndef CT_EDGEPHASE_H
 #define CT_EDGEPHASE_H

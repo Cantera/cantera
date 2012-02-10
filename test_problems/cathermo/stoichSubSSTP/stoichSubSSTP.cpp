@@ -2,13 +2,6 @@
  *
  *  @file HMW_graph_1.cpp
  */
-
-/*
- *  $Author$
- *  $Date$
- *  $Revision$
- */
-
 #ifdef SRCDIRTREE
 #include "ct_defs.h"
 #include "logger.h"

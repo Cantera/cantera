@@ -1,7 +1,5 @@
 /**
  *  @file CVodeInt.cpp
- *
- *  $Id$
  */
 
 // Copyright 2001  California Institute of Technology
@@ -119,17 +117,17 @@ namespace Cantera {
     delete[] m_iopt;
   }
     
-  double& CVodeInt::solution(int k){ return N_VIth(nv(m_y),k); }
+  double& CVodeInt::solution(size_t k){ return N_VIth(nv(m_y), int(k)); }
   double* CVodeInt::solution(){ return N_VDATA(nv(m_y)); }
 
-  void CVodeInt::setTolerances(double reltol, int n, double* abstol) {
+  void CVodeInt::setTolerances(double reltol, size_t n, double* abstol) {
     m_itol = 1;
-    m_nabs = n;
-    if (n != m_neq) {
+    m_nabs = int(n);
+    if (m_nabs != m_neq) {
       if (m_abstol) N_VFree(nv(m_abstol));
-      m_abstol = reinterpret_cast<void*>(N_VNew(n, 0));
+      m_abstol = reinterpret_cast<void*>(N_VNew(m_nabs, 0));
     }
-    for (int i=0; i<n; i++) {
+    for (int i=0; i<m_nabs; i++) {
       N_VIth(nv(m_abstol), i) = abstol[i];
     }
     m_reltol = reltol; 
@@ -180,7 +178,7 @@ namespace Cantera {
 
   void CVodeInt::initialize(double t0, FuncEval& func) 
   {
-    m_neq = func.neq();
+    m_neq = int(func.neq());
     m_t0  = t0;
 
     if (m_y) {
@@ -205,13 +203,13 @@ namespace Cantera {
     if (m_itol) {
       m_cvode_mem = CVodeMalloc(m_neq, cvode_rhs, m_t0, nv(m_y), m_method, 
 				m_iter, m_itol, &m_reltol,
-				nv(m_abstol), m_data, NULL, TRUE, m_iopt, 
+				nv(m_abstol), m_data, NULL, 1, m_iopt,
 				DATA_PTR(m_ropt), NULL);
     }
     else {
       m_cvode_mem = CVodeMalloc(m_neq, cvode_rhs, m_t0, nv(m_y), m_method, 
 				m_iter, m_itol, &m_reltol,
-				&m_abstols, m_data, NULL, TRUE, m_iopt, 
+				&m_abstols, m_data, NULL, 1, m_iopt,
 				DATA_PTR(m_ropt), NULL);
     }
 
@@ -254,13 +252,13 @@ namespace Cantera {
     if (m_itol) {
       result = CVReInit(m_cvode_mem, cvode_rhs, m_t0, nv(m_y), m_method, 
 			m_iter, m_itol, &m_reltol,
-			nv(m_abstol), m_data, NULL, TRUE, m_iopt, 
+			nv(m_abstol), m_data, NULL, 1, m_iopt,
 			DATA_PTR(m_ropt), NULL);
     }
     else {
       result = CVReInit(m_cvode_mem, cvode_rhs, m_t0, nv(m_y), m_method, 
 			m_iter, m_itol, &m_reltol,
-			&m_abstols, m_data, NULL, TRUE, m_iopt, 
+			&m_abstols, m_data, NULL, 1, m_iopt,
 			DATA_PTR(m_ropt), NULL);
     }
 

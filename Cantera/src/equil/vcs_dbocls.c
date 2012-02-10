@@ -700,8 +700,8 @@ static integer c__4 = 4;
 		if (bl[j] > bu[j]) {
 		    nerr = 57;
 		    nchar = 58;
-		    rdum2 = bl[j];
-		    rdum = bu[j];
+		    rdum2 = (real) bl[j];
+		    rdum = (real) bu[j];
 		    xerrwv_("DBOCLS(). FOR J=(I1), BOUND BL(J)=(R1) IS .GT. "
 			    "BU(J)=(R2).", &nchar, &nerr, &level, &c__1, &j, &
 			    idum, &c__2, &rdum2, &rdum, (ftnlen)58);
@@ -905,7 +905,7 @@ L30:
 		    if (rw[j] <= zero) {
 			nerr = 50;
 			nchar = 84;
-			rdum2 = rw[j];
+			rdum2 = (real) rw[j];
 			xerrwv_("DBOCLS(). EACH PROVIDED COL. SCALE FACTOR M"
 				"UST BE POSITIVE. COMP. (I1)   NOW = (R1).", &
 				nchar, &nerr, &level, &c__1, &j, &idum, &c__1,

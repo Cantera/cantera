@@ -9,13 +9,6 @@
  *     of these routines is to intialize the %Cantera objects with data
  *     from the ctml tree structures.
  */
-/*
- * $Author$
- * $Revision$
- * $Date$
- *
- */
-
 // Copyright 2002  California Institute of Technology
 
 
@@ -100,8 +93,8 @@ namespace Cantera {
    */
   bool getReagents(const XML_Node& rxn, kinetics_t& kin, int rp,
 		   std::string default_phase, 
-		   vector_int& spnum, vector_fp& stoich, vector_fp& order,
-		   int rule);
+		   std::vector<size_t>& spnum, vector_fp& stoich,
+		   vector_fp& order, int rule);
 
   //! Read the rate coefficient data from the XML file. 
   /*!

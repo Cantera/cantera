@@ -1,9 +1,3 @@
-
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
 #include "MultiJac.h"
 #include "MultiNewton.h"
 #include "OneDim.h"
@@ -59,12 +53,12 @@ namespace Cantera {
     }
 
 
-    int OneDim::domainIndex(string name) {
-        for (int n = 0; n < m_nd; n++) {
+    size_t OneDim::domainIndex(string name) {
+        for (size_t n = 0; n < m_nd; n++) {
             if (domain(n).id() == name) return n;
         }
         throw CanteraError("OneDim::domainIndex","no domain named >>"+name+"<<");
-        return -1;
+        return npos;
     }
 
 
@@ -107,8 +101,8 @@ namespace Cantera {
         char buf[100];
         sprintf(buf,"\nStatistics:\n\n Grid   Functions   Time      Jacobians   Time \n");
         writelog(buf);
-        int n = m_gridpts.size();
-        for (int i = 0; i < n; i++) {
+        size_t n = m_gridpts.size();
+        for (size_t i = 0; i < n; i++) {
           if (printTime) {
             sprintf(buf,"%5i   %5i    %9.4f    %5i    %9.4f \n",
                     m_gridpts[i], m_funcEvals[i], m_funcElapsed[i], 
@@ -154,20 +148,19 @@ namespace Cantera {
      * Call after one or more grids has been refined.
      */
     void OneDim::resize() {
-        int i;
         m_bw = 0;
-        vector_int nvars, loc;
-        int lc = 0;
+        std::vector<size_t> nvars, loc;
+        size_t lc = 0;
 
         // save the statistics for the last grid
         saveStats();
         m_pts = 0;
-        for (i = 0; i < m_nd; i++) {
+        for (size_t i = 0; i < m_nd; i++) {
             Domain1D* d = m_dom[i];
 
-            int np = d->nPoints();
-            int nv = d->nComponents();
-            for (int n = 0; n < np; n++) {
+            size_t np = d->nPoints();
+            size_t nv = d->nComponents();
+            for (size_t n = 0; n < np; n++) {
                 nvars.push_back(nv);
                 loc.push_back(lc);
                 lc += nv;
@@ -175,18 +168,18 @@ namespace Cantera {
             }
 
             // update the Jacobian bandwidth
-            int bw1, bw2 = 0;
+            size_t bw1, bw2 = 0;
 
             // bandwidth of the local block
             bw1 = d->bandwidth();
-            if (bw1 < 0) 
+            if (bw1 == npos)
                 bw1 = 2*d->nComponents() - 1;
 
             // bandwidth of the block coupling the first point of this
             // domain to the last point of the previous domain
             if (i > 0) {
                 bw2 = m_dom[i-1]->bandwidth();
-                if (bw2 < 0) 
+                if (bw2 == npos)
                     bw2 = m_dom[i-1]->nComponents();
                 bw2 += d->nComponents() - 1;
             }
@@ -206,7 +199,7 @@ namespace Cantera {
         m_jac = new MultiJac(*this);
         m_jac_ok = false;
 
-        for (i = 0; i < m_nd; i++)
+        for (size_t i = 0; i < m_nd; i++)
             m_dom[i]->setJac(m_jac);
     }
 
@@ -240,7 +233,7 @@ namespace Cantera {
      * 8/26/02 changed '<' to '<='  DGG
      *
      */
-    Domain1D* OneDim::pointDomain(int i) {
+    Domain1D* OneDim::pointDomain(size_t i) {
         Domain1D* d = right();
         while (d) {
             if (d->loc() <= i) return d;
@@ -254,7 +247,7 @@ namespace Cantera {
      * Evaluate the multi-domain residual function, and return the
      * result in array r.  
      */
-    void OneDim::eval(int j, double* x, double* r, doublereal rdt, int count) {
+    void OneDim::eval(size_t j, double* x, double* r, doublereal rdt, int count) {
         clock_t t0 = clock();
         fill(r, r + m_size, 0.0);
         fill(m_mask.begin(), m_mask.end(), 0);
@@ -288,7 +281,7 @@ namespace Cantera {
     doublereal OneDim::ssnorm(doublereal* x, doublereal* r) {
         eval(-1, x, r, 0.0, 0);
         doublereal ss = 0.0;
-        for (int i = 0; i < m_size; i++) { 
+        for (size_t i = 0; i < m_size; i++) { 
             ss = fmaxx(fabs(r[i]),ss);
         }
         return ss;
@@ -471,11 +464,10 @@ namespace Cantera {
     }
 
 
-    void Domain1D::setGrid(int n, const doublereal* z) {
+    void Domain1D::setGrid(size_t n, const doublereal* z) {
         m_z.resize(n);
         m_points = n;
-        int j;
-        for (j = 0; j < m_points; j++) m_z[j] = z[j];
+        for (size_t j = 0; j < m_points; j++) m_z[j] = z[j];
     }
 
 }

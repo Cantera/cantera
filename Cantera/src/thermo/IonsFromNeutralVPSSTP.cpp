@@ -16,11 +16,6 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-/*
- *  $Date$
- *  $Revision$
- */
-
 #include "IonsFromNeutralVPSSTP.h"
 #include "ThermoFactory.h"
 
@@ -355,7 +350,7 @@ namespace Cantera {
     /*
      * take the exp of the internally storred coefficients.
      */
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       ac[k] = exp(lnActCoeff_Scaled_[k]);      
     }
   }
@@ -375,7 +370,7 @@ namespace Cantera {
    */
   void  
   IonsFromNeutralVPSSTP::getChemPotentials(doublereal* mu) const {
-    int k, icat, jNeut;
+    size_t icat, jNeut;
     doublereal xx, fact2;
     /*
      *  Transfer the mole fractions to the slave neutral molecule
@@ -403,7 +398,7 @@ namespace Cantera {
       fact2 = 2.0 * RT_ * log(2.0);
 
       // Do the cation list
-      for (k = 0; k < (int) cationList_.size(); k++) {
+      for (size_t k = 0; k < cationList_.size(); k++) {
 	//! Get the id for the next cation
         icat = cationList_[k];
 	jNeut = fm_invert_ionForNeutral[icat];
@@ -418,7 +413,7 @@ namespace Cantera {
       mu[icat] = RT_ * log(xx);
 
       // Do the list of neutral molecules
-      for (k = 0; k <  numPassThroughSpecies_; k++) {
+      for (size_t k = 0; k < numPassThroughSpecies_; k++) {
 	icat = passThroughList_[k];
 	jNeut = fm_invert_ionForNeutral[icat];
 	xx = fmaxx(SmallNumber, moleFractions_[icat]);
@@ -463,7 +458,7 @@ namespace Cantera {
      */
     double T = temperature();
     double RT = GasConstant * T;
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       hbar[k] *= RT;
     }
     /*
@@ -473,7 +468,7 @@ namespace Cantera {
     s_update_lnActCoeff();
     s_update_dlnActCoeffdT();
     double RTT = RT * T;
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       hbar[k] -= RTT * dlnActCoeffdT_Scaled_[k];
     }
   }
@@ -506,14 +501,14 @@ namespace Cantera {
     s_update_lnActCoeff();
     s_update_dlnActCoeffdT();
 
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       xx = fmaxx(moleFractions_[k], xxSmall);
       sbar[k] += - lnActCoeff_Scaled_[k] -log(xx) - T * dlnActCoeffdT_Scaled_[k];
     }  
     /*
      * dimensionalize it.
      */
-   for (int k = 0; k < m_kk; k++) {
+   for (size_t k = 0; k < m_kk; k++) {
       sbar[k] *= GasConstant;
     }
   }
@@ -542,7 +537,7 @@ namespace Cantera {
     s_update_lnActCoeff();
     s_update_dlnActCoeff_dlnX_diag();
 
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       dlnActCoeffdlnX_diag[k] = dlnActCoeffdlnX_diag_[k];
     }
   }  
@@ -626,7 +621,6 @@ namespace Cantera {
    *  @param mf Dump the mole fractions into this vector.
    */
   void IonsFromNeutralVPSSTP::calcIonMoleFractions(doublereal * const mf) const {
-    int k;
     doublereal fmij;
     /*
      * Download the neutral mole fraction vector into the
@@ -635,13 +629,15 @@ namespace Cantera {
     neutralMoleculePhase_->getMoleFractions(DATA_PTR(NeutralMolecMoleFractions_)); 
   
     // Zero the mole fractions
-    fbo_zero_dbl_1(mf, m_kk);
+    for (size_t k = 0; k < m_kk; k++) {
+      mf[k] = 0.0;
+    }
   
     /*
      *  Use the formula matrix to calculate the relative mole numbers.
      */
-    for (int jNeut = 0; jNeut <  numNeutralMoleculeSpecies_; jNeut++) {
-      for (k = 0; k < m_kk; k++) {
+    for (size_t jNeut = 0; jNeut <  numNeutralMoleculeSpecies_; jNeut++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	fmij =  fm_neutralMolec_ions_[k + jNeut * m_kk];
 	mf[k] += fmij * NeutralMolecMoleFractions_[jNeut];
       }
@@ -651,10 +647,10 @@ namespace Cantera {
      * Normalize the new mole fractions
      */
     doublereal sum = 0.0;
-     for (k = 0; k < m_kk; k++) {
+     for (size_t k = 0; k < m_kk; k++) {
        sum += mf[k];
      }
-     for (k = 0; k < m_kk; k++) {
+     for (size_t k = 0; k < m_kk; k++) {
        mf[k] /= sum; 
      }
 
@@ -675,14 +671,12 @@ namespace Cantera {
    *  is dumped into the anion mole number to fix the imbalance.
    */
   void IonsFromNeutralVPSSTP::calcNeutralMoleculeMoleFractions() const {
-    int k, icat, jNeut;
-    doublereal sumCat; 
-    doublereal sumAnion;
+    size_t icat, jNeut;
     doublereal fmij;
     doublereal sum = 0.0;
 
     //! Zero the vector we are trying to find.
-    for (k = 0; k < numNeutralMoleculeSpecies_; k++) {
+    for (size_t k = 0; k < numNeutralMoleculeSpecies_; k++) {
       NeutralMolecMoleFractions_[k] = 0.0;
     }
 #ifdef DEBUG_MODE
@@ -701,32 +695,28 @@ namespace Cantera {
     switch (ionSolnType_) {
 
     case cIonSolnType_PASSTHROUGH:
-
-      for (k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	NeutralMolecMoleFractions_[k] = moleFractions_[k];
       }
       break;
 
     case cIonSolnType_SINGLEANION:
-
-      sumCat = 0.0;
-      sumAnion = 0.0;
-      for (k = 0; k < numNeutralMoleculeSpecies_; k++) {
+      for (size_t k = 0; k < numNeutralMoleculeSpecies_; k++) {
 	NeutralMolecMoleFractions_[k] = 0.0;
       }
 
-      for (k = 0; k < (int) cationList_.size(); k++) {
+      for (size_t k = 0; k < cationList_.size(); k++) {
 	//! Get the id for the next cation
         icat = cationList_[k];
 	jNeut = fm_invert_ionForNeutral[icat];
-	if (jNeut >= 0) {
+	if (jNeut != npos) {
 	  fmij =  fm_neutralMolec_ions_[icat + jNeut * m_kk];
 	  AssertTrace(fmij != 0.0);
 	  NeutralMolecMoleFractions_[jNeut] += moleFractions_[icat] / fmij;
 	}
       }
 
-      for (k = 0; k <  numPassThroughSpecies_; k++) {
+      for (size_t k = 0; k <  numPassThroughSpecies_; k++) {
 	icat = passThroughList_[k];
 	jNeut = fm_invert_ionForNeutral[icat];
 	fmij = fm_neutralMolec_ions_[ icat + jNeut * m_kk];
@@ -734,16 +724,16 @@ namespace Cantera {
       }
 
 #ifdef DEBUG_MODE
-      for (k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	moleFractionsTmp_[k] = moleFractions_[k];
       }
       for (jNeut = 0; jNeut <  numNeutralMoleculeSpecies_; jNeut++) {
-	for (k = 0; k < m_kk; k++) {
+	for (size_t k = 0; k < m_kk; k++) {
 	  fmij =  fm_neutralMolec_ions_[k + jNeut * m_kk];
 	  moleFractionsTmp_[k] -= fmij * NeutralMolecMoleFractions_[jNeut];
 	}
       }
-      for (k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	if (fabs(moleFractionsTmp_[k]) > 1.0E-13) {
 	  //! Check to see if we have in fact found the inverse.
 	  if (anionList_[0] != k) {
@@ -760,10 +750,10 @@ namespace Cantera {
 
       // Normalize the Neutral Molecule mole fractions
       sum = 0.0;
-      for (k = 0; k < numNeutralMoleculeSpecies_; k++) {
+      for (size_t k = 0; k < numNeutralMoleculeSpecies_; k++) {
         sum += NeutralMolecMoleFractions_[k];
       }
-      for (k = 0; k < numNeutralMoleculeSpecies_; k++) {
+      for (size_t k = 0; k < numNeutralMoleculeSpecies_; k++) {
 	NeutralMolecMoleFractions_[k] /= sum;
       }
 
@@ -814,7 +804,7 @@ namespace Cantera {
     //check sum dx = 0
 
     //! Zero the vector we are trying to find.
-    for (k = 0; k < numNeutralMoleculeSpecies_; k++) {
+    for (size_t k = 0; k < numNeutralMoleculeSpecies_; k++) {
       dy[k] = 0.0;
     }
 
@@ -824,22 +814,17 @@ namespace Cantera {
     switch (ionSolnType_) {
 
     case cIonSolnType_PASSTHROUGH:
-
-      for (k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	dy[k] = dx[k];
       }
       break;
 
     case cIonSolnType_SINGLEANION:
-
-      sumCat = 0.0;
-      sumAnion = 0.0;
-
-      for (k = 0; k < (int) cationList_.size(); k++) {
+      for (size_t k = 0; k < cationList_.size(); k++) {
 	//! Get the id for the next cation
         icat = cationList_[k];
 	jNeut = fm_invert_ionForNeutral[icat];
-	if (jNeut >= 0) {
+	if (jNeut != npos) {
 	  fmij =  fm_neutralMolec_ions_[icat + jNeut * m_kk];
 	  AssertTrace(fmij != 0.0);
 	  dy[jNeut] += dx[icat] / fmij;
@@ -847,7 +832,7 @@ namespace Cantera {
 	}
       }
 
-      for (k = 0; k <  numPassThroughSpecies_; k++) {
+      for (size_t k = 0; k <  numPassThroughSpecies_; k++) {
 	icat = passThroughList_[k];
 	jNeut = fm_invert_ionForNeutral[icat];
 	fmij = fm_neutralMolec_ions_[ icat + jNeut * m_kk];
@@ -856,16 +841,16 @@ namespace Cantera {
       }
 #ifdef DEBUG_MODE_NOT
 //check dy sum to zero
-      for (k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	moleFractionsTmp_[k] = dx[k];
       }
       for (jNeut = 0; jNeut <  numNeutralMoleculeSpecies_; jNeut++) {
-	for (k = 0; k < m_kk; k++) {
+	for (size_t k = 0; k < m_kk; k++) {
 	  fmij =  fm_neutralMolec_ions_[k + jNeut * m_kk];
 	  moleFractionsTmp_[k] -= fmij * dy[jNeut];
 	}
       }
-      for (k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	if (fabs(moleFractionsTmp_[k]) > 1.0E-13) {
 	  //! Check to see if we have in fact found the inverse.
 	  if (anionList_[0] != k) {
@@ -882,11 +867,11 @@ namespace Cantera {
       // Normalize the Neutral Molecule mole fractions
       sumy = 0.0;
       sumdy = 0.0;
-      for (k = 0; k < numNeutralMoleculeSpecies_; k++) {
+      for (size_t k = 0; k < numNeutralMoleculeSpecies_; k++) {
         sumy += y[k];
 	sumdy += dy[k];
       }
-      for (k = 0; k < numNeutralMoleculeSpecies_; k++) {
+      for (size_t k = 0; k < numNeutralMoleculeSpecies_; k++) {
 	dy[k] = dy[k]/sumy - y[k]*sumdy/sumy/sumy;
       }
 
@@ -1144,17 +1129,17 @@ namespace Cantera {
    */
   static double factorOverlap(const std::vector<std::string>&  elnamesVN ,
 			      const std::vector<double>& elemVectorN,
-			      const int  nElementsN,
+			      const size_t nElementsN,
 			      const std::vector<std::string>&  elnamesVI ,
 			      const std::vector<double>& elemVectorI,
-			      const int  nElementsI)
+			      const size_t nElementsI)
   {
     double fMax = 1.0E100;
-    for (int mi = 0; mi < nElementsI; mi++) {
+    for (size_t mi = 0; mi < nElementsI; mi++) {
       if (elnamesVI[mi] != "E") {
 	if (elemVectorI[mi] > 1.0E-13) {
 	  double eiNum = elemVectorI[mi];
-	  for (int mn = 0; mn < nElementsN; mn++) {
+	  for (size_t mn = 0; mn < nElementsN; mn++) {
 	    if (elnamesVI[mi] == elnamesVN[mn]) {
 	      if (elemVectorN[mn] <= 1.0E-13) {
 		return 0.0;
@@ -1184,7 +1169,7 @@ namespace Cantera {
    *             with the correct id. 
    */
   void IonsFromNeutralVPSSTP::initThermoXML(XML_Node& phaseNode, std::string id) {
-    int k;
+    size_t k;
     /*
      *   variables that need to be populated
      *
@@ -1235,38 +1220,38 @@ namespace Cantera {
     }
 
 
-    int nElementsN =  neutralMoleculePhase_->nElements();
+    size_t nElementsN =  neutralMoleculePhase_->nElements();
     const std::vector<std::string>&  elnamesVN = neutralMoleculePhase_->elementNames();
     std::vector<double> elemVectorN(nElementsN);
     std::vector<double> elemVectorN_orig(nElementsN);
 
-    int nElementsI =  nElements();
+    size_t nElementsI =  nElements();
     const std::vector<std::string>&  elnamesVI = elementNames();
     std::vector<double> elemVectorI(nElementsI);
 
     vector<doublereal> fm_tmp(m_kk);
-    for (int k = 0; k <  m_kk; k++) {
+    for (size_t k = 0; k <  m_kk; k++) {
       fm_invert_ionForNeutral[k] = -1;
     }
     /*    for (int jNeut = 0; jNeut <  numNeutralMoleculeSpecies_; jNeut++) {
       fm_invert_ionForNeutral[jNeut] = -1;
       }*/
-    for (int jNeut = 0; jNeut <  numNeutralMoleculeSpecies_; jNeut++) {
-      for (int m = 0; m < nElementsN; m++) {
+    for (size_t jNeut = 0; jNeut <  numNeutralMoleculeSpecies_; jNeut++) {
+      for (size_t m = 0; m < nElementsN; m++) {
 	 elemVectorN[m] = neutralMoleculePhase_->nAtoms(jNeut, m);
       }
       elemVectorN_orig = elemVectorN;
-      fvo_zero_dbl_1(fm_tmp, m_kk);
+      fm_tmp.assign(m_kk, 0.0);
 
-      for (int m = 0; m < nElementsI; m++) {
+      for (size_t m = 0; m < nElementsI; m++) {
 	 elemVectorI[m] = nAtoms(indexSpecialSpecies_, m);
       }
       double fac = factorOverlap(elnamesVN, elemVectorN, nElementsN,
 				 elnamesVI ,elemVectorI, nElementsI);
       if (fac > 0.0) {
-	for (int m = 0; m < nElementsN; m++) {
+	for (size_t m = 0; m < nElementsN; m++) {
 	  std::string mName = elnamesVN[m];
-	  for (int mi = 0; mi < nElementsI; mi++) {
+	  for (size_t mi = 0; mi < nElementsI; mi++) {
 	    std::string eName = elnamesVI[mi];
 	    if (mName == eName) {
 	      elemVectorN[m] -= fac * elemVectorI[mi];
@@ -1279,15 +1264,15 @@ namespace Cantera {
     
     
       for (k = 0; k < m_kk; k++) {
-	for (int m = 0; m < nElementsI; m++) {
+	for (size_t m = 0; m < nElementsI; m++) {
 	  elemVectorI[m] = nAtoms(k, m);
 	}
 	double fac = factorOverlap(elnamesVN, elemVectorN, nElementsN,
 				   elnamesVI ,elemVectorI, nElementsI);
 	if (fac > 0.0) {
-	  for (int m = 0; m < nElementsN; m++) {
+	  for (size_t m = 0; m < nElementsN; m++) {
 	    std::string mName = elnamesVN[m];
-	    for (int mi = 0; mi < nElementsI; mi++) {
+	    for (size_t mi = 0; mi < nElementsI; mi++) {
 	      std::string eName = elnamesVI[mi];
 	      if (mName == eName) {
 		elemVectorN[m] -= fac * elemVectorI[mi];
@@ -1296,7 +1281,7 @@ namespace Cantera {
 	    }
 	  }
 	  bool notTaken = true;
-	  for (int iNeut = 0; iNeut < jNeut; iNeut++) {
+	  for (size_t iNeut = 0; iNeut < jNeut; iNeut++) {
 	    if (fm_invert_ionForNeutral[k] == iNeut) {
 	      notTaken = false;
 	    }
@@ -1313,7 +1298,7 @@ namespace Cantera {
       }
 
       // Ok check the work
-      for (int m = 0; m < nElementsN; m++) {
+      for (size_t m = 0; m < nElementsN; m++) {
 	if (fabs(elemVectorN[m]) > 1.0E-13) {
 	  throw CanteraError("IonsFromNeutralVPSSTP::initThermoXML", 
 			     "Simple formula matrix generation failed");
@@ -1340,7 +1325,7 @@ namespace Cantera {
    *
    */
   void IonsFromNeutralVPSSTP::s_update_lnActCoeff() const {
-    int k, icat, jNeut;
+    size_t icat, jNeut;
     doublereal fmij;
     /*
      * Get the activity coefficiens of the neutral molecules
@@ -1353,7 +1338,7 @@ namespace Cantera {
     case cIonSolnType_SINGLEANION:
    
       // Do the cation list
-      for (k = 0; k < (int) cationList_.size(); k++) {
+      for (size_t k = 0; k < cationList_.size(); k++) {
 	//! Get the id for the next cation
         icat = cationList_[k];
 	jNeut = fm_invert_ionForNeutral[icat];
@@ -1367,7 +1352,7 @@ namespace Cantera {
       lnActCoeff_Scaled_[icat]= 0.0;
 
       // Do the list of neutral molecules
-      for (k = 0; k <  numPassThroughSpecies_; k++) {
+      for (size_t k = 0; k <  numPassThroughSpecies_; k++) {
 	icat = passThroughList_[k];
 	jNeut = fm_invert_ionForNeutral[icat];
 	lnActCoeff_Scaled_[icat] = lnActCoeff_NeutralMolecule_[jNeut];
@@ -1399,21 +1384,20 @@ namespace Cantera {
    */
   void IonsFromNeutralVPSSTP::getdlnActCoeffds(const doublereal dTds, const doublereal * const dXds, 
 					       doublereal *dlnActCoeffds) const {
-    int k, icat, jNeut;
+    size_t icat, jNeut;
     doublereal fmij;
-    int numNeutMolSpec;
     /*
      * Get the activity coefficients of the neutral molecules
      */
     GibbsExcessVPSSTP *geThermo = dynamic_cast<GibbsExcessVPSSTP *>(neutralMoleculePhase_);
     if (!geThermo) {
-      for ( k = 0; k < m_kk; k++ ){
+      for (size_t k = 0; k < m_kk; k++ ){
 	dlnActCoeffds[k] = dXds[k] / moleFractions_[k];
       }
       return;
     }
 
-    numNeutMolSpec = geThermo->nSpecies();
+    size_t numNeutMolSpec = geThermo->nSpecies();
     vector_fp dlnActCoeff_NeutralMolecule(numNeutMolSpec);
     vector_fp dX_NeutralMolecule(numNeutMolSpec);
 
@@ -1430,7 +1414,7 @@ namespace Cantera {
     case cIonSolnType_SINGLEANION:
    
       // Do the cation list
-      for (k = 0; k < (int) cationList_.size(); k++) {
+      for (size_t k = 0; k < cationList_.size(); k++) {
 	//! Get the id for the next cation
         icat = cationList_[k];
 	jNeut = fm_invert_ionForNeutral[icat];
@@ -1444,7 +1428,7 @@ namespace Cantera {
       dlnActCoeffds[icat]= 0.0;
 
       // Do the list of neutral molecules
-      for (k = 0; k <  numPassThroughSpecies_; k++) {
+      for (size_t k = 0; k < numPassThroughSpecies_; k++) {
 	icat = passThroughList_[k];
 	jNeut = fm_invert_ionForNeutral[icat];
 	dlnActCoeffds[icat] = dlnActCoeff_NeutralMolecule[jNeut];
@@ -1470,14 +1454,14 @@ namespace Cantera {
    * temperature derivative of the natural logarithm of the activity coefficients
    */
   void IonsFromNeutralVPSSTP::s_update_dlnActCoeffdT() const {
-    int k, icat, jNeut;
+    size_t icat, jNeut;
     doublereal fmij;
     /*
      * Get the activity coefficients of the neutral molecules
      */
     GibbsExcessVPSSTP *geThermo = dynamic_cast<GibbsExcessVPSSTP *>(neutralMoleculePhase_);
     if (!geThermo) {
-      fvo_zero_dbl_1(dlnActCoeffdT_Scaled_, m_kk);
+      dlnActCoeffdT_Scaled_.assign(m_kk, 0.0);
       return;
     }
 
@@ -1489,7 +1473,7 @@ namespace Cantera {
     case cIonSolnType_SINGLEANION:
    
       // Do the cation list
-      for (k = 0; k < (int) cationList_.size(); k++) {
+      for (size_t k = 0; k < cationList_.size(); k++) {
 	//! Get the id for the next cation
         icat = cationList_[k];
 	jNeut = fm_invert_ionForNeutral[icat];
@@ -1503,7 +1487,7 @@ namespace Cantera {
       dlnActCoeffdT_Scaled_[icat]= 0.0;
 
       // Do the list of neutral molecules
-      for (k = 0; k <  numPassThroughSpecies_; k++) {
+      for (size_t k = 0; k <  numPassThroughSpecies_; k++) {
 	icat = passThroughList_[k];
 	jNeut = fm_invert_ionForNeutral[icat];
 	dlnActCoeffdT_Scaled_[icat] = dlnActCoeffdT_NeutralMolecule_[jNeut];
@@ -1528,7 +1512,7 @@ namespace Cantera {
    * temperature derivative of the natural logarithm of the activity coefficients
    */
   void IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnX_diag() const {
-    int k, icat, jNeut;
+    size_t icat, jNeut;
     doublereal fmij;
     /*
      * Get the activity coefficients of the neutral molecules
@@ -1547,7 +1531,7 @@ namespace Cantera {
     case cIonSolnType_SINGLEANION:
    
       // Do the cation list
-      for (k = 0; k < (int) cationList_.size(); k++) {
+      for (size_t k = 0; k < cationList_.size(); k++) {
 	//! Get the id for the next cation
         icat = cationList_[k];
 	jNeut = fm_invert_ionForNeutral[icat];
@@ -1561,7 +1545,7 @@ namespace Cantera {
       dlnActCoeffdlnX_diag_[icat]= 0.0;
 
       // Do the list of neutral molecules
-      for (k = 0; k <  numPassThroughSpecies_; k++) {
+      for (size_t k = 0; k <  numPassThroughSpecies_; k++) {
 	icat = passThroughList_[k];
 	jNeut = fm_invert_ionForNeutral[icat];
 	dlnActCoeffdlnX_diag_[icat] = dlnActCoeffdlnX_diag_NeutralMolecule_[jNeut];
@@ -1586,7 +1570,7 @@ namespace Cantera {
    * temperature derivative of the natural logarithm of the activity coefficients
    */
   void IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnN_diag() const {
-    int k, icat, jNeut;
+    size_t icat, jNeut;
     doublereal fmij;
     /*
      * Get the activity coefficients of the neutral molecules
@@ -1605,7 +1589,7 @@ namespace Cantera {
     case cIonSolnType_SINGLEANION:
    
       // Do the cation list
-      for (k = 0; k < (int) cationList_.size(); k++) {
+      for (size_t k = 0; k < cationList_.size(); k++) {
 	//! Get the id for the next cation
         icat = cationList_[k];
 	jNeut = fm_invert_ionForNeutral[icat];
@@ -1619,7 +1603,7 @@ namespace Cantera {
       dlnActCoeffdlnN_diag_[icat]= 0.0;
 
       // Do the list of neutral molecules
-      for (k = 0; k <  numPassThroughSpecies_; k++) {
+      for (size_t k = 0; k < numPassThroughSpecies_; k++) {
 	icat = passThroughList_[k];
 	jNeut = fm_invert_ionForNeutral[icat];
 	dlnActCoeffdlnN_diag_[icat] = dlnActCoeffdlnN_diag_NeutralMolecule_[jNeut];

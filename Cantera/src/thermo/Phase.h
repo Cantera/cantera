@@ -6,12 +6,6 @@
  *   name, and also contains text for the module phases (see \ref
  *   phases and class \link Cantera::Phase Phase\endlink).
  */
-
-/*
- * $Author$
- * $Revision$
- * $Date$
- */
 // Copyright 2001  California Institute of Technology
 
 #ifndef CT_PHASE_H
@@ -256,7 +250,7 @@ namespace Cantera {
      * The index is used in the Python and matlab interfaces to 
      * index into a list of ThermoPhase objects
      */
-    int index() const;
+    size_t index() const;
 
     //! Sets the index of the phase
     /*!
@@ -265,7 +259,7 @@ namespace Cantera {
      *
      * @param m Integer index of the phase
      */
-    void setIndex(int m);
+    void setIndex(size_t m);
 
     //! Returns the index of a species named 'name' within the Phase object
     /*!
@@ -314,7 +308,7 @@ namespace Cantera {
      * @param state    output vector. Must be of length  nSpecies() + 2 or
      *                 greater.
      */
-    void saveState(int lenstate, doublereal* state) const;
+    void saveState(size_t lenstate, doublereal* state) const;
       
     //!Restore a state saved on a previous call to saveState.
     /*!
@@ -327,7 +321,7 @@ namespace Cantera {
      *  @param lenstate   Length of the state vector
      *  @param state      Vector of state conditions.
      */
-    void restoreState(int lenstate, const doublereal* state);
+    void restoreState(size_t lenstate, const doublereal* state);
 
     /**
      * Set the species mole fractions by name. 
@@ -503,7 +497,7 @@ namespace Cantera {
      *
      * @return Mole fraction of the species
      */
-    doublereal moleFraction(int k) const;
+    doublereal moleFraction(size_t k) const;
         
     //! Return the mole fraction of a single species
     /*!
@@ -519,7 +513,7 @@ namespace Cantera {
      *
      * @return Mass Fraction of the species
      */
-    doublereal massFraction(int k) const;
+    doublereal massFraction(size_t k) const;
 
     //! Return the mass fraction of a single species
     /*!
@@ -535,7 +529,7 @@ namespace Cantera {
     doublereal chargeDensity() const;
 
     /// Returns the number of spatial dimensions (1, 2, or 3)
-    int nDim() const {return m_ndim;}
+    size_t nDim() const {return m_ndim;}
 
     //! Set the number of spatial dimensions (1, 2, or 3)
     /*!
@@ -544,7 +538,7 @@ namespace Cantera {
      *
      * @param ndim   Input number of dimensions.
      */
-    void setNDim(int ndim) {m_ndim = ndim;}
+    void setNDim(size_t ndim) {m_ndim = ndim;}
 
     /** 
      *  Finished adding species, prepare to use them for calculation
@@ -564,19 +558,19 @@ namespace Cantera {
      * to restate it in here, so that the declarations in the two
      * base classes become hidden.
      */
-    int m_kk;
+    size_t m_kk;
 
     /**
      * m_ndim is the dimensionality of the phase.  Volumetric
      * phases have dimensionality 3 and surface phases have
      * dimensionality 2.
      */
-    int m_ndim;
+    size_t m_ndim;
     /**
      * m_index is the index of the phase
      * 
      */
-    int m_index;
+    size_t m_index;
 
   private:
 

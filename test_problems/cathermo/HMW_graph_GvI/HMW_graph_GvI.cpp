@@ -2,18 +2,10 @@
  *
  *  @file HMW_graph_1.cpp
  */
-
-/*
- *  $Author$
- *  $Date$
- *  $Revision$
- */
-
-
 #include "Cantera.h"
 
 #include "kernel/logger.h"
-#include "HMWSoln.h"
+#include "kernel/HMWSoln.h"
 
 #include <cstdio>
 

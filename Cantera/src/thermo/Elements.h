@@ -5,12 +5,6 @@
  *
  *  This file contains the declarations for the elements class.
  */
-/***********************************************************************
- *  $RCSfile: Elements.h,v $
- *  $Author$ 
- *  $Date$
- *  $Revision$
- ***********************************************************************/
 //  Copyright 2001  California Institute of Technology
 
 #ifndef CT_ELEMENTS_H
@@ -170,13 +164,13 @@ namespace Cantera {
     /*!
      *  @param m element index
      */
-    doublereal atomicWeight(int m) const { return m_atomicWeights[m]; }
+    doublereal atomicWeight(size_t m) const { return m_atomicWeights[m]; }
 
     /// Atomic number of element m.
     /*!
      *  @param m element index
      */
-    int atomicNumber(int m) const { return m_atomicNumbers[m]; }
+    int atomicNumber(size_t m) const { return m_atomicNumbers[m]; }
 
     //! Entropy at 298.15 K and 1 bar of stable state
     //! of the element
@@ -185,7 +179,7 @@ namespace Cantera {
      *
      *  @param m  Element index
      */
-    doublereal entropyElement298(int m) const;
+    doublereal entropyElement298(size_t m) const;
 
     //! Return the element constraint type
     /*!
@@ -227,7 +221,7 @@ namespace Cantera {
      *  @return 
      *    \c int: The number of elements in the object.
      */
-    int nElements() const { return m_mm; }
+    size_t nElements() const { return m_mm; }
 
     //! Function that returns the index of an element.
     /*!
@@ -239,13 +233,13 @@ namespace Cantera {
      *
      * @param name String containing the index.
      */
-    int elementIndex(std::string name) const;
+    size_t elementIndex(std::string name) const;
       
     //! Name of the element with index \c m. 
     /*!
      * @param m Element index. If m < 0 or m >= nElements() an exception is thrown.
      */
-    std::string elementName(int m) const;
+    std::string elementName(size_t m) const;
       
     //!   Returns a string vector containing the element names  
     /*!
@@ -350,7 +344,7 @@ namespace Cantera {
     /******************************************************************/
 
     //!   Number of elements.
-    int                            m_mm;
+    size_t m_mm;
 
     /* m_elementsFrozen: */
     /**   boolean indicating completion of object

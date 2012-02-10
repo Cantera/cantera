@@ -6,11 +6,6 @@
 
 // Copyright 2001  California Institute of Technology
 
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
 #include "BandMatrix.h"
 #include "ctlapack.h"
 #include "utilities.h"
@@ -36,7 +31,7 @@ namespace Cantera {
     ludata.clear(); 
   }
   //====================================================================================================================
-  BandMatrix::BandMatrix(int n, int kl, int ku, doublereal v)   :
+  BandMatrix::BandMatrix(size_t n, size_ kl, size_t ku, doublereal v)   :
     GeneralMatrix(1),
     m_factored(false), 
     m_n(n),
@@ -50,8 +45,8 @@ namespace Cantera {
     fill(ludata.begin(), ludata.end(), 0.0);
     m_ipiv.resize(m_n);
     m_colPtrs.resize(n);
-    int ldab = (2*kl + ku + 1);
-    for (int j = 0; j < n; j++) {
+    size_t ldab = (2*kl + ku + 1);
+    for (size_t j = 0; j < n; j++) {
       m_colPtrs[j] = &(data[ldab * j]);
     }
   }
@@ -72,8 +67,8 @@ namespace Cantera {
     m_factored = y.m_factored;
     m_ipiv = y.m_ipiv;
     m_colPtrs.resize(m_n);
-    int ldab = (2 *m_kl + m_ku + 1);
-    for (int j = 0; j < m_n; j++) {
+    size_t ldab = (2 *m_kl + m_ku + 1);
+    for (size_t j = 0; j < m_n; j++) {
       m_colPtrs[j] = &(data[ldab * j]);
     }
   }
@@ -93,14 +88,14 @@ namespace Cantera {
     ludata = y.ludata;
     m_factored = y.m_factored;
     m_colPtrs.resize(m_n);
-    int ldab = (2 * m_kl + m_ku + 1);
-    for (int j = 0; j < m_n; j++) {
+    size_t ldab = (2 * m_kl + m_ku + 1);
+    for (size_t j = 0; j < m_n; j++) {
       m_colPtrs[j] = &(data[ldab * j]);
     }
     return *this;
   }
   //====================================================================================================================
-  void BandMatrix::resize(int n, int kl, int ku, doublereal v) {
+  void BandMatrix::resize(size_t n, size_t kl, size_t ku, doublereal v) {
     m_n = n;
     m_kl = kl;
     m_ku = ku;
@@ -109,8 +104,8 @@ namespace Cantera {
     m_ipiv.resize(m_n);
     fill(data.begin(), data.end(), v);
     m_colPtrs.resize(m_n);
-    int ldab = (2 * m_kl + m_ku + 1);
-    for (int j = 0; j < n; j++) {
+    size_t ldab = (2 * m_kl + m_ku + 1);
+    for (size_t j = 0; j < n; j++) {
       m_colPtrs[j] = &(data[ldab * j]);
     }
     m_factored = false;
@@ -197,11 +192,11 @@ namespace Cantera {
    * Multiply A*b and write result to \c prod.
    */
   void BandMatrix::mult(const doublereal * const b, doublereal * const prod) const {
-    int nr = nRows();
+    size_t nr = nRows();
     doublereal sum = 0.0;
-    for (int m = 0; m < nr; m++) {
+    for (size_t m = 0; m < nr; m++) {
       sum = 0.0;
-      for (int j = m - m_kl; j <= m + m_ku; j++) {
+      for (size_t j = m - m_kl; j <= m + m_ku; j++) {
 	if (j >= 0 && j < m_n)
 	  sum += _value(m,j) * b[j];
       }
@@ -213,11 +208,11 @@ namespace Cantera {
    * Multiply b*A and write result to \c prod.
    */
   void BandMatrix::leftMult(const doublereal * const b, doublereal * const prod) const {
-    int nc = nColumns();
+    size_t nc = nColumns();
     doublereal sum = 0.0;
-    for (int n = 0; n < nc; n++) {
+    for (size_t n = 0; n < nc; n++) {
       sum = 0.0;
-      for (int i = n - m_ku; i <= n + m_kl; i++) {
+      for (size_t i = n - m_ku; i <= n + m_kl; i++) {
 	if (i >= 0 && i < m_n)
 	  sum += _value(i,n) * b[i];
       }
@@ -288,10 +283,10 @@ namespace Cantera {
   }
   //====================================================================================================================
   ostream& operator<<(ostream& s, const BandMatrix& m) {
-    int nr = m.nRows();
-    int nc = m.nColumns();
-    for (int i = 0; i < nr; i++) {
-      for (int j = 0; j < nc; j++) {
+    size_t nr = m.nRows();
+    size_t nc = m.nColumns();
+    for (size_t i = 0; i < nr; i++) {
+      for (size_t j = 0; j < nc; j++) {
 	s << m(i,j) << ", ";
       }
       s << endl;

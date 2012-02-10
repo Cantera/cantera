@@ -1,26 +1,3 @@
-/*====================================================================
- * ------------------------
- * | CVS File Information |
- * ------------------------
- *
- * $RCSfile: tok_input_util.cpp,v $
- *
- * $Author$
- *
- * $Date$
- *
- * $Revision$
- * Symbolic $Name:  $
- *
- * $Id$
- * $Source: /cvsroot/cantera/cantera/tools/testtools/tok_input_util.cpp,v $
- *
- *====================================================================*/
-#ifdef WIN32
-#pragma warning(disable:4996)
-#endif
-
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -38,43 +15,43 @@ static char COM_CHAR = '!';   /* This is used as a comment character */
 static char COM_CHAR2 = '#';  /* This is used as a 2nd comment character */
 static char KEY_CHAR = '=';   /* This is used to separate the key_string
                                  from the rest of the line */
-static int PrintInputFile = TRUE;     /* Used to turn on and off the 
+static int PrintInputFile = true;     /* Used to turn on and off the
                                       printing of the input file */
 
 /*************** R O U T I N E S   I N   T H E   F I L E *******************
 *
 *    NAME				TYPE		CALLED_BY
 *--------------------------------------------------------------------
-*    get_next_keyLine                   BOOLEAN         extern
+*    get_next_keyLine                   bool            extern
 *    tok_to_int                         int             extern
 *    str_to_int                         int             extern, tok_to_int
 *    tok_to_double                      double          extern
 *    str_to_double                      double         extern,tok_to_double
-*    tok_to_boolean                     BOOLEAN         extern
-*    str_to_boolean                     BOOLEAN       extern,tok_to_boolean
+*    tok_to_boolean                     bool            extern
+*    str_to_boolean                     bool           extern,tok_to_boolean
 *    tok_to_string                      char *          extern
 *
 *
 *    scan_for_int                       int             extern
 *    scan_for_double                    double          extern
 *    scan_for_string                    char *          extern
-*    scan_for_boolean                   BOOLEAN         extern
+*    scan_for_boolean                   bool            extern
 *    scan_for_line                      int             extern
 *    read_line				int		scan_for_line, 
 *                                                    get_next_keyLine
-*    interpret_int               static BOOLEAN         str_to_int + others
-*    interpret_boolean           static BOOLEAN         str_to_boolean
-*    interpret_double            static BOOLEAN         str_to_double
+*    interpret_int               static bool         str_to_int + others
+*    interpret_boolean           static bool         str_to_boolean
+*    interpret_double            static bool         str_to_double
 *    strip		                int	  read_input_file,
 *						  look_for,
 *                                                 get_next_keyLine
 *    read_string                 static void      scan_for_line 
 *    stokenize			        int	  fillTokStruct
-*    outofbnds                   static BOOLEAN   all
-*    strmatch                           BOOLEAN   extern, toktokmatch
-*    strstrmatch                        BOOLEAN   extern
-*    strtokmatch                        BOOLEAN   extern
-*    toktokmatch                        BOOLEAN         extern, strtokmatch
+*    outofbnds                   static bool   all
+*    strmatch                           bool   extern, toktokmatch
+*    strstrmatch                        bool   extern
+*    strtokmatch                        bool   extern
+*    toktokmatch                        bool         extern, strtokmatch
 *                                                       strstrmatch
 *    fillTokStruct                      void            extern, strtokmatch
 *                                                       strstrmatch,
@@ -86,12 +63,12 @@ static int PrintInputFile = TRUE;     /* Used to turn on and off the
 * Definitions of static functions:
 */
 
-static BOOLEAN outofbnds(const double, const double, const double );
-static BOOLEAN interpret_boolean(const char *, int *, const int);
-static BOOLEAN interpret_int    (const char *, int *, const int, const int,
-                                 const int);
-static BOOLEAN interpret_double (const char *, double *, const double,
-                                 const double, const double);
+static bool outofbnds(const double, const double, const double );
+static bool interpret_boolean(const char *, int *, const int);
+static bool interpret_int    (const char *, int *, const int, const int,
+                              const int);
+static bool interpret_double(const char *, double *, const double,
+                             const double, const double);
 
 
 /************ Member Functions for the TOKEN Structure ********************/
@@ -134,7 +111,7 @@ TOKEN::~TOKEN()
 
 /**************************************************************************/
 
-BOOLEAN get_next_keyLine(FILE *ifp, TOKEN *keyLineTok, TOKEN *keyArgTok)
+bool get_next_keyLine(FILE *ifp, TOKEN *keyLineTok, TOKEN *keyArgTok)
     /*
      *   This routine reads the input file to obtain the next line of
      *   uncommented
@@ -190,7 +167,7 @@ BOOLEAN get_next_keyLine(FILE *ifp, TOKEN *keyLineTok, TOKEN *keyArgTok)
      *     keyArgTok->tok_ptr[3] = "Not"
      *     keyArgTok->tok_ptr[4] = "Even"
      *
-     *   The function returns TRUE if there is a next line to process.
+     *   The function returns true if there is a next line to process.
      *   It returns false if an EOF is encountered.
      */
 {
@@ -205,7 +182,7 @@ BOOLEAN get_next_keyLine(FILE *ifp, TOKEN *keyLineTok, TOKEN *keyArgTok)
    */
   if (ifp == NULL || keyLineTok == NULL || keyArgTok == NULL) {
     fprintf(stderr, "get_next_keyLine ERROR, arguments are bad\n");
-    return(FALSE);
+    return(false);
   }
 
   /*
@@ -215,7 +192,7 @@ BOOLEAN get_next_keyLine(FILE *ifp, TOKEN *keyLineTok, TOKEN *keyArgTok)
   do_it_again:
   do {
     if ((retn_value = read_string(ifp, save_input, '\n')) < 0) {
-      return(FALSE);
+      return(false);
     }
     if (PrintInputFile)  {
       if (retn_value <=0) printf ("%s\n", save_input);
@@ -261,14 +238,14 @@ BOOLEAN get_next_keyLine(FILE *ifp, TOKEN *keyLineTok, TOKEN *keyArgTok)
 
   fillTokStruct(keyLineTok, save_input);
   fillTokStruct(keyArgTok,  token_start);
-  return (TRUE);
+  return (true);
 }
 /**************************************************************************/
 /**************************************************************************/
 /**************************************************************************/
 
 int tok_to_int(const TOKEN *tokPtr, const int maxVal, const int minVal, 
-               const int defaultVal, BOOLEAN *error)
+               const int defaultVal, bool *error)
 /*
  *      Interprets the first string of a TOKEN structure as an int.
  *      Returns the interpreted value as the return value.
@@ -291,7 +268,7 @@ int tok_to_int(const TOKEN *tokPtr, const int maxVal, const int minVal,
  *      default may also be specified by setting devault_value to
  *      NO_DEFAULT_INT.
  *
- *      If there is an error, *error is set to TRUE. *error isn't touched
+ *      If there is an error, *error is set to true. *error isn't touched
  *      if there isn't an error.
  */
 {
@@ -300,7 +277,7 @@ int tok_to_int(const TOKEN *tokPtr, const int maxVal, const int minVal,
   else if (tokPtr->ntokes > 1) {
     (void) fprintf(stderr, "ERROR: tok_to_int, ntokes > 1: %s\n", 
                    tokPtr->orig_str);
-    *error = TRUE;
+    *error = true;
   }  
   return(str_to_int(tokPtr->tok_ptr[0], maxVal, minVal, defaultVal, error));
 }
@@ -309,7 +286,7 @@ int tok_to_int(const TOKEN *tokPtr, const int maxVal, const int minVal,
 /**************************************************************************/
 
 int str_to_int(const char *int_string, const int maxVal, const int minVal, 
-               const int defaultVal, BOOLEAN *error)
+               const int defaultVal, bool *error)
 /*
  *      Interprets a stripped character string as an integer.
  *      Bounds checking is done on the value before returning.  Value
@@ -328,19 +305,19 @@ int str_to_int(const char *int_string, const int maxVal, const int minVal,
  *      default may also be specified by setting devault_value to
  *      NO_DEFAULT_INT.
  *
- *      If there is an error, *error is set to TRUE. *error isn't touched
+ *      If there is an error, *error is set to true. *error isn't touched
  *      if there isn't an error.
  */
 {
-  int retn_value, check = FALSE;
+  int retn_value, check = false;
   double LmaxVal, LminVal;
-  if (defaultVal == NO_DEFAULT_INT) check = TRUE;
+  if (defaultVal == NO_DEFAULT_INT) check = true;
   if (interpret_int(int_string, &retn_value, maxVal, minVal, defaultVal)) {
     if (check) {
       if (retn_value == NO_DEFAULT_INT) {
 	(void) fprintf(stderr, 
 		       "ERROR: str_to_int: Default not allowed\n");
-	*error = TRUE;
+	*error = true;
       }
     }
     if (maxVal < INT_MAX) LmaxVal = (double) maxVal + 0.01;
@@ -352,10 +329,10 @@ int str_to_int(const char *int_string, const int maxVal, const int minVal,
 	      "ERROR: str_to_int outofbnds:\n\t\"%s\"\n", 
 	      int_string);
       fprintf(stderr,"\tmax = %d, min = %d\n", maxVal, minVal);
-      *error = TRUE;
+      *error = true;
     }
   } else
-     *error = TRUE;
+     *error = true;
   return (retn_value);
 }
 /**************************************************************************/
@@ -364,7 +341,7 @@ int str_to_int(const char *int_string, const int maxVal, const int minVal,
 
 double tok_to_double(const TOKEN * tokPtr, const double maxVal, 
                      const double minVal, const double defaultVal, 
-                     BOOLEAN *error)
+                     bool *error)
 /*
  *      Interprets the first string of a TOKEN structure as a double.
  *      Returns the interpreted value as the return value.
@@ -401,7 +378,7 @@ double tok_to_double(const TOKEN * tokPtr, const double maxVal,
  *      The absence of a default may also be specified by setting the 
  *      value of default_value to NO_DEFAULT_DOUBLE.
  *
- *      If there is an error, *error is set to TRUE. *error isn't touched
+ *      If there is an error, *error is set to true. *error isn't touched
  *      if there isn't an error.
  */
 {
@@ -410,7 +387,7 @@ double tok_to_double(const TOKEN * tokPtr, const double maxVal,
   else if (tokPtr->ntokes > 1) {
     (void) fprintf(stderr, "ERROR: tok_to_double, ntokes > 1: %s\n", 
                    tokPtr->orig_str);
-    *error = TRUE;
+    *error = true;
   }  
   return(str_to_double(tokPtr->tok_ptr[0], maxVal, minVal, defaultVal, error));
 }
@@ -420,7 +397,7 @@ double tok_to_double(const TOKEN * tokPtr, const double maxVal,
 
 double str_to_double(const char *dbl_string, const double maxVal, 
                      const double minVal, const double defaultVal, 
-                     BOOLEAN *error)
+                     bool *error)
 /*
  *      Interprets a stripped character string as a double. Returns the
  *      interpreted value as the return value.
@@ -455,47 +432,47 @@ double str_to_double(const char *dbl_string, const double maxVal,
  *      default may also be specified by setting the value of default_value
  *      to NO_DEFAULT_DOUBLE.
  *
- *      If there is an error, *error is set to TRUE. *error isn't touched
+ *      If there is an error, *error is set to true. *error isn't touched
  *      if there isn't an error.
  */
 {
   double retn_value;
-  int    check = FALSE;
-  if (defaultVal == NO_DEFAULT_DOUBLE) check = TRUE;
+  int    check = false;
+  if (defaultVal == NO_DEFAULT_DOUBLE) check = true;
   if (interpret_double(dbl_string, &retn_value, maxVal, minVal, defaultVal)) {
     if (check)
        if (retn_value == NO_DEFAULT_DOUBLE) {
 	 (void) fprintf(stderr, 
 			"ERROR: keyLine_double: Default not allowed\n");
-	 *error = TRUE;
+	 *error = true;
        }
     if (outofbnds(retn_value, maxVal, minVal)) {
       (void) fprintf(stderr, "ERROR: keyLine_double outofbnds:\n\t\"%s\"\n",
                      dbl_string);
       (void) fprintf(stderr,"\tmax = %e, min = %e\n", maxVal, minVal);
-      *error = TRUE;
+      *error = true;
     }
   } else
-     *error = TRUE;
+     *error = true;
   return (retn_value);
 }
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
 
-BOOLEAN tok_to_boolean(const TOKEN *tokPtr, const int default_value, 
-                       BOOLEAN *error)
+bool tok_to_boolean(const TOKEN *tokPtr, const int default_value,
+                    bool *error)
   /*
-  *      Interprets the first string of a TOKEN structure as a BOOLEAN.
-  *      (i.e., TRUE or FALSE).  Returns the interpreted value as the
+  *      Interprets the first string of a TOKEN structure as a bool.
+  *      (i.e., true or false).  Returns the interpreted value as the
   *       return value.
   *      Errors conditions are created if more than one token is found.
   *
   *      The following character strings are interpreted
   *      (case doesn't matter):
   *
-  *      TRUE  = "YES", "TRUE", "T", "Y"
-  *      FALSE = "NO,   "FALSE", "N", "F"
+  *      true  = "YES", "true", "T", "Y"
+  *      false = "NO,   "false", "N", "F"
   *      default_value = "DEFAULT" or ""
   *
   *      A default may be specified on the command line. The absence of a
@@ -503,7 +480,7 @@ BOOLEAN tok_to_boolean(const TOKEN *tokPtr, const int default_value,
   *      If tokPtr contains no tokens, this routine will try to use the
   *      default value.
   *
-  *      If there is an error, *error is set to TRUE. *error isn't touched
+  *      If there is an error, *error is set to true. *error isn't touched
   *      if there isn't an error.
   */
 {
@@ -512,7 +489,7 @@ BOOLEAN tok_to_boolean(const TOKEN *tokPtr, const int default_value,
   else if (tokPtr->ntokes > 1) {
     (void) fprintf(stderr, "ERROR: tok_to_boolean, ntokes > 1: %s\n", 
                    tokPtr->orig_str);
-    *error = TRUE;
+    *error = true;
   }  
   return(str_to_boolean(tokPtr->tok_ptr[0], default_value, error));
 }
@@ -520,23 +497,23 @@ BOOLEAN tok_to_boolean(const TOKEN *tokPtr, const int default_value,
 /******************************************************************************/
 /******************************************************************************/
 
-BOOLEAN str_to_boolean(const char *string, const int default_value, 
-                       BOOLEAN *error)
+bool str_to_boolean(const char *string, const int default_value,
+                    bool *error)
   /*
-  *      Interprets a stripped character string as a BOOLEAN value 
-  *      (i.e., TRUE or FALSE). It returns that value as the return value.
+  *      Interprets a stripped character string as a bool value
+  *      (i.e., true or false). It returns that value as the return value.
   *
   *      The following character strings are interpreted
   *      (case doesn't matter):
   *
-  *      TRUE  = "YES", "TRUE", "T", "Y"
-  *      FALSE = "NO,   "FALSE", "N", "F"
+  *      true  = "YES", "true", "T", "Y"
+  *      false = "NO,   "false", "N", "F"
   *      default_value = "DEFAULT"
   *
   *      A default may be specified on the command line. The absence of a
   *      default may also be specified by using the value of NO_DEFAULT_INT.
   *
-  *      If there is an error, *error is set to TRUE. *error isn't touched
+  *      If there is an error, *error is set to true. *error isn't touched
   *      if there isn't an error.
   */
 {
@@ -545,18 +522,18 @@ BOOLEAN str_to_boolean(const char *string, const int default_value,
     if (retn_value == NO_DEFAULT_BOOLEAN) {
       (void) fprintf(stderr,
 		     "ERROR: keyLine_boolean: Default not allowed\n");
-      *error = TRUE;
+      *error = true;
     }
   } else
-     *error = TRUE;
-  return ((BOOLEAN) retn_value);
+     *error = true;
+  return (retn_value != 0);
 }
 /**************************************************************************/
 /**************************************************************************/
 /**************************************************************************/
 
 char *tok_to_string(const TOKEN *tokPtr,  const int maxTok, 
-                    const int minTok, const char *defaultVal, BOOLEAN *error)
+                    const int minTok, const char *defaultVal, bool *error)
 /*
  *      Interprets the arguments in a TOKEN structure as a string.
  *      It mallocs new space for the string, are returns the pointer to it.
@@ -574,7 +551,7 @@ char *tok_to_string(const TOKEN *tokPtr,  const int maxTok,
  *      default may also be specified by setting devault_value to
  *      NO_DEFAULT_INT.
  *
- *      If there is an error, *error is set to TRUE. *error isn't touched
+ *      If there is an error, *error is set to true. *error isn't touched
  *      if there isn't an error.
  */
 {
@@ -588,7 +565,7 @@ char *tok_to_string(const TOKEN *tokPtr,  const int maxTok,
     (void) fprintf(stderr, "ERROR: tok_to_String:\n\t\"%s\"\n",
 		   tokPtr->orig_str);
     (void) fprintf(stderr,"\tmaxTok = %d, minTok = %d\n", maxTok, minTok);
-    *error = TRUE;
+    *error = true;
   }
   return (str);
 }
@@ -597,7 +574,7 @@ char *tok_to_string(const TOKEN *tokPtr,  const int maxTok,
 /*****************************************************************************/
 
 char *str_to_string(const char *str, const char *defaultVal,
-                    BOOLEAN *error)
+                    bool *error)
 /*
  *      Interprets the argument string as a string.
  *      It mallocs new space for the string, are returns the pointer to it.
@@ -612,18 +589,18 @@ char *str_to_string(const char *str, const char *defaultVal,
  *      default may also be specified by setting devault_value to
  *      NO_DEFAULT_INT.
  *
- *      If there is an error, *error is set to TRUE. *error isn't touched
+ *      If there is an error, *error is set to true. *error isn't touched
  *      if there isn't an error.
  */
 {
   if (str == NULL) {
-    *error = TRUE;
+    *error = true;
     (void) fprintf(stderr,"ERROR str_to_string: str is uninialized\n");
     return(NULL);
   }
   if (strmatch(str, DEFAULT_STR)) {
     if (strmatch(defaultVal, NO_DEFAULT_STR)) {
-      *error = TRUE;
+      *error = true;
       (void) fprintf(stderr,"ERROR str_to_string: no default allowed\n"); 
       return(copy_string(NO_DEFAULT_STR));
     } else
@@ -680,7 +657,7 @@ int scan_for_int(FILE *ifp, const char *str, const int maxVal,
 /**************************************************************************/
 /**************************************************************************/
 
-BOOLEAN scan_for_boolean(FILE *ifp, const char *string)
+bool scan_for_boolean(FILE *ifp, const char *string)
 /*
  *      Scans the file for a line matching string. Then, interprets
  *      everything after the equals sign as a single boolean value
@@ -699,7 +676,7 @@ BOOLEAN scan_for_boolean(FILE *ifp, const char *string)
         (void) fprintf(stderr, "scan_for_boolean: default not allowed\n");
         exit (-1);
       }
-      return((BOOLEAN) ret_value);
+      return (ret_value != 0);
     }
   }
   (void) fprintf(stderr, "scan_for_boolean: ERROR on line \"%s\"\n", string);
@@ -746,7 +723,7 @@ double scan_for_double(FILE *ifp, const char *string, const double maxVal,
   double retn_value;
   char  *tok_ptr[2];
   char input[MAX_INPUT_STR_LN + 1];
-  if (scan_for_line(ifp, string, input, KEY_CHAR, TRUE) < 0) exit(-1);
+  if (scan_for_line(ifp, string, input, KEY_CHAR, true) < 0) exit(-1);
   if (stokenize(input, DELIMITERS, tok_ptr, 2) > 0) {
     if (interpret_double(tok_ptr[0], &retn_value, maxVal, minVal,
                          NO_DEFAULT_DOUBLE)) {
@@ -832,7 +809,7 @@ int scan_for_line(FILE *ifp, const char *str, char input[],
   */
 { 
   int       retn_value, i;
-  BOOLEAN   found = FALSE;
+  bool   found = false;
   char      match_string[MAX_INPUT_STR_LN+1],
             save_input[MAX_INPUT_STR_LN+1];
   static const char *ename = "ERROR scan_for_line: ";
@@ -1046,8 +1023,8 @@ int read_string(FILE *ifp, char string[], const char ch)
 }
 /**************************************************************************/
 
-static BOOLEAN interpret_boolean(const char *token, int *ret_value,
-				 const int default_value)
+static bool interpret_boolean(const char *token, int *ret_value,
+			      const int default_value)
   /*
   *   This routine interprets a string token to be either true or false
   *   and then returns the appropriate answer as an int value in the
@@ -1062,37 +1039,37 @@ static BOOLEAN interpret_boolean(const char *token, int *ret_value,
     switch (token[0]) {
       case 't': 
       case 'y':
-	*ret_value = TRUE;   break;
+	*ret_value = true;   break;
       case 'f': 
       case 'n':
-	*ret_value = FALSE; break;
+	*ret_value = false; break;
       default:
-	return (FALSE);
+	return (false);
     }
   } else {
     if (strmatch(token,"true") || strmatch(token,"yes")) 
-       *ret_value = TRUE;
+       *ret_value = true;
     else if (strmatch(token,"false") || strmatch(token,"no"))
-       *ret_value = FALSE;
+       *ret_value = false;
     else if (strmatch(token,DEFAULT_STR) == 0) {
       *ret_value = default_value;
     } else {
-      return (FALSE);
+      return (false);
     }
   }
-  return (TRUE);
+  return (true);
 }
 /**************************************************************************/
 
-static BOOLEAN interpret_int(const char *token, int *retn_value, 
-                             const int maxVal,  const int minVal, 
+static bool interpret_int(const char *token, int *retn_value,
+                          const int maxVal,  const int minVal,
                              const int defaultVal)
   /*
   *   This routine interprets a string token to be an integer
   *   and then returns the appropriate answer as an int value in the
   *   variable ret_value.
-  *     Errors are indicated by returning FALSE. Success is indicated
-  *   by returning TRUE.
+  *     Errors are indicated by returning false. Success is indicated
+  *   by returning true.
   *
   *      Certain ascii strings are checked for first (case is insignificant):
   *
@@ -1131,23 +1108,23 @@ static BOOLEAN interpret_int(const char *token, int *retn_value,
   else  {
     if ((retn = sscanf(token, "%d", retn_value)) != 1) {
       *retn_value = retn;
-      return (FALSE);
+      return (false);
     }
   }
-  return (TRUE);
+  return (true);
 }
 /******************************************************************************/
 /******************************************************************************/
 /******************************************************************************/
 
-static BOOLEAN interpret_double(const char *token, double *retn_value, 
-				const double maxVal, const double minVal,
-				const double defaultVal)
+static bool interpret_double(const char *token, double *retn_value,
+			     const double maxVal, const double minVal,
+			     const double defaultVal)
   /*
   *   This routine interprets a string token to be a double
   *   and then returns the appropriate answer as a double value in the
   *   variable retn_value.
-  *   The function itself returns TRUE if successful or FALSE if unsuccessful
+  *   The function itself returns true if successful or false if unsuccessful
   *   
   *
   *      Certain ascii strings are checked for first (case is insignificant):
@@ -1203,11 +1180,11 @@ static BOOLEAN interpret_double(const char *token, double *retn_value,
   else {
     if ((retn = sscanf(token, "%e", &retn_float)) != 1) {
       *retn_value = (double) retn;
-      return (FALSE);
+      return (false);
     } else
       *retn_value = (double) retn_float;
   }
-  return(TRUE);
+  return(true);
 }
 /******************************************************************************/
 /******************************************************************************/
@@ -1361,16 +1338,16 @@ int stokenize(char *string, const char *delimiters, char *tok_ptr[],
 /*****************************************************************************/
 /*****************************************************************************/
 
-static BOOLEAN outofbnds(const double value, const double maxVal,
-                         const double minVal)
+static bool outofbnds(const double value, const double maxVal,
+                      const double minVal)
 /*
  *    This routine checks the bounds of a single double value.
  *    If it is inside or on the bounds, it returns false. 
  *    If it is outside the bounds, it returns true.
  */
 {
-  if ((value <= maxVal) && (value >= minVal)) return (FALSE);
-  return(TRUE);
+  if ((value <= maxVal) && (value >= minVal)) return (false);
+  return(true);
 }
 /******************************************************************************
  *
@@ -1383,18 +1360,18 @@ static BOOLEAN outofbnds(const double value, const double maxVal,
  *    If they are,    it returns true
  *    If they aren't, it returns false
  */
-BOOLEAN strmatch(const char *s1, const char *s2)
+bool strmatch(const char *s1, const char *s2)
 {
   while (*s1 != '\0') {
 #   if defined (_INCLUDE_XOPEN_SOURCE) && ! defined(__lint)
-    if (_tolower((*s1++)) != _tolower((*s2++))) return (FALSE);
+    if (_tolower((*s1++)) != _tolower((*s2++))) return (false);
 #   else
-    if (tolower(*s1) != tolower(*s2)) return (FALSE);
+    if (tolower(*s1) != tolower(*s2)) return (false);
     s1++; s2++;
 #   endif
   }
-  if (*s2 != '\0') return (FALSE);
-  return (TRUE);
+  if (*s2 != '\0') return (false);
+  return (true);
 }
 
 /*****************************************************************************
@@ -1404,7 +1381,7 @@ BOOLEAN strmatch(const char *s1, const char *s2)
  *    This routine checks whether two strings are the same modulo differences
  *    in their white space
  */
-BOOLEAN strstrmatch(const char *s1, const char*s2)
+bool strstrmatch(const char *s1, const char*s2)
 {
   struct TOKEN tmpKeyStruct1, tmpKeyStruct2;
   fillTokStruct(&tmpKeyStruct1, s1);
@@ -1422,7 +1399,7 @@ BOOLEAN strstrmatch(const char *s1, const char*s2)
  *    If they are, it returns true
  *    If they aren't, it returns false
  */
-BOOLEAN strtokmatch(const TOKEN *keyptr, const char*s2)
+bool strtokmatch(const TOKEN *keyptr, const char*s2)
 {
   struct TOKEN tmpKeyStruct;
   fillTokStruct(&tmpKeyStruct, s2);
@@ -1437,15 +1414,15 @@ BOOLEAN strtokmatch(const TOKEN *keyptr, const char*s2)
  *    same data up to differences in white space.
  *    Case is ignored as well, as strmatch is called.
  */
-BOOLEAN toktokmatch(const TOKEN *keyptr1, const TOKEN *keyptr2)
+bool toktokmatch(const TOKEN *keyptr1, const TOKEN *keyptr2)
 {
   int i = keyptr1->ntokes;
-  if (i != keyptr2->ntokes) return FALSE;
+  if (i != keyptr2->ntokes) return false;
   while (i > 0) {
     i--;
-    if (!strmatch(keyptr1->tok_ptr[i], keyptr2->tok_ptr[i])) return FALSE;
+    if (!strmatch(keyptr1->tok_ptr[i], keyptr2->tok_ptr[i])) return false;
   }
-  return TRUE;
+  return true;
 }
 
 /**************************************************************************/
@@ -1549,20 +1526,20 @@ void strip_item_from_token(int iword, TOKEN *tok)
 {
   if (!tok) return;
   if (iword < 0 || iword > tok->ntokes) return;
-#ifdef WIN32
-  __w64 int ioffset = tok->tok_ptr[iword] - tok->tok_str;
+#ifdef _MSC_VER
+  __w64 size_t ioffset = tok->tok_ptr[iword] - tok->tok_str;
 #else
-  int ioffset = tok->tok_ptr[iword] - tok->tok_str;
+  size_t ioffset = tok->tok_ptr[iword] - tok->tok_str;
 #endif
   size_t ilength = strlen(tok->tok_ptr[iword]);
-#ifdef WIN32
-  __w64 int i = ioffset;
-  __w64 int j = ioffset + ilength;
+#ifdef _MSC_VER
+  __w64 size_t i = ioffset;
+  __w64 size_t j = ioffset + ilength;
 #else
-  int i = ioffset;
-  int j = ioffset + ilength;
+  size_t i = ioffset;
+  size_t j = ioffset + ilength;
 #endif
-  if (j <= (int) strlen(tok->orig_str)) {
+  if (j <= strlen(tok->orig_str)) {
     while(tok->orig_str[j] != '\0') {
       tok->orig_str[i] = tok->orig_str[j];
       i++;

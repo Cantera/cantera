@@ -4,10 +4,6 @@
  *   check for the presence of NaNs in the code.
  */
 /*
- * $Revision$
- * $Date$
- */
-/*
  * Copywrite 2004 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government
  * retains certain rights in this software.
@@ -31,12 +27,9 @@
 #include <sunmath.h>
 #endif
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <float.h>
-#pragma warning(disable:4290)
-#pragma warning(disable:4996)
 #endif
-
 
 using namespace std;
 
@@ -46,8 +39,8 @@ namespace mdp {
   /*
    *  @param tmp number to be checked
    */
-#ifdef WIN32
-  void checkFinite(const double tmp) throw(std::range_error) {
+#ifdef _WIN32
+  void checkFinite(const double tmp) {
     if (_finite(tmp)) {
       if(_isnan(tmp)) {
 	    printf("checkFinite() ERROR: we have encountered a nan!\n");
@@ -61,7 +54,7 @@ namespace mdp {
     }
   }
 #else
-  void checkFinite(const double tmp) throw(std::range_error) {
+  void checkFinite(const double tmp) {
     if (! finite(tmp)) {
       if(isnan(tmp)) {
 	printf("checkFinite() ERROR: we have encountered a nan!\n");
@@ -98,7 +91,7 @@ namespace mdp {
    * @param tmp     Number to be checked
    * @param trigger bounds on the number. Defaults to 1.0E20
    */
-  void checkMagnitude(const double tmp, const double trigger) throw(std::range_error) {
+  void checkMagnitude(const double tmp, const double trigger) {
     checkFinite(tmp); 
     if (fabs(tmp) >= trigger) {
       char sbuf[64];
@@ -115,8 +108,8 @@ namespace mdp {
    *
    *  @param tmp number to be checked
    */
-#ifdef WIN32
-void checkZeroFinite(const double tmp) throw(std::range_error) {
+#ifdef _WIN32
+void checkZeroFinite(const double tmp) {
     if ((tmp == 0.0) || (! _finite(tmp))) {
       if (tmp == 0.0) {
 	    printf("checkZeroFinite() ERROR: we have encountered a zero!\n");
@@ -134,7 +127,7 @@ void checkZeroFinite(const double tmp) throw(std::range_error) {
     }
   }
 #else
-  void checkZeroFinite(const double tmp) throw(std::range_error) {
+  void checkZeroFinite(const double tmp) {
     if ((tmp == 0.0) || (! finite(tmp))) {
       if (tmp == 0.0) {
 	printf("checkZeroFinite() ERROR: we have encountered a zero!\n");

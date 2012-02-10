@@ -2,21 +2,7 @@
  * @file AxiStagnBVP.cpp
  */
 
-/*
- * $Author$
- * $Revision$
- * $Date$
- */
-
 // Copyright 2002  California Institute of Technology
-
-
-// turn off warnings under Windows
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#pragma warning(disable:4267)
-#endif
 
 #include <stdlib.h>
 #include <time.h>
@@ -130,7 +116,7 @@ AxiStagnBVP::AxiStagnBVP(igthermo_t* ph, int nsp, int points) :
         m_refiner->setActive(3, false);
 
         vector_fp gr;
-        for (int ng = 0; ng < m_points; ng++) gr.push_back(1.0*ng/m_points);
+        for (size_t ng = 0; ng < m_points; ng++) gr.push_back(1.0*ng/m_points);
         setupGrid(m_points, DATA_PTR(gr));
         setID("stagnation flow");
     }
@@ -139,7 +125,7 @@ AxiStagnBVP::AxiStagnBVP(igthermo_t* ph, int nsp, int points) :
     /**
      * Change the grid size. Called after grid refinement.
      */
-    void AxiStagnBVP::resize(int ncomponents, int points) {
+    void AxiStagnBVP::resize(size_t ncomponents, size_t points) {
         Domain1D::resize(ncomponents, points);
         m_rho.resize(m_points, 0.0);
         m_wtm.resize(m_points, 0.0);
@@ -235,7 +221,7 @@ AxiStagnBVP::AxiStagnBVP(igthermo_t* ph, int nsp, int points) :
         m_thermo->setTemperature(0.5*(T(x,j)+T(x,j+1)));
         const doublereal* yyj = x + m_nv*j + c_offset_Y;
         const doublereal* yyjp = x + m_nv*(j+1) + c_offset_Y;
-        for (int k = 0; k < m_nsp; k++)
+        for (size_t k = 0; k < m_nsp; k++)
             m_ybar[k] = 0.5*(yyj[k] + yyjp[k]);
         m_thermo->setMassFractions_NoNorm(DATA_PTR(m_ybar));
         m_thermo->setPressure(m_press);
@@ -1057,7 +1043,7 @@ AxiStagnBVP::AxiStagnBVP(igthermo_t* ph, int nsp, int points) :
                 }
                 else goto error;
             }
-            else if (m_thermo->speciesIndex(nm) >= 0) {
+            else if (m_thermo->speciesIndex(nm) != npos) {
                 writelog(nm+"   ");
                 if ((int) x.size() == np) {
                     k = m_thermo->speciesIndex(nm);

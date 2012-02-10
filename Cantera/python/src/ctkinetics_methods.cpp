@@ -2,20 +2,14 @@
  * @file ctkinetics_methods.cpp
  *
  */
-
-/*
- * $Id$
- */
-
-
 static PyObject*
 kin_newFromXML(PyObject *self, PyObject *args) {
     int mxml, iphase, neighbor1, neighbor2, neighbor3, neighbor4;
     if (!PyArg_ParseTuple(args, "iiiiii:newFromXML", &mxml, 
             &iphase, &neighbor1, &neighbor2, &neighbor3, &neighbor4)) 
         return NULL;
-    int n = newKineticsFromXML(mxml, iphase, neighbor1, neighbor2,
-        neighbor3, neighbor4);
+    int n = int(newKineticsFromXML(mxml, iphase, neighbor1, neighbor2,
+        neighbor3, neighbor4));
     if (n < 0) return reportError(n);
     return Py_BuildValue("i",n);
 }
@@ -163,17 +157,18 @@ kin_getarray(PyObject *self, PyObject *args)
 
     // array attributes
     int iok = -22;
-    int nrxns = kin_nReactions(kin);
-    int nsp = kin_nSpecies(kin);
-    int ix;
+    size_t nrxns = kin_nReactions(kin);
+    size_t nsp = kin_nSpecies(kin);
+    size_t ix;
     if (job < 45 || job >= 90) ix = nrxns; else ix = nsp;
  
 #ifdef HAS_NUMPY
     npy_intp nix = ix;
     PyArrayObject* x = (PyArrayObject*)PyArray_SimpleNew(1, &nix, PyArray_DOUBLE);
 #else
+    int nix = int(ix);
     PyArrayObject* x = 
-        (PyArrayObject*)PyArray_FromDims(1, &ix, PyArray_DOUBLE);
+        (PyArrayObject*)PyArray_FromDims(1, &nix, PyArray_DOUBLE);
 #endif
     double* xd = (double*)x->data;
 

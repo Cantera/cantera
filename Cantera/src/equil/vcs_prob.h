@@ -2,10 +2,6 @@
  * @file vcs_prob.h
  *  Header for the Interface class for the vcs thermo equilibrium solver package,
  */
-
-/*
- * $Id$
- */
 /*
  * Copywrite (2005) Sandia Corporation. Under the terms of 
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
@@ -49,23 +45,23 @@ namespace VCSnonideal {
     int prob_type;
 
     //! Total number of species in the problems
-    int nspecies;
+    size_t nspecies;
 
     //! Species number used to malloc data structures 
-    int NSPECIES0;
+    size_t NSPECIES0;
 
     //! Number of element contraints in the equilibrium problem
-    int ne;
+    size_t ne;
 
     //! Number of element constraints used to malloc data structures
     //! involving elements
-    int NE0;
+    size_t NE0;
 
     //! Number of phases in the problem
-    int NPhase; 
+    size_t NPhase;
   
     //! Number of phases used to malloc data structures
-    int NPHASE0;
+    size_t NPHASE0;
 
     //! Vector of chemical potentials of the species
     /*!
@@ -189,7 +185,7 @@ namespace VCSnonideal {
     double tolmin;
 
     //! Mapping between the species and the phases
-    std::vector<int> PhaseID; 
+    std::vector<size_t> PhaseID;
 
     //! Vector of strings containing the species names
     std::vector<std::string> SpName;
@@ -254,7 +250,7 @@ namespace VCSnonideal {
      * @param nel number of elements
      * @param nph number of phases
      */
-    VCS_PROB(int nsp, int nel, int nph);
+    VCS_PROB(size_t nsp, size_t nel, size_t nph);
 
     //! Destructor
     ~VCS_PROB();
@@ -268,7 +264,7 @@ namespace VCSnonideal {
      *  @param force    If true, this will dimension the size to be equal to nPhase
      *                  even if nPhase is less than the current value of NPHASE0
      */
-    void resizePhase(int nPhase, int force);
+    void resizePhase(size_t nPhase, int force);
 
     //!    Resizes all of the species lists within the structure
     /*!
@@ -279,7 +275,7 @@ namespace VCSnonideal {
      *  @param force    If true, this will dimension the size to be equal to nsp
      *                  even if nsp is less than the current value of NSPECIES0
      */
-    void resizeSpecies(int nsp, int force);
+    void resizeSpecies(size_t nsp, int force);
 
     //!    Resizes all of the element lists within the structure
     /*!
@@ -290,7 +286,7 @@ namespace VCSnonideal {
      *  @param force    If true, this will dimension the size to be equal to nel
      *                  even if nel is less than the current value of NEL0
      */
-    void resizeElements(int nel, int force);
+    void resizeElements(size_t nel, int force);
 
 
     //! Calculate the element abundance vector
@@ -342,7 +338,7 @@ namespace VCSnonideal {
      *
      *  @return returns the index number of the new element
      */
-    int addElement(const char *elNameNew, int elType, int elactive);
+    size_t addElement(const char *elNameNew, int elType, int elactive);
 
 
     //! This routines adds entries for the formula matrix for one species
@@ -358,7 +354,7 @@ namespace VCSnonideal {
      *  @param kT       global Species number within this object
      *
      */
-    int addOnePhaseSpecies(vcs_VolPhase *volPhase, int k, int kT);
+    size_t addOnePhaseSpecies(vcs_VolPhase *volPhase, size_t k, size_t kT);
 
     void reportCSV(const std::string &reportFile);
 

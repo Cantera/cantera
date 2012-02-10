@@ -9,15 +9,6 @@
  *      logs
  *      HTML_logs
  */
-/*
- *  $Id$
- */
-
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#pragma warning(disable:4996)
-#endif
 
 // RFB:TODO May need OS specifc include to use varargs.h instead
 #include <stdarg.h>
@@ -35,10 +26,15 @@
 #include <fstream>
 #include <memory>
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <algorithm>
 #include <functional>
 #include <new>
+#include <windows.h>
+#endif
+
+#ifdef _MSC_VER
+#pragma comment(lib, "advapi32")
 #endif
 
 using namespace std;
@@ -773,6 +769,11 @@ namespace Cantera {
      * @param msg  c++ string to be written to the screen
      * @ingroup textlogs
      */
+#ifdef _WIN32
+    long int readStringRegistryKey(const std::string& keyName, const std::string& valueName,
+                                   std::string& value, const std::string& defaultValue);
+#endif
+
     void writelog(const std::string& msg) { pMessenger->writelog(msg); }
 
 
@@ -1038,8 +1039,7 @@ protected:
         // file is not found. But I (dgg) don't think it makes much sense,
         // so it is replaced by:
         path = findInputFile(file);
-        // 
-#ifdef WIN32
+#ifdef _WIN32
         // RFB: For Windows make the path POSIX compliant so code looking for directory 
         // separators is simpler.  Just look for '/' not both '/' and '\\'
         replace_if( path.begin(), path.end(), bind2nd( equal_to<char>(), '\\'), '/' ) ; 
@@ -1156,6 +1156,26 @@ protected:
       xmlfiles.erase(file);
     }
   }
+
+#ifdef _WIN32
+  long int Application::readStringRegistryKey(const std::string& keyName, const std::string& valueName,
+                                              std::string& value, const std::string& defaultValue) {
+
+    HKEY key;
+    long open_error = RegOpenKeyEx(HKEY_LOCAL_MACHINE, keyName.c_str(), 0, KEY_READ, &key);
+    value = defaultValue;
+    CHAR buffer[1024];
+    DWORD bufferSize = sizeof(buffer);
+    ULONG error;
+    error = RegQueryValueEx(key, valueName.c_str(), 0, NULL, (LPBYTE) buffer, &bufferSize);
+    if (ERROR_SUCCESS == error) {
+      value = buffer;
+    }
+    RegCloseKey(key);
+    return error;
+  }
+#endif
+
 
     void setTmpDir(std::string tmp) { app()->setTmpDir(tmp); }
     void Application::setTmpDir(std::string tmp) {
@@ -1351,28 +1371,16 @@ protected:
         dirs.push_back(".");
 
 
-#ifdef WIN32
-        //
-        // Under Windows, the Cantera setup utility puts data files in
-        // a directory 'Cantera\data' below the one the environment
-        // variable COMMONPROGRAMFILES points to. (This is usually
-        // C:\Program Files\Common Files.) If this environment
-        // variable is defined, then this directory is assumed to
-        // exist and is added to the search path.
-        //
-        const char* comfiles = getenv("COMMONPROGRAMFILES");
-        if (comfiles != 0) {
-            string cfiles = string(comfiles);
+#ifdef _WIN32
+        // Under Windows, the Cantera setup utility records the installation
+        // directory in the registry. Data files are stored in the 'data' and
+        // 'templates' subdirectories of the main installation directory.
 
-            // remove quotes if necessary
-            if (cfiles[0] == '\'') 
-                cfiles = cfiles.substr(1,1000);
-            if (cfiles[cfiles.size()-1] == '\'') cfiles[cfiles.size()-1] = '\n';
-
-            string datadir = string(comfiles) + "/Cantera/data";
-            string tmpldir = string(comfiles) + "/Cantera/templates";
-            dirs.push_back(datadir);
-            dirs.push_back(tmpldir);
+        std::string installDir;
+        readStringRegistryKey("SOFTWARE\\Cantera\\Cantera 2.0", "InstallDir", installDir, "");
+        if (installDir != "") {
+          dirs.push_back(installDir + "data");
+          dirs.push_back(installDir + "templates");
         }
 #endif
 
@@ -1534,13 +1542,13 @@ protected:
     }
 
     
-    ArraySizeError::ArraySizeError(std::string proc, int sz, int reqd) :
-        CanteraError(proc, "Array size ("+int2str(sz)+
-            ") too small. Must be at least "+int2str(reqd)) {}
+    ArraySizeError::ArraySizeError(std::string proc, size_t sz, size_t reqd) :
+        CanteraError(proc, "Array size ("+int2str(int(sz))+
+            ") too small. Must be at least "+int2str(int(reqd))) {}
 
-    ElementRangeError::ElementRangeError(std::string func, int m, int mmax) :
-        CanteraError(func, "Element index " + int2str(m) + 
-            " outside valid range of 0 to " + int2str(mmax-1)) {}
+    ElementRangeError::ElementRangeError(std::string func, size_t m, size_t mmax) :
+        CanteraError(func, "Element index " + int2str(int(m)) +
+            " outside valid range of 0 to " + int2str(int(mmax-1))) {}
 
 
 
@@ -1631,7 +1639,7 @@ protected:
        
     va_start( args, fmt ) ;
        
-#if defined(WIN32) && defined(MSC_VER)
+#ifdef _MSC_VER
     _vsnprintf( sbuf, BUFSIZE, fmt, args ) ; 
 #else
     vsprintf( sbuf, fmt, args ) ;

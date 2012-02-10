@@ -3,15 +3,9 @@
  *  Header for a simple thermodynamics model of a bulk phase derived from ThermoPhase,
  *  assuming a lattice of solid atoms
  *  (see \ref thermoprops and class \link Cantera::LatticePhase LatticePhase\endlink).
- *
  */
-/*  $Author$
- *  $Date$
- *  $Revision$
- *
- *  Copyright 2005 California Institute of Technology
- *
- */
+
+//  Copyright 2005 California Institute of Technology
 
 #ifndef CT_LATTICE_H
 #define CT_LATTICE_H
@@ -573,14 +567,14 @@ namespace Cantera {
      *
      * @param k Species index
      */
-    virtual doublereal standardConcentration(int k=0) const;
+    virtual doublereal standardConcentration(size_t k=0) const;
 
     //! Returns the natural logarithm of the standard
     //! concentration of the kth species
     /*!
      * @param k Species index
      */
-    virtual doublereal logStandardConc(int k=0) const;
+    virtual doublereal logStandardConc(size_t k=0) const;
 
     //! Get the array of non-dimensional activity coefficients at
     //! the current solution temperature, pressure, and solution concentration.
@@ -958,7 +952,7 @@ namespace Cantera {
 
 
     //! Number of elements
-    int m_mm;
+    size_t m_mm;
 
     //! Minimum temperature for valid species standard state thermo props
     /*!

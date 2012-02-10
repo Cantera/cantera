@@ -3,9 +3,6 @@
  *    Header file for the internal class that holds the problem.
  */
 /*
- * $Id$
- */
-/*
  * Copywrite (2005) Sandia Corporation. Under the terms of 
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
@@ -78,8 +75,8 @@ namespace VCSnonideal {
    *  @param nphase0       Number of phases defined within the problem.
    *
    */
-  void VCS_SOLVE::vcs_initSizes(const int nspecies0, const int nelements, 
-				const int nphase0) {
+  void VCS_SOLVE::vcs_initSizes(const size_t nspecies0, const size_t nelements,
+				const size_t nphase0) {
 
     if (NSPECIES0 != 0) {
       if ((nspecies0 != NSPECIES0) || (nelements != m_numElemConstraints) || (nphase0 != NPHASE0)){
@@ -95,7 +92,6 @@ namespace VCSnonideal {
     m_numElemConstraints = nelements;
     m_numComponents = nelements;
 
-    int iph;
     string ser = "VCS_SOLVE: ERROR:\n\t";
     if (nspecies0 <= 0) {
       plogf("%s Number of species is nonpositive\n", ser.c_str());
@@ -211,7 +207,7 @@ namespace VCSnonideal {
      *    Malloc Phase Info
      */
     m_VolPhaseList.resize(nphase0, 0);
-    for (iph = 0; iph < nphase0; iph++) {
+    for (size_t iph = 0; iph < nphase0; iph++) {
       m_VolPhaseList[iph] = new vcs_VolPhase(this);
     }   
    
@@ -242,9 +238,6 @@ namespace VCSnonideal {
   /****************************************************************************/
 
   // Destructor
-  /*
-   *
-   */
   VCS_SOLVE::~VCS_SOLVE()
   {
     vcs_delete_memory();
@@ -256,8 +249,8 @@ namespace VCSnonideal {
    * This gets called by the destructor or by InitSizes().
    */
   void VCS_SOLVE::vcs_delete_memory() {
-    int j;
-    int nspecies = m_numSpeciesTot;
+    size_t j;
+    size_t nspecies = m_numSpeciesTot;
    
     for (j = 0; j < m_numPhases; j++) {
       delete m_VolPhaseList[j];
@@ -316,8 +309,8 @@ namespace VCSnonideal {
    *       zero : success
    */
   int VCS_SOLVE::vcs(VCS_PROB *vprob, int ifunc, int ipr, int ip1, int maxit) {
-    int retn = 0;
-    int iconv = 0, nspecies0, nelements0, nphase0;
+    int retn = 0, iconv = 0;
+    size_t nspecies0, nelements0, nphase0;
     Cantera::clockWC tickTock;
     
     int  iprintTime = MAX(ipr, ip1);
@@ -325,7 +318,7 @@ namespace VCSnonideal {
       iprintTime = m_timing_print_lvl ;
     }
     
-    if (ifunc < 0 || ifunc > 2) {
+    if (ifunc > 2) {
       plogf("vcs: Unrecognized value of ifunc, %d: bailing!\n",
 	    ifunc);
       return VCS_PUB_BAD;
@@ -456,8 +449,6 @@ namespace VCSnonideal {
    *              initialize the current equilibrium problem
    */
   int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB *pub) {
-    int i, j,  kspec;
-    int iph;
     vcs_VolPhase *Vphase = 0;
     const char *ser =
       "vcs_pub_to_priv ERROR :ill defined interface -> bailout:\n\t";
@@ -466,17 +457,17 @@ namespace VCSnonideal {
      *  First Check to see whether we have room for the current problem
      *  size
      */
-    int nspecies  = pub->nspecies;
+    size_t nspecies  = pub->nspecies;
     if (NSPECIES0 < nspecies) {
       plogf("%sPrivate Data is dimensioned too small\n", ser);
       return VCS_PUB_BAD;
     }
-    int nph = pub->NPhase;
+    size_t nph = pub->NPhase;
     if (NPHASE0 < nph) {
       plogf("%sPrivate Data is dimensioned too small\n", ser);
       return VCS_PUB_BAD;
     }
-    int nelements = pub->ne;
+    size_t nelements = pub->ne;
     if (m_numElemConstraints < nelements) {
       plogf("%sPrivate Data is dimensioned too small\n", ser);
       return VCS_PUB_BAD;
@@ -517,9 +508,9 @@ namespace VCSnonideal {
     /*
      * FormulaMatrix[] -> Copy the formula matrix over
      */
-    for (i = 0; i < nspecies; i++) {
+    for (size_t i = 0; i < nspecies; i++) {
       bool nonzero = false;
-      for (j = 0; j < nelements; j++) {
+      for (size_t j = 0; j < nelements; j++) {
         if (pub->FormulaMatrix[j][i] != 0.0) {
           nonzero = true;
         }
@@ -546,7 +537,7 @@ namespace VCSnonideal {
      * Malloc and Copy the VCS_SPECIES_THERMO structures
      * 
      */
-    for (kspec = 0; kspec < nspecies; kspec++) {
+    for (size_t kspec = 0; kspec < nspecies; kspec++) {
       if (m_speciesThermoList[kspec] != NULL) {
 	delete m_speciesThermoList[kspec];
       }
@@ -582,9 +573,8 @@ namespace VCSnonideal {
     /*
      * Formulate the Goal Element Abundance Vector
      */
-    double sum;
     if (pub->gai.size() != 0) {
-      for (i = 0; i < nelements; i++) {
+      for (size_t i = 0; i < nelements; i++) {
          m_elemAbundancesGoal[i] = pub->gai[i];
          if (pub->m_elType[i] == VCS_ELEM_TYPE_LATTICERATIO) {
            if (m_elemAbundancesGoal[i] < 1.0E-10) {
@@ -594,11 +584,10 @@ namespace VCSnonideal {
       }
     } else {
       if (m_doEstimateEquil == 0) {
-	for (j = 0; j < nelements; j++) {
+	for (size_t j = 0; j < nelements; j++) {
 	  m_elemAbundancesGoal[j] = 0.0;
-	  for (kspec = 0; kspec < nspecies; kspec++) {
+	  for (size_t kspec = 0; kspec < nspecies; kspec++) {
 	    if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-              sum += m_molNumSpecies_old[kspec];
 	      m_elemAbundancesGoal[j] += m_formulaMatrix[j][kspec] * m_molNumSpecies_old[kspec];
 	    }
 	  }
@@ -632,7 +621,7 @@ namespace VCSnonideal {
     /*
      *   TPhInertMoles[] -> must be copied over here
      */
-    for (iph = 0; iph < nph; iph++) {
+    for (size_t iph = 0; iph < nph; iph++) {
       Vphase = pub->VPhaseList[iph];
       TPhInertMoles[iph] = Vphase->totalMolesInert();
     }
@@ -654,7 +643,7 @@ namespace VCSnonideal {
      * m_speciesIndexVector[] is an index variable that keep track 
      * of solution vector rotations.
      */
-    for (i = 0; i < nspecies; i++) {
+    for (size_t i = 0; i < nspecies; i++) {
       m_speciesMapIndex[i] = i;
     }
 
@@ -662,12 +651,12 @@ namespace VCSnonideal {
      *   IndEl[] is an index variable that keep track of element vector
      *   rotations.
      */
-    for (i = 0; i < nelements; i++)   m_elementMapIndex[i] = i;
+    for (size_t i = 0; i < nelements; i++)   m_elementMapIndex[i] = i;
 
     /*
      *  Define all species to be major species, initially.
      */
-    for (i = 0; i < nspecies; i++) {
+    for (size_t i = 0; i < nspecies; i++) {
       // m_rxnStatus[i] = VCS_SPECIES_MAJOR;
       m_speciesStatus[i] = VCS_SPECIES_MAJOR;
     }
@@ -676,10 +665,10 @@ namespace VCSnonideal {
      *             -> Check for bad values at the same time.
      */
     if (pub->PhaseID.size() != 0) {
-      std::vector<int> numPhSp(nph, 0);
-      for (kspec = 0; kspec < nspecies; kspec++) {
-	iph = pub->PhaseID[kspec];
-	if (iph < 0 || iph >= nph) {
+      std::vector<size_t> numPhSp(nph, 0);
+      for (size_t kspec = 0; kspec < nspecies; kspec++) {
+	size_t iph = pub->PhaseID[kspec];
+	if (iph >= nph) {
 	  plogf("%sSpecies to Phase Mapping, PhaseID, has a bad value\n",
 		ser);
 	  plogf("\tPhaseID[%d] = %d\n", kspec, iph);
@@ -690,7 +679,7 @@ namespace VCSnonideal {
 	m_speciesLocalPhaseIndex[kspec] = numPhSp[iph];
 	numPhSp[iph]++;
       }
-      for (iph = 0; iph < nph; iph++) {
+      for (size_t iph = 0; iph < nph; iph++) {
 	Vphase = pub->VPhaseList[iph];
 	if (numPhSp[iph] != Vphase->nSpecies()) {
 	  plogf("%sNumber of species in phase %d, %s, doesn't match\n",
@@ -700,7 +689,7 @@ namespace VCSnonideal {
       }
     } else {
       if (m_numPhases == 1) {
-	for (kspec = 0; kspec < nspecies; kspec++) {
+	for (size_t kspec = 0; kspec < nspecies; kspec++) {
 	  m_phaseID[kspec] = 0;
 	  m_speciesLocalPhaseIndex[kspec] = kspec;
 	}
@@ -719,7 +708,7 @@ namespace VCSnonideal {
     /*
      *      Copy over the element names and types
      */
-    for (i = 0; i < nelements; i++) {
+    for (size_t i = 0; i < nelements; i++) {
       m_elementName[i] = pub->ElName[i];
       m_elType[i] = pub->m_elType[i];
       m_elementActive[i] = pub->ElActive[i];
@@ -732,7 +721,7 @@ namespace VCSnonideal {
       }
     }
 
-    for (i = 0; i < nelements; i++) {
+    for (size_t i = 0; i < nelements; i++) {
       if (m_elType[i] ==  VCS_ELEM_TYPE_CHARGENEUTRALITY) {
 	if (m_elemAbundancesGoal[i] != 0.0) {
 	  if (fabs(m_elemAbundancesGoal[i]) > 1.0E-9) {
@@ -754,14 +743,14 @@ namespace VCSnonideal {
     /*
      *      Copy over the species names
      */
-    for (i = 0; i < nspecies; i++) {
+    for (size_t i = 0; i < nspecies; i++) {
       m_speciesName[i] = pub->SpName[i];
     }
     /*
      *  Copy over all of the phase information
      *  Use the object's assignment operator
      */
-    for (iph = 0; iph < nph; iph++) {
+    for (size_t iph = 0; iph < nph; iph++) {
       *(m_VolPhaseList[iph]) = *(pub->VPhaseList[iph]);
       /*
        * Fix up the species thermo pointer in the vcs_SpeciesThermo object
@@ -769,9 +758,9 @@ namespace VCSnonideal {
        * data space.
        */
       Vphase = m_VolPhaseList[iph];
-      for (int k = 0; k < Vphase->nSpecies(); k++) {
+      for (size_t k = 0; k < Vphase->nSpecies(); k++) {
 	vcs_SpeciesProperties *sProp = Vphase->speciesProperty(k);
-	int kT = Vphase->spGlobalIndexVCS(k);
+	size_t kT = Vphase->spGlobalIndexVCS(k);
 	sProp->SpeciesThermo = m_speciesThermoList[kT];
       }
     }
@@ -779,7 +768,7 @@ namespace VCSnonideal {
     /*
      * Specify the Activity Convention information
      */
-    for (iph = 0; iph < nph; iph++) {
+    for (size_t iph = 0; iph < nph; iph++) {
       Vphase = m_VolPhaseList[iph];
       m_phaseActConvention[iph] = Vphase->p_activityConvention;
       if (Vphase->p_activityConvention != 0) {
@@ -792,10 +781,10 @@ namespace VCSnonideal {
 	 * So SpecLnMnaught[iSolvent] = 0.0, and the
 	 * loop below starts at 1, not 0.
 	 */
-	int iSolvent = Vphase->spGlobalIndexVCS(0);
+	size_t iSolvent = Vphase->spGlobalIndexVCS(0);
 	double mnaught = m_wtSpecies[iSolvent] / 1000.;
-	for (int k = 1; k < Vphase->nSpecies(); k++) {
-	  int kspec = Vphase->spGlobalIndexVCS(k);
+	for (size_t k = 1; k < Vphase->nSpecies(); k++) {
+	  size_t kspec = Vphase->spGlobalIndexVCS(k);
 	  m_actConventionSpecies[kspec] = Vphase->p_activityConvention;
 	  m_lnMnaughtSpecies[kspec] = log(mnaught);
 	}
@@ -837,7 +826,7 @@ namespace VCSnonideal {
    *              initialize the current equilibrium problem
    */
   int VCS_SOLVE::vcs_prob_specify(const VCS_PROB *pub) {
-    int kspec, k, i, j, iph;
+    size_t kspec, k, i, j, iph;
     string yo("vcs_prob_specify ERROR: ");
     int retn = VCS_SUCCESS;
     bool status_change = false;
@@ -938,7 +927,7 @@ namespace VCSnonideal {
       vPhase->setTotalMolesInert(pub_phase_ptr->totalMolesInert());
       if (TPhInertMoles[iph] > 0.0) {
 	vPhase->setExistence(2);
-	vPhase->m_singleSpecies = FALSE;
+	vPhase->m_singleSpecies = false;
       }
 
       /*
@@ -967,22 +956,20 @@ namespace VCSnonideal {
    *              equilibrium calculation transfered to it. 
    */
   int VCS_SOLVE::vcs_prob_update(VCS_PROB *pub) {
-    int i, j, l;
-    int k1 = 0;
+    size_t k1 = 0;
 
     vcs_tmoles();
     m_totalVol = vcs_VolTotal(m_temperature, m_pressurePA, 
 			      VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(m_PMVolumeSpecies));
 
-    for (i = 0; i < m_numSpeciesTot; ++i) {
+    for (size_t i = 0; i < m_numSpeciesTot; ++i) {
       /*
        *         Find the index of I in the index vector, m_speciesIndexVector[]. 
        *         Call it K1 and continue. 
        */
-      for (j = 0; j < m_numSpeciesTot; ++j) {
-	l = m_speciesMapIndex[j];
+      for (size_t j = 0; j < m_numSpeciesTot; ++j) {
 	k1 = j;
-	if (l == i) break;
+	if (m_speciesMapIndex[j] == i) break;
       }
       /*
        * - Switch the species data back from K1 into I
@@ -1001,8 +988,8 @@ namespace VCSnonideal {
     pub->T    = m_temperature;
     pub->PresPA = m_pressurePA;
     pub->Vol  = m_totalVol;
-    int kT = 0;
-    for (int iph = 0; iph < pub->NPhase; iph++) {
+    size_t kT = 0;
+    for (size_t iph = 0; iph < pub->NPhase; iph++) {
       vcs_VolPhase *pubPhase = pub->VPhaseList[iph];
       vcs_VolPhase *vPhase = m_VolPhaseList[iph];
       pubPhase->setTotalMolesInert(vPhase->totalMolesInert());
@@ -1013,7 +1000,7 @@ namespace VCSnonideal {
 				      VCS_DATA_PTR(vPhase->moleFractions()),
 				      VCS_STATECALC_TMP);
       const std::vector<double> & mfVector = pubPhase->moleFractions();
-      for (int k = 0; k < pubPhase->nSpecies(); k++) {
+      for (size_t k = 0; k < pubPhase->nSpecies(); k++) {
 	kT = pubPhase->spGlobalIndexVCS(k);
 	pub->mf[kT] = mfVector[k];
 	if (pubPhase->phiVarIndex() == k) {
@@ -1102,7 +1089,7 @@ namespace VCSnonideal {
   double VCS_SOLVE::vcs_VolTotal(const double tkelvin, const double pres, 
 				 const double w[], double volPM[]) {
     double VolTot = 0.0;
-    for (int iphase = 0; iphase < m_numPhases; iphase++) {
+    for (size_t iphase = 0; iphase < m_numPhases; iphase++) {
       vcs_VolPhase *Vphase = m_VolPhaseList[iphase];
       Vphase->setState_TP(tkelvin, pres);
       Vphase->setMolesFromVCS(VCS_STATECALC_OLD, w);

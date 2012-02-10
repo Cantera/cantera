@@ -716,7 +716,7 @@ int CVReInit(void *cvode_mem, RhsFn f, real t0, N_Vector y0,
              void *f_data, FILE *errfp, boole optIn, long int iopt[],
              real ropt[], void *machEnv)
 {
-  boole   allocOK, ioptExists, roptExists, neg_abstol, ewtsetOK;
+  boole   ioptExists, roptExists, neg_abstol, ewtsetOK;
   int     maxord;
   CVodeMem cv_mem;
   FILE *fp;
@@ -1371,6 +1371,7 @@ static boole CVEwtSet(CVodeMem cv_mem, real *rtol, void *atol, int tol_type,
   case SS: return(CVEwtSetSS(cv_mem, rtol, (real *)atol, ycur, neq));
   case SV: return(CVEwtSetSV(cv_mem, rtol, (N_Vector)atol, ycur, neq));
   }
+  return (FALSE);
 }
 
 /*********************** CVEwtSetSS *********************************
@@ -2052,6 +2053,7 @@ static int CVnls(CVodeMem cv_mem, int nflag)
     case FUNCTIONAL : return(CVnlsFunctional(cv_mem));
     case NEWTON     : return(CVnlsNewton(cv_mem, nflag));
   }
+  return -1;
 }
 
 /***************** CVnlsFunctional ********************************
@@ -2619,6 +2621,7 @@ static int CVHandleFailure(CVodeMem cv_mem, int kflag)
     case SOLVE_FAILED:  fprintf(errfp, MSG_SOLVE_FAILED, tn);
                         return(SOLVE_FAILURE);
   }
+  return -1;
 }
 
 /*******************************************************************/

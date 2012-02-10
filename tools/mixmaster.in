@@ -1,0 +1,4 @@
+#!@python_cmd@
+
+from MixMaster import MixMaster
+MixMaster()

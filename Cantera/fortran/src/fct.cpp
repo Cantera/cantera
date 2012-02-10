@@ -6,32 +6,21 @@
  *   Cantera objects are stored and referenced by integers - no
  *   pointers are passed to or from the calling application.
  */
-/*
- * $Id$
- */
-
-// turn off warnings under Windows
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
 // Cantera includes
-#include "equil.h"
-#include "KineticsFactory.h"
-#include "TransportFactory.h"
-#include "ThermoFactory.h"
-#include "ctml.h"
-#include "importKinetics.h"
-#include "../../clib/src/Storage.h"
-#include "../../clib/src/Cabinet.h"
-#include "InterfaceKinetics.h"
-#include "PureFluidPhase.h"
+#include "kernel/equil.h"
+#include "kernel/KineticsFactory.h"
+#include "kernel/TransportFactory.h"
+#include "kernel/ThermoFactory.h"
+#include "kernel/ctml.h"
+#include "kernel/importKinetics.h"
+#include "clib/Storage.h"
+#include "clib/Cabinet.h"
+#include "kernel/InterfaceKinetics.h"
+#include "kernel/PureFluidPhase.h"
 
 #include "flib_defs.h"
 
 using namespace Cantera;
-using namespace std;
 
 // Assert that there is storage 
 // for the templated classes' static member
@@ -42,7 +31,7 @@ inline XML_Node* _xml(const integer* n) {
     return Cabinet<XML_Node>::cabinet()->item(*n);
 }
 
-inline Cantera::ThermoPhase* _fph(const integer* n) {
+inline ThermoPhase* _fph(const integer* n) {
     return th(*n);
 }
 
@@ -106,7 +95,7 @@ extern "C" {
         try {
             std::string pnm = _fph(n)->name();
             int lout = min(lennm,pnm.size());
-            copy(pnm.c_str(), pnm.c_str() + lout, nm);
+            std::copy(pnm.c_str(), pnm.c_str() + lout, nm);
             for (int nn = lout; nn < lennm; nn++) nm[nn] = ' ';            
             return 0;
         }
@@ -239,7 +228,7 @@ extern "C" {
         try {
             std::string spnm = _fph(n)->speciesName(*k-1);
             int lout = min(lennm,spnm.size());
-            copy(spnm.c_str(), spnm.c_str() + lout, nm);
+            std::copy(spnm.c_str(), spnm.c_str() + lout, nm);
             for (int nn = lout; nn < lennm; nn++) nm[nn] = ' ';            
             return 0;
         }
@@ -250,7 +239,7 @@ extern "C" {
         try {
             std::string elnm = _fph(n)->elementName(*m-1);
             int lout = min(lennm,elnm.size());
-            copy(elnm.c_str(), elnm.c_str() + lout, nm);
+            std::copy(elnm.c_str(), elnm.c_str() + lout, nm);
             for (int nn = lout; nn < lennm; nn++) nm[nn] = ' ';
             return 0;
         }
@@ -447,7 +436,7 @@ extern "C" {
         const integer* neighbor4) {
         try {
             XML_Node* x = _xml(mxml);
-            vector<thermo_t*> phases;
+            std::vector<thermo_t*> phases;
             phases.push_back(_fth(iphase));
             if (*neighbor1 >= 0) {
                 phases.push_back(_fth(neighbor1));
@@ -610,7 +599,7 @@ extern "C" {
             Kinetics* k = _fkin(n);
             std::string r = k->reactionString(*i-1);
             int lout = min(lenbuf,r.size());
-            copy(r.c_str(), r.c_str() + lout, buf);
+            std::copy(r.c_str(), r.c_str() + lout, buf);
             for (int nn = lout; nn < lenbuf; nn++) buf[nn] = ' ';
             return 0;
         }

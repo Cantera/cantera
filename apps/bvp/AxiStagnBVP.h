@@ -79,7 +79,7 @@ public:
     // Specify the residual. This is where the ODE system and boundary 
     // conditions are specified. The solver will attempt to find a solution
     // x so that this function returns 0 for all n and j.
-    virtual doublereal residual(doublereal* x, int n, int j) {
+    virtual doublereal residual(doublereal* x, size_t n, size_t j) {
 
         // if n = 0, return the residual for the first ODE
         if (n == 0) {
@@ -123,8 +123,8 @@ int main() {
         eqs.writeCSV();
         return 0;
     }
-    catch (CanteraError) {
-        showErrors(cerr);
+    catch (Cantera::CanteraError) {
+        Cantera::showErrors(std::cerr);
         return -1;
     }
 }

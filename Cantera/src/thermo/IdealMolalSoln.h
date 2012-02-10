@@ -18,12 +18,6 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-/*
- *  $Author$
- *  $Date$
- *  $Revision$
- */
-
 #ifndef CT_IDEALMOLALSOLN_H
 #define CT_IDEALMOLALSOLN_H
 
@@ -465,7 +459,7 @@ namespace Cantera {
      *
      * @param k  Species index 
      */
-    virtual doublereal standardConcentration(int k=0) const;
+    virtual doublereal standardConcentration(size_t k=0) const;
 
     /*!
      * Returns the natural logarithm of the standard 
@@ -473,7 +467,7 @@ namespace Cantera {
      *
      * @param k  Species index 
      */
-    virtual doublereal logStandardConc(int k=0) const;
+    virtual doublereal logStandardConc(size_t k=0) const;
 
     /*!
      * Returns the units of the standard and generalized

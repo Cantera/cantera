@@ -1,12 +1,6 @@
 /**
  * @file ctlapack.h
  */
-
-/* $Author$
- * $Revision$
- * $Date$
- */
-
 // Copyright 2001 California Institute of Technology.  
 
 #ifndef CT_CTLAPACK_H
@@ -287,20 +281,29 @@ namespace Cantera {
             b, &f_ldb, &f_info);
         info = f_info;
     }
- //====================================================================================================================
-    inline void ct_dgbtrf(int m, int n, int kl, int ku, 
-        doublereal* a, int lda, integer* ipiv, int& info) {
-        integer f_m = m, f_n = n, f_kl = kl, f_ku = ku, 
-             f_lda = lda, f_info = info;
+
+    inline void ct_dgbtrf(size_t m, size_t n, size_t kl, size_t ku,
+        doublereal* a, size_t lda, integer* ipiv, int& info) {
+        integer f_m = (int) m;
+        integer f_n = (int) n;
+        integer f_kl = (int) kl;
+        integer f_ku = (int) ku;
+        integer f_lda = (int) lda;
+        integer f_info = info;
         _DGBTRF_(&f_m, &f_n, &f_kl, &f_ku, a, &f_lda, ipiv, &f_info);
         info = f_info;
     }
-  //====================================================================================================================
-    inline void ct_dgbtrs(ctlapack::transpose_t trans, int n, 
-        int kl, int ku, int nrhs, doublereal* a, int lda, 
-        integer* ipiv, doublereal* b, int ldb, int& info) {
-        integer f_n = n, f_kl = kl, f_ku = ku, f_nrhs = nrhs, f_lda = lda,
-               f_ldb = ldb, f_info = info;
+
+    inline void ct_dgbtrs(ctlapack::transpose_t trans, size_t n,
+        size_t kl, size_t ku, size_t nrhs, doublereal* a, size_t lda,
+        integer* ipiv, doublereal* b, size_t ldb, int& info) {
+        integer f_n = (int) n;
+        integer f_kl = (int) kl;
+        integer f_ku = (int) ku;
+        integer f_nrhs = (int) nrhs;
+        integer f_lda = (int) lda;
+        integer f_ldb = (int) ldb;
+        integer f_info = info;
         char tr = no_yes[trans];
 #ifdef NO_FTN_STRING_LEN_AT_END
         _DGBTRS_(&tr, &f_n, &f_kl, &f_ku, &f_nrhs, a, &f_lda, ipiv, 
@@ -317,23 +320,26 @@ namespace Cantera {
 #endif
         info = f_info;
     }
- //====================================================================================================================
-    inline void ct_dgetrf(int m, int n, 
-        doublereal* a, int lda, integer* ipiv, int& info) {
-        integer mm = m;
-        integer nn = n;
-        integer ldaa = lda;
+
+    inline void ct_dgetrf(size_t m, size_t n,
+        doublereal* a, size_t lda, integer* ipiv, int& info) {
+        integer mm = (int) m;
+        integer nn = (int) n;
+        integer ldaa = (int) lda;
         integer infoo = info;
         _DGETRF_(&mm, &nn, a, &ldaa, ipiv, &infoo);
         info = infoo;
     }
-  //====================================================================================================================
-    inline void ct_dgetrs(ctlapack::transpose_t trans, int n, 
-        int nrhs, doublereal* a, int lda,
-        integer* ipiv, doublereal* b, int ldb, int& info) 
+
+    inline void ct_dgetrs(ctlapack::transpose_t trans, size_t n,
+                          size_t nrhs, doublereal* a, size_t lda,
+        integer* ipiv, doublereal* b, size_t ldb, int& info)
     {
-        integer f_n = n, f_lda = lda, f_nrhs = nrhs, f_ldb = ldb, 
-               f_info = info;
+        integer f_n = (int) n;
+        integer f_lda = (int) lda;
+        integer f_nrhs = (int) nrhs;
+        integer f_ldb = (int) ldb;
+	integer f_info = info;
         char tr = no_yes[trans];
 
 #ifdef NO_FTN_STRING_LEN_AT_END

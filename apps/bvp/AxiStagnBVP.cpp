@@ -94,7 +94,7 @@ void StFlow::setGasAtMidpoint(const doublereal* x,int j) {
     m_thermo->setTemperature(0.5*(T(x,j)+T(x,j+1)));
     const doublereal* yyj = x + m_nv*j + 4;
     const doublereal* yyjp = x + m_nv*(j+1) + 4;
-    for (int k = 0; k < m_nsp; k++)
+    for (size_t k = 0; k < m_nsp; k++)
         m_ybar[k] = 0.5*(yyj[k] + yyjp[k]);
     m_thermo->setMassFractions_NoNorm(DATA_PTR(m_ybar));
     m_thermo->setPressure(m_press);
@@ -105,7 +105,7 @@ void StFlow::setGasAtMidpoint(const doublereal* x,int j) {
 // Specify the residual. This is where the ODE system and boundary 
 // conditions are specified. The solver will attempt to find a solution
 // x so that this function returns 0 for all n and j.
-doublereal AxiStagnFlow::residual(doublereal* x, int n, int j) {
+doublereal AxiStagnFlow::residual(doublereal* x, size_t n, size_t j) {
     
     // if n = 0, return the residual for the continuity equation
     if (n == 0) {

@@ -5,13 +5,6 @@
  *  (see \ref numerics and \link Cantera::DenseMatrix DenseMatrix \endlink) .
  */
 
-/*
- *  $Author$
- *  $Date$
- *  $Revision$
- *
- */
-
 // Copyright 2001  California Institute of Technology
 
 
@@ -20,7 +13,6 @@
 
 #include "ct_defs.h"
 #include "Array.h"
-
 
 namespace Cantera { 
   /**

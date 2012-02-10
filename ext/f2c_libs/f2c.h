@@ -18,11 +18,6 @@
 #define _COMPLEX_DEFINED 
 typedef __int64 longint;
 typedef __int64 ulongint;  /* HACK ALERT */
-// warning C4244: 'xoperx' : conversion from 'xxx ' to 'xxx ', possible loss of data
-// warning C4101:  'xxx' : unreferenced local variable
-#pragma warning(disable:4244)
-#pragma warning(disable:4101)
-#pragma warning(disable:4554)
 #endif
 
 //typedef long int integer;

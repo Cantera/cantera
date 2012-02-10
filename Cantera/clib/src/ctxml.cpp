@@ -1,22 +1,11 @@
 /**
  * @file ctxml.cpp
  */
-/*
- *      $Id$
- */
-
-
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
 #define CANTERA_USE_INTERNAL
 #include "ctxml.h"
 
-
 // Cantera includes
-#include "ctml.h"
+#include "kernel/ctml.h"
 #include "Cabinet.h"
 #include "Storage.h"
 
@@ -216,7 +205,7 @@ extern "C" {
     int DLL_EXPORT xml_nChildren(int i) {
         try {
             XML_Node& node = *_xml(i);
-            return node.nChildren();
+            return (int) node.nChildren();
         }
         catch (CanteraError) { return -1; }
     }
@@ -259,25 +248,24 @@ extern "C" {
         return 0;
     }
 
-    int DLL_EXPORT ctml_getFloatArray(int i, int n, doublereal* data, int iconvert) {
+    int DLL_EXPORT ctml_getFloatArray(int i, size_t n, doublereal* data, int iconvert) {
         try {
             XML_Node& node = *_xml(i);
             vector_fp v;
             bool conv = false;
             if (iconvert > 0) conv = true;
             getFloatArray(node, v, conv);
-            int nv = v.size();
+            size_t nv = v.size();
 
             // array not big enough
             if (n < nv) {
                 throw CanteraError("ctml_getFloatArray",
-                    "array must be dimensioned at least "+int2str(nv));
+                    "array must be dimensioned at least "+int2str(int(nv)));
             }
             
-            for (int i = 0; i < nv; i++) {
+            for (size_t i = 0; i < nv; i++) {
                 data[i] = v[i];
             }
-            n = nv;
         }
         catch (CanteraError) { return -1; }
         return 0;

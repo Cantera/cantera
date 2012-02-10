@@ -270,7 +270,7 @@ namespace Cantera {
       N_VDestroy_Serial(nv(m_y));    // free solution vector if already allocated
     }
     m_y = reinterpret_cast<void*>(N_VNew_Serial(m_neq));   // allocate solution vector
-    for (int i=0; i<m_neq; i++) {
+    for (size_t i = 0; i < m_neq; i++) {
       NV_Ith_S(nv(m_y), i) = 0.0;
     }
     // check abs tolerance array size

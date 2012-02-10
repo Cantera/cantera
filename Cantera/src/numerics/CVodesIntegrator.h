@@ -1,24 +1,12 @@
 /**
  *  @file CVodesWrapper.h
  */
-
-/* 
- * $Date$
- * $Revision$
- */
-
 // Copyright 2005  California Institute of Technology
-
 
 #ifndef CT_CVODESWRAPPER_H
 #define CT_CVODESWRAPPER_H
 
 #ifdef HAS_SUNDIALS
-
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
 
 #include "Integrator.h"
 #include "FuncEval.h"

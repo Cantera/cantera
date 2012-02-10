@@ -1,5 +1,5 @@
 
-#include "WaterPropsIAPWS.h"
+#include "kernel/WaterPropsIAPWS.h"
 #include <new>
 
 #include <cstdio>
@@ -20,7 +20,9 @@ double numdpdt(WaterPropsIAPWS *water, double T, double pres) {
 }
 
 int main () {
-
+#ifdef _MSC_VER
+    _set_output_format(_TWO_DIGIT_EXPONENT);
+#endif
     double dens, u, s, h;
     WaterPropsIAPWS *water = new WaterPropsIAPWS();
 

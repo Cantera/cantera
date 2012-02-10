@@ -1,9 +1,5 @@
 /**
  *  @file PID_Controller.h
- *
- * $Author$
- * $Revision$
- * $Date$
  */
 
 // Copyright 2001  California Institute of Technology
@@ -11,13 +7,7 @@
 #ifndef CT_PID_H
 #define CT_PID_H
 
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
-namespace CanteraZeroD {
-
+namespace Cantera {
 
     class PID_Controller {
 

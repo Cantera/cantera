@@ -16,10 +16,6 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-/*
- *  $Id$
- */
-
 #ifndef CT_IONSFROMNEUTRALVPSSTP_H
 #define CT_IONSFROMNEUTRALVPSSTP_H
 
@@ -405,7 +401,7 @@ namespace Cantera {
      *  @param neutMolIndex         Returns the vector fm_invert_ionForNeutral
      *                               This is the mapping between ion species and neutral molecule for quick invert.
      */
-    void getDissociationCoeffs(vector_fp& fm_neutralMolec_ions, vector_fp& charges, std::vector<int>& neutMolIndex) const;
+    void getDissociationCoeffs(vector_fp& fm_neutralMolec_ions, vector_fp& charges, std::vector<size_t>& neutMolIndex) const;
 
 
     //! Return the current value of the neutral mole fraction vector
@@ -439,7 +435,7 @@ namespace Cantera {
     /*!
      *  @param cation  List of cations
      */
-    void getCationList(std::vector<int>& cation) const {
+    void getCationList(std::vector<size_t>& cation) const {
       cation=cationList_;
     }
 
@@ -447,7 +443,7 @@ namespace Cantera {
     /*!
      *  @param anion  List of anions
      */
-    void getAnionList(std::vector<int>& anion) const {
+    void getAnionList(std::vector<size_t>& anion) const {
       anion=anionList_;
     }
 
@@ -759,13 +755,13 @@ namespace Cantera {
      *  This is equal to the number of species in the 
      *  neutralMoleculePhase_ ThermoPhase.
      */
-    int numNeutralMoleculeSpecies_;
+    size_t numNeutralMoleculeSpecies_;
 
     //! Index of special species
-    int indexSpecialSpecies_;
+    size_t indexSpecialSpecies_;
 
     //! Index of special species
-    int indexSecondSpecialSpecies_;
+    size_t indexSecondSpecialSpecies_;
     
     //! Formula Matrix for composition of neutral molecules
     //! in terms of the molecules in this ThermoPhase
@@ -804,20 +800,20 @@ namespace Cantera {
      *  then we need to do a formal inversion which takes a great
      *  deal of time and is not currently implemented.
      */
-    std::vector<int> fm_invert_ionForNeutral;
+    std::vector<size_t> fm_invert_ionForNeutral;
 
     //! Mole fractions using the Neutral Molecule Mole fraction basis
     mutable std::vector<doublereal> NeutralMolecMoleFractions_;
 
 
     //! List of the species in this ThermoPhase which are cation species
-    std::vector<int> cationList_;
+    std::vector<size_t> cationList_;
 
     //! Number of cation species
     int numCationSpecies_;
 
     //! List of the species in this ThermoPhase which are anion species
-    std::vector<int> anionList_;
+    std::vector<size_t> anionList_;
 
     //! Number of anion species
     int numAnionSpecies_;
@@ -827,11 +823,11 @@ namespace Cantera {
     /*!
      *  These have neutral charges.
      */ 
-    std::vector<int> passThroughList_;
+    std::vector<size_t> passThroughList_;
 
     //! Number of the species in this ThermoPhase which are passed
     //! through to the neutralMoleculePhase ThermoPhase
-    int numPassThroughSpecies_;
+    size_t numPassThroughSpecies_;
 
   public:
     //! This is a pointer to the neutral Molecule Phase

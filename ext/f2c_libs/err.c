@@ -98,11 +98,11 @@ f__canseek(FILE *f) /*SYSDEP*/
 #endif
 {
 #ifdef NON_UNIX_STDIO
-	return !isatty(fileno(f));
+	return !ISATTY(FILENO(f));
 #else
 	struct STAT_ST x;
 
-	if (FSTAT(fileno(f),&x) < 0)
+	if (FSTAT(FILENO(f),&x) < 0)
 		return(0);
 #ifdef S_IFMT
 	switch(x.st_mode & S_IFMT) {
@@ -113,7 +113,7 @@ f__canseek(FILE *f) /*SYSDEP*/
 		else
 			return(0);
 	case S_IFCHR:
-		if(isatty(fileno(f)))
+		if(ISATTY(FILENO(f)))
 			return(0);
 		return(1);
 #ifdef S_IFBLK
@@ -131,7 +131,7 @@ f__canseek(FILE *f) /*SYSDEP*/
 			return(0);
 		}
 	if (S_ISCHR(x.st_mode)) {
-		if(isatty(fileno(f)))
+		if(ISATTY(FILENO(f)))
 			return(0);
 		return(1);
 		}

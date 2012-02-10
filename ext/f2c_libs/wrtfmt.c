@@ -93,7 +93,7 @@ wrt_Z(Uint *n, int w, int minlen, ftnlen len)
 	for(;; s += i)
 		if (s == se || *s)
 			break;
-	w1 = (i*(se-s) << 1) + 1;
+	w1 = (int) (i*(se-s) << 1) + 1;
 	if (*s & 0xf0)
 		w1++;
 	if (w1 > w)

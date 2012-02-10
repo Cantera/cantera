@@ -87,7 +87,7 @@ py_reactor_nSensParams(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "i:reactor_nSensParams", &i)) 
         return NULL;
         
-    _val = reactor_nSensParams(i); 
+    _val = int(reactor_nSensParams(i));
     return Py_BuildValue("i",_val);
 }
 

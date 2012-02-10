@@ -2,11 +2,6 @@
  *  @file SpeciesThermoInterpType.cpp
  *  Definitions for a 
  */
-
-/* $Author$
- * $Revision$
- * $Date$
- */
 // Copyright 2007  Sandia National Laboratories
 
 #include "SpeciesThermoInterpType.h"
@@ -51,7 +46,7 @@ namespace Cantera {
   {
   }
 
-  STITbyPDSS::STITbyPDSS(int k, VPSSMgr *vpssmgr_ptr, PDSS *PDSS_ptr) :
+  STITbyPDSS::STITbyPDSS(size_t k, VPSSMgr *vpssmgr_ptr, PDSS *PDSS_ptr) :
     m_vpssmgr_ptr(vpssmgr_ptr),
     m_PDSS_ptr(PDSS_ptr),
     m_speciesIndex(k)
@@ -77,7 +72,7 @@ namespace Cantera {
   }
 
 
-  void STITbyPDSS::initAllPtrs(int speciesIndex, VPSSMgr *vpssmgr_ptr, PDSS *PDSS_ptr) {
+  void STITbyPDSS::initAllPtrs(size_t speciesIndex, VPSSMgr *vpssmgr_ptr, PDSS *PDSS_ptr) {
     AssertThrow(speciesIndex == m_speciesIndex, "STITbyPDSS::initAllPtrs internal confusion");
     m_vpssmgr_ptr = vpssmgr_ptr;
     m_PDSS_ptr = PDSS_ptr;
@@ -106,7 +101,7 @@ namespace Cantera {
   }
 
   //! Returns an integer representing the species index
-  int  STITbyPDSS::speciesIndex() const {
+  size_t STITbyPDSS::speciesIndex() const {
     return m_speciesIndex;
   }
   
@@ -158,7 +153,7 @@ namespace Cantera {
 					 doublereal* s_R) const {
     //m_vpssmgr_ptr->setState_T(temp);
     m_PDSS_ptr->setTemperature(temp);
-    AssertThrowMsg(m_speciesIndex >= 0, "STITbyPDSS::updatePropertiesTemp", 
+    AssertThrowMsg(m_speciesIndex != npos, "STITbyPDSS::updatePropertiesTemp",
 		   "object was probably not installed correctly");
     h_RT[m_speciesIndex] = m_PDSS_ptr->enthalpy_RT_ref();
     cp_R[m_speciesIndex] = m_PDSS_ptr->cp_R_ref();
@@ -179,7 +174,7 @@ namespace Cantera {
    * @param coeffs    Vector of coefficients used to set the
    *                  parameters for the standard state.
    */
-  void  STITbyPDSS::reportParameters(int &index, int &type,
+  void  STITbyPDSS::reportParameters(size_t &index, int &type,
 				     doublereal &minTemp, doublereal &maxTemp,
 				     doublereal &refPressure,
 				     doublereal* const coeffs) const {

@@ -1,6 +1,3 @@
-/*
- * $Id$
- */
 #include <iostream>
 #include <fstream>
 #include <cmath>
@@ -286,7 +283,9 @@ void doLogger() {
 }
 
 int main() {
-
+#ifdef _MSC_VER
+    _set_output_format(_TWO_DIGIT_EXPONENT);
+#endif
   // How to connect to a file:
   // ofstream fff("redirect.txt");
   // ostream ffs(fff.rdbuf());

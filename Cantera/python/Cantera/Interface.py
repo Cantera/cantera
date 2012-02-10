@@ -1,4 +1,3 @@
-
 import string
 import os
 
@@ -6,8 +5,6 @@ from constants import *
 from SurfacePhase import SurfacePhase, EdgePhase
 from Kinetics import Kinetics
 import XML
-
-__revision__ = "$Id$"
 
 class Interface(SurfacePhase, Kinetics):    
     """

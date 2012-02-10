@@ -3,13 +3,8 @@
  *                numerical functions. 
  */
 /*
- *  $Author$
- *  $Date$
- *  $Revision$
- *
  *  Copyright 2001-2003 California Institute of Technology
  *  See file License.txt for licensing information
- *
  */
 #ifndef CT_FUNCS_H
 #define CT_FUNCS_H

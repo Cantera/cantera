@@ -13,10 +13,6 @@
 # python ctml_writer.py infile.cti
 # 
 # This will produce CTML file 'infile.xml'
-#
-#
-
-#  $Id$
 
 import string
 

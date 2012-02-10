@@ -3,9 +3,6 @@
  *  Code for a one dimensional root finder program.
  */
 /*
- *  $Id$
- */
-/*
  * Copywrite (2006) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
@@ -119,25 +116,26 @@ static void print_funcEval(FILE *fp, double xval, double fval, int its)
    * @endverbatim
    *
    */
-  int vcsUtil_root1d(double xmin, double xmax, int itmax,
+  int vcsUtil_root1d(double xmin, double xmax, size_t itmax,
 		     VCS_FUNC_PTR func, void *fptrPassthrough,
 		     double FuncTargVal, int varID,
 		     double *xbest, int printLvl) {
    static int callNum = 0;
    const char *stre = "vcs_root1d ERROR: ";
    const char *strw = "vcs_root1d WARNING: ";
-   int converged = FALSE, err = FALSE;
+   bool converged = false;
+   int err = 0;
 #ifdef DEBUG_MODE
    char fileName[80];
    FILE *fp = 0;
 #endif
    double x1, x2, xnew, f1, f2, fnew, slope;
-   int its = 0;
+   size_t its = 0;
    int posStraddle = 0;
    int retn = VCS_SUCCESS;
-   int foundPosF = FALSE;
-   int foundNegF = FALSE;
-   int foundStraddle = FALSE;
+   bool foundPosF = false;
+   bool foundNegF = false;
+   bool foundStraddle = false;
    double xPosF = 0.0;
    double xNegF = 0.0;
    double fnorm;   /* A valid norm for the making the function value
@@ -178,10 +176,10 @@ static void print_funcEval(FILE *fp, double xval, double fval, int its)
       return VCS_SUCCESS; 
    }
    else if (f1 > 0.0) {
-       foundPosF = TRUE;
+       foundPosF = true;
        xPosF = x1;
    } else {
-       foundNegF = TRUE;
+       foundNegF = true;
        xNegF = x1;
    }
    x2 = x1 * 1.1;
@@ -204,19 +202,19 @@ static void print_funcEval(FILE *fp, double xval, double fval, int its)
       return retn;
    else if (f2 > 0.0) {
       if (!foundPosF) {
-	 foundPosF = TRUE;
+	 foundPosF = true;
 	 xPosF = x2;
       }
    } else {
       if (!foundNegF) {
-	 foundNegF = TRUE;
+	 foundNegF = true;
 	 xNegF = x2;
       }
    }
    foundStraddle = foundPosF && foundNegF;
    if (foundStraddle) {
-      if (xPosF > xNegF) posStraddle = TRUE;
-      else               posStraddle = FALSE;
+      if (xPosF > xNegF) posStraddle = true;
+      else               posStraddle = false;
    }
    
    do {
@@ -404,19 +402,17 @@ static void print_funcEval(FILE *fp, double xval, double fval, int its)
       if (! foundStraddle) {
 	 if (fnew > 0.0) {
 	    if (!foundPosF) {
-	       foundPosF = TRUE;
+	       foundPosF = true;
 	       xPosF = xnew;
-	       foundStraddle = TRUE;
-	       if (xPosF > xNegF) posStraddle = TRUE;
-	       else    	          posStraddle = FALSE;
+	       foundStraddle = true;
+	       posStraddle = (xPosF > xNegF);
 	    }	    
 	 } else {
 	    if (!foundNegF) {
-	       foundNegF = TRUE;
+	       foundNegF = true;
 	       xNegF = xnew;
-	       foundStraddle = TRUE;
-	       if (xPosF > xNegF) posStraddle = TRUE;
-	       else    	          posStraddle = FALSE;
+	       foundStraddle = true;
+	       posStraddle = (xPosF > xNegF);
 	    }	   
 	}
       }
@@ -428,7 +424,7 @@ static void print_funcEval(FILE *fp, double xval, double fval, int its)
       x2 = xnew; 
       f2 = fnew;
       if (fabs(fnew / fnorm) < 1.0E-5) {
-        converged = TRUE;	 
+        converged = true;
       }
       its++;
    } while (! converged && its < itmax);

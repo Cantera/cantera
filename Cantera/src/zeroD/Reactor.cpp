@@ -6,12 +6,6 @@
  
 // Copyright 2001  California Institute of Technology
 
-
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
 #include "Reactor.h"
 //#include "../CVode.h"
 #include "FlowDevice.h"
@@ -19,10 +13,9 @@
 #include "InterfaceKinetics.h"
 #include "SurfPhase.h"
 
-using namespace Cantera;
 using namespace std;
 
-namespace CanteraZeroD {
+namespace Cantera {
 
     doublereal quadInterp(doublereal x0, doublereal* x, doublereal* y);
 
@@ -66,9 +59,9 @@ namespace CanteraZeroD {
 
         // set the remaining components to the surface species
         // coverages on the walls
-        int loc = m_nsp + 2;
+        size_t loc = m_nsp + 2;
         SurfPhase* surf;
-        for (int m = 0; m < m_nwalls; m++) {
+        for (size_t m = 0; m < m_nwalls; m++) {
             surf = m_wall[m]->surface(m_lr[m]);
             if (surf) {
                 m_wall[m]->getCoverages(m_lr[m], y + loc);
@@ -85,7 +78,7 @@ namespace CanteraZeroD {
         m_thermo->restoreState(m_state);
         m_sdot.resize(m_nsp, 0.0);
         m_nv = m_nsp + 2;
-        for (int w = 0; w < m_nwalls; w++)
+        for (size_t w = 0; w < m_nwalls; w++)
             if (m_wall[w]->surface(m_lr[w]))
                 m_nv += m_wall[w]->surface(m_lr[w])->nSpecies();
 
@@ -93,8 +86,8 @@ namespace CanteraZeroD {
         m_pressure = m_thermo->pressure();
         m_intEnergy = m_thermo->intEnergy_mass();
 
-        int m, nt = 0, maxnt = 0;
-        for (m = 0; m < m_nwalls; m++) {
+        size_t nt = 0, maxnt = 0;
+        for (size_t m = 0; m < m_nwalls; m++) {
             if (m_wall[m]->kinetics(m_lr[m])) {
                 nt = m_wall[m]->kinetics(m_lr[m])->nTotalSpecies();
                 if (nt > maxnt) maxnt = nt;
@@ -112,10 +105,10 @@ namespace CanteraZeroD {
         m_init = true;
     }
     
-    int Reactor::nSensParams() {
-        if (m_nsens < 0) {
+    size_t Reactor::nSensParams() {
+        if (m_nsens == npos) {
             // determine the number of sensitivity parameters
-            int m, ns;
+            size_t m, ns;
             m_nsens = m_pnum.size();
             for (m = 0; m < m_nwalls; m++) {
                 ns = m_wall[m]->nSensParams(m_lr[m]);
@@ -157,9 +150,9 @@ namespace CanteraZeroD {
         }
         //m_state[0] = temp;
 
-        int loc = m_nsp + 2;
+        size_t loc = m_nsp + 2;
         SurfPhase* surf;
-        for (int m = 0; m < m_nwalls; m++) {
+        for (size_t m = 0; m < m_nwalls; m++) {
             surf = m_wall[m]->surface(m_lr[m]);
             if (surf) {
                 //                surf->setTemperature(temp);
@@ -183,12 +176,12 @@ namespace CanteraZeroD {
     void Reactor::evalEqs(doublereal time, doublereal* y, 
         doublereal* ydot, doublereal* params) 
     {
-        int i, k, nk;
+        size_t i, k, nk;
         m_time = time;
         m_thermo->restoreState(m_state);
 
         Kinetics* kin;
-        int m, n, npar, ploc;
+        size_t m, n, npar, ploc;
         double mult;
         // process sensitivity parameters
         if (params) {
@@ -218,7 +211,7 @@ namespace CanteraZeroD {
         doublereal vdot, rs0, sum, wallarea;
         //        Kinetics* kin;
         SurfPhase* surf;
-        int lr, ns, loc = m_nsp+2, surfloc;
+        size_t lr, ns, loc = m_nsp+2, surfloc;
         fill(m_sdot.begin(), m_sdot.end(), 0.0);
         for (i = 0; i < m_nwalls; i++) {
             lr = 1 - 2*m_lr[i];
@@ -294,11 +287,10 @@ namespace CanteraZeroD {
 
             // outlets 
 
-            int n;
             doublereal mdot_out;
             for (i = 0; i < m_nOutlets; i++) {
                 mdot_out = m_outlet[i]->massFlowRate(time);
-                for (n = 0; n < m_nsp; n++) {
+                for (size_t n = 0; n < m_nsp; n++) {
                     ydot[2+n] -= mdot_out * mf[n];
                 }
                 if (m_energy) {
@@ -339,32 +331,32 @@ namespace CanteraZeroD {
         }
     }
 
-    void Reactor::addSensitivityReaction(int rxn) {
+    void Reactor::addSensitivityReaction(size_t rxn) {
         m_pnum.push_back(rxn);
         m_pname.push_back(name()+": "+m_kin->reactionString(rxn));
         m_mult_save.push_back(1.0);
-        if (rxn < 0 || rxn >= m_kin->nReactions()) 
+        if (rxn >= m_kin->nReactions())
             throw CanteraError("Reactor::addSensitivityReaction",
-                "Reaction number out of range ("+int2str(rxn)+")");
+                "Reaction number out of range ("+int2str(int(rxn))+")");
     }
 
 
-    int Reactor::componentIndex(string nm) const {
+    size_t Reactor::componentIndex(string nm) const {
         if (nm == "U") return 0;
         if (nm == "V") return 1;
         // check for a gas species name
-        int k = m_thermo->speciesIndex(nm);
-        if (k >= 0) return k + 2;
+        size_t k = m_thermo->speciesIndex(nm);
+        if (k != npos) return k + 2;
 
         // check for a wall species
-        int walloffset = 0, kp = 0;
+        size_t walloffset = 0, kp = 0;
         thermo_t* th;
-        for (int m = 0; m < m_nwalls; m++) {
+        for (size_t m = 0; m < m_nwalls; m++) {
             if (m_wall[m]->kinetics(m_lr[m])) {
                 kp = m_wall[m]->kinetics(m_lr[m])->reactionPhaseIndex();
                 th = &m_wall[m]->kinetics(m_lr[m])->thermo(kp);
                 k = th->speciesIndex(nm);
-                if (k >= 0) {
+                if (k != npos) {
                     return k + 2 + m_nsp + walloffset;
                 }
                 else {

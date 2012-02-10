@@ -4,11 +4,6 @@
  *   (see \ref Cantera::PrintCtrl).
  */
 /*
- * $Author$
- * $Revision$
- * $Date$
- */
-/*
  * Copywrite 2004 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government
  * retains certain rights in this software.
@@ -115,8 +110,8 @@ namespace Cantera {
 
     // Set to upper case and scientific notation
     m_cout.setf(ios_base::scientific | ios_base::uppercase);
-    int wold = m_cout.width(wMin); 
-    int pold = m_cout.precision(p);
+    int wold = (int) m_cout.width(wMin);
+    int pold = (int) m_cout.precision(p);
 
     m_cout << d;
     // Return the precision to the previous value;
@@ -152,8 +147,6 @@ namespace Cantera {
     if (Ndec < -301 || Ndec > 301) {
       return d;
     }
-    double sgn = 1.0;
-    if (d < 0.0) sgn = -1.0;
     double dfabs = fabs(d);
     double  pdec = pow(10.0, (double) Ndec);
     if (dfabs < pdec) {

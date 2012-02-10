@@ -12,11 +12,6 @@
  *
  * Copyright 2001 California Institute of Technology
  */
-
-/*
- * $Id$ 
- */
-
 #include "ct_defs.h"
 #include "mix_defs.h"
 #include "MineralEQ3.h"
@@ -237,7 +232,7 @@ namespace Cantera {
    * by which the generalized concentration is normalized to produce 
    * the activity. 
    */ 
-  doublereal MineralEQ3::standardConcentration(int k) const {
+  doublereal MineralEQ3::standardConcentration(size_t k) const {
     return 1.0;
   }
 
@@ -245,7 +240,7 @@ namespace Cantera {
    * Returns the natural logarithm of the standard 
    * concentration of the kth species
    */
-  doublereal MineralEQ3::logStandardConc(int k) const {
+  doublereal MineralEQ3::logStandardConc(size_t k) const {
     return 0.0;
   }
 
@@ -544,8 +539,8 @@ namespace Cantera {
     throw CanteraError("LookupGe", "element " + s + " not found");
     return -1.0;
 #else
-    int iE = elementIndex(elemName);
-    if (iE < 0) {
+    size_t iE = elementIndex(elemName);
+    if (iE == npos) {
       throw CanteraError("PDSS_HKFT::LookupGe", "element " + elemName + " not found");
     }
     doublereal geValue = entropyElement298(iE);
@@ -562,13 +557,12 @@ namespace Cantera {
     /*
      * Ok let's get the element compositions and conversion factors.
      */
-    int ne = nElements();
     doublereal na;
     doublereal ge;
     string ename;
 
     doublereal totalSum = 0.0;
-    for (int m = 0; m < ne; m++) {
+    for (size_t m = 0; m < nElements(); m++) {
       na = nAtoms(0, m);
       if (na > 0.0) {
 	ename = elementName(m);

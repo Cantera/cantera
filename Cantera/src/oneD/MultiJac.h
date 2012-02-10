@@ -1,15 +1,9 @@
 /**
- *
  *  @file MultiJac.h
  */
 
 /*
- *  $Author$
- *  $Date$
- *  $Revision$
- *
  *  Copyright 2002 California Institute of Technology
- *
  */
 
 #ifndef CT_MULTIJAC_H
@@ -93,8 +87,8 @@ namespace Cantera {
         vector_int m_mask;
         int m_nevals;
         int m_age;
-        int m_size;
-        int m_points;
+        size_t m_size;
+        size_t m_points;
     };
 }
 

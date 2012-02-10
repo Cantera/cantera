@@ -11,17 +11,6 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-/*
- *  $Author$
- *  $Date$
- *  $Revision$
- */
-
-// turn off warnings under Windows
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
 
 #include "VPSSMgr.h"
 #include "VPStandardStateTP.h"
@@ -147,7 +136,7 @@ namespace Cantera {
     // Go see if the SpeciesThermo type is a GeneralSpeciesThermo
     GeneralSpeciesThermo * gst = dynamic_cast<GeneralSpeciesThermo *>(sp_ptr);
     if (gst) {
-      for (int k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	SpeciesThermoInterpType *st = gst->provideSTIT(k);
 	STITbyPDSS * stpd = dynamic_cast<STITbyPDSS *>(st);
 	if (stpd) {
@@ -204,7 +193,7 @@ namespace Cantera {
     if (m_useTmpStandardStateStorage) {
       std::copy(m_hss_RT.begin(), m_hss_RT.end(), urt);
       doublereal pRT = m_plast / (GasConstant * m_tlast);
-      for (int k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	urt[k] -= pRT * m_Vss[k];
       }
     } else {
@@ -322,7 +311,7 @@ namespace Cantera {
   }
 
   void VPSSMgr::_updateStandardStateThermo() {
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       PDSS *kPDSS = m_vptp_ptr->providePDSS(k);
       kPDSS->setState_TP(m_tlast, m_plast);
     }
@@ -332,7 +321,7 @@ namespace Cantera {
   void VPSSMgr::_updateRefStateThermo() const {
     if (m_spthermo) {
       m_spthermo->update(m_tlast, &m_cp0_R[0], &m_h0_RT[0], &m_s0_R[0]);
-      for (int k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
       }
     }
@@ -378,7 +367,7 @@ namespace Cantera {
   void VPSSMgr::initThermoXML(XML_Node& phaseNode, std::string id) {
     const PDSS *kPDSS = m_vptp_ptr->providePDSS(0);
     m_p0 = kPDSS->refPressure();
-    for (int i = 0; i < m_kk; i++) {
+    for (size_t i = 0; i < m_kk; i++) {
       const PDSS *kPDSS = m_vptp_ptr->providePDSS(i);
       doublereal mint = kPDSS->minTemp();
       if (mint > m_minTemp) {
@@ -393,7 +382,7 @@ namespace Cantera {
     // Add a check to see that all references pressures are the same
     double m_p0_k;
     if (m_spthermo) {
-      for (int k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	m_p0_k = m_spthermo->refPressure(k);
 	if (m_p0 != m_p0_k) {
 	  //throw CanteraError("VPSSMgr::initThermoXML",
@@ -406,7 +395,7 @@ namespace Cantera {
       }
     }
 
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       const PDSS *kPDSS = m_vptp_ptr->providePDSS(k);
       m_p0_k = kPDSS->refPressure();
       if (m_p0 != m_p0_k) {
@@ -421,7 +410,7 @@ namespace Cantera {
 #endif
   }
 
-  void VPSSMgr::installSTSpecies(int k,  const XML_Node& s, 
+  void VPSSMgr::installSTSpecies(size_t k,  const XML_Node& s,
 				 const XML_Node *phaseNode_ptr) {
     
     SpeciesThermoFactory*  f = SpeciesThermoFactory::factory();
@@ -431,7 +420,7 @@ namespace Cantera {
     }
   }
 
-  PDSS * VPSSMgr::createInstallPDSS(int k, const XML_Node& s,  
+  PDSS * VPSSMgr::createInstallPDSS(size_t k, const XML_Node& s,
 				    const XML_Node *phaseNode_ptr) {
     err("VPSSMgr::createInstallPDSS");
     return (PDSS *) 0;
@@ -439,24 +428,24 @@ namespace Cantera {
   
 
  /*****************************************************************/
-  doublereal VPSSMgr::minTemp(int k) const {
-    if (k >= 0) {
+  doublereal VPSSMgr::minTemp(size_t k) const {
+    if (k != npos) {
       const PDSS *kPDSS = m_vptp_ptr->providePDSS(k);
       return kPDSS->minTemp();
     }
     return m_minTemp;
   }
 
- doublereal VPSSMgr::maxTemp(int k) const {
-    if (k >= 0) {
+ doublereal VPSSMgr::maxTemp(size_t k) const {
+    if (k != npos) {
       const PDSS *kPDSS = m_vptp_ptr->providePDSS(k);
       return kPDSS->maxTemp();
     }
     return m_maxTemp;
   }
 
-  doublereal VPSSMgr::refPressure(int k) const {
-    if (k >= 0) {
+  doublereal VPSSMgr::refPressure(size_t k) const {
+    if (k != npos) {
       const PDSS *kPDSS = m_vptp_ptr->providePDSS(k);
       return kPDSS->refPressure();
     }

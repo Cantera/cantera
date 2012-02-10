@@ -1,7 +1,4 @@
 /*
- * $Id$
- */
-/*
  * Copywrite 2004 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000, there is a non-exclusive license for use of this
  * work by or on behalf of the U.S. Government. Export of this program
@@ -10,7 +7,6 @@
 
 #ifndef TEMPERATURE_TABLE_H
 #define  TEMPERATURE_TABLE_H
-#include "sortAlgorithms.h"
 //#include "mdp_allo.h"
 #include <vector>
 using std::vector;
@@ -77,10 +73,7 @@ public:
 	}
 	NPoints += numAdded;
       }
- 
-      sort_dbl_1(DATA_PTR(T), NPoints);
-
-    
+      std::sort(T.begin(), T.end());
   }
   /***********************************************************************/
   /***********************************************************************/

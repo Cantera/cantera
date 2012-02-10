@@ -7,13 +7,8 @@
 
 // Copyright 2001  California Institute of Technology
 
-
 #ifndef CKR_THERMOFUNCTIONS_H
 #define CKR_THERMOFUNCTIONS_H
-
-#ifdef WIN32
-#pragma warning(disable:4786)
-#endif
 
 #include "Species.h"
 

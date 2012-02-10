@@ -1,21 +1,8 @@
 /**
- *
  *  @file TransportFactory.cpp
  *
  *  Implementation file for class TransportFactory.
- *
- *
  */
-/*
- * $Revision$  
- * $Date$
- */
-
-// turn off warnings under Windows
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
 
 #include "ThermoPhase.h"
 
@@ -119,13 +106,13 @@ namespace Cantera {
    *  
    *  @note This method is not used currently.
    */
-  void TransportFactory::getBinDiffCorrection(doublereal t, 
-					      const GasTransportParams& tr, int k, int j, doublereal xk, doublereal xj, 
+  void TransportFactory::getBinDiffCorrection(doublereal t, const GasTransportParams& tr,
+					      size_t k, size_t j, doublereal xk, doublereal xj,
 					      doublereal& fkj, doublereal& fjk) {
 
     doublereal w1, w2, wsum, sig1, sig2, sig12, sigratio, sigratio2,
       sigratio3, tstar1, tstar2, tstar12,
-      om22_1, om22_2, om22_12, om11_12, astar_12, bstar_12, cstar_12,
+      om22_1, om22_2, om11_12, astar_12, bstar_12, cstar_12,
       cnst, wmwp, sqw12, p1, p2, p12, q1, q2, q12;
 
     w1 = tr.mw[k];
@@ -147,7 +134,6 @@ namespace Cantera {
 
     om22_1 = m_integrals->omega22(tstar1, tr.delta(k,k));
     om22_2 = m_integrals->omega22(tstar2, tr.delta(j,j));
-    om22_12 = m_integrals->omega22(tstar12, tr.delta(k,j));
     om11_12 = m_integrals->omega11(tstar12, tr.delta(k,j));
     astar_12 = m_integrals->astar(tstar12, tr.delta(k,j));
     bstar_12 = m_integrals->bstar(tstar12, tr.delta(k,j));
@@ -197,7 +183,7 @@ namespace Cantera {
    *  @param f_eps      Multiplicative correction factor to be applied to epsilon(i,j)
    *  @param f_sigma    Multiplicative correction factor to be applied to diam(i,j)
    */
-  void TransportFactory::makePolarCorrections(int i, int j, 
+  void TransportFactory::makePolarCorrections(size_t i, size_t j,
 					      const GasTransportParams& tr, doublereal& f_eps, doublereal& f_sigma) {
 
     // no correction if both are nonpolar, or both are polar
@@ -208,8 +194,8 @@ namespace Cantera {
     // corrections to the effective diameter and well depth 
     // if one is polar and one is non-polar
 
-    int kp = (tr.polar[i] ? i : j);     // the polar one
-    int knp = (i == kp ? j : i);        // the nonpolar one
+    size_t kp = (tr.polar[i] ? i : j);     // the polar one
+    size_t knp = (i == kp ? j : i);        // the nonpolar one
 
     doublereal d3np, d3p, alpha_star, mu_p_star, xi;
     d3np = pow(tr.sigma[knp],3);
@@ -504,7 +490,7 @@ namespace Cantera {
     // constant mixture attributes
     tr.thermo = thermo;
     tr.nsp_ = tr.thermo->nSpecies();
-    int nsp = tr.nsp_;
+    size_t nsp = tr.nsp_;
 
     tr.tmin = thermo->minTemp();
     tr.tmax = thermo->maxTemp();
@@ -530,8 +516,7 @@ namespace Cantera {
     XML_Node root, log;
     getTransportData(transport_database, log, tr.thermo->speciesNames(), tr);
 
-    int i, j;
-    for (i = 0; i < nsp; i++) tr.poly[i].resize(nsp);
+    for (size_t i = 0; i < nsp; i++) tr.poly[i].resize(nsp);
 
     doublereal ts1, ts2, tstar_min = 1.e8, tstar_max = 0.0;
     doublereal f_eps, f_sigma;
@@ -539,8 +524,8 @@ namespace Cantera {
     DenseMatrix& diam = tr.diam;
     DenseMatrix& epsilon = tr.epsilon;
 
-    for (i = 0; i < nsp; i++) {
-      for (j = i; j < nsp; j++) {
+    for (size_t i = 0; i < nsp; i++) {
+      for (size_t j = i; j < nsp; j++) {
 	// the reduced mass
 	tr.reducedMass(i,j) =  tr.mw[i] * tr.mw[j] / (Avogadro * (tr.mw[i] + tr.mw[j]));
 
@@ -634,7 +619,7 @@ namespace Cantera {
     // constant mixture attributes
     trParam.thermo = thermo;
     trParam.nsp_ = trParam.thermo->nSpecies();
-    int nsp = trParam.nsp_;
+    size_t nsp = trParam.nsp_;
 
     trParam.tmin = thermo->minTemp();
     trParam.tmax = thermo->maxTemp();
@@ -760,9 +745,9 @@ namespace Cantera {
 
     vector_fp::iterator dptr;
     doublereal dstar;
-    int nsp = tr.nsp_;
+    size_t nsp = tr.nsp_;
     int mode = tr.mode_;
-    int i, j;
+    size_t i, j;
 
     // Chemkin fits to sixth order polynomials
     int degree = (mode == CK_Mode ? 6 : COLL_INT_POLY_DEGREE);
@@ -845,7 +830,7 @@ namespace Cantera {
     std::map<std::string, GasTransportData> datatable;
     doublereal welldepth, diam, dipole, polar, rot;
 
-    int nsp = static_cast<int>(xspecies.size());
+    size_t nsp = xspecies.size();
         
     // read all entries in database into 'datatable' and check for 
     // errors. Note that this procedure validates all entries, not 
@@ -857,8 +842,7 @@ namespace Cantera {
     gindx["linear"] = 101;
     gindx["nonlinear"] = 102;
     int linenum = 0;
-    int i;
-    for (i = 0; i < nsp; i++) {
+    for (size_t i = 0; i < nsp; i++) {
       const XML_Node& sp = *xspecies[i];
       name = sp["name"];
       // std::cout << "Processing node for " << name << std::endl;
@@ -906,8 +890,7 @@ namespace Cantera {
       }
     }
 
-    for (i = 0; i < tr.nsp_; i++) {
-
+    for (size_t i = 0; i < tr.nsp_; i++) {
 
       GasTransportData& trdat = datatable[names[i]];
             
@@ -980,7 +963,7 @@ namespace Cantera {
     // read all entries in database into 'datatable' and check for 
     // errors. Note that this procedure validates all entries, not 
     // only those for the species listed in 'names'.
-    for (int i = 0; i < nsp; i++) {
+    for (size_t i = 0; i < nsp; i++) {
       const XML_Node& sp = *xspecies[i];
       name = sp["name"];
       vector_fp vCoeff;
@@ -1254,12 +1237,12 @@ namespace Cantera {
   void TransportFactory::fitProperties(GasTransportParams& tr, std::ostream& logfile) {
 
     doublereal tstar;
-    int k, j, n, ndeg = 0;
+    int ndeg = 0;
 #ifdef DEBUG_MODE
     char s[100];
 #endif
     // number of points to use in generating fit data
-    const int np = 50;
+    const size_t np = 50;
 
     int mode = tr.mode_;
     int degree = (mode == CK_Mode ? 3 : 4);
@@ -1272,7 +1255,7 @@ namespace Cantera {
     vector_fp w(np), w2(np);
         
     // generate array of log(t) values
-    for (n = 0; n < np; n++) {
+    for (size_t n = 0; n < np; n++) {
       t = tr.tmin + dt*n;
       tlog[n] = log(t);
     }
@@ -1289,7 +1272,6 @@ namespace Cantera {
 			  "*** polynomial coefficients not printed (log_level < 2) ***");
     }
 #endif
-    int ipoly;
     doublereal sqrt_T, visc, err, relerr, 
       mxerr = 0.0, mxrelerr = 0.0, mxerr_cond = 0.0, mxrelerr_cond = 0.0;
 
@@ -1313,9 +1295,9 @@ namespace Cantera {
       c1, cv_rot, cv_int, f_rot, f_trans, om11;
     doublereal diffcoeff;
 
-    for (k = 0; k < tr.nsp_; k++) 
+    for (size_t k = 0; k < tr.nsp_; k++)
       {
-	for (n = 0; n < np; n++) {
+	for (size_t n = 0; n < np; n++) {
 	  t = tr.tmin + dt*n;
 
 	  tr.thermo->setTemperature(t);
@@ -1388,7 +1370,7 @@ namespace Cantera {
                 DATA_PTR(w), degree, ndeg, 0.0, DATA_PTR(c2));
 
 	// evaluate max fit errors for viscosity
-	for (n = 0; n < np; n++) {
+	for (size_t n = 0; n < np; n++) {
 	  if (mode == CK_Mode) {
 	    val = exp(spvisc[n]);
 	    fit = exp(poly3(tlog[n], DATA_PTR(c))); 
@@ -1405,7 +1387,7 @@ namespace Cantera {
 	}
 
 	// evaluate max fit errors for conductivity
-	for (n = 0; n < np; n++) {
+	for (size_t n = 0; n < np; n++) {
 	  if (mode == CK_Mode) {
 	    val = exp(spcond[n]);
 	    fit = exp(poly3(tlog[n], DATA_PTR(c2))); 
@@ -1450,7 +1432,7 @@ namespace Cantera {
 	tr.xml->XML_comment(logfile,s);
       }
       if (tr.log_level >= 2) 
-	for (k = 0; k < tr.nsp_; k++) {
+	for (size_t k = 0; k < tr.nsp_; k++) {
 	  tr.xml->XML_writeVector(logfile, "    ", tr.thermo->speciesName(k), 
 				  degree+1, DATA_PTR(tr.condcoeffs[k]));
 	}            
@@ -1478,11 +1460,11 @@ namespace Cantera {
     mxerr = 0.0, mxrelerr = 0.0;
     vector_fp diff(np + 1);
     doublereal eps, sigma;
-    for (k = 0; k < tr.nsp_; k++)  {            
-      for (j = k; j < tr.nsp_; j++) {
+    for (size_t k = 0; k < tr.nsp_; k++)  {            
+      for (size_t j = k; j < tr.nsp_; j++) {
 
 	ipoly = tr.poly[k][j];
-	for (n = 0; n < np; n++) {
+	for (size_t n = 0; n < np; n++) {
 
 	  t = tr.tmin + dt*n;
                     
@@ -1517,7 +1499,7 @@ namespace Cantera {
 		DATA_PTR(w), degree, ndeg, 0.0, DATA_PTR(c));
 
 	doublereal pre;
-	for (n = 0; n < np; n++) {
+	for (size_t n = 0; n < np; n++) {
 	  if (mode == CK_Mode) {
 	    val = exp(diff[n]);
 	    fit = exp(poly3(tlog[n], DATA_PTR(c))); 

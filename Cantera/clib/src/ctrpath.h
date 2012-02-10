@@ -1,10 +1,6 @@
 /**
  * @file ctrpath.h
  */
-/*
- *      $Id$
- */
-
 #ifndef CTC_RXNPATH_H
 #define CTC_RXNPATH_H
 
@@ -30,7 +26,7 @@ extern "C" {
     EEXXTT int DLL_CPREFIX rdiag_setTitle(int i, char* title);
     EEXXTT int DLL_CPREFIX rdiag_write(int i, int fmt, char* fname);
     EEXXTT int DLL_CPREFIX rdiag_add(int i, int n);
-    EEXXTT int DLL_CPREFIX rdiag_findMajor(int i, double threshold, int lda, double* a);
+    EEXXTT int DLL_CPREFIX rdiag_findMajor(int i, double threshold, size_t lda, double* a);
     EEXXTT int DLL_CPREFIX rdiag_setFont(int i, char* font);
     EEXXTT int DLL_CPREFIX rdiag_displayOnly(int i, int k);
 

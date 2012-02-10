@@ -1,10 +1,6 @@
 /**
  * @file ctsurf.h
  */
-/*
- *      $Id$
- */
-
 #ifndef CTC_SURF_H
 #define CTC_SURF_H
 
@@ -12,9 +8,9 @@
 #include "clib_defs.h"
 
 #ifdef CANTERA_USE_INTERNAL
-#include "config.h"
+#include "kernel/config.h"
 #else
-#include "cantera/config.h"
+#include "cantera/kernel/config.h"
 #endif
 
 extern "C" {

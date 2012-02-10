@@ -5,10 +5,6 @@
  */
 
 // Copyright 2001  California Institute of Technology
-/*
- * $Id$
-
- */
 /**
  * @defgroup utils Templated Utility Functions
  *
@@ -21,10 +17,6 @@
 #define CT_UTILITIES_H
 
 #include "ct_defs.h"
-
-#ifdef WIN32
-#pragma warning(disable:4996)
-#endif
 
 //! Unary operator to multiply the argument by a constant. 
 /*!

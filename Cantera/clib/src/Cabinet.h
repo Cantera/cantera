@@ -1,17 +1,12 @@
 /**
  * @file Cabinet.h
  */
-/*
- *      $Id$
- */
-
-
 #ifndef CT_CABINET_H
 #define CT_CABINET_H
 
 #include <vector>
-#include "stringUtils.h"
-#include "config.h"
+#include "kernel/stringUtils.h"
+#include "kernel/config.h"
 
 /**
  * Template for classes to hold pointers to objects. The Cabinet<M>
@@ -164,11 +159,11 @@ public:
     /** 
      * Return a pointer to object n.
      */
-    M* item(int n) {
-        if (n >= 0 && n < int(__table.size()))
+    M* item(size_t n) {
+        if (n < __table.size())
             return __table[n];
         else {
-            throw Cantera::CanteraError("item","index out of range"+Cantera::int2str(n));
+            throw Cantera::CanteraError("item","index out of range"+Cantera::int2str(int(n)));
             //return __table[0];
         }
     }

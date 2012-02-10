@@ -1,0 +1,77 @@
+from buildutils import *
+
+Import('env', 'buildTargets', 'installTargets')
+
+class MatlabBuilder(object):
+    def __init__(self, libs):
+        self.libs = libs
+
+    def __call__(self, target, source, env):
+        filenames = [os.path.split(node.path)[1] for node in source]
+        sourcestr = ' '.join(pjoin('..','src',name) for name in filenames)
+        includes = ' '.join('-I%s' % quoted(Dir(s).abspath) for s in env['CPPPATH'])
+        libdir = ' '.join('-L%s' % quoted(Dir(s).abspath) for s in env['LIBPATH'])
+        libs = ' '.join('-l'+s for s in self.libs)
+        extraFlag = '-cxx' if os.name == 'posix' else ''
+        debugFlag = '-g' if not env['optimize'] else ''
+        text = """
+disp('building Cantera...');
+cd cantera
+mex %(debugFlag)s %(extraFlag)s -v -output ctmethods %(include)s %(libdir)s %(libs)s %(sourcestr)s
+disp('done.');
+exit
+""" % dict(sourcestr=sourcestr,
+           extraFlag=extraFlag,
+           include=includes,
+           libdir=libdir,
+           libs=libs,
+           debugFlag=debugFlag)
+
+        with open(str(target[0]), 'w') as f:
+            f.write(text)
+
+localenv = env.Clone()
+
+libs = ['clib']
+if localenv['OS'] != 'Windows':
+    libs.extend(env['cantera_libs'])
+
+localenv.Command('build_cantera.m',
+                 mglob(localenv, 'src', 'cpp'),
+                 MatlabBuilder(libs))
+
+localenv['ENV']['PATH'] = os.environ['PATH']
+if 'TEMP' in os.environ:
+    localenv['ENV']['TEMP'] = os.environ['TEMP']
+
+build_cmd = 'cd ${SOURCE.dir} && "%(matlab_cmd)s" -nojvm -nosplash -r build_cantera'
+
+
+if os.name == 'posix':
+    mexFile = 'cantera/ctmethods.mexa%i' % localenv['OS_BITS']
+elif os.name == 'nt':
+    mexFile = 'cantera/ctmethods.mexw%i' % localenv['OS_BITS']
+    if localenv['OS_BITS'] == 64:
+        localenv['ENV']['PROCESSOR_ARCHITECTURE'] = "AMD64"
+    else:
+        localenv['ENV']['PROCESSOR_ARCHITECTURE'] = "x86"
+
+target = localenv.Command(mexFile,
+                          'build_cantera.m',
+                          build_cmd % localenv)
+buildTargets.extend(target)
+localenv.Depends(target, env['clib_header_targets'])
+
+### Install the Matlab toolbox ###
+inst = localenv.RecursiveInstall('$inst_matlab_dir', 'cantera')
+installTargets.extend(inst)
+
+inst = localenv.RecursiveInstall(pjoin('$inst_tutdir', 'matlab'), 'tutorial')
+installTargets.extend(inst)
+
+inst = localenv.RecursiveInstall(pjoin('$inst_demodir', 'matlab'), 'examples')
+installTargets.extend(inst)
+
+if os.name == 'nt':
+    inst = localenv.Install('$inst_matlab_dir', localenv['clib_shared'])
+    installTargets.extend(inst)

@@ -1,7 +1,7 @@
 #include "subs.h"
 #include "utils.h"
 
-using namespace std;
+using std::string;
 
 namespace tpx {
 

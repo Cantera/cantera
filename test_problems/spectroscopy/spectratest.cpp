@@ -4,11 +4,11 @@
 #include "kernel/Nuclei.h"
 #include <iostream>
 using namespace std;
-using namespace CanteraSpectra;
+using namespace Cantera;
 
 int main() {
 
-    Nucleus* a = CanteraSpectra::HydrogenNucleus();
+    Nucleus* a = HydrogenNucleus();
     Nucleus* b = HydrogenNucleus();
     if (*a == *b) {
         cout << "a and b and indistinguishable" << endl;

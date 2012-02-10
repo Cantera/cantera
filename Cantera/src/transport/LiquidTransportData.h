@@ -2,12 +2,6 @@
  *  @file LiquidTransportData.h
  *  Header file defining class LiquidTransportData
  */
-/*
- *  $Author$
- *  $Date$
- *  $Revision$
- */
-
 #ifndef CT_LIQUIDTRANSPORTDATA_H
 #define CT_LIQUIDTRANSPORTDATA_H
 

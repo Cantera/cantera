@@ -6,21 +6,20 @@
 #include "kernel/ConstDensityThermo.h"
 #include "kernel/importKinetics.h"
 
-namespace Cantera_CXX {
+namespace Cantera {
 
-    class IncompressibleSolid : public Cantera::ConstDensityThermo
+    class IncompressibleSolid : public ConstDensityThermo
     {
     public:
         IncompressibleSolid(std::string infile, 
             std::string id="") : m_ok(false), m_r(0) {
             
-            m_r = Cantera::get_XML_File(infile); 
+            m_r = get_XML_File(infile);
             if (id == "-") id = "";
-            m_ok = Cantera::buildSolutionFromXML(*m_r, id, "phase", this, 0);
-            if (!m_ok) throw Cantera::CanteraError("IncompressibleSolid",
+            m_ok = buildSolutionFromXML(*m_r, id, "phase", this, 0);
+            if (!m_ok) throw CanteraError("IncompressibleSolid",
                 "buildSolutionFromXML returned false");
         }
-
 
         virtual ~IncompressibleSolid() {}
 
@@ -34,7 +33,7 @@ namespace Cantera_CXX {
 
     protected:
         bool m_ok;
-        Cantera::XML_Node* m_r;
+        XML_Node* m_r;
 
     private:
     };

@@ -12,13 +12,6 @@
 
 #ifndef CT_NASAPOLY1_H
 #define CT_NASAPOLY1_H
-
-
-/* $Author$
- * $Revision$
- * $Date$
- */
-
 // Copyright 2001  California Institute of Technology
 
 
@@ -72,7 +65,7 @@ namespace Cantera {
      * @param coeffs       Vector of coefficients used to set the
      *                     parameters for the standard state.
      */
-    NasaPoly1(int n, doublereal tlow, doublereal thigh, doublereal pref,
+    NasaPoly1(size_t n, doublereal tlow, doublereal thigh, doublereal pref,
 	      const doublereal* coeffs) :
       m_lowT      (tlow),
       m_highT     (thigh),
@@ -139,7 +132,7 @@ namespace Cantera {
     virtual int reportType() const { return NASA1; }
       
      //! Returns an integer representing the species index
-    virtual int speciesIndex() const { return m_index; }
+    virtual size_t speciesIndex() const { return m_index; }
   
     //! Update the properties for this species, given a temperature polynomial
     /*!
@@ -233,7 +226,7 @@ namespace Cantera {
      * @param coeffs    Vector of coefficients used to set the
      *                  parameters for the standard state.
      */
-    virtual void reportParameters(int &n, int &type,
+    virtual void reportParameters(size_t &n, int &type,
 				  doublereal &tlow, doublereal &thigh,
 				  doublereal &pref,
 				  doublereal* const coeffs) const {
@@ -313,7 +306,7 @@ namespace Cantera {
     //! standard-state pressure
     doublereal m_Pref;     
     //! species index
-    int m_index;  
+    size_t m_index;
     //! array of polynomial coefficients       
     array_fp m_coeff;    
 

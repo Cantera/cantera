@@ -1,27 +1,15 @@
 /**
  *  @file ReactorBase.cpp
- *
- * $Author$
- * $Revision$
- * $Date$
  */
 
 // Copyright 2001  California Institute of Technology
-
-
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
 
 #include "ReactorBase.h"
 #include "FlowDevice.h"
 #include "Wall.h"
 
 using namespace std;
-using namespace Cantera;
-
-namespace CanteraZeroD {
+namespace Cantera {
 
     ReactorBase::ReactorBase(string name) : m_nsp(0), 
                                  m_thermo(0), 
@@ -76,7 +64,7 @@ namespace CanteraZeroD {
         m_nwalls++;
     }
 
-    Wall& ReactorBase::wall(int n) {
+    Wall& ReactorBase::wall(size_t n) {
         return *m_wall[n];
     }
 
@@ -88,7 +76,7 @@ namespace CanteraZeroD {
         return mass()/mout;
     }
 
-    FlowDevice& ReactorBase::inlet(int n)  { return *m_inlet[n]; }
-    FlowDevice& ReactorBase::outlet(int n) { return *m_outlet[n]; }
+    FlowDevice& ReactorBase::inlet(size_t n)  { return *m_inlet[n]; }
+    FlowDevice& ReactorBase::outlet(size_t n) { return *m_outlet[n]; }
 
 }

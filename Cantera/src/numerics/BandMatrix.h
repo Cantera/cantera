@@ -5,12 +5,6 @@
  *    (see class \ref numerics and \link Cantera::BandMatrix BandMatrix\endlink).  
  */
 
-/*
- *  $Author$
- *  $Revision$
- *  $Date$
- */
-
 // Copyright 2001  California Institute of Technology
 
 
@@ -59,7 +53,7 @@ namespace Cantera {
      * @param ku  band size on the upper portion of the matrix
      * @param v   intial value of all matrix components.
      */
-    BandMatrix(int n, int kl, int ku, doublereal v = 0.0);
+    BandMatrix(size_t n, size_t kl, size_t ku, doublereal v = 0.0);
 
     //! Copy constructor
     /*!
@@ -85,7 +79,7 @@ namespace Cantera {
      * @param ku  band size on the upper portion of the matrix
      * @param v   intial value of all matrix components.
      */
-    void resize(int n, int kl, int ku, doublereal v = 0.0);
+    void resize(size_t n, size_t kl, size_t ku, doublereal v = 0.0);
 
     //! Fill or zero the matrix
     /*!
@@ -154,7 +148,7 @@ namespace Cantera {
      * 
      *   @return   Returns the value of the matrix entry
      */
-    doublereal _value(int i, int j) const;
+    doublereal _value(size_t i, size_t j) const;
 
     //! Returns the number of rows
     virtual size_t nRows() const;

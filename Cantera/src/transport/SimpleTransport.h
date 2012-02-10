@@ -4,11 +4,6 @@
  *   transport properties for liquids and solids
  *   (see \ref tranprops and \link Cantera::SimpleTransport SimpleTransport \endlink) .
  */
-/*
- * $Revision$
- * $Date$
- */
-
 #ifndef CT_SIMPLETRAN_H
 #define CT_SIMPLETRAN_H
 
@@ -308,7 +303,7 @@ namespace Cantera {
      *   @param ld 
      *   @param d   
      */
-    virtual void getBinaryDiffCoeffs(const int ld, doublereal* const d);
+    virtual void getBinaryDiffCoeffs(const size_t ld, doublereal* const d);
 
     //! Get the Mixture diffusion coefficients
     /*!
@@ -503,7 +498,7 @@ namespace Cantera {
      * @param ldf      Leading dimension of the fluxes array.         
      * @param fluxes   Output fluxes of species. 
      */
-    virtual void getSpeciesFluxes(int ndim, const doublereal * const grad_T, 
+    virtual void getSpeciesFluxes(size_t ndim, const doublereal * const grad_T, 
 				  int ldx, const doublereal * const grad_X, 
 				  int ldf, doublereal * const fluxes);
 
@@ -534,7 +529,7 @@ namespace Cantera {
      *                 or greater than the number of species.
      *  @param fluxes  Vector of calculated fluxes
      */
-    virtual void getSpeciesFluxesExt(int ldf, doublereal* fluxes);
+    virtual void getSpeciesFluxesExt(size_t ldf, doublereal* fluxes);
 
   protected:
 
@@ -599,7 +594,7 @@ namespace Cantera {
   private:
 
     //! Number of species in the mixture
-    int m_nsp;
+    size_t m_nsp;
 
     //! Temperature dependence type
     /*!
@@ -865,7 +860,7 @@ namespace Cantera {
     /*!
      * Either 1, 2, or 3
      */
-    int m_nDim;
+    size_t m_nDim;
 
     //! Temporary variable that stores the rho Vc value
     double rhoVc[3];

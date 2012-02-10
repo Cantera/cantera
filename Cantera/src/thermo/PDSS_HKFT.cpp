@@ -5,11 +5,6 @@
  *    HKFT standard state
  *    (see \ref pdssthermo and class \link Cantera::PDSS_HKFT PDSS_HKFT\endlink).
  */
-
-/*
- * $Id$
- */
-
 /*
  * Copywrite (2006) Sandia Corporation. Under the terms of 
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
@@ -31,7 +26,7 @@ namespace Cantera {
   /*
    * Basic list of constructors and duplicators
    */
-  PDSS_HKFT::PDSS_HKFT(VPStandardStateTP *tp, int spindex) :
+  PDSS_HKFT::PDSS_HKFT(VPStandardStateTP *tp, size_t spindex) :
     PDSS(tp, spindex),
     m_waterSS(0),
     m_densWaterSS(-1.0),
@@ -61,7 +56,7 @@ namespace Cantera {
   }
 
 
-  PDSS_HKFT::PDSS_HKFT(VPStandardStateTP *tp, int spindex, std::string inputFile, std::string id) :
+  PDSS_HKFT::PDSS_HKFT(VPStandardStateTP *tp, size_t spindex, std::string inputFile, std::string id) :
     PDSS(tp, spindex),
     m_waterSS(0),
     m_densWaterSS(-1.0),
@@ -91,7 +86,7 @@ namespace Cantera {
     constructPDSSFile(tp, spindex, inputFile, id);
   }
 
-  PDSS_HKFT::PDSS_HKFT(VPStandardStateTP *tp, int spindex, const XML_Node& speciesNode,
+  PDSS_HKFT::PDSS_HKFT(VPStandardStateTP *tp, size_t spindex, const XML_Node& speciesNode,
                        const XML_Node& phaseRoot, bool spInstalled) :
     PDSS(tp, spindex),
     m_waterSS(0),
@@ -619,7 +614,7 @@ namespace Cantera {
     m_waterProps = new WaterProps(m_waterSS);
   }
 
-  void PDSS_HKFT::constructPDSSXML(VPStandardStateTP *tp, int spindex,
+  void PDSS_HKFT::constructPDSSXML(VPStandardStateTP *tp, size_t spindex,
 				   const XML_Node& speciesNode, 
 				   const XML_Node& phaseNode, bool spInstalled) {
     int hasDGO = 0;
@@ -778,7 +773,7 @@ namespace Cantera {
     
   }
 
-  void PDSS_HKFT::constructPDSSFile(VPStandardStateTP *tp, int spindex,
+  void PDSS_HKFT::constructPDSSFile(VPStandardStateTP *tp, size_t spindex,
 				    std::string inputFile, std::string id) {
 
     if (inputFile.size() == 0) {
@@ -1220,8 +1215,8 @@ namespace Cantera {
     throw CanteraError("LookupGe", "element " + s + " not found");
     return -1.0;
 #else
-    int iE = m_tp->elementIndex(elemName);
-    if (iE < 0) {
+    size_t iE = m_tp->elementIndex(elemName);
+    if (iE == npos) {
       throw CanteraError("PDSS_HKFT::LookupGe", "element " + elemName + " not found");
     }
     doublereal geValue = m_tp->entropyElement298(iE);
@@ -1238,13 +1233,13 @@ namespace Cantera {
     /*
      * Ok let's get the element compositions and conversion factors.
      */
-    int ne = m_tp->nElements();
+    size_t ne = m_tp->nElements();
     doublereal na;
     doublereal ge;
     string ename;
 
     doublereal totalSum = 0.0;
-    for (int m = 0; m < ne; m++) {
+    for (size_t m = 0; m < ne; m++) {
       na = m_tp->nAtoms(m_spindex, m);
       if (na > 0.0) {
 	ename = m_tp->elementName(m);
@@ -1278,7 +1273,7 @@ namespace Cantera {
    * @param refPressure output - reference pressure (Pa).
    *
    */
-  void PDSS_HKFT::reportParams(int &kindex, int &type,
+  void PDSS_HKFT::reportParams(size_t &kindex, int &type,
 			    doublereal * const c,
 			    doublereal &minTemp,
 			    doublereal &maxTemp,

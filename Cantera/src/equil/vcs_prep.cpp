@@ -3,10 +3,6 @@
  *    This file contains some prepatory functions.
  */
 
-/* $RCSfile: vcs_prep.cpp,v $ */
-/* $Author$ */
-/* $Date$ */
-/* $Revision$ */
 /*
  * Copywrite (2005) Sandia Corporation. Under the terms of 
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
@@ -28,12 +24,12 @@ namespace VCSnonideal {
   
   //  Calculate the status of single species phases.
   void VCS_SOLVE::vcs_SSPhase() {
-    int kspec, iph;
+    size_t iph;
     vcs_VolPhase *Vphase;
 
     std::vector<int> numPhSpecies(m_numPhases, 0);
 
-    for (kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
+    for (size_t kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
       numPhSpecies[m_phaseID[kspec]]++;
     }   
     /*
@@ -60,11 +56,11 @@ namespace VCSnonideal {
      *       SSPhase = Boolean indicating whether a species is in a 
      *                 single species phase or not.
      */
-    for (kspec = 0; kspec < m_numSpeciesTot; kspec++) {
+    for (size_t kspec = 0; kspec < m_numSpeciesTot; kspec++) {
       iph = m_phaseID[kspec];
       Vphase = m_VolPhaseList[iph];
-      if (Vphase->m_singleSpecies)  m_SSPhase[kspec] = TRUE;
-      else                        m_SSPhase[kspec] = FALSE;
+      if (Vphase->m_singleSpecies)  m_SSPhase[kspec] = true;
+      else                        m_SSPhase[kspec] = false;
     }
   }
   /*****************************************************************************/
@@ -103,10 +99,12 @@ namespace VCSnonideal {
    *
    */
   int VCS_SOLVE::vcs_prep_oneTime(int printLvl) {
-    int kspec, i, conv, retn = VCS_SUCCESS; 
+    size_t kspec, i;
+    int retn = VCS_SUCCESS;
     double pres, test;
     double *aw, *sa, *sm, *ss;
     bool modifiedSoln = false;
+    bool conv;
 
     m_debug_print_lvl = printLvl;
 
@@ -129,13 +127,13 @@ namespace VCSnonideal {
     }
   
     for (kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
-      int pID = m_phaseID[kspec];
-      int spPhIndex = m_speciesLocalPhaseIndex[kspec];
+      size_t pID = m_phaseID[kspec];
+      size_t spPhIndex = m_speciesLocalPhaseIndex[kspec];
       vcs_VolPhase *vPhase =  m_VolPhaseList[pID];
       vcs_SpeciesProperties *spProp = vPhase->speciesProperty(spPhIndex);
       double sz = 0.0;
-      int eSize =  spProp->FormulaMatrixCol.size();
-      for (int e = 0; e < eSize; e++) {
+      size_t eSize = spProp->FormulaMatrixCol.size();
+      for (size_t e = 0; e < eSize; e++) {
 	sz += fabs(spProp->FormulaMatrixCol[e]);
       }
       if (sz > 0.0) {
@@ -202,7 +200,7 @@ namespace VCSnonideal {
     sa = aw + m_numSpeciesTot;
     sm = sa + m_numElemConstraints;
     ss = sm + (m_numElemConstraints)*(m_numElemConstraints);
-    retn = vcs_basopt(TRUE, aw, sa, sm, ss, test, &conv);
+    retn = vcs_basopt(true, aw, sa, sm, ss, test, &conv);
     if (retn != VCS_SUCCESS) {
       plogf("vcs_prep_oneTime:");
       plogf(" Determination of number of components failed: %d\n",
@@ -300,7 +298,7 @@ namespace VCSnonideal {
    */
   bool VCS_SOLVE::vcs_wellPosed(VCS_PROB *vprob) {
     double sum = 0.0;
-    for (int e = 0; e < vprob->ne; e++) {
+    for (size_t e = 0; e < vprob->ne; e++) {
       sum = sum + vprob->gai[e];
     }
     if (sum < 1.0E-20) {

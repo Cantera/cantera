@@ -3,12 +3,6 @@
  * Definitions for the \link Cantera::MultiPhase MultiPhase\endlink 
  * object that is used to set up multiphase equilibrium problems (see \ref equilfunctions).
  */
-/*
- *
- *  $Date$
- *  $Revision$
- */
-
 #include "MultiPhase.h"
 #include "MultiPhaseEquil.h"
 
@@ -189,7 +183,7 @@ namespace Cantera {
   void MultiPhase::init() {
     if (m_init) return;
     index_t ip, kp, k = 0, nsp, m;
-    int mlocal;
+    size_t mlocal;
     string sym;
 
     // allocate space for the atomic composition matrix
@@ -209,7 +203,7 @@ namespace Cantera {
 	nsp = p->nSpecies();
 	mlocal = p->elementIndex(sym);    
 	for (kp = 0; kp < nsp; kp++) {
-	  if (mlocal >= 0) {
+	  if (mlocal != npos) {
 	    m_atoms(m, k) = p->nAtoms(kp, mlocal);
 	  }
 	  if (m == 0) {
@@ -224,12 +218,12 @@ namespace Cantera {
       }
     }
 
-    if (m_eloc >= 0) {
+    if (m_eloc != npos) {
       doublereal esum;
       for (k = 0; k < m_nsp; k++) {
 	esum = 0.0;
 	for (m = 0; m < m_nel; m++) {
-	  if (int(m) != m_eloc)
+	  if (m != m_eloc)
 	    esum += m_atoms(m,k) * m_atomicNumber[m];
 	}
 	//m_atoms(m_eloc, k) += esum;
@@ -296,12 +290,12 @@ namespace Cantera {
     if (!m_init) {
       init();
     }
-    int p = phaseIndex(phaseName);
-    if (p < 0) {
+    size_t p = phaseIndex(phaseName);
+    if (p == npos) {
       throw CanteraError("MultiPhase::speciesIndex", "phase not found: " + phaseName);
     }
-    int k = m_phase[p]->speciesIndex(speciesName);
-    if (k < 0) {
+    size_t k = m_phase[p]->speciesIndex(speciesName);
+    if (k == npos) {
       throw CanteraError("MultiPhase::speciesIndex", "species not found: " + speciesName);
     }
     return m_spstart[p] + k;
@@ -313,7 +307,7 @@ namespace Cantera {
   /// @param p index of the phase for which the charge is desired.   
   doublereal MultiPhase::phaseCharge(index_t p) const {
     doublereal phasesum = 0.0;
-    int ik, k, nsp = m_phase[p]->nSpecies();
+    size_t ik, k, nsp = m_phase[p]->nSpecies();
     for (ik = 0; ik < nsp; ik++) {
       k = speciesIndex(ik, p);
       phasesum += m_phase[p]->charge(ik)*m_moleFractions[k];
@@ -463,9 +457,8 @@ namespace Cantera {
     }
     phase_t* p = m_phase[n];
     p->setState_TPX(m_temp, m_press, x);
-    int nsp = p->nSpecies();
-    int istart = m_spstart[n];
-    for (int k = 0; k < nsp; k++) {
+    size_t istart = m_spstart[n];
+    for (size_t k = 0; k < p->nSpecies(); k++) {
       m_moleFractions[istart+k] = x[k];
     }
   }
@@ -474,10 +467,10 @@ namespace Cantera {
   // species name strings to mole numbers. Mole numbers that are
   // less than or equal to zero will be set to zero.
   void MultiPhase::setMolesByName(compositionMap& xMap) {
-    int kk = nSpecies();
+    size_t kk = nSpecies();
     doublereal x;
     vector_fp moles(kk, 0.0);
-    for (int k = 0; k < kk; k++) {
+    for (size_t k = 0; k < kk; k++) {
       x = xMap[speciesName(k)];
       if (x > 0.0) moles[k] = x;
     }
@@ -492,8 +485,7 @@ namespace Cantera {
     // add an entry in the map for every species, with value -1.0.
     // Function parseCompString (stringUtils.cpp) uses the names
     // in the map to specify the allowed species.
-    int kk = nSpecies();
-    for (int k = 0; k < kk; k++) { 
+    for (size_t k = 0; k < nSpecies(); k++) {
       xx[speciesName(k)] = -1.0;
     }
 
@@ -590,14 +582,14 @@ namespace Cantera {
   void MultiPhase::calcElemAbundances() const {
     index_t loc = 0;
     index_t eGlobal;
-    int ik, kGlobal;
+    index_t ik, kGlobal;
     doublereal spMoles;
     for (eGlobal = 0; eGlobal < m_nel; eGlobal++) {
       m_elemAbundances[eGlobal] = 0.0;
     }
     for (index_t ip = 0; ip < m_np; ip++) {
       phase_t* p = m_phase[ip];
-      int nspPhase = p->nSpecies();
+      size_t nspPhase = p->nSpecies();
       doublereal phasemoles = m_moles[ip];
       for (ik = 0; ik < nspPhase; ik++) {
 	kGlobal = loc + ik;
@@ -942,26 +934,26 @@ namespace Cantera {
   }
   //====================================================================================================================
   // Name of element \a m.
-  std::string MultiPhase::elementName(int m) const {
+  std::string MultiPhase::elementName(size_t m) const {
     return m_enames[m];
   }
   //====================================================================================================================
   // Index of element with name \a name.
-  int MultiPhase::elementIndex(std::string name) const {
+  size_t MultiPhase::elementIndex(std::string name) const {
     for (size_t e = 0; e < m_nel; e++) {
       if (m_enames[e] == name) {
-	return (int) e;
+	return e;
       }
     }
     return -1;
   }
    //====================================================================================================================
   // Name of species with global index \a k.
-  std::string MultiPhase::speciesName(const int k) const {
+  std::string MultiPhase::speciesName(const size_t k) const {
     return m_snames[k]; 
   }
- //====================================================================================================================
-  doublereal MultiPhase::nAtoms(const int kGlob, const int mGlob) const {
+
+  doublereal MultiPhase::nAtoms(const size_t kGlob, const size_t mGlob) const {
     return m_atoms(mGlob, kGlob);
   }
  //====================================================================================================================
@@ -993,8 +985,8 @@ namespace Cantera {
   void MultiPhase::setPhaseMoles(const index_t n, const doublereal moles) {
     m_moles[n] = moles;
   }
- //====================================================================================================================
-  int MultiPhase::speciesPhaseIndex(const index_t kGlob) const {
+
+  size_t MultiPhase::speciesPhaseIndex(const index_t kGlob) const {
     return m_spphase[kGlob];
   }
  //====================================================================================================================

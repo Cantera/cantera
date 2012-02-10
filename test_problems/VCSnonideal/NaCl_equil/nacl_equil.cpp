@@ -1,10 +1,5 @@
 /*
- *  $Author$
- *  $Date$
- *  $Revision$
- *
  *  Copyright 2002 California Institute of Technology
- *
  */
 
 #include "Cantera.h"
@@ -31,6 +26,9 @@ void printUsage() {
 }
 
 int main(int argc, char **argv) {
+#ifdef _MSC_VER
+    _set_output_format(_TWO_DIGIT_EXPONENT);
+#endif
   //  int solver = 2;
   int numSucc = 0;
   int numFail = 0;

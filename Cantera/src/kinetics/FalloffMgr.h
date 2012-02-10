@@ -1,13 +1,8 @@
 /**
  *  @file FalloffMgr.h
- *
- *  $Author$
- *  $Date$
- *  $Revision$
  */
 
 // Copyright 2001  California Institute of Technology
-
 
 #ifndef CT_FALLOFFMGR_H
 #define CT_FALLOFFMGR_H
@@ -59,7 +54,7 @@ namespace Cantera {
          * @param type of falloff function to install.
          * @param c vector of coefficients for the falloff function.
          */ 
-        void install(int rxn, int type, 
+        void install(size_t rxn, int type,
              const vector_fp& c) {
             if (type != SIMPLE_FALLOFF) {
                 m_rxn.push_back(rxn);
@@ -112,7 +107,7 @@ namespace Cantera {
         }
 
     protected:
-        vector_int m_rxn, m_rxn0;
+        std::vector<size_t> m_rxn, m_rxn0;
         std::vector<Falloff*> m_falloff;
         FalloffFactory* m_factory;
         vector_int m_loc;

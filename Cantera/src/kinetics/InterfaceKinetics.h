@@ -3,12 +3,6 @@
  *
  * @ingroup chemkinetics
  */
-/*
- * $Author$
- * $Revision$
- * $Date$
- */
-
 // Copyright 2001  California Institute of Technology
 
 #ifndef CT_IFACEKINETICS_H
@@ -352,7 +346,7 @@ namespace Cantera {
      * Stoichiometric coefficient of species k as a reactant in
      * reaction i.
      */
-    virtual doublereal reactantStoichCoeff(int k, int i) const {
+    virtual doublereal reactantStoichCoeff(size_t k, size_t i) const {
       return m_rrxn[k][i];
     }
 
@@ -360,7 +354,7 @@ namespace Cantera {
      * Stoichiometric coefficient of species k as a product in
      * reaction i.
      */
-    virtual doublereal productStoichCoeff(int k, int i) const {
+    virtual doublereal productStoichCoeff(size_t k, size_t i) const {
       return m_prxn[k][i];
     }
 
@@ -369,7 +363,7 @@ namespace Cantera {
      * their meaning are specific to the particular kinetics
      * manager.
      */
-    virtual int reactionType(int i) const {
+    virtual int reactionType(size_t i) const {
       return m_index[i].first;
     }
 
@@ -396,14 +390,14 @@ namespace Cantera {
      *    Beta parameter. This defaults to zero, even for charge transfer
      *    reactions.
      */
-    doublereal electrochem_beta(int irxn) const;
+    doublereal electrochem_beta(size_t irxn) const;
 
     /**
      * True if reaction i has been declared to be reversible. If
      * isReversible(i) is false, then the reverse rate of progress
      * for reaction i is always zero.
      */
-    virtual bool isReversible(int i) {
+    virtual bool isReversible(size_t i) {
       if (std::find(m_revindex.begin(), m_revindex.end(), i)
 	  < m_revindex.end()) return true;
       else return false;
@@ -412,7 +406,7 @@ namespace Cantera {
     /**
      * Return a string representing the reaction.
      */
-    virtual std::string reactionString(int i) const {
+    virtual std::string reactionString(size_t i) const {
       return m_rxneqn[i];
     }
 
@@ -552,7 +546,7 @@ namespace Cantera {
     void checkPartialEquil();
 
 
-    int reactionNumber() const { return m_ii;}
+    size_t reactionNumber() const { return m_ii;}
 
     void addElementaryReaction(const ReactionData& r);
     void addGlobalReaction(const ReactionData& r);
@@ -566,8 +560,8 @@ namespace Cantera {
      * @param type      reaction type
      * @param loc       location ??
      */
-    void registerReaction(int rxnNumber, int type, int loc) {
-      m_index[rxnNumber] = std::pair<int, int>(type, loc);
+    void registerReaction(size_t rxnNumber, int type, size_t loc) {
+      m_index[rxnNumber] = std::pair<int, size_t>(type, loc);
     }
 
     //! Apply corrections for interfacial charge transfer reactions
@@ -645,7 +639,7 @@ namespace Cantera {
 
     //! m_kk is the number of species in all of the phases
     //! that participate in this kinetics mechanism.
-    int m_kk;
+    size_t m_kk;
 
     //! List of reactions numbers which are reversible reactions
     /*!
@@ -653,7 +647,7 @@ namespace Cantera {
      *  in the list is reversible.
      *  Length = number of reversible reactions
      */
-    vector_int m_revindex;
+    std::vector<size_t> m_revindex;
 
     Rate1<SurfaceArrhenius>                    m_rates;
     bool                                m_redo_rates;
@@ -665,14 +659,14 @@ namespace Cantera {
      * The first pair is the reactionType of the reaction.
      * The second pair is ...
      */
-    mutable std::map<int, std::pair<int, int> >   m_index;
+    mutable std::map<size_t, std::pair<int, size_t> > m_index;
 
     //! Vector of irreversible reaction numbers
     /*!
      * vector containing the reaction numbers of irreversible
      * reactions.
      */
-    std::vector<int> m_irrev;
+    std::vector<size_t> m_irrev;
 
     //! Stoichiometric manager for the reaction mechanism
     /*!
@@ -684,10 +678,10 @@ namespace Cantera {
     ReactionStoichMgr m_rxnstoich;
 
     //! Number of irreversible reactions in the mechanism
-    int m_nirrev;
+    size_t m_nirrev;
 
     //! Number of reversible reactions in the mechanism
-    int m_nrev;
+    size_t m_nrev;
 
   	
     //!  m_rrxn is a vector of maps, containing the reactant
@@ -701,7 +695,7 @@ namespace Cantera {
      *  HKM -> mutable because search sometimes creates extra
      *         entries. To be fixed in future...
      */
-    mutable std::vector<std::map<int, doublereal> >     m_rrxn;
+    mutable std::vector<std::map<size_t, doublereal> >     m_rrxn;
       
     //!  m_prxn is a vector of maps, containing the reactant
     //!  stochiometric coefficient information
@@ -712,7 +706,7 @@ namespace Cantera {
      *  reaction number being the key, and the
      *  product stoichiometric coefficient for the species being the value.
      */
-    mutable std::vector<std::map<int, doublereal> >     m_prxn;
+    mutable std::vector<std::map<size_t, doublereal> >     m_prxn;
 
     //! String expression for each rxn
     /*!
@@ -809,7 +803,7 @@ namespace Cantera {
      *
      *        irxn = m_ctrxn[i] 
      */
-    vector_int m_ctrxn;
+    std::vector<size_t> m_ctrxn;
 
     //! Vector of booleans indicating whether the charge transfer reaction may be 
     //! described by an exchange current density expression
@@ -868,7 +862,7 @@ namespace Cantera {
      *    length = number of phases in the object
      *    By default all phases exist.
      */
-    std::vector<int> m_phaseExists;
+    std::vector<bool> m_phaseExists;
 
     //!  Vector of int indicating whether phases are stable or not
     /*!

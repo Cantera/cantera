@@ -16,10 +16,6 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-/*
- *  $Id$
- */
-
 #ifndef CT_MARGULESVPSSTP_H
 #define CT_MARGULESVPSSTP_H
 
@@ -826,7 +822,7 @@ namespace Cantera {
     /*!
      *  @param num Number of binary Margules interaction terms
      */
-    void resizeNumInteractions(const int num);
+    void resizeNumInteractions(const size_t num);
 
 
     //! Initialize lengths of local variables after all species have
@@ -888,7 +884,7 @@ namespace Cantera {
 
 
     //! number of binary interaction expressions
-    int numBinaryInteractions_;
+    size_t numBinaryInteractions_;
 
     //! Enthalpy term for the binary mole fraction interaction of the
     //! excess gibbs free energy expression
@@ -945,14 +941,14 @@ namespace Cantera {
      *  Each Margules excess Gibbs free energy term involves two species, A and B.
      *  This vector identifies species A.
      */
-    vector_int m_pSpecies_A_ij;
+    std::vector<size_t> m_pSpecies_A_ij;
 
     //! vector of species indices representing species B in the interaction
     /*!
      *  Each Margules excess Gibbs free energy term involves two species, A and B.
      *  This vector identifies species B.
      */
-    vector_int m_pSpecies_B_ij;
+    std::vector<size_t> m_pSpecies_B_ij;
 
     //! form of the Margules interaction expression
     /*!

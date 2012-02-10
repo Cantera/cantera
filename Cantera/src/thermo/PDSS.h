@@ -9,10 +9,6 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-/*
- *  $Id$
- */
-
 #ifndef CT_PDSS_H
 #define CT_PDSS_H
 #include "ct_defs.h"
@@ -237,7 +233,7 @@ namespace Cantera {
      *  @param tp        Pointer to the ThermoPhase object pertaining to the phase
      *  @param spindex   Species index of the species in the phase
      */
-    PDSS(VPStandardStateTP *tp, int spindex);
+    PDSS(VPStandardStateTP *tp, size_t spindex);
 
     //! Copy Constructor
     /*!
@@ -624,7 +620,7 @@ namespace Cantera {
      * @param refPressure output - reference pressure (Pa).
      *
      */
-    virtual void reportParams(int &kindex, int &type, doublereal * const c,
+    virtual void reportParams(size_t &kindex, int &type, doublereal * const c,
                               doublereal &minTemp, doublereal &maxTemp,
                               doublereal &refPressure) const;
 
@@ -696,7 +692,7 @@ namespace Cantera {
     /**
      * Species index in the thermophase corresponding to this species.
      */
-    int m_spindex;
+    size_t m_spindex;
 
     //! Pointer to the species thermodynamic property manager.
     /*!

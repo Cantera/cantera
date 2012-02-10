@@ -62,7 +62,7 @@ namespace BVP {
      * Class BoundaryValueProblem derives from Cantera's Domain1D
      * class.
      */
-    class BoundaryValueProblem : public Domain1D {
+    class BoundaryValueProblem : public Cantera::Domain1D {
 
     public:
 
@@ -196,9 +196,9 @@ namespace BVP {
 
     protected:
 
-        Domain1D* m_left;  ///< dummy terminator
-        Domain1D* m_right; ///< dummy terminator
-        Sim1D* m_sim;      ///< controller for solution
+        Cantera::Domain1D* m_left;  ///< dummy terminator
+        Cantera::Domain1D* m_right; ///< dummy terminator
+        Cantera::Sim1D* m_sim;      ///< controller for solution
 
 
         /**

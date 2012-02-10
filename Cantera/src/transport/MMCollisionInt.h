@@ -2,27 +2,13 @@
  * @file MMCollisionInt.h
  *  Monk and Monchick collision integrals
  */
-/*
- * $Revision$
- * $Date$
- */
-
 // Copyright 2001  California Institute of Technology 
-
 
 #ifndef CT_MMCOLLISIONINT_H
 #define CT_MMCOLLISIONINT_H
 
 #include <vector>
-
-
 #include "ct_defs.h"
-
-// turn off warnings under Windows
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
 
 namespace Cantera {
 

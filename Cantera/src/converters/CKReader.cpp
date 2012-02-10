@@ -5,12 +5,6 @@
 
 // Copyright 2001  California Institute of Technology
 
-
-// disable warning about long names in Windows
-#ifdef WIN32
-#pragma warning(disable:4786)
-#endif
-
 #include <fstream>
 #include <string>
 using namespace std;
@@ -358,10 +352,9 @@ bool CKReader::writeReactions(std::ostream& log) {
 
 /// validate the species
 bool CKReader::validateSpecies(std::ostream& log) {
-    int nel = static_cast<int>(elements.size());
-    int nsp = static_cast<int>(species.size());
-    double nm, tol;
-    int j, k, m;
+    size_t nel = elements.size();
+    size_t nsp = species.size();
+    double tol;
 
     log << newTask("validating species");
 
@@ -369,7 +362,7 @@ bool CKReader::validateSpecies(std::ostream& log) {
     vector<string> esyms;
 
     log << "   checking that all species have been defined... ";
-    for (k = 0; k < nsp; k++) {
+    for (size_t k = 0; k < nsp; k++) {
 	Species& s = species[k];
         if (s.valid == 0) {
             log << endl << "   species " << s.name << " undefined ";
@@ -383,14 +376,14 @@ bool CKReader::validateSpecies(std::ostream& log) {
     }
 
     log << "   checking that all species elements have been declared... ";
-    for (k = 0; k < nsp; k++) {
-
+    for (size_t k = 0; k < nsp; k++) {
 	Species& s = species[k];
 
 	getMapKeys(s.comp, esyms);
-	nm = esyms.size();
+	size_t nm = esyms.size();
 
-	for (m = 0; m < nm; m++) {
+	for (size_t m = 0; m < nm; m++) {
+	  size_t j;
 	  for (j = 0; j < nel; j++) {
 		if (esyms[m] == elements[j].name) break;
 	  }

@@ -6,12 +6,6 @@
  * (see \ref mgrpdssthermocalc and
  * class \link Cantera::VPSSMgr VPSSMgr\endlink).
  */
-
-/*
- * $Author$
- * $Revision$
- * $Date$
- */
 /*
  * Copywrite (2005) Sandia Corporation. Under the terms of 
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
@@ -663,7 +657,7 @@ namespace Cantera {
      *
      * @param k    Species index
      */ 
-    virtual doublereal minTemp(int k=-1) const ;
+    virtual doublereal minTemp(size_t k=-1) const ;
 
     //! Maximum temperature.
     /*!
@@ -675,7 +669,7 @@ namespace Cantera {
      *
      * @param k  Species Index
      */
-    virtual doublereal maxTemp(int k=-1) const;
+    virtual doublereal maxTemp(size_t k=-1) const;
     
     //! The reference-state pressure for the standard state
     /*!
@@ -691,7 +685,7 @@ namespace Cantera {
      * @param k Species index. Default is -1, which returns
      *          the generic answer.
      */
-    virtual doublereal refPressure(int k = -1) const ;
+    virtual doublereal refPressure(size_t k = -1) const ;
 
 
     //@}
@@ -754,7 +748,7 @@ namespace Cantera {
      * @param phaseNode_ptr Pointer to the XML Node corresponding
      *                      to the phase which owns the species
      */
-    void installSTSpecies(int k,  const XML_Node& speciesNode, 
+    void installSTSpecies(size_t k,  const XML_Node& speciesNode,
 			  const XML_Node *phaseNode_ptr);
 
     //! Install specific content for species k in the standard-state
@@ -768,7 +762,7 @@ namespace Cantera {
      * @param phaseNode_ptr Pointer to the XML Node corresponding
      *                      to the phase which owns the species
      */
-    virtual PDSS * createInstallPDSS(int k, const XML_Node& speciesNode,  
+    virtual PDSS * createInstallPDSS(size_t k, const XML_Node& speciesNode,
 				     const XML_Node * const phaseNode_ptr);
     
 
@@ -786,7 +780,7 @@ namespace Cantera {
    protected:
 
     //! Number of species in the phase
-    int m_kk;
+    size_t m_kk;
 
     //! Variable pressure ThermoPhase object
     VPStandardStateTP *m_vptp_ptr;

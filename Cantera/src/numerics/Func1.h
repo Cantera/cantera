@@ -1,9 +1,5 @@
 /**
  *  @file Func1.h
- *
- *  $Author$
- *  $Date$
- *  $Revision$
  */
 
 // Copyright 2001  California Institute of Technology
@@ -12,12 +8,6 @@
 #define CT_FUNC1_H
 
 #undef DEBUG_FUNC
-
-
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
 
 #include "ct_defs.h"
 
@@ -833,7 +823,7 @@ namespace Cantera {
    */
   class Poly1 : public Func1 {
   public:
-    Poly1(int n, doublereal* c) :
+    Poly1(size_t n, doublereal* c) :
       Func1()
     {
       m_n = n+1;
@@ -866,9 +856,8 @@ namespace Cantera {
     }
 
     virtual doublereal eval(doublereal t) const {
-      int n;
       doublereal r = m_cpoly[m_n-1];
-      for (n = 1; n < m_n; n++) {
+      for (size_t n = 1; n < m_n; n++) {
 	r *= t;
 	r += m_cpoly[m_n - n - 1];
       }
@@ -876,7 +865,7 @@ namespace Cantera {
     }
 
   protected:
-    int m_n;
+    size_t m_n;
     vector_fp m_cpoly;
   };
 
@@ -891,7 +880,7 @@ namespace Cantera {
    */
   class Fourier1 : public Func1 {
   public:
-    Fourier1(int n, doublereal omega, doublereal a0,
+    Fourier1(size_t n, doublereal omega, doublereal a0,
 	     doublereal* a, doublereal* b) :
       Func1()
     {
@@ -930,7 +919,7 @@ namespace Cantera {
     }
 
     virtual doublereal eval(doublereal t) const {
-      int n, nn;
+      size_t n, nn;
       doublereal sum = m_a0_2;
       for (n = 0; n < m_n; n++) {
 	nn = n + 1;
@@ -941,7 +930,7 @@ namespace Cantera {
     }
 
   protected:
-    int m_n;
+    size_t m_n;
     doublereal m_omega, m_a0_2;
     vector_fp m_ccos, m_csin;
   };
@@ -955,16 +944,15 @@ namespace Cantera {
    */
   class Arrhenius1 : public Func1 {
   public:
-    Arrhenius1(int n, doublereal* c) :
+    Arrhenius1(size_t n, doublereal* c) :
       Func1()
     {
       m_n = n;
       m_A.resize(n);
       m_b.resize(n);
       m_E.resize(n);
-      int loc;
-      for (int i = 0; i < n; i++) {
-	loc = 3*i;
+      for (size_t i = 0; i < n; i++) {
+	size_t loc = 3*i;
 	m_A[i] = c[loc];
 	m_b[i] = c[loc+1];
 	m_E[i] = c[loc+2];
@@ -997,16 +985,15 @@ namespace Cantera {
     }
 
     virtual doublereal eval(doublereal t) const {
-      int n;
       doublereal sum = 0.0;
-      for (n = 0; n < m_n; n++) {
+      for (size_t n = 0; n < m_n; n++) {
 	sum += m_A[n]*std::pow(t,m_b[n])*std::exp(-m_E[n]/t);
       }
       return sum;
     }
 
   protected:
-    int m_n;
+    size_t m_n;
     vector_fp m_A, m_b, m_E;
   };
 

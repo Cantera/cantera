@@ -1,22 +1,7 @@
 /**
  * @file StFlow.cpp
  */
-
-/*
- * $Author$
- * $Revision$
- * $Date$
- */
-
 // Copyright 2002  California Institute of Technology
-
-
-// turn off warnings under Windows
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#pragma warning(disable:4267)
-#endif
 
 #include <stdlib.h>
 #include <time.h>
@@ -42,21 +27,21 @@ namespace Cantera {
    * not in the old one are set to zero. The new solution is created
    * with the same number of grid points as in the old solution.
    */ 
-  void importSolution(int points,  
+    void importSolution(size_t points,
 		      doublereal* oldSoln, igthermo_t& oldmech,
-		      int size_new, doublereal* newSoln, igthermo_t& newmech) {
+        size_t size_new, doublereal* newSoln, igthermo_t& newmech) {
         
     // Number of components in old and new solutions
-    int nv_old = oldmech.nSpecies() + 4;
-    int nv_new = newmech.nSpecies() + 4;
+        size_t nv_old = oldmech.nSpecies() + 4;
+        size_t nv_new = newmech.nSpecies() + 4;
 
     if (size_new < nv_new*points) {
       throw CanteraError("importSolution",
 			 "new solution array must have length "+
-			 int2str(nv_new*points));
+                int2str(int(nv_new*points)));
     }
 
-    int n, j, knew;
+        size_t n, j, knew;
     string nm;
 
     // copy u,V,T,lambda
@@ -65,11 +50,11 @@ namespace Cantera {
 	newSoln[nv_new*j + n] = oldSoln[nv_old*j + n];
 
     // copy mass fractions        
-    int nsp0 = oldmech.nSpecies();
+        size_t nsp0 = oldmech.nSpecies();
     //int nsp1 = newmech.nSpecies();
 
     // loop over the species in the old mechanism
-    for (int k = 0; k < nsp0; k++) {
+        for (size_t k = 0; k < nsp0; k++) {
       nm = oldmech.speciesName(k);      // name
 
       // location of this species in the new mechanism.
@@ -77,7 +62,7 @@ namespace Cantera {
       knew = newmech.speciesIndex(nm); 
 
       // copy this species from the old to the new solution vectors
-      if (knew >= 0) {
+            if (knew != npos) {
 	for (j = 0; j < points; j++) {
 	  newSoln[nv_new*j + 4 + knew] = oldSoln[nv_old*j + 4 + k];
 	}
@@ -98,7 +83,7 @@ namespace Cantera {
 	     "------------------------------------------");
   }
 
-  StFlow::StFlow(igthermo_t* ph, int nsp, int points) : 
+    StFlow::StFlow(igthermo_t* ph, size_t nsp, size_t points) :
     Domain1D(nsp+4, points),
     m_inlet_u(0.0),
     m_inlet_V(0.0),
@@ -122,7 +107,7 @@ namespace Cantera {
 
     if (ph == 0) return; // used to create a dummy object
 
-    int nsp2 = m_thermo->nSpecies();
+        size_t nsp2 = m_thermo->nSpecies();
     if (nsp2 != m_nsp) {
       m_nsp = nsp2;
       Domain1D::resize(m_nsp+4, points);
@@ -172,8 +157,7 @@ namespace Cantera {
     vmax[3] = 1.e20;
 
     // mass fraction bounds
-    int k;
-    for (k = 0; k < m_nsp; k++) {
+        for (size_t k = 0; k < m_nsp; k++) {
       vmin[4+k] = -1.0e-5;
       vmax[4+k] = 1.0e5;
     }
@@ -193,7 +177,7 @@ namespace Cantera {
     m_refiner->setActive(3, false);
 
     vector_fp gr;
-    for (int ng = 0; ng < m_points; ng++) gr.push_back(1.0*ng/m_points);
+        for (size_t ng = 0; ng < m_points; ng++) gr.push_back(1.0*ng/m_points);
     setupGrid(m_points, DATA_PTR(gr));
     setID("stagnation flow");
   }
@@ -202,7 +186,7 @@ namespace Cantera {
   /**
    * Change the grid size. Called after grid refinement.
    */
-  void StFlow::resize(int ncomponents, int points) {
+    void StFlow::resize(size_t ncomponents, size_t points) {
     Domain1D::resize(ncomponents, points);
     m_rho.resize(m_points, 0.0);
     m_wtm.resize(m_points, 0.0);
@@ -230,9 +214,9 @@ namespace Cantera {
   }        
         
 
-  void StFlow::setupGrid(int n, const doublereal* z) {
+    void StFlow::setupGrid(size_t n, const doublereal* z) {
     resize(m_nv, n);
-    int j;
+        size_t j;
 
     m_z[0] = z[0];
     for (j = 1; j < m_points; j++) {
@@ -282,7 +266,7 @@ namespace Cantera {
    * Set the gas object state to be consistent with the solution at
    * point j.
    */
-  void StFlow::setGas(const doublereal* x,int j) {
+    void StFlow::setGas(const doublereal* x, size_t j) {
     m_thermo->setTemperature(T(x,j));
     const doublereal* yy = x + m_nv*j + c_offset_Y;
     m_thermo->setMassFractions_NoNorm(yy);
@@ -294,11 +278,11 @@ namespace Cantera {
    * Set the gas state to be consistent with the solution at the
    * midpoint between j and j + 1.
    */
-  void StFlow::setGasAtMidpoint(const doublereal* x,int j) {
+    void StFlow::setGasAtMidpoint(const doublereal* x, size_t j) {
     m_thermo->setTemperature(0.5*(T(x,j)+T(x,j+1)));
     const doublereal* yyj = x + m_nv*j + c_offset_Y;
     const doublereal* yyjp = x + m_nv*(j+1) + c_offset_Y;
-    for (int k = 0; k < m_nsp; k++)
+        for (size_t k = 0; k < m_nsp; k++)
       m_ybar[k] = 0.5*(yyj[k] + yyjp[k]);
     m_thermo->setMassFractions_NoNorm(DATA_PTR(m_ybar));
     m_thermo->setPressure(m_press);
@@ -306,9 +290,9 @@ namespace Cantera {
 
 
   void StFlow::_finalize(const doublereal* x) {
-    int k, j;
+        size_t k, j;
     doublereal zz, tt;
-    int nz = m_zfix.size();
+        size_t nz = m_zfix.size();
     bool e = m_do_energy[0];
     for (j = 0; j < m_points; j++) {
       if (e || nz == 0) 
@@ -338,26 +322,26 @@ namespace Cantera {
    *
    */
 
-  void AxiStagnFlow::eval(int jg, doublereal* xg, 
+    void AxiStagnFlow::eval(size_t jg, doublereal* xg,
 			  doublereal* rg, integer* diagg, doublereal rdt) {
 
     // if evaluating a Jacobian, and the global point is outside
     // the domain of influence for this domain, then skip
     // evaluating the residual
-    if (jg >=0 && (jg < firstPoint() - 1 || jg > lastPoint() + 1)) return;
+        if (jg != npos && (jg + 1 < firstPoint() || jg > lastPoint() + 1)) return;
 
     // if evaluating a Jacobian, compute the steady-state residual
-    if (jg >= 0) rdt = 0.0;
+        if (jg != npos) rdt = 0.0;
 
     // start of local part of global arrays
     doublereal* x = xg + loc();
     doublereal* rsd = rg + loc();
     integer* diag = diagg + loc();
         
-    int jmin, jmax, jpt;
+        size_t jmin, jmax, jpt;
     jpt = jg - firstPoint();
 
-    if (jg < 0) {      // evaluate all points
+        if (jg == npos) {      // evaluate all points
       jmin = 0;
       jmax = m_points - 1;
     }
@@ -367,11 +351,11 @@ namespace Cantera {
     }
 
     // properties are computed for grid points from j0 to j1
-    int j0 = max(jmin-1,0);
-    int j1 = min(jmax+1,m_points-1);
+        size_t j0 = max(jmin-1,0);
+        size_t j1 = min(jmax+1,m_points-1);
 
 
-    int j, k;
+        size_t j, k;
 
 
     //----------------------------------------------------- 
@@ -380,7 +364,7 @@ namespace Cantera {
 
     // update thermodynamic properties only if a Jacobian is not
     // being evaluated
-    if (jpt < 0) { //if (jpt < 0 || (m_transport_option == c_Multi_Transport)) {
+        if (jpt == npos) { //if (jpt < 0 || (m_transport_option == c_Multi_Transport)) {
       updateThermo(x, j0, j1);
 
       // update transport properties only if a Jacobian is not being
@@ -586,11 +570,9 @@ namespace Cantera {
    * Update the transport properties at grid points in the range
    * from j0 to j1, based on solution x.
    */
-  void StFlow::updateTransport(doublereal* x,int j0, int j1) {
-    int j,k,m;
-
+    void StFlow::updateTransport(doublereal* x, size_t j0, size_t j1) {
     if (m_transport_option == c_Mixav_Transport) {
-      for (j = j0; j < j1; j++) {
+            for (size_t j = j0; j < j1; j++) {
 	setGasAtMidpoint(x,j);
 	m_visc[j] = (m_dovisc ? m_trans->viscosity() : 0.0);
 	m_trans->getMixDiffCoeffs(DATA_PTR(m_diff) + j*m_nsp);
@@ -600,7 +582,7 @@ namespace Cantera {
     else if (m_transport_option == c_Multi_Transport) {
       doublereal sum, sumx, wtm, dz;
       doublereal eps = 1.0e-12;
-      for (m = j0; m < j1; m++) {
+            for (size_t m = j0; m < j1; m++) {
 	setGasAtMidpoint(x,m);
 	dz = m_z[m+1] - m_z[m];
 	wtm = m_thermo->meanMolecularWeight();
@@ -610,10 +592,10 @@ namespace Cantera {
 	m_trans->getMultiDiffCoeffs(m_nsp, 
 				    DATA_PTR(m_multidiff) + mindex(0,0,m));
 
-	for (k = 0; k < m_nsp; k++) {
+                for (size_t k = 0; k < m_nsp; k++) {
 	  sum = 0.0;
 	  sumx = 0.0;
-	  for (j = 0; j < m_nsp; j++) {
+                    for (size_t j = 0; j < m_nsp; j++) {
 	    if (j != k) {
 	      sum += m_wt[j]*m_multidiff[mindex(k,j,m)]*
 		((X(x,j,m+1) - X(x,j,m))/dz + eps);
@@ -644,26 +626,26 @@ namespace Cantera {
    *
    */
 
-  void FreeFlame::eval(int jg, doublereal* xg, 
+    void FreeFlame::eval(size_t jg, doublereal* xg,
 		       doublereal* rg, integer* diagg, doublereal rdt) {
 
     // if evaluating a Jacobian, and the global point is outside
     // the domain of influence for this domain, then skip
     // evaluating the residual
-    if (jg >=0 && (jg < firstPoint() - 1 || jg > lastPoint() + 1)) return;
+        if (jg != npos && (jg + 1 < firstPoint() || jg > lastPoint() + 1)) return;
 
     // if evaluating a Jacobian, compute the steady-state residual
-    if (jg >= 0) rdt = 0.0;
+        if (jg != npos) rdt = 0.0;
 
     // start of local part of global arrays
     doublereal* x = xg + loc();
     doublereal* rsd = rg + loc();
     integer* diag = diagg + loc();
         
-    int jmin, jmax, jpt;
+        size_t jmin, jmax, jpt;
     jpt = jg - firstPoint();
 
-    if (jg < 0) {      // evaluate all points
+        if (jg == npos) {      // evaluate all points
       jmin = 0;
       jmax = m_points - 1;
     }
@@ -673,11 +655,11 @@ namespace Cantera {
     }
 
     // properties are computed for grid points from j0 to j1
-    int j0 = max(jmin-1,0);
-    int j1 = min(jmax+1,m_points-1);
+        size_t j0 = max(jmin-1,0);
+        size_t j1 = min(jmax+1,m_points-1);
 
 
-    int j, k;
+        size_t j, k;
 
 
     //----------------------------------------------------- 
@@ -686,7 +668,7 @@ namespace Cantera {
 
     // update thermodynamic properties only if a Jacobian is not
     // being evaluated
-    if (jpt < 0) {
+        if (jpt == npos) {
       updateThermo(x, j0, j1);
       updateTransport(x, j0, j1);
     }
@@ -889,8 +871,8 @@ namespace Cantera {
    * Print the solution.
    */    
   void StFlow::showSolution(const doublereal* x) {
-    int nn = m_nv/5;
-    int i, j, n;
+        size_t nn = m_nv/5;
+        size_t i, j, n;
     //char* buf = new char[100];
     char buf[100];
 
@@ -918,7 +900,7 @@ namespace Cantera {
       }
       writelog("\n");
     }
-    int nrem = m_nv - 5*nn;
+        size_t nrem = m_nv - 5*nn;
     st_drawline();
     sprintf(buf, "\n        z   ");
     writelog(buf);
@@ -942,8 +924,8 @@ namespace Cantera {
   /**
    * Update the diffusive mass fluxes.
    */
-  void StFlow::updateDiffFluxes(const doublereal* x, int j0, int j1) {
-    int j, k, m;
+    void StFlow::updateDiffFluxes(const doublereal* x, size_t j0, size_t j1) {
+	size_t j, k, m;
     doublereal sum, wtm, rho, dz, gradlogT;
 
     switch (m_transport_option) {
@@ -981,14 +963,14 @@ namespace Cantera {
   }
 
 
-  string StFlow::componentName(int n) const {
+    string StFlow::componentName(size_t n) const {
     switch(n) {
     case 0: return "u";
     case 1: return "V";
     case 2: return "T";
     case 3: return "lambda";
     default:
-      if (n >= (int) c_offset_Y && n < (int) (c_offset_Y + m_nsp)) {
+            if (n >= c_offset_Y && n < (c_offset_Y + m_nsp)) {
 	return m_thermo->speciesName(n - c_offset_Y);
       }
       else 
@@ -998,7 +980,7 @@ namespace Cantera {
 
 
   //added by Karl Meredith
-  int StFlow::componentIndex(string name) const {
+    size_t StFlow::componentIndex(string name) const {
         
 
     if(name=="u") {return 0;}
@@ -1006,7 +988,7 @@ namespace Cantera {
     else if (name=="T") {return 2;}
     else if (name=="lambda") {return 3;}
     else {
-      for (int n=4;n<m_nsp+4;n++){
+            for (size_t n=4;n<m_nsp+4;n++){
 	if(componentName(n)==name){
 	  return n;
 	}	
@@ -1020,7 +1002,7 @@ namespace Cantera {
   void StFlow::restore(const XML_Node& dom, doublereal* soln) {
 
     vector<string> ignored;
-    int nsp = m_thermo->nSpecies();
+        size_t nsp = m_thermo->nSpecies();
     vector_int did_species(nsp, 0);
 
     vector<XML_Node*> str;
@@ -1039,10 +1021,10 @@ namespace Cantera {
 
     vector<XML_Node*> d;
     dom.child("grid_data").getChildren("floatArray",d);
-    int nd = static_cast<int>(d.size());
+        size_t nd = d.size();
 
     vector_fp x;
-    int n, np = 0, j, ks, k;
+        size_t n, np = 0, j, ks, k;
     string nm;
     bool readgrid = false, wrote_header = false;
     for (n = 0; n < nd; n++) {
@@ -1051,7 +1033,7 @@ namespace Cantera {
       if (nm == "z") {
 	getFloatArray(fa,x,false);
 	np = x.size();
-	writelog("Grid contains "+int2str(np)+
+                writelog("Grid contains "+int2str(int(np))+
 		 " points.\n");
 	readgrid = true;
 	setupGrid(np, DATA_PTR(x));
@@ -1069,7 +1051,7 @@ namespace Cantera {
       getFloatArray(fa,x,false);
       if (nm == "u") {
 	writelog("axial velocity   ");
-	if ((int) x.size() == np) {
+                if (x.size() == np) {
 	  for (j = 0; j < np; j++) {
 	    soln[index(0,j)] = x[j];
 	  }
@@ -1083,7 +1065,7 @@ namespace Cantera {
       }
       else if (nm == "V") {
 	writelog("radial velocity   ");
-	if ((int) x.size() == np) {
+                if (x.size() == np) {
 	  for (j = 0; j < np; j++)
 	    soln[index(1,j)] = x[j];
 	}
@@ -1091,7 +1073,7 @@ namespace Cantera {
       }
       else if (nm == "T") {
 	writelog("temperature   ");
-	if ((int) x.size() == np) {
+                if (x.size() == np) {
 	  for (j = 0; j < np; j++)
 	    soln[index(2,j)] = x[j];
 
@@ -1101,7 +1083,7 @@ namespace Cantera {
 	  // *after* restoring the solution.
 
 	  vector_fp zz(np);
-	  for (int jj = 0; jj < np; jj++) 
+                    for (size_t jj = 0; jj < np; jj++)
 	    zz[jj] = (grid(jj) - zmin())/(zmax() - zmin());
 	  setFixedTempProfile(zz, x);
 	}
@@ -1109,15 +1091,15 @@ namespace Cantera {
       }
       else if (nm == "L") {
 	writelog("lambda   ");
-	if ((int) x.size() == np) {
+                if (x.size() == np) {
 	  for (j = 0; j < np; j++)
 	    soln[index(3,j)] = x[j];
 	}
 	else goto error;
       }
-      else if (m_thermo->speciesIndex(nm) >= 0) {
+            else if (m_thermo->speciesIndex(nm) != npos) {
 	writelog(nm+"   ");
-	if ((int) x.size() == np) {
+                if (x.size() == np) {
 	  k = m_thermo->speciesIndex(nm);
 	  did_species[k] = 1;
 	  for (j = 0; j < np; j++) 
@@ -1131,8 +1113,8 @@ namespace Cantera {
     if (ignored.size() != 0) {
       writelog("\n\n");
       writelog("Ignoring datasets:\n");
-      int nn = static_cast<int>(ignored.size());
-      for (int n = 0; n < nn; n++) {
+            size_t nn = ignored.size();
+            for (size_t n = 0; n < nn; n++) {
 	writelog(ignored[n]+"   ");
       }
     }
@@ -1155,15 +1137,15 @@ namespace Cantera {
 
 
   void StFlow::save(XML_Node& o, const doublereal * const sol) {
-    int k;
+    size_t k;
 
     ArrayViewer soln(m_nv, m_points, const_cast<doublereal *>(sol) + loc());
 
     XML_Node& flow = (XML_Node&)o.addChild("domain");
     flow.addAttribute("type",flowType());
     flow.addAttribute("id",m_id);
-    flow.addAttribute("points",m_points);
-    flow.addAttribute("components",m_nv);
+        flow.addAttribute("points", double(m_points));
+        flow.addAttribute("components", double(m_nv));
 
     if (m_desc != "") addString(flow,"description",m_desc);
     XML_Node& gv = flow.addChild("grid_data");

@@ -1,13 +1,6 @@
 /**
  *  @file ReactorFactory.h
  */
-
-/*
- * $Author$
- * $Revision$
- * $Date$
- */
-
 // Copyright 2001  California Institute of Technology
 
 
@@ -21,8 +14,7 @@
 #include <boost/thread/mutex.hpp>
 #endif
 
-namespace CanteraZeroD {
-
+namespace Cantera {
 
     class ReactorFactory : Cantera::FactoryBase {
 

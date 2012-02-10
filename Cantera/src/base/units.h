@@ -6,9 +6,6 @@
  *
  * This header is included only by file misc.cpp.
  */
-/*
- * $Id$
- */
 //    Copyright 2002 California Institute of Technology
 
 #ifndef CT_UNITS_H

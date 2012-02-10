@@ -3,32 +3,16 @@
  *  Header file defining class TransportFactory
  *     (see \link Cantera::TransportFactory TransportFactory\endlink)
  */
-/*
- *  $Author$
- *  $Date$
- *  $Revision$
- *
- *  Copyright 2001 California Institute of Technology
- *
- */
+//  Copyright 2001 California Institute of Technology
 
 #ifndef CT_TRANSPORTFACTORY_H
 #define CT_TRANSPORTFACTORY_H
-
-
-// turn off warnings under Windows
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
 
 // STL includes
 #include <vector>
 #include <string>
 #include <iostream>
 #include <new>
-
-
 
 // Cantera includes
 #include "ct_defs.h"
@@ -410,7 +394,7 @@ namespace Cantera {
      *
      * @note This method is not used currently.
      */
-    void getBinDiffCorrection(doublereal t, const GasTransportParams& tr, int k, int j,
+    void getBinDiffCorrection(doublereal t, const GasTransportParams& tr, size_t k, size_t j,
 			      doublereal xk, doublereal xj, 
 			      doublereal& fkj, doublereal& fjk);
 
@@ -427,7 +411,7 @@ namespace Cantera {
      *  @param f_eps      Multiplicative correction factor to be applied to epsilon(i,j)
      *  @param f_sigma    Multiplicative correction factor to be applied to diam(i,j)
      */
-    void makePolarCorrections(int i, int j, 
+    void makePolarCorrections(size_t i, size_t j, 
 			      const GasTransportParams& tr, doublereal& f_eps, 
 			      doublereal& f_sigma);
 

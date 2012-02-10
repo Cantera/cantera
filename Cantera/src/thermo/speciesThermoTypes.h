@@ -3,12 +3,6 @@
  *       Contains const definitions for types of species 
  *       reference-state thermodynamics managers (see \ref spthermo)
  */
-/*
- * $Author$
- * $Revision$
- * $Date$
- */
-
 // Copyright 2001  California Institute of Technology
 
 

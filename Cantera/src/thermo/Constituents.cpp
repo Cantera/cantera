@@ -3,18 +3,7 @@
  *  Header file  Class \link Cantera::Constituents Constitutents\endlink which 
  *  manages a set of elements and species (see \ref phases).
  */
-
-/* 
- *  $Date$
- *  $Revision$
- */
-
 //  Copyright 2001  California Institute of Technology
-
-
-#ifdef WIN32
-#pragma warning(disable:4786)
-#endif
 
 #include "Constituents.h"
 #include "Elements.h"
@@ -85,19 +74,17 @@ namespace Cantera {
     }
   } 
 
-  int Constituents::nElements() const { return m_Elements->nElements(); }
-
+  size_t Constituents::nElements() const { return m_Elements->nElements(); }
 
   /* 
    * Return the Atomic weight of element m.
    * units = Kg / Kmol
    */
-  doublereal Constituents::atomicWeight(int m) const {
+  doublereal Constituents::atomicWeight(size_t m) const {
     return m_Elements->atomicWeight(m);
   }
 
-
-  doublereal Constituents::entropyElement298(int m) const {
+  doublereal Constituents::entropyElement298(size_t m) const {
     return m_Elements->entropyElement298(m);
   }
 
@@ -110,11 +97,10 @@ namespace Cantera {
     return m_Elements->atomicWeights();
   }
 
-
   /*
    * Return the atomic number of element m.
    */
-  int Constituents::atomicNumber(int m) const {
+  int Constituents::atomicNumber(size_t m) const {
     return m_Elements->atomicNumber(m);
   }
 
@@ -197,7 +183,7 @@ namespace Cantera {
    *
    * -> Passthrough to the Element class.
    */
-  int Constituents::elementIndex(std::string name) const {
+  size_t Constituents::elementIndex(std::string name) const {
     return (m_Elements->elementIndex(name));
   }
 
@@ -209,7 +195,7 @@ namespace Cantera {
    *   \exception If m < 0 or m >= nElements(), the
    *              exception, ElementRangeError, is thrown.
    */
-  string Constituents::elementName(int m) const {
+  string Constituents::elementName(size_t m) const {
     return (m_Elements->elementName(m));
   }
 
@@ -240,8 +226,8 @@ namespace Cantera {
    *
    *  units = kg / kmol.
    */
-  doublereal Constituents::molecularWeight(int k) const {
-    if (k < 0 || k >= nSpecies()) {
+  doublereal Constituents::molecularWeight(size_t k) const {
+    if (k >= nSpecies()) {
       throw SpeciesRangeError("Constituents::molecularWeight",
 			      k, nSpecies());
     }
@@ -266,7 +252,7 @@ namespace Cantera {
    * Electrical charge of one species k molecule, divided by
    * \f$ e = 1.602 \times 10^{-19}\f$ Coulombs.
    */ 
-  doublereal Constituents::charge(int k) const { 
+  doublereal Constituents::charge(size_t k) const {
     return m_speciesCharge[k];
   }
 
@@ -294,17 +280,17 @@ namespace Cantera {
     m_speciesNames.push_back(name);
     m_speciesCharge.push_back(charge);
     m_speciesSize.push_back(size);
-    int ne = m_Elements->nElements();
+    size_t ne = m_Elements->nElements();
     // Create a changeable copy of the element composition. We now change the charge potentially
     vector_fp compNew(ne);
-    for (int m = 0; m < ne; m++) {
+    for (size_t m = 0; m < ne; m++) {
       compNew[m] = comp[m];
     }
     double wt = 0.0;
     const vector_fp &aw = m_Elements->atomicWeights();
     if (charge != 0.0) {
-      int eindex = m_Elements->elementIndex("E");
-      if (eindex >= 0) {
+      size_t eindex = m_Elements->elementIndex("E");
+      if (eindex != npos) {
 	doublereal ecomp = compNew[eindex];
 	if (fabs (charge + ecomp) > 0.001) {
 	  if (ecomp != 0.0) {
@@ -326,7 +312,7 @@ namespace Cantera {
 	//                 "Element List doesn't include E, yet this species has charge:" + name);
       }
     }
-    for (int m = 0; m < ne; m++) {
+    for (size_t m = 0; m < ne; m++) {
       m_speciesComp.push_back(compNew[m]);
       wt += compNew[m] * aw[m];
     }
@@ -347,15 +333,15 @@ namespace Cantera {
   addUniqueSpecies(const std::string& name, const doublereal* comp, 
 		   doublereal charge, doublereal size) {
     vector<string>::const_iterator it = m_speciesNames.begin();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       if (*it == name) {
 	/*
 	 * We have found a match. At this point we could do some
 	 * compatibility checks. However, let's just return for the
 	 * moment without specifying any error.
 	 */
-	int m_mm = m_Elements->nElements();
-	for (int i = 0; i < m_mm; i++) {
+	size_t m_mm = m_Elements->nElements();
+	for (size_t i = 0; i < m_mm; i++) {
 	  if (comp[i] != m_speciesComp[m_kk * m_mm + i]) {
 	    throw CanteraError("addUniqueSpecies",
 			       "Duplicate species have different " 
@@ -401,9 +387,9 @@ namespace Cantera {
    *
    *  If name isn't in the list, then a -1 is returned.
    */
-  int Constituents::speciesIndex(std::string name) const {
+  size_t Constituents::speciesIndex(std::string name) const {
     vector<string>::const_iterator it = m_speciesNames.begin();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       if (*it == name) {
 	/*
 	 * We have found a match.
@@ -421,8 +407,8 @@ namespace Cantera {
    *
    *      Name of the species with index k
    */
-  string Constituents::speciesName(int k) const {
-    if (k < 0 || k >= nSpecies()) 
+  string Constituents::speciesName(size_t k) const {
+    if (k >= nSpecies())
       throw SpeciesRangeError("Constituents::speciesName",
 			      k, nSpecies());
     return m_speciesNames[k];
@@ -450,12 +436,12 @@ namespace Cantera {
   /*
    * Returns the number of atoms of element \c m in species \c k.
    */
-  doublereal Constituents::nAtoms(int k, int m) const
+  doublereal Constituents::nAtoms(size_t k, size_t m) const
   {
-    const int m_mm = m_Elements->nElements();
-    if (m < 0 || m >=m_mm)
+    const size_t m_mm = m_Elements->nElements();
+    if (m >= m_mm)
       throw ElementRangeError("Constituents::nAtoms",m,nElements());
-    if (k < 0 || k >= nSpecies())
+    if (k >= nSpecies())
       throw SpeciesRangeError("Constituents::nAtoms",k,nSpecies());
     return m_speciesComp[m_mm * k + m];
   }
@@ -469,10 +455,10 @@ namespace Cantera {
    * Get a vector containing the atomic composition 
    * of species k
    */
-  void Constituents::getAtoms(int k, double *atomArray) const 
+  void Constituents::getAtoms(size_t k, double *atomArray) const
   {
-    const int m_mm = m_Elements->nElements();
-    for (int m = 0; m < m_mm; m++) {
+    const size_t m_mm = m_Elements->nElements();
+    for (size_t m = 0; m < m_mm; m++) {
       atomArray[m] = (double) m_speciesComp[m_mm * k + m];
     }
   }

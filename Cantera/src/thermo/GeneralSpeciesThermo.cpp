@@ -4,9 +4,6 @@
  *  manager for a phase (see \ref spthermo and
  * \link Cantera::GeneralSpeciesThermo GeneralSpeciesThermo\endlink).
  */
-/*
- * $Id$
- */
 // Copyright 2001-2004  California Institute of Technology
                 
 #include "GeneralSpeciesThermo.h"
@@ -48,7 +45,7 @@ namespace Cantera {
 	m_kk(b.m_kk) 
     {
       m_sp.resize(m_kk, 0);
-      for (int k = 0; k < m_kk; k++) {
+      for (size_t k = 0; k < m_kk; k++) {
 	SpeciesThermoInterpType *bk = b.m_sp[k];
 	if (bk) {
 	  m_sp[k] = bk->duplMyselfAsSpeciesThermoInterpType();
@@ -62,7 +59,7 @@ namespace Cantera {
 	  m_tlow_max = b.m_tlow_max;
 	  m_thigh_min = b.m_thigh_min;
 	
-	  for (int k = 0; k < m_kk; k++) {
+	  for (size_t k = 0; k < m_kk; k++) {
 	    SpeciesThermoInterpType *sp = m_sp[k];
 	    if (sp) {
 	      delete sp;
@@ -71,7 +68,7 @@ namespace Cantera {
 	  }
 	  m_kk = b.m_kk;
 	  m_sp.resize(m_kk, 0);
-	  for (int k = 0; k < m_kk; k++) {
+	  for (size_t k = 0; k < m_kk; k++) {
 	    SpeciesThermoInterpType *bk = b.m_sp[k];
 	    if (bk) {
 	      m_sp[k] = bk->duplMyselfAsSpeciesThermoInterpType();
@@ -82,7 +79,7 @@ namespace Cantera {
     }
 
     GeneralSpeciesThermo::~GeneralSpeciesThermo() {
-	for (int k = 0; k < m_kk; k++) {
+	for (size_t k = 0; k < m_kk; k++) {
 	  SpeciesThermoInterpType *sp = m_sp[k];
 	  if (sp) {
 	    delete sp;
@@ -107,7 +104,7 @@ namespace Cantera {
      *                 the parameterization.
      */
     void GeneralSpeciesThermo::install(std::string name,
-				       int index,
+				       size_t index,
 				       int type, 
 				       const doublereal* c, 
 				       doublereal minTemp,
@@ -117,7 +114,7 @@ namespace Cantera {
 	 * Resize the arrays if necessary, filling the empty
 	 * slots with the zero pointer.
 	 */
-	if (index > m_kk - 1) {
+	if (index >= m_kk) {
 	  m_sp.resize(index+1, 0);
           m_kk = index+1;
 	}
@@ -190,13 +187,13 @@ namespace Cantera {
       throw CanteraError("GeneralSpeciesThermo::install_STIT",
 			 "zero pointer");
     }
-    int index = stit_ptr->speciesIndex();
-    if (index > m_kk - 1) {
+    size_t index = stit_ptr->speciesIndex();
+    if (index >= m_kk) {
       m_sp.resize(index+1, 0);
       m_kk = index+1;
     }
     AssertThrow(m_sp[index] == 0, 
-		"Index position isn't null, duplication of assignment: " + int2str(index));
+		"Index position isn't null, duplication of assignment: " + int2str(int(index)));
     /*
      *  Now, simply assign the position
      */
@@ -214,7 +211,7 @@ namespace Cantera {
 
 
   
-  void GeneralSpeciesThermo::installPDSShandler(int k, PDSS *PDSS_ptr, 
+  void GeneralSpeciesThermo::installPDSShandler(size_t k, PDSS *PDSS_ptr,
 						VPSSMgr *vpssmgr_ptr) {
     STITbyPDSS *stit_ptr = new STITbyPDSS(k, vpssmgr_ptr, PDSS_ptr);
     install_STIT(stit_ptr);
@@ -224,7 +221,7 @@ namespace Cantera {
    *  Update the properties for one species.
    */
   void GeneralSpeciesThermo::
-  update_one(int k, doublereal t, doublereal* cp_R, 
+  update_one(size_t k, doublereal t, doublereal* cp_R,
 	     doublereal* h_RT, doublereal* s_R) const {
     SpeciesThermoInterpType * sp_ptr = m_sp[k];
     if (sp_ptr) {
@@ -258,7 +255,7 @@ namespace Cantera {
    * This utility function reports the type of parameterization
    * used for the species, index.
    */
-  int GeneralSpeciesThermo::reportType(int index) const {
+  int GeneralSpeciesThermo::reportType(size_t index) const {
     SpeciesThermoInterpType *sp = m_sp[index];
     if (sp) {
       return sp->reportType();
@@ -273,10 +270,10 @@ namespace Cantera {
    *  For the NASA object, there are 15 coefficients.
    */
   void GeneralSpeciesThermo::
-  reportParams(int index, int &type, doublereal * const c, 
+  reportParams(size_t index, int &type, doublereal * const c,
 	       doublereal &minTemp, doublereal &maxTemp, doublereal &refPressure) const {
     SpeciesThermoInterpType *sp = m_sp[index];
-    int n;
+    size_t n;
     if (sp) {
       sp->reportParameters(n, type, minTemp, maxTemp, 
 			   refPressure, c);      
@@ -296,7 +293,7 @@ namespace Cantera {
    *              parameters for the standard state.
    */
   void GeneralSpeciesThermo::
-  modifyParams(int index, doublereal *c) {
+  modifyParams(size_t index, doublereal *c) {
     SpeciesThermoInterpType *sp = m_sp[index];
     if (sp) {
       sp->modifyParameters(c);
@@ -311,8 +308,8 @@ namespace Cantera {
    * are valid. Otherwise, if an integer argument is given, the
    * value applies only to the species with that index.
    */
-  doublereal GeneralSpeciesThermo::minTemp(int k) const {
-    if (k < 0)
+  doublereal GeneralSpeciesThermo::minTemp(size_t k) const {
+    if (k == npos)
       return m_tlow_max;
     else {
       SpeciesThermoInterpType *sp = m_sp[k];
@@ -323,8 +320,8 @@ namespace Cantera {
     return m_tlow_max;
   }
 
-  doublereal GeneralSpeciesThermo::maxTemp(int k) const {
-    if (k < 0) {
+  doublereal GeneralSpeciesThermo::maxTemp(size_t k) const {
+    if (k == npos) {
       return m_thigh_min;
     } else {
       SpeciesThermoInterpType *sp = m_sp[k];
@@ -335,8 +332,8 @@ namespace Cantera {
     return m_thigh_min;
   }
 
-  doublereal GeneralSpeciesThermo::refPressure(int k) const {
-    if (k < 0) {
+  doublereal GeneralSpeciesThermo::refPressure(size_t k) const {
+    if (k == npos) {
       return m_p0;
     } else {
       SpeciesThermoInterpType *sp = m_sp[k];
@@ -348,7 +345,7 @@ namespace Cantera {
   }
     
 
-  SpeciesThermoInterpType * GeneralSpeciesThermo::provideSTIT(int k) {
+  SpeciesThermoInterpType * GeneralSpeciesThermo::provideSTIT(size_t k) {
     return (m_sp[k]);
   }
 

@@ -11,17 +11,6 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-/*
- *  $Author$
- *  $Date$
- *  $Revision$
- */
-
-// turn off warnings under Windows
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
 
 #include "VPSSMgr_IdealGas.h"
 #include "utilities.h"
@@ -41,7 +30,6 @@ namespace Cantera {
     m_useTmpRefStateStorage = true;
     m_useTmpStandardStateStorage = true;
   }
-
 
   VPSSMgr_IdealGas::~VPSSMgr_IdealGas() 
   {
@@ -71,7 +59,7 @@ namespace Cantera {
 
   void VPSSMgr_IdealGas::getIntEnergy_RT(doublereal* urt) const {
     getEnthalpy_RT(urt);
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       urt[k] -= 1.0;
     }
   }
@@ -86,7 +74,7 @@ namespace Cantera {
     doublereal pp = log(m_plast / m_p0);
     doublereal v = temperature() *GasConstant /m_plast;
 
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
       m_hss_RT[k]  = m_h0_RT[k];
       m_cpss_R[k] = m_cp0_R[k];
       m_sss_R[k]    = m_s0_R[k] - pp;
@@ -101,7 +89,7 @@ namespace Cantera {
   }
 
   PDSS *
-  VPSSMgr_IdealGas::createInstallPDSS(int k, const XML_Node& speciesNode,  
+  VPSSMgr_IdealGas::createInstallPDSS(size_t k, const XML_Node& speciesNode,
 				      const XML_Node * const phaseNode_ptr) {
     //VPSSMgr::installSpecies(k, speciesNode, phaseNode_ptr);
     const XML_Node *ss = speciesNode.findByName("standardState");
@@ -113,7 +101,7 @@ namespace Cantera {
 			   "ideal_gas: " + speciesNode.name());
       }
     }
-    if ((int) m_Vss.size() < k+1) {
+    if (m_Vss.size() < k+1) {
       m_Vss.resize(k+1, 0.0);
     }
 

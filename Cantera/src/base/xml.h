@@ -4,12 +4,6 @@
  * implement only those aspects of XML required to read, write, and
  * manipulate CTML data files.
  */
-
-/* 
- * $Revision$
- * $Date$
- */
-
 // Copyright 2001  California Institute of Technology
 
 #ifndef CT_XML_H
@@ -497,7 +491,7 @@ namespace Cantera {
     /*!
      *  @param n  Number of the child to return
      */
-    XML_Node& child(const int n) const ;
+    XML_Node& child(const size_t n) const ;
 
     //! Return an unchangeable reference to the vector of children of the current node
     /*!
@@ -826,7 +820,7 @@ namespace Cantera {
     std::vector<XML_Node*> m_children;
 
     //! Number of children of this node
-    int m_nchildren;
+    size_t m_nchildren;
 
     //! True if the current node is a comment node
     bool m_iscomment;

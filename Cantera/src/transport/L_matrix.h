@@ -4,24 +4,13 @@
  * multicomponent transport properties.
  */
 
-/*
- * $Id$
- */
-
 #ifndef CT_LMATRIX_H
 #define CT_LMATRIX_H
-
-// turn off warnings under Windows
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
 
 #include "DenseMatrix.h"
 #include "ct_defs.h"
 
 #include <vector>
-
 
 /////////////////////////////////////////////////////////////////////
 
@@ -32,7 +21,7 @@ namespace Cantera {
   //! Constant to compare dimensionless heat capacities against zero
   const doublereal Min_C_Internal = 0.001;
   //====================================================================================================================
-  bool MultiTransport::hasInternalModes(int j) {
+  bool MultiTransport::hasInternalModes(size_t j) {
 #ifdef CHEMKIN_COMPATIBILITY_MODE
     return (m_crot[j] > Min_C_Internal);
 #else
@@ -48,16 +37,15 @@ namespace Cantera {
 
     doublereal prefactor = 16.0*m_temp/25.0;
     doublereal sum;
-    int i, j, k;
-    for (i = 0; i < m_nsp; i++)  {
+    for (size_t i = 0; i < m_nsp; i++)  {
       //  subtract-off the k=i term to account for the first delta
       //  function in Eq. (12.121)
 
       sum = -x[i]/m_bdiff(i,i);
-      for (k = 0; k < m_nsp; k++) sum += x[k]/m_bdiff(i,k);
+      for (size_t k = 0; k < m_nsp; k++) sum += x[k]/m_bdiff(i,k);
 
       sum /= m_mw[i];
-      for (j = 0; j != m_nsp; ++j) {
+      for (size_t j = 0; j != m_nsp; ++j) {
 	m_Lmatrix(i,j) = prefactor * x[j]
 	  * ( m_mw[j] * sum + x[i]/m_bdiff(i,j) );                
       }
@@ -71,13 +59,12 @@ namespace Cantera {
     doublereal prefactor = 1.6*m_temp;
 
     doublereal sum, wj, xj;
-    int i, j;
-    for (j = 0; j < m_nsp; j++) {
+    for (size_t j = 0; j < m_nsp; j++) {
       //constant = prefactor * x[j];
       xj = x[j];
       wj = m_mw[j];
       sum = 0.0;
-      for (i = 0; i < m_nsp; i++) {
+      for (size_t i = 0; i < m_nsp; i++) {
 	m_Lmatrix(i,j + m_nsp) = - prefactor * x[i] * xj * m_mw[i] * 
 	  (1.2 * m_cstar(j,i) - 1.0) /
 	  ( (wj + m_mw[i]) * m_bdiff(j,i) );
@@ -91,9 +78,8 @@ namespace Cantera {
   }
  //====================================================================================================================
   void MultiTransport::eval_L1000() {
-    int i, j;
-    for (j = 0; j < m_nsp; j++) {
-      for (i = 0; i < m_nsp; i++) {
+    for (size_t j = 0; j < m_nsp; j++) {
+      for (size_t i = 0; i < m_nsp; i++) {
 	m_Lmatrix(i+m_nsp,j) = m_Lmatrix(j,i+m_nsp); 
       }
     }
@@ -104,12 +90,11 @@ namespace Cantera {
     const doublereal fiveover3pi = 5.0/(3.0*Pi);
     doublereal prefactor = (16.0*m_temp)/25.0;
 
-    int i, j;
     doublereal constant1, wjsq, constant2, constant3, constant4, 
       fourmj, threemjsq, sum, sumwij;;
     doublereal term1, term2;
 
-    for (j = 0; j < m_nsp; j++) {
+    for (size_t j = 0; j < m_nsp; j++) {
 
       // get constant terms that depend on just species "j"
 
@@ -121,7 +106,7 @@ namespace Cantera {
       fourmj    =   4.0*m_mw[j];
       threemjsq =   3.0*m_mw[j]*m_mw[j];
       sum =         0.0;
-      for (i = 0; i < m_nsp; i++) {
+      for (size_t i = 0; i < m_nsp; i++) {
 
 	sumwij = m_mw[i] + m_mw[j];
 	term1 = m_bdiff(i,j) * sumwij*sumwij;
@@ -145,16 +130,15 @@ namespace Cantera {
   void MultiTransport::eval_L1001(const doublereal* x) {
 
     doublereal prefactor = 32.00*m_temp/(5.00*Pi);
-    int i,j;
     doublereal constant, sum;
-    int n2 = 2*m_nsp;
+    size_t n2 = 2*m_nsp;
     int npoly = 0;
     for (j = 0; j < m_nsp; j++) {
       //        collect terms that depend only on "j"
       if (hasInternalModes(j)) {
 	constant = prefactor*m_mw[j]*x[j]*m_crot[j]/(m_cinternal[j]*m_rotrelax[j]);
 	sum = 0.0;
-	for (i = 0; i < m_nsp; i++) {
+	for (size_t i = 0; i < m_nsp; i++) {
 	  //           see Eq. (12.127)
 	  m_Lmatrix(i+m_nsp,j+n2) = constant * m_astar(j,i) * x[i] /
 	    ( (m_mw[j] + m_mw[i] ) * m_bdiff(j,i));
@@ -164,17 +148,16 @@ namespace Cantera {
 	m_Lmatrix(j+m_nsp,j+n2) += sum;
       }
       else {
-	for (i = 0; i < m_nsp; i++) m_Lmatrix(i+m_nsp,j+n2) = 0.0;
+	for (size_t i = 0; i < m_nsp; i++) m_Lmatrix(i+m_nsp,j+n2) = 0.0;
       }
     }
   }
   //====================================================================================================================
 
   void MultiTransport::eval_L0001() {
-    int i, j;
-    int n2 = 2*m_nsp;
-    for (j = 0; j < m_nsp; j++) {
-      for (i = 0; i < m_nsp; i++) {
+    size_t n2 = 2*m_nsp;
+    for (size_t j = 0; j < m_nsp; j++) {
+      for (size_t i = 0; i < m_nsp; i++) {
 	m_Lmatrix(i,j+n2) = 0.0;
       }
     }
@@ -182,19 +165,17 @@ namespace Cantera {
   //====================================================================================================================
 
   void MultiTransport::eval_L0100() {
-    int i, j;
-    int n2 = 2*m_nsp;
-    for (j = 0; j < m_nsp; j++)
-      for (i = 0; i < m_nsp; i++) 
+    size_t n2 = 2*m_nsp;
+    for (size_t j = 0; j < m_nsp; j++)
+      for (size_t i = 0; i < m_nsp; i++) 
 	m_Lmatrix(i+n2,j) = 0.0;  //  see Eq. (12.123)
   }
   //====================================================================================================================
 
   void MultiTransport::eval_L0110() {
-    int i, j;
-    int n2 = 2*m_nsp;
-    for (j = 0; j < m_nsp; j++)
-      for (i = 0; i < m_nsp; i++) 
+    size_t n2 = 2*m_nsp;
+    for (size_t j = 0; j < m_nsp; j++)
+      for (size_t i = 0; i < m_nsp; i++) 
 	m_Lmatrix(i+n2,j+m_nsp) = m_Lmatrix(j+m_nsp,i+n2);  //  see Eq. (12.123)
   }
   //====================================================================================================================
@@ -204,17 +185,16 @@ namespace Cantera {
     const doublereal eightoverpi = 8.0 / Pi;
 
     doublereal prefactor = 4.00*m_temp;
-    int n2 = 2*m_nsp;
-    int i,k;
+    size_t n2 = 2*m_nsp;
     doublereal constant1, constant2, diff_int, sum;
-    for (i = 0; i < m_nsp; i++) {
+    for (size_t i = 0; i < m_nsp; i++) {
       if (hasInternalModes(i)) {
 	//        collect terms that depend only on "i"
 	constant1 = prefactor*x[i]/m_cinternal[i];
 	constant2 = 12.00*m_mw[i]*m_crot[i] /
 	  (fivepi*m_cinternal[i]*m_rotrelax[i]);
 	sum = 0.0;
-	for (k = 0; k < m_nsp; k++) {
+	for (size_t k = 0; k < m_nsp; k++) {
 	  //           see Eq. (12.131)
 	  diff_int = m_bdiff(i,k);
 	  m_Lmatrix(k+n2,i+n2) = 0.0;

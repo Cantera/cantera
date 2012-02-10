@@ -7,7 +7,7 @@
 #include "ct_defs.h"
 #include "ctexceptions.h"
 
-namespace CanteraSpectra {
+namespace Cantera {
 
     /**
      * Base class for classes implementing line shapes of
@@ -37,7 +37,7 @@ namespace CanteraSpectra {
          * an exception will be thrown.
          */
         virtual doublereal profile(doublereal deltaFreq) {
-            throw Cantera::CanteraError("LineBroadener::profile",
+            throw CanteraError("LineBroadener::profile",
                 "base class method called!");
         }
 
@@ -52,7 +52,7 @@ namespace CanteraSpectra {
          * \f]
          */
         virtual doublereal cumulative(doublereal deltaFreq) {
-            throw Cantera::CanteraError("LineBroadener::cumulative",
+            throw CanteraError("LineBroadener::cumulative",
                 "base class method called!");
         }
 

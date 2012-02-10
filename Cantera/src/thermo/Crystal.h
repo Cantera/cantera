@@ -1,9 +1,5 @@
 /**
  * @file Crystal.h
- *
- *  $Author$
- *  $Date$
- *  $Revision$
  */
 #ifndef CT_CRYSTAL_H
 #define CT_CRYSTAL_H

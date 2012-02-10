@@ -5,13 +5,6 @@
  *  on a piecewise constant mu0 interpolation
  *  (see \ref spthermo and class \link Cantera::Mu0Poly Mu0Poly\endlink).
  */
-/*
- * $Author$
- * $Revision$
- * $Date$
- */
-
-
 #include "Mu0Poly.h"
 #include "ctexceptions.h"
 #include "speciesThermoTypes.h"
@@ -50,7 +43,7 @@ namespace Cantera {
    *         7  = mu3 (J/kmol)
    *         ........
    */
-  Mu0Poly::Mu0Poly(int n, doublereal tlow, doublereal thigh, 
+  Mu0Poly::Mu0Poly(size_t n, doublereal tlow, doublereal thigh,
 		   doublereal pref,
 		   const doublereal* coeffs) :
     m_numIntervals(0),
@@ -128,9 +121,9 @@ namespace Cantera {
   void  Mu0Poly::
   updateProperties(const doublereal* tt,  doublereal* cp_R,
 		   doublereal* h_RT, doublereal* s_R) const {
-    int j = m_numIntervals;
+    size_t j = m_numIntervals;
     double T = *tt;
-    for (int i = 0; i < m_numIntervals; i++) {
+    for (size_t i = 0; i < m_numIntervals; i++) {
       double T2 =  m_t0_int[i+1];
       if (T <=T2) {
 	j = i;
@@ -160,7 +153,7 @@ namespace Cantera {
    *
    * 
    */
-  void Mu0Poly::reportParameters(int &n, int &type,
+  void Mu0Poly::reportParameters(size_t &n, int &type,
 				 doublereal &tlow, doublereal &thigh,
 				 doublereal &pref,
 				 doublereal* const coeffs) const {
@@ -169,10 +162,10 @@ namespace Cantera {
     tlow = m_lowT;
     thigh = m_highT;
     pref = m_Pref;
-    coeffs[0] = m_numIntervals+1;
+    coeffs[0] = int(m_numIntervals)+1;
     coeffs[1] = m_H298 * GasConstant;
     int j = 2;
-    for (int i = 0; i < m_numIntervals+1; i++) {
+    for (size_t i = 0; i < m_numIntervals+1; i++) {
       coeffs[j] = m_t0_int[i];
       coeffs[j+1] = m_mu0_R_int[i] * GasConstant;
       j += 2;
@@ -189,7 +182,7 @@ namespace Cantera {
    * getting the information from an XML database.
    */
   void installMu0ThermoFromXML(std::string speciesName,
-			       SpeciesThermo& sp, int k, 
+			       SpeciesThermo& sp, size_t k,
 			       const XML_Node* Mu0Node_ptr) {
 
     doublereal tmin, tmax;
@@ -205,7 +198,7 @@ namespace Cantera {
       h298 = getFloat(Mu0Node, "H298", "actEnergy");
     }
 
-    int numPoints = 1;
+    size_t numPoints = 1;
     if (Mu0Node.hasChild("numPoints")) {
       numPoints = getInteger(Mu0Node, "numPoints");
     }
@@ -228,7 +221,7 @@ namespace Cantera {
     if (uuu == "Dimensionless") {
       dimensionlessMu0Values = true;
     }
-    int ns = cValues.size();
+    size_t ns = cValues.size();
     if (ns != numPoints) {
       throw CanteraError("installMu0ThermoFromXML",
 			 "numPoints inconsistent while processing "
@@ -255,7 +248,7 @@ namespace Cantera {
      * Fix up dimensionless Mu0 values if input
      */
     if (dimensionlessMu0Values) {
-      for (int i = 0; i < numPoints; i++) {
+      for (size_t i = 0; i < numPoints; i++) {
 	cValues[i] *= cTemperatures[i] / 273.15;
       }
     }
@@ -263,9 +256,9 @@ namespace Cantera {
 
     vector_fp c(2 + 2 * numPoints);
      
-    c[0] = numPoints;
+    c[0] = static_cast<double>(numPoints);
     c[1] = h298;
-    for (int i = 0; i < numPoints; i++) {
+    for (size_t i = 0; i < numPoints; i++) {
       c[2+i*2]   = cTemperatures[i];
       c[2+i*2+1] = cValues[i];
     }
@@ -292,16 +285,16 @@ namespace Cantera {
    */
   void Mu0Poly::processCoeffs(const doublereal* coeffs)  {
 
-    int i, iindex;
+    size_t i, iindex;
     double T1, T2;
-    int nPoints = (int) coeffs[0];
+    size_t nPoints = (size_t) coeffs[0];
     if (nPoints < 2) {
       throw CanteraError("Mu0Poly", 
 			 "nPoints must be >= 2");
     }
     m_numIntervals = nPoints - 1;
     m_H298       = coeffs[1] / GasConstant;
-    int iT298 = 0;
+    size_t iT298 = 0;
     /*
      * Resize according to the number of points
      */
@@ -367,12 +360,12 @@ namespace Cantera {
     /*
      * Starting from the interval with T298, we go down
      */
-    if (iT298 > 0) {
+    if (iT298 != 0) {
       T2 = m_t0_int[iT298];
       mu2 = m_mu0_R_int[iT298];
       m_h0_R_int[iT298] = m_H298;
       m_s0_R_int[iT298] = - (mu2 - m_h0_R_int[iT298]) / T2;
-      for (i = iT298 - 1; i >= 0; i--) {
+      for (i = iT298 - 1; i != npos; i--) {
 	T1      = m_t0_int[i];
 	mu1     = m_mu0_R_int[i];
 	T2      = m_t0_int[i+1];

@@ -6,7 +6,7 @@
 using namespace std;
 using namespace Cantera;
 
-namespace CanteraZeroD {
+namespace Cantera {
 
     bool FlowDevice::install(ReactorBase& in, ReactorBase& out) {
         if (m_in || m_out) return false;
@@ -23,7 +23,7 @@ namespace CanteraZeroD {
         m_nspin = mixin->nSpecies();
         m_nspout = mixout->nSpecies();
         string nm;
-        int ki, ko;
+        size_t ki, ko;
         for (ki = 0; ki < m_nspin; ki++) {
             nm = mixin->speciesName(ki);
             ko = mixout->speciesIndex(nm);
@@ -46,10 +46,10 @@ namespace CanteraZeroD {
      * Mass flow rate of outlet species k.  Returns zero if this
      * species is not present in the upstream mixture.
      */
-    doublereal FlowDevice::outletSpeciesMassFlowRate(int k) {
-        if (k < 0 || k >= m_nspout) return 0.0;
-        int ki = m_out2in[k];
-        if (ki < 0) return 0.0;
+    doublereal FlowDevice::outletSpeciesMassFlowRate(size_t k) {
+        if (k >= m_nspout) return 0.0;
+        size_t ki = m_out2in[k];
+        if (ki == npos) return 0.0;
         return m_mdot * m_in->massFraction(ki);
     }
 

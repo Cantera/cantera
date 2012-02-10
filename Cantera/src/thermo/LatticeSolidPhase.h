@@ -4,16 +4,9 @@
  *  derived from ThermoPhase,
  *  assuming an ideal solution model based on a lattice of solid atoms
  *  (see \ref thermoprops and class \link Cantera::LatticeSolidPhase LatticeSolidPhase\endlink).
-
  */
 
-/*  $Author$
- *  $Date$
- *  $Revision$
- *
- *  Copyright 2005 California Institute of Technology
- *
- */
+//  Copyright 2005 California Institute of Technology
 
 #ifndef CT_LATTICESOLID_H
 #define CT_LATTICESOLID_H
@@ -688,7 +681,7 @@ namespace Cantera {
   protected:
     
     //! Number of elements
-    int m_mm;
+    size_t m_mm;
 
     //! Last temperature at which the reference thermo was calculated
     mutable doublereal  m_tlast;
@@ -700,7 +693,7 @@ namespace Cantera {
     doublereal m_molar_density;
 
     //! Number of sublattice phases
-    int m_nlattice;
+    size_t m_nlattice;
 
     //! Vector of sublattic ThermoPhase objects
     std::vector<LatticePhase *> m_lattice;

@@ -1,19 +1,14 @@
-/*
- *  $Author$
- *  $Date$
- *  $Revision$
- *
- */
-
 #include "cantera/Cantera.h"
 #include "cantera/IdealGasMix.h"
 #include "cantera/equilibrium.h"
 
 using namespace std;
 using namespace Cantera;
-using namespace Cantera_CXX;
 
 int main(int argc, char **argv) {
+#ifdef _MSC_VER
+    _set_output_format(_TWO_DIGIT_EXPONENT);
+#endif
   try {
     IdealGasMix g("red1.xml", "gri30_mix");
 
@@ -31,8 +26,8 @@ int main(int argc, char **argv) {
     mphase.addPhase(&g, 10.0);
     mphase.init();
     int usedZeroedSpecies = 0;
-    vector_int orderVectorSpecies;
-    vector_int orderVectorElements;
+    std::vector<size_t> orderVectorSpecies;
+    std::vector<size_t> orderVectorElements;
 
     bool doFormMatrix = true;
     vector_fp formRxnMatrix;

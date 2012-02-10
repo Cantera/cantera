@@ -1,9 +1,6 @@
 /**
  * @file vcs_VolPhase.cpp
  */
-
-/* $Id$ */
-
 /*
  * Copywrite (2005) Sandia Corporation. Under the terms of 
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
@@ -77,7 +74,7 @@ namespace VCSnonideal {
    *   Destructor for the VolPhase object.
    */
   vcs_VolPhase::~vcs_VolPhase() {
-    for (int k = 0; k < m_numSpecies; k++) {
+    for (size_t k = 0; k < m_numSpecies; k++) {
       vcs_SpeciesProperties *sp = ListSpeciesPtr[k];
       delete sp;
       sp = 0;
@@ -141,9 +138,8 @@ namespace VCSnonideal {
    *   (note, this is used, so keep it current!)
    */
   vcs_VolPhase& vcs_VolPhase::operator=(const vcs_VolPhase& b) {
-    int k;
     if (&b != this) {
-      int old_num = m_numSpecies;
+      size_t old_num = m_numSpecies;
 
       //  Note: we comment this out for the assignment operator
       //        specifically, because it isn't true for the assignment
@@ -160,14 +156,14 @@ namespace VCSnonideal {
       p_activityConvention= b.p_activityConvention;
       m_numElemConstraints    = b.m_numElemConstraints;
       m_elementNames.resize(b.m_numElemConstraints);
-      for (int e = 0; e < b.m_numElemConstraints; e++) {
+      for (size_t e = 0; e < b.m_numElemConstraints; e++) {
 	m_elementNames[e] = b.m_elementNames[e];
       }
       m_elementActive = b.m_elementActive;
       m_elementType = b.m_elementType;
       m_formulaMatrix.resize(m_numElemConstraints, m_numSpecies, 0.0);
-      for (int e = 0; e < m_numElemConstraints; e++) {
-	for (int k = 0; k < m_numSpecies; k++) {
+      for (size_t e = 0; e < m_numElemConstraints; e++) {
+	for (size_t k = 0; k < m_numSpecies; k++) {
 	  m_formulaMatrix[e][k] = b.m_formulaMatrix[e][k];
 	}
       }
@@ -185,14 +181,14 @@ namespace VCSnonideal {
       IndSpecies = b.IndSpecies;
       //IndSpeciesContig = b.IndSpeciesContig;
 
-      for (k = 0; k < old_num; k++) {
+      for (size_t k = 0; k < old_num; k++) {
 	if ( ListSpeciesPtr[k]) {
 	  delete  ListSpeciesPtr[k];
 	  ListSpeciesPtr[k] = 0;
 	}
       }
       ListSpeciesPtr.resize(m_numSpecies, 0);
-      for (k = 0; k < m_numSpecies; k++) {
+      for (size_t k = 0; k < m_numSpecies; k++) {
 	ListSpeciesPtr[k] = 
 	  new vcs_SpeciesProperties(*(b.ListSpeciesPtr[k]));
       }
@@ -235,8 +231,8 @@ namespace VCSnonideal {
   }
   /***************************************************************************/
 
-  void vcs_VolPhase::resize(const int phaseNum, const int nspecies, 
-			    const int numElem, const char * const phaseName,
+  void vcs_VolPhase::resize(const size_t phaseNum, const size_t nspecies,
+			    const size_t numElem, const char * const phaseName,
 			    const double molesInert) {
 #ifdef DEBUG_MODE
     if (nspecies <= 0) {
@@ -286,8 +282,8 @@ namespace VCSnonideal {
 
     IndSpecies.resize(nspecies, -1);
 
-    if ((int) ListSpeciesPtr.size() >= m_numSpecies) {
-      for (int i = 0; i < m_numSpecies; i++) {
+    if (ListSpeciesPtr.size() >= m_numSpecies) {
+      for (size_t i = 0; i < m_numSpecies; i++) {
 	if (ListSpeciesPtr[i]) {
 	  delete ListSpeciesPtr[i]; 
 	  ListSpeciesPtr[i] = 0;
@@ -295,14 +291,14 @@ namespace VCSnonideal {
       }
     }
     ListSpeciesPtr.resize(nspecies, 0);
-    for (int i = 0; i < nspecies; i++) {
+    for (size_t i = 0; i < nspecies; i++) {
       ListSpeciesPtr[i] = new vcs_SpeciesProperties(phaseNum, i, this);
     }
 
     Xmol_.resize(nspecies, 0.0);
     creationMoleNumbers_.resize(nspecies, 0.0);
     creationGlobalRxnNumbers_.resize(nspecies, -1);
-    for (int i = 0; i < nspecies; i++) {
+    for (size_t i = 0; i < nspecies; i++) {
       Xmol_[i] = 1.0/nspecies;
       creationMoleNumbers_[i] = 1.0/nspecies;  
       creationGlobalRxnNumbers_[i] = IndSpecies[i] - m_numElemConstraints;
@@ -331,7 +327,7 @@ namespace VCSnonideal {
   }
   /***************************************************************************/
 
-  void vcs_VolPhase::elemResize(const int numElemConstraints) {
+  void vcs_VolPhase::elemResize(const size_t numElemConstraints) {
 
     m_elementNames.resize(numElemConstraints);
 
@@ -372,7 +368,7 @@ namespace VCSnonideal {
    *   return one activity coefficient. Have to recalculate them all to get
    *   one.
    */
-  double vcs_VolPhase::AC_calc_one(int kspec) const {
+  double vcs_VolPhase::AC_calc_one(size_t kspec) const {
     if (! m_UpToDate_AC) {
       _updateActCoeff();
     }
@@ -382,15 +378,13 @@ namespace VCSnonideal {
 
   // Gibbs free energy calculation at a temperature for the reference state
   // of each species
-  /*
-   */
   void vcs_VolPhase::_updateG0() const {
     if (m_useCanteraCalls) {
       TP_ptr->getGibbs_ref(VCS_DATA_PTR(SS0ChemicalPotential));
     } else {
       double R = vcsUtil_gasConstant(p_VCS_UnitsFormat);
-      for (int k = 0; k < m_numSpecies; k++) {
-	int kglob = IndSpecies[k];
+      for (size_t k = 0; k < m_numSpecies; k++) {
+	size_t kglob = IndSpecies[k];
 	vcs_SpeciesProperties *sProp = ListSpeciesPtr[k];
 	VCS_SPECIES_THERMO *sTherm = sProp->SpeciesThermo;
 	SS0ChemicalPotential[k] =
@@ -409,7 +403,7 @@ namespace VCSnonideal {
    *
    *  @return return value of the gibbs free energy
    */
-  double vcs_VolPhase::G0_calc_one(int kspec) const {
+  double vcs_VolPhase::G0_calc_one(size_t kspec) const {
     if (!m_UpToDate_G0) {
       _updateG0();
     }
@@ -430,8 +424,8 @@ namespace VCSnonideal {
       TP_ptr->getStandardChemPotentials(VCS_DATA_PTR(StarChemicalPotential));
     } else {
       double R = vcsUtil_gasConstant(p_VCS_UnitsFormat);
-      for (int k = 0; k < m_numSpecies; k++) {
-	int kglob = IndSpecies[k];
+      for (size_t k = 0; k < m_numSpecies; k++) {
+	size_t kglob = IndSpecies[k];
 	vcs_SpeciesProperties *sProp = ListSpeciesPtr[k];
 	VCS_SPECIES_THERMO *sTherm = sProp->SpeciesThermo;
 	StarChemicalPotential[k] =
@@ -454,7 +448,7 @@ namespace VCSnonideal {
    * @return Gstar[kspec] returns the gibbs free energy for the
    *         standard state of the kspec species.
    */
-  double vcs_VolPhase::GStar_calc_one(int kspec) const {
+  double vcs_VolPhase::GStar_calc_one(size_t kspec) const {
     if (!m_UpToDate_GStar) {
       _updateGStar();
     }
@@ -470,12 +464,12 @@ namespace VCSnonideal {
    */
   void vcs_VolPhase::setMoleFractions(const double * const xmol) {
     double sum = -1.0;
-    for (int k = 0; k < m_numSpecies; k++) {
+    for (size_t k = 0; k < m_numSpecies; k++) {
       Xmol_[k] = xmol[k];
       sum+= xmol[k];
     }
     if (std::fabs(sum) > 1.0E-13) {
-      for (int k = 0; k < m_numSpecies; k++) {
+      for (size_t k = 0; k < m_numSpecies; k++) {
 	Xmol_[k] /= sum;
       }
     }
@@ -514,10 +508,6 @@ namespace VCSnonideal {
   /***************************************************************************/
 
   // Set the moles and/or mole fractions within the phase
-  /*
-   *
-   *
-   */
   void vcs_VolPhase::setMoleFractionsState(const double totalMoles,
 					   const double * const moleFractions,
 					   const int vcsStateStatus) {
@@ -554,7 +544,7 @@ namespace VCSnonideal {
       fractotal = 1.0 - m_totalMolesInert/v_totalMoles;
     }
     double sum = 0.0;
-    for (int k = 0; k < m_numSpecies; k++) {
+    for (size_t k = 0; k < m_numSpecies; k++) {
       Xmol_[k] = moleFractions[k];
       sum += moleFractions[k];
     }
@@ -563,7 +553,7 @@ namespace VCSnonideal {
       exit(EXIT_FAILURE);
     }
     if (sum  != fractotal) {
-      for (int k = 0; k < m_numSpecies; k++) {
+      for (size_t k = 0; k < m_numSpecies; k++) {
 	Xmol_[k] *= (fractotal /sum);
       }
     }
@@ -587,7 +577,7 @@ namespace VCSnonideal {
    */
   void vcs_VolPhase::setMolesFromVCS(const int stateCalc, 
 				     const double * molesSpeciesVCS) {
-    int kglob;
+    size_t kglob;
     double tmp;
     v_totalMoles = m_totalMolesInert;
 
@@ -628,14 +618,14 @@ namespace VCSnonideal {
     }
 #endif
 
-    for (int k = 0; k < m_numSpecies; k++) {
+    for (size_t k = 0; k < m_numSpecies; k++) {
       if (m_speciesUnknownType[k] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	kglob = IndSpecies[k];
 	v_totalMoles += MAX(0.0, molesSpeciesVCS[kglob]);
       }
     }
     if (v_totalMoles > 0.0) {
-      for (int k = 0; k < m_numSpecies; k++) {
+      for (size_t k = 0; k < m_numSpecies; k++) {
 	if (m_speciesUnknownType[k] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 	  kglob = IndSpecies[k];
 	  tmp = MAX(0.0, molesSpeciesVCS[kglob]);
@@ -656,7 +646,7 @@ namespace VCSnonideal {
      * Update the electric potential if it is a solution variable
      * in the equation system
      */
-    if (m_phiVarIndex >= 0) {
+    if (m_phiVarIndex != npos) {
       kglob = IndSpecies[m_phiVarIndex];
       if (m_numSpecies == 1) {
 	Xmol_[m_phiVarIndex] = 1.0;
@@ -771,9 +761,8 @@ namespace VCSnonideal {
     if (!m_UpToDate_AC) {
       _updateActCoeff();
     }
-    int kglob;
-    for (int k = 0; k < m_numSpecies; k++) {
-      kglob = IndSpecies[k];
+    for (size_t k = 0; k < m_numSpecies; k++) {
+      size_t kglob = IndSpecies[k];
       AC[kglob] = ActCoeff[k];
     }
   }
@@ -793,9 +782,8 @@ namespace VCSnonideal {
     if (!m_UpToDate_VolPM) {
       (void) _updateVolPM();
     }
-    int kglob;
-    for (int k = 0; k < m_numSpecies; k++) {
-      kglob = IndSpecies[k];
+    for (size_t k = 0; k < m_numSpecies; k++) {
+      size_t kglob = IndSpecies[k];
       VolPM[kglob] = PartialMolarVol[k];
     }
     return m_totalVol;
@@ -816,9 +804,8 @@ namespace VCSnonideal {
     if (!m_UpToDate_GStar) {
       _updateGStar();
     }
-    int kglob;
-    for (int k = 0; k < m_numSpecies; k++) {
-      kglob = IndSpecies[k];
+    for (size_t k = 0; k < m_numSpecies; k++) {
+      size_t kglob = IndSpecies[k];
       gstar[kglob] = StarChemicalPotential[k];
     }
   }
@@ -902,8 +889,8 @@ namespace VCSnonideal {
     if (m_useCanteraCalls) {
       TP_ptr->getStandardVolumes(VCS_DATA_PTR(StarMolarVol));
     } else {
-      for (int k = 0; k < m_numSpecies; k++) {
-	int kglob = IndSpecies[k];
+      for (size_t k = 0; k < m_numSpecies; k++) {
+	size_t kglob = IndSpecies[k];
 	vcs_SpeciesProperties *sProp = ListSpeciesPtr[k];
 	VCS_SPECIES_THERMO *sTherm = sProp->SpeciesThermo;
 	StarMolarVol[k] = (sTherm->VolStar_calc(kglob, Temp_, Pres_));
@@ -926,7 +913,7 @@ namespace VCSnonideal {
    * @return molar volume of the kspec species's standard
    *         state
    */
-  double vcs_VolPhase::VolStar_calc_one(int kspec) const {
+  double vcs_VolPhase::VolStar_calc_one(size_t kspec) const {
     if (!m_UpToDate_VolStar) {
       _updateVolStar();
     }
@@ -942,24 +929,22 @@ namespace VCSnonideal {
    * @return total volume  (m**3)
    */
   double vcs_VolPhase::_updateVolPM() const {
-    int k, kglob;
-
     if (m_useCanteraCalls) {
       TP_ptr->getPartialMolarVolumes(VCS_DATA_PTR(PartialMolarVol));
     } else {
-      for (k = 0; k < m_numSpecies; k++) {
-	kglob = IndSpecies[k];
+      for (size_t k = 0; k < m_numSpecies; k++) {
+	size_t kglob = IndSpecies[k];
 	vcs_SpeciesProperties *sProp = ListSpeciesPtr[k];
 	VCS_SPECIES_THERMO *sTherm = sProp->SpeciesThermo;
 	StarMolarVol[k] = (sTherm->VolStar_calc(kglob, Temp_, Pres_));
       }
-      for (k = 0; k < m_numSpecies; k++) {
+      for (size_t k = 0; k < m_numSpecies; k++) {
 	PartialMolarVol[k] = StarMolarVol[k];
       }
     }
 
     m_totalVol = 0.0;
-    for (k = 0; k < m_numSpecies; k++) {
+    for (size_t k = 0; k < m_numSpecies; k++) {
       m_totalVol += PartialMolarVol[k] * Xmol_[k];
     }
     m_totalVol *= v_totalMoles;
@@ -983,8 +968,6 @@ namespace VCSnonideal {
    *
    */
   void vcs_VolPhase::_updateLnActCoeffJac() {
-    int k, j;
-
     /*
      * Evaluate the current base activity coefficients if necessary
      */ 
@@ -994,13 +977,13 @@ namespace VCSnonideal {
 #ifndef NOOLD
     if (!TP_ptr) return;
     TP_ptr->getdlnActCoeffdlnN(m_numSpecies, &dLnActCoeffdMolNumber[0][0]);
-    for (j = 0; j < m_numSpecies; j++) {
+    for (size_t j = 0; j < m_numSpecies; j++) {
       double moles_j_base = v_totalMoles * Xmol_[j];
       double * const lnActCoeffCol = dLnActCoeffdMolNumber[j];
       if (moles_j_base < 1.0E-200) {
 	moles_j_base = 1.0E-7 * moles_j_base + 1.0E-20 * v_totalMoles + 1.0E-150;
       }
-      for (k = 0; k < m_numSpecies; k++) {
+      for (size_t k = 0; k < m_numSpecies; k++) {
 	lnActCoeffCol[k] /= moles_j_base;
       }
     }
@@ -1016,10 +999,10 @@ namespace VCSnonideal {
     /*
      *  Loop over the columns species to be deltad
      */
-    for (j = 0; j < m_numSpecies; j++) {
+    for (size_t j = 0; j < m_numSpecies; j++) {
       /*
        * Calculate a value for the delta moles of species j
-       * -> NOte Xmol_[] and Tmoles are always positive or zero
+       * -> Note Xmol_[] and Tmoles are always positive or zero
        *    quantities.
        */
       double moles_j_base = v_totalMoles * Xmol_Base[j];
@@ -1029,7 +1012,7 @@ namespace VCSnonideal {
        * mole fractions based on this.
        */
       v_totalMoles = TMoles_base + deltaMoles_j;      
-      for (k = 0; k < m_numSpecies; k++) {
+      for (size_t k = 0; k < m_numSpecies; k++) {
 	Xmol_[k] = Xmol_Base[k] * TMoles_base / v_totalMoles;
       }
       Xmol_[j] = (moles_j_base + deltaMoles_j) / v_totalMoles;
@@ -1044,7 +1027,7 @@ namespace VCSnonideal {
        * Calculate the column of the matrix
        */
       double * const lnActCoeffCol = dLnActCoeffdMolNumber[j];
-      for (k = 0; k < m_numSpecies; k++) {
+      for (size_t k = 0; k < m_numSpecies; k++) {
 	double tmp;
 	tmp = (ActCoeff[k] - ActCoeff_Base[k]) /
 	  ((ActCoeff[k] + ActCoeff_Base[k]) * 0.5 * deltaMoles_j);
@@ -1070,7 +1053,6 @@ namespace VCSnonideal {
     setMoleFractions(VCS_DATA_PTR(Xmol_Base));
     _updateMoleFractionDependencies();
     _updateActCoeff();
-
   }
   /***************************************************************************/
 
@@ -1098,13 +1080,12 @@ namespace VCSnonideal {
     /*
      *  Now copy over the values
      */
-    int j, k, jglob, kglob;
-    for (j = 0; j < m_numSpecies; j++) {
-      jglob = IndSpecies[j];
+    for (size_t j = 0; j < m_numSpecies; j++) {
+      size_t jglob = IndSpecies[j];
       double * const lnACJacVCS_col = LnACJac_VCS[jglob];
       const double * const lnACJac_col = dLnActCoeffdMolNumber[j];
-      for (k = 0; k < m_numSpecies; k++) {
-	kglob = IndSpecies[k];
+      for (size_t k = 0; k < m_numSpecies; k++) {
+	size_t kglob = IndSpecies[k];
 	lnACJacVCS_col[kglob] = lnACJac_col[k];
       }
     }
@@ -1128,8 +1109,8 @@ namespace VCSnonideal {
       setState_TP(Temp_, Pres_);
       p_VCS_UnitsFormat = VCS_UNITS_MKS;
       m_phi = TP_ptr->electricPotential();
-      int nsp = TP_ptr->nSpecies();
-      int nelem = TP_ptr->nElements();
+      size_t nsp = TP_ptr->nSpecies();
+      size_t nelem = TP_ptr->nElements();
       if (nsp !=  m_numSpecies) {
 	if (m_numSpecies != 0) {
 	  plogf("Warning Nsp != NVolSpeces: %d %d \n", nsp, m_numSpecies);
@@ -1184,7 +1165,7 @@ namespace VCSnonideal {
   }
   /***************************************************************************/
 
-  double vcs_VolPhase::molefraction(int k) const {
+  double vcs_VolPhase::molefraction(size_t k) const {
     return Xmol_[k];
   }
   /***************************************************************************/
@@ -1200,7 +1181,6 @@ namespace VCSnonideal {
     creationGlobalRxnNumbers = creationGlobalRxnNumbers_;
     return creationMoleNumbers_;
   }
-
   /***************************************************************************/
 
   // Sets the total moles in the phase
@@ -1250,9 +1230,6 @@ namespace VCSnonideal {
   /***************************************************************************/
 
   // Sets the mole flag within the object to be current
-  /*
-   * 
-   */
   void vcs_VolPhase::setMolesCurrent(int stateCalc) {
     m_UpToDate = true;
     m_vcsStateStatus = stateCalc;
@@ -1314,13 +1291,13 @@ namespace VCSnonideal {
   }
   /***************************************************************************/
 
-  int vcs_VolPhase::phiVarIndex() const {
+  size_t vcs_VolPhase::phiVarIndex() const {
     return m_phiVarIndex;
   }
   /***************************************************************************/
 
 
-  void vcs_VolPhase::setPhiVarIndex(int phiVarIndex) {
+  void vcs_VolPhase::setPhiVarIndex(size_t phiVarIndex) {
     m_phiVarIndex = phiVarIndex;
     m_speciesUnknownType[m_phiVarIndex] = VCS_SPECIES_TYPE_INTERFACIALVOLTAGE;
     if (m_singleSpecies) {
@@ -1337,7 +1314,7 @@ namespace VCSnonideal {
    *
    * @param kindex kth species index.
    */
-  vcs_SpeciesProperties * vcs_VolPhase::speciesProperty(const int kindex) {
+  vcs_SpeciesProperties * vcs_VolPhase::speciesProperty(const size_t kindex) {
     return  ListSpeciesPtr[kindex];
   }
   /***************************************************************************/
@@ -1397,7 +1374,7 @@ namespace VCSnonideal {
    * @return Returns the VCS_SOLVE species index of the that species
    *         This changes as rearrangements are carried out. 
    */
-  int vcs_VolPhase::spGlobalIndexVCS(const int spIndex) const {
+  size_t vcs_VolPhase::spGlobalIndexVCS(const size_t spIndex) const {
     return IndSpecies[spIndex];
   }
   /**********************************************************************/
@@ -1410,7 +1387,8 @@ namespace VCSnonideal {
    * @return Returns the VCS_SOLVE species index of the that species
    *         This changes as rearrangements are carried out. 
    */
-  void vcs_VolPhase::setSpGlobalIndexVCS(const int spIndex, const int spGlobalIndex) {
+  void vcs_VolPhase::setSpGlobalIndexVCS(const size_t spIndex,
+					 const size_t spGlobalIndex) {
     IndSpecies[spIndex] = spGlobalIndex;
     if (spGlobalIndex >= m_numElemConstraints) {
       creationGlobalRxnNumbers_[spIndex] = spGlobalIndex - m_numElemConstraints;
@@ -1455,28 +1433,26 @@ namespace VCSnonideal {
   /**********************************************************************/
 
   // Returns the global index of the local element index for the phase
-  int vcs_VolPhase::elemGlobalIndex(const int e) const {
-    DebugAssertThrowVCS(e >= 0, " vcs_VolPhase::elemGlobalIndex") ;
+  size_t vcs_VolPhase::elemGlobalIndex(const size_t e) const {
     DebugAssertThrowVCS(e < m_numElemConstraints, " vcs_VolPhase::elemGlobalIndex") ;
     return m_elemGlobalIndex[e];
   }
   /**********************************************************************/
 
   // Returns the global index of the local element index for the phase
-  void vcs_VolPhase::setElemGlobalIndex(const int eLocal, const int eGlobal) {
-    DebugAssertThrowVCS(eLocal >= 0, "vcs_VolPhase::setElemGlobalIndex");
+  void vcs_VolPhase::setElemGlobalIndex(const size_t eLocal, const size_t eGlobal) {
     DebugAssertThrowVCS(eLocal < m_numElemConstraints,
 			"vcs_VolPhase::setElemGlobalIndex");
     m_elemGlobalIndex[eLocal] = eGlobal;
   }
   /**********************************************************************/
   
-  int vcs_VolPhase::nElemConstraints() const {
+  size_t vcs_VolPhase::nElemConstraints() const {
     return m_numElemConstraints;
   }
   /**********************************************************************/
  
-  std::string vcs_VolPhase::elementName(const int e) const {
+  std::string vcs_VolPhase::elementName(const size_t e) const {
     return m_elementNames[e];
   }
   /**********************************************************************/
@@ -1486,8 +1462,7 @@ namespace VCSnonideal {
    *  or not.
    */
   static bool hasChargedSpecies(const Cantera::ThermoPhase * const tPhase) {
-    int nSpPhase = tPhase->nSpecies();
-    for (int k = 0; k < nSpPhase; k++) {
+    for (size_t k = 0; k < tPhase->nSpecies(); k++) {
       if (tPhase->charge(k) != 0.0) {
 	return true;
       }
@@ -1513,16 +1488,13 @@ namespace VCSnonideal {
     return false;
   }
 
-  int vcs_VolPhase::transferElementsFM(const Cantera::ThermoPhase * const tPhase) {
-    int e, k, eT;
+  size_t vcs_VolPhase::transferElementsFM(const Cantera::ThermoPhase * const tPhase) {
+    size_t e, k, eT;
     std::string ename; 
-    int eFound = -2;
-    /*
-     *
-     */
-    int nebase = tPhase->nElements();
-    int ne  = nebase;
-    int ns = tPhase->nSpecies();
+    size_t eFound = npos;
+    size_t nebase = tPhase->nElements();
+    size_t ne = nebase;
+    size_t ns = tPhase->nSpecies();
 
     /*
      * Decide whether we need an extra element constraint for charge
@@ -1540,7 +1512,7 @@ namespace VCSnonideal {
     elemResize(ne);
 
 
-    if (ChargeNeutralityElement >= 0) {
+    if (ChargeNeutralityElement != npos) {
       m_elementType[ChargeNeutralityElement] = VCS_ELEM_TYPE_CHARGENEUTRALITY;
     }
 
@@ -1572,7 +1544,7 @@ namespace VCSnonideal {
 	  }
 	}
       }
-      if (eFound == -2) {
+      if (eFound == npos) {
 	eFound = ne;
 	m_elementType[ne] = VCS_ELEM_TYPE_ELECTRONCHARGE;
 	m_elementActive[ne] = 0;
@@ -1617,7 +1589,7 @@ namespace VCSnonideal {
 	fm[e][k] = tPhase->nAtoms(k, eT);
 	e++;
       }
-      if (eFound >= 0) {
+      if (eFound != npos) {
 	fm[eFound][k] = - tPhase->charge(k);
       }
     }
@@ -1649,7 +1621,7 @@ namespace VCSnonideal {
   /*
    * @param e Element index.
    */
-  int vcs_VolPhase::elementType(const int e) const {
+  int vcs_VolPhase::elementType(const size_t e) const {
     return m_elementType[e];
   }
   /***************************************************************************/
@@ -1659,7 +1631,7 @@ namespace VCSnonideal {
    * @param e Element index
    * @param eType  type of the element.
    */
-  void vcs_VolPhase::setElementType(const int e, const int eType) {
+  void vcs_VolPhase::setElementType(const size_t e, const int eType) {
     m_elementType[e] = eType;
   }
   /***************************************************************************/
@@ -1670,18 +1642,18 @@ namespace VCSnonideal {
   }
   /***************************************************************************/
 
-  int vcs_VolPhase::speciesUnknownType(const int k) const {
+  int vcs_VolPhase::speciesUnknownType(const size_t k) const {
     return m_speciesUnknownType[k];
   }
   /***************************************************************************/
 
-  int vcs_VolPhase::elementActive(const int e) const {
+  int vcs_VolPhase::elementActive(const size_t e) const {
     return m_elementActive[e];
   }
   /***************************************************************************/
 
   //! Return the number of species in the phase
-  int vcs_VolPhase::nSpecies() const {
+  size_t vcs_VolPhase::nSpecies() const {
     return m_numSpecies;
   }
   /***************************************************************************/
