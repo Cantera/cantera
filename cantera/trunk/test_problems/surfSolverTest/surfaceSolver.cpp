@@ -34,12 +34,12 @@ static void printUsage()
 
 }
 
-#include "Cantera.h"
-#include "Interface.h"
+#include "cantera/Cantera.h"
+#include "cantera/Interface.h"
 
-#include "kinetics.h"
-#include "kernel/ImplicitSurfChem.h"
-#include "kernel/solveSP.h"
+#include "cantera/kinetics.h"
+#include "kinetics/ImplicitSurfChem.h"
+#include "kinetics/solveSP.h"
 
 using namespace Cantera;
 

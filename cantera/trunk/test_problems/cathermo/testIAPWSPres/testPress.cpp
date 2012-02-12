@@ -1,5 +1,5 @@
 
-#include "kernel/WaterPropsIAPWS.h"
+#include "cantera/thermo/WaterPropsIAPWS.h"
 #include <new>
 
 #include <cstdio>

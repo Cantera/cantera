@@ -3,17 +3,17 @@
  *  @file HMW_graph_1.cpp
  */
 #ifdef SRCDIRTREE
-#include "ct_defs.h"
-#include "logger.h"
-#include "ThermoPhase.h"
-#include "HMWSoln.h"
+#include "cantera/base/ct_defs.h"
+#include "cantera/base/logger.h"
+#include "cantera/thermo/ThermoPhase.h"
+#include "cantera/thermo/HMWSoln.h"
 #include "importCTML.h"
 #else
-#include "Cantera.h"
-#include "kernel/ThermoPhase.h"
-#include "kernel/logger.h"
-#include "thermo.h"
-#include "kernel/HMWSoln.h"
+#include "cantera/Cantera.h"
+#include "cantera/thermo/ThermoPhase.h"
+#include "cantera/base/logger.h"
+#include "cantera/thermo.h"
+#include "cantera/thermo/HMWSoln.h"
 #endif
 
 #include "TemperatureTable.h"

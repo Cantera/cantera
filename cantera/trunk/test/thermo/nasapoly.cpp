@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "cantera/kernel/NasaPoly1.h"
+#include "cantera/thermo/NasaPoly1.h"
 
 namespace Cantera
 {

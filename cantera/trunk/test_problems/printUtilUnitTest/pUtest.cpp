@@ -3,9 +3,9 @@
 #include <cmath>
 #include <sstream>
 
-#include "Cantera.h"
-#include "kernel/PrintCtrl.h"
-#include "kernel/LogPrintCtrl.h"
+#include "cantera/Cantera.h"
+#include "cantera/base/PrintCtrl.h"
+#include "base/LogPrintCtrl.h"
 
 using namespace Cantera;
 using namespace std;

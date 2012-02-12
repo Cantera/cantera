@@ -1,14 +1,14 @@
 
 #ifdef SRCDIRTREE
-#include "ct_defs.h"
-#include "ctml.h"
-#include "GasKinetics.h"
+#include "cantera/base/ct_defs.h"
+#include "cantera/base/ctml.h"
+#include "cantera/kinetics/GasKinetics.h"
 #include "importCTML.h"
-#include "ThermoPhase.h"
-#include "InterfaceKinetics.h"
+#include "cantera/thermo/ThermoPhase.h"
+#include "cantera/kinetics/InterfaceKinetics.h"
 #else
-#include "Cantera.h"
-#include "kinetics.h"
+#include "cantera/Cantera.h"
+#include "cantera/kinetics.h"
 #endif
 
 using namespace Cantera;

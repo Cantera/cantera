@@ -1,5 +1,5 @@
-#include "Cantera.h"
-#include "kinetics.h"
+#include "cantera/Cantera.h"
+#include "cantera/kinetics.h"
 
 #include <string>
 

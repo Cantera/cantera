@@ -3,13 +3,13 @@
  *  @file DH_graph_1
  */
 #ifdef SRCDIRTREE
-#include "ct_defs.h"
-#include "logger.h"
-#include "DebyeHuckel.h"
+#include "cantera/base/ct_defs.h"
+#include "cantera/base/logger.h"
+#include "cantera/thermo/DebyeHuckel.h"
 #else
-#include "Cantera.h"
-#include "kernel/logger.h"
-#include "kernel/DebyeHuckel.h"
+#include "cantera/Cantera.h"
+#include "cantera/base/logger.h"
+#include "cantera/thermo/DebyeHuckel.h"
 #endif
 
 #include <cstdio>

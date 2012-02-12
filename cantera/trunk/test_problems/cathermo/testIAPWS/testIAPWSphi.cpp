@@ -1,4 +1,4 @@
-#include "kernel/WaterPropsIAPWSphi.h"
+#include "cantera/thermo/WaterPropsIAPWSphi.h"
 #include <new>
 
 #include <cstdio>

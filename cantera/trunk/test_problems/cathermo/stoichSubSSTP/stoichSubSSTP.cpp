@@ -3,15 +3,15 @@
  *  @file HMW_graph_1.cpp
  */
 #ifdef SRCDIRTREE
-#include "ct_defs.h"
-#include "logger.h"
-#include "ThermoPhase.h"
-#include "StoichSubstanceSSTP.h"
+#include "cantera/base/ct_defs.h"
+#include "cantera/base/logger.h"
+#include "cantera/thermo/ThermoPhase.h"
+#include "cantera/thermo/StoichSubstanceSSTP.h"
 #include "importCTML.h"
 #else
-#include "Cantera.h"
-#include "thermo.h"
-#include "kernel/StoichSubstanceSSTP.h"
+#include "cantera/Cantera.h"
+#include "cantera/thermo.h"
+#include "cantera/thermo/StoichSubstanceSSTP.h"
 #endif
 
 #include "TemperatureTable.h"

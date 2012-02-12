@@ -1,6 +1,6 @@
-#include "Cantera.h"
-#include "thermo.h"
-#include "kernel/WaterSSTP.h"
+#include "cantera/Cantera.h"
+#include "cantera/thermo.h"
+#include "cantera/thermo/WaterSSTP.h"
 
 #include <cstdio>
 #include <cmath>
