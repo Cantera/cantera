@@ -19,14 +19,16 @@ for var in ('VS80COMNTOOLS', 'VS90COMNTOOLS', 'VS100COMNTOOLS'):
     if var in os.environ:
         localenv['ENV'][var] = os.environ[var]
 
-make_setup = localenv.SubstFile('setup.py', 'setup.py.in')
+make_setup = localenv.SubstFile('#interfaces/python/setup.py',
+                                '#interfaces/python/setup.py.in')
 
 if localenv['python_package'] == 'full':
     libs = ['clib']
     if localenv['OS'] != 'Windows':
         libs.extend(env['cantera_libs'])
+    localenv.Append(CPPPATH=['#src', '#include'])
 
-    pymodule = localenv.SharedLibrary('Cantera/_cantera', ['src/pycantera.cpp'],
+    pymodule = localenv.SharedLibrary('Cantera/_cantera', ['pycantera.cpp'],
                                       LIBS=libs,
                                       SHLIBPREFIX='',
                                       SHLIBSUFFIX=gcv('SO'))
@@ -34,13 +36,13 @@ if localenv['python_package'] == 'full':
     localenv.Depends(pymodule, make_setup)
     if localenv['OS'] == 'Windows':
         for file in localenv['clib_shared']:
-            dest = pjoin('Cantera', 'python', 'Cantera', file.name)
+            dest = pjoin('interfaces', 'python', 'Cantera', file.name)
             localenv.AddPreAction(pymodule,Copy(dest, file))
 
 elif localenv['python_package'] == 'minimal':
     pymodule = make_setup
 
-moddir = pjoin('Cantera', 'python')
+moddir = pjoin('interfaces', 'python')
 localenv.AddPostAction(make_setup,
                        'cd %s && $python_cmd setup.py build' % moddir)
 

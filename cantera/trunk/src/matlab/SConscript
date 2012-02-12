@@ -60,9 +60,20 @@ target = localenv.Command(mexFile,
                           'build_cantera.m',
                           build_cmd % localenv)
 buildTargets.extend(target)
-localenv.Depends(target, env['clib_header_targets'])
+
 
 ### Install the Matlab toolbox ###
+
+# 'ctpath.m'
+target = localenv.SubstFile('ctpath.m', 'ctpath.m.in')
+buildTargets.extend(target)
+inst = localenv.Install('$inst_matlab_dir', target)
+installTargets.extend(inst)
+
+# 'cantera_demos.m'
+inst = localenv.Install('$inst_matlab_dir', 'cantera_demos.m')
+installTargets.extend(inst)
+
 inst = localenv.RecursiveInstall('$inst_matlab_dir', 'cantera')
 installTargets.extend(inst)
 

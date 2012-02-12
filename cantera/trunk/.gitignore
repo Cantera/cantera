@@ -6,6 +6,7 @@
 *.obj
 *.exe.manifest
 build
+src/base/config.h
 stage
 .sconsign.dblite
 .sconf_temp
