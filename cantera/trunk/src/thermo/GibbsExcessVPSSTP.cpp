@@ -259,9 +259,9 @@ void GibbsExcessVPSSTP::getActivityCoefficients(doublereal* const ac) const
     // Protect against roundoff when taking exponentials
     for (int k = 0; k < m_kk; k++) {
         if (ac[k] > 700.) {
-            ac[k] = exp(700.);
+            ac[k] = exp(700.0);
         } else if (ac[k] < -700.) {
-            ac[k] = exp(-700);
+            ac[k] = exp(-700.0);
         } else {
             ac[k] = exp(ac[k]);
         }

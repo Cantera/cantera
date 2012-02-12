@@ -1435,7 +1435,7 @@ XML_Node& XML_Node::child(const std::string& aloc) const
     string::size_type iloc;
     string cname;
     string loc = aloc;
-    std::map<std::string,XML_Node*>::const_iterator i;
+    std::multimap<std::string,XML_Node*>::const_iterator i;
 
     while (1) {
         iloc = loc.find('/');
