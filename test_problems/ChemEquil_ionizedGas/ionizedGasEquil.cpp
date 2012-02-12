@@ -1,12 +1,12 @@
 #ifdef SRCDIRTREE
-#include "ct_defs.h"
-#include "ThermoPhase.h"
-#include "IdealGasMix.h"
-#include "equil.h"
+#include "cantera/base/ct_defs.h"
+#include "cantera/thermo/ThermoPhase.h"
+#include "cantera/IdealGasMix.h"
+#include "cantera/equil/equil.h"
 #else
-#include "Cantera.h"
-#include "IdealGasMix.h"
-#include "equilibrium.h"
+#include "cantera/Cantera.h"
+#include "cantera/IdealGasMix.h"
+#include "cantera/equilibrium.h"
 #endif
 
 

@@ -2,12 +2,12 @@
  *  Copyright 2002 California Institute of Technology
  */
 
-#include "Cantera.h"
-#include "IdealGasMix.h"
-#include "equilibrium.h"
-#include "kernel/IdealSolnGasVPSS.h"
-#include "kernel/ThermoFactory.h"
-#include "kernel/PrintCtrl.h"
+#include "cantera/Cantera.h"
+#include "cantera/IdealGasMix.h"
+#include "cantera/equilibrium.h"
+#include "cantera/thermo/IdealSolnGasVPSS.h"
+#include "cantera/thermo/ThermoFactory.h"
+#include "cantera/base/PrintCtrl.h"
 
 using namespace std;
 using namespace Cantera;

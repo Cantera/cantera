@@ -1,9 +1,9 @@
 #ifdef SRCDIRTREE
-#include "ct_defs.h"
-#include "HMWSoln.h"
+#include "cantera/base/ct_defs.h"
+#include "cantera/thermo/HMWSoln.h"
 #else
-#include "Cantera.h"
-#include "kernel/HMWSoln.h"
+#include "cantera/Cantera.h"
+#include "cantera/thermo/HMWSoln.h"
 #endif
 
 #include <cstdio>

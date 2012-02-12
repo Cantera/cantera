@@ -2,11 +2,11 @@
  *  Sample program that solves an implicit problem for surface
  *  site fractions.
  */
-#include "Cantera.h"
+#include "cantera/Cantera.h"
 #include <iostream>
 
-#include "IdealGasMix.h"
-#include "Interface.h"
+#include "cantera/IdealGasMix.h"
+#include "cantera/Interface.h"
 
 using namespace Cantera;
 using namespace std;

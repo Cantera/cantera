@@ -20,11 +20,11 @@
 #include <vector>
 
 #ifdef SRCDIRTREE
-#include "ct_defs.h"
-#include "IdealSolidSolnPhase.h"
+#include "cantera/base/ct_defs.h"
+#include "cantera/thermo/IdealSolidSolnPhase.h"
 #else
-#include "Cantera.h"
-#include "kernel/IdealSolidSolnPhase.h"
+#include "cantera/Cantera.h"
+#include "cantera/thermo/IdealSolidSolnPhase.h"
 #endif
 
 #include <cstdio>

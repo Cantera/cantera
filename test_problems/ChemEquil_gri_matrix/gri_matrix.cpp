@@ -2,9 +2,9 @@
  *  Copyright 2002 California Institute of Technology
  */
 
-#include "Cantera.h"
-#include "IdealGasMix.h"
-#include "equilibrium.h"
+#include "cantera/Cantera.h"
+#include "cantera/IdealGasMix.h"
+#include "cantera/equilibrium.h"
 
 using namespace std;
 using namespace Cantera;

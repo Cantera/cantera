@@ -2,10 +2,10 @@
  *
  *  @file HMW_graph_1.cpp
  */
-#include "Cantera.h"
+#include "cantera/Cantera.h"
 
-#include "kernel/logger.h"
-#include "kernel/HMWSoln.h"
+#include "cantera/base/logger.h"
+#include "cantera/thermo/HMWSoln.h"
 
 #include <cstdio>
 

@@ -2,15 +2,15 @@
  *  Copyright 2002 California Institute of Technology
  */
 
-#include "Cantera.h"
-#include "equilibrium.h"
-#include "kernel/vcs_MultiPhaseEquil.h"
-#include "kernel/vcs_internal.h"
+#include "cantera/Cantera.h"
+#include "cantera/equilibrium.h"
+#include "cantera/equil/vcs_MultiPhaseEquil.h"
+#include "equil/vcs_internal.h"
 
-#include "kernel/ThermoFactory.h"
-#include "kernel/IdealGasPhase.h"
-#include "kernel/HMWSoln.h"
-#include "kernel/StoichSubstanceSSTP.h"
+#include "cantera/thermo/ThermoFactory.h"
+#include "cantera/thermo/IdealGasPhase.h"
+#include "cantera/thermo/HMWSoln.h"
+#include "cantera/thermo/StoichSubstanceSSTP.h"
 
 using namespace Cantera;
 using namespace std;

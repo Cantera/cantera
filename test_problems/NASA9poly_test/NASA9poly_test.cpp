@@ -20,11 +20,11 @@ using namespace std;
 /*****************************************************************/
 /*****************************************************************/
 
-#include "Cantera.h"
-#include "transport.h"
-#include "IdealGasMix.h"
+#include "cantera/Cantera.h"
+#include "cantera/transport.h"
+#include "cantera/IdealGasMix.h"
 
-#include "kernel/TransportFactory.h"
+#include "cantera/transport/TransportFactory.h"
 
 using namespace Cantera;
 

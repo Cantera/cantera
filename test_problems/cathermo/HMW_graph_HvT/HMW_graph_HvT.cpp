@@ -2,9 +2,9 @@
  *
  *  @file HMW_graph_1.cpp
  */
-#include "Cantera.h"
-#include "thermo.h"
-#include "kernel/HMWSoln.h"
+#include "cantera/Cantera.h"
+#include "cantera/thermo.h"
+#include "cantera/thermo/HMWSoln.h"
 #include "TemperatureTable.h"
 
 #include <cstdio>

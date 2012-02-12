@@ -19,11 +19,11 @@
 #include <vector>
 
 #ifdef SRCDIRTREE
-#include "ct_defs.h"
-#include "IdealMolalSoln.h"
+#include "cantera/base/ct_defs.h"
+#include "cantera/thermo/IdealMolalSoln.h"
 #else
-#include "Cantera.h"
-#include "kernel/IdealMolalSoln.h"
+#include "cantera/Cantera.h"
+#include "cantera/thermo/IdealMolalSoln.h"
 #endif
 
 #include <cstdio>

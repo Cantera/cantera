@@ -1,14 +1,14 @@
 
-#include "kernel/ct_defs.h"
-#include "kernel/ctexceptions.h"
-#include "kernel/global.h"
-#include "kernel/xml.h"
-#include "kernel/ctml.h"
-#include "kernel/ThermoPhase.h"
-#include "kernel/VPStandardStateTP.h"
+#include "cantera/base/ct_defs.h"
+#include "cantera/base/ctexceptions.h"
+#include "cantera/base/global.h"
+#include "cantera/base/xml.h"
+#include "cantera/base/ctml.h"
+#include "cantera/thermo/ThermoPhase.h"
+#include "cantera/thermo/VPStandardStateTP.h"
 
-#include "kernel/WaterSSTP.h"
-#include "kernel/WaterTransport.h"
+#include "cantera/thermo/WaterSSTP.h"
+#include "cantera/transport/WaterTransport.h"
 #include <new>
 
 #include <cstdio>

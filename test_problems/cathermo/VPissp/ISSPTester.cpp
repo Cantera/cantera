@@ -20,9 +20,9 @@
 #include <vector>
 
 
-#include "Cantera.h"
-#include "kernel/IdealSolidSolnPhase.h"
-#include "kernel/IdealSolnGasVPSS.h"
+#include "cantera/Cantera.h"
+#include "cantera/thermo/IdealSolidSolnPhase.h"
+#include "cantera/thermo/IdealSolnGasVPSS.h"
 
 #include <cstdio>
 

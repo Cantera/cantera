@@ -7,7 +7,7 @@
 
 #ifndef TEMPERATURE_TABLE_H
 #define  TEMPERATURE_TABLE_H
-//#include "mdp_allo.h"
+//#include "cantera/base/mdp_allo.h"
 #include <vector>
 using std::vector;
 

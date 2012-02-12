@@ -1,8 +1,8 @@
 #ifndef CT_EXAMPLE_UTILS_H
 #define CT_EXAMPLE_UTILS_H
 
-#include <cantera/kernel/Array.h>
-#include <cantera/kernel/plots.h>
+#include <cantera/base/Array.h>
+#include <cantera/base/plots.h>
 
 // Save the temperature, density, pressure, and mole fractions at one
 // time

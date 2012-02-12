@@ -1,7 +1,7 @@
 
-#include "Cantera.h"
-#include "spectra.h"
-#include "kernel/Nuclei.h"
+#include "cantera/Cantera.h"
+#include "cantera/spectra.h"
+#include "spectra/Nuclei.h"
 #include <iostream>
 using namespace std;
 using namespace Cantera;
