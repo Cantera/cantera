@@ -830,15 +830,8 @@ env.Append(CPPPATH=[Dir('build/include/cantera'),
            F90FLAGS=[defaults.fPIC])
 
 # Put headers in place
-for header in mglob(env, 'Cantera/cxx/include', 'h'):
-    header = env.Command('build/include/cantera/%s' % header.name, header,
-                         Copy('$TARGET', '$SOURCE'))
-    buildTargets.extend(header)
-    inst = env.Install('$inst_incdir', header)
-    installTargets.extend(inst)
-
-
-inst = env.Install(pjoin('$inst_incdir', 'kernel'), config_h)
+headerBase = 'include/cantera'
+inst = env.RecursiveInstall('$inst_incdir', 'include/cantera')
 installTargets.extend(inst)
 
 
