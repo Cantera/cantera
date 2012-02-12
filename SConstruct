@@ -742,6 +742,11 @@ if env['coverage']:
         print 'Error: coverage testing is only available with GCC'
         exit(0)
 
+env['python_module_loc'] = pjoin(env['prefix'], 'lib',
+                                 'python%i.%i' % sys.version_info[:2],
+                                 'site-packages')
+
+
 # **************************************
 # *** Set options needed in config.h ***
 # **************************************
@@ -898,10 +903,6 @@ build_cantera = Alias('build', finish_build)
 Default('build')
 
 def postInstallMessage(target, source, env):
-    v = sys.version_info
-    env['python_module_loc'] = pjoin(
-        env['prefix'], 'lib', 'python%i.%i' % v[:2], 'site-packages')
-
     print """
 Cantera has been successfully installed.
 

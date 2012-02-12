@@ -8,36 +8,35 @@ class MatlabBuilder(object):
 
     def __call__(self, target, source, env):
         filenames = [os.path.split(node.path)[1] for node in source]
-        sourcestr = ' '.join(pjoin('..','src',name) for name in filenames)
+        sourcestr = ' '.join(filenames)
         includes = ' '.join('-I%s' % quoted(Dir(s).abspath) for s in env['CPPPATH'])
         libdir = ' '.join('-L%s' % quoted(Dir(s).abspath) for s in env['LIBPATH'])
         libs = ' '.join('-l'+s for s in self.libs)
         extraFlag = '-cxx' if os.name == 'posix' else ''
         debugFlag = '-g' if not env['optimize'] else ''
-        text = """
-disp('building Cantera...');
-cd cantera
-mex %(debugFlag)s %(extraFlag)s -v -output ctmethods %(include)s %(libdir)s %(libs)s %(sourcestr)s
-disp('done.');
-exit
-""" % dict(sourcestr=sourcestr,
-           extraFlag=extraFlag,
-           include=includes,
-           libdir=libdir,
-           libs=libs,
-           debugFlag=debugFlag)
+        outdir = "'%s'" % Dir('#interfaces/matlab/toolbox').abspath
+
+        text = ("disp('building Cantera...');\n"
+                "mex %(debugFlag)s %(extraFlag)s -v -output ctmethods "
+                "-outdir %(outdir)s "
+                "%(includes)s %(libdir)s "
+                "%(libs)s %(sourcestr)s\n"
+                "disp('done.');\n"
+                "exit\n") % locals()
 
         with open(str(target[0]), 'w') as f:
             f.write(text)
 
+
 localenv = env.Clone()
+localenv.Append(CPPPATH=['#include', '#src'])
 
 libs = ['clib']
 if localenv['OS'] != 'Windows':
     libs.extend(env['cantera_libs'])
 
 localenv.Command('build_cantera.m',
-                 mglob(localenv, 'src', 'cpp'),
+                 mglob(localenv, '.', 'cpp'),
                  MatlabBuilder(libs))
 
 localenv['ENV']['PATH'] = os.environ['PATH']
@@ -65,22 +64,19 @@ buildTargets.extend(target)
 ### Install the Matlab toolbox ###
 
 # 'ctpath.m'
-target = localenv.SubstFile('ctpath.m', 'ctpath.m.in')
+target = localenv.SubstFile('ctpath.m', '#interfaces/matlab/ctpath.m.in')
 buildTargets.extend(target)
 inst = localenv.Install('$inst_matlab_dir', target)
 installTargets.extend(inst)
 
 # 'cantera_demos.m'
-inst = localenv.Install('$inst_matlab_dir', 'cantera_demos.m')
+inst = localenv.Install('$inst_matlab_dir', '#samples/matlab/cantera_demos.m')
 installTargets.extend(inst)
 
-inst = localenv.RecursiveInstall('$inst_matlab_dir', 'cantera')
+inst = localenv.RecursiveInstall('$inst_matlab_dir', '#interfaces/matlab/toolbox')
 installTargets.extend(inst)
 
-inst = localenv.RecursiveInstall(pjoin('$inst_tutdir', 'matlab'), 'tutorial')
-installTargets.extend(inst)
-
-inst = localenv.RecursiveInstall(pjoin('$inst_demodir', 'matlab'), 'examples')
+inst = localenv.RecursiveInstall(pjoin('$inst_demodir', 'matlab'), '#samples/matlab')
 installTargets.extend(inst)
 
 if os.name == 'nt':
