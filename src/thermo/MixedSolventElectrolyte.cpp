@@ -409,8 +409,9 @@ void MixedSolventElectrolyte::getChemPotentials(doublereal* mu) const
 doublereal MixedSolventElectrolyte::enthalpy_mole() const
 {
     int kk = nSpecies();
-    double hbar[kk], h = 0;
-    getPartialMolarEnthalpies(hbar);
+    double h = 0;
+    vector_fp hbar(kk);
+    getPartialMolarEnthalpies(&hbar[0]);
     for (int i = 0; i < kk; i++) {
         h += moleFractions_[i]*hbar[i];
     }
@@ -421,8 +422,9 @@ doublereal MixedSolventElectrolyte::enthalpy_mole() const
 doublereal MixedSolventElectrolyte::entropy_mole() const
 {
     int kk = nSpecies();
-    double sbar[kk], s = 0;
-    getPartialMolarEntropies(sbar);
+    double s = 0;
+    vector_fp sbar(kk);
+    getPartialMolarEntropies(&sbar[0]);
     for (int i = 0; i < kk; i++) {
         s += moleFractions_[i]*sbar[i];
     }
@@ -433,8 +435,9 @@ doublereal MixedSolventElectrolyte::entropy_mole() const
 doublereal MixedSolventElectrolyte::cp_mole() const
 {
     int kk = nSpecies();
-    double cpbar[kk], cp = 0;
-    getPartialMolarCp(cpbar);
+    double cp = 0;
+    vector_fp cpbar(kk);
+    getPartialMolarCp(&cpbar[0]);
     for (int i = 0; i < kk; i++) {
         cp += moleFractions_[i]*cpbar[i];
     }
