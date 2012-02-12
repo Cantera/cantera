@@ -1259,7 +1259,7 @@ int NonlinearSolver::doAffineNewtonSolve(const doublereal* const y_curr,   const
          * Add junk to the Hessian diagonal
          *  -> Note, testing indicates that this will get too big for ill-conditioned systems.
          */
-        hcol = sqrt(neq_) * 1.0E-7 * hnorm;
+        hcol = sqrt(1.0*neq_) * 1.0E-7 * hnorm;
 #ifdef DEBUG_HKM_NOT
         if (hcol > 1.0) {
             hcol = 1.0E1;
