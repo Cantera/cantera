@@ -25,6 +25,7 @@ def numericsSetup(env, subdir, extensions):
 # (subdir, library name, (file extensions), (extra setup(env)))
 libs = [('base', 'ctbase', ['cpp'], baseSetup),
         ('thermo', 'thermo', ['cpp'], defaultSetup),
+        ('tpx', 'tpx', ['cpp'], defaultSetup),
         ('equil', 'equil', ['cpp','c'], equilSetup),
         ('converters', 'converters', ['cpp'], defaultSetup),
         ('numerics', 'ctnumerics', ['cpp'], numericsSetup),
@@ -37,17 +38,31 @@ libs = [('base', 'ctbase', ['cpp'], baseSetup),
 
 for subdir, libname, extensions, setup in libs:
     localenv = env.Clone()
-    localenv.Append(CPPPATH=Dir('../include/cantera/kernel'))
+    localenv.Append(CPPPATH=Dir('#include'))
+    localenv.Append(CPPPATH=Dir('#src')) # todo: remove when not needed
     source = setup(localenv, subdir, extensions)
-    for header in mglob(localenv, subdir, 'h'):
-        h = localenv.Command('../include/cantera/kernel/%s' % header.name, header,
-                             Copy('$TARGET', '$SOURCE'))
-        buildTargets.extend(h)
-        inst = localenv.Install(pjoin('$inst_incdir', 'kernel'), h)
-        installTargets.extend(inst)
 
-    lib = localenv.Library(pjoin('../lib', libname),
-                           source=source)
+    lib = localenv.Library(pjoin('../lib', libname), source=source)
+    localenv.Depends(lib, localenv['config_h_target'])
     inst = localenv.Install('$inst_libdir', lib)
     buildTargets.extend(lib)
     installTargets.extend(inst)
+
+# clib is a bit different
+localenv = env.Clone()
+source = defaultSetup(localenv, 'clib', ['cpp'])
+localenv.Append(CPPPATH=[Dir('#include'), Dir('#src')])
+
+if env['OS'] == 'Windows':
+    lib = localenv.SharedLibrary(pjoin('../lib', 'clib'),
+                                 source=source,
+                                 LIBS=localenv['cantera_libs'])
+    env['clib_shared'] = lib
+else:
+    lib = localenv.Library(pjoin('../lib', 'clib'),
+                           source=source)
+
+localenv.Depends(lib, localenv['config_h_target'])
+inst = localenv.Install('$inst_libdir', lib)
+buildTargets.extend(lib)
+installTargets.extend(inst)

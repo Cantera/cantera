@@ -42,8 +42,7 @@ def prep_gtest(env):
     return localenv
 
 # (subdir, library name, (file extensions), prepfunction)
-libs = [('tpx','tpx',['cpp'],prep_default),
-        ('gtest/src','gtest',['^gtest-all.cc'], prep_gtest)]
+libs = [('gtest/src','gtest',['^gtest-all.cc'], prep_gtest)]
 
 if env['build_with_f2c']:
     libs.append(('f2c_math', 'ctmath', ['cpp','c'], prep_f2c))

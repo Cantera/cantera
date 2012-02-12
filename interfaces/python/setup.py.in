@@ -15,11 +15,10 @@ if '@python_package@' == 'full':
           author="Prof. D. G. Goodwin, Caltech",
           author_email="dgoodwin@caltech.edu",
           url="http://code.google.com/p/cantera",
-          package_dir = {'MixMaster':'../../apps/MixMaster'},
           packages = ["","Cantera","Cantera.OneD",
                       "MixMaster","MixMaster.Units"],
           package_data = {'Cantera': dataFiles},
-          ext_modules=[Extension('_spam', ['src/spam.c'])])
+          ext_modules=[Extension('_spam', ['../../src/python/spam.c'])])
 
 elif '@python_package@' == 'minimal':
     setup(name="Cantera CTI File Processor",

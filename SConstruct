@@ -805,10 +805,11 @@ if not env['HAS_MATH_H_ERF']:
 else:
     configh['USE_BOOST_MATH'] = None
 
-config_h = env.Command('build/include/cantera/kernel/config.h',
-                       'Cantera/src/base/config.h.in',
+config_h = env.Command('include/cantera/base/config.h',
+                       'include/cantera/base/config.h.in',
                        ConfigBuilder(configh))
 env.AlwaysBuild(config_h)
+env['config_h_target'] = config_h
 
 # *********************
 # *** Build Cantera ***
@@ -836,14 +837,6 @@ for header in mglob(env, 'Cantera/cxx/include', 'h'):
     inst = env.Install('$inst_incdir', header)
     installTargets.extend(inst)
 
-env['clib_header_targets'] = []
-for header in mglob(env, 'Cantera/clib/src', 'h'):
-    hcopy = env.Command('build/include/cantera/clib/%s' % header.name, header,
-                        Copy('$TARGET', '$SOURCE'))
-    buildTargets.append(header)
-    inst = env.Install(pjoin('$inst_incdir','clib'), header)
-    installTargets.extend(inst)
-    env['clib_header_targets'].append(hcopy)
 
 inst = env.Install(pjoin('$inst_incdir', 'kernel'), config_h)
 installTargets.extend(inst)
@@ -874,27 +867,24 @@ Export('env', 'buildDir', 'buildTargets', 'installTargets', 'demoTargets')
 VariantDir('build/ext', 'ext', duplicate=0)
 SConscript('build/ext/SConscript')
 
-VariantDir('build/kernel', 'Cantera/src', duplicate=0)
-SConscript('build/kernel/SConscript')
-
-VariantDir('build/interfaces/clib', 'Cantera/clib', duplicate=0)
-SConscript('build/interfaces/clib/SConscript')
-
-VariantDir('build/interfaces/cxx', 'Cantera/cxx', duplicate=0)
-SConscript('build/interfaces/cxx/SConscript')
+VariantDir('build/src', 'src', duplicate=0)
+SConscript('build/src/SConscript')
 
 if env['f90_interface'] == 'y':
-    VariantDir('build/interfaces/fortran/', 'Cantera/fortran', duplicate=1)
-    SConscript('build/interfaces/fortran/SConscript')
+    VariantDir('build/fortran/', 'src/fortran', duplicate=1)
+    SConscript('build/src/fortran/SConscript')
 
 if env['python_package'] in ('full','minimal'):
-    SConscript('Cantera/python/SConscript')
+    SConscript('src/python/SConscript')
 
 if env['matlab_toolbox'] == 'y':
-    SConscript('Cantera/matlab/SConscript')
+    SConscript('src/matlab/SConscript')
 
-VariantDir('build/tools', 'tools', duplicate=0)
-SConscript('build/tools/SConscript')
+SConscript('build/src/apps/SConscript')
+
+if env['OS'] != 'Windows':
+    VariantDir('build/platform', 'platform/posix', duplicate=0)
+    SConscript('build/platform/SConscript')
 
 # Data files
 inst = env.Install('$inst_datadir', mglob(env, pjoin('data','inputs'), 'cti', 'xml'))
