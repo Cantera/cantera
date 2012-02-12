@@ -4,10 +4,10 @@
  */
 // Copyright 2007  Sandia National Laboratories
 
-#include "SpeciesThermoInterpType.h"
-#include "VPSSMgr.h"
-#include "PDSS.h"
-#include "ctexceptions.h"
+#include "cantera/thermo/SpeciesThermoInterpType.h"
+#include "cantera/thermo/VPSSMgr.h"
+#include "cantera/thermo/PDSS.h"
+#include "cantera/base/ctexceptions.h"
 
 namespace Cantera
 {

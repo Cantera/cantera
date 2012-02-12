@@ -4,9 +4,9 @@
 #include <string.h>
 #include <iostream>
 
-#include <cantera/clib/ct.h>
-#include <cantera/clib/ctonedim.h>
-#include <cantera/clib/ctxml.h>
+#include <clib/ct.h>
+#include <clib/ctonedim.h>
+#include <clib/ctxml.h>
 #include "ctmatutils.h"
 
 using namespace std;

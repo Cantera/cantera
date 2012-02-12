@@ -5,8 +5,8 @@
  */
 //  Copyright 2001  California Institute of Technology
 
-#include "Constituents.h"
-#include "Elements.h"
+#include "cantera/thermo/Constituents.h"
+#include "cantera/thermo/Elements.h"
 using namespace std;
 
 namespace Cantera

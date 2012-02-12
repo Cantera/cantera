@@ -16,7 +16,7 @@
  */
 
 #include "TortuosityBruggeman.h"
-#include "ctexceptions.h"
+#include "cantera/base/ctexceptions.h"
 
 #include <string>
 

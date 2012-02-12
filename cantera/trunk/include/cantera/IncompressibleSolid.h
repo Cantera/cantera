@@ -3,8 +3,8 @@
 
 #include <string>
 
-#include "kernel/ConstDensityThermo.h"
-#include "kernel/importKinetics.h"
+#include "thermo/ConstDensityThermo.h"
+#include "kinetics/importKinetics.h"
 
 namespace Cantera
 {

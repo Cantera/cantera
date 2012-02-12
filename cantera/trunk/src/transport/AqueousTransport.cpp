@@ -3,15 +3,15 @@
  *  Transport properties for aqueous systems
  */
 
-#include "ThermoPhase.h"
-#include "AqueousTransport.h"
+#include "cantera/thermo/ThermoPhase.h"
+#include "cantera/transport/AqueousTransport.h"
 
-#include "utilities.h"
-#include "TransportParams.h"
-#include "LiquidTransportParams.h"
-#include "TransportFactory.h"
+#include "cantera/base/utilities.h"
+#include "cantera/transport/TransportParams.h"
+#include "cantera/transport/LiquidTransportParams.h"
+#include "cantera/transport/TransportFactory.h"
 
-#include "ctlapack.h"
+#include "cantera/numerics/ctlapack.h"
 
 #include <iostream>
 using namespace std;

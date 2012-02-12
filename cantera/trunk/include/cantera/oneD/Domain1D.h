@@ -9,9 +9,9 @@
 #define CT_DOMAIN1D_H
 
 
-#include "xml.h"
-#include "stringUtils.h"
-#include "ctexceptions.h"
+#include "cantera/base/xml.h"
+#include "cantera/base/stringUtils.h"
+#include "cantera/base/ctexceptions.h"
 #include "refine.h"
 
 

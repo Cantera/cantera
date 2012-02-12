@@ -10,7 +10,7 @@
 #ifndef CKR_DEFS_H
 #define CKR_DEFS_H
 
-//#include "config.h"
+//#include "cantera/base/config.h"
 #include <string>
 #include <iostream>
 #include <vector>

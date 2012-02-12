@@ -1,8 +1,8 @@
-#include "MultiJac.h"
-#include "MultiNewton.h"
-#include "OneDim.h"
+#include "cantera/oneD/MultiJac.h"
+#include "cantera/oneD/MultiNewton.h"
+#include "cantera/oneD/OneDim.h"
 
-#include "ctml.h"
+#include "cantera/base/ctml.h"
 using namespace ctml;
 using namespace std;
 

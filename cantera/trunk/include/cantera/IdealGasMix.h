@@ -3,10 +3,10 @@
 
 #include <string>
 
-#include "kernel/IdealGasPhase.h"
-#include "kernel/GasKinetics.h"
-#include "kernel/importKinetics.h"
-#include "kernel/stringUtils.h"
+#include "thermo/IdealGasPhase.h"
+#include "kinetics/GasKinetics.h"
+#include "kinetics/importKinetics.h"
+#include "base/stringUtils.h"
 
 namespace Cantera
 {

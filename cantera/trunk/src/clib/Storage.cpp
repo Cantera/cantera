@@ -2,8 +2,8 @@
  * @file Storage.cpp
  */
 // Cantera includes
-#include "kernel/Kinetics.h"
-#include "kernel/TransportFactory.h"
+#include "cantera/kinetics/Kinetics.h"
+#include "cantera/transport/TransportFactory.h"
 
 #include "Storage.h"
 

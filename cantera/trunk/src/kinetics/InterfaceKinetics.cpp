@@ -5,12 +5,12 @@
 
 // Copyright 2002  California Institute of Technology
 
-#include "InterfaceKinetics.h"
-#include "EdgeKinetics.h"
-#include "SurfPhase.h"
+#include "cantera/kinetics/InterfaceKinetics.h"
+#include "cantera/kinetics/EdgeKinetics.h"
+#include "cantera/thermo/SurfPhase.h"
 
 #include "ReactionData.h"
-#include "RateCoeffMgr.h"
+#include "cantera/kinetics/RateCoeffMgr.h"
 
 #include "ImplicitSurfChem.h"
 

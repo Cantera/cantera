@@ -17,7 +17,7 @@
 
 #ifndef CT_NASA9POLY1_H
 #define CT_NASA9POLY1_H
-#include "global.h"
+#include "cantera/base/global.h"
 #include "SpeciesThermoInterpType.h"
 
 namespace Cantera

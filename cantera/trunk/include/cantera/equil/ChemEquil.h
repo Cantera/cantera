@@ -13,11 +13,11 @@
 
 
 // Cantera includes
-#include "ct_defs.h"
-#include "vec_functions.h"
-#include "ctexceptions.h"
-#include "ThermoPhase.h"
-#include "DenseMatrix.h"
+#include "cantera/base/ct_defs.h"
+#include "cantera/base/vec_functions.h"
+#include "cantera/base/ctexceptions.h"
+#include "cantera/thermo/ThermoPhase.h"
+#include "cantera/numerics/DenseMatrix.h"
 
 #include "MultiPhaseEquil.h"
 

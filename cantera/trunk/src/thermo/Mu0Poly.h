@@ -8,7 +8,7 @@
 #ifndef CT_MU0POLY_H
 #define CT_MU0POLY_H
 
-#include "SpeciesThermoInterpType.h"
+#include "cantera/thermo/SpeciesThermoInterpType.h"
 
 namespace Cantera
 {

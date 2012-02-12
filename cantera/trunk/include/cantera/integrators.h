@@ -5,8 +5,8 @@
 #ifndef CT_INTEG_H_INCL
 #define CT_INTEG_H_INCL
 
-#include "kernel/Integrator.h"
-#include "kernel/DAE_Solver.h"
-#include "kernel/IDA_Solver.h"
+#include "numerics/Integrator.h"
+#include "numerics/DAE_Solver.h"
+#include "numerics/IDA_Solver.h"
 
 #endif

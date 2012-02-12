@@ -7,9 +7,9 @@
 #include "clib_defs.h"
 
 #ifdef CANTERA_USE_INTERNAL
-#include "kernel/config.h"
+#include "cantera/base/config.h"
 #else
-#include "cantera/kernel/config.h"
+#include "cantera/base/config.h"
 #endif
 
 extern "C" {

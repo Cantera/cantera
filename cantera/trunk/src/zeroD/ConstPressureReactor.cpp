@@ -6,11 +6,11 @@
 
 // Copyright 2001  California Institute of Technology
 
-#include "ConstPressureReactor.h"
-#include "FlowDevice.h"
-#include "Wall.h"
-#include "InterfaceKinetics.h"
-#include "SurfPhase.h"
+#include "cantera/zeroD/ConstPressureReactor.h"
+#include "cantera/zeroD/FlowDevice.h"
+#include "cantera/zeroD/Wall.h"
+#include "cantera/kinetics/InterfaceKinetics.h"
+#include "cantera/thermo/SurfPhase.h"
 
 using namespace std;
 

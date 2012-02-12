@@ -11,9 +11,9 @@
  * U.S. Government retains certain rights in this software.
  */
 
-#include "AqueousKinetics.h"
+#include "cantera/kinetics/AqueousKinetics.h"
 #include "ReactionData.h"
-#include "RateCoeffMgr.h"
+#include "cantera/kinetics/RateCoeffMgr.h"
 
 #include <iostream>
 using namespace std;

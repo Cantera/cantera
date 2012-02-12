@@ -14,10 +14,10 @@
 #define SOLVESP_H
 
 #include "ImplicitSurfChem.h"
-#include "InterfaceKinetics.h"
+#include "cantera/kinetics/InterfaceKinetics.h"
 
 #include <vector>
-#include "Array.h"
+#include "cantera/base/Array.h"
 
 //! Solution Methods
 /*!

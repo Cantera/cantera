@@ -11,7 +11,7 @@
 #undef NO_FTN_STRING_LEN_AT_END
 #endif
 
-#include "ct_defs.h"
+#include "cantera/base/ct_defs.h"
 
 typedef double doublereal;
 typedef int     integer;

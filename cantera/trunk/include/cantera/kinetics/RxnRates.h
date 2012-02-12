@@ -9,7 +9,7 @@
 #define CT_RXNRATES_H
 
 #include "reaction_defs.h"
-#include "ctexceptions.h"
+#include "cantera/base/ctexceptions.h"
 
 namespace Cantera
 {

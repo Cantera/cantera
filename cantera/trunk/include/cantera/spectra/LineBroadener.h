@@ -4,8 +4,8 @@
  * @ingroup spectroscopy
  */
 
-#include "ct_defs.h"
-#include "ctexceptions.h"
+#include "cantera/base/ct_defs.h"
+#include "cantera/base/ctexceptions.h"
 
 namespace Cantera
 {

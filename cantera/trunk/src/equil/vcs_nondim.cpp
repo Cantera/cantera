@@ -11,7 +11,7 @@
 #include "vcs_solve.h"
 #include "vcs_internal.h"
 #include "vcs_VolPhase.h"
-#include "stringUtils.h"
+#include "cantera/base/stringUtils.h"
 
 #include <cstdio>
 #include <cstdlib>

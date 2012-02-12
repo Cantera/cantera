@@ -1,9 +1,9 @@
 
-#include "Wall.h"
-#include "ReactorBase.h"
-#include "Func1.h"
-#include "InterfaceKinetics.h"
-#include "SurfPhase.h"
+#include "cantera/zeroD/Wall.h"
+#include "cantera/zeroD/ReactorBase.h"
+#include "cantera/numerics/Func1.h"
+#include "cantera/kinetics/InterfaceKinetics.h"
+#include "cantera/thermo/SurfPhase.h"
 
 using namespace std;
 using namespace Cantera;

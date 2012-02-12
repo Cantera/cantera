@@ -12,9 +12,9 @@
 #ifndef CT_SPECIESTHERMO_MGR_H
 #define CT_SPECIESTHERMO_MGR_H
 
-#include "ct_defs.h"
-#include "ctexceptions.h"
-#include "stringUtils.h"
+#include "cantera/base/ct_defs.h"
+#include "cantera/base/ctexceptions.h"
+#include "cantera/base/stringUtils.h"
 #include "SpeciesThermo.h"
 #include <map>
 

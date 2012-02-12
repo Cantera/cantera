@@ -8,7 +8,7 @@
 #define CT_REACTOR_H
 
 #include "ReactorBase.h"
-#include "Kinetics.h"
+#include "cantera/kinetics/Kinetics.h"
 
 namespace Cantera
 {

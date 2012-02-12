@@ -17,10 +17,10 @@
 #define MAX(x,y)    (( (x) > (y) ) ? (x) : (y))
 #endif
 
-#include "DebyeHuckel.h"
-#include "ThermoFactory.h"
-#include "WaterProps.h"
-#include "PDSS_Water.h"
+#include "cantera/thermo/DebyeHuckel.h"
+#include "cantera/thermo/ThermoFactory.h"
+#include "cantera/thermo/WaterProps.h"
+#include "cantera/thermo/PDSS_Water.h"
 #include <cstring>
 #include <cstdlib>
 

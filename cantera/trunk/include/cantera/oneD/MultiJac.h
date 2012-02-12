@@ -9,7 +9,7 @@
 #ifndef CT_MULTIJAC_H
 #define CT_MULTIJAC_H
 
-#include "BandMatrix.h"
+#include "cantera/numerics/BandMatrix.h"
 #include "OneDim.h"
 #include "time.h"
 

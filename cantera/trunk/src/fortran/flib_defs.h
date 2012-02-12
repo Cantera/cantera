@@ -14,7 +14,7 @@
 #define ERR -999
 #define DERR -999.999
 
-#include "kernel/config.h"
+#include "cantera/base/config.h"
 
 typedef integer status_t;
 

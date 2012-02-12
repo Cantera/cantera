@@ -8,7 +8,7 @@
 
 // reaction path analysis support
 
-#include "Group.h"
+#include "cantera/kinetics/Group.h"
 
 #include <algorithm>
 #include <cmath>

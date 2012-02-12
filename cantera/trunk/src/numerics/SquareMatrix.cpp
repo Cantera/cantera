@@ -13,11 +13,11 @@
  * See file License.txt for licensing information.
  */
 
-#include "ct_defs.h"
-#include "stringUtils.h"
-#include "ctlapack.h"
-#include "SquareMatrix.h"
-#include "global.h"
+#include "cantera/base/ct_defs.h"
+#include "cantera/base/stringUtils.h"
+#include "cantera/numerics/ctlapack.h"
+#include "cantera/numerics/SquareMatrix.h"
+#include "cantera/base/global.h"
 
 #include <iostream>
 #include <vector>

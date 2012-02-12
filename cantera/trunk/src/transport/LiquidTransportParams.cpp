@@ -9,10 +9,10 @@
  *  $Revision$
  */
 
-#include "LiquidTransportParams.h"
+#include "cantera/transport/LiquidTransportParams.h"
 #include <iostream>
-#include "IonsFromNeutralVPSSTP.h"
-#include "MargulesVPSSTP.h"
+#include "cantera/thermo/IonsFromNeutralVPSSTP.h"
+#include "cantera/thermo/MargulesVPSSTP.h"
 #include <stdlib.h>
 using namespace std;
 

@@ -10,7 +10,7 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-#include "SingleSpeciesTP.h"
+#include "cantera/thermo/SingleSpeciesTP.h"
 
 using namespace std;
 

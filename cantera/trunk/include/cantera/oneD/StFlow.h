@@ -7,12 +7,12 @@
 #ifndef CT_STFLOW_H
 #define CT_STFLOW_H
 
-#include "TransportBase.h"
+#include "cantera/transport/TransportBase.h"
 #include "Domain1D.h"
-#include "Array.h"
-#include "IdealGasPhase.h"
-#include "Kinetics.h"
-#include "funcs.h"
+#include "cantera/base/Array.h"
+#include "cantera/thermo/IdealGasPhase.h"
+#include "cantera/kinetics/Kinetics.h"
+#include "cantera/numerics/funcs.h"
 //#include "../flowBoundaries.h"
 
 

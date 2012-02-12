@@ -22,7 +22,7 @@ using namespace std;
 #include <cstdio>
 #include "ckr_defs.h"
 
-//#include "global.h"
+//#include "cantera/base/global.h"
 //#define APP Cantera::Application
 
 namespace ckr

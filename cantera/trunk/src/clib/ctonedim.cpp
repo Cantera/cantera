@@ -6,11 +6,11 @@
 #include "ctonedim.h"
 
 // Cantera includes
-#include "kernel/config.h"
-#include "kernel/Sim1D.h"
-#include "kernel/StFlow.h"
-#include "kernel/Inlet1D.h"
-#include "kernel/DenseMatrix.h"
+#include "cantera/base/config.h"
+#include "cantera/oneD/Sim1D.h"
+#include "cantera/oneD/StFlow.h"
+#include "cantera/oneD/Inlet1D.h"
+#include "cantera/numerics/DenseMatrix.h"
 
 // local includes
 #include "Cabinet.h"

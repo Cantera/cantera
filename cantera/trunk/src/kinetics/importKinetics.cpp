@@ -11,26 +11,26 @@
  */
 // Copyright 2002  California Institute of Technology
 
-#include "importKinetics.h"
-#include "mix_defs.h"
+#include "cantera/kinetics/importKinetics.h"
+#include "cantera/thermo/mix_defs.h"
 #include <time.h>
 #include <memory>
 
 //   Cantera includes
-#include "speciesThermoTypes.h"
-#include "ThermoPhase.h"
-#include "SurfPhase.h"
-#include "EdgePhase.h"
-#include "ThermoFactory.h"
-#include "SpeciesThermoFactory.h"
-#include "KineticsFactory.h"
-#include "reaction_defs.h"
+#include "cantera/thermo/speciesThermoTypes.h"
+#include "cantera/thermo/ThermoPhase.h"
+#include "cantera/thermo/SurfPhase.h"
+#include "cantera/thermo/EdgePhase.h"
+#include "cantera/thermo/ThermoFactory.h"
+#include "cantera/thermo/SpeciesThermoFactory.h"
+#include "cantera/kinetics/KineticsFactory.h"
+#include "cantera/kinetics/reaction_defs.h"
 #include "ReactionData.h"
-#include "global.h"
-#include "stringUtils.h"
+#include "cantera/base/global.h"
+#include "cantera/base/stringUtils.h"
 
-#include "xml.h"
-#include "ctml.h"
+#include "cantera/base/xml.h"
+#include "cantera/base/ctml.h"
 
 #include <cstdlib>
 

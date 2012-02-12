@@ -10,7 +10,7 @@
  * retains certain rights in this software.
  */
 
-#include "IdealSolidSolnPhase.h"
+#include "cantera/thermo/IdealSolidSolnPhase.h"
 #include <iostream>
 using namespace std;
 

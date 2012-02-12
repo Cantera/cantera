@@ -1,5 +1,5 @@
 #include "subs.h"
-#include "utils.h"
+#include "cantera/tpx/utils.h"
 
 using std::string;
 

@@ -4,10 +4,10 @@
  */
 
 // Copyright 2001  California Institute of Technology
-#include "config.h"
+#include "cantera/base/config.h"
 
 #include "CVodesIntegrator.h"
-#include "stringUtils.h"
+#include "cantera/base/stringUtils.h"
 
 #include <iostream>
 using namespace std;

@@ -12,7 +12,7 @@
 #include "vcs_internal.h"
 #include "vcs_VolPhase.h"
 
-#include "clockWC.h"
+#include "cantera/base/clockWC.h"
 
 #include <cstdio>
 #include <cstdlib>

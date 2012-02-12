@@ -6,9 +6,9 @@
 #include "ctsurf.h"
 
 // Cantera includes
-#include "kernel/SurfPhase.h"
-#include "kernel/InterfaceKinetics.h"
-#include "kernel/ImplicitSurfChem.h"
+#include "cantera/thermo/SurfPhase.h"
+#include "cantera/kinetics/InterfaceKinetics.h"
+#include "kinetics/ImplicitSurfChem.h"
 
 #include "Cabinet.h"
 #include "Storage.h"

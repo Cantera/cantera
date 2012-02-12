@@ -13,9 +13,9 @@
 
 #include "State.h"
 #include "Constituents.h"
-#include "vec_functions.h"
+#include "cantera/base/vec_functions.h"
 
-#include "ctml.h"
+#include "cantera/base/ctml.h"
 
 namespace Cantera
 {

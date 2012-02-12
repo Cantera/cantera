@@ -2,8 +2,8 @@
  *  @file newton_utils.cpp
  */
 
-#include "ct_defs.h"
-#include "Domain1D.h"
+#include "cantera/base/ct_defs.h"
+#include "cantera/oneD/Domain1D.h"
 
 using namespace std;
 

@@ -1,8 +1,8 @@
 #include <map>
 #include <algorithm>
-#include "Domain1D.h"
+#include "cantera/oneD/Domain1D.h"
 
-#include "refine.h"
+#include "cantera/oneD/refine.h"
 
 using namespace std;
 

@@ -1,7 +1,7 @@
 #ifndef TPX_METHANE_H
 #define TPX_METHANE_H
 
-#include "Sub.h"
+#include "cantera/tpx/Sub.h"
 
 namespace tpx
 {

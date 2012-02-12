@@ -2,8 +2,8 @@
 #include <string>
 
 #include "ctmatutils.h"
-#include <cantera/clib/ctsurf.h>
-#include <cantera/clib/ct.h>
+#include <clib/ctsurf.h>
+#include <clib/ct.h>
 
 using namespace std;
 

@@ -7,8 +7,8 @@
 #ifndef CT_LMATRIX_H
 #define CT_LMATRIX_H
 
-#include "DenseMatrix.h"
-#include "ct_defs.h"
+#include "cantera/numerics/DenseMatrix.h"
+#include "cantera/base/ct_defs.h"
 
 #include <vector>
 

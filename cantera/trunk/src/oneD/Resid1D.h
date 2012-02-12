@@ -15,9 +15,9 @@
 /*
  *   NOTE: I don't think this file is used any longer. Thus, this is deprecated.
  */
-#include "../ctexceptions.h"
-#include "../xml.h"
-#include "refine.h"
+#include "cantera/base/ctexceptions.h"
+#include "cantera/base/xml.h"
+#include "cantera/oneD/refine.h"
 
 
 namespace Cantera

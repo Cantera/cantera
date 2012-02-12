@@ -10,10 +10,10 @@
  *  See file License.txt for licensing information
  */
 
-#include "utilities.h"
-#include "ctexceptions.h"
-#include "stringUtils.h"
-#include "State.h"
+#include "cantera/base/utilities.h"
+#include "cantera/base/ctexceptions.h"
+#include "cantera/base/stringUtils.h"
+#include "cantera/thermo/State.h"
 
 //#ifdef DARWIN
 //#include <Accelerate.h>

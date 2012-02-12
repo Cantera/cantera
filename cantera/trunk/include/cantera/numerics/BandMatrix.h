@@ -11,10 +11,10 @@
 #ifndef CT_BANDMATRIX_H
 #define CT_BANDMATRIX_H
 
-#include "ct_defs.h"
+#include "cantera/base/ct_defs.h"
 #include "ctlapack.h"
-#include "utilities.h"
-#include "ctexceptions.h"
+#include "cantera/base/utilities.h"
+#include "cantera/base/ctexceptions.h"
 #include "GeneralMatrix.h"
 
 namespace Cantera

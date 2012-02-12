@@ -13,7 +13,7 @@
 #ifndef CT_SHOMATEPOLY1_H
 #define CT_SHOMATEPOLY1_H
 
-#include "SpeciesThermoInterpType.h"
+#include "cantera/thermo/SpeciesThermoInterpType.h"
 
 namespace Cantera
 {

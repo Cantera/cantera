@@ -12,17 +12,17 @@
  * U.S. Government retains certain rights in this software.
  */
 
-#include "VPSSMgr_General.h"
-#include "PDSS.h"
-#include "xml.h"
-#include "ctml.h"
-#include "PDSS_IdealGas.h"
-#include "PDSS_Water.h"
-#include "PDSS_ConstVol.h"
-#include "PDSS_SSVol.h"
-#include "PDSS_HKFT.h"
-#include "PDSS_IonsFromNeutral.h"
-#include "GeneralSpeciesThermo.h"
+#include "cantera/thermo/VPSSMgr_General.h"
+#include "cantera/thermo/PDSS.h"
+#include "cantera/base/xml.h"
+#include "cantera/base/ctml.h"
+#include "cantera/thermo/PDSS_IdealGas.h"
+#include "cantera/thermo/PDSS_Water.h"
+#include "cantera/thermo/PDSS_ConstVol.h"
+#include "cantera/thermo/PDSS_SSVol.h"
+#include "cantera/thermo/PDSS_HKFT.h"
+#include "cantera/thermo/PDSS_IonsFromNeutral.h"
+#include "cantera/thermo/GeneralSpeciesThermo.h"
 
 using namespace std;
 

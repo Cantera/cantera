@@ -9,9 +9,9 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-#include "WaterPropsIAPWS.h"
-#include "ctexceptions.h"
-#include "stringUtils.h"
+#include "cantera/thermo/WaterPropsIAPWS.h"
+#include "cantera/base/ctexceptions.h"
+#include "cantera/base/stringUtils.h"
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>

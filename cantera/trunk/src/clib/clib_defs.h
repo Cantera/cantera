@@ -4,7 +4,7 @@
 #ifndef CTC_DEFS_H
 #define CTC_DEFS_H
 
-#include "kernel/ct_defs.h"
+#include "cantera/base/ct_defs.h"
 
 #ifdef _WIN32
 //   Either build as a DLL under Windows or  not.

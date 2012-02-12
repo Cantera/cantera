@@ -4,10 +4,10 @@
 // Copyright 2001  California Institute of Technology */
 
 #include "MMCollisionInt.h"
-#include "utilities.h"
-#include "polyfit.h"
-#include "xml.h"
-#include "XML_Writer.h"
+#include "cantera/base/utilities.h"
+#include "cantera/numerics/polyfit.h"
+#include "cantera/base/xml.h"
+#include "cantera/base/XML_Writer.h"
 
 #include <cstdio>
 

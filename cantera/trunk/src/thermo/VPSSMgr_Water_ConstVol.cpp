@@ -14,10 +14,10 @@
  * U.S. Government retains certain rights in this software.
  */
 
-#include "VPSSMgr_Water_ConstVol.h"
-#include "PDSS_Water.h"
-#include "PDSS_ConstVol.h"
-#include "GeneralSpeciesThermo.h"
+#include "cantera/thermo/VPSSMgr_Water_ConstVol.h"
+#include "cantera/thermo/PDSS_Water.h"
+#include "cantera/thermo/PDSS_ConstVol.h"
+#include "cantera/thermo/GeneralSpeciesThermo.h"
 
 using namespace std;
 

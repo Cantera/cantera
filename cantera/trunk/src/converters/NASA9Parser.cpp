@@ -15,7 +15,7 @@
 #include "ckr_utils.h"
 #include "writelog.h"
 #include <stdio.h>
-//#include "../stringUtils.h"
+//#include "cantera/base/stringUtils.h"
 
 #include <ctype.h>
 #include <string>

@@ -16,8 +16,8 @@
 // Copyright 2007  Sandia National Laboratories
 
 
-#include "global.h"
-#include "Nasa9Poly1.h"
+#include "cantera/base/global.h"
+#include "cantera/thermo/Nasa9Poly1.h"
 
 namespace Cantera
 {

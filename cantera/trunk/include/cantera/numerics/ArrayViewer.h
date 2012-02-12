@@ -9,10 +9,10 @@
 #ifndef CT_ARRAYVIEWER_H
 #define CT_ARRAYVIEWER_H
 
-#include "ct_defs.h"
-#include "ctexceptions.h"
-#include "stringUtils.h"
-#include "utilities.h"
+#include "cantera/base/ct_defs.h"
+#include "cantera/base/ctexceptions.h"
+#include "cantera/base/stringUtils.h"
+#include "cantera/base/utilities.h"
 
 namespace Cantera
 {

@@ -6,14 +6,14 @@
 
 // Copyright 2001  California Institute of Technology
 
-#include "GRI_30_Kinetics.h"
+#include "cantera/kinetics/GRI_30_Kinetics.h"
 
 #include "ReactionData.h"
 //#include "StoichManager.h"
-#include "Enhanced3BConc.h"
-#include "ThirdBodyMgr.h"
-#include "RateCoeffMgr.h"
-#include "IdealGasPhase.h"
+#include "cantera/kinetics/Enhanced3BConc.h"
+#include "cantera/kinetics/ThirdBodyMgr.h"
+#include "cantera/kinetics/RateCoeffMgr.h"
+#include "cantera/thermo/IdealGasPhase.h"
 
 #include <iostream>
 using namespace std;

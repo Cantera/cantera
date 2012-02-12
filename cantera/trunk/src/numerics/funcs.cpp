@@ -12,12 +12,12 @@
 
 using namespace std;
 
-#include "ctlapack.h"
-#include "ct_defs.h"
-#include "ctexceptions.h"
-#include "stringUtils.h"
-#include "funcs.h"
-#include "polyfit.h"
+#include "cantera/numerics/ctlapack.h"
+#include "cantera/base/ct_defs.h"
+#include "cantera/base/ctexceptions.h"
+#include "cantera/base/stringUtils.h"
+#include "cantera/numerics/funcs.h"
+#include "cantera/numerics/polyfit.h"
 
 #ifndef FTN_TRAILING_UNDERSCORE
 #define _DPOLFT_ dpolft

@@ -13,10 +13,10 @@
 #ifndef VPSSSPECIESTHERMO_FACTORY_H
 #define VPSSSPECIESTHERMO_FACTORY_H
 
-#include "SpeciesThermo.h"
-#include "ctexceptions.h"
-#include "FactoryBase.h"
-#include "VPSSMgr.h"
+#include "cantera/thermo/SpeciesThermo.h"
+#include "cantera/base/ctexceptions.h"
+#include "cantera/base/FactoryBase.h"
+#include "cantera/thermo/VPSSMgr.h"
 
 namespace Cantera
 {

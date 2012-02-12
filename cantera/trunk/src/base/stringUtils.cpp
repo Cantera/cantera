@@ -6,7 +6,7 @@
 // Copyright 2001  California Institute of Technology
 
 //@{
-#include "ct_defs.h"
+#include "cantera/base/ct_defs.h"
 
 #ifdef _MSC_VER
 #define SNPRINTF _snprintf
@@ -15,10 +15,10 @@
 #endif
 //@}
 
-#include "stringUtils.h"
-#include "ctexceptions.h"
-#include "global.h"
-#include "ctml.h"
+#include "cantera/base/stringUtils.h"
+#include "cantera/base/ctexceptions.h"
+#include "cantera/base/global.h"
+#include "cantera/base/ctml.h"
 
 #include <string>
 

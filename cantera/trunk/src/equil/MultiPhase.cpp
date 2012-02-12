@@ -3,13 +3,13 @@
  * Definitions for the \link Cantera::MultiPhase MultiPhase\endlink
  * object that is used to set up multiphase equilibrium problems (see \ref equilfunctions).
  */
-#include "MultiPhase.h"
-#include "MultiPhaseEquil.h"
+#include "cantera/equil/MultiPhase.h"
+#include "cantera/equil/MultiPhaseEquil.h"
 
-#include "ThermoPhase.h"
-#include "DenseMatrix.h"
-#include "stringUtils.h"
-#include "global.h"
+#include "cantera/thermo/ThermoPhase.h"
+#include "cantera/numerics/DenseMatrix.h"
+#include "cantera/base/stringUtils.h"
+#include "cantera/base/global.h"
 
 using namespace std;
 

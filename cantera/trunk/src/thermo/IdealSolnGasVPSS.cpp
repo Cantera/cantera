@@ -12,11 +12,11 @@
  * U.S. Government retains certain rights in this software.
  */
 
-#include "IdealSolnGasVPSS.h"
-#include "VPSSMgr.h"
-#include "PDSS.h"
-#include "mix_defs.h"
-#include "ThermoFactory.h"
+#include "cantera/thermo/IdealSolnGasVPSS.h"
+#include "cantera/thermo/VPSSMgr.h"
+#include "cantera/thermo/PDSS.h"
+#include "cantera/thermo/mix_defs.h"
+#include "cantera/thermo/ThermoFactory.h"
 
 using namespace std;
 

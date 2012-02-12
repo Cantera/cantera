@@ -13,7 +13,7 @@
 #ifndef CT_NASAPOLY2_H
 #define CT_NASAPOLY2_H
 
-#include "SpeciesThermoInterpType.h"
+#include "cantera/thermo/SpeciesThermoInterpType.h"
 
 namespace Cantera
 {

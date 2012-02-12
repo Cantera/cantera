@@ -18,7 +18,7 @@
 #include "vcs_VolPhase.h"
 #include "vcs_species_thermo.h"
 
-#include "clockWC.h"
+#include "cantera/base/clockWC.h"
 
 using namespace std;
 

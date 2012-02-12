@@ -7,25 +7,25 @@
 #ifndef CANTERA_H_INCL
 #define CANTERA_H_INCL
 
-#include "kernel/ct_defs.h"
+#include "base/ct_defs.h"
 
 // some useful functions
-#include "kernel/global.h"
+#include "base/global.h"
 
 // the CanteraError exception class
-#include "kernel/ctexceptions.h"
+#include "base/ctexceptions.h"
 
 // The Cantera logger class
-#include "kernel/logger.h"
+#include "base/logger.h"
 
 // Include the timer
-#include "kernel/clockWC.h"
+#include "base/clockWC.h"
 
 // Include routines for reading and writing XML files
-#include "kernel/xml.h"
+#include "base/xml.h"
 
 // Include string utility routines
-#include "kernel/stringUtils.h"
+#include "base/stringUtils.h"
 
 #endif
 

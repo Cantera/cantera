@@ -11,7 +11,7 @@
  *  $Revision$
  *
  */
-#include "LTPspecies.h"
+#include "cantera/transport/LTPspecies.h"
 using namespace std;
 using namespace ctml;
 

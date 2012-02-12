@@ -8,7 +8,7 @@
 #define REACTOR_FACTORY_H
 
 #include "ReactorBase.h"
-#include "FactoryBase.h"
+#include "cantera/base/FactoryBase.h"
 
 #if defined(THREAD_SAFE_CANTERA)
 #include <boost/thread/mutex.hpp>

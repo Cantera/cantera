@@ -15,19 +15,19 @@
 #ifndef CT_BEULERINT_H
 #define CT_BEULERINT_H
 
-#include "ct_defs.h"
-#include "ctlapack.h"
-#include "utilities.h"
-#include "ctexceptions.h"
+#include "cantera/base/ct_defs.h"
+#include "cantera/numerics/ctlapack.h"
+#include "cantera/base/utilities.h"
+#include "cantera/base/ctexceptions.h"
 
 
-#include "Integrator.h"
-#include "ResidJacEval.h"
+#include "cantera/numerics/Integrator.h"
+#include "cantera/numerics/ResidJacEval.h"
 
-#include "GeneralMatrix.h"
-#include "NonlinearSolver.h"
+#include "cantera/numerics/GeneralMatrix.h"
+#include "cantera/numerics/NonlinearSolver.h"
 
-#include "mdp_allo.h"
+#include "cantera/base/mdp_allo.h"
 
 #ifndef MAX
 #  define MAX(x,y)    (( (x) > (y) ) ? (x) : (y))

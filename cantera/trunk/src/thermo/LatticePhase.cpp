@@ -7,14 +7,14 @@
  *  (see \ref thermoprops and class \link Cantera::LatticePhase LatticePhase\endlink).
  *
  */
-#include "config.h"
+#include "cantera/base/config.h"
 #ifdef WITH_LATTICE_SOLID
 
-#include "ct_defs.h"
-#include "mix_defs.h"
-#include "LatticePhase.h"
-#include "SpeciesThermo.h"
-#include "ThermoFactory.h"
+#include "cantera/base/ct_defs.h"
+#include "cantera/thermo/mix_defs.h"
+#include "cantera/thermo/LatticePhase.h"
+#include "cantera/thermo/SpeciesThermo.h"
+#include "cantera/thermo/ThermoFactory.h"
 
 #include <cmath>
 

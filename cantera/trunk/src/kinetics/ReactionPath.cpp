@@ -4,10 +4,10 @@
  */
 // Copyright 2001  California Institute of Technology
 
-#include "ReactionPath.h"
-#include "Kinetics.h"
-#include "reaction_defs.h"
-#include "Group.h"
+#include "cantera/kinetics/ReactionPath.h"
+#include "cantera/kinetics/Kinetics.h"
+#include "cantera/kinetics/reaction_defs.h"
+#include "cantera/kinetics/Group.h"
 
 using namespace std;
 

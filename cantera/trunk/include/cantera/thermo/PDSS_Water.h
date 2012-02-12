@@ -12,7 +12,7 @@
 #ifndef CT_PDSS_WATER_H
 #define CT_PDSS_WATER_H
 
-#include "ct_defs.h"
+#include "cantera/base/ct_defs.h"
 #include "PDSS.h"
 #include "VPStandardStateTP.h"
 

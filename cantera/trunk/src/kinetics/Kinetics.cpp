@@ -8,10 +8,10 @@
  */
 // Copyright 2001-2004  California Institute of Technology
 
-#include "InterfaceKinetics.h"
-#include "SurfPhase.h"
+#include "cantera/kinetics/InterfaceKinetics.h"
+#include "cantera/thermo/SurfPhase.h"
 #include "StoichManager.h"
-#include "RateCoeffMgr.h"
+#include "cantera/kinetics/RateCoeffMgr.h"
 
 #include "ImplicitSurfChem.h"
 

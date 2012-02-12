@@ -1,7 +1,7 @@
-#include "ReactorNet.h"
-#include "Integrator.h"
-#include "FlowDevice.h"
-#include "Wall.h"
+#include "cantera/zeroD/ReactorNet.h"
+#include "cantera/numerics/Integrator.h"
+#include "cantera/zeroD/FlowDevice.h"
+#include "cantera/zeroD/Wall.h"
 
 using namespace std;
 using namespace Cantera;

@@ -11,31 +11,31 @@
  * U.S. Government retains certain rights in this software.
  */
 
-#include "SpeciesThermo.h"
+#include "cantera/thermo/SpeciesThermo.h"
 
-#include "VPSSMgr.h"
+#include "cantera/thermo/VPSSMgr.h"
 #include "VPSSMgrFactory.h"
 
-#include "VPStandardStateTP.h"
+#include "cantera/thermo/VPStandardStateTP.h"
 
-#include "VPSSMgr_IdealGas.h"
-#include "VPSSMgr_ConstVol.h"
-#include "VPSSMgr_Water_ConstVol.h"
-#include "VPSSMgr_Water_HKFT.h"
-#include "VPSSMgr_General.h"
+#include "cantera/thermo/VPSSMgr_IdealGas.h"
+#include "cantera/thermo/VPSSMgr_ConstVol.h"
+#include "cantera/thermo/VPSSMgr_Water_ConstVol.h"
+#include "cantera/thermo/VPSSMgr_Water_HKFT.h"
+#include "cantera/thermo/VPSSMgr_General.h"
 
-#include "VPSSMgr_types.h"
+#include "cantera/thermo/VPSSMgr_types.h"
 
-#include "SpeciesThermoMgr.h"
-#include "speciesThermoTypes.h"
-#include "SpeciesThermo.h"
-#include "SpeciesThermoFactory.h"
-#include "GeneralSpeciesThermo.h"
+#include "cantera/thermo/SpeciesThermoMgr.h"
+#include "cantera/thermo/speciesThermoTypes.h"
+#include "cantera/thermo/SpeciesThermo.h"
+#include "cantera/thermo/SpeciesThermoFactory.h"
+#include "cantera/thermo/GeneralSpeciesThermo.h"
 
-#include "mix_defs.h"
+#include "cantera/thermo/mix_defs.h"
 
-#include "xml.h"
-#include "ctml.h"
+#include "cantera/base/xml.h"
+#include "cantera/base/ctml.h"
 
 using namespace ctml;
 using namespace std;

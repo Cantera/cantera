@@ -11,9 +11,9 @@
 #ifndef CT_SHOMATETHERMO_H
 #define CT_SHOMATETHERMO_H
 
-#include "SpeciesThermoMgr.h"
+#include "cantera/thermo/SpeciesThermoMgr.h"
 #include "ShomatePoly.h"
-#include "speciesThermoTypes.h"
+#include "cantera/thermo/speciesThermoTypes.h"
 
 namespace Cantera
 {

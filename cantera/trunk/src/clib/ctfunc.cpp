@@ -4,8 +4,8 @@
 #define CANTERA_USE_INTERNAL
 #include "ctfunc.h"
 
-#include "kernel/Func1.h"
-#include "kernel/ctexceptions.h"
+#include "cantera/numerics/Func1.h"
+#include "cantera/base/ctexceptions.h"
 
 
 #include "Cabinet.h"

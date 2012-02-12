@@ -2,7 +2,7 @@
  *  @file thermomethods.cpp
  */
 
-#include <cantera/clib/ct.h>
+#include <clib/ct.h>
 #include "ctmatutils.h"
 
 static void thermoset(int nlhs, mxArray* plhs[],

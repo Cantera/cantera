@@ -22,8 +22,8 @@
  */
 
 
-#include "MolarityIonicVPSSTP.h"
-#include "ThermoFactory.h"
+#include "cantera/thermo/MolarityIonicVPSSTP.h"
+#include "cantera/thermo/ThermoFactory.h"
 #include <cmath>
 
 using namespace std;

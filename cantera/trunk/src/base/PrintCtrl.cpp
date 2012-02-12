@@ -15,7 +15,7 @@
 #include <iostream>
 #include <fstream>
 
-#include "PrintCtrl.h"
+#include "cantera/base/PrintCtrl.h"
 
 using namespace std;
 

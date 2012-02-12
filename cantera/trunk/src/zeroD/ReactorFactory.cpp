@@ -3,12 +3,12 @@
  */
 // Copyright 2006  California Institute of Technology
 
-#include "ReactorFactory.h"
+#include "cantera/zeroD/ReactorFactory.h"
 
-#include "Reservoir.h"
-#include "Reactor.h"
-#include "FlowReactor.h"
-#include "ConstPressureReactor.h"
+#include "cantera/zeroD/Reservoir.h"
+#include "cantera/zeroD/Reactor.h"
+#include "cantera/zeroD/FlowReactor.h"
+#include "cantera/zeroD/ConstPressureReactor.h"
 
 using namespace std;
 namespace Cantera

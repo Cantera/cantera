@@ -9,8 +9,8 @@
  */
 
 #include "solveSP.h"
-#include "clockWC.h"
-#include "ctlapack.h"
+#include "cantera/base/clockWC.h"
+#include "cantera/numerics/ctlapack.h"
 
 /* Standard include files */
 

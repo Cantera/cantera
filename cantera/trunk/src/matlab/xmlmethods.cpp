@@ -2,8 +2,8 @@
  *  @file xmlmethods.cpp
  */
 
-#include <cantera/clib/ctxml.h>
-#include <cantera/clib/ct.h>
+#include <clib/ctxml.h>
+#include <clib/ct.h>
 #include "ctmatutils.h"
 
 void reportError();

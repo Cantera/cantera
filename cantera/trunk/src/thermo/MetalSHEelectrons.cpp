@@ -12,11 +12,11 @@
  * U.S. Government retains certain rights in this software.
  *
  */
-#include "ct_defs.h"
+#include "cantera/base/ct_defs.h"
 
-#include "MetalSHEelectrons.h"
-#include "SingleSpeciesTP.h"
-#include "ThermoFactory.h"
+#include "cantera/thermo/MetalSHEelectrons.h"
+#include "cantera/thermo/SingleSpeciesTP.h"
+#include "cantera/thermo/ThermoFactory.h"
 
 #include <string>
 using namespace std;

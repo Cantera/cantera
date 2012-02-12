@@ -9,9 +9,9 @@
 #ifndef CT_MULTIPHASE_H
 #define CT_MULTIPHASE_H
 
-#include "ct_defs.h"
-#include "DenseMatrix.h"
-#include "ThermoPhase.h"
+#include "cantera/base/ct_defs.h"
+#include "cantera/numerics/DenseMatrix.h"
+#include "cantera/thermo/ThermoPhase.h"
 
 namespace Cantera
 {

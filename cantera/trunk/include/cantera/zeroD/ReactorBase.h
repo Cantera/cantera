@@ -6,7 +6,7 @@
 #ifndef CT_REACTORBASE_H
 #define CT_REACTORBASE_H
 
-#include "ThermoPhase.h"
+#include "cantera/thermo/ThermoPhase.h"
 
 /// Namespace for classes implementing zero-dimensional reactor networks.
 namespace Cantera

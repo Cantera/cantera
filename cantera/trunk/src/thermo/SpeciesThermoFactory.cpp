@@ -6,29 +6,29 @@
  */
 // Copyright 2001  California Institute of Technology
 
-#include "SpeciesThermoFactory.h"
+#include "cantera/thermo/SpeciesThermoFactory.h"
 using namespace std;
 
-#include "SpeciesThermo.h"
+#include "cantera/thermo/SpeciesThermo.h"
 #include "NasaThermo.h"
 #include "ShomateThermo.h"
-#include "SimpleThermo.h"
-#include "GeneralSpeciesThermo.h"
+#include "cantera/thermo/SimpleThermo.h"
+#include "cantera/thermo/GeneralSpeciesThermo.h"
 #include "Mu0Poly.h"
 #include "Nasa9PolyMultiTempRegion.h"
-#include "Nasa9Poly1.h"
+#include "cantera/thermo/Nasa9Poly1.h"
 
 #ifdef WITH_ADSORBATE
-#include "AdsorbateThermo.h"
+#include "cantera/thermo/AdsorbateThermo.h"
 #endif
 
-#include "SpeciesThermoMgr.h"
-#include "speciesThermoTypes.h"
-#include "VPSSMgr.h"
-#include "VPStandardStateTP.h"
+#include "cantera/thermo/SpeciesThermoMgr.h"
+#include "cantera/thermo/speciesThermoTypes.h"
+#include "cantera/thermo/VPSSMgr.h"
+#include "cantera/thermo/VPStandardStateTP.h"
 
-#include "xml.h"
-#include "ctml.h"
+#include "cantera/base/xml.h"
+#include "cantera/base/ctml.h"
 
 #include <cmath>
 

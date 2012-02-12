@@ -11,20 +11,20 @@
 
 
 #ifdef WITH_ELECTROLYTES
-#include "kernel/electrolytes.h"
-#include "kernel/MolalityVPSSTP.h"
-#include "kernel/VPStandardStateTP.h"
-#include "kernel/IdealMolalSoln.h"
-#include "kernel/WaterPropsIAPWS.h"
-#include "kernel/WaterProps.h"
-#include "kernel/PDSS.h"
-#include "kernel/PDSS_Water.h"
-#include "kernel/PDSS_HKFT.h"
-#include "kernel/HMWSoln.h"
-#include "kernel/DebyeHuckel.h"
-#include "kernel/WaterSSTP.h"
-#include "kernel/VPSSMgr_Water_HKFT.h"
-#include "kernel/VPSSMgr_Water_ConstVol.h"
+#include "thermo/electrolytes.h"
+#include "thermo/MolalityVPSSTP.h"
+#include "thermo/VPStandardStateTP.h"
+#include "thermo/IdealMolalSoln.h"
+#include "thermo/WaterPropsIAPWS.h"
+#include "thermo/WaterProps.h"
+#include "thermo/PDSS.h"
+#include "thermo/PDSS_Water.h"
+#include "thermo/PDSS_HKFT.h"
+#include "thermo/HMWSoln.h"
+#include "thermo/DebyeHuckel.h"
+#include "thermo/WaterSSTP.h"
+#include "thermo/VPSSMgr_Water_HKFT.h"
+#include "thermo/VPSSMgr_Water_ConstVol.h"
 #endif
 
 #endif

@@ -9,15 +9,15 @@
 #ifndef CT_THERMO_INCL
 #define CT_THERMO_INCL
 
-#include "kernel/ThermoFactory.h"
-#include "kernel/SurfPhase.h"
-#include "kernel/EdgePhase.h"
+#include "thermo/ThermoFactory.h"
+#include "thermo/SurfPhase.h"
+#include "thermo/EdgePhase.h"
 
 
 #ifdef WITH_IDEAL_SOLUTIONS
 
-#include "kernel/GibbsExcessVPSSTP.h"
-#include "kernel/MargulesVPSSTP.h"
+#include "thermo/GibbsExcessVPSSTP.h"
+#include "thermo/MargulesVPSSTP.h"
 
 #endif
 
@@ -30,8 +30,8 @@
 
 #ifdef WITH_LATTICE_SOLID
 
-#include "kernel/LatticePhase.h"
-#include "kernel/LatticeSolidPhase.h"
+#include "thermo/LatticePhase.h"
+#include "thermo/LatticeSolidPhase.h"
 
 #endif
 

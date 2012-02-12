@@ -11,7 +11,7 @@
  */
 #ifndef CT_PDSS_H
 #define CT_PDSS_H
-#include "ct_defs.h"
+#include "cantera/base/ct_defs.h"
 #include "mix_defs.h"
 
 class WaterPropsIAPWS;

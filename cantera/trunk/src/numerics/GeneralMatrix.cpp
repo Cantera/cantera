@@ -13,7 +13,7 @@
  * See file License.txt for licensing information.
  */
 
-#include "GeneralMatrix.h"
+#include "cantera/numerics/GeneralMatrix.h"
 using namespace std;
 
 namespace Cantera

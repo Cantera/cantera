@@ -16,11 +16,11 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-#include "IonsFromNeutralVPSSTP.h"
-#include "ThermoFactory.h"
+#include "cantera/thermo/IonsFromNeutralVPSSTP.h"
+#include "cantera/thermo/ThermoFactory.h"
 
-#include "PDSS_IonsFromNeutral.h"
-#include "mix_defs.h"
+#include "cantera/thermo/PDSS_IonsFromNeutral.h"
+#include "cantera/thermo/mix_defs.h"
 
 #include <cmath>
 #include <iomanip>

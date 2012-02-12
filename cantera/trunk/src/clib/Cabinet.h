@@ -5,8 +5,8 @@
 #define CT_CABINET_H
 
 #include <vector>
-#include "kernel/stringUtils.h"
-#include "kernel/config.h"
+#include "cantera/base/stringUtils.h"
+#include "cantera/base/config.h"
 
 /**
  * Template for classes to hold pointers to objects. The Cabinet<M>

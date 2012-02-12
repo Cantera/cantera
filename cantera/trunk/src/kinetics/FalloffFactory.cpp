@@ -3,8 +3,8 @@
  */
 // Copyright 2001  California Institute of Technology
 
-#include "FalloffFactory.h"
-#include "ctexceptions.h"
+#include "cantera/kinetics/FalloffFactory.h"
+#include "cantera/base/ctexceptions.h"
 
 #include <cmath>
 

@@ -5,8 +5,8 @@
 
 // Copyright 2006  California Institute of Technology
 
-#include "IDA_Solver.h"
-#include "stringUtils.h"
+#include "cantera/numerics/IDA_Solver.h"
+#include "cantera/base/stringUtils.h"
 
 #include <iostream>
 

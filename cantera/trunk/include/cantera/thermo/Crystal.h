@@ -4,7 +4,7 @@
 #ifndef CT_CRYSTAL_H
 #define CT_CRYSTAL_H
 
-#include "MultiPhase.h"
+#include "cantera/equil/MultiPhase.h"
 
 namespace Cantera
 {

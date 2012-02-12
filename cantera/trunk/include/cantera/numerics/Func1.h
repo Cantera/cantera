@@ -9,7 +9,7 @@
 
 #undef DEBUG_FUNC
 
-#include "ct_defs.h"
+#include "cantera/base/ct_defs.h"
 
 #include <iostream>
 #include <string>

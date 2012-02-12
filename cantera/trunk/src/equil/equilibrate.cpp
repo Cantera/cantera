@@ -3,11 +3,11 @@
  * Driver routines for the chemical equilibrium solvers.
  *
  */
-#include "equil.h"
-#include "ChemEquil.h"
-#include "MultiPhaseEquil.h"
-#include "vcs_MultiPhaseEquil.h"
-#include "global.h"
+#include "cantera/equil/equil.h"
+#include "cantera/equil/ChemEquil.h"
+#include "cantera/equil/MultiPhaseEquil.h"
+#include "cantera/equil/vcs_MultiPhaseEquil.h"
+#include "cantera/base/global.h"
 
 namespace Cantera
 {

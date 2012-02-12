@@ -13,11 +13,11 @@
 
 #include <cstring>
 
-#include "vcs_defs.h"
+#include "cantera/equil/vcs_defs.h"
 #include "vcs_DoubleStarStar.h"
 #include "vcs_Exception.h"
 
-#include "global.h"
+#include "cantera/base/global.h"
 
 namespace VCSnonideal
 {
@@ -283,7 +283,7 @@ typedef double(*VCS_FUNC_PTR)(double xval, double Vtarget,
    #include <cmath>
    #include <cstdlib>
 
-   #include "Cantera.h"
+   #include "cantera/Cantera.h"
    #include "kernel/vcs_internal.h"
 
    const double g_cgs = 980.;

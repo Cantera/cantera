@@ -1,4 +1,4 @@
-#include "ct_defs.h"
+#include "cantera/base/ct_defs.h"
 #include <math.h>
 
 #ifdef USE_BOOST_MATH
@@ -6,7 +6,7 @@
 using boost::math::erf;
 #endif
 
-#include "LineBroadener.h"
+#include "cantera/spectra/LineBroadener.h"
 
 using namespace std;
 using namespace Cantera;

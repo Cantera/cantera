@@ -6,16 +6,16 @@
  *  (see \ref thermoprops and class \link Cantera::LatticeSolidPhase LatticeSolidPhase\endlink).
  */
 
-#include "ct_defs.h"
+#include "cantera/base/ct_defs.h"
 #ifdef WITH_LATTICE_SOLID
 
-#include "mix_defs.h"
-#include "LatticeSolidPhase.h"
-#include "LatticePhase.h"
-#include "SpeciesThermo.h"
-#include "ThermoFactory.h"
-#include "SpeciesThermoFactory.h"
-#include "GeneralSpeciesThermo.h"
+#include "cantera/thermo/mix_defs.h"
+#include "cantera/thermo/LatticeSolidPhase.h"
+#include "cantera/thermo/LatticePhase.h"
+#include "cantera/thermo/SpeciesThermo.h"
+#include "cantera/thermo/ThermoFactory.h"
+#include "cantera/thermo/SpeciesThermoFactory.h"
+#include "cantera/thermo/GeneralSpeciesThermo.h"
 
 #include <string>
 #ifndef MIN

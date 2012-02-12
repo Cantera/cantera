@@ -22,9 +22,9 @@
 #pragma warning(disable:4503)
 #endif
 
-#include "MixtureFugacityTP.h"
-#include "VPSSMgr.h"
-#include "PDSS.h"
+#include "cantera/thermo/MixtureFugacityTP.h"
+#include "cantera/thermo/VPSSMgr.h"
+#include "cantera/thermo/PDSS.h"
 
 
 #ifndef MIN

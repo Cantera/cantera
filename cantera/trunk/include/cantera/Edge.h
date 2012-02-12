@@ -3,9 +3,9 @@
 
 #include <string>
 
-#include "kernel/EdgePhase.h"
-#include "kernel/EdgeKinetics.h"
-#include "kernel/importKinetics.h"
+#include "thermo/EdgePhase.h"
+#include "kinetics/EdgeKinetics.h"
+#include "kinetics/importKinetics.h"
 
 namespace Cantera
 {

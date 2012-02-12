@@ -10,11 +10,11 @@
 #ifndef CT_CONSTRHOTHERMO_H
 #define CT_CONSTRHOTHERMO_H
 
-#include "ct_defs.h"
+#include "cantera/base/ct_defs.h"
 #include "mix_defs.h"
 #include "ThermoPhase.h"
 #include "SpeciesThermo.h"
-#include "utilities.h"
+#include "cantera/base/utilities.h"
 
 namespace Cantera
 {

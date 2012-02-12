@@ -7,12 +7,12 @@
 
 // Copyright 2001  California Institute of Technology
 
-#include "GasKinetics.h"
+#include "cantera/kinetics/GasKinetics.h"
 
 #include "ReactionData.h"
-#include "Enhanced3BConc.h"
-#include "ThirdBodyMgr.h"
-#include "RateCoeffMgr.h"
+#include "cantera/kinetics/Enhanced3BConc.h"
+#include "cantera/kinetics/ThirdBodyMgr.h"
+#include "cantera/kinetics/RateCoeffMgr.h"
 
 //#include "../user/grirxnstoich.h"
 

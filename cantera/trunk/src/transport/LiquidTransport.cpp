@@ -2,14 +2,14 @@
  *  @file LiquidTransport.cpp
  *  Mixture-averaged transport properties for ideal gas mixtures.
  */
-#include "ThermoPhase.h"
-#include "LiquidTransport.h"
+#include "cantera/thermo/ThermoPhase.h"
+#include "cantera/transport/LiquidTransport.h"
 
-#include "utilities.h"
-#include "LiquidTransportParams.h"
-#include "TransportFactory.h"
+#include "cantera/base/utilities.h"
+#include "cantera/transport/LiquidTransportParams.h"
+#include "cantera/transport/TransportFactory.h"
 
-#include "ctlapack.h"
+#include "cantera/numerics/ctlapack.h"
 
 #include <iostream>
 using namespace std;

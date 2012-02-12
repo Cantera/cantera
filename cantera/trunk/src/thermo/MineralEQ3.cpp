@@ -12,13 +12,13 @@
  *
  * Copyright 2001 California Institute of Technology
  */
-#include "ct_defs.h"
-#include "mix_defs.h"
-#include "MineralEQ3.h"
-#include "SpeciesThermo.h"
+#include "cantera/base/ct_defs.h"
+#include "cantera/thermo/mix_defs.h"
+#include "cantera/thermo/MineralEQ3.h"
+#include "cantera/thermo/SpeciesThermo.h"
 
-#include "ThermoFactory.h"
-#include "MineralEQ3.h"
+#include "cantera/thermo/ThermoFactory.h"
+#include "cantera/thermo/MineralEQ3.h"
 
 #include <string>
 

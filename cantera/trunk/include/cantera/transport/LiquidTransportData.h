@@ -11,9 +11,9 @@
 #include <string>
 
 // Cantera includes
-#include "ct_defs.h"
+#include "cantera/base/ct_defs.h"
 #include "TransportBase.h"
-#include "FactoryBase.h"
+#include "cantera/base/FactoryBase.h"
 #include "LTPspecies.h"
 
 namespace Cantera

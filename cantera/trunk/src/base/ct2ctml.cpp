@@ -5,11 +5,11 @@
  */
 // Copyright 2001-2005  California Institute of Technology
 
-#include "ct_defs.h"
-#include "ctexceptions.h"
-#include "ctml.h"
-#include "global.h"
-#include "stringUtils.h"
+#include "cantera/base/ct_defs.h"
+#include "cantera/base/ctexceptions.h"
+#include "cantera/base/ctml.h"
+#include "cantera/base/global.h"
+#include "cantera/base/stringUtils.h"
 
 #include <fstream>
 #include <string>

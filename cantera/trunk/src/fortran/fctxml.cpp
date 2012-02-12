@@ -7,7 +7,7 @@
 
 #include "flib_defs.h"
 
-#include "kernel/ctml.h"
+#include "cantera/base/ctml.h"
 
 #include <cstring>
 

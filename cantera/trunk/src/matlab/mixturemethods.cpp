@@ -3,8 +3,8 @@
  */
 #include <iostream>
 
-#include <cantera/clib/ctmultiphase.h>
-#include <cantera/clib/ct.h>
+#include <clib/ctmultiphase.h>
+#include <clib/ct.h>
 #include "ctmatutils.h"
 using namespace std;
 

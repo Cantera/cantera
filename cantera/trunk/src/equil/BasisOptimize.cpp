@@ -3,10 +3,10 @@
  *     Functions which calculation optimized basis of the
  *     stoichiometric coefficient matrix (see /ref equil functions)
  */
-#include "ct_defs.h"
-#include "global.h"
-#include "ThermoPhase.h"
-#include "MultiPhase.h"
+#include "cantera/base/ct_defs.h"
+#include "cantera/base/global.h"
+#include "cantera/thermo/ThermoPhase.h"
+#include "cantera/equil/MultiPhase.h"
 
 #include <string.h>
 

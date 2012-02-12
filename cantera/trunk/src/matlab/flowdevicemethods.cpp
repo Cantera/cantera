@@ -1,6 +1,6 @@
 #include "ctmatutils.h"
-#include <cantera/clib/ctreactor.h>
-#include <cantera/clib/ct.h>
+#include <clib/ctreactor.h>
+#include <clib/ct.h>
 
 //const double Undef = -999.123;
 

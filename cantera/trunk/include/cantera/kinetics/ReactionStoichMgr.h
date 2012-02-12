@@ -6,7 +6,7 @@
 #ifndef CT_RXN_STOICH
 #define CT_RXN_STOICH
 
-#include "ct_defs.h"
+#include "cantera/base/ct_defs.h"
 
 namespace Cantera
 {

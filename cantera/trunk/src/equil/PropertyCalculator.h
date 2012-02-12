@@ -7,7 +7,7 @@
 #ifndef CT_PROP_CALC_H
 #define CT_PROP_CALC_H
 
-#include "ct_defs.h"
+#include "cantera/base/ct_defs.h"
 #include <string>
 
 namespace Cantera

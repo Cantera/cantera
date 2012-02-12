@@ -5,9 +5,9 @@
 ///
 //------------------------------------------------
 
-#include "ReactionStoichMgr.h"
+#include "cantera/kinetics/ReactionStoichMgr.h"
 #include "StoichManager.h"
-#include "ctexceptions.h"
+#include "cantera/base/ctexceptions.h"
 #include "ReactionData.h"
 
 using namespace std;

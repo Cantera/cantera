@@ -1,9 +1,9 @@
 #ifndef CT_NUM_H_INCL
 #define CT_NUM_H_INCL
 
-#include "kernel/DenseMatrix.h"
-#include "kernel/BandMatrix.h"
-#include "kernel/SquareMatrix.h"
-#include "kernel/NonlinearSolver.h"
+#include "numerics/DenseMatrix.h"
+#include "numerics/BandMatrix.h"
+#include "numerics/SquareMatrix.h"
+#include "numerics/NonlinearSolver.h"
 
 #endif

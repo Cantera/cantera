@@ -10,9 +10,9 @@
 #ifndef CT_KINETICS_H
 #define CT_KINETICS_H
 
-#include "ctexceptions.h"
-#include "ThermoPhase.h"
-#include "mix_defs.h"
+#include "cantera/base/ctexceptions.h"
+#include "cantera/thermo/ThermoPhase.h"
+#include "cantera/thermo/mix_defs.h"
 
 namespace Cantera
 {

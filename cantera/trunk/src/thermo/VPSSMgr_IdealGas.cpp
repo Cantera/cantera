@@ -12,12 +12,12 @@
  * U.S. Government retains certain rights in this software.
  */
 
-#include "VPSSMgr_IdealGas.h"
-#include "utilities.h"
-#include "xml.h"
-#include "ctml.h"
-#include "SpeciesThermoFactory.h"
-#include "PDSS_IdealGas.h"
+#include "cantera/thermo/VPSSMgr_IdealGas.h"
+#include "cantera/base/utilities.h"
+#include "cantera/base/xml.h"
+#include "cantera/base/ctml.h"
+#include "cantera/thermo/SpeciesThermoFactory.h"
+#include "cantera/thermo/PDSS_IdealGas.h"
 
 using namespace std;
 using namespace ctml;

@@ -4,9 +4,9 @@
 
 // Copyright 2001  California Institute of Technology
 
-#include "ReactorBase.h"
-#include "FlowDevice.h"
-#include "Wall.h"
+#include "cantera/zeroD/ReactorBase.h"
+#include "cantera/zeroD/FlowDevice.h"
+#include "cantera/zeroD/Wall.h"
 
 using namespace std;
 namespace Cantera

@@ -11,8 +11,8 @@
 #define SPECIESTHERMO_FACTORY_H
 
 #include "SpeciesThermo.h"
-#include "ctexceptions.h"
-#include "FactoryBase.h"
+#include "cantera/base/ctexceptions.h"
+#include "cantera/base/FactoryBase.h"
 
 
 namespace Cantera

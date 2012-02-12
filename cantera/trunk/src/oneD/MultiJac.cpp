@@ -8,7 +8,7 @@
  *  Copyright 2002 California Institute of Technology
  */
 
-#include "MultiJac.h"
+#include "cantera/oneD/MultiJac.h"
 using namespace std;
 
 namespace Cantera

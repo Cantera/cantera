@@ -22,7 +22,7 @@
 #include "vcs_species_thermo.h"
 #include "vcs_prob.h"
 
-#include "clockWC.h"
+#include "cantera/base/clockWC.h"
 
 #ifdef WIN32
 #pragma warning(disable:4996)

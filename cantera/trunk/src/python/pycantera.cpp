@@ -5,7 +5,7 @@
  *
  */
 
-#include "cantera/kernel/config.h"
+#include "cantera/base/config.h"
 
 #include "Python.h"
 
@@ -67,7 +67,7 @@ pyct_appdelete(PyObject* self, PyObject* args)
 
 #include "methods.h"
 #include "pylogger.h"
-//#include "../../src/global.h"
+//#include "cantera/base/global.h"
 extern "C" {
 
     /* Initialization function for the module */

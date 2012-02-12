@@ -10,12 +10,12 @@
 #define CT_CONSTIT_H
 
 
-#include "ct_defs.h"
+#include "cantera/base/ct_defs.h"
 
 #include "SpeciesThermo.h"
-#include "ctexceptions.h"
-#include "stringUtils.h"
-#include "xml.h"
+#include "cantera/base/ctexceptions.h"
+#include "cantera/base/stringUtils.h"
+#include "cantera/base/xml.h"
 #include "Elements.h"
 
 namespace Cantera
