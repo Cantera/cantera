@@ -259,8 +259,8 @@ doublereal LTI_Solvent::getMixTransProp(doublereal* speciesValues, doublereal* s
 
     int nsp = m_thermo->nSpecies();
     doublereal temp = m_thermo->temperature();
-    doublereal molefracs[nsp];
-    m_thermo->getMoleFractions(molefracs);
+    vector_fp molefracs(nsp);
+    m_thermo->getMoleFractions(&molefracs[0]);
 
     doublereal value = 0.0;
 
@@ -307,8 +307,8 @@ doublereal LTI_Solvent::getMixTransProp(std::vector<LTPspecies*> LTPptrs)
 
     int nsp = m_thermo->nSpecies();
     doublereal temp = m_thermo->temperature();
-    doublereal molefracs[nsp];
-    m_thermo->getMoleFractions(molefracs);
+    vector_fp molefracs(nsp);
+    m_thermo->getMoleFractions(&molefracs[0]);
 
     doublereal value = 0.0;
 
@@ -345,8 +345,8 @@ doublereal LTI_MoleFracs::getMixTransProp(doublereal* speciesValues, doublereal*
 
     int nsp = m_thermo->nSpecies();
     doublereal temp = m_thermo->temperature();
-    doublereal molefracs[nsp];
-    m_thermo->getMoleFractions(molefracs);
+    vector_fp molefracs(nsp);
+    m_thermo->getMoleFractions(&molefracs[0]);
 
     doublereal value = 0;
 
@@ -380,8 +380,8 @@ doublereal LTI_MoleFracs::getMixTransProp(std::vector<LTPspecies*> LTPptrs)
 
     int nsp = m_thermo->nSpecies();
     doublereal temp = m_thermo->temperature();
-    doublereal molefracs[nsp];
-    m_thermo->getMoleFractions(molefracs);
+    vector_fp molefracs(nsp);
+    m_thermo->getMoleFractions(&molefracs[0]);
 
     doublereal value = 0;
 
@@ -409,8 +409,8 @@ doublereal LTI_MassFracs::getMixTransProp(doublereal* speciesValues, doublereal*
 
     int nsp = m_thermo->nSpecies();
     doublereal temp = m_thermo->temperature();
-    doublereal massfracs[nsp];
-    m_thermo->getMassFractions(massfracs);
+    vector_fp massfracs(nsp);
+    m_thermo->getMassFractions(&massfracs[0]);
 
     doublereal value = 0;
 
@@ -444,8 +444,8 @@ doublereal LTI_MassFracs::getMixTransProp(std::vector<LTPspecies*> LTPptrs)
 
     int nsp = m_thermo->nSpecies();
     doublereal temp = m_thermo->temperature();
-    doublereal massfracs[nsp];
-    m_thermo->getMassFractions(massfracs);
+    vector_fp massfracs(nsp);
+    m_thermo->getMassFractions(&massfracs[0]);
 
     doublereal value = 0;
 
@@ -476,8 +476,8 @@ doublereal LTI_Log_MoleFracs::getMixTransProp(doublereal* speciesValues, doubler
 
     int nsp = m_thermo->nSpecies();
     doublereal temp = m_thermo->temperature();
-    doublereal molefracs[nsp];
-    m_thermo->getMoleFractions(molefracs);
+    vector_fp molefracs(nsp);
+    m_thermo->getMoleFractions(&molefracs[0]);
 
 
 
@@ -516,8 +516,8 @@ doublereal LTI_Log_MoleFracs::getMixTransProp(std::vector<LTPspecies*> LTPptrs)
 
     int nsp = m_thermo->nSpecies();
     doublereal temp = m_thermo->temperature();
-    doublereal molefracs[nsp];
-    m_thermo->getMoleFractions(molefracs);
+    vector_fp molefracs(nsp);
+    m_thermo->getMoleFractions(&molefracs[0]);
 
 
     doublereal value = 0;
@@ -572,8 +572,8 @@ doublereal LTI_Pairwise_Interaction::getMixTransProp(doublereal* speciesValues, 
 {
 
     int nsp = m_thermo->nSpecies();
-    doublereal molefracs[nsp];
-    m_thermo->getMoleFractions(molefracs);
+    vector_fp molefracs(nsp);
+    m_thermo->getMoleFractions(&molefracs[0]);
 
     doublereal value = 0;
 
@@ -587,8 +587,8 @@ doublereal LTI_Pairwise_Interaction::getMixTransProp(std::vector<LTPspecies*> LT
 {
 
     int nsp = m_thermo->nSpecies();
-    doublereal molefracs[nsp];
-    m_thermo->getMoleFractions(molefracs);
+    vector_fp molefracs(nsp);
+    m_thermo->getMoleFractions(&molefracs[0]);
 
     doublereal value = 0;
 
@@ -602,8 +602,8 @@ void LTI_Pairwise_Interaction::getMatrixTransProp(DenseMatrix& mat, doublereal* 
 
     int nsp = m_thermo->nSpecies();
     doublereal temp = m_thermo->temperature();
-    doublereal molefracs[nsp];
-    m_thermo->getMoleFractions(molefracs);
+    vector_fp molefracs(nsp);
+    m_thermo->getMoleFractions(&molefracs[0]);
 
     mat.resize(nsp, nsp, 0.0);
     for (int i = 0; i < nsp; i++)
@@ -665,8 +665,8 @@ doublereal LTI_StefanMaxwell_PPN::getMixTransProp(doublereal* speciesValues, dou
 {
 
     int nsp = m_thermo->nSpecies();
-    doublereal molefracs[nsp];
-    m_thermo->getMoleFractions(molefracs);
+    vector_fp molefracs(nsp);
+    m_thermo->getMoleFractions(&molefracs[0]);
 
     doublereal value = 0;
 
@@ -680,8 +680,8 @@ doublereal LTI_StefanMaxwell_PPN::getMixTransProp(std::vector<LTPspecies*> LTPpt
 {
 
     int nsp = m_thermo->nSpecies();
-    doublereal molefracs[nsp];
-    m_thermo->getMoleFractions(molefracs);
+    vector_fp molefracs(nsp);
+    m_thermo->getMoleFractions(&molefracs[0]);
 
     doublereal value = 0;
 
@@ -701,8 +701,8 @@ void LTI_StefanMaxwell_PPN::getMatrixTransProp(DenseMatrix& mat, doublereal* spe
         throw CanteraError("LTI_StefanMaxwell_PPN::getMatrixTransProp","Function may only be called with a 3-ion system");
     }
     doublereal temp = m_thermo->temperature();
-    doublereal molefracs[nsp];
-    m_thermo->getMoleFractions(molefracs);
+    vector_fp molefracs(nsp);
+    m_thermo->getMoleFractions(&molefracs[0]);
     vector_fp neut_molefracs;
     ions_thermo->getNeutralMolecMoleFractions(neut_molefracs);
     vector<size_t> cation;
@@ -776,8 +776,8 @@ doublereal LTI_StokesEinstein::getMixTransProp(doublereal* speciesValues, double
 {
 
     int nsp = m_thermo->nSpecies();
-    doublereal molefracs[nsp];
-    m_thermo->getMoleFractions(molefracs);
+    vector_fp molefracs(nsp);
+    m_thermo->getMoleFractions(&molefracs[0]);
 
     doublereal value = 0;
 
@@ -791,8 +791,8 @@ doublereal LTI_StokesEinstein::getMixTransProp(std::vector<LTPspecies*> LTPptrs)
 {
 
     int nsp = m_thermo->nSpecies();
-    doublereal molefracs[nsp];
-    m_thermo->getMoleFractions(molefracs);
+    vector_fp molefracs(nsp);
+    m_thermo->getMoleFractions(&molefracs[0]);
 
     doublereal value = 0;
 
@@ -843,8 +843,8 @@ doublereal LTI_MoleFracs_ExpT::getMixTransProp(doublereal* speciesValues, double
 
     int nsp = m_thermo->nSpecies();
     doublereal temp = m_thermo->temperature();
-    doublereal molefracs[nsp];
-    m_thermo->getMoleFractions(molefracs);
+    vector_fp molefracs(nsp);
+    m_thermo->getMoleFractions(&molefracs[0]);
 
     doublereal value = 0;
 
@@ -875,8 +875,8 @@ doublereal LTI_MoleFracs_ExpT::getMixTransProp(std::vector<LTPspecies*> LTPptrs)
 
     int nsp = m_thermo->nSpecies();
     doublereal temp = m_thermo->temperature();
-    doublereal molefracs[nsp];
-    m_thermo->getMoleFractions(molefracs);
+    vector_fp molefracs(nsp);
+    m_thermo->getMoleFractions(&molefracs[0]);
 
     doublereal value = 0;
 

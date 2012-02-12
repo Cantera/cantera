@@ -911,8 +911,8 @@ void LiquidTransport::set_Grad_X(const doublereal* const grad_X)
 doublereal LiquidTransport::getElectricConduct()
 {
     doublereal gradT = 0.0;
-    doublereal gradX[m_nDim * m_nsp];
-    doublereal gradV[m_nDim];
+    vector_fp gradX(m_nDim * m_nsp);
+    vector_fp gradV(m_nDim);
     for (int i = 0; i < m_nDim; i++) {
         for (int k = 0; k < m_nsp; k++) {
             gradX[ i*m_nDim + k] = 0.0;
@@ -921,8 +921,8 @@ doublereal LiquidTransport::getElectricConduct()
     }
 
     set_Grad_T(&gradT);
-    set_Grad_X(gradX);
-    set_Grad_V(gradV);
+    set_Grad_X(&gradX[0]);
+    set_Grad_V(&gradV[0]);
 
     doublereal* fluxes = new doublereal(m_nsp * m_nDim);
     doublereal current;
