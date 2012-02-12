@@ -3,8 +3,8 @@
 
 #include <string>
 
-#include "kernel/MetalPhase.h"
-#include "kernel/importKinetics.h"
+#include "thermo/MetalPhase.h"
+#include "kinetics/importKinetics.h"
 
 namespace Cantera
 {

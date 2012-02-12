@@ -4,11 +4,11 @@ dep
 #define CT_SURF1D_H
 
 #include "Domain1D.h"
-#include "SurfPhase.h"
-#include "InterfaceKinetics.h"
+#include "cantera/thermo/SurfPhase.h"
+#include "cantera/kinetics/InterfaceKinetics.h"
 #include "StFlow.h"
 #include "OneDim.h"
-#include "ctml.h"
+#include "cantera/base/ctml.h"
 
 namespace Cantera
 {

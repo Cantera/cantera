@@ -2,7 +2,7 @@
 #include <string>
 
 #include "ctmatutils.h"
-#include <cantera/clib/ctonedim.h>
+#include <clib/ctonedim.h>
 
 using namespace std;
 

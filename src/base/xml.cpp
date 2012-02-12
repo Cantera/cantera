@@ -6,7 +6,7 @@
  */
 // Copyright 2001  California Institute of Technology
 
-#include "config.h"
+#include "cantera/base/config.h"
 #ifdef HAS_SSTREAM
 #include <sstream>
 #endif
@@ -14,9 +14,9 @@
 #include <algorithm>
 using namespace std;
 
-#include "xml.h"
-#include "global.h"
-#include "stringUtils.h"
+#include "cantera/base/xml.h"
+#include "cantera/base/global.h"
+#include "cantera/base/stringUtils.h"
 #include <ctype.h>
 #include <cstdlib>
 

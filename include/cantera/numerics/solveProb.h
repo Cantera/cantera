@@ -21,7 +21,7 @@
 
 
 #include <vector>
-#include "Array.h"
+#include "cantera/base/Array.h"
 #include "ResidEval.h"
 
 //! Solution Methods

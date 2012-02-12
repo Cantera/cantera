@@ -1,7 +1,7 @@
 
-#include "FlowDevice.h"
-#include "ReactorBase.h"
-#include "Func1.h"
+#include "cantera/zeroD/FlowDevice.h"
+#include "cantera/zeroD/ReactorBase.h"
+#include "cantera/numerics/Func1.h"
 
 using namespace std;
 using namespace Cantera;

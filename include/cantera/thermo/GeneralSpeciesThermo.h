@@ -9,7 +9,7 @@
 #ifndef CT_GENERALSPECIESTHERMO_H
 #define CT_GENERALSPECIESTHERMO_H
 #include <string>
-#include "ct_defs.h"
+#include "cantera/base/ct_defs.h"
 #include "SpeciesThermoMgr.h"
 #include "NasaPoly1.h"
 #include "Nasa9Poly1.h"

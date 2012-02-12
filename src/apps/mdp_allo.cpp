@@ -5,7 +5,7 @@
 #include <new>
 #include <stdarg.h>
 
-#include "mdp_allo.h"
+#include "cantera/base/mdp_allo.h"
 
 /*
  *  Allocate global storage for 2 debugging ints that are used in IO of

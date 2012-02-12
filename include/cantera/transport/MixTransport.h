@@ -19,7 +19,7 @@
 
 // Cantera includes
 #include "TransportBase.h"
-#include "DenseMatrix.h"
+#include "cantera/numerics/DenseMatrix.h"
 
 namespace Cantera
 {

@@ -17,8 +17,8 @@
  */
 
 
-#include "MixedSolventElectrolyte.h"
-#include "ThermoFactory.h"
+#include "cantera/thermo/MixedSolventElectrolyte.h"
+#include "cantera/thermo/ThermoFactory.h"
 #include <iomanip>
 
 using namespace std;

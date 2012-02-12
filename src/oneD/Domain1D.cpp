@@ -3,7 +3,7 @@
  *
  */
 
-#include "Domain1D.h"
+#include "cantera/oneD/Domain1D.h"
 
 using namespace std;
 

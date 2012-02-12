@@ -7,19 +7,19 @@
  *  See file License.txt for licensing information
  */
 
-#include "ThermoPhase.h"
+#include "cantera/thermo/ThermoPhase.h"
 
-#include "MultiTransport.h"
-#include "ctlapack.h"
+#include "cantera/transport/MultiTransport.h"
+#include "cantera/numerics/ctlapack.h"
 
-#include "DenseMatrix.h"
-#include "utilities.h"
-#include "utilities.h"
+#include "cantera/numerics/DenseMatrix.h"
+#include "cantera/base/utilities.h"
+#include "cantera/base/utilities.h"
 #include "L_matrix.h"
-#include "TransportParams.h"
-#include "IdealGasPhase.h"
+#include "cantera/transport/TransportParams.h"
+#include "cantera/thermo/IdealGasPhase.h"
 
-#include "TransportFactory.h"
+#include "cantera/transport/TransportFactory.h"
 
 #include <iostream>
 using namespace std;

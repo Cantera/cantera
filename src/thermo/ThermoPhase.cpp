@@ -7,8 +7,8 @@
 
 //  Copyright 2002 California Institute of Technology
 
-#include "ThermoPhase.h"
-#include "mdp_allo.h"
+#include "cantera/thermo/ThermoPhase.h"
+#include "cantera/base/mdp_allo.h"
 #include <iomanip>
 
 //@{

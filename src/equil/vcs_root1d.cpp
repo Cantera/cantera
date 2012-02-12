@@ -53,7 +53,7 @@ static void print_funcEval(FILE* fp, double xval, double fval, int its)
  *   #include <cmath>
  *   #include <cstdlib>
  *
- *   #include "Cantera.h"
+ *   #include "cantera/Cantera.h"
  *   #include "kernel/vcs_internal.h"
  *
  *   const double g_cgs = 980.;

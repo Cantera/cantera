@@ -5,8 +5,8 @@
 #define CTC_STORAGE_H
 
 // Cantera includes
-#include "kernel/Kinetics.h"
-#include "kernel/TransportBase.h"
+#include "cantera/kinetics/Kinetics.h"
+#include "cantera/transport/TransportBase.h"
 
 #include "Cabinet.h"
 #include "clib_defs.h"

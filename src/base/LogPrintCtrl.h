@@ -15,7 +15,7 @@
 
 #include <sstream>
 
-#include "PrintCtrl.h"
+#include "cantera/base/PrintCtrl.h"
 
 namespace Cantera
 {

@@ -20,7 +20,7 @@
 
 #include "ThermoPhase.h"
 #include "VPSSMgr.h"
-#include "ResidEval.h"
+#include "cantera/numerics/ResidEval.h"
 
 namespace Cantera
 {

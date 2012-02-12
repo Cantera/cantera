@@ -18,9 +18,9 @@
 #include <string>
 #include <vector>
 
-#include "kernel/ct_defs.h"
-#include "kernel/xml.h"
-#include "kernel/ctml.h"
+#include "cantera/base/ct_defs.h"
+#include "cantera/base/xml.h"
+#include "cantera/base/ctml.h"
 
 using namespace Cantera;
 using namespace std;

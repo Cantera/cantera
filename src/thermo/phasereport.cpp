@@ -5,9 +5,9 @@
 
 //  Copyright 2001 California Institute of Technology
 
-#include "ThermoPhase.h"
-#include "PureFluidPhase.h"
-#include "mix_defs.h"
+#include "cantera/thermo/ThermoPhase.h"
+#include "cantera/thermo/PureFluidPhase.h"
+#include "cantera/thermo/mix_defs.h"
 
 #include <cstdio>
 

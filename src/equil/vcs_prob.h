@@ -13,7 +13,7 @@
 
 #include "vcs_DoubleStarStar.h"
 #include "vcs_IntStarStar.h"
-#include "vcs_defs.h"
+#include "cantera/equil/vcs_defs.h"
 #include <vector>
 #include <string>
 

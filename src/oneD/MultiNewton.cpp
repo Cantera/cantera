@@ -11,11 +11,11 @@
 #include <vector>
 using namespace std;
 
-#include "MultiNewton.h"
+#include "cantera/oneD/MultiNewton.h"
 
-#include "ctexceptions.h"
-#include "vec_functions.h"
-#include "stringUtils.h"
+#include "cantera/base/ctexceptions.h"
+#include "cantera/base/vec_functions.h"
+#include "cantera/base/stringUtils.h"
 
 #include <cstdio>
 #include <cmath>

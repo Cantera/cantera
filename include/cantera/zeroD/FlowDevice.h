@@ -7,9 +7,9 @@
 #ifndef CT_FLOWDEVICE_H
 #define CT_FLOWDEVICE_H
 
-#include "ct_defs.h"
-#include "global.h"
-#include "stringUtils.h"
+#include "cantera/base/ct_defs.h"
+#include "cantera/base/global.h"
+#include "cantera/base/stringUtils.h"
 
 namespace Cantera
 {

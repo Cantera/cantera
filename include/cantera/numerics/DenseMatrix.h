@@ -11,8 +11,8 @@
 #ifndef CT_DENSEMATRIX_H
 #define CT_DENSEMATRIX_H
 
-#include "ct_defs.h"
-#include "Array.h"
+#include "cantera/base/ct_defs.h"
+#include "cantera/base/Array.h"
 
 namespace Cantera
 {

@@ -17,7 +17,7 @@
 
 #include <string>
 
-#include "ThermoPhase.h"
+#include "cantera/thermo/ThermoPhase.h"
 #include "Kinetics.h"
 
 namespace Cantera

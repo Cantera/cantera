@@ -13,7 +13,7 @@
 #define WATERPROPSIAPWS_H
 
 #include "WaterPropsIAPWSphi.h"
-#include "config.h"
+#include "cantera/base/config.h"
 
 typedef double doublereal;
 

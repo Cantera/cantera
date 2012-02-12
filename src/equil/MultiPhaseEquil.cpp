@@ -1,12 +1,12 @@
 /**
  * @file MultiPhaseEquil.cpp
  */
-#include "MultiPhaseEquil.h"
-#include "MultiPhase.h"
+#include "cantera/equil/MultiPhaseEquil.h"
+#include "cantera/equil/MultiPhase.h"
 #ifdef WITH_ELECTROLYTES
-#include "MolalityVPSSTP.h"
+#include "cantera/thermo/MolalityVPSSTP.h"
 #endif
-#include "global.h"
+#include "cantera/base/global.h"
 
 #include <math.h>
 #include <iostream>

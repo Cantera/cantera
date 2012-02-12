@@ -5,13 +5,13 @@
 #include "ctreactor.h"
 
 // Cantera includes
-#include "kernel/Reactor.h"
-#include "kernel/FlowReactor.h"
-#include "kernel/ConstPressureReactor.h"
-#include "kernel/ReactorNet.h"
-#include "kernel/Reservoir.h"
-#include "kernel/Wall.h"
-#include "kernel/flowControllers.h"
+#include "cantera/zeroD/Reactor.h"
+#include "cantera/zeroD/FlowReactor.h"
+#include "cantera/zeroD/ConstPressureReactor.h"
+#include "cantera/zeroD/ReactorNet.h"
+#include "cantera/zeroD/Reservoir.h"
+#include "cantera/zeroD/Wall.h"
+#include "cantera/zeroD/flowControllers.h"
 
 #include "Cabinet.h"
 #include "Storage.h"

@@ -3,7 +3,7 @@
  */
 // Copyright 2002-3  California Institute of Technology
 
-#include "Inlet1D.h"
+#include "cantera/oneD/Inlet1D.h"
 
 using namespace std;
 

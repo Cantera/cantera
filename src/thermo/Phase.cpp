@@ -7,10 +7,10 @@
 
 // Copyright 2001  California Institute of Technology
 
-#include "ct_defs.h"
-#include "Phase.h"
-#include "vec_functions.h"
-#include "ctexceptions.h"
+#include "cantera/base/ct_defs.h"
+#include "cantera/thermo/Phase.h"
+#include "cantera/base/vec_functions.h"
+#include "cantera/base/ctexceptions.h"
 
 using namespace std;
 

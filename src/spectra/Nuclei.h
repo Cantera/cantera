@@ -5,7 +5,7 @@
 #ifndef CT_NUCL_H
 #define CT_NUCL_H
 
-#include "ct_defs.h"
+#include "cantera/base/ct_defs.h"
 
 namespace Cantera
 {

@@ -18,7 +18,7 @@
 
 #include "MolalityVPSSTP.h"
 #include "electrolytes.h"
-#include "Array.h"
+#include "cantera/base/Array.h"
 
 namespace Cantera
 {

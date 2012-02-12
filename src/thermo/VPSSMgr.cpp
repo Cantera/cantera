@@ -12,11 +12,11 @@
  * U.S. Government retains certain rights in this software.
  */
 
-#include "VPSSMgr.h"
-#include "VPStandardStateTP.h"
-#include "SpeciesThermoFactory.h"
-#include "PDSS.h"
-#include "GeneralSpeciesThermo.h"
+#include "cantera/thermo/VPSSMgr.h"
+#include "cantera/thermo/VPStandardStateTP.h"
+#include "cantera/thermo/SpeciesThermoFactory.h"
+#include "cantera/thermo/PDSS.h"
+#include "cantera/thermo/GeneralSpeciesThermo.h"
 
 using namespace std;
 

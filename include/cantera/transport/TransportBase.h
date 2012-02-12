@@ -21,8 +21,8 @@
 #ifndef CT_TRANSPORTBASE_H
 #define CT_TRANSPORTBASE_H
 
-#include "ThermoPhase.h"
-#include "DenseMatrix.h"
+#include "cantera/thermo/ThermoPhase.h"
+#include "cantera/numerics/DenseMatrix.h"
 
 namespace Cantera
 {

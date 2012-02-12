@@ -5,9 +5,9 @@
 #include "ctbdry.h"
 
 // Cantera includes
-#include "kernel/OneDim.h"
-#include "kernel/Inlet1D.h"
-#include "kernel/InterfaceKinetics.h"
+#include "cantera/oneD/OneDim.h"
+#include "cantera/oneD/Inlet1D.h"
+#include "cantera/kinetics/InterfaceKinetics.h"
 #include "Cabinet.h"
 #include "Storage.h"
 

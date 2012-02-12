@@ -15,7 +15,7 @@
 // Copyright 2001  California Institute of Technology
 
 
-#include "global.h"
+#include "cantera/base/global.h"
 #include "SpeciesThermoInterpType.h"
 
 namespace Cantera

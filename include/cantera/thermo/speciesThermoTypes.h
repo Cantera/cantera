@@ -68,10 +68,10 @@
 //! A general object is called with the pressure set at the reference state.
 #define PDSS_TYPE 37
 
-#include "ct_defs.h"
+#include "cantera/base/ct_defs.h"
 
-#include "stringUtils.h"
-#include "global.h"
+#include "cantera/base/stringUtils.h"
+#include "cantera/base/global.h"
 
 namespace Cantera
 {

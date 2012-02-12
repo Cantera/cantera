@@ -5,7 +5,7 @@
 #include "ctxml.h"
 
 // Cantera includes
-#include "kernel/ctml.h"
+#include "cantera/base/ctml.h"
 #include "Cabinet.h"
 #include "Storage.h"
 

@@ -13,9 +13,9 @@
  * See file License.txt for licensing information.
  */
 
-#include "ct_defs.h"
-#include "ctlapack.h"
-#include "ResidJacEval.h"
+#include "cantera/base/ct_defs.h"
+#include "cantera/numerics/ctlapack.h"
+#include "cantera/numerics/ResidJacEval.h"
 
 #include <iostream>
 #include <vector>

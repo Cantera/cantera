@@ -2,8 +2,8 @@
  * @file rotor.cpp
  *
 */
-#include "ct_defs.h"
-#include "rotor.h"
+#include "cantera/base/ct_defs.h"
+#include "cantera/spectra/rotor.h"
 
 using namespace std;
 using namespace Cantera;

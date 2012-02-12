@@ -26,7 +26,7 @@
 #include <math.h>
 #include <float.h>
 #include <limits.h>
-#include "kernel/config.h"
+#include "cantera/base/config.h"
 #ifndef _MSC_VER
 #include <unistd.h>
 #else
@@ -40,7 +40,7 @@ using namespace std;
 #include <getopt.h>
 #endif
 
-#include "mdp_allo.h"
+#include "cantera/base/mdp_allo.h"
 #include "tok_input_util.h"
 
 #ifndef MAX

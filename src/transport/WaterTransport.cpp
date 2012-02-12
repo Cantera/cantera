@@ -1,14 +1,14 @@
-#include "ct_defs.h"
-#include "WaterPropsIAPWS.h"
-#include "TransportBase.h"
-#include "DenseMatrix.h"
-#include "LiquidTransportParams.h"
-#include "VPStandardStateTP.h"
+#include "cantera/base/ct_defs.h"
+#include "cantera/thermo/WaterPropsIAPWS.h"
+#include "cantera/transport/TransportBase.h"
+#include "cantera/numerics/DenseMatrix.h"
+#include "cantera/transport/LiquidTransportParams.h"
+#include "cantera/thermo/VPStandardStateTP.h"
 
-#include "WaterTransport.h"
-#include "PDSS_Water.h"
-#include "WaterSSTP.h"
-#include "WaterProps.h"
+#include "cantera/transport/WaterTransport.h"
+#include "cantera/thermo/PDSS_Water.h"
+#include "cantera/thermo/WaterSSTP.h"
+#include "cantera/thermo/WaterProps.h"
 
 #include <iostream>
 using namespace std;

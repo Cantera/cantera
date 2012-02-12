@@ -8,11 +8,11 @@
  */
 //  Copyright 2003  California Institute of Technology
 
-#include "Elements.h"
-#include "xml.h"
-#include "ctml.h"
-#include "ctexceptions.h"
-#include "stringUtils.h"
+#include "cantera/thermo/Elements.h"
+#include "cantera/base/xml.h"
+#include "cantera/base/ctml.h"
+#include "cantera/base/ctexceptions.h"
+#include "cantera/base/stringUtils.h"
 
 using namespace ctml;
 using namespace std;

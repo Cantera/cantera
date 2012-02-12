@@ -7,11 +7,11 @@
 #ifndef CT_RATECOEFF_MGR_H
 #define CT_RATECOEFF_MGR_H
 
-#include "utilities.h"
+#include "cantera/base/utilities.h"
 #include "RxnRates.h"
 
-#include "ct_defs.h"
-#include "ctexceptions.h"
+#include "cantera/base/ct_defs.h"
+#include "cantera/base/ctexceptions.h"
 
 
 namespace Cantera

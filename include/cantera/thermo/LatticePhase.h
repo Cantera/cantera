@@ -10,15 +10,15 @@
 #ifndef CT_LATTICE_H
 #define CT_LATTICE_H
 
-#include "config.h"
+#include "cantera/base/config.h"
 
 #ifdef WITH_LATTICE_SOLID
 
-#include "ct_defs.h"
+#include "cantera/base/ct_defs.h"
 #include "mix_defs.h"
 #include "ThermoPhase.h"
 #include "SpeciesThermo.h"
-#include "utilities.h"
+#include "cantera/base/utilities.h"
 
 namespace Cantera
 {

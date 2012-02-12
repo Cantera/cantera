@@ -10,8 +10,8 @@
 
 #include <algorithm>
 
-#include "ct_defs.h"
-#include "utilities.h"
+#include "cantera/base/ct_defs.h"
+#include "cantera/base/utilities.h"
 #include "Enhanced3BConc.h"
 
 

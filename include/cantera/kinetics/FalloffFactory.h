@@ -9,9 +9,9 @@
 #ifndef CT_NEWFALLOFF_H
 #define CT_NEWFALLOFF_H
 
-#include "ct_defs.h"
+#include "cantera/base/ct_defs.h"
 #include "reaction_defs.h"
-#include "FactoryBase.h"
+#include "cantera/base/FactoryBase.h"
 
 #if defined(THREAD_SAFE_CANTERA)
 #include <boost/thread/mutex.hpp>

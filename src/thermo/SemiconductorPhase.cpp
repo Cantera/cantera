@@ -1,5 +1,5 @@
 
-#include "SemiconductorPhase.h"
+#include "cantera/thermo/SemiconductorPhase.h"
 
 using namespace std;
 

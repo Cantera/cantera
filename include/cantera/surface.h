@@ -1,7 +1,7 @@
 #ifndef CT_SURFACE_INCL
 #define CT_SURFACE_INCL
 
-#include "SurfPhase.h"
-#include "InterfaceKinetics.h"
+#include "thermo/SurfPhase.h"
+#include "kinetics/InterfaceKinetics.h"
 
 #endif

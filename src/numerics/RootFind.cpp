@@ -11,19 +11,19 @@
  * See file License.txt for licensing information.
  */
 
-#include "ct_defs.h"
-#include "RootFind.h"
+#include "cantera/base/ct_defs.h"
+#include "cantera/numerics/RootFind.h"
 
 // turn on debugging for now
 #ifndef DEBUG_MODE
 #define DEBUG_MODE
 #endif
 
-#include "global.h"
+#include "cantera/base/global.h"
 #ifdef DEBUG_MODE
-#include "mdp_allo.h"
+#include "cantera/base/mdp_allo.h"
 #endif
-#include "stringUtils.h"
+#include "cantera/base/stringUtils.h"
 /* Standard include files */
 
 #include <cstdio>

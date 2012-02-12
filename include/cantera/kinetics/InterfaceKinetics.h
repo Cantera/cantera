@@ -11,10 +11,10 @@
 #include <fstream>
 #include <map>
 
-#include "mix_defs.h"
+#include "cantera/thermo/mix_defs.h"
 #include "Kinetics.h"
 
-#include "utilities.h"
+#include "cantera/base/utilities.h"
 #include "RateCoeffMgr.h"
 #include "ReactionStoichMgr.h"
 

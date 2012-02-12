@@ -7,16 +7,16 @@
  *   pointers are passed to or from the calling application.
  */
 // Cantera includes
-#include "kernel/equil.h"
-#include "kernel/KineticsFactory.h"
-#include "kernel/TransportFactory.h"
-#include "kernel/ThermoFactory.h"
-#include "kernel/ctml.h"
-#include "kernel/importKinetics.h"
+#include "cantera/equil/equil.h"
+#include "cantera/kinetics/KineticsFactory.h"
+#include "cantera/transport/TransportFactory.h"
+#include "cantera/thermo/ThermoFactory.h"
+#include "cantera/base/ctml.h"
+#include "cantera/kinetics/importKinetics.h"
 #include "clib/Storage.h"
 #include "clib/Cabinet.h"
-#include "kernel/InterfaceKinetics.h"
-#include "kernel/PureFluidPhase.h"
+#include "cantera/kinetics/InterfaceKinetics.h"
+#include "cantera/thermo/PureFluidPhase.h"
 
 #include "flib_defs.h"
 

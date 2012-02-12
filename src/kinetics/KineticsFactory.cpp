@@ -3,14 +3,14 @@
  */
 // Copyright 2001  California Institute of Technology
 
-#include "KineticsFactory.h"
+#include "cantera/kinetics/KineticsFactory.h"
 
-#include "GasKinetics.h"
-#include "GRI_30_Kinetics.h"
-#include "InterfaceKinetics.h"
-#include "EdgeKinetics.h"
-#include "importKinetics.h"
-#include "AqueousKinetics.h"
+#include "cantera/kinetics/GasKinetics.h"
+#include "cantera/kinetics/GRI_30_Kinetics.h"
+#include "cantera/kinetics/InterfaceKinetics.h"
+#include "cantera/kinetics/EdgeKinetics.h"
+#include "cantera/kinetics/importKinetics.h"
+#include "cantera/kinetics/AqueousKinetics.h"
 
 using namespace std;
 

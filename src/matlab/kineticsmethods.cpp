@@ -1,5 +1,5 @@
 #include "ctmatutils.h"
-#include <cantera/clib/ct.h>
+#include <clib/ct.h>
 
 void checkNArgs(const int n, const int nrhs)
 {

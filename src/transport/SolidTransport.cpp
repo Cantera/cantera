@@ -6,10 +6,10 @@
  */
 // copyright 2008 California Institute of Technology
 
-#include "ThermoPhase.h"
-#include "SolidTransport.h"
+#include "cantera/thermo/ThermoPhase.h"
+#include "cantera/transport/SolidTransport.h"
 
-#include "utilities.h"
+#include "cantera/base/utilities.h"
 #include <iostream>
 
 using namespace std;

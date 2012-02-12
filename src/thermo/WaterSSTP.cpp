@@ -8,12 +8,12 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-#include "xml.h"
-#include "WaterSSTP.h"
-#include "WaterPropsIAPWS.h"
+#include "cantera/base/xml.h"
+#include "cantera/thermo/WaterSSTP.h"
+#include "cantera/thermo/WaterPropsIAPWS.h"
 //#include "importCTML.h"
-#include "WaterProps.h"
-#include "ThermoFactory.h"
+#include "cantera/thermo/WaterProps.h"
+#include "cantera/thermo/ThermoFactory.h"
 #include <cmath>
 
 using namespace std;

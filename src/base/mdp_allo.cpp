@@ -19,7 +19,7 @@
 #include <cstring>
 #include <cstdarg>
 
-#include "mdp_allo.h"
+#include "cantera/base/mdp_allo.h"
 
 using namespace std;
 

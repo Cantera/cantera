@@ -1,7 +1,7 @@
 #ifndef TPX_CARBONDIOXIDE_H
 #define TPX_CARBONDIOXIDE_H
 
-#include "Sub.h"
+#include "cantera/tpx/Sub.h"
 
 
 

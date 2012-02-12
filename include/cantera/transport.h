@@ -9,9 +9,9 @@
 #ifndef CT_TRANSPORT_INCL
 #define CT_TRANSPORT_INCL
 
-#include "kernel/TransportFactory.h"
-#include "kernel/DustyGasTransport.h"
-#include "kernel/MultiTransport.h"
-#include "kernel/MixTransport.h"
-#include "kernel/LiquidTransport.h"
+#include "transport/TransportFactory.h"
+#include "transport/DustyGasTransport.h"
+#include "transport/MultiTransport.h"
+#include "transport/MixTransport.h"
+#include "transport/LiquidTransport.h"
 #endif

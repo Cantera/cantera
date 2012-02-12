@@ -13,14 +13,14 @@
 // RFB:TODO May need OS specifc include to use varargs.h instead
 #include <stdarg.h>
 
-#include "global.h"
-#include "ctexceptions.h"
-#include "stringUtils.h"
+#include "cantera/base/global.h"
+#include "cantera/base/ctexceptions.h"
+#include "cantera/base/stringUtils.h"
 #include "units.h"
-#include "xml.h"
-#include "ctml.h"
-#include "FactoryBase.h"
-#include "logger.h"
+#include "cantera/base/xml.h"
+#include "cantera/base/ctml.h"
+#include "cantera/base/FactoryBase.h"
+#include "cantera/base/logger.h"
 
 
 #include <fstream>

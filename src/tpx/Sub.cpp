@@ -2,7 +2,7 @@
  * The Substance class
  * D. Goodwin, Caltech Nov. 1996
  */
-#include "Sub.h"
+#include "cantera/tpx/Sub.h"
 #include <math.h>
 #include <fstream>
 #include <stdio.h>

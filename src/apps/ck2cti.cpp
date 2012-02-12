@@ -34,9 +34,9 @@
 #include <string>
 using namespace std;
 
-#include "kernel/ct_defs.h"
-#include "kernel/global.h"
-#include "kernel/ck2ct.h"
+#include "cantera/base/ct_defs.h"
+#include "cantera/base/global.h"
+#include "converters/ck2ct.h"
 
 using namespace Cantera;
 

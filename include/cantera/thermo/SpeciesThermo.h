@@ -10,7 +10,7 @@
 #ifndef CT_SPECIESTHERMO_H
 #define CT_SPECIESTHERMO_H
 
-#include "ct_defs.h"
+#include "cantera/base/ct_defs.h"
 
 namespace Cantera
 {

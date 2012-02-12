@@ -23,12 +23,12 @@
 #pragma warning(disable:4503)
 #endif
 
-#include "RedlichKwongMFTP.h"
+#include "cantera/thermo/RedlichKwongMFTP.h"
 
 
-#include "mix_defs.h"
-#include "ThermoFactory.h"
-#include "RootFind.h"
+#include "cantera/thermo/mix_defs.h"
+#include "cantera/thermo/ThermoFactory.h"
+#include "cantera/numerics/RootFind.h"
 
 using namespace std;
 

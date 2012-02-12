@@ -19,7 +19,7 @@
 #include <vector>
 
 #include "DAE_Solver.h"
-#include "ctexceptions.h"
+#include "cantera/base/ctexceptions.h"
 
 #ifdef HAS_SUNDIALS
 

@@ -6,12 +6,12 @@
 
 // Copyright 2001  California Institute of Technology
 
-#include "BandMatrix.h"
-#include "ctlapack.h"
-#include "utilities.h"
-#include "ctexceptions.h"
-#include "stringUtils.h"
-#include "global.h"
+#include "cantera/numerics/BandMatrix.h"
+#include "cantera/numerics/ctlapack.h"
+#include "cantera/base/utilities.h"
+#include "cantera/base/ctexceptions.h"
+#include "cantera/base/stringUtils.h"
+#include "cantera/base/global.h"
 #include <cstring>
 
 using namespace std;

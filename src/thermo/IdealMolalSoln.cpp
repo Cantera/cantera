@@ -17,8 +17,8 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-#include "IdealMolalSoln.h"
-#include "ThermoFactory.h"
+#include "cantera/thermo/IdealMolalSoln.h"
+#include "cantera/thermo/ThermoFactory.h"
 #include <cmath>
 
 //@{

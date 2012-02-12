@@ -6,7 +6,7 @@
 #include <string>
 #include <ctype.h>
 
-#include "config.h"
+#include "cantera/base/config.h"
 
 #ifdef HAS_SSTREAM
 #include <sstream>
@@ -18,10 +18,10 @@ using namespace std;
 #include "writelog.h"
 
 #include "ck2ct.h"
-#include "stringUtils.h"
+#include "cantera/base/stringUtils.h"
 #include <time.h>
-#include "ct_defs.h"
-#include "ctml.h"
+#include "cantera/base/ct_defs.h"
+#include "cantera/base/ctml.h"
 
 
 using namespace Cantera;

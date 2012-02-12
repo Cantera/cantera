@@ -7,7 +7,7 @@
 // Copyright 2001  California Institute of Technology
 
 #include "ImplicitSurfChem.h"
-#include "Integrator.h"
+#include "cantera/numerics/Integrator.h"
 #include "solveSP.h"
 
 using namespace std;

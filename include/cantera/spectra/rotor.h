@@ -13,7 +13,7 @@
  * molecules.
  */
 
-#include "ct_defs.h"
+#include "cantera/base/ct_defs.h"
 
 /**
  * Namespace for spectroscopic functions and classes.

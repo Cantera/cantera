@@ -2,7 +2,7 @@
 // Copyright 2001 California Institute of Technology.
 // All rights reserved.
 
-#include "ct_defs.h"
+#include "cantera/base/ct_defs.h"
 
 #ifndef LAPACK_H
 #define LAPACK_H

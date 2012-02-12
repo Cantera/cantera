@@ -7,9 +7,9 @@
 #define CT_REACTORNET_H
 
 #include "Reactor.h"
-#include "FuncEval.h"
-#include "Integrator.h"
-#include "Array.h"
+#include "cantera/numerics/FuncEval.h"
+#include "cantera/numerics/Integrator.h"
+#include "cantera/base/Array.h"
 
 namespace Cantera
 {

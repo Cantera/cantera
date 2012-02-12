@@ -12,12 +12,12 @@
 #ifndef CT_LIQUIDTRANINTERACTION_H
 #define CT_LIQUIDTRANINTERACTION_H
 
-#include "ct_defs.h"
+#include "cantera/base/ct_defs.h"
 #include "TransportBase.h"
 #include "TransportParams.h"
 #include "LiquidTransportData.h"
-#include "xml.h"
-#include "XML_Writer.h"
+#include "cantera/base/xml.h"
+#include "cantera/base/XML_Writer.h"
 
 namespace Cantera
 {

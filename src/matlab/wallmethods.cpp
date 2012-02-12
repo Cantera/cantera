@@ -2,8 +2,8 @@
  *  @file wallmethods.cpp
  */
 
-#include <cantera/clib/ctreactor.h>
-#include <cantera/clib/ct.h>
+#include <clib/ctreactor.h>
+#include <clib/ct.h>
 #include "ctmatutils.h"
 
 //const double Undef = -999.123;

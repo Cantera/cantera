@@ -11,9 +11,9 @@
  * U.S. Government retains certain rights in this software.
  */
 
-#include "VPStandardStateTP.h"
-#include "VPSSMgr.h"
-#include "PDSS.h"
+#include "cantera/thermo/VPStandardStateTP.h"
+#include "cantera/thermo/VPSSMgr.h"
+#include "cantera/thermo/PDSS.h"
 
 using namespace std;
 

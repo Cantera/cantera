@@ -6,10 +6,10 @@
  */
 
 //  Copyright 2002 California Institute of Technology
-#include "ct_defs.h"
-#include "mix_defs.h"
-#include "ConstDensityThermo.h"
-#include "SpeciesThermo.h"
+#include "cantera/base/ct_defs.h"
+#include "cantera/thermo/mix_defs.h"
+#include "cantera/thermo/ConstDensityThermo.h"
+#include "cantera/thermo/SpeciesThermo.h"
 
 #include <cmath>
 

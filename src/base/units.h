@@ -11,8 +11,8 @@
 #ifndef CT_UNITS_H
 #define CT_UNITS_H
 
-#include "ct_defs.h"
-#include "ctexceptions.h"
+#include "cantera/base/ct_defs.h"
+#include "cantera/base/ctexceptions.h"
 
 #include <string>
 

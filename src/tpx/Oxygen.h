@@ -1,7 +1,7 @@
 #ifndef TPX_OXYGEN_H
 #define TPX_OXYGEN_H
 
-#include "Sub.h"
+#include "cantera/tpx/Sub.h"
 
 namespace tpx
 {

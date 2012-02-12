@@ -7,9 +7,9 @@
  */
 // Copyright 2002  California Institute of Technology
 
-#include "SurfPhase.h"
-#include "EdgePhase.h"
-#include "ThermoFactory.h"
+#include "cantera/thermo/SurfPhase.h"
+#include "cantera/thermo/EdgePhase.h"
+#include "cantera/thermo/ThermoFactory.h"
 
 using namespace ctml;
 

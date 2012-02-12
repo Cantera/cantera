@@ -16,7 +16,7 @@
  */
 
 #include "TortuosityMaxwell.h"
-#include "ctexceptions.h"
+#include "cantera/base/ctexceptions.h"
 
 #include <string>
 

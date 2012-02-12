@@ -9,8 +9,8 @@
 #define CT_PLOTS_H
 
 
-#include "Array.h"
-#include "ctexceptions.h"
+#include "cantera/base/Array.h"
+#include "cantera/base/ctexceptions.h"
 
 #include <vector>
 #include <string>

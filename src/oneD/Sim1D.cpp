@@ -2,8 +2,8 @@
  * @file Sim1D.cpp
  */
 
-#include "Sim1D.h"
-#include "MultiJac.h"
+#include "cantera/oneD/Sim1D.h"
+#include "cantera/oneD/MultiJac.h"
 
 #include <cstdlib>
 

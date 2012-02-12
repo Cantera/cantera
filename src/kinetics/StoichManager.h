@@ -7,7 +7,7 @@
 #ifndef CT_STOICH_MGR_H
 #define CT_STOICH_MGR_H
 
-#include "stringUtils.h"
+#include "cantera/base/stringUtils.h"
 
 namespace Cantera
 {

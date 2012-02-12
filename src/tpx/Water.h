@@ -1,7 +1,7 @@
 #ifndef TPX_WATER_H
 #define TPX_WATER_H
 
-#include "Sub.h"
+#include "cantera/tpx/Sub.h"
 
 namespace tpx
 {

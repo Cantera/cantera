@@ -18,14 +18,14 @@
 
 #include <limits>
 
-#include "SquareMatrix.h"
-#include "GeneralMatrix.h"
-#include "NonlinearSolver.h"
-#include "ctlapack.h"
+#include "cantera/numerics/SquareMatrix.h"
+#include "cantera/numerics/GeneralMatrix.h"
+#include "cantera/numerics/NonlinearSolver.h"
+#include "cantera/numerics/ctlapack.h"
 
-#include "clockWC.h"
-#include "vec_functions.h"
-#include "mdp_allo.h"
+#include "cantera/base/clockWC.h"
+#include "cantera/base/vec_functions.h"
+#include "cantera/base/mdp_allo.h"
 
 #include <cfloat>
 #include <ctime>

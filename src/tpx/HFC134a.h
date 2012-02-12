@@ -1,7 +1,7 @@
 #ifndef TPX_HFC134_H
 #define TPX_HFC134_H
 
-#include "Sub.h"
+#include "cantera/tpx/Sub.h"
 
 namespace tpx
 {

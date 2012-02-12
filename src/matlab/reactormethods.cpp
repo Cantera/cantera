@@ -2,8 +2,8 @@
  * @file reactormethods.cpp
  */
 
-#include <cantera/clib/ctreactor.h>
-#include <cantera/clib/ct.h>
+#include <clib/ctreactor.h>
+#include <clib/ct.h>
 #include "ctmatutils.h"
 
 void reactormethods(int nlhs, mxArray* plhs[],

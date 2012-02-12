@@ -1,7 +1,7 @@
 #ifndef TPX_HYDROGEN_H
 #define TPX_HYDROGEN_H
 
-#include "Sub.h"
+#include "cantera/tpx/Sub.h"
 
 namespace tpx
 {

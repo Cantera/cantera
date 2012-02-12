@@ -2,7 +2,7 @@
 #ifndef TPX_NITROGEN_H
 #define TPX_NITROGEN_H
 
-#include "Sub.h"
+#include "cantera/tpx/Sub.h"
 
 namespace tpx
 {

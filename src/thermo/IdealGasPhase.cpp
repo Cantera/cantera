@@ -5,10 +5,10 @@
  * and class \link Cantera::IdealGasPhase IdealGasPhase\endlink).
  */
 
-#include "ct_defs.h"
-#include "mix_defs.h"
-#include "IdealGasPhase.h"
-#include "SpeciesThermo.h"
+#include "cantera/base/ct_defs.h"
+#include "cantera/thermo/mix_defs.h"
+#include "cantera/thermo/IdealGasPhase.h"
+#include "cantera/thermo/SpeciesThermo.h"
 
 using namespace std;
 

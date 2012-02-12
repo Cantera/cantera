@@ -3,7 +3,7 @@
  */
 // Copyright 2002  California Institute of Technology
 
-#include "plots.h"
+#include "cantera/base/plots.h"
 
 using namespace std;
 

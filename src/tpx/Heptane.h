@@ -1,7 +1,7 @@
 #ifndef TPX_HEPTANE_H
 #define TPX_HEPTANE_H
 
-#include "Sub.h"
+#include "cantera/tpx/Sub.h"
 
 
 

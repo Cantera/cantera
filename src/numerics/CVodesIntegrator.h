@@ -8,10 +8,10 @@
 
 #ifdef HAS_SUNDIALS
 
-#include "Integrator.h"
-#include "FuncEval.h"
-#include "ctexceptions.h"
-#include "ct_defs.h"
+#include "cantera/numerics/Integrator.h"
+#include "cantera/numerics/FuncEval.h"
+#include "cantera/base/ctexceptions.h"
+#include "cantera/base/ct_defs.h"
 
 #ifdef SUNDIALS_VERSION_22
 #include <nvector_serial.h>

@@ -11,9 +11,9 @@
  * See file License.txt for licensing information.
  */
 
-#include "solveProb.h"
-#include "clockWC.h"
-#include "ctlapack.h"
+#include "cantera/numerics/solveProb.h"
+#include "cantera/base/clockWC.h"
+#include "cantera/numerics/ctlapack.h"
 
 /* Standard include files */
 

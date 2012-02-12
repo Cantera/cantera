@@ -5,8 +5,8 @@
 #ifndef CT_SOLVERS_H_INCL
 #define CT_SOLVERS_H_INCL
 
-#include "kernel/ResidEval.h"
+#include "numerics/ResidEval.h"
 
-#include "kernel/solveProb.h"
+#include "numerics/solveProb.h"
 
 #endif

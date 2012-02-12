@@ -8,7 +8,7 @@
 #ifndef CT_REACTION_DATA_H
 #define CT_REACTION_DATA_H
 
-#include "reaction_defs.h"
+#include "cantera/kinetics/reaction_defs.h"
 
 namespace Cantera
 {

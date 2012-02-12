@@ -15,9 +15,9 @@
 #include <new>
 
 // Cantera includes
-#include "ct_defs.h"
+#include "cantera/base/ct_defs.h"
 #include "TransportBase.h"
-#include "FactoryBase.h"
+#include "cantera/base/FactoryBase.h"
 //#include "LiquidTransportData.h"
 #include "LiquidTransportParams.h"
 

@@ -14,8 +14,8 @@
 #include "vcs_species_thermo.h"
 #include "vcs_internal.h"
 
-#include "ThermoPhase.h"
-#include "MolalityVPSSTP.h"
+#include "cantera/thermo/ThermoPhase.h"
+#include "cantera/thermo/MolalityVPSSTP.h"
 
 #include <cstdlib>
 #include <string>

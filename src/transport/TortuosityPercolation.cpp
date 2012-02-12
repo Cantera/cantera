@@ -16,7 +16,7 @@
  */
 
 #include "TortuosityPercolation.h"
-#include "ctexceptions.h"
+#include "cantera/base/ctexceptions.h"
 
 #include <string>
 

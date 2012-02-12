@@ -5,7 +5,7 @@
 #define MLLOGGER_H
 
 #include "ctmatutils.h"
-#include "cantera/kernel/logger.h"
+#include "cantera/base/logger.h"
 
 #include <iostream>
 

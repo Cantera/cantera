@@ -11,10 +11,10 @@
  * U.S. Government retains certain rights in this software.
  */
 
-#include "ctml.h"
-#include "PDSS_HKFT.h"
-#include "WaterProps.h"
-#include "PDSS_Water.h"
+#include "cantera/base/ctml.h"
+#include "cantera/thermo/PDSS_HKFT.h"
+#include "cantera/thermo/WaterProps.h"
+#include "cantera/thermo/PDSS_Water.h"
 
 #include <cstdlib>
 

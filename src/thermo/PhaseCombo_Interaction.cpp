@@ -13,8 +13,8 @@
  */
 
 
-#include "PhaseCombo_Interaction.h"
-#include "ThermoFactory.h"
+#include "cantera/thermo/PhaseCombo_Interaction.h"
+#include "cantera/thermo/ThermoFactory.h"
 #include <iomanip>
 
 using namespace std;

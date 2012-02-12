@@ -26,8 +26,8 @@
 #include <vector>
 #include <string>
 
-#include "ct_defs.h"
-#include "vcs_defs.h"
+#include "cantera/base/ct_defs.h"
+#include "cantera/equil/vcs_defs.h"
 #include "vcs_DoubleStarStar.h"
 #include "vcs_IntStarStar.h"
 

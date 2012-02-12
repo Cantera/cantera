@@ -3,7 +3,7 @@
 
 #include "Python.h"
 #include <string>
-#include "cantera/kernel/logger.h"
+#include "cantera/base/logger.h"
 
 static std::string ss = "print \"\"\" ";
 

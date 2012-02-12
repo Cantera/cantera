@@ -2,14 +2,14 @@
  *  @file SimpleTransport.cpp
  *  Simple mostly constant transport properties
  */
-#include "ThermoPhase.h"
-#include "SimpleTransport.h"
+#include "cantera/thermo/ThermoPhase.h"
+#include "cantera/transport/SimpleTransport.h"
 
-#include "utilities.h"
-#include "LiquidTransportParams.h"
-#include "TransportFactory.h"
+#include "cantera/base/utilities.h"
+#include "cantera/transport/LiquidTransportParams.h"
+#include "cantera/transport/TransportFactory.h"
 
-#include "ctlapack.h"
+#include "cantera/numerics/ctlapack.h"
 
 #include <iostream>
 using namespace std;

@@ -5,14 +5,14 @@
  */
 // Copyright 2002  California Institute of Technology
 
-#include "ctml.h"
+#include "cantera/base/ctml.h"
 
 //@{
 #define CTML_VERSION_1_4_1
 //@}
 
-#include "global.h"
-#include "stringUtils.h"
+#include "cantera/base/global.h"
+#include "cantera/base/stringUtils.h"
 
 #include <cctype>
 #include <cstring>

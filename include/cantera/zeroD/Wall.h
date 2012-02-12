@@ -7,9 +7,9 @@
 #ifndef CT_WALL_H
 #define CT_WALL_H
 
-#include "ct_defs.h"
-#include "ctexceptions.h"
-#include "Func1.h"
+#include "cantera/base/ct_defs.h"
+#include "cantera/base/ctexceptions.h"
+#include "cantera/numerics/Func1.h"
 
 namespace Cantera
 {

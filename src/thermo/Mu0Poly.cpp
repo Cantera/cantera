@@ -6,11 +6,11 @@
  *  (see \ref spthermo and class \link Cantera::Mu0Poly Mu0Poly\endlink).
  */
 #include "Mu0Poly.h"
-#include "ctexceptions.h"
-#include "speciesThermoTypes.h"
-#include "SpeciesThermo.h"
-#include "xml.h"
-#include "ctml.h"
+#include "cantera/base/ctexceptions.h"
+#include "cantera/thermo/speciesThermoTypes.h"
+#include "cantera/thermo/SpeciesThermo.h"
+#include "cantera/base/xml.h"
+#include "cantera/base/ctml.h"
 
 using namespace std;
 using namespace ctml;

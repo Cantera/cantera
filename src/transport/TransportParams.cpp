@@ -11,10 +11,10 @@
  *  $Revision$
  */
 
-#include "TransportParams.h"
+#include "cantera/transport/TransportParams.h"
 
 #ifdef DEBUG_MODE
-#include "XML_Writer.h"
+#include "cantera/base/XML_Writer.h"
 #endif
 using namespace std;
 

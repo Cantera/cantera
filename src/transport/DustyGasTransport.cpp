@@ -10,8 +10,8 @@
  *  See file License.txt for licensing information
  */
 
-#include "ThermoPhase.h"
-#include "DustyGasTransport.h"
+#include "cantera/thermo/ThermoPhase.h"
+#include "cantera/transport/DustyGasTransport.h"
 
 using namespace std;
 

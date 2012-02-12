@@ -7,7 +7,7 @@
 #ifndef CT_RXNPATH_GROUP
 #define CT_RXNPATH_GROUP
 
-#include "ct_defs.h"
+#include "cantera/base/ct_defs.h"
 
 namespace Cantera
 {

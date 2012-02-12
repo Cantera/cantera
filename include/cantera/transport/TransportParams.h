@@ -9,8 +9,8 @@
 
 #include <vector>
 
-#include "ct_defs.h"
-#include "DenseMatrix.h"
+#include "cantera/base/ct_defs.h"
+#include "cantera/numerics/DenseMatrix.h"
 #include "TransportBase.h"
 
 namespace Cantera

@@ -11,7 +11,7 @@
 #include <iostream>
 using namespace std;
 
-//#include "Cantera.h"
+//#include "cantera/Cantera.h"
 
 namespace ckr
 {

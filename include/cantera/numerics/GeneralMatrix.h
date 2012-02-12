@@ -18,7 +18,7 @@
 #ifndef CT_GENERALMATRIX_H
 #define CT_GENERALMATRIX_H
 
-#include "ct_defs.h"
+#include "cantera/base/ct_defs.h"
 
 namespace Cantera
 {

@@ -8,7 +8,7 @@
  *  $Revision$
  */
 
-#include "LiquidTransportData.h"
+#include "cantera/transport/LiquidTransportData.h"
 using namespace std;
 
 #ifndef SAFE_DELETE

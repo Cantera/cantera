@@ -17,9 +17,9 @@
 
 #include <vector>
 
-#include "ct_defs.h"
+#include "cantera/base/ct_defs.h"
 #include "ResidJacEval.h"
-#include "global.h"
+#include "cantera/base/global.h"
 
 namespace Cantera
 {

@@ -18,7 +18,7 @@
 #include "vcs_SpeciesProperties.h"
 #include "vcs_species_thermo.h"
 
-#include "clockWC.h"
+#include "cantera/base/clockWC.h"
 
 #include <string>
 #include "math.h"

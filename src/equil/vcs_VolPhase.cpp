@@ -12,8 +12,8 @@
 #include "vcs_species_thermo.h"
 #include "vcs_solve.h"
 
-#include "ThermoPhase.h"
-#include "mix_defs.h"
+#include "cantera/thermo/ThermoPhase.h"
+#include "cantera/thermo/mix_defs.h"
 
 #include <string>
 #include <cstdio>

@@ -11,7 +11,7 @@
  */
 
 #include <time.h>
-#include "clockWC.h"
+#include "cantera/base/clockWC.h"
 namespace Cantera
 {
 

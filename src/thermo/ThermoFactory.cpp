@@ -6,73 +6,73 @@
  */
 // Copyright 2001  California Institute of Technology
 
-#include "ThermoFactory.h"
+#include "cantera/thermo/ThermoFactory.h"
 
-#include "speciesThermoTypes.h"
-#include "SpeciesThermoFactory.h"
-#include "IdealGasPhase.h"
-#include "VPSSMgr.h"
+#include "cantera/thermo/speciesThermoTypes.h"
+#include "cantera/thermo/SpeciesThermoFactory.h"
+#include "cantera/thermo/IdealGasPhase.h"
+#include "cantera/thermo/VPSSMgr.h"
 #include "VPSSMgrFactory.h"
 
 #ifdef WITH_IDEAL_SOLUTIONS
-#include "IdealSolidSolnPhase.h"
-#include "MargulesVPSSTP.h"
+#include "cantera/thermo/IdealSolidSolnPhase.h"
+#include "cantera/thermo/MargulesVPSSTP.h"
 #include "RedlichKisterVPSSTP.h"
-#include "IonsFromNeutralVPSSTP.h"
-#include "PhaseCombo_Interaction.h"
+#include "cantera/thermo/IonsFromNeutralVPSSTP.h"
+#include "cantera/thermo/PhaseCombo_Interaction.h"
 #endif
 
 #ifdef WITH_PURE_FLUIDS
-#include "PureFluidPhase.h"
+#include "cantera/thermo/PureFluidPhase.h"
 #endif
 
 #ifdef WITH_REAL_GASSES
-#include "RedlichKwongMFTP.h"
+#include "cantera/thermo/RedlichKwongMFTP.h"
 #endif
 
-#include "ConstDensityThermo.h"
-#include "SurfPhase.h"
-#include "EdgePhase.h"
+#include "cantera/thermo/ConstDensityThermo.h"
+#include "cantera/thermo/SurfPhase.h"
+#include "cantera/thermo/EdgePhase.h"
 
 #ifdef WITH_METAL
-#include "MetalPhase.h"
+#include "cantera/thermo/MetalPhase.h"
 #endif
 
 #ifdef WITH_SEMICONDUCTOR
-#include "SemiconductorPhase.h"
+#include "cantera/thermo/SemiconductorPhase.h"
 #endif
 
 #undef USE_SSTP
 #ifdef WITH_STOICH_SUBSTANCE
 #ifdef USE_SSTP
-#include "StoichSubstanceSSTP.h"
+#include "cantera/thermo/StoichSubstanceSSTP.h"
 #else
-#include "StoichSubstance.h"
+#include "cantera/thermo/StoichSubstance.h"
 #endif
 #endif
 
 #ifdef WITH_STOICH_SUBSTANCE
-#include "MineralEQ3.h"
-#include "MetalSHEelectrons.h"
-#include "FixedChemPotSSTP.h"
+#include "cantera/thermo/MineralEQ3.h"
+#include "cantera/thermo/MetalSHEelectrons.h"
+#include "cantera/thermo/FixedChemPotSSTP.h"
 #endif
 
 //#include "importCTML.h"
 
 #ifdef WITH_LATTICE_SOLID
-#include "LatticeSolidPhase.h"
-#include "LatticePhase.h"
+#include "cantera/thermo/LatticeSolidPhase.h"
+#include "cantera/thermo/LatticePhase.h"
 #endif
 
 #ifdef WITH_ELECTROLYTES
-#include "HMWSoln.h"
-#include "DebyeHuckel.h"
-#include "IdealMolalSoln.h"
-#include "MolarityIonicVPSSTP.h"
-#include "MixedSolventElectrolyte.h"
+#include "cantera/thermo/HMWSoln.h"
+#include "cantera/thermo/DebyeHuckel.h"
+#include "cantera/thermo/IdealMolalSoln.h"
+#include "cantera/thermo/MolarityIonicVPSSTP.h"
+#include "cantera/thermo/MixedSolventElectrolyte.h"
 #endif
 
-#include "IdealSolnGasVPSS.h"
+#include "cantera/thermo/IdealSolnGasVPSS.h"
 
 #include <cstdlib>
 

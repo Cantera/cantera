@@ -11,7 +11,7 @@
 
 #include <vector>
 
-#include "ct_defs.h"
+#include "cantera/base/ct_defs.h"
 
 namespace Cantera
 {

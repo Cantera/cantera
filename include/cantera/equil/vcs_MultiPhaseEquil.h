@@ -5,7 +5,7 @@
 #ifndef VCS_MULTIPHASEEQUIL_H
 #define VCS_MULTIPHASEEQUIL_H
 
-#include "ct_defs.h"
+#include "cantera/base/ct_defs.h"
 #include "MultiPhase.h"
 #include "vcs_defs.h"
 

@@ -1,7 +1,7 @@
 #ifndef TPX_LK_H
 #define TPX_LK_H
 
-#include "Sub.h"
+#include "cantera/tpx/Sub.h"
 
 namespace tpx
 {

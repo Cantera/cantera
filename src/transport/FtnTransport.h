@@ -13,7 +13,7 @@
 #ifndef CT_FTNTRANSPORT_H
 #define CT_FTNTRANSPORT_H
 
-#include "TransportBase.h"
+#include "cantera/transport/TransportBase.h"
 
 
 /**

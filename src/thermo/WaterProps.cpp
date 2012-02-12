@@ -12,10 +12,10 @@
 #endif
 //@}
 
-#include "WaterProps.h"
-#include "ctml.h"
-#include "PDSS_Water.h"
-#include "WaterPropsIAPWS.h"
+#include "cantera/thermo/WaterProps.h"
+#include "cantera/base/ctml.h"
+#include "cantera/thermo/PDSS_Water.h"
+#include "cantera/thermo/WaterPropsIAPWS.h"
 
 #include <cmath>
 

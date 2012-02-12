@@ -6,10 +6,10 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "StFlow.h"
-#include "ArrayViewer.h"
-#include "ctml.h"
-#include "MultiJac.h"
+#include "cantera/oneD/StFlow.h"
+#include "cantera/numerics/ArrayViewer.h"
+#include "cantera/base/ctml.h"
+#include "cantera/oneD/MultiJac.h"
 
 using namespace ctml;
 using namespace std;

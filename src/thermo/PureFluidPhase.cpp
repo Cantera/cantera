@@ -5,13 +5,13 @@
  *   and supercritical fluid (see \ref thermoprops
  *   and class \link Cantera::PureFluidPhase PureFluidPhase\endlink).
  */
-#include "xml.h"
-#include "PureFluidPhase.h"
+#include "cantera/base/xml.h"
+#include "cantera/thermo/PureFluidPhase.h"
 
 #ifdef WITH_PURE_FLUIDS
 
-#include "../../../ext/tpx/Sub.h"
-#include "../../../ext/tpx/utils.h"
+#include "cantera/tpx/Sub.h"
+#include "cantera/tpx/utils.h"
 
 #include <cstdlib>
 #include <iomanip>

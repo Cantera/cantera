@@ -8,8 +8,8 @@
 #define KINETICS_FACTORY_H
 
 #include "Kinetics.h"
-#include "xml.h"
-#include "FactoryBase.h"
+#include "cantera/base/xml.h"
+#include "cantera/base/FactoryBase.h"
 
 #if defined(THREAD_SAFE_CANTERA)
 #include <boost/thread/mutex.hpp>

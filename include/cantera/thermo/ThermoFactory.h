@@ -11,13 +11,13 @@
 #define THERMO_FACTORY_H
 
 #include "ThermoPhase.h"
-#include "xml.h"
+#include "cantera/base/xml.h"
 
 #if defined(THREAD_SAFE_CANTERA)
 #include <boost/thread/mutex.hpp>
 #endif
 
-#include "FactoryBase.h"
+#include "cantera/base/FactoryBase.h"
 
 namespace Cantera
 {

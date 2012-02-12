@@ -8,19 +8,19 @@
 
 #include <vector>
 
-#include "ChemEquil.h"
-#include "DenseMatrix.h"
+#include "cantera/equil/ChemEquil.h"
+#include "cantera/numerics/DenseMatrix.h"
 
-#include "ct_defs.h"
-#include "global.h"
+#include "cantera/base/ct_defs.h"
+#include "cantera/base/global.h"
 #include "PropertyCalculator.h"
-#include "ctexceptions.h"
-#include "vec_functions.h"
-#include "stringUtils.h"
-#include "MultiPhase.h"
+#include "cantera/base/ctexceptions.h"
+#include "cantera/base/vec_functions.h"
+#include "cantera/base/stringUtils.h"
+#include "cantera/equil/MultiPhase.h"
 
 #ifdef DEBUG_MODE
-#include "PrintCtrl.h"
+#include "cantera/base/PrintCtrl.h"
 #endif
 
 using namespace std;

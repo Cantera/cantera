@@ -22,10 +22,10 @@
 #define MAX(x,y)    (( (x) > (y) ) ? (x) : (y))
 #endif
 //@}
-#include "HMWSoln.h"
-#include "ThermoFactory.h"
-#include "WaterProps.h"
-#include "PDSS_Water.h"
+#include "cantera/thermo/HMWSoln.h"
+#include "cantera/thermo/ThermoFactory.h"
+#include "cantera/thermo/WaterProps.h"
+#include "cantera/thermo/PDSS_Water.h"
 
 #include <cmath>
 #include <cstdlib>

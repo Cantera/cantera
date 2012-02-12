@@ -16,15 +16,15 @@
  * $Id: FixedChemPotSSTP.cpp 255 2009-11-09 23:36:49Z hkmoffa $
  */
 
-#include "ct_defs.h"
-#include "mix_defs.h"
-#include "FixedChemPotSSTP.h"
-#include "SpeciesThermo.h"
-#include "ThermoFactory.h"
+#include "cantera/base/ct_defs.h"
+#include "cantera/thermo/mix_defs.h"
+#include "cantera/thermo/FixedChemPotSSTP.h"
+#include "cantera/thermo/SpeciesThermo.h"
+#include "cantera/thermo/ThermoFactory.h"
 
 
 #include <string>
-#include "SimpleThermo.h"
+#include "cantera/thermo/SimpleThermo.h"
 namespace Cantera
 {
 //====================================================================================================================

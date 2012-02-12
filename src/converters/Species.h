@@ -13,7 +13,7 @@
 #include <map>
 #include <vector>
 
-//#include "Cantera.h"
+//#include "cantera/Cantera.h"
 
 
 namespace ckr

@@ -6,17 +6,17 @@
  */
 // Copyright 2001-2004  California Institute of Technology
 
-#include "GeneralSpeciesThermo.h"
-#include "NasaPoly1.h"
+#include "cantera/thermo/GeneralSpeciesThermo.h"
+#include "cantera/thermo/NasaPoly1.h"
 #include "NasaPoly2.h"
 #include "ShomatePoly.h"
 #include "ConstCpPoly.h"
 #include "Mu0Poly.h"
 #ifdef WITH_ADSORBATE
-#include "AdsorbateThermo.h"
+#include "cantera/thermo/AdsorbateThermo.h"
 #endif
 
-#include "SpeciesThermoFactory.h"
+#include "cantera/thermo/SpeciesThermoFactory.h"
 #include <iostream>
 
 using namespace std;

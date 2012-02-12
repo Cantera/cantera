@@ -8,7 +8,7 @@
  * U.S. Government retains certain rights in this software.
  */
 
-#include "vcs_MultiPhaseEquil.h"
+#include "cantera/equil/vcs_MultiPhaseEquil.h"
 #include "vcs_prob.h"
 #include "vcs_internal.h"
 #include "vcs_VolPhase.h"
@@ -18,18 +18,18 @@
 
 #include "vcs_solve.h"
 
-#include "ct_defs.h"
-#include "mix_defs.h"
-#include "clockWC.h"
-#include "ThermoPhase.h"
-#include "speciesThermoTypes.h"
+#include "cantera/base/ct_defs.h"
+#include "cantera/thermo/mix_defs.h"
+#include "cantera/base/clockWC.h"
+#include "cantera/thermo/ThermoPhase.h"
+#include "cantera/thermo/speciesThermoTypes.h"
 #ifdef WITH_IDEAL_SOLUTIONS
-#include "IdealSolidSolnPhase.h"
+#include "cantera/thermo/IdealSolidSolnPhase.h"
 #endif
 #ifdef WITH_ELECTROLYTES
-#include "IdealMolalSoln.h"
+#include "cantera/thermo/IdealMolalSoln.h"
 #endif
-#include "ChemEquil.h"
+#include "cantera/equil/ChemEquil.h"
 
 #include <string>
 #include <vector>

@@ -8,7 +8,7 @@
 #ifndef CT_FUNCEVAL_H
 #define CT_FUNCEVAL_H
 
-#include "ct_defs.h"
+#include "cantera/base/ct_defs.h"
 
 namespace Cantera
 {

@@ -4,34 +4,34 @@
  *  Implementation file for class TransportFactory.
  */
 
-#include "ThermoPhase.h"
+#include "cantera/thermo/ThermoPhase.h"
 
 // known transport models
-#include "MultiTransport.h"
-#include "MixTransport.h"
-#include "SolidTransport.h"
-#include "DustyGasTransport.h"
-#include "SimpleTransport.h"
+#include "cantera/transport/MultiTransport.h"
+#include "cantera/transport/MixTransport.h"
+#include "cantera/transport/SolidTransport.h"
+#include "cantera/transport/DustyGasTransport.h"
+#include "cantera/transport/SimpleTransport.h"
 
 #ifdef WITH_IDEAL_SOLUTIONS
-#include "LiquidTransport.h"
+#include "cantera/transport/LiquidTransport.h"
 #endif
 #ifdef WITH_ELECTROLYTES
-#include "AqueousTransport.h"
+#include "cantera/transport/AqueousTransport.h"
 #endif
 
-#include "TransportFactory.h"
+#include "cantera/transport/TransportFactory.h"
 
-#include "polyfit.h"
+#include "cantera/numerics/polyfit.h"
 #include "MMCollisionInt.h"
-#include "xml.h"
-#include "XML_Writer.h"
-#include "TransportParams.h"
-#include "LiquidTransportParams.h"
-#include "LiquidTranInteraction.h"
-#include "global.h"
-#include "IdealGasPhase.h"
-#include "ctml.h"
+#include "cantera/base/xml.h"
+#include "cantera/base/XML_Writer.h"
+#include "cantera/transport/TransportParams.h"
+#include "cantera/transport/LiquidTransportParams.h"
+#include "cantera/transport/LiquidTranInteraction.h"
+#include "cantera/base/global.h"
+#include "cantera/thermo/IdealGasPhase.h"
+#include "cantera/base/ctml.h"
 
 #include <cstdio>
 #include <cstring>

@@ -11,8 +11,8 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-#include "MargulesVPSSTP.h"
-#include "ThermoFactory.h"
+#include "cantera/thermo/MargulesVPSSTP.h"
+#include "cantera/thermo/ThermoFactory.h"
 #include <iomanip>
 
 using namespace std;

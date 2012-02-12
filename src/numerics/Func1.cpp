@@ -1,6 +1,6 @@
-#include "Func1.h"
-#include "stringUtils.h"
-#include "global.h"
+#include "cantera/numerics/Func1.h"
+#include "cantera/base/stringUtils.h"
+#include "cantera/base/global.h"
 
 using namespace std;
 

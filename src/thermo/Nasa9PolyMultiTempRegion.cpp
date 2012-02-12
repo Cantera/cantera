@@ -12,8 +12,8 @@
  */
 // Copyright 2007  Sandia National Laboratories
 
-#include "global.h"
-#include "ctexceptions.h"
+#include "cantera/base/global.h"
+#include "cantera/base/ctexceptions.h"
 #include "Nasa9PolyMultiTempRegion.h"
 
 using namespace std;
