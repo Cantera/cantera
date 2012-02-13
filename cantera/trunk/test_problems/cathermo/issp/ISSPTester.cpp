@@ -19,13 +19,8 @@
 #include <string>
 #include <vector>
 
-#ifdef SRCDIRTREE
-#include "cantera/base/ct_defs.h"
-#include "cantera/thermo/IdealSolidSolnPhase.h"
-#else
 #include "cantera/Cantera.h"
 #include "cantera/thermo/IdealSolidSolnPhase.h"
-#endif
 
 #include <cstdio>
 

@@ -1,23 +1,12 @@
 /**
  *  @file HMW_graph_VvT
  */
-#ifdef SRCDIRTREE
-#include "cantera/base/ct_defs.h"
-#include "cantera/base/logger.h"
-#include "TemperatureTable.h"
-#include "cantera/thermo/HMWSoln.h"
-#include "importCTML.h"
-#else
-//#include "vcsc.h"
+
 #include "cantera/Cantera.h"
-//#include "vcs_Cantera_input.h"
-//#include "vcs_Cantera_convert.h"
 #include "cantera/base/logger.h"
 #include "cantera/thermo.h"
 #include "TemperatureTable.h"
 #include "cantera/thermo/HMWSoln.h"
-
-#endif
 
 #include <cstdio>
 
