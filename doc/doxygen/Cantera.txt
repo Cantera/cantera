@@ -1,27 +1,22 @@
 /**
- \mainpage Cantera Reference
+\mainpage Cantera Reference
 
-
-Choose one of the links below for an introduction to %Cantera, or use
- the menu at the top to view detailed documentation of the code.
-
--
-
-- \subpage languages
-
-- Building and Installing %Cantera
-  - \subpage cantera-build
-  - \subpage cantera-winbuild
-
-- Working with %Cantera in MATLAB
-  - \subpage matlab-tutorial
-
-- Working with %Cantera in C++
-  - \subpage start
-  - \subpage cxx-ctnew
-
-- Computing Properties of Matter
-  - \subpage thermopage
-  - \subpage transportpage
+<p>Choose one of the links below for an introduction to %Cantera, or use
+the menu at the top to view detailed documentation of the code.
+</p>
+<ul>
+  <li>\subpage languages</li>
+  <li>\subpage cantera-build</li>
+  <li>Working with %Cantera in MATLAB</li>
+  <ul><li>\subpage matlab-tutorial</li></ul>
+  <li>Working with %Cantera in C++</li>
+  <ul><li>\subpage start</li>
+      <li> \subpage cxx-ctnew</li>
+  </ul>
+  <li>Computing Properties of Matter</li>
+  <ul><li>\subpage thermopage</li>
+      <li>\subpage transportpage</li>
+  </ul>
+</ul>
 
 */

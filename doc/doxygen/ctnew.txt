@@ -2,8 +2,6 @@
 
 \page cxx-ctnew Compiling and Linking your C++ Program
 
-\subpage cxx-setup
-
 \section cxx-demo Building the C++ demo program
 
 When you installed Cantera, a script named "ctnew" was added to the

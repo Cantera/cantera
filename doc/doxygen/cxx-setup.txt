@@ -1,7 +1,0 @@
-/**
-
-\page cxx-setup     C++ setup
-
-  Coming soon
-
-*/
