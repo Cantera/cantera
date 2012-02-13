@@ -248,6 +248,10 @@ opts.AddVariables(
            Available only when compiling with gcc.""",
         False),
     BoolVariable(
+        'build_docs',
+        """Build HTML documentation using Doxygen""",
+        False),
+    BoolVariable(
         'with_lattice_solid',
         """Include thermodynamic model for lattice solids in the
            Cantera kernel.""",
@@ -723,6 +727,7 @@ env['inst_incdir'] = pjoin(instRoot, 'include', 'cantera')
 env['inst_incroot'] = pjoin(instRoot, 'include')
 env['inst_datadir'] = pjoin(instRoot, 'data')
 env['inst_sampledir'] = pjoin(instRoot, 'samples')
+env['inst_docdir'] = pjoin(instRoot, 'doc')
 env['inst_mandir'] = pjoin(instRoot, 'man1')
 env['inst_matlab_dir'] = pjoin(instRoot, 'matlab', 'toolbox')
 
@@ -885,6 +890,9 @@ SConscript('build/src/apps/SConscript')
 if env['OS'] != 'Windows':
     VariantDir('build/platform', 'platform/posix', duplicate=0)
     SConscript('build/platform/SConscript')
+
+if env['build_docs']:
+    SConscript('doc/SConscript')
 
 # Data files
 inst = env.Install('$inst_datadir', mglob(env, pjoin('data','inputs'), 'cti', 'xml'))

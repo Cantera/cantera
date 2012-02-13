@@ -14,6 +14,9 @@
 # Project related configuration options
 #---------------------------------------------------------------------------
 
+USE_MATHJAX           = YES
+MATHJAX_RELPATH       = http://cdn.mathjax.org/mathjax/latest
+
 # This tag specifies the encoding used for all characters in the config file
 # that follow. The default is UTF-8 which is also the encoding used for all
 # text before the first occurrence of this tag. Doxygen uses libiconv (or the
@@ -31,7 +34,7 @@ PROJECT_NAME           = Cantera
 # This could be handy for archiving the generated documentation or
 # if some version control system is used.
 
-PROJECT_NUMBER         = 1.8
+PROJECT_NUMBER         = 2.0
 
 # The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute)
 # base path where the generated documentation will be put.
@@ -44,7 +47,7 @@ PROJECT_NUMBER         = 1.8
 # If a relative path is entered, it will be relative to the location
 # where doxygen was started. If left blank the current directory will be used.
 
-OUTPUT_DIRECTORY       = @ctroot@/docs
+OUTPUT_DIRECTORY       = build/docs
 
 # If the CREATE_SUBDIRS tag is set to YES, then doxygen will create
 # 4096 sub-directories (in 2 levels) under the output directory of each output
@@ -359,7 +362,7 @@ HIDE_UNDOC_MEMBERS     = NO
 # If set to NO (the default) these classes will be included in the various
 # overviews. This option has no effect if EXTRACT_ALL is enabled.
 
-HIDE_UNDOC_CLASSES     = NO
+HIDE_UNDOC_CLASSES     = YES
 
 # If the HIDE_FRIEND_COMPOUNDS tag is set to YES, Doxygen will hide all
 # friend (class|struct|union) declarations.
@@ -590,15 +593,20 @@ WARN_LOGFILE           =
 # directories like "/usr/src/myproject". Separate the files or directories
 # with spaces.
 
-INPUT                  = ../Cantera/src \
-                         ../Cantera/src/base \
-                         ../Cantera/src/numerics \
-                         ../Cantera/src/thermo \
-                         ../Cantera/src/equil \
-                         ../Cantera/src/kinetics \
-                         ../Cantera/src/transport \
-                         ../Cantera/cxx/include \
-                         doxyinput
+INPUT                  = src/apps \
+                         src/base \
+                         src/converters \
+                         src/equil \
+                         src/kinetics \
+                         src/numerics \
+                         src/oneD \
+                         src/spectra \
+                         src/thermo \
+                         src/tpx \
+                         src/transport \
+                         src/zeroD \
+                         include \
+                         doc/doxygen
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding, which is
@@ -615,213 +623,19 @@ INPUT_ENCODING         = UTF-8
 # *.c *.cc *.cxx *.cpp *.c++ *.java *.ii *.ixx *.ipp *.i++ *.inl *.h *.hh *.hxx
 # *.hpp *.h++ *.idl *.odl *.cs *.php *.php3 *.inc *.m *.mm *.py *.f90
 
-FILE_PATTERNS          = Kinetics.h  Kinetics.cpp \
-                         FactoryBase.h \
-                         misc.cpp \
-                         ct_defs.h \
-                         logger.h \
-                         global.h \
-                         units.h \
-                         ctexceptions.h \
-                         *.txt \
-                         xml.h \
-                         xml.cpp \
-                         ctml.h \
-                         ctml.cpp \
-                         ct2ctml.cpp \
-                         stringUtils.h \
-                         stringUtils.cpp \
-                         plots.h \
-                         plots.cpp \
-                         PrintCtrl.h \
-                         PrintCtrl.cpp \
-                         LogPrintCtrl.h \
-                         LogPrintCtrl.cpp \
-                         clockWC.h \
-                         clockWC.cpp \
-                         Array.h \
-                         vec_functions.h \
-                         equilibrium.h \
-                         ThermoPhase.h \
-                         ThermoPhase.cpp \
-                         Phase.h \
-                         Phase.cpp \
-                         State.h \
-                         State.cpp \
-                         Constituents.h \
-                         Constituents.cpp \
-                         Elements.h \
-                         Elements.cpp \
-                         importCTML.cpp \
-                         importCTML.h \
-                         ThermoFactory.h \
-                         ThermoFactory.cpp \
-                         IdealGasPhase.h \
-                         IdealGasPhase.cpp \
-                         SurfPhase.h \
-                         EdgePhase.h \
-                         SurfPhase.cpp \
-                         LatticePhase.h  LatticePhase.cpp \
-                         LatticeSolidPhase.h  LatticeSolidPhase.cpp \
-                         SpeciesThermoFactory.h  SpeciesThermoFactory.cpp \
-                         speciesThermoTypes.h \
-                         SpeciesThermoMgr.h \
-                         SpeciesThermoInterpType.h \
-                         PDSS.h \
-                         PDSS.cpp \
-                         SpeciesThermo.h \
-                         NasaThermo.h \
-                         NasaPoly1.h \
-                         NasaPoly2.h \
-                         ShomateThermo.h \
-                         ShomatePoly.h \
-                         SimpleThermo.h \
-                         GeneralSpeciesThermo.h \
-                         GeneralSpeciesThermo.cpp \
-                         ConstCpPoly.h \
-                         ConstCpPoly.cpp \
-                         Mu0Poly.h \
-                         Mu0Poly.cpp \
-                         utilities.h \
-                         phasereport.cpp \
-                         VPStandardStateTP.h \
-                         VPStandardStateTP.cpp \
-                         SingleSpeciesTP.h \
-                         SingleSpeciesTP.cpp \
-                         MolalityVPSSTP.h \
-                         MolalityVPSSTP.cpp \
-                         IdealMolalSoln.h \
-                         IdealMolalSoln.cpp \
-                         IdealSolidSolnPhase.h \
-                         IdealSolidSolnPhase.cpp \
-                         StoichSubstanceSSTP.h \
-                         StoichSubstanceSSTP.cpp \
-                         DebyeHuckel.h \
-                         DebyeHuckel.cpp \
-                         MineralEQ3.h \
-                         MineralEQ3.cpp \
-                         HMWSoln.h \
-                         HMWSoln.cpp \
-                         HMWSoln_input.cpp \
-                         GibbsExcessVPSSTP.h \
-                         GibbsExcessVPSSTP.cpp \
-                         MargulesVPSSTP.h \
-                         MargulesVPSSTP.cpp \
-                         RedlichKisterVPSSTP.h \
-                         RedlichKisterVPSSTP.cpp \
-                         IonsFromNeutralVPSSTP.h \
-                         IonsFromNeutralVPSSTP.cpp \
-                         VPSSMgr.h \
-                         VPSSMgr.cpp \
-                         VPSSMgr_types.h \
-                         VPSSMgr_ConstVol.h \
-                         VPSSMgr_ConstVol.cpp \
-                         VPSSMgr_IdealGas.h \
-                         VPSSMgr_IdealGas.cpp \
-                         VPSSMgr_Water_ConstVol.h \
-                         VPSSMgr_Water_ConstVol.cpp \
-                         VPSSMgr_Water_HKFT.h \
-                         VPSSMgr_Water_HKFT.cpp \
-                         VPSSMgr_General.h \
-                         VPSSMgr_General.cpp \
-                         VPSSMgrFactory.h \
-                         VPSSMgrFactory.cpp \
-                         PDSS_ConstVol.h \
-                         PDSS_ConstVol.cpp \
-                         PDSS_IdealGas.h \
-                         PDSS_IdealGas.cpp \
-                         PDSS_Water.h \
-                         PDSS_Water.cpp \
-                         PDSS_HKFT.h \
-                         PDSS_HKFT.cpp \
-                         PDSS_IonsFromNeutral.h \
-                         PDSS_IonsFromNeutral.cpp \
-                         PDSS_SSVol.h \
-                         PDSS_SSVol.cpp \
-                         IdealSolnGasVPSS.h \
-                         IdealSolnGasVPSS.cpp \
-                         ConstDensityThermo.h \
-                         ConstDensityThermo.cpp \
-                         WaterPropsIAPWSphi.h \
-                         WaterPropsIAPWSphi.cpp \
-                         WaterPropsIAPWS.h \
-                         WaterPropsIAPWS.cpp \
-                         WaterSSTP.h \
-                         WaterSSTP.cpp \
-                         WaterProps.h \
-                         WaterProps.cpp \
-                         PureFluidPhase.h \
-                         PureFluidPhase.cpp \
-                         equil.h \
-                         MultiPhase.h \
-                         MultiPhase.cpp \
-                         BasisOptimize.cpp \
-                         Nasa9Poly1.h \
-                         Nasa9Poly1.cpp \
-                         Nasa9PolyMultiTempRegion.h \
-                         Nasa9PolyMultiTempRegion.cpp \
-                         vcs_internal.h \
-                         vcs_defs.h \
-                         vcs_MultiPhaseEquil.h \
-                         vcs_MultiPhaseEquil.cpp \
-                         FalloffFactory.h \
-                         FalloffFactory.cpp \
-                         TransportBase.h \
-                         TransportBase.cpp \
-                         TransportParams.h \
-                         MMCollisionInt.h \
-                         L_matrix.h \
-                         MMCollisionInt.cpp \
-                         TransportFactory.h \
-                         TransportFactory.cpp \
-                         LTPspecies.h \
-                         LTPspecies.cpp \
-                         MultiTransport.h \
-                         MultiTransport.cpp \
-                         MixTransport.h \
-                         MixTransport.cpp \
-                         DustyGasTransport.h \
-                         DustyGasTransport.cpp \
-                         SolidTransport.h \
-                         SolidTransport.cpp \
-                         SimpleTransport.h \
-                         SimpleTransport.cpp \
-                         LiquidTransport.h \
-                         LiquidTransportParams.h \
-                         LiquidTransport.cpp \
-                         AqueousTransport.h \
-                         AqueousTransport.cpp \
-                         WaterTransport.h \
-                         WaterTransport.cpp \
-                         DenseMatrix.h \
-                         DenseMatrix.cpp \
-                         ResidJacEval.h \
-                         ResidJacEval.cpp \
-                         RootFind.h \
-                         RootFind.cpp \
-                         NonlinearSolver.h \
-                         NonlinearSolver.cpp \
-                         BandMatrix.h \
-                         BandMatrix.cpp \
-                         GeneralMatrix.h \
-                         GeneralMatrix.cpp \
-                         SquareMatrix.h \
-                         SquareMatrix.cpp 
+FILE_PATTERNS          = *.h *.cpp
 
 # The RECURSIVE tag can be used to turn specify whether or not subdirectories
 # should be searched for input files as well. Possible values are YES and NO.
 # If left blank NO is used.
 
-RECURSIVE              = NO
+RECURSIVE              = YES
 
 # The EXCLUDE tag can be used to specify files and/or directories that should
 # excluded from the INPUT source files. This way you can easily exclude a
 # subdirectory from a directory tree whose root is specified with the INPUT tag.
 
-EXCLUDE                = CVS \
-                         examples \
-                         converters \
-                         zeroD
+EXCLUDE                = 
 
 # The EXCLUDE_SYMLINKS tag can be used select whether or not files or
 # directories that are symbolic links (a Unix filesystem feature) are excluded
@@ -835,13 +649,7 @@ EXCLUDE_SYMLINKS       = NO
 # against the file with absolute path, so to exclude all test directories
 # for example use the pattern */test/*
 
-EXCLUDE_PATTERNS       = *old/* \
-                         *old_src/* \
-                         *stl/* \
-                         *CVS/* \
-                         *examples/* \
-                         *test/* \
-                         *tests/*
+EXCLUDE_PATTERNS       = */build/*
 
 # The EXCLUDE_SYMBOLS tag can be used to specify one or more symbol names
 # (namespaces, classes, functions, etc.) that should be excluded from the
@@ -849,30 +657,29 @@ EXCLUDE_PATTERNS       = *old/* \
 # wildcard * is used, a substring. Examples: ANamespace, AClass,
 # AClass::ANamespace, ANamespace::*Test
 
-EXCLUDE_SYMBOLS        =
+EXCLUDE_SYMBOLS        = std::*
 
 # The EXAMPLE_PATH tag can be used to specify one or more files or
 # directories that contain example code fragments that are included (see
 # the \include command).
 
-EXAMPLE_PATH           = ../../examples \
-                         ../../data/inputs \
-                         ./doxyinput
+EXAMPLE_PATH           = samples \
+                         data/inputs \
+                         doc/doxygen
 
 # If the value of the EXAMPLE_PATH tag contains directories, you can use the
 # EXAMPLE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp
 # and *.h) to filter out the source-files in the directories. If left
 # blank all files are included.
 
-EXAMPLE_PATTERNS       = *.cpp \
-                         *.h
+EXAMPLE_PATTERNS       = *.cpp *.h *.py *.cti
 
 # If the EXAMPLE_RECURSIVE tag is set to YES then subdirectories will be
 # searched for input files to be used with the \include or \dontinclude
 # commands irrespective of the value of the RECURSIVE tag.
 # Possible values are YES and NO. If left blank NO is used.
 
-EXAMPLE_RECURSIVE      = NO
+EXAMPLE_RECURSIVE      = YES
 
 # The IMAGE_PATH tag can be used to specify one or more files or
 # directories that contain image that are included in the documentation (see
@@ -1721,12 +1528,12 @@ DIRECTORY_GRAPH        = YES
 # generated by dot. Possible values are png, jpg, or gif
 # If left blank png will be used.
 
-DOT_IMAGE_FORMAT       = png
+DOT_IMAGE_FORMAT       = svg
 
 # The tag DOT_PATH can be used to specify the path where the dot tool can be
 # found. If left blank, it is assumed the dot tool can be found in the path.
 
-DOT_PATH               = @GRAPHVIZDIR@
+#DOT_PATH               = @GRAPHVIZDIR@
 
 # The DOTFILE_DIRS tag can be used to specify one or more directories that
 # contain dot files that are included in the documentation (see the
@@ -1752,7 +1559,7 @@ DOT_GRAPH_MAX_NODES    = 50
 # code bases. Also note that the size of a graph can be further restricted by
 # DOT_GRAPH_MAX_NODES. Using a depth of 0 means no depth restriction.
 
-MAX_DOT_GRAPH_DEPTH    = 0
+MAX_DOT_GRAPH_DEPTH    = 4
 
 # Set the DOT_TRANSPARENT tag to YES to generate images with a transparent
 # background. This is disabled by default, because dot on Windows does not
@@ -1767,7 +1574,7 @@ DOT_TRANSPARENT        = NO
 # makes dot run faster, but since only newer versions of dot (>1.8.10)
 # support this, this feature is disabled by default.
 
-DOT_MULTI_TARGETS      = NO
+DOT_MULTI_TARGETS      = YES
 
 # If the GENERATE_LEGEND tag is set to YES (the default) Doxygen will
 # generate a legend page explaining the meaning of the various boxes and
