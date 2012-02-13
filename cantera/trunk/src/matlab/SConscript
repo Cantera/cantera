@@ -22,6 +22,7 @@ class MatlabBuilder(object):
                 "%(includes)s %(libdir)s "
                 "%(libs)s %(sourcestr)s\n"
                 "disp('done.');\n"
+                "pause(2)\n"
                 "exit\n") % locals()
 
         with open(str(target[0]), 'w') as f:
@@ -31,13 +32,10 @@ class MatlabBuilder(object):
 localenv = env.Clone()
 localenv.Append(CPPPATH=['#include', '#src'])
 
-libs = ['clib']
-if localenv['OS'] != 'Windows':
-    libs.extend(env['cantera_libs'])
-
+cantera_libname = 'cantera_shared' if os.name=='nt' else 'cantera'
 localenv.Command('build_cantera.m',
                  mglob(localenv, '.', 'cpp'),
-                 MatlabBuilder(libs))
+                 MatlabBuilder([cantera_libname]))
 
 localenv['ENV']['PATH'] = os.environ['PATH']
 if 'TEMP' in os.environ:
@@ -45,21 +43,23 @@ if 'TEMP' in os.environ:
 
 build_cmd = 'cd ${SOURCE.dir} && "%(matlab_cmd)s" -nojvm -nosplash -r build_cantera'
 
-
 if os.name == 'posix':
-    mexFile = 'cantera/ctmethods.mexa%i' % localenv['OS_BITS']
+    mexPlatform = 'a'
 elif os.name == 'nt':
-    mexFile = 'cantera/ctmethods.mexw%i' % localenv['OS_BITS']
+    mexPlatform = 'w'
     if localenv['OS_BITS'] == 64:
         localenv['ENV']['PROCESSOR_ARCHITECTURE'] = "AMD64"
     else:
         localenv['ENV']['PROCESSOR_ARCHITECTURE'] = "x86"
 
+mexFile = ('#interfaces/matlab/toolbox/ctmethods.mex%s%i' %
+           (mexPlatform, localenv['OS_BITS']))
+
 target = localenv.Command(mexFile,
                           'build_cantera.m',
                           build_cmd % localenv)
+localenv.Depends(target, localenv['cantera_shlib'])
 buildTargets.extend(target)
-
 
 ### Install the Matlab toolbox ###
 
@@ -80,5 +80,5 @@ inst = localenv.RecursiveInstall(pjoin('$inst_sampledir', 'matlab'), '#samples/m
 installTargets.extend(inst)
 
 if os.name == 'nt':
-    inst = localenv.Install('$inst_matlab_dir', localenv['clib_shared'])
+    inst = localenv.Install('$inst_matlab_dir', localenv['cantera_shlib'])
     installTargets.extend(inst)

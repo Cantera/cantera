@@ -1,6 +1,6 @@
 from buildutils import *
 
-Import('env', 'buildDir', 'buildTargets', 'installTargets')
+Import('env', 'buildDir', 'buildTargets', 'installTargets', 'libraryTargets')
 localenv = env.Clone()
 
 def prep_default(env):
@@ -41,11 +41,11 @@ def prep_gtest(env):
                     CPPDEFINES={'GTEST_HAS_PTHREAD': 0})
     return localenv
 
-# (subdir, library name, (file extensions), prepfunction)
-libs = [('gtest/src','gtest',['^gtest-all.cc'], prep_gtest)]
+# (subdir, (file extensions), prepfunction)
+libs = []
 
 if env['build_with_f2c']:
-    libs.append(('f2c_math', 'ctmath', ['cpp','c'], prep_f2c))
+    libs.append(('f2c_math', ['cpp','c'], prep_f2c))
 
     # Create arith.h using the arithchk program
     if not os.path.exists('arith.h'):
@@ -66,27 +66,33 @@ if env['build_with_f2c']:
     headerenv.Command('#ext/f2c_libs/sysdep1.h', 'f2c_libs/sysdep1.h0',
                       Copy('$TARGET', '$SOURCE'))
 
-    libs.append(('f2c_libs', 'ctf2c', 'c', prep_f2c))
+    libs.append(('f2c_libs', 'c', prep_f2c))
 
     if env['BUILD_BLAS_LAPACK']:
-        libs.append(('f2c_blas', 'ctblas', ['c'], prep_f2c))
-        libs.append(('f2c_lapack', 'ctlapack', ['c'], prep_f2c))
+        libs.append(('f2c_blas', ['c'], prep_f2c))
+        libs.append(('f2c_lapack', ['c'], prep_f2c))
 
 else:
-    libs.append(('math', 'ctmath', ['cpp','c','f'], prep_default))
+    libs.append(('math', ['cpp','c','f'], prep_default))
 
     if env['BUILD_BLAS_LAPACK']:
-        libs.append(('blas', 'ctblas', ['f'], prep_default))
-        libs.append(('lapack', 'ctlapack', ['f'], prep_default))
+        libs.append(('blas', ['f'], prep_default))
+        libs.append(('lapack', ['f'], prep_default))
 
 if env['use_sundials'] == 'n':
-    libs.append(('cvode/source', 'cvode', ['c'], prep_sundials))
+    libs.append(('cvode/source', ['c'], prep_sundials))
 
 
-for subdir, libname, extensions, prepFunction in libs:
+for subdir, extensions, prepFunction in libs:
     localenv = prepFunction(env)
-    lib = localenv.Library(pjoin('../lib', libname),
-                           source=mglob(localenv, subdir, *extensions))
-    inst = localenv.Install('$inst_libdir', lib)
-    buildTargets.extend(lib)
-    installTargets.extend(inst)
+    objects = localenv.SharedObject(mglob(localenv, subdir, *extensions))
+    libraryTargets.extend(objects)
+
+# Google Teset
+localenv = env.Clone()
+localenv.Append(CPPPATH=[Dir('#ext/gtest'),
+                         Dir('#ext/gtest/include')],
+                CPPDEFINES={'GTEST_HAS_PTHREAD': 0})
+lib = localenv.Library(pjoin('../lib', 'gtest'),
+                       source=['gtest/src/gtest-all.cc'])
+buildTargets.extend(lib)

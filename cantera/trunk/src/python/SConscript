@@ -23,20 +23,18 @@ make_setup = localenv.SubstFile('#interfaces/python/setup.py',
                                 '#interfaces/python/setup.py.in')
 
 if localenv['python_package'] == 'full':
-    libs = ['clib']
-    if localenv['OS'] != 'Windows':
-        libs.extend(env['cantera_libs'])
     localenv.Append(CPPPATH=['#src', '#include'])
 
+    cantera_libname = 'cantera_shared' if os.name=='nt' else 'cantera'
     pymodule = localenv.SharedLibrary('#interfaces/python/Cantera/_cantera',
                                       ['pycantera.cpp'],
-                                      LIBS=libs,
+                                      LIBS=[cantera_libname],
                                       SHLIBPREFIX='',
                                       SHLIBSUFFIX=gcv('SO'))
     buildTargets.extend(pymodule)
     localenv.Depends(pymodule, make_setup)
     if localenv['OS'] == 'Windows':
-        for file in localenv['clib_shared']:
+        for file in localenv['cantera_shlib']:
             dest = pjoin('interfaces', 'python', 'Cantera', file.name)
             localenv.AddPreAction(pymodule,Copy(dest, file))
 

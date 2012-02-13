@@ -476,9 +476,6 @@ opts.AddVariables(
            stripped-down version of 'dot'. If 'dot' is on your path,
            make sure it is not the Matlab version!""",
         '', PathVariable.PathAccept),
-    ('ct_shared_lib',
-     '',
-     'clib'),
     ('rpfont',
      """The font to use in reaction path diagrams. This must be a font
         name recognized by the 'dot' program. On linux systems, this
@@ -680,7 +677,7 @@ elif env['use_sundials'] == 'y' and env['sundials_version'] not in ('2.2','2.3',
 if env['blas_lapack_libs'] == '':
     # External BLAS/LAPACK were not given, so we need to compile them
     env['BUILD_BLAS_LAPACK'] = True
-    env['blas_lapack_libs'] = ['ctlapack', 'ctblas']
+    env['blas_lapack_libs'] = [] # built into libcantera
 else:
     env['blas_lapack_libs'] = env['blas_lapack_libs'].split(',')
     env['BUILD_BLAS_LAPACK'] = False
@@ -826,6 +823,7 @@ env['config_h_target'] = config_h
 
 buildDir = 'build'
 buildTargets = []
+libraryTargets = [] # objects that go in the Cantera library
 installTargets = []
 demoTargets = []
 
@@ -849,27 +847,23 @@ inst = env.RecursiveInstall(pjoin('$inst_sampledir', 'cxx'),
 installTargets.extend(inst)
 
 ### List of libraries needed to link to Cantera ###
-linkLibs = ['oneD','zeroD','equil','kinetics','transport',
-            'thermo','ctnumerics','ctmath','tpx',
-            'ctspectra','converters','ctbase']
+linkLibs = ['cantera']
 
 if env['use_sundials'] == 'y':
     linkLibs.extend(('sundials_cvodes','sundials_nvecserial'))
-else:
-    linkLibs.append('cvode')
 
 linkLibs.extend(env['blas_lapack_libs'])
 
-if env['build_with_f2c']:
-    linkLibs.append('ctf2c')
-else:
+if not env['build_with_f2c']:
     linkLibs.append('gfortran')
 
 env['cantera_libs'] = linkLibs
 
 # Add targets from the SConscript files in the various subdirectories
-Export('env', 'buildDir', 'buildTargets', 'installTargets', 'demoTargets')
+Export('env', 'buildDir', 'buildTargets', 'libraryTargets',
+       'installTargets', 'demoTargets')
 
+# ext needs to come before src so that libraryTargets is fully populated
 VariantDir('build/ext', 'ext', duplicate=0)
 SConscript('build/ext/SConscript')
 

@@ -4,7 +4,7 @@ import os
 
 dataFiles = ['_cantera%s' % get_config_var('SO')]
 if os.name == 'nt':
-    dataFiles.append('clib.dll')
+    dataFiles.append('cantera_shared.dll')
 
 if '@python_package@' == 'full':
     setup(name="Cantera",
