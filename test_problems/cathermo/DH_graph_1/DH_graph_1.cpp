@@ -2,15 +2,10 @@
  *
  *  @file DH_graph_1
  */
-#ifdef SRCDIRTREE
-#include "cantera/base/ct_defs.h"
-#include "cantera/base/logger.h"
-#include "cantera/thermo/DebyeHuckel.h"
-#else
 #include "cantera/Cantera.h"
 #include "cantera/base/logger.h"
 #include "cantera/thermo/DebyeHuckel.h"
-#endif
+
 #include <cstdio>
 
 using namespace std;

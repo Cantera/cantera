@@ -2,16 +2,9 @@
  *  Copyright 2002 California Institute of Technology
  */
 
-#ifdef SRCDIRTREE
-#include "cantera/base/ct_defs.h"
-#include "cantera/thermo/ThermoPhase.h"
-#include "cantera/IdealGasMix.h"
-#include "cantera/equil/equil.h"
-#else
 #include "cantera/Cantera.h"
 #include "cantera/IdealGasMix.h"
 #include "cantera/equilibrium.h"
-#endif
 
 using namespace std;
 using namespace Cantera;

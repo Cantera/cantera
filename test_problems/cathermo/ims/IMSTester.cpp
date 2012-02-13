@@ -18,13 +18,8 @@
 #include <string>
 #include <vector>
 
-#ifdef SRCDIRTREE
-#include "cantera/base/ct_defs.h"
-#include "cantera/thermo/IdealMolalSoln.h"
-#else
 #include "cantera/Cantera.h"
 #include "cantera/thermo/IdealMolalSoln.h"
-#endif
 
 #include <cstdio>
 
