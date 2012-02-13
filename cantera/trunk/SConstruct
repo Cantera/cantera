@@ -644,6 +644,7 @@ if env['python_package'] in ('full','default'):
             warnNoPython = True
             env['python_package'] = 'minimal'
 else:
+    warnNoPython = False
     env['python_array_include'] = ''
 
 
@@ -692,9 +693,7 @@ env['ct_bindir'] = pjoin(env['prefix'], 'bin')
 env['ct_incdir'] = pjoin(env['prefix'], 'include', 'cantera')
 env['ct_incroot'] = pjoin(env['prefix'], 'include')
 env['ct_datadir'] = pjoin(env['prefix'], 'data')
-env['ct_demodir'] = pjoin(env['prefix'], 'demos')
-env['ct_templdir'] = pjoin(env['prefix'], 'templates')
-env['ct_tutdir'] = pjoin(env['prefix'], 'tutorials')
+env['ct_sampledir'] = pjoin(env['prefix'], 'samples')
 env['ct_mandir'] = pjoin(env['prefix'], 'man1')
 env['ct_matlab_dir'] = pjoin(env['prefix'], 'matlab', 'toolbox')
 
@@ -709,8 +708,15 @@ else:
 # Directories where things will be staged for package creation. These
 # variables should always be used by the Install(...) targets
 if env['stage_dir']:
-    instRoot = pjoin(os.getcwd(), env['stage_dir'], stripDrive(env['prefix']).strip('/\\'))
-    env['python_prefix'] = pjoin(os.getcwd(), env['stage_dir'], stripDrive(env['python_prefix']).strip('/\\'))
+    pp = env['python_prefix']
+    instRoot = pjoin(os.getcwd(), env['stage_dir'],
+                     stripDrive(env['prefix']).strip('/\\'))
+    if env['python_prefix']:
+        env['python_prefix'] = pjoin(os.getcwd(), env['stage_dir'],
+                                     stripDrive(env['python_prefix']).strip('/\\'))
+    else:
+        env['python_prefix'] = pjoin(os.getcwd(), env['stage_dir'])
+
 else:
     instRoot = env['prefix']
 
@@ -719,9 +725,7 @@ env['inst_bindir'] = pjoin(instRoot, 'bin')
 env['inst_incdir'] = pjoin(instRoot, 'include', 'cantera')
 env['inst_incroot'] = pjoin(instRoot, 'include')
 env['inst_datadir'] = pjoin(instRoot, 'data')
-env['inst_demodir'] = pjoin(instRoot, 'demos')
-env['inst_templdir'] = pjoin(instRoot, 'templates')
-env['inst_tutdir'] = pjoin(instRoot, 'tutorials')
+env['inst_sampledir'] = pjoin(instRoot, 'samples')
 env['inst_mandir'] = pjoin(instRoot, 'man1')
 env['inst_matlab_dir'] = pjoin(instRoot, 'matlab', 'toolbox')
 
@@ -839,6 +843,10 @@ headerBase = 'include/cantera'
 inst = env.RecursiveInstall('$inst_incdir', 'include/cantera')
 installTargets.extend(inst)
 
+# Install C++ samples
+inst = env.RecursiveInstall(pjoin('$inst_sampledir', 'cxx'),
+                            'samples/cxx')
+installTargets.extend(inst)
 
 ### List of libraries needed to link to Cantera ###
 linkLibs = ['oneD','zeroD','equil','kinetics','transport',
@@ -911,7 +919,7 @@ File locations:
     applications      %(ct_bindir)s
     library files     %(ct_libdir)s
     C++ headers       %(ct_incdir)s
-    demos             %(ct_demodir)s
+    samples           %(ct_sampledir)s
     data files        %(ct_datadir)s""" % env
 
     if env['python_package'] == 'full':
@@ -927,14 +935,15 @@ File locations:
     if env['matlab_toolbox'] == 'y':
         print """
     Matlab toolbox    %(ct_matlab_dir)s
-    Matlab demos      %(ct_demodir)s/matlab
-    Matlab tutorials  %(ct_tutdir)s/matlab
+    Matlab samples    %(ct_sampledir)s/matlab
 
     An m-file to set the correct matlab path for Cantera is at:
 
-        %(prefix)s/matlab/ctpath.m""" % env
+        %(prefix)s/matlab/ctpath.m
+    """ % env
 
-    print """
+    if os.name != 'nt':
+        print """
     setup script      %(ct_bindir)s/setup_cantera
 
     The setup script configures the environment for Cantera. It is
