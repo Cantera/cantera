@@ -28,7 +28,8 @@ if localenv['python_package'] == 'full':
         libs.extend(env['cantera_libs'])
     localenv.Append(CPPPATH=['#src', '#include'])
 
-    pymodule = localenv.SharedLibrary('Cantera/_cantera', ['pycantera.cpp'],
+    pymodule = localenv.SharedLibrary('#interfaces/python/Cantera/_cantera',
+                                      ['pycantera.cpp'],
                                       LIBS=libs,
                                       SHLIBPREFIX='',
                                       SHLIBSUFFIX=gcv('SO'))
@@ -38,6 +39,7 @@ if localenv['python_package'] == 'full':
         for file in localenv['clib_shared']:
             dest = pjoin('interfaces', 'python', 'Cantera', file.name)
             localenv.AddPreAction(pymodule,Copy(dest, file))
+
 
 elif localenv['python_package'] == 'minimal':
     pymodule = make_setup
@@ -67,13 +69,6 @@ elif localenv['PYTHON_INSTALLER'] == 'binary':
     installTargets.extend(inst)
 
 if localenv['python_package'] == 'full':
-    # Copy tutorials
-    inst = localenv.Install('$inst_tutdir', mglob(localenv, 'tutorial', 'py'))
+    inst = localenv.RecursiveInstall(pjoin('$inst_sampledir', 'python'),
+                                     '#samples/python')
     installTargets.extend(inst)
-
-    # Copy examples
-    exampleFiles = sum([localenv.Glob(pjoin('examples', '*', '*', name))
-                        for name in ['runtest', 'cleanup', '*.txt', '*.py', '*.csv']], [])
-    for f in exampleFiles:
-        subdir1, subdir2 = psplit(f.path)[3:5]
-        installTargets.extend(localenv.Install(pjoin('$inst_demodir','python',subdir1,subdir2), f))

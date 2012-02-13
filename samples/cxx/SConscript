@@ -18,9 +18,3 @@ for subdir, name, extensions in demos:
                             mglob(localenv, pjoin('demos',subdir), *extensions),
                             LIBS=env['cantera_libs'])
     demoTargets.extend(prog)
-
-    inst = localenv.Install(pjoin('$inst_demodir', 'cxx', subdir),
-                            mglob(localenv, pjoin('demos', subdir),
-                                  'csv','txt','cpp','h','^runtest'))
-
-    installTargets.extend(inst)

@@ -38,8 +38,10 @@ for subdir, name, extensions in demos:
                             LINK='$F77')
     demoTargets.extend(prog)
 
-inst = localenv.Install(pjoin('$inst_demodir', 'f77'),
-                        mglob(localenv, 'f77demos',
-                              'csv','txt','cpp','f','^runtest'))
+inst = localenv.RecursiveInstall(pjoin('$inst_sampledir', 'f77'),
+                                 '#samples/f77')
+installTargets.extend(inst)
 
+inst = localenv.RecursiveInstall(pjoin('$inst_sampledir', 'f77'),
+                                 '#samples/f90')
 installTargets.extend(inst)

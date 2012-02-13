@@ -76,7 +76,7 @@ installTargets.extend(inst)
 inst = localenv.RecursiveInstall('$inst_matlab_dir', '#interfaces/matlab/toolbox')
 installTargets.extend(inst)
 
-inst = localenv.RecursiveInstall(pjoin('$inst_demodir', 'matlab'), '#samples/matlab')
+inst = localenv.RecursiveInstall(pjoin('$inst_sampledir', 'matlab'), '#samples/matlab')
 installTargets.extend(inst)
 
 if os.name == 'nt':

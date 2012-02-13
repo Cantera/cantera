@@ -114,10 +114,10 @@ class WxsGenerator(object):
                                    Description='Header files and static libraries needed to develop applications that use Cantera.',
                                    Display='expand',
                                    AllowAdvertise='no'))
-        extras = et.SubElement(product, 'Feature',
-                               dict(Id='Extras', Level='1',
-                                    Title='Extras',
-                                    Description='Demos, tutorials and templates which show you some ways of using Cantera.',
+        samples = et.SubElement(product, 'Feature',
+                               dict(Id='Samples', Level='1',
+                                    Title='Samples',
+                                    Description='Samples which show you some ways of using Cantera.',
                                     Display='expand',
                                     AllowAdvertise='no'))
 
@@ -134,9 +134,7 @@ class WxsGenerator(object):
         binaries = self.addDirectoryContents('bin', instdir, core)
         lib_dir = self.addDirectoryContents('lib', instdir, devel)
         data_dir = self.addDirectoryContents('data', instdir, core)
-        demos_dir = self.addDirectoryContents('demos', instdir, extras)
-        templates_dir = self.addDirectoryContents('templates', instdir, extras)
-        tutorials_dir = self.addDirectoryContents('tutorials', instdir, extras)
+        sample_dir = self.addDirectoryContents('samples', instdir, samples)
         if self.includeMatlab:
             matlab_dir = self.addDirectoryContents('matlab', instdir, matlab)
 
