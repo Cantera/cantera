@@ -4,7 +4,7 @@ import subprocess
 Import('env','buildTargets','installTargets')
 localenv = env.Clone()
 
-localenv.Append(CPPPATH='#ext/gtest/include',
+localenv.Append(CPPPATH=['#ext/gtest/include', '#include'],
                 LIBPATH='#build/lib',
                 LIBS=['gtest'] + localenv['cantera_libs'])
 

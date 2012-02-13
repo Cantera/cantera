@@ -3,15 +3,15 @@ from buildutils import *
 Import('env', 'buildTargets', 'installTargets')
 localenv = env.Clone()
 
-programs = [('cti2ctml', ['cti2ctml.cpp'], ['ctbase']),
-            ('ck2cti', ['ck2cti.cpp'], ['converters','ctbase','tpx'])]
+programs = [('cti2ctml', ['cti2ctml.cpp']),
+            ('ck2cti', ['ck2cti.cpp'])]
 
 localenv.Append(CPPPATH=['#src', '#include'])
 
-for name, src, libs in programs:
+for name, src in programs:
     prog = localenv.Program(target=pjoin('#build/bin', name),
                             source=src,
-                            LIBS=libs)
+                            LIBS=['cantera'])
     inst = localenv.Install('$inst_bindir', prog)
     buildTargets.extend(prog)
     installTargets.extend(inst)

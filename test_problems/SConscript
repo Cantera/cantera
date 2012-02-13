@@ -96,7 +96,7 @@ class CompileAndTest(Test):
     def run(self, env):
         prog = env.Program(pjoin(self.subdir, self.programName),
                            mglob(env, self.subdir, *self.extensions),
-                                LIBS=env['cantera_libs'])
+                           LIBS=env['cantera_libs'])
         source = [prog]
         return Test.run(self, env, *source)
 

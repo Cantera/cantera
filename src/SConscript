@@ -1,6 +1,6 @@
 from buildutils import *
 
-Import('env','buildTargets','installTargets')
+Import('env', 'buildTargets', 'installTargets', 'libraryTargets')
 
 def defaultSetup(env, subdir, extensions):
     return mglob(env, subdir, *extensions)
@@ -22,46 +22,42 @@ def numericsSetup(env, subdir, extensions):
     return [s for s in mglob(env, subdir, *extensions)
             if s.name != remove]
 
-# (subdir, library name, (file extensions), (extra setup(env)))
-libs = [('base', 'ctbase', ['cpp'], baseSetup),
-        ('thermo', 'thermo', ['cpp'], defaultSetup),
-        ('tpx', 'tpx', ['cpp'], defaultSetup),
-        ('equil', 'equil', ['cpp','c'], equilSetup),
-        ('converters', 'converters', ['cpp'], defaultSetup),
-        ('numerics', 'ctnumerics', ['cpp'], numericsSetup),
-        ('kinetics', 'kinetics', ['cpp'], defaultSetup),
-        ('transport', 'transport', ['cpp'], defaultSetup),
-        ('spectra', 'ctspectra', ['cpp'], defaultSetup),
-        ('oneD', 'oneD', ['cpp'], defaultSetup),
-        ('zeroD', 'zeroD', ['cpp'], defaultSetup),
+# (subdir, (file extensions), (extra setup(env)))
+libs = [('base', ['cpp'], baseSetup),
+        ('thermo', ['cpp'], defaultSetup),
+        ('tpx', ['cpp'], defaultSetup),
+        ('equil', ['cpp','c'], equilSetup),
+        ('converters', ['cpp'], defaultSetup),
+        ('numerics', ['cpp'], numericsSetup),
+        ('kinetics', ['cpp'], defaultSetup),
+        ('transport', ['cpp'], defaultSetup),
+        ('spectra', ['cpp'], defaultSetup),
+        ('oneD', ['cpp'], defaultSetup),
+        ('zeroD', ['cpp'], defaultSetup),
+        ('clib', ['cpp'], defaultSetup),
         ]
 
-for subdir, libname, extensions, setup in libs:
+for subdir, extensions, setup in libs:
     localenv = env.Clone()
     localenv.Append(CPPPATH=Dir('#include'))
     localenv.Append(CPPPATH=Dir('#src')) # todo: remove when not needed
     source = setup(localenv, subdir, extensions)
+    objects = localenv.SharedObject(source)
+    localenv.Depends(objects, localenv['config_h_target'])
+    libraryTargets.extend(objects)
 
-    lib = localenv.Library(pjoin('../lib', libname), source=source)
-    localenv.Depends(lib, localenv['config_h_target'])
-    inst = localenv.Install('$inst_libdir', lib)
-    buildTargets.extend(lib)
-    installTargets.extend(inst)
 
-# clib is a bit different
+# build the Cantera static library
 localenv = env.Clone()
-source = defaultSetup(localenv, 'clib', ['cpp'])
-localenv.Append(CPPPATH=[Dir('#include'), Dir('#src')])
+lib = localenv.StaticLibrary('../lib/cantera', libraryTargets)
+localenv.Depends(lib, localenv['config_h_target'])
+inst = localenv.Install('$inst_libdir', lib)
+buildTargets.extend(lib)
+installTargets.extend(inst)
 
-if env['OS'] == 'Windows':
-    lib = localenv.SharedLibrary(pjoin('../lib', 'clib'),
-                                 source=source,
-                                 LIBS=localenv['cantera_libs'])
-    env['clib_shared'] = lib
-else:
-    lib = localenv.Library(pjoin('../lib', 'clib'),
-                           source=source)
-
+# Build the Cantera shared library
+lib = localenv.SharedLibrary('../lib/cantera_shared', libraryTargets)
+env['cantera_shlib'] = lib
 localenv.Depends(lib, localenv['config_h_target'])
 inst = localenv.Install('$inst_libdir', lib)
 buildTargets.extend(lib)
