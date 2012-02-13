@@ -1,105 +1,187 @@
 /**
 
-\page cantera-build Building Cantera on a Unix, Linux, or Mac OS X Platform
+\page cantera-build Cantera Compilation Guide
 
-\section ctbuild-sysreq System Requirements
+This guide contains instructions for compiling Cantera on the following operating systems:
 
-Cantera can be built on most unix or unix-like platforms. Before you start, you'll need:
+- Linux
+    - Ubuntu 10.04 LTS (Lucid Lynx) or newer
+    - Debian 5.0 (Lenny) or newer
+- Windows Vista or Windows 7 (32-bit or 64-bit versions)
+- [planned] OS X 10.6 (Snow Leopard) or newer
 
-- \b Python. Most systems already have some version of Python
-  installed. (Try typing "python" in a shell window.)  If you don't
-  have it, or your version is older than Python 2.0, you can get the
-  latest version at http://www.python.org. Python is used in the build
-  process, and to process input files, so it is needed even if you
-  plan to use Cantera only from C++, MATLAB, or Fortran.  
+\section prereqs Installation Prerequisites
 
-- \b numarray. If you \e do want to use Cantera from Python, or if you
-  want to run the graphical MixMaster application, you'll also need to
-  install the numarray package, which may be obtained at
-  http://sourceforge.net/projects/numpy . 
-  Note that numarray is now superceded by "numpy", but Cantera hasn't yet been
-  updated to use numpy. Be sure to get the "old" numarray. Once you have
-  downloaded it, upack the tar file. In most cases, all that is required to
-  build numarray is to type "python setup.py install" from within the directory
-  where you have unpacked the numarray source code
-  \see \ref installnumarray .
-
-- <b>The GNU "make" program</b>. Most systems have this, but on some it might
-  be called "gmake" instead of "make". (On these systems "make" may refer to a
-  similar but non-compatible program.)
-
-- <b>A C/C++ compiler</b>. Virtually any reasonably recent compiler
-  should work.  The GNU gcc/g++ compiler, available free for many
-  platforms, works fine.
-
-- Optional software:
-    - <b>Sundials</b>. Sundials is a numerical software package for solving complex
-      non-linear systems of differential and/or algebraic equations. If you have it,
-      %Cantera will use it; if not, it will use an older, pre-sundials version of the
-      ODE solver, and some other capabilities will not be supported (e.g.
-      sensitivity analysis). It is recommended that you install sundials if
-      possible. All you need to do is go to the sundials web site
-      (www.llnl.gov/casc/sundials), download the software, and build it. To build
-      it, just go into the directory where you have unpacked the source, type
-      "./configure", "make", then "make install".
-    - <b>MATLAB</b>. Only needed to if you plan to use Cantera from MATLAB. 
-      To build the Cantera MATLAB Toolbox, your C/C++ compiler must be 
-      compatible with the one used to compile MATLAB. In most cases this means
-      you need to use gcc/g++ version 3.x if you have MATLAB 7 (R14) and gcc/g++ 2.95 if you have MATLAB 6 (R13). 
-    - <b>a Fortran 90/95 compiler</b>. Only needed if you plan to use Cantera
-      from Fortran 90/95. 
-    .
-
-- Note: On a Mac, you'll need to download the "XCode Tools" from Apple,
-  which includes the gcc/g++ compiler and other GNU tools.
-.
-
-\section ctbuild-proc Build Procedure
-
-To build Cantera, follow these steps:
- 
-- Get the source code. Go to http://sourceforge.net/projects/cantera, 
-  and download the latest source distribution, or check the source code out
-  using anonymous CVS. Using CVS is recommended, since this makes it much 
-easier to keep current. 
-
-- Unpack it, and go into the top-level directory named "cantera". 
-
-- Edit the file "configure" to set site-specific options. If you are
-  installing on a linux or Mac OS X platform using the GNU compilers,
-  you may not need to edit "configure" at all. Most of the options
-  also may be set by defining a suitable environment variable. This is
-  useful if you want to always use non-standard options, since you can
-  define the appropriate environment variables in your login script. 
- 
-- Now run "configure" by typing:
+\subsection Linux
+- For Ubuntu or Debian users, the following packages should be
+  installed using your choice of package manager:
   \verbatim
-  ./configure
-  \endverbatim
-  or
+  g++ python scons libboost-all-dev libsundials-serial-dev subversion \endverbatim
+- Building the python module also requires:
   \verbatim
-  ./configure --prefix=<installation_directory>
-  \endverbatim  
-  This will generate the Makefiles that will be used to build Cantera. 
-  By default, Cantera will be installed in /usr/local/cantera. If you 
-  want to install it somewhere else, run the configure script with the
-  'prefix' option.
-  For example, to install Cantera in a directory called "cantera" in your
-  home directory, run the configure script like this:
+  python-dev python-numpy python-numpy-dev \endverbatim
+- Building the Fortran interface also requires gfortran or another
+  supported Fortran compiler.
+- Users of other distributions should install the equivalent
+  packages, which may have slightly different names.
+
+\subsection Windows
+
+There are a number of requirements for the versions of software to
+install depending on which interfaces (Python, Matlab) you want to
+build and what architecture (32-bit or 64-bit) you want to use.
+
+- If you want to build the Python module, you must use the same
+  version of the Microsoft compiler as was used to compile Python. For
+  current versions of Python (2.6 and 2.7) this means that you must
+  use Visual Studio 2008 or the equivalent version of the Windows SDK
+  (see link below).
+- The build process will produce a Python module compatible with the
+  version of Python used for the compilation. To generate different
+  modules for other versions of Python, you will need to install those
+  versions of Python and recompile.
+- If you want to build the Matlab toolbox and you have a 64-bit copy
+  of Windows, by default you will be using a 64-bit copy of Matlab,
+  and therefore you need to compile Cantera in 64-bit mode. For
+  simplicity, it is highly recommended that you use a 64-bit version
+  of Python to handle this automatically.
+- There is no 64-bit installer for SCons under Windows, so you will
+  need to download the ZIP version. After extracting it, start a
+  command prompt in the unzipped folder and run:
   \verbatim
-  ./configure --prefix=$HOME/cantera
-  \endverbatim
+  python setup.py install \endverbatim
+- It is generally helpful to have SCons and Python in your PATH. This
+  can usually be accomplished by adding the top-level Python directory
+  (e.g. C:\Python27) to your PATH. This is acccessible from:
+  \verbatim
+   Control Panel > System and Security > System > Advanced System Settings > Environment Variables \endverbatim
 
-- Type 'make' to compile Cantera. 
+\subsection osx OS X
+Cantera's build system has not yet been tested on OS X.
 
-- Type 'make install' to install it. You will need write access to the install directory for this step, which may require you to preface the command with "sudo".
+\section download-cantera Download the Cantera source code
 
-- To test the installation, type "make test". 
+\subsection download-posix Linux / OS X
 
-- At this point, you should have a functional Cantera installation. To
-  try it out, go to the "demos" directory within the Cantera
-  installation directory, and try out some of the Python or MATLAB
-  demos.
+- Option 1: Check out the code using Subversion:
+  \verbatim
+  svn checkout http://cantera.googlecode.com/svn/cantera/trunk/ cantera \endverbatim
+
+- Option 2: Check out the code using Git:
+  \verbatim
+  git svn clone --std-layout http://cantera.googlecode.com/svn/cantera cantera \endverbatim
+
+\subsection download-win Windows
+    Use your Subversion client to check out the code from:
+    \verbatim
+    http://cantera.googlecode.com/svn/cantera/trunk/ \endverbatim
+
+\section cantera-config Determine configuration options
+
+\subsection config-general General
+- run \verbatim scons help \endverbatim to see a list all
+  configuration options for Cantera.
+- If the prerequisites are installed in standard locations, the
+  default values should work.
+- If you installed Sundials to a non-standard location (e.g. the
+  libraries aren’t in /usr/lib), you will need to specify the options:
+  \verbatim
+  sundials_include=/path/to/sundials/include
+  sundials_libdir=/path/to/sundials/lib \endverbatim
+- If you want to build the Matlab toolbox and the Matlab executable is
+  not on your PATH, you should specify:
+  \verbatim
+  matlab_toolbox=y
+  matlab_cmd=/path/to/matlab  \endverbatim
+
+\see \ref configCantera
+
+\subsection Windows
+- In Windows there aren’t any proper default locations for many of the
+  packages that Cantera depends on, so you will need to specify these
+  paths explicitly.
+- Remember to put double quotes around any paths with spaces in them,
+  e.g. "C:\Program Files".
+- By default, SCons attempts to use the same architecture and version
+  of the Microsoft compiler as was used to compile Python, typically
+  Visual Studio 2008 or the equivalent version of the Windows SDK. If
+  you aren’t building the Python module, you can override this with
+  the configuration options target_arch and msvc_version.
+- If you’re building the Matlab toolbox, you need to specify the path
+  to the architecture-dependent Matlab executable. For example, if
+  you’re building the 64-bit toolbox, the correct option will be
+  something like:
+  \verbatim
+   matlab_cmd="C:/Program Files/MATLAB/R2009a/bin/win64/MATLAB.exe" \endverbatim
+
+\section compile-test Compile Cantera & Test
+- Run scons with the list of desired configuration options, e.g.:
+  \verbatim
+  scons build debug=y optimize=n prefix=/opt/cantera \endverbatim
+- If Cantera compiles successfully, you should see the message:
+  \verbatim
+  **************************************************************
+  Compiliation complete. Type '[sudo] scons install' to install.
+  ************************************************************** \endverbatim
+- If you do not see this message, check the output for errors to see
+  what went wrong.
+- Cantera has a series of regression tests that can be run with the
+  command
+  \verbatim
+  scons test \endverbatim
+- When the tests finish, you should see a summary indicating the
+  number of tests that passed and failed.
+
+- If you have tests that fail, try looking at the following to
+  determine the source of the error:
+    - Messages printed to the console while running scons test
+    - Output files generated by the tests
+
+\section software-sources Sources and versions of software used by Cantera:
+
+You must have one of the following C++ compilers installed on your
+system. A Fortran compiler is required only if you plan to use Cantera
+from a Fortran program.
+
+- GNU compilers (C/C++/Fortran)
+    - Known to work with version 4.6; Expected to work with version >= 4.3
+- Intel compilers (C/C++/Fortran)
+    - Known to work with version 11.0; Expected to work with versions >= 11.0
+- Microsoft compilers (C/C++)
+    - Windows SDK: http://www.microsoft.com/download/en/details.aspx?id=3138
+      This is equivalent to Visual Studio 2008. It is a free download.
+    - Known to work with version 9.0 (Visual Studio 2008) and version 10.0 (Visual Studio 2010).
+- MinGW (C/C++/Fortran)
+    - Supported versions of MinGW be the same as the supported versions of GCC
+
+Other Required software:
+
+- Subversion
+    - For Windows: http://tortoisesvn.net/downloads.html
+    - Known to work with versions >= 1.6
+- SCons:
+    - http://www.scons.org/download.php
+    - Known to work with SCons 2.1.0; Expected to work with versions >= 1.0.0
+- Python: http://python.org/download/
+    - Known to work with 2.6 and 2.7; Expected to work with versions >= 2.5
+    - Does not yet work with 3.x
+- Boost
+    - http://www.boost.org/users/download/
+    - Known to work with version 1.46; Expected to work with versions >= 1.40
+
+Optional Programs
+
+- Numpy
+    - Required to build the Cantera Python module.
+    - http://sourceforge.net/projects/numpy/
+    - Known to work with versions 1.3 and 1.5; Expected to work with version >= 1.1
+- Matlab
+    - Required to build the Cantera Matlab toolbox.
+    - Known to work with 2009a, 2010a, and 2011b. Expected to work with versions >= 2009a.
+- Sundials
+    - Required to enable some features such as sensitivity analysis.
+    - https://computation.llnl.gov/casc/sundials/download/download.html
+    - Known to work with version 2.4; Support for versions 2.3 and 2.2 is deprecated.
 
 \see \ref cxx-ctnew
 
