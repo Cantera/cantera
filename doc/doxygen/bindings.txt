@@ -21,7 +21,7 @@ For example, %Cantera classes that represent phases of matter have a method call
     \verbatim
    ThermoPhase* gas = importPhase("gas.cti");
    ...
-   int nsp = gas.nSpecies(); 
+   int nsp = gas.nSpecies();
    double x[nsp];
    gas.getMoleFractions(x);   \endverbatim
 
@@ -66,13 +66,13 @@ namespace DropletNamespace {
     const double Tboil =  489.5; //
     const double molWt = 170.337;
     const double hfg = 2.56e5; // J/kg
-    const double rho_vapor = 0.4267; 
-    const double rho_liquid = 749.0;  
+    const double rho_vapor = 0.4267;
+    const double rho_liquid = 749.0;
 
     class Droplet {
         public:
 
-        Droplet(double D=-1.0, double T=300.0) : m_diam(D), 
+        Droplet(double D=-1.0, double T=300.0) : m_diam(D),
                                                  m_temp(T),
                                                  m_yinf(0.0) {}
         virtual ~Droplet() {}
@@ -94,11 +94,11 @@ namespace DropletNamespace {
             return 4.0*Pi*rho_vapor*Dab()*log(1.0+B());
         }
 
-        double B() const { 
+        double B() const {
             double ys = surfaceMassFraction();
             return (ys - m_yinf)/(1.0 - ys);
         }
-        double surfaceMassFraction() const { 
+        double surfaceMassFraction() const {
             double ps = Psat();
             return ps*molWt/(ps*molWt + (OneAtm - ps)*28.014);
         }
@@ -109,10 +109,10 @@ namespace DropletNamespace {
         double lifetime() const { return m_diam*m_diam/evapConstant();}
 
     protected:
- 
+
         double Dab() { return Dab_0*pow(800.0/399.0, 1.5); }
 
-        double m_diam, m_temp, m_yinf; 
+        double m_diam, m_temp, m_yinf;
 
     };
 }

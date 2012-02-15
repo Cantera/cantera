@@ -105,7 +105,7 @@ void runexample()
     double tres;
     int k;
 
-    ofstream f("combustor_cxx.csv");
+    std::ofstream f("combustor_cxx.csv");
 
     while (tnow < tfinal) {
         tnow = sim.step(tfinal);
@@ -117,7 +117,7 @@ void runexample()
         for (k = 0; k < nsp; k++) {
             f << c.moleFraction(k) << ", ";
         }
-        f << endl;
+        f << std::endl;
     }
     f.close();
 }
@@ -131,8 +131,8 @@ int main()
     }
     // handle exceptions thrown by Cantera
     catch (CanteraError) {
-        showErrors(cout);
-        cout << " terminating... " << endl;
+        showErrors(std::cout);
+        std::cout << " terminating... " << std::endl;
         appdelete();
         return 1;
     }

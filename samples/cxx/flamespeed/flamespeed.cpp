@@ -1,9 +1,20 @@
-#include <cantera/onedim.h>
+/*!
+ * @file flamespeed.cpp
+ * C++ demo program to compute flame speeds using GRI-Mech.
+ *
+ * @todo This demo compiles but does not run correctly.
+ */
+
+#include "cantera/oneD/Sim1D.h"
+#include "cantera/oneD/Inlet1D.h"
+#include "cantera/oneD/StFlow.h"
 #include <cantera/IdealGasMix.h>
 #include <cantera/equilibrium.h>
 #include <cantera/transport.h>
 
 using namespace Cantera;
+using std::cout;
+using std::endl;
 
 int flamespeed(int np, void* p)
 {
@@ -27,7 +38,7 @@ int flamespeed(int np, void* p)
         }
         if (phi == 0.0) {
             cout << "Enter phi: ";
-            cin >> phi;
+            std::cin >> phi;
         }
 
         doublereal C_atoms=1.0;
@@ -116,7 +127,7 @@ int flamespeed(int np, void* p)
 
         //=================== create the container and insert the domains =====
 
-        vector<Domain1D*> domains;
+        std::vector<Domain1D*> domains;
         domains.push_back(&inlet);
         domains.push_back(&flow);
         domains.push_back(&outlet);
@@ -216,7 +227,7 @@ int flamespeed(int np, void* p)
              flame.value(flowdomain,flow.componentIndex("u"),0) << " m/s" << endl;
 
         int np=flow.nPoints();
-        vector<doublereal> zvec,Tvec,COvec,CO2vec,Uvec;
+        std::vector<doublereal> zvec,Tvec,COvec,CO2vec,Uvec;
 
         printf("\n%9s\t%8s\t%5s\t%7s\n","z (m)", "T (K)", "U (m/s)", "Y(CO)");
         for (int n=0; n<np; n++) {
@@ -231,7 +242,7 @@ int flamespeed(int np, void* p)
         cout << endl<<"Adiabatic flame temperature from equilibrium is: "<<Tad<<endl;
         cout << "Flame speed for phi="<<phi<<" is "<<Uvec[0]<<" m/s."<<endl;
 
-        string reportFile = "flamespeed.csv";
+        std::string reportFile = "flamespeed.csv";
         FILE* FP = fopen(reportFile.c_str(), "w");
         if (!FP) {
             printf("Failure to open file\n");
@@ -250,8 +261,8 @@ int flamespeed(int np, void* p)
 
         return 0;
     } catch (CanteraError) {
-        showErrors(cerr);
-        cerr << "program terminating." << endl;
+        showErrors(std::cerr);
+        std::cerr << "program terminating." << endl;
         return -1;
     }
 }

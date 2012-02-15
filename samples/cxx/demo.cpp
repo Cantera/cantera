@@ -120,7 +120,7 @@ int main()
     try {
         demoprog();
     } catch (CanteraError) {
-        showErrors(cout);
+        showErrors(std::cout);
     }
 }
 

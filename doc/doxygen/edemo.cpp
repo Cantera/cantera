@@ -5,12 +5,13 @@ void demoprog()
     // Calls Cantera
 }
 
-int main()
+int main(int argc, char** argv)
 {
     try {
         demoprog();
-    } catch (CanteraError) {
-        showErrors(cout);
+    } catch (Cantera::CanteraError) {
+        Cantera::showErrors(std::cout);
+        return 1;
     }
+    return 0;
 }
-

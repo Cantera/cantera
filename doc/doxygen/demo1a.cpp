@@ -1,5 +1,6 @@
 #include <cantera/thermo.h>
 
+using namespace Cantera;
 
 // The actual code is put into a function that
 // can be called from the main program.
@@ -16,7 +17,7 @@ void simple_demo()
     gas->setState_TPX(500.0, 2.0*OneAtm, "H2O:1.0, H2:8.0, AR:1.0");
 
     // Print a summary report of the state of the gas
-    cout << report(*gas) << endl;
+    std::cout << report(*gas) << std::endl;
 
     //  Clean up
     delete gas;
