@@ -1,4 +1,10 @@
-h_sources               = 
+h_sources               = Cantera.h electrolyteThermo.h GRI30.h importPhase.h \
+                          integrators.h kinetics_interface.h numerics.h       \
+                          PureFluid.h reactionpaths.h surface.h transport.h   \
+                          Edge.h equilibrium.h IdealGasMix.h                  \
+                          IncompressibleSolid.h Interface.h Metal.h onedim.h  \
+                          radiation.h spectra.h thermo.h   zerodim.h 
+
 
 cc_sources              = importPhase.cpp
 
