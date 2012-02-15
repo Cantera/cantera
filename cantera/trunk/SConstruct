@@ -409,6 +409,11 @@ opts.AddVariables(
         'lapack_ftn_trailing_underscore', '', True),
     BoolVariable(
         'lapack_ftn_string_len_at_end', '', True),
+    ('env_vars',
+     """Environment variables to propagate through to SCons. Either the
+        string "all" or a comma separated list of variable names, e.g.
+        'LD_LIBRARY_PATH,HOME'""",
+     ''),
     ('cxx_flags',
      'Compiler flags passed to the C++ compiler only.',
      defaults.cxxFlags),
@@ -526,6 +531,16 @@ of this file is:
 env['OS'] = platform.system()
 
 env['OS_BITS'] = int(platform.architecture()[0][:2])
+
+# Copy in external environment variables
+if env['env_vars'] == 'all':
+    env['ENV'].update(os.environ)
+elif env['env_vars']:
+    for name in env['env_vars'].split(','):
+        if name in os.environ:
+            env['ENV'][name] = os.environ[name]
+        else:
+            print 'WARNING: failed to propagate environment variable', name
 
 # Try to find a Fortran compiler:
 if env['f90_interface'] in ('y','default'):
