@@ -1,5 +1,3 @@
-
-#include <cantera/Cantera.h>
 #include <cantera/IdealGasMix.h>    // defines class IdealGasMix
 
 #include <iostream>

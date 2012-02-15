@@ -1,5 +1,3 @@
-
-#include <cantera/Cantera.h>
 #include <cantera/IdealGasMix.h>    // defines class IdealGasMix
 #include <cantera/equilibrium.h>    // chemical equilibrium
 #include <cantera/transport.h>      // transport properties

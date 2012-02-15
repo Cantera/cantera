@@ -6,15 +6,11 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-
 // Include cantera header files. They should be included in the form
-// <cantera/*.h>, and Cantera.h should always be included first.
-// These headers are designed for use in C++ programs and provide a
-// simplified interface to the Cantera kernel header files. If you
-// need to include kernel headers directly, use the format
-// <cantera/kernel/*.h>.
+// "cantera/*.h". These headers are designed for use in C++ programs and
+// provide a simplified interface to the Cantera header files. If you need
+// to include core headers directly, use the format "cantera/module/*.h".
 
-#include <cantera/Cantera.h>
 #include <cantera/IdealGasMix.h>    // defines class IdealGasMix
 #include <cantera/equilibrium.h>    // chemical equilibrium
 #include <cantera/transport.h>      // transport properties

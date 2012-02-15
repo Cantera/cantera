@@ -35,10 +35,4 @@ These are:
 - zerodim.h
   - Zero-dimensional reactor networks.
 
-These must be included \e after Cantera.h, for example:
-\code
-#include <cantera/Cantera.h>
-#include <cantera/equilibrium.h> 
-\endcode
-
 */

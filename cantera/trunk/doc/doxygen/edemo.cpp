@@ -1,4 +1,4 @@
-#include <cantera/Cantera.h>
+#include <cantera/base/ctexceptions.h>
 
 void demoprog()
 {

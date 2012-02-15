@@ -46,19 +46,6 @@ equivalent of the "Hello, World" program most programming textbooks
 begin with. But it illustrates some important points in writing
 %Cantera C++ programs.
 
-- <b>The Cantera.h header</b>\n
-Note that the program begins with 
-\code
-#include <cantera/Cantera.h>
-\endcode
-All %Cantera application programs must begin by including this header
-file. The syntax of the include statement shown here is recommended,
-since usually the %Cantera header files are installed within a
-subdirectory named "cantera" in a directory on the search path
-used by the compiler. If you need to include additional %Cantera headers, 
-always include Cantera.h first. 
-\see \ref cxx-headers
-
 - <b>Catching CanteraError exceptions</b>\n
 The entire body of the program is put inside a function that is invoked
 within a \c try block in the main program. In this way, exceptions

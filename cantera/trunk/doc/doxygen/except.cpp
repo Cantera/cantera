@@ -1,4 +1,4 @@
-#include <cantera/Cantera.h>
+#include "cantera/thermo.h"
 //
 // artifical example of throwing and catching a CanteraError exception.
 //

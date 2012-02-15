@@ -1,6 +1,4 @@
-
-// This header must alway be included.
-#include <cantera/Cantera.h>
+#include <cantera/thermo.h>
 
 
 // The actual code is put into a function that

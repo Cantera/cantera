@@ -1,6 +1,5 @@
-
-#include <cantera/Cantera.h>
 #include <cantera/equilibrium.h>
+#include <cantera/thermo.h>
 
 void equil_demo()
 {

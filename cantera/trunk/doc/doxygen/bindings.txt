@@ -60,8 +60,6 @@ To see how this works, consider the class Droplet, shown below, that models a si
 // parameters taken from Example 3.2, p. 103, in "An Introduction to
 // Combustion" by S.R. Turns
 
-#include <cantera/Cantera.h>
-
 namespace DropletNamespace {
 
     const double Dab_0 = 8.1e-6; // m2/s

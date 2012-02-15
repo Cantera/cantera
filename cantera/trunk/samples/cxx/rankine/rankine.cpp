@@ -3,7 +3,6 @@
 #include <string>
 #include <map>
 
-#include <cantera/Cantera.h>
 #include <cantera/PureFluid.h>    // defines class Water
 
 using namespace Cantera;
