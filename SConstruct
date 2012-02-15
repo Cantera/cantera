@@ -20,6 +20,8 @@ Basic usage:
 
     'scons test-NAME' - Run the regression test named "FOO".
 
+    'scons samples' - Compile the C++ and Fortran samples
+
     'scons msi' - Build a Windows installer (.msi) for Cantera.
 """
 
@@ -845,7 +847,7 @@ buildDir = 'build'
 buildTargets = []
 libraryTargets = [] # objects that go in the Cantera library
 installTargets = []
-demoTargets = []
+sampleTargets = []
 
 env.SConsignFile()
 
@@ -881,7 +883,7 @@ env['cantera_libs'] = linkLibs
 
 # Add targets from the SConscript files in the various subdirectories
 Export('env', 'buildDir', 'buildTargets', 'libraryTargets',
-       'installTargets', 'demoTargets')
+       'installTargets', 'sampleTargets')
 
 # ext needs to come before src so that libraryTargets is fully populated
 VariantDir('build/ext', 'ext', duplicate=0)
@@ -891,6 +893,12 @@ SConscript('build/ext/SConscript')
 if env['f90_interface'] == 'y':
     VariantDir('build/src/fortran/', 'src/fortran', duplicate=1)
     SConscript('build/src/fortran/SConscript')
+
+    # install F90 / F77 samples
+    inst = env.RecursiveInstall(pjoin('$inst_sampledir', 'f77'), 'samples/f77')
+    installTargets.extend(inst)
+    inst = env.RecursiveInstall(pjoin('$inst_sampledir', 'f90'), 'samples/f90')
+    installTargets.extend(inst)
 
 VariantDir('build/src', 'src', duplicate=0)
 SConscript('build/src/SConscript')
@@ -910,12 +918,17 @@ if env['OS'] != 'Windows':
 if env['build_docs']:
     SConscript('doc/SConscript')
 
+if 'samples' in COMMAND_LINE_TARGETS:
+    SConscript('samples/cxx/SConscript')
+    if env['f90_interface'] == 'y':
+        SConscript('samples/f77/SConscript')
+
 # Data files
 inst = env.Install('$inst_datadir', mglob(env, pjoin('data','inputs'), 'cti', 'xml'))
 installTargets.extend(inst)
 
 ### Meta-targets ###
-build_demos = Alias('demos', demoTargets)
+build_samples = Alias('samples', sampleTargets)
 
 def postBuildMessage(target, source, env):
     print "**************************************************************"

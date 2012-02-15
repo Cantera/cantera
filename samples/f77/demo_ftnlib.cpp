@@ -29,6 +29,7 @@
 #include <cantera/IdealGasMix.h>
 
 using namespace Cantera;
+using std::string;
 
 // store a pointer to an IdealGasMix object
 static IdealGasMix* _gas = 0;
@@ -62,7 +63,7 @@ Transport* _transptr()
 // error handler
 void handleError()
 {
-    showErrors(cout);
+    showErrors(std::cout);
     exit(-1);
 }
 
@@ -131,7 +132,7 @@ extern "C" {
     void getspeciesname_(integer* k, char* name, ftnlen n)
     {
         int ik = *k - 1;
-        fill(name, name + n, ' ');
+        std::fill(name, name + n, ' ');
         string spnm = _gas->speciesName(ik);
         int ns = spnm.size();
         unsigned int nmx = (ns > n ? n : ns);
@@ -305,7 +306,7 @@ extern "C" {
     void getreactioneqn_(integer* i, char* eqn, ftnlen n)
     {
         int irxn = *i - 1;
-        fill(eqn, eqn + n, ' ');
+        std::fill(eqn, eqn + n, ' ');
         string e = _gas->reactionString(irxn);
         int ns = e.size();
         unsigned int nmx = (ns > n ? n : ns);
