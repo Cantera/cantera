@@ -887,12 +887,13 @@ Export('env', 'buildDir', 'buildTargets', 'libraryTargets',
 VariantDir('build/ext', 'ext', duplicate=0)
 SConscript('build/ext/SConscript')
 
+# Fortran needs to come before src so that libraryTargets is fully populated
+if env['f90_interface'] == 'y':
+    VariantDir('build/src/fortran/', 'src/fortran', duplicate=1)
+    SConscript('build/src/fortran/SConscript')
+
 VariantDir('build/src', 'src', duplicate=0)
 SConscript('build/src/SConscript')
-
-if env['f90_interface'] == 'y':
-    VariantDir('build/fortran/', 'src/fortran', duplicate=1)
-    SConscript('build/src/fortran/SConscript')
 
 if env['python_package'] in ('full','minimal'):
     SConscript('src/python/SConscript')

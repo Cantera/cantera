@@ -1,30 +1,22 @@
 from buildutils import *
 
-Import('env', 'buildTargets', 'installTargets', 'demoTargets')
+Import('env', 'buildTargets', 'installTargets', 'demoTargets', 'libraryTargets')
 
 localenv = env.Clone()
+localenv.Append(CPPPATH=['#include', '#src'])
 
-f90_src = mglob(localenv, 'src', 'f90', 'cpp')
+f90_src = mglob(localenv, '.', 'f90', 'cpp')
 
 artifacts = localenv.Object(f90_src)
 mods = [o for o in artifacts if o.path.endswith('.mod')]
-objs = [o for o in artifacts if not o.path.endswith('.mod')]
+objects = [o for o in artifacts if not o.path.endswith('.mod')]
 
-lib = localenv.Library(target=pjoin('..','..','lib','fct'),
-                       source=objs)
+lib = localenv.Library(target=pjoin('..','..','lib','cantera_fortran'),
+                       source=objects)
 buildTargets.extend(lib)
 inst = localenv.Install('$inst_libdir', lib)
 installTargets.extend(inst)
-
 installTargets.extend(localenv.Install('$inst_incdir', mods))
-
-# Copy the mod files to the include directory
-for mod in mods:
-    copy = localenv.Command(target=pjoin('..','..','include','cantera', mod.name),
-                            source=mod,
-                            action=Copy('$TARGET', '$SOURCE'))
-    localenv.AddPostAction(lib, copy)
-    buildTargets.extend(copy)
 
 # (subdir, program name, [source extensions])
 demos = [('f77demos', 'ctlib', ['^ctlib.f']),
@@ -34,7 +26,7 @@ ftn_demo = localenv.Object(pjoin('f77demos','demo_ftnlib.cpp'))
 for subdir, name, extensions in demos:
     prog = localenv.Program(pjoin(subdir, name),
                             mglob(localenv, subdir, *extensions) + ftn_demo,
-                            LIBS=env['cantera_libs']+['fct']+['stdc++'],
+                            LIBS=env['cantera_libs']+['cantera_fortran']+['stdc++'],
                             LINK='$F77')
     demoTargets.extend(prog)
 
