@@ -8,7 +8,7 @@
  */
 
 #include "Cantera.h"
-#include "kinetics.h"
+#include "kinetics_interface.h"
 
 #include <string>
 
