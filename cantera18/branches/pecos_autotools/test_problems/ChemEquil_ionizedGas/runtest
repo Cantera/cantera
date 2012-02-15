@@ -17,6 +17,7 @@ if [ $retnStat != "0" ]
 then
   temp_success="1"
   echo "ERROR: $testName: ionizedGasEquil returned with bad status, $retnStat, check output"
+  exit 1
 fi
 
 diff -w output.txt output_blessed.txt > diff_out.txt
@@ -32,19 +33,19 @@ then
   if [ $retnStat_txt != "0" ]
   then
      echo "   But, text output files have differences. See diff_out.txt"
-     return 1
+     exit 1
   fi
 else
   echo "Unsuccessful test comparison on " $testName " test"
   if test $retnStat_csv != "1"
   then
      echo "      csv files are different - see diff_csv.txt"
-     return 1
+     exit 1
   fi
   if test $retnStat_txt != "0"
   then
      echo "      And, text output files have differences. See diff_out.txt"
-     return 1
+     exit 1
   fi
 fi
 #

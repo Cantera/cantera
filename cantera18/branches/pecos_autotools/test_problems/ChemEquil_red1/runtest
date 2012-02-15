@@ -17,6 +17,7 @@ if [ $retnStat != "0" ]
 then
   temp_success="0"
   echo "$testName returned with bad status, $retnStat, check output"
+  exit 1
 fi
 
 diff -w output.txt output_blessed.txt > diff_test.out
@@ -24,9 +25,11 @@ retnStat=$?
 if [ $retnStat = "0" ]
 then
   echo "successful diff comparison on $testName test"
+  exit 0
 else
   echo "unsuccessful diff comparison on $testName test"
   echo "FAILED" > csvCode.txt
   temp_success="0"
+  exit 1
 fi
 

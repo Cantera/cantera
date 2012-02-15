@@ -8,7 +8,7 @@ temp_success="0"
 prog=HMW_graph_GvI
 if test ! -x $prog ; then
    echo $prog ' does not exist'
-   exit -1
+   exit 1
 fi
 ##########################################################################
 /bin/rm -f test.out test.diff   output.txt
@@ -27,6 +27,7 @@ if [ $retnStat != "0" ]
 then
   temp_success="1"
   echo "$prog returned with bad status, $retnStat, check output"
+  exit 1
 fi
 diff T298.csv T298_blessed.csv > test.diff
 zres=$?
@@ -45,9 +46,11 @@ fi
 if [ $temp_success = "0" ]
 then
   echo "successful diff comparison on $prog test"
+  exit 0
 else
   echo "unsuccessful diff comparison on $prog test"
   echo "FAILED" > csvCode.txt
+  exit 1
 fi
 
 

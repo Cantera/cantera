@@ -18,6 +18,7 @@ if [ $retnStat != "0" ]
 then
   temp_success="0"
   echo "$tname ($tname test) returned with bad status, $retnStat, check output"
+  exit 1
 fi
 
 ../../bin/exp3to2.sh output.txt > outputa.txt
@@ -26,9 +27,11 @@ retnStat=$?
 if [ $retnStat = "0" ]
 then
   echo "successful diff comparison on $tname test"
+  exit 0
 else
   echo "unsuccessful diff comparison on $tname test"
   echo "FAILED" > csvCode.txt
   temp_success="0"
+  exit 1
 fi
 

@@ -50,7 +50,7 @@ else
   fi
 fi
 #
-# return 0 for no errors, 1 for errors
+# exit 0 for no errors, 1 for errors
 #
 exit $eCode
 

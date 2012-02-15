@@ -23,6 +23,7 @@ if [ $retnStat != "0" ]
 then
   temp_success="0"
   echo "cxx_examples returned with bad status, $retnStat, check output"
+  exit 1
 fi
 
 #
@@ -49,6 +50,7 @@ else
   echo "########################################################"
   echo "FAILED" > csvCode.txt
   temp_success="0"
+  exit 1
 fi
 
 #################################################################
@@ -74,6 +76,7 @@ else
   echo "########################################################"
   echo "FAILED" > csvCode.txt
   temp_success="0"
+  exit 1
 fi
 
 #################################################################
@@ -99,6 +102,7 @@ else
   echo "########################################################"
   echo "FAILED" > csvCode.txt
   temp_success="0"
+  exit 1
 fi
 
 #################################################################
@@ -133,6 +137,7 @@ else
   echo "########################################################"
   echo "FAILED" > csvCode.txt
   temp_success="0"
+  exit 1
 fi
 
 #################################################################
@@ -167,12 +172,15 @@ else
   echo "########################################################"
   echo "FAILED" > csvCode.txt
   temp_success="0"
+  exit 1
 fi
 if [ $temp_success = "1" ]
 then
   echo 'cxx_examples csv test PASSED!'
+  exit 0
 else
   echo 'cxx_examples csv test FAILED!'
+  exit 1
 fi
 
 echo

@@ -8,7 +8,7 @@ temp_success="1"
 prog=HMW_dupl_test
 if test ! -x $prog ; then
    echo $prog ' does not exist'
-   exit -1
+   exit 1
 fi
 ##########################################################################
 /bin/rm -f test.out test.diff   output.txt
@@ -26,6 +26,7 @@ if [ $retnStat != "0" ]
 then
   temp_success="0"
   echo "$prog returned with bad status, $retnStat, check output"
+  exit 1
 fi
 
 $CANTERA_BIN/exp3to2.sh output.txt > outputa.txt
@@ -34,11 +35,11 @@ retnStat=$?
 if [ $retnStat = "0" ]
 then
   echo "successful diff comparison on $prog test"
-  return 0
+  exit 0
 else
   echo "unsuccessful diff comparison on $prog test"
   echo "FAILED" > csvCode.txt
   temp_success="0"
-  return 1
+  exit 1
 fi
 
