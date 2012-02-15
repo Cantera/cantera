@@ -1,9 +1,9 @@
 #include "cantera/thermo.h"
 #include <iostream>
 
-int main()
+int main(int argc, char** argv)
 {
-    ThermoPhase* gas = newPhase("h2o2.cti","ohmech");
-    cout << gas->temperature() << endl;
+    Cantera::ThermoPhase* gas = Cantera::newPhase("h2o2.cti","ohmech");
+    std::cout << gas->temperature() << std::endl;
     return 0;
 }

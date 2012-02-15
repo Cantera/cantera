@@ -13,6 +13,9 @@
 #include <time.h>
 #include "example_utils.h"
 
+using namespace Cantera;
+using std::cout;
+using std::endl;
 
 int kinetics1(int np, void* p)
 {
@@ -85,7 +88,7 @@ int kinetics1(int np, void* p)
 
 
     // make a Tecplot data file and an Excel spreadsheet
-    string plotTitle = "kinetics example 1: constant-pressure ignition";
+    std::string plotTitle = "kinetics example 1: constant-pressure ignition";
     plotSoln("kin1.dat", "TEC", plotTitle, gas, soln);
     plotSoln("kin1.csv", "XL", plotTitle, gas, soln);
 

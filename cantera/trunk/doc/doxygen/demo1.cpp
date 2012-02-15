@@ -2,6 +2,8 @@
 #include <cantera/equilibrium.h>    // chemical equilibrium
 #include <cantera/transport.h>      // transport properties
 
+using namespace Cantera;
+
 void demoprog()
 {
 
@@ -100,7 +102,7 @@ int main()
     try {
         demoprog();
     } catch (CanteraError) {
-        showErrors(cout);
+        showErrors(std::cout);
     }
 }
 

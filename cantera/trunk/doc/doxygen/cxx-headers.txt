@@ -11,8 +11,8 @@ header files from the kernel needed to do equilibrium calculations
 These headers are designed for use in C++ application programs, and
 are not included by the Cantera kernel. The headers and their functions are:
 
-These are: 
-- equilibrium.h 
+These are:
+- equilibrium.h
   - Chemical equilibrium.
 - GRI30.h
   - Provides class GRI30.

@@ -28,16 +28,16 @@ This program produces the output below:
  heat capacity c_p         3919.29        2.904e+04     J/K
  heat capacity c_v         2797.09        2.072e+04     J/K
 
-                           X                 Y          Chem. Pot. / RT    
+                           X                 Y          Chem. Pot. / RT
                      -------------     ------------     ------------
                 H2            0.8         0.217667         -15.6441
-                 H              0                0     
-                 O              0                0     
-                O2              0                0     
-                OH              0                0     
+                 H              0                0
+                 O              0                0
+                O2              0                0
+                OH              0                0
                H2O            0.1         0.243153         -82.9531
-               HO2              0                0     
-              H2O2              0                0     
+               HO2              0                0
+              H2O2              0                0
                 AR            0.1          0.53918         -20.5027
 \endverbatim
 
