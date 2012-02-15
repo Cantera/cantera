@@ -14,7 +14,7 @@
 #include <string>
 #include "Cantera.h"
 #include "thermo.h"
-#include "kinetics.h"
+#include "kinetics_interface.h"
 // #include "kernel/SurfPhase.h"
 // #include "kernel/InterfaceKinetics.h"
 // #include "kernel/importKinetics.h"
