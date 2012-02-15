@@ -480,20 +480,17 @@ static void vcsUtil_mlequ_preprocess(double* c, int idem, int n, double* b, int 
  */
 int vcsUtil_mlequ(double* c, size_t idem, size_t n, double* b, size_t m)
 {
+    size_t k;
 #ifdef DEBUG_HKM
     // mlequ_matrixDump(c, idem, n);
 #endif
     vcsUtil_mlequ_preprocess(c, idem, n, b, m);
 #ifdef DEBUG_HKM
     // mlequ_matrixDump(c, idem, n);
-#endif
-    int dmatrix = 0;
-#ifdef DEBUG_HKM
     static int s_numCalls = 0;
     s_numCalls++;
 #endif
 
-    int i, j, k, l;
     double R;
     if (n > idem || n <= 0) {
         plogf("vcsUtil_mlequ ERROR: badly dimensioned matrix: %d %d\n", n, idem);
@@ -501,9 +498,10 @@ int vcsUtil_mlequ(double* c, size_t idem, size_t n, double* b, size_t m)
     }
 
 #ifdef DEBUG_HKM
-    for (i = 0; i < n; ++i) {
+    int dmatrix = 0;
+    for (size_t i = 0; i < n; ++i) {
         bool notFound = true;
-        for (j = 0; j < n; ++j) {
+        for (size_t j = 0; j < n; ++j) {
             if (c[i + j * idem] != 0.0) {
                 notFound = false;
             }
@@ -512,9 +510,9 @@ int vcsUtil_mlequ(double* c, size_t idem, size_t n, double* b, size_t m)
             printf(" vcsUtil_mlequ ERROR(): row %d is identically zero\n", i);
         }
     }
-    for (j = 0; j < n; ++j) {
+    for (size_t j = 0; j < n; ++j) {
         bool notFound = true;
-        for (i = 0; i < n; ++i) {
+        for (size_t i = 0; i < n; ++i) {
             if (c[i + j * idem] != 0.0) {
                 notFound = false;
             }

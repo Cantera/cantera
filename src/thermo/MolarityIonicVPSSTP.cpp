@@ -308,7 +308,7 @@ void MolarityIonicVPSSTP::getLnActivityCoefficients(doublereal* lnac) const
     /*
      * take the exp of the internally storred coefficients.
      */
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         lnac[k] = lnActCoeff_Scaled_[k];
     }
 }
@@ -331,7 +331,7 @@ void MolarityIonicVPSSTP::getChemPotentials(doublereal* mu) const
      *
      */
     doublereal RT = GasConstant * temperature();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         xx = fmaxx(moleFractions_[k], xxSmall);
         mu[k] += RT * (log(xx) + lnActCoeff_Scaled_[k]);
     }
@@ -342,7 +342,7 @@ void MolarityIonicVPSSTP::getElectrochemPotentials(doublereal* mu) const
 {
     getChemPotentials(mu);
     double ve = Faraday * electricPotential();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         mu[k] += ve*charge(k);
     }
 }
@@ -373,7 +373,7 @@ void MolarityIonicVPSSTP::getPartialMolarEnthalpies(doublereal* hbar) const
      */
     double T = temperature();
     double RT = GasConstant * T;
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         hbar[k] *= RT;
     }
     /*
@@ -383,7 +383,7 @@ void MolarityIonicVPSSTP::getPartialMolarEnthalpies(doublereal* hbar) const
     s_update_lnActCoeff();
     s_update_dlnActCoeff_dT();
     double RTT = RT * T;
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         hbar[k] -= RTT * dlnActCoeffdT_Scaled_[k];
     }
 }
@@ -416,13 +416,13 @@ void MolarityIonicVPSSTP::getPartialMolarCp(doublereal* cpbar) const
     s_update_lnActCoeff();
     s_update_dlnActCoeff_dT();
 
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         cpbar[k] -= 2 * T * dlnActCoeffdT_Scaled_[k] + T * T * d2lnActCoeffdT2_Scaled_[k];
     }
     /*
      * dimensionalize it.
      */
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         cpbar[k] *= GasConstant;
     }
 }
@@ -456,14 +456,14 @@ void MolarityIonicVPSSTP::getPartialMolarEntropies(doublereal* sbar) const
     s_update_lnActCoeff();
     s_update_dlnActCoeff_dT();
 
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         xx = fmaxx(moleFractions_[k], xxSmall);
         sbar[k] += - lnActCoeff_Scaled_[k] -log(xx) - T * dlnActCoeffdT_Scaled_[k];
     }
     /*
      * dimensionalize it.
      */
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         sbar[k] *= GasConstant;
     }
 }
@@ -479,22 +479,20 @@ void MolarityIonicVPSSTP::getPartialMolarEntropies(doublereal* sbar) const
  */
 void MolarityIonicVPSSTP::getPartialMolarVolumes(doublereal* vbar) const
 {
-    int  iK;
     /*
      * Get the standard state values in m^3 kmol-1
      */
     getStandardVolumes(vbar);
-    for (iK = 0; iK < m_kk; iK++) {
-
+    for (size_t iK = 0; iK < m_kk; iK++) {
         vbar[iK] += 0.0;
     }
 }
 //====================================================================================================================
 void MolarityIonicVPSSTP::calcPseudoBinaryMoleFractions() const
 {
-    int k;
-    int kCat;
-    int kMax;
+    size_t k;
+    size_t kCat;
+    size_t kMax;
     doublereal sumCat;
     doublereal sumAnion;
     doublereal chP, chM;
@@ -514,7 +512,7 @@ void MolarityIonicVPSSTP::calcPseudoBinaryMoleFractions() const
         }
         kMax = -1;
         sumMax = 0.0;
-        for (k = 0; k < (int) cationList_.size(); k++) {
+        for (k = 0; k < cationList_.size(); k++) {
             kCat = cationList_[k];
             chP = m_speciesCharge[kCat];
             if (moleFractions_[kCat] > sumMax) {
@@ -580,8 +578,7 @@ void MolarityIonicVPSSTP::calcPseudoBinaryMoleFractions() const
  */
 void MolarityIonicVPSSTP::s_update_lnActCoeff() const
 {
-    int  k;
-    for (k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         lnActCoeff_Scaled_[k] = 0.0;
     }
 }
@@ -642,7 +639,7 @@ void MolarityIonicVPSSTP::initThermo()
     cationList_.clear();
     anionList_.clear();
     passThroughList_.clear();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         ch = m_speciesCharge[k];
         if (ch > 0.0) {
             cationList_.push_back(k);

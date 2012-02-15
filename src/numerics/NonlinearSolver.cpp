@@ -1141,9 +1141,7 @@ int NonlinearSolver::doAffineNewtonSolve(const doublereal* const y_curr,   const
     if (s_doBothSolvesAndCompare) {
         doHessian = true;
     }
-    bool useNewton = false;
     if (m_conditionNumber < 1.0E7) {
-        useNewton = true;
         if (m_print_flag >= 4) {
             printf("\t\t   doAffineNewtonSolve: Condition number = %g during regular solve\n", m_conditionNumber);
         }
@@ -1170,7 +1168,6 @@ int NonlinearSolver::doAffineNewtonSolve(const doublereal* const y_curr,   const
 
     } else {
         if (jac.matrixType_ == 1) {
-            useNewton = true;
             newtonGood = true;
             if (m_print_flag >= 3) {
                 printf("\t\t   doAffineNewtonSolve() WARNING: Condition number too large, %g, But Banded Hessian solve "
@@ -1561,7 +1558,6 @@ doublereal NonlinearSolver::doCauchyPointSolve(GeneralMatrix& jac)
 //===================================================================================================================
 void  NonlinearSolver::descentComparison(doublereal time_curr, doublereal* ydot0, doublereal* ydot1, int& numTrials)
 {
-    int info;
     doublereal ff = 1.0E-5;
     doublereal ffNewt = 1.0E-5;
     doublereal* y_n_1 = DATA_PTR(m_wksp);
@@ -1580,9 +1576,9 @@ void  NonlinearSolver::descentComparison(doublereal time_curr, doublereal* ydot0
      *  -> m_resid[] contains the result of the residual calculation
      */
     if (solnType_ != NSOLN_TYPE_STEADY_STATE) {
-        info = doResidualCalc(time_curr, solnType_, y_n_1, ydot1, Base_LaggedSolutionComponents);
+        doResidualCalc(time_curr, solnType_, y_n_1, ydot1, Base_LaggedSolutionComponents);
     } else {
-        info = doResidualCalc(time_curr, solnType_, y_n_1, ydot0, Base_LaggedSolutionComponents);
+        doResidualCalc(time_curr, solnType_, y_n_1, ydot0, Base_LaggedSolutionComponents);
     }
 
     doublereal normResid02 = m_normResid_0 * m_normResid_0 * neq_;
@@ -1605,9 +1601,9 @@ void  NonlinearSolver::descentComparison(doublereal time_curr, doublereal* ydot0
      *  -> m_resid[] contains the result of the residual calculation
      */
     if (solnType_ != NSOLN_TYPE_STEADY_STATE) {
-        info = doResidualCalc(time_curr, solnType_, y_n_1, ydot1, Base_LaggedSolutionComponents);
+        doResidualCalc(time_curr, solnType_, y_n_1, ydot1, Base_LaggedSolutionComponents);
     } else {
-        info = doResidualCalc(time_curr, solnType_, y_n_1, ydot0, Base_LaggedSolutionComponents);
+        doResidualCalc(time_curr, solnType_, y_n_1, ydot0, Base_LaggedSolutionComponents);
     }
     doublereal residNewt = residErrorNorm(DATA_PTR(m_resid));
     doublereal residNewt2 = residNewt * residNewt * neq_;
@@ -1670,9 +1666,9 @@ void  NonlinearSolver::descentComparison(doublereal time_curr, doublereal* ydot0
                 }
                 numTrials += 1;
                 if (solnType_ != NSOLN_TYPE_STEADY_STATE) {
-                    info = doResidualCalc(time_curr, solnType_, y_n_1, ydot1, Base_LaggedSolutionComponents);
+                    doResidualCalc(time_curr, solnType_, y_n_1, ydot1, Base_LaggedSolutionComponents);
                 } else {
-                    info = doResidualCalc(time_curr, solnType_, y_n_1, ydot0, Base_LaggedSolutionComponents);
+                    doResidualCalc(time_curr, solnType_, y_n_1, ydot0, Base_LaggedSolutionComponents);
                 }
                 residNewt = residErrorNorm(DATA_PTR(m_resid));
                 residNewt2 = residNewt * residNewt * neq_;
@@ -2709,7 +2705,6 @@ int NonlinearSolver::dampDogLeg(const doublereal time_curr, const doublereal* y_
     int info;
 
     bool success = false;
-    int retn = 0;
     bool haveASuccess = false;
     doublereal trustDeltaOld = trustDelta_;
     doublereal* stepLastGood = DATA_PTR(m_wksp);
@@ -2781,7 +2776,6 @@ int NonlinearSolver::dampDogLeg(const doublereal time_curr, const doublereal* y_
                 doublereal stepNorm =  solnErrorNorm(DATA_PTR(step_1));
                 printf("\t\t   dampDogLeg: Current direction rejected, update became too small %g\n", stepNorm);
                 success = false;
-                retn = NSOLN_RETN_FAIL_STEPTOOSMALL;
                 break;
             }
         }
@@ -2789,7 +2783,6 @@ int NonlinearSolver::dampDogLeg(const doublereal time_curr, const doublereal* y_
             if (m_print_flag >= 1) {
                 printf("\t\t dampDogLeg: current trial step and damping led to LAPACK ERROR %d. Bailing\n", info);
                 success = false;
-                retn = NSOLN_RETN_MATRIXINVERSIONERROR;
                 break;
             }
         }
@@ -2886,7 +2879,6 @@ int NonlinearSolver::decideStep(const doublereal time_curr, int leg, doublereal 
                                 doublereal trustDeltaOld)
 {
     int retn = 2;
-    bool goodStep = false;
     int info;
     doublereal ll;
     // Calculate the solution step length
@@ -2941,7 +2933,6 @@ int NonlinearSolver::decideStep(const doublereal time_curr, int leg, doublereal 
     doublereal acceptableDelF =  funcDecreaseSDExp * stepNorm * 1.0E-4;
     if (funcDecrease < acceptableDelF) {
         m_normResid_1 = m_normResidTrial;
-        goodStep = true;
         m_normResid_1 =  m_normResidTrial;
         retn = 0;
         if (m_print_flag >= 4) {
@@ -3072,7 +3063,6 @@ int NonlinearSolver::solve_nonlinear_problem(int SolnType, doublereal* const y_c
     solnType_ = SolnType;
     int info = 0;
 
-    bool m_residCurrent = false;
     num_linear_solves -= m_numTotalLinearSolves;
     int retnDamp = 0;
     int retnCode = 0;
@@ -3206,12 +3196,10 @@ int NonlinearSolver::solve_nonlinear_problem(int SolnType, doublereal* const y_c
                 retnDamp = NSOLN_RETN_JACOBIANFORMATIONERROR ;
                 goto done;
             }
-            m_residCurrent = true;
         } else {
             if (m_print_flag > 1) {
                 printf("\t   solve_nonlinear_problem(): Solving system with old jacobian\n");
             }
-            m_residCurrent = false;
         }
         /*
          * Go get new scales

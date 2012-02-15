@@ -231,7 +231,7 @@ void MixtureFugacityTP::getChemPotentials_RT(doublereal* muRT) const
 {
     getChemPotentials(muRT);
     doublereal invRT = 1.0 / _RT();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         muRT[k] *= invRT;
     }
 }
@@ -245,7 +245,7 @@ void MixtureFugacityTP::getStandardChemPotentials(doublereal* g) const
     copy(m_g0_RT.begin(), m_g0_RT.end(), g);
     doublereal RT = _RT();
     double tmp = log(pressure() /m_spthermo->refPressure());
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         g[k] = RT * (g[k] + tmp);
     }
 }
@@ -281,7 +281,7 @@ void MixtureFugacityTP::getEntropy_R(doublereal* sr) const
     _updateReferenceStateThermo();
     copy(m_s0_R.begin(), m_s0_R.end(), sr);
     double tmp = log(pressure() /m_spthermo->refPressure());
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         sr[k] -= tmp;
     }
 }
@@ -295,7 +295,7 @@ void MixtureFugacityTP::getGibbs_RT(doublereal* grt) const
     _updateReferenceStateThermo();
     copy(m_g0_RT.begin(), m_g0_RT.end(), grt);
     double tmp = log(pressure() /m_spthermo->refPressure());
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         grt[k] += tmp;
     }
 }
@@ -311,7 +311,7 @@ void MixtureFugacityTP::getPureGibbs(doublereal* g) const
     scale(m_g0_RT.begin(), m_g0_RT.end(), g, _RT());
     double tmp = log(pressure() /m_spthermo->refPressure());
     tmp *= _RT();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         g[k] += tmp;
     }
 }
@@ -328,7 +328,7 @@ void MixtureFugacityTP::getIntEnergy_RT(doublereal* urt) const
     doublereal p = pressure();
     doublereal tmp = p / _RT();
     doublereal v0 = _RT() / p;
-    for (int i = 0; i < m_kk; i++) {
+    for (size_t i = 0; i < m_kk; i++) {
         urt[i] -= tmp * v0;
     }
 }
@@ -356,7 +356,7 @@ void MixtureFugacityTP::getStandardVolumes(doublereal* vol) const
 {
     _updateReferenceStateThermo();
     doublereal v0 = _RT() / pressure();
-    for (int i = 0; i < m_kk; i++) {
+    for (size_t i = 0; i < m_kk; i++) {
         vol[i]= v0;
     }
 }
@@ -443,7 +443,7 @@ void MixtureFugacityTP::getStandardVolumes_ref(doublereal* vol) const
     _updateReferenceStateThermo();
     double pp = refPressure();
     doublereal v0 = _RT() / pp;
-    for (int i = 0; i < m_kk; i++) {
+    for (size_t i = 0; i < m_kk; i++) {
         vol[i]= v0;
     }
 }
@@ -1165,7 +1165,6 @@ doublereal MixtureFugacityTP::calculatePsat(doublereal TKelvin, doublereal& mola
     double tempSave = temperature();
     double pres;
     doublereal mw = meanMolecularWeight();
-    bool conv = false;
     if (TKelvin < tcrit) {
 
         pres = psatEst(TKelvin);
@@ -1341,7 +1340,7 @@ startIteration:
 
 
             if (fabs(delGRT) < 1.0E-8) {
-                conv = true;
+                // converged
                 break;
             }
         }
@@ -1406,8 +1405,7 @@ void MixtureFugacityTP::_updateReferenceStateThermo() const
         m_Tlast_ref = Tnow;
 
         // update the species Gibbs functions
-        int k;
-        for (k = 0; k < m_kk; k++) {
+        for (size_t k = 0; k < m_kk; k++) {
             m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
         }
         doublereal pref = refPressure();

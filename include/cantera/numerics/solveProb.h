@@ -373,7 +373,7 @@ private:
     /*!
      * Note, this can be zero, and frequently is
      */
-    int  m_neq;
+    size_t m_neq;
 
     //! m_atol is the absolute tolerance in real units.
     vector_fp m_atol;

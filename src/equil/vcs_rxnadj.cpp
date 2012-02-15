@@ -43,7 +43,7 @@ namespace VCSnonideal
  */
 int VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
 {
-    int  j, irxn, kspec,  iph;
+    size_t kspec, iph;
     int iphDel = -1;
     double s, xx, dss;
     size_t k = 0;
@@ -78,7 +78,7 @@ int VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
      ******** LOOP OVER THE FORMATION REACTIONS *****************************
      ************************************************************************/
 
-    for (irxn = 0; irxn < m_numRxnRdc; ++irxn) {
+    for (size_t irxn = 0; irxn < m_numRxnRdc; ++irxn) {
 #ifdef DEBUG_MODE
         sprintf(ANOTE,"Normal Calc");
 #endif
@@ -198,14 +198,14 @@ int VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
                 } else {
                     s = 1.0 / m_molNumSpecies_old[kspec] ;
                 }
-                for (j = 0; j < m_numComponents; ++j) {
+                for (size_t j = 0; j < m_numComponents; ++j) {
                     if (!m_SSPhase[j]) {
                         if (m_molNumSpecies_old[j] > 0.0) {
                             s += SQUARE(m_stoichCoeffRxnMatrix[irxn][j]) / m_molNumSpecies_old[j];
                         }
                     }
                 }
-                for (j = 0; j < m_numPhases; j++) {
+                for (size_t j = 0; j < m_numPhases; j++) {
                     Vphase = m_VolPhaseList[j];
                     if (! Vphase->m_singleSpecies) {
                         if (m_tPhaseMoles_old[j] > 0.0) {
@@ -232,7 +232,7 @@ int VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
 
                     m_deltaMolNumSpecies[kspec] = -m_deltaGRxn_new[irxn] / s;
                     // New section to do damping of the m_deltaMolNumSpecies[]
-                    for (j = 0; j < m_numComponents; ++j) {
+                    for (size_t j = 0; j < m_numComponents; ++j) {
                         double stoicC = m_stoichCoeffRxnMatrix[irxn][j];
                         if (stoicC != 0.0) {
                             double negChangeComp = - stoicC * m_deltaMolNumSpecies[kspec];
@@ -281,7 +281,7 @@ int VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
                     if (m_deltaGRxn_new[irxn] > 0.0) {
                         dss = m_molNumSpecies_old[kspec];
                         k = kspec;
-                        for (j = 0; j < m_numComponents; ++j) {
+                        for (size_t j = 0; j < m_numComponents; ++j) {
                             if (m_stoichCoeffRxnMatrix[irxn][j] > 0.0) {
                                 xx = m_molNumSpecies_old[j] / m_stoichCoeffRxnMatrix[irxn][j];
                                 if (xx < dss) {
@@ -293,7 +293,7 @@ int VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
                         dss = -dss;
                     } else {
                         dss = 1.0e10;
-                        for (j = 0; j < m_numComponents; ++j) {
+                        for (size_t j = 0; j < m_numComponents; ++j) {
                             if (m_stoichCoeffRxnMatrix[irxn][j] < 0.0) {
                                 xx = -m_molNumSpecies_old[j] / m_stoichCoeffRxnMatrix[irxn][j];
                                 if (xx < dss) {
@@ -360,11 +360,11 @@ int VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
                         }
 #else
 
-                        for (j = 0; j < m_numSpeciesTot; j++) {
+                        for (size_t j = 0; j < m_numSpeciesTot; j++) {
                             m_deltaMolNumSpecies[j] = 0.0;
                         }
                         m_deltaMolNumSpecies[kspec] = dss;
-                        for (j = 0; j < m_numComponents; ++j) {
+                        for (size_t j = 0; j < m_numComponents; ++j) {
                             m_deltaMolNumSpecies[j] = dss * m_stoichCoeffRxnMatrix[irxn][j];
                         }
 

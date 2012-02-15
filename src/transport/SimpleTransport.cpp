@@ -650,8 +650,8 @@ void SimpleTransport::getSpeciesVdiff(int ndim,
 
     getSpeciesFluxesExt(m_nsp, DATA_PTR(Vdiff));
 
-    for (int n = 0; n < m_nDim; n++) {
-        for (int k = 0; k < m_nsp; k++) {
+    for (size_t n = 0; n < m_nDim; n++) {
+        for (size_t k = 0; k < m_nsp; k++) {
             if (y[k] > 1.0E-200) {
                 Vdiff[n * m_nsp + k] *=  1.0 / (rho * y[k]);
             } else {
@@ -700,8 +700,8 @@ void SimpleTransport::getSpeciesVdiffES(int ndim, const doublereal* grad_T,
 
     getSpeciesFluxesExt(m_nsp, DATA_PTR(Vdiff));
 
-    for (int n = 0; n < m_nDim; n++) {
-        for (int k = 0; k < m_nsp; k++) {
+    for (size_t n = 0; n < m_nDim; n++) {
+        for (size_t k = 0; k < m_nsp; k++) {
             if (y[k] > 1.0E-200) {
                 Vdiff[n * m_nsp + k] *=  1.0 / (rho * y[k]);
             } else {

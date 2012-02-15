@@ -165,14 +165,14 @@ void Phase::setIndex(size_t m)
  * @return     Returns the index of the species. If the name is not found,
  *             the value of -1 is returned.
  */
-int Phase::speciesIndex(std::string nameStr) const
+size_t Phase::speciesIndex(std::string nameStr) const
 {
     std::string pn;
     std::string sn = parseSpeciesName(nameStr, pn);
     if (pn == "" || pn == m_name || pn == m_id) {
         return Constituents::speciesIndex(sn);
     }
-    return -1;
+    return npos;
 }
 
 std::string Phase::speciesSPName(int k) const

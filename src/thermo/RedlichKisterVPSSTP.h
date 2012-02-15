@@ -878,7 +878,7 @@ private:
 protected:
 
     //! number of binary interaction expressions
-    int numBinaryInteractions_;
+    size_t numBinaryInteractions_;
 
     //! vector of species indices representing species A in the interaction
     /*!

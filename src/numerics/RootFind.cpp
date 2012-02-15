@@ -92,6 +92,8 @@ static void print_funcEval(FILE* fp, doublereal xval, doublereal fval, int its)
  *     @param n      Number of rows and columns
  *     @param b      right hand side
  *     @param m      Number of right hand sides
+ *
+ *     @todo This function is never used, and should be removed.
  */
 static int smlequ(doublereal* c, int idem, int n, doublereal* b, int m)
 {
@@ -354,7 +356,7 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
 #endif
     int doFinalFuncCall = 0;
     doublereal x1, x2, xnew, f1, f2, fnew, slope;
-    doublereal deltaX1 = 0.0, deltaX2 = 0.0, deltaXnew = 0.0;
+    doublereal deltaX2 = 0.0, deltaXnew = 0.0;
 
     int posStraddle = 0;
     int retn = ROOTFIND_FAILEDCONVERGENCE;
@@ -366,7 +368,7 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
     doublereal xNegF = 0.0;
     doublereal fNegF = -1.0E300;
     doublereal fnorm;   /* A valid norm for the making the function value  dimensionless */
-    doublereal x0 = 0.0, f0 = 0.0,  xDelMin;
+    doublereal xDelMin;
     doublereal sgn;
     doublereal dtmp;
     doublereal fnoise = 0.0;
@@ -943,8 +945,6 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
             }
         }
 
-        x0 = x1;
-        f0 = f1;
         x1 = x2;
         f1 = f2;
 
@@ -1035,7 +1035,6 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
             AssertThrow((f1* f2 <= 0.0), "F1 and F2 aren't bounding");
         }
 
-        deltaX1 = deltaX2;
         deltaX2 = deltaXnew;
         deltaXnew = x2 - x1;
         deltaXConverged_ = 0.5 * deltaXConverged_ + 0.5 * (m_rtolx * 0.5 * (fabs(x2) + fabs(x1)) + m_atolx);

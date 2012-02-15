@@ -510,7 +510,7 @@ public:
      * @param discardComments If true comments are discarded when adding up the number of children.
      *                        Defaults to false.
      */
-    int nChildren(bool discardComments = false) const;
+    size_t nChildren(bool discardComments = false) const;
 
     //!  Boolean function indicating whether a comment
     bool isComment() const;

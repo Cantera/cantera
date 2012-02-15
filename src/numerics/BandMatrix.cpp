@@ -129,40 +129,40 @@ void BandMatrix::zero()
     m_factored = false;
 }
 //====================================================================================================================
-doublereal& BandMatrix::operator()(int i, int j)
+doublereal& BandMatrix::operator()(size_t i, size_t j)
 {
     return value(i,j);
 }
 //====================================================================================================================
-doublereal BandMatrix::operator()(int i, int j) const
+doublereal BandMatrix::operator()(size_t i, size_t j) const
 {
     return value(i,j);
 }
 //====================================================================================================================
-doublereal& BandMatrix::value(int i, int j)
+doublereal& BandMatrix::value(size_t i, size_t j)
 {
     m_factored = false;
-    if (i < j - m_ku || i > j + m_kl) {
+    if (i + m_ku < j || i > j + m_kl) {
         return m_zero;
     }
     return data[index(i,j)];
 }
 //====================================================================================================================
-doublereal  BandMatrix::value(int i, int j) const
+doublereal BandMatrix::value(size_t i, size_t j) const
 {
-    if (i < j - m_ku || i > j + m_kl) {
+    if (i + m_ku < j || i > j + m_kl) {
         return 0.0;
     }
     return data[index(i,j)];
 }
 //====================================================================================================================
-int  BandMatrix::index(int i, int j) const
+size_t BandMatrix::index(size_t i, size_t j) const
 {
-    int rw = m_kl + m_ku + i - j;
+    size_t rw = m_kl + m_ku + i - j;
     return (2*m_kl + m_ku + 1)*j + rw;
 }
 //====================================================================================================================
-doublereal BandMatrix::_value(int i, int j) const
+doublereal BandMatrix::_value(size_t i, size_t j) const
 {
     return data[index(i,j)];
 }
@@ -184,24 +184,24 @@ size_t BandMatrix::nRowsAndStruct(int* const iStruct) const
 }
 //====================================================================================================================
 // Number of columns
-int BandMatrix::nColumns() const
+size_t BandMatrix::nColumns() const
 {
     return m_n;
 }
 //====================================================================================================================
 // Number of subdiagonals
-int BandMatrix::nSubDiagonals() const
+size_t BandMatrix::nSubDiagonals() const
 {
     return m_kl;
 }
 //====================================================================================================================
 // Number of superdiagonals
-int BandMatrix::nSuperDiagonals() const
+size_t BandMatrix::nSuperDiagonals() const
 {
     return m_ku;
 }
 //====================================================================================================================
-int  BandMatrix::ldim() const
+size_t BandMatrix::ldim() const
 {
     return 2*m_kl + m_ku + 1;
 }
@@ -221,7 +221,7 @@ void BandMatrix::mult(const doublereal* const b, doublereal* const prod) const
     for (size_t m = 0; m < nr; m++) {
         sum = 0.0;
         for (size_t j = m - m_kl; j <= m + m_ku; j++) {
-            if (j >= 0 && j < m_n) {
+            if (j < m_n) {
                 sum += _value(m,j) * b[j];
             }
         }
@@ -239,7 +239,7 @@ void BandMatrix::leftMult(const doublereal* const b, doublereal* const prod) con
     for (size_t n = 0; n < nc; n++) {
         sum = 0.0;
         for (size_t i = n - m_ku; i <= n + m_kl; i++) {
-            if (i >= 0 && i < m_n) {
+            if (i < m_n) {
                 sum += _value(i,n) * b[i];
             }
         }
@@ -373,10 +373,10 @@ doublereal  BandMatrix::rcond(doublereal a1norm)
 {
     int printLevel = 0;
     int useReturnErrorCode = 0;
-    if ((int) iwork_.size() < m_n) {
+    if (iwork_.size() < m_n) {
         iwork_.resize(m_n);
     }
-    if ((int) work_.size() < 3 * m_n) {
+    if (work_.size() < 3 * m_n) {
         work_.resize(3 * m_n);
     }
     doublereal rcond = 0.0;
@@ -420,10 +420,10 @@ int BandMatrix::factorAlgorithm() const
 doublereal BandMatrix::oneNorm() const
 {
     doublereal value = 0.0;
-    for (int j = 0; j < m_n; j++) {
+    for (size_t j = 0; j < m_n; j++) {
         doublereal sum = 0.0;
         doublereal* colP =  m_colPtrs[j];
-        for (int i = j - m_ku; i <= j + m_kl; i++) {
+        for (size_t i = j - m_ku; i <= j + m_kl; i++) {
             sum += fabs(colP[m_kl + m_ku + i - j]);
         }
         if (sum > value) {
@@ -433,14 +433,14 @@ doublereal BandMatrix::oneNorm() const
     return value;
 }
 //====================================================================================================================
-int BandMatrix::checkRows(doublereal& valueSmall) const
+size_t BandMatrix::checkRows(doublereal& valueSmall) const
 {
     valueSmall = 1.0E300;
-    int iSmall = -1;
+    size_t iSmall = npos;
     double vv;
-    for (int i = 0; i < m_n; i++) {
+    for (size_t i = 0; i < m_n; i++) {
         double valueS = 0.0;
-        for (int j = i - m_kl; j <= i + m_ku; j++) {
+        for (size_t j = i - m_kl; j <= i + m_ku; j++) {
             if (j >= 0 && (j < m_n)) {
                 vv = fabs(value(i,j));
                 if (vv > valueS) {
@@ -459,14 +459,14 @@ int BandMatrix::checkRows(doublereal& valueSmall) const
     return iSmall;
 }
 //====================================================================================================================
-int BandMatrix::checkColumns(doublereal& valueSmall) const
+size_t BandMatrix::checkColumns(doublereal& valueSmall) const
 {
     valueSmall = 1.0E300;
-    int jSmall = -1;
+    size_t jSmall = npos;
     double vv;
-    for (int j = 0; j < m_n; j++) {
+    for (size_t j = 0; j < m_n; j++) {
         double valueS = 0.0;
-        for (int i = j - m_ku; i <= j + m_kl; i++) {
+        for (size_t i = j - m_ku; i <= j + m_kl; i++) {
             if (i >= 0 && (i < m_n)) {
                 vv = fabs(value(i,j));
                 if (vv > valueS) {
@@ -502,7 +502,7 @@ bool BandMatrix::factored() const
  *
  *  @return  Returns a pointer to the top of the column
  */
-doublereal* BandMatrix::ptrColumn(int j)
+doublereal* BandMatrix::ptrColumn(size_t j)
 {
     return m_colPtrs[j];
 }
@@ -515,7 +515,7 @@ doublereal* BandMatrix::ptrColumn(int j)
  *   @return returns a vector of pointers to the top of the columns
  *           of the matrices.
  */
-doublereal*   const* BandMatrix::colPts()
+doublereal* const* BandMatrix::colPts()
 {
     return &(m_colPtrs[0]);
 }

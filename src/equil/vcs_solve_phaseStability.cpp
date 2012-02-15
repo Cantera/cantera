@@ -113,8 +113,6 @@ int VCS_SOLVE::vcs_PS(VCS_PROB* vprob, int iphase, int printLvl, double& feStabl
         return VCS_PUB_BAD;
     }
 
-
-    int iconv;
     /*
      *        Store the temperature and pressure in the private global variables
      */
@@ -124,7 +122,7 @@ int VCS_SOLVE::vcs_PS(VCS_PROB* vprob, int iphase, int printLvl, double& feStabl
      *        Evaluate the standard state free energies
      *        at the current temperatures and pressures.
      */
-    iconv = vcs_evalSS_TP(printLvl, printLvl, m_temperature, m_pressurePA);
+    vcs_evalSS_TP(printLvl, printLvl, m_temperature, m_pressurePA);
 
     /*
      *        Prepare the problem data:
@@ -207,11 +205,9 @@ int VCS_SOLVE::vcs_solve_phaseStability(const int iph, const int ifunc,
                                         double& funcVal,
                                         int printLvl)
 {
-    int retn = 0;
     double test = -1.0E-10;
     bool usedZeroedSpecies;
     std::vector<int> phasePopPhaseIDs(0);
-    int iphasePop;
     int iStab = 0;
 
     std::vector<double> sm(m_numElemConstraints*m_numElemConstraints, 0.0);
@@ -222,9 +218,9 @@ int VCS_SOLVE::vcs_solve_phaseStability(const int iph, const int ifunc,
     std::vector<double> wx(m_numElemConstraints, 0.0);
 
 
-    retn = vcs_basopt(false, VCS_DATA_PTR(aw), VCS_DATA_PTR(sa),
-                      VCS_DATA_PTR(sm), VCS_DATA_PTR(ss),
-                      test, &usedZeroedSpecies);
+    vcs_basopt(false, VCS_DATA_PTR(aw), VCS_DATA_PTR(sa),
+               VCS_DATA_PTR(sm), VCS_DATA_PTR(ss),
+               test, &usedZeroedSpecies);
     vcs_evaluate_speciesType();
 
     vcs_dfe(VCS_STATECALC_OLD, 0, 0, m_numSpeciesRdc);
@@ -238,7 +234,7 @@ int VCS_SOLVE::vcs_solve_phaseStability(const int iph, const int ifunc,
     }
     vcs_dcopy(VCS_DATA_PTR(m_deltaGRxn_Deficient), VCS_DATA_PTR(m_deltaGRxn_old), m_numRxnRdc);
     phasePopPhaseIDs.clear();
-    iphasePop = vcs_popPhaseID(phasePopPhaseIDs);
+    vcs_popPhaseID(phasePopPhaseIDs);
     funcVal = vcs_phaseStabilityTest(iph);
     if (funcVal > 0.0) {
         iStab = 1;

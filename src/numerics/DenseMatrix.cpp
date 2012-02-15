@@ -52,7 +52,7 @@ DenseMatrix::DenseMatrix(const DenseMatrix& y) :
 {
     m_ipiv = y.ipiv();
     m_colPts.resize(m_ncols);
-    for (int j = 0; j < m_ncols; j++) {
+    for (size_t j = 0; j < m_ncols; j++) {
         m_colPts[j] = &(m_data[m_nrows*j]);
     }
 }
@@ -66,7 +66,7 @@ DenseMatrix& DenseMatrix::operator=(const DenseMatrix& y)
     Array2D::operator=(y);
     m_ipiv = y.ipiv();
     m_colPts.resize(m_ncols);
-    for (int j = 0; j < m_ncols; j++) {
+    for (size_t j = 0; j < m_ncols; j++) {
         m_colPts[j] = &(m_data[m_nrows*j]);
     }
     m_useReturnErrorCode = y.m_useReturnErrorCode;
@@ -84,7 +84,7 @@ void DenseMatrix::resize(int n, int m, doublereal v)
     Array2D::resize(n,m,v);
     m_ipiv.resize(max(n,m));
     m_colPts.resize(m_ncols);
-    for (int j = 0; j < m_ncols; j++) {
+    for (size_t j = 0; j < m_ncols; j++) {
         m_colPts[j] = &(m_data[m_nrows*j]);
     }
 }

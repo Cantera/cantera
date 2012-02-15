@@ -677,7 +677,7 @@ public:
      *  miscibility gap, these numbers will stay the
      * same after the split.
      */
-    int VP_ID_;
+    size_t VP_ID_;
 
     //! ID of the surface or volume domain in which the
     //!  this phase exists
@@ -863,7 +863,7 @@ private:
     bool m_useCanteraCalls;
     /**
      *  If we are using Cantera, this is the
-     *	pointer to the ThermoPhase object. If not, this is null.
+     *    pointer to the ThermoPhase object. If not, this is null.
      */
     Cantera::ThermoPhase* TP_ptr;
 

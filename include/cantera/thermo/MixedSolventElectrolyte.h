@@ -891,7 +891,7 @@ protected:
 
 
     //! number of binary interaction expressions
-    int numBinaryInteractions_;
+    size_t numBinaryInteractions_;
 
     //! Enthalpy term for the binary mole fraction interaction of the
     //! excess gibbs free energy expression

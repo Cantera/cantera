@@ -330,7 +330,7 @@ void LatticePhase::getPartialMolarEntropies(doublereal* sbar) const
     const array_fp& _s = entropy_R_ref();
     doublereal r = GasConstant;
     doublereal xx;
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         xx = fmaxx(SmallNumber, moleFraction(k));
         sbar[k] = r * (_s[k] - log(xx));
     }
@@ -339,7 +339,7 @@ void LatticePhase::getPartialMolarEntropies(doublereal* sbar) const
 void LatticePhase::getPartialMolarCp(doublereal* cpbar) const
 {
     getCp_R(cpbar);
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         cpbar[k] *= GasConstant;
     }
 }
@@ -360,7 +360,7 @@ void LatticePhase::getPureGibbs(doublereal* gpure) const
     const array_fp& gibbsrt = gibbs_RT_ref();
     doublereal delta_p = (m_Pcurrent - m_Pref);
     double RT = GasConstant * temperature();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         gpure[k] = RT * gibbsrt[k] + delta_p * m_speciesMolarVolume[k];
     }
 }
@@ -385,7 +385,7 @@ void LatticePhase::getGibbs_RT(doublereal* grt) const
     const array_fp& gibbsrt = gibbs_RT_ref();
     doublereal RT = _RT();
     doublereal delta_prt = (m_Pcurrent - m_Pref)/ RT;
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         grt[k] = gibbsrt[k] + delta_prt * m_speciesMolarVolume[k];
     }
 }
@@ -393,7 +393,7 @@ void LatticePhase::getGibbs_RT(doublereal* grt) const
 void LatticePhase::getGibbs_ref(doublereal* g) const
 {
     getGibbs_RT_ref(g);
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         g[k] *= GasConstant * temperature();
     }
 }
@@ -436,7 +436,7 @@ const array_fp& LatticePhase::gibbs_RT_ref() const
 void LatticePhase::getGibbs_RT_ref(doublereal* grt) const
 {
     _updateThermo();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         grt[k] = m_g0_RT[k];
     }
 }
@@ -527,7 +527,7 @@ void LatticePhase::initThermoXML(XML_Node& phaseNode, std::string id)
     XML_Node* speciesDB = get_XML_NameID("speciesData", speciesList["datasrc"], &phaseNode.root());
     const std::vector<std::string> &sss = speciesNames();
 
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         m_speciesMolarVolume[k] = m_site_density;
         XML_Node* s =  speciesDB->findByAttr("name", sss[k]);
         if (!s) {

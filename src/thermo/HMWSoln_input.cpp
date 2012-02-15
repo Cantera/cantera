@@ -854,7 +854,7 @@ void HMWSoln::readXMLMunnnNeutral(XML_Node& BinSalt)
                            "neutral charge problem");
     }
 
-    for (int i = 0; i < BinSalt.nChildren(); i++) {
+    for (size_t i = 0; i < BinSalt.nChildren(); i++) {
         XML_Node& xmlChild = BinSalt.child(i);
         stemp = xmlChild.name();
         string nodeName = lowercase(stemp);
@@ -1660,20 +1660,20 @@ initThermoXML(XML_Node& phaseNode, std::string id)
 
     do {
         double sum = 0.0;
-        int kMaxC = -1;
+        size_t kMaxC = npos;
         double MaxC = 0.0;
-        for (int k = 0; k < m_kk; k++) {
+        for (size_t k = 0; k < m_kk; k++) {
             sum += mf[k] * m_speciesCharge[k];
             if (fabs(mf[k] * m_speciesCharge[k]) > MaxC) {
                 kMaxC = k;
             }
         }
-        int kHp = speciesIndex("H+");
-        int kOHm = speciesIndex("OH-");
+        size_t kHp = speciesIndex("H+");
+        size_t kOHm = speciesIndex("OH-");
 
 
         if (fabs(sum) > 1.0E-30) {
-            if (kHp >= 0) {
+            if (kHp != npos) {
                 if (mf[kHp] > sum * 1.1) {
                     mf[kHp] -= sum;
                     mf[0]   += sum;
@@ -1687,7 +1687,7 @@ initThermoXML(XML_Node& phaseNode, std::string id)
                 }
             }
             if (notDone) {
-                if (kOHm >= 0) {
+                if (kOHm != npos) {
                     if (mf[kOHm] > -sum * 1.1) {
                         mf[kOHm] += sum;
                         mf[0]    -= sum;
@@ -1701,7 +1701,7 @@ initThermoXML(XML_Node& phaseNode, std::string id)
                     }
                 }
                 if (notDone) {
-                    if (kMaxC >= 0) {
+                    if (kMaxC != npos) {
                         if (mf[kMaxC] > (1.1 * sum / m_speciesCharge[kMaxC])) {
                             mf[kMaxC] -= sum / m_speciesCharge[kMaxC];
                             mf[0] += sum / m_speciesCharge[kMaxC];

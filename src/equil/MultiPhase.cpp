@@ -664,13 +664,11 @@ doublereal MultiPhase::volume() const
 doublereal MultiPhase::equilibrate(int XY, doublereal err,
                                    int maxsteps, int maxiter, int loglevel)
 {
-    doublereal error;
     bool strt = false;
     doublereal dt;
     doublereal h0;
     int n;
-    bool start;
-    doublereal ferr, hnow, herr = 1.0;
+    doublereal hnow, herr = 1.0;
     doublereal snow, serr = 1.0, s0;
     doublereal Tlow = -1.0, Thigh = -1.0;
     doublereal Hlow = Undef, Hhigh = Undef, tnew;
@@ -694,7 +692,7 @@ doublereal MultiPhase::equilibrate(int XY, doublereal err,
         // create an equilibrium manager
         e = new MultiPhaseEquil(this);
         try {
-            error = e->equilibrate(XY, err, maxsteps, loglevel);
+            e->equilibrate(XY, err, maxsteps, loglevel);
         } catch (CanteraError& err) {
             if (loglevel > 0) {
                 endLogGroup();
@@ -730,7 +728,7 @@ doublereal MultiPhase::equilibrate(int XY, doublereal err,
             }
 
             try {
-                error = e->equilibrate(TP, err, maxsteps, loglevel);
+                e->equilibrate(TP, err, maxsteps, loglevel);
                 hnow = enthalpy();
                 // the equilibrium enthalpy monotonically increases with T;
                 // if the current value is below the target, the we know the
@@ -797,7 +795,7 @@ doublereal MultiPhase::equilibrate(int XY, doublereal err,
 
             }
 
-            catch (CanteraError err) {
+            catch (CanteraError& err) {
                 if (!strt) {
                     if (loglevel > 0)
                         addLogEntry("no convergence",
@@ -828,7 +826,6 @@ doublereal MultiPhase::equilibrate(int XY, doublereal err,
                            "No convergence for T");
     } else if (XY == SP) {
         s0 = entropy();
-        start = true;
         Tlow = 1.0; // m_Tmin;      // lower bound on T
         Thigh = 1.0e6; // m_Tmax;   // upper bound on T
         if (loglevel > 0) {
@@ -842,17 +839,12 @@ doublereal MultiPhase::equilibrate(int XY, doublereal err,
                 delete e;
             }
             e = new MultiPhaseEquil(this, strt);
-            ferr = 0.1;
-            if (fabs(dt) < 1.0) {
-                ferr = err;
-            }
-            //start = false;
             if (loglevel > 0) {
                 beginLogGroup("iteration "+int2str(n));
             }
 
             try {
-                error = e->equilibrate(TP, err, maxsteps, loglevel);
+                e->equilibrate(TP, err, maxsteps, loglevel);
                 snow = entropy();
                 if (snow < s0) {
                     if (m_temp > Tlow) {
@@ -895,7 +887,7 @@ doublereal MultiPhase::equilibrate(int XY, doublereal err,
                 }
             }
 
-            catch (CanteraError err) {
+            catch (CanteraError& err) {
                 if (!strt) {
                     if (loglevel > 0) {
                         addLogEntry("no convergence",
@@ -930,14 +922,14 @@ doublereal MultiPhase::equilibrate(int XY, doublereal err,
         doublereal dVdP;
         int n;
         bool start = true;
-        doublereal error, vnow, pnow, verr;
+        doublereal vnow, pnow, verr;
         for (n = 0; n < maxiter; n++) {
             pnow = pressure();
             MultiPhaseEquil e(this, start);
             start = false;
             beginLogGroup("iteration "+int2str(n));
 
-            error = e.equilibrate(TP, err, maxsteps, loglevel);
+            e.equilibrate(TP, err, maxsteps, loglevel);
             vnow = volume();
             verr = fabs((v0 - vnow)/v0);
             addLogEntry("P",fp2str(pressure()));

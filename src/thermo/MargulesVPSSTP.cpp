@@ -513,13 +513,13 @@ void MargulesVPSSTP::getPartialMolarCp(doublereal* cpbar) const
     s_update_lnActCoeff();
     s_update_dlnActCoeff_dT();
 
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         cpbar[k] -= 2 * T * dlnActCoeffdT_Scaled_[k] + T * T * d2lnActCoeffdT2_Scaled_[k];
     }
     /*
      * dimensionalize it.
      */
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         cpbar[k] *= GasConstant;
     }
 }
@@ -803,7 +803,7 @@ void MargulesVPSSTP::s_update_dlnActCoeff_dT() const
 void MargulesVPSSTP::getdlnActCoeffdT(doublereal* dlnActCoeffdT) const
 {
     s_update_dlnActCoeff_dT();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         dlnActCoeffdT[k] = dlnActCoeffdT_Scaled_[k];
     }
 }
@@ -834,7 +834,7 @@ void  MargulesVPSSTP::getdlnActCoeffds(const doublereal dTds, const doublereal* 
 
 
     size_t iA, iB, iK, delAK, delBK;
-    double XA, XB, XK, g0 , g1, dXA, dXB;
+    double XA, XB, g0 , g1, dXA, dXB;
     double T = temperature();
     double RT = GasConstant*T;
 
@@ -842,8 +842,6 @@ void  MargulesVPSSTP::getdlnActCoeffds(const doublereal dTds, const doublereal* 
     s_update_dlnActCoeff_dT();
 
     for (iK = 0; iK < m_kk; iK++) {
-
-        XK = moleFractions_[iK];
         dlnActCoeffds[iK] = 0.0;
 
         for (size_t i = 0; i <  numBinaryInteractions_; i++) {
@@ -950,7 +948,7 @@ void MargulesVPSSTP::s_update_dlnActCoeff_dlnN() const
 {
     size_t iA, iB;
     doublereal delAK, delBK;
-    double XA, XB, g0 , g1, XK,XM;
+    double XA, XB, g0, g1,XM;
     double T = temperature();
     double RT = GasConstant*T;
 
@@ -961,11 +959,10 @@ void MargulesVPSSTP::s_update_dlnActCoeff_dlnN() const
     /*
      *  Loop over the activity coefficient gamma_k
      */
-    for (int iK = 0; iK < m_kk; iK++) {
-        XK = moleFractions_[iK];
-        for (int iM = 0; iM < m_kk; iM++) {
+    for (size_t iK = 0; iK < m_kk; iK++) {
+        for (size_t iM = 0; iM < m_kk; iM++) {
             XM = moleFractions_[iM];
-            for (int i = 0; i <  numBinaryInteractions_; i++) {
+            for (size_t i = 0; i <  numBinaryInteractions_; i++) {
 
                 iA =  m_pSpecies_A_ij[i];
                 iB =  m_pSpecies_B_ij[i];
@@ -1017,26 +1014,19 @@ void MargulesVPSSTP::s_update_dlnActCoeff_dlnN() const
 //====================================================================================================================
 void MargulesVPSSTP::s_update_dlnActCoeff_dlnX_diag() const
 {
-
-    int iA, iB;
-    doublereal XA, XB, g0 , g1;
     doublereal T = temperature();
-
     dlnActCoeffdlnX_diag_.assign(m_kk, 0.0);
-
     doublereal RT = GasConstant * T;
 
+    for (size_t i = 0; i <  numBinaryInteractions_; i++) {
+        size_t iA =  m_pSpecies_A_ij[i];
+        size_t iB =  m_pSpecies_B_ij[i];
 
-    for (int i = 0; i <  numBinaryInteractions_; i++) {
+        doublereal XA = moleFractions_[iA];
+        doublereal XB = moleFractions_[iB];
 
-        iA =  m_pSpecies_A_ij[i];
-        iB =  m_pSpecies_B_ij[i];
-
-        XA = moleFractions_[iA];
-        XB = moleFractions_[iB];
-
-        g0 = (m_HE_b_ij[i] - T * m_SE_b_ij[i]) / RT;
-        g1 = (m_HE_c_ij[i] - T * m_SE_c_ij[i]) / RT;
+        doublereal g0 = (m_HE_b_ij[i] - T * m_SE_b_ij[i]) / RT;
+        doublereal g1 = (m_HE_c_ij[i] - T * m_SE_c_ij[i]) / RT;
 
         dlnActCoeffdlnX_diag_[iA] += XA*XB*(2*g1*-2*g0-6*g1*XB);
         dlnActCoeffdlnX_diag_[iB] += XA*XB*(2*g1*-2*g0-6*g1*XB);
@@ -1047,7 +1037,7 @@ void MargulesVPSSTP::s_update_dlnActCoeff_dlnX_diag() const
 void MargulesVPSSTP::getdlnActCoeffdlnN_diag(doublereal* dlnActCoeffdlnN_diag) const
 {
     s_update_dlnActCoeff_dlnN_diag();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         dlnActCoeffdlnN_diag[k] = dlnActCoeffdlnN_diag_[k];
     }
 }
@@ -1055,7 +1045,7 @@ void MargulesVPSSTP::getdlnActCoeffdlnN_diag(doublereal* dlnActCoeffdlnN_diag) c
 void MargulesVPSSTP::getdlnActCoeffdlnX_diag(doublereal* dlnActCoeffdlnX_diag) const
 {
     s_update_dlnActCoeff_dlnX_diag();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         dlnActCoeffdlnX_diag[k] = dlnActCoeffdlnX_diag_[k];
     }
 }
@@ -1064,8 +1054,8 @@ void MargulesVPSSTP::getdlnActCoeffdlnN(const int ld, doublereal* dlnActCoeffdln
 {
     s_update_dlnActCoeff_dlnN();
     double* data =  & dlnActCoeffdlnN_(0,0);
-    for (int k = 0; k < m_kk; k++) {
-        for (int m = 0; m < m_kk; m++) {
+    for (size_t k = 0; k < m_kk; k++) {
+        for (size_t m = 0; m < m_kk; m++) {
             dlnActCoeffdlnN[ld * k + m] = data[m_kk * k + m];
         }
     }

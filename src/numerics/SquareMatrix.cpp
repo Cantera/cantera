@@ -49,7 +49,7 @@ SquareMatrix::SquareMatrix() :
  * @param n   size of the square matrix
  * @param v   intial value of all matrix components.
  */
-SquareMatrix::SquareMatrix(int n, doublereal v)  :
+SquareMatrix::SquareMatrix(size_t n, doublereal v)  :
     DenseMatrix(n, n, v),
     GeneralMatrix(0),
     m_factored(0),
@@ -133,9 +133,9 @@ int SquareMatrix::solve(doublereal* b)
  */
 void SquareMatrix::zero()
 {
-    int n = static_cast<int>(nRows());
+    size_t n = nRows();
     if (n > 0) {
-        int nn = n * n;
+        size_t nn = n * n;
         double* sm = &m_data[0];
         /*
          * Using memset is the fastest way to zero a contiguous
@@ -145,7 +145,7 @@ void SquareMatrix::zero()
     }
 }
 //====================================================================================================================
-void SquareMatrix::resize(int n, int m, doublereal v)
+void SquareMatrix::resize(size_t n, size_t m, doublereal v)
 {
     DenseMatrix::resize(n, m, v);
 }
@@ -213,7 +213,7 @@ void SquareMatrix::setFactorFlag()
 //=====================================================================================================================
 int SquareMatrix::factorQR()
 {
-    if ((int) tau.size() < m_nrows)  {
+    if (tau.size() < m_nrows)  {
         tau.resize(m_nrows, 0.0);
         work.resize(8 * m_nrows, 0.0);
     }
@@ -255,7 +255,7 @@ int SquareMatrix::solveQR(doublereal* b)
         }
     }
 
-    int lwork = work.size();
+    size_t lwork = work.size();
     if (lwork < m_nrows) {
         work.resize(8 * m_nrows, 0.0);
         lwork = 8 * m_nrows;
@@ -274,7 +274,7 @@ int SquareMatrix::solveQR(doublereal* b)
             throw CELapackError("SquareMatrix::solveQR()", "DORMQR returned INFO = " + int2str(info));
         }
     }
-    int lworkOpt = work[0];
+    size_t lworkOpt = static_cast<size_t>(work[0]);
     if (lworkOpt > lwork) {
         work.resize(lworkOpt);
     }
@@ -298,10 +298,10 @@ int SquareMatrix::solveQR(doublereal* b)
 doublereal SquareMatrix::rcond(doublereal anorm)
 {
 
-    if ((int) iwork_.size() < m_nrows) {
+    if (iwork_.size() < m_nrows) {
         iwork_.resize(m_nrows);
     }
-    if ((int) work.size() <4 * m_nrows) {
+    if (work.size() <4 * m_nrows) {
         work.resize(4 * m_nrows);
     }
     doublereal rcond = 0.0;
@@ -334,10 +334,10 @@ doublereal SquareMatrix::oneNorm() const
 doublereal SquareMatrix::rcondQR()
 {
 
-    if ((int) iwork_.size() < m_nrows) {
+    if (iwork_.size() < m_nrows) {
         iwork_.resize(m_nrows);
     }
-    if ((int) work.size() <3 * m_nrows) {
+    if (work.size() <3 * m_nrows) {
         work.resize(3 * m_nrows);
     }
     doublereal rcond = 0.0;
@@ -380,7 +380,7 @@ bool SquareMatrix::factored() const
  *
  *  @return  Returns a pointer to the top of the column
  */
-doublereal* SquareMatrix::ptrColumn(int j)
+doublereal* SquareMatrix::ptrColumn(size_t j)
 {
     return Array2D::ptrColumn(j);
 }
@@ -438,13 +438,13 @@ doublereal*   const* SquareMatrix::colPts()
 }
 //=====================================================================================================================
 
-int SquareMatrix::checkRows(doublereal& valueSmall) const
+size_t SquareMatrix::checkRows(doublereal& valueSmall) const
 {
     valueSmall = 1.0E300;
-    int iSmall = -1;
-    for (int i = 0; i < m_nrows; i++) {
+    size_t iSmall = npos;
+    for (size_t i = 0; i < m_nrows; i++) {
         double valueS = 0.0;
-        for (int j = 0; j < m_nrows; j++) {
+        for (size_t j = 0; j < m_nrows; j++) {
             if (fabs(value(i,j)) > valueS) {
                 valueS = fabs(value(i,j));
             }
@@ -457,13 +457,13 @@ int SquareMatrix::checkRows(doublereal& valueSmall) const
     return iSmall;
 }
 //=====================================================================================================================
-int SquareMatrix::checkColumns(doublereal& valueSmall) const
+size_t SquareMatrix::checkColumns(doublereal& valueSmall) const
 {
     valueSmall = 1.0E300;
-    int jSmall = -1;
-    for (int j = 0; j < m_nrows; j++) {
+    size_t jSmall = npos;
+    for (size_t j = 0; j < m_nrows; j++) {
         double valueS = 0.0;
-        for (int i = 0; i < m_nrows; i++) {
+        for (size_t i = 0; i < m_nrows; i++) {
             if (fabs(value(i,j)) > valueS) {
                 valueS = fabs(value(i,j));
             }
