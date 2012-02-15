@@ -1,0 +1,19 @@
+from buildutils import *
+
+Import('env', 'installTargets', 'sampleTargets')
+localenv = env.Clone()
+
+# (program name, [source files])
+samples = [('ctlib', ['ctlib.f']),
+           ('isentropic', ['isentropic.f'])]
+
+ftn_demo = localenv.Object('demo_ftnlib.cpp',
+                           CPPPATH=['#include'])
+for program_name, fortran_sources in samples:
+    prog = localenv.Program(program_name,
+                            fortran_sources + ftn_demo,
+                            CPPPATH=['#build/src/fortran', '#include'],
+                            LIBS=env['cantera_libs']+['cantera_fortran']+['stdc++'],
+                            LIBPATH=['#build/lib'],
+                            LINK='$F77')
+    sampleTargets.extend(prog)

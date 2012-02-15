@@ -1,6 +1,6 @@
 from buildutils import *
 
-Import('env', 'buildTargets', 'installTargets', 'demoTargets', 'libraryTargets')
+Import('env', 'buildTargets', 'installTargets', 'libraryTargets')
 
 localenv = env.Clone()
 localenv.Append(CPPPATH=['#include', '#src'])
@@ -17,23 +17,3 @@ buildTargets.extend(lib)
 inst = localenv.Install('$inst_libdir', lib)
 installTargets.extend(inst)
 installTargets.extend(localenv.Install('$inst_incdir', mods))
-
-# (subdir, program name, [source extensions])
-demos = [('f77demos', 'ctlib', ['^ctlib.f']),
-         ('f77demos', 'isentropic', ['^isentropic.f'])]
-
-ftn_demo = localenv.Object(pjoin('f77demos','demo_ftnlib.cpp'))
-for subdir, name, extensions in demos:
-    prog = localenv.Program(pjoin(subdir, name),
-                            mglob(localenv, subdir, *extensions) + ftn_demo,
-                            LIBS=env['cantera_libs']+['cantera_fortran']+['stdc++'],
-                            LINK='$F77')
-    demoTargets.extend(prog)
-
-inst = localenv.RecursiveInstall(pjoin('$inst_sampledir', 'f77'),
-                                 '#samples/f77')
-installTargets.extend(inst)
-
-inst = localenv.RecursiveInstall(pjoin('$inst_sampledir', 'f77'),
-                                 '#samples/f90')
-installTargets.extend(inst)
