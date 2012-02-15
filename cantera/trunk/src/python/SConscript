@@ -19,6 +19,7 @@ for var in ('VS80COMNTOOLS', 'VS90COMNTOOLS', 'VS100COMNTOOLS'):
     if var in os.environ:
         localenv['ENV'][var] = os.environ[var]
 
+localenv['spam_source'] = repr(File('#src/python/spam.c').abspath)
 make_setup = localenv.SubstFile('#interfaces/python/setup.py',
                                 '#interfaces/python/setup.py.in')
 
