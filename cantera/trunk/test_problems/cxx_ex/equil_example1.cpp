@@ -5,7 +5,6 @@
 //
 /////////////////////////////////////////////////////////////
 
-#include <cantera/Cantera.h>
 #include "example_utils.h"
 #include <cantera/equilibrium.h>
 

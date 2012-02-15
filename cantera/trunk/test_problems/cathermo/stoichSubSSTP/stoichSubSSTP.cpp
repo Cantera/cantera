@@ -2,9 +2,10 @@
  *
  *  @file HMW_graph_1.cpp
  */
-#include "cantera/Cantera.h"
+
 #include "cantera/thermo.h"
 #include "cantera/thermo/StoichSubstanceSSTP.h"
+#include "cantera/base/logger.h"
 
 #include "TemperatureTable.h"
 

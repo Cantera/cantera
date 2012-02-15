@@ -6,7 +6,6 @@
 //
 /////////////////////////////////////////////////////////////
 
-#include <cantera/Cantera.h>
 #include <cantera/transport.h>
 #include "example_utils.h"
 #include <cantera/equilibrium.h>

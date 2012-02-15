@@ -14,13 +14,11 @@
 //  class IdealMolalSoln in order to test that it's
 //  working correctly
 
+#include "cantera/thermo/IdealMolalSoln.h"
+
 #include <iostream>
 #include <string>
 #include <vector>
-
-#include "cantera/Cantera.h"
-#include "cantera/thermo/IdealMolalSoln.h"
-
 #include <cstdio>
 
 using namespace std;

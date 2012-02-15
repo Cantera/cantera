@@ -1,4 +1,3 @@
-#include "cantera/Cantera.h"
 #include "cantera/kinetics.h"
 
 using namespace Cantera;

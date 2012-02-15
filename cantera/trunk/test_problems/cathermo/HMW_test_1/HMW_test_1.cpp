@@ -1,4 +1,3 @@
-#include "cantera/Cantera.h"
 #include "cantera/thermo/HMWSoln.h"
 
 #include <cstdio>

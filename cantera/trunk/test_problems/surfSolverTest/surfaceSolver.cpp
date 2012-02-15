@@ -34,9 +34,7 @@ static void printUsage()
 
 }
 
-#include "cantera/Cantera.h"
 #include "cantera/Interface.h"
-
 #include "cantera/kinetics.h"
 #include "kinetics/ImplicitSurfChem.h"
 #include "kinetics/solveSP.h"

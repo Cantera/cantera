@@ -1,4 +1,9 @@
-#include <cantera/Cantera.h>
+#include "cantera/base/ctexceptions.h"
+#include "cantera/base/global.h"
+
+#include <iostream>
+#include <stdlib.h>
+
 using namespace Cantera;
 using namespace std;
 
@@ -53,7 +58,7 @@ int main(int argc, char** argv)
                 fex[i](0);
                 cout << endl;
             }
-            exit(0);
+            return 0;
         } else {
             example_num = atoi(argv[1]);
         }

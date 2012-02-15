@@ -19,7 +19,6 @@
 #include <string>
 #include <vector>
 
-#include "cantera/Cantera.h"
 #include "cantera/thermo/IdealSolidSolnPhase.h"
 
 #include <cstdio>

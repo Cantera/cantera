@@ -2,7 +2,6 @@
  *  Copyright 2002 California Institute of Technology
  */
 
-#include "cantera/Cantera.h"
 #include "cantera/equilibrium.h"
 #include "cantera/equil/vcs_MultiPhaseEquil.h"
 #include "equil/vcs_internal.h"

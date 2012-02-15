@@ -6,7 +6,6 @@
 //
 /////////////////////////////////////////////////////////////
 
-#include <cantera/Cantera.h>
 #include <cantera/GRI30.h>
 #include <cantera/zerodim.h>
 #include "example_utils.h"

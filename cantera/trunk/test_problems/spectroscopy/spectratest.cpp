@@ -1,5 +1,3 @@
-
-#include "cantera/Cantera.h"
 #include "cantera/spectra.h"
 #include "spectra/Nuclei.h"
 #include <iostream>

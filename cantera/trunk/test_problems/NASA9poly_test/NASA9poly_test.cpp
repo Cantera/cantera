@@ -3,9 +3,6 @@
  *       test problem for NASA 9 coefficient formulation
  */
 
-
-
-
 #include <iostream>
 #include <string>
 #include <vector>
@@ -20,10 +17,8 @@ using namespace std;
 /*****************************************************************/
 /*****************************************************************/
 
-#include "cantera/Cantera.h"
 #include "cantera/transport.h"
 #include "cantera/IdealGasMix.h"
-
 #include "cantera/transport/TransportFactory.h"
 
 using namespace Cantera;
