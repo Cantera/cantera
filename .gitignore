@@ -6,7 +6,7 @@
 *.obj
 *.exe.manifest
 build
-src/base/config.h
+include/cantera/base/config.h
 stage
 .sconsign.dblite
 .sconf_temp
@@ -25,7 +25,6 @@ config.log
 .project
 .pydevproject
 .settings
-Cantera/matlab/build_cantera.m
 *.gcda
 *.gcno
 coverage
