@@ -109,18 +109,16 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
     int finalElemAbundAttempts = 0;
     bool uptodate_minors = true;
     bool justDeletedMultiPhase = false;
-    bool MajorSpeciesHaveConverged;
     bool usedZeroedSpecies; /* return flag from basopt indicating that
 			      one of the components had a zero concentration */
     size_t doPhaseDeleteIph = npos;
-    size_t doPhaseDeleteKspec = npos;
     vcs_VolPhase* Vphase;
     double*     sc_irxn = NULL;  /* Stoichiometric coefficients for cur rxn  */
     double* dnPhase_irxn;
     double atomComp;
     size_t iphasePop;
     int forceComponentCalc = 1;
-    int iphaseDelete;  /* integer that determines which phase is being deleted */
+    size_t iphaseDelete;  /* integer that determines which phase is being deleted */
     std::vector<int> phasePopPhaseIDs(0);
 #ifdef DEBUG_MODE
     char ANOTE[128];
@@ -297,7 +295,6 @@ L_COMPONENT_CALC:
         goto L_RETURN_BLOCK;
     }
     it1 = 1;
-    MajorSpeciesHaveConverged = false;
 
     /*************************************************************************/
     /************** EVALUATE INITIAL SPECIES STATUS VECTOR *******************/
@@ -457,7 +454,6 @@ L_MAINLOOP_ALL_SPECIES:
 #endif
     lec = false;
     doPhaseDeleteIph = npos;
-    doPhaseDeleteKspec = npos;
     /*
      *    Zero out the net change in moles of multispecies phases
      */
@@ -657,7 +653,6 @@ L_MAINLOOP_ALL_SPECIES:
                             }
 #endif
                             m_speciesStatus[kspec] = VCS_SPECIES_MAJOR;
-                            MajorSpeciesHaveConverged = false;
                             allMinorZeroedSpecies = false;
                         } else {
 #ifdef DEBUG_MODE
@@ -905,7 +900,6 @@ L_MAINLOOP_ALL_SPECIES:
                                  */
                                 m_molNumSpecies_new[kspec] = 0.0;
                                 doPhaseDeleteIph = iph;
-                                doPhaseDeleteKspec = kspec;
 
 #ifdef DEBUG_MODE
                                 if (m_debug_print_lvl >= 2) {
@@ -920,7 +914,7 @@ L_MAINLOOP_ALL_SPECIES:
                                 ++m_numRxnMinorZeroed;
                                 allMinorZeroedSpecies = (m_numRxnMinorZeroed == m_numRxnRdc);
 
-                                for (int kk = 0; kk < m_numSpeciesTot; kk++) {
+                                for (size_t kk = 0; kk < m_numSpeciesTot; kk++) {
                                     m_deltaMolNumSpecies[kk] = 0.0;
                                     m_molNumSpecies_new[kk] = m_molNumSpecies_old[kk];
                                 }
@@ -1021,7 +1015,7 @@ L_MAIN_LOOP_END:
 L_MAIN_LOOP_END_NO_PRINT:
             ;
 #endif
-            if (doPhaseDeleteIph != -1) {
+            if (doPhaseDeleteIph != npos) {
 #ifdef DEBUG_MODE
                 if (m_debug_print_lvl >= 2) {
                     plogf("   --- ");
@@ -1670,12 +1664,7 @@ L_EQUILIB_CHECK:
                         plogf("%s failed\n", m_speciesName[m_indexRxnToSpecies[irxn]].c_str());
                     }
 #endif
-                    /*
-                     *  Set MajorSpeciesHaveConverged to false to indicate that
-                     *  convergence amongst
-                     *  major species has not been achieved
-                     */
-                    MajorSpeciesHaveConverged = false;
+                    // Convergence amongst major species has not been achieved
                     /*
                      *   Go back and do another iteration with variable ITI
                      */
@@ -1702,11 +1691,8 @@ L_EQUILIB_CHECK:
         }
     }
 #endif
-    /*
-     *  Set MajorSpeciesHaveConverged to true to indicate
-     * that convergence amongst major species has been achieved
-     */
-    MajorSpeciesHaveConverged = true;
+    // Convergence amongst major species has been achieved
+
     /*************************************************************************/
     /*************** EQUILIBRIUM CHECK FOR MINOR SPECIES *********************/
     /*************************************************************************/
@@ -1920,7 +1906,6 @@ L_RECHECK_DELETED:
      *        If we have found something to add, recalculate everything
      *        for minor species and go back to do a full iteration
      */
-    MajorSpeciesHaveConverged = true;
     vcs_setFlagsVolPhases(false, VCS_STATECALC_OLD);
     vcs_dfe(VCS_STATECALC_OLD, 1, 0, m_numSpeciesRdc);
     vcs_deltag(0, false, VCS_STATECALC_OLD);
@@ -1941,7 +1926,6 @@ L_RETURN_BLOCK:
          *        If we have found something to add, recalculate everything
          *        for minor species and go back to do a full iteration
          */
-        MajorSpeciesHaveConverged = true;
         vcs_setFlagsVolPhases(false, VCS_STATECALC_OLD);
         vcs_dfe(VCS_STATECALC_OLD, 1, 0, m_numSpeciesRdc);
         vcs_deltag(0, false, VCS_STATECALC_OLD);
@@ -1958,7 +1942,6 @@ L_RETURN_BLOCK_B:
      */
     npb = vcs_add_all_deleted();
     if (npb > 0) {
-        MajorSpeciesHaveConverged = true;
         iti = 0;
 #ifdef DEBUG_MODE
         if (m_debug_print_lvl >= 1) {
@@ -2092,7 +2075,6 @@ double VCS_SOLVE::vcs_minor_alt_calc(size_t kspec, size_t irxn, bool* do_delete
     double wTrial, tmp;
     double dg_irxn = m_deltaGRxn_old[irxn];
     doublereal  s;
-    vcs_VolPhase* Vphase = 0;
     size_t iph = m_phaseID[kspec];
 
     *do_delete = false;
@@ -2123,7 +2105,6 @@ double VCS_SOLVE::vcs_minor_alt_calc(size_t kspec, size_t irxn, bool* do_delete
         /*
          * get the diagonal of the activity coefficent jacobian
          */
-        Vphase = m_VolPhaseList[iph];
         s = m_dLnActCoeffdMolNum[kspec][kspec];
         // s *= (m_tPhaseMoles_old[iph]);
         /*
@@ -2901,7 +2882,7 @@ size_t VCS_SOLVE::vcs_add_all_deleted()
          * Recalculate the DeltaG's of the formation reactions for the deleted species in the mechanism
          */
         vcs_deltag(0, true, VCS_STATECALC_NEW);
-        for (int irxn = m_numRxnRdc; irxn < m_numRxnTot; ++irxn) {
+        for (size_t irxn = m_numRxnRdc; irxn < m_numRxnTot; ++irxn) {
             kspec = m_indexRxnToSpecies[irxn];
             iph = m_phaseID[kspec];
             if (m_tPhaseMoles_old[iph] > 0.0) {
@@ -4621,25 +4602,23 @@ void  VCS_SOLVE::vcs_printSpeciesChemPot(const int stateCalc) const
 {
     double mfValue = 1.0;
     bool zeroedPhase = false;
-    int kspec;
+    size_t kspec;
 
     const double* molNum = VCS_DATA_PTR(m_molNumSpecies_old);
-    const double* tPhMoles_ptr = VCS_DATA_PTR(m_tPhaseMoles_old);
     const double* actCoeff_ptr = VCS_DATA_PTR(m_actCoeffSpecies_old);
     if (stateCalc == VCS_STATECALC_NEW) {
-        tPhMoles_ptr = VCS_DATA_PTR(m_tPhaseMoles_new);
         actCoeff_ptr = VCS_DATA_PTR(m_actCoeffSpecies_new);
         molNum = VCS_DATA_PTR(m_molNumSpecies_new);
     }
 
     double* tMoles = VCS_DATA_PTR(m_TmpPhase);
     const double* tPhInertMoles = VCS_DATA_PTR(TPhInertMoles);
-    for (int iph = 0; iph < m_numPhases; iph++) {
+    for (size_t iph = 0; iph < m_numPhases; iph++) {
         tMoles[iph] = tPhInertMoles[iph];
     }
     for (kspec = 0; kspec < m_numSpeciesTot; kspec++) {
         if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-            int iph = m_phaseID[kspec];
+            size_t iph = m_phaseID[kspec];
             tMoles[iph] += molNum[kspec];
         }
     }
@@ -4652,7 +4631,7 @@ void  VCS_SOLVE::vcs_printSpeciesChemPot(const int stateCalc) const
 
     for (kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
         mfValue = 1.0;
-        int iphase = m_phaseID[kspec];
+        size_t iphase = m_phaseID[kspec];
         const vcs_VolPhase* Vphase = m_VolPhaseList[iphase];
         if ((m_speciesStatus[kspec] == VCS_SPECIES_ZEROEDMS)    ||
                 (m_speciesStatus[kspec] == VCS_SPECIES_ZEROEDPHASE) ||
@@ -5271,7 +5250,7 @@ void VCS_SOLVE::vcs_deltag(const int l, const bool doDeleted,
 //====================================================================================================================
 void  VCS_SOLVE::vcs_printDeltaG(const int stateCalc)
 {
-    int j;
+    size_t j;
     double* deltaGRxn = VCS_DATA_PTR(m_deltaGRxn_old);
     double* feSpecies = VCS_DATA_PTR(m_feSpecies_old);
     double* molNumSpecies = VCS_DATA_PTR(m_molNumSpecies_old);
@@ -5301,7 +5280,7 @@ void  VCS_SOLVE::vcs_printDeltaG(const int stateCalc)
         }
         //plogf("|    m_scSize");
         plogf("\n");
-        for (int i = 0; i < m_numRxnTot; i++) {
+        for (size_t i = 0; i < m_numRxnTot; i++) {
             plogf("   --- %3d ", m_indexRxnToSpecies[i]);
             plogf("%-10.10s", m_speciesName[m_indexRxnToSpecies[i]].c_str());
             plogf("|%10.3g|", m_molNumSpecies_old[m_indexRxnToSpecies[i]]);
@@ -5323,7 +5302,7 @@ void  VCS_SOLVE::vcs_printDeltaG(const int stateCalc)
     printf("   ");
     vcs_print_line("-", 132);
 
-    for (int kspec = 0; kspec < m_numSpeciesTot; kspec++) {
+    for (size_t kspec = 0; kspec < m_numSpeciesTot; kspec++) {
 
         int irxn = kspec -  m_numComponents;
 
@@ -5715,7 +5694,6 @@ void VCS_SOLVE::vcs_switch_pos(const bool ifunc, const size_t k1, const size_t k
 double VCS_SOLVE::vcs_birthGuess(const int kspec)
 {
     size_t irxn = kspec - m_numComponents;
-    int soldel = false;
     double dx = 0.0;
     if (m_speciesUnknownType[kspec] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
         return dx;
@@ -5743,7 +5721,6 @@ double VCS_SOLVE::vcs_birthGuess(const int kspec)
 #else
         double dxm = vcs_minor_alt_calc(kspec, irxn, &soldel_ret);
 #endif
-        soldel = soldel_ret;
         dx = w_kspec + dxm;
         if (dx > 1.0E-15) {
             dx = 1.0E-15;

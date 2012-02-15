@@ -1578,7 +1578,6 @@ int vcs_MultiPhaseEquil::determine_PhaseStability(int iph, double& funcStab, int
     addLogEntry("Temperature", T);
     addLogEntry("Pressure", pres);
 
-
     /*
      * Print out the problem specification from the point of
      * view of the vprob object.
@@ -1588,12 +1587,6 @@ int vcs_MultiPhaseEquil::determine_PhaseStability(int iph, double& funcStab, int
     /*
      * Call the thermo Program
      */
-    int ip1 = m_printLvl;
-    if (m_printLvl >= 3) {
-        ip1 = m_printLvl - 2;
-    } else {
-        ip1 = 0;
-    }
     if (!m_vsolvePtr) {
         m_vsolvePtr = new VCS_SOLVE();
     }
@@ -1651,7 +1644,7 @@ int vcs_MultiPhaseEquil::determine_PhaseStability(int iph, double& funcStab, int
             plogf(" (J/kmol)\n");
         }
         plogf("-------------------------------------------------------------\n");
-        for (int i = 0; i < m_vprob->nspecies; i++) {
+        for (size_t i = 0; i < m_vprob->nspecies; i++) {
             plogf("%-12s", m_vprob->SpName[i].c_str());
             if (m_vprob->SpeciesUnknownType[i] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
                 plogf("  %15.3e %15.3e  ", 0.0, m_vprob->mf[i]);
@@ -1659,13 +1652,7 @@ int vcs_MultiPhaseEquil::determine_PhaseStability(int iph, double& funcStab, int
             } else {
                 plogf("  %15.3e   %15.3e  ", m_vprob->w[i], m_vprob->mf[i]);
                 if (m_vprob->w[i] <= 0.0) {
-                    int iph = m_vprob->PhaseID[i];
-                    vcs_VolPhase* VPhase = m_vprob->VPhaseList[iph];
-                    //if (VPhase->nSpecies() > 1) {
-                    // plogf("     -1.000e+300\n");
-                    //} else {
                     plogf("%15.3e\n", m_vprob->m_gibbsSpecies[i]);
-                    //}
                 } else {
                     plogf("%15.3e\n", m_vprob->m_gibbsSpecies[i]);
                 }

@@ -514,7 +514,7 @@ int Constituents::addUniqueElementAfterFreeze(const std::string& symbol, doubler
     if (m_kk > 0) {
         vector_fp old(m_speciesComp);
         m_speciesComp.resize(m_kk*m_mm, 0.0);
-        for (int k = 0; k < m_kk; k++) {
+        for (size_t k = 0; k < m_kk; k++) {
             int m_old = m_mm - 1;
             for (int m = 0; m < m_old; m++) {
                 m_speciesComp[k * m_mm + m] =  old[k * (m_old) + m];

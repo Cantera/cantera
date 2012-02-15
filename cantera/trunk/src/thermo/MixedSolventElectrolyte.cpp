@@ -360,7 +360,7 @@ void MixedSolventElectrolyte::getActivityCoefficients(doublereal* ac) const
     /*
      * take the exp of the internally storred coefficients.
      */
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         ac[k] = exp(lnActCoeff_Scaled_[k]);
     }
 }
@@ -375,7 +375,7 @@ void MixedSolventElectrolyte::getElectrochemPotentials(doublereal* mu) const
 {
     getChemPotentials(mu);
     double ve = Faraday * electricPotential();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         mu[k] += ve*charge(k);
     }
 }
@@ -399,7 +399,7 @@ void MixedSolventElectrolyte::getChemPotentials(doublereal* mu) const
      *
      */
     doublereal RT = GasConstant * temperature();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         xx = fmaxx(moleFractions_[k], xxSmall);
         mu[k] += RT * (log(xx) + lnActCoeff_Scaled_[k]);
     }
@@ -408,11 +408,11 @@ void MixedSolventElectrolyte::getChemPotentials(doublereal* mu) const
 /// Molar enthalpy. Units: J/kmol.
 doublereal MixedSolventElectrolyte::enthalpy_mole() const
 {
-    int kk = nSpecies();
+    size_t kk = nSpecies();
     double h = 0;
     vector_fp hbar(kk);
     getPartialMolarEnthalpies(&hbar[0]);
-    for (int i = 0; i < kk; i++) {
+    for (size_t i = 0; i < kk; i++) {
         h += moleFractions_[i]*hbar[i];
     }
     return h;
@@ -421,11 +421,11 @@ doublereal MixedSolventElectrolyte::enthalpy_mole() const
 /// Molar entropy. Units: J/kmol.
 doublereal MixedSolventElectrolyte::entropy_mole() const
 {
-    int kk = nSpecies();
+    size_t kk = nSpecies();
     double s = 0;
     vector_fp sbar(kk);
     getPartialMolarEntropies(&sbar[0]);
-    for (int i = 0; i < kk; i++) {
+    for (size_t i = 0; i < kk; i++) {
         s += moleFractions_[i]*sbar[i];
     }
     return s;
@@ -434,11 +434,11 @@ doublereal MixedSolventElectrolyte::entropy_mole() const
 /// Molar heat capacity at constant pressure. Units: J/kmol/K.
 doublereal MixedSolventElectrolyte::cp_mole() const
 {
-    int kk = nSpecies();
+    size_t kk = nSpecies();
     double cp = 0;
     vector_fp cpbar(kk);
     getPartialMolarCp(&cpbar[0]);
-    for (int i = 0; i < kk; i++) {
+    for (size_t i = 0; i < kk; i++) {
         cp += moleFractions_[i]*cpbar[i];
     }
     return cp;
@@ -475,7 +475,7 @@ void MixedSolventElectrolyte::getPartialMolarEnthalpies(doublereal* hbar) const
      */
     double T = temperature();
     double RT = GasConstant * T;
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         hbar[k] *= RT;
     }
     /*
@@ -485,7 +485,7 @@ void MixedSolventElectrolyte::getPartialMolarEnthalpies(doublereal* hbar) const
     s_update_lnActCoeff();
     s_update_dlnActCoeff_dT();
     double RTT = RT * T;
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         hbar[k] -= RTT * dlnActCoeffdT_Scaled_[k];
     }
 }
@@ -518,13 +518,13 @@ void MixedSolventElectrolyte::getPartialMolarCp(doublereal* cpbar) const
     s_update_lnActCoeff();
     s_update_dlnActCoeff_dT();
 
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         cpbar[k] -= 2 * T * dlnActCoeffdT_Scaled_[k] + T * T * d2lnActCoeffdT2_Scaled_[k];
     }
     /*
      * dimensionalize it.
      */
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         cpbar[k] *= GasConstant;
     }
 }
@@ -558,14 +558,14 @@ void MixedSolventElectrolyte::getPartialMolarEntropies(doublereal* sbar) const
     s_update_lnActCoeff();
     s_update_dlnActCoeff_dT();
 
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         xx = fmaxx(moleFractions_[k], xxSmall);
         sbar[k] += - lnActCoeff_Scaled_[k] -log(xx) - T * dlnActCoeffdT_Scaled_[k];
     }
     /*
      * dimensionalize it.
      */
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         sbar[k] *= GasConstant;
     }
 }
@@ -586,9 +586,8 @@ void MixedSolventElectrolyte::getPartialMolarEntropies(doublereal* sbar) const
  */
 void MixedSolventElectrolyte::getPartialMolarVolumes(doublereal* vbar) const
 {
-
-    int iA, iB, iK, delAK, delBK;
-    double XA, XB, XK, g0 , g1;
+    int delAK, delBK;
+    double XA, XB, g0 , g1;
     double T = temperature();
 
     /*
@@ -596,15 +595,12 @@ void MixedSolventElectrolyte::getPartialMolarVolumes(doublereal* vbar) const
      */
     getStandardVolumes(vbar);
 
-
-    for (iK = 0; iK < m_kk; iK++) {
+    for (size_t iK = 0; iK < m_kk; iK++) {
         delAK = 0;
         delBK = 0;
-        XK = moleFractions_[iK];
-        for (int i = 0; i <  numBinaryInteractions_; i++) {
-
-            iA =  m_pSpecies_A_ij[i];
-            iB =  m_pSpecies_B_ij[i];
+        for (size_t i = 0; i <  numBinaryInteractions_; i++) {
+            size_t iA =  m_pSpecies_A_ij[i];
+            size_t iB =  m_pSpecies_B_ij[i];
 
             if (iA==iK) {
                 delAK = 1;
@@ -746,16 +742,15 @@ void MixedSolventElectrolyte::initThermoXML(XML_Node& phaseNode, std::string id)
  */
 void MixedSolventElectrolyte::s_update_lnActCoeff() const
 {
-    int iA, iB, iK, delAK, delBK;
-    double XA, XB, XK, g0 , g1;
+    int delAK, delBK;
+    double XA, XB, g0, g1;
     double T = temperature();
     double RT = GasConstant*T;
     lnActCoeff_Scaled_.assign(m_kk, 0.0);
-    for (iK = 0; iK < m_kk; iK++) {
-        XK = moleFractions_[iK];
-        for (int i = 0; i <  numBinaryInteractions_; i++) {
-            iA =  m_pSpecies_A_ij[i];
-            iB =  m_pSpecies_B_ij[i];
+    for (size_t iK = 0; iK < m_kk; iK++) {
+        for (size_t i = 0; i <  numBinaryInteractions_; i++) {
+            size_t iA =  m_pSpecies_A_ij[i];
+            size_t iB =  m_pSpecies_B_ij[i];
             delAK = 0;
             delBK = 0;
             if (iA==iK) {
@@ -781,16 +776,16 @@ void MixedSolventElectrolyte::s_update_lnActCoeff() const
  */
 void MixedSolventElectrolyte::s_update_dlnActCoeff_dT() const
 {
-    int iA, iB, iK, delAK, delBK;
+    int delAK, delBK;
     doublereal XA, XB, g0, g1;
     doublereal T = temperature();
     doublereal RTT = GasConstant*T*T;
     dlnActCoeffdT_Scaled_.assign(m_kk, 0.0);
     d2lnActCoeffdT2_Scaled_.assign(m_kk, 0.0);
-    for (iK = 0; iK < m_kk; iK++) {
-        for (int i = 0; i <  numBinaryInteractions_; i++) {
-            iA =  m_pSpecies_A_ij[i];
-            iB =  m_pSpecies_B_ij[i];
+    for (size_t iK = 0; iK < m_kk; iK++) {
+        for (size_t i = 0; i <  numBinaryInteractions_; i++) {
+            size_t iA =  m_pSpecies_A_ij[i];
+            size_t iB =  m_pSpecies_B_ij[i];
             delAK = 0;
             delBK = 0;
             if (iA==iK) {
@@ -812,7 +807,7 @@ void MixedSolventElectrolyte::s_update_dlnActCoeff_dT() const
 void MixedSolventElectrolyte::getdlnActCoeffdT(doublereal* dlnActCoeffdT) const
 {
     s_update_dlnActCoeff_dT();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         dlnActCoeffdT[k] = dlnActCoeffdT_Scaled_[k];
     }
 }
@@ -820,7 +815,7 @@ void MixedSolventElectrolyte::getdlnActCoeffdT(doublereal* dlnActCoeffdT) const
 void MixedSolventElectrolyte::getd2lnActCoeffdT2(doublereal* d2lnActCoeffdT2) const
 {
     s_update_dlnActCoeff_dT();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         d2lnActCoeffdT2[k] = d2lnActCoeffdT2_Scaled_[k];
     }
 }
@@ -840,25 +835,20 @@ void MixedSolventElectrolyte::getd2lnActCoeffdT2(doublereal* d2lnActCoeffdT2) co
 void  MixedSolventElectrolyte::getdlnActCoeffds(const doublereal dTds, const doublereal* const dXds,
         doublereal* dlnActCoeffds) const
 {
-
-
-    int iA, iB, iK, delAK, delBK;
-    double XA, XB, XK, g0 , g1, dXA, dXB;
+    int delAK, delBK;
+    double XA, XB, g0, g1, dXA, dXB;
     double T = temperature();
     double RT = GasConstant*T;
 
     //fvo_zero_dbl_1(dlnActCoeff, m_kk);
     s_update_dlnActCoeff_dT();
 
-    for (iK = 0; iK < m_kk; iK++) {
-
-        XK = moleFractions_[iK];
+    for (size_t iK = 0; iK < m_kk; iK++) {
         dlnActCoeffds[iK] = 0.0;
+        for (size_t i = 0; i <  numBinaryInteractions_; i++) {
 
-        for (int i = 0; i <  numBinaryInteractions_; i++) {
-
-            iA =  m_pSpecies_A_ij[i];
-            iB =  m_pSpecies_B_ij[i];
+            size_t iA =  m_pSpecies_A_ij[i];
+            size_t iB =  m_pSpecies_B_ij[i];
 
             delAK = 0;
             delBK = 0;
@@ -894,21 +884,21 @@ void  MixedSolventElectrolyte::getdlnActCoeffds(const doublereal dTds, const dou
  */
 void MixedSolventElectrolyte::s_update_dlnActCoeff_dlnN_diag() const
 {
-    int iA, iB, iK, delAK, delBK;
-    double XA, XB, XK, g0 , g1;
+    int delAK, delBK;
+    double XA, XB, XK, g0, g1;
     double T = temperature();
     double RT = GasConstant*T;
 
     dlnActCoeffdlnN_diag_.assign(m_kk, 0);
 
-    for (iK = 0; iK < m_kk; iK++) {
+    for (size_t iK = 0; iK < m_kk; iK++) {
 
         XK = moleFractions_[iK];
 
-        for (int i = 0; i <  numBinaryInteractions_; i++) {
+        for (size_t i = 0; i <  numBinaryInteractions_; i++) {
 
-            iA =  m_pSpecies_A_ij[i];
-            iB =  m_pSpecies_B_ij[i];
+            size_t iA =  m_pSpecies_A_ij[i];
+            size_t iB =  m_pSpecies_B_ij[i];
 
             delAK = 0;
             delBK = 0;
@@ -957,27 +947,24 @@ void MixedSolventElectrolyte::s_update_dlnActCoeff_dlnN_diag() const
  */
 void MixedSolventElectrolyte::s_update_dlnActCoeff_dlnN() const
 {
-    int iA, iB;
     doublereal delAK, delBK;
-    double XA, XB, g0 , g1, XK,XM;
+    double XA, XB, g0, g1,XM;
     double T = temperature();
     double RT = GasConstant*T;
 
     doublereal delAM, delBM;
-
     dlnActCoeffdlnN_.zero();
 
     /*
      *  Loop over the activity coefficient gamma_k
      */
-    for (int iK = 0; iK < m_kk; iK++) {
-        XK = moleFractions_[iK];
-        for (int iM = 0; iM < m_kk; iM++) {
+    for (size_t iK = 0; iK < m_kk; iK++) {
+        for (size_t iM = 0; iM < m_kk; iM++) {
             XM = moleFractions_[iM];
-            for (int i = 0; i <  numBinaryInteractions_; i++) {
+            for (size_t i = 0; i <  numBinaryInteractions_; i++) {
 
-                iA =  m_pSpecies_A_ij[i];
-                iB =  m_pSpecies_B_ij[i];
+                size_t iA =  m_pSpecies_A_ij[i];
+                size_t iB =  m_pSpecies_B_ij[i];
 
                 delAK = 0.0;
                 delBK = 0.0;
@@ -1026,20 +1013,16 @@ void MixedSolventElectrolyte::s_update_dlnActCoeff_dlnN() const
 //====================================================================================================================
 void MixedSolventElectrolyte::s_update_dlnActCoeff_dlnX_diag() const
 {
-
-    int iA, iB;
     doublereal XA, XB, g0 , g1;
     doublereal T = temperature();
 
     dlnActCoeffdlnX_diag_.assign(m_kk, 0);
-
     doublereal RT = GasConstant * T;
 
+    for (size_t i = 0; i <  numBinaryInteractions_; i++) {
 
-    for (int i = 0; i <  numBinaryInteractions_; i++) {
-
-        iA =  m_pSpecies_A_ij[i];
-        iB =  m_pSpecies_B_ij[i];
+        size_t iA =  m_pSpecies_A_ij[i];
+        size_t iB =  m_pSpecies_B_ij[i];
 
         XA = moleFractions_[iA];
         XB = moleFractions_[iB];
@@ -1056,7 +1039,7 @@ void MixedSolventElectrolyte::s_update_dlnActCoeff_dlnX_diag() const
 void MixedSolventElectrolyte::getdlnActCoeffdlnN_diag(doublereal* dlnActCoeffdlnN_diag) const
 {
     s_update_dlnActCoeff_dlnN_diag();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         dlnActCoeffdlnN_diag[k] = dlnActCoeffdlnN_diag_[k];
     }
 }
@@ -1064,7 +1047,7 @@ void MixedSolventElectrolyte::getdlnActCoeffdlnN_diag(doublereal* dlnActCoeffdln
 void MixedSolventElectrolyte::getdlnActCoeffdlnX_diag(doublereal* dlnActCoeffdlnX_diag) const
 {
     s_update_dlnActCoeff_dlnX_diag();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         dlnActCoeffdlnX_diag[k] = dlnActCoeffdlnX_diag_[k];
     }
 }
@@ -1073,8 +1056,8 @@ void MixedSolventElectrolyte::getdlnActCoeffdlnN(const int ld, doublereal* dlnAc
 {
     s_update_dlnActCoeff_dlnN();
     double* data =  & dlnActCoeffdlnN_(0,0);
-    for (int k = 0; k < m_kk; k++) {
-        for (int m = 0; m < m_kk; m++) {
+    for (size_t k = 0; k < m_kk; k++) {
+        for (size_t m = 0; m < m_kk; m++) {
             dlnActCoeffdlnN[ld * k + m] = data[m_kk * k + m];
         }
     }

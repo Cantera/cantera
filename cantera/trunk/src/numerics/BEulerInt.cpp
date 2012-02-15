@@ -1911,7 +1911,7 @@ void BEulerInt::doNewtonSolve(double time_curr, double* y_curr,
 double BEulerInt::boundStep(const double* const y,
                             const double* const step0, int loglevel)
 {
-    int i, i_lower = -1, i_fbounds, ifbd = 0, i_fbd = 0;
+    int i, i_lower = -1, ifbd = 0, i_fbd = 0;
     double fbound = 1.0, f_lowbounds = 1.0, f_delta_bounds = 1.0;
     double ff, y_new, ff_alt;
     for (i = 0; i < m_neq; i++) {
@@ -1945,7 +1945,6 @@ double BEulerInt::boundStep(const double* const y,
         }
         if (ff < f_delta_bounds) {
             f_delta_bounds = ff;
-            i_fbounds = i;
             i_fbd = ifbd;
         }
         f_delta_bounds = MIN(f_delta_bounds, ff);
@@ -2173,7 +2172,6 @@ int BEulerInt::solve_nonlinear_problem(double* const y_comm,
                                        int& num_backtracks,
                                        int loglevel)
 {
-    bool m_residCurrent = false;
     int m = 0;
     bool forceNewJac = false;
     double s1=1.e30;
@@ -2218,12 +2216,10 @@ int BEulerInt::solve_nonlinear_problem(double* const y_comm,
             }
             beuler_jac(jac, m_resid, time_curr, CJ, y_curr, ydot_curr,
                        num_newt_its);
-            m_residCurrent = true;
         } else {
             if (loglevel > 1) {
                 printf("\t\t\tSolving system with old jacobian\n");
             }
-            m_residCurrent = false;
         }
 
         // compute the undamped Newton step

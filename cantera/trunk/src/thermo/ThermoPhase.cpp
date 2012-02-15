@@ -1161,10 +1161,8 @@ bool ThermoPhase::getElementPotentials(doublereal* lambda) const
  */
 void ThermoPhase::getdlnActCoeffdlnN(const int ld, doublereal* const dlnActCoeffdlnN)
 {
-
-
-    for (int m = 0; m < m_kk; m++) {
-        for (int k = 0; k < m_kk; k++) {
+    for (size_t m = 0; m < m_kk; m++) {
+        for (size_t k = 0; k < m_kk; k++) {
             dlnActCoeffdlnN[ld * k + m] = 0.0;
         }
     }
@@ -1173,8 +1171,6 @@ void ThermoPhase::getdlnActCoeffdlnN(const int ld, doublereal* const dlnActCoeff
 //====================================================================================================================
 void ThermoPhase::getdlnActCoeffdlnN_numderiv(const int ld, doublereal* const dlnActCoeffdlnN)
 {
-
-    int k, j;
     double deltaMoles_j = 0.0;
     double pres = pressure();
 
@@ -1195,7 +1191,7 @@ void ThermoPhase::getdlnActCoeffdlnN_numderiv(const int ld, doublereal* const dl
     /*
      *  Loop over the columns species to be deltad
      */
-    for (j = 0; j < m_kk; j++) {
+    for (size_t j = 0; j < m_kk; j++) {
         /*
          * Calculate a value for the delta moles of species j
          * -> NOte Xmol_[] and Tmoles are always positive or zero
@@ -1210,7 +1206,7 @@ void ThermoPhase::getdlnActCoeffdlnN_numderiv(const int ld, doublereal* const dl
          * mole fractions based on this.
          */
         v_totalMoles = TMoles_base + deltaMoles_j;
-        for (k = 0; k < m_kk; k++) {
+        for (size_t k = 0; k < m_kk; k++) {
             Xmol[k] = Xmol_Base[k] * TMoles_base / v_totalMoles;
         }
         Xmol[j] = (moles_j_base + deltaMoles_j) / v_totalMoles;
@@ -1226,7 +1222,7 @@ void ThermoPhase::getdlnActCoeffdlnN_numderiv(const int ld, doublereal* const dl
          * Calculate the column of the matrix
          */
         double* const lnActCoeffCol = dlnActCoeffdlnN + ld * j;
-        for (k = 0; k < m_kk; k++) {
+        for (size_t k = 0; k < m_kk; k++) {
             lnActCoeffCol[k] = (2*moles_j_base + deltaMoles_j) *(ActCoeff[k] - ActCoeff_Base[k]) /
                                ((ActCoeff[k] + ActCoeff_Base[k]) * deltaMoles_j);
         }

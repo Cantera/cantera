@@ -945,10 +945,10 @@ const std::vector<XML_Node*>& XML_Node::children() const
 /*
  *  @param discardComments Bool indicating whether we should ignore comments in the count. defaults to false
  */
-int XML_Node::nChildren(const bool discardComments) const
+size_t XML_Node::nChildren(const bool discardComments) const
 {
     if (discardComments) {
-        int count = 0;
+	size_t count = 0;
         for (size_t i = 0; i < m_nchildren; i++) {
             XML_Node* xc = m_children[i];
             if (!(xc->isComment())) {
@@ -1077,7 +1077,7 @@ XML_Node* XML_Node::findNameIDIndex(const std::string& nameTarget,
             }
         }
     }
-    for (int n = 0; n < m_nchildren; n++) {
+    for (size_t n = 0; n < m_nchildren; n++) {
         sc = m_children[n];
         if (sc->name() == nameTarget) {
             ii = sc->attrib("index");

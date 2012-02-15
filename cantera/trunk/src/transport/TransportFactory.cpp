@@ -986,10 +986,10 @@ void TransportFactory::getLiquidSpeciesTransportData(const std::vector<const XML
     std::map<std::string, LiquidTransportData>::iterator it;
 
     // Store the number of species in the phase
-    int nsp = trParam.nsp_;
+    size_t nsp = trParam.nsp_;
 
     // Store the number of off-diagonal symmetric interactions between species in the phase
-    int nBinInt = nsp*(nsp-1)/2;
+    size_t nBinInt = nsp*(nsp-1)/2;
 
     // read all entries in database into 'datatable' and check for
     // errors. Note that this procedure validates all entries, not
@@ -1026,19 +1026,19 @@ void TransportFactory::getLiquidSpeciesTransportData(const std::vector<const XML
                         data.ionConductivity = newLTP(xmlChild,  name,   m_tranPropMap[nodeName], temp_thermo);
                         break;
                     case TP_MOBILITYRATIO: {
-                        for (int iSpec = 0; iSpec< nBinInt; iSpec++) {
+                        for (size_t iSpec = 0; iSpec< nBinInt; iSpec++) {
                             XML_Node& propSpecNode = xmlChild.child(iSpec);
                             std::string specName = propSpecNode.name();
                             size_t loc = specName.find(":");
                             std::string firstSpec = specName.substr(0,loc);
                             std::string secondSpec = specName.substr(loc+1);
-                            int index = temp_thermo->speciesIndex(firstSpec.c_str())+nsp*temp_thermo->speciesIndex(secondSpec.c_str());
+                            size_t index = temp_thermo->speciesIndex(firstSpec.c_str())+nsp*temp_thermo->speciesIndex(secondSpec.c_str());
                             data.mobilityRatio[index] = newLTP(propSpecNode, name, m_tranPropMap[nodeName], temp_thermo);
                         };
                     };
                     break;
                     case TP_SELFDIFFUSION: {
-                        for (int iSpec = 0; iSpec< nsp; iSpec++) {
+                        for (size_t iSpec = 0; iSpec< nsp; iSpec++) {
                             XML_Node& propSpecNode = xmlChild.child(iSpec);
                             std::string specName = propSpecNode.name();
                             int index = temp_thermo->speciesIndex(specName.c_str());
@@ -1084,7 +1084,7 @@ void TransportFactory::getLiquidSpeciesTransportData(const std::vector<const XML
     }
 
     trParam.LTData.clear();
-    for (int i = 0; i < trParam.nsp_; i++) {
+    for (size_t i = 0; i < trParam.nsp_; i++) {
         /*
         Check to see that we have a LiquidTransportData object for all of the
         species in the phase. If not, throw an error.

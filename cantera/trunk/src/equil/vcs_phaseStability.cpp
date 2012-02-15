@@ -89,12 +89,12 @@ bool VCS_SOLVE::vcs_popPhasePossible(const size_t iphasePop) const
              * component.
              */
             //printf("WE are here at new logic - CHECK\n");
-            for (int jrxn = 0; jrxn < m_numRxnRdc; jrxn++) {
+            for (size_t jrxn = 0; jrxn < m_numRxnRdc; jrxn++) {
                 bool foundJrxn = false;
                 // First, if the component is a product of the reaction
                 if (m_stoichCoeffRxnMatrix[jrxn][kspec] > 0.0) {
                     foundJrxn = true;
-                    for (int kcomp = 0; kcomp < m_numComponents; kcomp++) {
+                    for (size_t kcomp = 0; kcomp < m_numComponents; kcomp++) {
                         if (m_stoichCoeffRxnMatrix[jrxn][kcomp] < 0.0) {
                             if (m_molNumSpecies_old[kcomp] <= VCS_DELETE_ELEMENTABS_CUTOFF*0.5) {
                                 foundJrxn = false;
@@ -114,7 +114,7 @@ bool VCS_SOLVE::vcs_popPhasePossible(const size_t iphasePop) const
                         foundJrxn = false;
                         continue;
                     }
-                    for (int kcomp = 0; kcomp < m_numComponents; kcomp++) {
+                    for (size_t kcomp = 0; kcomp < m_numComponents; kcomp++) {
                         if (m_stoichCoeffRxnMatrix[jrxn][kcomp] > 0.0) {
                             if (m_molNumSpecies_old[kcomp] <= VCS_DELETE_ELEMENTABS_CUTOFF*0.5) {
                                 foundJrxn = false;
@@ -155,12 +155,8 @@ int inList(const std::vector<int> &list, int val)
  */
 int  VCS_SOLVE::vcs_phasePopDeterminePossibleList()
 {
-
     int nfound = 0;
-    int irxn, kspec;
     vcs_VolPhase* Vphase = 0;
-    int iph, j, k;
-    int nsp;
     double stoicC;
     double molComp;
     std::vector<int> linkedPhases;
@@ -180,15 +176,15 @@ int  VCS_SOLVE::vcs_phasePopDeterminePossibleList()
     /*
      *  The logic below calculates zeroedComponentLinkedPhasePops
      */
-    for (j = 0; j < m_numComponents; j++) {
+    for (size_t j = 0; j < m_numComponents; j++) {
         if (m_elType[j] == VCS_ELEM_TYPE_ABSPOS) {
             molComp = m_molNumSpecies_old[j];
             if (molComp <= 0.0) {
                 std::vector<int> &jList = zeroedComponentLinkedPhasePops[j];
-                iph = m_phaseID[j];
+                size_t iph = m_phaseID[j];
                 jList.push_back(iph);
-                for (irxn = 0; irxn < m_numRxnTot; irxn++) {
-                    kspec = irxn +  m_numComponents;
+                for (size_t irxn = 0; irxn < m_numRxnTot; irxn++) {
+		    size_t kspec = irxn +  m_numComponents;
                     iph = m_phaseID[kspec];
                     Vphase = m_VolPhaseList[iph];
                     int existence = Vphase->exists();
@@ -214,7 +210,7 @@ int  VCS_SOLVE::vcs_phasePopDeterminePossibleList()
     /*
      *   The logic below calculates  zeroedPhaseLinkedZeroComponents
      */
-    for (iph = 0; iph < m_numPhases; iph++) {
+    for (size_t iph = 0; iph < m_numPhases; iph++) {
         std::vector<int> &iphList = zeroedPhaseLinkedZeroComponents[iph];
         iphList.clear();
         Vphase = m_VolPhaseList[iph];
@@ -222,23 +218,22 @@ int  VCS_SOLVE::vcs_phasePopDeterminePossibleList()
         if (existence < 0) {
 
             linkedPhases.clear();
-            nsp = Vphase->nSpecies();
-            for (k = 0; k < nsp; k++) {
+            size_t nsp = Vphase->nSpecies();
+            for (size_t k = 0; k < nsp; k++) {
+                size_t kspec = Vphase->spGlobalIndexVCS(k);
+                size_t irxn = kspec - m_numComponents;
 
-                kspec = Vphase->spGlobalIndexVCS(k);
-                irxn = kspec - m_numComponents;
-
-                for (j = 0; j < m_numComponents; j++) {
+                for (size_t j = 0; j < m_numComponents; j++) {
                     if (m_elType[j] == VCS_ELEM_TYPE_ABSPOS) {
                         molComp = m_molNumSpecies_old[j];
                         if (molComp <= 0.0) {
                             stoicC = m_stoichCoeffRxnMatrix[irxn][j];
                             if (stoicC < 0.0) {
                                 bool foundPos = false;
-                                for (int kk = 0; kk < nsp; kk++) {
-                                    int kkspec  = Vphase->spGlobalIndexVCS(kk);
-                                    int iirxn = kkspec - m_numComponents;
-                                    if (iirxn >= 0) {
+                                for (size_t kk = 0; kk < nsp; kk++) {
+                                    size_t kkspec  = Vphase->spGlobalIndexVCS(kk);
+                                    if (kkspec >= m_numComponents) {
+                                        size_t iirxn = kkspec - m_numComponents;
                                         if (m_stoichCoeffRxnMatrix[iirxn][j] > 0.0) {
                                             foundPos = true;
                                         }
@@ -261,15 +256,15 @@ int  VCS_SOLVE::vcs_phasePopDeterminePossibleList()
      *  Now fill in the   phasePopProblemLists_  list.
      *
      */
-    for (iph = 0; iph < m_numPhases; iph++) {
+    for (size_t iph = 0; iph < m_numPhases; iph++) {
         Vphase = m_VolPhaseList[iph];
         int existence = Vphase->exists();
         if (existence < 0) {
             std::vector<int> &iphList = zeroedPhaseLinkedZeroComponents[iph];
             std::vector<int> popProblem(0);
             popProblem.push_back(iph);
-            for (int i = 0; i < (int) iphList.size(); i++) {
-                j = iphList[i];
+            for (size_t i = 0; i < iphList.size(); i++) {
+		size_t j = iphList[i];
                 std::vector<int> &jList = zeroedComponentLinkedPhasePops[j];
                 for (int jjl = 0; jjl < (int) jList.size(); jjl++) {
                     int jph = jList[jjl];
@@ -295,7 +290,6 @@ int  VCS_SOLVE::vcs_phasePopDeterminePossibleList()
 int VCS_SOLVE::vcs_popPhaseID(std::vector<int> & phasePopPhaseIDs)
 {
     int iphasePop = -1;
-    int iph;
     int irxn, kspec;
     doublereal FephaseMax = -1.0E30;
     doublereal Fephase = -1.0E30;

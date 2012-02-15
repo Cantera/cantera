@@ -507,10 +507,10 @@ protected:
     int PBType_;
 
     //! Number of pseudo binary species
-    int numPBSpecies_;
+    size_t numPBSpecies_;
 
     //! index of special species
-    int indexSpecialSpecies_;
+    size_t indexSpecialSpecies_;
 
     mutable std::vector<doublereal> PBMoleFractions_;
 
@@ -518,15 +518,14 @@ protected:
     std::vector<int> cationList_;
 
     //! Number of cations in the mixture
-    int numCationSpecies_;
+    size_t numCationSpecies_;
 
     std::vector<int> anionList_;
-    int numAnionSpecies_;
+    size_t numAnionSpecies_;
 
     std::vector<int> passThroughList_;
-    int numPassThroughSpecies_;
-    int neutralPBindexStart;
-
+    size_t numPassThroughSpecies_;
+    size_t neutralPBindexStart;
 
     mutable std::vector<doublereal> moleFractionsTmp_;
 

@@ -89,7 +89,7 @@ LatticeSolidPhase::operator=(const LatticeSolidPhase& right)
 LatticeSolidPhase::~LatticeSolidPhase()
 {
     // We own the sublattices. So we have to delete the sublattices
-    for (int n = 0; n < m_nlattice; n++) {
+    for (size_t n = 0; n < m_nlattice; n++) {
         delete m_lattice[n];
         m_lattice[n] = 0;
     }
@@ -125,7 +125,7 @@ ThermoPhase* LatticeSolidPhase::duplMyselfAsThermoPhase() const
 doublereal LatticeSolidPhase::minTemp(int k) const
 {
     if (k >= 0) {
-        for (int n = 0; n < m_nlattice; n++) {
+        for (size_t n = 0; n < m_nlattice; n++) {
             if (lkstart_[n+1] < k) {
                 double ml = (m_lattice[n])->minTemp(k-lkstart_[n]);
                 return ml;
@@ -133,7 +133,7 @@ doublereal LatticeSolidPhase::minTemp(int k) const
         }
     }
     doublereal mm = 1.0E300;
-    for (int n = 0; n < m_nlattice; n++) {
+    for (size_t n = 0; n < m_nlattice; n++) {
         double ml = (m_lattice[n])->minTemp(-1);
         mm = MIN(mm, ml);
     }
@@ -155,7 +155,7 @@ doublereal LatticeSolidPhase::minTemp(int k) const
 doublereal LatticeSolidPhase::maxTemp(int k) const
 {
     if (k >= 0) {
-        for (int n = 0; n < m_nlattice; n++) {
+        for (size_t n = 0; n < m_nlattice; n++) {
             if (lkstart_[n+1] < k) {
                 double ml = (m_lattice[n])->maxTemp(k - lkstart_[n]);
                 return ml;
@@ -163,7 +163,7 @@ doublereal LatticeSolidPhase::maxTemp(int k) const
         }
     }
     doublereal mm = -1.0E300;
-    for (int n = 0; n < m_nlattice; n++) {
+    for (size_t n = 0; n < m_nlattice; n++) {
         double ml = (m_lattice[n])->maxTemp(-1);
         mm = MAX(mm, ml);
     }
@@ -266,7 +266,7 @@ doublereal LatticeSolidPhase::logStandardConc(size_t k) const
 void  LatticeSolidPhase::setPressure(doublereal p)
 {
     m_press = p;
-    for (int n = 0; n < m_nlattice; n++) {
+    for (size_t n = 0; n < m_nlattice; n++) {
         m_lattice[n]->setPressure(m_press);
     }
     calcDensity();
@@ -287,7 +287,7 @@ void  LatticeSolidPhase::setPressure(doublereal p)
 doublereal  LatticeSolidPhase::calcDensity()
 {
     double sum = 0.0;
-    for (int n = 0; n < m_nlattice; n++) {
+    for (size_t n = 0; n < m_nlattice; n++) {
         sum += theta_[n] * m_lattice[n]->density();
     }
     State::setDensity(sum);
@@ -309,13 +309,13 @@ doublereal  LatticeSolidPhase::calcDensity()
  */
 void LatticeSolidPhase::setMoleFractions(const doublereal* const x)
 {
-    int nsp, strt = 0;
-    for (int n = 0; n < m_nlattice; n++) {
+    size_t nsp, strt = 0;
+    for (size_t n = 0; n < m_nlattice; n++) {
         nsp =  m_lattice[n]->nSpecies();
         m_lattice[n]->setMoleFractions(x + strt);
         strt += nsp;
     }
-    for (int k = 0; k < strt; k++) {
+    for (size_t k = 0; k < strt; k++) {
         m_x[k] = x[k] / m_nlattice;
     }
     State::setMoleFractions(DATA_PTR(m_x));
@@ -331,17 +331,17 @@ void LatticeSolidPhase::setMoleFractions(const doublereal* const x)
  */
 void LatticeSolidPhase::getMoleFractions(doublereal* const x) const
 {
-    int nsp, strt = 0;
+    size_t nsp, strt = 0;
     // the ifdef block should be the way we calculate this.!!!!!
     State::getMoleFractions(x);
     doublereal sum;
-    for (int n = 0; n < m_nlattice; n++) {
+    for (size_t n = 0; n < m_nlattice; n++) {
         nsp =  m_lattice[n]->nSpecies();
         sum = 0.0;
-        for (int k = 0; k < nsp; k++) {
+        for (size_t k = 0; k < nsp; k++) {
             sum += (x + strt)[k];
         }
-        for (int k = 0; k < nsp; k++) {
+        for (size_t k = 0; k < nsp; k++) {
             (x + strt)[k] /= sum;
         }
         /*
@@ -350,7 +350,7 @@ void LatticeSolidPhase::getMoleFractions(doublereal* const x) const
          */
 #ifdef DEBUG_MODE
         m_lattice[n]->getMoleFractions(&(m_x[strt]));
-        for (int k = 0; k < nsp; k++) {
+        for (size_t k = 0; k < nsp; k++) {
             if (fabs((x + strt)[k] - m_x[strt+k]) > 1.0E-14) {
                 throw CanteraError("LatticeSolidPhase::getMoleFractions()",
                                    "internal error");
@@ -386,9 +386,9 @@ void LatticeSolidPhase::getChemPotentials(doublereal* mu) const
 void LatticeSolidPhase::getPartialMolarEnthalpies(doublereal* hbar) const
 {
     _updateThermo();
-    int strt = 0;
-    for (int n = 0; n < m_nlattice; n++) {
-        int nlsp =  m_lattice[n]->nSpecies();
+    size_t strt = 0;
+    for (size_t n = 0; n < m_nlattice; n++) {
+        size_t nlsp =  m_lattice[n]->nSpecies();
         m_lattice[n]->getPartialMolarEnthalpies(hbar + strt);
         strt += nlsp;
     }
@@ -397,9 +397,9 @@ void LatticeSolidPhase::getPartialMolarEnthalpies(doublereal* hbar) const
 void LatticeSolidPhase::getPartialMolarEntropies(doublereal* sbar) const
 {
     _updateThermo();
-    int strt = 0;
-    for (int n = 0; n < m_nlattice; n++) {
-        int nlsp =  m_lattice[n]->nSpecies();
+    size_t strt = 0;
+    for (size_t n = 0; n < m_nlattice; n++) {
+        size_t nlsp =  m_lattice[n]->nSpecies();
         m_lattice[n]->getPartialMolarEntropies(sbar + strt);
         strt += nlsp;
     }
@@ -408,9 +408,9 @@ void LatticeSolidPhase::getPartialMolarEntropies(doublereal* sbar) const
 void LatticeSolidPhase::getPartialMolarCp(doublereal* cpbar) const
 {
     _updateThermo();
-    int strt = 0;
-    for (int n = 0; n < m_nlattice; n++) {
-        int nlsp =  m_lattice[n]->nSpecies();
+    size_t strt = 0;
+    for (size_t n = 0; n < m_nlattice; n++) {
+        size_t nlsp =  m_lattice[n]->nSpecies();
         m_lattice[n]->getPartialMolarCp(cpbar + strt);
         strt += nlsp;
     }
@@ -419,9 +419,9 @@ void LatticeSolidPhase::getPartialMolarCp(doublereal* cpbar) const
 void LatticeSolidPhase::getPartialMolarVolumes(doublereal* vbar) const
 {
     _updateThermo();
-    int strt = 0;
-    for (int n = 0; n < m_nlattice; n++) {
-        int nlsp =  m_lattice[n]->nSpecies();
+    size_t strt = 0;
+    for (size_t n = 0; n < m_nlattice; n++) {
+        size_t nlsp =  m_lattice[n]->nSpecies();
         m_lattice[n]->getPartialMolarVolumes(vbar + strt);
         strt += nlsp;
     }
@@ -453,7 +453,7 @@ void LatticeSolidPhase::getStandardChemPotentials(doublereal* mu0) const
 void LatticeSolidPhase::getGibbs_RT_ref(doublereal* grt) const
 {
     _updateThermo();
-    for (int n = 0; n < m_nlattice; n++) {
+    for (size_t n = 0; n < m_nlattice; n++) {
         m_lattice[n]->getGibbs_RT_ref(grt + lkstart_[n]);
     }
 }
@@ -461,7 +461,7 @@ void LatticeSolidPhase::getGibbs_RT_ref(doublereal* grt) const
 void LatticeSolidPhase::getGibbs_ref(doublereal* g) const
 {
     getGibbs_RT_ref(g);
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         g[k] *= GasConstant * temperature();
     }
 }
@@ -474,9 +474,8 @@ void LatticeSolidPhase::getGibbs_ref(doublereal* g) const
  */
 void LatticeSolidPhase::installSlavePhases(Cantera::XML_Node* phaseNode)
 {
-    int m, k;
-    int kk = 0;
-    int kstart = 0;
+    size_t kk = 0;
+    size_t kstart = 0;
     SpeciesThermoFactory* spFactory = SpeciesThermoFactory::factory();
     SpeciesThermo* spthermo_ptr = new GeneralSpeciesThermo();
     setSpeciesThermo(spthermo_ptr);
@@ -486,17 +485,17 @@ void LatticeSolidPhase::installSlavePhases(Cantera::XML_Node* phaseNode)
     XML_Node& la = eosdata.child("LatticeArray");
     std::vector<XML_Node*> lattices;
     la.getChildren("phase",lattices);
-    for (int n = 0; n < m_nlattice; n++) {
+    for (size_t n = 0; n < m_nlattice; n++) {
         LatticePhase* lp = m_lattice[n];
         XML_Node* phaseNode_ptr = lattices[n];
-        int nsp =  lp->nSpecies();
+        size_t nsp =  lp->nSpecies();
         vector<doublereal> constArr(lp->nElements());
         const vector_fp& aws = lp->atomicWeights();
-        for (int es = 0; es < lp->nElements(); es++) {
+        for (size_t es = 0; es < lp->nElements(); es++) {
             string esName = lp->elementName(es);
             double wt = aws[es];
             int an = lp->atomicNumber(es);
-            int e298 = lp->entropyElement298(es);
+            int e298 = lp->entropyElement298(es); //! @todo Why is this an int instead of a double?
             int et = lp->elementType(es);
             addUniqueElementAfterFreeze(esName, wt, an, e298, et);
         }
@@ -504,13 +503,13 @@ void LatticeSolidPhase::installSlavePhases(Cantera::XML_Node* phaseNode)
         kstart = kk;
 
 
-        for (k = 0; k < nsp; k++) {
+        for (size_t k = 0; k < nsp; k++) {
             std::string sname = lp->speciesName(k);
             std::map<std::string, double> comp;
             lp->getAtoms(k, DATA_PTR(constArr));
-            int nel = nElements();
+            size_t nel = nElements();
             vector_fp ecomp(nel, 0.0);
-            for (m = 0; m < lp->nElements(); m++) {
+            for (size_t m = 0; m < lp->nElements(); m++) {
                 if (constArr[m] != 0.0) {
                     std::string oldEname = lp->elementName(m);
                     int newIndex = elementIndex(oldEname);
@@ -538,12 +537,12 @@ void LatticeSolidPhase::installSlavePhases(Cantera::XML_Node* phaseNode)
             int m = addUniqueElementAfterFreeze(econ, 0.0, 0, 0.0, CT_ELEM_TYPE_LATTICERATIO);
             m_mm = nElements();
             LatticePhase* lp0 = m_lattice[0];
-            int nsp0 =  lp0->nSpecies();
-            for (k = 0; k < nsp0; k++) {
+            size_t nsp0 =  lp0->nSpecies();
+            for (size_t k = 0; k < nsp0; k++) {
                 m_speciesComp[k * m_mm + m] = -theta_[0];
             }
-            for (k = 0; k < nsp; k++) {
-                int ks = kstart + k;
+            for (size_t k = 0; k < nsp; k++) {
+                size_t ks = kstart + k;
                 m_speciesComp[ks * m_mm + m] = theta_[n];
             }
         }
@@ -622,10 +621,10 @@ void LatticeSolidPhase::_updateThermo() const
 void LatticeSolidPhase::setLatticeMoleFractionsByName(int nn, std::string x)
 {
     m_lattice[nn]->setMoleFractionsByName(x);
-    int loc=0, nsp;
+    size_t loc = 0;
     doublereal ndens;
     for (size_t n = 0; n < m_nlattice; n++) {
-        nsp = m_lattice[n]->nSpecies();
+        size_t nsp = m_lattice[n]->nSpecies();
         ndens = m_lattice[n]->molarDensity();
         for (size_t k = 0; k < nsp; k++) {
             m_x[loc] = ndens * m_lattice[n]->moleFraction(k);
@@ -663,7 +662,7 @@ void LatticeSolidPhase::setParametersFromXML(const XML_Node& eosdata)
     for (int i = 0; i < np; i++) {
         double val = fpValueCheck(pval[i]);
         bool found = false;
-        for (int j = 0; j < nl; j++) {
+        for (size_t j = 0; j < nl; j++) {
             ThermoPhase& tp = *(m_lattice[j]);
             string idj = tp.id();
             if (idj == pnam[i]) {

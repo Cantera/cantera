@@ -284,7 +284,7 @@ public:
      * @return     Returns the index of the species. If the name is not found,
      *             the value of -1 is returned.
      */
-    int speciesIndex(std::string name) const;
+    size_t speciesIndex(std::string name) const;
 
     //! Returns the expanded species name of a species, including the phase name
     /*!

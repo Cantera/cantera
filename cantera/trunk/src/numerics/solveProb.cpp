@@ -110,12 +110,11 @@ int solveProb::solve(int ifunc, doublereal time_scale,
     if (ifunc == SOLVEPROB_JACOBIAN) {
         EXTRA_ACCURACY *= 0.001;
     }
-    int  irow;
-    int  jcol, info = 0;
+    int info = 0;
     int label_t=-1; /* Species IDs for time control */
     int label_d; /* Species IDs for damping control */
-    int        label_t_old=-1;
-    doublereal     label_factor = 1.0;
+    int label_t_old = -1;
+    doublereal label_factor = 1.0;
     int iter=0; // iteration number on numlinear solver
     int iter_max=1000; // maximum number of nonlinear iterations
     int nrhs=1;
@@ -288,7 +287,7 @@ int solveProb::solve(int ifunc, doublereal time_scale,
                 printf("solveSurfSS: Zero pivot, assuming converged: %g (%d)\n",
                        resid_norm, info);
             }
-            for (jcol = 0; jcol < m_neq; jcol++) {
+            for (size_t jcol = 0; jcol < m_neq; jcol++) {
                 m_resid[jcol] = 0.0;
             }
 
@@ -333,7 +332,7 @@ int solveProb::solve(int ifunc, doublereal time_scale,
          *    Update the solution vector and real time
          *    Crop the concentrations to zero.
          */
-        for (irow = 0; irow < m_neq; irow++) {
+        for (size_t irow = 0; irow < m_neq; irow++) {
             m_CSolnSP[irow] -= damp * m_resid[irow];
         }
 
@@ -458,7 +457,6 @@ void solveProb::resjac_eval(std::vector<doublereal*> &JacCol,
                             const doublereal CSolnOld[], const bool do_time,
                             const doublereal deltaT)
 {
-    int  i, kCol;
     doublereal dc, cSave, sd;
     doublereal* col_j;
     /*
@@ -469,7 +467,7 @@ void solveProb::resjac_eval(std::vector<doublereal*> &JacCol,
      * Now we will look over the columns perturbing each unknown.
      */
 
-    for (kCol = 0; kCol < m_neq; kCol++) {
+    for (size_t kCol = 0; kCol < m_neq; kCol++) {
         cSave = CSoln[kCol];
         sd = fabs(cSave) + fabs(CSoln[kCol]) + m_atol[kCol] * 1.0E6;
         if (sd < 1.0E-200) {
@@ -479,7 +477,7 @@ void solveProb::resjac_eval(std::vector<doublereal*> &JacCol,
         CSoln[kCol] += dc;
         fun_eval(DATA_PTR(m_numEqn2), CSoln, CSolnOld, do_time, deltaT);
         col_j = JacCol[kCol];
-        for (i = 0; i < m_neq; i++) {
+        for (size_t i = 0; i < m_neq; i++) {
             col_j[i] = (m_numEqn2[i] - resid[i])/dc;
         }
         CSoln[kCol] = cSave;
@@ -606,12 +604,11 @@ static doublereal calcWeightedNorm(const doublereal wtX[], const doublereal dx[]
 void solveProb::calcWeights(doublereal wtSpecies[], doublereal wtResid[],
                             const doublereal CSoln[])
 {
-    int k, jcol;
     /*
      * First calculate the weighting factor
      */
 
-    for (k = 0; k < m_neq; k++) {
+    for (size_t k = 0; k < m_neq; k++) {
         wtSpecies[k] = m_atol[k] + m_rtol * fabs(CSoln[k]);
     }
     /*
@@ -620,9 +617,9 @@ void solveProb::calcWeights(doublereal wtSpecies[], doublereal wtResid[],
      * change in a solution variable does to each residual.
      * This is a row sum scale operation.
      */
-    for (k = 0; k < m_neq; k++) {
+    for (size_t k = 0; k < m_neq; k++) {
         wtResid[k] = 0.0;
-        for (jcol = 0; jcol < m_neq; jcol++) {
+        for (size_t jcol = 0; jcol < m_neq; jcol++) {
             wtResid[k] += fabs(m_Jac(k,jcol) * wtSpecies[jcol]);
         }
     }
@@ -643,9 +640,8 @@ doublereal solveProb::
 calc_t(doublereal netProdRateSolnSP[], doublereal Csoln[],
        int* label, int* label_old, doublereal* label_factor, int ioflag)
 {
-    int  k, kspSpecial;
     doublereal tmp, inv_timeScale=0.0;
-    for (k = 0; k < m_neq; k++) {
+    for (size_t k = 0; k < m_neq; k++) {
         if (Csoln[k] <= 1.0E-10) {
             tmp = 1.0E-10;
         } else {
@@ -660,8 +656,6 @@ calc_t(doublereal netProdRateSolnSP[], doublereal Csoln[],
         if (tmp > inv_timeScale) {
             inv_timeScale = tmp;
             *label = k;
-
-            kspSpecial = k;
         }
     }
 
@@ -704,7 +698,7 @@ calc_t(doublereal netProdRateSolnSP[], doublereal Csoln[],
  */
 void solveProb::setBounds(const doublereal botBounds[], const doublereal topBounds[])
 {
-    for (int k = 0; k < m_neq; k++) {
+    for (size_t k = 0; k < m_neq; k++) {
         m_botBounds[k] = botBounds[k];
         m_topBounds[k] = topBounds[k];
     }
@@ -1027,14 +1021,14 @@ printIterationHeader(int ioflag, doublereal damp,doublereal inv_t, doublereal t_
 //================================================================================================
 void solveProb::setAtol(const doublereal atol[])
 {
-    for (int k = 0; k < m_neq; k++, k++) {
+    for (size_t k = 0; k < m_neq; k++, k++) {
         m_atol[k] = atol[k];
     }
 }
 //================================================================================================
 void solveProb::setAtolConst(const doublereal atolconst)
 {
-    for (int k = 0; k < m_neq; k++, k++) {
+    for (size_t k = 0; k < m_neq; k++, k++) {
         m_atol[k] = atolconst;
     }
 }

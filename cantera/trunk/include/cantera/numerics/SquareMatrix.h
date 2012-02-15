@@ -46,7 +46,7 @@ public:
      * @param n   size of the square matrix
      * @param v   intial value of all matrix components.
      */
-    SquareMatrix(int n, doublereal v = 0.0);
+    SquareMatrix(size_t n, doublereal v = 0.0);
 
     //! Copy Constructor
     /*!
@@ -76,7 +76,7 @@ public:
      *  @param m Number of columns
      *  @param v double to fill the new space (defaults to zero)
      */
-    void resize(int n, int m, doublereal v = 0.0);
+    void resize(size_t n, size_t m, doublereal v = 0.0);
 
     /**
      * Zero the matrix
@@ -171,7 +171,7 @@ public:
      *
      *  @return  Returns a pointer to the top of the column
      */
-    virtual doublereal* ptrColumn(int j);
+    virtual doublereal* ptrColumn(size_t j);
 
     //! Index into the (i,j) element
     /*!
@@ -182,7 +182,7 @@ public:
      *
      *  Returns a changeable reference to the matrix entry
      */
-    virtual doublereal& operator()(int i, int j) {
+    virtual doublereal& operator()(size_t i, size_t j) {
         return Array2D::operator()(i, j);
     }
 
@@ -200,7 +200,7 @@ public:
      *
      *  Returns an unchangeable reference to the matrix entry
      */
-    virtual  doublereal operator()(int i, int j) const {
+    virtual doublereal operator()(size_t i, size_t j) const {
         return Array2D::operator()(i, j);
     }
 
@@ -240,7 +240,7 @@ public:
      *   @return returns a vector of pointers to the top of the columns
      *           of the matrices.
      */
-    virtual doublereal*   const* colPts();
+    virtual doublereal* const* colPts();
 
     //! Check to see if we have any zero rows in the jacobian
     /*!
@@ -251,7 +251,7 @@ public:
      *
      * @return index of the row that is most nearly zero
      */
-    virtual int checkRows(doublereal& valueSmall) const;
+    virtual size_t checkRows(doublereal& valueSmall) const;
 
     //! Check to see if we have any zero columns in the jacobian
     /*!
@@ -262,7 +262,7 @@ public:
      *
      * @return index of the column that is most nearly zero
      */
-    virtual int checkColumns(doublereal& valueSmall) const;
+    virtual size_t checkColumns(doublereal& valueSmall) const;
 
 protected:
 

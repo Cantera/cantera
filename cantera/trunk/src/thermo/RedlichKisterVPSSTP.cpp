@@ -364,7 +364,7 @@ void RedlichKisterVPSSTP::getLnActivityCoefficients(doublereal* lnac) const
     /*
      * take the exp of the internally storred coefficients.
      */
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         lnac[k] = lnActCoeff_Scaled_[k];
     }
 }
@@ -377,7 +377,7 @@ void RedlichKisterVPSSTP::getElectrochemPotentials(doublereal* mu) const
 {
     getChemPotentials(mu);
     double ve = Faraday * electricPotential();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         mu[k] += ve*charge(k);
     }
 }
@@ -400,7 +400,7 @@ void RedlichKisterVPSSTP::getChemPotentials(doublereal* mu) const
      *
      */
     doublereal RT = GasConstant * temperature();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         xx = fmaxx(moleFractions_[k], xxSmall);
         mu[k] += RT * (log(xx) + lnActCoeff_Scaled_[k]);
     }
@@ -476,7 +476,7 @@ void RedlichKisterVPSSTP::getPartialMolarEnthalpies(doublereal* hbar) const
      */
     double T = temperature();
     double RT = GasConstant * T;
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         hbar[k] *= RT;
     }
     /*
@@ -486,7 +486,7 @@ void RedlichKisterVPSSTP::getPartialMolarEnthalpies(doublereal* hbar) const
     s_update_lnActCoeff();
     s_update_dlnActCoeff_dT();
     double RTT = RT * T;
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         hbar[k] -= RTT * dlnActCoeffdT_Scaled_[k];
     }
 }
@@ -519,13 +519,13 @@ void RedlichKisterVPSSTP::getPartialMolarCp(doublereal* cpbar) const
     s_update_lnActCoeff();
     s_update_dlnActCoeff_dT();
 
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         cpbar[k] -= 2 * T * dlnActCoeffdT_Scaled_[k] + T * T * d2lnActCoeffdT2_Scaled_[k];
     }
     /*
      * dimensionalize it.
      */
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         cpbar[k] *= GasConstant;
     }
 }
@@ -559,14 +559,14 @@ void RedlichKisterVPSSTP::getPartialMolarEntropies(doublereal* sbar) const
     s_update_lnActCoeff();
     s_update_dlnActCoeff_dT();
 
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         xx = fmaxx(moleFractions_[k], xxSmall);
         sbar[k] += - lnActCoeff_Scaled_[k] -log(xx) - T * dlnActCoeffdT_Scaled_[k];
     }
     /*
      * dimensionalize it.
      */
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         sbar[k] *= GasConstant;
     }
 }
@@ -587,12 +587,11 @@ void RedlichKisterVPSSTP::getPartialMolarEntropies(doublereal* sbar) const
  */
 void RedlichKisterVPSSTP::getPartialMolarVolumes(doublereal* vbar) const
 {
-    int  iK;
     /*
      * Get the standard state values in m^3 kmol-1
      */
     getStandardVolumes(vbar);
-    for (iK = 0; iK < m_kk; iK++) {
+    for (size_t iK = 0; iK < m_kk; iK++) {
 
         vbar[iK] += 0.0;
     }
@@ -708,7 +707,6 @@ void RedlichKisterVPSSTP::initThermoXML(XML_Node& phaseNode, std::string id)
  */
 void RedlichKisterVPSSTP::s_update_lnActCoeff() const
 {
-    int iA, iB, m, k;
     doublereal XA, XB;
     doublereal T = temperature();
     doublereal RT = GasConstant * T;
@@ -721,9 +719,9 @@ void RedlichKisterVPSSTP::s_update_lnActCoeff() const
      *            dimensionless terms help.
      */
 
-    for (int i = 0; i <  numBinaryInteractions_; i++) {
-        iA =  m_pSpecies_A_ij[i];
-        iB =  m_pSpecies_B_ij[i];
+    for (size_t i = 0; i <  numBinaryInteractions_; i++) {
+        size_t iA =  m_pSpecies_A_ij[i];
+        size_t iB =  m_pSpecies_B_ij[i];
         XA = moleFractions_[iA];
         XB = moleFractions_[iB];
         doublereal deltaX = XA - XB;
@@ -735,7 +733,7 @@ void RedlichKisterVPSSTP::s_update_lnActCoeff() const
         doublereal sum = 0.0;
         doublereal sumMm1 = 0.0;
         doublereal sum2 = 0.0;
-        for (m = 0; m < N; m++) {
+        for (int m = 0; m < N; m++) {
             doublereal A_ge = (he_vec[m] -  T * se_vec[m]) / RT;
             sum += A_ge * poly;
             sum2 += A_ge * (m + 1) * poly;
@@ -747,7 +745,7 @@ void RedlichKisterVPSSTP::s_update_lnActCoeff() const
         }
         doublereal oneMXA = 1.0 - XA;
         doublereal oneMXB = 1.0 - XB;
-        for (k = 0; k < m_kk; k++) {
+        for (size_t k = 0; k < m_kk; k++) {
             if (iA == k) {
                 lnActCoeff_Scaled_[k] += (oneMXA * XB * sum) + (XA * XB * sumMm1 * (oneMXA + XB));
             } else  if (iB == k) {
@@ -762,7 +760,7 @@ void RedlichKisterVPSSTP::s_update_lnActCoeff() const
         double lnB = 0.0;
         double polyk = 1.0;
         double fac = 2.0 * XA - 1.0;
-        for (m = 0; m < N; m++) {
+        for (int m = 0; m < N; m++) {
             doublereal A_ge = (he_vec[m] - T * se_vec[m]) / RT;
             lnA += A_ge * oneMXA * oneMXA * polyk * (1.0 + 2.0 * XA * m / fac);
             lnB += A_ge * XA * XA * polyk * (1.0 - 2.0 * oneMXA * m / fac);
@@ -787,16 +785,15 @@ void RedlichKisterVPSSTP::s_update_lnActCoeff() const
  */
 void RedlichKisterVPSSTP::s_update_dlnActCoeff_dT() const
 {
-    int iA, iB, m, k;
     doublereal XA, XB;
     //   doublereal T = temperature();
 
     dlnActCoeffdT_Scaled_.assign(m_kk, 0.0);
     d2lnActCoeffdT2_Scaled_.assign(m_kk, 0.0);
 
-    for (int i = 0; i <  numBinaryInteractions_; i++) {
-        iA =  m_pSpecies_A_ij[i];
-        iB =  m_pSpecies_B_ij[i];
+    for (size_t i = 0; i <  numBinaryInteractions_; i++) {
+        size_t iA =  m_pSpecies_A_ij[i];
+        size_t iB =  m_pSpecies_B_ij[i];
         XA = moleFractions_[iA];
         XB = moleFractions_[iB];
         doublereal deltaX = XA - XB;
@@ -808,7 +805,7 @@ void RedlichKisterVPSSTP::s_update_dlnActCoeff_dT() const
         doublereal sumMm1 = 0.0;
         doublereal polyMm1 = 1.0;
         doublereal sum2 = 0.0;
-        for (m = 0; m < N; m++) {
+        for (int m = 0; m < N; m++) {
             doublereal A_ge = - se_vec[m];
             sum += A_ge * poly;
             sum2 += A_ge * (m + 1) * poly;
@@ -820,7 +817,7 @@ void RedlichKisterVPSSTP::s_update_dlnActCoeff_dT() const
         }
         doublereal oneMXA = 1.0 - XA;
         doublereal oneMXB = 1.0 - XB;
-        for (k = 0; k < m_kk; k++) {
+        for (size_t k = 0; k < m_kk; k++) {
             if (iA == k) {
                 dlnActCoeffdT_Scaled_[k] += (oneMXA * XB * sum) + (XA * XB * sumMm1 * (oneMXA + XB));
             } else  if (iB == k) {
@@ -835,7 +832,7 @@ void RedlichKisterVPSSTP::s_update_dlnActCoeff_dT() const
 void RedlichKisterVPSSTP::getdlnActCoeffdT(doublereal* dlnActCoeffdT) const
 {
     s_update_dlnActCoeff_dT();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         dlnActCoeffdT[k] = dlnActCoeffdT_Scaled_[k];
     }
 }
@@ -843,24 +840,21 @@ void RedlichKisterVPSSTP::getdlnActCoeffdT(doublereal* dlnActCoeffdT) const
 void RedlichKisterVPSSTP::getd2lnActCoeffdT2(doublereal* d2lnActCoeffdT2) const
 {
     s_update_dlnActCoeff_dT();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         d2lnActCoeffdT2[k] = d2lnActCoeffdT2_Scaled_[k];
     }
 }
 //====================================================================================================================
 void RedlichKisterVPSSTP::s_update_dlnActCoeff_dX_() const
 {
-
-
-    int iA, iB, m, k;
     doublereal XA, XB;
     doublereal T = temperature();
 
     dlnActCoeff_dX_.zero();
 
-    for (int i = 0; i <  numBinaryInteractions_; i++) {
-        iA =  m_pSpecies_A_ij[i];
-        iB =  m_pSpecies_B_ij[i];
+    for (size_t i = 0; i <  numBinaryInteractions_; i++) {
+        size_t iA =  m_pSpecies_A_ij[i];
+        size_t iB =  m_pSpecies_B_ij[i];
         XA = moleFractions_[iA];
         XB = moleFractions_[iB];
         doublereal deltaX = XA - XB;
@@ -875,7 +869,7 @@ void RedlichKisterVPSSTP::s_update_dlnActCoeff_dX_() const
         doublereal sum2 = 0.0;
         doublereal sum2Mm1 = 0.0;
         doublereal sumMm2 = 0.0;
-        for (m = 0; m < N; m++) {
+        for (int m = 0; m < N; m++) {
             doublereal A_ge = he_vec[m] -  T * se_vec[m];
             sum += A_ge * poly;
             sum2 += A_ge * (m + 1) * poly;
@@ -891,7 +885,7 @@ void RedlichKisterVPSSTP::s_update_dlnActCoeff_dX_() const
             }
         }
 
-        for (k = 0; k < m_kk; k++) {
+        for (size_t k = 0; k < m_kk; k++) {
             if (iA == k) {
 
                 dlnActCoeff_dX_(k, iA) += (- XB * sum + (1.0 - XA) * XB * sumMm1
@@ -938,9 +932,9 @@ void RedlichKisterVPSSTP::getdlnActCoeffds(const doublereal dTds, const doublere
 {
     s_update_dlnActCoeff_dT();
     s_update_dlnActCoeff_dX_();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         dlnActCoeffds[k] = dlnActCoeffdT_Scaled_[k] * dTds;
-        for (int l = 0; l < m_kk; l++) {
+        for (size_t l = 0; l < m_kk; l++) {
             dlnActCoeffds[k] += dlnActCoeff_dX_(k, l) * dXds[l];
         }
     }
@@ -950,9 +944,9 @@ void RedlichKisterVPSSTP::getdlnActCoeffds(const doublereal dTds, const doublere
 void RedlichKisterVPSSTP::getdlnActCoeffdlnN_diag(doublereal* dlnActCoeffdlnN_diag) const
 {
     s_update_dlnActCoeff_dX_();
-    for (int l = 0; l < m_kk; l++) {
+    for (size_t l = 0; l < m_kk; l++) {
         dlnActCoeffdlnN_diag[l] = dlnActCoeff_dX_(l, l);
-        for (int k = 0; k < m_kk; k++) {
+        for (size_t k = 0; k < m_kk; k++) {
             dlnActCoeffdlnN_diag[k] -= dlnActCoeff_dX_(l, k) * moleFractions_[k];
         }
     }
@@ -961,7 +955,7 @@ void RedlichKisterVPSSTP::getdlnActCoeffdlnN_diag(doublereal* dlnActCoeffdlnN_di
 void RedlichKisterVPSSTP::getdlnActCoeffdlnX_diag(doublereal* dlnActCoeffdlnX_diag) const
 {
     s_update_dlnActCoeff_dX_();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         dlnActCoeffdlnX_diag[k] = dlnActCoeffdlnX_diag_[k];
     }
 }
@@ -970,8 +964,8 @@ void RedlichKisterVPSSTP::getdlnActCoeffdlnN(const int ld, doublereal* dlnActCoe
 {
     s_update_dlnActCoeff_dX_();
     double* data =  & dlnActCoeffdlnN_(0,0);
-    for (int k = 0; k < m_kk; k++) {
-        for (int m = 0; m < m_kk; m++) {
+    for (size_t k = 0; k < m_kk; k++) {
+        for (size_t m = 0; m < m_kk; m++) {
             dlnActCoeffdlnN[ld * k + m] = data[m_kk * k + m];
         }
     }

@@ -409,14 +409,14 @@ inline void ct_dgeqrf(int m, int n, doublereal* a, int lda, doublereal* tau,
 //====================================================================================================================
 inline void ct_dormqr(ctlapack::side_t rlside, ctlapack::transpose_t trans, int m,
                       int n, int k, doublereal* a, int lda, doublereal* tau, doublereal* c, int ldc,
-                      doublereal* work, int lwork, int& info)
+                      doublereal* work, size_t lwork, int& info)
 {
     char side = left_right[rlside];
     char tr = no_yes[trans];
     integer f_m = m;
     integer f_n = n;
     integer f_k = k;
-    integer f_lwork = lwork;
+    integer f_lwork = static_cast<integer>(lwork);
     integer f_lda = lda;
     integer f_ldc = ldc;
     integer f_info = info;

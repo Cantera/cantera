@@ -96,7 +96,7 @@ public:
      *
      *  Returns a changeable reference to the matrix entry
      */
-    doublereal& operator()(int i, int j);
+    doublereal& operator()(size_t i, size_t j);
 
 
     //! Constant index into the (i,j) element
@@ -106,7 +106,7 @@ public:
      *
      *  Returns an unchangeable reference to the matrix entry
      */
-    doublereal operator()(int i, int j) const;
+    doublereal operator()(size_t i, size_t j) const;
 
     //! Return a changeable reference to element (i,j).
     /*!
@@ -118,7 +118,7 @@ public:
      *
      *  @return Returns a reference to the value of the matrix entry
      */
-    doublereal& value(int i, int j);
+    doublereal& value(size_t i, size_t j);
 
 
     //! Return the value of element (i,j).
@@ -129,7 +129,7 @@ public:
      *
      *  @return Returns the value of the matrix entry
      */
-    doublereal value(int i, int j) const;
+    doublereal value(size_t i, size_t j) const;
 
     //! Returns the location in the internal 1D array corresponding to the (i,j) element in the banded array
     /*!
@@ -138,7 +138,7 @@ public:
      *
      * @return  Returns the index of the matrix entry
      */
-    int index(int i, int j) const;
+    size_t index(size_t i, size_t j) const;
 
     //! Return the value of the (i,j) element for (i,j) within the bandwidth.
     /*!
@@ -150,7 +150,7 @@ public:
      *
      *   @return   Returns the value of the matrix entry
      */
-    doublereal _value(int i, int j) const;
+    doublereal _value(size_t i, size_t j) const;
 
     //! Returns the number of rows
     virtual size_t nRows() const;
@@ -168,16 +168,16 @@ public:
     virtual size_t nRowsAndStruct(int* const iStruct = 0) const;
 
     //! Number of columns
-    int nColumns() const;
+    size_t nColumns() const;
 
     //! Number of subdiagonals
-    int nSubDiagonals() const;
+    size_t nSubDiagonals() const;
 
     //! Number of superdiagonals
-    int nSuperDiagonals() const;
+    size_t nSuperDiagonals() const;
 
     //! Return the number of rows of storage needed for the band storage
-    int ldim() const;
+    size_t ldim() const;
 
     //! Return a reference to the pivot vector
     /*!
@@ -337,7 +337,7 @@ public:
      *
      *  @return  Returns a pointer to the top of the column
      */
-    virtual doublereal* ptrColumn(int j);
+    virtual doublereal* ptrColumn(size_t j);
 
     //! Return a vector of const pointers to the columns
     /*!
@@ -347,7 +347,7 @@ public:
      *   @return returns a vector of pointers to the top of the columns
      *           of the matrices.
      */
-    virtual doublereal*   const* colPts();
+    virtual doublereal* const* colPts();
 
     //! Copy the data from one array into another without doing any checking
     /*!
@@ -369,7 +369,7 @@ public:
      *
      * @return index of the row that is most nearly zero
      */
-    virtual int checkRows(doublereal& valueSmall) const;
+    virtual size_t checkRows(doublereal& valueSmall) const;
 
     //! Check to see if we have any zero columns in the jacobian
     /*!
@@ -380,7 +380,7 @@ public:
      *
      * @return index of the column that is most nearly zero
      */
-    virtual int checkColumns(doublereal& valueSmall) const;
+    virtual size_t checkColumns(doublereal& valueSmall) const;
 
 protected:
 
@@ -394,13 +394,13 @@ protected:
     bool m_factored;
 
     //! Number of rows and columns of the matrix
-    int m_n;
+    size_t m_n;
 
     //! Number of subdiagonals of the matrix
-    int m_kl;
+    size_t m_kl;
 
     //! Number of super diagonals of the matrix
-    int m_ku;
+    size_t m_ku;
 
     //! value of zero
     doublereal m_zero;
