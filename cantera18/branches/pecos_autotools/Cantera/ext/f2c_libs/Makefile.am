@@ -36,7 +36,7 @@ cc_sources              = abort_.c c_log.c d_atn2.c dfe.c d_prod.c \
 
 # arithchk.c getarg_.c iargc_.c 
 
-h_sources               = f2c.h sysdep1.h fio.h fmt.h fp.h lio.h rawio.h
+h_sources               = f2c.h sysdep1.h fio.h fmt.h fp.h lio.h rawio.h arith.h
 
 AM_CPPFLAGS             = -I.
 AM_CXXFLAGS             = $(AM_CPPFLAGS)
