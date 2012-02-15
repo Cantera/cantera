@@ -1,5 +1,5 @@
 h_sources               = Methane.h Nitrogen.h Oxygen.h Water.h Hydrogen.h RedlichKwong.h \
-		          CarbonDioxide.h Heptane.h lk.h Sub.h utils.h HFC134a.h
+		          CarbonDioxide.h Heptane.h lk.h Sub.h subs.h utils.h HFC134a.h
 
 cc_sources              = Methane.cpp Nitrogen.cpp Oxygen.cpp Water.cpp Hydrogen.cpp RedlichKwong.cpp \
 		          CarbonDioxide.cpp Heptane.cpp lk.cpp Sub.cpp utils.cpp HFC134a.cpp
