@@ -27,7 +27,7 @@ int iDebug_HKM = 0;
 /*****************************************************************/
 
 #include "Cantera.h"
-#include "kinetics.h"
+#include "kinetics_interface.h"
 
 
 using namespace Cantera;
