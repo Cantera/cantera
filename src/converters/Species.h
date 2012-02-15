@@ -1,9 +1,7 @@
 /**
  *  @file Species.h
- *
  */
 // Copyright 2001  California Institute of Technology
-
 
 #ifndef CKR_SPECIES_H
 #define CKR_SPECIES_H
@@ -12,9 +10,6 @@
 #include "Constituent.h"
 #include <map>
 #include <vector>
-
-//#include "cantera/Cantera.h"
-
 
 namespace ckr
 {

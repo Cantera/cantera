@@ -3,7 +3,6 @@
 #include <cmath>
 #include <sstream>
 
-#include "cantera/Cantera.h"
 #include "cantera/base/PrintCtrl.h"
 #include "base/LogPrintCtrl.h"
 

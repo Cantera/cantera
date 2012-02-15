@@ -2,7 +2,6 @@
  *  @file HMW_graph_VvT
  */
 
-#include "cantera/Cantera.h"
 #include "cantera/base/logger.h"
 #include "cantera/thermo.h"
 #include "TemperatureTable.h"

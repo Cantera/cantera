@@ -15,15 +15,12 @@
 //  working correctly
 //
 
-#include <iostream>
-#include <string>
-#include <vector>
-
-
-#include "cantera/Cantera.h"
 #include "cantera/thermo/IdealSolidSolnPhase.h"
 #include "cantera/thermo/IdealSolnGasVPSS.h"
 
+#include <iostream>
+#include <string>
+#include <vector>
 #include <cstdio>
 
 using namespace std;

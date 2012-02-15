@@ -1,11 +1,9 @@
-#include "cantera/Cantera.h"
 #include "cantera/thermo.h"
 #include "cantera/thermo/WaterSSTP.h"
 
 #include <cstdio>
 #include <cmath>
 
-#include <new>
 using namespace std;
 using namespace Cantera;
 

@@ -17,6 +17,9 @@
 
 // perhaps, later, an analytical solution could be added
 
+#include "cantera/transport.h"
+#include "cantera/IdealGasMix.h"
+#include "cantera/transport/TransportFactory.h"
 
 #include <iostream>
 #include <string>
@@ -25,20 +28,9 @@
 #include <iomanip>
 
 using namespace std;
-
+using namespace Cantera;
 
 #define MAX(x,y) (( (x) > (y) ) ? (x) : (y))
-
-/*****************************************************************/
-/*****************************************************************/
-
-#include "cantera/Cantera.h"
-#include "cantera/transport.h"
-#include "cantera/IdealGasMix.h"
-
-#include "cantera/transport/TransportFactory.h"
-
-using namespace Cantera;
 
 void printDbl(double val)
 {

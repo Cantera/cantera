@@ -1,6 +1,5 @@
 /**
  *  @file runDiamond.cpp
- *
  */
 
 //  Example
@@ -10,6 +9,7 @@
 // user-friendly. This could be rewritten using class Interface to
 // make things simpler.
 
+#include "cantera/kinetics.h"
 
 #include <iostream>
 #include <string>
@@ -18,18 +18,6 @@
 #include <iomanip>
 
 using namespace std;
-
-#ifdef DEBUG_HKM
-int iDebug_HKM = 0;
-#endif
-
-/*****************************************************************/
-/*****************************************************************/
-/*****************************************************************/
-
-#include "cantera/Cantera.h"
-#include "cantera/kinetics.h"
-
 using namespace Cantera;
 
 void printDbl(double val)

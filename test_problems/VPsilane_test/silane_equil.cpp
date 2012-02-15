@@ -2,7 +2,6 @@
  *  Copyright 2002 California Institute of Technology
  */
 
-#include "cantera/Cantera.h"
 #include "cantera/IdealGasMix.h"
 #include "cantera/equilibrium.h"
 #include "cantera/thermo/IdealSolnGasVPSS.h"
