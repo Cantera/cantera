@@ -53,8 +53,7 @@ static void print_funcEval(FILE* fp, double xval, double fval, int its)
  *   #include <cmath>
  *   #include <cstdlib>
  *
- *   #include "cantera/Cantera.h"
- *   #include "kernel/vcs_internal.h"
+  *   #include "equil/vcs_internal.h"
  *
  *   const double g_cgs = 980.;
  *   const double mass_cyl = 0.066;

@@ -6,7 +6,6 @@
 #define CXX_INTERFACE
 
 #include <string>
-#include "Cantera.h"
 #include "thermo.h"
 #include "kinetics.h"
 

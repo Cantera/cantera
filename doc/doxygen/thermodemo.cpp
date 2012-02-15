@@ -1,5 +1,5 @@
+#include "cantera/thermo.h"
 
-#include <cantera/Cantera.h>
 
 void thermo_demo(string file, string phase)
 {

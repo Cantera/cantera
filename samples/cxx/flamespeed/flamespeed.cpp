@@ -1,4 +1,3 @@
-#include <cantera/Cantera.h>
 #include <cantera/onedim.h>
 #include <cantera/IdealGasMix.h>
 #include <cantera/equilibrium.h>

@@ -6,7 +6,6 @@
 //
 /////////////////////////////////////////////////////////////
 
-#include <cantera/Cantera.h>
 #include <cantera/zerodim.h>
 #include <cantera/IdealGasMix.h>
 #include <cantera/numerics.h>

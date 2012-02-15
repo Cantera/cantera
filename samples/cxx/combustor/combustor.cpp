@@ -7,7 +7,6 @@
 // igniter is a pulsed flow of atomic hydrogen. After the igniter is
 // turned off, the system approaches the steady burning solution."""
 
-#include <cantera/Cantera.h>
 #include <cantera/zerodim.h>
 #include <cantera/IdealGasMix.h>
 
