@@ -2,10 +2,10 @@ include $(top_srcdir)/doxygen/aminclude.am
 
 # Build in these directories:
 SUBDIRS  = Cantera tools test_problems
-SUBDIRS += doxygen examples 
+SUBDIRS += doxygen examples
 
 # Distribute these directories:
-DISTDIRS = Cantera examples 
+DISTDIRS = Cantera examples build build/include
 
 # generated documentation will be included in distributed archive
 EXTRA_DIST  = bootstrap $(DX_CONFIG)

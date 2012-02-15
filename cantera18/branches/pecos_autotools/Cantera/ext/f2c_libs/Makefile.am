@@ -34,13 +34,14 @@ cc_sources              = abort_.c c_log.c d_atn2.c dfe.c d_prod.c \
                           i_nint.c l_lt.c pow_hh.c r_abs.c rdfmt.c \
                           r_mod.c r_sqrt.c signal_.c uio.c xwsne.c 
 
-# arithchk.c getarg_.c iargc_.c 
-
-h_sources               = f2c.h sysdep1.h fio.h fmt.h fp.h lio.h rawio.h arith.h
+h_sources               = f2c.h sysdep1.h fio.h fmt.h fp.h lio.h rawio.h arith.h signal1.h sysdep1.h
 
 AM_CPPFLAGS             = -I.
 AM_CXXFLAGS             = $(AM_CPPFLAGS)
 AM_FCFLAGS              = $(AM_CPPFLAGS)
+
+# extra files
+EXTRA_DIST  = sysdep1.h0 signal1.h0
 
 lib_LTLIBRARIES         = $(top_builddir)/build/lib/libctf2c.la
 library_includedir      = $(top_builddir)/build/include
