@@ -21,3 +21,5 @@ spectroscopy_SOURCES = $(cc_sources)
 
 TESTS_ENVIRONMENT = 
 TESTS             = spectroscopy
+
+EXTRA_DIST = spectroscopy

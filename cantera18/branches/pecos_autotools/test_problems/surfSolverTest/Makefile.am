@@ -23,3 +23,5 @@ surfaceSolver2_SOURCES = $(cc2_sources)
 
 TESTS_ENVIRONMENT = 
 TESTS             = runtest runtest2
+
+EXTRA_DIST = runtest runtest2
