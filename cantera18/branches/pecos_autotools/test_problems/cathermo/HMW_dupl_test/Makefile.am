@@ -1,4 +1,5 @@
 cc_sources = HMW_dupl_test.cpp sortAlgorithms.cpp
+h_sources  = sortAlgorithms.h  TemperatureTable.h
 
 INC                  = -I$(top_builddir)/build/include/
 AM_CPPFLAGS          = $(INC)
@@ -12,6 +13,7 @@ LIBS                 =  $(LINK)
 
 bin_PROGRAMS         = HMW_dupl_test
 library_includedir   = $(INC)
+library_include_HEADERS = $(h_sources)
 
 #-----------------------
 # Cantera DH graph test

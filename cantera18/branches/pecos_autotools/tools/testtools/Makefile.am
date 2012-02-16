@@ -1,5 +1,5 @@
 cc_sources = csvdiff.cpp mdp_allo.cpp tok_input_util.cpp
-h_sources  = mdp_allo.h
+h_sources  = mdp_allo.h tok_input_util.h
 
 AM_CPPFLAGS          = $(INC)
 AM_CXXFLAGS          = $(AM_CPPFLAGS)
@@ -13,3 +13,5 @@ bin_PROGRAMS         = $(top_builddir)/bin/csvdiff
 
 __top_builddir__bin_csvdiff_SOURCES = $(cc_sources)
 
+__top_builddir__bin_csvdiff_include_HEADERS = $(h_sources)
+__top_builddir__bin_csvdiff_includedir      = $(prefix)/include
