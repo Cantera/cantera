@@ -211,7 +211,7 @@ NonlinearSolver::NonlinearSolver(ResidJacEval* func) :
     m_y_high_bounds.resize(neq_, hb);
     m_y_low_bounds.resize(neq_, -hb);
 
-    for (int i = 0; i < neq_; i++) {
+    for (size_t i = 0; i < neq_; i++) {
         atolk_[i] = atolBase_;
         m_ewt[i] = atolk_[i];
     }
@@ -441,7 +441,7 @@ NonlinearSolver& NonlinearSolver::operator=(const NonlinearSolver& right)
  */
 void NonlinearSolver::createSolnWeights(const doublereal* const y)
 {
-    for (int i = 0; i < neq_; i++) {
+    for (size_t i = 0; i < neq_; i++) {
         m_ewt[i] = rtol_ * fabs(y[i]) + atolk_[i];
     }
 }
@@ -455,7 +455,7 @@ void NonlinearSolver::createSolnWeights(const doublereal* const y)
 void NonlinearSolver::setBoundsConstraints(const doublereal* const y_low_bounds,
         const doublereal* const y_high_bounds)
 {
-    for (int i = 0; i < neq_; i++) {
+    for (size_t i = 0; i < neq_; i++) {
         m_y_low_bounds[i]  = y_low_bounds[i];
         m_y_high_bounds[i] = y_high_bounds[i];
     }
@@ -495,9 +495,8 @@ std::vector<doublereal> &  NonlinearSolver::highBoundsConstraintVector()
 doublereal NonlinearSolver::solnErrorNorm(const doublereal* const delta_y, const char* title, int printLargest,
         const doublereal dampFactor) const
 {
-    int  i;
     doublereal sum_norm = 0.0, error;
-    for (i = 0; i < neq_; i++) {
+    for (size_t i = 0; i < neq_; i++) {
         error     = delta_y[i] / m_ewt[i];
         sum_norm += (error * error);
     }
@@ -513,9 +512,6 @@ doublereal NonlinearSolver::solnErrorNorm(const doublereal* const delta_y, const
             }
             printf(" = %-11.4E\n", sum_norm);
         } else if (m_print_flag >= 6) {
-
-
-
             const int num_entries = printLargest;
             printf("\t\t   ");
             print_line("-", 90);
@@ -529,7 +525,7 @@ doublereal NonlinearSolver::solnErrorNorm(const doublereal* const delta_y, const
 
             doublereal dmax1, normContrib;
             int j;
-            int* imax = mdp::mdp_alloc_int_1(num_entries, -1);
+            std::vector<size_t> imax(num_entries, npos);
             printf("\t\t        Printout of Largest Contributors:                     (damp = %g)\n", dampFactor);
             printf("\t\t        I   weightdeltaY/sqtN|     deltaY    "
                    "ysolnOld     ysolnNew   Soln_Weights\n");
@@ -538,7 +534,7 @@ doublereal NonlinearSolver::solnErrorNorm(const doublereal* const delta_y, const
 
             for (int jnum = 0; jnum < num_entries; jnum++) {
                 dmax1 = -1.0;
-                for (i = 0; i < neq_; i++) {
+                for (size_t i = 0; i < neq_; i++) {
                     bool used = false;
                     for (j = 0; j < jnum; j++) {
                         if (imax[j] == i) {
@@ -554,8 +550,8 @@ doublereal NonlinearSolver::solnErrorNorm(const doublereal* const delta_y, const
                         }
                     }
                 }
-                i = imax[jnum];
-                if (i >= 0) {
+                size_t i = imax[jnum];
+                if (i != npos) {
                     error = delta_y[i] / m_ewt[i];
                     normContrib = sqrt(error * error);
                     printf("\t\t     %4d %12.4e       | %12.4e %12.4e %12.4e %12.4e\n", i, normContrib/sqrt((double)neq_),
@@ -565,7 +561,6 @@ doublereal NonlinearSolver::solnErrorNorm(const doublereal* const delta_y, const
             }
             printf("\t\t   ");
             print_line("-", 90);
-            mdp::mdp_safe_free((void**) &imax);
         }
     }
     return sum_norm;
@@ -581,10 +576,9 @@ doublereal NonlinearSolver::solnErrorNorm(const doublereal* const delta_y, const
 doublereal NonlinearSolver::residErrorNorm(const doublereal* const resid, const char* title, const int printLargest,
         const doublereal* const y) const
 {
-    int    i;
     doublereal sum_norm = 0.0, error;
 
-    for (i = 0; i < neq_; i++) {
+    for (size_t i = 0; i < neq_; i++) {
 #ifdef DEBUG_HKM
         mdp::checkFinite(resid[i]);
 #endif
@@ -602,7 +596,7 @@ doublereal NonlinearSolver::residErrorNorm(const doublereal* const resid, const 
         const int num_entries = printLargest;
         doublereal dmax1, normContrib;
         int j;
-        int* imax = mdp::mdp_alloc_int_1(num_entries, -1);
+        std::vector<size_t> imax(num_entries, npos);
 
         if (m_print_flag >= 4 && m_print_flag <= 5) {
             printf("\t\t   residErrorNorm():");
@@ -629,7 +623,7 @@ doublereal NonlinearSolver::residErrorNorm(const doublereal* const resid, const 
             print_line("-", 88);
             for (int jnum = 0; jnum < num_entries; jnum++) {
                 dmax1 = -1.0;
-                for (i = 0; i < neq_; i++) {
+                for (size_t i = 0; i < neq_; i++) {
                     bool used = false;
                     for (j = 0; j < jnum; j++) {
                         if (imax[j] == i) {
@@ -645,8 +639,8 @@ doublereal NonlinearSolver::residErrorNorm(const doublereal* const resid, const 
                         }
                     }
                 }
-                i = imax[jnum];
-                if (i >= 0) {
+                size_t i = imax[jnum];
+                if (i != npos) {
                     error = resid[i] / m_residWts[i];
                     normContrib = sqrt(error * error);
                     printf("\t\t     %4d     %12.4e     %12.4e     %12.4e | %12.4e\n", i,  normContrib, resid[i], m_residWts[i], y[i]);
@@ -656,7 +650,6 @@ doublereal NonlinearSolver::residErrorNorm(const doublereal* const resid, const 
             printf("\t\t   ");
             print_line("-", 90);
         }
-        mdp::mdp_safe_free((void**) &imax);
     }
     return sum_norm;
 }
@@ -686,7 +679,7 @@ void NonlinearSolver::setColumnScaling(bool useColScaling, const double* const s
     if (useColScaling) {
         if (scaleFactors) {
             m_colScaling = 2;
-            for (int i = 0; i < neq_; i++) {
+            for (size_t i = 0; i < neq_; i++) {
                 m_colScales[i] = scaleFactors[i];
                 if (m_colScales[i] <= 1.0E-200) {
                     throw CanteraError("NonlinearSolver::setColumnScaling() ERROR", "Bad column scale factor");
@@ -719,11 +712,11 @@ void NonlinearSolver::setRowScaling(bool useRowScaling)
 void NonlinearSolver::calcColumnScales()
 {
     if (m_colScaling == 1) {
-        for (int i = 0; i < neq_; i++) {
+        for (size_t i = 0; i < neq_; i++) {
             m_colScales[i] = m_ewt[i];
         }
     } else {
-        for (int i = 0; i < neq_; i++) {
+        for (size_t i = 0; i < neq_; i++) {
             m_colScales[i] = 1.0;
         }
     }
@@ -913,32 +906,32 @@ void NonlinearSolver::calcSolnToResNormVector()
 
         if (checkUserResidualTols_ != 1) {
             doublereal sum = 0.0;
-            for (int irow = 0; irow < neq_; irow++) {
+            for (size_t irow = 0; irow < neq_; irow++) {
                 m_residWts[irow] = m_rowWtScales[irow] / neq_;
                 sum += m_residWts[irow];
             }
             sum /= neq_;
-            for (int irow = 0; irow < neq_; irow++) {
+            for (size_t irow = 0; irow < neq_; irow++) {
                 m_residWts[irow] = (m_residWts[irow] + atolBase_ * atolBase_ * sum);
             }
             if (checkUserResidualTols_ == 2) {
-                for (int irow = 0; irow < neq_; irow++) {
+                for (size_t irow = 0; irow < neq_; irow++) {
                     m_residWts[irow] = MIN(m_residWts[irow], userResidAtol_[irow] + userResidRtol_ * m_rowWtScales[irow] / neq_);
                 }
             }
         } else {
-            for (int irow = 0; irow < neq_; irow++) {
+            for (size_t irow = 0; irow < neq_; irow++) {
                 m_residWts[irow] = userResidAtol_[irow] + userResidRtol_ * m_rowWtScales[irow] / neq_;
             }
         }
 
 
-        for (int irow = 0; irow < neq_; irow++) {
+        for (size_t irow = 0; irow < neq_; irow++) {
             m_wksp[irow] = 0.0;
         }
         doublereal* jptr = &(jacCopyPtr_->operator()(0,0));
-        for (int jcol = 0; jcol < neq_; jcol++) {
-            for (int irow = 0; irow < neq_; irow++) {
+        for (size_t jcol = 0; jcol < neq_; jcol++) {
+            for (size_t irow = 0; irow < neq_; irow++) {
                 m_wksp[irow] += (*jptr) * m_ewt[jcol];
                 jptr++;
             }
@@ -946,7 +939,7 @@ void NonlinearSolver::calcSolnToResNormVector()
         doublereal resNormOld = 0.0;
         doublereal error;
 
-        for (int irow = 0; irow < neq_; irow++) {
+        for (size_t irow = 0; irow < neq_; irow++) {
             error = m_wksp[irow] /  m_residWts[irow];
             resNormOld  += error * error;
         }
@@ -983,22 +976,17 @@ int NonlinearSolver::doNewtonSolve(const doublereal time_curr, const doublereal*
                                    const doublereal* const ydot_curr,  doublereal* const delta_y,
                                    GeneralMatrix& jac)
 {
-    int irow;
-
-
     // multiply the residual by -1
     if (m_rowScaling  && !m_resid_scaled) {
-        for (int n = 0; n < neq_; n++) {
+        for (size_t n = 0; n < neq_; n++) {
             delta_y[n] = -m_rowScales[n] * m_resid[n];
         }
         m_resid_scaled = true;
     } else {
-        for (int n = 0; n < neq_; n++) {
+        for (size_t n = 0; n < neq_; n++) {
             delta_y[n] = -m_resid[n];
         }
     }
-
-
 
     /*
      * Solve the system -> This also involves inverting the
@@ -1006,19 +994,18 @@ int NonlinearSolver::doNewtonSolve(const doublereal time_curr, const doublereal*
      */
     int info = jac.solve(DATA_PTR(delta_y));
 
-
     /*
      * reverse the column scaling if there was any.
      */
     if (m_colScaling) {
-        for (irow = 0; irow < neq_; irow++) {
+        for (size_t irow = 0; irow < neq_; irow++) {
             delta_y[irow] = delta_y[irow] * m_colScales[irow];
         }
     }
 
 #ifdef DEBUG_JAC
     if (printJacContributions) {
-        for (int iNum = 0; iNum < numRows; iNum++) {
+        for (size_t iNum = 0; iNum < numRows; iNum++) {
             if (iNum > 0) {
                 focusRow++;
             }
@@ -1040,7 +1027,7 @@ int NonlinearSolver::doNewtonSolve(const doublereal time_curr, const doublereal*
                    focusRow, delta_y[focusRow],
                    dRow, RRow[iNum] / dRow, RRow[iNum]);
             dsum +=  RRow[iNum] / dRow;
-            for (int ii = 0; ii < neq_; ii++) {
+            for (size_t ii = 0; ii < neq_; ii++) {
                 if (ii != focusRow) {
                     doublereal aij =  Jdata[neq_ * ii + focusRow];
                     doublereal contrib = aij * delta_y[ii] * (-1.0) / dRow;
@@ -1081,7 +1068,6 @@ int NonlinearSolver::doAffineNewtonSolve(const doublereal* const y_curr,   const
         doublereal* const delta_y, GeneralMatrix& jac)
 {
     bool newtonGood = true;
-    int irow;
     doublereal* delyNewton = 0;
     // We can default to QR here ( or not )
     jac.useFactorAlgorithm(1);
@@ -1089,12 +1075,12 @@ int NonlinearSolver::doAffineNewtonSolve(const doublereal* const y_curr,   const
     // multiplyl the residual by -1
     // Scale the residual if there is row scaling. Note, the matrix has already been scaled
     if (m_rowScaling  && !m_resid_scaled) {
-        for (int n = 0; n < neq_; n++) {
+        for (size_t n = 0; n < neq_; n++) {
             delta_y[n] = -m_rowScales[n] * m_resid[n];
         }
         m_resid_scaled = true;
     } else {
-        for (int n = 0; n < neq_; n++) {
+        for (size_t n = 0; n < neq_; n++) {
             delta_y[n] = -m_resid[n];
         }
     }
@@ -1161,7 +1147,7 @@ int NonlinearSolver::doAffineNewtonSolve(const doublereal* const y_curr,   const
          * reverse the column scaling if there was any on a successful solve
          */
         if (m_colScaling) {
-            for (irow = 0; irow < neq_; irow++) {
+            for (size_t irow = 0; irow < neq_; irow++) {
                 delta_y[irow] = delta_y[irow] * m_colScales[irow];
             }
         }
@@ -1186,7 +1172,7 @@ int NonlinearSolver::doAffineNewtonSolve(const doublereal* const y_curr,   const
         // Store the old value for later comparison
 
         delyNewton = mdp::mdp_alloc_dbl_1((int) neq_, MDP_DBL_NOINIT);
-        for (irow = 0; irow < neq_; irow++) {
+        for (size_t irow = 0; irow < neq_; irow++) {
             delyNewton[irow] = delta_y[irow];
         }
 
@@ -1202,18 +1188,18 @@ int NonlinearSolver::doAffineNewtonSolve(const doublereal* const y_curr,   const
         GeneralMatrix& jacCopy = *jacCopyPtr_;
         hessian.zero();
         if (m_rowScaling) {
-            for (int i = 0; i < neq_; i++) {
-                for (int j = i; j < neq_; j++) {
-                    for (int k = 0; k < neq_; k++) {
+            for (size_t i = 0; i < neq_; i++) {
+                for (size_t j = i; j < neq_; j++) {
+                    for (size_t k = 0; k < neq_; k++) {
                         hessian(i,j) += jacCopy(k,i) * jacCopy(k,j) * m_rowScales[k] * m_rowScales[k];
                     }
                     hessian(j,i) = hessian(i,j);
                 }
             }
         } else {
-            for (int i = 0; i < neq_; i++) {
-                for (int j = i; j < neq_; j++) {
-                    for (int k = 0; k < neq_; k++) {
+            for (size_t i = 0; i < neq_; i++) {
+                for (size_t j = i; j < neq_; j++) {
+                    for (size_t k = 0; k < neq_; k++) {
                         hessian(i,j) += jacCopy(k,i) * jacCopy(k,j);
                     }
                     hessian(j,i) = hessian(i,j);
@@ -1227,11 +1213,11 @@ int NonlinearSolver::doAffineNewtonSolve(const doublereal* const y_curr,   const
         doublereal hnorm = 0.0;
         doublereal hcol = 0.0;
         if (m_colScaling) {
-            for (int i = 0; i < neq_; i++) {
-                for (int j = i; j < neq_; j++) {
+            for (size_t i = 0; i < neq_; i++) {
+                for (size_t j = i; j < neq_; j++) {
                     hcol += fabs(hessian(j,i)) * m_colScales[j];
                 }
-                for (int j = i+1; j < neq_; j++) {
+                for (size_t j = i+1; j < neq_; j++) {
                     hcol += fabs(hessian(i,j)) * m_colScales[j];
                 }
                 hcol *= m_colScales[i];
@@ -1240,11 +1226,11 @@ int NonlinearSolver::doAffineNewtonSolve(const doublereal* const y_curr,   const
                 }
             }
         } else {
-            for (int i = 0; i < neq_; i++) {
-                for (int j = i; j < neq_; j++) {
+            for (size_t i = 0; i < neq_; i++) {
+                for (size_t j = i; j < neq_; j++) {
                     hcol += fabs(hessian(j,i));
                 }
-                for (int j = i+1; j < neq_; j++) {
+                for (size_t j = i+1; j < neq_; j++) {
                     hcol += fabs(hessian(i,j));
                 }
                 if (hcol > hnorm) {
@@ -1263,11 +1249,11 @@ int NonlinearSolver::doAffineNewtonSolve(const doublereal* const y_curr,   const
         }
 #endif
         if (m_colScaling) {
-            for (int i = 0; i < neq_; i++) {
+            for (size_t i = 0; i < neq_; i++) {
                 hessian(i,i) += hcol / (m_colScales[i] * m_colScales[i]);
             }
         } else {
-            for (int i = 0; i < neq_; i++) {
+            for (size_t i = 0; i < neq_; i++) {
                 hessian(i,i) += hcol;
             }
         }
@@ -1288,31 +1274,30 @@ int NonlinearSolver::doAffineNewtonSolve(const doublereal* const y_curr,   const
         doublereal* delyH = mdp::mdp_alloc_dbl_1((int) neq_, MDP_DBL_NOINIT);
         // First recalculate the scaled residual. It got wiped out doing the newton solve
         if (m_rowScaling) {
-            for (int n = 0; n < neq_; n++) {
+            for (size_t n = 0; n < neq_; n++) {
                 delyH[n] = -m_rowScales[n] * m_resid[n];
             }
         } else {
-            for (int n = 0; n < neq_; n++) {
+            for (size_t n = 0; n < neq_; n++) {
                 delyH[n] = -m_resid[n];
             }
         }
 
         if (m_rowScaling) {
-            for (int j = 0; j < neq_; j++) {
+            for (size_t j = 0; j < neq_; j++) {
                 delta_y[j] = 0.0;
-                for (int i = 0; i < neq_; i++) {
+                for (size_t i = 0; i < neq_; i++) {
                     delta_y[j] += delyH[i] * jacCopy(i,j) * m_rowScales[i];
                 }
             }
         } else {
-            for (int j = 0; j < neq_; j++) {
+            for (size_t j = 0; j < neq_; j++) {
                 delta_y[j] = 0.0;
-                for (int i = 0; i < neq_; i++) {
+                for (size_t i = 0; i < neq_; i++) {
                     delta_y[j] += delyH[i] * jacCopy(i,j);
                 }
             }
         }
-
 
         /*
          * Solve the factored Hessian System
@@ -1328,7 +1313,7 @@ int NonlinearSolver::doAffineNewtonSolve(const doublereal* const y_curr,   const
          * reverse the column scaling if there was any.
          */
         if (m_colScaling) {
-            for (irow = 0; irow < neq_; irow++) {
+            for (size_t irow = 0; irow < neq_; irow++) {
                 delta_y[irow] = delta_y[irow] * m_colScales[irow];
             }
         }
@@ -1348,7 +1333,7 @@ int NonlinearSolver::doAffineNewtonSolve(const doublereal* const y_curr,   const
             printf("\t\t            Norm: %12.4E %12.4E\n", normHess, normNewt);
 
             printf("\t\t          --------------------------------------------------------\n");
-            for (int i =0; i < neq_; i++) {
+            for (size_t i =0; i < neq_; i++) {
                 printf("\t\t             %3d  %13.5E %13.5E\n", i, delta_y[i], delyNewton[i]);
             }
             printf("\t\t          --------------------------------------------------------\n");
@@ -1441,12 +1426,12 @@ doublereal NonlinearSolver::doCauchyPointSolve(GeneralMatrix& jac)
      *  Here we calculate the steepest descent direction. This is equation (11) in the notes. It is
      *  storred in deltaX_CP_[].The value corresponds to d_descent[].
      */
-    for (int j = 0; j < neq_; j++) {
+    for (size_t j = 0; j < neq_; j++) {
         deltaX_CP_[j] = 0.0;
         if (m_colScaling) {
             colFac = 1.0 / m_colScales[j];
         }
-        for (int i = 0; i < neq_; i++) {
+        for (size_t i = 0; i < neq_; i++) {
             if (m_rowScaling) {
                 rowFac = 1.0 / m_rowScales[i];
             }
@@ -1461,14 +1446,14 @@ doublereal NonlinearSolver::doCauchyPointSolve(GeneralMatrix& jac)
     /*
      *  Calculate J_hat d_y_descent. This is formula 18 in the notes.
      */
-    for (int i = 0; i < neq_; i++) {
+    for (size_t i = 0; i < neq_; i++) {
         Jd_[i] = 0.0;
         if (m_rowScaling) {
             rowFac = 1.0 / m_rowScales[i];
         } else {
             rowFac = 1.0;
         }
-        for (int j = 0; j < neq_; j++) {
+        for (size_t j = 0; j < neq_; j++) {
             if (m_colScaling) {
                 colFac = 1.0 / m_colScales[j];
             }
@@ -1482,7 +1467,7 @@ doublereal NonlinearSolver::doCauchyPointSolve(GeneralMatrix& jac)
      */
     RJd_norm_ = 0.0;
     JdJd_norm_ = 0.0;
-    for (int i = 0; i < neq_; i++) {
+    for (size_t i = 0; i < neq_; i++) {
         RJd_norm_ += m_resid[i] * Jd_[i] / m_residWts[i];
         JdJd_norm_ += Jd_[i] * Jd_[i];
     }
@@ -1504,7 +1489,7 @@ doublereal NonlinearSolver::doCauchyPointSolve(GeneralMatrix& jac)
      *  Cauchy distance. From now on, if we want to recreate the descent vector, we have
      *  to unnormalize it by dividing by lambdaStar_.
      */
-    for (int i = 0; i < neq_; i++) {
+    for (size_t i = 0; i < neq_; i++) {
         deltaX_CP_[i] *= lambdaStar_;
     }
 
@@ -1568,7 +1553,7 @@ void  NonlinearSolver::descentComparison(doublereal time_curr, doublereal* ydot0
             ff = 1.0E-2;
         }
     }
-    for (int i = 0; i < neq_; i++) {
+    for (size_t i = 0; i < neq_; i++) {
         y_n_1[i] = m_y_n_curr[i] + ff * deltaX_CP_[i];
     }
     /*
@@ -1590,7 +1575,7 @@ void  NonlinearSolver::descentComparison(doublereal time_curr, doublereal* ydot0
     if (sNewt > 1.0) {
         ffNewt = ffNewt / sNewt;
     }
-    for (int i = 0; i < neq_; i++) {
+    for (size_t i = 0; i < neq_; i++) {
         y_n_1[i] = m_y_n_curr[i] + ffNewt * deltaX_Newton_[i];
     }
     /*
@@ -1661,7 +1646,7 @@ void  NonlinearSolver::descentComparison(doublereal time_curr, doublereal* ydot0
                 if (ii == 12) {
                     ff = ffNewt;
                 }
-                for (int i = 0; i < neq_; i++) {
+                for (size_t i = 0; i < neq_; i++) {
                     y_n_1[i] = m_y_n_curr[i] + ff * deltaX_Newton_[i];
                 }
                 numTrials += 1;
@@ -1732,7 +1717,7 @@ void NonlinearSolver::setupDoubleDogleg()
     Nuu_ = beta;
 
     dist_R0_ = m_normDeltaSoln_CP;
-    for (int i = 0; i < neq_; i++) {
+    for (size_t i = 0; i < neq_; i++) {
         m_wksp[i] = Nuu_ * deltaX_Newton_[i] - deltaX_CP_[i];
     }
     dist_R1_ = solnErrorNorm(DATA_PTR(m_wksp));
@@ -1863,9 +1848,9 @@ void NonlinearSolver::residualComparisonLeg(const doublereal time_curr, const do
     alphaT.push_back(0.50);
     alphaT.push_back(0.75);
     alphaT.push_back(1.0);
-    for (int iteration = 0; iteration < (int) alphaT.size(); iteration++) {
+    for (size_t iteration = 0; iteration < alphaT.size(); iteration++) {
         alpha = alphaT[iteration];
-        for (int i = 0; i < neq_; i++) {
+        for (size_t i = 0; i < neq_; i++) {
             y1[i] = m_y_n_curr[i] + alpha * deltaX_CP_[i];
         }
         if (solnType_ != NSOLN_TYPE_STEADY_STATE) {
@@ -1898,9 +1883,9 @@ void NonlinearSolver::residualComparisonLeg(const doublereal time_curr, const do
         }
     }
 
-    for (int iteration = 0; iteration < (int) alphaT.size(); iteration++) {
+    for (size_t iteration = 0; iteration < alphaT.size(); iteration++) {
         doublereal alpha = alphaT[iteration];
-        for (int i = 0; i < neq_; i++) {
+        for (size_t i = 0; i < neq_; i++) {
             y1[i] = m_y_n_curr[i] + (1.0 - alpha) * deltaX_CP_[i];
             y1[i] += alpha * Nuu_ * deltaX_Newton_[i];
         }
@@ -1917,7 +1902,7 @@ void NonlinearSolver::residualComparisonLeg(const doublereal time_curr, const do
             doResidualCalc(time_curr, solnType_, y1, ydot0, Base_LaggedSolutionComponents);
         }
 
-        for (int i = 0; i < neq_; i++) {
+        for (size_t i = 0; i < neq_; i++) {
             y1[i] -= m_y_n_curr[i];
         }
         sLen = solnErrorNorm(DATA_PTR(y1));
@@ -1937,9 +1922,9 @@ void NonlinearSolver::residualComparisonLeg(const doublereal time_curr, const do
         }
     }
 
-    for (int iteration = 0; iteration < (int) alphaT.size(); iteration++) {
+    for (size_t iteration = 0; iteration < alphaT.size(); iteration++) {
         doublereal alpha = alphaT[iteration];
-        for (int i = 0; i < neq_; i++) {
+        for (size_t i = 0; i < neq_; i++) {
             y1[i] = m_y_n_curr[i] + (Nuu_ + alpha * (1.0 - Nuu_))* deltaX_Newton_[i];
         }
         if (solnType_ != NSOLN_TYPE_STEADY_STATE) {
@@ -1981,7 +1966,7 @@ void NonlinearSolver::residualComparisonLeg(const doublereal time_curr, const do
             if (legBest == 0) {
                 sLen = alpha * solnErrorNorm(DATA_PTR(deltaX_CP_));
             } else if (legBest == 1) {
-                for (int i = 0; i < neq_; i++) {
+                for (size_t i = 0; i < neq_; i++) {
                     y1[i] = (1.0 - alphaBest) * deltaX_CP_[i];
                     y1[i] += alphaBest * Nuu_ * deltaX_Newton_[i];
                 }
@@ -2009,7 +1994,7 @@ doublereal  NonlinearSolver::trustRegionLength() const
 //====================================================================================================================
 void  NonlinearSolver::setDefaultDeltaBoundsMagnitudes()
 {
-    for (int i = 0; i < neq_; i++) {
+    for (size_t i = 0; i < neq_; i++) {
         m_deltaStepMinimum[i] = 1000. * atolk_[i];
         m_deltaStepMinimum[i] = MAX(m_deltaStepMinimum[i], 0.1 * fabs(m_y_n_curr[i]));
     }
@@ -2017,7 +2002,7 @@ void  NonlinearSolver::setDefaultDeltaBoundsMagnitudes()
 //====================================================================================================================
 void  NonlinearSolver::adjustUpStepMinimums()
 {
-    for (int i = 0; i < neq_; i++) {
+    for (size_t i = 0; i < neq_; i++) {
         doublereal goodVal = deltaX_trust_[i] * trustDelta_;
         if (deltaX_trust_[i] * trustDelta_ >   m_deltaStepMinimum[i]) {
             m_deltaStepMinimum[i] = 1.1 * goodVal;
@@ -2028,8 +2013,7 @@ void  NonlinearSolver::adjustUpStepMinimums()
 //====================================================================================================================
 void  NonlinearSolver::setDeltaBoundsMagnitudes(const doublereal* const deltaStepMinimum)
 {
-
-    for (int i = 0; i < neq_; i++) {
+    for (size_t i = 0; i < neq_; i++) {
         m_deltaStepMinimum[i] = deltaStepMinimum[i];
     }
     m_manualDeltaStepSet = 1;
@@ -2065,7 +2049,7 @@ NonlinearSolver::deltaBoundStep(const doublereal* const y_n_curr, const doublere
     doublereal ff;
     doublereal f_delta_bounds = 1.0;
     doublereal ff_alt;
-    for (int i = 0; i < neq_; i++) {
+    for (size_t i = 0; i < neq_; i++) {
         doublereal y_new = y_n_curr[i] + step_1[i];
         sameSign = y_new * y_n_curr[i];
 
@@ -2161,7 +2145,7 @@ void  NonlinearSolver::readjustTrustVector()
 {
     doublereal trustDeltaOld = trustDelta_;
     doublereal wtSum = 0.0;
-    for (int i = 0; i < neq_; i++) {
+    for (size_t i = 0; i < neq_; i++) {
         wtSum += m_ewt[i];
     }
     wtSum /= neq_;
@@ -2174,7 +2158,7 @@ void  NonlinearSolver::readjustTrustVector()
     doublereal oldVal;
     doublereal fabsy;
     // we use the old value of the trust region as an indicator
-    for (int i = 0; i < neq_; i++) {
+    for (size_t i = 0; i < neq_; i++) {
         oldVal = deltaX_trust_[i];
         fabsy = fabs(m_y_n_curr[i]);
         // First off make sure that each trust region vector is 1/2 the size of each variable or smaller
@@ -2207,7 +2191,7 @@ void  NonlinearSolver::readjustTrustVector()
     // Final renormalization.
     norm_deltaX_trust_ = solnErrorNorm(DATA_PTR(deltaX_trust_));
     doublereal  sum = trustNormGoal / trustNorm;
-    for (int i = 0; i < neq_; i++) {
+    for (size_t i = 0; i < neq_; i++) {
         deltaX_trust_[i] = deltaX_trust_[i] * sum;
     }
     norm_deltaX_trust_ = solnErrorNorm(DATA_PTR(deltaX_trust_));
@@ -2230,13 +2214,13 @@ void  NonlinearSolver::initializeTrustRegion()
         return;
     }
     if (trustRegionInitializationMethod_ == 1) {
-        for (int i = 0; i < neq_; i++) {
+        for (size_t i = 0; i < neq_; i++) {
             deltaX_trust_[i] = m_ewt[i] * trustRegionInitializationFactor_;
         }
         trustDelta_ = 1.0;
     }
     if (trustRegionInitializationMethod_ == 2) {
-        for (int i = 0; i < neq_; i++) {
+        for (size_t i = 0; i < neq_; i++) {
             deltaX_trust_[i] = m_ewt[i] * m_normDeltaSoln_CP * trustRegionInitializationFactor_;
         }
         doublereal cpd = calcTrustDistance(deltaX_CP_);
@@ -2251,7 +2235,7 @@ void  NonlinearSolver::initializeTrustRegion()
         }
     }
     if (trustRegionInitializationMethod_ == 3) {
-        for (int i = 0; i < neq_; i++) {
+        for (size_t i = 0; i < neq_; i++) {
             deltaX_trust_[i] = m_ewt[i] *  m_normDeltaSoln_Newton * trustRegionInitializationFactor_;
         }
         doublereal cpd = calcTrustDistance(deltaX_Newton_);
@@ -2280,15 +2264,15 @@ void  NonlinearSolver::initializeTrustRegion()
 void NonlinearSolver::fillDogLegStep(int leg, doublereal alpha, std::vector<doublereal>  & deltaX) const
 {
     if (leg == 0) {
-        for (int i = 0; i < neq_; i++) {
+        for (size_t i = 0; i < neq_; i++) {
             deltaX[i] = alpha * deltaX_CP_[i];
         }
     } else if (leg == 2) {
-        for (int i = 0; i < neq_; i++) {
+        for (size_t i = 0; i < neq_; i++) {
             deltaX[i] = (alpha + (1.0 - alpha) * Nuu_) * deltaX_Newton_[i];
         }
     } else {
-        for (int i = 0; i < neq_; i++) {
+        for (size_t i = 0; i < neq_; i++) {
             deltaX[i] = deltaX_CP_[i] * (1.0 - alpha) + alpha * Nuu_ * deltaX_Newton_[i];
         }
     }
@@ -2307,7 +2291,7 @@ doublereal  NonlinearSolver::calcTrustDistance(std::vector<doublereal> const& de
 {
     doublereal sum = 0.0;
     doublereal tmp = 0.0;
-    for (int i = 0; i < neq_; i++) {
+    for (size_t i = 0; i < neq_; i++) {
         tmp = deltaX[i] / deltaX_trust_[i];
         sum += tmp * tmp;
     }
@@ -2346,7 +2330,7 @@ int NonlinearSolver::calcTrustIntersection(doublereal trustDelta, doublereal& la
         return 0;
     }
     doublereal sumv = 0.0;
-    for (int i = 0; i < neq_; i++) {
+    for (size_t i = 0; i < neq_; i++) {
         sumv += (deltaX_Newton_[i] / deltaX_trust_[i]) * (deltaX_CP_[i] / deltaX_trust_[i]);
     }
 
@@ -2391,11 +2375,11 @@ int NonlinearSolver::calcTrustIntersection(doublereal trustDelta, doublereal& la
  */
 doublereal NonlinearSolver::boundStep(const doublereal* const y, const doublereal* const step0)
 {
-    int i, i_lower = -1;
+    size_t i_lower = npos;
     doublereal fbound = 1.0, f_bounds = 1.0;
     doublereal ff, y_new;
 
-    for (i = 0; i < neq_; i++) {
+    for (size_t i = 0; i < neq_; i++) {
         y_new = y[i] + step0[i];
         /*
          * Force the step to only take 80% a step towards the lower bounds
@@ -2469,14 +2453,14 @@ int NonlinearSolver::dampStep(const doublereal time_curr, const doublereal* cons
                               doublereal* const y_n_1, doublereal* const ydot_n_1, doublereal* const step_2,
                               doublereal& stepNorm_2, GeneralMatrix& jac, bool writetitle, int& num_backtracks)
 {
-    int j, m;
+    int m;
     int info = 0;
     int retnTrial = NSOLN_RETN_FAIL_DAMPSTEP;
     // Compute the weighted norm of the undamped step size step_1
     doublereal stepNorm_1 = solnErrorNorm(step_1);
 
     doublereal* step_1_orig = DATA_PTR(m_wksp);
-    for (j = 0; j < neq_; j++) {
+    for (size_t j = 0; j < neq_; j++) {
         step_1_orig[j] = step_1[j];
     }
 
@@ -2513,7 +2497,7 @@ int NonlinearSolver::dampStep(const doublereal time_curr, const doublereal* cons
          * Whenever we update the solution, we must also always
          * update the time derivative.
          */
-        for (j = 0; j < neq_; j++) {
+        for (size_t j = 0; j < neq_; j++) {
             step_1[j] =  ff * step_1_orig[j];
             y_n_1[j] = y_n_curr[j] + step_1[j];
         }
@@ -2714,7 +2698,7 @@ int NonlinearSolver::dampDogLeg(const doublereal time_curr, const doublereal* y_
 
     // damping coefficient starts at 1.0
     m_dampRes = 1.0;
-    int j, m;
+    int m;
     doublereal tlen;
 
 
@@ -2743,14 +2727,14 @@ int NonlinearSolver::dampDogLeg(const doublereal time_curr, const doublereal* y_
          * Decrease the step length if we are bound
          */
         if (m_dampBound < 1.0) {
-            for (j = 0; j < neq_; j++) {
+            for (size_t j = 0; j < neq_; j++) {
                 step_1[j] =  step_1[j] * m_dampBound;
             }
         }
         /*
          *  Calculate the new solution value y1[] given the step size
          */
-        for (j = 0; j < neq_; j++) {
+        for (size_t j = 0; j < neq_; j++) {
             y_n_1[j] = y_n_curr[j] + step_1[j];
         }
         /*
@@ -2806,7 +2790,7 @@ int NonlinearSolver::dampDogLeg(const doublereal time_curr, const doublereal* y_
             // a smaller trust region.
             if (haveASuccess) {
                 mdp::mdp_copy_dbl_1(DATA_PTR(step_1), CONSTD_DATA_PTR(stepLastGood), (int) neq_);
-                for (j = 0; j < neq_; j++) {
+                for (size_t j = 0; j < neq_; j++) {
                     y_n_1[j] = y_n_curr[j] + step_1[j];
                 }
                 if (solnType_ != NSOLN_TYPE_STEADY_STATE) {
@@ -3619,22 +3603,21 @@ print_solnDelta_norm_contrib(const doublereal* const step_1,
                              const doublereal* const y_n_curr,
                              const doublereal* const y_n_1,
                              doublereal damp,
-                             int num_entries)
+                             size_t num_entries)
 {
-    int i, j, jnum;
     bool used;
     doublereal dmax0, dmax1, error, rel_norm;
     printf("\t\t%s currentDamp = %g\n", title, damp);
     printf("\t\t     I     ysolnOld %13s ysolnNewRaw | ysolnNewTrial "
            "%10s ysolnNewTrialRaw | solnWeight  wtDelSoln wtDelSolnTrial\n", stepNorm_1, stepNorm_2);
-    int* imax = mdp::mdp_alloc_int_1(num_entries, -1);
+    std::vector<size_t> imax(num_entries, npos);
     printf("\t\t   ");
     print_line("-", 125);
-    for (jnum = 0; jnum < num_entries; jnum++) {
+    for (size_t jnum = 0; jnum < num_entries; jnum++) {
         dmax1 = -1.0;
-        for (i = 0; i < neq_; i++) {
+        for (size_t i = 0; i < neq_; i++) {
             used = false;
-            for (j = 0; j < jnum; j++) {
+            for (size_t j = 0; j < jnum; j++) {
                 if (imax[j] == i) {
                     used = true;
                 }
@@ -3650,8 +3633,8 @@ print_solnDelta_norm_contrib(const doublereal* const step_1,
                 }
             }
         }
-        if (imax[jnum] >= 0) {
-            i = imax[jnum];
+        if (imax[jnum] != npos) {
+            size_t i = imax[jnum];
             error = step_1[i] /  m_ewt[i];
             dmax0 = sqrt(error * error);
             error = step_2[i] /  m_ewt[i];
@@ -3663,7 +3646,6 @@ print_solnDelta_norm_contrib(const doublereal* const step_1,
     }
     printf("\t\t   ");
     print_line("-", 125);
-    mdp::mdp_safe_free((void**) &imax);
 }
 //====================================================================================================================
 //!  This routine subtracts two numbers for one another
@@ -3719,7 +3701,6 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
                                 doublereal* const y,  doublereal* const ydot,
                                 int num_newt_its)
 {
-    int i, j;
     double* col_j;
     int info;
     doublereal ysave, ydotsave, dy;
@@ -3770,7 +3751,7 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
                 if (m_print_flag >= 7) {
                     if (neq_ < 20) {
                         printf("\t\tUnk            m_ewt              y                dyVector            ResN\n");
-                        for (int iii = 0; iii < neq_; iii++) {
+                        for (size_t iii = 0; iii < neq_; iii++) {
                             printf("\t\t %4d       %16.8e   %16.8e   %16.8e  %16.8e \n",
                                    iii,   m_ewt[iii],  y[iii], dyVector[iii], f[iii]);
                         }
@@ -3789,7 +3770,7 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
              * sqrt of machine precision approach, i.e., 1.0E-7,
              * to bound the lower limit of the delta.
              */
-            for (j = 0; j < neq_; j++) {
+            for (size_t j = 0; j < neq_; j++) {
 
 
                 /*
@@ -3822,7 +3803,7 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
                 }
 
                 doublereal diff;
-                for (i = 0; i < neq_; i++) {
+                for (size_t i = 0; i < neq_; i++) {
                     diff = subtractRD(m_wksp[i], f[i]);
                     col_j[i] = diff / dy;
                 }
@@ -3862,7 +3843,7 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
                 if (m_print_flag >= 7) {
                     if (neq_ < 20) {
                         printf("\t\tUnk            m_ewt              y                dyVector            ResN\n");
-                        for (int iii = 0; iii < neq_; iii++) {
+                        for (size_t iii = 0; iii < neq_; iii++) {
                             printf("\t\t %4d       %16.8e   %16.8e   %16.8e  %16.8e \n",
                                    iii,   m_ewt[iii],  y[iii], dyVector[iii], f[iii]);
                         }
@@ -3871,7 +3852,7 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
             }
 
 
-            for (j = 0; j < neq_; j++) {
+            for (size_t j = 0; j < neq_; j++) {
 
 
                 col_j = (doublereal*) J.ptrColumn(j);
@@ -3931,27 +3912,27 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
         if (neq_ < 30) {
             printf("\t\tCurrent Matrix and Residual:\n");
             printf("\t\t    I,J | ");
-            for (j = 0; j < neq_; j++) {
+            for (size_t j = 0; j < neq_; j++) {
                 printf("  %5d     ", j);
             }
             printf("|   Residual  \n");
             printf("\t\t        --");
-            for (j = 0; j < neq_; j++) {
+            for (size_t j = 0; j < neq_; j++) {
                 printf("------------");
             }
             printf("|  -----------\n");
 
 
-            for (i = 0; i < neq_; i++) {
+            for (size_t i = 0; i < neq_; i++) {
                 printf("\t\t   %4d |", i);
-                for (j = 0; j < neq_; j++) {
+                for (size_t j = 0; j < neq_; j++) {
                     printf(" % 11.4E", J(i,j));
                 }
                 printf(" |  % 11.4E\n", f[i]);
             }
 
             printf("\t\t        --");
-            for (j = 0; j < neq_; j++) {
+            for (size_t j = 0; j < neq_; j++) {
                 printf("------------");
             }
             printf("--------------\n");
@@ -3981,19 +3962,18 @@ calc_ydot(const int order, const doublereal* const y_curr, doublereal* const ydo
     if (!ydot_curr) {
         return;
     }
-    int    i;
     doublereal c1;
     switch (order) {
     case 0:
     case 1:             /* First order forward Euler/backward Euler */
         c1 = 1.0 / delta_t_n;
-        for (i = 0; i < neq_; i++) {
+        for (size_t i = 0; i < neq_; i++) {
             ydot_curr[i] = c1 * (y_curr[i] - m_y_nm1[i]);
         }
         return;
     case 2:             /* Second order Adams-Bashforth / Trapezoidal Rule */
         c1 = 2.0 / delta_t_n;
-        for (i = 0; i < neq_; i++) {
+        for (size_t i = 0; i < neq_; i++) {
             ydot_curr[i] = c1 * (y_curr[i] - m_y_nm1[i])  - m_ydot_nm1[i];
         }
 
@@ -4050,21 +4030,21 @@ NonlinearSolver::computeResidWts()
 {
     ResidWtsReevaluated_ = true;
     if (checkUserResidualTols_ == 1) {
-        for (int i = 0; i < neq_; i++) {
+        for (size_t i = 0; i < neq_; i++) {
             m_residWts[i] = userResidAtol_[i] + userResidRtol_ * m_rowWtScales[i] / neq_;
         }
     } else {
         doublereal sum = 0.0;
-        for (int i = 0; i < neq_; i++) {
+        for (size_t i = 0; i < neq_; i++) {
             m_residWts[i] = m_rowWtScales[i] / neq_;
             sum += m_residWts[i];
         }
         sum /= neq_;
-        for (int i = 0; i < neq_; i++) {
+        for (size_t i = 0; i < neq_; i++) {
             m_residWts[i] = m_ScaleSolnNormToResNorm * (m_residWts[i] + atolBase_ * atolBase_ * sum);
         }
         if (checkUserResidualTols_ == 2) {
-            for (int i = 0; i < neq_; i++) {
+            for (size_t i = 0; i < neq_; i++) {
                 double uR = userResidAtol_[i] + userResidRtol_ * m_rowWtScales[i] / neq_;
                 m_residWts[i] = MIN(m_residWts[i], uR);
             }
@@ -4079,7 +4059,7 @@ NonlinearSolver::computeResidWts()
 void
 NonlinearSolver::getResidWts(doublereal* const residWts) const
 {
-    for (int i = 0; i < neq_; i++) {
+    for (size_t i = 0; i < neq_; i++) {
         residWts[i] = (m_residWts)[i];
     }
 }
@@ -4153,7 +4133,7 @@ NonlinearSolver::convergenceCheck(int dampCode, doublereal s1)
  */
 void NonlinearSolver::setAtol(const doublereal* const atol)
 {
-    for (int i = 0; i < neq_; i++) {
+    for (size_t i = 0; i < neq_; i++) {
         atolk_[i]= atol[i];
     }
 }
@@ -4192,7 +4172,7 @@ void  NonlinearSolver::setResidualTols(double residRtol, double* residATol, int 
     userResidRtol_ = residRtol;
     if (residATol) {
         userResidAtol_.resize(neq_);
-        for (int i = 0; i < neq_; i++) {
+        for (size_t i = 0; i < neq_; i++) {
             userResidAtol_[i] = residATol[i];
         }
     } else {

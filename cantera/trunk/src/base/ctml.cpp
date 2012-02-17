@@ -1298,7 +1298,7 @@ size_t getNamedFloatArray(const Cantera::XML_Node& parentNode, const std::string
         vmax = atofCheck((*readNode)["max"].c_str());
     }
 
-    int expectedSize = 0;
+    size_t expectedSize = 0;
     nn = (*readNode)["size"];
     expectedSize = atoi(nn.c_str());
 

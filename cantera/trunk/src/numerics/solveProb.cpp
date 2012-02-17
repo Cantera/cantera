@@ -112,7 +112,7 @@ int solveProb::solve(int ifunc, doublereal time_scale,
     }
     int info = 0;
     size_t label_t = npos; /* Species IDs for time control */
-    int label_d; /* Species IDs for damping control */
+    size_t label_d; /* Species IDs for damping control */
     size_t label_t_old = npos;
     doublereal label_factor = 1.0;
     int iter=0; // iteration number on numlinear solver
@@ -504,13 +504,13 @@ void solveProb::resjac_eval(std::vector<doublereal*> &JacCol,
  *  @param dim     Size of the solution vector
  *  @param label   return int, stating which solution component caused the most damping.
  */
-doublereal solveProb::calc_damping(doublereal x[], doublereal dxneg[], size_t dim, int* label)
+doublereal solveProb::calc_damping(doublereal x[], doublereal dxneg[], size_t dim, size_t* label)
 {
     doublereal  damp = 1.0, xnew, xtop, xbot;
     static doublereal damp_old = 1.0;
-    *label = -1;
+    *label = npos;
 
-    for (int i = 0; i < dim; i++) {
+    for (size_t i = 0; i < dim; i++) {
         doublereal topBounds = m_topBounds[i];
         doublereal botBounds = m_botBounds[i];
         /*
@@ -589,7 +589,7 @@ static doublereal calcWeightedNorm(const doublereal wtX[], const doublereal dx[]
     if (dim == 0) {
         return 0.0;
     }
-    for (int i = 0; i < dim; i++) {
+    for (size_t i = 0; i < dim; i++) {
         tmp = dx[i] / wtX[i];
         norm += tmp * tmp;
     }
@@ -817,7 +817,7 @@ void solveProb::print_header(int ioflag, int ifunc, doublereal time_scale,
     }
 }
 //================================================================================================
-void solveProb::printIteration(int ioflag, doublereal damp, int label_d,
+void solveProb::printIteration(int ioflag, doublereal damp, size_t label_d,
                                size_t label_t,
                                doublereal inv_t, doublereal t_real, int iter,
                                doublereal update_norm, doublereal resid_norm,
