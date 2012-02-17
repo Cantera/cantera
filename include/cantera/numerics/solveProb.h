@@ -232,25 +232,25 @@ private:
 #endif
 
     //! Printing routine that gets called after every iteration
-    virtual void printIteration(int ioflag, doublereal damp, int label_d, int label_t,
+    virtual void printIteration(int ioflag, doublereal damp, int label_d, size_t label_t,
                                 doublereal inv_t, doublereal t_real, int iter,
                                 doublereal update_norm, doublereal resid_norm,
                                 doublereal netProdRate[], doublereal CSolnSP[],
                                 doublereal resid[],
-                                doublereal wtSpecies[], int dim, bool do_time);
+                                doublereal wtSpecies[], size_t dim, bool do_time);
 
 
     //! Print a summary of the solution
     /*!
      *
      */
-    virtual void printFinal(int ioflag, doublereal damp, int label_d, int label_t,
+    virtual void printFinal(int ioflag, doublereal damp, int label_d, size_t label_t,
                             doublereal inv_t, doublereal t_real, int iter,
                             doublereal update_norm, doublereal resid_norm,
                             doublereal netProdRateKinSpecies[], const doublereal CSolnSP[],
                             const doublereal resid[],
                             const doublereal wtSpecies[], const doublereal wtRes[],
-                            int dim, bool do_time);
+                            size_t dim, bool do_time);
 
     //! Calculate a conservative delta T to use in a pseudo-steady state
     //! algorithm
@@ -284,7 +284,7 @@ private:
      *    @return  Returns the 1. /  delta T to be used on the next step
      */
     virtual doublereal calc_t(doublereal netProdRateSolnSP[], doublereal Csoln[],
-                              int* label, int* label_old,
+                              size_t* label, size_t* label_old,
                               doublereal* label_factor, int ioflag);
 
     //! Calculate the solution and residual weights
@@ -364,7 +364,7 @@ private:
      *  @param dim     Size of the solution vector
      *  @param label   return int, stating which solution component caused the most damping.
      */
-    virtual doublereal calc_damping(doublereal x[], doublereal dxneg[], int dim, int* label);
+    virtual doublereal calc_damping(doublereal x[], doublereal dxneg[], size_t dim, int* label);
 
     //! residual function pointer to be solved.
     ResidEval* m_residFunc;

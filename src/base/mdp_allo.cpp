@@ -70,8 +70,6 @@ const int MDP_ALLOC_INTERFACE_ERROR = -230346;
 /****************************************************************************/
 
 static void mdp_alloc_eh(const char* const rname, const int bytes)
-throw(std::bad_alloc, std::exception)
-
 /*************************************************************************
  *
  * mdp_alloc_eh:

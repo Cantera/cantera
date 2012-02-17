@@ -165,7 +165,7 @@ public:
      * @param k index of the species. Default is -1, which will return the max of the min value
      *          over all species.
      */
-    virtual doublereal minTemp(int k = -1) const;
+    virtual doublereal minTemp(size_t k = npos) const;
 
     //! Maximum temperature for which the thermodynamic data for the species
     //! are valid.
@@ -179,7 +179,7 @@ public:
      * @param k index of the species. Default is -1, which will return the min of the max value
      *          over all species.
      */
-    virtual doublereal maxTemp(int k = -1) const;
+    virtual doublereal maxTemp(size_t k = npos) const;
 
 
     //! Returns the reference pressure in Pa. This function is a wrapper
@@ -715,9 +715,7 @@ protected:
     //! Temporary vector
     mutable vector_fp tmpV_;
 
-    std::vector<doublereal> nspLattice_;
-
-    std::vector<int> lkstart_;
+    std::vector<size_t> lkstart_;
 
 private:
 

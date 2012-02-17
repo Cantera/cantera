@@ -123,16 +123,16 @@ RedlichKisterVPSSTP::RedlichKisterVPSSTP(int testProb)  :
     m_pSpecies_A_ij.resize(1);
     m_pSpecies_B_ij.resize(1);
 
-    int iLiLi = speciesIndex("LiLi");
-    if (iLiLi < 0) {
+    size_t iLiLi = speciesIndex("LiLi");
+    if (iLiLi == npos) {
         throw CanteraError("RedlichKisterVPSSTP test1 constructor",
                            "Unable to find LiLi");
     }
     m_pSpecies_A_ij[0] = iLiLi;
 
 
-    int iVLi = speciesIndex("VLi");
-    if (iVLi < 0) {
+    size_t iVLi = speciesIndex("VLi");
+    if (iVLi == npos) {
         throw CanteraError("RedlichKisterVPSSTP test1 constructor",
                            "Unable to find VLi");
     }
@@ -409,11 +409,11 @@ void RedlichKisterVPSSTP::getChemPotentials(doublereal* mu) const
 //Molar enthalpy. Units: J/kmol.
 doublereal RedlichKisterVPSSTP::enthalpy_mole() const
 {
-    int kk = nSpecies();
+    size_t kk = nSpecies();
     double h = 0;
     vector_fp hbar(kk);
     getPartialMolarEnthalpies(&hbar[0]);
-    for (int i = 0; i < kk; i++) {
+    for (size_t i = 0; i < kk; i++) {
         h += moleFractions_[i]*hbar[i];
     }
     return h;
@@ -422,11 +422,11 @@ doublereal RedlichKisterVPSSTP::enthalpy_mole() const
 /// Molar entropy. Units: J/kmol.
 doublereal RedlichKisterVPSSTP::entropy_mole() const
 {
-    int kk = nSpecies();
+    size_t kk = nSpecies();
     double s = 0;
     vector_fp sbar(kk);
     getPartialMolarEntropies(&sbar[0]);
-    for (int i = 0; i < kk; i++) {
+    for (size_t i = 0; i < kk; i++) {
         s += moleFractions_[i]*sbar[i];
     }
     return s;
@@ -435,11 +435,11 @@ doublereal RedlichKisterVPSSTP::entropy_mole() const
 /// Molar heat capacity at constant pressure. Units: J/kmol/K.
 doublereal RedlichKisterVPSSTP::cp_mole() const
 {
-    int kk = nSpecies();
+    size_t kk = nSpecies();
     double cp = 0;
     vector_fp cpbar(kk);
     getPartialMolarCp(&cpbar[0]);
-    for (int i = 0; i < kk; i++) {
+    for (size_t i = 0; i < kk; i++) {
         cp += moleFractions_[i]*cpbar[i];
     }
     return cp;
@@ -678,8 +678,8 @@ void RedlichKisterVPSSTP::initThermoXML(XML_Node& phaseNode, std::string id)
             throw CanteraError(subname.c_str(),
                                "Unknown activity coefficient model: " + mStringa);
         }
-        int n = acNodePtr->nChildren();
-        for (int i = 0; i < n; i++) {
+        size_t n = acNodePtr->nChildren();
+        for (size_t i = 0; i < n; i++) {
             XML_Node& xmlACChild = acNodePtr->child(i);
             stemp = xmlACChild.name();
             std::string nodeName = lowercase(stemp);
@@ -960,7 +960,7 @@ void RedlichKisterVPSSTP::getdlnActCoeffdlnX_diag(doublereal* dlnActCoeffdlnX_di
     }
 }
 //====================================================================================================================
-void RedlichKisterVPSSTP::getdlnActCoeffdlnN(const int ld, doublereal* dlnActCoeffdlnN)
+void RedlichKisterVPSSTP::getdlnActCoeffdlnN(const size_t ld, doublereal* dlnActCoeffdlnN)
 {
     s_update_dlnActCoeff_dX_();
     double* data =  & dlnActCoeffdlnN_(0,0);
@@ -971,7 +971,7 @@ void RedlichKisterVPSSTP::getdlnActCoeffdlnN(const int ld, doublereal* dlnActCoe
     }
 }
 //====================================================================================================================
-void RedlichKisterVPSSTP::resizeNumInteractions(const int num)
+void RedlichKisterVPSSTP::resizeNumInteractions(const size_t num)
 {
     numBinaryInteractions_ = num;
     m_pSpecies_A_ij.resize(num, -1);
@@ -1013,16 +1013,16 @@ void RedlichKisterVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
      * an error to not find the species. This means that the interaction doesn't occur for the current
      * implementation of the phase.
      */
-    int iSpecies = speciesIndex(iName);
-    if (iSpecies < 0) {
+    size_t iSpecies = speciesIndex(iName);
+    if (iSpecies == npos) {
         return;
     }
     string ispName = speciesName(iSpecies);
     if (charge[iSpecies] != 0) {
         throw CanteraError("RedlichKisterVPSSTP::readXMLBinarySpecies", "speciesA charge problem");
     }
-    int jSpecies = speciesIndex(jName);
-    if (jSpecies < 0) {
+    size_t jSpecies = speciesIndex(jName);
+    if (jSpecies == npos) {
         return;
     }
     std::string jspName = speciesName(jSpecies);
@@ -1033,14 +1033,14 @@ void RedlichKisterVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
      *  Ok we have found a valid interaction
      */
     numBinaryInteractions_++;
-    int iSpot = numBinaryInteractions_ - 1;
+    size_t iSpot = numBinaryInteractions_ - 1;
     m_pSpecies_A_ij.resize(numBinaryInteractions_);
     m_pSpecies_B_ij.resize(numBinaryInteractions_);
     m_pSpecies_A_ij[iSpot] = iSpecies;
     m_pSpecies_B_ij[iSpot] = jSpecies;
 
-    int num = xmLBinarySpecies.nChildren();
-    for (int iChild = 0; iChild < num; iChild++) {
+    size_t num = xmLBinarySpecies.nChildren();
+    for (size_t iChild = 0; iChild < num; iChild++) {
         XML_Node& xmlChild = xmLBinarySpecies.child(iChild);
         stemp = xmlChild.name();
         string nodeName = lowercase(stemp);

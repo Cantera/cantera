@@ -205,7 +205,7 @@ public:
      *
      *  @return Returns the element type
      */
-    int elementType(int m) const;
+    int elementType(size_t m) const;
 
     //! Change the element type of the mth constraint
     /*!

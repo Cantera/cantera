@@ -29,7 +29,7 @@ namespace Cantera
 //////////////////// class LiquidTransport methods //////////////
 
 
-Transport::Transport(thermo_t* thermo, int ndim) :
+Transport::Transport(thermo_t* thermo, size_t ndim) :
     m_thermo(thermo),
     m_ready(false),
     m_nmin(0),
@@ -148,7 +148,7 @@ void Transport::finalize()
 }
 
 //====================================================================================================================
-void Transport::getSpeciesFluxes(int ndim, const doublereal* const grad_T,
+void Transport::getSpeciesFluxes(size_t ndim, const doublereal* const grad_T,
                                  int ldx, const doublereal* const grad_X,
                                  int ldf, doublereal* const fluxes)
 {

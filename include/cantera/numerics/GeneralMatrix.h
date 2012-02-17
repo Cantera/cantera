@@ -69,7 +69,7 @@ public:
      *  @param b    Vector to do the rh multiplcation
      *  @param prod OUTPUT vector to receive the result
      */
-    virtual void mult(const doublereal* const b, doublereal* const prod) const = 0;
+    virtual void mult(const doublereal* b, doublereal* prod) const = 0;
 
     //! Multiply b*A and write result to prod.
     /*!
@@ -143,7 +143,7 @@ public:
      *
      * @return  returns the number of rows and columns in the matrix.
      */
-    virtual size_t nRowsAndStruct(int* const iStruct = 0) const = 0;
+    virtual size_t nRowsAndStruct(size_t* const iStruct = 0) const = 0;
 
     //! clear the factored flag
     virtual void clearFactorFlag() = 0;

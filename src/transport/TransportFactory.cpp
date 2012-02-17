@@ -1013,8 +1013,8 @@ void TransportFactory::getLiquidSpeciesTransportData(const std::vector<const XML
                 data.selfDiffusion.resize(nsp,0);
                 ThermoPhase* temp_thermo = trParam.thermo;
 
-                int num = trNode.nChildren();
-                for (int iChild = 0; iChild < num; iChild++) {
+                size_t num = trNode.nChildren();
+                for (size_t iChild = 0; iChild < num; iChild++) {
                     XML_Node& xmlChild = trNode.child(iChild);
                     std::string nodeName = xmlChild.name();
 
@@ -1041,7 +1041,7 @@ void TransportFactory::getLiquidSpeciesTransportData(const std::vector<const XML
                         for (size_t iSpec = 0; iSpec< nsp; iSpec++) {
                             XML_Node& propSpecNode = xmlChild.child(iSpec);
                             std::string specName = propSpecNode.name();
-                            int index = temp_thermo->speciesIndex(specName.c_str());
+                            size_t index = temp_thermo->speciesIndex(specName.c_str());
                             data.selfDiffusion[index] = newLTP(propSpecNode,  name,  m_tranPropMap[nodeName], temp_thermo);
                         };
                     };
@@ -1119,11 +1119,11 @@ void TransportFactory::getLiquidInteractionsTransportData(const XML_Node& transp
 {
     try {
 
-        int nsp = trParam.nsp_;
-        int nBinInt = nsp*(nsp-1)/2;
+        size_t nsp = trParam.nsp_;
+        size_t nBinInt = nsp*(nsp-1)/2;
 
-        int num = transportNode.nChildren();
-        for (int iChild = 0; iChild < num; iChild++) {
+        size_t num = transportNode.nChildren();
+        for (size_t iChild = 0; iChild < num; iChild++) {
             //tranTypeNode is a type of transport property like viscosity
             XML_Node& tranTypeNode = transportNode.child(iChild);
             std::string nodeName = tranTypeNode.name();
@@ -1146,7 +1146,7 @@ void TransportFactory::getLiquidInteractionsTransportData(const XML_Node& transp
                                                      trParam);
                     break;
                 case TP_MOBILITYRATIO: {
-                    for (int iSpec = 0; iSpec< nBinInt; iSpec++) {
+                    for (size_t iSpec = 0; iSpec< nBinInt; iSpec++) {
                         XML_Node& propSpecNode = compDepNode.child(iSpec);
                         string specName = propSpecNode.name();
                         size_t loc = specName.find(":");
@@ -1160,10 +1160,10 @@ void TransportFactory::getLiquidInteractionsTransportData(const XML_Node& transp
                 };
                 break;
                 case TP_SELFDIFFUSION: {
-                    for (int iSpec = 0; iSpec< nsp; iSpec++) {
+                    for (size_t iSpec = 0; iSpec< nsp; iSpec++) {
                         XML_Node& propSpecNode = compDepNode.child(iSpec);
                         string specName = propSpecNode.name();
-                        int index = temp_thermo->speciesIndex(specName.c_str());
+                        size_t index = temp_thermo->speciesIndex(specName.c_str());
                         trParam.selfDiffusion[index] = newLTI(propSpecNode,
                                                               m_tranPropMap[nodeName],
                                                               trParam);
@@ -1211,7 +1211,7 @@ void TransportFactory::getLiquidInteractionsTransportData(const XML_Node& transp
                 } else if (velocityBasis == "mole") {
                     trParam.velocityBasis_ = VB_MOLEAVG;
                 } else if (trParam.thermo->speciesIndex(velocityBasis) > 0) {
-                    trParam.velocityBasis_ = trParam.thermo->speciesIndex(velocityBasis) ;
+                    trParam.velocityBasis_ = static_cast<int>(trParam.thermo->speciesIndex(velocityBasis));
                 } else {
                     int linenum = __LINE__;
                     throw TransportDBError(linenum, "Unknown attribute \"" + velocityBasis + "\" for <velocityBasis> node. ");

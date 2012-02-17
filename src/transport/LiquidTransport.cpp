@@ -500,7 +500,7 @@ doublereal LiquidTransport::viscosity()
  * @param visc  array of length "number of species"
  *              to hold returned viscosities.
  */
-void LiquidTransport::getSpeciesViscosities(doublereal* visc)
+void LiquidTransport::getSpeciesViscosities(doublereal* const visc)
 {
     update_T();
     if (!m_visc_temp_ok) {
@@ -1097,7 +1097,7 @@ void LiquidTransport::getSpeciesVdiffES(size_t ndim,
  *             Flat vector with the m_nsp in the inner loop.
  *             length = ldx * ndim
  */
-void LiquidTransport::getSpeciesFluxes(int ndim,
+void LiquidTransport::getSpeciesFluxes(size_t ndim,
                                        const doublereal* grad_T,
                                        int ldx, const doublereal* grad_X,
                                        int ldf, doublereal* fluxes)

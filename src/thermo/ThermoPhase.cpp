@@ -169,7 +169,7 @@ void ThermoPhase::getActivities(doublereal* a) const
     }
 }
 //=================================================================================================================
-void ThermoPhase::getLnActivityCoefficients(doublereal* const lnac) const
+void ThermoPhase::getLnActivityCoefficients(doublereal* lnac) const
 {
     getActivityCoefficients(lnac);
     for (size_t k = 0; k < m_kk; k++) {
@@ -1159,7 +1159,7 @@ bool ThermoPhase::getElementPotentials(doublereal* lambda) const
  * @param dlnActCoeffdN    Output vector of derivatives of the
  *                         log Activity Coefficients. length = m_kk * m_kk
  */
-void ThermoPhase::getdlnActCoeffdlnN(const int ld, doublereal* const dlnActCoeffdlnN)
+void ThermoPhase::getdlnActCoeffdlnN(const size_t ld, doublereal* const dlnActCoeffdlnN)
 {
     for (size_t m = 0; m < m_kk; m++) {
         for (size_t k = 0; k < m_kk; k++) {
@@ -1169,7 +1169,7 @@ void ThermoPhase::getdlnActCoeffdlnN(const int ld, doublereal* const dlnActCoeff
     return;
 }
 //====================================================================================================================
-void ThermoPhase::getdlnActCoeffdlnN_numderiv(const int ld, doublereal* const dlnActCoeffdlnN)
+void ThermoPhase::getdlnActCoeffdlnN_numderiv(const size_t ld, doublereal* const dlnActCoeffdlnN)
 {
     double deltaMoles_j = 0.0;
     double pres = pressure();
@@ -1230,7 +1230,7 @@ void ThermoPhase::getdlnActCoeffdlnN_numderiv(const int ld, doublereal* const dl
          * Revert to the base case Xmol_, v_totalMoles
          */
         v_totalMoles = TMoles_base;
-        mdp::mdp_copy_dbl_1(DATA_PTR(Xmol), DATA_PTR(Xmol_Base), m_kk);
+        mdp::mdp_copy_dbl_1(DATA_PTR(Xmol), DATA_PTR(Xmol_Base), (int) m_kk);
     }
     /*
      * Go get base values for the activity coefficients.

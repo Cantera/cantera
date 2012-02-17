@@ -174,7 +174,7 @@ size_t BandMatrix::nRows() const
 }
 //====================================================================================================================
 // Number of rows
-size_t BandMatrix::nRowsAndStruct(int* const iStruct) const
+size_t BandMatrix::nRowsAndStruct(size_t* const iStruct) const
 {
     if (iStruct) {
         iStruct[0] = m_kl;
@@ -214,7 +214,7 @@ vector_int&   BandMatrix::ipiv()
 /*
  * Multiply A*b and write result to \c prod.
  */
-void BandMatrix::mult(const doublereal* const b, doublereal* const prod) const
+void BandMatrix::mult(const doublereal* b, doublereal* prod) const
 {
     size_t nr = nRows();
     doublereal sum = 0.0;
@@ -385,7 +385,7 @@ doublereal  BandMatrix::rcond(doublereal a1norm)
     }
 
     // doublereal anorm = oneNorm();
-    int ldab = (2 *m_kl + m_ku + 1);
+    size_t ldab = (2 *m_kl + m_ku + 1);
     int rinfo;
     rcond = ct_dgbcon('1', m_n, m_kl, m_ku, DATA_PTR(ludata), ldab, DATA_PTR(m_ipiv), a1norm, DATA_PTR(work_),
                       DATA_PTR(iwork_), rinfo);

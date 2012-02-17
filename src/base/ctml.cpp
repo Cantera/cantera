@@ -210,7 +210,7 @@ void addIntegerArray(Cantera::XML_Node& node, const std::string& title, const si
     if (type != "") {
         f.addAttribute("type",type);
     }
-    f.addAttribute("size",n);
+    f.addAttribute("size", static_cast<double>(n));
 #ifndef CTML_VERSION_1_4
     f.addAttribute("vtype", "intArray");
 #endif
@@ -1026,7 +1026,7 @@ doublereal getFloatDefaultUnits(const Cantera::XML_Node& parent, std::string nam
  *       @verbatim
  std::string modelName = "";
  bool exists = getOptionalModel(transportNode, "compositionDependence",
-		          modelName);
+                  modelName);
  @endverbatim
  *
  *  Reads the corresponding XML file:
@@ -1263,7 +1263,7 @@ size_t getFloatArray(const Cantera::XML_Node& node, std::vector<doublereal> & v,
     return v.size();
 }
 //====================================================================================================================
-int  getNamedFloatArray(const Cantera::XML_Node& parentNode, const std::string& nodeName, std::vector<doublereal> & v,
+size_t getNamedFloatArray(const Cantera::XML_Node& parentNode, const std::string& nodeName, std::vector<doublereal> & v,
                         const bool convert, const std::string unitsString)
 {
     std::string::size_type icom;
@@ -1326,7 +1326,7 @@ int  getNamedFloatArray(const Cantera::XML_Node& parentNode, const std::string& 
              * would appear to be odd. So, we keep the
              * possibilty in for backwards compatibility.
              */
-            int nlen = strlen(val.c_str());
+            size_t nlen = strlen(val.c_str());
             if (nlen > 0) {
                 dtmp = atofCheck(val.c_str());
                 v.push_back(dtmp);
@@ -1343,8 +1343,8 @@ int  getNamedFloatArray(const Cantera::XML_Node& parentNode, const std::string& 
                      " is above upper limit of " +fp2str(vmin)+".\n");
         }
     }
-    int nv = v.size();
-    for (int n = 0; n < nv; n++) {
+    size_t nv = v.size();
+    for (size_t n = 0; n < nv; n++) {
         v[n] *= funit;
     }
     if (nv != expectedSize) {

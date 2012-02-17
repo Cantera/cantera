@@ -187,16 +187,16 @@ MixedSolventElectrolyte::MixedSolventElectrolyte(int testProb)  :
     m_SE_d_ij[0] =  0.0;
 
 
-    int iLiCl = speciesIndex("LiCl(L)");
-    if (iLiCl < 0) {
+    size_t iLiCl = speciesIndex("LiCl(L)");
+    if (iLiCl == npos) {
         throw CanteraError("MixedSolventElectrolyte test1 constructor",
                            "Unable to find LiCl(L)");
     }
     m_pSpecies_B_ij[0] = iLiCl;
 
 
-    int iKCl = speciesIndex("KCl(L)");
-    if (iKCl < 0) {
+    size_t iKCl = speciesIndex("KCl(L)");
+    if (iKCl == npos) {
         throw CanteraError("MixedSolventElectrolyte test1 constructor",
                            "Unable to find KCl(L)");
     }
@@ -707,8 +707,8 @@ void MixedSolventElectrolyte::initThermoXML(XML_Node& phaseNode, std::string id)
             throw CanteraError(subname.c_str(),
                                "Unknown activity coefficient model: " + mStringa);
         }
-        int n = acNodePtr->nChildren();
-        for (int i = 0; i < n; i++) {
+        size_t n = acNodePtr->nChildren();
+        for (size_t i = 0; i < n; i++) {
             XML_Node& xmlACChild = acNodePtr->child(i);
             stemp = xmlACChild.name();
             string nodeName = lowercase(stemp);
@@ -1052,7 +1052,7 @@ void MixedSolventElectrolyte::getdlnActCoeffdlnX_diag(doublereal* dlnActCoeffdln
     }
 }
 //====================================================================================================================
-void MixedSolventElectrolyte::getdlnActCoeffdlnN(const int ld, doublereal* dlnActCoeffdlnN)
+void MixedSolventElectrolyte::getdlnActCoeffdlnN(const size_t ld, doublereal* dlnActCoeffdlnN)
 {
     s_update_dlnActCoeff_dlnN();
     double* data =  & dlnActCoeffdlnN_(0,0);
@@ -1063,7 +1063,7 @@ void MixedSolventElectrolyte::getdlnActCoeffdlnN(const int ld, doublereal* dlnAc
     }
 }
 //====================================================================================================================
-void MixedSolventElectrolyte::resizeNumInteractions(const int num)
+void MixedSolventElectrolyte::resizeNumInteractions(const size_t num)
 {
     numBinaryInteractions_ = num;
     m_HE_b_ij.resize(num, 0.0);
@@ -1101,7 +1101,7 @@ void MixedSolventElectrolyte::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
     }
     double* charge = DATA_PTR(m_speciesCharge);
     string stemp;
-    int nParamsFound;
+    size_t nParamsFound;
     vector_fp vParams;
     string iName = xmLBinarySpecies.attrib("speciesA");
     if (iName == "") {
@@ -1115,16 +1115,16 @@ void MixedSolventElectrolyte::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
      * Find the index of the species in the current phase. It's not
      * an error to not find the species
      */
-    int iSpecies = speciesIndex(iName);
-    if (iSpecies < 0) {
+    size_t iSpecies = speciesIndex(iName);
+    if (iSpecies == npos) {
         return;
     }
     string ispName = speciesName(iSpecies);
     if (charge[iSpecies] != 0) {
         throw CanteraError("MixedSolventElectrolyte::readXMLBinarySpecies", "speciesA charge problem");
     }
-    int jSpecies = speciesIndex(jName);
-    if (jSpecies < 0) {
+    size_t jSpecies = speciesIndex(jName);
+    if (jSpecies == npos) {
         return;
     }
     string jspName = speciesName(jSpecies);
@@ -1133,12 +1133,12 @@ void MixedSolventElectrolyte::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
     }
 
     resizeNumInteractions(numBinaryInteractions_ + 1);
-    int iSpot = numBinaryInteractions_ - 1;
+    size_t iSpot = numBinaryInteractions_ - 1;
     m_pSpecies_A_ij[iSpot] = iSpecies;
     m_pSpecies_B_ij[iSpot] = jSpecies;
 
-    int num = xmLBinarySpecies.nChildren();
-    for (int iChild = 0; iChild < num; iChild++) {
+    size_t num = xmLBinarySpecies.nChildren();
+    for (size_t iChild = 0; iChild < num; iChild++) {
         XML_Node& xmlChild = xmLBinarySpecies.child(iChild);
         stemp = xmlChild.name();
         string nodeName = lowercase(stemp);

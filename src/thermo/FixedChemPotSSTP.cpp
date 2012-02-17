@@ -112,8 +112,7 @@ FixedChemPotSSTP::FixedChemPotSSTP(std::string Ename, doublereal val) :
     setNDim(3);
     addUniqueElement(Ename, -12345.);
     freezeElements();
-    int nel = nElements();
-    vector_fp ecomp(nel, 0.0);
+    vector_fp ecomp(nElements(), 0.0);
     ecomp[0] = 1.0;
     double chrg = 0.0;
     SpeciesThermo* spth = new SimpleThermo();

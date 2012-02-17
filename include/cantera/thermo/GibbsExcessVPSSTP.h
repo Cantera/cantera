@@ -332,7 +332,7 @@ public:
     /*!
      * @param lnac Output vector of ln activity coefficients. Length: m_kk.
      */
-    virtual void getActivityCoefficients(doublereal* const ac) const;
+    virtual void getActivityCoefficients(doublereal* ac) const;
 
 
     //! Get the array of temperature derivatives of the log activity coefficients
@@ -368,7 +368,7 @@ public:
      * @param dlnActCoeffdlnN    Output vector of derivatives of the
      *                           log Activity Coefficients. length = m_kk * m_kk
      */
-    virtual void getdlnActCoeffdlnN(const int ld, doublereal* const dlnActCoeffdlnN)  {
+    virtual void getdlnActCoeffdlnN(const size_t ld, doublereal* const dlnActCoeffdlnN)  {
         err(" getdlnActCoeffdlnN: nonzero and nonimplemented");
     }
 

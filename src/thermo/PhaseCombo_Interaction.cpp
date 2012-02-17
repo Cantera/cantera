@@ -197,16 +197,16 @@ PhaseCombo_Interaction::PhaseCombo_Interaction(int testProb)  :
     m_SE_d_ij[0] =  0.0;
 
 
-    int iLiT = speciesIndex("LiTFe1S2(S)");
-    if (iLiT < 0) {
+    size_t iLiT = speciesIndex("LiTFe1S2(S)");
+    if (iLiT == npos) {
         throw CanteraError("PhaseCombo_Interaction test1 constructor",
                            "Unable to find LiTFe1S2(S)");
     }
     m_pSpecies_A_ij[0] = iLiT;
 
 
-    int iLi2 = speciesIndex("Li2Fe1S2(S)");
-    if (iLi2 < 0) {
+    size_t iLi2 = speciesIndex("Li2Fe1S2(S)");
+    if (iLi2 == npos) {
         throw CanteraError("PhaseCombo_Interaction test1 constructor",
                            "Unable to find Li2Fe1S2(S)");
     }
@@ -717,8 +717,8 @@ void PhaseCombo_Interaction::initThermoXML(XML_Node& phaseNode, std::string id)
             throw CanteraError(subname.c_str(),
                                "Unknown activity coefficient model: " + mStringa);
         }
-        int n = acNodePtr->nChildren();
-        for (int i = 0; i < n; i++) {
+        size_t n = acNodePtr->nChildren();
+        for (size_t i = 0; i < n; i++) {
             XML_Node& xmlACChild = acNodePtr->child(i);
             stemp = xmlACChild.name();
             string nodeName = lowercase(stemp);
@@ -1061,20 +1061,15 @@ void PhaseCombo_Interaction::s_update_dlnActCoeff_dlnN() const
 //====================================================================================================================
 void PhaseCombo_Interaction::s_update_dlnActCoeff_dlnX_diag() const
 {
-
-    int iA, iB;
     doublereal XA, XB, g0 , g1;
     doublereal T = temperature();
 
     dlnActCoeffdlnX_diag_.assign(m_kk, 0.0);
-
     doublereal RT = GasConstant * T;
 
-
     for (size_t i = 0; i <  numBinaryInteractions_; i++) {
-
-        iA =  m_pSpecies_A_ij[i];
-        iB =  m_pSpecies_B_ij[i];
+        size_t iA =  m_pSpecies_A_ij[i];
+        size_t iB =  m_pSpecies_B_ij[i];
 
         XA = moleFractions_[iA];
         XB = moleFractions_[iB];
@@ -1117,7 +1112,7 @@ void PhaseCombo_Interaction::getdlnActCoeffdlnX_diag(doublereal* dlnActCoeffdlnX
 /*
  * HKM - Checked for Transition
  */
-void PhaseCombo_Interaction::getdlnActCoeffdlnN(const int ld, doublereal* dlnActCoeffdlnN)
+void PhaseCombo_Interaction::getdlnActCoeffdlnN(const size_t ld, doublereal* dlnActCoeffdlnN)
 {
     s_update_dlnActCoeff_dlnN();
     double* data =  & dlnActCoeffdlnN_(0,0);
@@ -1132,7 +1127,7 @@ void PhaseCombo_Interaction::getdlnActCoeffdlnN(const int ld, doublereal* dlnAct
 /*
  * HKM - Checked for Transition
  */
-void PhaseCombo_Interaction::resizeNumInteractions(const int num)
+void PhaseCombo_Interaction::resizeNumInteractions(const size_t num)
 {
     numBinaryInteractions_ = num;
     m_HE_b_ij.resize(num, 0.0);
@@ -1169,7 +1164,7 @@ void PhaseCombo_Interaction::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
     }
     double* charge = DATA_PTR(m_speciesCharge);
     string stemp;
-    int nParamsFound;
+    size_t nParamsFound;
     vector_fp vParams;
     string iName = xmLBinarySpecies.attrib("speciesA");
     if (iName == "") {
@@ -1183,16 +1178,16 @@ void PhaseCombo_Interaction::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
      * Find the index of the species in the current phase. It's not
      * an error to not find the species
      */
-    int iSpecies = speciesIndex(iName);
-    if (iSpecies < 0) {
+    size_t iSpecies = speciesIndex(iName);
+    if (iSpecies == npos) {
         return;
     }
     string ispName = speciesName(iSpecies);
     if (charge[iSpecies] != 0) {
         throw CanteraError("PhaseCombo_Interaction::readXMLBinarySpecies", "speciesA charge problem");
     }
-    int jSpecies = speciesIndex(jName);
-    if (jSpecies < 0) {
+    size_t jSpecies = speciesIndex(jName);
+    if (jSpecies == npos) {
         return;
     }
     string jspName = speciesName(jSpecies);
@@ -1201,12 +1196,12 @@ void PhaseCombo_Interaction::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
     }
 
     resizeNumInteractions(numBinaryInteractions_ + 1);
-    int iSpot = numBinaryInteractions_ - 1;
+    size_t iSpot = numBinaryInteractions_ - 1;
     m_pSpecies_A_ij[iSpot] = iSpecies;
     m_pSpecies_B_ij[iSpot] = jSpecies;
 
-    int num = xmLBinarySpecies.nChildren();
-    for (int iChild = 0; iChild < num; iChild++) {
+    size_t num = xmLBinarySpecies.nChildren();
+    for (size_t iChild = 0; iChild < num; iChild++) {
         XML_Node& xmlChild = xmLBinarySpecies.child(iChild);
         stemp = xmlChild.name();
         string nodeName = lowercase(stemp);

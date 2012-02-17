@@ -83,7 +83,7 @@ public:
      *  @param m  New number of columns
      *  @param v  Default fill value. defaults to zero.
      */
-    DenseMatrix(int n, int m, doublereal v = 0.0);
+    DenseMatrix(size_t n, size_t m, doublereal v = 0.0);
 
     //! Copy constructor
     /*!
@@ -108,7 +108,7 @@ public:
      *  @param m  New number of columns
      *  @param v  Default fill value. defaults to zero.
      */
-    void resize(int n, int m, doublereal v = 0.0);
+    void resize(size_t n, size_t m, doublereal v = 0.0);
 
     //! Return a vector of const pointers to the columns
     /*!
@@ -269,7 +269,7 @@ void increment(const DenseMatrix& A, const double* const b, double* const prod);
  *  @param nn  Size of A. This defaults to -1, which means that the number
  *                        of rows is used as the default size of n
  */
-int invert(DenseMatrix& A, int nn=-1);
+int invert(DenseMatrix& A, size_t nn=npos);
 
 }
 

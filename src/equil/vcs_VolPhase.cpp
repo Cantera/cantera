@@ -1207,14 +1207,15 @@ double vcs_VolPhase::molefraction(size_t k) const
 /***************************************************************************/
 
 void vcs_VolPhase::setCreationMoleNumbers(const double* const n_k,
-        const std::vector<int> &creationGlobalRxnNumbers)
+        const std::vector<size_t> &creationGlobalRxnNumbers)
 {
     vcs_dcopy(VCS_DATA_PTR(creationMoleNumbers_), n_k, m_numSpecies);
-    vcs_icopy(VCS_DATA_PTR(creationGlobalRxnNumbers_),  VCS_DATA_PTR(creationGlobalRxnNumbers), m_numSpecies);
+    creationGlobalRxnNumbers_ = creationGlobalRxnNumbers;
+
 }
 /***************************************************************************/
 
-const std::vector<double> & vcs_VolPhase::creationMoleNumbers(std::vector<int> &creationGlobalRxnNumbers) const
+const std::vector<double> & vcs_VolPhase::creationMoleNumbers(std::vector<size_t> &creationGlobalRxnNumbers) const
 {
     creationGlobalRxnNumbers = creationGlobalRxnNumbers_;
     return creationMoleNumbers_;

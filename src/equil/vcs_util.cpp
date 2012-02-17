@@ -342,7 +342,7 @@ static void mlequ_matrixDump(double* c, int idem, int n)
  *  @param irowa      first row to swap
  *  @param irowb      second row to swap
  */
-static void vcsUtil_swapRows(double* c, int idem, int n, double* b, int m, int irowa, int irowb)
+static void vcsUtil_swapRows(double* c, size_t idem, size_t n, double* b, size_t m, size_t irowa, size_t irowb)
 {
     double t1;
     int j;
@@ -365,15 +365,15 @@ static void vcsUtil_swapRows(double* c, int idem, int n, double* b, int m, int i
  *  @param b          RHS of the Ax=b problem to solve
  *  @param m          Number of rhs to solve
  */
-static void vcsUtil_mlequ_preprocess(double* c, int idem, int n, double* b, int m)
+static void vcsUtil_mlequ_preprocess(double* c, size_t idem, size_t n, double* b, size_t m)
 {
-    int j = 0;
+    size_t j = 0;
     std::vector<int> irowUsed(n, 0);
 
     for (j = 0; j < n; j++) {
         int numNonzero = 0;
-        int inonzero = -1;
-        for (int i = 0; i < n; i++) {
+        size_t inonzero = npos;
+        for (size_t i = 0; i < n; i++) {
             if (c[i + j * idem] != 0.0) {
                 numNonzero++;
                 inonzero = i;
@@ -395,8 +395,8 @@ static void vcsUtil_mlequ_preprocess(double* c, int idem, int n, double* b, int 
     for (j = 0; j < n; j++) {
         if (c[j + j * idem] == 0.0) {
             int numNonzero = 0;
-            int inonzero = -1;
-            for (int i = 0; i < n; i++) {
+            size_t inonzero = npos;
+            for (size_t i = 0; i < n; i++) {
                 if (! irowUsed[i]) {
                     if (c[i + j * idem] != 0.0) {
                         if ((c[i + i * idem] == 0.0) || (c[j + i * idem] != 0.0)) {
@@ -423,8 +423,8 @@ static void vcsUtil_mlequ_preprocess(double* c, int idem, int n, double* b, int 
     for (j = 0; j < n; j++) {
         if (c[j + j * idem] == 0.0) {
             int numNonzero = 0;
-            int inonzero = -1;
-            for (int i = 0; i < n; i++) {
+            size_t inonzero = npos;
+            for (size_t i = 0; i < n; i++) {
                 if (! irowUsed[i]) {
                     if (c[i + j * idem] != 0.0) {
                         if ((c[i + i * idem] == 0.0) || (c[j + i * idem] != 0.0)) {
@@ -434,7 +434,7 @@ static void vcsUtil_mlequ_preprocess(double* c, int idem, int n, double* b, int 
                     }
                 }
             }
-            if (inonzero != -1) {
+            if (inonzero != npos) {
                 if (inonzero != j) {
                     if (irowUsed[inonzero] == 0) {
                         vcsUtil_swapRows(c, idem, n, b, m, j, inonzero);
@@ -618,12 +618,12 @@ FOUND_PIVOT:
  *            (each column is a new rhs)
  *  @param m  number of rhs's
  */
-int vcsUtil_gaussj(double* c, int idem, int n, double* b, int m)
+int vcsUtil_gaussj(double* c, size_t idem, size_t n, double* b, size_t m)
 {
 
-    int i, j, k, l, ll;
-    int irow = -1;
-    int icol = -1;
+    size_t i, j, k, l, ll;
+    size_t irow = npos;
+    size_t icol = npos;
     bool needInverse = false;
     double pivinv, dum;
 #ifdef DEBUG_HKM
@@ -642,8 +642,8 @@ int vcsUtil_gaussj(double* c, int idem, int n, double* b, int m)
     // mlequ_matrixDump(c, idem, n);
 #endif
 
-    std::vector<int> indxc(n);
-    std::vector<int> indxr(n);
+    std::vector<size_t> indxc(n);
+    std::vector<size_t> indxr(n);
     std::vector<int> ipiv(n, 0);
     doublereal big = 0.0;
     /*

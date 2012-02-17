@@ -403,11 +403,11 @@ void MargulesVPSSTP::getChemPotentials(doublereal* mu) const
 /// Molar enthalpy. Units: J/kmol.
 doublereal MargulesVPSSTP::enthalpy_mole() const
 {
-    int kk = nSpecies();
+    size_t kk = nSpecies();
     double h = 0;
     vector_fp hbar(kk);
     getPartialMolarEnthalpies(&hbar[0]);
-    for (int i = 0; i < kk; i++) {
+    for (size_t i = 0; i < kk; i++) {
         h += moleFractions_[i]*hbar[i];
     }
     return h;
@@ -416,11 +416,11 @@ doublereal MargulesVPSSTP::enthalpy_mole() const
 /// Molar entropy. Units: J/kmol.
 doublereal MargulesVPSSTP::entropy_mole() const
 {
-    int kk = nSpecies();
+    size_t kk = nSpecies();
     double s = 0;
     vector_fp sbar(kk);
     getPartialMolarEntropies(&sbar[0]);
-    for (int i = 0; i < kk; i++) {
+    for (size_t i = 0; i < kk; i++) {
         s += moleFractions_[i]*sbar[i];
     }
     return s;
@@ -429,11 +429,11 @@ doublereal MargulesVPSSTP::entropy_mole() const
 /// Molar heat capacity at constant pressure. Units: J/kmol/K.
 doublereal MargulesVPSSTP::cp_mole() const
 {
-    int kk = nSpecies();
+    size_t kk = nSpecies();
     double cp = 0;
     vector_fp cpbar(kk);
     getPartialMolarCp(&cpbar[0]);
-    for (int i = 0; i < kk; i++) {
+    for (size_t i = 0; i < kk; i++) {
         cp += moleFractions_[i]*cpbar[i];
     }
     return cp;
@@ -1050,7 +1050,7 @@ void MargulesVPSSTP::getdlnActCoeffdlnX_diag(doublereal* dlnActCoeffdlnX_diag) c
     }
 }
 //====================================================================================================================
-void MargulesVPSSTP::getdlnActCoeffdlnN(const int ld, doublereal* dlnActCoeffdlnN)
+void MargulesVPSSTP::getdlnActCoeffdlnN(const size_t ld, doublereal* dlnActCoeffdlnN)
 {
     s_update_dlnActCoeff_dlnN();
     double* data =  & dlnActCoeffdlnN_(0,0);

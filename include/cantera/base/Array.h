@@ -238,7 +238,7 @@ public:
 
     //! Set all of the entries to zero
     inline void zero() {
-        int nn = m_nrows * m_ncols;
+        size_t nn = m_nrows * m_ncols;
         if (nn > 0) {
             /*
              * Using memset is the fastest way to zero a contiguous

@@ -50,6 +50,12 @@ std::string int2str(const int n, const std::string& fmt);
  */
 std::string int2str(const int n);
 
+//!  Convert an unsigned integer to a string
+/*!
+ *  @param n          int to be converted
+ */
+std::string int2str(const size_t n);
+
 //! Strip the leading and trailing white space
 //! from a string
 /*!

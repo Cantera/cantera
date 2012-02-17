@@ -144,7 +144,7 @@ public:
     /*!
      *   @param visc  Vector of species viscosities
      */
-    virtual void getSpeciesViscosities(doublereal* visc) {
+    virtual void getSpeciesViscosities(doublereal* const visc) {
         update_T();
         updateViscosity_T();
         copy(m_visc.begin(), m_visc.end(), visc);
@@ -271,7 +271,7 @@ public:
      *                    Flat vector with the m_nsp in the inner loop.
      *                       length = ldx * ndim
      */
-    virtual void getSpeciesFluxes(size_t ndim,  const doublereal* grad_T,
+    virtual void getSpeciesFluxes(size_t ndim, const doublereal* grad_T,
                                   int ldx, const doublereal* grad_X,
                                   int ldf, doublereal* fluxes);
 
