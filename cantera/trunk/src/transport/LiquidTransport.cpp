@@ -923,10 +923,10 @@ doublereal LiquidTransport::getElectricConduct()
     set_Grad_X(&gradX[0]);
     set_Grad_V(&gradV[0]);
 
-    doublereal* fluxes = new doublereal(m_nsp * m_nDim);
+    vector_fp fluxes(m_nsp * m_nDim);
     doublereal current;
 
-    getSpeciesFluxesExt(m_nDim, fluxes);
+    getSpeciesFluxesExt(m_nDim, &fluxes[0]);
 
     //sum over species charges, fluxes, Faraday to get current
     // Since we want the scalar conductivity, we need only consider one-dim
@@ -938,9 +938,7 @@ doublereal LiquidTransport::getElectricConduct()
         //divide by unit potential gradient
         current /= - gradV[i];
     }
-    delete fluxes;
     return current;
-
 }
 
 // Compute the electric current density in A/m^2
@@ -977,9 +975,9 @@ void LiquidTransport::getElectricCurrent(int ndim,
     set_Grad_X(grad_X);
     set_Grad_V(grad_V);
 
-    doublereal* fluxes = new doublereal(m_nsp * m_nDim);
+    vector_fp fluxes(m_nsp * m_nDim);
 
-    getSpeciesFluxesExt(ldf, fluxes);
+    getSpeciesFluxesExt(ldf, &fluxes[0]);
 
     //sum over species charges, fluxes, Faraday to get current
     for (size_t i = 0; i < m_nDim; i++) {
@@ -989,8 +987,6 @@ void LiquidTransport::getElectricCurrent(int ndim,
         }
         //divide by unit potential gradient
     }
-    delete fluxes;
-
 }
 
 // Get the species diffusive velocities wrt to
