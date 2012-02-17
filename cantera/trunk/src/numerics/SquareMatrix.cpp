@@ -156,7 +156,7 @@ void SquareMatrix::resize(size_t n, size_t m, doublereal v)
  *  @param b    Vector to do the rh multiplcation
  *  @param prod OUTPUT vector to receive the result
  */
-void  SquareMatrix::mult(const doublereal* const b, doublereal* const prod) const
+void  SquareMatrix::mult(const doublereal* b, doublereal* prod) const
 {
     DenseMatrix::mult(b, prod);
 }
@@ -220,7 +220,7 @@ int SquareMatrix::factorQR()
     a1norm_ = ct_dlange('1', m_nrows, m_nrows, &(*(begin())), m_nrows, DATA_PTR(work));
     int info;
     m_factored = 2;
-    int lwork = work.size();
+    size_t lwork = work.size();
     ct_dgeqrf(m_nrows, m_nrows, &(*(begin())), m_nrows, DATA_PTR(tau), DATA_PTR(work), lwork, info);
     if (info != 0) {
         if (m_printLevel) {
@@ -230,7 +230,7 @@ int SquareMatrix::factorQR()
             throw CELapackError("SquareMatrix::factorQR()", "DGEQRF returned INFO = " + int2str(info));
         }
     }
-    int lworkOpt = work[0];
+    size_t lworkOpt = static_cast<size_t>(work[0]);
     if (lworkOpt > lwork) {
         work.resize(lworkOpt);
     }
@@ -371,7 +371,7 @@ int SquareMatrix::factorAlgorithm() const
 //=====================================================================================================================
 bool SquareMatrix::factored() const
 {
-    return m_factored;
+    return (m_factored != 0);
 }
 //=====================================================================================================================
 // Return a pointer to the top of column j, columns are contiguous in memory
@@ -401,7 +401,7 @@ size_t  SquareMatrix::nRows() const
     return m_nrows;
 }
 //=====================================================================================================================
-size_t SquareMatrix::nRowsAndStruct(int* const iStruct) const
+size_t SquareMatrix::nRowsAndStruct(size_t* const iStruct) const
 {
     return m_nrows;
 }

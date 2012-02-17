@@ -159,9 +159,9 @@ void SolidTransport::getMixDiffCoeffs(doublereal* const d)
 doublereal SolidTransport::electricalConductivity()
 {
     getMobilities(&m_work[0]);
-    int nsp = m_thermo->nSpecies();
+    size_t nsp = m_thermo->nSpecies();
     doublereal sum = 0.0;
-    for (int k = 0; k < nsp; k++) {
+    for (size_t k = 0; k < nsp; k++) {
         sum += m_thermo->charge(k) * m_thermo->moleFraction(k) * m_work[k];
     }
     return sum * m_thermo->molarDensity();

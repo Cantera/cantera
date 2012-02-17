@@ -877,9 +877,8 @@ void InterfaceKinetics::getDeltaElectrochemPotentials(doublereal* deltaM)
      * Get the chemical potentials of the species in the
      * ideal gas solution.
      */
-    int np = nPhases();
-    int n;
-    for (n = 0; n < np; n++) {
+    size_t np = nPhases();
+    for (size_t n = 0; n < np; n++) {
         thermo(n).getElectrochemPotentials(DATA_PTR(m_grt) + m_start[n]);
     }
     /*

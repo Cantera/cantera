@@ -1538,9 +1538,9 @@ int vcs_MultiPhaseEquil::determine_PhaseStability(int iph, double& funcStab, int
 
 
     clockWC tickTock;
-    int nsp = m_mix->nSpecies();
-    int nel = m_mix->nElements();
-    int nph = m_mix->nPhases();
+    size_t nsp = m_mix->nSpecies();
+    size_t nel = m_mix->nElements();
+    size_t nph = m_mix->nPhases();
     if (m_vprob == 0) {
         m_vprob = new VCS_PROB(nsp, nel, nph);
     }

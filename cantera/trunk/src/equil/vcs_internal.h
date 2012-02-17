@@ -191,7 +191,7 @@ int  vcsUtil_mlequ(double* c, size_t idem, size_t n, double* b, size_t m);
  *            (each column is a new rhs)
  *  @param m  number of rhs's
  */
-int vcsUtil_gaussj(double* c, int idem, int n, double* b, int m);
+int vcsUtil_gaussj(double* c, size_t idem, size_t n, double* b, size_t m);
 
 //! Swap values in vector of doubles
 /*!

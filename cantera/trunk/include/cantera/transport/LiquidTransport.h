@@ -591,7 +591,7 @@ public:
      *                   Flat vector with the m_nsp in the inner loop.
      *                   length = ldx * ndim
      */
-    virtual void getSpeciesFluxes(int ndim,  const doublereal* const grad_T,
+    virtual void getSpeciesFluxes(size_t ndim, const doublereal* const grad_T,
                                   int ldx, const doublereal* const grad_X,
                                   int ldf, doublereal* const fluxes);
 

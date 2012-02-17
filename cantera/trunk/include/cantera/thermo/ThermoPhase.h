@@ -1160,7 +1160,7 @@ public:
     /*!
      * @param lnac Output vector of ln activity coefficients. Length: m_kk.
      */
-    virtual void getLnActivityCoefficients(doublereal* const lnac) const;
+    virtual void getLnActivityCoefficients(doublereal* lnac) const;
 
     //@}
     /// @name  Partial Molar Properties of the Solution
@@ -2198,9 +2198,9 @@ public:
      * @param dlnActCoeffdlnN    Output vector of derivatives of the
      *                           log Activity Coefficients. length = m_kk * m_kk
      */
-    virtual void getdlnActCoeffdlnN(const int ld, doublereal* const dlnActCoeffdlnN);
+    virtual void getdlnActCoeffdlnN(const size_t ld, doublereal* const dlnActCoeffdlnN);
 
-    virtual void getdlnActCoeffdlnN_numderiv(const int ld, doublereal* const dlnActCoeffdlnN);
+    virtual void getdlnActCoeffdlnN_numderiv(const size_t ld, doublereal* const dlnActCoeffdlnN);
 
     /**
      * @}

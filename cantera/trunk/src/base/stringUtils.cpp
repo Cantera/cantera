@@ -21,7 +21,7 @@
 #include "cantera/base/ctml.h"
 
 #include <string>
-
+#include <sstream>
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>
@@ -87,6 +87,17 @@ std::string int2str(const int n)
         return std::string(buf);
     }
     return std::string(" ");
+}
+//================================================================================================
+//  Convert an int to a string
+/*
+ *  @param n          int to be converted
+ */
+std::string int2str(const size_t n)
+{
+    std::stringstream ss;
+    ss << n;
+    return ss.str();
 }
 //================================================================================================
 std::string lowercase(const std::string& s)

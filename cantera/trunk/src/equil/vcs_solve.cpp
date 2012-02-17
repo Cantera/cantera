@@ -591,7 +591,7 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
         }
     } else {
         if (m_doEstimateEquil == 0) {
-            double sum;
+            double sum = 0;
             for (size_t j = 0; j < nelements; j++) {
                 m_elemAbundancesGoal[j] = 0.0;
                 for (size_t kspec = 0; kspec < nspecies; kspec++) {

@@ -515,15 +515,15 @@ protected:
     mutable std::vector<doublereal> PBMoleFractions_;
 
     //! Vector of cation indecises in the mixture
-    std::vector<int> cationList_;
+    std::vector<size_t> cationList_;
 
     //! Number of cations in the mixture
     size_t numCationSpecies_;
 
-    std::vector<int> anionList_;
+    std::vector<size_t> anionList_;
     size_t numAnionSpecies_;
 
-    std::vector<int> passThroughList_;
+    std::vector<size_t> passThroughList_;
     size_t numPassThroughSpecies_;
     size_t neutralPBindexStart;
 

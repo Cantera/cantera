@@ -762,9 +762,9 @@ int NonlinearSolver::doResidualCalc(const doublereal time_curr, const int typeCa
 void NonlinearSolver::scaleMatrix(GeneralMatrix& jac, doublereal* const y_comm, doublereal* const ydot_comm,
                                   doublereal time_curr, int num_newt_its)
 {
-    int irow, jcol;
-    int ku, kl;
-    int ivec[2];
+    size_t irow, jcol;
+    size_t ku, kl;
+    size_t ivec[2];
     jac.nRowsAndStruct(ivec);
     double* colP_j;
 
@@ -1185,7 +1185,7 @@ int NonlinearSolver::doAffineNewtonSolve(const doublereal* const y_curr,   const
     if (doHessian) {
         // Store the old value for later comparison
 
-        delyNewton = mdp::mdp_alloc_dbl_1(neq_, MDP_DBL_NOINIT);
+        delyNewton = mdp::mdp_alloc_dbl_1((int) neq_, MDP_DBL_NOINIT);
         for (irow = 0; irow < neq_; irow++) {
             delyNewton[irow] = delta_y[irow];
         }
@@ -1285,7 +1285,7 @@ int NonlinearSolver::doAffineNewtonSolve(const doublereal* const y_curr,   const
         }
 
         // doublereal *JTF = delta_y;
-        doublereal* delyH = mdp::mdp_alloc_dbl_1(neq_, MDP_DBL_NOINIT);
+        doublereal* delyH = mdp::mdp_alloc_dbl_1((int) neq_, MDP_DBL_NOINIT);
         // First recalculate the scaled residual. It got wiped out doing the newton solve
         if (m_rowScaling) {
             for (int n = 0; n < neq_; n++) {
@@ -1368,7 +1368,7 @@ int NonlinearSolver::doAffineNewtonSolve(const doublereal* const y_curr,   const
          *  Choose the delta_y to use
          */
         if (newtonGood || s_alwaysAssumeNewtonGood) {
-            mdp::mdp_copy_dbl_1(DATA_PTR(delta_y), CONSTD_DATA_PTR(delyNewton), neq_);
+            mdp::mdp_copy_dbl_1(DATA_PTR(delta_y), CONSTD_DATA_PTR(delyNewton), (int) neq_);
         }
         mdp::mdp_safe_free((void**) &delyH);
         mdp::mdp_safe_free((void**) &delyNewton);
@@ -2794,7 +2794,7 @@ int NonlinearSolver::dampDogLeg(const doublereal time_curr, const doublereal* y_
 
             haveASuccess = true;
             // Store the good results in stepLastGood
-            mdp::mdp_copy_dbl_1(DATA_PTR(stepLastGood), CONSTD_DATA_PTR(step_1), neq_);
+            mdp::mdp_copy_dbl_1(DATA_PTR(stepLastGood), CONSTD_DATA_PTR(step_1), (int) neq_);
             // Within the program decideStep(), we have already increased the value of trustDelta_. We store the
             // value of step0 in step1, recalculate a larger step0 in the next fillDogLegStep(),
             // and then attempt to see if the larger step works in the next iteration
@@ -2805,7 +2805,7 @@ int NonlinearSolver::dampDogLeg(const doublereal time_curr, const doublereal* y_
             // already been decreased in the decideStep() routine. We go back and try another iteration with
             // a smaller trust region.
             if (haveASuccess) {
-                mdp::mdp_copy_dbl_1(DATA_PTR(step_1), CONSTD_DATA_PTR(stepLastGood), neq_);
+                mdp::mdp_copy_dbl_1(DATA_PTR(step_1), CONSTD_DATA_PTR(stepLastGood), (int) neq_);
                 for (j = 0; j < neq_; j++) {
                     y_n_1[j] = y_n_curr[j] + step_1[j];
                 }
@@ -3082,11 +3082,11 @@ int NonlinearSolver::solve_nonlinear_problem(int SolnType, doublereal* const y_c
     bool trInit = false;
 
 
-    mdp::mdp_copy_dbl_1(DATA_PTR(m_y_n_curr), DATA_PTR(y_comm), neq_);
+    mdp::mdp_copy_dbl_1(DATA_PTR(m_y_n_curr), DATA_PTR(y_comm), (int) neq_);
 
     if (SolnType != NSOLN_TYPE_STEADY_STATE || ydot_comm) {
-        mdp::mdp_copy_dbl_1(DATA_PTR(m_ydot_n_curr), ydot_comm, neq_);
-        mdp::mdp_copy_dbl_1(DATA_PTR(m_ydot_n_1), ydot_comm, neq_);
+        mdp::mdp_copy_dbl_1(DATA_PTR(m_ydot_n_curr), ydot_comm, (int) neq_);
+        mdp::mdp_copy_dbl_1(DATA_PTR(m_ydot_n_1), ydot_comm, (int) neq_);
     }
     // Redo the solution weights every time we enter the function
     createSolnWeights(DATA_PTR(m_y_n_curr));
@@ -3103,7 +3103,7 @@ int NonlinearSolver::solve_nonlinear_problem(int SolnType, doublereal* const y_c
         trInit = true;
         initializeTrustRegion();
     } else {
-        mdp::mdp_init_dbl_1(DATA_PTR(deltaX_trust_), 1.0, neq_);
+        mdp::mdp_init_dbl_1(DATA_PTR(deltaX_trust_), 1.0, (int) neq_);
         trustDelta_ = 1.0;
     }
 
@@ -3277,7 +3277,7 @@ int NonlinearSolver::solve_nonlinear_problem(int SolnType, doublereal* const y_c
             }
             goto done;
         }
-        mdp::mdp_copy_dbl_1(DATA_PTR(m_step_1), CONSTD_DATA_PTR(deltaX_Newton_), neq_);
+        mdp::mdp_copy_dbl_1(DATA_PTR(m_step_1), CONSTD_DATA_PTR(deltaX_Newton_), (int) neq_);
 
         if (m_print_flag >= 6) {
             m_normDeltaSoln_Newton = solnErrorNorm(DATA_PTR(deltaX_Newton_),  "Initial Undamped Newton Step of the iteration", 10);
@@ -3452,7 +3452,7 @@ int NonlinearSolver::solve_nonlinear_problem(int SolnType, doublereal* const y_c
 
         // Exchange new for curr solutions
         if (retnDamp >= NSOLN_RETN_CONTINUE) {
-            mdp::mdp_copy_dbl_1(DATA_PTR(m_y_n_curr), CONSTD_DATA_PTR(m_y_n_1), neq_);
+            mdp::mdp_copy_dbl_1(DATA_PTR(m_y_n_curr), CONSTD_DATA_PTR(m_y_n_1), (int) neq_);
 
             if (solnType_ != NSOLN_TYPE_STEADY_STATE) {
                 calc_ydot(m_order, DATA_PTR(m_y_n_curr), DATA_PTR(m_ydot_n_curr));
@@ -3566,9 +3566,9 @@ done:
 
     }
 
-    mdp::mdp_copy_dbl_1(y_comm, CONSTD_DATA_PTR(m_y_n_curr), neq_);
+    mdp::mdp_copy_dbl_1(y_comm, CONSTD_DATA_PTR(m_y_n_curr), (int) neq_);
     if (solnType_ != NSOLN_TYPE_STEADY_STATE) {
-        mdp::mdp_copy_dbl_1(ydot_comm, CONSTD_DATA_PTR(m_ydot_n_curr), neq_);
+        mdp::mdp_copy_dbl_1(ydot_comm, CONSTD_DATA_PTR(m_ydot_n_curr), (int) neq_);
     }
 
     num_linear_solves += m_numTotalLinearSolves;
@@ -3761,7 +3761,7 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
              * deltaY's that are appropriate for calculating the numerical
              * derivative.
              */
-            doublereal* dyVector = mdp::mdp_alloc_dbl_1(neq_, MDP_DBL_NOINIT);
+            doublereal* dyVector = mdp::mdp_alloc_dbl_1((int) neq_, MDP_DBL_NOINIT);
             retn = m_func->calcDeltaSolnVariables(time_curr, y, ydot, dyVector, DATA_PTR(m_ewt));
 
 
@@ -3837,9 +3837,9 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
              */
             mdp::mdp_safe_free((void**) &dyVector);
         } else if (J.matrixType_ == 1) {
-            int ku, kl;
-            int ivec[2];
-            int n = J.nRowsAndStruct(ivec);
+            size_t ku, kl;
+            size_t ivec[2];
+            size_t n = J.nRowsAndStruct(ivec);
             kl = ivec[0];
             ku = ivec[1];
             if (n != neq_) {
@@ -3856,7 +3856,7 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
             m_nJacEval++;
 
 
-            doublereal* dyVector = mdp::mdp_alloc_dbl_1(neq_, MDP_DBL_NOINIT);
+            doublereal* dyVector = mdp::mdp_alloc_dbl_1((int) neq_, MDP_DBL_NOINIT);
             retn = m_func->calcDeltaSolnVariables(time_curr, y, ydot, dyVector, DATA_PTR(m_ewt));
             if (s_print_NumJac) {
                 if (m_print_flag >= 7) {
@@ -3897,7 +3897,7 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
 
 
 
-                for (int i = j - ku; i <= j + kl; i++) {
+                for (size_t i = j - ku; i <= j + kl; i++) {
                     if (i >= 0 &&  i < neq_) {
                         diff = subtractRD(m_wksp[i], f[i]);
                         col_j[kl + ku + i - j] = diff / dy;
@@ -3912,7 +3912,7 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
 
             mdp::mdp_safe_free((void**) &dyVector);
             double vSmall;
-            int ismall = J.checkRows(vSmall);
+            size_t ismall = J.checkRows(vSmall);
             if (vSmall < 1.0E-100) {
                 printf("WE have a zero row, %d\n", ismall);
                 exit(-1);

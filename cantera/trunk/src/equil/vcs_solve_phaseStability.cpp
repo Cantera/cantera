@@ -47,9 +47,9 @@ int VCS_SOLVE::vcs_PS(VCS_PROB* vprob, int iphase, int printLvl, double& feStabl
      *         This function is called to create the private data
      *         using the public data.
      */
-    int nspecies0 = vprob->nspecies + 10;
-    int nelements0 = vprob->ne;
-    int nphase0 = vprob->NPhase;
+    size_t nspecies0 = vprob->nspecies + 10;
+    size_t nelements0 = vprob->ne;
+    size_t nphase0 = vprob->NPhase;
 
     vcs_initSizes(nspecies0, nelements0, nphase0);
 
@@ -161,8 +161,8 @@ int VCS_SOLVE::vcs_PS(VCS_PROB* vprob, int iphase, int printLvl, double& feStabl
       vprob->mf[kstart + k] = mfPop[k];
     }
     VPphase->setMoleFractionsState(Vphase->totalMoles(),
-    			   VCS_DATA_PTR(Vphase->moleFractions()),
-    			   VCS_STATECALC_TMP);
+                   VCS_DATA_PTR(Vphase->moleFractions()),
+                   VCS_STATECALC_TMP);
     */
     vcs_prob_update(vprob);
     /*
@@ -207,7 +207,7 @@ int VCS_SOLVE::vcs_solve_phaseStability(const int iph, const int ifunc,
 {
     double test = -1.0E-10;
     bool usedZeroedSpecies;
-    std::vector<int> phasePopPhaseIDs(0);
+    std::vector<size_t> phasePopPhaseIDs(0);
     int iStab = 0;
 
     std::vector<double> sm(m_numElemConstraints*m_numElemConstraints, 0.0);

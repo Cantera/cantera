@@ -165,7 +165,7 @@ public:
      *
      * @return  returns the number of rows and columns in the matrix.
      */
-    virtual size_t nRowsAndStruct(int* const iStruct = 0) const;
+    virtual size_t nRowsAndStruct(size_t* const iStruct = 0) const;
 
     //! Number of columns
     size_t nColumns() const;
@@ -190,7 +190,7 @@ public:
      *  @param b    Vector to do the rh multiplcation
      *  @param prod OUTPUT vector to receive the result
      */
-    virtual void mult(const doublereal* const b, doublereal* const prod) const;
+    virtual void mult(const doublereal* b, doublereal* prod) const;
 
     //! Multiply b*A and write result to prod.
     /*!
@@ -231,7 +231,7 @@ public:
      *          0 indicates a success
      *         ~0  Some error occurred, see the LAPACK documentation
      */
-    int solve(doublereal* const b);
+    int solve(doublereal* b);
 
 
     //! Returns an iterator for the start of the band storage data

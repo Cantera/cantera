@@ -544,7 +544,7 @@ public:
      * @return returns the phase id of the phase that pops back into
      *         existence. Returns -1 if there are no phases
      */
-    int vcs_popPhaseID(std::vector<int> &phasePopPhaseIDs);
+    size_t vcs_popPhaseID(std::vector<size_t> &phasePopPhaseIDs);
 
     //! Calculates the deltas of the reactions due to phases popping
     //! into existence
@@ -579,7 +579,7 @@ public:
      *
      * @return  Returns an int representing which phase may need to be zeroed
      */
-    int vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial);
+    size_t vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial);
 
     //!  Calculates the total number of moles of species in all phases.
     /*!
@@ -1987,7 +1987,7 @@ public:
      */
     std::vector<double> m_chargeSpecies;
 
-    std::vector<std::vector<int> > phasePopProblemLists_;
+    std::vector<std::vector<size_t> > phasePopProblemLists_;
 
     //! Vector of pointers to thermostructures which identify the model
     //! and parameters for evaluating the  thermodynamic functions for that

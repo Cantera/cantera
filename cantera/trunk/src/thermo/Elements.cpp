@@ -353,7 +353,7 @@ doublereal Elements::entropyElement298(size_t m) const
  *
  * The default is  CT_ELEM_TYPE_ABSPOS
  */
-int Elements::elementType(int m) const
+int Elements::elementType(size_t m) const
 {
     return m_elem_type[m];
 }

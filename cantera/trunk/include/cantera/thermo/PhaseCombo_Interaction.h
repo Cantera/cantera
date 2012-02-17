@@ -802,7 +802,7 @@ public:
      * @param dlnActCoeffdlnN    Output vector of derivatives of the
      *                         log Activity Coefficients. length = m_kk * m_kk
      */
-    virtual void getdlnActCoeffdlnN(const int ld, doublereal* const dlnActCoeffdlnN);
+    virtual void getdlnActCoeffdlnN(const size_t ld, doublereal* const dlnActCoeffdlnN);
 
     //@}
 
@@ -825,7 +825,7 @@ private:
     /*!
      *  @param num Number of binary Margules interaction terms
      */
-    void resizeNumInteractions(const int num);
+    void resizeNumInteractions(const size_t num);
 
 
     //! Initialize lengths of local variables after all species have

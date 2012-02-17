@@ -635,7 +635,7 @@ void MolarityIonicVPSSTP::initThermo()
      *  Go find the list of cations and anions
      */
     double ch;
-    numCationSpecies_ = 0.0;
+    numCationSpecies_ = 0;
     cationList_.clear();
     anionList_.clear();
     passThroughList_.clear();
@@ -721,8 +721,8 @@ void MolarityIonicVPSSTP::initThermoXML(XML_Node& phaseNode, std::string id)
         //	throw CanteraError(subname.c_str(),
         //			   "Unknown activity coefficient model: " + mStringa);
         //}
-        int n = acNodePtr->nChildren();
-        for (int i = 0; i < n; i++) {
+        size_t n = acNodePtr->nChildren();
+        for (size_t i = 0; i < n; i++) {
             XML_Node& xmlACChild = acNodePtr->child(i);
             stemp = xmlACChild.name();
             std::string nodeName = lowercase(stemp);
@@ -779,7 +779,7 @@ std::string MolarityIonicVPSSTP::report(bool show_thermo) const
         sprintf(p, "         potential    %12.6g  V\n", phi);
         s += p;
 
-        int kk = nSpecies();
+        size_t kk = nSpecies();
         array_fp x(kk);
         array_fp molal(kk);
         array_fp mu(kk);

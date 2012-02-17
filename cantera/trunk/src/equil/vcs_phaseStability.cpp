@@ -109,7 +109,7 @@ bool VCS_SOLVE::vcs_popPhasePossible(const size_t iphasePop) const
                 // Second we are here if the component is a reactant in the reaction, and the reaction goes backwards.
                 else if (m_stoichCoeffRxnMatrix[jrxn][kspec] < 0.0) {
                     foundJrxn = true;
-                    int jspec = jrxn + m_numComponents;
+                    size_t jspec = jrxn + m_numComponents;
                     if (m_molNumSpecies_old[jspec] <= VCS_DELETE_ELEMENTABS_CUTOFF*0.5) {
                         foundJrxn = false;
                         continue;
@@ -133,14 +133,14 @@ bool VCS_SOLVE::vcs_popPhasePossible(const size_t iphasePop) const
 }
 //====================================================================================================================
 
-int inList(const std::vector<int> &list, int val)
+size_t inList(const std::vector<size_t> &list, size_t val)
 {
-    for (int i = 0; i < (int) list.size(); i++) {
+    for (size_t i = 0; i < list.size(); i++) {
         if (val == list[i]) {
             return i;
         }
     }
-    return -1;
+    return npos;
 }
 
 //====================================================================================================================
@@ -172,7 +172,7 @@ int  VCS_SOLVE::vcs_phasePopDeterminePossibleList()
      *     It does not count species with positive stoichiometric values if that species
      *     already has a positive mole number. The phase is already popped.
      */
-    std::vector< std::vector<int> > zeroedComponentLinkedPhasePops(m_numComponents);
+    std::vector< std::vector<size_t> > zeroedComponentLinkedPhasePops(m_numComponents);
     /*
      *  The logic below calculates zeroedComponentLinkedPhasePops
      */
@@ -180,11 +180,11 @@ int  VCS_SOLVE::vcs_phasePopDeterminePossibleList()
         if (m_elType[j] == VCS_ELEM_TYPE_ABSPOS) {
             molComp = m_molNumSpecies_old[j];
             if (molComp <= 0.0) {
-                std::vector<int> &jList = zeroedComponentLinkedPhasePops[j];
+                std::vector<size_t> &jList = zeroedComponentLinkedPhasePops[j];
                 size_t iph = m_phaseID[j];
                 jList.push_back(iph);
                 for (size_t irxn = 0; irxn < m_numRxnTot; irxn++) {
-		    size_t kspec = irxn +  m_numComponents;
+            size_t kspec = irxn +  m_numComponents;
                     iph = m_phaseID[kspec];
                     Vphase = m_VolPhaseList[iph];
                     int existence = Vphase->exists();
@@ -206,12 +206,12 @@ int  VCS_SOLVE::vcs_phasePopDeterminePossibleList()
      *     which have a species with a negative stoichiometric value wrt one or more species in the phase.
      *     Cut out components which have a pos stoichiometric value with another species in the phase.
      */
-    std::vector< std::vector<int> > zeroedPhaseLinkedZeroComponents(m_numPhases);
+    std::vector< std::vector<size_t> > zeroedPhaseLinkedZeroComponents(m_numPhases);
     /*
      *   The logic below calculates  zeroedPhaseLinkedZeroComponents
      */
     for (size_t iph = 0; iph < m_numPhases; iph++) {
-        std::vector<int> &iphList = zeroedPhaseLinkedZeroComponents[iph];
+        std::vector<size_t> &iphList = zeroedPhaseLinkedZeroComponents[iph];
         iphList.clear();
         Vphase = m_VolPhaseList[iph];
         int existence = Vphase->exists();
@@ -240,7 +240,7 @@ int  VCS_SOLVE::vcs_phasePopDeterminePossibleList()
                                     }
                                 }
                                 if (!foundPos) {
-                                    if (inList(iphList, j) != -1) {
+                                    if (inList(iphList, j) != npos) {
                                         iphList.push_back(j);
                                     }
                                 }
@@ -260,15 +260,15 @@ int  VCS_SOLVE::vcs_phasePopDeterminePossibleList()
         Vphase = m_VolPhaseList[iph];
         int existence = Vphase->exists();
         if (existence < 0) {
-            std::vector<int> &iphList = zeroedPhaseLinkedZeroComponents[iph];
-            std::vector<int> popProblem(0);
+            std::vector<size_t> &iphList = zeroedPhaseLinkedZeroComponents[iph];
+            std::vector<size_t> popProblem(0);
             popProblem.push_back(iph);
             for (size_t i = 0; i < iphList.size(); i++) {
-		size_t j = iphList[i];
-                std::vector<int> &jList = zeroedComponentLinkedPhasePops[j];
-                for (int jjl = 0; jjl < (int) jList.size(); jjl++) {
-                    int jph = jList[jjl];
-                    if (inList(popProblem, jph) != -1) {
+                size_t j = iphList[i];
+                std::vector<size_t> &jList = zeroedComponentLinkedPhasePops[j];
+                for (size_t jjl = 0; jjl < jList.size(); jjl++) {
+                    size_t jph = jList[jjl];
+                    if (inList(popProblem, jph) != npos) {
                         popProblem.push_back(jph);
                     }
                 }
@@ -285,12 +285,12 @@ int  VCS_SOLVE::vcs_phasePopDeterminePossibleList()
 // Decision as to whether a phase pops back into existence
 /*
  * @return returns the phase id of the phases that pops back into
- *         existence. Returns -1 if there are no phases
+ *         existence. Returns npos if there are no phases
  */
-int VCS_SOLVE::vcs_popPhaseID(std::vector<int> & phasePopPhaseIDs)
+size_t VCS_SOLVE::vcs_popPhaseID(std::vector<size_t> & phasePopPhaseIDs)
 {
-    int iphasePop = -1;
-    int irxn, kspec;
+    size_t iphasePop = npos;
+    size_t irxn, kspec;
     doublereal FephaseMax = -1.0E30;
     doublereal Fephase = -1.0E30;
     vcs_VolPhase* Vphase = 0;
@@ -401,7 +401,7 @@ int VCS_SOLVE::vcs_popPhaseID(std::vector<int> & phasePopPhaseIDs)
         }
     }
     phasePopPhaseIDs.resize(0);
-    if (iphasePop >= 0) {
+    if (iphasePop != npos) {
         phasePopPhaseIDs.push_back(iphasePop);
     }
 
@@ -447,7 +447,7 @@ int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop)
     size_t kspec = Vphase->spGlobalIndexVCS(0);
     // Identify the formation reaction for that species
     size_t irxn = kspec - m_numComponents;
-    std::vector<int> creationGlobalRxnNumbers;
+    std::vector<size_t> creationGlobalRxnNumbers;
 
     doublereal s;
     // Calculate the initial moles of the phase being born.
@@ -656,7 +656,7 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
     vector<doublereal> fracDelta_new(Vphase->nSpecies(), 0.0);
     vector<doublereal> fracDelta_old(Vphase->nSpecies(), 0.0);
     vector<doublereal> fracDelta_raw(Vphase->nSpecies(), 0.0);
-    vector<int>        creationGlobalRxnNumbers(Vphase->nSpecies(), -1);
+    vector<size_t> creationGlobalRxnNumbers(Vphase->nSpecies(), npos);
     vcs_dcopy(VCS_DATA_PTR(m_deltaGRxn_Deficient), VCS_DATA_PTR(m_deltaGRxn_old), m_numRxnRdc);
 
     vector<doublereal> m_feSpecies_Deficient(m_numComponents, 0.0);

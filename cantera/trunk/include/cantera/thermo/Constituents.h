@@ -137,7 +137,7 @@ public:
      */
     int atomicNumber(size_t m) const;
 
-    int elementType(int m) const;
+    int elementType(size_t m) const;
 
     /// Return a read-only reference to the vector of element names.
     const std::vector<std::string>& elementNames() const;
@@ -232,8 +232,8 @@ public:
      * @param elem_type Specifies the type of the element constraint equation. This defaults
      *                   to CT_ELEM_TYPE_ABSPOS, i.e., an element.
      */
-    int addUniqueElementAfterFreeze(const std::string& symbol, doublereal weight, int atomicNumber,
-                                    doublereal entropy298 = ENTROPY298_UNKNOWN, int elem_type = CT_ELEM_TYPE_ABSPOS);
+    size_t addUniqueElementAfterFreeze(const std::string& symbol, doublereal weight, int atomicNumber,
+                                       doublereal entropy298 = ENTROPY298_UNKNOWN, int elem_type = CT_ELEM_TYPE_ABSPOS);
 
     //@}
 

@@ -110,7 +110,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
     bool uptodate_minors = true;
     bool justDeletedMultiPhase = false;
     bool usedZeroedSpecies; /* return flag from basopt indicating that
-			      one of the components had a zero concentration */
+                  one of the components had a zero concentration */
     size_t doPhaseDeleteIph = npos;
     vcs_VolPhase* Vphase;
     double*     sc_irxn = NULL;  /* Stoichiometric coefficients for cur rxn  */
@@ -119,7 +119,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
     size_t iphasePop;
     int forceComponentCalc = 1;
     size_t iphaseDelete;  /* integer that determines which phase is being deleted */
-    std::vector<int> phasePopPhaseIDs(0);
+    std::vector<size_t> phasePopPhaseIDs(0);
 #ifdef DEBUG_MODE
     char ANOTE[128];
     /*
@@ -4647,7 +4647,7 @@ void  VCS_SOLVE::vcs_printSpeciesChemPot(const int stateCalc) const
                 mfValue = molNum[kspec]/tMoles[iphase];
             }
         } else {
-            int klocal = m_speciesLocalPhaseIndex[kspec];
+            size_t klocal = m_speciesLocalPhaseIndex[kspec];
             mfValue = Vphase->moleFraction(klocal);
         }
         double volts = Vphase->electricPotential();
@@ -5304,10 +5304,10 @@ void  VCS_SOLVE::vcs_printDeltaG(const int stateCalc)
 
     for (size_t kspec = 0; kspec < m_numSpeciesTot; kspec++) {
 
-        int irxn = kspec -  m_numComponents;
+        size_t irxn = kspec -  m_numComponents;
 
         double mfValue = 1.0;
-        int iphase = m_phaseID[kspec];
+        size_t iphase = m_phaseID[kspec];
         const vcs_VolPhase* Vphase = m_VolPhaseList[iphase];
         if ((m_speciesStatus[kspec] == VCS_SPECIES_ZEROEDMS)    ||
                 (m_speciesStatus[kspec] == VCS_SPECIES_ZEROEDPHASE) ||
@@ -5323,7 +5323,7 @@ void  VCS_SOLVE::vcs_printDeltaG(const int stateCalc)
                 mfValue = molNumSpecies[kspec] / tPhMoles_ptr[iphase];
             }
         } else {
-            int klocal = m_speciesLocalPhaseIndex[kspec];
+            size_t klocal = m_speciesLocalPhaseIndex[kspec];
             mfValue = Vphase->moleFraction(klocal);
         }
         if (zeroedPhase) {
@@ -5342,7 +5342,7 @@ void  VCS_SOLVE::vcs_printDeltaG(const int stateCalc)
         printf(" % -12.4e", mfValue);
         printf(" % -12.4e", feSpecies[kspec] * RT);
         printf(" % -12.4e", feFull * RT);
-        if (irxn >= 0) {
+        if (irxn != npos) {
             printf(" % -12.4e", deltaGRxn[irxn] * RT);
             printf(" % -12.4e", (deltaGRxn[irxn] + feFull - feSpecies[kspec]) * RT);
 

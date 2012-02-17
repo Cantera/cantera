@@ -425,13 +425,13 @@ public:
     /*!
      * @param F_k Pointer to a vector of n_k's
      */
-    void setCreationMoleNumbers(const double* const n_k, const std::vector<int> &creationGlobalRxnNumbers);
+    void setCreationMoleNumbers(const double* const n_k, const std::vector<size_t> &creationGlobalRxnNumbers);
 
     //! Return a const reference to the creationMoleNumbers storred in the object.
     /*!
      * @return  Returns a const reference to the vector of creationMoleNumbers
      */
-    const std::vector<double> & creationMoleNumbers(std::vector<int> &creationGlobalRxnNumbers) const;
+    const std::vector<double> & creationMoleNumbers(std::vector<size_t> &creationGlobalRxnNumbers) const;
 
     //! Returns whether the phase is an ideal solution phase
     bool isIdealSoln() const;
@@ -895,7 +895,7 @@ private:
      *   that the global reaction number will go out of order when the species positions
      *   are swapped. So, this number has to be recalculated.
      */
-    std::vector<int> creationGlobalRxnNumbers_;
+    std::vector<size_t> creationGlobalRxnNumbers_;
 
     //! If the potential is a solution variable in VCS, it acts as a species.
     //!  This is the species index in the phase for the potential

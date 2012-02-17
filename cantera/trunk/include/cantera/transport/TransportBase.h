@@ -185,7 +185,7 @@ public:
      *
      * @see TransportFactory
      */
-    Transport(thermo_t* thermo=0, int ndim = 1);
+    Transport(thermo_t* thermo=0, size_t ndim = 1);
 
     //! Destructor.
     virtual ~Transport();
@@ -544,7 +544,7 @@ public:
      *                    Flat vector with the m_nsp in the inner loop.
      *                        length = ldx * ndim
      */
-    virtual void getSpeciesFluxes(int ndim, const doublereal* const grad_T,
+    virtual void getSpeciesFluxes(size_t ndim, const doublereal* const grad_T,
                                   int ldx, const doublereal* const grad_X,
                                   int ldf, doublereal* const fluxes);
 

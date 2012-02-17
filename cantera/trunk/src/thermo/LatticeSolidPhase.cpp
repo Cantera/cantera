@@ -122,9 +122,9 @@ ThermoPhase* LatticeSolidPhase::duplMyselfAsThermoPhase() const
  * @param k index of the species. Default is -1, which will return the max of the min value
  *          over all species.
  */
-doublereal LatticeSolidPhase::minTemp(int k) const
+doublereal LatticeSolidPhase::minTemp(size_t k) const
 {
-    if (k >= 0) {
+    if (k != npos) {
         for (size_t n = 0; n < m_nlattice; n++) {
             if (lkstart_[n+1] < k) {
                 double ml = (m_lattice[n])->minTemp(k-lkstart_[n]);
@@ -152,9 +152,9 @@ doublereal LatticeSolidPhase::minTemp(int k) const
  * @param k index of the species. Default is -1, which will return the max of the min value
  *          over all species.
  */
-doublereal LatticeSolidPhase::maxTemp(int k) const
+doublereal LatticeSolidPhase::maxTemp(size_t k) const
 {
-    if (k >= 0) {
+    if (k != npos) {
         for (size_t n = 0; n < m_nlattice; n++) {
             if (lkstart_[n+1] < k) {
                 double ml = (m_lattice[n])->maxTemp(k - lkstart_[n]);
@@ -512,8 +512,8 @@ void LatticeSolidPhase::installSlavePhases(Cantera::XML_Node* phaseNode)
             for (size_t m = 0; m < lp->nElements(); m++) {
                 if (constArr[m] != 0.0) {
                     std::string oldEname = lp->elementName(m);
-                    int newIndex = elementIndex(oldEname);
-                    if (newIndex < 0) {
+                    size_t newIndex = elementIndex(oldEname);
+                    if (newIndex == npos) {
                         throw CanteraError("LatticeSolidPhase::installSlavePhases", "confused");
                     }
                     ecomp[newIndex] = constArr[m];
@@ -534,7 +534,7 @@ void LatticeSolidPhase::installSlavePhases(Cantera::XML_Node* phaseNode)
             string econ = "LC_";
             econ += int2str(n);
             econ += "_" + id();
-            int m = addUniqueElementAfterFreeze(econ, 0.0, 0, 0.0, CT_ELEM_TYPE_LATTICERATIO);
+            size_t m = addUniqueElementAfterFreeze(econ, 0.0, 0, 0.0, CT_ELEM_TYPE_LATTICERATIO);
             m_mm = nElements();
             LatticePhase* lp0 = m_lattice[0];
             size_t nsp0 =  lp0->nSpecies();
@@ -574,7 +574,6 @@ void LatticeSolidPhase::initThermo()
     for (size_t n = 0; n < m_nlattice; n++) {
         nsp = m_lattice[n]->nSpecies();
         lkstart_[n] = loc;
-        nspLattice_[n] = nsp;
         for (size_t k = 0; k < nsp; k++) {
             m_x[loc] =m_lattice[n]->moleFraction(k) / (double) m_nlattice;
             loc++;
@@ -592,7 +591,6 @@ void LatticeSolidPhase::initThermo()
 void LatticeSolidPhase::initLengths()
 {
     theta_.resize(m_nlattice,0);
-    nspLattice_.resize(m_nlattice);
     lkstart_.resize(m_nlattice+1);
     m_x.resize(m_kk, 0.0);
     tmpV_.resize(m_kk, 0.0);

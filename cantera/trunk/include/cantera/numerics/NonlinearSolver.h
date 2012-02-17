@@ -929,7 +929,7 @@ private:
     int solnType_;
 
     //! Local copy of the number of equations
-    int neq_;
+    size_t neq_;
 
     //! Soln error weights
     std::vector<doublereal> m_ewt;

@@ -31,7 +31,7 @@ namespace Cantera
  *       STATIC ROUTINES DEFINED IN THIS FILE
  ***************************************************************************/
 
-static doublereal calcWeightedNorm(const doublereal [], const doublereal dx[], int);
+static doublereal calcWeightedNorm(const doublereal [], const doublereal dx[], size_t);
 
 /***************************************************************************
  *                    LAPACK PROTOTYPES
@@ -66,7 +66,7 @@ solveProb::solveProb(ResidEval* resid) :
     m_neq =   m_residFunc->nEquations();
 
     // Dimension solution vector
-    int dim1 = MAX(1, m_neq);
+    size_t dim1 = MAX(1, m_neq);
 
     m_atol.resize(dim1, 1.0E-9);
     m_netProductionRatesSave.resize(dim1, 0.0);
@@ -85,7 +85,7 @@ solveProb::solveProb(ResidEval* resid) :
 
     m_Jac.resize(dim1, dim1, 0.0);
     m_JacCol.resize(dim1, 0);
-    for (int k = 0; k < dim1; k++) {
+    for (size_t k = 0; k < dim1; k++) {
         m_JacCol[k] = m_Jac.ptrColumn(k);
     }
 
@@ -111,9 +111,9 @@ int solveProb::solve(int ifunc, doublereal time_scale,
         EXTRA_ACCURACY *= 0.001;
     }
     int info = 0;
-    int label_t=-1; /* Species IDs for time control */
+    size_t label_t = npos; /* Species IDs for time control */
     int label_d; /* Species IDs for damping control */
-    int label_t_old = -1;
+    size_t label_t_old = npos;
     doublereal label_factor = 1.0;
     int iter=0; // iteration number on numlinear solver
     int iter_max=1000; // maximum number of nonlinear iterations
@@ -504,7 +504,7 @@ void solveProb::resjac_eval(std::vector<doublereal*> &JacCol,
  *  @param dim     Size of the solution vector
  *  @param label   return int, stating which solution component caused the most damping.
  */
-doublereal solveProb::calc_damping(doublereal x[], doublereal dxneg[], int dim, int* label)
+doublereal solveProb::calc_damping(doublereal x[], doublereal dxneg[], size_t dim, int* label)
 {
     doublereal  damp = 1.0, xnew, xtop, xbot;
     static doublereal damp_old = 1.0;
@@ -582,7 +582,7 @@ doublereal solveProb::calc_damping(doublereal x[], doublereal dxneg[], int dim, 
  *    This function calculates the norm  of an update, dx[],
  *    based on the weighted values of x.
  */
-static doublereal calcWeightedNorm(const doublereal wtX[], const doublereal dx[], int dim)
+static doublereal calcWeightedNorm(const doublereal wtX[], const doublereal dx[], size_t dim)
 {
     doublereal norm = 0.0;
     doublereal tmp;
@@ -638,7 +638,7 @@ void solveProb::calcWeights(doublereal wtSpecies[], doublereal wtResid[],
  */
 doublereal solveProb::
 calc_t(doublereal netProdRateSolnSP[], doublereal Csoln[],
-       int* label, int* label_old, doublereal* label_factor, int ioflag)
+       size_t* label, size_t* label_old, doublereal* label_factor, int ioflag)
 {
     doublereal tmp, inv_timeScale=0.0;
     for (size_t k = 0; k < m_neq; k++) {
@@ -818,14 +818,14 @@ void solveProb::print_header(int ioflag, int ifunc, doublereal time_scale,
 }
 //================================================================================================
 void solveProb::printIteration(int ioflag, doublereal damp, int label_d,
-                               int label_t,
+                               size_t label_t,
                                doublereal inv_t, doublereal t_real, int iter,
                                doublereal update_norm, doublereal resid_norm,
                                doublereal netProdRate[], doublereal CSolnSP[],
                                doublereal resid[],
-                               doublereal wtSpecies[], int dim, bool do_time)
+                               doublereal wtSpecies[], size_t dim, bool do_time)
 {
-    int i, k;
+    size_t i, k;
     string nm;
     if (ioflag == 1) {
 
@@ -907,15 +907,15 @@ void solveProb::printIteration(int ioflag, doublereal damp, int label_d,
 } /* printIteration */
 
 //================================================================================================
-void solveProb::printFinal(int ioflag, doublereal damp, int label_d, int label_t,
+void solveProb::printFinal(int ioflag, doublereal damp, int label_d, size_t label_t,
                            doublereal inv_t, doublereal t_real, int iter,
                            doublereal update_norm, doublereal resid_norm,
                            doublereal netProdRateKinSpecies[], const doublereal CSolnSP[],
                            const doublereal resid[],
                            const doublereal wtSpecies[], const doublereal wtRes[],
-                           int dim, bool do_time)
+                           size_t dim, bool do_time)
 {
-    int i, k;
+    size_t i, k;
     string nm;
     if (ioflag == 1) {
 

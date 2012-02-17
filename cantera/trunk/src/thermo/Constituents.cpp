@@ -114,7 +114,7 @@ int Constituents::atomicNumber(size_t m) const
     return m_Elements->atomicNumber(m);
 }
 
-int Constituents::elementType(int m) const
+int Constituents::elementType(size_t m) const
 {
     return m_Elements->elementType(m);
 }
@@ -495,18 +495,18 @@ void Constituents::getAtoms(size_t k, double* atomArray) const
 
 
 //====================================================================================================================
-int Constituents::addUniqueElementAfterFreeze(const std::string& symbol, doublereal weight, int atomicNumber,
+size_t Constituents::addUniqueElementAfterFreeze(const std::string& symbol, doublereal weight, int atomicNumber,
         doublereal entropy298, int elem_type)
 {
-    int ii = elementIndex(symbol);
-    if (ii != -1) {
+    size_t ii = elementIndex(symbol);
+    if (ii != npos) {
         return ii;
     }
     // Check to see that the element isn't really in the list
     m_Elements->m_elementsFrozen = false;
     addUniqueElement(symbol, weight, atomicNumber, entropy298, elem_type);
     m_Elements->m_elementsFrozen = true;
-    int m_mm = m_Elements->nElements();
+    size_t m_mm = m_Elements->nElements();
     ii = elementIndex(symbol);
     if (ii != m_mm-1) {
         throw CanteraError("Constituents::addElementAfterFreeze()", "confused");
@@ -515,8 +515,8 @@ int Constituents::addUniqueElementAfterFreeze(const std::string& symbol, doubler
         vector_fp old(m_speciesComp);
         m_speciesComp.resize(m_kk*m_mm, 0.0);
         for (size_t k = 0; k < m_kk; k++) {
-            int m_old = m_mm - 1;
-            for (int m = 0; m < m_old; m++) {
+            size_t m_old = m_mm - 1;
+            for (size_t m = 0; m < m_old; m++) {
                 m_speciesComp[k * m_mm + m] =  old[k * (m_old) + m];
             }
             m_speciesComp[k * (m_mm) + (m_mm-1)] = 0.0;

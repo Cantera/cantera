@@ -250,10 +250,10 @@ bool SimpleTransport::initLiquid(LiquidTransportParams& tr)
       tempDepType_ = 1;
     } else if (vm0 == LTR_MODEL_NOTSET) {
       throw CanteraError("SimpleTransport::initLiquid",
-    		 "Viscosity Model is not set for species " + spName0 + " in the input file");
+             "Viscosity Model is not set for species " + spName0 + " in the input file");
     } else {
       throw CanteraError("SimpleTransport::initLiquid",
-    		 "Viscosity Model for species " + spName0 + " is not handled by this object");
+             "Viscosity Model for species " + spName0 + " is not handled by this object");
     }
     */
 
@@ -266,7 +266,7 @@ bool SimpleTransport::initLiquid(LiquidTransportParams& tr)
         if (vm != vm0) {
         if (compositionDepType_ != 0) {
           throw CanteraError(" SimpleTransport::initLiquid",
-        		     "different viscosity models for species " + spName + " and " + spName0 );
+                     "different viscosity models for species " + spName + " and " + spName0 );
         } else {
            kentry = m_coeffVisc_Ns[0];
         }
@@ -297,7 +297,7 @@ bool SimpleTransport::initLiquid(LiquidTransportParams& tr)
         if (cm != cm0) {
         if (compositionDepType_ != 0) {
           throw CanteraError(" SimpleTransport::initLiquid",
-        		     "different thermal conductivity models for species " + spName + " and " + spName0);
+                     "different thermal conductivity models for species " + spName + " and " + spName0);
         } else {
           kentry = m_coeffLambda_Ns[0];
         }
@@ -322,7 +322,7 @@ bool SimpleTransport::initLiquid(LiquidTransportParams& tr)
     LiquidTR_Model rm0 =  ltd0.model_hydroradius;
     if (rm0 != vm0) {
       throw CanteraError("SimpleTransport::initLiquid",
-    		     "hydroradius model is not the same as the viscosity model for species " + spName0);
+                 "hydroradius model is not the same as the viscosity model for species " + spName0);
     } else {
       useHydroRadius_ = true;
     }
@@ -339,22 +339,22 @@ bool SimpleTransport::initLiquid(LiquidTransportParams& tr)
         LiquidTR_Model rm =  ltd.model_hydroradius;
         if (rm == LTR_MODEL_NOTSET) {
           throw CanteraError("SimpleTransport::initLiquid",
-        		     "Neither diffusivity nor hydroradius is set for species " + spName);
+                     "Neither diffusivity nor hydroradius is set for species " + spName);
         }
         if (rm != vm0) {
           throw CanteraError("SimpleTransport::initLiquid",
-        		     "hydroradius model is not the same as the viscosity model for species " + spName);
+                     "hydroradius model is not the same as the viscosity model for species " + spName);
         }
         if (rm !=  LTR_MODEL_CONSTANT) {
           throw CanteraError("SimpleTransport::initLiquid",
-        		     "hydroradius model is not constant for species " + spName0);
+                     "hydroradius model is not constant for species " + spName0);
         }
         vector_fp &kentry = m_coeffHydroRadius_Ns[k];
         kentry = ltd.hydroradius;
              } else {
         if (dm != dm0) {
           throw CanteraError(" SimpleTransport::initLiquid",
-        		     "different diffusivity models for species " + spName + " and " + spName0 );
+                     "different diffusivity models for species " + spName + " and " + spName0 );
         }
         vector_fp &kentry = m_coeffDiff_Ns[k];
         kentry = ltd.speciesDiffusivity;
@@ -452,7 +452,7 @@ doublereal SimpleTransport::viscosity()
     return m_viscmix;
 }
 //================================================================================================
-void SimpleTransport::getSpeciesViscosities(doublereal* visc)
+void SimpleTransport::getSpeciesViscosities(doublereal* const visc)
 {
     update_T();
     if (!m_visc_temp_ok) {

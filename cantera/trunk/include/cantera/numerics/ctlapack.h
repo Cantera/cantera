@@ -395,30 +395,30 @@ inline void ct_dscal(int n, doublereal da, doublereal* dx, int incx)
     cblas_dscal(n, da, dx, incx);
 }
 //====================================================================================================================
-inline void ct_dgeqrf(int m, int n, doublereal* a, int lda, doublereal* tau,
-                      doublereal* work, int lwork, int& info)
+inline void ct_dgeqrf(size_t m, size_t n, doublereal* a, size_t lda, doublereal* tau,
+                      doublereal* work, size_t lwork, int& info)
 {
-    integer f_m = m;
-    integer f_n = n;
-    integer f_lda = lda;
-    integer f_lwork = lwork;
+    integer f_m = static_cast<integer>(m);
+    integer f_n = static_cast<integer>(n);
+    integer f_lda = static_cast<integer>(lda);
+    integer f_lwork = static_cast<integer>(lwork);
     integer f_info = info;
     _DGEQRF_(&f_m, &f_n, a, &f_lda, tau, work, &f_lwork, &f_info);
     info = f_info;
 }
 //====================================================================================================================
-inline void ct_dormqr(ctlapack::side_t rlside, ctlapack::transpose_t trans, int m,
-                      int n, int k, doublereal* a, int lda, doublereal* tau, doublereal* c, int ldc,
+inline void ct_dormqr(ctlapack::side_t rlside, ctlapack::transpose_t trans, size_t m,
+                      size_t n, size_t k, doublereal* a, size_t lda, doublereal* tau, doublereal* c, size_t ldc,
                       doublereal* work, size_t lwork, int& info)
 {
     char side = left_right[rlside];
     char tr = no_yes[trans];
-    integer f_m = m;
-    integer f_n = n;
-    integer f_k = k;
+    integer f_m = static_cast<integer>(m);
+    integer f_n = static_cast<integer>(n);
+    integer f_k = static_cast<integer>(k);
     integer f_lwork = static_cast<integer>(lwork);
-    integer f_lda = lda;
-    integer f_ldc = ldc;
+    integer f_lda = static_cast<integer>(lda);
+    integer f_ldc = static_cast<integer>(ldc);
     integer f_info = info;
 #ifdef NO_FTN_STRING_LEN_AT_END
     _DORMQR_(&side, &tr, &f_m, &f_n,  &f_k, a, &f_lda, tau, c, &f_ldc, work, &f_lwork, &f_info);
@@ -434,7 +434,7 @@ inline void ct_dormqr(ctlapack::side_t rlside, ctlapack::transpose_t trans, int 
 }
 //====================================================================================================================
 inline void ct_dtrtrs(ctlapack::upperlower_t uplot, ctlapack::transpose_t trans, const char* diag,
-                      int n, int nrhs, doublereal* a, int lda, doublereal* b, int ldb, int& info)
+                      size_t n, size_t nrhs, doublereal* a, size_t lda, doublereal* b, size_t ldb, int& info)
 {
     char uplo = upper_lower[uplot];
     char tr = no_yes[trans];
@@ -442,10 +442,10 @@ inline void ct_dtrtrs(ctlapack::upperlower_t uplot, ctlapack::transpose_t trans,
     if (diag) {
         dd = diag[0];
     }
-    integer f_n = n;
-    integer f_nrhs = nrhs;
-    integer f_lda = lda;
-    integer f_ldb = ldb;
+    integer f_n = static_cast<integer>(n);
+    integer f_nrhs = static_cast<integer>(nrhs);
+    integer f_lda = static_cast<integer>(lda);
+    integer f_ldb = static_cast<integer>(ldb);
     integer f_info = info;
 #ifdef NO_FTN_STRING_LEN_AT_END
     _DTRTRS_(&uplo, &tr, &dd, &f_n, &f_nrhs, a, &f_lda, b, &f_ldb, &f_info);
@@ -466,7 +466,7 @@ inline void ct_dtrtrs(ctlapack::upperlower_t uplot, ctlapack::transpose_t trans,
  *  @param iwork  Must be dimensioned equal to or greater than N
  */
 inline doublereal ct_dtrcon(const char* norm, ctlapack::upperlower_t uplot,  const char* diag,
-                            int n, doublereal* a, int lda, doublereal* work, int* iwork, int& info)
+                            size_t n, doublereal* a, size_t lda, doublereal* work, int* iwork, int& info)
 {
     char uplo = upper_lower[uplot];
     char dd = 'N';
@@ -477,8 +477,8 @@ inline doublereal ct_dtrcon(const char* norm, ctlapack::upperlower_t uplot,  con
     if (norm) {
         nn = norm[0];
     }
-    integer f_n = n;
-    integer f_lda = lda;
+    integer f_n = static_cast<integer>(n);
+    integer f_lda = static_cast<integer>(lda);
     integer f_info = info;
     doublereal rcond;
 #ifdef NO_FTN_STRING_LEN_AT_END
@@ -500,11 +500,11 @@ inline doublereal ct_dtrcon(const char* norm, ctlapack::upperlower_t uplot,  con
  *  @param work   Must be dimensioned equal to greater than 3N
  *  @param iwork  Must be dimensioned equal to or greater than N
  */
-inline void ct_dpotrf(ctlapack::upperlower_t uplot, int n, doublereal* a, int lda, int& info)
+inline void ct_dpotrf(ctlapack::upperlower_t uplot, size_t n, doublereal* a, size_t lda, int& info)
 {
     char uplo = upper_lower[uplot];
-    integer f_n = n;
-    integer f_lda = lda;
+    integer f_n = static_cast<integer>(n);
+    integer f_lda = static_cast<integer>(lda);
     integer f_info = info;
 
 #ifdef NO_FTN_STRING_LEN_AT_END
@@ -524,14 +524,14 @@ inline void ct_dpotrf(ctlapack::upperlower_t uplot, int n, doublereal* a, int ld
 //!
 /*!
  */
-inline void ct_dpotrs(ctlapack::upperlower_t uplot, int n, int nrhs, doublereal* a, int lda,
-                      doublereal* b, int ldb, int& info)
+inline void ct_dpotrs(ctlapack::upperlower_t uplot, size_t n, size_t nrhs, doublereal* a, size_t lda,
+                      doublereal* b, size_t ldb, int& info)
 {
     char uplo = upper_lower[uplot];
-    integer f_n = n;
-    integer f_nrhs = nrhs;
-    integer f_lda = lda;
-    integer f_ldb = ldb;
+    integer f_n = static_cast<integer>(n);
+    integer f_nrhs = static_cast<integer>(nrhs);
+    integer f_lda = static_cast<integer>(lda);
+    integer f_ldb = static_cast<integer>(ldb);
     integer f_info = info;
 
 #ifdef NO_FTN_STRING_LEN_AT_END
@@ -552,15 +552,15 @@ inline void ct_dpotrs(ctlapack::upperlower_t uplot, int n, int nrhs, doublereal*
 //!
 /*!
  */
-inline doublereal ct_dgecon(const char norm, int n, doublereal* a, int lda, doublereal anorm,
+inline doublereal ct_dgecon(const char norm, size_t n, doublereal* a, size_t lda, doublereal anorm,
                             doublereal* work, int* iwork, int& info)
 {
     char cnorm = '1';
     if (norm) {
         cnorm = norm;
     }
-    integer f_n = n;
-    integer f_lda = lda;
+    integer f_n = static_cast<integer>(n);
+    integer f_lda = static_cast<integer>(lda);
     integer f_info = info;
     doublereal rcond;
 
@@ -582,17 +582,18 @@ inline doublereal ct_dgecon(const char norm, int n, doublereal* a, int lda, doub
 //!
 /*!
  */
-inline doublereal ct_dgbcon(const char norm, int n, int kl, int ku,  doublereal* a, int ldab, int* ipiv, doublereal anorm,
+inline doublereal ct_dgbcon(const char norm, size_t n, size_t kl, size_t ku,
+                            doublereal* a, size_t ldab, int* ipiv, doublereal anorm,
                             doublereal* work, int* iwork, int& info)
 {
     char cnorm = '1';
     if (norm) {
         cnorm = norm;
     }
-    integer f_n = n;
-    integer f_kl = kl;
-    integer f_ku = ku;
-    integer f_ldab = ldab;
+    integer f_n = static_cast<integer>(n);
+    integer f_kl = static_cast<integer>(kl);
+    integer f_ku = static_cast<integer>(ku);
+    integer f_ldab = static_cast<integer>(ldab);
     integer f_info = info;
     doublereal rcond;
 
@@ -614,16 +615,16 @@ inline doublereal ct_dgbcon(const char norm, int n, int kl, int ku,  doublereal*
 //!
 /*!
  */
-inline doublereal ct_dlange(const char norm, int m, int n, doublereal* a, int lda,
+inline doublereal ct_dlange(const char norm, size_t m, size_t n, doublereal* a, size_t lda,
                             doublereal* work)
 {
     char cnorm = '1';
     if (norm) {
         cnorm = norm;
     }
-    integer f_m = m;
-    integer f_n = n;
-    integer f_lda = lda;
+    integer f_m = static_cast<integer>(m);
+    integer f_n = static_cast<integer>(n);
+    integer f_lda = static_cast<integer>(lda);
     doublereal anorm;
 
 #ifdef NO_FTN_STRING_LEN_AT_END

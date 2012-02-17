@@ -588,7 +588,7 @@ void IonsFromNeutralVPSSTP::getdlnActCoeffdlnN_diag(doublereal* dlnActCoeffdlnN_
     }
 }
 //====================================================================================================================
-void IonsFromNeutralVPSSTP::getdlnActCoeffdlnN(const int ld, doublereal* dlnActCoeffdlnN)
+void IonsFromNeutralVPSSTP::getdlnActCoeffdlnN(const size_t ld, doublereal* dlnActCoeffdlnN)
 {
     s_update_lnActCoeff();
     s_update_dlnActCoeff_dlnN();
@@ -1679,7 +1679,7 @@ void IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnN() const
     if (!geThermo) {
         throw CanteraError("IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnN()", "dynamic cast failed");
     }
-    int nsp_ge = geThermo->nSpecies();
+    size_t nsp_ge = geThermo->nSpecies();
     geThermo->getdlnActCoeffdlnN(nsp_ge, &(dlnActCoeffdlnN_NeutralMolecule_(0,0)));
 
     switch (ionSolnType_) {

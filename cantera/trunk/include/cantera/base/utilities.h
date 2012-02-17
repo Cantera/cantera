@@ -707,39 +707,20 @@ R poly3(D x, R* c)
 template<class D>
 void deepStdVectorPointerCopy(const std::vector<D*> &fromVec, std::vector<D*> &toVec)
 {
-    int is = toVec.size();
-    for (int i = 0; i < is; is++) {
+    size_t is = toVec.size();
+    for (size_t i = 0; i < is; is++) {
         if (toVec[i]) {
             delete(toVec[i]);
         }
     }
     is = fromVec.size();
     toVec.resize(is);
-    for (int i = 0; i < is; is++) {
+    for (size_t i = 0; i < is; is++) {
         toVec[i] = new D(*(fromVec[i]));
     }
 }
 
-
 //@}
 }
 
-
 #endif
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

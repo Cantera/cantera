@@ -27,7 +27,7 @@ DenseMatrix::DenseMatrix() :
  * Constructor. Create an \c n by \c m matrix, and initialize
  * all elements to \c v.
  */
-DenseMatrix::DenseMatrix(int n, int m, doublereal v) :
+DenseMatrix::DenseMatrix(size_t n, size_t m, doublereal v) :
     Array2D(n, m, v),
     m_ipiv(0),
     m_useReturnErrorCode(0),
@@ -35,7 +35,7 @@ DenseMatrix::DenseMatrix(int n, int m, doublereal v) :
 {
     m_ipiv.resize(max(n, m));
     m_colPts.resize(m);
-    for (int j = 0; j < m; j++) {
+    for (size_t j = 0; j < m; j++) {
         m_colPts[j] = &(m_data[m_nrows*j]);
     }
 }
@@ -79,7 +79,7 @@ DenseMatrix::~DenseMatrix()
 {
 }
 //====================================================================================================================
-void DenseMatrix::resize(int n, int m, doublereal v)
+void DenseMatrix::resize(size_t n, size_t m, doublereal v)
 {
     Array2D::resize(n,m,v);
     m_ipiv.resize(max(n,m));
@@ -109,13 +109,12 @@ void DenseMatrix::mult(const double* b, double* prod) const
 //====================================================================================================================
 void DenseMatrix::leftMult(const double* const b, double* const prod) const
 {
-    int nc = static_cast<int>(nColumns());
-    int nr = static_cast<int>(nRows());
-    int n, i;
+    size_t nc = nColumns();
+    size_t nr = nRows();
     double sum = 0.0;
-    for (n = 0; n < nc; n++) {
+    for (size_t n = 0; n < nc; n++) {
         sum = 0.0;
-        for (i = 0; i < nr; i++) {
+        for (size_t i = 0; i < nr; i++) {
             sum += value(i,n)*b[i];
         }
         prod[n] = sum;
@@ -139,9 +138,8 @@ int solve(DenseMatrix& A, double* b)
         }
         return -1;
     }
-    ct_dgetrf(static_cast<int>(A.nRows()),
-              static_cast<int>(A.nColumns()), A.ptrColumn(0), //begin(),
-              static_cast<int>(A.nRows()), &A.ipiv()[0], info);
+    ct_dgetrf(A.nRows(), A.nColumns(), A.ptrColumn(0),
+              A.nRows(), &A.ipiv()[0], info);
     if (info != 0) {
         if (info > 0) {
             if (A.m_printLevel) {
@@ -166,11 +164,8 @@ int solve(DenseMatrix& A, double* b)
         }
         return info;
     }
-    ct_dgetrs(ctlapack::NoTranspose,
-              static_cast<int>(A.nRows()), 1, A.ptrColumn(0), //begin(),
-              static_cast<int>(A.nRows()),
-              &A.ipiv()[0], b,
-              static_cast<int>(A.nColumns()), info);
+    ct_dgetrs(ctlapack::NoTranspose, A.nRows(), 1, A.ptrColumn(0),
+              A.nRows(), &A.ipiv()[0], b, A.nColumns(), info);
     if (info != 0) {
         if (A.m_printLevel) {
             writelogf("solve(DenseMatrix& A, double* b): DGETRS returned INFO = %d\n", info);
@@ -194,9 +189,8 @@ int solve(DenseMatrix& A, DenseMatrix& b)
         }
         return -1;
     }
-    ct_dgetrf(static_cast<int>(A.nRows()),
-              static_cast<int>(A.nColumns()), A.ptrColumn(0),
-              static_cast<int>(A.nRows()), &A.ipiv()[0], info);
+    ct_dgetrf(A.nRows(), A.nColumns(), A.ptrColumn(0),
+              A.nRows(), &A.ipiv()[0], info);
     if (info != 0) {
         if (info > 0) {
             if (A.m_printLevel) {
@@ -222,11 +216,8 @@ int solve(DenseMatrix& A, DenseMatrix& b)
         return info;
     }
 
-    ct_dgetrs(ctlapack::NoTranspose, static_cast<int>(A.nRows()),
-              static_cast<int>(b.nColumns()),
-              A.ptrColumn(0), static_cast<int>(A.nRows()),
-              &A.ipiv()[0], b.ptrColumn(0),
-              static_cast<int>(b.nRows()), info);
+    ct_dgetrs(ctlapack::NoTranspose, A.nRows(), b.nColumns(), A.ptrColumn(0),
+              A.nRows(), &A.ipiv()[0], b.ptrColumn(0), b.nRows(), info);
     if (info != 0) {
         if (A.m_printLevel) {
             writelogf("solve(DenseMatrix& A, DenseMatrix& b): DGETRS returned INFO = %d\n", info);
@@ -283,9 +274,9 @@ void increment(const DenseMatrix& A, const double* b, double* prod)
              A.ptrColumn(0), static_cast<int>(A.nRows()), b, 1, 1.0, prod, 1);
 }
 //====================================================================================================================
-int invert(DenseMatrix& A, int nn)
+int invert(DenseMatrix& A, size_t nn)
 {
-    integer n = (nn > 0 ? nn : static_cast<int>(A.nRows()));
+    integer n = static_cast<int>(nn != npos ? nn : A.nRows());
     int info=0;
     ct_dgetrf(n, n, A.ptrColumn(0), static_cast<int>(A.nRows()),
               &A.ipiv()[0], info);
