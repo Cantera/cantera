@@ -232,7 +232,7 @@ private:
 #endif
 
     //! Printing routine that gets called after every iteration
-    virtual void printIteration(int ioflag, doublereal damp, int label_d, size_t label_t,
+    virtual void printIteration(int ioflag, doublereal damp, size_t label_d, size_t label_t,
                                 doublereal inv_t, doublereal t_real, int iter,
                                 doublereal update_norm, doublereal resid_norm,
                                 doublereal netProdRate[], doublereal CSolnSP[],
@@ -364,7 +364,7 @@ private:
      *  @param dim     Size of the solution vector
      *  @param label   return int, stating which solution component caused the most damping.
      */
-    virtual doublereal calc_damping(doublereal x[], doublereal dxneg[], size_t dim, int* label);
+    virtual doublereal calc_damping(doublereal x[], doublereal dxneg[], size_t dim, size_t* label);
 
     //! residual function pointer to be solved.
     ResidEval* m_residFunc;

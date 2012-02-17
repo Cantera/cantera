@@ -345,14 +345,13 @@ static void mlequ_matrixDump(double* c, int idem, int n)
 static void vcsUtil_swapRows(double* c, size_t idem, size_t n, double* b, size_t m, size_t irowa, size_t irowb)
 {
     double t1;
-    int j;
     if (irowa == irowb) {
         return;
     }
-    for (j = 0; j < n; j++) {
+    for (size_t j = 0; j < n; j++) {
         SWAP(c[irowa + j * idem], c[irowb + j * idem], t1);
     }
-    for (j = 0; j < m; j++) {
+    for (size_t j = 0; j < m; j++) {
         SWAP(b[irowa + j * idem], b[irowb + j * idem], t1);
     }
 }

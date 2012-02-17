@@ -352,7 +352,7 @@ doublereal LTI_MoleFracs::getMixTransProp(doublereal* speciesValues, doublereal*
 
     //if weightings are specified, use those
     if (speciesWeight) {
-        for (int k = 0; k < nsp; k++) {
+        for (size_t k = 0; k < nsp; k++) {
             molefracs[k] = molefracs[k]*speciesWeight[k];
         }
     } else {

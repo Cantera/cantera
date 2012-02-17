@@ -191,7 +191,7 @@ int  VCS_SOLVE::vcs_phasePopDeterminePossibleList()
                     if (existence < 0) {
                         stoicC = m_stoichCoeffRxnMatrix[irxn][j];
                         if (stoicC > 0.0) {
-                            if (inList(jList, iph) != -1) {
+                            if (inList(jList, iph) != npos) {
                                 jList.push_back(iph);
                             }
                         }

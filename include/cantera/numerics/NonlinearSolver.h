@@ -612,7 +612,7 @@ public:
     print_solnDelta_norm_contrib(const doublereal* const step_1, const char* const stepNorm_1,
                                  const doublereal* const step_2, const char* const stepNorm_2,
                                  const char* const title, const doublereal* const y_n_curr,
-                                 const doublereal* const y_n_1,  doublereal damp, int num_entries);
+                                 const doublereal* const y_n_1,  doublereal damp, size_t num_entries);
 
     //! Compute the Residual Weights
     /*!
