@@ -725,7 +725,7 @@ void RedlichKisterVPSSTP::s_update_lnActCoeff() const
         XA = moleFractions_[iA];
         XB = moleFractions_[iB];
         doublereal deltaX = XA - XB;
-        int N = m_N_ij[i];
+        size_t N = m_N_ij[i];
         vector_fp& he_vec = m_HE_m_ij[i];
         vector_fp& se_vec = m_SE_m_ij[i];
         doublereal poly = 1.0;
@@ -733,7 +733,7 @@ void RedlichKisterVPSSTP::s_update_lnActCoeff() const
         doublereal sum = 0.0;
         doublereal sumMm1 = 0.0;
         doublereal sum2 = 0.0;
-        for (int m = 0; m < N; m++) {
+        for (size_t m = 0; m < N; m++) {
             doublereal A_ge = (he_vec[m] -  T * se_vec[m]) / RT;
             sum += A_ge * poly;
             sum2 += A_ge * (m + 1) * poly;
@@ -797,7 +797,7 @@ void RedlichKisterVPSSTP::s_update_dlnActCoeff_dT() const
         XA = moleFractions_[iA];
         XB = moleFractions_[iB];
         doublereal deltaX = XA - XB;
-        int N = m_N_ij[i];
+        size_t N = m_N_ij[i];
         doublereal poly = 1.0;
         doublereal sum = 0.0;
 
@@ -805,7 +805,7 @@ void RedlichKisterVPSSTP::s_update_dlnActCoeff_dT() const
         doublereal sumMm1 = 0.0;
         doublereal polyMm1 = 1.0;
         doublereal sum2 = 0.0;
-        for (int m = 0; m < N; m++) {
+        for (size_t m = 0; m < N; m++) {
             doublereal A_ge = - se_vec[m];
             sum += A_ge * poly;
             sum2 += A_ge * (m + 1) * poly;
@@ -858,7 +858,7 @@ void RedlichKisterVPSSTP::s_update_dlnActCoeff_dX_() const
         XA = moleFractions_[iA];
         XB = moleFractions_[iB];
         doublereal deltaX = XA - XB;
-        int N = m_N_ij[i];
+        size_t N = m_N_ij[i];
         doublereal poly = 1.0;
         doublereal sum = 0.0;
         vector_fp& he_vec = m_HE_m_ij[i];
@@ -869,7 +869,7 @@ void RedlichKisterVPSSTP::s_update_dlnActCoeff_dX_() const
         doublereal sum2 = 0.0;
         doublereal sum2Mm1 = 0.0;
         doublereal sumMm2 = 0.0;
-        for (int m = 0; m < N; m++) {
+        for (size_t m = 0; m < N; m++) {
             doublereal A_ge = he_vec[m] -  T * se_vec[m];
             sum += A_ge * poly;
             sum2 += A_ge * (m + 1) * poly;
@@ -974,9 +974,9 @@ void RedlichKisterVPSSTP::getdlnActCoeffdlnN(const size_t ld, doublereal* dlnAct
 void RedlichKisterVPSSTP::resizeNumInteractions(const size_t num)
 {
     numBinaryInteractions_ = num;
-    m_pSpecies_A_ij.resize(num, -1);
-    m_pSpecies_B_ij.resize(num, -1);
-    m_N_ij.resize(num, -1);
+    m_pSpecies_A_ij.resize(num, npos);
+    m_pSpecies_B_ij.resize(num, npos);
+    m_N_ij.resize(num, npos);
     m_HE_m_ij.resize(num);
     m_SE_m_ij.resize(num);
     dlnActCoeff_dX_.resize(num, num, 0.0);
@@ -997,8 +997,7 @@ void RedlichKisterVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
     }
     double* charge = DATA_PTR(m_speciesCharge);
     std::string stemp;
-    int nParamsFound = 0;
-    int Npoly = 0;
+    size_t Npoly = 0;
     vector_fp hParams, sParams, vParams;
     std::string iName = xmLBinarySpecies.attrib("speciesA");
     if (iName == "") {
@@ -1052,7 +1051,7 @@ void RedlichKisterVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
              * Get the string containing all of the values
              */
             ctml::getFloatArray(xmlChild, hParams, true, "toSI", "excessEnthalpy");
-            nParamsFound = hParams.size();
+            size_t nParamsFound = hParams.size();
             if (nParamsFound > Npoly) {
                 Npoly = nParamsFound;
             }
@@ -1064,7 +1063,7 @@ void RedlichKisterVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
              * Get the string containing all of the values
              */
             ctml::getFloatArray(xmlChild, sParams, true, "toSI", "excessEntropy");
-            nParamsFound = sParams.size();
+            size_t nParamsFound = sParams.size();
             if (nParamsFound > Npoly) {
                 Npoly = nParamsFound;
             }

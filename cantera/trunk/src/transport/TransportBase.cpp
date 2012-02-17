@@ -33,7 +33,7 @@ Transport::Transport(thermo_t* thermo, size_t ndim) :
     m_thermo(thermo),
     m_ready(false),
     m_nmin(0),
-    m_index(-1),
+    m_index(npos),
     m_nDim(ndim),
     m_velocityBasis(VB_MASSAVG)
 {

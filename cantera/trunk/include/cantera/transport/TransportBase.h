@@ -281,7 +281,7 @@ public:
     /*!
      *   @return  Returns the number of dimensions
      */
-    int nDim() const {
+    size_t nDim() const {
         return m_nDim;
     }
 
@@ -873,7 +873,7 @@ protected:
     size_t       m_index;
 
     //! Number of dimensions used in flux expresions
-    int       m_nDim;
+    size_t m_nDim;
 
     //!    Velocity basis from which diffusion velocities are computed.
     //!    Defaults to the mass averaged basis = -2

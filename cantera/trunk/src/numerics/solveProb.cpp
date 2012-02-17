@@ -907,7 +907,7 @@ void solveProb::printIteration(int ioflag, doublereal damp, size_t label_d,
 } /* printIteration */
 
 //================================================================================================
-void solveProb::printFinal(int ioflag, doublereal damp, int label_d, size_t label_t,
+void solveProb::printFinal(int ioflag, doublereal damp, size_t label_d, size_t label_t,
                            doublereal inv_t, doublereal t_real, int iter,
                            doublereal update_norm, doublereal resid_norm,
                            doublereal netProdRateKinSpecies[], const doublereal CSolnSP[],

@@ -271,9 +271,9 @@ public:
      *                    Flat vector with the m_nsp in the inner loop.
      *                       length = ldx * ndim
      */
-    virtual void getSpeciesFluxes(size_t ndim, const doublereal* grad_T,
-                                  int ldx, const doublereal* grad_X,
-                                  int ldf, doublereal* fluxes);
+    virtual void getSpeciesFluxes(size_t ndim, const doublereal* const grad_T,
+                                  int ldx, const doublereal* const grad_X,
+                                  int ldf, doublereal* const fluxes);
 
     //! Initialize the transport object
     /*!

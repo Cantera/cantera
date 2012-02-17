@@ -896,7 +896,7 @@ protected:
 
 
     //! Vector of the length of the polynomial for the interaction.
-    vector_int m_N_ij;
+    std::vector<size_t> m_N_ij;
 
 
     //! Enthalpy term for the binary mole fraction interaction of the
