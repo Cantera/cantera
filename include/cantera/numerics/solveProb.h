@@ -164,7 +164,7 @@ public:
     solveProb(ResidEval* resid);
 
     //! Destructor. Deletes the integrator.
-    ~solveProb();
+    virtual ~solveProb();
 
 private:
 
@@ -244,7 +244,7 @@ private:
     /*!
      *
      */
-    virtual void printFinal(int ioflag, doublereal damp, int label_d, size_t label_t,
+    virtual void printFinal(int ioflag, doublereal damp, size_t label_d, size_t label_t,
                             doublereal inv_t, doublereal t_real, int iter,
                             doublereal update_norm, doublereal resid_norm,
                             doublereal netProdRateKinSpecies[], const doublereal CSolnSP[],

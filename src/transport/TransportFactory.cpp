@@ -1152,7 +1152,7 @@ void TransportFactory::getLiquidInteractionsTransportData(const XML_Node& transp
                         size_t loc = specName.find(":");
                         string firstSpec = specName.substr(0,loc);
                         string secondSpec = specName.substr(loc+1);
-                        int index = temp_thermo->speciesIndex(firstSpec.c_str())+nsp*temp_thermo->speciesIndex(secondSpec.c_str());
+                        size_t index = temp_thermo->speciesIndex(firstSpec.c_str())+nsp*temp_thermo->speciesIndex(secondSpec.c_str());
                         trParam.mobilityRatio[index] = newLTI(propSpecNode,
                                                               m_tranPropMap[nodeName],
                                                               trParam);

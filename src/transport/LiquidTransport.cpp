@@ -1098,9 +1098,9 @@ void LiquidTransport::getSpeciesVdiffES(size_t ndim,
  *             length = ldx * ndim
  */
 void LiquidTransport::getSpeciesFluxes(size_t ndim,
-                                       const doublereal* grad_T,
-                                       int ldx, const doublereal* grad_X,
-                                       int ldf, doublereal* fluxes)
+                                       const doublereal* const grad_T,
+                                       int ldx, const doublereal* const grad_X,
+                                       int ldf, doublereal* const fluxes)
 {
     set_Grad_T(grad_T);
     set_Grad_X(grad_X);

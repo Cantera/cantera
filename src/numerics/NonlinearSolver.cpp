@@ -34,7 +34,6 @@
 #include <cmath>
 
 //@{
-extern void print_line(const char*, int);
 
 #ifndef MAX
 #define MAX(x,y)    (( (x) > (y) ) ? (x) : (y))
@@ -2040,7 +2039,7 @@ double
 NonlinearSolver::deltaBoundStep(const doublereal* const y_n_curr, const doublereal* const step_1)
 {
 
-    int i_fbounds = 0;
+    size_t i_fbounds = 0;
     int ifbd = 0;
     int i_fbd = 0;
     doublereal UPFAC = 2.0;

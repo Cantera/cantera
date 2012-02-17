@@ -412,8 +412,8 @@ void MixTransport::getThermalDiffCoeffs(doublereal* const dt)
  *             length = ldx * ndim
  */
 void MixTransport::getSpeciesFluxes(size_t ndim,
-                                    const doublereal* grad_T, int ldx, const doublereal* grad_X,
-                                    int ldf, doublereal* fluxes)
+                                    const doublereal* const grad_T, int ldx, const doublereal* const grad_X,
+                                    int ldf, doublereal* const fluxes)
 {
     update_T();
     update_C();
