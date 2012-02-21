@@ -7,7 +7,7 @@
 #define CT_LOGGER_H
 
 #include <iostream>
-
+#include <string>
 #include <cstdlib>
 
 namespace Cantera
