@@ -3480,7 +3480,7 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
             }
 #endif
             vcs_switch_pos(false, jr, k);
-            vcsUtil_dsw(aw, jr, k);
+            std::swap(aw[jr], aw[k]);
         }
 #ifdef DEBUG_MODE
         else {
@@ -4986,15 +4986,14 @@ void VCS_SOLVE::vcs_switch2D(double* const* const Jac,
                              const size_t k1, const size_t k2) const
 {
     size_t i;
-    register double dtmp;
     if (k1 == k2) {
         return;
     }
     for (i = 0; i < m_numSpeciesTot; i++) {
-        SWAP(Jac[k1][i], Jac[k2][i], dtmp);
+        std::swap(Jac[k1][i], Jac[k2][i]);
     }
     for (i = 0; i < m_numSpeciesTot; i++) {
-        SWAP(Jac[i][k1], Jac[i][k2], dtmp);
+        std::swap(Jac[i][k1], Jac[i][k2]);
     }
 }
 /*****************************************************************************/
@@ -5558,11 +5557,8 @@ void VCS_SOLVE::vcs_deltag_Phase(const size_t iphase, const bool doDeleted,
  */
 void VCS_SOLVE::vcs_switch_pos(const bool ifunc, const size_t k1, const size_t k2)
 {
-    register size_t j;
-    register double t1 = 0.0;
     size_t i1, i2, iph, kp1, kp2;
     vcs_VolPhase* pv1, *pv2;
-    VCS_SPECIES_THERMO* st_tmp;
     if (k1 == k2) {
         return;
     }
@@ -5595,37 +5591,35 @@ void VCS_SOLVE::vcs_switch_pos(const bool ifunc, const size_t k1, const size_t k
     pv2->setSpGlobalIndexVCS(kp2, k1);
     //pv1->IndSpecies[kp1] = k2;
     //pv2->IndSpecies[kp2] = k1;
-    int itmp;
-    bool btmp;
-    vcsUtil_stsw(m_speciesName,  k1, k2);
-    SWAP(m_molNumSpecies_old[k1], m_molNumSpecies_old[k2], t1);
-    SWAP(m_speciesUnknownType[k1], m_speciesUnknownType[k2], itmp);
-    SWAP(m_molNumSpecies_new[k1], m_molNumSpecies_new[k2], t1);
-    SWAP(m_SSfeSpecies[k1], m_SSfeSpecies[k2], t1);
-    SWAP(m_spSize[k1], m_spSize[k2], t1);
-    SWAP(m_deltaMolNumSpecies[k1], m_deltaMolNumSpecies[k2], t1);
-    SWAP(m_feSpecies_old[k1], m_feSpecies_old[k2], t1);
-    SWAP(m_feSpecies_new[k1], m_feSpecies_new[k2], t1);
-    SWAP(m_SSPhase[k1], m_SSPhase[k2], btmp);
-    SWAP(m_phaseID[k1], m_phaseID[k2], j);
-    SWAP(m_speciesMapIndex[k1], m_speciesMapIndex[k2], j);
-    SWAP(m_speciesLocalPhaseIndex[k1], m_speciesLocalPhaseIndex[k2], j);
-    SWAP(m_actConventionSpecies[k1], m_actConventionSpecies[k2], itmp);
-    SWAP(m_lnMnaughtSpecies[k1], m_lnMnaughtSpecies[k2], t1);
-    SWAP(m_actCoeffSpecies_new[k1], m_actCoeffSpecies_new[k2], t1);
-    SWAP(m_actCoeffSpecies_old[k1], m_actCoeffSpecies_old[k2], t1);
-    SWAP(m_wtSpecies[k1], m_wtSpecies[k2], t1);
-    SWAP(m_chargeSpecies[k1], m_chargeSpecies[k2], t1);
-    SWAP(m_speciesThermoList[k1], m_speciesThermoList[k2], st_tmp);
-    SWAP(m_PMVolumeSpecies[k1], m_PMVolumeSpecies[k2], t1);
+    std::swap(m_speciesName[k1], m_speciesName[k2]);
+    std::swap(m_molNumSpecies_old[k1], m_molNumSpecies_old[k2]);
+    std::swap(m_speciesUnknownType[k1], m_speciesUnknownType[k2]);
+    std::swap(m_molNumSpecies_new[k1], m_molNumSpecies_new[k2]);
+    std::swap(m_SSfeSpecies[k1], m_SSfeSpecies[k2]);
+    std::swap(m_spSize[k1], m_spSize[k2]);
+    std::swap(m_deltaMolNumSpecies[k1], m_deltaMolNumSpecies[k2]);
+    std::swap(m_feSpecies_old[k1], m_feSpecies_old[k2]);
+    std::swap(m_feSpecies_new[k1], m_feSpecies_new[k2]);
+    std::swap(m_SSPhase[k1], m_SSPhase[k2]);
+    std::swap(m_phaseID[k1], m_phaseID[k2]);
+    std::swap(m_speciesMapIndex[k1], m_speciesMapIndex[k2]);
+    std::swap(m_speciesLocalPhaseIndex[k1], m_speciesLocalPhaseIndex[k2]);
+    std::swap(m_actConventionSpecies[k1], m_actConventionSpecies[k2]);
+    std::swap(m_lnMnaughtSpecies[k1], m_lnMnaughtSpecies[k2]);
+    std::swap(m_actCoeffSpecies_new[k1], m_actCoeffSpecies_new[k2]);
+    std::swap(m_actCoeffSpecies_old[k1], m_actCoeffSpecies_old[k2]);
+    std::swap(m_wtSpecies[k1], m_wtSpecies[k2]);
+    std::swap(m_chargeSpecies[k1], m_chargeSpecies[k2]);
+    std::swap(m_speciesThermoList[k1], m_speciesThermoList[k2]);
+    std::swap(m_PMVolumeSpecies[k1], m_PMVolumeSpecies[k2]);
 
-    for (j = 0; j < m_numElemConstraints; ++j) {
-        SWAP(m_formulaMatrix[j][k1], m_formulaMatrix[j][k2], t1);
+    for (size_t j = 0; j < m_numElemConstraints; ++j) {
+        std::swap(m_formulaMatrix[j][k1], m_formulaMatrix[j][k2]);
     }
     if (m_useActCoeffJac) {
         vcs_switch2D(m_dLnActCoeffdMolNum.baseDataAddr(), k1, k2);
     }
-    SWAP(m_speciesStatus[k1], m_speciesStatus[k2], itmp);
+    std::swap(m_speciesStatus[k1], m_speciesStatus[k2]);
     /*
      *     Handle the index pointer in the phase structures
      */
@@ -5644,18 +5638,18 @@ void VCS_SOLVE::vcs_switch_pos(const bool ifunc, const size_t k1, const size_t k
                   i1 , i2);
         }
 #endif
-        for (j = 0; j < m_numComponents; ++j) {
-            SWAP(m_stoichCoeffRxnMatrix[i1][j], m_stoichCoeffRxnMatrix[i2][j], t1);
+        for (size_t j = 0; j < m_numComponents; ++j) {
+            std::swap(m_stoichCoeffRxnMatrix[i1][j], m_stoichCoeffRxnMatrix[i2][j]);
         }
-        SWAP(m_scSize[i1], m_scSize[i2], t1);
+        std::swap(m_scSize[i1], m_scSize[i2]);
         for (iph = 0; iph < m_numPhases; iph++) {
-            SWAP(m_deltaMolNumPhase[i1][iph], m_deltaMolNumPhase[i2][iph], t1);
-            SWAP(m_phaseParticipation[i1][iph],
-                 m_phaseParticipation[i2][iph], itmp);
+            std::swap(m_deltaMolNumPhase[i1][iph], m_deltaMolNumPhase[i2][iph]);
+            std::swap(m_phaseParticipation[i1][iph],
+                      m_phaseParticipation[i2][iph]);
         }
-        SWAP(m_deltaGRxn_new[i1],  m_deltaGRxn_new[i2],  t1);
-        SWAP(m_deltaGRxn_old[i1], m_deltaGRxn_old[i2], t1);
-        SWAP(m_deltaGRxn_tmp[i1], m_deltaGRxn_tmp[i2], t1);
+        std::swap(m_deltaGRxn_new[i1],  m_deltaGRxn_new[i2]);
+        std::swap(m_deltaGRxn_old[i1], m_deltaGRxn_old[i2]);
+        std::swap(m_deltaGRxn_tmp[i1], m_deltaGRxn_tmp[i2]);
 
         /*
          *   We don't want to swap ir[], because the values of ir should

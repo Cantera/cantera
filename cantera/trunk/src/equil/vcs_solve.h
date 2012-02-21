@@ -1857,8 +1857,8 @@ public:
     std::vector<size_t> m_phaseID;
 
     //!  Boolean indicating whether a species belongs to a single-species phase
-    std::vector<bool> m_SSPhase;
-
+    // vector<bool> can't be used here because it doesn't work with std::swap
+    std::vector<char> m_SSPhase;
 
     //! Species string name for the kth species
     /*!

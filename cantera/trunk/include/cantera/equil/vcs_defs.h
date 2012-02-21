@@ -19,10 +19,6 @@ namespace VCSnonideal
  */
 //@{
 
-#ifndef SWAP
-# define SWAP(x1, x2, temp) ((temp) = (x1), (x1) = (x2), (x2) = (temp))
-#endif
-
 #ifndef SQUARE
 # define SQUARE(x) ((x) * (x))
 #endif

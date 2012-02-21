@@ -248,58 +248,6 @@ int vcs_max_int(const int* vector, int length)
     return retn;
 }
 
-//====================================================================================================================
-// Swap values in a std vector string
-/*
- * Switches the value of vecStrings[i1] with vecStrings[i2]
- *
- * @param vecStrings  Vector of integers
- * @param i1 first index
- * @param i2 second index
- */
-void vcsUtil_stsw(std::vector<std::string> & vstr, size_t i1, size_t i2)
-{
-    std::string tmp(vstr[i2]);
-    vstr[i2] = vstr[i1];
-    vstr[i1] = tmp;
-}
-//====================================================================================================================
-// Swap values in vector of doubles
-/*
- * Switches the value of x[i1] with x[i2]
- *
- * @param x  Vector of doubles
- * @param i1 first index
- * @param i2 second index
- */
-void vcsUtil_dsw(double x[], size_t i1, size_t i2)
-{
-    double t = x[i1];
-    x[i1] = x[i2];
-    x[i2] = t;
-}
-//====================================================================================================================
-// Swap values in an integer array
-/*
- * Switches the value of x[i1] with x[i2]
- *
- * @param x  Vector of integers
- * @param i1 first index
- * @param i2 second index
- */
-void vcsUtil_isw(int x[], size_t i1, size_t i2)
-{
-    int t = x[i1];
-    x[i1] = x[i2];
-    x[i2] = t;
-}
-
-void vcsUtil_ssw(size_t x[], size_t i1, size_t i2)
-{
-    size_t t = x[i1];
-    x[i1] = x[i2];
-    x[i2] = t;
-}
 
 //====================================================================================================================
 #ifdef DEBUG_HKM
@@ -344,15 +292,14 @@ static void mlequ_matrixDump(double* c, int idem, int n)
  */
 static void vcsUtil_swapRows(double* c, size_t idem, size_t n, double* b, size_t m, size_t irowa, size_t irowb)
 {
-    double t1;
     if (irowa == irowb) {
         return;
     }
     for (size_t j = 0; j < n; j++) {
-        SWAP(c[irowa + j * idem], c[irowb + j * idem], t1);
+        std::swap(c[irowa + j * idem], c[irowb + j * idem]);
     }
     for (size_t j = 0; j < m; j++) {
-        SWAP(b[irowa + j * idem], b[irowb + j * idem], t1);
+        std::swap(b[irowa + j * idem], b[irowb + j * idem]);
     }
 }
 //====================================================================================================================
@@ -624,7 +571,7 @@ int vcsUtil_gaussj(double* c, size_t idem, size_t n, double* b, size_t m)
     size_t irow = npos;
     size_t icol = npos;
     bool needInverse = false;
-    double pivinv, dum;
+    double pivinv;
 #ifdef DEBUG_HKM
     static int s_numCalls = 0;
     s_numCalls++;
@@ -683,7 +630,7 @@ int vcsUtil_gaussj(double* c, size_t idem, size_t n, double* b, size_t m)
         }
         for (ll = 0; ll < n; ll++) {
             if (ll != icol) {
-                dum = c[ll + idem * icol];
+                double dum = c[ll + idem * icol];
                 c[ll + idem * icol] = 0;
                 for (l = 0; l < n; l++) {
                     c[ll + idem * l] -=  c[icol + idem * l] * dum;
@@ -698,7 +645,7 @@ int vcsUtil_gaussj(double* c, size_t idem, size_t n, double* b, size_t m)
         for (l = n-1; l >= 0; l--) {
             if (indxr[l] != indxc[l]) {
                 for (k = 0; k < n; k++) {
-                    SWAP(c[k + idem * indxr[l]], c[k + idem * indxr[l]], dum);
+                    std::swap(c[k + idem * indxr[l]], c[k + idem * indxr[l]]);
                 }
             }
         }

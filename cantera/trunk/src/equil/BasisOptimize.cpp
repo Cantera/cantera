@@ -43,15 +43,6 @@ static void print_stringTrunc(const char* str, int space, int alignment);
  */
 static size_t amax(double* x, size_t j, size_t n);
 
-//! Switch the position in the vector
-/*!
- *  @param       orderVector     Vector to be manipulated
- *  @param       jr              first position
- *  @param       kspec           second species
- */
-static void switch_pos(std::vector<size_t> &orderVector, size_t jr, size_t kspec);
-
-
 //!  Invert an nxn matrix and solve m rhs's
 /*!
  *
@@ -361,7 +352,7 @@ size_t Cantera::BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
                 writelogf("(%9.2g) as component %3d\n", molNum[jj], jr);
             }
 #endif
-            switch_pos(orderVectorSpecies, jr, k);
+            std::swap(orderVectorSpecies[jr], orderVectorSpecies[k]);
         }
         /* - entry point from up above */
 L_END_LOOP:
@@ -556,14 +547,6 @@ static size_t amax(double* x, size_t j, size_t n)
         }
     }
     return largest;
-}
-
-
-static void switch_pos(std::vector<size_t>& orderVector, size_t jr, size_t kspec)
-{
-    size_t kcurr = orderVector[jr];
-    orderVector[jr] = orderVector[kspec];
-    orderVector[kspec] = kcurr;
 }
 
 /*
@@ -897,7 +880,7 @@ size_t Cantera::ElemRearrange(size_t nComponents, const vector_fp& elementAbunda
                 writelogf(" as element %3d\n", jr);
             }
 #endif
-            switch_pos(orderVectorElements, jr, k);
+            std::swap(orderVectorElements[jr], orderVectorElements[k]);
         }
 
         /*
