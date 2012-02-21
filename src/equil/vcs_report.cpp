@@ -73,8 +73,8 @@ int VCS_SOLVE::vcs_report(int iconv)
     for (l = m_numComponents; l < m_numSpeciesRdc; ++l) {
         k = vcs_optMax(VCS_DATA_PTR(xy), 0, l, m_numSpeciesRdc);
         if (k != l) {
-            vcsUtil_dsw(VCS_DATA_PTR(xy), k, l);
-            vcsUtil_ssw(VCS_DATA_PTR(sortindex), k, l);
+            std::swap(xy[k], xy[l]);
+            std::swap(sortindex[k], sortindex[l]);
         }
     }
 

@@ -44,13 +44,6 @@ namespace Cantera
 #define DSIGN(x) (( (x) == (0.0) ) ? (0.0) : ( ((x) > 0.0) ? 1.0 : -1.0 ))
 #endif
 
-#ifdef SWAP
-#undef SWAP
-#endif
-#ifndef SWAP
-#define SWAP(x1, x2, tmp) ((tmp) = (x2), (x2) = (x1), (x1) = (tmp))
-#endif
-
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
@@ -360,7 +353,6 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
     doublereal fnorm;   /* A valid norm for the making the function value  dimensionless */
     doublereal xDelMin;
     doublereal sgn;
-    doublereal dtmp;
     doublereal fnoise = 0.0;
     rfHistory_.clear();
     rfTable rfT;
@@ -1162,13 +1154,13 @@ done:
                 rfHistory_.push_back(rfT);
                 rfT.clear();
                 rfT.its = its;
-                SWAP(f1, f2, dtmp);
-                SWAP(x1, x2, dtmp);
+                std::swap(f1, f2);
+                std::swap(x1, x2);
                 *xbest = x2;
                 if (fabs(fnew) < fabs(f1)) {
                     if (f1 * fnew > 0.0) {
-                        SWAP(f1, fnew, dtmp);
-                        SWAP(x1, xnew, dtmp);
+                        std::swap(f1, fnew);
+                        std::swap(x1, xnew);
                     }
                 }
 

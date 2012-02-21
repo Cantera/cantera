@@ -193,37 +193,6 @@ int  vcsUtil_mlequ(double* c, size_t idem, size_t n, double* b, size_t m);
  */
 int vcsUtil_gaussj(double* c, size_t idem, size_t n, double* b, size_t m);
 
-//! Swap values in vector of doubles
-/*!
- * Switches the value of x[i1] with x[i2]
- *
- * @param x  Vector of doubles
- * @param i1 first index
- * @param i2 second index
- */
-void vcsUtil_dsw(double x[], size_t i1, size_t i2);
-
-//! Swap values in an integer array
-/*!
- * Switches the value of x[i1] with x[i2]
- *
- * @param x  Vector of integers
- * @param i1 first index
- * @param i2 second index
- */
-void vcsUtil_isw(int x[], size_t i1, size_t i2);
-void vcsUtil_ssw(size_t x[], size_t i1, size_t i2);
-
-//! Swap values in a std vector string
-/*!
- * Switches the value of vecStrings[i1] with vecStrings[i2]
- *
- * @param vecStrings  Vector of integers
- * @param i1 first index
- * @param i2 second index
- */
-void vcsUtil_stsw(std::vector<std::string> & vecStrings,
-                  size_t i1, size_t i2);
 
 //! Definition of the function pointer for the root finder
 /*!

@@ -205,7 +205,7 @@ int VCS_SOLVE::vcs_elem_rearrange(double* const aw, double* const sa,
             }
 #endif
             vcs_switch_elem_pos(jr, k);
-            vcsUtil_dsw(aw, jr, k);
+            std::swap(aw[jr], aw[k]);
         }
 
         /*
@@ -232,7 +232,6 @@ void VCS_SOLVE::vcs_switch_elem_pos(size_t ipos, size_t jpos)
         return;
     }
     size_t j;
-    double dtmp;
     vcs_VolPhase* volPhase;
 #ifdef DEBUG_MODE
     if (ipos > (m_numElemConstraints - 1) ||
@@ -258,15 +257,15 @@ void VCS_SOLVE::vcs_switch_elem_pos(size_t ipos, size_t jpos)
             }
         }
     }
-    vcsUtil_dsw(VCS_DATA_PTR(m_elemAbundancesGoal), ipos, jpos);
-    vcsUtil_dsw(VCS_DATA_PTR(m_elemAbundances), ipos, jpos);
-    vcsUtil_ssw(VCS_DATA_PTR(m_elementMapIndex), ipos, jpos);
-    vcsUtil_isw(VCS_DATA_PTR(m_elType),  ipos, jpos);
-    vcsUtil_isw(VCS_DATA_PTR(m_elementActive),  ipos, jpos);
+    std::swap(m_elemAbundancesGoal[ipos], m_elemAbundancesGoal[jpos]);
+    std::swap(m_elemAbundances[ipos], m_elemAbundancesGoal[jpos]);
+    std::swap(m_elementMapIndex[ipos], m_elementMapIndex[jpos]);
+    std::swap(m_elType[ipos], m_elType[jpos]);
+    std::swap(m_elementActive[ipos], m_elementActive[jpos]);
     for (j = 0; j < m_numSpeciesTot; ++j) {
-        SWAP(m_formulaMatrix[ipos][j], m_formulaMatrix[jpos][j], dtmp);
+        std::swap(m_formulaMatrix[ipos][j], m_formulaMatrix[jpos][j]);
     }
-    vcsUtil_stsw(m_elementName, ipos, jpos);
+    std::swap(m_elementName[ipos], m_elementName[jpos]);
 }
 }
 
