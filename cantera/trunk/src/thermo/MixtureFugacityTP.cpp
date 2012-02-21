@@ -26,10 +26,6 @@
 #include "cantera/thermo/VPSSMgr.h"
 #include "cantera/thermo/PDSS.h"
 
-
-#ifndef MIN
-# define MIN(x,y) (( (x) < (y) ) ? (x) : (y))
-#endif
 using namespace std;
 
 namespace Cantera
@@ -956,7 +952,7 @@ doublereal MixtureFugacityTP::densityCalc(doublereal TKelvin, doublereal presPa,
          * Check for negative molar volumes
          */
         if (molarVolBase <= 0.0) {
-            molarVolBase = MIN(1.0E-30, fabs(delMV*1.0E-4));
+            molarVolBase = std::min(1.0E-30, fabs(delMV*1.0E-4));
         }
 
     }

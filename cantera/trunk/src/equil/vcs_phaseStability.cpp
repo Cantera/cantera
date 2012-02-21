@@ -595,7 +595,7 @@ int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop)
                     if ((jph != iphasePop) && (!m_SSPhase[j])) {
                         double fdeltaJ = fabs(deltaJ);
                         if (m_molNumSpecies_old[j] > 0.0) {
-                            ratioComp = MAX(ratioComp, fdeltaJ/ m_molNumSpecies_old[j]);
+                            ratioComp = std::max(ratioComp, fdeltaJ/ m_molNumSpecies_old[j]);
                         }
                     }
                 }
@@ -895,7 +895,7 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
 
             for (k = 0; k < Vphase->nSpecies(); k++) {
                 if (fabs(damp * delFrac[k]) > 0.3*fabs(fracDelta_old[k])) {
-                    damp = MAX(0.3*fabs(fracDelta_old[k]) / fabs(delFrac[k]),
+                    damp = std::max(0.3*fabs(fracDelta_old[k]) / fabs(delFrac[k]),
                                1.0E-8/fabs(delFrac[k]));
                 }
                 if (delFrac[k] < 0.0) {

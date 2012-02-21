@@ -317,7 +317,7 @@ int VCS_SOLVE::vcs(VCS_PROB* vprob, int ifunc, int ipr, int ip1, int maxit)
     size_t nspecies0, nelements0, nphase0;
     Cantera::clockWC tickTock;
 
-    int  iprintTime = MAX(ipr, ip1);
+    int  iprintTime = std::max(ipr, ip1);
     if (m_timing_print_lvl < iprintTime) {
         iprintTime = m_timing_print_lvl ;
     }
@@ -495,7 +495,7 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
      *   m_numRxnTot = number of noncomponents, also equal to the
      *                 number of reactions
      */
-    m_numRxnTot = MAX(nspecies - nelements, 0);
+    m_numRxnTot = std::max<size_t>(nspecies - nelements, 0);
     m_numRxnRdc = m_numRxnTot;
     /*
      *  number of minor species rxn -> all species rxn are major at the start.
@@ -509,7 +509,7 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
 #ifdef DEBUG_MODE
     m_debug_print_lvl = pub->vcs_debug_print_lvl;
 #else
-    m_debug_print_lvl = MIN(2, pub->vcs_debug_print_lvl);
+    m_debug_print_lvl = std::min(2, pub->vcs_debug_print_lvl);
 #endif
 
     /*

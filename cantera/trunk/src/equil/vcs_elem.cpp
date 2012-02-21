@@ -96,7 +96,7 @@ bool VCS_SOLVE::vcs_elabcheck(int ibound)
                             multisign = true;
                         }
                         if (eval != 0.0) {
-                            scale = MAX(scale, fabs(eval * m_molNumSpecies_old[kspec]));
+                            scale = std::max(scale, fabs(eval * m_molNumSpecies_old[kspec]));
                             numNonZero++;
                         }
                     }
@@ -280,7 +280,7 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
                             double eval = m_formulaMatrix[i][kspec];
                             diff -= eval * m_molNumSpecies_old[kspec];
                         }
-                        m_molNumSpecies_old[compID] = MAX(0.0,diff/m_formulaMatrix[i][compID]);
+                        m_molNumSpecies_old[compID] = std::max(0.0,diff/m_formulaMatrix[i][compID]);
                         changed = true;
                     }
                 }
@@ -471,7 +471,7 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
                     xx /= its;
                 }
                 m_molNumSpecies_old[kspec] += xx;
-                m_molNumSpecies_old[kspec] = MAX(m_molNumSpecies_old[kspec], 1.0E-10);
+                m_molNumSpecies_old[kspec] = std::max(m_molNumSpecies_old[kspec], 1.0E-10);
                 /*
                  *   If we are dealing with a deleted species, then
                  *   we need to reinsert it into the active list.

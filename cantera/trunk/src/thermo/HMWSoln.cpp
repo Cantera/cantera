@@ -17,11 +17,7 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-//@{
-#ifndef MAX
-#define MAX(x,y)    (( (x) > (y) ) ? (x) : (y))
-#endif
-//@}
+
 #include "cantera/thermo/HMWSoln.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/WaterProps.h"
@@ -1132,11 +1128,11 @@ void HMWSoln::getChemPotentials(doublereal* mu) const
     double xmolSolvent = moleFraction(m_indexSolvent);
     for (size_t k = 0; k < m_kk; k++) {
         if (m_indexSolvent != k) {
-            xx = MAX(m_molalities[k], xxSmall);
+            xx = std::max(m_molalities[k], xxSmall);
             mu[k] += RT * (log(xx) + m_lnActCoeffMolal_Scaled[k]);
         }
     }
-    xx = MAX(xmolSolvent, xxSmall);
+    xx = std::max(xmolSolvent, xxSmall);
     mu[m_indexSolvent] +=
         RT * (log(xx) + m_lnActCoeffMolal_Scaled[m_indexSolvent]);
 }
@@ -1894,7 +1890,7 @@ void HMWSoln::s_update_lnMolalityActCoeff() const
     s_updatePitzer_lnMolalityActCoeff();
 
     double xmolSolvent = moleFraction(m_indexSolvent);
-    double xx = MAX(m_xmolSolventMIN, xmolSolvent);
+    double xx = std::max(m_xmolSolventMIN, xmolSolvent);
     double lnActCoeffMolal0 = - log(xx) + (xx - 1.0)/xx;
     double lnxs = log(xx);
 
@@ -3447,7 +3443,7 @@ s_updatePitzer_lnMolalityActCoeff() const
      *  ln(actcoeff[]). Therefore, we must calculate ln(actcoeff_0).
      */
     double xmolSolvent = moleFraction(m_indexSolvent);
-    double xx = MAX(m_xmolSolventMIN, xmolSolvent);
+    double xx = std::max(m_xmolSolventMIN, xmolSolvent);
     m_lnActCoeffMolal_Unscaled[0] = lnwateract - log(xx);
 #ifdef DEBUG_MODE
     if (m_debugCalc) {
@@ -6238,7 +6234,7 @@ void  HMWSoln::s_updateIMS_lnMolalityActCoeff() const
     calcMolalities();
 
     double xmolSolvent = moleFraction(m_indexSolvent);
-    double xx = MAX(m_xmolSolventMIN, xmolSolvent);
+    double xx = std::max(m_xmolSolventMIN, xmolSolvent);
     if (IMS_typeCutoff_ == 0) {
         for (size_t k = 1; k < m_kk; k++) {
             IMS_lnActCoeffMolal_[k]= 0.0;

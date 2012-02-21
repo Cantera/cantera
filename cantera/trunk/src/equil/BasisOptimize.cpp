@@ -82,12 +82,6 @@ static void switch_pos(std::vector<size_t> &orderVector, size_t jr, size_t kspec
  */
 static int mlequ(double* c, size_t idem, size_t n, double* b, size_t m);
 
-//@{
-#ifndef MIN
-#define MIN(x,y) (( (x) < (y) ) ? (x) : (y))
-#endif
-//@}
-
 /*
  * Choose the optimum basis for the calculations. This is done by
  * choosing the species with the largest mole fraction
@@ -221,7 +215,7 @@ size_t Cantera::BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
      *     It's equal to the minimum of the number of elements and the
      *     number of total species.
      */
-    size_t nComponents = MIN(ne, nspecies);
+    size_t nComponents = std::min(ne, nspecies);
     size_t nNonComponents = nspecies - nComponents;
     /*
      * Set this return variable to false

@@ -12,10 +12,6 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-//! Max function
-#ifndef MAX
-#define MAX(x,y)    (( (x) > (y) ) ? (x) : (y))
-#endif
 
 #include "cantera/thermo/DebyeHuckel.h"
 #include "cantera/thermo/ThermoFactory.h"
@@ -676,11 +672,11 @@ void DebyeHuckel::getChemPotentials(doublereal* mu) const
     double xmolSolvent = moleFraction(m_indexSolvent);
     for (size_t k = 0; k < m_kk; k++) {
         if (m_indexSolvent != k) {
-            xx = MAX(m_molalities[k], xxSmall);
+            xx = std::max(m_molalities[k], xxSmall);
             mu[k] += RT * (log(xx) + m_lnActCoeffMolal[k]);
         }
     }
-    xx = MAX(xmolSolvent, xxSmall);
+    xx = std::max(xmolSolvent, xxSmall);
     mu[m_indexSolvent] +=
         RT * (log(xx) + m_lnActCoeffMolal[m_indexSolvent]);
 }
@@ -1944,7 +1940,7 @@ _lnactivityWaterHelgesonFixedForm() const
     double sum = 0.0;
     for (size_t k = 0; k < m_kk; k++) {
         if (k != m_indexSolvent) {
-            sum += MAX(m_molalities[k], 0.0);
+            sum += std::max(m_molalities[k], 0.0);
         }
     }
     if (sum > 2.0 * m_maxIionicStrength) {
@@ -2029,7 +2025,7 @@ void DebyeHuckel::s_update_lnMolalityActCoeff() const
      * of the solvent
      */
     double xmolSolvent = moleFraction(m_indexSolvent);
-    xmolSolvent = MAX(8.689E-3, xmolSolvent);
+    xmolSolvent = std::max(8.689E-3, xmolSolvent);
 
     int est;
     double ac_nonPolar = 1.0;
@@ -2253,7 +2249,7 @@ void DebyeHuckel::s_update_dlnMolalityActCoeff_dT() const
      * of the solvent
      */
     double xmolSolvent = moleFraction(m_indexSolvent);
-    xmolSolvent = MAX(8.689E-3, xmolSolvent);
+    xmolSolvent = std::max(8.689E-3, xmolSolvent);
 
 
     double sqrtI  = sqrt(m_IionicMolality);
@@ -2394,7 +2390,7 @@ void DebyeHuckel::s_update_d2lnMolalityActCoeff_dT2() const
      * of the solvent
      */
     double xmolSolvent = moleFraction(m_indexSolvent);
-    xmolSolvent = MAX(8.689E-3, xmolSolvent);
+    xmolSolvent = std::max(8.689E-3, xmolSolvent);
 
 
     double sqrtI  = sqrt(m_IionicMolality);
@@ -2528,7 +2524,7 @@ void DebyeHuckel::s_update_dlnMolalityActCoeff_dP() const
      * of the solvent
      */
     double xmolSolvent = moleFraction(m_indexSolvent);
-    xmolSolvent = MAX(8.689E-3, xmolSolvent);
+    xmolSolvent = std::max(8.689E-3, xmolSolvent);
 
 
     double sqrtI  = sqrt(m_IionicMolality);

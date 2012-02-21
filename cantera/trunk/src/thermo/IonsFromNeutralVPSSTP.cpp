@@ -27,11 +27,6 @@
 
 using namespace std;
 
-#ifndef MIN
-//! standard MIN function
-# define MIN(x,y) (( (x) < (y) ) ? (x) : (y))
-#endif
-
 namespace Cantera
 {
 
@@ -1176,7 +1171,7 @@ static double factorOverlap(const std::vector<std::string>&  elnamesVN ,
                         if (elemVectorN[mn] <= 1.0E-13) {
                             return 0.0;
                         }
-                        fMax = MIN(fMax, elemVectorN[mn]/eiNum);
+                        fMax = std::min(fMax, elemVectorN[mn]/eiNum);
                     }
                 }
             }

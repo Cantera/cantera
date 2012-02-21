@@ -35,10 +35,6 @@
 
 //@{
 
-#ifndef MAX
-#define MAX(x,y)    (( (x) > (y) ) ? (x) : (y))
-#define MIN(x,y)    (( (x) < (y) ) ? (x) : (y))
-#endif
 #ifndef CONSTD_DATA_PTR
 #define CONSTD_DATA_PTR(x) (( const doublereal *) (&x[0]))
 #endif
@@ -915,7 +911,7 @@ void NonlinearSolver::calcSolnToResNormVector()
             }
             if (checkUserResidualTols_ == 2) {
                 for (size_t irow = 0; irow < neq_; irow++) {
-                    m_residWts[irow] = MIN(m_residWts[irow], userResidAtol_[irow] + userResidRtol_ * m_rowWtScales[irow] / neq_);
+                    m_residWts[irow] = std::min(m_residWts[irow], userResidAtol_[irow] + userResidRtol_ * m_rowWtScales[irow] / neq_);
                 }
             }
         } else {
@@ -1995,7 +1991,7 @@ void  NonlinearSolver::setDefaultDeltaBoundsMagnitudes()
 {
     for (size_t i = 0; i < neq_; i++) {
         m_deltaStepMinimum[i] = 1000. * atolk_[i];
-        m_deltaStepMinimum[i] = MAX(m_deltaStepMinimum[i], 0.1 * fabs(m_y_n_curr[i]));
+        m_deltaStepMinimum[i] = std::max(m_deltaStepMinimum[i], 0.1 * fabs(m_y_n_curr[i]));
     }
 }
 //====================================================================================================================
@@ -2065,14 +2061,14 @@ NonlinearSolver::deltaBoundStep(const doublereal* const y_n_curr, const doublere
                     (fabs(y_new - y_n_curr[i]) > m_deltaStepMinimum[i])) {
                 ff = (UPFAC - 1.0) * fabs(y_n_curr[i]/(y_new - y_n_curr[i]));
                 ff_alt = fabs(m_deltaStepMinimum[i] / (y_new - y_n_curr[i]));
-                ff = MAX(ff, ff_alt);
+                ff = std::max(ff, ff_alt);
                 ifbd = 1;
             }
             if ((fabs(2.0 * y_new) < fabs(y_n_curr[i])) &&
                     (fabs(y_new - y_n_curr[i]) > m_deltaStepMinimum[i])) {
                 ff = y_n_curr[i]/(y_new - y_n_curr[i]) * (1.0 - 2.0)/2.0;
                 ff_alt = fabs(m_deltaStepMinimum[i] / (y_new - y_n_curr[i]));
-                ff = MAX(ff, ff_alt);
+                ff = std::max(ff, ff_alt);
                 ifbd = 0;
             }
         } else {
@@ -2083,7 +2079,7 @@ NonlinearSolver::deltaBoundStep(const doublereal* const y_n_curr, const doublere
             if (fabs(y_n_curr[i]) > m_deltaStepMinimum[i]) {
                 ff = y_n_curr[i]/(y_new - y_n_curr[i]) * (1.0 - 2.0)/2.0;
                 ff_alt = fabs(m_deltaStepMinimum[i] / (y_new - y_n_curr[i]));
-                ff = MAX(ff, ff_alt);
+                ff = std::max(ff, ff_alt);
                 if (y_n_curr[i] >= 0.0) {
                     ifbd = 0;
                 } else {
@@ -2096,7 +2092,7 @@ NonlinearSolver::deltaBoundStep(const doublereal* const y_n_curr, const doublere
             else if (fabs(y_new) > 0.5 * fabs(y_n_curr[i])) {
                 ff = y_n_curr[i]/(y_new - y_n_curr[i]) * (-1.5);
                 ff_alt = fabs(m_deltaStepMinimum[i] / (y_new - y_n_curr[i]));
-                ff = MAX(ff, ff_alt);
+                ff = std::max(ff, ff_alt);
                 ifbd = 0;
             }
         }
@@ -2419,7 +2415,7 @@ doublereal NonlinearSolver::boundStep(const doublereal* const y, const doublerea
     }
 
     doublereal f_delta_bounds = deltaBoundStep(y, step0);
-    fbound = MIN(f_bounds, f_delta_bounds);
+    fbound = std::min(f_bounds, f_delta_bounds);
 
     return fbound;
 }
@@ -3669,7 +3665,7 @@ print_solnDelta_norm_contrib(const doublereal* const step_1,
 static inline doublereal subtractRD(doublereal a, doublereal b)
 {
     doublereal diff = a - b;
-    doublereal d = MIN(fabs(a), fabs(b));
+    doublereal d = std::min(fabs(a), fabs(b));
     d *= 1.0E-14;
     doublereal ad = fabs(diff);
     if (ad < 1.0E-300) {
@@ -4045,7 +4041,7 @@ NonlinearSolver::computeResidWts()
         if (checkUserResidualTols_ == 2) {
             for (size_t i = 0; i < neq_; i++) {
                 double uR = userResidAtol_[i] + userResidRtol_ * m_rowWtScales[i] / neq_;
-                m_residWts[i] = MIN(m_residWts[i], uR);
+                m_residWts[i] = std::min(m_residWts[i], uR);
             }
         }
     }

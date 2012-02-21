@@ -44,10 +44,6 @@ static doublereal calcWeightedNorm(const doublereal [], const doublereal dx[], s
  *   PROTOTYPES and PREPROC DIRECTIVES FOR MISC. ROUTINES
  *****************************************************************************/
 
-#ifndef MAX
-#  define MAX(x,y) (( (x) > (y) ) ? (x) : (y))     /* max function */
-#endif
-
 #ifndef DAMPING
 #  define DAMPING true
 #endif
@@ -132,9 +128,9 @@ solveSP::solveSP(ImplicitSurfChem* surfChemPtr, int bulkFunc) :
     m_maxTotSpecies = 0;
     for (size_t n = 0; n < m_numSurfPhases; n++) {
         size_t tsp =  m_objects[n]->nTotalSpecies();
-        m_maxTotSpecies = MAX(m_maxTotSpecies, tsp);
+        m_maxTotSpecies = std::max(m_maxTotSpecies, tsp);
     }
-    m_maxTotSpecies = MAX(m_maxTotSpecies, m_neq);
+    m_maxTotSpecies = std::max(m_maxTotSpecies, m_neq);
 
 
     m_netProductionRatesSave.resize(m_maxTotSpecies, 0.0);
@@ -179,7 +175,7 @@ solveSP::solveSP(ImplicitSurfChem* surfChemPtr, int bulkFunc) :
     }
 
     // Dimension solution vector
-    size_t dim1 = MAX(1, m_neq);
+    size_t dim1 = std::max<size_t>(1, m_neq);
     m_CSolnSP.resize(dim1, 0.0);
     m_CSolnSPInit.resize(dim1, 0.0);
     m_CSolnSPOld.resize(dim1, 0.0);
@@ -469,7 +465,7 @@ int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
             m_CSolnSP[irow] -= damp * m_resid[irow];
         }
         for (size_t irow = 0; irow < m_neq; irow++) {
-            m_CSolnSP[irow] = MAX(0.0, m_CSolnSP[irow]);
+            m_CSolnSP[irow] = std::max(0.0, m_CSolnSP[irow]);
         }
         updateState(DATA_PTR(m_CSolnSP));
 
@@ -855,8 +851,8 @@ static doublereal calc_damping(doublereal x[], doublereal dxneg[], size_t dim, i
         } else if (xnew < xbot) {
             damp = APPROACH * x[i] / dxneg[i];
             *label = int(i);
-        } else  if (xnew > 3.0*MAX(x[i], 1.0E-10)) {
-            damp = - 2.0 * MAX(x[i], 1.0E-10) / dxneg[i];
+        } else  if (xnew > 3.0*std::max(x[i], 1.0E-10)) {
+            damp = - 2.0 * std::max(x[i], 1.0E-10) / dxneg[i];
             *label = int(i);
         }
     }

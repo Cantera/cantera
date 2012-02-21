@@ -140,7 +140,7 @@ int vcsUtil_root1d(double xmin, double xmax, size_t itmax,
     double xPosF = 0.0;
     double xNegF = 0.0;
     double fnorm;   /* A valid norm for the making the function value
-		    * dimensionless */
+            * dimensionless */
     double c[9], f[3], xn1, xn2, x0 = 0.0, f0 = 0.0, root, theta, xquad;
 
     callNum++;
@@ -273,7 +273,7 @@ int vcsUtil_root1d(double xmin, double xmax, size_t itmax,
                     xquad = xn1;
                 }
                 theta = fabs(xquad - xnew) / fabs(xnew - x2);
-                theta = MIN(1.0, theta);
+                theta = std::min(1.0, theta);
                 xnew = theta * xnew + (1.0 - theta) * xquad;
 #ifdef DEBUG_MODE
                 if (printLvl >= 3) {

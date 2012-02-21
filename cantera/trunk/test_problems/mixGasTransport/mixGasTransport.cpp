@@ -30,8 +30,6 @@
 using namespace std;
 using namespace Cantera;
 
-#define MAX(x,y) (( (x) > (y) ) ? (x) : (y))
-
 void printDbl(double val)
 {
     if (fabs(val) < 5.0E-17) {

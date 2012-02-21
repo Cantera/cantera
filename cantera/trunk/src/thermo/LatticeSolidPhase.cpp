@@ -18,12 +18,6 @@
 #include "cantera/thermo/GeneralSpeciesThermo.h"
 
 #include <string>
-#ifndef MIN
-# define MIN(x,y) (( (x) < (y) ) ? (x) : (y))
-#endif
-#ifndef MAX
-# define MAX(x,y) (( (x) > (y) ) ? (x) : (y))
-#endif
 
 using namespace std;
 //======================================================================================================================
@@ -135,7 +129,7 @@ doublereal LatticeSolidPhase::minTemp(size_t k) const
     doublereal mm = 1.0E300;
     for (size_t n = 0; n < m_nlattice; n++) {
         double ml = (m_lattice[n])->minTemp(-1);
-        mm = MIN(mm, ml);
+        mm = std::min(mm, ml);
     }
     return mm;
 }
@@ -165,7 +159,7 @@ doublereal LatticeSolidPhase::maxTemp(size_t k) const
     doublereal mm = -1.0E300;
     for (size_t n = 0; n < m_nlattice; n++) {
         double ml = (m_lattice[n])->maxTemp(-1);
-        mm = MAX(mm, ml);
+        mm = std::max(mm, ml);
     }
     return mm;
 }

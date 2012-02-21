@@ -21,12 +21,6 @@
 #include "cantera/thermo/ThermoFactory.h"
 #include <cmath>
 
-//@{
-#ifndef MAX
-#define MAX(x,y)    (( (x) > (y) ) ? (x) : (y))
-#endif
-//@}
-
 using namespace ctml;
 
 namespace Cantera
@@ -667,10 +661,10 @@ void IdealMolalSoln::getChemPotentials(doublereal* mu) const
 
 
         for (size_t k = 1; k < m_kk; k++) {
-            xx = MAX(m_molalities[k], xxSmall);
+            xx = std::max(m_molalities[k], xxSmall);
             mu[k] += RT * (log(xx) + IMS_lnActCoeffMolal_[k]);
         }
-        xx = MAX(xmolSolvent, xxSmall);
+        xx = std::max(xmolSolvent, xxSmall);
         mu[m_indexSolvent] +=
             RT * (log(xx) + IMS_lnActCoeffMolal_[m_indexSolvent]);
     }
@@ -1190,7 +1184,7 @@ void  IdealMolalSoln::s_updateIMS_lnMolalityActCoeff() const
     calcMolalities();
 
     double xmolSolvent = moleFraction(m_indexSolvent);
-    double xx = MAX(m_xmolSolventMIN, xmolSolvent);
+    double xx = std::max(m_xmolSolventMIN, xmolSolvent);
 
     if (IMS_typeCutoff_ == 0) {
         for (size_t k = 1; k < m_kk; k++) {

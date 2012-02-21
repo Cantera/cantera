@@ -19,14 +19,6 @@ namespace VCSnonideal
  */
 //@{
 
-#ifndef MAX
-# define MAX(x,y) (( (x) > (y) ) ? (x) : (y))
-#endif
-
-#ifndef MIN
-# define MIN(x,y) (( (x) < (y) ) ? (x) : (y))
-#endif
-
 #ifndef SWAP
 # define SWAP(x1, x2, temp) ((temp) = (x1), (x1) = (x2), (x2) = (temp))
 #endif
