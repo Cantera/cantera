@@ -631,7 +631,7 @@ void MultiPhaseEquil::step(doublereal omega, vector_fp& deltaN,
         if (m_majorsp[k]) {
             m_moles[k] += omega * deltaN[k];
         } else {
-            m_moles[k] = fabs(m_moles[k])*fminn(10.0,
+            m_moles[k] = fabs(m_moles[k])*std::min(10.0,
                                                 exp(-m_deltaG_RT[ik - m_nel]));
         }
     }

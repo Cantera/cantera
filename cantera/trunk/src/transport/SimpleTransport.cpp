@@ -903,7 +903,7 @@ bool SimpleTransport::update_C()
         m_thermo->getConcentrations(DATA_PTR(m_concentrations));
         concTot_ = 0.0;
         for (size_t k = 0; k < m_nsp; k++) {
-            m_molefracs[k] = fmaxx(0.0, m_molefracs[k]);
+            m_molefracs[k] = std::max(0.0, m_molefracs[k]);
             concTot_ += m_concentrations[k];
         }
         dens_ = m_thermo->density();

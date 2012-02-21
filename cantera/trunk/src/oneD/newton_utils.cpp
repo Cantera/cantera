@@ -55,10 +55,10 @@ doublereal bound_step(const doublereal* x, const doublereal* step,
             newval = val + step[index(m,j)];
 
             if (newval > above) {
-                fbound = fmaxx(0.0, fminn(fbound,
-                                          (above - val)/(newval - val)));
+                fbound = std::max(0.0, std::min(fbound,
+                                                (above - val)/(newval - val)));
             } else if (newval < below) {
-                fbound = fminn(fbound, (val - below)/(val - newval));
+                fbound = std::min(fbound, (val - below)/(val - newval));
             }
 
             if (loglevel > 1 && (newval > above || newval < below)) {

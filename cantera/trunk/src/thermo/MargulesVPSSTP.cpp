@@ -395,7 +395,7 @@ void MargulesVPSSTP::getChemPotentials(doublereal* mu) const
     s_update_lnActCoeff();
     doublereal RT = GasConstant * temperature();
     for (size_t k = 0; k < m_kk; k++) {
-        xx = fmaxx(moleFractions_[k], xxSmall);
+        xx = std::max(moleFractions_[k], xxSmall);
         mu[k] += RT * (log(xx) + lnActCoeff_Scaled_[k]);
     }
 }
@@ -554,7 +554,7 @@ void MargulesVPSSTP::getPartialMolarEntropies(doublereal* sbar) const
     s_update_dlnActCoeff_dT();
 
     for (size_t k = 0; k < m_kk; k++) {
-        xx = fmaxx(moleFractions_[k], xxSmall);
+        xx = std::max(moleFractions_[k], xxSmall);
         sbar[k] += - lnActCoeff_Scaled_[k] -log(xx) - T * dlnActCoeffdT_Scaled_[k];
     }
     /*

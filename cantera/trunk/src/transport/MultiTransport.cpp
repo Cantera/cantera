@@ -833,7 +833,7 @@ void MultiTransport::_update_transport_C()
     // add an offset to avoid a pure species condition
     // (check - this may be unnecessary)
     for (size_t k = 0; k < m_nsp; k++) {
-        m_molefracs[k] = fmaxx(MIN_X, m_molefracs[k]);
+        m_molefracs[k] = std::max(MIN_X, m_molefracs[k]);
     }
 }
 
@@ -1021,7 +1021,7 @@ void MultiTransport::_update_thermal_T()
     for (size_t k = 0; k < m_nsp; k++) {
         tr = m_eps[k]/ m_kbt;
         sqtr = m_sqrt_eps_k[k] / m_sqrt_t;
-        m_rotrelax[k] = fmaxx(1.0,m_zrot[k]) * m_frot_298[k]/Frot(tr, sqtr);
+        m_rotrelax[k] = std::max(1.0,m_zrot[k]) * m_frot_298[k]/Frot(tr, sqtr);
     }
 
     doublereal d;

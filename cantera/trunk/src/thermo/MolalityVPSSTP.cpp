@@ -320,7 +320,7 @@ void MolalityVPSSTP::setMolalitiesByName(compositionMap& mMap)
     vector_fp mf(kk, 0.0);
     getMoleFractions(DATA_PTR(mf));
     double xmolS = mf[m_indexSolvent];
-    double xmolSmin = max(xmolS, m_xmolSolventMIN);
+    double xmolSmin = std::max(xmolS, m_xmolSolventMIN);
     compositionMap::iterator p;
     for (size_t k = 0; k < kk; k++) {
         p = mMap.find(speciesName(k));
@@ -533,7 +533,7 @@ doublereal MolalityVPSSTP::osmoticCoefficient() const
      */
     double sum = 0;
     for (size_t k = 1; k < m_kk; k++) {
-        sum += fmaxx(m_molalities[k], 0.0);
+        sum += std::max(m_molalities[k], 0.0);
     }
     double oc = 1.0;
     double lac = log(act[m_indexSolvent]);

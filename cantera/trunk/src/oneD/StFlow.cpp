@@ -366,13 +366,13 @@ void AxiStagnFlow::eval(size_t jg, doublereal* xg,
         jmin = 0;
         jmax = m_points - 1;
     } else {          // evaluate points for Jacobian
-        jmin = max(jpt-1, 0);
-        jmax = min(jpt+1,m_points-1);
+        jmin = std::max<size_t>(jpt-1, 0);
+        jmax = std::min(jpt+1,m_points-1);
     }
 
     // properties are computed for grid points from j0 to j1
-    size_t j0 = max(jmin-1,0);
-    size_t j1 = min(jmax+1,m_points-1);
+    size_t j0 = std::max<size_t>(jmin-1,0);
+    size_t j1 = std::min(jmax+1,m_points-1);
 
 
     size_t j, k;
@@ -674,13 +674,13 @@ void FreeFlame::eval(size_t jg, doublereal* xg,
         jmin = 0;
         jmax = m_points - 1;
     } else {          // evaluate points for Jacobian
-        jmin = max(jpt-1, 0);
-        jmax = min(jpt+1,m_points-1);
+        jmin = std::max<size_t>(jpt-1, 0);
+        jmax = std::min(jpt+1,m_points-1);
     }
 
     // properties are computed for grid points from j0 to j1
-    size_t j0 = max(jmin-1,0);
-    size_t j1 = min(jmax+1,m_points-1);
+    size_t j0 = std::max<size_t>(jmin-1,0);
+    size_t j1 = std::min(jmax+1,m_points-1);
 
 
     size_t j, k;

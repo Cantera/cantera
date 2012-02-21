@@ -105,7 +105,7 @@ extern "C" {
     {
         try {
             std::string pnm = _fph(n)->name();
-            int lout = min(lennm,pnm.size());
+            int lout = std::min(lennm, (int) pnm.size());
             std::copy(pnm.c_str(), pnm.c_str() + lout, nm);
             for (int nn = lout; nn < lennm; nn++) {
                 nm[nn] = ' ';
@@ -273,7 +273,7 @@ extern "C" {
     {
         try {
             std::string spnm = _fph(n)->speciesName(*k-1);
-            int lout = min(lennm,spnm.size());
+            int lout = std::min(lennm, (int) spnm.size());
             std::copy(spnm.c_str(), spnm.c_str() + lout, nm);
             for (int nn = lout; nn < lennm; nn++) {
                 nm[nn] = ' ';
@@ -289,7 +289,7 @@ extern "C" {
     {
         try {
             std::string elnm = _fph(n)->elementName(*m-1);
-            int lout = min(lennm,elnm.size());
+            int lout = std::min(lennm, (int) elnm.size());
             std::copy(elnm.c_str(), elnm.c_str() + lout, nm);
             for (int nn = lout; nn < lennm; nn++) {
                 nm[nn] = ' ';
@@ -790,7 +790,7 @@ extern "C" {
         try {
             Kinetics* k = _fkin(n);
             std::string r = k->reactionString(*i-1);
-            int lout = min(lenbuf,r.size());
+            int lout = std::min(lenbuf, (int) r.size());
             std::copy(r.c_str(), r.c_str() + lout, buf);
             for (int nn = lout; nn < lenbuf; nn++) {
                 buf[nn] = ' ';
@@ -977,7 +977,7 @@ extern "C" {
         std::string e; // = "<no error>";
         //if (nErrors() > 0)
         e = lastErrorMessage();
-        int n = min(e.size(), buflen-1);
+        int n = std::min((int) e.size(), buflen-1);
         copy(e.begin(), e.begin() + n, buf);
         for (int nn = n; nn < buflen; nn++) {
             buf[nn] = ' ';

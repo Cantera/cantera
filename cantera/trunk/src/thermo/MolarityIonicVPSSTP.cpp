@@ -332,7 +332,7 @@ void MolarityIonicVPSSTP::getChemPotentials(doublereal* mu) const
      */
     doublereal RT = GasConstant * temperature();
     for (size_t k = 0; k < m_kk; k++) {
-        xx = fmaxx(moleFractions_[k], xxSmall);
+        xx = std::max(moleFractions_[k], xxSmall);
         mu[k] += RT * (log(xx) + lnActCoeff_Scaled_[k]);
     }
 }
@@ -457,7 +457,7 @@ void MolarityIonicVPSSTP::getPartialMolarEntropies(doublereal* sbar) const
     s_update_dlnActCoeff_dT();
 
     for (size_t k = 0; k < m_kk; k++) {
-        xx = fmaxx(moleFractions_[k], xxSmall);
+        xx = std::max(moleFractions_[k], xxSmall);
         sbar[k] += - lnActCoeff_Scaled_[k] -log(xx) - T * dlnActCoeffdT_Scaled_[k];
     }
     /*
@@ -543,7 +543,7 @@ void MolarityIonicVPSSTP::calcPseudoBinaryMoleFractions() const
             PBMoleFractions_[neutralPBindexStart + k] = moleFractions_[passThroughList_[k]];
         }
 
-        sum = fmaxx(0.0, PBMoleFractions_[0]);
+        sum = std::max(0.0, PBMoleFractions_[0]);
         for (k = 1; k < numPBSpecies_; k++) {
             sum += PBMoleFractions_[k];
 

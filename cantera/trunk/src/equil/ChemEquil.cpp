@@ -932,8 +932,8 @@ next:
     for (m = 0; m < nvar; m++) {
         newval = x[m] + res_trial[m];
         if (newval > above[m]) {
-            fctr = fmaxx(0.0,
-                         fminn(fctr,0.8*(above[m] - x[m])/(newval - x[m])));
+            fctr = std::max(0.0,
+                            std::min(fctr,0.8*(above[m] - x[m])/(newval - x[m])));
         } else if (newval < below[m]) {
             if (m < m_mm && (m != m_skip)) {
                 res_trial[m] = -50;
@@ -941,13 +941,13 @@ next:
                     res_trial[m] = below[m] - x[m];
                 }
             } else {
-                fctr = fminn(fctr, 0.8*(x[m] - below[m])/(x[m] - newval));
+                fctr = std::min(fctr, 0.8*(x[m] - below[m])/(x[m] - newval));
             }
         }
         // Delta Damping
         if (m == mm) {
             if (fabs(res_trial[mm]) > 0.2) {
-                fctr = fminn(fctr, 0.2/fabs(res_trial[mm]));
+                fctr = std::min(fctr, 0.2/fabs(res_trial[mm]));
             }
         }
     }

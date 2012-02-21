@@ -33,7 +33,7 @@ DenseMatrix::DenseMatrix(size_t n, size_t m, doublereal v) :
     m_useReturnErrorCode(0),
     m_printLevel(0)
 {
-    m_ipiv.resize(max(n, m));
+    m_ipiv.resize(std::max(n, m));
     m_colPts.resize(m);
     for (size_t j = 0; j < m; j++) {
         m_colPts[j] = &(m_data[m_nrows*j]);
@@ -82,7 +82,7 @@ DenseMatrix::~DenseMatrix()
 void DenseMatrix::resize(size_t n, size_t m, doublereal v)
 {
     Array2D::resize(n,m,v);
-    m_ipiv.resize(max(n,m));
+    m_ipiv.resize(std::max(n,m));
     m_colPts.resize(m_ncols);
     for (size_t j = 0; j < m_ncols; j++) {
         m_colPts[j] = &(m_data[m_nrows*j]);

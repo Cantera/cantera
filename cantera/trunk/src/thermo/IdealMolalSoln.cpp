@@ -537,7 +537,7 @@ void IdealMolalSoln::getActivities(doublereal* ac) const
             ac[k] = m_molalities[k];
         }
         double xmolSolvent = moleFraction(m_indexSolvent);
-        xmolSolvent = fmaxx(m_xmolSolventMIN, xmolSolvent);
+        xmolSolvent = std::max(m_xmolSolventMIN, xmolSolvent);
         ac[m_indexSolvent] =
             exp((xmolSolvent - 1.0)/xmolSolvent);
     } else {
@@ -575,7 +575,7 @@ getMolalityActivityCoefficients(doublereal* acMolality) const
             acMolality[k] = 1.0;
         }
         double xmolSolvent = moleFraction(m_indexSolvent);
-        xmolSolvent = fmaxx(m_xmolSolventMIN, xmolSolvent);
+        xmolSolvent = std::max(m_xmolSolventMIN, xmolSolvent);
         acMolality[m_indexSolvent] =
             exp((xmolSolvent - 1.0)/xmolSolvent) / xmolSolvent;
     } else {
@@ -641,7 +641,7 @@ void IdealMolalSoln::getChemPotentials(doublereal* mu) const
     if (IMS_typeCutoff_ == 0 || xmolSolvent > 3.* IMS_X_o_cutoff_/2.0) {
 
         for (size_t k = 1; k < m_kk; k++) {
-            xx = fmaxx(m_molalities[k], xxSmall);
+            xx = std::max(m_molalities[k], xxSmall);
             mu[k] += RT * log(xx);
         }
         /*
@@ -649,7 +649,7 @@ void IdealMolalSoln::getChemPotentials(doublereal* mu) const
          *  -> see my notes
          */
 
-        xx = fmaxx(xmolSolvent, xxSmall);
+        xx = std::max(xmolSolvent, xxSmall);
         mu[m_indexSolvent] +=
             (RT * (xmolSolvent - 1.0) / xx);
     } else {
@@ -721,7 +721,7 @@ void IdealMolalSoln::getPartialMolarEntropies(doublereal* sbar) const
     if (IMS_typeCutoff_ == 0) {
         for (size_t k = 0; k < m_kk; k++) {
             if (k != m_indexSolvent) {
-                mm = fmaxx(SmallNumber, m_molalities[k]);
+                mm = std::max(SmallNumber, m_molalities[k]);
                 sbar[k] -= R * log(mm);
             }
         }
@@ -740,12 +740,12 @@ void IdealMolalSoln::getPartialMolarEntropies(doublereal* sbar) const
         doublereal mm;
         for (size_t k = 0; k < m_kk; k++) {
             if (k != m_indexSolvent) {
-                mm = fmaxx(SmallNumber, m_molalities[k]);
+                mm = std::max(SmallNumber, m_molalities[k]);
                 sbar[k] -= R * (log(mm) + IMS_lnActCoeffMolal_[k]);
             }
         }
         double xmolSolvent = moleFraction(m_indexSolvent);
-        mm = fmaxx(SmallNumber, xmolSolvent);
+        mm = std::max(SmallNumber, xmolSolvent);
         sbar[m_indexSolvent] -= R *(log(mm) + IMS_lnActCoeffMolal_[m_indexSolvent]);
 
     }

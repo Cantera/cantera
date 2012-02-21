@@ -411,21 +411,21 @@ IonsFromNeutralVPSSTP::getChemPotentials(doublereal* mu) const
             //! Get the id for the next cation
             icat = cationList_[k];
             jNeut = fm_invert_ionForNeutral[icat];
-            xx = fmaxx(SmallNumber, moleFractions_[icat]);
+            xx = std::max(SmallNumber, moleFractions_[icat]);
             mu[icat] = muNeutralMolecule_[jNeut] + fact2 + RT_ * (lnActCoeff_NeutralMolecule_[jNeut] + log(xx));
         }
 
         // Do the anion list
         icat = anionList_[0];
         jNeut = fm_invert_ionForNeutral[icat];
-        xx = fmaxx(SmallNumber, moleFractions_[icat]);
+        xx = std::max(SmallNumber, moleFractions_[icat]);
         mu[icat] = RT_ * log(xx);
 
         // Do the list of neutral molecules
         for (size_t k = 0; k < numPassThroughSpecies_; k++) {
             icat = passThroughList_[k];
             jNeut = fm_invert_ionForNeutral[icat];
-            xx = fmaxx(SmallNumber, moleFractions_[icat]);
+            xx = std::max(SmallNumber, moleFractions_[icat]);
             mu[icat] =  muNeutralMolecule_[jNeut]  + RT_ * (lnActCoeff_NeutralMolecule_[jNeut] + log(xx));
         }
         break;
@@ -513,7 +513,7 @@ void IonsFromNeutralVPSSTP::getPartialMolarEntropies(doublereal* sbar) const
     s_update_dlnActCoeffdT();
 
     for (size_t k = 0; k < m_kk; k++) {
-        xx = fmaxx(moleFractions_[k], xxSmall);
+        xx = std::max(moleFractions_[k], xxSmall);
         sbar[k] += - lnActCoeff_Scaled_[k] -log(xx) - T * dlnActCoeffdT_Scaled_[k];
     }
     /*

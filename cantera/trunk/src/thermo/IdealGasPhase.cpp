@@ -216,7 +216,7 @@ void IdealGasPhase::getChemPotentials(doublereal* mu) const
     doublereal rt = temperature() * GasConstant;
     //const array_fp& g_RT = gibbs_RT_ref();
     for (size_t k = 0; k < m_kk; k++) {
-        xx = fmaxx(SmallNumber, moleFraction(k));
+        xx = std::max(SmallNumber, moleFraction(k));
         mu[k] += rt*(log(xx));
     }
 }
@@ -243,7 +243,7 @@ void IdealGasPhase::getPartialMolarEntropies(doublereal* sbar) const
     scale(_s.begin(), _s.end(), sbar, r);
     doublereal logp = log(pressure()/m_spthermo->refPressure());
     for (size_t k = 0; k < m_kk; k++) {
-        doublereal xx = fmaxx(SmallNumber, moleFraction(k));
+        doublereal xx = std::max(SmallNumber, moleFraction(k));
         sbar[k] += r * (- logp - log(xx));
     }
 }

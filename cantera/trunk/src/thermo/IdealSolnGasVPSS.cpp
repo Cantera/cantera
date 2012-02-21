@@ -367,7 +367,7 @@ void IdealSolnGasVPSS::getChemPotentials(doublereal* mu) const
     doublereal xx;
     doublereal rt = temperature() * GasConstant;
     for (size_t k = 0; k < m_kk; k++) {
-        xx = fmaxx(SmallNumber, moleFraction(k));
+        xx = std::max(SmallNumber, moleFraction(k));
         mu[k] += rt*(log(xx));
     }
 }
@@ -386,7 +386,7 @@ void IdealSolnGasVPSS::getPartialMolarEntropies(doublereal* sbar) const
     doublereal r = GasConstant;
     scale(sbar, sbar+m_kk, sbar, r);
     for (size_t k = 0; k < m_kk; k++) {
-        doublereal xx = fmaxx(SmallNumber, moleFraction(k));
+        doublereal xx = std::max(SmallNumber, moleFraction(k));
         sbar[k] += r * (- log(xx));
     }
 }
