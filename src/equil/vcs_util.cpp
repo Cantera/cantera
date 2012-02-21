@@ -3,7 +3,7 @@
  *  Internal definitions for utility functions for the VCSnonideal package
  */
 /*
- * Copywrite (2005) Sandia Corporation. Under the terms of
+ * Copyright (2005) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -197,7 +197,7 @@ void vcs_vicopy(std::vector<int> &vec_to,
  *    x(*) - Vector to search
  *    xSize(*) if nonnull, this is the multiplier vector to be
  *             multiplied into x(*) before making the decision.
- *    j <= i < n     : i is the range of indecises to search in X(*)
+ *    j <= i < n     : i is the range of indices to search in X(*)
  *
  * RETURN
  *    return index of the greatest value on X(*) searched

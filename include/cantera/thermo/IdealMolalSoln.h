@@ -14,7 +14,7 @@
  * to zero.
  */
 /*
- * Copywrite (2006) Sandia Corporation. Under the terms of
+ * Copyright (2006) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -998,7 +998,7 @@ private:
      */
     doublereal err(std::string msg) const;
 
-    //! This function will be called to update the internally storred
+    //! This function will be called to update the internally stored
     //! natural logarithm of the molality activity coefficients
     /*!
      * Normally the solutes are all zero. However, sometimes they are not,

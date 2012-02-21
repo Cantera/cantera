@@ -241,7 +241,7 @@ private:
  *
  * @param type         Species thermo type.
  * @param f            Pointer to a SpeciesThermoFactory. optional parameter.
- *                    Defautls to NULL.
+ *                     Defaults to NULL.
  */
 SpeciesThermo* newSpeciesThermoMgr(int type, SpeciesThermoFactory* f=0);
 
@@ -249,7 +249,7 @@ SpeciesThermo* newSpeciesThermoMgr(int type, SpeciesThermoFactory* f=0);
 //!the type and (optionally) a pointer to the factory to use to create it.
 /*!
  * This utility program is a basic factory operation for spawning a
- * new species reference-state thermo mananger
+ * new species reference-state thermo manager
  *
  *  These functions allows for using a different factory class that
  *  derives from SpeciesThermoFactory. However, no applications of this
@@ -257,7 +257,7 @@ SpeciesThermo* newSpeciesThermoMgr(int type, SpeciesThermoFactory* f=0);
  *
  * @param stype       String specifying the species thermo type
  * @param f           Pointer to a SpeciesThermoFactory. optional parameter.
- *                    Defautls to NULL.
+ *                    Defaults to NULL.
  */
 SpeciesThermo* newSpeciesThermoMgr(std::string& stype,
                                    SpeciesThermoFactory* f=0);
@@ -275,7 +275,7 @@ SpeciesThermo* newSpeciesThermoMgr(std::string& stype,
  *                        of species XML nodes that will be in the phase
  *
  * @param f            Pointer to a SpeciesThermoFactory. optional parameter.
- *                    Defautls to NULL.
+ *                    Defaults to NULL.
  * @param opt         Boolean defaults to false.
  */
 SpeciesThermo* newSpeciesThermoMgr(std::vector<XML_Node*> spDataNodeList,

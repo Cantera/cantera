@@ -7,7 +7,7 @@
  *  class \link Cantera::VPSSMgr_General VPSSMgr_General\endlink).
  */
 /*
- * Copywrite (2005) Sandia Corporation. Under the terms of
+ * Copyright (2005) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -60,7 +60,7 @@ VPSSMgr_General& VPSSMgr_General::operator=(const VPSSMgr_General& b)
     VPSSMgr::operator=(b);
     /*
      *  Must fill in the shallow pointers. These must have already been transfered
-     *  and storred in the owning VPStandardStateTP class.  Note we are aware that at this point
+     *  and stored in the owning VPStandardStateTP class.  Note we are aware that at this point
      *  m_vptr_ptr may refer back to the wrong ThermoPhase object. However, the shallow copy
      *  performed here is consistent with the assignment operator's general functionality.
      */
@@ -91,7 +91,7 @@ void VPSSMgr_General::initAllPtrs(VPStandardStateTP* vp_ptr, SpeciesThermo* sp_p
     VPSSMgr::initAllPtrs(vp_ptr, sp_ptr);
     /*
      *  Must fill in the shallow pointers. These must have already been transfered
-     *  and storred in the owning VPStandardStateTP class.
+     *  and stored in the owning VPStandardStateTP class.
      */
     m_PDSS_ptrs.resize(m_kk);
     for (size_t k = 0; k < m_kk; k++) {

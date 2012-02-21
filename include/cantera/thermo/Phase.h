@@ -89,7 +89,7 @@ namespace Cantera
  *  (or phases which utilize standard states based on a <I>T</I> and
  *  <I>P</I>) this change in independent variables may be
  *  advantageous as well, and these functions in %State need to
- *  overload as well so that the storred density within State
+ *  overload as well so that the stored density within State
  *  doesn't become out of date.
  *
  *  Class Phase derives from both clases
@@ -110,14 +110,14 @@ namespace Cantera
  */
 
 
-//! Base class for phases of mater
+//! Base class for phases of matter
 /*!
  * Base class for phases of matter. Class Phase derives from both
  * Constituents and State. In addition to the methods of those two
  * classes, it implements methods that allow referencing a species
  * by name.
  *
- *  Class Phase derives from both clases
+ *  Class Phase derives from both classes
  *  Constituents and State. In addition to the methods of those two
  *  classes, it implements methods that allow referencing a species
  *  by name. And, it contains a lot of utility functions that will
@@ -141,7 +141,7 @@ namespace Cantera
  *
  *  However, the name field  may be changed to another value during the course of a calculation.
  *  For example, if a phase is located in two places, but has the same
- *  constituitive input, the id's of the two phases will be the same,
+ *  constitutive input, the id's of the two phases will be the same,
  *  but the names of the two phases may be different.
  *
  *  The name of a phase can be the same as the id of that same phase.
@@ -196,7 +196,7 @@ public:
      */
     Phase& operator=(const Phase& right);
 
-    //! Returns a reference to the XML_Node storred for the phase
+    //! Returns a reference to the XML_Node stored for the phase
     /*!
      *  The XML_Node for the phase contains all of the input data used
      *  to set up the model for the phase, during its initialization.
@@ -358,7 +358,7 @@ public:
      */
     void setMassFractionsByName(const std::string& x);
 
-    //! Set the internally storred temperature (K), density, and mole fractions.
+    //! Set the internally stored temperature (K), density, and mole fractions.
     /*!
      * Note, the mole fractions are always set first, before the density
      *
@@ -370,7 +370,7 @@ public:
     void setState_TRX(doublereal t, doublereal dens, const doublereal* x);
 
 
-    //! Set the internally storred temperature (K), density, and mole fractions.
+    //! Set the internally stored temperature (K), density, and mole fractions.
     /*!
      * Note, the mole fractions are always set first, before the density
      *
@@ -382,7 +382,7 @@ public:
      */
     void setState_TRX(doublereal t, doublereal dens, compositionMap& x);
 
-    //! Set the internally storred temperature (K), density, and mass fractions.
+    //! Set the internally stored temperature (K), density, and mass fractions.
     /*!
      * Note, the mass fractions are always set first, before the density
      *
@@ -393,7 +393,7 @@ public:
      */
     void setState_TRY(doublereal t, doublereal dens, const doublereal* y);
 
-    //! Set the internally storred temperature (K), density, and mass fractions.
+    //! Set the internally stored temperature (K), density, and mass fractions.
     /*!
      * Note, the mass fractions are always set first, before the density
      *
@@ -405,7 +405,7 @@ public:
      */
     void setState_TRY(doublereal t, doublereal dens, compositionMap& y);
 
-    //! Set the internally storred temperature (K), molar density (kmol/m^3), and mole fractions.
+    //! Set the internally stored temperature (K), molar density (kmol/m^3), and mole fractions.
     /*!
      * Note, the mole fractions are always set first, before the molar density
      *
@@ -416,14 +416,14 @@ public:
      */
     void setState_TNX(doublereal t, doublereal n, const doublereal* x);
 
-    //! Set the internally storred temperature (K) and density (kg/m^3)
+    //! Set the internally stored temperature (K) and density (kg/m^3)
     /*!
      * @param t     Temperature in kelvin
      * @param rho   Density (kg/m^3)
      */
     void setState_TR(doublereal t, doublereal rho);
 
-    //! Set the internally storred temperature (K) and mole fractions.
+    //! Set the internally stored temperature (K) and mole fractions.
     /*!
      * @param t   Temperature in kelvin
      * @param x   vector of species mole fractions.
@@ -431,7 +431,7 @@ public:
      */
     void setState_TX(doublereal t, doublereal* x);
 
-    //! Set the internally storred temperature (K) and mass fractions.
+    //! Set the internally stored temperature (K) and mass fractions.
     /*!
      * @param t   Temperature in kelvin
      * @param y   vector of species mass fractions.

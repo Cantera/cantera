@@ -292,7 +292,7 @@ doublereal  LatticeSolidPhase::calcDensity()
 // normalize them so that they sum to 1.0 for each of the subphases
 /*
  *  On input, the mole fraction vector is assumed to sum to one for each of the sublattices. The sublattices
- *  are updated with this mole fraction vector. The mole fractions are also storred within this object, after
+ *  are updated with this mole fraction vector. The mole fractions are also stored within this object, after
  *  they are normalized to one by dividing by the number of sublattices.
  *
  *    @param x  Input vector of mole fractions. There is no restriction

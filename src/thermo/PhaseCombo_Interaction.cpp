@@ -3,7 +3,7 @@
  *
  */
 /*
- * Copywrite (2009) Sandia Corporation. Under the terms of
+ * Copyright (2009) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -370,7 +370,7 @@ void PhaseCombo_Interaction::getActivityCoefficients(doublereal* ac) const
     s_update_lnActCoeff();
 
     /*
-     * take the exp of the internally storred coefficients.
+     * take the exp of the internally stored coefficients.
      */
     for (size_t k = 0; k < m_kk; k++) {
         ac[k] = exp(lnActCoeff_Scaled_[k]);
@@ -492,7 +492,7 @@ void PhaseCombo_Interaction::getPartialMolarEnthalpies(doublereal* hbar) const
     }
     /*
      * Update the activity coefficients, This also update the
-     * internally storred molalities.
+     * internally stored molalities.
      */
     s_update_lnActCoeff();
     s_update_dlnActCoeff_dT();
@@ -524,7 +524,7 @@ void PhaseCombo_Interaction::getPartialMolarCp(doublereal* cpbar) const
     double T = temperature();
     /*
      * Update the activity coefficients, This also update the
-     * internally storred molalities.
+     * internally stored molalities.
      */
     s_update_lnActCoeff();
     s_update_dlnActCoeff_dT();
@@ -564,7 +564,7 @@ void PhaseCombo_Interaction::getPartialMolarEntropies(doublereal* sbar) const
     double T = temperature();
     /*
      * Update the activity coefficients, This also update the
-     * internally storred molalities.
+     * internally stored molalities.
      */
     s_update_lnActCoeff();
     s_update_dlnActCoeff_dT();
@@ -589,9 +589,9 @@ void PhaseCombo_Interaction::getPartialMolarEntropies(doublereal* sbar) const
 /*
  *  Frequently, for this class of thermodynamics representations,
  *  the excess Volume due to mixing is zero. Here, we set it as
- *  a default. It may be overriden in derived classes.
+ *  a default. It may be overridden in derived classes.
  *
- *  @param vbar   Output vector of speciar partial molar volumes.
+ *  @param vbar   Output vector of species partial molar volumes.
  *                Length = m_kk. units are m^3/kmol.
  */
 void PhaseCombo_Interaction::getPartialMolarVolumes(doublereal* vbar) const
@@ -744,7 +744,7 @@ void PhaseCombo_Interaction::initThermoXML(XML_Node& phaseNode, std::string id)
 //===================================================================================================================
 // Update the activity coefficients
 /*
- * This function will be called to update the internally storred
+ * This function will be called to update the internally stored
  * natural logarithm of the activity coefficients
  *
  *   he = X_A X_B(B + C X_B)
@@ -794,7 +794,7 @@ void PhaseCombo_Interaction::s_update_lnActCoeff() const
 //===================================================================================================================
 // Update the derivative of the log of the activity coefficients wrt T
 /*
- * This function will be called to update the internally storred
+ * This function will be called to update the internally stored
  * natural logarithm of the activity coefficients
  *
  *   he = X_A X_B(B + C X_B)
@@ -986,7 +986,7 @@ void PhaseCombo_Interaction::s_update_dlnActCoeff_dlnN_diag() const
 //====================================================================================================================
 // Update the derivative of the log of the activity coefficients wrt ln N_k
 /*
- * This function will be called to update the internally storred gradients of the
+ * This function will be called to update the internally stored gradients of the
  * logarithm of the activity coefficients.  These are used in the determination
  * of the diffusion coefficients.
  *

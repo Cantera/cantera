@@ -10,7 +10,7 @@
  *  $Revision$
  */
 /*
- * Copywrite 2004 Sandia Corporation. Under the terms of Contract
+ * Copyright 2004 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government
  * retains certain rights in this software.
  * See file License.txt for licensing information.
@@ -794,7 +794,7 @@ void NonlinearSolver::scaleMatrix(GeneralMatrix& jac, doublereal* const y_comm, 
         }
     }
     /*
-     * row sum scaling -> Note, this is an unequivical success
+     * row sum scaling -> Note, this is an unequivocal success
      *      at keeping the small numbers well balanced and nonnegative.
      */
     if (! jac.factored()) {
@@ -815,7 +815,7 @@ void NonlinearSolver::scaleMatrix(GeneralMatrix& jac, doublereal* const y_comm, 
                         m_rowScales[irow] += fabs(*jptr);
                     }
                     if (m_colScaling) {
-                        // This is needed in order to mitgate the change in J_ij carried out just above this loop.
+                        // This is needed in order to mitigate the change in J_ij carried out just above this loop.
                         // Alternatively, we could move this loop up to the top
                         m_rowWtScales[irow] += fabs(*jptr) * m_ewt[jcol] / m_colScales[jcol];
                     } else {
@@ -836,7 +836,7 @@ void NonlinearSolver::scaleMatrix(GeneralMatrix& jac, doublereal* const y_comm, 
                             m_rowScales[irow] += vv;
                         }
                         if (m_colScaling) {
-                            // This is needed in order to mitgate the change in J_ij carried out just above this loop.
+                            // This is needed in order to mitigate the change in J_ij carried out just above this loop.
                             // Alternatively, we could move this loop up to the top
                             m_rowWtScales[irow] += vv * m_ewt[jcol] / m_colScales[jcol];
                         } else {
@@ -1067,7 +1067,7 @@ int NonlinearSolver::doAffineNewtonSolve(const doublereal* const y_curr,   const
     // We can default to QR here ( or not )
     jac.useFactorAlgorithm(1);
     int useQR = jac.factorAlgorithm();
-    // multiplyl the residual by -1
+    // multiply the residual by -1
     // Scale the residual if there is row scaling. Note, the matrix has already been scaled
     if (m_rowScaling  && !m_resid_scaled) {
         for (size_t n = 0; n < neq_; n++) {
@@ -1419,7 +1419,7 @@ doublereal NonlinearSolver::doCauchyPointSolve(GeneralMatrix& jac)
      *  actual equation
      *
      *  Here we calculate the steepest descent direction. This is equation (11) in the notes. It is
-     *  storred in deltaX_CP_[].The value corresponds to d_descent[].
+     *  stored in deltaX_CP_[].The value corresponds to d_descent[].
      */
     for (size_t j = 0; j < neq_; j++) {
         deltaX_CP_[j] = 0.0;
@@ -1590,7 +1590,7 @@ void  NonlinearSolver::descentComparison(doublereal time_curr, doublereal* ydot0
 
     doublereal funcDecreaseNewt2 = 0.5 * (residNewt2 - normResid02) / (ffNewt * sNewt);
 
-    // This is the expected inital rate of decrease in the Cauchy direction.
+    // This is the expected initial rate of decrease in the Cauchy direction.
     //   -> This is Eqn. 29 = Rhat dot Jhat dy / || d ||
     doublereal funcDecreaseSDExp = RJd_norm_ / cauchyDistanceNorm * lambdaStar_;
 
@@ -1614,7 +1614,7 @@ void  NonlinearSolver::descentComparison(doublereal time_curr, doublereal* ydot0
      *   The steepest direction is always largest even when there are variable solution weights
      *
      *   HKM When a hessian is used with junk on the diagonal,  funcDecreaseNewtExp2 is no longer accurate as the
-     *  direction gets signficantly shorter with increasing condition number. This suggests an algorithm where the
+     *  direction gets significantly shorter with increasing condition number. This suggests an algorithm where the
      *  newton step from the Hessian should be increased so as to match funcDecreaseNewtExp2 =  funcDecreaseNewt2.
      *  This roughly equals the ratio of the norms of the hessian and newton steps. This increased Newton step can
      *  then be used with the trust region double dogleg algorithm.
@@ -2074,7 +2074,7 @@ NonlinearSolver::deltaBoundStep(const doublereal* const y_n_curr, const doublere
         } else {
             /*
              *  This handles the case where the value crosses the origin.
-             *       - First we don't let it cross the origin until its shrunk to the size of m_deltaStepMinimum[i]
+             *       - First we don't let it cross the origin until it's shrunk to the size of m_deltaStepMinimum[i]
              */
             if (fabs(y_n_curr[i]) > m_deltaStepMinimum[i]) {
                 ff = y_n_curr[i]/(y_new - y_n_curr[i]) * (1.0 - 2.0)/2.0;
@@ -2837,8 +2837,8 @@ int NonlinearSolver::dampDogLeg(const doublereal time_curr, const doublereal* y_
  * @param y0         INPUT    Current value of the solution vector
  * @param ydot0      INPUT    Current value of the derivative of the solution vector
  * @param step0      INPUT    Trial step
- * @param y1         OUTPUT   Solution values at the conditions which are evalulated for success
- * @param ydot1      OUTPUT   Time derivates of solution at the conditions which are evalulated for success
+ * @param y1         OUTPUT   Solution values at the conditions which are evaluated for success
+ * @param ydot1      OUTPUT   Time derivates of solution at the conditions which are evaluated for success
  * @param trustDeltaOld INPUT Value of the trust length at the old conditions
  *
  *
@@ -2869,7 +2869,7 @@ int NonlinearSolver::decideStep(const doublereal time_curr, int leg, doublereal 
     // Calculate the distance to the cauchy point
     doublereal cauchyDistanceNorm = solnErrorNorm(DATA_PTR(deltaX_CP_));
 
-    // This is the expected inital rate of decrease in the cauchy direction.
+    // This is the expected initial rate of decrease in the cauchy direction.
     //   -> This is Eqn. 29 = Rhat dot Jhat dy / || d ||
     doublereal funcDecreaseSDExp = RJd_norm_ / cauchyDistanceNorm * lambdaStar_;
     if (funcDecreaseSDExp > 0.0) {

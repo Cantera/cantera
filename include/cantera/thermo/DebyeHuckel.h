@@ -9,7 +9,7 @@
  */
 
 /*
- * Copywrite (2006) Sandia Corporation. Under the terms of
+ * Copyright (2006) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -406,7 +406,7 @@ class PDSS_Water;
  *  In the equations above, the formulas for  \f$  A_{Debye} \f$ and \f$  B_{Debye} \f$
  *  are needed. The %DebyeHuckel object uses two methods for specifying these quantities.
  *  The default method is to assume that \f$  A_{Debye} \f$  is a constant, given
- *  in the initialization process, and storred in the
+ *  in the initialization process, and stored in the
  *  member double, m_A_Debye. Optionally, a full water treatment may be employed that makes
  *  \f$ A_{Debye} \f$ a full function of <I>T</I> and <I>P</I>.
  *
@@ -742,12 +742,12 @@ public:
 
     //! Return the thermodynamic pressure (Pa).
     /*!
-     * For this incompressible system, we return the internally storred
+     * For this incompressible system, we return the internally stored
      * independent value of the pressure.
      */
     virtual doublereal pressure() const;
 
-    //! Set the internally storred pressure (Pa) at constant
+    //! Set the internally stored pressure (Pa) at constant
     //! temperature and composition
     /*!
      *  This method sets the pressure within the object.
@@ -783,7 +783,7 @@ protected:
     virtual void calcDensity();
 
 public:
-    //! Set the internally storred density (gm/m^3) of the phase.
+    //! Set the internally stored density (gm/m^3) of the phase.
     /*!
      * Overwritten setDensity() function is necessary because the
      * density is not an indendent variable.
@@ -810,7 +810,7 @@ public:
      */
     void setDensity(const doublereal rho);
 
-    //! Set the internally storred molar density (kmol/m^3) of the phase.
+    //! Set the internally stored molar density (kmol/m^3) of the phase.
     /**
      * Overwritten setMolarDensity() function is necessary because the
      * density is not an indendent variable.
@@ -1080,7 +1080,7 @@ public:
      * For this solution, the partial molar volumes are equal to the
      * constant species molar volumes.
      *
-     *  @param vbar   Output vector of speciar partial molar volumes.
+     *  @param vbar   Output vector of species partial molar volumes.
      *                Length = m_kk. units are m^3/kmol.
      */
     virtual void getPartialMolarVolumes(doublereal* vbar) const;
@@ -1186,7 +1186,7 @@ public:
      * an input file. It should be overloaded in subclasses to set
      * any parameters that are specific to that particular phase
      * model. Note, this method is called before the phase is
-     * initialzed with elements and/or species.
+     * initialized with elements and/or species.
      *
      * @param eosdata An XML_Node object corresponding to
      *                the "thermo" entry for this phase in the input file.
@@ -1338,7 +1338,7 @@ public:
     //! and pressure (Units = sqrt(kg/gmol))
     /*!
      *  The default is to assume that it is constant, given
-     *  in the initialization process, and storred in the
+     *  in the initialization process, and stored in the
      *  member double, m_A_Debye. Optionally, a full water treatment may be employed that makes
      *  \f$ A_{Debye} \f$ a full function of T and P.
      *
@@ -1723,7 +1723,7 @@ protected:
      *  NaCl ->   m_speciesCharge_Stoich = -1;
      *  HSO4- -> H+ + SO42-              = -2
      *      -> The other charge is calculated.
-     * For species that aren't ion pairs, its equal to the
+     * For species that aren't ion pairs, it's equal to the
      * m_speciesCharge[] value.
      */
     vector_fp  m_speciesCharge_Stoich;
@@ -1765,12 +1765,12 @@ private:
 private:
     //! Calculate the log activity coefficients
     /*!
-     * This function updates the internally storred
+     * This function updates the internally stored
      * natural logarithm of the molality activity coefficients
      */
     void s_update_lnMolalityActCoeff() const;
 
-    //! Calculation of temperatue derivative of activity coefficient
+    //! Calculation of temperature derivative of activity coefficient
     /*!
      *   Using internally stored values, this function calculates
      *   the temperature derivative of the logarithm of the
@@ -1780,7 +1780,7 @@ private:
      *
      *
      *
-     *   The solvent activity coefficient is on the molality scale. It's derivative is too.
+     *   The solvent activity coefficient is on the molality scale. Its derivative is too.
      */
     void s_update_dlnMolalityActCoeff_dT() const;
 
@@ -1793,7 +1793,7 @@ private:
      *   We assume that the activity coefficients are current in this routine
      *
      *   solvent activity coefficient is on the molality
-     *   scale. It's derivatives are too.
+     *   scale. Its derivatives are too.
      *
      * note: private routine
      */
@@ -1809,7 +1809,7 @@ private:
      *   and A_Debye are current.
      *
      *   solvent activity coefficient is on the molality
-     *   scale. It's derivatives are too.
+     *   scale. Its derivatives are too.
      */
     void s_update_dlnMolalityActCoeff_dP() const;
 };

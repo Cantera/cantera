@@ -273,7 +273,7 @@ void  PureFluidPhase::getPartialMolarEntropies(doublereal* sbar) const
 // Return an array of partial molar internal energies for the
 // species in the mixture.  Units: J/kmol.
 /*
- * @param ubar    Output vector of speciar partial molar internal energies.
+ * @param ubar    Output vector of species partial molar internal energies.
  *                Length = m_kk. units are J/kmol.
  */
 void  PureFluidPhase::getPartialMolarIntEnergies(doublereal* ubar) const
@@ -296,7 +296,7 @@ void  PureFluidPhase::getPartialMolarCp(doublereal* cpbar) const
 // Return an array of partial molar volumes for the
 // species in the mixture. Units: m^3/kmol.
 /*
- *  @param vbar   Output vector of speciar partial molar volumes.
+ *  @param vbar   Output vector of species partial molar volumes.
  *                Length = m_kk. units are m^3/kmol.
  */
 void  PureFluidPhase::getPartialMolarVolumes(doublereal* vbar) const

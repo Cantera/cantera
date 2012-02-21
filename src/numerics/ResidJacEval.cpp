@@ -7,7 +7,7 @@
  * $Date$
  */
 /*
- * Copywrite 2004 Sandia Corporation. Under the terms of Contract
+ * Copyright 2004 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government
  * retains certain rights in this software.
  * See file License.txt for licensing information.
@@ -252,7 +252,7 @@ doublereal ResidJacEval::filterSolnPrediction(doublereal t, doublereal* const y)
     return 0.0;
 }
 //====================================================================================================================
-// Evalulate any stopping criteria other than a final time limit
+// Evaluate any stopping criteria other than a final time limit
 /*
  *  If we are to stop the time integration for any reason other than reaching a final time limit, tout,
  *  provide a test here. This call is made at the end of every succesful time step iteration

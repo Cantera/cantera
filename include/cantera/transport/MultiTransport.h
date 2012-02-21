@@ -344,20 +344,20 @@ private:
     bool m_lmatrix_soln_ok;
     int m_mode;
 
-    //! Evalulate the L0000 matrices
+    //! Evaluate the L0000 matrices
     /*!
      *  Evaluate the upper-left block of the L matrix.
      *  @param x vector of species mole fractions
      */
     void eval_L0000(const doublereal* const x);
 
-    //! Evalulate the L0010 matrices
+    //! Evaluate the L0010 matrices
     /*!
      *  @param x vector of species mole fractions
      */
     void eval_L0010(const doublereal* const x);
 
-    //! Evalulate the L1000 matrices
+    //! Evaluate the L1000 matrices
     /*!
      *
      */

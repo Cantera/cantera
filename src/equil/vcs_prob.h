@@ -3,7 +3,7 @@
  *  Header for the Interface class for the vcs thermo equilibrium solver package,
  */
 /*
- * Copywrite (2005) Sandia Corporation. Under the terms of
+ * Copyright (2005) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -52,7 +52,7 @@ public:
     //! Species number used to malloc data structures
     size_t NSPECIES0;
 
-    //! Number of element contraints in the equilibrium problem
+    //! Number of element constraints in the equilibrium problem
     size_t ne;
 
     //! Number of element constraints used to malloc data structures
@@ -156,7 +156,7 @@ public:
     //! Units for the chemical potential data, pressure data, volume,
     //! and species amounts
     /*!
-     *  All internally storred quantities will have these units. Also, printed
+     *  All internally stored quantities will have these units. Also, printed
      *  quantitities will display in these units.
      *
      *                           Chem_Pot                 Pres      vol   moles
@@ -312,7 +312,7 @@ public:
      *  This routine sorts through the elements defined in the
      *  vcs_VolPhase object. It then adds the new elements to
      *  the VCS_PROB object, and creates a global map, which is
-     *  storred in the vcs_VolPhase object.
+     *  stored in the vcs_VolPhase object.
      *  Id and matching of elements is done strictly via the element name,
      *  with case not mattering.
      *

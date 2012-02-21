@@ -4,7 +4,7 @@
  *   (see \ref Cantera::PrintCtrl).
  */
 /*
- * Copywrite 2004 Sandia Corporation. Under the terms of Contract
+ * Copyright 2004 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government
  * retains certain rights in this software.
  * See file License.txt for licensing information.
@@ -24,7 +24,7 @@ namespace Cantera
  *  printing out real numbers to files and to standard output.
  *  Specifically, it can make sure that a max and min field
  *  width is honored when conducting IO of numbers and strings.
- *  Basically, its the spot to house all wrappers around
+ *  Basically, it's the spot to house all wrappers around
  *  commonly used printing facilities.
  *
  *  It can also handle cropping of numbers below a certain
@@ -36,11 +36,11 @@ namespace Cantera
  *
  *  1.12345E-19
  *
- *  whould be cropped to the value
+ *  would be cropped to the value
  *
  *  1.1000E-19
  *
- *  The class wraps aroud a single std::ostream class. It's
+ *  The class wraps around a single std::ostream class. Its
  *  cropping functions are also available as a "double"
  *  conversion utility.
  *

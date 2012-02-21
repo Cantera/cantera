@@ -5,7 +5,7 @@
  *    (see \ref mgrpdssthermocalc and class \link Cantera::VPSSMgrFactory VPSSMgrFactory\endlink);
  */
 /*
- * Copywrite (2006) Sandia Corporation. Under the terms of
+ * Copyright (2006) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -190,7 +190,7 @@ private:
  * @param vp_ptr       Variable pressure standard state ThermoPhase object
  *                     that will be the owner.
  * @param f            Pointer to a SpeciesThermoFactory. optional parameter.
- *                    Defautls to NULL.
+ *                     Defaults to NULL.
  */
 VPSSMgr* newVPSSMgr(VPSSMgr_enumType type,
                     VPStandardStateTP* vp_ptr, VPSSMgrFactory* f=0);
@@ -212,7 +212,7 @@ VPSSMgr* newVPSSMgr(VPSSMgr_enumType type,
  *                       of species XML nodes that will be in the phase
  *
  * @param f            Pointer to a SpeciesThermoFactory. optional parameter.
- *                    Defautls to NULL.
+ *                     Defaults to NULL.
  */
 VPSSMgr* newVPSSMgr(VPStandardStateTP* vp_ptr,
                     XML_Node* phaseNode_ptr,

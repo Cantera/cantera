@@ -126,7 +126,7 @@ public:
      *          species, m_kk. There is no restriction
      *          on the sum of the mole fraction vector. Internally,
      *          the State object will normalize this vector before
-     *          storring its contents.
+     *          storing its contents.
      */
     virtual void setMoleFractions(const doublereal* const x);
 
@@ -166,7 +166,7 @@ public:
      *           Input vector of mass fractions. There is no restriction
      *           on the sum of the mass fraction vector. Internally,
      *           the State object will normalize this vector before
-     *           storring its contents.
+     *           storing its contents.
      *           Length is m_kk.
      */
     virtual void setMassFractions(const doublereal* const y);
@@ -315,7 +315,7 @@ public:
      */
     doublereal molarVolume() const;
 
-    //! Set the internally storred density (kg/m^3) of the phase
+    //! Set the internally stored density (kg/m^3) of the phase
     /*!
      * Note the density of a phase is an indepedent variable.
      *
@@ -325,7 +325,7 @@ public:
         m_dens = density;
     }
 
-    //! Set the internally storred molar density (kmol/m^3) of the phase.
+    //! Set the internally stored molar density (kmol/m^3) of the phase.
     /*!
      * @param molarDensity   Input molar density (kmol/m^3).
      */
@@ -333,7 +333,7 @@ public:
 
     //! Set the temperature (K).
     /*!
-     * This function sets the internally storred temperature of the phase.
+     * This function sets the internally stored temperature of the phase.
      *
      * @param temp Temperature in kelvin
      */

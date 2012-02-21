@@ -5,7 +5,7 @@
  *      \link Cantera::IdealSolidSolnPhase IdealSolidSolnPhase\endlink).
  */
 /*
- * Copywrite 2006 Sandia Corporation. Under the terms of Contract
+ * Copyright 2006 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000, with Sandia Corporation, the U.S. Government
  * retains certain rights in this software.
  */
@@ -310,7 +310,7 @@ setDensity(const doublereal rho)
 {
     /*
      * Unless the input density is exactly equal to the density
-     * calculated and storred in the State object, we throw an
+     * calculated and stored in the State object, we throw an
      * exception. This is because the density is NOT an
      * independent variable.
      */

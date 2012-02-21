@@ -551,7 +551,7 @@ void LatticePhase::initThermoXML(XML_Node& phaseNode, std::string id)
 // Update the species reference state thermodynamic functions
 /*
  * The polynomials for the standard state functions are only
- * reevalulated if the temperature has changed.
+ * reevaluated if the temperature has changed.
  */
 void LatticePhase::_updateThermo() const
 {

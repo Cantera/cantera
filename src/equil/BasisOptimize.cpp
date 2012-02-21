@@ -36,7 +36,7 @@ static void print_stringTrunc(const char* str, int space, int alignment);
 //! Finds the location of the maximum component in a double vector INPUT
 /*!
  *  @param   x            Vector to search
- *  @param   j            j <= i < n     : i is the range of indecises to search in X(*)
+ *  @param   j            j <= i < n     : i is the range of indices to search in X(*)
  *  @param   n            Length of the vector
  *
  *    @return             index of the greatest value on X(*) searched
@@ -385,7 +385,7 @@ L_END_LOOP:
      *  Formulate the matrix problem for the stoichiometric
      *  coefficients. CX + B = 0
      *      C will be an nc x nc matrix made up of the formula
-     * vectors for the components. Each component's formular
+     * vectors for the components. Each component's formula
      * vector is a column. The rows are the elements.
      *      n rhs's will be solved for. Thus, B is an nc x n
      * matrix.
@@ -675,7 +675,7 @@ FOUND_PIVOT:
  *    has an element column in FormulaMatrix[], but no species in the
  *    mechanism
  *    actually contains argon. Then, nc < ne. Unless the entry for
- *    desired elementabundance vector for Ar is zero, then this
+ *    desired element abundance vector for Ar is zero, then this
  *    element abundance constraint can never be satisfied. The
  *    constraint vector is not in the range space of the formula
  *    matrix.
@@ -687,7 +687,7 @@ FOUND_PIVOT:
  *       This routine borrows heavily from BasisOptimize algorithm. It
  *    finds nc constraints which span the range space of the Component
  *    Formula matrix, and assigns them as the first nc components in the
- *    formular matrix. This guarrantees that BasisOptimize has a
+ *    formula matrix. This guarantees that BasisOptimize has a
  *    nonsingular matrix to invert.
  */
 size_t Cantera::ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
@@ -830,7 +830,7 @@ size_t Cantera::ElemRearrange(size_t nComponents, const vector_fp& elementAbunda
              *   Fill in the row for the current element, k, under consideration
              *   The row will contain the Formula matrix value for that element
              *   with respect to the vector of component species.
-             *   (note j and k indecises are flipped compared to the previous routine)
+             *   (note j and k indices are flipped compared to the previous routine)
              */
             for (j = 0; j < nComponents; ++j) {
                 jj = orderVectorSpecies[j];

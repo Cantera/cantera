@@ -6,7 +6,7 @@
  *
  */
 /*
- * Copywrite (2005) Sandia Corporation. Under the terms of
+ * Copyright (2005) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -121,7 +121,7 @@ MixtureFugacityTP::operator=(const MixtureFugacityTP& b)
         /*
          *  Ok, the VPSSMgr object is ready for business.
          *  We need to resync the temperature and the pressure of the new standard states
-         *  with what is storred in this object.
+         *  with what is stored in this object.
          */
         // m_VPSS_ptr->setState_TP(m_Tlast_ss, m_Plast_ss);
     }
@@ -662,9 +662,9 @@ void MixtureFugacityTP::setState_TP(doublereal t, doublereal pres)
     //calcDensity();
 }
 //====================================================================================================================
-// Set the internally storred temperature (K) and density (kg/m^3)
+// Set the internally stored temperature (K) and density (kg/m^3)
 /*
- *  This overrides the default behavior. In addition to just storring the state in the object, we need to do
+ *  This overrides the default behavior. In addition to just storing the state in the object, we need to do
  *  an equation of state calculation and figure out what phase state we are in.
  *
  * @param t     Temperature in kelvin

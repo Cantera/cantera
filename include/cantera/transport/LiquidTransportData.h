@@ -25,7 +25,7 @@ namespace Cantera
  * A LiquidTransportData object is created for each species.
  *
  * This class is mainly used to collect transport properties
- * from the parse phase in the TranportFactory and transfer
+ * from the parse phase in the TransportFactory and transfer
  * them to the Transport class.  Transport properties are
  * expressed by subclasses of LTPspecies.
  * One may need to be careful about deleting pointers to LTPspecies

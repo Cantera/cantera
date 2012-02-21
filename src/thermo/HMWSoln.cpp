@@ -13,7 +13,7 @@
  * Beta1, and Cphi.(CFJC, SNL)
  */
 /*
- * Copywrite (2006) Sandia Corporation. Under the terms of
+ * Copyright (2006) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -243,7 +243,7 @@ HMWSoln::HMWSoln(const HMWSoln& b) :
 {
     /*
      * Use the assignment operator to do the brunt
-     * of the work for the copy construtor.
+     * of the work for the copy constructor.
      */
     *this = b;
 }
@@ -758,7 +758,7 @@ doublereal HMWSoln::cv_mole() const
 
 /**
  * Pressure. Units: Pa.
- * For this incompressible system, we return the internally storred
+ * For this incompressible system, we return the internally stored
  * independent value of the pressure.
  */
 doublereal HMWSoln::pressure() const
@@ -1173,7 +1173,7 @@ void HMWSoln::getPartialMolarEnthalpies(doublereal* hbar) const
     }
     /*
      * Update the activity coefficients, This also update the
-     * internally storred molalities.
+     * internally stored molalities.
      */
     s_update_lnMolalityActCoeff();
     s_update_dlnMolalityActCoeff_dT();
@@ -1325,7 +1325,7 @@ void HMWSoln::getPartialMolarCp(doublereal* cpbar) const
     }
     /*
      * Update the activity coefficients, This also update the
-     * internally storred molalities.
+     * internally stored molalities.
      */
     s_update_lnMolalityActCoeff();
     s_update_dlnMolalityActCoeff_dT();
@@ -1446,7 +1446,7 @@ double HMWSoln::speciesMolarVolume(int k) const
  *  of the parameter within the object, if it is changeable.
  *
  *  The default is to assume that it is constant, given
- *  in the initialization process and storred in the
+ *  in the initialization process and stored in the
  *  member double, m_A_Debye
  *
  *            A_Debye = (1/(8 Pi)) sqrt(2 Na dw /1000)
@@ -5223,7 +5223,7 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
  *   We assume that the activity coefficients are current.
  *
  *   solvent activity coefficient is on the molality
- *   scale. It's derivative is too.
+ *   scale. Its derivative is too.
  */
 void HMWSoln::s_update_dlnMolalityActCoeff_dP() const
 {
@@ -5261,7 +5261,7 @@ void HMWSoln::s_update_dlnMolalityActCoeff_dP() const
  * quantities do not need to be recalculated in this routine.
  *
  *   solvent activity coefficient is on the molality
- *   scale. It's derivatives are too.
+ *   scale. Its derivatives are too.
  */
 void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
 {
@@ -6097,7 +6097,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
  * Calculate E-lambda terms for charge combinations of like sign,
  *   using method of Pitzer (1975).
  *
- *  This code snipet is included from Bethke, Appendix 2.
+ *  This code snippet is included from Bethke, Appendix 2.
  */
 void HMWSoln::calc_lambdas(double is) const
 {
@@ -6167,7 +6167,7 @@ void HMWSoln::calc_lambdas(double is) const
  * on this effect. See the notes.
  * This interaction will be nonzero for species with the same charge.
  *
- *  This code snipet is included from Bethke, Appendix 2.
+ *  This code snippet is included from Bethke, Appendix 2.
  */
 void HMWSoln::calc_thetas(int z1, int z2,
                           double* etheta, double* etheta_prime) const
@@ -6213,7 +6213,7 @@ void HMWSoln::calc_thetas(int z1, int z2,
     }
 }
 
-// This function will be called to update the internally storred
+// This function will be called to update the internally stored
 // natural logarithm of the molality activity coefficients
 /*
  * Normally they are all one. However, sometimes they are not,

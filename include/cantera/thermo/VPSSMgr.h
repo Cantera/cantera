@@ -7,7 +7,7 @@
  * class \link Cantera::VPSSMgr VPSSMgr\endlink).
  */
 /*
- * Copywrite (2005) Sandia Corporation. Under the terms of
+ * Copyright (2005) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -549,12 +549,12 @@ public:
      */
     virtual void setState_P(doublereal P);
 
-    //! Return the temperatue storred in the object
+    //! Return the temperatue stored in the object
     doublereal temperature() const {
         return m_tlast;
     }
 
-    //! Return the pressure storred in the object
+    //! Return the pressure stored in the object
     doublereal pressure() const {
         return m_plast;
     }

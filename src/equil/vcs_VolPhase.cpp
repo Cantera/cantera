@@ -2,7 +2,7 @@
  * @file vcs_VolPhase.cpp
  */
 /*
- * Copywrite (2005) Sandia Corporation. Under the terms of
+ * Copyright (2005) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -585,7 +585,7 @@ void vcs_VolPhase::setMoleFractionsState(const double totalMoles,
  *  a gather routine.
  *
  *
- *  @param molesSpeciesVCS  array of mole numbers. Note, the indecises
+ *  @param molesSpeciesVCS  array of mole numbers. Note, the indices
  *            for species in
  *            this array may not be contiguous. IndSpecies[] is needed
  *            to gather the species into the local contiguous vector
@@ -713,7 +713,7 @@ void vcs_VolPhase::setMolesFromVCS(const int stateCalc,
  *                         nothing is done.
  *
  *  @param molesSpeciesVCS  array of mole numbers. Note,
- *                          the indecises for species in
+ *                          the indices for species in
  *            this array may not be contiguous. IndSpecies[] is needed
  *            to gather the species into the local contiguous vector
  *            format.

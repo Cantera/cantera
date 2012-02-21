@@ -361,7 +361,7 @@ public:
 
 protected:
 
-    //! Data storred in a single array
+    //! Data stored in a single array
     vector_fp m_data;
 
     //! Number of rows

@@ -6,7 +6,7 @@
  *    (see class \ref pdssthermo and \link Cantera::PDSS_SSVol PDSS_SSVol\endlink).
  */
 /*
- * Copywrite (2009) Sandia Corporation. Under the terms of
+ * Copyright (2009) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */

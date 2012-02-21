@@ -4,7 +4,7 @@
  *  equilibrium solver package,
  */
 /*
- * Copywrite (2005) Sandia Corporation. Under the terms of
+ * Copyright (2005) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -373,7 +373,7 @@ void VCS_PROB::prob_report(int print_lvl)
  *  This routine sorts through the elements defined in the
  *  vcs_VolPhase object. It then adds the new elements to
  *  the VCS_PROB object, and creates a global map, which is
- *  storred in the vcs_VolPhase object.
+ *  stored in the vcs_VolPhase object.
  *  Id and matching of elements is done strictly via the element name,
  *  with case not mattering.
  *

@@ -12,7 +12,7 @@
  * calculating liquid electrolyte thermodynamics.
  */
 /*
- * Copywrite (2006) Sandia Corporation. Under the terms of
+ * Copyright (2006) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -142,7 +142,7 @@ namespace Cantera
  * In order to prevent a singularity, this class includes the concept of a minimum
  * value for the solvent mole fraction. All calculations involving the formulation
  * of activity coefficients and other non-ideal solution behavior adhere to
- * this concept of a minimul value for the solvent mole fraction. This makes sense
+ * this concept of a minimal value for the solvent mole fraction. This makes sense
  * because these solution behavior were all designed and measured far away from
  * the zero solvent singularity condition and are not applicable in that limit.
  *
@@ -253,7 +253,7 @@ public:
     //! coefficients.
     /*!
      *  Single ion activity coefficients are not unique in terms of the
-     *  representing actual measureable quantities.
+     *  representing actual measurable quantities.
      *
      * @param pHscaleType  Integer representing the pHscale
      */
@@ -263,7 +263,7 @@ public:
     //! coefficients.
     /*!
      *  Single ion activity coefficients are not unique in terms of the
-     *  representing actual measureable quantities.
+     *  representing actual measurable quantities.
      *
      * @return Return the pHscale type
      */
@@ -441,7 +441,7 @@ public:
      *   cAC_CONVENTION_MOLAR 0
      *      - default
      *
-     *  Molality based acvtivities
+     *  Molality based activities
      *       (unit activity of solutes at a hypothetical 1 molal
      *        solution referenced to infinite dilution at all
      *        pressures and temperatures).
@@ -857,8 +857,8 @@ protected:
 private:
     //! Returns the index of the Cl- species.
     /*!
-     *  The Cl- species is special in the sense that it's single ion
-     *  molalality-based activity coefficient is used in the specification
+     *  The Cl- species is special in the sense that its single ion
+     *  molality-based activity coefficient is used in the specification
      *  of the pH scale for single ions. Therefore, we need to know
      *  what species index is Cl-. If the species isn't in the species
      *  list then this routine returns -1, and we can't use the NBS
@@ -886,7 +886,7 @@ protected:
     //! coefficients.
     /*!
      *   Index of the species to be used in the single-ion scaling
-     *   law. This is the indentity of the Cl- species for the PHSCALE_NBS
+     *   law. This is the identity of the Cl- species for the PHSCALE_NBS
      *   scaling.
      *   Either PHSCALE_PITZER or PHSCALE_NBS
      */
@@ -895,7 +895,7 @@ protected:
     //! Index of the phScale species
     /*!
      *   Index of the species to be used in the single-ion scaling
-     *   law. This is the indentity of the Cl- species for the PHSCALE_NBS
+     *   law. This is the identity of the Cl- species for the PHSCALE_NBS
      *   scaling
      */
     size_t m_indexCLM;
@@ -916,7 +916,7 @@ protected:
     //! This is the multiplication factor that goes inside
     //! log expressions involving the molalities of species.
     /*!
-     * Its equal to Wt_0 / 1000,
+     * It's equal to Wt_0 / 1000,
      *     where Wt_0 = weight of solvent (kg/kmol)
      */
     doublereal m_Mnaught;
@@ -983,7 +983,7 @@ const int PHSCALE_PITZER = 0;
  *  \f]
  *
  *  This is the NBS pH scale, which is used in all conventional pH
- *  measurements. and is based on the Bates-Guggenheim quations.
+ *  measurements. and is based on the Bates-Guggenheim equations.
  *
  */
 const int PHSCALE_NBS    = 1;

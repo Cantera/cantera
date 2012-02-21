@@ -6,7 +6,7 @@
  *    and class \link Cantera::PhaseCombo_Interaction PhaseCombo_Interaction\endlink).
  */
 /*
- * Copywrite (2011) Sandia Corporation. Under the terms of
+ * Copyright (2011) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -629,9 +629,9 @@ public:
     /*!
      *  Frequently, for this class of thermodynamics representations,
      *  the excess Volume due to mixing is zero. Here, we set it as
-     *  a default. It may be overriden in derived classes.
+     *  a default. It may be overridden in derived classes.
      *
-     *  @param vbar   Output vector of speciar partial molar volumes.
+     *  @param vbar   Output vector of species partial molar volumes.
      *                Length = m_kk. units are m^3/kmol.
      */
     virtual void getPartialMolarVolumes(doublereal* vbar) const;
@@ -834,14 +834,14 @@ private:
 
     //! Update the activity coefficients
     /*!
-     * This function will be called to update the internally storred
+     * This function will be called to update the internally stored
      * natural logarithm of the activity coefficients
      */
     void s_update_lnActCoeff() const;
 
     //! Update the derivative of the log of the activity coefficients wrt T
     /*!
-     * This function will be called to update the internally storred
+     * This function will be called to update the internally stored
      * derivative of the natural logarithm of the activity coefficients
      * wrt temperature.
      */
@@ -850,7 +850,7 @@ private:
     //! Update the derivative of the log of the activity coefficients
     //!  wrt log(mole fraction)
     /*!
-     * This function will be called to update the internally storred
+     * This function will be called to update the internally stored
      * derivative of the natural logarithm of the activity coefficients
      * wrt logarithm of the mole fractions.
      */
@@ -859,7 +859,7 @@ private:
     //! Update the derivative of the log of the activity coefficients
     //!  wrt log(moles) - diagonal only
     /*!
-     * This function will be called to update the internally storred diagonal entries for the
+     * This function will be called to update the internally stored diagonal entries for the
      * derivative of the natural logarithm of the activity coefficients
      * wrt logarithm of the moles.
      */
@@ -867,7 +867,7 @@ private:
 
     //! Update the derivative of the log of the activity coefficients  wrt log(moles_m)
     /*!
-     * This function will be called to update the internally storred
+     * This function will be called to update the internally stored
      * derivative of the natural logarithm of the activity coefficients
      * wrt logarithm of the mole number of species
      */

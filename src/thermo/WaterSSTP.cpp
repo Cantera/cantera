@@ -4,7 +4,7 @@
  * and class \link Cantera::WaterSSTP WaterSSTP\endlink).
  */
 /*
- * Copywrite (2006) Sandia Corporation. Under the terms of
+ * Copyright (2006) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -82,7 +82,7 @@ WaterSSTP::WaterSSTP(const WaterSSTP& b) :
 
     /*
      * Use the assignment operator to do the brunt
-     * of the work for the copy construtor.
+     * of the work for the copy constructor.
      */
     *this = b;
 }

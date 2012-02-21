@@ -7,7 +7,7 @@
  * $Id$
  */
 /*
- * Copywrite 2004 Sandia Corporation. Under the terms of Contract
+ * Copyright 2004 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government
  * retains certain rights in this software.
  * See file License.txt for licensing information.
@@ -331,7 +331,7 @@ private:
     //! Main routine that calculates the current residual and Jacobian
     /*!
      *  @param JacCol  Vector of pointers to the tops of columns of the
-     *                 Jacobian to be evalulated.
+     *                 Jacobian to be evaluated.
      *  @param resid   output Vector of residuals, length = m_neq
      *  @param CSolnSP  Vector of species concentrations, unknowns in the
      *                  problem, length = m_neq. These are tweaked in order
@@ -405,7 +405,7 @@ private:
      */
     vector_fp m_CSolnSP;
 
-    //! Saved inital solution vector
+    //! Saved initial solution vector
     /*!
      * length MAX(1, m_neq)
      */

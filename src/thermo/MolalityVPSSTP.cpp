@@ -12,7 +12,7 @@
  * calculating liquid electrolyte thermodynamics.
  */
 /*
- * Copywrite (2005) Sandia Corporation. Under the terms of
+ * Copyright (2005) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -133,7 +133,7 @@ int MolalityVPSSTP::eosType() const
 // coefficients.
 /*
  *  Single ion activity coefficients are not unique in terms of the
- *  representing actual measureable quantities.
+ *  representing actual measurable quantities.
  */
 void MolalityVPSSTP::setpHScale(const int pHscaleType)
 {
@@ -148,7 +148,7 @@ void MolalityVPSSTP::setpHScale(const int pHscaleType)
 // coefficients.
 /*
  *  Single ion activity coefficients are not unique in terms of the
- *  representing actual measureable quantities.
+ *  representing actual measurable quantities.
  */
 int MolalityVPSSTP::pHScale() const
 {
@@ -722,8 +722,8 @@ void MolalityVPSSTP::applyphScale(doublereal* acMolality) const
 
 //  Returns the index of the Cl- species.
 /*
- *  The Cl- species is special in the sense that it's single ion
- *  molalality-based activity coefficient is used in the specification
+ *  The Cl- species is special in the sense that its single ion
+ *  molality-based activity coefficient is used in the specification
  *  of the pH scale for single ions. Therefore, we need to know
  *  what species index Cl- is. If the species isn't in the species
  *  list then this routine returns -1, and we can't use the NBS

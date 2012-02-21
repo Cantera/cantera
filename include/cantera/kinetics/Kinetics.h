@@ -29,7 +29,7 @@ class ReactionData;
 ///
 /// A kinetics manager is a C++ class that implements a kinetics
 /// model; a kinetics model is a set of mathematical equation
-/// describing how various kinetic quanities are to be computed --
+/// describing how various kinetic quantities are to be computed --
 /// reaction rates, species production rates, etc. Many different
 /// kinetics models might be defined to handle different types of
 /// kinetic processes. For example, one kinetics model might use
@@ -187,7 +187,7 @@ public:
      *  own the ThermoPhase objects. After a duplication, we need to point to different
      *  ThermoPhase objects.
      *
-     *  We check that the ThermoPhase objects are alligned in the same order and have
+     *  We check that the ThermoPhase objects are aligned in the same order and have
      *  the following identical properties to the ones that they are replacing.
      *   id()
      *   eosType()
@@ -256,7 +256,7 @@ public:
      * This returns the integer index of the phase which has
      * ThermoPhase type cSurf. For heterogeneous mechanisms, this
      * identifies the one surface phase. For homogeneous
-     * mechanisms, this reurns -1.
+     * mechanisms, this returns -1.
      */
     size_t surfacePhaseIndex() {
         return m_surfphase;
@@ -353,7 +353,7 @@ public:
      * flat arrays, with the species of each phases following one
      * another, in the order the phases were added.  This method
      * is useful to find the value for a particular species of a
-     * particular phase in arrrays returned from methods like
+     * particular phase in arrays returned from methods like
      * getCreationRates that return an array of species-specific
      * quantities.
      *
@@ -794,7 +794,7 @@ public:
      * on many issues. @todo DGG: recommend changing name to
      * getFwdRateCoefficients.
      *
-     * @param kfwd    Output vector containing the foward reaction rate constants.
+     * @param kfwd    Output vector containing the forward reaction rate constants.
      *                Length: m_ii.
      */
     virtual void getFwdRateConstants(doublereal* kfwd) {
@@ -1010,7 +1010,7 @@ protected:
      * This is a vector of vectors containing the products for
      * each reaction. The outer vector is over the number of
      * reactions, m_ii.  The inner vector is a list of species
-     * indeces. If the stoichiometric coefficient for a product is
+     * indices. If the stoichiometric coefficient for a product is
      * greater than one, then the reactant is listed contiguously
      * in the vector a number of times equal to its stoichiometric
      * coefficient.

@@ -55,8 +55,8 @@ namespace Cantera
  *  state thermo functions by calling the SpeciesThermo object.
  *
  *  Functions for the calculation of standard state properties for species
- *  at arbitray pressure are provided in %IdealGasPhase. However, they
- *  are all derived from their reference state conterparts.
+ *  at arbitrary pressure are provided in %IdealGasPhase. However, they
+ *  are all derived from their reference state counterparts.
  *
  *  The standard state enthalpy is independent of pressure:
  *
@@ -325,7 +325,7 @@ public:
     IdealGasPhase(const IdealGasPhase& right);
 
 
-    //! Asignment operator
+    //! Assignment operator
     /*!
      * Assignment operator for the object. Constructed
      * object will be a clone of this object, but will
@@ -516,7 +516,7 @@ public:
      *  \f]
      * The generalized concentrations are used in the kinetics classes
      * to describe the rates of progress of reactions involving the
-     * species. Their formulation depends upons the specification
+     * species. Their formulation depends upon the specification
      * of the rate constants for reaction, especially the units used
      * in specifying the rate constants. The bridge between the
      * thermodynamic equilibrium expressions that use a_k and the
@@ -603,7 +603,7 @@ public:
 
     //! Get the species partial molar enthalpies. Units: J/kmol.
     /*!
-     * @param ubar    Output vector of speciar partial molar internal energies.
+     * @param ubar    Output vector of species partial molar internal energies.
      *                Length = m_kk. units are J/kmol.
      */
     virtual void getPartialMolarIntEnergies(doublereal* ubar) const;
@@ -617,7 +617,7 @@ public:
 
     //! Get the species partial molar volumes. Units: m^3/kmol.
     /*!
-     *  @param vbar   Output vector of speciar partial molar volumes.
+     *  @param vbar   Output vector of species partial molar volumes.
      *                Length = m_kk. units are m^3/kmol.
      */
     virtual void getPartialMolarVolumes(doublereal* vbar) const;
@@ -943,7 +943,7 @@ private:
     //! Update the species reference state thermodynamic functions
     /*!
      * The polynomials for the standard state functions are only
-     * reevalulated if the temperature has changed.
+     * reevaluated if the temperature has changed.
      *
      */
     void _updateThermo() const;

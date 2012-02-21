@@ -7,7 +7,7 @@
  * class \link Cantera::RedlichKwongMFTP RedlichKwongMFTP\endlink).
  */
 /*
- * Copywrite (2005) Sandia Corporation. Under the terms of
+ * Copyright (2005) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -102,7 +102,7 @@ public:
      */
     RedlichKwongMFTP(const RedlichKwongMFTP& right);
 
-    //! Asignment operator
+    //! Assignment operator
     /*!
      * Assignment operator for the object. Constructed object will be a clone of this object, but will
      * also own all of its data.
@@ -408,7 +408,7 @@ public:
 
     //! Get the species partial molar enthalpies. Units: J/kmol.
     /*!
-     * @param ubar    Output vector of speciar partial molar internal energies.
+     * @param ubar    Output vector of species partial molar internal energies.
      *                Length = m_kk. units are J/kmol.
      */
     virtual void getPartialMolarIntEnergies(doublereal* ubar) const;
@@ -423,7 +423,7 @@ public:
 
     //! Get the species partial molar volumes. Units: m^3/kmol.
     /*!
-     *  @param vbar   Output vector of speciar partial molar volumes.
+     *  @param vbar   Output vector of species partial molar volumes.
      *                Length = m_kk. units are m^3/kmol.
      */
     virtual void getPartialMolarVolumes(doublereal* vbar) const;
@@ -700,7 +700,7 @@ public:
 
     //! Calculate dpdV and dpdT at the current conditions
     /*!
-     *  These are storred internally.
+     *  These are stored internally.
      */
     void pressureDerivatives() const;
 
@@ -720,7 +720,7 @@ public:
     /*!
      *
      *  This function doesn't change the internal state of the object, so it is a const
-     *  function.  It does use the storred mole fractions in the object.
+     *  function.  It does use the stored mole fractions in the object.
      *
      *  @param temp  Temperature (TKelvin)
      *

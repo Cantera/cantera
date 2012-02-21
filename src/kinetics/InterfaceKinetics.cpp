@@ -334,7 +334,7 @@ void InterfaceKinetics::_update_rates_C()
          * ThermoPhase class that makes up this kinetics object to
          * obtain the generalized concentrations for species within that
          * class. This is collected in the vector m_conc. m_start[]
-         * are integer indecises for that vector denoting the start of the
+         * are integer indices for that vector denoting the start of the
          * species for each phase.
          */
         thermo(n).getActivityConcentrations(DATA_PTR(m_conc) + m_start[n]);

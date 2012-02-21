@@ -54,7 +54,7 @@ namespace Cantera
  *
  *  Their first argument is a boolean. If the boolean is not true, a
  *  CanteraError is thrown, with descriptive information indicating
- *  where the error occured. These functions may be eliminated from
+ *  where the error occurred. These functions may be eliminated from
  *  the source code, if the -DNDEBUG option is specified to the
  *  compiler.
  *
@@ -193,7 +193,7 @@ void removeAtVersion(std::string func, std::string version);
 /*!
  * Assertion must be true or else a CanteraError is thrown. A diagnostic string containing the
  * file and line number,  indicating where the error
- * occured is added to the thrown object.
+ * occurred is added to the thrown object.
  *
  * @param expr  Boolean expression that must be true
  *
@@ -206,7 +206,7 @@ void removeAtVersion(std::string func, std::string version);
 //!  Assertion must be true or an error is thrown
 /*!
  * Assertion must be true or else a CanteraError is thrown. A diagnostic string indicating where the error
- * occured is added to the thrown object.
+ * occurred is added to the thrown object.
  *
  * @param expr  Boolean expression that must be true
  * @param procedure  Character string or std:string expression indicating the procedure where the assertion failed
@@ -219,13 +219,13 @@ void removeAtVersion(std::string func, std::string version);
 //!  Assertion must be true or an error is thrown
 /*!
  * Assertion must be true or else a CanteraError is thrown. A
- * diagnostic string indicating where the error occured is added
+ * diagnostic string indicating where the error occurred is added
  * to the thrown object.
  *
  * @param expr  Boolean expression that must be true
  * @param procedure  Character string or std:string expression indicating
  *                   the procedure where the assertion failed
- * @param message  Character string or std:string expression contaiing
+ * @param message  Character string or std:string expression containing
  *    a descriptive message is added to the thrown error condition.
  *
  * @ingroup errorhandling

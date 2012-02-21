@@ -6,7 +6,7 @@
  *     This file contains routines which are global routines, i.e.,
  *     not part of any object. These routine take as input, ctml
  *     pointers to data, and pointers to %Cantera objects. The purpose
- *     of these routines is to intialize the %Cantera objects with data
+ *     of these routines is to initialize the %Cantera objects with data
  *     from the ctml tree structures.
  */
 // Copyright 2002  California Institute of Technology
@@ -199,7 +199,7 @@ bool getReagents(const XML_Node& rxn, kinetics_t& kin, int rp,
 
     /*
      * The species and stoichiometric coefficient for the species
-     * are stored as a colon seperated pair. Get all of these
+     * are stored as a colon separated pair. Get all of these
      * pairs in the reactions/products object.
      */
     vector<string> key, val;
@@ -263,7 +263,7 @@ bool getReagents(const XML_Node& rxn, kinetics_t& kin, int rp,
             size_t loc = speciesMap[sp];
             if (loc == 0)
                 throw CanteraError("getReagents",
-                                   "reaction order specified for non-reactantt: "
+                                   "reaction order specified for non-reactant: "
                                    +sp);
             forder = fpValue(oo());
             if (forder < 0.0) {
@@ -295,7 +295,7 @@ static void getArrhenius(const XML_Node& node, int& highlow,
         highlow = 1;
     }
     /*
-     * We parse the children for the A, b, and E conponents.
+     * We parse the children for the A, b, and E components.
      */
     A = getFloat(node, "A", "toSI");
     b = getFloat(node, "b");

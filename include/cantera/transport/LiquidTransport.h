@@ -1291,7 +1291,7 @@ private:
     //! Matrix for the stefan maxwell equation.
     DenseMatrix m_A;
 
-    //! Current Temperature -> locally storred
+    //! Current Temperature -> locally stored
     /*!
      * This is used to test whether new temperature computations
      * should be performed.

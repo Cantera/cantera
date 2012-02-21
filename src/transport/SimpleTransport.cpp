@@ -79,7 +79,7 @@ SimpleTransport::SimpleTransport(const SimpleTransport& right) :
 {
     /*
      * Use the assignment operator to do the brunt
-     * of the work for the copy construtor.
+     * of the work for the copy constructor.
      */
     *this = right;
 }

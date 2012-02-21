@@ -445,14 +445,14 @@ public:
 
     //! Pressure. Units: Pa.
     /*!
-     * For this incompressible system, we return the internally storred
+     * For this incompressible system, we return the internally stored
      * independent value of the pressure.
      */
     virtual doublereal pressure() const {
         return m_Pcurrent;
     }
 
-    //! Set the internally storred pressure (Pa) at constant
+    //! Set the internally stored pressure (Pa) at constant
     //! temperature and composition
     /*!
      *  This method sets the pressure within the object.
@@ -662,7 +662,7 @@ public:
     //! Return an array of partial molar volumes for the
     //! species in the mixture. Units: m^3/kmol.
     /*!
-     *  @param vbar   Output vector of speciar partial molar volumes.
+     *  @param vbar   Output vector of species partial molar volumes.
      *                Length = m_kk. units are m^3/kmol.
      */
     virtual void getPartialMolarVolumes(doublereal* vbar) const;
@@ -927,7 +927,7 @@ public:
      * an input file. It should be overloaded in subclasses to set
      * any parameters that are specific to that particular phase
      * model. Note, this method is called before the phase is
-     * initialzed with elements and/or species.
+     * initialized with elements and/or species.
      *
      *  For this phase, the molar density of the phase is specified in this block,
      *  and is a required parameter.
@@ -1027,7 +1027,7 @@ private:
     //! Update the species reference state thermodynamic functions
     /*!
      * The polynomials for the standard state functions are only
-     * reevalulated if the temperature has changed.
+     * reevaluated if the temperature has changed.
      */
     void _updateThermo() const;
 };

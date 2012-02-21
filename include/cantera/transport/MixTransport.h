@@ -196,12 +196,12 @@ public:
     //! Returns the Mixture-averaged diffusion coefficients [m^2/s].
     /*!
      * Returns the mixture averaged diffusion coefficients for a gas, appropriate for calculating the
-     * mass averged diffusive flux with respect to the mass averaged velocity using gradients of the
+     * mass averaged diffusive flux with respect to the mass averaged velocity using gradients of the
      * mole fraction.
      * Note, for the single species case or the pure fluid case the routine returns the self-diffusion coefficient.
      * This is need to avoid a Nan result in the formula below.
      *
-     *  This is Eqn. 12.180 from "Chemicaly Reacting Flow"
+     *  This is Eqn. 12.180 from "Chemically Reacting Flow"
      *
      *   \f[
      *       D_{km}' = \frac{\left( \bar{M} - X_k M_k \right)}{ \bar{\qquad M \qquad } }  {\left( \sum_{j \ne k} \frac{X_j}{D_{kj}} \right) }^{-1}
@@ -559,7 +559,7 @@ private:
      *  Not used in this routine -> just a passthrough
      *
      *  These values are 0, 1 and 1.5 for single-molecule, linear, and nonlinear species respectively
-     *  length is the number of species in the pahse
+     *  length is the number of species in the phase
      *  units are dimensionless  (Cr / R)
      */
     vector_fp m_crot;

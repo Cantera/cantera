@@ -85,7 +85,7 @@ class PropertyCalculator;
  *  condensed phases.  As expected, the ChemEquil solver is faster
  *  than MultiPhaseEquil for many single-phase equilibrium
  *  problems (particularly if there are only a few elements but
- *  vvery many species), but can be less stable. Problem
+ *  very many species), but can be less stable. Problem
  *  situations include low temperatures where only a few species
  *  have non-zero mole fractions, precisely stoichiometric
  *  compositions (e.g. 2 H2 + O2). In general, if speed is

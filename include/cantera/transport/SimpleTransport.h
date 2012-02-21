@@ -806,7 +806,7 @@ private:
      */
     vector_fp m_chargeSpecies;
 
-    //! Current Temperature -> locally storred
+    //! Current Temperature -> locally stored
     /*!
      * This is used to test whether new temperature computations
      * should be performed.

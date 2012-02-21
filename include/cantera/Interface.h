@@ -14,7 +14,7 @@ namespace Cantera
 
 //! An interface between multiple bulk phases.
 /*!
- * This class isdefined mostly for convenience. It inherits both from
+ * This class is defined mostly for convenience. It inherits both from
  * Cantera::SurfPhase and Cantera::InterfaceKinetics. It therefore
  * represents a surface phase, and also acts as the kinetics
  * manager to manage reactions occurring on the surface, possibly

@@ -33,10 +33,10 @@ class VPSSMgr;
  */
 //@{
 
-//! Specific error to be thrown if the type of Thermo mananger is unrecognized.
+//! Specific error to be thrown if the type of Thermo manager is unrecognized.
 /*!
  * This particular error class may be caught, if the application may have other
- * models that the main Cantera appliation doesn't know about.
+ * models that the main Cantera application doesn't know about.
  */
 class UnknownThermoPhaseModel : public CanteraError
 {

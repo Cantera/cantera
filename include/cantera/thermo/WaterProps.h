@@ -6,7 +6,7 @@
  *   and class \link Cantera::WaterProps WaterProps\endlink).
  */
 /*
- * Copywrite (2006) Sandia Corporation. Under the terms of
+ * Copyright (2006) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -40,7 +40,7 @@ class PDSS_Water;
  *   where  \f$ \nu_k \f$ is the charge of species <I>k</I>, and \f$ \phi_p \f$ is
  *   the electric potential of phase <I>p</I>.
  *
- *  The potential  \f$ \phi_p \f$ is tracked and internally storred within
+ *  The potential  \f$ \phi_p \f$ is tracked and internally stored within
  *  the base %ThermoPhase object. It constitutes a specification of the
  *  internal state of the phase; it's the third state variable, the first
  *  two being temperature and density (or, pressure, for incompressible

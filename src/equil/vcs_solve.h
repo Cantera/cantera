@@ -4,7 +4,7 @@
  *    (see Class \link Cantera::VCS_SOLVE VCS_SOLVE\endlink and \ref equilfunctions ).
  */
 /*
- * Copywrite (2005) Sandia Corporation. Under the terms of
+ * Copyright (2005) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -45,7 +45,7 @@ class VCS_COUNTERS;
 //!    This is the main structure used to hold the internal data
 //!    used in vcs_solve_TP(), and to solve TP systems.
 /*!
- *      The indecises of information in this
+ *      The indices of information in this
  *      structure may change when the species basis changes or when
  *      phases pop in and out of existence. Both of these operations
  *      change the species ordering.
@@ -241,7 +241,7 @@ public:
     /*!
      *  All evaluations are done using the "old" version of the solution.
      *
-     *  @param kspec   Species to be evalulated
+     *  @param kspec   Species to be evaluated
      *
      * @return Returns the calculated species type
      */
@@ -261,7 +261,7 @@ public:
      *
      * For species in multispecies phases whose concentration is zero,
      * we need to set the mole fraction to a very low value.
-     * It's chemical potential
+     * Its chemical potential
      * is then calculated using the VCS_DELETE_MINORSPECIES_CUTOFF concentration
      * to keep numbers positive.
      *
@@ -350,7 +350,7 @@ public:
                           double* const ac, double* const mu_i,
                           const bool do_deleted = false);
 
-    //! Calculalte the dimensionless chemical potentials of all species or
+    //! Calculate the dimensionless chemical potentials of all species or
     //! of certain groups of species, at a fixed temperature and pressure.
     /*!
      * We calculate the dimensionless chemical potentials of all species
@@ -364,7 +364,7 @@ public:
      *
      * For species in multispecies phases whose concentration is zero,
      * we need to set the mole fraction to a very low value.
-     * It's chemical potential
+     * Its chemical potential
      * is then calculated using the VCS_DELETE_MINORSPECIES_CUTOFF concentration
      * to keep numbers positive.
      *
@@ -650,7 +650,7 @@ public:
     void vcs_deltag_Phase(const size_t iphase, const bool doDeleted,
                           const int stateCalc, const bool alterZeroedPhases = true);
 
-    //!  Swaps the indecises for all of the global data for two species, k1
+    //!  Swaps the indices for all of the global data for two species, k1
     //!  and k2.
     /*!
      *
@@ -864,7 +864,7 @@ public:
      *       This routine borrows heavily from vcs_basopt's algorithm. It
      *    finds nc constraints which span the range space of the Component
      *    Formula matrix, and assigns them as the first nc components in the
-     *    formular matrix. This guarrantees that vcs_basopt[] has a
+     *    formula matrix. This guarantees that vcs_basopt[] has a
      *    nonsingular matrix to invert.
      *
      * Other Variables
@@ -877,7 +877,7 @@ public:
     int vcs_elem_rearrange(double* const aw, double* const sa,
                            double* const sm, double* const ss);
 
-    //!  Swaps the indecises for all of the global data for two elements, ipos
+    //!  Swaps the indices for all of the global data for two elements, ipos
     //!  and jpos.
     /*!
      *  This function knows all of the element information with VCS_SOLVE, and
@@ -1753,7 +1753,7 @@ public:
     //! Index that keeps track of the index of the species within the local
     //! phase
     /*!
-     *  This returns the local index of the species within the phase. It's argument
+     *  This returns the local index of the species within the phase. Its argument
      *  is the global species index within the VCS problem.
      *
      *  k = m_speciesLocalPhaseIndex[kspec]
@@ -1847,7 +1847,7 @@ public:
      *                              -8 -> The species lies in a multicomponent phase which
      *                                    currently does exist.  Its concentration is currently
      *                                    identically zero, though the phase exists. This is
-     *                                    a permament condition due to stoich constraints
+     *                                    a permanent condition due to stoich constraints
      *                                    - VCS_SPECIES_STOICHZERO
      *
      */

@@ -346,7 +346,7 @@ public:
     }
 
     //! Equilibrate the solution using the current element abundances
-    //! storred in the MultiPhase object
+    //! stored in the MultiPhase object
     /*!
      *  Use the vcs algorithm to equilibrate the current multiphase
      *  mixture.
@@ -379,7 +379,7 @@ public:
                     int maxsteps = VCS_MAXSTEPS, int loglevel=-99);
 
     //! Equilibrate the solution using the current element abundances
-    //! storred in the MultiPhase object using constant T and P
+    //! stored in the MultiPhase object using constant T and P
     /*!
      *  Use the vcs algorithm to equilibrate the current multiphase
      *  mixture.
@@ -409,12 +409,12 @@ public:
                        int maxsteps = VCS_MAXSTEPS, int loglevel=-99);
 
     //! Equilibrate the solution using the current element abundances
-    //! storred in the MultiPhase object using either constant H and P
+    //! stored in the MultiPhase object using either constant H and P
     //! or constant U and P.
     /*!
      *  Use the vcs algorithm to equilibrate the current multiphase
      *  mixture. The pressure of the calculation is taken from
-     *  the current pressure storred with the MultiPhase object.
+     *  the current pressure stored with the MultiPhase object.
      *
      *  @param Htarget Value of the total mixture enthalpy or total
      *                 internal energy that will be
@@ -463,11 +463,11 @@ public:
                        int maxsteps = VCS_MAXSTEPS, int loglevel=-99);
 
     //! Equilibrate the solution using the current element abundances
-    //! storred in the MultiPhase object using constant S and P.
+    //! stored in the MultiPhase object using constant S and P.
     /*!
      *  Use the vcs algorithm to equilibrate the current multiphase
      *  mixture. The pressure of the calculation is taken from
-     *  the current pressure storred with the MultiPhase object.
+     *  the current pressure stored with the MultiPhase object.
      *
      *  @param Starget Value of the total mixture entropy
      *                 that will be
@@ -515,12 +515,12 @@ public:
 
 
     //! Equilibrate the solution using the current element abundances
-    //! storred in the MultiPhase object using constant V and constant
+    //! stored in the MultiPhase object using constant V and constant
     //! T, H, U, or S.
     /*!
      *  Use the vcs algorithm to equilibrate the current multiphase
      *  mixture. The pressure of the calculation is taken from
-     *  the current pressure storred with the MultiPhase object.
+     *  the current pressure stored with the MultiPhase object.
      *
      *
      *  @param XY      Integer flag indicating what is held constant.
@@ -592,7 +592,7 @@ public:
      */
     size_t numComponents() const;
 
-    //! Reports the number of element contraints in the equilibration problem
+    //! Reports the number of element constraints in the equilibration problem
     /*!
      *  @return returns the number of element constraints. If an equilibrium
      *          problem hasn't been solved yet, it returns -1.

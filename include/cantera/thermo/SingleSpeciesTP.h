@@ -6,7 +6,7 @@
  *
  */
 /*
- * Copywrite (2005) Sandia Corporation. Under the terms of
+ * Copyright (2005) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -60,7 +60,7 @@ namespace Cantera
  *  point where the phase itself ceases to be a stable phase.
  *
  *  This class doesn't do much at the initialization level.
- *  It's SingleSpeciesTP::initThermo()
+ *  Its SingleSpeciesTP::initThermo()
  *  member does check that one and only one species has been defined
  *  to occupy the phase.
  *
@@ -521,7 +521,7 @@ public:
      */
     void setState_TPX(doublereal t, doublereal p, const std::string& x);
 
-    //! Set the internally storred temperature (K), pressure (Pa), and mass fractions of the phase.
+    //! Set the internally stored temperature (K), pressure (Pa), and mass fractions of the phase.
     /*!
      * Note, the mass fractions are set to Y[0] = 1.0.
      * Setting the pressure may involve the solution of a nonlinear equation.
@@ -533,7 +533,7 @@ public:
      */
     void setState_TPY(doublereal t, doublereal p, const doublereal* y);
 
-    //! Set the internally storred temperature (K), pressure (Pa), and mass fractions of the phase
+    //! Set the internally stored temperature (K), pressure (Pa), and mass fractions of the phase
     /*!
      * Note, the mass fractions are set to Y[0] = 1.0.
      * Setting the pressure may involve the solution of a nonlinear equation.
@@ -545,7 +545,7 @@ public:
      */
     void setState_TPY(doublereal t, doublereal p, compositionMap& y);
 
-    //! Set the internally storred temperature (K), pressure (Pa), and mass fractions of the phase
+    //! Set the internally stored temperature (K), pressure (Pa), and mass fractions of the phase
     /*!
      * Note, the mass fractions are set to Y[0] = 1.0.
      * Setting the pressure may involve the solution of a nonlinear equation.
@@ -569,7 +569,7 @@ public:
      */
     void setState_PX(doublereal p, doublereal* x);
 
-    //! Set the internally storred pressure (Pa) and mass fractions.
+    //! Set the internally stored pressure (Pa) and mass fractions.
     /*!
      * Note, the mass fractions are set to Y[0] = 1.0.
      * Note, the temperature is held constant during this operation.
@@ -581,7 +581,7 @@ public:
      */
     void setState_PY(doublereal p, doublereal* y);
 
-    //! Set the internally storred specific enthalpy (J/kg) and pressure (Pa) of the phase.
+    //! Set the internally stored specific enthalpy (J/kg) and pressure (Pa) of the phase.
     /*!
      * @param h     Specific enthalpy (J/kg)
      * @param p     Pressure (Pa)

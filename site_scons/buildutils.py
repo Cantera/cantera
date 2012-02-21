@@ -390,7 +390,7 @@ optionWrapper = textwrap.TextWrapper(initial_indent='    ',
 def formatOption(env, opt):
     """
     Print a nicely formatted description of a SCons configuration
-    option, it's permitted values, default value, and current value
+    option, its permitted values, default value, and current value
     if different from the default.
     """
     # Extract the help description from the permitted values. Original format

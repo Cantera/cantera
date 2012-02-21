@@ -5,7 +5,7 @@
  * basis (See class \link Cantera::WaterPropsIAPWS WaterPropsIAPWS\endlink).
  */
 /*
- * Copywrite (2005) Sandia Corporation. Under the terms of
+ * Copyright (2005) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -109,7 +109,7 @@ namespace Cantera
  *
  *  This class is not a %ThermoPhase. However, it does maintain an internal state of
  *  the object that is dependent on temperature and density. The internal state
- *  is characterized by an internally storred \f$ \tau\f$ and a \f$ \delta \f$ value,
+ *  is characterized by an internally stored \f$ \tau\f$ and a \f$ \delta \f$ value,
  *  and an iState value, which indicates whether the point is a liquid, a gas,
  *  or a supercritical fluid.
  *  Along with that the  \f$ \tau\f$ and a \f$ \delta \f$ values are polynomials of
@@ -117,13 +117,13 @@ namespace Cantera
  *  Therefore, whenever  \f$ \tau\f$ or \f$ \delta \f$ is changed, the function setState()
  *  must be called in order for the internal state to be kept up to date.
  *
- * The class is pretty straightfoward. However, one function deserves mention.
+ * The class is pretty straightforward. However, one function deserves mention.
  * the #density() function calculates the density that is consistent with
  * a particular value of the temperature and pressure. It may therefore be
  * multivalued or potentially there may be no answer from this function. It therefore
  * takes a phase guess and a density guess as optional parameters. If no guesses are
  * supplied to density(), a gas phase guess is assumed. This may or may not be what
- * is wanted. Therefore, density() should usually at leat be supplied with a phase
+ * is wanted. Therefore, density() should usually at least be supplied with a phase
  * guess so that it may manufacture an appropriate density guess.
  * #density() manufactures the initial density guess, nondimensionalizes everything,
  * and then calls #WaterPropsIAPWSphi::dfind(), which does the iterative calculation
@@ -148,7 +148,7 @@ namespace Cantera
  * multivalued. Therefore, we need to supply in addition a phase guess and a rho guess
  * to the input temperature and pressure.
  * The psat() function sets the internal state to the saturated liquid or saturated gas
- * state, dependeing on the waterState parameter.
+ * state, depending on the waterState parameter.
  *
  * Because the underlying object WaterPropsIAPWSphi is privately held, you can be
  * sure that the underlying state of this object doesn't change except due to the
@@ -236,7 +236,7 @@ public:
      * multivalued or potentially there may be no answer from this function. It therefore
      * takes a phase guess and a density guess as optional parameters. If no guesses are
      * supplied to density(), a gas phase guess is assumed. This may or may not be what
-     * is wanted. Therefore, density() should usually at leat be supplied with a phase
+     * is wanted. Therefore, density() should usually at least be supplied with a phase
      * guess so that it may manufacture an appropriate density guess.
      * #density() manufactures the initial density guess, nondimensionalizes everything,
      * and then calls #WaterPropsIAPWSphi::dfind(), which does the iterative calculation
@@ -266,7 +266,7 @@ public:
      * takes a phase guess and a density guess as optional parameters. If no guesses are
 
      * supplied to density(), a gas phase guess is assumed. This may or may not be what
-     * is wanted. Therefore, density() should usually at leat be supplied with a phase
+     * is wanted. Therefore, density() should usually at least be supplied with a phase
      * guess so that it may manufacture an appropriate density guess.
      * #density() manufactures the initial density guess, nondimensionalizes everything,
      * and then calls #WaterPropsIAPWSphi::dfind(), which does the iterative calculation
@@ -293,7 +293,7 @@ public:
 
     //! Returns the temperature (Kelvin)
     /*!
-     * @return  Returns the internally storred temperature
+     * @return  Returns the internally stored temperature
      */
     doublereal temperature() const;
 

@@ -3,7 +3,7 @@
  *    Defines and definitions within the vcs package
  */
 /*
- * Copywrite (2005) Sandia Corporation. Under the terms of
+ * Copyright (2005) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -143,14 +143,14 @@ namespace VCSnonideal
 //! Species is a major species
 /*!
  * A major species is either a species in a multicomponent phase with
- * significant concentration or its a Stoich Phase
+ * significant concentration or it's a Stoich Phase
  */
 #define VCS_SPECIES_MAJOR          1
 
 //! Species is a major species
 /*!
  * A major species is either a species in a multicomponent phase with
- * significant concentration or its a Stoich Phase
+ * significant concentration or it's a Stoich Phase
  */
 #define VCS_SPECIES_MINOR          0
 
@@ -215,7 +215,7 @@ namespace VCSnonideal
 //! but species concentration is zero due to stoich constraint
 /*!
  *  The species lies in a multicomponent phase which currently does exist.  Its concentration is currently
- *  identically zero, though the phase exists. This is a permament condition due to stoich constraints.
+ *  identically zero, though the phase exists. This is a permanent condition due to stoich constraints.
  *
  *  An example of this would be a species that contains Ni. But,
  *  the amount of Ni elements in the current problem statement is exactly zero.
@@ -336,7 +336,7 @@ namespace VCSnonideal
  *  We seek here to say that some functional groups or ionic states should be
  *  treated as if they are separate elements given the time scale of the problem.
  *  This will be abs positive constraint. We have not implemented any examples yet.
- *  A requirement will be that we must be able to add and subtract these contraints.
+ *  A requirement will be that we must be able to add and subtract these constraints.
  */
 #define VCS_ELEM_TYPE_KINETICFROZEN 4
 
@@ -375,7 +375,7 @@ namespace VCSnonideal
 /*!
  * @name  Types of State Calculations within VCS
  *              These values determine where the
- *              results are storred within the VCS_SOLVE
+ *              results are stored within the VCS_SOLVE
  *              object.
  * @{
  */

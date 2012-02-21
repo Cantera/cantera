@@ -93,7 +93,7 @@ public:
     int findQuotedString(const std::string& aline, std::string& rstring) const;
 
     //! parseTag parses XML tags, i.e., the XML elements that are
-    //! inbetween angle brackets.
+    //! in between angle brackets.
     /*!
      *    @param tag                  Tag to be parsed - input
      *
@@ -215,7 +215,7 @@ public:
      */
     XML_Node& mergeAsChild(XML_Node& node);
 
-    // Add a child node to the current node by makeing a copy of an existing node tree
+    // Add a child node to the current node by making a copy of an existing node tree
     /*
      * This will add an XML_Node as a child to the current node.
      * Note, this actually adds the node. Therefore, node is changed.
@@ -391,7 +391,7 @@ public:
 
     //! Function returns the value of an attribute
     /*!
-     * This function searches the attibutes vector for the parameter
+     * This function searches the attributes vector for the parameter
      * std::string attribute. If a match is found, the attribute value
      * is returned as a string. If no match is found, the empty string
      * is returned.
@@ -422,7 +422,7 @@ private:
 
 public:
 
-    //! Returns an unchangeable value of the attributs map for the current node
+    //! Returns an unchangeable value of the attributes map for the current node
     /*!
      *
      * @return  Returns an unchangeable reference to the attributes map
@@ -715,7 +715,7 @@ public:
     //! into the destination XML_Node tree, doing a union operation as
     //! we go
     /*!
-     *  Note this is a const function becuase the current XML_Node and
+     *  Note this is a const function because the current XML_Node and
      *  its children isn't altered by this operation.
      *  copyUnion() doesn't duplicate existing entries in the
      *  destination XML_Node tree.

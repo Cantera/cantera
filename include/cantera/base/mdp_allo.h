@@ -9,7 +9,7 @@
  * $Date$
  */
 /*
- * Copywrite 2004 Sandia Corporation. Under the terms of Contract
+ * Copyright 2004 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government
  * retains certain rights in this software.
  * See file License.txt for licensing information.
@@ -273,18 +273,18 @@ extern int** mdp_alloc_int_2(int len1, int len2,
  *                        less than one, it is set to one. Therefore,
  *                        This routine always initializes at least
  *                        one double.
- *      @param val        intialization value. Set it to the
+ *      @param val        initialization value. Set it to the
  *                        constant MDP_DBL_NOINIT if you don't
  *                        want any initialization. memset() is
  *                        used for zero initialization for fast
  *                        execution speed.
  *
- *     @return    Pointer to the intialized array of doubles
+ *     @return    Pointer to the initialized array of doubles
  *                Failures are indicated by returning the NULL pointer.
  */
 extern double* mdp_alloc_dbl_1(int nvalues, const double val=MDP_DBL_NOINIT);
 
-//!    Allocates and/or initialises a one dimensional array of doubles.
+//!    Allocates and/or initializes a one dimensional array of doubles.
 /*!
  *  This routine will free any old memory that was located at that
  *  position, before it will allocate a new vector.
@@ -334,7 +334,7 @@ extern void mdp_realloc_dbl_1(double** hndVec, int newLen, int oldLen,
  *    -------
  *      @param  ndim1     Length of the first dimension of the array
  *      @param  ndim2     Length of the second dimension of the array
- *      @param  val       Intialization value
+ *      @param  val       Initialization value
  *
  *
  *     @return       Pointer to the initialized array of doubles.
@@ -356,7 +356,7 @@ extern double** mdp_alloc_dbl_2(int ndim1, int ndim2, const double val);
  *    -------
  *      @param  ndim1     Length of the first dimension of the array
  *      @param  ndim2     Length of the second dimension of the array
- *      @param  val       Intialization value
+ *      @param  val       Initialization value
  *      @param  arrayHndl Handle to the array. If nonnull, the array
  *                        is first freed. Failures are indicated
  *                        by returning the NULL pointer.
@@ -406,9 +406,9 @@ extern void mdp_realloc_dbl_2(double** * hndArray, int ndim1, int ndim2,
  *    Input
  *    -------
  *      @param  nvalues   Length of the array
- *      @param  val       intialization value. defaults to the NULL char
+ *      @param  val       initialization value. defaults to the NULL char
  *
- *    @return    Pointer to the intialized character array
+ *    @return    Pointer to the initialized character array
  *               Failures are indicated by returning the NULL pointer.
  */
 extern char*   mdp_alloc_char_1(int nvalues, const char val = '\0');
@@ -425,9 +425,9 @@ extern char*   mdp_alloc_char_1(int nvalues, const char val = '\0');
  *                         holds the old and (eventually new)
  *                         address of the array of char to be reallocated
  *      @param  nvalues   Length of the array
- *      @param  val       intialization value. defaults to the NULL char
+ *      @param  val       initialization value. defaults to the NULL char
  *
- *    @return    Pointer to the intialized character array
+ *    @return    Pointer to the initialized character array
  *               Failures are indicated by returning the NULL pointer.
  */
 extern void mdp_safe_alloc_char_1(char** arrayHnd, int nvalues,
@@ -612,7 +612,7 @@ extern void mdp_copy_dbl_1(double* const copyTo,
 /*!
  *   This routine carries out a straight copy on the effective 1D description
  *   of each of the arrays. It copies
- *   the first len1*len2 doubless storred within copyFrom into the
+ *   the first len1*len2 doubless stored within copyFrom into the
  *   the first len1*len2 double slots in copyTo. It does not account
  *   for the actual dimensions of the two arrays.
  *
@@ -646,7 +646,7 @@ extern void mdp_copy_int_1(int* const copyTo, const int* const copyFrom,
 //! Copies one 2D int array into another 2D int array
 /*!
  *   This routine carries out a straight copy. Actually it copies
- *   the first len1*len2 ints storred within copyFrom into the
+ *   the first len1*len2 ints stored within copyFrom into the
  *   the first len1*len2 int slots in copyTo. It does not account
  *   for the actual dimensions of the two arrays.
  *

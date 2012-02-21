@@ -81,8 +81,8 @@ public:
 
     //! Routine to determine if two functions are the same.
     /*!
-     *  Two functions are the same if they are teh same function.
-     *  This means that the ID and storred constant is the same.
+     *  Two functions are the same if they are the same function.
+     *  This means that the ID and stored constant is the same.
      *  This means that the m_f1 and m_f2 are identical if they
      *  are non-null.
      */
@@ -94,10 +94,10 @@ public:
     virtual std::string write(std::string arg) const;
 
 
-    //! accessor function for the storred constant
+    //! accessor function for the stored constant
     doublereal c() const;
 
-    //! Function to set the storred constant
+    //! Function to set the stored constant
     void setC(doublereal c);
 
     //! accessor function for m_f1

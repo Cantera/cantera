@@ -117,7 +117,7 @@ public:
      */
     virtual doublereal pressure() const;
 
-    //! Set the internally storred pressure (Pa) at constant
+    //! Set the internally stored pressure (Pa) at constant
     //! temperature and composition
     /*!
      *   This method must be reimplemented in derived classes, where it
@@ -395,7 +395,7 @@ public:
      * an input file. It should be overloaded in subclasses to set
      * any parameters that are specific to that particular phase
      * model. Note, this method is called before the phase is
-     * initialzed with elements and/or species.
+     * initialized with elements and/or species.
      *
      * @param eosdata An XML_Node object corresponding to
      *                the "thermo" entry for this phase in the input file.

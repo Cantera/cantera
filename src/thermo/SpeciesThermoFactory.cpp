@@ -958,7 +958,7 @@ installVPThermoForSpecies(size_t k, const XML_Node& speciesNode,
  *
  * @param type         Species thermo type.
  * @param f            Pointer to a SpeciesThermoFactory. optional parameter.
- *                    Defautls to NULL.
+ *                     Defaults to NULL.
  */
 SpeciesThermo* newSpeciesThermoMgr(int type, SpeciesThermoFactory* f)
 {
@@ -973,7 +973,7 @@ SpeciesThermo* newSpeciesThermoMgr(int type, SpeciesThermoFactory* f)
 //the type and (optionally) a pointer to the factory to use to create it.
 /*
  * This utility program is a basic factory operation for spawning a
- * new species reference-state thermo mananger
+ * new species reference-state thermo manager
  *
  *  These functions allows for using a different factory class that
  *  derives from SpeciesThermoFactory. However, no applications of this
@@ -1006,8 +1006,8 @@ SpeciesThermo* newSpeciesThermoMgr(std::string& stype,
  *                     Each %speciesData node contains a list of XML species elements
  *                      e.g., \<speciesData id="Species_Data"\>
  * @param f            Pointer to a SpeciesThermoFactory. optional parameter.
- *                    Defautls to NULL.
- * @param opt         Boolean defaults to false.
+ *                     Defaults to NULL.
+ * @param opt          Boolean defaults to false.
  */
 SpeciesThermo* newSpeciesThermoMgr(std::vector<XML_Node*> spData_nodes,
                                    SpeciesThermoFactory* f, bool opt)

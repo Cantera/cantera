@@ -125,7 +125,7 @@ void popError();
  * Additional directories may be added by calling function addDirectory.
  *
  * There are two different types of input files within %Cantera:
- *    ctml: This is an xml file layed out in such a way that %Cantera can
+ *    ctml: This is an xml file laid out in such a way that %Cantera can
  *          interpret the contents.
  *    cti:  A human-readable ascii format for information that %Cantera
  *          will read.
@@ -133,7 +133,7 @@ void popError();
  *   %Cantera can take its input from both types of files. However, given
  *   a file in cti format, the initial operation that %Cantera will perform
  *   is to translate the cti file into a ctml file.
- *   The translation is carried out via a system call to a python interpretor
+ *   The translation is carried out via a system call to a python interpreter
  *   program that actually carries out the translation. In general, a new
  *   ctml file is created by the translation that is written to the current
  *   local directory.
@@ -213,7 +213,7 @@ std::string canteraRoot();
 //! Sets the temporary file directory.
 /*!
  *  The default is to use the
- *  directory specified by enviroment variable TMP or TEMP. If neither
+ *  directory specified by environment variable TMP or TEMP. If neither
  *  of these are defined, then the current working directory will be
  *  used for temporary files. Call this function to specify some other
  *  place to put temporary files.
@@ -516,7 +516,7 @@ inline void write_logfile(std::string file = "log.html") {}
  *    Searches are based on the
  *    ID attribute of the XML element only.
  *
- * @param file_ID This is a concatenation of two strings seperated
+ * @param file_ID This is a concatenation of two strings separated
  *                by the "#" character. The string before the
  *                pound character is the file name of an xml
  *                file to carry out the search. The string after
@@ -547,7 +547,7 @@ XML_Node* get_XML_Node(const std::string& file_ID, XML_Node* root);
  *
  * @param nameTarget This is the XML element name to look for.
  *
- * @param file_ID This is a concatenation of two strings seperated
+ * @param file_ID This is a concatenation of two strings separated
  *                by the "#" character. The string before the
  *                pound character is the file name of an xml
  *                file to carry out the search. The string after

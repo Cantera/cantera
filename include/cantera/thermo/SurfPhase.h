@@ -180,7 +180,7 @@ public:
      */
     SurfPhase(const SurfPhase& right);
 
-    //! Asignment operator
+    //! Assignment operator
     /*!
      * Assignment operator for the object. Constructed
      * object will be a clone of this object, but will
@@ -203,7 +203,7 @@ public:
      */
     ThermoPhase* duplMyselfAsThermoPhase() const;
 
-    //----- reimplimented methods of class ThermoPhase ------
+    //----- reimplemented methods of class ThermoPhase ------
 
     //! Equation of state type flag.
     /*!
@@ -277,7 +277,7 @@ public:
     //! Return an array of partial molar volumes for the
     //! species in the mixture. Units: m^3/kmol.
     /*!
-     *  @param vbar   Output vector of speciar partial molar volumes.
+     *  @param vbar   Output vector of species partial molar volumes.
      *                Length = m_kk. units are m^3/kmol.
      */
     virtual void getPartialMolarVolumes(doublereal* vbar) const;
@@ -510,7 +510,7 @@ public:
         return m_press;
     }
 
-    //! Set the internally storred pressure (Pa) at constant
+    //! Set the internally stored pressure (Pa) at constant
     //! temperature and composition
     /*!
      *   This method must be reimplemented in derived classes, where it
@@ -686,7 +686,7 @@ protected:
      */
     mutable array_fp      m_pe;
 
-    //! vector storring the log of the size of each species.
+    //! vector storing the log of the size of each species.
     /*!
      * The size of each species is defined as the number of surface
      * sites each species occupies.
@@ -698,9 +698,9 @@ private:
     //! Update the species reference state thermodynamic functions
     /*!
      * The polynomials for the standard state functions are only
-     * reevalulated if the temperature has changed.
+     * reevaluated if the temperature has changed.
      *
-     * @param force  Boolean, which if true, forces a reevalulation
+     * @param force  Boolean, which if true, forces a reevaluation
      *               of the thermo polynomials.
      *               default = false.
      */

@@ -6,7 +6,7 @@
  *    (see \ref pdssthermo and class \link Cantera::PDSS_HKFT PDSS_HKFT\endlink).
  */
 /*
- * Copywrite (2006) Sandia Corporation. Under the terms of
+ * Copyright (2006) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -316,7 +316,7 @@ public:
      */
     virtual void setTemperature(doublereal temp);
 
-    //! Return the current storred temperature
+    //! Return the current stored temperature
     doublereal temperature() const;
 
     //! Set the internal temperature and pressure
@@ -596,7 +596,7 @@ private:
     /*!
      *  Internally, this function is used to translate the input value,
      *  m_deltaG_formation_tr_pr,
-     *  to the internally storred value,  m_Mu0_tr_pr.
+     *  to the internally stored value,  m_Mu0_tr_pr.
      */
     void convertDGFormation();
 

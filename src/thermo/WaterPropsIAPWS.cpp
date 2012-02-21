@@ -5,7 +5,7 @@
  * basis (See class \link Cantera::WaterPropsIAPWS WaterPropsIAPWS\endlink).
  */
 /*
- * Copywrite (2006) Sandia Corporation. Under the terms of
+ * Copyright (2006) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -124,7 +124,7 @@ doublereal  WaterPropsIAPWS::helmholtzFE() const
 
 /*
  * Calculate the pressure (Pascals), using the
- * current internally storred temperature and density
+ * current internally stored temperature and density
  *  Temperature: kelvin
  *  rho: density in kg m-3
  */
@@ -222,7 +222,7 @@ doublereal WaterPropsIAPWS::density(doublereal temperature, doublereal pressure,
  * takes a phase guess and a density guess as optional parameters. If no guesses are
  *
  * supplied to density(), a gas phase guess is assumed. This may or may not be what
- * is wanted. Therefore, density() should usually at leat be supplied with a phase
+ * is wanted. Therefore, density() should usually at least be supplied with a phase
  * guess so that it may manufacture an appropriate density guess.
  * #density() manufactures the initial density guess, nondimensionalizes everything,
  * and then calls #WaterPropsIAPWSphi::dfind(), which does the iterative calculation
@@ -312,7 +312,7 @@ doublereal WaterPropsIAPWS::density() const
 
 // Returns the temperature (Kelvin)
 /*
- * @return  Returns the internally storred temperature
+ * @return  Returns the internally stored temperature
  */
 doublereal WaterPropsIAPWS::temperature() const
 {

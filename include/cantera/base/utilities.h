@@ -10,7 +10,7 @@
  *
  * These are templates to perform various simple operations on arrays.
  * Note that the compiler will inline these, so using them carries no
- * performnce penalty.
+ * performance penalty.
  */
 
 #ifndef CT_UTILITIES_H
@@ -27,7 +27,7 @@ template<class T> struct timesConstant : public std::unary_function<T, double> {
     //! Constructor
     /*!
      * @param c  Constant of templated type T
-     *           that will be storred internally within the object
+     *           that will be stored internally within the object
      *           and used in the multiplication operation
      */
     timesConstant(T c) : m_c(c) {}
@@ -35,7 +35,7 @@ template<class T> struct timesConstant : public std::unary_function<T, double> {
     //! Parenthesis operator returning a double
     /*!
      * @param x  Variable of templated type T that will be
-     *           used in the mulitplication operator
+     *           used in the multiplication operator
      *
      * @return Returns a value of type double from the internal
      *         multiplication
@@ -44,7 +44,7 @@ template<class T> struct timesConstant : public std::unary_function<T, double> {
         return m_c * x;
     }
 
-    //! Storred constant value of time T
+    //! Stored constant value of time T
     T m_c;
 };
 
@@ -69,7 +69,7 @@ inline doublereal dot4(const V& x, const V& y)
 }
 
 
-//!  Tempalted Inner product of two vectors of length 5
+//!  Templated Inner product of two vectors of length 5
 /*!
  * If either \a x
  * or \a y has length greater than 4, only the first 4 elements
@@ -87,7 +87,7 @@ inline doublereal dot5(const V& x, const V& y)
            x[4]*y[4];
 }
 
-//!  Tempalted Inner product of two vectors of length 6
+//!  Templated Inner product of two vectors of length 6
 /*!
  * If either \a x
  * or \a y has length greater than 4, only the first 4 elements
@@ -457,7 +457,7 @@ inline void scatter_copy(InputIter begin, InputIter end,
  *                     iterator class InputIter. The difference between end and begin
  *                     determines the number of inner iterations.
  * @param data         Iterator pointing to the beginning of the output vector, belonging to the
- *                     iterator class RandAccessIter, that will be selectively multipied.
+ *                     iterator class RandAccessIter, that will be selectively multiplied.
  * @param index        Iterator pointing to the beginning of the index vector, belonging to the
  *                     iterator class IndexIter.
  */

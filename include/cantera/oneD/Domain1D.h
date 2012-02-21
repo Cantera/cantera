@@ -109,7 +109,7 @@ public:
     }
 
     /**
-     * Set the Jacobian bandwith for this domain.  When class
+     * Set the Jacobian bandwidth for this domain.  When class
      * OneDim computes the bandwidth of the overall multi-domain
      * problem (in OneDim::resize()), it calls this method for the
      * bandwidth of each domain. If setBandwidth has not been

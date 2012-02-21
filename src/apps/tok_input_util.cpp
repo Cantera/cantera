@@ -1498,7 +1498,7 @@ bool toktokmatch(const TOKEN* keyptr1, const TOKEN* keyptr2)
  * fillTokStruct()
  *
  *    Fill in a keyLineStruct with a string. Use the defn of white space
- *    at the start of the file to tokenize the string, storring it in the
+ *    at the start of the file to tokenize the string, storing it in the
  *    TOKEN structure.
  */
 void fillTokStruct(TOKEN* keyptr1, const char* s2)

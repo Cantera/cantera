@@ -12,7 +12,7 @@
  * the mole fractions.
  */
 /*
- * Copywrite (2009) Sandia Corporation. Under the terms of
+ * Copyright (2009) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -306,7 +306,7 @@ void MolarityIonicVPSSTP::getLnActivityCoefficients(doublereal* lnac) const
     s_update_lnActCoeff();
 
     /*
-     * take the exp of the internally storred coefficients.
+     * take the exp of the internally stored coefficients.
      */
     for (size_t k = 0; k < m_kk; k++) {
         lnac[k] = lnActCoeff_Scaled_[k];
@@ -378,7 +378,7 @@ void MolarityIonicVPSSTP::getPartialMolarEnthalpies(doublereal* hbar) const
     }
     /*
      * Update the activity coefficients, This also update the
-     * internally storred molalities.
+     * internally stored molalities.
      */
     s_update_lnActCoeff();
     s_update_dlnActCoeff_dT();
@@ -411,7 +411,7 @@ void MolarityIonicVPSSTP::getPartialMolarCp(doublereal* cpbar) const
     double T = temperature();
     /*
      * Update the activity coefficients, This also update the
-     * internally storred molalities.
+     * internally stored molalities.
      */
     s_update_lnActCoeff();
     s_update_dlnActCoeff_dT();
@@ -451,7 +451,7 @@ void MolarityIonicVPSSTP::getPartialMolarEntropies(doublereal* sbar) const
     double T = temperature();
     /*
      * Update the activity coefficients, This also update the
-     * internally storred molalities.
+     * internally stored molalities.
      */
     s_update_lnActCoeff();
     s_update_dlnActCoeff_dT();
@@ -472,9 +472,9 @@ void MolarityIonicVPSSTP::getPartialMolarEntropies(doublereal* sbar) const
 /*
  *  Frequently, for this class of thermodynamics representations,
  *  the excess Volume due to mixing is zero. Here, we set it as
- *  a default. It may be overriden in derived classes.
+ *  a default. It may be overridden in derived classes.
  *
- *  @param vbar   Output vector of speciar partial molar volumes.
+ *  @param vbar   Output vector of species partial molar volumes.
  *                Length = m_kk. units are m^3/kmol.
  */
 void MolarityIonicVPSSTP::getPartialMolarVolumes(doublereal* vbar) const
@@ -572,7 +572,7 @@ void MolarityIonicVPSSTP::calcPseudoBinaryMoleFractions() const
 
 // Update the activity coefficients
 /*
- * This function will be called to update the internally storred
+ * This function will be called to update the internally stored
  * natural logarithm of the activity coefficients
  *
  */

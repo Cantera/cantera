@@ -6,7 +6,7 @@
  *    (see \ref pdssthermo and class \link Cantera::PDSS_HKFT PDSS_HKFT\endlink).
  */
 /*
- * Copywrite (2006) Sandia Corporation. Under the terms of
+ * Copyright (2006) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -147,7 +147,7 @@ PDSS_HKFT::PDSS_HKFT(const PDSS_HKFT& b) :
     m_presR_bar = OneAtm * 1.0E-5;
     /*
      * Use the assignment operator to do the brunt
-     * of the work for the copy construtor.
+     * of the work for the copy constructor.
      */
     *this = b;
 }

@@ -3,7 +3,7 @@
  *   Header for the object representing each phase within vcs
  */
 /*
- * Copywrite (2005) Sandia Corporation. Under the terms of
+ * Copyright (2005) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -176,7 +176,7 @@ public:
      *  then updates this object with their values. This is essentially
      *  a gather routine.
      *
-     *  @param molesSpeciesVCS  Array of mole numbers. Note, the indecises
+     *  @param molesSpeciesVCS  Array of mole numbers. Note, the indices
      *            for species in
      *            this array may not be contiguous. IndSpecies[] is needed
      *            to gather the species into the local contiguous vector
@@ -195,7 +195,7 @@ public:
      *  If this isn't the case, an error exit is carried out.
      *
      *
-     *  @param molesSpeciesVCS  array of mole numbers. Note, the indecises
+     *  @param molesSpeciesVCS  array of mole numbers. Note, the indices
      *            for species in
      *            this array may not be contiguous. IndSpecies[] is needed
      *            to gather the species into the local contiguous vector
@@ -415,7 +415,7 @@ private:
 
 public:
 
-    //! Return a const reference to the mole fractions storred in the
+    //! Return a const reference to the mole fractions stored in the
     //! object.
     const std::vector<double> & moleFractions() const;
 
@@ -427,7 +427,7 @@ public:
      */
     void setCreationMoleNumbers(const double* const n_k, const std::vector<size_t> &creationGlobalRxnNumbers);
 
-    //! Return a const reference to the creationMoleNumbers storred in the object.
+    //! Return a const reference to the creationMoleNumbers stored in the object.
     /*!
      * @return  Returns a const reference to the vector of creationMoleNumbers
      */
@@ -469,7 +469,7 @@ public:
      *          inerts which can't exist in any other phase. Or,
      *          the phase exists always because it consists of a single
      *          species, which is identified with the voltage, i.e.,
-     *          its an electron metal phase.
+     *          it's an electron metal phase.
      */
     int exists() const;
 
@@ -715,7 +715,7 @@ public:
     //! Units for the chemical potential data, pressure data, volume,
     //! and species amounts
     /*!
-     *  All internally storred quantities will have these units. Also, printed
+     *  All internally stored quantities will have these units. Also, printed
      *  quantitities will display in these units. Input quantities are expected
      *  in these units.
      *
@@ -797,7 +797,7 @@ private:
     std::vector<int> m_speciesUnknownType;
 
     //!  Index of the element number in the global list of elements
-    //!  storred in VCS_PROB or VCS_SOLVE
+    //!  stored in VCS_PROB or VCS_SOLVE
     std::vector<size_t> m_elemGlobalIndex;
 
     //! Number of species in the phase
@@ -812,7 +812,7 @@ private:
     double m_totalMolesInert;
 
     //! Boolean indicating whether the phase is an ideal solution
-    //! and therefore it's molar-based activity coefficients are
+    //! and therefore its molar-based activity coefficients are
     //! uniformly equal to one.
     bool m_isIdealSoln;
 

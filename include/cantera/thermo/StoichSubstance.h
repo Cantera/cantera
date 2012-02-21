@@ -43,7 +43,7 @@ public:
      */
     StoichSubstance(const StoichSubstance& right);
 
-    //! Asignment operator
+    //! Assignment operator
     /*!
      * Assignment operator for the object. Constructed
      * object will be a clone of this object, but will
@@ -144,7 +144,7 @@ public:
     //! Report the Pressure. Units: Pa.
     /*!
      * For an incompressible substance, the density is independent
-     * of pressure. This method simply returns the storred
+     * of pressure. This method simply returns the stored
      * pressure value.
      */
     virtual doublereal pressure() const;

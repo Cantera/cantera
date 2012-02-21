@@ -20,7 +20,7 @@
  (surface chemistry, etc.) could be written in the same way.
 
  This library is designed for Fortran compilers that expect external
- procedure na,es to be lowercase with a trailing underscore. If this
+ procedure names to be lowercase with a trailing underscore. If this
  is not the case, the procedure names must be edited before use.
 
  */

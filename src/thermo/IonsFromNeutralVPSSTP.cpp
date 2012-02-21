@@ -12,7 +12,7 @@
  * the mole fractions.
  */
 /*
- * Copywrite (2009) Sandia Corporation. Under the terms of
+ * Copyright (2009) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -356,7 +356,7 @@ void IonsFromNeutralVPSSTP::getActivityCoefficients(doublereal* ac) const
     s_update_lnActCoeff();
 
     /*
-     * take the exp of the internally storred coefficients.
+     * take the exp of the internally stored coefficients.
      */
     for (size_t k = 0; k < m_kk; k++) {
         ac[k] = exp(lnActCoeff_Scaled_[k]);
@@ -473,7 +473,7 @@ void IonsFromNeutralVPSSTP::getPartialMolarEnthalpies(doublereal* hbar) const
     }
     /*
      * Update the activity coefficients, This also update the
-     * internally storred molalities.
+     * internally stored molalities.
      */
     s_update_lnActCoeff();
     s_update_dlnActCoeffdT();
@@ -507,7 +507,7 @@ void IonsFromNeutralVPSSTP::getPartialMolarEntropies(doublereal* sbar) const
     double T = temperature();
     /*
      * Update the activity coefficients, This also update the
-     * internally storred molalities.
+     * internally stored molalities.
      */
     s_update_lnActCoeff();
     s_update_dlnActCoeffdT();
@@ -1347,7 +1347,7 @@ void IonsFromNeutralVPSSTP::initThermoXML(XML_Node& phaseNode, std::string id)
 //====================================================================================================================
 // Update the activity coefficients
 /*
- * This function will be called to update the internally storred
+ * This function will be called to update the internally stored
  * natural logarithm of the activity coefficients
  *
  */
@@ -1479,7 +1479,7 @@ void IonsFromNeutralVPSSTP::getdlnActCoeffds(const doublereal dTds, const double
 //====================================================================================================================
 // Update the temperature derivative of the ln activity coefficients
 /*
- * This function will be called to update the internally storred
+ * This function will be called to update the internally stored
  * temperature derivative of the natural logarithm of the activity coefficients
  */
 void IonsFromNeutralVPSSTP::s_update_dlnActCoeffdT() const
@@ -1538,7 +1538,7 @@ void IonsFromNeutralVPSSTP::s_update_dlnActCoeffdT() const
 }
 //====================================================================================================================
 /*
- * This function will be called to update the internally storred
+ * This function will be called to update the internally stored
  * temperature derivative of the natural logarithm of the activity coefficients
  */
 void IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnX_diag() const
@@ -1597,7 +1597,7 @@ void IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnX_diag() const
 }
 //====================================================================================================================
 /*
- * This function will be called to update the internally storred
+ * This function will be called to update the internally stored
  * temperature derivative of the natural logarithm of the activity coefficients
  */
 void IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnN_diag() const
@@ -1658,7 +1658,7 @@ void IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnN_diag() const
 // Update the derivative of the log of the activity coefficients
 //  wrt log(number of moles) - diagonal components
 /*
- * This function will be called to update the internally storred
+ * This function will be called to update the internally stored
  * derivative of the natural logarithm of the activity coefficients
  * wrt logarithm of the number of moles of given species.
  */

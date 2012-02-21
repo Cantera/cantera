@@ -623,7 +623,7 @@ void TransportFactory::setupMM(std::ostream& flog, const std::vector<const XML_N
 
 //====================================================================================================================
 // Prepare to build a new transport manager for liquids assuming that
-// viscosity transport data is provided in Arhennius form.
+// viscosity transport data is provided in Arrhenius form.
 /*
  *  @param flog                 Reference to the ostream for writing log info
  *  @param thermo               Pointer to the %ThermoPhase object
