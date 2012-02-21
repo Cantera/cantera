@@ -318,7 +318,7 @@ int vcs_equilibrate_1(MultiPhase& s, int ixy,
     addLogEntry("loglevel",loglevel);
     endLogGroup("arguments");
 
-    int printLvlSub = MAX(0, printLvl-1);
+    int printLvlSub = std::max(0, printLvl-1);
 
     s.init();
 
@@ -413,7 +413,7 @@ int vcs_determine_PhaseStability(MultiPhase& s, int iphase,
     addLogEntry("loglevel",loglevel);
     endLogGroup("arguments");
 
-    int printLvlSub = MAX(0, printLvl-1);
+    int printLvlSub = std::max(0, printLvl-1);
 
     s.init();
     try {

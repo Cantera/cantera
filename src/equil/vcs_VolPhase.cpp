@@ -638,14 +638,14 @@ void vcs_VolPhase::setMolesFromVCS(const int stateCalc,
     for (size_t k = 0; k < m_numSpecies; k++) {
         if (m_speciesUnknownType[k] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
             kglob = IndSpecies[k];
-            v_totalMoles += MAX(0.0, molesSpeciesVCS[kglob]);
+            v_totalMoles += std::max(0.0, molesSpeciesVCS[kglob]);
         }
     }
     if (v_totalMoles > 0.0) {
         for (size_t k = 0; k < m_numSpecies; k++) {
             if (m_speciesUnknownType[k] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
                 kglob = IndSpecies[k];
-                tmp = MAX(0.0, molesSpeciesVCS[kglob]);
+                tmp = std::max(0.0, molesSpeciesVCS[kglob]);
                 Xmol_[k] = tmp / v_totalMoles;
             }
         }

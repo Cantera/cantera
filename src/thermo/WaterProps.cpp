@@ -6,11 +6,6 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-//@{
-#ifndef MAX
-#define MAX(x,y)    (( (x) > (y) ) ? (x) : (y))
-#endif
-//@}
 
 #include "cantera/thermo/WaterProps.h"
 #include "cantera/base/ctml.h"

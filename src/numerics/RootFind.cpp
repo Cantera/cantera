@@ -36,16 +36,6 @@ using namespace std;
 namespace Cantera
 {
 
-
-
-#ifndef MAX
-#  define MAX(x,y) (( (x) > (y) ) ? (x) : (y))     /* max function */
-#endif
-
-#ifndef MIN
-#  define MIN(x,y) (( (x) < (y) ) ? (x) : (y))     /* min function */
-#endif
-
 #ifndef SQUARE
 #  define SQUARE(x) ( (x) * (x) )
 #endif
@@ -315,7 +305,7 @@ bool RootFind::theSame(doublereal x2, doublereal x1, doublereal factor) const
     doublereal x = fabs(x2) + fabs(x1);
     doublereal deltaX = delXMeaningful(x);
     doublereal deltaXSmall = factor * deltaX;
-    deltaXSmall = MAX(deltaXSmall , x * 1.0E-15);
+    deltaXSmall = std::max(deltaXSmall , x * 1.0E-15);
     if (fabs(x2 - x1) < deltaXSmall) {
         return true;
     }
@@ -623,13 +613,13 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
             if (f2 < 0.0) {
                 if (FuncIsGenerallyIncreasing_) {
                     if (slopePointingToHigher) {
-                        xnew = MIN(x2 + 3.0*DeltaXnorm_, xnew);
+                        xnew = std::min(x2 + 3.0*DeltaXnorm_, xnew);
                     } else {
                         xnew = x2 + DeltaXnorm_;
                     }
                 } else if (FuncIsGenerallyDecreasing_) {
                     if (!slopePointingToHigher) {
-                        xnew = MAX(x2 - 3.0*DeltaXnorm_, xnew);
+                        xnew = std::max(x2 - 3.0*DeltaXnorm_, xnew);
                     } else {
                         xnew = x2 - DeltaXnorm_;
                     }
@@ -643,13 +633,13 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
             } else {
                 if (FuncIsGenerallyDecreasing_) {
                     if (!slopePointingToHigher) {
-                        xnew = MAX(x2 + 3.0*DeltaXnorm_, xnew);
+                        xnew = std::max(x2 + 3.0*DeltaXnorm_, xnew);
                     } else {
                         xnew = x2 + DeltaXnorm_;
                     }
                 } else if (FuncIsGenerallyIncreasing_) {
                     if (! slopePointingToHigher) {
-                        xnew = MIN(x2 - 3.0*DeltaXnorm_, xnew);
+                        xnew = std::min(x2 - 3.0*DeltaXnorm_, xnew);
                     } else {
                         xnew = x2 - DeltaXnorm_;
                     }
@@ -1041,13 +1031,13 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
         rfT.deltaXConverged =  deltaXConverged_;
         rfT.deltaFConverged =  fnorm * m_rtolf;
         if (foundStraddle) {
-            rfT.delX = MAX(fabs(deltaX2), fabs(deltaXnew));
+            rfT.delX = std::max(fabs(deltaX2), fabs(deltaXnew));
         } else {
-            rfT.delX = MAX(fabs(deltaX2), fabs(deltaXnew));
+            rfT.delX = std::max(fabs(deltaX2), fabs(deltaXnew));
             if (x2 < x1) {
-                rfT.delX = MAX(rfT.delX, x2 - xmin);
+                rfT.delX = std::max(rfT.delX, x2 - xmin);
             } else {
-                rfT.delX = MAX(rfT.delX, xmax - x2);
+                rfT.delX = std::max(rfT.delX, xmax - x2);
             }
         }
         /*

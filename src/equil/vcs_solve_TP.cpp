@@ -867,7 +867,7 @@ L_MAINLOOP_ALL_SPECIES:
                                 if (sc_irxn[j] != 0.0) {
                                     wx[j] = m_molNumSpecies_old[j] + sc_irxn[j] * dx;
                                     if (wx[j] <= m_molNumSpecies_old[j] * 0.01 - 1.0E-150) {
-                                        dx = MAX(dx,  m_molNumSpecies_old[j] * -0.99 / sc_irxn[j]);
+                                        dx = std::max(dx,  m_molNumSpecies_old[j] * -0.99 / sc_irxn[j]);
                                     }
                                 } else {
                                     wx[j] = m_molNumSpecies_old[j];
@@ -2224,7 +2224,7 @@ int VCS_SOLVE::delta_species(const size_t kspec, double* const delta_ptr)
                 tmp = sc_irxn[j] * dx;
                 if (-tmp > m_molNumSpecies_old[j]) {
                     retn = 0;
-                    dx = MIN(dx, - m_molNumSpecies_old[j] / sc_irxn[j]);
+                    dx = std::min(dx, - m_molNumSpecies_old[j] / sc_irxn[j]);
                 }
             }
             /*
@@ -2886,7 +2886,7 @@ size_t VCS_SOLVE::vcs_add_all_deleted()
             kspec = m_indexRxnToSpecies[irxn];
             iph = m_phaseID[kspec];
             if (m_tPhaseMoles_old[iph] > 0.0) {
-                double maxDG = MIN(m_deltaGRxn_new[irxn], 690.0);
+                double maxDG = std::min(m_deltaGRxn_new[irxn], 690.0);
                 double dx = m_tPhaseMoles_old[iph] * exp(- maxDG);
                 m_molNumSpecies_new[kspec] = dx;
                 if (m_molNumSpecies_new[kspec] > 2 *VCS_DELETE_MINORSPECIES_CUTOFF) {
@@ -3256,7 +3256,7 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
      *     It's equal to the minimum of the number of elements and the
      *     number of total species.
      */
-    ncTrial = MIN(m_numElemConstraints, m_numSpeciesTot);
+    ncTrial = std::min(m_numElemConstraints, m_numSpeciesTot);
     m_numComponents = ncTrial;
     *usedZeroedSpecies = false;
 
@@ -3349,7 +3349,7 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
                                         double nu = m_formulaMatrix[j][kspec];
                                         if (nu != 0.0) {
                                             nonZeroesKspec++;
-                                            maxConcPossKspec = MIN(m_elemAbundancesGoal[j] / nu, maxConcPossKspec);
+                                            maxConcPossKspec = std::min(m_elemAbundancesGoal[j] / nu, maxConcPossKspec);
                                         }
                                     }
                                 }
@@ -5098,7 +5098,7 @@ void VCS_SOLVE::vcs_deltag(const int l, const bool doDeleted,
                     }
                 }
                 if (icase) {
-                    deltaGRxn[irxn] = MAX(0.0, deltaGRxn[irxn]);
+                    deltaGRxn[irxn] = std::max(0.0, deltaGRxn[irxn]);
                 }
             }
         }
@@ -5118,7 +5118,7 @@ void VCS_SOLVE::vcs_deltag(const int l, const bool doDeleted,
                 }
             }
             if (icase) {
-                deltaGRxn[irxn] = MAX(0.0, deltaGRxn[irxn]);
+                deltaGRxn[irxn] = std::max(0.0, deltaGRxn[irxn]);
             }
         }
     } else {
@@ -5139,7 +5139,7 @@ void VCS_SOLVE::vcs_deltag(const int l, const bool doDeleted,
                     }
                 }
                 if (icase) {
-                    deltaGRxn[irxn] = MAX(0.0, deltaGRxn[irxn]);
+                    deltaGRxn[irxn] = std::max(0.0, deltaGRxn[irxn]);
                 }
             }
         }
@@ -5750,7 +5750,7 @@ double VCS_SOLVE::vcs_birthGuess(const int kspec)
             if (m_molNumSpecies_old[j] > 0.0) {
                 double tmp = sc_irxn[j] * dx;
                 if (3.0*(-tmp) > m_molNumSpecies_old[j]) {
-                    dx = MIN(dx, - 0.3333* m_molNumSpecies_old[j] / sc_irxn[j]);
+                    dx = std::min(dx, - 0.3333* m_molNumSpecies_old[j] / sc_irxn[j]);
                 }
             }
             if (m_molNumSpecies_old[j] <= 0.0) {

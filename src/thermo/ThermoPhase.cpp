@@ -11,12 +11,6 @@
 #include "cantera/base/mdp_allo.h"
 #include <iomanip>
 
-//@{
-#ifndef MAX
-#define MAX(x,y)    (( (x) > (y) ) ? (x) : (y))
-#endif
-//@}
-
 using namespace std;
 using namespace ctml;
 
@@ -503,8 +497,8 @@ void ThermoPhase::setState_HPorUV(doublereal Htarget, doublereal p,
         }
         // Convergence in H
         double Herr = Htarget - Hnew;
-        double acpd = MAX(fabs(cpd), 1.0E-5);
-        double denom = MAX(fabs(Htarget), acpd * dTtol);
+        double acpd = std::max(fabs(cpd), 1.0E-5);
+        double denom = std::max(fabs(Htarget), acpd * dTtol);
         double HConvErr = fabs((Herr)/denom);
         if (HConvErr < 0.00001 *dTtol) {
             return;
@@ -772,8 +766,8 @@ void ThermoPhase::setState_SPorSV(doublereal Starget, doublereal p,
         }
         // Convergence in S
         double Serr = Starget - Snew;
-        double acpd = MAX(fabs(cpd), 1.0E-5);
-        double denom = MAX(fabs(Starget), acpd * dTtol);
+        double acpd = std::max(fabs(cpd), 1.0E-5);
+        double denom = std::max(fabs(Starget), acpd * dTtol);
         double SConvErr = fabs((Serr * Tnew)/denom);
         if (SConvErr < 0.00001 *dTtol) {
             return;

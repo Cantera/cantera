@@ -115,7 +115,7 @@ int vcs_MultiPhaseEquil::equilibrate_TV(int XY, doublereal xtarget,
     doublereal Tlow = 0.5 * m_mix->minTemp();;
     doublereal Thigh = 2.0 * m_mix->maxTemp();
     doublereal Vnow, Verr;
-    int printLvlSub = MAX(0, printLvl - 1);
+    int printLvlSub = std::max(0, printLvl - 1);
     for (int n = 0; n < maxiter; n++) {
         Pnow = m_mix->pressure();
 
@@ -238,7 +238,7 @@ int vcs_MultiPhaseEquil::equilibrate_HP(doublereal Htarget,
     doublereal Hhigh = Undef;
     doublereal Herr, HConvErr;
     doublereal Tnow = m_mix->temperature();
-    int printLvlSub = MAX(printLvl - 1, 0);
+    int printLvlSub = std::max(printLvl - 1, 0);
 
     for (int n = 0; n < maxiter; n++) {
 
@@ -303,8 +303,8 @@ int vcs_MultiPhaseEquil::equilibrate_HP(doublereal Htarget,
                     dT = 200.;
                 }
             }
-            double acpb = MAX(fabs(cpb), 1.0E-6);
-            double denom = MAX(fabs(Htarget), acpb);
+            double acpb = std::max(fabs(cpb), 1.0E-6);
+            double denom = std::max(fabs(Htarget), acpb);
             Herr = Htarget - Hnow;
             HConvErr = fabs((Herr)/denom);
             addLogEntry("T",fp2str(m_mix->temperature()));
@@ -399,7 +399,7 @@ int vcs_MultiPhaseEquil::equilibrate_SP(doublereal Starget,
     if (Tnow > Thigh) {
         Thigh = Tnow;
     }
-    int printLvlSub = MAX(printLvl - 1, 0);
+    int printLvlSub = std::max(printLvl - 1, 0);
 
     for (int n = 0; n < maxiter; n++) {
 
@@ -456,7 +456,7 @@ int vcs_MultiPhaseEquil::equilibrate_SP(doublereal Starget,
                 if (Tnew > Thigh || Tnew < Tlow) {
                     dTmax = 1.5*fabs(Thigh - Tlow);
                 }
-                dTmax = MIN(dTmax, 300.);
+                dTmax = std::min(dTmax, 300.);
                 if (dTa > dTmax) {
                     dT *= dTmax/dTa;
                 }
@@ -465,8 +465,8 @@ int vcs_MultiPhaseEquil::equilibrate_SP(doublereal Starget,
                 dT = Tnew - Tnow;
             }
 
-            double acpb = MAX(fabs(cpb), 1.0E-6);
-            double denom = MAX(fabs(Starget), acpb);
+            double acpb = std::max(fabs(cpb), 1.0E-6);
+            double denom = std::max(fabs(Starget), acpb);
             Serr = Starget - Snow;
             SConvErr = fabs((Serr)/denom);
             addLogEntry("T",fp2str(m_mix->temperature()));
@@ -649,7 +649,7 @@ int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil,
      * Call the thermo Program
      */
     int ip1 = m_printLvl;
-    int ipr = MAX(0, m_printLvl-1);
+    int ipr = std::max(0, m_printLvl-1);
     if (m_printLvl >= 3) {
         ip1 = m_printLvl - 2;
     } else {

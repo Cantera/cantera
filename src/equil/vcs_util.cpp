@@ -243,7 +243,7 @@ int vcs_max_int(const int* vector, int length)
     }
     retn = vector[0];
     for (i = 1; i < length; i++) {
-        retn = MAX(retn, vector[i]);
+        retn = std::max(retn, vector[i]);
     }
     return retn;
 }

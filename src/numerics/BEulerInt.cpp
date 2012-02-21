@@ -441,7 +441,7 @@ void BEulerInt::computeResidWts(GeneralMatrix& jac)
         m_residWts[i] = fabs(data[i] * m_ewt[0]);
         for (j = 1; j < m_neq; j++) {
             value = fabs(data[j*m_neq + i] * m_ewt[j]);
-            m_residWts[i] = MAX(m_residWts[i], value);
+            m_residWts[i] = std::max(m_residWts[i], value);
         }
     }
 }
@@ -645,7 +645,7 @@ static void print_lvl1_summary(
 double subtractRD(double a, double b)
 {
     double diff = a - b;
-    double d = MIN(fabs(a), fabs(b));
+    double d = std::min(fabs(a), fabs(b));
     d *= 1.0E-14;
     double ad = fabs(diff);
     if (ad < 1.0E-300) {
@@ -1027,7 +1027,7 @@ double BEulerInt::time_step_control(int order, double time_error_factor)
     /*
      * Special case time_error_factor so that zeroes don't cause a problem.
      */
-    time_error_factor = MAX(1.0E-50, time_error_factor);
+    time_error_factor = std::max(1.0E-50, time_error_factor);
 
     /*
      * Calculate the factor for the change in magnitude of time step.
@@ -1050,7 +1050,7 @@ double BEulerInt::time_step_control(int order, double time_error_factor)
         }
         delta_t = - 0.5 * delta_t_n;
     } else {
-        factor  = MIN(factor, 1.5);
+        factor  = std::min(factor, 1.5);
         delta_t = factor * delta_t_n;
     }
     return delta_t;
@@ -1312,8 +1312,8 @@ double BEulerInt::step(double t_max)
             m_order = 1;                          /* Forward/Backward Euler  */
         } else if (m_time_step_num > 2) {
             m_order = 1;                          /* Specified
-						 Predictor/Corrector
-						 - not implemented */
+                         Predictor/Corrector
+                         - not implemented */
         }
 
         /*
@@ -1497,7 +1497,7 @@ double BEulerInt::step(double t_max)
                  * if the recent "History" of the time step behavior is still bad
                  */
                 else if (m_failure_counter > 0) {
-                    delta_t_np1 = MIN(delta_t_np1, delta_t_n);
+                    delta_t_np1 = std::min(delta_t_np1, delta_t_n);
                 }
             } else {
                 delta_t_np1 = delta_t_n;
@@ -1523,7 +1523,7 @@ double BEulerInt::step(double t_max)
                     double target_time_step = delta_t_n
                                               *(1.0 - iter_diff*fabs(iter_diff)/
                                                 ((2.0*iter_adjust_zone*iter_adjust_zone)));
-                    target_time_step = MAX(0.5*delta_t_n, target_time_step);
+                    target_time_step = std::max(0.5*delta_t_n, target_time_step);
                     if (target_time_step < delta_t_np1) {
                         printf("\tNext time step will be decreased from %g to %g"
                                " because of new its restraint\n",
@@ -1589,7 +1589,7 @@ double BEulerInt::step(double t_max)
             /*
              * Decrement the number of consequative failure counter.
              */
-            m_failure_counter = MAX(0, m_failure_counter-1);
+            m_failure_counter = std::max(0, m_failure_counter-1);
 
             /*
              * Print out final results of a successfull time step.
@@ -1933,23 +1933,23 @@ double BEulerInt::boundStep(const double* const y,
                 (fabs(y_new-y[i]) > m_ewt[i])) {
             ff = fabs(y[i]/(y_new - y[i]));
             ff_alt = fabs(m_ewt[i] / (y_new - y[i]));
-            ff = MAX(ff, ff_alt);
+            ff = std::max(ff, ff_alt);
             ifbd = 1;
         }
         if ((fabs(5.0 * y_new) < fabs(y[i])) &&
                 (fabs(y_new - y[i]) > m_ewt[i])) {
             ff = y[i]/(y_new-y[i]) * (1.0 - 5.0)/5.0;
             ff_alt = fabs(m_ewt[i] / (y_new - y[i]));
-            ff = MAX(ff, ff_alt);
+            ff = std::max(ff, ff_alt);
             ifbd = 0;
         }
         if (ff < f_delta_bounds) {
             f_delta_bounds = ff;
             i_fbd = ifbd;
         }
-        f_delta_bounds = MIN(f_delta_bounds, ff);
+        f_delta_bounds = std::min(f_delta_bounds, ff);
     }
-    fbound = MIN(f_lowbounds, f_delta_bounds);
+    fbound = std::min(f_lowbounds, f_delta_bounds);
     /*
      * Report on any corrections
      */

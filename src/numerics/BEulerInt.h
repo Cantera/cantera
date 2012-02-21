@@ -29,12 +29,6 @@
 
 #include "cantera/base/mdp_allo.h"
 
-#ifndef MAX
-#  define MAX(x,y)    (( (x) > (y) ) ? (x) : (y))
-#endif
-#ifndef MIN
-#  define MIN(x,y)    (( (x) < (y) ) ? (x) : (y))
-#endif
 #define OPT_SIZE 10
 
 #define SUCCESS 0

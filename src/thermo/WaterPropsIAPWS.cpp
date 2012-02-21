@@ -38,15 +38,6 @@ static const doublereal M_water = 18.015268;
  * The Ratio of R/M = 0.46151805 kJ kg-1 K-1 , which is Eqn. (6.3) in the paper.
  */
 static const doublereal Rgas = 8.314371E3;   // Joules kmol-1 K-1
-//@{
-#ifndef MAX
-# define MAX(x,y) (( (x) > (y) ) ? (x) : (y))
-#endif
-
-#ifndef MIN
-# define MIN(x,y) (( (x) < (y) ) ? (x) : (y))
-#endif
-//@}
 
 // Base constructor
 WaterPropsIAPWS:: WaterPropsIAPWS() :
@@ -660,25 +651,25 @@ doublereal WaterPropsIAPWS::densSpinodalWater() const
     m_phi->tdpolycalc(tau, delta);
     doublereal dpdrho_old = dpdrho();
     if (dpdrho_old > 0.0) {
-        rho_high = MIN(dens_old, rho_high);
+        rho_high = std::min(dens_old, rho_high);
     } else {
-        rho_low = MAX(rho_low, dens_old);
+        rho_low = std::max(rho_low, dens_old);
     }
     doublereal dens_new = densSatLiq* (1.0001);
     delta = dens_new / Rho_c;
     m_phi->tdpolycalc(tau, delta);
     doublereal dpdrho_new = dpdrho();
     if (dpdrho_new > 0.0) {
-        rho_high = MIN(dens_new, rho_high);
+        rho_high = std::min(dens_new, rho_high);
     } else {
-        rho_low = MAX(rho_low, dens_new);
+        rho_low = std::max(rho_low, dens_new);
     }
     bool conv = false;
 
     for (int it = 0; it < 50; it++) {
         doublereal slope = (dpdrho_new - dpdrho_old)/(dens_new - dens_old);
         if (slope >= 0.0) {
-            slope = MAX(slope, dpdrho_new *5.0/ dens_new);
+            slope = std::max(slope, dpdrho_new *5.0/ dens_new);
         } else {
             slope = -dpdrho_new;
             //slope = MIN(slope, dpdrho_new *5.0 / dens_new);
@@ -686,9 +677,9 @@ doublereal WaterPropsIAPWS::densSpinodalWater() const
         }
         doublereal delta_rho =  - dpdrho_new / slope;
         if (delta_rho > 0.0) {
-            delta_rho = MIN(delta_rho, dens_new * 0.1);
+            delta_rho = std::min(delta_rho, dens_new * 0.1);
         } else {
-            delta_rho = MAX(delta_rho, - dens_new * 0.1);
+            delta_rho = std::max(delta_rho, - dens_new * 0.1);
         }
         doublereal dens_est =  dens_new + delta_rho;
         if (dens_est < rho_low) {
@@ -707,9 +698,9 @@ doublereal WaterPropsIAPWS::densSpinodalWater() const
         m_phi->tdpolycalc(tau, delta);
         dpdrho_new = dpdrho();
         if (dpdrho_new > 0.0) {
-            rho_high = MIN(dens_new, rho_high);
+            rho_high = std::min(dens_new, rho_high);
         } else  if (dpdrho_new < 0.0) {
-            rho_low = MAX(rho_low, dens_new);
+            rho_low = std::max(rho_low, dens_new);
         } else {
             conv = true;
             break;
@@ -757,18 +748,18 @@ doublereal WaterPropsIAPWS::densSpinodalSteam() const
     m_phi->tdpolycalc(tau, delta);
     doublereal dpdrho_old = dpdrho();
     if (dpdrho_old < 0.0) {
-        rho_high = MIN(dens_old, rho_high);
+        rho_high = std::min(dens_old, rho_high);
     } else {
-        rho_low = MAX(rho_low, dens_old);
+        rho_low = std::max(rho_low, dens_old);
     }
     doublereal dens_new = densSatGas * (0.99);
     delta = dens_new / Rho_c;
     m_phi->tdpolycalc(tau, delta);
     doublereal dpdrho_new = dpdrho();
     if (dpdrho_new < 0.0) {
-        rho_high = MIN(dens_new, rho_high);
+        rho_high = std::min(dens_new, rho_high);
     } else {
-        rho_low = MAX(rho_low, dens_new);
+        rho_low = std::max(rho_low, dens_new);
     }
     bool conv = false;
 
@@ -780,14 +771,14 @@ doublereal WaterPropsIAPWS::densSpinodalSteam() const
             // shouldn't be here for gas spinodal
         } else {
             //slope = -dpdrho_new;
-            slope = MIN(slope, dpdrho_new *5.0 / dens_new);
+            slope = std::min(slope, dpdrho_new *5.0 / dens_new);
 
         }
         doublereal delta_rho = - dpdrho_new / slope;
         if (delta_rho > 0.0) {
-            delta_rho = MIN(delta_rho, dens_new * 0.1);
+            delta_rho = std::min(delta_rho, dens_new * 0.1);
         } else {
-            delta_rho = MAX(delta_rho, - dens_new * 0.1);
+            delta_rho = std::max(delta_rho, - dens_new * 0.1);
         }
         doublereal dens_est =  dens_new + delta_rho;
         if (dens_est < rho_low) {
@@ -806,9 +797,9 @@ doublereal WaterPropsIAPWS::densSpinodalSteam() const
         m_phi->tdpolycalc(tau, delta);
         dpdrho_new = dpdrho();
         if (dpdrho_new < 0.0) {
-            rho_high = MIN(dens_new, rho_high);
+            rho_high = std::min(dens_new, rho_high);
         } else  if (dpdrho_new > 0.0) {
-            rho_low = MAX(rho_low, dens_new);
+            rho_low = std::max(rho_low, dens_new);
         } else {
             conv = true;
             break;

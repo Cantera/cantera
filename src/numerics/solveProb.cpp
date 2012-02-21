@@ -37,18 +37,6 @@ static doublereal calcWeightedNorm(const doublereal [], const doublereal dx[], s
  *                    LAPACK PROTOTYPES
  ***************************************************************************/
 
-/*****************************************************************************
- *   PROTOTYPES and PREPROC DIRECTIVES FOR MISC. ROUTINES
- *****************************************************************************/
-
-#ifndef MAX
-#  define MAX(x,y) (( (x) > (y) ) ? (x) : (y))     /* max function */
-#endif
-
-#ifndef MIN
-#  define MIN(x,y) (( (x) < (y) ) ? (x) : (y))     /* min function */
-#endif
-
 
 /***************************************************************************
  *  solveSP Class Definitinos
@@ -66,7 +54,7 @@ solveProb::solveProb(ResidEval* resid) :
     m_neq =   m_residFunc->nEquations();
 
     // Dimension solution vector
-    size_t dim1 = MAX(1, m_neq);
+    size_t dim1 = std::max<size_t>(1, m_neq);
 
     m_atol.resize(dim1, 1.0E-9);
     m_netProductionRatesSave.resize(dim1, 0.0);
@@ -554,7 +542,7 @@ doublereal solveProb::calc_damping(doublereal x[], doublereal dxneg[], size_t di
                     }
                 }
             }
-            damp = MIN(damp, newdamp);
+            damp = std::min(damp, newdamp);
         }
 
     }

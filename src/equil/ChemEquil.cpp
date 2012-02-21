@@ -29,10 +29,7 @@ using namespace std;
 #include <cstdlib>
 
 int Cantera::ChemEquil_print_lvl = 0;
-//static char sbuf[1024];
-#ifndef MIN
-#define MIN(x,y) (( (x) < (y) ) ? (x) : (y))
-#endif
+
 namespace Cantera
 {
 
@@ -1112,17 +1109,17 @@ int ChemEquil::dampStep(thermo_t& mix, vector_fp& oldx,
     for (size_t m = 0; m < m_mm; m++) {
         if (m == m_eloc) {
             if (step[m] > 1.25) {
-                damp = MIN(damp, 1.25 /step[m]);
+                damp = std::min(damp, 1.25 /step[m]);
             }
             if (step[m] < -1.25) {
-                damp = MIN(damp, -1.25 / step[m]);
+                damp = std::min(damp, -1.25 / step[m]);
             }
         } else {
             if (step[m] > 0.75) {
-                damp = MIN(damp, 0.75 /step[m]);
+                damp = std::min(damp, 0.75 /step[m]);
             }
             if (step[m] < -0.75) {
-                damp = MIN(damp, -0.75 / step[m]);
+                damp = std::min(damp, -0.75 / step[m]);
             }
         }
     }
