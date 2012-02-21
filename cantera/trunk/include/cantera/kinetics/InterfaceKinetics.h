@@ -534,7 +534,7 @@ public:
      *                    4  SFLUX_TRANSIENT
      *         The default is -1, which means that the program
      *         will decide.
-     * @param timeScaleOverride When a psuedo transient is
+     * @param timeScaleOverride When a pseudo transient is
      *             selected this value can be used to override
      *             the default time scale for integration which
      *             is one.
@@ -611,7 +611,7 @@ public:
      *
      *    While conceptually not needed since kinetics is consistent with thermo when taken as a whole,
      *    in practice it has found to be very useful to turn off the creation of phases which shouldn't
-     *    be forming. Typically thais can reduce the oscillations in phase formation and destruction
+     *    be forming. Typically this can reduce the oscillations in phase formation and destruction
      *    which are observed.
      *
      *  @param iphase  Index of the phase. This is the order within the internal thermo vector object
@@ -693,7 +693,7 @@ protected:
 
 
     //!  m_rrxn is a vector of maps, containing the reactant
-    //!  stochiometric coefficient information
+    //!  stoichiometric coefficient information
     /*!
      *   m_rrxn has a length
      *  equal to the total number of species in the kinetics
@@ -706,7 +706,7 @@ protected:
     mutable std::vector<std::map<size_t, doublereal> >     m_rrxn;
 
     //!  m_prxn is a vector of maps, containing the reactant
-    //!  stochiometric coefficient information
+    //!  stoichiometric coefficient information
     /**
      *  m_prxn is a vector of maps. m_prxn has a length
      *  equal to the total number of species in the kinetics
@@ -777,7 +777,7 @@ protected:
 
     //! Vector temporary
     /*!
-     * Length is number of reactions. it's used to store the
+     * Length is number of reactions. It's used to store the
      * voltage contribution to the activation energy.
      */
     vector_fp m_rwork;
@@ -806,7 +806,7 @@ protected:
     //! Vector of reaction indexes specifying the id of the current transfer reactions
     //! in the mechanism
     /*!
-     *  Vector of reaction indecices which involve current transfers. This provides
+     *  Vector of reaction indices which involve current transfers. This provides
      *  an index into the m_beta array.
      *
      *        irxn = m_ctrxn[i]

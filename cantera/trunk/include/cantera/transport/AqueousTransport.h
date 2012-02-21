@@ -569,7 +569,7 @@ private:
     //! Internal storage for species polarizability
     vector_fp   m_alpha;
 
-    //! Current Temperature -> locally storred
+    //! Current Temperature -> locally stored
     /*!
      * This is used to test whether new temperature computations
      * should be performed.
@@ -666,7 +666,7 @@ private:
 
     //! Mode for fitting the species viscosities
     /*!
-     * Either its CK_Mode or its cantera mode
+     * Either it's CK_Mode or it's cantera mode
      * in CK_Mode visc is fitted to a polynomial
      * in Cantera mode sqrt(visc) is fitted.
      */

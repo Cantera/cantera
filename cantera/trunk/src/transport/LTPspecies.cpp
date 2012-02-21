@@ -47,7 +47,7 @@ public:
 static void getArrhenius(const XML_Node& node,
                          doublereal& A, doublereal& b, doublereal& E)
 {
-    /* parse the children for the A, b, and E conponents.
+    /* parse the children for the A, b, and E components.
      */
     A = getFloat(node, "A", "toSI");
     b = getFloat(node, "b");
@@ -55,7 +55,7 @@ static void getArrhenius(const XML_Node& node,
     E /= GasConstant;
 }
 //====================================================================================================================
-// Construct an LTPspecies object for a liquid tranport property.
+// Construct an LTPspecies object for a liquid transport property.
 /*
  *    The species transport property is constructed from the XML node,
  *    \verbatim <propNode>, \endverbatim that is a child of the
@@ -117,7 +117,7 @@ LTPspecies::~LTPspecies()
 {
 }
 //====================================================================================================================
-// Returns the vector of pure species tranport property
+// Returns the vector of pure species transport property
 /*
  *  The pure species transport property (i.e. pure species viscosity)
  *  is returned.  Any temperature and composition dependence will be
@@ -150,7 +150,7 @@ void LTPspecies::adjustCoeffsForComposition()
 {
 }
 //====================================================================================================================
-// Construct an LTPspecies object for a liquid tranport property
+// Construct an LTPspecies object for a liquid transport property
 // expressed as a constant value.
 /* The transport property is constructed from the XML node,
  *  \verbatim <propNode>, \endverbatim that is a child of the
@@ -206,7 +206,7 @@ doublereal LTPspecies_Const::getSpeciesTransProp()
     return m_coeffs[0];
 }
 //====================================================================================================================
-// Construct an LTPspecies object for a liquid tranport property
+// Construct an LTPspecies object for a liquid transport property
 // expressed in extended Arrhenius form.
 /*
  *  The transport property is constructed from the XML node,
@@ -321,7 +321,7 @@ doublereal LTPspecies_Arrhenius::getSpeciesTransProp()
     return m_prop;
 }
 //====================================================================================================================
-// Construct an LTPspecies object for a liquid tranport property expressed as a polynomial in temperature.
+// Construct an LTPspecies object for a liquid transport property expressed as a polynomial in temperature.
 /*
  *  The transport property is constructed from the XML node, \verbatim <propNode>, \endverbatim that is a child of the
  *  \verbatim <transport> \endverbatim node and specifies a type of transport property (like viscosity).
@@ -393,7 +393,7 @@ doublereal LTPspecies_Poly::getSpeciesTransProp()
     return m_prop;
 }
 //====================================================================================================================
-// Construct an LTPspecies object for a liquid tranport property
+// Construct an LTPspecies object for a liquid transport property
 // expressed as an exponential in temperature.
 /*
  *  The transport property is constructed from the XML node, \verbatim <propNode>, \endverbatim that is a child of the

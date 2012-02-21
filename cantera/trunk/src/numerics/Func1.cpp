@@ -100,7 +100,7 @@ doublereal Func1::c() const
     return m_c;
 }
 
-// Function to set the storred constant
+// Function to set the stored constant
 void Func1::setC(doublereal c)
 {
     m_c = c;

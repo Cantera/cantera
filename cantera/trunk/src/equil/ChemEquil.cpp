@@ -645,7 +645,7 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
     s.setMoleFractions(DATA_PTR(xmm));
 
     /*
-     * Update the internally storred values of m_temp,
+     * Update the internally stored values of m_temp,
      * m_dens, and the element mole fractions.
      */
     update(s);

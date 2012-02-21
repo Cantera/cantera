@@ -147,7 +147,7 @@ namespace Cantera
  * Cantera has an assortment of constant values for physical parameters.
  * Also, Cantera maintains a collection of global data which is specific
  * to each process that invokes Cantera functions. This process-specific
- * data is storred in the class Application.
+ * data is stored in the class Application.
  */
 //@{
 //@}
@@ -344,7 +344,7 @@ protected:
         //! Write an error message and quit.
         /*!
          *  The default behavior is
-         *  to write to the standard eror stream, and then call
+         *  to write to the standard error stream, and then call
          *  exit(). Note that no end-of-line character is appended to
          *  the message, and so if one is desired it must be included
          *  in the string. Note that this default behavior will
@@ -812,7 +812,7 @@ public:
     //! Write an error message and quit.
     /*!
      *  The default behavior is
-     *  to write to the standard eror stream, and then call
+     *  to write to the standard error stream, and then call
      *  exit(). Note that no end-of-line character is appended to
      *  the message, and so if one is desired it must be included
      *  in the string. Note that this default behavior will
@@ -1128,7 +1128,7 @@ XML_Node* Application::get_XML_File(std::string file, int debug)
             if (xmlfiles.find(ff) != xmlfiles.end()) {
 #ifdef DEBUG_PATHS
                 cout << "get_XML_File(): File, " << ff << ", was previously read."
-                     << " Retrieving the storred xml tree." << endl;
+                     << " Retrieving the stored xml tree." << endl;
 #endif
                 return xmlfiles[ff];
             }
@@ -2062,7 +2062,7 @@ static void split_at_pound(const std::string& src, std::string& file, std::strin
  * part of the file_ID string. Searches are based on the
  * ID attribute of the XML element only.
  *
- * param file_ID This is a concatenation of two strings seperated
+ * param file_ID This is a concatenation of two strings separated
  *                by the "#" character. The string before the
  *                pound character is the file name of an xml
  *                file to carry out the search. The string after
@@ -2109,7 +2109,7 @@ XML_Node* get_XML_Node(const std::string& file_ID, XML_Node* root)
  *
  * @param nameTarget This is the XML element name to look for.
  *
- * @param file_ID This is a concatenation of two strings seperated
+ * @param file_ID This is a concatenation of two strings separated
  *                by the "#" character. The string before the
  *                pound character is the file name of an xml
  *                file to carry out the search. The string after

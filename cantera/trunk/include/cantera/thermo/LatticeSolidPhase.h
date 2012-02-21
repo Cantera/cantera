@@ -293,7 +293,7 @@ public:
 
     //! Report the Pressure. Units: Pa.
     /*!
-     *  This method simply returns the storred pressure value.
+     *  This method simply returns the stored pressure value.
      */
     virtual doublereal pressure() const {
         return m_press;
@@ -324,7 +324,7 @@ public:
     //! normalize them so that they sum to 1.0 for each of the subphases
     /*!
      *  On input, the mole fraction vector is assumed to sum to one for each of the sublattices. The sublattices
-     *  are updated with this mole fraction vector. The mole fractions are also storred within this object, after
+     *  are updated with this mole fraction vector. The mole fractions are also stored within this object, after
      *  they are normalized to one by dividing by the number of sublattices.
      *
      *    @param x  Input vector of mole fractions. There is no restriction
@@ -385,7 +385,7 @@ public:
      *           Input vector of mass fractions. There is no restriction
      *           on the sum of the mass fraction vector. Internally,
      *           the State object will normalize this vector before
-     *           storring its contents.
+     *           storing its contents.
      *           Length is m_kk.
      */
     virtual void setMassFractions(const doublereal* const y) {
@@ -632,7 +632,7 @@ public:
      * an input file. It should be overloaded in subclasses to set
      * any parameters that are specific to that particular phase
      * model. Note, this method is called before the phase is
-     * initialzed with elements and/or species.
+     * initialized with elements and/or species.
      *
      * @param eosdata An XML_Node object corresponding to
      *                the "thermo" entry for this phase in the input file.

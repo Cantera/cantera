@@ -110,12 +110,12 @@ namespace Cantera
  * The function multiply() is usually used when evaluating the
  * forward and reverse rates of progress of reactions.
  * The rate constants are usually loaded into out[]. Then
- * multply() is called to add in the dependence of the
+ * multiply() is called to add in the dependence of the
  * species concentrations to yield a forward and reverse rop.
  *
  * The function incrementSpecies() and its cousin decrementSpecies()
  * is used to translate from rates of progress to species production
- * rates. The vector in[] is preloaed with the rates of progess of
+ * rates. The vector in[] is preloaded with the rates of progress of
  * all reactions. Then incrementSpecies() is called to
  * increment the species production vector, out[], with the rates
  * of progress.
@@ -340,7 +340,7 @@ private:
     size_t m_rxn;
 
     /**
-     * Species indecise -> index into the species vector for the
+     * Species index -> index into the species vector for the
      * two species.
      */
     size_t m_ic0, m_ic1;
@@ -811,7 +811,7 @@ public:
      * @param rxn  Reaction index of the current reaction. This is used
      *             as an index into vectors which have length n_total_rxn.
      * @param k    This is a vector of integer values specifying the
-     *             species indecises. The length of this vector species
+     *             species indices. The length of this vector species
      *             the number of different species in the description.
      *             The value of the entries are the species indices.
      *             These are used as indexes into vectors which have

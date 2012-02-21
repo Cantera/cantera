@@ -36,12 +36,12 @@ IdealGasPhase::IdealGasPhase(const IdealGasPhase& right):
 {
     /*
      * Use the assignment operator to do the brunt
-     * of the work for the copy construtor.
+     * of the work for the copy constructor.
      */
     *this = right;
 }
 
-// Asignment operator
+// Assignment operator
 /*
  * Assignment operator for the object. Constructed
  * object will be a clone of this object, but will

@@ -4,7 +4,7 @@
  *   (see \ref Cantera::clockWC).
  */
 /*
- * Copywrite 2004 Sandia Corporation. Under the terms of Contract
+ * Copyright 2004 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government
  * retains certain rights in this software.
  * See file License.txt for licensing information.
@@ -32,7 +32,7 @@ namespace Cantera
  * at regular intervals for the seconds timer to be accurate.
  *
  * An example of how to use the timer is given below. timeToDoCalcs
- * countains the wall clock time calculated for the operation.
+ * contains the wall clock time calculated for the operation.
  *
  *
  *  @code
@@ -76,7 +76,7 @@ private:
      */
     unsigned int clock_rollovers;
 
-    //! Counter countaining the value of the number of ticks from
+    //! Counter containing the value of the number of ticks from
     //! the first call (or the reset call).
     clock_t start_ticks;
 

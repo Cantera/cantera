@@ -23,7 +23,7 @@ namespace Cantera
  * networks.
  *
  * The reactor class integrates the same governing equations no
- * mattter what type of reactor is simulated. The differences
+ * matter what type of reactor is simulated. The differences
  * among reactor types are completely specified by the attached
  * flow devices and the time-dependent user-specified boundary
  * conditions.

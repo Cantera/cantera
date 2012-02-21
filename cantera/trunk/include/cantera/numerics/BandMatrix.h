@@ -31,7 +31,7 @@ namespace Cantera
  *  Add-ons are available. However, they are not included here. Instead we just use the
  *  stock LU decompositions.
  *
- *  This class is a derived class of the base class GeneralMatrix. However, withinin
+ *  This class is a derived class of the base class GeneralMatrix. However, within
  *  the oneD directory, the class is used as is, without reference to the GeneralMatrix
  *  base type.
  */
@@ -53,7 +53,7 @@ public:
      * @param n   size of the square matrix
      * @param kl  band size on the lower portion of the matrix
      * @param ku  band size on the upper portion of the matrix
-     * @param v   intial value of all matrix components.
+     * @param v   initial value of all matrix components.
      */
     BandMatrix(size_t n, size_t kl, size_t ku, doublereal v = 0.0);
 
@@ -79,7 +79,7 @@ public:
      * @param  n   size of the square matrix
      * @param kl  band size on the lower portion of the matrix
      * @param ku  band size on the upper portion of the matrix
-     * @param v   intial value of all matrix components.
+     * @param v   initial value of all matrix components.
      */
     void resize(size_t n, size_t kl, size_t ku, doublereal v = 0.0);
 

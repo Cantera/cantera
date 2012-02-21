@@ -12,7 +12,7 @@
  * the mole fractions.
  */
 /*
- * Copywrite (2009) Sandia Corporation. Under the terms of
+ * Copyright (2009) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -287,9 +287,9 @@ void GibbsExcessVPSSTP::getElectrochemPotentials(doublereal* mu) const
 /*
  *  Frequently, for this class of thermodynamics representations,
  *  the excess Volume due to mixing is zero. Here, we set it as
- *  a default. It may be overriden in derived classes.
+ *  a default. It may be overridden in derived classes.
  *
- *  @param vbar   Output vector of speciar partial molar volumes.
+ *  @param vbar   Output vector of species partial molar volumes.
  *                Length = m_kk. units are m^3/kmol.
  */
 void GibbsExcessVPSSTP::getPartialMolarVolumes(doublereal* vbar) const

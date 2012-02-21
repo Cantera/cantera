@@ -6,7 +6,7 @@
  */
 
 /*
- * Copywrite (2006) Sandia Corporation. Under the terms of
+ * Copyright (2006) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  *
@@ -238,7 +238,7 @@ public:
     //! Report the Pressure. Units: Pa.
     /*!
      * For an incompressible substance, the density is independent
-     * of pressure. This method simply returns the storred
+     * of pressure. This method simply returns the stored
      * pressure value.
      */
     virtual doublereal pressure() const;
@@ -561,7 +561,7 @@ public:
      * an input file. It should be overloaded in subclasses to set
      * any parameters that are specific to that particular phase
      * model. Note, this method is called before the phase is
-     * initialzed with elements and/or species.
+     * initialized with elements and/or species.
      *
      *  For this phase, the density of the phase is specified in this block.
      *

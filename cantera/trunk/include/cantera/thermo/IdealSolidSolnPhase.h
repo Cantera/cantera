@@ -9,7 +9,7 @@
  *      thermodynamics.
  */
 /*
- * Copywrite 2006 Sandia Corporation. Under the terms of Contract
+ * Copyright 2006 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000, with Sandia Corporation, the U.S. Government
  * retains certain rights in this software.
  */
@@ -270,7 +270,7 @@ public:
 
     /**
      * Pressure. Units: Pa.
-     * For this incompressible system, we return the internally storred
+     * For this incompressible system, we return the internally stored
      * independent value of the pressure.
      */
     virtual doublereal pressure() const {
@@ -406,7 +406,7 @@ public:
      *  \f]
      * The generalized concentrations are used in the kinetics classes
      * to describe the rates of progress of reactions involving the
-     * species. Their formulation depends upons the specification
+     * species. Their formulation depends upon the specification
      * of the rate constants for reaction, especially the units used
      * in specifying the rate constants. The bridge between the
      * thermodynamic equilibrium expressions that use a_k and the

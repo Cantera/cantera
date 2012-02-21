@@ -42,7 +42,7 @@ namespace Cantera
  *  @param s         ThermoPhase object that will be equilibrated.
  *  @param XY        String representation of what two properties
  *                   are being held constant
- *  @param solver    ID of the solver to be used to equlibrate the phase.
+ *  @param solver    ID of the solver to be used to equilibrate the phase.
  *                   If solver = 0, the ChemEquil solver will be used,
  *                   and if solver = 1, the
  *                   MultiPhaseEquil solver will be used (slower than ChemEquil,

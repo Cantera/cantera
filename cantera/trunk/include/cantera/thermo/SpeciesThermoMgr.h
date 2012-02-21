@@ -381,7 +381,7 @@ public:
      */
     SpeciesThermo1(const SpeciesThermo1& right);
 
-    //! Asignment Operator
+    //! Assignment Operator
     /*!
      * @param right Object to be copied
      */

@@ -12,7 +12,7 @@
  * calculating liquid electrolyte thermodynamics.
  */
 /*
- * Copywrite (2006) Sandia Corporation. Under the terms of
+ * Copyright (2006) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -684,21 +684,21 @@ private:
 
     //! Update the activity coefficients
     /*!
-     * This function will be called to update the internally storred
+     * This function will be called to update the internally stored
      * natural logarithm of the activity coefficients
      */
     void s_update_lnActCoeff() const;
 
     //! Update the temperature derivative of the ln activity coefficients
     /*!
-     * This function will be called to update the internally storred
+     * This function will be called to update the internally stored
      * temperature derivative of the natural logarithm of the activity coefficients
      */
     void s_update_dlnActCoeffdT() const;
 
     //! Update the change in the ln activity coefficients
     /*!
-     * This function will be called to update the internally storred
+     * This function will be called to update the internally stored
      * change of the natural logarithm of the activity coefficients
      * w.r.t a change in state (temp, mole fraction, etc)
      */
@@ -707,7 +707,7 @@ private:
     //! Update the derivative of the log of the activity coefficients
     //!  wrt log(mole fraction)
     /*!
-     * This function will be called to update the internally storred
+     * This function will be called to update the internally stored
      * derivative of the natural logarithm of the activity coefficients
      * wrt logarithm of the mole fractions.
      */
@@ -716,7 +716,7 @@ private:
     //! Update the derivative of the log of the activity coefficients
     //!  wrt log(number of moles) - diagonal components
     /*!
-     * This function will be called to update the internally storred
+     * This function will be called to update the internally stored
      * derivative of the natural logarithm of the activity coefficients
      * wrt logarithm of the number of moles of given species.
      */
@@ -725,7 +725,7 @@ private:
     //! Update the derivative of the log of the activity coefficients
     //!  wrt log(number of moles) - diagonal components
     /*!
-     * This function will be called to update the internally storred
+     * This function will be called to update the internally stored
      * derivative of the natural logarithm of the activity coefficients
      * wrt logarithm of the number of moles of given species.
      */

@@ -6,7 +6,7 @@
  * class \link Cantera::VPStandardStateTP VPStandardStateTP\endlink).
  */
 /*
- * Copywrite (2005) Sandia Corporation. Under the terms of
+ * Copyright (2005) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -118,7 +118,7 @@ VPStandardStateTP::operator=(const VPStandardStateTP& b)
         /*
          *  Ok, the VPSSMgr object is ready for business.
          *  We need to resync the temperature and the pressure of the new standard states
-         *  with what is storred in this object.
+         *  with what is stored in this object.
          */
         m_VPSS_ptr->setState_TP(m_Tlast_ss, m_Plast_ss);
     }

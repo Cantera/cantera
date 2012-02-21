@@ -671,7 +671,7 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
     // get the activity coefficients
     Vphase->sendToVCS_ActCoeff(VCS_STATECALC_OLD, VCS_DATA_PTR(m_actCoeffSpecies_new));
 
-    // Get the storred estimate for the composition of the phase if
+    // Get the stored estimate for the composition of the phase if
     // it gets created
     fracDelta_new = Vphase->creationMoleNumbers(creationGlobalRxnNumbers);
 

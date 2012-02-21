@@ -32,7 +32,7 @@ namespace Cantera
  * Not all of these are handled by each class and each class
  * should handle exceptions where the transport property is not handled.
  *
- * Tranport properties currently on the list
+ * Transport properties currently on the list
  *
  *    0  - viscosity
  *    1  - Ionic conductivity
@@ -89,7 +89,7 @@ class LTPspecies
 
 public:
 
-    //! Construct an LTPspecies object for a liquid tranport property.
+    //! Construct an LTPspecies object for a liquid transport property.
     /*!
      *    The species transport property is constructed from the XML node,
      *    \verbatim <propNode>, \endverbatim that is a child of the
@@ -128,7 +128,7 @@ public:
      */
     virtual LTPspecies* duplMyselfAsLTPspecies() const;
 
-    //! Returns the vector of pure species tranport property
+    //! Returns the vector of pure species transport property
     /*!
      *  The pure species transport property (i.e. pure species viscosity)
      *  is returned.  Any temperature and composition dependence will be
@@ -185,8 +185,8 @@ protected:
      * For example, to have Li+ and Ca+ represent the mixing
      * transport properties of LiCl and CaCl2, the weightings for
      * Li+ would be 2.0, for K+ would be 3.0 and for Cl- would be 0.0.
-     * The tranport properties for Li+ would be those for LiCl and
-     * the tranport properties for Ca+ would be those for CaCl2.
+     * The transport properties for Li+ would be those for LiCl and
+     * the transport properties for Ca+ would be those for CaCl2.
      * The transport properties for Cl- should be something innoccuous like
      * 1.0--note that 0.0 is not innocuous if there are logarithms involved.
      */
@@ -208,7 +208,7 @@ protected:
  *        <hydrodynamicRadius model="Constant" units="A">
  *            1.000
  *        </hydrodynamicRadius>
- *        <!-- other tranport properties -->
+ *        <!-- other transport properties -->
  *      </transport>
  *    </species>
  * \endverbatim
@@ -218,7 +218,7 @@ class LTPspecies_Const : public  LTPspecies
 
 public:
 
-    //! Construct an LTPspecies object for a liquid tranport property
+    //! Construct an LTPspecies object for a liquid transport property
     //! expressed as a constant value.
     /** The transport property is constructed from the XML node,
      *  \verbatim <propNode>, \endverbatim that is a child of the
@@ -256,7 +256,7 @@ public:
      */
     virtual LTPspecies* duplMyselfAsLTPspecies() const;
 
-    //! Returns the pure species tranport property
+    //! Returns the pure species transport property
     /*!
      *  The pure species transport property (i.e. pure species viscosity)
      *  is returned.  Any temperature and composition dependence will be
@@ -290,7 +290,7 @@ public:
  *           <b>0.0</b>
  *           <E units="J/kmol">23788.e3</E>
  *        </viscosity>
- *        <!-- other tranport properties -->
+ *        <!-- other transport properties -->
  *      </transport>
  *    </species>
  * \endverbatim
@@ -300,7 +300,7 @@ class LTPspecies_Arrhenius : public  LTPspecies
 
 public:
 
-    //! Construct an LTPspecies object for a liquid tranport property
+    //! Construct an LTPspecies object for a liquid transport property
     //! expressed in extended Arrhenius form.
     /*!
      *  The transport property is constructed from the XML node,
@@ -399,7 +399,7 @@ protected:
  *        <thermalConductivity model="coeffs">
  *           <floatArray size="2">  0.6, -15.0e-5 </floatArray>
  *        </thermalConductivity>
- *        <!-- other tranport properties -->
+ *        <!-- other transport properties -->
  *      </transport>
  *    </species>
  * \endverbatim
@@ -409,7 +409,7 @@ class LTPspecies_Poly : public  LTPspecies
 
 public:
 
-    //! Construct an LTPspecies object for a liquid tranport property expressed as a polynomial in temperature.
+    //! Construct an LTPspecies object for a liquid transport property expressed as a polynomial in temperature.
     /*!
      *  The transport property is constructed from the XML node, \verbatim <propNode>, \endverbatim that is a child of the
      *  \verbatim <transport> \endverbatim node and specifies a type of transport property (like viscosity).
@@ -446,7 +446,7 @@ public:
      */
     virtual LTPspecies* duplMyselfAsLTPspecies() const;
 
-    //! Returns the pure species tranport property
+    //! Returns the pure species transport property
     /*!
      *  The pure species transport property (i.e. pure species viscosity)
      *  is returned.  Any temperature and composition dependence will be
@@ -486,7 +486,7 @@ protected:
  *        <thermalConductivity model="expT">
  *           <floatArray size="2">  0.6, -15.0e-5 </floatArray>
  *        </thermalConductivity>
- *        <!-- other tranport properties -->
+ *        <!-- other transport properties -->
  *      </transport>
  *    </species>
  * \endverbatim
@@ -496,7 +496,7 @@ class LTPspecies_ExpT : public  LTPspecies
 
 public:
 
-    //! Construct an LTPspecies object for a liquid tranport property
+    //! Construct an LTPspecies object for a liquid transport property
     //! expressed as an exponential in temperature.
     /*!
      *  The transport property is constructed from the XML node, \verbatim <propNode>, \endverbatim that is a child of the
@@ -535,7 +535,7 @@ public:
      */
     virtual LTPspecies* duplMyselfAsLTPspecies() const;
 
-    //! Returns the pure species tranport property
+    //! Returns the pure species transport property
     /*!
      *  The pure species transport property (i.e. pure species viscosity)
      *  is returned.  Any temperature and composition dependence will be

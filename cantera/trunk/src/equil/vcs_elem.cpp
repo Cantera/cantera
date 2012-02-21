@@ -189,7 +189,7 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
  *  ga    Current element abundances
  *  m_elemAbundancesGoal   Required elemental abundances
  *  m_molNumSpecies_old     Current mole number of species.
- *  m_formulaMatrix[][]  Formular matrix of the species
+ *  m_formulaMatrix[][]  Formula matrix of the species
  *  ne    Number of elements
  *  nc    Number of components.
  *

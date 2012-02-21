@@ -127,7 +127,7 @@ public:
     //!  This is vector of vectors containing the integer lookup value for the (i,j) interaction
     /*!
      *  The outer loop is over a flat (i,j) index that is parameterized on the tr.delta(i,j) value.
-     *  Unique values of delta get their own spot in the array. The values of delta are storred in
+     *  Unique values of delta get their own spot in the array. The values of delta are stored in
      *  the fitlist vector.
      *
      *  The inner loop is over degree + 1, which is the polynomial order of the collision integral fit.
@@ -137,7 +137,7 @@ public:
     //!  This is vector of vectors containing the astar fit.
     /*!
      *  The outer loop is over a flat (i,j) index that is parameterized on the tr.delta(i,j) value.
-     *  Unique values of delta get their own spot in the array. The values of delta are storred in
+     *  Unique values of delta get their own spot in the array. The values of delta are stored in
      *  the fitlist vector.
      *
      *  The inner loop is over degree + 1, which is the polynomial order of the collision integral fit.
@@ -147,7 +147,7 @@ public:
     //!  This is vector of vectors containing the astar fit.
     /*!
      *  The outer loop is over a flat (i,j) index that is parameterized on the tr.delta(i,j) value.
-     *  Unique values of delta get their own spot in the array. The values of delta are storred in
+     *  Unique values of delta get their own spot in the array. The values of delta are stored in
      *  the fitlist vector.
      *
      *  The inner loop is over degree + 1, which is the polynomial order of the collision integral fit.
@@ -157,7 +157,7 @@ public:
     //!  This is vector of vectors containing the astar fit.
     /*!
      *  The outer loop is over a flat (i,j) index that is parameterized on the tr.delta(i,j) value.
-     *  Unique values of delta get their own spot in the array. The values of delta are storred in
+     *  Unique values of delta get their own spot in the array. The values of delta are stored in
      *  the fitlist vector.
      *
      *  The inner loop is over degree + 1, which is the polynomial order of the collision integral fit.
@@ -167,7 +167,7 @@ public:
     //!  This is vector of vectors containing the astar fit.
     /*!
      *  The outer loop is over a flat (i,j) index that is parameterized on the tr.delta(i,j) value.
-     *  Unique values of delta get their own spot in the array. The values of delta are storred in
+     *  Unique values of delta get their own spot in the array. The values of delta are stored in
      *  the fitlist vector.
      *
      *  The inner loop is over degree + 1, which is the polynomial order of the collision integral fit.
@@ -184,7 +184,7 @@ public:
     //! Dimensionless rotational heat capacity of the species in the current phase
     /*!
      *  These values are 0, 1 and 1.5 for single-molecule, linear, and nonlinear species respectively
-     *  length is the number of species in the pahse
+     *  length is the number of species in the phase
      *  units are dimensionless  (Cr / R)
      */
     vector_fp crot;
@@ -206,7 +206,7 @@ public:
     /*!
      *  This is used in astar_poly, bstar_poly, cstar_poly, and omega22_poly.
      *  The outer loop is over a flat (i,j) index that is parameterized on the tr.delta(i,j) value.
-     *  Unique values of delta get their own spot in the array. The values of delta are storred in
+     *  Unique values of delta get their own spot in the array. The values of delta are stored in
      *  the fitlist vector.
      *
      */

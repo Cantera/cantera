@@ -556,7 +556,7 @@ public:
     //! Update the locally-stored composition within this object
     //! to match the current compositions of the phase objects.
     /*!
-     *    Query the underlying ThermoPhase objects for their moel
+     *    Query the underlying ThermoPhase objects for their mole
      *    fractions and fill in the mole fraction vector of this
      *    current object. Adjust element compositions within this
      *    object to match.
@@ -576,7 +576,7 @@ public:
      *
      *    This is an download operation in the sense that we are taking
      *    upstream object information (MultiPhase object) and
-     *    applying it to downstrean objects (ThermoPhase object information)
+     *    applying it to downstream objects (ThermoPhase object information)
      *
      *    Therefore, the term, "update", is appropriate for a downstream
      *    operation.
@@ -609,7 +609,7 @@ private:
     array_t m_atoms;
 
     /**
-     * Locally storred vector of mole fractions of all species
+     * Locally stored vector of mole fractions of all species
      * comprising the MultiPhase object.
      */
     vector_fp m_moleFractions;
@@ -816,7 +816,7 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
  *       This routine borrows heavily from BasisOptimize algorithm. It
  *    finds nc constraints which span the range space of the Component
  *    Formula matrix, and assigns them as the first nc components in the
- *    formular matrix. This guarrantees that BasisOptimize has a
+ *    formula matrix. This guarantees that BasisOptimize has a
  *    nonsingular matrix to invert.
  *  input
  *    @param nComponents  Number of components calculated previously.
@@ -830,7 +830,7 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
  *                to extract the component basis of the mphase object.
  *
  *  output
- *     @param orderVectorElements Ouput vector containing the order
+ *     @param orderVectorElements Output vector containing the order
  *                      of the elements that is necessary for
  *                      calculation of the formula matrix.
  *

@@ -10,7 +10,7 @@
  *  $Revision$
  */
 /*
- * Copywrite 2004 Sandia Corporation. Under the terms of Contract
+ * Copyright 2004 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government
  * retains certain rights in this software.
  * See file License.txt for licensing information.
@@ -218,7 +218,7 @@ public:
 
     //! Compute the current residual
     /*!
-     *  The current value of the residual is storred in the internal work array m_resid, which is defined
+     *  The current value of the residual is stored in the internal work array m_resid, which is defined
      *  as mutable
      *
      *  @param time_curr    Value of the time
@@ -288,7 +288,7 @@ public:
      *
      *  Internal input
      * ---------------
-     *  internal m_resid      Storred residual is used as input
+     *  internal m_resid      Stored residual is used as input
      *
      *
      *  @return Returns the result code from lapack. A zero means success. Anything
@@ -496,7 +496,7 @@ public:
      *    @param time_curr Current physical time
      *    @param y_n_curr     Base value of the solution before any steps
      *                        are taken
-     *    @param ydot_n_curr  Base value of the time derivative of teh
+     *    @param ydot_n_curr  Base value of the time derivative of the
      *                        solution
      *    @param step_1       Initial step suggested.
      *    @param y_n_1        Value of y1, the suggested solution after damping
@@ -741,7 +741,7 @@ public:
      *
      *  @param time_curr   Current time
      *  @param ydot0       INPUT    Current value of the derivative of the solution vector
-     *  @param ydot1       INPUT  Time derivates of solution at the conditions which are evalulated for success
+     *  @param ydot1       INPUT  Time derivates of solution at the conditions which are evaluated for success
      *  @param numTrials   OUTPUT Counter for the number of residual evaluations
      */
     void descentComparison(doublereal time_curr ,doublereal* ydot0, doublereal* ydot1, int& numTrials);
@@ -839,8 +839,8 @@ public:
      * @param y_n_curr   INPUT    Current value of the solution vector
      * @param ydot_n_curr INPUT    Current value of the derivative of the solution vector
      * @param step_1     INPUT    Trial step
-     * @param y_n_1         OUTPUT   Solution values at the conditions which are evalulated for success
-     * @param ydot_n_1      OUTPUT   Time derivates of solution at the conditions which are evalulated for success
+     * @param y_n_1         OUTPUT   Solution values at the conditions which are evaluated for success
+     * @param ydot_n_1      OUTPUT   Time derivates of solution at the conditions which are evaluated for success
      * @param trustDeltaOld INPUT Value of the trust length at the old conditions
      *
      *
@@ -1148,7 +1148,7 @@ private:
 
     //! Copy of the jacobian that doesn't get overwritten when the inverse is determined
     /*!
-     *  The jacobian storred here is the raw matrix, before any row or column scaling is carried out
+     *  The jacobian stored here is the raw matrix, before any row or column scaling is carried out
      */
     Cantera::GeneralMatrix* jacCopyPtr_;
 
@@ -1257,7 +1257,7 @@ private:
     //! Factor indicating how much trust region has been changed next iteration - output variable
     doublereal NextTrustFactor_;
 
-    //! Boolean indicating that the residual weights have been reevalulated this iteration - output variable
+    //! Boolean indicating that the residual weights have been reevaluated this iteration - output variable
     bool ResidWtsReevaluated_;
 
     //! Expected DResid_dS for the steepest descent path - output variable

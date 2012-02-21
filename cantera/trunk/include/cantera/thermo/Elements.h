@@ -67,7 +67,7 @@ class ElementRangeError;
  *  We seek here to say that some functional groups or ionic states should be
  *  treated as if they are separate elements given the time scale of the problem.
  *  This will be abs positive constraint. We have not implemented any examples yet.
- *  A requirement will be that we must be able to add and subtract these contraints.
+ *  A requirement will be that we must be able to add and subtract these constraints.
  */
 #define CT_ELEM_TYPE_KINETICFROZEN 4
 
@@ -296,7 +296,7 @@ public:
      * @param entropy298  Value of the entropy at 298 and 1 bar of the
      *                    element in its most stable form.
      *                    The default is to specify an ENTROPY298_UNKNOWN value,
-     *                    which will cause a throw error if its ever
+     *                    which will cause a throw error if it's ever
      *                    needed.
      *  @param elem_type  New elem type to be assigned.
      *                    The default is a regular element, CT_ELEM_TYPE_ABSPOS

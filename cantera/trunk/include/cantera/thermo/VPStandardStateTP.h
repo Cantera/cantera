@@ -9,7 +9,7 @@
  *    methods for calculating liquid electrolyte thermodynamics.
  */
 /*
- * Copywrite (2005) Sandia Corporation. Under the terms of
+ * Copyright (2005) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -286,7 +286,7 @@ public:
     virtual void setTemperature(const doublereal temp);
 
 
-    //! Set the internally storred pressure (Pa) at constant
+    //! Set the internally stored pressure (Pa) at constant
     //! temperature and composition
     /*!
      *  Currently this passes down to setState_TP().  It does not
@@ -337,7 +337,7 @@ public:
     //! Returns the current pressure of the phase
     /*!
      *  The pressure is an independent variable in this phase. Its current value
-     *  is storred in the object VPStandardStateTP.
+     *  is stored in the object VPStandardStateTP.
      *
      * @return return the pressure in pascals.
      */

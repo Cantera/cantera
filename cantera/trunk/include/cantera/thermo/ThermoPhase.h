@@ -198,7 +198,7 @@ class XML_Node;
  *   Typically, the way the ThermoPhase object works is that there are a set
  *   of functions that set the state of the phase via setting the internal
  *   independent variables. Then, there are another set of functions that
- *   query the thermodynamic functions evalulated at the current %State of the
+ *   query the thermodynamic functions evaluated at the current %State of the
  *   phase. Internally, most of the intermediate work generally occurs at the
  *   point where the internal state of the system is set and not at the time
  *   when individual thermodynamic functions are queried (though the actual
@@ -350,7 +350,7 @@ class XML_Node;
  *   where  \f$ \nu_k \f$ is the charge of species k, and \f$ \phi_p \f$ is
  *   the electric potential of phase p.
  *
- *  The potential  \f$ \phi_p \f$ is tracked and internally storred within
+ *  The potential  \f$ \phi_p \f$ is tracked and internally stored within
  *  the base %ThermoPhase object. It constitutes a specification of the
  *  internal state of the phase; it's the third state variable, the first
  *  two being temperature and density (or, pressure, for incompressible
@@ -405,7 +405,7 @@ class XML_Node;
  * the standard chemical potential at unit activity,
  * which depends on the temperature and pressure,
  * but not on the composition. The
- * activity is dimensionless. Within liquid electrolytes its common to use a
+ * activity is dimensionless. Within liquid electrolytes it's common to use a
  * molality convention, where solute species employ the molality-based
  * activity coefficients:
  *
@@ -912,7 +912,7 @@ public:
         return err("pressure");
     }
 
-    //! Set the internally storred pressure (Pa) at constant
+    //! Set the internally stored pressure (Pa) at constant
     //! temperature and composition
     /*!
      *   This method must be reimplemented in derived classes, where it
@@ -1021,7 +1021,7 @@ public:
      *   cAC_CONVENTION_MOLAR 0
      *      - default
      *
-     *  - Molality-based acvtivities
+     *  - Molality-based activities
      *       (unit activity of solutes at a hypothetical 1 molal
      *        solution referenced to infinite dilution at all
      *        pressures and temperatures).
@@ -1239,7 +1239,7 @@ public:
     //! Return an array of partial molar internal energies for the
     //! species in the mixture.  Units: J/kmol.
     /*!
-     * @param ubar    Output vector of speciar partial molar internal energies.
+     * @param ubar    Output vector of species partial molar internal energies.
      *                Length = m_kk. units are J/kmol.
      */
     virtual void getPartialMolarIntEnergies(doublereal* ubar) const {
@@ -1260,7 +1260,7 @@ public:
     //! Return an array of partial molar volumes for the
     //! species in the mixture. Units: m^3/kmol.
     /*!
-     *  @param vbar   Output vector of speciar partial molar volumes.
+     *  @param vbar   Output vector of species partial molar volumes.
      *                Length = m_kk. units are m^3/kmol.
      */
     virtual void getPartialMolarVolumes(doublereal* vbar) const {
@@ -1621,7 +1621,7 @@ public:
      */
     void setState_TPX(doublereal t, doublereal p, const std::string& x);
 
-    //! Set the internally storred temperature (K), pressure (Pa), and mass fractions of the phase.
+    //! Set the internally stored temperature (K), pressure (Pa), and mass fractions of the phase.
     /*!
      * Note, the mass fractions are set first before the pressure is set.
      * Setting the pressure may involve the solution of a nonlinear equation.
@@ -1633,7 +1633,7 @@ public:
      */
     void setState_TPY(doublereal t, doublereal p, const doublereal* y);
 
-    //! Set the internally storred temperature (K), pressure (Pa), and mass fractions of the phase
+    //! Set the internally stored temperature (K), pressure (Pa), and mass fractions of the phase
     /*!
      * Note, the mass fractions are set first before the pressure is set.
      * Setting the pressure may involve the solution of a nonlinear equation.
@@ -1645,7 +1645,7 @@ public:
      */
     void setState_TPY(doublereal t, doublereal p, compositionMap& y);
 
-    //! Set the internally storred temperature (K), pressure (Pa), and mass fractions of the phase
+    //! Set the internally stored temperature (K), pressure (Pa), and mass fractions of the phase
     /*!
      * Note, the mass fractions are set first before the pressure is set.
      * Setting the pressure may involve the solution of a nonlinear equation.
@@ -1677,7 +1677,7 @@ public:
      */
     void setState_PX(doublereal p, doublereal* x);
 
-    //! Set the internally storred pressure (Pa) and mass fractions.
+    //! Set the internally stored pressure (Pa) and mass fractions.
     /*!
      * Note, the temperature is held constant during this operation.
      * Note, the mass fractions are set first before the pressure is set.
@@ -1689,7 +1689,7 @@ public:
      */
     void setState_PY(doublereal p, doublereal* y);
 
-    //! Set the internally storred specific enthalpy (J/kg) and pressure (Pa) of the phase.
+    //! Set the internally stored specific enthalpy (J/kg) and pressure (Pa) of the phase.
     /*!
      * @param h     Specific enthalpy (J/kg)
      * @param p     Pressure (Pa)
@@ -1794,7 +1794,7 @@ public:
      * Called by function 'equilibrate' in ChemEquil.h to transfer
      * the element potentials to this object after every successful
      *  equilibration routine.
-     * The element potentials are storred in their dimensionless
+     * The element potentials are stored in their dimensionless
      * forms, calculated by dividing by RT.
      *
      *    @param lambda Input vector containing the element potentials.
@@ -1803,14 +1803,14 @@ public:
     void setElementPotentials(const vector_fp& lambda);
 
 
-    //!  Returns the element potentials storred in the ThermoPhase object
+    //!  Returns the element potentials stored in the ThermoPhase object
     /*!
-     * Returns the storred element potentials.
-     * The element potentials are retrieved from their storred
+     * Returns the stored element potentials.
+     * The element potentials are retrieved from their stored
      * dimensionless forms by multiplying by RT.
      * @param lambda Output vector containing the element potentials.
      *        Length = nElements. Units are Joules/kmol.
-     * @return bool indicating whether thare are any valid storred element
+     * @return bool indicating whether thare are any valid stored element
      *         potentials. The calling routine should check this
      *         bool. In the case that there aren't any, lambda is not
      *         touched.
@@ -2094,7 +2094,7 @@ public:
      * an input file. It should be overloaded in subclasses to set
      * any parameters that are specific to that particular phase
      * model. Note, this method is called before the phase is
-     * initialzed with elements and/or species.
+     * initialized with elements and/or species.
      *
      * @param eosdata An XML_Node object corresponding to
      *                the "thermo" entry for this phase in the input file.
@@ -2254,7 +2254,7 @@ protected:
      */
     size_t m_index;
 
-    //! Storred value of the electric potential for this phase
+    //! Stored value of the electric potential for this phase
     /*!
      * Units are Volts
      */

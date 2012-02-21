@@ -1096,7 +1096,7 @@ void ThermoPhase::setStateFromXML(const XML_Node& state)
  * Called by function 'equilibrate' in ChemEquil.h to transfer
  * the element potentials to this object after every successful
  *  equilibration routine.
- * The element potentials are storred in their dimensionless
+ * The element potentials are stored in their dimensionless
  * forms, calculated by dividing by RT.
  *    @param lambda vector containing the element potentials.
  *           Length = nElements. Units are Joules/kmol.
@@ -1118,8 +1118,8 @@ void ThermoPhase::setElementPotentials(const vector_fp& lambda)
 }
 
 /*
- * Returns the storred element potentials.
- * The element potentials are retrieved from their storred
+ * Returns the stored element potentials.
+ * The element potentials are retrieved from their stored
  * dimensionless forms by multiplying by RT.
  * @param lambda Vector containing the element potentials.
  *        Length = nElements. Units are Joules/kmol.

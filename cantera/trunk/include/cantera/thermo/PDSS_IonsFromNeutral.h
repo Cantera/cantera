@@ -6,7 +6,7 @@
  *    (see \ref pdssthermo and class \link Cantera::PDSS_IonsFromNeutral PDSS_IonsFromNeutral\endlink).
  */
 /*
- * Copywrite (2006) Sandia Corporation. Under the terms of
+ * Copyright (2006) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -329,7 +329,7 @@ public:
      */
     virtual void setTemperature(doublereal temp);
 
-    //! Return the current storred temperature
+    //! Return the current stored temperature
     doublereal temperature() const;
 
     //! Set the internal temperature and pressure
@@ -475,7 +475,7 @@ public:
     //! this species, in terms of calculating thermodynamic functions
     size_t numMult_;
 
-    //! Vector of species indecises in the neutral molecule ThermoPhase
+    //! Vector of species indices in the neutral molecule ThermoPhase
     std::vector<size_t> idNeutralMoleculeVec;
 
     //! Stoichiometric coefficient for this species using the Neutral Molecule Species

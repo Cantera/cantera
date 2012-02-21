@@ -111,7 +111,7 @@ void State::setMoleFractions(const doublereal* const x)
     doublereal norm = accumulate(x, x + m_kk, 0.0);
     m_mmw = sum/norm;
 
-    //! Call a routine to determin whether state has changed.
+    //! Call a routine to determine whether state has changed.
     stateMFChangeCalc();
 }
 
@@ -123,7 +123,7 @@ void State::setMoleFractions_NoNorm(const doublereal* const x)
     transform(m_ym.begin(), m_ym.begin() + m_kk, m_molwts.begin(),
               m_y.begin(), multiplies<double>());
 
-    //! Call a routine to determin whether state has changed.
+    //! Call a routine to determine whether state has changed.
     stateMFChangeCalc();
 }
 
@@ -167,7 +167,7 @@ void State::setMassFractions(const doublereal* const y)
     //    }
     m_mmw = 1.0/sum;
 
-    //! Call a routine to determin whether state has changed.
+    //! Call a routine to determine whether state has changed.
     stateMFChangeCalc();
 }
 

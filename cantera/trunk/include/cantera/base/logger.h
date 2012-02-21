@@ -71,7 +71,7 @@ public:
     //! Write an error message and quit.
     /*!
      *  The default behavior is
-     *  to write to the standard eror stream, and then call
+     *  to write to the standard error stream, and then call
      *  exit(). Note that no end-of-line character is appended to
      *  the message, and so if one is desired it must be included
      *  in the string. Note that this default behavior will

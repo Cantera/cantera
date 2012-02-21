@@ -121,12 +121,12 @@ const VelocityBasis VB_SPECIES_3 = 3;
  *   the %Transport class necessarily use the %ThermoPhase class to obtain
  *   the list of species and the thermodynamic state of the phase.
  *
- *   No state information is storred within %Transport classes.
+ *   No state information is stored within %Transport classes.
  *   Queries to the underlying ThermoPhase object must be made to obtain
  *   the state of the system.
  *
  *   An exception to this however is the state information concerning the
- *   the gradients of variables. This information is not storred within
+ *   the gradients of variables. This information is not stored within
  *   the ThermoPhase objects. It may be collected within the Transport objects.
  *   In fact, the meaning of const operations within the Transport class
  *   refers to calculations which do not change the state of the

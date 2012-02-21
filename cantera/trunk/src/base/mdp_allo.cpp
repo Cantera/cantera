@@ -7,7 +7,7 @@
  * $Date$
  */
 /*
- * Copywrite 2004 Sandia Corporation. Under the terms of Contract
+ * Copyright 2004 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government
  * retains certain rights in this software.
  * See file License.txt for licensing information.
@@ -487,10 +487,10 @@ int* mdp_alloc_int_1(int nvalues, const int val)
  *    Input
  *    -------
  *        nvalues = Length of the array
- *        val     = intialization value
+ *        val     = initialization value
  *    Return
  *    ------
- *        Pointer to the intialized integer array
+ *        Pointer to the initialized integer array
  *        Failures are indicated by returning the NULL pointer.
  **************************************************************************/
 {
@@ -651,10 +651,10 @@ int** mdp_alloc_int_2(int ndim1, int ndim2, const int val)
  *    -------
  *        ndim1 = Length of the first dimension of the array
  *        ndim2 = Length of the second dimension of the array
- *        val   = intialization value
+ *        val   = initialization value
  *    Return
  *    ------
- *        Pointer to the intialized integer array
+ *        Pointer to the initialized integer array
  *        Failures are indicated by returning the NULL pointer.
  **************************************************************************/
 {
@@ -700,10 +700,10 @@ double* mdp_alloc_dbl_1(int nvalues, const double val)
  *    Input
  *    -------
  *        nvalues = Length of the array
- *        val     = intialization value
+ *        val     = initialization value
  *    Return
  *    ------
- *        Pointer to the intialized array of doubles
+ *        Pointer to the initialized array of doubles
  *        Failures are indicated by returning the NULL pointer.
  **************************************************************************/
 {
@@ -738,14 +738,14 @@ void mdp_safe_alloc_dbl_1(double** array_hdl, int nvalues, const double val)
  *
  *  mdp_safe_alloc_dbl_1:
  *
- *    Allocates and/or initializse a one dimensional array of doubles.
+ *    Allocates and/or initializes a one dimensional array of doubles.
  *
  *    Input
  *    -------
  *        *array_hdl = Previous value of pointer. If non-NULL will try
  *                     to free the memory at this address.
  *        nvalues = Length of the array
- *        val     = intialization value
+ *        val     = initialization value
  *    Output
  *    ------
  *        *array_hdl = This value is initialized to the correct address
@@ -866,10 +866,10 @@ double** mdp_alloc_dbl_2(int ndim1, int ndim2, const double val)
  *    -------
  *        ndim1 = Length of the first dimension of the array
  *        ndim2 = Length of the second dimension of the array
- *        val   = intialization value
+ *        val   = initialization value
  *    Return
  *    ------
- *        Pointer to the intialized integer array
+ *        Pointer to the initialized integer array
  *        Failures are indicated by returning the NULL pointer.
  **************************************************************************/
 {
@@ -915,10 +915,10 @@ char* mdp_alloc_char_1(int nvalues, const char val)
  *    Input
  *    -------
  *        nvalues = Length of the array
- *        val     = intialization value
+ *        val     = initialization value
  *    Return
  *    ------
- *        Pointer to the intialized character array
+ *        Pointer to the initialized character array
  *        Failures are indicated by returning the NULL pointer.
  **************************************************************************/
 {
@@ -956,14 +956,14 @@ void mdp_safe_alloc_char_1(char** array_hdl, int nvalues, const char val)
  *
  *    This routine will free any old memory that was located at that
  *    position, before it will allocate a new vector.
- *    Allocates and/or initializse a one dimensional array of characters.
+ *    Allocates and/or initializes a one dimensional array of characters.
  *
  *    Input
  *    -------
  *        array_hdl =  Previous value of pointer. If non-NULL will try
  *                     to free the memory at this address.
  *        nvalues = Length of the array
- *        val     = intialization value
+ *        val     = initialization value
  *    Output
  *    ------
  *        *array_hdl = This value is initialized to the correct address
@@ -1005,7 +1005,7 @@ void mdp_safe_alloc_dbl_2(double** *array_hdl, int ndim1, int ndim2,
  *                     to free the memory at this address.
  *        ndim1 = Length of the array
  *        ndim2 = Length of inner loop of the array
- *        val     = intialization value
+ *        val     = initialization value
  *    Return
  *    ------
  *        *array_hdl = This value is initialized to the correct address

@@ -18,7 +18,7 @@
  *  This structure is used to parse strings. The original string is
  *  tokenized into a set of tokens via separation wrt white space.
  *  Both the tokens and the original
- *  string are storred within the structure
+ *  string are stored within the structure
  */
 
 struct TOKEN {

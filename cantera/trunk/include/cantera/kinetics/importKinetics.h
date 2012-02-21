@@ -6,7 +6,7 @@
  *     This file contains routines which are global routines, i.e.,
  *     not part of any object. These routine take as input, ctml
  *     pointers to data, and pointers to %Cantera objects. The purpose
- *     of these routines is to intialize the %Cantera objects with data
+ *     of these routines is to initialize the %Cantera objects with data
  *     from the ctml tree structures.
  */
 // Copyright 2002  California Institute of Technology
@@ -106,10 +106,10 @@ bool getReagents(const XML_Node& rxn, kinetics_t& kin, int rp,
  *
  *  @param kf      XML_Node containing information about the rate coefficients.
  *  @param kin     kinetics manager
- *  @param rdata   ReactionData referece
+ *  @param rdata   ReactionData reference
  *  @param negA    Boolean indicating whether negative A's are ok.
  *
- *   Trigger anexception for negative A unless specifically authorized.
+ *   Trigger an exception for negative A unless specifically authorized.
  *
  * @ingroup kineticsmgr
  */
@@ -193,7 +193,7 @@ bool importKinetics(const XML_Node& phase, std::vector<ThermoPhase*> th,
 //!Build a single-phase ThermoPhase object with associated kinetics mechanism.
 /*!
  *  In a single call, this routine initializes a ThermoPhase object and a
- *  homogenous kinetics object for a phase.
+ *  homogeneous kinetics object for a phase.
  *
  * @param root pointer to the XML tree which will be searched to find the
  *             XML phase element.
@@ -201,7 +201,7 @@ bool importKinetics(const XML_Node& phase, std::vector<ThermoPhase*> th,
  * @param id   Name of the phase to be searched for.
  * @param nm   Name of the XML element. Should be "phase"
  * @param th   Pointer to a bare ThermoPhase object, which will be initialized
- *             by this operaton.
+ *             by this operation.
  * @param k    Pointer to a bare Kinetics object, which will be initialized
  *             by this operation to a homogeneous kinetics manager
  *
@@ -236,7 +236,7 @@ bool buildSolutionFromXML(XML_Node& root, std::string id, std::string nm,
  *                         species database for the phase to be found
  *
  * @return
- *    Returns a pointer to teh XML node containing the species data.
+ *    Returns a pointer to the XML node containing the species data.
  *
  * @ingroup inputfiles
  */

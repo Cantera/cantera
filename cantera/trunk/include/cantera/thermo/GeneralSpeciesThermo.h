@@ -71,7 +71,7 @@ public:
      *                 installed.
      * @param c        vector of coefficients for the parameterization.
      *                 This vector is simply passed through to the
-     *                 parameterization constructor. It's length depends upon
+     *                 parameterization constructor. Its length depends upon
      *                 the parameterization.
      * @param minTemp  minimum temperature for which this parameterization
      *                 is valid.

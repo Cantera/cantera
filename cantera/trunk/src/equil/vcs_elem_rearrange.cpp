@@ -4,7 +4,7 @@
  *   it contains the algorithm for choosing the rearrangement.
  */
 /*
- * Copywrite (2005) Sandia Corporation. Under the terms of
+ * Copyright (2005) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -47,7 +47,7 @@ namespace VCSnonideal
  *       This routine borrows heavily from vcs_basopt's algorithm. It
  *    finds nc constraints which span the range space of the Component
  *    Formula matrix, and assigns them as the first nc components in the
- *    formular matrix. This guarrantees that vcs_basopt[] has a
+ *    formula matrix. This guarantees that vcs_basopt[] has a
  *    nonsingular matrix to invert.
  *
  * Other Variables
@@ -217,7 +217,7 @@ int VCS_SOLVE::vcs_elem_rearrange(double* const aw, double* const sa,
     return VCS_SUCCESS;
 }
 
-//  Swaps the indecises for all of the global data for two elements, ipos
+//  Swaps the indices for all of the global data for two elements, ipos
 //  and jpos.
 /*
  *  This function knows all of the element information with VCS_SOLVE, and

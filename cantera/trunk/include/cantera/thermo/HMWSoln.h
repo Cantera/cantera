@@ -9,7 +9,7 @@
  * standard states.
  */
 /*
- * Copywrite (2006) Sandia Corporation. Under the terms of
+ * Copyright (2006) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -340,8 +340,8 @@ class PDSS_Water;
  *    \end{array}
  *  \f]
  *
- *  <I>a</I> is a subscribt over all anions, <I>c</I> is a subscript extending over all
- *  cations, and  <I>i</I> is a subscrit that extends over all anions and cations.
+ *  <I>a</I> is a subscript over all anions, <I>c</I> is a subscript extending over all
+ *  cations, and  <I>i</I> is a subscript that extends over all anions and cations.
  *  <I>n</I> is a subscript that extends only over neutral solute molecules.
  *  The second line contains cross terms where cations affect
  *  cations and/or cation/anion pairs,
@@ -356,7 +356,7 @@ class PDSS_Water;
  *  molalities or ionic strengths. However, all coefficients are potentially functions
  *  of the temperature and pressure of the solution.
  *
- *   <I>A</I> is the Debye-Huckel constant. It's specification is described in its own
+ *   <I>A</I> is the Debye-Huckel constant. Its specification is described in its own
  *   section below.
  *
  *   \f$ I\f$ is the ionic strength of the solution, and is given by:
@@ -367,7 +367,7 @@ class PDSS_Water;
  *
  *   In contrast to several other Debye-Huckel implementations (see \ref DebyeHuckel), the
  *   parameter \f$ b\f$ in the above equation is a constant that
- *   doesn not vary with respect to ion idenity. This is an important simplification
+ *   does not vary with respect to ion identity. This is an important simplification
  *   as it avoids troubles with satisfaction of the Gibbs-Duhem analysis.
  *
  *   The function \f$ Z \f$ is given by
@@ -392,12 +392,12 @@ class PDSS_Water;
  *   The formulation for \f$ B_{ca}\f$ combined with the formulation of the
  *   Debye-Huckel term in the eqn. for the excess Gibbs free energy stems
  *   essentially from an empirical fit to the ionic strength dependent data
- *   based over a wide sampling of binary electroyte systems. \f$ C_{ca} \f$,
+ *   based over a wide sampling of binary electrolyte systems. \f$ C_{ca} \f$,
  *   \f$ \lambda_{nc} \f$, \f$ \lambda_{na} \f$, \f$ \lambda_{nn} \f$,
  *   \f$ \Psi_{c{c'}a} \f$, \f$ \Psi_{a{a'}c} \f$ are experimentally derived
  *   coefficients that may have pressure and/or temperature dependencies.
  *    The \f$ \Phi_{c{c'}} \f$ and \f$ \Phi_{a{a'}} \f$ formulations are
- *   slightly more complicated. \f$ b \f$ is a univeral
+ *   slightly more complicated. \f$ b \f$ is a universal
  *   constant defined to be equal to \f$ 1.2\ kg^{1/2}\ gmol^{-1/2} \f$. The exponential
  *   coefficient \f$ \alpha^{(1)}_{ca} \f$ is usually
  *   fixed at \f$ \alpha^{(1)}_{ca} = 2.0\ kg^{1/2} gmol^{-1/2}\f$
@@ -712,7 +712,7 @@ class PDSS_Water;
  *
  *
  *  \f$ \Theta_{ij} \f$ is the small virial coefficient expansion term.
- *  Dependent in general on temperature and pressure, it's ionic
+ *  Dependent in general on temperature and pressure, its ionic
  *  strength dependence is ignored in Pitzer's approach.
  *  \f$ \,^E\Theta_{ij}(I) \f$ accounts for the electrostatic
  *  unsymmetrical mixing effects and is dependent only on the
@@ -884,7 +884,7 @@ class PDSS_Water;
  *  In the equations above, the formula for  \f$  A_{Debye} \f$
  *  is needed. The %HMWSoln object uses two methods for specifying these quantities.
  *  The default method is to assume that \f$  A_{Debye} \f$  is a constant, given
- *  in the initialization process, and storred in the
+ *  in the initialization process, and stored in the
  *  member double, m_A_Debye. Optionally, a full water treatment may be employed that makes
  *  \f$ A_{Debye} \f$ a full function of <I>T</I> and <I>P</I> and creates nontrivial entries for
  *  the excess heat capacity, enthalpy, and excess volumes of solution.
@@ -1073,7 +1073,7 @@ class PDSS_Water;
  *      C_j^a = C^o_o \frac{\gamma_j^\triangle n_j}{n_o}
  *  \f]
  *
- *  The generalized activity concentration of the solvent has the same units, but its a simpler form
+ *  The generalized activity concentration of the solvent has the same units, but it's a simpler form
  *
  *  \f[
  *      C_o^a = C^o_o a_o
@@ -1107,7 +1107,7 @@ class PDSS_Water;
  * <HR>
  *
  * The constructor for this phase is now located in the default ThermoFactory
- * for %Cantera. The following code snipet may be used to initialize the phase
+ * for %Cantera. The following code snippet may be used to initialize the phase
  * using the default construction technique within %Cantera.
  *
  * @code
@@ -1288,7 +1288,7 @@ public:
      */
     HMWSoln(const HMWSoln& right);
 
-    //! Asignment operator
+    //! Assignment operator
     /*!
      * Assignment operator for the object. Constructed
      * object will be a clone of this object, but will
@@ -1444,12 +1444,12 @@ public:
 
     /**
      * Pressure. Units: Pa.
-     * For this incompressible system, we return the internally storred
+     * For this incompressible system, we return the internally stored
      * independent value of the pressure.
      */
     virtual doublereal pressure() const;
 
-    //! Set the internally storred pressure (Pa) at constant
+    //! Set the internally stored pressure (Pa) at constant
     //! temperature and composition
     /*!
      *  This method sets the pressure within the object.
@@ -1495,7 +1495,7 @@ public:
      */
     virtual doublereal density() const;
 
-    //! Set the internally storred density (kg/m^3) of the phase.
+    //! Set the internally stored density (kg/m^3) of the phase.
     /*!
      * Overwritten setDensity() function is necessary because of
      * the underlying water model.
@@ -1511,7 +1511,7 @@ public:
      */
     void setDensity(const doublereal rho);
 
-    //! Set the internally storred molar density (kmol/m^3) for the phase.
+    //! Set the internally stored molar density (kmol/m^3) for the phase.
     /**
      * Overwritten setMolarDensity() function is necessary because of the
      * underlying water model.
@@ -1610,7 +1610,7 @@ public:
      *      C_j^a = C^o_o \frac{\gamma_j^\triangle n_j}{n_o}
      *  \f]
      *
-     *  The generalized activity concentration of the solvent has the same units, but its a simpler form
+     *  The generalized activity concentration of the solvent has the same units, but it's a simpler form
      *
      *  \f[
      *      C_o^a = C^o_o a_o
@@ -1688,7 +1688,7 @@ public:
      *      C_j^a = C^o_o \frac{\gamma_j^\triangle n_j}{n_o}
      *  \f]
      *
-     *  The generalized activity concentration of the solvent has the same units, but its a simpler form
+     *  The generalized activity concentration of the solvent has the same units, but it's a simpler form
      *
      *  \f[
      *      C_o^a = C^o_o a_o
@@ -1845,7 +1845,7 @@ public:
      *                    + R T \frac{d \ln(a_o)}{dP}
      * \f]
      *
-     *  @param vbar   Output vector of speciar partial molar volumes.
+     *  @param vbar   Output vector of species partial molar volumes.
      *                Length = m_kk. units are m^3/kmol.
      */
     virtual void getPartialMolarVolumes(doublereal* vbar) const;
@@ -3349,7 +3349,7 @@ private:
 
 private:
     /*
-     * This function will be called to update the internally storred
+     * This function will be called to update the internally stored
      * natural logarithm of the molality activity coefficients
      */
     void s_update_lnMolalityActCoeff() const;
@@ -3374,7 +3374,7 @@ private:
      */
     void s_update_dlnMolalityActCoeff_dP() const;
 
-    //! This function will be called to update the internally storred
+    //! This function will be called to update the internally stored
     //! natural logarithm of the molality activity coefficients
     /*
      * Normally they are all one. However, sometimes they are not,

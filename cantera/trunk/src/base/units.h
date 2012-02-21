@@ -76,7 +76,7 @@ public:
     /**
      * Return the multiplier required to convert a dimensional quantity
      * with units specified by string 'units' to SI units.
-     * The list of recognized units is storred as a stl map
+     * The list of recognized units is stored as a stl map
      *  <string, doublereal>called  m_u[] and m_act_u for activity
      * coefficients. These maps are initialized with likely values.
      *

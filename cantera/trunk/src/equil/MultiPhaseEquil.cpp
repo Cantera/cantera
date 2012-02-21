@@ -632,7 +632,7 @@ void MultiPhaseEquil::step(doublereal omega, vector_fp& deltaN,
             m_moles[k] += omega * deltaN[k];
         } else {
             m_moles[k] = fabs(m_moles[k])*std::min(10.0,
-                                                exp(-m_deltaG_RT[ik - m_nel]));
+                                                   exp(-m_deltaG_RT[ik - m_nel]));
         }
     }
     updateMixMoles();

@@ -12,7 +12,7 @@
  * calculating liquid electrolyte thermodynamics.
  */
 /*
- * Copywrite (2006) Sandia Corporation. Under the terms of
+ * Copyright (2006) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -177,7 +177,7 @@ public:
      * @{
      */
 
-    //! Set the internally storred pressure (Pa) at constant
+    //! Set the internally stored pressure (Pa) at constant
     //! temperature and composition
     /*!
      *  This method sets the pressure within the object.
@@ -418,9 +418,9 @@ public:
     /*!
      *  Frequently, for this class of thermodynamics representations,
      *  the excess Volume due to mixing is zero. Here, we set it as
-     *  a default. It may be overriden in derived classes.
+     *  a default. It may be overridden in derived classes.
      *
-     *  @param vbar   Output vector of speciar partial molar volumes.
+     *  @param vbar   Output vector of species partial molar volumes.
      *                Length = m_kk. units are m^3/kmol.
      */
     virtual void getPartialMolarVolumes(doublereal* vbar) const;

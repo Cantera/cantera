@@ -40,7 +40,7 @@ namespace Cantera
 //!   gas, a liquid, a mixed gas-liquid fluid, or a fluid beyond its
 //!   critical point
 /*!
- *  The object inherits from ThermoPhase. However, its build on top
+ *  The object inherits from ThermoPhase. However, it's built on top
  *  of the tpx package.
  *
  *
@@ -187,7 +187,7 @@ public:
     //! Return an array of partial molar internal energies for the
     //! species in the mixture.  Units: J/kmol.
     /*!
-     * @param ubar    Output vector of speciar partial molar internal energies.
+     * @param ubar    Output vector of species partial molar internal energies.
      *                Length = m_kk. units are J/kmol.
      */
     virtual void getPartialMolarIntEnergies(doublereal* ubar) const;
@@ -204,7 +204,7 @@ public:
     //! Return an array of partial molar volumes for the
     //! species in the mixture. Units: m^3/kmol.
     /*!
-     *  @param vbar   Output vector of speciar partial molar volumes.
+     *  @param vbar   Output vector of species partial molar volumes.
      *                Length = m_kk. units are m^3/kmol.
      */
     virtual void getPartialMolarVolumes(doublereal* vbar) const;
@@ -403,7 +403,7 @@ public:
      * @{
      */
 
-    //! Set the internally storred specific enthalpy (J/kg) and pressure (Pa) of the phase.
+    //! Set the internally stored specific enthalpy (J/kg) and pressure (Pa) of the phase.
     /*!
      * @param h     Specific enthalpy (J/kg)
      * @param p     Pressure (Pa)
@@ -537,7 +537,7 @@ public:
      * an input file. It should be overloaded in subclasses to set
      * any parameters that are specific to that particular phase
      * model. Note, this method is called before the phase is
-     * initialzed with elements and/or species.
+     * initialized with elements and/or species.
      *
      * @param eosdata An XML_Node object corresponding to
      *                the "thermo" entry for this phase in the input file.

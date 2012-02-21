@@ -11,7 +11,7 @@
 namespace VCSnonideal
 {
 using std::size_t;
-//!  A class for 2D double arrays storred in column-major
+//!  A class for 2D double arrays stored in column-major
 //!  (Fortran-compatible) form.
 /*!
  *  In this form, the data entry for an n row, m col

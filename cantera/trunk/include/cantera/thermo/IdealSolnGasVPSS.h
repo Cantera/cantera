@@ -7,7 +7,7 @@
  * class \link Cantera::IdealSolnGasVPSS IdealSolnGasVPSS\endlink).
  */
 /*
- * Copywrite (2005) Sandia Corporation. Under the terms of
+ * Copyright (2005) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -281,7 +281,7 @@ public:
 
     //! Get the species partial molar enthalpies. Units: J/kmol.
     /*!
-     * @param ubar    Output vector of speciar partial molar internal energies.
+     * @param ubar    Output vector of species partial molar internal energies.
      *                Length = m_kk. units are J/kmol.
      */
     virtual void getPartialMolarIntEnergies(doublereal* ubar) const;
@@ -296,7 +296,7 @@ public:
 
     //! Get the species partial molar volumes. Units: m^3/kmol.
     /*!
-     *  @param vbar   Output vector of speciar partial molar volumes.
+     *  @param vbar   Output vector of species partial molar volumes.
      *                Length = m_kk. units are m^3/kmol.
      */
     virtual void getPartialMolarVolumes(doublereal* vbar) const;

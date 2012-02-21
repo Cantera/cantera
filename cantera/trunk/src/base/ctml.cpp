@@ -49,22 +49,22 @@ static doublereal fpValue(std::string val)
  *
  *  Example:
  *
- * Code snipet:
- *       @verbatum
+ * Code snippet:
+ *       @verbatim
    const XML_Node &node;
    std::string titleString = "doSpecialOp";
    bool value = true;
    addBool(node, titleString, value);
-   @endverbatum
+   @endverbatim
  *
  *  Creates the following the snippet in the XML file:
- *  @verbatum
+ *  @verbatim
    <parentNode>
      <bool title="doSpecialOp" type="optional">
         true
      <\integer>
    <\parentNode>
- @endverbatum
+ @endverbatim
  *
  *   @param node          reference to the XML_Node object of the parent XML element
  *   @param titleString   String name of the title attribute
@@ -89,24 +89,24 @@ void addBool(Cantera::XML_Node& node, const std::string& title, const bool val)
  *
  *  Example:
  *
- * Code snipet:
- *       @verbatum
+ * Code snippet:
+ *       @verbatim
  const XML_Node &node;
  std::string titleString = "maxIterations";
  int  value = 1000;
  std::string typeString = "optional";
  std::string units = "";
  addInteger(node, titleString, value, typeString, units);
- @endverbatum
+ @endverbatim
  *
  *  Creates the following the snippet in the XML file:
- *  @verbatum
+ *  @verbatim
  <parentNode>
  <integer title="maxIterations" type="optional">
  100
  <\integer>
  <\parentNode>
- @endverbatum
+ @endverbatim
  *
  *   @param node          reference to the XML_Node object of the parent XML element
  *   @param titleString   String name of the title attribute
@@ -144,7 +144,7 @@ void addInteger(Cantera::XML_Node& node, const std::string& title, const int val
  *
  *  Example:
  *
- *       @verbatum
+ *       @verbatim
    const XML_Node &node;
    std::string titleString = "additionalCases";
    int  n = 3;
@@ -152,16 +152,16 @@ void addInteger(Cantera::XML_Node& node, const std::string& title, const int val
    std::string typeString = "optional";
    std::string units = "";
    addIntegerArray(node, titleString, n, &cases[0], typeString, units);
-   @endverbatum
+   @endverbatim
  *
  *  Creates the following the snippet in the XML file:
- *  @verbatum
+ *  @verbatim
    <parentNode>
      <intArray title="additionalCases" type="optional">
         3, 6, 10
      <\intArray>
    <\parentNode>
- @endverbatum
+ @endverbatim
  *
  *
  *   @param node          reference to the XML_Node object of the parent XML element
@@ -234,8 +234,8 @@ void addIntegerArray(Cantera::XML_Node& node, const std::string& title, const si
  *
  *  Example:
  *
- * Code snipet:
- *       @verbatum
+ * Code snippet:
+ *       @verbatim
  const XML_Node &node;
  std::string titleString = "activationEnergy";
  double  value = 50.3;
@@ -244,16 +244,16 @@ void addIntegerArray(Cantera::XML_Node& node, const std::string& title, const si
  std::string typeString = "optional";
  std::string unitsString = "kcal/gmol";
  addFloat(node, titleString, value, unitsString, typeString, minval, maxval);
- @endverbatum
+ @endverbatim
  *
  *  Creates the following the snippet in the XML file:
- *  @verbatum
+ *  @verbatim
  <parentNode>
  <float title="activationEnergy" type="optional" units="kcal/gmol" min="0.0" max="1.0E3">
  50.3
  <\float>
  <\parentNode>
- @endverbatum
+ @endverbatim
  *
  *   @param node          reference to the XML_Node object of the parent XML element
  *   @param titleString   String name of the title attribute
@@ -303,8 +303,8 @@ void addFloat(Cantera::XML_Node& node, const std::string& title,
  *
  *  Example:
  *
- * Code snipet:
- *       @verbatum
+ * Code snippet:
+ *       @verbatim
    const XML_Node &node;
    std::string titleString = "additionalTemperatures";
    int  n = 3;
@@ -312,16 +312,16 @@ void addFloat(Cantera::XML_Node& node, const std::string& title,
    std::string typeString = "optional";
    std::string units = "Kelvin";
    addFloatArray(node, titleString, n, &cases[0], typeString, units);
-   @endverbatum
+   @endverbatim
  *
  *  Creates the following the snippet in the XML file:
- *  @verbatum
+ *  @verbatim
    <parentNode>
      <floatArray title="additionalTemperatures" type="optional" units="Kelvin">
         273.15, 298.15, 373.15
      <\floatArray>
    <\parentNode>
- @endverbatum
+ @endverbatim
  *
  *   @param node          reference to the XML_Node object of the parent XML element
  *   @param titleString   String name of the title attribute
@@ -389,8 +389,8 @@ void addFloatArray(Cantera::XML_Node& node, const std::string& title, const size
  *
  *  Example:
  *
- * Code snipet:
- *       @verbatum
+ * Code snippet:
+ *       @verbatim
    const XML_Node &node;
    std::string titleString = "additionalTemperatures";
    int  n = 3;
@@ -398,16 +398,16 @@ void addFloatArray(Cantera::XML_Node& node, const std::string& title, const size
    std::string typeString = "optional";
    std::string units = "Kelvin";
    addNamedFloatArray(node, titleString, n, &cases[0], typeString, units);
-   @endverbatum
+   @endverbatim
  *
  *  Creates the following the snippet in the XML file:
- *  @verbatum
+ *  @verbatim
    <parentNode>
      <additionalTemperatures type="optional" vtype="floatArray" size = "3" units="Kelvin">
         273.15, 298.15, 373.15
      <\additionalTemperatures>
    <\parentNode>
- @endverbatum
+ @endverbatim
  *
  *   @param node          reference to the XML_Node object of the parent XML element
  *   @param name          Name of the XML node
@@ -479,19 +479,19 @@ void addNamedFloatArray(Cantera::XML_Node& node, const std::string& name, const 
  *
  *  Example:
  *
- * Code snipet:
- *       @verbatum
+ * Code snippet:
+ *       @verbatim
  const XML_Node &node;
  addString(XML_Node& node, std::string titleString, std::string valueString,
  std::string typeString);
- @endverbatum
+ @endverbatim
  *
  *  Creates the following the snippet in the XML file:
- *  @verbatum
+ *  @verbatim
  <string title="titleString" type="typeString">
  valueString
  <\string>
- @endverbatum
+ @endverbatim
  *
  *   @param node          reference to the XML_Node object of the parent XML element
  *   @param valueString   Value string to be used in the new XML node.
@@ -526,26 +526,26 @@ XML_Node* getByTitle(const Cantera::XML_Node& node, const std::string& title)
 /*
  *   If the child XML_node named "name" doesn't exist, the empty string is returned.
  *
- * Code snipet:
- *       @verbatum
+ * Code snippet:
+ *       @verbatim
  const XML_Node &parent;
  string name = "vacency_species";
  string valueString = getChildValue(parent, name
  std::string typeString);
- @endverbatum
+ @endverbatim
  *
  *  returns valueString = "O(V)"
  *
  *  from the following the snippet in the XML file:
  *
- *  @verbatum
+ *  @verbatim
  <vacencySpecies>
  O(V)
  <\vancencySpecies>
- @endverbatum
+ @endverbatim
  *
  *   @param parent   parent reference to the XML_Node object of the parent XML element
- *   @param name     Name of the childe XML_Node to read the value from.
+ *   @param name     Name of the child XML_Node to read the value from.
  *
  *   @return         String value of the child XML_Node
  */
@@ -566,19 +566,19 @@ std::string getChildValue(const Cantera::XML_Node& parent, const std::string& na
  *
  *  Example:
  *
- * Code snipet:
- *       @verbatum
+ * Code snippet:
+ *       @verbatim
  const XML_Node &node;
  getString(XML_Node& node, std::string titleString, std::string valueString,
  std::string typeString);
- @endverbatum
+ @endverbatim
  *
  *  Reads the following the snippet in the XML file:
- *  @verbatum
+ *  @verbatim
  <string title="titleString" type="typeString">
    valueString
  <\string>
- @endverbatum
+ @endverbatim
  *
  *   @param node          Reference to the XML_Node object of the parent XML element
  *   @param titleString   String name of the title attribute of the child node
@@ -612,30 +612,30 @@ void getString(const Cantera::XML_Node& node, const std::string& titleString, st
  *
  *  Example:
  *
- * Code snipet:
- *       @verbatum
+ * Code snippet:
+ *       @verbatim
    const XML_Node &node;
    std::string valueString;
    std::string typeString;
    std::string nameString = "timeIncrement";
    getString(XML_Node& node, nameString, valueString, valueString, typeString);
- @endverbatum
+ @endverbatim
  *
  *  Reads the following the snippet in the XML file:
  *
- *  *  @verbatum
+ *  *  @verbatim
  <nameString type="typeString">
    valueString
  <\nameString>
- @endverbatum
+ @endverbatim
  *
  *  or alternatively as a retrofit and special case, it also reads the following case
  *
- *  @verbatum
+ *  @verbatim
  <string title="nameString" type="typeString">
    valueString
  <\string>
- @endverbatum
+ @endverbatim
  *
  *   @param node          Reference to the XML_Node object of the parent XML element
  *   @param nameString    Name of the XML Node                               input  variable
@@ -676,22 +676,22 @@ void getNamedStringValue(const Cantera::XML_Node& node, const std::string& nameS
  *
  *  Example:
  *
- * Code snipet:
- *       @verbatum
+ * Code snippet:
+ *       @verbatim
    const XML_Node &State_XMLNode;
    std::map<std::string, integer> v;
    getinteger(State_XMLNode, v);
- @endverbatum
+ @endverbatim
  *
  *  reads the corresponding XML file:
  *
- *  @verbatum
+ *  @verbatim
  <state>
    <integer title="i1">   1  <\integer>
    <integer title="i2">   2  <\integer>
    <integer title="i3">   3  <\integer>
  <\state>
- @endverbatum
+ @endverbatim
  *
  *  Will produce the mapping:
  *
@@ -737,23 +737,23 @@ void getIntegers(const Cantera::XML_Node& node,
  *
  *  Example:
  *
- * Code snipet:
- *       @verbatum
+ * Code snippet:
+ *       @verbatim
    const XML_Node &State_XMLNode;
    std::map<std::string,double> v;
    bool convert = true;
    getFloats(State_XMLNode, v, convert);
- @endverbatum
+ @endverbatim
  *
  *  reads the corresponding XML file:
  *
- *  @verbatum
+ *  @verbatim
  <state>
    <float title="a1" units="m3">   32.4 <\float>
    <float title="a2" units="cm3">   1.  <\float>
    <float title="a3">             100.  <\float>
  <\state>
- @endverbatum
+ @endverbatim
  *
  *  Will produce the mapping:
  *
@@ -815,21 +815,21 @@ void getFloats(const Cantera::XML_Node& node, std::map<std::string, double>& v,
  *
  *  Example:
  *
- * Code snipet:
- *       @verbatum
+ * Code snippet:
+ *       @verbatim
  const XML_Node &State_XMLNode;
  doublereal pres = OneAtm;
  if (state_XMLNode.hasChild("pressure")) {
  pres = getFloat(State_XMLNode, "pressure", "toSI");
  }
- @endverbatum
+ @endverbatim
  *
  *  reads the corresponding XML file:
- *  @verbatum
+ *  @verbatim
  <state>
  <pressure units="Pa"> 101325.0 </pressure>
  <\state>
- @endverbatum
+ @endverbatim
  *
  *   @param parent reference to the XML_Node object of the parent XML element
  *   @param name   Name of the XML child element
@@ -860,7 +860,7 @@ doublereal getFloat(const Cantera::XML_Node& parent,
  *
  *  Example:
  *
- * Code snipet:
+ * Code snippet:
  *       @verbatim
  const XML_Node &State_XMLNode;
  doublereal pres = OneAtm;
@@ -962,7 +962,7 @@ bool getOptionalFloat(const Cantera::XML_Node& parent,
  *
  *  Example:
  *
- * Code snipet:
+ * Code snippet:
  *       @verbatim
  const XML_Node &State_XMLNode;
  doublereal pres = OneAtm;
@@ -1022,7 +1022,7 @@ doublereal getFloatDefaultUnits(const Cantera::XML_Node& parent, std::string nam
  *
  *  Example:
  *
- * Code snipet:
+ * Code snippet:
  *       @verbatim
  std::string modelName = "";
  bool exists = getOptionalModel(transportNode, "compositionDependence",
@@ -1064,21 +1064,21 @@ bool getOptionalModel(const Cantera::XML_Node& parent, const std::string nodeNam
  *
  *  Example:
  *
- * Code snipet:
- *       @verbatum
+ * Code snippet:
+ *       @verbatim
  const XML_Node &State_XMLNode;
  int number = 1;
  if (state_XMLNode.hasChild("NumProcs")) {
  number = getInteger(State_XMLNode, "numProcs");
  }
- @endverbatum
+ @endverbatim
  *
  *  reads the corresponding XML file:
- *  @verbatum
+ *  @verbatim
  <state>
  <numProcs> 10 <\numProcs>
  <\state>
- @endverbatum
+ @endverbatim
  *
  *   @param parent reference to the XML_Node object of the parent XML element
  *   @param name   Name of the XML child element
@@ -1133,23 +1133,23 @@ int getInteger(const Cantera::XML_Node& parent, std::string name)
  *
  *  Example:
  *
- * Code snipet:
- *       @verbatum
+ * Code snippet:
+ *       @verbatim
    const XML_Node &State_XMLNode;
    vector_fp v;
    bool convert = true;
    unitsString = "";
    nodeName="floatArray";
    getFloatArray(State_XMLNode, v, convert, unitsString, nodeName);
- @endverbatum
+ @endverbatim
  *
  *  reads the corresponding XML file:
  *
- *  @verbatum
+ *  @verbatim
  <state>
    <floatArray  units="m3">   32.4, 1, 100. <\floatArray>
  <\state>
- @endverbatum
+ @endverbatim
  *
  *  Will produce the vector
  *
@@ -1405,12 +1405,12 @@ void getMap(const Cantera::XML_Node& node, std::map<std::string, std::string>& m
  * argument list.
  * Warning: No spaces are allowed in each pair. Quotes get included as part
  *          of the string.
- *   Example: @verbatum
+ *   Example: @verbatim
      <xmlNode>
         red:112    blue:34
         green:banana
      </xmlNode>
-            @endverbatum
+            @endverbatim
  *
  * Returns:
  *          key       val
@@ -1608,7 +1608,7 @@ void getStringArray(const Cantera::XML_Node& node, std::vector<std::string>& v)
  *
  *  Example:
  *
- * Code snipet:
+ * Code snippet:
  *       @verbatim
    const XML_Node &State_XMLNode;
    vector_fp v;

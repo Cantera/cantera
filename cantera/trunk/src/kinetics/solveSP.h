@@ -4,7 +4,7 @@
  *  (see \ref chemkinetics and class \link Cantera::solveSP solveSP\endlink).
  */
 /*
- * Copywrite 2004 Sandia Corporation. Under the terms of Contract
+ * Copyright 2004 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government
  * retains certain rights in this software.
  * See file License.txt for licensing information.
@@ -114,7 +114,7 @@ class InterfaceKinetics;
  *   C_N1-1_1      NO+N1-1
  *
  *
- *   Note there are a couple of different types of species indecices
+ *   Note there are a couple of different types of species indices
  *   floating around in the formulation of this object.
  *
  *   kindexSP This is the species index in the contiguous vector of unknowns
@@ -124,7 +124,7 @@ class InterfaceKinetics;
  *  vector will get more complicated. It will include the mole fraction and growth rates
  *  of specified bulk phases
  *
- *  Indecises which relate to individual kinetics objects use the suffix KSI (kinetics
+ *  Indices which relate to individual kinetics objects use the suffix KSI (kinetics
  *  species index).
  *
  *
@@ -403,7 +403,7 @@ private:
     //! Main routine that calculates the current residual and Jacobian
     /*!
      *  @param JacCol  Vector of pointers to the tops of columns of the
-     *                 Jacobian to be evalulated.
+     *                 Jacobian to be evaluated.
      *  @param resid   output Vector of residuals, length = m_neq
      *  @param CSolnSP  Vector of species concentrations, unknowns in the
      *                  problem, length = m_neq. These are tweaked in order
@@ -613,7 +613,7 @@ private:
      */
     vector_fp m_CSolnSP;
 
-    //! Saved inital solution vector
+    //! Saved initial solution vector
     /*!
      * length MAX(1, m_neq)
      */

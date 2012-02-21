@@ -195,7 +195,7 @@ public:
                           int atomicNumber = 0,
                           doublereal entropy298 = ENTROPY298_UNKNOWN, int elem_type = CT_ELEM_TYPE_ABSPOS);
 
-    //! Adde an element, checking for uniqueness
+    //! Add an element, checking for uniqueness
     /*!
      * The uniqueness is checked by comparing the string symbol. If
      * not unique, nothing is done.
@@ -318,7 +318,7 @@ public:
      */
     std::string speciesName(size_t k) const;
 
-    /// Return a const referernce to the vector of species names
+    /// Return a const reference to the vector of species names
     const std::vector<std::string>& speciesNames() const;
 
     //!  This routine returns the size of species k

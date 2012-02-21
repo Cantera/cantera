@@ -45,7 +45,7 @@ StoichSubstance::StoichSubstance(const StoichSubstance& right) :
     *this = operator=(right);
 }
 
-// Asignment operator
+// Assignment operator
 /*
  * Assignment operator for the object. Constructed
  * object will be a clone of this object, but will

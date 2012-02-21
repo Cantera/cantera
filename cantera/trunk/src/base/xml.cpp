@@ -579,7 +579,7 @@ XML_Node& XML_Node::mergeAsChild(XML_Node& node)
     return *m_children.back();
 }
 
-// Add a child node to the current node by makeing a copy of an existing node tree
+// Add a child node to the current node by making a copy of an existing node tree
 /*
  * This will add an XML_Node as a child to the current node.
  * Note, this actually adds the node. Therefore, node is changed.
@@ -827,7 +827,7 @@ std::string XML_Node::operator[](const std::string& attr) const
 
 // Function returns the value of an attribute
 /*
- * This function searches the attibutes vector for the parameter
+ * This function searches the attributes vector for the parameter
  * std::string attribute. If a match is found, the attribute value
  * is returned as a string. If no match is found, the empty string
  * is returned.
@@ -948,7 +948,7 @@ const std::vector<XML_Node*>& XML_Node::children() const
 size_t XML_Node::nChildren(const bool discardComments) const
 {
     if (discardComments) {
-	size_t count = 0;
+    size_t count = 0;
         for (size_t i = 0; i < m_nchildren; i++) {
             XML_Node* xc = m_children[i];
             if (!(xc->isComment())) {

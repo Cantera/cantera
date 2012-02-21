@@ -8,7 +8,7 @@
  * obeys the Debye Huckel formulation for nonideality.
  */
 /*
- * Copywrite (2006) Sandia Corporation. Under the terms of
+ * Copyright (2006) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -126,7 +126,7 @@ DebyeHuckel::DebyeHuckel(const DebyeHuckel& b) :
 {
     /*
      * Use the assignment operator to do the brunt
-     * of the work for the copy construtor.
+     * of the work for the copy constructor.
      */
     *this = b;
 }
@@ -311,7 +311,7 @@ doublereal DebyeHuckel::cv_mole() const
 
 /*
  * Pressure. Units: Pa.
- * For this incompressible system, we return the internally storred
+ * For this incompressible system, we return the internally stored
  * independent value of the pressure.
  */
 doublereal DebyeHuckel::pressure() const
@@ -717,7 +717,7 @@ void DebyeHuckel::getPartialMolarEnthalpies(doublereal* hbar) const
     if (dAdT != 0.0) {
         /*
          * Update the activity coefficients, This also update the
-         * internally storred molalities.
+         * internally stored molalities.
          */
         s_update_lnMolalityActCoeff();
         s_update_dlnMolalityActCoeff_dT();
@@ -774,7 +774,7 @@ getPartialMolarEntropies(doublereal* sbar) const
     }
     /*
      * Update the activity coefficients, This also update the
-     * internally storred molalities.
+     * internally stored molalities.
      */
     s_update_lnMolalityActCoeff();
     /*
@@ -870,7 +870,7 @@ void DebyeHuckel::getPartialMolarCp(doublereal* cpbar) const
     if (dAdT != 0.0) {
         /*
          * Update the activity coefficients, This also update the
-         * internally storred molalities.
+         * internally stored molalities.
          */
         s_update_lnMolalityActCoeff();
         s_update_dlnMolalityActCoeff_dT();
@@ -1680,7 +1680,7 @@ void DebyeHuckel::setParametersFromXML(const XML_Node& eosdata)
  *  and pressure.
  *
  *  The default is to assume that it is constant, given
- *  in the initialization process and storred in the
+ *  in the initialization process and stored in the
  *  member double, m_A_Debye
  */
 double DebyeHuckel::A_Debye_TP(double tempArg, double presArg) const
@@ -1933,7 +1933,7 @@ double DebyeHuckel::
 _lnactivityWaterHelgesonFixedForm() const
 {
     /*
-     * Update the internally storred vector of molalities
+     * Update the internally stored vector of molalities
      */
     calcMolalities();
     double oc = _osmoticCoeffHelgesonFixedForm();
@@ -1967,7 +1967,7 @@ void DebyeHuckel::s_update_lnMolalityActCoeff() const
 {
     double z_k, zs_k1, zs_k2;
     /*
-     * Update the internally storred vector of molalities
+     * Update the internally stored vector of molalities
      */
     calcMolalities();
     /*
@@ -2010,7 +2010,7 @@ void DebyeHuckel::s_update_lnMolalityActCoeff() const
     }
 
     /*
-     * Possibly update the storred value of the
+     * Possibly update the stored value of the
      * Debye-Huckel parameter A_Debye
      * This parameter appears on the top of the activity
      * coefficient expression.
@@ -2231,7 +2231,7 @@ void DebyeHuckel::s_update_lnMolalityActCoeff() const
  *   We assume that the activity coefficients are current.
  *
  *   solvent activity coefficient is on the molality
- *   scale. It's derivative is too.
+ *   scale. Its derivative is too.
  */
 void DebyeHuckel::s_update_dlnMolalityActCoeff_dT() const
 {
@@ -2371,7 +2371,7 @@ void DebyeHuckel::s_update_dlnMolalityActCoeff_dT() const
  *   We assume that the activity coefficients are current.
  *
  *   solvent activity coefficient is on the molality
- *   scale. It's derivatives are too.
+ *   scale. Its derivatives are too.
  */
 void DebyeHuckel::s_update_d2lnMolalityActCoeff_dT2() const
 {
@@ -2506,7 +2506,7 @@ void DebyeHuckel::s_update_d2lnMolalityActCoeff_dT2() const
  *   and A_Debye are current.
  *
  *   solvent activity coefficient is on the molality
- *   scale. It's derivatives are too.
+ *   scale. Its derivatives are too.
  */
 void DebyeHuckel::s_update_dlnMolalityActCoeff_dP() const
 {

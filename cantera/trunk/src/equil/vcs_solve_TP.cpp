@@ -3,7 +3,7 @@
  *     main algorithm for finding an equilibrium
  */
 /*
- * Copywrite (2005) Sandia Corporation. Under the terms of
+ * Copyright (2005) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -1049,7 +1049,7 @@ L_MAIN_LOOP_END_NO_PRINT:
         /*************************************************************************/
         /*
          *        We have a tentative m_deltaMolNumSpecies[]. Now apply other criteria
-         *        to limit it's magnitude.
+         *        to limit its magnitude.
          *
          *
          */
@@ -1972,7 +1972,7 @@ L_RETURN_BLOCK_B:
     // vcs_dzero(VCS_DATA_PTR(m_deltaGRxn_new), m_numComponents);
     /*
      *       Evaluate the final mole fractions
-     *        storring them in wt[]
+     *        storing them in wt[]
      */
     vcs_vdzero(m_molNumSpecies_new, m_numSpeciesTot);
     for (kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
@@ -3824,7 +3824,7 @@ size_t VCS_SOLVE::vcs_basisOptMax(const double* const molNum, const size_t j,
 /*
  *  All evaluations are done using the "old" version of the solution.
  *
- *  @param kspec   Species to be evalulated
+ *  @param kspec   Species to be evaluated
  *
  *  @return Returns the calculated species type
  */
@@ -4041,7 +4041,7 @@ int VCS_SOLVE::vcs_species_type(const size_t kspec) const
  *
  * For species in multispecies phases whose concentration is zero,
  * we need to set the mole fraction to a very low value.
- * It's chemical potential
+ * Its chemical potential
  * is then calculated using the VCS_DELETE_MINORSPECIES_CUTOFF concentration
  * to keep numbers positive.
  *
@@ -4204,7 +4204,7 @@ void VCS_SOLVE::vcs_chemPotPhase(const int stateCalc,
  *
  * For species in multispecies phases whose concentration is zero,
  * we need to set the mole fraction to a very low value.
- * It's chemical potential
+ * Its chemical potential
  * is then calculated using the VCS_DELETE_MINORSPECIES_CUTOFF concentration
  * to keep numbers positive.
  *
@@ -4381,7 +4381,7 @@ void VCS_SOLVE::vcs_dfe(const int stateCalc,
     tlogMoles = VCS_DATA_PTR(m_TmpPhase);
     /*
      * Might as well recalculate the phase mole vector
-     * and compare to the storred one. They should be correct.
+     * and compare to the stored one. They should be correct.
      */
     double* tPhInertMoles = VCS_DATA_PTR(TPhInertMoles);
     for (iph = 0; iph < m_numPhases; iph++) {
@@ -4880,7 +4880,7 @@ void VCS_SOLVE::vcs_updateVP(const int vcsState)
  *                             -8 ->  The species lies in a multicomponent phase which
  *                                     currently does exist.  Its concentration is currently
  *                                    identically zero, though the phase exists. This is
- *                                    a permament condition due to stoich constraints
+ *                                    a permanent condition due to stoich constraints
  *                                    - VCS_SPECIES_STOICHZERO
  *
  */
@@ -5542,7 +5542,7 @@ void VCS_SOLVE::vcs_deltag_Phase(const size_t iphase, const bool doDeleted,
 }
 /****************************************************************************/
 
-//  Swaps the indecises for all of the global data for two species, k1
+//  Swaps the indices for all of the global data for two species, k1
 //  and k2.
 /*
  *  @param  ifunc:  If true, switch the species data and the noncomponent reaction
@@ -5633,7 +5633,7 @@ void VCS_SOLVE::vcs_switch_pos(const bool ifunc, const size_t k1, const size_t k
 
     if (ifunc) {
         /*
-         * Find the Rxn indecises corresponding to the two species
+         * Find the Rxn indices corresponding to the two species
          */
         i1 = k1 - m_numComponents;
         i2 = k2 - m_numComponents;
@@ -5745,7 +5745,7 @@ double VCS_SOLVE::vcs_birthGuess(const int kspec)
      */
     double* sc_irxn = m_stoichCoeffRxnMatrix[irxn];
     for (size_t j = 0; j < m_numComponents; ++j) {
-        // Only loop over element contraints that involve positive def. constraints
+        // Only loop over element constraints that involve positive def. constraints
         if (m_speciesUnknownType[j] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
             if (m_molNumSpecies_old[j] > 0.0) {
                 double tmp = sc_irxn[j] * dx;
