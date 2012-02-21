@@ -27,9 +27,18 @@ if localenv['python_package'] == 'full':
     localenv.Append(CPPPATH=['#src', '#include'])
 
     cantera_libname = 'cantera_shared' if os.name=='nt' else 'cantera'
+    pylinklibs = [cantera_libname]
+
+    # On Windows, we need to link against the Python "import" library.
+    # With MSVC, this is automatically handled by a "#pragma comment
+    # directive in the Python headers, but for MinGW we need to do
+    # it manually.
+    if localenv['toolchain'] == 'mingw':
+        pylinklibs.append('python%s' % gcv('VERSION'))
+
     pymodule = localenv.SharedLibrary('#interfaces/python/Cantera/_cantera',
                                       ['pycantera.cpp'],
-                                      LIBS=[cantera_libname],
+                                      LIBS=pylinklibs,
                                       SHLIBPREFIX='',
                                       SHLIBSUFFIX=gcv('SO'))
     buildTargets.extend(pymodule)

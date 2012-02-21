@@ -477,3 +477,49 @@ def ipdb():
     ip = ipapi.get()
     def_colors = ip.colors
     Pdb(def_colors).set_trace(sys._getframe().f_back)
+
+
+def getSpawn(env):
+    """
+    A replacement for env['SPAWN'] on Windows that can deal with very long
+    commands, namely those generated when linking. This is only used when
+    compiling with MinGW, as SCons automatically uses a tempfile for the
+    MSVC link command.
+
+    Pass the return value of this function as the SPAWN keyword argument to
+    the Library target, e.g.:
+
+        env.SharedLibrary(..., SPAWN=getSpawn(env))
+
+    Adapted from http://www.scons.org/wiki/LongCmdLinesOnWin32
+    """
+
+    if sys.platform != 'win32' or env['toolchain'] != 'mingw':
+        return env['SPAWN']
+
+    try:
+        useShowWindow = subprocess.STARTF_USESHOWWINDOW
+    except AttributeError:
+        useShowWindow = subprocess._subprocess.STARTF_USESHOWWINDOW
+
+    def ourSpawn(sh, escape, cmd, args, environ):
+        newargs = ' '.join(args[1:])
+        cmdline = cmd + " " + newargs
+        startupinfo = subprocess.STARTUPINFO()
+        startupinfo.dwFlags |= useShowWindow
+        proc = subprocess.Popen(cmdline,
+                                stdin=subprocess.PIPE,
+                                stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE,
+                                startupinfo=startupinfo,
+                                shell=False,
+                                env=environ)
+        data, err = proc.communicate()
+        rv = proc.wait()
+        if rv:
+            print "====="
+            print err
+            print "====="
+        return rv
+
+    return ourSpawn
