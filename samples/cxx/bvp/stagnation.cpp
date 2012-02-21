@@ -617,13 +617,13 @@ void FreeFlame::eval(int jg, doublereal* xg,
         jmin = 0;
         jmax = m_points - 1;
     } else {          // evaluate points for Jacobian
-        jmin = max(jpt-1, 0);
-        jmax = min(jpt+1,m_points-1);
+        jmin = std::max(jpt-1, 0);
+        jmax = std::min(jpt+1,m_points-1);
     }
 
     // properties are computed for grid points from j0 to j1
-    int j0 = max(jmin-1,0);
-    int j1 = min(jmax+1,m_points-1);
+    int j0 = std::max(jmin-1,0);
+    int j1 = std::min(jmax+1,m_points-1);
 
 
     int j, k;

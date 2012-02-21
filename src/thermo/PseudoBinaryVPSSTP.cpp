@@ -205,7 +205,7 @@ void PseudoBinaryVPSSTP::calcPseudoBinaryMoleFractions() const
                 moleFractions_[cationList_[k]];
         }
 
-        sum = fmaxx(0.0, PBMoleFractions_[0]);
+        sum = std::max(0.0, PBMoleFractions_[0]);
         for (k = 1; k < numPBSpecies_; k++) {
             sum += PBMoleFractions_[k];
         }

@@ -461,7 +461,7 @@ void solveProb::resjac_eval(std::vector<doublereal*> &JacCol,
         if (sd < 1.0E-200) {
             sd = 1.0E-4;
         }
-        dc = fmaxx(1.0E-11 * sd, fabs(cSave) * 1.0E-6);
+        dc = std::max(1.0E-11 * sd, fabs(cSave) * 1.0E-6);
         CSoln[kCol] += dc;
         fun_eval(DATA_PTR(m_numEqn2), CSoln, CSolnOld, do_time, deltaT);
         col_j = JacCol[kCol];

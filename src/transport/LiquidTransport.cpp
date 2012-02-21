@@ -1353,9 +1353,9 @@ bool LiquidTransport::update_C()
         concTot_ = 0.0;
         concTot_tran_ = 0.0;
         for (size_t k = 0; k < m_nsp; k++) {
-            m_molefracs[k] = fmaxx(0.0, m_molefracs[k]);
-            m_molefracs_tran[k] = fmaxx(MIN_X, m_molefracs[k]);
-            m_massfracs_tran[k] = fmaxx(MIN_X, m_massfracs[k]);
+            m_molefracs[k] = std::max(0.0, m_molefracs[k]);
+            m_molefracs_tran[k] = std::max(MIN_X, m_molefracs[k]);
+            m_massfracs_tran[k] = std::max(MIN_X, m_massfracs[k]);
             concTot_tran_ += m_molefracs_tran[k];
             concTot_ += m_concentrations[k];
         }

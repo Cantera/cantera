@@ -1239,12 +1239,12 @@ getPartialMolarEntropies(doublereal* sbar) const
     doublereal mm;
     for (size_t k = 0; k < m_kk; k++) {
         if (k != m_indexSolvent) {
-            mm = fmaxx(SmallNumber, m_molalities[k]);
+            mm = std::max(SmallNumber, m_molalities[k]);
             sbar[k] -= R * (log(mm) + m_lnActCoeffMolal_Scaled[k]);
         }
     }
     double xmolSolvent = moleFraction(m_indexSolvent);
-    mm = fmaxx(SmallNumber, xmolSolvent);
+    mm = std::max(SmallNumber, xmolSolvent);
     sbar[m_indexSolvent] -= R *(log(mm) + m_lnActCoeffMolal_Scaled[m_indexSolvent]);
     /*
      * Check to see whether activity coefficients are temperature

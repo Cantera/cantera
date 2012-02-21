@@ -775,7 +775,7 @@ void solveSP::resjac_eval(std::vector<doublereal*> &JacCol,
         sd = m_ptrsSurfPhase[jsp]->siteDensity();
         for (kCol = 0; kCol < nsp; kCol++) {
             cSave = CSoln[kColIndex];
-            dc = fmaxx(1.0E-10 * sd, fabs(cSave) * 1.0E-7);
+            dc = std::max(1.0E-10 * sd, fabs(cSave) * 1.0E-7);
             CSoln[kColIndex] += dc;
             fun_eval(DATA_PTR(m_numEqn2), CSoln, CSolnOld, do_time, deltaT);
             col_j = JacCol[kColIndex];
@@ -793,7 +793,7 @@ void solveSP::resjac_eval(std::vector<doublereal*> &JacCol,
             sd = m_bulkPhasePtrs[jsp]->molarDensity();
             for (kCol = 0; kCol < nsp; kCol++) {
                 cSave = CSoln[kColIndex];
-                dc = fmaxx(1.0E-10 * sd, fabs(cSave) * 1.0E-7);
+                dc = std::max(1.0E-10 * sd, fabs(cSave) * 1.0E-7);
                 CSoln[kColIndex] += dc;
                 fun_eval(DATA_PTR(m_numEqn2), CSoln, CSolnOld, do_time, deltaT);
                 col_j = JacCol[kColIndex];

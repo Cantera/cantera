@@ -516,7 +516,7 @@ void AqueousTransport::update_C()
     // negative mole fractions. MIN_X is 1.0E-20, a value
     // which is below the additive machine precision of mole fractions.
     for (size_t k = 0; k < m_nsp; k++) {
-        m_molefracs[k] = fmaxx(MIN_X, m_molefracs[k]);
+        m_molefracs[k] = std::max(MIN_X, m_molefracs[k]);
     }
 }
 //====================================================================================================================

@@ -358,7 +358,7 @@ void ReactionPathDiagram::exportToDot(ostream& s)
                             s <<  "[fontname=\""+m_font+"\", style=\"setlinewidth("
                               << lwidth << ")\"";
                             s << ", arrowsize="
-                              <<  min(6.0, 0.5*lwidth);
+                              <<  std::min(6.0, 0.5*lwidth);
                         } else {
                             s <<  ", style=\"setlinewidth("
                               <<  arrow_width << ")\"";
@@ -425,7 +425,7 @@ void ReactionPathDiagram::exportToDot(ostream& s)
                       << lwidth
                       << ")\"";
                     s << ", arrowsize="
-                      <<  min(6.0, 0.5*lwidth); // 1 - arrow_width*flxratio;
+                      <<  std::min(6.0, 0.5*lwidth); // 1 - arrow_width*flxratio;
                 } else {
                     s <<  ", style=\"setlinewidth("
                       <<  arrow_width << ")\"";

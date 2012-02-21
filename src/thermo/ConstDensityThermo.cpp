@@ -140,7 +140,7 @@ void ConstDensityThermo::getChemPotentials(doublereal* mu) const
     doublereal rt = temperature() * GasConstant;
     const array_fp& g_RT = gibbs_RT();
     for (size_t k = 0; k < m_kk; k++) {
-        xx = fmaxx(SmallNumber, moleFraction(k));
+        xx = std::max(SmallNumber, moleFraction(k));
         mu[k] = rt*(g_RT[k] + log(xx)) + vdp;
     }
 }

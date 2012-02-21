@@ -109,8 +109,8 @@ int Refiner::analyze(size_t n, const doublereal* z,
             smax = *max_element(s.begin(), s.end());
 
             // max absolute values of v and s
-            aa = fmaxx(fabs(vmax), fabs(vmin));
-            ss = fmaxx(fabs(smax), fabs(smin));
+            aa = std::max(fabs(vmax), fabs(vmin));
+            ss = std::max(fabs(smax), fabs(smin));
 
             // refine based on component i only if the range of v is
             // greater than a fraction 'min_range' of max |v|. This

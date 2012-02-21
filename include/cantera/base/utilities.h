@@ -51,48 +51,6 @@ template<class T> struct timesConstant : public std::unary_function<T, double> {
 
 namespace Cantera
 {
-
-/*!
- * @defgroup globalUtilFuncs Global Utility Functions
- *
- */
-//@{
-
-//! Maximum of two templated quantities, i and j.
-/*!
- * If \a i and \a j have different types, \a j
- * is converted to the type of \a i before the comparison.
- *
- * @param i   first argument, instance of templated class T
- * @param j   Second argument, instance of templated class S
- * @return
- *       This function returns the maximum of the two values
- *       as an instance of templated type T.
- */
-template<class T, class S>
-inline T max(T i, S j)
-{
-    return (i > T(j) ? i : T(j));
-}
-
-//! Minimum of two templated quantities, i and j.
-/*!
- * If \a i and \a j have different types, \a j
- * is converted to the type of \a i before the comparison.
- *
- * @param i   first argument, instance of templated class T
- * @param j   Second argument, instance of templated class S
- * @return
- *       This function returns the minimum of the two values
- *       as an instance of templated type T.
- */
-template<class T, class S>
-inline T min(T i, S j)
-{
-    return (i < T(j) ? i : T(j));
-}
-
-
 //!  Templated Inner product of two vectors of length 4.
 /*!
  * If either \a x

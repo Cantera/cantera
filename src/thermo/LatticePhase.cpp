@@ -311,7 +311,7 @@ void LatticePhase::getChemPotentials(doublereal* mu) const
     doublereal RT = temperature() * GasConstant;
     const array_fp& g_RT = gibbs_RT_ref();
     for (size_t k = 0; k < m_kk; k++) {
-        xx = fmaxx(SmallNumber, moleFraction(k));
+        xx = std::max(SmallNumber, moleFraction(k));
         mu[k] = RT * (g_RT[k] + log(xx))
                 + delta_p * m_speciesMolarVolume[k];
     }
@@ -331,7 +331,7 @@ void LatticePhase::getPartialMolarEntropies(doublereal* sbar) const
     doublereal r = GasConstant;
     doublereal xx;
     for (size_t k = 0; k < m_kk; k++) {
-        xx = fmaxx(SmallNumber, moleFraction(k));
+        xx = std::max(SmallNumber, moleFraction(k));
         sbar[k] = r * (_s[k] - log(xx));
     }
 }

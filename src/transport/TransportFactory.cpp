@@ -961,7 +961,7 @@ void TransportFactory::getTransportData(const std::vector<const XML_Node*> &xspe
         tr.sigma[i] = 1.e-10 * trdat.diameter;
 
         tr.eps[i] = Boltzmann * trdat.wellDepth;
-        tr.zrot[i]  = fmaxx(1.0, trdat.rotRelaxNumber);
+        tr.zrot[i]  = std::max(1.0, trdat.rotRelaxNumber);
 
     }
 }

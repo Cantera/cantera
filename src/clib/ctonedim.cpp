@@ -117,7 +117,7 @@ extern "C" {
     {
         try {
             string nm = _domain(i)->componentName(n);
-            int lout = min(sz, nm.size());
+            size_t lout = std::min<size_t>(sz, nm.size());
             copy(nm.c_str(), nm.c_str() + lout, buf);
             buf[lout] = '\0';
             return static_cast<int>(nm.size());

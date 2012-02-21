@@ -316,7 +316,7 @@ doublereal OneDim::ssnorm(doublereal* x, doublereal* r)
     eval(-1, x, r, 0.0, 0);
     doublereal ss = 0.0;
     for (size_t i = 0; i < m_size; i++) {
-        ss = fmaxx(fabs(r[i]),ss);
+        ss = std::max(fabs(r[i]),ss);
     }
     return ss;
 }

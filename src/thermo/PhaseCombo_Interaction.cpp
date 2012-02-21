@@ -412,7 +412,7 @@ void PhaseCombo_Interaction::getChemPotentials(doublereal* mu) const
      */
     doublereal RT = GasConstant * temperature();
     for (size_t k = 0; k < m_kk; k++) {
-        xx = fmaxx(moleFractions_[k], xxSmall);
+        xx = std::max(moleFractions_[k], xxSmall);
         mu[k] += RT * (log(xx) + lnActCoeff_Scaled_[k]);
     }
 }
@@ -570,7 +570,7 @@ void PhaseCombo_Interaction::getPartialMolarEntropies(doublereal* sbar) const
     s_update_dlnActCoeff_dT();
 
     for (size_t k = 0; k < m_kk; k++) {
-        xx = fmaxx(moleFractions_[k], xxSmall);
+        xx = std::max(moleFractions_[k], xxSmall);
         sbar[k] += - lnActCoeff_Scaled_[k] - log(xx) - T * dlnActCoeffdT_Scaled_[k];
     }
     /*
@@ -764,7 +764,7 @@ void PhaseCombo_Interaction::s_update_lnActCoeff() const
         /*
          *  We never sample the end of the mole fraction domains
          */
-        xx = fmaxx(moleFractions_[iK], xxSmall);
+        xx = std::max(moleFractions_[iK], xxSmall);
         /*
          *  First wipe out the ideal solution mixing term
          */
@@ -885,7 +885,7 @@ void  PhaseCombo_Interaction::getdlnActCoeffds(const doublereal dTds, const doub
         /*
          *  We never sample the end of the mole fraction domains
          */
-        xx = fmaxx(moleFractions_[iK], xxSmall);
+        xx = std::max(moleFractions_[iK], xxSmall);
         /*
          *  First wipe out the ideal solution mixing term
          */
@@ -949,7 +949,7 @@ void PhaseCombo_Interaction::s_update_dlnActCoeff_dlnN_diag() const
         /*
          *  We never sample the end of the mole fraction domains
          */
-        xx = fmaxx(moleFractions_[iK], xxSmall);
+        xx = std::max(moleFractions_[iK], xxSmall);
         /*
          *  First wipe out the ideal solution mixing term
          */
@@ -1011,7 +1011,7 @@ void PhaseCombo_Interaction::s_update_dlnActCoeff_dlnN() const
         /*
          *  We never sample the end of the mole fraction domains
          */
-        xx = fmaxx(moleFractions_[iK], xxSmall);
+        xx = std::max(moleFractions_[iK], xxSmall);
 
         for (size_t iM = 0; iM < m_kk; iM++) {
             XM = moleFractions_[iM];

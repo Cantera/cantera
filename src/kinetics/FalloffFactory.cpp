@@ -112,7 +112,7 @@ public:
     virtual void updateTemp(doublereal T, workPtr work) const {
         doublereal Fcent = (1.0 - m_a) * exp(- T * m_rt3)
                            + m_a * exp(- T * m_rt1);
-        *work = log10(fmaxx(Fcent, SmallNumber));
+        *work = log10(std::max(Fcent, SmallNumber));
     }
 
     //! Function that returns <I>F</I>
@@ -122,7 +122,7 @@ public:
      */
     virtual doublereal F(doublereal pr, const_workPtr work) const {
         doublereal lpr,f1,lgf, cc, nn;
-        lpr = log10(fmaxx(pr,SmallNumber));
+        lpr = log10(std::max(pr,SmallNumber));
         cc = -0.4 - 0.67 * (*work);
         nn = 0.75 - 1.27 * (*work);
         f1 = (lpr + cc)/ (nn - 0.14 * (lpr + cc));
@@ -256,7 +256,7 @@ public:
         doublereal Fcent = (1.0 - m_a) * exp(- T * m_rt3)
                            + m_a * exp(- T * m_rt1)
                            + exp(- m_t2 / T);
-        *work = log10(fmaxx(Fcent, SmallNumber));
+        *work = log10(std::max(Fcent, SmallNumber));
     }
 
     //! Function that returns <I>F</I>
@@ -266,7 +266,7 @@ public:
      */
     virtual doublereal F(doublereal pr, const_workPtr work) const {
         doublereal lpr,f1,lgf, cc, nn;
-        lpr = log10(fmaxx(pr,SmallNumber));
+        lpr = log10(std::max(pr,SmallNumber));
         cc = -0.4 - 0.67 * (*work);
         nn = 0.75 - 1.27 * (*work);
         f1 = (lpr + cc)/ (nn - 0.14 * (lpr + cc));
@@ -377,7 +377,7 @@ public:
      *  @param work Pointer to the previously saved work space
      */
     virtual doublereal F(doublereal pr, const_workPtr work) const {
-        doublereal lpr = log10(fmaxx(pr,SmallNumber));
+        doublereal lpr = log10(std::max(pr,SmallNumber));
         doublereal xx = 1.0/(1.0 + lpr*lpr);
         doublereal ff = pow(*work , xx);
         return ff;
@@ -489,7 +489,7 @@ public:
      *  @param work Pointer to the previously saved work space
      */
     virtual doublereal F(doublereal pr, const_workPtr work) const {
-        doublereal lpr = log10(fmaxx(pr,SmallNumber));
+        doublereal lpr = log10(std::max(pr,SmallNumber));
         doublereal xx = 1.0/(1.0 + lpr*lpr);
         return pow(*work, xx) * work[1];
     }
@@ -630,7 +630,7 @@ public:
      *  @param work Pointer to the previously saved work space
      */
     virtual doublereal F(doublereal pr, const_workPtr work) const {
-        doublereal lpr = log10(fmaxx(pr, SmallNumber));
+        doublereal lpr = log10(std::max(pr, SmallNumber));
         doublereal x = (lpr - work[0])/work[1];
         doublereal flog = work[2]/exp(x*x);
         return pow(10.0, flog);

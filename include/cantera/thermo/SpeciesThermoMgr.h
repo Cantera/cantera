@@ -70,7 +70,7 @@ doublereal _minTemp(InputIter begin, InputIter end)
 {
     doublereal _minT = 0.0;
     for (; begin != end; ++begin) {
-        _minT = fmaxx(_minT, begin->minTemp());
+        _minT = std::max(_minT, begin->minTemp());
     }
     return _minT;
 }
@@ -92,7 +92,7 @@ doublereal _maxTemp(_InputIter begin, _InputIter end)
 {
     doublereal _maxT = 1.e10;
     for (; begin != end; ++begin) {
-        _maxT = fminn(_maxT, begin->maxTemp());
+        _maxT = std::min(_maxT, begin->maxTemp());
     }
     return _maxT;
 }
