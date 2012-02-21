@@ -71,24 +71,46 @@ if os.name == 'nt':
     else:
         target_arch = 'x86'
 
-    opts.AddVariables(('msvc_version',
-                       """Version of Visual Studio to use. The default
-                          is the same version that was used to compile
-                          the installed version of Python.""",
-                       msvc_version),
-                      ('target_arch',
-                       """Target architecture. The default is the same
-                          architecture as the installed version of Python""",
-                      target_arch))
+    opts.AddVariables(
+        ('msvc_version',
+         """Version of Visual Studio to use. The default
+            is the same version that was used to compile
+            the installed version of Python.""",
+         msvc_version),
+        ('target_arch',
+         """Target architecture. The default is the same
+            architecture as the installed version of Python""",
+         target_arch),
+        EnumVariable(
+            'toolchain',
+            """The preferred compiler toolchain.""",
+            'msvc', ('msvc', 'mingw', 'intel')))
 
     pickCompilerEnv = Environment()
     opts.Update(pickCompilerEnv)
-    if msvc_version:
-        extraEnvArgs['MSVC_VERSION'] = pickCompilerEnv['msvc_version']
+
+    if pickCompilerEnv['toolchain'] == 'msvc':
+        toolchain = ['default']
+        if msvc_version:
+            extraEnvArgs['MSVC_VERSION'] = pickCompilerEnv['msvc_version']
+
+    elif pickCompilerEnv['toolchain'] == 'mingw':
+        toolchain = ['mingw']
+        extraEnvArgs['F77'] = None
+        # Next line fixes http://scons.tigris.org/issues/show_bug.cgi?id=2683
+        extraEnvArgs['WINDOWS_INSERT_DEF'] = 1
+
+    elif pickCompilerEnv['toolchain'] == 'intel':
+        toolchain = ['intelc'] # note: untested
+
     extraEnvArgs['TARGET_ARCH'] = pickCompilerEnv['target_arch']
 
-env = Environment(tools=['default', 'textfile', 'subst', 'recursiveInstall', 'wix'],
+else:
+    toolchain = ['default']
+
+env = Environment(tools=toolchain+['textfile', 'subst', 'recursiveInstall', 'wix'],
                   ENV={'PATH': os.environ['PATH']},
+                  toolchain=toolchain,
                   **extraEnvArgs)
 
 # Fixes a linker error in Windows
@@ -860,8 +882,7 @@ sampleTargets = []
 
 env.SConsignFile()
 
-env.Append(CPPPATH=[Dir('build/include/cantera'),
-                    Dir('build/include')],
+env.Append(CPPPATH=[],
            LIBPATH=[Dir('build/lib')],
            CCFLAGS=[defaults.fPIC],
            FORTRANFLAGS=[defaults.fPIC],

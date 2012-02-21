@@ -49,14 +49,16 @@ for subdir, extensions, setup in libs:
 
 # build the Cantera static library
 localenv = env.Clone()
-lib = localenv.StaticLibrary('../lib/cantera', libraryTargets)
+lib = localenv.StaticLibrary('../lib/cantera', libraryTargets,
+                             SPAWN=getSpawn(localenv))
 localenv.Depends(lib, localenv['config_h_target'])
 inst = localenv.Install('$inst_libdir', lib)
 buildTargets.extend(lib)
 installTargets.extend(inst)
 
 # Build the Cantera shared library
-lib = localenv.SharedLibrary('../lib/cantera_shared', libraryTargets)
+lib = localenv.SharedLibrary('../lib/cantera_shared', libraryTargets,
+                             SPAWN=getSpawn(localenv))
 env['cantera_shlib'] = lib
 localenv.Depends(lib, localenv['config_h_target'])
 inst = localenv.Install('$inst_libdir', lib)
