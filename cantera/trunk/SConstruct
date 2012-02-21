@@ -691,6 +691,15 @@ elif env['use_sundials'] == 'y' and env['sundials_version'] not in ('2.2','2.3',
     print """ERROR: Sundials version %r is not supported."""
     sys.exit(1)
 
+# Deprecation warnings for old Sundials versions
+if env.get('sundials_version') in ('2.2', '2.3'):
+    print 'WARNING: Support for Sundials %s is deprecated and will be removed.' % env['sundials_version']
+    print 'WARNING: Upgrading to Sundials 2.4 is strongly recommended.'
+
+# Deprecation warnings for numarray and numeric
+if env.get('python_array') in ('numarray', 'numeric'):
+    print 'WARNING: Support for "%s" is deprecated and will be removed.' % env['python_array']
+    print 'WARNING: Upgrading to the "numpy" package is strongly recommended.'
 
 # **********************************************
 # *** Set additional configuration variables ***
