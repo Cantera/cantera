@@ -278,7 +278,7 @@ CompileAndTest('VPsilane_test', 'VPsilane_test', 'VPsilane_test', 'output_blesse
 # Python Tests
 if localenv['python_package'] == 'full':
     Test('python-diamond', 'python', '$python_cmd', None,
-         options='../../Cantera/python/examples/surface_chemistry/diamond_cvd/diamond.py',
+         options='../../samples/python/surface_chemistry/diamond_cvd/diamond.py',
          comparisons=[('diamond_blessed.csv', 'diamond.csv')],
          artifacts=['diamond.xml'])
     Test('python-frac', 'python', '$python_cmd', 'frac_blessed.out',
