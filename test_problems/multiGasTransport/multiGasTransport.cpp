@@ -30,15 +30,6 @@
 using namespace std;
 using namespace Cantera;
 
-void printDbl(double val)
-{
-    if (fabs(val) < 1.0E-17) {
-        cout << " nil";
-    } else {
-        cout << val;
-    }
-}
-
 static double cutoff(double val, double atol=1.0E-15)
 {
     if (fabs(val) < atol) {

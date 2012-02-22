@@ -16,27 +16,6 @@ void printUsage()
     cout <<"                -> Everything is hardwired" << endl;
 }
 
-void pAtable(DebyeHuckel* DH)
-{
-    int nsp = DH->nSpecies();
-    double acMol[100];
-    double mf[100];
-    double activities[100];
-    double moll[100];
-
-    DH->getMolalityActivityCoefficients(acMol);
-    DH->getMoleFractions(mf);
-    DH->getActivities(activities);
-    DH->getMolalities(moll);
-    string sName;
-    printf("            Name      Activity  ActCoeffMolal "
-           "   MoleFract      Molality\n");
-    for (int k = 0; k < nsp; k++) {
-        sName = DH->speciesName(k);
-        printf("%16s %13g %13g %13g %13g\n",
-               sName.c_str(), activities[k], acMol[k], mf[k], moll[k]);
-    }
-}
 
 int main(int argc, char** argv)
 {
