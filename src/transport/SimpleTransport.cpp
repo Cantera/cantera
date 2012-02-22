@@ -784,7 +784,7 @@ void SimpleTransport::getSpeciesFluxesExt(size_t ldf, doublereal* fluxes)
 
     getMixDiffCoeffs(DATA_PTR(m_spwork));
 
-    const array_fp& mw = m_thermo->molecularWeights();
+    const vector_fp& mw = m_thermo->molecularWeights();
     const doublereal* y  = m_thermo->massFractions();
 
     doublereal concTotal = m_thermo->molarDensity();

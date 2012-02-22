@@ -394,7 +394,7 @@ void MixtureFugacityTP::getGibbs_RT_ref(doublereal* grt) const
  */
 void MixtureFugacityTP::getGibbs_ref(doublereal* g) const
 {
-    const array_fp& gibbsrt = gibbs_RT_ref();
+    const vector_fp& gibbsrt = gibbs_RT_ref();
     scale(gibbsrt.begin(), gibbsrt.end(), g, _RT());
 }
 //====================================================================================================================

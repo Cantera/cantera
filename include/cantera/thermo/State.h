@@ -90,7 +90,7 @@ public:
 
     /// Return a read-only reference to the array of molecular
     /// weights.
-    const array_fp& molecularWeights() const {
+    const vector_fp& molecularWeights() const {
         return m_molwts;
     }
 
@@ -367,7 +367,7 @@ protected:
      *
      * @param mw Vector of molecular weights of the species.
      */
-    void init(const array_fp& mw); //, density_is_independent = true);
+    void init(const vector_fp& mw); //, density_is_independent = true);
 
     /**
      * m_kk is the number of species in the phase
@@ -411,23 +411,23 @@ private:
      *  m_ym[k] = mole fraction of species k divided by the
      *            mean molecular weight of mixture.
      */
-    mutable array_fp m_ym;
+    mutable vector_fp m_ym;
 
     /**
      * m_y[k]  = mass fraction of species k
      */
-    mutable array_fp m_y;
+    mutable vector_fp m_y;
 
     /**
      * m_molwts[k] = molecular weight of species k (kg kmol-1)
      */
-    array_fp m_molwts;
+    vector_fp m_molwts;
 
     /**
      *  m_rmolwts[k] = inverse of the molecular weight of species k
      *  units = kmol kg-1.
      */
-    array_fp m_rmolwts;
+    vector_fp m_rmolwts;
 
     //! State Change variable
     /*!

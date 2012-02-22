@@ -53,17 +53,17 @@ public:
 
     doublereal m_logp_ref;
     doublereal m_logc_ref;
-    array_fp m_ropf;
-    array_fp m_ropr;
-    array_fp m_ropnet;
-    array_fp m_rfn_low;
-    array_fp m_rfn_high;
+    vector_fp m_ropf;
+    vector_fp m_ropr;
+    vector_fp m_ropnet;
+    vector_fp m_rfn_low;
+    vector_fp m_rfn_high;
     bool m_ROP_ok;
 
     doublereal m_temp;
-    array_fp  m_rfn;
+    vector_fp  m_rfn;
 
-    array_fp m_rkcn;
+    vector_fp m_rkcn;
 };
 
 
@@ -398,15 +398,15 @@ protected:
      * to account for the fact that we can have real-valued
      * stoichiometries.
      */
-    array_fp  m_dn;
+    vector_fp  m_dn;
     std::vector<size_t> m_revindex;
 
     std::vector<std::string> m_rxneqn;
 
     AqueousKineticsData* m_kdata;
 
-    array_fp m_conc;
-    array_fp m_grt;
+    vector_fp m_conc;
+    vector_fp m_grt;
 
 
 private:

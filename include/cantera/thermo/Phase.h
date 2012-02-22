@@ -483,7 +483,7 @@ public:
      * Return a const reference to the internal vector of
      * molecular weights.
      */
-    const array_fp& molecularWeights() const;
+    const vector_fp& molecularWeights() const;
 
     /**
      * Get the mole fractions by name.

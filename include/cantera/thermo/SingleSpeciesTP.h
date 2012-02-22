@@ -739,11 +739,11 @@ protected:
     mutable doublereal     m_tlast;
 
     //! Dimensionless enthalpy at the (mtlast, m_p0)
-    mutable array_fp       m_h0_RT;
+    mutable vector_fp       m_h0_RT;
     //! Dimensionless heat capacity at the (mtlast, m_p0)
-    mutable array_fp       m_cp0_R;
+    mutable vector_fp       m_cp0_R;
     //! Dimensionless entropy at the (mtlast, m_p0)
-    mutable array_fp       m_s0_R;
+    mutable vector_fp       m_s0_R;
 
 protected:
     /**

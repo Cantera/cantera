@@ -192,7 +192,7 @@ protected:
     int m_index;
     size_t m_nFreqs;
     //! array of vib frequencies
-    array_fp m_freq;
+    vector_fp m_freq;
     doublereal m_be;
 
 

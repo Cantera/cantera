@@ -1553,13 +1553,13 @@ protected:
      * Species molar volumes \f$ m^3 kmol^-1 \f$
      *  -> m_speciesSize in Constituents.h
      */
-    //array_fp m_speciesMolarVolume;
+    //vector_fp m_speciesMolarVolume;
 
     /**
      *  a_k = Size of the ionic species in the DH formulation
      *        units = meters
      */
-    array_fp m_Aionic;
+    vector_fp m_Aionic;
 
     /**
      * Current value of the ionic strength on the molality scale
@@ -1665,7 +1665,7 @@ protected:
      *            to extend DH to higher molalities.
      *            B_dot is specific to the major ionic pair.
      */
-    array_fp  m_B_Dot;
+    vector_fp  m_B_Dot;
 
     /**
      * m_npActCoeff -> These are coefficients to describe
@@ -1673,7 +1673,7 @@ protected:
      *  due to the electrolyte becoming stronger (the so-called
      *  salt-out effect)
      */
-    array_fp m_npActCoeff;
+    vector_fp m_npActCoeff;
 
 
     //! Pointer to the  Water standard state object
@@ -1741,16 +1741,16 @@ protected:
      *       mutable because we change this if the composition
      *       or temperature or pressure changes.
      */
-    mutable array_fp m_lnActCoeffMolal;
+    mutable vector_fp m_lnActCoeffMolal;
 
     //! Derivative of log act coeff wrt T
-    mutable array_fp m_dlnActCoeffMolaldT;
+    mutable vector_fp m_dlnActCoeffMolaldT;
 
     //! 2nd Derivative of log act coeff wrt T
-    mutable array_fp m_d2lnActCoeffMolaldT2;
+    mutable vector_fp m_d2lnActCoeffMolaldT2;
 
     //! Derivative of log act coeff wrt P
-    mutable array_fp m_dlnActCoeffMolaldP;
+    mutable vector_fp m_dlnActCoeffMolaldP;
 
 private:
     doublereal err(std::string msg) const;

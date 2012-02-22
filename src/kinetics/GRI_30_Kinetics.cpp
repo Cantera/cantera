@@ -72,8 +72,8 @@ void GRI_30_Kinetics::gri30_updateROP()
 
     const vector_fp& rf = m_kdata->m_rfn;
     const vector_fp& rkc = m_kdata->m_rkcn;
-    array_fp& ropf = m_kdata->m_ropf;
-    array_fp& ropnet = m_kdata->m_ropnet;
+    vector_fp& ropf = m_kdata->m_ropf;
+    vector_fp& ropnet = m_kdata->m_ropnet;
 
     copy(rf.begin(), rf.end(), ropf.begin());
     m_3b_concm.multiply(&ropf[0], &m_kdata->concm_3b_values[0]);

@@ -350,7 +350,7 @@ void Phase::setState_RY(doublereal rho, doublereal* y)
  */
 void Phase::getMolecularWeights(vector_fp& weights) const
 {
-    const array_fp& mw = Constituents::molecularWeights();
+    const vector_fp& mw = Constituents::molecularWeights();
     if (weights.size() < mw.size()) {
         weights.resize(mw.size());
     }
@@ -363,7 +363,7 @@ void Phase::getMolecularWeights(vector_fp& weights) const
  */
 void Phase::getMolecularWeights(int iwt, doublereal* weights) const
 {
-    const array_fp& mw = Constituents::molecularWeights();
+    const vector_fp& mw = Constituents::molecularWeights();
     copy(mw.begin(), mw.end(), weights);
 }
 
@@ -372,7 +372,7 @@ void Phase::getMolecularWeights(int iwt, doublereal* weights) const
  */
 void Phase::getMolecularWeights(doublereal* weights) const
 {
-    const array_fp& mw = Constituents::molecularWeights();
+    const vector_fp& mw = Constituents::molecularWeights();
     copy(mw.begin(), mw.end(), weights);
 }
 
@@ -380,7 +380,7 @@ void Phase::getMolecularWeights(doublereal* weights) const
  * Return a const reference to the internal vector of
  * molecular weights.
  */
-const array_fp& Phase::molecularWeights() const
+const vector_fp& Phase::molecularWeights() const
 {
     return Constituents::molecularWeights();
 }

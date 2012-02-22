@@ -499,13 +499,13 @@ void GasKinetics::getDestructionRates(doublereal* ddot)
 void GasKinetics::processFalloffReactions()
 {
     const vector_fp& fc = m_kdata->concm_falloff_values;
-    const array_fp& m_rf_low = m_kdata->m_rfn_low;
-    const array_fp& m_rf_high = m_kdata->m_rfn_high;
+    const vector_fp& m_rf_low = m_kdata->m_rfn_low;
+    const vector_fp& m_rf_high = m_kdata->m_rfn_high;
 
     // use m_ropr for temporary storage of reduced pressure
-    array_fp& pr = m_kdata->m_ropr;
+    vector_fp& pr = m_kdata->m_ropr;
 
-    array_fp& ropf = m_kdata->m_ropf;
+    vector_fp& ropf = m_kdata->m_ropf;
 
     for (size_t i = 0; i < m_nfall; i++) {
         pr[i] = fc[i] * m_rf_low[i] / m_rf_high[i];
@@ -536,9 +536,9 @@ void GasKinetics::updateROP()
 
     const vector_fp& rf = m_kdata->m_rfn;
     const vector_fp& m_rkc = m_kdata->m_rkcn;
-    array_fp& ropf = m_kdata->m_ropf;
-    array_fp& ropr = m_kdata->m_ropr;
-    array_fp& ropnet = m_kdata->m_ropnet;
+    vector_fp& ropf = m_kdata->m_ropf;
+    vector_fp& ropr = m_kdata->m_ropr;
+    vector_fp& ropnet = m_kdata->m_ropnet;
 
     // copy rate coefficients into ropf
     copy(rf.begin(), rf.end(), ropf.begin());
@@ -595,7 +595,7 @@ getFwdRateConstants(doublereal* kfwd)
 
     // copy rate coefficients into ropf
     const vector_fp& rf = m_kdata->m_rfn;
-    array_fp& ropf = m_kdata->m_ropf;
+    vector_fp& ropf = m_kdata->m_ropf;
     copy(rf.begin(), rf.end(), ropf.begin());
 
     // multiply ropf by enhanced 3b conc for all 3b rxns

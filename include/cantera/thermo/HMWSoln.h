@@ -2440,13 +2440,13 @@ private:
      * Species molar volumes \f$ m^3 kmol^-1 \f$
      *  -> m_speciesSize in Constituents.h
      */
-    //array_fp m_speciesMolarVolume;
+    //vector_fp m_speciesMolarVolume;
 
     /**
      *  a_k = Size of the ionic species in the DH formulation
      *        units = meters
      */
-    array_fp m_Aionic;
+    vector_fp m_Aionic;
 
     /**
      * Current value of the ionic strength on the molality scale

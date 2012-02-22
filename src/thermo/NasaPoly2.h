@@ -62,7 +62,7 @@ public:
           mnp_low(0),
           mnp_high(0),
           m_index(0),
-          m_coeff(array_fp(15)) {
+          m_coeff(vector_fp(15)) {
     }
 
     //! Full Constructor
@@ -82,7 +82,7 @@ public:
         mnp_low(0),
         mnp_high(0),
         m_index(n),
-        m_coeff(array_fp(15)) {
+        m_coeff(vector_fp(15)) {
 
         std::copy(coeffs, coeffs + 15, m_coeff.begin());
         m_midT = coeffs[0];
@@ -104,7 +104,7 @@ public:
         mnp_low(0),
         mnp_high(0),
         m_index(b.m_index),
-        m_coeff(array_fp(15)) {
+        m_coeff(vector_fp(15)) {
 
         std::copy(b.m_coeff.begin(),
                   b.m_coeff.begin() + 15,
@@ -321,7 +321,7 @@ protected:
     //! species index
     size_t m_index;
     //! array of polynomial coefficients
-    array_fp m_coeff;
+    vector_fp m_coeff;
 
 };
 

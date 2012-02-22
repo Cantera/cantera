@@ -263,7 +263,7 @@ void State::setMolarDensity(const doublereal molarDensity)
     m_dens = molarDensity*meanMolecularWeight();
 }
 
-void State::init(const array_fp& mw)
+void State::init(const vector_fp& mw)
 {
     m_kk = mw.size();
     m_molwts.resize(m_kk);

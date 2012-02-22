@@ -364,7 +364,7 @@ void AqueousTransport::getSpeciesFluxesExt(size_t ldf, doublereal* const fluxes)
 
     getMixDiffCoeffs(DATA_PTR(m_spwork));
 
-    const array_fp& mw = m_thermo->molecularWeights();
+    const vector_fp& mw = m_thermo->molecularWeights();
     const doublereal* y  = m_thermo->massFractions();
     doublereal rhon = m_thermo->molarDensity();
     // Unroll wrt ndim

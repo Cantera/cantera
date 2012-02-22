@@ -310,7 +310,7 @@ protected:
     size_t m_nel;
     vector_fp m_ropf;
     vector_fp m_ropr;
-    array_fp m_x;
+    vector_fp m_x;
     std::vector<std::vector<size_t> > m_reac;
     std::vector<std::vector<size_t> > m_prod;
     DenseMatrix m_elatoms;

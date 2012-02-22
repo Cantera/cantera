@@ -788,7 +788,7 @@ public:
      * This function is part of the layer that checks/recalculates the reference
      * state thermo functions.
      */
-    const array_fp& enthalpy_RT_ref() const {
+    const vector_fp& enthalpy_RT_ref() const {
         _updateThermo();
         return m_h0_RT;
     }
@@ -798,7 +798,7 @@ public:
      * This function is part of the layer that checks/recalculates the reference
      * state thermo functions.
      */
-    const array_fp& gibbs_RT_ref() const {
+    const vector_fp& gibbs_RT_ref() const {
         _updateThermo();
         return m_g0_RT;
     }
@@ -808,7 +808,7 @@ public:
      * This function is part of the layer that checks/recalculates the reference
      * state thermo functions.
      */
-    const array_fp& expGibbs_RT_ref() const {
+    const vector_fp& expGibbs_RT_ref() const {
         _updateThermo();
         for (size_t k = 0; k != m_kk; k++) {
             m_expg0_RT[k] = std::exp(m_g0_RT[k]);
@@ -821,7 +821,7 @@ public:
      * This function is part of the layer that checks/recalculates the reference
      * state thermo functions.
      */
-    const array_fp& entropy_R_ref() const {
+    const vector_fp& entropy_R_ref() const {
         _updateThermo();
         return m_s0_R;
     }
@@ -831,7 +831,7 @@ public:
      * This function is part of the layer that checks/recalculates the reference
      * state thermo functions.
      */
-    const array_fp& cp_R_ref() const {
+    const vector_fp& cp_R_ref() const {
         _updateThermo();
         return m_cp0_R;
     }
@@ -912,31 +912,31 @@ protected:
     mutable doublereal    m_logc0;
 
     //! Temporary storage for dimensionless reference state enthalpies
-    mutable array_fp      m_h0_RT;
+    mutable vector_fp      m_h0_RT;
 
     //! Temporary storage for dimensionless reference state heat capacities
-    mutable array_fp      m_cp0_R;
+    mutable vector_fp      m_cp0_R;
 
     //! Temporary storage for dimensionless reference state gibbs energies
-    mutable array_fp      m_g0_RT;
+    mutable vector_fp      m_g0_RT;
 
     //! Temporary storage for dimensionless reference state entropies
-    mutable array_fp      m_s0_R;
+    mutable vector_fp      m_s0_R;
 
     //! currently unsed
     /*!
      * @deprecated
      */
-    mutable array_fp      m_expg0_RT;
+    mutable vector_fp      m_expg0_RT;
 
     //! Currently unused
     /*
      * @deprecated
      */
-    mutable array_fp      m_pe;
+    mutable vector_fp      m_pe;
 
     //! Temporary array containing internally calculated partial pressures
-    mutable array_fp      m_pp;
+    mutable vector_fp      m_pp;
 
 private:
 

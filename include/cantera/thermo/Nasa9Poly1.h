@@ -224,7 +224,7 @@ protected:
     //! species index
     size_t m_index;
     //! array of polynomial coefficients
-    array_fp m_coeff;
+    vector_fp m_coeff;
 };
 
 }

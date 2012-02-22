@@ -432,7 +432,7 @@ void IdealSolnGasVPSS::setToEquilState(const doublereal* mu_RT)
 {
     double tmp, tmp2;
     updateStandardStateThermo();
-    const array_fp& grt = m_VPSS_ptr->Gibbs_RT_ref();
+    const vector_fp& grt = m_VPSS_ptr->Gibbs_RT_ref();
 
     /*
      * Within the method, we protect against inf results if the

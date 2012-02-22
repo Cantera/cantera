@@ -54,9 +54,9 @@ public:
 
     doublereal m_logp0;
     doublereal m_logc0;
-    array_fp m_ropf;
-    array_fp m_ropr;
-    array_fp m_ropnet;
+    vector_fp m_ropf;
+    vector_fp m_ropr;
+    vector_fp m_ropnet;
 
     bool m_ROP_ok;
 
