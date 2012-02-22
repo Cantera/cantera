@@ -752,7 +752,7 @@ void InterfaceKinetics::updateROP()
                                     if (m_rxnPhaseIsReactant[j][rp]) {
                                         if (! m_phaseExists[rp]) {
                                             ropnet[j] = 0.0;
-                                            ropr[j] = ropf[j] = 0.0;;
+                                            ropr[j] = ropf[j] = 0.0;
                                         }
                                     }
                                 }

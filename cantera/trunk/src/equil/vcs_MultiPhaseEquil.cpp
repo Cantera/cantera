@@ -112,7 +112,7 @@ int vcs_MultiPhaseEquil::equilibrate_TV(int XY, doublereal xtarget,
     double V1 = 0.0;
     double V2 = 0.0;
     double P2 = 0.0;
-    doublereal Tlow = 0.5 * m_mix->minTemp();;
+    doublereal Tlow = 0.5 * m_mix->minTemp();
     doublereal Thigh = 2.0 * m_mix->maxTemp();
     doublereal Vnow, Verr;
     int printLvlSub = std::max(0, printLvl - 1);
@@ -589,7 +589,7 @@ int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil,
 {
     // Debugging level
 
-    int maxit = maxsteps;;
+    int maxit = maxsteps;
     clockWC tickTock;
 
     if (m_vprob == 0) {

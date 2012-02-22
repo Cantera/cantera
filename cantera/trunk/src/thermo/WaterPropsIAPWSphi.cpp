@@ -820,7 +820,7 @@ doublereal  WaterPropsIAPWSphi::dimdpdT(doublereal  tau, doublereal  delta)
 doublereal  WaterPropsIAPWSphi::phi0_t() const
 {
     doublereal  tau = TAUsave;
-    doublereal  retn = ni0[2] + ni0[3]/tau;;
+    doublereal  retn = ni0[2] + ni0[3]/tau;
     retn += (ni0[4] * gammi0[4] * (1.0/(1.0 - exp(-gammi0[4]*tau)) - 1.0));
     retn += (ni0[5] * gammi0[5] * (1.0/(1.0 - exp(-gammi0[5]*tau)) - 1.0));
     retn += (ni0[6] * gammi0[6] * (1.0/(1.0 - exp(-gammi0[6]*tau)) - 1.0));

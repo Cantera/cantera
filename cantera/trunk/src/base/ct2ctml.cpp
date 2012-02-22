@@ -195,11 +195,11 @@ void ct2ctml(const char* file, const int debug)
             }
         }
     } catch (...) {
-        writelog("ct2ctml: caught something \n");;
+        writelog("ct2ctml: caught something \n");
     }
     if (ierr != 0) {
         string msg = cmd;
-        writelog("ct2ctml: throw cantera error \n");;
+        writelog("ct2ctml: throw cantera error \n");
         throw CanteraError("ct2ctml",
                            "could not convert input file to CTML.\n "
                            "Command line was: \n" + msg);
@@ -262,7 +262,7 @@ void get_CTML_Tree(Cantera::XML_Node* rootPtr, const std::string file, const int
         try {
             ctml::ct2ctml(inname.c_str(), debug);
         } catch (...) {
-            writelog("get_CTML_Tree: caught something \n");;
+            writelog("get_CTML_Tree: caught something \n");
         }
         string ffull = inname.substr(0,idot) + ".xml";
         ff = "./" + getBaseName(ffull) + ".xml";

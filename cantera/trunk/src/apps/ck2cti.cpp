@@ -91,7 +91,7 @@ int main(int argc, char** argv)
         if (arg == "-i") {
             infile = getp(i,argc,argv);
         } else if (arg == "-t") {
-            dbfile = getp(i,argc,argv);;
+            dbfile = getp(i,argc,argv);
         } else if (arg == "-tr") {
             trfile = getp(i,argc,argv);
         } else if (arg == "-id") {

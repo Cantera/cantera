@@ -356,7 +356,7 @@ void Nasa9PolyMultiTempRegion::reportParameters(size_t& n, int& type,
     double ctmp[12];
     coeffs[0] = double(m_numTempRegions);
     int index = 1;
-    size_t n_tmp = 0;;
+    size_t n_tmp = 0;
     int type_tmp = 0;
     double pref_tmp = 0.0;
     for (size_t iReg = 0; iReg < m_numTempRegions; iReg++) {
