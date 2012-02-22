@@ -2,35 +2,13 @@
  *  @file DH_graph_1
  */
 
-#include "cantera/base/logger.h"
+#include "fileLog.h"
 #include "cantera/thermo/DebyeHuckel.h"
 
 #include <cstdio>
 
 using namespace std;
 using namespace Cantera;
-
-class fileLog: public Logger
-{
-public:
-    fileLog(string fName) {
-        m_fName = fName;
-        m_fs.open(fName.c_str());
-    }
-
-    virtual void write(const string& msg) {
-        m_fs << msg;
-        m_fs << endl;
-    }
-
-    virtual ~fileLog() {
-        m_fs.close();
-    }
-
-    string m_fName;
-    ofstream m_fs;
-
-};
 
 void printUsage()
 {
