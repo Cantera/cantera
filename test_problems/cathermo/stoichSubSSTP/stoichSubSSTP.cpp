@@ -101,7 +101,7 @@ int main(int argc, char** argv)
         /*
          * ThermoUnknowns
          */
-        double mu0_RT[20], mu[20], cp_r[20];;
+        double mu0_RT[20], mu[20], cp_r[20];
         double enth_RT[20];
         double entrop_RT[20], intE_RT[20];
         double mu_NaCl, enth_NaCl, entrop_NaCl;

@@ -505,12 +505,11 @@ void VCS_PROB::reportCSV(const std::string& reportFile)
     double Temp = T;
 
     std::vector<double> volPM(nspecies, 0.0);
-    std::vector<double> activity(nspecies, 0.0);;
-    std::vector<double> ac(nspecies, 0.0);;
-    std::vector<double> mu(nspecies, 0.0);;
-    std::vector<double> mu0(nspecies, 0.0);;
-    std::vector<double> molalities(nspecies, 0.0);;
-
+    std::vector<double> activity(nspecies, 0.0);
+    std::vector<double> ac(nspecies, 0.0);
+    std::vector<double> mu(nspecies, 0.0);
+    std::vector<double> mu0(nspecies, 0.0);
+    std::vector<double> molalities(nspecies, 0.0);
 
     vol = 0.0;
     size_t iK = 0;

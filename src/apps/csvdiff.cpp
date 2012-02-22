@@ -816,7 +816,7 @@ int main(int argc, char* argv[])
         }
         if (nTitleLines1 != nTitleLines2) {
             printf("Number of Title Lines differ: %d %d\n", nTitleLines1, nTitleLines2);
-            testPassed = RT_FAILED_HDR;;
+            testPassed = RT_FAILED_HDR;
         }
     } else {
         if (nTitleLines1 != nTitleLines2) {

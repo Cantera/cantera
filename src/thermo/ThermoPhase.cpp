@@ -286,7 +286,7 @@ void ThermoPhase::setState_HPorUV(doublereal Htarget, doublereal p,
                                   doublereal dTtol, bool doUV)
 {
     doublereal dt;
-    doublereal Hmax = 0.0, Hmin = 0.0;;
+    doublereal Hmax = 0.0, Hmin = 0.0;
     doublereal v = 0.0;
 
     // Assign the specific volume or pressure and make sure it's positive

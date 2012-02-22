@@ -201,7 +201,7 @@ void VPSSMgr_Water_HKFT::_updateStandardStateThermo()
         ps->setState_TP(m_tlast, m_plast);
         m_cpss_R[k]  = ps->cp_R();
         m_sss_R[k]   = ps->entropy_R();
-        m_gss_RT[k]  = ps->gibbs_RT();;
+        m_gss_RT[k]  = ps->gibbs_RT();
         m_hss_RT[k]  = m_gss_RT[k] + m_sss_R[k];
         m_Vss[k]     = ps->molarVolume();
     }
