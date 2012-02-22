@@ -30,15 +30,6 @@
 using namespace std;
 using namespace Cantera;
 
-void printDbl(double val)
-{
-    if (fabs(val) < 5.0E-17) {
-        cout << " nil";
-    } else {
-        cout << val;
-    }
-}
-
 int main(int argc, char** argv)
 {
 #ifdef _MSC_VER

@@ -18,35 +18,6 @@ void printUsage()
     cout <<"                -> Everything is hardwired" << endl;
 }
 
-void pAtable(HMWSoln* HMW)
-{
-    int nsp = HMW->nSpecies();
-    double acMol[30];
-    double mf[30];
-
-    double activities[30];
-    double moll[30];
-    for (int i = 0; i < 30; i++) {
-        acMol[i] = 1.0;
-        mf[i] = 0.0;
-        activities[i] = 1.0;
-        moll[i] = 0.0;
-    }
-
-    HMW->getMolalityActivityCoefficients(acMol);
-    HMW->getMoleFractions(mf);
-    HMW->getActivities(activities);
-    HMW->getMolalities(moll);
-    string sName;
-    printf("            Name      Activity  ActCoeffMolal "
-           "   MoleFract      Molality\n");
-    for (int k = 0; k < nsp; k++) {
-        sName = HMW->speciesName(k);
-        printf("%16s %13g %13g %13g %13g\n",
-               sName.c_str(), activities[k], acMol[k], mf[k], moll[k]);
-    }
-
-}
 
 int main(int argc, char** argv)
 {
