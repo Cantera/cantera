@@ -131,17 +131,6 @@ bool VCS_SOLVE::vcs_popPhasePossible(const size_t iphasePop) const
     }
     return false;
 }
-//====================================================================================================================
-
-size_t inList(const std::vector<size_t> &list, size_t val)
-{
-    for (size_t i = 0; i < list.size(); i++) {
-        if (val == list[i]) {
-            return i;
-        }
-    }
-    return npos;
-}
 
 //====================================================================================================================
 // Determine the list of problems that need to be checked to see if there are any phases pops
@@ -184,14 +173,14 @@ int  VCS_SOLVE::vcs_phasePopDeterminePossibleList()
                 size_t iph = m_phaseID[j];
                 jList.push_back(iph);
                 for (size_t irxn = 0; irxn < m_numRxnTot; irxn++) {
-            size_t kspec = irxn +  m_numComponents;
+                    size_t kspec = irxn +  m_numComponents;
                     iph = m_phaseID[kspec];
                     Vphase = m_VolPhaseList[iph];
                     int existence = Vphase->exists();
                     if (existence < 0) {
                         stoicC = m_stoichCoeffRxnMatrix[irxn][j];
                         if (stoicC > 0.0) {
-                            if (inList(jList, iph) != npos) {
+                            if (std::find(jList.begin(), jList.end(), iph) != jList.end()) {
                                 jList.push_back(iph);
                             }
                         }
@@ -240,7 +229,7 @@ int  VCS_SOLVE::vcs_phasePopDeterminePossibleList()
                                     }
                                 }
                                 if (!foundPos) {
-                                    if (inList(iphList, j) != npos) {
+                                    if (std::find(iphList.begin(), iphList.end(), j) != iphList.end()) {
                                         iphList.push_back(j);
                                     }
                                 }
@@ -268,7 +257,7 @@ int  VCS_SOLVE::vcs_phasePopDeterminePossibleList()
                 std::vector<size_t> &jList = zeroedComponentLinkedPhasePops[j];
                 for (size_t jjl = 0; jjl < jList.size(); jjl++) {
                     size_t jph = jList[jjl];
-                    if (inList(popProblem, jph) != npos) {
+                    if (std::find(popProblem.begin(), popProblem.end(), jph) != popProblem.end()) {
                         popProblem.push_back(jph);
                     }
                 }
