@@ -55,7 +55,7 @@ public:
     //! Empty constructor
     NasaPoly1()
         : m_lowT(0.0), m_highT(0.0),
-          m_Pref(0.0), m_index(0), m_coeff(array_fp(7)) {}
+          m_Pref(0.0), m_index(0), m_coeff(vector_fp(7)) {}
 
 
     //! constructor used in templated instantiations
@@ -73,7 +73,7 @@ public:
         m_highT(thigh),
         m_Pref(pref),
         m_index(n),
-        m_coeff(array_fp(7)) {
+        m_coeff(vector_fp(7)) {
         std::copy(coeffs, coeffs + 7, m_coeff.begin());
     }
 
@@ -86,7 +86,7 @@ public:
         m_highT(b.m_highT),
         m_Pref(b.m_Pref),
         m_index(b.m_index),
-        m_coeff(array_fp(7)) {
+        m_coeff(vector_fp(7)) {
         std::copy(b.m_coeff.begin(),
                   b.m_coeff.begin() + 7,
                   m_coeff.begin());
@@ -322,7 +322,7 @@ protected:
     //! species index
     size_t m_index;
     //! array of polynomial coefficients
-    array_fp m_coeff;
+    vector_fp m_coeff;
 
 };
 

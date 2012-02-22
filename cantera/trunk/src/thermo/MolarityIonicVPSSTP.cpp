@@ -780,12 +780,12 @@ std::string MolarityIonicVPSSTP::report(bool show_thermo) const
         s += p;
 
         size_t kk = nSpecies();
-        array_fp x(kk);
-        array_fp molal(kk);
-        array_fp mu(kk);
-        array_fp muss(kk);
-        array_fp acMolal(kk);
-        array_fp actMolal(kk);
+        vector_fp x(kk);
+        vector_fp molal(kk);
+        vector_fp mu(kk);
+        vector_fp muss(kk);
+        vector_fp acMolal(kk);
+        vector_fp actMolal(kk);
         getMoleFractions(&x[0]);
 
         getChemPotentials(&mu[0]);

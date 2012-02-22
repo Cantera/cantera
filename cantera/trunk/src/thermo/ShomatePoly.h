@@ -105,7 +105,7 @@ public:
         m_lowT(b.m_lowT),
         m_highT(b.m_highT),
         m_Pref(b.m_Pref),
-        m_coeff(array_fp(7)),
+        m_coeff(vector_fp(7)),
         m_index(b.m_index) {
         std::copy(b.m_coeff.begin(),
                   b.m_coeff.begin() + 7,
@@ -356,7 +356,7 @@ protected:
     //! Reference pressure (Pa)
     doublereal m_Pref;
     //! Array of coeffcients
-    array_fp m_coeff;
+    vector_fp m_coeff;
     //! Species Index
     size_t m_index;
 
@@ -463,7 +463,7 @@ public:
         m_Pref(b.m_Pref),
         msp_low(0),
         msp_high(0),
-        m_coeff(array_fp(15)),
+        m_coeff(vector_fp(15)),
         m_index(b.m_index) {
         std::copy(b.m_coeff.begin(),
                   b.m_coeff.begin() + 15,
@@ -696,7 +696,7 @@ protected:
     //! Pointer to the Shomate polynomial for the high temperature region.
     ShomatePoly* msp_high;
     //! Array of the original coefficients.
-    array_fp m_coeff;
+    vector_fp m_coeff;
     //! Species index
     size_t m_index;
 };

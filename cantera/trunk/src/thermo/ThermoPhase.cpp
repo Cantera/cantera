@@ -1294,9 +1294,9 @@ std::string ThermoPhase::report(bool show_thermo) const
         }
 
         size_t kk = nSpecies();
-        array_fp x(kk);
-        array_fp y(kk);
-        array_fp mu(kk);
+        vector_fp x(kk);
+        vector_fp y(kk);
+        vector_fp mu(kk);
         getMoleFractions(&x[0]);
         getMassFractions(&y[0]);
         getChemPotentials(&mu[0]);

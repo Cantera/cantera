@@ -820,8 +820,8 @@ void LTI_StokesEinstein::getMatrixTransProp(DenseMatrix& mat, doublereal* specie
     size_t nsp = m_thermo->nSpecies();
     doublereal temp = m_thermo->temperature();
 
-    array_fp viscSpec(nsp);
-    array_fp radiusSpec(nsp);
+    vector_fp viscSpec(nsp);
+    vector_fp radiusSpec(nsp);
 
     for (size_t k = 0; k < nsp; k++) {
         viscSpec[k] = m_viscosity[k]->getSpeciesTransProp() ;

@@ -371,7 +371,7 @@ static void installNasaThermoFromXML(std::string speciesName,
 
     // The NasaThermo species property manager expects the
     // coefficients in a different order, so rearrange them.
-    array_fp c(15);
+    vector_fp c(15);
     c[0] = tmid;
 
     c[1] = c0[5];
@@ -445,7 +445,7 @@ static void installNasa96ThermoFromXML(std::string speciesName, SpeciesThermo& s
         throw CanteraError("installNasaThermo",
                            "non-continuous temperature ranges.");
     }
-    array_fp c(15);
+    vector_fp c(15);
     c[0] = tmid;
     c[1] = c0[5];
     c[2] = c0[6];
@@ -537,7 +537,7 @@ static void installMinEQ3asShomateThermoFromXML(std::string speciesName,
         const XML_Node* MinEQ3node)
 {
 
-    array_fp coef(15), c0(7, 0.0);
+    vector_fp coef(15), c0(7, 0.0);
     std::string astring = (*MinEQ3node)["Tmin"];
     doublereal tmin0 = strSItoDbl(astring);
     astring = (*MinEQ3node)["Tmax"];
@@ -668,7 +668,7 @@ static void installShomateThermoFromXML(std::string speciesName, SpeciesThermo& 
         throw CanteraError("installShomateThermoFromXML",
                            "non-continuous temperature ranges.");
     }
-    array_fp c(15);
+    vector_fp c(15);
     c[0] = tmid;
     copy(c0.begin(), c0.begin()+7, c.begin() + 1);
     copy(c1.begin(), c1.begin()+7, c.begin() + 8);

@@ -661,19 +661,19 @@ protected:
     mutable doublereal    m_tlast;
 
     //! Temporary storage for the reference state enthalpies
-    mutable array_fp      m_h0;
+    mutable vector_fp      m_h0;
 
     //! Temporary storage for the reference state entropies
-    mutable array_fp      m_s0;
+    mutable vector_fp      m_s0;
 
     //! Temporary storage for the reference state heat capacities
-    mutable array_fp      m_cp0;
+    mutable vector_fp      m_cp0;
 
     //! Temporary storage for the reference state gibbs energies
-    mutable array_fp      m_mu0;
+    mutable vector_fp      m_mu0;
 
     //! Temporary work array
-    mutable array_fp      m_work;
+    mutable vector_fp      m_work;
 
     //! Potential energy of each species in the surface phase
     /*!
@@ -684,14 +684,14 @@ protected:
      *
      * @deprecated
      */
-    mutable array_fp      m_pe;
+    mutable vector_fp      m_pe;
 
     //! vector storing the log of the size of each species.
     /*!
      * The size of each species is defined as the number of surface
      * sites each species occupies.
      */
-    mutable array_fp      m_logsize;
+    mutable vector_fp      m_logsize;
 
 private:
 

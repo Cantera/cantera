@@ -397,9 +397,9 @@ protected:
     doublereal m_p0;
 
     mutable doublereal     m_tlast;
-    mutable array_fp      m_h0_RT;
-    mutable array_fp      m_cp0_R;
-    mutable array_fp      m_s0_R;
+    mutable vector_fp      m_h0_RT;
+    mutable vector_fp      m_cp0_R;
+    mutable vector_fp      m_s0_R;
 
 private:
 

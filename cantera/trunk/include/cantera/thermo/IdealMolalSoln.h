@@ -890,7 +890,7 @@ protected:
     /**
      * Species molar volume \f$ m^3 kmol^-1 \f$
      */
-    array_fp   m_speciesMolarVolume;
+    vector_fp   m_speciesMolarVolume;
 
     /**
      * The standard concentrations can have three different forms

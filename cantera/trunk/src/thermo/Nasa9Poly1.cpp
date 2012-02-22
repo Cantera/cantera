@@ -64,7 +64,7 @@ namespace Cantera
 //! Empty constructor
 Nasa9Poly1::Nasa9Poly1()
     : m_lowT(0.0), m_highT(0.0),
-      m_Pref(1.0E5), m_index(0), m_coeff(array_fp(9)) {}
+      m_Pref(1.0E5), m_index(0), m_coeff(vector_fp(9)) {}
 
 
 // constructor used in templated instantiations
@@ -83,7 +83,7 @@ Nasa9Poly1::Nasa9Poly1(size_t n, doublereal tlow, doublereal thigh,
     m_highT(thigh),
     m_Pref(pref),
     m_index(n),
-    m_coeff(array_fp(9))
+    m_coeff(vector_fp(9))
 {
     std::copy(coeffs, coeffs + 9, m_coeff.begin());
 }
@@ -97,7 +97,7 @@ Nasa9Poly1::Nasa9Poly1(const Nasa9Poly1& b) :
     m_highT(b.m_highT),
     m_Pref(b.m_Pref),
     m_index(b.m_index),
-    m_coeff(array_fp(9))
+    m_coeff(vector_fp(9))
 {
     std::copy(b.m_coeff.begin(),
               b.m_coeff.begin() + 9,

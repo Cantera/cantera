@@ -946,16 +946,16 @@ protected:
     mutable doublereal    m_logc0;
 
     //! Temporary storage for dimensionless reference state enthalpies
-    mutable array_fp      m_h0_RT;
+    mutable vector_fp      m_h0_RT;
 
     //! Temporary storage for dimensionless reference state heat capacities
-    mutable array_fp      m_cp0_R;
+    mutable vector_fp      m_cp0_R;
 
     //! Temporary storage for dimensionless reference state gibbs energies
-    mutable array_fp      m_g0_RT;
+    mutable vector_fp      m_g0_RT;
 
     //! Temporary storage for dimensionless reference state entropies
-    mutable array_fp      m_s0_R;
+    mutable vector_fp      m_s0_R;
 
     spinodalFunc* fdpdv_;
 private:

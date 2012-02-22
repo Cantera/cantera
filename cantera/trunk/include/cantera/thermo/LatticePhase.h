@@ -807,14 +807,14 @@ public:
      *               Enthalpies of the species.
      *               Length: m_kk
      */
-    const array_fp& enthalpy_RT_ref() const;
+    const vector_fp& enthalpy_RT_ref() const;
 
     //! Returns a reference to the dimensionless reference state Gibbs free energy vector.
     /*!
      * This function is part of the layer that checks/recalculates the reference
      * state thermo functions.
      */
-    const array_fp& gibbs_RT_ref() const;
+    const vector_fp& gibbs_RT_ref() const;
 
     //!  Returns the vector of nondimensional
     //!  Gibbs Free Energies of the reference state at the current temperature
@@ -840,14 +840,14 @@ public:
      * This function is part of the layer that checks/recalculates the reference
      * state thermo functions.
      */
-    const array_fp& entropy_R_ref() const;
+    const vector_fp& entropy_R_ref() const;
 
     //! Returns a reference to the dimensionless reference state Heat Capacity vector.
     /*!
      * This function is part of the layer that checks/recalculates the reference
      * state thermo functions.
      */
-    const array_fp& cp_R_ref() const;
+    const vector_fp& cp_R_ref() const;
 
     //@}
     /// @name  Utilities for Initialization of the Object
@@ -987,16 +987,16 @@ protected:
     mutable doublereal m_tlast;
 
     //! Reference state enthalpies / RT
-    mutable array_fp m_h0_RT;
+    mutable vector_fp m_h0_RT;
 
     //! Temporary storage for the reference state heat capacities
-    mutable array_fp m_cp0_R;
+    mutable vector_fp m_cp0_R;
 
     //! Temporary storage for the reference state gibbs energies
-    mutable array_fp m_g0_RT;
+    mutable vector_fp m_g0_RT;
 
     //! Temporary storage for the reference state entropies at the current temperature
-    mutable array_fp m_s0_R;
+    mutable vector_fp m_s0_R;
 
 
     //! String name for the species which represents a vacency
@@ -1010,7 +1010,7 @@ protected:
     /**
      * Species molar volumes \f$ m^3 kmol^-1 \f$
      */
-    array_fp   m_speciesMolarVolume;
+    vector_fp   m_speciesMolarVolume;
 
     //! Site Density of the lattice solid
     /*!

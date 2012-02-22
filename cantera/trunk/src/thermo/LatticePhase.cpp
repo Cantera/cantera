@@ -309,7 +309,7 @@ void LatticePhase::getChemPotentials(doublereal* mu) const
     doublereal delta_p = m_Pcurrent - m_Pref;
     doublereal xx;
     doublereal RT = temperature() * GasConstant;
-    const array_fp& g_RT = gibbs_RT_ref();
+    const vector_fp& g_RT = gibbs_RT_ref();
     for (size_t k = 0; k < m_kk; k++) {
         xx = std::max(SmallNumber, moleFraction(k));
         mu[k] = RT * (g_RT[k] + log(xx))
@@ -320,14 +320,14 @@ void LatticePhase::getChemPotentials(doublereal* mu) const
 //====================================================================================================================
 void LatticePhase::getPartialMolarEnthalpies(doublereal* hbar) const
 {
-    const array_fp& _h = enthalpy_RT_ref();
+    const vector_fp& _h = enthalpy_RT_ref();
     doublereal rt = GasConstant * temperature();
     scale(_h.begin(), _h.end(), hbar, rt);
 }
 //====================================================================================================================
 void LatticePhase::getPartialMolarEntropies(doublereal* sbar) const
 {
-    const array_fp& _s = entropy_R_ref();
+    const vector_fp& _s = entropy_R_ref();
     doublereal r = GasConstant;
     doublereal xx;
     for (size_t k = 0; k < m_kk; k++) {
@@ -351,13 +351,13 @@ void LatticePhase::getPartialMolarVolumes(doublereal* vbar) const
 //====================================================================================================================
 void LatticePhase::getStandardChemPotentials(doublereal* mu0) const
 {
-    const array_fp& gibbsrt = gibbs_RT_ref();
+    const vector_fp& gibbsrt = gibbs_RT_ref();
     scale(gibbsrt.begin(), gibbsrt.end(), mu0, _RT());
 }
 //====================================================================================================================
 void LatticePhase::getPureGibbs(doublereal* gpure) const
 {
-    const array_fp& gibbsrt = gibbs_RT_ref();
+    const vector_fp& gibbsrt = gibbs_RT_ref();
     doublereal delta_p = (m_Pcurrent - m_Pref);
     double RT = GasConstant * temperature();
     for (size_t k = 0; k < m_kk; k++) {
@@ -367,7 +367,7 @@ void LatticePhase::getPureGibbs(doublereal* gpure) const
 //====================================================================================================================
 void LatticePhase::getEnthalpy_RT(doublereal* hrt) const
 {
-    const array_fp& _h = enthalpy_RT_ref();
+    const vector_fp& _h = enthalpy_RT_ref();
     doublereal delta_prt = ((m_Pcurrent - m_Pref) / (GasConstant * temperature()));
     for (size_t k = 0; k < m_kk; k++) {
         hrt[k] = _h[k] + delta_prt * m_speciesMolarVolume[k];
@@ -376,13 +376,13 @@ void LatticePhase::getEnthalpy_RT(doublereal* hrt) const
 //====================================================================================================================
 void LatticePhase::getEntropy_R(doublereal* sr) const
 {
-    const array_fp& _s = entropy_R_ref();
+    const vector_fp& _s = entropy_R_ref();
     std::copy(_s.begin(), _s.end(), sr);
 }
 //====================================================================================================================
 void LatticePhase::getGibbs_RT(doublereal* grt) const
 {
-    const array_fp& gibbsrt = gibbs_RT_ref();
+    const vector_fp& gibbsrt = gibbs_RT_ref();
     doublereal RT = _RT();
     doublereal delta_prt = (m_Pcurrent - m_Pref)/ RT;
     for (size_t k = 0; k < m_kk; k++) {
@@ -401,7 +401,7 @@ void LatticePhase::getGibbs_ref(doublereal* g) const
 
 void LatticePhase::getCp_R(doublereal* cpr) const
 {
-    const array_fp& _cpr = cp_R_ref();
+    const vector_fp& _cpr = cp_R_ref();
     std::copy(_cpr.begin(), _cpr.end(), cpr);
 }
 //===================================================================================================================
@@ -416,7 +416,7 @@ void LatticePhase::getStandardVolumes(doublereal* vbar) const
  * @return       Output vector of nondimensional reference state Enthalpies of the species.
  *               Length: m_kk
  */
-const array_fp& LatticePhase::enthalpy_RT_ref() const
+const vector_fp& LatticePhase::enthalpy_RT_ref() const
 {
     _updateThermo();
     return m_h0_RT;
@@ -427,7 +427,7 @@ const array_fp& LatticePhase::enthalpy_RT_ref() const
  * This function is part of the layer that checks/recalculates the reference
  * state thermo functions.
  */
-const array_fp& LatticePhase::gibbs_RT_ref() const
+const vector_fp& LatticePhase::gibbs_RT_ref() const
 {
     _updateThermo();
     return m_g0_RT;
@@ -446,7 +446,7 @@ void LatticePhase::getGibbs_RT_ref(doublereal* grt) const
  * This function is part of the layer that checks/recalculates the reference
  * state thermo functions.
  */
-const array_fp& LatticePhase::entropy_R_ref() const
+const vector_fp& LatticePhase::entropy_R_ref() const
 {
     _updateThermo();
     return m_s0_R;
@@ -457,7 +457,7 @@ const array_fp& LatticePhase::entropy_R_ref() const
  * This function is part of the layer that checks/recalculates the reference
  * state thermo functions.
  */
-const array_fp& LatticePhase::cp_R_ref() const
+const vector_fp& LatticePhase::cp_R_ref() const
 {
     _updateThermo();
     return m_cp0_R;

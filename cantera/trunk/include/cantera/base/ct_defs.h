@@ -34,7 +34,7 @@ namespace Cantera
 
 #undef CHEMKIN_COMPATIBILITY_MODE
 
-//! Creates a pointer to the start of the raw data for a ctvector
+//! Creates a pointer to the start of the raw data for a vector
 #ifndef DATA_PTR
 #define DATA_PTR(vec) &vec[0]
 #endif
@@ -166,25 +166,12 @@ const doublereal Tiny = 1.e-20;
  */
 typedef std::map<std::string, doublereal> compositionMap;
 //! Turn on the use of stl vectors for the basic array type within cantera
-#define USE_STL_VECTOR
-#ifdef USE_STL_VECTOR
-//! Vector of doubles.
-/*!
- *  @deprecated array_fp is going away, because vector_fp means the same thing
- */
-typedef std::vector<double>        array_fp;
 //! Vector of doubles.
 typedef std::vector<double>        vector_fp;
 //! Vector of ints
 typedef std::vector<int>           array_int;
 //! Vector of ints
 typedef std::vector<int>           vector_int;
-#else
-typedef ct::ctvector_fp            array_fp;
-typedef ct::ctvector_fp            vector_fp;
-typedef ct::ctvector_int           array_int;
-typedef ct::ctvector_int           vector_int;
-#endif
 //! typedef for a group of species.
 /*!
  * A group of species is a subset of the species in a phase.

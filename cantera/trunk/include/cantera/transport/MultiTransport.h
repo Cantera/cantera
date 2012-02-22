@@ -278,7 +278,7 @@ private:
     vector_fp                    m_visc;
     vector_fp                    m_sqvisc;
 
-    array_fp                    m_molefracs;
+    vector_fp                    m_molefracs;
 
 
     std::vector<std::vector<int> > m_poly;

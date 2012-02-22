@@ -260,7 +260,7 @@ doublereal Constituents::molecularWeight(size_t k) const
  *
  *  units = kg / kmol.
  */
-const array_fp& Constituents::molecularWeights() const
+const vector_fp& Constituents::molecularWeights() const
 {
     return m_weight;
 }

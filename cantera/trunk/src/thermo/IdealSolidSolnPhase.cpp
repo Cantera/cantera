@@ -656,7 +656,7 @@ getChemPotentials(doublereal* mu) const
     doublereal delta_p = m_Pcurrent - m_Pref;
     doublereal xx;
     doublereal RT = temperature() * GasConstant;
-    const array_fp& g_RT = gibbs_RT_ref();
+    const vector_fp& g_RT = gibbs_RT_ref();
     for (size_t k = 0; k < m_kk; k++) {
         xx = std::max(SmallNumber, moleFraction(k));
         mu[k] = RT * (g_RT[k] + log(xx))
@@ -687,7 +687,7 @@ getChemPotentials_RT(doublereal* mu) const
     doublereal RT = temperature() * GasConstant;
     doublereal delta_pdRT = (m_Pcurrent - m_Pref) / RT;
     doublereal xx;
-    const array_fp& g_RT = gibbs_RT_ref();
+    const vector_fp& g_RT = gibbs_RT_ref();
     for (size_t k = 0; k < m_kk; k++) {
         xx = std::max(SmallNumber, moleFraction(k));
         mu[k] = (g_RT[k] + log(xx))
@@ -716,7 +716,7 @@ getChemPotentials_RT(doublereal* mu) const
  */
 void IdealSolidSolnPhase::getPartialMolarEnthalpies(doublereal* hbar) const
 {
-    const array_fp& _h = enthalpy_RT_ref();
+    const vector_fp& _h = enthalpy_RT_ref();
     doublereal rt = GasConstant * temperature();
     scale(_h.begin(), _h.end(), hbar, rt);
 }
@@ -741,7 +741,7 @@ void IdealSolidSolnPhase::getPartialMolarEnthalpies(doublereal* hbar) const
 void IdealSolidSolnPhase::
 getPartialMolarEntropies(doublereal* sbar) const
 {
-    const array_fp& _s = entropy_R_ref();
+    const vector_fp& _s = entropy_R_ref();
     doublereal r = GasConstant;
     doublereal xx;
     for (size_t k = 0; k < m_kk; k++) {
@@ -806,7 +806,7 @@ getPartialMolarVolumes(doublereal* vbar) const
 void IdealSolidSolnPhase::
 getPureGibbs(doublereal* gpure) const
 {
-    const array_fp& gibbsrt = gibbs_RT_ref();
+    const vector_fp& gibbsrt = gibbs_RT_ref();
     doublereal RT = _RT();
     const doublereal* const gk = DATA_PTR(gibbsrt);
     doublereal delta_p = (m_Pcurrent - m_Pref);
@@ -833,7 +833,7 @@ getPureGibbs(doublereal* gpure) const
 void IdealSolidSolnPhase::
 getGibbs_RT(doublereal* grt) const
 {
-    const array_fp& gibbsrt = gibbs_RT_ref();
+    const vector_fp& gibbsrt = gibbs_RT_ref();
     doublereal RT = _RT();
     const doublereal* const gk = DATA_PTR(gibbsrt);
     doublereal delta_prt = (m_Pcurrent - m_Pref)/ RT;
@@ -860,7 +860,7 @@ getGibbs_RT(doublereal* grt) const
 void IdealSolidSolnPhase::
 getEnthalpy_RT(doublereal* hrt) const
 {
-    const array_fp& _h = enthalpy_RT_ref();
+    const vector_fp& _h = enthalpy_RT_ref();
     doublereal delta_prt = ((m_Pcurrent - m_Pref) /
                             (GasConstant * temperature()));
     for (size_t k = 0; k < m_kk; k++) {
@@ -882,7 +882,7 @@ getEnthalpy_RT(doublereal* hrt) const
  */
 void IdealSolidSolnPhase::getEntropy_R(doublereal* sr) const
 {
-    const array_fp& _s = entropy_R_ref();
+    const vector_fp& _s = entropy_R_ref();
     copy(_s.begin(), _s.end(), sr);
 }
 
@@ -900,7 +900,7 @@ void IdealSolidSolnPhase::getEntropy_R(doublereal* sr) const
  */
 void IdealSolidSolnPhase::getIntEnergy_RT(doublereal* urt) const
 {
-    const array_fp& _h = enthalpy_RT_ref();
+    const vector_fp& _h = enthalpy_RT_ref();
     doublereal prefrt = m_Pref / (GasConstant * temperature());
     for (size_t k = 0; k < m_kk; k++) {
         urt[k] = _h[k] - prefrt * m_speciesMolarVolume[k];
@@ -925,7 +925,7 @@ void IdealSolidSolnPhase::getIntEnergy_RT(doublereal* urt) const
  */
 void IdealSolidSolnPhase::getCp_R(doublereal* cpr) const
 {
-    const array_fp& _cpr = cp_R_ref();
+    const vector_fp& _cpr = cp_R_ref();
     copy(_cpr.begin(), _cpr.end(), cpr);
 }
 
@@ -996,7 +996,7 @@ void IdealSolidSolnPhase::getGibbs_ref(doublereal* g) const
  */
 void IdealSolidSolnPhase::getIntEnergy_RT_ref(doublereal* urt) const
 {
-    const array_fp& _h = enthalpy_RT_ref();
+    const vector_fp& _h = enthalpy_RT_ref();
     doublereal prefrt = m_Pref / (GasConstant * temperature());
     for (size_t k = 0; k < m_kk; k++) {
         urt[k] = _h[k] - prefrt * m_speciesMolarVolume[k];
@@ -1038,7 +1038,7 @@ void IdealSolidSolnPhase::getCp_R_ref(doublereal* cpr) const
  *  to see if a recalculation of the reference thermodynamics
  *  functions needs to be done.
  */
-const array_fp& IdealSolidSolnPhase::enthalpy_RT_ref() const
+const vector_fp& IdealSolidSolnPhase::enthalpy_RT_ref() const
 {
     _updateThermo();
     return m_h0_RT;
@@ -1051,7 +1051,7 @@ const array_fp& IdealSolidSolnPhase::enthalpy_RT_ref() const
  *  to see if a recalculation of the reference thermodynamics
  *  functions needs to be done.
  */
-const array_fp& IdealSolidSolnPhase::expGibbs_RT_ref() const
+const vector_fp& IdealSolidSolnPhase::expGibbs_RT_ref() const
 {
     _updateThermo();
     for (size_t k = 0; k != m_kk; k++) {
@@ -1067,7 +1067,7 @@ const array_fp& IdealSolidSolnPhase::expGibbs_RT_ref() const
  *  to see if a recalculation of the reference thermodynamics
  *  functions needs to be done.
  */
-const array_fp& IdealSolidSolnPhase::entropy_R_ref() const
+const vector_fp& IdealSolidSolnPhase::entropy_R_ref() const
 {
     _updateThermo();
     return m_s0_R;
@@ -1365,7 +1365,7 @@ initLengths()
 void IdealSolidSolnPhase::
 setToEquilState(const doublereal* lambda_RT)
 {
-    const array_fp& grt = gibbs_RT_ref();
+    const vector_fp& grt = gibbs_RT_ref();
 
     // set the pressure and composition to be consistent with
     // the temperature,

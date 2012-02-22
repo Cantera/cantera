@@ -423,9 +423,9 @@ void AqueousKinetics::updateROP()
 
     const vector_fp& rf = m_kdata->m_rfn;
     const vector_fp& m_rkc = m_kdata->m_rkcn;
-    array_fp& ropf = m_kdata->m_ropf;
-    array_fp& ropr = m_kdata->m_ropr;
-    array_fp& ropnet = m_kdata->m_ropnet;
+    vector_fp& ropf = m_kdata->m_ropf;
+    vector_fp& ropr = m_kdata->m_ropr;
+    vector_fp& ropnet = m_kdata->m_ropnet;
 
     // copy rate coefficients into ropf
     copy(rf.begin(), rf.end(), ropf.begin());
@@ -474,7 +474,7 @@ getFwdRateConstants(doublereal* kfwd)
 
     // copy rate coefficients into ropf
     const vector_fp& rf = m_kdata->m_rfn;
-    array_fp& ropf = m_kdata->m_ropf;
+    vector_fp& ropf = m_kdata->m_ropf;
     copy(rf.begin(), rf.end(), ropf.begin());
 
 

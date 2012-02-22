@@ -420,7 +420,7 @@ void MixTransport::getSpeciesFluxes(size_t ndim,
 
     getMixDiffCoeffs(DATA_PTR(m_spwork));
 
-    const array_fp& mw = m_thermo->molecularWeights();
+    const vector_fp& mw = m_thermo->molecularWeights();
     const doublereal* y  = m_thermo->massFractions();
     doublereal rhon = m_thermo->molarDensity();
 
