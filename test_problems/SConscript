@@ -107,31 +107,37 @@ class CompileAndTest(Test):
         return Test.clean(self, env, files=files)
 
 
-CompileAndTest('DH_graph_1',
-               pjoin('cathermo', 'DH_graph_1'),
-               'DH_graph_1', 'DH_NaCl_dilute_blessed.csv',
-               artifacts=['DH_graph_1.log'],
-               arguments='DH_NaCl_dilute.xml')
-CompileAndTest('DH_graph_acommon',
-               pjoin('cathermo', 'DH_graph_acommon'),
-               'DH_graph_acommon', 'DH_NaCl_acommon_blessed.csv',
-               artifacts=['DH_graph_1.log'],
-               arguments='DH_NaCl_acommon.xml')
-CompileAndTest('DH_graph_bdotak',
-               pjoin('cathermo', 'DH_graph_bdotak'),
-               'DH_graph_bdotak', 'DH_NaCl_bdotak_blessed.csv',
-               artifacts=['DH_graph_1.log'],
-               arguments='DH_NaCl_bdotak.xml')
-CompileAndTest('DH_graph_NM',
-               pjoin('cathermo', 'DH_graph_NM'),
-               'DH_graph_NM', 'DH_NaCl_NM_blessed.csv',
-               artifacts=['DH_graph_1.log'],
-               arguments='DH_NaCl_NM.xml')
-CompileAndTest('DH_graph_Pitzer',
-               pjoin('cathermo', 'DH_graph_Pitzer'),
-               'DH_graph_Pitzer', 'DH_NaCl_Pitzer_blessed.csv',
-               artifacts=['DH_graph_1.log'],
-               arguments='DH_NaCl_Pitzer.xml')
+dhGraph = localenv.Program('cathermo/DH_graph_1/DH_graph_1',
+                           mglob(env, 'cathermo/DH_graph_1', 'cpp'),
+                           LIBS=env['cantera_libs'])
+dhGraph_name = dhGraph[0].name
+
+Test('DH_graph_dilute',
+     pjoin('cathermo', 'DH_graph_1'),
+     dhGraph, 'DH_NaCl_dilute_blessed.csv',
+     artifacts=['DH_graph_1.log', dhGraph_name],
+     arguments='DH_NaCl_dilute.xml')
+Test('DH_graph_acommon',
+     pjoin('cathermo', 'DH_graph_1'),
+     dhGraph, 'DH_NaCl_acommon_blessed.csv',
+     artifacts=['DH_graph_1.log', dhGraph_name],
+     arguments='DH_NaCl_acommon.xml')
+Test('DH_graph_bdotak',
+     pjoin('cathermo', 'DH_graph_1'),
+     dhGraph, 'DH_NaCl_bdotak_blessed.csv',
+     artifacts=['DH_graph_1.log', dhGraph_name],
+     arguments='DH_NaCl_bdotak.xml')
+Test('DH_graph_NM',
+     pjoin('cathermo', 'DH_graph_1'),
+     dhGraph, 'DH_NaCl_NM_blessed.csv',
+     artifacts=['DH_graph_1.log', dhGraph_name],
+     arguments='DH_NaCl_NM.xml')
+Test('DH_graph_Pitzer',
+     pjoin('cathermo', 'DH_graph_1'),
+     dhGraph, 'DH_NaCl_Pitzer_blessed.csv',
+     artifacts=['DH_graph_1.log', dhGraph_name],
+     arguments='DH_NaCl_Pitzer.xml')
+
 CompileAndTest('HMW_dupl_test',
                pjoin('cathermo', 'HMW_dupl_test'),
                'HMW_dupl_test', 'output_blessed.txt',

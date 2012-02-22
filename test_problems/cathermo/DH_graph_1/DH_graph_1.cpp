@@ -10,8 +10,6 @@
 using namespace std;
 using namespace Cantera;
 
-typedef double doublereal;
-
 void printUsage()
 {
     cout << "usage: DH_test " <<  endl;
