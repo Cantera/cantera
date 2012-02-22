@@ -10,23 +10,6 @@
 using namespace std;
 using namespace Cantera;
 
-class fileLog: public Logger
-{
-public:
-    fileLog(string fName) {
-        m_fName = fName;
-        m_fs.open(fName.c_str());
-    }
-    virtual void write(const string& msg) {
-        m_fs << msg;
-    }
-    virtual ~fileLog() {
-        m_fs.close();
-    }
-    string m_fName;
-    fstream m_fs;
-};
-
 void printUsage()
 {
     cout << "usage: HMW_test " <<  endl;
@@ -84,9 +67,6 @@ int main(int argc, char** argv)
         aTemp[4] = 273.15 + 250.;
         aTemp[5] = 273.15 + 275.;
         aTemp[6] = 273.15 + 300.;
-
-        //fileLog *fl = new fileLog("HMW_graph_1.log");
-        //setLogger(fl);
 
         HMWSoln* HMW = new HMWSoln(iFile, "NaCl_electrolyte");
 

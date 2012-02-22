@@ -3,7 +3,6 @@
  *  @file HMW_graph_1.cpp
  */
 
-#include "cantera/base/logger.h"
 #include "cantera/thermo.h"
 #include "TemperatureTable.h"
 #include "cantera/thermo/HMWSoln.h"
@@ -13,34 +12,11 @@
 using namespace std;
 using namespace Cantera;
 
-class fileLog: public Logger
-{
-public:
-    fileLog(string fName) {
-        m_fName = fName;
-        m_fs.open(fName.c_str());
-    }
-
-    virtual void write(const string& msg) {
-        m_fs << msg;
-        m_fs.flush();
-    }
-
-    virtual ~fileLog() {
-        m_fs.close();
-    }
-
-    string m_fName;
-    ofstream m_fs;
-
-};
-
 void printUsage()
 {
     cout << "usage: HMW_test " <<  endl;
     cout <<"                -> Everything is hardwired" << endl;
 }
-
 
 
 int main(int argc, char** argv)
@@ -58,11 +34,7 @@ int main(int argc, char** argv)
         }
         double Cp0_R[20], pmCp[20];
 
-        //fileLog *fl = new fileLog("HMW_graph_1.log");
-        //setLogger(fl);
-
         HMWSoln* HMW = new HMWSoln(iFile, "NaCl_electrolyte");
-
 
         /*
          * Load in and initialize the

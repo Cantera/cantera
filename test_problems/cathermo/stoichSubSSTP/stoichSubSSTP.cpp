@@ -5,7 +5,6 @@
 
 #include "cantera/thermo.h"
 #include "cantera/thermo/StoichSubstanceSSTP.h"
-#include "cantera/base/logger.h"
 
 #include "TemperatureTable.h"
 
@@ -13,28 +12,6 @@
 
 using namespace std;
 using namespace Cantera;
-
-class fileLog: public Logger
-{
-public:
-    fileLog(string fName) {
-        m_fName = fName;
-        m_fs.open(fName.c_str());
-    }
-
-    virtual void write(const string& msg) {
-        m_fs << msg;
-        m_fs.flush();
-    }
-
-    virtual ~fileLog() {
-        m_fs.close();
-    }
-
-    string m_fName;
-    ofstream m_fs;
-
-};
 
 void printUsage()
 {
@@ -58,8 +35,6 @@ int main(int argc, char** argv)
             strcpy(iFile, argv[1]);
         }
 
-        //fileLog *fl = new fileLog("HMW_graph_1.log");
-        //setLogger(fl);
         sprintf(file_ID,"%s#NaCl(S)", iFile);
         XML_Node* xm = get_XML_NameID("phase", file_ID, 0);
         StoichSubstanceSSTP* solid = new StoichSubstanceSSTP(*xm);
