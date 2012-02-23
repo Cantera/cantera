@@ -7,7 +7,8 @@ localenv.Append(CPPPATH=['#include', '#src'])
 
 f90_src = mglob(localenv, '.', 'f90', 'cpp')
 
-artifacts = localenv.Object(f90_src)
+artifacts = localenv.Object(f90_src,
+                            F90PATH=['#build/src/fortran'])
 mods = [o for o in artifacts if o.path.endswith('.mod')]
 objects = [o for o in artifacts if not o.path.endswith('.mod')]
 
