@@ -239,11 +239,18 @@ CompileAndTest('cxx_ex', 'cxx_ex', 'cxx_examples', 'output_blessed.txt',
                threshold=1e-7,
                artifacts=['eq1.dat', 'kin1.dat', 'kin2.dat', 'kin3.csv',
                           'kin3.dat', 'tr1.dat', 'tr2.dat'])
-CompileAndTest('diamondSurf', 'diamondSurf', 'runDiamond', 'runDiamond_blessed.out')
+
+diamond = localenv.Program('diamondSurf/runDiamond',
+                           'diamondSurf/runDiamond.cpp',
+                           LIBS=env['cantera_libs'])
+diamond_name = diamond[0].name
+Test('diamondSurf-xml', 'diamondSurf', diamond, 'runDiamond_blessed.out',
+     options='diamond_blessed.xml', artifacts=diamond_name)
+Test('diamondSurf-cti', 'diamondSurf', diamond, 'runDiamond_blessed.out',
+     options='diamond.cti', artifacts=diamond_name,
+     comparisons=[('diamond_blessed.xml', 'diamond.xml')])
+
 CompileAndTest('fracCoeff', 'fracCoeff', 'fracCoeff', 'frac_blessed.out')
-CompileAndTest('minDiamond', pjoin('min_python', 'minDiamond'),
-               'runDiamond', 'runDiamond_blessed.out',
-               comparisons=[('diamond_blessed.xml', 'diamond.xml')])
 CompileAndTest('mixGasTransport',
                'mixGasTransport', 'mixGasTransport', 'output_blessed.txt')
 CompileAndTest('multiGasTransport',
