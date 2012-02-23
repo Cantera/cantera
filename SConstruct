@@ -26,7 +26,6 @@ Basic usage:
 """
 
 from buildutils import *
-import wxsgen
 
 if not COMMAND_LINE_TARGETS:
     # Print usage help
@@ -870,6 +869,12 @@ env['config_h_target'] = config_h
 # *** Build Cantera ***
 # *********************
 
+# Some options to speed up SCons
+env.SetOption('max_drift', 2)
+env.SetOption('implicit_cache', True)
+
+env['addInstallTargets'] = 'install' in COMMAND_LINE_TARGETS
+
 buildDir = 'build'
 buildTargets = []
 libraryTargets = [] # objects that go in the Cantera library
@@ -881,15 +886,20 @@ env.SConsignFile()
 env.Append(CPPPATH=[],
            LIBPATH=[Dir('build/lib')])
 
-# Put headers in place
-headerBase = 'include/cantera'
-inst = env.RecursiveInstall('$inst_incdir', 'include/cantera')
-installTargets.extend(inst)
+if env['addInstallTargets']:
+    # Put headers in place
+    headerBase = 'include/cantera'
+    inst = env.RecursiveInstall('$inst_incdir', 'include/cantera')
+    installTargets.extend(inst)
 
-# Install C++ samples
-inst = env.RecursiveInstall(pjoin('$inst_sampledir', 'cxx'),
-                            'samples/cxx')
-installTargets.extend(inst)
+    # Install C++ samples
+    inst = env.RecursiveInstall(pjoin('$inst_sampledir', 'cxx'),
+                                'samples/cxx')
+    installTargets.extend(inst)
+
+    # Data files
+    inst = env.Install('$inst_datadir', mglob(env, pjoin('data','inputs'), 'cti', 'xml'))
+    installTargets.extend(inst)
 
 ### List of libraries needed to link to Cantera ###
 linkLibs = ['cantera']
@@ -917,11 +927,12 @@ if env['f90_interface'] == 'y':
     VariantDir('build/src/fortran/', 'src/fortran', duplicate=1)
     SConscript('build/src/fortran/SConscript')
 
-    # install F90 / F77 samples
-    inst = env.RecursiveInstall(pjoin('$inst_sampledir', 'f77'), 'samples/f77')
-    installTargets.extend(inst)
-    inst = env.RecursiveInstall(pjoin('$inst_sampledir', 'f90'), 'samples/f90')
-    installTargets.extend(inst)
+    if env['addInstallTargets']:
+        # install F90 / F77 samples
+        inst = env.RecursiveInstall(pjoin('$inst_sampledir', 'f77'), 'samples/f77')
+        installTargets.extend(inst)
+        inst = env.RecursiveInstall(pjoin('$inst_sampledir', 'f90'), 'samples/f90')
+        installTargets.extend(inst)
 
 VariantDir('build/src', 'src', duplicate=0)
 SConscript('build/src/SConscript')
@@ -945,10 +956,6 @@ if 'samples' in COMMAND_LINE_TARGETS:
     SConscript('samples/cxx/SConscript')
     if env['f90_interface'] == 'y':
         SConscript('samples/f77/SConscript')
-
-# Data files
-inst = env.Install('$inst_datadir', mglob(env, pjoin('data','inputs'), 'cti', 'xml'))
-installTargets.extend(inst)
 
 ### Meta-targets ###
 build_samples = Alias('samples', sampleTargets)
@@ -1013,13 +1020,15 @@ finish_install = env.Command('finish_install', [], postInstallMessage)
 env.Depends(finish_install, installTargets)
 install_cantera = Alias('install', finish_install)
 
-def build_wxs(target, source, env):
-    wxs = wxsgen.WxsGenerator(env['stage_dir'],
-                              x64=env['TARGET_ARCH']=='amd64',
-                              includeMatlab=env['matlab_toolbox']=='y')
-    wxs.make_wxs(str(target[0]))
 
 if 'msi' in COMMAND_LINE_TARGETS:
+    def build_wxs(target, source, env):
+        import wxsgen
+        wxs = wxsgen.WxsGenerator(env['stage_dir'],
+                                  x64=env['TARGET_ARCH']=='amd64',
+                                  includeMatlab=env['matlab_toolbox']=='y')
+        wxs.make_wxs(str(target[0]))
+
     wxs_target = env.Command(pjoin('build', 'wix', 'cantera.wxs'),
                              [], build_wxs)
     env.AlwaysBuild(wxs_target)

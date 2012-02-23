@@ -8,7 +8,8 @@ build = localenv.Command('#build/docs/html/index.html',
                          'doxygen/Doxyfile', 'doxygen $SOURCE')
 buildTargets.extend(build)
 
-inst = localenv.Install(pjoin('$inst_docdir', 'html'),
-                        mglob(localenv, '#/build/docs/html',
-                              'html', 'svg', 'css', 'png'))
-installTargets.extend(inst)
+if localenv['addInstallTargets']:
+    inst = localenv.Install(pjoin('$inst_docdir', 'html'),
+                            mglob(localenv, '#/build/docs/html',
+                                  'html', 'svg', 'css', 'png'))
+    installTargets.extend(inst)
