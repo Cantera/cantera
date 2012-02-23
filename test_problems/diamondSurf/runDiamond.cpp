@@ -35,8 +35,13 @@ int main(int argc, char** argv)
 #ifdef _MSC_VER
     _set_output_format(_TWO_DIGIT_EXPONENT);
 #endif
+    if (argc != 2) {
+        cout << "Error: no input file specified.\n"
+            "Choose either 'diamond.cti' or 'diamond_blessed.xml" << endl;
+        exit(-1);
+    }
+    std::string infile(argv[1]);
     int i, k;
-    string infile = "diamond.xml";
 
     try {
         XML_Node* xc = new XML_Node();
@@ -56,7 +61,6 @@ int main(int argc, char** argv)
 
         XML_Node* const xs = xc->findNameID("phase", "diamond_100");
         ThermoPhase* diamond100TP = newPhase(*xs);
-        //SurfPhase *diamond100TP = new SurfPhase(*xs);
         int nsp_d100 = diamond100TP->nSpecies();
         cout << "Number of species in diamond_100 = " << nsp_d100 << endl;
 
