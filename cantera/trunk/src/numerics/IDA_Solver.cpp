@@ -10,17 +10,7 @@
 
 #include <iostream>
 
-#ifdef HAS_SUNDIALS
-
-#ifdef SUNDIALS_VERSION_22
-#include <sundials_types.h>
-#include <sundials_math.h>
-#include <ida.h>
-#include <ida_dense.h>
-#include <ida_spgmr.h>
-#include <ida_band.h>
-#include <nvector_serial.h>
-#else
+#ifdef SUNDIALS_VERSION_24
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
 #include <ida/ida.h>
@@ -28,7 +18,6 @@
 #include <ida/ida_spgmr.h>
 #include <ida/ida_band.h>
 #include <nvector/nvector_serial.h>
-#endif
 
 using namespace std;
 
