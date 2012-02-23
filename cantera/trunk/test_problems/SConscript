@@ -4,7 +4,7 @@ Import('env','buildTargets','installTargets')
 localenv = env.Clone()
 localenv.Append(CPPPATH=['#include', '#src', 'shared'])
 
-os.environ['PYTHONPATH'] = pjoin(os.getcwd(), '..', 'Cantera', 'python')
+os.environ['PYTHONPATH'] = pjoin(os.getcwd(), '..', 'interfaces', 'python')
 os.environ['CANTERA_DATA'] = pjoin(os.getcwd(), '..', 'data', 'inputs')
 
 testNames = []
