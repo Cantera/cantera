@@ -244,9 +244,6 @@ CompileAndTest('fracCoeff', 'fracCoeff', 'fracCoeff', 'frac_blessed.out')
 CompileAndTest('minDiamond', pjoin('min_python', 'minDiamond'),
                'runDiamond', 'runDiamond_blessed.out',
                comparisons=[('diamond_blessed.xml', 'diamond.xml')])
-CompileAndTest('minNegA', pjoin('min_python', 'negATest'),
-               'negATest', 'negATest_blessed.out',
-               comparisons=[('noxNeg_blessed.xml', 'noxNeg.xml')])
 CompileAndTest('mixGasTransport',
                'mixGasTransport', 'mixGasTransport', 'output_blessed.txt')
 CompileAndTest('multiGasTransport',
@@ -257,7 +254,17 @@ Test('nasa9_reader', 'nasa9_reader', '#build/bin/ck2cti$PROGSUFFIX', None,
      comparisons=[('sample_blessed.cti', 'sample.cti')],
      ignoreLines=['#'],
      artifacts=['ck2cti.log'])
-CompileAndTest('negA', 'negATest', 'negATest', 'negATest_blessed.out')
+
+negA = localenv.Program('negATest/negATest',
+                           mglob(env, 'negATest', 'cpp'),
+                           LIBS=env['cantera_libs'])
+negA_name = negA[0].name
+Test('negA-xml', 'negATest', negA, 'negATest_blessed.out',
+     options='noxNeg_blessed.xml', artifacts=negA_name)
+Test('negA-cti', 'negATest', negA, 'negATest_blessed.out',
+     options='noxNeg.cti', artifacts=negA_name,
+     comparisons=[('noxNeg_blessed.xml', 'noxNeg.xml')])
+
 CompileAndTest('printUtil', 'printUtilUnitTest', 'pUtest', 'output_blessed.txt')
 CompileAndTest('pureFluid', 'pureFluidTest', 'testPureWater', 'output_blessed.txt')
 CompileAndTest('rankine_democxx', 'rankine_democxx', 'rankine', 'output_blessed.txt',
