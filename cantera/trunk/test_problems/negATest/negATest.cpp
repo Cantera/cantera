@@ -11,8 +11,14 @@ int main(int argc, char** argv)
     _set_output_format(_TWO_DIGIT_EXPONENT);
 #endif
     try {
+        if (argc != 2) {
+            cout << "Error: no input file specified.\n"
+                "Choose either 'noxNeg.cti' or 'noxNegTest.xml" << endl;
+            exit(-1);
+        }
+        std::string infile(argv[1]);
+
         int i;
-        std::string infile = "noxNeg.xml";
         double x[20];
         double cdot[20], ddot[20];
 
