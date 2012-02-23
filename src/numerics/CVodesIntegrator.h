@@ -48,7 +48,7 @@ public:
 
     CVodesIntegrator();
     virtual ~CVodesIntegrator();
-    virtual void setTolerances(double reltol, int n, double* abstol);
+    virtual void setTolerances(double reltol, size_t n, double* abstol);
     virtual void setTolerances(double reltol, double abstol);
     virtual void setSensitivityTolerances(double reltol, double abstol);
     virtual void setProblemType(int probtype);
@@ -77,13 +77,13 @@ public:
     virtual int nSensParams() {
         return m_np;
     }
-    virtual double sensitivity(int k, int p);
+    virtual double sensitivity(size_t k, size_t p);
 
 private:
 
     void sensInit(double t0, FuncEval& func);
 
-    int m_neq;
+    size_t m_neq;
     void* m_cvode_mem;
     double m_t0;
     void* m_y, *m_abstol;
@@ -95,12 +95,12 @@ private:
     double m_reltol;
     double m_abstols;
     double m_reltolsens, m_abstolsens;
-    int m_nabs;
+    size_t m_nabs;
     double m_hmax, m_hmin;
     int m_maxsteps;
     FuncData* m_fdata;
     N_Vector*  m_yS;
-    int m_np;
+    size_t m_np;
     int m_mupper, m_mlower;
 };
 
@@ -108,7 +108,7 @@ private:
 
 #else
 
-#error No sundials! 
+#error No sundials!
 
 #endif
 

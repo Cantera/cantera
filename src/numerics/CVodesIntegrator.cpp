@@ -170,7 +170,7 @@ double* CVodesIntegrator::solution()
     return NV_DATA_S(nv(m_y));
 }
 
-void CVodesIntegrator::setTolerances(double reltol, int n, double* abstol)
+void CVodesIntegrator::setTolerances(double reltol, size_t n, double* abstol)
 {
     m_itol = CV_SV;
     m_nabs = n;
@@ -180,7 +180,7 @@ void CVodesIntegrator::setTolerances(double reltol, int n, double* abstol)
         }
         m_abstol = reinterpret_cast<void*>(N_VNew_Serial(n));
     }
-    for (int i=0; i<n; i++) {
+    for (size_t i=0; i<n; i++) {
         NV_Ith_S(nv(m_abstol), i) = abstol[i];
     }
     m_reltol = reltol;
@@ -253,16 +253,15 @@ void CVodesIntegrator::setIterator(IterType t)
 void CVodesIntegrator::sensInit(double t0, FuncEval& func)
 {
     m_np = func.nparams();
-    long int nv = func.neq();
+    size_t nv = func.neq();
 
     doublereal* data;
-    int n, j;
     N_Vector y;
     y = N_VNew_Serial(nv);
     m_yS = N_VCloneVectorArray_Serial(m_np, y);
-    for (n = 0; n < m_np; n++) {
+    for (size_t n = 0; n < m_np; n++) {
         data = NV_DATA_S(m_yS[n]);
-        for (j = 0; j < nv; j++) {
+        for (size_t j = 0; j < nv; j++) {
             data[j] =0.0;
         }
     }
@@ -534,12 +533,12 @@ int CVodesIntegrator::nEvals() const
     //return m_iopt[NFE];
 }
 
-double CVodesIntegrator::sensitivity(int k, int p)
+double CVodesIntegrator::sensitivity(size_t k, size_t p)
 {
-    if (k < 0 || k >= m_neq) {
+    if (k >= m_neq) {
         throw CVodesErr("sensitivity: k out of range ("+int2str(p)+")");
     }
-    if (p < 0 || p >= m_np) {
+    if (p >= m_np) {
         throw CVodesErr("sensitivity: p out of range ("+int2str(p)+")");
     }
     return NV_Ith_S(m_yS[p],k);
