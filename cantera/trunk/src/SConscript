@@ -56,6 +56,11 @@ inst = localenv.Install('$inst_libdir', lib)
 buildTargets.extend(lib)
 installTargets.extend(inst)
 
+# OS X requires the shared libraries at link time
+if localenv['OS'] == 'Darwin' and localenv['use_sundials'] == 'y':
+    localenv.Append(LIBS=['sundials_cvodes', 'sundials_nvecserial'],
+                    LIBPATH=localenv['sundials_libdir'])
+
 # Build the Cantera shared library
 lib = localenv.SharedLibrary('../lib/cantera_shared', libraryTargets,
                              SPAWN=getSpawn(localenv))
