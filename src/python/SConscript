@@ -36,6 +36,12 @@ if localenv['python_package'] == 'full':
     if localenv['toolchain'] == 'mingw':
         pylinklibs.append('python%s' % gcv('VERSION'))
 
+    # OS X requires library dependencies to be specified at link time
+    if localenv['OS'] == 'Darwin':
+        pylinklibs.append('python%s' % gcv('VERSION'))
+        if localenv['use_sundials'] == 'y':
+            pylinklibs.extend(['sundials_cvodes', 'sundials_nvecserial'])
+
     pymodule = localenv.SharedLibrary('#interfaces/python/Cantera/_cantera',
                                       ['pycantera.cpp'],
                                       LIBS=pylinklibs,
