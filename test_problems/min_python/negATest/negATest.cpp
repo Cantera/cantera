@@ -31,10 +31,8 @@ int main(int argc, char** argv)
         int nr = iKin_ptr->nReactions();
         cout << "Number of reactions = " << nr << endl;
 
-        int iH2 = gasTP->speciesIndex("H2");
         int iH = gasTP->speciesIndex("H");
         int iO2 = gasTP->speciesIndex("O2");
-        int iOH = gasTP->speciesIndex("OH");
         int iH2O = gasTP->speciesIndex("H2O");
         int iNH = gasTP->speciesIndex("NH");
         int iNO = gasTP->speciesIndex("NO");
@@ -44,10 +42,8 @@ int main(int argc, char** argv)
             x[i] = 0.0;
         }
         x[iH2O] = 1.0 /2.0;
-        x[iOH]  = 0.1 /2.0;
         x[iH]   = 0.2 /2.0;
         x[iO2]  = 0.3 /2.0;
-        x[iH2]  = 0.25 /2.0;
         x[iNH]  = 0.05/2.0;
         x[iNO]  = 0.05/2.0;
         x[iN2O]  = 0.05/2.0;
