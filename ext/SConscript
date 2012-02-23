@@ -6,6 +6,11 @@ localenv = env.Clone()
 def prep_default(env):
     return env.Clone()
 
+def prep_fortran(env):
+    localenv = env.Clone()
+    localenv.Append(CPPPATH='#include/cantera/base') # for config.h
+    return localenv
+
 def prep_f2c(env):
     localenv = env.Clone()
 
@@ -73,7 +78,7 @@ if env['build_with_f2c']:
         libs.append(('f2c_lapack', ['c'], prep_f2c))
 
 else:
-    libs.append(('math', ['cpp','c','f'], prep_default))
+    libs.append(('math', ['cpp','c','f'], prep_fortran))
 
     if env['BUILD_BLAS_LAPACK']:
         libs.append(('blas', ['f'], prep_default))
