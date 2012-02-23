@@ -12,13 +12,17 @@ v = sys.version_info
 localenv['python_module_loc'] = pjoin(localenv['prefix'], 'lib', 'python%i.%i' % v[:2], 'site-packages')
 target = localenv.SubstFile('setup_cantera', 'setup_cantera.in')
 buildTargets.extend(target)
-inst = localenv.Install('$inst_bindir','setup_cantera')
-installTargets.append(inst)
+
+if localenv['addInstallTargets']:
+    inst = localenv.Install('$inst_bindir','setup_cantera')
+    installTargets.append(inst)
 
 # 'mixmaster'
 if env['python_package'] == 'full':
     target = localenv.SubstFile('mixmaster', 'mixmaster.in')
     buildTargets.extend(target)
-    inst = localenv.Install('$inst_bindir', 'mixmaster')
-    localenv.AddPostAction(inst, Chmod('$TARGET', 0755))
-    installTargets.extend(inst)
+
+    if localenv['addInstallTargets']:
+        inst = localenv.Install('$inst_bindir', 'mixmaster')
+        localenv.AddPostAction(inst, Chmod('$TARGET', 0755))
+        installTargets.extend(inst)

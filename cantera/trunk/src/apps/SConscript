@@ -12,11 +12,13 @@ for name, src in programs:
     prog = localenv.Program(target=pjoin('#build/bin', name),
                             source=src,
                             LIBS=['cantera'])
-    inst = localenv.Install('$inst_bindir', prog)
-    buildTargets.extend(prog)
-    installTargets.extend(inst)
+
+    if localenv['addInstallTargets']:
+        inst = localenv.Install('$inst_bindir', prog)
+        buildTargets.extend(prog)
+        installTargets.extend(inst)
 
 # Copy man pages
-if env['INSTALL_MANPAGES']:
+if localenv['addInstallTargets'] and env['INSTALL_MANPAGES']:
     inst = localenv.Install('$inst_mandir', mglob(localenv, 'man', '*'))
     installTargets.extend(inst)
