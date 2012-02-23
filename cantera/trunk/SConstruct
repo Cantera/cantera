@@ -152,7 +152,6 @@ if env['CC'] == 'gcc':
     defaults.debugCcFlags = '-O0 -fno-inline'
     defaults.releaseCcFlags = '-O3 -finline-functions -Wno-inline -DNDEBUG'
     defaults.debugLinkFlags = ''
-    defaults.fPIC = '-fPIC'
 elif env['CC'] == 'cl': # Visual Studio
     defaults.cxxFlags = '/EHsc'
     defaults.ccFlags = ' '.join(['/nologo', '/Zi', '/W3', '/Zc:wchar_t', '/Zc:forScope',
@@ -160,14 +159,12 @@ elif env['CC'] == 'cl': # Visual Studio
     defaults.debugCcFlags = '/Od /Ob0 /MD' # note: MDd breaks the Python module
     defaults.releaseCcFlags = '/O2 /MD /DNDEBUG'
     defaults.debugLinkFlags = '/DEBUG'
-    defaults.fPIC = ''
 elif env['CC'] == 'icc':
     defaults.cxxFlags = '-ftemplate-depth-128'
     defaults.ccFlags = '-Wcheck -g -vec-report0'
     defaults.debugCcFlags = '-O0 -fno-inline'
     defaults.releaseCcFlags = '-O3 -finline-functions -DNDEBUG'
     defaults.debugLinkFlags = ''
-    defaults.fPIC = '-fPIC'
 else:
     print "Warning: Unrecognized C compiler '%s'" % env['CC']
     defaults.cxxFlags = ''
@@ -175,7 +172,6 @@ else:
     defaults.debugCcFlags = ''
     defaults.releaseCcFlags = ''
     defaults.debugLinkFlags = ''
-    defaults.fPIC = ''
 
 # **************************************
 # *** Read user-configurable options ***
@@ -883,10 +879,7 @@ sampleTargets = []
 env.SConsignFile()
 
 env.Append(CPPPATH=[],
-           LIBPATH=[Dir('build/lib')],
-           CCFLAGS=[defaults.fPIC],
-           FORTRANFLAGS=[defaults.fPIC],
-           F90FLAGS=[defaults.fPIC])
+           LIBPATH=[Dir('build/lib')])
 
 # Put headers in place
 headerBase = 'include/cantera'
