@@ -51,28 +51,12 @@ static string pypath()
     string s = "python";
     const char* py = getenv("PYTHON_CMD");
 
-    // Try to source the "setup_cantera" script from the user's home
-    // directory in order to set PYTHON_CMD.
-    if (!py) {
-        const char* hm = getenv("HOME");
-        if (hm) {
-            string home = stripws(string(hm));
-            string cmd = string(". ") + home
-                         +string("/setup_cantera &> /dev/null");
-            system(cmd.c_str());
-        }
-        py = getenv("PYTHON_CMD");
-    }
     if (py) {
         string sp = stripws(string(py));
         if (sp.size() > 0) {
             s = sp;
         }
     }
-    //else {
-    //    throw CanteraError("ct2ctml",
-    //        "set environment variable PYTHON_CMD");
-    //}
     return s;
 }
 
