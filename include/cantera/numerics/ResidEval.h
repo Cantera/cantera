@@ -11,11 +11,6 @@
 #ifndef CT_RESIDEVAL_H
 #define CT_RESIDEVAL_H
 
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
 #include "cantera/base/ct_defs.h"
 #include "cantera/base/ctexceptions.h"
 

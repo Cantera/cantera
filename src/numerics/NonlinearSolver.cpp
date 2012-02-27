@@ -1256,7 +1256,7 @@ int NonlinearSolver::doAffineNewtonSolve(const doublereal* const y_curr,   const
         /*
          *  Factor the Hessian
          */
-        int info;
+        int info = 0;
         ct_dpotrf(ctlapack::UpperTriangular, neq_, &(*(HessianPtr_->begin())), neq_, info);
         if (info) {
             if (m_print_flag >= 2) {
@@ -1826,7 +1826,7 @@ void NonlinearSolver::residualComparisonLeg(const doublereal time_curr, const do
     doublereal* y1 = DATA_PTR(m_wksp);
     doublereal* ydot1 = DATA_PTR(m_wksp_2);
     doublereal sLen;
-    doublereal alpha;
+    doublereal alpha = 0;
 
     doublereal residSteepBest = 1.0E300;
     doublereal residSteepLinBest = 0.0;
@@ -3453,7 +3453,7 @@ int NonlinearSolver::solve_nonlinear_problem(int SolnType, doublereal* const y_c
                 printf("   N ");
             }
             if (doDogLeg_) {
-                printf("%5.1F |", log10(m_conditionNumber));
+                printf("%5.1f |", log10(m_conditionNumber));
                 //   printf("\t    Iter Resid NewJac  | DS_Cauchy  DS_Newton  DS_Trust |  legID legAlpha  Fbound  |     |   DS_F   ResidFinal \n");
                 printf("%10.3E %10.3E %10.3E %10.3E|", ResidDecreaseSDExp_, ResidDecreaseSD_,
                        ResidDecreaseNewtExp_, ResidDecreaseNewt_);

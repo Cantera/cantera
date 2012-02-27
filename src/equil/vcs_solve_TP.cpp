@@ -4335,7 +4335,7 @@ void VCS_SOLVE::vcs_dfe(const int stateCalc,
         tPhMoles_ptr = VCS_DATA_PTR(m_tPhaseMoles_old);
         actCoeff_ptr = VCS_DATA_PTR(m_actCoeffSpecies_old);
         molNum = VCS_DATA_PTR(m_molNumSpecies_old);
-    } else if (stateCalc == VCS_STATECALC_NEW) {
+    } else { // stateCalc == VCS_STATECALC_NEW
         feSpecies = VCS_DATA_PTR(m_feSpecies_new);
         tPhMoles_ptr = VCS_DATA_PTR(m_tPhaseMoles_new);
         actCoeff_ptr = VCS_DATA_PTR(m_actCoeffSpecies_new);
@@ -5399,8 +5399,7 @@ void VCS_SOLVE::vcs_deltag_Phase(const size_t iphase, const bool doDeleted,
         feSpecies = VCS_DATA_PTR(m_feSpecies_new);
         deltaGRxn = VCS_DATA_PTR(m_deltaGRxn_new);
         actCoeffSpecies = VCS_DATA_PTR(m_actCoeffSpecies_new);
-
-    } else if (stateCalc == VCS_STATECALC_OLD) {
+    } else { // stateCalc == VCS_STATECALC_OLD
         feSpecies = VCS_DATA_PTR(m_feSpecies_old);
         deltaGRxn = VCS_DATA_PTR(m_deltaGRxn_old);
         actCoeffSpecies = VCS_DATA_PTR(m_actCoeffSpecies_old);
