@@ -384,23 +384,32 @@ public:
     std::string kineticsSpeciesName(size_t k) const;
 
     /**
-     * This routine will look up a species number based on
-     * the input std::string nm. The lookup of species will
-     * occur for all phases listed in the kinetics object,
-     * unless the std::string ph refers to a specific phase of
-     * the object.
+     * This routine will look up a species number based on the input
+     * std::string nm. The lookup of species will occur for all phases
+     * listed in the kinetics object.
      *
      *  return
-     *   - If a match is found, the position in the species list
-     *   is returned.
-     *   - If a specific phase is specified and no match is found,
-     *   the value -1 is returned.
-     *   - If no match is found in any phase, the value -2 is returned.
+     *   - If a match is found, the position in the species list is returned.
+     *   - If no match is found, the value -1 is returned.
      *
      * @param nm   Input string name of the species
-     * @param ph   Input string name of the phase. Defaults to "<any>"
      */
-    size_t kineticsSpeciesIndex(std::string nm, std::string ph = "<any>") const;
+    size_t kineticsSpeciesIndex(const std::string& nm) const;
+
+    /**
+     * This routine will look up a species number based on the input
+     * std::string nm. The lookup of species will occur in the specified
+     * phase of the object, or all phases if ph is "<any>".
+     *
+     *  return
+     *   - If a match is found, the position in the species list is returned.
+     *   - If no match is found, the value npos (-1) is returned.
+     *
+     * @param nm   Input string name of the species
+     * @param ph   Input string name of the phase.
+     */
+    size_t kineticsSpeciesIndex(const std::string& nm,
+                                const std::string& ph) const;
 
     /**
      * This function looks up the std::string name of a species and
