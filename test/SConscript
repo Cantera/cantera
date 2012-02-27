@@ -8,21 +8,57 @@ localenv.Append(CPPPATH=['#ext/gtest/include', '#include'],
                 LIBPATH='#build/lib',
                 LIBS=['gtest'] + localenv['cantera_libs'])
 
-def gtestRunner(target, source, env):
+localenv['ENV']['PYTHONPATH'] = Dir('#interfaces/python').abspath
+localenv['ENV']['CANTERA_DATA'] = Dir('#data/inputs').abspath
+
+def testRunner(target, source, env):
+    """SCons Action to run a compiled test program"""
     program = source[0]
-    code = subprocess.call([program.abspath])
+    code = subprocess.call([program.abspath], env=env['ENV'])
     if not code:
         open(target[0].path, 'w').write(time.asctime()+'\n')
-    return 0
+    return code
 
-def addTest(subdir, progName):
+
+def scriptRunner(target, source, env):
+    """Scons Action to run a test script using the specified interpreter"""
+    interpreter = env['test_interpreter']
+    code = subprocess.call([interpreter, str(source[0])],
+                           env=env['ENV'])
+    if not code:
+        open(target[0].path, 'w').write(time.asctime()+'\n')
+    return code
+
+
+def addTestProgram(subdir, progName):
+    """
+    Compile a test program and create a targets for running
+    and resetting the test.
+    """
     program = localenv.Program(pjoin(subdir, progName),
                                pjoin(subdir, '%s.cpp' % progName))
     passedFile = File(pjoin(str(program[0].dir), '%s.passed' % program[0].name))
-    run_program = localenv.Command(passedFile, program, gtestRunner)
+    run_program = localenv.Command(passedFile, program, testRunner)
     Alias('newtest', run_program)
     if os.path.exists(passedFile.abspath):
         Alias('newtest-reset', localenv.Command('reset-%s%s' % (subdir, progName),
                                                 [], [Delete(passedFile.abspath)]))
 
-addTest('thermo', 'nasapoly')
+
+def addTestScript(subdir, script, interpreter):
+    """
+    Create targets for running and resetting a test script.
+    """
+    testenv = localenv.Clone()
+    testenv['test_interpreter'] = interpreter
+    passedFile = File(pjoin(subdir, '%s.passed' % (script)))
+    run_program = testenv.Command(passedFile, pjoin(subdir, script), scriptRunner)
+    Alias('newtest', run_program)
+    if os.path.exists(passedFile.abspath):
+        Alias('newtest-reset', testenv.Command('reset-%s%s' % (subdir, script),
+                                               [], [Delete(passedFile.abspath)]))
+
+
+# Instantiate tests
+addTestProgram('thermo', 'nasapoly')
+addTestScript('python', 'runTests.py', interpreter=sys.executable)

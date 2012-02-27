@@ -116,6 +116,11 @@ env = Environment(tools=toolchain+['textfile', 'subst', 'recursiveInstall', 'wix
 if os.name == 'nt' and 'TMP' in os.environ:
     env['ENV']['TMP'] = os.environ['TMP']
 
+# Fix an issue with Unicode sneaking into the environment on Windows
+if os.name == 'nt':
+    for key,val in env['ENV'].iteritems():
+        env['ENV'][key] = str(val)
+
 add_RegressionTest(env)
 
 class defaults: pass
