@@ -87,17 +87,8 @@ std::string errorMsg(int flag);
 class Substance
 {
 public:
-    Substance() {
-        T = Undef;
-        Rho = Undef;
-        Tslast = Undef;
-        Rhf = Undef;
-        Rhv = Undef;
-        Pst = Undef;
-        Err = 0;
-        m_energy_offset = 0.0;
-        m_entropy_offset = 0.0;
-    }
+    Substance();
+
     virtual ~Substance() {}
 
     void setStdState(double h0 = 0.0, double s0 = 0.0,
@@ -266,6 +257,12 @@ private:
     double vprop(int ijob);
     void set_xy(int if1, int if2, double X, double Y,
                 double atx, double aty, double rtx, double rty);
+
+    int kbr;
+    double Vmin, Vmax;
+    double Pmin, Pmax;
+    double dvbf, dv;
+    double v_here, P_here;
 };
 
 void Error(char* message, int flag, double val=Undef);
