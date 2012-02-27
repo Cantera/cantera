@@ -356,8 +356,9 @@ public:
      * @param c     Vector of coefficients used to set the
      *              parameters for the standard state.
      *              Must be length >= 4.
+     * @deprecated
      */
-    virtual void modifyParams(size_t index, doublereal* c) {
+    DEPRECATED(virtual void modifyParams(size_t index, doublereal* c)) {
         size_t loc = m_loc[index];
         if (loc == npos) {
             throw CanteraError("SimpleThermo::modifyParams",
