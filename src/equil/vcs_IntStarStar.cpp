@@ -28,8 +28,10 @@ IntStarStar::IntStarStar(size_t m, size_t n, int v) :
     m_data.resize(n*m);
     std::fill(m_data.begin(), m_data.end(), v);
     m_colAddr.resize(m);
-    for (size_t jcol = 0; jcol < m_ncols; jcol++) {
-        m_colAddr[jcol] = &(m_data[jcol*m_nrows]);
+    if (!m_data.empty()) {
+        for (size_t jcol = 0; jcol < m_ncols; jcol++) {
+            m_colAddr[jcol] = &(m_data[jcol*m_nrows]);
+        }
     }
 }
 
@@ -41,8 +43,10 @@ IntStarStar::IntStarStar(const IntStarStar& y)
     m_data.resize(m_nrows*m_ncols);
     m_data = y.m_data;
     m_colAddr.resize(m_ncols);
-    for (size_t jcol = 0; jcol < m_ncols; jcol++) {
-        m_colAddr[jcol] = &(m_data[jcol*m_nrows]);
+    if (!m_data.empty()) {
+        for (size_t jcol = 0; jcol < m_ncols; jcol++) {
+            m_colAddr[jcol] = &(m_data[jcol*m_nrows]);
+        }
     }
 }
 
@@ -57,8 +61,10 @@ IntStarStar& IntStarStar::operator=(const IntStarStar& y)
     m_data.resize(m_nrows*m_ncols);
     m_data = y.m_data;
     m_colAddr.resize(m_ncols);
-    for (size_t jcol = 0; jcol < m_ncols; jcol++) {
-        m_colAddr[jcol] = &(m_data[jcol*m_nrows]);
+    if (!m_data.empty()) {
+        for (size_t jcol = 0; jcol < m_ncols; jcol++) {
+            m_colAddr[jcol] = &(m_data[jcol*m_nrows]);
+        }
     }
     return *this;
 }

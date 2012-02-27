@@ -35,8 +35,10 @@ DenseMatrix::DenseMatrix(size_t n, size_t m, doublereal v) :
 {
     m_ipiv.resize(std::max(n, m));
     m_colPts.resize(m);
-    for (size_t j = 0; j < m; j++) {
-        m_colPts[j] = &(m_data[m_nrows*j]);
+    if (!m_data.empty()) {
+        for (size_t j = 0; j < m; j++) {
+            m_colPts[j] = &(m_data[m_nrows*j]);
+        }
     }
 }
 //====================================================================================================================
@@ -52,8 +54,10 @@ DenseMatrix::DenseMatrix(const DenseMatrix& y) :
 {
     m_ipiv = y.ipiv();
     m_colPts.resize(m_ncols);
-    for (size_t j = 0; j < m_ncols; j++) {
-        m_colPts[j] = &(m_data[m_nrows*j]);
+    if (!m_data.empty()) {
+        for (size_t j = 0; j < m_ncols; j++) {
+            m_colPts[j] = &(m_data[m_nrows*j]);
+        }
     }
 }
 //====================================================================================================================
@@ -84,8 +88,10 @@ void DenseMatrix::resize(size_t n, size_t m, doublereal v)
     Array2D::resize(n,m,v);
     m_ipiv.resize(std::max(n,m));
     m_colPts.resize(m_ncols);
-    for (size_t j = 0; j < m_ncols; j++) {
-        m_colPts[j] = &(m_data[m_nrows*j]);
+    if (!m_data.empty()) {
+        for (size_t j = 0; j < m_ncols; j++) {
+            m_colPts[j] = &(m_data[m_nrows*j]);
+        }
     }
 }
 //====================================================================================================================
