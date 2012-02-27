@@ -1,4 +1,4 @@
-h_sources  = ArrayViewer.h DenseMatrix.h funcs.h ctlapack.h Func1.h \
+h_sources  = DenseMatrix.h funcs.h ctlapack.h Func1.h               \
              FuncEval.h polyfit.h BandMatrix.h Integrator.h         \
              DAE_Solver.h ResidEval.h sort.h SquareMatrix.h         \
 	     ResidJacEval.h NonlinearSolver.h

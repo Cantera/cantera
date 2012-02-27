@@ -8,7 +8,6 @@
 #include <time.h>
 
 #include "AxiStagnBVP.h"
-#include "cantera/numerics/ArrayViewer.h"
 #include "cantera/base/ctml.h"
 #include "cantera/oneD/MultiJac.h"
 
@@ -1121,7 +1120,7 @@ void AxiStagnBVP::save(XML_Node& o, doublereal* sol)
 {
     int k;
 
-    ArrayViewer soln(m_nv, m_points, sol + loc());
+    Array2D soln(m_nv, m_points, sol + loc());
 
     XML_Node& flow = (XML_Node&)o.addChild("domain");
     flow.addAttribute("type",flowType());

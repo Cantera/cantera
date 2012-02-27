@@ -7,7 +7,6 @@
 #include <time.h>
 
 #include "cantera/oneD/StFlow.h"
-#include "cantera/numerics/ArrayViewer.h"
 #include "cantera/base/ctml.h"
 #include "cantera/oneD/MultiJac.h"
 
@@ -1178,7 +1177,7 @@ void StFlow::save(XML_Node& o, const doublereal* const sol)
 {
     size_t k;
 
-    ArrayViewer soln(m_nv, m_points, const_cast<doublereal*>(sol) + loc());
+    Array2D soln(m_nv, m_points, sol + loc());
 
     XML_Node& flow = (XML_Node&)o.addChild("domain");
     flow.addAttribute("type",flowType());
@@ -1193,7 +1192,7 @@ void StFlow::save(XML_Node& o, const doublereal* const sol)
     addFloat(flow, "pressure", m_press, "Pa", "pressure");
     addFloatArray(gv,"z",m_z.size(),DATA_PTR(m_z),
                   "m","length");
-    vector_fp x(static_cast<size_t>(soln.nColumns()));
+    vector_fp x(soln.nColumns());
 
     soln.getRow(0,DATA_PTR(x));
     addFloatArray(gv,"u",x.size(),DATA_PTR(x),"m/s","velocity");
