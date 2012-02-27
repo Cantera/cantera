@@ -51,11 +51,11 @@ for subdir, extensions, setup in libs:
 localenv = env.Clone()
 lib = localenv.StaticLibrary('../lib/cantera', libraryTargets,
                              SPAWN=getSpawn(localenv))
+buildTargets.extend(lib)
 localenv.Depends(lib, localenv['config_h_target'])
 
 if localenv['addInstallTargets']:
     inst = localenv.Install('$inst_libdir', lib)
-    buildTargets.extend(lib)
     installTargets.extend(inst)
 
 # OS X requires the shared libraries at link time
@@ -67,9 +67,9 @@ if localenv['OS'] == 'Darwin' and localenv['use_sundials'] == 'y':
 lib = localenv.SharedLibrary('../lib/cantera_shared', libraryTargets,
                              SPAWN=getSpawn(localenv))
 env['cantera_shlib'] = lib
+buildTargets.extend(lib)
 localenv.Depends(lib, localenv['config_h_target'])
 
 if localenv['addInstallTargets']:
     inst = localenv.Install('$inst_libdir', lib)
-    buildTargets.extend(lib)
     installTargets.extend(inst)
