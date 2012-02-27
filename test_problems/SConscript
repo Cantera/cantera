@@ -23,6 +23,8 @@ class Test(object):
         self.options = kwargs.get('options') or ''
         self.blessedName = blessedName
         self.artifacts = kwargs.get('artifacts') or ()
+        if isinstance(self.artifacts, str):
+            self.artifacts = [self.artifacts]
         self.comparisons = kwargs.get('comparisons') or ()
         self.tolerance = kwargs.get('tolerance') or 1e-5 # error tolerance for CSV comparison
         self.threshold = kwargs.get('threshold') or 1e-14 # error threshold for CSV comparison
