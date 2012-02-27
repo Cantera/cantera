@@ -26,16 +26,6 @@ thermo_delete(PyObject* self, PyObject* args)
 }
 
 static PyObject*
-thermo_index(PyObject* self, PyObject* args)
-{
-    char* id;
-    if (!PyArg_ParseTuple(args, "s:index", &id)) {
-        return NULL;
-    }
-    return Py_BuildValue("i",th_thermoIndex(id));
-}
-
-static PyObject*
 thermo_refpressure(PyObject* self, PyObject* args)
 {
     int th;

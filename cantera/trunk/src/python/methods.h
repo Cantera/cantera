@@ -25,7 +25,6 @@ static PyMethodDef ct_methods[] = {
     {"thermo_delete", thermo_delete,  METH_VARARGS},
     {"thermo_mintemp", thermo_mintemp,  METH_VARARGS},
     {"thermo_maxtemp", thermo_maxtemp,  METH_VARARGS},
-    {"thermo_thermoIndex", thermo_index,  METH_VARARGS},
     {"thermo_refpressure", thermo_refpressure,  METH_VARARGS},
     {"thermo_getfp", thermo_getfp,  METH_VARARGS},
     {"thermo_setfp", thermo_setfp,  METH_VARARGS},

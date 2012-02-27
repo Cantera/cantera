@@ -9,21 +9,19 @@
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
 #include "kinetics/ImplicitSurfChem.h"
-
 #include "Cabinet.h"
-#include "Storage.h"
 
 using namespace std;
 using namespace Cantera;
 
 inline SurfPhase* _surfphase(int n)
 {
-    return (SurfPhase*)Storage::__storage->__thtable[n];
+    return dynamic_cast<SurfPhase*>(&Cabinet<ThermoPhase>::item(n));
 }
 
 inline InterfaceKinetics* _surfkin(int n)
 {
-    return (InterfaceKinetics*)Storage::__storage->__ktable[n];
+    return dynamic_cast<InterfaceKinetics*>(&Cabinet<Kinetics>::item(n));
 }
 
 extern "C" {

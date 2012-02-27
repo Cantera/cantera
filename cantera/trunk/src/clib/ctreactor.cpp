@@ -12,9 +12,7 @@
 #include "cantera/zeroD/Reservoir.h"
 #include "cantera/zeroD/Wall.h"
 #include "cantera/zeroD/flowControllers.h"
-
 #include "Cabinet.h"
-#include "Storage.h"
 
 using namespace Cantera;
 using namespace std;
@@ -24,16 +22,8 @@ typedef Cabinet<ReactorNet> NetworkCabinet;
 typedef Cabinet<FlowDevice> FlowDeviceCabinet;
 typedef Cabinet<Wall> WallCabinet;
 typedef Cabinet<Func1> FuncCabinet;
-
-inline Kinetics* _kin(int n)
-{
-    return Storage::__storage->__ktable[n];
-}
-
-inline ThermoPhase* _th(int n)
-{
-    return Storage::__storage->__thtable[n];
-}
+typedef Cabinet<ThermoPhase> ThermoCabinet;
+typedef Cabinet<Kinetics> KineticsCabinet;
 
 template<> ReactorCabinet* ReactorCabinet::__storage = 0;
 template<> NetworkCabinet* NetworkCabinet::__storage = 0;
@@ -91,7 +81,7 @@ extern "C" {
 
     int DLL_EXPORT reactor_setThermoMgr(int i, int n)
     {
-        ReactorCabinet::item(i).setThermoMgr(*_th(n));
+        ReactorCabinet::item(i).setThermoMgr(ThermoCabinet::item(n));
         return 0;
     }
 
@@ -99,7 +89,7 @@ extern "C" {
     {
         ReactorBase* r = &ReactorCabinet::item(i);
         if (r->type() >= ReactorType) {
-            ((Reactor*)r)->setKineticsMgr(*_kin(n));
+            ((Reactor*)r)->setKineticsMgr(KineticsCabinet::item(n));
         }
         return 0;
     }
@@ -423,12 +413,12 @@ extern "C" {
     {
         Kinetics* left=0, *right=0;
         if (n > 0)
-            if (_kin(n)->type() == cInterfaceKinetics) {
-                left = _kin(n);
+            if (KineticsCabinet::item(n).type() == cInterfaceKinetics) {
+                left = &KineticsCabinet::item(n);
             }
         if (m > 0)
-            if (_kin(m)->type() == cInterfaceKinetics) {
-                right = _kin(m);
+            if (KineticsCabinet::item(m).type() == cInterfaceKinetics) {
+                right = &KineticsCabinet::item(m);
             }
         WallCabinet::item(i).setKinetics(left, right);
         return 0;

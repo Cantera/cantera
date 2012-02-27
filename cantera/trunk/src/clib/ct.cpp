@@ -19,11 +19,9 @@
 #include "cantera/kinetics/importKinetics.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "converters/ck2ct.h"
-#include "Storage.h"
 #include "Cabinet.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/thermo/PureFluidPhase.h"
-
 
 using namespace std;
 using namespace Cantera;
@@ -32,15 +30,22 @@ using namespace Cantera;
 #include "windows.h"
 #endif
 
+typedef Cabinet<ThermoPhase> ThermoCabinet;
+typedef Cabinet<Kinetics> KineticsCabinet;
+typedef Cabinet<Transport> TransportCabinet;
 typedef Cabinet<XML_Node, false> XmlCabinet;
+
+template<> ThermoCabinet* ThermoCabinet::__storage = 0;
+template<> KineticsCabinet* KineticsCabinet::__storage = 0;
+template<> TransportCabinet* TransportCabinet::__storage = 0;
 
 #ifdef WITH_PURE_FLUIDS
 static PureFluidPhase* purefluid(int n)
 {
     try {
-        ThermoPhase* tp = th(n);
-        if (tp->eosType() == cPureFluid) {
-            return (PureFluidPhase*)tp;
+        ThermoPhase& tp = ThermoCabinet::item(n);
+        if (tp.eosType() == cPureFluid) {
+            return dynamic_cast<PureFluidPhase*>(&tp);
         } else {
             throw CanteraError("purefluid","object is not a PureFluidPhase object");
         }
@@ -92,11 +97,6 @@ static double pfprop(int n, int i, double v=0.0, double x=0.0)
 #endif
 
 
-inline size_t nThermo()
-{
-    return Storage::storage()->nThermo();
-}
-
 namespace Cantera
 {
 void writephase(const ThermoPhase& th, bool show_thermo);
@@ -143,23 +143,23 @@ extern "C" {
 
     size_t DLL_EXPORT phase_nElements(int n)
     {
-        return ph(n)->nElements();
+        return ThermoCabinet::item(n).nElements();
     }
 
     size_t DLL_EXPORT phase_nSpecies(int n)
     {
-        return ph(n)->nSpecies();
+        return ThermoCabinet::item(n).nSpecies();
     }
 
     doublereal DLL_EXPORT phase_temperature(int n)
     {
-        return ph(n)->temperature();
+        return ThermoCabinet::item(n).temperature();
     }
 
     int DLL_EXPORT phase_setTemperature(int n, double t)
     {
         try {
-            ph(n)->setTemperature(t);
+            ThermoCabinet::item(n).setTemperature(t);
         } catch (CanteraError) {
             return -1;
         }
@@ -168,7 +168,7 @@ extern "C" {
 
     doublereal DLL_EXPORT phase_density(int n)
     {
-        return ph(n)->density();
+        return ThermoCabinet::item(n).density();
     }
 
     int DLL_EXPORT phase_setDensity(int n, double rho)
@@ -176,13 +176,13 @@ extern "C" {
         if (rho < 0.0) {
             return -1;
         }
-        ph(n)->setDensity(rho);
+        ThermoCabinet::item(n).setDensity(rho);
         return 0;
     }
 
     doublereal DLL_EXPORT phase_molarDensity(int n)
     {
-        return ph(n)->molarDensity();
+        return ThermoCabinet::item(n).molarDensity();
     }
 
     int DLL_EXPORT phase_setMolarDensity(int n, double ndens)
@@ -190,32 +190,32 @@ extern "C" {
         if (ndens < 0.0) {
             return -1;
         }
-        ph(n)->setMolarDensity(ndens);
+        ThermoCabinet::item(n).setMolarDensity(ndens);
         return 0;
     }
 
     doublereal DLL_EXPORT phase_meanMolecularWeight(int n)
     {
-        return ph(n)->meanMolecularWeight();
+        return ThermoCabinet::item(n).meanMolecularWeight();
     }
 
     size_t DLL_EXPORT phase_elementIndex(int n, char* nm)
     {
         string elnm = string(nm);
-        return ph(n)->elementIndex(elnm);
+        return ThermoCabinet::item(n).elementIndex(elnm);
     }
 
     size_t DLL_EXPORT phase_speciesIndex(int n, char* nm)
     {
         string spnm = string(nm);
-        return ph(n)->speciesIndex(spnm);
+        return ThermoCabinet::item(n).speciesIndex(spnm);
     }
 
     int DLL_EXPORT phase_getMoleFractions(int n, size_t lenx, double* x)
     {
-        ThermoPhase* p = ph(n);
-        if (lenx >= p->nSpecies()) {
-            p->getMoleFractions(x);
+        ThermoPhase& p = ThermoCabinet::item(n);
+        if (lenx >= p.nSpecies()) {
+            p.getMoleFractions(x);
             return 0;
         } else {
             return -1;
@@ -224,15 +224,14 @@ extern "C" {
 
     doublereal DLL_EXPORT phase_moleFraction(int n, size_t k)
     {
-        ThermoPhase* p = ph(n);
-        return p->moleFraction(k);
+        return ThermoCabinet::item(n).moleFraction(k);
     }
 
     int DLL_EXPORT phase_getMassFractions(int n, size_t leny, double* y)
     {
-        ThermoPhase* p = ph(n);
-        if (leny >= p->nSpecies()) {
-            p->getMassFractions(y);
+        ThermoPhase& p = ThermoCabinet::item(n);
+        if (leny >= p.nSpecies()) {
+            p.getMassFractions(y);
             return 0;
         } else {
             return -1;
@@ -241,18 +240,17 @@ extern "C" {
 
     doublereal DLL_EXPORT phase_massFraction(int n, size_t k)
     {
-        ThermoPhase* p = ph(n);
-        return p->massFraction(k);
+        return ThermoCabinet::item(n).massFraction(k);
     }
 
     int DLL_EXPORT phase_setMoleFractions(int n, size_t lenx, double* x, int norm)
     {
-        ThermoPhase* p = ph(n);
-        if (lenx >= p->nSpecies()) {
+        ThermoPhase& p = ThermoCabinet::item(n);
+        if (lenx >= p.nSpecies()) {
             if (norm) {
-                p->setMoleFractions(x);
+                p.setMoleFractions(x);
             } else {
-                p->setMoleFractions_NoNorm(x);
+                p.setMoleFractions_NoNorm(x);
             }
             return 0;
         } else {
@@ -263,14 +261,14 @@ extern "C" {
     int DLL_EXPORT phase_setMoleFractionsByName(int n, char* x)
     {
         try {
-            ThermoPhase* p = ph(n);
+            ThermoPhase& p = ThermoCabinet::item(n);
             compositionMap xx;
-            size_t nsp = p->nSpecies();
+            size_t nsp = p.nSpecies();
             for (size_t n = 0; n < nsp; n++) {
-                xx[p->speciesName(n)] = -1;
+                xx[p.speciesName(n)] = -1;
             }
             parseCompString(string(x), xx);
-            p->setMoleFractionsByName(xx);
+            p.setMoleFractionsByName(xx);
             return 0;
         } catch (CanteraError) {
             return -1;
@@ -281,12 +279,12 @@ extern "C" {
     int DLL_EXPORT phase_setMassFractions(int n, size_t leny,
                                           double* y, int norm)
     {
-        ThermoPhase* p = ph(n);
-        if (leny >= p->nSpecies()) {
+        ThermoPhase& p = ThermoCabinet::item(n);
+        if (leny >= p.nSpecies()) {
             if (norm) {
-                p->setMassFractions(y);
+                p.setMassFractions(y);
             } else {
-                p->setMassFractions_NoNorm(y);
+                p.setMassFractions_NoNorm(y);
             }
             return 0;
         } else {
@@ -297,14 +295,14 @@ extern "C" {
     int DLL_EXPORT phase_setMassFractionsByName(int n, char* y)
     {
         try {
-            ThermoPhase* p = ph(n);
+            ThermoPhase& p = ThermoCabinet::item(n);
             compositionMap yy;
-            size_t nsp = p->nSpecies();
+            size_t nsp = p.nSpecies();
             for (size_t n = 0; n < nsp; n++) {
-                yy[p->speciesName(n)] = -1;
+                yy[p.speciesName(n)] = -1;
             }
             parseCompString(string(y), yy);
-            p->setMassFractionsByName(yy);
+            p.setMassFractionsByName(yy);
             return 0;
         } catch (CanteraError) {
             return -1;
@@ -314,9 +312,9 @@ extern "C" {
     int DLL_EXPORT phase_getAtomicWeights(int n,
                                           size_t lenm, double* atw)
     {
-        ThermoPhase* p = ph(n);
-        if (lenm >= p->nElements()) {
-            const vector_fp& wt = p->atomicWeights();
+        ThermoPhase& p = ThermoCabinet::item(n);
+        if (lenm >= p.nElements()) {
+            const vector_fp& wt = p.atomicWeights();
             copy(wt.begin(), wt.end(), atw);
             return 0;
         } else {
@@ -327,9 +325,9 @@ extern "C" {
     int DLL_EXPORT phase_getMolecularWeights(int n,
             size_t lenm, double* mw)
     {
-        ThermoPhase* p = ph(n);
-        if (lenm >= p->nSpecies()) {
-            const vector_fp& wt = p->molecularWeights();
+        ThermoPhase& p = ThermoCabinet::item(n);
+        if (lenm >= p.nSpecies()) {
+            const vector_fp& wt = p.molecularWeights();
             copy(wt.begin(), wt.end(), mw);
             return 0;
         } else {
@@ -339,7 +337,7 @@ extern "C" {
 
     int DLL_EXPORT phase_getName(int n, size_t lennm, char* nm)
     {
-        string name = ph(n)->name();
+        string name = ThermoCabinet::item(n).name();
         size_t lout = min(lennm, name.size());
         copy(name.c_str(), name.c_str() + lout, nm);
         nm[lout] = '\0';
@@ -349,14 +347,14 @@ extern "C" {
     int DLL_EXPORT phase_setName(int n, const char* nm)
     {
         string name = string(nm);
-        ph(n)->setName(name);
+        ThermoCabinet::item(n).setName(name);
         return 0;
     }
 
     int DLL_EXPORT phase_getSpeciesName(int n, size_t k, size_t lennm, char* nm)
     {
         try {
-            string spnm = ph(n)->speciesName(k);
+            string spnm = ThermoCabinet::item(n).speciesName(k);
             size_t lout = min(lennm, spnm.size());
             copy(spnm.c_str(), spnm.c_str() + lout, nm);
             nm[lout] = '\0';
@@ -370,7 +368,7 @@ extern "C" {
     int DLL_EXPORT phase_getElementName(int n, size_t m, size_t lennm, char* nm)
     {
         try {
-            string elnm = ph(n)->elementName(m);
+            string elnm = ThermoCabinet::item(n).elementName(m);
             size_t lout = min(lennm, elnm.size());
             copy(elnm.c_str(), elnm.c_str() + lout, nm);
             nm[lout] = '\0';
@@ -384,7 +382,7 @@ extern "C" {
     doublereal DLL_EXPORT phase_nAtoms(int n, size_t k, size_t m)
     {
         try {
-            return ph(n)->nAtoms(k,m);
+            return ThermoCabinet::item(n).nAtoms(k,m);
         } catch (CanteraError) {
             return -1;
         }
@@ -393,7 +391,7 @@ extern "C" {
     int DLL_EXPORT phase_addElement(int n, char* name, doublereal weight)
     {
         try {
-            ph(n)->addElement(string(name),weight);
+            ThermoCabinet::item(n).addElement(string(name),weight);
             return 0;
         } catch (CanteraError) {
             return -1;
@@ -422,53 +420,31 @@ extern "C" {
 
     //-------------- Thermo --------------------//
 
-    //    int DLL_EXPORT newThermo(int eos, int ph, int sptherm) {
-    //    return Storage::storage()->addNewThermo(eos, ph, sptherm);
-    // }
-
-    int DLL_EXPORT th_thermoIndex(char* id)
-    {
-        return thermo_index(id);
-    }
-
-    //     int DLL_EXPORT newThermo(char* model) {
-    //         try {
-    //             string m = string(model);
-    //             thermo_t* th = newThermoPhase(m);
-    //             return Storage::storage()->addThermo(th);
-    //         }
-    //         catch (CanteraError) { return -1; }
-    //     }
-
     size_t DLL_EXPORT newThermoFromXML(int mxml)
     {
         try {
             XML_Node& x = XmlCabinet::item(mxml);
             thermo_t* th = newPhase(x);
-            return Storage::storage()->addThermo(th);
+            return ThermoCabinet::add(th);
         } catch (CanteraError) {
             return -1;
         }
     }
 
-    //int DLL_EXPORT th_phase(int n) {
-    //    return th(n)->phase().index();
-    // }
-
     size_t DLL_EXPORT th_nSpecies(size_t n)
     {
-        return th(n)->nSpecies();
+        return ThermoCabinet::item(n).nSpecies();
     }
 
     int DLL_EXPORT th_eosType(int n)
     {
-        return th(n)->eosType();
+        return ThermoCabinet::item(n).eosType();
     }
 
     double DLL_EXPORT th_enthalpy_mole(int n)
     {
         try {
-            return th(n)->enthalpy_mole();
+            return ThermoCabinet::item(n).enthalpy_mole();
         } catch (CanteraError) {
             return DERR;
         }
@@ -477,7 +453,7 @@ extern "C" {
     double DLL_EXPORT th_intEnergy_mole(int n)
     {
         try {
-            return th(n)->intEnergy_mole();
+            return ThermoCabinet::item(n).intEnergy_mole();
         } catch (CanteraError) {
             return DERR;
         }
@@ -486,7 +462,7 @@ extern "C" {
     double DLL_EXPORT th_entropy_mole(int n)
     {
         try {
-            return th(n)->entropy_mole();
+            return ThermoCabinet::item(n).entropy_mole();
         } catch (CanteraError) {
             return DERR;
         }
@@ -495,7 +471,7 @@ extern "C" {
     double DLL_EXPORT th_gibbs_mole(int n)
     {
         try {
-            return th(n)->gibbs_mole();
+            return ThermoCabinet::item(n).gibbs_mole();
         } catch (CanteraError) {
             return DERR;
         }
@@ -504,7 +480,7 @@ extern "C" {
     double DLL_EXPORT th_cp_mole(int n)
     {
         try {
-            return th(n)->cp_mole();
+            return ThermoCabinet::item(n).cp_mole();
         } catch (CanteraError) {
             return DERR;
         }
@@ -513,7 +489,7 @@ extern "C" {
     double DLL_EXPORT th_cv_mole(int n)
     {
         try {
-            return th(n)->cv_mole();
+            return ThermoCabinet::item(n).cv_mole();
         } catch (CanteraError) {
             return DERR;
         }
@@ -522,7 +498,7 @@ extern "C" {
     double DLL_EXPORT th_pressure(int n)
     {
         try {
-            return th(n)->pressure();
+            return ThermoCabinet::item(n).pressure();
         } catch (CanteraError) {
             return DERR;
         }
@@ -531,7 +507,7 @@ extern "C" {
     double DLL_EXPORT th_enthalpy_mass(int n)
     {
         try {
-            return th(n)->enthalpy_mass();
+            return ThermoCabinet::item(n).enthalpy_mass();
         } catch (CanteraError) {
             return DERR;
         }
@@ -540,7 +516,7 @@ extern "C" {
     double DLL_EXPORT th_intEnergy_mass(int n)
     {
         try {
-            return th(n)->intEnergy_mass();
+            return ThermoCabinet::item(n).intEnergy_mass();
         } catch (CanteraError) {
             return DERR;
         }
@@ -549,7 +525,7 @@ extern "C" {
     double DLL_EXPORT th_entropy_mass(int n)
     {
         try {
-            return th(n)->entropy_mass();
+            return ThermoCabinet::item(n).entropy_mass();
         } catch (CanteraError) {
             return DERR;
         }
@@ -558,7 +534,7 @@ extern "C" {
     double DLL_EXPORT th_gibbs_mass(int n)
     {
         try {
-            return th(n)->gibbs_mass();
+            return ThermoCabinet::item(n).gibbs_mass();
         } catch (CanteraError) {
             return DERR;
         }
@@ -567,7 +543,7 @@ extern "C" {
     double DLL_EXPORT th_cp_mass(int n)
     {
         try {
-            return th(n)->cp_mass();
+            return ThermoCabinet::item(n).cp_mass();
         } catch (CanteraError) {
             return DERR;
         }
@@ -576,7 +552,7 @@ extern "C" {
     double DLL_EXPORT th_cv_mass(int n)
     {
         try {
-            return th(n)->cv_mass();
+            return ThermoCabinet::item(n).cv_mass();
         } catch (CanteraError) {
             return DERR;
         }
@@ -585,7 +561,7 @@ extern "C" {
     double DLL_EXPORT th_electricPotential(int n)
     {
         try {
-            return th(n)->electricPotential();
+            return ThermoCabinet::item(n).electricPotential();
         } catch (CanteraError) {
             return DERR;
         }
@@ -593,10 +569,10 @@ extern "C" {
 
     int DLL_EXPORT th_chemPotentials(int n, size_t lenm, double* murt)
     {
-        thermo_t* thrm = th(n);
-        size_t nsp = thrm->nSpecies();
+        ThermoPhase& thrm = ThermoCabinet::item(n);
+        size_t nsp = thrm.nSpecies();
         if (lenm >= nsp) {
-            thrm->getChemPotentials(murt);
+            thrm.getChemPotentials(murt);
             return 0;
         } else {
             return -10;
@@ -605,11 +581,11 @@ extern "C" {
 
     int DLL_EXPORT th_elementPotentials(int n, size_t lenm, double* lambda)
     {
-        thermo_t* thrm = th(n);
-        size_t nel = thrm->nElements();
+        ThermoPhase& thrm = ThermoCabinet::item(n);
+        size_t nel = thrm.nElements();
         if (lenm >= nel) {
-            equilibrate(*thrm, "TP", 0);
-            thrm->getElementPotentials(lambda);
+            equilibrate(thrm, "TP", 0);
+            thrm.getElementPotentials(lambda);
             return 0;
         } else {
             return -10;
@@ -621,7 +597,7 @@ extern "C" {
         try {
             if (p < 0.0) throw CanteraError("th_setPressure",
                                                 "pressure cannot be negative");
-            th(n)->setPressure(p);
+            ThermoCabinet::item(n).setPressure(p);
             return 0;
         } catch (CanteraError) {
             return -1;
@@ -634,8 +610,8 @@ extern "C" {
             if (vals[1] < 0.0)
                 throw CanteraError("th_set_HP",
                                    "pressure cannot be negative");
-            th(n)->setState_HP(vals[0],vals[1]);
-            if (th(n)->temperature() < 0.0)
+            ThermoCabinet::item(n).setState_HP(vals[0],vals[1]);
+            if (ThermoCabinet::item(n).temperature() < 0.0)
                 throw CanteraError("th_set_HP",
                                    "temperature cannot be negative");
             return 0;
@@ -650,8 +626,8 @@ extern "C" {
             if (vals[1] < 0.0)
                 throw CanteraError("th_set_UV",
                                    "specific volume cannot be negative");
-            th(n)->setState_UV(vals[0],vals[1]);
-            if (th(n)->temperature() < 0.0)
+            ThermoCabinet::item(n).setState_UV(vals[0],vals[1]);
+            if (ThermoCabinet::item(n).temperature() < 0.0)
                 throw CanteraError("th_set_UV",
                                    "temperature cannot be negative");
             return 0;
@@ -663,7 +639,7 @@ extern "C" {
     int DLL_EXPORT th_set_SV(int n, double* vals)
     {
         try {
-            th(n)->setState_SV(vals[0],vals[1]);
+            ThermoCabinet::item(n).setState_SV(vals[0],vals[1]);
             return 0;
         } catch (CanteraError) {
             return -1;
@@ -673,7 +649,7 @@ extern "C" {
     int DLL_EXPORT th_set_SP(int n, double* vals)
     {
         try {
-            th(n)->setState_SP(vals[0],vals[1]);
+            ThermoCabinet::item(n).setState_SP(vals[0],vals[1]);
             return 0;
         } catch (CanteraError) {
             return -1;
@@ -684,7 +660,7 @@ extern "C" {
                             double rtol, int maxsteps, int maxiter, int loglevel)
     {
         try {
-            equilibrate(*th(n), XY, solver, rtol, maxsteps,
+            equilibrate(ThermoCabinet::item(n), XY, solver, rtol, maxsteps,
                         maxiter, loglevel);
             return 0;
         } catch (CanteraError) {
@@ -694,27 +670,27 @@ extern "C" {
 
     doublereal DLL_EXPORT th_refPressure(int n)
     {
-        return th(n)->refPressure();
+        return ThermoCabinet::item(n).refPressure();
     }
 
     doublereal DLL_EXPORT th_minTemp(int n, int k)
     {
-        return th(n)->minTemp(k);
+        return ThermoCabinet::item(n).minTemp(k);
     }
 
     doublereal DLL_EXPORT th_maxTemp(int n, int k)
     {
-        return th(n)->maxTemp(k);
+        return ThermoCabinet::item(n).maxTemp(k);
     }
 
 
     int DLL_EXPORT th_getEnthalpies_RT(int n, size_t lenm, double* h_rt)
     {
         try {
-            thermo_t* thrm = th(n);
-            size_t nsp = thrm->nSpecies();
+            ThermoPhase& thrm = ThermoCabinet::item(n);
+            size_t nsp = thrm.nSpecies();
             if (lenm >= nsp) {
-                thrm->getEnthalpy_RT_ref(h_rt);
+                thrm.getEnthalpy_RT_ref(h_rt);
                 return 0;
             } else {
                 return -10;
@@ -727,10 +703,10 @@ extern "C" {
     int DLL_EXPORT th_getEntropies_R(int n, size_t lenm, double* s_r)
     {
         try {
-            thermo_t* thrm = th(n);
-            size_t nsp = thrm->nSpecies();
+            ThermoPhase& thrm = ThermoCabinet::item(n);
+            size_t nsp = thrm.nSpecies();
             if (lenm >= nsp) {
-                thrm->getEntropy_R_ref(s_r);
+                thrm.getEntropy_R_ref(s_r);
                 return 0;
             } else {
                 return -10;
@@ -743,10 +719,10 @@ extern "C" {
     int DLL_EXPORT th_getCp_R(int n, size_t lenm, double* cp_r)
     {
         try {
-            thermo_t* thrm = th(n);
-            size_t nsp = thrm->nSpecies();
+            ThermoPhase& thrm = ThermoCabinet::item(n);
+            size_t nsp = thrm.nSpecies();
             if (lenm >= nsp) {
-                thrm->getCp_R_ref(cp_r);
+                thrm.getCp_R_ref(cp_r);
                 return 0;
             } else {
                 return -10;
@@ -758,7 +734,7 @@ extern "C" {
 
     int DLL_EXPORT th_setElectricPotential(int n, double v)
     {
-        th(n)->setElectricPotential(v);
+        ThermoCabinet::item(n).setElectricPotential(v);
         return 0;
     }
 
@@ -876,22 +852,22 @@ extern "C" {
         try {
             XML_Node& x = XmlCabinet::item(mxml);
             vector<thermo_t*> phases;
-            phases.push_back(th(iphase));
+            phases.push_back(&ThermoCabinet::item(iphase));
             if (neighbor1 >= 0) {
-                phases.push_back(th(neighbor1));
+                phases.push_back(&ThermoCabinet::item(neighbor1));
                 if (neighbor2 >= 0) {
-                    phases.push_back(th(neighbor2));
+                    phases.push_back(&ThermoCabinet::item(neighbor2));
                     if (neighbor3 >= 0) {
-                        phases.push_back(th(neighbor3));
+                        phases.push_back(&ThermoCabinet::item(neighbor3));
                         if (neighbor4 >= 0) {
-                            phases.push_back(th(neighbor4));
+                            phases.push_back(&ThermoCabinet::item(neighbor4));
                         }
                     }
                 }
             }
             Kinetics* kin = newKineticsMgr(x, phases);
             if (kin) {
-                return Storage::storage()->addKinetics(kin);
+                return KineticsCabinet::add(kin);
             } else {
                 return 0;
             }
@@ -905,9 +881,9 @@ extern "C" {
     {
         try {
             XML_Node& p = XmlCabinet::item(pxml);
-            kinetics_t* k = kin(ikin);
+            Kinetics& k = KineticsCabinet::item(ikin);
             string defphase = string(default_phase);
-            installReactionArrays(p, *k, defphase);
+            installReactionArrays(p, k, defphase);
             return 0;
         } catch (CanteraError) {
             return -1;
@@ -917,67 +893,67 @@ extern "C" {
     //-------------------------------------
     int DLL_EXPORT kin_type(int n)
     {
-        return kin(n)->type();
+        return KineticsCabinet::item(n).type();
     }
 
     size_t DLL_EXPORT kin_start(int n, int p)
     {
-        return kin(n)->kineticsSpeciesIndex(0,p);
+        return KineticsCabinet::item(n).kineticsSpeciesIndex(0,p);
     }
 
     size_t DLL_EXPORT kin_speciesIndex(int n, const char* nm, const char* ph)
     {
-        return kin(n)->kineticsSpeciesIndex(string(nm), string(ph));
+        return KineticsCabinet::item(n).kineticsSpeciesIndex(string(nm), string(ph));
     }
 
     //---------------------------------------
 
     size_t DLL_EXPORT kin_nSpecies(int n)
     {
-        return kin(n)->nTotalSpecies();
+        return KineticsCabinet::item(n).nTotalSpecies();
     }
 
     size_t DLL_EXPORT kin_nReactions(int n)
     {
-        return kin(n)->nReactions();
+        return KineticsCabinet::item(n).nReactions();
     }
 
     size_t DLL_EXPORT kin_nPhases(int n)
     {
-        return kin(n)->nPhases();
+        return KineticsCabinet::item(n).nPhases();
     }
 
     size_t DLL_EXPORT kin_phaseIndex(int n, char* ph)
     {
-        return kin(n)->phaseIndex(string(ph));
+        return KineticsCabinet::item(n).phaseIndex(string(ph));
     }
 
     size_t DLL_EXPORT kin_reactionPhaseIndex(int n)
     {
-        return kin(n)->reactionPhaseIndex();
+        return KineticsCabinet::item(n).reactionPhaseIndex();
     }
 
     double DLL_EXPORT kin_reactantStoichCoeff(int n, int k, int i)
     {
-        return kin(n)->reactantStoichCoeff(k,i);
+        return KineticsCabinet::item(n).reactantStoichCoeff(k,i);
     }
 
     double DLL_EXPORT kin_productStoichCoeff(int n, int k, int i)
     {
-        return kin(n)->productStoichCoeff(k,i);
+        return KineticsCabinet::item(n).productStoichCoeff(k,i);
     }
 
     int DLL_EXPORT kin_reactionType(int n, int i)
     {
-        return kin(n)->reactionType(i);
+        return KineticsCabinet::item(n).reactionType(i);
     }
 
     int DLL_EXPORT kin_getFwdRatesOfProgress(int n, size_t len, double* fwdROP)
     {
-        Kinetics* k = kin(n);
+        Kinetics& k = KineticsCabinet::item(n);
         try {
-            if (len >= k->nReactions()) {
-                k->getFwdRatesOfProgress(fwdROP);
+            if (len >= k.nReactions()) {
+                k.getFwdRatesOfProgress(fwdROP);
                 return 0;
             } else {
                 return ERR;
@@ -989,10 +965,10 @@ extern "C" {
 
     int DLL_EXPORT kin_getRevRatesOfProgress(int n, size_t len, double* revROP)
     {
-        Kinetics* k = kin(n);
+        Kinetics& k = KineticsCabinet::item(n);
         try {
-            if (len >= k->nReactions()) {
-                k->getRevRatesOfProgress(revROP);
+            if (len >= k.nReactions()) {
+                k.getRevRatesOfProgress(revROP);
                 return 0;
             } else {
                 return ERR;
@@ -1004,15 +980,15 @@ extern "C" {
 
     int DLL_EXPORT kin_isReversible(int n, int i)
     {
-        return (int)kin(n)->isReversible(i);
+        return (int) KineticsCabinet::item(n).isReversible(i);
     }
 
     int DLL_EXPORT kin_getNetRatesOfProgress(int n, size_t len, double* netROP)
     {
         try {
-            Kinetics* k = kin(n);
-            if (len >= k->nReactions()) {
-                k->getNetRatesOfProgress(netROP);
+            Kinetics& k = KineticsCabinet::item(n);
+            if (len >= k.nReactions()) {
+                k.getNetRatesOfProgress(netROP);
                 return 0;
             } else {
                 return ERR;
@@ -1025,9 +1001,9 @@ extern "C" {
     int DLL_EXPORT kin_getFwdRateConstants(int n, size_t len, double* kfwd)
     {
         try {
-            Kinetics* k = kin(n);
-            if (len >= k->nReactions()) {
-                k->getFwdRateConstants(kfwd);
+            Kinetics& k = KineticsCabinet::item(n);
+            if (len >= k.nReactions()) {
+                k.getFwdRateConstants(kfwd);
                 return 0;
             } else {
                 return ERR;
@@ -1040,13 +1016,13 @@ extern "C" {
     int DLL_EXPORT kin_getRevRateConstants(int n, int doIrreversible, size_t len, double* krev)
     {
         try {
-            Kinetics* k = kin(n);
+            Kinetics& k = KineticsCabinet::item(n);
             bool doirrev = false;
             if (doIrreversible != 0) {
                 doirrev = true;
             }
-            if (len >= k->nReactions()) {
-                k->getRevRateConstants(krev, doirrev);
+            if (len >= k.nReactions()) {
+                k.getRevRateConstants(krev, doirrev);
                 return 0;
             } else {
                 return ERR;
@@ -1060,9 +1036,9 @@ extern "C" {
     int DLL_EXPORT kin_getActivationEnergies(int n, size_t len, double* E)
     {
         try {
-            Kinetics* k = kin(n);
-            if (len >= k->nReactions()) {
-                k->getActivationEnergies(E);
+            Kinetics& k = KineticsCabinet::item(n);
+            if (len >= k.nReactions()) {
+                k.getActivationEnergies(E);
                 return 0;
             } else {
                 return ERR;
@@ -1076,28 +1052,28 @@ extern "C" {
     int DLL_EXPORT kin_getDelta(int n, int job, size_t len, double* delta)
     {
         try {
-            Kinetics* k = kin(n);
-            if (len < k->nReactions()) {
+            Kinetics& k = KineticsCabinet::item(n);
+            if (len < k.nReactions()) {
                 return ERR;
             }
             switch (job) {
             case 0:
-                k->getDeltaEnthalpy(delta);
+                k.getDeltaEnthalpy(delta);
                 break;
             case 1:
-                k->getDeltaGibbs(delta);
+                k.getDeltaGibbs(delta);
                 break;
             case 2:
-                k->getDeltaEntropy(delta);
+                k.getDeltaEntropy(delta);
                 break;
             case 3:
-                k->getDeltaSSEnthalpy(delta);
+                k.getDeltaSSEnthalpy(delta);
                 break;
             case 4:
-                k->getDeltaSSGibbs(delta);
+                k.getDeltaSSGibbs(delta);
                 break;
             case 5:
-                k->getDeltaSSEntropy(delta);
+                k.getDeltaSSEntropy(delta);
                 break;
             default:
                 return ERR;
@@ -1112,9 +1088,9 @@ extern "C" {
     int DLL_EXPORT kin_getDeltaEntropy(int n, size_t len, double* deltaS)
     {
         try {
-            Kinetics* k = kin(n);
-            if (len >= k->nReactions()) {
-                k->getDeltaEntropy(deltaS);
+            Kinetics& k = KineticsCabinet::item(n);
+            if (len >= k.nReactions()) {
+                k.getDeltaEntropy(deltaS);
                 return 0;
             } else {
                 return ERR;
@@ -1128,9 +1104,9 @@ extern "C" {
     int DLL_EXPORT kin_getCreationRates(int n, size_t len, double* cdot)
     {
         try {
-            Kinetics* k = kin(n);
-            if (len >= k->nTotalSpecies()) {
-                k->getCreationRates(cdot);
+            Kinetics& k = KineticsCabinet::item(n);
+            if (len >= k.nTotalSpecies()) {
+                k.getCreationRates(cdot);
                 return 0;
             } else {
                 return ERR;
@@ -1143,9 +1119,9 @@ extern "C" {
     int DLL_EXPORT kin_getDestructionRates(int n, size_t len, double* ddot)
     {
         try {
-            Kinetics* k = kin(n);
-            if (len >= k->nTotalSpecies()) {
-                k->getDestructionRates(ddot);
+            Kinetics& k = KineticsCabinet::item(n);
+            if (len >= k.nTotalSpecies()) {
+                k.getDestructionRates(ddot);
                 return 0;
             } else {
                 return ERR;
@@ -1159,9 +1135,9 @@ extern "C" {
     int DLL_EXPORT kin_getNetProductionRates(int n, size_t len, double* wdot)
     {
         try {
-            Kinetics* k = kin(n);
-            if (len >= k->nTotalSpecies()) {
-                k->getNetProductionRates(wdot);
+            Kinetics& k = KineticsCabinet::item(n);
+            if (len >= k.nTotalSpecies()) {
+                k.getNetProductionRates(wdot);
                 return 0;
             } else {
                 return ERR;
@@ -1174,13 +1150,13 @@ extern "C" {
     int DLL_EXPORT kin_getSourceTerms(int n, size_t len, double* ydot)
     {
         try {
-            Kinetics* k = kin(n);
-            ThermoPhase* p = &k->thermo();
-            const vector_fp& mw = p->molecularWeights();
+            Kinetics& k = KineticsCabinet::item(n);
+            ThermoPhase& p = k.thermo();
+            const vector_fp& mw = p.molecularWeights();
             size_t nsp = mw.size();
-            double rrho = 1.0/p->density();
+            double rrho = 1.0/p.density();
             if (len >= nsp) {
-                k->getNetProductionRates(ydot);
+                k.getNetProductionRates(ydot);
                 multiply_each(ydot, ydot + nsp, mw.begin());
                 scale(ydot, ydot + nsp, ydot, rrho);
                 return 0;
@@ -1194,20 +1170,20 @@ extern "C" {
 
     double DLL_EXPORT kin_multiplier(int n, int i)
     {
-        return kin(n)->multiplier(i);
+        return KineticsCabinet::item(n).multiplier(i);
     }
 
     size_t DLL_EXPORT kin_phase(int n, size_t i)
     {
-        return kin(n)->thermo(i).index();
+        return KineticsCabinet::item(n).thermo(i).index();
     }
 
     int DLL_EXPORT kin_getEquilibriumConstants(int n, size_t len, double* kc)
     {
         try {
-            Kinetics* k = kin(n);
-            if (len >= k->nReactions()) {
-                k->getEquilibriumConstants(kc);
+            Kinetics& k = KineticsCabinet::item(n);
+            if (len >= k.nReactions()) {
+                k.getEquilibriumConstants(kc);
                 return 0;
             } else {
                 return ERR;
@@ -1220,8 +1196,8 @@ extern "C" {
     int DLL_EXPORT kin_getReactionString(int n, int i, int len, char* buf)
     {
         try {
-            Kinetics* k = kin(n);
-            string r = k->reactionString(i);
+            Kinetics& k = KineticsCabinet::item(n);
+            string r = k.reactionString(i);
             int lout = min(len, (int)r.size());
             copy(r.c_str(), r.c_str() + lout, buf);
             buf[lout] = '\0';
@@ -1235,7 +1211,7 @@ extern "C" {
     {
         try {
             if (v >= 0.0) {
-                kin(n)->setMultiplier(i,v);
+                KineticsCabinet::item(n).setMultiplier(i,v);
                 return 0;
             } else {
                 return ERR;
@@ -1248,9 +1224,9 @@ extern "C" {
     int DLL_EXPORT kin_advanceCoverages(int n, double tstep)
     {
         try {
-            Kinetics* k = kin(n);
-            if (k->type() == cInterfaceKinetics) {
-                ((InterfaceKinetics*)k)->advanceCoverages(tstep);
+            Kinetics& k = KineticsCabinet::item(n);
+            if (k.type() == cInterfaceKinetics) {
+                dynamic_cast<InterfaceKinetics*>(&k)->advanceCoverages(tstep);
             } else {
                 throw CanteraError("kin_advanceCoverages",
                                    "wrong kinetics manager type");
@@ -1267,10 +1243,10 @@ extern "C" {
                                    int ith, int loglevel)
     {
         string mstr = string(model);
-        thermo_t* t = th(ith);
+        ThermoPhase& t = ThermoCabinet::item(ith);
         try {
-            Transport* tr = newTransportMgr(mstr,t, loglevel);
-            return Storage::storage()->addTransport(tr);
+            Transport* tr = newTransportMgr(mstr, &t, loglevel);
+            return TransportCabinet::add(tr);
         } catch (CanteraError) {
             return -1;
         }
@@ -1279,7 +1255,7 @@ extern "C" {
     double DLL_EXPORT trans_viscosity(int n)
     {
         try {
-            return trans(n)->viscosity();
+            return TransportCabinet::item(n).viscosity();
         } catch (CanteraError) {
             return -1.0;
         }
@@ -1288,7 +1264,7 @@ extern "C" {
     double DLL_EXPORT trans_thermalConductivity(int n)
     {
         try {
-            return trans(n)->thermalConductivity();
+            return TransportCabinet::item(n).thermalConductivity();
         } catch (CanteraError) {
             return -1.0;
         }
@@ -1297,7 +1273,7 @@ extern "C" {
     int DLL_EXPORT trans_getThermalDiffCoeffs(int n, int ldt, double* dt)
     {
         try {
-            trans(n)->getThermalDiffCoeffs(dt);
+            TransportCabinet::item(n).getThermalDiffCoeffs(dt);
             return 0;
         } catch (CanteraError) {
             return -1;
@@ -1307,7 +1283,7 @@ extern "C" {
     int DLL_EXPORT trans_getMixDiffCoeffs(int n, int ld, double* d)
     {
         try {
-            trans(n)->getMixDiffCoeffs(d);
+            TransportCabinet::item(n).getMixDiffCoeffs(d);
             return 0;
         } catch (CanteraError) {
             return -1;
@@ -1317,7 +1293,7 @@ extern "C" {
     int DLL_EXPORT trans_getBinDiffCoeffs(int n, int ld, double* d)
     {
         try {
-            trans(n)->getBinaryDiffCoeffs(ld,d);
+            TransportCabinet::item(n).getBinaryDiffCoeffs(ld,d);
             return 0;
         } catch (CanteraError) {
             return -1;
@@ -1327,7 +1303,7 @@ extern "C" {
     int DLL_EXPORT trans_getMultiDiffCoeffs(int n, int ld, double* d)
     {
         try {
-            trans(n)->getMultiDiffCoeffs(ld,d);
+            TransportCabinet::item(n).getMultiDiffCoeffs(ld,d);
             return 0;
         } catch (CanteraError) {
             return -1;
@@ -1337,7 +1313,7 @@ extern "C" {
     int DLL_EXPORT trans_setParameters(int n, int type, int k, double* d)
     {
         try {
-            trans(n)->setParameters(type, k, d);
+            TransportCabinet::item(n).setParameters(type, k, d);
             return 0;
         } catch (CanteraError) {
             return -1;
@@ -1348,7 +1324,7 @@ extern "C" {
                                         const double* state2, double delta, double* fluxes)
     {
         try {
-            trans(n)->getMolarFluxes(state1, state2, delta, fluxes);
+            TransportCabinet::item(n).getMolarFluxes(state1, state2, delta, fluxes);
             return 0;
         } catch (CanteraError) {
             return -1;
@@ -1359,7 +1335,7 @@ extern "C" {
                                        const double* state2, double delta, double* fluxes)
     {
         try {
-            trans(n)->getMassFluxes(state1, state2, delta, fluxes);
+            TransportCabinet::item(n).getMassFluxes(state1, state2, delta, fluxes);
             return 0;
         } catch (CanteraError) {
             return -1;
@@ -1370,11 +1346,11 @@ extern "C" {
 
     int DLL_EXPORT import_phase(int nth, int nxml, char* id)
     {
-        thermo_t* thrm = th(nth);
+        ThermoPhase& thrm = ThermoCabinet::item(nth);
         XML_Node& node = XmlCabinet::item(nxml);
         string idstr = string(id);
         try {
-            importPhase(node, thrm);
+            importPhase(node, &thrm);
             return 0;
         } catch (CanteraError) {
             return -1;
@@ -1386,13 +1362,13 @@ extern "C" {
     {
         vector<thermo_t*> phases;
         for (int i = 0; i < nphases; i++) {
-            phases.push_back(th(ith[i]));
+            phases.push_back(&ThermoCabinet::item(ith[i]));
         }
         XML_Node& node = XmlCabinet::item(nxml);
-        Kinetics* k = kin(nkin);
+        Kinetics& k = KineticsCabinet::item(nkin);
         string idstr = string(id);
         try {
-            importKinetics(node, phases, k);
+            importKinetics(node, phases, &k);
             return 0;
         } catch (CanteraError) {
             return -1;
@@ -1405,7 +1381,7 @@ extern "C" {
     {
         try {
             bool stherm = (show_thermo != 0);
-            string s = report(*th(nth), stherm);
+            string s = report(ThermoCabinet::item(nth), stherm);
             if (int(s.size()) > ibuf - 1) {
                 return -(static_cast<int>(s.size()) + 1);
             }
@@ -1422,7 +1398,7 @@ extern "C" {
     {
         try {
             bool stherm = (show_thermo != 0);
-            writephase(*th(nth), stherm);
+            writephase(ThermoCabinet::item(nth), stherm);
             return 0;
         } catch (CanteraError) {
             return -1;
@@ -1486,7 +1462,9 @@ extern "C" {
     int DLL_EXPORT clearStorage()
     {
         try {
-            Storage::storage()->clear();
+            ThermoCabinet::clear();
+            KineticsCabinet::clear();
+            TransportCabinet::clear();
             return 0;
         } catch (CanteraError) {
             return -1;
@@ -1496,7 +1474,7 @@ extern "C" {
     int DLL_EXPORT delThermo(int n)
     {
         try {
-            Storage::storage()->deleteThermo(n);
+            ThermoCabinet::del(n);
             return 0;
         } catch (CanteraError) {
             return -1;
@@ -1505,13 +1483,13 @@ extern "C" {
 
     int DLL_EXPORT delKinetics(int n)
     {
-        Storage::storage()->deleteKinetics(n);
+        KineticsCabinet::del(n);
         return 0;
     }
 
     int DLL_EXPORT delTransport(int n)
     {
-        Storage::storage()->deleteTransport(n);
+        TransportCabinet::del(n);
         return 0;
     }
 
@@ -1524,10 +1502,8 @@ extern "C" {
             root = &XmlCabinet::item(ixml);
         }
 
-        thermo_t* t = th(ith);
-        kinetics_t* k = kin(ikin);
-
-        Kinetics& kin = *k;
+        ThermoPhase& t = ThermoCabinet::item(ith);
+        Kinetics& kin = KineticsCabinet::item(ikin);
         XML_Node* x, *r=0;
         if (root) {
             r = &root->root();
@@ -1537,11 +1513,11 @@ extern "C" {
         if (!x) {
             return false;
         }
-        importPhase(*x, t);
-        kin.addPhase(*t);
+        importPhase(*x, &t);
+        kin.addPhase(t);
         kin.init();
         installReactionArrays(*x, kin, x->id());
-        t->setState_TP(300.0, OneAtm);
+        t.setState_TP(300.0, OneAtm);
         if (r) {
             if (&x->root() != &r->root()) {
                 delete &x->root();

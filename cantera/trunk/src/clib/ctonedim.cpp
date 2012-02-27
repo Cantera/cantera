@@ -11,10 +11,7 @@
 #include "cantera/oneD/StFlow.h"
 #include "cantera/oneD/Inlet1D.h"
 #include "cantera/numerics/DenseMatrix.h"
-
-// local includes
 #include "Cabinet.h"
-#include "Storage.h"
 
 using namespace std;
 using namespace Cantera;
@@ -23,6 +20,10 @@ typedef Cabinet<Sim1D> SimCabinet;
 typedef Cabinet<Domain1D> DomainCabinet;
 template<> SimCabinet* SimCabinet::__storage = 0;
 template<> DomainCabinet* DomainCabinet::__storage = 0;
+
+typedef Cabinet<ThermoPhase> ThermoCabinet;
+typedef Cabinet<Kinetics> KineticsCabinet;
+typedef Cabinet<Transport> TransportCabinet;
 
 static StFlow* _stflow(int i)
 {
@@ -43,27 +44,6 @@ static Bdry1D* _bdry(int i)
     }
     return dynamic_cast<Bdry1D*>(d);
 }
-
-inline ThermoPhase* _phase(int n)
-{
-    return Storage::__storage->__thtable[n];
-}
-
-inline Kinetics* _kinetics(int n)
-{
-    return Storage::__storage->__ktable[n];
-}
-
-inline ThermoPhase* _thermo(int n)
-{
-    return Storage::__storage->__thtable[n];
-}
-
-inline Transport* _transport(int n)
-{
-    return Storage::__storage->__trtable[n];
-}
-
 
 extern "C" {
 
@@ -349,7 +329,8 @@ extern "C" {
     {
         try {
             ReactingSurf1D* srf = (ReactingSurf1D*)_bdry(i);
-            InterfaceKinetics* k = (InterfaceKinetics*)_kinetics(j);
+            InterfaceKinetics* k =
+                dynamic_cast<InterfaceKinetics*>(&Cabinet<Kinetics>::item(j));
             srf->setKineticsMgr(k);
             return 0;
         } catch (CanteraError) {
@@ -388,16 +369,16 @@ extern "C" {
     int DLL_EXPORT stflow_new(int iph, int ikin, int itr, int itype)
     {
         try {
-            IdealGasPhase* ph = (IdealGasPhase*)_thermo(iph);
+            IdealGasPhase* ph = dynamic_cast<IdealGasPhase*>(&ThermoCabinet::item(iph));
             if (itype == 1) {
                 AxiStagnFlow* x = new AxiStagnFlow(ph, ph->nSpecies(), 2);
-                x->setKinetics(*_kinetics(ikin));
-                x->setTransport(*_transport(itr));
+                x->setKinetics(KineticsCabinet::item(ikin));
+                x->setTransport(TransportCabinet::item(itr));
                 return DomainCabinet::add(x);
             } else if (itype == 2) {
                 FreeFlame* x = new FreeFlame(ph, ph->nSpecies(), 2);
-                x->setKinetics(*_kinetics(ikin));
-                x->setTransport(*_transport(itr));
+                x->setKinetics(KineticsCabinet::item(ikin));
+                x->setTransport(TransportCabinet::item(itr));
                 return DomainCabinet::add(x);
             } else {
                 return -2;
@@ -415,7 +396,7 @@ extern "C" {
             withSoret = true;
         }
         try {
-            _stflow(i)->setTransport(*_transport(itr), withSoret);
+            _stflow(i)->setTransport(TransportCabinet::item(itr), withSoret);
             return 0;
         } catch (CanteraError) {
             return -1;

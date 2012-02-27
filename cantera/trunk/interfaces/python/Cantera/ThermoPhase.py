@@ -8,9 +8,6 @@ from Cantera.Phase import Phase
 import _cantera
 import types
 
-def thermoIndex(id):
-    return _cantera.thermo_thermoIndex(id)
-
 class ThermoPhase(Phase):
     """
     A phase with an equation of state.

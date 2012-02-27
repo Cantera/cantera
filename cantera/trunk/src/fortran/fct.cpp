@@ -13,7 +13,6 @@
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/base/ctml.h"
 #include "cantera/kinetics/importKinetics.h"
-#include "clib/Storage.h"
 #include "clib/Cabinet.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/thermo/PureFluidPhase.h"
@@ -23,6 +22,9 @@
 using namespace Cantera;
 
 typedef Cabinet<XML_Node, false> XmlCabinet;
+typedef Cabinet<ThermoPhase> ThermoCabinet;
+typedef Cabinet<Kinetics> KineticsCabinet;
+typedef Cabinet<Transport> TransportCabinet;
 
 inline XML_Node* _xml(const integer* n)
 {
@@ -31,27 +33,27 @@ inline XML_Node* _xml(const integer* n)
 
 inline ThermoPhase* _fph(const integer* n)
 {
-    return th(*n);
+    return &ThermoCabinet::item(*n);
 }
 
 static Kinetics* _fkin(const integer* n)
 {
     if (*n >= 0) {
-        return kin(*n);
+        return &KineticsCabinet::item(*n);
     } else {
         error("_fkin: negative kinetics index");
-        return kin(0);
+        return &KineticsCabinet::item(0);
     }
 }
 
 inline ThermoPhase* _fth(const integer* n)
 {
-    return th(*n);
+    return &ThermoCabinet::item(*n);
 }
 
 inline Transport* _ftrans(const integer* n)
 {
-    return trans(*n);
+    return &TransportCabinet::item(*n);
 }
 
 std::string f2string(const char* s, ftnlen n)
@@ -310,17 +312,12 @@ extern "C" {
 
     //-------------- Thermo --------------------//
 
-
-    //    status_t DLL_EXPORT th_thermoIndex(char* id) {
-    //    return thermo_index(id);
-    //}
-
     integer DLL_EXPORT newthermofromxml_(integer* mxml)
     {
         try {
             XML_Node* x = _xml(mxml);
             thermo_t* th = newPhase(*x);
-            return Storage::storage()->addThermo(th);
+            return ThermoCabinet::add(th);
         } catch (CanteraError) {
             handleError();
             return -1;
@@ -602,8 +599,8 @@ extern "C" {
             }
             Kinetics* kin = newKineticsMgr(*x, phases);
             if (kin) {
-                int k = Storage::storage()->addKinetics(kin);
-                return k; //Storage::storage()->addKinetics(kin);
+                int k = KineticsCabinet::add(kin);
+                return k;
             } else {
                 return 0;
             }
@@ -762,10 +759,6 @@ extern "C" {
         return _fkin(n)->multiplier(*i);
     }
 
-    //status_t DLL_EXPORT kin_phase_(const integer* n, integer* i) {
-    //    return thermo_index(_fkin(n)->thermo(*i).id());
-    //}
-
     status_t DLL_EXPORT kin_getequilibriumconstants_(const integer* n, doublereal* kc)
     {
         try {
@@ -832,7 +825,7 @@ extern "C" {
         thermo_t* t = _fth(ith);
         try {
             Transport* tr = newTransportMgr(mstr, t, *loglevel);
-            return Storage::storage()->addTransport(tr);
+            return TransportCabinet::add(tr);
         } catch (CanteraError) {
             handleError();
             return -1;
