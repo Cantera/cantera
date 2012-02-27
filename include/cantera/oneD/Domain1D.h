@@ -238,15 +238,12 @@ public:
     /// set the error tolerances for solution component \a n.
     void setTolerances(size_t n, doublereal rtol, doublereal atol, int ts = 0);
 
-    //added by Karl Meredith
     /// set scalar error tolerances. All solution components will
     /// have the same relative and absolute error tolerances.
     void setTolerances(doublereal rtol, doublereal atol,int ts=0);
 
-    //added by Karl Meredith
     void setTolerancesTS(doublereal rtol, doublereal atol);
 
-    //added by Karl Meredith
     void setTolerancesSS(doublereal rtol, doublereal atol);
 
     /// Relative tolerance of the nth component.
@@ -566,7 +563,6 @@ public:
      */
     virtual void _finalize(const doublereal* x) {}
 
-    //added by Karl Meredith
     doublereal m_zfixed;
     doublereal m_tfixed;
 

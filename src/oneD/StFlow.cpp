@@ -1010,7 +1010,6 @@ string StFlow::componentName(size_t n) const
 }
 
 
-//added by Karl Meredith
 size_t StFlow::componentIndex(string name) const
 {
 
