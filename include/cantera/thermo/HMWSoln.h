@@ -2143,7 +2143,7 @@ public:
      * @deprecated
      *   The getPartialMolarVolumes() expression is more precise.
      */
-    double speciesMolarVolume(int k) const;
+    DEPRECATED(double speciesMolarVolume(int k) const);
 
 
     //! Value of the Debye Huckel constant as a function of temperature

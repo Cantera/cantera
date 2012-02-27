@@ -371,7 +371,7 @@ class SpeciesThermo1 : public SpeciesThermo
 
 public:
     //! base constructor
-    SpeciesThermo1();
+    DEPRECATED(SpeciesThermo1());
     //! destructor
     virtual ~SpeciesThermo1();
 

@@ -551,7 +551,7 @@ public:
      *               ThermoPhase objects.
      *               switch to uploadMoleFractionsFromPhases();
      */
-    void updateMoleFractions();
+    DEPRECATED(void updateMoleFractions());
 
     //! Update the locally-stored composition within this object
     //! to match the current compositions of the phase objects.
